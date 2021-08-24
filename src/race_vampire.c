@@ -26,10 +26,9 @@ bool vampiric_drain_hack = FALSE;
  ******************************************************************************/
 static void _birth(void) 
 { 
-    object_type    forge;
+    object_type forge;
 
-    p_ptr->current_r_idx = MON_VAMPIRE;
-    equip_on_change_race();
+    plr_mon_race_set("V.vampire");
     
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
     plr_birth_obj(&forge);
@@ -48,24 +47,12 @@ static void _birth(void)
 
 static void _gain_level(int new_level) 
 {
-    if (p_ptr->current_r_idx == MON_VAMPIRE && new_level >= 25)
-    {
-        p_ptr->current_r_idx = MON_MASTER_VAMPIRE;
-        msg_print("You have evolved into a Master Vampire.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_MASTER_VAMPIRE && new_level >= 35)
-    {
-        p_ptr->current_r_idx = MON_VAMPIRE_LORD;
-        msg_print("You have evolved into a Vampire Lord.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_VAMPIRE_LORD && new_level >= 45)
-    {
-        p_ptr->current_r_idx = MON_ELDER_VAMPIRE;
-        msg_print("You have evolved into an Elder Vampire.");
-        p_ptr->redraw |= PR_MAP;
-    }
+    if (plr_mon_race_is_("V.vampire") && new_level >= 25)
+        plr_mon_race_evolve("V.master");
+    if (plr_mon_race_is_("V.master") && new_level >= 35)
+        plr_mon_race_evolve("V.lord");
+    if (plr_mon_race_is_("V.lord") && new_level >= 45)
+        plr_mon_race_evolve("V.elder");
 }
 
 /******************************************************************************
@@ -117,10 +104,10 @@ static void _bite_spell(int cmd, var_ptr res)
 }
 static int _gaze_power(void)
 {
-    int power = p_ptr->lev;
-    if (p_ptr->lev > 40)
-        power += p_ptr->lev - 40;
-    power += adj_con_fix[p_ptr->stat_ind[A_CHR]] - 1;
+    int power = plr->lev;
+    if (plr->lev > 40)
+        power += plr->lev - 40;
+    power += adj_con_fix[plr->stat_ind[A_CHR]] - 1;
     return power;
 }
 void _gaze_spell(int cmd, var_ptr res)
@@ -136,18 +123,8 @@ void _gaze_spell(int cmd, var_ptr res)
     case SPELL_INFO:
         var_set_string(res, info_power(_gaze_power()));
         break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball(GF_DOMINATION, dir, _gaze_power(), 0);
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 0, GF_DOMINATION, _gaze_power());
     }
 }
 void _grasp_spell(int cmd, var_ptr res)
@@ -163,33 +140,24 @@ void _grasp_spell(int cmd, var_ptr res)
     case SPELL_CAST: {
         bool         fear = FALSE;
         mon_ptr      mon = plr_target_mon();
-        mon_race_ptr race;
         char         m_name[MAX_NLEN];
 
         var_set_bool(res, FALSE);
         if (!mon) break;
         var_set_bool(res, TRUE);
 
-        race = mon_race(mon);
         monster_desc(m_name, mon, 0);
-        if (race->flagsr & RFR_RES_TELE)
+        if (_1d(100) <= mon_res_pct(mon, GF_TELEPORT))
         {
-            if ((race->flags1 & RF1_UNIQUE) || (race->flagsr & RFR_RES_ALL))
-            {
-                mon_lore_r(mon, RFR_RES_TELE);
-                msg_format("%s is unaffected!", m_name);
-                break;
-            }
-            else if (race->level > randint1(100))
-            {
-                mon_lore_r(mon, RFR_RES_TELE);
-                msg_format("%s resists!", m_name);
-                break;
-            }
+            mon_lore_resist(mon, GF_TELEPORT);
+            msg_format("%s resists!", m_name);
         }
-        msg_format("You grasp %s.", m_name);
-        teleport_monster_to(mon->id, p_ptr->pos.y, p_ptr->pos.x, 100, TELEPORT_PASSIVE);
-        mon_take_hit(mon->id, damroll(10, 10), &fear, extract_note_dies(real_r_ptr(mon)));
+        else
+        {
+            msg_format("You grasp %s.", m_name);
+            teleport_monster_to(mon, plr->pos, 100, TELEPORT_PASSIVE);
+            mon_take_hit(mon, damroll(10, 10), &fear, extract_note_dies(real_r_ptr(mon)));
+        }
         break; }
     default:
         default_spell(cmd, res);
@@ -222,14 +190,14 @@ void equip_shuffle(cptr tag)
 
 static void _set_mimic_form(int which)
 {
-    p_ptr->mimic_form = which;
+    plr->mimic_form = which;
     equip_on_change_race();
 
-    if (p_ptr->action == ACTION_QUICK_WALK || p_ptr->action == ACTION_STALK) /* Wolf form ... */
+    if (plr->action == ACTION_QUICK_WALK || plr->action == ACTION_STALK) /* Wolf form ... */
         set_action(ACTION_NONE);
 
-    p_ptr->redraw |= PR_BASIC | PR_STATUS | PR_MAP | PR_EQUIPPY;
-    p_ptr->update |= PU_BONUS | PU_INNATE | PU_HP;
+    plr->redraw |= PR_BASIC | PR_STATUS | PR_MAP | PR_EQUIPPY;
+    plr->update |= PU_BONUS | PU_INNATE | PU_HP;
     handle_stuff();
 }
 
@@ -359,6 +327,7 @@ static caster_info * _caster_info(void)
         me.encumbrance.max_wgt = 450;
         me.encumbrance.weapon_pct = 50;
         me.encumbrance.enc_wgt = 800;
+        me.options = CASTER_GAIN_SKILL;
         init = TRUE;
     }
     return &me;
@@ -367,46 +336,48 @@ static caster_info * _caster_info(void)
 /******************************************************************************
  * Bonuses (... and Penalties!)
  ******************************************************************************/
-static int _light_penalty = 0;
+static int _light_penalty = 0; /* scaled by 100 */
 
 static void _calc_bonuses(void) 
 {
-    p_ptr->align -= 200;
+    plr->align -= 200;
 
-    res_add(RES_DARK);
-    res_add(RES_NETHER);
-    res_add(RES_COLD);
-    res_add(RES_POIS);
-    res_add_vuln(RES_LITE);
-    p_ptr->hold_life++;
-    p_ptr->see_nocto = TRUE;
+    res_add(GF_DARK);
+    res_add(GF_NETHER);
+    res_add(GF_COLD);
+    res_add(GF_POIS);
+    res_add_vuln(GF_LIGHT);
+    plr->hold_life++;
+    plr->see_nocto = DUN_VIEW_MAX;
 
-    if (equip_find_art(ART_NIGHT))
+    if (equip_find_art("\".Night"))
     {
-        p_ptr->dec_mana++;
-        p_ptr->easy_spell++;
+        plr->dec_mana++;
+        plr->easy_spell++;
     }
 
-    if (p_ptr->lev >= 35)
+    if (plr->lev >= 35)
     {
-        res_add(RES_DARK);
-        p_ptr->levitation = TRUE;
-        p_ptr->pspeed += 1;
-        p_ptr->regen += 100;
+        res_add(GF_DARK);
+        plr->levitation = TRUE;
+        plr->pspeed += 1;
+        plr->regen += 100;
+        plr->self_lite--;
     }
 
-    if (p_ptr->lev >= 45)
+    if (plr->lev >= 45)
     {
-        res_add_immune(RES_DARK);
-        p_ptr->pspeed += 2;
+        res_add_immune(GF_DARK);
+        plr->pspeed += 2;
+        plr->self_lite--;
     }
 
     if (_light_penalty)
     {
-        p_ptr->to_a -= 5*_light_penalty;
-        p_ptr->dis_to_a -= 5*_light_penalty;
+        plr->to_a -= 35*_light_penalty/1000;
+        plr->dis_to_a -= 35*_light_penalty/1000;
 
-        p_ptr->life -= 3*_light_penalty;
+        plr->life -= 25*_light_penalty/1000;
     }
 }
 
@@ -414,31 +385,32 @@ static void _calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 {
     if (_light_penalty)
     {
-        info->dis_to_h -= 3*_light_penalty;
-        info->to_h -= 3*_light_penalty;
+        info->dis_to_h -= 25*_light_penalty/1000;
+        info->to_h -= 25*_light_penalty/1000;
     }
 }
 
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) 
 {
-    add_flag(flgs, OF_VULN_LITE);
+    add_flag(flgs, OF_VULN_(GF_LIGHT));
 
-    add_flag(flgs, OF_RES_NETHER);
-    add_flag(flgs, OF_RES_COLD);
-    add_flag(flgs, OF_RES_POIS);
-    add_flag(flgs, OF_RES_DARK);
+    add_flag(flgs, OF_RES_(GF_NETHER));
+    add_flag(flgs, OF_RES_(GF_COLD));
+    add_flag(flgs, OF_RES_(GF_POIS));
+    add_flag(flgs, OF_RES_(GF_DARK));
     add_flag(flgs, OF_HOLD_LIFE);
-    if (p_ptr->lev >= 35)
+    if (plr->lev >= 35)
     {
         add_flag(flgs, OF_LEVITATION);
         add_flag(flgs, OF_SPEED);
         add_flag(flgs, OF_REGEN);
+        add_flag(flgs, OF_DARKNESS);
     }
-    if (p_ptr->lev >= 45)
-        add_flag(flgs, OF_IM_DARK);
+    if (plr->lev >= 45)
+        add_flag(flgs, OF_IM_(GF_DARK));
 }
 
-static void _move_player(void)
+static void _update_light(void)
 {
     vampire_check_light_status();
 }
@@ -452,14 +424,14 @@ plr_race_ptr mon_vampire_get_race(void)
     static cptr titles[4] =  {"Vampire", "Master Vampire", "Vampire Lord", "Elder Vampire"};    
     int         rank = 0;
 
-    if (p_ptr->lev >= 25) rank++;
-    if (p_ptr->lev >= 35) rank++;
-    if (p_ptr->lev >= 45) rank++;
+    if (plr->lev >= 25) rank++;
+    if (plr->lev >= 35) rank++;
+    if (plr->lev >= 45) rank++;
 
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  37,  36,   0,  32,  25,  60,  35};
-    skills_t xs = {  7,  12,  10,   0,   0,   0,  21,  11};
+    skills_t xs = { 35,  60,  50,   0,   0,   0, 105,  55};
 
         me = plr_race_alloc(RACE_MON_VAMPIRE);
         me->name = "Vampire";
@@ -475,7 +447,7 @@ plr_race_ptr mon_vampire_get_race(void)
 
         me->hooks.birth = _birth;
         me->hooks.gain_level = _gain_level;
-        me->hooks.move_player = _move_player;
+        me->hooks.update_light = _update_light;
         me->hooks.get_spells = _get_spells;
         me->hooks.caster_info = _caster_info;
         me->hooks.calc_bonuses = _calc_bonuses;
@@ -485,9 +457,9 @@ plr_race_ptr mon_vampire_get_race(void)
         me->hooks.timer_off = repose_timer_off;
 
         me->flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
-        me->pseudo_class_idx = CLASS_ROGUE;
+        me->pseudo_class_id = CLASS_ROGUE;
 
-        me->boss_r_idx = MON_VLAD;
+        me->boss_r_idx = mon_race_parse("V.Vlad")->id;
     }
 
     me->subname = titles[rank];
@@ -501,7 +473,7 @@ plr_race_ptr mon_vampire_get_race(void)
 
     me->skills.stl = 7 + 4*rank/3; /* 7, 8, 9, 11 */
 
-    me->equip_template = mon_get_equip_template();
+    me->equip_template = plr_equip_template();
 
     if (birth_hack || spoiler_hack)
     {
@@ -519,7 +491,7 @@ void vampire_feed(int amt)
     if (prace_is_(MIMIC_BAT))
         div = 16;
 
-    if (p_ptr->food < PY_FOOD_FULL)
+    if (plr->food < PY_FOOD_FULL)
         hp_player(amt);
     else
         msg_print("You were not hungry.");
@@ -527,47 +499,50 @@ void vampire_feed(int amt)
     /* Experimental: Scale the feeding asymptotically. Historically, vampiric feeding
         was too slow in the early game (low damage) hence tedious. But by the end game,
         a mere two bites would fill the vampire, rendering the talent rather useless. */
-    if (p_ptr->food < PY_FOOD_VAMP_MAX)
-        food = p_ptr->food + (PY_FOOD_VAMP_MAX - p_ptr->food) / div;
+    if (plr->food < PY_FOOD_VAMP_MAX)
+        food = plr->food + (PY_FOOD_VAMP_MAX - plr->food) / div;
     /* Exceeding PY_FOOD_VAMP_MAX is unlikely, but possible (eg. eating rations of food?!) */
-    else if (p_ptr->food < PY_FOOD_MAX)
-        food = p_ptr->food + (PY_FOOD_MAX - p_ptr->food) / div;
+    else if (plr->food < PY_FOOD_MAX)
+        food = plr->food + (PY_FOOD_MAX - plr->food) / div;
     else
-        food = p_ptr->food + amt;
+        food = plr->food + amt;
 
-    assert(food >= p_ptr->food);
+    assert(food >= plr->food);
     set_food(food);
 }
 
 void vampire_check_light_status(void)
 {
-    static int _last_light_penalty = -1;
+    static int _last_light_penalty = 100000; /* XXX no fear when restarting game */
+    int lite = plr_light(plr->pos);
 
-    if ((cave_at(p_ptr->pos)->info & (CAVE_GLOW | CAVE_MNDK)) == CAVE_GLOW)
+    if (lite > 0)
     {
-        _light_penalty = 1;
-        if (cave->dun_type_id == D_SURFACE && is_daytime())
-            _light_penalty++;
-        if (res_pct(RES_LITE) < 0)
-            _light_penalty++;
+        int amt = 100 * lite;
+        int pct = res_pct(GF_LIGHT);
+
+        amt -= pct * amt / 100;
+        _light_penalty = MAX(0, amt);
     }
     else
         _light_penalty = 0;
 
     if (_light_penalty != _last_light_penalty)
     {
-        _last_light_penalty = _light_penalty;
-        if (_light_penalty)
+        if (_light_penalty > _last_light_penalty)
         {
-            int n = _light_penalty * _light_penalty * _light_penalty * MAX(1, cave->difficulty/5);
+            int n = _light_penalty * MAX(1, cave->difficulty/2) / 100;
             if (!fear_save_p(n))
             {
                 msg_print("You fear the light!");
                 fear_add_p(FEAR_SCARED);
             }
+            else if (plr->wizard)
+                msg_format("<color:B>You don't mind the light <color:U>(%d)</color>.</color>", n);
         }
-        p_ptr->update |= PU_BONUS;
-        p_ptr->redraw |= PR_STATUS;
+        _last_light_penalty = _light_penalty;
+        plr->update |= PU_BONUS;
+        plr->redraw |= PR_STATUS;
     }
 }
 
@@ -579,7 +554,7 @@ void vampire_take_light_damage(int amt)
         fear_add_p(FEAR_SCARED);
     }
 
-    if (randint1(p_ptr->chp) < amt && !res_save_default(RES_LITE))
+    if (randint1(plr->chp) < amt && !res_save_default(GF_LIGHT))
     {
         int k = 0;
         cptr act = NULL;
@@ -588,7 +563,7 @@ void vampire_take_light_damage(int amt)
         {
         case 1: case 2: case 3: case 4: case 5:
             msg_print("You feel your unlife force diminish.");
-            lose_exp(100 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
+            lose_exp(100 + (plr->exp / 100) * MON_DRAIN_LIFE);
             break;
 
         case 6: case 7: case 8: case 9:
@@ -602,16 +577,16 @@ void vampire_take_light_damage(int amt)
                 case 6: k = A_CHR; act = "confident"; break;
             }
             msg_format("You're not as %s as you used to be.", act);
-            p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 3) / 4;
-            if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
+            plr->stat_cur[k] = (plr->stat_cur[k] * 3) / 4;
+            if (plr->stat_cur[k] < 3) plr->stat_cur[k] = 3;
             break;
 
         case 10:
             msg_print("You're not as powerful as you used to be.");
             for (k = 0; k < 6; k++)
             {
-                p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 7) / 8;
-                if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
+                plr->stat_cur[k] = (plr->stat_cur[k] * 7) / 8;
+                if (plr->stat_cur[k] < 3) plr->stat_cur[k] = 3;
             }
             break;
 
@@ -621,13 +596,13 @@ void vampire_take_light_damage(int amt)
             break;
         }
 
-        p_ptr->update |= PU_BONUS;
+        plr->update |= PU_BONUS;
     }
 }
 
 void vampire_take_dark_damage(int amt)
 {
-    if (randint1(p_ptr->chp) < amt)
+    if (randint1(plr->chp) < amt)
     {
         /* TODO */
     }
@@ -658,29 +633,34 @@ static int _mimic_get_spells(spell_info* spells, int max)
 static void _bat_calc_innate_bonuses(mon_blow_ptr blow)
 {
     if (blow->method == RBM_BITE)
-        plr_calc_blows_innate(blow, 400);
+    {
+        plr->innate_attack_info.blows_calc.wgt = 100;
+        plr->innate_attack_info.blows_calc.mul = 20;
+        plr->innate_attack_info.blows_calc.max = 400;
+        plr_calc_blows_innate(blow);
+    }
 }
 static void _bat_calc_innate_attacks(void) 
 {
-    int l = p_ptr->lev;
+    int l = plr->lev;
     mon_blow_ptr blow = mon_blow_alloc(RBM_BITE);
     blow->power = l;
     blow->weight = 50;
     mon_blow_push_effect(blow, RBE_VAMP, dice_create(1 + l/12, 4 + l/15, 0));
     _bat_calc_innate_bonuses(blow);
-    vec_add(p_ptr->innate_blows, blow);
+    vec_add(plr->innate_blows, blow);
 }
 static void _bat_calc_bonuses(void)
 {
-    p_ptr->levitation = TRUE;
-    p_ptr->see_inv++;
-    p_ptr->regen += 100;
-    res_add(RES_DARK);
-    res_add(RES_COLD);
-    res_add(RES_POIS);
-    p_ptr->see_nocto = TRUE;
-    p_ptr->pspeed += 5 + p_ptr->lev * 3 / 10;
-    p_ptr->hold_life++;
+    plr->levitation = TRUE;
+    plr->see_inv++;
+    plr->regen += 100;
+    res_add(GF_DARK);
+    res_add(GF_COLD);
+    res_add(GF_POIS);
+    plr->see_nocto = DUN_VIEW_MAX;
+    plr->pspeed += 5 + plr->lev * 3 / 10;
+    plr->hold_life++;
 }
 static void _bat_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -688,9 +668,9 @@ static void _bat_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_SEE_INVIS);
     add_flag(flgs, OF_REGEN);
     add_flag(flgs, OF_SPEED);
-    add_flag(flgs, OF_RES_DARK);
-    add_flag(flgs, OF_RES_COLD);
-    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_RES_(GF_DARK));
+    add_flag(flgs, OF_RES_(GF_COLD));
+    add_flag(flgs, OF_RES_(GF_POIS));
     add_flag(flgs, OF_HOLD_LIFE);
 }
 plr_race_ptr bat_get_race(void)
@@ -700,7 +680,7 @@ plr_race_ptr bat_get_race(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  45,  38,  10,  24,  16,  48,  30 };
-    skills_t xs = { 12,  18,  11,   1,   0,   0,  13,  10 };
+    skills_t xs = { 60,  90,  55,   5,   0,   0,  65,  50 };
 
         me = plr_race_alloc(MIMIC_BAT);
         me->skills = bs;
@@ -731,7 +711,7 @@ plr_race_ptr bat_get_race(void)
 
         me->flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
 
-        me->equip_template = &b_info[mon_race_lookup(MON_VAMPIRE_BAT)->body.body_idx];
+        me->equip_template = equip_template_parse("Vampire Bat");
     }
 
     return me;
@@ -742,19 +722,19 @@ plr_race_ptr bat_get_race(void)
  ****************************************************************/
 static void _mist_calc_bonuses(void)
 {
-    p_ptr->levitation = TRUE;
-    p_ptr->pass_wall = TRUE;
-    p_ptr->no_passwall_dam = TRUE;
-    p_ptr->see_inv++;
-    p_ptr->see_nocto = TRUE;
-    p_ptr->hold_life++;
+    plr->levitation = TRUE;
+    plr->pass_wall = TRUE;
+    plr->no_passwall_dam = TRUE;
+    plr->see_inv++;
+    plr->see_nocto = DUN_VIEW_MAX;
+    plr->hold_life++;
 
-    res_add(RES_ACID);
-    res_add(RES_COLD);
-    res_add(RES_POIS);
-    res_add(RES_NETHER);
+    res_add(GF_ACID);
+    res_add(GF_COLD);
+    res_add(GF_POIS);
+    res_add(GF_NETHER);
 
-    p_ptr->magic_resistance = 50;
+    plr->magic_resistance = 50;
 }
 static void _mist_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -762,10 +742,10 @@ static void _mist_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_SEE_INVIS);
     add_flag(flgs, OF_HOLD_LIFE);
 
-    add_flag(flgs, OF_RES_COLD);
-    add_flag(flgs, OF_RES_POIS);
-    add_flag(flgs, OF_RES_ACID);
-    add_flag(flgs, OF_RES_NETHER);
+    add_flag(flgs, OF_RES_(GF_COLD));
+    add_flag(flgs, OF_RES_(GF_POIS));
+    add_flag(flgs, OF_RES_(GF_ACID));
+    add_flag(flgs, OF_RES_(GF_NETHER));
 
     add_flag(flgs, OF_MAGIC_RESISTANCE);
 }
@@ -776,7 +756,7 @@ plr_race_ptr mist_get_race(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 20,  20,  40,  10,  10,   7,  0,  0};
-    skills_t xs = {  6,   7,  10,   1,   0,   0,  0,  0};
+    skills_t xs = { 30,  35,  50,   5,   0,   0,  0,  0};
 
         me = plr_race_alloc(MIMIC_MIST);
         me->skills = bs;
@@ -807,7 +787,7 @@ plr_race_ptr mist_get_race(void)
 
         me->flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
 
-        me->equip_template = &b_info[mon_race_lookup(MON_VAMPIRIC_MIST)->body.body_idx];
+        me->equip_template = equip_template_parse("Vampire");
     }
 
     return me;
@@ -831,8 +811,8 @@ static int _wolf_get_powers(spell_info* spells, int max)
 }
 static void _wolf_calc_bonuses(void)
 {
-    p_ptr->see_nocto = TRUE;
-    p_ptr->pspeed += 2 + p_ptr->lev / 10;
+    plr->see_nocto = DUN_VIEW_MAX;
+    plr->pspeed += 2 + plr->lev / 10;
 }
 static void _wolf_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -845,7 +825,7 @@ plr_race_ptr wolf_get_race(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  20,  31,   4,  20,  15,  56,  30};
-    skills_t xs = {  8,   8,  10,   1,   0,   0,  20,   7};
+    skills_t xs = { 40,  40,  50,   5,   0,   0, 100,  35};
 
         me = plr_race_alloc(MIMIC_WOLF);
         me->skills = bs;
@@ -870,14 +850,14 @@ plr_race_ptr wolf_get_race(void)
 
         me->flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
 
-        me->equip_template = &b_info[73];
+        me->equip_template = equip_template_parse("Dire Wolf");
     }
-    me->stats[A_STR] =  1 + p_ptr->lev/12;
+    me->stats[A_STR] =  1 + plr->lev/12;
     me->stats[A_INT] = -3;
     me->stats[A_WIS] = -5;
-    me->stats[A_DEX] =  2 + p_ptr->lev/15;
-    me->stats[A_CON] =  1 + p_ptr->lev/15;
-    me->stats[A_CHR] =  0 + p_ptr->lev/25;
+    me->stats[A_DEX] =  2 + plr->lev/15;
+    me->stats[A_CON] =  1 + plr->lev/15;
+    me->stats[A_CHR] =  0 + plr->lev/25;
 
     return me;
 }

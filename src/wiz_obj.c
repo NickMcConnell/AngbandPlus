@@ -22,7 +22,7 @@ void wiz_obj_create(void)
 /***********************************************************************
  * Object Statistics
  **********************************************************************/
-static char      _score_color(int score);
+static char _score_color(int score);
 
 wiz_obj_stat_ptr wiz_obj_stats(void)
 {
@@ -208,8 +208,11 @@ static void _toggle(object_type *o_ptr, int flag)
     of_info_ptr info = of_lookup(flag);
     if (have_flag(o_ptr->flags, flag)) remove_flag(o_ptr->flags, flag);
     else add_flag(o_ptr->flags, flag);
-    if ((info->flags & OFT_PVAL) && have_flag(o_ptr->flags, flag) && o_ptr->pval == 0)
-        o_ptr->pval = 1;
+    if (info)
+    {
+        if ((info->flags & OFT_PVAL) && have_flag(o_ptr->flags, flag) && o_ptr->pval == 0)
+            o_ptr->pval = 1;
+    }
     obj_identify_fully(o_ptr);
 }
 
@@ -433,8 +436,7 @@ static bool _shots_p(object_type *o_ptr)
 static bool _weaponmastery_p(object_type *o_ptr)
 {
     return obj_is_wearable(o_ptr)
-        && !obj_is_weapon(o_ptr)
-        && o_ptr->tval != TV_BOW;
+        && !obj_is_weapon(o_ptr);
 }
 
 typedef struct { /* Bonuses need to support DEC_* flags */
@@ -649,7 +651,8 @@ static _flag_info_t _ability_flags[] = {
     { OF_AURA_COLD, "Aura Cold" },
     { OF_AURA_SHARDS, "Aura Shards" },
     { OF_AURA_REVENGE, "Aura Revenge" },
-    { OF_LITE, "Extra Light" },
+    { OF_LIGHT, "Extra Light" },
+    { OF_DARKNESS, "Darkness" },
     { OF_INVALID }
 };
 
@@ -682,8 +685,8 @@ static int _smith_telepathies(object_type *o_ptr)
 
 static _flag_info_t _slay_flags[] = {
     { OF_SLAY_EVIL,   "Slay Evil" },
-    { OF_SLAY_GOOD,   "Slay Good", obj_is_weapon },
-    { OF_SLAY_LIVING, "Slay Living", obj_is_weapon },
+    { OF_SLAY_GOOD,   "Slay Good" },
+    { OF_SLAY_LIVING, "Slay Living" },
     { OF_SLAY_UNDEAD, "Slay Undead" },
     { OF_SLAY_DEMON,  "Slay Demon" },
     { OF_SLAY_DRAGON, "Slay Dragon" },
@@ -720,8 +723,8 @@ static _flag_info_t _brand_flags[] = {
     { OF_BRAND_VAMP,    "Vampiric" },
     { OF_IMPACT,        "Impact", obj_is_weapon },
     { OF_STUN,          "Stun", obj_is_weapon },
-    { OF_VORPAL,        "Vorpal", obj_is_weapon },
-    { OF_VORPAL2,       "*Vorpal*", obj_is_weapon },
+    { OF_VORPAL,        "Vorpal" },
+    { OF_VORPAL2,       "*Vorpal*" },
     { OF_INVALID }
 };
 
@@ -789,14 +792,14 @@ static char _score_color(int score)  /* XXX duplicated in wizard2.c */
     return 'v';
 }
 
-void wiz_create_objects(obj_create_f creator, u32b mode)
+static void _wiz_create_objects_aux(obj_create_f creator, u32b mode, int count)
 {
     doc_ptr doc = doc_alloc(120);
     int     i;
 
     wiz_obj_stat_reset();
     statistics_hack = TRUE;
-    for (i = 1; i < 1000;)
+    for (i = 0; i < count;)
     {
         object_type forge;
         if (creator(&forge, mode))
@@ -815,6 +818,10 @@ void wiz_create_objects(obj_create_f creator, u32b mode)
     doc_free(doc);
     wiz_obj_stat_reset();
 }
+void wiz_create_objects(obj_create_f creator, u32b mode)
+{
+    _wiz_create_objects_aux(creator, mode, 1000);
+}
 
 static obj_ptr _reroll_obj = NULL;
 static bool _reroll_creator(obj_ptr obj, u32b mode)
@@ -826,6 +833,19 @@ static void _reroll_stats_aux(object_type *o_ptr, int flags)
 {
     _reroll_obj = o_ptr;
     wiz_create_objects(_reroll_creator, AM_NO_FIXED_ART | flags);
+    _reroll_obj = NULL;
+}
+static bool _reroll_replacement(obj_ptr obj, u32b mode)
+{
+    sym_t id = _reroll_obj->art_id;
+    if (!id) id = _reroll_obj->replacement_art_id; /* already a replacement */
+    assert(id);
+    return art_create_replacement(obj, arts_lookup(id), AM_NO_DROP);
+}
+static void _reroll_replacement_art(obj_ptr obj)
+{
+    _reroll_obj = obj;
+    _wiz_create_objects_aux(_reroll_replacement, 0, 100);
     _reroll_obj = NULL;
 }
 
@@ -848,8 +868,8 @@ static int _smith_reroll(object_type *o_ptr)
         doc_insert(_doc, "   <color:y>g</color>) Good*\n");
         doc_insert(_doc, "   <color:y>e</color>) Excellent*\n");
         doc_insert(_doc, "   <color:y>r</color>) Random Artifact*\n");
-        if (o_ptr->name1 || o_ptr->name3)
-            doc_insert(_doc, "   <color:y>X</color>) Replacement Artifact\n");
+        if (o_ptr->art_id || o_ptr->replacement_art_id)
+            doc_insert(_doc, "   <color:y>x</color>) Replacement Artifact\n");
 
         doc_newline(_doc);
         doc_printf(_doc, "   <color:y>m</color>) Min Score = %d\n", min);
@@ -892,12 +912,16 @@ static int _smith_reroll(object_type *o_ptr)
         case 'E': _reroll_stats_aux(&copy, AM_GOOD | AM_GREAT); break;
         case 'r': _reroll_aux(&copy, AM_GOOD | AM_GREAT | AM_SPECIAL, min); break;
         case 'R': _reroll_stats_aux(&copy, AM_GOOD | AM_GREAT | AM_SPECIAL); break;
-        case 'X': {
-            int which = o_ptr->name1;
-            if (!which) which = o_ptr->name3;
-            art_create_replacement(&copy, which);
-            obj_identify_fully(&copy);
+        case 'x': {
+            sym_t id = o_ptr->art_id;
+            if (!id) id = o_ptr->replacement_art_id;
+            if (id)
+            {
+                art_create_replacement(&copy, arts_lookup(id), AM_NO_DROP);
+                obj_identify_fully(&copy);
+            }
             break;}
+        case 'X': _reroll_replacement_art(&copy); break;
         }
     }
 }
@@ -918,11 +942,10 @@ static int _smith_resistances(object_type *o_ptr)
         doc_clear(_doc);
         obj_display_smith(&copy, _doc);
 
-        for (which = RES_BEGIN; which < RES_END; which++)
+        for (which = GF_RES_MIN; which <= GF_TELEPORT /*GF_RES_MAX*/; which++)
         {
-            doc_printf(cols[which < RES_NEXUS ? 0 : 1], "   <color:y>%c</color>) %s%c\n",
-                I2A(which - RES_BEGIN), res_name(which),
-                res_get_object_immune_flag(which) != OF_INVALID ? '*' : ' ');
+            doc_printf(cols[which < GF_DISEN ? 0 : 1], "   <color:y>%c</color>) %s\n",
+                I2A(which - GF_RES_MIN), res_name(which));
         }
 
         doc_insert_cols(_doc, cols, 2, 0);
@@ -930,7 +953,7 @@ static int _smith_resistances(object_type *o_ptr)
         doc_free(cols[1]);
 
         doc_insert(_doc, "      SHIFT+choice toggle vulnerability\n");
-        doc_insert(_doc, "   (*)CTRL+choice toggle immunity\n");
+        doc_insert(_doc, "      CTRL+choice toggle immunity\n");
 
         doc_newline(_doc);
         doc_insert(_doc, " <color:y>RET</color>) Accept changes\n");
@@ -952,25 +975,21 @@ static int _smith_resistances(object_type *o_ptr)
             return _CANCEL;
 
         /* Toggle resistance? */
-        which = A2I(cmd) + RES_BEGIN;
-        if (RES_BEGIN <= which && which < RES_END)
+        which = A2I(cmd) + GF_RES_MIN;
+        if (GF_RES_MIN <= which && which < GF_RES_MAX)
         {
-            _toggle(&copy, res_get_object_flag(which));
+            _toggle(&copy, OF_RES_(which));
             continue;
         }
 
         /* Toggle vulnerability? */
         if (isupper(cmd))
         {
-            which = A2I(tolower(cmd)) + RES_BEGIN;
-            if (RES_BEGIN <= which && which < RES_END)
+            which = A2I(tolower(cmd)) + GF_RES_MIN;
+            if (GF_RES_MIN <= which && which < GF_RES_MAX)
             {
-                int  flag = res_get_object_vuln_flag(which);
-                if (flag != OF_INVALID)
-                {
-                    _toggle(&copy, flag);
-                    continue;
-                }
+                _toggle(&copy, OF_VULN_(which));
+                continue;
             }
         }
 
@@ -978,15 +997,11 @@ static int _smith_resistances(object_type *o_ptr)
         if (iscntrl(cmd))
         {
             char c = 'a' + cmd - KTRL('A');
-            which = A2I(c) + RES_BEGIN;
-            if (RES_BEGIN <= which && which < RES_END)
+            which = A2I(c) + GF_RES_MIN;
+            if (GF_RES_MIN <= which && which < GF_RES_MAX)
             {
-                int  flag = res_get_object_immune_flag(which);
-                if (flag != OF_INVALID)
-                {
-                    _toggle(&copy, flag);
-                    continue;
-                }
+                _toggle(&copy, OF_IM_(which));
+                continue;
             }
         }
     }
@@ -1294,6 +1309,7 @@ static _command_t _commands[] = {
     { 'e', "Effects", _smith_device_effect, obj_is_device },
     { 'b', "Bonuses", _smith_device_bonus, obj_is_device },
     { 'R', "Re-roll", _smith_reroll },
+/*  { 'c', "Curses", _smith_curses },*/
 /*  { 'i', "Ignore", _smith_ignore },*/
     { 0 }
 };

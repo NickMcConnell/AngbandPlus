@@ -23,14 +23,16 @@ slay_t _lightning_eagle(plr_attack_ptr context, slay_ptr best_slay)
 {
     slay_t brand = {0};
     bool display = BOOL(context->flags & PAC_DISPLAY);
-    if (!display && mon_res_elec(context->mon))
-        mon_lore_res_elec(context->mon);
-    else
+    int res_pct = 0;
+    if (!display) res_pct = mon_res_pct(context->mon, GF_ELEC);
+    if (res_pct) mon_lore_resist(context->mon, GF_ELEC);
+    if (res_pct <= 0)
     {
         brand.id = OF_BRAND_ELEC;
         brand.name = "Elec";
         if (have_flag(context->obj_flags, OF_BRAND_ELEC)) brand.mul = 700;
         else brand.mul = 500;
+        if (res_pct < 0) slay_scale(&brand, 100 - res_pct);
     }
     return brand;
 }
@@ -63,7 +65,7 @@ void lightning_eagle_spell(int cmd, var_ptr res)
 }
 
 /*
- * We are using p_ptr->magic_num to remember talents.
+ * We are using plr->magic_num to remember talents.
  * 0 indicates no talent for this group, so we always subtract
  * 1 before indexing into an array.
  */
@@ -325,7 +327,7 @@ static int _group_size(int i)
 
 static int _which_stat(int idx)
 {
-    int which = p_ptr->magic_num1[idx] - 1;    /* Magic Numbers are base 1, Table indices base 0 */
+    int which = plr->magic_num1[idx] - 1;    /* Magic Numbers are base 1, Table indices base 0 */
     talent_t *talent = &_talents[idx][which];
     return talent->stat;
 }
@@ -335,7 +337,7 @@ static int _get_spells_imp(spell_info* spells, int max, int start, int stop)
     int ct = 0, i;
     for (i = start; i <= stop; ++i)
     {
-        int idx = p_ptr->magic_num1[i] - 1;    /* Magic Numbers are base 1, Table indices base 0 */
+        int idx = plr->magic_num1[i] - 1;    /* Magic Numbers are base 1, Table indices base 0 */
         if (ct >= max) break;
         if (idx >= 0 && idx < _group_size(i))
         {
@@ -346,7 +348,7 @@ static int _get_spells_imp(spell_info* spells, int max, int start, int stop)
             spell->fail = calculate_fail_rate(
                 talent->spell.level, 
                 talent->spell.fail, 
-                p_ptr->stat_ind[talent->stat]
+                plr->stat_ind[talent->stat]
             );
             spell->fn = talent->spell.fn;
         }
@@ -407,7 +409,7 @@ static int _get_spells(spell_info* spells, int max)
         spell_info* spell = &spells[ct++];
         spell->level = 10;
         spell->cost = 10;
-        spell->fail = calculate_fail_rate(10, 30, p_ptr->stat_ind[A_INT]);
+        spell->fail = calculate_fail_rate(10, 30, plr->stat_ind[A_INT]);
         spell->fn = wonder_spell;
     }
 
@@ -440,7 +442,7 @@ int group_idx = -1;
         (talent->spell.fn)(SPELL_NAME, &name);
 
         msg_format("<color:B>You gain the power of <color:R>%s</color> %s.</color>", var_get_string(&name), talent->gain_desc);
-        p_ptr->magic_num1[group_idx] = idx + 1;
+        plr->magic_num1[group_idx] = idx + 1;
 
         var_destroy(&name);
     }
@@ -450,16 +452,16 @@ void wild_talent_fix_up(void)
 {
     int i;
 
-    if (p_ptr->pclass != CLASS_WILD_TALENT) return;
+    if (plr->pclass != CLASS_WILD_TALENT) return;
 
-    for (i = 1; i <= p_ptr->max_plv; ++i)
+    for (i = 1; i <= plr->max_plv; ++i)
     {
     int group_idx = -1;
 
         if (i % 2 == 1)
             group_idx = i/2;
 
-        if (group_idx >= 0 && group_idx < _MAX_TALENTS && _group_size(group_idx) > 0 && p_ptr->magic_num1[group_idx] == 0)
+        if (group_idx >= 0 && group_idx < _MAX_TALENTS && _group_size(group_idx) > 0 && plr->magic_num1[group_idx] == 0)
         {
             _gain_power(i);
         }
@@ -535,16 +537,16 @@ void wild_talent_scramble(void)
 {
     int i;
 
-    if (p_ptr->pclass != CLASS_WILD_TALENT) return;
+    if (plr->pclass != CLASS_WILD_TALENT) return;
 
     /* Forget old talents */
     for (i = 0; i <= _MAX_TALENTS; ++i)
-        p_ptr->magic_num1[i] = 0;
+        plr->magic_num1[i] = 0;
 
     msg_print("You feel wild forces of randomness enter your body!");
 
     /* Regain new talents */
-    for (i = 1; i <= p_ptr->max_plv; ++i)
+    for (i = 1; i <= plr->max_plv; ++i)
         _gain_power(i);
 }
 
@@ -552,13 +554,13 @@ void wild_talent_new_life(void)
 {
     int i;
 
-    if (p_ptr->pclass != CLASS_WILD_TALENT) return;
+    if (plr->pclass != CLASS_WILD_TALENT) return;
 
     /* re-grant powers */
     wild_talent_scramble();
 
     /* re-grant mutations */
-    for (i = 1; i <= p_ptr->max_plv; ++i)
+    for (i = 1; i <= plr->max_plv; ++i)
         _gain_mutation(i);
 }
 
@@ -645,7 +647,7 @@ plr_class_ptr wild_talent_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  25,  31,   2,  24,  16,  56,  50 };
-    skills_t xs = {  8,  11,  10,   0,   0,   0,  18,  18 };
+    skills_t xs = { 40,  55,  50,   0,   0,   0,  90,  90 };
 
         me = plr_class_alloc(CLASS_WILD_TALENT);
         me->name = "Wild-Talent";

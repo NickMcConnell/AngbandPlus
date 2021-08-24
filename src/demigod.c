@@ -1,5 +1,7 @@
 #include "angband.h"
 
+#include <assert.h>
+
 /****************************************************************
  * Spells
  ****************************************************************/
@@ -14,7 +16,7 @@ static void _kiss_spell(int cmd, var_ptr res)
         var_set_string(res, "Attempt to charm an adjacent monster.");
         break;
     case SPELL_COST_EXTRA:
-        var_set_int(res, p_ptr->lev * 2);
+        var_set_int(res, plr->lev * 2);
         break;
     case SPELL_CAST: {
         mon_ptr mon = plr_target_adjacent_mon();
@@ -24,13 +26,13 @@ static void _kiss_spell(int cmd, var_ptr res)
         var_set_bool(res, FALSE);
         if (!mon) break;
 
-        race = mon_race(mon);
+        race = mon->race;
         monster_desc(desc, mon, 0);
         plr_on_touch_mon(mon); /* a big wet one! */
-        if ((race->flags1 & RF1_UNIQUE) || mon_save_p(mon->r_idx, A_CHR))
+        if (mon_race_is_unique(race) || mon_save_p(mon, A_CHR))
         {
             mon_tim_remove(mon, MT_SLEEP);
-            if (is_hostile(mon))
+            if (mon_is_hostile(mon))
             {
                 switch (randint1(10))
                 {
@@ -55,9 +57,9 @@ static void _kiss_spell(int cmd, var_ptr res)
         }
         else
         {
-            if (is_pet(mon))
+            if (mon_is_pet(mon))
                 msg_format("%^s slobbers on you affectionately.", desc);
-            else if (is_friendly(mon))
+            else if (mon_is_friendly(mon))
             {
                 set_pet(mon);
                 msg_format("%^s is charmed!", desc);
@@ -87,10 +89,10 @@ static void _demeter_clw_spell(int cmd, var_ptr res)
         var_set_string(res, "Heals cut and HP a little.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_heal(p_ptr->lev/12 + 1, 10, 0));
+        var_set_string(res, info_heal(plr->lev/12 + 1, 10, 0));
         break;
     case SPELL_CAST:
-        hp_player(damroll(p_ptr->lev/12 + 1, 10));
+        hp_player(damroll(plr->lev/12 + 1, 10));
         plr_tim_subtract(T_CUT, 10);
         var_set_bool(res, TRUE);
         break;
@@ -111,14 +113,14 @@ static void _shine_spell(int cmd, var_ptr res)
         var_set_string(res, "Generates a large ball of sunlight.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, p_ptr->lev * 3));
+        var_set_string(res, info_damage(0, 0, plr->lev * 3));
         break;
     case SPELL_CAST:
-        fire_ball(GF_LITE, 0, p_ptr->lev * 3 * 2, 3);
+        plr_burst(3, GF_LIGHT, 3*plr->lev);
         var_set_bool(res, TRUE);
         break;
     case SPELL_COST_EXTRA:
-        var_set_int(res, (p_ptr->lev - 20)/2);
+        var_set_int(res, (plr->lev - 20)/2);
         break;
     default:
         default_spell(cmd, res);
@@ -131,16 +133,16 @@ static void _shine_spell(int cmd, var_ptr res)
  ****************************************************************/
 static void _gain_power(int which)
 {
-    if (p_ptr->demigod_power[which] < 0)
+    if (plr->demigod_power[which] < 0)
     {
         int idx = mut_gain_choice(mut_demigod_pred);
         mut_lock(idx);
-        p_ptr->demigod_power[which] = idx;
+        plr->demigod_power[which] = idx;
     }
-    else if (!mut_present(p_ptr->demigod_power[which]))
+    else if (!mut_present(plr->demigod_power[which]))
     {
-        mut_gain(p_ptr->demigod_power[which]);
-        mut_lock(p_ptr->demigod_power[which]);
+        mut_gain(plr->demigod_power[which]);
+        mut_lock(plr->demigod_power[which]);
     }
 }
 static void _gain_level(int new_level)
@@ -156,15 +158,15 @@ void demigod_rechoose_powers(void)
     int i, idx;
     for (i = 0; i < MAX_DEMIGOD_POWERS; i++)
     {
-        idx = p_ptr->demigod_power[i];
+        idx = plr->demigod_power[i];
         if (idx >= 0)
         {
             mut_unlock(idx);
             mut_lose(idx);
-            p_ptr->demigod_power[i] = -1;
+            plr->demigod_power[i] = -1;
         }
     }
-    _gain_level(p_ptr->lev);
+    _gain_level(plr->lev);
 }
 
 static plr_race_ptr _race_alloc(int psubrace)
@@ -225,7 +227,7 @@ static power_info _aphrodite_powers[] =
 };
 static void _aphrodite_calc_bonuses(void)
 {
-    p_ptr->sustain_chr = TRUE;
+    plr->sustain_chr = TRUE;
 }
 static int _aphrodite_get_powers(spell_info* spells, int max)
 {
@@ -254,7 +256,7 @@ static plr_race_ptr _aphrodite_race(void)
         me->hooks.calc_bonuses = _aphrodite_calc_bonuses;
         me->hooks.get_powers = _aphrodite_get_powers;
         me->hooks.get_flags = _aphrodite_get_flags;
-        me->boss_r_idx = MON_APHRODITE;
+        me->boss_r_idx = mon_race_parse("P.Aphrodite")->id;
     }
     return me;
 }
@@ -270,8 +272,8 @@ static power_info _apollo_powers[] =
 };
 static void _apollo_calc_bonuses(void)
 {
-    res_add_immune(RES_LITE);
-    res_add(RES_BLIND);
+    res_add_immune(GF_LIGHT);
+    res_add(GF_BLIND);
     /* cf calc_torch in xtra1.c for the 'extra light' */
 }
 static int _apollo_get_powers(spell_info* spells, int max)
@@ -280,8 +282,8 @@ static int _apollo_get_powers(spell_info* spells, int max)
 }
 static void _apollo_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_BLIND);
-    add_flag(flgs, OF_IM_LITE);
+    add_flag(flgs, OF_RES_(GF_BLIND));
+    add_flag(flgs, OF_IM_(GF_LIGHT));
 }
 static plr_race_ptr _apollo_race(void)
 {
@@ -299,7 +301,7 @@ static plr_race_ptr _apollo_race(void)
         me->hooks.calc_bonuses = _apollo_calc_bonuses;
         me->hooks.get_powers = _apollo_get_powers;
         me->hooks.get_flags = _apollo_get_flags;
-        me->boss_r_idx = MON_APOLLO;
+        me->boss_r_idx = mon_race_parse("P.Apollo")->id;
     }
     return me;
 }
@@ -314,23 +316,23 @@ static power_info _ares_powers[] =
 };
 static void _ares_calc_bonuses(void)
 {
-    int dam = 1 + p_ptr->lev/7;
-    int ac = 1 + p_ptr->lev/5;
+    int dam = 1 + plr->lev/7;
+    int ac = 1 + plr->lev/5;
     int hand;
 
-    p_ptr->sustain_str = TRUE;
+    plr->sustain_str = TRUE;
 
-    p_ptr->to_a += ac;
-    p_ptr->dis_to_a += ac;
+    plr->to_a += ac;
+    plr->dis_to_a += ac;
 
-    p_ptr->to_d_m  += dam;
-    p_ptr->innate_attack_info.to_d += dam;
+    plr->to_d_m  += dam;
+    plr->innate_attack_info.to_d += dam;
     for (hand = 0; hand < MAX_HANDS; hand++)
     {
-        if (p_ptr->attack_info[hand].type != PAT_NONE)
+        if (plr->attack_info[hand].type != PAT_NONE)
         {
-            p_ptr->attack_info[hand].to_d += dam / p_ptr->weapon_ct;
-            p_ptr->attack_info[hand].dis_to_d += dam / p_ptr->weapon_ct;
+            plr->attack_info[hand].to_d += dam / plr->weapon_ct;
+            plr->attack_info[hand].dis_to_d += dam / plr->weapon_ct;
         }
     }
 }
@@ -365,7 +367,7 @@ static plr_race_ptr _ares_race(void)
         me->hooks.calc_bonuses = _ares_calc_bonuses;
         me->hooks.get_powers = _ares_get_powers;
         me->hooks.get_flags = _ares_get_flags;
-        me->boss_r_idx = MON_ARES;
+        me->boss_r_idx = mon_race_parse("P.Ares")->id;
     }
     return me;
 }
@@ -375,9 +377,9 @@ static plr_race_ptr _ares_race(void)
  ****************************************************************/
 static void _artemis_calc_bonuses(void)
 {
-    p_ptr->shooter_info.to_d += 1 + p_ptr->lev/7;
-    p_ptr->shooter_info.dis_to_d += 1 + p_ptr->lev/7;
-    p_ptr->sustain_dex = TRUE;
+    plr->shooter_info.to_d += 1 + plr->lev/7;
+    plr->shooter_info.dis_to_d += 1 + plr->lev/7;
+    plr->sustain_dex = TRUE;
 }
 static void _artemis_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -410,7 +412,7 @@ static plr_race_ptr _artemis_race(void)
         me->hooks.birth = _artemis_birth;
         me->hooks.calc_bonuses = _artemis_calc_bonuses;
         me->hooks.get_flags = _artemis_get_flags;
-        me->boss_r_idx = MON_ARTEMIS;
+        me->boss_r_idx = mon_race_parse("P.Artemis")->id;
     }
     return me;
 }
@@ -420,7 +422,7 @@ static plr_race_ptr _artemis_race(void)
  ****************************************************************/
 static void _athena_calc_bonuses(void)
 {
-    p_ptr->sustain_int = TRUE;
+    plr->sustain_int = TRUE;
 }
 static void _athena_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -445,7 +447,7 @@ static plr_race_ptr _athena_race(void)
         me->skills.sav += 2;
         me->hooks.calc_bonuses = _athena_calc_bonuses;
         me->hooks.get_flags = _athena_get_flags;
-        me->boss_r_idx = MON_ATHENA;
+        me->boss_r_idx = mon_race_parse("P.Athena")->id;
     }
     return me;
 }
@@ -460,10 +462,10 @@ static power_info _demeter_powers[] =
 };
 static void _demeter_calc_bonuses(void)
 {
-    p_ptr->regen += 100;
-    p_ptr->slow_digest = TRUE;
-    if (p_ptr->lev >= 40)
-        res_add(RES_TIME);
+    plr->regen += 100;
+    plr->slow_digest = TRUE;
+    if (plr->lev >= 40)
+        res_add(GF_TIME);
 }
 static int _demeter_get_powers(spell_info* spells, int max)
 {
@@ -473,8 +475,8 @@ static void _demeter_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_REGEN);
     add_flag(flgs, OF_SLOW_DIGEST);
-    if (p_ptr->lev >= 40)
-        add_flag(flgs, OF_RES_TIME);
+    if (plr->lev >= 40)
+        add_flag(flgs, OF_RES_(GF_TIME));
 }
 static plr_race_ptr _demeter_race(void)
 {
@@ -492,7 +494,7 @@ static plr_race_ptr _demeter_race(void)
         me->hooks.calc_bonuses = _demeter_calc_bonuses;
         me->hooks.get_powers = _demeter_get_powers;
         me->hooks.get_flags = _demeter_get_flags;
-        me->boss_r_idx = MON_DEMETER;
+        me->boss_r_idx = mon_race_parse("P.Demeter")->id;
     }
     return me;
 }
@@ -502,13 +504,13 @@ static plr_race_ptr _demeter_race(void)
  ****************************************************************/
 static void _hades_calc_bonuses(void)
 {
-    res_add(RES_NETHER);
-    p_ptr->hold_life++;
-    p_ptr->sustain_con = TRUE;
+    res_add(GF_NETHER);
+    plr->hold_life++;
+    plr->sustain_con = TRUE;
 }
 static void _hades_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_NETHER);
+    add_flag(flgs, OF_RES_(GF_NETHER));
     add_flag(flgs, OF_HOLD_LIFE);
     add_flag(flgs, OF_SUST_CON);
 }
@@ -529,7 +531,7 @@ static plr_race_ptr _hades_race(void)
         me->exp += 60;
         me->hooks.calc_bonuses = _hades_calc_bonuses;
         me->hooks.get_flags = _hades_get_flags;
-        me->boss_r_idx = MON_HADES;
+        me->boss_r_idx = mon_race_parse("P.Hades")->id;
     }
     return me;
 }
@@ -539,11 +541,11 @@ static plr_race_ptr _hades_race(void)
  ****************************************************************/
 static void _hephaestus_calc_bonuses(void)
 {
-    res_add(RES_DISEN);
+    res_add(GF_DISENCHANT);
 }
 static void _hephaestus_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_DISEN);
+    add_flag(flgs, OF_RES_(GF_DISENCHANT));
 }
 static plr_race_ptr _hephaestus_race(void)
 {
@@ -563,7 +565,7 @@ static plr_race_ptr _hephaestus_race(void)
         me->skills.sav += 2;
         me->hooks.calc_bonuses = _hephaestus_calc_bonuses;
         me->hooks.get_flags = _hephaestus_get_flags;
-        me->boss_r_idx = MON_HEPHAESTUS;
+        me->boss_r_idx = mon_race_parse("P.Hephaestus")->id;
     }
     return me;
 }
@@ -578,9 +580,9 @@ static power_info _hera_powers[] =
 };
 static void _hera_calc_bonuses(void)
 {
-    p_ptr->spell_cap += 2;
-    if (p_ptr->lev >= 15)
-        p_ptr->clear_mind = TRUE;
+    plr->spell_cap += 2;
+    if (plr->lev >= 15)
+        plr->clear_mind = TRUE;
 }
 static int _hera_get_powers(spell_info* spells, int max)
 {
@@ -608,7 +610,7 @@ static plr_race_ptr _hera_race(void)
         me->hooks.calc_bonuses = _hera_calc_bonuses;
         me->hooks.get_powers = _hera_get_powers;
         me->hooks.get_flags = _hera_get_flags;
-        me->boss_r_idx = MON_HERA;
+        me->boss_r_idx = mon_race_parse("P.Hera")->id;
     }
     return me;
 }
@@ -618,12 +620,12 @@ static plr_race_ptr _hera_race(void)
  ****************************************************************/
 static void _hermes_calc_bonuses(void)
 {
-    p_ptr->pspeed += 5 * p_ptr->lev/50;
-    p_ptr->no_slow = TRUE;
+    plr->pspeed += 5 * plr->lev/50;
+    plr->no_slow = TRUE;
 }
 static void _hermes_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    if (p_ptr->lev >= 10)
+    if (plr->lev >= 10)
         add_flag(flgs, OF_SPEED);
 }
 static plr_race_ptr _hermes_race(void)
@@ -645,7 +647,7 @@ static plr_race_ptr _hermes_race(void)
         me->exp += 60;
         me->hooks.calc_bonuses = _hermes_calc_bonuses;
         me->hooks.get_flags = _hermes_get_flags;
-        me->boss_r_idx = MON_HERMES;
+        me->boss_r_idx = mon_race_parse("P.Hermes")->id;
     }
     return me;
 }
@@ -663,22 +665,22 @@ static void _poseidon_birth(void)
 
 static void _poseidon_calc_bonuses(void)
 {
-    p_ptr->melt_armor = TRUE;
-    if (p_ptr->lev >= 5)
-        res_add(RES_ACID);
-    if (p_ptr->lev >= 10)
-        res_add(RES_COLD);
-    if (p_ptr->lev >= 20)
-        res_add(RES_ELEC);
+    plr->melt_armor = TRUE;
+    if (plr->lev >= 5)
+        res_add(GF_ACID);
+    if (plr->lev >= 10)
+        res_add(GF_COLD);
+    if (plr->lev >= 20)
+        res_add(GF_ELEC);
 }
 static void _poseidon_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    if (p_ptr->lev >= 5)
-        add_flag(flgs, OF_RES_ACID);
-    if (p_ptr->lev >= 10)
-        add_flag(flgs, OF_RES_COLD);
-    if (p_ptr->lev >= 20)
-        add_flag(flgs, OF_RES_ELEC);
+    if (plr->lev >= 5)
+        add_flag(flgs, OF_RES_(GF_ACID));
+    if (plr->lev >= 10)
+        add_flag(flgs, OF_RES_(GF_COLD));
+    if (plr->lev >= 20)
+        add_flag(flgs, OF_RES_(GF_ELEC));
 }
 static plr_race_ptr _poseidon_race(void)
 {
@@ -696,7 +698,7 @@ static plr_race_ptr _poseidon_race(void)
         me->hooks.birth = _poseidon_birth;
         me->hooks.calc_bonuses = _poseidon_calc_bonuses;
         me->hooks.get_flags = _poseidon_get_flags;
-        me->boss_r_idx = MON_POSEIDON;
+        me->boss_r_idx = mon_race_parse("P.Poseidon")->id;
     }
     return me;
 }
@@ -706,12 +708,12 @@ static plr_race_ptr _poseidon_race(void)
  ****************************************************************/
 static void _zeus_calc_bonuses(void)
 {
-    res_add(RES_ELEC);
-    p_ptr->sh_elec = TRUE;
+    res_add(GF_ELEC);
+    plr->sh_elec = TRUE;
 }
 static void _zeus_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_ELEC);
+    add_flag(flgs, OF_RES_(GF_ELEC));
     add_flag(flgs, OF_AURA_ELEC);
 }
 static plr_race_ptr _zeus_race(void)
@@ -737,7 +739,7 @@ static plr_race_ptr _zeus_race(void)
         me->shop_adjust = 90;
         me->hooks.calc_bonuses = _zeus_calc_bonuses;
         me->hooks.get_flags = _zeus_get_flags;
-        me->boss_r_idx = MON_ZEUS;
+        me->boss_r_idx = mon_race_parse("P.Zeus")->id;
     }
     return me;
 }
@@ -747,6 +749,9 @@ static plr_race_ptr _zeus_race(void)
  ****************************************************************/
 plr_race_ptr demigod_get_race(int psubrace)
 {
+    if (birth_hack && psubrace >= DEMIGOD_MAX)
+        psubrace = 0;
+    assert(0 <= psubrace && psubrace < DEMIGOD_MAX);
     switch (psubrace)
     {
     case DEMIGOD_APHRODITE:  return _aphrodite_race();

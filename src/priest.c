@@ -5,26 +5,26 @@ static int _get_powers(spell_info* spells, int max)
     int ct = 0;
     spell_info* spell = &spells[ct++];
 
-    if (p_ptr->realm1 == REALM_NATURE)
+    if (plr->realm1 == REALM_NATURE)
     {
         /* Ommmmmm ... Focus on the surrounding world to regain spiritual clarity */
         spell->level = 15;
         spell->cost = 0;
-        spell->fail = calculate_fail_rate(spell->level, 30, p_ptr->stat_ind[A_WIS]);
+        spell->fail = calculate_fail_rate(spell->level, 30, plr->stat_ind[A_WIS]);
         spell->fn = clear_mind_spell;
     }
-    else if (is_good_realm(p_ptr->realm1))
+    else if (is_good_realm(plr->realm1))
     {
         spell->level = 35;
         spell->cost = 70;
-        spell->fail = calculate_fail_rate(spell->level, 90, p_ptr->stat_ind[A_WIS]);
+        spell->fail = calculate_fail_rate(spell->level, 90, plr->stat_ind[A_WIS]);
         spell->fn = bless_weapon_spell;
     }
     else
     {
         spell->level = 42;
         spell->cost = 40;
-        spell->fail = calculate_fail_rate(spell->level, 80, p_ptr->stat_ind[A_WIS]);
+        spell->fail = calculate_fail_rate(spell->level, 80, plr->stat_ind[A_WIS]);
         spell->fn = evocation_spell;
     }
 
@@ -33,8 +33,8 @@ static int _get_powers(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
-    if (p_ptr->realm1 == REALM_NATURE && p_ptr->lev >= 15)
-        p_ptr->clear_mind = TRUE;
+    if (plr->realm1 == REALM_NATURE && plr->lev >= 15)
+        plr->clear_mind = TRUE;
 }
 
 static caster_info * _caster_info(void)
@@ -59,11 +59,11 @@ static caster_info * _caster_info(void)
 
 static void _calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 {
-    if ((obj->tval == TV_SWORD || obj->tval == TV_POLEARM) && !is_evil_realm(p_ptr->realm1))
+    if ((obj->tval == TV_SWORD || obj->tval == TV_POLEARM) && !is_evil_realm(plr->realm1))
     {
         bool icky = TRUE;
 
-        if (p_ptr->realm1 == REALM_NATURE)
+        if (plr->realm1 == REALM_NATURE)
         {
             icky = obj->name2 != EGO_WEAPON_NATURE;
         }
@@ -86,14 +86,14 @@ static void _calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 
 bool priest_is_good(void)
 {
-    if (p_ptr->pclass == CLASS_PRIEST && is_good_realm(p_ptr->realm1))
+    if (plr->pclass == CLASS_PRIEST && is_good_realm(plr->realm1))
         return TRUE;
     return FALSE;
 }
 
 bool priest_is_evil(void)
 {
-    if (p_ptr->pclass == CLASS_PRIEST && is_evil_realm(p_ptr->realm1))
+    if (plr->pclass == CLASS_PRIEST && is_evil_realm(plr->realm1))
         return TRUE;
     return FALSE;
 }
@@ -113,7 +113,7 @@ plr_class_ptr priest_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  35,  40,   2,  16,   8,  48,  35};
-    skills_t xs = {  7,  11,  12,   0,   0,   0,  13,  11};
+    skills_t xs = { 35,  55,  60,   0,   0,   0,  65,  55};
 
         me = plr_class_alloc(CLASS_PRIEST);
         me->name = "Priest";

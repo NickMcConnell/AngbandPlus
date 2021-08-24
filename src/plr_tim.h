@@ -24,29 +24,33 @@ enum {
     /* buff */
     T_BLESSED, T_HERO, T_BERSERK, T_GIANT_STRENGTH,
     T_STONE_SKIN, T_STEALTH, T_SUPERSTEALTH, 
-    T_PROT_EVIL, T_REVENGE, T_INVULN, T_WRAITH, T_MULTISHADOW,
+    T_PROT_EVIL, T_PROT_GOOD, T_REVENGE, T_INVULN, T_WRAITH, T_MULTISHADOW,
     T_DEVICE_POWER,
     /* brands */
     T_BRAND_ACID,  T_BRAND_ELEC, T_BRAND_FIRE, T_BRAND_COLD, T_BRAND_POIS, T_BRAND_MANA,
     T_WEAPONMASTERY,
     /* resists */
     T_RES_ACID,    T_RES_ELEC,   T_RES_FIRE,   T_RES_COLD,   T_RES_POIS,
-    T_RES_NETHER,  T_RES_DISEN,  T_RES_TIME,   T_ULT_RES,
+    T_RES_CONF,    T_RES_NETHER, T_RES_DISEN,  T_RES_TIME,   T_ULT_RES,
     T_IM_ACID,     T_IM_ELEC,    T_IM_FIRE,    T_IM_COLD,
     /* auras */
-    T_AURA_ELEC, T_AURA_FIRE, T_AURA_COLD, T_AURA_SHARDS, T_AURA_HOLY,
+    T_AURA_ELEC, T_AURA_FIRE, T_AURA_COLD, T_AURA_SHARDS, T_AURA_HOLY, T_AURA_HELL,
     /* abilities */
     T_SUSTAIN,
     T_INFRAVISION, T_SEE_INVIS, T_TELEPATHY,
     T_REGEN, T_STAR_REGEN,
     T_LEVITATION, T_REFLECT, T_RES_MAGIC, T_MAGICAL_ARMOR, T_PASSWALL,
     T_INV_PROT,
+    /* Illusionist */
+    T_MASK_FEAR, T_MASK_CONF, T_MASK_CHARM, T_MASK_DISCORD,
+    T_CLOAK_PROTECTION, T_CLOAK_SHADOWS, T_CLOAK_INNOCENCE, T_CLOAK_INVIS,
     /* biff */
     T_POISON, T_BLIND, T_PARALYZED, T_CONFUSED, T_HALLUCINATE, T_NO_SPELLS,
     T_STUN, T_CUT, T_FEAR,
     T_EGO_WHIP, T_MIND_TRAP, T_DRAIN_MANA, T_DRAIN_FOOD, T_TELEPORT,
     /* special */
     T_KUTAR_EXPAND, T_ENLARGE_WEAPON,
+
     /* XXX add new effects here without breaking savefiles (cf plr_tim_save and plr_tim_load) */
     T_EXTRA = 300,
     /* monsters share some of the forgoing, but also have their own types */
@@ -85,7 +89,6 @@ enum { /* levels for T_CUT */
 #define TF_BIFF (TF_NO_DISPEL | TF_AUGMENT)
 
 /* the timer */
-typedef struct plr_tim_s  plr_tim_t, *plr_tim_ptr;
 struct plr_tim_s
 {
     s16b id;
@@ -102,7 +105,6 @@ typedef struct {
     byte color;
 } status_display_t, *status_display_ptr;
 extern status_display_t status_display_create(cptr name, cptr abbrev, byte color);
-typedef struct shooter_info_s shooter_info_t, *shooter_info_ptr; /* XXX Move me */
 typedef struct plr_tim_info_s plr_tim_info_t, *plr_tim_info_ptr;
 struct plr_tim_info_s
 {
@@ -115,7 +117,7 @@ struct plr_tim_info_s
     void (*tick_f)(plr_tim_ptr timer); /* you manage decrementing timer->count */
     void (*calc_bonuses_f)(plr_tim_ptr timer);
     void (*calc_weapon_bonuses_f)(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info); /* obj == NULL for PAT_MONK */
-    void (*calc_shooter_bonuses_f)(plr_tim_ptr timer, obj_ptr obj, shooter_info_ptr info);
+    void (*calc_shooter_bonuses_f)(plr_tim_ptr timer, obj_ptr obj, plr_shoot_info_ptr info);
     void (*flags_f)(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE]);
     void (*stats_f)(plr_tim_ptr timer, s16b stats[MAX_STATS]);
     bool (*dispel_check_f)(plr_tim_ptr timer, mon_ptr mon); /* e.g. _brand_fire or _res_acid */
@@ -198,7 +200,7 @@ extern void plr_tim_tick(void);  /* every 10 game turns */
 extern void plr_tim_fast_tick(void); /* every player action if TF_FAST_TICK */
 extern void plr_tim_calc_bonuses(void); /* PU_BONUS */
 extern void plr_tim_calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info);
-extern void plr_tim_calc_shooter_bonuses(obj_ptr obj, shooter_info_ptr info);
+extern void plr_tim_calc_shooter_bonuses(obj_ptr obj, plr_shoot_info_ptr info);
 extern void plr_tim_flags(u32b flgs[OF_ARRAY_SIZE]); /* plr_display */
 extern void plr_tim_stats(s16b stats[MAX_STATS]); /* PU_BONUS and plr_display */
 extern void plr_tim_status_bar(void); /* PR_STATUS */

@@ -2244,8 +2244,7 @@ char inkey(void)
         ch = inkey_aux();
 
 
-        /* Handle "control-right-bracket" */
-        if (ch == 29)
+        if (ch == 29) /* ^] */
         {
             /* Strip this key */
             ch = 0;
@@ -2255,13 +2254,20 @@ char inkey(void)
                certain points while I would ambitiously like
                to document much much more :) This little hook
                is awesome, btw! */
-            do_cmd_save_screen_doc();
+            do_cmd_save_screen_term();
+            /*do_cmd_save_screen_doc();
             do_cmd_save_screen_txt();
-            do_cmd_save_screen_html();
+            do_cmd_save_screen_html();*/
 
             /* Continue */
             continue;
         }
+        #ifdef DEVELOPER
+        else if (ch == 28) /* ^\ This total hack is just for me ... */
+        {
+            dun_wizard_view(cave);
+        }
+        #endif
 
 
         /* Treat back-quote as escape */
@@ -2495,139 +2501,6 @@ void prt(cptr str, int row, int col)
     /* Spawn */
     c_prt(TERM_WHITE, str, row, col);
 }
-
-
-
-
-/*
- * Print some (colored) text to the screen at the current cursor position,
- * automatically "wrapping" existing text (at spaces) when necessary to
- * avoid placing any text into the last column, and clearing every line
- * before placing any text in that line. Also, allow "newline" to force
- * a "wrap" to the next line. Advance the cursor as needed so sequential
- * calls to this function will work correctly.
- *
- * Once this function has been called, the cursor should not be moved
- * until all the related "c_roff()" calls to the window are complete.
- *
- * This function will correctly handle any width up to the maximum legal
- * value of 256, though it works best for a standard 80 character width.
- */
-void c_roff(byte a, cptr str)
-{
-    int x, y;
-
-    int w, h;
-
-    cptr s;
-
-    /* Obtain the size */
-    (void)Term_get_size(&w, &h);
-
-    /* Obtain the cursor */
-    (void)Term_locate(&x, &y);
-
-    /* Hack -- No more space */
-    if( y == h - 1 && x > w - 3) return;
-
-    /* Process the string */
-    for (s = str; *s; s++)
-    {
-        char ch;
-
-        /* Force wrap */
-        if (*s == '\n')
-        {
-            /* Wrap */
-            x = 0;
-            y++;
-
-            /* No more space */
-            if( y == h ) break;
-
-            /* Clear line, move cursor */
-            Term_erase(x, y, 255);
-
-            break;
-        }
-
-        /* Clean up the char */
-        ch = (isprint(*s) ? *s : ' ');
-
-
-        /* Wrap words as needed */
-        if ((x >= w - 1) && (ch != ' '))
-
-        {
-            int i, n = 0;
-
-            byte av[256];
-            char cv[256];
-
-            /* Wrap word */
-            if (x < w)
-            {
-                /* Scan existing text */
-                for (i = w - 2; i >= 0; i--)
-                {
-                    /* Grab existing attr/char */
-                    Term_what(i, y, &av[i], &cv[i]);
-
-                    /* Break on space */
-                    if (cv[i] == ' ') break;
-
-                    /* Track current word */
-                    n = i;
-                }
-            }
-
-            /* Special case */
-            if (n == 0) n = w;
-
-            /* Clear line */
-            Term_erase(n, y, 255);
-
-            /* Wrap */
-            x = 0;
-            y++;
-
-            /* No more space */
-            if( y == h ) break;
-
-            /* Clear line, move cursor */
-            Term_erase(x, y, 255);
-
-            /* Wrap the word (if any) */
-            for (i = n; i < w - 1; i++)
-            {
-                /* Dump */
-                Term_addch(av[i], cv[i]);
-
-                /* Advance (no wrap) */
-                if (++x > w) x = w;
-            }
-        }
-
-        /* Dump */
-        Term_addch(a, ch);
-
-
-        /* Advance */
-        if (++x > w) x = w;
-    }
-}
-
-/*
- * As above, but in "white"
- */
-void roff(cptr str)
-{
-    /* Spawn */
-    c_roff(TERM_WHITE, str);
-}
-
-
-
 
 /*
  * Clear part of the screen
@@ -2974,11 +2847,11 @@ bool get_check_strict(cptr prompt, int mode)
     /* Prompt for it */
     prt(buf, 0, 0);
 
-    if (!(mode & CHECK_NO_HISTORY) && p_ptr->playing)
+    if (!(mode & CHECK_NO_HISTORY) && plr->playing)
     {
         /* HACK : Add the line to message buffer */
         cmsg_add(TERM_YELLOW, buf);
-        p_ptr->window |= (PW_MESSAGE);
+        plr->window |= (PW_MESSAGE);
         window_stuff();
     }
 
@@ -3421,7 +3294,7 @@ static char inkey_from_menu(void)
                 switch(special_menu_info[hoge].jouken)
                 {
                 case MENU_CLASS:
-                    if (p_ptr->pclass == special_menu_info[hoge].jouken_naiyou) menu_name = special_menu_info[hoge].name;
+                    if (plr->pclass == special_menu_info[hoge].jouken_naiyou) menu_name = special_menu_info[hoge].name;
                     break;
                 case MENU_WILD:
                     break;
@@ -3436,7 +3309,7 @@ static char inkey_from_menu(void)
         put_str("> ",basey + 1 + num / 2, basex + 2 + (num % 2) * 24);
 
         /* Place the cursor on the player */
-        move_cursor_relative(p_ptr->pos);
+        move_cursor_relative(plr->pos);
 
         /* Get a command */
         sub_cmd = inkey();
@@ -3517,8 +3390,8 @@ static char inkey_from_menu(void)
 /*
  * Request a command from the user.
  *
- * Sets p_ptr->command_cmd, p_ptr->command_dir, p_ptr->command_rep,
- * p_ptr->command_arg. May modify p_ptr->command_new.
+ * Sets plr->command_cmd, plr->command_dir, plr->command_rep,
+ * plr->command_arg. May modify plr->command_new.
  *
  * Note that "caret" ("^") is treated specially, and is used to
  * allow manual input of control characters. This can be used
@@ -3531,7 +3404,7 @@ static char inkey_from_menu(void)
  * Note that this command is used both in the dungeon and in
  * stores, and must be careful to work in both situations.
  *
- * Note that "p_ptr->command_new" may not work any more. XXX XXX XXX
+ * Note that "plr->command_new" may not work any more. XXX XXX XXX
  */
 void request_command(int shopping)
 {
@@ -3808,8 +3681,8 @@ void request_command(int shopping)
     }
 
 
-    /* Hack -- erase the message line. */
-    prt("", 0, 0);
+    /* Hack -- erase the message line.
+    prt("", 0, 0); */
 }
 
 
@@ -4135,135 +4008,6 @@ void repeat_check(int shopping)
 
 #endif /* ALLOW_REPEAT -- TNB */
 
-
-#ifdef SORT_R_INFO
-
-/*
- * Array size for which InsertionSort
- * is used instead of QuickSort
- */
-#define CUTOFF 4
-
-
-/*
- * Exchange two sort-entries
- * (should probably be coded inline
- * for speed increase)
- */
-static void swap(tag_type *a, tag_type *b)
-{
-    tag_type temp;
-
-    temp.tag = a->tag;
-    temp.value = a->value;
-
-    a->tag = b->tag;
-    a->value = b->value;
-
-    b->tag = temp.tag;
-    b->value = temp.value;
-}
-
-
-/*
- * Insertion-Sort algorithm
- * (used by the Quicksort algorithm)
- */
-static void InsertionSort(tag_type elements[], int number)
-{
-    int j, P;
-
-    tag_type tmp;
-
-    for (P = 1; P < number; P++)
-    {
-        tmp = elements[P];
-        for (j = P; (j > 0) && (elements[j - 1].tag > tmp.tag); j--)
-            elements[j] = elements[j - 1];
-        elements[j] = tmp;
-    }
-}
-
-
-/*
- * Helper function for Quicksort
- */
-static tag_type median3(tag_type elements[], int left, int right)
-{
-    int center = (left + right) / 2;
-
-    if (elements[left].tag > elements[center].tag)
-        swap(&elements[left], &elements[center]);
-    if (elements[left].tag > elements[right].tag)
-        swap(&elements[left], &elements[right]);
-    if (elements[center].tag > elements[right].tag)
-        swap(&elements[center], &elements[right]);
-
-    swap(&elements[center], &elements[right - 1]);
-    return (elements[right - 1]);
-}
-
-
-/*
- * Quicksort algorithm
- *
- * The "median of three" pivot selection eliminates
- * the bad case of already sorted input.
- *
- * We use InsertionSort for smaller sub-arrays,
- * because it is faster in this case.
- *
- * For details see: "Data Structures and Algorithm
- * Analysis in C" by Mark Allen Weiss.
- */
-static void quicksort(tag_type elements[], int left, int right)
-{
-    int i, j;
-    tag_type pivot;
-
-    if (left + CUTOFF <= right)
-    {
-        pivot = median3(elements, left, right);
-
-        i = left; j = right -1;
-
-        while (TRUE)
-        {
-            while (elements[++i].tag < pivot.tag);
-            while (elements[--j].tag > pivot.tag);
-
-            if (i < j)
-                swap(&elements[i], &elements[j]);
-            else
-                break;
-        }
-
-        /* Restore pivot */
-        swap(&elements[i], &elements[right - 1]);
-
-        quicksort(elements, left, i - 1);
-        quicksort(elements, i + 1, right);
-    }
-    else
-    {
-        /* Use InsertionSort on small arrays */
-        InsertionSort(elements + left, right - left + 1);
-    }
-}
-
-
-/*
- * Frontend for the sorting algorithm
- *
- * Sorts an array of tagged pointers
- * with <number> elements.
- */
-void tag_sort(tag_type elements[], int number)
-{
-    quicksort(elements, 0, number - 1);
-}
-
-#endif /* SORT_R_INFO */
 
 #ifdef SUPPORT_GAMMA
 
@@ -4826,4 +4570,10 @@ void playtime_resume(void)
 {
     _last_time = time(NULL);
     _paused = FALSE;
+}
+
+/* XXX Temp ... make display character type consistent ... */
+void doc_insert_term_char(doc_ptr doc, term_char_t tc)
+{
+    doc_insert_char(doc, tc.a, tc.c);
 }

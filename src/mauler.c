@@ -47,8 +47,8 @@ static bool _weapon_check(void)
     int hand;
     for (hand = 0; hand < MAX_HANDS; hand++)
     {
-        if ( p_ptr->attack_info[hand].type == PAT_WEAPON
-          && !have_flag(p_ptr->attack_info[hand].paf_flags, PAF_TWO_HANDS) )
+        if ( plr->attack_info[hand].type == PAT_WEAPON
+          && !have_flag(plr->attack_info[hand].paf_flags, PAF_TWO_HANDS) )
         {
             return FALSE;
         }
@@ -59,19 +59,19 @@ static bool _weapon_check(void)
 
 static int _get_toggle(void)
 {
-    return p_ptr->magic_num1[0];
+    return plr->magic_num1[0];
 }
 
 static int _set_toggle(s32b toggle)
 {
-    int result = p_ptr->magic_num1[0];
+    int result = plr->magic_num1[0];
 
     if (toggle == result) return result;
 
-    p_ptr->magic_num1[0] = toggle;
+    plr->magic_num1[0] = toggle;
 
-    p_ptr->redraw |= PR_STATUS;
-    p_ptr->update |= PU_BONUS;
+    plr->redraw |= PR_STATUS;
+    plr->update |= PU_BONUS;
     handle_stuff();
 
     return result;
@@ -83,7 +83,7 @@ int mauler_get_toggle(void)
        this is easier than rewriting the status code so that classes can maintain it!
     */
     int result = TOGGLE_NONE;
-    if (p_ptr->pclass == CLASS_MAULER && _weapon_check())
+    if (plr->pclass == CLASS_MAULER && _weapon_check())
         result = _get_toggle();
     return result;
 }
@@ -103,7 +103,7 @@ static bool _begin_weapon(plr_attack_ptr context)
     switch (context->mode)
     {
     case PLR_HIT_CRIT:
-        p_ptr->crit_qual_add += 250*p_ptr->lev/50;
+        context->info.crit.qual_add += 250*plr->lev/50;
         break;
     }
     switch (_get_toggle())
@@ -152,10 +152,7 @@ static void _after_hit(plr_attack_ptr context)
 {
     if (context->info.type != PAT_WEAPON) return;
     if (_get_toggle() == MAULER_TOGGLE_SPLATTER && context->stop == STOP_MON_DEAD)
-    {
-        project(0, 2, context->mon_pos.y, context->mon_pos.x, context->dam,
-                GF_BLOOD, PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_FULL_DAM);
-    }
+        dun_burst(plr_dun(), who_create_plr(), 2, context->mon_pos, GF_BLOOD, context->dam);
     switch (context->mode)
     {
     case _KNOCKBACK:
@@ -169,8 +166,6 @@ static void _after_hit(plr_attack_ptr context)
 static void _end_weapon(plr_attack_ptr context)
 {
     if (context->info.type != PAT_WEAPON) return;
-    if (context->mode == PLR_HIT_CRIT)
-        p_ptr->crit_qual_add -= 250*p_ptr->lev/50;
 }
 static void _attack_init(plr_attack_ptr context)
 {
@@ -396,9 +391,10 @@ void _scatter_spell(int cmd, var_ptr res)
         int dir;
         for (dir = 0; dir < 8; dir++)
         {
-            point_t pos = point_step(p_ptr->pos, ddd[dir]);
-            mon_ptr mon = mon_at(pos);
-            if (mon && (mon->ml || cave_have_flag_at(pos, FF_PROJECT)))
+            point_t pos = point_step(plr->pos, ddd[dir]);
+            dun_cell_ptr cell = dun_cell_at(cave, pos);
+            mon_ptr mon = dun_mon_at(cave, pos);
+            if (mon && (mon->ml || cell_project(cell)))
             {
                 plr_attack_t context = {0};
                 context.mode = _SCATTER;
@@ -442,31 +438,20 @@ static void _smash_wall_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
     {
-        int y, x, dir;
+        int dir;
+        point_t pos;
         
         var_set_bool(res, FALSE);
         if (!get_rep_dir2(&dir)) return;
         if (dir == 5) return;
 
-        y = p_ptr->pos.y + ddy[dir];
-        x = p_ptr->pos.x + ddx[dir];
+        pos = point_step(plr->pos, dir);
         
-        if (!in_bounds(y, x)) return;
+        if (!dun_pos_interior(cave, pos)) return;
 
-        if (cave_have_flag_bold(y, x, FF_HURT_ROCK))
-        {
-            cave_alter_feat(y, x, FF_HURT_ROCK);
-            p_ptr->update |= PU_FLOW;
-        }
-        else if (cave_have_flag_bold(y, x, FF_TREE))
-        {
-            cave_set_feat(y, x, one_in_(3) ? feat_brake : feat_grass);
-        }
-        else
-        {
-            int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-            project(0, 0, y, x, 0, GF_KILL_DOOR, flg);
-        }
+        if (!dun_tunnel(cave, pos, ACTION_FORCE|ACTION_QUIET))
+            plr_ball_direct(0, pos, GF_KILL_DOOR, 0);
+
         var_set_bool(res, TRUE);
         break;
     }
@@ -572,18 +557,18 @@ static void _calc_bonuses(void)
         if (_get_toggle() == MAULER_TOGGLE_BLOCK)
         {
             int a = w/20 + (w/100)*(w/100);
-            p_ptr->to_a += a;
-            p_ptr->dis_to_a += a;
+            plr->to_a += a;
+            plr->dis_to_a += a;
         }
 
         /* TODO: This should cost more energy too ... */
         if (_get_toggle() == MAULER_TOGGLE_TUNNEL)
-            p_ptr->kill_wall = TRUE;
+            plr->kill_wall = TRUE;
 
         if (_get_toggle() == MAULER_TOGGLE_MAUL)
         {
-            p_ptr->to_a -= 20;
-            p_ptr->dis_to_a -= 20;
+            plr->to_a -= 20;
+            plr->dis_to_a -= 20;
         }
     }
 }
@@ -593,7 +578,7 @@ static void _calc_weapon_bonuses(object_type *o_ptr, plr_attack_info_ptr info)
     if (_weapon_check())
     {
         /* CL1: Mighty */
-        if (p_ptr->lev >= 1)
+        if (plr->lev >= 1)
         {
             int w = o_ptr->weight;
             int h = (w - 150)/20;
@@ -612,8 +597,8 @@ static void _calc_weapon_bonuses(object_type *o_ptr, plr_attack_info_ptr info)
             /* Destroyer */
             if (_get_toggle() == MAULER_TOGGLE_MAUL)
                 crit_pct += 10;
-            p_ptr->crit_freq_add += crit_pct * 10;
-            p_ptr->crit_qual_add += 650 * crit_pct / 100;
+            info->crit.freq_add += crit_pct * 10;
+            info->crit.qual_add += 650 * crit_pct / 100;
         }
         /* CL25: Impact 
             20lb +1d0
@@ -625,21 +610,21 @@ static void _calc_weapon_bonuses(object_type *o_ptr, plr_attack_info_ptr info)
 
             Stagger in bonuses with level. Also, I'm debating > rather than >= for cutoffs.
         */
-        if (p_ptr->lev >= 25 )
+        if (plr->lev >= 25 )
         {
             int w = o_ptr->weight;
 
             if (w >= 200)
                 info->to_dd++;
-            if (p_ptr->lev >= 30 && w >= 250)
+            if (plr->lev >= 30 && w >= 250)
                 info->to_ds++;
-            if (p_ptr->lev >= 35 && w >= 300)
+            if (plr->lev >= 35 && w >= 300)
                 info->to_dd++;
-            if (p_ptr->lev >= 40 && w >= 400)
+            if (plr->lev >= 40 && w >= 400)
                 info->to_ds++;
-            if (p_ptr->lev >= 45 && w >= 500)
+            if (plr->lev >= 45 && w >= 500)
                 info->to_dd++;
-            if (p_ptr->lev >= 50 && w >= 600)
+            if (plr->lev >= 50 && w >= 600)
                 info->to_ds++;
         }
 
@@ -667,7 +652,7 @@ static caster_info * _caster_info(void)
 
 static void _character_dump(doc_ptr doc)
 {
-    if (_weapon_check() && p_ptr->lev >= 5)
+    if (_weapon_check() && plr->lev >= 5)
     {
         spell_info spells[MAX_SPELLS];
         int        ct = _get_spells(spells, MAX_SPELLS);
@@ -716,7 +701,7 @@ plr_class_ptr mauler_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 20,  25,  35,   0,  14,   2,  70,  20 };
-    skills_t xs = {  7,   9,  12,   0,   0,   0,  30,   7 };
+    skills_t xs = { 35,  45,  60,   0,   0,   0, 150,  35 };
 
         me = plr_class_alloc(CLASS_MAULER);
         me->name = "Mauler";

@@ -19,80 +19,6 @@ void wr_item(savefile_ptr file, object_type *o_ptr)
     obj_save(o_ptr, file);
 }
 
-static void wr_race_lore(savefile_ptr file, mon_race_ptr race)
-{
-    int i, j, ct_auras = 0;
-    savefile_write_s16b(file, race->r_sights);
-    savefile_write_s16b(file, race->r_deaths);
-    savefile_write_s16b(file, race->r_pkills);
-    savefile_write_s16b(file, race->r_akills);
-    savefile_write_s16b(file, race->r_skills);
-    savefile_write_s16b(file, race->r_tkills);
-    savefile_write_byte(file, race->r_wake);
-    savefile_write_byte(file, race->r_ignore);
-    savefile_write_byte(file, race->r_xtra1);
-    savefile_write_byte(file, race->r_xtra2);
-    savefile_write_byte(file, race->r_drop_gold);
-    savefile_write_byte(file, race->r_drop_item);
-    savefile_write_u32b(file, race->r_spell_turns);
-    savefile_write_u32b(file, race->r_move_turns);
-    savefile_write_u32b(file, race->r_flags1);
-    savefile_write_u32b(file, race->r_flags2);
-    savefile_write_u32b(file, race->r_flags3);
-    savefile_write_u32b(file, race->r_flagsr);
-    mon_spells_save(race->spells, file); /* 2 + 5S' bytes where S' is a seen spell */
-    savefile_write_byte(file, vec_length(race->blows));
-    for (i = 0; i < vec_length(race->blows); i++)
-    {
-        mon_blow_ptr blow = vec_get(race->blows, i);
-        savefile_write_s16b(file, blow->lore);
-        savefile_write_byte(file, blow->effect_ct);
-        for (j = 0; j < blow->effect_ct; j++)
-        {
-            mon_effect_ptr effect = &blow->effects[j];
-            savefile_write_s16b(file, effect->lore);
-        }
-    }
-    for (i = 0; i < MAX_MON_AURAS; i++) /* was 6 bytes ... very very slight optimization */
-    {                                   /* but most monsters have no A:* auras (save 6k perhaps)*/
-        mon_effect_ptr aura = &race->auras[i];
-        if (!aura->effect) break;
-        ct_auras++;
-    }
-    savefile_write_byte(file, ct_auras);
-    for (i = 0; i < ct_auras; i++)
-    {
-        mon_effect_ptr aura = &race->auras[i];
-        savefile_write_s16b(file, aura->lore);
-    }
-}
-static bool _race_has_lore(mon_race_ptr race)
-{
-    return race->r_sights || race->r_tkills; /* XXX */
-}
-static void wr_r_info(savefile_ptr file)
-{
-    int i;
-    savefile_write_u16b(file, max_r_idx);
-    for (i = 0; i < max_r_idx; i++)
-    {
-        mon_race_ptr race = &r_info[i];
-        byte         header = 0;
-
-        if (race->flagsx) header |= 0x01;
-        if (_race_has_lore(race)) header |= 0x02;
-
-        savefile_write_byte(file, header);
-        savefile_write_s16b(file, race->max_num);
-        savefile_write_byte(file, race->stolen_ct);
-
-        if (race->flagsx)
-            savefile_write_u32b(file, race->flagsx);
-        if (_race_has_lore(race))
-            wr_race_lore(file, race);
-    }
-}
-
 static bool _have_counts(counts_ptr counts)
 {
     return counts->found || counts->bought || counts->used || counts->destroyed;
@@ -167,40 +93,6 @@ static void wr_xtra_ego(savefile_ptr file)
     savefile_write_s16b(file, -1);
 }
 
-static bool _art_has_lore(art_ptr art)
-{
-    int i;
-    for (i = 0; i < OF_ARRAY_SIZE; i++)
-    {
-        if (art->known_flags[i]) return TRUE;
-    }
-    return FALSE;
-}
-static void wr_xtra_art_aux(savefile_ptr file, art_ptr art)
-{
-    int i;
-    for (i = 0; i < OF_ARRAY_SIZE; i++)
-    {
-        if (!art->known_flags[i]) continue;
-        savefile_write_byte(file, i);
-        savefile_write_u32b(file, art->known_flags[i]);
-    }
-    savefile_write_byte(file, 0xFF);
-}
-static void wr_xtra_art(savefile_ptr file)
-{
-    int i;
-    for (i = 0; i < max_a_idx; i++)
-    {
-        art_ptr art = &a_info[i];
-        if (!art->name) continue;
-        if (!_art_has_lore(art)) continue;
-        savefile_write_s16b(file, i);
-        wr_xtra_art_aux(file, art);
-    }
-    savefile_write_s16b(file, -1);
-}
-
 static void wr_randomizer(savefile_ptr file)
 {
     int i;
@@ -218,13 +110,14 @@ static void wr_options(savefile_ptr file)
 
     savefile_write_s16b(file, delay_animation);
     savefile_write_s16b(file, delay_run);
+    savefile_write_s16b(file, delay_rest);
     savefile_write_byte(file, hitpoint_warn);
     savefile_write_byte(file, mana_warn);
     savefile_write_byte(file, random_artifact_pct);
 
     /*** Cheating options ***/
     c = 0;
-    if (p_ptr->wizard) c |= 0x0002;
+    if (plr->wizard) c |= 0x0002;
     savefile_write_u16b(file, c);
 
     /* Autosave info */
@@ -284,80 +177,81 @@ static void wr_extra(savefile_ptr file)
 {
     int i,j;
 
-    savefile_write_s32b(file, p_ptr->id);
+    savefile_write_s32b(file, plr->id);
     savefile_write_cptr(file, player_name);
-    savefile_write_cptr(file, p_ptr->died_from);
-    savefile_write_cptr(file, p_ptr->last_message ? p_ptr->last_message : "");
+    savefile_write_cptr(file, plr->died_from);
+    savefile_write_cptr(file, plr->last_message ? plr->last_message : "");
     wr_quick_start(file);
 
     savefile_write_s32b(file, game_mode);
-    savefile_write_s16b(file, p_ptr->prace);
-    savefile_write_byte(file, p_ptr->pclass);
-    savefile_write_byte(file, p_ptr->personality);
-    savefile_write_byte(file, p_ptr->psex);
-    savefile_write_byte(file, p_ptr->realm1);
-    savefile_write_byte(file, p_ptr->realm2);
-    savefile_write_byte(file, p_ptr->dragon_realm);
-    savefile_write_byte(file, p_ptr->psubclass);
-    savefile_write_byte(file, p_ptr->psubrace);
-    savefile_write_s16b(file, p_ptr->current_r_idx);
-    savefile_write_u16b(file, p_ptr->expfact);
+    savefile_write_s16b(file, plr->prace);
+    savefile_write_byte(file, plr->pclass);
+    savefile_write_byte(file, plr->personality);
+    savefile_write_byte(file, plr->psex);
+    savefile_write_byte(file, plr->realm1);
+    savefile_write_byte(file, plr->realm2);
+    savefile_write_byte(file, plr->dragon_realm);
+    savefile_write_byte(file, plr->psubclass);
+    savefile_write_byte(file, plr->psubrace);
+    savefile_write_sym(file, plr->current_r_idx);
+    savefile_write_u16b(file, plr->expfact);
 
-    for (i = 0; i < 6; ++i) savefile_write_s16b(file, p_ptr->stat_max[i]);
-    for (i = 0; i < 6; ++i) savefile_write_s16b(file, p_ptr->stat_max_max[i]);
-    for (i = 0; i < 6; ++i) savefile_write_s16b(file, p_ptr->stat_cur[i]);
+    for (i = 0; i < 6; ++i) savefile_write_s16b(file, plr->stat_max[i]);
+    for (i = 0; i < 6; ++i) savefile_write_s16b(file, plr->stat_max_max[i]);
+    for (i = 0; i < 6; ++i) savefile_write_s16b(file, plr->stat_cur[i]);
 
-    savefile_write_u32b(file, p_ptr->au);
-    savefile_write_s16b(file, p_ptr->fame);
-    savefile_write_u32b(file, p_ptr->max_exp);
-    savefile_write_u32b(file, p_ptr->max_max_exp);
-    savefile_write_u32b(file, p_ptr->exp);
-    savefile_write_u32b(file, p_ptr->exp_frac);
-    savefile_write_s16b(file, p_ptr->lev);
+    savefile_write_u32b(file, plr->au);
+    savefile_write_s16b(file, plr->fame);
+    savefile_write_u32b(file, plr->max_exp);
+    savefile_write_u32b(file, plr->max_max_exp);
+    savefile_write_u32b(file, plr->exp);
+    savefile_write_u32b(file, plr->exp_frac);
+    savefile_write_s16b(file, plr->lev);
 
-    for (i = 0; i < 64; i++) savefile_write_s16b(file, p_ptr->spell_exp[i]);
-    for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) savefile_write_s16b(file, p_ptr->weapon_exp[i][j]);
-    for (i = 0; i < 10; i++) savefile_write_s16b(file, p_ptr->skill_exp[i]);
-    for (i = 0; i < MAX_MAGIC_NUM; i++) savefile_write_s32b(file, p_ptr->magic_num1[i]);
-    for (i = 0; i < MAX_MAGIC_NUM; i++) savefile_write_byte(file, p_ptr->magic_num2[i]);
+    for (i = 0; i < 64; i++) savefile_write_s16b(file, plr->spell_exp[i]);
+    for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) savefile_write_s16b(file, plr->weapon_exp[i][j]);
+    for (i = 0; i < 10; i++) savefile_write_s16b(file, plr->skill_exp[i]);
+    for (i = 0; i < MAX_MAGIC_NUM; i++) savefile_write_s32b(file, plr->magic_num1[i]);
+    for (i = 0; i < MAX_MAGIC_NUM; i++) savefile_write_byte(file, plr->magic_num2[i]);
 
-    savefile_write_s16b(file, p_ptr->start_race);
-    savefile_write_s32b(file, p_ptr->old_race1);
-    savefile_write_s32b(file, p_ptr->old_race2);
-    savefile_write_s16b(file, p_ptr->old_realm);
+    savefile_write_s16b(file, plr->start_race);
+    savefile_write_s32b(file, plr->old_race1);
+    savefile_write_s32b(file, plr->old_race2);
+    savefile_write_s16b(file, plr->old_realm);
 
     for (i = 0; i < MAX_KUBI; i++)
-        savefile_write_s16b(file, kubi_r_idx[i]);
+        savefile_write_sym(file, kubi_r_idx[i]);
 
-    savefile_write_s32b(file, p_ptr->mmhp);
-    savefile_write_s32b(file, p_ptr->mhp);
-    savefile_write_s32b(file, p_ptr->chp);
-    savefile_write_u32b(file, p_ptr->chp_frac);
-    savefile_write_s32b(file, p_ptr->msp);
-    savefile_write_s32b(file, p_ptr->csp);
-    savefile_write_u32b(file, p_ptr->csp_frac);
-    savefile_write_s16b(file, p_ptr->clp);
-    savefile_write_s16b(file, p_ptr->max_plv);
+    savefile_write_s32b(file, plr->mmhp);
+    savefile_write_s32b(file, plr->mhp);
+    savefile_write_s32b(file, plr->chp);
+    savefile_write_u32b(file, plr->chp_frac);
+    savefile_write_s32b(file, plr->msp);
+    savefile_write_s32b(file, plr->csp);
+    savefile_write_u32b(file, plr->csp_frac);
+    savefile_write_s16b(file, plr->clp);
+    savefile_write_s16b(file, plr->max_plv);
 
-    savefile_write_s16b(file, p_ptr->concent);
-    savefile_write_s16b(file, p_ptr->food);
-    savefile_write_s16b(file, p_ptr->energy_need);
+    savefile_write_s16b(file, plr->concent);
+    savefile_write_s16b(file, plr->food);
+    savefile_write_s16b(file, plr->energy_need);
     plr_tim_save(file);
-    savefile_write_s16b(file, p_ptr->afraid);
-    savefile_write_s16b(file, p_ptr->see_infra);
-    savefile_write_s16b(file, p_ptr->mimic_form);
-    savefile_write_s16b(file, p_ptr->tim_mimic);
+    savefile_write_s16b(file, plr->afraid);
+    savefile_write_s16b(file, plr->see_infra);
+    savefile_write_s16b(file, plr->mimic_form);
+    savefile_write_s16b(file, plr->tim_mimic);
     /* Remember the Monkey Clone */
     {
         int i;
-        monster_race *r_ptr = &r_info[MON_MONKEY_CLONE];
-        savefile_write_byte(file, r_ptr->cur_num);
-        if (r_ptr->cur_num)
+        monster_race *r_ptr = mon_race_parse("@.clone");
+        savefile_write_byte(file, r_ptr->alloc.cur_num);
+        if (r_ptr->alloc.cur_num)
         {
-            savefile_write_byte(file, r_ptr->hdice); /* Probably not required ... */
-            savefile_write_byte(file, r_ptr->hside); /* Probably not required ... */
+            /* XXX move, resist, immune, vuln ... */
+            savefile_write_byte(file, r_ptr->alloc.lvl);
+            dice_save(r_ptr->hp, file);
             savefile_write_s16b(file, r_ptr->ac);
-            savefile_write_byte(file, r_ptr->speed); /* Probably not required ... */
+            savefile_write_s16b(file, r_ptr->move.speed); /* Probably not required ... */
             savefile_write_byte(file, vec_length(r_ptr->blows));
             for (i = 0; i < vec_length(r_ptr->blows); i++)
             {
@@ -365,53 +259,57 @@ static void wr_extra(savefile_ptr file)
                 savefile_write_byte(file, blow->method);
                 savefile_write_s16b(file, blow->blows);
                 assert(blow->effect_ct);
-                savefile_write_s16b(file, blow->effects[0].effect); /* RBE_HURT = 5000 */
+                savefile_write_s16b(file, blow->effects[0].type); /* RBE_HURT = 5000 */
                 savefile_write_s16b(file, blow->effects[0].dice.dd);
                 savefile_write_s16b(file, blow->effects[0].dice.ds);
                 savefile_write_s16b(file, blow->effects[0].dice.base);
             }
-            savefile_write_u32b(file, r_ptr->flags3);
-            savefile_write_u32b(file, r_ptr->flagsr);
-            savefile_write_u32b(file, r_ptr->flags2);
-            savefile_write_u32b(file, r_ptr->flags7);
+            savefile_write_u32b(file, r_ptr->resist);
+            savefile_write_u32b(file, r_ptr->immune);
+            savefile_write_u32b(file, r_ptr->vuln);
+            savefile_write_u32b(file, r_ptr->abilities);
+            savefile_write_u16b(file, r_ptr->move.flags);
         }
     }
-    savefile_write_s16b(file, p_ptr->entrench_x);
-    savefile_write_s16b(file, p_ptr->entrench_y);
-    savefile_write_s16b(file, p_ptr->entrench_ct);
-    savefile_write_byte(file, p_ptr->sense_artifact);
-    savefile_write_s16b(file, p_ptr->duelist_target_idx);
-    savefile_write_s16b(file, p_ptr->free_turns);
+    savefile_write_s16b(file, plr->entrench_x);
+    savefile_write_s16b(file, plr->entrench_y);
+    savefile_write_s16b(file, plr->entrench_ct);
+    savefile_write_byte(file, plr->sense_artifact);
+    if (who_is_mon(plr->duelist_target))
+        savefile_write_u32b(file, who_mon(plr->duelist_target)->id);
+    else
+        savefile_write_u32b(file, 0);
+    savefile_write_s16b(file, plr->free_turns);
 
-    savefile_write_s16b(file, p_ptr->chaos_patron);
+    savefile_write_s16b(file, plr->chaos_patron);
     for (i = 0; i < MUT_FLAG_SIZE; ++i)
-        savefile_write_u32b(file, p_ptr->muta[i]);
+        savefile_write_u32b(file, plr->muta[i]);
     for (i = 0; i < MUT_FLAG_SIZE; ++i)
-        savefile_write_u32b(file, p_ptr->muta_lock[i]);
+        savefile_write_u32b(file, plr->muta_lock[i]);
     for (i = 0; i < MAX_DEMIGOD_POWERS; ++i)
-        savefile_write_s16b(file, p_ptr->demigod_power[i]);
-    savefile_write_s16b(file, p_ptr->draconian_power);
+        savefile_write_s16b(file, plr->demigod_power[i]);
+    savefile_write_s16b(file, plr->draconian_power);
 
     for (i = 0; i<8; i++)
-        savefile_write_s16b(file, p_ptr->virtues[i]);
+        savefile_write_s16b(file, plr->virtues[i]);
     for (i = 0; i<8; i++)
-        savefile_write_s16b(file, p_ptr->vir_types[i]);
+        savefile_write_s16b(file, plr->vir_types[i]);
 
-    savefile_write_u32b(file, p_ptr->special_attack);
-    savefile_write_u32b(file, p_ptr->special_defense);
-    savefile_write_byte(file, p_ptr->knowledge);
-    savefile_write_byte(file, p_ptr->autopick_autoregister);
-    savefile_write_byte(file, p_ptr->action);
+    savefile_write_u32b(file, plr->special_attack);
+    savefile_write_u32b(file, plr->special_defense);
+    savefile_write_byte(file, plr->knowledge);
+    savefile_write_byte(file, plr->autopick_autoregister);
+    savefile_write_byte(file, plr->action);
     savefile_write_u32b(file, seed_flavor);
-    savefile_write_u16b(file, p_ptr->panic_save);
-    savefile_write_u16b(file, p_ptr->total_winner);
-    savefile_write_u16b(file, p_ptr->noscore);
-    savefile_write_byte(file, p_ptr->is_dead);
-    savefile_write_s16b(file, today_mon);
-    savefile_write_s16b(file, p_ptr->today_mon);
-    savefile_write_u16b(file, p_ptr->riding);
+    savefile_write_u16b(file, plr->panic_save);
+    savefile_write_u16b(file, plr->total_winner);
+    savefile_write_u16b(file, plr->noscore);
+    savefile_write_byte(file, plr->is_dead);
+    savefile_write_sym(file, today_mon);
+    savefile_write_sym(file, plr->today_mon);
+    savefile_write_u32b(file, plr->riding);
     savefile_write_u32b(file, playtime);
-    savefile_write_u32b(file, p_ptr->count);
+    savefile_write_u32b(file, plr->count);
 
     plr_hook_save(file);
 }
@@ -437,62 +335,52 @@ static bool wr_savefile_new(savefile_ptr file)
     wr_randomizer(file);
     wr_options(file);
 
-    msg_on_save(file);
+    msg_save(file);
 
-    wr_r_info(file);
+    mon_race_save(file);
 
     tmp16u = max_k_idx;
     savefile_write_u16b(file, tmp16u);
     for (i = 0; i < tmp16u; i++) wr_xtra_kind(file, i);
 
     wr_xtra_ego(file);
-    wr_xtra_art(file);
 
+    arts_save(file);
     quests_save(file);
-
-    tmp16u = max_a_idx;
-    savefile_write_u16b(file, tmp16u);
-    for (i = 0; i < tmp16u; i++)
-    {
-        artifact_type *a_ptr = &a_info[i];
-        savefile_write_byte(file, a_ptr->generated);
-        savefile_write_byte(file, a_ptr->found);
-    }
 
     wr_extra(file);
 
     tmp16u = PY_MAX_LEVEL;
     savefile_write_u16b(file, tmp16u);
     for (i = 0; i < tmp16u; i++)
-        savefile_write_s16b(file, p_ptr->player_hp[i]);
+        savefile_write_s16b(file, plr->player_hp[i]);
 
-    savefile_write_u32b(file, p_ptr->spell_learned1);
-    savefile_write_u32b(file, p_ptr->spell_learned2);
-    savefile_write_u32b(file, p_ptr->spell_worked1);
-    savefile_write_u32b(file, p_ptr->spell_worked2);
-    savefile_write_u32b(file, p_ptr->spell_forgotten1);
-    savefile_write_u32b(file, p_ptr->spell_forgotten2);
-    savefile_write_s16b(file, p_ptr->learned_spells);
-    savefile_write_s16b(file, p_ptr->add_spells);
+    savefile_write_u32b(file, plr->spell_learned1);
+    savefile_write_u32b(file, plr->spell_learned2);
+    savefile_write_u32b(file, plr->spell_worked1);
+    savefile_write_u32b(file, plr->spell_worked2);
+    savefile_write_u32b(file, plr->spell_forgotten1);
+    savefile_write_u32b(file, plr->spell_forgotten2);
+    savefile_write_s16b(file, plr->learned_spells);
+    savefile_write_s16b(file, plr->add_spells);
 
     for (i = 0; i < 64; i++)
-        savefile_write_byte(file, p_ptr->spell_order[i]);
+        savefile_write_byte(file, plr->spell_order[i]);
 
-    art_save(file);
     equip_save(file);
     pack_save(file);
     quiver_save(file);
     towns_save(file);
     home_save(file);
 
-    savefile_write_s16b(file, p_ptr->pet_follow_distance);
-    savefile_write_s16b(file, p_ptr->pet_extra_flags);
+    savefile_write_s16b(file, plr->pet_follow_distance);
+    savefile_write_s16b(file, plr->pet_extra_flags);
 
     spell_stats_on_save(file);
     skills_on_save(file);
     stats_on_save(file);
 
-    if (!p_ptr->is_dead)
+    if (!plr->is_dead)
     {
         dun_mgr_save(file);
     }
@@ -511,16 +399,7 @@ static bool save_player_aux(char *name)
 
     if (file)
     {
-        /* Hack: Wiping the monster list clears the current duel! */
-        int tmp_ix = p_ptr->duelist_target_idx;
-
         ok = wr_savefile_new(file);
-        if (tmp_ix)
-        {
-            p_ptr->duelist_target_idx = tmp_ix;
-            p_ptr->redraw |= PR_STATUS;
-        }
-
         if (!savefile_close(file)) ok = FALSE;
     }
 
@@ -611,8 +490,12 @@ bool save_player(void)
         /* Activate new savefile */
         fd_move(safe, savefile);
 
-        /* Remove preserved savefile */
-        fd_kill(temp);
+        /* Remove preserved savefile
+         * XXX Note that a panic_save can often be in a corrupted state (e.g.
+         * crash in the middle of updating complicated data structures).
+         * Give the user the option of falling back to the last working savefile! */
+        if (!plr->panic_save)
+            fd_kill(temp);
 
         /* Drop permissions */
         safe_setuid_drop();
@@ -698,7 +581,7 @@ bool load_player(void)
 
 
     /* Paranoia */
-    p_ptr->is_dead = FALSE;
+    plr->is_dead = FALSE;
 
 
     /* Allow empty savefile name */
@@ -857,7 +740,7 @@ bool load_player(void)
         }
 
         /* Player is dead */
-        if (p_ptr->is_dead)
+        if (plr->is_dead)
         {
             /* Cheat death */
             if (arg_wizard)
@@ -870,7 +753,7 @@ bool load_player(void)
             }
 
             /* Player is no longer "dead" */
-            p_ptr->is_dead = FALSE;
+            plr->is_dead = FALSE;
 
             /* Count lives */
             sf_lives++;
@@ -884,10 +767,10 @@ bool load_player(void)
 
         {
             u32b tmp = counts_read(2);
-            if (tmp > p_ptr->count)
-                p_ptr->count = tmp;
+            if (tmp > plr->count)
+                plr->count = tmp;
             if (counts_read(0) > playtime || counts_read(1) == playtime)
-                counts_write(2, ++p_ptr->count);
+                counts_write(2, ++plr->count);
             counts_write(1, playtime);
         }
 

@@ -1,5 +1,7 @@
 #include "angband.h"
 
+#include <assert.h>
+
 static cptr _desc = 
     "Elementals are mindless creatures animated from a single "
     "elemental form. As a species, elementals can never be confused or cut, "
@@ -27,69 +29,71 @@ static cptr _desc =
 
 static void _calc_bonuses(void) 
 {
-    res_add(RES_CONF);
-    res_add(RES_FEAR);
-    p_ptr->no_cut = TRUE;
-    p_ptr->no_eldritch = TRUE;
-    p_ptr->levitation = TRUE;
-    p_ptr->slow_digest = TRUE;
+    res_add(GF_CONF);
+    res_add(GF_FEAR);
+    plr->no_cut = TRUE;
+    plr->no_eldritch = TRUE;
+    plr->levitation = TRUE;
+    plr->slow_digest = TRUE;
 
-    if (p_ptr->lev >= 5)
-        res_add(RES_POIS);
-    if (p_ptr->lev >= 10)
-        p_ptr->see_inv++;
-    if (p_ptr->lev >= 15)
-        p_ptr->free_act++;
+    if (plr->lev >= 5)
+        res_add(GF_POIS);
+    if (plr->lev >= 10)
+        plr->see_inv++;
+    if (plr->lev >= 15)
+        plr->free_act++;
 }
 
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) 
 {
-    add_flag(flgs, OF_RES_CONF);
-    add_flag(flgs, OF_RES_FEAR);
+    add_flag(flgs, OF_RES_(GF_CONF));
+    add_flag(flgs, OF_RES_(GF_FEAR));
     add_flag(flgs, OF_LEVITATION);
     add_flag(flgs, OF_SLOW_DIGEST);
-    if (p_ptr->lev >= 5)
-        add_flag(flgs, OF_RES_POIS);
-    if (p_ptr->lev >= 10)
+    if (plr->lev >= 5)
+        add_flag(flgs, OF_RES_(GF_POIS));
+    if (plr->lev >= 10)
         add_flag(flgs, OF_SEE_INVIS);
-    if (p_ptr->lev >= 15)
+    if (plr->lev >= 15)
         add_flag(flgs, OF_FREE_ACT);
 }
 
-static bool _elemental_travel(int flag)
+static bool _elemental_travel(int type)
 {
-    int  rng = p_ptr->lev / 2 + 10;
-    int  x, y;
+    int  rng = plr->lev / 2 + 10;
+    point_t pos = target_pos(rng);
+    dun_cell_ptr cell;
 
-    if (!tgt_pt(&x, &y, rng)) return FALSE;
-    if (!in_bounds(y, x)) return FALSE;
+    if (!dun_pos_interior(cave, pos)) return FALSE;
 
-    if (!cave_have_flag_bold(y, x, flag))
+    cell = dun_cell_at(cave, pos);
+    if (cell->type != type)
     {
         msg_print("Failed! You are out of your element!");
-        teleport_player((p_ptr->lev + 2) * 2, TELEPORT_PASSIVE);
+        teleport_player((plr->lev + 2) * 2, TELEPORT_PASSIVE);
     }
     else if (one_in_(7))
     {
         msg_print("You failed to travel correctly!");
-        teleport_player((p_ptr->lev + 2) * 2, TELEPORT_PASSIVE);
+        teleport_player((plr->lev + 2) * 2, TELEPORT_PASSIVE);
     }
     else
     {
         /* Note: teleport_player_to requires FF_TELEPORTABLE, which won't work for walls */
-        if (flag == FF_WALL && !cave_have_flag_bold(y, x, FF_PERMANENT))
-            move_player_effect(point_create(x, y), MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
+        if (type == FEAT_WALL && !(cell->flags & CELL_PERM))
+            move_player_effect(pos, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
         else
-            teleport_player_to(y, x, 0);
+            teleport_player_to(pos, 0);
     }
     return TRUE;
 }
 
-static bool _elemental_healing(int flag)
+static bool _elemental_healing(int type)
 {
     int dir, ct = 0;
+    dun_cell_ptr cell = dun_cell_at(cave, plr->pos);
 
-    if (!cave_have_flag_at(p_ptr->pos, flag))
+    if (cell->type != type)
     {
         msg_print("Failed! You are out of your element!");
         return FALSE;
@@ -97,8 +101,9 @@ static bool _elemental_healing(int flag)
 
     for (dir = 0; dir < 8; dir++)
     {
-        point_t p = point_step(p_ptr->pos, dir);
-        if (cave_have_flag_at(p, flag)) ct++; /* note: we count the boundary walls for the earth elemental */
+        point_t p = point_step(plr->pos, dir);
+        dun_cell_ptr c = dun_cell_at(cave, p);
+        if (c->type == type) ct++; /* note: we count the boundary walls for the earth elemental */
     }
 
     if (ct < 4)
@@ -108,7 +113,7 @@ static bool _elemental_healing(int flag)
     }
 
     msg_print("You bask in your element and slowly feel your life returning ... ");
-    hp_player(100 + p_ptr->lev * 3);
+    hp_player(100 + plr->lev * 3);
     return TRUE;
 }
 
@@ -166,12 +171,12 @@ static void _elemental_pack_destroy(object_p p, cptr destroy_fmt, int chance)
 
     if (equip_ct)
     {
-        p_ptr->update |= PU_BONUS | PU_TORCH | PU_MANA;
-        p_ptr->redraw |= PR_EQUIPPY;
-        p_ptr->window |= PW_EQUIP;
+        plr->update |= PU_BONUS | PU_TORCH | PU_MANA;
+        plr->redraw |= PR_EQUIPPY;
+        plr->window |= PW_EQUIP;
     }
     if (inven_ct)
-        p_ptr->window |= PW_INVEN;
+        plr->window |= PW_INVEN;
 
     if (equip_ct + inven_ct)
         disturb(1, 0);
@@ -184,6 +189,8 @@ static void _elemental_pack_destroy(object_p p, cptr destroy_fmt, int chance)
 static void _earth_birth(void) 
 { 
     object_type forge;
+
+    plr_mon_race_set("E.earth spirit");
     
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
@@ -199,26 +206,17 @@ static void _earth_birth(void)
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
     plr_birth_obj(&forge);
 
-    p_ptr->current_r_idx = MON_EARTH_SPIRIT; 
-
     plr_birth_light();
 }
 
 static void _earth_gain_level(int new_level) 
 {
-    if (p_ptr->current_r_idx == MON_EARTH_SPIRIT && new_level >= 25)
-    {
-        p_ptr->current_r_idx = MON_EARTH_ELEMENTAL;
-        msg_print("You have evolved into an Earth Elemental.");
-        p_ptr->redraw |= PR_MAP;
-    }
+    if (plr_mon_race_is_("E.earth spirit") && new_level >= 25)
+        plr_mon_race_evolve("E.earth");
 }
 
 static void _shard_bolt_spell(int cmd, var_ptr res)
 {
-    int dd = 1 + p_ptr->lev / 3;
-    int ds = 8;
-
     switch (cmd)
     {
     case SPELL_NAME:
@@ -227,21 +225,8 @@ static void _shard_bolt_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a bolt of shards at chosen target.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(dd, ds, 0));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_bolt(GF_SHARDS, dir, damroll(dd, ds));
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        bolt_spell(cmd, res, GF_SHARDS, 1 + plr->lev/3, 8);
     }
 }
 
@@ -256,10 +241,10 @@ static void _earthen_healing_spell(int cmd, var_ptr res)
         var_set_string(res, "If you are surrounded by rock, you may heal yourself at the cost of several acts.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_heal(0, 0, 100 + p_ptr->lev * 3));
+        var_set_string(res, info_heal(0, 0, 100 + plr->lev * 3));
         break;
     case SPELL_CAST:
-        var_set_bool(res, _elemental_healing(FF_WALL));
+        var_set_bool(res, _elemental_healing(FEAT_WALL));
         break;
     case SPELL_ENERGY:
         var_set_int(res, 300);
@@ -281,7 +266,7 @@ static void _earthen_portal_spell(int cmd, var_ptr res)
         var_set_string(res, "Move instantaneously to chosen rocky locale.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _elemental_travel(FF_WALL));
+        var_set_bool(res, _elemental_travel(FEAT_WALL));
         break;
     default:
         default_spell(cmd, res);
@@ -292,7 +277,6 @@ static void _earthen_portal_spell(int cmd, var_ptr res)
 static void _shard_ball_spell(int cmd, var_ptr res)
 {
     int dam = plr_prorata_level(300);
-
     switch (cmd)
     {
     case SPELL_NAME:
@@ -301,24 +285,11 @@ static void _shard_ball_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a ball of shards at chosen target");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, dam));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball(GF_SHARDS, dir, dam, 2);
-        var_set_bool(res, TRUE);
-        break;
-    }
     case SPELL_COST_EXTRA:
         var_set_int(res, dam / 6);
         break;
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 2, GF_SHARDS, dam);
     }
 }
 
@@ -365,30 +336,30 @@ static void _earth_calc_bonuses(void)
 {
     int to_a = plr_prorata_level(50);
 
-    p_ptr->to_a += to_a;
-    p_ptr->dis_to_a += to_a;
+    plr->to_a += to_a;
+    plr->dis_to_a += to_a;
 
-    res_add(RES_FIRE);
-    res_add(RES_COLD);
-    res_add(RES_ELEC);
-    res_add(RES_SHARDS);
-    p_ptr->pass_wall = TRUE;
-    p_ptr->no_passwall_dam = TRUE;
-    p_ptr->regen += 100;
+    res_add(GF_FIRE);
+    res_add(GF_COLD);
+    res_add(GF_ELEC);
+    res_add(GF_SHARDS);
+    plr->pass_wall = TRUE;
+    plr->no_passwall_dam = TRUE;
+    plr->regen += 100;
 
-    p_ptr->pspeed--;
-    if (p_ptr->lev >= 25)
-        p_ptr->pspeed--;
+    plr->pspeed--;
+    if (plr->lev >= 25)
+        plr->pspeed--;
 
     _calc_bonuses();
 }
 
 static void _earth_get_flags(u32b flgs[OF_ARRAY_SIZE]) 
 {
-    add_flag(flgs, OF_RES_FIRE);
-    add_flag(flgs, OF_RES_COLD);
-    add_flag(flgs, OF_RES_ELEC);
-    add_flag(flgs, OF_RES_SHARDS);
+    add_flag(flgs, OF_RES_(GF_FIRE));
+    add_flag(flgs, OF_RES_(GF_COLD));
+    add_flag(flgs, OF_RES_(GF_ELEC));
+    add_flag(flgs, OF_RES_(GF_SHARDS));
     add_flag(flgs, OF_DEC_SPEED);
     add_flag(flgs, OF_REGEN);
 
@@ -404,7 +375,7 @@ static bool _earth_p(object_type *o_ptr)
 
 static void _earth_process_world(void)
 {
-    int chance = 40 - p_ptr->lev/2;
+    int chance = 40 - plr->lev/2;
     _elemental_pack_destroy(_earth_p, "Your %s turns to mud.", chance);
 }
 
@@ -414,12 +385,12 @@ static plr_race_ptr _earth_get_race_t(void)
     static cptr   titles[2] =  {"Earth Spirit", "Earth Elemental"};
     int           rank = 0;
 
-    if (p_ptr->lev >= 25) rank++;
+    if (plr->lev >= 25) rank++;
 
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 28,  18,  40,   5,  25,  16,  70,  25};
-    skills_t xs = {  8,   8,  12,   0,   0,   0,  30,   7};
+    skills_t xs = { 40,  40,  60,   0,   0,   0, 150,  35};
 
         me = plr_race_alloc_aux(RACE_MON_ELEMENTAL, ELEMENTAL_EARTH);
         me->skills = bs;
@@ -435,7 +406,7 @@ static plr_race_ptr _earth_get_race_t(void)
         me->hooks.gain_level = _earth_gain_level;
         me->hooks.process_world = _earth_process_world;
 
-        me->boss_r_idx = MON_QUAKER;
+        me->boss_r_idx = mon_race_parse("E.Quaker")->id;
     }
 
     me->subname = titles[rank];
@@ -458,10 +429,12 @@ static void _air_birth(void)
 { 
     object_type forge;
     
+    plr_mon_race_set("E.air spirit");
+
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_JEWELRY_ELEMENTAL;
     forge.to_a = 15;
-    add_flag(forge.flags, OF_RES_ELEC);
+    add_flag(forge.flags, OF_RES_(GF_ELEC));
     add_flag(forge.flags, OF_AURA_ELEC);
     add_flag(forge.flags, OF_IGNORE_ELEC);
     plr_birth_obj(&forge);
@@ -477,17 +450,12 @@ static void _air_birth(void)
         plr_birth_obj(&forge);
     plr_birth_light();
 
-    p_ptr->current_r_idx = MON_AIR_SPIRIT; 
 }
 
 static void _air_gain_level(int new_level) 
 {
-    if (p_ptr->current_r_idx == MON_AIR_SPIRIT && new_level >= 25)
-    {
-        p_ptr->current_r_idx = MON_AIR_ELEMENTAL;
-        msg_print("You have evolved into an Air Elemental.");
-        p_ptr->redraw |= PR_MAP;
-    }
+    if (plr_mon_race_is_("E.air spirit") && new_level >= 25)
+        plr_mon_race_evolve("E.air");
 }
 
 static void _confusing_strike_spell(int cmd, var_ptr res)
@@ -537,24 +505,11 @@ static void _lightning_storm_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a huge ball of electricity.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, dam));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball(GF_ELEC, dir, dam, 4);
-        var_set_bool(res, TRUE);
-        break;
-    }
     case SPELL_COST_EXTRA:
         var_set_int(res, dam / 10);
         break;
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 4, GF_ELEC, dam);
     }
 }
 
@@ -581,7 +536,7 @@ static void _sky_gate_spell(int cmd, var_ptr res)
         var_set_string(res, "Move instantaneously to chosen open location.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _elemental_travel(FF_FLOOR));
+        var_set_bool(res, _elemental_travel(FEAT_FLOOR));
         break;
     default:
         default_spell(cmd, res);
@@ -611,40 +566,40 @@ static int _air_get_powers(spell_info* spells, int max)
 
 static void _air_calc_bonuses(void) 
 {
-    res_add(RES_ELEC);
+    res_add(GF_ELEC);
 
-    p_ptr->pspeed += 2;
-    if (p_ptr->lev >= 25)
+    plr->pspeed += 2;
+    if (plr->lev >= 25)
     {
-        p_ptr->pspeed += 3;
-        p_ptr->pspeed += (p_ptr->lev - 25) / 5; /* up to +10 speed */
-        res_add(RES_ELEC);
-        res_add(RES_ACID);
-        res_add(RES_FIRE);
-        res_add(RES_COLD);
-        p_ptr->sh_elec = TRUE;
+        plr->pspeed += 3;
+        plr->pspeed += (plr->lev - 25) / 5; /* up to +10 speed */
+        res_add(GF_ELEC);
+        res_add(GF_ACID);
+        res_add(GF_FIRE);
+        res_add(GF_COLD);
+        plr->sh_elec = TRUE;
     }
-    if (p_ptr->lev >= 50)
-        res_add_immune(RES_ELEC);
+    if (plr->lev >= 50)
+        res_add_immune(GF_ELEC);
 
     _calc_bonuses();
 }
 
 static void _air_get_flags(u32b flgs[OF_ARRAY_SIZE]) 
 {
-    add_flag(flgs, OF_RES_ELEC);
+    add_flag(flgs, OF_RES_(GF_ELEC));
     add_flag(flgs, OF_SPEED);
 
-    if (p_ptr->lev >= 25)
+    if (plr->lev >= 25)
     {
-        add_flag(flgs, OF_RES_ACID);
-        add_flag(flgs, OF_RES_FIRE);
-        add_flag(flgs, OF_RES_COLD);
+        add_flag(flgs, OF_RES_(GF_ACID));
+        add_flag(flgs, OF_RES_(GF_FIRE));
+        add_flag(flgs, OF_RES_(GF_COLD));
         add_flag(flgs, OF_AURA_ELEC);
     }
 
-    if (p_ptr->lev >= 50)
-        add_flag(flgs, OF_IM_ELEC);
+    if (plr->lev >= 50)
+        add_flag(flgs, OF_IM_(GF_ELEC));
 
     _get_flags(flgs);
 }
@@ -674,12 +629,12 @@ static plr_race_ptr _air_get_race_t(void)
     static cptr   titles[2] =  {"Air Spirit", "Air Elemental"};
     int           rank = 0;
 
-    if (p_ptr->lev >= 25) rank++;
+    if (plr->lev >= 25) rank++;
 
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 28,  25,  35,   6,  25,  16,  55,  35};
-    skills_t xs = {  8,  10,   9,   0,   0,   0,  20,  15};
+    skills_t xs = { 40,  50,  45,   0,   0,   0, 100,  75};
 
         me = plr_race_alloc_aux(RACE_MON_ELEMENTAL, ELEMENTAL_AIR);
         me->skills = bs;
@@ -695,7 +650,7 @@ static plr_race_ptr _air_get_race_t(void)
         me->hooks.gain_level = _air_gain_level;
         me->hooks.process_world = _air_process_world;
 
-        me->boss_r_idx = MON_ARIEL;
+        me->boss_r_idx = mon_race_parse("E.Ariel")->id;
     }
 
     me->subname = titles[rank];
@@ -718,10 +673,12 @@ static void _water_birth(void)
 { 
     object_type forge;
     
+    plr_mon_race_set("E.water spirit");
+
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_JEWELRY_ELEMENTAL;
     forge.to_a = 15;
-    add_flag(forge.flags, OF_RES_ACID);
+    add_flag(forge.flags, OF_RES_(GF_ACID));
     plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
@@ -735,18 +692,12 @@ static void _water_birth(void)
 
     plr_birth_obj_aux(TV_POTION, SV_POTION_WATER, rand_range(15, 23));
     plr_birth_light();
-
-    p_ptr->current_r_idx = MON_WATER_SPIRIT; 
 }
 
 static void _water_gain_level(int new_level) 
 {
-    if (p_ptr->current_r_idx == MON_WATER_SPIRIT && new_level >= 25)
-    {
-        p_ptr->current_r_idx = MON_WATER_ELEMENTAL;
-        msg_print("You have evolved into a Water Elemental.");
-        p_ptr->redraw |= PR_MAP;
-    }
+    if (plr_mon_race_is_("E.water spirit") && new_level >= 25)
+        plr_mon_race_evolve("E.water");
 }
 
 static void _acid_strike_spell(int cmd, var_ptr res)
@@ -780,24 +731,11 @@ static void _water_ball_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a huge ball of water.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, dam));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball(GF_WATER2, dir, dam, 4);
-        var_set_bool(res, TRUE);
-        break;
-    }
     case SPELL_COST_EXTRA:
         var_set_int(res, dam / 10);
         break;
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 4, GF_WATER2, dam);
     }
 }
 
@@ -812,7 +750,7 @@ static void _water_gate_spell(int cmd, var_ptr res)
         var_set_string(res, "Move instantaneously to chosen watery location.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _elemental_travel(FF_WATER));
+        var_set_bool(res, _elemental_travel(FEAT_WATER));
         break;
     default:
         default_spell(cmd, res);
@@ -831,10 +769,10 @@ static void _water_healing_spell(int cmd, var_ptr res)
         var_set_string(res, "If you are surrounded by water, you may heal yourself at the cost of several acts.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_heal(0, 0, 100 + p_ptr->lev * 3));
+        var_set_string(res, info_heal(0, 0, 100 + plr->lev * 3));
         break;
     case SPELL_CAST:
-        var_set_bool(res, _elemental_healing(FF_WATER));
+        var_set_bool(res, _elemental_healing(FEAT_WATER));
         break;
     case SPELL_ENERGY:
         var_set_int(res, 200);
@@ -864,31 +802,35 @@ static int _water_get_powers(spell_info* spells, int max)
 
 static void _water_calc_bonuses(void) 
 {
-    res_add(RES_ACID);
-    p_ptr->no_stun = TRUE;
+    res_add(GF_ACID);
+    res_add(GF_WATER);
+    res_add_immune(GF_STUN);
 
-    if (p_ptr->lev >= 25)
+    if (plr->lev >= 25)
     {
-        p_ptr->pspeed += 3;
-        p_ptr->melt_armor = TRUE;
-        res_add(RES_ACID);
+        plr->pspeed += 3;
+        plr->melt_armor = TRUE;
+        res_add(GF_ACID);
+        res_add(GF_WATER);
     }
 
-    if (p_ptr->lev >= 50)
-        res_add_immune(RES_ACID);
+    if (plr->lev >= 50)
+        res_add_immune(GF_ACID);
 
     _calc_bonuses();
 }
 
 static void _water_get_flags(u32b flgs[OF_ARRAY_SIZE]) 
 {
-    add_flag(flgs, OF_RES_ACID);
+    add_flag(flgs, OF_RES_(GF_ACID));
+    add_flag(flgs, OF_RES_(GF_WATER));
+    add_flag(flgs, OF_IM_(GF_STUN));
 
-    if (p_ptr->lev >= 25)
+    if (plr->lev >= 25)
         add_flag(flgs, OF_SPEED);
 
-    if (p_ptr->lev >= 50)
-        add_flag(flgs, OF_IM_ACID);
+    if (plr->lev >= 50)
+        add_flag(flgs, OF_IM_(GF_ACID));
 
     _get_flags(flgs);
 }
@@ -904,8 +846,8 @@ static void _water_damage(obj_ptr obj)
     if (obj->ac + obj->to_a <= 0) return;
 
     obj_flags(obj, flgs);
-    if (have_flag(flgs, OF_IM_ACID)) return;
-    if (have_flag(flgs, OF_RES_ACID)) return;
+    if (have_flag(flgs, OF_IM_(GF_ACID))) return;
+    if (have_flag(flgs, OF_RES_(GF_ACID))) return;
     if (have_flag(flgs, OF_IGNORE_ACID) && !one_in_(10)) return;
     if (obj_is_art(obj) && !one_in_(2)) return;
 
@@ -915,11 +857,11 @@ static void _water_damage(obj_ptr obj)
 
     if (obj->loc.where == INV_EQUIP)
     {
-        p_ptr->update |= PU_BONUS;
-        p_ptr->window |= PW_EQUIP;
+        plr->update |= PU_BONUS;
+        plr->window |= PW_EQUIP;
     }
     else if (obj->loc.where == INV_PACK)
-        p_ptr->window |= PW_INVEN;
+        plr->window |= PW_INVEN;
     if (disturb_minor)
         disturb(1, 0);
 }
@@ -936,12 +878,12 @@ static plr_race_ptr _water_get_race_t(void)
     static cptr   titles[2] =  {"Water Spirit", "Water Elemental"};
     int           rank = 0;
 
-    if (p_ptr->lev >= 25) rank++;
+    if (plr->lev >= 25) rank++;
 
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 28,  25,  35,   5,  25,  16,  65,  35};
-    skills_t xs = {  8,  10,   9,   0,   0,   0,  20,  15};
+    skills_t xs = { 40,  50,  45,   0,   0,   0, 100,  75};
 
         me = plr_race_alloc_aux(RACE_MON_ELEMENTAL, ELEMENTAL_WATER);
         me->skills = bs;
@@ -957,7 +899,7 @@ static plr_race_ptr _water_get_race_t(void)
         me->hooks.gain_level = _water_gain_level;
         me->hooks.process_world = _water_process_world;
 
-        me->boss_r_idx = MON_MOIRE;
+        me->boss_r_idx = mon_race_parse("E.Moire")->id;
     }
 
     me->subname = titles[rank];
@@ -980,10 +922,12 @@ static void _fire_birth(void)
 { 
     object_type forge;
     
+    plr_mon_race_set("E.fire spirit");
+
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_JEWELRY_ELEMENTAL;
     forge.to_a = 15;
-    add_flag(forge.flags, OF_RES_FIRE);
+    add_flag(forge.flags, OF_RES_(GF_FIRE));
     add_flag(forge.flags, OF_AURA_FIRE);
     plr_birth_obj(&forge);
 
@@ -999,31 +943,20 @@ static void _fire_birth(void)
     plr_birth_obj(&forge);
 
     plr_birth_light();
-
-    p_ptr->current_r_idx = MON_FIRE_SPIRIT; 
 }
 
 static void _fire_gain_level(int new_level) 
 {
-    if (p_ptr->current_r_idx == MON_FIRE_SPIRIT && new_level >= 25)
-    {
-        p_ptr->current_r_idx = MON_FIRE_ELEMENTAL;
-        msg_print("You have evolved into a Fire Elemental.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_FIRE_ELEMENTAL && new_level >= 40)
-    {
-        p_ptr->current_r_idx = MON_MAGMA_ELEMENTAL;
-        msg_print("You have evolved into a Magma Elemental.");
-        p_ptr->redraw |= PR_MAP;
-    }
+    if (plr_mon_race_is_("E.fire spirit") && new_level >= 25)
+        plr_mon_race_evolve("E.fire");
+    if (plr_mon_race_is_("E.fire") && new_level >= 40)
+        plr_mon_race_evolve("E.magma");
 }
 
 static void _fire_whip_spell(int cmd, var_ptr res)
 {
-    int dd = 3 + p_ptr->lev / 7;
-    int ds = 6;
-    int range = 2 + p_ptr->lev / 6;
+    dice_t dice = dice_create(3 + plr->lev/7, 6, 0);
+    int range = 2 + plr->lev/6;
 
     switch (cmd)
     {
@@ -1034,21 +967,13 @@ static void _fire_whip_spell(int cmd, var_ptr res)
         var_set_string(res, "Fires a short beam of fire.");
         break;
     case SPELL_INFO:
-        var_set_string(res, format("dam %dd%d (rng %d)", dd, ds, range));
+        var_printf(res, "dam %dd%d (rng %d)", dice.dd, dice.ds, range);
         break;
     case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        project_length = range;
-        if (!get_fire_dir(&dir)) return;
-        fire_beam(GF_FIRE, dir, damroll(dd, ds));
-        var_set_bool(res, TRUE);
+        var_set_bool(res, plr_cast_beam_aux(GF_FIRE, dice, range));
         break;
-    }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -1064,24 +989,11 @@ static void _fire_storm_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a huge ball of fire.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, dam));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball(GF_FIRE, dir, dam, 4);
-        var_set_bool(res, TRUE);
-        break;
-    }
     case SPELL_COST_EXTRA:
         var_set_int(res, dam / 10);
         break;
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 4, GF_FIRE, dam);
     }
 }
 
@@ -1115,7 +1027,7 @@ static void _fire_door_spell(int cmd, var_ptr res)
         var_set_string(res, "Move instantaneously to chosen fiery location.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _elemental_travel(FF_LAVA));
+        var_set_bool(res, _elemental_travel(FEAT_LAVA));
         break;
     default:
         default_spell(cmd, res);
@@ -1134,10 +1046,10 @@ static void _fire_healing_spell(int cmd, var_ptr res)
         var_set_string(res, "If you are surrounded by lava, you may heal yourself at the cost of several acts.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_heal(0, 0, 100 + p_ptr->lev * 3));
+        var_set_string(res, info_heal(0, 0, 100 + plr->lev * 3));
         break;
     case SPELL_CAST:
-        var_set_bool(res, _elemental_healing(FF_LAVA));
+        var_set_bool(res, _elemental_healing(FEAT_LAVA));
         break;
     case SPELL_ENERGY:
         var_set_int(res, 250);
@@ -1171,46 +1083,46 @@ static int _fire_get_powers(spell_info* spells, int max)
 
 static void _fire_calc_bonuses(void) 
 {
-    res_add(RES_FIRE);
-    res_add_vuln(RES_COLD);
-    p_ptr->sh_fire = TRUE;
+    res_add(GF_FIRE);
+    res_add_vuln(GF_COLD);
+    plr->sh_fire = TRUE;
 
-    if (p_ptr->lev >= 25)
+    if (plr->lev >= 25)
     {
-        p_ptr->pspeed += 2;
-        res_add(RES_FIRE);
+        plr->pspeed += 2;
+        res_add(GF_FIRE);
     }
 
-    if (p_ptr->lev >= 40)
+    if (plr->lev >= 40)
     {
-        p_ptr->pspeed += 3;
-        p_ptr->pass_wall = TRUE;
-        p_ptr->no_passwall_dam = TRUE;
-        res_add(RES_FIRE);
-        res_add(RES_ELEC);
+        plr->pspeed += 3;
+        plr->pass_wall = TRUE;
+        plr->no_passwall_dam = TRUE;
+        res_add(GF_FIRE);
+        res_add(GF_ELEC);
     }
 
-    if (p_ptr->lev >= 50)
-        res_add_immune(RES_FIRE);
+    if (plr->lev >= 50)
+        res_add_immune(GF_FIRE);
 
     _calc_bonuses();
 }
 
 static void _fire_get_flags(u32b flgs[OF_ARRAY_SIZE]) 
 {
-    add_flag(flgs, OF_VULN_COLD);
-    add_flag(flgs, OF_RES_FIRE);
+    add_flag(flgs, OF_VULN_(GF_COLD));
+    add_flag(flgs, OF_RES_(GF_FIRE));
     add_flag(flgs, OF_AURA_FIRE);
-    add_flag(flgs, OF_LITE); /* cf calc_torch */
+    add_flag(flgs, OF_LIGHT); /* cf calc_torch */
 
-    if (p_ptr->lev >= 25)
+    if (plr->lev >= 25)
         add_flag(flgs, OF_SPEED);
 
-    if (p_ptr->lev >= 40)
-        add_flag(flgs, OF_RES_ELEC);
+    if (plr->lev >= 40)
+        add_flag(flgs, OF_RES_(GF_ELEC));
 
-    if (p_ptr->lev >= 50)
-        add_flag(flgs, OF_IM_FIRE);
+    if (plr->lev >= 50)
+        add_flag(flgs, OF_IM_(GF_FIRE));
 
     _get_flags(flgs);
 }
@@ -1234,13 +1146,13 @@ static plr_race_ptr _fire_get_race_t(void)
     static cptr   titles[3] =  {"Fire Spirit", "Fire Elemental", "Magma Elemental"};
     int           rank = 0;
 
-    if (p_ptr->lev >= 25) rank++;
-    if (p_ptr->lev >= 40) rank++;
+    if (plr->lev >= 25) rank++;
+    if (plr->lev >= 40) rank++;
 
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 28,  25,  35,   4,  25,  16,  65,  35};
-    skills_t xs = {  8,  10,   9,   0,   0,   0,  25,  15};
+    skills_t xs = { 40,  50,  45,   0,   0,   0, 125,  75};
 
         me = plr_race_alloc_aux(RACE_MON_ELEMENTAL, ELEMENTAL_FIRE);
 
@@ -1248,7 +1160,7 @@ static plr_race_ptr _fire_get_race_t(void)
         me->extra_skills = xs;
         me->infra = 5;
         me->exp = 200;
-        me->boss_r_idx = MON_LOGE;
+        me->boss_r_idx = mon_race_parse("E.Loge")->id;
 
         me->hooks.birth = _fire_birth;
         me->hooks.get_powers = _fire_get_powers;
@@ -1301,6 +1213,11 @@ plr_race_ptr mon_elemental_get_race(int psubrace)
 {
     plr_race_ptr result = NULL;
 
+    if (birth_hack && psubrace >= ELEMENTAL_MAX)
+        psubrace = 0;
+
+    assert(0 <= psubrace && psubrace < ELEMENTAL_MAX);
+
     switch (psubrace)
     {
     case ELEMENTAL_EARTH:
@@ -1323,7 +1240,7 @@ plr_race_ptr mon_elemental_get_race(int psubrace)
     result->desc = _desc;
     result->flags = RACE_IS_MONSTER | RACE_IS_NONLIVING;
     result->base_hp = 30;
-    result->pseudo_class_idx = CLASS_WARRIOR;
+    result->pseudo_class_id = CLASS_WARRIOR;
     result->shop_adjust = 120;
 
     if (birth_hack || spoiler_hack)

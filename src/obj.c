@@ -7,6 +7,11 @@
 /************************************************************************
  * Dice (XdY+Z)
  ************************************************************************/
+static int _scale(int amt, int per_mil)
+{
+    if (!per_mil) return amt; /* as always, 0 => no scaling */
+    return (amt * per_mil + 500)/1000;
+}
 dice_t dice_create(int dd, int ds, int base)
 {
     dice_t dice = {0};
@@ -20,90 +25,246 @@ int dice_roll(dice_t dice)
     int roll = dice.base;
     if (dice.dd && dice.ds)
         roll += damroll(dice.dd, dice.ds);
-    return roll;
+    roll = _scale(roll, dice.scale);
+    assert(roll >= 0);
+    return MAX(0, roll);
+}
+dice_t dice_load(savefile_ptr file)
+{
+    dice_t dice = {0};
+    dice.dd = savefile_read_s16b(file);
+    dice.ds = savefile_read_s16b(file);
+    dice.base = savefile_read_s16b(file);
+    return dice;
+}
+void dice_save(dice_t dice, savefile_ptr file)
+{
+    savefile_write_s16b(file, dice.dd);
+    savefile_write_s16b(file, dice.ds);
+    savefile_write_s16b(file, dice.base);
+}
+int dice_lo_roll(dice_t dice)
+{
+    int dam = dice.base;
+    if (dice.dd && dice.ds)
+        dam += dice.dd;
+    dam = _scale(dam, dice.scale);
+    return dam;
 }
 int dice_avg_roll(dice_t dice)
 {
     int avg = dice.base;
     if (dice.dd && dice.ds)
         avg += dice.dd*(dice.ds + 1)/2;
+    avg = _scale(avg, dice.scale);
     return avg;
+}
+int dice_hi_roll(dice_t dice)
+{
+    int dam = dice.base;
+    if (dice.dd && dice.ds)
+        dam += dice.dd * dice.ds;
+    dam = _scale(dam, dice.scale);
+    return dam;
 }
 cptr dice_format(dice_t dice)
 {
+    /* XXX assert(dice == dice_parse(dice_format(dice)))
+     * We'll lose scale info, though, but that is always temporary. */
+    return dice_info(dice, "");
+}
+cptr dice_info(dice_t dice, cptr heading)
+{
     if (dice.dd && dice.ds && dice.base)
-        return format("%dd%d+%d", dice.dd, dice.ds, dice.base);
+        return format("%s%dd%d+%d", heading, dice.dd, dice.ds, dice.base);
     else if (dice.dd && dice.ds)
-        return format("%dd%d", dice.dd, dice.ds);
+        return format("%s%dd%d", heading, dice.dd, dice.ds);
     else if (dice.base)
-        return format("%d", dice.base);
+        return format("%s%d", heading, dice.base);
     return ""; /* XXX or "0"? */
 }
+errr dice_parse(dice_ptr dice, char *token)
+{
+    char arg[100], sentinel = '~', check;
+    int dd, ds, base;
 
+    sprintf(arg, "%s%c", token, sentinel);
+    if (4 == sscanf(arg, "%dd%d+%d%c", &dd, &ds, &base, &check) && check == sentinel)
+    {
+        if (dd <= 0 || ds <= 0 || base <= 0)
+        {
+            msg_print("Error: Specifiy die rolls with XdY+Z for positive X, Y and Z.");
+            return PARSE_ERROR_GENERIC;
+        }
+        dice->dd = dd;
+        dice->ds = ds;
+        dice->base = base;
+    }
+    else if (3 == sscanf(arg, "%dd%d%c", &dd, &ds, &check) && check == sentinel)
+    {
+        if (dd <= 0 || ds <= 0)
+        {
+            msg_print("Error: Specifiy die rolls with XdY for positive X, and Y.");
+            return PARSE_ERROR_GENERIC;
+        }
+        dice->dd = dd;
+        dice->ds = ds;
+        dice->base = 0;
+    }
+    else if (2 == sscanf(arg, "%d%c", &base, &check) && check == sentinel)
+    {
+        if (base < 0)
+        {
+            msg_print("Error: Negative values are not supported.");
+            return PARSE_ERROR_GENERIC;
+        }
+        dice->dd = 0;
+        dice->ds = 0;
+        dice->base = base;
+    }
+    else
+    {
+        msg_format("Error: Invalid dice token: %s. Expected XdY+Z or XdY or Z", token);
+        return PARSE_ERROR_GENERIC;
+    }
+    return 0;
+}
+void dice_doc(dice_t dice, doc_ptr doc)
+{
+    if (dice.dd && dice.ds)
+    {
+        doc_printf(doc, "%dd%d", dice.dd, dice.ds);
+        if (dice.base)
+            doc_printf(doc, "+%d", dice.base);
+    }
+    else if (dice.base)
+        doc_printf(doc, "%d", dice.base);
+}
+cptr dice_info_dam(dice_t dice)
+{
+    int dam = dice_avg_roll(dice);
+    if (dice.dd && dice.ds)
+        return format("dam ~%d", dam); /* approximate */
+    return format("dam %d", dam); /* exact */
+}
+cptr dice_info_dam_each(dice_t dice)
+{
+    int dam = dice_avg_roll(dice);
+    if (dice.dd && dice.ds)
+        return format("dam ~%d each", dam); /* approximate */
+    return format("dam %d each", dam); /* exact */
+}
+cptr dice_info_heal(dice_t dice)
+{
+    int amt = dice_avg_roll(dice);
+    if (dice.dd && dice.ds)
+        return format("heal ~%d", amt); /* approximate */
+    return format("heal %d", amt); /* exact */
+}
+cptr dice_info_range(dice_t dice)
+{
+    return dice_info(dice, "range ");
+}
+cptr dice_info_dur(dice_t dice)
+{
+    return dice_info(dice, "dur ");
+}
+cptr dice_info_power(dice_t dice)
+{
+    int amt = dice_avg_roll(dice);
+    if (dice.dd && dice.ds)
+        return format("power ~%d", amt); /* approximate */
+    return format("power %d", amt); /* exact */
+}
 /************************************************************************
  * Object Types
  ************************************************************************/
+#define _SPELLBOOK (TVF_SPELLBOOK | TVF_STACKABLE | TVF_HATES_FIRE)
 static tv_info_t _tv_tbl[] = {
-    { TV_NONE,            "None",            TERM_WHITE },
-    { TV_SKELETON,        "Skeleton",        TERM_WHITE,   {"SKELETON"},        TVF_JUNK },  /* cf K&R A.8.7 */
-    { TV_BOTTLE,          "Bottle",          TERM_WHITE,   {"BOTTLE"},          TVF_JUNK | TVF_STACKABLE,      30 },
-    { TV_JUNK,            "Junk",            TERM_WHITE,   {"JUNK"},            TVF_JUNK },
-    { TV_WHISTLE,         "Whistle",         TERM_ORANGE,  {"WHISTLE"},         TVF_MISC | TVF_STACKABLE,      10 },
-    { TV_SPIKE,           "Spike",           TERM_SLATE,   {"SPIKE"},           TVF_MISC | TVF_STACKABLE,      99 },
-    { TV_CHEST,           "Chest",           TERM_SLATE,   {"CHEST", "&"},      TVF_MISC },
-    { TV_FIGURINE,        "Figurine",        TERM_SLATE,   {"FIGURINE"},        TVF_MISC },
-    { TV_STATUE,          "Statue",          TERM_SLATE,   {"STATUE"},          TVF_MISC },
-    { TV_CORPSE,          "Corpse",          TERM_SLATE,   {"CORPSE"},          TVF_STACKABLE,                 10 },
-    { TV_CAPTURE,         "Capture Ball",    TERM_L_BLUE,  {"CAPTURE", "CAPTURE_BALL"}, TVF_MISC},
-    { TV_SHOT,            "Shot",            TERM_L_UMBER, {"SHOT"},            TVF_AMMO | TVF_STACKABLE,      99 },
-    { TV_ARROW,           "Arrow",           TERM_L_UMBER, {"ARROW"},           TVF_AMMO | TVF_STACKABLE,      99 },
-    { TV_BOLT,            "Bolt",            TERM_L_UMBER, {"BOLT"},            TVF_AMMO | TVF_STACKABLE,      99 },
-    { TV_BOW,             "Bow",             TERM_UMBER,   {"BOW"},             TVF_BOW | TVF_STACKABLE,        5 },
-    { TV_DIGGING,         "Digger",          TERM_SLATE,   {"DIGGING", "DIGGER"}, TVF_WEAPON | TVF_STACKABLE,   5 },
-    { TV_HAFTED,          "Hafted Weapon",   TERM_WHITE,   {"HAFTED", "\\"},    TVF_WEAPON | TVF_STACKABLE,     5 },
-    { TV_POLEARM,         "Polearm",         TERM_WHITE,   {"POLEARM", "/"},    TVF_WEAPON | TVF_STACKABLE,     5 },
-    { TV_SWORD,           "Sword",           TERM_WHITE,   {"SWORD", "|"},      TVF_WEAPON | TVF_STACKABLE,     5 },
-    { TV_BOOTS,           "Boots",           TERM_L_UMBER, {"BOOTS"},           TVF_BOOTS | TVF_STACKABLE,      5 },
-    { TV_GLOVES,          "Gloves",          TERM_L_UMBER, {"GLOVES"},          TVF_GLOVES | TVF_STACKABLE,     5 },
-    { TV_HELM,            "Helmet",          TERM_L_UMBER, {"HELM", "HELMET"},  TVF_HELMET | TVF_STACKABLE,     5 },
-    { TV_CROWN,           "Crown",           TERM_L_UMBER, {"CROWN"},           TVF_HELMET | TVF_STACKABLE,     5 },
-    { TV_SHIELD,          "Shield",          TERM_L_UMBER, {"SHIELD"},          TVF_SHIELD | TVF_STACKABLE,     5 },
-    { TV_CLOAK,           "Cloak",           TERM_L_UMBER, {"CLOAK"},           TVF_CLOAK | TVF_STACKABLE,      5 },
-    { TV_SOFT_ARMOR,      "Soft Armor",      TERM_SLATE,   {"SOFT_ARMOR"},      TVF_BODY_ARMOR | TVF_STACKABLE, 5 },
-    { TV_HARD_ARMOR,      "Hard Armor",      TERM_SLATE,   {"HARD_ARMOR"},      TVF_BODY_ARMOR },
-    { TV_DRAG_ARMOR,      "Dragon Armor",    TERM_SLATE,   {"DRAG_ARMOR", "DSM"}, TVF_BODY_ARMOR },
-    { TV_LITE,            "Light",           TERM_YELLOW,  {"LITE", "LIGHT", "~"}, TVF_LITE | TVF_STACKABLE,    5 },
-    { TV_AMULET,          "Amulet",          TERM_ORANGE,  {"AMULET", "\""},    TVF_AMULET | TVF_STACKABLE,    10 },
-    { TV_RING,            "Ring",            TERM_RED,     {"RING", "="},       TVF_RING | TVF_STACKABLE,      10 },
-    { TV_QUIVER,          "Quiver",          TERM_L_UMBER, {"QUIVER"},          TVF_QUIVER },
-    { TV_CARD,            "Card",            TERM_L_GREEN, {"CARD"},            TVF_SHIELD },
-    { TV_STAFF,           "Staff",           TERM_L_UMBER, {"STAFF", "_"},      TVF_DEVICE },
-    { TV_WAND,            "Wand",            TERM_GREEN,   {"WAND", "-"},       TVF_DEVICE },
-    { TV_ROD,             "Rod",             TERM_VIOLET,  {"ROD"},             TVF_DEVICE },
-    { TV_PARCHMENT,       "Parchment",       TERM_ORANGE,  {"PARCHMENT"} },
-    { TV_SCROLL,          "Scroll",          TERM_WHITE,   {"SCROLL", "?"},     TVF_SCROLL | TVF_STACKABLE,    20 },
-    { TV_POTION,          "Potion",          TERM_L_BLUE,  {"POTION", "!"},     TVF_POTION | TVF_STACKABLE,    25 },
-    { TV_FLASK,           "Flask",           TERM_YELLOW,  {"FLASK"},           TVF_MISC | TVF_STACKABLE,      25 },
-    { TV_FOOD,            "Food",            TERM_L_UMBER, {"FOOD", ","},       TVF_FOOD | TVF_STACKABLE,      50 },
-    { TV_RUNE,            "Rune",            TERM_L_BLUE,  {"RUNE"} },
-    { TV_LIFE_BOOK,       "Life Book",       TERM_L_WHITE, {"LIFE_BOOK"},       TVF_SPELLBOOK | TVF_STACKABLE,  5 },
-    { TV_SORCERY_BOOK,    "Sorcery Book",    TERM_L_BLUE,  {"SORCERY_BOOK"},    TVF_SPELLBOOK | TVF_STACKABLE,  5 },
-    { TV_NATURE_BOOK,     "Nature Book",     TERM_L_GREEN, {"NATURE_BOOK"},     TVF_SPELLBOOK | TVF_STACKABLE,  5 },
-    { TV_CHAOS_BOOK,      "Chaos Book",      TERM_L_RED,   {"CHAOS_BOOK"},      TVF_SPELLBOOK | TVF_STACKABLE,  5 },
-    { TV_DEATH_BOOK,      "Death Book",      TERM_L_DARK,  {"DEATH_BOOK"},      TVF_SPELLBOOK | TVF_STACKABLE,  5 },
-    { TV_TRUMP_BOOK,      "Trump Book",      TERM_ORANGE,  {"TRUMP_BOOK"},      TVF_SPELLBOOK | TVF_STACKABLE,  5 },
-    { TV_ARCANE_BOOK,     "Arcane Book",     TERM_SLATE,   {"ARCANE_BOOK"},     TVF_SPELLBOOK | TVF_STACKABLE,  5 },
-    { TV_CRAFT_BOOK,      "Craft Book",      TERM_YELLOW,  {"CRAFT_BOOK"},      TVF_SPELLBOOK | TVF_STACKABLE,  5 },
-    { TV_DAEMON_BOOK,     "Daemon Book",     TERM_RED,     {"DAEMON_BOOK", "DEMON_BOOK"}, TVF_SPELLBOOK | TVF_STACKABLE,  5 },
-    { TV_CRUSADE_BOOK,    "Crusade Book",    TERM_WHITE,   {"CRUSADE_BOOK"},    TVF_SPELLBOOK | TVF_STACKABLE,  5 },
-    { TV_NECROMANCY_BOOK, "Necromancy Book", TERM_L_DARK,  {"NECROMANCY_BOOK"}, TVF_SPELLBOOK | TVF_STACKABLE,  5 },
-    { TV_ARMAGEDDON_BOOK, "Armageddon Book", TERM_L_RED,   {"ARMAGEDDON_BOOK"}, TVF_SPELLBOOK | TVF_STACKABLE,  5 },
-    { TV_MUSIC_BOOK,      "Music Book",      TERM_GREEN,   {"MUSIC_BOOK"},      TVF_SPELLBOOK | TVF_STACKABLE,  5 },
-    { TV_HISSATSU_BOOK,   "Kendo Book",      TERM_UMBER,   {"HISSATSU_BOOK", "KENDO_BOOK"}, TVF_SPELLBOOK | TVF_STACKABLE,  5 },
-    { TV_HEX_BOOK,        "Hex Book",        TERM_VIOLET,  {"HEX_BOOK"},        TVF_SPELLBOOK | TVF_STACKABLE,  5 },
-    { TV_RAGE_BOOK,       "Rage Book",       TERM_L_BLUE,  {"RAGE_BOOK"},       TVF_SPELLBOOK | TVF_STACKABLE,  5 },
-    { TV_BURGLARY_BOOK,   "Burglary Book",   TERM_UMBER,   {"BURGLARY_BOOK"},   TVF_SPELLBOOK | TVF_STACKABLE,  5 },
-    { TV_GOLD,            "Gold",            TERM_YELLOW,  {"GOLD", "$"} },
+    { TV_NONE, "None", TERM_WHITE },
+    { TV_SKELETON, "Skeleton", TERM_WHITE, {"SKELETON"}, TVF_JUNK | TVF_HATES_ACID },  /* cf K&R A.8.7 */
+    { TV_BOTTLE, "Bottle", TERM_WHITE, {"BOTTLE"},
+        TVF_JUNK | TVF_STACKABLE | TVF_HATES_ACID | TVF_HATES_COLD, 30 },
+    { TV_JUNK, "Junk", TERM_WHITE, {"JUNK"}, TVF_JUNK | TVF_HATES_ACID },
+    { TV_WHISTLE, "Whistle", TERM_ORANGE, {"WHISTLE"}, TVF_MISC | TVF_STACKABLE, 10 },
+    { TV_SPIKE, "Spike", TERM_SLATE, {"SPIKE"}, TVF_MISC | TVF_STACKABLE, 99 },
+    { TV_CHEST, "Chest", TERM_SLATE, {"CHEST", "&"}, TVF_MISC | TVF_HATES_ACID | TVF_HATES_FIRE },
+    { TV_FIGURINE, "Figurine", TERM_SLATE, {"FIGURINE"}, TVF_MISC },
+    { TV_STATUE, "Statue", TERM_SLATE, {"STATUE"}, TVF_MISC },
+    { TV_CORPSE, "Corpse", TERM_SLATE, {"CORPSE"}, TVF_STACKABLE, 10 },
+    { TV_CAPTURE, "Capture Ball", TERM_L_BLUE, {"CAPTURE", "CAPTURE_BALL"}, TVF_MISC},
+    { TV_SHOT, "Shot", TERM_L_UMBER, {"SHOT"}, TVF_AMMO | TVF_STACKABLE, 99 },
+    { TV_ARROW, "Arrow", TERM_L_UMBER, {"ARROW"},
+        TVF_AMMO | TVF_STACKABLE | TVF_HATES_ACID | TVF_HATES_FIRE, 99 },
+    { TV_BOLT, "Bolt", TERM_L_UMBER, {"BOLT"}, TVF_AMMO | TVF_STACKABLE | TVF_HATES_ACID, 99 },
+    { TV_BOW, "Bow", TERM_UMBER, {"BOW"},
+        TVF_BOW | TVF_STACKABLE | TVF_HATES_ACID | TVF_HATES_FIRE, 5 },
+    { TV_DIGGING, "Digger", TERM_SLATE, {"DIGGING", "DIGGER"}, TVF_WEAPON | TVF_STACKABLE, 5 },
+    { TV_HAFTED, "Hafted Weapon", TERM_WHITE, {"HAFTED", "\\"},
+        TVF_WEAPON | TVF_STACKABLE | TVF_HATES_ACID | TVF_HATES_FIRE, 5 },
+    { TV_POLEARM, "Polearm", TERM_WHITE, {"POLEARM", "/"},
+        TVF_WEAPON | TVF_STACKABLE | TVF_HATES_ACID | TVF_HATES_FIRE, 5 },
+    { TV_SWORD, "Sword", TERM_WHITE, {"SWORD", "|"},
+        TVF_WEAPON | TVF_STACKABLE | TVF_HATES_ACID, 5 },
+    { TV_BOOTS, "Boots", TERM_L_UMBER, {"BOOTS"},
+        TVF_BOOTS | TVF_STACKABLE | TVF_HATES_ACID | TVF_HATES_FIRE, 5 },
+    { TV_GLOVES, "Gloves", TERM_L_UMBER, {"GLOVES"},
+        TVF_GLOVES | TVF_STACKABLE | TVF_HATES_ACID | TVF_HATES_FIRE, 5 },
+    { TV_HELM, "Helmet", TERM_L_UMBER, {"HELM", "HELMET"},
+        TVF_HELMET | TVF_STACKABLE | TVF_HATES_ACID, 5 },
+    { TV_CROWN, "Crown", TERM_L_UMBER, {"CROWN"},
+        TVF_HELMET | TVF_STACKABLE | TVF_HATES_ACID, 5 },
+    { TV_SHIELD, "Shield", TERM_L_UMBER, {"SHIELD"},
+        TVF_SHIELD | TVF_STACKABLE | TVF_HATES_ACID, 5 },
+    { TV_CLOAK, "Cloak", TERM_L_UMBER, {"CLOAK"},
+        TVF_CLOAK | TVF_STACKABLE | TVF_HATES_ACID | TVF_HATES_FIRE, 5 },
+    { TV_SOFT_ARMOR, "Soft Armor", TERM_SLATE, {"SOFT_ARMOR"},
+        TVF_BODY_ARMOR | TVF_STACKABLE | TVF_HATES_ACID | TVF_HATES_FIRE, 5 },
+    { TV_HARD_ARMOR, "Hard Armor", TERM_SLATE, {"HARD_ARMOR"},
+        TVF_BODY_ARMOR | TVF_HATES_ACID },
+    { TV_DRAG_ARMOR, "Dragon Armor", TERM_SLATE, {"DRAG_ARMOR", "DSM"},
+        TVF_BODY_ARMOR | TVF_HATES_ACID },
+    { TV_LIGHT, "Light", TERM_YELLOW, {"LIGHT", "~"},
+        TVF_LIGHT | TVF_STACKABLE | TVF_HATES_FIRE, 5 },
+    { TV_AMULET, "Amulet", TERM_ORANGE, {"AMULET", "\""},
+        TVF_AMULET | TVF_STACKABLE, 10 },
+    { TV_RING, "Ring", TERM_RED, {"RING", "="},
+        TVF_RING | TVF_STACKABLE | TVF_HATES_ELEC, 10 },
+    { TV_QUIVER, "Quiver", TERM_L_UMBER, {"QUIVER"}, TVF_QUIVER },
+    { TV_CARD, "Card", TERM_L_GREEN, {"CARD"}, TVF_SHIELD },
+    { TV_STAFF, "Staff", TERM_L_UMBER, {"STAFF", "_"},
+        TVF_DEVICE | TVF_HATES_ACID | TVF_HATES_FIRE },
+    { TV_WAND, "Wand", TERM_GREEN, {"WAND", "-"}, TVF_DEVICE | TVF_HATES_ELEC },
+    { TV_ROD, "Rod", TERM_VIOLET, {"ROD"}, TVF_DEVICE },
+    { TV_PARCHMENT, "Parchment", TERM_ORANGE, {"PARCHMENT"} },
+    { TV_SCROLL, "Scroll", TERM_WHITE, {"SCROLL", "?"},
+        TVF_SCROLL | TVF_STACKABLE | TVF_HATES_ACID | TVF_HATES_FIRE, 20 },
+    { TV_POTION, "Potion", TERM_L_BLUE, {"POTION", "!"},
+        TVF_POTION | TVF_STACKABLE | TVF_HATES_COLD, 25 },
+    { TV_FLASK, "Flask", TERM_YELLOW, {"FLASK"},
+        TVF_MISC | TVF_STACKABLE | TVF_HATES_COLD, 25 },
+    { TV_FOOD, "Food", TERM_L_UMBER, {"FOOD", ","},
+        TVF_FOOD | TVF_STACKABLE, 50 },
+    { TV_RUNE, "Rune", TERM_L_BLUE, {"RUNE"} },
+    { TV_LIFE_BOOK, "Life Book", TERM_L_WHITE, {"LIFE_BOOK"}, _SPELLBOOK, 5 },
+    { TV_SORCERY_BOOK, "Sorcery Book", TERM_L_BLUE, {"SORCERY_BOOK"}, _SPELLBOOK, 5 },
+    { TV_NATURE_BOOK, "Nature Book", TERM_L_GREEN, {"NATURE_BOOK"}, _SPELLBOOK, 5 },
+    { TV_CHAOS_BOOK, "Chaos Book", TERM_L_RED, {"CHAOS_BOOK"}, _SPELLBOOK, 5 },
+    { TV_DEATH_BOOK, "Death Book", TERM_L_DARK, {"DEATH_BOOK"}, _SPELLBOOK, 5 },
+    { TV_TRUMP_BOOK, "Trump Book", TERM_ORANGE, {"TRUMP_BOOK"}, _SPELLBOOK, 5 },
+    { TV_ARCANE_BOOK, "Arcane Book", TERM_SLATE, {"ARCANE_BOOK"}, _SPELLBOOK, 5 },
+    { TV_CRAFT_BOOK, "Craft Book", TERM_YELLOW, {"CRAFT_BOOK"}, _SPELLBOOK, 5 },
+    { TV_DAEMON_BOOK, "Daemon Book", TERM_RED, {"DAEMON_BOOK", "DEMON_BOOK"}, _SPELLBOOK, 5 },
+    { TV_CRUSADE_BOOK, "Crusade Book", TERM_WHITE, {"CRUSADE_BOOK"}, _SPELLBOOK, 5 },
+    { TV_NECROMANCY_BOOK, "Necromancy Book", TERM_L_DARK, {"NECROMANCY_BOOK"}, _SPELLBOOK, 5 },
+    { TV_ARMAGEDDON_BOOK, "Armageddon Book", TERM_L_RED, {"ARMAGEDDON_BOOK"}, _SPELLBOOK, 5 },
+    { TV_ILLUSION_BOOK, "Book of Illusions", TERM_L_BLUE,{"ILLUSION_BOOK"}, _SPELLBOOK, 5 },
+    { TV_MUSIC_BOOK, "Music Book", TERM_GREEN, {"MUSIC_BOOK"}, _SPELLBOOK, 5 },
+    { TV_HISSATSU_BOOK, "Kendo Book", TERM_UMBER, {"HISSATSU_BOOK", "KENDO_BOOK"}, _SPELLBOOK, 5 },
+    { TV_HEX_BOOK, "Hex Book", TERM_VIOLET, {"HEX_BOOK"}, _SPELLBOOK, 5 },
+    { TV_RAGE_BOOK, "Rage Book", TERM_L_BLUE, {"RAGE_BOOK"}, _SPELLBOOK, 5 },
+    { TV_BURGLARY_BOOK, "Burglary Book", TERM_UMBER, {"BURGLARY_BOOK"}, _SPELLBOOK, 5 },
+    { TV_GOLD, "Gold", TERM_YELLOW, {"GOLD", "$"} },
     { 0 }
 };
 tv_info_ptr tv_parse_name(cptr token)
@@ -179,7 +340,7 @@ bool tv_is_quiver(int id)     { return BOOL(tv_lookup(id)->flags & TVF_QUIVER); 
 bool tv_is_ammo(int id)       { return BOOL(tv_lookup(id)->flags & TVF_AMMO); }
 bool tv_is_ring(int id)       { return BOOL(tv_lookup(id)->flags & TVF_RING); }
 bool tv_is_amulet(int id)     { return BOOL(tv_lookup(id)->flags & TVF_AMULET); }
-bool tv_is_lite(int id)       { return BOOL(tv_lookup(id)->flags & TVF_LITE); }
+bool tv_is_light(int id)       { return BOOL(tv_lookup(id)->flags & TVF_LIGHT); }
 bool tv_is_body_armor(int id) { return BOOL(tv_lookup(id)->flags & TVF_BODY_ARMOR); }
 bool tv_is_cloak(int id)      { return BOOL(tv_lookup(id)->flags & TVF_CLOAK); }
 bool tv_is_helmet(int id)     { return BOOL(tv_lookup(id)->flags & TVF_HELMET); }
@@ -211,7 +372,7 @@ bool obj_kind_is_quiver(int k_idx)     { return tv_is_quiver(k_info[k_idx].tval)
 bool obj_kind_is_ammo(int k_idx)       { return tv_is_ammo(k_info[k_idx].tval); }
 bool obj_kind_is_ring(int k_idx)       { return tv_is_ring(k_info[k_idx].tval); }
 bool obj_kind_is_amulet(int k_idx)     { return tv_is_amulet(k_info[k_idx].tval); }
-bool obj_kind_is_lite(int k_idx)       { return tv_is_lite(k_info[k_idx].tval); }
+bool obj_kind_is_light(int k_idx)       { return tv_is_light(k_info[k_idx].tval); }
 bool obj_kind_is_body_armor(int k_idx) { return tv_is_body_armor(k_info[k_idx].tval); }
 bool obj_kind_is_cloak(int k_idx)      { return tv_is_cloak(k_info[k_idx].tval); }
 bool obj_kind_is_helmet(int k_idx)     { return tv_is_helmet(k_info[k_idx].tval); }
@@ -290,6 +451,14 @@ void obj_free(obj_ptr obj)
     }
 }
 
+term_char_t obj_display_char(obj_ptr obj)
+{
+    term_char_t tc;
+    tc.c = object_char(obj);
+    tc.a = object_attr(obj);
+    return tc;
+}
+
 void obj_make_pile(obj_ptr obj)
 {
     int          size = 1;
@@ -349,7 +518,7 @@ void obj_release(obj_ptr obj, int options)
             msg_format("You see %s.", name);
         if (obj->number <= 0)
         {
-            assert(obj->loc.v.floor.dun_id == cave->dun_id); /* XXX */
+            assert(obj->loc.v.floor.dun_id == cave->id); /* XXX */
             delete_object_idx(obj->loc.v.floor.obj_id);
         }
         break;
@@ -362,7 +531,7 @@ void obj_release(obj_ptr obj, int options)
         }
         else if (!quiet)
             msg_format("You are wearing %s.", name);
-        p_ptr->window |= PW_EQUIP;
+        plr->window |= PW_EQUIP;
         break;
     case INV_PACK:
         if (!quiet && !delayed)
@@ -372,9 +541,9 @@ void obj_release(obj_ptr obj, int options)
         else if (delayed)
         {
             obj->marked |= OM_DELAYED_MSG;
-            p_ptr->notice |= PN_CARRY;
+            plr->notice |= PN_CARRY;
         }
-        p_ptr->window |= PW_INVEN;
+        plr->window |= PW_INVEN;
         break;
     case INV_QUIVER:
         if (!quiet && !delayed)
@@ -384,9 +553,9 @@ void obj_release(obj_ptr obj, int options)
         else if (delayed)
         {
             obj->marked |= OM_DELAYED_MSG;
-            p_ptr->notice |= PN_CARRY;
+            plr->notice |= PN_CARRY;
         }
-        p_ptr->window |= PW_EQUIP; /* a Quiver [32 of 110] */
+        plr->window |= PW_EQUIP; /* a Quiver [32 of 110] */
         break;
     case INV_TEMP:
         obj_free(obj);
@@ -399,16 +568,16 @@ void gear_notice_id(obj_ptr obj)
     switch (obj->loc.where)
     {
     case INV_EQUIP:
-        p_ptr->update |= PU_BONUS; /* dis_to_h, dis_to_d, dis_to_ac, etc. */
-        p_ptr->window |= PW_EQUIP;
+        plr->update |= PU_BONUS; /* dis_to_h, dis_to_d, dis_to_ac, etc. */
+        plr->window |= PW_EQUIP;
         break;
     case INV_PACK:
-        p_ptr->notice |= PN_OPTIMIZE_PACK;
-        p_ptr->window |= PW_INVEN;
+        plr->notice |= PN_OPTIMIZE_PACK;
+        plr->window |= PW_INVEN;
         break;
     case INV_QUIVER:
-        p_ptr->notice |= PN_OPTIMIZE_QUIVER;
-        p_ptr->window |= PW_EQUIP; /* a Quiver [32 of 110] */
+        plr->notice |= PN_OPTIMIZE_QUIVER;
+        plr->window |= PW_EQUIP; /* a Quiver [32 of 110] */
         break;
     }
 }
@@ -418,17 +587,17 @@ void gear_notice_enchant(obj_ptr obj)
     switch (obj->loc.where)
     {
     case INV_EQUIP:
-        p_ptr->update |= PU_BONUS;
-        p_ptr->window |= PW_EQUIP;
+        plr->update |= PU_BONUS;
+        plr->window |= PW_EQUIP;
         android_calc_exp();
         break;
     case INV_PACK:
-        p_ptr->notice |= PN_OPTIMIZE_PACK;
-        p_ptr->window |= PW_INVEN;
+        plr->notice |= PN_OPTIMIZE_PACK;
+        plr->window |= PW_INVEN;
         break;
     case INV_QUIVER:
-        p_ptr->notice |= PN_OPTIMIZE_QUIVER;
-        p_ptr->window |= PW_EQUIP; /* a Quiver [32 of 110] */
+        plr->notice |= PN_OPTIMIZE_QUIVER;
+        plr->window |= PW_EQUIP; /* a Quiver [32 of 110] */
         break;
     }
 }
@@ -470,7 +639,7 @@ bool obj_can_sense2(obj_ptr obj)
     {
     case TV_RING:
     case TV_AMULET:
-    case TV_LITE:
+    case TV_LIGHT:
     case TV_FIGURINE:
     case TV_WAND:
     case TV_STAFF:
@@ -484,7 +653,7 @@ bool obj_can_shoot(obj_ptr obj)
 {
     if (!obj_is_ammo(obj)) return FALSE;
     if (!equip_find_obj(TV_BOW, SV_ANY)) return FALSE;
-    return obj->tval == p_ptr->shooter_info.tval_ammo;
+    return obj->tval == plr->shooter_info.tval_ammo;
 }
 
 bool obj_is_blessed(obj_ptr obj) { return obj_has_flag(obj, OF_BLESSED); }
@@ -501,20 +670,20 @@ bool obj_is_known(obj_ptr obj)
 bool obj_is_readable_book(obj_ptr obj)
 {
     if (!obj_is_spellbook(obj)) return FALSE;
-    if (p_ptr->pclass == CLASS_SORCERER)
+    if (plr->pclass == CLASS_SORCERER)
     {
         return is_magic(tval2realm(obj->tval));
     }
-    else if (p_ptr->pclass == CLASS_RED_MAGE)
+    else if (plr->pclass == CLASS_RED_MAGE)
     {
         if (is_magic(tval2realm(obj->tval)))
             return ((obj->tval == TV_ARCANE_BOOK) || (obj->sval < 2));
     }
-    else if (p_ptr->pclass == CLASS_GRAY_MAGE)
+    else if (plr->pclass == CLASS_GRAY_MAGE)
     {
         return gray_mage_is_allowed_book(obj->tval, obj->sval);
     }
-    else if (p_ptr->pclass == CLASS_SKILLMASTER)
+    else if (plr->pclass == CLASS_SKILLMASTER)
     {
         return skillmaster_is_allowed_book(obj->tval, obj->sval);
     }
@@ -545,7 +714,7 @@ bool obj_is_quiver(obj_ptr obj)     { return tv_is_quiver(obj->tval); }
 bool obj_is_ammo(obj_ptr obj)       { return tv_is_ammo(obj->tval); }
 bool obj_is_ring(obj_ptr obj)       { return tv_is_ring(obj->tval); }
 bool obj_is_amulet(obj_ptr obj)     { return tv_is_amulet(obj->tval); }
-bool obj_is_lite(obj_ptr obj)       { return tv_is_lite(obj->tval); }
+bool obj_is_light(obj_ptr obj)       { return tv_is_light(obj->tval); }
 bool obj_is_body_armor(obj_ptr obj) { return tv_is_body_armor(obj->tval); }
 bool obj_is_cloak(obj_ptr obj)      { return tv_is_cloak(obj->tval); }
 bool obj_is_helmet(obj_ptr obj)     { return tv_is_helmet(obj->tval); }
@@ -572,8 +741,13 @@ bool obj_is_wand(obj_ptr obj)    { return obj->tval == TV_WAND; }
 bool obj_is_rod(obj_ptr obj)     { return obj->tval == TV_ROD; }
 bool obj_is_staff(obj_ptr obj)   { return obj->tval == TV_STAFF; }
 
-bool obj_is_art(obj_ptr obj)     { return obj->name1 || obj->art_name; }
-bool obj_is_std_art(obj_ptr obj) { return BOOL(obj->name1); }
+bool obj_is_art(obj_ptr obj)     { return obj->art_id || obj->art_name; }
+bool obj_is_std_art(obj_ptr obj) { return BOOL(obj->art_id); }
+bool obj_is_specified_art(obj_ptr obj, cptr which)
+{ 
+    assert(arts_parse(which)); /* paranoia wrt my fat fingers ... */
+    return sym_equals(obj->art_id, which);
+}
 bool obj_is_rand_art(obj_ptr obj){ return BOOL(obj->art_name); }
 bool obj_is_ego(obj_ptr obj)     { return BOOL(obj->name2); }
 bool obj_is_cursed(obj_ptr obj)  { return BOOL(obj->curse_flags); }
@@ -595,6 +769,369 @@ bool obj_is_dragon_armor(obj_ptr obj)
         || obj_is_(obj, TV_BOOTS, SV_PAIR_OF_DRAGON_GREAVE);
 }
 
+/************************************************************************
+ * Corpses
+ ***********************************************************************/
+mon_race_ptr corpse_race(obj_ptr corpse)
+{
+    assert(corpse->tval == TV_CORPSE);
+    assert(corpse->race_id);
+    return mon_race_lookup(corpse->race_id);
+}
+bool corpse_race_is_char(obj_ptr corpse, char c)
+{
+    mon_race_ptr r = corpse_race(corpse);
+    return mon_race_is_char(r, c);
+}
+bool corpse_race_is_char_ex(obj_ptr corpse, cptr s)
+{
+    mon_race_ptr r = corpse_race(corpse);
+    return mon_race_is_char_ex(r, s);
+}
+
+/************************************************************************
+ * Chests
+ ***********************************************************************/
+static bool _chest_is_can_of_toys(obj_ptr chest)
+{
+    assert(chest->tval == TV_CHEST);
+    return chest->sval == SV_CHEST_KANDUME;
+}
+static vec_ptr _chest_contents(obj_ptr chest)
+{
+    vec_ptr v = vec_alloc((vec_free_f)obj_free);
+    if (!chest_is_empty(chest))
+    {
+        int  ct_objects = 0, ct_gold = 0;
+        int  i;
+        int  lvl = cave->difficulty;
+        u32b mode = AM_GOOD;
+
+        /* figure out how much to drop */
+        if (_chest_is_can_of_toys(chest))
+        {
+            ct_objects = 5;
+            ct_gold = 0;
+            mode |= AM_GREAT;
+            lvl = chest->xtra3; /* no lugging to deeper levels for better loot */
+        }
+        else
+        {      /* v~~~~~~~~~ You'll need to look a k_info.txt to understand this ... */
+            int Y = chest->sval % SV_CHEST_MIN_LARGE; /* dice are XdY */
+
+            /* Old: lvl = ABS(chest->pval) + 10;
+             * i.e., 1dL+10. Finding an OL99 chest and getting L22 objects is just
+             * plain insulting. Chests should be like ?Acquirement, only AM_GOOD rather
+             * than AM_GREAT. */
+            lvl = chest->xtra3;
+            if (chest->sval < SV_CHEST_MIN_LARGE)
+            {
+                ct_gold = _2d(Y);
+                ct_objects = _1d(Y);
+            }
+            else
+            {
+                ct_gold = _3d(Y);
+                ct_objects = _2d(Y);
+            }
+        }
+
+        opening_chest = TRUE; /* <==== This hack prevents getting chests from inside chests! */
+        for (i = 0; i < ct_objects; i++)
+        {
+            obj_t forge = {0};
+            if (!make_object(&forge, lvl, mode)) continue;
+            vec_add(v, obj_copy(&forge));
+        }
+        for (i = 0; i < ct_gold; i++)
+        {
+            obj_t forge = {0};
+            if (!make_gold(&forge, lvl)) continue;
+            vec_add(v, obj_copy(&forge));
+        }
+        opening_chest = FALSE;
+
+        chest->pval = 0; /* chest is empty now */
+        obj_identify(chest);
+    }
+    return v;
+}
+static bool _obj_scatter(obj_ptr obj)
+{
+    rect_t r = rect_interior(cave->rect);
+    int i;
+    for (i = 0; i < 200; i++)
+    {
+        point_t p = rect_random_point(r);
+        if (!dun_allow_drop_at(cave, p)) continue;
+        dun_drop_near(cave, obj, p);
+        return TRUE;
+    }
+    return FALSE;
+}
+bool obj_is_chest(obj_ptr obj) { return obj->tval == TV_CHEST; }
+bool chest_has_trap(obj_ptr chest) { return chest->pval > 0 && chest_traps[chest->pval]; }
+bool chest_has_known_trap(obj_ptr chest) { return obj_is_known(chest) && chest_has_trap(chest); }
+bool chest_is_empty(obj_ptr chest) { return chest->pval == 0; }
+bool chest_is_not_empty(obj_ptr chest) { return !chest_is_empty(chest); }
+bool chest_is_locked(obj_ptr chest) { return chest->pval > 0; }
+static void _chest_scatter(obj_ptr chest)
+{
+    vec_ptr v = _chest_contents(chest);
+    int i;
+
+    msg_print("The contents of the chest scatter all over the dungeon!");
+    for (i = 0; i < vec_length(v); i++)
+    {
+        obj_ptr obj = vec_get(v, i);
+        _obj_scatter(obj);
+    }
+    vec_free(v);
+}
+static point_t _chest_pos(obj_ptr chest)
+{
+    assert(chest->loc.where == INV_FLOOR); /* XXX you can't open it from your pack! */
+    return point_create(chest->loc.v.floor.x, chest->loc.v.floor.y);
+}
+static void _chest_drop(obj_ptr chest)
+{
+    vec_ptr v = _chest_contents(chest);
+    int i;
+    point_t pos = _chest_pos(chest);
+
+    for (i = 0; i < vec_length(v); i++)
+    {
+        obj_ptr obj = vec_get(v, i);
+        dun_drop_near(cave, obj, pos);
+    }
+    vec_free(v);
+}
+static void _chest_summon(obj_ptr chest, int type)
+{
+    int lvl = chest->xtra3;
+    point_t pos = _chest_pos(chest);
+    u32b mode = PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET;
+
+    summon_specific(who_create_null(), pos, lvl, type, mode);
+}
+static void _chest_traps(obj_ptr chest)
+{
+    int     i, trap;
+    point_t pos = _chest_pos(chest);
+
+    /* Ignore disarmed chests */
+    if (chest->pval <= 0) return;
+
+    /* Obtain the traps */
+    trap = chest_traps[chest->pval];
+
+    if (trap & CHEST_LOSE_STR)
+    {
+        msg_print("A small needle has pricked you!");
+        take_hit(DAMAGE_NOESCAPE, _1d(4), "a poison needle");
+        do_dec_stat(A_STR);
+    }
+    if (trap & CHEST_LOSE_CON)
+    {
+        msg_print("A small needle has pricked you!");
+        take_hit(DAMAGE_NOESCAPE, _1d(4), "a poison needle");
+        do_dec_stat(A_CON);
+    }
+    if (trap & CHEST_POISON)
+    {
+        msg_print("A puff of green gas surrounds you!");
+        if (!res_save_default(GF_POIS))
+            plr_tim_add(T_POISON, 10 + _1d(20));
+    }
+    if (trap & CHEST_PARALYZE)
+    {
+        msg_print("A puff of yellow gas surrounds you!");
+        if (!free_act_save_p(0))
+            plr_tim_add(T_PARALYZED, _1d(4));
+    }
+    if (trap & CHEST_SUMMON)
+    {
+        int num = 2 + _1d(3);
+        msg_print("You are enveloped in a cloud of smoke!");
+        for (i = 0; i < num; i++)
+        {
+            if (_1d(100) < cave->difficulty)
+                activate_hi_summon(plr->pos, FALSE);
+            else
+                _chest_summon(chest, SUMMON_MONSTER);
+        }
+    }
+    if (trap & CHEST_E_SUMMON)
+    {
+        msg_print("Elemental beings appear to protect their treasures!");
+        for (i = 0; i < _1d(3) + 5; i++)
+            _chest_summon(chest, SUMMON_ELEMENTAL);
+    }
+    if (trap & CHEST_BIRD_STORM)
+    {
+        msg_print("A storm of birds swirls around you!");
+        for (i = 0; i < _1d(3) + 3; i++)
+            dun_burst(cave, who_create_trap(pos), 7, pos, GF_FORCE, chest->pval/5);
+
+        for (i = 0; i < _1d(5) + chest->pval/5; i++)
+            _chest_summon(chest, SUMMON_BIRD);
+    }
+    if (trap & CHEST_H_SUMMON)
+    {
+        if (one_in_(4))
+        {
+            msg_print("Demons materialize in clouds of fire and brimstone!");
+            for (i = 0; i < _1d(3) + 2; i++)
+            {
+                dun_burst(cave, who_create_trap(pos), 5, pos, GF_FIRE, 10);
+                _chest_summon(chest, SUMMON_DEMON);
+            }
+        }
+        else if (one_in_(3))
+        {
+            msg_print("Draconic forms loom out of the darkness!");
+            for (i = 0; i < _1d(3) + 2; i++)
+                _chest_summon(chest, SUMMON_DRAGON);
+        }
+        else if (one_in_(2))
+        {
+            msg_print("Creatures strange and twisted assault you!");
+            for (i = 0; i < _1d(5) + 3; i++)
+                _chest_summon(chest, SUMMON_HYBRID);
+        }
+        else
+        {
+            msg_print("Vortices coalesce and wreak destruction!");
+            for (i = 0; i < _1d(3) + 2; i++)
+                _chest_summon(chest, SUMMON_VORTEX);
+        }
+    }
+    if (trap & CHEST_RUNES_OF_EVIL)
+    {
+        int nasty_tricks_count = 3 + _1d(3);
+        msg_print("Hideous voices bid: 'Let the darkness have thee!'");
+
+        /* This is gonna hurt... */
+        for (; nasty_tricks_count > 0; nasty_tricks_count--)
+        {
+            /* ...but a high saving throw does help a little. */
+            if (_1d(100 + 2*chest->pval) > plr->skills.sav)
+            {
+                if (one_in_(6)) take_hit(DAMAGE_NOESCAPE, _5d(20), "a trapped chest");
+                else if (one_in_(5))
+                {
+                    if (!plr->no_cut)
+                        plr_tim_add(T_CUT, 200);
+                }
+                else if (one_in_(4))
+                {
+                    if (!free_act_save_p(0))
+                        plr_tim_add(T_PARALYZED, _1d(4));
+                    else if (_1d(100) > res_pct(GF_STUN))
+                        plr_tim_add(T_STUN, 10 + _1d(100));
+                }
+                else if (one_in_(3)) apply_disenchant(0);
+                else if (one_in_(2))
+                {
+                    do_dec_stat(A_STR);
+                    do_dec_stat(A_DEX);
+                    do_dec_stat(A_CON);
+                    do_dec_stat(A_INT);
+                    do_dec_stat(A_WIS);
+                    do_dec_stat(A_CHR);
+                }
+                else dun_burst(cave, who_create_trap(pos), 1, pos, GF_NETHER, 150);
+            }
+        }
+    }
+    if (trap & CHEST_ALARM)
+    {
+        msg_print("An alarm sounds!");
+        aggravate_monsters(who_create_null());
+    }
+    if (trap & CHEST_EXPLODE)
+    {
+        msg_print("There is a sudden explosion!");
+        msg_print("Everything inside the chest is destroyed!");
+
+        chest->pval = 0;
+        obj_identify(chest);
+        take_hit(DAMAGE_ATTACK, _5d(8), "an exploding chest");
+
+    }
+    if (trap & CHEST_SCATTER)
+        _chest_scatter(chest);
+}
+int chest_open(obj_ptr chest)
+{
+    int rc = ACTION_SUCCESS;
+    if (chest_is_locked(chest))
+        rc = chest_unlock(chest);
+    if (rc == ACTION_SUCCESS)
+    {
+        if (chest_has_trap(chest))
+            _chest_traps(chest);
+        if (!chest_is_empty(chest)) /* CHEST_SCATTER */ 
+            _chest_drop(chest);
+    }
+    return rc;
+}
+int chest_disarm(obj_ptr chest)
+{
+    int skill, chance;
+    if (!obj_is_known(chest))
+    {
+        msg_print("I don't see any traps.");
+        return ACTION_ABORT;
+    }
+    if (!chest_has_trap(chest))
+    {
+        msg_print("The chest is not trapped.");
+        return ACTION_ABORT;
+    }
+    skill = plr_skill(plr->skills.dis);
+    chance = skill - chest->pval;
+    #if DEVELOPER
+    if (0)
+        msg_format("<color:D>Disarm Chest: %d%%</color>", chance);
+    #endif
+    if (_1d(100) <= chance)
+    {
+        msg_print("You have disarmed the chest.");
+        gain_exp(chest->pval);
+        chest->pval = -chest->pval;
+        return ACTION_SUCCESS;
+    }
+    else if (chance > 5 && _1d(chance) > 5)
+    {
+        if (flush_failure) flush();
+        msg_print("You failed to disarm the chest.");
+        return ACTION_CONTINUE;
+    }
+    msg_print("You set off a trap!");
+    _chest_traps(chest);
+    return ACTION_FAIL;
+}
+int chest_unlock(obj_ptr chest)
+{
+    int rc = ACTION_SUCCESS;
+    if (chest_is_locked(chest))
+    {
+        int skill = plr_skill(plr->skills.dis);
+        int chance = MAX(2, skill - chest->pval);
+        if (_1d(100) <= chance)
+        {
+            msg_print("You have picked the lock.");
+            gain_exp(1);
+        }
+        else
+        {
+            msg_print("You failed to pick the lock.");
+            rc = ACTION_CONTINUE;
+        }
+    }
+    return rc;
+}
 /************************************************************************
  * Sorting
  ***********************************************************************/
@@ -666,16 +1203,24 @@ int obj_cmp(obj_ptr left, obj_ptr right)
     case TV_FIGURINE:
     case TV_STATUE:
     case TV_CORPSE:
-    case TV_CAPTURE:
-        if (mon_race_lookup(left->pval)->level < mon_race_lookup(right->pval)->level) return -1;
-        if (mon_race_lookup(left->pval)->level > mon_race_lookup(right->pval)->level) return 1;
-        if (left->pval < right->pval) return -1;
-        if (left->pval > right->pval) return -1;
-        break;
+    case TV_CAPTURE: {
+        mon_race_ptr lrace, rrace;
+        /* handle empty capture balls */
+        if (!left->race_id && right->race_id) return -1;
+        if (left->race_id && !right->race_id) return 1;
+        if (!left->race_id && !right->race_id) return 0;
 
+        assert(left->race_id && right->race_id);
+        lrace = mon_race_lookup(left->race_id);
+        rrace = mon_race_lookup(right->race_id);
+        if (lrace->alloc.lvl < rrace->alloc.lvl) return -1;
+        if (lrace->alloc.lvl > rrace->alloc.lvl) return 1;
+        return strcmp(lrace->name, rrace->name); }
     case TV_SHOT:
     case TV_ARROW:
     case TV_BOLT:
+        if (left->dd < right->dd) return -1;
+        if (left->dd > right->dd) return 1;
         if (left->to_d < right->to_d) return -1;
         if (left->to_d > right->to_d) return 1;
         if (left->to_h < right->to_h) return -1;
@@ -691,7 +1236,7 @@ int obj_cmp(obj_ptr left, obj_ptr right)
         if (device_level(left) > device_level(right)) return 1;
         break;
 
-    case TV_LITE:
+    case TV_LIGHT:
         if (left->xtra4 < right->xtra4) return 1;
         if (left->xtra4 > right->xtra4) return -1;
         break;
@@ -793,12 +1338,14 @@ bool obj_can_combine(obj_ptr dest, obj_ptr obj, int loc)
     if (dest->k_idx != obj->k_idx) return FALSE; /* i.e. same tval/sval */
     if (obj_is_art(dest) || obj_is_art(obj)) return FALSE;
     if (obj_stack_max(dest) <= 1) return FALSE;
+    if (obj->marked & OM_RESERVED) return FALSE;
+    if (dest->marked & OM_RESERVED) return FALSE;
 
     switch (dest->tval)
     {
     case TV_FIGURINE:
     case TV_CORPSE:
-        if (dest->pval != obj->pval) return FALSE;
+        if (dest->race_id != obj->race_id) return FALSE;
         break;
 
     case TV_FOOD:
@@ -823,7 +1370,7 @@ bool obj_can_combine(obj_ptr dest, obj_ptr obj, int loc)
     case TV_DRAG_ARMOR:
     case TV_RING:
     case TV_AMULET:
-    case TV_LITE:
+    case TV_LIGHT:
     case TV_WHISTLE:
         /* Require full knowledge of both items. Ammo skips this check
          * so that you can shoot unidentifed stacks of arrows and have
@@ -965,18 +1512,18 @@ void obj_delayed_describe(obj_ptr obj)
 {
     if (obj->marked & OM_DELAYED_MSG)
     {
-        string_ptr msg = string_alloc();
-        char       name[MAX_NLEN];
-        bool       show_slot = FALSE;
+        str_ptr msg = str_alloc();
+        char    name[MAX_NLEN];
+        bool    show_slot = FALSE;
 
         object_desc(name, obj, OD_COLOR_CODED);
         if (obj->loc.where == INV_EQUIP) /* paranoia */
-            string_append_s(msg, "You are wearing");
+            str_append_s(msg, "You are wearing");
         else
-            string_append_s(msg, "You have");
-        string_printf(msg, " %s", name);
+            str_append_s(msg, "You have");
+        str_printf(msg, " %s", name);
         if (obj->loc.where == INV_QUIVER)
-            string_append_s(msg, " in your quiver");
+            str_append_s(msg, " in your quiver");
 
         switch (obj->loc.where)
         {
@@ -989,10 +1536,10 @@ void obj_delayed_describe(obj_ptr obj)
             break;
         }
         if (show_slot)
-            string_printf(msg, " (%c)", slot_label(obj->loc.v.slot));
-        string_append_c(msg, '.');
-        msg_print(string_buffer(msg));
-        string_free(msg);
+            str_printf(msg, " (%c)", slot_label(obj->loc.v.slot));
+        str_append_c(msg, '.');
+        msg_print(str_buffer(msg));
+        str_free(msg);
 
         obj->marked &= ~OM_DELAYED_MSG;
     }
@@ -1055,13 +1602,13 @@ void gear_ui(int which)
     obj_prompt_t prompt = {0};
     int          wgt = plr_total_weight();
     int          pct = wgt * 100 / weight_limit();
-    string_ptr   s;
+    str_ptr      s;
 
-    s = string_alloc_format(
+    s = str_alloc_format(
         "<color:w>Carrying %d.%d pounds (<color:%c>%d%%</color> capacity).</color>\n\n"
         "Examine which item <color:w>(<color:keypress>Esc</color> to exit)</color>?",
          wgt / 10, wgt % 10, pct > 100 ? 'r' : 'G', pct);
-    prompt.prompt = string_buffer(s);
+    prompt.prompt = str_buffer(s);
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_EQUIP;
     prompt.where[2] = INV_QUIVER;
@@ -1070,7 +1617,7 @@ void gear_ui(int which)
     prompt.cmd_handler = _inspector;
 
     obj_prompt(&prompt);
-    string_free(s);
+    str_free(s);
 }
 
 static int _inscriber(obj_prompt_context_ptr context, int cmd)
@@ -1116,8 +1663,8 @@ void obj_inscribe_ui(void)
 
     obj_prompt(&prompt);
 
-    p_ptr->notice |= PN_OPTIMIZE_PACK | PN_OPTIMIZE_QUIVER;
-    p_ptr->window |= PW_INVEN | PW_EQUIP;
+    plr->notice |= PN_OPTIMIZE_PACK | PN_OPTIMIZE_QUIVER;
+    plr->window |= PW_INVEN | PW_EQUIP;
 }
 
 static int _uninscriber(obj_prompt_context_ptr context, int cmd)
@@ -1148,8 +1695,8 @@ void obj_uninscribe_ui(void)
 
     obj_prompt(&prompt);
 
-    p_ptr->notice |= PN_OPTIMIZE_PACK | PN_OPTIMIZE_QUIVER;
-    p_ptr->window |= PW_INVEN | PW_EQUIP;
+    plr->notice |= PN_OPTIMIZE_PACK | PN_OPTIMIZE_QUIVER;
+    plr->window |= PW_INVEN | PW_EQUIP;
 }
 
 static void _drop(obj_ptr obj)
@@ -1158,11 +1705,11 @@ static void _drop(obj_ptr obj)
     object_desc(name, obj, OD_COLOR_CODED);
     msg_format("You drop %s.", name);
     obj->marked |= OM_NO_MSG; /* suppress the "rolls beneath your feet" msg */
-    drop_near(obj, p_ptr->pos, -1);
+    drop_near(obj, plr->pos, -1);
     obj->marked &= ~OM_NO_MSG;
-    p_ptr->update |= PU_BONUS; /* Weight changed */
+    plr->update |= PU_BONUS; /* Weight changed */
     if (obj->loc.where == INV_PACK)
-        p_ptr->window |= PW_INVEN;
+        plr->window |= PW_INVEN;
 }
 
 void obj_drop(obj_ptr obj, int amt)
@@ -1179,11 +1726,11 @@ void obj_drop(obj_ptr obj, int amt)
         obj->number -= amt;
 
         obj->marked |= OM_DELAYED_MSG;
-        p_ptr->notice |= PN_CARRY;
+        plr->notice |= PN_CARRY;
         if (obj->loc.where == INV_PACK)
-            p_ptr->notice |= PN_OPTIMIZE_PACK;
+            plr->notice |= PN_OPTIMIZE_PACK;
         else if (obj->loc.where == INV_QUIVER)
-            p_ptr->notice |= PN_OPTIMIZE_QUIVER;
+            plr->notice |= PN_OPTIMIZE_QUIVER;
 
         copy.marked &= ~OM_WORN;
         _drop(&copy);
@@ -1241,7 +1788,7 @@ void obj_destroy_ui(void)
     bool         force = command_arg > 0; /* 033kx to destroy 33 in slot (x) */
     int          amt = 1;
 
-    if (p_ptr->special_defense & KATA_MUSOU)
+    if (plr->special_defense & KATA_MUSOU)
         set_action(ACTION_NONE);
 
     /* Prompt for an object */
@@ -1249,7 +1796,7 @@ void obj_destroy_ui(void)
     prompt.error = "You have nothing to destroy.";
     prompt.filter = _can_destroy;
     prompt.where[pos++] = INV_PACK;
-    if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+    if (plr->pclass == CLASS_RUNE_KNIGHT)
         prompt.where[pos++] = INV_EQUIP;
     prompt.where[pos++] = INV_QUIVER;
     prompt.where[pos++] = INV_FLOOR;
@@ -1346,7 +1893,7 @@ void obj_destroy(obj_ptr obj, int amt)
         obj->number -= amt;
         _destroy(&copy);
         if (obj->loc.where == INV_PACK)
-            p_ptr->window |= PW_INVEN;
+            plr->window |= PW_INVEN;
     }
     else
     {
@@ -1388,9 +1935,10 @@ enum object_save_fields_e {
     OBJ_SAVE_PVAL,
     OBJ_SAVE_DISCOUNT,
     OBJ_SAVE_NUMBER,
-    OBJ_SAVE_NAME1,
+    OBJ_SAVE_ART_ID,
+    OBJ_SAVE_REPLACEMENT_ART_ID,
+    OBJ_SAVE_RACE_ID,
     OBJ_SAVE_NAME2,
-    OBJ_SAVE_NAME3,
     OBJ_SAVE_ART_NAME,
     OBJ_SAVE_TIMEOUT,
     OBJ_SAVE_COMBAT,
@@ -1466,7 +2014,7 @@ void obj_load(obj_ptr obj, savefile_ptr file)
     case INV_MON_PACK:
         obj->loc.v.mon_pack.dun_id = savefile_read_u16b(file);
         obj->loc.v.mon_pack.obj_id = savefile_read_u16b(file);
-        obj->loc.v.mon_pack.mon_id = savefile_read_u16b(file);
+        obj->loc.v.mon_pack.mon_id = savefile_read_u32b(file);
         break;
     }
 
@@ -1490,14 +2038,17 @@ void obj_load(obj_ptr obj, savefile_ptr file)
         case OBJ_SAVE_NUMBER:
             obj->number = savefile_read_byte(file);
             break;
-        case OBJ_SAVE_NAME1:
-            obj->name1 = savefile_read_s16b(file);
+        case OBJ_SAVE_ART_ID:
+            obj->art_id = savefile_read_sym(file);
             break;
         case OBJ_SAVE_NAME2:
             obj->name2 = savefile_read_s16b(file);
             break;
-        case OBJ_SAVE_NAME3:
-            obj->name3 = savefile_read_s16b(file);
+        case OBJ_SAVE_REPLACEMENT_ART_ID:
+            obj->replacement_art_id = savefile_read_sym(file);
+            break;
+        case OBJ_SAVE_RACE_ID:
+            obj->race_id = savefile_read_sym(file);
             break;
         case OBJ_SAVE_TIMEOUT:
             obj->timeout = savefile_read_s16b(file);
@@ -1544,6 +2095,12 @@ void obj_load(obj_ptr obj, savefile_ptr file)
         case OBJ_SAVE_ART_FLAGS_5:
             obj->flags[5] = savefile_read_u32b(file);
             break;
+        case OBJ_SAVE_ART_FLAGS_6:
+            obj->flags[6] = savefile_read_u32b(file);
+            break;
+        case OBJ_SAVE_ART_FLAGS_7:
+            obj->flags[7] = savefile_read_u32b(file);
+            break;
         case OBJ_SAVE_CURSE_FLAGS:
             obj->curse_flags = savefile_read_u32b(file);
             break;
@@ -1564,6 +2121,12 @@ void obj_load(obj_ptr obj, savefile_ptr file)
             break;
         case OBJ_SAVE_KNOWN_FLAGS_5:
             obj->known_flags[5] = savefile_read_u32b(file);
+            break;
+        case OBJ_SAVE_KNOWN_FLAGS_6:
+            obj->known_flags[6] = savefile_read_u32b(file);
+            break;
+        case OBJ_SAVE_KNOWN_FLAGS_7:
+            obj->known_flags[7] = savefile_read_u32b(file);
             break;
         case OBJ_SAVE_KNOWN_CURSE_FLAGS:
             obj->known_curse_flags = savefile_read_u32b(file);
@@ -1644,7 +2207,7 @@ void obj_save(obj_ptr obj, savefile_ptr file)
     case INV_MON_PACK:
         savefile_write_u16b(file, obj->loc.v.mon_pack.dun_id);
         savefile_write_u16b(file, obj->loc.v.mon_pack.obj_id);
-        savefile_write_u16b(file, obj->loc.v.mon_pack.mon_id);
+        savefile_write_u32b(file, obj->loc.v.mon_pack.mon_id);
         break;
     }
     savefile_write_s16b(file, obj->weight);
@@ -1663,20 +2226,25 @@ void obj_save(obj_ptr obj, savefile_ptr file)
         savefile_write_byte(file, OBJ_SAVE_NUMBER);
         savefile_write_byte(file, obj->number);
     }
-    if (obj->name1)
+    if (obj->art_id)
     {
-        savefile_write_byte(file, OBJ_SAVE_NAME1);
-        savefile_write_s16b(file, obj->name1);
+        savefile_write_byte(file, OBJ_SAVE_ART_ID);
+        savefile_write_sym(file, obj->art_id);
+    }
+    if (obj->replacement_art_id)
+    {
+        savefile_write_byte(file, OBJ_SAVE_REPLACEMENT_ART_ID);
+        savefile_write_sym(file, obj->replacement_art_id);
+    }
+    if (obj->race_id)
+    {
+        savefile_write_byte(file, OBJ_SAVE_RACE_ID);
+        savefile_write_sym(file, obj->race_id);
     }
     if (obj->name2)
     {
         savefile_write_byte(file, OBJ_SAVE_NAME2);
         savefile_write_s16b(file, obj->name2);
-    }
-    if (obj->name3)
-    {
-        savefile_write_byte(file, OBJ_SAVE_NAME3);
-        savefile_write_s16b(file, obj->name3);
     }
     if (obj->timeout)
     {
@@ -1746,6 +2314,16 @@ void obj_save(obj_ptr obj, savefile_ptr file)
         savefile_write_byte(file, OBJ_SAVE_ART_FLAGS_5);
         savefile_write_u32b(file, obj->flags[5]);
     }
+    if (obj->flags[6])
+    {
+        savefile_write_byte(file, OBJ_SAVE_ART_FLAGS_6);
+        savefile_write_u32b(file, obj->flags[6]);
+    }
+    if (obj->flags[7])
+    {
+        savefile_write_byte(file, OBJ_SAVE_ART_FLAGS_7);
+        savefile_write_u32b(file, obj->flags[7]);
+    }
     if (obj->curse_flags)
     {
         savefile_write_byte(file, OBJ_SAVE_CURSE_FLAGS);
@@ -1780,6 +2358,16 @@ void obj_save(obj_ptr obj, savefile_ptr file)
     {
         savefile_write_byte(file, OBJ_SAVE_KNOWN_FLAGS_5);
         savefile_write_u32b(file, obj->known_flags[5]);
+    }
+    if (obj->known_flags[6])
+    {
+        savefile_write_byte(file, OBJ_SAVE_KNOWN_FLAGS_6);
+        savefile_write_u32b(file, obj->known_flags[6]);
+    }
+    if (obj->known_flags[7])
+    {
+        savefile_write_byte(file, OBJ_SAVE_KNOWN_FLAGS_7);
+        savefile_write_u32b(file, obj->known_flags[7]);
     }
     if (obj->known_curse_flags)
     {
@@ -1857,9 +2445,7 @@ void obj_save(obj_ptr obj, savefile_ptr file)
 /************************************************************************
  * Object Flags
  ************************************************************************/
-/* Note this table is currently indexed correctly by the id; i.e.,
- * _of_tbl[OF_FOO].id == OF_FOO. This is encapsulated by of_lookup. */
-static of_info_t _of_tbl[OF_COUNT] = {
+static of_info_t _of_tbl[] = {
     /* Flavor/Description */
     { OF_HIDE_TYPE,         "Hide Type",       TERM_WHITE,   "HIDE_TYPE",         OFT_OTHER },
     { OF_SHOW_MODS,         "Show Mods",       TERM_WHITE,   "SHOW_MODS",         OFT_OTHER },
@@ -1907,49 +2493,49 @@ static of_info_t _of_tbl[OF_COUNT] = {
     { OF_DEC_LIFE,          "Dec Life",        TERM_RED,     "DEC_LIFE",          OFT_BONUS | OFT_PVAL | OFT_LORE | OFT_DEC },
 
     /* Resists */
-    { OF_RES_ACID,          "Res Acid",        TERM_GREEN,   "RES_ACID",          OFT_RESIST },
-    { OF_RES_ELEC,          "Res Elec",        TERM_BLUE,    "RES_ELEC",          OFT_RESIST },
-    { OF_RES_FIRE,          "Res Fire",        TERM_RED,     "RES_FIRE",          OFT_RESIST },
-    { OF_RES_COLD,          "Res Cold",        TERM_L_WHITE, "RES_COLD",          OFT_RESIST },
-    { OF_RES_POIS,          "Res Poison",      TERM_L_GREEN, "RES_POIS",          OFT_RESIST },
-    { OF_RES_LITE,          "Res Light",       TERM_YELLOW,  "RES_LITE",          OFT_RESIST },
-    { OF_RES_DARK,          "Res Dark",        TERM_L_DARK,  "RES_DARK",          OFT_RESIST },
-    { OF_RES_CONF,          "Res Confusion",   TERM_L_RED,   "RES_CONF",          OFT_RESIST },
-    { OF_RES_NETHER,        "Res Nether",      TERM_L_DARK,  "RES_NETHER",        OFT_RESIST },
-    { OF_RES_NEXUS,         "Res Nexus",       TERM_VIOLET,  "RES_NEXUS",         OFT_RESIST },
-    { OF_RES_SOUND,         "Res Sound",       TERM_ORANGE,  "RES_SOUND",         OFT_RESIST },
-    { OF_RES_SHARDS,        "Res Shards",      TERM_L_UMBER, "RES_SHARDS",        OFT_RESIST },
-    { OF_RES_CHAOS,         "Res Chaos",       TERM_VIOLET,  "RES_CHAOS",         OFT_RESIST },
-    { OF_RES_DISEN,         "Res Disenchant",  TERM_VIOLET,  "RES_DISEN",         OFT_RESIST },
-    { OF_RES_TIME,          "Res Time",        TERM_L_BLUE,  "RES_TIME",          OFT_RESIST },
-    { OF_RES_BLIND,         "Res Blindness",   TERM_L_DARK,  "RES_BLIND",         OFT_RESIST },
-    { OF_RES_FEAR,          "Res Fear",        TERM_ORANGE,  "RES_FEAR",          OFT_RESIST },
-    { OF_IM_ACID,           "Immune Acid",     TERM_GREEN,   "IM_ACID",           OFT_RESIST },
-    { OF_IM_ELEC,           "Immune Elec",     TERM_BLUE,    "IM_ELEC",           OFT_RESIST },
-    { OF_IM_FIRE,           "Immune Fire",     TERM_RED,     "IM_FIRE",           OFT_RESIST },
-    { OF_IM_COLD,           "Immune Cold",     TERM_L_WHITE, "IM_COLD",           OFT_RESIST },
-    { OF_IM_POIS,           "Immune Poison",   TERM_L_GREEN, "IM_POIS",           OFT_RESIST },
-    { OF_IM_LITE,           "Immune Light",    TERM_YELLOW,  "IM_LITE",           OFT_RESIST },
-    { OF_IM_DARK,           "Immune Dark",     TERM_L_DARK,  "IM_DARK",           OFT_RESIST },
-    { OF_IM_NETHER,         "Immune Nether",   TERM_L_DARK,  "IM_NETHER",         OFT_RESIST },
-    { OF_IM_BLIND,          "Immune Blindness",TERM_L_DARK,  "IM_BLIND",          OFT_RESIST },
-    { OF_IM_FEAR,           "Immune Fear",     TERM_ORANGE,  "IM_FEAR",           OFT_RESIST },
-    { OF_VULN_ACID,         "Vuln Acid",       TERM_RED,     "VULN_ACID",         OFT_RESIST },
-    { OF_VULN_ELEC,         "Vuln Elec",       TERM_RED,     "VULN_ELEC",         OFT_RESIST },
-    { OF_VULN_FIRE,         "Vuln Fire",       TERM_RED,     "VULN_FIRE",         OFT_RESIST },
-    { OF_VULN_COLD,         "Vuln Cold",       TERM_RED,     "VULN_COLD",         OFT_RESIST },
-    { OF_VULN_POIS,         "Vuln Poison",     TERM_RED,     "VULN_POIS",         OFT_RESIST },
-    { OF_VULN_LITE,         "Vuln Light",      TERM_RED,     "VULN_LITE",         OFT_RESIST },
-    { OF_VULN_DARK,         "Vuln Dark",       TERM_RED,     "VULN_DARK",         OFT_RESIST },
-    { OF_VULN_CONF,         "Vuln Confusion",  TERM_RED,     "VULN_CONF",         OFT_RESIST },
-    { OF_VULN_NETHER,       "Vuln Nether",     TERM_RED,     "VULN_NETHER",       OFT_RESIST },
-    { OF_VULN_NEXUS,        "Vuln Nexus",      TERM_RED,     "VULN_NEXUS",        OFT_RESIST },
-    { OF_VULN_SOUND,        "Vuln Sound",      TERM_RED,     "VULN_SOUND",        OFT_RESIST },
-    { OF_VULN_SHARDS,       "Vuln Shards",     TERM_RED,     "VULN_SHARDS",       OFT_RESIST },
-    { OF_VULN_CHAOS,        "Vuln Chaos",      TERM_RED,     "VULN_CHAOS",        OFT_RESIST },
-    { OF_VULN_DISEN,        "Vuln Disenchant", TERM_RED,     "VULN_DISEN",        OFT_RESIST },
-    { OF_VULN_BLIND,        "Vuln Blindness",  TERM_RED,     "VULN_BLIND",        OFT_RESIST },
-    { OF_VULN_FEAR,         "Vuln Fear",       TERM_RED,     "VULN_FEAR",         OFT_RESIST },
+    { OF_RES_(GF_ACID),          "Res Acid",        TERM_GREEN,   "RES_ACID",          OFT_RESIST },
+    { OF_RES_(GF_ELEC),          "Res Elec",        TERM_BLUE,    "RES_ELEC",          OFT_RESIST },
+    { OF_RES_(GF_FIRE),          "Res Fire",        TERM_RED,     "RES_FIRE",          OFT_RESIST },
+    { OF_RES_(GF_COLD),          "Res Cold",        TERM_L_WHITE, "RES_COLD",          OFT_RESIST },
+    { OF_RES_(GF_POIS),          "Res Poison",      TERM_L_GREEN, "RES_POIS",          OFT_RESIST },
+    { OF_RES_(GF_LIGHT),         "Res Light",       TERM_YELLOW,  "RES_LIGHT",         OFT_RESIST },
+    { OF_RES_(GF_DARK),          "Res Dark",        TERM_L_DARK,  "RES_DARK",          OFT_RESIST },
+    { OF_RES_(GF_CONF),          "Res Confusion",   TERM_L_RED,   "RES_CONF",          OFT_RESIST },
+    { OF_RES_(GF_NETHER),        "Res Nether",      TERM_L_DARK,  "RES_NETHER",        OFT_RESIST },
+    { OF_RES_(GF_NEXUS),         "Res Nexus",       TERM_VIOLET,  "RES_NEXUS",         OFT_RESIST },
+    { OF_RES_(GF_SOUND),         "Res Sound",       TERM_ORANGE,  "RES_SOUND",         OFT_RESIST },
+    { OF_RES_(GF_SHARDS),        "Res Shards",      TERM_L_UMBER, "RES_SHARDS",        OFT_RESIST },
+    { OF_RES_(GF_CHAOS),         "Res Chaos",       TERM_VIOLET,  "RES_CHAOS",         OFT_RESIST },
+    { OF_RES_(GF_DISEN),         "Res Disenchant",  TERM_VIOLET,  "RES_DISEN",         OFT_RESIST },
+    { OF_RES_(GF_TIME),          "Res Time",        TERM_L_BLUE,  "RES_TIME",          OFT_RESIST },
+    { OF_RES_(GF_BLIND),         "Res Blindness",   TERM_L_DARK,  "RES_BLIND",         OFT_RESIST },
+    { OF_RES_(GF_FEAR),          "Res Fear",        TERM_ORANGE,  "RES_FEAR",          OFT_RESIST },
+    { OF_IM_(GF_ACID),           "Immune Acid",     TERM_GREEN,   "IM_ACID",           OFT_RESIST },
+    { OF_IM_(GF_ELEC),           "Immune Elec",     TERM_BLUE,    "IM_ELEC",           OFT_RESIST },
+    { OF_IM_(GF_FIRE),           "Immune Fire",     TERM_RED,     "IM_FIRE",           OFT_RESIST },
+    { OF_IM_(GF_COLD),           "Immune Cold",     TERM_L_WHITE, "IM_COLD",           OFT_RESIST },
+    { OF_IM_(GF_POIS),           "Immune Poison",   TERM_L_GREEN, "IM_POIS",           OFT_RESIST },
+    { OF_IM_(GF_LIGHT),          "Immune Light",    TERM_YELLOW,  "IM_LIGHT",          OFT_RESIST },
+    { OF_IM_(GF_DARK),           "Immune Dark",     TERM_L_DARK,  "IM_DARK",           OFT_RESIST },
+    { OF_IM_(GF_NETHER),         "Immune Nether",   TERM_L_DARK,  "IM_NETHER",         OFT_RESIST },
+    { OF_IM_(GF_BLIND),          "Immune Blindness",TERM_L_DARK,  "IM_BLIND",          OFT_RESIST },
+    { OF_IM_(GF_FEAR),           "Immune Fear",     TERM_ORANGE,  "IM_FEAR",           OFT_RESIST },
+    { OF_VULN_(GF_ACID),         "Vuln Acid",       TERM_RED,     "VULN_ACID",         OFT_RESIST },
+    { OF_VULN_(GF_ELEC),         "Vuln Elec",       TERM_RED,     "VULN_ELEC",         OFT_RESIST },
+    { OF_VULN_(GF_FIRE),         "Vuln Fire",       TERM_RED,     "VULN_FIRE",         OFT_RESIST },
+    { OF_VULN_(GF_COLD),         "Vuln Cold",       TERM_RED,     "VULN_COLD",         OFT_RESIST },
+    { OF_VULN_(GF_POIS),         "Vuln Poison",     TERM_RED,     "VULN_POIS",         OFT_RESIST },
+    { OF_VULN_(GF_LIGHT),        "Vuln Light",      TERM_RED,     "VULN_LIGHT",        OFT_RESIST },
+    { OF_VULN_(GF_DARK),         "Vuln Dark",       TERM_RED,     "VULN_DARK",         OFT_RESIST },
+    { OF_VULN_(GF_CONF),         "Vuln Confusion",  TERM_RED,     "VULN_CONF",         OFT_RESIST },
+    { OF_VULN_(GF_NETHER),       "Vuln Nether",     TERM_RED,     "VULN_NETHER",       OFT_RESIST },
+    { OF_VULN_(GF_NEXUS),        "Vuln Nexus",      TERM_RED,     "VULN_NEXUS",        OFT_RESIST },
+    { OF_VULN_(GF_SOUND),        "Vuln Sound",      TERM_RED,     "VULN_SOUND",        OFT_RESIST },
+    { OF_VULN_(GF_SHARDS),       "Vuln Shards",     TERM_RED,     "VULN_SHARDS",       OFT_RESIST },
+    { OF_VULN_(GF_CHAOS),        "Vuln Chaos",      TERM_RED,     "VULN_CHAOS",        OFT_RESIST },
+    { OF_VULN_(GF_DISEN),        "Vuln Disenchant", TERM_RED,     "VULN_DISEN",        OFT_RESIST },
+    { OF_VULN_(GF_BLIND),        "Vuln Blindness",  TERM_RED,     "VULN_BLIND",        OFT_RESIST },
+    { OF_VULN_(GF_FEAR),         "Vuln Fear",       TERM_RED,     "VULN_FEAR",         OFT_RESIST },
 
     /* Abilities */
     { OF_FREE_ACT,          "Free Action",     TERM_L_RED,   "FREE_ACT",          OFT_ABILITY },
@@ -1967,7 +2553,7 @@ static of_info_t _of_tbl[OF_COUNT] = {
     { OF_NO_REMOVE,         "No Remove",       TERM_L_BLUE,  "NO_REMOVE",         OFT_ABILITY },
     { OF_EASY_SPELL,        "Easy Spell",      TERM_L_GREEN, "EASY_SPELL",        OFT_ABILITY | OFT_LORE },
     { OF_DEC_MANA,          "Economical Mana", TERM_L_BLUE,  "DEC_MANA",          OFT_ABILITY | OFT_LORE },
-    { OF_LITE,              "Light",           TERM_YELLOW,  "LITE",              OFT_ABILITY | OFT_LORE },
+    { OF_LIGHT,             "Light",           TERM_YELLOW,  "LIGHT",             OFT_ABILITY | OFT_LORE },
     { OF_DARKNESS,          "Darkness",        TERM_L_DARK,  "DARKNESS",          OFT_ABILITY | OFT_LORE },
     { OF_LORE1,             "Pseudo-Identify", TERM_L_BLUE,  "LORE1",             OFT_ABILITY },
     { OF_LORE2,             "Identify",        TERM_L_BLUE,  "LORE2",             OFT_ABILITY },
@@ -2031,7 +2617,7 @@ static of_info_t _of_tbl[OF_COUNT] = {
     { OF_BRAND_CHAOS,       "Mark of Chaos",   TERM_VIOLET,  "BRAND_CHAOS",       OFT_BRAND },
     { OF_BRAND_VAMP,        "Vampiric",        TERM_L_DARK,  "BRAND_VAMP",        OFT_BRAND },
     { OF_BRAND_MANA,        "Mana Brand",      TERM_L_BLUE,  "BRAND_MANA",        OFT_BRAND },
-    { OF_BRAND_LITE,        "Light Brand",     TERM_YELLOW,  "BRAND_LITE",        OFT_BRAND },
+    { OF_BRAND_LIGHT,       "Light Brand",     TERM_YELLOW,  "BRAND_LIGHT",       OFT_BRAND },
     { OF_BRAND_DARK,        "Dark Brand",      TERM_L_DARK,  "BRAND_DARK",        OFT_BRAND },
     { OF_BRAND_TIME,        "Time Brand",      TERM_L_BLUE,  "BRAND_TIME",        OFT_BRAND },
     { OF_BRAND_PLASMA,      "Plasma Brand",    TERM_L_RED,   "BRAND_PLASMA",      OFT_BRAND },
@@ -2063,6 +2649,7 @@ static of_info_t _of_tbl[OF_COUNT] = {
     { OF_MELEE,             "Melee Damage",    TERM_WHITE,   "MELEE",             OFT_OTHER | OFT_LORE },
 
     /* New object flags ... reorder when able */
+    { 0 }
 };
 
 of_info_ptr of_parse_name(cptr token)
@@ -2072,9 +2659,10 @@ of_info_ptr of_parse_name(cptr token)
     {
         int i;
         _map = str_map_alloc(NULL);
-        for (i = 0; i < OF_COUNT; i++)
+        for (i = 0; ; i++)
         {
             of_info_ptr info = &_of_tbl[i];
+            if (!info->name) break;
             str_map_add(_map, info->parse, info);
         }
     }
@@ -2083,13 +2671,19 @@ of_info_ptr of_parse_name(cptr token)
 
 of_info_ptr of_lookup(int id)
 {
-    of_info_ptr of = NULL;
-    if (0 < id && id < OF_COUNT)
+    static int_map_ptr _map = NULL;
+    if (!_map)
     {
-        of = &_of_tbl[id];
-        assert(of->id == id);
+        int i;
+        _map = int_map_alloc(NULL);
+        for (i = 0; ; i++)
+        {
+            of_info_ptr info = &_of_tbl[i];
+            if (!info->name) break;
+            int_map_add(_map, info->id, info);
+        }
     }
-    return of;
+    return int_map_find(_map, id);
 }
 
 static bool _of_is_pval(of_info_ptr info) { return BOOL(info->flags & OFT_PVAL); }
@@ -2126,9 +2720,10 @@ vec_ptr of_lookup_filter(of_info_p p)
 {
     vec_ptr v = vec_alloc(NULL);
     int     i;
-    for (i = 0; i < OF_COUNT; i++)
+    for (i = 0; ; i++)
     {
         of_info_ptr info = &_of_tbl[i];
+        if (!info->name) break;
         if (p && !p(info)) continue;
         vec_add(v, info);
     }
@@ -2144,9 +2739,10 @@ vec_ptr of_filter(u32b flgs[OF_ARRAY_SIZE], of_info_p p)
 {
     vec_ptr v = vec_alloc(NULL);
     int     i;
-    for (i = 0; i < OF_COUNT; i++)
+    for (i = 0; ; i++)
     {
         of_info_ptr info = &_of_tbl[i];
+        if (!info->name) break;
         if (p && !p(info)) continue;
         if (!have_flag(flgs, info->id)) continue;
         vec_add(v, info);
@@ -2164,9 +2760,10 @@ bool of_has_pval(u32b flgs[OF_ARRAY_SIZE])
     assert(OF_STR < 32); /* rely on non-zero first word to detect an initialized mask */
     if (!mask[0])
     {
-        for (i = 0; i < OF_COUNT; i++)
+        for (i = 0; ; i++)
         {
             of_info_ptr info = &_of_tbl[i];
+            if (!info->name) break;
             if (!(info->flags & OFT_PVAL)) continue;
             add_flag(mask, info->id);
         }
@@ -2190,9 +2787,10 @@ bool of_has_nonspeed_pval(u32b flgs[OF_ARRAY_SIZE])
     assert(OF_STR < 32);
     if (!mask[0])
     {
-        for (i = 0; i < OF_COUNT; i++)
+        for (i = 0; ; i++)
         {
             of_info_ptr info = &_of_tbl[i];
+            if (!info->name) break;
             if (info->id == OF_SPEED) continue;
             if (!(info->flags & OFT_PVAL)) continue;
             add_flag(mask, info->id);
@@ -2211,9 +2809,10 @@ bool of_has_nonspeed_pval(u32b flgs[OF_ARRAY_SIZE])
 bool of_has(u32b flgs[OF_ARRAY_SIZE], of_info_p p)
 {
     int i;
-    for (i = 0; i < OF_COUNT; i++)
+    for (i = 0; ; i++)
     {
         of_info_ptr info = &_of_tbl[i];
+        if (!info->name) break;
         if (p && !p(info)) continue;
         if (have_flag(flgs, info->id)) return TRUE;
     }
@@ -2223,11 +2822,11 @@ bool of_has(u32b flgs[OF_ARRAY_SIZE], of_info_p p)
 /************************************************************************
  * Object Drops
  ***********************************************************************/
-static bool _replace_art(int a_idx)
+static bool _replace_art(art_ptr art)
 {
-    if (a_info[a_idx].generated) return TRUE;
+    if (art->generated) return TRUE;
     if ( random_artifacts
-      && !(a_info[a_idx].gen_flags & OFG_FIXED_ART)
+      && !(art->gen_flags & OFG_FIXED_ART)
       && randint0(100) < random_artifact_pct )
     {
         return TRUE;
@@ -2286,21 +2885,20 @@ obj_ptr obj_drop_make(obj_drop_ptr info, int level, int mode)
 
     if (info->flags & OBJ_DROP_STD_ART)
     {
+        art_ptr art = arts_lookup(info->object);
         if (no_artifacts)
             object_prep(&forge, lookup_kind(TV_SCROLL, SV_SCROLL_ACQUIREMENT));
-        else if (_replace_art(info->object))
+        else if (_replace_art(art))
         {
             /* Monster drops should not replace standard arts. Quest rewards,
              * on the other hand, definitely should generate replacements! */
-            if ((info->flags & OBJ_DROP_MON) && a_info[info->object].generated)
+            if ((info->flags & OBJ_DROP_MON) && art->generated)
                 return NULL;
-            art_create_replacement(&forge, info->object);
-            a_info[info->object].generated = TRUE;
+            art_create_replacement(&forge, art, mode);
         }
         else
         {
-            art_create_std(&forge, info->object, 0);
-            a_info[info->object].generated = TRUE;
+            art_create_std(&forge, art, mode);
         }
     }
     else if (info->flags & OBJ_DROP_RANDOM)
@@ -2442,7 +3040,7 @@ static _object_type_t _object_types[] =
     { "SOFT_ARMOR",         TV_SOFT_ARMOR, EGO_TYPE_BODY_ARMOR },
     { "HARD_ARMOR",         TV_HARD_ARMOR, EGO_TYPE_BODY_ARMOR },
     { "DRAG_ARMOR",         TV_DRAG_ARMOR, EGO_TYPE_BODY_ARMOR },
-    { "LITE",               TV_LITE, EGO_TYPE_LITE },
+    { "LIGHT",              TV_LIGHT, EGO_TYPE_LIGHT },
     { "AMULET",             TV_AMULET, EGO_TYPE_AMULET },
     { "RING",               TV_RING, EGO_TYPE_RING },
     { "STAFF",              TV_STAFF, EGO_TYPE_DEVICE },
@@ -2463,6 +3061,7 @@ static _object_type_t _object_types[] =
     { "CRUSADE_BOOK",       TV_CRUSADE_BOOK },
     { "NECROMANCY_BOOK",    TV_NECROMANCY_BOOK },
     { "ARMAGEDDON_BOOK",    TV_ARMAGEDDON_BOOK },
+    { "ILLUSION_BOOK",      TV_ILLUSION_BOOK },
     { "MUSIC_BOOK",         TV_MUSIC_BOOK },
     { "HISSATSU_BOOK",      TV_HISSATSU_BOOK },
     { "HEX_BOOK",           TV_HEX_BOOK },
@@ -2660,11 +3259,11 @@ static int _lookup_ego(cptr name, int type, int options)
         char      buf[255];
         if (!e_ptr->name) continue;
         if (type && !(e_ptr->type & type)) continue;
-        parse_prep_name(buf, e_name + e_ptr->name);
+        parse_prep_name(buf, e_ptr->name);
         if (strstr(buf, name))
         {
             if (trace_doc)
-                doc_printf(trace_doc, "Matching ego <color:B>%s</color> to <color:R>%s</color> (%d).\n", name, e_name + e_ptr->name, i);
+                doc_printf(trace_doc, "Matching ego <color:B>%s</color> to <color:R>%s</color> (%d).\n", name, e_ptr->name, i);
             return i;
         }
     }
@@ -2738,7 +3337,7 @@ errr obj_drop_parse_ego(char **args, int arg_ct, obj_drop_ptr info, int options)
 }
 
 /* OBJ(CLOAK, DEPTH+20):ART(*)   Rand-art cloak generated 20 levels OoD
-   ART(crisdurian)               The Executioner's Sword 'Crisdurian' */
+   ART(|.Crisdurian)             The Executioner's Sword 'Crisdurian' */
 errr obj_drop_parse_art(char **args, int arg_ct, obj_drop_ptr info, int options)
 {
     switch (arg_ct)
@@ -2750,16 +3349,15 @@ errr obj_drop_parse_art(char **args, int arg_ct, obj_drop_ptr info, int options)
         }
         else
         {
-            if (_is_numeric(args[0]))
-                info->object = atoi(args[0]);
-            else
-                info->object = parse_lookup_artifact(args[0], options);
-            if (!info->object)
+            art_ptr art = arts_parse(args[0]);
+            if (!art)
             {
-                msg_format("Error: Unknown Artifact %s.", args[0]);
+                msg_format("<color:v>Error</color>: Unknown Artifact <color:R>%s</color>.", args[0]);
                 return PARSE_ERROR_GENERIC;
             }
             info->flags |= OBJ_DROP_STD_ART;
+            info->object = art->id;
+            assert(info->object == art->id);
         }
         break;
 

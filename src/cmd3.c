@@ -24,7 +24,7 @@ void do_cmd_drop(void)
 {
     obj_prompt_t prompt = {0};
 
-    if (p_ptr->special_defense & KATA_MUSOU)
+    if (plr->special_defense & KATA_MUSOU)
         set_action(ACTION_NONE);
 
     prompt.prompt = "Drop which item?";
@@ -54,19 +54,7 @@ void do_cmd_drop(void)
 
 bool high_level_book(object_type *o_ptr)
 {
-    if ((o_ptr->tval == TV_LIFE_BOOK) ||
-        (o_ptr->tval == TV_SORCERY_BOOK) ||
-        (o_ptr->tval == TV_NATURE_BOOK) ||
-        (o_ptr->tval == TV_CHAOS_BOOK) ||
-        (o_ptr->tval == TV_DEATH_BOOK) ||
-        (o_ptr->tval == TV_TRUMP_BOOK) ||
-        (o_ptr->tval == TV_CRAFT_BOOK) ||
-        (o_ptr->tval == TV_DAEMON_BOOK) ||
-        (o_ptr->tval == TV_CRUSADE_BOOK) ||
-        (o_ptr->tval == TV_NECROMANCY_BOOK) ||
-        (o_ptr->tval == TV_ARMAGEDDON_BOOK) ||
-        (o_ptr->tval == TV_MUSIC_BOOK) ||
-        (o_ptr->tval == TV_HEX_BOOK))
+    if (tv_is_spellbook(o_ptr->tval) && o_ptr->tval != TV_ARCANE_BOOK)
     {
         if (o_ptr->sval > 1)
             return TRUE;
@@ -86,8 +74,8 @@ static bool item_tester_refill_lantern(object_type *o_ptr)
     if (o_ptr->tval == TV_FLASK) return (TRUE);
 
     /* Laterns are okay */
-    if ((o_ptr->tval == TV_LITE) &&
-        (o_ptr->sval == SV_LITE_LANTERN)) return (TRUE);
+    if ((o_ptr->tval == TV_LIGHT) &&
+        (o_ptr->sval == SV_LIGHT_LANTERN)) return (TRUE);
 
     /* Assume not okay */
     return (FALSE);
@@ -95,7 +83,7 @@ static bool item_tester_refill_lantern(object_type *o_ptr)
 
 static bool _lite_is_darkness(object_type *lite)
 {
-    if (lite->name2 == EGO_LITE_DARKNESS || have_flag(lite->flags, OF_DARKNESS))
+    if (lite->name2 == EGO_LIGHT_DARKNESS || have_flag(lite->flags, OF_DARKNESS))
         return TRUE;
     return FALSE;
 }
@@ -137,7 +125,7 @@ static void do_cmd_refill_lamp(object_type *lantern)
 
     prompt.obj->number--;
     obj_release(prompt.obj, 0);
-    p_ptr->update |= PU_TORCH;
+    plr->update |= PU_TORCH;
 }
 
 
@@ -145,7 +133,7 @@ static void do_cmd_refill_lamp(object_type *lantern)
  * Refuel the players torch (from the pack or floor)
  */
 static bool _is_torch(object_type *o_ptr) {
-    return object_is_(o_ptr, TV_LITE, SV_LITE_TORCH);
+    return object_is_(o_ptr, TV_LIGHT, SV_LIGHT_TORCH);
 }
 static void do_cmd_refill_torch(object_type *torch)
 {
@@ -184,7 +172,7 @@ static void do_cmd_refill_torch(object_type *torch)
 
     prompt.obj->number--;
     obj_release(prompt.obj, 0);
-    p_ptr->update |= PU_TORCH;
+    plr->update |= PU_TORCH;
 }
 
 /*
@@ -192,21 +180,21 @@ static void do_cmd_refill_torch(object_type *torch)
  */
 void do_cmd_refill(void)
 {
-    int slot = equip_find_obj(TV_LITE, SV_ANY);
+    int slot = equip_find_obj(TV_LIGHT, SV_ANY);
 
     if (slot)
     {
         object_type *o_ptr = equip_obj(slot);
 
-        if (p_ptr->special_defense & KATA_MUSOU)
+        if (plr->special_defense & KATA_MUSOU)
             set_action(ACTION_NONE);
 
         switch (o_ptr->sval)
         {
-        case SV_LITE_LANTERN:
+        case SV_LIGHT_LANTERN:
             do_cmd_refill_lamp(o_ptr);
             break;
-        case SV_LITE_TORCH:
+        case SV_LIGHT_TORCH:
             do_cmd_refill_torch(o_ptr);
             break;
         default:
@@ -225,17 +213,19 @@ void do_cmd_target(void)
     /* Target set */
     if (target_set(TARGET_KILL))
     {
-        if (target_who > 0)
+        assert(!who_is_null(plr->target));
+        if (who_is_mon(plr->target))
         {
-            monster_type *m_ptr = dun_mon(cave, target_who);
-            char          m_name[MAX_NLEN];
+            mon_ptr mon = who_mon(plr->target);
+            char    m_name[MAX_NLEN];
 
-            monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+            monster_desc(m_name, mon, MD_INDEF_VISIBLE);
             msg_format("Targetting %s.", m_name);
         }
-        else
+        else if (who_is_pos(plr->target))
         {
-            msg_format("Targetting Position %d, %d.", target_row, target_col);
+            point_t pos = who_pos(plr->target);
+            msg_format("Targetting Position (%d, %d).", pos.x, pos.y);
         }
     }
 
@@ -243,7 +233,6 @@ void do_cmd_target(void)
     else
     {
         msg_print("Target Aborted.");
-
     }
 }
 
@@ -335,88 +324,13 @@ void do_cmd_locate(void)
 
     viewport_verify();
 
-    p_ptr->update |= PU_MONSTERS;
-    p_ptr->redraw |= PR_MAP;
-    p_ptr->window |= PW_OVERHEAD | PW_DUNGEON;
+    plr->update |= PU_MONSTERS;
+    plr->redraw |= PR_MAP;
+    plr->window |= PW_OVERHEAD | PW_DUNGEON;
 
     redraw_hack = TRUE;
     handle_stuff();
     redraw_hack = FALSE;
-}
-
-
-
-/*
- * Sorting hook -- Comp function -- see below
- *
- * We use "u" to point to array of monster indexes,
- * and "v" to select the type of sorting to perform on "u".
- */
-bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
-{
-    u16b *who = (u16b*)(u);
-
-    u16b *why = (u16b*)(v);
-
-    int w1 = who[a];
-    int w2 = who[b];
-
-    int z1, z2;
-
-    /* Sort by player kills */
-    if (*why >= 4)
-    {
-        /* Extract player kills */
-        z1 = r_info[w1].r_pkills;
-        z2 = r_info[w2].r_pkills;
-
-        /* Compare player kills */
-        if (z1 < z2) return (TRUE);
-        if (z1 > z2) return (FALSE);
-    }
-
-
-    /* Sort by total kills */
-    if (*why >= 3)
-    {
-        /* Extract total kills */
-        z1 = r_info[w1].r_tkills;
-        z2 = r_info[w2].r_tkills;
-
-        /* Compare total kills */
-        if (z1 < z2) return (TRUE);
-        if (z1 > z2) return (FALSE);
-    }
-
-
-    /* Sort by monster level */
-    if (*why >= 2)
-    {
-        /* Extract levels */
-        z1 = r_info[w1].level;
-        z2 = r_info[w2].level;
-
-        /* Compare levels */
-        if (z1 < z2) return (TRUE);
-        if (z1 > z2) return (FALSE);
-    }
-
-
-    /* Sort by monster experience */
-    if (*why >= 1)
-    {
-        /* Extract experience */
-        z1 = r_info[w1].mexp;
-        z2 = r_info[w2].mexp;
-
-        /* Compare experience */
-        if (z1 < z2) return (TRUE);
-        if (z1 > z2) return (FALSE);
-    }
-
-
-    /* Compare indexes */
-    return (w1 <= w2);
 }
 
 
@@ -455,9 +369,44 @@ void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
  *
  * Note that the player ghosts are ignored. XXX XXX XXX
  */
+static int _cmp_exp(mon_race_ptr l, mon_race_ptr r)
+{
+    if (l->mexp < r->mexp) return 1;
+    if (l->mexp > r->mexp) return -1;
+    return strcmp(l->name, r->name);
+}
+static int _cmp_r_lvl(mon_race_ptr l, mon_race_ptr r)
+{
+    if (l->alloc.lvl < r->alloc.lvl) return 1;
+    if (l->alloc.lvl > r->alloc.lvl) return -1;
+    return _cmp_exp(l, r);
+}
+static int _cmp_kills(mon_race_ptr l, mon_race_ptr r)
+{
+    if (l->lore.kills.current < r->lore.kills.current) return 1;
+    if (l->lore.kills.current > r->lore.kills.current) return -1;
+    return _cmp_r_lvl(l, r);
+}
+static void _display_races(vec_ptr v)
+{
+    doc_ptr doc = doc_alloc(80);
+    int i;
+    for (i = 0; i < vec_length(v); i++)
+    {
+        mon_race_ptr race = vec_get(v, i);
+        doc_printf(doc, "<topic:%s><color:r>=====================================================================</color>\n", race->name);
+        mon_display_doc(race, doc);
+        doc_newline(doc);
+    }
+    screen_save();
+    doc_display(doc, "Monster Knowledge", 0);
+    screen_load();
+    doc_free(doc);
+}
+
 void do_cmd_query_symbol(void)
 {
-    int        i, n, r_idx;
+    int     i;
     char    sym, query;
     char    buf[128];
 
@@ -469,9 +418,7 @@ void do_cmd_query_symbol(void)
 
     bool    recall = FALSE;
     doc_ptr doc = NULL;
-
-    u16b    why = 0;
-    u16b    *who;
+    vec_ptr v = NULL;
 
     /* Get a character, or abort */
     if (!get_com("Enter character to be identified(^A:All,^U:Uniqs,^N:Non uniqs,^M:Name): ", &sym, FALSE)) return;
@@ -507,7 +454,7 @@ void do_cmd_query_symbol(void)
     else if (sym == KTRL('M'))
     {
         all = TRUE;
-        if (!get_string("Enter name:",temp, 70))
+        if (!get_string("Enter name: ",temp, 70))
         {
             temp[0]=0;
             return;
@@ -527,55 +474,58 @@ void do_cmd_query_symbol(void)
     prt(buf, 0, 0);
 
     /* Allocate the "who" array */
-    C_MAKE(who, max_r_idx, u16b);
+    v = vec_alloc(NULL);
 
     /* Collect matching monsters */
-    for (n = 0, i = 1; i < max_r_idx; i++)
+    for (i = 0; i < vec_length(mon_alloc_tbl); i++)
     {
-        monster_race *r_ptr = &r_info[i];
+        mon_race_ptr race = vec_get(mon_alloc_tbl, i);
 
         /* Nothing to recall */
-        if (!p_ptr->wizard && !r_ptr->r_sights) continue;
-        if (r_ptr->flagsx & RFX_SUPPRESS) continue;
+        if (!plr->wizard && !race->lore.sightings) continue;
+        if (race->flagsx & RFX_SUPPRESS) continue;
 
         /* Require non-unique monsters if needed */
-        if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
+        if (norm && mon_race_is_unique(race)) continue;
 
         /* Require unique monsters if needed */
-        if (uniq && !(r_ptr->flags1 & (RF1_UNIQUE))) continue;
+        if (uniq && !mon_race_is_unique(race)) continue;
 
         /* Require ridable monsters if needed */
-        if (ride && !(r_ptr->flags7 & (RF7_RIDING))) continue;
+        if (ride && !mon_race_is_ridable(race)) continue;
 
         /* XTRA HACK WHATSEARCH */
         if (temp[0])
         {
-          int xx;
-          char temp2[80];
+            int xx;
+            char temp2[80];
 
-          for (xx=0; temp[xx] && xx<80; xx++)
-          {
-            if (isupper(temp[xx])) temp[xx]=tolower(temp[xx]);
-          }
+            for (xx=0; temp[xx] && xx<80; xx++)
+            {
+                if (isupper(temp[xx]))
+                    temp[xx]=tolower(temp[xx]);
+            }
 
-          strcpy(temp2, r_name+r_ptr->name);
-          for (xx=0; temp2[xx] && xx<80; xx++)
-            if (isupper(temp2[xx])) temp2[xx]=tolower(temp2[xx]);
+            strcpy(temp2, race->name);
+            for (xx=0; temp2[xx] && xx<80; xx++)
+            {
+                if (isupper(temp2[xx]))
+                    temp2[xx]=tolower(temp2[xx]);
+            }
 
-          if (my_strstr(temp2, temp))
-              who[n++]=i;
+            if (my_strstr(temp2, temp))
+                vec_add(v, race);
         }
 
         /* Collect "appropriate" monsters */
-        else if (all || (r_ptr->d_char == sym)) who[n++] = i;
+        else if (all || mon_race_is_char(race, sym))
+            vec_add(v, race);
     }
 
     /* Nothing to recall */
-    if (!n)
+    if (!vec_length(v))
     {
-        /* Free the "who" array */
-        C_KILL(who, max_r_idx, u16b);
-
+        vec_free(v);
         return;
     }
 
@@ -590,55 +540,34 @@ void do_cmd_query_symbol(void)
     /* Restore */
     prt(buf, 0, 0);
 
-    why = 2;
-
-    /* Select the sort method */
-    ang_sort_comp = ang_sort_comp_hook;
-    ang_sort_swap = ang_sort_swap_hook;
-
-    /* Sort the array */
-    ang_sort(who, &why, n);
-
-    /* Sort by kills (and level) */
-    if (query == 'k')
-    {
-        why = 4;
-        query = 'y';
-    }
-
     /* Catch "escape" */
-    if (query != 'y')
+    if (query != 'y' && query != 'k')
     {
-        /* Free the "who" array */
-        C_KILL(who, max_r_idx, u16b);
-
+        vec_free(v);
         return;
     }
 
-    /* Sort if needed */
-    if (why == 4)
+    /* Sort */
+    if (query == 'k')
     {
-        /* Select the sort method */
-        ang_sort_comp = ang_sort_comp_hook;
-        ang_sort_swap = ang_sort_swap_hook;
-
-        /* Sort the array */
-        ang_sort(who, &why, n);
+        vec_sort(v, (vec_cmp_f)_cmp_kills);
+        query = 'y';
     }
+    else
+        vec_sort(v, (vec_cmp_f)_cmp_r_lvl);
 
     doc = doc_alloc(72);
 
-    /* Start at the end */
-    i = n - 1;
+    i = 0;
 
     /* Scan the monster memory */
     while (1)
     {
         /* Extract a race */
-        r_idx = who[i];
+        mon_race_ptr race = vec_get(v, i);
 
         /* Hack -- Auto-recall */
-        monster_race_track(r_idx);
+        monster_race_track(race);
 
         /* Hack -- Handle stuff */
         handle_stuff();
@@ -655,15 +584,15 @@ void do_cmd_query_symbol(void)
                 /* Recall on screen
                 screen_roff(who[i], 0);*/
                 doc_clear(doc);
-                mon_display_doc(mon_race_lookup(who[i]), doc);
+                mon_display_doc(race, doc);
                 doc_sync_term(doc, doc_range_all(doc), doc_pos_create(0, 1));
             }
 
             /* Hack -- Begin the prompt */
-            roff_top(r_idx);
+            roff_top(race->id);
 
             /* Hack -- Complete the prompt */
-            Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");
+            Term_addstr(-1, TERM_WHITE, " [(r)ecall, |, ESC]");
 
             /* Command */
             query = inkey();
@@ -685,29 +614,27 @@ void do_cmd_query_symbol(void)
         /* Stop scanning */
         if (query == ESCAPE) break;
 
-        /* Move to "prev" monster */
-        if (query == '-')
+        else if (query == '|')
         {
-            if (++i == n)
-            {
-                i = 0;
-                if (!expand_list) break;
-            }
+            _display_races(v);
+        }
+
+        /* Move to "prev" monster */
+        else if (query == '-')
+        {
+            if (i == 0) i = vec_length(v) - 1;
+            else i--;
         }
 
         /* Move to "next" monster */
         else
         {
-            if (i-- == 0)
-            {
-                i = n - 1;
-                if (!expand_list) break;
-            }
+            if (i == vec_length(v) - 1) i = 0;
+            else i++;
         }
     }
 
-    /* Free the "who" array */
-    C_KILL(who, max_r_idx, u16b);
+    vec_free(v);
     doc_free(doc);
 
     /* Re-display the identity */
@@ -733,7 +660,7 @@ struct _mon_list_info_s
     int subgroup;
     int r_idx;
     int level;
-    int m_idx;   /* Allows Targetting for Groups of One */
+    u32b m_idx;   /* Allows Targetting for Groups of One */
     int ct_total;
     int ct_awake;
     int ct_los;
@@ -743,6 +670,7 @@ struct _mon_list_info_s
                     Otherwise, m_idx is the monster in this group that is closest to
                     the player. */
     bool fuzzy;
+    bool pet;
 };
 
 typedef struct _mon_list_info_s _mon_list_info_t, *_mon_list_info_ptr;
@@ -830,9 +758,9 @@ static _mon_list_ptr _create_monster_list(int mode)
             int_map_iter_next(iter))
     {
         mon_ptr             mon = int_map_iter_current(iter);
-        mon_race_ptr        race = mon_apparent_race(mon);
+        mon_race_ptr        race = mon->apparent_race;
         int                 key;
-        bool                los, fuzzy;
+        bool                los, fuzzy, pet = mon_is_pet(mon);
         _mon_list_info_ptr  info_ptr;
         int_map_ptr         which_map = map;
 
@@ -843,7 +771,7 @@ static _mon_list_ptr _create_monster_list(int mode)
             continue;
         }
 
-        los = point_project(p_ptr->pos, mon->pos);
+        los = point_project(plr->pos, mon->pos);
         fuzzy = BOOL(mon->mflag2 & MFLAG2_FUZZY);
 
         if (mode == MON_LIST_PROBING) /* No grouping and only display los monsters */
@@ -855,15 +783,17 @@ static _mon_list_ptr _create_monster_list(int mode)
                 if (mon->mflag2 & MFLAG2_KAGE)
                     mon->mflag2 &= ~(MFLAG2_KAGE);
 
-                mon->ap_r_idx = mon->r_idx;
-                race = mon_race(mon);
-                lite_pos(mon->pos);
+                mon->apparent_race = mon->race;
+                race = mon->race;
+                draw_pos(mon->pos);
             }
-            lore_do_probe(mon->r_idx);
+            lore_do_probe(mon->race->id);
             key = mon->id;
         }
+        else if (pet) /* don't group pets since we provide commands to name and dismiss them */
+            key = mon->id;
         else if (fuzzy)
-            key = race->d_char;
+            key = mon_race_char(race);
         else
             key = race->id;
 
@@ -879,11 +809,12 @@ static _mon_list_ptr _create_monster_list(int mode)
             info_ptr->subgroup = _SUBGROUP_DATA;
             info_ptr->r_idx = race->id;
             info_ptr->m_idx = mon->id;
-            info_ptr->level = race->level;
-            info_ptr->dy = mon->pos.y - p_ptr->pos.y;
-            info_ptr->dx = mon->pos.x - p_ptr->pos.x;
+            info_ptr->level = mon_race_lvl(race);
+            info_ptr->dy = mon->pos.y - plr->pos.y;
+            info_ptr->dx = mon->pos.x - plr->pos.x;
             info_ptr->dis = mon->cdis;
             info_ptr->fuzzy = fuzzy;
+            info_ptr->pet = pet;
 
             int_map_add(which_map, key, info_ptr);
         }
@@ -891,21 +822,21 @@ static _mon_list_ptr _create_monster_list(int mode)
         assert(info_ptr);
         info_ptr->ct_total++;
         result->ct_total++;
-        result->ct_level += race->level;
+        result->ct_level += mon_race_lvl(race);
 
-        if (target_who == mon->id)
+        if (who_mon(plr->target) == mon)
         {
             info_ptr->m_idx = mon->id;
-            info_ptr->dy = mon->pos.y - p_ptr->pos.y;
-            info_ptr->dx = mon->pos.x - p_ptr->pos.x;
+            info_ptr->dy = mon->pos.y - plr->pos.y;
+            info_ptr->dx = mon->pos.x - plr->pos.x;
             info_ptr->dis = mon->cdis;
             info_ptr->target = TRUE;
         }
         else if (mon->cdis < info_ptr->dis && !info_ptr->target)
         {
             info_ptr->m_idx = mon->id;
-            info_ptr->dy = mon->pos.y - p_ptr->pos.y;
-            info_ptr->dx = mon->pos.x - p_ptr->pos.x;
+            info_ptr->dy = mon->pos.y - plr->pos.y;
+            info_ptr->dx = mon->pos.x - plr->pos.x;
             info_ptr->dis = mon->cdis;
         }
 
@@ -978,15 +909,16 @@ static _mon_list_ptr _create_monster_list(int mode)
 
     /* Hack: Auto track the first monster on the list
      * if the old track is either missing, or stale. */
-    if ( !p_ptr->monster_race_idx
-      || !int_map_find(los_map, p_ptr->monster_race_idx) )
+    if ( !plr->monster_race_idx
+      || !int_map_find(los_map, plr->monster_race_idx) )
     {
+        mon_ptr mon = who_mon(plr->target);
+
         /* If there is a valid target, it should already be tracking,
          * but let's double check */
-        if ( target_who > 0
-          && int_map_find(los_map, dun_mon(cave, target_who)->r_idx) )
+        if (mon && int_map_find(los_map, mon->race->id))
         {
-            monster_race_track(dun_mon(cave, target_who)->r_idx);
+            monster_race_track(mon->race);
         }
         else
         {
@@ -996,7 +928,8 @@ static _mon_list_ptr _create_monster_list(int mode)
                 _mon_list_info_ptr info_ptr = vec_get(result->list, i);
                 if (info_ptr->subgroup == _SUBGROUP_DATA && !info_ptr->fuzzy)
                 {
-                    monster_race_track(info_ptr->r_idx);
+                    mon_race_ptr race = mon_race_lookup(info_ptr->r_idx);
+                    monster_race_track(race);
                     break;
                 }
             }
@@ -1058,7 +991,7 @@ static int _draw_monster_list(_mon_list_ptr list, int top, rect_t rect, int mode
                     info_ptr->ct_awake,
                     info_ptr->ct_awake == 1 ? "is" : "are"
                 );
-                if (p_ptr->wizard && list->ct_total)
+                if (plr->wizard && list->ct_total)
                 {
                     sprintf(buf + strlen(buf), " %d.%02d",
                         list->ct_level/list->ct_total,
@@ -1073,34 +1006,42 @@ static int _draw_monster_list(_mon_list_ptr list, int top, rect_t rect, int mode
         }
         else
         {
-            const monster_race *r_ptr;
-            byte                attr = TERM_WHITE;
-            char                buf[100];
-            char                loc[100];
-            cptr                name;
+            mon_race_ptr r_ptr;
+            byte         attr = TERM_WHITE;
+            char         buf[MAX_NLEN + 50];
+            char         loc[100];
+            char         name[MAX_NLEN];
 
-            assert(info_ptr->r_idx > 0);
             r_ptr = mon_race_lookup(info_ptr->r_idx);
 
-            if (info_ptr->fuzzy)
+            if (info_ptr->pet)
+                attr = TERM_L_UMBER;
+            else if (info_ptr->fuzzy)
                 attr = TERM_WHITE;
-            else if (r_ptr->flags1 & RF1_UNIQUE)
+            else if (mon_race_is_unique(r_ptr))
                 attr = TERM_VIOLET;
             else if (!info_ptr->ct_awake)
                 attr = TERM_L_DARK;
 
-            if (info_ptr->fuzzy)
+            if (info_ptr->pet)
             {
-                name = info_ptr->ct_total > 1 ? mon_race_describe_plural(r_ptr->d_char)
-                        : mon_race_describe_singular(r_ptr->d_char);
+                mon_ptr mon = dun_mon(cave, info_ptr->m_idx);
+                monster_desc(name, mon, 0);
+                /* XXX Switch to z-doc for display: strcat(name, "(<color:o>Pet</color>)");*/
+            }
+            else if (info_ptr->fuzzy)
+            {
+                cptr temp = info_ptr->ct_total > 1 ? mon_race_describe_plural(r_ptr)
+                        : mon_race_describe_singular(r_ptr);
+                sprintf(name, "%s", temp);
             }
             else
-                name = r_name + r_ptr->name;
+                sprintf(name, "%s", r_ptr->name);
 
             if (info_ptr->ct_total == 1)
             {
                 sprintf(buf, "%s", name);
-                if ((r_ptr->flags1 & RF1_UNIQUE) && !info_ptr->ct_awake)
+                if (mon_race_is_unique(r_ptr) && !info_ptr->ct_awake)
                     strcat(buf, " (asleep)");
                 if (info_ptr->group == _GROUP_LOS && display_distance)
                 {
@@ -1124,9 +1065,9 @@ static int _draw_monster_list(_mon_list_ptr list, int top, rect_t rect, int mode
             }
 
             if (info_ptr->fuzzy)
-                Term_queue_char(rect.x + 1, rect.y + i, TERM_WHITE, r_ptr->d_char, 0, 0);
+                Term_queue_term_char(point_create(rect.x + 1, rect.y + i), mon_race_visual_fuzzy(r_ptr));
             else
-                Term_queue_bigchar(rect.x + 1, rect.y + i, r_ptr->x_attr, r_ptr->x_char, 0, 0);
+                Term_queue_term_char(point_create(rect.x + 1, rect.y + i), mon_race_visual(r_ptr));
             if (info_ptr->ct_total == 1)
             {
                 c_put_str(attr, format(mon_fmt, buf), rect.y + i, rect.x + 3);
@@ -1159,13 +1100,13 @@ static byte _mon_exp_color(monster_type *m_ptr)
     return 'y';
 }
 
-static void _mon_display_probe(doc_ptr doc, int m_idx)
+static void _mon_display_probe(doc_ptr doc, u32b m_idx)
 {
     monster_type *m_ptr = dun_mon(cave, m_idx);
-    monster_race *r_ptr = mon_race(m_ptr);
+    monster_race *r_ptr = m_ptr->race;
     int           speed;
 
-    speed = m_ptr->mspeed - 110;
+    speed = m_ptr->mspeed;
     if (m_ptr->nickname)
         doc_printf(doc, "Name : <color:R>%13s</color>\n", quark_str(m_ptr->nickname));
     doc_printf(doc, "Speed: <color:G>%+13d</color>\n", speed);
@@ -1180,35 +1121,22 @@ static void _mon_display_probe(doc_ptr doc, int m_idx)
         doc_printf(doc, "Power: <color:%c>%10d.%d%%</color>\n",
             m_ptr->mpower > 1000 ? 'r' : 'u', m_ptr->mpower/10, m_ptr->mpower%10);
     }
-    if ((r_ptr->flags3 & (RF3_EVIL | RF3_GOOD)) == (RF3_EVIL | RF3_GOOD))
-        doc_printf(doc, "Align: <color:B>%13.13s</color>\n", "Good&Evil");
-    else if (r_ptr->flags3 & RF3_EVIL)
-        doc_printf(doc, "Align: <color:r>%13.13s</color>\n", "Evil");
-    else if (r_ptr->flags3 & RF3_GOOD)
-        doc_printf(doc, "Align: <color:g>%13.13s</color>\n", "Good");
-    else if ((m_ptr->sub_align & (SUB_ALIGN_EVIL | SUB_ALIGN_GOOD)) == (SUB_ALIGN_EVIL | SUB_ALIGN_GOOD))
-        doc_printf(doc, "Align: <color:g>%s</color>\n", "neutral(good&evil)");
-    else if (m_ptr->sub_align & SUB_ALIGN_EVIL)
-        doc_printf(doc, "Align: <color:o>%13.13s</color>\n", "Neutral Evil");
-    else if (m_ptr->sub_align & SUB_ALIGN_GOOD)
-        doc_printf(doc, "Align: <color:G>%13.13s</color>\n", "Neutral Good");
-    else
-        doc_printf(doc, "Align: <color:w>%13.13s</color>\n", "Neutral");
+    doc_printf(doc, "Align: %s\n", align_desc(r_ptr->align));
 
-    if (r_ptr->next_r_idx)
+    if (r_ptr->evolution.id)
     {
         doc_printf(doc, "Exp  : <color:%c>%6d</color>/<color:G>%6d</color>\n",
             _mon_exp_color(m_ptr),
             m_ptr->exp,
-            r_ptr->next_exp
+            r_ptr->evolution.exp
         );
     }
-    if (p_ptr->riding == m_idx)
+    if (plr->riding == m_idx)
         doc_printf(doc, "       <color:G>%13.13s</color>\n", "Riding");
 
-    if (is_pet(m_ptr))
+    if (mon_is_pet(m_ptr))
         doc_printf(doc, "       <color:G>%13.13s</color>\n", "Pet");
-    else if (is_friendly(m_ptr))
+    else if (mon_is_friendly(m_ptr))
         doc_printf(doc, "       <color:G>%13.13s</color>\n", "Friendly");
 
     doc_insert(doc, "       <indent>");
@@ -1262,9 +1190,10 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
             {
                 _mon_list_info_ptr info_ptr = vec_get(list->list, idx);
                 assert(info_ptr);
-                if (info_ptr->r_idx && info_ptr->r_idx != p_ptr->monster_race_idx)
+                if (info_ptr->r_idx && !info_ptr->fuzzy && info_ptr->r_idx != plr->monster_race_idx)
                 {
-                    monster_race_track(info_ptr->r_idx);
+                    mon_race_ptr race = mon_race_lookup(info_ptr->r_idx);
+                    monster_race_track(race);
                     window_stuff();
                 }
             }
@@ -1363,31 +1292,96 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
             {
                 _mon_list_info_ptr info_ptr = vec_get(list->list, idx);
                 assert(info_ptr);
-                if (info_ptr->m_idx && !info_ptr->fuzzy)
+                if (info_ptr->pet && info_ptr->m_idx)
                 {
                     monster_type *m_ptr = dun_mon(cave, info_ptr->m_idx);
-                    if (is_pet(m_ptr))
+                    char out_val[20];
+
+                    if (m_ptr->nickname)
+                        strcpy(out_val, quark_str(m_ptr->nickname));
+                    else
+                        strcpy(out_val, "");
+
+                    prt("Name : ", display_rect.y + pos + 1, display_rect.x);
+                    if (askfor(out_val, 15))
                     {
-                        char out_val[20];
-
-                        if (m_ptr->nickname)
-                            strcpy(out_val, quark_str(m_ptr->nickname));
+                        if (out_val[0])
+                            m_ptr->nickname = quark_add(out_val);
                         else
-                            strcpy(out_val, "");
-
-                        prt("Name : ", display_rect.y + pos + 1, display_rect.x);
-                        if (askfor(out_val, 15))
-                        {
-                            if (out_val[0])
-                                m_ptr->nickname = quark_add(out_val);
-                            else
-                                m_ptr->nickname = 0;
-                        }
-                        screen_load();
-                        screen_save();
-                        redraw = TRUE;
-                        handled = TRUE;
+                            m_ptr->nickname = 0;
                     }
+                    screen_load();
+                    screen_save();
+                    redraw = TRUE;
+                    handled = TRUE;
+                }
+            }
+            break;
+        }
+        /* Dismiss Pet */
+        case 'D':
+        {
+            int idx = top + pos;
+            if (0 <= idx && idx < ct_types)
+            {
+                _mon_list_info_ptr info_ptr = vec_get(list->list, idx);
+                assert(info_ptr);
+                if (info_ptr->pet && info_ptr->m_idx)
+                {
+                    mon_ptr mon = dun_mon(cave, info_ptr->m_idx);
+                    char    name[MAX_NLEN];
+                    char    cmd;
+                    bool    do_it = FALSE;
+
+                    monster_desc(name, mon, MD_ASSUME_VISIBLE | MD_NO_PET_ABBREV);
+                    cmd = msg_prompt(
+                        format("<color:y>Really dismiss <color:U>%s</color>? [y,n]</color>", name),
+                        "ny", PROMPT_DEFAULT);
+                    if (cmd == 'y')
+                    {
+                        do_it = TRUE;
+                        /* double check on important pets */
+                        if (plr->riding == mon->id)
+                        {
+                            if (!get_check("Are you sure? <color:v>This is your mount!</color>"))
+                                do_it = FALSE;
+                        }
+                        else if (mon->nickname)
+                        {
+                            if (!get_check("Are you sure? <color:r>You have named this pet.</color>"))
+                                do_it = FALSE;
+                        }
+                    }
+                    if (do_it)
+                    {
+                        if (mon->id == plr->riding)
+                        {
+                            msg_format("You dismount %s.", name);
+                            plr->riding = 0;
+                            plr->update |= PU_BONUS | PU_MONSTERS;
+                            plr->redraw |= PR_EXTRA | PR_HEALTH_BARS;
+                        }
+                        vec_delete(list->list, idx);
+                        /* patch up scrolling */
+                        ct_types = vec_length(list->list);
+                        if (page_size > ct_types)
+                            page_size = ct_types;
+                        if (idx < vec_length(list->list) && pos > 0)
+                        {
+                            _mon_list_info_ptr next = vec_get(list->list, idx);
+                            if (next->subgroup != _SUBGROUP_DATA)
+                                pos--;
+                        }
+                        /* delete pet and patch up display */
+                        msg_line_clear(); /* XXX prompts and checks might be multi-line */
+                        screen_load(); /* remove list display */
+                        delete_monster(mon); /* this probably redraws mon->pos */
+                        screen_save(); /* remember updated display */
+                        redraw = TRUE;
+
+                        calculate_upkeep();
+                    }
+                    handled = TRUE;
                 }
             }
             break;
@@ -1401,15 +1395,16 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
                 _mon_list_info_ptr info_ptr = vec_get(list->list, idx);
                 assert(info_ptr);
                 if ( info_ptr->r_idx
-                  && !info_ptr->target
-                  && target_able(info_ptr->m_idx) )
+                  && !info_ptr->target )
                 {
-                    health_track(info_ptr->m_idx);
-                    target_who = info_ptr->m_idx;
-                    target_row = dun_mon(cave, info_ptr->m_idx)->pos.y;
-                    target_col = dun_mon(cave, info_ptr->m_idx)->pos.x;
-                    p_ptr->redraw |= PR_HEALTH_BARS;
-                    p_ptr->window |= PW_MONSTER_LIST;
+                    mon_ptr mon = dun_mon(cave, info_ptr->m_idx);
+                    assert(mon);
+                    if (!mon) break;
+                    if (!target_able(mon)) break;
+                    health_track(mon);
+                    plr->target = who_create_mon(mon);
+                    plr->redraw |= PR_HEALTH_BARS;
+                    plr->window |= PW_MONSTER_LIST;
                     done = TRUE; /* Building a better target command :) */
                     handled = TRUE;
                 }
@@ -1530,8 +1525,8 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
                 if (info_ptr->m_idx)
                 {
                     monster_type *m_ptr = dun_mon(cave, info_ptr->m_idx);
-                    monster_race *r_ptr = mon_race(m_ptr);
-                    cptr          name = r_name + r_ptr->name;
+                    monster_race *r_ptr = m_ptr->race;
+                    cptr          name = r_ptr->name;
                     int           c;
 
                     if (strstr(name, "The ") == name)
@@ -1554,7 +1549,7 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
             }
         }
 
-        /* Exit on unkown key? */
+        /* Exit on unknown key? */
         if (!handled && quick_messages && mode != MON_LIST_PROBING) /* Hey, it cost mana to get here! */
             done = TRUE;
     }
@@ -1621,8 +1616,7 @@ struct _obj_list_info_s
     int group;
     int subgroup;
     int idx;
-    int x,  y;
-    int dx, dy;
+    point_t p, d;
     int score;
     int count;
 };
@@ -1685,11 +1679,11 @@ static int _obj_list_comp(_obj_list_info_ptr left, _obj_list_info_ptr right)
 
     if (left->subgroup == _SUBGROUP_DATA) /* Assert: Left and Right are same group/subgroup */
     {
-        if (left->group == _GROUP_FEATURE)
+        if (left->group == _GROUP_FEATURE) /* sort by highest priority */
         {
-            if (left->idx < right->idx)
-                return -1;
             if (left->idx > right->idx)
+                return -1;
+            if (left->idx < right->idx)
                 return 1;
         }
         else
@@ -1708,32 +1702,36 @@ static int _obj_list_comp(_obj_list_info_ptr left, _obj_list_info_ptr right)
 }
 
 static _obj_list_ptr _obj_list = NULL;
-static bool _interesting(int feat_id)
+static bool _interesting(dun_cell_ptr cell)
 {
-    feature_type *f_ptr = &f_info[feat_id];
-    if (have_flag(f_ptr->flags, FF_RECALL)) return TRUE;
-    if (have_flag(f_ptr->flags, FF_STORE)) return TRUE;
-    if (have_flag(f_ptr->flags, FF_TRAVEL)) return TRUE;
-    if (cave->dun_type_id == D_SURFACE)
+    if (portal_is_recall(cell)) return TRUE;
+    if (portal_is_travel(cell)) return TRUE;
+    if (bldg_is_shop(cell)) return TRUE;
+    if (bldg_is_bldg(cell))
     {
-        if (have_flag(f_ptr->flags, FF_STAIRS))
-            return TRUE;
+        int id = bldg_id(cell);
+        return id == BLDG_INN;
+    }
+    if (floor_has_mirror(cell)) return TRUE;
+    if (pattern_is_start(cell)) return TRUE;
+    if (cave->type->id == D_SURFACE)
+    {
+        if (cell_is_stairs(cell)) return TRUE;
     }
     return FALSE;
 }
 static void _obj_list_feature(point_t pos, dun_grid_ptr grid)
 {
-    if (!(grid->info & CAVE_MARK)) return;
-    if (_interesting(grid->feat))
+    if (!(grid->flags & CELL_MAP)) return;
+    if (_interesting(grid))
     {
         _obj_list_info_ptr info = _obj_list_info_alloc();
+
         info->group = _GROUP_FEATURE;
         info->subgroup = _SUBGROUP_DATA;
-        info->idx = grid->feat;
-        info->x = pos.x;
-        info->y = pos.y;
-        info->dy = info->y - p_ptr->pos.y;
-        info->dx = info->x - p_ptr->pos.x;
+        info->idx = cell_priority(grid);
+        info->p = pos;
+        info->d = point_subtract(pos, plr->pos);
 
         vec_add(_obj_list->list, info);
         _obj_list->ct_feature++;
@@ -1751,10 +1749,8 @@ static void _obj_list_obj(point_t pos, obj_ptr obj)
     info = _obj_list_info_alloc();
     info->subgroup = _SUBGROUP_DATA;
     info->idx = obj->loc.v.floor.obj_id;
-    info->x = pos.x;
-    info->y = pos.y;
-    info->dy = info->y - p_ptr->pos.y;
-    info->dx = info->x - p_ptr->pos.x;
+    info->p = pos;
+    info->d = point_subtract(pos, plr->pos);
     info->score = obj_value(obj);
     info->count = obj->number;
 
@@ -1884,35 +1880,44 @@ static int _draw_obj_list(_obj_list_ptr list, int top, rect_t rect)
         }
         else if (info_ptr->group == _GROUP_FEATURE)
         {
-            feature_type *f_ptr = &f_info[info_ptr->idx];
-            char          loc[100];
-            char          name[255];
+            dun_cell_ptr cell = dun_cell_at(cave, info_ptr->p);
+            map_char_t   mc = {0};
+            term_char_t  tc;
+            char         loc[100];
+            char         name[255];
 
-            sprintf(loc, "%c%3d %c%3d",
-                    (info_ptr->dy > 0) ? 'S' : 'N', abs(info_ptr->dy),
-                    (info_ptr->dx > 0) ? 'E' : 'W', abs(info_ptr->dx));
-
-            sprintf(name, "%s", f_name + f_ptr->name);
-            if (have_flag(f_ptr->flags, FF_QUEST_ENTER))
+            if (floor_has_mirror(cell) && display_distance) /* for mirror-master */
             {
-                int quest_id = cave_at_xy(info_ptr->x, info_ptr->y)->special;
+                sprintf(loc, "Rng %2d", point_fast_distance(plr->pos, info_ptr->p));
+            }
+            else
+            {
+                sprintf(loc, "%c%3d %c%3d",
+                        (info_ptr->d.y > 0) ? 'S' : 'N', abs(info_ptr->d.y),
+                        (info_ptr->d.x > 0) ? 'E' : 'W', abs(info_ptr->d.x));
+            }
+            sprintf(name, "%s", cell_desc(cell));
+            if (stairs_enter_quest(cell))
+            {
+                int quest_id = stairs_quest_id(cell);
                 sprintf(name + strlen(name), ": %s", quests_get_name(quest_id));
             }
-            else if (cave->dun_type_id == D_SURFACE && have_flag(f_ptr->flags, FF_MORE))
+            else if (stairs_enter_dungeon(cell))
             {
-                int dun_type_id = cave_at_xy(info_ptr->x, info_ptr->y)->special;
+                int dun_type_id = stairs_dun_type_id(cell);
                 dun_type_ptr dt = dun_types_lookup(dun_type_id);
                 if (dt) 
                 {
-                    if (dt->flags & DF_RANDOM)
+                    if (dt->flags.info & DF_RANDOM)
                         sprintf(name, "%s (L?)", dt->name);
                     else
                         sprintf(name, "%s (L%d)", dt->name, dt->min_dun_lvl);
                 }
             }
-            Term_queue_bigchar(rect.x + 1, rect.y + i, f_ptr->x_attr[F_LIT_STANDARD], f_ptr->x_char[F_LIT_STANDARD], 0, 0);
-            c_put_str(use_graphics ? f_ptr->d_attr[F_LIT_STANDARD] : f_ptr->x_attr[F_LIT_STANDARD],
-                format(obj_fmt, name), rect.y + i, rect.x + 3);
+            cell_display(cell, 0, &mc);
+            tc = cell_ascii(cell);
+            Term_queue_map_char(point_create(rect.x + 1, rect.y + i), &mc);
+            c_put_str(tc.a, format(obj_fmt, name), rect.y + i, rect.x + 3);
             c_put_str(TERM_WHITE, format("%-9.9s ", loc), rect.y + i, rect.x + 3 + cx_obj + 1);
         }
         else
@@ -1926,11 +1931,11 @@ static int _draw_obj_list(_obj_list_ptr list, int top, rect_t rect)
 
             object_desc(o_name, o_ptr, 0);
             sprintf(loc, "%c%3d %c%3d",
-                    (info_ptr->dy > 0) ? 'S' : 'N', abs(info_ptr->dy),
-                    (info_ptr->dx > 0) ? 'E' : 'W', abs(info_ptr->dx));
+                    (info_ptr->d.y > 0) ? 'S' : 'N', abs(info_ptr->d.y),
+                    (info_ptr->d.x > 0) ? 'E' : 'W', abs(info_ptr->d.x));
             Term_queue_bigchar(rect.x + 1, rect.y + i, a, c, 0, 0);
             c_put_str(attr, format(obj_fmt, o_name), rect.y + i, rect.x + 3);
-            if (p_ptr->wizard)
+            if (plr->wizard)
                 c_put_str(TERM_WHITE, format("%6d %6d ", info_ptr->score, obj_value_real(o_ptr)), rect.y + i, rect.x + 3 + cx_obj + 1);
             else
                 c_put_str(TERM_WHITE, format("%-9.9s ", loc), rect.y + i, rect.x + 3 + cx_obj + 1);
@@ -2023,7 +2028,7 @@ void do_cmd_list_objects(void)
                     assert(info_ptr);
                     if (info_ptr->idx)
                     {
-                        travel_begin(TRAVEL_MODE_NORMAL, point_create(info_ptr->x, info_ptr->y));
+                        travel_begin(TRAVEL_MODE_NORMAL, info_ptr->p);
                         done = TRUE;
                     }
                 }
@@ -2109,9 +2114,9 @@ void do_cmd_list_objects(void)
                         {
                             if (info_ptr->group == _GROUP_FEATURE)
                             {
-                                feature_type *f_ptr = &f_info[info_ptr->idx];
-                                cptr          name = f_name + f_ptr->name;
-                                int           c = name[0];
+                                dun_cell_ptr cell = dun_cell_at(cave, info_ptr->p);
+                                cptr desc = cell_desc(cell);
+                                int  c = desc[0];
 
                                 if (isalpha(c))
                                     c = tolower(c);
@@ -2197,8 +2202,8 @@ void fix_object_list(void)
 }
 static point_t plr_current_surface_pos(void)
 {
-    if (cave->dun_type_id == D_SURFACE) return p_ptr->pos;
-    return p_ptr->old_pos;
+    if (cave->type->id == D_SURFACE) return plr->pos;
+    return plr->old_pos;
 }
 static point_t plr_current_world_pos(void)
 {
@@ -2234,38 +2239,36 @@ void _fix_world_map_aux(void)
         for (p.x = 0; p.x < ui.cx; p.x++)
         {
             point_t tmp = point_add(p, offset);
-            byte a = TERM_WHITE;
-            char c = ' ';
+            map_char_t mc = {0};
 
             if (dun_pos_valid(world, tmp))
             {
                 dun_grid_ptr grid = dun_grid_at(world, tmp);
-                if (grid->info & CAVE_MARK)
+                if (grid->flags & CELL_MAP)
                 {
-                    dun_feat_ptr feat = &f_info[grid->feat];
-                    if (grid->info & CAVE_ROAD)
-                        feat = &f_info[feat_floor];
-                    if (grid->info & CAVE_TOWN)
-                        feat = &f_info[feat_town];
-                    if (grid->info & CAVE_DUNGEON)
+                    if (grid->flags & CELL_ROAD)
+                        map_char_push(&mc, visual_get("FLOOR", 0));
+                    if (grid->flags & CELL_TOWN)
+                        map_char_push(&mc, visual_get("TOWN", 0));
+                    if (grid->flags & CELL_DUNGEON)
                     {
-                        dun_type_ptr type = dun_types_lookup(grid->special);
-                        if (!(type->plr_flags & (DFP_FAILED | DFP_SECRET)))
+                        dun_type_ptr type = dun_types_lookup(grid->parm2);
+                        if (!(type->flags.plr & (DF_PLR_FAILED | DF_PLR_SECRET)))
                         {
-                            if (!(type->plr_flags & DFP_ENTERED))
-                                feat = &f_info[feat_quest_entrance];
+                            if (!(type->flags.plr & DF_PLR_ENTERED))
+                                map_char_push(&mc, visual_get("QUEST_ENTRANCE", 0));
                             else
-                                feat = &f_info[feat_down_stair];
+                                map_char_push(&mc, visual_get("STAIRS_DOWN", 0));
                         }
                     }
-                    a = feat->x_attr[F_LIT_STANDARD];
-                    c = feat->x_char[F_LIT_STANDARD];
-                    if (point_equals(plr, tmp))
-                        plr_get_display_char_attr(&c, &a);
+                    if (!mc.count)
+                        cell_display(grid, 0, &mc);
                 }
+                if (point_equals(plr, tmp))
+                    map_char_push(&mc, plr_get_display_char_attr());
             }
 
-            Term_putch(p.x, p.y, a, c);
+            Term_queue_map_char(p, &mc);
         }
     }
 }

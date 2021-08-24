@@ -175,7 +175,7 @@ int virtue_find(int which)
 {
     int i;
     for (i = 0; i < 8; i++)
-        if (p_ptr->vir_types[i] == which) return i;
+        if (plr->vir_types[i] == which) return i;
 
     return -1;
 }
@@ -189,7 +189,7 @@ int virtue_current(int which)
 {
     int idx = virtue_find(which);
     if (_is_valid_index(idx))
-        return p_ptr->virtues[idx];
+        return plr->virtues[idx];
     return 0;
 }
 
@@ -200,242 +200,275 @@ void virtue_init(void)
     /* Reset */
     for (i = 0; i < 8; i++)
     {
-        p_ptr->virtues[i] = 0;
-        p_ptr->vir_types[i] = VIRTUE_NONE;
+        plr->virtues[i] = 0;
+        plr->vir_types[i] = VIRTUE_NONE;
     }
 
     i = 0;
 
     /* Get pre-defined types */
     /* 1 or more virtues based on class */
-    switch (p_ptr->pclass)
+    switch (plr->pclass)
     {
     case CLASS_WARRIOR:
     case CLASS_SAMURAI:
     case CLASS_MAULER:
-        p_ptr->vir_types[i++] = VIRTUE_VALOUR;
-        p_ptr->vir_types[i++] = VIRTUE_HONOUR;
+        plr->vir_types[i++] = VIRTUE_VALOUR;
+        plr->vir_types[i++] = VIRTUE_HONOUR;
         break;
     case CLASS_MAGE:
     case CLASS_NECROMANCER:
     case CLASS_YELLOW_MAGE:
     case CLASS_GRAY_MAGE:
     case CLASS_BLUE_MAGE:
-        p_ptr->vir_types[i++] = VIRTUE_KNOWLEDGE;
-        p_ptr->vir_types[i++] = VIRTUE_ENCHANTMENT;
+        plr->vir_types[i++] = VIRTUE_KNOWLEDGE;
+        plr->vir_types[i++] = VIRTUE_ENCHANTMENT;
         break;
     case CLASS_PRIEST:
-        p_ptr->vir_types[i++] = VIRTUE_FAITH;
-        p_ptr->vir_types[i++] = VIRTUE_TEMPERANCE;
+        plr->vir_types[i++] = VIRTUE_FAITH;
+        plr->vir_types[i++] = VIRTUE_TEMPERANCE;
         break;
     case CLASS_ROGUE:
     case CLASS_SNIPER:
     case CLASS_SCOUT:
-        p_ptr->vir_types[i++] = VIRTUE_HONOUR;
+        plr->vir_types[i++] = VIRTUE_HONOUR;
         break;
     case CLASS_RANGER:
     case CLASS_ARCHER:
-        p_ptr->vir_types[i++] = VIRTUE_NATURE;
-        p_ptr->vir_types[i++] = VIRTUE_TEMPERANCE;
+        plr->vir_types[i++] = VIRTUE_NATURE;
+        plr->vir_types[i++] = VIRTUE_TEMPERANCE;
         break;
     case CLASS_PALADIN:
-        p_ptr->vir_types[i++] = VIRTUE_JUSTICE;
-        p_ptr->vir_types[i++] = VIRTUE_VALOUR;
-        p_ptr->vir_types[i++] = VIRTUE_HONOUR;
-        p_ptr->vir_types[i++] = VIRTUE_FAITH;
+        plr->vir_types[i++] = VIRTUE_JUSTICE;
+        plr->vir_types[i++] = VIRTUE_VALOUR;
+        plr->vir_types[i++] = VIRTUE_HONOUR;
+        plr->vir_types[i++] = VIRTUE_FAITH;
         break;
     case CLASS_WARRIOR_MAGE:
     case CLASS_RED_MAGE:
-        p_ptr->vir_types[i++] = VIRTUE_ENCHANTMENT;
-        p_ptr->vir_types[i++] = VIRTUE_VALOUR;
+        plr->vir_types[i++] = VIRTUE_ENCHANTMENT;
+        plr->vir_types[i++] = VIRTUE_VALOUR;
         break;
     case CLASS_CHAOS_WARRIOR:
-        p_ptr->vir_types[i++] = VIRTUE_CHANCE;
-        p_ptr->vir_types[i++] = VIRTUE_INDIVIDUALISM;
+        plr->vir_types[i++] = VIRTUE_CHANCE;
+        plr->vir_types[i++] = VIRTUE_INDIVIDUALISM;
         break;
     case CLASS_MONK:
     case CLASS_FORCETRAINER:
-        p_ptr->vir_types[i++] = VIRTUE_FAITH;
-        p_ptr->vir_types[i++] = VIRTUE_HARMONY;
-        p_ptr->vir_types[i++] = VIRTUE_TEMPERANCE;
-        p_ptr->vir_types[i++] = VIRTUE_PATIENCE;
+        plr->vir_types[i++] = VIRTUE_FAITH;
+        plr->vir_types[i++] = VIRTUE_HARMONY;
+        plr->vir_types[i++] = VIRTUE_TEMPERANCE;
+        plr->vir_types[i++] = VIRTUE_PATIENCE;
         break;
     case CLASS_MYSTIC:
-        p_ptr->vir_types[i++] = VIRTUE_HARMONY;
-        p_ptr->vir_types[i++] = VIRTUE_TEMPERANCE;
-        p_ptr->vir_types[i++] = VIRTUE_PATIENCE;
+        plr->vir_types[i++] = VIRTUE_HARMONY;
+        plr->vir_types[i++] = VIRTUE_TEMPERANCE;
+        plr->vir_types[i++] = VIRTUE_PATIENCE;
         break;
     case CLASS_MINDCRAFTER:
     case CLASS_MIRROR_MASTER:
     case CLASS_PSION:
-        p_ptr->vir_types[i++] = VIRTUE_HARMONY;
-        p_ptr->vir_types[i++] = VIRTUE_ENLIGHTENMENT;
-        p_ptr->vir_types[i++] = VIRTUE_PATIENCE;
+        plr->vir_types[i++] = VIRTUE_HARMONY;
+        plr->vir_types[i++] = VIRTUE_ENLIGHTENMENT;
+        plr->vir_types[i++] = VIRTUE_PATIENCE;
         break;
     case CLASS_HIGH_MAGE:
     case CLASS_SORCERER:
-        p_ptr->vir_types[i++] = VIRTUE_ENLIGHTENMENT;
-        p_ptr->vir_types[i++] = VIRTUE_ENCHANTMENT;
-        p_ptr->vir_types[i++] = VIRTUE_KNOWLEDGE;
+        plr->vir_types[i++] = VIRTUE_ENLIGHTENMENT;
+        plr->vir_types[i++] = VIRTUE_ENCHANTMENT;
+        plr->vir_types[i++] = VIRTUE_KNOWLEDGE;
         break;
     case CLASS_WILD_TALENT:
-        p_ptr->vir_types[i++] = VIRTUE_CHANCE;
+        plr->vir_types[i++] = VIRTUE_CHANCE;
         break;
     case CLASS_BEASTMASTER:
-        p_ptr->vir_types[i++] = VIRTUE_NATURE;
-        p_ptr->vir_types[i++] = VIRTUE_CHANCE;
-        p_ptr->vir_types[i++] = VIRTUE_VITALITY;
+        plr->vir_types[i++] = VIRTUE_NATURE;
+        plr->vir_types[i++] = VIRTUE_CHANCE;
+        plr->vir_types[i++] = VIRTUE_VITALITY;
         break;
     case CLASS_MAGIC_EATER:
-        p_ptr->vir_types[i++] = VIRTUE_ENCHANTMENT;
-        p_ptr->vir_types[i++] = VIRTUE_KNOWLEDGE;
+        plr->vir_types[i++] = VIRTUE_ENCHANTMENT;
+        plr->vir_types[i++] = VIRTUE_KNOWLEDGE;
         break;
     case CLASS_BARD:
-        p_ptr->vir_types[i++] = VIRTUE_HARMONY;
-        p_ptr->vir_types[i++] = VIRTUE_COMPASSION;
+        plr->vir_types[i++] = VIRTUE_HARMONY;
+        plr->vir_types[i++] = VIRTUE_COMPASSION;
         break;
     case CLASS_CAVALRY:
-        p_ptr->vir_types[i++] = VIRTUE_VALOUR;
-        p_ptr->vir_types[i++] = VIRTUE_HARMONY;
+        plr->vir_types[i++] = VIRTUE_VALOUR;
+        plr->vir_types[i++] = VIRTUE_HARMONY;
         break;
     case CLASS_WEAPONSMITH:
-        p_ptr->vir_types[i++] = VIRTUE_HONOUR;
-        p_ptr->vir_types[i++] = VIRTUE_KNOWLEDGE;
+        plr->vir_types[i++] = VIRTUE_HONOUR;
+        plr->vir_types[i++] = VIRTUE_KNOWLEDGE;
         break;
     case CLASS_NINJA:
-        p_ptr->vir_types[i++] = VIRTUE_PATIENCE;
-        p_ptr->vir_types[i++] = VIRTUE_KNOWLEDGE;
-        p_ptr->vir_types[i++] = VIRTUE_FAITH;
-        p_ptr->vir_types[i++] = VIRTUE_UNLIFE;
+        plr->vir_types[i++] = VIRTUE_PATIENCE;
+        plr->vir_types[i++] = VIRTUE_KNOWLEDGE;
+        plr->vir_types[i++] = VIRTUE_FAITH;
+        plr->vir_types[i++] = VIRTUE_UNLIFE;
         break;
     };
 
     /* Get one virtue based on race */
-    switch (p_ptr->prace)
+    switch (plr->prace)
     {
     case RACE_CENTAUR:
     case RACE_WOOD_ELF:
     case RACE_WATER_ELF:
-        p_ptr->vir_types[i++] = VIRTUE_NATURE;
+        plr->vir_types[i++] = VIRTUE_NATURE;
         break;
     case RACE_MON_SWORD:
-        p_ptr->vir_types[i++] = VIRTUE_ENCHANTMENT;
+        plr->vir_types[i++] = VIRTUE_ENCHANTMENT;
         break;
     case RACE_MON_ANGEL:
-        p_ptr->vir_types[i++] = VIRTUE_FAITH;
+        plr->vir_types[i++] = VIRTUE_FAITH;
         break;
     case RACE_MON_BEHOLDER:
-        p_ptr->vir_types[i++] = VIRTUE_KNOWLEDGE;
+        plr->vir_types[i++] = VIRTUE_KNOWLEDGE;
         break;
     case RACE_MON_DEMON:
     case RACE_MON_LICH:
-        p_ptr->vir_types[i++] = VIRTUE_UNLIFE;
+        plr->vir_types[i++] = VIRTUE_UNLIFE;
         break;
     case RACE_MON_DRAGON:
-        p_ptr->vir_types[i++] = VIRTUE_INDIVIDUALISM;
+        plr->vir_types[i++] = VIRTUE_INDIVIDUALISM;
         break;
     case RACE_MON_GIANT:
-        p_ptr->vir_types[i++] = VIRTUE_JUSTICE;
+        plr->vir_types[i++] = VIRTUE_JUSTICE;
         break;
     case RACE_MON_HOUND:
-        p_ptr->vir_types[i++] = VIRTUE_NATURE;
+        plr->vir_types[i++] = VIRTUE_NATURE;
         break;
     case RACE_MON_JELLY:
-        p_ptr->vir_types[i++] = VIRTUE_DILIGENCE;
+        plr->vir_types[i++] = VIRTUE_DILIGENCE;
         break;
     case RACE_MON_LEPRECHAUN:
-        p_ptr->vir_types[i++] = VIRTUE_CHANCE;
+        plr->vir_types[i++] = VIRTUE_CHANCE;
         break;
     case RACE_MON_SPIDER:
-        p_ptr->vir_types[i++] = VIRTUE_NATURE;
+        plr->vir_types[i++] = VIRTUE_NATURE;
         break;
     case RACE_MON_TROLL:
-        p_ptr->vir_types[i++] = VIRTUE_VITALITY;
+        plr->vir_types[i++] = VIRTUE_VITALITY;
         break;
     case RACE_MON_XORN:
-        p_ptr->vir_types[i++] = VIRTUE_DILIGENCE;
+        plr->vir_types[i++] = VIRTUE_DILIGENCE;
         break;
     case RACE_HUMAN: case RACE_DEMIGOD: case RACE_DUNADAN:
-        p_ptr->vir_types[i++] = VIRTUE_INDIVIDUALISM;
+        plr->vir_types[i++] = VIRTUE_INDIVIDUALISM;
         break;
     case RACE_SPRITE: case RACE_ENT:
-        p_ptr->vir_types[i++] = VIRTUE_NATURE;
+        plr->vir_types[i++] = VIRTUE_NATURE;
         break;
     case RACE_HOBBIT: case RACE_HALF_OGRE:
-        p_ptr->vir_types[i++] = VIRTUE_TEMPERANCE;
+        plr->vir_types[i++] = VIRTUE_TEMPERANCE;
         break;
     case RACE_DWARF: case RACE_KLACKON: case RACE_ANDROID:
-        p_ptr->vir_types[i++] = VIRTUE_DILIGENCE;
+        plr->vir_types[i++] = VIRTUE_DILIGENCE;
         break;
     case RACE_GNOME: case RACE_CYCLOPS:
-        p_ptr->vir_types[i++] = VIRTUE_KNOWLEDGE;
+        plr->vir_types[i++] = VIRTUE_KNOWLEDGE;
         break;
     case RACE_SNOTLING: case RACE_AMBERITE: case RACE_KOBOLD:
-        p_ptr->vir_types[i++] = VIRTUE_HONOUR;
+        plr->vir_types[i++] = VIRTUE_HONOUR;
         break;
     case RACE_HALF_TROLL: case RACE_BARBARIAN:
-        p_ptr->vir_types[i++] = VIRTUE_VALOUR;
+        plr->vir_types[i++] = VIRTUE_VALOUR;
         break;
     case RACE_HIGH_ELF: case RACE_KUTAR:
-        p_ptr->vir_types[i++] = VIRTUE_VITALITY;
+        plr->vir_types[i++] = VIRTUE_VITALITY;
         break;
     case RACE_HALF_GIANT: case RACE_GOLEM: case RACE_ARCHON: case RACE_BALROG:
-        p_ptr->vir_types[i++] = VIRTUE_JUSTICE;
+        plr->vir_types[i++] = VIRTUE_JUSTICE;
         break;
     case RACE_HALF_TITAN:
-        p_ptr->vir_types[i++] = VIRTUE_HARMONY;
+        plr->vir_types[i++] = VIRTUE_HARMONY;
         break;
     case RACE_YEEK:
-        p_ptr->vir_types[i++] = VIRTUE_SACRIFICE;
+        plr->vir_types[i++] = VIRTUE_SACRIFICE;
         break;
     case RACE_MIND_FLAYER:
-        p_ptr->vir_types[i++] = VIRTUE_ENLIGHTENMENT;
+        plr->vir_types[i++] = VIRTUE_ENLIGHTENMENT;
         break;
     case RACE_DARK_ELF: case RACE_DRACONIAN: case RACE_SHADOW_FAIRY:
-        p_ptr->vir_types[i++] = VIRTUE_ENCHANTMENT;
+        plr->vir_types[i++] = VIRTUE_ENCHANTMENT;
         break;
     case RACE_NIBELUNG:
-        p_ptr->vir_types[i++] = VIRTUE_PATIENCE;
+        plr->vir_types[i++] = VIRTUE_PATIENCE;
         break;
     case RACE_IMP:
-        p_ptr->vir_types[i++] = VIRTUE_FAITH;
+        plr->vir_types[i++] = VIRTUE_FAITH;
         break;
     case RACE_ZOMBIE: case RACE_SKELETON:
     case RACE_VAMPIRE: case RACE_SPECTRE:
     case RACE_MON_VAMPIRE:
-        p_ptr->vir_types[i++] = VIRTUE_UNLIFE;
+        plr->vir_types[i++] = VIRTUE_UNLIFE;
         break;
     case RACE_BEASTMAN:
-        p_ptr->vir_types[i++] = VIRTUE_CHANCE;
+        plr->vir_types[i++] = VIRTUE_CHANCE;
         break;
     }
 
     /* Get a virtue for realms */
-    if (p_ptr->realm1)
+    if (plr->pclass == CLASS_GRAY_MAGE)
     {
-        s16b v = _realm_virtue(p_ptr->realm1);
-        if (_is_valid_virtue(v))
-            p_ptr->vir_types[i++] = v;
+        if (plr->psubclass == GRAY_MAGE_GOOD)
+        {
+            s16b v = _realm_virtue(REALM_LIFE);
+            if (_is_valid_virtue(v))
+                plr->vir_types[i++] = v;
+            v = _realm_virtue(REALM_CRUSADE);
+            if (_is_valid_virtue(v))
+                plr->vir_types[i++] = v;
+        }
+        else if (plr->psubclass == GRAY_MAGE_NEUTRAL)
+        {
+            s16b v = _realm_virtue(REALM_NATURE);
+            if (_is_valid_virtue(v))
+                plr->vir_types[i++] = v;
+            v = _realm_virtue(REALM_CHAOS);
+            if (_is_valid_virtue(v))
+                plr->vir_types[i++] = v;
+        }
+        else if (plr->psubclass == GRAY_MAGE_EVIL)
+        {
+            s16b v = _realm_virtue(REALM_DEATH);
+            if (_is_valid_virtue(v))
+                plr->vir_types[i++] = v;
+            v = _realm_virtue(REALM_DAEMON);
+            if (_is_valid_virtue(v))
+                plr->vir_types[i++] = v;
+        }
     }
-    if (p_ptr->realm2)
+    else
     {
-        s16b v = _realm_virtue(p_ptr->realm2);
-        if (_is_valid_virtue(v))
-            p_ptr->vir_types[i++] = v;
+        if (plr->realm1)
+        {
+            s16b v = _realm_virtue(plr->realm1);
+            if (_is_valid_virtue(v))
+                plr->vir_types[i++] = v;
+        }
+        if (plr->realm2)
+        {
+            s16b v = _realm_virtue(plr->realm2);
+            if (_is_valid_virtue(v))
+                plr->vir_types[i++] = v;
+        }
     }
 
     /* Eliminate doubles */
     for (i = 0; i < 8; i++)
     {
-        if (_is_valid_virtue(p_ptr->vir_types[i]))
+        if (_is_valid_virtue(plr->vir_types[i]))
         {
             int j;
             for (j = i + 1; j < 8; j++)
             {
-                if ( _is_valid_virtue(p_ptr->vir_types[j])
-                  && p_ptr->vir_types[j] == p_ptr->vir_types[i] )
+                if ( _is_valid_virtue(plr->vir_types[j])
+                  && plr->vir_types[j] == plr->vir_types[i] )
                 {
-                    p_ptr->vir_types[j] = 0;
+                    plr->vir_types[j] = 0;
                 }
             }
         }
@@ -444,8 +477,8 @@ void virtue_init(void)
     /* Fill in the blanks */
     for (i = 0; i < 8; i++)
     {
-        if (!_is_valid_virtue(p_ptr->vir_types[i]))
-            p_ptr->vir_types[i] = _random_virtue();
+        if (!_is_valid_virtue(plr->vir_types[i]))
+            plr->vir_types[i] = _random_virtue();
     }
 }
 
@@ -460,65 +493,65 @@ void virtue_add(int which, int amount)
 
     if (amount > 0)
     {
-        p_ptr->update |= PU_BONUS;
+        plr->update |= PU_BONUS;
         if (disturb_minor)
             msg_print(_good_msg[which]);
 
-        if (amount + p_ptr->virtues[idx] > 50 && one_in_(2))
+        if (amount + plr->virtues[idx] > 50 && one_in_(2))
         {
-            p_ptr->virtues[idx] = MAX(p_ptr->virtues[idx], 50);
+            plr->virtues[idx] = MAX(plr->virtues[idx], 50);
             return;
         }
-        if (amount + p_ptr->virtues[idx] > 80 && one_in_(2))
+        if (amount + plr->virtues[idx] > 80 && one_in_(2))
         {
-            p_ptr->virtues[idx] = MAX(p_ptr->virtues[idx], 80);
+            plr->virtues[idx] = MAX(plr->virtues[idx], 80);
             return;
         }
-        if (amount + p_ptr->virtues[idx] > 100 && one_in_(2))
+        if (amount + plr->virtues[idx] > 100 && one_in_(2))
         {
-            p_ptr->virtues[idx] = MAX(p_ptr->virtues[idx], 100);
+            plr->virtues[idx] = MAX(plr->virtues[idx], 100);
             return;
         }
-        if (amount + p_ptr->virtues[idx] > 125)
-            p_ptr->virtues[idx] = 125;
+        if (amount + plr->virtues[idx] > 125)
+            plr->virtues[idx] = 125;
         else
-            p_ptr->virtues[idx] = p_ptr->virtues[idx] + amount;
+            plr->virtues[idx] = plr->virtues[idx] + amount;
     }
     else
     {
         if (disturb_minor)
             msg_print(_bad_msg[which]);
 
-        if (amount + p_ptr->virtues[idx] < -50 && one_in_(2))
+        if (amount + plr->virtues[idx] < -50 && one_in_(2))
         {
-            p_ptr->virtues[idx] = MIN(p_ptr->virtues[idx], -50);
+            plr->virtues[idx] = MIN(plr->virtues[idx], -50);
             return;
         }
-        if (amount + p_ptr->virtues[idx] < -80 && one_in_(2))
+        if (amount + plr->virtues[idx] < -80 && one_in_(2))
         {
-            p_ptr->virtues[idx] = MIN(p_ptr->virtues[idx], -80);
+            plr->virtues[idx] = MIN(plr->virtues[idx], -80);
             return;
         }
-        if (amount + p_ptr->virtues[idx] < -100 && one_in_(2))
+        if (amount + plr->virtues[idx] < -100 && one_in_(2))
         {
-            p_ptr->virtues[idx] = MIN(p_ptr->virtues[idx], -100);
+            plr->virtues[idx] = MIN(plr->virtues[idx], -100);
             return;
         }
-        if (amount + p_ptr->virtues[idx] < -125)
-            p_ptr->virtues[idx] = -125;
+        if (amount + plr->virtues[idx] < -125)
+            plr->virtues[idx] = -125;
         else
-            p_ptr->virtues[idx] = p_ptr->virtues[idx] + amount;
+            plr->virtues[idx] = plr->virtues[idx] + amount;
     }
 }
 
 static char _alignment_color(void)
 {
-    if (p_ptr->align > 150) return 'g';
-    else if (p_ptr->align > 50) return 'G';
-    else if (p_ptr->align > 10) return 'B';
-    else if (p_ptr->align > -11) return 'w';
-    else if (p_ptr->align > -51) return 'o';
-    else if (p_ptr->align > -151) return 'r';
+    if (plr->align > 150) return 'g';
+    else if (plr->align > 50) return 'G';
+    else if (plr->align > 10) return 'B';
+    else if (plr->align > -11) return 'w';
+    else if (plr->align > -51) return 'o';
+    else if (plr->align > -151) return 'r';
     else return 'v';
 }
 
@@ -526,19 +559,22 @@ void virtue_display(doc_ptr doc, bool spoil)
 {
     int idx = 0;
 
-    doc_printf(doc, "<color:G>Your alignment:</color> <color:%c>%s</color>\n", _alignment_color(), your_alignment());
+    doc_printf(doc, "<color:G>Your alignment:</color> <color:%c>%s</color>", _alignment_color(), your_alignment());
+    if (spoil)
+        doc_printf(doc, " <color:D>(%d)</color>", plr->align);
+    doc_newline(doc);
 
     for (idx = 0; idx < 8; idx++)
     {
-        if (!_is_valid_virtue(p_ptr->vir_types[idx]))
+        if (!_is_valid_virtue(plr->vir_types[idx]))
         {
         }
         else
         {
             char name[255];
-            int tester = p_ptr->virtues[idx];
+            int tester = plr->virtues[idx];
 
-            strcpy(name, virtue_name(p_ptr->vir_types[idx]));
+            strcpy(name, virtue_name(plr->vir_types[idx]));
 
             if (tester < -100)
                 doc_printf(doc, "You are the <color:v>polar opposite</color> of %s", name);
@@ -616,44 +652,89 @@ void virtue_on_fail_spell(int realm, int fail)
         virtue_add(VIRTUE_CHANCE,-1);
 }
 
+void virtue_on_first_cast_spell(int realm)
+{
+    switch (realm)
+    {
+    case REALM_LIFE:
+        virtue_add(VIRTUE_TEMPERANCE, 1);
+        virtue_add(VIRTUE_COMPASSION, 1);
+        virtue_add(VIRTUE_VITALITY, 1);
+        virtue_add(VIRTUE_DILIGENCE, 1);
+        break;
+    case REALM_DEATH:
+    case REALM_NECROMANCY:
+        virtue_add(VIRTUE_UNLIFE, 1);
+        virtue_add(VIRTUE_JUSTICE, -1);
+        virtue_add(VIRTUE_FAITH, -1);
+        virtue_add(VIRTUE_VITALITY, -1);
+        break;
+    case REALM_DAEMON:
+        virtue_add(VIRTUE_JUSTICE, -1);
+        virtue_add(VIRTUE_FAITH, -1);
+        virtue_add(VIRTUE_HONOUR, -1);
+        virtue_add(VIRTUE_TEMPERANCE, -1);
+        break;
+    case REALM_CRUSADE:
+        virtue_add(VIRTUE_FAITH, 1);
+        virtue_add(VIRTUE_JUSTICE, 1);
+        virtue_add(VIRTUE_SACRIFICE, 1);
+        virtue_add(VIRTUE_HONOUR, 1);
+        break;
+    case REALM_NATURE:
+        virtue_add(VIRTUE_NATURE, 1);
+        virtue_add(VIRTUE_HARMONY, 1);
+        break;
+    case REALM_HEX:
+        virtue_add(VIRTUE_JUSTICE, -1);
+        virtue_add(VIRTUE_FAITH, -1);
+        virtue_add(VIRTUE_HONOUR, -1);
+        virtue_add(VIRTUE_COMPASSION, -1);
+        break;
+    default:
+        virtue_add(VIRTUE_KNOWLEDGE, 1);
+        break;
+    }
+}
+
 void virtue_on_cast_spell(int realm, int cost, int fail)
 {
     switch (realm)
     {
     case REALM_LIFE:
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_TEMPERANCE, 1);
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_COMPASSION, 1);
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_VITALITY, 1);
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_DILIGENCE, 1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_TEMPERANCE, 1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_COMPASSION, 1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_VITALITY, 1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_DILIGENCE, 1);
         break;
     case REALM_DEATH:
     case REALM_NECROMANCY:
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_UNLIFE, 1);
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_JUSTICE, -1);
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_FAITH, -1);
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_VITALITY, -1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_UNLIFE, 1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_JUSTICE, -1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_FAITH, -1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_VITALITY, -1);
         break;
     case REALM_DAEMON:
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_JUSTICE, -1);
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_FAITH, -1);
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_HONOUR, -1);
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_TEMPERANCE, -1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_JUSTICE, -1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_FAITH, -1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_HONOUR, -1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_TEMPERANCE, -1);
         break;
     case REALM_CRUSADE:
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_FAITH, 1);
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_JUSTICE, 1);
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_SACRIFICE, 1);
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_HONOUR, 1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_FAITH, 1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_JUSTICE, 1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_SACRIFICE, 1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_HONOUR, 1);
         break;
     case REALM_NATURE:
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_NATURE, 1);
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_HARMONY, 1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_NATURE, 1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_HARMONY, 1);
         break;
     case REALM_HEX:
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_JUSTICE, -1);
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_FAITH, -1);
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_HONOUR, -1);
-        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_COMPASSION, -1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_JUSTICE, -1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_FAITH, -1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_HONOUR, -1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_COMPASSION, -1);
         break;
     }
     if (randint1(100) < fail)
@@ -675,7 +756,7 @@ int virtue_mod_spell_fail(int realm, int fail)
     {
         /* Nature is a realm of balance, and the player must
          * strive to maintain neutrality */
-        int align = abs(p_ptr->align);
+        int align = abs(plr->align);
         if (align > 50)
         {
             int base = 1;
@@ -686,27 +767,27 @@ int virtue_mod_spell_fail(int realm, int fail)
     }
     else if (is_good_realm(realm))
     {
-        if (p_ptr->align < -20)
+        if (plr->align < -20)
         {
-            int align = abs(p_ptr->align);
+            int align = abs(plr->align);
             int base = 1;
             int xtra = max - base;
             int mod = MIN(max, base + (align - 21) * xtra / 130);
             fail += mod;
         }
-        else if (p_ptr->align > 150)
+        else if (plr->align > 150)
             fail -= 1;
     }
     else if (is_evil_realm(realm))
     {
-        if (p_ptr->align > 20)
+        if (plr->align > 20)
         {
             int base = 1;
             int xtra = max - base;
-            int mod = MIN(max, base + (p_ptr->align - 21) * xtra / 130);
+            int mod = MIN(max, base + (plr->align - 21) * xtra / 130);
             fail += mod;
         }
-        else if (p_ptr->align < -150)
+        else if (plr->align < -150)
             fail -= 1;
     }
     return fail;

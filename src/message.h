@@ -1,7 +1,7 @@
 #ifndef INCLUDED_MESSAGE_H
 #define INCLUDED_MESSAGE_H
 
-#include "c-string.h"
+#include "c-str.h"
 
 /* Stop using auto_more and use the new improved handling instead! */
 #define AUTO_MORE_PROMPT     0
@@ -13,18 +13,18 @@ extern int auto_more_state;
 
 struct msg_s
 {
-    string_ptr msg;
-    u32b       turn;
-    int        count;
-    byte       color;
+    str_ptr msg;
+    u32b    turn;
+    int     count;
+    byte    color;
 };
 typedef struct msg_s msg_t, *msg_ptr;
 
 
-extern void     msg_on_startup(void);
-extern void     msg_on_shutdown(void);
-extern void     msg_on_load(savefile_ptr file);
-extern void     msg_on_save(savefile_ptr file);
+extern void     msg_startup(void);
+extern void     msg_shutdown(void);
+extern void     msg_load(savefile_ptr file);
+extern void     msg_save(savefile_ptr file);
 
 extern int      msg_count(void);
 extern msg_ptr  msg_get(int age);
@@ -35,6 +35,7 @@ extern void cmsg_add(byte color, cptr msg);
 extern void msg_boundary(void);
 extern void msg_print(cptr msg);
 extern void msg_line_clear(void);
+extern void msg_line_delayed_clear(void);
 extern void msg_line_redraw(void);
 extern void msg_line_init(rect_t display_rect);
 extern bool msg_line_contains(int row, int col);

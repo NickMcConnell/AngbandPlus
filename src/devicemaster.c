@@ -29,7 +29,7 @@ void _desperation_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
         devicemaster_desperation = TRUE;
-        switch (p_ptr->psubclass)
+        switch (plr->psubclass)
         {
         case DEVICEMASTER_RODS: do_cmd_zap_rod(); break;
         case DEVICEMASTER_WANDS: do_cmd_aim_wand(); break;
@@ -111,7 +111,7 @@ void _identify_device_spell(int cmd, var_ptr res)
         var_set_string(res, "Identify a single magical device.");
         break;
     case SPELL_CAST:
-        if (p_ptr->lev >= 25)
+        if (plr->lev >= 25)
             var_set_bool(res, identify_fully(_is_device));
         else
             var_set_bool(res, ident_spell(_is_device));
@@ -133,11 +133,11 @@ void _recharging_spell(int cmd, var_ptr res)
         var_set_string(res, "It attempts to recharge a device using another device for power.");
         break;
     case SPELL_INFO:
-        var_set_string(res, format("Power %d", 50 + 2*p_ptr->lev));
+        var_printf(res, "Power %d", 50 + 2*plr->lev);
         break;
     case SPELL_CAST:
         /* Devicemasters have no mana */
-        var_set_bool(res, recharge_from_player(50 + 2*p_ptr->lev));
+        var_set_bool(res, recharge_from_player(50 + 2*plr->lev));
         break;
     default:
         default_spell(cmd, res);
@@ -148,10 +148,10 @@ void _recharging_spell(int cmd, var_ptr res)
 static object_type *_transfer_src_obj = NULL;
 static bool _transfer_obj_p(object_type *o_ptr)
 {
-    if ( o_ptr->tval == _speciality_tval(p_ptr->psubclass)
+    if ( o_ptr->tval == _speciality_tval(plr->psubclass)
       && o_ptr != _transfer_src_obj )
     {
-        if (p_ptr->psubclass == DEVICEMASTER_POTIONS || p_ptr->psubclass == DEVICEMASTER_SCROLLS)
+        if (plr->psubclass == DEVICEMASTER_POTIONS || plr->psubclass == DEVICEMASTER_SCROLLS)
         {
             /* One may not use worthless high level items as source objects (e.g. Curse Armor could make Genocide!!) */
             if (!_transfer_src_obj && k_info[o_ptr->k_idx].cost <= 0)
@@ -242,7 +242,7 @@ static bool _transfer_effect(void)
 
 static bool _transfer_essence(void)
 {
-    int tval = _speciality_tval(p_ptr->psubclass);
+    int tval = _speciality_tval(plr->psubclass);
     object_type *src_obj = NULL, *dest_obj = NULL;
     object_kind *src_kind = NULL, *dest_kind = NULL;
     int src_charges = 0, dest_charges = 0, max_charges = 0, power = 0;
@@ -305,25 +305,25 @@ void _transfer_charges_spell(int cmd, var_ptr res)
     switch (cmd)
     {
     case SPELL_NAME:
-        if (p_ptr->psubclass != DEVICEMASTER_POTIONS && p_ptr->psubclass != DEVICEMASTER_SCROLLS)
+        if (plr->psubclass != DEVICEMASTER_POTIONS && plr->psubclass != DEVICEMASTER_SCROLLS)
             var_set_string(res, "Transfer Effect");
         else
             var_set_string(res, "Transfer Essence");
         break;
     case SPELL_DESC:
-        if (p_ptr->psubclass == DEVICEMASTER_POTIONS)
+        if (plr->psubclass == DEVICEMASTER_POTIONS)
             var_set_string(res, "Transfer essence from one potion to another.");
-        else if (p_ptr->psubclass == DEVICEMASTER_SCROLLS)
+        else if (plr->psubclass == DEVICEMASTER_SCROLLS)
             var_set_string(res, "Transfer essence from one scroll to another.");
-        else if (p_ptr->psubclass == DEVICEMASTER_WANDS)
+        else if (plr->psubclass == DEVICEMASTER_WANDS)
             var_set_string(res, "Transfer effect from one wand to another, destroying the source wand.");
-        else if (p_ptr->psubclass == DEVICEMASTER_RODS)
+        else if (plr->psubclass == DEVICEMASTER_RODS)
             var_set_string(res, "Transfer effect from one rod to another, destroying the source rod.");
-        else if (p_ptr->psubclass == DEVICEMASTER_STAVES)
+        else if (plr->psubclass == DEVICEMASTER_STAVES)
             var_set_string(res, "Transfer effect from one staff to another, destroying the source staff.");
         break;
     case SPELL_CAST:
-        if (p_ptr->psubclass != DEVICEMASTER_POTIONS && p_ptr->psubclass != DEVICEMASTER_SCROLLS)
+        if (plr->psubclass != DEVICEMASTER_POTIONS && plr->psubclass != DEVICEMASTER_SCROLLS)
             var_set_bool(res, _transfer_effect());
         else
             var_set_bool(res, _transfer_essence());
@@ -379,9 +379,9 @@ cptr devicemaster_speciality_desc(int psubclass)
 
 bool devicemaster_is_speciality(object_type *o_ptr)
 {
-    if (p_ptr->pclass == CLASS_DEVICEMASTER)
+    if (plr->pclass == CLASS_DEVICEMASTER)
     {
-        if (_speciality_tval(p_ptr->psubclass) == o_ptr->tval)
+        if (_speciality_tval(plr->psubclass) == o_ptr->tval)
             return TRUE;
     }
     return FALSE;
@@ -392,7 +392,7 @@ static void _birth(void)
 { 
     object_type    forge;
 
-    switch (p_ptr->psubclass)
+    switch (plr->psubclass)
     {
     case DEVICEMASTER_RODS:
         object_prep(&forge, lookup_kind(TV_ROD, SV_ANY));
@@ -427,23 +427,23 @@ static void _birth(void)
 
 static void _character_dump(doc_ptr doc)
 {
-    cptr desc = devicemaster_speciality_name(p_ptr->psubclass);
+    cptr desc = devicemaster_speciality_name(plr->psubclass);
 
     doc_printf(doc, "<topic:Abilities>================================== <color:keypress>A</color>bilities ==================================\n\n");
 
     {
-        int pow = p_ptr->lev / 10;
+        int pow = plr->lev / 10;
         if (pow)
             doc_printf(doc, " * You gain +%d%% power when using %s.\n", device_power_aux(100, pow) - 100, desc);
     }
     doc_printf(doc, " * You use %s more quickly.\n", desc);
-    if (p_ptr->psubclass != DEVICEMASTER_POTIONS && p_ptr->psubclass != DEVICEMASTER_SCROLLS)
+    if (plr->psubclass != DEVICEMASTER_POTIONS && plr->psubclass != DEVICEMASTER_SCROLLS)
         doc_printf(doc, " * You have a chance of not consuming a charge when using %s.\n", desc);
     else
         doc_printf(doc, " * You have a chance of not consuming an item when using %s.\n", desc);
-    if (p_ptr->psubclass != DEVICEMASTER_POTIONS && p_ptr->psubclass != DEVICEMASTER_SCROLLS)
+    if (plr->psubclass != DEVICEMASTER_POTIONS && plr->psubclass != DEVICEMASTER_SCROLLS)
         doc_printf(doc, " * You may use %s even when frightened.\n", desc);
-    doc_printf(doc, " * You are resistant to charge draining (Power=%d).\n\n", p_ptr->lev);
+    doc_printf(doc, " * You are resistant to charge draining (Power=%d).\n\n", plr->lev);
 
     {
         spell_info spells[MAX_SPELLS];
@@ -476,7 +476,7 @@ plr_class_ptr devicemaster_get_class(int psubclass)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  40,  36,   2,  20,  16,  48,  35 };
-    skills_t xs = {  7,  15,  10,   0,   0,   0,  13,  11 };
+    skills_t xs = { 35,  75,  50,   0,   0,   0,  65,  55 };
 
         me = plr_class_alloc(CLASS_DEVICEMASTER);
         me->name = "Devicemaster";

@@ -1,0 +1,752 @@
+# The Truth about Cats and Dogs
+
+T:f.base:Feline
+I:DISPLAY(f):POS(CORPSE|GAIN_AC)
+I:KIND(ANIMAL)
+I:ALERT(400',Ever Vigilant):MOVE(BASH)
+P:Stat:Str(0+2):Int(1):Wis(0):Dex(3+3):Con(-1+2):Chr(0+4)
+P:Skill:Dis(25+40):Dev(25+45):Sav(31+50):Stl(5+5):Srh(25):Fos(20):Thn(50+75):Thb(30+35)
+P:Infra:50'
+P:Class:Beastmaster
+P:SpellStat:Dex
+P:Body:Hound
+P:Weight:120
+
+T:C.base:Canine
+I:DISPLAY(C):POS(CORPSE|GAIN_AC)
+I:KIND(ANIMAL)
+I:ALERT(200',Fairly Unseeing):MOVE(BASH)
+P:Stat:Str(1+2):Int(-2):Wis(-1):Dex(1+2):Con(0+2):Chr(0)
+P:Skill:Dis(25+40):Dev(20+45):Sav(31+50):Stl(4):Srh(20):Fos(15):Thn(56+90):Thb(30+35)
+P:Infra:50'
+P:Class:Beastmaster
+P:SpellStat:Dex
+P:Body:Hound
+P:Weight:130
+
+T:Z.base:Zephyr Hound
+I:DISPLAY(Z):POS(CORPSE|GAIN_AC)
+I:KIND(ANIMAL)
+I:ALERT(300',Ever Vigilant):MOVE(BASH)
+P:Stat:Str(1+4):Int(-3):Wis(-5):Dex(2+3):Con(1+3):Chr(0+2)
+P:Skill:Dis(25+40):Dev(20+40):Sav(31+50):Stl(4+5):Srh(20):Fos(15):Thn(56+100):Thb(30+35)
+P:Infra:50'
+P:Class:Beastmaster
+P:SpellStat:Con
+P:Body:Hound
+P:Weight:150
+
+########################################################################
+# Cats
+N:f.scrawny:f.base:Scrawny cat
+I:LVL(0):RARITY(3):WILD(TOWN|GRASS|ONLY)
+I:HP(1d2):AC(1):EXP(0):EVOLVE(f.wild, 5)
+I:ALERT(Fairly Observant):MOVE(RAND_25|-BASH)
+B:CLAW:HURT(1d3)
+D:A skinny little furball with sharp claws and a menacing look.
+I:COLOR(Light Umber):POS(SKELETON)
+P:Stats:-7:0:0:0:-3:0
+P:Life:50
+P:Body:Scrawny
+P:Weight:5
+
+N:f.Freesia:f.base:Freesia
+I:LVL(2):RARITY(1):ALLOC(UNIQUE)
+I:SPEED(+10):HP(25):AC(30):EXP(45)
+B:CLAW(x2):HURT(2d2)
+I:RESIST(CONF):IMMUNE(SLEEP)
+D:A striped housecat who enjoys hunting.
+I:COLOR(Umber)
+P:Weight:25
+
+N:f.wild:f.base:Wild cat
+I:LVL(2,20):RARITY(2):WILD(ALL)
+I:SPEED(+10):HP(3d5):AC(12):EXP(10):EVOLVE(f.panther, 80)
+B:CLAW(x2):HURT(1d6)
+D:A larger than normal feline, hissing loudly. Its velvet paws conceal a
+D:fistful of needles.
+I:COLOR(Light Umber):POS(SKELETON)
+P:Life:60
+P:Body:Scrawny
+P:Weight:10
+
+N:f.panther:f.base:Panther
+I:LVL(10,40):RARITY(2):WILD(WOOD|GRASS)
+I:SPEED(+10):HP(10d8):AC(30):EXP(25):EVOLVE(f.tiger, 150)
+B:CLAW(x2):HURT(1d8)
+D:A large black cat, stalking you with intent. It thinks you're its next meal.
+I:COLOR(Light Dark):POS(SKELETON)
+
+N:f.tiger:f.base:Tiger
+I:LVL(12,50):RARITY(2):WILD(GRASS|WOOD|MOUNTAIN)
+I:SPEED(+10):HP(12d10):AC(40):EXP(40):EVOLVE(f.sabre-tooth, 500)
+B:CLAW(x2):HURT(1d8)
+B:BITE:HURT(1d6)
+D:One of the largest of its species, a sleek orange and black shape creeps
+D:towards you, ready to pounce.
+I:COLOR(Orange):POS(SKELETON)
+
+N:f.nekomata:f.base:Nekomata
+I:LVL(17,40):RARITY(3)
+I:HP(12d16):AC(32):EXP(60)
+I:ALIGN(Neutral Evil):ATTR(MALE|SMART):ALERT(200',Unseeing):MOVE(OPEN)
+B:HIT(x2):HURT(2d5)
+S:1_IN_3 | SCARE | CAUSE_2 | S_MONSTER(1)
+O:1d2:OBJ(*$)
+I:COLOR(Umber):POS(SKELETON)
+
+N:f.sabre-tooth:f.base:Sabre-tooth tiger
+I:LVL(20,70):RARITY(2):WILD(WOOD|GRASS)
+I:SPEED(+10):HP(20d14):AC(50):EXP(120):EVOLVE(f.nine-tailed, 20000)
+B:CLAW(x2):HURT(1d9):CUT(2d2,10%)
+B:BITE(x2):HURT(1d9):CUT(3d3,10%)
+D:A fierce and dangerous cat, its huge tusks and sharp claws would lacerate
+D:even the strongest armour.
+I:COLOR(Yellow):POS(SKELETON)
+
+N:f.displacer:f.base:Displacer beast
+I:LVL(26,50):RARITY(2)
+I:HP(25d10):AC(100):EXP(100)
+I:CAN(INVIS):ALERT(Fairly Unseeing)
+B:BITE:HURT(1d8+5)
+B:HIT(x3):HURT(1d8+2)
+D:It is a huge black panther, clubbed tentacles sprouting from its shoulders.
+I:COLOR(Blue):POS(SEE_INVIS)
+
+N:f.nine-tailed:f.base:Nine-tailed fox
+I:LVL(49):RARITY(7)
+I:SPEED(+10):HP(1800):AC(140):EXP(10000)
+I:CAN(REFLECT|REGEN):ATTR(RIDING):ALERT(Unseeing)
+B:KICK(x2):HURT(1d10+10):DRAIN_CHARGES
+B:BITE(x2):HURT(3d12+12)
+I:RESIST(FIRE|COLD|CONF|TELE):IMMUNE(SLEEP)
+O:2d2+1:OBJ(*$)
+S:FREQ_35 | S_MONSTER | CAUSE_3 | CAUSE_4 | CONFUSE | BRAIN_SMASH | DRAIN_MANA |
+S:SCARE | HASTE | PARALYZE
+I:COLOR(White):POS(SEE_INVIS)
+
+N:f.Bast:f.base:Bast, Goddess of Cats
+I:LVL(62):RARITY(3):ALLOC(UNIQUE|ESCORT)
+I:SPEED(+20):HP(4800):AC(200):EXP(30500)
+I:ALIGN(Evil):CAN(SPEAK|INVIS):ATTR(FEMALE):ALERT(1000')
+B:HIT:HURT(6d12+40):CONFUSE
+B:TOUCH:HURT(2d12):LOSE_DEX
+B:HIT:HURT(7d7+12):BLIND
+B:HIT:HURT(7d7+12):PARALYZE:STUN(3d3, 70%)
+I:RESIST(FIRE|COLD|POIS|CONF):IMMUNE(SLEEP|SLOW)
+S:1_IN_3 | TELE_TO | HEAL | S_KIN
+O:4d2:OBJ(*, GOOD)
+M:2d3:MON(f.nine-tailed)
+M:5d3:MON(f.nine-tailed, ANCESTOR)
+D:"Beauty -- coolness -- aloofness -- philosophical repose -- self-sufficiency --
+D: untamed mastery -- where else can we find these things with even half the perfection
+D:and completeness that mark their incarnation in the peerless and softly gliding cat?"
+I:COLOR(Orange):POS(SEE_INVIS)
+P:Stat:Dex(10):Chr(7)
+P:Skill:Thn(60+105)
+
+########################################################################
+# Dogs
+N:C.dog.scruffy:C.base:Scruffy little dog
+I:LVL(0):RARITY(3):WILD(TOWN|ONLY)
+I:HP(1d3):AC(1):EXP(0):EVOLVE(C.jackal, 6)
+I:ALERT(Observant):MOVE(RAND_25|-BASH)
+B:BITE:HURT(1d3)
+M:50%:2d3:MON(t.urchin)
+D:A thin flea-ridden mutt, growling as you get close.
+I:COLOR(Light Umber):POS(SKELETON)
+P:Life:50
+P:Body:Scrawny
+P:Weight:5
+
+N:C.jackal:C.base:Jackal
+I:LVL(1,5):RARITY(1):WILD(WOOD|GRASS)
+I:HP(1d4):AC(3):EXP(3):EVOLVE(C.wolf, 40)
+I:ALERT(Fairly Observant):MOVE(-BASH)
+B:BITE:HURT(1d3)
+M:3d3:MON(C.jackal)
+D:It is a yapping snarling dog, dangerous when in a pack.
+I:COLOR(Light Umber):POS(SKELETON)
+P:Life:50
+P:Body:Scrawny
+P:Weight:30
+
+N:C.wolf:C.base:Wolf
+I:LVL(10,40):RARITY(1):WILD(WOOD|WASTE|MOUNTAIN)
+I:SPEED(+10):HP(6d6):AC(30):EXP(30):EVOLVE(C.wolf.white, 100)
+I:MOVE(RAND_25)
+B:BITE:HURT(1d7)
+M:3d3:MON(C.wolf)
+D:It howls and snaps at you.
+I:COLOR(Umber)
+P:Life:80
+P:Body:Puppy
+P:Weight:50
+
+N:C.wolf.white:C.base:White wolf
+I:LVL(12,40):RARITY(1):WILD(WASTE)
+I:SPEED(+10):HP(7d7):AC(30):EXP(30):EVOLVE(C.warg, 150)
+I:MOVE(RAND_25)
+B:BITE(x2):HURT(1d4)
+I:RESIST(COLD)
+M:3d3:MON(C.wolf.white)
+D:A large and muscled wolf from the northern wastes. Its breath is cold and
+D:icy and its fur coated in frost.
+I:COLOR(White):POS(SKELETON)
+P:Life:80
+P:Body:Puppy
+P:Weight:50
+
+N:C.mine:C.base:Mine-dog
+I:LVL(12,50):RARITY(4)
+I:SPEED(+10):HP(6d6):AC(30):EXP(40)
+I:MOVE(RAND_50)
+B:EXPLODE:DAM(3d5)
+M:3d3:MON(C.mine)
+D:An explosive charge has been attached to this poor animal, who
+D:has been trained to search for its target and detonate.
+I:COLOR(Umber)
+P:Life:80
+P:Body:Puppy
+P:Weight:30
+
+N:C.warg:C.base:Warg
+I:LVL(14,50):RARITY(2):WILD(WOOD|MOUNTAIN)
+I:SPEED(+10):HP(8d8):AC(20):EXP(40):EVOLVE(C.werewolf, 500)
+I:ALIGN(Evil):ALERT(Unseeing):MOVE(RAND_25)
+B:BITE:HURT(1d7+2)
+M:2d3:MON(C.warg)
+M:25%:2d3:MON(ORC)
+D:It is a large wolf with eyes full of cunning.
+I:COLOR(Light Dark):POS(SKELETON)
+
+N:C.blink:C.base:Blink dog
+I:LVL(18,70):RARITY(2)
+I:SPEED(+10):HP(8d8):AC(20):EXP(50)
+I:ALERT(Fairly Observant):MOVE(RAND_25)
+B:BITE:HURT(1d7)
+I:IMMUNE(TELE)
+S:1_IN_4 | BLINK | TELE_TO
+M:3d3:MON(C.blink)
+D:A strange magical member of the canine race, its form seems to shimmer and
+D:fade in front of your very eyes.
+I:COLOR(Light Blue):POS(SKELETON)
+
+N:C.weir:C.base:Weir
+I:LVL(20,70):RARITY(2)
+I:HP(10d12):AC(30):EXP(30)
+I:ALIGN(Neutral Evil):ALERT(Unseeing):MOVE(RAND_25)
+B:BITE(x2):HURT(1d5)
+M:3d3:MON(C.weir)
+D:It is a tracker; half human, half beast.
+I:COLOR(Light White):POS(SKELETON)
+P:Body:Weir
+
+N:C.werewolf:C.base:Werewolf
+I:LVL(20,60):RARITY(2)
+I:HP(20d22):AC(30):EXP(150)
+I:ALIGN(Neutral Evil):ALERT(Inattentive):MOVE(RAND_25|PICKUP|OPEN)
+B:BITE(x2):HURT(1d6)
+B:BITE:HURT(1d8+2)
+D:It is a huge wolf with eyes that glow with manly intelligence.
+I:COLOR(Light Dark):POS(SKELETON)
+
+N:C.chieftain:C.base:Wolf Chieftain
+I:LVL(22,50):RARITY(6):ALLOC(ESCORT)
+I:SPEED(+10):HP(120):AC(50):EXP(120)
+I:ALIGN(Evil):ATTR(FEMALE|SMART):ALERT(Observant):MOVE(OPEN)
+B:CLAW:HURT(2d6)
+B:BITE:HURT(2d6)
+B:WAIL:TERRIFY
+I:RESIST(ACID|COLD)
+S:1_IN_5 | DARKNESS
+M:3d7:MON(C.warg)
+D:She commands a pack of wargs in the service of her dark master, and her
+D:eyes gleam redly with dreadful knowledge.
+I:COLOR(Light Dark)
+
+N:C.fleshhound:C.base:Fleshhound of Khorne
+I:LVL(23):RARITY(3)
+I:SPEED(+10):HP(20d20):AC(30):EXP(150)
+I:KIND(DEMON):ALIGN(Evil):ALERT(Overlooks)
+B:CLAW(x2):HURT(4)
+B:BITE(x2):HURT(6)
+I:RESIST(FIRE|CONF|NETHER|NEXUS|DISENCHANT|PLASMA):IMMUNE(SLEEP)
+D:A revolting canine creature, a huge demon hound with a somewhat reptilian head.
+I:COLOR(Light Red)
+
+N:C.hell:C.base:Hell hound of Julian
+I:LVL(83):RARITY(4):ALLOC(D_AMBER)
+I:SPEED(+10):HP(480):AC(80):EXP(1500)
+I:ALIGN(Chaotic):ALERT(250'):MOVE(RAND_25|PUSH)
+B:BITE(x3):HURT(3d12+6):HELL_FIRE(3d9)
+A:FIRE(4d5)
+I:RESIST(NETHER):IMMUNE(FIRE)
+S:1_IN_5 | BR_HELL_FIRE
+M:3d3:MON(C.hell)
+D:It is a giant dog that glows with heat. Flames pour from its nostrils.
+I:COLOR(Red)
+
+########################################################################
+# Dogs - Unique
+N:C.Grip:C.base:Grip, Farmer Maggot's dog
+I:LVL(2):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+10):HP(25):AC(30):EXP(40)
+I:CAN(SPEAK):ALERT(300',Ever Vigilant):MOVE(RAND_25)
+B:BITE:HURT(2d4)
+I:RESIST(CONF):IMMUNE(SLEEP)
+O:15%:ART(`".Grip`)
+M:25%:MON(C.Wolf, STOP)
+M:25%:MON(C.Fang)
+D:A rather vicious dog belonging to Farmer Maggot. It thinks you are stealing mushrooms.
+I:COLOR(White)
+P:Life:70
+P:Weight:30
+P:Body:Puppy
+
+N:C.Wolf:C.base:Wolf, Farmer Maggot's dog
+I:LVL(2):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+10):HP(25):AC(30):EXP(40)
+I:CAN(SPEAK):ALERT(300',Ever Vigilant):MOVE(RAND_25)
+B:BITE:HURT(2d4)
+I:RESIST(CONF):IMMUNE(SLEEP)
+O:15%:ART(`".Wolf`)
+M:25%:MON(C.Grip, STOP)
+M:25%:MON(C.Fang)
+D:A rather vicious dog belonging to Farmer Maggot. It thinks you are stealing mushrooms.
+I:COLOR(White)
+P:Life:70
+P:Weight:30
+P:Body:Puppy
+
+N:C.Fang:C.base:Fang, Farmer Maggot's dog
+I:LVL(2):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+10):HP(25):AC(30):EXP(40)
+I:CAN(SPEAK):ALERT(300',Ever Vigilant):MOVE(RAND_25)
+B:BITE:HURT(2d4)
+I:RESIST(CONF):IMMUNE(SLEEP)
+O:15%:ART(`".Fang`)
+M:25%:MON(C.Grip, STOP)
+M:25%:MON(C.Wolf)
+D:A rather vicious dog belonging to Farmer Maggot. It thinks you are stealing mushrooms.
+I:COLOR(White)
+P:Life:70
+P:Weight:30
+P:Body:Puppy
+
+N:C.Bloodfang:C.base:Bloodfang the Wolf
+I:LVL(9):RARITY(1):ALLOC(UNIQUE):WILD(ONLY|GRASS|WOOD)
+I:SPEED(+10):HP(36):AC(30):EXP(30)
+I:ALERT(300')
+B:BITE:HURT(1d8+2)
+B:BITE:HURT(1d8+2)
+D:It has been terrorizing the nearby villages.
+I:COLOR(Light Red)
+P:Life:80
+P:Weight:50
+P:Body:Puppy
+
+N:C.Garm:C.base:Garm, Guardian of Hel
+I:LVL(49):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+10):HP(3000):AC(120):EXP(22000)
+I:ALIGN(Chaotic):ALERT(Overlooks):MOVE(PUSH)
+B:CLAW(x2):HURT(4d13+20)
+B:BITE(x2):HURT(5d13+20)
+I:RESIST(FIRE|CONF|DARK|NETHER):IMMUNE(SLEEP)
+O:4d2:OBJ(*, GOOD)
+S:FREQ_20 | BR_NETHER | BR_COLD | BR_DARK | S_HOUND | S_UNDEAD
+D:Garm is a gigantic hound, whose job is to guard that none escapes
+D:the tortures of Hel, the Norse place of punishment for the wicked
+D:and cowardly dead.
+I:COLOR(Umber)
+P:Stat:Str(6):Con(5)
+P:Skill:Thn(70+100)
+P:SpellStat:Con
+P:Life:110
+P:Weight:300
+
+N:C.Huan:C.base:Huan, the Hound of Valinor
+I:LVL(72):RARITY(5):ALLOC(UNIQUE):WILD(WOOD)
+I:SPEED(+20):HP(7500):AC(110):EXP(30000)
+I:ALIGN(Good):CAN(SPEAK):ATTR(MALE|FRIENDLY|SMART|RIDING)
+I:ALERT(800',Fairly Observant):MOVE(RAND_25|PUSH)
+B:CLAW(x2):HURT(4d10+15)
+B:BITE(x2):HURT(5d10):POISON(2d10)
+I:RESIST(FIRE|POIS|CONF):IMMUNE(SLEEP)
+I:COLOR(Light Dark)
+P:Life:115
+P:Weight:300
+
+N:C.Draugluin:C.base:Draugluin, Sire of All Werewolves
+I:LVL(87):RARITY(2):ALLOC(UNIQUE|ESCORT)
+I:SPEED(+20):HP(7000):AC(90):EXP(30000)
+I:ALIGN(Evil):CAN(SPEAK):ATTR(MALE)
+I:ALERT(800',Inattentive):MOVE(RAND_25|PUSH|PICKUP)
+B:CLAW(x2):HURT(5d10+25)
+B:BITE(x2):HURT(5d12+20):POISON(4d12)
+I:RESIST(POIS)
+S:1_IN_3 | SCARE | S_MONSTER | S_HOUND
+O:1d2:OBJ(*, GOOD)
+M:12d3:MON(C.werewolf)
+D:Draugluin provides Sauron with a fearsome personal guard. He is an
+D:enormous wolf inhabited with a human spirit. He is chief of all his kind.
+I:COLOR(Umber)
+P:Weight:1000
+
+N:C.Fenris:C.base:Fenris Wolf
+I:LVL(90):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+24):HP(7000):AC(90):EXP(35000)
+I:ALIGN(Evil):CAN(SPEAK)
+I:ALERT(800',Unseeing):MOVE(RAND_25|TRAMPLE|PICKUP)
+B:CLAW(x2):HURT(5d6+35)
+B:BITE(x2):HURT(10d6+35)
+I:RESIST(FIRE|COLD|POIS|DARK)
+S:FREQ_10 | BR_DARK | BR_POISON | BR_COLD
+O:1d2:OBJ(*, GOOD)
+D:The immensely huge wolf who would swallow the sun to satisfy its
+D:hunger and leave the Norse gods for the dessert.
+I:COLOR(Light Dark)
+P:Weight:1000
+
+N:C.Carcharoth:C.base:Carcharoth, the Jaws of Thirst
+I:LVL(92):RARITY(2):ALLOC(D_ANGBAND|UNIQUE|GUARDIAN)
+I:SPEED(+20):HP(7500):AC(110):EXP(40000)
+I:ALIGN(Evil):CAN(SPEAK):ATTR(MALE|SMART)
+I:ALERT(800',Fairly Observant):MOVE(RAND_25|PUSH|PICKUP)
+B:CLAW(x2):HURT(4d12+30)
+B:BITE(x2):HURT(5d12+25):POISON(4d12)
+A:FIRE(4d6)
+I:RESIST(FIRE|POIS|CONF):IMMUNE(SLEEP|SLOW)
+S:1_IN_4 | HEAL | SCARE | BRAIN_SMASH | BR_FIRE | S_HOUND
+O:1d2:OBJ(*, GOOD)
+O:5%:ART(`".Carcharoth`)
+D:The first guard of Angband, Carcharoth, also known as 'The Red Maw', is
+D:the largest wolf to ever walk the earth. He is highly intelligent and a
+D:deadly opponent in combat.
+I:COLOR(Light Dark)
+P:Stat:Str(7):Con(5):Chr(5)
+P:Skill:Thn(80+150)
+P:Life:110
+P:Weight:1000
+
+N:C.Cerberus:C.base:Cerberus, Guardian of Hades
+I:LVL(94):RARITY(1):ALLOC(UNIQUE)
+I:SPEED(+20):HP(10000):AC(160):EXP(70000)
+I:ALIGN(Evil):ALERT(500',Fairly Observant):MOVE(PUSH)
+B:BITE(x3):HURT(4d12+25):FIRE(4d12)
+A:FIRE(4d6)
+I:RESIST(CONF|NETHER):IMMUNE(FIRE|SLEEP|SLOW)
+S:FREQ_25 | BR_FIRE | BR_NETHER | BA_DARK | S_HOUND
+O:4d2:OBJ(*, GOOD)
+D:A three-headed hell hound of fearsome aspect. Flame burns merrily from its
+D:hide as it snarls and roars its defiance.
+I:COLOR(Red)
+P:Stat:Str(5):Con(4):Chr(4)
+P:Skill:Thn(80+150)
+P:Life:110
+P:Body:Cerberus
+P:Weight:1000
+
+########################################################################
+# Zephyr Hounds
+N:Z.light:Z.base:Light hound
+I:LVL(15,60):RARITY(2)
+I:HP(6d6):AC(30):EXP(50)
+I:LIGHT(1)
+B:BITE:HURT(1d6)
+I:RESIST(LIGHT):VULN(DARK)
+S:FREQ_8 | BR_LIGHT(35%) | DETECT_MONSTERS
+M:3d3:MON(Z.light)
+D:A brilliant canine form whose light hurts your eyes, even at this distance.
+I:COLOR(Orange)
+
+N:Z.shadow:Z.base:Shadow hound
+I:LVL(15,60):RARITY(2)
+I:HP(6d6):AC(30):EXP(50)
+I:DARK(1)
+B:BITE:HURT(1d6)
+I:RESIST(DARK):VULN(LIGHT)
+S:FREQ_8 | BR_DARK(35%) | DETECT_MONSTERS
+M:3d3:MON(Z.shadow)
+D:A hole in the air in the shape of a huge hound. No light falls upon its form.
+I:COLOR(Light Dark)
+
+N:Z.clear:Z.base:Clear hound
+I:LVL(15,50):RARITY(3)
+I:HP(10d6):AC(30):EXP(50)
+I:CAN(INVIS)
+B:BITE(x3):HURT(1d5)
+S:DETECT_MONSTERS
+M:3d3:MON(Z.clear)
+D:A completely translucent hound.
+I:DISPLAY(,Light Blue,ATTR_CLEAR):POS(SEE_INVIS)
+
+N:Z.fire:Z.base:Fire hound
+I:LVL(18,70):RARITY(2)
+I:HP(10d6):AC(30):EXP(30)
+I:LIGHT(1)
+B:CLAW(x2):HURT(2d3)
+B:BITE:FIRE(2d3)
+I:RESIST(FIRE):VULN(COLD)
+S:FREQ_5 | BR_FIRE(35%) | DETECT_MONSTERS
+M:3d3:MON(Z.fire)
+D:Flames lick at its feet and its tongue is a blade of fire. You can feel a
+D:furnace heat radiating from the creature.
+I:COLOR(Red)
+
+N:Z.cold:Z.base:Cold hound
+I:LVL(18,70):RARITY(2)
+I:HP(10d6):AC(30):EXP(30)
+B:CLAW(x2):HURT(2d3)
+B:BITE:COLD(2d3)
+I:RESIST(COLD):VULN(FIRE)
+S:FREQ_5 | BR_COLD(35%) | DETECT_MONSTERS
+M:3d3:MON(Z.cold)
+D:A hound as tall as a man, this creature appears to be composed of angular
+D:planes of ice. Cold radiates from it and freezes your breath in the air.
+I:COLOR(Light White)
+
+N:Z.energy:Z.base:Energy hound
+I:LVL(18,70):RARITY(2)
+I:HP(10d6):AC(30):EXP(30)
+I:LIGHT(1)
+B:CLAW(x2):HURT(2d3)
+B:BITE:ELEC(2d3)
+I:RESIST(ELEC)
+S:FREQ_5 | BR_ELEC(35%) | DETECT_MONSTERS
+M:3d3:MON(Z.energy)
+D:Saint Elmo's Fire forms a ghostly halo around this hound, and sparks sting
+D:your fingers as energy builds up in the air around you.
+I:COLOR(Yellow)
+
+N:Z.earth:Z.base:Earth hound
+I:LVL(20,90):RARITY(2)
+I:HP(15d8):AC(30):EXP(200)
+B:BITE(x2):HURT(1d7)
+B:CLAW(x2):HURT(2d3+2)
+I:RESIST(SHARDS):VULN(DISINTEGRATE)
+S:FREQ_5 | BR_SHARDS(25%) | DETECT_MONSTERS
+M:3d3:MON(Z.earth)
+D:A beautiful crystalline shape does not disguise the danger this hound
+D:clearly presents. Your flesh tingles as it approaches.
+I:COLOR(Umber)
+
+N:Z.air:Z.base:Air hound
+I:LVL(20,90):RARITY(2)
+I:HP(15d8):AC(30):EXP(200)
+I:MOVE(FLY)
+B:BITE(x2):HURT(1d7)
+B:CLAW(x2):HURT(2d3+2)
+I:RESIST(POIS)
+S:FREQ_5 | BR_POISON(25%) | DETECT_MONSTERS
+M:3d3:MON(Z.air)
+D:Swirling vapours surround this beast as it floats towards you, seemingly
+D:walking on air. Noxious gases sting your throat.
+I:COLOR(Light Blue)
+
+N:Z.water:Z.base:Water hound
+I:LVL(20,90):RARITY(3)
+I:HP(15d8):AC(30):EXP(200)
+I:MOVE(SWIM)
+B:BITE(x2):ACID(2d8)
+B:CLAW(x2):HURT(2d3+2)
+I:RESIST(ACID)
+S:FREQ_5 | BR_ACID(35%) | DETECT_MONSTERS
+M:3d3:MON(Z.water)
+D:Liquid footprints follow this hound as it pads around the dungeon. An
+D:acrid smell of acid rises from the dog's pelt.
+I:COLOR(Blue)
+
+N:Z.vibration:Z.base:Vibration hound
+I:LVL(27):RARITY(5):WILD(GRASS|WOOD|WASTE)
+I:HP(25d10):AC(30):EXP(250)
+B:BITE(x2):HURT(1d6+3)
+B:CLAW(x2):HURT(2d3+2)
+I:RESIST(CONF|SOUND):IMMUNE(SLEEP)
+S:FREQ_10 | BR_SOUND | DETECT_MONSTERS
+M:3d3:MON(Z.vibration)
+D:A blurry canine form which seems to be moving as fast as the eye can
+D:follow. You can feel the earth resonating beneath your feet.
+I:COLOR(Light Umber)
+
+N:Z.nexus:Z.base:Nexus hound
+I:LVL(27):RARITY(5):WILD(GRASS|WOOD|WASTE)
+I:HP(25d10):AC(30):EXP(250)
+B:BITE(x2):HURT(1d6+3)
+B:CLAW(x2):HURT(2d3+2)
+I:RESIST(CONF|NEXUS):IMMUNE(SLEEP)
+S:FREQ_10 | BR_NEXUS | DETECT_MONSTERS
+M:3d3:MON(Z.nexus)
+D:A locus of conflicting points coalesce to form the vague shape of a huge
+D:hound. Or is it just your imagination?
+I:COLOR(Violet)
+
+N:Z.multi-hued:Z.base:Multi-hued hound
+I:LVL(33):RARITY(4):WILD(GRASS|WOOD|WASTE)
+I:SPEED(+5):HP(30d10):AC(40):EXP(600)
+I:LIGHT(2)
+B:CLAW(x2):HURT(1d6+7)
+B:BITE(x2):HURT(2d4+5)
+I:RESIST(BASE|POIS|CONF):IMMUNE(SLEEP)
+S:FREQ_10 | BR_ACID | BR_POISON | BR_COLD | BR_FIRE | BR_ELEC | DETECT_MONSTERS
+M:3d3:MON(Z.multi-hued)
+D:Shimmering in rainbow hues, this hound is beautiful and deadly.
+I:DISPLAY(,Violet,ATTR_MULTI)
+
+N:Z.gravity:Z.base:Gravity hound
+I:LVL(35):RARITY(4):WILD(GRASS|WOOD|WASTE)
+I:HP(35d10):AC(30):EXP(500)
+B:BITE(x3):HURT(1d12+6)
+B:CLAW:HURT(3d3)
+I:RESIST(CONF|GRAVITY):IMMUNE(SLEEP)
+S:FREQ_10 | BR_GRAVITY | DETECT_MONSTERS
+M:3d2:MON(Z.gravity)
+D:Unfettered by the usual constraints of gravity, these unnatural creatures
+D:are walking on the walls and even the ceiling! The earth suddenly feels
+D:rather less solid as you see gravity warp all round the monsters.
+I:COLOR(Slate)
+
+N:Z.inertia:Z.base:Inertia hound
+I:LVL(35):RARITY(4)
+I:HP(35d10):AC(30):EXP(500)
+B:BITE(x3):HURT(1d12+6)
+B:CLAW:HURT(3d3)
+I:RESIST(CONF|INERTIA):IMMUNE(SLEEP|SLOW)
+S:FREQ_10 | BR_INERTIA | DETECT_MONSTERS
+M:3d3:MON(Z.inertia)
+D:Bizarrely, this hound seems to be hardly moving at all, yet it approaches
+D:you with deadly menace. It makes you tired just to look at it.
+I:COLOR(Light White)
+
+N:Z.impact:Z.base:Impact hound
+I:LVL(35):RARITY(4)
+I:HP(35d10):AC(30):EXP(500)
+B:BITE(x3):HURT(1d12+6)
+B:CLAW:HURT(3d3)
+I:RESIST(CONF|FORCE):IMMUNE(SLEEP)
+S:FREQ_8 | BR_FORCE | DETECT_MONSTERS
+M:3d3:MON(Z.impact)
+D:A deep brown shape is visible before you, its canine form strikes you with
+D:an almost physical force. The dungeon floor buckles as if struck by a
+D:powerful blow as it stalks towards you.
+I:COLOR(Umber)
+
+N:Z.kamikaze:Z.base:Kamikaze hound
+I:LVL(44):RARITY(6)
+I:SPEED(+20):HP(30d10):AC(50):EXP(500)
+B:EXPLODE:DAM(25d3)
+I:RESIST(CONF):IMMUNE(SLEEP)
+M:3d3:MON(Z.kamikaze)
+S:DETECT_MONSTERS
+I:COLOR(Orange):POS(-CORPSE)
+
+N:Z.death:Z.base:Death Beast
+I:LVL(45):RARITY(8)
+I:SPEED(+10):HP(600):AC(100):EXP(5000)
+I:CAN(FEAR):MOVE(TUNNEL)
+B:BITE:HURT(5d12+30):TIME
+B:CLAW(x2):HURT(3d6+10):DRAIN_CHARGES
+I:RESIST(CONF|NETHER|TIME):IMMUNE(SLEEP|FEAR)
+S:FREQ_15 | BR_TIME | BR_DISINTEGRATE | BR_NETHER | DETECT_MONSTERS
+D:A giant hound, dark as night. It hunts alone. Flee!
+I:COLOR(Light Dark)
+
+N:Z.nether:Z.base:Nether hound
+I:LVL(51):RARITY(4)
+I:SPEED(+10):HP(60d10):AC(100):EXP(1000)
+I:DARK(1)
+B:BITE(x3):HURT(2d12)
+B:CLAW:HURT(3d3)
+I:RESIST(CONF|NETHER):IMMUNE(SLEEP)
+S:FREQ_10 | BR_NETHER | DETECT_MONSTERS
+M:3d3:MON(Z.nether)
+D:You feel a soul-tearing chill upon viewing this beast, a ghostly form of
+D:darkness in the shape of a large dog.
+I:COLOR(Light Dark)
+
+N:Z.time:Z.base:Time hound
+I:LVL(51):RARITY(8)
+I:SPEED(+15):HP(60d10):AC(100):EXP(1250)
+B:BITE(x3):HURT(2d12)
+B:CLAW:HURT(3d3)
+I:RESIST(CONF|TIME):IMMUNE(SLEEP|SLOW)
+S:FREQ_6 | BR_TIME | DETECT_MONSTERS
+M:3d3:MON(Z.time)
+D:You get a terrible sense of deja vu, or is it a premonition? All at once
+D:you see a little puppy and a toothless old dog. Perhaps you should give
+D:up and go to bed.
+I:COLOR(Light Green)
+
+N:Z.plasma:Z.base:Plasma hound
+I:LVL(51):RARITY(4)
+I:SPEED(+10):HP(60d10):AC(100):EXP(1250)
+I:LIGHT(2)
+B:BITE(x3):HURT(2d12)
+B:CLAW:HURT(3d3)
+I:RESIST(ELEC|FIRE|CONF|PLASMA):IMMUNE(SLEEP)
+S:FREQ_10 | BR_PLASMA | DETECT_MONSTERS
+M:3d3:MON(Z.plasma)
+D:The very air warps as pure elemental energy stalks towards you in the
+D:shape of a giant hound. Your hair stands on end and your palms itch as
+D:you sense trouble.
+I:COLOR(Light Red)
+
+N:Z.mana:Z.base:Mana hound
+I:LVL(51):RARITY(6)
+I:SPEED(+15):HP(60d10):AC(100):EXP(3000)
+I:LIGHT(1)
+B:BITE(x3):HURT(10d2+10)
+B:CLAW:HURT(3d3)
+I:RESIST(CONF):IMMUNE(SLEEP)
+S:FREQ_8 | BR_MANA | DETECT_MONSTERS
+M:3d3:MON(Z.mana)
+D:A powerful aura radiates from this canine creature. It feels like ... magic?
+I:COLOR(Light Blue)
+
+N:Z.tindalos:Z.base:Hound of Tindalos
+I:SPEED(+10):HP(60d15):AC(100)
+I:LVL(54):RARITY(6):EXP(2000)
+I:ALIGN(Evil):CAN(INVIS):MOVE(FLY|PASSWALL)
+B:BITE(x2):HURT(2d12):TIME
+B:CLAW:HURT(3d3)
+I:RESIST(CONF|NETHER|TIME):IMMUNE(SLEEP)
+S:FREQ_10 | BLINK | BLINK_OTHER | TELE_TO | BR_NETHER | BR_TIME | DETECT_MONSTERS 
+M:3d3:MON(Z.tindalos)
+D:"They are lean and athirst!... All the evil in the universe
+D:was concentrated in their lean, hungry bodies. Or had they
+D:bodies? I saw them only for a moment, I cannot be certain."
+I:COLOR(Slate):POS(-CORPSE|SEE_INVIS)
+
+N:Z.chaos:Z.base:Chaos hound
+I:LVL(65):RARITY(3)
+I:SPEED(+10):HP(60d30):AC(100):EXP(3000)
+B:BITE(x3):HURT(2d12)
+B:CLAW:HURT(3d3)
+I:RESIST(CONF|CHAOS):IMMUNE(SLEEP)
+S:FREQ_10 | BR_CHAOS | DETECT_MONSTERS
+M:3d3:MON(Z.chaos)
+D:A constantly changing canine form, this hound rushes towards you as if
+D:expecting mayhem and chaos ahead. It appears to have an almost kamikaze
+D:relish for combat. You suspect all may not be as it seems.
+I:DISPLAY(,Violet,ATTR_MULTI|ATTR_ANY)
+
+N:Z.aether:Z.base:Aether hound
+I:LVL(75):RARITY(4)
+I:SPEED(+10):HP(60d30):AC(100):EXP(5000)
+I:LIGHT(2):MOVE(FLY)
+B:BITE(x3):HURT(2d12)
+B:CLAW:HURT(3d3)
+A:FIRE(3d5):COLD(3d5):ELEC(3d5)
+I:RESIST(ALL):IMMUNE(SLEEP|SLOW)
+S:FREQ_10 | BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POISON |
+S:BR_LIGHT | BR_DARK | BR_SOUND | BR_CONFUSION | BR_CHAOS |
+S:BR_NETHER | BR_DISENCHANT | BR_FORCE | BR_INERTIA | BR_TIME |
+S:BR_GRAVITY | BR_PLASMA | BR_NEXUS | BR_SHARDS | BR_NUKE | DETECT_MONSTERS
+M:3d3:MON(Z.aether)
+D:A shifting, swirling form. It seems to be all colors and sizes and
+D:shapes, though the dominant form is that of a huge dog. You feel very
+D:uncertain all of a sudden.
+I:DISPLAY(,Light Blue,ATTR_MULTI|ATTR_ANY)
+
+# vim: filetype=ri :
+

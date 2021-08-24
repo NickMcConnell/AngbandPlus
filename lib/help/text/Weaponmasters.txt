@@ -67,7 +67,7 @@ so hard as to knock their opponents backwards!
   Stats                   Skills
   Strength      +2        Disarming   Fair         
   Intelligence  -2        Device      Fair         
-  Wisdom        -2        Save        Bad          
+  Wisdom        -2        Save        Fair         
   Dexterity     +2        Stealth     Good         
   Constitution  +2        Searching   Fair         
   Charisma      +1        Perception  Bad          
@@ -221,7 +221,7 @@ Table 2 - Weaponmaster Skill Bonus Table I
 Axes              Fair          Bad           Fair          Fair         
 Bows              Fair          Good          Poor          Very Good    
 Clubs             Fair          Fair          Very Good     Fair         
-Crossbows         Fair          Fair          Bad           Good         
+Crossbows         Fair          Fair          Fair          Good         
 Daggers           Very Good     Good          Fair          Excellent    
 Polearms          Fair          Poor          Fair          Fair         
 Shields           Fair          Fair          Excellent     Fair         
@@ -249,5 +249,5 @@ Diggers           Poor          Bad           Superb        Bad
 
 
 
-Automatically generated for PosChengband 7.2.1.
+Automatically generated for PosChengband 7.3.1.
 

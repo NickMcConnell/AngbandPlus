@@ -23,7 +23,6 @@ enum room_type_e {
     ROOM_VAULT,      /* T:VAULT:... */
     ROOM_ROOM,       /* T:ROOM:... */
     ROOM_WILDERNESS, /* T:WILD:<terrain>...  Subtype is the terrain type */
-    ROOM_AMBUSH,     /* T:AMBUSH:<terrain>... Subtype is the terrain type  */
     ROOM_QUEST,      /* T:QUEST:... (cf ../lib/edit/q_old_castle.txt) */
     ROOM_TOWN,       /* T:TOWN:... (cf ../lib/edit/t_telmora.txt) */
     ROOM_WORLD,
@@ -56,19 +55,8 @@ enum vault_type_e {
  * See lib/edit/t_*.txt for sample towns.
  */
 
-#define ROOM_GRID_MON_TYPE      0x00000001  /* monster is SUMMON_* rather than a specific r_idx */
-#define ROOM_GRID_MON_CHAR      0x00000002  /* monster is a "d_char" rather than a specific r_idx */
-#define ROOM_GRID_MON_RANDOM    0x00000004
-#define ROOM_GRID_MON_NO_GROUP  0x00000008
-#define ROOM_GRID_MON_NO_SLEEP  0x00000010
-#define ROOM_GRID_MON_NO_UNIQUE 0x00000020
-#define ROOM_GRID_MON_FRIENDLY  0x00000040
-#define ROOM_GRID_MON_HASTE     0x00000080
-#define ROOM_GRID_MON_CLONED    0x00000100  /* hack for The Cloning Pits */
-
 #define ROOM_GRID_TRAP_RANDOM   0x10000000  /* this may override object info */
 #define ROOM_GRID_SPECIAL       0x20000000  /* use extra for cave.special field */
-
 
 #define ROOM_THEME_GOOD        0x00000001
 #define ROOM_THEME_EVIL        0x00000002
@@ -80,24 +68,22 @@ enum vault_type_e {
 #define ROOM_DEBUG             0x00004000  /* For debugging ... force this template to always be chosen */
 #define ROOM_NO_ROTATE         0x00008000
 #define ROOM_NOTICE            0x00010000  /* For ROOM_WILDERNSS: disturb the player */
+#define ROOM_RUINS             0x00020000
 
 struct room_grid_s
 {
-    s16b cave_feat;
-    s16b cave_trap; /* This could also be a secret door ... */
-
-    u32b cave_info;
-    s16b monster;
-
-    obj_drop_t object;
-    s16b extra;    /* dungeon and quest ids for special features */
-
     u32b flags;
+
+    sym_t cave_feat; /* cf _feat_tbl in dun_cell.c */
+    u32b cave_flags;
+    byte cave_trap; /* cf _trap_tbl in dun_cell.c */
+    byte extra;     /* dungeon and quest ids for special features (cf dun_cell_s.parm2) */
+
+    mon_rule_t monster;
+    obj_drop_t object;
 
     byte letter;
     byte scramble; /* useful in randomizing quests (e.g. Vault and Cloning Pits) */
-    byte monster_level;
-
     byte trap_pct;
     byte mon_pct;
 };
@@ -114,8 +100,8 @@ struct room_s
     byte rarity;
     byte type;
 
-    u16b subtype;
-    u16b flags;
+    u16b subtype;   /* sym_t terrain for ROOM_WILDERNESS; int enum for other types */
+    u32b flags;
 
     s16b dun_type_id;
     byte height;

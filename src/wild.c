@@ -21,7 +21,7 @@
 
 bool plr_on_surface(void)
 {
-    return cave->dun_type_id == D_SURFACE;
+    return cave->type->id == D_SURFACE;
 }
 
 bool plr_in_town(void)
@@ -31,7 +31,7 @@ bool plr_in_town(void)
 
 bool plr_in_dungeon(void)
 {
-    switch (cave->dun_type_id)
+    switch (cave->type->id)
     {
     case D_SURFACE:
     case D_WORLD:

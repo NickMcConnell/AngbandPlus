@@ -15,13 +15,13 @@
 
 bool can_do_cmd_cast(void)
 {
-    if (cave->dun_type_id == D_SURFACE && (cave->flags & DF_NO_MAGIC))
+    if (cave->type->id != D_SURFACE && (cave->flags & DF_NO_MAGIC))
     {
         msg_print("The dungeon absorbs all attempted magic!");
         msg_print(NULL);
         return FALSE;
     }
-    else if (p_ptr->anti_magic)
+    else if (plr->anti_magic)
     {
         msg_print("An anti-magic shell disrupts your magic!");
         equip_learn_flag(OF_NO_MAGIC);

@@ -5,11 +5,11 @@ CONFIG = \
 	a_info.txt \
 	b_info.txt \
 	e_info.txt \
-	f_info.txt \
 	k_info.txt \
 	m_info.txt \
 	misc.txt \
 	monk_attack.txt \
+	n_choose_k.txt \
 	q_barrow_downs.txt \
 	q_chaos.txt \
 	q_cloning_pits.txt \
@@ -40,6 +40,30 @@ CONFIG = \
 	q_vault.txt \
 	q_wargs.txt \
 	r_info.txt \
+	r_amber.txt \
+	r_angel.txt \
+	r_bird.txt \
+	r_camelot.txt \
+	r_demon.txt \
+	r_dragon.txt \
+	r_elemental.txt \
+	r_eye.txt \
+	r_fish.txt \
+	r_giant.txt \
+	r_golem.txt \
+	r_horse.txt \
+	r_hound.txt \
+	r_human.txt \
+	r_icky.txt \
+	r_insect.txt \
+	r_mimic.txt \
+	r_olympus.txt \
+	r_orc.txt \
+	r_reptile.txt \
+	r_spider.txt \
+	r_stronghold.txt \
+	r_troll.txt \
+	r_undead.txt \
 	rooms.txt \
 	s_info.txt \
 	t_angwil.txt \

@@ -14,15 +14,15 @@ static int _klackon_get_powers(spell_info* spells, int max)
 }
 static void _klackon_calc_bonuses(void)
 {
-    res_add(RES_CONF);
-    res_add(RES_ACID);
-    p_ptr->pspeed += (p_ptr->lev) / 10;
+    res_add(GF_CONF);
+    res_add(GF_ACID);
+    plr->pspeed += (plr->lev) / 10;
 }
 static void _klackon_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_CONF);
-    add_flag(flgs, OF_RES_ACID);
-    if (p_ptr->lev > 9)
+    add_flag(flgs, OF_RES_(GF_CONF));
+    add_flag(flgs, OF_RES_(GF_ACID));
+    if (plr->lev > 9)
         add_flag(flgs, OF_SPEED);
 }
 plr_race_ptr klackon_get_race(void)
@@ -83,11 +83,11 @@ static int _kobold_get_powers(spell_info* spells, int max)
 }
 static void _kobold_calc_bonuses(void)
 {
-    res_add(RES_POIS);
+    res_add(GF_POIS);
 }
 static void _kobold_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_RES_(GF_POIS));
 }
 plr_race_ptr kobold_get_race(void)
 {
@@ -164,11 +164,11 @@ static int _kutar_get_powers(spell_info* spells, int max)
 }
 static void _kutar_calc_bonuses(void)
 {
-    res_add(RES_CONF);
+    res_add(GF_CONF);
 }
 static void _kutar_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_CONF);
+    add_flag(flgs, OF_RES_(GF_CONF));
 }
 plr_race_ptr kutar_get_race(void)
 {
@@ -230,22 +230,22 @@ static int _mindflayer_get_powers(spell_info* spells, int max)
 }
 static void _mindflayer_calc_bonuses(void)
 {
-    p_ptr->sustain_int = TRUE;
-    p_ptr->sustain_wis = TRUE;
-    if (p_ptr->lev >= 15) p_ptr->see_inv++;
-    if (p_ptr->lev >= 30)
+    plr->sustain_int = TRUE;
+    plr->sustain_wis = TRUE;
+    if (plr->lev >= 15) plr->see_inv++;
+    if (plr->lev >= 30)
     {
-        p_ptr->telepathy = TRUE;
-        p_ptr->wizard_sight = TRUE;
+        plr->telepathy = TRUE;
+        plr->wizard_sight = TRUE;
     }
 }
 static void _mindflayer_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_SUST_INT);
     add_flag(flgs, OF_SUST_WIS);
-    if (p_ptr->lev >= 15)
+    if (plr->lev >= 15)
         add_flag(flgs, OF_SEE_INVIS);
-    if (p_ptr->lev >= 30)
+    if (plr->lev >= 30)
         add_flag(flgs, OF_TELEPATHY);
 }
 plr_race_ptr mindflayer_get_race(void)
@@ -309,13 +309,13 @@ static int _nibelung_get_powers(spell_info* spells, int max)
 }
 static void _nibelung_calc_bonuses(void)
 {
-    res_add(RES_DISEN);
-    res_add(RES_DARK);
+    res_add(GF_DISEN);
+    res_add(GF_DARK);
 }
 static void _nibelung_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_DISEN);
-    add_flag(flgs, OF_RES_DARK);
+    add_flag(flgs, OF_RES_(GF_DISEN));
+    add_flag(flgs, OF_RES_(GF_DARK));
 }
 plr_race_ptr nibelung_get_race(void)
 {
@@ -364,14 +364,14 @@ plr_race_ptr nibelung_get_race(void)
  ****************************************************************/
 static void _shadow_fairy_calc_bonuses(void)
 {
-    p_ptr->levitation = TRUE;
-    p_ptr->fairy_stealth = TRUE;
-    res_add_vuln(RES_LITE);
+    plr->levitation = TRUE;
+    plr->fairy_stealth = TRUE;
+    res_add_vuln(GF_LIGHT);
 }
 static void _shadow_fairy_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_LEVITATION);
-    add_flag(flgs, OF_VULN_LITE);
+    add_flag(flgs, OF_VULN_(GF_LIGHT));
 }
 plr_race_ptr shadow_fairy_get_race(void)
 {
@@ -433,20 +433,20 @@ static int _skeleton_get_powers(spell_info* spells, int max)
 }
 static void _skeleton_calc_bonuses(void)
 {
-    res_add(RES_SHARDS);
-    p_ptr->hold_life++;
-    p_ptr->see_inv++;
-    res_add(RES_POIS);
-    if (p_ptr->lev >= 10) res_add(RES_COLD);
+    res_add(GF_SHARDS);
+    plr->hold_life++;
+    plr->see_inv++;
+    res_add(GF_POIS);
+    if (plr->lev >= 10) res_add(GF_COLD);
 }
 static void _skeleton_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_SEE_INVIS);
-    add_flag(flgs, OF_RES_SHARDS);
+    add_flag(flgs, OF_RES_(GF_SHARDS));
     add_flag(flgs, OF_HOLD_LIFE);
-    add_flag(flgs, OF_RES_POIS);
-    if (p_ptr->lev >= 10)
-        add_flag(flgs, OF_RES_COLD);
+    add_flag(flgs, OF_RES_(GF_POIS));
+    if (plr->lev >= 10)
+        add_flag(flgs, OF_RES_(GF_COLD));
 }
 static void _skeleton_birth(void)
 {
@@ -521,8 +521,8 @@ static void _devour_flesh_spell(int cmd, var_ptr res)
         if (!get_check("It might hurt a bit. Are you sure?")) return;
         msg_print("You devour your own flesh!");
         set_food(PY_FOOD_MAX - 1);
-        if (!p_ptr->no_cut) plr_tim_add(T_CUT, CUT_SEVERE);
-        take_hit(DAMAGE_USELIFE, p_ptr->mhp / 3, "devouring your own flesh");
+        if (!plr->no_cut) plr_tim_add(T_CUT, CUT_SEVERE);
+        take_hit(DAMAGE_USELIFE, plr->mhp / 3, "devouring your own flesh");
         var_set_bool(res, TRUE);
         break;
     default:
@@ -610,23 +610,23 @@ static int _spectre_get_powers(spell_info* spells, int max)
 }
 static void _spectre_calc_bonuses(void)
 {
-    p_ptr->levitation = TRUE;
-    res_add(RES_NETHER);
-    p_ptr->hold_life++;
-    p_ptr->see_inv++;
-    res_add(RES_POIS);
-    p_ptr->slow_digest = TRUE;
-    res_add(RES_COLD);
-    p_ptr->pass_wall = TRUE;
+    plr->levitation = TRUE;
+    res_add(GF_NETHER);
+    plr->hold_life++;
+    plr->see_inv++;
+    res_add(GF_POIS);
+    plr->slow_digest = TRUE;
+    res_add(GF_COLD);
+    plr->pass_wall = TRUE;
 }
 static void _spectre_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_LEVITATION);
-    add_flag(flgs, OF_RES_COLD);
+    add_flag(flgs, OF_RES_(GF_COLD));
     add_flag(flgs, OF_SEE_INVIS);
     add_flag(flgs, OF_HOLD_LIFE);
-    add_flag(flgs, OF_RES_NETHER);
-    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_RES_(GF_NETHER));
+    add_flag(flgs, OF_RES_(GF_POIS));
     add_flag(flgs, OF_SLOW_DIGEST);
 }
 static void _spectre_birth(void)
@@ -697,15 +697,15 @@ static int _sprite_get_powers(spell_info* spells, int max)
 }
 static void _sprite_calc_bonuses(void)
 {
-    p_ptr->levitation = TRUE;
-    res_add(RES_LITE);
-    p_ptr->pspeed += (p_ptr->lev) / 10;
+    plr->levitation = TRUE;
+    res_add(GF_LIGHT);
+    plr->pspeed += (plr->lev) / 10;
 }
 static void _sprite_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_LITE);
+    add_flag(flgs, OF_RES_(GF_LIGHT));
     add_flag(flgs, OF_LEVITATION);
-    if (p_ptr->lev >= 10)
+    if (plr->lev >= 10)
         add_flag(flgs, OF_SPEED);
 }
 plr_race_ptr sprite_get_race(void)
@@ -767,24 +767,23 @@ static int _vampire_get_powers(spell_info* spells, int max)
 }
 static void _vampire_calc_bonuses(void)
 {
-    res_add(RES_DARK);
-    res_add(RES_NETHER);
-    res_add(RES_COLD);
-    res_add(RES_POIS);
-    res_add_vuln(RES_LITE);
-    p_ptr->hold_life++;
-    if (p_ptr->pclass != CLASS_NINJA) p_ptr->lite = TRUE;
+    res_add(GF_DARK);
+    res_add(GF_NETHER);
+    res_add(GF_COLD);
+    res_add(GF_POIS);
+    res_add_vuln(GF_LIGHT);
+    plr->hold_life++;
+    plr->see_nocto = MAX(plr->see_nocto, 2);
 }
 static void _vampire_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_VULN_LITE);
+    add_flag(flgs, OF_VULN_(GF_LIGHT));
 
     add_flag(flgs, OF_HOLD_LIFE);
-    add_flag(flgs, OF_RES_DARK);
-    add_flag(flgs, OF_RES_NETHER);
-    if (p_ptr->pclass != CLASS_NINJA) add_flag(flgs, OF_LITE);
-    add_flag(flgs, OF_RES_POIS);
-    add_flag(flgs, OF_RES_COLD);
+    add_flag(flgs, OF_RES_(GF_DARK));
+    add_flag(flgs, OF_RES_(GF_NETHER));
+    add_flag(flgs, OF_RES_(GF_POIS));
+    add_flag(flgs, OF_RES_(GF_COLD));
 }
 static void _vampire_birth(void)
 {
@@ -842,6 +841,14 @@ plr_race_ptr vampire_get_race(void)
 /****************************************************************
  * Water-Elf
  ****************************************************************/
+static void _water_elf_calc_bonuses(void)
+{
+    res_add(GF_WATER);
+}
+static void _water_elf_get_flags(u32b flgs[OF_ARRAY_SIZE])
+{
+    add_flag(flgs, OF_RES_(GF_WATER));
+}
 plr_race_ptr water_elf_get_race(void)
 {
     static plr_race_ptr me = NULL;
@@ -875,6 +882,8 @@ plr_race_ptr water_elf_get_race(void)
         me->exp = 125;
         me->infra = 3;
         me->shop_adjust = 95;
+        me->hooks.calc_bonuses = _water_elf_calc_bonuses;
+        me->hooks.get_flags = _water_elf_get_flags;
     }
 
     return me;
@@ -947,15 +956,15 @@ static int _yeek_get_powers(spell_info* spells, int max)
 }
 static void _yeek_calc_bonuses(void)
 {
-    res_add(RES_ACID);
-    if (p_ptr->lev >= 20)
-        res_add_immune(RES_ACID);
+    res_add(GF_ACID);
+    if (plr->lev >= 20)
+        res_add_immune(GF_ACID);
 }
 static void _yeek_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_ACID);
-    if (p_ptr->lev >= 20)
-        add_flag(flgs, OF_IM_ACID);
+    add_flag(flgs, OF_RES_(GF_ACID));
+    if (plr->lev >= 20)
+        add_flag(flgs, OF_IM_(GF_ACID));
 }
 plr_race_ptr yeek_get_race(void)
 {
@@ -1014,22 +1023,22 @@ static int _zombie_get_powers(spell_info* spells, int max)
 }
 static void _zombie_calc_bonuses(void)
 {
-    res_add(RES_NETHER);
-    p_ptr->hold_life++;
-    p_ptr->see_inv++;
-    res_add(RES_POIS);
-    p_ptr->slow_digest = TRUE;
-    if (p_ptr->lev >= 5) res_add(RES_COLD);
+    res_add(GF_NETHER);
+    plr->hold_life++;
+    plr->see_inv++;
+    res_add(GF_POIS);
+    plr->slow_digest = TRUE;
+    if (plr->lev >= 5) res_add(GF_COLD);
 }
 static void _zombie_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_SEE_INVIS);
     add_flag(flgs, OF_HOLD_LIFE);
-    add_flag(flgs, OF_RES_NETHER);
-    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_RES_(GF_NETHER));
+    add_flag(flgs, OF_RES_(GF_POIS));
     add_flag(flgs, OF_SLOW_DIGEST);
-    if (p_ptr->lev >= 5)
-        add_flag(flgs, OF_RES_COLD);
+    if (plr->lev >= 5)
+        add_flag(flgs, OF_RES_(GF_COLD));
 }
 static void _zombie_birth(void)
 {

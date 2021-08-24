@@ -46,15 +46,15 @@ void quest_change_file(quest_ptr q, cptr file)
  ***********************************************************************/
 void quest_take(quest_ptr q)
 {
-    string_ptr s;
+    str_ptr s;
     assert(q);
     assert(q->status == QS_UNTAKEN);
     q->status = QS_TAKEN;
     q->seed = randint0(0x10000000);
     s = quest_get_description(q);
     msg_format("<color:R>%s</color> (<color:U>Level %d</color>): %s",
-        q->name, q->level, string_buffer(s));
-    string_free(s);
+        q->name, q->level, str_buffer(s));
+    str_free(s);
 }
 
 void quest_complete(quest_ptr q, point_t p)
@@ -62,10 +62,10 @@ void quest_complete(quest_ptr q, point_t p)
     assert(q);
     assert(q->status == QS_IN_PROGRESS);
     q->status = QS_COMPLETED;
-    q->completed_lev = p_ptr->lev;
+    q->completed_lev = plr->lev;
 
     virtue_add(VIRTUE_VALOUR, 2);
-    p_ptr->fame += randint1(2);
+    plr->fame += randint1(2);
 
     if (!(q->flags & QF_NO_MSG))
         cmsg_print(TERM_L_BLUE, "You just completed your quest!");
@@ -73,7 +73,7 @@ void quest_complete(quest_ptr q, point_t p)
 
     /* create stairs before the reward */
     if (q->dungeon)
-        dun_quest_stairs(cave, p_ptr->pos, q->level + 1);
+        dun_quest_stairs(cave, plr->pos, q->level + 1);
 
     if (!(q->flags & QF_TOWN)) /* non-town quest get rewarded immediately */
     {
@@ -88,12 +88,12 @@ void quest_complete(quest_ptr q, point_t p)
         }
         q->status = QS_FINISHED;
     }
-    p_ptr->redraw |= PR_DEPTH;
+    plr->redraw |= PR_DEPTH;
 }
 
 void quest_reward(quest_ptr q)
 {
-    string_ptr s;
+    str_ptr s;
     obj_ptr reward;
 
     assert(q);
@@ -101,10 +101,10 @@ void quest_reward(quest_ptr q)
 
     s = quest_get_description(q);
     msg_format("<color:R>%s</color> (<color:U>Level %d</color>): %s",
-        q->name, q->level, string_buffer(s));
-    string_free(s);
+        q->name, q->level, str_buffer(s));
+    str_free(s);
 
-    reward = quest_get_reward(q);
+    reward = quest_get_reward(q, 0);
     if (reward)
     {
         /*char name[MAX_NLEN];*/
@@ -122,7 +122,7 @@ void quest_fail(quest_ptr q)
 {
     assert(q);
     q->status = QS_FAILED;
-    q->completed_lev = p_ptr->lev;
+    q->completed_lev = plr->lev;
     msg_format("You have <color:v>failed</color> the quest: <color:R>%s</color>.", q->name);
     virtue_add(VIRTUE_VALOUR, -2);
     fame_on_failure();
@@ -133,20 +133,20 @@ void quest_fail(quest_ptr q)
 /************************************************************************
  * Quest Info from q->file
  ***********************************************************************/
-static string_ptr _temp_desc;
+static str_ptr _temp_desc;
 static errr _parse_desc(char *line, int options)
 {
     if (line[0] == 'D' && line[1] == ':')
     {
-        if (string_length(_temp_desc) && string_get_last(_temp_desc) != ' ')
-            string_append_c(_temp_desc, ' ');
-        string_append_s(_temp_desc, line + 2);
+        if (str_length(_temp_desc) && str_get_last(_temp_desc) != ' ')
+            str_append_c(_temp_desc, ' ');
+        str_append_s(_temp_desc, line + 2);
     }
     return 0;
 }
-string_ptr quest_get_description(quest_ptr q)
+str_ptr quest_get_description(quest_ptr q)
 {
-    string_ptr s = string_alloc();
+    str_ptr s = str_alloc();
     if (q->file)
     {
         _temp_desc = s;
@@ -169,7 +169,7 @@ static errr _parse_reward(char *line, int options)
     }
     return 0;
 }
-obj_ptr quest_get_reward(quest_ptr q)
+obj_ptr quest_get_reward(quest_ptr q, int mode)
 {
     obj_ptr reward = NULL;
     if (q->file)
@@ -179,7 +179,7 @@ obj_ptr quest_get_reward(quest_ptr q)
         _temp_reward = info;
         if (parse_edit_file(q->file, _parse_reward, 0) == ERROR_SUCCESS)
         {
-            reward = obj_drop_make(info, q->level, AM_QUEST | AM_GOOD);
+            reward = obj_drop_make(info, q->level, AM_QUEST | AM_GOOD | mode);
         }
         _temp_reward = NULL;
         free(info);
@@ -236,7 +236,7 @@ static int _restore_questors(quest_ptr q)
             int_map_iter_next(iter))
     {
         mon_ptr mon = int_map_iter_current(iter);
-        if (mon->r_idx == q->goal_idx && ct < ct_remaining)
+        if (mon->race->id == q->goal_idx && ct < ct_remaining)
         {
             mon->mflag2 |= MFLAG2_QUESTOR;
             ct++;
@@ -253,15 +253,14 @@ static void _place_questors(quest_ptr q)
         int           mode = PM_NO_KAGE | PM_NO_PET | PM_QUESTOR, i, j;
         int           ct = q->goal_count - q->goal_current;
 
-        if ( !r_ptr->name  /* temp ... remove monsters without breaking savefiles */
-          || ((r_ptr->flags1 & RF1_UNIQUE) && r_ptr->max_num == 0) )
+        if (mon_race_is_dead_unique(r_ptr))
         {
             msg_print("It seems this level was guarded by someone before.");
             q->status = QS_FINISHED;
             return;
         }
 
-        if (!(r_ptr->flags1 & RF1_FRIENDS))
+        if (r_ptr->alloc.flags & RFA_ESCORT)
             mode |= PM_ALLOW_GROUP; /* allow escorts but not friends */
         
         for (i = _restore_questors(q); i < ct; i++)
@@ -274,7 +273,7 @@ static void _place_questors(quest_ptr q)
                 if (!dun_pos_interior(cave, pos)) continue;
 
                 /* Handle already allocated uniques by teleporting them to this level */
-                if ((r_ptr->flags1 & RF1_UNIQUE) && r_ptr->cur_num)
+                if (mon_race_is_unique(r_ptr) && r_ptr->alloc.cur_num)
                 {
                     mon = dun_mgr_relocate_unique(r_ptr->id, cave, pos);
                     if (!mon) /* paranoia */
@@ -288,7 +287,7 @@ static void _place_questors(quest_ptr q)
                 }
 
                 /* Handle normal allocation */
-                mon = place_monster_aux(0, pos, q->goal_idx, mode);
+                mon = place_monster_aux(who_create_null(), pos, r_ptr, mode);
                 if (mon)
                 {
                     mon->mflag2 |= MFLAG2_QUESTOR;
@@ -305,11 +304,11 @@ static void _place_questors(quest_ptr q)
             }
         }
         if (ct == 1)
-            cmsg_format(TERM_VIOLET, "Beware, this level is protected by %s!", r_name + r_ptr->name);
+            cmsg_format(TERM_VIOLET, "Beware, this level is protected by %s!", r_ptr->name);
         else
         {
             char name[MAX_NLEN];
-            strcpy(name, r_name + r_ptr->name);
+            strcpy(name, r_ptr->name);
             plural_aux(name);
             cmsg_format(TERM_VIOLET, "Be warned, this level is guarded by %d %s!", ct, name);
         }
@@ -396,19 +395,37 @@ static errr _parse_q_info(char *line, int options)
         if (streq(name, "KILL"))
         {
             quest->goal = QG_KILL_MON;
-            quest->goal_idx = parse_lookup_monster(args[0], options);
+            /* KILL(*) for random quests => goal is randomly determined (later) */
+            if (strcmp(args[0], "*") == 0 && (quest->flags & QF_RANDOM))
+                quest->goal_idx = 0; /* determined later */
+            else
+            {
+                mon_race_ptr race = mon_race_parse(args[0]);
+                if (!race)
+                {
+                    msg_format("Invalid monster: <color:r>%s</color>.", args[0]);
+                    return PARSE_ERROR_INVALID_FLAG;
+                }
+                quest->goal_idx = race->id;
+            }
             quest->goal_count = 1;
             if (arg_ct >= 2)
                 quest->goal_count = atoi(args[1]);
         }
         else if (streq(name, "FIND"))
         {
+            art_ptr art = arts_parse(args[0]);
+            if (!art)
+            {
+                msg_format("Invalid artifact: <color:r>%s</color>.", args[0]);
+                return PARSE_ERROR_INVALID_FLAG;
+            }
             quest->goal = QG_FIND_ART;
-            quest->goal_idx = parse_lookup_artifact(args[0], options);
+            quest->goal_idx = art->id;
         }
         else
         {
-            msg_format("Error: Unkown quest goal %s. Try KILL(name[, ct]) or FIND(art).", name);
+            msg_format("Error: Unkown quest goal <color:r>%s</color>. Try KILL(name[, ct]) or FIND(art).", name);
             return PARSE_ERROR_INVALID_FLAG;
         }
     }
@@ -551,19 +568,17 @@ typedef vec_ptr (*quests_get_f)(void);
  ***********************************************************************/
 static bool _r_can_quest(mon_race_ptr race)
 {
-    if (race->flags8 & RF8_WILD_ONLY) return FALSE;
-    if (race->flags7 & RF7_AQUATIC) return FALSE;
-    if (race->flags2 & RF2_MULTIPLY) return FALSE;
-    if (race->flags7 & RF7_FRIENDLY) return FALSE;
+    if (race->alloc.flags & RFA_WILD_ONLY) return FALSE;
+    if (mon_race_is_aquatic(race)) return FALSE;
+    if (mon_race_can_multiply(race)) return FALSE;
+    if (mon_race_is_friendly(race)) return FALSE;
     return TRUE;
 }
 
-static bool _r_is_unique(mon_race_ptr race) { return BOOL(race->flags1 & RF1_UNIQUE); }
 static bool _r_is_nonunique(mon_race_ptr race)
 {
-    if (race->flags1 & RF1_UNIQUE) return FALSE;
-    if (race->flags7 & RF7_UNIQUE2) return FALSE;
-    if (race->flags7 & RF7_NAZGUL) return FALSE;
+    if (mon_race_is_unique(race)) return FALSE;
+    if (mon_race_is_nazgul(race)) return FALSE;
     return TRUE;
 }
 static void _get_questor(quest_ptr q)
@@ -578,7 +593,7 @@ static void _get_questor(quest_ptr q)
     if (quest_unique || one_in_(3))
     {
         mon_alloc_push_filter(_r_can_quest);
-        mon_alloc_push_filter(_r_is_unique);
+        mon_alloc_push_filter(mon_race_is_unique);
     }
     else if (one_in_(2))
     {
@@ -608,16 +623,17 @@ static void _get_questor(quest_ptr q)
         race = mon_alloc_choose_aux2(mon_alloc_tbl, mon_lev, min_lev, GMN_QUESTOR);
 
         if (race->flagsx & RFX_QUESTOR) continue;
-        if (race->flags1 & RF1_NO_QUEST) continue;
-        if (race->rarity > 100) continue;
-        if (race->flags7 & RF7_FRIENDLY) continue;
-        if (race->flags7 & RF7_AQUATIC) continue;
-        if (race->flags8 & RF8_WILD_ONLY) continue;
-        if (race->level > max_lev) continue;
-        if (race->level > min_lev || attempt > 5000)
+        if (race->flagsx & RFX_GUARDIAN) continue;
+        if (race->alloc.flags & RFA_NO_QUEST) continue;
+        if (race->alloc.rarity > 100) continue;
+        if (mon_race_is_friendly(race)) continue;
+        if (mon_race_is_aquatic(race)) continue;
+        if (race->alloc.flags & RFA_WILD_ONLY) continue;
+        if (race->alloc.lvl > max_lev) continue;
+        if (race->alloc.lvl > min_lev || attempt > 5000)
         {
             q->goal_idx = race->id;
-            if (race->flags1 & RF1_UNIQUE)
+            if (mon_race_is_unique(race))
             {
                 race->flagsx |= RFX_QUESTOR;
                 q->goal_count = 1;
@@ -643,7 +659,7 @@ void quests_on_birth(void)
     /* assign random quests */
     /* XXX random quests are all in D_AMBER; note: using world_id rather
      * than initial_world_id allows me to do some tricky stuff in wizard mode. */
-    if (p_ptr->world_id != W_AMBER) return;
+    if (plr->world_id != W_AMBER) return;
 
     v = quests_get_random();
     for (i = 0; i < vec_length(v); i++)
@@ -733,7 +749,7 @@ void quests_on_kill_mon(mon_ptr mon)
     /* handle monsters summoned *after* the quest was completed ... */
     if (q->status == QS_COMPLETED) return;
 
-    if (q->goal == QG_KILL_MON && mon->r_idx == q->goal_idx)
+    if (q->goal == QG_KILL_MON && mon->race->id == q->goal_idx)
     {
         q->goal_current++;
         if (q->goal_current >= q->goal_count)
@@ -743,14 +759,14 @@ void quests_on_kill_mon(mon_ptr mon)
     {
         int_map_iter_ptr iter;
         bool done = TRUE;
-        if (!is_hostile(mon)) return;
+        if (!mon_is_hostile(mon)) return;
         for (iter = int_map_iter_alloc(cave->mon);
                 int_map_iter_is_valid(iter) && done;
                 int_map_iter_next(iter))
         {
             mon_ptr m = int_map_iter_current(iter);
             if (m == mon) continue;
-            if (is_hostile(m)) done = FALSE;
+            if (mon_is_hostile(m)) done = FALSE;
         }
         int_map_iter_free(iter);
         if (done)
@@ -766,10 +782,10 @@ void quests_on_get_obj(obj_ptr obj)
     assert(q);
     assert(obj);
     if ( q->goal == QG_FIND_ART
-      && (obj->name1 == q->goal_idx || obj->name3 == q->goal_idx)
+      && (obj->art_id == q->goal_idx || obj->replacement_art_id == q->goal_idx)
       && q->status == QS_IN_PROGRESS )
     {
-        quest_complete(q, p_ptr->pos);
+        quest_complete(q, plr->pos);
     }
 }
 
@@ -784,33 +800,33 @@ bool quests_check_leave(void)
         if (q->flags & QF_RETAKE)
         {
             char       c;
-            string_ptr s = string_alloc();
+            str_ptr s = str_alloc();
 
-            string_append_s(s, "<color:r>Warning,</color> you are about to leave the quest: <color:R>");
+            str_append_s(s, "<color:r>Warning,</color> you are about to leave the quest: <color:R>");
             if ((q->flags & QF_RANDOM) && q->goal == QG_KILL_MON)
-                string_printf(s, "Kill %s", r_name + mon_race_lookup(q->goal_idx)->name);
+                str_printf(s, "Kill %s", mon_race_lookup(q->goal_idx)->name);
             else
-                string_append_s(s, q->name);
-            string_append_s(s, "</color>. You may return to this quest later though. "
+                str_append_s(s, q->name);
+            str_append_s(s, "</color>. You may return to this quest later though. "
                                "Are you sure you want to leave? <color:y>[Y,n]</color>");
-            c = msg_prompt(string_buffer(s), "ny", PROMPT_YES_NO);
-            string_free(s);
+            c = msg_prompt(str_buffer(s), "ny", PROMPT_YES_NO);
+            str_free(s);
             if (c == 'n') return FALSE;
         }
         else
         {
             char       c;
-            string_ptr s = string_alloc();
+            str_ptr s = str_alloc();
 
-            string_append_s(s, "<color:r>Warning,</color> you are about to leave the quest: <color:R>");
+            str_append_s(s, "<color:r>Warning,</color> you are about to leave the quest: <color:R>");
             if ((q->flags & QF_RANDOM) && q->goal == QG_KILL_MON)
-                string_printf(s, "Kill %s", r_name + mon_race_lookup(q->goal_idx)->name);
+                str_printf(s, "Kill %s", mon_race_lookup(q->goal_idx)->name);
             else
-                string_append_s(s, q->name);
-            string_append_s(s, "</color>. <color:v>You will fail this quest if you leave!</color> "
+                str_append_s(s, q->name);
+            str_append_s(s, "</color>. <color:v>You will fail this quest if you leave!</color> "
                                "Are you sure you want to leave? <color:y>[Y,n]</color>");
-            c = msg_prompt(string_buffer(s), "nY", PROMPT_NEW_LINE | PROMPT_ESCAPE_DEFAULT | PROMPT_CASE_SENSITIVE);
-            string_free(s);
+            c = msg_prompt(str_buffer(s), "nY", PROMPT_NEW_LINE | PROMPT_ESCAPE_DEFAULT | PROMPT_CASE_SENSITIVE);
+            str_free(s);
             if (c == 'n') return FALSE;
         }
     }
@@ -862,7 +878,7 @@ bool quests_allow_downshaft(void)
 {
     quest_ptr q;
     if (_current) return FALSE;
-    q = quests_find_quest(cave->dun_type_id, cave->dun_lvl + 1);
+    q = quests_find_quest(cave->type->id, cave->dun_lvl + 1);
     if (q) return FALSE;
     return TRUE;
 }
@@ -937,19 +953,19 @@ void quests_display(void)
                     if (q->goal_count > 1)
                     {
                         char name[MAX_NLEN];
-                        strcpy(name, r_name + r_ptr->name);
+                        strcpy(name, r_ptr->name);
                         plural_aux(name);
                         doc_printf(doc, "    <indent>Kill %d %s (%d killed so far)</indent>\n",
                             q->goal_count, name, q->goal_current);
                     }
                     else if (q->flags & QF_RANDOM)
-                        doc_printf(doc, "    Kill %s\n", r_name + r_ptr->name);
+                        doc_printf(doc, "    Kill %s\n", r_ptr->name);
                 }
                 if (!(q->flags & QF_RANDOM))
                 {
-                    string_ptr s = quest_get_description(q);
-                    doc_printf(doc, "    <indent>%s</indent>", string_buffer(s));
-                    string_free(s);
+                    str_ptr s = quest_get_description(q);
+                    doc_printf(doc, "    <indent>%s</indent>", str_buffer(s));
+                    str_free(s);
                 }
             }
             doc_newline(doc);
@@ -971,7 +987,7 @@ static cptr _safe_r_name(int id)
     mon_race_ptr r = mon_race_lookup(id);
     if (!r || !r->name)
         return "Monster Removed";
-    return r_name + r->name;
+    return r->name;
 }
 static void quest_doc(quest_ptr q, doc_ptr doc)
 {
@@ -1059,16 +1075,16 @@ void quests_load(savefile_ptr file)
         if (q->flags & QF_RANDOM)
         {
             q->level = savefile_read_s16b(file);
-            q->goal_idx  = savefile_read_s32b(file);
+            q->goal_idx  = savefile_read_sym(file);
             q->goal_count = savefile_read_s16b(file);
             q->seed  = savefile_read_u32b(file);
         }
 
         if (q->goal == QG_FIND_ART)
-            a_info[q->goal_idx].gen_flags |= OFG_QUESTITEM;
+            arts_lookup(q->goal_idx)->gen_flags |= OFG_QUESTITEM;
     }
     _current = savefile_read_s16b(file);
-    if (p_ptr->is_dead)
+    if (plr->is_dead)
         _current = 0;
 }
 
@@ -1087,7 +1103,7 @@ void quests_save(savefile_ptr file)
         if (q->flags & QF_RANDOM)
         {
             savefile_write_s16b(file, q->level); /* in case I randomize later ... */
-            savefile_write_s32b(file, q->goal_idx);
+            savefile_write_sym(file, q->goal_idx);
             savefile_write_s16b(file, q->goal_count);
             savefile_write_u32b(file, q->seed);
         }
@@ -1122,8 +1138,6 @@ void quests_wizard(void)
     quests_get_f  qgf = quests_get_all; /* remember last filter after 'R' command */
     context.quests = qgf();
 
-    forget_lite(); /* resizing the term would redraw the map ... sigh */
-    forget_view();
     character_icky = TRUE;
 
     msg_line_clear();
@@ -1280,13 +1294,13 @@ static void _display_menu(_ui_context_ptr context)
             doc_printf(doc, "%c) <color:%c>", I2A(i), _quest_color(quest));
             if ((quest->flags & QF_RANDOM) && quest->goal == QG_KILL_MON)
             {
-                string_ptr s = string_alloc_format("%-34.34s", _safe_r_name(quest->goal_idx));
+                str_ptr s = str_alloc_format("%-34.34s", _safe_r_name(quest->goal_idx));
                 if (quest->goal_count > 1)
-                    string_printf(s, " (%d)", quest->goal_count);
+                    str_printf(s, " (%d)", quest->goal_count);
                 else
-                    string_printf(s, " (L%d)", mon_race_lookup(quest->goal_idx)->level);
-                doc_printf(doc, "%-40.40s ", string_buffer(s));
-                string_free(s);
+                    str_printf(s, " (L%d)", mon_race_lookup(quest->goal_idx)->alloc.lvl);
+                doc_printf(doc, "%-40.40s ", str_buffer(s));
+                str_free(s);
             }
             else
                 doc_printf(doc, "%-40.40s ", quest->name);
@@ -1378,10 +1392,10 @@ static void _display_map(room_ptr room)
             xform = transform_alloc(which, rect_create(0, 0, room->width, room->height));
 
         if (xform->dest.cx < Term->wid)
-            xform->dest = rect_translate(xform->dest, (Term->wid - xform->dest.cx)/2, 0);
+            xform->dest = rect_translate_xy(xform->dest, (Term->wid - xform->dest.cx)/2, 0);
 
         if (xform->dest.cy < Term->hgt)
-            xform->dest = rect_translate(xform->dest, 0, (Term->hgt - xform->dest.cy)/2);
+            xform->dest = rect_translate_xy(xform->dest, 0, (Term->hgt - xform->dest.cy)/2);
 
         Term_clear();
         for (y = 0; y < room->height; y++)
@@ -1401,13 +1415,10 @@ static void _display_map(room_ptr room)
                     if (grid && grid->scramble)
                         grid = int_map_find(room->letters, grid->scramble);
 
-                    if (grid && grid->monster)
+                    if (grid && mon_rule_is_valid(&grid->monster))
                     {
-                        if (!(grid->flags & (ROOM_GRID_MON_CHAR |
-                                ROOM_GRID_MON_RANDOM | ROOM_GRID_MON_TYPE)))
-                        {
-                            r_idx = grid->monster;
-                        }
+                        if (!(grid->monster.flags & (MON_RULE_CHAR | MON_RULE_RANDOM | MON_RULE_TYPE)))
+                            r_idx = grid->monster.which;
                     }
                     if (grid && grid->object.object)
                     {
@@ -1418,9 +1429,10 @@ static void _display_map(room_ptr room)
                     }
                     if (r_idx)
                     {
-                        monster_race *r_ptr = mon_race_lookup(r_idx);
-                        a = r_ptr->x_attr;
-                        c = r_ptr->x_char;
+                        mon_race_ptr race = mon_race_lookup(r_idx);
+                        term_char_t  tc = mon_race_visual(race);
+                        a = tc.a;
+                        c = tc.c;
                     }
                     else if (k_idx)
                     {
@@ -1430,10 +1442,12 @@ static void _display_map(room_ptr room)
                     }
                     else if (grid)
                     {
+                    #if FEAT_BUGZ
                         feature_type *f_ptr = &f_info[grid->cave_feat ? grid->cave_feat : feat_floor];
                         if (f_ptr->mimic) f_ptr = &f_info[f_ptr->mimic];
                         a = f_ptr->x_attr[F_LIT_STANDARD];
                         c = f_ptr->x_char[F_LIT_STANDARD];
+                    #endif
                     }
                     Term_putch(p.x, p.y, a, c);
                 }
@@ -1470,7 +1484,7 @@ static void _status_cmd(_ui_context_ptr context, int status)
             quest_ptr quest = vec_get(context->quests, idx);
             quest->status = status;
             if (quest->status >= QS_COMPLETED)
-                quest->completed_lev = p_ptr->lev;
+                quest->completed_lev = plr->lev;
             break;
         }
     }
@@ -1496,7 +1510,7 @@ static void _reward_cmd(_ui_context_ptr context)
                 for (i = 0; i < ct; i++)
                 {
                     obj_t forge = {0};
-                    if (make_object(&forge, quest->level, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST))
+                    if (make_object(&forge, quest->level, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST | AM_NO_DROP))
                     {
                         char name[MAX_NLEN];
                         obj_identify_fully(&forge);
@@ -1511,7 +1525,7 @@ static void _reward_cmd(_ui_context_ptr context)
                 obj_ptr   reward;
 
                 quest->seed = randint0(0x10000000);
-                reward = quest_get_reward(quest);
+                reward = quest_get_reward(quest, AM_NO_DROP);
 
                 if (!reward)
                     msg_format("<color:R>%s</color> has no reward.", quest->name);
@@ -1521,7 +1535,10 @@ static void _reward_cmd(_ui_context_ptr context)
                     obj_identify_fully(reward);
                     object_desc(name, reward, OD_COLOR_CODED);
                     msg_format("<color:R>%s</color> gives %s.", quest->name, name);
-                    if (reward->name1) a_info[reward->name1].generated = FALSE;
+                    if (reward->art_id)
+                        arts_lookup(reward->art_id)->generated = FALSE;
+                    if (reward->replacement_art_id)
+                        arts_lookup(reward->replacement_art_id)->generated = FALSE;
                     obj_free(reward);
                 }
             }

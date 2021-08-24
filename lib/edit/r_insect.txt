@@ -1,0 +1,574 @@
+# Insects: ants, centipedes, flies, insects and beetles
+
+########################################################################
+# Ants (a)
+T:a.base:Ant
+I:DISPLAY(a):POS(CORPSE|GAIN_AC)
+I:KIND(ANIMAL):ATTR(WEIRD_MIND)
+I:ALERT(100',Inattentive):MOVE(BASH)
+P:Stat:Str(0+3):Int(-2):Wis(-2):Dex(1+3):Con(0+3):Chr(0)
+P:Skill:Dis(15+25):Dev(15+35):Sav(25+40):Stl(5):Srh(25):Fos(25):Thn(60+135)
+P:Class:Warrior
+P:Body:Ant
+P:Weight:50
+
+N:a.soldier:a.base:Soldier ant
+I:LVL(1,10):RARITY(1):WILD(GRASS)
+I:HP(2d5):AC(3):EXP(6):EVOLVE(a.black, 5)
+I:ALERT(Fairly Observant)
+B:BITE:HURT(1d5)
+D:A large ant with powerful mandibles.
+I:COLOR(Umber)
+P:Life:60
+
+N:a.black:a.base:Giant black ant
+I:LVL(2,20):RARITY(1):WILD(WOOD|GRASS)
+I:HP(3d6):AC(20):EXP(10):EVOLVE(a.red, 40)
+I:MOVE(RAND_25)
+B:BITE:HURT(1d7)
+D:It is about three feet long.
+I:COLOR(Light Dark)
+P:Life:65
+
+N:a.white:a.base:Giant white ant
+I:LVL(3,30):RARITY(1):WILD(GRASS)
+I:HP(3d6):AC(16):EXP(9):EVOLVE(a.red, 40)
+B:BITE:HURT(1d5+1)
+D:It is about two feet long and has sharp pincers.
+I:COLOR(White)
+P:Life:70
+
+N:a.red:a.base:Giant red ant
+I:LVL(9,80):RARITY(2):WILD(ALL)
+I:HP(4d8):AC(34):EXP(22):EVOLVE(a.grey, 500)
+I:ALERT(Overlooks)
+B:BITE:HURT(1d5)
+B:STING:HURT(1d4):LOSE_STR(50%)
+D:It is large and has venomous mandibles.
+I:COLOR(Light Red)
+P:Life:75
+
+N:a.grey:a.base:Giant grey ant
+I:LVL(26,90):RARITY(1)
+I:HP(19d8):AC(40):EXP(90):EVOLVE(a.blue, 800)
+I:ALERT(Unseeing):MOVE(RAND_25|TRAMPLE)
+B:BITE:HURT(1d12+6)
+D:It is an ant encased in shaggy grey fur.
+I:COLOR(Slate)
+P:Life:80
+
+N:a.blue:a.base:Giant blue ant
+I:LVL(30,80):RARITY(2):WILD(ALL)
+I:HP(8d8):AC(50):EXP(80):EVOLVE(a.army, 1000)
+I:ALERT(Overlooks):MOVE(RAND_25)
+B:BITE:ELEC(5d5)
+I:RESIST(ELEC)
+D:It is a giant ant that crackles with energy.
+I:COLOR(Blue)
+P:Life:80
+
+N:a.army:a.base:Giant army ant
+I:LVL(30,90):RARITY(3)
+I:SPEED(+10):HP(19d6):AC(40):EXP(90):EVOLVE(a.fire, 1200)
+I:ALERT(Unseeing):MOVE(RAND_25|TRAMPLE)
+B:BITE:HURT(1d12+7)
+M:3d3:MON(a.army)
+D:An armoured form moving with purpose. Powerful on its own, flee when hordes of them march.
+I:COLOR(Orange)
+
+N:a.fire:a.base:Giant fire ant
+I:LVL(35,90):RARITY(1)
+I:HP(200):AC(49):EXP(350)
+I:ALERT(140',Unseeing):MOVE(TRAMPLE)
+B:BITE(x2):HURT(1d12+6):FIRE(1d12):CUT(3d3, 5%)
+I:RESIST(FIRE)
+M:1d5:MON(a.fire)
+M:50%:1d5:MON(a.fire)
+D:A giant ant covered in shaggy fur. Its powerful jaws glow with heat.
+I:COLOR(Red)
+
+N:a.exploding:a.base:Exploding ant
+I:LVL(36,90):RARITY(1)
+I:SPEED(+5):HP(100):AC(30):EXP(350)
+I:ALERT(140',Unseeing)
+B:EXPLODE:ACID(15d5)
+I:RESIST(ACID)
+M:1d5:MON(a.exploding)
+M:25%:1d5:MON(a.exploding)
+D:A giant ant with a greatly enlarged mandibular gland.
+I:COLOR(Slate):POS(-CORPSE)
+
+N:a.Queen:a.base:The Queen Ant
+I:LVL(37):RARITY(2):ALLOC(UNIQUE|ESCORT)
+I:SPEED(+10):HP(1500):AC(100):EXP(1000)
+I:ALIGN(Good):ATTR(FEMALE)
+I:ALERT(300',Fairly Observant):MOVE(FLY)
+B:BITE(x2):HURT(1d12+6)
+B:BITE(x2):HURT(1d8+5)
+I:RESIST(CONF):IMMUNE(SLEEP)
+S:FREQ_30 | S_ANT
+O:2d2:OBJ(*, GOOD)
+M:3d7:MON(a.fire)
+M:2d7:MON(a.fire, ANCESTOR)
+D:She's upset because you hurt her children.
+I:COLOR(Violet)
+P:Stats:2:1:1:1:1:5
+P:SpellStat:Chr
+P:Weight:120
+
+########################################################################
+# Centipedes (c)
+T:c.base:Centipede
+I:DISPLAY(c):POS(SKELETON|GAIN_AC)
+I:KIND(ANIMAL):ATTR(WEIRD_MIND)
+I:ALERT(80',Fairly Unseeing):MOVE(BASH)
+P:Stat:Str(0+3):Int(-3):Wis(-3):Dex(0+5):Con(0+3):Chr(-3)
+P:Skill:Dis(25+60):Dev(21+50):Sav(35+50):Stl(5):Srh(10):Fos(7):Thn(50+75)
+P:Class:Warrior
+P:Body:Centipede2
+P:Weight:20
+
+N:c.white:c.base:Giant white centipede
+I:LVL(1,10):RARITY(1):WILD(WASTE|WOOD|GRASS)
+I:HP(3d5):AC(10):EXP(4):EVOLVE(c.green, 5)
+I:ALERT(Overlooks):MOVE(RAND_50)
+B:BITE:HURT(1d5)
+B:STING:HURT(1d5)
+D:It is about four feet long and carnivorous.
+I:COLOR(White)
+P:Body:Centipede2
+P:Life:60
+
+N:c.green:c.base:Metallic green centipede
+I:LVL(2,20):RARITY(1):WILD(WASTE|WOOD|GRASS)
+I:SPEED(+10):HP(4d4):AC(4):EXP(4):EVOLVE(c.blue, 6)
+I:MOVE(RAND_50)
+B:CRAWL:HURT(1d3)
+D:It is about four feet long and carnivorous.
+I:COLOR(Light Green)
+P:Body:Centipede3
+P:Life:80
+
+N:c.blue:c.base:Metallic blue centipede
+I:LVL(3,30):RARITY(1):WILD(WASTE|WOOD|GRASS)
+I:SPEED(+10):HP(4d5):AC(6):EXP(8):EVOLVE(c.red, 15)
+I:MOVE(RAND_50)
+B:CRAWL:HURT(1d4)
+D:It is about four feet long and carnivorous.
+I:COLOR(Light Blue)
+P:Body:Centipede3
+P:Life:80
+
+N:c.red:c.base:Metallic red centipede
+I:LVL(3,30):RARITY(1):WILD(WASTE|WOOD|GRASS)
+I:SPEED(+10):HP(4d8):AC(9):EXP(14):EVOLVE(c.clear, 150)
+I:MOVE(RAND_25)
+B:CRAWL:HURT(1d4)
+D:It is about four feet long and carnivorous.
+I:COLOR(Light Red)
+P:Body:Centipede3
+P:Life:90
+
+N:c.frumious:c.base:Frumious bandersnatch
+I:LVL(12,50):RARITY(2)
+I:SPEED(+10):HP(13d8):AC(30):EXP(40):EVOLVE(c.carrion, 600)
+I:ALERT(120')
+B:BITE(x2):HURT(1d4+3)
+B:STING:HURT(1d4+3)
+D:It is a vast armoured centipede with massive mandibles and a spiked tail.
+I:COLOR(Blue)
+P:Body:Centipede4
+P:Weight:75
+
+N:c.clear:c.base:Giant clear centipede
+I:LVL(15,30):RARITY(2):WILD(WASTE|WOOD|GRASS)
+I:HP(5d8):AC(30):EXP(30):EVOLVE(c.carrion, 600)
+I:CAN(INVIS):ALERT(120')
+B:BITE:HURT(1d4+2)
+B:STING:HURT(1d4+3)
+D:It is about four feet long and carnivorous.
+I:DISPLAY(,White,ATTR_CLEAR)
+P:Body:Centipede4
+
+N:c.carrion:c.base:Carrion crawler
+I:LVL(28,60):RARITY(2)
+I:HP(20d12):AC(40):EXP(100)
+I:ALERT(150',Fairly Observant):MOVE(RAND_25)
+B:STING(x2):HURT(2d6):PARALYZE(50%)
+I:RESIST(POIS)
+M:3d3:MON(c.carrion)
+D:A hideous centipede covered in slime and with glowing tentacles around its head.
+I:COLOR(Green)
+P:Body:Centipede4
+P:Weight:50
+
+N:c.Multi-hued:c.base:The Multi-hued Centipede
+I:LVL(30):RARITY(2):ALLOC(UNIQUE|ESCORT)
+I:SPEED(+20):HP(1000):AC(100):EXP(750)
+I:ALERT(300',Fairly Observant):MOVE(RAND_25)
+B:BITE:HURT(1d10)
+B:STING:HURT(1d15)
+B:CRAWL(x2):HURT(1d10)
+I:RESIST(CONF):IMMUNE(SLEEP)
+O:2d2:OBJ(*, GOOD)
+O:5%:ART(].Centipede)
+M:3d5:MON(c.carrion)
+M:1d12:MON(c.clear)
+M:2d12:MON(c.clear, ANCESTOR)
+D:Oh my god, it's changing colors! Run!!
+I:DISPLAY(,Violet,ATTR_MULTI):POS(CORPSE)
+P:Stats:2:0:0:1:2:5
+P:Body:Centipede6
+P:Weight:50
+
+########################################################################
+# Dragon Flies (F)
+T:F.base:Dragon Fly
+I:DISPLAY(F):POS(GAIN_AC)
+I:KIND(ANIMAL):ATTR(WEIRD_MIND)
+I:ALERT(200',Unseeing):MOVE(RAND_50|BASH|FLY)
+P:Stat:Str(-5):Int(-3):Wis(0):Dex(5):Con(-2):Chr(0)
+P:Skill:Dis(10+25):Dev(17+35):Sav(30+50):Stl(5):Srh(15):Fos(10):Thn(30+60)
+P:Class:Beastmaster
+P:SpellStat:Con
+P:Body:Scrawny
+P:Life:50
+P:Weight:15
+
+N:F.white:F.base:Giant white dragon fly
+I:LVL(14,50):RARITY(3):WILD(WASTE)
+I:HP(5d8):AC(20):EXP(60)
+B:BITE:COLD(1d6)
+I:RESIST(COLD)
+S:1_IN_10 | BR_COLD
+D:It is a large fly that drips frost.
+I:COLOR(White)
+
+N:F.green:F.base:Giant green dragon fly
+I:LVL(16,50):RARITY(2):WILD(SWAMP)
+I:HP(3d8):AC(20):EXP(70)
+B:BITE:HURT(1d4):POISON(1d6)
+I:RESIST(POIS)
+S:1_IN_10 | BR_POISON
+D:A vast, foul-smelling dragonfly.
+I:COLOR(Light Green)
+
+N:F.bronze:F.base:Giant bronze dragon fly
+I:LVL(18):RARITY(1):WILD(MOUNTAIN)
+I:SPEED(+10):HP(3d8):AC(20):EXP(70)
+I:RESIST(CONF):IMMUNE(SLEEP)
+S:1_IN_9 | BR_CONFUSION
+D:This vast gleaming bronze fly has wings which beat mesmerically fast.
+I:COLOR(Light Umber)
+P:Life:60
+
+N:F.black:F.base:Giant black dragon fly
+I:LVL(18):RARITY(2):WILD(SWAMP)
+I:SPEED(+10):HP(3d8):AC(20):EXP(68)
+I:RESIST(ACID)
+S:1_IN_9 | BR_ACID
+D:The size of a large bird, this fly drips caustic acid.
+I:COLOR(Light Dark)
+P:Life:60
+
+N:F.gold:F.base:Giant gold dragon fly
+I:LVL(18):RARITY(2):WILD(MOUNTAIN)
+I:SPEED(+10):HP(3d8):AC(20):EXP(78)
+B:BITE:HURT(1d3)
+I:RESIST(SOUND)
+S:1_IN_9 | BR_SOUND
+D:Large beating wings support this dazzling insect. A loud buzzing noise pervades the air.
+I:COLOR(Yellow)
+P:Life:70
+
+########################################################################
+# Insects (I)
+T:I.base:Bug
+I:DISPLAY(I):POS(GAIN_AC)
+I:KIND(ANIMAL):ATTR(WEIRD_MIND)
+I:ALERT(200',Fairly Observant):MOVE(FLY)
+P:Stat:Str(0+3):Int(-2):Wis(-2):Dex(1+3):Con(0+3):Chr(0)
+P:Skill:Dis(15+25):Dev(15+35):Sav(25+40):Stl(5):Srh(15):Fos(15):Thn(50+100)
+P:Class:Warrior
+P:Body:Scrawny
+P:Life:50
+P:Weight:20
+
+N:I.grid bug:I.base:Grid bug
+I:LVL(1,20):RARITY(3)
+I:HP(2d4):AC(2):EXP(4)
+I:LIGHT(1):ATTR(STUPID):ALERT(100'):MOVE(RAND_25)
+B:BITE:ELEC(1d7)
+I:RESIST(ELEC)
+M:2d3:MON(I.grid bug)
+D:A strange electric bug.
+I:COLOR(Violet)
+
+N:I.swarm:I.base:Insect swarm
+I:LVL(1,10):RARITY(1):WILD(GRASS|WOOD|SWAMP)
+I:SPEED(+10):HP(2d2):AC(4):EXP(3)
+I:MOVE(RAND_25)
+B:BITE:HURT(1d5)
+B:STING:HURT(1d5)
+D:A lone insect may be harmless, but there's a whole swarm of them here!
+I:COLOR(Umber)
+P:Weight:2
+
+N:I.bomb:I.base:Bomb mosquito
+I:LVL(1,20):RARITY(3)
+I:SPEED(+10):HP(1):AC(50):EXP(3)
+I:ALERT(300',Ever Vigilant):MOVE(RAND_50)
+B:EXPLODE:DAM(1d2)
+I:COLOR(Light Dark)
+P:Weight:5
+
+N:I.louse:I.base:Giant white louse
+I:LVL(3,30):RARITY(1)
+I:SPEED(+10):HP(1):AC(5):EXP(1)
+I:CAN(MULTIPLY):ALERT(60'):MOVE(RAND_75)
+B:BITE:HURT(1d3)
+S:MULTIPLY
+D:It is six inches long.
+I:COLOR(White)
+P:Weight:1
+
+N:I.culverin:Culverin
+I:LVL(8,50):RARITY(2):WILD(WOOD)
+I:HP(8d5):AC(13):EXP(25)
+I:KIND(ANIMAL):ALERT(200',Unseeing):MOVE(RAND_25)
+S:1_IN_1 | SHOOT(4d6)
+D:A many legged scuttling thing, it spits pebbles with deadly force.
+I:DISPLAY(I,Light Umber):POS(GAIN_AC)
+P:Copy:Snotling:Warrior
+P:Body:Culverin
+P:Weight:50
+
+N:I.bee:I.base:Killer bee
+I:LVL(9,40):RARITY(2):WILD(WASTE|WOOD|GRASS)
+I:SPEED(+10):HP(2d4):AC(34):EXP(22)
+I:ALERT(120')
+B:STING:POISON(1d5)
+B:STING:HURT(1d4):LOSE_STR(50%)
+M:1d4:MON(I.bee)
+M:25%:2d4:MON(I.bee)
+D:It is poisonous and aggressive.
+I:COLOR(Yellow)
+P:Weight:10
+
+N:I.Lousy:I.base:Lousy the King of Louses
+I:LVL(9):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+20):HP(121):AC(10):EXP(100)
+I:CAN(SPEAK):ATTR(MALE):ALERT(80'):MOVE(RAND_75)
+B:STING(x2):HURT(1d5)
+B:BITE(x2):HURT(1d5):LOSE_CHR(50%)
+O:1d2:OBJ(*, GOOD)
+S:1_IN_6 | S_LOUSE
+D:This huge louse is the ruin of the sad man who had become a louse just because he loves louses.
+I:COLOR(Light White):POS(CORPSE)
+P:Class:Beastmaster
+P:Speed:+10
+P:Weight:30
+
+N:I.fruit fly:I.base:Giant fruit fly
+I:LVL(10,40):RARITY(6)
+I:SPEED(+10):HP(2d2):AC(14):EXP(4):EVOLVE(I.hummerhorn, 70)
+I:CAN(MULTIPLY):ALERT(80'):MOVE(RAND_75)
+B:BITE:HURT(1d2)
+S:MULTIPLY
+D:A fast-breeding, annoying pest.
+I:COLOR(Light Umber)
+P:Weight:10
+
+N:I.software bug:I.base:Software bug
+I:LVL(14,90):RARITY(2)
+I:SPEED(+10):HP(2d2):AC(25):EXP(4)
+I:CAN(MULTIPLY):ALERT(80'):MOVE(RAND_75)
+B:BITE:HURT(1d2)
+S:MULTIPLY
+D:Oh no! They are everywhere!
+I:COLOR(Red)
+P:Weight:1
+
+N:I.roach:I.base:Giant cockroach
+I:LVL(14,40):RARITY(2)
+I:SPEED(+10):HP(2d2):AC(25):EXP(4)
+I:CAN(MULTIPLY):ALERT(80'):MOVE(RAND_75|PICKUP|-FLY)
+B:BITE:HURT(1d2)
+S:MULTIPLY
+D:Oh no! They are everywhere!
+I:COLOR(Light Dark)
+P:Weight:10
+
+N:I.flea:I.base:Giant flea
+I:LVL(14,50):RARITY(1)
+I:SPEED(+10):HP(1d2):AC(7):EXP(3):EVOLVE(I.hummerhorn, 200)
+I:CAN(MULTIPLY):ALERT(60'):MOVE(RAND_50)
+B:BITE:HURT(1d2)
+S:MULTIPLY
+D:It makes you itch just to look at it.
+I:COLOR(Slate)
+P:Weight:5
+
+N:I.mi-go:I.base:Mi-Go
+I:LVL(15,50):RARITY(2)
+I:SPEED(+10):HP(13d8):AC(30):EXP(80)
+I:ALIGN(Evil):ATTR(COLD_BLOOD):ALERT(Fairly Unseeing)
+B:STING:POISON(1d4)
+B:BITE:HURT(1d2):LOSE_STR(50%)
+I:RESIST(COLD|POIS|CONF):IMMUNE(SLEEP)
+S:1_IN_6 | CONFUSE | S_MONSTER(1) | S_DEMON
+D:"They were pinkish things about five feet long; with crustaceous
+D:bodies bearing vast pairs of dorsal fins or membranous wings and
+D:several sets of articulate limbs, and with a sort of convoluted
+D:ellipsoid, covered with multitudes of very short antenna, where
+D:a head would ordinarily be..."
+I:COLOR(Light Red):POS(SKELETON)
+P:SpellStat:Chr
+P:Life:100
+P:Weight:100
+
+N:I.hummerhorn:I.base:Hummerhorn
+I:LVL(16,50):RARITY(5)
+I:SPEED(+10):HP(2d2):AC(14):EXP(4)
+I:CAN(MULTIPLY):ALERT(80'):MOVE(RAND_75)
+B:BITE:CONFUSE(2d2)
+S:MULTIPLY
+D:A giant buzzing wasp, its stinger drips venom.
+I:COLOR(Yellow)
+P:Weight:10
+
+N:I.chaos:Chaos butterfly
+I:LVL(37,70):RARITY(2)
+I:SPEED(+10):HP(60d10):AC(60):EXP(1000)
+I:ALIGN(Evil):ATTR(WEIRD_MIND)
+I:ALERT(400',Fairly Observant):MOVE(BASH|FLY)
+B:CLAW(x2):HURT(1d7+8)
+B:CRUSH:HURT(5d5+15)
+I:RESIST(CONF|CHAOS):IMMUNE(SLEEP)
+S:FREQ_5 | BR_CONFUSION | BR_CHAOS
+D:"It had the appearance of a butterfly, but a butterfly with
+D:wings so huge they blotted out the sun... It had a man's body,
+D:covered with hairs or feathers hued like a peacocks..."
+I:DISPLAY(I,Light Green,ATTR_MULTI|ATTR_ANY):POS(CORPSE|GAIN_AC)
+P:Copy:Hobbit:Warrior
+P:Blows:300
+P:Weight:50
+
+N:I.shan:Shan
+I:LVL(37,70):RARITY(4)
+I:SPEED(+10):HP(20d10):AC(120):EXP(250)
+I:KIND(ANIMAL):ALIGN(Evil):ATTR(COLD_BLOOD)
+I:ALERT(200',Fairly Unseeing):MOVE(FLY)
+I:RESIST(COLD|POIS|CONF):IMMUNE(SLEEP)
+S:1_IN_2 | CONFUSE | PARALYZE | DRAIN_MANA | AMNESIA | MIND_BLAST | SHRIEK
+D:"Those huge lidless eyes which stared with hate at me, the jointed
+D:tendrils which seemed to twist from the head in cosmic rhythms,
+D:the ten legs, covered with black shining tentacles and folded into
+D:the pallid underbelly, and the semi-circular ridged wings covered
+D:with triangular scales -- all this cannot convey the soul-ripping
+D:horror of the shape which darted at me. I saw the three mouths
+D:of the thing move moistly, and then it was upon me."
+I:DISPLAY(I,Light Blue):POS(GAIN_AC)
+P:Copy:Beastman:Chaos-Warrior
+P:Body:Shan
+P:Weight:25
+
+########################################################################
+# Beetles (K)
+T:K.base:Beetle
+I:DISPLAY(K):POS(CORPSE|GAIN_AC)
+I:KIND(ANIMAL):ATTR(WEIRD_MIND)
+I:ALERT(140',Fairly Unseeing):MOVE(BASH|FLY)
+P:Stat:Str(3+5):Int(-3):Wis(-3):Dex(0+3):Con(2+3):Chr(0)
+P:Skill:Dis(15+25):Dev(15+35):Sav(30+40):Stl(4):Srh(10):Fos(10):Thn(70+135)
+P:Class:Warrior
+P:Body:Beetle
+P:Weight:300
+
+N:K.brown:K.base:Killer brown beetle
+I:LVL(13,50):RARITY(2)
+I:HP(13d8):AC(40):ALERT(100'):EXP(38):EVOLVE(K.white, 400)
+B:BITE:HURT(2d4+2)
+D:It is a vicious insect with a tough carapace.
+I:COLOR(Umber)
+P:Weight:200
+
+N:K.stag:K.base:Killer stag beetle
+I:LVL(22,60):RARITY(1)
+I:HP(20d8):AC(55):EXP(80):WILD(WASTE|WOOD|GRASS)
+I:ALERT(120'):MOVE(RAND_25)
+B:CLAW(x2):HURT(1d10+2)
+D:It is a giant beetle with vicious claws.
+I:COLOR(Slate)
+
+N:K.white:K.base:Killer white beetle
+I:LVL(23,60):RARITY(1):WILD(WASTE|WOOD|GRASS)
+I:HP(20d8):AC(55):EXP(85):EVOLVE(K.red, 1000)
+I:MOVE(RAND_25)
+B:BITE:HURT(2d5+6)
+D:It is looking for prey.
+I:COLOR(White)
+
+N:K.crimson:K.base:Killer crimson beetle
+I:LVL(25,60):RARITY(2):WILD(WASTE|WOOD|GRASS)
+I:HP(20d8):AC(50):EXP(85)
+I:MOVE(RAND_25)
+B:BITE:HURT(2d4+5):LOSE_STR(50%)
+D:A giant beetle with poisonous mandibles.
+I:COLOR(Light Red)
+
+N:K.red:K.base:Killer red beetle
+I:LVL(27,70):RARITY(1):WILD(VOLCANO)
+I:HP(13d8):AC(45):EXP(95):EVOLVE(K.slicer, 800)
+B:BITE:HURT(2d4+3)
+B:SPIT:FIRE(4d5)
+I:RESIST(FIRE)
+D:It is a giant beetle wreathed in flames.
+I:COLOR(Red)
+
+N:K.slicer:K.base:Killer slicer beetle
+I:LVL(30,70):RARITY(2):WILD(GRASS)
+I:HP(22d10):AC(60):EXP(200):EVOLVE(K.death, 800)
+B:BITE(x2):HURT(2d8+14)
+D:It is a beetle with deadly sharp cutting mandibles and a rock-hard carapace.
+I:COLOR(Orange)
+
+N:K.death:K.base:Death watch beetle
+I:LVL(31,70):RARITY(3):WILD(WASTE|WOOD|GRASS)
+I:HP(25d12):AC(60):EXP(190):EVOLVE(K.iridescent, 2000)
+I:ALERT(160')
+B:BITE:HURT(3d4+5)
+B:WAIL:HURT(2d6+10):TERRIFY
+D:It is a giant beetle that produces a chilling sound.
+I:COLOR(Light Blue)
+
+N:K.iridescent:K.base:Killer iridescent beetle
+I:LVL(37,60):RARITY(2)
+I:HP(250):AC(60):ALERT(160'):EXP(850)
+B:CLAW(x2):ELEC(1d12)
+B:GAZE:PARALYZE
+A:ELEC(2d3)
+I:RESIST(ELEC)
+D:It is a giant beetle, whose carapace shimmers with vibrant energies.
+I:DISPLAY(,Violet,ATTR_MULTI)
+
+N:K.Defiler:The Defiler
+I:LVL(58):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+10):HP(7500):AC(120):EXP(30000)
+I:KIND(ANIMAL):ALIGN(Evil)
+I:ALERT(200',Inattentive):MOVE(OPEN|BASH|PUSH|TUNNEL)
+B:CLAW(x2):HURT(3d12):ACID(2d12)
+B:CLAW:HURT(3d12+30)
+B:BITE:HURT(5d14+35)
+I:RESIST(ACID|FIRE|POIS|CONF):IMMUNE(SLEEP)
+S:FREQ_25 | BR_ACID | BR_POISON | S_KIN
+O:6d2:OBJ(*, GOOD)
+D:A hulking creature with massive pincers, the Defiler oozes acidic
+D:venom as it smashes the living rock to reach you.
+I:DISPLAY(K,Light Dark):POS(CORPSE|GAIN_AC)
+P:Copy:Half-Giant:Mauler
+P:Body:Beetle
+P:Weight:1000
+
+# vim: filetype=ri :
+

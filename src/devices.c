@@ -55,7 +55,7 @@ int device_calc_fail_rate_aux(int skill, int difficulty)
  * is public and is also used for equipment with activations. */
 static int effect_calc_fail_rate_aux(effect_t *effect, int skill_boost)
 {
-    int skill = p_ptr->skills.dev + skill_boost;
+    int skill = plr->skills.dev + skill_boost;
     int fail;
 
     if (plr_tim_find(T_CONFUSED)) skill = 3 * skill / 4;
@@ -84,7 +84,7 @@ int device_calc_fail_rate(object_type *o_ptr)
         int      skill_boost = 0;
 
         if (devicemaster_is_speciality(o_ptr))
-            skill_boost = 5 + 3*p_ptr->lev/5; /* 40+15 base = 115 -> 150 */
+            skill_boost = 5 + 3*plr->lev/5; /* 40+15 base = 115 -> 150 */
 
         if (obj_has_flag(o_ptr, OF_EASY_SPELL))
         {
@@ -103,7 +103,7 @@ int device_calc_fail_rate(object_type *o_ptr)
 
     lev = k_info[o_ptr->k_idx].level;
     if (lev > 50) lev = 50 + (lev - 50)/2;
-    chance = p_ptr->skills.dev;
+    chance = plr->skills.dev;
     if (plr_tim_find(T_CONFUSED)) chance = chance / 2;
     chance = chance - lev;
     if (chance < USE_DEVICE)
@@ -120,7 +120,7 @@ int device_calc_fail_rate(object_type *o_ptr)
     return fail;
 }
 
-/* Hack: When using an unkown rod we force the user to target. Also
+/* Hack: When using an unknown rod we force the user to target. Also
    Trap Location should not spoil with the view_unsafe_grids option. */
 bool device_known = FALSE;
 
@@ -129,7 +129,7 @@ bool device_known = FALSE;
  * but that is handled elsewhere. We deal solely with OFL_DEVICE_POWER. */
 bool device_lore = FALSE;
 
-/* Hack: When using an unkown device, was there an observable effect?
+/* Hack: When using an unknown device, was there an observable effect?
    If so, identify the device. */
 bool device_noticed = FALSE;
 
@@ -168,7 +168,7 @@ static void _do_identify_aux(obj_ptr obj)
     case INV_PACK:
     case INV_QUIVER:
         obj->marked |= OM_DELAYED_MSG;
-        p_ptr->notice |= PN_CARRY;
+        plr->notice |= PN_CARRY;
         break;
     case INV_FLOOR:
         msg_format("On the ground: %s.", name);
@@ -181,7 +181,7 @@ static void _do_identify_aux(obj_ptr obj)
 
 void mass_identify(bool use_charges) /* shared with Sorcery spell */
 {
-    inv_ptr floor = inv_filter_floor(p_ptr->pos, obj_exists);
+    inv_ptr floor = inv_filter_floor(plr->pos, obj_exists);
 
     _use_charges = use_charges;
     pack_for_each_that(_do_identify_aux, obj_is_unknown);
@@ -252,7 +252,7 @@ static int _scroll_power(int val)
     if (devicemaster_is_(DEVICEMASTER_SCROLLS))
     {
         val += val * device_extra_power / 100;
-        return device_power_aux(val, /*p_ptr->device_power + */p_ptr->lev/10);
+        return device_power_aux(val, /*plr->device_power + */plr->lev/10);
     }
     return val;
 }
@@ -262,7 +262,7 @@ static int _potion_power(int val)
     if (devicemaster_is_(DEVICEMASTER_POTIONS))
     {
         val += val * device_extra_power / 100;
-        return device_power_aux(val, /*p_ptr->device_power + */p_ptr->lev/10);
+        return device_power_aux(val, /*plr->device_power + */plr->lev/10);
     }
     return val;
 }
@@ -325,7 +325,7 @@ static cptr _do_potion(int sval, int mode)
         if (desc) return "It poisons you when you quaff it.";
         if (cast)
         {
-            if (!res_save_default(RES_POIS))
+            if (!res_save_default(GF_POIS))
             {
                 if (plr_tim_add(T_POISON, randint0(15) + 10))
                     device_noticed = TRUE;
@@ -336,7 +336,7 @@ static cptr _do_potion(int sval, int mode)
         if (desc) return "It blinds you when you quaff it.";
         if (cast)
         {
-            if (!res_save_default(RES_BLIND))
+            if (!res_save_default(GF_BLIND))
             {
                 if (plr_tim_add(T_BLIND, randint0(100) + 100))
                     device_noticed = TRUE;
@@ -347,22 +347,22 @@ static cptr _do_potion(int sval, int mode)
         if (desc) return "It confuses and hallucinates you when you quaff it. If you are a monk, you may be a drunken master.";
         if (cast)
         {
-            if (p_ptr->pclass != CLASS_MONK)
+            if (plr->pclass != CLASS_MONK)
                 virtue_add(VIRTUE_HARMONY, -1);
-            if (!res_save_default(RES_CONF))
+            if (!res_save_default(GF_CONFUSION))
             {
                 if (plr_tim_add(T_CONFUSED, randint0(20) + 15))
                     device_noticed = TRUE;
             }
 
-            if (!res_save_default(RES_CHAOS))
+            if (!res_save_default(GF_CHAOS))
             {
                 if (one_in_(2) && !mut_present(MUT_WEIRD_MIND))
                 {
                     if (plr_tim_add(T_HALLUCINATE, randint0(25) + 25))
                         device_noticed = TRUE;
                 }
-                if (one_in_(13) && (p_ptr->pclass != CLASS_MONK))
+                if (one_in_(13) && (plr->pclass != CLASS_MONK))
                 {
                     device_noticed = TRUE;
                     if (one_in_(3)) lose_all_info();
@@ -393,11 +393,11 @@ static cptr _do_potion(int sval, int mode)
         if (desc) return "You lose experience when you quaff it.";
         if (cast)
         {
-            if (!p_ptr->hold_life && (p_ptr->exp > 0))
+            if (!plr->hold_life && (plr->exp > 0))
             {
                 msg_print("You feel your memories fade.");
                 virtue_add(VIRTUE_KNOWLEDGE, -5);
-                lose_exp(p_ptr->exp / 4);
+                lose_exp(plr->exp / 4);
                 device_noticed = TRUE;
             }
         }
@@ -467,8 +467,9 @@ static cptr _do_potion(int sval, int mode)
             msg_print("Massive explosions rupture your body!");
             take_hit(DAMAGE_NOESCAPE, damroll(50, 20), "a potion of Detonation");
 
-            if (!p_ptr->no_stun) plr_tim_add(T_STUN, STUN_MASSIVE);
-            if (!p_ptr->no_cut) plr_tim_add(T_CUT, 5000);
+            if (_1d(100) > res_pct(GF_STUN))
+                plr_tim_add(T_STUN, STUN_MASSIVE);
+            if (!plr->no_cut) plr_tim_add(T_CUT, 5000);
             device_noticed = TRUE;
         }
         break;
@@ -523,7 +524,7 @@ static cptr _do_potion(int sval, int mode)
         if (desc) return "It removes fear when you quaff it.";
         if (cast)
         {
-            if (p_ptr->afraid)
+            if (plr->afraid)
             {
                 fear_clear_p();
                 device_noticed = TRUE;
@@ -683,7 +684,7 @@ static cptr _do_potion(int sval, int mode)
         {
             int amt = _potion_power(damroll(5, 6) + 5);
 
-            if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+            if (plr->pclass == CLASS_RUNE_KNIGHT)
                 msg_print("You are unaffected.");
             else if (sp_player(amt))
                 device_noticed = TRUE;
@@ -700,7 +701,7 @@ static cptr _do_potion(int sval, int mode)
         {
             int amt = _potion_power(damroll(10, 10) + 15);
 
-            if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+            if (plr->pclass == CLASS_RUNE_KNIGHT)
                 msg_print("You are unaffected.");
             else if (sp_player(amt))
                 device_noticed = TRUE;
@@ -870,11 +871,11 @@ static cptr _do_potion(int sval, int mode)
         if (desc) return "You become more experienced when you quaff it.";
         if (cast)
         {
-            if (p_ptr->prace == RACE_ANDROID) break;
+            if (plr->prace == RACE_ANDROID) break;
             virtue_add(VIRTUE_ENLIGHTENMENT, 1);
-            if (p_ptr->exp < PY_MAX_EXP)
+            if (plr->exp < PY_MAX_EXP)
             {
-                s32b ee = _potion_power((p_ptr->exp / 2) + 10);
+                s32b ee = _potion_power((plr->exp / 2) + 10);
                 s32b max = _potion_power(100000);
                 if (mut_present(MUT_FAST_LEARNER))
                 {
@@ -930,7 +931,7 @@ static cptr _do_potion(int sval, int mode)
         if (info) return format("Dur d%d+%d", _potion_power(7), _potion_power(7));
         if (cast)
         {
-            int dur = _potion_power(7 + randint1(7));
+            int dur = _potion_power(500 + _1d(1000));
             if (plr_tim_add(T_INVULN, dur)) device_noticed = TRUE;
         }
         break;
@@ -941,10 +942,10 @@ static cptr _do_potion(int sval, int mode)
             do_cmd_rerate(FALSE);
             plr_restore_life(1000);
             get_max_stats();
-            p_ptr->update |= PU_BONUS;
+            plr->update |= PU_BONUS;
             mut_lose_all();
             device_noticed = TRUE;
-            if (p_ptr->pclass == CLASS_WILD_TALENT)
+            if (plr->pclass == CLASS_WILD_TALENT)
                 wild_talent_new_life();
         }
         break;
@@ -965,7 +966,7 @@ static cptr _do_potion(int sval, int mode)
             if (count > 1 && one_in_(23))
             {
                 mut_lose_all();
-                if (p_ptr->pclass == CLASS_WILD_TALENT)
+                if (plr->pclass == CLASS_WILD_TALENT)
                     wild_talent_new_life();
             }
             else
@@ -990,7 +991,7 @@ static cptr _do_potion(int sval, int mode)
                     }
                 } while (!device_noticed || one_in_(2));
 
-                if (p_ptr->pclass == CLASS_WILD_TALENT && one_in_(2))
+                if (plr->pclass == CLASS_WILD_TALENT && one_in_(2))
                     wild_talent_scramble();
             }
         }
@@ -1020,7 +1021,7 @@ static cptr _do_scroll(int sval, int mode)
         if (desc) return "It darkens nearby area or current room and blinds you when you read it.";
         if (cast)
         {
-            if (!res_save_default(RES_BLIND) && !res_save_default(RES_DARK))
+            if (!res_save_default(GF_BLIND) && !res_save_default(GF_DARK))
             {
                 if (plr_tim_add(T_BLIND, 3 + randint1(5))) device_noticed = TRUE;
             }
@@ -1032,7 +1033,7 @@ static cptr _do_scroll(int sval, int mode)
         if (cast)
         {
             msg_print("There is a high pitched humming noise.");
-            aggravate_monsters(0);
+            aggravate_monsters(who_create_null());
             device_noticed = TRUE;
         }
         break;
@@ -1059,7 +1060,7 @@ static cptr _do_scroll(int sval, int mode)
             int i;
             for (i = 0; i < randint1(3); i++)
             {
-                if (summon_specific(0, p_ptr->pos, cave->dun_lvl, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET)))
+                if (summon_specific(who_create_null(), plr->pos, cave->dun_lvl, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET)))
                     device_noticed = TRUE;
             }
         }
@@ -1071,7 +1072,7 @@ static cptr _do_scroll(int sval, int mode)
             int i;
             for (i = 0; i < randint1(3); i++)
             {
-                if (summon_specific(0, p_ptr->pos, cave->dun_lvl, SUMMON_UNDEAD, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET)))
+                if (summon_specific(who_create_null(), plr->pos, cave->dun_lvl, SUMMON_UNDEAD, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET)))
                     device_noticed = TRUE;
             }
         }
@@ -1079,7 +1080,7 @@ static cptr _do_scroll(int sval, int mode)
     case SV_SCROLL_SUMMON_PET:
         if (desc)
         {
-            if (p_ptr->prace == RACE_MON_RING)
+            if (plr->prace == RACE_MON_RING)
                 return "It summons a ring bearer as your pet when you read it.";
             else
                 return "It summons a monster as your pet when you read it.";
@@ -1087,9 +1088,9 @@ static cptr _do_scroll(int sval, int mode)
         if (cast)
         {
             int type = 0;
-            if (p_ptr->prace == RACE_MON_RING)
+            if (plr->prace == RACE_MON_RING)
                 type = SUMMON_RING_BEARER;
-            if (summon_specific(-1, p_ptr->pos, _scroll_power(cave->dun_lvl), type, (PM_ALLOW_GROUP | PM_FORCE_PET)))
+            if (summon_specific(who_create_plr(), plr->pos, _scroll_power(cave->dun_lvl), type, (PM_ALLOW_GROUP | PM_FORCE_PET)))
                 device_noticed = TRUE;
         }
         break;
@@ -1097,7 +1098,7 @@ static cptr _do_scroll(int sval, int mode)
         if (desc) return "It summons a monster corresponds to your race as your pet when you read it.";
         if (cast)
         {
-            if (summon_kin_player(_scroll_power(p_ptr->lev), p_ptr->pos.y, p_ptr->pos.x, (PM_FORCE_PET | PM_ALLOW_GROUP)))
+            if (summon_kin_player(_scroll_power(plr->lev), plr->pos, (PM_FORCE_PET | PM_ALLOW_GROUP)))
                 device_noticed = TRUE;
         }
         break;
@@ -1105,7 +1106,7 @@ static cptr _do_scroll(int sval, int mode)
         if (desc) return "It creates traps on the squares adjacent to you when you read it.";
         if (cast)
         {
-            if (trap_creation(p_ptr->pos.y, p_ptr->pos.x))
+            if (trap_creation(plr->pos))
                 device_noticed = TRUE;
         }
         break;
@@ -1134,7 +1135,7 @@ static cptr _do_scroll(int sval, int mode)
         if (desc) return "It teleports you one dungeon level up or down immediately when you read it.";
         if (cast)
         {
-            teleport_level(0);
+            dun_teleport_level_plr(cave);
             device_noticed = TRUE;
         }
         break;
@@ -1330,11 +1331,11 @@ static cptr _do_scroll(int sval, int mode)
         if (desc) return "You can confuse monster you hit just for once when you read it.";
         if (cast)
         {
-            if (!(p_ptr->special_attack & ATTACK_CONFUSE))
+            if (!(plr->special_attack & ATTACK_CONFUSE))
             {
                 msg_print("Your hands begin to glow.");
-                p_ptr->special_attack |= ATTACK_CONFUSE;
-                p_ptr->redraw |= (PR_STATUS);
+                plr->special_attack |= ATTACK_CONFUSE;
+                plr->redraw |= (PR_STATUS);
                 device_noticed = TRUE;
             }
         }
@@ -1343,7 +1344,7 @@ static cptr _do_scroll(int sval, int mode)
         if (desc) return "It gives temporary protection from lesser evil creatures when you read it.";
         if (cast)
         {
-            if (plr_tim_add(T_PROT_EVIL, _scroll_power(randint1(25) + 3 * p_ptr->lev)))
+            if (plr_tim_add(T_PROT_EVIL, _scroll_power(randint1(25) + 3 * plr->lev)))
                 device_noticed = TRUE;
         }
         break;
@@ -1366,7 +1367,7 @@ static cptr _do_scroll(int sval, int mode)
         if (desc) return "It destroys everything nearby you when you read it.";
         if (cast)
         {
-            if (destroy_area(p_ptr->pos.y, p_ptr->pos.x, 13 + randint0(5), _scroll_power(2000)))
+            if (destroy_area(plr->pos, 13 + randint0(5), _scroll_power(2000)))
                 device_noticed = TRUE;
             else
                 msg_print("The dungeon trembles...");
@@ -1377,44 +1378,45 @@ static cptr _do_scroll(int sval, int mode)
         if (info) return info_damage(0, 0, _scroll_power(80));
         if (cast)
         {
-            if (dispel_undead(_scroll_power(80))) device_noticed = TRUE;
+            if (plr_project_los(GF_DISP_UNDEAD, _scroll_power(80)))
+                device_noticed = TRUE;
         }
         break;
     case SV_SCROLL_SPELL:
         if (desc) return "It increases the number you can study spells when you read. If you are the class can't study or don't need to study, it has no effect.";
         if (cast)
         {
-            if (p_ptr->pclass == CLASS_WARRIOR ||
-                p_ptr->pclass == CLASS_MINDCRAFTER ||
-                p_ptr->pclass == CLASS_PSION ||
-                p_ptr->pclass == CLASS_SORCERER ||
-                p_ptr->pclass == CLASS_ARCHER ||
-                p_ptr->pclass == CLASS_MAGIC_EATER ||
-                p_ptr->pclass == CLASS_DEVICEMASTER ||
-                p_ptr->pclass == CLASS_RED_MAGE ||
-                p_ptr->pclass == CLASS_SAMURAI ||
-                p_ptr->pclass == CLASS_CAVALRY ||
-                p_ptr->pclass == CLASS_WEAPONSMITH ||
-                p_ptr->pclass == CLASS_MIRROR_MASTER ||
-                p_ptr->pclass == CLASS_TIME_LORD ||
-                p_ptr->pclass == CLASS_BLOOD_KNIGHT ||
-                p_ptr->pclass == CLASS_WARLOCK ||
-                p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
-                p_ptr->pclass == CLASS_DUELIST ||
-                p_ptr->pclass == CLASS_RUNE_KNIGHT ||
-                p_ptr->pclass == CLASS_WILD_TALENT ||
-                p_ptr->pclass == CLASS_NINJA ||
-                p_ptr->pclass == CLASS_SCOUT ||
-                p_ptr->pclass == CLASS_MYSTIC ||
-                p_ptr->pclass == CLASS_MAULER ||
-                p_ptr->pclass == CLASS_SKILLMASTER )
+            if (plr->pclass == CLASS_WARRIOR ||
+                plr->pclass == CLASS_MINDCRAFTER ||
+                plr->pclass == CLASS_PSION ||
+                plr->pclass == CLASS_SORCERER ||
+                plr->pclass == CLASS_ARCHER ||
+                plr->pclass == CLASS_MAGIC_EATER ||
+                plr->pclass == CLASS_DEVICEMASTER ||
+                plr->pclass == CLASS_RED_MAGE ||
+                plr->pclass == CLASS_SAMURAI ||
+                plr->pclass == CLASS_CAVALRY ||
+                plr->pclass == CLASS_WEAPONSMITH ||
+                plr->pclass == CLASS_MIRROR_MASTER ||
+                plr->pclass == CLASS_TIME_LORD ||
+                plr->pclass == CLASS_BLOOD_KNIGHT ||
+                plr->pclass == CLASS_WARLOCK ||
+                plr->pclass == CLASS_ARCHAEOLOGIST ||
+                plr->pclass == CLASS_DUELIST ||
+                plr->pclass == CLASS_RUNE_KNIGHT ||
+                plr->pclass == CLASS_WILD_TALENT ||
+                plr->pclass == CLASS_NINJA ||
+                plr->pclass == CLASS_SCOUT ||
+                plr->pclass == CLASS_MYSTIC ||
+                plr->pclass == CLASS_MAULER ||
+                plr->pclass == CLASS_SKILLMASTER )
             {
                 msg_print("There is no effect.");
             }
             else
             {
-                p_ptr->add_spells++;
-                p_ptr->update |= (PU_SPELLS);
+                plr->add_spells++;
+                plr->update |= (PU_SPELLS);
             }
             device_noticed = TRUE;
         }
@@ -1439,7 +1441,7 @@ static cptr _do_scroll(int sval, int mode)
         if (desc) return "It creates one great item when you read it.";
         if (cast)
         {
-            acquirement(p_ptr->pos.y, p_ptr->pos.x, 1, TRUE, FALSE);
+            acquirement(plr->pos.y, plr->pos.x, 1, TRUE, FALSE);
             device_noticed = TRUE;
         }
         break;
@@ -1447,7 +1449,7 @@ static cptr _do_scroll(int sval, int mode)
         if (desc) return "It creates some great items when you read it.";
         if (cast)
         {
-            acquirement(p_ptr->pos.y, p_ptr->pos.x, _scroll_power(randint1(2) + 1), TRUE, FALSE);
+            acquirement(plr->pos.y, plr->pos.x, _scroll_power(randint1(2) + 1), TRUE, FALSE);
             device_noticed = TRUE;
         }
         break;
@@ -1507,7 +1509,6 @@ static cptr _do_scroll(int sval, int mode)
         if (desc) return "It creates an artifact from a nameless weapon or armour when you read it. Don't be greedy - you will get only one artifact.";
         if (cast)
         {
-            device_noticed = TRUE;
             if (no_artifacts)
             {
                 if (!brand_weapon(-1)) return NULL;
@@ -1516,6 +1517,10 @@ static cptr _do_scroll(int sval, int mode)
             {
                 if (!artifact_scroll()) return NULL;
             }
+            device_noticed = TRUE;
+            /* XXX do_device() resets this and is *not* re-entrant (i.e. globals = evil)
+             * art_create_random will obj_display, using do_device for info on obj->activation.
+             * So we must set *after* calling artifact_scroll() ... XXX */
         }
         break;
     case SV_SCROLL_RUSTPROOF:
@@ -1550,10 +1555,10 @@ static cptr _do_scroll(int sval, int mode)
         if (cast)
         {
             device_noticed = TRUE;
-            fire_ball(GF_FIRE, 0, _scroll_power(666), 4);
-            if (!devicemaster_is_(DEVICEMASTER_SCROLLS) && !res_save_default(RES_FIRE))
+            plr_burst(4, GF_FIRE, _scroll_power(333));
+            if (!devicemaster_is_(DEVICEMASTER_SCROLLS) && !res_save_default(GF_FIRE))
             {
-                int dam = res_calc_dam(RES_FIRE, 25 + randint1(25));
+                int dam = res_calc_dam(GF_FIRE, 25 + randint1(25));
                 take_hit(DAMAGE_NOESCAPE, dam, "a Scroll of Fire");
             }
         }
@@ -1564,10 +1569,10 @@ static cptr _do_scroll(int sval, int mode)
         if (cast)
         {
             device_noticed = TRUE;
-            fire_ball(GF_ICE, 0, _scroll_power(800), 4);
-            if (!devicemaster_is_(DEVICEMASTER_SCROLLS) && !res_save_default(RES_COLD))
+            plr_burst(4, GF_ICE, _scroll_power(400));
+            if (!devicemaster_is_(DEVICEMASTER_SCROLLS) && !res_save_default(GF_COLD))
             {
-                int dam = res_calc_dam(RES_COLD, 30 + randint1(30));
+                int dam = res_calc_dam(GF_COLD, 30 + randint1(30));
                 take_hit(DAMAGE_NOESCAPE, dam, "a Scroll of Ice");
             }
         }
@@ -1578,10 +1583,10 @@ static cptr _do_scroll(int sval, int mode)
         if (cast)
         {
             device_noticed = TRUE;
-            fire_ball(GF_CHAOS, 0, _scroll_power(1000), 4);
-            if (!devicemaster_is_(DEVICEMASTER_SCROLLS) && !res_save_default(RES_CHAOS))
+            plr_burst(4, GF_CHAOS, _scroll_power(500));
+            if (!devicemaster_is_(DEVICEMASTER_SCROLLS) && !res_save_default(GF_CHAOS))
             {
-                int dam = res_calc_dam(RES_CHAOS, 50 + randint1(50));
+                int dam = res_calc_dam(GF_CHAOS, 50 + randint1(50));
                 take_hit(DAMAGE_NOESCAPE, dam, "a Scroll of Logrus");
             }
         }
@@ -1592,7 +1597,7 @@ static cptr _do_scroll(int sval, int mode)
         if (cast)
         {
             device_noticed = TRUE;
-            fire_ball(GF_MANA, 0, _scroll_power(1100), 4);
+            plr_burst(4, GF_MANA, _scroll_power(550));
             if (!devicemaster_is_(DEVICEMASTER_SCROLLS))
                 take_hit(DAMAGE_NOESCAPE, 50 + randint1(50), "a Scroll of Mana");
         }
@@ -1602,7 +1607,7 @@ static cptr _do_scroll(int sval, int mode)
         if (info) return info_power(_scroll_power(150));
         if (cast)
         {
-            if (banish_monsters(_scroll_power(150)))
+            if (plr_project_los(GF_TELEPORT, _scroll_power(150)))
                 device_noticed = TRUE;
         }
         break;
@@ -1639,20 +1644,20 @@ cptr do_device(object_type *o_ptr, int mode, int boost)
     return result;
 }
 
-/* Effects: We are following the do_spell() pattern which is quick and dirty,
-   but not my preferred approach ... Also, we could conceivably merge all
-   devices into effects, handling rods, staves, wands, potions, scrolls and
-   activations uniformly. For the moment, effects are *just* activations,
-   and I should mention that each type of effect has its own little quirky
-   fail rate calculation ... sigh.
-
-   Update: The Device Rewrite is merging Wands/Rods/Staves into the effect system!*/
+/************************************************************************
+ * Effects
+ ************************************************************************/
 effect_t obj_get_effect(object_type *o_ptr)
 {
     if (o_ptr->activation.type)
         return o_ptr->activation;
-    if (o_ptr->name1 && a_info[o_ptr->name1].activation.type)
-        return a_info[o_ptr->name1].activation;
+    if (o_ptr->art_id)
+    {
+        art_ptr art = arts_lookup(o_ptr->art_id);
+        assert(art);
+        if (art->activation.type)
+            return art->activation;
+    }
     if (o_ptr->name2 && e_info[o_ptr->name2].activation.type)
         return e_info[o_ptr->name2].activation;
     return k_info[o_ptr->k_idx].activation;
@@ -1660,29 +1665,22 @@ effect_t obj_get_effect(object_type *o_ptr)
 
 cptr obj_get_effect_msg(object_type *o_ptr)
 {
-    u32b offset;
-
     if (o_ptr->activation.type)
-        return 0;
+        return NULL;
 
-    if (o_ptr->name1 && a_info[o_ptr->name1].activation.type)
+    if (o_ptr->art_id)
     {
-        offset = a_info[o_ptr->name1].activation_msg;
-        if (offset)
-            return a_text + offset;
-        else
-            return 0;
+        art_ptr art = arts_lookup(o_ptr->art_id);
+        assert(art);
+        if (art->activation.type)
+            return art->activation_msg;
     }
     if (o_ptr->name2 && e_info[o_ptr->name2].activation.type)
     {
-        return 0;
+        return NULL;
     }
 
-    offset = k_info[o_ptr->k_idx].activation_msg;
-    if (offset)
-        return k_text + offset;
-
-    return 0;
+    return k_info[o_ptr->k_idx].activation_msg;
 }
 
 bool obj_has_effect(object_type *o_ptr)
@@ -1756,8 +1754,8 @@ typedef struct
 static _effect_info_t _effect_info[] =
 {
     /* Detection:                                   Lv    T   R  Bias */
-    {"LITE_AREA",       EFFECT_LITE_AREA,            1,  10,  1, BIAS_MAGE},
-    {"LITE_MAP_AREA",   EFFECT_LITE_MAP_AREA,       20,  50,  3, 0},
+    {"LIGHT_AREA",      EFFECT_LIGHT_AREA,           1,  10,  1, BIAS_MAGE},
+    {"LIGHT_MAP_AREA",  EFFECT_LIGHT_MAP_AREA,      20,  50,  3, 0},
     {"ENLIGHTENMENT",   EFFECT_ENLIGHTENMENT,       20,  50,  2, BIAS_PRIESTLY | BIAS_ARCHER},
     {"CLAIRVOYANCE",    EFFECT_CLAIRVOYANCE,        35, 100,  8, BIAS_MAGE},
 
@@ -1858,14 +1856,14 @@ static _effect_info_t _effect_info[] =
     {"RESTORE_STATS",   EFFECT_RESTORE_STATS,       50, 600,  2, BIAS_PRIESTLY},
     {"RESTORE_EXP",     EFFECT_RESTORE_EXP,         40, 500,  1, BIAS_PRIESTLY},
     {"RESTORING",       EFFECT_RESTORING,           70, 800,  3, BIAS_PRIESTLY},
-    {"HEAL",            EFFECT_HEAL,                40, 500,  1, BIAS_PRIESTLY},
-    {"CURING",          EFFECT_CURING,              45, 200,  1, BIAS_PRIESTLY},
-    {"HEAL_CURING",     EFFECT_HEAL_CURING,         60, 900,  4, BIAS_PRIESTLY},
-    {"HEAL_CURING_HERO",EFFECT_HEAL_CURING_HERO,    70, 900,  4, BIAS_PRIESTLY},
+    {"HEAL",            EFFECT_HEAL,                40,  50,  1, BIAS_PRIESTLY},  /* weak: "Cure Wounds" */
+    {"CURING",          EFFECT_CURING,              45,  70,  1, BIAS_PRIESTLY},
+    {"HEAL_CURING",     EFFECT_HEAL_CURING,         60, 200,  4, BIAS_PRIESTLY},
+    {"HEAL_CURING_HERO",EFFECT_HEAL_CURING_HERO,    70, 200,  4, BIAS_PRIESTLY},
     {"RESTORE_MANA",    EFFECT_RESTORE_MANA,        80, 900,  8, BIAS_MAGE},
-    {"CURE_POIS",       EFFECT_CURE_POIS,           10,  50,  1, BIAS_POIS | BIAS_PRIESTLY | BIAS_RANGER},
-    {"CURE_FEAR",       EFFECT_CURE_FEAR,           25, 100,  1, BIAS_PRIESTLY},
-    {"CURE_FEAR_POIS",  EFFECT_CURE_FEAR_POIS,      30, 100,  1, BIAS_PRIESTLY},
+    {"CURE_POIS",       EFFECT_CURE_POIS,           10,  25,  1, BIAS_POIS | BIAS_PRIESTLY | BIAS_RANGER},
+    {"CURE_FEAR",       EFFECT_CURE_FEAR,           25,  25,  1, BIAS_PRIESTLY},
+    {"CURE_FEAR_POIS",  EFFECT_CURE_FEAR_POIS,      30,  25,  1, BIAS_PRIESTLY},
     {"REMOVE_CURSE",    EFFECT_REMOVE_CURSE,        30, 200,  1, BIAS_PRIESTLY},
     {"REMOVE_ALL_CURSE",EFFECT_REMOVE_ALL_CURSE,    70, 500,  4, BIAS_PRIESTLY},
     {"CLARITY",         EFFECT_CLARITY,             20,  15, 12, BIAS_PRIESTLY | BIAS_MAGE},
@@ -1878,7 +1876,7 @@ static _effect_info_t _effect_info[] =
     {"BOLT_FIRE",       EFFECT_BOLT_FIRE,           15,  20,  1, BIAS_FIRE | BIAS_DEMON},
     {"BOLT_COLD",       EFFECT_BOLT_COLD,           15,  20,  1, BIAS_COLD},
     {"BOLT_POIS",       EFFECT_BOLT_POIS,           10,  10,  1, BIAS_POIS},
-    {"BOLT_LITE",       EFFECT_BOLT_LITE,           20,  25,  1, 0},
+    {"BOLT_LIGHT",      EFFECT_BOLT_LIGHT,          20,  25,  1, 0},
     {"BOLT_DARK",       EFFECT_BOLT_DARK,           20,  25,  1, BIAS_NECROMANTIC},
     {"BOLT_CONF",       EFFECT_BOLT_CONF,           30,  50,  2, 0},
     {"BOLT_NETHER",     EFFECT_BOLT_NETHER,         20,  25,  1, BIAS_NECROMANTIC | BIAS_DEMON},
@@ -1894,16 +1892,16 @@ static _effect_info_t _effect_info[] =
     {"BOLT_PLASMA",     EFFECT_BOLT_PLASMA,         50, 100,  4, BIAS_FIRE},
 
     /* Offense: Beams                               Lv    T   R  Bias */
-    {"BEAM_LITE_WEAK",  EFFECT_BEAM_LITE_WEAK,      10,  20,  1, 0},
-    {"BEAM_LITE",       EFFECT_BEAM_LITE,           40, 100,  2, 0},
-    {"BEAM_GRAVITY",    EFFECT_BEAM_GRAVITY,        50, 150,  8, 0},
-    {"BEAM_DISINTEGRATE",EFFECT_BEAM_DISINTEGRATE,  60, 200, 16, 0},
+    {"BEAM_LIGHT_WEAK", EFFECT_BEAM_LIGHT_WEAK,     10,  20,  1, 0},
+    {"BEAM_LIGHT",      EFFECT_BEAM_LIGHT,          40,  30,  2, 0},
+    {"BEAM_GRAVITY",    EFFECT_BEAM_GRAVITY,        50,  80,  8, 0},
+    {"BEAM_DISINTEGRATE",EFFECT_BEAM_DISINTEGRATE,  60,  60, 16, 0},
     {"BEAM_ACID",       EFFECT_BEAM_ACID,           20,  20,  2, BIAS_ACID},
     {"BEAM_ELEC",       EFFECT_BEAM_ELEC,           20,  20,  2, BIAS_ELEC},
     {"BEAM_FIRE",       EFFECT_BEAM_FIRE,           20,  20,  2, BIAS_FIRE | BIAS_DEMON},
     {"BEAM_COLD",       EFFECT_BEAM_COLD,           20,  20,  2, BIAS_COLD},
-    {"BEAM_SOUND",      EFFECT_BEAM_SOUND,          45,  50,  3, BIAS_LAW},
-    {"BEAM_CHAOS",      EFFECT_BEAM_CHAOS,          55, 100,  3, BIAS_CHAOS},
+    {"BEAM_SOUND",      EFFECT_BEAM_SOUND,          45,  30,  3, BIAS_LAW},
+    {"BEAM_CHAOS",      EFFECT_BEAM_CHAOS,          55,  50,  3, BIAS_CHAOS},
 
     /* Offense: Balls                               Lv    T   R  Bias */
     {"BALL_ACID",       EFFECT_BALL_ACID,           25,  50,  1, BIAS_ACID},
@@ -1911,7 +1909,7 @@ static _effect_info_t _effect_info[] =
     {"BALL_FIRE",       EFFECT_BALL_FIRE,           25,  50,  1, BIAS_FIRE | BIAS_DEMON},
     {"BALL_COLD",       EFFECT_BALL_COLD,           25,  50,  1, BIAS_COLD},
     {"BALL_POIS",       EFFECT_BALL_POIS,           10,   5,  1, BIAS_POIS},
-    {"BALL_LITE",       EFFECT_BALL_LITE,           65, 100,  2, 0},
+    {"BALL_LIGHT",      EFFECT_BALL_LIGHT,          65, 100,  2, 0},
     {"BALL_DARK",       EFFECT_BALL_DARK,           66, 100,  2, BIAS_NECROMANTIC},
     {"BALL_CONF",       EFFECT_BALL_CONF,           50, 150,  2, 0},
     {"BALL_NETHER",     EFFECT_BALL_NETHER,         40,  50,  2, BIAS_NECROMANTIC | BIAS_DEMON},
@@ -1931,7 +1929,7 @@ static _effect_info_t _effect_info[] =
     {"BREATHE_FIRE",    EFFECT_BREATHE_FIRE,        40, 100,  2, BIAS_FIRE},
     {"BREATHE_COLD",    EFFECT_BREATHE_COLD,        40, 100,  2, BIAS_COLD},
     {"BREATHE_POIS",    EFFECT_BREATHE_POIS,        40, 100,  2, BIAS_POIS},
-    {"BREATHE_LITE",    EFFECT_BREATHE_LITE,        50, 125,  3, 0},
+    {"BREATHE_LIGHT",   EFFECT_BREATHE_LIGHT,       50, 125,  3, 0},
     {"BREATHE_DARK",    EFFECT_BREATHE_DARK,        50, 125,  3, BIAS_NECROMANTIC},
     {"BREATHE_CONF",    EFFECT_BREATHE_CONF,        60, 200,  4, 0},
     {"BREATHE_NETHER",  EFFECT_BREATHE_NETHER,      50,  75,  2, BIAS_NECROMANTIC | BIAS_DEMON},
@@ -1942,8 +1940,8 @@ static _effect_info_t _effect_info[] =
     {"BREATHE_DISEN",   EFFECT_BREATHE_DISEN,       60, 150,  8, 0},
     {"BREATHE_TIME",    EFFECT_BREATHE_TIME,        90, 500, 32, 0},
     {"BREATHE_ELEMENTS", EFFECT_BREATHE_ELEMENTS,   60, 100, 64, 0},
-    {"BREATHE_HOLY_FIRE", EFFECT_BREATHE_HOLY_FIRE,   80, 100, 64, BIAS_LAW},
-    {"BREATHE_HELL_FIRE", EFFECT_BREATHE_HELL_FIRE,   80, 100, 64, BIAS_DEMON},
+    {"BREATHE_HOLY_FIRE", EFFECT_BREATHE_HOLY_FIRE, 80, 100, 64, BIAS_LAW},
+    {"BREATHE_HELL_FIRE", EFFECT_BREATHE_HELL_FIRE, 80, 100, 64, BIAS_DEMON},
 
     {"BREATHE_ONE_MULTIHUED", EFFECT_BREATHE_ONE_MULTIHUED, 0, 0, 0, 0},
     {"BREATHE_ONE_CHAOS",EFFECT_BREATHE_ONE_CHAOS,   0, 0, 0, 0},
@@ -1963,7 +1961,7 @@ static _effect_info_t _effect_info[] =
     {"STAR_BALL",       EFFECT_STAR_BALL,           80, 900, 64, BIAS_LAW},
     {"ROCKET",          EFFECT_ROCKET,              70, 200,  8, BIAS_DEMON},
     {"MANA_STORM",      EFFECT_MANA_STORM,          80, 250,  8, BIAS_MAGE},
-    {"CONFUSING_LITE",  EFFECT_CONFUSING_LITE,      60, 100,  6, BIAS_CHAOS},
+    {"CONFUSING_LIGHT",  EFFECT_CONFUSING_LIGHT,    60, 100,  6, BIAS_CHAOS},
     {"ARROW",           EFFECT_ARROW,               30, 100,  2, BIAS_RANGER | BIAS_ARCHER},
     {"WRATH_OF_GOD",    EFFECT_WRATH_OF_GOD,        80, 250, 32, BIAS_LAW},
     {"METEOR",          EFFECT_METEOR,              55, 150,  8, 0},
@@ -1988,7 +1986,7 @@ static _effect_info_t _effect_info[] =
     {"CONFUSE_MONSTER", EFFECT_CONFUSE_MONSTER,      5, 100,  1, 0},
     {"SCARE_MONSTER",   EFFECT_SCARE_MONSTER,       10, 100,  1, 0},
     {"POLYMORPH",       EFFECT_POLYMORPH,           15, 100,  2, BIAS_CHAOS},
-    {"STARLITE",        EFFECT_STARLITE,            20, 100,  2, 0},
+    {"STARLIGHT",       EFFECT_STARLIGHT,           20, 100,  2, 0},
     {"NOTHING",         EFFECT_NOTHING,              1,   1,  0, 0},
     {"ENDLESS_QUIVER",  EFFECT_ENDLESS_QUIVER,      50, 150,  0, BIAS_ARCHER},
 
@@ -2062,7 +2060,7 @@ int effect_parse_type(cptr type)
     return EFFECT_NONE;
 }
 
-errr effect_parse(char *line, effect_t *effect) /* LITE_AREA:<Lvl>:<Timeout>:<Extra> */
+errr effect_parse(char *line, effect_t *effect) /* LIGHT_AREA:<Lvl>:<Timeout>:<Extra> */
 {
     char *tokens[5];
     int   num = tokenize(line, 5, tokens, 0);
@@ -2072,23 +2070,25 @@ errr effect_parse(char *line, effect_t *effect) /* LITE_AREA:<Lvl>:<Timeout>:<Ex
 
     WIPE(effect, effect_t);
 
-    switch (num)
+    for (i = 0; ; i++)
     {
-    case 4: effect->extra = atoi(tokens[3]);
-    case 3: effect->cost = atoi(tokens[2]);
-    case 2: effect->power = atoi(tokens[1]);
-            effect->difficulty = effect->power;
-    case 1:
-        for (i = 0; ; i++)
+        if (!_effect_info[i].text) break;
+        if (streq(tokens[0], _effect_info[i].text))
         {
-            if (!_effect_info[i].text) break;
-            if (streq(tokens[0], _effect_info[i].text))
-            {
-                effect->type = _effect_info[i].type;
-                break;
-            }
+            effect->type = _effect_info[i].type;
+            break;
         }
     }
+    if (num >= 2)
+    {
+        effect->power = atoi(tokens[1]);
+        effect->difficulty = effect->power;
+    }
+    if (num >= 3)
+        effect->cost = atoi(tokens[2]);
+    if (num >= 4)
+        effect->extra = atoi(tokens[3]);
+
     if (!effect->type) return 1;
     return 0;
 }
@@ -2227,7 +2227,7 @@ device_effect_info_t wand_effect_table[] =
     /*                            Lvl Cost Rarity  Max  Difficulty Flags */
     {EFFECT_BOLT_MISSILE,           1,   3,     1,  20,    10,  0, _STOCK_TOWN},
     {EFFECT_HEAL_MONSTER,           2,   3,     1,  20,     0,  0, 0},
-    {EFFECT_BEAM_LITE_WEAK,         2,   3,     1,  20,    10,  0, _STOCK_TOWN},
+    {EFFECT_BEAM_LIGHT_WEAK,         2,   3,     1,  20,    10,  0, _STOCK_TOWN},
     {EFFECT_BALL_POIS,              5,   4,     1,  20,    33,  0, _STOCK_TOWN},
     {EFFECT_SLEEP_MONSTER,          5,   5,     1,  20,    33,  0, _STOCK_TOWN},
     {EFFECT_SLOW_MONSTER,           5,   5,     1,  20,    33,  0, _STOCK_TOWN},
@@ -2271,14 +2271,14 @@ device_effect_info_t rod_effect_table[] =
     /*                            Lvl Cost Rarity  Max  Difficulty Flags */
     {EFFECT_PESTICIDE,              1,   7,     1,  30,    10,  0, 0},
     {EFFECT_DETECT_TRAPS,           5,   9,     1,  30,    10,  0, 0},
-    {EFFECT_LITE_AREA,             10,  10,     1,  40,    10,  0, 0},
+    {EFFECT_LIGHT_AREA,             10,  10,     1,  40,    10,  0, 0},
     {EFFECT_DETECT_DOOR_STAIRS,    12,  10,     1,  40,    10,  0, 0},
     {EFFECT_DETECT_MONSTERS,       15,  10,     1,  40,    10,  0, 0},
     {EFFECT_BEAM_ELEC,             17,   8,     1,  50,    33,  0, 0},
     {EFFECT_BEAM_COLD,             19,   8,     1,  50,    33,  0, 0},
     {EFFECT_BEAM_FIRE,             21,   9,     1,  60,    33,  0, 0},
     {EFFECT_BEAM_ACID,             23,   9,     1,  60,    33,  0, 0},
-    {EFFECT_BEAM_LITE,             25,  12,     2,   0,    50, 10, 0},
+    {EFFECT_BEAM_LIGHT,             25,  12,     2,   0,    50, 10, 0},
     /*{EFFECT_RECALL,                27,  15,     1,   0,    10,  0, 0},*/
     {EFFECT_DETECT_ALL,            30,  17,     2,   0,    10,  0, _COMMON},
     {EFFECT_ESCAPE,                30,  20,     1,   0,    10,  0, 0},
@@ -2303,7 +2303,7 @@ device_effect_info_t rod_effect_table[] =
     {EFFECT_BALL_SHARDS,           80,  25,     2,   0,    60, 10, _DROP_GOOD | _DROP_GREAT},
     {EFFECT_BALL_CHAOS,            85,  27,     3,   0,    70, 10, _DROP_GOOD | _DROP_GREAT},
     {EFFECT_CLAIRVOYANCE,          90, 100,     3,   0,     0,  0, _DROP_GOOD | _DROP_GREAT | _RARE},
-    {EFFECT_BALL_LITE,             95,  27,     3,   0,    70, 10, _DROP_GOOD | _DROP_GREAT},
+    {EFFECT_BALL_LIGHT,             95,  27,     3,   0,    70, 10, _DROP_GOOD | _DROP_GREAT},
     {0}
 };
 
@@ -2312,7 +2312,7 @@ device_effect_info_t staff_effect_table[] =
     /*                            Lvl Cost Rarity  Max  Difficulty Flags */
     {EFFECT_NOTHING,                1,   1,     0,   0,     0,  0, 0},
     {EFFECT_DARKNESS,               1,   3,     1,  15,     0,  0, 0},
-    {EFFECT_LITE_AREA,              1,   3,     1,  30,    10,  0, _STOCK_TOWN},
+    {EFFECT_LIGHT_AREA,              1,   3,     1,  30,    10,  0, _STOCK_TOWN},
     {EFFECT_DETECT_GOLD,            5,   4,     1,  30,    10,  0, _STOCK_TOWN},
     {EFFECT_DETECT_OBJECTS,         5,   4,     1,  30,    10,  0, _STOCK_TOWN},
     {EFFECT_DETECT_INVISIBLE,       5,   4,     1,  30,    10,  0, 0},
@@ -2327,7 +2327,7 @@ device_effect_info_t staff_effect_table[] =
     {EFFECT_CONFUSE_MONSTERS,      15,   8,     1,  40,    33,  0, 0},
     {EFFECT_TELEPORT,              20,  10,     1,   0,    10,  0, 0},
     {EFFECT_ENLIGHTENMENT,         20,  10,     1,  70,    10,  0, _STOCK_TOWN},
-    {EFFECT_STARLITE,              20,  10,     1,  50,    33,  0, 0},
+    {EFFECT_STARLIGHT,              20,  10,     1,  50,    33,  0, 0},
     {EFFECT_EARTHQUAKE,            20,  10,     2,   0,    10,  0, 0},
     {EFFECT_HEAL,                  20,  10,     2,  70,    33,  0,  _COMMON}, /* Cure Wounds for ~50hp */
     {EFFECT_CURING,                25,  12,     1,  70,    10,  0, 0}, /* Curing no longer heals */
@@ -2348,7 +2348,7 @@ device_effect_info_t staff_effect_table[] =
     {EFFECT_DISPEL_EVIL,           55,  13,     3,   0,    50, 10, 0},
     {EFFECT_DISPEL_MONSTERS,       55,  15,     5,   0,    50, 10, 0},
     {EFFECT_DESTRUCTION,           50,  15,     2,   0,    50, 10, _DROP_GOOD},
-    {EFFECT_CONFUSING_LITE,        55,  26,     2,   0,    50, 10, _DROP_GOOD},
+    {EFFECT_CONFUSING_LIGHT,        55,  26,     2,   0,    50, 10, _DROP_GOOD},
     {EFFECT_HEAL_CURING,           55,  10,     3,   0,    60, 10, _DROP_GOOD | _DROP_GREAT},
     {EFFECT_BANISH_EVIL,           60,  31,     2,   0,    33,  0, _DROP_GOOD},
     {EFFECT_BANISH_ALL,            70,  32,     3,   0,    33,  0, _DROP_GOOD},
@@ -2730,7 +2730,7 @@ void device_decrease_sp(object_type *o_ptr, int amt)
         if (o_ptr->xtra5 < 0)
             o_ptr->xtra5 = 0;
         if (device_charges(o_ptr) != charges)
-            p_ptr->window |= PW_INVEN;
+            plr->window |= PW_INVEN;
     }
 }
 
@@ -2743,7 +2743,7 @@ void device_increase_sp(object_type *o_ptr, int amt)
         if (o_ptr->xtra5 > o_ptr->xtra4 * 100)
             o_ptr->xtra5 = o_ptr->xtra4 * 100;
         if (device_charges(o_ptr) != charges)
-            p_ptr->window |= PW_INVEN;
+            plr->window |= PW_INVEN;
     }
 }
 
@@ -2779,7 +2779,7 @@ void device_regen_sp_aux(object_type *o_ptr, int per_mill)
             recharged_notice(o_ptr);
 
         if (device_charges(o_ptr) != charges)
-            p_ptr->window |= PW_INVEN;
+            plr->window |= PW_INVEN;
     }
 }
 
@@ -2816,7 +2816,7 @@ void device_regen_sp(obj_ptr o, int base_per_mill)
     }
 
     #if 0
-    if (p_ptr->wizard)
+    if (plr->wizard)
     {
         char name[MAX_NLEN];
         object_desc(name, o, OD_COLOR_CODED);
@@ -3085,11 +3085,6 @@ static int _boost(int value, int boost)
     return MAX(0, value * (100 + boost) / 100);
 }
 
-static int _avg_damroll(int dd, int ds)
-{
-    return dd * (ds + 1) / 2;
-}
-
 /* Device casting is non-linear in difficulty (cf design/devices.ods)
  * Yet device power (e.g. damage) is (or was?) linear. This is hardly fair! */
 typedef struct { int w1, w2, w3; } _weights_t;
@@ -3152,9 +3147,10 @@ static void _list_unique(int id, mon_ptr mon)
 }
 static void _list_artifact(point_t pos, obj_ptr obj)
 {
-    if (obj->name1)
+    if (obj->art_id)
     {
-        msg_format("%s. ", a_name + a_info[obj->name1].name);
+        art_ptr art = arts_lookup(obj->art_id);
+        msg_format("%s. ", art->name);
         device_noticed = TRUE;
     }
     if (obj->art_name)
@@ -3164,6 +3160,140 @@ static void _list_artifact(point_t pos, obj_ptr obj)
     }
 }
 
+/************************************************************************
+ * Helpers
+ ***********************************************************************/
+static cptr _device_bolt(int gf, dice_t dice)
+{
+    point_t p = plr_get_target(gf);
+    bool notice;
+    gf_info_ptr gfi;
+
+    if (!dun_pos_interior(cave, p)) return NULL;
+
+    notice = device_bolt(p, gf, dice_roll(dice));
+
+    gfi = gf_lookup(gf);
+    if (gfi->flags & GFF_ELEMENTAL)
+        device_noticed = TRUE;
+    else
+        device_noticed = notice;
+
+    return "";
+}
+static cptr _device_rocket(int rad, dice_t dice)
+{
+    point_t p = get_fire_pos();
+    if (!dun_pos_interior(cave, p)) return NULL;
+    device_rocket(rad, p, GF_ROCKET, dice_roll(dice));
+    device_noticed = TRUE;
+    return "";
+}
+static cptr _device_beam(int gf, dice_t dice)
+{
+    point_t p = plr_get_beam_target(gf);
+    bool notice;
+    gf_info_ptr gfi;
+
+    if (!dun_pos_interior(cave, p)) return NULL;
+
+    notice = device_beam(p, gf, dice_roll(dice));
+
+    gfi = gf_lookup(gf);
+    if ((gfi->flags & GFF_ELEMENTAL) || gf == GF_LIGHT_WEAK) /* XXX GFF_NOTICE */
+        device_noticed = TRUE;
+    else
+        device_noticed = notice;
+
+    return "";
+}
+static cptr _device_ball(int rad, int gf, dice_t dice)
+{
+    point_t p = plr_get_ball_target(gf);
+    bool notice;
+    gf_info_ptr gfi;
+
+    if (!dun_pos_interior(cave, p)) return NULL;
+
+    notice = device_ball(rad, p, gf, dice_roll(dice));
+
+    gfi = gf_lookup(gf);
+    if (gfi->flags & GFF_ELEMENTAL)
+        device_noticed = TRUE;
+    else
+        device_noticed = notice;
+
+    return "";
+}
+static cptr _breath_name(int gf)
+{
+    if (gf == GF_MISSILE) return "<color:v>the Elements</color>"; /* PDSM */
+    return gf_name(gf);
+}
+static cptr _device_breath(int rad, int gf, dice_t dice)
+{
+    point_t p = plr_get_breath_target(gf);
+    bool notice;
+    gf_info_ptr gfi;
+    if (!dun_pos_interior(cave, p)) return NULL;
+
+    msg_format("It breathes %s.", _breath_name(gf));
+    notice = device_breath(rad, p, gf, dice_roll(dice));
+
+    gfi = gf_lookup(gf);
+    if (gfi->flags & GFF_ELEMENTAL)
+        device_noticed = TRUE;
+    else
+        device_noticed = notice;
+
+    return "";
+}
+static cptr _device_los(int gf, dice_t dice)
+{
+    if (device_project_los(gf, dice_roll(dice)))
+    {
+        if (gf == GF_AWAY_EVIL) msg_print("The holy power banishes evil!");
+        device_noticed = TRUE;
+    }
+    return "";
+}
+static cptr _device_one_ring(dice_t dice)
+{
+    switch (_1d(10))
+    {
+    case 1:
+    case 2:
+        msg_print("You are surrounded by a malignant aura.");
+        /* Decrease all stats (permanently) */
+        dec_stat(A_STR, 50, TRUE);
+        dec_stat(A_INT, 50, TRUE);
+        dec_stat(A_WIS, 50, TRUE);
+        dec_stat(A_DEX, 50, TRUE);
+        dec_stat(A_CON, 50, TRUE);
+        dec_stat(A_CHR, 50, TRUE);
+        /* Lose some experience (permanently) */
+        plr->exp -= (plr->exp / 4);
+        plr->max_exp -= (plr->exp / 4);
+        check_experience();
+        break;
+    case 3:
+        msg_print("You are surrounded by a powerful aura.");
+        plr_project_los(GF_DISP_ALL, 1000);
+        break;
+    case 4:
+    case 5:
+    case 6:
+        dice.base = 600;
+        return _device_ball(3, GF_MANA, dice);
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+        dice.base = 500;
+        return _device_bolt(GF_MANA, dice);
+    }
+    return "";
+}
 /************************************************************************
  * The Effects
  ***********************************************************************/
@@ -3178,6 +3308,9 @@ cptr do_effect(effect_t *effect, int mode, int boost)
     bool color = (mode == SPELL_COLOR);
     bool cost = (mode == SPELL_COST_EXTRA);
     int  dir = 0;
+    dice_t dice = {0};
+
+    dice.scale = _boost(1000, boost); /* dice scaling is per mil; boost is per cent */
 
     switch (effect->type)
     {
@@ -3191,7 +3324,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         }
         break;
     /* Detection */
-    case EFFECT_LITE_AREA:
+    case EFFECT_LIGHT_AREA:
         if (name) return "Illumination";
         if (desc) return "It lights up nearby area or current room permanently.";
         if (info) return info_damage(2 + effect->power/20, _BOOST(15), 0);
@@ -3203,7 +3336,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
                 device_noticed = TRUE;
         }
         break;
-    case EFFECT_LITE_MAP_AREA:
+    case EFFECT_LIGHT_MAP_AREA:
         if (name) return "Magic Mapping and Illumination";
         if (desc) return "It maps your vicinity and lights up your current room.";
         if (info) return info_damage(2 + effect->power/20, _BOOST(15), 0);
@@ -3369,11 +3502,8 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (name) return "Teleport Other";
         if (desc) return "It fires a beam that teleports all affected monsters away.";
         if (value) return format("%d", 1500);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            if (teleport_monster(dir)) device_noticed = TRUE;
-        }
+        dice.base = 5*MAX_SIGHT;
+        if (cast && !plr_cast_beam(GF_TELEPORT, dice)) return NULL;
         break;
     case EFFECT_STRAFING:
         if (name) return "Strafing";
@@ -3421,7 +3551,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
                 break;
             default:
                 if (get_check("Teleport Level? "))
-                    teleport_level(0);
+                    dun_teleport_level_plr(cave);
             }
             device_noticed = TRUE;
         }
@@ -3439,15 +3569,14 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         break;
 
     case EFFECT_STONE_TO_MUD:
+        dice.dd = 1;
+        dice.ds = 30;
+        dice.base = 20;
         if (name) return "Stone to Mud";
         if (desc) return "It turns a door, rock, or wall to mud.";
         if (value) return format("%d", 1000);
         if (color) return format("%d", TERM_L_UMBER);
-        if (cast)
-        {
-            if (!get_aim_dir(&dir)) return NULL;
-            if (wall_to_mud(dir)) device_noticed = TRUE;
-        }
+        if (cast) return _device_beam(GF_KILL_WALL, dice);
         break;
     case EFFECT_EARTHQUAKE:
         if (name) return "Earthquake";
@@ -3456,7 +3585,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (color) return format("%d", TERM_L_UMBER);
         if (cast)
         {
-            if (!earthquake(p_ptr->pos, _extra(effect, 10)))
+            if (!earthquake(plr->pos, _extra(effect, 10)))
                 msg_print("The dungeon trembles.");
             device_noticed = TRUE;
         }
@@ -3472,7 +3601,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (cost) return format("%d", power/15);
         if (cast)
         {
-            if (destroy_area(p_ptr->pos.y, p_ptr->pos.x, 13 + randint0(5), _BOOST(power)))
+            if (destroy_area(plr->pos, 13 + randint0(5), _BOOST(power)))
                 device_noticed = TRUE;
             else
                 msg_print("The dungeon trembles...");
@@ -3626,11 +3755,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (desc) return "It fires a beam which destroys traps and doors.";
         if (value) return format("%d", 1000);
         if (color) return format("%d", TERM_L_RED);
-        if (cast)
-        {
-            if (!get_aim_dir(&dir)) return NULL;
-            if (destroy_door(dir)) device_noticed = TRUE;
-        }
+        if (cast) return _device_beam(GF_KILL_DOOR, dice);
         break;
     case EFFECT_WHIRLWIND_ATTACK:
         if (name) return "Whirlwind Attack";
@@ -3642,9 +3767,10 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             int dir;
             for (dir = 0; dir < 8; dir++)
             {
-                point_t pos = point_step(p_ptr->pos, ddd[dir]);
-                mon_ptr mon = mon_at(pos);
-                if (mon && (mon->ml || cave_have_flag_at(pos, FF_PROJECT)))
+                point_t pos = point_step(plr->pos, ddd[dir]);
+                dun_cell_ptr cell = dun_cell_at(cave, pos);
+                mon_ptr mon = dun_mon_at(cave, pos);
+                if (mon && (mon->ml || cell_project(cell)))
                 {
                     plr_attack_normal(pos);
                     device_noticed = TRUE;
@@ -3667,38 +3793,23 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (cast) dun_iter_floor_obj(cave, _list_artifact);
         break;
     case EFFECT_BANISH_EVIL:
-    {
-        int power = _extra(effect, 100);
+        dice.base = _extra(effect, 100);
         if (name) return "Banish Evil";
         if (desc) return "It attempts to teleport all visible evil monsters away.";
-        if (info) return info_power(_BOOST(power));
-        if (value) return format("%d", 50*power);
+        if (info) return dice_info_power(dice);
+        if (value) return format("%d", 50*dice_roll(dice));
         if (color) return format("%d", TERM_L_DARK);
-        if (cast)
-        {
-            if (banish_evil(_BOOST(power)))
-            {
-                msg_print("The holy power banishes evil!");
-                device_noticed = TRUE;
-            }
-        }
+        if (cast) return _device_los(GF_AWAY_EVIL, dice);
         break;
-    }
     case EFFECT_BANISH_ALL:
-    {
-        int power = _extra(effect, 150);
+        dice.base = _extra(effect, 150);
         if (name) return "Banish";
         if (desc) return "It teleports all monsters in sight away unless resisted.";
-        if (info) return info_power(_BOOST(power));
-        if (value) return format("%d", 70*power);
+        if (info) return dice_info_power(dice);
+        if (value) return format("%d", 70*dice_roll(dice));
         if (color) return format("%d", TERM_L_BLUE);
-        if (cast)
-        {
-            if (banish_monsters(_BOOST(power)))
-                device_noticed = TRUE;
-        }
+        if (cast) return _device_los(GF_TELEPORT, dice);
         break;
-    }
     case EFFECT_TELEKINESIS:
     {
         int weight = effect->power * 7;
@@ -3738,21 +3849,14 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         }
         break;
     case EFFECT_GENOCIDE_ONE:
-    {
-        int power = _extra(effect, 50 + effect->power * 3);
+        dice.base = _extra(effect, 50 + effect->power * 3);
         if (name) return "Annihilation";
         if (desc) return "It removes a monster from current dungeon level unless resisted when you use it.";
-        if (info) return format("Power %d", _BOOST(power));
-        if (value) return format("%d", power*50);
+        if (info) return dice_info_power(dice);
+        if (value) return format("%d", dice_roll(dice)*50);
         if (color) return format("%d", TERM_L_DARK);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball_hide(GF_GENOCIDE, dir, _BOOST(power), 0);
-            device_noticed = TRUE;
-        }
+        if (cast) return _device_ball(0, GF_GENOCIDE, dice);
         break;
-    }
     /* Timed Buffs */
     case EFFECT_STONE_SKIN:
     {
@@ -3776,7 +3880,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (desc) return "It grants temporary acid resistance.";
         if (info) return format("Dur d%d+%d", _BOOST(power), _BOOST(power));
         if (value) return format("%d", 1000 + 25*power);
-        if (color) return format("%d", res_color(RES_ACID));
+        if (color) return format("%d", res_color(GF_ACID));
         if (cast)
         {
             if (plr_tim_add(T_RES_ACID, _BOOST(power + randint1(power))))
@@ -3791,7 +3895,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (desc) return "It grants temporary lightning resistance.";
         if (info) return format("Dur d%d+%d", _BOOST(power), _BOOST(power));
         if (value) return format("%d", 1000 + 25*power);
-        if (color) return format("%d", res_color(RES_ELEC));
+        if (color) return format("%d", res_color(GF_ELEC));
         if (cast)
         {
             if (plr_tim_add(T_RES_ELEC, _BOOST(power + randint1(power))))
@@ -3806,7 +3910,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (desc) return "It grants temporary fire resistance.";
         if (info) return format("Dur d%d+%d", _BOOST(power), _BOOST(power));
         if (value) return format("%d", 1000 + 25*power);
-        if (color) return format("%d", res_color(RES_FIRE));
+        if (color) return format("%d", res_color(GF_FIRE));
         if (cast)
         {
             if (plr_tim_add(T_RES_FIRE, _BOOST(power + randint1(power))))
@@ -3821,7 +3925,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (desc) return "It grants temporary cold resistance.";
         if (info) return format("Dur d%d+%d", _BOOST(power), _BOOST(power));
         if (value) return format("%d", 1000 + 25*power);
-        if (color) return format("%d", res_color(RES_COLD));
+        if (color) return format("%d", res_color(GF_COLD));
         if (cast)
         {
             if (plr_tim_add(T_RES_COLD, _BOOST(power + randint1(power))))
@@ -3836,7 +3940,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (desc) return "It grants temporary poison resistance.";
         if (info) return format("Dur d%d+%d", _BOOST(power), _BOOST(power));
         if (value) return format("%d", 2500 + 25*power);
-        if (color) return format("%d", res_color(RES_POIS));
+        if (color) return format("%d", res_color(GF_POIS));
         if (cast)
         {
             if (plr_tim_add(T_RES_POIS, _BOOST(power + randint1(power))))
@@ -4049,15 +4153,13 @@ cptr do_effect(effect_t *effect, int mode, int boost)
     }
     case EFFECT_INVULNERABILITY:
     {
-        int power = _extra(effect, 8);
         if (name) return "Globe of Invulnerability";
         if (desc) return "It generates barrier which completely protect you from almost all damages. Takes a few your turns when the barrier breaks or duration time is exceeded.";
-        if (info) return format("Dur d%d+%d", _BOOST(power), _BOOST(power));
-        if (value) return format("%d", 10000 + 500*power);
+        if (value) return format("%d", 10000);
         if (color) return format("%d", TERM_L_BLUE);
         if (cast)
         {
-            if (plr_tim_add(T_INVULN, _BOOST(randint1(power) + power)))
+            if (plr_tim_add(T_INVULN, _BOOST(500 + _1d(1000))))
                 device_noticed = TRUE;
         }
         break;
@@ -4074,7 +4176,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             int i;
             for (i = 0; i < num; i++)
             {
-                if (summon_specific(-1, p_ptr->pos, cave->dun_lvl, 0, PM_FORCE_PET | PM_ALLOW_GROUP))
+                if (summon_specific(who_create_plr(), plr->pos, cave->dun_lvl, 0, PM_FORCE_PET | PM_ALLOW_GROUP))
                     device_noticed = TRUE;
             }
         }
@@ -4089,7 +4191,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             int i;
             for (i = 0; i < num; i++)
             {
-                if (summon_specific(-1, p_ptr->pos, cave->dun_lvl, SUMMON_HOUND, PM_FORCE_PET | PM_ALLOW_GROUP))
+                if (summon_specific(who_create_plr(), plr->pos, cave->dun_lvl, SUMMON_HOUND, PM_FORCE_PET | PM_ALLOW_GROUP))
                     device_noticed = TRUE;
             }
         }
@@ -4104,7 +4206,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             int i;
             for (i = 0; i < num; i++)
             {
-                if (summon_specific(-1, p_ptr->pos, cave->dun_lvl, SUMMON_ANT, PM_FORCE_PET | PM_ALLOW_GROUP))
+                if (summon_specific(who_create_plr(), plr->pos, cave->dun_lvl, SUMMON_ANT, PM_FORCE_PET | PM_ALLOW_GROUP))
                     device_noticed = TRUE;
             }
         }
@@ -4119,7 +4221,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             int i;
             for (i = 0; i < num; i++)
             {
-                if (summon_specific(-1, p_ptr->pos, cave->dun_lvl, SUMMON_HYDRA, PM_FORCE_PET | PM_ALLOW_GROUP))
+                if (summon_specific(who_create_plr(), plr->pos, cave->dun_lvl, SUMMON_HYDRA, PM_FORCE_PET | PM_ALLOW_GROUP))
                     device_noticed = TRUE;
             }
         }
@@ -4134,7 +4236,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             int i;
             for (i = 0; i < num; i++)
             {
-                if (summon_named_creature(-1, p_ptr->pos, MON_JIZOTAKO, PM_FORCE_PET | PM_ALLOW_GROUP))
+                if (summon_named_creature(who_create_plr(), plr->pos, mon_race_parse("l.kshitigarbha"), PM_FORCE_PET | PM_ALLOW_GROUP))
                     device_noticed = TRUE;
             }
         }
@@ -4145,7 +4247,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (value) return format("%d", 2500);
         if (cast)
         {
-            if (summon_specific(-1, p_ptr->pos, cave->dun_lvl, SUMMON_DAWN, (PM_ALLOW_GROUP | PM_FORCE_PET)))
+            if (summon_specific(who_create_plr(), plr->pos, cave->dun_lvl, SUMMON_DAWN, (PM_ALLOW_GROUP | PM_FORCE_PET)))
             {
                 msg_print("You summon the Legion of the Dawn.");
                 device_noticed = TRUE;
@@ -4158,7 +4260,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (value) return format("%d", 1000);
         if (cast)
         {
-            if (summon_specific(-1, p_ptr->pos, cave->dun_lvl, SUMMON_PHANTOM, (PM_ALLOW_GROUP | PM_FORCE_PET)))
+            if (summon_specific(who_create_plr(), plr->pos, cave->dun_lvl, SUMMON_PHANTOM, (PM_ALLOW_GROUP | PM_FORCE_PET)))
             {
                 msg_print("You summon a phantasmal servant.");
                 device_noticed = TRUE;
@@ -4174,12 +4276,12 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             bool pet = one_in_(3);
             int  lvl = cave->dun_lvl;
             u32b mode = pet ? PM_FORCE_PET : PM_NO_PET;
-            int  who = pet ? -1 : 0;
+            who_t  who = pet ? who_create_plr() : who_create_null();
 
             if (!pet || lvl >= 50)
                 mode |= PM_ALLOW_GROUP;
 
-            if (summon_specific(who, p_ptr->pos, lvl, SUMMON_ELEMENTAL, mode))
+            if (summon_specific(who, plr->pos, lvl, SUMMON_ELEMENTAL, mode))
             {
                 device_noticed = TRUE;
                 msg_print("An elemental materializes...");
@@ -4196,7 +4298,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (value) return format("%d", 1500);
         if (cast)
         {
-            if (summon_specific(-1, p_ptr->pos, cave->dun_lvl, SUMMON_DRAGON, PM_FORCE_PET))
+            if (summon_specific(who_create_plr(), plr->pos, cave->dun_lvl, SUMMON_DRAGON, PM_FORCE_PET))
                 device_noticed = TRUE;
         }
         break;
@@ -4211,12 +4313,12 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             int  lvl = cave->dun_lvl;
             int  type = lvl > 75 ? SUMMON_HI_UNDEAD : SUMMON_UNDEAD;
             u32b mode = pet ? PM_FORCE_PET : PM_NO_PET;
-            int  who = pet ? -1 : 0;
+            who_t  who = pet ? who_create_plr() : who_create_null();
 
             if (!pet || lvl >= 50)
                 mode |= PM_ALLOW_GROUP;
 
-            if (summon_specific(who, p_ptr->pos, lvl, type, mode))
+            if (summon_specific(who, plr->pos, lvl, type, mode))
             {
                 device_noticed = TRUE;
                 msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
@@ -4237,12 +4339,12 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             bool pet = one_in_(3);
             int  lvl = cave->dun_lvl;
             u32b mode = pet ? PM_FORCE_PET : PM_NO_PET;
-            int  who = pet ? -1 : 0;
+            who_t  who = pet ? who_create_plr() : who_create_null();
 
             if (!pet || lvl >= 50)
                 mode |= PM_ALLOW_GROUP;
 
-            if (summon_specific(who, p_ptr->pos, lvl, SUMMON_DEMON, mode))
+            if (summon_specific(who, plr->pos, lvl, SUMMON_DEMON, mode))
             {
                 device_noticed = TRUE;
                 msg_print("The area fills with a stench of sulphur and brimstone.");
@@ -4260,7 +4362,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (color) return format("%d", TERM_VIOLET);
         if (cast)
         {
-            if (summon_specific(-1, p_ptr->pos, cave->dun_lvl, SUMMON_CYBER, PM_FORCE_PET))
+            if (summon_specific(who_create_plr(), plr->pos, cave->dun_lvl, SUMMON_CYBER, PM_FORCE_PET))
                 device_noticed = TRUE;
         }
         break;
@@ -4271,7 +4373,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (color) return format("%d", TERM_YELLOW);
         if (cast)
         {
-            if (summon_specific(-1, p_ptr->pos, cave->dun_lvl, SUMMON_ANGEL, PM_FORCE_PET))
+            if (summon_specific(who_create_plr(), plr->pos, cave->dun_lvl, SUMMON_ANGEL, PM_FORCE_PET))
                 device_noticed = TRUE;
         }
         break;
@@ -4285,92 +4387,65 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             int num = randint0(3);
             int ct = 0;
             int i;
-            fire_ball_hide(GF_WATER_FLOW, 0, 3, 3);
+            plr_burst(3, GF_WATER_FLOW, 3);
             device_noticed = TRUE;
             for (i = 0; i < num; i++)
-                ct += summon_specific(-1, p_ptr->pos, cave->dun_lvl, SUMMON_KRAKEN, PM_FORCE_PET);
+                ct += summon_specific(who_create_plr(), plr->pos, cave->dun_lvl, SUMMON_KRAKEN, PM_FORCE_PET);
             if (!ct)
                 msg_print("No help arrives.");
         }
         break;
 
     case EFFECT_CHARM_ANIMAL:
-    {
-        int lvl = _extra(effect, effect->power);
+        dice.base = _extra(effect, effect->power);
         if (name) return "Charm Animal";
         if (desc) return "It attempts to charm a single animal.";
-        if (info) return format("Power %d", _BOOST(lvl));
-        if (value) return format("%d", 10*_extra(effect, 50));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return FALSE;
-            if (charm_animal(dir, _BOOST(lvl)))
-                device_noticed = TRUE;
-        }
+        if (info) return dice_info_power(dice);
+        if (value) return format("%d", 10*dice_roll(dice));
+        if (cast) return _device_bolt(GF_CONTROL_ANIMAL, dice);
         break;
-    }
     case EFFECT_CHARM_DEMON:
-    {
-        int lvl = _extra(effect, effect->power);
+        dice.base = _extra(effect, effect->power);
         if (name) return "Dominate Demon";
         if (desc) return "It attempts to dominate a single demon.";
-        if (info) return format("Power %d", _BOOST(lvl));
-        if (value) return format("%d", 15*_extra(effect, 50));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return FALSE;
-            if (control_one_demon(dir, _BOOST(lvl)))
-                device_noticed = TRUE;
-        }
+        if (info) return dice_info_power(dice);
+        if (value) return format("%d", 15*dice_roll(dice));
+        if (cast) return _device_bolt(GF_CONTROL_DEMON, dice);
         break;
-    }
     case EFFECT_CHARM_UNDEAD:
-    {
-        int lvl = _extra(effect, effect->power);
+        dice.base = _extra(effect, effect->power);
         if (name) return "Enslave Undead";
         if (desc) return "It attempts to enslave a single undead monster.";
-        if (info) return format("Power %d", _BOOST(lvl));
-        if (value) return format("%d", 15*_extra(effect, 50));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return FALSE;
-            if (control_one_undead(dir, _BOOST(lvl)))
-                device_noticed = TRUE;
-        }
+        if (info) return dice_info_power(dice);
+        if (value) return format("%d", 15*dice_roll(dice));
+        if (cast) return _device_bolt(GF_CONTROL_UNDEAD, dice);
         break;
-    }
     case EFFECT_CHARM_MONSTER:
-    {
-        int lvl = _extra(effect, effect->power);
+        dice.base = _extra(effect, effect->power);
         if (name) return "Charm Monster";
         if (desc) return "It attempts to charm a single monster.";
-        if (info) return format("Power %d", _BOOST(lvl));
-        if (value) return format("%d", 15*_extra(effect, 50));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return FALSE;
-            if (charm_monster(dir, _BOOST(lvl)))
-                device_noticed = TRUE;
-        }
+        if (info) return dice_info_power(dice);
+        if (value) return format("%d", 15*dice_roll(dice));
+        if (cast) return _device_bolt(GF_CHARM, dice);
         break;
-    }
     case EFFECT_RETURN_PETS:
         if (name) return "Return Pets";
         if (desc) return "It calls your pets back to you.";
         if (value) return format("%d", 500);
         if (cast)
         {
-            vec_ptr pets = plr_pets();
-            int i;
+            mon_pack_ptr pets = plr_pack();
+            int i, ct = mon_pack_count(pets);
 
+            assert(cave->id == plr->dun_id);
             stop_mouth(); /* this is for TV_WHISTLE */
-            for (i = 0;  i < vec_length(pets); i++)
+            for (i = 0;  i < ct; i++)
             {
-                mon_ptr pet = vec_get(pets, i);
-                teleport_monster_to(pet->id, p_ptr->pos.y, p_ptr->pos.x, 100, TELEPORT_PASSIVE);
+                mon_ptr pet = vec_get(pets->members, i);
+                if (pet->dun->id != plr->dun_id) continue;
+                teleport_monster_to(pet, plr->pos, 100, TELEPORT_PASSIVE);
                 device_noticed = TRUE;
             }
-            vec_free(pets);
         }
         break;
 
@@ -4545,7 +4620,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (name) return "Cure Poison";
         if (desc) return "It cures poison.";
         if (value) return format("%d", 500);
-        if (color) return format("%d", res_color(RES_POIS));
+        if (color) return format("%d", res_color(GF_POIS));
         if (cast)
         {
             if (plr_tim_recover(T_POISON, 80, 100))
@@ -4556,10 +4631,10 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (name) return "Boldness";
         if (desc) return "It restores your courage.";
         if (value) return format("%d", 750);
-        if (color) return format("%d", res_color(RES_FEAR));
+        if (color) return format("%d", res_color(GF_FEAR));
         if (cast)
         {
-            if (p_ptr->afraid)
+            if (plr->afraid)
             {
                 fear_clear_p();
                 device_noticed = TRUE;
@@ -4570,12 +4645,12 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (name) return "Cure Fear and Poison";
         if (desc) return "It cures poison and restores your courage in battle.";
         if (value) return format("%d", 1250);
-        if (color) return format("%d", res_color(RES_FEAR));
+        if (color) return format("%d", res_color(GF_FEAR));
         if (cast)
         {
             if (plr_tim_recover(T_POISON, 90, 10))
                 device_noticed = TRUE;
-            if (p_ptr->afraid)
+            if (plr->afraid)
             {
                 fear_clear_p();
                 device_noticed = TRUE;
@@ -4620,7 +4695,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (color) return format("%d", TERM_L_BLUE);
         if (cast)
         {
-            if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+            if (plr->pclass == CLASS_RUNE_KNIGHT)
                 msg_print("You are unaffected.");
             else if (sp_player(_BOOST(amt)))
                 device_noticed = TRUE;
@@ -4641,7 +4716,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (color) return format("%d", TERM_L_BLUE);
         if (cast)
         {
-            if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+            if (plr->pclass == CLASS_RUNE_KNIGHT)
                 msg_print("You are unaffected.");
             else if (sp_player(_BOOST(amt)))
                 device_noticed = TRUE;
@@ -4655,1593 +4730,966 @@ cptr do_effect(effect_t *effect, int mode, int boost)
 
     /* Offense: Bolts */
     case EFFECT_BOLT_MISSILE:
-    {
-        int dd = _extra(effect, 2 + effect->power/10);
-        int ds = 6;
+        dice.dd = _extra(effect, 2 + effect->power/10);
+        dice.ds = 6;
         if (name) return "Magic Missile";
         if (desc) return "It fires a weak bolt of magic.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 20*_avg_damroll(dd, ds));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_MISSILE, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 20*dice_avg_roll(dice));
+        if (cast) return _device_bolt(GF_MISSILE, dice);
         break;
-    }
     case EFFECT_BOLT_ACID:
-    {
-        int dd = _extra(effect, 6 + effect->power/7);
-        int ds = 8;
+        dice.dd = _extra(effect, 6 + effect->power/7);
+        dice.ds = 8;
         if (name) return "Acid Bolt";
         if (desc) return "It fires a bolt of acid.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 30*_avg_damroll(dd, ds));
-        if (color) return format("%d", res_color(RES_ACID));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_ACID, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 30*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_ACID));
+        if (cast) return _device_bolt(GF_ACID, dice);
         break;
-    }
     case EFFECT_BOLT_ELEC:
-    {
-        int dd = _extra(effect, 4 + effect->power/9);
-        int ds = 8;
+        dice.dd = _extra(effect, 4 + effect->power/9);
+        dice.ds = 8;
         if (name) return "Lightning Bolt";
         if (desc) return "It fires a bolt of lightning.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 25*_avg_damroll(dd, ds));
-        if (color) return format("%d", res_color(RES_ELEC));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_ELEC, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 25*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_ELEC));
+        if (cast) return _device_bolt(GF_ELEC, dice);
         break;
-    }
     case EFFECT_BOLT_FIRE:
-    {
-        int dd = _extra(effect, 7 + effect->power/6);
-        int ds = 8;
+        dice.dd = _extra(effect, 7 + effect->power/6);
+        dice.ds = 8;
         if (name) return "Fire Bolt";
         if (desc) return "It fires a bolt of fire.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 25*_avg_damroll(dd, ds));
-        if (color) return format("%d", res_color(RES_FIRE));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_FIRE, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 25*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_FIRE));
+        if (cast) return _device_bolt(GF_FIRE, dice);
         break;
-    }
     case EFFECT_BOLT_COLD:
-    {
-        int dd = _extra(effect, 5 + effect->power/8);
-        int ds = 8;
+        dice.dd = _extra(effect, 5 + effect->power/8);
+        dice.ds = 8;
         if (name) return "Frost Bolt";
         if (desc) return "It fires a bolt of frost.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 25*_avg_damroll(dd, ds));
-        if (color) return format("%d", res_color(RES_COLD));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_COLD, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 25*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_COLD));
+        if (cast) return _device_bolt(GF_COLD, dice);
         break;
-    }
     case EFFECT_BOLT_POIS:
-    {
-        int dd = _extra(effect, 5 + effect->power/8);
-        int ds = 8;
+        dice.dd = _extra(effect, 5 + effect->power/8);
+        dice.ds = 8;
         if (name) return "Poison Dart";
         if (desc) return "It fires a poison dart.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 20*_avg_damroll(dd, ds));
-        if (color) return format("%d", res_color(RES_POIS));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_POIS, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 20*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_POIS));
+        if (cast) return _device_bolt(GF_POIS, dice);
         break;
-    }
-    case EFFECT_BOLT_LITE:
-    {
-        int dd = _extra(effect, 5 + effect->power/8);
-        int ds = 8;
+    case EFFECT_BOLT_LIGHT:
+        dice.dd = _extra(effect, 5 + effect->power/8);
+        dice.ds = 8;
         if (name) return "Light Bolt";
         if (desc) return "It fires a bolt of light.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 30*_avg_damroll(dd, ds));
-        if (color) return format("%d", res_color(RES_LITE));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_LITE, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 30*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_LIGHT));
+        if (cast) return _device_bolt(GF_LIGHT, dice);
         break;
-    }
     case EFFECT_BOLT_DARK:
-    {
-        int dd = _extra(effect, 5 + effect->power/8);
-        int ds = 8;
+        dice.dd = _extra(effect, 5 + effect->power/8);
+        dice.ds = 8;
         if (name) return "Dark Bolt";
         if (desc) return "It fires a bolt of darkness.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 30*_avg_damroll(dd, ds));
-        if (color) return format("%d", res_color(RES_DARK));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_DARK, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 30*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_DARK));
+        if (cast) return _device_bolt(GF_DARK, dice);
         break;
-    }
     case EFFECT_BOLT_CONF:
-    {
-        int dd = _extra(effect, 5 + effect->power/8);
-        int ds = 8;
+        dice.dd = _extra(effect, 5 + effect->power/8);
+        dice.ds = 8;
         if (name) return "Confusion Bolt";
         if (desc) return "It fires a bolt of confusion.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 25*_avg_damroll(dd, ds));
-        if (color) return format("%d", res_color(RES_CONF));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_CONFUSION, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 25*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_CONFUSION));
+        if (cast) return _device_bolt(GF_CONFUSION, dice);
         break;
-    }
     case EFFECT_BOLT_NETHER:
-    {
-        int dd = _extra(effect, 7 + effect->power/6);
-        int ds = 8;
+        dice.dd = _extra(effect, 7 + effect->power/6);
+        dice.ds = 8;
         if (name) return "Nether Bolt";
         if (desc) return "It fires a bolt of nether.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 20*_avg_damroll(dd, ds));
-        if (color) return format("%d", res_color(RES_NETHER));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_NETHER, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 30*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_NETHER));
+        if (cast) return _device_bolt(GF_NETHER, dice);
         break;
-    }
     case EFFECT_BOLT_NEXUS:
-    {
-        int dd = _extra(effect, 7 + effect->power/6);
-        int ds = 8;
+        dice.dd = _extra(effect, 7 + effect->power/6);
+        dice.ds = 8;
         if (name) return "Nexus Bolt";
         if (desc) return "It fires a bolt of nexus.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 35*_avg_damroll(dd, ds));
-        if (color) return format("%d", res_color(RES_NEXUS));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_NEXUS, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 35*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_NEXUS));
+        if (cast) return _device_bolt(GF_NEXUS, dice);
         break;
-    }
     case EFFECT_BOLT_SOUND:
-    {
-        int dd = _extra(effect, 7 + effect->power/6);
-        int ds = 8;
+        dice.dd = _extra(effect, 7 + effect->power/6);
+        dice.ds = 8;
         if (name) return "Sound Bolt";
         if (desc) return "It fires a bolt of sound.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 45*_avg_damroll(dd, ds));
-        if (color) return format("%d", res_color(RES_SOUND));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_SOUND, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 45*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_SOUND));
+        if (cast) return _device_bolt(GF_SOUND, dice);
         break;
-    }
     case EFFECT_BOLT_SHARDS:
-    {
-        int dd = _extra(effect, 7 + effect->power/5);
-        int ds = 8;
+        dice.dd = _extra(effect, 7 + effect->power/5);
+        dice.ds = 8;
         if (name) return "Shard Bolt";
         if (desc) return "It fires a bolt of shards.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 45*_avg_damroll(dd, ds));
-        if (color) return format("%d", res_color(RES_SHARDS));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_SHARDS, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 45*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_SHARDS));
+        if (cast) return _device_bolt(GF_SHARDS, dice);
         break;
-    }
     case EFFECT_BOLT_CHAOS:
-    {
-        int dd = _extra(effect, 7 + effect->power/6);
-        int ds = 8;
+        dice.dd = _extra(effect, 7 + effect->power/6);
+        dice.ds = 8;
         if (name) return "Chaos Bolt";
         if (desc) return "It fires a bolt of chaos.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 35*_avg_damroll(dd, ds));
-        if (color) return format("%d", res_color(RES_CHAOS));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_CHAOS, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 35*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_CHAOS));
+        if (cast) return _device_bolt(GF_CHAOS, dice);
         break;
-    }
     case EFFECT_BOLT_DISEN:
-    {
-        int dd = _extra(effect, 7 + effect->power/6);
-        int ds = 8;
+        dice.dd = _extra(effect, 7 + effect->power/6);
+        dice.ds = 8;
         if (name) return "Disenchantment Bolt";
         if (desc) return "It fires a bolt of disenchantment.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 35*_avg_damroll(dd, ds));
-        if (color) return format("%d", res_color(RES_DISEN));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_DISENCHANT, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 35*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_DISEN));
+        if (cast) return _device_bolt(GF_DISENCHANT, dice);
         break;
-    }
     case EFFECT_BOLT_TIME:
-    {
-        int dd = _extra(effect, 7 + effect->power/6);
-        int ds = 8;
+        dice.dd = _extra(effect, 7 + effect->power/6);
+        dice.ds = 8;
         if (name) return "Time Bolt";
         if (desc) return "It fires a bolt of time.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 45*_avg_damroll(dd, ds));
-        if (color) return format("%d", res_color(RES_TIME));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_TIME, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 45*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_TIME));
+        if (cast) return _device_bolt(GF_TIME, dice);
         break;
-    }
     case EFFECT_BOLT_WATER:
-    {
-        int dd = 1;
-        int ds = _extra(effect, _power_curve(400, effect->power));
-        int base = 20;
+        dice.dd = 1;
+        dice.ds = _extra(effect, _power_curve(400, effect->power));
+        dice.base = 20;
         if (name) return "Water Bolt";
         if (desc) return "It fires a bolt of water.";
-        if (info) return info_damage(dd, _BOOST(ds), _BOOST(base));
-        if (value) return format("%d", 40*(_avg_damroll(dd, ds) + base));
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 40*dice_avg_roll(dice));
         if (color) return format("%d", TERM_BLUE);
-        if (cost) return format("%d", (_avg_damroll(dd, ds) + base)/7);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_WATER, dir, _BOOST(damroll(dd, ds) + base));
-            device_noticed = TRUE;
-        }
+        if (cost) return format("%d", dice_avg_roll(dice)/7);
+        if (cast) return _device_bolt(GF_WATER, dice);
         break;
-    }
     case EFFECT_BOLT_MANA:
-    {
-        int dd = 1;
-        int ds = _extra(effect, _power_curve(500, effect->power));
-        int base = 50;
+        dice.dd = 1;
+        dice.ds = _extra(effect, _power_curve(500, effect->power));
+        dice.base = 50;
         if (name) return "Mana Bolt";
         if (desc) return "It fires a powerful bolt of mana.";
-        if (info) return info_damage(dd, _BOOST(ds), _BOOST(base));
-        if (value) return format("%d", 40*(_avg_damroll(dd, ds) + base));
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 40*dice_avg_roll(dice));
         if (color) return format("%d", TERM_L_BLUE);
-        if (cost) return format("%d", (_avg_damroll(dd, ds) + base)/8);
-        if (cast)
-        {
-            if (device_known && !get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_MANA, dir, _BOOST(damroll(dd, ds) + base));
-            device_noticed = TRUE;
-        }
+        if (cost) return format("%d", dice_avg_roll(dice)/8);
+        if (cast) return _device_bolt(GF_MANA, dice);
         break;
-    }
     case EFFECT_BOLT_ICE:
-    {
-        int dd = 1;
-        int ds = _extra(effect, _power_curve(400, effect->power));
-        int base = 30;
+        dice.dd = 1;
+        dice.ds = _extra(effect, _power_curve(400, effect->power));
+        dice.base = 30;
         if (name) return "Ice Bolt";
         if (desc) return "It fires a bolt of ice.";
-        if (info) return info_damage(dd, _BOOST(ds), _BOOST(base));
-        if (value) return format("%d", 40*(_avg_damroll(dd, ds) + base));
-        if (color) return format("%d", res_color(RES_COLD));
-        if (cost) return format("%d", (_avg_damroll(dd, ds) + base)/7);
-        if (cast)
-        {
-            if (device_known && !get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_ICE, dir, _BOOST(damroll(dd, ds) + base));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 40*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_COLD));
+        if (cost) return format("%d", dice_avg_roll(dice)/7);
+        if (cast) return _device_bolt(GF_ICE, dice);
         break;
-    }
     case EFFECT_BOLT_PLASMA:
-    {
-        int dd = 1;
-        int ds = _extra(effect, _power_curve(400, effect->power));
-        int base = 40;
+        dice.dd = 1;
+        dice.ds = _extra(effect, _power_curve(400, effect->power));
+        dice.base = 40;
         if (name) return "Plasma Bolt";
         if (desc) return "It fires a bolt of plasma.";
-        if (info) return info_damage(dd, _BOOST(ds), _BOOST(base));
-        if (value) return format("%d", 40*(_avg_damroll(dd, ds) + base));
-        if (color) return format("%d", res_color(RES_FIRE));
-        if (cost) return format("%d", (_avg_damroll(dd, ds) + base)/7);
-        if (cast)
-        {
-            if (device_known && !get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_PLASMA, dir, _BOOST(damroll(dd, ds) + base));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 40*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_FIRE));
+        if (cost) return format("%d", dice_avg_roll(dice)/7);
+        if (cast) return _device_bolt(GF_PLASMA, dice);
         break;
-    }
-
 
     /* Offense: Beams */
-    case EFFECT_BEAM_LITE_WEAK:
-    {
-        int dd = _extra(effect, 6);
-        int ds = 8;
+    case EFFECT_BEAM_LIGHT_WEAK:
+        dice.dd = _extra(effect, 6);
+        dice.ds = 8;
         if (name) return "Beam of Light";
         if (desc) return "It fires a beam of light.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 20*_avg_damroll(dd, ds));
-        if (color) return format("%d", res_color(RES_LITE));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            msg_print("A line of blue shimmering light appears.");
-            project_hook(GF_LITE_WEAK, dir, _BOOST(damroll(dd, ds)), PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 20*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_LIGHT));
+        if (cast) return _device_beam(GF_LIGHT_WEAK, dice);
         break;
-    }
-    case EFFECT_BEAM_LITE:
-    {
-        int dam = _extra(effect, 10 + _power_curve(275, effect->power));
+    case EFFECT_BEAM_LIGHT:
+        dice.base = _extra(effect, 10 + _power_curve(275, effect->power));
         if (name) return "Beam of Light";
         if (desc) return "It fires a powerful beam of light.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 40*dam);
-        if (color) return format("%d", res_color(RES_LITE));
-        if (cost) return format("%d", dam/7);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            msg_print("A line of pure white light appears.");
-            fire_beam(GF_LITE, dir, _BOOST(dam));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 40*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_LIGHT));
+        if (cost) return format("%d", dice_avg_roll(dice)/7);
+        if (cast) return _device_beam(GF_LIGHT, dice);
         break;
-    }
     case EFFECT_BEAM_GRAVITY:
-    {
-        int dd = _extra(effect, 9 + effect->power/8);
-        int ds = 8;
+        dice.dd = _extra(effect, 9 + effect->power/8);
+        dice.ds = 8;
         if (name) return "Beam of Gravity";
         if (desc) return "It fires a beam of gravity.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 55*_avg_damroll(dd, ds));
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 55*dice_avg_roll(dice));
         if (color) return format("%d", TERM_L_UMBER);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_beam(GF_GRAVITY, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (cast) return _device_beam(GF_GRAVITY, dice);
         break;
-    }
     case EFFECT_BEAM_DISINTEGRATE:
-    {
-        int dd = _extra(effect, 9 + effect->power/8);
-        int ds = 8;
+        dice.dd = _extra(effect, 9 + effect->power/8);
+        dice.ds = 8;
         if (name) return "Beam of Disintegration";
         if (desc) return "It fires a beam of disintegration.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 40*_avg_damroll(dd, ds));
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 40*dice_avg_roll(dice));
         if (color) return format("%d", TERM_SLATE);
-        if (cast)
-        {
-            /* XXX I actually find this annoying with auto_target
-             * if (!get_fire_dir_aux(&dir, TARGET_DISI)) return NULL; */
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_beam(GF_DISINTEGRATE, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (cast) return _device_beam(GF_DISINTEGRATE, dice);
         break;
-    }
     case EFFECT_BEAM_ACID:
-    {
-        int dam = _extra(effect, 5 + _power_curve(270, effect->power));
+        dice.base = _extra(effect, 5 + _power_curve(270, effect->power));
         if (name) return "Shoot Acid";
         if (desc) return "It fires a beam of acid.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 35*dam);
-        if (color) return format("%d", res_color(RES_ACID));
-        if (cost) return format("%d", dam/6);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_beam(GF_ACID, dir, _BOOST(dam));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 35*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_ACID));
+        if (cost) return format("%d", dice_avg_roll(dice)/6);
+        if (cast) return _device_beam(GF_ACID, dice);
         break;
-    }
     case EFFECT_BEAM_ELEC:
-    {
-        int dam = _extra(effect, 5 + _power_curve(250, effect->power));
+        dice.base = _extra(effect, 5 + _power_curve(250, effect->power));
         if (name) return "Lightning Strike";
         if (desc) return "It fires a beam of lightning.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 30*dam);
-        if (color) return format("%d", res_color(RES_ELEC));
-        if (cost) return format("%d", dam/6);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_beam(GF_ELEC, dir, _BOOST(dam));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 30*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_ELEC));
+        if (cost) return format("%d", dice_avg_roll(dice)/6);
+        if (cast) return _device_beam(GF_ELEC, dice);
         break;
-    }
     case EFFECT_BEAM_FIRE:
-    {
-        int dam = _extra(effect, 5 + _power_curve(280, effect->power));
+        dice.base = _extra(effect, 5 + _power_curve(280, effect->power));
         if (name) return "Line of Fire";
         if (desc) return "It fires a beam of fire.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 30*dam);
-        if (color) return format("%d", res_color(RES_FIRE));
-        if (cost) return format("%d", dam/6);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_beam(GF_FIRE, dir, _BOOST(dam));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 30*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_FIRE));
+        if (cost) return format("%d", dice_avg_roll(dice)/6);
+        if (cast) return _device_beam(GF_FIRE, dice);
         break;
-    }
     case EFFECT_BEAM_COLD:
-    {
-        int dam = _extra(effect, 5 + _power_curve(260, effect->power));
+        dice.base = _extra(effect, 5 + _power_curve(260, effect->power));
         if (name) return "Ray of Cold";
         if (desc) return "It fires a beam of frost.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 30*dam);
-        if (color) return format("%d", res_color(RES_COLD));
-        if (cost) return format("%d", dam/6);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_beam(GF_COLD, dir, _BOOST(dam));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 30*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_COLD));
+        if (cost) return format("%d", dice_avg_roll(dice)/6);
+        if (cast) return _device_beam(GF_COLD, dice);
         break;
-    }
     case EFFECT_BEAM_SOUND:
-    {
-        int dd = _extra(effect, 7 + effect->power/6);
-        int ds = 8;
+        dice.dd = _extra(effect, 7 + effect->power/6);
+        dice.ds = 8;
         if (name) return "Sound Strike";
         if (desc) return "It fires a beam of sound.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 50*_avg_damroll(dd, ds));
-        if (color) return format("%d", res_color(RES_SOUND));
-        if (cost) return format("%d", _avg_damroll(dd, ds)/5);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_beam(GF_SOUND, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 50*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_SOUND));
+        if (cost) return format("%d", dice_avg_roll(dice)/5);
+        if (cast) return _device_beam(GF_SOUND, dice);
         break;
-    }
     case EFFECT_BEAM_CHAOS:
-    {
-        int dd = _extra(effect, 7 + effect->power/6);
-        int ds = 8;
+        dice.dd = _extra(effect, 7 + effect->power/6);
+        dice.ds = 8;
         if (name) return "Chaos Strike";
         if (desc) return "It fires a beam of chaos.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 40*_avg_damroll(dd, ds));
-        if (color) return format("%d", res_color(RES_CHAOS));
-        if (cost) return format("%d", _avg_damroll(dd, ds)/5);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_beam(GF_CHAOS, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 40*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_CHAOS));
+        if (cost) return format("%d", dice_avg_roll(dice)/5);
+        if (cast) return _device_beam(GF_CHAOS, dice);
         break;
-    }
 
     /* Offense: Balls */
     case EFFECT_BALL_ACID:
-    {
-        int dam = _extra(effect, 20 + _power_curve(300, effect->power));
+        dice.base = _extra(effect, 20 + _power_curve(300, effect->power));
         if (name) return "Acid Ball";
         if (desc) return "It fires a ball of acid.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 35*dam);
-        if (color) return format("%d", res_color(RES_ACID));
-        if (cost) return format("%d", dam/8);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_ACID, dir, _BOOST(dam), 2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 35*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_ACID));
+        if (cost) return format("%d", dice_avg_roll(dice)/8);
+        if (cast) return _device_ball(2, GF_ACID, dice);
         break;
-    }
     case EFFECT_BALL_ELEC:
-    {
-        int dam = _extra(effect, 20 + _power_curve(250, effect->power));
+        dice.base = _extra(effect, 20 + _power_curve(250, effect->power));
         if (name) return "Lightning Ball";
         if (desc) return "It fires a ball of lightning.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 30*dam);
-        if (color) return format("%d", res_color(RES_ELEC));
-        if (cost) return format("%d", dam/8);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_ELEC, dir, _BOOST(dam), 2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 30*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_ELEC));
+        if (cost) return format("%d", dice_avg_roll(dice)/8);
+        if (cast) return _device_ball(2, GF_ELEC, dice);
         break;
-    }
     case EFFECT_BALL_FIRE:
-    {
-        int dam = _extra(effect, 20 + _power_curve(350, effect->power));
+        dice.base = _extra(effect, 20 + _power_curve(350, effect->power));
         if (name) return "Fire Ball";
         if (desc) return "It fires a ball of fire.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 30*dam);
-        if (color) return format("%d", res_color(RES_FIRE));
-        if (cost) return format("%d", dam/8);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_FIRE, dir, _BOOST(dam), 2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 30*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_FIRE));
+        if (cost) return format("%d", dice_avg_roll(dice)/8);
+        if (cast) return _device_ball(2, GF_FIRE, dice);
         break;
-    }
     case EFFECT_BALL_COLD:
-    {
-        int dam = _extra(effect, 20 + _power_curve(275, effect->power));
+        dice.base = _extra(effect, 20 + _power_curve(275, effect->power));
         if (name) return "Frost Ball";
         if (desc) return "It fires a ball of frost.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 30*dam);
-        if (color) return format("%d", res_color(RES_COLD));
-        if (cost) return format("%d", dam/8);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_COLD, dir, _BOOST(dam), 2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 30*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_COLD));
+        if (cost) return format("%d", dice_avg_roll(dice)/8);
+        if (cast) return _device_ball(2, GF_COLD, dice);
         break;
-    }
     case EFFECT_BALL_POIS:
-    {
-        int dam = _extra(effect, 12 + effect->power/4);
+        dice.base = _extra(effect, 12 + effect->power/4);
         if (name) return "Stinking Cloud";
         if (desc) return "It fires a ball of poison.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 20*dam);
-        if (color) return format("%d", res_color(RES_POIS));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_POIS, dir, _BOOST(dam), 2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 20*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_POIS));
+        if (cast) return _device_ball(2, GF_POIS, dice);
         break;
-    }
-    case EFFECT_BALL_LITE:
-    {
-        int dam = _extra(effect, 200 + _power_curve_offset(350, effect->power, 80));
+    case EFFECT_BALL_LIGHT:
+        dice.base = _extra(effect, 200 + _power_curve_offset(350, effect->power, 80));
         if (name) return "Star Burst";
         if (desc) return "It fires a huge ball of powerful light.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 50*dam);
-        if (color) return format("%d", res_color(RES_LITE));
-        if (cost) return format("%d", dam/10);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_LITE, dir, _BOOST(dam), 4);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 50*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_LIGHT));
+        if (cost) return format("%d", dice_avg_roll(dice)/10);
+        if (cast) return _device_ball(4, GF_LIGHT, dice);
         break;
-    }
     case EFFECT_BALL_DARK:
-    {
-        int dam = _extra(effect, 100 + 7*effect->power/2);
+        dice.base = _extra(effect, 100 + 7*effect->power/2);
         if (name) return "Darkness Storm";
         if (desc) return "It fires a huge ball of darkness.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 50*dam);
-        if (color) return format("%d", res_color(RES_DARK));
-        if (cost) return format("%d", dam/10);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_DARK, dir, _BOOST(dam), 4);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 50*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_DARK));
+        if (cost) return format("%d", dice_avg_roll(dice)/10);
+        if (cast) return _device_ball(4, GF_DARK, dice);
         break;
-    }
     case EFFECT_BALL_CONF:
-    {
-        int dam = _extra(effect, 30 + effect->power);
+        dice.base = _extra(effect, 30 + effect->power);
         if (name) return "Confusion Ball";
         if (desc) return "It fires a ball of confusion.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 30*dam);
-        if (color) return format("%d", res_color(RES_CONF));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_CONFUSION, dir, _BOOST(dam), 3);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 30*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_CONFUSION));
+        if (cast) return _device_ball(3, GF_CONFUSION, dice);
         break;
-    }
     case EFFECT_BALL_NETHER:
-    {
-        int dam = _extra(effect, 50 + _power_curve_offset(200, effect->power, 30));
+        dice.base = _extra(effect, 50 + _power_curve_offset(200, effect->power, 30));
         if (name) return "Nether Ball";
         if (desc) return "It fires a ball of nether.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 25*dam);
-        if (color) return format("%d", res_color(RES_NETHER));
-        if (cost) return format("%d", dam/10);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_NETHER, dir, _BOOST(dam), 3);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 25*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_NETHER));
+        if (cost) return format("%d", dice_avg_roll(dice)/10);
+        if (cast) return _device_ball(3, GF_NETHER, dice);
         break;
-    }
     case EFFECT_BALL_NEXUS:
-    {
-        int dam = _extra(effect, 100 + _power_curve_offset(200, effect->power, 40));
+        dice.base = _extra(effect, 100 + _power_curve_offset(200, effect->power, 40));
         if (name) return "Nexus Ball";
         if (desc) return "It fires a ball of nexus.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 40*dam);
-        if (color) return format("%d", res_color(RES_NEXUS));
-        if (cost) return format("%d", dam/8);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_NEXUS, dir, _BOOST(dam), 3);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 40*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_NEXUS));
+        if (cost) return format("%d", dice_avg_roll(dice)/8);
+        if (cast) return _device_ball(3, GF_NEXUS, dice);
         break;
-    }
     case EFFECT_BALL_SOUND:
-    {
-        int dam = _extra(effect, 70 + _power_curve_offset(280, effect->power, 40));
+        dice.base = _extra(effect, 70 + _power_curve_offset(280, effect->power, 40));
         if (name) return "Sound Ball";
         if (desc) return "It fires a ball of sound.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 50*dam);
-        if (color) return format("%d", res_color(RES_SOUND));
-        if (cost) return format("%d", dam/8);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_SOUND, dir, _BOOST(dam), 3);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 50*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_SOUND));
+        if (cost) return format("%d", dice_avg_roll(dice)/8);
+        if (cast) return _device_ball(3, GF_SOUND, dice);
         break;
-    }
     case EFFECT_BALL_SHARDS:
-    {
-        int dam = _extra(effect, 175 + _power_curve_offset(325, effect->power, 75));
+        dice.base = _extra(effect, 175 + _power_curve_offset(325, effect->power, 75));
         if (name) return "Shard Ball";
         if (desc) return "It fires a ball of shards.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 50*dam);
-        if (color) return format("%d", res_color(RES_SHARDS));
-        if (cost) return format("%d", dam/10);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_SHARDS, dir, _BOOST(dam), 2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 50*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_SHARDS));
+        if (cost) return format("%d", dice_avg_roll(dice)/10);
+        if (cast) return _device_ball(2, GF_SHARDS, dice);
         break;
-    }
     case EFFECT_BALL_CHAOS:
-    {
-        int dam = _extra(effect, 150 + _power_curve_offset(350, effect->power, 70));
+        dice.base = _extra(effect, 150 + _power_curve_offset(350, effect->power, 70));
         if (name) return "Invoke Logrus";
         if (desc) return "It fires a huge ball of chaos.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 40*dam);
-        if (color) return format("%d", res_color(RES_CHAOS));
-        if (cost) return format("%d", dam/10);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_CHAOS, dir, _BOOST(dam), 5);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 40*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_CHAOS));
+        if (cost) return format("%d", dice_avg_roll(dice)/10);
+        if (cast) return _device_ball(5, GF_CHAOS, dice);
         break;
-    }
     case EFFECT_BALL_DISEN:
-    {
-        int dam = _extra(effect, 90 + _power_curve_offset(250, effect->power, 40));
+        dice.base = _extra(effect, 90 + _power_curve_offset(250, effect->power, 40));
         if (name) return "Disenchantment Ball";
         if (desc) return "It fires a ball of disenchantment.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 40*dam);
-        if (color) return format("%d", res_color(RES_DISEN));
-        if (cost) return format("%d", dam/9);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_DISENCHANT, dir, _BOOST(dam), 3);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 40*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_DISEN));
+        if (cost) return format("%d", dice_avg_roll(dice)/9);
+        if (cast) return _device_ball(3, GF_DISENCHANT, dice);
         break;
-    }
     case EFFECT_BALL_TIME:
-    {
-        int dam = _extra(effect, 50 + effect->power);
+        dice.base = _extra(effect, 50 + effect->power);
         if (name) return "Temporal Storm";
         if (desc) return "It fires a ball of time.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 50*dam);
-        if (color) return format("%d", res_color(RES_TIME));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_TIME, dir, _BOOST(dam), 3);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 50*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_TIME));
+        if (cast) return _device_ball(3, GF_TIME, dice);
         break;
-    }
     case EFFECT_BALL_WATER:
-    {
-        int dam = _extra(effect, 150 + _power_curve_offset(200, effect->power, 50));
+        dice.base = _extra(effect, 150 + _power_curve_offset(200, effect->power, 50));
         if (name) return "Whirlpool";
         if (desc) return "It fires a huge ball of water.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 45*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 45*dice_avg_roll(dice));
         if (color) return format("%d", TERM_BLUE);
-        if (cost) return format("%d", dam/9);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_WATER, dir, _BOOST(dam), 4);
-            device_noticed = TRUE;
-        }
+        if (cost) return format("%d", dice_avg_roll(dice)/9);
+        if (cast) return _device_ball(4, GF_WATER, dice);
         break;
-    }
     case EFFECT_BALL_MANA:
-    {
-        int dam = _extra(effect, 150 + _power_curve_offset(300, effect->power, 60));
+        dice.base = _extra(effect, 150 + _power_curve_offset(300, effect->power, 60));
         if (name) return "Mana Ball";
         if (desc) return "It fires a powerful ball of mana.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 50*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 50*dice_avg_roll(dice));
         if (color) return format("%d", TERM_L_BLUE);
-        if (cost) return format("%d", dam/10);
-        if (cast)
-        {
-            if (device_known && !get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_MANA, dir, _BOOST(dam), 2);
-            device_noticed = TRUE;
-        }
+        if (cost) return format("%d", dice_avg_roll(dice)/10);
+        if (cast) return _device_ball(2, GF_MANA, dice);
         break;
-    }
     case EFFECT_BALL_DISINTEGRATE:
-    {
-        int dam = _extra(effect, 150 + _power_curve_offset(200, effect->power, 50));
+        dice.base = _extra(effect, 150 + _power_curve_offset(200, effect->power, 50));
         if (name) return "Disintegrate";
         if (desc) return "It fires a powerful ball of disintegration.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 45*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 45*dice_avg_roll(dice));
         if (color) return format("%d", TERM_SLATE);
-        if (cost) return format("%d", dam/9);
-        if (cast)
-        {
-            if (device_known && !get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_DISINTEGRATE, dir, _BOOST(dam), 2);
-            device_noticed = TRUE;
-        }
+        if (cost) return format("%d", dice_avg_roll(dice)/9);
+        if (cast) return _device_ball(2, GF_DISINTEGRATE, dice);
         break;
-    }
 
     /* Offense: Breaths */
     case EFFECT_BREATHE_ACID:
-    {
-        int dam = _extra(effect, 100 + effect->power*3);
+        dice.base = _extra(effect, 100 + effect->power*3);
         if (name) return "Breathe Acid";
         if (desc) return "It breathes acid.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 40*dam);
-        if (color) return format("%d", res_color(RES_ACID));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_ACID, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 40*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_ACID));
+        if (cast) return _device_breath(3, GF_ACID, dice);
         break;
-    }
     case EFFECT_BREATHE_ELEC:
-    {
-        int dam = _extra(effect, 70 + effect->power*3);
+        dice.base = _extra(effect, 70 + effect->power*3);
         if (name) return "Breathe Lightning";
         if (desc) return "It breathes lightning.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 35*dam);
-        if (color) return format("%d", res_color(RES_ELEC));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_ELEC, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 35*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_ELEC));
+        if (cast) return _device_breath(3, GF_ELEC, dice);
         break;
-    }
     case EFFECT_BREATHE_FIRE:
-    {
-        int dam = _extra(effect, 160 + _power_curve_offset(300, effect->power, 40));
+        dice.base = _extra(effect, 160 + _power_curve_offset(300, effect->power, 40));
         if (name) return "Dragon's Flame";
         if (desc) return "It breathes fire.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 35*dam);
-        if (color) return format("%d", res_color(RES_FIRE));
-        if (cost) return format("%d", dam/8);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_FIRE, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 35*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_FIRE));
+        if (cost) return format("%d", dice_avg_roll(dice)/8);
+        if (cast) return _device_breath(3, GF_FIRE, dice);
         break;
-    }
     case EFFECT_BREATHE_COLD:
-    {
-        int dam = _extra(effect, 150 + _power_curve_offset(300, effect->power, 40));
+        dice.base = _extra(effect, 150 + _power_curve_offset(300, effect->power, 40));
         if (name) return "Dragon's Frost";
         if (desc) return "It breathes frost.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 35*dam);
-        if (color) return format("%d", res_color(RES_COLD));
-        if (cost) return format("%d", dam/8);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_COLD, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 35*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_COLD));
+        if (cost) return format("%d", dice_avg_roll(dice)/8);
+        if (cast) return _device_breath(3, GF_COLD, dice);
         break;
-    }
     case EFFECT_BREATHE_POIS:
-    {
-        int dam = _extra(effect, 60 + effect->power*2);
+        dice.base = _extra(effect, 60 + effect->power*2);
         if (name) return "Breathe Poison";
         if (desc) return "It breathes poison.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 30*dam);
-        if (color) return format("%d", res_color(RES_POIS));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_POIS, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 30*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_POIS));
+        if (cast) return _device_breath(3, GF_POIS, dice);
         break;
-    }
-    case EFFECT_BREATHE_LITE:
-    {
-        int dam = _extra(effect, 50 + effect->power*2);
+    case EFFECT_BREATHE_LIGHT:
+        dice.base = _extra(effect, 50 + effect->power*2);
         if (name) return "Breathe Light";
         if (desc) return "It breathes light.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 40*dam);
-        if (color) return format("%d", res_color(RES_LITE));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_LITE, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 40*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_LIGHT));
+        if (cast) return _device_breath(3, GF_LIGHT, dice);
         break;
-    }
     case EFFECT_BREATHE_DARK:
-    {
-        int dam = _extra(effect, 50 + effect->power*2);
+        dice.base = _extra(effect, 50 + effect->power*2);
         if (name) return "Breathe Darkness";
         if (desc) return "It breathes darkness.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 40*dam);
-        if (color) return format("%d", res_color(RES_DARK));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_DARK, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 40*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_DARK));
+        if (cast) return _device_breath(3, GF_DARK, dice);
         break;
-    }
     case EFFECT_BREATHE_CONF:
-    {
-        int dam = _extra(effect, 50 + effect->power*2);
+        dice.base = _extra(effect, 50 + effect->power*2);
         if (name) return "Breathe Confusion";
         if (desc) return "It breathes confusion.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 35*dam);
-        if (color) return format("%d", res_color(RES_CONF));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_CONFUSION, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 35*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_CONFUSION));
+        if (cast) return _device_breath(3, GF_CONFUSION, dice);
         break;
-    }
     case EFFECT_BREATHE_NETHER:
-    {
-        int dam = _extra(effect, 75 + effect->power*2);
+        dice.base = _extra(effect, 75 + effect->power*2);
         if (name) return "Breathe Nether";
         if (desc) return "It breathes nether.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 30*dam);
-        if (color) return format("%d", res_color(RES_NETHER));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_NETHER, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 30*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_NETHER));
+        if (cast) return _device_breath(3, GF_NETHER, dice);
         break;
-    }
     case EFFECT_BREATHE_NEXUS:
-    {
-        int dam = _extra(effect, 50 + effect->power*2);
+        dice.base = _extra(effect, 50 + effect->power*2);
         if (name) return "Breathe Nexus";
         if (desc) return "It breathes nexus.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 45*dam);
-        if (color) return format("%d", res_color(RES_NEXUS));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_NEXUS, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 45*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_NEXUS));
+        if (cast) return _device_breath(3, GF_NEXUS, dice);
         break;
-    }
     case EFFECT_BREATHE_SOUND:
-    {
-        int dam = _extra(effect, 50 + effect->power*2);
+        dice.base = _extra(effect, 50 + effect->power*2);
         if (name) return "Breathe Sound";
         if (desc) return "It breathes sound.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 55*dam);
-        if (color) return format("%d", res_color(RES_SOUND));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_SOUND, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 55*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_SOUND));
+        if (cast) return _device_breath(3, GF_SOUND, dice);
         break;
-    }
     case EFFECT_BREATHE_SHARDS:
-    {
-        int dam = _extra(effect, 100 + effect->power*2);
+        dice.base = _extra(effect, 100 + effect->power*2);
         if (name) return "Breathe Shards";
         if (desc) return "It breathes shards.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 55*dam);
-        if (color) return format("%d", res_color(RES_SHARDS));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_SHARDS, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 55*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_SHARDS));
+        if (cast) return _device_breath(3, GF_SHARDS, dice);
         break;
-    }
     case EFFECT_BREATHE_CHAOS:
-    {
-        int dam = _extra(effect, 75 + effect->power*2);
+        dice.base = _extra(effect, 75 + effect->power*2);
         if (name) return "Breathe Chaos";
         if (desc) return "It breathes chaos.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 45*dam);
-        if (color) return format("%d", res_color(RES_CHAOS));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_CHAOS, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 45*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_CHAOS));
+        if (cast) return _device_breath(3, GF_CHAOS, dice);
         break;
-    }
     case EFFECT_BREATHE_DISEN:
-    {
-        int dam = _extra(effect, 50 + effect->power*2);
+        dice.base = _extra(effect, 50 + effect->power*2);
         if (name) return "Breathe Disenchantment";
         if (desc) return "It breathes disenchantment.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 45*dam);
-        if (color) return format("%d", res_color(RES_DISEN));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_DISENCHANT, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 45*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_DISEN));
+        if (cast) return _device_breath(3, GF_DISENCHANT, dice);
         break;
-    }
     case EFFECT_BREATHE_TIME:
-    {
-        int dam = _extra(effect, 50 + effect->power*2);
+        dice.base = _extra(effect, 50 + effect->power*2);
         if (name) return "Breathe Time";
         if (desc) return "It breathes time.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 55*dam);
-        if (color) return format("%d", res_color(RES_TIME));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_TIME, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
-        }
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 55*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_TIME));
+        if (cast) return _device_breath(3, GF_TIME, dice);
         break;
-    }
     case EFFECT_BREATHE_ONE_MULTIHUED:
-    {
-        int dam = _extra(effect, 170 + _power_curve_offset(300, effect->power, 40));
+        dice.base = _extra(effect, 170 + _power_curve_offset(300, effect->power, 40));
         if (name) return "Dragon's Breath";
         if (desc) return "It breathes acid, lightning, fire, frost or poison.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 40*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 40*dice_avg_roll(dice));
         if (color) return format("%d", TERM_ORANGE);
-        if (cost) return format("%d", dam/8);
+        if (cost) return format("%d", dice_avg_roll(dice)/8);
         if (cast)
         {
-            struct { int  type; cptr desc; } _choices[5] = {
-                { GF_ACID, "acid"},
-                { GF_ELEC, "lightning"},
-                { GF_FIRE, "fire"},
-                { GF_COLD, "frost"},
-                { GF_POIS, "poison"},
-            };
-            int which = randint0(5);
-
-            if (!get_fire_dir(&dir)) return NULL;
-            msg_format("It breathes %s.", _choices[which].desc);
-            fire_ball(_choices[which].type, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
+            int gf[5] = { GF_ACID, GF_ELEC, GF_FIRE, GF_COLD, GF_POIS };
+            int i = randint0(5);
+            return _device_breath(3, gf[i], dice);
         }
         break;
-    }
     case EFFECT_BREATHE_ONE_CHAOS:
-    {
-        int dam = _extra(effect, 75 + effect->power*2);
+        dice.base = _extra(effect, 75 + effect->power*2);
         if (name) return "Breathe";
         if (desc) return "It breathes chaos or disenchantment.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 45*dam);
-        if (color) return format("%d", res_color(RES_CHAOS));
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 45*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_CHAOS));
         if (cast)
         {
-            struct { int  type; cptr desc; } _choices[2] = {
-                { GF_CHAOS, "chaos"},
-                { GF_DISENCHANT, "disenchantment"},
-            };
-            int which = randint0(2);
-
-            if (!get_fire_dir(&dir)) return NULL;
-            msg_format("It breathes %s.", _choices[which].desc);
-            fire_ball(_choices[which].type, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
+            int gf[2] = { GF_CHAOS, GF_DISENCHANT };
+            int i = randint0(2);
+            return _device_breath(3, gf[i], dice);
         }
         break;
-    }
     case EFFECT_BREATHE_ONE_LAW:
-    {
-        int dam = _extra(effect, 100 + effect->power*2);
+        dice.base = _extra(effect, 100 + effect->power*2);
         if (name) return "Breathe";
         if (desc) return "It breathes sound or shards.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 55*dam);
-        if (color) return format("%d", res_color(RES_SOUND));
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 55*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_SOUND));
         if (cast)
         {
-            struct { int  type; cptr desc; } _choices[2] = {
-                { GF_SOUND, "sound"},
-                { GF_SHARDS, "shards"},
-            };
-            int which = randint0(2);
-
-            if (!get_fire_dir(&dir)) return NULL;
-            msg_format("It breathes %s.", _choices[which].desc);
-            fire_ball(_choices[which].type, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
+            int gf[2] = { GF_SOUND, GF_SHARDS };
+            int i = randint0(2);
+            return _device_breath(3, gf[i], dice);
         }
         break;
-    }
     case EFFECT_BREATHE_ONE_BALANCE:
-    {
-        int dam = _extra(effect, 100 + effect->power*2);
+        dice.base = _extra(effect, 100 + effect->power*2);
         if (name) return "Breathe";
         if (desc) return "It breathes sound, shards, chaos or disenchantment.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 55*dam);
-        if (color) return format("%d", res_color(RES_DISEN));
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 55*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_DISEN));
         if (cast)
         {
-            struct { int  type; cptr desc; } _choices[4] = {
-                { GF_SOUND, "sound"},
-                { GF_SHARDS, "shards"},
-                { GF_CHAOS, "chaos"},
-                { GF_DISENCHANT, "disenchantment"},
-            };
-            int which = randint0(4);
-
-            if (!get_fire_dir(&dir)) return NULL;
-            msg_format("It breathes %s.", _choices[which].desc);
-            fire_ball(_choices[which].type, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
+            int gf[4] = { GF_SOUND, GF_SHARDS, GF_CHAOS, GF_DISENCHANT };
+            int i = randint0(4);
+            return _device_breath(4, gf[i], dice);
         }
         break;
-    }
     case EFFECT_BREATHE_ONE_SHINING:
-    {
-        int dam = _extra(effect, 50 + effect->power*2);
+        dice.base = _extra(effect, 50 + effect->power*2);
         if (name) return "Breathe";
         if (desc) return "It breathes light or darkness.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 40*dam);
-        if (color) return format("%d", res_color(RES_LITE));
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 40*dice_avg_roll(dice));
+        if (color) return format("%d", res_color(GF_LIGHT));
         if (cast)
         {
-            struct { int  type; cptr desc; } _choices[2] = {
-                { GF_LITE, "light"},
-                { GF_DARK, "darkness"},
-            };
-            int which = randint0(2);
-
-            if (!get_fire_dir(&dir)) return NULL;
-            msg_format("It breathes %s.", _choices[which].desc);
-            fire_ball(_choices[which].type, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
+            int gf[2] = { GF_LIGHT, GF_DARK };
+            int i = randint0(2);
+            return _device_breath(3, gf[i], dice);
         }
         break;
-    }
     case EFFECT_BREATHE_ELEMENTS:
-    {
-        int dam = _extra(effect, 100 + effect->power*2);
+        dice.base = _extra(effect, 100 + effect->power*2);
         if (name) return "Breathe Elements";
         if (desc) return "It breathes the elements.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 55*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 55*dice_avg_roll(dice));
         if (color) return format("%d", TERM_VIOLET);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_MISSILE, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
-        }
+        if (cast) return _device_breath(4, GF_MISSILE, dice);
         break;
-    }
     case EFFECT_BREATHE_HOLY_FIRE:
-    {
-        int dam = _extra(effect, 100 + effect->power*2);
+        dice.base = _extra(effect, 100 + effect->power*2);
         if (name) return "Breathe Holy Fire";
         if (desc) return "It breathes holy fire to punish evil.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 77*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 77*dice_avg_roll(dice));
         if (color) return format("%d", TERM_YELLOW);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_HOLY_FIRE, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
-        }
+        if (cast) return _device_breath(5, GF_HOLY_FIRE, dice);
         break;
-    }
     case EFFECT_BREATHE_HELL_FIRE:
-    {
-        int dam = _extra(effect, 100 + effect->power*2);
+        dice.base = _extra(effect, 100 + effect->power*2);
         if (name) return "Breathe Hell Fire";
         if (desc) return "It breathes hell fire to destroy the good.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 66*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 66*dice_avg_roll(dice));
         if (color) return format("%d", TERM_L_DARK);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_ball(GF_HELL_FIRE, dir, _BOOST(dam), -2);
-            device_noticed = TRUE;
-        }
+        if (cast) return _device_breath(5, GF_HELL_FIRE, dice);
         break;
-    }
 
     /* Offense: Other */
     case EFFECT_DISPEL_EVIL:
-    {
-        int dam = _extra(effect, 100 + _power_curve_offset(200, effect->power, 50));
+        dice.base = _extra(effect, 100 + _power_curve_offset(200, effect->power, 50));
         if (name) return "Dispel Evil";
         if (desc) return "It damages all evil monsters in sight.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 30*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 30*dice_roll(dice));
         if (color) return format("%d", TERM_YELLOW);
-        if (cost) return format("%d", dam/8);
-        if (cast)
-        {
-            if (dispel_evil(_BOOST(dam)))
-                device_noticed = TRUE;
-        }
+        if (cost) return format("%d", dice_roll(dice)/8);
+        if (cast) return _device_los(GF_DISP_EVIL, dice);
         break;
-    }
     case EFFECT_DISPEL_EVIL_HERO:
-    {
-        int dam = _extra(effect, 2*effect->power);
+        dice.base = _extra(effect, 2*effect->power);
         if (name) return "Dispel Evil";
         if (desc) return "It damages all evil monsters in sight and grants temporary heroism.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 500 + 30*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 500 + 30*dice_roll(dice));
         if (color) return format("%d", TERM_YELLOW);
-        if (cost) return format("%d", dam/8);
+        if (cost) return format("%d", dice_roll(dice)/8);
         if (cast)
         {
-            if (dispel_evil(_BOOST(dam)))
-                device_noticed = TRUE;
-            if (plr_tim_add(T_HERO, _BOOST(25 + randint1(25))))
-                device_noticed = TRUE;
+            _device_los(GF_DISP_EVIL, dice);
+            plr_tim_add(T_HERO, 25 + _1d(25));
         }
         break;
-    }
     case EFFECT_DISPEL_GOOD:
-    {
-        int dam = _extra(effect, 2*effect->power);
+        dice.base = _extra(effect, 2*effect->power);
         if (name) return "Dispel Good";
         if (desc) return "It damages all good monsters in sight.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 20*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 20*dice_roll(dice));
         if (color) return format("%d", TERM_L_DARK);
-        if (cost) return format("%d", dam/12);
-        if (cast)
-        {
-            if (dispel_good(_BOOST(dam)))
-                device_noticed = TRUE;
-        }
+        if (cost) return format("%d", dice_roll(dice)/12);
+        if (cast) return _device_los(GF_DISP_GOOD, dice);
         break;
-    }
     case EFFECT_DISPEL_LIFE:
-    {
-        int dam = _extra(effect, 100 + _power_curve_offset(200, effect->power, 50));
+        dice.base = _extra(effect, 100 + _power_curve_offset(200, effect->power, 50));
         if (name) return "Dispel Life";
         if (desc) return "It damages all living monsters in sight.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 30*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 30*dice_roll(dice));
         if (color) return format("%d", TERM_L_DARK);
-        if (cost) return format("%d", dam/9);
-        if (cast)
-        {
-            if (dispel_living(_BOOST(dam)))
-                device_noticed = TRUE;
-        }
+        if (cost) return format("%d", dice_roll(dice)/9);
+        if (cast) return _device_los(GF_DISP_LIVING, dice);
         break;
-    }
     case EFFECT_DISPEL_DEMON:
-    {
-        int dam = _extra(effect, 150 + _power_curve_offset(350, effect->power, 50));
+        dice.base = _extra(effect, 150 + _power_curve_offset(350, effect->power, 50));
         if (name) return "Dispel Demons";
         if (desc) return "It damages all demonic monsters in sight.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 20*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 20*dice_roll(dice));
         if (color) return format("%d", TERM_YELLOW);
-        if (cost) return format("%d", dam/15);
-        if (cast)
-        {
-            if (dispel_demons(_BOOST(dam)))
-                device_noticed = TRUE;
-        }
+        if (cost) return format("%d", dice_roll(dice)/15);
+        if (cast) return _device_los(GF_DISP_DEMON, dice);
         break;
-    }
     case EFFECT_DISPEL_UNDEAD:
-    {
-        int dam = _extra(effect, 150 + _power_curve_offset(350, effect->power, 50));
+        dice.base = _extra(effect, 150 + _power_curve_offset(350, effect->power, 50));
         if (name) return "Dispel Undead";
         if (desc) return "It damages all undead monsters in sight.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 20*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 20*dice_roll(dice));
         if (color) return format("%d", TERM_YELLOW);
-        if (cost) return format("%d", dam/15);
-        if (cast)
-        {
-            if (dispel_undead(_BOOST(dam)))
-                device_noticed = TRUE;
-        }
+        if (cost) return format("%d", dice_roll(dice)/15);
+        if (cast) return _device_los(GF_DISP_UNDEAD, dice);
         break;
-    }
     case EFFECT_DISPEL_MONSTERS:
-    {
-        int dam = _extra(effect, 100 + _power_curve_offset(150, effect->power, 50));
+        dice.base = _extra(effect, 100 + _power_curve_offset(150, effect->power, 50));
         if (name) return "Dispel Monsters";
         if (desc) return "It damages all monsters in sight.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 40*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 40*dice_roll(dice));
         if (color) return format("%d", TERM_YELLOW);
-        if (cost) return format("%d", dam/8);
-        if (cast)
-        {
-            if (dispel_monsters(_BOOST(dam)))
-                device_noticed = TRUE;
-        }
+        if (cost) return format("%d", dice_roll(dice)/8);
+        if (cast) return _device_los(GF_DISP_ALL, dice);
         break;
-    }
     case EFFECT_DRAIN_LIFE:
-    {
-        int dam = _extra(effect, 50 + effect->power/2);
+        dice.base = _extra(effect, 50 + effect->power/2);
         if (name) return "Vampirism";
         if (desc) return "It fires a bolt that steals life from a foe when you use it.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 35*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 35*dice_roll(dice));
         if (color) return format("%d", TERM_L_DARK);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            dam = _BOOST(dam);
-            if (drain_life(dir, dam))
+        if (cast) {
+            point_t p = get_fire_pos();
+            int d = dice_roll(dice);
+            if (!dun_pos_interior(plr_dun(), p)) return NULL;
+            if (device_bolt(p, GF_OLD_DRAIN, d))
             {
-                vamp_player(dam);
+                vamp_player(d);
                 device_noticed = TRUE;
             }
         }
         break;
-    }
     case EFFECT_STAR_BALL:
-    {
-        int dam = _extra(effect, 150);
+        dice.base = _extra(effect, 150);
         if (name) return "Star Ball";
         if (desc) return "It fires a multitude of lightning balls in random directions.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 50*dam);
+        if (info) return dice_info_dam_each(dice);
+        if (value) return format("%d", 50*dice_roll(dice));
         if (color) return format("%d", TERM_YELLOW);
-        if (cast)
-        {
-            int num = _BOOST(damroll(5, 3));
-            int i;
-
-            for (i = 0; i < num; i++)
-            {
-                point_t pos;
-                int attempts = 1000;
-                while (attempts--)
-                {
-                    pos = scatter(p_ptr->pos, 4);
-                    if (!cave_have_flag_at(pos, FF_PROJECT)) continue;
-                    if (!plr_at(pos)) break;
-                }
-                project(0, 3, pos.y, pos.x, _BOOST(dam), GF_ELEC,
-                    (PROJECT_THRU | PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
-            }
+        if (cast) {
+            plr_star_ball(_5d(3), GF_ELEC, dice);
+            device_noticed = TRUE;
         }
         break;
-    }
     case EFFECT_WRATH_OF_GOD:
-    {
-        int dam = _extra(effect, 25 + effect->power*3/2);
+        dice.base = _extra(effect, 25 + effect->power*3/2);
         if (name) return "Wrath of the God";
         if (desc) return "It drops many balls of disintegration near the target.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 50*dam);
-        if (cast)
-        {
-            if (!cast_wrath_of_the_god(_BOOST(dam), 2)) return NULL;
-        }
+        if (info) return dice_info_dam_each(dice);
+        if (value) return format("%d", 50*dice_roll(dice));
+        if (cast && !plr_cast_wrath_of_god(GF_DISINTEGRATE, dice)) return NULL;
         break;
-    }
     case EFFECT_ROCKET:
-    {
-        int dam = _extra(effect, 200 + _power_curve_offset(300, effect->power, 60));
+        dice.base = _extra(effect, 200 + _power_curve_offset(300, effect->power, 60));
         if (name) return "Rocket";
         if (desc) return "It fires a rocket.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 50*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 50*dice_avg_roll(dice));
         if (color) return format("%d", TERM_UMBER);
-        if (cost) return format("%d", dam/11);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_rocket(GF_ROCKET, dir, _BOOST(dam), 2);
-            device_noticed = TRUE;
-        }
+        if (cost) return format("%d", dice_avg_roll(dice)/11);
+        if (cast) return _device_rocket(2, dice);
         break;
-    }
     case EFFECT_METEOR:
-    {
-        int dd = _extra(effect, 15 + effect->power/5);
-        int ds = 13;
+        dice.dd = _extra(effect, 15 + effect->power/5);
+        dice.ds = 13;
         if (name) return "Meteor";
         if (desc) return "It fires a meteor when you use it.";
-        if (info) return info_damage(_BOOST(dd), ds, 0);
-        if (value) return format("%d", 40*_avg_damroll(dd, ds));
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 40*dice_avg_roll(dice));
         if (color) return format("%d", TERM_UMBER);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_METEOR, dir, _BOOST(damroll(dd, ds)));
-            device_noticed = TRUE;
-        }
+        if (cast) return _device_bolt(GF_METEOR, dice);
         break;
-    }
     case EFFECT_MANA_STORM:
-    {
-        int dam = _extra(effect, 375 + _power_curve_offset(200, effect->power, 80));
+        dice.base = _extra(effect, 375 + _power_curve_offset(200, effect->power, 80));
         if (name) return "Mana Storm";
         if (desc) return "It produces a huge mana ball centered on you.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 45*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 45*dice_avg_roll(dice));
         if (color) return format("%d", TERM_RED);
-        if (cost) return format("%d", dam/10);
+        if (cost) return format("%d", dice_avg_roll(dice)/10);
         if (cast)
         {
             msg_print("Mighty magics rend your enemies!");
-            project(0, 5, p_ptr->pos.y, p_ptr->pos.x,
-                _BOOST(dam*2),
-                GF_MANA, PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID);
+            device_burst(5, GF_MANA, dice_roll(dice));
             device_noticed = TRUE;
         }
         break;
-    }
-    case EFFECT_CONFUSING_LITE:
+    case EFFECT_CONFUSING_LIGHT:
     {
-        int pow = _extra(effect, effect->power*2);
+        int pow = _extra(effect, effect->power);
         if (name) return "Confusing Lights";
         if (desc) return "It emits dazzling lights which slow, stun, confuse, scare and even freeze nearby monsters.";
         if (info) return format("Power %d", pow);
         if (value) return format("%d", 60*pow);
-        if (color) return format("%d", res_color(RES_CONF));
-        if (cast)
+        if (color) return format("%d", res_color(GF_CONFUSION));
+        if (cast) 
         {
-            msg_print("You glare nearby monsters with a dazzling array of confusing lights!");
+            msg_print("It glares nearby monsters with a dazzling array of confusing lights!");
             pow = _BOOST(pow);
-            slow_monsters(pow);
-            stun_monsters(5 + pow/10);
-            confuse_monsters(pow);
-            turn_monsters(pow);
-            stasis_monsters(pow/3);
+            confusing_lights(pow);
             device_noticed = TRUE; /* You see the dazzling lights, no? */
         }
         break;
     }
     case EFFECT_ARROW:
-    {
-        int dam = _extra(effect, 70 + effect->power);
+        dice.base = _extra(effect, 70 + effect->power);
         if (name) return "Magic Arrow";
         if (desc) return "It fires a powerful magical arrow.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 30*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 30*dice_avg_roll(dice));
         if (color) return format("%d", TERM_SLATE);
-        if (cost) return format("%d", dam/8);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            fire_bolt(GF_ARROW, dir, _BOOST(dam));
-            device_noticed = TRUE;
-        }
+        if (cost) return format("%d", dice_avg_roll(dice)/8);
+        if (cast) return _device_bolt(GF_ARROW, dice);
         break;
-    }
     case EFFECT_HOLINESS:
-    {
-        int dam = _extra(effect, effect->power*2);
+        dice.base = _extra(effect, effect->power*2);
         if (name) return "Holiness";
         if (desc) return "It does damage to all evil monsters in sight, gives temporary protection from lesser evil creature, cures poison, stunned, cuts, removes fear and heals you when you use it.";
-        if (info) return info_power(_BOOST(dam));
-        if (value) return format("%d", 5000 + 30*dam);
+        if (info) return dice_info_power(dice);
+        if (value) return format("%d", 5000 + 30*dice_roll(dice));
         if (color) return format("%d", TERM_YELLOW);
         if (cast)
         {
-            if (dispel_evil(_BOOST(dam))) device_noticed = TRUE;
-            if (plr_tim_add(T_PROT_EVIL, _BOOST(dam/2))) device_noticed = TRUE;
-            if (hp_player(_BOOST(dam))) device_noticed = TRUE;
-            if (plr_tim_remove(T_STUN)) device_noticed = TRUE;
-            if (plr_tim_remove(T_CUT)) device_noticed = TRUE;
+            _device_los(GF_DISP_EVIL, dice); /* only Dispel Evil learns the device */
+            plr_tim_add(T_PROT_EVIL, dice_roll(dice)/2);
+            hp_player(dice_roll(dice));
+            plr_tim_remove(T_STUN);
+            plr_tim_remove(T_CUT);
         }
         break;
-    }
     case EFFECT_STARBURST:
-    {
-        int dam = _extra(effect, 375 + _power_curve_offset(200, effect->power, 80));
+        dice.base = _extra(effect, 375 + _power_curve_offset(200, effect->power, 80));
         if (name) return "Star Burst";
         if (desc) return "It produces a huge ball of light centered on you.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 45*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 45*dice_avg_roll(dice));
         if (color) return format("%d", TERM_YELLOW);
-        if (cost) return format("%d", dam/10);
+        if (cost) return format("%d", dice_avg_roll(dice)/10);
         if (cast)
         {
-            if (!res_save_default(RES_BLIND) && !res_save_default(RES_LITE))
-            {
+            if (!res_save_default(GF_BLIND) && !res_save_default(GF_LIGHT))
                 plr_tim_add(T_BLIND, 3 + randint1(5));
-            }
-            project(0, 5, p_ptr->pos.y, p_ptr->pos.x, _BOOST(dam*2),
-                    GF_LITE, PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID);
+            device_burst(5, GF_LIGHT, dice_roll(dice));
             device_noticed = TRUE;
         }
         break;
-    }
     case EFFECT_DARKNESS_STORM:
-    {
-        int dam = _extra(effect, 375 + _power_curve_offset(200, effect->power, 80));
+        dice.base = _extra(effect, 375 + _power_curve_offset(200, effect->power, 80));
         if (name) return "Darkness Storm";
         if (desc) return "It produces a huge ball of darkness centered on you.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 45*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 45*dice_avg_roll(dice));
         if (color) return format("%d", TERM_L_DARK);
-        if (cost) return format("%d", dam/10);
+        if (cost) return format("%d", dice_avg_roll(dice)/10);
         if (cast)
         {
-            if (!res_save_default(RES_BLIND) && !res_save_default(RES_DARK))
-            {
+            if (!res_save_default(GF_BLIND) && !res_save_default(GF_DARK))
                 plr_tim_add(T_BLIND, 3 + randint1(5));
-            }
-            project(0, 5, p_ptr->pos.y, p_ptr->pos.x, _BOOST(dam*2),
-                    GF_DARK, PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID);
+            device_burst(5, GF_DARK, dice_roll(dice));
             device_noticed = TRUE;
         }
         break;
-    }
     case EFFECT_PESTICIDE:
-    {
-        int dam = _extra(effect, 4);
+        dice.base = _extra(effect, 4);
         if (name) return "Pesticide";
         if (desc) return "It does slight damage to all monsters in sight when you zap it.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
+        if (info) return dice_info_dam(dice);
         if (value) return format("%d", 250);
-        if (color) return format("%d", res_color(RES_POIS));
-        if (cast)
-        {
-            if (dispel_monsters(_BOOST(4)))
-                device_noticed = TRUE;
-        }
+        if (color) return format("%d", res_color(GF_POIS));
+        if (cast) return _device_los(GF_DISP_ALL, dice);
         break;
-    }
+
     /* Misc */
     case EFFECT_POLY_SELF:
         if (name) return "Polymorph";
@@ -6264,85 +5712,55 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (color) return format("%d", TERM_L_DARK);
         if (cast)
         {
-            if (animate_dead(0, p_ptr->pos.y, p_ptr->pos.x))
+            if (plr_animate_dead())
                 device_noticed = TRUE;
         }
         break;
     case EFFECT_SCARE_MONSTERS:
-    {
-        int pow = _extra(effect, effect->power*3);
+        dice.base = _extra(effect, effect->power*3);
         if (name) return "Terrify Monsters";
         if (desc) return "It attempts to frighten all nearby visible monsters.";
-        if (info) return format("Power %d", pow);
-        if (value) return format("%d", 10*pow);
+        if (info) return dice_info_power(dice);
+        if (value) return format("%d", 10*dice_roll(dice));
         if (color) return format("%d", TERM_L_RED);
-        if (cast)
-        {
-            if (turn_monsters(_BOOST(pow)))
-                device_noticed = TRUE;
-        }
+        if (cast) return _device_los(GF_FEAR, dice);
         break;
-    }
     case EFFECT_SLEEP_MONSTERS:
-    {
-        int pow = _extra(effect, effect->power*3);
+        dice.base = _extra(effect, 10 + effect->power);
         if (name) return "Sleep Monsters";
         if (desc) return "It attempts to sleep all nearby visible monsters.";
-        if (info) return format("Power %d", pow);
-        if (value) return format("%d", 15*pow);
+        if (info) return dice_info_power(dice);
+        if (value) return format("%d", 15*dice_roll(dice));
         if (color) return format("%d", TERM_BLUE);
-        if (cast)
-        {
-            if (sleep_monsters(_BOOST(pow)))
-                device_noticed = TRUE;
-        }
+        if (cast) return _device_los(GF_SLEEP, dice);
         break;
-    }
     case EFFECT_SLOW_MONSTERS:
-    {
-        int pow = _extra(effect, effect->power*3);
+        dice.base = _extra(effect, 10 + effect->power);
         if (name) return "Slow Monsters";
         if (desc) return "It attempts to slow all nearby visible monsters.";
-        if (info) return format("Power %d", pow);
-        if (value) return format("%d", 15*pow);
+        if (info) return dice_info_power(dice);
+        if (value) return format("%d", 15*dice_roll(dice));
         if (color) return format("%d", TERM_UMBER);
-        if (cast)
-        {
-            if (slow_monsters(_BOOST(pow)))
-                device_noticed = TRUE;
-        }
+        if (cast) return _device_los(GF_SLOW, dice);
         break;
-    }
     case EFFECT_STASIS_MONSTERS:
-    {
-        int pow = _extra(effect, effect->power*3);
+        dice.base = _extra(effect, 10 + effect->power*3/2);
         if (name) return "Freeze Monsters";
         if (desc) return "It attempts to freeze all nearby visible monsters.";
-        if (info) return format("Power %d", pow);
-        if (value) return format("%d", 30*pow);
+        if (info) return dice_info_power(dice);
+        if (value) return format("%d", 30*dice_roll(dice));
         if (color) return format("%d", TERM_BLUE);
-        if (cast)
-        {
-            if (stasis_monsters(_BOOST(pow)))
-                device_noticed = TRUE;
-        }
+        if (cast) return _device_los(GF_STASIS, dice);
         break;
-    }
     case EFFECT_CONFUSE_MONSTERS:
-    {
-        int pow = _extra(effect, effect->power*3);
+        dice.base = _extra(effect, 10 + effect->power);
         if (name) return "Confuse Monsters";
         if (desc) return "It attempts to confuse all nearby visible monsters.";
-        if (info) return format("Power %d", pow);
-        if (value) return format("%d", 15*pow);
-        if (color) return format("%d", res_color(RES_CONF));
-        if (cast)
-        {
-            if (confuse_monsters(_BOOST(pow)))
-                device_noticed = TRUE;
-        }
+        if (info) return dice_info_power(dice);
+        if (value) return format("%d", 15*dice_roll(dice));
+        if (color) return format("%d", res_color(GF_CONFUSION));
+        if (cast) return _device_los(GF_OLD_CONF, dice);
         break;
-    }
     case EFFECT_CHARGE:
         if (name) return "Charge";
         if (desc) return "If riding, you charge a chosen foe doing extra damage.";
@@ -6353,7 +5771,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             bool charged = FALSE;
             /* For the lance activation, the player really should be riding.
                At the moment, only the Heavy Lance 'Impaler' has this effect. */
-            if (!p_ptr->riding)
+            if (!plr->riding)
             {
                 msg_print("You need to be mounted in order to charge.");
                 return NULL;
@@ -6369,12 +5787,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (color) return format("%d", TERM_L_RED);
         if (cast)
         {
-            bool fired = FALSE;
-            msg_print("");
-            shoot_hack = SHOOT_PIERCE;
-            fired = do_cmd_fire();
-            shoot_hack = SHOOT_NONE;
-            if (!fired) return NULL;
+            if (!plr_shoot_special(PLR_SHOOT_PIERCE, 0)) return NULL;
             device_known = TRUE;
         }
         break;
@@ -6386,7 +5799,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (cast)
         {
             obj_t forge = {0};
-            int   tval = p_ptr->shooter_info.tval_ammo;
+            int   tval = plr->shooter_info.tval_ammo;
 
             if (!tval) tval = TV_ARROW;
 
@@ -6408,114 +5821,66 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (desc) return "It creates a wall of stone.";
         if (value) return format("%d", 50000);
         if (color) return format("%d", TERM_UMBER);
-        if (cast)
-        {
-            if (!get_aim_dir(&dir)) return NULL;
-            fire_beam(GF_MAKE_WALL, dir, 0);
-            device_noticed = TRUE;
-        }
+        if (cast) return _device_beam(GF_MAKE_WALL, dice);
         break;
     case EFFECT_SLEEP_MONSTER:
-    {
-        int power = _extra(effect, 10 + effect->power);
+        dice.base = _extra(effect, 10 + effect->power);
         if (name) return "Sleep Monster";
         if (desc) return "It puts a monster to sleep when you use it.";
-        if (info) return format("Power %d", _BOOST(power));
-        if (value) return format("%d", 10*power);
+        if (info) return dice_info_power(dice);
+        if (value) return format("%d", 10*dice_roll(dice));
         if (color) return format("%d", TERM_BLUE);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            if (sleep_monster(dir, _BOOST(power)))
-                device_noticed = TRUE;
-        }
+        if (cast) return _device_bolt(GF_SLEEP, dice);
         break;
-    }
     case EFFECT_SLOW_MONSTER:
+        dice.base = _extra(effect, 10 + effect->power);
         if (name) return "Slow Monster";
         if (desc) return "It slows a monster down when you use it.";
+        if (info) return dice_info_power(dice);
         if (value) return format("%d", 500);
         if (color) return format("%d", TERM_UMBER);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            if (slow_monster(dir))
-                device_noticed = TRUE;
-        }
+        if (cast) return _device_bolt(GF_SLOW, dice);
         break;
     case EFFECT_CONFUSE_MONSTER:
-    {
-        int power = _extra(effect, 10 + effect->power);
+        dice.base = _extra(effect, 10 + effect->power);
         if (name) return "Confuse Monster";
         if (desc) return "It confuses a monster when you use it.";
-        if (info) return format("Power %d", _BOOST(power));
-        if (value) return format("%d", 10*power);
-        if (color) return format("%d", res_color(RES_CONF));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            if (confuse_monster(dir, _BOOST(power)))
-                device_noticed = TRUE;
-        }
+        if (info) return dice_info_power(dice);
+        if (value) return format("%d", 10*dice_roll(dice));
+        if (color) return format("%d", res_color(GF_CONFUSION));
+        if (cast) return _device_bolt(GF_OLD_CONF, dice);
         break;
-    }
     case EFFECT_SCARE_MONSTER:
-    {
-        int power = _extra(effect, 10 + effect->power);
+        dice.base = _extra(effect, 10 + effect->power);
         if (name) return "Scare Monster";
         if (desc) return "It scares a monster when you use it.";
-        if (info) return format("Power %d", _BOOST(power));
-        if (value) return format("%d", 10*power);
-        if (color) return format("%d", res_color(RES_FEAR));
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            if (fear_monster(dir, _BOOST(power)))
-                device_noticed = TRUE;
-        }
+        if (info) return dice_info_power(dice);
+        if (value) return format("%d", 10*dice_roll(dice));
+        if (color) return format("%d", res_color(GF_FEAR));
+        if (cast) return _device_bolt(GF_FEAR, dice);
         break;
-    }
     case EFFECT_POLYMORPH:
+        dice.base = _extra(effect, 10 + effect->power);
         if (name) return "Polymorph";
         if (desc) return "It changes a monster into another when you use it.";
+        if (info) return dice_info_power(dice);
         if (value) return format("%d", 500);
         if (color) return format("%d", TERM_ORANGE);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            if (poly_monster(dir))
-                device_noticed = TRUE;
-        }
+        if (cast) return _device_bolt(GF_OLD_POLY, dice);
         break;
-    case EFFECT_STARLITE:
-    {
-        int dd = _extra(effect, 6 + effect->power / 10);
+    case EFFECT_STARLIGHT:
+        dice.dd = _extra(effect, 6 + effect->power / 10);
+        dice.ds = 10;
         if (name) return "Starlight";
         if (desc) return "It fires a line of light directed randomly for multiple times when you use it.";
+        if (info) return dice_info_dam_each(dice);
         if (value) return format("%d", 750);
         if (color) return format("%d", TERM_YELLOW);
-        if (cast)
-        {
-            int num = damroll(5, 3);
-            int k;
-
-            for (k = 0; k < num; k++)
-            {
-                point_t pos;
-                int attempts = 1000;
-                while (attempts--)
-                {
-                    pos = scatter(p_ptr->pos, 4);
-                    if (!cave_have_flag_at(pos, FF_PROJECT)) continue;
-                    if (!plr_at(pos)) break;
-                }
-                project(0, 0, pos.y, pos.x, _BOOST(damroll(dd, 10)), GF_LITE_WEAK,
-                          PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_KILL);
-            }
+        if (cast) {
+            plr_star_light(_5d(3), GF_LIGHT_WEAK, dice);
             device_noticed = TRUE;
         }
         break;
-    }
     case EFFECT_NOTHING:
         if (name) return "Nothing";
         if (desc) return "It is your food.";
@@ -6532,65 +5897,35 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (color) return format("%d", TERM_L_DARK);
         if (cast)
         {
-            aggravate_monsters(0);
+            aggravate_monsters(who_create_null());
             device_known = TRUE;
         }
         break;
     case EFFECT_HEAL_MONSTER:
+        dice.dd = 10;
+        dice.ds = 10;
         if (name) return "Heal Monster";
         if (desc) return "It heals a monster when you use it.";
         if (value) return format("%d", 5);
-        if (cast)
-        {
-            bool old_target_pet = target_pet;
-            target_pet = TRUE;
-            if (!get_fire_dir(&dir))
-            {
-                target_pet = old_target_pet;
-                return NULL;
-            }
-            target_pet = old_target_pet;
-            if (heal_monster(dir, _BOOST(damroll(10, 10))))
-                device_noticed = TRUE;
-        }
+        if (cast) return _device_bolt(GF_OLD_HEAL, dice);
         break;
     case EFFECT_HASTE_MONSTER:
+        dice.base = _extra(effect, effect->power);
         if (name) return "Haste Monster";
         if (desc) return "It hastes a monster when you use it.";
         if (value) return format("%d", 15);
-        if (cast)
-        {
-            bool old_target_pet = target_pet;
-            target_pet = TRUE;
-            if (!get_fire_dir(&dir))
-            {
-                target_pet = old_target_pet;
-                return NULL;
-            }
-            target_pet = old_target_pet;
-            if (speed_monster(dir))
-                device_noticed = TRUE;
-        }
+        if (cast) return _device_bolt(GF_OLD_SPEED, dice);
         break;
     case EFFECT_HASTE_MONSTERS:
         if (name) return "Haste Monsters";
         if (desc) return "It hastes all monsters in sight when you use it.";
-        if (cast)
-        {
-            if (speed_monsters())
-                device_noticed = TRUE;
-        }
+        if (cast) return _device_los(GF_OLD_SPEED, dice);
         break;
     case EFFECT_CLONE_MONSTER:
         if (name) return "Clone Monster";
         if (desc) return "It clones a non-unique monster when you use it.";
         if (value) return format("%d", 10);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            if (clone_monster(dir))
-                device_noticed = TRUE;
-        }
+        if (cast) return _device_bolt(GF_OLD_CLONE, dice);
         break;
     case EFFECT_DARKNESS:
         if (name) return "Darkness";
@@ -6598,7 +5933,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (color) return format("%d", TERM_L_DARK);
         if (cast)
         {
-            if (!res_save_default(RES_BLIND) && !res_save_default(RES_DARK))
+            if (!res_save_default(GF_BLIND) && !res_save_default(GF_DARK))
             {
                 if (plr_tim_add(T_BLIND, 3 + randint1(5)))
                     device_noticed = TRUE;
@@ -6617,7 +5952,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             int num = randint1(4);
             for (i = 0; i < num; i++)
             {
-                if (summon_specific(0, p_ptr->pos, cave->dun_lvl, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET)))
+                if (summon_specific(who_create_null(), plr->pos, cave->dun_lvl, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET)))
                     device_noticed = TRUE;
             }
         }
@@ -6660,7 +5995,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (cast)
         {
             if (plr_tim_add(T_FAST, _BOOST(randint1(75) + 75))) device_noticed = TRUE;
-            if (dimension_door(_BOOST(p_ptr->lev / 2 + 10))) device_noticed = TRUE;
+            if (dimension_door(_BOOST(plr->lev / 2 + 10))) device_noticed = TRUE;
         }
         break;
     case EFFECT_ARTEMIS:
@@ -6672,9 +6007,9 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             object_type forge;
             char o_name[MAX_NLEN];
 
-            object_prep(&forge, lookup_kind(TV_ARROW, m_bonus(1, p_ptr->lev)+ 1));
+            object_prep(&forge, lookup_kind(TV_ARROW, m_bonus(1, plr->lev)+ 1));
             forge.number = (byte)rand_range(5, 10);
-            apply_magic(&forge, p_ptr->lev, AM_NO_FIXED_ART);
+            apply_magic(&forge, plr->lev, AM_NO_FIXED_ART);
             obj_identify(&forge);
 
             forge.discount = 99;
@@ -6704,7 +6039,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (cast)
         {
             take_hit(DAMAGE_LOSELIFE, damroll(8, 8), "the Eye of Vecna");
-            wiz_lite();
+            wiz_map();
             device_noticed = TRUE;
         }
         break;
@@ -6712,34 +6047,23 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (name) return "Something Weird";
         if (desc) return "It does something completely unpredictable and probably rather bad.";
         if (value) return format("%d", 1000);
-        if (cast)
-        {
-            if (!get_fire_dir(&dir)) return NULL;
-            ring_of_power(dir);
-            device_noticed = TRUE;
-        }
+        if (cast) return _device_one_ring(dice);
         break;
     case EFFECT_BLADETURNER:
+        dice.base = 300;
         if (name) return "Heroism, Resistance and Breathe Elements";
         if (desc) return "It grants temporary heroism, blessing and elemental resistance and also allows you to breathe the elements.";
         if (value) return format("%d", 10000);
         if (cast)
         {
-            if (!get_fire_dir(&dir)) return NULL;
-            msg_print("You breathe the elements.");
-
-            fire_ball(GF_MISSILE, dir, _BOOST(300), 4);
-            device_noticed = TRUE;
-
-            msg_print("Your armor glows many colours...");
-
-            plr_tim_add(T_HERO, _BOOST(randint1(50) + 50));
-            plr_tim_add(T_BLESSED, _BOOST(randint1(50) + 50));
-            plr_tim_add(T_RES_ACID, _BOOST(randint1(50) + 50));
-            plr_tim_add(T_RES_ELEC, _BOOST(randint1(50) + 50));
-            plr_tim_add(T_RES_FIRE, _BOOST(randint1(50) + 50));
-            plr_tim_add(T_RES_COLD, _BOOST(randint1(50) + 50));
-            plr_tim_add(T_RES_POIS, _BOOST(randint1(50) + 50));
+            if (!_device_breath(4, GF_MISSILE, dice)) return NULL;
+            plr_tim_add(T_HERO, _BOOST(_1d(50) + 50));
+            plr_tim_add(T_BLESSED, _BOOST(_1d(50) + 50));
+            plr_tim_add(T_RES_ACID, _BOOST(_1d(50) + 50));
+            plr_tim_add(T_RES_ELEC, _BOOST(_1d(50) + 50));
+            plr_tim_add(T_RES_FIRE, _BOOST(_1d(50) + 50));
+            plr_tim_add(T_RES_COLD, _BOOST(_1d(50) + 50));
+            plr_tim_add(T_RES_POIS, _BOOST(_1d(50) + 50));
         }
         break;
     case EFFECT_BLOODY_MOON:
@@ -6750,15 +6074,15 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         {
             /* TODO: Again, we need the underlying object ...
                For now, we safely assume the artifact is Bloody Moon. */
-            int slot = equip_find_art(ART_BLOOD);
+            int slot = equip_find_art("/.Bloody Moon");
             if (slot)
             {
                 object_type *o_ptr = equip_obj(slot);
                 get_bloody_moon_flags(o_ptr);
                 obj_identify_fully(o_ptr);
                 obj_display(o_ptr);
-                if (p_ptr->prace == RACE_ANDROID) android_calc_exp();
-                p_ptr->update |= (PU_BONUS | PU_HP);
+                if (plr->prace == RACE_ANDROID) android_calc_exp();
+                plr->update |= (PU_BONUS | PU_HP);
                 device_noticed = TRUE;
             }
         }
@@ -6779,21 +6103,19 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         }
         break;
     case EFFECT_GONG:
-    {
-        int dam = _extra(effect, 3*effect->power);
+        dice.base = _extra(effect, 3*effect->power);
         if (name) return "Bang a Gong";
         if (desc) return "It makes some very loud noise.";
-        if (info) return info_damage(0, 0, _BOOST(dam));
-        if (value) return format("%d", 50*dam);
+        if (info) return dice_info_dam(dice);
+        if (value) return format("%d", 50*dice_roll(dice));
         if (cast)
         {
-            if (!res_save_default(RES_SOUND))
-                project(-1, 0, p_ptr->pos.y, p_ptr->pos.x, _BOOST(dam), GF_SOUND, PROJECT_KILL | PROJECT_HIDE);
-            project(0, 18, p_ptr->pos.y, p_ptr->pos.x, _BOOST(dam*2), GF_SOUND, PROJECT_KILL | PROJECT_ITEM);
+            if (!res_save_default(GF_SOUND))
+                gf_affect_p(who_create_unctrl_power(), GF_SOUND, dice_roll(dice), GF_AFFECT_SPELL);
+            plr_burst(10, GF_SOUND, dice_roll(dice));
             device_noticed = TRUE;
         }
         break;
-    }
     case EFFECT_MURAMASA:
         if (name) return "Gain Strength";
         if (desc) return "It attempts to increase your strength, but is destroyed upon failure.";
@@ -6811,7 +6133,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
                         Note: Effects might someday be triggered by spells, so passing
                         an object to this routine won't always make sense!
                      */
-                    int slot = equip_find_art(ART_MURAMASA);
+                    int slot = equip_find_art("|.Muramasa");
                     if (slot)
                     {
                         msg_print("The Muramasa is destroyed!");

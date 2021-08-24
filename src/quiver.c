@@ -36,7 +36,7 @@ bool quiver_likes(obj_ptr obj)
     }
     else
     {
-        if (obj->tval != p_ptr->shooter_info.tval_ammo) return FALSE;
+        if (obj->tval != plr->shooter_info.tval_ammo) return FALSE;
         /* Restrict what automatically goes into the quiver a bit. For
          * example, if an Archer is doing a lot of Create Ammo, then it
          * is annoying to have the junk results automatically added. On
@@ -90,12 +90,12 @@ void quiver_carry(obj_ptr obj)
             new_obj->marked |= OM_TOUCHED;
             new_obj->marked &= ~OM_WORN;
             autopick_alter_obj(new_obj, FALSE);
-            p_ptr->notice |= PN_OPTIMIZE_QUIVER;
+            plr->notice |= PN_OPTIMIZE_QUIVER;
         }
     }
     obj->number += xtra;
-    p_ptr->window |= PW_EQUIP; /* a Quiver [32 of 110] */
-    p_ptr->notice |= PN_CARRY;
+    plr->window |= PW_EQUIP; /* a Quiver [32 of 110] */
+    plr->notice |= PN_CARRY;
 }
 
 bool quiver_check_swap(obj_ptr obj)
@@ -196,7 +196,7 @@ slot_t quiver_find_next(obj_p p, slot_t prev_match)
     return inv_next(_inv, p, prev_match);
 }
 
-slot_t quiver_find_art(int which)
+slot_t quiver_find_art(cptr which)
 {
     return inv_find_art(_inv, which);
 }

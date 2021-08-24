@@ -9,8 +9,8 @@
 /* Finding what monster to evolve into is trivial, since the monster_race type
    keeps a pointer in that direction. However, we would like to reverse evolution
    turning harder monsters into easier ones. This fn will scan the monster race
-   table looking for a monster that evolves into this one. Of course, we assume
-   there is at most one such race to be found (Not True!)
+   table looking for a monster that evolves into this one. In case multiple races
+   evolve into a given form, a random choice is selected.
    Returns 0 if no such race can be found.
 */
 static int _find_evolution_idx(int r_idx)
@@ -19,23 +19,24 @@ static int _find_evolution_idx(int r_idx)
 
     if (r_idx <= 0) return 0;
     r_ptr = mon_race_lookup(r_idx);
-    return r_ptr->next_r_idx;
+    return r_ptr->evolution.id;
 }
 
+static int _r_idx;
+static bool _devolution_p(mon_race_ptr r) { return r->evolution.id == _r_idx; }
 static int _find_devolution_idx(int r_idx)
 {
-    int i;
-
-    if (r_idx <= 0) return 0;
-
-    for (i = 1; i < max_r_idx; i++)
+    vec_ptr v;
+    int id = 0;
+    _r_idx = r_idx;
+    v = mon_race_filter(_devolution_p);
+    if (vec_length(v))
     {
-        monster_race *r_ptr = &r_info[i];
-        if (r_ptr->next_r_idx == r_idx)
-            return i;
+        mon_race_ptr r = vec_random(v);
+        id = r->id;
     }
-
-    return 0;
+    vec_free(v);
+    return id;
 }
 
 /*  Evolve or Devolve a Monster. I spiked this from monster_gain_exp() in melee2.c without
@@ -45,55 +46,41 @@ static int _find_devolution_idx(int r_idx)
 void mon_change_race(mon_ptr mon, int new_r_idx, cptr verb)
 {
     char m_name[80], new_name[80];
-    int old_hp, old_maxhp, old_r_idx;
-    byte old_sub_align;
-    monster_race *race;
+    int old_hp, old_maxhp, old_align;
+    mon_race_ptr old_race;
 
     assert(mon);
     if (new_r_idx <= 0) return;
 
     old_hp = mon->hp;
     old_maxhp = mon->max_maxhp;
-    old_r_idx = mon->r_idx;
-    old_sub_align = mon->sub_align;
+    old_race = mon->race;
+    old_align = mon->align;
 
-    assert(mon_true_race(mon)->cur_num > 0);
-    mon_true_race(mon)->cur_num--;
+    assert(mon_true_race(mon)->alloc.cur_num > 0);
+    mon_true_race(mon)->alloc.cur_num--;
 
     monster_desc(m_name, mon, 0);
-    mon->r_idx = new_r_idx;
+    mon->race = mon_race_lookup(new_r_idx);
+    mon->align = mon->race->align;
+    mon->apparent_race = mon->race;
     mon_drop_init(mon);
 
-    mon_true_race(mon)->cur_num++;
+    mon_true_race(mon)->alloc.cur_num++;
 
-    mon->ap_r_idx = mon->r_idx;
-    race = mon_race(mon);
-
-    if (race->flags1 & RF1_FORCE_MAXHP)
-    {
-        mon->max_maxhp = maxroll(race->hdice, race->hside);
-    }
-    else
-    {
-        mon->max_maxhp = damroll(race->hdice, race->hside);
-    }
+    mon->max_maxhp = dice_roll(mon->race->hp);
     mon->maxhp = mon->max_maxhp;
     mon->hp = old_hp * mon->maxhp / old_maxhp;
 
-    mon->mspeed = get_mspeed(race);
+    mon->mspeed = get_mspeed(mon->race);
 
-    if (!is_pet(mon) && !(race->flags3 & (RF3_EVIL | RF3_GOOD)))
-        mon->sub_align = old_sub_align;
-    else
-    {
-        mon->sub_align = SUB_ALIGN_NEUTRAL;
-        if (race->flags3 & RF3_EVIL) mon->sub_align |= SUB_ALIGN_EVIL;
-        if (race->flags3 & RF3_GOOD) mon->sub_align |= SUB_ALIGN_GOOD;
-    }
+    /* maintain allegiance with master if possible */
+    if (!mon_is_pet(mon) && !mon->align)
+        mon->align = old_align;
 
     mon->exp = 0;
 
-    if (is_pet(mon) || mon->ml)
+    if (mon_is_pet(mon) || mon->ml)
     {
         if (!ignore_unview || plr_can_see(mon->pos))
         {
@@ -102,10 +89,10 @@ void mon_change_race(mon_ptr mon, int new_r_idx, cptr verb)
                 monster_race *hallu_race;
                 do
                 {
-                    hallu_race = &r_info[randint1(max_r_idx - 1)];
+                    hallu_race = vec_random(mon_alloc_tbl);
                 }
-                while (!hallu_race->name || (hallu_race->flags1 & RF1_UNIQUE));
-                msg_format("%^s changed into %s.", m_name, r_name + hallu_race->name);
+                while (mon_race_is_unique(hallu_race));
+                msg_format("%^s changed into %s.", m_name, hallu_race->name);
             }
             else
             {
@@ -113,23 +100,22 @@ void mon_change_race(mon_ptr mon, int new_r_idx, cptr verb)
                 cmsg_format(TERM_L_BLUE, "%^s %s into %s.", m_name, verb, new_name);
             }
         }
-        if (!plr_tim_find(T_HALLUCINATE))
-            mon_race_lookup(old_r_idx)->r_xtra1 |= MR1_SINKA;
+        /* XXX detect evolution vs polymorph effects XXX */
+        if (!plr_tim_find(T_HALLUCINATE) && old_race->evolution.id == new_r_idx)
+            old_race->lore.flags |= RFL_EVOLUTION;
         mon_set_parent(mon, 0);
     }
 
     update_mon(mon, FALSE);
-    lite_pos(mon->pos);
+    draw_pos(mon->pos);
 }
 
 static bool _monster_save(monster_race* r_ptr, int power)
 {
-    if (r_ptr->flagsr & RFR_RES_ALL)
-        return TRUE;
-    else if (r_ptr->flags1 & RF1_UNIQUE)
-        return r_ptr->level > randint1(2*power/3);
+    if (mon_race_is_unique(r_ptr))
+        return r_ptr->alloc.lvl > randint1(2*power/3);
     else
-        return r_ptr->level > randint1(power);
+        return r_ptr->alloc.lvl > randint1(power);
 }
 
 bool devolve_monster(int m_idx, bool msg)
@@ -152,7 +138,7 @@ bool devolve_monster(int m_idx, bool msg)
         return FALSE;
     }
 
-    if (_monster_save(r_ptr, 2*p_ptr->lev))
+    if (_monster_save(r_ptr, 2*plr->lev))
     {
         if (msg)
             msg_format("%^s resists.", m_name);
@@ -183,7 +169,7 @@ bool evolve_monster(int m_idx, bool msg)
     }
     r_ptr = mon_race_lookup(r_idx);    /* We'll use the target race for a saving throw */
     mon_tim_delete(m_ptr, MT_SLEEP);
-    if (_monster_save(r_ptr, 2*p_ptr->lev))
+    if (_monster_save(r_ptr, 2*plr->lev))
     {
         if (msg)
             msg_format("%^s resists.", m_name);
@@ -207,13 +193,13 @@ static bool _quicken_on(plr_tim_ptr timer)
 {
     if (plr_tim_find(T_FAST)) return FALSE;
     msg_print("You feel time slow down.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _quicken_off(plr_tim_ptr timer)
 {
     msg_print("You feel time speed up.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _quicken_bonus(plr_tim_ptr timer)
 {
@@ -302,13 +288,8 @@ static void _after_hit(mon_attack_ptr context)
 {
     if (plr_tim_find(_SHIELD)) /* paranoia */
     {
-        if (!(context->race->flagsr & RFR_EFF_RES_TIME_MASK))
-        {
-            int dam = 2 + damroll(1 + (p_ptr->lev / 10), 2 + (p_ptr->lev / 10));
-            gf_affect_m(GF_WHO_PLAYER, context->mon, GF_TIME, dam, GF_AFFECT_AURA);
-        }
-        else
-            mon_lore_r(context->mon, RFR_EFF_RES_TIME_MASK);
+        int dam = 2 + damroll(1 + (plr->lev / 10), 2 + (plr->lev / 10));
+        gf_affect_m(who_create_plr(), context->mon, GF_TIME, dam, GF_AFFECT_AURA);
     }
 }
 static void _mon_attack_init(mon_attack_ptr context)
@@ -322,8 +303,6 @@ static void _mon_attack_init(mon_attack_ptr context)
  ****************************************************************/
 static void _bolt_spell(int cmd, var_ptr res)
 {
-    int dd = 3 + p_ptr->lev/4;
-    int ds = 4;
     switch (cmd)
     {
     case SPELL_NAME:
@@ -333,27 +312,8 @@ static void _bolt_spell(int cmd, var_ptr res)
         var_set_string(res, "Fires a temporal bolt at chosen foe. Time based attacks may produce various "
                             "effects on a monster including slowing, stasis, and many others.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(dd), ds, spell_power(p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-
-        fire_bolt_or_beam(
-            beam_chance() - 10,
-            GF_TIME,
-            dir,
-            spell_power(damroll(dd, ds) + p_ptr->to_d_spell)
-        );
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        bolt_spell(cmd, res, GF_TIME, 3 + plr->lev/4, 4);
     }
 }
 
@@ -436,7 +396,10 @@ static void _withering_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
     {
-        int y, x, dir;
+        int dir;
+        point_t pos;
+        dun_cell_ptr cell;
+        bool tree;
 
         var_set_bool(res, FALSE);
         if (!get_rep_dir2(&dir)) return;
@@ -444,30 +407,20 @@ static void _withering_spell(int cmd, var_ptr res)
 
         if (dir == 5) return;
 
-        y = p_ptr->pos.y + ddy[dir];
-        x = p_ptr->pos.x + ddx[dir];
+        pos = point_step(plr->pos, dir);
+        if (!dun_pos_interior(cave, pos)) return;
+        cell = dun_cell_at(cave, pos);
+        tree = cell_is_tree(cell);
 
-        if (!in_bounds(y, x)) return;
-        if (cave_have_flag_bold(y, x, FF_DOOR))
+        if (cell_is_door(cell))
         {
-            cave_alter_feat(y, x, FF_TUNNEL);
-            if (!cave_have_flag_bold(y, x, FF_DOOR)) /* Hack: Permanent Door in Arena! */
-            {
-                msg_print("The door withers away.");
-                p_ptr->update |= (PU_FLOW);
-            }
+            cave->type->place_floor(cave, pos);
+            msg_print("The door withers away.");
         }
-        else if (cave_have_flag_bold(y, x, FF_HURT_ROCK))
+        else if (dun_tunnel(cave, pos, ACTION_FORCE | ACTION_QUIET) == ACTION_SUCCESS)
         {
-            cave_alter_feat(y, x, FF_HURT_ROCK);
-            msg_print("The wall turns to dust.");
-
-            p_ptr->update |= (PU_FLOW);
-        }
-        else if (cave_have_flag_bold(y, x, FF_TREE))
-        {
-            cave_set_feat(y, x, one_in_(3) ? feat_brake : feat_grass);
-            msg_print("The tree shrivels and dies.");
+            if (tree) msg_print("The tree shrivels and dies.");
+            else msg_print("The wall turns to dust.");
         }
         break;
     }
@@ -479,7 +432,6 @@ static void _withering_spell(int cmd, var_ptr res)
 
 static void _blast_spell(int cmd, var_ptr res)
 {
-    int dam = spell_power(3*p_ptr->lev/2 + 15 + p_ptr->to_d_spell);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -489,31 +441,17 @@ static void _blast_spell(int cmd, var_ptr res)
         var_set_string(res, "Fires a temporal blast at chosen foe. Time based attacks may produce various "
                             "effects on a monster including slowing, stasis, and many others.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, dam));
-        break;
-    case SPELL_CAST:
-    {
-        int dir;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-
-        fire_ball(GF_TIME, dir, dam, 2);
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 2, GF_TIME, 15 + 3*plr->lev/2);
     }
 }
 
 static bool _reversion_p(mon_ptr mon)
 {
     mon_race_ptr race = real_r_ptr(mon);
-    if ( (race->flags2 & RF2_MULTIPLY)
-        && race->cur_num > 1  /* shouldn't this be 2 ... well, breeding in *band has never been biologically accurate */
-        && !_monster_save(race, 3*p_ptr->lev) )
+    if ( mon_can_multiply(mon)
+      && race->alloc.cur_num > 1  /* shouldn't this be 2 ... well, breeding in *band has never been 'bio-logical' */
+      && !_monster_save(race, 3*plr->lev) )
     {
         return TRUE;
     }
@@ -556,8 +494,8 @@ static void _back_to_origins_spell(int cmd, var_ptr res)
 
 static void _haste_spell(int cmd, var_ptr res)
 {
-    int base = spell_power(p_ptr->lev);
-    int sides = spell_power(20 + p_ptr->lev);
+    int base = spell_power(plr->lev);
+    int sides = spell_power(20 + plr->lev);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -581,7 +519,6 @@ static void _haste_spell(int cmd, var_ptr res)
 
 static void _wave_spell(int cmd, var_ptr res)
 {
-    int ds = 3*p_ptr->lev/2;
     switch (cmd)
     {
     case SPELL_NAME:
@@ -590,16 +527,8 @@ static void _wave_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Produce a wave of time, affecting all monsters in sight.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(1, spell_power(ds), spell_power(p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-        project_los(GF_TIME, spell_power(randint1(ds) + p_ptr->to_d_spell));
-        var_set_bool(res, TRUE);
-        break;
     default:
-        default_spell(cmd, res);
-        break;
+        los_spell_aux(cmd, res, GF_TIME, spell_dam_dice(1, 3*plr->lev/2, 0));
     }
 }
 
@@ -642,7 +571,7 @@ static void _rewind_time_spell(int cmd, var_ptr res)
         if (!get_check("You will irreversibly alter the time line. Are you sure?")) return;
         var_set_bool(res, TRUE);
 
-        if (cave->dun_type_id == D_SURFACE)
+        if (cave->type->id == D_SURFACE)
         {
             msg_print("Nothing happens.");
             return;
@@ -650,7 +579,7 @@ static void _rewind_time_spell(int cmd, var_ptr res)
 
         dun_mgr_recall_plr();
 
-        if (p_ptr->prace == RACE_ANDROID)
+        if (plr->prace == RACE_ANDROID)
         {
             dec_stat(A_CON, 10, TRUE);
             if (one_in_(2)) return;
@@ -668,14 +597,14 @@ static void _rewind_time_spell(int cmd, var_ptr res)
         {
             int amount = 0;
 
-            if (p_ptr->lev < 3) return;
-            amount = exp_requirement(p_ptr->lev-1);
-            amount -= exp_requirement(p_ptr->lev-2);
+            if (plr->lev < 3) return;
+            amount = exp_requirement(plr->lev-1);
+            amount -= exp_requirement(plr->lev-2);
             if (amount > 100000) amount = 100000;
-            if (amount > p_ptr->max_exp) amount = p_ptr->max_exp;
-            if (amount > p_ptr->exp) p_ptr->exp = 0;
-            else p_ptr->exp -= amount;
-            p_ptr->max_exp -= amount;
+            if (amount > plr->max_exp) amount = plr->max_exp;
+            if (amount > plr->exp) plr->exp = 0;
+            else plr->exp -= amount;
+            plr->max_exp -= amount;
             check_experience();
         }
         break;
@@ -686,8 +615,8 @@ static void _rewind_time_spell(int cmd, var_ptr res)
 }
 
 static int  _breath_dam(void) {
-    int l = (p_ptr->lev - 30);
-    return spell_power(9*p_ptr->lev/2 + l*l/4 + p_ptr->to_d_spell); /* 325 max damage ... */
+    int l = (plr->lev - 30);
+    return spell_power(9*plr->lev/2 + l*l/4 + plr->to_d_spell); /* 325 max damage ... */
 }
 static void _breath_spell(int cmd, var_ptr res)
 {
@@ -700,22 +629,8 @@ static void _breath_spell(int cmd, var_ptr res)
         var_set_string(res, "Breathe time at chosen foe. Time based attacks may produce various "
                             "effects on a monster including slowing, stasis, and many others.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, _breath_dam()));
-        break;
-    case SPELL_CAST:
-    {
-        int dir;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-
-        fire_ball(GF_TIME, dir, _breath_dam(), -3);
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        breath_spell(cmd, res, 3, GF_TIME, _breath_dam());
     }
 }
 
@@ -756,19 +671,14 @@ static void _stasis_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Attempts to suspend all monsters in view.");
         break;
-    case SPELL_CAST:
-        stasis_monsters(spell_power(4 * p_ptr->lev));
-        var_set_bool(res, TRUE);
-        break;
     default:
-        default_spell(cmd, res);
-        break;
+        los_spell(cmd, res, GF_STASIS, 4*plr->lev);
     }
 }
 
 static void _travel_spell(int cmd, var_ptr res)
 {
-    int r = spell_power(p_ptr->lev / 2 + 10);
+    int r = spell_power(plr->lev / 2 + 10);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -800,14 +710,14 @@ static void _double_move_spell(int cmd, var_ptr res)
         var_set_string(res, "After casting this spell, you may take two additional free moves. Make the most of them!");
         break;
     case SPELL_CAST:
-        if (p_ptr->free_turns)
+        if (plr->free_turns)
         {
             msg_print("You're wasting your free turns!");
         }
         else
         {
-            p_ptr->free_turns = 3; /* this spell + 2 more free moves */
-            p_ptr->redraw |= PR_EFFECTS;
+            plr->free_turns = 3; /* this spell + 2 more free moves */
+            plr->redraw |= PR_EFFECTS;
         }
         var_set_bool(res, TRUE);
         break;
@@ -872,29 +782,29 @@ static int _get_spells(spell_info* spells, int max)
     return get_spells_aux(spells, max, _spells);
 }
 
-static void _dec_mana(int a_idx)
+static void _dec_mana(cptr which)
 {
-    if (equip_find_art(a_idx))
+    if (equip_find_art(which))
     {
-        p_ptr->dec_mana++;
-        p_ptr->easy_spell++;
+        plr->dec_mana++;
+        plr->easy_spell++;
     }
 }
 
 static void _calc_bonuses(void)
 {
-    _dec_mana(ART_ETERNAL_BLADE);
-    _dec_mana(ART_ETERNITY);
-    _dec_mana(ART_AGES);
+    _dec_mana("|.Eternal");
+    _dec_mana("(.Eternity");
+    _dec_mana("=.Ages");
 
-    if (p_ptr->lev >= 30) res_add(RES_TIME);
-    p_ptr->pspeed += p_ptr->lev / 7;
+    if (plr->lev >= 30) res_add(GF_TIME);
+    plr->pspeed += plr->lev / 7;
 }
 
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    if (p_ptr->lev >= 30) add_flag(flgs, OF_RES_TIME);
-    if (p_ptr->lev >= 7) add_flag(flgs, OF_SPEED);
+    if (plr->lev >= 30) add_flag(flgs, OF_RES_(GF_TIME));
+    if (plr->lev >= 7) add_flag(flgs, OF_SPEED);
 }
 
 static void _on_fail(const spell_info *spell)
@@ -913,7 +823,7 @@ static void _on_fail(const spell_info *spell)
         }
         else if (b <= 99)
         {
-            lose_exp(p_ptr->exp / 4);
+            lose_exp(plr->exp / 4);
             msg_print("You feel life's experiences fade away!");
         }
         else
@@ -941,6 +851,7 @@ static caster_info * _caster_info(void)
         me.encumbrance.weapon_pct = 67;
         me.encumbrance.enc_wgt = 800;
         me.on_fail = _on_fail;
+        me.options = CASTER_GAIN_SKILL;
         init = TRUE;
     }
     return &me;
@@ -963,21 +874,21 @@ static void _birth(void)
 
 static void _player_action(void)
 {
-    if (p_ptr->free_turns)
+    if (plr->free_turns)
     {
-        p_ptr->redraw |= PR_EFFECTS;
-        p_ptr->free_turns--;
+        plr->redraw |= PR_EFFECTS;
+        plr->free_turns--;
         /* 3->2 is the spell - no energy
          * 2->1 is the first move - no energy
          * 1->0 is the second and gets charged energy */
-        if (p_ptr->free_turns)
+        if (plr->free_turns)
             energy_use = 0;
     }
 }
 
 static void _prt_effects(doc_ptr doc)
 {
-    if (p_ptr->free_turns)
+    if (plr->free_turns)
         doc_insert(doc, "<color:y>DblMove</color>\n");
 }
 
@@ -991,7 +902,7 @@ plr_class_ptr time_lord_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  35,  35,   2,  16,   8,  48,  20 };
-    skills_t xs = {  7,  11,  10,   0,   0,   0,  13,  13 };
+    skills_t xs = { 35,  55,  50,   0,   0,   0,  65,  65 };
 
         me = plr_class_alloc(CLASS_TIME_LORD);
         me->name = "Time-Lord";
@@ -1045,7 +956,7 @@ plr_class_ptr time_lord_get_class(void)
 bool check_foresight(void)
 {
     if (psion_check_foresight()) return TRUE;
-    if (p_ptr->pclass != CLASS_TIME_LORD) return FALSE;
+    if (plr->pclass != CLASS_TIME_LORD) return FALSE;
 
     if (plr_tim_find(_FORESIGHT) && randint1(100) <= 25)
     {

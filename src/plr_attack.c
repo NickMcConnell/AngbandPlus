@@ -3,6 +3,8 @@
 #include <assert.h>
 #include "str_map.h"
 
+static bool _gf_innate(mon_ptr mon, int effect, int dam);
+
 static vec_ptr _stack(void)
 {
     static vec_ptr _vec = NULL;
@@ -32,6 +34,8 @@ void plr_attack_info_wipe(plr_attack_info_ptr info)
     memset(info, 0, sizeof(plr_attack_info_t));
     info->skill_mul = 1000;
     info->info_attr = TERM_L_GREEN;
+    info->crit.qual_mul = 100;
+    info->crit.freq_mul = 100;
 }
 bool plr_attack_info_two_hand(plr_attack_info_ptr info)
 {
@@ -41,7 +45,7 @@ bool plr_attack_info_two_hand(plr_attack_info_ptr info)
 }
 bool plr_attack_info_two_hand_bonus(plr_attack_info_ptr info)
 {
-    if (p_ptr->pclass == CLASS_DUELIST) return FALSE;
+    if (plr->pclass == CLASS_DUELIST) return FALSE;
     if (!plr_attack_info_two_hand(info)) return FALSE;
     if (have_flag(info->paf_flags, PAF_NEEDS_TWO_HANDS)) return FALSE;
     return TRUE;
@@ -49,7 +53,7 @@ bool plr_attack_info_two_hand_bonus(plr_attack_info_ptr info)
 /*************************************************************************
  * Hit Testing
  *************************************************************************/
-int _hit_per_mil(int skill, int ac, bool vis)
+static int _hit_per_mil(int skill, int ac, bool vis)
 {
     int odds;
     if (!vis) skill = (skill + 1)/2;
@@ -99,7 +103,7 @@ static int _max_vampiric_drain(void)
         return 100;
     /* XXX note that dragon forms attack with claws and bites, and
      * the vampiric counter gets reset for each form on innate attack (plr_attack_mon) */
-    if (prace_is_(RACE_MON_DRAGON))
+    if (prace_is_(RACE_MON_DRAGON) || prace_is_(RACE_MON_HOUND))
         return 30;
     if (mut_present(MUT_DRACONIAN_METAMORPHOSIS))
         return 30;
@@ -120,12 +124,14 @@ static void _mon_damage_mod(plr_attack_ptr context)
 {
     if (context->obj)
     {
-        if (context->obj->name1 == ART_ZANTETSU && context->race->d_char == 'j')
+        if ( obj_is_specified_art(context->obj, "|.Zantetsuken")
+          && mon_race_is_char(context->race, 'j'))
         {
             msg_print("You cannot cut such a elastic thing!");
             context->dam = 0;
         }
-        if (context->obj->name1 == ART_EXCALIBUR_J && context->race->d_char == 'S')
+        if ( obj_is_specified_art(context->obj, "|.Excalibur Jr")
+          && mon_race_is_char(context->race, 'S'))
         {
             msg_print("Spiders are difficult for you to deal with!");
             context->dam /= 2;
@@ -136,13 +142,11 @@ static void _mon_damage_mod(plr_attack_ptr context)
 static bool _is_fatal_blow(plr_attack_ptr context)
 {
     int dam = context->dam + context->info.to_d;
-    if (context->race->flagsr & RFR_RES_ALL)
-        dam /= 100;
     return dam > context->mon->hp;
 }
 static bool _stop_fear(plr_attack_ptr context)
 {
-    if (p_ptr->afraid && !fear_allow_melee(context->mon->id))
+    if (plr->afraid && !fear_allow_melee(context->mon))
     {
         if (context->mon->ml)
             msg_format("You are too afraid to attack %s!", context->mon_name_obj);
@@ -157,11 +161,11 @@ static bool _stop_fear(plr_attack_ptr context)
 static bool _stop_attack(plr_attack_ptr context)
 {
     if (context->stop) return TRUE;
-    if (p_ptr->is_dead)
+    if (plr->is_dead)
         context->stop = STOP_PLR_DEAD;
-    else if (p_ptr->leaving)
+    else if (plr->leaving)
         context->stop = STOP_PLR_LEAVING;
-    else if (mon_is_dead(context->mon))
+    else if (!mon_is_valid(context->mon))
         context->stop = STOP_MON_DEAD;
     else if (plr_tim_amount(T_STUN) >= STUN_KNOCKED_OUT || plr_tim_find(T_PARALYZED))
         context->stop = STOP_PLR_PARALYZED;
@@ -169,7 +173,7 @@ static bool _stop_attack(plr_attack_ptr context)
         context->stop = STOP_PLR_CONFUSED; */
     else if (!point_equals(context->mon->pos, context->mon_pos))
         context->stop = STOP_MON_MOVED;
-    else if (!point_equals(p_ptr->pos, context->plr_pos))
+    else if (!point_equals(plr->pos, context->plr_pos))
         context->stop = STOP_PLR_MOVED;
     return context->stop != STOP_CONTINUE;
 }
@@ -186,14 +190,14 @@ static void _plr_custom_init(plr_attack_ptr context)
 }
 static void _init_race(plr_attack_ptr context)
 {
-    context->race = mon_race(context->mon);
+    context->race = context->mon->race;
     monster_desc(context->mon_full_name, context->mon, 0);
     monster_desc(context->mon_name, context->mon, MD_PRON_VISIBLE);
     monster_desc(context->mon_name_obj, context->mon, MD_PRON_VISIBLE | MD_OBJECTIVE);
 }
 static void _check_race(plr_attack_ptr context) /* GF_CHAOS might polymorph */
 {
-    if (context->race->id != context->mon->r_idx)
+    if (context->race->id != context->mon->race->id)
         _init_race(context);
 }
 static bool _is_two_hand_bonus(plr_attack_ptr context)
@@ -203,26 +207,24 @@ static bool _is_two_hand_bonus(plr_attack_ptr context)
 }
 static void _set_target(mon_ptr mon)
 {
-    target_who = mon->id;
-    target_row = mon->pos.y;
-    target_col = mon->pos.x;
-    p_ptr->redraw |= PR_HEALTH_BARS;
+    plr->target = who_create_mon(mon);
+    plr->redraw |= PR_HEALTH_BARS;
 }
 static void _animate(plr_attack_ptr context)
 {
-    int x = context->mon_pos.x;
-    int y = context->mon_pos.y;
     if (!context->obj) return;
-    if (panel_contains(y, x) && player_can_see_bold(y, x))
+    if (cave_pt_is_visible(context->mon_pos) && plr_can_see(context->mon_pos))
     {
         char c = object_char(context->obj);
         byte a = object_attr(context->obj);
+        int x = context->mon_pos.x;
+        int y = context->mon_pos.y;
 
         print_rel(c, a, y, x);
-        move_cursor_relative(point_create(x, y));
+        move_cursor_relative(context->mon_pos);
         Term_fresh();
         Term_xtra(TERM_XTRA_DELAY, delay_animation);
-        lite_spot(y, x);
+        draw_pos(context->mon_pos);
         Term_fresh();
     }
     else
@@ -238,18 +240,18 @@ static int _fractional_energy_use(plr_attack_ptr context)
     {
         for (i = 0; i < MAX_HANDS; i++)
         {
-            if (p_ptr->attack_info[i].type != PAT_NONE)
+            if (plr->attack_info[i].type != PAT_NONE)
             {
-                blows += p_ptr->attack_info[i].base_blow;
-                blows += p_ptr->attack_info[i].xtra_blow;
+                blows += plr->attack_info[i].base_blow;
+                blows += plr->attack_info[i].xtra_blow;
             }
         }
     }
     if (!(context->flags & PAC_NO_INNATE))
     {
-        for (i = 0; i < vec_length(p_ptr->innate_blows); i++)
+        for (i = 0; i < vec_length(plr->innate_blows); i++)
         {
-            mon_blow_ptr blow = vec_get(p_ptr->innate_blows, i);
+            mon_blow_ptr blow = vec_get(plr->innate_blows, i);
             blows += blow->blows;
         }
     }
@@ -270,21 +272,15 @@ static bool _is_poison_needle(plr_attack_ptr context)
     if (context->mode == PLR_HIT_KILL) return TRUE;
     return FALSE;
 }
-static bool _is_unique(mon_race_ptr race)
-{
-    if (race->flags1 & RF1_UNIQUE) return TRUE;
-    if (race->flags7 & RF7_UNIQUE2) return TRUE;
-    return FALSE;
-}
 static bool _poison_needle_hit(plr_attack_ptr context)
 {
-    return one_in_(p_ptr->weapon_ct);
+    return one_in_(plr->weapon_ct);
 }
 static bool _poison_needle_kill(plr_attack_ptr context)
 {
     int n;
-    if (_is_unique(context->race)) return FALSE;
-    n = randint1(context->race->level/7) + 5;
+    if (mon_race_is_unique(context->race)) return FALSE;
+    n = randint1(context->race->alloc.lvl/7) + 5;
     return one_in_(n);
 }
 static bool _do_poison_needle(plr_attack_ptr context)
@@ -311,7 +307,7 @@ static bool _do_poison_needle(plr_attack_ptr context)
     }
     context->hits++;
     context->dam_total += context->dam;
-    if (mon_take_hit(context->mon->id, context->dam, &context->fear, NULL))
+    if (mon_take_hit(context->mon, context->dam, &context->fear, NULL))
         context->stop = STOP_MON_DEAD;
     else
         plr_on_hit_mon(context);
@@ -323,21 +319,20 @@ static bool _do_poison_needle(plr_attack_ptr context)
  * W + S <= 1dR means a critical hit.
  * W + 1dQ gives crit quality via table lookup
  *   where W is "weight", S is "skill", R is constant (CRIT_FREQ_ROLL)
- *   and so is Q (_CRIT_QUAL_ROLL).
+ *   and so is Q (CRIT_QUAL_ROLL).
  *************************************************************************/
 #define _CRIT_TBL_SIZE   5
-#define _CRIT_QUAL_ROLL  650
 typedef struct {
     int low;
     int high;
     slay_t slay;
 } _crit_info_t, *_crit_info_ptr;
 static _crit_info_t _crit_tbl[_CRIT_TBL_SIZE] = {
-    {    0,  399, {OF_CRIT, 200, 0, "It was a <color:y>good</color> hit!"} },
-    {  400,  699, {OF_CRIT, 250, 0, "It was a <color:R>great</color> hit!"} },
-    {  700,  899, {OF_CRIT, 300, 0, "It was a <color:r>superb</color> hit!"} },
-    {  900, 1299, {OF_CRIT, 350, 0, "It was a <color:v>*GREAT*</color> hit!"} },
-    { 1300,99999, {OF_CRIT, 400, 0, "It was a <color:v>*SUPERB*</color> hit!"} },
+    {    0,  399, {OF_CRIT, 200,  5, "It was a <color:y>good</color> hit!"} },
+    {  400,  699, {OF_CRIT, 200, 10, "It was a <color:R>great</color> hit!"} },
+    {  700,  899, {OF_CRIT, 300, 15, "It was a <color:r>superb</color> hit!"} },
+    {  900, 1299, {OF_CRIT, 300, 20, "It was a <color:v>*GREAT*</color> hit!"} },
+    { 1300,99999, {OF_CRIT, 350, 25, "It was a <color:v>*SUPERB*</color> hit!"} },
 };
 static _crit_info_ptr _crit_find(int roll)
 {
@@ -360,7 +355,7 @@ slay_t crit_aux(int roll, int weight, int skill)
     slay_t crit = {0};
     if (randint0(1000) < crit_chance_aux(roll, weight, skill))
     {
-        int k = weight + randint1(_CRIT_QUAL_ROLL);
+        int k = weight + randint1(CRIT_QUAL_ROLL);
         _crit_info_ptr info = _crit_find(k);
         assert(info);
         crit = info->slay;
@@ -376,8 +371,8 @@ slay_t crit_aux(int roll, int weight, int skill)
 static int _plr_weight(void)
 {
     int wgt = 170;
-    if (p_ptr->current_r_idx)
-        wgt = mon_race_lookup(p_ptr->current_r_idx)->weight;
+    if (plr->current_r_idx)
+        wgt = plr_mon_race()->weight;
     return wgt;
 }
 static int _mon_blow_weight(mon_blow_ptr blow, int wgt)
@@ -407,7 +402,7 @@ slay_t mon_attack_crit(mon_race_ptr race, mon_blow_ptr blow)
     slay_t crit = {0};
     if (mon_blow_allow_crit(blow))
     {
-        int skill = race->level*3 + blow->power;
+        int skill = mon_race_skill_thn(race) + blow->power;
         int weight = _mon_blow_weight(blow, race->weight);
         crit = crit_aux(CRIT_FREQ_ROLL, weight, skill);
     }
@@ -416,30 +411,53 @@ slay_t mon_attack_crit(mon_race_ptr race, mon_blow_ptr blow)
 /*************************************************************************
  * Criticals: Player
  *************************************************************************/
-static int _plr_crit_chance_aux(int roll, int weight, int skill)
-{
-    int threshold = weight + skill;
-    threshold = threshold * p_ptr->crit_freq_mul / 100;
-    if (p_ptr->crit_freq_add)
-        threshold += p_ptr->crit_freq_add * roll / 1000;
-    if (roll <= threshold) return 1000; /* handles roll == 0 */
-    return  threshold * 1000 / roll;
-}
-static slay_t _plr_attack_crit_aux(int roll, int weight, int skill)
+slay_t plr_crit(int roll, int weight, int skill, plr_crit_ptr scale)
 {
     slay_t result = {0};
-    if (randint0(1000) < _plr_crit_chance_aux(roll, weight, skill))
+    if (randint0(1000) < plr_crit_chance(roll, weight, skill, scale))
     {
         int k;
         _crit_info_ptr info;
 
-        k = weight * p_ptr->crit_qual_mul / 100;
-        k += randint1(_CRIT_QUAL_ROLL + p_ptr->crit_qual_add);
+        if (scale)
+        {
+            k = weight * scale->qual_mul / 100;
+            k += _1d(CRIT_QUAL_ROLL + scale->qual_add);
+        }
+        else
+        {
+            k = weight + _1d(CRIT_QUAL_ROLL);
+        }
         info = _crit_find(k);
         assert(info);
         result = info->slay;
     }
     return result;
+}
+int plr_crit_chance(int roll, int weight, int skill, plr_crit_ptr scale)
+{
+    int threshold = weight + skill;
+    if (scale)
+    {
+        threshold = threshold * scale->freq_mul / 100;
+        if (scale->freq_add)
+            threshold += scale->freq_add * roll / 1000;
+    }
+    if (roll <= threshold) return 1000; /* handles roll == 0 */
+    return  threshold * 1000 / roll;
+}
+slay_t plr_crit_avg(int roll, int weight, plr_crit_ptr scale, int crit_chance)
+{
+    slay_t crit;
+    if (scale)
+    {
+        weight = weight * scale->qual_mul / 100;
+        roll = roll + scale->qual_add;
+    }
+    crit = crit_avg(roll, weight);
+    crit.mul = (1000 - crit_chance)*100/1000 + (crit_chance*crit.mul)/1000;
+    crit.add = crit_chance*crit.add/1000;
+    return crit;
 }
 static int _plr_crit_freq_roll(plr_attack_ptr context)
 {
@@ -467,7 +485,7 @@ static bool _plr_allow_crit(plr_attack_ptr context)
 static int _plr_crit_chance(plr_attack_ptr context)
 {
     if (!_plr_allow_crit(context)) return 0;
-    return _plr_crit_chance_aux(_plr_crit_freq_roll(context), _plr_crit_weight(context), context->skill);
+    return plr_crit_chance(_plr_crit_freq_roll(context), _plr_crit_weight(context), context->skill, &context->info.crit);
 }
 static slay_t _apply_crits(plr_attack_ptr context)
 {
@@ -477,10 +495,11 @@ static slay_t _apply_crits(plr_attack_ptr context)
         int roll = _plr_crit_freq_roll(context);
         int weight = _plr_crit_weight(context);
 
-        crit = _plr_attack_crit_aux(roll, weight, context->skill);
+        crit = plr_crit(roll, weight, context->skill, &context->info.crit);
         if (crit.msg)
         {
-            context->dam = context->dam * crit.mul/100 + crit.add;
+            context->dam = context->dam * crit.mul/100;
+            context->dam_xtra += crit.add;
             msg_print(crit.msg);
         }
     }
@@ -518,7 +537,7 @@ int mon_crit_chance(mon_race_ptr race, mon_blow_ptr blow)
 {
     if (mon_blow_allow_crit(blow))
     {
-        int skill = race->level*3 + blow->power;
+        int skill = mon_race_skill_thn(race) + blow->power;
         int weight = _mon_blow_weight(blow, race->weight);
         return crit_chance_aux(CRIT_FREQ_ROLL, weight, skill);
     }
@@ -528,21 +547,23 @@ int mon_crit_avg_mul(mon_race_ptr race, mon_blow_ptr blow)
 {
     if (mon_blow_allow_crit(blow))
     {
-        int skill = race->level*3 + blow->power;
+        int skill = mon_race_skill_thn(race) + blow->power;
         int weight = _mon_blow_weight(blow, race->weight);
         int chance = crit_chance_aux(CRIT_FREQ_ROLL, weight, skill);
-        slay_t crit = crit_avg(_CRIT_QUAL_ROLL, weight);
+        slay_t crit = crit_avg(CRIT_QUAL_ROLL, weight);
         return (1000 - chance)*100/1000 + (chance*crit.mul)/1000;
     }
     return 100;
 }
-static int _plr_crit_avg_mul(plr_attack_ptr context)
+static slay_t _plr_crit_avg(plr_attack_ptr context)
 {
     int chance = _plr_crit_chance(context);
-    int roll = _CRIT_QUAL_ROLL + p_ptr->crit_qual_add;
-    int weight = _plr_crit_weight(context) * p_ptr->crit_qual_mul / 100;
+    int roll = CRIT_QUAL_ROLL + context->info.crit.qual_add;
+    int weight = _plr_crit_weight(context) * context->info.crit.qual_mul / 100;
     slay_t crit = crit_avg(roll, weight);
-    return (1000 - chance)*100/1000 + (chance*crit.mul)/1000;
+    crit.mul = (1000 - chance)*100/1000 + chance*crit.mul/1000;
+    crit.add = chance*crit.add/1000;
+    return crit;
 }
 
 /*************************************************************************
@@ -554,7 +575,7 @@ static int _innate_vorpal_pct(mon_blow_ptr blow)
     /* Assume CUT is never the first effect ... */
     for (i = 1; i < blow->effect_ct; i++)
     {
-        if (blow->effects[i].effect == RBE_CUT)
+        if (blow->effects[i].type == RBE_CUT)
         {
             int chance = blow->effects[i].pct;
             if (!chance) chance = 100;
@@ -567,10 +588,14 @@ static int _vorpal_chance(plr_attack_ptr context)
 {
     if (context->blow) return 4; /* innate or monk */
     if (!context->obj) return 0; /* paranoia */
-    if (context->obj->name1 == ART_ZANTETSU && context->race->d_char == 'j') return 0;
+    if ( obj_is_specified_art(context->obj, "|.Zantetsuken")
+      && mon_race_is_char(context->race, 'j') )
+    {
+        return 0;
+    }
     if (have_flag(context->obj_flags, OF_VORPAL2)) return 2;
-    if (have_flag(context->obj_flags, OF_VORPAL) && p_ptr->vorpal) return 3;
-    if (have_flag(context->obj_flags, OF_VORPAL) || p_ptr->vorpal) return 4;
+    if (have_flag(context->obj_flags, OF_VORPAL) && plr->vorpal) return 3;
+    if (have_flag(context->obj_flags, OF_VORPAL) || plr->vorpal) return 4;
     return 0;
 }
 static bool _is_vorpal_hit(plr_attack_ptr context)
@@ -638,7 +663,7 @@ static void _apply_vorpal(plr_attack_ptr context)
  *************************************************************************/
 static bool _is_vampiric(plr_attack_ptr context)
 {
-    if (!monster_living(context->race)) return FALSE;
+    if (!mon_is_living(context->mon)) return FALSE;
     if (_is_fatal_blow(context)) return FALSE;
     if (have_flag(context->obj_flags, OF_BRAND_VAMP)) return TRUE;
     return FALSE;
@@ -646,9 +671,9 @@ static bool _is_vampiric(plr_attack_ptr context)
 
 static bool _muramasa_drain(plr_attack_ptr context)
 {
-    if (context->obj && context->obj->name1 == ART_MURAMASA)
+    if (context->obj && obj_is_specified_art(context->obj, "|.Muramasa")) 
     {
-        if (context->race->d_char == 'p')
+        if (mon_race_is_char(context->race, 'p'))
         {
             int to_h = context->obj->to_h;
             int to_d = context->obj->to_d;
@@ -718,67 +743,64 @@ static void _apply_vampiric(plr_attack_ptr context)
 /*************************************************************************
  * Slay and Brand Tables
  *************************************************************************/
-#define _LORE_RESIST 0x01
-typedef struct {
-    int        id;
-    mon_p      check_p;
-    mon_lore_f lore_f;
-    int        mul;
-    int        add;
-    cptr       name;  /* for plr_attack_display() */
-    cptr       lore_msg; /* for obj_learn_slay() */
-    int        flags; /* when to apply the lore_f */
-} _slay_info_t, *_slay_info_ptr;
-static _slay_info_t _slay_tbl[] = {
+static bool _mon_is_evil(mon_ptr mon) { return mon->race->align < 0; }
+static bool _mon_is_good(mon_ptr mon) { return mon->race->align > 0; }
+
+slay_info_t slay_tbl[] = {
     /* slays: lore_f applies when check_p succeeds */
-    {OF_KILL_ANIMAL, mon_is_animal, mon_lore_animal, 400, 0, "Animals", "slays <color:g>*Animals*</color>"},
-    {OF_SLAY_ANIMAL, mon_is_animal, mon_lore_animal, 250, 0, "Animals", "slays <color:g>Animals</color>"},
-    {OF_KILL_DEMON,  mon_is_demon,  mon_lore_demon,  500, 0, "Demons", "slays <color:R>*Demons*</color>"},
-    {OF_SLAY_DEMON,  mon_is_demon,  mon_lore_demon,  300, 0, "Demons", "slays <color:R>Demons</color>"},
-    {OF_KILL_DRAGON, mon_is_dragon, mon_lore_dragon, 500, 0, "Dragons", "slays <color:r>*Dragons*</color>"},
-    {OF_SLAY_DRAGON, mon_is_dragon, mon_lore_dragon, 300, 0, "Dragons", "slays <color:r>Dragons</color>"},
-    {OF_KILL_EVIL,   mon_is_evil,   mon_lore_evil,   350, 0, "Evil", "slays <color:y>*Evil*</color>"},
-    {OF_SLAY_EVIL,   mon_is_evil,   mon_lore_evil,   200, 0, "Evil", "slays <color:y>Evil</color>"},
-    {OF_KILL_GIANT,  mon_is_giant,  mon_lore_giant,  500, 0, "Giants", "slays <color:u>*Giants*</color>"},
-    {OF_SLAY_GIANT,  mon_is_giant,  mon_lore_giant,  300, 0, "Giants", "slays <color:u>Giants</color>"},
-    {OF_SLAY_GOOD,   mon_is_good,   mon_lore_good,   200, 0, "Good", "slays <color:W>Good</color>"},
-    {OF_KILL_HUMAN,  mon_is_human,  mon_lore_human,  400, 0, "Humans", "slays <color:s>*Humans*</color>"},
-    {OF_SLAY_HUMAN,  mon_is_human,  mon_lore_human,  250, 0, "Humans", "slays <color:s>Humans</color>"},
-    {OF_SLAY_LIVING, mon_is_living, mon_lore_living, 200, 0, "Living", "slays <color:o>Living</color>"},
-    {OF_KILL_ORC,    mon_is_orc,    mon_lore_orc,    500, 0, "Orcs", "slays <color:U>*Orcs*</color>"},
-    {OF_SLAY_ORC,    mon_is_orc,    mon_lore_orc,    300, 0, "Orcs", "slays <color:U>Orcs</color>"},
-    {OF_KILL_TROLL,  mon_is_troll,  mon_lore_troll,  500, 0, "Trolls", "slays <color:g>*Trolls*</color>"},
-    {OF_SLAY_TROLL,  mon_is_troll,  mon_lore_troll,  300, 0, "Trolls", "slays <color:g>Trolls</color>"},
-    {OF_KILL_UNDEAD, mon_is_undead, mon_lore_undead, 500, 0, "Undead", "slays <color:D>*Undead*</color>"},
-    {OF_SLAY_UNDEAD, mon_is_undead, mon_lore_undead, 300, 0, "Undead", "slays <color:D>Undead</color>"},
+    {OF_KILL_ANIMAL, mon_is_animal, mon_lore_animal, 300, 10, "Animals", "slays <color:g>*Animals*</color>"},
+    {OF_SLAY_ANIMAL, mon_is_animal, mon_lore_animal, 200,  5, "Animals", "slays <color:g>Animals</color>", 0, OF_KILL_ANIMAL},
+    {OF_KILL_DEMON,  mon_is_demon,  mon_lore_demon,  400, 12, "Demons",  "slays <color:R>*Demons*</color>"},
+    {OF_SLAY_DEMON,  mon_is_demon,  mon_lore_demon,  250,  6, "Demons",  "slays <color:R>Demons</color>", 0, OF_KILL_DEMON},
+    {OF_KILL_DRAGON, mon_is_dragon, mon_lore_dragon, 400, 10, "Dragons", "slays <color:r>*Dragons*</color>"},
+    {OF_SLAY_DRAGON, mon_is_dragon, mon_lore_dragon, 250,  5, "Dragons", "slays <color:r>Dragons</color>", 0, OF_KILL_DRAGON},
+    {OF_KILL_EVIL,   _mon_is_evil,  mon_lore_align,  200, 14, "Evil",    "slays <color:y>*Evil*</color>"},
+    {OF_SLAY_EVIL,   _mon_is_evil,  mon_lore_align,  150,  7, "Evil",    "slays <color:y>Evil</color>", 0, OF_KILL_EVIL},
+    {OF_KILL_GIANT,  mon_is_giant,  mon_lore_giant,  400, 10, "Giants",  "slays <color:u>*Giants*</color>"},
+    {OF_SLAY_GIANT,  mon_is_giant,  mon_lore_giant,  250,  5, "Giants",  "slays <color:u>Giants</color>", 0, OF_KILL_GIANT},
+    {OF_SLAY_GOOD,   _mon_is_good,  mon_lore_align,  150,  6, "Good",    "slays <color:W>Good</color>"},
+    {OF_KILL_HUMAN,  mon_is_human,  mon_lore_human,  300, 10, "Humans",  "slays <color:s>*Humans*</color>"},
+    {OF_SLAY_HUMAN,  mon_is_human,  mon_lore_human,  200,  5, "Humans",  "slays <color:s>Humans</color>", 0, OF_KILL_HUMAN},
+    {OF_SLAY_LIVING, mon_is_living, mon_lore_living, 150,  4, "Living",  "slays <color:o>Living</color>"},
+    {OF_KILL_ORC,    mon_is_orc,    mon_lore_orc,    400, 16, "Orcs",    "slays <color:U>*Orcs*</color>"},
+    {OF_SLAY_ORC,    mon_is_orc,    mon_lore_orc,    250,  8, "Orcs",    "slays <color:U>Orcs</color>", 0, OF_KILL_ORC},
+    {OF_KILL_TROLL,  mon_is_troll,  mon_lore_troll,  400, 16, "Trolls",  "slays <color:g>*Trolls*</color>"},
+    {OF_SLAY_TROLL,  mon_is_troll,  mon_lore_troll,  250,  8, "Trolls",  "slays <color:g>Trolls</color>", 0, OF_KILL_TROLL},
+    {OF_KILL_UNDEAD, mon_is_undead, mon_lore_undead, 400, 12, "Undead",  "slays <color:D>*Undead*</color>"},
+    {OF_SLAY_UNDEAD, mon_is_undead, mon_lore_undead, 250,  6, "Undead",  "slays <color:D>Undead</color>", 0, OF_KILL_UNDEAD},
     {0}
 };
 
-static _slay_info_t _brand_tbl[] = {
-    /* brands: lore_f applies when check_p fails */
-    {OF_BRAND_ACID,  mon_not_res_acid, mon_lore_res_acid, 250, 0, "Acid", "is <color:g>Acid Branded</color>", _LORE_RESIST},
-    {OF_BRAND_ELEC,  mon_not_res_elec, mon_lore_res_elec, 250, 0, "Elec", "is <color:b>Lightning Branded</color>", _LORE_RESIST},
-    {OF_BRAND_FIRE,  mon_not_res_fire, mon_lore_res_fire, 250, 0, "Fire", "has <color:r>Flame Tongue</color>", _LORE_RESIST},
-    {OF_BRAND_COLD,  mon_not_res_cold, mon_lore_res_cold, 250, 0, "Cold", "is <color:W>Frost Branded</color>", _LORE_RESIST},
-    {OF_BRAND_POIS,  mon_not_res_pois, mon_lore_res_pois, 250, 0, "Poison", "has <color:G>Viper's Fang</color>", _LORE_RESIST},
-    {OF_BRAND_LITE,  mon_not_res_lite, mon_lore_res_lite, 200, 0, "Light", "is <color:y>Light Branded</color>", _LORE_RESIST},
-    {OF_BRAND_DARK,  mon_not_res_dark, mon_lore_res_dark, 200, 0, "Dark", "is <color:D>Dark Branded</color>", _LORE_RESIST},
-    {OF_BRAND_PLASMA, mon_not_res_plasma, mon_lore_res_plasma, 200, 0, "Plasma", "is <color:R>Plasma Branded</color>", _LORE_RESIST},
+slay_info_t brand_tbl[] = {
+    /* XXX brands are easier if we use a gf code rather than predicates XXX */
+    {OF_BRAND_ACID,  NULL, NULL, 200,  7, "Acid", "is <color:g>Acid Branded</color>", GF_ACID},
+    {OF_BRAND_ELEC,  NULL, NULL, 200, 10, "Elec", "is <color:b>Lightning Branded</color>", GF_ELEC},
+    {OF_BRAND_FIRE,  NULL, NULL, 200,  5, "Fire", "has <color:r>Flame Tongue</color>", GF_FIRE},
+    {OF_BRAND_COLD,  NULL, NULL, 200,  5, "Cold", "is <color:W>Frost Branded</color>", GF_COLD},
+    {OF_BRAND_POIS,  NULL, NULL, 200,  5, "Poison", "has <color:G>Viper's Fang</color>", GF_POIS},
+    {OF_BRAND_LIGHT,  NULL, NULL, 150,  7, "Light", "is <color:y>Light Branded</color>", GF_LIGHT},
+    {OF_BRAND_DARK,  NULL, NULL, 150,  6, "Dark", "is <color:D>Dark Branded</color>", GF_DARK},
+    {OF_BRAND_PLASMA, NULL, NULL, 150, 10, "Plasma", "is <color:R>Plasma Branded</color>", GF_PLASMA},
     {0}
 };
-static slay_t _slay_info_apply(_slay_info_ptr info, mon_ptr mon, obj_ptr obj)
+slay_t slay_info_apply(slay_info_ptr info, mon_ptr mon, obj_ptr obj)
 {
     slay_t result = {0};
+    int res_pct = 0;
     assert(info);
 
     /* check if slay or brand applies */
     if (mon)
     {
-        if (!info->check_p(mon))
+        if (info->gf) /* brands lore when they fail (resistance) */
         {
-            /* lore resistances */
-            if ((info->flags & _LORE_RESIST) && info->lore_f)
-                info->lore_f(mon);
+            res_pct = mon_res_pct(mon, info->gf);
+            if (res_pct) mon_lore_resist(mon, info->gf);
+            if (res_pct > 0) /* any amount of resistance negates the brand */
+                return result;
+        }
+        else if (info->check_p && !info->check_p(mon)) /* slay */
+        {
             return result;
         }
     }
@@ -789,31 +811,31 @@ static slay_t _slay_info_apply(_slay_info_ptr info, mon_ptr mon, obj_ptr obj)
     result.mul = info->mul;
     result.add = info->add;
 
-    /* apply lore and check for vulnerabilities */
+    /* apply slay lore and check for vulnerabilities */
     if (mon)
     {
-        if (!(info->flags & _LORE_RESIST) && info->lore_f)
+        if (info->lore_f) /* slays lore when they work */
+        {
+            assert(info->gf == GF_NONE);
+            switch (info->id)
+            {
+            case OF_SLAY_EVIL:
+            case OF_KILL_EVIL:
+                slay_scale(&result, holy_align_dam_pct(mon->race->align) - 100);
+                break;
+            case OF_SLAY_GOOD:
+                slay_scale(&result, hell_align_dam_pct(mon->race->align) - 100);
+                break;
+            }
             info->lore_f(mon);
+        }
         obj_learn_slay(obj, info->id, info->lore_msg);
-        if (info->id == OF_BRAND_FIRE && mon_vuln_fire(mon))
-        {
-            mon_lore_vuln_fire(mon);
-            result.mul += 150;
-        }
-        else if (info->id == OF_BRAND_COLD && mon_vuln_cold(mon))
-        {
-            mon_lore_vuln_cold(mon);
-            result.mul += 150;
-        }
-        else if (info->id == OF_BRAND_LITE && mon_vuln_lite(mon))
-        {
-            mon_lore_vuln_lite(mon);
-            result.mul += 100;
-        }
+        if (res_pct < 0)
+            slay_scale(&result, 100 - res_pct); /* -100% vuln gives 200% scale */
     }
     return result;
 }
-static _slay_info_ptr _slay_lookup(int id)
+static slay_info_ptr _slay_lookup(int id)
 {
     static int_map_ptr _map = NULL;
     if (!_map)
@@ -822,13 +844,13 @@ static _slay_info_ptr _slay_lookup(int id)
         _map = int_map_alloc(NULL);
         for (i = 0; ; i++)
         {
-            _slay_info_ptr info = &_slay_tbl[i];
+            slay_info_ptr info = &slay_tbl[i];
             if (!info->id) break;
             int_map_add(_map, info->id, info);
         }
         for (i = 0; ; i++)
         {
-            _slay_info_ptr info = &_brand_tbl[i];
+            slay_info_ptr info = &brand_tbl[i];
             if (!info->id) break;
             int_map_add(_map, info->id, info);
         }
@@ -838,17 +860,43 @@ static _slay_info_ptr _slay_lookup(int id)
 slay_t slay_lookup(int id)
 {
     slay_t slay = {0};
-    _slay_info_ptr info = _slay_lookup(id);
+    slay_info_ptr info = _slay_lookup(id);
     if (info)
-        slay = _slay_info_apply(info, NULL, NULL);
+        slay = slay_info_apply(info, NULL, NULL);
     return slay;
+}
+int slay_compare(slay_ptr left, slay_ptr right)
+{
+    if (left->mul < right->mul) return -1;
+    if (left->mul > right->mul) return 1;
+    if (left->add < right->add) return -1;
+    if (left->add > right->add) return 1;
+    return 0;
+}
+void slay_scale(slay_ptr slay, int pct)
+{
+    assert(pct >= 0);
+    if (pct == 100) return;
+    if (pct <= 0) /* paranoia */
+    {
+        slay->mul = 100;
+        slay->add = 0;
+    }
+    else
+    {
+        /* e.g. scale(250, 200) -> 400 slay */
+        slay->mul -= 100;
+        slay->mul = slay->mul * pct / 100;
+        slay->mul += 100;
+        slay->add = slay->add * pct / 100;
+    }
 }
 /*************************************************************************
  * Slays: Check them all and call custom hooks. Allow code to be
  * used by shooting and throwing in addition to melee. This complicates
  * the interface a bit.
  *************************************************************************/
-slay_t _apply_force(slay_t slay, obj_ptr obj, int cost, bool display)
+slay_t slay_apply_force(slay_t slay, obj_ptr obj, int cost, bool display)
 {
     caster_info *caster = get_caster_info();
     bool         ok = FALSE;
@@ -856,25 +904,25 @@ slay_t _apply_force(slay_t slay, obj_ptr obj, int cost, bool display)
     if (caster && (caster->options & CASTER_USE_AU))
     {
         cost *= 10;
-        if (p_ptr->au >= cost)
+        if (plr->au >= cost)
         {
             if (!display)
             {
-                p_ptr->au -= cost;
+                plr->au -= cost;
                 stats_on_gold_services(cost); /* ? */
-                p_ptr->update |= PU_BONUS | PU_HP | PU_MANA;
-                p_ptr->redraw |= PR_GOLD;
+                plr->update |= PU_BONUS | PU_HP | PU_MANA;
+                plr->redraw |= PR_GOLD;
                 obj_learn_slay(obj, OF_BRAND_MANA, "is <color:B>Mana Branded</color>");
             }
             ok = TRUE;
         }
     }
-    else if (p_ptr->csp >= cost)
+    else if (plr->csp >= cost)
     {
         if (!display)
         {
-            p_ptr->csp -= cost;
-            p_ptr->redraw |= PR_MANA;
+            plr->csp -= cost;
+            plr->redraw |= PR_MANA;
             obj_learn_slay(obj, OF_BRAND_MANA, "is <color:B>Mana Branded</color>");
         }
         ok = TRUE;
@@ -882,19 +930,19 @@ slay_t _apply_force(slay_t slay, obj_ptr obj, int cost, bool display)
     if (ok) slay.mul = slay.mul*3/2 + 150;
     return slay;
 }
-static slay_t _best_slay(u32b flags[OF_ARRAY_SIZE], mon_ptr mon, obj_ptr obj, _slay_info_ptr tbl)
+slay_t slay_find_best(u32b flags[OF_ARRAY_SIZE], mon_ptr mon, obj_ptr obj, slay_info_ptr tbl)
 {
     slay_t best = {0};
     int i;
     for (i = 0; ; i++)
     {
-        _slay_info_ptr info = &tbl[i];
+        slay_info_ptr info = &tbl[i];
         if (!info->id) break;
         if (have_flag(flags, info->id))
         {
-            slay_t tmp = _slay_info_apply(info, mon, obj);
+            slay_t tmp = slay_info_apply(info, mon, obj);
             if (!tmp.id) continue;
-            if (tmp.mul > best.mul)
+            if (slay_compare(&tmp, &best) > 0)
                 best = tmp;
         }
     }
@@ -909,25 +957,27 @@ bool obj_slays_mon(obj_ptr obj, mon_ptr mon)
     obj_flags(obj, flags);
     for (i = 0; ; i++)
     {
-        _slay_info_ptr info = &_slay_tbl[i];
+        slay_info_ptr info = &slay_tbl[i];
         if (!info->id) break;
         if (!have_flag(flags, info->id)) continue;
-        if (info->check_p(mon)) return TRUE;
+        if (info->gf && mon_res_pct(mon, info->gf) <= 0) return TRUE;
+        if (info->check_p && info->check_p(mon)) return TRUE;
     }
     for (i = 0; ; i++)
     {
-        _slay_info_ptr info = &_brand_tbl[i];
+        slay_info_ptr info = &brand_tbl[i];
         if (!info->id) break;
         if (!have_flag(flags, info->id)) continue;
-        if (info->check_p(mon)) return TRUE;
+        if (info->gf && mon_res_pct(mon, info->gf) <= 0) return TRUE;
+        if (info->check_p && info->check_p(mon)) return TRUE;
     }
     return FALSE;
 }
 slay_t slay_mon(u32b flags[OF_ARRAY_SIZE], mon_ptr mon, obj_ptr obj)
 {
     slay_t slay = {0};
-    slay_t best_slay = _best_slay(flags, mon, obj, _slay_tbl);
-    slay_t best_brand = _best_slay(flags, mon, obj, _brand_tbl);
+    slay_t best_slay = slay_find_best(flags, mon, obj, slay_tbl);
+    slay_t best_brand = slay_find_best(flags, mon, obj, brand_tbl);
     if (best_slay.id)
     {
         slay = best_slay;
@@ -946,31 +996,68 @@ slay_t slay_mon(u32b flags[OF_ARRAY_SIZE], mon_ptr mon, obj_ptr obj)
         int cost = 5;
         if (obj) cost = 1 + obj->dd*obj->ds/2;
 
-        slay = _apply_force(slay, obj, cost, BOOL(mon == NULL));
+        slay = slay_apply_force(slay, obj, cost, BOOL(mon == NULL));
     }
     return slay;
+}
+static int _slay_dam(slay_ptr slay, int dam)
+{
+    return dam * slay->mul / 100 + slay->add;
+}
+static slay_t _slay_find_best(plr_attack_ptr context, slay_info_ptr tbl)
+{
+    slay_t best = {0};
+    int i, dam, best_dam = context->dam;
+    for (i = 0; ; i++)
+    {
+        slay_info_ptr info = &tbl[i];
+        if (!info->id) break;
+        if (have_flag(context->obj_flags, info->id))
+        {
+            slay_t tmp = slay_info_apply(info, context->mon, context->obj);
+            if (!tmp.id) continue;
+            dam = _slay_dam(&tmp, context->dam);
+            if (dam > best_dam)
+            {
+                best = tmp;
+                best_dam = dam;
+            }
+        }
+    }
+    return best;
+}
+static bool _plr_allow_slay(plr_attack_ptr context)
+{
+    if (context->blow) return mon_blow_allow_slay(context->blow);
+    return TRUE;
 }
 static void _apply_slays(plr_attack_ptr context)
 {
     slay_t best_slay, best_brand, slay = {0};
 
+    if (!_plr_allow_slay(context)) return;
+
     /* find the best slay */
-    best_slay = _best_slay(context->obj_flags, context->mon, context->obj, _slay_tbl);
+    best_slay = _slay_find_best(context, slay_tbl);
     if (context->hooks.calc_slay_f)
     {
         slay_t tmp = context->hooks.calc_slay_f(context, &best_slay);
-        if (tmp.mul >= best_slay.mul)
+        int    best_dam = _slay_dam(&best_slay, context->dam);
+        int    dam = _slay_dam(&tmp, context->dam);
+        if (dam > best_dam)
             best_slay = tmp;
     }
     if (best_slay.msg)
         msg_format(best_slay.msg, context->mon_name);
 
     /* find the best brand */
-    best_brand = _best_slay(context->obj_flags, context->mon, context->obj, _brand_tbl);
+    best_brand = _slay_find_best(context, brand_tbl);
     if (context->hooks.calc_brand_f)
     {
         slay_t tmp = context->hooks.calc_brand_f(context, &best_brand);
-        if (tmp.mul >= best_brand.mul)
+        int    best_dam = _slay_dam(&best_brand, context->dam);
+        int    dam = _slay_dam(&tmp, context->dam);
+        if (dam > best_dam)
             best_brand = tmp;
     }
     if (best_brand.msg)
@@ -1008,25 +1095,25 @@ static void _apply_slays(plr_attack_ptr context)
             ds = d.ds + context->info.to_ds;
         }
 
-        if (p_ptr->pclass == CLASS_SAMURAI)
+        if (plr->pclass == CLASS_SAMURAI)
             cost = (1 + (dd * ds * 2 / 7));
         else
             cost = (1 + (dd * ds / 7));
 
-        slay = _apply_force(slay, context->obj, cost, FALSE);
+        slay = slay_apply_force(slay, context->obj, cost, FALSE);
     }
 
-    #if 0
-    if (slay.mul != 100)
+    #if DEVELOPER
+    if (0 && slay.mul != 100)
     {
-        string_ptr s = string_alloc();
+        str_ptr s = str_alloc();
         
-        string_printf(s, "<color:D>%d x %d.%02d", context->dam, slay.mul/100, slay.mul%100);
+        str_printf(s, "<color:D>%d x %d.%02d", context->dam, slay.mul/100, slay.mul%100);
         if (slay.add)
-            string_printf(s, " + %d", slay.add);
-        string_printf(s, " = %d</color>", context->dam*slay.mul/100 + slay.add);
-        msg_print(string_buffer(s));
-        string_free(s);
+            str_printf(s, " + %d", slay.add);
+        str_printf(s, " = %d</color>", context->dam*slay.mul/100 + slay.add);
+        msg_print(str_buffer(s));
+        str_free(s);
     }
     #endif
 
@@ -1034,23 +1121,22 @@ static void _apply_slays(plr_attack_ptr context)
     if (slay.mul > 100)
         context->dam = context->dam * slay.mul / 100;
     if (slay.add > 0)
-        context->dam += slay.add;
+        context->dam_xtra += slay.add;
 }
-
 /*************************************************************************
  * Initialize a Context
  *************************************************************************/
 bool plr_attack_begin(plr_attack_ptr context, point_t pos)
 {
-    mon_ptr mon = mon_at(pos);
+    mon_ptr mon = dun_mon_at(cave, pos);
     bool    attack_ct = 0;
 
     disturb(0, 0);
 
     if (!(context->flags & PAC_NO_WEAPON))
-        attack_ct += p_ptr->weapon_ct;
+        attack_ct += plr->weapon_ct;
     if (!(context->flags & PAC_NO_INNATE))
-        attack_ct += vec_length(p_ptr->innate_blows);
+        attack_ct += vec_length(plr->innate_blows);
     if (!attack_ct)
     {
         if (context->flags & PAC_NO_WEAPON)
@@ -1077,12 +1163,12 @@ bool plr_attack_begin(plr_attack_ptr context, point_t pos)
     /* XXX We assume it is OK to attack pos even if not adjacent. Many classes have
      * techniques that allow attacking monsters at a distance (e.g. beholders, samurai, etc.)
      * See plr_attack_special_aux() for proper treatment of ranged techniques that avoid
-     * relying on an actual call to project(). */
+     * relying on an actual call to project. */
 
     context->mon = mon;
     _init_race(context);
     context->mon_pos = pos;
-    context->plr_pos = p_ptr->pos;
+    context->plr_pos = plr->pos;
     context->counter = 0;
     context->hits = 0;
     context->misses = 0;
@@ -1094,19 +1180,21 @@ bool plr_attack_begin(plr_attack_ptr context, point_t pos)
     context->fear = FALSE;
     context->do_quake = FALSE;
     context->do_blink = FALSE;
+    context->do_knockback = 0;
+    context->do_sleep = FALSE;
     
     if (context->mon->ml)
     {
         if (!plr_tim_find(T_HALLUCINATE)) mon_track(context->mon);
-        health_track(context->mon->id);
+        health_track(context->mon);
     }
     if (!context->energy)
         context->energy = 100;
 
     /* The following checks waste player energy */
-    if ( (context->race->flags1 & RF1_FEMALE)
+    if ( mon_is_female(context->mon)
       && !(plr_tim_find(T_STUN) || plr_tim_find(T_CONFUSED) || plr_tim_find(T_HALLUCINATE) || !context->mon->ml)
-      && equip_find_art(ART_ZANTETSU) )
+      && equip_find_art("|.Zantetsuken") )
     {
         msg_print("I can not attack women!");
         return FALSE;
@@ -1116,10 +1204,10 @@ bool plr_attack_begin(plr_attack_ptr context, point_t pos)
         msg_print("Something prevents you from attacking.");
         return FALSE;
     }
-    if ( !is_hostile(context->mon)
+    if ( !mon_is_hostile(context->mon)
       && !(plr_tim_find(T_STUN) || plr_tim_find(T_CONFUSED) || plr_tim_find(T_HALLUCINATE) || plr_tim_find(T_BERSERK) || !context->mon->ml) )
     {
-        if (equip_find_art(ART_STORMBRINGER))
+        if (equip_find_art("|.Stormbringer"))
         {
             msg_format("Your black blade greedily attacks %s!", context->mon_name_obj);
             virtue_add(VIRTUE_INDIVIDUALISM, 1);
@@ -1154,14 +1242,14 @@ bool plr_attack_begin(plr_attack_ptr context, point_t pos)
 
     if (mon_tim_find(context->mon, MT_SLEEP)) /* It is not honorable etc to attack helpless victims */
     {
-        if (!(context->race->flags3 & RF3_EVIL) || one_in_(5)) virtue_add(VIRTUE_COMPASSION, -1);
-        if (!(context->race->flags3 & RF3_EVIL) || one_in_(5)) virtue_add(VIRTUE_HONOUR, -1);
+        if (!mon_is_evil(mon) || one_in_(5)) virtue_add(VIRTUE_COMPASSION, -1);
+        if (!mon_is_evil(mon) || one_in_(5)) virtue_add(VIRTUE_HONOUR, -1);
     }
 
-    if (p_ptr->riding)
+    if (plr->riding)
     {
         skills_riding_gain_melee(context->race);
-        riding_t_m_idx = context->mon->id;
+        plr->riding_target = who_create_mon(context->mon);
     }
     _push(context);
     return TRUE;
@@ -1172,21 +1260,25 @@ void plr_attack_end(plr_attack_ptr context)
     if ( (context->do_blink || context->mode == PLR_HIT_TELEPORT) 
       && (!context->stop || context->stop == STOP_MON_DEAD) )
     {
-        if (randint0(p_ptr->skills.dis) < 7)
+        if (randint0(plr->skills.dis) < 7)
             msg_print("You fail to run away!");
         else
-            teleport_player(25 + p_ptr->lev/2, 0);
+            teleport_player(25 + plr->lev/2, 0);
     }
     if (context->stop != STOP_MON_DEAD)
     {
+        if (context->hits)
+            mon_set_target(context->mon, plr->pos);
+        if (context->do_sleep)
+            _gf_innate(context->mon, GF_SLEEP, 5 + plr_prorata_level(95));
         if (context->mode == PLR_HIT_KNOCKBACK && context->hits)
         {
             int dist = 4 + context->hits;
-            if (p_ptr->pclass == CLASS_MAULER) dist += 3;
-            if (dist) do_monster_knockback(context->mon_pos.x, context->mon_pos.y, dist);
+            if (plr->pclass == CLASS_MAULER) dist += 3;
+            if (dist) do_monster_knockback(context->mon, dist);
         }
         else if (context->do_knockback) /* set the distance to knockback */
-            do_monster_knockback(context->mon_pos.x, context->mon_pos.y, context->do_knockback);
+            do_monster_knockback(context->mon, context->do_knockback);
         /*if (context->fear && context->mon->ml)
             msg_format("%^s flees in terror!", context->mon_name);*/
     }
@@ -1223,7 +1315,7 @@ bool plr_attack_init_hand(plr_attack_ptr context, int hand)
 
     /* turn on normal attacks */
     context->hand = hand;
-    context->info = p_ptr->attack_info[hand];
+    context->info = plr->attack_info[hand];
     if (context->info.type == PAT_WEAPON)
         context->obj = equip_obj(context->info.slot);
     else
@@ -1240,7 +1332,7 @@ bool plr_attack_init_hand(plr_attack_ptr context, int hand)
     if (context->obj)
         to_h += context->obj->to_h;
 
-    context->skill = p_ptr->skills.thn + to_h*BTH_PLUS_ADJ;
+    context->skill = plr->skills.thn + to_h*BTH_PLUS_ADJ;
     if (context->skill > 0 && context->obj)
         context->skill = context->skill * context->info.skill_mul / 1000;
 
@@ -1271,7 +1363,7 @@ static bool _blow_is_masked(mon_blow_ptr blow)
     /* mask hand based attacks only if the player's body actually has hands */
     if ((blow->flags & MBF_MASK_HAND) && equip_is_valid_hand(0))
     {
-        if (p_ptr->weapon_ct > 0) /* Wielding a weapon blocks hand based attacks */
+        if (plr->weapon_ct > 0) /* Wielding a weapon blocks hand based attacks */
             return TRUE;
 
         if (!equip_find_empty_hand()) /* dual wielding shields also blocks */
@@ -1285,7 +1377,7 @@ bool plr_attack_init_innate(plr_attack_ptr context, int which)
     int i;
     int to_h;
 
-    assert(0 <= which && which < vec_length(p_ptr->innate_blows));
+    assert(0 <= which && which < vec_length(plr->innate_blows));
 
     /* turn off normal attacks */
     context->hand = HAND_NONE;
@@ -1293,26 +1385,26 @@ bool plr_attack_init_innate(plr_attack_ptr context, int which)
 
     /* turn on innate attacks */
     context->which_blow = which;
-    context->info = p_ptr->innate_attack_info;
+    context->info = plr->innate_attack_info;
     context->info.type = PAT_INNATE;
-    context->blow = vec_get(p_ptr->innate_blows, which);
+    context->blow = vec_get(plr->innate_blows, which);
 
     if (context->flags & PAC_DISPLAY)
     {
         for (i = 0; i < OF_ARRAY_SIZE; i++)
-            context->obj_flags[i] = p_ptr->innate_attack_info.obj_known_flags[i];
+            context->obj_flags[i] = plr->innate_attack_info.obj_known_flags[i];
     }
     else
     {
         for (i = 0; i < OF_ARRAY_SIZE; i++)
-            context->obj_flags[i] = p_ptr->innate_attack_info.obj_flags[i];
+            context->obj_flags[i] = plr->innate_attack_info.obj_flags[i];
     }
 
     /* cache the base skill amount. we need this for plr_check_hit and _apply_crits */
-    to_h = context->to_h + p_ptr->to_h_m;
+    to_h = context->to_h + plr->to_h_m;
     to_h += skills_innate_calc_bonus(skills_innate_calc_name(context->blow));
 
-    context->skill = p_ptr->skills.thn + to_h*BTH_PLUS_ADJ;
+    context->skill = plr->skills.thn + to_h*BTH_PLUS_ADJ;
     context->skill += virtue_current(VIRTUE_VALOUR) / 10;
     context->skill += context->blow->power;
 
@@ -1348,20 +1440,20 @@ static bool _skip_effect(int which)
     case RBE_LOSE_STR: case RBE_LOSE_INT: case RBE_LOSE_WIS:
     case RBE_LOSE_DEX: case RBE_LOSE_CON: case RBE_LOSE_CHR:
     case RBE_LOSE_ALL:
-    case RBE_EAT_LITE:
+    case RBE_EAT_LIGHT:
         return TRUE;
     }
     return FALSE;
 }
 static bool _has_ankle(mon_race_ptr race)
 {
-    if (race->flags1 & RF1_NEVER_MOVE) return FALSE;
-    if (strchr("~#{}.UjmeEv$,DdsbBFIJQSXclnw!=?", race->d_char)) return FALSE;
+    if (mon_race_never_move(race)) return FALSE;
+    if (mon_race_is_char_ex(race, "~#{}.UjmeEv$,DdsbBFIJQSXclnw!=?")) return FALSE;
     return TRUE;
 }
 static bool _gf_innate(mon_ptr mon, int effect, int dam)
 {
-    return gf_affect_m(GF_WHO_PLAYER, mon, effect, dam, GF_AFFECT_ATTACK | GF_AFFECT_QUIET);
+    return gf_affect_m(who_create_plr(), mon, effect, dam, GF_AFFECT_ATTACK | GF_AFFECT_QUIET);
 }
 static void _innate_hit_mon(plr_attack_ptr context)
 {
@@ -1375,9 +1467,9 @@ static void _innate_hit_mon(plr_attack_ptr context)
         mon_effect_t effect = context->blow->effects[j]; /* copy since we'll adjust values as needed */
 
         if (_stop_attack(context)) break;
-        if (!effect.effect) break;
-        if (_skip_effect(effect.effect)) continue;
-        if (effect.effect == GF_STUN && effect.pct)
+        if (!effect.type) break;
+        if (_skip_effect(effect.type)) continue;
+        if (effect.type == GF_STUN && effect.pct)
         {
             if (context->mode == PLR_HIT_STUN) effect.pct *= 2;
             else if (crit.id) effect.pct += crit.mul / 2000;
@@ -1401,16 +1493,17 @@ static void _innate_hit_mon(plr_attack_ptr context)
             }
             if (context->technique)
                 context->dam = context->dam * context->technique / 100;
-            if (p_ptr->clp > 1000) /* RACE_MON_LICH ... scaling base dice only seems weak */
+            if (plr->clp > 1000) /* RACE_MON_LICH ... scaling base dice only seems weak */
             {
-                context->dam = context->dam * p_ptr->clp / 1000;
-                effect.dice.base = effect.dice.base * p_ptr->clp / 1000;
+                context->dam = context->dam * plr->clp / 1000;
+                effect.dice.base = effect.dice.base * plr->clp / 1000;
             }
+            context->dam += context->dam_xtra; /* crit.add and slay.add */
             context->dam += effect.dice.base;
             if (context->dam)
             {
                 context->dam += context->info.to_d;
-                if (effect.effect != RBE_VAMP)
+                if (effect.type != RBE_VAMP)
                     context->dam_drain = context->dam;
                 if (context->hooks.mod_damage_f)
                     context->hooks.mod_damage_f(context);
@@ -1432,7 +1525,7 @@ static void _innate_hit_mon(plr_attack_ptr context)
             context->stop = STOP_PLR_SPECIAL;
             return;
         }
-        switch (effect.effect)
+        switch (effect.type)
         {
         case RBE_SHATTER:
             if (context->dam > 23) context->do_quake = TRUE;
@@ -1442,12 +1535,12 @@ static void _innate_hit_mon(plr_attack_ptr context)
             if (context->dam > 0)
                 anger_monster(context->mon);
             context->dam_total += context->dam;
-            if (mon_take_hit(context->mon->id, context->dam, &context->fear, NULL))
+            if (mon_take_hit(context->mon, context->dam, &context->fear, NULL))
             {
                 context->stop = STOP_MON_DEAD;
                 break;
             }
-            if (effect.effect == RBE_VAMP && mon_race_is_living(context->race) && context->drain_left)
+            if (effect.type == RBE_VAMP && mon_race_is_living(context->race) && context->drain_left)
             {
                 int amt = MIN(context->dam, context->drain_left);
                 msg_format("You <color:D>drain life</color> from %s!", context->mon_name_obj);
@@ -1471,22 +1564,23 @@ static void _innate_hit_mon(plr_attack_ptr context)
                 _gf_innate(context->mon, GF_POIS, context->dam);
             break;
         case RBE_DRAIN_CHARGES:
-            _gf_innate(context->mon, GF_DRAIN_MANA, context->dam ? context->dam : p_ptr->lev);
+            _gf_innate(context->mon, GF_DRAIN_MANA, context->dam ? context->dam : (plr->lev + 1)/2);
             break;
         case GF_PARALYSIS:
             _gf_innate(context->mon, GF_PARALYSIS, context->dam ? context->dam : plr_prorata_level(75));
             break;
-        case GF_OLD_SLEEP:
-            _gf_innate(context->mon, GF_OLD_SLEEP, context->dam ? context->dam : plr_prorata_level(100));
+        case GF_SLEEP:
+            context->do_sleep = TRUE; /* plr_attack_end ... otherwise plr_hit_mon will immediately undo */
             break;
         case GF_OLD_CONF:
-            _gf_innate(context->mon, GF_OLD_CONF, context->dam ? context->dam : plr_prorata_level(100));
+            _gf_innate(context->mon, GF_OLD_CONF, context->dam ? context->dam : 5 + plr_prorata_level(95));
             break;
         case RBE_STUN_MALE:
-            if (context->race->flags1 & RF1_MALE)
+            if (mon_is_male(context->mon))
             {
                 if (context->mode == PLR_HIT_STUN) context->dam *= 2;
                 _gf_innate(context->mon, GF_STUN, context->dam);
+                mon_lore_male(context->mon);
             }
             break;
         case GF_STUN:
@@ -1497,9 +1591,9 @@ static void _innate_hit_mon(plr_attack_ptr context)
         case RBE_SLOW_ANKLE:
             if (_has_ankle(context->race))
             {
-                if ( !(context->race->flags1 & RF1_UNIQUE)
-                  && randint1(p_ptr->lev) > context->race->level
-                  && context->mon->mspeed > 60 )
+                if ( !mon_race_is_unique(context->race)
+                  && randint1(plr->lev) > context->race->alloc.lvl
+                  && context->mon->mspeed > -40 )
                 {
                     msg_format("%^s starts limping slower.", context->mon_name);
                     context->mon->mspeed -= 10;
@@ -1507,7 +1601,7 @@ static void _innate_hit_mon(plr_attack_ptr context)
             }
             break;
         default:
-            _gf_innate(context->mon, effect.effect, context->dam);
+            _gf_innate(context->mon, effect.type, context->dam);
             _check_race(context);
         }
     }
@@ -1537,14 +1631,12 @@ static void _hit_effects1(plr_attack_ptr context) /* before mon_take_hit */
     if (_do_quake(context))
     {
         context->do_quake = TRUE; /* Later */
-        if ( (context->race->flagsr & RFR_RES_ALL)
-          || (context->race->flags3 & RF3_NO_STUN)
-          || mon_save_stun(context->race->level, context->dam) )
+        if ( _1d(100) <= mon_res_pct(context->mon, GF_STUN)
+          || mon_save_stun(context->race->alloc.lvl, context->dam) )
         {
         }
         else
         {
-            msg_format("%^s is stunned.", context->mon_name);
             mon_stun(context->mon, mon_stun_amount(context->dam));
         }
     }
@@ -1555,9 +1647,9 @@ static void _hit_effects2(plr_attack_ptr context) /* after mon_take_hit ... but 
     {
         if (have_flag(context->obj_flags, OF_BRAND_TIME))
         {
-            gf_affect_m(GF_WHO_PLAYER, context->mon, GF_TIME, context->dam_base, GF_AFFECT_ATTACK);
+            gf_affect_m(who_create_plr(), context->mon, GF_TIME, context->dam_base, GF_AFFECT_ATTACK);
             obj_learn_slay(context->obj, OF_BRAND_TIME, "is <color:B>Time Branded</color>");
-            if (mon_is_dead(context->mon))
+            if (!mon_is_valid(context->mon))
             {
                 context->stop = STOP_MON_DEAD;
                 return;
@@ -1566,10 +1658,10 @@ static void _hit_effects2(plr_attack_ptr context) /* after mon_take_hit ... but 
         }
         if (have_flag(context->obj_flags, OF_BRAND_CHAOS) && one_in_(7))
         {
-            gf_affect_m(GF_WHO_PLAYER, context->mon, GF_CHAOS, context->dam_base, GF_AFFECT_ATTACK);
+            gf_affect_m(who_create_plr(), context->mon, GF_CHAOS, context->dam_base, GF_AFFECT_ATTACK);
             obj_learn_slay(context->obj, OF_BRAND_CHAOS, "is <color:v>Marked by Chaos</color>");
             if (one_in_(10)) virtue_add(VIRTUE_CHANCE, 1);
-            if (mon_is_dead(context->mon))
+            if (!mon_is_valid(context->mon))
             {
                 context->stop = STOP_MON_DEAD;
                 return;
@@ -1578,29 +1670,29 @@ static void _hit_effects2(plr_attack_ptr context) /* after mon_take_hit ... but 
         }
     }
     /* Confusion attack */
-    if ( (p_ptr->special_attack & ATTACK_CONFUSE)
+    if ( (plr->special_attack & ATTACK_CONFUSE)
       || context->mode == PLR_HIT_CONFUSE
       || hex_spelling(HEX_CONFUSION)
-      || (giant_is_(GIANT_TITAN) && p_ptr->lev >= 30 && one_in_(5)) )
+      || (giant_is_(GIANT_TITAN) && plr->lev >= 30 && one_in_(5)) )
     {
         /* Cancel glowing hands */
-        if (p_ptr->special_attack & ATTACK_CONFUSE)
+        if (plr->special_attack & ATTACK_CONFUSE)
         {
-            p_ptr->special_attack &= ~(ATTACK_CONFUSE);
+            plr->special_attack &= ~(ATTACK_CONFUSE);
             msg_print("Your hands stop glowing.");
-            p_ptr->redraw |= PR_STATUS;
+            plr->redraw |= PR_STATUS;
         }
 
         /* Confuse the monster */
-        if (context->race->flags3 & RF3_NO_CONF)
+        if (mon_res_pct(context->mon, GF_CONFUSION) > 0) /* XXX any resist => old RF3_NO_CONF */
         {
-            mon_lore_3(context->mon, RF3_NO_CONF);
+            mon_lore_resist(context->mon, GF_CONFUSION);
             msg_format("%^s is unaffected.", context->mon_name);
         }
-        else if (randint0(100) < context->race->level)
+        else if (randint0(100) < context->race->alloc.lvl)
             msg_format("%^s is unaffected.", context->mon_name);
         else
-            mon_tim_add(context->mon, T_CONFUSED, 10 + randint0(p_ptr->lev)/5);
+            mon_tim_add(context->mon, T_CONFUSED, 10 + randint0(plr->lev)/5);
 
         /* Only try to confuse once */
         if (context->mode == PLR_HIT_CONFUSE)
@@ -1609,12 +1701,11 @@ static void _hit_effects2(plr_attack_ptr context) /* after mon_take_hit ... but 
     if (have_flag(context->obj_flags, OF_STUN) || context->mode == PLR_HIT_STUN)
     {
         #if 0
-        msg_format("<color:D>1d%d <= %d</color>", context->race->level, p_ptr->lev/5 + context->dam_base);
+        msg_format("<color:D>1d%d <= %d</color>", context->race->level, plr->lev/5 + context->dam_base);
         #endif
-        if ( (context->race->flagsr & RFR_RES_ALL)
-          || (context->race->flags3 & RF3_NO_STUN)
-          || randint1(context->race->level) > p_ptr->lev/5 + context->dam_base /* XXX */
-          || mon_save_stun(context->race->level, context->dam) )
+        if ( _1d(100) <= mon_res_pct(context->mon, GF_STUN)
+          || _1d(context->race->alloc.lvl) > plr->lev/5 + context->dam_base /* XXX */
+          || mon_save_stun(context->race->alloc.lvl, context->dam) )
         {
         }
         else
@@ -1629,7 +1720,7 @@ static void _miss_effects(plr_attack_ptr context)
     if (object_is_(context->obj, TV_POLEARM, SV_DEATH_SCYTHE))
     {
         death_scythe_miss(context->obj, context->hand, context->skill);
-        if (p_ptr->is_dead)
+        if (plr->is_dead)
             context->stop = STOP_PLR_DEAD;
     }
 }
@@ -1649,6 +1740,7 @@ static void _weapon_hit_mon(plr_attack_ptr context)
         context->dam = context->dam * context->technique / 100;
         context->dam_base = context->dam_base * context->technique / 100;
     }
+    context->dam += context->dam_xtra; /* crit.add and slay.add */
 
     /* Calculate Total Damage */
     if (context->obj)
@@ -1669,7 +1761,7 @@ static void _weapon_hit_mon(plr_attack_ptr context)
     /* Apply Damage */
     context->dam_total += context->dam;
     _hit_effects1(context);
-    if (mon_take_hit(context->mon->id, context->dam, &context->fear, NULL))
+    if (mon_take_hit(context->mon, context->dam, &context->fear, NULL))
         context->stop = STOP_MON_DEAD;
     else
     {
@@ -1678,6 +1770,26 @@ static void _weapon_hit_mon(plr_attack_ptr context)
             plr_on_hit_mon(context);
     }
 }
+static bool _repelled(plr_attack_ptr context)
+{
+    if ( mon_tim_find(context->mon, T_PROT_EVIL)
+      && _1d(200) <= -plr->align
+      && mon_save_p(context->mon, A_CHR) ) /* ie !p_save_mon... */
+    {
+        cmsg_print(TERM_L_BLUE, "You are repelled.");
+        mon_tim_subtract(context->mon, T_PROT_EVIL, _1d(1 + plr->lev/5));
+        return TRUE;
+    }
+    if ( mon_tim_find(context->mon, T_PROT_GOOD)
+      && _1d(200) <= plr->align
+      && mon_save_p(context->mon, A_CHR) ) /* ie !p_save_mon... */
+    {
+        cmsg_print(TERM_L_BLUE, "You are repelled.");
+        mon_tim_subtract(context->mon, T_PROT_GOOD, _1d(1 + plr->lev/5));
+        return TRUE;
+    }
+    return FALSE;
+}
 bool plr_hit_mon(plr_attack_ptr context)
 {
     bool hit = FALSE;
@@ -1685,6 +1797,7 @@ bool plr_hit_mon(plr_attack_ptr context)
     context->dam_base = 0;
     context->dam_drain = 0;
     context->dam = 0;
+    context->dam_xtra = 0;
     context->technique = 0;
 
     /* Check if the battle may continue */
@@ -1705,6 +1818,10 @@ bool plr_hit_mon(plr_attack_ptr context)
         hit = plr_check_hit(context);
 
     mon_tim_delete(context->mon, MT_SLEEP);
+
+    if (_repelled(context))
+        return FALSE;
+
     if (hit)
     {
         context->hits++;
@@ -1717,7 +1834,7 @@ bool plr_hit_mon(plr_attack_ptr context)
             _weapon_hit_mon(context);
             break;
         case PAT_MONK:
-            context->blow = monk_choose_attack_plr(p_ptr->monk_tbl);
+            context->blow = monk_choose_attack_plr(plr->monk_tbl);
             _innate_hit_mon(context);
             break;
         case PAT_INNATE:
@@ -1774,9 +1891,9 @@ bool plr_attack_ranged(int type, int flags, int range)
 }
 static bool _target_ok(void)
 {
-    if (target_who < 0)
-        return plr_project(point_create(target_col, target_row));
-    if (target_who > 0)
+    if (who_is_pos(plr->target))
+        return plr_project(who_pos(plr->target));
+    if (who_is_mon(plr->target))
         return target_okay();
     return FALSE;
 }
@@ -1785,9 +1902,9 @@ static mon_ptr _get_adjacent_target(void)
     int i;
     for (i = 0; i < 8; i++)
     {
-        point_t p = point_step(p_ptr->pos, cdd[i]);
-        mon_ptr mon = mon_at(p);
-        if (!mon || !mon->ml || !is_hostile(mon)) continue;
+        point_t p = point_step(plr->pos, cdd[i]);
+        mon_ptr mon = dun_mon_at(cave, p);
+        if (!mon || !mon->ml || !mon_is_hostile(mon)) continue;
         _set_target(mon);
         return mon;
     }
@@ -1799,14 +1916,14 @@ static mon_ptr _get_ranged_target(point_t pos, int range)
     int  path_n, i;
 
     /* fire a bolt from plr to pos ... */
-    path_n = project_path(path, range, p_ptr->pos, pos, PROJECT_STOP);
+    path_n = project_path(path, range, plr->pos, pos, PROJECT_STOP);
     if (!path_n) return NULL;
 
     /* ... and return the first hit monster */
     for (i = 0; i < path_n; i++)
     {
         point_t p = path[i];
-        mon_ptr mon = mon_at(p);
+        mon_ptr mon = dun_mon_at(cave, p);
         if (mon) return mon;
     }
     return NULL;
@@ -1816,9 +1933,9 @@ bool plr_attack_special_aux(plr_attack_ptr context, int range)
     mon_ptr mon = NULL;
 
     /* Ergonomics: Use current monster target if in range. Ignore position targets. */
-    if (!mon && use_old_target && target_who > 0 && _target_ok())
+    if (!mon && use_old_target && who_is_mon(plr->target) && _target_ok())
     {
-        mon = dun_mon(cave, target_who);
+        mon = who_mon(plr->target);
         if (mon->cdis > range)
             mon = NULL;
         else if (range > 1) /* find first monster between plr and mon */
@@ -1839,20 +1956,18 @@ bool plr_attack_special_aux(plr_attack_ptr context, int range)
             if (!get_rep_dir2(&dir)) return FALSE;
             if (dir == 5) return FALSE;
 
-            tgt = point_step(p_ptr->pos, dir);
-            mon = mon_at(tgt);
+            tgt = point_step(plr->pos, dir);
+            mon = dun_mon_at(cave, tgt);
         }
         else
         {
 
             project_length = range;
             if (!get_fire_dir(&dir)) return FALSE;
-            tgt = point_jump(p_ptr->pos, dir, project_length);
+            tgt = point_jump(plr->pos, dir, project_length);
             if (dir == 5 && target_okay())
-            {
-                tgt.x = target_col;
-                tgt.y = target_row;
-            }
+                tgt = who_pos(plr->target);
+
             /* find first monster between plr and tgt */
             mon = _get_ranged_target(tgt, range);
             project_length = 0;
@@ -1902,7 +2017,7 @@ bool plr_attack(plr_attack_ptr context, point_t pos)
             for (i = 0; i < MAX_HANDS; i++)
             {
                 if (context->stop) break;
-                if (p_ptr->attack_info[i].type != PAT_NONE)
+                if (plr->attack_info[i].type != PAT_NONE)
                 {
                     if (plr_attack_init_hand(context, i))
                         plr_attack_mon(context);
@@ -1912,7 +2027,7 @@ bool plr_attack(plr_attack_ptr context, point_t pos)
         /* Attack with Innate Attacks */
         if (!(context->flags & PAC_NO_INNATE))
         {
-            for (i = 0; i < vec_length(p_ptr->innate_blows); i++)
+            for (i = 0; i < vec_length(plr->innate_blows); i++)
             {
                 if (context->stop) break;
                 if (plr_attack_init_innate(context, i))
@@ -1925,7 +2040,8 @@ bool plr_attack(plr_attack_ptr context, point_t pos)
     energy_use = context->energy;
     if (context->stop == STOP_MON_DEAD && mut_present(MUT_FANTASTIC_FRENZY) && !(context->flags & PAC_ONE_BLOW))
         energy_use = _fractional_energy_use(context);
-    #if 0
+    #ifdef DEVELOPER
+    if (1 || plr->wizard)
     {
         rect_t r = ui_char_info_rect();
         int    a = TERM_WHITE;
@@ -1951,16 +2067,16 @@ static int _random_hand(void)
     int i, ct = 0, n;
     for (i = 0; i < MAX_HANDS; i++)
     {
-        if (p_ptr->attack_info[i].type == PAT_NONE) continue;
-        if (p_ptr->pclass == CLASS_SAMURAI && !equip_obj(p_ptr->attack_info[i].slot)) continue;
+        if (plr->attack_info[i].type == PAT_NONE) continue;
+        if (plr->pclass == CLASS_SAMURAI && !equip_obj(plr->attack_info[i].slot)) continue;
         ct++;
     }
     if (!ct) return HAND_NONE;
     n = randint0(ct);
     for (i = 0; i < MAX_HANDS; i++)
     {
-        if (p_ptr->attack_info[i].type == PAT_NONE) continue;
-        if (p_ptr->pclass == CLASS_SAMURAI && !equip_obj(p_ptr->attack_info[i].slot)) continue;
+        if (plr->attack_info[i].type == PAT_NONE) continue;
+        if (plr->pclass == CLASS_SAMURAI && !equip_obj(plr->attack_info[i].slot)) continue;
         n--;
         if (n < 0)
             return i;
@@ -1969,7 +2085,7 @@ static int _random_hand(void)
 }
 static int _random_blow(void)
 {
-    int ct = vec_length(p_ptr->innate_blows);
+    int ct = vec_length(plr->innate_blows);
     if (!ct) return BLOW_NONE;
     return randint0(ct); /* XXX weight by blows */
 }
@@ -2017,14 +2133,14 @@ bool plr_attack_mon(plr_attack_ptr context)
     context->do_quake = FALSE;
     if (context->blow)
     {
-        skills_innate_gain(skills_innate_calc_name(context->blow), context->race->level);
+        skills_innate_gain(skills_innate_calc_name(context->blow), context->race->alloc.lvl);
     }
     else
     {
         context->retaliation_ct = 0; /* don't reset for innate attacks */
         if (context->obj)
-            skills_weapon_gain(context->obj->tval, context->obj->sval, context->race->level);
-        else if (context->race->level + 10 > p_ptr->lev)
+            skills_weapon_gain(context->obj->tval, context->obj->sval, context->race->alloc.lvl);
+        else if (context->race->alloc.lvl + 10 > plr->lev)
             skills_martial_arts_gain();
     }
 
@@ -2059,7 +2175,7 @@ bool plr_attack_mon(plr_attack_ptr context)
         fear_p_touch_m(context->mon);
     if (context->do_quake)
     {
-        earthquake(p_ptr->pos, 10);
+        earthquake(plr->pos, 10);
         if (context->obj)
             obj_learn_slay(context->obj, OF_IMPACT, "causes <color:U>Earthquakes</color>");
     }
@@ -2075,23 +2191,52 @@ bool plr_check_hit(plr_attack_ptr context)
     int skill;
 
     /* stealth techniques on the first blow only ... monster must be visible */
-    if (context->counter == 1 && context->mon->ml && !(context->race->flagsr & RFR_RES_ALL) && !_icky_weapon(context))
+    if (context->counter == 1 && context->mon->ml && !_icky_weapon(context))
     {
-        if (p_ptr->ambush && mon_tim_find(context->mon, MT_SLEEP))
+        if (plr->ambush)
         {
-            context->technique = p_ptr->ambush;
-            cmsg_format(TERM_L_GREEN, "You cruelly attack %s!", context->mon_name_obj);
-            return TRUE;
-        }
-        else if (p_ptr->special_defense & NINJA_S_STEALTH)
-        {
-            int tmp = p_ptr->lev * 6 + (p_ptr->skills.stl + 10) * 4;
-            if (p_ptr->monlite && context->mode != PLR_HIT_RUSH_ATTACK) tmp /= 3;
-            if (p_ptr->cursed & OFC_AGGRAVATE) tmp /= 2;
-            if (context->race->level > (p_ptr->lev * p_ptr->lev / 20 + 10)) tmp /= 3;
-            if (randint0(tmp) > context->race->level + 20)
+            /* always works against sleeping monsters (and never misses!) */
+            bool do_it = mon_tim_find(context->mon, MT_SLEEP)
+                      || mon_tim_find(context->mon, T_PARALYZED)
+                      || plr_tim_find(T_CLOAK_INNOCENCE);
+            /* sometimes works if invisible */
+            if (!do_it && (plr->special_defense & DEFENSE_INVISIBLE))
             {
-                context->technique = 250 + p_ptr->lev*4;
+                int tmp = plr->lev * 6 + (plr->skills.stl + 10) * 4;
+                if (plr->cursed & OFC_AGGRAVATE) tmp /= 2;
+                if (randint0(tmp) > context->race->alloc.lvl + 20)
+                    do_it = TRUE;
+            }
+            /* sometimes works if monster not aware of plr (or confused) */
+            if ( !do_it 
+              && ( (context->mon->mflag & MFLAG_IGNORE_PLR) 
+                || mon_tim_find(context->mon, T_CONFUSED)
+                || mon_tim_find(context->mon, T_BLIND) ) )
+            {
+                int tmp = plr->lev * 2 + (plr->skills.stl + 10) * 4/3;
+                if (plr->cursed & OFC_AGGRAVATE) tmp /= 2;
+                if (randint0(tmp) > context->race->alloc.lvl + 20)
+                {
+                    context->mon->mflag &= ~MFLAG_IGNORE_PLR; /* he's aware of you now! */
+                    do_it = TRUE;
+                }
+            }
+            if (do_it)
+            {
+                context->technique = plr->ambush;
+                cmsg_format(TERM_L_GREEN, "You cruelly attack %s!", context->mon_name_obj);
+                return TRUE;
+            }
+        }
+        if ((plr->special_defense & NINJA_S_STEALTH) && plr->pclass != CLASS_NECROMANCER)
+        {
+            int tmp = plr->lev * 6 + (plr->skills.stl + 10) * 4;
+            if (plr->monlite && context->mode != PLR_HIT_RUSH_ATTACK) tmp /= 3;
+            if (plr->cursed & OFC_AGGRAVATE) tmp /= 2;
+            if (context->race->alloc.lvl > (plr->lev * plr->lev / 20 + 10)) tmp /= 3;
+            if (randint0(tmp) > context->race->alloc.lvl + 20)
+            {
+                context->technique = 250 + plr->lev*4;
                 cmsg_format(TERM_L_GREEN, "You make a surprise attack, and hit %s with a powerful blow!", context->mon_name_obj);
                 return TRUE;
             }
@@ -2104,9 +2249,9 @@ bool plr_check_hit(plr_attack_ptr context)
 
     if (test_hit_norm(skill, mon_ac(context->mon), context->mon->ml))
     {
-        if (p_ptr->backstab && mon_tim_find(context->mon, T_FEAR) && context->mon->ml)
+        if (plr->backstab && mon_tim_find(context->mon, T_FEAR) && context->mon->ml)
         {
-            context->technique = p_ptr->backstab;
+            context->technique = plr->backstab;
             cmsg_format(TERM_L_GREEN, "You backstab %s!",  context->mon_name_obj);
         }
         return TRUE;
@@ -2117,37 +2262,40 @@ bool plr_check_hit(plr_attack_ptr context)
 /*************************************************************************
  * Auras
  *************************************************************************/
-static bool _skip_aura(plr_attack_ptr context, int effect)
+static bool _skip_aura(plr_attack_ptr context, int gf)
 {
-    gf_info_ptr info = gf_lookup(effect);
+    gf_info_ptr info = gf_lookup(gf);
     if (info)
     {
-        if (p_ptr->riding == context->mon->id)
+        if (plr->riding == context->mon->id)
         {
             if (!(info->flags & GFF_RIDING))
                 return TRUE;
-            if (info->resist != RES_INVALID && p_ptr->resist[info->resist] > 2)
+            if (!(info->flags & (GFF_RESIST | GFF_RESIST_HI))) return FALSE;
+            if (plr->resist[gf] > 2)
                 return TRUE;
         }
-        else if (info->resist != RES_INVALID && res_pct(info->resist) >= 100)
-            return TRUE;
+        else
+        {
+            if (!(info->flags & (GFF_RESIST | GFF_RESIST_HI))) return FALSE;
+            if (res_pct(gf) >= 100)
+                return TRUE;
+        }
     }
     return FALSE;
 }
 static void _apply_auras(plr_attack_ptr context)
 {
-    int i;
-    for (i = 0; i < MAX_MON_AURAS; i++)
+    mon_aura_ptr aura;
+    for (aura = context->race->auras; aura; aura = aura->next)
     {
-        mon_effect_ptr aura = &context->race->auras[i];
-        int            dam;
-        if (!aura->effect) continue;
+        int dam;
         if (aura->pct && randint1(100) > aura->pct) continue;
-        if (_skip_aura(context, aura->effect)) continue;
-        dam = dice_roll(aura->dice);
+        if (_skip_aura(context, aura->gf)) continue;
+        dam = dice_roll(aura->dam);
         if (!dam) continue;
-        gf_affect_p(context->mon->id, aura->effect, dam, GF_AFFECT_AURA);
-        mon_lore_effect(context->mon, aura);
+        gf_affect_p(who_create_mon(context->mon), aura->gf, dam, GF_AFFECT_AURA);
+        mon_lore_aura(context->mon, aura);
         if (_stop_attack(context)) return;
     }
 }
@@ -2156,16 +2304,16 @@ void plr_on_hit_mon(plr_attack_ptr context)
     /* beholders gaze on their enemies without touching (even as a ranged attack())
      * staffmasters gain a quick strike that avoids monster auras
      * other classes, like samurai, have a range 2 attack, but this is still a touch */
-    if (p_ptr->prace == RACE_MON_BEHOLDER || p_ptr->lightning_reflexes)
+    if (plr->prace == RACE_MON_BEHOLDER || plr->lightning_reflexes)
         return;
 
     if ( !mon_attack_current() /* avoid retaliatory cycles */
-      && (context->race->flags2 & RF2_AURA_REVENGE)
+      && mon_can_retaliate(context->mon)
       && context->retaliation_ct < 1 + context->blow_ct/3
       && !mon_tim_find(context->mon, T_CONFUSED)
       && !mon_tim_find(context->mon, T_PARALYZED)
       && point_fast_distance(context->plr_pos, context->mon_pos) < 2  /* e.g. Samurai's Tobi Izuna */
-      && randint0(150) < context->race->level )
+      && randint0(150) < context->race->alloc.lvl )
     {
         mon_retaliate_plr(context->mon);
         context->retaliation_ct++;
@@ -2181,22 +2329,23 @@ void plr_on_touch_mon(mon_ptr mon)
     context.mon = mon;
     _init_race(&context);
     context.mon_pos = mon->pos;
-    context.plr_pos = p_ptr->pos;
+    context.plr_pos = plr->pos;
 
     /* apply auras */
     plr_on_hit_mon(&context);
 }
-void plr_on_ride_mon(int m_idx)
+void plr_process_riding(void)
 {
     plr_attack_t context = {0};
+    mon_ptr mount = plr_riding_mon();
 
-    assert (m_idx == p_ptr->riding); /* XXX _skip_aura */
+    if (!mount) return;
 
     /* fake a context */
-    context.mon = dun_mon(cave, m_idx);
+    context.mon = mount;
     _init_race(&context);
     context.mon_pos = context.mon->pos;
-    context.plr_pos = p_ptr->pos;
+    context.plr_pos = plr->pos;
 
     /* apply auras */
     _apply_auras(&context);
@@ -2263,7 +2412,7 @@ static void _calc_blows_normal(plr_attack_info_ptr info, int str_idx, int dex_id
 
     wgt = obj->weight;
     div = wgt < info->blows_calc.wgt ? info->blows_calc.wgt : wgt;
-    mul = info->blows_calc.mult + info->giant_wield * 10;
+    mul = info->blows_calc.mul + info->giant_wield * 10;
 
     blow_str_idx = adj_str_blow[str_idx] * mul / div; /* Scaled by 10 */
     if (have_flag(info->paf_flags, PAF_TWO_HANDS))
@@ -2273,13 +2422,13 @@ static void _calc_blows_normal(plr_attack_info_ptr info, int str_idx, int dex_id
         if (prace_is_(RACE_MON_GIANT) && giant_is_favorite(obj))
             blow_str_idx += 10;
     }
-    if (p_ptr->pclass == CLASS_NINJA) blow_str_idx = MAX(0, blow_str_idx-10);
+    if (plr->pclass == CLASS_NINJA) blow_str_idx = MAX(0, blow_str_idx-10);
     if (blow_str_idx > 110) blow_str_idx = 110;
 
     /* straight line interpolation */
     info->base_blow = rng.min + (rng.max - rng.min) * blow_str_idx / 110;
 
-    if (p_ptr->pclass == CLASS_MAULER)
+    if (plr->pclass == CLASS_MAULER)
         info->base_blow = 100 + (info->base_blow - 100)*2/5;
 
     if (info->base_blow > info->blows_calc.max)
@@ -2293,38 +2442,41 @@ static void _calc_blows_normal(plr_attack_info_ptr info, int str_idx, int dex_id
 }
 static void _calc_blows_doc(plr_attack_info_ptr info, doc_ptr doc)
 {
-    #if 0
-    int old_blows = info->base_blow;
-    int str_idx = p_ptr->stat_ind[A_STR];
-    int dex_idx = p_ptr->stat_ind[A_DEX];
-    int i, j;
-
-    doc_insert(doc, "     <color:G>STR</color>\n");
-    doc_insert(doc, " <color:U>DEX</color> <color:G>");
-    for (i = 0; i < 10; i++)
+    #if DEVELOPER
+    if (0)
     {
-        if (str_idx + 3 + i > 40) break;
-        doc_printf(doc, "%3d ", str_idx + 3 + i);
-    }
-    doc_insert(doc, "</color>\n");
+        int old_blows = info->base_blow;
+        int str_idx = plr->stat_ind[A_STR];
+        int dex_idx = plr->stat_ind[A_DEX];
+        int i, j;
 
-    for (i = 0; i < 10; i++)
-    {
-        if (dex_idx + 3 + i > 40) break;
-        doc_printf(doc, " <color:U>%3d</color> ", dex_idx + 3 + i);
-        for (j = 0; j < 10; j++)
+        doc_insert(doc, "     <color:G>STR</color>\n");
+        doc_insert(doc, " <color:U>DEX</color> <color:G>");
+        for (i = 0; i < 10; i++)
         {
-            char color = 'w';
-            if (str_idx + 3 + j > 40) break;
-            _calc_blows_normal(info, str_idx + j, dex_idx + i);
-            if (i == 0 && j == 0) color = 'B';
-            doc_printf(doc, "<color:%c>%3d </color>", color, info->base_blow);
+            if (str_idx + 3 + i > 40) break;
+            doc_printf(doc, "%3d ", str_idx + 3 + i);
+        }
+        doc_insert(doc, "</color>\n");
+
+        for (i = 0; i < 10; i++)
+        {
+            if (dex_idx + 3 + i > 40) break;
+            doc_printf(doc, " <color:U>%3d</color> ", dex_idx + 3 + i);
+            for (j = 0; j < 10; j++)
+            {
+                char color = 'w';
+                if (str_idx + 3 + j > 40) break;
+                _calc_blows_normal(info, str_idx + j, dex_idx + i);
+                if (i == 0 && j == 0) color = 'B';
+                doc_printf(doc, "<color:%c>%3d </color>", color, info->base_blow);
+            }
+            doc_newline(doc);
         }
         doc_newline(doc);
-    }
-    doc_newline(doc);
 
-    info->base_blow = old_blows;
+        info->base_blow = old_blows;
+    }
     #endif
 }
 static void _calc_blows_monk(plr_attack_info_ptr info, int lvl, int dex_idx)
@@ -2332,11 +2484,11 @@ static void _calc_blows_monk(plr_attack_info_ptr info, int lvl, int dex_idx)
     int blow_base = lvl + adj_dex_blow[dex_idx];
 
     info->base_blow = 100;
-    if (p_ptr->pclass == CLASS_FORCETRAINER)
+    if (plr->pclass == CLASS_FORCETRAINER)
         info->base_blow += MIN(400, 400 * blow_base / 57);
-    else if (p_ptr->pclass == CLASS_MYSTIC)
+    else if (plr->pclass == CLASS_MYSTIC)
         info->base_blow += MIN(450, 450 * blow_base / 60);
-    else if (p_ptr->pclass == CLASS_MONK)
+    else if (plr->pclass == CLASS_MONK)
         info->base_blow += MIN(600, 600 * blow_base / 60);
     else /* Skillmaster, Monastic Lich, etc */
         info->base_blow += MIN(500, 500 * blow_base / 60);
@@ -2349,32 +2501,108 @@ static void _calc_blows_monk(plr_attack_info_ptr info, int lvl, int dex_idx)
 }
 void plr_calc_blows_hand(int hand)
 {
-    plr_attack_info_ptr info = &p_ptr->attack_info[hand];
+    plr_attack_info_ptr info = &plr->attack_info[hand];
 
     if (info->type == PAT_NONE) return; /* paranoia */
-    if (info->type == PAT_MONK) _calc_blows_monk(info, p_ptr->monk_lvl, p_ptr->stat_ind[A_DEX]);
-    _calc_blows_normal(info, p_ptr->stat_ind[A_STR], p_ptr->stat_ind[A_DEX]);
+    if (info->type == PAT_MONK) _calc_blows_monk(info, plr->monk_lvl, plr->stat_ind[A_DEX]);
+    _calc_blows_normal(info, plr->stat_ind[A_STR], plr->stat_ind[A_DEX]);
 }
-void plr_calc_blows_innate(mon_blow_ptr blow, int max)
+static int _calc_blows_innate(mon_blow_ptr blow, blows_calc_t info, int str_idx, int dex_idx)
 {
-    int      str_idx = p_ptr->stat_ind[A_STR];
-    int      dex_idx = p_ptr->stat_ind[A_DEX];
-    int      blow_str_idx;
-    int      wgt = _mon_blow_weight(blow, _plr_weight());
-    int      mul = 55;
-    int      div = MAX(70, wgt);
-    _range_t rng = _blows_range[dex_idx];
+    int      blow_str_idx, wgt, div, blows;
+    _range_t rng;
 
-    blow_str_idx = adj_str_blow[str_idx] * mul / div;
+    /* paranoia */
+    if (!info.wgt) info.wgt = 70;
+    if (!info.mul) info.mul = 55;
+    if (!info.max) info.max = 100;
+
+    wgt = _mon_blow_weight(blow, _plr_weight());
+    div = MAX(info.wgt, wgt);
+    rng = _blows_range[dex_idx];
+
+    blow_str_idx = adj_str_blow[str_idx] * info.mul / div;
     if (blow_str_idx > 110) blow_str_idx = 110;
 
     /* straight line interpolation */
-    blow->blows = rng.min + (rng.max - rng.min) * blow_str_idx / 110;
+    blows = rng.min + (rng.max - rng.min) * blow_str_idx / 110;
 
-    if (prace_is_(RACE_MON_LEPRECHAUN)) blow->blows /= 2;
-    if (prace_is_(RACE_MON_HYDRA)) blow->blows *= 2;
-    if (blow->blows < 100) blow->blows = 100;
-    if (blow->blows > max) blow->blows = max;
+    /* XXX monster mode races with multiple attack types gain extra blows
+     * far too quickly: hounds and dragons. Also, some races have low max
+     * values, such as Leprechauns and Liches. XXX */
+    if (info.max < 500)
+        blows = blows * info.max / 500;
+    else if (info.max > 600) /* RACE_MON_HYDRA */
+        blows = blows * info.max / 600;
+
+    #if 0
+    if (prace_is_(RACE_MON_HYDRA)) blows = blows * info.max / 600; /* linear re-scale */
+    #endif
+
+    if (blows < 100) blows = 100; /* XXX info.min */
+    if (blows > info.max) blows = info.max;
+    return blows;
+}
+static void _calc_blows_innate_doc(mon_blow_ptr blow, doc_ptr doc)
+{
+    #if DEVELOPER
+    if (0)
+    {
+        int str_idx = plr->stat_ind[A_STR];
+        int dex_idx = plr->stat_ind[A_DEX];
+        int i, j;
+        const int ct = 15;
+        plr_race_ptr race = plr_race();
+        blows_calc_t info;
+
+        /* XXX a single plr_attack_info covers *all* innate attacks. many monster
+         * forms only get a single class of attacks, but some have multiple types:
+         * dragon claws vs dragon bites. we are after accurate "blow_calc" info for
+         * this type of innate attack. this hook is generally called by calc_bonuses,
+         * and its sole purpose is to recalc mon_blow->blows, so an extra call here
+         * should be ok ... this is DEVELOPER mode, after all :) XXX */
+        if (race->hooks.calc_innate_bonuses)
+            race->hooks.calc_innate_bonuses(blow);
+        info = plr->innate_attack_info.blows_calc;
+
+        if (info.max <= 100) return;
+
+        doc_insert(doc, "     <color:G>STR</color>\n");
+        doc_insert(doc, " <color:U>DEX</color> <color:G>");
+        for (i = 0; i < ct; i++)
+        {
+            if (str_idx + 3 + i > 40) break;
+            doc_printf(doc, "%3d ", str_idx + 3 + i);
+        }
+        doc_insert(doc, "</color>\n");
+
+        for (i = 0; i < ct; i++)
+        {
+            if (dex_idx + 3 + i > 40) break;
+            doc_printf(doc, " <color:U>%3d</color> ", dex_idx + 3 + i);
+            for (j = 0; j < ct; j++)
+            {
+                char color = 'w';
+                int blows;
+                if (str_idx + 3 + j > 40) break;
+                blows = _calc_blows_innate(blow, info, str_idx + j, dex_idx + i);
+                if (i == 0 && j == 0) color = 'B';
+                doc_printf(doc, "<color:%c>%3d </color>", color, blows);
+            }
+            doc_newline(doc);
+        }
+        doc_printf(doc, " <color:D>wgt=%d; mul=%d; max=%d</color>\n", info.wgt, info.mul, info.max);
+        doc_newline(doc);
+    }
+    #endif
+}
+void plr_calc_blows_innate(mon_blow_ptr blow)
+{
+    blow->blows = _calc_blows_innate(blow,
+        plr->innate_attack_info.blows_calc,
+        plr->stat_ind[A_STR],
+        plr->stat_ind[A_DEX]
+    );
 }
 
 /*************************************************************************
@@ -2437,7 +2665,7 @@ void plr_attack_display_doc(plr_attack_ptr context, doc_ptr doc)
     {
         for (i = 0; i < MAX_HANDS; i++)
         {
-            if (p_ptr->attack_info[i].type == PAT_NONE) continue;
+            if (plr->attack_info[i].type == PAT_NONE) continue;
             if (plr_attack_init_hand(context, i))
             {
                 _display(context, doc);
@@ -2450,7 +2678,7 @@ void plr_attack_display_doc(plr_attack_ptr context, doc_ptr doc)
     /* innate attacks */
     if (!(context->flags & PAC_NO_INNATE))
     {
-        for (i = 0; i < vec_length(p_ptr->innate_blows); i++)
+        for (i = 0; i < vec_length(plr->innate_blows); i++)
         {
             if (plr_attack_init_innate(context, i))
             {
@@ -2477,40 +2705,61 @@ static void _display(plr_attack_ptr context, doc_ptr doc)
     else if (context->obj)  /* check is paranoia */
         _display_weapon(context, doc);
 }
-static int _display_weapon_slay(int base_mult, int slay_mult, bool force, int blows,
+static int _display_weapon_slay(slay_t crit, slay_t slay, bool force, int blows,
                                  dice_t d, cptr name, int color, doc_ptr doc)
 {
-    int mult, dam, base;
+    int roll, base1, base2, base3, dam1, dam2, dam3;
+    const int scale = 100;
 
-    base = blows * (base_mult*d.dd*(d.ds+1)/200 + d.base) / 100;
+    roll = scale*d.dd*(d.ds + 1)/2;
+    base1 = crit.mul*roll/100;
+    base2 = base1 + scale*d.base + crit.add;
+    base3 = blows*base2/100;
 
-    /* calculate dice multiplier from slays, boosted by mana brand, and scaled
-     * by vorpal and crit average multipliers */
-    mult = slay_mult;
     if (force)
-        mult = mult * 3/2 + 150;
-    mult = mult * base_mult / 100;
+        slay.mul = slay.mul * 3/2 + 150;
 
-    /* compute average damage. both blows and mult are scaled by 100 */
-    dam = blows * (mult*d.dd*(d.ds+1)/200 + d.base) / 100;
+    dam1 = slay.mul*(base1)/100 + scale*slay.add + crit.add;
+    dam2 = dam1 + scale*d.base;
+    dam3 = blows*dam2/100;
+
     if (plr_tim_find(T_STUN))
     {
-        base -= base * MIN(100, plr_tim_amount(T_STUN)) / 150;
-        dam -= dam * MIN(100, plr_tim_amount(T_STUN)) / 150;
+        base3 -= base3 * MIN(100, plr_tim_amount(T_STUN)) / 150;
+        dam3 -= dam3 * MIN(100, plr_tim_amount(T_STUN)) / 150;
     }
     doc_printf(doc, "<color:%c> %s</color><tab:8>", attr_to_attr_char(color), name);
-    if (slay_mult == 100 && !force)
-        doc_printf(doc, ": %4d\n", dam);
+    if (slay.mul == 100)
+        doc_printf(doc, ": %4d\n", dam3/scale);
     else
-        doc_printf(doc, ": %4d  (+%d)\n", dam, (dam-base));
-    return dam;
+        doc_printf(doc, ": %4d  (+%d)\n", dam3/scale, (dam3 - base3)/scale);
+    return dam3/scale;
+}
+void crit_doc(doc_ptr doc, slay_t crit, int crit_chance)
+{
+    if (crit.add && 0) /* XXX add is usually insignificant (e.g. +1 or less) ... */
+    {
+        double mul = (double)crit.mul / 100.;
+        double add = (double)crit.add / 100.;
+        double chance = (double)crit_chance / 10.;
+        doc_printf(doc, " %-7.7s: %.2fx+%.1f (%.1f%%)\n", "Crits", mul, add, chance); 
+    }
+    else if (crit.mul > 100)
+    {
+        double mul = (double)crit.mul / 100.;
+        double chance = (double)crit_chance / 10.;
+        doc_printf(doc, " %-7.7s: %.2fx (%.1f%%)\n", "Crits", mul, chance);
+    }
 }
 static void _display_weapon(plr_attack_ptr context, doc_ptr doc)
 {
     dice_t dice = {0};
+    slay_t slay = {0};
+    int crit_chance;
+    slay_t crit;
     int to_d = context->to_d;
     int to_h = context->to_h;
-    int mult, i;
+    int i;
     int num_blow;
     bool force = FALSE, custom = FALSE;
     doc_ptr cols[2] = {0};
@@ -2531,7 +2780,7 @@ static void _display_weapon(plr_attack_ptr context, doc_ptr doc)
         caster_info *caster = get_caster_info();
         int          cost = 0;
 
-        if (p_ptr->pclass == CLASS_SAMURAI)
+        if (plr->pclass == CLASS_SAMURAI)
             cost = (1 + (dice.dd * dice.ds * 2 / 7));
         else
             cost = (1 + (dice.dd * dice.ds / 7));
@@ -2539,10 +2788,10 @@ static void _display_weapon(plr_attack_ptr context, doc_ptr doc)
         if (caster && (caster->options & CASTER_USE_AU))
         {
             cost *= 10;
-            if (p_ptr->au >= cost)
+            if (plr->au >= cost)
                 force = TRUE;
         }
-        else if (p_ptr->csp >= cost)
+        else if (plr->csp >= cost)
             force = TRUE;
     }
 
@@ -2588,38 +2837,43 @@ static void _display_weapon(plr_attack_ptr context, doc_ptr doc)
 
     doc_printf(cols[0], "<color:G> %-7.7s</color>\n", "Damage");
 
-    to_d = to_d + context->info.dis_to_d;
+    dice.base = to_d + context->info.dis_to_d;
 
-    /* base mult accounts for vorpal and critical hits as a statistical average */
-    mult = 100;
+    /* criticals and vorpals give a "base slay" */
+    crit_chance = _plr_crit_chance(context);
+    crit = _plr_crit_avg(context);
+    crit_doc(cols[0], crit, crit_chance);
+
     if (have_flag(context->obj_flags, OF_VORPAL2))
-        mult = mult * 5 / 3;  /* 1 + 1/3(1 + 1/2 + ...) = 1.667x */
-    else if (have_flag(context->obj_flags, OF_VORPAL) && p_ptr->vorpal)
-        mult = mult * 11 / 8; /* 1 + 1/4(1 + 1/3 + ...) = 1.375x */
-    else if (have_flag(context->obj_flags, OF_VORPAL) || p_ptr->vorpal)
-        mult = mult * 11 / 9; /* 1 + 1/6(1 + 1/4 + ...) = 1.222x */
-
     {
-        int chance = _plr_crit_chance(context);
-        int crit_mul = _plr_crit_avg_mul(context);
-        mult = mult * crit_mul / 100;
-        doc_printf(cols[0], " %-7.7s: %d.%02dx (%d.%d%%)\n", "Crits",
-                        crit_mul/100, crit_mul%100, chance/10, chance%10);
+        crit.mul = crit.mul * 5 / 3;  /* 1 + 1/3(1 + 1/2 + ...) = 1.667x */
+        crit.add = crit.add * 5 / 3;
+    }
+    else if (have_flag(context->obj_flags, OF_VORPAL) && plr->vorpal)
+    {
+        crit.mul = crit.mul * 11 / 8; /* 1 + 1/4(1 + 1/3 + ...) = 1.375x */
+        crit.add = crit.add * 11 / 8;
+    }
+    else if (have_flag(context->obj_flags, OF_VORPAL) || plr->vorpal)
+    {
+        crit.mul = crit.mul * 11 / 9; /* 1 + 1/6(1 + 1/4 + ...) = 1.222x */
+        crit.add = crit.add * 11 / 9;
     }
 
-    dice.base = to_d;
-    context->dam_total += _display_weapon_slay(mult, 100, FALSE, num_blow, dice, "Normal", TERM_WHITE, cols[0]);
+    slay.mul = 100;
+    context->dam_total += _display_weapon_slay(crit, slay, FALSE, num_blow, dice, "Normal", TERM_WHITE, cols[0]);
     if (force)
-        _display_weapon_slay(mult, 100, force, num_blow, dice, "Force", TERM_L_BLUE, cols[0]);
+        _display_weapon_slay(crit, slay, force, num_blow, dice, "Force", TERM_L_BLUE, cols[0]);
 
     /* slays */
     for (i = 0; ; i++)
     {
-        _slay_info_ptr info = &_slay_tbl[i];
+        slay_info_ptr info = &slay_tbl[i];
         slay_t slay = {0};
         if (!info->id) break;
         if (!have_flag(context->obj_flags, info->id)) continue;
-        slay = _slay_info_apply(info, NULL, NULL);
+        if (info->mask_id > 0 && have_flag(context->obj_flags, info->mask_id)) continue; /* Skip SLAY_ORC if KILL_ORC ... */
+        slay = slay_info_apply(info, NULL, NULL);
         if (context->hooks.calc_slay_f)
         {
             slay_t tmp = context->hooks.calc_slay_f(context, &slay);
@@ -2629,24 +2883,24 @@ static void _display_weapon(plr_attack_ptr context, doc_ptr doc)
                 custom = TRUE;
             }
         }
-        _display_weapon_slay(mult, slay.mul, force, num_blow, dice, slay.name, TERM_YELLOW, cols[0]);
+        _display_weapon_slay(crit, slay, force, num_blow, dice, slay.name, TERM_YELLOW, cols[0]);
     }
     if (!custom && context->hooks.calc_slay_f) /* skip custom slay if hook improved an existing one */
     {
         slay_t dummy = {0};
         slay_t slay = context->hooks.calc_slay_f(context, &dummy);
         if (slay.name)
-            _display_weapon_slay(mult, slay.mul, force, num_blow, dice, slay.name, TERM_YELLOW, cols[0]);
+            _display_weapon_slay(crit, slay, force, num_blow, dice, slay.name, TERM_YELLOW, cols[0]);
     }
     /* brands */
     custom = FALSE;
     for (i = 0; ; i++)
     {
-        _slay_info_ptr info = &_brand_tbl[i];
+        slay_info_ptr info = &brand_tbl[i];
         slay_t brand = {0};
         if (!info->id) break;
         if (!have_flag(context->obj_flags, info->id)) continue;
-        brand = _slay_info_apply(info, NULL, NULL);
+        brand = slay_info_apply(info, NULL, NULL);
         if (context->hooks.calc_brand_f)
         {
             slay_t tmp = context->hooks.calc_brand_f(context, &brand);
@@ -2656,14 +2910,14 @@ static void _display_weapon(plr_attack_ptr context, doc_ptr doc)
                 custom = TRUE;
             }
         }
-        _display_weapon_slay(mult, brand.mul, force, num_blow, dice, brand.name, TERM_RED, cols[0]);
+        _display_weapon_slay(crit, brand, force, num_blow, dice, brand.name, TERM_RED, cols[0]);
     }
     if (!custom && context->hooks.calc_brand_f) /* e.g. Lightning Eagle is a mere 5x if no exising OF_BRAND_ELEC */
     {
         slay_t dummy = {0};
         slay_t brand = context->hooks.calc_brand_f(context, &dummy);
         if (brand.name)
-            _display_weapon_slay(mult, brand.mul, force, num_blow, dice, brand.name, TERM_RED, cols[0]);
+            _display_weapon_slay(crit, brand, force, num_blow, dice, brand.name, TERM_RED, cols[0]);
     }
 
     /* info */
@@ -2706,13 +2960,13 @@ typedef struct {
     int dam_base;
     int dam_add;
     int crit_freq;
-    int crit_mul;
+    slay_t crit;
 } _monk_stats_t, *_monk_stats_ptr;
 static _monk_stats_t _sample_monk(plr_attack_ptr context, int count)
 {
     _monk_stats_t stats = {0};
     mon_blow_ptr  old = context->blow;
-    cptr          tbl_name = p_ptr->monk_tbl;
+    cptr          tbl_name = plr->monk_tbl;
     int           i;
     int           to_d = context->to_d + context->info.dis_to_d;
     int           to_dd = context->info.to_dd;
@@ -2722,29 +2976,32 @@ static _monk_stats_t _sample_monk(plr_attack_ptr context, int count)
         tbl_name = context->blow->name;
     for (i = 0; i < count; i++)
     {
-        int base, mul, dd, ds, add;
+        int base, dd, ds, add;
+        slay_t crit;
         context->blow = monk_choose_attack_plr(tbl_name);
         if (!context->blow->effect_ct) continue;
-        mul = _plr_crit_avg_mul(context);
+        crit = _plr_crit_avg(context);
         dd = context->blow->effects[0].dice.dd + to_dd;
         ds = context->blow->effects[0].dice.ds + to_ds;
-        add = 100*context->blow->effects[0].dice.base;
-        base = 100*dd*mul*(ds + 1)/200;
-        if (p_ptr->clp > 1000) /* RACE_MON_LICH ... scaling base dice only seems weak. */
+        add = 100*context->blow->effects[0].dice.base + crit.add;
+        base = 100*dd*crit.mul*(ds + 1)/200;
+        if (plr->clp > 1000) /* RACE_MON_LICH ... scaling base dice only seems weak. */
         {
-            base = base * p_ptr->clp / 1000;
-            add = add * p_ptr->clp / 1000;
+            base = base * plr->clp / 1000;
+            add = add * plr->clp / 1000;
         }
         add += 100*to_d;
         stats.dam_base += base;
-        stats.crit_mul += mul;
         stats.dam_add += add;
+        stats.crit.mul += crit.mul;
+        stats.crit.add += crit.add;
         stats.crit_freq += _plr_crit_chance(context);
     }
     stats.dam_base /= 100*count;
     stats.dam_add /= 100*count;
     stats.crit_freq /= count;
-    stats.crit_mul /= count;
+    stats.crit.mul /= count;
+    stats.crit.add /= count;
     context->blow = old;
     return stats;
 }
@@ -2816,10 +3073,7 @@ static void _display_monk(plr_attack_ptr context, doc_ptr doc)
     doc_printf(cols[0], " %-7.7s: %d\n", "To Dam", to_d);
 
     doc_printf(cols[0], " %-7.7s: %d.%2.2d\n", "Blows", blows/100, blows%100);
-    if (stats.crit_mul > 100)
-        doc_printf(cols[0], " %-7.7s: %d.%02dx (%d.%d%%)\n", "Crits",
-                        stats.crit_mul/100, stats.crit_mul%100, stats.crit_freq/10, stats.crit_freq%10);
-
+    crit_doc(cols[0], stats.crit, stats.crit_freq);
     {
         slay_t none = {0};
         none.mul = 100;
@@ -2830,11 +3084,11 @@ static void _display_monk(plr_attack_ptr context, doc_ptr doc)
     /* slays */
     for (i = 0; ; i++)
     {
-        _slay_info_ptr info = &_slay_tbl[i];
+        slay_info_ptr info = &slay_tbl[i];
         slay_t slay = {0};
         if (!info->id) break;
         if (!have_flag(context->obj_flags, info->id)) continue;
-        slay = _slay_info_apply(info, NULL, NULL);
+        slay = slay_info_apply(info, NULL, NULL);
         if (context->hooks.calc_slay_f)
         {
             slay_t tmp = context->hooks.calc_slay_f(context, &slay);
@@ -2857,11 +3111,11 @@ static void _display_monk(plr_attack_ptr context, doc_ptr doc)
     custom = FALSE;
     for (i = 0; ; i++)
     {
-        _slay_info_ptr info = &_brand_tbl[i];
+        slay_info_ptr info = &brand_tbl[i];
         slay_t brand = {0};
         if (!info->id) break;
         if (!have_flag(context->obj_flags, info->id)) continue;
-        brand = _slay_info_apply(info, NULL, NULL);
+        brand = slay_info_apply(info, NULL, NULL);
         if (context->hooks.calc_brand_f)
         {
             slay_t tmp = context->hooks.calc_brand_f(context, &brand);
@@ -2910,7 +3164,7 @@ static void _display_monk(plr_attack_ptr context, doc_ptr doc)
  *************************************************************************/
 static cptr _effect_name(int effect)
 {
-    if (p_ptr->current_r_idx == MON_AETHER_VORTEX) return "Random"; /* XXX */
+    if (plr_mon_race_is_("v.aether")) return "Random"; /* XXX */
     switch (effect)
     {
     case RBE_HURT:        return "Hurt";
@@ -2923,7 +3177,7 @@ static cptr _effect_name(int effect)
     case RBE_DISEASE:     return "Disease";
     case RBE_VAMP:        return "<color:D>Vampiric</color>";
     case GF_MISSILE:      return "Damage";
-    case GF_TURN_ALL:     return "<color:r>Terrify</color>";
+    case GF_FEAR:     return "<color:r>Terrify</color>";
     }
     return gf_name(effect);
 }
@@ -2955,18 +3209,18 @@ static void _display_innate(plr_attack_ptr context, doc_ptr doc)
 {
     int blows, base_dam = 0;
     dice_t d = {0};
+    slay_t slay = {0};
     bool force = FALSE;
     int i;
     int to_h = context->to_h + context->blow->power/BTH_PLUS_ADJ + context->info.dis_to_h;
     int to_d = context->to_d + context->info.dis_to_d;
-    int mult = 100;
     mon_blow_info_ptr info = mon_blow_info_lookup(context->blow->method);
     cptr name = context->blow->name;
     doc_ptr cols[2] = {0};
 
     blows = context->blow->blows;
     if (context->which_blow == 0)
-        blows += p_ptr->innate_attack_info.xtra_blow;
+        blows += plr->innate_attack_info.xtra_blow;
 
     /* no display if this attack is disabled (cf race_golem.c's RBM_PUNCH) */
     if (!blows) return;
@@ -2979,7 +3233,7 @@ static void _display_innate(plr_attack_ptr context, doc_ptr doc)
     if (context->blow->effect_ct)
     {
         d = mon_blow_base_dice(context->blow);
-        if (d.dd) d.dd += p_ptr->innate_attack_info.to_dd;
+        if (d.dd) d.dd += plr->innate_attack_info.to_dd;
     }
     doc_printf(cols[0], "<color:y> %-7.7s</color>: Your %s ", "Attack", name);
     _display_dice(d, cols[0]);
@@ -3000,68 +3254,63 @@ static void _display_innate(plr_attack_ptr context, doc_ptr doc)
     if (context->blow->weight)
         doc_printf(cols[0], " %-7.7s: %d.%d lbs\n", "Weight", context->blow->weight/10, context->blow->weight%10);
 
-    mult = 100;
-
     doc_printf(cols[0], "<color:G> %-7.7s</color>\n", "Damage");
 
     for (i = 0; i < context->blow->effect_ct; i++)
     {
         mon_effect_ptr e = &context->blow->effects[i];
-        if (!e->effect) continue;
-        if (_skip_effect(e->effect)) continue;
+        if (!e->type) continue;
+        if (_skip_effect(e->type)) continue;
         if (i == 0 && dice_avg_roll(d)) /* first effect behaves like normal weapon display */
         {
             int crit_chance = _plr_crit_chance(context);
+            slay_t crit = _plr_crit_avg(context);
             int  vorpal_pct = _innate_vorpal_pct(context->blow);
             cptr name = "Normal";
+            crit_doc(cols[0], crit, crit_chance);
             if (vorpal_pct)
             {
                 /* 1 + p(1 + 1/4 + ...) = 1 + p(4/3) */
-                mult = mult * (100 + 4*vorpal_pct/3)/100;
-                doc_printf(cols[0], " %-7.7s: %d.%02dx\n", "Vorpal", mult/100, mult%100);
-            }
-            if (crit_chance)
-            {
-                int crit_mul = _plr_crit_avg_mul(context);
-                mult = mult * crit_mul / 100;
-                doc_printf(cols[0], " %-7.7s: %d.%02dx (%d.%d%%)\n", "Crits",
-                                crit_mul/100, crit_mul%100, crit_chance/10, crit_chance%10);
+                crit.mul = crit.mul * (100 + 4*vorpal_pct/3)/100;
+                crit.add = crit.add * (100 + 4*vorpal_pct/3)/100;
+                doc_printf(cols[0], " %-7.7s: %d.%02dx\n", "Vorpal", crit.mul/100, crit.mul%100);
             }
 
-            if (e->effect != RBE_HURT)
-                name = _effect_name(e->effect);
+            if (e->type != RBE_HURT)
+                name = _effect_name(e->type);
             d.base += to_d;
-            base_dam = _display_weapon_slay(mult, 100, FALSE, blows, d, name, TERM_WHITE, cols[0]);
+            slay.mul = 100;
+            base_dam = _display_weapon_slay(crit, slay, FALSE, blows, d, name, TERM_WHITE, cols[0]);
             context->dam_total += base_dam;
             if (force)
-                base_dam = _display_weapon_slay(mult, 100, force, blows, d, "Force", TERM_L_BLUE, cols[0]);
-            if (context->blow->flags & MBF_TOUCH)
+                base_dam = _display_weapon_slay(crit, slay, force, blows, d, "Force", TERM_L_BLUE, cols[0]);
+            if ((context->blow->flags & MBF_TOUCH) && mon_blow_allow_slay(context->blow))
             {
                 int j;
                 for (j = 0; ; j++)
                 {
-                    _slay_info_ptr info = &_slay_tbl[j];
+                    slay_info_ptr info = &slay_tbl[j];
                     slay_t slay = {0};
                     if (!info->id) break;
                     if (!have_flag(context->obj_flags, info->id)) continue;
-                    slay = _slay_info_apply(info, NULL, NULL);
-                    _display_weapon_slay(mult, slay.mul, force, blows, d, slay.name, TERM_YELLOW, cols[0]);
+                    slay = slay_info_apply(info, NULL, NULL);
+                    _display_weapon_slay(crit, slay, force, blows, d, slay.name, TERM_YELLOW, cols[0]);
                 }
                 for (j = 0; ; j++)
                 {
-                    _slay_info_ptr info = &_brand_tbl[j];
+                    slay_info_ptr info = &brand_tbl[j];
                     slay_t brand = {0};
                     if (!info->id) break;
                     if (!have_flag(context->obj_flags, info->id)) continue;
-                    brand = _slay_info_apply(info, NULL, NULL);
-                    _display_weapon_slay(mult, brand.mul, force, blows, d, brand.name, TERM_RED, cols[0]);
+                    brand = slay_info_apply(info, NULL, NULL);
+                    _display_weapon_slay(crit, brand, force, blows, d, brand.name, TERM_RED, cols[0]);
                 }
             }
         }
         else
         {
-            doc_printf(cols[0], " %s", _effect_name(e->effect));
-            if (_effect_show_dam(e->effect))
+            doc_printf(cols[0], " %s", _effect_name(e->type));
+            if (_effect_show_dam(e->type))
             {
                 int dam = dice_avg_roll(e->dice) * blows / 100;
                 if (e->pct) dam = dam * e->pct / 100;
@@ -3091,5 +3340,7 @@ static void _display_innate(plr_attack_ptr context, doc_ptr doc)
     doc_insert_cols(doc, cols, 2, 1);
     doc_free(cols[0]);
     doc_free(cols[1]);
+
+    _calc_blows_innate_doc(context->blow, doc);
 }
 

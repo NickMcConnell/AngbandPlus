@@ -1,5 +1,7 @@
 #include "angband.h"
 
+#include <assert.h>
+
 static cptr _desc =
     "Demons are powerful servants of evil and come in many forms. Being monsters, they "
     "may not choose a normal class. Instead, they rely on their devilish powers or their "
@@ -22,6 +24,7 @@ static caster_info * _caster_info(void)
         me.encumbrance.max_wgt = 750;
         me.encumbrance.weapon_pct = 0;
         me.encumbrance.enc_wgt = 800;
+        me.options = CASTER_GAIN_SKILL;
         init = TRUE;
     }
     return &me;
@@ -35,7 +38,7 @@ static void _demon_birth(void)
     {
         object_type forge = {0};
         object_prep(&forge, lookup_kind(TV_CORPSE, SV_CORPSE));
-        forge.pval = mon_alloc_choose(2)->id;
+        forge.race_id = mon_alloc_choose(2)->id;
         plr_birth_obj(&forge);
     }
     mon_alloc_pop_filter();
@@ -50,8 +53,7 @@ static void _khorne_birth(void)
 {
     object_type    forge;
 
-    p_ptr->current_r_idx = MON_BLOODLETTER_KHORNE;
-    equip_on_change_race();
+    plr_mon_race_set("U.bloodletter");
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
@@ -77,24 +79,40 @@ static void _khorne_birth(void)
 
 static void _khorne_calc_innate_bonuses(mon_blow_ptr blow)
 {
-    if (p_ptr->current_r_idx == MON_FLESHHOUND_KHORNE)
+    if (plr_mon_race_is_("C.fleshhound"))
     {
+        plr->innate_attack_info.blows_calc.wgt = 100;
+        plr->innate_attack_info.blows_calc.mul = 40;
         if (blow->method == RBM_CLAW)
-            plr_calc_blows_innate(blow, 200);
+        {
+            plr->innate_attack_info.blows_calc.max = 200;
+            plr_calc_blows_innate(blow);
+        }
         if (blow->method == RBM_BITE)
-            plr_calc_blows_innate(blow, 300);
+        {
+            plr->innate_attack_info.blows_calc.max = 300;
+            plr_calc_blows_innate(blow);
+        }
     }
-    else if (p_ptr->current_r_idx == MON_JUGGERNAUT_KHORNE)
+    else if (plr_mon_race_is_("g.juggernaut"))
     {
+        plr->innate_attack_info.blows_calc.wgt = 200;
+        plr->innate_attack_info.blows_calc.mul = 50;
         if (blow->method == RBM_BUTT)
-            plr_calc_blows_innate(blow, 400);
+        {
+            plr->innate_attack_info.blows_calc.max = 400;
+            plr_calc_blows_innate(blow);
+        }
         if (blow->method == RBM_CRUSH)
-            plr_calc_blows_innate(blow, 200);
+        {
+            plr->innate_attack_info.blows_calc.max = 200;
+            plr_calc_blows_innate(blow);
+        }
     }
 }
 static void _khorne_calc_innate_attacks(void)
 {
-    if (p_ptr->current_r_idx == MON_FLESHHOUND_KHORNE)
+    if (plr_mon_race_is_("C.fleshhound"))
     {
         int to_d = plr_prorata_level(15);
         int power = plr_prorata_level(90);
@@ -105,16 +123,16 @@ static void _khorne_calc_innate_attacks(void)
         blow->power = power;
         mon_blow_push_effect(blow, RBE_HURT, dice_create(5, 2, to_d));
         _khorne_calc_innate_bonuses(blow);
-        vec_add(p_ptr->innate_blows, blow);
+        vec_add(plr->innate_blows, blow);
 
         /* Bite */
         blow = mon_blow_alloc(RBM_BITE);
         blow->power = power;
         mon_blow_push_effect(blow, RBE_HURT, dice_create(10, 2, to_d));
         _khorne_calc_innate_bonuses(blow);
-        vec_add(p_ptr->innate_blows, blow);
+        vec_add(plr->innate_blows, blow);
     }
-    else if (p_ptr->current_r_idx == MON_JUGGERNAUT_KHORNE)
+    else if (plr_mon_race_is_("g.juggernaut"))
     {
         int to_d = plr_prorata_level(15);
         int power = plr_prorata_level(90);
@@ -125,146 +143,135 @@ static void _khorne_calc_innate_attacks(void)
         blow->power = power;
         mon_blow_push_effect(blow, RBE_HURT, dice_create(8, 6, to_d));
         _khorne_calc_innate_bonuses(blow);
-        vec_add(p_ptr->innate_blows, blow);
+        vec_add(plr->innate_blows, blow);
 
         /* Crush */
         blow = mon_blow_alloc(RBM_CRUSH);
         blow->power = power;
         mon_blow_push_effect(blow, RBE_HURT, dice_create(10, 6, to_d));
         _khorne_calc_innate_bonuses(blow);
-        vec_add(p_ptr->innate_blows, blow);
+        vec_add(plr->innate_blows, blow);
     }
 }
 
 static void _khorne_calc_bonuses(void)
 {
-    p_ptr->align -= 200;
+    plr->align -= 200;
 
-    res_add(RES_FIRE);
-    res_add(RES_NETHER);
+    res_add(GF_FIRE);
+    res_add(GF_NETHER);
 
-    p_ptr->slow_digest = TRUE;
-    p_ptr->hold_life++;
-    p_ptr->no_eldritch = TRUE;
+    plr->slow_digest = TRUE;
+    plr->hold_life++;
+    plr->no_eldritch = TRUE;
 
-    switch (p_ptr->current_r_idx)
+    if (plr_mon_race_is_("U.bloodletter"))
     {
-    case MON_BLOODLETTER_KHORNE:
-        p_ptr->regen += 100;
-        res_add(RES_COLD);
-        res_add(RES_POIS);
-        res_add(RES_CHAOS);
-        break;
-    case MON_FLESHHOUND_KHORNE:
-        p_ptr->pspeed += 2;
-        res_add(RES_CONF);
-        res_add(RES_NEXUS);
-        res_add(RES_DISEN);
-        break;
-    case MON_JUGGERNAUT_KHORNE:
-        p_ptr->pspeed += 4;
-        p_ptr->to_a += 100;
-        p_ptr->dis_to_a += 100;
-        p_ptr->reflect = TRUE;
-        p_ptr->free_act++;
-        p_ptr->see_inv++;
+        plr->regen += 100;
+        res_add(GF_COLD);
+        res_add(GF_POIS);
+        res_add(GF_CHAOS);
+    }
+    else if (plr_mon_race_is_("C.fleshhound"))
+    {
+        plr->pspeed += 2;
+        res_add(GF_CONF);
+        res_add(GF_NEXUS);
+        res_add(GF_DISEN);
+    }
+    else if (plr_mon_race_is_("g.juggernaut"))
+    {
+        plr->pspeed += 4;
+        plr->to_a += 100;
+        plr->dis_to_a += 100;
+        plr->reflect = TRUE;
+        plr->free_act++;
+        plr->see_inv++;
 
-        res_add(RES_COLD);
-        res_add(RES_ELEC);
-        res_add(RES_POIS);
-        res_add(RES_CONF);
-        res_add(RES_FEAR);
-        break;
-    case MON_BLOODTHIRSTER:
-        p_ptr->pspeed += 6;
-        p_ptr->to_a += 50;
-        p_ptr->dis_to_a += 50;
-        p_ptr->regen += 150;
-        p_ptr->levitation = TRUE;
-        p_ptr->free_act++;
-        p_ptr->see_inv++;
-        res_add(RES_ACID);
-        res_add(RES_COLD);
-        res_add(RES_POIS);
-        res_add(RES_CONF);
-        res_add(RES_NEXUS);
-        res_add(RES_TELEPORT);
-        break;
+        res_add(GF_COLD);
+        res_add(GF_ELEC);
+        res_add(GF_POIS);
+        res_add(GF_CONF);
+        res_add(GF_FEAR);
+    }
+    else if (plr_mon_race_is_("U.bloodthirster"))
+    {
+        plr->pspeed += 6;
+        plr->to_a += 50;
+        plr->dis_to_a += 50;
+        plr->regen += 150;
+        plr->levitation = TRUE;
+        plr->free_act++;
+        plr->see_inv++;
+        res_add(GF_ACID);
+        res_add(GF_COLD);
+        res_add(GF_POIS);
+        res_add(GF_CONF);
+        res_add(GF_NEXUS);
+        res_add(GF_TELEPORT);
     }
 }
 
 static void _khorne_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_FIRE);
-    add_flag(flgs, OF_RES_NETHER);
+    add_flag(flgs, OF_RES_(GF_FIRE));
+    add_flag(flgs, OF_RES_(GF_NETHER));
 
     add_flag(flgs, OF_HOLD_LIFE);
     add_flag(flgs, OF_SLOW_DIGEST);
 
-    switch (p_ptr->current_r_idx)
+    if (plr_mon_race_is_("U.bloodletter"))
     {
-    case MON_BLOODLETTER_KHORNE:
         add_flag(flgs, OF_REGEN);
-        add_flag(flgs, OF_RES_COLD);
-        add_flag(flgs, OF_RES_POIS);
-        add_flag(flgs, OF_RES_CHAOS);
-        break;
-    case MON_FLESHHOUND_KHORNE:
+        add_flag(flgs, OF_RES_(GF_COLD));
+        add_flag(flgs, OF_RES_(GF_POIS));
+        add_flag(flgs, OF_RES_(GF_CHAOS));
+    }
+    else if (plr_mon_race_is_("C.fleshhound"))
+    {
         add_flag(flgs, OF_SPEED);
-        add_flag(flgs, OF_RES_CONF);
-        add_flag(flgs, OF_RES_NEXUS);
-        add_flag(flgs, OF_RES_DISEN);
-        break;
-    case MON_JUGGERNAUT_KHORNE:
+        add_flag(flgs, OF_RES_(GF_CONF));
+        add_flag(flgs, OF_RES_(GF_NEXUS));
+        add_flag(flgs, OF_RES_(GF_DISEN));
+    }
+    else if (plr_mon_race_is_("g.juggernaut"))
+    {
         add_flag(flgs, OF_SPEED);
         add_flag(flgs, OF_REFLECT);
         add_flag(flgs, OF_FREE_ACT);
         add_flag(flgs, OF_SEE_INVIS);
 
-        add_flag(flgs, OF_RES_COLD);
-        add_flag(flgs, OF_RES_ELEC);
-        add_flag(flgs, OF_RES_POIS);
-        add_flag(flgs, OF_RES_CONF);
-        add_flag(flgs, OF_RES_FEAR);
-        break;
-    case MON_BLOODTHIRSTER:
+        add_flag(flgs, OF_RES_(GF_COLD));
+        add_flag(flgs, OF_RES_(GF_ELEC));
+        add_flag(flgs, OF_RES_(GF_POIS));
+        add_flag(flgs, OF_RES_(GF_CONF));
+        add_flag(flgs, OF_RES_(GF_FEAR));
+    }
+    else if (plr_mon_race_is_("U.bloodthirster"))
+    {
         add_flag(flgs, OF_SPEED);
         add_flag(flgs, OF_REGEN);
         add_flag(flgs, OF_LEVITATION);
         add_flag(flgs, OF_FREE_ACT);
         add_flag(flgs, OF_SEE_INVIS);
-        add_flag(flgs, OF_RES_ACID);
-        add_flag(flgs, OF_RES_COLD);
-        add_flag(flgs, OF_RES_POIS);
-        add_flag(flgs, OF_RES_CONF);
-        add_flag(flgs, OF_RES_NEXUS);
-        break;
+        add_flag(flgs, OF_RES_(GF_ACID));
+        add_flag(flgs, OF_RES_(GF_COLD));
+        add_flag(flgs, OF_RES_(GF_POIS));
+        add_flag(flgs, OF_RES_(GF_CONF));
+        add_flag(flgs, OF_RES_(GF_NEXUS));
     }
 }
 
 static void _khorne_gain_level(int new_level)
 {
-    if (p_ptr->current_r_idx == MON_BLOODLETTER_KHORNE && new_level >= 20)
-    {
-        p_ptr->current_r_idx = MON_FLESHHOUND_KHORNE;
-        msg_print("You have evolved into a Fleshhound of Khorne.");
-        equip_on_change_race();
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_FLESHHOUND_KHORNE && new_level >= 30)
-    {
-        p_ptr->current_r_idx = MON_JUGGERNAUT_KHORNE;
-        msg_print("You have evolved into a Juggernaut of Khorne.");
-        equip_on_change_race();
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_JUGGERNAUT_KHORNE && new_level >= 40)
+    if (plr_mon_race_is_("U.bloodletter") && new_level >= 20)
+        plr_mon_race_evolve("C.fleshhound");
+    if (plr_mon_race_is_("C.fleshhound") && new_level >= 30)
+        plr_mon_race_evolve("g.juggernaut");
+    if (plr_mon_race_is_("g.juggernaut") && new_level >= 40)
     {
         object_type forge;
-        p_ptr->current_r_idx = MON_BLOODTHIRSTER;
-        msg_print("You have evolved into a Bloodthirster.");
-        equip_on_change_race();
-        p_ptr->redraw |= PR_MAP;
+        plr_mon_race_evolve("U.bloodthirster");
         object_prep(&forge, lookup_kind(TV_SWORD, SV_BLADE_OF_CHAOS));
         forge.name2 = EGO_WEAPON_DEATH; /* Prevent ?Artifact or ?WeaponBranding */
         forge.dd = 50;
@@ -273,7 +280,7 @@ static void _khorne_gain_level(int new_level)
         forge.to_h = 15;
         forge.to_d = 15;
         plr_birth_obj(&forge);
-        p_ptr->update |= PU_BONUS;
+        plr->update |= PU_BONUS;
     }
 }
 
@@ -283,14 +290,14 @@ static plr_race_ptr _khorne_get_race_t(void)
     static cptr   titles[4] =  {"Bloodletter of Khorne", "Fleshhound of Khorne", "Juggernaut of Khorne", "Bloodthirster"};
     int           rank = 0;
 
-    if (p_ptr->lev >= 20) rank++;
-    if (p_ptr->lev >= 30) rank++;
-    if (p_ptr->lev >= 40) rank++;
+    if (plr->lev >= 20) rank++;
+    if (plr->lev >= 30) rank++;
+    if (plr->lev >= 40) rank++;
 
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 20,  20,  40,  -1,  13,   7,  70,  30};
-    skills_t xs = { 12,   8,  10,   0,   0,   0,  32,   7};
+    skills_t xs = { 60,  40,  50,   0,   0,   0, 160,  35};
 
         me = plr_race_alloc_aux(RACE_MON_DEMON, DEMON_KHORNE);
         me->subdesc = "Khorne's servants come in many forms and are powerful forces of melee. They know nothing "
@@ -311,12 +318,15 @@ static plr_race_ptr _khorne_get_race_t(void)
         me->hooks.get_flags = _khorne_get_flags;
         me->hooks.gain_level = _khorne_gain_level;
 
-        me->pseudo_class_idx = CLASS_WARRIOR;
-        me->boss_r_idx = MON_DEMOGORGON;
+        me->pseudo_class_id = CLASS_WARRIOR;
+        me->boss_r_idx = mon_race_parse("U.Demogorgon")->id;
     }
 
     if (spoiler_hack || birth_hack)
+    {
         me->subname = "Servant of Khorne";
+        rank = 0;
+    }
     else
         me->subname = titles[rank];
     me->stats[A_STR] =  3 + rank;
@@ -327,7 +337,7 @@ static plr_race_ptr _khorne_get_race_t(void)
     me->stats[A_CHR] =  rank/3;
     me->life = 100 + 5*rank;
 
-    me->equip_template = mon_get_equip_template();
+    me->equip_template = plr_equip_template();
 
     return me;
 }
@@ -345,7 +355,7 @@ static spell_info _marilith_spells[] = {
     { 22,  9, 40, summon_manes_spell},
     { 25, 16, 40, fire_ball_spell},
     { 30, 18, 45, cause_wounds_III_spell},
-    /*{ 32, 20, 50, amnesia_spell},*/
+    { 32, 20, 50, amnesia_spell},
     { 36, 70, 85, summon_demon_spell},
     { 40, 10, 50, enchantment_spell}, /* Note: Mariliths need corpses to eat, so they cannot spam
                                          this spell in the town the way other characters may */
@@ -358,8 +368,7 @@ static int _marilith_get_spells(spell_info* spells, int max) {
 static void _marilith_birth(void) {
     object_type    forge;
 
-    p_ptr->current_r_idx = MON_MANES;
-    equip_on_change_race();
+    plr_mon_race_set("u.manes");
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
@@ -379,127 +388,111 @@ static void _marilith_birth(void) {
 }
 
 static void _marilith_calc_innate_attacks(void) {
-    if (p_ptr->lev >= 40)
+    if (plr->lev >= 40)
     {
         mon_blow_ptr blow = mon_blow_alloc(RBM_STING);
         blow->name = "Tail";
-        blow->power = p_ptr->lev*3/2;
+        blow->power = plr->lev*3/2;
         mon_blow_push_effect(blow, RBE_HURT, dice_create(3, 7, 0));
-        vec_add(p_ptr->innate_blows, blow);
+        vec_add(plr->innate_blows, blow);
     }
 }
 
 static void _marilith_calc_bonuses(void) {
-    p_ptr->align -= 200;
+    plr->align -= 200;
 
-    res_add(RES_FIRE);
-    res_add(RES_NETHER);
+    res_add(GF_FIRE);
+    res_add(GF_NETHER);
 
-    p_ptr->slow_digest = TRUE;
-    p_ptr->hold_life++;
-    p_ptr->no_eldritch = TRUE;
+    plr->slow_digest = TRUE;
+    plr->hold_life++;
+    plr->no_eldritch = TRUE;
 
-    switch (p_ptr->current_r_idx)
+    if (plr_mon_race_is_("u.quasit"))
     {
-    case MON_QUASIT:
-        p_ptr->levitation = TRUE;
-        p_ptr->see_inv++;
-        break;
-    case MON_BODAK:
-        res_add(RES_CONF);
-        res_add(RES_POIS);
-        p_ptr->sh_fire = TRUE;
-        p_ptr->free_act++;
-        p_ptr->see_inv++;
-        break;
-    case MON_DEATH_QUASIT:
-        res_add(RES_CONF);
-        res_add(RES_POIS);
-        res_add(RES_TELEPORT);
-        p_ptr->pspeed += 5;
-        p_ptr->levitation = TRUE;
-        p_ptr->pass_wall = TRUE;
-        p_ptr->no_passwall_dam = TRUE;
-        p_ptr->free_act++;
-        p_ptr->see_inv++;
-        break;
-    case MON_MARILITH:
-        res_add(RES_POIS);
-        res_add(RES_CONF);
-        res_add(RES_CHAOS);
-        p_ptr->pspeed += 5;
-        p_ptr->free_act++;
-        p_ptr->see_inv++;
-        break;
+        plr->levitation = TRUE;
+        plr->see_inv++;
+    }
+    else if (plr_mon_race_is_("u.bodak"))
+    {
+        res_add(GF_CONF);
+        res_add(GF_POIS);
+        plr->sh_fire = TRUE;
+        plr->free_act++;
+        plr->see_inv++;
+    }
+    else if (plr_mon_race_is_("u.quasit.death"))
+    {
+        res_add(GF_CONF);
+        res_add(GF_POIS);
+        res_add(GF_TELEPORT);
+        plr->pspeed += 5;
+        plr->levitation = TRUE;
+        plr->pass_wall = TRUE;
+        plr->no_passwall_dam = TRUE;
+        plr->free_act++;
+        plr->see_inv++;
+    }
+    else if (plr_mon_race_is_("U.marilith"))
+    {
+        res_add(GF_POIS);
+        res_add(GF_CONF);
+        res_add(GF_CHAOS);
+        plr->pspeed += 5;
+        plr->free_act++;
+        plr->see_inv++;
     }
 }
 
 static void _marilith_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
-    add_flag(flgs, OF_RES_FIRE);
-    add_flag(flgs, OF_RES_NETHER);
+    add_flag(flgs, OF_RES_(GF_FIRE));
+    add_flag(flgs, OF_RES_(GF_NETHER));
 
     add_flag(flgs, OF_HOLD_LIFE);
     add_flag(flgs, OF_SLOW_DIGEST);
 
-    switch (p_ptr->current_r_idx)
+    if (plr_mon_race_is_("u.quasit"))
     {
-    case MON_QUASIT:
         add_flag(flgs, OF_LEVITATION);
         add_flag(flgs, OF_SEE_INVIS);
-        break;
-    case MON_BODAK:
-        add_flag(flgs, OF_RES_CONF);
-        add_flag(flgs, OF_RES_POIS);
+    }
+    else if (plr_mon_race_is_("u.bodak"))
+    {
+        add_flag(flgs, OF_RES_(GF_CONF));
+        add_flag(flgs, OF_RES_(GF_POIS));
         add_flag(flgs, OF_AURA_FIRE);
         add_flag(flgs, OF_FREE_ACT);
         add_flag(flgs, OF_SEE_INVIS);
-        break;
-    case MON_DEATH_QUASIT:
-        add_flag(flgs, OF_RES_CONF);
-        add_flag(flgs, OF_RES_POIS);
+    }
+    else if (plr_mon_race_is_("u.quasit.death"))
+    {
+        add_flag(flgs, OF_RES_(GF_CONF));
+        add_flag(flgs, OF_RES_(GF_POIS));
         add_flag(flgs, OF_SPEED);
         add_flag(flgs, OF_LEVITATION);
         add_flag(flgs, OF_FREE_ACT);
         add_flag(flgs, OF_SEE_INVIS);
-        break;
-    case MON_MARILITH:
-        add_flag(flgs, OF_RES_CONF);
-        add_flag(flgs, OF_RES_POIS);
-        add_flag(flgs, OF_RES_CHAOS);
+    }
+    else if (plr_mon_race_is_("U.marilith"))
+    {
+        add_flag(flgs, OF_RES_(GF_CONF));
+        add_flag(flgs, OF_RES_(GF_POIS));
+        add_flag(flgs, OF_RES_(GF_CHAOS));
         add_flag(flgs, OF_SPEED);
         add_flag(flgs, OF_FREE_ACT);
         add_flag(flgs, OF_SEE_INVIS);
-        break;
     }
 }
 
 static void _marilith_gain_level(int new_level) {
-    if (p_ptr->current_r_idx == MON_MANES && new_level >= 10)
-    {
-        p_ptr->current_r_idx = MON_QUASIT;
-        msg_print("You have evolved into a Quasit.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_QUASIT && new_level >= 20)
-    {
-        p_ptr->current_r_idx = MON_BODAK;
-        msg_print("You have evolved into a Bodak.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_BODAK && new_level >= 30)
-    {
-        p_ptr->current_r_idx = MON_DEATH_QUASIT;
-        msg_print("You have evolved into a Death Quasit.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_DEATH_QUASIT && new_level >= 40)
-    {
-        p_ptr->current_r_idx = MON_MARILITH;
-        p_ptr->psex = SEX_FEMALE;
-        msg_print("You have evolved into a Marilith.");
-        equip_on_change_race();
-        p_ptr->redraw |= PR_MAP;
-    }
+    if (plr_mon_race_is_("u.manes") && new_level >= 10)
+        plr_mon_race_evolve("u.quasit");
+    if (plr_mon_race_is_("u.quasit") && new_level >= 20)
+        plr_mon_race_evolve("u.bodak");
+    if (plr_mon_race_is_("u.bodak") && new_level >= 30)
+        plr_mon_race_evolve("u.quasit.death");
+    if (plr_mon_race_is_("u.quasit.death") && new_level >= 40)
+        plr_mon_race_evolve("U.marilith");
 }
 
 static plr_race_ptr _marilith_get_race_t(void)
@@ -508,15 +501,15 @@ static plr_race_ptr _marilith_get_race_t(void)
     static cptr   titles[5] =  {"Manes", "Quasit", "Bodak", "Death Quasit", "Marilith"};
     int           rank = 0;
 
-    if (p_ptr->lev >= 10) rank++;
-    if (p_ptr->lev >= 20) rank++;
-    if (p_ptr->lev >= 30) rank++;
-    if (p_ptr->lev >= 40) rank++;
+    if (plr->lev >= 10) rank++;
+    if (plr->lev >= 20) rank++;
+    if (plr->lev >= 30) rank++;
+    if (plr->lev >= 40) rank++;
 
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 20,  35,  36,   3,  16,  10,  56,  35};
-    skills_t xs = { 12,  11,  10,   0,   0,   0,  20,  11};
+    skills_t xs = { 60,  55,  50,   0,   0,   0, 100,  55};
 
         me = plr_race_alloc_aux(RACE_MON_DEMON, DEMON_MARILITH);
         me->subdesc = "Tanar'ri were originally slave demons, but rose up to overthrow their masters. "
@@ -539,14 +532,18 @@ static plr_race_ptr _marilith_get_race_t(void)
         me->hooks.gain_level = _marilith_gain_level;
         me->hooks.caster_info = _caster_info;
 
-        me->pseudo_class_idx = CLASS_CHAOS_WARRIOR;
-        me->boss_r_idx = MON_MEPHISTOPHELES;
+        me->pseudo_class_id = CLASS_CHAOS_WARRIOR;
+        me->boss_r_idx = mon_race_parse("U.Mephistopheles")->id;
     }
 
     if (spoiler_hack || birth_hack)
+    {
         me->subname = "Tanar'ri";
+        rank = 0;
+    }
     else
         me->subname = titles[rank];
+
     me->stats[A_STR] =  rank;
     me->stats[A_INT] =  rank/2;
     me->stats[A_WIS] = -5;
@@ -555,7 +552,7 @@ static plr_race_ptr _marilith_get_race_t(void)
     me->stats[A_CHR] =  rank/2;
     me->life = 95 + 2*rank;
 
-    me->equip_template = mon_get_equip_template();
+    me->equip_template = plr_equip_template();
 
     return me;
 }
@@ -592,7 +589,7 @@ static void _balrog_birth(void)
 {
     object_type    forge;
 
-    p_ptr->current_r_idx = MON_LESSER_BALROG;
+    plr_mon_race_set("U.balrog.lesser");
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
@@ -615,62 +612,58 @@ static void _balrog_birth(void)
     _demon_birth();
 }
 static void _balrog_calc_bonuses(void) {
-    p_ptr->align -= 200;
+    plr->align -= 200;
 
-    res_add(RES_FIRE);
-    res_add(RES_NETHER);
+    res_add(GF_FIRE);
+    res_add(GF_NETHER);
 
-    p_ptr->hold_life++;
-    p_ptr->no_eldritch = TRUE;
-    p_ptr->pspeed += p_ptr->lev/8; /* Angels get +7 speed. Demons get +6 speed. */
-    p_ptr->sh_fire = TRUE;
+    plr->hold_life++;
+    plr->no_eldritch = TRUE;
+    plr->pspeed += plr->lev/8; /* Angels get +7 speed. Demons get +6 speed. */
+    plr->sh_fire = TRUE;
 
-    if (equip_find_art(ART_STONE_OF_DAEMON))
+    if (equip_find_art("~.Daemon"))
     {
-        p_ptr->dec_mana++;
-        p_ptr->easy_spell++;
+        plr->dec_mana++;
+        plr->easy_spell++;
     }
 
-    if (p_ptr->lev >= 10)
-        p_ptr->see_inv++;
+    if (plr->lev >= 10)
+        plr->see_inv++;
 
-    if (p_ptr->lev >= 30)
+    if (plr->lev >= 30)
     {
-        res_add(RES_FIRE);
-        res_add(RES_CHAOS);
+        res_add(GF_FIRE);
+        res_add(GF_CHAOS);
     }
 
-    if (p_ptr->lev >= 40)
+    if (plr->lev >= 40)
     {
-        res_add_immune(RES_FIRE);
-        res_add(RES_NETHER);
-        p_ptr->kill_wall = TRUE;
-        p_ptr->no_charge_drain = TRUE;
+        res_add_immune(GF_FIRE);
+        res_add(GF_NETHER);
+        plr->kill_wall = TRUE;
+        plr->no_charge_drain = TRUE;
     }
 }
 static void _balrog_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
-    add_flag(flgs, OF_RES_FIRE);
-    add_flag(flgs, OF_RES_NETHER);
+    add_flag(flgs, OF_RES_(GF_FIRE));
+    add_flag(flgs, OF_RES_(GF_NETHER));
 
     add_flag(flgs, OF_HOLD_LIFE);
     add_flag(flgs, OF_AURA_FIRE);
 
-    if (p_ptr->lev >= 8)
+    if (plr->lev >= 8)
         add_flag(flgs, OF_SPEED);
-    if (p_ptr->lev >= 10)
+    if (plr->lev >= 10)
         add_flag(flgs, OF_SEE_INVIS);
-    if (p_ptr->lev >= 30)
-        add_flag(flgs, OF_RES_CHAOS);
-    if (p_ptr->lev >= 40)
-        add_flag(flgs, OF_IM_FIRE);
+    if (plr->lev >= 30)
+        add_flag(flgs, OF_RES_(GF_CHAOS));
+    if (plr->lev >= 40)
+        add_flag(flgs, OF_IM_(GF_FIRE));
 }
 static void _balrog_gain_level(int new_level) {
-    if (p_ptr->current_r_idx == MON_LESSER_BALROG && new_level >= 40)
-    {
-        p_ptr->current_r_idx = MON_GREATER_BALROG;
-        msg_print("You have evolved into a Greater Balrog.");
-        p_ptr->redraw |= PR_MAP;
-    }
+    if (plr_mon_race_is_("U.balrog.lesser") && new_level >= 40)
+        plr_mon_race_evolve("U.balrog");
 }
 static plr_race_ptr _balrog_get_race_t(void)
 {
@@ -678,12 +671,12 @@ static plr_race_ptr _balrog_get_race_t(void)
     static cptr   titles[2] =  {"Lesser Balrog", "Greater Balrog"};
     int           rank = 0;
 
-    if (p_ptr->lev >= 40) rank++;
+    if (plr->lev >= 40) rank++;
 
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 20,  35,  40,  -2,  10,   7,  75,  30};
-    skills_t xs = { 12,  11,  15,   0,   0,   0,  35,   7};
+    skills_t xs = { 60,  55,  75,   0,   0,   0, 175,  35};
 
         me = plr_race_alloc_aux(RACE_MON_DEMON, DEMON_BALROG);
         me->subdesc = "Balrogs are demons of shadow and flame. Their evil knows no bounds. Their spells are "
@@ -703,7 +696,8 @@ static plr_race_ptr _balrog_get_race_t(void)
         me->hooks.gain_level = _balrog_gain_level;
         me->hooks.caster_info = _caster_info;
 
-        me->pseudo_class_idx = CLASS_CHAOS_WARRIOR;
+        me->pseudo_class_id = CLASS_CHAOS_WARRIOR;
+        me->boss_r_idx = mon_race_parse("U.Gothmog")->id;
     }
 
     if (spoiler_hack || birth_hack)
@@ -719,8 +713,6 @@ static plr_race_ptr _balrog_get_race_t(void)
     me->infra = 5 + 10*rank;
     me->life = 105 + 10*rank;
 
-    me->boss_r_idx = MON_GOTHMOG;
-
     return me;
 }
 
@@ -730,7 +722,7 @@ static plr_race_ptr _balrog_get_race_t(void)
 static int _rocket_amount(void)
 {
     int pct = 15 + plr_prorata_level(30);
-    return 25 + p_ptr->chp * pct / 100;
+    return 25 + plr->chp * pct / 100;
 }
 
 void _cyber_rocket_spell(int cmd, var_ptr res)
@@ -743,27 +735,11 @@ void _cyber_rocket_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Launches a powerful rocket at your opponent.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, _rocket_amount()));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-
-        msg_print("You launch a rocket.");
-        fire_rocket(GF_ROCKET, dir, _rocket_amount(), 2);
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     case SPELL_COST_EXTRA:
-        var_set_int(res, p_ptr->lev*19/50 + p_ptr->lev*p_ptr->lev*19/2500);
+        var_set_int(res, plr->lev*19/50 + plr->lev*plr->lev*19/2500);
         break;
     default:
-        default_spell(cmd, res);
-        break;
+        rocket_spell_aux(cmd, res, innate_dice(0, 0, _rocket_amount()));
     }
 }
 
@@ -779,7 +755,7 @@ static void _cyber_birth(void)
 {
     object_type    forge;
 
-    p_ptr->current_r_idx = MON_CYBER;
+    plr_mon_race_set("U.cyber");
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
@@ -800,26 +776,26 @@ static void _cyber_calc_bonuses(void)
 {
     int to_a = plr_prorata_level(75);
 
-    p_ptr->move_random = TRUE;
+    plr->move_random = TRUE;
 
-    p_ptr->to_a += to_a;
-    p_ptr->dis_to_a += to_a;
-    p_ptr->pspeed -= 1 + p_ptr->lev/23;
+    plr->to_a += to_a;
+    plr->dis_to_a += to_a;
+    plr->pspeed -= 1 + plr->lev/23;
 
-    res_add(RES_FIRE);
-    res_add(RES_POIS);
+    res_add(GF_FIRE);
+    res_add(GF_POIS);
 /*  Cyberdemons are vulnerable to confusion. See res_pct_aux() in resist.c
-    res_add_vuln(RES_CONF); */
+    res_add_vuln(GF_CONF); */
 
-    p_ptr->hold_life++;
-    p_ptr->no_eldritch = TRUE;
-    p_ptr->free_act++;
+    plr->hold_life++;
+    plr->no_eldritch = TRUE;
+    plr->free_act++;
 }
 
 static void _cyber_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_FIRE);
-    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_RES_(GF_FIRE));
+    add_flag(flgs, OF_RES_(GF_POIS));
     add_flag(flgs, OF_DEC_SPEED);
 
     add_flag(flgs, OF_HOLD_LIFE);
@@ -849,7 +825,7 @@ static plr_race_ptr _cyber_get_race_t(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 20,  18,  31,  -1,  13,   7,  75,  30};
-    skills_t xs = { 12,   6,   9,   0,   0,   0,  35,   7};
+    skills_t xs = { 60,  30,  45,   0,   0,   0, 175,  35};
 
         me = plr_race_alloc_aux(RACE_MON_DEMON, DEMON_CYBERDEMON);
         me->subname = "Cyberdemon";
@@ -871,15 +847,15 @@ static plr_race_ptr _cyber_get_race_t(void)
         me->hooks.get_flags = _cyber_get_flags;
         me->hooks.move_player = _cyber_move_player;
 
-        me->pseudo_class_idx = CLASS_WARRIOR;
-        me->boss_r_idx = MON_OREMORJ;
+        me->pseudo_class_id = CLASS_WARRIOR;
+        me->boss_r_idx = mon_race_parse("U.Oremorj")->id;
     }
 
-    me->stats[A_STR] =  5 + p_ptr->lev/10;
+    me->stats[A_STR] =  5 + plr->lev/10;
     me->stats[A_INT] = -10;
     me->stats[A_WIS] = -10;
     me->stats[A_DEX] = -3;
-    me->stats[A_CON] =  5 + p_ptr->lev/10;
+    me->stats[A_CON] =  5 + plr->lev/10;
     me->stats[A_CHR] =  0;
 
     return me;
@@ -891,6 +867,11 @@ static plr_race_ptr _cyber_get_race_t(void)
 plr_race_ptr mon_demon_get_race(int psubrace)
 {
     plr_race_ptr result = NULL;
+
+    if (birth_hack && psubrace >= DEMON_MAX)
+        psubrace = 0;
+
+    assert(0 <= psubrace && psubrace < DEMON_MAX);
 
     switch (psubrace)
     {

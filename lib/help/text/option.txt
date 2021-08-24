@@ -175,45 +175,40 @@ Map & Screen Options
   with the "run" command, only when the running finishes. If this 
   option is set, the map always centers on the player.
   
-  Use special colors for torch-lit grids (view_yellow_lite)
-  This option causes special colors to be used for "torch-lit" grids in 
-  certain situations (see the entries for"view_granite_lite" and 
-  "view_special_lite"). Turning this option off will slightly improve 
-  game speed.
+  Use special graphics for lighting (view_lite)
+  This option causes special graphics to be used to indicate the 
+  lighting level. Lighting is a super-position of player light (or 
+  darkness), monster light (or darkness) and terrain light (or 
+  darkness). This option is further refined by sub-options to "View 
+  Daylight" (not recommended) and to "View Grid Light", both described 
+  below.
   
-  Use special colors for 'viewable' grids (view_bright_lite)
-  This option causes special colors to be used for non "viewable" grids 
-  in certain situations (see "view_granite_lite" and 
-  "view_special_lite"). When this option is set, floor grids which are 
-  normally drawn in "white" but which are not currently "viewable" by 
-  the player are instead drawn in "dark gray". This makes the 
-  "viewable" grids to appear "brighter" than the others, allowing the 
-  player to easily determine which floor grids are in "line of sight". 
-  Turning this option off will probably increase the speed of the game.
+  Use special graphics for surface daylight (view_daylite)
+  Enabling this option will include surface daylight in the lighting 
+  level for displaying special graphical lighting with the view_lite 
+  option. It is not recommended. In the daytime, the surface level has 
+  an ambient ligthing level of 5 which is quite bright and washes out 
+  any further lighting effects (for example, the player's torch or a 
+  shopkeeper's entrance).
   
-  Use special colors for wall grids (view_granite_lite)
-  This option activates a special color scheme for all "wall" grids 
-  which are normally drawn in "white" (as walls and rubble normally 
-  are). When the player is blind, we use "dark gray", else if the grid 
-  is torch-lit, we use "yellow" (or "white") depending on the 
-  "view_yellow_lite" option, else if the "view_bright_lite" option is 
-  set, and the grid is not in line of sight, or the grid is dark, or 
-  the grid is only "partially" lit, then we use "gray", otherwise we 
-  use the normal "white". Turning this option off will probably 
-  increase the speed of the game. This option may not work well if the 
-  attr/char codes for walls/veins have been changed.
+  Use special graphics for lit rooms (view_gridlite)
+  Enabling this option will include room lighting in the lighting level 
+  for displaying special graphical lighting with the view_lite option. 
+  There are situations when this information is important (e.g. 
+  Vampires and Ninjas). You may also prefer this display but I usually 
+  disable this option. Without it, there is no display difference 
+  between a lit room and an un-lit room.
   
-  Use special colors for floor grids (view_special_lite)
-  This option activates a special color scheme for all "floor" grids 
-  which are normally drawn in "white" (as they normally are). When the 
-  player is blind, we use "dark gray", else if the grid is torch-lit, 
-  we use "yellow" (or "white") depending on the "view_yellow_lite" 
-  option, else if the grid is "dark", we use "dark gray", else if the 
-  "view_bright_lite" option is set, and the grid is not in line of 
-  sight, we use "gray", otherwise we use the normal "white". Turning 
-  this option off will probably increase the speed of the game. This 
-  option may not work well if the attr/char codes for walls/veins have 
-  been changed
+    Lighting options work best when playing with graphics 
+    enabled since we currently have terrain graphics for 
+    lighting levels between -5 and +5 inclusive (and more 
+    can be added). For ASCII display, the game can only 
+    indicate darkness (light < 0), lack of light (light = 
+    0) and presence of light (light > 0) providing less 
+    useful information. Also, some terrain does not 
+    indicate lighting at all in ASCII mode, and the 
+    presence of a monster, the player or an object will 
+    hide the lighting display of the underlying terrain.
   
   Map remembers all perma-lit grids (view_perma_grids)
   Memorize all perma-lit floor grids which are seen by the player. This 

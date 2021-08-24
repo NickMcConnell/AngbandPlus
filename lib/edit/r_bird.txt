@@ -1,0 +1,416 @@
+# Birds ... and Bats
+
+########################################################################
+# Bats
+T:b.base:Bat
+I:DISPLAY(b):POS(CORPSE|GAIN_AC)
+I:KIND(ANIMAL)
+I:ALERT(200',Fairly Observant):MOVE(FLY)
+P:Stat:Str(-3+3):Int(-2):Wis(-2):Dex(2+3):Con(-1+3):Chr(-3)
+P:Skill:Dis(10+25):Dev(15+30):Sav(25+35):Stl(9):Srh(15):Fos(20):Thn(35+50)
+P:Class:Rogue
+P:Life:60
+P:Body:Bat
+P:Weight:10
+
+N:b.fruit:b.base:Fruit bat
+I:LVL(1,10):RARITY(1):WILD(WOOD|SWAMP)
+I:SPEED(+10):HP(1d6):AC(3):EXP(3):EVOLVE(b.brown, 20)
+B:BITE:HURT(1d3)
+D:A fast-moving pest.
+I:COLOR(Violet)
+
+N:b.brown:b.base:Giant brown bat
+I:LVL(6,40):RARITY(1):WILD(MOUNTAIN|WOOD)
+I:SPEED(+20):HP(3d8):AC(15):EXP(10)
+I:ALERT(100',Fairly Unseeing):MOVE(RAND_50)
+B:BITE:HURT(1d4)
+D:It screeches as it attacks.
+I:COLOR(Umber)
+
+N:b.mongbat:b.base:Mongbat
+I:LVL(13,50):RARITY(3)
+I:SPEED(+3):HP(121):AC(80):EXP(65):EVOLVE(b.gorgoroth, 700)
+I:ALIGN(Neutral Evil):ATTR(WEIRD_MIND)
+B:CLAW(x2):HURT(1d4)
+B:BITE:HURT(1d5):POISON(1d5)
+I:RESIST(ELEC|COLD|POIS)
+M:3d3:MON(b.mongbat)
+D:Devil-bats, notoriously difficult to kill.
+I:COLOR(Light Umber)
+P:Life:80
+P:Weight:20
+
+N:b.blue:b.base:Blue dragon bat
+I:LVL(21,70):RARITY(1)
+I:SPEED(+20):HP(4d4):AC(26):EXP(54)
+I:LIGHT(1):ALERT(120',Unseeing):MOVE(RAND_50)
+B:BITE:ELEC(1d3)
+I:RESIST(ELEC)
+S:1_IN_4 | BR_ELEC
+D:It is a glowing blue bat with a sharp tail.
+I:COLOR(Light Blue)
+
+N:b.red:b.base:Red dragon bat
+I:LVL(23,70):RARITY(1)
+I:SPEED(+20):HP(3d8):AC(28):EXP(60):EVOLVE(b.doom, 2000)
+I:LIGHT(1):ALERT(120',Unseeing):MOVE(RAND_50)
+B:BITE:FIRE(1d3)
+I:RESIST(FIRE)
+S:1_IN_4 | BR_FIRE
+D:It is a sharp-tailed bat, wreathed in fire.
+I:COLOR(Red)
+
+N:b.vampire:b.base:Vampire bat
+I:LVL(24,50):RARITY(2)
+I:SPEED(+10):HP(9d10):AC(40):EXP(150)
+I:KIND(UNDEAD|NONLIVING):ALIGN(Evil):CAN(REGEN):ATTR(COLD_BLOOD)
+I:ALERT(120',Unseeing):MOVE(RAND_50)
+B:BITE(x2):NETHER(1d4):DRAIN_EXP(40d6)
+I:RESIST(COLD|CONF):IMMUNE(POIS|NETHER|SLEEP)
+D:An undead bat that flies at your neck hungrily.
+I:COLOR(Light Dark)
+P:Body:Vampire Bat
+
+N:b.doom:b.base:Doombat
+I:LVL(32,90):RARITY(2)
+I:SPEED(+10):HP(24d24):AC(75):EXP(250)
+I:KIND(ANIMAL):ALIGN(Neutral Evil):ATTR(WEIRD_MIND)
+I:ALERT(160',Fairly Unseeing)
+B:BITE(x3):FIRE(5d4)
+A:FIRE(2d2)
+I:RESIST(FIRE)
+D:It is a fast moving creature of chaos, a gigantic black bat
+D:surrounded by flickering bright red flames.
+I:COLOR(Blue)
+P:Life:90
+P:Weight:100
+P:Body:Giant Bat
+
+N:b.gorgoroth:b.base:Bat of Gorgoroth
+I:LVL(28,80):RARITY(3):WILD(WASTE|SWAMP)
+I:SPEED(+10):HP(30d10):AC(60):EXP(200)
+I:ALERT(Fairly Unseeing):MOVE(RAND_25|PUSH|BASH)
+B:BITE:HURT(1d7):POISON(1d10)
+B:CLAW:HURT(1d4)
+I:RESIST(POIS|DARK)
+S:1_IN_8 | SCARE | BR_POISON | BR_DARK
+O:60%:OBJ(*$)
+M:1d7:MON(b.gorgoroth)
+M:1d7:MON(b.mongbat)
+D:Fed with horrid meats and grown to enormous size, this slavering creature
+D:seeks livelier prey.
+I:COLOR(Green)
+P:SpellStat:Con
+P:Life:90
+P:Body:Giant Bat
+P:Weight:100
+
+N:b.Black:b.base:That @$^%& Black Bat
+I:LVL(33):RARITY(4):ALLOC(UNIQUE)
+I:SPEED(+20):HP(300):AC(75):EXP(1000)
+I:ALIGN(Evil):ATTR(SMART|EMPTY_MIND)
+I:ALERT(500',Ever Vigilant):MOVE(RAND_75|OPEN|BASH|PUSH|PICKUP|PASSWALL)
+B:TOUCH:DAM(1d1):EAT_FOOD
+B:TOUCH:DAM(1d1):EAT_GOLD
+B:TOUCH(x2):DAM(1d1):EAT_ITEM
+I:IMMUNE(SLEEP)
+S:1_IN_7 | S_DRAGON
+O:1d2+1:OBJ(*, GOOD)
+O:2d3:OBJ(GOLD)
+D:This bat has been the death of many adventurers, taking their only
+D:weapon and leaving them to face a dragon.
+I:COLOR(Blue)
+P:Life:90
+P:Body:Giant Bat
+P:Weight:30
+
+########################################################################
+# Birds
+T:B.tiny:Bird
+I:DISPLAY(B):POS(SKELETON|GAIN_AC)
+I:KIND(ANIMAL)
+I:ALERT(300',Fairly Observant):MOVE(FLY)
+P:Stat:Str(-5+3):Int(0):Wis(0):Dex(2+3):Con(-4+3):Chr(0)
+P:Skill:Dis(10+25):Dev(15+30):Sav(25+35):Stl(7):Srh(15):Fos(20):Thn(30+40)
+P:Class:Beastmaster
+P:Life:50
+P:Body:Scrawny
+P:Weight:2
+
+T:B.small:Bird
+I:DISPLAY(B):POS(CORPSE|GAIN_AC)
+I:KIND(ANIMAL)
+I:ALERT(400',Ever Vigilant):MOVE(FLY)
+P:Stat:Str(-1+3):Int(0):Wis(0):Dex(2+3):Con(-4+3):Chr(0)
+P:Skill:Dis(10+25):Dev(15+30):Sav(25+35):Stl(7):Srh(15):Fos(20):Thn(40+45)
+P:Class:Beastmaster
+P:Life:80
+P:Body:Bird
+P:Weight:5
+
+T:B.giant:Bird
+I:DISPLAY(B):POS(CORPSE|GAIN_AC)
+I:KIND(ANIMAL):ATTR(RIDING)
+I:ALERT(200',Fairly Observant):MOVE(FLY|BASH|CLEARWEB)
+P:Stat:Str(1+7):Int(1):Wis(3):Dex(2+5):Con(0+5):Chr(3+5)
+P:Skill:Dis(20+60):Dev(30+45):Sav(35+50):Stl(7):Srh(25):Fos(20):Thn(60+100)
+P:Class:Beastmaster
+P:Body:Giant Bird
+P:Life:80
+P:Weight:100
+
+N:B.sparrow:B.tiny:Sparrow
+I:LVL(0):RARITY(3):WILD(ONLY|TOWN)
+I:HP(1):AC(1):EXP(0)
+I:MOVE(RAND_25)
+B:BITE:HURT(1d3)
+D:Utterly harmless, except when angry.
+I:COLOR(Light Umber)
+
+N:B.chaffinch:B.tiny:Chaffinch
+I:LVL(0):RARITY(3):WILD(ONLY|WOOD|GRASS)
+I:HP(1):AC(1):EXP(0)
+I:MOVE(RAND_25)
+B:BITE:HURT(1d3)
+D:Utterly harmless, except when angry.
+I:COLOR(Red)
+
+N:B.crow:B.small:Crow
+I:LVL(2,20):RARITY(2):WILD(ONLY|WOOD|GRASS)
+I:SPEED(+10):HP(15):AC(12):EXP(10):EVOLVE(B.raven, 10)
+B:BITE(x2):HURT(1d6)
+D:It is a hooded crow, gray except for the black wings and head.
+I:COLOR(Slate)
+
+N:B.raven:B.small:Raven
+I:LVL(3,30):RARITY(2):WILD(ONLY|WOOD|GRASS)
+I:SPEED(+10):HP(20):AC(12):EXP(9):EVOLVE(B.hawk, 100)
+B:BITE(x2):HURT(1d6)
+D:Larger than a crow, pitch black.
+I:COLOR(Light Dark)
+
+N:B.chiokovo:B.small:Chiokovo
+I:LVL(8,30):RARITY(3)
+I:HP(8d8):AC(35):EXP(20):EVOLVE(B.black chiokovo, 600)
+I:ATTR(RIDING):ALERT(130',Fairly Unseeing)
+B:CLAW(x2):HURT(1d4)
+B:BITE:HURT(1d5)
+I:COLOR(Yellow):POS(SKELETON)
+P:Weight:100
+
+N:B.hawk:B.small:Hunting hawk
+I:LVL(8,40):RARITY(2):WILD(WOOD)
+I:SPEED(+10):HP(8d8):AC(25):EXP(22):EVOLVE(B.eagle, 50)
+I:ALERT(300',Fairly Observant)
+B:CLAW(x2):HURT(1d3)
+B:BITE:HURT(1d5)
+D:Trained to hunt and kill without fear.
+I:COLOR(Umber)
+P:Weight:20
+
+N:B.eagle:B.small:Eagle
+I:LVL(9,40):RARITY(2):WILD(ONLY|WASTE|MOUNTAIN|WOOD)
+I:SPEED(+10):HP(9d9):AC(25):EXP(22):EVOLVE(B.great eagle, 400)
+I:ALERT(300',Fairly Observant)
+B:CLAW(x2):HURT(1d4)
+B:BITE:HURT(1d6)
+D:A magnificent huge predatory bird.
+I:COLOR(Umber)
+P:Weight:15
+
+N:B.carrion:Carrion
+I:LVL(15,70):RARITY(1)
+I:SPEED(+5):HP(300):AC(50):EXP(100)
+I:KIND(ANIMAL|UNDEAD|NONLIVING):ALIGN(Evil):ATTR(RIDING|COLD_BLOOD)
+I:ALERT(200',Unseeing):MOVE(OPEN|BASH|FLY)
+B:CLAW(x2):HURT(2d3+4)
+B:BITE:HURT(2d3+4)
+I:RESIST(ACID|FIRE|CONF):IMMUNE(POIS|NETHER|SLEEP)
+D:A mummified, undead great avian creature who now serves as a steed for mighty undead creatures.
+I:DISPLAY(B,Light White):POS(GAIN_AC)
+P:Copy:Zombie:Warrior
+P:Stats:-3:0:0:-1:-2:-2
+P:Body:Bird
+P:Weight:100
+
+N:B.black chiokovo:B.chiokovo:Black Chiokovo
+I:LVL(25,50):RARITY(7)
+I:SPEED(+5):HP(25d20):AC(45):EXP(250)
+B:CLAW(x2):HURT(2d6)
+B:BITE:HURT(2d6)
+I:COLOR(Light Dark)
+P:Body:Giant Bird
+
+N:B.shantak:B.giant:Shantak
+I:LVL(27,80):RARITY(2)
+I:SPEED(+10):HP(25d20):AC(55):ALERT(120'):EXP(280)
+I:KIND(HORROR):ALIGN(Evil)
+B:BITE(x3):HURT(1d6)
+I:RESIST(ACID)
+S:1_IN_6 | SCARE | HASTE
+D:A scaly bird larger than an elephant, with a horse-like head.
+I:COLOR(Light Dark)
+P:Weight:200
+
+N:B.thunder:B.giant:Thunder bird
+I:LVL(32):RARITY(3)
+I:SPEED(+10):HP(20d25):AC(30):EXP(900)
+I:LIGHT(2)
+B:CRUSH(x3):HURT(2d5):ELEC(1d5)
+B:BITE:HURT(5d8):ELEC(3d8)
+A:ELEC(2d2)
+I:RESIST(ELEC)
+S:1_IN_5 | BR_ELEC | BA_ELEC
+I:COLOR(Yellow)
+
+N:B.great eagle:B.giant:Great eagle
+I:LVL(35,70):RARITY(2):WILD(ONLY|MOUNTAIN|VOLCANO)
+I:SPEED(+25):HP(5d100):AC(65):EXP(450)
+I:ALIGN(Good)
+B:CLAW(x2):HURT(3d3+6)
+B:BITE:HURT(2d5+3)
+S:1_IN_3 | BIRD_DROP
+D:An agent of supernatural beings, this creature looks like a huge eagle.
+I:COLOR(Umber)
+
+N:B.jubjub:B.giant:Jubjub bird
+I:LVL(40,80):RARITY(3):WILD(MOUNTAIN|WOOD)
+I:HP(80d13):AC(70):EXP(1000)
+B:CRUSH(x2):HURT(3d12+35)
+B:HIT:HURT(3d12+35):ELEC(4d12)
+I:RESIST(ELEC)
+D:A vast legendary bird, its iron talons rake the most impenetrable of
+D:surfaces and its screech echoes through the many winding dungeon corridors.
+I:COLOR(Umber)
+P:Weight:250
+
+N:B.devu chiokovo:B.giant:Devu Chiokovo
+I:LVL(43):RARITY(9)
+I:SPEED(-5):HP(3500):AC(180):EXP(6000)
+I:CAN(REGEN):ALERT(170',Ignores):MOVE(RAND_50|PICKUP)
+B:CLAW(x2):HURT(5d12+20)
+B:BITE:HURT(6d12+20)
+B:CRUSH:SHATTER(10d10+20)
+O:10d2:OBJ(*$)
+I:COLOR(Yellow)
+P:Weight:500
+
+# XXX more demon than 'bird'
+N:B.change:Lord of Change
+I:LVL(61):RARITY(3)
+I:SPEED(+20):HP(3500):AC(150):EXP(17000)
+I:KIND(DEMON|NONLIVING|HORROR):ALIGN(Chaotic):CAN(INVIS):ATTR(RIDING|SMART)
+I:ALERT(300',Fairly Unseeing):MOVE(OPEN|BASH|PUSH|FLY)
+B:CLAW(x2):HURT(6d12+40):CONFUSE:POLYMORPH(20%)
+B:BITE:HURT(6d12+40):BLIND
+I:RESIST(BASE|POIS|CONF|NETHER|CHAOS):IMMUNE(SLEEP|SLOW)
+O:2d2:OBJ(*, GOOD)
+S:1_IN_4 | MIND_BLAST | BA_CHAOS(10d10+122) | SCARE | BRAIN_SMASH | DRAIN_MANA |
+S:S_HOUND | S_DEMON | S_DRAGON | TELE_SELF | HASTE | CONFUSE | TELE_OTHER | AMNESIA
+D:The most powerful of Tzeentch's servitors. This demon looks like a huge bird-creature,
+D:with the head of a predatory bird and fantastically multi-colored wings.
+I:DISPLAY(B,Violet,ATTR_MULTI):POS(GAIN_AC)
+P:Copy:Dunadan:Mystic
+P:Body:Giant Bird
+P:Weight:250
+
+N:B.fenghuang:B.giant:Fenghuang
+I:LVL(76):RARITY(5)
+I:SPEED(+20):HP(4000):AC(190):EXP(30000)
+I:KIND(NONLIVING):ALIGN(Lawful):LIGHT(2):ATTR(SMART)
+I:ALERT(500',Fairly Unseeing):MOVE(PUSH)
+B:CLAW(x2):HURT(5d10+30):DISENCHANT
+B:CLAW(x2):HURT(5d10+30):CONFUSE:DRAIN_CHARGES(50%)
+A:FIRE(3d6)
+I:RESIST(ACID|ELEC|COLD|POIS|CONF|LIGHT|NETHER|NEXUS|SOUND|DISENCHANT|PLASMA|TELE)
+I:IMMUNE(FIRE|SLEEP|SLOW|BLIND)
+O:3d2:OBJ(*, GOOD)
+S:FREQ_25 | SCARE | BRAIN_SMASH | DRAIN_MANA | BR_FIRE | BR_LIGHT | BR_SOUND | HEAL | S_ANGEL
+I:COLOR(Light Red):POS(SEE_INVIS|TELEPATHY|SUST_CHR)
+P:Life:110
+P:Weight:300
+
+########################################################################
+# Uniques
+N:B.Meneldor:B.giant:Meneldor the Swift
+I:LVL(38):RARITY(1):WILD(ONLY|MOUNTAIN|VOLCANO):ALLOC(UNIQUE)
+I:SPEED(+30):HP(1300):AC(65):EXP(7000)
+I:ALIGN(Good)
+B:CLAW(x2):HURT(3d5+12)
+B:BITE:HURT(2d7+12)
+S:1_IN_2 | BIRD_DROP | S_EAGLE
+D:An agent of supernatural beings, this creature looks like a huge eagle.
+I:COLOR(Blue)
+
+N:B.Gwaihir:B.giant:Gwaihir the Windlord
+I:LVL(40):RARITY(1):WILD(ONLY|MOUNTAIN|VOLCANO):ALLOC(UNIQUE)
+I:SPEED(+32):HP(1500):AC(65):EXP(8000)
+I:ALIGN(Good)
+B:CLAW(x2):HURT(5d5+30)
+B:BITE:HURT(2d10+15)
+S:1_IN_2 | BIRD_DROP | S_EAGLE
+D:An agent of supernatural beings, this creature looks like a huge eagle.
+I:COLOR(Light Blue)
+
+N:B.Petshop:B.giant:Petshop
+I:LVL(54):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+10):HP(3600):AC(130):EXP(25000)
+I:ALIGN(Evil):ATTR(SMART):ALERT(1200',Ever Vigilant)
+B:CLAW(x2):HURT(4d6+15):COLD(4d6)
+B:BITE(x2):HURT(4d12+12):COLD(3d12)
+A:COLD(3d4)
+I:RESIST(ACID|FIRE|POIS|CONF|NETHER):IMMUNE(COLD|SLEEP|SLOW)
+S:1_IN_3 | BO_COLD | BA_COLD | BO_ICE | BR_COLD
+O:2d2:OBJ(*, GOOD)
+D:This bird is the porter of the mansion in which Dio Brando hides and lives.
+D:For it, a dog may be a favorite food.
+I:COLOR(Light Red)
+P:Life:100
+
+N:B.Thorondor:B.giant:Thorondor
+I:LVL(55):RARITY(1):WILD(ONLY|MOUNTAIN|VOLCANO):ALLOC(ESCORT|UNIQUE)
+I:SPEED(+32):HP(3000):AC(65):EXP(22222)
+I:ALIGN(Good)
+B:CLAW(x2):HURT(6d5+30)
+B:BITE:HURT(3d10+15)
+S:1_IN_2 | BIRD_DROP | S_EAGLE
+M:3d7:MON(EAGLE)
+D:An agent of supernatural being, Thorondor is the lord of eagles.
+I:COLOR(Violet)
+
+N:B.Phoenix:B.giant:The Phoenix
+I:LVL(54):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+10):HP(3600):AC(130):EXP(25000)
+I:ALIGN(Good):LIGHT(3):CAN(SPEAK):ALERT(600',Ever Vigilant)
+B:CLAW(x2):HURT(4d6+15):FIRE(4d6)
+B:BITE(x2):HURT(4d12+15):FIRE(3d12)
+A:FIRE(3d4)
+I:RESIST(ACID|ELEC|POIS|CONF|LIGHT|PLASMA):IMMUNE(FIRE|SLEEP|SLOW)
+S:1_IN_3 | BO_FIRE | BO_PLASMA | BA_FIRE | BR_FIRE | BR_LIGHT | BR_PLASMA
+O:2d2:OBJ(*, GOOD)
+D:A massive glowing eagle bathed in flames. The searing heat chars your skin and melts your armor.
+I:COLOR(Red):POS(-CORPSE)
+P:Weight:200
+P:Life:110
+
+# XXX more demon than 'bird'
+N:B.Pazuzu:Pazuzu the Lord of Air
+I:LVL(82):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+30):HP(5500):AC(125):EXP(30000)
+I:KIND(DEMON|NONLIVING):ALIGN(Evil):CAN(INVIS):ATTR(MALE)
+I:ALERT(400',Fairly Observant):MOVE(OPEN|BASH|FLY|CLEARWEB)
+B:HIT(x4):HURT(4d12+25):ELEC(4d12)
+I:RESIST(ACID|FIRE|COLD|POIS|CONF|NETHER):IMMUNE(ELEC|SLEEP|SLOW)
+S:1_IN_3 | MIND_BLAST | BO_ELEC(8d8+54) | BO_MANA |
+S:BA_ELEC(1d246+16) | PSY_SPEAR(1d164+150)
+O:4d2:OBJ(*, GOOD)
+D:A winged humanoid from the Planes of Hell, Pazuzu grins inhumanely at you as he decides your fate.
+I:DISPLAY(B,White):POS(GAIN_AC)
+P:Copy:Half-Titan:Beastmaster
+P:Stats:0:0:0:7:0:0
+P:Speed:+15
+P:Weight:180
+
+# vim: filetype=ri :
+

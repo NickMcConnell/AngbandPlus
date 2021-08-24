@@ -1,5 +1,7 @@
 #include "angband.h"
 
+#include <assert.h>
+
 /**********************************************************************
  * Hound Evolution
  **********************************************************************/
@@ -8,82 +10,59 @@
 
 typedef struct {
     int level;
-    int r_ids[_MAX_PER_TIER];
+    cptr r_ids[_MAX_PER_TIER];
 } _tier_t;
 
 static _tier_t _tiers[_MAX_TIERS] = {
-    {  1, { MON_CLEAR_HOUND, -1 } },
-    {  8, { MON_LIGHT_HOUND, MON_SHADOW_HOUND, -1 } },
-    { 15, { MON_FIRE_HOUND, MON_COLD_HOUND, MON_ENERGY_HOUND, MON_AIR_HOUND, MON_WATER_HOUND, -1 } },
-    { 23, { MON_EARTH_HOUND, MON_VIBRATION_HOUND, MON_NEXUS_HOUND, MON_MULTI_HUED_HOUND, -1 } },
-    { 31, { MON_INERTIA_HOUND, MON_IMPACT_HOUND, MON_NETHER_HOUND, -1 } },
-    { 39, { MON_GRAVITY_HOUND, MON_TIME_HOUND, MON_PLASMA_HOUND, MON_CHAOS_HOUND, -1 } },
-    { 47, { MON_HOUND_OF_TINDALOS, MON_MANA_HOUND, MON_AETHER_HOUND, -1 } },
+    {  1, { "Z.clear", NULL } },
+    {  8, { "Z.light", "Z.shadow", NULL } },
+    { 15, { "Z.fire", "Z.cold", "Z.energy", "Z.air", "Z.water", NULL } },
+    { 23, { "Z.earth", "Z.vibration", "Z.nexus", "Z.multi-hued", NULL } },
+    { 31, { "Z.inertia", "Z.impact", "Z.nether", NULL } },
+    { 39, { "Z.gravity", "Z.time", "Z.plasma", "Z.chaos", NULL } },
+    { 47, { "Z.tindalos", "Z.mana", "Z.aether", NULL } },
 };
 
-static int _count(int list[])
+static int _count(cptr list[])
 {
     int i;
     for (i = 0; ; i++)
     {
-        if (list[i] == -1) return i;
+        if (!list[i]) return i;
+        assert(mon_race_parse(list[i]));
     }
     /* return 0;  error: missing sentinel ... unreachable */
 }
-
-static int _random(int list[])
+static cptr _random(cptr list[])
 {
     if (spoiler_hack)
         return list[0];
     return list[randint0(_count(list))];
 }
-
-static int _random_weights(int list[])
-{
-    int i, k;
-    int tot = 0;
-
-    for (i = 0; ; i+=2)
-    {
-        if (list[i] == -1) break;
-        tot += list[i+1];
-    }
-    k = randint1(tot);
-
-    for (i = 0; ; i+=2)
-    {
-        k -= list[i+1];
-        if (k <= 0) return list[i];
-    }
-    /*return 0;  error */
-}
-
-static int _find(int what, int list[])
+static int _find(sym_t what, cptr list[])
 {
     int i;
     for (i = 0; ; i++)
     {
-        int n = list[i];
-        if (n == -1) return -1;
-        if (n == what) return i;
+        cptr s = list[i];
+        if (!s) return -1;
+        if (sym_equals(what, s)) return i;
     }
     /* return -1;  unreachable */
 }
-
-static int _find_tier(int r_idx)
+static int _find_tier(sym_t r_id)
 {
     int i;
     for (i = 0; i < _MAX_TIERS; i++)
     {
-        if (_find(r_idx, _tiers[i].r_ids) >= 0) return i;
+        if (_find(r_id, _tiers[i].r_ids) >= 0) return i;
     }
     return -1;
 }
-
 static cptr _mon_name(int r_idx)
 {
     if (r_idx)
-        return r_name + mon_race_lookup(r_idx)->name;
+        return mon_race_lookup(r_idx)->name;
     return ""; /* Birth Menu */
 }
 
@@ -94,8 +73,7 @@ static void _birth(void)
 {
     object_type    forge;
 
-    p_ptr->current_r_idx = MON_CLEAR_HOUND;
-    equip_on_change_race();
+    plr_mon_race_set("Z.clear");
     skills_innate_init("Claw", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
     skills_innate_init("Bite", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
@@ -118,13 +96,23 @@ static void _birth(void)
 void hound_calc_innate_bonuses(mon_blow_ptr blow)
 {
     if (blow->method == RBM_CLAW)
-        plr_calc_blows_innate(blow, 200);
+    {
+        plr->innate_attack_info.blows_calc.wgt = 100;
+        plr->innate_attack_info.blows_calc.mul = 40;
+        plr->innate_attack_info.blows_calc.max = 200;
+        plr_calc_blows_innate(blow);
+    }
     if (blow->method == RBM_BITE)
-        plr_calc_blows_innate(blow, 300);
+    {
+        plr->innate_attack_info.blows_calc.wgt = 200;
+        plr->innate_attack_info.blows_calc.mul = 40;
+        plr->innate_attack_info.blows_calc.max = 300;
+        plr_calc_blows_innate(blow);
+    }
 }
 void hound_calc_innate_attacks(void)
 {
-    int l = p_ptr->lev;
+    int l = plr->lev;
     int to_d = plr_prorata_level(15);
     mon_blow_ptr blow;
 
@@ -134,17 +122,17 @@ void hound_calc_innate_attacks(void)
     blow->weight = 100;
     mon_blow_push_effect(blow, RBE_HURT, dice_create(1 + l/17, 3 + l/21, to_d));
     hound_calc_innate_bonuses(blow);
-    vec_add(p_ptr->innate_blows, blow);
+    vec_add(plr->innate_blows, blow);
 
     /* Bite */
     blow = mon_blow_alloc(RBM_BITE);
     blow->power = l*3/2;
     blow->weight = 200;
     mon_blow_push_effect(blow, RBE_HURT, dice_create(1 + l/23, 4 + l/5, to_d));
-    if (p_ptr->current_r_idx == MON_HOUND_OF_TINDALOS)
+    if (plr_mon_race_is_("Z.tindalos"))
         mon_blow_push_effect(blow, GF_TIME, dice_create(6, 6, 0))->pct = 50;
     hound_calc_innate_bonuses(blow);
-    vec_add(p_ptr->innate_blows, blow);
+    vec_add(plr->innate_blows, blow);
 }
 
 /**********************************************************************
@@ -152,78 +140,32 @@ void hound_calc_innate_attacks(void)
  **********************************************************************/
 static int _breath_effect(void)
 {
-    switch (p_ptr->current_r_idx)
-    {
-    case MON_LIGHT_HOUND: return GF_LITE;
-    case MON_SHADOW_HOUND: return GF_DARK;
-    case MON_FIRE_HOUND: return GF_FIRE;
-    case MON_COLD_HOUND: return GF_COLD;
-    case MON_ENERGY_HOUND: return GF_ELEC;
-    case MON_AIR_HOUND: return GF_POIS;
-    case MON_WATER_HOUND: return GF_ACID;
-    case MON_EARTH_HOUND: return GF_SHARDS;
-    case MON_VIBRATION_HOUND: return GF_SOUND;
-    case MON_NEXUS_HOUND: return GF_NEXUS;
-    case MON_MULTI_HUED_HOUND:
-    {
-        int choices[] = {GF_FIRE, GF_COLD, GF_ELEC, GF_ACID, GF_POIS, -1};
-        return _random(choices);
-    }
-    case MON_INERTIA_HOUND: return GF_INERT;
-    case MON_IMPACT_HOUND: return GF_FORCE;
-    case MON_NETHER_HOUND: return GF_NETHER;
-    case MON_GRAVITY_HOUND: return GF_GRAVITY;
-    case MON_TIME_HOUND: return GF_TIME;
-    case MON_PLASMA_HOUND: return GF_PLASMA;
-    case MON_CHAOS_HOUND: return GF_CHAOS;
-    case MON_HOUND_OF_TINDALOS:
-    {
-        int choices[] = {GF_NETHER, GF_TIME, -1};
-        return _random(choices);
-    }
-    case MON_MANA_HOUND: return GF_MANA;
-    case MON_AETHER_HOUND:
-    {
-        int choices[] = {GF_FIRE, 1,
-                         GF_COLD, 1,
-                         GF_ELEC, 2,
-                         GF_ACID, 2,
-                         GF_POIS, 1,
-                         GF_LITE, 2,
-                         GF_DARK, 2,
-                         GF_CONFUSION, 1,
-                         GF_NETHER, 1,
-                         GF_NEXUS, 2,
-                         GF_SOUND, 3,
-                         GF_SHARDS, 5,
-                         GF_CHAOS, 4,
-                         GF_DISENCHANT, 4,
-                         GF_TIME, 3,
-                         GF_INERT, 3,
-                         GF_FORCE, 3,
-                         GF_GRAVITY, 4,
-                         GF_PLASMA, 5,
-                         -1, 0};
-        return _random_weights(choices);
-    }
-    }
-    return GF_FIRE; /* ?? */
+    mon_race_ptr r = plr_mon_race();
+    mon_spell_group_ptr g;
+    mon_spell_ptr s;
+
+    assert(r->spells); /* should have evolved by now ... */
+    if (!r->spells) return GF_FIRE;
+
+    g = r->spells->groups[MST_BREATH];
+    if (!g) return GF_FIRE;
+    if (!g->count) return GF_FIRE;
+
+    s = &g->spells[randint0(g->count)];
+    return s->id.effect;
 }
 
 static int _breath_amount(void)
 {
     int pct = 15 + plr_prorata_level(15);
-    return MAX(5, p_ptr->chp * pct / 100);
+    return MAX(5, plr->chp * pct / 100);
 }
 
 static cptr _breath_desc(void)
 {
-    switch (p_ptr->current_r_idx)
-    {
-    case MON_AETHER_HOUND: return "almost anything";
-    case MON_HOUND_OF_TINDALOS: return "nether or time";
-    case MON_MULTI_HUED_HOUND: return "acid, fire, cold, lightning or poison";
-    }
+    if (plr_mon_race_is_("Z.aether")) return "almost anything";
+    if (plr_mon_race_is_("Z.tindalos")) return "nether or time";
+    if (plr_mon_race_is_("Z.multi-hued")) return "acid, fire, cold, lightning or poison";
     return gf_name(_breath_effect());
 }
 
@@ -234,37 +176,16 @@ static void _breathe_spell(int cmd, var_ptr res)
     case SPELL_NAME:
         var_set_string(res, "Breathe");
         break;
-    case SPELL_DESC: { /* XXX Don't call format() with the results of a previous call to format() */
-        string_ptr s = string_alloc_format("Breathes %s at your opponent.", _breath_desc());
-        var_set_string(res, string_buffer(s));
-        string_free(s);
-        break; }
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, _breath_amount()));
+    case SPELL_DESC:
+        var_printf(res, "Breathes %s at your opponent.", _breath_desc());
         break;
-    case SPELL_COST_EXTRA:
-    {
-        int l = p_ptr->lev;
+    case SPELL_COST_EXTRA: {
+        int l = plr->lev;
         int cst = l*l/100;
         var_set_int(res, cst);
-        break;
-    }
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (get_fire_dir(&dir))
-        {
-            int e = _breath_effect();
-            msg_format("You breathe %s.", gf_name(e));
-            fire_ball(e, dir, _breath_amount(), -1 - (p_ptr->lev / 20));
-            var_set_bool(res, TRUE);
-        }
-        break;
-    }
+        break; }
     default:
-        default_spell(cmd, res);
-        break;
+        breath_spell_innate(cmd, res, 1 + plr->lev/20, _breath_effect(), _breath_amount());
     }
 }
 
@@ -280,7 +201,7 @@ void _bark_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
         msg_print("Woof! Woof!");
-        aggravate_monsters(0);
+        aggravate_monsters(who_create_plr());
         var_set_bool(res, TRUE);
         break;
     default:
@@ -352,7 +273,7 @@ void hound_stalk_spell(int cmd, var_ptr res)
         var_set_string(res, "By moving slowly, you will be able to sneak up on your prey very effectively.");
         break;
     case SPELL_CAST:
-        if (p_ptr->action == ACTION_STALK) set_action(ACTION_NONE);
+        if (plr->action == ACTION_STALK) set_action(ACTION_NONE);
         else set_action(ACTION_STALK);
         var_set_bool(res, TRUE);
         break;
@@ -385,295 +306,334 @@ static power_info _tindalos_powers[] = {
 
 static int _get_powers(spell_info* spells, int max) {
     int ct = get_powers_aux(spells, max, _powers);
-    if (p_ptr->current_r_idx == MON_HOUND_OF_TINDALOS)
+    if (plr_mon_race_is_("Z.tindalos"))
         ct += get_powers_aux(spells + ct, max - ct, _tindalos_powers);
     return ct;
 }
 static void _calc_bonuses(void) {
     int to_a = plr_prorata_level_aux(25, 1, 2, 2);
-    int tier = _find_tier(p_ptr->current_r_idx);
+    int tier = _find_tier(plr->current_r_idx);
 
-    p_ptr->skill_dig += 100;
-    p_ptr->to_a += to_a;
-    p_ptr->dis_to_a += to_a;
+    plr->skill_dig += 100;
+    plr->to_a += to_a;
+    plr->dis_to_a += to_a;
 
     if (tier > 3)
-        p_ptr->pspeed += (tier - 3);
+        plr->pspeed += (tier - 3);
 
-    switch (p_ptr->current_r_idx)
-    {
     /* Tier 1 */
-    case MON_LIGHT_HOUND:
-        res_add(RES_LITE);
-        break;
-    case MON_SHADOW_HOUND:
-        res_add(RES_DARK);
-        res_add_vuln(RES_LITE);
-        break;
+    if (plr_mon_race_is_("Z.light"))
+        res_add(GF_LIGHT);
+    else if (plr_mon_race_is_("Z.shadow"))
+    {
+        res_add(GF_DARK);
+        res_add_vuln(GF_LIGHT);
+    }
     /* Tier 2 */
-    case MON_FIRE_HOUND:
-        res_add(RES_FIRE);
-        res_add(RES_FIRE);
-        res_add_vuln(RES_COLD);
-        break;
-    case MON_COLD_HOUND:
-        res_add(RES_COLD);
-        res_add(RES_COLD);
-        res_add_vuln(RES_FIRE);
-        break;
-    case MON_ENERGY_HOUND:
-        res_add(RES_ELEC);
-        res_add(RES_ELEC);
-        break;
-    case MON_AIR_HOUND:
-        res_add(RES_POIS);
-        res_add(RES_POIS);
-        break;
-    case MON_WATER_HOUND:
-        res_add(RES_ACID);
-        res_add(RES_ACID);
-        break;
+    else if (plr_mon_race_is_("Z.fire"))
+    {
+        res_add(GF_FIRE);
+        res_add(GF_FIRE);
+        res_add_vuln(GF_COLD);
+    }
+    else if (plr_mon_race_is_("Z.cold"))
+    {
+        res_add(GF_COLD);
+        res_add(GF_COLD);
+        res_add_vuln(GF_FIRE);
+    }
+    else if (plr_mon_race_is_("Z.energy"))
+    {
+        res_add(GF_ELEC);
+        res_add(GF_ELEC);
+    }
+    else if (plr_mon_race_is_("Z.air"))
+    {
+        res_add(GF_POIS);
+        res_add(GF_POIS);
+    }
+    else if (plr_mon_race_is_("Z.water"))
+    {
+        res_add(GF_ACID);
+        res_add(GF_ACID);
+    }
     /* Tier 3 */
-    case MON_EARTH_HOUND:
-        res_add(RES_SHARDS);
-        break;
-    case MON_VIBRATION_HOUND:
-        res_add(RES_SOUND);
-        res_add(RES_CONF);
-        p_ptr->free_act++;
-        break;
-    case MON_NEXUS_HOUND:
-        res_add(RES_NEXUS);
-        res_add(RES_CONF);
-        p_ptr->free_act++;
-        break;
-    case MON_MULTI_HUED_HOUND:
-        p_ptr->pspeed += 3;
-        res_add(RES_FIRE);
-        res_add(RES_COLD);
-        res_add(RES_ACID);
-        res_add(RES_ELEC);
-        res_add(RES_POIS);
-        res_add(RES_CONF);
-        p_ptr->free_act++;
-        break;
+    else if (plr_mon_race_is_("Z.earth"))
+    {
+        res_add(GF_SHARDS);
+    }
+    else if (plr_mon_race_is_("Z.vibration"))
+    {
+        res_add(GF_SOUND);
+        res_add(GF_CONF);
+        plr->free_act++;
+    }
+    else if (plr_mon_race_is_("Z.nexus"))
+    {
+        res_add(GF_NEXUS);
+        res_add(GF_CONF);
+        plr->free_act++;
+    }
+    else if (plr_mon_race_is_("Z.multi-hued"))
+    {
+        plr->pspeed += 3;
+        res_add(GF_FIRE);
+        res_add(GF_COLD);
+        res_add(GF_ACID);
+        res_add(GF_ELEC);
+        res_add(GF_POIS);
+        res_add(GF_CONF);
+        plr->free_act++;
+    }
     /* Tier 4 */
-    case MON_INERTIA_HOUND:
-        res_add(RES_CONF);
-        p_ptr->free_act++;
-        p_ptr->no_slow = TRUE;
-        break;
-    case MON_IMPACT_HOUND:
-        res_add(RES_CONF);
-        p_ptr->free_act++;
-        break;
-    case MON_NETHER_HOUND:
-        p_ptr->pspeed += 5;
-        res_add(RES_NETHER);
-        res_add(RES_CONF);
-        p_ptr->free_act++;
-        break;
+    else if (plr_mon_race_is_("Z.inertia"))
+    {
+        res_add(GF_CONF);
+        plr->free_act++;
+        plr->no_slow = TRUE;
+    }
+    else if (plr_mon_race_is_("Z.impact"))
+    {
+        res_add(GF_CONF);
+        plr->free_act++;
+    }
+    else if (plr_mon_race_is_("Z.nether"))
+    {
+        plr->pspeed += 5;
+        res_add(GF_NETHER);
+        res_add(GF_CONF);
+        plr->free_act++;
+    }
     /* Tier 5 */
-    case MON_GRAVITY_HOUND:
-        res_add(RES_CONF);
-        p_ptr->free_act++;
-        break;
-    case MON_TIME_HOUND:
-        p_ptr->pspeed += 7;
-        res_add(RES_TIME);
-        res_add(RES_CONF);
-        p_ptr->free_act++;
-        break;
-    case MON_PLASMA_HOUND:
-        p_ptr->pspeed += 5;
-        res_add(RES_ELEC);
-        res_add(RES_FIRE);
-        res_add(RES_CONF);
-        p_ptr->free_act++;
-        break;
-    case MON_CHAOS_HOUND:
-        p_ptr->pspeed += 5;
-        res_add(RES_CHAOS);
-        res_add(RES_CONF);
-        p_ptr->free_act++;
-        break;
+    else if (plr_mon_race_is_("Z.gravity"))
+    {
+        res_add(GF_CONF);
+        plr->free_act++;
+    }
+    else if (plr_mon_race_is_("Z.time"))
+    {
+        plr->pspeed += 7;
+        res_add(GF_TIME);
+        res_add(GF_CONF);
+        plr->free_act++;
+    }
+    else if (plr_mon_race_is_("Z.plasma"))
+    {
+        plr->pspeed += 5;
+        res_add(GF_ELEC);
+        res_add(GF_FIRE);
+        res_add(GF_CONF);
+        plr->free_act++;
+    }
+    else if (plr_mon_race_is_("Z.chaos"))
+    {
+        plr->pspeed += 5;
+        res_add(GF_CHAOS);
+        res_add(GF_CONF);
+        plr->free_act++;
+    }
     /* Tier 6 */
-    case MON_HOUND_OF_TINDALOS:
-        p_ptr->pspeed += 7;
-        res_add(RES_NETHER);
-        res_add(RES_TIME);
-        res_add(RES_CONF);
-        p_ptr->free_act++;
-        p_ptr->levitation = TRUE;
-        p_ptr->pass_wall = TRUE;
-        p_ptr->no_passwall_dam = TRUE;
-        break;
-    case MON_MANA_HOUND:
-        p_ptr->pspeed += 10;
-        res_add(RES_CONF);
-        p_ptr->free_act++;
-        break;
-    case MON_AETHER_HOUND:
-        p_ptr->pspeed += 5;
-        res_add(RES_FIRE);
-        res_add(RES_COLD);
-        res_add(RES_ACID);
-        res_add(RES_ELEC);
-        res_add(RES_POIS);
-        res_add(RES_LITE);
-        res_add(RES_DARK);
-        res_add(RES_CONF);
-        res_add(RES_NETHER);
-        res_add(RES_NEXUS);
-        res_add(RES_SOUND);
-        res_add(RES_SHARDS);
-        res_add(RES_CHAOS);
-        res_add(RES_DISEN);
-        res_add(RES_TIME);
-        p_ptr->sh_cold = TRUE;
-        p_ptr->sh_fire = TRUE;
-        p_ptr->sh_elec = TRUE;
-        p_ptr->free_act++;
-        break;
+    else if (plr_mon_race_is_("Z.tindalos"))
+    {
+        plr->pspeed += 7;
+        res_add(GF_NETHER);
+        res_add(GF_TIME);
+        res_add(GF_CONF);
+        plr->free_act++;
+        plr->levitation = TRUE;
+        plr->pass_wall = TRUE;
+        plr->no_passwall_dam = TRUE;
+    }
+    else if (plr_mon_race_is_("Z.mana"))
+    {
+        plr->pspeed += 10;
+        res_add(GF_CONF);
+        plr->free_act++;
+    }
+    else if (plr_mon_race_is_("Z.aether"))
+    {
+        plr->pspeed += 5;
+        res_add(GF_FIRE);
+        res_add(GF_COLD);
+        res_add(GF_ACID);
+        res_add(GF_ELEC);
+        res_add(GF_POIS);
+        res_add(GF_LIGHT);
+        res_add(GF_DARK);
+        res_add(GF_CONF);
+        res_add(GF_NETHER);
+        res_add(GF_NEXUS);
+        res_add(GF_SOUND);
+        res_add(GF_SHARDS);
+        res_add(GF_CHAOS);
+        res_add(GF_DISEN);
+        res_add(GF_TIME);
+        plr->sh_cold = TRUE;
+        plr->sh_fire = TRUE;
+        plr->sh_elec = TRUE;
+        plr->free_act++;
     }
 }
 
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) {
-    int tier = _find_tier(p_ptr->current_r_idx);
+    int tier = _find_tier(plr->current_r_idx);
     if (tier > 3)
         add_flag(flgs, OF_SPEED);
 
-    switch (p_ptr->current_r_idx)
+    /* Tier 1 */
+    if (plr_mon_race_is_("Z.light"))
     {
-    case MON_LIGHT_HOUND:
-        add_flag(flgs, OF_RES_LITE);
-        break;
-    case MON_SHADOW_HOUND:
-        add_flag(flgs, OF_RES_DARK);
-        add_flag(flgs, OF_VULN_LITE);
-        break;
-    case MON_FIRE_HOUND:
-        add_flag(flgs, OF_RES_FIRE);
-        add_flag(flgs, OF_VULN_COLD);
-        break;
-    case MON_COLD_HOUND:
-        add_flag(flgs, OF_RES_COLD);
-        add_flag(flgs, OF_VULN_FIRE);
-        break;
-    case MON_ENERGY_HOUND:
-        add_flag(flgs, OF_RES_ELEC);
-        break;
-    case MON_AIR_HOUND:
-        add_flag(flgs, OF_RES_POIS);
-        break;
-    case MON_WATER_HOUND:
-        add_flag(flgs, OF_RES_ACID);
-        break;
-    case MON_EARTH_HOUND:
-        add_flag(flgs, OF_RES_SHARDS);
-        break;
-    case MON_VIBRATION_HOUND:
-        add_flag(flgs, OF_RES_SOUND);
-        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_(GF_LIGHT));
+    }
+    else if (plr_mon_race_is_("Z.shadow"))
+    {
+        add_flag(flgs, OF_RES_(GF_DARK));
+        add_flag(flgs, OF_VULN_(GF_LIGHT));
+    }
+    /* Tier 2 */
+    else if (plr_mon_race_is_("Z.fire"))
+    {
+        add_flag(flgs, OF_RES_(GF_FIRE));
+        add_flag(flgs, OF_VULN_(GF_COLD));
+    }
+    else if (plr_mon_race_is_("Z.cold"))
+    {
+        add_flag(flgs, OF_RES_(GF_COLD));
+        add_flag(flgs, OF_VULN_(GF_FIRE));
+    }
+    else if (plr_mon_race_is_("Z.energy"))
+    {
+        add_flag(flgs, OF_RES_(GF_ELEC));
+    }
+    else if (plr_mon_race_is_("Z.air"))
+    {
+        add_flag(flgs, OF_RES_(GF_POIS));
+    }
+    else if (plr_mon_race_is_("Z.water"))
+    {
+        add_flag(flgs, OF_RES_(GF_ACID));
+    }
+    /* Tier 3 */
+    else if (plr_mon_race_is_("Z.earth"))
+    {
+        add_flag(flgs, OF_RES_(GF_SHARDS));
+    }
+    else if (plr_mon_race_is_("Z.vibration"))
+    {
+        add_flag(flgs, OF_RES_(GF_SOUND));
+        add_flag(flgs, OF_RES_(GF_CONF));
         add_flag(flgs, OF_FREE_ACT);
-        break;
-    case MON_NEXUS_HOUND:
-        add_flag(flgs, OF_RES_NEXUS);
-        add_flag(flgs, OF_RES_CONF);
+    }
+    else if (plr_mon_race_is_("Z.nexus"))
+    {
+        add_flag(flgs, OF_RES_(GF_NEXUS));
+        add_flag(flgs, OF_RES_(GF_CONF));
         add_flag(flgs, OF_FREE_ACT);
-        break;
-    case MON_MULTI_HUED_HOUND:
+    }
+    else if (plr_mon_race_is_("Z.multi-hued"))
+    {
         add_flag(flgs, OF_SPEED);
-        add_flag(flgs, OF_RES_FIRE);
-        add_flag(flgs, OF_RES_COLD);
-        add_flag(flgs, OF_RES_ACID);
-        add_flag(flgs, OF_RES_ELEC);
-        add_flag(flgs, OF_RES_POIS);
-        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_(GF_FIRE));
+        add_flag(flgs, OF_RES_(GF_COLD));
+        add_flag(flgs, OF_RES_(GF_ACID));
+        add_flag(flgs, OF_RES_(GF_ELEC));
+        add_flag(flgs, OF_RES_(GF_POIS));
+        add_flag(flgs, OF_RES_(GF_CONF));
         add_flag(flgs, OF_FREE_ACT);
-        break;
-    case MON_INERTIA_HOUND:
-        add_flag(flgs, OF_RES_CONF);
+    }
+    /* Tier 4 */
+    else if (plr_mon_race_is_("Z.inertia"))
+    {
+        add_flag(flgs, OF_RES_(GF_CONF));
         add_flag(flgs, OF_FREE_ACT);
-        break;
-    case MON_IMPACT_HOUND:
-        add_flag(flgs, OF_RES_CONF);
+    }
+    else if (plr_mon_race_is_("Z.impact"))
+    {
+        add_flag(flgs, OF_RES_(GF_CONF));
         add_flag(flgs, OF_FREE_ACT);
-        break;
-    case MON_NETHER_HOUND:
+    }
+    else if (plr_mon_race_is_("Z.nether"))
+    {
         add_flag(flgs, OF_SPEED);
-        add_flag(flgs, OF_RES_NETHER);
-        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_(GF_NETHER));
+        add_flag(flgs, OF_RES_(GF_CONF));
         add_flag(flgs, OF_FREE_ACT);
-        break;
-    case MON_GRAVITY_HOUND:
-        add_flag(flgs, OF_RES_CONF);
+    }
+    /* Tier 5 */
+    else if (plr_mon_race_is_("Z.gravity"))
+    {
+        add_flag(flgs, OF_RES_(GF_CONF));
         add_flag(flgs, OF_FREE_ACT);
-        break;
-    case MON_TIME_HOUND:
+    }
+    else if (plr_mon_race_is_("Z.time"))
+    {
         add_flag(flgs, OF_SPEED);
-        add_flag(flgs, OF_RES_TIME);
-        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_(GF_TIME));
+        add_flag(flgs, OF_RES_(GF_CONF));
         add_flag(flgs, OF_FREE_ACT);
-        break;
-    case MON_PLASMA_HOUND:
+    }
+    else if (plr_mon_race_is_("Z.plasma"))
+    {
         add_flag(flgs, OF_SPEED);
-        add_flag(flgs, OF_RES_ELEC);
-        add_flag(flgs, OF_RES_FIRE);
-        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_(GF_ELEC));
+        add_flag(flgs, OF_RES_(GF_FIRE));
+        add_flag(flgs, OF_RES_(GF_CONF));
         add_flag(flgs, OF_FREE_ACT);
-        break;
-    case MON_CHAOS_HOUND:
+    }
+    else if (plr_mon_race_is_("Z.chaos"))
+    {
         add_flag(flgs, OF_SPEED);
-        add_flag(flgs, OF_RES_CHAOS);
-        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_(GF_CHAOS));
+        add_flag(flgs, OF_RES_(GF_CONF));
         add_flag(flgs, OF_FREE_ACT);
-        break;
-    case MON_HOUND_OF_TINDALOS:
+    }
+    /* Tier 6 */
+    else if (plr_mon_race_is_("Z.tindalos"))
+    {
         add_flag(flgs, OF_SPEED);
-        add_flag(flgs, OF_RES_NETHER);
-        add_flag(flgs, OF_RES_TIME);
-        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_(GF_NETHER));
+        add_flag(flgs, OF_RES_(GF_TIME));
+        add_flag(flgs, OF_RES_(GF_CONF));
         add_flag(flgs, OF_FREE_ACT);
         add_flag(flgs, OF_LEVITATION);
-        break;
-    case MON_MANA_HOUND:
+    }
+    else if (plr_mon_race_is_("Z.mana"))
+    {
         add_flag(flgs, OF_SPEED);
-        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_(GF_CONF));
         add_flag(flgs, OF_FREE_ACT);
-        break;
-    case MON_AETHER_HOUND:
+    }
+    else if (plr_mon_race_is_("Z.aether"))
+    {
         add_flag(flgs, OF_SPEED);
-        add_flag(flgs, OF_RES_FIRE);
-        add_flag(flgs, OF_RES_COLD);
-        add_flag(flgs, OF_RES_ACID);
-        add_flag(flgs, OF_RES_ELEC);
-        add_flag(flgs, OF_RES_POIS);
-        add_flag(flgs, OF_RES_LITE);
-        add_flag(flgs, OF_RES_DARK);
-        add_flag(flgs, OF_RES_CONF);
-        add_flag(flgs, OF_RES_NETHER);
-        add_flag(flgs, OF_RES_NEXUS);
-        add_flag(flgs, OF_RES_SOUND);
-        add_flag(flgs, OF_RES_SHARDS);
-        add_flag(flgs, OF_RES_CHAOS);
-        add_flag(flgs, OF_RES_DISEN);
-        add_flag(flgs, OF_RES_TIME);
+        add_flag(flgs, OF_RES_(GF_FIRE));
+        add_flag(flgs, OF_RES_(GF_COLD));
+        add_flag(flgs, OF_RES_(GF_ACID));
+        add_flag(flgs, OF_RES_(GF_ELEC));
+        add_flag(flgs, OF_RES_(GF_POIS));
+        add_flag(flgs, OF_RES_(GF_LIGHT));
+        add_flag(flgs, OF_RES_(GF_DARK));
+        add_flag(flgs, OF_RES_(GF_CONF));
+        add_flag(flgs, OF_RES_(GF_NETHER));
+        add_flag(flgs, OF_RES_(GF_NEXUS));
+        add_flag(flgs, OF_RES_(GF_SOUND));
+        add_flag(flgs, OF_RES_(GF_SHARDS));
+        add_flag(flgs, OF_RES_(GF_CHAOS));
+        add_flag(flgs, OF_RES_(GF_DISEN));
+        add_flag(flgs, OF_RES_(GF_TIME));
         add_flag(flgs, OF_AURA_COLD);
         add_flag(flgs, OF_AURA_FIRE);
         add_flag(flgs, OF_AURA_ELEC);
         add_flag(flgs, OF_FREE_ACT);
-        break;
     }
 }
 static void _gain_level(int new_level) {
-    int tier = _find_tier(p_ptr->current_r_idx);
+    int tier = _find_tier(plr->current_r_idx);
     if (tier < 0 || tier == _MAX_TIERS - 1) return;
-    if (p_ptr->lev >= _tiers[tier + 1].level)
+    if (plr->lev >= _tiers[tier + 1].level)
     {
-        p_ptr->current_r_idx = _random(_tiers[tier+1].r_ids);
-        msg_format("You have evolved into a %s.", _mon_name(p_ptr->current_r_idx));
-        p_ptr->redraw |= PR_MAP;
+        cptr which = _random(_tiers[tier+1].r_ids);
+        plr_mon_race_evolve(which);
     }
 }
 plr_race_ptr mon_hound_get_race(void)
@@ -683,7 +643,7 @@ plr_race_ptr mon_hound_get_race(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  20,  31,   4,  20,  15,  56,  30};
-    skills_t xs = {  8,   8,  10,   1,   0,   0,  20,   7};
+    skills_t xs = { 40,  40,  50,   5,   0,   0, 100,  35};
 
         me = plr_race_alloc(RACE_MON_HOUND);
         me->name = "Hound";
@@ -711,8 +671,8 @@ plr_race_ptr mon_hound_get_race(void)
         me->life = 100;
         me->base_hp = 22;
         me->shop_adjust = 110;
-        me->pseudo_class_idx = CLASS_ROGUE;
-        me->boss_r_idx = MON_CARCHAROTH;
+        me->pseudo_class_id = CLASS_ROGUE;
+        me->boss_r_idx = mon_race_parse("C.Carcharoth")->id;
 
         me->hooks.calc_innate_attacks = hound_calc_innate_attacks;
         me->hooks.calc_innate_bonuses = hound_calc_innate_bonuses;
@@ -725,14 +685,14 @@ plr_race_ptr mon_hound_get_race(void)
         me->flags = RACE_IS_MONSTER; /* | RACE_IS_ILLITERATE? No ... think Scooby-doo! */
     }
 
-    me->subname = _mon_name(p_ptr->current_r_idx);
-    me->stats[A_STR] =  1 + p_ptr->lev/12;
+    me->subname = _mon_name(plr->current_r_idx);
+    me->stats[A_STR] =  1 + plr->lev/12;
     me->stats[A_INT] = -3;
     me->stats[A_WIS] = -5;
-    me->stats[A_DEX] =  2 + p_ptr->lev/15;
-    me->stats[A_CON] =  1 + p_ptr->lev/15;
-    me->stats[A_CHR] =  0 + p_ptr->lev/25;
-    me->equip_template = mon_get_equip_template();
+    me->stats[A_DEX] =  2 + plr->lev/15;
+    me->stats[A_CON] =  1 + plr->lev/15;
+    me->stats[A_CHR] =  0 + plr->lev/25;
+    me->equip_template = plr_equip_template();
 
     return me;
 }

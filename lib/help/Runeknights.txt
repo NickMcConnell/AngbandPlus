@@ -79,7 +79,7 @@ If this rune is carried in your pack then your gear receives increased protectio
 <color:R>Lights</color>        <color:G>L29</color> Hold Life
 
 <color:B>Stability</color>
-<color:R>Body Armor</color>    <color:G>L31</color> Resist Nexus, Chaos and Disenchantment
+<color:R>Body Armor</color>    <color:G>L31</color> Resist Nexus and Chaos
 <color:R>Helmets</color>       <color:G>L31</color> Resist Nexus
 <color:R>Cloaks</color>        <color:G>L31</color> Resist Nexus
 <color:R>Boots</color>         <color:G>L31</color> Resist Nexus
@@ -148,7 +148,7 @@ In this section, the various runes are grouped according to equipment slot. This
 <color:B>Shadow</color>        <color:G>L17</color> Resist Darkness; Stealth
 <color:B>Earth</color>         <color:G>L19</color> Resist Shards; Aura of Shards
 <color:B>Life</color>          <color:G>L29</color> Hold Life; +1 CON
-<color:B>Stability</color>     <color:G>L31</color> Resist Nexus, Chaos and Disenchantment
+<color:B>Stability</color>     <color:G>L31</color> Resist Nexus and Chaos
 <color:B>Death</color>         <color:G>L35</color> Resist Nether and Poison
 <color:B>Might</color>         <color:G>L39</color> +2 STR, DEX, CON; Sustain STR, DEX, CON
 <color:B>Immortality</color>   <color:G>L45</color> Resist Time; Hold Life; Sustain All Stats

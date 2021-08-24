@@ -1,21 +1,23 @@
 #include "angband.h"
 
+#include <assert.h>
+
 /******************************************************************************
  * Troll Bite
  ******************************************************************************/
 static void _calc_innate_attacks(void) 
 {
-    mon_race_ptr race = mon_race_lookup(p_ptr->current_r_idx);
+    mon_race_ptr race = plr_mon_race();
     mon_blow_ptr blow = mon_blows_find(race->blows, RBM_BITE);
 
     if (blow)
     {
         mon_blow_ptr copy = mon_blow_copy(blow);
-        copy->power = 25 + p_ptr->lev;
-        copy->blows = 50 + p_ptr->lev;
-        if (p_ptr->current_r_idx == MON_ETTIN)
+        copy->power = 25 + plr->lev;
+        copy->blows = 50 + plr->lev;
+        if (plr_mon_race_is_("T.ettin"))
             copy->blows += 50;
-        vec_add(p_ptr->innate_blows, copy);
+        vec_add(plr->innate_blows, copy);
     }
 }
 
@@ -32,65 +34,14 @@ static void _aklash_breathe_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Breathes poison at your opponent.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, p_ptr->chp / 4));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (get_fire_dir(&dir))
-        {
-            msg_print("You breathe gas.");
-            fire_ball(GF_POIS, dir, p_ptr->chp / 4, -2);
-            var_set_bool(res, TRUE);
-        }
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
-    }
-}
-
-static void _begin(plr_attack_ptr context)
-{
-    context->attack_desc = "<color:R>powerfully attack</color>";
-    context->to_h += 10;
-    context->to_d += p_ptr->lev/2;
-}
-static void _super_attack_spell(int cmd, var_ptr res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Powerful Attack");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "Attack an adjacent opponent powerfully.");
-        break;
-    case SPELL_CAST:
-    case SPELL_ON_BROWSE: {
-        plr_attack_t context = {0};
-        context.hooks.begin_f = _begin;
-        if (cmd == SPELL_CAST)
-            var_set_bool(res, plr_attack_special_aux(&context, 1));
-        else
-        {
-            plr_attack_display_aux(&context);
-            var_set_bool(res, TRUE);
-        }
-        break; }
-    default:
-        default_spell(cmd, res);
-        break;
+        breath_spell_innate(cmd, res, 2, GF_POIS, plr->chp/4);
     }
 }
 
 static power_info _powers[] = 
 {
     { A_STR, { 10, 10, 30, berserk_spell} },
-    { A_STR, { 22, 20, 50, _super_attack_spell} },
     { A_CON, { 28, 20, 50, resistance_spell} },
     {    -1, { -1, -1, -1, NULL}}
 };
@@ -120,18 +71,12 @@ static power_info _troll_king_powers[] =
 static int _get_powers(spell_info* spells, int max) 
 {
     int ct = get_powers_aux(spells, max, _powers);
-    switch (p_ptr->current_r_idx)
-    {
-    case MON_AKLASH: 
+    if (plr_mon_race_is_("T.aklash"))
         ct += get_powers_aux(spells + ct, max - ct, _aklash_powers);
-        break;
-    case MON_STORM_TROLL: 
+    else if (plr_mon_race_is_("T.storm"))
         ct += get_powers_aux(spells + ct, max - ct, _storm_troll_powers);
-        break;
-    case MON_TROLL_KING: 
+    else if (plr_mon_race_is_("T.king"))
         ct += get_powers_aux(spells + ct, max - ct, _troll_king_powers);
-        break;
-    }
     return ct;
 }
 
@@ -140,10 +85,9 @@ static int _get_powers(spell_info* spells, int max)
  ******************************************************************************/
 static void _birth(void) 
 { 
-    object_type    forge;
+    object_type forge;
 
-    p_ptr->current_r_idx = MON_FOREST_TROLL;
-    equip_on_change_race();
+    plr_mon_race_set("T.forest");
     skills_innate_init("Bite", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
@@ -168,13 +112,9 @@ static void _birth(void)
 
 static void _gain_level(int new_level) 
 {
-    if (p_ptr->current_r_idx == MON_FOREST_TROLL && new_level >= 10)
-    {
-        p_ptr->current_r_idx = MON_STONE_TROLL;
-        msg_print("You have evolved into a Stone Troll.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_STONE_TROLL && new_level >= 20)
+    if (plr_mon_race_is_("T.forest") && new_level >= 10)
+        plr_mon_race_evolve("T.stone");
+    if (plr_mon_race_is_("T.stone") && new_level >= 20)
     {
         int r = randint0(3);
         if (spoiler_hack)
@@ -182,58 +122,42 @@ static void _gain_level(int new_level)
         switch (r)
         {
         case 0:
-            p_ptr->current_r_idx = MON_ICE_TROLL;
-            msg_print("You have evolved into an Ice Troll.");
+            plr_mon_race_evolve("T.ice");
             break;
         case 1:
-            p_ptr->current_r_idx = MON_FIRE_TROLL;
-            msg_print("You have evolved into a Fire Troll.");
+            plr_mon_race_evolve("T.fire");
             break;
         case 2:
-            p_ptr->current_r_idx = MON_ALGROTH;
-            msg_print("You have evolved into an Algroth.");
+            plr_mon_race_evolve("T.algroth");
             break;
         }
-        p_ptr->redraw |= PR_MAP;
     }
-    if (p_ptr->current_r_idx == MON_ALGROTH && new_level >= 25)
-    {
-        p_ptr->current_r_idx = MON_AKLASH;
-        msg_print("You have evolved into an Aklash.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if ( ( p_ptr->current_r_idx == MON_FIRE_TROLL 
-        || p_ptr->current_r_idx == MON_ICE_TROLL 
-        || p_ptr->current_r_idx == MON_AKLASH )
+    if (plr_mon_race_is_("T.algroth") && new_level >= 25)
+        plr_mon_race_evolve("T.aklash");
+    if ( ( plr_mon_race_is_("T.fire")
+        || plr_mon_race_is_("T.ice")
+        || plr_mon_race_is_("T.aklash") )
       && new_level >= 30 )
     {
-        p_ptr->current_r_idx = MON_OLOG;
-        msg_print("You have evolved into an Olog.");
-        p_ptr->redraw |= PR_MAP;
+        plr_mon_race_evolve("T.olog");
     }
-    if (p_ptr->current_r_idx == MON_OLOG && new_level >= 40)
+    if (plr_mon_race_is_("T.olog") && new_level >= 40)
     {
-        switch (p_ptr->psubrace)
+        switch (plr->psubrace)
         {
         case TROLL_ETTIN:
-            p_ptr->current_r_idx = MON_ETTIN;
-            msg_print("You have evolved into an Ettin.");
-            equip_on_change_race(); /* Two heads */
+            plr_mon_race_evolve("T.ettin");
             break;
         case TROLL_STORM:
-            p_ptr->current_r_idx = MON_STORM_TROLL;
-            msg_print("You have evolved into a Storm Troll.");
+            plr_mon_race_evolve("T.storm");
             break;
         case TROLL_SPIRIT:
-            p_ptr->current_r_idx = MON_SPIRIT_TROLL;
-            msg_print("You have evolved into a Spirit Troll.");
+            plr_mon_race_evolve("T.spirit");
             break;
         case TROLL_KING:
-            p_ptr->current_r_idx = MON_TROLL_KING;
-            msg_print("You have evolved into a Troll King.");
+            plr_mon_race_evolve("T.king");
             break;
         }
-        p_ptr->redraw |= PR_MAP;
     }
 }
 
@@ -244,157 +168,175 @@ static void _calc_bonuses(void)
 {
     int to_a = plr_prorata_level_aux(25, 1, 2, 2);
 
-    p_ptr->to_a += to_a;
-    p_ptr->dis_to_a += to_a;
+    plr->to_a += to_a;
+    plr->dis_to_a += to_a;
 
-    p_ptr->regen += 100 + 8*p_ptr->lev;
-    switch (p_ptr->current_r_idx)
+    plr->regen += 100 + 8*plr->lev;
+    if (plr_mon_race_is_("T.forest"))
     {
-    case MON_FOREST_TROLL:
-        res_add_vuln(RES_LITE);
-        break;
-    case MON_STONE_TROLL:
-        res_add_vuln(RES_LITE);
-        break;
-    case MON_ICE_TROLL:
-        res_add_vuln(RES_LITE);
-        res_add_vuln(RES_FIRE);
-        res_add(RES_COLD);
-        res_add(RES_COLD);
-        break;
-    case MON_FIRE_TROLL:
-        res_add_vuln(RES_LITE);
-        res_add_vuln(RES_COLD);
-        res_add(RES_FIRE);
-        res_add(RES_FIRE);
-        break;
-    case MON_ALGROTH:
-        break;
-    case MON_AKLASH:
-        res_add(RES_POIS);
-        res_add(RES_ACID);
-        break;
-    case MON_OLOG:
-        res_add(RES_POIS);
-        break;
-    case MON_ETTIN:
-        p_ptr->free_act++;
-        res_add(RES_POIS);
-        res_add(RES_CONF);
-        break;
-    case MON_SPIRIT_TROLL:
-        p_ptr->pass_wall = TRUE;
-        p_ptr->no_passwall_dam = TRUE;
-        p_ptr->free_act++;
-        p_ptr->see_inv++;
-        p_ptr->levitation = TRUE;
-        res_add(RES_COLD);
-        res_add(RES_ELEC);
-        res_add(RES_POIS);
-        res_add(RES_CONF);
-        break;
-    case MON_STORM_TROLL:
-        p_ptr->pspeed += 5;
-        res_add(RES_COLD);
-        res_add(RES_ELEC);
-        res_add(RES_ACID);
-        break;
-    case MON_TROLL_KING:
-        p_ptr->pspeed += 7;
-        p_ptr->free_act++;
-        res_add(RES_POIS);
-        res_add(RES_CONF);
-        break;
+        res_add_vuln(GF_LIGHT);
+    }
+    else if (plr_mon_race_is_("T.stone"))
+    {
+        res_add_vuln(GF_LIGHT);
+    }
+    else if (plr_mon_race_is_("T.ice"))
+    {
+        res_add_vuln(GF_LIGHT);
+        res_add_vuln(GF_FIRE);
+        res_add(GF_COLD);
+        res_add(GF_COLD);
+    }
+    else if (plr_mon_race_is_("T.fire"))
+    {
+        res_add_vuln(GF_LIGHT);
+        res_add_vuln(GF_COLD);
+        res_add(GF_FIRE);
+        res_add(GF_FIRE);
+    }
+    else if (plr_mon_race_is_("T.algroth"))
+    {
+    }
+    else if (plr_mon_race_is_("T.aklash"))
+    {
+        res_add(GF_POIS);
+        res_add(GF_ACID);
+    }
+    else if (plr_mon_race_is_("T.olog"))
+    {
+        res_add(GF_POIS);
+    }
+    else if (plr_mon_race_is_("T.ettin"))
+    {
+        plr->free_act++;
+        res_add(GF_POIS);
+        res_add(GF_CONF);
+    }
+    else if (plr_mon_race_is_("T.spirit"))
+    {
+        plr->pass_wall = TRUE;
+        plr->no_passwall_dam = TRUE;
+        plr->free_act++;
+        plr->see_inv++;
+        plr->levitation = TRUE;
+        res_add(GF_COLD);
+        res_add(GF_ELEC);
+        res_add(GF_POIS);
+        res_add(GF_CONF);
+    }
+    else if (plr_mon_race_is_("T.storm"))
+    {
+        plr->pspeed += 5;
+        res_add(GF_COLD);
+        res_add(GF_ELEC);
+        res_add(GF_ACID);
+    }
+    else if (plr_mon_race_is_("T.king"))
+    {
+        plr->pspeed += 7;
+        plr->free_act++;
+        res_add(GF_POIS);
+        res_add(GF_CONF);
     }
 }
 
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) 
 {
     add_flag(flgs, OF_REGEN);
-    switch (p_ptr->current_r_idx)
+    if (plr_mon_race_is_("T.forest"))
     {
-    case MON_FOREST_TROLL:
-        add_flag(flgs, OF_VULN_LITE);
-        break;
-    case MON_STONE_TROLL:
-        add_flag(flgs, OF_VULN_LITE);
-        break;
-    case MON_ICE_TROLL:
-        add_flag(flgs, OF_RES_COLD);
+        add_flag(flgs, OF_VULN_(GF_LIGHT));
+    }
+    else if (plr_mon_race_is_("T.stone"))
+    {
+        add_flag(flgs, OF_VULN_(GF_LIGHT));
+    }
+    else if (plr_mon_race_is_("T.ice"))
+    {
+        add_flag(flgs, OF_RES_(GF_COLD));
         add_flag(flgs, OF_BRAND_COLD);
-        add_flag(flgs, OF_VULN_LITE);
-        add_flag(flgs, OF_VULN_FIRE);
-        break;
-    case MON_FIRE_TROLL:
-        add_flag(flgs, OF_RES_FIRE);
+        add_flag(flgs, OF_VULN_(GF_LIGHT));
+        add_flag(flgs, OF_VULN_(GF_FIRE));
+    }
+    else if (plr_mon_race_is_("T.fire"))
+    {
+        add_flag(flgs, OF_RES_(GF_FIRE));
         add_flag(flgs, OF_BRAND_FIRE);
-        add_flag(flgs, OF_VULN_LITE);
-        add_flag(flgs, OF_VULN_COLD);
-        break;
-    case MON_ALGROTH:
+        add_flag(flgs, OF_VULN_(GF_LIGHT));
+        add_flag(flgs, OF_VULN_(GF_COLD));
+    }
+    else if (plr_mon_race_is_("T.algroth"))
+    {
         add_flag(flgs, OF_BRAND_POIS);
-        break;
-    case MON_AKLASH:
-        add_flag(flgs, OF_RES_POIS);
-        add_flag(flgs, OF_RES_ACID);
-        break;
-    case MON_OLOG:
-        add_flag(flgs, OF_RES_POIS);
-        break;
-    case MON_ETTIN:
+    }
+    else if (plr_mon_race_is_("T.aklash"))
+    {
+        add_flag(flgs, OF_RES_(GF_POIS));
+        add_flag(flgs, OF_RES_(GF_ACID));
+    }
+    else if (plr_mon_race_is_("T.olog"))
+    {
+        add_flag(flgs, OF_RES_(GF_POIS));
+    }
+    else if (plr_mon_race_is_("T.ettin"))
+    {
         add_flag(flgs, OF_FREE_ACT);
-        add_flag(flgs, OF_RES_POIS);
-        add_flag(flgs, OF_RES_CONF);
-        break;
-    case MON_SPIRIT_TROLL:
+        add_flag(flgs, OF_RES_(GF_POIS));
+        add_flag(flgs, OF_RES_(GF_CONF));
+    }
+    else if (plr_mon_race_is_("T.spirit"))
+    {
         add_flag(flgs, OF_FREE_ACT);
         add_flag(flgs, OF_SEE_INVIS);
         add_flag(flgs, OF_LEVITATION);
-        add_flag(flgs, OF_RES_COLD);
-        add_flag(flgs, OF_RES_ELEC);
-        add_flag(flgs, OF_RES_POIS);
-        add_flag(flgs, OF_RES_CONF);
-        break;
-    case MON_STORM_TROLL:
+        add_flag(flgs, OF_RES_(GF_COLD));
+        add_flag(flgs, OF_RES_(GF_ELEC));
+        add_flag(flgs, OF_RES_(GF_POIS));
+        add_flag(flgs, OF_RES_(GF_CONF));
+    }
+    else if (plr_mon_race_is_("T.storm"))
+    {
         add_flag(flgs, OF_SPEED);
-        add_flag(flgs, OF_RES_COLD);
-        add_flag(flgs, OF_RES_ELEC);
-        add_flag(flgs, OF_RES_ACID);
+        add_flag(flgs, OF_RES_(GF_COLD));
+        add_flag(flgs, OF_RES_(GF_ELEC));
+        add_flag(flgs, OF_RES_(GF_ACID));
         add_flag(flgs, OF_BRAND_ELEC);
-        break;
-    case MON_TROLL_KING:
+    }
+    else if (plr_mon_race_is_("T.king"))
+    {
         add_flag(flgs, OF_SPEED);
         add_flag(flgs, OF_FREE_ACT);
-        add_flag(flgs, OF_RES_POIS);
-        add_flag(flgs, OF_RES_CONF);
-        break;
+        add_flag(flgs, OF_RES_(GF_POIS));
+        add_flag(flgs, OF_RES_(GF_CONF));
     }
 }
 
 static void _calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 {
-    switch (p_ptr->current_r_idx)
+    if (plr_mon_race_is_("T.ice"))
     {
-    case MON_ICE_TROLL:
         add_flag(info->obj_flags, OF_BRAND_COLD);
         add_flag(info->obj_known_flags, OF_BRAND_COLD);
-        break;
-    case MON_FIRE_TROLL:
+    }
+    else if (plr_mon_race_is_("T.fire"))
+    {
         add_flag(info->obj_flags, OF_BRAND_FIRE);
         add_flag(info->obj_known_flags, OF_BRAND_FIRE);
-        break;
-    case MON_ALGROTH:
+    }
+    else if (plr_mon_race_is_("T.algroth"))
+    {
         add_flag(info->obj_flags, OF_BRAND_POIS);
         add_flag(info->obj_known_flags, OF_BRAND_POIS);
-        break;
-    case MON_STORM_TROLL:
+    }
+    else if (plr_mon_race_is_("T.storm"))
+    {
         add_flag(info->obj_flags, OF_BRAND_ELEC);
         add_flag(info->obj_known_flags, OF_BRAND_ELEC);
-        break;
-    case MON_TROLL_KING:
+    }
+    else if (plr_mon_race_is_("T.king"))
+    {
         info->to_d += 10;
         info->dis_to_d += 10;
-        break;
     }
 }
 
@@ -418,10 +360,15 @@ plr_race_ptr mon_troll_get_race(int psubrace)
 {
     static plr_race_ptr me = NULL;
 
+    if (birth_hack && psubrace >= TROLL_MAX)
+        psubrace = 0;
+
+    assert(0 <= psubrace && psubrace < TROLL_MAX);
+
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  18,  30,   1,  13,   7,  65,  30 };
-    skills_t xs = {  7,   7,  10,   0,   0,   0,  28,  10 };
+    skills_t xs = { 35,  35,  50,   0,   0,   0, 140,  50 };
 
         me = plr_race_alloc(RACE_MON_TROLL);
         me->skills = bs;
@@ -446,19 +393,19 @@ plr_race_ptr mon_troll_get_race(int psubrace)
         me->hooks.birth = _birth;
 
         me->flags = RACE_IS_MONSTER;
-        me->boss_r_idx = MON_ULIK;
-        me->pseudo_class_idx = CLASS_WARRIOR;
+        me->boss_r_idx = mon_race_parse("T.Ulik")->id;
+        me->pseudo_class_id = CLASS_WARRIOR;
     }
 
     me->subid = psubrace;
-    me->subname = mon_name(p_ptr->current_r_idx);
-    me->stats[A_STR] =  3 + p_ptr->lev/12;
+    me->subname = mon_name(plr->current_r_idx);
+    me->stats[A_STR] =  3 + plr->lev/12;
     me->stats[A_INT] = -5;
     me->stats[A_WIS] = -5;
-    me->stats[A_DEX] = -2 + p_ptr->lev/20;
-    me->stats[A_CON] =  3 + p_ptr->lev/13;
+    me->stats[A_DEX] = -2 + plr->lev/20;
+    me->stats[A_CON] =  3 + plr->lev/13;
     me->stats[A_CHR] =  0;
-    me->life = 100 + (p_ptr->lev/10)*4;
+    me->life = 100 + (plr->lev/10)*4;
 
     if (birth_hack || spoiler_hack)
     {
@@ -466,6 +413,6 @@ plr_race_ptr mon_troll_get_race(int psubrace)
         me->subdesc = _info[psubrace].desc;
     }
 
-    me->equip_template = mon_get_equip_template();
+    me->equip_template = plr_equip_template();
     return me;
 }

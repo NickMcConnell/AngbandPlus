@@ -8,12 +8,6 @@
  * are included in all such copies.
  */
 
-/* Sorry, but I cannot get QtCreator to recognize that this *is* actually being set, probably
-   because it doesn't know to check out CFLAGS in ../mk/buildsys.mk where HAVE_CONFIG_H is defined
-   so that h-basic.h knows to #include "autoconf.h" so that USE_X11 gets defined. Unbelievable! :)
-   If you are having compile problems, just comment this out.
-#define USE_X11 */
-
 #ifdef USE_X11
 
 #include <math.h>
@@ -331,7 +325,10 @@ static XImage *ReadBMP(Display *dpy, char *Name)
 				/* Verify not at end of file XXX XXX */
 				if (feof(f)) quit_fmt("Unexpected end of file in %s", Name);
 
-				XPutPixel(Res, x, y2, create_pixel(dpy, ch, c2, c3));
+                if (Res->red_mask == 0xFF0000 && Res->green_mask == 0xFF00 && Res->blue_mask == 0xFF)
+                    XPutPixel(Res, x, y2, (c3 << 16) | (c2 << 8) | ch);
+                else /* really slow ... XAllocColor must be an IPC or some such ... */
+                    XPutPixel(Res, x, y2, create_pixel(dpy, c3, c2, ch));
 			}
 			else if (infoheader.biBitCount == 8)
 			{

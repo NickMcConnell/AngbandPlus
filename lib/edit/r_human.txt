@@ -1,0 +1,2175 @@
+# Humans (including elves, dwarves and hobbits)
+# cf r_amber.txt, r_camelot.txt, r_stronghold.txt
+
+########################################################################
+# Townsfolk (t)
+T:t.base:Townsfolk
+I:DISPLAY(t):POS(CORPSE|SKELETON)
+I:KIND(HUMAN):ATTR(MALE)
+I:WILD(ONLY|TOWN):MOVE(OPEN|PICKUP)
+P:Stat:Str(-2):Int(-1):Wis(-1):Dex(-1):Con(-1):Chr(-2)
+P:Skill:Dis(15+25):Dev(15+35):Sav(20+30):Stl(1):Srh(10):Fos(10):Thn(30+25):Thb(30+25)
+P:Class:Warrior
+P:Life:70
+P:Weight:160
+
+N:t.urchin:t.base:Filthy street urchin
+I:LVL(0):RARITY(2)
+I:HP(1d4):AC(1):EXP(0):EVOLVE(t.agent, 10)
+I:KIND(THIEF):ALIGN(Neutral Evil)
+I:ALERT(40',Unseeing):MOVE(RAND_25)
+B:BEG
+B:TOUCH:EAT_GOLD
+M:2d3:MON(t.urchin)
+M:50%:MON(C.dog.scruffy)
+D:He looks squalid and thoroughly revolting.
+I:COLOR(Light Dark)
+P:Weight:60
+
+N:t.idiot:t.base:Blubbering idiot
+I:LVL(0):RARITY(1)
+I:HP(1d2):AC(1):EXP(0):EVOLVE(t.lunatic, 10)
+I:ALERT(60',Ever Vigilant):MOVE(RAND_25)
+B:DROOL
+D:He tends to blubber a lot.
+I:COLOR(Light White)
+P:Stat:Int(-10)
+
+N:t.hobo:t.base:Hobo
+I:LVL(0):RARITY(1)
+I:HP(1d2):AC(1):EXP(0)
+I:ALERT(60',Ever Vigilant):MOVE(RAND_25)
+B:DROOL
+M:50%:MON(t.drunk)
+D:Ugly doesn't begin to describe him.
+I:COLOR(Green)
+
+N:t.lunatic:t.base:Raving lunatic
+I:LVL(0):RARITY(1)
+I:SPEED(+3):HP(4d4):AC(1):EXP(0)
+I:ALERT(60',Ever Vigilant):MOVE(RAND_25)
+B:DROOL
+D:Drooling and comical, but then, what do you expect?
+I:COLOR(Light Green)
+P:Stat:Int(-10)
+
+N:t.beggar:t.base:Pitiful looking beggar
+I:LVL(0):RARITY(1)
+I:HP(1d4):AC(1):EXP(0):EVOLVE(t.agent, 10)
+I:ALERT(100',Unseeing):MOVE(RAND_25)
+B:BEG
+D:You just can't help feeling sorry for him.
+I:COLOR(Light Umber)
+
+N:t.leper:t.base:Mangy looking leper
+I:LVL(0):RARITY(1)
+I:HP(1):AC(1):EXP(0)
+I:ALERT(100',Overlooks):MOVE(RAND_25)
+B:BEG
+B:TOUCH:DISEASE
+D:You feel it isn't safe to touch him.
+I:COLOR(Umber)
+P:Stat:Con(-5)
+
+N:t.agent:t.base:Agent of black market
+I:LVL(0):RARITY(1):WILD(SWAMP|WOOD|GRASS|MOUNTAIN)
+I:HP(2d8):AC(8):EXP(0):EVOLVE(p.novice rogue, 10)
+I:KIND(THIEF):ALIGN(Evil):ALERT(100',Very Inattentive)
+B:HIT:HURT(1d6)
+B:TOUCH:EAT_ITEM
+O:60%:OBJ(*$)
+D:He 'finds' new wares for the Black Market ... from unwary adventurers!
+I:COLOR(Light Dark)
+P:Copy:Human:Rogue
+P:Stats:-2:0:0:0:-1:-1
+P:Life:65
+
+N:t.drunk:t.base:Singing, happy drunk
+I:LVL(0):RARITY(1)
+I:HP(2d3):AC(1):EXP(0)
+I:LIGHT(0+1):ALERT(100',Ever Vigilant):MOVE(RAND_50)
+B:BEG
+O:60%:OBJ(GOLD)
+M:50%:MON(t.hobo)
+D:He makes you glad to be sober.
+I:COLOR(Yellow)
+
+N:t.merchant:t.base:Aimless looking merchant
+I:LVL(0):RARITY(1)
+I:HP(3d3):AC(1):EXP(0)
+I:LIGHT(0+1):ALERT(100',Ignores):MOVE(RAND_50)
+B:HIT:HURT(1d5)
+O:60%:OBJ(GOLD)
+D:The typical ponce around town, with purse jingling, and looking for more
+D:amulets of adornment to buy.
+I:COLOR(Orange)
+
+N:t.mercenary:t.base:Mean looking mercenary
+I:LVL(0):RARITY(1):WILD(GRASS|WOOD)
+I:HP(5d8):AC(20):EXP(0):EVOLVE(p.novice warrior, 8)
+I:ALIGN(Evil):LIGHT(0+1)
+I:ALERT(100',Ignores):MOVE(RAND_50|BASH)
+B:HIT:HURT(1d10)
+O:90%:OBJ(*$)
+D:No job is too low for him.
+I:COLOR(Light Red)
+P:Copy:Human:Warrior
+P:Stats:-2:0:0:0:-1:-1
+P:Life:75
+P:Weight:225
+
+N:t.veteran:t.base:Battle scarred veteran
+I:LVL(0):RARITY(1)
+I:HP(7d8):AC(30):EXP(0):EVOLVE(p.novice warrior, 8)
+I:LIGHT(0+1):ALERT(100',Ignores):MOVE(RAND_50|BASH)
+B:HIT:HURT(2d6)
+O:90%:OBJ(*$)
+D:He doesn't take to strangers kindly.
+I:COLOR(Red)
+P:Copy:Human:Warrior
+P:Stats:-1:0:0:0:-1:-1
+P:Life:75
+P:Weight:225
+
+########################################################################
+# Human (p)
+T:p.base:Human
+I:DISPLAY(p):POS(CORPSE|SKELETON)
+I:WILD(ALL|TOWN)
+I:KIND(HUMAN):LIGHT(0+2):ATTR(MALE)
+I:ALERT(200', Fairly Observant):MOVE(OPEN|BASH|PICKUP|SWIM)
+P:Stat:Str(0):Int(0):Wis(0):Dex(0):Con(0):Chr(0)
+P:Skill:Dis(20+35):Dev(18+35):Sav(20+30):Stl(1):Srh(10):Fos(10):Thn(30+45):Thb(30+45)
+P:Class:Warrior
+P:Weight:170
+
+T:p.monk:p.base:Monk
+I:SPEED(+10):CAN(REVENGE):ALERT(300',Observant):POS(GAIN_AC)
+I:RESIST(CONF):IMMUNE(SLEEP)
+P:Copy:Dunadan:Mystic
+P:Body:Monk
+P:Speed:+5
+
+N:p.woodsman:p.base:Woodsman
+I:LVL(0):RARITY(1)
+I:HP(3d3):AC(1):EXP(0):EVOLVE(p.novice ranger, 100)
+I:ALERT(100',Ignores):MOVE(RAND_25)
+B:HIT(x2):HURT(1d6)
+O:60%:OBJ(GOLD)
+D:He has an axe with a sharp and strong edge.
+I:COLOR(Green)
+P:Life:80
+
+N:p.novice rogue:p.base:Novice rogue
+I:LVL(2,30):RARITY(1)
+I:HP(8d4):AC(12):EXP(8):EVOLVE(p.bandit, 50)
+I:KIND(THIEF):ALIGN(Evil):ALERT(Observant)
+B:HIT(x2):HURT(1d5)
+B:TOUCH:EAT_GOLD
+O:50%:DROP_ROGUE
+O:50%:OBJ(GOLD)
+D:A rather shifty individual.
+P:Copy:Human:Rogue
+P:Life:85
+I:COLOR(Light Dark)
+
+N:p.novice mage:p.base:Novice mage
+I:LVL(3,40):RARITY(2)
+I:HP(6d4):AC(6):EXP(7):EVOLVE(p.illusionist, 100)
+B:HIT:HURT(1d4)
+S:1_IN_12 | BLINK | BLIND | CONFUSE | MISSILE | DETECT_MONSTERS
+O:60%:DROP_MAGE
+M:50%:1d3:MON(p.novice mage)
+M:25%:1d3:MON(p.novice warrior)
+M:10%:1d3:MON(p.novice priest)
+D:He is leaving behind a trail of dropped spell components.
+I:COLOR(Light Red)
+P:Copy:Human:Mage
+P:Life:85
+P:Weight:150
+
+N:p.novice priest:p.base:Novice priest
+I:LVL(4,40):RARITY(2)
+I:HP(7d4):AC(10):EXP(7):EVOLVE(p.priest, 100)
+I:ALIGN(Good)
+B:HIT:HURT(1d5+2)
+S:1_IN_12 | HEAL | SCARE | CAUSE_1 | DETECT_EVIL | BLESS
+M:50%:1d3:MON(p.novice priest)
+M:25%:1d3:MON(p.novice warrior)
+M:10%:1d3:MON(p.novice mage)
+O:60%:DROP_PRIEST
+D:He is tripping over his priestly robes.
+I:COLOR(Light Blue)
+P:Copy:Human:Priest
+P:Life:85
+
+N:p.novice warrior:p.base:Novice warrior
+I:LVL(4,40):RARITY(2)
+I:HP(9d4):AC(16):EXP(6):EVOLVE(p.swordsman, 70)
+B:HIT(x3):HURT(1d8)
+O:60%:DROP_WARRIOR
+M:50%:1d3:MON(p.novice warrior)
+M:25%:1d3:MON(p.novice mage)
+M:25%:1d3:MON(p.novice priest)
+M:10%:MON(HORSE)
+D:He looks inexperienced but tough.
+I:COLOR(Light Umber)
+P:Copy:Human:Warrior
+P:Life:85
+P:Weight:190
+
+N:p.novice archer:p.base:Novice archer
+I:LVL(6,40):RARITY(2)
+I:SPEED(+10):HP(6d8):AC(10):EXP(20):EVOLVE(p.knight archer, 140)
+I:ALERT(Observant)
+B:HIT(x2):HURT(1d5)
+S:FREQ_20 | SHOOT(2d5)
+O:1d2:DROP_ARCHER
+D:A nasty little fellow with a bow and arrow.
+I:COLOR(Light Green)
+P:Copy:Human:Archer
+P:Life:85
+
+N:p.novice ranger:p.base:Novice ranger
+I:LVL(6,40):RARITY(1)
+I:HP(6d8):AC(6):EXP(18):EVOLVE(p.ranger, 500)
+I:ALERT(Observant)
+B:HIT(x2):HURT(1d7)
+S:1_IN_9 | SHOOT(2d7) | MISSILE | DETECT_MONSTERS | MAPPING
+O:60%:DROP_ARCHER
+M:50%:1d3:MON(p.novice ranger)
+M:50%:1d5:MON(ANIMAL_RANGER)
+D:An agile hunter, ready and relaxed.
+I:COLOR(Green)
+P:Copy:Human:Ranger
+P:Life:85
+
+N:p.novice paladin:p.base:Novice paladin
+I:LVL(6,40):RARITY(2)
+I:HP(6d8):AC(16):EXP(20):EVOLVE(p.paladin, 500)
+I:KIND(KNIGHT):ALIGN(Good):ALERT(Unseeing)
+B:HIT(x2):HURT(2d4)
+S:1_IN_9 | SCARE | CAUSE_1 | DETECT_EVIL | BLESS
+O:60%:DROP_PALADIN
+M:50%:1d5:MON(p.novice paladin)
+M:25%:1d5:MON(p.novice priest)
+D:He thinks you are an agent of the devil.
+I:COLOR(White)
+P:Copy:Human:Paladin
+P:Life:85
+
+N:p.novice mindcrafter:p.base:Novice mindcrafter
+I:LVL(6,50):RARITY(1)
+I:HP(6d8):AC(10):EXP(18):EVOLVE(p.mindcrafter, 600)
+I:ALERT(Observant)
+B:HIT:HURT(1d6)
+I:RESIST(CONF):IMMUNE(SLEEP)
+S:1_IN_12 | BLIND | SLOW | CONFUSE | SCARE | DETECT_MONSTERS | MAPPING
+O:60%:OBJ(*$)
+M:50%:1d5:MON(p.novice mindcrafter)
+M:10%:1d3:MON(p.novice mage)
+D:A novice in the arts of mind over matter.
+I:COLOR(Yellow)
+P:Copy:Human:Mindcrafter
+P:Life:85
+
+N:p.bandit:p.base:Bandit
+I:LVL(8,40):RARITY(2)
+I:HP(8d8):AC(24):EXP(26):EVOLVE(p.tax collector, 100)
+I:KIND(THIEF):ALIGN(Evil)
+B:HIT:HURT(1d6+3)
+B:TOUCH:EAT_GOLD
+O:1d2:DROP_ROGUE
+O:50%:1d2:OBJ(GOLD)
+M:25%:1d3:MON(p.novice rogue)
+D:He is after your cash!
+I:COLOR(Light Dark)
+P:Copy:Human:Rogue
+P:Life:90
+
+N:p.tax collector:p.base:Tax collector
+I:LVL(10,40):RARITY(3)
+I:HP(9d8):AC(32):EXP(35):EVOLVE(p.master rogue, 500)
+I:KIND(THIEF):ALIGN(Evil)
+B:TOUCH:EAT_GOLD
+B:TOUCH:EAT_ITEM
+O:1d2:OBJ(*$)
+O:50%:1d2:OBJ(GOLD)
+M:25%:1d3:MON(p.novice rogue)
+D:He is eyeing your purse suspiciously.
+I:COLOR(Light Dark)
+P:Copy:Human:Rogue
+P:Life:90
+
+N:p.swordsman:p.base:Swordsman
+I:LVL(12,50):RARITY(1)
+I:HP(12d8):AC(34):EXP(40):EVOLVE(p.hardened warrior, 400)
+I:ALERT(Fairly Unseeing)
+B:HIT(x2):HURT(2d4+5):CUT(1d3, 5%)
+O:1d2:DROP_WARRIOR
+M:50%:1d3:MON(p.novice warrior)
+D:A warrior of considerable skill.
+I:COLOR(Light Umber)
+P:Copy:Barbarian:Warrior
+P:Life:90
+
+N:p.knight archer:p.base:Knight archer
+I:LVL(12,50):RARITY(1)
+I:HP(11d10):AC(40):EXP(40)
+B:HIT(x2):HURT(1d4+5)
+S:1_IN_8 | SHOOT(4d6)
+O:1d2:DROP_WARRIOR_SHOOT
+M:50%:1d3:MON(p.novice archer)
+D:A warrior trained in melee as well as missile weapons.
+I:COLOR(Light Umber)
+P:Copy:Human:Archer
+
+N:p.priest:p.base:Priest
+I:LVL(12,50):RARITY(1)
+I:HP(12d8):AC(22):EXP(50):EVOLVE(p.clairvoyant, 800)
+I:ALIGN(Good):ATTR(SMART):ALERT(Unseeing)
+B:HIT(x2):HURT(1d3+2)
+S:1_IN_3 | HEAL | SCARE | HOLY_ORB(17) | S_MONSTER(1) | DETECT_EVIL | BLESS
+O:1d2:DROP_PRIEST
+M:50%:1d3:MON(p.novice priest)
+D:A robed humanoid dedicated to his god.
+I:COLOR(Light Blue)
+P:Copy:Dunadan:Priest
+
+N:p.time initiate:p.base:Time Initiate
+I:LVL(15,40):RARITY(3)
+I:SPEED(+6):HP(7d8):AC(10):EXP(50)
+I:ALERT(Fairly Unseeing)
+B:HIT(x3):HURT(1d4)
+O:60%:OBJ(*$)
+S:FREQ_20 | HASTE | SLOW
+D:A human, clothed in a blue robe, moving with speed uncanny.
+I:COLOR(Blue)
+P:Copy:Human:Time-Lord
+
+N:p.illusionist:p.base:Illusionist
+I:LVL(15,50):RARITY(2)
+I:HP(12d8):AC(10):EXP(50):EVOLVE(p.mage, 500)
+I:ALIGN(Neutral Evil):ATTR(SMART|IM_ILLUSION)
+B:HIT:HURT(2d2)
+S:1_IN_3 | HASTE | BLINK | TELE_SELF | BLIND | PARALYZE | SLOW | CONFUSE
+S:DARKNESS | DETECT_MONSTERS
+O:1d2:DROP_MAGE
+M:50%:1d3:MON(p.novice mage)
+D:A deceptive spell caster.
+I:COLOR(Violet)
+P:Copy:Dunadan:Mage
+
+N:p.druid:p.base:Druid
+I:LVL(13,50):RARITY(2)
+I:HP(12d12):AC(10):EXP(50):EVOLVE(p.jade monk, 700)
+I:ATTR(SMART)
+B:HIT(x2):HURT(1d4+2)
+O:1d2:OBJ(*$)
+S:1_IN_3 | HASTE | BLINK | BLIND | PARALYZE | SLOW | BO_FIRE | BO_ELEC
+S:DETECT_MONSTERS | MAPPING
+D:A mystic at one with nature. Om.
+I:COLOR(Green)
+P:Copy:Human:Priest
+
+N:p.berserker:p.base:Berserker
+I:LVL(16,80):RARITY(3)
+I:SPEED(+3):HP(22d10):AC(68):EXP(50)
+I:ALERT(Fairly Unseeing)
+B:HIT(x8):HURT(1d7+2)
+I:IMMUNE(FEAR)
+S:FREQ_50 | BERSERK
+O:1d2:DROP_WARRIOR
+M:50%:1d3:MON(p.swordsman)
+D:A warrior in a battle-frenzy; he'll stop only when he drops.
+I:COLOR(Umber)
+P:Copy:Dunadan:Mauler
+P:Life:75
+P:Speed:+3
+P:Weight:190
+
+N:p.paladin:p.base:Paladin
+I:LVL(20,80):RARITY(1)
+I:HP(15d11):AC(40):EXP(55):EVOLVE(p.white knight, 800)
+I:KIND(KNIGHT):ALIGN(Good):ALERT(Unseeing)
+B:HIT(x2):HURT(2d5+5)
+S:1_IN_4 | HEAL | CAUSE_1 | CAUSE_2 | SLOW | SCARE | BLIND | DETECT_EVIL
+S:MAPPING | BLESS | PROT_EVIL
+O:1d2:DROP_PALADIN
+M:50%:1d3:MON(p.novice paladin)
+D:A warrior for a holy cause. Unfortunately, his god is not yours, and there is
+D:rivalry even between the various gods of Good, so he is your enemy.
+I:COLOR(White)
+P:Copy:Human:Paladin
+
+N:p.ranger:p.base:Ranger
+I:LVL(20,80):RARITY(1)
+I:HP(15d11):AC(40):EXP(55)
+B:HIT(x2):HURT(2d4+7)
+S:1_IN_4 | SHOOT(5d6) | MISSILE | S_ANIMAL(1d2) | BO_ELEC | BLINK
+S:DETECT_MONSTERS | MAPPING
+O:1d2:DROP_ARCHER
+M:50%:1d3:MON(p.ranger)
+M:50%:1d3:MON(ANIMAL_RANGER)
+D:A warrior who is at one with nature. A master of both bow and sword, with
+D:minor spellcasting skills, and animals come to do his bidding.
+I:COLOR(Green)
+P:Copy:Human:Ranger
+
+N:p.mindcrafter:p.base:Mindcrafter
+I:LVL(22,60):RARITY(2)
+I:HP(12d11):AC(30):EXP(50):EVOLVE(p.master mindcrafter, 5000)
+I:ALIGN(Evil)
+B:HIT(x2):HURT(3d4)
+S:1_IN_4 | CONFUSE | BLIND | PARALYZE | SLOW | MIND_BLAST | BLINK
+S:DETECT_MONSTERS | MAPPING
+O:90%:OBJ(*$)
+M:50%:1d3:MON(p.novice mindcrafter)
+D:A master of the mental arts, able to damage or dominate the minds of others.
+I:COLOR(Yellow):POS(TELEPATHY)
+P:Copy:Dunadan:Mindcrafter
+
+N:J.man:p.base:Serpent man
+I:LVL(22,70):RARITY(3)
+I:SPEED(+5):HP(15d10):AC(40):EXP(75)
+I:ALIGN(Evil):ALERT(200',Fairly Unseeing)
+B:BITE(x2):HURT(2d5+3):POISON(2d5)
+I:RESIST(ACID|POIS)
+S:1_IN_8 | BA_POISON | S_MONSTER(1) | SCARE | PARALYZE |
+O:1d3:OBJ(*$)
+M:2d3:MON(J.man)
+D:"They walked lithely and sinuously erect on pre-mammalian
+D:members, their pied and hairless bodies bending with great
+D:suppleness. There was a loud hissing of formulae as they
+D:went to and fro."
+I:DISPLAY(J,Green)
+P:Copy:Human:Rogue
+P:Life:90
+
+N:p.hardened warrior:p.base:Hardened warrior
+I:LVL(23,50):RARITY(1):ALLOC(ESCORT)
+I:HP(15d11):AC(40):EXP(60):EVOLVE(p.dagashi, 2500)
+I:ALIGN(Neutral Evil):ALERT(Unseeing)
+B:HIT(x2):HURT(2d5+3)
+O:1d2:DROP_WARRIOR
+M:50%:2d3:MON(p.hardened warrior, ANCESTOR | SAME)
+D:A scarred warrior who moves with confidence.
+I:COLOR(Umber)
+P:Copy:Dunadan:Warrior
+
+N:p.master rogue:p.base:Master rogue
+I:LVL(23,60):RARITY(2):ALLOC(ESCORT)
+I:SPEED(+10):HP(15d9):AC(30):EXP(110):EVOLVE(p.master thief, 2500)
+I:KIND(THIEF):ALIGN(Evil):ALERT(Observant)
+B:HIT(x2):HURT(1d6+6)
+B:HIT:HURT(2d4+5):EAT_GOLD
+O:1d2+1:DROP_ROGUE
+O:1d3:OBJ(GOLD)
+M:50%:1d3:MON(p.master rogue, ANCESTOR | SAME)
+D:A thief of great power and shifty speed.
+I:COLOR(Light Dark)
+P:Copy:Dunadan:Rogue
+P:Life:95
+P:Speed:+5
+
+N:p.ninja:p.base:Ninja
+I:LVL(25,70):RARITY(2)
+I:SPEED(+10):HP(13d12):AC(60):EXP(300)
+I:ALIGN(Evil):CAN(INVIS):MOVE(QUICK):LIGHT(0)
+B:HIT:HURT(1d4+5):POISON(3d4)
+B:HIT:HURT(1d4+5):LOSE_STR(50%)
+B:HIT:HURT(1d4+5):DAM(1d50, 10%)
+I:RESIST(CONF):IMMUNE(POIS|SLEEP)
+S:FREQ_30 | SHOOT(20d1) | JMP_CONFUSION | JMP_FIRE | JMP_POISON
+O:1d2:DROP_NINJA
+D:A humanoid clothed in black who moves with blinding speed.
+I:COLOR(Light Dark)
+P:Copy:Human:Ninja
+P:Speed:+10
+
+N:p.samurai:p.base:Samurai
+I:LVL(25,60):RARITY(2)
+I:HP(40d10):AC(60):EXP(350)
+I:ALIGN(Good)
+B:SLASH:HURT(2d6):ELEC(8d6, 25%):CUT(1d4, 50%)
+B:SLASH:HURT(2d6):FIRE(4d6, 50%):CUT(1d4, 50%)
+O:90%:DROP_SAMURAI
+D:A warrior clad in ornate but effective armour, holding a katana so sharp it
+D:can cut your throat and you won't notice till you nod.
+I:COLOR(Slate)
+P:Copy:Dunadan:Warrior
+
+# XXX Not sure what this is ...
+N:p.yukionna:Yukionna
+I:LVL(27,60):RARITY(2)
+I:HP(30d10):AC(20):EXP(300)
+I:KIND(NONLIVING):ATTR(FEMALE):ALERT(200',Fairly Unseeing)
+B:TOUCH(x3):COLD(3d5)
+A:COLD(2d2)
+I:RESIST(COLD)
+S:1_IN_5 | BR_COLD | BO_COLD | BA_COLD
+O:1d2:OBJ(*$)
+I:DISPLAY(p,White)
+P:Copy:Dunadan:Warrior-Mage
+P:Weight:170
+
+N:p.trap master:p.base:Trap master
+I:LVL(28,70):RARITY(5)
+I:SPEED(+15):HP(30d10):AC(70):EXP(240)
+I:ALIGN(Evil):ALERT(Ever Vigilant)
+S:1_IN_2 | TRAPS | BLINK
+O:1d2:DROP_ROGUE
+O:2d3:OBJ(GOLD)
+I:COLOR(Blue)
+P:Copy:Human:Rogue
+P:Speed:+10
+
+N:p.black knight:p.base:Black knight
+I:LVL(28):RARITY(1)
+I:SPEED(+10):HP(30d10):AC(70):EXP(240):EVOLVE(p.anti-paladin, 1800)
+I:ALIGN(Evil)
+B:HIT(x3):HURT(3d5+6)
+S:1_IN_8 | BLACK_LANCE(44) | BLIND | SCARE | CAUSE_3 | DARKNESS | HEROISM
+O:1d2:DROP_PALADIN_EVIL
+D:He is a figure encased in deep black plate armour; he looks at you menacingly.
+I:COLOR(Light Dark)
+P:Copy:Dunadan:Paladin
+
+N:p.clairvoyant:p.base:Clairvoyant
+I:LVL(28,80):RARITY(3)
+I:SPEED(+10):HP(25d10):AC(50):EXP(250):EVOLVE(p.archpriest, 6000)
+I:ALIGN(Evil):ATTR(SMART):ALERT(1000')
+B:HIT:HURT(2d5+9):CONFUSE
+B:HIT:HURT(2d5+9):TERRIFY
+S:1_IN_8 | BLIND | MIND_BLAST | PARALYZE | CAUSE_3 | AMNESIA | S_MONSTER(1)
+O:1d2:OBJ(*$)
+D:He is using his supernatural talents to bring about your destruction.
+I:COLOR(Light Blue):POS(TELEPATHY)
+P:Copy:Dunadan:Mindcrafter
+
+N:p.mage:p.base:Mage
+I:LVL(28,70):RARITY(1)
+I:HP(15d8):AC(40):EXP(150):EVOLVE(p.ipsissimus, 2500)
+I:ATTR(SMART)
+B:HIT(x2):HURT(1d5+3)
+B:TOUCH:DRAIN_MANA(2d6)
+S:1_IN_3 | HASTE | TELE_SELF | TELE_TO | BLIND | CONFUSE | BO_FIRE | BO_COLD | BO_ELEC
+S:S_MONSTER(1) | DETECT_MONSTERS | DETECT_TRAPS | IDENTIFY
+O:1d2:DROP_MAGE
+M:50%:1d3:MON(p.novice mage)
+D:A fat mage with glasses.
+I:COLOR(Red)
+P:Copy:Dunadan:Mage
+
+N:p.white knight:p.base:White knight
+I:LVL(28,60):RARITY(1)
+I:SPEED(+10):HP(30d10):AC(70):EXP(240):EVOLVE(p.ultra-elite paladin, 6000)
+I:KIND(KNIGHT):ALIGN(Good)
+B:HIT(x3):HURT(5d5)
+S:1_IN_8 | CONFUSE | PARALYZE | CAUSE_3 | HEAL | DETECT_EVIL | MAPPING | BLESS | PROT_EVIL
+O:1d2:DROP_PALADIN
+M:50%:1d3:MON(p.paladin)
+D:A knight wrapped in plate armor of pure white. He stares at you menacingly.
+# Description in English by Nick Keulmann
+I:COLOR(White)
+P:Copy:Human:Paladin
+
+N:p.fearmaster:p.base:Fearmaster
+I:LVL(29,80):RARITY(3)
+I:SPEED(+10):HP(100d10):AC(80):EXP(1000):EVOLVE(p.grand fearlord, 120000)
+I:CAN(FEAR):ALERT(Fairly Unseeing):DARK(0+2)
+B:HIT(x2):HURT(2d8+8):TERRIFY:LOSE_CHR(50%)
+I:IMMUNE(FEAR)
+S:FREQ_30 | SCARE
+O:1d2+1:OBJ(*, GOOD)
+D:A human, covered in bleached leather and decorated with bones of foes defeated.
+D:The sight of him puts fear deep into your heart.
+I:COLOR(Umber)
+P:Copy:Human:Beastmaster
+
+N:p.jade monk:p.monk:Jade monk
+I:LVL(30,80):RARITY(2)
+I:HP(54d12):AC(46):EXP(800)
+B:MONK(x4)
+I:RESIST(ELEC|FIRE|COLD|POIS)
+S:1_IN_6 | BO_ELEC | DETECT_MONSTERS | MAPPING
+O:1d3:OBJ(*$)
+D:A green-garbed monk, trained in martial arts.
+I:COLOR(Light Green)
+
+N:p.mystic:p.monk:Mystic
+I:LVL(33):RARITY(3)
+I:HP(350):AC(50):EXP(500):EVOLVE(p.master mystic, 10000)
+I:ALIGN(Good):CAN(INVIS)
+B:MONK(x5)
+I:RESIST(ACID|POIS)
+S:1_IN_6 | HEAL | S_SPIDER | DETECT_MONSTERS | MAPPING
+O:1d2:OBJ(*)
+D:An adept at unarmed combat, the mystic strikes with stunning power. He can
+D:summon help from nature and is able to focus his power to ease any pain.
+I:COLOR(Orange):POS(SEE_INVIS)
+
+N:p.ivory monk:p.monk:Ivory monk
+I:LVL(33,80):RARITY(1)
+I:HP(42d13):AC(51):EXP(900):EVOLVE(p.mystic, 2000)
+B:MONK(x5)
+I:RESIST(FIRE|POIS)
+S:1_IN_7 | HEAL | DETECT_MONSTERS | MAPPING
+O:1d2+1:OBJ(*$)
+D:A monk in white robes. He is skilled in martial arts.
+I:COLOR(White)
+P:Speed:+7
+
+N:p.logrus master:p.monk:Logrus master
+I:LVL(33,80):RARITY(3)
+I:HP(30d10):AC(50):EXP(1000):EVOLVE(p.lord of chaos, 150000)
+I:ALIGN(Evil):CAN(INVIS)
+B:MONK(Monk.Chaos,x5)
+I:RESIST(ACID|POIS|CHAOS)
+O:1d2:OBJ(*)
+S:1_IN_6 | HEAL | DETECT_MONSTERS | MAPPING | S_SPIDER | BA_CHAOS | S_DEMON
+D:An adept of chaos, feared for his skill of invoking raw Logrus.
+I:DISPLAY(,Violet,ATTR_ANY):POS(SEE_INVIS)
+P:Speed:+7
+
+N:p.anti-paladin:p.base:Anti-paladin
+I:LVL(33,90):RARITY(2)
+I:SPEED(+10):HP(30d20):AC(50):EXP(450):EVOLVE(p.death knight, 5000)
+I:ALIGN(Chaotic):ALERT(300',Fairly Unseeing)
+B:HIT(x3):HURT(1d6+1)
+I:RESIST(COLD|CONF|POIS):IMMUNE(SLEEP)
+S:FREQ_25 | HELL_LANCE(66) | PARALYZE | SCARE | BLIND | CAUSE_3 | HASTE | HEROISM | PROT_GOOD
+O:1d2:DROP_PALADIN_EVIL
+M:50%:1d3:MON(p.black knight)
+D:An embodiment of all the cardinal vices, he beholds you scornfully.
+I:COLOR(Light Dark)
+P:Copy:Dunadan:Paladin
+
+N:p.master thief:p.base:Master thief
+I:LVL(34,70):RARITY(2):ALLOC(ESCORT)
+I:SPEED(+20):HP(18d10):AC(30):EXP(350):EVOLVE(p.grand master thief, 3000)
+I:KIND(THIEF):ALIGN(Evil)
+B:HIT(x2):HURT(1d6+4)
+B:HIT:HURT(1d4+7):EAT_GOLD
+B:HIT:HURT(1d5+12):EAT_ITEM
+O:1d2+1:DROP_ROGUE
+O:3d2:OBJ(GOLD)
+M:50%:1d3:MON(p.master thief, ANCESTOR | SAME)
+D:Cool and confident, fast and lithe; protect your possessions quickly!
+I:COLOR(Light Dark)
+P:Copy:Dunadan:Rogue
+P:Life:95
+P:Speed:+10
+
+N:p.dagashi:p.base:Dagashi
+I:LVL(35,80):RARITY(4)
+I:SPEED(+10):HP(13d25):AC(70):EXP(500)
+I:ALIGN(Neutral Evil)
+B:HIT:HURT(2d4):POISON(1d4)
+B:HIT(x2):HURT(2d4+3):LOSE_STR(50%)
+B:HIT:HURT(2d4):POISON(1d4)
+I:RESIST(CONF):IMMUNE(SLEEP)
+O:1d2:DROP_WARRIOR
+D:A human warrior moving with lightning speed.
+I:COLOR(Yellow)
+P:Copy:Dunadan:Warrior
+P:Speed:+7
+
+N:p.topaz monk:p.monk:Topaz monk
+I:LVL(35):RARITY(2)
+I:HP(59d11):AC(46):EXP(800)
+B:MONK(x5)
+I:RESIST(BASE|POIS)
+S:1_IN_9 | HASTE | DETECT_MONSTERS | MAPPING
+O:1d3:OBJ(*$)
+D:A yellow-garbed monk trained in martial arts.
+I:COLOR(Yellow)
+P:Speed:+7
+
+N:p.ebony monk:p.monk:Ebony monk
+I:LVL(36,90):RARITY(3)
+I:SPEED(+10):HP(63d11):AC(57):EXP(1100)
+B:MONK(Monk.Death,x5)
+I:RESIST(COLD|POIS|NETHER)
+S:1_IN_9 | BO_NETHER | DETECT_MONSTERS | MAPPING
+O:1d3:OBJ(*$)
+D:A monk in dusky robes trained in the most lethal martial arts.
+I:COLOR(Light Dark)
+P:Speed:+7
+
+N:p.ipsissimus:p.base:Ipsissimus
+I:LVL(36):RARITY(2)
+I:HP(364):AC(50):EXP(666):EVOLVE(p.sorcerer, 6000)
+I:ALIGN(Evil):ATTR(SMART)
+B:HIT(x2):HURT(1d6+3)
+S:1_IN_3 | HASTE | TELE_SELF | TELE_TO | BLIND | PARALYZE | SCARE | CAUSE_3 | AMNESIA
+S:BO_NETHER | MIND_BLAST | S_UNDEAD | S_DEMON | ANIM_DEAD | DETECT_MONSTERS | MAPPING
+O:1d2:DROP_PRIEST_EVIL
+D:A gaunt figure clothed in black robes.
+I:COLOR(Light Dark)
+P:Copy:Human:Priest
+
+N:p.demonologist:p.base:Demonologist
+I:LVL(36,70):RARITY(2)
+I:SPEED(+10):HP(280):AC(50):EXP(700)
+I:ALIGN(Evil):ATTR(SMART)
+B:HIT(x3):HURT(2d6)
+S:FREQ_30 | TELE_SELF | PARALYZE | S_DEMON
+O:1d2:OBJ(*)
+D:A figure twisted by evil standing in robes of deepest crimson.
+I:COLOR(Light Red)
+P:Copy:Human:Chaos-Warrior
+
+N:p.death knight:p.base:Death knight
+I:LVL(38):RARITY(2)
+I:SPEED(+10):HP(600):AC(100):EXP(1111):EVOLVE(p.hell knight, 15000)
+I:ALIGN(Evil):ATTR(SMART)
+B:HIT(x3):HURT(2d6+14)
+B:HIT:DRAIN_EXP(20d6)
+I:RESIST(COLD|NETHER)
+S:1_IN_5 | BLIND | SCARE | CAUSE_3 | BO_NETHER | S_MONSTER
+S:DETECT_MONSTERS | MAPPING | BLESS | PROT_GOOD
+O:1d2+2:DROP_PALADIN_EVIL
+M:50%:1d3:MON(p.death knight, ANCESTOR)
+D:It is a humanoid form dressed in armour of an ancient form. From beneath its
+D:helmet, eyes glow a baleful red and seem to pierce you like lances of fire.
+I:COLOR(Slate)
+P:Copy:Dunadan:Paladin
+
+N:p.enchantress:p.base:Enchantress
+I:LVL(40):RARITY(4)
+I:SPEED(+20):HP(52d10):AC(60):EXP(2100)
+I:ALIGN(Evil):ATTR(FEMALE)
+B:HIT(x3):HURT(2d6)
+I:RESIST(CONF):IMMUNE(SLEEP)
+S:1_IN_2 | BLIND | S_DRAGON | DETECT_MONSTERS 
+O:1d2+1:OBJ(*, GOOD):DROP_MAGE
+D:This elusive female spellcaster has a special affinity for dragons, whom
+D:she rarely fights without.
+I:COLOR(Yellow):POS(SEE_INVIS)
+P:Copy:Human:Beastmaster
+
+N:p.archpriest:p.base:Archpriest
+I:LVL(40):RARITY(2)
+I:SPEED(+10):HP(520):AC(60):EXP(1800):EVOLVE(p.high priest, 8000)
+I:ALIGN(Evil):ATTR(SMART)
+B:HIT(x3):HURT(3d4)
+I:RESIST(CONF):IMMUNE(SLEEP)
+S:1_IN_2 | HEAL | BLIND | PARALYZE | CONFUSE | CAUSE_3 | ANIM_DEAD
+S:S_MONSTER(1) | S_UNDEAD | DETECT_MONSTERS | MAPPING | BLESS | HEROISM
+O:1d2+2:DROP_PRIEST_EVIL
+M:20%:1d3:MON(p.black knight)
+D:An evil priest, dressed all in black. Deadly spells hit you at an alarming rate
+D:as his black spiked mace rains down blow after blow on your pitiful frame.
+I:COLOR(Blue)
+P:Copy:Dunadan:Priest
+
+N:p.sorcerer:p.base:Sorcerer
+I:LVL(40):RARITY(2)
+I:SPEED(+20):HP(520):AC(60):EXP(5000):EVOLVE(p.old sorcerer, 20000)
+I:ALIGN(Evil):ATTR(SMART)
+B:HIT(x3):HURT(2d8)
+I:RESIST(CONF):IMMUNE(SLEEP)
+S:1_IN_2 | BLINK | BLINK_OTHER | TELE_TO | BLIND | CONFUSE | CAUSE_3 | TRAPS
+S:BO_ACID | BA_FIRE | BA_COLD | BO_MANA | BA_WATER
+S:S_MONSTER | S_UNDEAD | S_DRAGON | DETECT_MONSTERS | MAPPING | IDENTIFY 
+O:2d2+2:DROP_MAGE
+M:15%:1d2:MON(p.sorcerer, STOP)
+M:50%:1d3:MON(p.sorcerer, ANCESTOR)
+D:A human figure in robes, he moves with magically improved speed, and his
+D:hands are ablur with spell casting.
+I:COLOR(Orange):POS(SUST_INT)
+P:Copy:Dunadan:Mage
+P:Speed:+10
+
+N:p.wyrd sister:p.base:Wyrd sister
+I:LVL(40):RARITY(4)
+I:SPEED(+15):HP(550):AC(60):EXP(1900)
+I:ALIGN(Evil):ATTR(FEMALE)
+B:CLAW(x3):HURT(2d6)
+I:RESIST(CONF):IMMUNE(SLEEP)
+S:1_IN_2 | BLIND | S_DEMON | CONFUSE | SCARE | DARKNESS | DETECT_MONSTERS | MAPPING
+O:1d2+1:DROP_PRIEST_EVIL
+D:This old crone is rumoured to be a witch of chaos... but you don't
+D:really believe in witches, do you?
+I:COLOR(Yellow)
+P:Copy:Human:Priest
+P:Weight:120
+
+N:p.master mindcrafter:p.base:Master mindcrafter
+I:LVL(40):RARITY(2)
+I:SPEED(+10):HP(800):AC(60):EXP(2000):EVOLVE(p.grand master mindcrafter, 50000)
+I:ALIGN(Evil):ATTR(SMART|IM_ILLUSION):MOVE(PUSH)
+B:HIT(x3):HURT(3d5+5)
+I:RESIST(ELEC|FIRE|POIS|CONF):IMMUNE(SLEEP)
+S:FREQ_50 | HEAL | BLIND | PARALYZE | CONFUSE | SLOW | TELE_SELF | TELE_OTHER | MIND_BLAST
+S:BRAIN_SMASH(60) | PULVERISE(x3) | BLINK | BLINK_OTHER | DETECT_MONSTERS | MAPPING
+O:2d2+1:OBJ(*)
+M:50%:1d3:MON(p.master mindcrafter, ANCESTOR)
+D:A mindcrafter of the highest order. Powerful and evil, and a dangerous enemy:
+D:a master of mind over matter, of his own mind, and of the minds of others.
+I:COLOR(Yellow):POS(TELEPATHY)
+P:Copy:Dunadan:Mindcrafter
+
+N:p.chronomage:p.base:Chronomage
+I:LVL(40,80):RARITY(3)
+I:SPEED(+20):HP(100d10):AC(70):EXP(2000)
+I:ATTR(SMART):ALERT(Fairly Unseeing)
+B:HIT(x3):HURT(1d7+7):TIME(25%)
+I:RESIST(TIME)
+S:FREQ_20 | HASTE | SLOW | TELE_LEVEL | BR_TIME
+O:1d2+1:OBJ(*, GOOD)
+D:A human, clothed in a blue robe, moving with speed uncanny. He seems both young and old.
+I:COLOR(Blue)
+P:Copy:Dunadan:Time-Lord
+P:Speed:+5
+
+N:p.high priest:p.base:High priest
+I:LVL(44):RARITY(2)
+I:SPEED(+10):HP(800):AC(60):EXP(3000)
+I:ALIGN(Evil):ATTR(SMART)
+B:HIT(x3):HURT(3d4)
+I:RESIST(CONF):IMMUNE(SLEEP)
+S:1_IN_2 | HEAL | BLIND | PARALYZE | CAUSE_4 | BRAIN_SMASH | ANIM_DEAD
+S:S_MONSTER | S_UNDEAD | DETECT_MONSTERS | MAPPING | BLESS | HEROISM
+O:2d2+2:DROP_PRIEST_EVIL
+M:50%:1d2:MON(p.archpriest)
+D:A dark priest of the highest order. Powerful and evil, beware his many spells.
+I:COLOR(White):POS(SUST_WIS)
+P:Copy:Dunadan:Priest
+
+N:p.dawn:p.base:Warrior of the Dawn
+I:LVL(45):RARITY(2):POS(-CORPSE|-SKELETON)
+I:SPEED(+10):HP(25d25):AC(70):EXP(500)
+I:ALERT(Fairly Unseeing):MOVE(-PICKUP)
+B:HIT(x2):HURT(5d5)
+I:RESIST(BASE|POIS)
+M:1d6:MON(p.dawn)
+D:Fierce, barbaric warriors, armed with great spiked clubs, and surrounded
+D:by an aura of scarlet. Whenever one of them is slain, another appears
+D:out of nowhere to take his place.
+I:COLOR(Light Red)
+P:Copy:Dunadan:Warrior
+
+N:p.ultra-elite paladin:p.base:Ultra-elite paladin
+I:LVL(45):RARITY(2):ALLOC(ESCORT)
+I:SPEED(+10):HP(770):AC(144):EXP(1200):EVOLVE(p.knight templar,10000)
+I:KIND(KNIGHT):ALIGN(Lawful):CAN(REFLECT):ALERT(Unseeing)
+B:HIT(x2):HURT(2d12+7)
+I:RESIST(BASE|POIS|CONF|TELE):IMMUNE(SLEEP)
+S:FREQ_20 | HOLY_LANCE(77) | HEAL(200) | DETECT_EVIL | MAPPING | BLESS | HEROISM | PROT_EVIL
+O:1d3+1:DROP_PALADIN
+M:25%:2d3:MON(p.white knight)
+D:Fighting for a good cause, he considers you an agent of the devil.
+I:COLOR(White)
+P:Copy:Dunadan:Paladin
+
+# XXX I don't know what this is ...
+N:p.durahan:Durahan
+I:LVL(45):RARITY(3)
+I:SPEED(+10):HP(1200):AC(85):EXP(3900)
+I:KIND(UNDEAD|NONLIVING):ALIGN(Evil):ATTR(COLD_BLOOD)
+I:ALERT(300',Ever Vigilant):MOVE(OPEN|FLY)
+B:HIT(x3):HURT(3d8+8):DRAIN_EXP(80d6, 35%)
+B:HIT:HURT(3d8+8):CONFUSE
+I:RESIST(COLD|POIS|CONF):IMMUNE(NETHER|SLEEP)
+S:1_IN_5 | BLIND | PARALYZE | SCARE | CAUSE_4 | BO_NETHER | S_UNDEAD
+I:DISPLAY(p,Violet)
+P:Copy:Dunadan:Priest
+
+N:p.grand master thief:p.base:Grand master thief
+I:LVL(46):RARITY(2)
+I:SPEED(+20):HP(15d100):AC(75):EXP(1500)
+I:KIND(THIEF):ALIGN(Evil):ALERT(500'):MOVE(QUICK)
+B:HIT(x2):HURT(2d5+10):EAT_ITEM
+B:HIT(x2):HURT(2d5+10):EAT_GOLD
+S:1_IN_2 | BLINK | TELE_SELF | TELE_TO | CONFUSE | TRAPS
+S:DETECT_OBJECTS | DETECT_MONSTERS | MAPPING | DETECT_TRAPS
+O:2d2:OBJ(*):DROP_ROGUE
+O:3d3:OBJ(GOLD)
+M:25%:1d3:MON(p.grand master thief, ANCESTOR | SAME)
+D:A class of his own: you are already too late to protect your possessions.
+D:He seems to have studied magic and is a master of setting traps.
+I:COLOR(Light Blue):POS(SEE_INVIS|TELEPATHY)
+P:Copy:Dunadan:Rogue
+P:Skill:Stl(12)
+P:Speed:+15
+
+N:p.master mystic:p.monk:Master mystic
+I:LVL(50):RARITY(3):ALLOC(ESCORT)
+I:SPEED(+20):HP(1100):AC(60):EXP(9000):EVOLVE(p.grand master mystic, 50000)
+I:ALIGN(Good):CAN(INVIS):MOVE(QUICK)
+B:MONK(x6)
+I:RESIST(BASE|POIS)
+S:1_IN_4 | HEAL | S_SPIDER | DETECT_MONSTERS | MAPPING
+O:1d2+2:OBJ(*)
+M:25%:1d2:MON(p.master mystic, ANCESTOR)
+D:A lord of all that is natural, skilled in the mystic ways. He is a master of martial
+D:arts and is at one with nature, able to summon help from the wild if need be.
+I:COLOR(Orange):POS(SEE_INVIS)
+P:Speed:+10
+
+N:p.hell knight:p.base:Hell knight
+I:LVL(52):RARITY(1)
+I:SPEED(+10):HP(1500):AC(110):EXP(7000)
+I:ALIGN(Chaotic):ATTR(SMART)
+B:HIT(x3):HURT(10d5)
+B:HIT:DRAIN_EXP(80d6)
+I:RESIST(FIRE|COLD|POIS|NETHER|NEXUS|PLASMA)
+S:1_IN_5 | HELL_LANCE(99) | PLASMA_LANCE(150) | BA_FIRE | BA_NETHER
+S:BLIND | SCARE | S_MONSTER | DETECT_MONSTERS | PROT_GOOD
+M:25%:2d3:MON(CHAPEL_EVIL)
+O:1d2+2:DROP_PALADIN_EVIL
+D:He is a humanoid form dressed in armour of ancient style. From beneath
+D:his helmet eyes glow with hellfire.
+I:COLOR(Slate):POS(SEE_INVIS)
+P:Copy:Dunadan:Paladin
+
+N:p.knight templar:p.base:Knight templar
+I:LVL(52):RARITY(2)
+I:SPEED(+10):HP(1500):AC(130):EXP(5000)
+I:KIND(KNIGHT):ALIGN(Lawful):ATTR(SMART)
+B:HIT(x4):HURT(5d5+15)
+I:RESIST(BASE|LIGHT)
+S:1_IN_4 | HEAL | SCARE | CAUSE_3 | CAUSE_4 | HASTE | BLIND | S_ANGEL
+S:DETECT_EVIL | MAPPING | BLESS | HEROISM | PROT_EVIL
+M:25%:2d3:MON(CHAPEL_GOOD)
+O:1d2+2:DROP_PALADIN
+D:It seems that the more devout the person, the more likely they are to cross
+D:the boundary between piety and sanctimoniousness. And such is the case with
+D:the Order of the Knights Templar: they are among the most pious and
+D:powerful of the religious knightly orders, but noted for their intolerance.
+D:And thus it is Morgoth's will that is unwittingly done, as the forces of good
+D:are set against each other.
+I:COLOR(White)
+P:Copy:Dunadan:Paladin
+
+N:p.hell monk:p.monk:Hell monk
+I:LVL(52):RARITY(1)
+I:HP(1500):AC(110):EXP(7000)
+I:ALIGN(Chaotic):ATTR(SMART)
+B:MONK(Monk.Demon,x7)
+I:RESIST(FIRE|COLD|POIS|NETHER|NEXUS|PLASMA)
+S:1_IN_5 | BA_PLASMA | BA_NETHER | BA_FIRE | S_DEMON | DETECT_MONSTERS | PROT_GOOD
+O:1d2+2:OBJ(*,GOOD)
+D:Garbed in crimson robes, this humanoid figure radiates pure malevolence.
+D:He is unarmed but that fact fails to comfort you. His long bony fingers
+D:are stained a dark red and his eyes glow with hellfire.
+I:COLOR(Red):POS(SEE_INVIS)
+P:Speed:+10
+
+N:p.grand master mystic:p.monk:Grand master mystic
+I:LVL(59):RARITY(3):ALLOC(ESCORT)
+I:SPEED(+20):HP(2200):AC(80):EXP(25000)
+I:ALIGN(Good):CAN(INVIS):MOVE(QUICK)
+B:MONK(x8)
+I:RESIST(BASE|POIS):IMMUNE(BLIND)
+S:1_IN_3 | HEAL | MIND_BLAST | S_SPIDER | S_HOUND | DETECT_MONSTERS | MAPPING
+O:4d2:OBJ(*, GOOD)
+M:25%:1d3:MON(p.grand master mystic, ANCESTOR)
+D:He is one of the few true masters of the art, being extremely skillful in
+D:all forms of unarmed combat and controlling the world's natural creatures
+D:with disdainful ease.
+I:COLOR(Orange):POS(SEE_INVIS)
+P:Stat:Chr(4)
+P:Speed:+15
+
+N:p.lord of chaos:p.monk:Lord of Chaos
+I:LVL(60):RARITY(3)
+I:SPEED(+20):HP(2475):AC(80):EXP(17500)
+I:ALIGN(Evil):CAN(INVIS):ATTR(SMART)
+B:MONK(Monk.Chaos,x8)
+I:RESIST(BASE|POIS|CHAOS)
+S:FREQ_30 | HEAL | MIND_BLAST | BA_CHAOS | S_MONSTER | S_DEMON | PSY_SPEAR
+S:DETECT_MONSTERS | MAPPING
+O:2d2+1:OBJ(*)
+M:25%:1d3:MON(p.logrus master)
+D:He is one of the few true masters of the art, being extremely skillful in
+D:all forms of unarmed combat and controlling the Logrus with disdainful ease.
+I:DISPLAY(,Violet,ATTR_MULTI|ATTR_ANY|SHAPECHANGER):POS(SEE_INVIS)
+P:Stat:Chr(3)
+P:Speed:+10
+
+N:p.grand master mindcrafter:p.base:Grand master mindcrafter
+I:LVL(60):RARITY(3):ALLOC(ESCORT)
+I:SPEED(+20):HP(2400):AC(150):EXP(15000)
+I:ALIGN(Evil):ATTR(SMART|IM_ILLUSION):ALERT(500'):MOVE(PUSH)
+B:HIT(x3):HURT(3d5+25)
+I:RESIST(BASE|POIS|CONF):IMMUNE(SLEEP|SLOW|STUN|FEAR|BLIND)
+S:FREQ_50 | EGO_WHIP(x5) | PSY_SPEAR | BRAIN_SMASH(120) | PULVERISE(150, x3) | HASTE
+S:TELE_SELF | TELE_OTHER | BLINK | BLINK_OTHER | DETECT_MONSTERS | MAPPING
+O:2d2+1:OBJ(*, GOOD)
+M:25%:1d3:MON(p.grand master mindcrafter, ANCESTOR)
+D:With supreme mental control, this master of the mental arts moves with blurring
+D:speed in his quest to dominate others. Your will is shaken as you feel the touch
+D:of his evil upon your mind.
+I:COLOR(Light Blue):POS(TELEPATHY)
+P:Copy:Dunadan:Mindcrafter
+
+N:p.temporal champion:p.base:Temporal Champion
+I:LVL(60):RARITY(3)
+I:SPEED(+40):HP(100d30):AC(100):EXP(8000)
+I:ATTR(SMART):ALERT(Fairly Unseeing)
+B:HIT(x4):HURT(3d7+15):TIME(75%)
+I:RESIST(CONF):IMMUNE(TIME|SLEEP|SLOW)
+S:FREQ_25 | HASTE | SLOW | TELE_LEVEL | BR_TIME
+M:25%:1d3:MON(p.chronomage)
+O:4d2:OBJ(*, GOOD)
+D:A human, clothed in a blue robe, moving with speed uncanny.
+D:He seems to be in several places at once.
+I:COLOR(Blue)
+P:Copy:Dunadan:Time-Lord
+P:Speed:+20
+
+N:p.locke:p.base:Clone of Locke the Superman
+I:LVL(65):RARITY(30)
+I:SPEED(+20):HP(3000):AC(130):EXP(18000)
+I:CAN(REGEN|REFLECT):ATTR(SMART)
+I:ALERT(1000',Fairly Unseeing):MOVE(FLY)
+B:HIT(x4):HURT(7d14+50)
+I:RESIST(ELEC|FIRE|COLD|CONF|NETHER|TELE):IMMUNE(SLEEP|SLOW)
+S:1_IN_3 | BLIND | PARALYZE | HEAL | HASTE |
+S:TELE_TO | CONFUSE | BO_MANA | BRAIN_SMASH | PSY_SPEAR(1d130+150)
+O:2d2:OBJ(*, GOOD):DROP_WARRIOR
+I:COLOR(Light Green)
+P:Copy:Demigod:Mystic
+
+N:p.grand fearlord:p.base:Grand Fearlord
+I:LVL(65,127):RARITY(3)
+I:SPEED(+25):HP(50d100):AC(120):EXP(25000)
+I:CAN(FEAR):ATTR(SMART):ALERT(Fairly Unseeing):DARK(0+2)
+B:HIT(x4):HURT(3d10+25):TERRIFY:LOSE_CHR(50%)
+I:IMMUNE(FEAR)
+S:FREQ_30 | SCARE | S_NIGHTMARE | TELE_TO
+O:3d2+2:OBJ(*, GOOD)
+M:2d3:MON(p.fearmaster)
+M:1d3:MON(q.night mare)
+D:A human covered in bone armor and decorated with the shriveled, preserved
+D:eyeballs of foes defeated. The sight of him strikes terror into your soul.
+I:COLOR(Light Umber)
+P:Copy:Demigod:Beastmaster
+
+N:p.old sorcerer:p.base:Old sorcerer
+I:LVL(69):RARITY(3)
+I:SPEED(+20):HP(1300):AC(60):EXP(10000):EVOLVE(p.ultimate magus, 100000)
+I:ALIGN(Evil):ATTR(SMART)
+B:HIT(x3):HURT(1d8+20)
+B:TOUCH:DRAIN_MANA(6d8)
+I:RESIST(CONF):IMMUNE(SLEEP|SLOW)
+S:1_IN_2 | BLINK | BLINK_OTHER | TELE_TO | BLIND | CONFUSE | CAUSE_3 | CAUSE_4 | TRAPS
+S:BO_ACID | BA_FIRE | BA_COLD | BA_POISON | BO_WATER | BO_MANA | BA_WATER
+S:S_MONSTER | S_UNDEAD | S_DRAGON | S_HI_DRAGON | S_HI_UNDEAD
+S:DETECT_MONSTERS | MAPPING | IDENTIFY
+O:4d2:OBJ(*, GOOD):DROP_MAGE
+M:25%:1d3:MON(p.old sorcerer, ANCESTOR)
+D:A human figure in robes, he moves with magically improved speed, and his
+D:hands are a blur with spell casting. You stagger at the mighty sound of his
+D:spells as they echo hollowly through the dungeon.
+I:COLOR(Violet):POS(TELEPATHY)
+P:Copy:Demigod:Mage
+P:Speed:+10
+P:Weight:140
+
+N:p.ultimate magus:p.base:Ultimate Magus
+I:LVL(79):RARITY(3)
+I:SPEED(+20):HP(1550):AC(60):EXP(20000)
+I:ALIGN(Evil):CAN(FEAR):ATTR(SMART):MOVE(TRUMP)
+I:RESIST(CONF):IMMUNE(SLEEP|SLOW|BLIND|FEAR)
+O:4d2:OBJ(*, GREAT):DROP_MAGE
+S:1_IN_1 | BLINK | BLINK_OTHER | TELE_SELF | HEAL(300) | TELE_OTHER |
+S:MANA_STORM | BR_DISINTEGRATE | DISPEL_MAGIC | ANTI_MAGIC
+S:BA_NETHER | BO_MANA | BA_CHAOS | DETECT_MONSTERS 
+D:A wizened old man, stooped by age, he seems barely able to move.
+D:Yet, something is not quite right here. You see a faint shimmer
+D:in the air surrounding this pathetic old man.
+I:COLOR(Violet):POS(TELEPATHY)
+P:Copy:Human:High-Mage
+P:Stat:Int(10):Con(-5)
+P:Speed:+10
+P:Weight:90
+
+########################################################################
+# Human Uniques
+T:p.unique:p.base:Unique Human
+I:CAN(SPEAK):ATTR(SMART):MOVE(CLEARWEB)
+I:ALERT(200',Fairly Unseeing):ALLOC(UNIQUE|ESCORT):POS(-SKELETON)
+I:RESIST(CONF|SLEEP|SLOW)
+
+N:p.Nami:p.unique:Nami, the Mate
+I:LVL(8):RARITY(4)
+I:SPEED(+10):HP(156):AC(30):EXP(150)
+I:ATTR(FEMALE|FRIENDLY)
+B:HIT(x2):HURT(1d9):EAT_GOLD
+B:TOUCH(x2):EAT_ITEM
+S:1_IN_3 | HEAL | TRAPS
+O:1d2:OBJ(*,GREAT|TAILORED)
+I:COLOR(Orange)
+P:Copy:Human:Rogue
+P:Speed:+10
+P:Weight:110
+
+N:p.Wormtongue:p.unique:Wormtongue, Agent of Saruman
+I:LVL(8):RARITY(2)
+I:HP(250):AC(30):EXP(150)
+I:KIND(THIEF):ALIGN(Evil)
+B:HIT(x2):HURT(1d6)
+B:TOUCH:EAT_GOLD
+I:IMMUNE(TELE)
+S:1_IN_5 | HEAL | SLOW | TRAPS | BO_COLD | BA_POISON
+O:1d2:OBJ(*,GREAT)
+O:1d2:OBJ(GOLD)
+D:He's been spying for Saruman. He is a snivelling wretch with no morals.
+D:"At [Theoden's] feet upon the steps sat a wizened figure of a man, with a
+D:pale wise face and heavy-lidded eyes...he laughed grimly, as he lifted his
+D:heavy lids for a moment and gazed on the strangers with dark eyes."
+I:COLOR(Light Dark)
+P:Copy:Human:Rogue
+
+N:p.Robin Hood:p.unique:Robin Hood, the Outlaw
+I:LVL(8):RARITY(2):ALLOC(D_FOREST)
+I:SPEED(+10):HP(168):AC(30):EXP(150)
+I:KIND(THIEF):ALIGN(Evil)
+B:HIT:HURT(1d6+3)
+B:TOUCH:EAT_GOLD
+B:TOUCH:EAT_ITEM
+S:1_IN_5 | SHOOT(3d6) | HEAL | TRAPS | DETECT_MONSTERS
+O:1d2:OBJ(*, GREAT)
+O:1d2:OBJ(GOLD)
+O:5%:ART(}.Robin Hood)
+D:The legendary archer steals from the rich (you qualify).
+I:COLOR(Light Green)
+P:Copy:Human:Ranger
+
+N:p.Brodda:p.unique:Brodda, the Easterling
+I:LVL(9):RARITY(2)
+I:HP(210):AC(25):EXP(100)
+I:ALIGN(Evil)
+B:HIT(x4):HURT(1d8+4)
+O:1d2:OBJ(*,GOOD):DROP_WARRIOR
+D:A nasty piece of work, Brodda picks on defenseless women and children.
+D:"And Morwen was gone. Empty stood her house, broken and cold. It was
+D:more than a year since she departed to Doriath. Brodda the Easterling
+D:(who had wedded Morwen's kinswoman Airin) had plundered her house, and
+D:taken all that was left of her goods."
+I:COLOR(Orange)
+P:Copy:Dunadan:Warrior
+
+N:p.VM:p.unique:The Variant Maintainer
+I:LVL(14):RARITY(1)
+I:SPEED(+10):HP(225):AC(20):EXP(300)
+I:ATTR(WEIRD_MIND):ALERT(1000',Ever Vigilant):MOVE(RAND_25)
+B:HIT(x2):CONFUSE(1d5)
+S:1_IN_3 | S_SOFTWARE_BUG | POLYMORPH
+O:1d2:OBJ(*,GREAT)
+D:A frazzled, stumbling, pathetic shadow of a man. He seems steeped in confusion
+D:while mumbling something about memory corruption in cmd2.c.
+I:COLOR(Red)
+P:Copy:Human:Rogue
+P:Weight:130
+
+N:p.Ulfast:p.unique:Ulfast, Son of Ulfang
+I:LVL(16):RARITY(3)
+I:HP(340):AC(40):EXP(200)
+I:ALIGN(Evil):ALERT(Unseeing)
+B:HIT(x4):HURT(2d5+3)
+O:OBJ(*, GOOD):DROP_WARRIOR
+D:A short and swarthy Easterling.
+I:COLOR(Orange)
+P:Copy:Dunadan:Warrior
+
+N:p.Angamaite:p.unique:Angamaite of Umbar
+I:LVL(24):RARITY(2)
+I:HP(800):AC(80):EXP(400)
+I:ALIGN(Evil):ALERT(250')
+B:HIT(x4):HURT(2d6+7)
+I:RESIST(ELEC|FIRE)
+S:1_IN_4 | SLOW | AMNESIA
+O:1d2+1:OBJ(*, GOOD):DROP_WARRIOR
+D:A Black Numenorean who hates the men of the west.
+I:COLOR(Umber)
+P:Copy:Dunadan:Warrior-Mage
+
+N:p.Sangahyando:p.unique:Sangahyando of Umbar
+I:LVL(24):RARITY(2)
+I:HP(800):AC(80):EXP(400)
+I:ALIGN(Evil):ALERT(250')
+B:HIT(x4):HURT(2d6+7)
+I:RESIST(ELEC|FIRE)
+S:1_IN_4 | SLOW | AMNESIA
+O:1d2+1:OBJ(*, GOOD):DROP_WARRIOR
+D:A Black Numenorean with a blacker heart.
+I:COLOR(Orange)
+P:Copy:Dunadan:Warrior-Mage
+
+N:p.Poor:p.unique:Poor, the Thief
+I:LVL(25):RARITY(3)
+I:SPEED(-5):HP(800):AC(50):EXP(500)
+I:ALIGN(Evil):ALERT(Overlooks)
+B:HIT(x2):HURT(3d10+10)
+B:CRUSH:HURT(30d2)
+O:1d3:OBJ(*, GOOD)
+I:COLOR(Blue)
+P:Copy:Human:Rogue
+P:Speed:-1
+
+N:p.Ulwarth:p.unique:Ulwarth, Son of Ulfang
+I:LVL(26):RARITY(4)
+I:HP(850):AC(40):EXP(500)
+I:ALIGN(Evil):ALERT(Unseeing)
+B:HIT(x3):HURT(2d6+7)
+O:OBJ(*, GOOD):DROP_WARRIOR
+D:A short and swarthy Easterling.
+I:COLOR(Light Umber)
+P:Copy:Dunadan:Warrior
+
+N:p.Rich:p.unique:Rich, the Thief
+I:LVL(29):RARITY(3)
+I:SPEED(+20):HP(500):AC(80):EXP(700)
+I:KIND(THIEF):ALIGN(Evil)
+I:ALERT(Ever Vigilant):MOVE(PUSH)
+B:HIT(x2):HURT(2d6):POISON(2d6)
+B:TOUCH:EAT_GOLD
+B:TOUCH:EAT_ITEM
+S:1_IN_2 | BLINK | TELE_SELF | TRAPS | CONFUSE | BLIND | SLOW | PARALYZE | AMNESIA
+O:2d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+I:COLOR(Blue)
+P:Copy:Dunadan:Rogue
+P:Speed:+10
+
+N:p.Ishikawa:p.unique:Ishikawa Goemon
+I:LVL(33):RARITY(7)
+I:SPEED(+10):HP(1469):AC(70):EXP(2000)
+I:ALERT(Overlooks)
+B:SLASH(x4):HURT(20):CUT(4d4, 30%)
+I:RESIST(COLD|POIS)
+O:1d2:OBJ(*, GOOD):DROP_SAMURAI
+O:10%:ART(|.Zantetsuken)
+I:COLOR(Light White)
+P:Copy:Dunadan:Warrior
+
+N:p.Ulfang:p.unique:Ulfang the Black
+I:LVL(34):RARITY(5)
+I:SPEED(+10):HP(1000):AC(90):EXP(1200)
+I:ALIGN(Evil):ALERT(Unseeing)
+B:HIT(x4):HURT(3d5+5)
+O:2d2:OBJ(*, GOOD):DROP_WARRIOR
+D:A short and swarthy Easterling dressed in Black.
+I:COLOR(Light Umber)
+P:Copy:Dunadan:Warrior
+
+N:p.Pip:p.unique:Pip, the Braver from Another World
+I:LVL(35):RARITY(3)
+I:HP(960):AC(80):EXP(1800)
+I:ALIGN(Good):ATTR(FRIENDLY):ALERT(Fairly Observant)
+B:HIT(x3):HURT(2d5+5)
+S:1_IN_5 | BA_FIRE | PARALYZE | BO_FIRE | HEAL
+O:1d2:OBJ(*, GOOD)
+O:50%:ART(|.Excalibur Jr)
+I:COLOR(Umber)
+P:Copy:Human:Warrior-Mage
+
+N:p.Ar-Pharazon:p.unique:Ar-Pharazon the Golden
+I:LVL(38):RARITY(6)
+I:SPEED(+10):HP(1800):AC(90):EXP(5000)
+I:ALERT(300',Very Inattentive):MOVE(PUSH)
+B:HIT(x4):HURT(2d12+12)
+S:1_IN_10 | HEAL | HASTE | TELE_OTHER | S_MONSTER
+O:3d2:OBJ(*, GOOD)
+D:Last and proudest king of ancient Numenor. Corrupted by power and
+D:avarice, he fell victim to Sauron's wiles, tried to fight the immortals
+D:themselves, and condemned Numenor to oblivion.
+I:COLOR(Yellow)
+P:Copy:Dunadan:Paladin
+
+N:p.Rolento:p.unique:Rolento
+I:LVL(38):RARITY(4)
+I:SPEED(+40):HP(900):AC(150):EXP(4000)
+I:ALIGN(Evil):ALERT(700',Observant):MOVE(RAND_50)
+B:HIT:HURT(4d4+10)
+B:KICK:HURT(4d4+10)
+I:RESIST(FIRE):IMMUNE(TELE)
+S:1_IN_3 | BA_FIRE | HASTE | S_KIN
+O:1d2:OBJ(*, GOOD)
+M:5d5:MON(p)
+K:1d3+1:MON({.grenade)
+I:COLOR(Umber)
+P:Copy:Human:Beastmaster
+P:Speed:+10
+
+# XXX These belong to Rolento XXX
+N:{.grenade:Hand grenade
+I:SPEED(+20):HP(5):ALERT(2000',Ever Vigilant)
+I:LVL(38):RARITY(255):EXP(0):MOVE(RAND_75)
+I:KIND(NONLIVING):ATTR(EMPTY_MIND|COLD_BLOOD)
+B:EXPLODE:FIRE(2d30)
+I:RESIST(CONF|TELE):IMMUNE(SLEEP|SLOW|FEAR|STUN|BLIND):VULN(FIRE)
+D:It explodes after two turns. Beware!
+I:DISPLAY({,Red):POS(DISABLED)
+P:Copy:Human:Beastmaster
+P:Weight:1
+
+N:p.Bison:p.unique:M. Bison
+I:LVL(40):RARITY(4)
+I:SPEED(+10):HP(2000):AC(110):EXP(7000)
+I:ALIGN(Evil):ALERT(700',Observant):MOVE(FLY)
+B:KICK(x3):HURT(9d2+14):STUN(1d2, 25%)
+B:CRUSH:HURT(5d8):FIRE(3d8)
+I:IMMUNE(TELE)
+S:1_IN_8 | BO_MANA | BLINK
+O:1d2:OBJ(*, GOOD)
+I:COLOR(Green)
+P:Copy:Human:Mystic
+
+N:p.Ashram:p.unique:Ashram, the Ebony Knight
+I:LVL(40):RARITY(4)
+I:SPEED(+10):HP(1540):AC(120):EXP(7000)
+I:ALERT(100',Overlooks)
+B:HIT(x2):HURT(4d8+16)
+B:HIT(x2):HURT(8d8)
+A:FIRE(2d3)
+I:RESIST(FIRE)
+O:1d3:OBJ(*, GOOD):DROP_WARRIOR
+D:Ashram took up Beld's sword and position after his death.
+I:COLOR(Light Dark)
+P:Copy:Dunadan:Warrior
+
+N:p.Gorlim:p.unique:Gorlim, Betrayer of Barahir
+I:LVL(41):RARITY(3)
+I:SPEED(+10):HP(1600):AC(120):EXP(7000)
+I:ALERT(Unseeing)
+B:HIT(x2):HURT(3d6+15)
+B:HIT(x2):HURT(3d6+15):DISENCHANT
+I:RESIST(ACID|ELEC|COLD|POIS)
+S:FREQ_30 | CAUSE_3 | BO_WATER | BO_MANA
+O:2d2:OBJ(*, GOOD):DROP_WARRIOR
+D:This once-mighty warrior was so dominated by Morgoth's power that he
+D:became little more than a mindless creature of evil.
+I:COLOR(Slate)
+P:Copy:Human:Beastmaster
+
+N:p.Jack:p.unique:Jack of Shadows
+I:LVL(42):RARITY(4):ALLOC(NO_QUEST)
+I:SPEED(+20):HP(3000):AC(150):EXP(10000)
+I:KIND(THIEF):DARK(0+2):CAN(REGEN)
+I:ALERT(700',Observant)
+B:HIT(x2):HURT(2d10+16)
+B:HIT(x2):HURT(2d10):EAT_ITEM
+I:IMMUNE(TELE)
+S:1_IN_4 | BLIND | HEAL | BA_DARK | HASTE | CONFUSE | TRAPS
+O:1d2+1:OBJ(*, GREAT)
+O:25%:ART(`(.Jack`)
+D:Deriving his strength from the shadows, this king of thieves steals only for the challenge.
+I:COLOR(Slate):POS(TELEPATHY)
+P:Copy:Dunadan:Rogue
+P:Skill:Stl(15)
+P:Life:90
+P:Speed:+15
+
+N:p.Beld:p.unique:Beld, Ruler of Marmo
+I:LVL(48):RARITY(4)
+I:SPEED(+15):HP(2310):AC(160):EXP(18500)
+I:ALIGN(Evil):ALERT(100',Overlooks)
+B:HIT(x2):HURT(3d15+40)
+B:HIT(x2):HURT(6d15+15)
+A:FIRE(2d3)
+I:RESIST(FIRE)
+O:1d3:OBJ(*, GOOD):DROP_WARRIOR
+O:10%:ART(|.Soulcrusher)
+D:Beld seeks to conquer Lodoss and will destroy anyone who stands in his way.
+I:COLOR(Red)
+P:Copy:Dunadan:Warrior
+
+N:p.Nappa:p.unique:Nappa the Saiyan
+I:LVL(50):RARITY(3)
+I:SPEED(+15):HP(2500):AC(125):EXP(13500)
+I:ALIGN(Neutral Evil):CAN(REGEN|REVENGE)
+I:ALERT(300'):MOVE(PUSH|TUNNEL)
+B:PUNCH:HURT(4d8+20):STUN(3d4, 20%)
+B:HIT:SHATTER(10d10)
+I:RESIST(FORCE):IMMUNE(TELE)
+S:1_IN_8 | TELE_TO | BO_MANA
+O:4d2:OBJ(*, GOOD)
+D:He looks like brawny human being but he has the tail of a monkey and is therefore
+D:a Saiyan. A Saiyan's fighting power is far superior to human's and will bring
+D:destruction to many.
+I:COLOR(Light Umber)
+P:Copy:Human:Mauler
+
+N:p.Ansalom:p.unique:Ansalom, the Dark Wizard
+I:LVL(55):RARITY(10)
+I:SPEED(+10):HP(3300):AC(100):EXP(20000)
+I:DARK(0+1):ALIGN(Evil):ALERT(500',Ever Vigilant)
+B:HIT(x2):DISENCHANT(6d6)
+B:HIT(x2):HURT(2d5+5)
+I:RESIST(ACID|ELEC|POIS)
+S:1_IN_2 | CAUSE_3 | BA_FIRE | PARALYZE | BLIND | CONFUSE | SCARE
+S:TRAPS | BO_PLASMA | BO_NETHER | BA_DARK | S_HOUND
+O:5d2:OBJ(*, GOOD):DROP_MAGE
+I:COLOR(Light Dark)
+P:Copy:Human:High-Mage
+
+N:p.Walken:p.unique:Walken
+I:LVL(55):RARITY(7)
+I:SPEED(+15):HP(4000):AC(140):EXP(15000)
+I:CAN(REFLECT|REGEN)
+I:ALERT(1000',Fairly Observant):MOVE(TRAMPLE)
+B:HIT(x3):SHATTER(11d11)
+I:RESIST(ACID|FIRE|COLD)
+S:FREQ_15 | BR_DISINTEGRATE
+O:1d2:OBJ(*, GOOD)
+I:COLOR(Orange)
+P:Copy:Dunadan:Mauler
+
+N:h.Habu:p.unique:Habu the Champion of Chaos
+I:LVL(59):RARITY(2)
+I:SPEED(+20):HP(4356):AC(175):EXP(20000)
+I:ALIGN(Chaotic):ALERT(250',Fairly Observant)
+B:HIT(x3):VAMP(8d8)
+I:RESIST(BASE|POIS|NETHER|NEXUS|CHAOS)
+S:1_IN_4 | BA_FIRE | BA_CHAOS | CONFUSE | TELE_SELF | S_DEMON
+S:BR_CHAOS | MANA_STORM | PSY_SPEAR
+O:5d2:OBJ(*, GOOD)
+D:He is one of the greatest warriors of chaos to walk the earth. His bloody blade
+D:has slain thousands and tens of thousands, and still hungers for more.
+I:DISPLAY(h,Light Green):POS(SEE_INVIS)
+P:Copy:Dunadan:Chaos-Warrior
+
+N:p.Saruman:p.unique:Saruman of Many Colors
+I:LVL(60):RARITY(1)
+I:SPEED(+20):HP(5000):AC(100):EXP(35000)
+I:ALIGN(Evil):CAN(REFLECT):ALERT(1000',Ever Vigilant)
+B:HIT(x2):HURT(3d8+15):DISENCHANT
+B:HIT(x2):HURT(2d5+10)
+I:RESIST(ELEC|FIRE|COLD|POIS):IMMUNE(TELE)
+S:1_IN_2 | S_UNDEAD | S_DEMON | S_DRAGON
+S:HEAL | HASTE | TELE_SELF | TELE_OTHER | BLINK_OTHER | POLYMORPH | ANTI_MAGIC
+S:CAUSE_4 | PULVERISE(125) | BO_ICE | BA_DISENCHANT | BA_WATER | PSY_SPEAR
+O:9d2:OBJ(*, GOOD):DROP_MAGE
+O:33%:ART(~.Elendil)
+O:5%:ART(\.Saruman)
+D:Originally known as the White, Saruman fell prey to Sauron's wiles. He searches
+D:forever for the One Ring, to become a mighty Sorcerer-King of the world.
+I:DISPLAY(,Violet,ATTR_MULTI):ALLOC(GUARDIAN)
+P:Copy:Human:Mage
+P:Stats:1:4:2:0:1:5
+P:Weight:150
+
+N:p.Gandalf:p.unique:Gandalf the Grey
+I:LVL(60):RARITY(7)
+I:SPEED(+20):HP(4949):AC(100):EXP(35000)
+I:ALIGN(Lawful):CAN(REFLECT):ATTR(FRIENDLY)
+I:ALERT(1000',Ever Vigilant)
+B:HIT(x2):HURT(3d8+15):DISENCHANT
+B:HIT(x2):HURT(2d5+10):TERRIFY
+I:RESIST(ELEC|FIRE|COLD|POIS):IMMUNE(TELE)
+S:1_IN_2 | S_MONSTER(1) | S_ANGEL | S_DRAGON | S_KIN
+S:HEAL | HASTE | TELE_SELF | TELE_OTHER | BLIND | CONFUSE | SCARE |
+S:CAUSE_4 | BRAIN_SMASH | AMNESIA | TRAPS | POLYMORPH
+S:BA_FIRE | BO_FIRE | BO_PLASMA | BO_MANA | PSY_SPEAR |
+O:9d2:OBJ(*, GOOD):DROP_MAGE
+O:20%:ART(`(.Incanus`)
+D:The wizard who opposed Saruman, and in the end, was the only
+D:one of the Istari to succeed in his task. Gandalf is very
+D:wise and specializes in fire magic.
+I:COLOR(Violet)
+P:Copy:Human:Mage
+P:Stats:1:4:5:0:1:5
+P:Weight:150
+
+N:p.Raou:p.monk:Raou the Conqueror
+I:LVL(62):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+13):HP(6000):AC(170):EXP(30000)
+I:ALIGN(Good):CAN(SPEAK|REGEN|REFLECT):ATTR(MALE|SMART)
+I:ALERT(500')
+B:MONK(x8)
+I:RESIST(BASE|POIS):IMMUNE(SLOW)
+S:1_IN_3 | CAUSE_3 | TELE_TO
+O:3d2:OBJ(*, GOOD)
+I:COLOR(Light White)
+P:Speed:+10
+
+N:p.Kenshirou:p.monk:Kenshirou the Fist of the North Star
+I:LVL(62):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+13):HP(6000):AC(170):EXP(50000)
+I:ALIGN(Good):CAN(SPEAK|REGEN|REFLECT):ATTR(MALE|SMART)
+I:ALERT(500')
+B:MONK(x8)
+I:RESIST(BASE|POIS):IMMUNE(SLOW)
+S:1_IN_3 | CAUSE_4 | TELE_TO
+O:3d2:OBJ(*, GREAT)
+I:COLOR(Light White)
+P:Speed:+10
+
+N:p.Locke:p.unique:Locke, the Superman
+I:LVL(65):RARITY(3)
+I:SPEED(+20):HP(6000):AC(170):EXP(32000)
+I:ALIGN(Good):CAN(REFLECT|REGEN):ATTR(FRIENDLY)
+I:ALERT(1000'):MOVE(FLY)
+B:HIT(x4):HURT(7d14+50)
+I:RESIST(ELEC|FIRE|COLD|NETHER|TIME):IMMUNE(TELE)
+S:1_IN_3 | TELE_SELF | BLIND | PARALYZE | BLINK | HEAL | HASTE |
+S:TELE_TO | CONFUSE | BO_MANA | BRAIN_SMASH | PSY_SPEAR(1d130+150)
+O:6d2:OBJ(*, GOOD):DROP_WARRIOR
+I:COLOR(Light Green)
+P:Copy:Dunadan:Monk
+
+N:p.Layzark:p.unique:Layzark, the Emperor
+I:LVL(65):RARITY(3)
+I:SPEED(+20):HP(5500):AC(140):EXP(32000)
+I:ALIGN(Evil):CAN(REFLECT|REGEN):ATTR(FEMALE)
+I:ALERT(1000'):MOVE(FLY)
+B:HIT:HURT(3d8+22):BLIND
+B:HIT:CONFUSE(8d8)
+B:TOUCH(x2):DRAIN_CHARGES
+I:RESIST(ELEC|FIRE|COLD|NETHER|NEXUS|TIME):IMMUNE(TELE)
+S:1_IN_2 | TELE_SELF | BLIND | BLINK | BLINK_OTHER | HEAL | HASTE | CONFUSE
+S:BO_MANA | BRAIN_SMASH | PSY_SPEAR(1d130+150) | BA_NETHER(10d10+180) | BA_DARK
+S:BA_CHAOS(10d10+130) | S_MONSTER | S_DEMON | S_KIN
+O:6d2:OBJ(*, GOOD):DROP_MAGE
+I:COLOR(Yellow):ALLOC(GUARDIAN)
+P:Copy:Dunadan:Mage
+
+N:p.Iketa:p.unique:Iketa, the Brave
+I:LVL(70):RARITY(2)
+I:SPEED(+20):HP(5000):AC(170):EXP(30000)
+I:CAN(REGEN):ALERT(500',Ever Vigilant)
+B:HIT(x2):HURT(6d12+30)
+B:HIT:HURT(3d8+30):DISENCHANT
+B:TOUCH:DRAIN_CHARGES
+I:RESIST(BASE|POIS|NETHER|DISENCHANT|WATER)
+S:1_IN_5 | BO_MANA | BA_FIRE | BA_COLD | BA_ELEC | BA_ACID | BO_ICE | BO_PLASMA | BO_WATER
+S:BA_WATER | PSY_SPEAR | CAUSE_3 | CAUSE_4 | CONFUSE | BLIND | S_MONSTER | TELE_SELF
+O:5d2:OBJ(*,GOOD)
+I:COLOR(Light Blue)
+P:Copy:Dunadan:Paladin
+
+N:p.Banor=Rupart:p.unique:Banor=Rupart
+I:LVL(71):RARITY(2):ALLOC(NO_QUEST)
+I:SPEED(+20):HP(7000):AC(170):EXP(36000)
+I:ALIGN(Evil):CAN(REFLECT|REGEN)
+I:ALERT(1000'):MOVE(FLY)
+B:HIT:HURT(5d13+56):BLIND
+B:HIT:HURT(5d13+56):CONFUSE
+B:HIT(x2):HURT(5d13+56)
+I:RESIST(ELEC|FIRE|COLD|NETHER|NEXUS):IMMUNE(TELE)
+S:FREQ_40 | TELE_SELF | BLIND | BLINK | HEAL | CONFUSE | BO_MANA | BRAIN_SMASH
+S:PSY_SPEAR(1d142+150) | BA_NETHER(10d10+192) | BA_DARK | BA_CHAOS(10d10+142)
+S:S_MONSTER | S_DEMON | S_KIN | SPECIAL
+O:8d2:OBJ(*, GOOD)
+I:COLOR(Violet)
+P:Copy:Demigod:Paladin
+
+N:p.Banor:p.unique:Banor the Prince Regent
+I:LVL(71):RARITY(255):ALLOC(NO_QUEST)
+I:SPEED(+20):HP(3500):AC(140):EXP(18000)
+I:ALIGN(Evil):CAN(REFLECT|REGEN)
+I:ALERT(1000',Ever Vigilant):MOVE(FLY)
+B:HIT:HURT(5d10+25):BLIND
+B:HIT:HURT(5d10+25):CONFUSE
+B:TOUCH:DRAIN_MANA(4d10)
+B:TOUCH:DRAIN_CHARGES
+I:RESIST(ELEC|FIRE|COLD|NETHER|NEXUS):IMMUNE(TELE)
+S:FREQ_40 | TELE_SELF | BLIND | BLINK | HEAL | CONFUSE | BRAIN_SMASH | SPECIAL
+S:BO_MANA | PSY_SPEAR(1d142+150) | BA_NETHER(10d10+192) | BA_DARK | BA_CHAOS(10d10+142)
+S:S_MONSTER | S_DEMON | S_KIN
+O:4d2:OBJ(*, GOOD)
+I:COLOR(Blue)
+P:Copy:Dunadan:Paladin
+
+N:p.Rupart:p.unique:Rupart the General
+I:LVL(71):RARITY(255):ALLOC(NO_QUEST)
+I:SPEED(+20):HP(3500):AC(170):EXP(18000)
+I:ALIGN(Evil):CAN(REFLECT|REGEN)
+I:ALERT(1000',Ever Vigilant):MOVE(FLY)
+B:HIT(x4):HURT(5d13+56)
+I:RESIST(ELEC|FIRE|COLD|NETHER|NEXUS):IMMUNE(TELE)
+S:FREQ_25 | BLIND | HEAL | SPECIAL | TELE_TO | CONFUSE | BRAIN_SMASH
+S:BO_MANA | PSY_SPEAR(1d142+150)
+O:4d2:OBJ(*, GOOD)
+I:COLOR(Red)
+P:Copy:Dunadan:Paladin
+
+N:p.Hela:p.unique:Hela, Queen of the Dead
+I:LVL(78):RARITY(3)
+I:SPEED(+20):HP(7400):AC(110):EXP(40000)
+I:ALIGN(Evil):DARK(0+1):CAN(INVIS):ATTR(FEMALE)
+I:ALERT(600',Fairly Observant):MOVE(FLY)
+B:TOUCH:DAM(50):LOSE_ALL
+B:TOUCH:VAMP(30)
+B:TOUCH:DAM(50):DISENCHANT
+B:TOUCH:DRAIN_MANA(30)
+I:RESIST(FIRE|COLD|POISON|NETHER):IMMUNE(TELE)
+S:1_IN_3 | CAUSE_3 | CAUSE_4 | HAND_DOOM | TELE_TO | PARALYZE |
+S:S_UNDEAD | S_HI_UNDEAD | S_HI_DRAGON | AMNESIA | SCARE | BLIND |
+S:BA_DARK | BA_NETHER(10d10+206) | HEAL | ANIM_DEAD | PSY_SPEAR(1d156+150)
+O:1d2:OBJ(*, GREAT)
+D:The Norse ruler of Hel is a merciless queen, who ever hunts for more
+D:souls to add to her collection of tortured spirits. She arrives in
+D:an ominous green robe, a certain sign of impending doom, to claim
+D:as her own those who die an ignoble death.
+I:COLOR(Green)
+P:Copy:Dunadan:Priest
+P:Weight:130
+
+N:p.Mouth of Sauron:p.unique:The Mouth of Sauron
+I:LVL(78):RARITY(3):ALLOC(GUARDIAN)
+I:SPEED(+20):HP(7000):AC(100):EXP(38000)
+I:ALIGN(Evil):CAN(INVIS):ATTR(MALE)
+I:ALERT(600',Fairly Observant)
+B:HIT(x2):HURT(3d8+20):DISENCHANT
+B:TOUCH(x2):DRAIN_CHARGES
+I:RESIST(ELEC|FIRE|COLD)
+S:1_IN_2 | BA_DARK | MANA_STORM | DISPEL_MAGIC | ANTI_MAGIC
+S:TELE_TO | PARALYZE | CAUSE_3 | TRAPS | ANIM_DEAD | PSY_SPEAR(1d156+150)
+S:BO_PLASMA(8d7+118) | BA_FIRE(1d546+20) | BA_WATER(1d156+50) | BA_NETHER(10d10+206)
+O:5d2:OBJ(*, GOOD):DROP_MAGE
+D:The Mouth of Sauron is a mighty spell caster, so old that even he cannot
+D:remember his own name. Though his power and evil are undeniable, he believes
+D:unshakably that he is unbeatable and laughs as he weaves his awesome spells.
+I:COLOR(Violet):POS(SEE_INVIS)
+P:Copy:Human:Mage
+P:Stats:0:3:0:0:0:0
+
+N:p.Klingsor:p.unique:Klingsor, Evil Master of Magic
+I:LVL(78):RARITY(3)
+I:SPEED(+20):HP(7000):AC(100):EXP(40000)
+I:ALIGN(Evil):CAN(INVIS):ALERT(600',Fairly Observant)
+B:HIT:HURT(3d8+20):DISENCHANT
+B:HIT:HURT(3d8+20):DRAIN_CHARGES
+B:TOUCH:BLIND
+B:TOUCH:CONFUSE
+I:RESIST(ELEC|FIRE|COLD):IMMUNE(TELE)
+S:1_IN_2 | CAUSE_3 | TELE_TO | BA_FIRE(1d546+20) | DRAIN_MANA | PARALYZE |
+S:TRAPS | BA_WATER(1d156+50) | BO_PLASMA(8d7+118) | BA_NETHER(10d10+206) |
+S:DISPEL_MAGIC | ANTI_MAGIC | PSY_SPEAR(1d156+150) |
+S:MANA_STORM | BA_DARK | S_HI_UNDEAD | BA_CHAOS(10d10+156) | HAND_DOOM | ANIM_DEAD
+O:5d2:OBJ(*, GREAT):DROP_MAGE
+O:20%:ART(/.Destiny)
+D:Klingsor, whose hopeless effort to join the Knights of the Grail
+D:was thwarted, turned to black magic and became a deadly necromancer.
+I:COLOR(Yellow):POS(SEE_INVIS)
+P:Copy:Dunadan:Mage
+P:Stats:0:3:0:0:0:0
+
+N:p.Caldarm:p.unique:Caldarm the Third
+I:LVL(79):RARITY(5)
+I:SPEED(+20):HP(6000):AC(200):EXP(32000)
+I:CAN(REFLECT|REGEN):ALERT(1000')
+B:HIT:HURT(5d10+25):BLIND
+B:HIT:HURT(5d10+25):CONFUSE
+B:HIT(x2):HURT(5d10+25):DISENCHANT
+I:RESIST(BASE|POIS|NETHER|NEXUS|TIME):IMMUNE(TELE)
+S:FREQ_40 | TELE_SELF | BLINK | BLINK_OTHER | HEAL | HASTE |
+S:BO_MANA | BRAIN_SMASH | PSY_SPEAR(1d158+150) | BA_CHAOS(10d10+158) | S_KIN
+O:4d2:OBJ(*, GOOD)
+K:1d3:MON(p.locke)
+I:COLOR(Light Dark)
+P:Copy:Demigod:Monk
+
+N:p.Wong:p.unique:Richard Wong, Master of Time
+I:LVL(81):RARITY(3)
+I:SPEED(+25):HP(6000):AC(190):EXP(45000)
+I:ALIGN(Evil):CAN(REFLECT|REGEN)
+I:ALERT(1000'):MOVE(FLY|PASSWALL)
+B:HIT(x3):TIME(5d8)
+B:KICK:DISENCHANT(8d10)
+I:RESIST(BASE|POIS|NEXUS|WATER):IMMUNE(TIME)
+S:1_IN_2 | TELE_SELF | SCARE | S_KIN | BLINK | BLINK_OTHER | HEAL | TELE_TO | CONFUSE
+S:BO_MANA | BRAIN_SMASH | BA_WATER | TELE_OTHER | DISPEL_MAGIC | ANTI_MAGIC | WORLD
+S:PSY_SPEAR
+O:7d2:OBJ(*, GOOD)
+O:20%:ART(=.Ages)
+I:COLOR(White)
+P:Copy:Dunadan:Time-Lord
+P:Speed:+15
+
+N:p.Echizen:p.unique:Combat-Echizen "Because it's time"
+I:LVL(85):RARITY(2)
+I:SPEED(+60):HP(2000):AC(350):EXP(50000)
+I:ALIGN(Good):ALERT(1000',Ever Vigilant):MOVE(PUSH)
+B:KICK(x2):HURT(3d10+22):STUN(3d4, 20%)
+B:HIT(x2):HURT(3d8+20):DRAIN_CHARGES
+I:RESIST(ALL):IMMUNE(TELE|BLIND)
+S:1_IN_2 | ROCKET(300) | HEAL(300) | JMP_SHARDS | INVULN
+O:4d2:OBJ(*, GREAT)
+O:50%:ART(}.Crimson)
+D:His favorite food is roasting rice noodle.
+D:He is the lone wolf filled with the adventurous spirit.
+D:His righteousness and courage are more than the average.
+D:He sometimes become emotional.
+D:He would like to choose a haphazard life rather than an intentional life.
+D:He is poor at treating women.
+I:COLOR(Light Red):POS(GAIN_AC)
+P:Copy:Human:Beastmaster
+P:Speed:+15
+P:Blows:300
+P:Weight:160
+
+N:p.Sauron:p.unique:Sauron the Sorcerer
+I:LVL(98):RARITY(1):ALLOC(GUARDIAN)
+I:SPEED(+25):HP(10500):AC(160):EXP(66000)
+I:ALIGN(Chaotic):DARK(2):CAN(REFLECT|REGEN)
+I:ALERT(1000',Ever Vigilant):MOVE(PUSH)
+B:HIT(x2):HURT(5d12+45):DISENCHANT
+B:TOUCH(x2):DAM(6d6):DRAIN_CHARGES
+I:RESIST(ELEC|FIRE|COLD|POIS|DARK|NETHER):IMMUNE(TELE|BLIND)
+S:1_IN_2 | BO_ICE(6d8+150) | BO_MANA | BO_PLASMA(8d7+160) |
+S:TELE_SELF | TELE_LEVEL | BLIND | CONFUSE | SCARE | CAUSE_4 |
+S:BRAIN_SMASH | AMNESIA | MANA_STORM | BA_FIRE(1d700+20) |
+S:BA_WATER(1d200+50) | BA_NETHER(10d10+250) | BA_DARK |
+S:S_MONSTER | S_HI_DEMON | S_HI_UNDEAD | S_HI_DRAGON |
+S:HAND_DOOM | ANIM_DEAD | DISPEL_MAGIC | ANTI_MAGIC | PSY_SPEAR(1d200+150)
+O:9d2:OBJ(*, GREAT)
+O:10%:ART(=.Power)
+D:Mighty in spells and enchantments, Sauron created the One Ring. His eyes glow with power
+D:and his gaze seeks to destroy your soul. He has many servants and rarely fights without them.
+I:COLOR(Orange)
+P:Copy:Dunadan:Mage
+P:Stats:1:2:0:1:2:2
+P:Skill:Thn(50+100)
+P:Life:110
+P:Speed:+10
+
+########################################################################
+# Dark-Elves
+N:h.dark elf:Dark elf
+I:LVL(7,40):RARITY(2)
+I:HP(7d10):AC(16):EXP(25):EVOLVE(h.dark elven lord, 700)
+I:KIND(DARK_ELF):ALIGN(Evil):ATTR(SMART|MALE)
+I:ALERT(200',Fairly Unseeing):MOVE(OPEN|BASH)
+B:HIT(x2):HURT(1d5+1)
+I:RESIST(DARK):VULN(LIGHT)
+S:1_IN_10 | CONFUSE | DARKNESS | MISSILE
+O:90%:OBJ(*$)
+D:An elven figure with jet black skin and white hair, his eyes are large and
+D:twisted with evil.
+I:DISPLAY(h,Light Dark):POS(CORPSE|SKELETON|SEE_INVIS)
+P:Copy:Dark-Elf:Mage
+P:Weight:150
+
+N:h.dark elven mage:h.dark elf:Dark elven mage
+I:LVL(10,40):RARITY(1)
+I:SPEED(+10):HP(7d10):AC(16):EXP(50):EVOLVE(h.dark elven warlock, 700)
+B:HIT(x2):HURT(1d6)
+I:RESIST(POIS)
+S:1_IN_5 | BLIND | CONFUSE | MISSILE | DARKNESS
+S:BA_POISON | BO_COLD | DETECT_TRAPS | DETECT_MONSTERS
+O:1d2:DROP_MAGE
+D:A dark elven figure, dressed all in black, hurling spells at you.
+I:COLOR(Red)
+
+N:h.dark elven warrior:h.dark elf:Dark elven warrior
+I:LVL(10,40):RARITY(1)
+I:HP(10d11):AC(16):EXP(50):EVOLVE(h.dark elven lord, 700)
+B:HIT(x2):HURT(1d8)
+S:1_IN_12 | MISSILE
+O:1d2:DROP_WARRIOR
+D:A dark elven figure in armour and ready with his sword.
+I:COLOR(Light Dark)
+P:Copy:Dark-Elf:Warrior-Mage
+
+N:h.dark elven priest:h.dark elf:Dark elven priest
+I:LVL(12,50):RARITY(1)
+I:SPEED(+5):HP(7d10):AC(30):EXP(50):EVOLVE(h.dark elven druid, 600)
+B:HIT(x2):HURT(1d4+3)
+S:1_IN_5 | HEAL | BLIND | CONFUSE | CAUSE_2 | DARKNESS | MISSILE | DETECT_EVIL | BLESS
+O:1d2:DROP_PRIEST_EVIL
+D:A dark elven figure, dressed all in black, chanting curses and waiting to
+D:deliver your soul to hell.
+I:COLOR(Blue)
+P:Copy:Dark-Elf:Priest
+
+N:h.dark elven lord:h.dark elf:Dark elven lord
+I:LVL(20,70):RARITY(2):ALLOC(ESCORT)
+I:SPEED(+10):HP(18d15):AC(40):EXP(500)
+B:HIT(x2):HURT(2d6+5)
+S:1_IN_5 | DETECT_MONSTERS | DETECT_TRAPS
+S:HASTE | BLIND | CONFUSE | DARKNESS | BO_FIRE | BO_COLD | MISSILE
+O:1d2+1:OBJ(*)
+M:2d3:MON(DARK_ELF)
+D:A dark elven figure in armour and radiating evil power.
+I:COLOR(Light Dark)
+P:Copy:Dark-Elf:Chaos-Warrior
+
+N:h.dark elven warlock:h.dark elf:Dark elven warlock
+I:LVL(23):RARITY(1)
+I:SPEED(+10):HP(7d10):AC(16):EXP(75):EVOLVE(h.dark elven sorcerer, 20000)
+B:HIT(x2):HURT(1d5)
+S:1_IN_5 | CONFUSE | MISSILE | DARKNESS | BO_MANA | DETECT_MONSTERS | DETECT_TRAPS
+O:1d2:DROP_MAGE
+M:50%:2d3:MON(h.dark elven warlock)
+D:A dark elven mage with spells of frightening destructive power.
+I:COLOR(Violet)
+P:Speed:+5
+
+N:h.dark elven druid:h.dark elf:Dark elven druid
+I:LVL(25,60):RARITY(3)
+I:SPEED(+10):HP(20d20):AC(75):EXP(500)
+I:ALERT(Fairly Observant)
+B:HIT(x2):HURT(1d6)
+B:HIT:HURT(2d7+4)
+I:RESIST(POIS|CONF):IMMUNE(SLEEP)
+S:1_IN_6 | HEAL | CONFUSE | DARKNESS | S_MONSTER(1) | S_SPIDER | MISSILE | MAPPING | BLESS
+O:1d2:DROP_PRIEST_EVIL
+D:A powerful dark elf with mighty nature-controlling enchantments.
+I:COLOR(Light Green)
+P:Copy:Dark-Elf:Priest
+
+N:h.nightblade:h.dark elf:Nightblade
+I:LVL(36):RARITY(2)
+I:SPEED(+10):HP(19d13):AC(60):EXP(315)
+I:CAN(INVIS):ALERT(Fairly Observant)
+B:HIT(x2):HURT(2d4+3):POISON(3d4)
+B:HIT:HURT(2d4+3):LOSE_CON(50%)
+I:RESIST(CONF):IMMUNE(SLEEP)
+O:1d2:OBJ(*$)
+M:2d3:MON(h.nightblade)
+D:A dark elven assassin, so stealthy that he is almost impossible to see.
+I:COLOR(Light Dark):POS(BACKSTAB)
+P:Copy:Dark-Elf:Ninja
+P:Speed:+7
+
+N:h.Malekith:h.dark elf:Malekith the Accursed
+I:LVL(40):RARITY(2):ALLOC(UNIQUE|ESCORT)
+I:SPEED(+15):HP(2500):AC(70):EXP(7500)
+I:CAN(SPEAK|REGEN):ALERT(Fairly Observant)
+B:HIT(x2):HURT(2d9+50)
+A:CAUSE_3(3d3)
+I:RESIST(CONF|NETHER):IMMUNE(SLEEP|SLOW)
+S:1_IN_2 | HEAL | TELE_TO | BLIND | CONFUSE | CAUSE_3 | DARKNESS | AMNESIA | PARALYZE |
+S:S_MONSTER | S_DEMON | TELE_SELF | BA_NETHER | MIND_BLAST | S_KIN | DETECT_MONSTERS | MAPPING
+O:4d2+1:OBJ(*, GOOD):DROP_MAGE
+M:3d7:MON(DARK_ELF)
+D:One of the oldest and most powerful dark elves, Malekith is a master sorcerer devoted
+D:to evil. The left side of his face is pale, the other one is dark. His hair is long and white.
+I:COLOR(Violet)
+P:Copy:Dark-Elf:Mage
+P:Skill:Thn(50+80)
+
+N:h.Eol:h.dark elf:Eol, the Dark Elven Smith
+I:LVL(40):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+10):HP(2200):AC(110):EXP(8000)
+I:CAN(SPEAK):ALERT(300',Observant):MOVE(PUSH)
+B:GAZE:PARALYZE
+B:HIT(x3):HURT(3d12+12)
+I:RESIST(ACID|FIRE|COLD|POIS)
+O:3d2:OBJ(*, GOOD)
+S:1_IN_3 | PARALYZE | SCARE | DARKNESS | BLIND | IDENTIFY
+D:A grim-faced dark elf, garbed in layer upon layer of gleaming black armour.
+D:As strong as he is magical, Eol is a worthy opponent.
+I:COLOR(Light Dark)
+P:Copy:Dark-Elf:Chaos-Warrior
+
+N:h.dark elven sorcerer:h.dark elf:Dark elven sorcerer
+I:LVL(41):RARITY(2)
+I:SPEED(+20):HP(800):AC(70):EXP(5000):EVOLVE(h.dark elven shade, 30000)
+I:ALERT(Fairly Observant)
+B:HIT:HURT(2d8)
+B:HIT:HURT(2d8)
+B:HIT:HURT(2d8)
+I:RESIST(CONF):IMMUNE(SLEEP|SLOW)
+S:1_IN_2 | HEAL | BLINK | BLINK_OTHER | TELE_TO | BLIND | CONFUSE | CAUSE_3 | DARKNESS
+S:BO_ACID | BA_FIRE | BA_COLD | ANIM_DEAD | BA_DARK | S_MONSTER | S_UNDEAD | S_DEMON | MISSILE
+S:DETECT_MONSTERS | MAPPING | DETECT_TRAPS | DETECT_OBJECTS
+O:2d2+2:DROP_MAGE
+D:A dark elven figure, dressed in deepest black. Power seems to crackle from his slender frame.
+I:COLOR(Light Blue)
+P:Copy:Dark-Elf:Mage
+P:Speed:+10
+
+N:h.dark elven shade:h.dark elf:Dark elven shade
+I:LVL(51):RARITY(2)
+I:SPEED(+20):HP(864):AC(50):EXP(6000)
+I:KIND(UNDEAD):CAN(INVIS):ATTR(COLD_BLOOD):ALERT(Fairly Observant)
+B:TOUCH:VAMP(1d16)
+B:TOUCH:DRAIN_MANA(3d10)
+B:TOUCH:DAM(8d8):LOSE_DEX(50%)
+B:TOUCH:DAM(8d8):LOSE_INT(50%)
+I:RESIST(CONF):IMMUNE(NETHER|SLEEP|SLOW)
+S:1_IN_2 | HEAL | BLINK | BLINK_OTHER | BLIND | CONFUSE | CAUSE_3 | DARKNESS | ANIM_DEAD
+S:SHRIEK | TELE_OTHER | BA_DARK | DRAIN_MANA | S_MONSTER(1) | S_UNDEAD | S_DEMON | S_KIN
+O:2d2+2:OBJ(*):DROP_MAGE
+D:A dark elven figure that glows with an inner light.
+I:COLOR(White):POS(-CORPSE|-SKELETON)
+P:Copy:Dark-Elf:Mage
+P:Speed:+10
+
+N:h.Maeglin:h.dark elf:Maeglin, Betrayer of Gondolin
+I:LVL(56):RARITY(5):ALLOC(UNIQUE)
+I:SPEED(+10):HP(3200):AC(50):EXP(20000)
+I:CAN(SPEAK):MOVE(PUSH)
+B:HIT:HURT(2d11+11):LOSE_WIS
+B:HIT:HURT(2d11+11):LOSE_INT
+B:HIT:SHATTER(10d10)
+B:HIT:HURT(6d10+10)
+I:RESIST(BASE|POIS)
+S:1_IN_4 | BA_ACID(1d336+30) | BA_ELEC(1d168+16) | HASTE | HEAL |
+S:S_MONSTER(1) | TELE_SELF | TELE_TO | DETECT_MONSTERS
+O:6d2:OBJ(*, GOOD)
+D:A dark elf, mighty in Gondolin, and betrayer of that hidden city to Morgoth's wrath.
+I:COLOR(Red)
+P:Copy:Dark-Elf:Rogue
+
+########################################################################
+# Elves
+N:h.nixie:Nixie
+I:LVL(14,50):RARITY(1):WILD(SHORE|OCEAN)
+I:HP(16d10):AC(45):EXP(60)
+I:KIND(AQUATIC|ELF):ATTR(MALE)
+I:ALERT(200',Unseeing):MOVE(SWIM)
+B:HIT(x2):HURT(3d3+3)
+I:RESIST(WATER)
+D:A race of fair yet belligerent sea elves.
+I:DISPLAY(h,Light Blue)
+P:Copy:Water-Elf:Warrior
+P:Weight:110
+
+N:h.elf lord:Elf lord
+I:LVL(25,70):RARITY(2):WILD(TOWN|WOOD)
+I:SPEED(+11):HP(15d15):AC(50):EXP(555)
+I:KIND(ELF):ALIGN(Good):ATTR(MALE|FRIENDLY)
+I:ALERT(150',Fairly Observant):MOVE(OPEN|BASH)
+B:HIT(x2):HURT(1d9)
+B:HIT:HURT(2d8+8)
+I:IMMUNE(SLEEP)
+S:1_IN_3 | HEAL | BLINK | TELE_SELF | BA_FIRE | SHOOT(7d6) | BA_COLD
+O:1d2:OBJ(*, GOOD)
+D:A powerful elven leader who knows some magic as well.
+I:DISPLAY(h,Green):POS(CORPSE|SEE_INVIS)
+P:Copy:High-Elf:Ranger
+P:Weight:150
+
+N:h.high-elven ranger:High-elven ranger
+I:LVL(40):RARITY(3):WILD(TOWN|WOOD)
+I:SPEED(+5):HP(50d30):AC(70):EXP(500)
+I:KIND(ELF):ALIGN(Good):ATTR(SMART|MALE)
+I:ALERT(200',Fairly Unseeing):MOVE(OPEN|BASH)
+B:HIT(x2):HURT(2d8+35)
+I:RESIST(ACID|COLD|NETHER|WATER)
+S:FREQ_30 | SHOOT(9d6) | DETECT_MONSTERS | MAPPING
+M:1d5:MON(h.high-elven ranger)
+M:50%:MON(h.elf lord)
+D:An elf cloaked in green wielding a longbow.
+I:DISPLAY(h,Light Green):POS(CORPSE|SKELETON|SEE_INVIS)
+P:Copy:High-Elf:Ranger
+P:Weight:150
+
+########################################################################
+# Dwarves ... Mostly nibelungs
+T:h.dwarf:Dwarf
+I:DISPLAY(h):POS(CORPSE|SKELETON)
+I:KIND(DWARF):ATTR(SMART|MALE)
+I:ALERT(200',Fairly Observant):MOVE(OPEN|BASH|PICKUP)
+I:IMMUNE(BLIND)
+P:Weight:150
+
+N:h.nibelung:h.dwarf:Nibelung
+I:LVL(6,40):RARITY(1)
+I:HP(8d4):AC(12):EXP(6)
+I:KIND(THIEF):ALERT(Observant)
+B:HIT:HURT(1d5+2)
+B:TOUCH:EAT_GOLD
+I:RESIST(DARK|DISENCHANT):VULN(LIGHT)
+M:1d8:MON(h.nibelung)
+O:50%:DROP_DWARF
+O:50%:1d2:OBJ(GOLD)
+D:Night dwarfs collecting new riches for their master, Alberich.
+I:COLOR(Light Dark)
+P:Copy:Nibelung:Rogue
+
+N:h.Nar:h.dwarf:Nar, the Dwarf
+I:LVL(17):RARITY(2):ALLOC(UNIQUE)
+I:HP(450):AC(70):EXP(250)
+I:CAN(SPEAK):ALERT(250',Fairly Unseeing):MOVE(PUSH)
+B:HIT(x4):HURT(1d5+5)
+I:RESIST(FIRE|COLD|POIS|CONF):IMMUNE(SLEEP)
+S:1_IN_6 | HEAL | BLIND | CONFUSE | CAUSE_2 | MIND_BLAST
+O:1d2:OBJ(*, GOOD):DROP_DWARF
+O:10%:OBJ(RING):EGO(dwarves)
+D:This dwarf became so obsessed by gold that Morgoth tricked him into
+D:betraying his friends.
+I:COLOR(Yellow)
+P:Copy:Dwarf:Paladin
+
+N:h.Mime:h.nibelung:Mime, the Nibelung
+I:LVL(24):RARITY(2):ALLOC(UNIQUE)
+I:HP(820):AC(80):EXP(300)
+I:ALIGN(Evil):CAN(SPEAK)
+B:HIT(x2):HURT(1d6+7)
+B:HIT:DISENCHANT
+B:TOUCH:EAT_GOLD
+I:RESIST(FIRE|COLD|CONF):IMMUNE(SLEEP|TELE)
+S:1_IN_8 | HEAL | HASTE | BO_FIRE
+O:1d2:OBJ(*, GOOD):DROP_DWARF
+O:1d2:OBJ(GOLD)
+D:This tiny night dwarf is as greedy for gold as his brother, Alberich.
+I:COLOR(Umber)
+
+N:h.Hagen:h.nibelung:Hagen, Son of Alberich
+I:LVL(24):RARITY(2):ALLOC(UNIQUE)
+I:HP(820):AC(80):EXP(300)
+I:ALIGN(Evil):CAN(SPEAK)
+B:HIT(x3):HURT(1d7+8)
+B:HIT:DISENCHANT
+I:RESIST(FIRE|COLD|CONF):IMMUNE(SLEEP|TELE)
+S:1_IN_8 | HEAL | HASTE | BO_FIRE
+O:1d2:OBJ(*, GOOD):DROP_DWARF
+O:1d2:OBJ(GOLD)
+O:66%:ART(/.Hagen)
+D:Alberich's son, born of a mortal woman won with gold.
+I:COLOR(Orange)
+
+N:h.Alberich:h.nibelung:Alberich the Nibelung King
+I:LVL(27):RARITY(4):ALLOC(UNIQUE)
+I:SPEED(+10):HP(880):AC(80):EXP(1000)
+I:ALIGN(Evil):CAN(SPEAK|INVIS)
+B:HIT(x2):HURT(1d12+13):DISENCHANT
+B:TOUCH(x2):EAT_GOLD
+I:RESIST(BASE|POIS|CONF):IMMUNE(SLEEP|TELE)
+S:1_IN_6 | HEAL | SCARE | BO_ACID | BA_ACID | TELE_SELF | S_MONSTER(1)
+O:2d2:OBJ(*, GOOD):DROP_DWARF
+O:2d2+1:OBJ(GOLD)
+O:16%:OBJ(RING):EGO(dwarves)
+D:Made invisible with his magic cap, the greedy dwarf plots for
+D:world domination through his riches.
+I:COLOR(Light Dark):POS(SEE_INVIS)
+P:Speed:+5
+
+N:h.Fundin:h.dwarf:Fundin Bluecloak
+I:LVL(56):RARITY(2):ALLOC(D_MORIA|UNIQUE)
+I:SPEED(+20):HP(5000):AC(195):EXP(20000)
+I:CAN(SPEAK):ATTR(FRIENDLY):ALERT(250',Fairly Observant)
+B:HIT:HURT(3d10+40)
+B:HIT(x3):HURT(3d6+20)
+I:RESIST(BASE|POIS|CONF):IMMUNE(SLEEP|SLOW)
+O:5d2:OBJ(*, GOOD):DROP_PRIEST
+O:5%:ART(\.Fundin)
+O:35%:OBJ(RING):EGO(dwarves)
+S:1_IN_4 | HEAL | BLIND | CONFUSE | SCARE | CAUSE_3 | CAUSE_4 | BRAIN_SMASH |
+S:AMNESIA | S_MONSTER | DETECT_MONSTERS | MAPPING | BLESS | HEROISM
+D:He is one of the greatest dwarven priests to walk the earth. Fundin has
+D:earned a high position in the church, and his skill with both weapon and
+D:spell only justify his position further. His combination of both dwarven
+D:strength and priestly wisdom are a true match for any adventurer.
+I:COLOR(Light Green):POS(SEE_INVIS|HOLD_LIFE|SUST_WIS)
+P:Copy:Dwarf:Priest
+
+########################################################################
+# Gnomes
+N:h.gnome mage:Gnome mage
+I:LVL(15,60):RARITY(2)
+I:HP(7d8):AC(20):EXP(40)
+I:ALIGN(Evil):LIGHT(0+1):ATTR(MALE)
+I:ALERT(200',Fairly Unseeing):MOVE(OPEN|BASH)
+B:HIT:HURT(1d4+1)
+S:1_IN_4 | BLINK | BLINK_OTHER | DARKNESS | BO_COLD | S_MONSTER(1) | DETECT_MONSTERS | DETECT_TRAPS
+O:60%:DROP_MAGE
+M:1d4:MON(h.gnome mage)
+D:A mage of short stature.
+I:DISPLAY(h,Light Red):POS(CORPSE|SKELETON)
+P:Copy:Gnome:Mage
+P:Weight:70
+
+########################################################################
+# Hobbits
+T:h.hobbit:Hobbit
+I:DISPLAY(h):WILD(TOWN):POS(CORPSE|SKELETON)
+I:KIND(HOBBIT):LIGHT(0+1):ATTR(MALE)
+I:ALERT(200',Fairly Observant):MOVE(OPEN|BASH|PICKUP|SWIM)
+P:Weight:100
+
+N:h.Maggot:h.hobbit:Farmer Maggot
+I:LVL(0):RARITY(3):ALLOC(UNIQUE):WILD(ONLY)
+I:HP(350):AC(10):EXP(0)
+I:CAN(SPEAK):ATTR(FRIENDLY):ALERT(400',Very Observant)
+B:MOAN(x2)
+B:HIT:HURT(1d5)
+I:RESIST(CONF):IMMUNE(SLEEP)
+O:OBJ(*, GREAT)
+D:Before you appears a broad thick-set hobbit with a round red face.
+D:"What's wrong with old Maggot?" asked Pippin. "He's a good friend to
+D:all the Brandybucks. Of course he's a terror to trespassers, and keeps
+D:ferocious dogs -- but after all, folk down here are near the border and
+D:have to be more on their guard."
+I:COLOR(White)
+P:Copy:Hobbit:Warrior
+P:Life:70
+
+N:h.scruffy hobbit:h.hobbit:Scruffy looking hobbit
+I:LVL(3,30):RARITY(1)
+I:HP(3d5):AC(8):EXP(5):EVOLVE(h.halfling slinger, 5000)
+I:KIND(THIEF)
+B:HIT:HURT(1d5+1)
+B:TOUCH:EAT_GOLD
+O:1d2:DROP_HOBBIT
+O:50%:OBJ(GOLD)
+D:A short little guy in bedraggled clothes. He appears to be looking
+D:for a good tavern as he mutters something about missing second breakfast.
+I:COLOR(Slate)
+P:Copy:Hobbit:Rogue
+
+# XXX Why Invisible? He lost his precious!
+# XXX Once not very different from a hobbit ... 
+N:h.Smeagol:h.hobbit:Smeagol
+I:LVL(3):RARITY(2):ALLOC(UNIQUE):WILD(ALL)
+I:SPEED(+20):HP(400):AC(12):EXP(18)
+I:ALIGN(Evil):CAN(SPEAK):ATTR(SMART)
+I:ALERT(Observant):MOVE(RAND_75)
+B:TOUCH:EAT_GOLD
+O:OBJ(*,GREAT)
+O:1d2:OBJ(GOLD)
+D:"Down the face of a precipice, sheer and almost smooth it seemed in the pale
+D:moonlight, a small black shape was moving with its thin limbs splayed out.
+D:Maybe its soft clinging hands and toes were used, but it looked as if it was
+D:just creeping down on sticky pads, like some large prowling thing of
+D:insect-kind. And it was coming down head first, as if it was smelling its
+D:way. Now and again it lifted its head slowly, turning it right back on its
+D:long skinny neck, and the hobbits caught a glimpse of two small pale gleaming
+D:lights, its eyes that blinked at the moon for a moment and then were quickly
+D:lidded again."
+I:COLOR(Umber)
+P:Copy:Hobbit:Rogue
+
+N:h.Bullroarer:h.hobbit:Bullroarer the Hobbit
+I:LVL(5):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+10):HP(60):AC(8):EXP(90)
+I:KIND(THIEF)
+B:HIT:HURT(2d6)
+B:TOUCH:EAT_ITEM
+B:TOUCH:EAT_GOLD
+O:2d2:OBJ(*, GOOD)
+O:1d2:OBJ(GOLD)
+D:He is a sturdy hobbit who is renowned for his unusual strength and
+D:vigour. He can prove a troublesome opponent.
+I:COLOR(Blue)
+P:Copy:Hobbit:Rogue
+P:Stats:2:0:0:0:2:1
+P:Weight:140
+
+N:h.halfling slinger:h.hobbit:Halfling slinger
+I:HP(270):AC(40):EXP(330)
+I:LVL(35,80):RARITY(1)
+I:ALERT(Fairly Unseeing)
+B:HIT(x2):HURT(1d6+4)
+I:RESIST(COLD|POIS)
+S:FREQ_15 | SHOOT(6d6)
+O:90%:DROP_ARCHER
+M:2d3:MON(h.halfling slinger)
+D:A rebel halfling who has rejected the halfling tradition of archery.
+I:COLOR(Light Umber)
+P:Copy:Hobbit:Archer
+
+N:h.bazooker:h.hobbit:Bazooker
+I:LVL(35,80):RARITY(2)
+I:HP(320):AC(60):EXP(1500)
+I:ALERT(400',Overlooks)
+B:HIT(x4):HURT(2d4)
+S:FREQ_10 | ROCKET(150)
+O:1d2:OBJ(*$)
+D:You watch in horror as he aims his massive weapon at you.
+I:COLOR(Light Blue)
+P:Copy:Hobbit:Blood-Knight
+
+# vim: filetype=ri :
+

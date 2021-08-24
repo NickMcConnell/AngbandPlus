@@ -21,9 +21,9 @@ L:<:UP_STAIR
 L:.:FLOOR
 L:~:SHALLOW_WATER
 L:*:DEEP_WATER
-L:a:MON(giant white rat)
-L:b:MON(bat of gorgoroth, NO_GROUP)
-L:c:SHALLOW_WATER:MON(giant slug)
+L:a:MON(r.white rat)
+L:b:MON(b.gorgoroth, NO_GROUP)
+L:c:SHALLOW_WATER:MON(j.slug)
 L:d:SHALLOW_WATER:MON(^devilfish$)
 L:e:MON(wererat)
 L:f:MON(blue icky thing)

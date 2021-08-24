@@ -7,7 +7,7 @@ static int _get_powers(spell_info* spells, int max)
     spell_info* spell = &spells[ct++];
     spell->level = 25;
     spell->cost = 1;
-    spell->fail = calculate_fail_rate(spell->level, 90, p_ptr->stat_ind[A_INT]);
+    spell->fail = calculate_fail_rate(spell->level, 90, plr->stat_ind[A_INT]);
     spell->fn = eat_magic_spell;
 
     return ct;
@@ -15,8 +15,8 @@ static int _get_powers(spell_info* spells, int max)
 
 void _calc_bonuses(void)
 {
-    if (p_ptr->lev >= 30)
-        p_ptr->wizard_sight = TRUE;
+    if (plr->lev >= 30)
+        plr->wizard_sight = TRUE;
 }
 
 static caster_info * _caster_info(void)
@@ -32,7 +32,7 @@ static caster_info * _caster_info(void)
         me.encumbrance.enc_wgt = 600;
         me.options = CASTER_ALLOW_DEC_MANA | CASTER_GLOVE_ENCUMBRANCE;
         me.realm1_choices = CH_LIFE | CH_SORCERY | CH_NATURE | CH_CHAOS | CH_DEATH | CH_TRUMP |
-            CH_ARCANE | CH_ENCHANT | CH_DAEMON | CH_CRUSADE | CH_ARMAGEDDON;
+            CH_ARCANE | CH_ENCHANT | CH_DAEMON | CH_CRUSADE | CH_ARMAGEDDON | CH_ILLUSION;
         me.realm2_choices = me.realm1_choices;
         init = TRUE;
     }
@@ -53,7 +53,7 @@ plr_class_ptr mage_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  40,  38,   3,  16,  20,  34,  20};
-    skills_t xs = {  7,  15,  11,   0,   0,   0,   6,   7};
+    skills_t xs = { 35,  75,  55,   0,   0,   0,  30,  35};
 
         me = plr_class_alloc(CLASS_MAGE);
         me->name = "Mage";

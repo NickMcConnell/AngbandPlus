@@ -2,33 +2,6 @@
 #include "dun.h"
 #include <assert.h>
 
-static dun_feat_ptr _find_feature(int id)
-{
-    return &f_info[id];
-}
-static dun_feat_ptr _find_feature_mimic(dun_grid_ptr g)
-{
-    int id = g->mimic ? g->mimic : g->feat;
-    dun_feat_ptr f = _find_feature(id);
-    return _find_feature(f->mimic);
-}
-/************************************************************************
- * Grid
- ************************************************************************/
-bool dun_grid_allow_drop(dun_grid_ptr grid)
-{
-    if (!grid) return FALSE;
-    if (grid->info & CAVE_OBJECT) return FALSE;
-    return have_flag(_find_feature(grid->feat)->flags, FF_DROP);
-}
-dun_feat_ptr dun_grid_feat(dun_grid_ptr grid)
-{
-    return _find_feature(grid->feat);
-}
-dun_feat_ptr dun_grid_feat_mimic(dun_grid_ptr grid)
-{
-    return _find_feature_mimic(grid);
-}
 /************************************************************************
  * Page
  ************************************************************************/
@@ -59,21 +32,20 @@ static void _mon_free(mon_ptr mon)
     {
         mon_race_ptr race = mon_true_race(mon);
 
-        assert(race->cur_num > 0);
-        race->cur_num--;
-        if (mon->id == target_who) target_who = 0;
-        if (mon->pack_idx)
-        {
-            dun_mgr_ptr dm = dun_mgr();
-            mon_pack_ptr pack = int_map_find(dm->packs, mon->pack_idx);
-            assert(pack);
-            if (pack)
-            {
-                pack->count--;
-                if (pack->count <= 0)
-                    int_map_delete(dm->packs, mon->pack_idx);
-            }
-        }
+        /*assert(race->cur_num > 0); XXX wizard commands ... */
+        race->alloc.cur_num--;
+
+        if (who_is_mon_id(plr->target, mon->id))
+            plr->target = who_create_null();
+        if (who_is_mon_id(plr->pet_target, mon->id))
+            plr->pet_target = who_create_null();
+        if (who_is_mon_id(plr->riding_target, mon->id))
+            plr->riding_target = who_create_null();
+        if (who_is_mon_id(plr->duelist_target, mon->id))
+            plr->duelist_target = who_create_null();
+
+        if (mon->pack)
+            mon_pack_remove(mon->pack, mon);
         mon_free(mon);
     }
 }
@@ -81,13 +53,14 @@ dun_ptr dun_alloc_aux(int id) /* for savefiles and D_SURFACE */
 {
     dun_ptr d = malloc(sizeof(dun_t));
     memset(d, 0, sizeof(dun_t));
-    d->dun_id = id;
+    d->id = id;
     d->mon = int_map_alloc((int_map_free_f)_mon_free);
     d->graveyard = vec_alloc((vec_free_f)_mon_free);
     d->obj = int_map_alloc((int_map_free_f)obj_free);
     d->junkpile = vec_alloc((vec_free_f)obj_free);
     d->mon_pos = point_map_alloc(NULL);
     d->obj_pos = point_map_alloc(NULL);
+    d->flows = point_map_alloc((point_map_free_f)dun_flow_free);
     return d;
 }
 dun_ptr dun_alloc(int id, rect_t rect)
@@ -111,10 +84,12 @@ static void _clear_obj(dun_ptr dun)
     {
         obj_ptr obj = int_map_iter_current(iter);
 
-        if (obj_is_std_art(obj) && !obj_is_known(obj))
-            a_info[obj->name1].generated = FALSE;
-        if (random_artifacts && obj->name3 && !obj_is_known(obj))
-            a_info[obj->name3].generated = FALSE;
+        if (obj_is_known(obj)) continue;
+
+        if (obj->art_id)
+            arts_lookup(obj->art_id)->generated = FALSE;
+        if (obj->replacement_art_id)
+            arts_lookup(obj->replacement_art_id)->generated = FALSE;
     }
     int_map_iter_free(iter);
     int_map_clear(dun->obj);
@@ -127,16 +102,16 @@ static void _clear_stairs(dun_ptr dun)
     {
         dun_stairs_ptr x = stairs;
         stairs = stairs->next;
+        if (x->flow) dun_flow_free(x->flow);
         free(x);
     }
     dun->stairs = NULL; 
 }
-void _clear_grid(point_t pos, cave_ptr grid)
+void _clear_grid(point_t pos, dun_grid_ptr grid)
 {
-    grid->mimic = 0;
-    grid->special = 0;
-    grid->feat = feat_floor;
-    grid->info = 0;
+    /* XXX */
+    memset(grid, 0, sizeof(dun_grid_t));
+    grid->flags |= CELL_PROJECT | CELL_LOS;
 }
 void dun_clear(dun_ptr dun)
 {
@@ -164,7 +139,7 @@ static void _clear_mon_page(dun_ptr dun, dun_page_ptr page)
     for (i = 0; i < vec_length(v); i++)
     {
         mon_ptr mon = vec_get(v, i);
-        if (mon->id == target_who) target_who = 0;
+        /* XXX targets ... cf _mon_free */
         dun_delete_mon(dun, mon->id);
     }
     vec_free(v);
@@ -218,7 +193,13 @@ void dun_free(dun_ptr dun)
 {
     dun_page_ptr p;
     if (!dun) return;
+    if (dun->town)
+    {
+        town_free(dun->town);
+        dun->town = NULL;
+    }
     dun_clear(dun);
+    point_map_free(dun->flows);
     point_map_free(dun->obj_pos);
     point_map_free(dun->mon_pos);
     vec_free(dun->junkpile);
@@ -251,19 +232,72 @@ bool dun_pos_interior(dun_ptr dun, point_t pos)
     return dun->rect.x < pos.x && pos.x < dun->rect.x + dun->rect.cx - 1 &&
            dun->rect.y < pos.y && pos.y < dun->rect.y + dun->rect.cy - 1;
 }
+rect_t dun_clip_rect(dun_ptr dun, rect_t rect)
+{
+    rect_t r = rect_interior(dun->rect);
+    return rect_intersect(r, rect);
+}
+dun_grid_ptr _page_grid_at(dun_page_ptr page, point_t pos)
+{
+    int x, y, i;
+    assert(rect_contains_point(page->rect, pos));
+    x = pos.x - page->rect.x;
+    y = pos.y - page->rect.y;
+    i = y * page->rect.cx + x;
+    return &page->grids[i];
+}
 dun_grid_ptr dun_grid_at(dun_ptr dun, point_t pos)
 {
-    dun_page_ptr p;
+    return dun_cell_at(dun, pos);
+}
+dun_cell_ptr dun_cell_at(dun_ptr dun, point_t pos)
+{
     assert(rect_contains_point(dun->rect, pos));
-    for (p = dun->page; p; p = p->next)
+    if ((dun->flags & DF_PAGELOCK) || 0)
     {
-        assert(rect_contains(dun->rect, p->rect));
-        if (rect_contains_point(p->rect, pos))
+        dun_page_ptr p;
+        for (p = dun->page; p; p = p->next)
         {
-            int x = pos.x - p->rect.x;
-            int y = pos.y - p->rect.y;
-            int i = y * p->rect.cx + x;
-            return &p->grids[i];
+            assert(rect_contains(dun->rect, p->rect));
+            if (rect_contains_point(p->rect, pos))
+                return _page_grid_at(p, pos);
+        }
+    }
+    else
+    {
+        /* Locality of reference optimization for D_SURFACE. We'll check the first
+         * page for a hit. If we miss, then we'll locate the correct page and move
+         * it to the front. This optimization is stable (ie does not reorder other
+         * pages in the list). Thus a cluster of "hot" pages will stay at the front. 
+         * This optimization is blocked if DF_PAGELOCK is set (cf dun_world.c) */
+        dun_page_ptr p = dun->page, prev;
+        if (rect_contains_point(p->rect, pos))
+            return _page_grid_at(p, pos);
+        assert(p->next);
+        prev = p;
+        p = p->next;
+        while (p)
+        {
+            if (rect_contains_point(p->rect, pos))
+            {
+                dun_grid_ptr g = _page_grid_at(p, pos);
+
+                assert(prev);
+                assert(p != dun->page); /* we checked the first page above */
+
+                /* unlink p */
+                prev->next = p->next;
+                if (p->next)
+                    p->next->prev = prev;
+                /* move p to front of page list */
+                p->next = dun->page;
+                dun->page->prev = p;
+                dun->page = p;
+
+                return g;
+            }
+            prev = p;
+            p = p->next;
         }
     }
     assert(0);
@@ -313,33 +347,23 @@ point_vec_ptr dun_filter_grids(dun_ptr dun, dun_grid_p p)
 }
 void dun_iter_grids(dun_ptr dun, void (*f)(point_t pos, dun_grid_ptr grid))
 {
-    /* optimize the common case */
-    assert(dun->page);
-    if (rect_equals(dun->rect, dun->page->rect))
+    dun_page_ptr page;
+    /* optimized for D_SURFACE (cf wiz_lite) */
+    dun->flags |= DF_PAGELOCK; /* XXX essential in case f calls dun_grid_at, say, an adjacent pos */
+    for (page = dun->page; page; page = page->next)
     {
-        dun_grid_ptr grid = dun->page->grids;
+        dun_grid_ptr grid = page->grids;
         point_t pos;
-        for (pos.y = dun->rect.y; pos.y < dun->rect.y + dun->rect.cy; pos.y++)
+        for (pos.y = page->rect.y; pos.y < page->rect.y + page->rect.cy; pos.y++)
         {
-            for (pos.x = dun->rect.x; pos.x < dun->rect.x + dun->rect.cx; pos.x++)
+            for (pos.x = page->rect.x; pos.x < page->rect.x + page->rect.cx; pos.x++)
             {
                 f(pos, grid);
                 grid++;
             }
         }
     }
-    else
-    {
-        point_t pos;
-        for (pos.y = dun->rect.y; pos.y < dun->rect.y + dun->rect.cy; pos.y++)
-        {
-            for (pos.x = dun->rect.x; pos.x < dun->rect.x + dun->rect.cx; pos.x++)
-            {
-                dun_grid_ptr grid = dun_grid_at(dun, pos);
-                f(pos, grid);
-            }
-        }
-    }
+    dun->flags &= ~DF_PAGELOCK;
 }
 void dun_iter_boundary(dun_ptr dun, dun_grid_f f)
 {
@@ -375,8 +399,40 @@ void dun_iter_adjacent(dun_ptr dun, point_t pos, dun_grid_f f)
             f(p, dun_grid_at(dun, p));
     }
 }
+static void _page_iter_rect(dun_ptr dun, dun_page_ptr page, rect_t rect, dun_grid_f f)
+{
+    point_t min = rect_top_left(rect);
+    point_t max = rect_bottom_right(rect), p;
+    dun_grid_ptr row, g;
+
+    assert(rect_contains(page->rect, rect));
+
+    row = _page_grid_at(page, rect_top_left(rect));
+    for (p.y = min.y; p.y <= max.y; p.y++)
+    {
+        g = row;
+        for (p.x = min.x; p.x <= max.x; p.x++)
+        {
+            /*assert(_page_grid_at(page, p) == g);*/
+            f(p, g++);
+        }
+        row += page->rect.cx;
+    }
+}
 void dun_iter_rect(dun_ptr dun, rect_t rect, dun_grid_f f)
 {
+    #if 1
+    dun_page_ptr page;
+    /* optimized for dun_update_light (_terrain) on D_SURFACE */
+    dun->flags |= DF_PAGELOCK;
+    for (page = dun->page; page; page = page->next)
+    {
+        rect_t r = rect_intersect(page->rect, rect);
+        if (rect_is_valid(r))
+            _page_iter_rect(dun, page, r, f);
+    }
+    dun->flags &= ~DF_PAGELOCK;
+    #else
     rect_t r = rect_intersect(dun->rect, rect);
     point_t p;
     if (!rect_is_valid(r)) return;
@@ -388,6 +444,7 @@ void dun_iter_rect(dun_ptr dun, rect_t rect, dun_grid_f f)
                 f(p, dun_grid_at(dun, p));
         }
     }
+    #endif
 }
 void dun_iter_rect_interior(dun_ptr dun, rect_t rect, dun_grid_f f)
 {
@@ -425,17 +482,20 @@ void dun_iter_rect_boundary(dun_ptr dun, rect_t rect, dun_grid_f f)
         f(pos, dun_grid_at(dun, pos));
     }
 }
-point_t dun_random_grid(dun_ptr dun, dun_grid_weight_f weight)
+static point_t _random_grid_fast(dun_ptr dun, rect_t rect, dun_grid_weight_f weight)
 {
     point_t pos;
     int total = 0, roll;
     assert(weight);
-    for (pos.y = dun->rect.y + 1; pos.y < dun->rect.y + dun->rect.cy - 1; pos.y++)
+    /* most of the time, dun has a single page and dun->page->rect == dun->rect.
+     * in this case, we can optimize using pointer increments. */
+    assert(rect_contains(dun->page->rect, rect));
+    for (pos.y = rect.y + 1; pos.y < rect.y + rect.cy - 1; pos.y++)
     {
         dun_grid_ptr grid;
-        pos.x = dun->rect.x + 1;
+        pos.x = rect.x + 1;
         grid = dun_grid_at(dun, pos);
-        for (; pos.x < dun->rect.x + dun->rect.cx - 1; pos.x++)
+        for (; pos.x < rect.x + rect.cx - 1; pos.x++)
         {
             total += weight(pos, grid);
             grid++;
@@ -443,12 +503,12 @@ point_t dun_random_grid(dun_ptr dun, dun_grid_weight_f weight)
     }
     if (!total) return point_create(-1, -1); /* client should check dun_pos_interior on the result */
     roll = randint0(total);
-    for (pos.y = dun->rect.y + 1; pos.y < dun->rect.y + dun->rect.cy - 1; pos.y++)
+    for (pos.y = rect.y + 1; pos.y < rect.y + rect.cy - 1; pos.y++)
     {
         dun_grid_ptr grid;
-        pos.x = dun->rect.x + 1;
+        pos.x = rect.x + 1;
         grid = dun_grid_at(dun, pos);
-        for (; pos.x < dun->rect.x + dun->rect.cx - 1; pos.x++)
+        for (; pos.x < rect.x + rect.cx - 1; pos.x++)
         {
             roll -= weight(pos, grid);
             if (roll < 0) return pos;
@@ -457,60 +517,142 @@ point_t dun_random_grid(dun_ptr dun, dun_grid_weight_f weight)
     }
     return point_create(-1, -1);  /* bug */
 }
+static point_t _random_grid_safe(dun_ptr dun, rect_t rect, dun_grid_weight_f weight)
+{
+    point_t pos;
+    int total = 0, roll;
+    assert(weight);
+    for (pos.y = rect.y + 1; pos.y < rect.y + rect.cy - 1; pos.y++)
+    {
+        pos.x = rect.x + 1;
+        for (; pos.x < rect.x + rect.cx - 1; pos.x++)
+        {
+            dun_grid_ptr grid = dun_grid_at(dun, pos);
+            total += weight(pos, grid);
+        }
+    }
+    if (!total) return point_create(-1, -1); /* client should check dun_pos_interior on the result */
+    roll = randint0(total);
+    for (pos.y = rect.y + 1; pos.y < rect.y + rect.cy - 1; pos.y++)
+    {
+        pos.x = rect.x + 1;
+        for (; pos.x < rect.x + rect.cx - 1; pos.x++)
+        {
+            dun_grid_ptr grid = dun_grid_at(dun, pos);
+            roll -= weight(pos, grid);
+            if (roll < 0) return pos;
+        }
+    }
+    return point_create(-1, -1);  /* bug */
+}
+point_t dun_random_grid_in_rect(dun_ptr dun, rect_t rect, dun_grid_weight_f weight)
+{
+    rect_t r = rect_intersect(dun->rect, rect);
+    if (rect_contains(dun->page->rect, r))
+        return _random_grid_fast(dun, r, weight);
+    return _random_grid_safe(dun, r, weight);
+}
+point_t dun_random_grid(dun_ptr dun, dun_grid_weight_f weight)
+{
+    return dun_random_grid_in_rect(dun, rect_interior(dun->rect), weight);
+}
+dun_stairs_ptr dun_random_stairs(dun_ptr dun)
+{
+    dun_stairs_ptr stairs;
+    int tot = 0, roll;
+    for (stairs = dun->stairs; stairs; stairs = stairs->next)
+    {
+        /* XXX if (filter && !filter(stairs)) continue; */
+        tot++;
+    }
+    if (!tot) return NULL;
+    roll = randint0(tot);
+    for (stairs = dun->stairs; stairs; stairs = stairs->next)
+    {
+        /* XXX if (filter && !filter(stairs)) continue; */
+        roll--;
+        if (roll < 0) return stairs;
+    }
+    return NULL;
+}
 dun_grid_ex_t dun_grid_ex_at(dun_ptr dun, point_t pos)
 {
     dun_grid_ex_t gx;
     gx.grid = dun_grid_at(dun, pos);
-    gx.feat = _find_feature(gx.grid->feat);
-    gx.feat_mimic = _find_feature_mimic(gx.grid);
     gx.mon = dun_mon_at(dun, pos);
     gx.obj = dun_obj_at(dun, pos);
     gx.pos = pos;
+    gx.plr = dun_plr_at(dun, pos);
     return gx;
-}
-dun_feat_ptr dun_feat_at(dun_ptr dun, point_t pos)
-{
-    dun_grid_ptr grid = dun_grid_at(dun, pos);
-    return _find_feature(grid->feat);
-}
-dun_feat_ptr dun_feat_mimic_at(dun_ptr dun, point_t pos)
-{
-    dun_grid_ptr grid = dun_grid_at(dun, pos);
-    return _find_feature_mimic(grid);
 }
 bool dun_allow_drop_at(dun_ptr dun, point_t pos)
 {
     if (!dun_pos_interior(dun, pos)) return FALSE;
-    return dun_grid_allow_drop(dun_grid_at(dun, pos));
+    return cell_allow_obj(dun_grid_at(dun, pos));
 }
 bool dun_allow_mon_at(dun_ptr dun, point_t pos)
 {
-    dun_grid_ptr grid;
     if (!dun_pos_interior(dun, pos)) return FALSE;
     if (dun_mon_at(dun, pos)) return FALSE;
     if (dun_plr_at(dun, pos)) return FALSE;
-    grid = dun_grid_at(dun, pos);
-    if (grid->info & CAVE_OBJECT) return FALSE; /* XXX */
-    if (!have_flag(dun_grid_feat(grid)->flags, FF_PLACE)) return FALSE;
-    return TRUE;
+    return cell_allow_mon(dun_grid_at(dun, pos), NULL);
 }
+bool dun_allow_plr_at(dun_ptr dun, point_t pos)
+{
+    if (!dun_pos_interior(dun, pos)) return FALSE;
+    if (dun_mon_at(dun, pos)) return FALSE;
+    return cell_allow_plr(dun_grid_at(dun, pos));
+}
+bool dun_clean_at(dun_ptr dun, point_t pos)
+{
+    if (!dun_pos_interior(dun, pos)) return FALSE;
+    if (dun_obj_at(dun, pos)) return FALSE;
+    return floor_is_clean(dun_grid_at(dun, pos));
+}
+bool dun_naked_at(dun_ptr dun, point_t pos)
+{
+    if (!dun_pos_interior(dun, pos)) return FALSE;
+    if (dun_obj_at(dun, pos)) return FALSE;
+    if (dun_plr_at(dun, pos)) return FALSE;
+    if (dun_mon_at(dun, pos)) return FALSE;
+    return floor_is_clean(dun_grid_at(dun, pos));
+}
+extern bool dun_allow_trap_at(dun_ptr dun, point_t pos)
+{
+    return dun_clean_at(dun, pos);
+}
+point_t dun_scatter(dun_ptr dun, point_t pos, int spread)
+{
+    return dun_scatter_aux(dun, pos, spread, NULL);
+}
+point_t dun_scatter_aux(dun_ptr dun, point_t pos, int spread, bool (*filter)(dun_ptr dun, point_t pos))
+{
+    point_t p;
+    assert(spread >= 0);
+    assert(dun_pos_interior(dun, pos));
+    if (spread == 0) return pos;
+    for (;;)
+    {
+        p = point_random_jump(pos, spread);
+        if (!dun_pos_interior(dun, p)) continue;
+        if (spread > 1 && point_fast_distance(pos, p) > spread) continue;
+        if (filter && !filter(dun, p)) continue;
+        if (dun_project(dun, pos, p)) break;
+    }
+    return p;
+}
+
 bool dun_stop_disintegration_at(dun_ptr dun, point_t pos)
 {
-    dun_feat_ptr feat = dun_feat_at(dun, pos);
-    if (have_flag(feat->flags, FF_PROJECT)) return FALSE;
-    if (have_flag(feat->flags, FF_PERMANENT)) return TRUE;
-    if (have_flag(feat->flags, FF_HURT_DISI)) return FALSE;
-    return TRUE;
+    return cell_stop_disintegrate(dun_grid_at(dun, pos));
 }
 bool dun_allow_los_at(dun_ptr dun, point_t pos)
 {
-    dun_feat_ptr feat = dun_feat_at(dun, pos);
-    return have_flag(feat->flags, FF_LOS);
+    return cell_los(dun_grid_at(dun, pos));
 }
 bool dun_allow_project_at(dun_ptr dun, point_t pos)
 {
-    dun_feat_ptr feat = dun_feat_at(dun, pos);
-    return have_flag(feat->flags, FF_PROJECT);
+    return cell_project(dun_grid_at(dun, pos));
 }
 void dun_forget_flow(dun_ptr dun)
 {
@@ -522,89 +664,55 @@ void dun_forget_flow(dun_ptr dun)
 }
 void dun_note_pos(dun_ptr dun, point_t pos)
 {
-    if (dun->dun_id == p_ptr->dun_id && (dun->flags & DF_GENERATED))
+    if (dun->id == plr->dun_id && (dun->flags & DF_GENERATED))
     {
         assert(cave == dun);
         note_pos(pos);
     }
 }
-void dun_lite_pos(dun_ptr dun, point_t pos)
+void dun_draw_pos(dun_ptr dun, point_t pos)
 {
-    if (dun->dun_id == p_ptr->dun_id && (dun->flags & DF_GENERATED))
+    if (dun->id == plr->dun_id && (dun->flags & DF_GENERATED))
     {
         assert(cave == dun);
-        lite_pos(pos);
+        draw_pos(pos);
     }
 }
-
-static point_vec_ptr _copy_path(point_ptr path, int ct)
-{
-    point_vec_ptr result = point_vec_alloc();
-    int i;
-    assert(ct >= 0);
-    for (i = 0; i < ct; i++)
-        point_vec_add(result, path[i]);
-    return result;
-}
-static point_vec_ptr _reverse_path(point_ptr path, int ct, point_t p2)
-{
-    point_vec_ptr result = point_vec_alloc();
-    int i;
-    assert(ct > 0);
-    for (i = ct - 2; i >= 0; i--) /* skip true p1 */
-        point_vec_add(result, path[i]);
-    point_vec_add(result, p2); /* add true p2 */
-    return result;
-}
-point_vec_ptr dun_project_path(dun_ptr dun, int range, point_t p1, point_t p2, int flags)
-{
-    point_t path1[32], path2[32];
-    int     ct1 = project_path_aux(dun, path1, range, p1, p2, flags), ct2;
-
-    if (ct1 >= 0) return _copy_path(path1, ct1);
-
-    /* Try reverse path from target to source. This ensures reflexivity, but messes
-     * up beam projections. Note the reverse path will omit the true target and include
-     * the true source, which we fix up in _reverse_path(). XXX */
-    flags &= ~PROJECT_THRU;
-    ct2 = project_path_aux(dun, path2, range, p2, p1, flags);
-    if (ct2 > 0) return _reverse_path(path2, ct2, p2);
-
-    /*if both paths fail, take the foward path */
-    return _copy_path(path1, -ct1);
-}
-
 /* player management */
 void dun_move_plr(dun_ptr dun, point_t pos)
 {
-    point_t old_pos = p_ptr->pos;
-    assert(p_ptr->dun_id == dun->dun_id);
+    point_t old_pos = plr->pos;
+    assert(plr->dun_id == dun->id);
     assert(dun_pos_interior(dun, pos));
-    p_ptr->pos = pos;
+    plr->pos = pos;
     dun->flow_pos = pos;
     dun_update_flow(dun);
-    dun_lite_pos(dun, old_pos);
-    dun_lite_pos(dun, pos);
+    dun_draw_pos(dun, old_pos);
+    dun_draw_pos(dun, pos);
 
-    if (dun->dun_type_id == D_SURFACE)
+    if (dun->type->id == D_SURFACE)
         dun_world_move_plr(dun, pos);
+    /* XXX cell_accept_plr is handled higher up in move_plr_effect
+     * XXX this seems a cleaner place for it, though ...
+    cell_accept_plr(dun, pos, ... ); */
 }
 bool dun_plr_at(dun_ptr dun, point_t pos)
 {
-    if (dun->dun_id != p_ptr->dun_id) return FALSE;
-    return point_equals(p_ptr->pos, pos);
+    if (dun->id != plr->dun_id) return FALSE;
+    return point_equals(plr->pos, pos);
 }
 /* stairs */
 static bool _valid_stair_pos(dun_ptr dun, point_t pos)
 {
     dun_grid_ptr grid;
-    dun_feat_ptr feat;
     if (!dun_pos_interior(dun, pos)) return FALSE;
-    grid = dun_grid_at(dun, pos);
-    feat = dun_grid_feat(grid);
-    if (have_flag(feat->flags, FF_PERMANENT)) return FALSE;
+    /* blocked by objects, glyphs and permanent walls */
     if (dun_obj_at(dun, pos)) return FALSE;
-    if (grid->info & CAVE_OBJECT) return FALSE;
+    grid = dun_grid_at(dun, pos);
+    if (grid->flags & CELL_PERM) return FALSE;
+    if (floor_has_object(grid)) return FALSE;
+    /* other features will be aggressively destroyed as
+     * quest stairs *must* be generated at all costs! */
     return TRUE;
 }
 void dun_quest_stairs(dun_ptr dun, point_t pos, int lvl)
@@ -615,13 +723,12 @@ void dun_quest_stairs(dun_ptr dun, point_t pos, int lvl)
         pos = scatter(pos, 1);
 
     cmsg_print(TERM_L_BLUE, "A magical staircase appears...");
-    assert(dun == cave); /* XXX */
-    cave_set_feat(pos.y, pos.x, feat_down_stair); /* XXX */
+    dun_place_downstairs(dun, pos);
 
     stairs = malloc(sizeof(dun_stairs_t));
     memset(stairs, 0, sizeof(dun_stairs_t));
     stairs->pos_here = pos;
-    stairs->dun_type_id = dun->dun_type_id;
+    stairs->dun_type_id = dun->type->id;
     stairs->dun_lvl = lvl;
     dun_add_stairs(dun, stairs);
 
@@ -634,7 +741,7 @@ void dun_quest_travel(dun_ptr dun, point_t pos)
 
     cmsg_print(TERM_L_BLUE, "A magical portal appears...");
     assert(dun == cave); /* XXX */
-    cave_set_feat(pos.y, pos.x, feat_travel); /* XXX */
+    dun_place_travel(dun, pos);
 }
 void dun_add_stairs(dun_ptr dun, dun_stairs_ptr info)
 {
@@ -652,8 +759,8 @@ static bool _check_pos_plr(dun_ptr dun, point_t pos)
 {
     dun_grid_ptr grid = dun_grid_at(dun, pos);
     if (dun_mon_at(dun, pos)) return FALSE;
-    if (!player_can_enter(grid->feat, 0)) return FALSE;
-    if (have_flag(dun_grid_feat(grid)->flags, FF_HIT_TRAP)) return FALSE;
+    if (!cell_allow_plr(grid)) return FALSE;
+    if (floor_has_trap(grid)) return FALSE;
     return TRUE;
 }
 static point_t _stairs_loc_plr(dun_ptr dun, point_t pos)
@@ -673,10 +780,10 @@ bool dun_take_stairs_plr(dun_ptr dun)
     dun_ptr new_dun = NULL;
     point_t new_pos;
 
-    assert(p_ptr->dun_id == dun->dun_id);
-    assert(dun_pos_interior(dun, p_ptr->pos));
+    assert(plr->dun_id == dun->id);
+    assert(dun_pos_interior(dun, plr->pos));
 
-    stairs = _find_stairs(dun, p_ptr->pos);
+    stairs = _find_stairs(dun, plr->pos);
     assert(stairs);
 
     if (stairs->dun_type_id == D_QUEST)
@@ -685,7 +792,7 @@ bool dun_take_stairs_plr(dun_ptr dun)
         dun_gen_connected(dun, stairs);
         new_dun = dun_mgr_dun(stairs->dun_id);
         assert(new_dun->quest_id == stairs->dun_lvl);
-        new_pos = p_ptr->new_pos; /* quest maps *should* locate the player */
+        new_pos = plr->new_pos; /* quest maps *should* locate the player */
         if (!dun_pos_interior(new_dun, new_pos))
             new_pos = dun_random_plr_pos(new_dun); /* panic */
     }
@@ -700,7 +807,7 @@ bool dun_take_stairs_plr(dun_ptr dun)
     dun->flow_pos = stairs->pos_here;
     dun->flags |= DF_UPDATE_FLOW;
     dun_mgr_plr_change_dun(new_dun, new_pos);
-    if (dun->dun_type_id == D_QUEST) /* XXX */
+    if (dun->type->id == D_QUEST) /* XXX */
         dun_regen_town(new_dun);
     return TRUE;
 }
@@ -709,7 +816,7 @@ static bool _check_pos_mon(dun_ptr dun, mon_ptr mon, point_t pos)
     dun_grid_ptr grid = dun_grid_at(dun, pos);
     if (dun_mon_at(dun, pos)) return FALSE;
     if (dun_plr_at(dun, pos)) return FALSE;
-    if (!monster_can_cross_terrain(grid->feat, mon_race(mon), 0)) return FALSE;
+    if (!cell_allow_mon(grid, mon)) return FALSE;
     return TRUE;
 }
 static point_t _stairs_loc_mon(dun_ptr dun, mon_ptr mon, point_t pos)
@@ -729,11 +836,17 @@ bool dun_take_stairs_mon(dun_ptr dun, mon_ptr mon)
     dun_ptr new_dun, old_cave = cave;
     point_t new_pos;
 
+    if (plr_is_riding_(mon))
+        return dun_take_stairs_plr(dun);
 
     stairs = _find_stairs(dun, mon->pos);
     if (!stairs) return FALSE; /* paranoia */
-    if (!stairs->dun_id) return FALSE; /* not generated (should not happen) */
-    if (stairs->dun_type_id != dun->dun_type_id)
+    if (!stairs->dun_id || !dun_mgr_dun(stairs->dun_id))
+    {
+        /* XXX Note monsters can now flee the current level. Make sure a connected level exists! */
+        dun_gen_connected(dun, stairs);
+    }
+    if (stairs->dun_type_id != dun->type->id)
     {
         /* XXX Questors can now chase the player off level, but not on to the surface. */
         if (mon->mflag2 & MFLAG2_QUESTOR) return FALSE;
@@ -746,10 +859,18 @@ bool dun_take_stairs_mon(dun_ptr dun, mon_ptr mon)
     if (!dun_pos_interior(new_dun, new_pos)) return FALSE;
 
     dun_detach_mon(dun, mon->id);
-    cave = new_dun; /* for lite_pos ... we need to see the monster chasing us! */
-    mon->target = point_create(0, 0);
+    cave = new_dun; /* for draw_pos ... we need to see the monster chasing us! */
+    mon_clear_target(mon);
     dun_place_mon(new_dun, mon, new_pos);
+    cell_accept_mon(new_dun, new_pos, dun_cell_at(new_dun, new_pos), mon);
     cave = old_cave;
+    if (mon->mflag2 & MFLAG2_HUNTED)
+    {
+        if (mon->flow) dun_flow_free(mon->flow);
+        mon->flow = dun_flow_calc(new_dun, new_pos, MON_HUNT_RAD, NULL);
+    }
+    if (new_dun->id == plr->dun_id && (mon->race->light || mon->race->lantern))
+        plr->update |= PU_MON_LIGHT;
 
     return TRUE;
 }
@@ -797,11 +918,54 @@ void dun_trap_door_plr(dun_ptr dun)
         dun_mgr_plr_change_dun(new_dun, pos);
     }
 }
+void dun_trap_door_mon(dun_ptr dun, mon_ptr mon)
+{
+    dun_stairs_ptr stairs;
+    assert(mon->dun == dun);
+
+    if (plr_is_riding_(mon))
+    {
+        dun_trap_door_plr(dun);
+        return;
+    }
+
+    stairs = _random_stairs(dun, _DOWN);
+    if (stairs)
+    {
+        dun_ptr new_dun, old_cave = cave;
+        point_t pos;
+
+        if (!stairs->dun_id || !dun_mgr_dun(stairs->dun_id))
+            dun_gen_connected(dun, stairs);
+        new_dun = dun_mgr_dun(stairs->dun_id);
+        pos = dun_random_mon_pos(new_dun, mon->race);
+        if (!dun_pos_interior(new_dun, pos)) return; /* panic */
+        if (mon_show_msg(mon))
+        {
+            char name[MAX_NLEN_MON];
+            monster_desc(name, mon, 0);
+            msg_format("%^s falls through the trap door.", name);
+        }
+        dun_detach_mon(dun, mon->id);
+        cave = new_dun; /* for draw_pos in case the monster lands on plr_dun near plr */
+        dun_place_mon(new_dun, mon, pos);
+        cave = old_cave;
+    }
+}
 void dun_teleport_level_plr(dun_ptr dun)
 {
-    dun_stairs_ptr stairs = _random_stairs(dun, _UP | _DOWN);
-    assert(p_ptr->dun_id == dun->dun_id);
+    dun_stairs_ptr stairs;
+    assert(plr->dun_id == dun->id);
     assert(cave == dun);
+
+    if (plr->anti_tele)
+    {
+        msg_print("A mysterious force prevents you from teleporting!");
+        equip_learn_flag(OF_NO_TELE);
+        return;
+    }
+
+    stairs = _random_stairs(dun, _UP | _DOWN);
     if (stairs)
     {
         dun_ptr new_dun;
@@ -821,8 +985,16 @@ void dun_teleport_level_plr(dun_ptr dun)
 }
 void dun_teleport_level_mon(dun_ptr dun, mon_ptr mon)
 {
-    dun_stairs_ptr stairs = _random_stairs(dun, _UP | _DOWN);
-    assert(mon->dun_id == dun->dun_id);
+    dun_stairs_ptr stairs;
+    assert(mon->dun == dun);
+
+    stairs = _random_stairs(dun, _UP | _DOWN);
+    if (plr_is_riding_(mon))
+    {
+        dun_teleport_level_plr(dun);
+        return;
+    }
+    stairs = _random_stairs(dun, _UP | _DOWN);
     if (stairs)
     {
         dun_ptr new_dun, old_cave = cave;
@@ -831,7 +1003,7 @@ void dun_teleport_level_mon(dun_ptr dun, mon_ptr mon)
         if (!stairs->dun_id || !dun_mgr_dun(stairs->dun_id))
             dun_gen_connected(dun, stairs);
         new_dun = dun_mgr_dun(stairs->dun_id);
-        pos = dun_random_mon_pos(new_dun, mon_race(mon));
+        pos = dun_random_mon_pos(new_dun, mon->race);
         if (!dun_pos_interior(new_dun, pos)) return; /* panic */
         if (mon_show_msg(mon))
         {
@@ -843,7 +1015,7 @@ void dun_teleport_level_mon(dun_ptr dun, mon_ptr mon)
                 msg_format("%^s rises up through the ceiling.", name);
         }
         dun_detach_mon(dun, mon->id);
-        cave = new_dun; /* for lite_pos in case the monster lands on plr_dun near plr */
+        cave = new_dun; /* for draw_pos in case the monster lands on plr_dun near plr */
         dun_place_mon(new_dun, mon, pos);
         cave = old_cave;
     }
@@ -852,18 +1024,16 @@ void dun_teleport_level_mon(dun_ptr dun, mon_ptr mon)
 bool dun_create_stairs(dun_ptr dun, bool down_only)
 {
     int            options = down_only ? _DOWN : _UP | _DOWN;
-    dun_type_ptr   type = dun_types_lookup(dun->dun_type_id);
     dun_stairs_ptr stairs, other_stairs;
-    dun_grid_ptr   grid;
     dun_ptr        other_dun;
 
-    assert(p_ptr->dun_id == dun->dun_id);
+    assert(plr->dun_id == dun->id);
     assert(cave == dun);
 
-    if (quests_get_current() || dun->dun_lvl == type->max_dun_lvl)
+    if (quests_get_current() || dun->dun_lvl == dun->type->max_dun_lvl)
         options &= ~_DOWN;
 
-    if (!options || dun->dun_type_id == D_SURFACE || dun->dun_type_id == D_QUEST)
+    if (!options || dun->type->id == D_SURFACE || dun->type->id == D_QUEST)
     {
         msg_print("There is no effect.");
         return FALSE;
@@ -876,7 +1046,7 @@ bool dun_create_stairs(dun_ptr dun, bool down_only)
         return FALSE;
     }
 
-    if (!cave_valid_bold(p_ptr->pos.y, p_ptr->pos.x))
+    if (!dun_can_destroy_obj_at(dun, plr->pos))
     {
         msg_print("The object resists the spell.");
         return FALSE;
@@ -887,12 +1057,22 @@ bool dun_create_stairs(dun_ptr dun, bool down_only)
     other_dun = dun_mgr_dun(stairs->dun_id);
     other_stairs = _find_stairs(other_dun, stairs->pos_there);
 
-    dun_destroy_obj_at(dun, p_ptr->pos);
-    grid = dun_grid_at(dun, stairs->pos_here);
-    cave_set_feat(p_ptr->pos.y, p_ptr->pos.x, grid->feat);
-    cave_set_feat(stairs->pos_here.y, stairs->pos_here.x, type->floor_type[randint0(100)]);
-    stairs->pos_here = p_ptr->pos;
-    other_stairs->pos_there = p_ptr->pos;
+    dun_destroy_obj_at(dun, plr->pos);
+    {
+        dun_grid_ptr grid = dun_grid_at(dun, stairs->pos_here);
+        if (stairs_go_down(grid))
+            dun_place_downstairs(dun, plr->pos);
+        else
+            dun_place_upstairs(dun, plr->pos);
+        dun->type->place_floor(dun, stairs->pos_here);
+    }
+    stairs->pos_here = plr->pos;
+    other_stairs->pos_there = plr->pos;
+    if (stairs->flow)
+    {
+        dun_flow_free(stairs->flow);
+        stairs->flow = NULL;
+    }
 
     return TRUE;
 }
@@ -903,9 +1083,9 @@ bool dun_create_stairs(dun_ptr dun, bool down_only)
 static void _process_mon(dun_ptr dun, mon_ptr mon)
 {
     assert(cave == dun);
-    assert(dun->dun_id == mon->dun_id);
+    assert(mon->dun == dun);
     if (mon_tim_find(mon, T_PARALYZED)) return;
-    if (!fear_process_m(mon->id)) return;
+    if (!fear_process_m(mon)) return;
     if (mon->mflag2 & MFLAG2_TRIPPED)
     {
         char m_name[80];
@@ -916,9 +1096,7 @@ static void _process_mon(dun_ptr dun, mon_ptr mon)
         return;
     }
     msg_boundary();
-    hack_m_idx = mon->id;
-    process_monster(mon);
-    hack_m_idx = 0;
+    mon_process(mon);
 }
 
 static vec_ptr _monsters = NULL; /* monsters getting a move this turn */
@@ -929,24 +1107,24 @@ static void _preprocess_mon(dun_ptr dun, mon_ptr mon)
     bool         test = FALSE;
 
     assert(cave == dun);
-    if (mon_is_dead(mon)) return; /* XXX bug */
+    if (!mon_is_valid(mon)) return; /* XXX bug */
 
     if (dun->turn % TURNS_PER_TICK == 0)
     {
         mon_tim_tick(mon);
-        if (mon_is_dead(mon)) return; /* XXX this can happen */
+        if (!mon_is_valid(mon)) return; /* XXX this can happen */
     }
 
     /* Require proximity */
-    if (mon->cdis >= (p_ptr->action == ACTION_GLITTER ? AAF_LIMIT_RING : AAF_LIMIT))
+    if (mon->cdis >= (plr->action == ACTION_GLITTER ? AAF_LIMIT_RING : AAF_LIMIT))
         return;
 
     /* Hack -- Monsters are automatically aware of the player (except for mimics) */
     if (!is_aware(mon))
     {
-        if (p_ptr->prace != RACE_MON_RING)
+        if (plr->prace != RACE_MON_RING)
             mon->mflag2 |= MFLAG2_AWARE;
-        else if (p_ptr->riding && plr_los(mon->pos) && !mon_tim_find(mon, MT_SLEEP))
+        else if (plr->riding && plr_view(mon->pos) && !mon_tim_find(mon, MT_SLEEP))
         {
             /* Player has a ring bearer, which this monster can see */
             mon->mflag2 |= MFLAG2_AWARE;
@@ -954,21 +1132,21 @@ static void _preprocess_mon(dun_ptr dun, mon_ptr mon)
     }
 
     /* Flow by smell is allowed */
-    if (!p_ptr->no_flowed)
+    if (!plr->no_flowed)
         mon->mflag2 &= ~MFLAG2_NOFLOW;
 
     /* Assume no move */
     test = FALSE;
 
     /* Handle "sensing radius" */
-    race = mon_race(mon);
-    radius = race->aaf;
+    race = mon->race;
+    radius = race->move.range;
     if (mon_is_pet(mon) && radius > MAX_SIGHT)
         radius = MAX_SIGHT;
-    else if ( p_ptr->prace == RACE_MON_RING
-           && !p_ptr->riding
+    else if ( plr->prace == RACE_MON_RING
+           && !plr->riding
            && !is_aware(mon)
-           && mon_is_type(mon->r_idx, SUMMON_RING_BEARER) )
+           && mon_is_type(mon->race, SUMMON_RING_BEARER) )
     {
         radius = AAF_LIMIT_RING;
     }
@@ -977,25 +1155,30 @@ static void _preprocess_mon(dun_ptr dun, mon_ptr mon)
 
     if (mon->cdis + dun->plr_dis <= radius)
         test = TRUE;
-    else if (mon->cdis <= MAX_SIGHT && (point_los(mon->pos, dun->flow_pos) || (p_ptr->cursed & OFC_AGGRAVATE)))
+    else if (mon->cdis <= MAX_SIGHT && (point_los(mon->pos, dun->flow_pos) || (plr->cursed & OFC_AGGRAVATE)))
         test = TRUE;
-    else if (dun_pos_interior(dun, mon->target)) test = TRUE;
+    else if (mon_has_valid_target(mon)) test = TRUE;
+    else if (mon->pack)
+    {
+        if (mon->pack->ai == AI_WANDER || mon->pack->ai == AI_HUNT)
+            test = TRUE;
+    }
 
     /* Do nothing */
     if (!test) return;
 
-    if (p_ptr->riding == mon->id)
-        speed = p_ptr->pspeed;
+    if (plr->riding == mon->id)
+        speed = plr->pspeed;
     else
         speed = mon->mspeed;
 
     /* Give this monster some energy */
-    mon->energy_need -= SPEED_TO_ENERGY(speed);
+    mon->energy_need -= speed_to_energy(speed);
 
     /* Check for SI now in case the monster is sleeping or lacks enough
      * energy to move. Should the monster move or attack, we'll make another
      * (overriding) check again later. */
-    if ((race->flags2 & RF2_INVISIBLE) && p_ptr->see_inv)
+    if (mon_is_invisible(mon) && plr->see_inv)
         update_mon(mon, FALSE);
 
     /* Not enough energy to move */
@@ -1033,53 +1216,51 @@ static void dun_process_monsters(dun_ptr dun)
     {
         mon_ptr mon = vec_pop(_monsters);
 
-        if (mon_is_dead(mon)) continue;
-
-        /* _monsters = {Banor, Rupart, ...}; Banor combines, deleting Rupart, but
-         * the deleted mon is still in the monsters stack to be processed this round. */
-        if (mon_is_deleted(mon)) continue;
+        if (!mon_is_valid(mon)) continue;
+        if (dun != mon->dun) continue; /* earlier processed monster did teleport level on this guy? (e.g. Nodens) */
 
         mon->energy_need += ENERGY_NEED();
         _process_mon(dun, mon);
         mon->turns++; /* XXX restore old MFLAG_NICE behaviour ... cf _can_cast */
-        if (mon->dun_id == dun->dun_id) /* XXX check if monster took stairs */
+        if (mon->dun == dun) /* XXX check if monster took stairs */
             mon_tim_fast_tick(mon); /* timers go after monster moves (e.g. T_PARALYZED) */
 
         mon->pain = 0; /* XXX pain cancels fear hack; avoid msg spam and bool *fear parameters ... */
-        reset_target(mon);
-        if (p_ptr->no_flowed && one_in_(3)) /* Give up flow_by_smell when it might useless */
+        if (plr->no_flowed && one_in_(3)) /* Give up flow_by_smell when it might useless */
             mon->mflag2 |= MFLAG2_NOFLOW;
 
-        if (!p_ptr->playing || p_ptr->is_dead) break;
+        if (!plr->playing || plr->is_dead) break;
         if (cave != dun) break; /* XXX nexus travel or some such ... need to remove "cave" */
     }
     vec_clear(_monsters);
 }
 static void dun_process_plr(dun_ptr dun)
 {
-    assert(cave->dun_id == dun->dun_id);
+    assert(cave == dun);
     process_player();
 }
 static void _regen_mon(int id, mon_ptr mon)
 {
     if (mon->hp < mon->maxhp)
     {
-        mon_race_ptr race = mon_race(mon);
-        int          amt = mon->maxhp / 100;
+        int amt = mon->maxhp / 100;
 
         if (!amt) if (one_in_(2)) amt = 1;
-        if (race->flags2 & RF2_REGENERATE) amt *= 2;
+        if (mon_can_regen(mon)) amt *= 2;
         if (amt >= 400) amt = 400;
 
         mon->hp += amt;
         if (mon->hp > mon->maxhp) mon->hp = mon->maxhp;
-        check_mon_health_redraw(mon->id);
+        check_mon_health_redraw(mon);
     }
 }
 static void dun_regen_monsters(dun_ptr dun) { dun_iter_mon(dun, _regen_mon); }
 static void dun_process_world(dun_ptr dun)
 {
-    if (dun->dun_id == p_ptr->dun_id)
+    if (dun->turn % TURNS_PER_TICK == 0)
+        dun_tim_tick(dun);
+
+    if (dun->id == plr->dun_id)
     {
         assert(cave == dun);
         if (cave == dun)
@@ -1093,11 +1274,11 @@ static void dun_process_world(dun_ptr dun)
 }
 static void _hack_stuff(dun_ptr dun)
 {
-    if (p_ptr->dun_id == dun->dun_id)
+    if (plr->dun_id == dun->id)
     {
         notice_stuff();
         handle_stuff();
-        move_cursor_relative(p_ptr->pos);
+        move_cursor_relative(plr->pos);
         if (fresh_after) Term_fresh();
     }
 }
@@ -1118,14 +1299,90 @@ void dun_update_flow(dun_ptr dun)
 {
     _update_mon_distance(dun);
     if (!dun->flow) dun->flow = dun_flow_calc(dun, dun->flow_pos, 30, NULL);
-    else dun_flow_recalc(dun->flow, dun->flow_pos);
+    else
+    {
+        bool skip = FALSE;
+        if (dun->id == plr->dun_id && (running || travel.run))
+        {
+            if ( dun_pos_interior(dun, dun->flow->pos)
+              && plr_view(dun->flow->pos)
+              && point_fast_distance(plr->pos, dun->flow->pos) < 10 )
+            {
+                skip = TRUE;
+            }
+        }
+        if (!skip)
+            dun_flow_recalc(dun->flow, dun->flow_pos);
+    }
     dun->flags &= ~DF_UPDATE_FLOW;
+}
+static void _pack_reflow(int id, mon_pack_ptr pack)
+{
+    assert(pack->flow);
+    dun_flow_recalc(pack->flow, pack->flow->pos);
+}
+static void _update_flows(dun_ptr dun)
+{
+    point_map_iter_ptr iter;
+    for (iter = point_map_iter_alloc(dun->flows);
+            point_map_iter_is_valid(iter);
+            point_map_iter_next(iter))
+    {
+        dun_flow_ptr flow = point_map_iter_current(iter);
+        assert(point_equals(flow->pos, point_map_iter_current_key(iter)));
+        dun_flow_recalc(flow, flow->pos);
+    }
+    point_map_iter_free(iter);
+}
+void dun_update_mon_flow(dun_ptr dun)
+{
+    /* dungeon pathfinding has been invalidated due to terrain alteration (PU_MON_FLOW).
+     * We need to recalculate (lazily) any monster or pack flows */
+    int_map_ptr packs = int_map_alloc(NULL);
+    int_map_iter_ptr iter;
+    dun_stairs_ptr stairs;
+
+    for (iter = int_map_iter_alloc(dun->mon);
+            int_map_iter_is_valid(iter);
+            int_map_iter_next(iter))
+    {
+        mon_ptr mon = int_map_iter_current(iter);
+        if (mon->flow) dun_flow_recalc(mon->flow, mon->pos);
+        if (mon->pack)
+        {
+            if (mon->pack->flow) int_map_add(packs, mon->pack->id, mon->pack);
+        }
+    }
+    int_map_iter_free(iter);
+    int_map_iter(packs, (int_map_iter_f)_pack_reflow);
+    int_map_free(packs);
+
+    for (stairs = dun->stairs; stairs; stairs = stairs->next)
+    {
+        if (stairs->flow)
+        {
+            assert(point_equals(stairs->pos_here, stairs->flow->pos));
+            dun_flow_recalc(stairs->flow, stairs->pos_here);
+        }
+    }
+    _update_flows(dun); /* dun->flows */
+}
+dun_flow_ptr dun_find_flow_at(dun_ptr dun, point_t pos)
+{
+    dun_flow_ptr flow = point_map_find(dun->flows, pos);
+    if (!flow)
+    {
+        flow = dun_flow_calc(dun, pos, MON_WANDER_RAD, NULL);
+        point_map_add(dun->flows, pos, flow);
+    }
+    return flow;
+}
+void dun_forget_flow_at(dun_ptr dun, point_t pos)
+{
+    point_map_delete(dun->flows, pos);
 }
 static void dun_process_aux(dun_ptr dun)
 {
-    vec_clear(dun->graveyard);
-    vec_clear(dun->junkpile);
-
     assert(cave == dun);
 
     if (dun->flags & DF_AUTOSAVE)
@@ -1138,7 +1395,7 @@ static void dun_process_aux(dun_ptr dun)
     if (dun->flags & DF_UPDATE_FLOW)
         dun_update_flow(dun);
 
-    if (p_ptr->dun_id == dun->dun_id)
+    if (plr->dun_id == dun->id)
     {
         dun_process_plr(dun);
         if (cave != dun) /* detect plr level change (stairs, trapdoor, etc.) */
@@ -1148,7 +1405,7 @@ static void dun_process_aux(dun_ptr dun)
         }
         _hack_stuff(dun);
     }
-    if (!p_ptr->playing || p_ptr->is_dead) return;
+    if (!plr->playing || plr->is_dead) return;
     dun_process_monsters(dun);
     if (cave != dun) /* detect plr level change (nexus travel or teleport level) */
     {
@@ -1156,7 +1413,7 @@ static void dun_process_aux(dun_ptr dun)
         return; /* we abort because old code needs cave == dun to work */
     }
     _hack_stuff(dun);
-    if (!p_ptr->playing || p_ptr->is_dead) return;
+    if (!plr->playing || plr->is_dead) return;
     dun_process_world(dun);
     _hack_stuff(dun);
 }
@@ -1164,28 +1421,41 @@ void dun_process(dun_ptr dun)
 {
     cave = dun;
     dun_process_aux(dun);
+    if (cave == dun) /* e.g. dun_mgr_teleport_town */
+    {
+        vec_clear(dun->graveyard);
+        vec_clear(dun->junkpile);
+    }
 }
 void dun_mgr_process(void)
 {
     dun_mgr_ptr dm = dun_mgr();
-    hack_mind = TRUE; /* we are playing now ... cf do_cmd_save_game */
+    plr_hook_startup();
     for (;;)
     {
-        dun_ptr plr_dun = dun_mgr_dun(p_ptr->dun_id);
+        dun_ptr plr_dun = dun_mgr_dun(plr->dun_id);
         dun_stairs_ptr stairs;
 
         cave = plr_dun;
         dm->turn++;
-        dun_mgr_gc(FALSE);
+        if (plr_dun->flags & DF_GC)
+        {
+            dun_mgr_gc(TRUE);
+            plr_dun->flags &= ~DF_GC;
+        }
+        else if (dm->turn % 100 == 0)
+            dun_mgr_gc(FALSE);
 
+        /* process plr's level */
         plr_dun->plr_dis = 0;
         dun_process(plr_dun);
-        if (p_ptr->is_dead || !p_ptr->playing) break;
-        if (dun_mgr_dun(p_ptr->dun_id) != plr_dun) continue; /* detect level change (safely) (e.g. plr_dun may have been gc'd) */
+        if (plr->is_dead || !plr->playing) break;
+        if (dun_mgr_dun(plr->dun_id) != plr_dun) continue; /* detect level change (safely) */
 
+        /* process nearby levels */
         for (stairs = plr_dun->stairs; stairs; stairs = stairs->next)
         {
-            int dis = point_fast_distance(stairs->pos_here, p_ptr->pos);
+            int dis = point_fast_distance(stairs->pos_here, plr->pos);
             dun_ptr adj_dun = NULL;
             if (dis > MAX_SIGHT) continue;
             if (stairs->dun_type_id == D_QUEST) continue;
@@ -1200,7 +1470,7 @@ void dun_mgr_process(void)
             dun_process(adj_dun);
         }
     }
-    cave = dun_mgr_dun(p_ptr->dun_id); /* XXX */
+    cave = dun_mgr_dun(plr->dun_id); /* XXX */
 }
 
 /************************************************************************
@@ -1250,7 +1520,7 @@ static void _sweep(void)
             assert(dun != cave);
 
             if (dun == dm->surface) dm->surface = NULL;
-            int_map_delete(dm->dungeons, dun->dun_id);
+            int_map_delete(dm->dungeons, dun->id);
         }
     }
     vec_free(v);
@@ -1270,7 +1540,7 @@ void dun_mgr_gc(bool force)
         if (dun) dun->flags |= DF_MARK;
         if (++i == _MRU_LEN) i = 0;
     }
-    _mark(dun_mgr_dun(p_ptr->dun_id), 0); /* mark accessible dungeons to a fixed depth */
+    _mark(dun_mgr_dun(plr->dun_id), 0); /* mark accessible dungeons to a fixed depth */
     _sweep();
 }
 
@@ -1297,7 +1567,7 @@ static int _mru_dq(dun_mgr_ptr dm)
     return id;
 }
 #endif
-static void _mru_clear(dun_mgr_ptr dm)
+void _mru_clear(dun_mgr_ptr dm) /* XXX needed by dun_gen.c (dun_mgr_teleport_town) */
 {
     int i;
     dm->mru_head = 0;
@@ -1317,19 +1587,88 @@ dun_mgr_ptr dun_mgr(void)
         _dm->next_obj_id = 1;
         _dm->next_pack_id = 1;
         _dm->dungeons = int_map_alloc((int_map_free_f)dun_free);
-        _dm->packs = int_map_alloc(free);
+        _dm->packs = int_map_alloc((int_map_free_f)mon_pack_free);
+        #ifdef DEVELOPER
+        _dm->prof = malloc(sizeof(dun_mgr_prof_t));
+        memset(_dm->prof, 0, sizeof(dun_mgr_prof_t));
+        _dm->prof->run_timer = z_timer_create(); /* always running */
+        _dm->prof->view_timer.paused = TRUE;
+        _dm->prof->light_timer.paused = TRUE;
+        _dm->prof->flow_timer.paused = TRUE;
+        _dm->prof->gen_timer.paused = TRUE;
+        _dm->prof->redraw_timer.paused = TRUE;
+        _dm->prof->wall_time = time(NULL);
+        /* XXX Note: Adding a timer for mon_process will overlap with the flow_timer,
+         * giving some misleading results. (Flows are "lazy", and are generally realized
+         * via mon_ai). */
+        #endif
     }
     return _dm;
 }
+static void _doc_timer(doc_ptr doc, z_timer_ptr timer, double total)
+{
+    double elapsed = z_timer_elapsed(timer);
+    doc_printf(doc, "%4.1f%%", elapsed * 100./total);
+    if (timer->counter)
+        doc_printf(doc, " %6.3fms (%d)", elapsed/timer->counter, timer->counter);
+    else
+        doc_printf(doc, " %6.3fms", elapsed);
+}
+
 void dun_mgr_doc(doc_ptr doc)
 {
+    #ifdef DEVELOPER
     dun_mgr_ptr dm = dun_mgr();
-    doc_insert(doc, " <color:U>Dungeon Manager Statistics</color>\n");
-    doc_printf(doc, "   next_dun_id = %d\n", dm->next_dun_id);
-    doc_printf(doc, "   next_mon_id = %d\n", dm->next_mon_id);
-    doc_printf(doc, "   next_obj_id = %d\n", dm->next_obj_id);
-    doc_printf(doc, "   turn        = %d\n", dm->turn);
-    doc_printf(doc, "   active duns = %d\n", int_map_count(dm->dungeons));
+    doc_ptr cols[2];
+    cols[0] = doc_alloc(30);
+    cols[1] = doc_alloc(50);
+    doc_insert(cols[0], " <color:U>Dungeon Manager Statistics</color>\n");
+    doc_printf(cols[0], "   next_dun_id = %d\n", dm->next_dun_id);
+    doc_printf(cols[0], "   next_mon_id = %d\n", dm->next_mon_id);
+    doc_printf(cols[0], "   next_obj_id = %d\n", dm->next_obj_id);
+    doc_printf(cols[0], "   turn        = %d\n", dm->turn);
+    doc_printf(cols[0], "   active duns = %d\n", int_map_count(dm->dungeons));
+    if (dm->prof)
+    {
+        double total = z_timer_elapsed(&dm->prof->run_timer);
+        double used = z_timer_elapsed(&dm->prof->view_timer)
+                    + z_timer_elapsed(&dm->prof->light_timer)
+                    + z_timer_elapsed(&dm->prof->flow_timer)
+                    + z_timer_elapsed(&dm->prof->gen_timer)
+                    + z_timer_elapsed(&dm->prof->redraw_timer);
+        double wall_time = difftime(time(NULL), dm->prof->wall_time);
+
+        doc_insert(cols[1], " <color:U>Performance Statistics</color>\n");
+
+        doc_insert(cols[1], "   View  = ");
+        _doc_timer(cols[1], &dm->prof->view_timer, used);
+        if (dm->prof->view_timer.counter)
+            doc_printf(cols[1], " (<color:R>%.1f</color>)", (double)dm->prof->view_count/dm->prof->view_timer.counter);
+        doc_newline(cols[1]);
+
+        doc_insert(cols[1], "   Light = ");
+        _doc_timer(cols[1], &dm->prof->light_timer, used);
+        doc_newline(cols[1]);
+
+        doc_insert(cols[1], "   Flow  = ");
+        _doc_timer(cols[1], &dm->prof->flow_timer, used);
+        doc_newline(cols[1]);
+
+        doc_insert(cols[1], "   Gen   = ");
+        _doc_timer(cols[1], &dm->prof->gen_timer, used);
+        doc_newline(cols[1]);
+
+        doc_insert(cols[1], "   Draw  = ");
+        _doc_timer(cols[1], &dm->prof->redraw_timer, used);
+        doc_newline(cols[1]);
+
+        doc_printf(cols[1], "   Sum   = %6.3fs <color:R>%4.1f%%</color>\n", used / 1000., used * 100. / total); 
+        doc_printf(cols[1], "   Total = %6.3fs <color:R>%4.1f%%</color>\n", total / 1000., total * 100. / (1000. * wall_time)); 
+     }
+    doc_insert_cols(doc, cols, 2, 0);
+    doc_free(cols[0]);
+    doc_free(cols[1]);
+    #endif
 }
 int dun_mgr_next_mon_id(void)
 {
@@ -1367,6 +1706,22 @@ mon_pack_ptr dun_mgr_pack(int id)
 {
     return int_map_find(dun_mgr()->packs, id);
 }
+mon_pack_ptr plr_pack(void)
+{
+    dun_mgr_ptr dm = dun_mgr();
+    mon_pack_ptr pack = NULL;
+    if (dm->plr_pack_id)
+        pack = int_map_find(dm->packs, dm->plr_pack_id);
+    if (!pack)
+    {
+        pack = mon_pack_alloc();
+        pack->ai = AI_PETS;
+        pack->id = dun_mgr_next_pack_id();
+        dm->plr_pack_id = pack->id;
+        int_map_add(dm->packs, pack->id, pack);
+    }
+    return pack;
+}
 dun_ptr dun_mgr_alloc_dun(rect_t rect)
 {
     dun_mgr_ptr dm = dun_mgr();
@@ -1377,7 +1732,7 @@ dun_ptr dun_mgr_alloc_dun(rect_t rect)
     else
         dun = dun_alloc_aux(dun_mgr_next_dun_id());
 
-    int_map_add(dm->dungeons, dun->dun_id, dun);
+    int_map_add(dm->dungeons, dun->id, dun);
     return dun;
 }
 void dun_mgr_delete_surface(void)
@@ -1387,24 +1742,25 @@ void dun_mgr_delete_surface(void)
     if (!dm->surface) return;
     for (i = 0; i < _MRU_LEN; i++)
     {
-        if (dm->mru[i] == dm->surface->dun_id)
+        if (dm->mru[i] == dm->surface->id)
             dm->mru[i] = 0; /* lazy */
     }
-    int_map_delete(dm->dungeons, dm->surface->dun_id);
+    int_map_delete(dm->dungeons, dm->surface->id);
     dm->surface = NULL;
 }
 mon_pack_ptr dun_mgr_alloc_pack(void)
 {
     dun_mgr_ptr dm = dun_mgr();
-    mon_pack_ptr pack = malloc(sizeof(mon_pack_t));
-    memset(pack, 0, sizeof(mon_pack_t));
-    pack->pack_idx = dun_mgr_next_pack_id();
-    int_map_add(dm->packs, pack->pack_idx, pack);
+    mon_pack_ptr pack = mon_pack_alloc();
+    pack->id = dun_mgr_next_pack_id();
+    int_map_add(dm->packs, pack->id, pack);
     return pack;
 }
 void dun_mgr_free_pack(mon_pack_ptr pack)
 {
-    int_map_delete(dun_mgr()->packs, pack->pack_idx);
+    assert(pack->ai != AI_PETS);
+    if (pack->ai == AI_PETS) return; /* keep this pack around forever */
+    int_map_delete(dun_mgr()->packs, pack->id);
 }
 static mon_ptr _find_unique(int race_id)
 {
@@ -1421,7 +1777,7 @@ static mon_ptr _find_unique(int race_id)
                 int_map_iter_next(j))
         {
             mon_ptr m = int_map_iter_current(j);
-            if (m->r_idx == race_id) mon = m;
+            if (m->race->id == race_id) mon = m;
         }
         int_map_iter_free(j);
     }
@@ -1432,7 +1788,7 @@ mon_ptr dun_mgr_relocate_unique(int race_id, dun_ptr dun, point_t pos)
 {
     mon_ptr mon = _find_unique(race_id);
     if (!mon) return NULL;
-    dun_detach_mon(dun_mgr_dun(mon->dun_id), mon->id);
+    dun_detach_mon(mon->dun, mon->id);
     dun_place_mon(dun, mon, pos);
     return mon;
 }
@@ -1468,7 +1824,7 @@ int dun_mgr_count_mon_race(int race_id)
 bool dun_mgr_recall_plr(void)
 {
     dun_mgr_ptr dm = dun_mgr();
-    dun_ptr     current = int_map_find(dm->dungeons, p_ptr->dun_id);
+    dun_ptr     current = int_map_find(dm->dungeons, plr->dun_id);
     dun_ptr     recall = NULL;
 
     if (!plr_can_recall())
@@ -1477,7 +1833,7 @@ bool dun_mgr_recall_plr(void)
         return FALSE;
     }
     if (!quests_check_leave()) return FALSE;
-    if (current->dun_type_id == D_SURFACE)
+    if (current->type->id == D_SURFACE)
     {
         dun_type_ptr type = dun_types_choose("Recall to Which Dungeon?", FALSE);
         if (!type) return FALSE;
@@ -1487,7 +1843,7 @@ bool dun_mgr_recall_plr(void)
             return FALSE;
         }
 
-        p_ptr->old_pos = p_ptr->pos; /* remember for return recall */
+        plr->old_pos = plr->pos; /* remember for return recall */
         _mru_clear(dm);
         recall = dun_gen_wizard(type->id, type->plr_max_lvl);
         energy_use = 0; /* replaces MFLAG_NICE */
@@ -1495,10 +1851,12 @@ bool dun_mgr_recall_plr(void)
     else
     {
         _mru_clear(dm);
-        recall = dun_gen_surface(dun_world_pos(p_ptr->old_pos));
+        recall = dun_gen_surface(dun_world_pos(plr->old_pos));
         assert(dm->surface == recall);
-        dun_mgr_plr_change_dun(recall, p_ptr->old_pos);
+        dun_mgr_plr_change_dun(recall, plr->old_pos);
     }
+    assert(recall);
+    recall->flags |= DF_GC;
     return TRUE;
 }
 void dun_mgr_wizard_jump(int dun_type_id, int dun_lvl)
@@ -1511,8 +1869,8 @@ void dun_mgr_wizard_jump(int dun_type_id, int dun_lvl)
         return;
     }
 
-    if (p_ptr->dun_id && dun_mgr_dun(p_ptr->dun_id)->dun_type_id == D_SURFACE)
-        p_ptr->old_pos = p_ptr->pos;
+    if (plr->dun_id && dun_mgr_dun(plr->dun_id)->type->id == D_SURFACE)
+        plr->old_pos = plr->pos;
 
     if (dun_type_id == D_SURFACE)
     {
@@ -1543,54 +1901,46 @@ void dun_mgr_plr_change_dun(dun_ptr new_dun, point_t new_pos)
         command_rep = 0;
         command_arg = 0;
         command_dir = 0;
-        target_who = 0; /* XXX Code is assuming dun_mon(cave, target_who) will work. */
-        target_row = 0;
-        target_col = 0;
         travel.pos = point_create(0, 0);
-        p_ptr->health_who = 0;
+        travel.last_pos = point_create(0, 0);
+        plr->health_who = 0;
         shimmer_monsters = TRUE;
         shimmer_objects = TRUE;
         repair_monsters = TRUE;
         repair_objects = TRUE;
         disturb(1, 0);
-        if (p_ptr->max_plv < p_ptr->lev) p_ptr->max_plv = p_ptr->lev; /* XXX Really? */
+        if (plr->max_plv < plr->lev) plr->max_plv = plr->lev; /* XXX Really? */
 
-        forget_lite();
-        forget_view();
-        clear_mon_lite();
+        /* XXX plr_hook_change_dun ... eg, plr->painted_target_idx, duelist?
+         * (aside: fleeing the level with an un-finished duel should trash your honor!) */
     }
     /* Track Max Depth */
-    switch (new_dun->dun_type_id)
+    switch (new_dun->type->id)
     {
     case D_SURFACE:
     case D_QUEST:
     case D_WORLD: break;
     default:
-        type = dun_types_lookup(new_dun->dun_type_id);
+        type = dun_types_lookup(new_dun->type->id);
         if (new_dun->dun_lvl > type->plr_max_lvl)
         {
             type->plr_max_lvl = new_dun->dun_lvl;
-            type->plr_flags |= DFP_ENTERED;
+            type->flags.plr |= DF_PLR_ENTERED;
         }
     }
 
     /* keep mru up to date */
-    _mru_nq(dm, new_dun->dun_id);
+    _mru_nq(dm, new_dun->id);
 
     /* Re-locate the player. This should be the only place in the system
-     * that actually places the plr in a dungeon (setting p_ptr->dun_id),
+     * that actually places the plr in a dungeon (setting plr->dun_id),
      * except for dun_mgr_load, of course. */
     cave = new_dun;
-    p_ptr->dun_id = new_dun->dun_id;
-    p_ptr->pos = new_pos;
+    plr->dun_id = new_dun->id;
+    plr->pos = new_pos;
     if (mount)
     {
-        dun_detach_mon(mon_dun(mount), mount->id);
-        if (mount->id > dm->next_mon_id) /* paranoia: the mon_id sequence usually wraps once per game */
-        {
-            mount->id = dun_mgr_next_mon_id();
-            p_ptr->riding = mount->id;
-        }
+        dun_detach_mon(mount->dun, mount->id);
         dun_place_mon(new_dun, mount, new_pos);
     }
     new_dun->flow_pos = new_pos;
@@ -1616,30 +1966,28 @@ void dun_mgr_plr_change_dun(dun_ptr new_dun, point_t new_pos)
         type->change_dun_f(type, new_dun);
 
     /* hook for quest monsters */
-    if (new_dun->dun_type_id == D_QUEST)
+    if (new_dun->type->id == D_QUEST)
         quests_on_enter_fixed(new_dun->quest_id);
     else
-        quests_on_enter(new_dun->dun_type_id, new_dun->dun_lvl);
+        quests_on_enter(new_dun->type->id, new_dun->dun_lvl);
 
     if (autosave_l && !statistics_hack)
         new_dun->flags |= DF_AUTOSAVE; /* later ... once the stack unwinds to the next dun_mgr_process() */
 
     /* XXX do_cmd_save_game does a handle_stuff ... Saving currently *requires* forget_view et. al. */
-    p_ptr->window |= PW_MONSTER_LIST | PW_OBJECT_LIST | PW_MONSTER | PW_OVERHEAD | PW_DUNGEON | PW_WORLD_MAP;
-    p_ptr->redraw |= PR_BASIC | PR_EXTRA | PR_EQUIPPY | PR_MSG_LINE | PR_MAP;
-    p_ptr->update |= PU_VIEW | PU_LITE | PU_MON_LITE | PU_TORCH;
-    p_ptr->update |= PU_MONSTERS;
+    plr->window |= PW_MONSTER_LIST | PW_OBJECT_LIST | PW_MONSTER | PW_OVERHEAD | PW_DUNGEON | PW_WORLD_MAP;
+    plr->redraw |= PR_BASIC | PR_EXTRA | PR_EQUIPPY | PR_MSG_LINE | PR_MAP;
+    plr->update |= PU_VIEW | PU_LIGHT | PU_MON_LIGHT | PU_TORCH;
+    plr->update |= PU_MONSTERS;
 }
 /************************************************************************
  * Savefiles
  ************************************************************************/
 /* 1. Save dun_page_t using RLE encoding for terrain. Rely on page->grids allocation
- *    as a single contiguous block. RLE compression is very good for typical dungeons,
- *    around 20x in the few cases I looked at. */
+ *    as a single contiguous block. */
 typedef struct {
-    int  index;
-    u16b info;
-    s16b feat, mimic, special, count;
+    int  index, count;
+    dun_grid_t grid;
 } _template_t, *_template_ptr;
 static int _compare_template(_template_ptr l, _template_ptr r) /*descending on count */
 {
@@ -1654,15 +2002,19 @@ static _template_ptr _find_template(vec_ptr v, dun_grid_ptr grid) /* O(n) */
     for (i = 0; i < vec_length(v); i++)
     {
         t = vec_get(v, i);
-        if (t->info == grid->info && t->feat == grid->feat && t->mimic == grid->mimic && t->special == grid->special)
+        /* if (grid == t->grid) ... */
+        if ( t->grid.type == grid->type
+          && t->grid.subtype == grid->subtype
+          && t->grid.parm1 == grid->parm1
+          && t->grid.parm2 == grid->parm2
+          && t->grid.flags == grid->flags )
+        {
             return t;
+        }
     }
     t = malloc(sizeof(_template_t));
-    /* XXX index is set after sorting */
-    t->info = grid->info;
-    t->feat = grid->feat;
-    t->mimic = grid->mimic;
-    t->special = grid->special;
+    t->index = -1;    /* XXX index is set after sorting */
+    t->grid = *grid;
     t->count = 0;
     vec_add(v, t);
     return t;
@@ -1695,6 +2047,24 @@ static rect_t _rect_load(savefile_ptr file)
     rect.cy = savefile_read_s16b(file);
     return rect;
 }
+static void _grid_save(dun_grid_ptr grid, savefile_ptr file)
+{
+    savefile_write_byte(file, grid->type);
+    savefile_write_byte(file, grid->subtype);
+    savefile_write_byte(file, grid->parm1);
+    savefile_write_byte(file, grid->parm2);
+    savefile_write_u32b(file, grid->flags);
+}
+static dun_grid_t _grid_load(savefile_ptr file)
+{
+    dun_grid_t g;
+    g.type = savefile_read_byte(file);
+    g.subtype = savefile_read_byte(file);
+    g.parm1 = savefile_read_byte(file);
+    g.parm2 = savefile_read_byte(file);
+    g.flags = savefile_read_u32b(file);
+    return g;
+}
 static void _dun_page_load(dun_page_ptr page, savefile_ptr file)
 {
     vec_ptr v = vec_alloc(free);
@@ -1711,10 +2081,9 @@ static void _dun_page_load(dun_page_ptr page, savefile_ptr file)
     for (i = 0; i < ct; i++)
     {
         t = malloc(sizeof(_template_t));
-        t->info = savefile_read_u16b(file);
-        t->feat = savefile_read_s16b(file);
-        t->mimic = savefile_read_s16b(file);
-        t->special = savefile_read_s16b(file);
+        t->index = i;
+        t->grid = _grid_load(file);
+        t->count = 0;
         vec_add(v, t);
     }
 
@@ -1732,15 +2101,13 @@ static void _dun_page_load(dun_page_ptr page, savefile_ptr file)
 
         for (i = 0; i < ct; i++)
         {
-            grid->info = t->info;
-            grid->feat = t->feat;
-            grid->mimic = t->mimic;
-            grid->special = t->special;
+            *grid = t->grid;
             grid++;
         }
     }
     check = savefile_read_u32b(file);
     assert(check == 0xdeadbeef); /* paranoia */
+    if (check != 0xdeadbeef) quit("Corrupted savefile in _dun_page_load");
     vec_free(v);
 }
 static void _dun_page_save(dun_page_ptr page, savefile_ptr file)
@@ -1756,7 +2123,6 @@ static void _dun_page_save(dun_page_ptr page, savefile_ptr file)
     {
         for (pt.x = page->rect.x; pt.x < page->rect.x + page->rect.cx; pt.x++)
         {
-            assert(grid->feat);
             _find_template(v, grid)->count++;
             grid++;
         }
@@ -1767,11 +2133,7 @@ static void _dun_page_save(dun_page_ptr page, savefile_ptr file)
     {
         _template_ptr t = vec_get(v, i);
         t->index = i; /* XXX set the id after sorting */
-        assert(t->feat);
-        savefile_write_u16b(file, t->info);
-        savefile_write_s16b(file, t->feat);
-        savefile_write_s16b(file, t->mimic);
-        savefile_write_s16b(file, t->special);
+        _grid_save(&t->grid, file);
     }
     grid = page->grids;
     for (pt.y = page->rect.y; pt.y < page->rect.y + page->rect.cy; pt.y++)
@@ -1830,7 +2192,7 @@ void dun_load(dun_ptr dun, savefile_ptr file)
 {
     int ct = 0, i;
 
-    dun->dun_type_id = savefile_read_s16b(file);
+    dun->type = dun_types_lookup(savefile_read_s16b(file));
     dun->dun_lvl = savefile_read_s16b(file);
     dun->difficulty = savefile_read_s16b(file);
     dun->quest_id = savefile_read_s16b(file);
@@ -1846,6 +2208,8 @@ void dun_load(dun_ptr dun, savefile_ptr file)
         dun_page_ptr p = dun_page_alloc(rect);
         _dun_page_load(p, file);
         p->next = dun->page;
+        if (dun->page)
+            dun->page->prev = p;
         dun->page = p;
     }
     /* objects */
@@ -1882,8 +2246,13 @@ void dun_load(dun_ptr dun, savefile_ptr file)
     {
         mon_ptr mon = mon_alloc();
         mon_load(mon, file);
-        mon_true_race(mon)->cur_num++; /* XXX cur_num is not stored in the savefile */
+        mon->dun = dun;
+        mon_true_race(mon)->alloc.cur_num++; /* XXX cur_num is not stored in the savefile */
         int_map_add(dun->mon, mon->id, mon);
+        if (mon->mflag2 & MFLAG2_HUNTED)
+            mon->flow = dun_flow_calc(dun, mon->pos, MON_HUNT_RAD, NULL);
+        if (mon->id == plr->duelist_target_idx)
+            plr->duelist_target = who_create_mon(mon);
     }
     /* monster positions (and carried objects) */
     ct = savefile_read_s16b(file);
@@ -1927,6 +2296,7 @@ void dun_load(dun_ptr dun, savefile_ptr file)
     dun->breed_kill_ct = savefile_read_s16b(file);
     dun->feeling = savefile_read_byte(file);
     dun->feeling_delay = savefile_read_s16b(file);
+    dun->ambient_light = savefile_read_s16b(file);
 
     if (dun_pos_interior(dun, dun->flow_pos)) /* XXX *after* reading savefile flags! */
         dun->flags |= DF_UPDATE_FLOW;
@@ -1936,6 +2306,8 @@ void dun_load(dun_ptr dun, savefile_ptr file)
         dun->town = town_alloc(TOWN_RANDOM, "Random");
         town_load(dun->town, file);
     }
+    dun_tim_load(dun, file);
+
     /* XXX Detect and recover broken savefiles. For example, I received a file
      * where an object pile was in dun->obj_pos under two different locations. */
     if (!dun_obj_integrity(dun))
@@ -1980,7 +2352,7 @@ void dun_save(dun_ptr dun, savefile_ptr file)
     dun_page_ptr p;
     int ct = 0;
 
-    savefile_write_s16b(file, dun->dun_type_id);
+    savefile_write_s16b(file, dun->type->id);
     savefile_write_s16b(file, dun->dun_lvl);
     savefile_write_s16b(file, dun->difficulty);
     savefile_write_s16b(file, dun->quest_id);
@@ -2018,57 +2390,114 @@ void dun_save(dun_ptr dun, savefile_ptr file)
     savefile_write_s16b(file, dun->breed_kill_ct);
     savefile_write_byte(file, dun->feeling);
     savefile_write_s16b(file, dun->feeling_delay);
+    savefile_write_s16b(file, dun->ambient_light);
 
     if (dun->flags & DF_SHOP)
     {
         assert(dun->town);
         town_save(dun->town, file);
     }
+    dun_tim_save(dun, file);
 }
 /* 2. Save dun_mgr_t */
-static void mon_pack_save(mon_pack_ptr pack, savefile_ptr file)
+static void _gc_packs(void) /* paranoia */
 {
-    savefile_write_u16b(file, pack->pack_idx);
-    savefile_write_u16b(file, pack->leader_idx);
-    savefile_write_s16b(file, pack->count);
-    savefile_write_s16b(file, pack->ai);
-    savefile_write_u16b(file, pack->guard_idx);
-    savefile_write_s16b(file, pack->guard_x);
-    savefile_write_s16b(file, pack->guard_y);
-    savefile_write_s16b(file, pack->distance);
+    dun_mgr_ptr dm = dun_mgr();
+    vec_ptr v = vec_alloc(NULL);
+    int_map_iter_ptr iter;
+    int i;
+    for (iter = int_map_iter_alloc(dm->packs);
+            int_map_iter_is_valid(iter);
+            int_map_iter_next(iter))
+    {
+        mon_pack_ptr pack = int_map_iter_current(iter);
+        if (pack->ai == AI_PETS) continue;
+        if (!vec_length(pack->members))
+            vec_add_int(v, pack->id);
+    }
+    int_map_iter_free(iter);
+
+    for (i = 0; i < vec_length(v); i++)
+    {
+        int id = vec_get_int(v, i);
+        int_map_delete(dm->packs, id);
+    }
+    vec_free(v);
 }
-static void mon_pack_load(mon_pack_ptr pack, savefile_ptr file)
+static void _rebuild_packs(void)
 {
-    pack->pack_idx = savefile_read_u16b(file);
-    pack->leader_idx = savefile_read_u16b(file);
-    pack->count = savefile_read_s16b(file);
-    pack->ai = savefile_read_s16b(file);
-    pack->guard_idx = savefile_read_u16b(file);
-    pack->guard_x = savefile_read_s16b(file);
-    pack->guard_y = savefile_read_s16b(file);
-    pack->distance = savefile_read_s16b(file);
+    /* rebuild pack->members */
+    dun_mgr_ptr dm = dun_mgr();
+    mon_pack_ptr pets = plr_pack(); /* upgrade */
+    int_map_iter_ptr i, j;
+    for (i = int_map_iter_alloc(dm->dungeons);
+            int_map_iter_is_valid(i);
+            int_map_iter_next(i))
+    {
+        dun_ptr dun = int_map_iter_current(i);
+        for (j = int_map_iter_alloc(dun->mon);
+                int_map_iter_is_valid(j);
+                int_map_iter_next(j))
+        {
+            mon_ptr mon = int_map_iter_current(j);
+            if (mon_is_pet(mon)) /* upgrade ... mon->pack_id might be 0 or some pack other than pets */
+            {                    /* all pets need to go into plr_pack() for dismissal, upkeep, mon_ai, etc. */
+                mon->pack = pets;
+                vec_push(pets->members, mon);
+            }
+            else if (mon->pack)
+                vec_push(mon->pack->members, mon);
+        }
+        int_map_iter_free(j);
+    }
+    int_map_iter_free(i);
+    _gc_packs();
+    for (i = int_map_iter_alloc(dm->packs);
+            int_map_iter_is_valid(i);
+            int_map_iter_next(i))
+    {
+        mon_pack_ptr pack = int_map_iter_current(i);
+        if (pack->ai == AI_WANDER)
+        {
+            mon_ptr mon = mon_pack_representative(pack);
+            if (dun_pos_interior(mon->dun, pack->pos)) /* savefile upgrade */
+                pack->flow = dun_flow_calc(mon->dun, pack->pos, MON_WANDER_RAD, NULL);
+        }
+    }
+    int_map_iter_free(i);
 }
 void dun_mgr_load(savefile_ptr file)
 {
     dun_mgr_ptr dm = dun_mgr();
     int i, ct;
 
-    if (savefile_is_older_than(file, 7, 1, 2, 1))
-        p_ptr->initial_world_id = W_SMAUG;
-    else
-        p_ptr->initial_world_id = savefile_read_u16b(file);
-    p_ptr->world_id = savefile_read_u16b(file);
-    p_ptr->dun_id = savefile_read_u16b(file);
-    p_ptr->pos = _point_load(file);
-    p_ptr->old_pos = _point_load(file);
-    p_ptr->turn = savefile_read_u32b(file);
+    plr->initial_world_id = savefile_read_u16b(file);
+    plr->world_id = savefile_read_u16b(file);
+    plr->dun_id = savefile_read_u16b(file);
+    plr->pos = _point_load(file);
+    plr->old_pos = _point_load(file);
+    plr->turn = savefile_read_u32b(file);
 
     dm->next_dun_id = savefile_read_u16b(file);
-    dm->next_mon_id = savefile_read_u16b(file);
+    dm->next_mon_id = savefile_read_u32b(file);
     dm->next_obj_id = savefile_read_u16b(file);
     dm->next_pack_id = savefile_read_u16b(file);
+    dm->plr_pack_id = savefile_read_u16b(file);
     dm->turn = savefile_read_u32b(file);
     dm->world_seed = savefile_read_u32b(file);
+    dm->world_frac = dun_frac_load(file);
+
+    dun_types_load(file); /* dun->type requires this go first */
+    dun_worlds_load(file);
+
+    ct = savefile_read_s16b(file); /* mon->pack needs pointers to exist */
+    for (i = 0; i < ct; i++)
+    {
+        mon_pack_ptr pack = mon_pack_alloc();
+        mon_pack_load(pack, file);
+        int_map_add(dm->packs, pack->id, pack);
+    }
+
     ct = savefile_read_s16b(file);
     for (i = 0; i < ct; i++)
     {
@@ -2076,9 +2505,9 @@ void dun_mgr_load(savefile_ptr file)
         int id = savefile_read_u16b(file);
         dun = dun_alloc_aux(id);
         dun_load(dun, file);
-        int_map_add(dm->dungeons, dun->dun_id, dun);
-        if (dun->dun_type_id == D_WORLD) dm->world = dun;
-        if (dun->dun_type_id == D_SURFACE) dm->surface = dun;
+        int_map_add(dm->dungeons, dun->id, dun);
+        if (dun->type->id == D_WORLD) dm->world = dun;
+        if (dun->type->id == D_SURFACE) dm->surface = dun;
     }
     for (;;)
     {
@@ -2087,33 +2516,44 @@ void dun_mgr_load(savefile_ptr file)
         if (!int_map_find(dm->dungeons, id)) continue;
         _mru_nq(dm, id);
     }
-    ct = savefile_read_s16b(file);
-    for (i = 0; i < ct; i++)
-    {
-        mon_pack_ptr pack = malloc(sizeof(mon_pack_t));
-        memset(pack, 0, sizeof(mon_pack_t));
-        mon_pack_load(pack, file);
-        int_map_add(dm->packs, pack->pack_idx, pack);
-    }
-    dun_types_load(file);
-    dun_worlds_load(file);
 
     dun_world_reseed(dm->world_seed);
-    cave = int_map_find(dm->dungeons, p_ptr->dun_id);
-
-    #if 0
-    if (p_ptr->initial_world_id == W_AMBER) /* XXX fixup savefile for my playtesting char */
+    _rebuild_packs(); /* pack->members needs to be populated */
+    cave = int_map_find(dm->dungeons, plr->dun_id);
+}
+void dun_frac_save(dun_frac_ptr frac, savefile_ptr file)
+{
+    int cb, i;
+    if (!frac)
     {
-        vec_ptr v = world_dun_types();
-        for (i = 0; i < vec_length(v); i++)
-        {
-            dun_type_ptr t = vec_get(v, i);
-            if (t->init_f)
-                t->init_f(t);
-        }
-        vec_free(v);
+        _rect_save(rect_invalid(), file);
+        return;
     }
-    #endif
+    _rect_save(frac->rect, file);
+    savefile_write_byte(file, frac->max);
+    cb = frac->rect.cx * frac->rect.cy;
+    for (i = 0; i < cb; i++)
+        savefile_write_byte(file, frac->map[i]);
+    savefile_write_u32b(file, 0xdeadbeef); /* paranoia */
+}
+dun_frac_ptr dun_frac_load(savefile_ptr file)
+{
+    dun_frac_ptr frac = NULL;
+    rect_t       r = _rect_load(file);
+    byte         max;
+    int          cb, i;
+    u32b         check;
+
+    if (!rect_is_valid(r)) return NULL;
+    max = savefile_read_byte(file);
+    frac = dun_frac_alloc(r, max);
+    cb = r.cx * r.cy;
+    for (i = 0; i < cb; i++)
+        frac->map[i] = savefile_read_byte(file);
+    check = savefile_read_u32b(file);
+    assert(check == 0xdeadbeef); /* paranoia */
+    if (check != 0xdeadbeef) quit("Corrupted savefile in dun_frac_load");
+    return frac;
 }
 void dun_mgr_save(savefile_ptr file)
 {
@@ -2121,38 +2561,35 @@ void dun_mgr_save(savefile_ptr file)
     int_map_iter_ptr iter;
     int i;
 
-    /* XXX XXX XXX */
-    /* Forget old "cave" info before saving current dun;
-     * these guys all use temp arrays to forget/track current
-     * values, and these temp arrays are *not* saved! So, if
-     * we saved CAVE_VIEW flags, for example, they would never
-     * ever be cleared after a reload (unless you got lucky).
-     * BTW, I'd like to replace this sort of stuff. Move flags
-     * out of dun_grid_t.info into "dun_flags" and then you could
-     * have p_ptr->los and dun_t.lite. Save 'em if you want, or
-     * let a null pointer signal the need to re-calc.
-     * XXX p_ptr->los added. Still thinking on lite ... */
-    forget_lite();
-    clear_mon_lite();
-    p_ptr->update |= PU_LITE | PU_MON_LITE;
-    p_ptr->update |= PU_MONSTERS;
-    /* XXX XXX XXX */
+    /*dun_mgr_gc(TRUE);*/
 
-    dun_mgr_gc(TRUE);
-
-    savefile_write_u16b(file, p_ptr->initial_world_id);
-    savefile_write_u16b(file, p_ptr->world_id);
-    savefile_write_u16b(file, p_ptr->dun_id);
-    _point_save(p_ptr->pos, file);
-    _point_save(p_ptr->old_pos, file);
-    savefile_write_u32b(file, p_ptr->turn);
+    savefile_write_u16b(file, plr->initial_world_id);
+    savefile_write_u16b(file, plr->world_id);
+    savefile_write_u16b(file, plr->dun_id);
+    _point_save(plr->pos, file);
+    _point_save(plr->old_pos, file);
+    savefile_write_u32b(file, plr->turn);
 
     savefile_write_u16b(file, dm->next_dun_id);
-    savefile_write_u16b(file, dm->next_mon_id);
+    savefile_write_u32b(file, dm->next_mon_id);
     savefile_write_u16b(file, dm->next_obj_id);
     savefile_write_u16b(file, dm->next_pack_id);
+    savefile_write_u16b(file, dm->plr_pack_id);
     savefile_write_u32b(file, dm->turn);
     savefile_write_u32b(file, dm->world_seed);
+    dun_frac_save(dm->world_frac, file);
+
+    dun_types_save(file); /* dun->type requires this go first */
+    dun_worlds_save(file);
+    savefile_write_s16b(file, int_map_count(dm->packs)); /* mon->pack will need pointers to exist */
+    for (iter = int_map_iter_alloc(dm->packs);
+            int_map_iter_is_valid(iter);
+            int_map_iter_next(iter))
+    {
+        mon_pack_ptr pack = int_map_iter_current(iter);
+        mon_pack_save(pack, file);
+    }
+    int_map_iter_free(iter);
 
     savefile_write_s16b(file, int_map_count(dm->dungeons));
     for (iter = int_map_iter_alloc(dm->dungeons);
@@ -2160,7 +2597,7 @@ void dun_mgr_save(savefile_ptr file)
             int_map_iter_next(iter))
     {
         dun_ptr dun = int_map_iter_current(iter);
-        savefile_write_u16b(file, dun->dun_id);
+        savefile_write_u16b(file, dun->id);
         dun_save(dun, file);
     }
     int_map_iter_free(iter);
@@ -2173,18 +2610,72 @@ void dun_mgr_save(savefile_ptr file)
         if (++i == _MRU_LEN) i = 0;
     }
     savefile_write_u16b(file, 0);
+}
 
-    savefile_write_s16b(file, int_map_count(dm->packs));
-    for (iter = int_map_iter_alloc(dm->packs);
-            int_map_iter_is_valid(iter);
-            int_map_iter_next(iter))
+/************************************************************************
+ * Debugging Utilities
+ ************************************************************************/
+static str_ptr _get_dump(dun_ptr dun)
+{
+    str_ptr s = str_alloc_size(dun->rect.cx * dun->rect.cy);
+    point_t min = rect_top_left(dun->rect);
+    point_t max = rect_bottom_right(dun->rect);
+    point_t p;
+    for (p.y = min.y; p.y <= max.y; p.y++)
     {
-        mon_pack_ptr pack = int_map_iter_current(iter);
-        mon_pack_save(pack, file);
+        int  current_a = -1;
+        for (p.x = min.x; p.x <= max.x; p.x++)
+        {
+            dun_grid_ptr g = dun_grid_at(dun, p);
+            term_char_t tc = term_char_create(' ', TERM_WHITE);
+            bool mark = BOOL(g->flags & CELL_MAP);
+
+            if (plr->wizard && !mark) /* e.g. ^Am for testing dun generation */
+                mark = BOOL(g->flags & CELL_AWARE);
+
+            if (mark)
+                tc = cell_ascii(g);
+
+            if (tc.a != current_a)
+            {
+                if (current_a >= 0 && current_a != TERM_WHITE)
+                {
+                    str_append_s(s, "</color>");
+                }
+                if (tc.a != TERM_WHITE)
+                {
+                    str_printf(s, "<color:%c>", attr_to_attr_char(tc.a));
+                }
+                current_a = tc.a;
+            }
+            str_append_c(s, tc.c);
+        }
+        if (current_a >= 0 && current_a != TERM_WHITE)
+            str_append_s(s, "</color>");
+        str_append_c(s, '\n');
     }
-    int_map_iter_free(iter);
-    dun_types_save(file);
-    dun_worlds_save(file);
+    return s;
+}
+void dun_dump(dun_ptr dun, cptr file, int format)
+{
+    str_ptr s = _get_dump(dun);
+    doc_ptr    doc = doc_alloc(dun->rect.cx);
+    char       buf[1024];
+    FILE      *fff;
+
+    doc_insert(doc, "<style:screenshot>");
+    doc_insert(doc, str_buffer(s));
+    doc_insert(doc, "</style>");
+
+    path_build(buf, sizeof(buf), ANGBAND_DIR_USER, file);
+    fff = my_fopen(buf, "w");
+    if (fff)
+    {
+        doc_write_file(doc, fff, format);
+        my_fclose(fff);
+    }
+    str_free(s);
+    doc_free(doc);
 }
 
 /************************************************************************

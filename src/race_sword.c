@@ -4,10 +4,10 @@ static int _rank(void)
 {
     int rank = 0;
 
-    if (p_ptr->lev >= 10) rank++;
-    if (p_ptr->lev >= 25) rank++;
-    if (p_ptr->lev >= 35) rank++;
-    if (p_ptr->lev >= 45) rank++;
+    if (plr->lev >= 10) rank++;
+    if (plr->lev >= 25) rank++;
+    if (plr->lev >= 35) rank++;
+    if (plr->lev >= 45) rank++;
     return rank;
 }
 
@@ -157,7 +157,7 @@ static bool _absorb(object_type *o_ptr)
 
     if (result)
     {
-        p_ptr->update |= PU_BONUS;
+        plr->update |= PU_BONUS;
         msg_print("<color:B>You grow stronger!</color>");
     }
     return result;
@@ -242,27 +242,27 @@ static int _res_power(int which)
 {
     switch (which)
     {
-    case RES_ACID:
-    case RES_FIRE:
-    case RES_COLD:
-    case RES_ELEC:
-    case RES_CONF:
-    case RES_FEAR:
-    case RES_TIME:
-    case RES_TELEPORT:
+    case GF_ACID:
+    case GF_FIRE:
+    case GF_COLD:
+    case GF_ELEC:
+    case GF_CONF:
+    case GF_FEAR:
+    case GF_TIME:
+    case GF_TELEPORT:
         return 2;
 
-    case RES_SOUND:
-    case RES_SHARDS:
-    case RES_CHAOS:
+    case GF_SOUND:
+    case GF_SHARDS:
+    case GF_CHAOS:
         return 4;
 
-    case RES_DISEN:
-    case RES_POIS:
-    case RES_LITE:
-    case RES_DARK:
-    case RES_NETHER:
-    case RES_NEXUS:
+    case GF_DISEN:
+    case GF_POIS:
+    case GF_LIGHT:
+    case GF_DARK:
+    case GF_NETHER:
+    case GF_NEXUS:
         return 3;
     }
 
@@ -296,6 +296,9 @@ static _flag_info_t _slay_flag_info[] = {
     { OF_BRAND_FIRE, 24, "Brand Fire" },
     { OF_BRAND_COLD, 24, "Brand Cold" },
     { OF_BRAND_POIS, 24, "Brand Poison" },
+    { OF_BRAND_LIGHT, 12, "Brand Light" },
+    { OF_BRAND_DARK, 12, "Brand Dark" },
+    { OF_BRAND_PLASMA, 12, "Brand Plasma" },
     { OF_BRAND_CHAOS, 32, "Chaotic" },
     { OF_BRAND_VAMP, 32, "Vampiric" },
     { OF_VORPAL, 16, "Vorpal" },
@@ -383,118 +386,118 @@ static void _calc_bonuses(void)
     int to_a = plr_prorata_level(150);
 
     to_a += _calc_amount(_essences[_ESSENCE_AC], 2, 10);
-    if (p_ptr->current_r_idx == MON_DEATH_SCYTHE)
+    if (plr_mon_race_is_("/.death"))
         to_a -= 50;
-    p_ptr->to_a += to_a;
-    p_ptr->dis_to_a += to_a;
+    plr->to_a += to_a;
+    plr->dis_to_a += to_a;
 
-    p_ptr->pspeed += 1;
+    plr->pspeed += 1;
     
-    p_ptr->levitation = TRUE;
-    p_ptr->no_cut = TRUE;
-    res_add(RES_BLIND);
-    res_add(RES_POIS);
+    plr->levitation = TRUE;
+    plr->no_cut = TRUE;
+    res_add(GF_BLIND);
+    res_add(GF_POIS);
 
-    if (p_ptr->lev >= 10)
-        p_ptr->pspeed += 1;
+    if (plr->lev >= 10)
+        plr->pspeed += 1;
 
-    if (p_ptr->lev >= 25)
-        p_ptr->pspeed += 1;
+    if (plr->lev >= 25)
+        plr->pspeed += 1;
 
-    if (p_ptr->lev >= 35)
-        p_ptr->pspeed += 2;
+    if (plr->lev >= 35)
+        plr->pspeed += 2;
 
-    if (p_ptr->lev >= 45)
+    if (plr->lev >= 45)
     {
-        p_ptr->pspeed += 2;
-        p_ptr->sh_retaliation = TRUE;
+        plr->pspeed += 2;
+        plr->sh_retaliation = TRUE;
     }
 
-    for (i = 0; i < RES_MAX; i++)
+    for (i = GF_RES_MIN; i <= GF_RES_MAX; i++)
     {
-        int j = res_get_object_flag(i);
+        int j = OF_RES_(i);
         int n = _calc_amount(_essences[j], _res_power(i), 1);
 
         for (; n; --n)
             res_add(i);
     }
-    if (_essences[OF_IM_ACID] >= 3)
-        res_add_immune(RES_ACID);
-    if (_essences[OF_IM_ELEC] >= 3)
-        res_add_immune(RES_ELEC);
-    if (_essences[OF_IM_FIRE] >= 3)
-        res_add_immune(RES_FIRE);
-    if (_essences[OF_IM_COLD] >= 3)
-        res_add_immune(RES_COLD);
+    if (_essences[OF_IM_(GF_ACID)] >= 3)
+        res_add_immune(GF_ACID);
+    if (_essences[OF_IM_(GF_ELEC)] >= 3)
+        res_add_immune(GF_ELEC);
+    if (_essences[OF_IM_(GF_FIRE)] >= 3)
+        res_add_immune(GF_FIRE);
+    if (_essences[OF_IM_(GF_COLD)] >= 3)
+        res_add_immune(GF_COLD);
 
-    p_ptr->life += 3*_calc_amount(_essences[OF_LIFE], 7, 1);
+    plr->life += 3*_calc_amount(_essences[OF_LIFE], 7, 1);
 
-    p_ptr->skills.stl += _calc_amount(_essences[OF_STEALTH], 2, 1);
-    p_ptr->pspeed += _calc_amount(_essences[OF_SPEED], 1, 10);
-    p_ptr->skills.dev += 8*_calc_amount(_essences[OF_MAGIC_MASTERY], 2, 1);
-    p_ptr->device_power += _calc_amount(_essences[OF_DEVICE_POWER], 2, 1);
-    p_ptr->skills.srh += 5*_calc_amount(_essences[OF_SEARCH], 2, 1);
-    p_ptr->skills.fos += 5*_calc_amount(_essences[OF_SEARCH], 2, 1);
-    p_ptr->see_infra += _calc_amount(_essences[OF_INFRA], 2, 1);
-    p_ptr->skill_dig += 20*_calc_amount(_essences[OF_TUNNEL], 2, 1);
+    plr->skills.stl += _calc_amount(_essences[OF_STEALTH], 2, 1);
+    plr->pspeed += _calc_amount(_essences[OF_SPEED], 1, 10);
+    plr->skills.dev += 8*_calc_amount(_essences[OF_MAGIC_MASTERY], 2, 1);
+    plr->device_power += _calc_amount(_essences[OF_DEVICE_POWER], 2, 1);
+    plr->skills.srh += 5*_calc_amount(_essences[OF_SEARCH], 2, 1);
+    plr->skills.fos += 5*_calc_amount(_essences[OF_SEARCH], 2, 1);
+    plr->see_infra += _calc_amount(_essences[OF_INFRA], 2, 1);
+    plr->skill_dig += 20*_calc_amount(_essences[OF_TUNNEL], 2, 1);
 
     if (_essences[OF_SUST_STR] >= 5)
-        p_ptr->sustain_str = TRUE;
+        plr->sustain_str = TRUE;
     if (_essences[OF_SUST_INT] >= 5)
-        p_ptr->sustain_int = TRUE;
+        plr->sustain_int = TRUE;
     if (_essences[OF_SUST_WIS] >= 5)
-        p_ptr->sustain_wis = TRUE;
+        plr->sustain_wis = TRUE;
     if (_essences[OF_SUST_DEX] >= 5)
-        p_ptr->sustain_dex = TRUE;
+        plr->sustain_dex = TRUE;
     if (_essences[OF_SUST_CON] >= 5)
-        p_ptr->sustain_con = TRUE;
+        plr->sustain_con = TRUE;
     if (_essences[OF_SUST_CHR] >= 5)
-        p_ptr->sustain_chr = TRUE;
+        plr->sustain_chr = TRUE;
 
     if (_essences[OF_TELEPATHY] >= 2)
-        p_ptr->telepathy = TRUE;
+        plr->telepathy = TRUE;
     if (_essences[OF_ESP_ANIMAL] >= 2)
-        p_ptr->esp_animal = TRUE;
+        plr->esp_animal = TRUE;
     if (_essences[OF_ESP_UNDEAD] >= 2)
-        p_ptr->esp_undead = TRUE;
+        plr->esp_undead = TRUE;
     if (_essences[OF_ESP_DEMON] >= 2)
-        p_ptr->esp_demon = TRUE;
+        plr->esp_demon = TRUE;
     if (_essences[OF_ESP_ORC] >= 2)
-        p_ptr->esp_orc = TRUE;
+        plr->esp_orc = TRUE;
     if (_essences[OF_ESP_TROLL] >= 2)
-        p_ptr->esp_troll = TRUE;
+        plr->esp_troll = TRUE;
     if (_essences[OF_ESP_GIANT] >= 2)
-        p_ptr->esp_giant = TRUE;
+        plr->esp_giant = TRUE;
     if (_essences[OF_ESP_DRAGON] >= 2)
-        p_ptr->esp_dragon = TRUE;
+        plr->esp_dragon = TRUE;
     if (_essences[OF_ESP_HUMAN] >= 2)
-        p_ptr->esp_human = TRUE;
+        plr->esp_human = TRUE;
     if (_essences[OF_ESP_EVIL] >= 2)
-        p_ptr->esp_evil = TRUE;
+        plr->esp_evil = TRUE;
     if (_essences[OF_ESP_GOOD] >= 2)
-        p_ptr->esp_good = TRUE;
+        plr->esp_good = TRUE;
     if (_essences[OF_ESP_NONLIVING] >= 2)
-        p_ptr->esp_nonliving = TRUE;
+        plr->esp_nonliving = TRUE;
     if (_essences[OF_ESP_UNIQUE] >= 2)
-        p_ptr->esp_unique = TRUE;
+        plr->esp_unique = TRUE;
 
     if (_essences[OF_NO_MAGIC] >= 5)
-        p_ptr->anti_magic = TRUE;
-    p_ptr->free_act += _calc_amount(_essences[OF_FREE_ACT], 2, 1);
-    p_ptr->see_inv += _calc_amount(_essences[OF_SEE_INVIS], 3, 1);
-    p_ptr->hold_life += _calc_amount(_essences[OF_HOLD_LIFE], 3, 1);
+        plr->anti_magic = TRUE;
+    plr->free_act += _calc_amount(_essences[OF_FREE_ACT], 2, 1);
+    plr->see_inv += _calc_amount(_essences[OF_SEE_INVIS], 3, 1);
+    plr->hold_life += _calc_amount(_essences[OF_HOLD_LIFE], 3, 1);
     if (_essences[OF_SLOW_DIGEST] >= 2)
-        p_ptr->slow_digest = TRUE;
-    p_ptr->regen += 5 * _calc_amount(_essences[OF_REGEN], 2, 10);
+        plr->slow_digest = TRUE;
+    plr->regen += 5 * _calc_amount(_essences[OF_REGEN], 2, 10);
     if (_essences[OF_REFLECT] >= 3)
-        p_ptr->reflect = TRUE;
+        plr->reflect = TRUE;
 
     if (_essences[OF_AURA_FIRE] >= 7)
-        p_ptr->sh_fire = TRUE;
+        plr->sh_fire = TRUE;
     if (_essences[OF_AURA_ELEC] >= 7)
-        p_ptr->sh_elec = TRUE;
+        plr->sh_elec = TRUE;
     if (_essences[OF_AURA_COLD] >= 7)
-        p_ptr->sh_cold = TRUE;
+        plr->sh_cold = TRUE;
 }
 
 static void _calc_stats(s16b stats[MAX_STATS])
@@ -509,9 +512,9 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     int i;
 
     add_flag(flgs, OF_SPEED);
-    add_flag(flgs, OF_LITE);
-    add_flag(flgs, OF_RES_BLIND);
-    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_LIGHT);
+    add_flag(flgs, OF_RES_(GF_BLIND));
+    add_flag(flgs, OF_RES_(GF_POIS));
     add_flag(flgs, OF_LEVITATION);
 
     for (i = 0; i < 6; i++) /* Assume in order */
@@ -522,9 +525,9 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
             add_flag(flgs, OF_SUST_STR + i);
     }
 
-    for (i = 0; i < RES_MAX; i++)
+    for (i = GF_RES_MIN; i <= GF_RES_MAX; i++)
     {
-        int j = res_get_object_flag(i);
+        int j = OF_RES_(i);
         int n = _calc_amount(_essences[j], _res_power(i), 1);
 
         if (n)
@@ -592,14 +595,14 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     if (_essences[OF_AURA_COLD] >= 7)
         add_flag(flgs, OF_AURA_COLD);
 
-    if (_essences[OF_IM_ACID] >= 3)
-        add_flag(flgs, OF_IM_ACID);
-    if (_essences[OF_IM_ELEC] >= 3)
-        add_flag(flgs, OF_IM_ELEC);
-    if (_essences[OF_IM_FIRE] >= 3)
-        add_flag(flgs, OF_IM_FIRE);
-    if (_essences[OF_IM_COLD] >= 3)
-        add_flag(flgs, OF_IM_COLD);
+    if (_essences[OF_IM_(GF_ACID)] >= 3)
+        add_flag(flgs, OF_IM_(GF_ACID));
+    if (_essences[OF_IM_(GF_ELEC)] >= 3)
+        add_flag(flgs, OF_IM_(GF_ELEC));
+    if (_essences[OF_IM_(GF_FIRE)] >= 3)
+        add_flag(flgs, OF_IM_(GF_FIRE));
+    if (_essences[OF_IM_(GF_COLD)] >= 3)
+        add_flag(flgs, OF_IM_(GF_COLD));
 }
 
 /**********************************************************************
@@ -649,12 +652,12 @@ static void _absorb_spell(int cmd, var_ptr res)
 static bool _detect = FALSE;
 static void _detect_obj(point_t pos, obj_ptr obj)
 {
-    int rng = DETECT_RAD_ALL;
+    int rng = DETECT_RAD_DEFAULT;
     if (!obj_is_weapon(obj)) return;
-    if (distance(p_ptr->pos.y, p_ptr->pos.x, pos.y, pos.x) > rng) return;
+    if (plr_distance(pos) > rng) return;
     obj->marked |= OM_FOUND;
-    p_ptr->window |= PW_OBJECT_LIST;
-    lite_pos(pos);
+    plr->window |= PW_OBJECT_LIST;
+    draw_pos(pos);
     _detect = TRUE;
 }
 static void _detect_pile(point_t pos, obj_ptr pile)
@@ -699,7 +702,7 @@ static void _judge_spell(int cmd, var_ptr res)
         var_set_string(res, "Identifies a weapon.");
         break;
     case SPELL_CAST:
-        if (p_ptr->lev >= 35)
+        if (plr->lev >= 35)
             var_set_bool(res, identify_fully(obj_is_weapon));
         else
             var_set_bool(res, ident_spell(obj_is_weapon));
@@ -735,8 +738,7 @@ static void _birth(void)
     for (i = 0; i < _MAX_ESSENCE; i++)
         _essences[i] = 0;
 
-    p_ptr->current_r_idx = MON_BROKEN_DEATH_SWORD;
-    equip_on_change_race();
+    plr_mon_race_set("|.broken");
 
     object_prep(&forge, lookup_kind(TV_SWORD, SV_BROKEN_SWORD));
     add_flag(forge.flags, OF_NO_REMOVE);
@@ -747,59 +749,50 @@ static void _birth(void)
     plr_birth_obj_aux(TV_STAFF, EFFECT_NOTHING, 1);
 }
 
-static object_type *_weapon(void)
+static obj_ptr _weapon(void)
 {
-    return equip_obj(p_ptr->attack_info[0].slot);
+    return equip_obj(plr->attack_info[0].slot);
 }
 
 static void _upgrade_weapon(int tval, int sval)
 {
-    object_type *o_ptr = _weapon();
+    obj_ptr me = _weapon();
 
-    object_prep(o_ptr, lookup_kind(tval, sval));
-    o_ptr->to_h = p_ptr->lev / 5;
-    o_ptr->to_d = p_ptr->lev / 3;
+    obj_loc_t loc = me->loc; /* XXX object_prep clobbers this XXX */
+    object_prep(me, lookup_kind(tval, sval));
+    me->loc = loc;
 
-    add_flag(o_ptr->flags, OF_NO_REMOVE);
-    obj_identify_fully(o_ptr);
+    me->to_h = plr->lev / 5;
+    me->to_d = plr->lev / 3;
 
-    p_ptr->update |= PU_BONUS;
-    p_ptr->window |= PW_INVEN | PW_EQUIP;
+    add_flag(me->flags, OF_NO_REMOVE);
+    obj_identify_fully(me);
+
+    plr->update |= PU_BONUS;
+    plr->window |= PW_INVEN | PW_EQUIP;
 }
 
 static void _gain_level(int new_level) 
 {
-    if (p_ptr->current_r_idx == MON_BROKEN_DEATH_SWORD && new_level >= 10)
+    if (plr_mon_race_is_("|.broken") && new_level >= 10)
     {
-        p_ptr->current_r_idx = MON_DEATH_SWORD;
-        equip_on_change_race();
+        plr_mon_race_evolve("|.death");
         _upgrade_weapon(TV_SWORD, SV_LONG_SWORD);
-        msg_print("You have evolved into a Death Sword.");
-        p_ptr->redraw |= PR_MAP;
     }
-    if (p_ptr->current_r_idx == MON_DEATH_SWORD && new_level >= 25)
+    if (plr_mon_race_is_("|.death") && new_level >= 25)
     {
-        p_ptr->current_r_idx = MON_POLEAXE_OF_ANIMATED_ATTACK;
-        equip_on_change_race();
+        plr_mon_race_evolve("/.animated");
         _upgrade_weapon(TV_POLEARM, SV_BATTLE_AXE);
-        msg_print("You have evolved into a Poleaxe of Animated Attack.");
-        p_ptr->redraw |= PR_MAP;
     }
-    if (p_ptr->current_r_idx == MON_POLEAXE_OF_ANIMATED_ATTACK && new_level >= 35)
+    if (plr_mon_race_is_("/.animated") && new_level >= 35)
     {
-        p_ptr->current_r_idx = MON_HELLBLADE;
-        equip_on_change_race();
+        plr_mon_race_evolve("|.hell");
         _upgrade_weapon(TV_SWORD, SV_BLADE_OF_CHAOS);
-        msg_print("You have evolved into a Hellblade.");
-        p_ptr->redraw |= PR_MAP;
     }
-    if (p_ptr->current_r_idx == MON_HELLBLADE && new_level >= 45)
+    if (plr_mon_race_is_("|.hell") && new_level >= 45)
     {
-        p_ptr->current_r_idx = MON_DEATH_SCYTHE;
-        equip_on_change_race();
+        plr_mon_race_evolve("/.death");
         _upgrade_weapon(TV_POLEARM, SV_DEATH_SCYTHE_HACK);
-        msg_print("You have evolved into a Death Scythe.");
-        p_ptr->redraw |= PR_MAP;
     }
 
     /* Note: These boosts will be completely wiped out next evolution */
@@ -889,7 +882,7 @@ static void _dump_skills(doc_ptr doc)
     _dump_bonus_flag(doc, OF_INFRA, 2, 1, "Infravision");
     _dump_bonus_flag(doc, OF_TUNNEL, 2, 1, "Digging");
     _dump_bonus_flag(doc, OF_MAGIC_MASTERY, 2, 1, "Magic Mastery");
-    _dump_bonus_flag(doc, OF_LITE, 1, 1, "Light");
+    _dump_bonus_flag(doc, OF_LIGHT, 5, 1, "Light");
     doc_newline(doc);
 }
 
@@ -910,13 +903,13 @@ static void _dump_resists(doc_ptr doc)
 {
     int i;
     doc_printf(doc, " <color:G>%-18.18s Total  Need Bonus</color>\n", "Resistances");
-    for (i = 0; i < RES_MAX; i++)
-        _dump_bonus_flag(doc, res_get_object_flag(i), _res_power(i), 1, format("%^s", res_name(i)));
+    for (i = GF_RES_MIN; i <= GF_RES_MAX; i++)
+        _dump_bonus_flag(doc, OF_RES_(i), _res_power(i), 1, format("%^s", res_name(i)));
 
-    _dump_ability_flag(doc, OF_IM_ACID, 3, "Immune Acid");
-    _dump_ability_flag(doc, OF_IM_ELEC, 3, "Immune Elec");
-    _dump_ability_flag(doc, OF_IM_FIRE, 3, "Immune Fire");
-    _dump_ability_flag(doc, OF_IM_COLD, 3, "Immune Cold");
+    _dump_ability_flag(doc, OF_IM_(GF_ACID), 3, "Immune Acid");
+    _dump_ability_flag(doc, OF_IM_(GF_ELEC), 3, "Immune Elec");
+    _dump_ability_flag(doc, OF_IM_(GF_FIRE), 3, "Immune Fire");
+    _dump_ability_flag(doc, OF_IM_(GF_COLD), 3, "Immune Cold");
 
     doc_newline(doc);
 }
@@ -1005,7 +998,7 @@ plr_race_ptr mon_sword_get_race(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  24,  40,   4,  20,   5,  56,  20};
-    skills_t xs = { 12,  10,  12,   0,   0,   0,  20,   7};
+    skills_t xs = { 60,  50,  60,   0,   0,   0, 100,  35};
 
         me = plr_race_alloc(RACE_MON_SWORD);
         me->skills = bs;
@@ -1037,7 +1030,7 @@ plr_race_ptr mon_sword_get_race(void)
         me->hooks.destroy_object = _absorb_object;
 
         me->flags = RACE_IS_MONSTER | RACE_IS_NONLIVING;
-        me->pseudo_class_idx = CLASS_WARRIOR;
+        me->pseudo_class_id = CLASS_WARRIOR;
     }
 
     me->subname = titles[rank];
@@ -1048,9 +1041,9 @@ plr_race_ptr mon_sword_get_race(void)
     me->stats[A_CON] =  1 + rank;
     me->stats[A_CHR] =  0;
     me->life = 85 + 5*rank;
-    me->boss_r_idx = MON_STORMBRINGER;
+    me->boss_r_idx = mon_race_parse("|.Stormbringer")->id;
 
-    me->equip_template = mon_get_equip_template();
+    me->equip_template = plr_equip_template();
 
     if (birth_hack || spoiler_hack)
     {
@@ -1060,6 +1053,17 @@ plr_race_ptr mon_sword_get_race(void)
     return me;
 }
 
+static cptr _essence_name(int i)
+{
+    switch (i)
+    {
+    case _ESSENCE_AC: return "AC";
+    case _ESSENCE_TO_HIT: return "Accuracy";
+    case _ESSENCE_TO_DAM: return "Damage";
+    case _ESSENCE_XTRA_DICE: return "Slaying";
+    }
+    return of_lookup(i)->name;
+}
 bool sword_disenchant(void)
 {
     bool result = FALSE;
@@ -1068,19 +1072,28 @@ bool sword_disenchant(void)
 
     for (i = 0; i < _MAX_ESSENCE; i++)
     {
-        int n = _essences[i];
+        int old = _essences[i];
+        int lose = 0;
         
-        if (!n) continue;
+        if (!old) continue;
         if (i == OF_SPEED) continue;
-        if (res_save(RES_DISEN, 44)) continue;
+        if (res_save(GF_DISEN, 43)) continue;
+
+        lose = 10*old*_1d(r)/20;
+        _essences[i] -= lose/10;
+        if (lose%10 && _1d(10) <= lose%10)
+            _essences[i]--;
         
-        _essences[i] -= MAX(1, _essences[i] * randint1(r) / 20);
-        if (_essences[i] < n)
+        if (_essences[i] < old)
+        {
+            if (0 || plr->wizard)
+                msg_format("You lost %d essences of %s.", old - _essences[i], _essence_name(i));
             result = TRUE;
+        }
     }
     if (result)
     {
-        p_ptr->update |= PU_BONUS;
+        plr->update |= PU_BONUS;
         msg_print("<color:r>You feel power draining from your body!</color>");
     }
     return result;
@@ -1089,5 +1102,5 @@ bool sword_disenchant(void)
 
 int sword_calc_torch(void)
 {
-    return 1 + _calc_amount(_essences[OF_LITE], 1, 1);
+    return MAX(1, _calc_amount(_essences[OF_LIGHT], 5, 1));
 }

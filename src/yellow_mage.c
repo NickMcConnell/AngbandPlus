@@ -7,7 +7,7 @@ static int _get_powers(spell_info* spells, int max)
     spell_info* spell = &spells[ct++];
     spell->level = 25;
     spell->cost = 1;
-    spell->fail = calculate_fail_rate(spell->level, 90, p_ptr->stat_ind[A_INT]);
+    spell->fail = calculate_fail_rate(spell->level, 90, plr->stat_ind[A_INT]);
     spell->fn = eat_magic_spell;
 
     return ct;
@@ -35,9 +35,9 @@ static caster_info * _caster_info(void)
 
 static void _calc_bonuses(void)
 {
-    p_ptr->spells_per_round += plr_prorata_level(100);
-    if (p_ptr->lev >= 30)
-        p_ptr->wizard_sight = TRUE;
+    plr->spells_per_round += plr_prorata_level(100);
+    if (plr->lev >= 30)
+        plr->wizard_sight = TRUE;
 }
 
 
@@ -55,7 +55,7 @@ plr_class_ptr yellow_mage_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  40,  38,   3,  16,  20,  34,  20};
-    skills_t xs = {  7,  15,  11,   0,   0,   0,   6,   7};
+    skills_t xs = { 35,  75,  55,   0,   0,   0,  30,  35};
 
         me = plr_class_alloc(CLASS_YELLOW_MAGE);
         me->name = "Yellow-Mage";

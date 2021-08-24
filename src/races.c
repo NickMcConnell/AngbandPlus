@@ -7,9 +7,9 @@
  ****************************************************************/
 bool prace_is_(int which)
 {
-    if (p_ptr->mimic_form == which)
+    if (plr->mimic_form == which)
         return TRUE;
-    else if (p_ptr->mimic_form == MIMIC_NONE && p_ptr->prace == which)
+    else if (plr->mimic_form == MIMIC_NONE && plr->prace == which)
         return TRUE;
 
     return FALSE;

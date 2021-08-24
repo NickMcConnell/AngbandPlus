@@ -1,5 +1,5 @@
 %:t_pref.txt
-T:TOWN:NORMAL:NO_ROTATE
+T:TOWN:NORMAL:NO_ROTATE|RUINS
 L:#:MOUNTAIN_WALL
 M:                                                                       
 M:             ;                                                   ##### 

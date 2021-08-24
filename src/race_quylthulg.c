@@ -3,16 +3,16 @@
 static cptr _mon_name(int r_idx)
 {
     if (r_idx)
-        return r_name + mon_race_lookup(r_idx)->name;
+        return mon_race_lookup(r_idx)->name;
     return ""; /* Birth Menu */
 }
 
 static bool _summon_aux(int num, bool pet, point_t pos, int lev, int type, u32b mode)
 {
-    int plev = p_ptr->lev;
-    int who;
+    int plev = plr->lev;
     int i;
     bool success = FALSE;
+    who_t who = pet ? who_create_plr() : who_create_null();
 
     /*if (!lev) lev = spell_power(plev) + randint1(spell_power(plev * 2 / 3));*/
     if (!lev) lev = MAX(plev, cave->difficulty);
@@ -25,12 +25,10 @@ static bool _summon_aux(int num, bool pet, point_t pos, int lev, int type, u32b 
             if (randint1(50 + plev) >= plev / 10)
                 mode &= ~PM_ALLOW_UNIQUE;
         }
-        who = -1;
     }
     else
     {
         mode |= PM_NO_PET;
-        who = 0;
     }
 
     for (i = 0; i < num; i++)
@@ -47,7 +45,7 @@ static bool _summon_aux(int num, bool pet, point_t pos, int lev, int type, u32b 
 
 static void _summon(int what, int num, bool fail)
 {
-    point_t pos = p_ptr->pos;
+    point_t pos = plr->pos;
 
     if (fail) /* Failing spells should not be insta-death ... */
     {
@@ -58,11 +56,9 @@ static void _summon(int what, int num, bool fail)
     else
         num = spell_power(num);
 
-    if (!fail && use_old_target && target_okay() && los(p_ptr->pos.y, p_ptr->pos.x, target_row, target_col) && !one_in_(3))
-    {
-        pos.y = target_row;
-        pos.x = target_col;
-    }
+    if (!fail && use_old_target && target_okay() && plr_view(who_pos(plr->target)) && !one_in_(3))
+        pos = who_pos(plr->target);
+
     if (_summon_aux(num, !fail, pos, 0, what, PM_ALLOW_UNIQUE | PM_ALLOW_GROUP))
     {
         if (fail)
@@ -80,7 +76,7 @@ static void _summon(int what, int num, bool fail)
  **********************************************************************/
 void _heal_monster_spell(int cmd, var_ptr res)
 {
-    int heal = spell_power(p_ptr->lev * 10 + 200);
+    dice_t dice = spell_dice(0, 0, 200 + 10*plr->lev);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -90,29 +86,10 @@ void _heal_monster_spell(int cmd, var_ptr res)
         var_set_string(res, "Attempts to heal a chosen monster.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_heal(0, 0, heal));
+        var_set_string(res, dice_info_heal(dice));
         break;
-    case SPELL_CAST:
-    {
-        int dir;
-        bool result;
-        bool old_target_pet = target_pet;
-
-        var_set_bool(res, FALSE);
-
-        target_pet = TRUE;
-        result = get_fire_dir(&dir);
-        target_pet = old_target_pet;
-
-        if (!result) return;
-
-        heal_monster(dir, heal);
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        bolt_spell_aux(cmd, res, GF_OLD_HEAL, dice); 
     }
 }
 void _summon_ancient_dragon_spell(int cmd, var_ptr res)
@@ -752,20 +729,14 @@ static spell_info _master_spells[] =
 
 static int _get_spells(spell_info* spells, int max) 
 {
-    switch (p_ptr->current_r_idx)
-    {
-    case MON_ROTTING_QUYLTHULG:
-    case MON_GREATER_ROTTING_QUYLTHULG:
+    if (plr_mon_race_is_("Q.rotting") || plr_mon_race_is_("Q.greater rotting"))
         return get_spells_aux(spells, max, _rotting_spells);
-    case MON_DRACONIC_QUYLTHULG:
-    case MON_GREATER_DRACONIC_QUYLTHULG:
+    if (plr_mon_race_is_("Q.draconic") || plr_mon_race_is_("Q.greater draconic"))
         return get_spells_aux(spells, max, _draconic_spells);
-    case MON_DEMONIC_QUYLTHULG:
-    case MON_GREATER_DEMONIC_QUYLTHULG:
+    if (plr_mon_race_is_("Q.demonic") || plr_mon_race_is_("Q.greater demonic"))
         return get_spells_aux(spells, max, _demonic_spells);
-    case MON_MASTER_QUYLTHULG:
+    if (plr_mon_race_is_("Q.master"))
         return get_spells_aux(spells, max, _master_spells);
-    }
 
     return get_spells_aux(spells, max, _baby_spells);
 }
@@ -781,6 +752,7 @@ static caster_info * _caster_info(void)
         me.encumbrance.max_wgt = 450;
         me.encumbrance.weapon_pct = 100;
         me.encumbrance.enc_wgt = 600;
+        me.options = CASTER_GAIN_SKILL;
         init = TRUE;
     }
     return &me;
@@ -792,55 +764,52 @@ static caster_info * _caster_info(void)
  **********************************************************************/
 static void _calc_bonuses(void) 
 {
-    p_ptr->pspeed -= 10;
-    p_ptr->pspeed += p_ptr->lev / 10;
+    plr->pspeed -= 10;
+    plr->pspeed += plr->lev / 10;
 
-    res_add(RES_FEAR);
-    res_add(RES_BLIND);
-    res_add(RES_CONF);
-    p_ptr->regen += 100;
-    p_ptr->slow_digest = TRUE;
-    p_ptr->telepathy = TRUE;
-    p_ptr->free_act++;
-    p_ptr->see_inv++;
-    p_ptr->sustain_chr = TRUE;
+    res_add(GF_FEAR);
+    res_add(GF_BLIND);
+    res_add(GF_CONF);
+    plr->regen += 100;
+    plr->slow_digest = TRUE;
+    plr->telepathy = TRUE;
+    plr->free_act++;
+    plr->see_inv++;
+    plr->sustain_chr = TRUE;
 
-    if (p_ptr->current_r_idx == MON_NEXUS_QUYLTHULG)
-        res_add(RES_NEXUS);
+    if (plr_mon_race_is_("Q.nexus"))
+        res_add(GF_NEXUS);
 
-    if ( p_ptr->current_r_idx == MON_ROTTING_QUYLTHULG
-      || p_ptr->current_r_idx == MON_GREATER_ROTTING_QUYLTHULG )
+    if (plr_mon_race_is_("Q.rotting") || plr_mon_race_is_("Q.greater rotting"))
     {
-        res_add(RES_NETHER);
-        p_ptr->hold_life++;
+        res_add(GF_NETHER);
+        plr->hold_life++;
     }
 
-    if ( p_ptr->current_r_idx == MON_DRACONIC_QUYLTHULG
-      || p_ptr->current_r_idx == MON_GREATER_DRACONIC_QUYLTHULG )
+    if (plr_mon_race_is_("Q.draconic") || plr_mon_race_is_("Q.greater draconic"))
     {
-        res_add(RES_FIRE);
-        res_add(RES_COLD);
-        res_add(RES_ACID);
-        res_add(RES_ELEC);
-        res_add(RES_POIS);
+        res_add(GF_FIRE);
+        res_add(GF_COLD);
+        res_add(GF_ACID);
+        res_add(GF_ELEC);
+        res_add(GF_POIS);
     }
 
-    if ( p_ptr->current_r_idx == MON_DEMONIC_QUYLTHULG
-      || p_ptr->current_r_idx == MON_GREATER_DEMONIC_QUYLTHULG )
+    if (plr_mon_race_is_("Q.demonic") || plr_mon_race_is_("Q.greater demonic"))
     {
-        res_add(RES_FIRE);
-        res_add(RES_FIRE);
-        res_add(RES_FIRE);
-        res_add(RES_CHAOS);
+        res_add(GF_FIRE);
+        res_add(GF_FIRE);
+        res_add(GF_FIRE);
+        res_add(GF_CHAOS);
     }
 }
 
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) 
 {
     add_flag(flgs, OF_DEC_SPEED);
-    add_flag(flgs, OF_RES_FEAR);
-    add_flag(flgs, OF_RES_BLIND);
-    add_flag(flgs, OF_RES_CONF);
+    add_flag(flgs, OF_RES_(GF_FEAR));
+    add_flag(flgs, OF_RES_(GF_BLIND));
+    add_flag(flgs, OF_RES_(GF_CONF));
     add_flag(flgs, OF_REGEN);
     add_flag(flgs, OF_SLOW_DIGEST);
     add_flag(flgs, OF_TELEPATHY);
@@ -848,31 +817,28 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_SEE_INVIS);
     add_flag(flgs, OF_SUST_CHR);
 
-    if (p_ptr->current_r_idx == MON_NEXUS_QUYLTHULG)
-        add_flag(flgs, OF_RES_NEXUS);
+    if (plr_mon_race_is_("Q.nexus"))
+        add_flag(flgs, OF_RES_(GF_NEXUS));
 
-    if ( p_ptr->current_r_idx == MON_ROTTING_QUYLTHULG
-      || p_ptr->current_r_idx == MON_GREATER_ROTTING_QUYLTHULG )
+    if (plr_mon_race_is_("Q.rotting") || plr_mon_race_is_("Q.greater rotting"))
     {
-        add_flag(flgs, OF_RES_NETHER);
+        add_flag(flgs, OF_RES_(GF_NETHER));
         add_flag(flgs, OF_HOLD_LIFE);
     }
 
-    if ( p_ptr->current_r_idx == MON_DRACONIC_QUYLTHULG
-      || p_ptr->current_r_idx == MON_GREATER_DRACONIC_QUYLTHULG )
+    if (plr_mon_race_is_("Q.draconic") || plr_mon_race_is_("Q.greater draconic"))
     {
-        add_flag(flgs, OF_RES_FIRE);
-        add_flag(flgs, OF_RES_COLD);
-        add_flag(flgs, OF_RES_ACID);
-        add_flag(flgs, OF_RES_ELEC);
-        add_flag(flgs, OF_RES_POIS);
+        add_flag(flgs, OF_RES_(GF_FIRE));
+        add_flag(flgs, OF_RES_(GF_COLD));
+        add_flag(flgs, OF_RES_(GF_ACID));
+        add_flag(flgs, OF_RES_(GF_ELEC));
+        add_flag(flgs, OF_RES_(GF_POIS));
     }
 
-    if ( p_ptr->current_r_idx == MON_DEMONIC_QUYLTHULG
-      || p_ptr->current_r_idx == MON_GREATER_DEMONIC_QUYLTHULG )
+    if (plr_mon_race_is_("Q.demonic") || plr_mon_race_is_("Q.greater demonic"))
     {
-        add_flag(flgs, OF_RES_FIRE);
-        add_flag(flgs, OF_RES_CHAOS);
+        add_flag(flgs, OF_RES_(GF_FIRE));
+        add_flag(flgs, OF_RES_(GF_CHAOS));
     }
 }
 
@@ -883,8 +849,7 @@ static void _birth(void)
 { 
     object_type    forge;
 
-    p_ptr->current_r_idx = MON_QUYLTHULG;
-    equip_on_change_race();
+    plr_mon_race_set("Q.quylthulg");
     
     object_prep(&forge, lookup_kind(TV_CAPTURE, 0));
     plr_birth_obj(&forge);
@@ -899,59 +864,37 @@ static void _birth(void)
 
 static void _gain_level(int new_level) 
 {
-    if (p_ptr->current_r_idx == MON_QUYLTHULG && new_level >= 20)
+    if (plr_mon_race_is_("Q.quylthulg") && new_level >= 20)
+        plr_mon_race_evolve("Q.nexus");
+    if (plr_mon_race_is_("Q.nexus") && new_level >= 30)
     {
-        p_ptr->current_r_idx = MON_NEXUS_QUYLTHULG;
-        msg_print("You have evolved into a Nexus Quylthulg.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_NEXUS_QUYLTHULG && new_level >= 30)
-    {
-        int which = randint1(3);
+        int which = _1d(3);
         if (spoiler_hack) which = 1;
         switch (which)
         {
         case 1:
-            p_ptr->current_r_idx = MON_ROTTING_QUYLTHULG;
-            msg_print("You have evolved into a Rotting Quylthulg.");
+            plr_mon_race_evolve("Q.rotting");
             break;
         case 2:
-            p_ptr->current_r_idx = MON_DRACONIC_QUYLTHULG;
-            msg_print("You have evolved into a Draconic Quylthulg.");
+            plr_mon_race_evolve("Q.draconic");
             break;
         case 3:
-            p_ptr->current_r_idx = MON_DEMONIC_QUYLTHULG;
-            msg_print("You have evolved into a Demonic Quylthulg.");
+            plr_mon_race_evolve("Q.demonic");
             break;
         }
-        p_ptr->redraw |= PR_MAP;
     }
-    if (p_ptr->current_r_idx == MON_ROTTING_QUYLTHULG && new_level >= 40)
-    {
-        p_ptr->current_r_idx = MON_GREATER_ROTTING_QUYLTHULG;
-        msg_print("You have evolved into a Greater Rotting Quylthulg.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_DRACONIC_QUYLTHULG && new_level >= 40)
-    {
-        p_ptr->current_r_idx = MON_GREATER_DRACONIC_QUYLTHULG;
-        msg_print("You have evolved into a Greater Draconic Quylthulg.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_DEMONIC_QUYLTHULG && new_level >= 40)
-    {
-        p_ptr->current_r_idx = MON_GREATER_DEMONIC_QUYLTHULG;
-        msg_print("You have evolved into a Greater Demonic Quylthulg.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if ( ( p_ptr->current_r_idx == MON_GREATER_DEMONIC_QUYLTHULG 
-        || p_ptr->current_r_idx == MON_GREATER_DRACONIC_QUYLTHULG
-        || p_ptr->current_r_idx == MON_GREATER_ROTTING_QUYLTHULG )
+    if (plr_mon_race_is_("Q.rotting") && new_level >= 40)
+        plr_mon_race_evolve("Q.greater rotting");
+    if (plr_mon_race_is_("Q.draconic") && new_level >= 40)
+        plr_mon_race_evolve("Q.greater draconic");
+    if (plr_mon_race_is_("Q.demonic") && new_level >= 40)
+        plr_mon_race_evolve("Q.greater demonic");
+    if ( ( plr_mon_race_is_("Q.greater rotting")
+        || plr_mon_race_is_("Q.greater draconic")
+        || plr_mon_race_is_("Q.greater demonic") )
       && new_level >= 50 )
     {
-        p_ptr->current_r_idx = MON_MASTER_QUYLTHULG;
-        msg_print("You have evolved into a Master Quylthulg.");
-        p_ptr->redraw |= PR_MAP;
+        plr_mon_race_evolve("Q.master");
     }
 }
 
@@ -963,15 +906,15 @@ plr_race_ptr mon_quylthulg_get_race(void)
     static plr_race_ptr me = NULL;
     int           rank = 0;
 
-    if (p_ptr->lev >= 20) rank++;
-    if (p_ptr->lev >= 30) rank++;
-    if (p_ptr->lev >= 40) rank++;
-    if (p_ptr->lev >= 50) rank++;
+    if (plr->lev >= 20) rank++;
+    if (plr->lev >= 30) rank++;
+    if (plr->lev >= 40) rank++;
+    if (plr->lev >= 50) rank++;
 
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  45,  40,   7,  20,  30,   0,   0 };
-    skills_t xs = {  7,  15,  12,   0,   0,   0,   0,   0 };
+    skills_t xs = { 35,  75,  60,   0,   0,   0,   0,   0 };
 
         me = plr_race_alloc(RACE_MON_QUYLTHULG);
         me->skills = bs;
@@ -997,12 +940,12 @@ plr_race_ptr mon_quylthulg_get_race(void)
         me->hooks.get_flags = _get_flags;
         me->hooks.gain_level = _gain_level;
 
-        me->pseudo_class_idx = CLASS_SORCERER;
-        me->boss_r_idx = MON_EMPEROR_QUYLTHULG;
+        me->pseudo_class_id = CLASS_SORCERER;
+        me->boss_r_idx = mon_race_parse("Q.Emperor")->id;
         me->flags = RACE_IS_MONSTER;
     }
 
-    me->subname = _mon_name(p_ptr->current_r_idx);
+    me->subname = _mon_name(plr->current_r_idx);
     me->stats[A_STR] = -5 + rank;
     me->stats[A_INT] = -5 + rank;
     me->stats[A_WIS] = -5 + rank;
@@ -1010,6 +953,6 @@ plr_race_ptr mon_quylthulg_get_race(void)
     me->stats[A_CON] = -5 + rank;
     me->stats[A_CHR] =  6 + rank;
 
-    me->equip_template = mon_get_equip_template();
+    me->equip_template = plr_equip_template();
     return me;
 }

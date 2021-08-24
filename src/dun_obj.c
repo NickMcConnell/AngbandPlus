@@ -45,7 +45,7 @@ static void _assert_obj(dun_ptr dun)
                 point_t pos2 = _obj_pos(pile);
                 if (pile == obj) found = TRUE;
                 assert(pile->loc.where == INV_FLOOR);
-                assert(pile->loc.v.floor.dun_id == dun->dun_id);
+                assert(pile->loc.v.floor.dun_id == dun->id);
                 if (!point_equals(pos2, pos))
                 {
                     obj_ptr pile2 = point_map_find(dun->obj_pos, pos2);
@@ -65,7 +65,7 @@ static void _assert_obj(dun_ptr dun)
             {
                 if (pile == obj) found = TRUE;
                 assert(pile->loc.where == INV_MON_PACK);
-                assert(pile->loc.v.mon_pack.dun_id == dun->dun_id);
+                assert(pile->loc.v.mon_pack.dun_id == dun->id);
                 assert(pile->loc.v.mon_pack.mon_id == mon->id);
             }
             assert(found);
@@ -78,7 +78,7 @@ static void _assert_pile(dun_ptr dun, obj_ptr pile, point_t pos)
     for (; pile; pile = pile->next)
     {
         assert(pile->loc.where == INV_FLOOR);
-        assert(pile->loc.v.floor.dun_id == dun->dun_id);
+        assert(pile->loc.v.floor.dun_id == dun->id);
         assert(pile->loc.v.floor.x == pos.x);
         assert(pile->loc.v.floor.y == pos.y);
     }
@@ -108,7 +108,7 @@ static void _assert_mon_pack(dun_ptr dun)
         for (; pile; pile = pile->next)
         {
             assert(pile->loc.where == INV_MON_PACK);
-            assert(pile->loc.v.mon_pack.dun_id == dun->dun_id);
+            assert(pile->loc.v.mon_pack.dun_id == dun->id);
             assert(pile->loc.v.mon_pack.mon_id == mon->id);
         }
     }
@@ -156,7 +156,7 @@ void dun_place_obj(dun_ptr dun, obj_ptr obj, point_t pos)
 
     obj = obj_copy(obj);
     obj->loc.where = INV_FLOOR;
-    obj->loc.v.floor.dun_id = dun->dun_id;
+    obj->loc.v.floor.dun_id = dun->id;
     obj->loc.v.floor.obj_id = dun_mgr_next_obj_id();
     obj->loc.v.floor.x = pos.x;
     obj->loc.v.floor.y = pos.y;
@@ -199,22 +199,22 @@ static bool _mon_can_pickup(mon_ptr mon, obj_ptr obj)
     if (obj_slays_mon(obj, mon)) return FALSE;
     return TRUE;
 }
-void dun_mon_pickup(dun_ptr dun, mon_ptr mon)
+bool dun_mon_pickup(dun_ptr dun, mon_ptr mon)
 {
     obj_ptr pile, leave = NULL;
-    bool    msg = FALSE;
+    bool    msg = FALSE, notice = FALSE;
     char    mon_name[MAX_NLEN_MON];
     char    obj_name[MAX_NLEN_OBJ];
 
     assert(dun_pos_interior(dun, mon->pos));
-    assert(dun->dun_id == mon->dun_id);
+    assert(dun == mon->dun);
     assert(int_map_find(dun->mon, mon->id));
     dun_assert_obj(dun);
 
     pile = point_map_find(dun->obj_pos, mon->pos);
-    if (!pile) return;
+    if (!pile) return notice;
 
-    if (p_ptr->dun_id == dun->dun_id && plr_can_see(mon->pos))
+    if (plr->dun_id == dun->id && plr_can_see(mon->pos))
     {
         msg = TRUE;
         monster_desc(mon_name, mon, MD_INDEF_HIDDEN);
@@ -232,9 +232,11 @@ void dun_mon_pickup(dun_ptr dun, mon_ptr mon)
             {
                 object_desc(obj_name, pile, OD_COLOR_CODED);
                 msg_format("%^s picks up %s.", mon_name, obj_name);
+                mon_lore_pickup_obj(mon);
+                notice = TRUE;
             }
             pile->loc.where = INV_MON_PACK;
-            pile->loc.v.mon_pack.dun_id = dun->dun_id;
+            pile->loc.v.mon_pack.dun_id = dun->id;
             pile->loc.v.mon_pack.obj_id = obj_id; 
             pile->loc.v.mon_pack.mon_id = mon->id;
 
@@ -248,6 +250,8 @@ void dun_mon_pickup(dun_ptr dun, mon_ptr mon)
             {
                 object_desc(obj_name, pile, OD_COLOR_CODED);
                 msg_format("%^s tries to pick up %s, but fails.", mon_name, obj_name);
+                mon_lore_pickup_obj(mon);
+                notice = TRUE;
             }
             pile->next = leave;
             leave = pile;
@@ -260,15 +264,16 @@ void dun_mon_pickup(dun_ptr dun, mon_ptr mon)
         point_map_delete(dun->obj_pos, mon->pos);
 
     dun_assert_obj(dun);
+    return notice;
 }
 void dun_mon_steal_plr(dun_ptr dun, mon_ptr mon, obj_ptr obj)
 {
-    assert(dun->dun_id == mon->dun_id);
+    assert(dun == mon->dun);
     assert(int_map_find(dun->mon, mon->id));
 
     obj = obj_copy(obj);
     obj->loc.where = INV_MON_PACK;
-    obj->loc.v.mon_pack.dun_id = dun->dun_id;
+    obj->loc.v.mon_pack.dun_id = dun->id;
     obj->loc.v.mon_pack.obj_id = dun_mgr_next_obj_id();
     obj->loc.v.mon_pack.mon_id = mon->id;
 
@@ -285,22 +290,22 @@ static bool _mon_can_destroy(mon_ptr mon, obj_ptr obj)
     if (obj_slays_mon(obj, mon)) return FALSE;
     return TRUE;
 }
-void dun_mon_destroy(dun_ptr dun, mon_ptr mon)
+bool dun_mon_destroy(dun_ptr dun, mon_ptr mon)
 {
     obj_ptr pile, leave = NULL;
-    bool    msg = FALSE;
+    bool    msg = FALSE, notice = FALSE;
     char    mon_name[MAX_NLEN_MON];
     char    obj_name[MAX_NLEN_OBJ];
 
     assert(dun_pos_interior(dun, mon->pos));
-    assert(dun->dun_id == mon->dun_id);
+    assert(dun == mon->dun);
     assert(int_map_find(dun->mon, mon->id));
     dun_assert_obj(dun);
 
     pile = point_map_find(dun->obj_pos, mon->pos);
-    if (!pile) return;
+    if (!pile) return notice;
 
-    if (p_ptr->dun_id == dun->dun_id && plr_can_see(mon->pos))
+    if (plr->dun_id == dun->id && plr_can_see(mon->pos))
     {
         msg = TRUE;
         monster_desc(mon_name, mon, MD_INDEF_HIDDEN);
@@ -316,6 +321,8 @@ void dun_mon_destroy(dun_ptr dun, mon_ptr mon)
             {
                 object_desc(obj_name, pile, OD_COLOR_CODED);
                 msg_format("%^s destroys %s.", mon_name, obj_name);
+                mon_lore_destroy_obj(mon);
+                notice = TRUE;
             }
             int_map_detach(dun->obj, _obj_id(pile));
             pile->loc.where = INV_JUNK;
@@ -327,6 +334,8 @@ void dun_mon_destroy(dun_ptr dun, mon_ptr mon)
             {
                 object_desc(obj_name, pile, OD_COLOR_CODED);
                 msg_format("%^s tries to destroy %s, but fails.", mon_name, obj_name);
+                mon_lore_destroy_obj(mon);
+                notice = TRUE;
             }
             pile->next = leave;
             leave = pile;
@@ -338,6 +347,7 @@ void dun_mon_destroy(dun_ptr dun, mon_ptr mon)
     else
         point_map_delete(dun->obj_pos, mon->pos);
     dun_assert_obj(dun);
+    return notice;
 }
 obj_ptr dun_detach_obj(dun_ptr dun, int id)
 {
@@ -345,7 +355,7 @@ obj_ptr dun_detach_obj(dun_ptr dun, int id)
 
     assert(obj);
     assert(obj->loc.where == INV_FLOOR);  /* XXX not expecting a monster carried object */
-    assert(obj->loc.v.floor.dun_id == dun->dun_id);
+    assert(obj->loc.v.floor.dun_id == dun->id);
     assert(obj->loc.v.floor.obj_id == id);
 
     if (obj->loc.where == INV_FLOOR)
@@ -381,6 +391,21 @@ void dun_delete_obj(dun_ptr dun, int id)
     obj->loc.where = INV_JUNK;
     vec_push(dun->junkpile, obj);
 }
+bool dun_can_destroy(dun_ptr dun, point_t pos)
+{
+    dun_grid_ptr g = dun_grid_at(dun, pos);
+    if (g->flags & CELL_PERM) return FALSE;
+    return dun_can_destroy_obj_at(dun, pos);
+}
+bool dun_can_destroy_obj_at(dun_ptr dun, point_t pos)
+{
+    obj_ptr obj;
+    for (obj = point_map_find(dun->obj_pos, pos); obj; obj = obj->next)
+    {
+        if (obj_is_art(obj)) return FALSE;
+    }
+    return TRUE;
+}
 void dun_destroy_obj_at(dun_ptr dun, point_t pos)
 {
     obj_ptr obj;
@@ -391,10 +416,10 @@ void dun_destroy_obj_at(dun_ptr dun, point_t pos)
         obj->loc.where = INV_JUNK;
         if (!(dun->flags & DF_GENERATED))
         {
-            if (obj->name1)
-                a_info[obj->name1].generated = FALSE;
-            else if (random_artifacts && obj->name3)
-                a_info[obj->name3].generated = FALSE;
+            if (obj->art_id)
+                arts_lookup(obj->art_id)->generated = FALSE;
+            if (obj->replacement_art_id)
+                arts_lookup(obj->replacement_art_id)->generated = FALSE;
         }
         vec_push(dun->junkpile, obj);
     }
@@ -443,7 +468,7 @@ static void _combine(dun_ptr dun, obj_ptr obj, point_t pos)
 }
 static int _drop_pos_weight(point_t pos, dun_grid_ptr grid)
 {
-    if (!dun_grid_allow_drop(grid)) return 0;
+    if (!cell_allow_obj(grid)) return 0;
     return 1;
 }
 static point_t _get_drop_pos(dun_ptr dun, obj_ptr obj, point_t pos) /* from drop_near with slight mods */
@@ -507,10 +532,13 @@ static point_t _get_drop_pos(dun_ptr dun, obj_ptr obj, point_t pos) /* from drop
     /* [3] give up */
     if (!flag)
     {
-        if (obj_is_std_art(obj) && !obj_is_known(obj))
-            a_info[obj->name1].generated = FALSE;
-        if (random_artifacts && obj->name3 && !obj_is_known(obj))
-            a_info[obj->name3].generated = FALSE;
+        if (!obj_is_known(obj))
+        {
+            if (obj->art_id)
+                arts_lookup(obj->art_id)->generated = FALSE;
+            if (obj->replacement_art_id)
+                arts_lookup(obj->replacement_art_id)->generated = FALSE;
+        }
         return point_create(-1, -1);
     }
 
@@ -518,7 +546,7 @@ static point_t _get_drop_pos(dun_ptr dun, obj_ptr obj, point_t pos) /* from drop
 }
 static void _msg_drop_disappears(dun_ptr dun, obj_ptr obj, point_t pos)
 {
-    if (p_ptr->dun_id == dun->dun_id && plr_can_see(pos))
+    if (plr->dun_id == dun->id && plr_can_see(pos))
     {
         char name[MAX_NLEN_OBJ];
         bool plural = obj->number > 1;
@@ -530,17 +558,23 @@ bool dun_drop_near(dun_ptr dun, obj_ptr obj, point_t pos)
 {
     point_t drop_pos;
     dun_assert_obj(dun);
-    if (dun->dun_type_id == D_MOUNT_DOOM && obj->name1 == ART_POWER)
+    if (dun->type->id == D_MOUNT_DOOM && obj_is_specified_art(obj, "=.Power"))
     {
         dun_grid_ptr g = dun_grid_at(dun, pos);
-        if (g->feat == feat_deep_lava)
+        if (lava_is_deep(g))
         {
             char name[MAX_NLEN_OBJ];
             object_desc(name, obj, OD_OMIT_PREFIX | OD_NAME_ONLY | OD_COLOR_CODED);
             cmsg_format(TERM_L_RED, "The %s is destroyed! You have rid Middle Earth of a great evil!", name);
-            p_ptr->fame += 25;
+            plr->fame += 25;
             return FALSE;
         }
+    }
+    if (object_is_(obj, TV_POTION, SV_POTION_BLOOD))
+    {
+        msg_print("The potion goes sour.");
+        obj->sval = SV_POTION_SALT_WATER;
+        obj->k_idx = lookup_kind(TV_POTION, SV_POTION_SALT_WATER);
     }
     drop_pos = _get_drop_pos(dun, obj, pos);
     if (!dun_pos_interior(dun, drop_pos))
@@ -553,7 +587,7 @@ bool dun_drop_near(dun_ptr dun, obj_ptr obj, point_t pos)
     {
         obj = obj_copy(obj);
         obj->loc.where = INV_FLOOR;
-        obj->loc.v.floor.dun_id = dun->dun_id;
+        obj->loc.v.floor.dun_id = dun->id;
         obj->loc.v.floor.obj_id = dun_mgr_next_obj_id();
         obj->loc.v.floor.x = drop_pos.x;
         obj->loc.v.floor.y = drop_pos.y;
@@ -563,8 +597,8 @@ bool dun_drop_near(dun_ptr dun, obj_ptr obj, point_t pos)
         point_map_add(dun->obj_pos, drop_pos, obj);
 
         dun_note_pos(dun, drop_pos);
-        dun_lite_pos(dun, drop_pos);
-        p_ptr->window |= PW_OBJECT_LIST;
+        dun_draw_pos(dun, drop_pos);
+        plr->window |= PW_OBJECT_LIST;
         if (obj->marked & OM_NO_MSG)
             obj->marked &= ~OM_NO_MSG;
         else if (dun_plr_at(dun, drop_pos))
@@ -599,7 +633,7 @@ void dun_mon_drop_carried_obj(dun_ptr dun, mon_ptr mon)
                 u16b obj_id = _obj_id(obj);
 
                 obj->loc.where = INV_FLOOR;
-                obj->loc.v.floor.dun_id = dun->dun_id;
+                obj->loc.v.floor.dun_id = dun->id;
                 obj->loc.v.floor.obj_id = obj_id;
                 obj->loc.v.floor.x = drop_pos.x;
                 obj->loc.v.floor.y = drop_pos.y;
@@ -608,8 +642,8 @@ void dun_mon_drop_carried_obj(dun_ptr dun, mon_ptr mon)
                 point_map_add(dun->obj_pos, drop_pos, obj);
 
                 dun_note_pos(dun, drop_pos);
-                dun_lite_pos(dun, drop_pos);
-                p_ptr->window |= PW_OBJECT_LIST;
+                dun_draw_pos(dun, drop_pos);
+                plr->window |= PW_OBJECT_LIST;
                 if (dun_plr_at(dun, drop_pos))
                     msg_print("You feel something roll beneath your feet.");
             }

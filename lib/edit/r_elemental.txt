@@ -1,0 +1,535 @@
+# Elementals and Vortices
+
+########################################################################
+# Elementals
+T:E.base:Elemental
+I:DISPLAY(E):POS(GAIN_AC|HOLD_LIFE)
+I:KIND(NONLIVING):ALIGN(Evil):ATTR(EMPTY_MIND|COLD_BLOOD)
+I:ALERT(120',Fairly Unseeing):MOVE(BASH|FLY|CLEARWEB)
+I:RESIST(POIS|CONF):IMMUNE(SLEEP|SLOW|FEAR|BLIND|STUN)
+P:Stat:Str(1+7):Int(-5):Wis(-5):Dex(-2):Con(2+7):Chr(0)
+P:Skill:Dis(28+40):Dev(18+40):Sav(40+60):Stl(5):Srh(25):Fos(16):Thn(70+150):Thb(25+35)
+P:Class:Warrior
+P:SpellStat:Con
+P:Weight:120
+P:Body:Vortex3
+
+N:E.air spirit:E.base:Air spirit
+I:LVL(12,50):RARITY(2)
+I:SPEED(+20):HP(8d8):AC(40):EXP(40):EVOLVE(E.air, 800)
+I:CAN(INVIS):MOVE(RAND_75)
+B:HIT:HURT(1d3)
+D:A whirlwind of sentient air.
+I:COLOR(Light Blue)
+
+N:E.water spirit:E.base:Water spirit
+I:LVL(17,70):RARITY(1)
+I:SPEED(+10):HP(9d8):AC(28):EXP(58):EVOLVE(E.water, 1200)
+I:ALERT(Unseeing):MOVE(RAND_25)
+B:HIT(x2):HURT(1d4+3)
+D:A whirlpool of sentient liquid.
+I:COLOR(Blue)
+
+N:E.earth spirit:E.base:Earth spirit
+I:LVL(17,80):RARITY(2)
+I:SPEED(+10):HP(13d8):AC(40):EXP(64):EVOLVE(E.earth, 1200)
+I:ALERT(Unseeing):MOVE(RAND_25|PASSWALL)
+B:HIT(x2):HURT(1d7)
+I:RESIST(ELEC|FIRE|COLD|SHARDS):VULN(DISINTEGRATE)
+D:A whirling form of sentient rock.
+I:COLOR(Light Umber)
+
+N:E.fire spirit:E.base:Fire spirit
+I:LVL(18,80):RARITY(2):WILD(VOLCANO)
+I:SPEED(+10):HP(10d9):AC(30):EXP(75):EVOLVE(E.fire, 1200)
+I:LIGHT(1):ALERT(160'):MOVE(RAND_25)
+B:HIT(x2):FIRE(2d6)
+A:FIRE(1d2)
+I:RESIST(FIRE|COLD)
+D:A whirlwind of sentient flame.
+I:COLOR(Light Red)
+
+N:E.fire:E.base:Fire elemental
+I:LVL(33):RARITY(2):WILD(VOLCANO)
+I:HP(30d8):AC(50):EXP(350):EVOLVE(E.magma, 2400)
+I:LIGHT(1):ALERT(Unseeing):MOVE(RAND_25|TRAMPLE|DESTROY)
+B:HIT(x2):FIRE(4d6)
+A:FIRE(2d2)
+I:IMMUNE(FIRE):VULN(COLD)
+S:1_IN_6 | BO_FIRE
+D:It is a towering inferno of flames.
+I:COLOR(Red)
+
+N:E.water:E.base:Water elemental
+I:LVL(33):RARITY(2)
+I:HP(25d8):AC(40):EXP(325)
+I:ALERT(Unseeing):MOVE(RAND_25|TRAMPLE|DESTROY)
+B:HIT(x3):HURT(1d10)
+I:IMMUNE(WATER)
+S:1_IN_6 | BO_COLD
+D:It is a towering tempest of water.
+I:COLOR(Blue)
+
+N:E.stalker:E.base:Night stalker
+I:LVL(34,80):RARITY(3)
+I:SPEED(+20):HP(20d13):AC(46):EXP(310)
+I:KIND(UNDEAD):CAN(INVIS)
+I:ALERT(200'):MOVE(RAND_50)
+B:GAZE(x2):DAM(2d6+14)
+I:RESIST(ELEC|COLD):IMMUNE(NETHER)
+D:It is impossible to define its form but its violence is legendary.
+I:COLOR(White)
+
+N:E.earth:E.base:Earth elemental
+I:LVL(34,80):RARITY(2)
+I:SPEED(-10):HP(30d10):AC(60):EXP(375)
+I:ALERT(Inattentive):MOVE(DESTROY|TRAMPLE|PASSWALL)
+B:HIT(x3):HURT(2d6+7)
+I:RESIST(ELEC|FIRE|COLD|SHARDS):VULN(DISINTEGRATE)
+S:1_IN_8 | BO_ACID
+D:It is a towering form composed of rock with fists of awesome power.
+I:COLOR(Umber)
+P:Weight:250
+P:Body:Standard
+
+N:E.air:E.base:Air elemental
+I:LVL(34,80):RARITY(2)
+I:SPEED(+10):HP(30d5):AC(50):EXP(390)
+I:ALERT(Unseeing):MOVE(RAND_25|TRAMPLE|DESTROY)
+B:HIT(x2):HURT(1d10)
+B:HIT:CONFUSE(1d4)
+I:RESIST(BASE)
+S:1_IN_8 | BO_ELEC
+D:It is a towering tornado of winds.
+I:COLOR(Light Blue)
+P:Body:Vortex5
+
+N:E.smoke:E.base:Smoke elemental
+I:LVL(35,90):RARITY(3)
+I:SPEED(+10):HP(15d10):AC(80):EXP(375)
+I:ALERT(Very Inattentive):MOVE(DESTROY|TRAMPLE)
+B:BITE(x2):HURT(2d6)
+I:RESIST(ELEC|FIRE|COLD)
+S:1_IN_5 | DARKNESS | BO_FIRE
+D:It is a towering blackened form, crackling with heat.
+I:COLOR(Light Dark)
+P:Body:Vortex5
+
+N:E.ooze:E.base:Ooze elemental
+I:LVL(35,80):RARITY(3):WILD(SHORE|SWAMP)
+I:HP(13d10):AC(80):EXP(300)
+I:ALERT(Very Inattentive):MOVE(DESTROY|TRAMPLE|SWIM)
+B:TOUCH(x3):ACID(1d10)
+I:RESIST(BASE)
+S:1_IN_5 | BO_ACID | BA_ACID
+D:It is a towering mass of filth, an eyesore of ooze.
+I:COLOR(Light Umber)
+P:Body:Vortex5
+
+N:E.ice:E.base:Ice elemental
+I:LVL(36):RARITY(2)
+I:HP(35d10):AC(60):EXP(650)
+I:ALERT(Very Inattentive):MOVE(DESTROY|TRAMPLE|SWIM)
+B:BITE(x2):ICE(1d3)
+B:HIT:HURT(2d6+7)
+A:COLD(2d3)
+I:RESIST(ELEC):IMMUNE(COLD):VULN(FIRE)
+S:1_IN_5 | BO_ICE | BA_COLD
+D:It is a towering glacier of ice.
+I:COLOR(White)
+P:Body:Standard
+P:Weight:300
+
+N:E.time:E.base:Time elemental
+I:LVL(37):RARITY(5)
+I:SPEED(+10):HP(35d10):AC(70):EXP(1000)
+I:ALERT(900',Fairly Observant):MOVE(RAND_50|DESTROY|PASSWALL)
+B:TOUCH(x2):TIME(3d4)
+I:RESIST(ELEC|FIRE|TIME)
+S:FREQ_5 | SLOW | BR_TIME
+D:You have not seen it yet.
+I:COLOR(Light Green)
+P:Body:Vortex7
+
+N:E.wisp:E.base:Will o' the wisp
+I:LVL(37,70):RARITY(4):WILD(SWAMP)
+I:SPEED(+20):HP(20d10):AC(150):EXP(500)
+I:LIGHT(1):CAN(INVIS)
+I:ALERT(300',Ever Vigilant):MOVE(RAND_50|PASSWALL)
+B:HIT(x4):HURT(1d9)
+I:RESIST(BASE):IMMUNE(POIS)
+S:1_IN_2 | BLINK | TELE_SELF | CONFUSE | CAUSE_2
+D:A strange ball of glowing light. It disappears and reappears and seems to
+D:draw you to it. You seem somehow compelled to stand still and watch its
+D:strange dancing motion.
+I:COLOR(Yellow)
+P:Body:Wisp
+P:Weight:10
+
+N:E.magma:E.base:Magma elemental
+I:LVL(37):RARITY(2):WILD(VOLCANO)
+I:HP(35d10):AC(70):EXP(950)
+I:ALERT(Very Inattentive):MOVE(DESTROY|TRAMPLE|PASSWALL)
+B:HIT(x2):FIRE(3d7)
+B:HIT:HURT(2d6+7)
+A:FIRE(2d3)
+I:RESIST(ELEC|FIRE)
+S:1_IN_7 | BO_PLASMA | BA_FIRE
+D:It is a towering glowing form of molten hate.
+I:COLOR(Orange)
+P:Body:Standard
+P:Weight:300
+
+N:E.Loge:E.base:Loge, Spirit of Fire
+I:LVL(38):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+10):HP(1500):AC(50):EXP(3000)
+I:LIGHT(2):CAN(SPEAK):ALERT(Overlooks):MOVE(RAND_25|DESTROY|TRAMPLE)
+B:HIT(x4):FIRE(6d6)
+A:FIRE(2d3)
+I:IMMUNE(FIRE|POIS)
+S:1_IN_4 | BO_PLASMA(8d7+62) | BA_FIRE(1d266+20)
+O:5%:ART(|.Loge)
+D:A towering fire elemental, Loge burns everything beyond recognition.
+I:COLOR(Light Red)
+P:Body:Standard
+P:Weight:300
+
+N:E.Quaker:E.base:Quaker, Master of Earth
+I:LVL(43):RARITY(2):ALLOC(UNIQUE)
+I:HP(1800):AC(97):EXP(6000)
+I:CAN(SPEAK):ATTR(MALE):ALERT(Very Inattentive):MOVE(TUNNEL)
+B:HIT(x3):HURT(2d6+14):HURT(6d6, 20%)
+B:HIT:SHATTER(3d10+40)
+A:SHARDS(3d3)
+I:RESIST(ELEC|FIRE|COLD|SHARDS):VULN(DISINTEGRATE)
+S:1_IN_6 | BO_ACID(14d8+28) | BA_ACID(1d258+30)
+O:5%:ART(].Quaker)
+D:A towering stone elemental stands before you. The walls and ceiling are
+D:reduced to rubble as Quaker advances.
+I:COLOR(Umber)
+P:Body:Standard
+P:Weight:800
+
+N:E.Ariel:E.base:Ariel, Queen of Air
+I:LVL(44):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+20):HP(2700):AC(50):EXP(8000)
+I:LIGHT(1):CAN(SPEAK):ATTR(FEMALE)
+I:ALERT(Overlooks):MOVE(RAND_25|DESTROY|TRAMPLE)
+B:HIT(x2):HURT(2d6+7)
+B:HIT(x2):CONFUSE(1d4)
+A:ELEC(2d3)
+I:RESIST(BASE)
+S:1_IN_5 | BO_ELEC(8d8+28) | BA_COLD(1d132+20) | BA_ELEC(1d132+16)
+O:5%:ART(`(.Ariel`)
+D:A towering air elemental, Ariel, the sorceress, avoids your blows
+D:with her extreme speed.
+I:COLOR(Light Blue)
+P:Stat:Dex(7)
+P:Body:Standard
+P:Weight:250
+
+N:E.shambler:Shambler
+I:LVL(67):RARITY(4)
+I:SPEED(+20):HP(5000):AC(150):EXP(22500)
+I:ALIGN(Evil):ALERT(400',Overlooks):MOVE(OPEN|BASH|PUSH|SWIM|CLEARWEB)
+B:CLAW(x2):HURT(3d12)
+B:CRUSH(x2):HURT(5d12+20)
+I:RESIST(CONF|TELE):IMMUNE(SLEEP|SLOW)
+S:1_IN_4 | BR_ELEC
+O:1d2:OBJ(*, GOOD)
+D:This elemental creature is power incarnate; it looks like a huge polar bear
+D:with a huge gaping maw instead of a head.
+I:DISPLAY(E,Light White):POS(CORPSE|GAIN_AC)
+P:Copy:Half-Titan:Warrior
+P:Body:Shambler
+P:Weight:300
+
+N:E.unmaker:Unmaker
+I:LVL(77):RARITY(4)
+I:SPEED(+10):HP(396):AC(50):EXP(3000)
+I:KIND(NONLIVING):CAN(MULTIPLY):ATTR(COLD_BLOOD)
+I:ALERT(600',Overlooks):MOVE(RAND_50|BASH|DESTROY|TRAMPLE|TUNNEL|FLY)
+B:TOUCH:DAM(10d10):LOSE_ALL(50%)
+B:TOUCH:DAM(10d10):DISENCHANT
+B:TOUCH:DAM(10d10):DRAIN_CHARGES
+B:TOUCH:DRAIN_MANA(10d10)
+A:CHAOS(3d5)
+I:RESIST(ALL):IMMUNE(FEAR|WATER|BLIND|SLEEP|SLOW|STUN)
+S:1_IN_5 | BR_CHAOS | MULTIPLY
+O:60%:OBJ(*$, GOOD)
+D:Summoned from the Courts of Chaos, it is a mass of sentient Logrus,
+D:spreading uncontrollably and destroying everything in its path.
+I:DISPLAY(E,Violet,ATTR_MULTI|SHAPECHANGER|ATTR_ANY):POS(GAIN_AC|HOLD_LIFE)
+P:Copy:Zombie:Mauler
+P:Body:Demonic Horror
+P:Weight:50
+
+N:E.Cthugha:Cthugha the Living Flame
+I:LVL(78):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+23):HP(5000):AC(100):EXP(35000)
+I:KIND(NONLIVING|HORROR):ALIGN(Evil):LIGHT(2):ATTR(SMART)
+I:ALERT(300',Fairly Unseeing):MOVE(FLY|DESTROY|TRAMPLE|CLEARWEB)
+B:TOUCH:BLIND
+B:TOUCH(x2):FIRE(12d10)
+B:TOUCH:PLASMA(8d8)
+A:FIRE(4d5)
+I:RESIST(ELEC|CONF|NETHER|PLASMA):IMMUNE(FIRE|TELE|SLEEP|SLOW|BLIND)
+S:1_IN_4 | BR_FIRE | S_KIN
+O:4d2:OBJ(*, GOOD)
+D:"But even though we had shielded our eyes, it was impossible not
+D:to see the great amorphous shapes streaming skyward from the
+D:accursed place, nor the equally great being hovering like a cloud
+D:of living fire above the trees."
+I:DISPLAY(E,Light Red):POS(GAIN_AC|HOLD_LIFE)
+P:Copy:Zombie:Mauler
+P:Body:Demonic Horror
+P:Weight:1000
+
+N:E.Tulzscha:Tulzscha the Green Flame
+I:LVL(89):RARITY(4):ALLOC(UNIQUE)
+I:SPEED(+20):HP(10000):AC(100):EXP(70000)
+I:KIND(DEMON|NONLIVING|HORROR):ALIGN(Evil):LIGHT(2):CAN(REGEN)
+I:ALERT(900',Overlooks):MOVE(RAND_25|CLEARWEB)
+B:HIT(x4):HURT(1d50+25)
+A:FIRE(4d6):COLD(4d6)
+I:RESIST(ACID|ELEC|COLD|POIS|NETHER|NEXUS|PLASMA):IMMUNE(FIRE|TELE|BLIND|SLEEP|SLOW)
+S:FREQ_20 | BR_NEXUS | BR_NETHER | BR_COLD | BR_FIRE
+O:6d2:OBJ(*, GOOD)
+D:"A belching column of sick greenish flame... spouting volcanically
+D:from the depths profound and inconceivable, casting no shadows as
+D:healthy flame should, and coating the nitrous stone with a nasty,
+D:venomous verdigris. For all that seething combustion no warmth
+D:lay, but only the clamminess of death and corruption."
+I:DISPLAY(E,Light Green):POS(GAIN_AC|HOLD_LIFE)
+P:Copy:Zombie:Mauler
+P:Body:Demonic Horror
+P:Weight:1000
+
+N:E.caaws:Caaws
+I:LVL(90):RARITY(8):WILD(WASTE|SWAMP)
+I:SPEED(+10):HP(3465):AC(176):EXP(35000)
+I:KIND(DEMON|NONLIVING):ALIGN(Chaotic):CAN(REGEN)
+I:ATTR(STUPID|KILL_EXP|COLD_BLOOD|EMPTY_MIND)
+I:ALERT(1000',Ever Vigilant):MOVE(NEVER|TRAMPLE|FLY|SWIM)
+B:TOUCH:DAM(13d13):DRAIN_CHARGES
+B:TOUCH:DAM(13d13):DISENCHANT
+B:TOUCH:DAM(13d13):LOSE_ALL
+B:TOUCH:DRAIN_MANA(13d13)
+A:COLD(4d6)
+I:RESIST(ALL):IMMUNE(SLEEP|SLOW|BLIND|FEAR|STUN)
+S:1_IN_5 | HEAL | INVULN | DISPEL_MAGIC | ANTI_MAGIC
+D:A thing like a massive, jet black oyster with four groping tendrils.
+D:Born of nether, it need not chase its prey, content to seethe
+D:in the darkness until some unfortunate creature wanders too close.
+I:DISPLAY(E,Light Dark):POS(GAIN_AC|HOLD_LIFE)
+P:Copy:Zombie:Mauler
+P:Body:Jelly7
+P:Speed:+10
+P:Weight:200
+
+N:E.Azathoth:Azathoth, Seething Nuclear Chaos
+I:LVL(93):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+20):HP(9801):AC(150):EXP(100000)
+I:KIND(DEMON|NONLIVING|HORROR):CAN(REGEN|FEAR):ATTR(STUPID|EMPTY_MIND)
+I:ALIGN(Chaotic)
+I:ALERT(1000',Very Inattentive):MOVE(OPEN|BASH|DESTROY|TUNNEL|SWIM)
+B:CRUSH(x2):HURT(15d5+60)
+B:CRAWL(x2):HURT(10d5+30):ACID(15d5)
+A:ELEC(4d6):FIRE(4d6):COLD(4d6)
+I:RESIST(ACID|FIRE|POIS|CONF|NETHER|CHAOS|DISENCHANT):IMMUNE(SLEEP|SLOW|FEAR|BLIND|TELE)
+S:1_IN_5 | BA_WATER(1d186+50) | S_HI_DEMON | BR_CHAOS | BR_DISENCHANT | BR_MANA | BR_DISINTEGRATE
+O:4d2+1:OBJ(*, GOOD)
+D:"That last amorphous blight of nethermost confusion which
+D:blasphemes and bubbles at the centre of all infinity --
+D:the boundless daemon sultan Azathoth, whose name no lips
+D:dare speak aloud, and who gnaws hungrily in inconceivable,
+D:unlighted chambers beyond time amidst the muffled, maddening
+D:beating of vile drums and the thin monotonous whine of
+D:accursed flutes."
+I:DISPLAY(E,Light Blue,ATTR_MULTI|ATTR_ANY):POS(GAIN_AC|HOLD_LIFE)
+P:Copy:Zombie:Mauler
+P:Body:Demonic Horror
+P:Weight:1000
+
+########################################################################
+# Vortices ... Out of sequence body types are needed by race_vortex.c
+T:v.base:Vortex
+I:DISPLAY(v):POS(GAIN_AC|HOLD_LIFE)
+I:KIND(NONLIVING):ATTR(EMPTY_MIND|COLD_BLOOD)
+I:ALERT(1000',Ever Vigilant):MOVE(RAND_50|BASH|FLY|CLEARWEB)
+I:RESIST(CONF):IMMUNE(SLEEP|SLOW|FEAR|STUN|BLIND)
+P:Stat:Str(0+5):Int(-5):Wis(-5):Dex(2+5):Con(1+3):Chr(0)
+P:Skill:Dis(25+40):Dev(18+35):Sav(40+75):Stl(4):Srh(5):Fos(5):Thn(60+125)
+P:Class:Warrior
+P:SpellStat:Con
+P:Weight:50
+P:Body:Vortex3
+
+N:v.fire:v.base:Fire vortex
+I:LVL(21):RARITY(2):WILD(VOLCANO|ALL)
+I:HP(9d9):AC(30):EXP(50)
+I:LIGHT(2)
+B:ENGULF:FIRE(3d3)
+A:FIRE(1d2)
+I:IMMUNE(FIRE):VULN(COLD)
+S:1_IN_6 | BR_FIRE
+D:A whirling maelstrom of fire.
+I:COLOR(Red)
+
+N:v.water:v.base:Water vortex
+I:LVL(21):RARITY(2)
+I:HP(9d9):AC(30):EXP(60)
+B:ENGULF:ACID(3d3)
+I:IMMUNE(ACID)
+S:1_IN_6 | BR_ACID
+D:A caustic spinning whirlpool of water.
+I:COLOR(Blue)
+
+N:v.cold:v.base:Cold vortex
+I:LVL(21):RARITY(2)
+I:HP(9d9):AC(30):EXP(50)
+B:ENGULF:COLD(3d3)
+I:IMMUNE(COLD):VULN(FIRE)
+A:COLD(1d2)
+S:1_IN_6 | BR_COLD
+D:A twisting whirlpool of frost.
+I:COLOR(Light White)
+
+N:v.energy:v.base:Energy vortex
+I:LVL(21):RARITY(2)
+I:HP(12d12):AC(30):EXP(60)
+I:LIGHT(2)
+B:ENGULF:ELEC(5d5)
+A:ELEC(1d2)
+I:RESIST(ELEC)
+S:1_IN_6 | BR_ELEC
+D:A shimmering tornado of air, sparks crackle along its length.
+I:COLOR(Yellow)
+P:Body:Vortex4
+
+N:v.shard:v.base:Shard vortex
+I:LVL(35):RARITY(4)
+I:SPEED(+10):HP(24d10):AC(28):EXP(630)
+B:ENGULF(x3):SHARDS(6d6)
+I:RESIST(SHARDS)
+S:1_IN_6 | BR_SHARDS
+D:A howling blast of razor-sharp mountain fragments, kept intact by perilous magics.
+I:COLOR(Light Umber)
+P:Body:Vortex7
+
+N:v.nexus:v.base:Nexus vortex
+I:LVL(37):RARITY(3)
+I:SPEED(+10):HP(32d10):AC(40):EXP(800)
+B:ENGULF:HURT(1d5+12)
+I:RESIST(NEXUS):IMMUNE(TELE)
+S:1_IN_6 | BR_NEXUS
+D:A maelstrom of potent magical energy.
+I:COLOR(Violet)
+P:Body:Vortex6
+
+N:v.plasma:v.base:Plasma vortex
+I:LVL(37):RARITY(2)
+I:SPEED(+10):HP(32d10):AC(40):EXP(800)
+I:LIGHT(1)
+B:ENGULF:PLASMA(5d5)
+A:PLASMA(2d3)
+I:RESIST(ELEC|FIRE|PLASMA)
+S:1_IN_6 | BR_PLASMA
+D:A whirlpool of intense flame, charring the stones at your feet.
+I:COLOR(Light Red)
+P:Body:Vortex6
+
+N:v.time:v.base:Time vortex
+I:LVL(38):RARITY(7)
+I:SPEED(+20):HP(32d10):AC(40):EXP(900)
+B:ENGULF:TIME(2d5)
+I:RESIST(TIME)
+S:FREQ_8 | BR_TIME
+D:You haven't seen it yet.
+I:COLOR(Light Green)
+P:Body:Vortex7
+
+N:v.shimmering:v.base:Shimmering vortex
+I:LVL(38):RARITY(6)
+I:SPEED(+30):HP(6d12):AC(30):EXP(100)
+I:LIGHT(3)
+I:RESIST(LIGHT|TELE)
+S:FREQ_15 | BR_LIGHT | SHRIEK
+D:A strange pillar of shining light that hurts your eyes. Its shape changes
+D:constantly as it cuts through the air towards you. It is like a beacon,
+D:waking monsters from their slumber.
+I:DISPLAY(,Violet,ATTR_MULTI)
+P:Body:Vortex6
+
+# XXX almost, but not quite a vortex
+N:v.lloigor:Lloigor
+I:LVL(44):RARITY(3)
+I:SPEED(+10):HP(1500):AC(100):EXP(6000)
+I:KIND(HORROR):ALIGN(Evil):CAN(INVIS):ATTR(SMART)
+I:ALERT(200',Fairly Unseeing):MOVE(OPEN|BASH|PUSH|FLY|PASSWALL)
+B:ENGULF(x3):HURT(2d10+10):LOSE_CON(50%)
+I:RESIST(BASE|POIS|GRAVITY):IMMUNE(BLIND)
+S:FREQ_15 | BR_FORCE | BR_GRAVITY | S_KIN | MIND_BLAST | BLIND | BLINK | TELE_OTHER
+O:3d2+1:OBJ(*$)
+D:"Invisible ones from the stars... They sometimes took forms...
+D:but existed as vortices of power in their natural state."
+I:DISPLAY(v,Light Blue):POS(GAIN_AC|HOLD_LIFE)
+P:Copy:v.base
+P:Body:Vortex7
+P:Weight:100
+
+N:H.Ghatanothoa:v.lloigor:Ghatanothoa
+I:LVL(46):RARITY(2):ALLOC(UNIQUE)
+I:HP(3000):EXP(16000)
+B:CLAW:HURT(3d10+10):LOSE_INT
+B:CLAW:HURT(3d10+10):LOSE_WIS
+B:BITE:HURT(3d10+10):CONFUSE
+I:RESIST(NETHER|FORCE|INERTIA)
+S:FREQ_15 | BR_FORCE | TELE_OTHER | BR_GRAVITY | TELE_LEVEL | S_DEMON | S_UNDEAD |
+S:BRAIN_SMASH | HASTE | BLIND | BLINK | BR_INERTIA | CAUSE_3 | CAUSE_4
+O:6d2:OBJ(*, GOOD)
+D:The chief among the creatures known as Lloigor. Ghatanothoa has
+D:assumed a shape which is too horrible to describe: "Nothing I could say
+D:could even adumbrate the loathsome, unholy, non-human, extra-galactic
+D:horror and hatefulness and unutterable evil of that forbidden spawn
+D:of black chaos, and illimitable night."
+I:DISPLAY(H,Light Dark)
+
+N:v.death:v.base:Death vortex
+I:LVL(55):RARITY(7)
+I:SPEED(+30):HP(32d20):AC(80):EXP(1000)
+I:MOVE(TUNNEL)
+I:RESIST(NETHER|DISENCHANT|TIME)
+S:1_IN_6 | BR_TIME | BR_DISINTEGRATE | BR_NETHER
+D:Void, nothingness, spinning destructively. Run!
+I:COLOR(Light Dark)
+P:Body:Vortex7
+
+N:v.aether:v.base:Aether vortex
+I:LVL(55):RARITY(4)
+I:SPEED(+20):HP(32d20):AC(40):EXP(1500)
+I:LIGHT(2)
+B:ENGULF:ELEC(5d5)
+B:ENGULF:FIRE(3d3)
+B:ENGULF:ACID(3d3)
+B:ENGULF:COLD(3d3)
+A:COLD(3d4):FIRE(3d4):ELEC(3d4)
+I:RESIST(ALL)
+S:1_IN_6 | BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POISON |
+S:BR_LIGHT | BR_DARK | BR_SOUND | BR_CONFUSION | BR_CHAOS |
+S:BR_NETHER | BR_DISENCHANT | BR_FORCE | BR_INERTIA | BR_TIME |
+S:BR_GRAVITY | BR_PLASMA | BR_NEXUS | BR_SHARDS | BR_NUKE
+D:An awesome vortex of pure magic, power radiates from its frame.
+I:DISPLAY(,Light Blue,ATTR_MULTI|ATTR_ANY)
+P:Body:Vortex8
+
+N:v.disintegrate:v.base:Disintegrate vortex
+I:LVL(65):RARITY(8)
+I:SPEED(+30):HP(32d20):AC(80):EXP(1000)
+I:MOVE(TUNNEL|DESTROY)
+S:1_IN_6 | BR_DISINTEGRATE
+I:COLOR(Slate)
+P:Body:Vortex7
+
+# vim: filetype=ri :
+

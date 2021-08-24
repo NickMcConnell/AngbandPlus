@@ -160,15 +160,29 @@ extern vptr rpanic(huge len);
 /* Allocate (and return) 'len', or dump core */
 extern vptr ralloc(huge len);
 
-/* Note: See c-string.h for a better string implementation */
-/* Create a "dynamic string" */
+/* Note: See c-str.h for a better string implementation */
 extern cptr z_string_make(cptr str);
-
-/* Free a string allocated with "z_string_make()" */
+extern cptr z_string_append(cptr str, cptr add, char sep);
 extern errr z_string_free(cptr str);
 
-
-
+#include <time.h>
+struct z_timer_s  /* note timer_t and timer_create are ANSI standard */
+{
+    clock_t start;
+    clock_t elapsed;
+    bool paused;
+    u32b counter;
+};
+typedef struct z_timer_s z_timer_t, *z_timer_ptr;
+extern z_timer_t z_timer_create(void);
+extern void    z_timer_pause(z_timer_ptr timer);
+extern void    z_timer_resume(z_timer_ptr timer);
+extern double  z_timer_elapsed(z_timer_ptr timer); /* in ms */
+/* e.g. 
+    z_timer_t timer = z_timer_create();
+    ...
+    msg_format("blah blah took %.3fms", z_timer_elapsed(&timer));
+*/
 
 #endif
 

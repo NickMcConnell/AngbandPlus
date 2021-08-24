@@ -234,7 +234,7 @@ R:OBJ(WAND_BALL_DISINTEGRATE)
 R:OBJ(STAFF_MANA_STORM)
 
 ?:[AND [EQU $CLASS Devicemaster] [EQU $SPECIALITY Rods] [EQU [MOD $RANDOM27 5] 0] ]
-R:OBJ(ROD_BALL_LITE)
+R:OBJ(ROD_BALL_LIGHT)
 ?:[AND [EQU $CLASS Devicemaster] [EQU $SPECIALITY Rods] [GEQ [MOD $RANDOM27 5] 1] ]
 R:OBJ(ROD_BALL_MANA)
 ##########################################################################

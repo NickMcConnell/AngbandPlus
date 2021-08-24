@@ -20,7 +20,7 @@ typedef struct _history_s *_history_ptr;
 
 struct _history_s
 {
-    int r_idx;
+    sym_t r_idx;
     int d_idx;
     int d_lvl;
     int p_lvl;
@@ -93,11 +93,11 @@ static void _history_on_possess(int r_idx)
         }
         else
         {
-            p->d_idx = cave->dun_type_id;
+            p->d_idx = cave->type->id;
             p->d_lvl = cave->dun_lvl;
         }
 
-        p->p_lvl = p_ptr->lev;
+        p->p_lvl = plr->lev;
         p->turn = dun_mgr()->turn;
 
         p->next = _history;
@@ -117,7 +117,10 @@ static void _history_on_load(savefile_ptr file)
         c = malloc(sizeof(_history_t));
         assert(c);
 
-        c->r_idx = savefile_read_s32b(file);
+        if (savefile_is_older_than(file, 7, 3, 3, 1))
+            c->r_idx = savefile_read_s32b(file);
+        else
+            c->r_idx = savefile_read_sym(file);
         c->d_idx = savefile_read_s32b(file);
         c->d_lvl = savefile_read_s32b(file);
         c->p_lvl = savefile_read_s32b(file);
@@ -147,7 +150,7 @@ static void _history_on_save(savefile_ptr file)
     while (i < ct)
     {
         assert(p);
-        savefile_write_s32b(file, p->r_idx);
+        savefile_write_sym(file, p->r_idx);
         savefile_write_s32b(file, p->d_idx);
         savefile_write_s32b(file, p->d_lvl);
         savefile_write_s32b(file, p->p_lvl);
@@ -176,8 +179,7 @@ static void _birth(void)
 
     possessor_on_birth();
 
-    p_ptr->current_r_idx = MON_POSSESSOR_SOUL;
-    equip_on_change_race();
+    plr_mon_race_set("@.soul");
 
     object_prep(&forge, lookup_kind(TV_WAND, SV_ANY));
     if (device_init_fixed(&forge, EFFECT_BOLT_COLD))
@@ -195,13 +197,13 @@ static void _birth(void)
 
 static int _get_toggle(void)
 {
-    return p_ptr->magic_num1[0];
+    return plr->magic_num1[0];
 }
 
 int possessor_get_toggle(void)
 {
     int result = TOGGLE_NONE;
-    if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
+    if (plr->prace == RACE_MON_POSSESSOR || plr->prace == RACE_MON_MIMIC)
         result = _get_toggle();
     return result;
 }
@@ -215,14 +217,14 @@ static void _player_action(void)
 int possessor_max_plr_lvl(int r_idx)
 {
     monster_race *r_ptr = mon_race_lookup(r_idx);
-    point_t       tbl[5] = { {10, 15}, {20, 30}, {30, 37}, { 40, 45}, { 50, 50} };
-    return        interpolate(r_ptr->level, tbl, 5);
+    point_t       tbl[5] = { {10, 15}, {20, 30}, {30, 37}, {40, 45}, {50, 50} };
+    return        interpolate(r_ptr->alloc.lvl, tbl, 5);
 }
 
 static int _max_lvl(void)
 {
-    if (p_ptr->current_r_idx == MON_MIMIC) return 50;
-    return possessor_max_plr_lvl(p_ptr->current_r_idx);
+    if (sym_equals(plr->current_r_idx, "@.mimic")) return 50;
+    return possessor_max_plr_lvl(plr->current_r_idx);
 }
 
 /**********************************************************************
@@ -250,17 +252,30 @@ static int _dam_boost(int method, int rlev)
 }
 void possessor_calc_innate_attacks(void)
 {
-    mon_race_ptr race = mon_race_lookup(p_ptr->current_r_idx);
+    mon_race_ptr race = plr_mon_race();
     int          i;
 
     for (i = 0; i < vec_length(race->blows); i++)
     {
-        mon_blow_ptr blow = mon_blow_copy(vec_get(race->blows, i));
-        int          xtra = _dam_boost(blow->method, race->level);
+        mon_blow_ptr blow = vec_get(race->blows, i);
+        int          xtra;
+        /* Monk: The 'Monk' body type disallows both weapons and shields, and should
+         * always allow martial arts. The 'Standard' body type should mask martial arts
+         * if a weapon is used, or if the player is dual wielding shields (Monastic Lich) */
+        if ( blow->method == RBM_MONK
+          && equip_has_slot_type(EQUIP_SLOT_WEAPON_SHIELD) )
+        {
+            /* no martial arts with weapons */
+            if (plr->weapon_ct) continue;
+            /* martial arts requires a free hand (e.g. duel wielding shields) */
+            if (!equip_is_empty_hand(0) && !equip_is_empty_hand(1)) continue;
+        }
+        blow = mon_blow_copy(blow);
+        xtra = _dam_boost(blow->method, race->alloc.lvl);
         if (xtra && blow->effect_ct)
             blow->effects[0].dice.base += xtra;
         blow->flags |= MBF_POSSESSOR; /* for skills_innate_calc_name() */
-        vec_add(p_ptr->innate_blows, blow);
+        vec_add(plr->innate_blows, blow);
     }
 }
 
@@ -269,7 +284,7 @@ void possessor_calc_innate_attacks(void)
  **********************************************************************/
 void possessor_cast(void)
 {
-    mon_race_ptr race = mon_race_lookup(p_ptr->current_r_idx);
+    mon_race_ptr race = plr_mon_race();
     if (!race->spells)
     {
         msg_print("Your current body has no spells.");
@@ -286,7 +301,7 @@ void possessor_cast(void)
 
 int possessor_antimagic_prob(void)
 {
-    mon_race_ptr race = mon_race_lookup(p_ptr->current_r_idx);
+    mon_race_ptr race = plr_mon_race();
     if (!mon_race_has_noninnate_spell(race))
         return 0;
     /* XXX Look for spellcaster forms? */
@@ -311,7 +326,7 @@ static void _possess_spell(int cmd, var_ptr res)
         var_set_string(res, "Enter the corpse of a new body, gaining the powers and abilities of that form.");
         break;
     case SPELL_INFO:
-        var_set_string(res, format("Lvl %d", _calc_level(p_ptr->max_plv) + 5));
+        var_set_string(res, format("Lvl %d", _calc_level(plr->max_plv) + 5));
         break;
     case SPELL_CAST:
     {
@@ -321,13 +336,13 @@ static void _possess_spell(int cmd, var_ptr res)
 
         var_set_bool(res, FALSE);
 
-        if (p_ptr->current_r_idx != MON_POSSESSOR_SOUL)
+        if (!plr_mon_race_is_("@.soul"))
         {
             msg_print("You must leave your current body first. Be careful!");
             return;
         }
 
-        /*if ( p_ptr->current_r_idx != MON_POSSESSOR_SOUL 
+        /*if ( plr->current_r_idx != MON_POSSESSOR_SOUL 
           && !get_check("Your current body may be destroyed. Are you sure? ") )
         {
             return;
@@ -341,33 +356,32 @@ static void _possess_spell(int cmd, var_ptr res)
 
         obj_prompt(&prompt);
         if (!prompt.obj) return;
-        r_ptr = mon_race_lookup(prompt.obj->pval);
+        r_ptr = mon_race_lookup(prompt.obj->race_id);
 
         object_desc(name, prompt.obj, OD_NAME_ONLY | OD_SINGULAR);
-        if (r_ptr->level > _calc_level(p_ptr->max_plv) + 5)
+        if (r_ptr->alloc.lvl > _calc_level(plr->max_plv) + 5)
         {
             msg_format("You are not powerful enough to possess %s (Lvl %d).",
-                name, r_ptr->level);
+                name, r_ptr->alloc.lvl);
             return;
         }
 
         msg_format("You possess %s.", name);
-        if (p_ptr->current_r_idx != MON_POSSESSOR_SOUL)
+        if (!plr_mon_race_is_("@.soul"))
         {
-            if (p_ptr->lev <= 10 || one_in_(3))
+            if (plr->lev <= 10 || one_in_(3))
             {
                 object_type forge;
                 object_prep(&forge, lookup_kind(TV_CORPSE, SV_CORPSE));
-                apply_magic(&forge, cave->difficulty, AM_NO_FIXED_ART);
-                forge.pval = p_ptr->current_r_idx;
-                forge.weight = MIN(500*10, MAX(40, mon_race_lookup(p_ptr->current_r_idx)->weight * 10));
-                drop_near(&forge, p_ptr->pos, -1);
+                forge.race_id = plr->current_r_idx;
+                forge.weight = MIN(500*10, MAX(40, plr_mon_race()->weight * 10));
+                drop_near(&forge, plr->pos, -1);
             }
             else
                 msg_print("Your previous body quickly decays!");
         }
 
-        possessor_set_current_r_idx(prompt.obj->pval);
+        possessor_set_current_r_idx(prompt.obj->race_id);
         stats_on_use(prompt.obj, 1);
         prompt.obj->number--;
         obj_release(prompt.obj, 0);
@@ -392,27 +406,26 @@ static void _unpossess_spell(int cmd, var_ptr res)
     case SPELL_CAST:
     {
         var_set_bool(res, FALSE);
-        if (p_ptr->current_r_idx == MON_POSSESSOR_SOUL) return; /* paranoia */
+        if (plr_mon_race_is_("@.soul")) return; /* paranoia */
 
         if (get_check("Your current body may be destroyed. Are you sure? "))
         {
-            int old_r_idx = p_ptr->current_r_idx;
+            int old_r_idx = plr->current_r_idx;
             monster_race *old_r_ptr = mon_race_lookup(old_r_idx);
 
             msg_print("You leave your current body!");
-            if (p_ptr->lev <= 10 || one_in_(3))
+            if (plr->lev <= 10 || one_in_(3))
             {
                 object_type forge;
                 object_prep(&forge, lookup_kind(TV_CORPSE, SV_CORPSE));
-                apply_magic(&forge, cave->difficulty, AM_NO_FIXED_ART);
-                forge.pval = old_r_idx;
+                forge.race_id = old_r_idx;
                 forge.weight = MIN(500*10, MAX(40, old_r_ptr->weight * 10));
-                drop_near(&forge, p_ptr->pos, -1);
+                drop_near(&forge, plr->pos, -1);
             }
             else
                 msg_print("Your previous body quickly decays!");
 
-            possessor_set_current_r_idx(MON_POSSESSOR_SOUL);
+            possessor_set_current_r_idx(mon_race_parse("@.soul")->id);
             var_set_bool(res, TRUE);
         }
         break;
@@ -434,12 +447,12 @@ static void _add_power(spell_info* spell, int lvl, int cost, int fail, ang_spell
 
 int possessor_get_powers(spell_info* spells, int max)
 {
-    mon_race_ptr race = mon_race_lookup(p_ptr->current_r_idx);
+    mon_race_ptr race = plr_mon_race();
     int          ct = 0;
-    if (ct < max && (race->flags1 & RF1_TRUMP))
-        _add_power(&spells[ct++], 1, 0, 0, blink_toggle_spell, p_ptr->stat_ind[A_DEX]);
-    if (ct < max && (race->body.class_idx == CLASS_MAGE || race->body.class_idx == CLASS_HIGH_MAGE || race->body.class_idx == CLASS_SORCERER))
-        _add_power(&spells[ct++], 25, 1, 90, eat_magic_spell, p_ptr->stat_ind[A_INT]);
+    if (ct < max && mon_race_is_trump(race))
+        _add_power(&spells[ct++], 1, 0, 0, blink_toggle_spell, plr->stat_ind[A_DEX]);
+    if (ct < max && (race->body.class_id == CLASS_MAGE || race->body.class_id == CLASS_HIGH_MAGE || race->body.class_id == CLASS_SORCERER))
+        _add_power(&spells[ct++], 25, 1, 90, eat_magic_spell, plr->stat_ind[A_INT]);
     return ct;
 }
 
@@ -447,10 +460,10 @@ static int _get_powers(spell_info* spells, int max)
 {
     int ct = 0;
 
-    if (/*p_ptr->current_r_idx == MON_POSSESSOR_SOUL &&*/ ct < max)
-        _add_power(&spells[ct++], 1, 0, 0, _possess_spell, p_ptr->stat_ind[A_DEX]);
-    if (p_ptr->current_r_idx != MON_POSSESSOR_SOUL && ct < max)
-        _add_power(&spells[ct++], 1, 0, 0, _unpossess_spell, p_ptr->stat_ind[A_DEX]);
+    if (/*plr->current_r_idx == MON_POSSESSOR_SOUL &&*/ ct < max)
+        _add_power(&spells[ct++], 1, 0, 0, _possess_spell, plr->stat_ind[A_DEX]);
+    if (!plr_mon_race_is_("@.soul") && ct < max)
+        _add_power(&spells[ct++], 1, 0, 0, _unpossess_spell, plr->stat_ind[A_DEX]);
 
     ct += possessor_get_powers(spells + ct, max - ct);
     return ct;
@@ -459,14 +472,15 @@ static int _get_powers(spell_info* spells, int max)
 caster_info *possessor_caster_info(void)
 {
     static caster_info info = {0};
-    monster_race      *r_ptr = mon_race_lookup(p_ptr->current_r_idx);
+    mon_race_ptr race = plr_mon_race();
+    int stat = race->body.spell_stat;
 
     /* This is a hack since the mimic's default class
        normally lacks mana. But if we do this, then every time the
        mimic assumes a magical form, they will start with 0sp! */
-    if (p_ptr->current_r_idx == MON_MIMIC)
+    if (sym_equals(plr->current_r_idx, "@.mimic"))
     {
-        info.which_stat = r_ptr->body.spell_stat;
+        info.which_stat = stat;
         info.magic_desc = "power";
         info.options = 0;
         info.encumbrance.max_wgt = 450;
@@ -475,14 +489,14 @@ caster_info *possessor_caster_info(void)
         return &info;
     }
 
-
-    if (r_ptr->body.class_idx && r_ptr->spells)
+    /* Try to use the pseudo-class caster info */
+    if (race->body.class_id && race->spells)
     {
-        class_t *class_ptr = get_class_aux(r_ptr->body.class_idx, 0);
+        class_t *class_ptr = get_class_aux(race->body.class_id, 0);
         if (class_ptr && class_ptr->hooks.caster_info)
         {
             info = *class_ptr->hooks.caster_info();
-            info.which_stat = r_ptr->body.spell_stat; /* r_info can now override the default spell stat */
+            info.which_stat = stat; /* r_info can now override the default spell stat */
             /*XXX Why? I suppose that many giant forms have HEALING
              * and cast as 'Maulers'. Giving a HP based healing spell
              * would probably be broken! */
@@ -498,6 +512,20 @@ caster_info *possessor_caster_info(void)
                 info.options &= ~CASTER_SUPERCHARGE_MANA;
             return &info;
         }
+    }
+
+    /* If that fails, we'll still give the plr mana in some cases. Currently,
+     * only 'innate' spells can be cast using hp. */
+    if ( mon_race_needs_mana(race)
+      && (stat == A_INT || stat == A_WIS || stat == A_CHR) )
+    {
+        info.which_stat = stat;
+        info.magic_desc = "power";
+        info.options = 0;
+        info.encumbrance.max_wgt = 450;
+        info.encumbrance.weapon_pct = 0;
+        info.encumbrance.enc_wgt = 800;
+        return &info;
     }
     return NULL;
 }
@@ -542,8 +570,8 @@ int possessor_r_speed(int r_idx)
 {
     monster_race *r_ptr = mon_race_lookup(r_idx);
     int           sp;
-    int           r_lvl = MAX(1, r_ptr->level);
-    int           p_lvl = _calc_level(p_ptr->lev);
+    int           r_lvl = MAX(1, r_ptr->alloc.lvl);
+    int           p_lvl = _calc_level(plr->lev);
 
     if (heavy_armor()) return 0;
 
@@ -551,11 +579,11 @@ int possessor_r_speed(int r_idx)
         sp = r_ptr->body.speed;
     else
     {
-        sp = (int)r_ptr->speed - 110;
+        sp = r_ptr->move.speed;
         if (sp > 0)
         {
             int i;
-            equip_template_ptr body = &b_info[r_ptr->body.body_idx];
+            equip_template_ptr body = equip_template_lookup(r_ptr->body.body_id);
             bool humanoid = FALSE;
 
             for (i = 1; i <= body->max; i++)
@@ -594,10 +622,10 @@ int possessor_r_ac(int r_idx)
 {
     monster_race *r_ptr = mon_race_lookup(r_idx);
     int           ac = 0;
-    int           r_lvl = MAX(1, r_ptr->level);
-    int           p_lvl = _calc_level(p_ptr->lev);
+    int           r_lvl = MAX(1, r_ptr->alloc.lvl);
+    int           p_lvl = _calc_level(plr->lev);
 
-    if ((r_ptr->flags9 & RF9_POS_GAIN_AC) && !heavy_armor())
+    if ((r_ptr->body.flags & RF_POS_GAIN_AC) && !heavy_armor())
     {
         ac = r_ptr->ac * MIN(p_lvl, r_lvl) / r_lvl;
 
@@ -610,297 +638,203 @@ int possessor_r_ac(int r_idx)
     return MAX(0, ac);
 }
 
-static void _calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
+void possessor_calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 {
-    monster_race *r_ptr = mon_race_lookup(p_ptr->current_r_idx);
+    monster_race *r_ptr = plr_mon_race();
     if (r_ptr->body.blows_calc.max)
         info->blows_calc.max = r_ptr->body.blows_calc.max;
     if (r_ptr->body.blows_calc.wgt)
         info->blows_calc.wgt = r_ptr->body.blows_calc.wgt;
-    if (r_ptr->body.blows_calc.mult)
-        info->blows_calc.mult = r_ptr->body.blows_calc.mult;
+    if (r_ptr->body.blows_calc.mul)
+        info->blows_calc.mul = r_ptr->body.blows_calc.mul;
 }
 
-static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
+void possessor_calc_shooter_bonuses(object_type *o_ptr, plr_shoot_info_ptr info_ptr)
 {
-    if (p_ptr->current_r_idx && !p_ptr->shooter_info.heavy_shoot)
+    if (plr->current_r_idx && !plr->shooter_info.heavy_shoot)
     {
-        monster_race *r_ptr = mon_race_lookup(p_ptr->current_r_idx);
+        monster_race *r_ptr = plr_mon_race();
 
-        if ( r_ptr->body.class_idx == CLASS_RANGER
-          && p_ptr->shooter_info.tval_ammo != TV_ARROW )
+        if ( r_ptr->body.class_id == CLASS_RANGER
+          && plr->shooter_info.tval_ammo != TV_ARROW )
         {
-            p_ptr->shooter_info.base_shot = 100;
+            plr->shooter_info.base_shot = 100;
         }
-        if ( r_ptr->body.class_idx == CLASS_ROGUE
-          && p_ptr->shooter_info.tval_ammo != TV_SHOT )
+        if ( r_ptr->body.class_id == CLASS_ROGUE
+          && plr->shooter_info.tval_ammo != TV_SHOT )
         {
-            p_ptr->shooter_info.base_shot = 100;
+            plr->shooter_info.base_shot = 100;
         }
     }
 }
 
 void possessor_calc_bonuses(void) 
 {
-    monster_race *r_ptr = mon_race_lookup(p_ptr->current_r_idx);
+    monster_race *r_ptr = plr_mon_race();
+    int i;
 
-    if (!p_ptr->current_r_idx) /* Birth hack ... we haven't been "born" yet! */
+    if (!plr->current_r_idx) /* Birth hack ... we haven't been "born" yet! */
         return;
 
-    if ((r_ptr->flags1 & RF1_FEMALE) && p_ptr->psex != SEX_FEMALE)
-    {
-        p_ptr->psex = SEX_FEMALE;
-    }
+    if (mon_race_is_female(r_ptr) && plr->psex != SEX_FEMALE)
+        plr->psex = SEX_FEMALE;
 
-    if ((r_ptr->flags1 & RF1_MALE) && p_ptr->psex != SEX_MALE)
-    {
-        p_ptr->psex = SEX_MALE;
-    }
+    if (mon_race_is_male(r_ptr) && plr->psex != SEX_MALE)
+        plr->psex = SEX_MALE;
 
-    if (!equip_can_wield_kind(TV_LITE, SV_LITE_FEANOR))
-        p_ptr->see_nocto = TRUE;
+    if (!equip_can_wield_kind(TV_LIGHT, SV_LIGHT_FEANOR))
+        plr->see_nocto = DUN_VIEW_MAX;
 
     {
-        int to_a = possessor_r_ac(p_ptr->current_r_idx);
-        p_ptr->to_a += to_a;
-        p_ptr->dis_to_a += to_a;
+        int to_a = possessor_r_ac(plr->current_r_idx);
+        plr->to_a += to_a;
+        plr->dis_to_a += to_a;
     }
 
-    p_ptr->pspeed += possessor_r_speed(p_ptr->current_r_idx);
+    plr->pspeed += possessor_r_speed(plr->current_r_idx);
+    if (r_ptr->move.flags & RFM_QUICK)
+        plr->quick_walk = TRUE;
 
-    if (r_ptr->flags3 & RF3_GOOD)
-        p_ptr->align += 200;
-    if (r_ptr->flags3 & RF3_EVIL)
-        p_ptr->align -= 200;
+    plr->align += r_ptr->align;
 
-    if (r_ptr->flags9 & RF9_POS_HOLD_LIFE)
-        p_ptr->hold_life++;
-    /*if (r_ptr->flags1 & (RF1_RAND_25 | RF1_RAND_50))
-        p_ptr->move_random = TRUE;*/
-    if (r_ptr->flags9 & RF9_POS_TELEPATHY)
-        p_ptr->telepathy = TRUE;
-    if (r_ptr->flags9 & RF9_POS_SEE_INVIS)
-        p_ptr->see_inv++;
-    if (r_ptr->flags2 & RF2_INVISIBLE)
-        p_ptr->see_inv++;
-    if (r_ptr->flags9 & RF9_POS_BACKSTAB)
-        p_ptr->ambush = 300;
-
-    if (r_ptr->flags9 & RF9_POS_SUST_STR)
-        p_ptr->sustain_str = TRUE;
-    if (r_ptr->flags9 & RF9_POS_SUST_INT)
-        p_ptr->sustain_int = TRUE;
-    if (r_ptr->flags9 & RF9_POS_SUST_WIS)
-        p_ptr->sustain_wis = TRUE;
-    if (r_ptr->flags9 & RF9_POS_SUST_DEX)
-        p_ptr->sustain_dex = TRUE;
-    if (r_ptr->flags9 & RF9_POS_SUST_CON)
-        p_ptr->sustain_con = TRUE;
-    if (r_ptr->flags9 & RF9_POS_SUST_CHR)
-        p_ptr->sustain_chr = TRUE;
-
-    if (r_ptr->flags2 & RF2_REFLECTING)
-        p_ptr->reflect = TRUE;
-    if (r_ptr->flags2 & RF2_REGENERATE)
-        p_ptr->regen += 100;
-    if ((r_ptr->flags2 & RF2_ELDRITCH_HORROR) || strchr("GLUVW", r_ptr->d_char))
-        p_ptr->no_eldritch = TRUE;
-    if (r_ptr->flags2 & RF2_PASS_WALL)
+    if (r_ptr->body.flags & RF_POS_HOLD_LIFE)
+        plr->hold_life++;
+    if (r_ptr->body.flags & RF_POS_TELEPATHY)
     {
-        p_ptr->pass_wall = TRUE;
-        p_ptr->no_passwall_dam = TRUE;
+        plr->telepathy = TRUE;
+        if (mon_race_is_(r_ptr, "p.grand master mindcrafter")) /* an elite form! */
+        {
+            assert(r_ptr->body.flags & RF_POS_TELEPATHY);
+            plr->wizard_sight = TRUE;
+            plr->clear_mind = TRUE;
+        }
     }
-    if (r_ptr->flags2 & RF2_KILL_WALL)
-        p_ptr->kill_wall = TRUE;
-    if ((r_ptr->flags2 & RF2_AURA_REVENGE) && !heavy_armor())
-        p_ptr->sh_retaliation = TRUE;
-    if (r_ptr->flags2 & RF2_AURA_FEAR)
-        p_ptr->sh_fear = TRUE;
-
-    if (r_ptr->flags3 & RF3_HURT_LITE)
-        res_add_vuln(RES_LITE);
-    if (r_ptr->flags3 & RF3_HURT_FIRE)
-        res_add_vuln(RES_FIRE);
-    if (r_ptr->flags3 & RF3_HURT_COLD)
-        res_add_vuln(RES_COLD);
-    if (r_ptr->flags3 & RF3_NO_FEAR)
-        res_add(RES_FEAR);
-    if (r_ptr->flags3 & RF3_NO_STUN)
-        p_ptr->no_stun = TRUE;
-    if (r_ptr->flags3 & RF3_NO_CONF)
-        res_add(RES_CONF);
-    if (r_ptr->flags3 & RF3_NO_SLEEP)
-        p_ptr->free_act++;
-
-    if (r_ptr->flags7 & RF7_CAN_FLY)
-        p_ptr->levitation = TRUE;
-
-    if (r_ptr->flagsr & RFR_IM_ACID)
-        res_add_immune(RES_ACID);
-    if (r_ptr->flagsr & RFR_IM_ELEC)
-        res_add_immune(RES_ELEC);
-    if (r_ptr->flagsr & RFR_IM_FIRE)
-        res_add_immune(RES_FIRE);
-    if (r_ptr->flagsr & RFR_IM_COLD)
-        res_add_immune(RES_COLD);
-    if (r_ptr->flagsr & RFR_IM_POIS)
-        res_add_immune(RES_POIS);
-
-    if (r_ptr->flagsr & RFR_RES_ACID)
-        res_add(RES_ACID);
-    if (r_ptr->flagsr & RFR_RES_ELEC)
-        res_add(RES_ELEC);
-    if (r_ptr->flagsr & RFR_RES_FIRE)
-        res_add(RES_FIRE);
-    if (r_ptr->flagsr & RFR_RES_COLD)
-        res_add(RES_COLD);
-    if (r_ptr->flagsr & RFR_RES_POIS)
-        res_add(RES_POIS);
-    if (r_ptr->flagsr & RFR_RES_LITE)
-        res_add(RES_LITE);
-    if (r_ptr->flagsr & RFR_RES_DARK)
-        res_add(RES_DARK);
-    if (r_ptr->flagsr & RFR_RES_NETH)
-        res_add(RES_NETHER);
-    if (r_ptr->flagsr & RFR_RES_SHAR)
-        res_add(RES_SHARDS);
-    if (r_ptr->flagsr & RFR_RES_SOUN)
-        res_add(RES_SOUND);
-    if (r_ptr->flagsr & RFR_RES_CHAO)
-        res_add(RES_CHAOS);
-    if (r_ptr->flagsr & RFR_RES_NEXU)
-        res_add(RES_NEXUS);
-    if (r_ptr->flagsr & RFR_RES_DISE)
-        res_add(RES_DISEN);
-    if (r_ptr->flagsr & RFR_RES_TIME)
-        res_add(RES_TIME);
-    if (r_ptr->flagsr & RFR_RES_TELE)
-        res_add(RES_TELEPORT);
-    if (r_ptr->flagsr & RFR_RES_ALL)
+    if (r_ptr->body.flags & RF_POS_SEE_INVIS)
+        plr->see_inv++;
+    if (mon_race_is_invisible(r_ptr))
+        plr->see_inv++;
+    if (r_ptr->body.flags & RF_POS_BACKSTAB)
     {
-        res_add_all();
-        if (p_ptr->current_r_idx == MON_SPELLWARP_AUTOMATON)
-            p_ptr->magic_resistance = 35;
-        else
-            p_ptr->magic_resistance = 95;
+        plr->ambush = 300;
+        plr->backstab = 150;
     }
 
-    if (strchr("sGLVWz", r_ptr->d_char))
-        p_ptr->no_cut = TRUE;
-    if (strchr("sg", r_ptr->d_char))
-        p_ptr->no_stun = TRUE;
+    if (r_ptr->body.flags & RF_POS_SUST_STR)
+        plr->sustain_str = TRUE;
+    if (r_ptr->body.flags & RF_POS_SUST_INT)
+        plr->sustain_int = TRUE;
+    if (r_ptr->body.flags & RF_POS_SUST_WIS)
+        plr->sustain_wis = TRUE;
+    if (r_ptr->body.flags & RF_POS_SUST_DEX)
+        plr->sustain_dex = TRUE;
+    if (r_ptr->body.flags & RF_POS_SUST_CON)
+        plr->sustain_con = TRUE;
+    if (r_ptr->body.flags & RF_POS_SUST_CHR)
+        plr->sustain_chr = TRUE;
+
+    if (mon_race_can_reflect(r_ptr))
+        plr->reflect = TRUE;
+    if (mon_race_can_regen(r_ptr))
+        plr->regen += 100;
+    if (mon_race_is_horror(r_ptr) || mon_race_is_char_ex(r_ptr, "GLUVW"))
+        plr->no_eldritch = TRUE;
+    if (mon_race_can_passwall(r_ptr))
+    {
+        plr->pass_wall = TRUE;
+        plr->no_passwall_dam = TRUE;
+    }
+    if (mon_race_can_tunnel(r_ptr))
+        plr->kill_wall = TRUE;
+    if (mon_race_can_passweb(r_ptr))
+        plr->pass_web = TRUE;
+    if (mon_race_can_clearweb(r_ptr))
+        plr->clear_web = TRUE;
+    if (mon_race_can_retaliate(r_ptr) && !heavy_armor())
+        plr->sh_retaliation = TRUE;
+    if (mon_race_projects_fear(r_ptr))
+        plr->sh_fear = TRUE;
+
+    /* resists */
+    for (i = GF_RES_MIN; i <= GF_RES_MAX; i++)
+    {
+        if (mon_race_immune(r_ptr, i))
+            res_add_immune(i);
+        else if (mon_race_vuln(r_ptr, i))
+            res_add_vuln(i);
+        else if (mon_race_resist(r_ptr, i))
+            res_add(i);
+    }
+    if (mon_race_immune(r_ptr, GF_SLEEP))
+        plr->free_act++;
+
+    if (mon_race_can_fly(r_ptr))
+        plr->levitation = TRUE;
+
+    plr->self_lite += r_ptr->light;
+
+    if (mon_race_is_char_ex(r_ptr, "sGLVWz"))
+        plr->no_cut = TRUE;
 
     if (mon_blows_find(r_ptr->blows, RBM_MONK))
-        p_ptr->monk_lvl = MAX(1, MIN(50, r_ptr->level));
+        plr->monk_lvl = MAX(1, MIN(50, r_ptr->alloc.lvl));
 }
 
 void possessor_get_flags(u32b flgs[OF_ARRAY_SIZE]) 
 {
-    monster_race *r_ptr = mon_race_lookup(p_ptr->current_r_idx);
+    monster_race *r_ptr = plr_mon_race();
+    int i;
 
-    if (r_ptr->speed != 110)
+    if (r_ptr->move.speed > 0)
         add_flag(flgs, OF_SPEED);
+    if (r_ptr->move.speed < 0)
+        add_flag(flgs, OF_DEC_SPEED);
 
-    if (r_ptr->flags9 & RF9_POS_HOLD_LIFE)
+    if (r_ptr->body.flags & RF_POS_HOLD_LIFE)
         add_flag(flgs, OF_HOLD_LIFE);
-    if (r_ptr->flags9 & RF9_POS_TELEPATHY)
+    if (r_ptr->body.flags & RF_POS_TELEPATHY)
         add_flag(flgs, OF_TELEPATHY);
-    if (r_ptr->flags9 & RF9_POS_SEE_INVIS)
+    if (r_ptr->body.flags & RF_POS_SEE_INVIS)
         add_flag(flgs, OF_SEE_INVIS);
-    if (r_ptr->flags9 & RF9_POS_SUST_STR)
+    if (r_ptr->body.flags & RF_POS_SUST_STR)
         add_flag(flgs, OF_SUST_STR);
-    if (r_ptr->flags9 & RF9_POS_SUST_INT)
+    if (r_ptr->body.flags & RF_POS_SUST_INT)
         add_flag(flgs, OF_SUST_INT);
-    if (r_ptr->flags9 & RF9_POS_SUST_WIS)
+    if (r_ptr->body.flags & RF_POS_SUST_WIS)
         add_flag(flgs, OF_SUST_WIS);
-    if (r_ptr->flags9 & RF9_POS_SUST_DEX)
+    if (r_ptr->body.flags & RF_POS_SUST_DEX)
         add_flag(flgs, OF_SUST_DEX);
-    if (r_ptr->flags9 & RF9_POS_SUST_CON)
+    if (r_ptr->body.flags & RF_POS_SUST_CON)
         add_flag(flgs, OF_SUST_CON);
-    if (r_ptr->flags9 & RF9_POS_SUST_CHR)
+    if (r_ptr->body.flags & RF_POS_SUST_CHR)
         add_flag(flgs, OF_SUST_CHR);
 
-    if (r_ptr->flags2 & RF2_REFLECTING)
+    if (mon_race_can_reflect(r_ptr))
         add_flag(flgs, OF_REFLECT);
-    if (r_ptr->flags2 & RF2_REGENERATE)
+    if (mon_race_can_regen(r_ptr))
         add_flag(flgs, OF_REGEN);
 
-    if (r_ptr->flags3 & RF3_NO_FEAR)
-        add_flag(flgs, OF_RES_FEAR);
-    if (r_ptr->flags3 & RF3_NO_CONF)
-        add_flag(flgs, OF_RES_CONF);
-    if (r_ptr->flags3 & RF3_NO_SLEEP)
-        add_flag(flgs, OF_FREE_ACT);
-    if (r_ptr->flags2 & RF2_AURA_REVENGE)
+    if (mon_race_can_retaliate(r_ptr))
         add_flag(flgs, OF_AURA_REVENGE);
 
-    if (r_ptr->flags7 & RF7_CAN_FLY)
+    if (mon_race_can_fly(r_ptr))
         add_flag(flgs, OF_LEVITATION);
+    if (r_ptr->light > 0)
+        add_flag(flgs, OF_LIGHT);
+    if (r_ptr->light < 0)
+        add_flag(flgs, OF_DARKNESS);
 
-    if (r_ptr->flagsr & RFR_RES_ACID)
-        add_flag(flgs, OF_RES_ACID);
-    if (r_ptr->flagsr & RFR_RES_ELEC)
-        add_flag(flgs, OF_RES_ELEC);
-    if (r_ptr->flagsr & RFR_RES_FIRE)
-        add_flag(flgs, OF_RES_FIRE);
-    if (r_ptr->flagsr & RFR_RES_COLD)
-        add_flag(flgs, OF_RES_COLD);
-    if (r_ptr->flagsr & RFR_RES_POIS)
-        add_flag(flgs, OF_RES_POIS);
-    if (r_ptr->flagsr & RFR_RES_LITE)
-        add_flag(flgs, OF_RES_LITE);
-    if (r_ptr->flagsr & RFR_RES_DARK)
-        add_flag(flgs, OF_RES_DARK);
-    if (r_ptr->flagsr & RFR_RES_NETH)
-        add_flag(flgs, OF_RES_NETHER);
-    if (r_ptr->flagsr & RFR_RES_SHAR)
-        add_flag(flgs, OF_RES_SHARDS);
-    if (r_ptr->flagsr & RFR_RES_SOUN)
-        add_flag(flgs, OF_RES_SOUND);
-    if (r_ptr->flagsr & RFR_RES_CHAO)
-        add_flag(flgs, OF_RES_CHAOS);
-    if (r_ptr->flagsr & RFR_RES_NEXU)
-        add_flag(flgs, OF_RES_NEXUS);
-    if (r_ptr->flagsr & RFR_RES_DISE)
-        add_flag(flgs, OF_RES_DISEN);
-    if (r_ptr->flagsr & RFR_RES_TIME)
-        add_flag(flgs, OF_RES_TIME);
-    if (r_ptr->flagsr & RFR_RES_ALL)
+    /* resists */
+    for (i = GF_RES_MIN; i <= GF_RES_MAX; i++)
     {
-        add_flag(flgs, OF_RES_FIRE);
-        add_flag(flgs, OF_RES_COLD);
-        add_flag(flgs, OF_RES_ACID);
-        add_flag(flgs, OF_RES_ELEC);
-        add_flag(flgs, OF_RES_POIS);
-        add_flag(flgs, OF_RES_LITE);
-        add_flag(flgs, OF_RES_DARK);
-        add_flag(flgs, OF_RES_CONF);
-        add_flag(flgs, OF_RES_NETHER);
-        add_flag(flgs, OF_RES_NEXUS);
-        add_flag(flgs, OF_RES_SOUND);
-        add_flag(flgs, OF_RES_SHARDS);
-        add_flag(flgs, OF_RES_CHAOS);
-        add_flag(flgs, OF_RES_DISEN);
-        add_flag(flgs, OF_RES_TIME);
+        if (mon_race_immune(r_ptr, i))
+            add_flag(flgs, OF_IM_(i));
+        else if (mon_race_vuln(r_ptr, i))
+            add_flag(flgs, OF_VULN_(i));
+        else if (mon_race_resist(r_ptr, i))
+            add_flag(flgs, OF_RES_(i));
     }
-
-    if (r_ptr->flagsr & RFR_IM_ACID)
-        add_flag(flgs, OF_IM_ACID);
-    if (r_ptr->flagsr & RFR_IM_ELEC)
-        add_flag(flgs, OF_IM_ELEC);
-    if (r_ptr->flagsr & RFR_IM_FIRE)
-        add_flag(flgs, OF_IM_FIRE);
-    if (r_ptr->flagsr & RFR_IM_COLD)
-        add_flag(flgs, OF_IM_COLD);
-    if (r_ptr->flagsr & RFR_IM_POIS)
-        add_flag(flgs, OF_IM_POIS);
-
-    if (r_ptr->flags3 & RF3_HURT_LITE)
-        add_flag(flgs, OF_VULN_LITE);
-    if (r_ptr->flags3 & RF3_HURT_FIRE)
-        add_flag(flgs, OF_VULN_FIRE);
-    if (r_ptr->flags3 & RF3_HURT_COLD)
-        add_flag(flgs, OF_VULN_COLD);
+    if (mon_race_immune(r_ptr, GF_SLEEP))
+        add_flag(flgs, OF_FREE_ACT);
 }
 
 /**********************************************************************
@@ -909,16 +843,16 @@ void possessor_get_flags(u32b flgs[OF_ARRAY_SIZE])
 void possessor_init_race_t(race_t *race_ptr, int default_r_idx)
 {
     static int last_r_idx = -1;
-    int        r_idx = p_ptr->current_r_idx, i;
+    int        r_idx = plr->current_r_idx, i;
 
-    if (!r_idx) /* Birthing menus. p_ptr->prace not chosen yet. _birth() not called yet. */
+    if (!r_idx) /* Birthing menus. plr->prace not chosen yet. _birth() not called yet. */
         r_idx = default_r_idx; 
 
     if (r_idx != last_r_idx)
     {
         monster_race *r_ptr;
     
-        if (p_ptr->current_r_idx == r_idx) /* Birthing menus. current_r_idx = 0 but r_idx = default_r_idx. */
+        if (plr->current_r_idx == r_idx) /* Birthing menus. current_r_idx = 0 but r_idx = default_r_idx. */
             last_r_idx = r_idx;            /* BTW, the game really needs a "current state" concept ... */
 
         r_ptr = mon_race_lookup(r_idx);
@@ -935,25 +869,28 @@ void possessor_init_race_t(race_t *race_ptr, int default_r_idx)
         if (!race_ptr->life)
             race_ptr->life = 100;
     
-        race_ptr->equip_template = mon_get_equip_template();
+        race_ptr->equip_template = plr_equip_template();
 
         for (i = 0; i < MAX_STATS; i++)
+        {
             race_ptr->stats[i] = r_ptr->body.stats[i];
+            race_ptr->stats[i] += r_ptr->body.extra_stats[i] * plr->lev/50;
+        }
 
         race_ptr->skills = r_ptr->body.skills;
         race_ptr->extra_skills = r_ptr->body.extra_skills;
 
-        race_ptr->pseudo_class_idx = r_ptr->body.class_idx;
+        race_ptr->pseudo_class_id = r_ptr->body.class_id;
 
         race_ptr->subname = mon_name(r_idx);
 
         race_ptr->flags = RACE_IS_MONSTER;
-        if (r_ptr->flags3 & RF3_UNDEAD)
-            race_ptr->flags |= RACE_IS_UNDEAD | RACE_IS_NONLIVING;
-        if (r_ptr->flags3 & RF3_NONLIVING)
+        if (mon_race_is_undead(r_ptr))
+            race_ptr->flags |= RACE_IS_UNDEAD;
+        if (mon_race_is_nonliving(r_ptr))
             race_ptr->flags |= RACE_IS_NONLIVING;
-        if (r_ptr->flags3 & RF3_DEMON)
-            race_ptr->flags |= RACE_IS_DEMON | RACE_IS_NONLIVING;
+        if (mon_race_is_demon(r_ptr))
+            race_ptr->flags |= RACE_IS_DEMON;
         if (mon_blows_find(r_ptr->blows, RBM_MONK))
             race_ptr->flags |= RACE_MARTIAL_ARTS;
     }
@@ -995,8 +932,8 @@ plr_race_ptr mon_possessor_get_race(void)
         me->hooks.get_powers = _get_powers;
         me->hooks.calc_innate_attacks = possessor_calc_innate_attacks;
         me->hooks.calc_bonuses = possessor_calc_bonuses;
-        me->hooks.calc_shooter_bonuses = _calc_shooter_bonuses;
-        me->hooks.calc_weapon_bonuses = _calc_weapon_bonuses;
+        me->hooks.calc_shooter_bonuses = possessor_calc_shooter_bonuses;
+        me->hooks.calc_weapon_bonuses = possessor_calc_weapon_bonuses;
         me->hooks.get_flags = possessor_get_flags;
         me->hooks.player_action = _player_action;
         me->hooks.save_player = possessor_on_save;
@@ -1004,14 +941,14 @@ plr_race_ptr mon_possessor_get_race(void)
         me->hooks.character_dump = possessor_character_dump;
     }
 
-    possessor_init_race_t(me, MON_POSSESSOR_SOUL);
+    possessor_init_race_t(me, mon_race_parse("@.soul")->id);
     return me;
 }
 
 bool possessor_can_gain_exp(void)
 {
     int max = _max_lvl();
-    if (max < PY_MAX_LEVEL && p_ptr->lev >= max)
+    if (max < PY_MAX_LEVEL && plr->lev >= max)
         return FALSE;
     return TRUE;
 }
@@ -1028,12 +965,12 @@ s32b possessor_max_exp(void)
 void possessor_on_take_hit(void)
 {
     /* Getting too wounded may eject the possessor! */
-    if ( p_ptr->chp < p_ptr->mhp/4
-      && p_ptr->current_r_idx != MON_POSSESSOR_SOUL )
+    if ( plr->chp < plr->mhp/4
+      && !plr_mon_race_is_("@.soul") )
     {
         if (one_in_(66))
         {
-            int old_r_idx = p_ptr->current_r_idx;
+            int old_r_idx = plr->current_r_idx;
             monster_race *old_r_ptr = mon_race_lookup(old_r_idx);
 
             msg_print("You can no longer maintain your current body!");
@@ -1041,17 +978,16 @@ void possessor_on_take_hit(void)
             {
                 object_type forge;
                 object_prep(&forge, lookup_kind(TV_CORPSE, SV_CORPSE));
-                apply_magic(&forge, cave->difficulty, AM_NO_FIXED_ART);
-                forge.pval = old_r_idx;
+                forge.race_id = old_r_idx;
                 forge.weight = MIN(500*10, MAX(40, old_r_ptr->weight * 10));
-                drop_near(&forge, p_ptr->pos, -1);
+                drop_near(&forge, plr->pos, -1);
             }
             else
                 msg_print("Your previous body quickly decays!");
 
-            possessor_set_current_r_idx(MON_POSSESSOR_SOUL);
-            p_ptr->chp = p_ptr->mhp; /* Be kind. This effect is nasty! */
-            p_ptr->chp_frac = 0;
+            possessor_set_current_r_idx(mon_race_parse("@.soul")->id);
+            plr->chp = plr->mhp; /* Be kind. This effect is nasty! */
+            plr->chp_frac = 0;
         }
         else
         {
@@ -1062,42 +998,42 @@ void possessor_on_take_hit(void)
 
 void possessor_set_current_r_idx(int r_idx)
 {
-    if (r_idx != p_ptr->current_r_idx)
+    if (r_idx != plr->current_r_idx)
     {
-        int mana_ratio = p_ptr->csp * 100 / MAX(1, p_ptr->msp);
+        int mana_ratio = plr->csp * 100 / MAX(1, plr->msp);
 
-        p_ptr->magic_num1[0] = 0; /* Blinking Death ... */
-        p_ptr->current_r_idx = r_idx;
+        plr->magic_num1[0] = 0; /* Blinking Death ... */
+        plr->current_r_idx = r_idx;
         lore_do_probe(r_idx);
 
-        if (p_ptr->exp > possessor_max_exp())
+        if (plr->exp > possessor_max_exp())
         {
-            p_ptr->exp = possessor_max_exp();
+            plr->exp = possessor_max_exp();
             check_experience();
         }
         else
             restore_level();
 
-        p_ptr->update |= PU_BONUS | PU_INNATE | PU_HP | PU_MANA;
-        p_ptr->redraw |= PR_MAP | PR_BASIC | PR_MANA | PR_EXP | PR_EQUIPPY;
+        plr->update |= PU_BONUS | PU_INNATE | PU_HP | PU_MANA | PU_TORCH;
+        plr->redraw |= PR_MAP | PR_BASIC | PR_MANA | PR_EXP | PR_EQUIPPY;
 
         /* Apply the new body type to our equipment */
         equip_on_change_race();
 
         /* Mimic's shift alot. Try to preserve the old mana ratio if possible. */
-        if (p_ptr->prace == RACE_MON_MIMIC)
+        if (plr->prace == RACE_MON_MIMIC)
         {
             handle_stuff();
 
-            p_ptr->csp = p_ptr->msp * mana_ratio / 100;
-            p_ptr->csp_frac = 0;
-            p_ptr->redraw |= PR_MANA;
-            p_ptr->window |= PW_SPELL;
+            plr->csp = plr->msp * mana_ratio / 100;
+            plr->csp_frac = 0;
+            plr->redraw |= PR_MANA;
+            plr->window |= PW_SPELL;
 
-            if (p_ptr->current_r_idx != MON_MIMIC)
+            if (!sym_equals(plr->current_r_idx, "@.mimic"))
                 _history_on_possess(r_idx);
         }
-        else if (p_ptr->current_r_idx != MON_POSSESSOR_SOUL)
+        else if (!plr_mon_race_is_("@.soul"))
             _history_on_possess(r_idx);    
     }
 }
@@ -1105,42 +1041,41 @@ void possessor_set_current_r_idx(int r_idx)
 void possessor_do_auras(mon_ptr mon)
 {
     mon_race_ptr race;
-    int          i;
-    if (p_ptr->prace != RACE_MON_POSSESSOR && p_ptr->prace != RACE_MON_MIMIC) return;
-    race = mon_race_lookup(p_ptr->current_r_idx);
-    for (i = 0; i < MAX_MON_AURAS; i++)
+    mon_aura_ptr aura;
+
+    if (plr->prace != RACE_MON_POSSESSOR && plr->prace != RACE_MON_MIMIC) return;
+
+    race = plr_mon_race();
+    for (aura = race->auras; aura; aura = aura->next)
     {
-        mon_effect_ptr aura = &race->auras[i];
-        int            dam;
-        if (!aura->effect) continue;
+        int dam;
         if (aura->pct && randint1(100) > aura->pct) continue;
-        dam = dice_roll(aura->dice);
+        dam = dice_roll(aura->dam);
         if (!dam) continue;
-        gf_affect_m(GF_WHO_PLAYER, mon, aura->effect, dam, GF_AFFECT_AURA);
+        gf_affect_m(who_create_plr(), mon, aura->gf, dam, GF_AFFECT_AURA);
     }
 }
 
 void possessor_explode(int dam)
 {
-    if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
+    if (plr->prace == RACE_MON_POSSESSOR || plr->prace == RACE_MON_MIMIC)
     {
-        monster_race *r_ptr = mon_race_lookup(p_ptr->current_r_idx);
+        monster_race *r_ptr = plr_mon_race();
         mon_blow_ptr  blow = mon_blows_find(r_ptr->blows, RBM_EXPLODE);
 
         if (blow && blow->effect_ct)
         {
-            int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-            int typ = blow->effects[0].effect;
-            project(0, 3, p_ptr->pos.y, p_ptr->pos.x, dam, typ, flg);
+            int typ = blow->effects[0].type;
+            plr_burst(3, typ, dam);
         }
 
-        if (p_ptr->prace == RACE_MON_MIMIC)
-            possessor_set_current_r_idx(MON_MIMIC);
+        if (plr->prace == RACE_MON_MIMIC)
+            possessor_set_current_r_idx(mon_race_parse("@.mimic")->id);
         else
-            possessor_set_current_r_idx(MON_POSSESSOR_SOUL);
+            possessor_set_current_r_idx(mon_race_parse("@.soul")->id);
 
         take_hit(DAMAGE_NOESCAPE, dam, "Exploding");
-        plr_tim_add(T_STUN, 10); /* XXX bypass p_ptr->no_stun */
+        plr_tim_add(T_STUN, 10); /* XXX bypass resistance */
     }
 }
 
@@ -1151,9 +1086,10 @@ void possessor_character_dump(doc_ptr doc)
     char         lvl[80];
     char         loc[255];
     
-    if (p_ptr->current_r_idx != MON_MIMIC && p_ptr->current_r_idx != MON_POSSESSOR_SOUL)
+    if ( !plr_mon_race_is_("@.mimic")
+      && !plr_mon_race_is_("@.soul") )
     {
-        mon_race_ptr race = mon_race_lookup(p_ptr->current_r_idx);
+        mon_race_ptr race = plr_mon_race();
         bool old_use_graphics = use_graphics;
         use_graphics = FALSE;
         doc_printf(doc, "<topic:CurrentForm>================================ <color:keypress>C</color>urrent Form =================================\n\n");

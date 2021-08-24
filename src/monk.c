@@ -6,21 +6,21 @@ static bool _is_martial_arts(void)
 {
     int i;
     for (i = 0; i < MAX_HANDS; i++)
-        if (p_ptr->attack_info[i].type == PAT_MONK) return TRUE;
+        if (plr->attack_info[i].type == PAT_MONK) return TRUE;
     return FALSE;
 }
 static bool _monk_check_spell(void)
 {
-    if (p_ptr->pclass == CLASS_WILD_TALENT || mut_present(MUT_DRACONIAN_METAMORPHOSIS))
+    if (plr->pclass == CLASS_WILD_TALENT || mut_present(MUT_DRACONIAN_METAMORPHOSIS))
         return TRUE;
-    if ((p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC) && !p_ptr->weapon_ct)
+    if ((plr->prace == RACE_MON_POSSESSOR || plr->prace == RACE_MON_MIMIC) && !plr->weapon_ct)
         return TRUE;
     if (!_is_martial_arts())
     {
         msg_print("You need to fight bare handed.");
         return FALSE;
     }
-    if (p_ptr->riding)
+    if (plr->riding)
     {
         msg_print("You need to get off your pet.");
         return FALSE;
@@ -55,7 +55,7 @@ static bool choose_kamae(void)
 
     for (i = 0; i < MAX_KAMAE; i++)
     {
-        if (p_ptr->lev >= kamae_shurui[i].min_level)
+        if (plr->lev >= kamae_shurui[i].min_level)
         {
             sprintf(buf," %c) %-12s  %s",I2A(i+1), kamae_shurui[i].desc, kamae_shurui[i].info);
             Term_erase(display.x, display.y + 2 + i, display.cx);
@@ -73,7 +73,7 @@ static bool choose_kamae(void)
         }
         else if ((choice == 'a') || (choice == 'A'))
         {
-            if (p_ptr->action == ACTION_KAMAE)
+            if (plr->action == ACTION_KAMAE)
                 set_action(ACTION_NONE);
             else
                 msg_print("You are not assuming a posture.");
@@ -85,17 +85,17 @@ static bool choose_kamae(void)
             new_kamae = 0;
             break;
         }
-        else if (((choice == 'c') || (choice == 'C')) && (p_ptr->lev > 29))
+        else if (((choice == 'c') || (choice == 'C')) && (plr->lev > 29))
         {
             new_kamae = 1;
             break;
         }
-        else if (((choice == 'd') || (choice == 'D')) && (p_ptr->lev > 34))
+        else if (((choice == 'd') || (choice == 'D')) && (plr->lev > 34))
         {
             new_kamae = 2;
             break;
         }
-        else if (((choice == 'e') || (choice == 'E')) && (p_ptr->lev > 39))
+        else if (((choice == 'e') || (choice == 'E')) && (plr->lev > 39))
         {
             new_kamae = 3;
             break;
@@ -103,17 +103,17 @@ static bool choose_kamae(void)
     }
     set_action(ACTION_KAMAE);
 
-    if (p_ptr->special_defense & (KAMAE_GENBU << new_kamae))
+    if (plr->special_defense & (KAMAE_GENBU << new_kamae))
         msg_print("You reassume a posture.");
     else
     {
-        p_ptr->special_defense &= ~(KAMAE_MASK);
-        p_ptr->update |= (PU_BONUS);
-        p_ptr->redraw |= (PR_STATE);
+        plr->special_defense &= ~(KAMAE_MASK);
+        plr->update |= (PU_BONUS);
+        plr->redraw |= (PR_STATE);
         msg_format("You assume a posture of %s form.",kamae_shurui[new_kamae].desc);
-        p_ptr->special_defense |= (KAMAE_GENBU << new_kamae);
+        plr->special_defense |= (KAMAE_GENBU << new_kamae);
     }
-    p_ptr->redraw |= PR_STATE;
+    plr->redraw |= PR_STATE;
     screen_load();
     return TRUE;
 }
@@ -187,7 +187,7 @@ static void _posture_spell(int cmd, var_ptr res)
         if ( _monk_check_spell()
           && choose_kamae() )
         {
-            p_ptr->update |= (PU_BONUS);
+            plr->update |= (PU_BONUS);
             var_set_bool(res, TRUE);
         }
         break;
@@ -210,7 +210,7 @@ static int _get_powers(spell_info* spells, int max)
     spell = &spells[ct++];
     spell->level = 30;
     spell->cost = 30;
-    spell->fail = calculate_fail_rate(spell->level, 80, p_ptr->stat_ind[A_STR]);
+    spell->fail = calculate_fail_rate(spell->level, 80, plr->stat_ind[A_STR]);
     spell->fn = monk_double_attack_spell;
 
     return ct;
@@ -223,37 +223,37 @@ static void _ac_bonus_imp(int slot)
         switch (equip_slot_type(slot))
         {
         case EQUIP_SLOT_BODY_ARMOR:
-            p_ptr->to_a += p_ptr->monk_lvl*3/2;
-            p_ptr->dis_to_a += p_ptr->monk_lvl*3/2;
+            plr->to_a += plr->monk_lvl*3/2;
+            plr->dis_to_a += plr->monk_lvl*3/2;
             break;
         case EQUIP_SLOT_CLOAK:
-            if (p_ptr->lev > 15)
+            if (plr->lev > 15)
             {
-                p_ptr->to_a += (p_ptr->monk_lvl - 13)/3;
-                p_ptr->dis_to_a += (p_ptr->monk_lvl - 13)/3;
+                plr->to_a += (plr->monk_lvl - 13)/3;
+                plr->dis_to_a += (plr->monk_lvl - 13)/3;
             }
             break;
         case EQUIP_SLOT_WEAPON_SHIELD: /* Oops: was INVEN_LARM only and "/3" ... */
-            if (p_ptr->lev > 10)
+            if (plr->lev > 10)
             {
-                p_ptr->to_a += (p_ptr->monk_lvl - 8)/6;
-                p_ptr->dis_to_a += (p_ptr->monk_lvl - 8)/6;
+                plr->to_a += (plr->monk_lvl - 8)/6;
+                plr->dis_to_a += (plr->monk_lvl - 8)/6;
             }
             break;
         case EQUIP_SLOT_HELMET:
-            if (p_ptr->lev >= 5)
+            if (plr->lev >= 5)
             {
-                p_ptr->to_a += (p_ptr->monk_lvl - 2)/3;
-                p_ptr->dis_to_a += (p_ptr->monk_lvl - 2)/3;
+                plr->to_a += (plr->monk_lvl - 2)/3;
+                plr->dis_to_a += (plr->monk_lvl - 2)/3;
             }
             break;
         case EQUIP_SLOT_GLOVES:
-            p_ptr->to_a += p_ptr->monk_lvl/2;
-            p_ptr->dis_to_a += p_ptr->monk_lvl/2;
+            plr->to_a += plr->monk_lvl/2;
+            plr->dis_to_a += plr->monk_lvl/2;
             break;
         case EQUIP_SLOT_BOOTS:
-            p_ptr->to_a += p_ptr->monk_lvl/3;
-            p_ptr->dis_to_a += p_ptr->monk_lvl/3;
+            plr->to_a += plr->monk_lvl/3;
+            plr->dis_to_a += plr->monk_lvl/3;
             break;
         }
     }
@@ -270,57 +270,57 @@ void monk_posture_calc_bonuses(void)
     int i;
     if (!heavy_armor())
     {
-        if (p_ptr->special_defense & KAMAE_BYAKKO)
+        if (plr->special_defense & KAMAE_BYAKKO)
         {
-            p_ptr->to_a -= 40;
-            p_ptr->dis_to_a -= 40;
+            plr->to_a -= 40;
+            plr->dis_to_a -= 40;
 
             /* Didn't this used to give vulnerabilites?? */
-            res_add_vuln(RES_ACID);
-            res_add_vuln(RES_FIRE);
-            res_add_vuln(RES_ELEC);
-            res_add_vuln(RES_COLD);
-            res_add_vuln(RES_POIS);
+            res_add_vuln(GF_ACID);
+            res_add_vuln(GF_FIRE);
+            res_add_vuln(GF_ELEC);
+            res_add_vuln(GF_COLD);
+            res_add_vuln(GF_POIS);
         }
-        else if (p_ptr->special_defense & KAMAE_SEIRYU)
+        else if (plr->special_defense & KAMAE_SEIRYU)
         {
-            p_ptr->to_a -= 50;
-            p_ptr->dis_to_a -= 50;
-            res_add(RES_ACID);
-            res_add(RES_FIRE);
-            res_add(RES_ELEC);
-            res_add(RES_COLD);
-            res_add(RES_POIS);
-            p_ptr->sh_fire = TRUE;
-            p_ptr->sh_elec = TRUE;
-            p_ptr->sh_cold = TRUE;
-            p_ptr->levitation = TRUE;
+            plr->to_a -= 50;
+            plr->dis_to_a -= 50;
+            res_add(GF_ACID);
+            res_add(GF_FIRE);
+            res_add(GF_ELEC);
+            res_add(GF_COLD);
+            res_add(GF_POIS);
+            plr->sh_fire = TRUE;
+            plr->sh_elec = TRUE;
+            plr->sh_cold = TRUE;
+            plr->levitation = TRUE;
         }
-        else if (p_ptr->special_defense & KAMAE_GENBU)
+        else if (plr->special_defense & KAMAE_GENBU)
         {
-            p_ptr->to_a += (p_ptr->lev*p_ptr->lev)/50;
-            p_ptr->dis_to_a += (p_ptr->lev*p_ptr->lev)/50;
-            p_ptr->reflect = TRUE;
+            plr->to_a += (plr->lev*plr->lev)/50;
+            plr->dis_to_a += (plr->lev*plr->lev)/50;
+            plr->reflect = TRUE;
             for (i = 0; i < MAX_HANDS; i++)
             {
-                p_ptr->attack_info[i].xtra_blow -= 200;
-                if (p_ptr->lev > 42)
-                    p_ptr->attack_info[i].xtra_blow -= 100;
+                plr->attack_info[i].xtra_blow -= 200;
+                if (plr->lev > 42)
+                    plr->attack_info[i].xtra_blow -= 100;
             }
         }
-        else if (p_ptr->special_defense & KAMAE_SUZAKU)
+        else if (plr->special_defense & KAMAE_SUZAKU)
         {
-            p_ptr->pspeed += 10;
+            plr->pspeed += 10;
             for (i = 0; i < MAX_HANDS; i++)
             {
-                p_ptr->attack_info[i].to_h -= (p_ptr->lev / 3);
-                p_ptr->attack_info[i].to_d -= (p_ptr->lev / 6);
+                plr->attack_info[i].to_h -= (plr->lev / 3);
+                plr->attack_info[i].to_d -= (plr->lev / 6);
 
-                p_ptr->attack_info[i].dis_to_h -= (p_ptr->lev / 3);
-                p_ptr->attack_info[i].dis_to_d -= (p_ptr->lev / 6);
-                p_ptr->attack_info[i].base_blow /= 2;
+                plr->attack_info[i].dis_to_h -= (plr->lev / 3);
+                plr->attack_info[i].dis_to_d -= (plr->lev / 6);
+                plr->attack_info[i].base_blow /= 2;
             }
-            p_ptr->levitation = TRUE;
+            plr->levitation = TRUE;
         }
     }
 }
@@ -329,23 +329,23 @@ void monk_posture_calc_stats(s16b stats[MAX_STATS])
 {
     if (!heavy_armor())
     {
-        if (p_ptr->special_defense & KAMAE_BYAKKO)
+        if (plr->special_defense & KAMAE_BYAKKO)
         {
             stats[A_STR] += 2;
             stats[A_DEX] += 2;
             stats[A_CON] -= 3;
         }
-        else if (p_ptr->special_defense & KAMAE_SEIRYU)
+        else if (plr->special_defense & KAMAE_SEIRYU)
         {
         }
-        else if (p_ptr->special_defense & KAMAE_GENBU)
+        else if (plr->special_defense & KAMAE_GENBU)
         {
             stats[A_INT] -= 1;
             stats[A_WIS] -= 1;
             stats[A_DEX] -= 2;
             stats[A_CON] += 3;
         }
-        else if (p_ptr->special_defense & KAMAE_SUZAKU)
+        else if (plr->special_defense & KAMAE_SUZAKU)
         {
             stats[A_STR] -= 2;
             stats[A_INT] += 1;
@@ -358,28 +358,28 @@ void monk_posture_calc_stats(s16b stats[MAX_STATS])
 
 void monk_posture_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    if (p_ptr->special_defense & KAMAE_GENBU)
+    if (plr->special_defense & KAMAE_GENBU)
         add_flag(flgs, OF_REFLECT);
-    if (p_ptr->special_defense & KAMAE_SUZAKU)
+    if (plr->special_defense & KAMAE_SUZAKU)
     {
         add_flag(flgs, OF_LEVITATION);
         add_flag(flgs, OF_SPEED);
     }
-    if (p_ptr->special_defense & KAMAE_BYAKKO)
+    if (plr->special_defense & KAMAE_BYAKKO)
     {
-        add_flag(flgs, OF_VULN_FIRE);
-        add_flag(flgs, OF_VULN_COLD);
-        add_flag(flgs, OF_VULN_ACID);
-        add_flag(flgs, OF_VULN_ELEC);
-        add_flag(flgs, OF_VULN_POIS);
+        add_flag(flgs, OF_VULN_(GF_FIRE));
+        add_flag(flgs, OF_VULN_(GF_COLD));
+        add_flag(flgs, OF_VULN_(GF_ACID));
+        add_flag(flgs, OF_VULN_(GF_ELEC));
+        add_flag(flgs, OF_VULN_(GF_POIS));
     }
-    if (p_ptr->special_defense & KAMAE_SEIRYU)
+    if (plr->special_defense & KAMAE_SEIRYU)
     {
-        add_flag(flgs, OF_RES_FIRE);
-        add_flag(flgs, OF_RES_COLD);
-        add_flag(flgs, OF_RES_ACID);
-        add_flag(flgs, OF_RES_ELEC);
-        add_flag(flgs, OF_RES_POIS);
+        add_flag(flgs, OF_RES_(GF_FIRE));
+        add_flag(flgs, OF_RES_(GF_COLD));
+        add_flag(flgs, OF_RES_(GF_ACID));
+        add_flag(flgs, OF_RES_(GF_ELEC));
+        add_flag(flgs, OF_RES_(GF_POIS));
         add_flag(flgs, OF_LEVITATION);
         add_flag(flgs, OF_AURA_FIRE);
         add_flag(flgs, OF_AURA_ELEC);
@@ -389,29 +389,29 @@ void monk_posture_get_flags(u32b flgs[OF_ARRAY_SIZE])
 
 static void _calc_bonuses(void)
 {
-    p_ptr->monk_lvl = p_ptr->lev;
+    plr->monk_lvl = plr->lev;
     monk_posture_calc_bonuses();
     if (!heavy_armor())
     {
-        p_ptr->pspeed += p_ptr->lev/10;
-        p_ptr->sh_retaliation = TRUE;
-        if  (p_ptr->lev >= 25)
-            p_ptr->free_act++;
+        plr->pspeed += plr->lev/10;
+        plr->sh_retaliation = TRUE;
+        if  (plr->lev >= 25)
+            plr->free_act++;
     }
     monk_ac_bonus();
-    switch (p_ptr->realm1)
+    switch (plr->realm1)
     {
     case REALM_DAEMON:
-        p_ptr->monk_tbl = "Monk.Demon";
+        plr->monk_tbl = "Monk.Demon";
         break;
     case REALM_CHAOS:
-        p_ptr->monk_tbl = "Monk.Chaos";
+        plr->monk_tbl = "Monk.Chaos";
         break;
     case REALM_DEATH:
-        p_ptr->monk_tbl = "Monk.Death";
+        plr->monk_tbl = "Monk.Death";
         break;
     default:
-        p_ptr->monk_tbl = "Monk";
+        plr->monk_tbl = "Monk";
     }
 }
 
@@ -426,9 +426,9 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     if (!heavy_armor())
     {
         add_flag(flgs, OF_AURA_REVENGE);
-        if (p_ptr->lev >= 10)
+        if (plr->lev >= 10)
             add_flag(flgs, OF_SPEED);
-        if (p_ptr->lev >= 25)
+        if (plr->lev >= 25)
             add_flag(flgs, OF_FREE_ACT);
     }
 }
@@ -460,13 +460,13 @@ static void _birth(void)
 
 static void _timer_on(plr_tim_ptr timer)
 {
-    if (timer->id == T_CONFUSED && p_ptr->action == ACTION_KAMAE)
+    if (timer->id == T_CONFUSED && plr->action == ACTION_KAMAE)
     {
         msg_print("Your posture gets loose.");
-        p_ptr->special_defense &= ~(KAMAE_MASK);
-        p_ptr->update |= PU_BONUS;
-        p_ptr->redraw |= PR_STATE;
-        p_ptr->action = ACTION_NONE;
+        plr->special_defense &= ~(KAMAE_MASK);
+        plr->update |= PU_BONUS;
+        plr->redraw |= PR_STATE;
+        plr->action = ACTION_NONE;
     }
 }
 
@@ -477,7 +477,7 @@ plr_class_ptr monk_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 45,  34,  36,   5,  32,  24,  64,  60};
-    skills_t xs = { 15,  11,  10,   0,   0,   0,  18,  18};
+    skills_t xs = { 75,  55,  50,   0,   0,   0,  90,  90};
 
         me = plr_class_alloc(CLASS_MONK);
         me->name = "Monk";

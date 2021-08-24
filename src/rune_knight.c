@@ -7,17 +7,17 @@
 /****************************************************************
  * Public Helpers
  ****************************************************************/
-int rune_knight_absorption(int m_idx, int type, int dam)
+int rune_knight_absorption(int type, int dam)
 {
     int drain = 0;
 
-    if (p_ptr->pclass != CLASS_RUNE_KNIGHT) return dam;
-    if (!p_ptr->magic_resistance) return dam;
+    if (plr->pclass != CLASS_RUNE_KNIGHT) return dam;
+    if (!plr->magic_resistance) return dam;
     if (type == GF_ARROW || type == GF_ROCK) return dam;
 
-    drain = dam * p_ptr->magic_resistance / 100;
+    drain = dam * plr->magic_resistance / 100;
     /* XXX Decline mana gain if player is scumming weak casters? */
-    sp_player(MAX(drain, 2 + p_ptr->lev/10));
+    sp_player(MAX(drain, 2 + plr->lev/10));
 
     return dam - drain;
 }
@@ -25,28 +25,28 @@ int rune_knight_absorption(int m_idx, int type, int dam)
 void rune_calc_bonuses(object_type *o_ptr)
 {
     if (o_ptr->rune == RUNE_ABSORPTION)
-        p_ptr->magic_resistance += 15;
+        plr->magic_resistance += 15;
     if (o_ptr->rune == RUNE_UNDERSTANDING && obj_is_helmet(o_ptr))
-        p_ptr->auto_pseudo_id = TRUE;
+        plr->auto_pseudo_id = TRUE;
     if (o_ptr->rune == RUNE_SHADOW)
     {
         if (obj_is_body_armor(o_ptr) || o_ptr->tval == TV_CLOAK)
-            p_ptr->skills.stl += 5 * p_ptr->lev / 50;
+            plr->skills.stl += 5 * plr->lev / 50;
     }
     if (o_ptr->rune == RUNE_HASTE)
     {
         if (o_ptr->tval == TV_BOOTS)
-            p_ptr->pspeed += 3 * p_ptr->lev / 50;
+            plr->pspeed += 3 * plr->lev / 50;
     }
     if (obj_is_body_armor(o_ptr) && o_ptr->rune == RUNE_WATER)
-        p_ptr->no_stun = TRUE;
+        res_add_immune(GF_STUN);
 }
 
 void rune_calc_stats(object_type *o_ptr, s16b stats[MAX_STATS])
 {
     if (o_ptr->rune == RUNE_UNDERSTANDING)
     {
-        if (o_ptr->tval == TV_LITE)
+        if (o_ptr->tval == TV_LIGHT)
             stats[A_INT] += 1;
         else
             stats[A_INT] += 2;
@@ -184,13 +184,13 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
         if (obj_is_weapon(o_ptr) || o_ptr->tval == TV_GLOVES)
             _add_flag(o_ptr, OF_BRAND_FIRE);
         if (obj_is_shield(o_ptr))
-            _add_flag(o_ptr, OF_RES_FIRE);
+            _add_flag(o_ptr, OF_RES_(GF_FIRE));
         if (obj_is_body_armor(o_ptr))
         {
-            _add_flag(o_ptr, OF_RES_FIRE);
+            _add_flag(o_ptr, OF_RES_(GF_FIRE));
             _add_flag(o_ptr, OF_AURA_FIRE);
         }
-        if (o_ptr->tval == TV_LITE || o_ptr->tval == TV_CLOAK)
+        if (o_ptr->tval == TV_LIGHT || o_ptr->tval == TV_CLOAK)
             _add_flag(o_ptr, OF_AURA_FIRE);
         break;
 
@@ -204,16 +204,16 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
         if (obj_is_weapon(o_ptr) || o_ptr->tval == TV_GLOVES)
             _add_flag(o_ptr, OF_BRAND_ACID);
         else
-            _add_flag(o_ptr, OF_RES_ACID);
+            _add_flag(o_ptr, OF_RES_(GF_ACID));
         break;
 
     case RUNE_LIGHT:
-        _add_flag(o_ptr, OF_RES_LITE);
+        _add_flag(o_ptr, OF_RES_(GF_LIGHT));
         break;
 
     case RUNE_SHADOW:
         if (o_ptr->tval != TV_CLOAK)
-            _add_flag(o_ptr, OF_RES_DARK);
+            _add_flag(o_ptr, OF_RES_(GF_DARK));
         break;
 
     case RUNE_EARTH:
@@ -221,17 +221,17 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
             _add_flag(o_ptr, OF_VORPAL);
         else if (obj_is_body_armor(o_ptr))
         {
-            _add_flag(o_ptr, OF_RES_SHARDS);
+            _add_flag(o_ptr, OF_RES_(GF_SHARDS));
             _add_flag(o_ptr, OF_AURA_SHARDS);
         }
         else if (obj_is_shield(o_ptr))
-            _add_flag(o_ptr, OF_RES_SHARDS);
+            _add_flag(o_ptr, OF_RES_(GF_SHARDS));
         else if (o_ptr->tval == TV_CLOAK)
             _add_flag(o_ptr, OF_AURA_SHARDS);
         break;
 
     case RUNE_SEEING:
-        _add_flag(o_ptr, OF_RES_BLIND);
+        _add_flag(o_ptr, OF_RES_(GF_BLIND));
         if (obj_is_helmet(o_ptr))
             _add_flag(o_ptr, OF_SEE_INVIS);
         break;
@@ -241,12 +241,9 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
         break;
 
     case RUNE_STABILITY:
-        _add_flag(o_ptr, OF_RES_NEXUS);
+        _add_flag(o_ptr, OF_RES_(GF_NEXUS));
         if (obj_is_body_armor(o_ptr))
-        {
-            _add_flag(o_ptr, OF_RES_CHAOS);
-            _add_flag(o_ptr, OF_RES_DISEN);
-        }
+            _add_flag(o_ptr, OF_RES_(GF_CHAOS));
         break;
     
     case RUNE_REFLECTION:
@@ -258,9 +255,9 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
             _add_flag(o_ptr, OF_BRAND_VAMP);
         else
         {
-            _add_flag(o_ptr, OF_RES_NETHER);
+            _add_flag(o_ptr, OF_RES_(GF_NETHER));
             if (obj_is_body_armor(o_ptr))
-                _add_flag(o_ptr, OF_RES_POIS);
+                _add_flag(o_ptr, OF_RES_(GF_POIS));
         }
         break;
 
@@ -294,7 +291,7 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
         break;
 
     case RUNE_IMMORTALITY:
-        _add_flag(o_ptr, OF_RES_TIME);
+        _add_flag(o_ptr, OF_RES_(GF_TIME));
         if (obj_is_body_armor(o_ptr))
         {
             _add_flag(o_ptr, OF_SUST_STR);
@@ -318,7 +315,7 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
 
     if (prompt)
         msg_format("%^s gleams.", o_name);
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 
     return TRUE;
 }
@@ -346,7 +343,7 @@ static void _rune_default_spell(int cmd, var_ptr res)
     switch (cmd)
     {
     case SPELL_COST_EXTRA:
-        var_set_int(res, MAX(25, p_ptr->msp));
+        var_set_int(res, MAX(25, plr->msp));
         break;
     /*case SPELL_COLOR:
         var_set_int(res, TERM_L_BLUE);
@@ -390,7 +387,7 @@ static void _obj_absorption_spell(int cmd, var_ptr res)
         break;
     }
     case SPELL_COST_EXTRA:
-        var_set_int(res, 0); /* was MAX(1, p_ptr->msp * 3 / 10)*/
+        var_set_int(res, 0); /* was MAX(1, plr->msp * 3 / 10)*/
         break;
     default:
         _rune_default_spell(cmd, res);
@@ -427,7 +424,7 @@ static void _obj_protection_spell(int cmd, var_ptr res)
         break;
     }
     case SPELL_COST_EXTRA:
-        var_set_int(res, MAX(5, p_ptr->msp * 5 / 10));
+        var_set_int(res, MAX(5, plr->msp * 5 / 10));
         break;
     default:
         _rune_default_spell(cmd, res);
@@ -467,7 +464,7 @@ static void _obj_regeneration_spell(int cmd, var_ptr res)
         break;
     }
     case SPELL_COST_EXTRA:
-        var_set_int(res, MAX(10, p_ptr->msp * 5 / 10));
+        var_set_int(res, MAX(10, plr->msp * 5 / 10));
         break;
     default:
         _rune_default_spell(cmd, res);
@@ -480,8 +477,8 @@ static bool _obj_fire_pred(object_type *o_ptr)
       || obj_is_weapon(o_ptr)
       || obj_is_shield(o_ptr) 
       || o_ptr->tval == TV_CLOAK
-      || (o_ptr->tval == TV_GLOVES && p_ptr->lev >= 45)
-      || o_ptr->tval == TV_LITE )
+      || (o_ptr->tval == TV_GLOVES && plr->lev >= 45)
+      || o_ptr->tval == TV_LIGHT )
     {
         return TRUE;
     }
@@ -517,7 +514,7 @@ static void _obj_fire_spell(int cmd, var_ptr res)
 
 static bool _obj_air_pred(object_type *o_ptr)
 {
-    if ( (obj_is_weapon(o_ptr) && p_ptr->lev >= 40)
+    if ( (obj_is_weapon(o_ptr) && plr->lev >= 40)
       || o_ptr->tval == TV_CLOAK
       || o_ptr->tval == TV_BOOTS )
     {
@@ -559,7 +556,7 @@ static bool _obj_water_pred(object_type *o_ptr)
       || obj_is_weapon(o_ptr)
       || obj_is_shield(o_ptr) 
       || o_ptr->tval == TV_CLOAK
-      || (o_ptr->tval == TV_GLOVES && p_ptr->lev >= 45) )
+      || (o_ptr->tval == TV_GLOVES && plr->lev >= 45) )
     {
         return TRUE;
     }
@@ -596,7 +593,7 @@ static void _obj_water_spell(int cmd, var_ptr res)
 static bool _obj_light_pred(object_type *o_ptr)
 {
     if ( obj_is_helmet(o_ptr)
-      || o_ptr->tval == TV_LITE )
+      || o_ptr->tval == TV_LIGHT )
     {
         return TRUE;
     }
@@ -671,7 +668,7 @@ static void _obj_shadow_spell(int cmd, var_ptr res)
 
 static bool _obj_earth_pred(object_type *o_ptr)
 {
-    if ( (obj_is_weapon(o_ptr) && p_ptr->lev >= 35)
+    if ( (obj_is_weapon(o_ptr) && plr->lev >= 35)
       || obj_is_shield(o_ptr)
       || obj_is_body_armor(o_ptr)
       || o_ptr->tval == TV_CLOAK )
@@ -711,7 +708,7 @@ static void _obj_earth_spell(int cmd, var_ptr res)
 static bool _obj_understanding_pred(object_type *o_ptr)
 {
     if ( obj_is_helmet(o_ptr)
-      || o_ptr->tval == TV_LITE )
+      || o_ptr->tval == TV_LIGHT )
     {
         return TRUE;
     }
@@ -764,7 +761,7 @@ static void _obj_elemental_protection_spell(int cmd, var_ptr res)
 
         object_prep(&forge, lookup_kind(TV_RUNE, SV_RUNE));
         rune_add(&forge, RUNE_ELEMENTAL_PROTECTION, FALSE);
-        drop_near(&forge, p_ptr->pos, -1);
+        drop_near(&forge, plr->pos, -1);
 
         var_set_bool(res, TRUE);
         break;
@@ -814,7 +811,7 @@ static void _obj_haste_spell(int cmd, var_ptr res)
 static bool _obj_seeing_pred(object_type *o_ptr)
 {
     if ( obj_is_helmet(o_ptr)
-      || o_ptr->tval == TV_LITE )
+      || o_ptr->tval == TV_LIGHT )
     {
         return TRUE;
     }
@@ -882,7 +879,7 @@ static bool _obj_life_pred(object_type *o_ptr)
 {
     if ( obj_is_shield(o_ptr)
       || obj_is_body_armor(o_ptr)
-      || o_ptr->tval == TV_LITE )
+      || o_ptr->tval == TV_LIGHT )
     {
         return TRUE;
     }
@@ -1025,7 +1022,7 @@ static void _obj_death_spell(int cmd, var_ptr res)
 static bool _obj_mind_pred(object_type *o_ptr)
 {
     if ( obj_is_helmet(o_ptr) 
-      || o_ptr->tval == TV_LITE ) 
+      || o_ptr->tval == TV_LIGHT ) 
     {
         return TRUE;
     }
@@ -1152,7 +1149,7 @@ static void _obj_good_fortune_spell(int cmd, var_ptr res)
 
         object_prep(&forge, lookup_kind(TV_RUNE, SV_RUNE));
         rune_add(&forge, RUNE_GOOD_FORTUNE, FALSE);
-        drop_near(&forge, p_ptr->pos, -1);
+        drop_near(&forge, plr->pos, -1);
 
         var_set_bool(res, TRUE);
         break;
@@ -1427,29 +1424,29 @@ void _self_might_spell(int cmd, var_ptr res)
 /****************************************************************
  * Runes of Alteration
  ****************************************************************/
-void _feat_spell(int feat, int cmd, var_ptr res)
+void _feat_spell(dun_place_f f, int cmd, var_ptr res)
 {
     switch (cmd)
     {
     case SPELL_CAST: {
         int        dir;
         point_t    pos;
-        cave_type *c_ptr;
+        dun_cell_ptr cell;
 
         var_set_bool(res, FALSE);
 
         if (!get_rep_dir2(&dir)) return;
         if (dir == 5) return;
 
-        pos = point_step(p_ptr->pos, dir);
+        pos = point_step(plr->pos, dir);
         if (!dun_pos_interior(cave, pos)) return;
-        c_ptr = cave_at(pos);
-        if ((c_ptr->info & CAVE_OBJECT) || obj_at(pos))
+        cell = dun_cell_at(cave, pos);
+        if (floor_has_object(cell) || dun_obj_at(cave, pos))
             msg_print("<color:r>The object resists your rune.</color>");
-        else if (mon_at(pos))
+        else if (dun_mon_at(cave, pos))
             msg_print("<color:r>There is a monster in your way.</color>");
         else
-            cave_set_feat(pos.y, pos.x, feat);
+            f(cave, pos);
 
         var_set_bool(res, TRUE);
         break; }
@@ -1490,7 +1487,7 @@ void _feat_water_spell(int cmd, var_ptr res)
         var_set_string(res, "This rune washes away all in its path.");
         break;
     default:
-        _feat_spell(p_ptr->lev < 35 ? feat_shallow_water : feat_deep_water, cmd, res);
+        _feat_spell(plr->lev < 35 ? dun_place_shallow_water : dun_place_deep_water, cmd, res);
     }
 }
 
@@ -1508,7 +1505,7 @@ void _feat_earth_spell(int cmd, var_ptr res)
         var_set_string(res, "This rune blocks the passage of your foes.");
         break;
     default:
-        _feat_spell(p_ptr->lev < 45 ? feat_rubble : feat_granite, cmd, res);
+        _feat_spell(plr->lev < 45 ? dun_place_rubble : dun_place_granite, cmd, res);
     }
 }
 
@@ -1526,7 +1523,7 @@ void _feat_fire_spell(int cmd, var_ptr res)
         var_set_string(res, "This rune burns the surrounding landscape.");
         break;
     default:
-        _feat_spell(p_ptr->lev < 40 ? feat_shallow_lava : feat_deep_lava, cmd, res);
+        _feat_spell(plr->lev < 40 ? dun_place_shallow_lava : dun_place_deep_lava, cmd, res);
     }
 }
 
@@ -1544,7 +1541,7 @@ void _feat_air_spell(int cmd, var_ptr res)
         var_set_string(res, "This rune summons air where once there was none.");
         break;
     default:
-        _feat_spell(feat_dark_pit, cmd, res);
+        _feat_spell(dun_place_chasm, cmd, res);
     }
 }
 
@@ -1562,7 +1559,7 @@ void _feat_stability_spell(int cmd, var_ptr res)
         var_set_string(res, "This rune creates solid footing of the most ordinary sort.");
         break;
     default:
-        _feat_spell(feat_floor, cmd, res);
+        _feat_spell(cave->type->place_floor, cmd, res);
     }
 }
 
@@ -1580,7 +1577,7 @@ void _feat_life_spell(int cmd, var_ptr res)
         var_set_string(res, "This rune causes rapid plant growth wherever it is placed.");
         break;
     default:
-        _feat_spell(feat_tree, cmd, res);
+        _feat_spell(dun_place_tree, cmd, res);
     }
 }
 
@@ -1616,7 +1613,7 @@ void _feat_destruction_spell(int cmd, var_ptr res)
         var_set_string(res, "By placing a highly unstable Rune of Destruction at your current location you may destroy your nearby surroundings.");
         break;
     case SPELL_CAST:
-        destroy_area(p_ptr->pos.y, p_ptr->pos.x, 12 + randint1(4), spell_power(8 * p_ptr->lev));
+        destroy_area(plr->pos, 12 + randint1(4), spell_power(8 * plr->lev));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1822,15 +1819,6 @@ static _spell_group _spell_groups[_MAX_SPELL_GROUPS] = {
         { 23,   0, 0, _obj_elemental_protection_spell },
         { 25,   0, 0, _obj_haste_spell },
         { 27,   0, 0, _obj_seeing_spell },
-        /* XXX I really don't like the playstyle that {Sacrifice} encourages:
-         * viz., a tedious process of storing up mana, denying interesting spell
-         * casting opportunities, in order to stock pile for the end game. Look,
-         * there will be hundreds of junk artifacts, yet it takes about 30 minutes
-         * to recover full mana for each rune (Might be faster later on ... and, no,
-         * I don't scum for sp). How long should the game be? Personally, I found
-         * myself using {Sacrifice} to speed up equipment reshuffles, which is
-         * probably not the intended purpose!
-        { 29,   0, 0, _obj_sacrifice_spell }, */
         { 29,   0, 0, _obj_life_spell },
         { 31,   0, 0, _obj_stability_spell },
         { 33,   0, 0, _obj_reflection_spell },
@@ -1894,14 +1882,14 @@ static int _get_spells_imp(spell_info* spells, int max, _spell_group *spell_grou
 {
     int i;
     int ct = 0;
-    int stat_idx = p_ptr->stat_ind[A_INT];
+    int stat_idx = plr->stat_ind[A_INT];
     
     for (i = 0; ; i++)
     {
         spell_info *base = &spell_group->spells[i];
         if (base->level < 0) break;
         if (ct >= max) break;
-        if (base->level <= p_ptr->lev)
+        if (base->level <= plr->lev)
         {
             spell_info* current = &spells[ct];
             current->fn = base->fn;
@@ -1967,7 +1955,7 @@ static int _get_spells(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
-    p_ptr->spell_cap += 7;
+    plr->spell_cap += 7;
 }
 
 void _calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
@@ -2003,36 +1991,6 @@ static void _birth(void)
     plr_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
 }
 
-static bool _destroy_object(obj_ptr obj)
-{
-    if (obj->rune == RUNE_SACRIFICE)
-    {   /* XXX Score the object and scale the effect. The bigger the 'sacrifice'
-         * the greater the benefit, no? Perhaps allow non-artifacts as well? */
-        bool is_equipped = obj->loc.where == INV_EQUIP;
-        int add_hp = is_equipped ? p_ptr->mhp : p_ptr->mhp/3;
-        int add_sp = is_equipped ? p_ptr->msp : p_ptr->msp/3;
-
-        msg_print("You feel a surge of wondrous power enter your body.");
-
-        p_ptr->chp = MIN(p_ptr->mhp, p_ptr->chp + add_hp);
-        p_ptr->chp_frac = 0;
-        p_ptr->csp = MIN(p_ptr->msp, p_ptr->csp + add_sp);
-        p_ptr->csp_frac = 0;
-
-        p_ptr->redraw |= (PR_MANA);
-        p_ptr->window |= (PW_SPELL);
-        p_ptr->redraw |= (PR_HP);
-
-        if (is_equipped)
-        {
-            blast_object(obj);
-            obj->curse_flags = OFC_HEAVY_CURSE;
-        }
-        return TRUE;
-    }
-    return FALSE;
-}
-
 plr_class_ptr rune_knight_get_class(void)
 {
     static plr_class_ptr me = NULL;
@@ -2040,7 +1998,7 @@ plr_class_ptr rune_knight_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  25,  36,   2,  18,  16,  50,  40};
-    skills_t xs = {  7,  11,  10,   0,   0,   0,  15,  17};
+    skills_t xs = { 35,  55,  50,   0,   0,   0,  75,  85};
 
         me = plr_class_alloc(CLASS_RUNE_KNIGHT);
         me->name = "Rune-Knight";
@@ -2087,7 +2045,6 @@ plr_class_ptr rune_knight_get_class(void)
         me->hooks.calc_weapon_bonuses = _calc_weapon_bonuses;
         me->hooks.caster_info = _caster_info;
         me->hooks.get_spells = _get_spells;
-        me->hooks.destroy_object = _destroy_object;
         me->hooks.character_dump = _character_dump;
     }
 

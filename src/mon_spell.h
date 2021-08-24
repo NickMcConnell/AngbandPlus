@@ -14,7 +14,7 @@ enum {
     MST_BALL,
     MST_BOLT,
     MST_BEAM,
-    MST_CURSE,
+    MST_LOS,    /* Curse or Gaze */
     MST_BUFF,
     MST_BIFF,
     MST_ESCAPE,
@@ -68,7 +68,7 @@ extern mon_spell_parm_t mon_spell_parm_dice(int dd, int ds, int base);
 extern mon_spell_parm_t mon_spell_parm_hp_pct(int pct, int max);
 extern mon_spell_parm_t mon_spell_parm_default(mon_spell_id_t id, int rlev);
 extern errr             mon_spell_parm_parse(mon_spell_parm_ptr parm, char *token);
-extern void             mon_spell_parm_print(mon_spell_parm_ptr parm, string_ptr s, mon_race_ptr race);
+extern void             mon_spell_parm_print(mon_spell_parm_ptr parm, str_ptr s, mon_race_ptr race);
 
 /* Casting information for a spell (idea from Vanilla) */
 typedef struct {
@@ -81,7 +81,8 @@ typedef struct {
 } mon_spell_display_t, *mon_spell_display_ptr;
 
 /* A single monster spell */
-typedef struct {
+struct mon_spell_s
+{
     mon_spell_id_t   id;
     mon_spell_parm_t parm;
     mon_spell_display_ptr
@@ -89,11 +90,11 @@ typedef struct {
     s16b             lore;
     byte             prob;
     byte             flags;
-} mon_spell_t, *mon_spell_ptr;
+};
 
 extern errr mon_spell_parse(mon_spell_ptr spell, int rlev, char *token);
-extern void mon_spell_print(mon_spell_ptr spell, string_ptr s);
-extern void mon_spell_display(mon_spell_ptr spell, string_ptr s); /* helper for mon_display */
+extern void mon_spell_print(mon_spell_ptr spell, str_ptr s);
+extern void mon_spell_display(mon_spell_ptr spell, str_ptr s); /* helper for mon_display */
 extern void mon_spell_doc(mon_spell_ptr spell, doc_ptr doc);
 extern int  mon_spell_avg_dam(mon_spell_ptr spell, mon_race_ptr race, bool apply_resist);
 
@@ -113,11 +114,12 @@ extern void mon_spell_group_free(mon_spell_group_ptr group);
 extern void mon_spell_group_add(mon_spell_group_ptr group, mon_spell_ptr spell);
 extern mon_spell_ptr mon_spell_group_find(mon_spell_group_ptr group, mon_spell_id_t id);
 
-typedef struct {
+struct mon_spells_s
+{
     byte freq;
     u32b flags;
     mon_spell_group_ptr groups[MST_COUNT];
-} mon_spells_t, *mon_spells_ptr;
+};
 
 extern mon_spells_ptr mon_spells_alloc(void);
 extern void           mon_spells_free(mon_spells_ptr spells);
@@ -155,6 +157,7 @@ typedef struct {
     mon_ptr       mon2;            /* Dest monster if MSC_DEST_MONSTER */
     char          name2[MAX_NLEN];
     u32b          flags;
+    bool          fail;
 } mon_spell_cast_t, *mon_spell_cast_ptr;
 
 /* Allow clients to plug in a smarter/alternative AI */
@@ -169,14 +172,14 @@ extern bool           mon_spell_cast_possessor(mon_race_ptr race);
 extern mon_spell_ptr  mon_spell_random(mon_ptr mon);
 
 /* The Blue-Mage needs special handling and access to some private functions */
-extern bool           mon_spell_cast_blue_mage(mon_spell_ptr spell, mon_race_ptr race);
+enum { CAST_ABORT, CAST_OK, CAST_FAIL };
+extern int            mon_spell_cast_blue_mage(mon_spell_ptr spell, mon_race_ptr race);
 extern int            mon_spell_cost_plr(mon_spell_ptr spell, mon_race_ptr race);
 extern int            mon_spell_fail_plr(mon_spell_ptr spell, mon_race_ptr race);
 extern void           mon_spell_list_info(doc_ptr doc, mon_spell_ptr spell, mon_race_ptr race);
 
 /* Some classes need to know what spell is being cast, and who is doing it: */
-extern mon_spell_ptr  mon_spell_current(void);
-extern mon_ptr        mon_current(void);
+extern mon_spell_cast_ptr mon_spell_current(void);
 
 extern bool mon_could_splash(mon_ptr mon, point_t tgt);
 extern bool mon_is_magical(mon_ptr mon);
@@ -203,5 +206,6 @@ extern bool mon_race_has_drain_mana(mon_race_ptr race);
 extern bool mon_race_can_summon(mon_race_ptr race, int summon_type);
 extern bool mon_race_can_teleport(mon_race_ptr race);
 extern bool mon_race_has_lite_dark_spell(mon_race_ptr race);
+extern bool mon_race_needs_mana(mon_race_ptr race);
 #endif
 

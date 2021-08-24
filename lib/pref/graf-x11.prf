@@ -28,8 +28,4 @@ V:31:0x01:0x60:0xF0:0x40
 ?:[EQU $GRAF old]
 %:graf-xxx.prf
 
-# New tiles
-?:[EQU $GRAF new]
-%:graf-new.prf
 ?:1
-

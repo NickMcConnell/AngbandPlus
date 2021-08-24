@@ -1,0 +1,786 @@
+# Demons
+
+T:u.base:Minor Demon
+I:DISPLAY(u):POS(HOLD_LIFE)
+I:ALERT(200',Fairly Unseeing):MOVE(OPEN|BASH)
+I:KIND(DEMON|NONLIVING):ALIGN(Chaotic)
+I:RESIST(FIRE):IMMUNE(POIS)
+P:Copy:Imp:Chaos-Warrior
+P:Weight:90
+
+T:U.base:u.base:Demon
+I:DISPLAY(U):POS(SEE_INVIS|GAIN_AC):MOVE(CLEARWEB)
+I:RESIST(CONF):IMMUNE(SLEEP|SLOW)
+P:Copy:Balrog:Chaos-Warrior
+P:Weight:250
+
+########################################################################
+# Lesser
+N:u.manes:u.base:Manes
+I:LVL(7,40):RARITY(2)
+I:HP(8d8):AC(32):EXP(16)
+B:HIT:HURT(1d6+2)
+M:3d3:MON(u.manes)
+D:It is a minor but aggressive demon.
+I:COLOR(Light Red)
+P:Weight:60
+
+N:u.nurgling:u.base:Nurgling
+I:LVL(8,40):RARITY(2)
+I:HP(9d9):AC(32):EXP(19)
+B:BITE:DISEASE(1d9)
+M:2d3:MON(u.nurgling)
+D:It is a minor demon servitor of Nurgle. It looks like a hairless
+D:teddy bear, with twisted eyes and rotting, ghoulish skin.
+I:COLOR(Light Umber)
+
+N:u.lemure:u.base:Lemure
+I:LVL(8,40):RARITY(3)
+I:HP(13d9):AC(32):EXP(16):EVOLVE(u.homonculus, 150)
+B:HIT:HURT(1d9)
+M:3d3:MON(u.lemure)
+D:It is the larval form of a major demon.
+I:COLOR(Orange)
+
+N:u.horror.blue:u.base:Blue horror
+I:LVL(10,40):RARITY(3)
+I:HP(14d9):AC(35):EXP(25):EVOLVE(u.horror.pink, 200)
+B:CLAW(x2):HURT(1d8):TERRIFY
+I:RESIST(CONF)
+M:3d3:MON(u.horror.blue)
+D:An ugly screaming little demon servant of Tzeentch.
+I:COLOR(Light Blue)
+
+N:u.horror.pink:u.base:Pink horror
+I:LVL(16,50):RARITY(3)
+I:HP(15d9):AC(35):EXP(64)
+B:CLAW(x2):HURT(1d8):TERRIFY
+B:BITE:CONFUSE(1d6)
+I:RESIST(CONF)
+S:1_IN_8 | CONFUSE | SCARE
+M:3d3:MON(u.horror.pink)
+D:An ugly screaming little demon servant of Tzeentch.
+I:COLOR(Light Red)
+
+N:u.tengu:u.base:Tengu
+I:LVL(10,40):RARITY(1)
+I:SPEED(+10):HP(16d9):AC(32):EXP(40)
+I:MOVE(FLY)
+B:HIT:HURT(1d8)
+I:IMMUNE(TELE)
+S:1_IN_3 | BLINK | TELE_TO | TELE_OTHER | TELE_SELF
+D:It is a fast-moving demon that blinks quickly in and out of existence; no
+D:other demon matches its teleporting mastery.
+I:COLOR(Blue)
+P:Copy:Imp:Rogue
+P:Weight:100
+
+N:u.homonculus:u.base:Homonculus
+I:LVL(15,50):RARITY(3)
+I:HP(8d8):AC(32):EXP(40):EVOLVE(u.quasit, 200)
+I:MOVE(FLY)
+B:HIT:HURT(1d2):PARALYZE(75%)
+B:HIT:HURT(1d8)
+D:It is a small demonic spirit full of malevolence.
+I:COLOR(Light Umber):POS(SEE_INVIS)
+
+N:u.quasit:u.base:Quasit
+I:LVL(16,50):RARITY(2)
+I:HP(6d8):AC(30):EXP(50):EVOLVE(u.quasit.death, 10000)
+I:CAN(INVIS):ATTR(SMART):MOVE(FLY|RAND_25)
+B:BITE:HURT(1d5):LOSE_DEX(50%)
+B:CLAW(x2):HURT(1d3)
+O:1d2:OBJ(*)
+S:1_IN_10 | BLINK | TELE_SELF | TELE_TO | TELE_LEVEL | BLIND | CONFUSE | SCARE
+D:The chaotic evil master's favourite pet.
+I:COLOR(Light White):POS(SEE_INVIS)
+P:Copy:Imp:Rogue
+P:Weight:80
+
+N:u.imp:u.base:Imp
+I:LVL(17,80):RARITY(2)
+I:HP(6d8):AC(30):EXP(55):EVOLVE(u.bodak, 1000)
+I:CAN(INVIS):ATTR(SMART|COLD_BLOOD):MOVE(FLY|RAND_25)
+B:HIT(x2):HURT(1d4+3):POISON(1d4)
+I:RESIST(TELE)
+O:1d2:OBJ(*)
+S:1_IN_10 | BLINK | TELE_SELF | TELE_TO | TELE_LEVEL | BLIND
+S:CONFUSE | SCARE | BO_FIRE
+D:The lawful evil master's favourite pet.
+I:COLOR(Red):POS(SEE_INVIS)
+P:Copy:Imp:Rogue
+P:Weight:80
+
+N:u.slaanesh:u.base:Daemonette of Slaanesh
+I:LVL(18):RARITY(2)
+I:SPEED(+10):HP(96):AC(50):EXP(75)
+I:ATTR(FEMALE)
+B:CLAW(x2):HURT(2d5+3):CONFUSE(50%)
+I:RESIST(COLD|CONF):IMMUNE(SLEEP)
+S:1_IN_8 | SCARE | S_DEMON | CAUSE_2 | CONFUSE | BO_FIRE | BO_COLD
+O:60%:OBJ(*$)
+D:It is minor female demon, vaguely human-like, but with crab-like
+D:pincers instead of hands. She wears a rather indecent skimpy
+D:leather bikini, moves quickly and casts deadly spells!
+I:COLOR(Light Red):POS(SEE_INVIS)
+P:Copy:Imp:Chaos-Warrior
+P:Body:Monk
+P:Speed:+5
+P:Weight:130
+
+N:u.demonite:u.base:Demonite
+I:LVL(20,50):RARITY(2)
+I:SPEED(+5):HP(20d10):AC(50):EXP(250)
+I:CAN(SPEAK):ALERT(300',Fairly Observant):MOVE(RAND_25|SWIM)
+B:CLAW(x2):HURT(1d5+5)
+I:RESIST(COLD)
+S:FREQ_10 | BR_COLD
+D:A demon small in stature whose face you can't help but love.
+I:COLOR(Violet):POS(SEE_INVIS)
+P:Copy:Imp:Rogue
+P:Weight:20
+
+N:u.arch-vile:u.base:Arch-vile
+I:LVL(21):RARITY(2)
+I:SPEED(+15):HP(121):AC(30):EXP(300)
+I:ATTR(COLD_BLOOD):ALERT(1000',Ever Vigilant):MOVE(RAND_50)
+B:CLAW(x2):HURT(2d7+5)
+I:RESIST(CONF|NETHER):IMMUNE(FIRE|SLEEP)
+S:1_IN_3 | BA_FIRE | ANIM_DEAD
+D:A pale, corpse-like lesser demon, who moves very fast and spawns evil everywhere.
+I:COLOR(Light White):POS(SEE_INVIS)
+P:Copy:Imp:Chaos-Warrior
+P:Speed:+10
+P:Weight:120
+
+N:u.deep one:u.base:Deep one
+I:LVL(28,70):RARITY(5):WILD(SHORE)
+I:SPEED(+10):HP(35d12):AC(50):EXP(150)
+I:KIND(HORROR):MOVE(RAND_25|SWIM)
+B:CLAW(x2):HURT(1d4):POISON(1d4)
+B:BITE:HURT(2d4+5):LOSE_CHR(50%)
+I:RESIST(COLD|WATER|TELE)
+O:1d2:OBJ(*$)
+M:3d3:MON(u.deep one)
+D:"I thought their predominant color was a greyish-green,
+D:though they had white bellies. They were mostly shiny and
+D:slippery, but the ridges of their backs were scaly. Their
+D:forms vaguely suggested the anthropoid, while their heads were
+D:the heads of fish, with prodigious bulging eyes that never
+D:closed. At the sides of their necks were palpitating gills and
+D:their long paws were webbed."
+I:COLOR(Green):POS(CORPSE)
+P:Blows:300
+
+N:u.gargoyle:u.base:Gargoyle
+I:LVL(34,70):RARITY(2):WILD(MOUNTAIN|WASTE)
+I:HP(18d12):AC(50):EXP(110)
+I:ALERT(100',Fairly Observant):MOVE(CLIMB)
+B:CLAW(x2):HURT(2d6)
+B:BITE:HURT(1d6)
+I:RESIST(ELEC|COLD):VULN(LIGHT|DISINTEGRATE)
+S:1_IN_12 | BR_ELEC | BR_FIRE
+O:60%:OBJ(GOLD)
+M:3d3:MON(u.gargoyle)
+D:A weird demon creature with a stone-like skin.
+I:COLOR(Slate):POS(GAIN_AC|SEE_INVIS)
+
+N:u.bodak:u.base:Bodak
+I:LVL(36):RARITY(2)
+I:HP(35d10):AC(68):EXP(750)
+I:ALERT(100',Very Inattentive):MOVE(PICKUP)
+B:HIT(x2):FIRE(4d6)
+B:GAZE:DRAIN_EXP(20d6)
+A:FIRE(2d3)
+I:RESIST(CONF):IMMUNE(SLEEP)
+S:1_IN_4 | BO_FIRE | BA_FIRE | S_DEMON
+D:It is a humanoid form composed of flames and hatred.
+I:COLOR(Light Dark):POS(SEE_INVIS)
+P:Copy:Imp:Chaos-Warrior
+P:Weight:150
+
+N:u.mezzodaemon:u.base:Mezzodaemon
+I:LVL(36):RARITY(2)
+I:HP(40d13):AC(68):EXP(750):EVOLVE(U.nycadaemon, 50000)
+I:CAN(INVIS):ALERT(100',Very Inattentive):MOVE(PASSWALL)
+B:CLAW(x2):HURT(2d6+10)
+I:RESIST(ACID|COLD|CONF):IMMUNE(SLEEP)
+S:1_IN_4 | BLINK | DARKNESS | S_DEMON
+D:An ugly demon with insect-like extremities and large bulbous eyes.
+I:COLOR(Orange):POS(SEE_INVIS)
+P:Copy:Imp:Chaos-Warrior
+P:Body:Monk
+P:Weight:50
+
+N:u.elder thing:u.base:Elder thing
+I:LVL(36,70):RARITY(3)
+I:HP(35d13):AC(70):EXP(800)
+I:ALERT(100',Overlooks):MOVE(SWIM)
+B:CRUSH(x3):HURT(2d6+7)
+B:TOUCH:LOSE_CHR
+I:RESIST(ACID|CONF|TELE):IMMUNE(SLEEP)
+S:1_IN_4 | SCARE | TELE_OTHER | BA_NUKE | CAUSE_3 | BA_POISON
+S:CONFUSE | S_DEMON | S_UNDEAD
+D:"...some ridged barrel-shaped objects with thin
+D:horizontal arms radiating spoke-like from a central ring and with
+D:vertical knobs or bulbs projecting from the head and base of the
+D:barrel. Each of these knobs was the hub of a system of five long,
+D:flat, triangularly tapering arms arranged around it like the arms
+D:of a starfish."
+I:COLOR(Light Green):POS(GAIN_AC|SEE_INVIS)
+P:Copy:Imp:Chaos-Warrior
+P:Body:Elder Thing
+P:Weight:150
+
+N:u.quasit.death:u.base:Death quasit
+I:LVL(40):RARITY(3)
+I:SPEED(+20):HP(440):AC(80):EXP(1000)
+I:CAN(INVIS):ATTR(SMART):ALERT(Ever Vigilant):MOVE(PASSWALL|FLY)
+B:BITE:HURT(3d6):LOSE_DEX(50%)
+B:CLAW:HURT(3d3)
+B:CLAW:HURT(3d3):LOSE_CHR(50%)
+I:RESIST(CONF):IMMUNE(SLEEP|TELE)
+S:1_IN_10 | BLIND | CONFUSE | SCARE | CAUSE_3 | AMNESIA | S_DEMON
+O:3d2+2:OBJ(*)
+D:It is a demon of small stature, but its armoured frame moves with
+D:lightning speed and its powers make it a tornado of death and destruction.
+I:COLOR(White):POS(SEE_INVIS)
+P:Copy:Imp:Chaos-Warrior
+P:Weight:90
+
+########################################################################
+# Greater
+N:U.beast.lesser:U.base:Lesser hell-beast
+I:LVL(24):RARITY(4)
+I:SPEED(+5):HP(1500):AC(100):EXP(400)
+I:ALERT(100',Overlooks):MOVE(TUNNEL|SWIM)
+B:GAZE:DAM(1d4):TERRIFY
+B:GAZE:DAM(1d4):LOSE_CHR(50%)
+B:CRUSH:HURT(4d4+23):STUN(5d5, 25%)
+I:RESIST(ACID|ELEC|COLD|LIGHT|DARK|NETHER|NEXUS|SOUND|SHARDS|CHAOS|DISENCHANT)
+I:RESIST(TIME|WATER|PLASMA|FORCE|INERTIA|GRAVITY)
+S:1_IN_9 | TELE_SELF | BLINK | TELE_OTHER
+D:This creature just might crush you.
+I:COLOR(Slate)
+P:Blows:200
+
+N:U.bloodletter:U.base:Bloodletter of Khorne
+I:LVL(34):RARITY(2)
+I:HP(240):AC(40):EXP(450)
+I:CAN(REGEN)
+B:HIT(x2):HURT(1d8+5):DRAIN_EXP(20d6, 50%):CUT(3d5, 50%)
+B:HIT:HURT(1d8+5):LOSE_CHR(25%)
+I:RESIST(COLD|CHAOS)
+O:60%:OBJ(*)
+O:5%:OBJ(blade of chaos)
+M:2d3:MON(U.bloodletter)
+M:2d2:MON(|.hell)
+M:2d2:MON(C.fleshhound)
+D:Slender, red-skinned demons twisting in nightmarish shapes. They are
+D:armed with hellblades which will suck the life from your body.
+I:COLOR(Red)
+
+N:U.nightgaunt:U.base:Nightgaunt
+I:LVL(38,80):RARITY(2)
+I:HP(240):AC(50):EXP(1000)
+I:KIND(HORROR):ALERT(Inattentive):MOVE(FLY)
+B:STING:HURT(1d5):LOSE_STR(50%)
+B:TOUCH:HURT(1d4+5):PARALYZE
+O:60%:OBJ(*)
+S:1_IN_7 | BLIND | CONFUSE | BO_FIRE(18d8+24)
+D:"Shocking and uncouth black things with smooth, oily, whale-like
+D:surfaces, unpleasant horns that curved inward toward each other,
+D:bat wings whose beating made no sound, ugly prehensile paws, and
+D:barbed tails that lashed needlessly and disquietingly. And worst
+D:of all, they never spoke or laughed, and never smiled because they
+D:had no faces at all to smile with, but only to a suggestive
+D:blankness where a face ought to be."
+I:COLOR(Light Dark)
+P:Body:Bloodthirster
+
+N:U.baron:U.base:Baron of hell
+I:LVL(38,90):RARITY(3)
+I:HP(1800):AC(130):EXP(3000)
+I:ATTR(MALE):ALERT(100',Unseeing)
+B:CLAW(x2):HURT(10d2)
+B:CLAW:HURT(25)
+I:RESIST(PLASMA|TELE)
+S:FREQ_25 | BO_PLASMA
+D:A minor demon lord with a goat's head, tough to kill.
+I:COLOR(Light Umber)
+
+N:U.clubber:U.base:Clubber demon
+I:LVL(40):RARITY(2)
+I:HP(400):AC(50):EXP(1000)
+I:ALERT(Inattentive)
+B:HIT:HURT(3d4)
+B:HIT(x2):HURT(3d10+28):HURT(8d10, 20%)
+S:1_IN_8 | BLIND | CONFUSE
+O:60%:OBJ(*)
+M:3d3:MON(U.clubber)
+D:It is a demon swinging wildly with two clubs.
+I:COLOR(Slate)
+P:Copy:Imp:Mauler
+P:Weight:250
+
+N:U.marilith:U.base:Marilith
+I:LVL(40):RARITY(2)
+I:SPEED(+15):HP(700):AC(50):EXP(1000)
+I:CAN(REGEN):ATTR(FEMALE)
+B:SLASH(x4):HURT(5d5):CUT(3d5, 50%)
+I:RESIST(CHAOS)
+O:60%:OBJ(*)
+O:5%:OBJ(sexy swimsuit)
+I:COLOR(Yellow)
+P:Body:Marilith
+
+N:U.byakhee:U.base:Byakhee
+I:LVL(41):RARITY(3)
+I:HP(450):AC(40):EXP(1500)
+I:KIND(HORROR):ALERT(Inattentive):MOVE(FLY)
+B:CLAW:HURT(3d4):LOSE_CHR(25%)
+B:BITE:HURT(3d4):DRAIN_EXP(20d6)
+I:RESIST(NETHER)
+S:1_IN_9 | BO_FIRE(18d8+26) | S_DEMON | CONFUSE
+O:1d2+1:OBJ(*)
+M:2d3:MON(U.byakhee)
+D:"There flapped rhythmically a horde of tame, trained, hybrid
+D:winged things... not altogether crows, nor moles, nor buzzards,
+D:nor ants, nor decomposed human beings, but something I cannot
+D:and must not recall."
+I:COLOR(Light Dark)
+
+N:U.formless spawn:U.base:Formless spawn of Tsathoggua
+I:LVL(41,90):RARITY(2)
+I:HP(440):AC(50):EXP(1850)
+I:KIND(HORROR):CAN(REGEN):ALERT(Inattentive):MOVE(SWIM)
+B:HIT(x2):ACID(2d4)
+B:CRUSH:HURT(3d4)
+B:BITE:ACID(6d6)
+I:RESIST(-FIRE|NETHER|TELE):VULN(FIRE)
+S:1_IN_9 | BO_FIRE(18d8+26) | BO_ACID(14d8+26) | S_DEMON | MIND_BLAST | DARKNESS
+O:OBJ(*)
+D:"...living things that oozed along stone channels...
+D:But they were not toads like Tsathoggua himself. Far worse --
+D:they were amorphous lumps of viscous black slime that took
+D:temporary shapes for various purposes."
+I:COLOR(Light Dark)
+P:Body:Jelly6
+
+N:U.hunting horror:U.base:Hunting horror
+I:LVL(42,90):RARITY(2)
+I:HP(510):AC(90):EXP(2300)
+I:KIND(HORROR):ALERT(Inattentive):MOVE(FLY)
+B:BITE:HURT(1d3):LOSE_DEX(50%)
+B:BITE:HURT(1d3):POISON(1d3)
+B:CRUSH:HURT(4d4+13)
+I:RESIST(DARK|NETHER):VULN(LIGHT)
+S:1_IN_9 | BLIND | CONFUSE | S_DEMON | BR_DARK
+O:1d2:OBJ(*)
+M:2d3:MON(U.hunting horror)
+D:"And in the air there were great viperine creatures,
+D:which had curiously distorted heads, and grotesquely great
+D:clawed appendages, supporting themselves with ease by the aid
+D:of black rubbery wings of singularly monstrous dimensions."
+I:COLOR(Light Dark)
+
+N:U.balrog.lesser:U.base:Lesser Balrog
+I:LVL(44):RARITY(3)
+I:SPEED(+10):HP(1800):AC(50):EXP(8000):EVOLVE(U.balrog, 30000)
+I:LIGHT(1):ALERT(Inattentive):MOVE(PUSH)
+B:HIT(x2):HURT(2d6):FIRE(2d6)
+B:HIT:HURT(4d6)
+B:HIT:HURT(5d5):LOSE_CHR(50%)
+I:RESIST(NETHER)
+S:1_IN_4 | BLIND | CONFUSE | BR_FIRE | S_DEMON
+O:1d2+2:OBJ(*)
+D:It is a massive humanoid demon wreathed in flames.
+I:COLOR(Light Red)
+P:Weight:666
+
+N:U.balrog:U.base:Greater Balrog
+I:LVL(50):RARITY(3)
+I:SPEED(+15):HP(3000):AC(80):EXP(13000)
+I:ATTR(SMART):LIGHT(1):ALERT(Inattentive):MOVE(PUSH|FLY|TUNNEL)
+B:HIT:HURT(5d6)
+B:HIT(x2):HURT(2d6):FIRE(2d6)
+B:HIT:HURT(6d5):LOSE_CHR(50%)
+A:FIRE(2d3)
+I:RESIST(NETHER):IMMUNE(FIRE)
+S:1_IN_4 | BLIND | CONFUSE | BRAIN_SMASH | S_DEMON | S_HI_UNDEAD | S_UNDEAD
+S:BR_FIRE | BO_PLASMA(8d7+85) | BA_NETHER(10d10+150) | PROT_GOOD
+O:2d2:OBJ(*, GOOD)
+D:"A Balrog. A demon of the ancient world. This foe is beyond any of you ... Run!"
+I:COLOR(Light Red)
+P:Weight:1000
+
+N:U.nycadaemon:U.base:Nycadaemon
+I:LVL(50):RARITY(3)
+I:SPEED(+10):HP(3069):AC(80):EXP(10000):EVOLVE(U.warp, 100000)
+I:CAN(REGEN|INVIS):ALERT(Inattentive):MOVE(FLY|TUNNEL)
+B:TOUCH:TERRIFY
+B:CLAW(x2):HURT(6d6)
+B:CLAW:HURT(6d6):LOSE_CHR(50%)
+A:FIRE(2d3)
+I:RESIST(ACID|COLD|NETHER)
+O:1d2:OBJ(*, GOOD)
+S:1_IN_4 | PARALYZE | BLINK | CONFUSE | S_DEMON | BRAIN_SMASH | BR_NETHER | PROT_GOOD
+D:A loathsome, sturdy, winged, horned demon, with talons that could tear
+D:a stone wall down.
+I:COLOR(Orange)
+
+N:U.unclean:U.base:Great unclean one
+I:LVL(63):RARITY(3)
+I:SPEED(+10):HP(6666):AC(150):EXP(24000)
+I:KIND(HORROR):ATTR(SMART):ALERT(300'):MOVE(SWIM|TRAMPLE|DESTROY)
+B:BITE:HURT(5d10+25):DISEASE
+B:BITE:HURT(3d10+20):ACID(3d10)
+B:BITE:HURT(5d10+25):LOSE_CHR(50%)
+B:BITE:HURT(5d10+25):CONFUSE(50%)
+I:RESIST(ACID|ELEC|-FIRE|COLD|NETHER)
+S:FREQ_20 | BR_ACID | BR_POISON | BR_NUKE | CAUSE_3 | CAUSE_4
+S:SCARE | ANIM_DEAD | S_DEMON | S_UNDEAD
+O:2d2:OBJ(*, GOOD)
+D:This disgusting demon resembles a shambling pile of rotting
+D:green flesh, with dozens of mouths drooling and leaving a
+D:trail of foul-smelling goo behind. Nurgle must be
+D:proud of himself for having created this atrocity!
+I:COLOR(Green)
+P:Body:Demonic Horror
+
+N:U.bloodthirster:U.base:Bloodthirster
+I:LVL(55):RARITY(3)
+I:SPEED(+34):HP(4200):AC(180):EXP(19500)
+I:KIND(HORROR):CAN(REGEN):ALERT(300'):MOVE(FLY|PUSH)
+B:HIT(x2):HURT(30d1+20)
+B:HIT:HURT(5d12+20):LOSE_CHR(50%)
+I:RESIST(ACID|COLD|NETHER|NEXUS|TELE)
+S:FREQ_10 | BERSERK
+O:4d2:OBJ(*, GOOD)
+D:Khorne's mightiest servant, a winged hound-demon walking on
+D:two paws and wielding a mighty axe and a whip in the other
+D:two. Intelligent, bloodthirsty eyes behold you from inside
+D:the bloody demon armour.
+I:COLOR(Red)
+P:Body:Bloodthirster
+
+N:U.warp:U.base:Warp demon
+I:LVL(76):RARITY(2)
+I:SPEED(+10):HP(3000):AC(100):EXP(15000)
+I:CAN(INVIS):ATTR(SMART):ALERT(500'):MOVE(FLY|PASSWALL)
+B:HIT:HURT(6d11+48):DISENCHANT
+B:HIT:HURT(6d11+48):DRAIN_CHARGES
+B:HIT:HURT(6d11+48):LOSE_CHR(66%)
+I:RESIST(ELEC|COLD|NETHER|NEXUS):IMMUNE(FIRE)
+S:1_IN_4 | HEAL | TELE_SELF | S_DEMON | BRAIN_SMASH | DRAIN_MANA | BR_PLASMA
+O:1d3:OBJ(*$, GOOD)
+D:A huge demon who guards the cross-dimensional gateways.
+I:COLOR(Orange)
+
+N:U.cyber:U.base:Cyberdemon
+I:LVL(77):RARITY(4)
+I:SPEED(+10):HP(7070):AC(90):EXP(30000)
+I:ALERT(900',Very Inattentive):MOVE(RAND_25)
+B:HIT(x4):HURT(1d50):LOSE_CHR(20%)
+I:RESIST(-CONF|NETHER|TELE)
+S:FREQ_15 | ROCKET(600)
+O:2d2:OBJ(*, GOOD)
+D:Reverbrant metal steps announce the arrival of this huge creature,
+D:half demon half machine. It has an unsurpassable firepower.
+I:COLOR(Umber)
+P:Copy:Balrog:Mauler
+P:Weight:1200
+
+N:U.star-spawn:U.base:Star-spawn of Cthulhu
+I:LVL(86):RARITY(6)
+I:SPEED(+20):HP(7500):AC(90):EXP(34000)
+I:KIND(HORROR):CAN(FEAR):ALERT(900',Very Inattentive):MOVE(RAND_25|DESTROY|SWIM)
+B:CLAW:HURT(1d30):LOSE_CHR(66%)
+B:CLAW:HURT(1d30):ACID(1d30)
+B:TOUCH:DAM(1d10):DRAIN_CHARGES
+B:CRUSH:HURT(5d11+36):DISENCHANT
+I:RESIST(ACID|ELEC|COLD|NETHER|TELE):IMMUNE(FIRE)
+S:1_IN_3 | SCARE | CONFUSE | S_HI_DEMON | S_UNDEAD | DRAIN_MANA | BR_ACID
+S:BR_FIRE | TELE_SELF | S_MONSTER | BRAIN_SMASH | BR_NETHER |
+S:HEAL | MIND_BLAST | BA_NUKE(20d6+172) | ANIM_DEAD
+O:3d2+1:OBJ(*, GOOD)
+D:The last remnants of sanity threaten to leave your brain as you
+D:behold this titanic bat-winged, octopus-headed unholy abomination.
+D:"They all lay in stone houses in their great city of R'lyeh,
+D:preserved by the spells of mighty Cthulhu for a glorious
+D:resurrection when the stars and the earth might once more
+D:be ready..."
+I:COLOR(Light Green)
+P:Body:Cthulhu
+P:Weight:1000
+
+########################################################################
+# Uniques
+N:u.Father:u.base:Father Dagon
+I:LVL(38):RARITY(3):ALLOC(ESCORT|UNIQUE)
+I:SPEED(+10):HP(1881):AC(80):EXP(3250)
+I:KIND(HORROR):CAN(SPEAK):ATTR(MALE):ALERT(120',Overlooks):MOVE(SWIM)
+B:CLAW(x2):HURT(3d4+5):POISON(3d4)
+B:BITE:HURT(3d8+23)
+I:RESIST(COLD|CONF|WATER):IMMUNE(SLEEP|SLOW|TELE)
+S:1_IN_7 | S_KIN | S_DEMON | BO_WATER | BA_WATER | BO_ACID | BA_ACID
+O:1d3+1:OBJ(*, GOOD)
+M:3d9+10:MON(u.deep one)
+D:The king of the deep ones. "Vast, Polyphemous-like, and loathsome, it
+D:darted like a stupendous monster of nightmares..."
+I:COLOR(Violet):POS(GAIN_AC|SEE_INVIS)
+P:Copy:Imp:Priest
+P:Weight:500
+
+N:u.Mother:u.base:Mother Hydra
+I:LVL(38):RARITY(3):ALLOC(ESCORT|UNIQUE)
+I:SPEED(+10):HP(1881):AC(80):EXP(3250)
+I:KIND(HORROR):CAN(SPEAK):ATTR(FEMALE):ALERT(120',Overlooks):MOVE(SWIM)
+B:CLAW(x2):HURT(3d4+5):POISON(3d4)
+B:BITE:HURT(3d8+23)
+I:RESIST(COLD|CONF|WATER):IMMUNE(SLEEP|SLOW|TELE)
+S:1_IN_7 | S_HYDRA | S_DEMON | DARKNESS | BA_WATER | BO_ACID | BA_ACID
+O:1d3+1:OBJ(*, GOOD)
+M:3d9+10:MON(u.deep one)
+D:The queen of the deep ones. "Vast, Polyphemous-like, and loathsome, it
+D:darted like a stupendous monster of nightmares..."
+I:COLOR(Violet):POS(GAIN_AC|SEE_INVIS)
+P:Copy:Imp:Warrior-Mage
+P:Weight:500
+
+N:U.Strygalldwir:U.base:Strygalldwir
+I:LVL(41):RARITY(3):ALLOC(D_AMBER|UNIQUE)
+I:SPEED(+10):HP(1200):AC(60):EXP(8000)
+I:CAN(SPEAK|INVIS):ATTR(COLD_BLOOD):ALERT(900',Fairly Observant):MOVE(FLY|PUSH|PASSWALL)
+B:CLAW(x2):HURT(5d5)
+B:HIT:HURT(5d5):LOSE_STR
+B:TOUCH:DAM(5d5):DRAIN_EXP(80d6)
+I:RESIST(COLD|NETHER|CHAOS)
+O:4d2:OBJ(*, GOOD)
+S:1_IN_3 | CAUSE_3 | PARALYZE | SCARE | BLIND | BO_ACID | S_DEMON |
+S:AMNESIA | BO_NETHER | MIND_BLAST | DARKNESS
+D:A demon from the Courts of Chaos. According to Corwin,
+D:'it was well over six feet in height, with great branches of antlers
+D:growing out of its forehead. Nude, its flesh was a uniform ash-gray
+D:in color. It appeared to be sexless, and it had gray, leathery wings
+D:extending far out behind it'.
+I:COLOR(Light White)
+
+N:U.Daoloth:U.base:Daoloth, the Render of the Veils
+I:LVL(58):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+10):HP(7200):AC(125):EXP(27500)
+I:KIND(HORROR):CAN(SPEAK|REFLECT):ALERT(Inattentive):MOVE(FLY|PASSWALL|NEVER)
+B:TOUCH(x4):CONFUSE(5d12)
+I:RESIST(ACID|COLD|NETHER|NEXUS):IMMUNE(BLIND)
+S:1_IN_3 | TELE_OTHER | S_MONSTER | TELE_LEVEL | BR_NEXUS | TELE_SELF | BLINK
+O:7d2:OBJ(*, GOOD)
+D:"Not shapeless, but so complex that the eye could recognize no
+D:describable shape. There were hemispheres and shining metal,
+D:coupled by long plastic rods. The rods were of a flat gray color,
+D:so that he could not make out which were nearer; they merged into
+D:a flat mass from which protruded individual cylinders. As he looked
+D:at it, he had a curious feeling that eyes gleamed from between
+D:these rods; but wherever he glanced at the construction, he saw
+D:only the spaces between them."
+I:COLOR(Slate)
+P:Body:Demonic Horror
+
+N:U.Jisisl:U.base:Jisisl of Ice
+I:LVL(67):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+15):HP(6000):AC(120):EXP(30000)
+I:CAN(SPEAK|REGEN):ALERT(800',Unseeing):MOVE(FLY|PUSH)
+B:HIT(x2):HURT(3d12+20):COLD(3d12)
+B:TOUCH:DISEASE(20d4)
+B:CRUSH:HURT(40d4)
+I:RESIST(ELEC|-FIRE|NETHER):IMMUNE(COLD)
+O:4d2:OBJ(*, GOOD)
+S:FREQ_25 | CONFUSE | SCARE | PARALYZE | S_DEMON | DISPEL_MAGIC | ANTI_MAGIC
+S:BR_COLD | BR_POISON | BA_COLD(1d200+20) | BO_ICE(6d8+100)
+I:COLOR(Light Blue)
+P:Weight:1000
+
+N:U.Biketal:U.base:Biketal of Fire
+I:LVL(73):RARITY(2):ALLOC(ESCORT|UNIQUE)
+I:SPEED(+15):HP(7000):AC(160):EXP(32000)
+I:CAN(SPEAK|REGEN):LIGHT(2):ALERT(500',Ever Vigilant):MOVE(FLY|TRAMPLE)
+B:HIT(x2):HURT(3d12+20):FIRE(3d12)
+B:TOUCH:DISEASE(20d4)
+B:CRUSH:HURT(50d4)
+I:RESIST(ELEC|POIS|NETHER):IMMUNE(FIRE)
+O:4d2:OBJ(*, GOOD)
+S:FREQ_25 | CONFUSE | SCARE | PARALYZE | S_DEMON | HEAL | DISPEL_MAGIC | ANTI_MAGIC
+S:BR_FIRE | BR_POISON | BO_PLASMA(8d7+119) | BR_PLASMA | BA_FIRE(1d511+20) |
+M:3d7+5:MON(HI_DEMON)
+I:COLOR(Red)
+P:Body:Demonic Horror
+P:Weight:1000
+
+N:U.Demogorgon:U.base:The Demogorgon
+I:LVL(75):RARITY(2):ALLOC(ESCORT|UNIQUE)
+I:SPEED(+15):HP(6500):AC(140):EXP(37000)
+I:ATTR(MALE):ALERT(300'):MOVE(FLY|PUSH)
+B:HIT(x2):HURT(3d10+10):LOSE_CON
+B:CRUSH:HURT(6d12+40)
+B:TOUCH:DAM(3d5):DRAIN_CHARGES
+I:RESIST(DARK|NETHER):IMMUNE(FIRE)
+O:6d2:OBJ(*, GOOD)
+O:5%:ART(|.Bloodthirster)
+S:FREQ_25 | BA_DARK | BO_NETHER(250) | BR_NETHER | BR_DARK | BR_NUKE | BR_POISON | PROT_GOOD
+S:HAND_DOOM | BLIND | CONFUSE | SCARE | S_HI_DEMON | S_KIN | DISPEL_MAGIC | ANTI_MAGIC
+M:3d7+5:MON(HI_DEMON)
+I:COLOR(Umber)
+P:Body:Demogorgon
+P:Weight:666
+
+N:U.Mephistopheles:U.base:Mephistopheles, Lord of Hell
+I:LVL(84):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+30):HP(6666):AC(150):EXP(42500)
+I:CAN(SPEAK):ATTR(MALE):ALERT(Overlooks):MOVE(FLY|PUSH)
+B:GAZE:DAM(1d15):LOSE_CHR
+B:GAZE:DAM(1d15):TERRIFY
+B:TOUCH:HELL_FIRE(6d6)
+B:TOUCH:DAM(6d6):DRAIN_CHARGES
+A:HELL_FIRE(3d6)
+I:RESIST(COLD|NETHER|PLASMA):IMMUNE(FIRE)
+S:1_IN_3 | S_HI_DEMON | S_HI_UNDEAD | S_UNDEAD | TELE_TO | SCARE | PARALYZE
+S:BRAIN_SMASH | BR_FIRE | BR_NETHER | S_CYBER | HAND_DOOM | ANIM_DEAD | PROT_GOOD
+O:9d2:OBJ(*, GREAT)
+O:5%:ART(].Mephistopheles)
+D:A duke of hell, in the flesh.
+I:COLOR(Red)
+P:Speed:+15
+P:Weight:1000
+
+N:U.Lungorthin:U.base:Lungorthin, the Balrog of White Fire
+I:LVL(85):RARITY(2):ALLOC(GUARDIAN|UNIQUE)
+I:SPEED(+20):HP(8000):AC(125):EXP(50000)
+I:ATTR(MALE):LIGHT(3):ALERT(Inattentive):MOVE(FLY|PUSH)
+B:HIT(x2):HURT(5d12+20):FIRE(8d12)
+B:CRUSH:HURT(8d12)
+B:TOUCH:DRAIN_CHARGES
+A:FIRE(4d6)
+I:RESIST(NETHER):IMMUNE(FIRE)
+O:9d2:OBJ(*, GOOD)
+O:ART(|.Calris)
+S:1_IN_4 | BLIND | CONFUSE | SCARE | BR_FIRE | S_HI_DEMON | S_HI_UNDEAD | PROT_GOOD
+D:A massive form cloaked in flame. Lungorthin stares balefully at you with
+D:eyes that smoulder red. The dungeon floor where he stands is scorched by
+D:the heat of his body.
+I:COLOR(White)
+P:Weight:1000
+
+N:U.Oremorj:U.base:Oremorj the Cyberdemon Lord
+I:LVL(89):RARITY(4):ALLOC(UNIQUE)
+I:SPEED(+20):HP(9000):AC(90):EXP(70000)
+I:ALERT(900',Very Inattentive):MOVE(RAND_25)
+B:HIT(x3):HURT(1d66+20)
+B:HIT:HURT(5d12+20):LOSE_CHR
+I:RESIST(-CONF|NETHER):IMMUNE(TELE)
+S:FREQ_20 | ROCKET(600) | S_CYBER
+O:2d2:OBJ(*, GREAT)
+O:5%:ART([.Cyberdemon)
+D:The mightiest of Cyberdemons, their lord and ruler.
+I:COLOR(Umber)
+P:Copy:Balrog:Mauler
+P:Weight:1000
+
+N:U.Shub-Niggurath:U.base:Shub-Niggurath, Black Goat of the Woods
+I:LVL(91):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+20):HP(6435):AC(100):EXP(60000)
+I:KIND(HORROR):CAN(SPEAK|REGEN|FEAR):ATTR(FEMALE|SMART):ALERT(1000'):MOVE(FLY|PASSWALL)
+B:CRUSH:HURT(8d14+90):LOSE_CHR
+B:CRUSH:HURT(8d14+90):LOSE_INT
+B:BITE:HURT(5d8+20):LOSE_STR
+B:BITE:HURT(5d8+20):LOSE_CON
+A:ELEC(4d6):COLD(4d6)
+I:RESIST(ACID|COLD|NETHER|CHAOS):IMMUNE(TELE|FEAR|BLIND)
+S:1_IN_3 | S_MONSTER | S_HI_DEMON | S_HI_UNDEAD | S_UNIQUE | ANIM_DEAD
+S:BRAIN_SMASH | CAUSE_4 | HEAL | BO_MANA | BA_DARK
+S:BR_CHAOS | BR_CONFUSION | BR_POISON | BR_NUKE | BA_CHAOS
+O:4d2+1:OBJ(*, GOOD)
+D:This horrendous outer god looks like a writhing cloudy mass filled
+D:with mouths and tentacles.
+I:DISPLAY(,Light Dark,ATTR_MULTI|ATTR_ANY)
+P:Copy:Balrog:Mauler
+P:Body:Demonic Horror
+P:Weight:1000
+
+N:U.Nyarlathotep:U.base:Nyarlathotep the Crawling Chaos
+I:LVL(93):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+20):HP(8910):AC(100):EXP(70000)
+I:KIND(HORROR):CAN(SPEAK|REGEN|FEAR):ATTR(MALE|SMART):ALERT(1000'):MOVE(PASSWALL)
+B:CRUSH:HURT(10d8+90):LOSE_CON
+B:CRUSH:HURT(10d8+90):LOSE_STR
+B:GAZE:DAM(1d50):LOSE_INT
+B:GAZE:DAM(1d50):LOSE_CHR
+A:ELEC(4d6):COLD(4d6)
+I:RESIST(ACID|NETHER|NEXUS|CHAOS):IMMUNE(TELE|FEAR|BLIND)
+S:1_IN_3 | BA_FIRE(1d650+20) | BA_CHAOS(10d10+186) | PSY_SPEAR(1d186+150)
+S:TELE_OTHER | TELE_TO | TELE_LEVEL | TELE_SELF | BR_NEXUS |
+S:MANA_STORM | S_MONSTER | BRAIN_SMASH | MIND_BLAST |
+S:CAUSE_4 | HASTE | S_HI_UNDEAD | S_HI_DRAGON | ANIM_DEAD |
+S:S_ANGEL | S_HI_DEMON | HEAL | S_SPIDER | S_HOUND | S_CYBER | HAND_DOOM
+O:4d2+1:OBJ(*, GOOD)
+D:Nyarlathothep is the messenger, the heart and the soul of the outer gods.
+D:He is a shapechanger capable of assuming thousands of nightmarish forms.
+D:One of them looks like this: "A tall, slim figure with the young face of
+D:an antique pharaoh, gay with prismatic robes and crowned with a
+D:pshent that glowed with inherent light... the fascination of a
+D:dark god or fallen archangel, and around whose eyes there lurked
+D:the languid sparkle of capricious humor."
+I:DISPLAY(,Red,ATTR_MULTI|ATTR_ANY|SHAPECHANGER)
+P:Weight:1000
+
+N:U.Cthulhu:U.base:Great Cthulhu
+I:LVL(96):RARITY(2):ALLOC(ESCORT|UNIQUE)
+I:SPEED(+20):HP(10000):AC(140):EXP(80000)
+I:KIND(HORROR):CAN(SPEAK|REGEN|FEAR):ATTR(SMART)
+I:ALERT(1000',Very Inattentive):MOVE(PUSH|SWIM)
+B:CRUSH:HURT(30d4+75)
+B:CLAW:HURT(15d4):DRAIN_CHARGES
+B:CLAW:HURT(15d4):DISENCHANT
+B:TOUCH:DISEASE(100)
+I:RESIST(ACID|ELEC|DARK|NETHER|NEXUS|CHAOS|DISENCHANT|PLASMA):IMMUNE(FIRE|BLIND|TELE)
+S:FREQ_30 | TELE_SELF | SCARE | BLIND | MIND_BLAST | BRAIN_SMASH | DRAIN_MANA |
+S:BR_POISON | BR_ACID | BR_FIRE | CONFUSE | DARKNESS | AMNESIA | S_HI_UNDEAD |
+S:BR_NUKE | BR_NETHER | BR_CHAOS | BR_DISENCHANT | BR_DARK | BR_PLASMA | BR_CONFUSION
+S:BR_NEXUS | S_HI_DEMON | S_CYBER | S_KIN | BR_DISINTEGRATE | HAND_DOOM | ANIM_DEAD
+O:9d2:OBJ(*, GREAT)
+M:5:MON(U.star-spawn)
+M:3d7:MON(HI_DEMON)
+D:This creature is death incarnate. "A monster of vaguely anthropoid
+D:outline, but with an octopus-like head whose face was a mass of
+D:feelers, a scaly, rubbery-looking body, prodigious claws on hind
+D:fore feet, and long, narrow wings behind. This thing... was a
+D:somewhat bloated corpulence... It lumbered slobberingly into sight
+D:and gropingly squeezed its gelatinous green immensity through the
+D:black doorway... A mountain shambled or walked."
+I:COLOR(Green)
+P:Copy:Balrog:Mauler
+P:Body:Cthulhu
+P:Weight:3000
+
+N:U.Gothmog:U.base:Gothmog the High Captain of Balrogs
+I:LVL(99):RARITY(1):ALLOC(D_ANGBAND|ESCORT|UNIQUE|GUARDIAN)
+I:SPEED(+25):HP(8000):AC(140):EXP(80000)
+I:CAN(SPEAK|FEAR):ATTR(MALE):ALERT(1000',Ever Vigilant):MOVE(FLY|PUSH|TUNNEL)
+B:HIT(x3):HURT(5d10+28):HELL_FIRE(6d6)
+B:CRUSH:HURT(10d10):DRAIN_CHARGES
+A:HELL_FIRE(3d6)
+I:RESIST(ELEC|NETHER):IMMUNE(FIRE)
+S:FREQ_30 | BR_HELL_FIRE | BR_FIRE | BR_NETHER | BA_NETHER(10d10+240)
+S:S_KIN | S_HI_DEMON | S_HI_UNDEAD | S_CYBER | PROT_GOOD
+O:9d2:OBJ(*, GREAT)
+O:5%:ART(\.Gothmog)
+M:3d5:MON(U.balrog, NO_SLEEP)
+M:3d9:MON(U.balrog.lesser, NO_SLEEP)
+D:Gothmog is the Chief Balrog in Morgoth's personal guard. He is renowned
+D:for slaying Ecthelion the Warder of the Gates and he has never been
+D:defeated in combat. With his whip of flame and awesome fiery breath he
+D:saved his master from Ungoliant's rage.
+I:COLOR(Light Red)
+P:Copy:Balrog:Mauler
+P:Weight:1000
+
+# vim: filetype=ri :
+

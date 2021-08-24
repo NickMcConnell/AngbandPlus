@@ -3,40 +3,30 @@
 static bool _on_mirror = FALSE;
 
 static int _count;
-static void _mirror_count_grid(point_t pos, cave_ptr grid)
+static void _cell_count_mirror(point_t pos, dun_cell_ptr cell)
 {
-    if (is_mirror_grid(grid)) _count++;
+    if (floor_has_mirror(cell))
+        _count++;
 }
 static int _mirrors_ct(void)
 {
     _count = 0;
-    dun_iter_interior(cave, _mirror_count_grid);
+    dun_iter_interior(cave, _cell_count_mirror);
     return _count;
 }
 
 static int _mirrors_max(void)
 {
-    return 4 + p_ptr->lev/10;
+    return 4 + plr->lev/10;
 }
 
 static bool _mirror_place(void)
 {
-    cave_ptr grid;
-    if (!cave_clean_at(p_ptr->pos))
+    if (!dun_place_mirror(cave, plr->pos))
     {
         msg_print("The object resists the spell.");
         return FALSE;
     }
-
-    grid = cave_at(p_ptr->pos);
-    grid->info |= CAVE_OBJECT;
-    grid->mimic = feat_mirror;
-    grid->info |= CAVE_GLOW;
-
-    note_pos(p_ptr->pos);
-    lite_pos(p_ptr->pos);
-    update_local_illumination(p_ptr->pos.y, p_ptr->pos.x);
-
     return TRUE;
 }
 
@@ -53,30 +43,17 @@ static void _banishing_mirror_spell(int cmd, var_ptr res)
         else
             var_set_string(res, "Teleport away a nearby monster.");
         break;
-    case SPELL_CAST:
-    {
-        int dir;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_beam(GF_AWAY_ALL, dir, spell_power(p_ptr->lev));
-        var_set_bool(res, TRUE);
-        break;
-    }
     case SPELL_ENERGY:
-        if (_on_mirror)
-        {
-            var_set_int(res, 50);
-            break;
-        }
-    default:
-        default_spell(cmd, res);
+        var_set_int(res, _on_mirror ? 50 : 100);
         break;
+    default:
+        beam_spell_aux(cmd, res, GF_TELEPORT, spell_dice(0, 0, plr->lev));
     }
 }
 
 static void _binding_field_spell(int cmd, var_ptr res)
 {
-    int dam = spell_power(p_ptr->lev*11 + 5 + p_ptr->to_d_spell);
+    dice_t dice = spell_dam_dice(0, 0, 5 + 11*plr->lev);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -86,10 +63,10 @@ static void _binding_field_spell(int cmd, var_ptr res)
         var_set_string(res, "Generates a magical triangle which damages all monsters in the area. The vertices of the triangle is you and two mirrors in sight.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, dam));
+        var_set_string(res, dice_info_dam(dice));
         break;
     case SPELL_CAST:
-        if (!binding_field(dam))
+        if (!plr_binding_field(dice_roll(dice)))
             msg_print("You were not able to choose suitable mirrors!");
         var_set_bool(res, TRUE);
         break;
@@ -121,9 +98,9 @@ static void _break_mirrors_spell(int cmd, var_ptr res)
 
 static void _drip_of_light_spell(int cmd, var_ptr res)
 {
-    int  dd = 3 + (p_ptr->lev-1)/5;
+    int  dd = 3 + (plr->lev-1)/5;
     int  ds = 4;
-    bool beam = (p_ptr->lev >= 10 && _on_mirror) ? TRUE : FALSE;
+    bool beam = _on_mirror && plr->lev >= 10;
 
     switch (cmd)
     {
@@ -136,31 +113,18 @@ static void _drip_of_light_spell(int cmd, var_ptr res)
         else
             var_set_string(res, "Fires a bolt of light");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(dd), ds, spell_power(p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        if (beam)
-            fire_beam(GF_LITE, dir,spell_power(damroll(dd, ds) + p_ptr->to_d_spell));
-        else
-            fire_bolt(GF_LITE, dir,spell_power(damroll(dd, ds) + p_ptr->to_d_spell));
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        if (beam)
+            beam_spell(cmd, res, GF_LIGHT, dd, ds);
+        else
+            bolt_spell(cmd, res, GF_LIGHT, dd, ds);
     }
 }
 
 static void _illusion_light_spell(int cmd, var_ptr res)
 {
     int mult = _on_mirror ? 4 : 3;
-    int power = spell_power(p_ptr->lev * mult);
+    int power = spell_power(plr->lev * mult);
 
     switch (cmd)
     {
@@ -174,11 +138,11 @@ static void _illusion_light_spell(int cmd, var_ptr res)
         var_set_string(res, info_power(power));
         break;
     case SPELL_CAST:
-        slow_monsters(power);
-        stun_monsters(5 + p_ptr->lev/5);
-        confuse_monsters(power);
-        turn_monsters(power);
-        stasis_monsters(power);
+        plr_project_los(GF_SLOW, power);
+        plr_project_los(GF_STUN, 5 + plr->lev/5);
+        plr_project_los(GF_OLD_CONF, power);
+        plr_project_los(GF_FEAR, power);
+        plr_project_los(GF_STASIS, power/3);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -212,10 +176,11 @@ static void _make_mirror_spell(int cmd, var_ptr res)
 
 static void _mirror_clashing_spell(int cmd, var_ptr res)
 {
-    int dd = 8 + (p_ptr->lev - 5)/4;
+    int dd = 8 + (plr->lev - 5)/4;
     int ds = 8;
-    int rad = p_ptr->lev > 20 ? spell_power((p_ptr->lev - 20)/8 + 1) : 0;
-
+    int rad = 0;
+    if (plr->lev > 20)
+        rad = 1 + (plr->lev - 20)/8;
     switch (cmd)
     {
     case SPELL_NAME:
@@ -224,21 +189,8 @@ static void _mirror_clashing_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a ball of shards.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(dd), ds, spell_power(p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball(GF_SHARDS, dir, spell_power(damroll(dd, ds) + p_ptr->to_d_spell), rad);
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell_aux(cmd, res, rad, GF_SHARDS, spell_dam_dice(dd, ds, 0)); 
     }
 }
 
@@ -254,7 +206,7 @@ static void _mirror_concentration_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
-        if (total_friends)
+        if (plr_pet_count())
         {
             msg_print("You need to focus on your pets.");
             return;
@@ -263,14 +215,14 @@ static void _mirror_concentration_spell(int cmd, var_ptr res)
         {
             msg_print("You feel your head clear a little.");
 
-            p_ptr->csp += (5 + p_ptr->lev * p_ptr->lev / 100);
-            if (p_ptr->csp >= p_ptr->msp)
+            plr->csp += (5 + plr->lev * plr->lev / 100);
+            if (plr->csp >= plr->msp)
             {
-                p_ptr->csp = p_ptr->msp;
-                p_ptr->csp_frac = 0;
+                plr->csp = plr->msp;
+                plr->csp_frac = 0;
             }
 
-            p_ptr->redraw |= (PR_MANA);
+            plr->redraw |= (PR_MANA);
             var_set_bool(res, TRUE);
         }
         else
@@ -295,7 +247,7 @@ static void _mirror_of_light_spell(int cmd, var_ptr res)
         var_set_string(res, "Lights up nearby area and the inside of a room permanently.");
         break;
     case SPELL_CAST:
-        lite_area(damroll(2, p_ptr->lev/2), p_ptr->lev/10 + 1);
+        lite_area(damroll(2, plr->lev/2), plr->lev/10 + 1);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -334,7 +286,7 @@ static void _mirror_of_ruffnor_spell(int cmd, var_ptr res)
         var_set_string(res, "Generates barrier which completely protect you from almost all damages. Takes a few your turns when the barrier breaks or duration time is exceeded.");
         break;
     case SPELL_CAST:
-        plr_tim_add(T_INVULN, spell_power(randint1(7) + 7));
+        plr_tim_add(T_INVULN, spell_power(500 + _1d(1000)));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -346,7 +298,7 @@ static void _mirror_of_ruffnor_spell(int cmd, var_ptr res)
 
 static void _mirror_of_seeing_spell(int cmd, var_ptr res)
 {
-    int lvl = p_ptr->lev;
+    int lvl = plr->lev;
 
     if (_on_mirror)
         lvl += 4;
@@ -405,7 +357,7 @@ static void _mirror_of_wandering_spell(int cmd, var_ptr res)
             var_set_string(res, "Teleport a long distance.");
         break;
     case SPELL_CAST:
-        teleport_player(p_ptr->lev*5, 0);
+        teleport_player(plr->lev*5, 0);
         var_set_bool(res, TRUE);
         break;
     case SPELL_ENERGY:
@@ -443,11 +395,10 @@ static void _mirror_shifting_spell(int cmd, var_ptr res)
     }
 }
 
-static void _mirror_sleeping_fn(point_t pos, cave_ptr grid)
+static void _mirror_sleeping_fn(point_t pos, dun_cell_ptr cell)
 {
-    if (!is_mirror_grid(grid)) return;
-    project(PROJECT_WHO_MIRROR, 2, pos.y, pos.x, p_ptr->lev, GF_OLD_SLEEP, 
-        PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP);
+    if (!floor_has_mirror(cell)) return;
+    dun_burst(cave, who_create_mirror(pos), 2, pos, GF_SLEEP, plr->lev);
 }
 static void _mirror_sleeping_spell(int cmd, var_ptr res)
 {
@@ -484,12 +435,14 @@ static void _mirror_tunnel_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
     {
-        int x = 0, y = 0;
+        point_t pos;
+        int rng = 10 + plr->lev/2;
         var_set_bool(res, FALSE);
 
         msg_print("You go through the mirror world ...");
-        if (!tgt_pt(&x, &y, p_ptr->lev / 2 + 10)) return;
-        if (!dimension_door_aux(x, y, p_ptr->lev / 2 + 10))
+        pos = target_pos(rng);
+        if (!dun_pos_interior(cave, pos)) return;
+        if (!dimension_door_aux(pos, rng))
             msg_print("You fail to pass into the mirror plane correctly!");
 
         var_set_bool(res, TRUE);
@@ -547,15 +500,17 @@ static void _robe_of_dust_spell(int cmd, var_ptr res)
     }
 }
 
-static void _seal_of_mirror_fn(point_t pos, cave_ptr grid)
+static void _seal_of_mirror_fn(point_t pos, dun_cell_ptr cell)
 {
-    int dam;
-    if (!is_mirror_grid(grid)) return;
-    dam = spell_power(p_ptr->lev*4 + 100);
-    if (project_m(0, 0, pos.y, pos.x, dam, GF_GENOCIDE, PROJECT_GRID|PROJECT_ITEM|PROJECT_KILL|PROJECT_JUMP,TRUE))
+    mon_ptr mon;
+    if (!floor_has_mirror(cell)) return;
+    mon = dun_mon_at(cave, pos);
+    if (mon)
     {
-        if (!mon_at(pos))
-            remove_mirror(pos.y, pos.x);
+        int dam = spell_power(plr->lev*4 + 100);
+        gf_affect_m(who_create_plr(), mon, GF_GENOCIDE, dam, GF_AFFECT_SPELL);
+        if (mon_is_deleted(mon))
+            dun_remove_mirror(cave, pos);
     }
 }
 static void _seal_of_mirror_spell(int cmd, var_ptr res)
@@ -580,8 +535,10 @@ static void _seal_of_mirror_spell(int cmd, var_ptr res)
 
 static void _seeker_ray_spell(int cmd, var_ptr res)
 {
-    int dd = 11 + (p_ptr->lev - 5)/4;
-    int ds = 8;
+    dice_t dice = {0};
+    dice.dd = 11 + (plr->lev - 5)/4;
+    dice.ds = 8;
+    dice.scale = spell_power(1000);
 
     switch (cmd)
     {
@@ -592,14 +549,14 @@ static void _seeker_ray_spell(int cmd, var_ptr res)
         var_set_string(res, "Fires a beam of mana. If the beam hit a mirror, it breaks that mirror and reflects toward another mirror.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(dd), ds, spell_power(p_ptr->to_d_spell)));
+        var_set_string(res, dice_info_dam(dice));
         break;
     case SPELL_CAST:
     {
-        int dir;
+        point_t pos = get_fire_pos();
         var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_beam(GF_SEEKER, dir, spell_power(damroll(dd,ds) + p_ptr->to_d_spell));
+        if (!dun_pos_interior(cave, pos)) return;
+        plr_seeker_ray(pos, dice_roll(dice));
         var_set_bool(res, TRUE);
         break;
     }
@@ -611,7 +568,7 @@ static void _seeker_ray_spell(int cmd, var_ptr res)
 
 static void _shield_of_water_spell(int cmd, var_ptr res)
 {
-    int lvl = p_ptr->lev; /* Boost if _on_mirror? */
+    int lvl = plr->lev; /* Boost if _on_mirror? */
 
     switch (cmd)
     {
@@ -642,9 +599,11 @@ static void _shield_of_water_spell(int cmd, var_ptr res)
 
 static void _super_ray_spell(int cmd, var_ptr res)
 {
-    int dd = 1;
-    int ds = p_ptr->lev * 2;
-    int b = 150 + p_ptr->to_d_spell;
+    dice_t dice = {0};
+    dice.dd = 1;
+    dice.ds = plr->lev * 2;
+    dice.base = 150 + plr->to_d_spell;
+    dice.scale = spell_power(1000);
 
     switch (cmd)
     {
@@ -655,14 +614,14 @@ static void _super_ray_spell(int cmd, var_ptr res)
         var_set_string(res, "Fires a powerful beam of mana. If the beam hit a mirror, it breaks that mirror and fires 8 beams of mana to 8 different directions from that point.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(dd, spell_power(ds), b));
+        var_set_string(res, dice_info_dam(dice));
         break;
     case SPELL_CAST:
     {
-        int dir;
+        point_t pos = get_fire_pos();
         var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_beam(GF_SUPER_RAY, dir, spell_power(damroll(dd,ds) + b));
+        if (!dun_pos_interior(cave, pos)) return;
+        plr_super_ray(pos, dice_roll(dice));
         var_set_bool(res, TRUE);
         break;
     }
@@ -739,33 +698,35 @@ static power_info _powers[] =
 };
 static int _get_spells(spell_info* spells, int max)
 {
-    _on_mirror = is_mirror_grid(cave_at(p_ptr->pos));
+    dun_cell_ptr cell = dun_cell_at(cave, plr->pos);
+    _on_mirror = floor_has_mirror(cell);
     return get_spells_aux(spells, max, _spells);
 }
 
 static int _get_powers(spell_info* spells, int max)
 {    
-    _on_mirror = is_mirror_grid(cave_at(p_ptr->pos));
+    dun_cell_ptr cell = dun_cell_at(cave, plr->pos);
+    _on_mirror = floor_has_mirror(cell);
     return get_powers_aux(spells, max, _powers);
 }
 
 static void _calc_bonuses(void)
 {
-    if (equip_find_art(ART_YATA))
+    if (equip_find_art("*.Yata-no-Kagami"))
     {
-        p_ptr->dec_mana++;
-        p_ptr->easy_spell++;
+        plr->dec_mana++;
+        plr->easy_spell++;
     }
-    if (equip_find_art(ART_GIL_GALAD))
-        p_ptr->dec_mana++;
+    if (equip_find_art(").Gil-Galad"))
+        plr->dec_mana++;
 
-    if (p_ptr->lev >= 40) 
-        p_ptr->reflect = TRUE;
+    if (plr->lev >= 40) 
+        plr->reflect = TRUE;
 }
 
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    if(p_ptr->lev >= 40)
+    if(plr->lev >= 40)
         add_flag(flgs, OF_REFLECT);
 }
 
@@ -791,10 +752,8 @@ static void _on_fail(const spell_info *spell)
         else
         {
             msg_print("Your mind unleashes its power in an uncontrollable storm!");
-
-            project(PROJECT_WHO_UNCTRL_POWER, 2 + p_ptr->lev / 10, p_ptr->pos.y, p_ptr->pos.x, p_ptr->lev * 2,
-                GF_MANA, PROJECT_JUMP | PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM);
-            p_ptr->csp = MAX(0, p_ptr->csp - p_ptr->lev * MAX(1, p_ptr->lev / 10));
+            dun_burst(cave, who_create_unctrl_power(), 2 + plr->lev/10, plr->pos, GF_MANA, 2*plr->lev);
+            plr->csp = MAX(0, plr->csp - plr->lev * MAX(1, plr->lev / 10));
         }
     }
 }
@@ -811,6 +770,7 @@ static caster_info * _caster_info(void)
         me.encumbrance.weapon_pct = 50;
         me.encumbrance.enc_wgt = 800;
         me.on_fail = _on_fail;
+        me.options = CASTER_GAIN_SKILL;
         init = TRUE;
     }
     return &me;
@@ -830,7 +790,7 @@ plr_class_ptr mirror_master_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  33,  40,   3,  14,  16,  34,  30 };
-    skills_t xs = { 10,  11,  12,   0,   0,   0,   6,  10 };
+    skills_t xs = { 50,  55,  60,   0,   0,   0,  30,  50 };
 
         me = plr_class_alloc(CLASS_MIRROR_MASTER);
         me->name = "Mirror-Master";
@@ -877,36 +837,16 @@ plr_class_ptr mirror_master_get_class(void)
     return me;
 }
 
-bool is_mirror_grid(cave_type *c_ptr)
+static void _remove_mirror_grid(point_t pos, dun_cell_ptr cell)
 {
-    if ((c_ptr->info & CAVE_OBJECT) && have_flag(f_info[c_ptr->mimic].flags, FF_MIRROR))
-        return TRUE;
-    else
-        return FALSE;
+    if (!floor_has_mirror(cell)) return;
+    dun_remove_mirror(cave, pos);
 }
-
-void remove_mirror(int y, int x)
+static void _explode_mirror_grid(point_t pos, dun_cell_ptr cell)
 {
-    cave_type *c_ptr = cave_at_xy(x, y);
-
-    c_ptr->info &= ~(CAVE_OBJECT);
-    c_ptr->mimic = 0;
-
-    note_spot(y, x);
-    lite_spot(y, x);
-}
-
-static void _remove_mirror_grid(point_t pos, cave_ptr grid)
-{
-    if (!is_mirror_grid(grid)) return;
-    remove_mirror(pos.y, pos.x);
-}
-static void _explode_mirror_grid(point_t pos, cave_ptr grid)
-{
-    if (!is_mirror_grid(grid)) return;
-    remove_mirror(pos.y, pos.x);
-    project(PROJECT_WHO_MIRROR, 2, pos.y, pos.x, p_ptr->lev / 2 + 5, GF_SHARDS,
-            PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP);
+    if (!floor_has_mirror(cell)) return;
+    dun_remove_mirror(cave, pos);
+    dun_burst(cave, who_create_mirror(pos), 2, pos, GF_SHARDS, 5 + plr->lev/2);
 }
 void remove_all_mirrors(bool explode)
 {

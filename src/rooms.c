@@ -146,10 +146,8 @@ void transform_free(transform_ptr x)
 static bool vault_monster_okay(mon_race_ptr race)
 {
     if (!mon_alloc_dungeon(race)) return FALSE;
-    if (race->flags1 & RF1_UNIQUE) return FALSE;
-    if (race->flags7 & RF7_UNIQUE2) return FALSE;
-    if (race->flagsr & RFR_RES_ALL) return FALSE;
-    if (race->flags7 & RF7_AQUATIC) return FALSE;
+    if (mon_race_is_unique(race)) return FALSE;
+    if (mon_race_is_aquatic(race)) return FALSE;
     return TRUE;
 }
 
@@ -171,10 +169,9 @@ static bool vault_aux_simple(mon_race_ptr race)
 static bool vault_aux_jelly(mon_race_ptr race)
 {
     if (!vault_monster_okay(race)) return FALSE;
-    if (race->id == MON_CAAWS || race->id == MON_SHOGGOTH) return TRUE;
-    if ((race->flags2 & RF2_KILL_BODY) && !(race->flags1 & RF1_NEVER_BLOW)) return FALSE;
-    if (!my_strchr("ijm,", race->d_char)) return FALSE;
-    return TRUE;
+    if (mon_race_is_(race, "E.caaws") || mon_race_is_(race, "j.shoggoth")) return TRUE;
+    if (mon_race_can_trample_mon(race) && !mon_race_never_blow(race)) return FALSE;
+    return mon_race_is_char_ex(race, "ijm");
 }
 
 /*
@@ -183,8 +180,8 @@ static bool vault_aux_jelly(mon_race_ptr race)
 static bool vault_aux_animal(mon_race_ptr race)
 {
     if (!vault_monster_okay(race)) return FALSE;
-    if (!(race->flags3 & RF3_ANIMAL)) return FALSE;
-    if (race->id == MON_DEATH_BEAST) return FALSE;
+    if (!mon_race_is_animal(race)) return FALSE;
+    if (mon_race_is_(race, "Z.death")) return FALSE;
     return TRUE;
 }
 
@@ -194,7 +191,7 @@ static bool vault_aux_animal(mon_race_ptr race)
 static bool vault_aux_undead(mon_race_ptr race)
 {
     if (!vault_monster_okay(race)) return FALSE;
-    if (!(race->flags3 & RF3_UNDEAD)) return FALSE;
+    if (!mon_race_is_undead(race)) return FALSE;
     return TRUE;
 }
 
@@ -203,49 +200,32 @@ static bool vault_aux_undead(mon_race_ptr race)
  */
 bool vault_aux_chapel_g(mon_race_ptr race)
 {
-    static int chapel_list[] = {
-        MON_NOV_PRIEST, MON_NOV_PALADIN, 
-        MON_PRIEST, MON_JADE_MONK, MON_IVORY_MONK, MON_ULTRA_PALADIN, 
-        MON_EBONY_MONK, MON_W_KNIGHT, MON_KNI_TEMPLAR, MON_PALADIN,
-        MON_TOPAZ_MONK, 0};
-
-    int i;
+    static cptr chapel_list[] = {
+        "p.novice priest", "p.novice paladin",
+        "p.priest", "p.jade monk", "p.ivory monk", "p.ultra-elite paladin",
+        "p.ebony monk", "p.white knight", "p.knight templar", "p.paladin",
+        "p.topaz monk", NULL };
 
     if (!vault_monster_okay(race)) return FALSE;
-    if (race->flags3 & RF3_EVIL) return FALSE;
-    if (race->id == MON_A_GOLD || race->id == MON_A_SILVER) return FALSE;
+    if (race->align < 0) return FALSE;
+    if (mon_race_is_(race, "A.gold") || mon_race_is_(race, "A.silver")) return FALSE;
 
-    if (race->d_char == 'A') return TRUE;
-    for (i = 0; chapel_list[i]; i++)
-        if (race->id == chapel_list[i]) return TRUE;
-
-    return FALSE;
+    if (mon_race_is_char(race, 'A')) return TRUE;
+    return mon_race_is_one_(race, chapel_list);
 }
 
 bool vault_aux_chapel_e(mon_race_ptr race)
 {
-    static int chapel_list[] = {
-        MON_FALLEN_ANGEL, 
-        MON_HIGH_PRIEST, 
-        MON_ARCHPRIEST,
-        MON_BLACK_KNIGHT,
-        MON_DEATH_KNIGHT,
-        MON_HELL_KNIGHT,
-        MON_ANTI_PALADIN,
-        MON_IPSISSIMUS,
-        MON_WYRD_SISTER,
-        0
-    };
-    int i;
+    static cptr chapel_list[] = {
+        "A.fallen", "p.high priest", "p.archpriest", "p.black knight",
+        "p.death knight", "p.hell knight", "p.anti-paladin", "p.ipsissimus",
+        "p.wyrd sister", NULL };
 
     if (!vault_monster_okay(race)) return FALSE;
-    if (race->flags3 & RF3_GOOD) return FALSE;
+    if (race->align > 0) return FALSE;
 
-    if (race->d_char == 'U') return TRUE;
-    for (i = 0; chapel_list[i]; i++)
-        if (race->id == chapel_list[i]) return TRUE;
-
-    return FALSE;
+    if (mon_race_is_char(race, 'U')) return TRUE;
+    return mon_race_is_one_(race, chapel_list);
 }
 
 /*
@@ -254,8 +234,8 @@ bool vault_aux_chapel_e(mon_race_ptr race)
 static bool vault_aux_kennel(mon_race_ptr race)
 {
     if (!vault_monster_okay(race)) return FALSE;
-    if (!my_strchr("CZ", race->d_char)) return FALSE;
-    if (race->id == MON_DEATH_BEAST) return FALSE;
+    if (!mon_race_is_char_ex(race, "CZ")) return FALSE;
+    if (mon_race_is_(race, "Z.death")) return FALSE;
     return TRUE;
 }
 
@@ -265,8 +245,7 @@ static bool vault_aux_kennel(mon_race_ptr race)
 static bool vault_aux_mimic(mon_race_ptr race)
 {
     if (!vault_monster_okay(race)) return FALSE;
-    if (!my_strchr("!$&(/=?[\\|", race->d_char)) return FALSE;
-    return TRUE;
+    return mon_race_is_char_ex(race, "!$&(/=?[\\|");
 }
 
 /*
@@ -286,18 +265,16 @@ static char vault_aux_char;
 static bool vault_aux_symbol_e(mon_race_ptr race)
 {
     if (!vault_monster_okay(race)) return FALSE;
-    if ((race->flags2 & RF2_KILL_BODY) && !(race->flags1 & RF1_NEVER_BLOW)) return FALSE;
-    if (race->flags3 & RF3_GOOD) return FALSE;
-    if (race->d_char != vault_aux_char) return FALSE;
-    return TRUE;
+    if (mon_race_can_trample_mon(race) && !mon_race_never_blow(race)) return FALSE;
+    if (race->align > 0) return FALSE;
+    return mon_race_is_char(race, vault_aux_char);
 }
 static bool vault_aux_symbol_g(mon_race_ptr race)
 {
     if (!vault_monster_okay(race)) return FALSE;
-    if ((race->flags2 & RF2_KILL_BODY) && !(race->flags1 & RF1_NEVER_BLOW)) return FALSE;
-    if (race->flags3 & RF3_EVIL) return FALSE;
-    if (race->d_char != vault_aux_char) return FALSE;
-    return TRUE;
+    if (mon_race_can_trample_mon(race) && !mon_race_never_blow(race)) return FALSE;
+    if (race->align < 0) return FALSE;
+    return mon_race_is_char(race, vault_aux_char);
 }
 
 /*
@@ -306,8 +283,8 @@ static bool vault_aux_symbol_g(mon_race_ptr race)
 static bool vault_aux_orc(mon_race_ptr race)
 {
     if (!vault_monster_okay(race)) return FALSE;
-    if (!(race->flags3 & RF3_ORC)) return FALSE;
-    if (race->flags3 & RF3_UNDEAD) return FALSE;
+    if (!mon_race_is_orc(race)) return FALSE;
+    if (mon_race_is_undead(race)) return FALSE;
     return TRUE;
 }
 
@@ -317,8 +294,8 @@ static bool vault_aux_orc(mon_race_ptr race)
 static bool vault_aux_troll(mon_race_ptr race)
 {
     if (!vault_monster_okay(race)) return FALSE;
-    if (!(race->flags3 & RF3_TROLL)) return FALSE;
-    if (race->flags3 & RF3_UNDEAD) return FALSE;
+    if (!mon_race_is_troll(race)) return FALSE;
+    if (mon_race_is_undead(race)) return FALSE;
     return TRUE;
 }
 
@@ -328,9 +305,9 @@ static bool vault_aux_troll(mon_race_ptr race)
 static bool vault_aux_giant(mon_race_ptr race)
 {
     if (!vault_monster_okay(race)) return FALSE;
-    if (!(race->flags3 & RF3_GIANT)) return FALSE;
-    if (race->flags3 & RF3_GOOD) return FALSE;
-    if (race->flags3 & RF3_UNDEAD) return FALSE;
+    if (!mon_race_is_giant(race)) return FALSE;
+    if (race->align > 0) return FALSE;
+    if (mon_race_is_undead(race)) return FALSE;
     return TRUE;
 }
 
@@ -340,9 +317,9 @@ static bool vault_aux_giant(mon_race_ptr race)
 static bool vault_aux_dragon(mon_race_ptr race)
 {
     if (!vault_monster_okay(race)) return FALSE;
-    if (!(race->flags3 & RF3_DRAGON)) return FALSE;
+    if (!mon_race_is_dragon(race)) return FALSE;
     /*if (race->flags4 != vault_aux_dragon_mask4) return FALSE;*/
-    if (race->flags3 & RF3_UNDEAD) return FALSE;
+    if (mon_race_is_undead(race)) return FALSE;
     return TRUE;
 }
 
@@ -352,8 +329,8 @@ static bool vault_aux_dragon(mon_race_ptr race)
 static bool vault_aux_demon(mon_race_ptr race)
 {
     if (!vault_monster_okay(race)) return FALSE;
-    if ((race->flags2 & RF2_KILL_BODY) && !(race->flags1 & RF1_NEVER_BLOW)) return FALSE;
-    if (!(race->flags3 & RF3_DEMON)) return FALSE;
+    if (mon_race_can_trample_mon(race) && !mon_race_never_blow(race)) return FALSE;
+    if (!mon_race_is_demon(race)) return FALSE;
     return TRUE;
 }
 
@@ -363,8 +340,8 @@ static bool vault_aux_demon(mon_race_ptr race)
 static bool vault_aux_cthulhu(mon_race_ptr race)
 {
     if (!vault_monster_okay(race)) return FALSE;
-    if ((race->flags2 & RF2_KILL_BODY) && !(race->flags1 & RF1_NEVER_BLOW)) return FALSE;
-    if (!(race->flags2 & (RF2_ELDRITCH_HORROR))) return FALSE;
+    if (mon_race_can_trample_mon(race) && !mon_race_never_blow(race)) return FALSE;
+    if (!mon_race_is_horror(race)) return FALSE;
     return TRUE;
 }
 
@@ -384,25 +361,31 @@ static void vault_prep_clone(void)
 static bool _symbol_g(mon_race_ptr race)
 {
     if (!vault_monster_okay(race)) return FALSE;
-    if (race->flags3 & RF3_EVIL) return FALSE;
+    if (race->align < 0) return FALSE;
     return TRUE;
 }
 static void vault_prep_symbol_g(void)
 {
+    mon_race_ptr r;
     mon_alloc_push_filter(_symbol_g);
-    vault_aux_char = mon_alloc_choose(cave->difficulty + 10)->d_char;
+    r = mon_alloc_choose(cave->difficulty + 10);
+    if (r) vault_aux_char = mon_race_char(r);
+    else vault_aux_char = 'p';
     mon_alloc_pop_filter();
 }
 static bool _symbol_e(mon_race_ptr race)
 {
     if (!vault_monster_okay(race)) return FALSE;
-    if (race->flags3 & RF3_GOOD) return FALSE;
+    if (race->align > 0) return FALSE;
     return TRUE;
 }
 static void vault_prep_symbol_e(void)
 {
+    mon_race_ptr r;
     mon_alloc_push_filter(_symbol_e);
-    vault_aux_char = mon_alloc_choose(cave->difficulty + 10)->d_char;
+    r = mon_alloc_choose(cave->difficulty + 10);
+    if (r) vault_aux_char = mon_race_char(r);
+    else vault_aux_char = 'u';
     mon_alloc_pop_filter();
 }
 
@@ -486,20 +469,8 @@ static void vault_prep_dragon(void)
  */
 static bool vault_aux_dark_elf(mon_race_ptr race)
 {
-    int i;
-    static int dark_elf_list[] =
-    {
-        MON_D_ELF, MON_D_ELF_MAGE, MON_D_ELF_WARRIOR, MON_D_ELF_PRIEST,
-        MON_D_ELF_LORD, MON_D_ELF_WARLOCK, MON_D_ELF_DRUID, MON_NIGHTBLADE,
-        MON_D_ELF_SORC, MON_D_ELF_SHADE, 0,
-    };
-
     if (!vault_monster_okay(race)) return FALSE;
-
-    for (i = 0; dark_elf_list[i]; i++)
-        if (race->id == dark_elf_list[i]) return TRUE;
-
-    return FALSE;
+    return mon_race_is_dark_elf(race);
 }
 
 typedef struct vault_aux_type vault_aux_type;
@@ -680,71 +651,11 @@ static bool _obj_kind_hook(int k_idx)
     }
 }
 
-static void _apply_room_grid_feat(point_t p, room_grid_ptr grid, u16b room_flags)
-{
-    cave_type *c_ptr = cave_at(p);
-
-    /* Feature */
-    if (grid->cave_feat)
-    {
-        c_ptr->feat = conv_dungeon_feat(grid->cave_feat);
-        c_ptr->info = (c_ptr->info & (CAVE_MASK | CAVE_TEMP | CAVE_ROOM)) | grid->cave_info;
-
-        if (grid->flags & ROOM_GRID_SPECIAL)
-            c_ptr->special = grid->extra;
-    }
-
-    /* Traps and Secret Doors */
-    if (grid->cave_trap)
-    {
-        if (!grid->trap_pct || randint0(100) < grid->trap_pct)
-        {
-            c_ptr->mimic = c_ptr->feat;
-            c_ptr->feat = conv_dungeon_feat(grid->cave_trap);
-        }
-    }
-    else if (grid->flags & ROOM_GRID_TRAP_RANDOM)
-    {
-        if (!grid->trap_pct || randint0(100) < grid->trap_pct)
-        {
-            place_trap(p.y, p.x);
-        }
-    }
-}
 
 static room_grid_ptr _room_grid_hack = 0;
-static u16b _room_flags_hack = 0;
 static bool _room_grid_mon_hook(mon_race_ptr race)
 {
-    if (_room_flags_hack & ROOM_THEME_GOOD)
-    {
-        if (race->flags3 & RF3_EVIL)
-            return FALSE;
-    }
-    if (_room_flags_hack & ROOM_THEME_EVIL)
-    {
-        if (race->flags3 & RF3_GOOD)
-            return FALSE;
-    }
-    if (_room_grid_hack->flags & ROOM_GRID_MON_NO_UNIQUE)
-    {
-        if (race->flags1 & RF1_UNIQUE)
-            return FALSE;
-    }
-    if (_room_grid_hack->flags & ROOM_GRID_MON_TYPE)
-    {
-        if (!mon_is_type(race->id, _room_grid_hack->monster))
-            return FALSE;
-    }
-    else if (_room_grid_hack->flags & ROOM_GRID_MON_CHAR)
-    {
-        if (_room_grid_hack->monster != race->d_char)
-            return FALSE;
-    }
-    else if (_room_grid_hack->flags & ROOM_GRID_MON_RANDOM)
-    {
-    }
-    return TRUE;
+    return mon_rule_filter(&_room_grid_hack->monster, race);
 }
 
 static bool _is_deep_night(void)
@@ -763,131 +674,88 @@ static bool _is_broad_daylight(void)
         return FALSE;
     return TRUE;
 }
-static void _apply_room_grid_mon(point_t p, room_grid_ptr grid, room_ptr room)
+static u32b _room_grid_mode(room_grid_ptr grid, room_ptr room)
 {
-    int mode = 0;
-
-    if (!(grid->flags & ROOM_GRID_MON_RANDOM) && !grid->monster)
-        return;
-
-    if (0 < grid->mon_pct && randint1(100) > grid->mon_pct)
-        return;
-
-    /* XXX Handle monster group sequencing issues ... hard squares should get hard monsters! */
-    if (grid->object.flags & (OBJ_DROP_STD_EGO | OBJ_DROP_RAND_EGO | OBJ_DROP_RAND_ART | AM_GREAT))
-    {
-        mon_ptr mon = mon_at(p);
-        if (mon) delete_monster(mon);
-    }
-
-    if (!(grid->flags & ROOM_GRID_MON_NO_GROUP))
-        mode |= PM_ALLOW_GROUP;
-    if (!(grid->flags & ROOM_GRID_MON_NO_SLEEP))
-        mode |= PM_ALLOW_SLEEP;
-    if (grid->flags & ROOM_GRID_MON_HASTE)
-        mode |= PM_HASTE;
-
-    if (grid->flags & ROOM_GRID_MON_FRIENDLY)
-        mode |= PM_FORCE_FRIENDLY;
+    u32b mode = mon_rule_mode(&grid->monster);
     if (room->flags & ROOM_THEME_FRIENDLY)
         mode |= PM_FORCE_FRIENDLY;
+    return mode;
+}
+static mon_race_ptr _room_grid_race(point_t pos, room_grid_ptr grid, room_ptr room)
+{
+    mon_rule_t rule = grid->monster; /* copy since we modify to handle vaults */
+    int lvl = cave->difficulty + rule.lvl_boost, amt;
+    mon_race_ptr race = NULL;
 
-    /* The NIGHT theme is designed for wilderness cemeteries and 
-       such, which should be populated with foul undead, but only
-       in the deep, dark hours of night! */
+    /* monster rules are optional */
+    if (!mon_rule_is_valid(&rule))
+        return NULL;
+
+    amt = mon_rule_amt(&rule);
+    if (!amt)
+        return NULL;
+
+    /* tweak the rule to match room options */
+    if (room->flags & ROOM_THEME_GOOD)
+        rule.flags |= MON_RULE_GOOD;
+    if (room->flags & ROOM_THEME_EVIL)
+        rule.flags |= MON_RULE_EVIL;
+
     if ((room->flags & ROOM_THEME_NIGHT) && plr_on_surface())
     {
         if (!_is_deep_night())
-            return;
+            return NULL;
     }
-
-    /* Added for symmetry with ROOM_THEME_NIGHT ... any ideas? */
     if ((room->flags & ROOM_THEME_DAY) && plr_on_surface())
     {
         if (!_is_broad_daylight())
-            return;
+            return NULL;
     }
 
-    if (grid->flags & (ROOM_GRID_MON_TYPE | ROOM_GRID_MON_RANDOM | ROOM_GRID_MON_CHAR))
+    if (room->type == ROOM_VAULT)
     {
-        mon_race_ptr race = NULL;
-        u32b options = 0;
-        int  min_level = 0;
-        mon_ptr mon;
-        int level = cave->difficulty + grid->monster_level;
-
-        if (grid->flags & ROOM_GRID_MON_NO_UNIQUE)
-            options |= GMN_NO_UNIQUES;
-
-        if (room->type == ROOM_VAULT)
+        if (room->subtype == VAULT_GREATER)
         {
-            if (room->subtype == VAULT_GREATER)
-            {
-                options |= GMN_POWER_BOOST;
-                min_level = MIN(40, level - 10);
-                if (grid->object.flags & (OBJ_DROP_RAND_EGO | AM_GREAT))
-                    min_level = MIN(55, level - 5);
-            }
-            /* Lesser Vaults only "Power Boost" excellent tiles */
-            else if (grid->object.flags & (OBJ_DROP_RAND_EGO | AM_GREAT))
-            {
-                options |= GMN_POWER_BOOST;
-                min_level = MIN(37, level - 7);
-            }
+            rule.flags |= MON_RULE_VAULT;
+            if (grid->object.flags & (OBJ_DROP_RAND_EGO | AM_GREAT))
+                rule.min_lvl = MIN(55, lvl - 5);
+            else
+                rule.min_lvl = MIN(40, lvl - 10);
         }
-
-        _room_grid_hack = grid;
-        _room_flags_hack = room->flags;
-        mon_alloc_push_filter(_room_grid_mon_hook);
-        mon_alloc_push_filter(mon_alloc_feat_p(cave_at(p)->feat));
-        race = mon_alloc_choose_aux2(mon_alloc_current_tbl(), level, min_level, options);
-        mon_alloc_pop_filter();
-        mon_alloc_pop_filter();
-        if (race) /* XXX Oval Crypt I in D_SANCTUARY will fail to pick a monster */
+        /* Lesser Vaults only "Power Boost" excellent tiles */
+        else if (grid->object.flags & (OBJ_DROP_RAND_EGO | AM_GREAT))
         {
-            mon = place_monster_aux(0, p, race->id, mode);
-            if (mon)
-            {
-                /* Vault Monsters need to be faced! The level check is for Nodens, Destroyer, Gothmog, etc.
-                 * as an act of mercy! */
-                if (room->type == ROOM_VAULT && room->subtype == VAULT_GREATER && race->level < 90)
-                    mon->mflag2 |= MFLAG2_VAULT;
-            }
+            rule.flags |= MON_RULE_VAULT;
+            rule.min_lvl = MIN(37, lvl - 7);
         }
     }
-    else if (grid->monster)
+   {dun_cell_ptr cell = dun_cell_at(cave, pos);
+    mon_race_p filter = mon_alloc_cell_p(cell);
+    mon_alloc_push_filter(filter);}
+    race = mon_rule_race(&rule);
+    mon_alloc_pop_filter();
+
+    return race;
+}
+static void _apply_room_grid_mon(point_t p, room_grid_ptr grid, room_ptr room)
+{
+    mon_race_ptr race = _room_grid_race(p, grid, room);
+    mon_ptr mon = NULL;
+
+    if (!race) return;
+
+    /* remove existing monster for excellent vault squares (mon_race->friends) */
+    if (grid->object.flags & (OBJ_DROP_STD_EGO | OBJ_DROP_RAND_EGO | OBJ_DROP_RAND_ART | AM_GREAT))
     {
-        int old_cur_num, old_max_num;
-        mon_ptr mon;
-        mon_race_ptr race = mon_race_lookup(grid->monster);
+        mon_ptr mon = dun_mon_at(cave, p);
+        if (mon) delete_monster(mon);
+    }
 
-        /* Letters in quest files need extra handling for cloned uniques,
-           as well as resurrecting uniques already slain. */
-        old_cur_num = race->cur_num;
-        old_max_num = race->max_num;
-
-        if (race->flags1 & RF1_UNIQUE)
-        {
-            race->cur_num = 0;
-            race->max_num = 1;
-        }
-        else if (race->flags7 & RF7_NAZGUL)
-        {
-            if (race->cur_num == race->max_num)
-            {
-                race->max_num++;
-            }
-        }
-
-        mon = place_monster_aux(0, p, grid->monster, mode | PM_NO_KAGE);
-        if (mon && (grid->flags & ROOM_GRID_MON_CLONED))
-        {
-            mon->smart |= (1U << SM_CLONED);
-
-            /* Make alive again for real unique monster */
-            race->cur_num = old_cur_num;
-            race->max_num = old_max_num;
-        }
+    mon = place_monster_aux(who_create_null(), p, race, _room_grid_mode(grid, room));
+    if (mon)
+    {
+        if (room->type == ROOM_VAULT && room->subtype == VAULT_GREATER && race->alloc.lvl < 90)
+            mon->mflag2 |= MFLAG2_VAULT;
     }
 }
 
@@ -970,7 +838,7 @@ static obj_ptr _make_obj_theme(room_grid_ptr grid, int level)
             apply_magic(&forge, level, mode);
             obj_make_pile(&forge);
         }
-        else if (p_ptr->wizard)
+        else if (plr->wizard)
         {
             msg_format("Unable to _make_obj_theme(%d)", _obj_kind_hack);
         }
@@ -981,8 +849,8 @@ static obj_ptr _make_obj_theme(room_grid_ptr grid, int level)
 
 static void _apply_room_grid_obj(point_t p, room_grid_ptr grid, room_ptr room)
 {
-    /* see if tile was trapped in _apply_room_grid_feat */
-    if (!cave_drop_bold(p.y, p.x)) return;
+    /* see if tile was trapped in apply_room_grid_feat */
+    if (!dun_allow_drop_at(cave, p)) return;
 
     if (room->type == ROOM_VAULT && (grid->object.flags & (OBJ_DROP_RAND_EGO | AM_GREAT)))
     {
@@ -1014,93 +882,68 @@ static void _apply_room_grid_obj(point_t p, room_grid_ptr grid, room_ptr room)
 #define _MAX_FORMATION 10
 static int _formation_monsters[_MAX_FORMATION];
 
-static bool _init_formation(room_ptr room, point_t p)
+static bool _random_formation(point_t p, room_grid_ptr grid, room_ptr room)
 {
-    room_grid_ptr grid = _find_room_grid(room, '0');
-    int i, j, n, which;
-    monster_type align;
-    int level = cave->difficulty + grid->monster_level;
+    room_grid_t copy = *grid;
+    int align = 0; /* force consistent formation alignment */
+    int level = cave->difficulty + grid->monster.lvl_boost;
     bool fail = FALSE;
 
-    for (i = 0; i < _MAX_FORMATION; i++)
-        _formation_monsters[i] = 0;
+    int n = randint0(100), i;
+    if (cave->type->id == D_SURFACE) n = 99; /* Hack: Most nests/pits won't allocate on the surface! */
 
-    if (!grid) 
-        return FALSE;
-
-    /* Phase I: Push an appropriate allocation filter */
-    if (grid->flags & (ROOM_GRID_MON_TYPE | ROOM_GRID_MON_CHAR))
+    if (n < 5)
     {
-        _room_grid_hack = grid;
-        _room_flags_hack = room->flags;
+        int which = pick_vault_type(nest_types, 0xffff);
+
+        if (which < 0) 
+            return FALSE;
+
+        if (nest_types[which].prep_func)
+            nest_types[which].prep_func();
+
+        mon_alloc_push_filter(nest_types[which].hook_func);
+    }
+    else if (n < 30)
+    {
+        int which = pick_vault_type(pit_types, 0xffff);
+
+        if (which < 0) 
+            return FALSE;
+
+        if (pit_types[which].prep_func)
+            pit_types[which].prep_func();
+
+        mon_alloc_push_filter(nest_types[which].hook_func);
+    }
+    else if (n < 50)
+    {
+        copy.monster.flags = MON_RULE_TYPE;
+        switch (_1d(5))
+        {
+        case 1: copy.monster.which = SUMMON_KAMIKAZE; break;
+        case 2: copy.monster.which = SUMMON_KNIGHT; break;
+        case 3: copy.monster.which = SUMMON_HUMAN; break;
+        case 4: copy.monster.which = SUMMON_DRAGON; break;
+        case 5: copy.monster.which = SUMMON_THIEF; break;
+        }
+        _room_grid_hack = &copy;
         mon_alloc_push_filter(_room_grid_mon_hook);
-    }    
-    else if (grid->flags & ROOM_GRID_MON_RANDOM)
+    }
+    else 
     {
-        n = randint0(100);
-        if (cave->dun_type_id == D_SURFACE) n = 99; /* Hack: Most nests/pits won't allocate on the surface! */
-        if (n < 5)
-        {
-            which = pick_vault_type(nest_types, 0xffff);
+        mon_race_ptr race = _room_grid_race(p, grid, room);
 
-            if (which < 0) 
-                return FALSE;
+        if (!race)
+            return FALSE;
 
-            if (nest_types[which].prep_func)
-                nest_types[which].prep_func();
+        copy.monster.flags = MON_RULE_CHAR;
+        copy.monster.which = mon_race_char(race);
 
-            mon_alloc_push_filter(nest_types[which].hook_func);
-        }
-        else if (n < 30)
-        {
-            which = pick_vault_type(pit_types, 0xffff);
-
-            if (which < 0) 
-                return FALSE;
-
-            if (pit_types[which].prep_func)
-                pit_types[which].prep_func();
-
-            mon_alloc_push_filter(nest_types[which].hook_func);
-        }
-        else if (n < 50)
-        {
-            room_grid_t grid;
-            grid.flags = ROOM_GRID_MON_TYPE;
-
-            switch (randint1(5))
-            {
-            case 1: grid.monster = SUMMON_KAMIKAZE; break;
-            case 2: grid.monster = SUMMON_KNIGHT; break;
-            case 3: grid.monster = SUMMON_HUMAN; break;
-            case 4: grid.monster = SUMMON_DRAGON; break;
-            case 5: grid.monster = SUMMON_THIEF; break;
-            }
-            _room_grid_hack = &grid;
-            _room_flags_hack = room->flags;
-            mon_alloc_push_filter(_room_grid_mon_hook);
-        }
-        else 
-        {
-            room_grid_t grid = {0};
-            mon_race_ptr race;
-
-            _room_grid_hack = &grid;
-            _room_flags_hack = room->flags;
-
-            grid.flags = ROOM_GRID_MON_RANDOM;
-            mon_alloc_push_filter(_room_grid_mon_hook);
-            race = mon_alloc_choose(level);
-            mon_alloc_pop_filter();
-
-            grid.flags = ROOM_GRID_MON_CHAR;
-            grid.monster = race->d_char;
-            mon_alloc_push_filter(_room_grid_mon_hook);
-        }
+        _room_grid_hack = &copy;
+        mon_alloc_push_filter(_room_grid_mon_hook);
     }
 
-    /* Phase II: Allocate Formation Monsters */
-    align.sub_align = SUB_ALIGN_NEUTRAL;
     mon_alloc_push_filter(mon_alloc_dungeon);
     for (i = 0; i < _MAX_FORMATION; i++)
     {
@@ -1111,10 +954,9 @@ static bool _init_formation(room_ptr room, point_t p)
         {
             race = mon_alloc_choose(level);
             if (!race) break;
-            if (monster_has_hostile_align(&align, 0, 0, race)) continue;
-            if (race->flags1 & RF1_UNIQUE) continue;
-            if (race->flags7 & RF7_UNIQUE2) continue;
-            if (race->id == MON_NAZGUL) continue;
+            if (align_hostile(align, race->align)) continue;
+            if (mon_race_is_unique(race)) continue;
+            if (mon_race_is_(race, "W.nazgul")) continue;
             break;
         }
 
@@ -1124,17 +966,66 @@ static bool _init_formation(room_ptr room, point_t p)
             break;
         }
 
-        if (race->flags3 & RF3_EVIL) align.sub_align |= SUB_ALIGN_EVIL;
-        if (race->flags3 & RF3_GOOD) align.sub_align |= SUB_ALIGN_GOOD;
+        /* force consistent formation alignment */
+        if (race->align > 0) align = MAX(align, race->align); /* more and more good */
+        else if (race->align < 0) align = MIN(align, race->align); /* more and more evil */
 
         _formation_monsters[i] = race->id;
     }
     mon_alloc_pop_filter();
     mon_alloc_pop_filter();
-    if (fail)
+    return !fail;
+}
+static bool _choose_formation(point_t p, room_grid_ptr grid, room_ptr room)
+{
+    int i;
+    bool fail = FALSE;
+    int align = 0; /* force consistent formation alignment */
+
+    if (grid->monster.flags & MON_RULE_RANDOM)
+        return _random_formation(p, grid, room);
+
+    for (i = 0; i < _MAX_FORMATION; i++)
+    {
+        mon_race_ptr race = NULL;
+        int attempts = 100;
+
+        while (attempts--)
+        {
+            race = _room_grid_race(p, grid, room);
+            if (!race) break;
+            if (align_hostile(align, race->align)) continue;
+            if (mon_race_is_unique(race)) continue;
+            if (mon_race_is_(race, "W.nazgul")) continue;
+            break;
+        }
+
+        if (!race || !attempts)
+        { 
+            fail = TRUE;
+            break;
+        }
+
+        /* force consistent formation alignment */
+        if (race->align > 0) align = MAX(align, race->align); /* more and more good */
+        else if (race->align < 0) align = MIN(align, race->align); /* more and more evil */
+
+        _formation_monsters[i] = race->id;
+    }
+    return !fail;
+}
+static bool _init_formation(room_ptr room, point_t p)
+{
+    room_grid_ptr grid = _find_room_grid(room, '0');
+    int i, j;
+
+    for (i = 0; i < _MAX_FORMATION; i++)
+        _formation_monsters[i] = 0;
+
+    if (!grid || !_choose_formation(p, grid, room))
         return FALSE;
 
-    /* Phase III: (Bubble) Sort the entries */
+    /* bubble sort */
     for (i = 0; i < _MAX_FORMATION; i++)
     {
         for (j = _MAX_FORMATION - 1; j > i; j--)
@@ -1142,8 +1033,8 @@ static bool _init_formation(room_ptr room, point_t p)
             int i1 = j;
             int i2 = j - 1;
 
-            int p1 = mon_race_lookup(_formation_monsters[i1])->level;
-            int p2 = mon_race_lookup(_formation_monsters[i2])->level;
+            int p1 = mon_race_lookup(_formation_monsters[i1])->alloc.lvl;
+            int p2 = mon_race_lookup(_formation_monsters[i2])->alloc.lvl;
 
             if (p1 > p2)
             {
@@ -1162,7 +1053,7 @@ static bool _init_formation(room_ptr room, point_t p)
 void build_room_template_aux(room_ptr room, transform_ptr xform)
 {
     int           x, y;
-    cave_type    *c_ptr;
+    dun_cell_ptr  cell;
     room_grid_ptr grid;
     bool          initialized_formation = FALSE;
 
@@ -1180,21 +1071,20 @@ void build_room_template_aux(room_ptr room, transform_ptr xform)
             char    letter = line[x];
             point_t p = transform_point(xform, point_create(x,y));
 
-            if (cave->dun_type_id != D_WORLD && !dun_pos_interior(cave, p)) continue;
+            if (cave->type->id != D_WORLD && !dun_pos_interior(cave, p)) continue;
 
             /* ' ' is a transparency for wilderness encounters/ambushes */
             if (letter == ' ' && !_find_room_grid(room, letter)) continue;
 
             /* Access the grid */
-            c_ptr = cave_at(p);
+            cell = dun_cell_at(cave, p);
 
-            /* Lay down a floor. Note that the CAVE_FLOOR flag might be re-used for something else
-             * on the D_WORLD map, so avoid "place_floor_grid" in this case. For D_SURFACE, we already
-             * have terrain layed down and this room is a new "layer" which should not over-write the
+            /* Lay down a floor. For D_SURFACE, we already have terrain layed down
+             * and this room is a new "layer" which should not over-write the
              * previous layer (unless explicitly told to do so). */
-            if (room->type != ROOM_WILDERNESS && room->type != ROOM_AMBUSH && room->type != ROOM_WORLD)
+            if (room->type != ROOM_WILDERNESS && room->type != ROOM_WORLD)
             {
-                place_floor_grid(p, c_ptr);
+                cave->type->place_floor(cave, p);
                 /* default feature specification to the '.' tile so that room
                  * designers need not respecify features. For example, the following
                  * would make GRASS the default floor feature:
@@ -1203,52 +1093,34 @@ void build_room_template_aux(room_ptr room, transform_ptr xform)
                  * L:$:ART(ringil) */
                 grid = _find_room_grid(room, '.');
                 if (grid)
-                    _apply_room_grid_feat(p, grid, room->flags);
-            }
-
-            c_ptr->mimic = 0;
-
-            switch (room->type)
-            {
-            case ROOM_WILDERNESS:
-            case ROOM_AMBUSH:
-            case ROOM_TOWN:
-            case ROOM_WORLD:
-                break;
-            case ROOM_VAULT: 
-                c_ptr->info |= CAVE_ROOM | CAVE_ICKY;
-                break;
-            default:
-                c_ptr->info |= CAVE_ROOM;
+                    apply_room_grid_feat(p, grid);
             }
 
             grid = _find_room_grid(room, letter);
             if (grid)
             {
-                _apply_room_grid_feat(p, grid, room->flags);
+                apply_room_grid_feat(p, grid);
                 /* Force consistent town behavior ... towns are auto-mapped. Quest
                  * entrances and other permanent fixtures are mapped and glowing. */
                 if (room->type == ROOM_TOWN)
                 {
-                    c_ptr->info |= CAVE_AWARE;
-                    if (have_flag(f_info[c_ptr->feat].flags, FF_GLOW))
-                        c_ptr->info |= CAVE_MARK | CAVE_GLOW;
-                    if (have_flag(f_info[c_ptr->feat].flags, FF_PERMANENT))
-                        c_ptr->info |= CAVE_MARK | CAVE_GLOW;
+                    cell->flags |= CELL_AWARE;
+                    if (cell->flags & (CELL_LIT | CELL_PERM))
+                        cell->flags |= CELL_MAP;
                 }
                 /* Hack for random dungeon encounters on the surface (cf _gen_monsters in dun_world.c) */
-                if (c_ptr->feat == feat_entrance && room->type == ROOM_WILDERNESS)
+                if (room->type == ROOM_WILDERNESS && stairs_enter_dungeon(cell))
                 {
-                    dun_stairs_ptr s = malloc(sizeof(dun_stairs_t));
-                    dun_type_ptr   di = dun_types_lookup(c_ptr->special);
+                    dun_stairs_ptr stairs = malloc(sizeof(dun_stairs_t));
+                    int            id = stairs_dun_type_id(cell);
+                    dun_type_ptr   dt = dun_types_lookup(id);
 
-                    memset(s, 0, sizeof(dun_stairs_t));
-                    s->pos_here = p;
-                    s->dun_type_id = c_ptr->special;
-                    s->dun_lvl = rand_range(di->min_dun_lvl, di->max_dun_lvl);
-                    dun_add_stairs(cave, s);
+                    memset(stairs, 0, sizeof(dun_stairs_t));
+                    stairs->pos_here = p;
+                    stairs->dun_type_id = id;
+                    stairs->dun_lvl = rand_range(dt->min_dun_lvl, dt->max_dun_lvl);
+                    dun_add_stairs(cave, stairs);
                 }
-                continue;
             }
             /* XXX Formations usually define '0', but '1' thru '9'
              * are implicit monster tiles. Apply default '0' or '.' feature
@@ -1259,88 +1131,38 @@ void build_room_template_aux(room_ptr room, transform_ptr xform)
             {
                 grid = _find_room_grid(room, '0');
                 if (!grid || !grid->cave_feat) grid = _find_room_grid(room, '.');
-                if (grid) _apply_room_grid_feat(p, grid, room->flags);
-                continue;
+                if (grid) apply_room_grid_feat(p, grid);
             }
 
-            /* These letters are historical from v_info.txt and are hard-coded and unchangeable */
-            switch (letter)
+            switch (room->type)
             {
-                /* Granite wall (outer) */
-            case '%':
-                place_outer_noperm_grid(p, c_ptr);
+            case ROOM_WILDERNESS:
+            case ROOM_TOWN:
+            case ROOM_WORLD:
                 break;
-
-                /* Granite wall (inner) */
-            case '#':
-                place_inner_grid(p, c_ptr);
+            case ROOM_VAULT: 
+                cell->flags |= CELL_ROOM | CELL_VAULT;
                 break;
-
-                /* Glass wall (inner) */
-            case '$':
-                place_inner_grid(p, c_ptr);
-                c_ptr->feat = feat_glass_wall;
-                break;
-
-                /* Permanent wall (inner) */
-            case 'X':
-                place_inner_perm_grid(p, c_ptr);
-                break;
-
-                /* Permanent glass wall (inner) */
-            case 'Y':
-                place_inner_perm_grid(p, c_ptr);
-                c_ptr->feat = feat_permanent_glass_wall;
-                break;
-
-                /* Doors and Curtains */
-            case '+':
-                if (room->type == ROOM_WILDERNESS)
-                    c_ptr->feat = feat_locked_door_random(DOOR_DOOR);
-                else
-                    dun_gen_secret_door(p, c_ptr, DOOR_DEFAULT);
-                break;
-            case '\'':
-                if (room->type == ROOM_WILDERNESS)
-                    c_ptr->feat = feat_door[DOOR_CURTAIN].open;
-                else
-                    dun_gen_secret_door(p, c_ptr, DOOR_CURTAIN);
-                break;
-
-
-                /* The Pattern */
-            case 'p':
-                c_ptr->feat = feat_pattern_start;
-                break;
-
-            case 'a':
-                c_ptr->feat = feat_pattern_1;
-                break;
-
-            case 'b':
-                c_ptr->feat = feat_pattern_2;
-                break;
-
-            case 'c':
-                c_ptr->feat = feat_pattern_3;
-                break;
-
-            case 'd':
-                c_ptr->feat = feat_pattern_4;
-                break;
-
-            case 'P':
-                c_ptr->feat = feat_pattern_end;
-                break;
-
-            case 'B':
-                c_ptr->feat = feat_pattern_exit;
-                break;
-
+            default:
+                cell->flags |= CELL_ROOM;
             }
         }
     }
 
+    /* Hack for Towns: Road generation should not clobber existing town structure. */
+    if (room->type == ROOM_TOWN)
+    {
+        for (y = 0; y < room->height; y++)
+        {
+            for (x = 0; x < room->width; x++)
+            {
+                point_t p = transform_point(xform, point_create(x,y));
+                if (!dun_pos_interior(cave, p)) continue;
+                if (!(room->flags & ROOM_RUINS)) /* Osgiliath is washed out */
+                    dun_cell_at(cave, p)->flags |= CELL_TOWN; /* XXX CELL_INNER, but D_SURFACE */
+            }
+        }
+    }
     /* Skip monsters and objects on the surface. For D_WORLD, I might use monster
      * and object specifications for something else. At any rate, the player never
      * enters D_WORLD so placing monsters would waste space. For the town, note that
@@ -1360,7 +1182,7 @@ void build_room_template_aux(room_ptr room, transform_ptr xform)
             char    letter = line[x];
             point_t p = transform_point(xform, point_create(x,y));
 
-            if (!in_bounds2(p.y, p.x)) continue;
+            if (!dun_pos_interior(cave, p)) continue;
 
             /* ' ' is a transparency for wilderness encounters/ambushes */
             if (letter == ' ' && !_find_room_grid(room, letter)) continue;
@@ -1388,10 +1210,10 @@ void build_room_template_aux(room_ptr room, transform_ptr xform)
                 }
                 {
                     int idx = letter - '0';
-                    int r_idx = _formation_monsters[idx];
+                    int r_idx = _formation_monsters[idx]; /* XXX */
 
                     if (r_idx)
-                        place_monster_aux(0, p, r_idx, PM_NO_KAGE);
+                        place_monster_aux(who_create_null(), p, mon_race_lookup(r_idx), PM_NO_KAGE);
                     /* cf Oval Crypt V: The '0' letter should get a good ego item! */
                     grid = _find_room_grid(room, letter);
                     if (grid)
@@ -1414,24 +1236,11 @@ void build_room_template_aux(room_ptr room, transform_ptr xform)
                 if (room->type == ROOM_QUEST)
                 {
                     if (letter == '@')
-                        p_ptr->new_pos = p;
+                        plr->new_pos = p;
                     if (letter == '<' && !_find_room_grid(room, '@'))
-                        p_ptr->new_pos = p;
+                        plr->new_pos = p;
                 }
                 continue;
-            }
-
-            /* These letters are historical from v_info.txt and are hard-coded and unchangeable */
-            switch (letter)
-            {
-                /* Meaner monster */
-                case '@':
-                    place_monster(p, cave->difficulty + 11, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP));
-                    break;
-                case 'A':
-                    /* Reward for Pattern walk */
-                    place_object(p, cave->difficulty + 12, AM_GOOD | AM_GREAT);
-                    break;
             }
         }
     }
@@ -1441,12 +1250,12 @@ static bool _room_is_allowed(room_ptr room, int type, int subtype)
 {
     if (cave->difficulty < room->level) return FALSE;  /* Note: cave->dun_lvl is 0 for wilderness encounters! */
     if (room->max_level && room->max_level < cave->difficulty) return FALSE;
-    if (room->dun_type_id && room->dun_type_id != cave->dun_type_id) return FALSE;
+    if (room->dun_type_id && room->dun_type_id != cave->type->id) return FALSE;
     if (room->type != type) return FALSE;
     if (room->subtype != subtype) return FALSE;
     if (!room->rarity) return FALSE;
 
-    if (cave->dun_type_id == D_SURFACE)
+    if (cave->type->id == D_SURFACE)
     {
         if ((room->flags & ROOM_THEME_DAY) && !_is_broad_daylight()) return FALSE;
         if ((room->flags & ROOM_THEME_NIGHT) && !_is_deep_night()) return FALSE;
@@ -1472,7 +1281,7 @@ room_ptr choose_room_template(int type, int subtype)
         return NULL;
 
     /* XXX I need a rooms_wizard analagous to quests_wizard ...*/
-    if (0 && p_ptr->wizard)
+    if (0 && plr->wizard)
         msg_format("<color:B>Total of (%d,%d) is <color:R>%d</color>.</color>", type, subtype, total);
 
     n = randint1(total);

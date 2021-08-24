@@ -127,7 +127,7 @@ void plr_birth_obj(object_type *o_ptr)
         return;
 
     /* Androids can hit CL9 or more with starting Chain Mail! */
-    if (p_ptr->prace == RACE_ANDROID && obj_is_body_armor(o_ptr))
+    if (plr->prace == RACE_ANDROID && obj_is_body_armor(o_ptr))
         return;
 
     /* Weed out duplicate gear (e.g. Artemis Archer) but note
@@ -135,7 +135,7 @@ void plr_birth_obj(object_type *o_ptr)
      * multiple objects provided they can also be equipped) */
     if ( obj_is_wearable(o_ptr)
       && o_ptr->number == 1
-      && p_ptr->prace != RACE_MON_RING /* Hack: Ring cannot wear rings, but can absorb them for powers */
+      && plr->prace != RACE_MON_RING /* Hack: Ring cannot wear rings, but can absorb them for powers */
       && equip_find_obj(o_ptr->tval, o_ptr->sval)
       && !equip_first_empty_slot(o_ptr) ) /* Hack: Centipede gets multiple boots */
     {
@@ -147,8 +147,8 @@ void plr_birth_obj(object_type *o_ptr)
     /* Big hack for sexy players ... only wield the starting whip,
      * but carry the alternate weapon. Previously, sexy characters
      * would usually start off dual-wielding (ineffectual and confusing)*/
-    if ( p_ptr->personality == PERS_SEXY
-      && p_ptr->prace != RACE_MON_SWORD
+    if ( plr->personality == PERS_SEXY
+      && plr->prace != RACE_MON_SWORD
       && obj_is_weapon(o_ptr)
       && !object_is_(o_ptr, TV_HAFTED, SV_WHIP) )
     {
@@ -171,10 +171,10 @@ void plr_birth_food(void)
 
 void plr_birth_light(void)
 {
-    if (p_ptr->pclass != CLASS_NINJA)
+    if (plr->pclass != CLASS_NINJA && plr->pclass != CLASS_NECROMANCER)
     {
         object_type forge = {0};
-        object_prep(&forge, lookup_kind(TV_LITE, SV_LITE_TORCH));
+        object_prep(&forge, lookup_kind(TV_LIGHT, SV_LIGHT_TORCH));
         forge.number = rand_range(3, 7);
         forge.xtra4 = rand_range(3, 7) * 500;
         plr_birth_obj(&forge);
@@ -183,10 +183,29 @@ void plr_birth_light(void)
 
 void plr_birth_spellbooks(void)
 {
-    if (p_ptr->realm1)
-        plr_birth_obj_aux(TV_LIFE_BOOK + p_ptr->realm1 - 1, 0, 1);
-    if (p_ptr->realm2)
-        plr_birth_obj_aux(TV_LIFE_BOOK + p_ptr->realm2 - 1, 0, 1);
+    if (plr->realm1)
+        plr_birth_obj_aux(TV_LIFE_BOOK + plr->realm1 - 1, 0, 1);
+    if (plr->realm2)
+        plr_birth_obj_aux(TV_LIFE_BOOK + plr->realm2 - 1, 0, 1);
+}
+
+void plr_birth_pet(cptr which)
+{
+    point_t pos = dun_scatter_aux(cave, plr->pos, 4, dun_allow_mon_at);
+    mon_race_ptr race = mon_race_parse(which);
+    mon_ptr mon = place_monster_aux(who_create_null(), pos, race, PM_FORCE_PET | PM_NO_KAGE);
+
+    if (mon)
+    {
+        mon_race_ptr race = mon->race;
+        int hp = dice_avg_roll(race->hp);
+
+        mon->mspeed = race->move.speed;
+        mon->maxhp = hp;
+        mon->max_maxhp = hp;
+        mon->hp = hp;
+        mon->energy_need = ENERGY_NEED() + ENERGY_NEED();
+    }
 }
 
 /************************************************************************
@@ -247,24 +266,24 @@ static int _welcome_ui(void)
         else if (cmd == 'q' && previous_char.quick_ok)
         {
             int i;
-            p_ptr->initial_world_id = previous_char.initial_world_id;
-            if (!p_ptr->initial_world_id)
-                p_ptr->initial_world_id = W_SMAUG; /* paranoia */
+            plr->initial_world_id = previous_char.initial_world_id;
+            if (!plr->initial_world_id)
+                plr->initial_world_id = W_SMAUG; /* paranoia */
             game_mode = previous_char.game_mode;
-            p_ptr->psex = previous_char.psex;
-            p_ptr->prace = previous_char.prace;
-            p_ptr->psubrace = previous_char.psubrace;
-            p_ptr->pclass = previous_char.pclass;
-            p_ptr->psubclass = previous_char.psubclass;
-            p_ptr->personality = previous_char.personality;
-            p_ptr->realm1 = previous_char.realm1;
-            p_ptr->realm2 = previous_char.realm2;
-            p_ptr->dragon_realm = previous_char.dragon_realm;
-            p_ptr->au = previous_char.au;
+            plr->psex = previous_char.psex;
+            plr->prace = previous_char.prace;
+            plr->psubrace = previous_char.psubrace;
+            plr->pclass = previous_char.pclass;
+            plr->psubclass = previous_char.psubclass;
+            plr->personality = previous_char.personality;
+            plr->realm1 = previous_char.realm1;
+            plr->realm2 = previous_char.realm2;
+            plr->dragon_realm = previous_char.dragon_realm;
+            plr->au = previous_char.au;
             for (i = 0; i < MAX_STATS; i++)
             {
-                p_ptr->stat_cur[i] = previous_char.stat_max[i];
-                p_ptr->stat_max[i] = previous_char.stat_max[i];
+                plr->stat_cur[i] = previous_char.stat_max[i];
+                plr->stat_max[i] = previous_char.stat_max[i];
             }
             _stats_changed = TRUE; /* block default stat allocation via _stats_init */
             if (_race_class_ui() == UI_OK) /* XXX skip _world_ui */
@@ -275,7 +294,7 @@ static int _welcome_ui(void)
         else if (cmd == 'b')
         {
             _set_mode(GAME_MODE_BEGINNER);
-            p_ptr->initial_world_id = W_SMAUG;
+            plr->initial_world_id = W_SMAUG;
             if (_race_class_ui() == UI_OK) /* XXX skip _world_ui */
                 return UI_OK;
         }
@@ -315,14 +334,14 @@ static void _set_mode(int mode)
     {
         if (first || game_mode != mode)
         {
-            p_ptr->prace = RACE_HOBBIT;
-            p_ptr->psubrace = 0;
-            p_ptr->pclass = CLASS_ROGUE;
-            p_ptr->psubclass = 0;
-            p_ptr->realm1 = REALM_BURGLARY;
-            p_ptr->realm2 = REALM_NONE;
-            p_ptr->dragon_realm = DRAGON_REALM_NONE;
-            p_ptr->personality = PERS_ORDINARY;
+            plr->prace = RACE_HOBBIT;
+            plr->psubrace = 0;
+            plr->pclass = CLASS_ROGUE;
+            plr->psubclass = 0;
+            plr->realm1 = REALM_BURGLARY;
+            plr->realm2 = REALM_NONE;
+            plr->dragon_realm = DRAGON_REALM_NONE;
+            plr->personality = PERS_ORDINARY;
             _stats_init();
         }
     }
@@ -330,14 +349,14 @@ static void _set_mode(int mode)
     {
         if (first || game_mode == GAME_MODE_MONSTER)
         {
-            p_ptr->prace = RACE_HOBBIT;
-            p_ptr->psubrace = 0;
-            p_ptr->pclass = CLASS_ROGUE;
-            p_ptr->psubclass = 0;
-            p_ptr->realm1 = REALM_BURGLARY;
-            p_ptr->realm2 = REALM_NONE;
-            p_ptr->dragon_realm = DRAGON_REALM_NONE;
-            p_ptr->personality = PERS_ORDINARY;
+            plr->prace = RACE_HOBBIT;
+            plr->psubrace = 0;
+            plr->pclass = CLASS_ROGUE;
+            plr->psubclass = 0;
+            plr->realm1 = REALM_BURGLARY;
+            plr->realm2 = REALM_NONE;
+            plr->dragon_realm = DRAGON_REALM_NONE;
+            plr->personality = PERS_ORDINARY;
             _stats_init();
         }
     }
@@ -345,26 +364,26 @@ static void _set_mode(int mode)
     {
         if (first || game_mode != mode)
         {
-            p_ptr->prace = RACE_MON_TROLL;
-            p_ptr->psubrace = TROLL_ETTIN;
-            p_ptr->pclass = CLASS_MONSTER;
-            p_ptr->psubclass = 0;
-            p_ptr->realm1 = REALM_NONE;
-            p_ptr->realm2 = REALM_NONE;
-            p_ptr->dragon_realm = DRAGON_REALM_NONE;
+            plr->prace = RACE_MON_TROLL;
+            plr->psubrace = TROLL_ETTIN;
+            plr->pclass = CLASS_MONSTER;
+            plr->psubclass = 0;
+            plr->realm1 = REALM_NONE;
+            plr->realm2 = REALM_NONE;
+            plr->dragon_realm = DRAGON_REALM_NONE;
             _stats_init();
         }
     }
     if ((first || game_mode != mode) && mode == previous_char.game_mode && previous_char.quick_ok)
     {
-        p_ptr->prace = previous_char.prace;
-        p_ptr->psubrace = previous_char.psubrace;
-        p_ptr->pclass = previous_char.pclass;
-        p_ptr->psubclass = previous_char.psubclass;
-        p_ptr->personality = previous_char.personality;
-        p_ptr->realm1 = previous_char.realm1;
-        p_ptr->realm2 = previous_char.realm2;
-        p_ptr->dragon_realm = previous_char.dragon_realm;
+        plr->prace = previous_char.prace;
+        plr->psubrace = previous_char.psubrace;
+        plr->pclass = previous_char.pclass;
+        plr->psubclass = previous_char.psubclass;
+        plr->personality = previous_char.personality;
+        plr->realm1 = previous_char.realm1;
+        plr->realm2 = previous_char.realm2;
+        plr->dragon_realm = previous_char.dragon_realm;
         _stats_init();
     }
     game_mode = mode;
@@ -385,13 +404,13 @@ static int _world_ui(void)
             "You must travel to Mordor and slay both Sauron and Morgoth. This game consists "
             "of multiple worlds, each with its own wilderness map, set of dungeons, and "
             "final world guardian to slay.</indent>\n\n",
-            p_ptr->initial_world_id == W_SMAUG ? 'B' : 'U'
+            plr->initial_world_id == W_SMAUG ? 'B' : 'U'
         );
         doc_printf(_doc, "  <color:y>b</color>) <indent><color:%c>The World of Amber</color>\n"
             "You must slay the Serpent of Chaos in order to restore balance to the world. This "
             "game consists of a single world with a randomly generated wilderness. In addition, "
             "some of the available dungeons are randomly chosen for each game.</indent>\n\n",
-            p_ptr->initial_world_id == W_AMBER ? 'B' : 'U'
+            plr->initial_world_id == W_AMBER ? 'B' : 'U'
         );
         doc_insert(_doc, "  <color:y>?</color>) Help\n");
         doc_insert(_doc, "<color:y>ESC</color>) Prev Screen\n");
@@ -407,13 +426,13 @@ static int _world_ui(void)
             _birth_options();
         else if (cmd == 'a')
         {
-            p_ptr->initial_world_id = W_SMAUG;
+            plr->initial_world_id = W_SMAUG;
             if (_race_class_ui() == UI_OK)
                 return UI_OK;
         }
         else if (cmd == 'b')
         {
-            p_ptr->initial_world_id = W_AMBER;
+            plr->initial_world_id = W_AMBER;
             if (_race_class_ui() == UI_OK)
                 return UI_OK;
         }
@@ -474,13 +493,13 @@ static int _race_class_ui(void)
         doc_insert(cols[0], "  <color:y>r</color>) Change Race\n");
         if (game_mode == GAME_MODE_MONSTER)
         {
-            if (p_ptr->dragon_realm)
+            if (plr->dragon_realm)
                 doc_insert(cols[0], "  <color:y>m</color>) Change Magic\n");
         }
         else
         {
             doc_insert(cols[0], "  <color:y>c</color>) Change Class\n");
-            if (p_ptr->realm1)
+            if (plr->realm1)
                 doc_insert(cols[0], "  <color:y>m</color>) Change Magic\n");
         }
 
@@ -536,13 +555,13 @@ static int _race_class_ui(void)
         case 'R':
         {
             race_t *race_ptr = get_race();
-            if (p_ptr->prace == RACE_DEMIGOD)
+            if (plr->prace == RACE_DEMIGOD)
                 doc_display_help("Demigods.txt", race_ptr->subname);
-            else if (p_ptr->prace == RACE_DRACONIAN)
+            else if (plr->prace == RACE_DRACONIAN)
                 doc_display_help("Draconians.txt", race_ptr->subname);
-            else if (p_ptr->prace == RACE_MON_DEMON)
+            else if (plr->prace == RACE_MON_DEMON)
                 doc_display_help("Demons.txt", race_ptr->subname);
-            else if (p_ptr->prace == RACE_MON_DRAGON)
+            else if (plr->prace == RACE_MON_DRAGON)
                 doc_display_help("Dragons.txt", race_ptr->subname);
             else if (game_mode == GAME_MODE_MONSTER)
                 doc_display_help("MonsterRaces.txt", race_ptr->name);
@@ -559,7 +578,7 @@ static int _race_class_ui(void)
         case 'C':
         {
             class_t *class_ptr = get_class();
-            if (p_ptr->pclass == CLASS_WARLOCK)
+            if (plr->pclass == CLASS_WARLOCK)
                 doc_display_help("Warlocks.txt", class_ptr->subname);
             else if (game_mode != GAME_MODE_MONSTER)
                 doc_display_help("Classes.txt", class_ptr->name);
@@ -579,22 +598,22 @@ static int _race_class_ui(void)
             break;
         }
         case 'm':
-            if (p_ptr->dragon_realm != DRAGON_REALM_NONE)
+            if (plr->dragon_realm != DRAGON_REALM_NONE)
                 _dragon_realm_ui();
-            else if (p_ptr->realm1)
+            else if (plr->realm1)
                 _realm1_ui();
             break;
         case 'M':
-            if (p_ptr->dragon_realm != DRAGON_REALM_NONE)
-                doc_display_help("DragonRealms.txt", dragon_get_realm(p_ptr->dragon_realm)->name);
-            else if (p_ptr->realm1)
-                doc_display_help("magic.txt", realm_names[p_ptr->realm1]);
+            if (plr->dragon_realm != DRAGON_REALM_NONE)
+                doc_display_help("DragonRealms.txt", dragon_get_realm(plr->dragon_realm)->name);
+            else if (plr->realm1)
+                doc_display_help("magic.txt", realm_names[plr->realm1]);
             break;
         case 's':
-            if (p_ptr->psex == SEX_MALE)
-                p_ptr->psex = SEX_FEMALE;
+            if (plr->psex == SEX_MALE)
+                plr->psex = SEX_FEMALE;
             else
-                p_ptr->psex = SEX_MALE;
+                plr->psex = SEX_MALE;
             break;
         }
     }
@@ -628,7 +647,7 @@ static void _pers_ui(void)
                 cols[i < split ? 0 : 1],
                 "  <color:y>%c</color>) <color:%c>%s</color>\n",
                 I2A(i),
-                pers_ptr->id == p_ptr->personality ? 'B' : 'w',
+                pers_ptr->id == plr->personality ? 'B' : 'w',
                 pers_ptr->name
             );
         }
@@ -665,7 +684,7 @@ static void _pers_ui(void)
             if (0 <= i && i < vec_length(v))
             {
                 personality_ptr pers_ptr = vec_get(v, i);
-                p_ptr->personality = pers_ptr->id;
+                plr->personality = pers_ptr->id;
                 break;
             }
         }
@@ -769,7 +788,11 @@ static void _race_group_ui(void)
             if (0 <= i && i < vec_length(groups))
             {
                 _race_group_ptr g_ptr = vec_get(groups, i);
+                int old_id = plr->prace;
+                int old_subid = plr->psubrace;
                 if (_race_ui(g_ptr->ids) == UI_OK) break;
+                plr->prace = old_id;
+                plr->psubrace = old_subid;
             }
         }
     }
@@ -801,7 +824,7 @@ static int _race_ui(int ids[])
                 cols[i < split ? 0 : 1],
                 "  <color:y>%c</color>) <color:%c>%s</color>\n",
                 I2A(i),
-                race_ptr->id == p_ptr->prace ? 'B' : 'w',
+                race_ptr->id == plr->prace ? 'B' : 'w',
                 race_ptr->name
             );
         }
@@ -837,18 +860,20 @@ static int _race_ui(int ids[])
             else i = A2I(cmd);
             if (0 <= i && i < vec_length(v))
             {
-                int     old_id = p_ptr->prace;
                 race_t *race_ptr = vec_get(v, i);
+                int old_id = plr->prace;
+                int old_subid = plr->psubrace;
 
-                if (p_ptr->prace != race_ptr->id)
+                if (plr->prace != race_ptr->id)
                 {
-                    p_ptr->prace = race_ptr->id;
-                    p_ptr->psubrace = 0;
+                    plr->prace = race_ptr->id;
+                    plr->psubrace = 0;
                 }
                 result = _subrace_ui();
                 if (result == UI_CANCEL)
                 {
-                    p_ptr->prace = old_id;
+                    plr->prace = old_id;
+                    plr->psubrace = old_subid;
                     result = UI_NONE;
                 }
             }
@@ -867,7 +892,7 @@ static vec_ptr _get_races_aux(int ids[])
     {
         int id = ids[i];
         if (id == -1) break;
-        if (!_is_valid_race_class(id, p_ptr->pclass)) continue;
+        if (!_is_valid_race_class(id, plr->pclass)) continue;
         vec_add(v, get_race_aux(id, 0));
     }
 
@@ -894,13 +919,13 @@ static bool _is_valid_race_class(int race_id, int class_id)
  ***********************************************************************/ 
 static int _subrace_ui(void)
 {
-    if (p_ptr->prace == RACE_DEMIGOD)
+    if (plr->prace == RACE_DEMIGOD)
         return _demigod_ui();
-    else if (p_ptr->prace == RACE_DRACONIAN)
+    else if (plr->prace == RACE_DRACONIAN)
         return _draconian_ui();
     else
     {
-        p_ptr->psubrace = 0;
+        plr->psubrace = 0;
         return UI_OK;
     }
 }
@@ -923,12 +948,12 @@ static int _subrace_ui_aux(int ct, cptr desc, cptr help, cptr topic)
 
         for (i = 0; i < ct; i++)
         {
-            race_t *race_ptr = get_race_aux(p_ptr->prace, i);
+            race_t *race_ptr = get_race_aux(plr->prace, i);
             doc_printf(
                 i < split ? cols[0] : cols[1],
                 "  <color:y>%c</color>) <color:%c>%s</color>\n",
                 I2A(i),
-                i == p_ptr->psubrace ? 'B' : 'w',
+                i == plr->psubrace ? 'B' : 'w',
                 race_ptr->subname);
         }
         doc_insert(ct < split ? cols[0] : cols[1], "  <color:y>*</color>) Random\n");
@@ -951,7 +976,7 @@ static int _subrace_ui_aux(int ct, cptr desc, cptr help, cptr topic)
             i = A2I(tolower(cmd));
             if (0 <= i && i < ct)
             {
-                race_t *race_ptr = get_race_aux(p_ptr->prace, i);
+                race_t *race_ptr = get_race_aux(plr->prace, i);
                 doc_display_help(help, race_ptr->subname);
             }
         }
@@ -961,7 +986,7 @@ static int _subrace_ui_aux(int ct, cptr desc, cptr help, cptr topic)
             else i = A2I(cmd);
             if (0 <= i && i < ct)
             {
-                p_ptr->psubrace = i;
+                plr->psubrace = i;
                 return UI_OK;
             }
         }
@@ -970,13 +995,13 @@ static int _subrace_ui_aux(int ct, cptr desc, cptr help, cptr topic)
 
 static int _demigod_ui(void)
 {
-    assert(p_ptr->prace == RACE_DEMIGOD);
+    assert(plr->prace == RACE_DEMIGOD);
     return _subrace_ui_aux(DEMIGOD_MAX, "Demigod Parentage", "Demigods.txt", NULL);
 }
 
 static int _draconian_ui(void)
 {
-    assert(p_ptr->prace == RACE_DRACONIAN);
+    assert(plr->prace == RACE_DRACONIAN);
     return _subrace_ui_aux(DRACONIAN_MAX, "Draconian Subrace", "Draconians.txt", NULL);
 }
 
@@ -992,7 +1017,7 @@ static vec_ptr _get_classes_aux(int ids[])
     {
         int id = ids[i];
         if (id == -1) break;
-        if (!_is_valid_race_class(p_ptr->prace, id)) continue;
+        if (!_is_valid_race_class(plr->prace, id)) continue;
         vec_add(v, get_class_aux(id, 0));
     }
 
@@ -1117,7 +1142,7 @@ static int _class_ui(int ids[])
                 cols[i < split ? 0 : 1],
                 "  <color:y>%c</color>) <color:%c>%s</color>\n",
                 I2A(i),
-                class_ptr->id == p_ptr->pclass ? 'B' : 'w',
+                class_ptr->id == plr->pclass ? 'B' : 'w',
                 class_ptr->name
             );
         }
@@ -1154,13 +1179,13 @@ static int _class_ui(int ids[])
             if (0 <= i && i < vec_length(v))
             {
                 class_t *class_ptr = vec_get(v, i);
-                int      old_id = p_ptr->pclass;
+                int      old_id = plr->pclass;
 
-                p_ptr->pclass = class_ptr->id;
+                plr->pclass = class_ptr->id;
                 result = _subclass_ui();
                 if (result == UI_CANCEL)
                 {
-                    p_ptr->pclass = old_id;
+                    plr->pclass = old_id;
                     result = UI_NONE;
                 }
             }
@@ -1181,17 +1206,17 @@ static int _subclass_ui(void)
         bool has_subclass = TRUE;
 
         /* Prompt for a subclass */
-        if (p_ptr->pclass == CLASS_WARLOCK)
+        if (plr->pclass == CLASS_WARLOCK)
             rc = _warlock_ui();
-        else if (p_ptr->pclass == CLASS_WEAPONMASTER)
+        else if (plr->pclass == CLASS_WEAPONMASTER)
             rc = _weaponmaster_ui();
-        else if (p_ptr->pclass == CLASS_DEVICEMASTER)
+        else if (plr->pclass == CLASS_DEVICEMASTER)
             rc = _devicemaster_ui();
-        else if (p_ptr->pclass == CLASS_GRAY_MAGE)
+        else if (plr->pclass == CLASS_GRAY_MAGE)
             rc = _gray_mage_ui();
         else
         {
-            p_ptr->psubclass = 0;
+            plr->psubclass = 0;
             rc = UI_OK;
             has_subclass = FALSE;
         }
@@ -1208,7 +1233,7 @@ static int _subclass_ui(void)
 
 static int _warlock_ui(void)
 {
-    assert(p_ptr->pclass == CLASS_WARLOCK);
+    assert(plr->pclass == CLASS_WARLOCK);
     for (;;)
     {
         int cmd, i;
@@ -1219,10 +1244,10 @@ static int _warlock_ui(void)
         doc_insert(_doc, "<color:G>Choose Warlock Pact</color>\n");
         for (i = 0; i < WARLOCK_MAX; i++)
         {
-            class_t *class_ptr = get_class_aux(p_ptr->pclass, i);
+            class_t *class_ptr = get_class_aux(plr->pclass, i);
             doc_printf(_doc, "  <color:y>%c</color>) <color:%c>%s</color>\n",
                 I2A(i),
-                p_ptr->psubclass == i ? 'B' : 'w',
+                plr->psubclass == i ? 'B' : 'w',
                 class_ptr->subname
             );
         }
@@ -1240,7 +1265,7 @@ static int _warlock_ui(void)
             i = A2I(tolower(cmd));
             if (0 <= i && i < WARLOCK_MAX)
             {
-                class_t *class_ptr = get_class_aux(p_ptr->pclass, i);
+                class_t *class_ptr = get_class_aux(plr->pclass, i);
                 doc_display_help("Warlocks.txt", class_ptr->subname);
             }
         }
@@ -1250,7 +1275,7 @@ static int _warlock_ui(void)
             else i = A2I(cmd);
             if (0 <= i && i < WARLOCK_MAX)
             {
-                p_ptr->psubclass = i;
+                plr->psubclass = i;
                 return UI_OK;
             }
         }
@@ -1259,7 +1284,7 @@ static int _warlock_ui(void)
 
 static int _weaponmaster_ui(void)
 {
-    assert(p_ptr->pclass == CLASS_WEAPONMASTER);
+    assert(plr->pclass == CLASS_WEAPONMASTER);
     for (;;)
     {
         int cmd, i;
@@ -1270,10 +1295,10 @@ static int _weaponmaster_ui(void)
         doc_insert(_doc, "<color:G>Choose Speciality</color>\n");
         for (i = 0; i < WEAPONMASTER_MAX; i++)
         {
-            class_t *class_ptr = get_class_aux(p_ptr->pclass, i);
+            class_t *class_ptr = get_class_aux(plr->pclass, i);
             doc_printf(_doc, "  <color:y>%c</color>) <color:%c>%s</color>\n",
                 I2A(i),
-                p_ptr->psubclass == i ? 'B' : 'w',
+                plr->psubclass == i ? 'B' : 'w',
                 class_ptr->subname
             );
         }
@@ -1291,7 +1316,7 @@ static int _weaponmaster_ui(void)
             i = A2I(tolower(cmd));
             if (0 <= i && i < WEAPONMASTER_MAX)
             {
-                class_t *class_ptr = get_class_aux(p_ptr->pclass, i);
+                class_t *class_ptr = get_class_aux(plr->pclass, i);
                 doc_display_help("Weaponmasters.txt", class_ptr->subname);
             }
         }
@@ -1301,7 +1326,7 @@ static int _weaponmaster_ui(void)
             else i = A2I(cmd);
             if (0 <= i && i < WEAPONMASTER_MAX)
             {
-                p_ptr->psubclass = i;
+                plr->psubclass = i;
                 return UI_OK;
             }
         }
@@ -1310,7 +1335,7 @@ static int _weaponmaster_ui(void)
 
 static int _devicemaster_ui(void)
 {
-    assert(p_ptr->pclass == CLASS_DEVICEMASTER);
+    assert(plr->pclass == CLASS_DEVICEMASTER);
     for (;;)
     {
         int cmd, i;
@@ -1321,10 +1346,10 @@ static int _devicemaster_ui(void)
         doc_insert(_doc, "<color:G>Choose Speciality</color>\n");
         for (i = 0; i < DEVICEMASTER_MAX; i++)
         {
-            class_t *class_ptr = get_class_aux(p_ptr->pclass, i);
+            class_t *class_ptr = get_class_aux(plr->pclass, i);
             doc_printf(_doc, "  <color:y>%c</color>) <color:%c>%s</color>\n",
                 I2A(i),
-                p_ptr->psubclass == i ? 'B' : 'w',
+                plr->psubclass == i ? 'B' : 'w',
                 class_ptr->subname
             );
         }
@@ -1342,7 +1367,7 @@ static int _devicemaster_ui(void)
             else i = A2I(cmd);
             if (0 <= i && i < DEVICEMASTER_MAX)
             {
-                p_ptr->psubclass = i;
+                plr->psubclass = i;
                 return UI_OK;
             }
         }
@@ -1351,7 +1376,7 @@ static int _devicemaster_ui(void)
 
 static int _gray_mage_ui(void)
 {
-    assert(p_ptr->pclass == CLASS_GRAY_MAGE);
+    assert(plr->pclass == CLASS_GRAY_MAGE);
     for (;;)
     {
         int cmd, i;
@@ -1362,10 +1387,10 @@ static int _gray_mage_ui(void)
         doc_insert(_doc, "<color:G>Choose Bias</color>\n");
         for (i = 0; i < GRAY_MAGE_MAX; i++)
         {
-            class_t *class_ptr = get_class_aux(p_ptr->pclass, i);
+            class_t *class_ptr = get_class_aux(plr->pclass, i);
             doc_printf(_doc, "  <color:y>%c</color>) <color:%c>%s</color>\n",
                 I2A(i),
-                p_ptr->psubclass == i ? 'B' : 'w',
+                plr->psubclass == i ? 'B' : 'w',
                 class_ptr->subname
             );
         }
@@ -1383,7 +1408,7 @@ static int _gray_mage_ui(void)
             else i = A2I(cmd);
             if (0 <= i && i < GRAY_MAGE_MAX)
             {
-                p_ptr->psubclass = i;
+                plr->psubclass = i;
                 return UI_OK;
             }
         }
@@ -1395,7 +1420,7 @@ static int _gray_mage_ui(void)
  ***********************************************************************/ 
 static caster_info *_caster_info(void)
 {
-    class_t *class_ptr = get_class_aux(p_ptr->pclass, p_ptr->psubclass);
+    class_t *class_ptr = get_class_aux(plr->pclass, plr->psubclass);
     if (class_ptr->hooks.caster_info)
         return class_ptr->hooks.caster_info();
     return NULL;
@@ -1420,8 +1445,8 @@ static int _realm1_ui(void)
 
     if (!bits)
     {
-        p_ptr->realm1 = 0;
-        p_ptr->realm2 = 0;
+        plr->realm1 = 0;
+        plr->realm2 = 0;
         return UI_OK;
     }
 
@@ -1445,7 +1470,7 @@ static int _realm1_ui(void)
             int id = choices[i];
             doc_printf(_doc, "  <color:y>%c</color>) <color:%c>%s</color>\n",
                 I2A(i),
-                id == p_ptr->realm1 ? 'B' : 'w',
+                id == plr->realm1 ? 'B' : 'w',
                 realm_names[id]
             );
         }
@@ -1476,13 +1501,13 @@ static int _realm1_ui(void)
             if (0 <= i && i < ct)
             {
                 int id = choices[i];
-                int old_id = p_ptr->realm1;
+                int old_id = plr->realm1;
                 int rc;
 
-                p_ptr->realm1 = id;
+                plr->realm1 = id;
                 rc = _realm2_ui();
                 if (rc == UI_CANCEL)
-                    p_ptr->realm1 = old_id;
+                    plr->realm1 = old_id;
                 else
                     return UI_OK;
             }
@@ -1498,15 +1523,15 @@ static int _realm2_ui(void)
 
     if (!bits)
     {
-        p_ptr->realm2 = 0;
+        plr->realm2 = 0;
         return UI_OK;
     }
 
-    if (p_ptr->pclass == CLASS_PRIEST)
+    if (plr->pclass == CLASS_PRIEST)
     {
-        if (p_ptr->realm1 == REALM_NATURE)
+        if (plr->realm1 == REALM_NATURE)
             bits &= ~(CH_LIFE | CH_CRUSADE | CH_DEATH | CH_DAEMON);
-        else if (is_good_realm(p_ptr->realm1))
+        else if (is_good_realm(plr->realm1))
             bits &= ~(CH_DEATH | CH_DAEMON);
         else
             bits &= ~(CH_LIFE | CH_CRUSADE);
@@ -1515,7 +1540,7 @@ static int _realm2_ui(void)
     for (i = 0; i < 32; i++)
     {
         int id = i + 1;
-        if (bits & (1L << i) && p_ptr->realm1 != id)
+        if (bits & (1L << i) && plr->realm1 != id)
             choices[ct++] = id;
     }
     choices[ct] = -1;
@@ -1533,7 +1558,7 @@ static int _realm2_ui(void)
             int id = choices[i];
             doc_printf(_doc, "  <color:y>%c</color>) <color:%c>%s</color>\n",
                 I2A(i),
-                id == p_ptr->realm2 ? 'B' : 'w',
+                id == plr->realm2 ? 'B' : 'w',
                 realm_names[id]
             );
         }
@@ -1564,7 +1589,7 @@ static int _realm2_ui(void)
             if (0 <= i && i < ct)
             {
                 int id = choices[i];
-                p_ptr->realm2 = id;
+                plr->realm2 = id;
                 return UI_OK;
             }
         }
@@ -1636,7 +1661,7 @@ static void _mon_race_group_ui(void)
                 _race_group_ptr g_ptr = &_mon_race_groups[i];
                 if (_count(g_ptr->ids) == 1)
                 {
-                    race_t *race_ptr = get_race_aux(p_ptr->prace, 0);
+                    race_t *race_ptr = get_race_aux(plr->prace, 0);
                     doc_display_help("MonsterRaces.txt", race_ptr->name);
                 }
                 else
@@ -1650,17 +1675,26 @@ static void _mon_race_group_ui(void)
             if (0 <= i && i < _MAX_MON_RACE_GROUPS)
             {
                 _race_group_ptr g_ptr = &_mon_race_groups[i];
+                int old_id = plr->prace;
+                int old_subid = plr->psubrace;
+                int old_realm = plr->dragon_realm;
+
                 if (_count(g_ptr->ids) == 1)
                 {
-                    p_ptr->prace = g_ptr->ids[0];
+                    plr->prace = g_ptr->ids[0];
                     if (_mon_subrace_ui() == UI_OK)
                         break;
                 }
                 else if (_mon_race_ui(g_ptr->ids) == UI_OK)
                     break;
+
+                plr->prace = old_id;
+                plr->psubrace = old_subid;
+                plr->dragon_realm = old_realm;
             }
         }
     }
+    assert(!(plr->prace != RACE_MON_DRAGON && plr->dragon_realm != 0));
 }
 
 static int _mon_race_ui(int ids[])
@@ -1686,7 +1720,7 @@ static int _mon_race_ui(int ids[])
                 _doc,
                 "  <color:y>%c</color>) <color:%c>%s</color>\n",
                 I2A(i),
-                race_ptr->id == p_ptr->prace ? 'B' : 'w',
+                race_ptr->id == plr->prace ? 'B' : 'w',
                 race_ptr->name
             );
         }
@@ -1717,18 +1751,21 @@ static int _mon_race_ui(int ids[])
             else i = A2I(cmd);
             if (0 <= i && i < ct)
             {
-                int     old_id = p_ptr->prace;
-                int     id = ids[i];
+                int id = ids[i];
+                int old_id = plr->prace;
+                int old_subid = plr->psubrace;
+                int old_realm = plr->dragon_realm;
 
-                if (p_ptr->prace != id)
+                if (plr->prace != id)
                 {
-                    p_ptr->prace = id;
-                    p_ptr->psubrace = 0;
+                    plr->prace = id;
+                    plr->psubrace = 0;
+                    plr->dragon_realm = 0;
                 }
-                if (_mon_subrace_ui() == UI_CANCEL)
-                    p_ptr->prace = old_id;
-                else
-                    return UI_OK;
+                if (_mon_subrace_ui() == UI_OK) return UI_OK;
+                plr->prace = old_id;
+                plr->psubrace = old_subid;
+                plr->dragon_realm = old_realm;
             }
         }
     }
@@ -1736,48 +1773,48 @@ static int _mon_race_ui(int ids[])
 
 static int _mon_subrace_ui(void)
 {
-    if (p_ptr->prace != RACE_MON_DRAGON)
-        p_ptr->dragon_realm = 0;
+    if (plr->prace != RACE_MON_DRAGON)
+        plr->dragon_realm = 0;
 
-    if (p_ptr->prace == RACE_MON_DEMON)
+    if (plr->prace == RACE_MON_DEMON)
         return _mon_demon_ui();
-    else if (p_ptr->prace == RACE_MON_DRAGON)
+    else if (plr->prace == RACE_MON_DRAGON)
         return _mon_dragon_ui();
-    else if (p_ptr->prace == RACE_MON_ELEMENTAL)
+    else if (plr->prace == RACE_MON_ELEMENTAL)
         return _mon_elemental_ui();
-    else if (p_ptr->prace == RACE_MON_GIANT)
+    else if (plr->prace == RACE_MON_GIANT)
         return _mon_giant_ui();
-    else if (p_ptr->prace == RACE_MON_GOLEM)
+    else if (plr->prace == RACE_MON_GOLEM)
         return _mon_golem_ui();
-    else if (p_ptr->prace == RACE_MON_LICH)
+    else if (plr->prace == RACE_MON_LICH)
         return _mon_lich_ui();
-    else if (p_ptr->prace == RACE_MON_SPIDER)
+    else if (plr->prace == RACE_MON_SPIDER)
         return _mon_spider_ui();
-    else if (p_ptr->prace == RACE_MON_TROLL)
+    else if (plr->prace == RACE_MON_TROLL)
         return _mon_troll_ui();
     else
     {
-        p_ptr->psubrace = 0;
+        plr->psubrace = 0;
         return UI_OK;
     }
 }
 
 static int _mon_demon_ui(void)
 {
-    assert(p_ptr->prace == RACE_MON_DEMON);
+    assert(plr->prace == RACE_MON_DEMON);
     return _subrace_ui_aux(DEMON_MAX, "Demon Subrace", "Demons.txt", NULL);
 }
 
 static int _mon_lich_ui(void)
 {
-    assert(p_ptr->prace == RACE_MON_LICH);
+    assert(plr->prace == RACE_MON_LICH);
     return _subrace_ui_aux(LICH_MAX, "Lich Subrace", "MonsterRaces.txt", "Lich");
 }
 
 static int _mon_dragon_ui(void)
 {
     int rc;
-    assert(p_ptr->prace == RACE_MON_DRAGON);
+    assert(plr->prace == RACE_MON_DRAGON);
     rc = _subrace_ui_aux(DRAGON_MAX, "Dragon Subrace", "Dragons.txt", NULL);
     if (rc == UI_OK)
         rc = _dragon_realm_ui();
@@ -1789,9 +1826,9 @@ static int _dragon_realm_ui(void)
     vec_ptr v;
     int     i, rc = UI_NONE;
 
-    if (p_ptr->psubrace == DRAGON_STEEL)
+    if (plr->psubrace == DRAGON_STEEL)
     {
-        p_ptr->dragon_realm = DRAGON_REALM_NONE;
+        plr->dragon_realm = DRAGON_REALM_NONE;
         return UI_OK;
     }
 
@@ -1799,9 +1836,9 @@ static int _dragon_realm_ui(void)
     for (i = 1; i < DRAGON_REALM_MAX; i++)
     {
         dragon_realm_ptr realm = dragon_get_realm(i);
-        if (i == DRAGON_REALM_CRUSADE && p_ptr->psubrace != DRAGON_LAW && p_ptr->psubrace != DRAGON_GOLD)
+        if (i == DRAGON_REALM_CRUSADE && plr->psubrace != DRAGON_LAW && plr->psubrace != DRAGON_GOLD)
             continue;
-        if (i == DRAGON_REALM_DEATH && p_ptr->psubrace != DRAGON_NETHER && p_ptr->psubrace != DRAGON_CHAOS)
+        if (i == DRAGON_REALM_DEATH && plr->psubrace != DRAGON_NETHER && plr->psubrace != DRAGON_CHAOS)
             continue;
         vec_add(v, realm);
     }
@@ -1822,7 +1859,7 @@ static int _dragon_realm_ui(void)
                 _doc,
                 "  <color:y>%c</color>) <color:%c>%s</color>\n",
                 I2A(i),
-                realm->id == p_ptr->dragon_realm ? 'B' : 'w',
+                realm->id == plr->dragon_realm ? 'B' : 'w',
                 realm->name
             );
         }
@@ -1853,7 +1890,7 @@ static int _dragon_realm_ui(void)
             if (0 <= i && i < vec_length(v))
             {
                 dragon_realm_ptr realm = vec_get(v, i);
-                p_ptr->dragon_realm = realm->id;
+                plr->dragon_realm = realm->id;
                 rc = UI_OK;
             }
         }
@@ -1865,31 +1902,31 @@ static int _dragon_realm_ui(void)
 
 static int _mon_elemental_ui(void)
 {
-    assert(p_ptr->prace == RACE_MON_ELEMENTAL);
+    assert(plr->prace == RACE_MON_ELEMENTAL);
     return _subrace_ui_aux(ELEMENTAL_MAX, "Elemental Subrace", "MonsterRaces.txt", "Elemental");
 }
 
 static int _mon_giant_ui(void)
 {
-    assert(p_ptr->prace == RACE_MON_GIANT);
+    assert(plr->prace == RACE_MON_GIANT);
     return _subrace_ui_aux(GIANT_MAX, "Giant Subrace", "MonsterRaces.txt", "Giant");
 }
 
 static int _mon_golem_ui(void)
 {
-    assert(p_ptr->prace == RACE_MON_GOLEM);
+    assert(plr->prace == RACE_MON_GOLEM);
     return _subrace_ui_aux(GOLEM_MAX, "Golem Subrace", "MonsterRaces.txt", "Golem");
 }
 
 static int _mon_spider_ui(void)
 {
-    assert(p_ptr->prace == RACE_MON_SPIDER);
+    assert(plr->prace == RACE_MON_SPIDER);
     return _subrace_ui_aux(SPIDER_MAX, "Spider Subrace", "MonsterRaces.txt", "Spider");
 }
 
 static int _mon_troll_ui(void)
 {
-    assert(p_ptr->prace == RACE_MON_TROLL);
+    assert(plr->prace == RACE_MON_TROLL);
     return _subrace_ui_aux(TROLL_MAX, "Troll Subrace", "MonsterRaces.txt", "Troll");
 }
 
@@ -1916,12 +1953,21 @@ static cptr _stat_desc(int stat);
 static cptr _stat_names[MAX_STATS] = { "STR", "INT", "WIS", "DEX", "CON", "CHR" };
 static char _stat_to_char(int which);
 static int _char_to_stat(char which);
+static void _stats_add(s16b stats[MAX_STATS], s16b to_add[MAX_STATS]);
 
 static int _stats_ui(void)
 {
     race_t         *race_ptr = get_race();
     class_t        *class_ptr = get_class();
     personality_ptr pers_ptr = get_personality();
+    dragon_realm_ptr realm_ptr = dragon_get_realm(plr->dragon_realm); /* 0 is OK */
+    s16b stats[MAX_STATS] = {0};
+
+    _stats_add(stats, race_ptr->stats);
+    _stats_add(stats, class_ptr->stats);
+    _stats_add(stats, pers_ptr->stats);
+    if (plr->dragon_realm)
+        _stats_add(stats, realm_ptr->stats);
 
     /* Initialize stats with reasonable defaults.
        If the user backs up and changes their class,
@@ -1946,8 +1992,8 @@ static int _stats_ui(void)
         doc_insert(cols[0], "<tab:9>Base  Pts  Mod  Total\n");
         for (i = 0; i < MAX_STATS; i++)
         {
-            int stat = p_ptr->stat_cur[i];
-            int bonus = pers_ptr->stats[i] + race_ptr->stats[i] + class_ptr->stats[i];
+            int stat = plr->stat_cur[i];
+            int bonus = stats[i];
             doc_printf(cols[0], "<color:y>%c</color>/<color:y>%c</color>) %-3.3s ",
                 _stat_to_char(i),
                 toupper(_stat_to_char(i)),
@@ -2056,16 +2102,16 @@ static void _stats_init_aux(int stats[MAX_STATS])
     int i;
     for (i = 0; i < MAX_STATS; i++)
     {
-        p_ptr->stat_cur[i] = stats[i];
-        p_ptr->stat_max[i] = stats[i];
+        plr->stat_cur[i] = stats[i];
+        plr->stat_max[i] = stats[i];
     }
 }
 
 static void _stats_init(void)
 {
-    if (p_ptr->pclass == CLASS_MONSTER)
+    if (plr->pclass == CLASS_MONSTER)
     {
-        switch (p_ptr->prace)
+        switch (plr->prace)
         {
         case RACE_MON_JELLY:
         case RACE_MON_XORN:
@@ -2092,7 +2138,7 @@ static void _stats_init(void)
             break;
         }
         case RACE_MON_LICH:
-            if (p_ptr->psubrace == LICH_MONASTIC)
+            if (plr->psubrace == LICH_MONASTIC)
             {
                 int stats[6] = { 16, 17, 8, 16, 11, 8 };
                 _stats_init_aux(stats);
@@ -2126,23 +2172,23 @@ static void _stats_init(void)
             break;
         }
         case RACE_MON_DRAGON:
-            if (p_ptr->dragon_realm == DRAGON_REALM_LORE)
+            if (plr->dragon_realm == DRAGON_REALM_LORE)
             {
                 int stats[6] = { 16, 16, 9, 16, 14, 10 };
                 _stats_init_aux(stats);
             }
-            else if (p_ptr->dragon_realm == DRAGON_REALM_BREATH)
+            else if (plr->dragon_realm == DRAGON_REALM_BREATH)
             {
                 int stats[6] = { 16, 8, 8, 16, 17, 11 };
                 _stats_init_aux(stats);
             }
-            else if (p_ptr->dragon_realm == DRAGON_REALM_CRAFT)
+            else if (plr->dragon_realm == DRAGON_REALM_CRAFT)
             {
                 int stats[6] = { 16, 9, 16, 16, 14, 10 };
                 _stats_init_aux(stats);
             }
-            else if ( p_ptr->dragon_realm == DRAGON_REALM_DOMINATION
-                   || p_ptr->dragon_realm == DRAGON_REALM_CRUSADE )
+            else if ( plr->dragon_realm == DRAGON_REALM_DOMINATION
+                   || plr->dragon_realm == DRAGON_REALM_CRUSADE )
             {
                 int stats[6] = { 16, 8, 8, 16, 15, 16 };
                 _stats_init_aux(stats);
@@ -2154,12 +2200,12 @@ static void _stats_init(void)
             }
             break;
         case RACE_MON_DEMON:
-            if (p_ptr->psubrace == DEMON_BALROG || p_ptr->psubrace == DEMON_MARILITH)
+            if (plr->psubrace == DEMON_BALROG || plr->psubrace == DEMON_MARILITH)
             {
                 int stats[6] = { 16, 16, 9, 16, 14, 10 };
                 _stats_init_aux(stats);
             }
-            else if (p_ptr->psubrace == DEMON_CYBERDEMON)
+            else if (plr->psubrace == DEMON_CYBERDEMON)
             {
                 int stats[6] = { 17, 8, 8, 15, 17, 9 };
                 _stats_init_aux(stats);
@@ -2174,7 +2220,7 @@ static void _stats_init(void)
     }
     else
     {
-        switch (p_ptr->pclass)
+        switch (plr->pclass)
         {
         case CLASS_WARRIOR:
         case CLASS_CAVALRY:
@@ -2286,25 +2332,25 @@ static void _stats_init(void)
 
 static void _stat_dec(int which)
 {
-    int val = p_ptr->stat_cur[which];
+    int val = plr->stat_cur[which];
     if (val > 8)
         val--;
     else
         val = 17;
-    p_ptr->stat_cur[which] = val;
-    p_ptr->stat_max[which] = val;
+    plr->stat_cur[which] = val;
+    plr->stat_max[which] = val;
     _stats_changed = TRUE;
 }
 
 static void _stat_inc(int which)
 {
-    int val = p_ptr->stat_cur[which];
+    int val = plr->stat_cur[which];
     if (val < 17)
         val++;
     else
         val = 8;
-    p_ptr->stat_cur[which] = val;
-    p_ptr->stat_max[which] = val;
+    plr->stat_cur[which] = val;
+    plr->stat_max[which] = val;
     _stats_changed = TRUE;
 }
 
@@ -2313,7 +2359,7 @@ static int _stats_score(void)
     int i, score = 0;
 
     for (i = 0; i < MAX_STATS; i++)
-        score += _stat_points[p_ptr->stat_cur[i]];
+        score += _stat_points[plr->stat_cur[i]];
 
     return score;
 }
@@ -2374,7 +2420,7 @@ static void _name_line(doc_ptr doc)
 
 static void _sex_line(doc_ptr doc)
 {
-    doc_printf(doc, "Sex  : <color:B>%s</color>\n", sex_info[p_ptr->psex].title);
+    doc_printf(doc, "Sex  : <color:B>%s</color>\n", sex_info[plr->psex].title);
 }
 
 static void _pers_line(doc_ptr doc)
@@ -2388,11 +2434,11 @@ static void _race_line(doc_ptr doc)
     race_t *race_ptr = get_race();
     if (game_mode == GAME_MODE_MONSTER)
     {
-        if ( p_ptr->prace == RACE_MON_DRAGON
-          || p_ptr->prace == RACE_MON_GIANT
-          || p_ptr->prace == RACE_MON_ELEMENTAL
-          || p_ptr->prace == RACE_MON_LICH
-          || p_ptr->prace == RACE_MON_TROLL )
+        if ( plr->prace == RACE_MON_DRAGON
+          || plr->prace == RACE_MON_GIANT
+          || plr->prace == RACE_MON_ELEMENTAL
+          || plr->prace == RACE_MON_LICH
+          || plr->prace == RACE_MON_TROLL )
         {
             doc_printf(doc, "Race : <color:B>%s</color>\n", race_ptr->subname);
         }
@@ -2418,11 +2464,11 @@ static void _class_line(doc_ptr doc)
     doc_printf(doc, "Class: <color:B>%s</color>\n", class_ptr->name);
     if (class_ptr->subname)
     {
-        if (p_ptr->pclass == CLASS_WARLOCK)
+        if (plr->pclass == CLASS_WARLOCK)
             doc_printf(doc, "Pact : <color:B>%s</color>\n", class_ptr->subname);
-        else if (p_ptr->pclass == CLASS_WEAPONMASTER || p_ptr->pclass == CLASS_DEVICEMASTER)
+        else if (plr->pclass == CLASS_WEAPONMASTER || plr->pclass == CLASS_DEVICEMASTER)
             doc_printf(doc, "Spec : <color:B>%s</color>\n", class_ptr->subname);
-        else if (p_ptr->pclass == CLASS_GRAY_MAGE)
+        else if (plr->pclass == CLASS_GRAY_MAGE)
             doc_printf(doc, "Bias : <color:B>%s</color>\n", class_ptr->subname);
         else
             doc_printf(doc, "       <color:B>%s</color>\n", class_ptr->subname);
@@ -2431,16 +2477,16 @@ static void _class_line(doc_ptr doc)
 
 static void _magic_line(doc_ptr doc)
 {
-    if (p_ptr->dragon_realm)
+    if (plr->dragon_realm)
     {
-        dragon_realm_ptr realm = dragon_get_realm(p_ptr->dragon_realm);
+        dragon_realm_ptr realm = dragon_get_realm(plr->dragon_realm);
         doc_printf(doc, "Magic: <color:B>%s</color>\n", realm->name);
     }
-    else if (p_ptr->realm1)
+    else if (plr->realm1)
     {
-        doc_printf(doc, "Magic: <color:B>%s</color>\n", realm_names[p_ptr->realm1]);
-        if (p_ptr->realm2)
-            doc_printf(doc, "       <color:B>%s</color>\n", realm_names[p_ptr->realm2]);
+        doc_printf(doc, "Magic: <color:B>%s</color>\n", realm_names[plr->realm1]);
+        if (plr->realm2)
+            doc_printf(doc, "       <color:B>%s</color>\n", realm_names[plr->realm2]);
     }
 }
 
@@ -2487,7 +2533,7 @@ static void _race_class_info(doc_ptr doc)
     race_t *race_ptr = get_race();
     class_t *class_ptr = get_class();
     personality_ptr pers_ptr = get_personality();
-    dragon_realm_ptr realm_ptr = dragon_get_realm(p_ptr->dragon_realm); /* 0 is OK */
+    dragon_realm_ptr realm_ptr = dragon_get_realm(plr->dragon_realm); /* 0 is OK */
     int spell_stat = get_spell_stat();
     
     doc_newline(doc);
@@ -2498,7 +2544,7 @@ static void _race_class_info(doc_ptr doc)
         _stats_add(stats, race_ptr->stats);
         _stats_add(stats, class_ptr->stats);
         _stats_add(stats, pers_ptr->stats);
-        if (p_ptr->dragon_realm)
+        if (plr->dragon_realm)
             _stats_add(stats, realm_ptr->stats);
 
         doc_insert(doc, "<style:heading><color:w>STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp</color>\n");
@@ -2514,7 +2560,7 @@ static void _race_class_info(doc_ptr doc)
             _stats_line(doc, class_ptr->stats, spell_stat, 'G');
             doc_printf(doc, "%3d%%  %+3d  %3d%%\n", class_ptr->life, class_ptr->base_hp, class_ptr->exp);
         }
-        if (p_ptr->dragon_realm)
+        if (plr->dragon_realm)
         {
             _stats_line(doc, realm_ptr->stats, spell_stat, 'G');
             doc_printf(doc, "%3d%%       %3d%%\n", realm_ptr->life, realm_ptr->exp);
@@ -2537,12 +2583,12 @@ static void _race_class_info(doc_ptr doc)
         {
             base = race_ptr->skills;
             skills_add(&base, &pers_ptr->skills);
-            if (p_ptr->dragon_realm)
+            if (plr->dragon_realm)
                 skills_add(&base, &realm_ptr->skills);
 
             xtra = pers_ptr->skills;
             skills_scale(&xtra, 1, 5);
-            if (p_ptr->dragon_realm)
+            if (plr->dragon_realm)
             {
                 skills_t tmp = realm_ptr->skills;
                 skills_scale(&tmp, 1, 5);
@@ -2552,7 +2598,7 @@ static void _race_class_info(doc_ptr doc)
 
             skills_desc_mon_race(race_ptr, &r_desc);
             skills_desc_pers(pers_ptr, &p_desc);
-            if (p_ptr->dragon_realm)
+            if (plr->dragon_realm)
                 skills_desc_realm(realm_ptr, &dr_desc);
             skills_desc_aux(&base, &xtra, &tot_desc);
         }
@@ -2588,7 +2634,7 @@ static void _race_class_info(doc_ptr doc)
                 doc_printf(doc, "%s %s %s %s\n",
                     c_desc.dis, c_desc.dev, c_desc.sav, c_desc.stl);
             }
-            if (p_ptr->dragon_realm)
+            if (plr->dragon_realm)
             {
                 doc_printf(doc, "%s %s %s %s\n",
                     dr_desc.dis, dr_desc.dev, dr_desc.sav, dr_desc.stl);
@@ -2612,7 +2658,7 @@ static void _race_class_info(doc_ptr doc)
                 doc_printf(doc, "%s %s %s %s\n",
                     c_desc.srh, c_desc.fos, c_desc.thn, c_desc.thb);
             }
-            if (p_ptr->dragon_realm)
+            if (plr->dragon_realm)
             {
                 doc_printf(doc, "%s %s %s %s\n",
                     dr_desc.srh, dr_desc.fos, dr_desc.thn, dr_desc.thb);
@@ -2671,9 +2717,9 @@ static void _birth_options(void)
 
 static int _compare_rlvl(mon_race_ptr left, mon_race_ptr right)
 {
-    if (left->level < right->level)
+    if (left->alloc.lvl < right->alloc.lvl)
         return -1;
-    if (left->level > right->level)
+    if (left->alloc.lvl > right->alloc.lvl)
         return 1;
     if (left->id < right->id)
         return -1;
@@ -2682,23 +2728,23 @@ static int _compare_rlvl(mon_race_ptr left, mon_race_ptr right)
     return 0;
 }
 
-bool _is_unique(mon_race_ptr race) { return BOOL(race->flags1 & RF1_UNIQUE); }
 static void _bounty_uniques(void)
 {
     vec_ptr v = vec_alloc(NULL);
     int     i;
 
-    mon_alloc_push_filter(_is_unique);
+    mon_alloc_push_filter(mon_race_is_unique);
     for (i = 0; i < MAX_KUBI; i++)
     {
         while (1)
         {
             mon_race_ptr race = mon_alloc_choose_aux2(mon_alloc_tbl, MAX_DEPTH, 0, GMN_QUESTOR);
 
-            if (race->flags1 & RF1_NO_QUEST) continue;
+            if (race->alloc.flags & RFA_NO_QUEST) continue;
+            if (race->flagsx & RFX_GUARDIAN) continue;
             if (race->flagsx & RFX_WANTED) continue;
-            if (!(race->flags9 & (RF9_DROP_CORPSE | RF9_DROP_SKELETON))) continue;
-            if (race->rarity > 100) continue;
+            if (!(race->body.flags & (RF_DROP_CORPSE | RF_DROP_SKELETON))) continue;
+            if (race->alloc.rarity > 100) continue;
 
             race->flagsx |= RFX_WANTED;
             vec_add(v, race);
@@ -2719,45 +2765,49 @@ static void _bounty_uniques(void)
 
 static void _init_turn(void)
 {
-    if ( p_ptr->prace == RACE_VAMPIRE
-      || p_ptr->prace == RACE_MON_VAMPIRE
-      || p_ptr->prace == RACE_SKELETON
-      || p_ptr->prace == RACE_ZOMBIE
-      || p_ptr->prace == RACE_SPECTRE )
+    if ( plr->prace == RACE_VAMPIRE
+      || plr->prace == RACE_MON_VAMPIRE
+      || plr->prace == RACE_SKELETON
+      || plr->prace == RACE_ZOMBIE
+      || plr->prace == RACE_SPECTRE )
     {
         /* Undead start just after midnight */
         dun_mgr()->turn = (TURNS_PER_TICK*3 * TOWN_DAWN) / 4 + 1;
     }
     else dun_mgr()->turn = 1;
 }
-
+static void _suppress(mon_race_ptr r)
+{
+    if (r->attributes & RF_DEPRECATED)
+        r->flagsx |= RFX_SUPPRESS;
+}
 static void _birth_finalize(void)
 {
     int i;
 
-    p_ptr->id = scores_next_id();
+    plr->id = scores_next_id();
+    plr->pflag |= PFLAG_BIRTH;
 
     /* Quick Start */
-    assert(p_ptr->initial_world_id);
+    assert(plr->initial_world_id);
     previous_char.quick_ok = TRUE;
-    previous_char.initial_world_id = p_ptr->initial_world_id;
+    previous_char.initial_world_id = plr->initial_world_id;
     previous_char.game_mode = game_mode;
-    previous_char.psex = p_ptr->psex;
-    previous_char.prace = p_ptr->prace;
-    previous_char.psubrace = p_ptr->psubrace;
-    previous_char.pclass = p_ptr->pclass;
-    previous_char.psubclass = p_ptr->psubclass;
-    previous_char.personality = p_ptr->personality;
-    previous_char.realm1 = p_ptr->realm1;
-    previous_char.realm2 = p_ptr->realm2;
-    previous_char.dragon_realm = p_ptr->dragon_realm;
-    previous_char.au = p_ptr->au;
+    previous_char.psex = plr->psex;
+    previous_char.prace = plr->prace;
+    previous_char.psubrace = plr->psubrace;
+    previous_char.pclass = plr->pclass;
+    previous_char.psubclass = plr->psubclass;
+    previous_char.personality = plr->personality;
+    previous_char.realm1 = plr->realm1;
+    previous_char.realm2 = plr->realm2;
+    previous_char.dragon_realm = plr->dragon_realm;
+    previous_char.au = plr->au;
 
     for (i = 0; i < MAX_STATS; i++)
-        previous_char.stat_max[i] = p_ptr->stat_max[i];
+        previous_char.stat_max[i] = plr->stat_max[i];
 
     /* Other Initialization */
-    art_init();
     equip_init();
     pack_init();
     quiver_init();
@@ -2767,13 +2817,7 @@ static void _birth_finalize(void)
     /* Suppress any deprecated monsters for this new game. Upgrading an existing
      * game should continue to generate deprecated monsters, since they may be wanted
      * or questors. We do this before choosing questors and bounty uniques, of course. */
-    for (i = 0; i < max_r_idx; i++)
-    {
-        monster_race *r_ptr = &r_info[i];
-
-        if (r_ptr->flags9 & RF9_DEPRECATED)
-            r_ptr->flagsx |= RFX_SUPPRESS;
-    }
+    mon_race_iter(_suppress);
 
     /* Create initial level ... XXX quests_on_birth needs cave to be set */
     _init_turn();  /* XXX dun_worlds_birth will generate and glow D_SURFACE */
@@ -2782,33 +2826,33 @@ static void _birth_finalize(void)
 
     _bounty_uniques();
 
-    p_ptr->au = randint1(600) + randint1(100) + 100;
+    plr->au = randint1(600) + randint1(100) + 100;
 
     /* Everybody gets a chaos patron. The chaos warrior is obvious,
      * but anybody else can acquire MUT_CHAOS_GIFT during the game */
-    p_ptr->chaos_patron = randint0(MAX_PATRON);
+    plr->chaos_patron = randint0(MAX_PATRON);
 
     get_max_stats();
     do_cmd_rerate_aux();
 
-    p_ptr->start_race = p_ptr->prace;
-    p_ptr->expfact = calc_exp_factor();
+    plr->start_race = plr->prace;
+    plr->expfact = calc_exp_factor();
 
-    mp_ptr = &m_info[p_ptr->pclass];
+    mp_ptr = &m_info[plr->pclass];
     /* Hack ... external files always make easy stuff hard ... Burglary is natural for rogues!!!*/
-    if (p_ptr->pclass == CLASS_ROGUE)
+    if (plr->pclass == CLASS_ROGUE)
     {
-        if (p_ptr->realm1 == REALM_BURGLARY)
+        if (plr->realm1 == REALM_BURGLARY)
             mp_ptr->spell_first = 1;
         else
             mp_ptr->spell_first = 5;
     }
 
     /* Rest Up to Max HP and SP */
-    p_ptr->update |= PU_BONUS | PU_HP | PU_MANA;
+    plr->update |= PU_BONUS | PU_HP | PU_MANA;
     update_stuff();
-    p_ptr->chp = p_ptr->mhp;
-    p_ptr->csp = p_ptr->msp;
+    plr->chp = plr->mhp;
+    plr->csp = plr->msp;
     process_player_name(FALSE);
 }
 

@@ -15,17 +15,17 @@ enum {
 static bool _sight_on(plr_tim_ptr timer)
 {
     msg_print("You sense life!");
-    p_ptr->update |= PU_BONUS | PU_MONSTERS;
+    plr->update |= PU_BONUS | PU_MONSTERS;
     return TRUE;
 }
 static void _sight_off(plr_tim_ptr timer)
 {
     msg_print("You no longer sense life.");
-    p_ptr->update |= PU_BONUS | PU_MONSTERS;
+    plr->update |= PU_BONUS | PU_MONSTERS;
 }
 static void _sight_bonus(plr_tim_ptr timer)
 {
-    p_ptr->esp_living = TRUE;
+    plr->esp_living = TRUE;
 }
 static void _sight_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
@@ -51,24 +51,24 @@ static plr_tim_info_ptr _sight_timer(void)
 static bool _shield_on(plr_tim_ptr timer)
 {
     msg_print("You are shielded in blood!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _shield_off(plr_tim_ptr timer)
 {
     msg_print("Your blood shield vanishes.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _shield_bonus(plr_tim_ptr timer)
 {
-    int amt = 100 * (p_ptr->mhp - p_ptr->chp) / p_ptr->mhp; 
+    int amt = 100 * (plr->mhp - plr->chp) / plr->mhp; 
     plr_bonus_ac(amt);
     if (amt > 60)
-        p_ptr->reflect = TRUE;
+        plr->reflect = TRUE;
 }
 static void _shield_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
-    int amt = 100 * (p_ptr->mhp - p_ptr->chp) / p_ptr->mhp; 
+    int amt = 100 * (plr->mhp - plr->chp) / plr->mhp; 
     if (amt > 60)
         add_flag(flgs, OF_REFLECT);
 }
@@ -93,13 +93,13 @@ static plr_tim_info_ptr _shield_timer(void)
 static bool _seek_on(plr_tim_ptr timer)
 {
     msg_print("Your weapon thirsts for life!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _seek_off(plr_tim_ptr timer)
 {
     msg_print("Your weapon no longer thirsts for life.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _seek_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
 {
@@ -130,14 +130,14 @@ static plr_tim_info_ptr _seek_timer(void)
 /* _FEAST */
 static bool _feast_on(plr_tim_ptr timer)
 {
-    msg_print("You begin to feast on blood!");
-    p_ptr->update |= PU_BONUS;
+    msg_print("Let the feast begin!!");
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _feast_off(plr_tim_ptr timer)
 {
-    msg_print("You no longer feast on blood.");
-    p_ptr->update |= PU_BONUS;
+    msg_print("The feast has ended!");
+    plr->update |= PU_BONUS;
 }
 static void _feast_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
 {
@@ -229,7 +229,7 @@ static void _revenge_hit(mon_attack_ptr context)
     if (dam > 0)
     {
         msg_format("%^s feels your bloody revenge!", context->mon_name);
-        if (mon_take_hit(context->mon->id, dam, &context->fear, " turns into a pool of blood."))
+        if (mon_take_hit(context->mon, dam, &context->fear, " turns into a pool of blood."))
             context->stop = STOP_MON_DEAD;
     }
 }
@@ -246,10 +246,10 @@ static void _flow_spell(int cmd, var_ptr res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Blood Flow");
+        var_set_string(res, "Cut Self");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Cuts yourself.");
+        var_set_string(res, "Cut yourself to improve your melee prowess.");
         break;
     case SPELL_CAST:
     {
@@ -273,14 +273,14 @@ static void _sight_spell(int cmd, var_ptr res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Blood Sight");
+        var_set_string(res, "Detect Living");
         break;
     case SPELL_DESC:
         var_set_string(res, "Detects living creatures in the vicinity.");
         break;
     case SPELL_CAST:
     {
-        if (p_ptr->lev < 30)
+        if (plr->lev < 30)
             detect_monsters_living(DETECT_RAD_DEFAULT, "You sense potential blood!");
         else
             plr_tim_add(_SIGHT, randint1(30) + 30);
@@ -298,29 +298,13 @@ static void _spray_spell(int cmd, var_ptr res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Blood Spray");
+        var_set_string(res, "Gouge Self");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Cuts yourself, splattering nearby enemies.");
+        var_set_string(res, "Inflict a deep wound, spraying your own blood to damage nearby monsters.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(3, 5, p_ptr->lev + p_ptr->lev/4));
-        break;
-    case SPELL_CAST:
-    {
-        int dice = 3;
-        int sides = 5;
-        int rad = (p_ptr->lev < 30) ? 3 : 4;
-        int base = p_ptr->lev + p_ptr->lev/4;
-
-        project(0, rad, p_ptr->pos.y, p_ptr->pos.x, 2*(damroll(dice, sides) + base), GF_BLOOD, PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        burst_spell_aux(cmd, res, 3 + plr->lev/30, GF_BLOOD, dice_create(3, 5, 5*plr->lev/4));
     }
 }
 
@@ -354,7 +338,7 @@ static void _shield_spell(int cmd, var_ptr res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Blood Shield");
+        var_set_string(res, "Crimson Shield");
         break;
     case SPELL_DESC:
         var_set_string(res, "Gives bonus to AC depending on how wounded you are. Grants reflection if you are really hurting.");
@@ -377,10 +361,10 @@ static void _seeking_spell(int cmd, var_ptr res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Blood Seeking");
+        var_set_string(res, "Slay Living");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Gives slay living to your weapon.");
+        var_set_string(res, "Temporarily grants slay living to your weapon.");
         break;
     case SPELL_CAST:
     {
@@ -399,14 +383,14 @@ static void _rage_spell(int cmd, var_ptr res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Blood Rage");
+        var_set_string(res, "Blood Lust");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Enter a blood frenzy. Gives speed and big bonuses to hit and damage.");
+        var_set_string(res, "Enter a frenzied state granting enhanced speed and big bonuses to hit and damage.");
         break;
     case SPELL_CAST:
     {
-        int dur = randint1(p_ptr->lev/2) + p_ptr->lev/2;
+        int dur = randint1(plr->lev/2) + plr->lev/2;
         plr_tim_add(T_FAST, dur);
         plr_tim_add(T_BERSERK, dur);
         var_set_bool(res, TRUE);
@@ -423,7 +407,7 @@ static void _feast_spell(int cmd, var_ptr res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Blood Feast");
+        var_set_string(res, "Banquet of Azathoth");
         break;
     case SPELL_DESC:
         var_set_string(res, "You begin to feast on your opponents blood, doing extra damage but at a cost to your own health.");
@@ -438,7 +422,7 @@ static void _feast_spell(int cmd, var_ptr res)
         }
         else
         {
-            plr_tim_add(_FEAST, randint1(25) + 25);
+            plr_tim_add(_FEAST, randint1(5) + 5);
             var_set_bool(res, TRUE);
         }
         break;
@@ -454,10 +438,10 @@ static void _revenge_spell(int cmd, var_ptr res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Blood Revenge");
+        var_set_string(res, "Revenge");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Gives an aura of bloody revenge. Monsters take damaged based on your cut status.");
+        var_set_string(res, "Gives an aura of bloody revenge. Living monsters take damage based on your cut status.");
         break;
     case SPELL_CAST:
         plr_tim_add(_REVENGE, randint1(5) + 5);
@@ -479,7 +463,7 @@ static void _pool_spell(int cmd, var_ptr res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Blood Pool");
+        var_set_string(res, "The Flow of Life");
         break;
     case SPELL_DESC:
         var_set_string(res, "Creates a macabre Potion of Healing made of your own blood.");
@@ -489,7 +473,7 @@ static void _pool_spell(int cmd, var_ptr res)
         object_type forge;
         int ct = _count_blood_potions();
 
-        if (ct >= 30)
+        if (ct >= 20)
         {
             msg_print("You have too many blood potions at the moment. Why not drink some?");
             var_set_bool(res, FALSE);
@@ -515,7 +499,7 @@ static void _explosion_spell(int cmd, var_ptr res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Blood Explosion");
+        var_set_string(res, "Red Death");
         break;
     case SPELL_DESC:
         var_set_string(res, "Damages all living creatures in sight at tremendous cost to your own health.");
@@ -526,7 +510,7 @@ static void _explosion_spell(int cmd, var_ptr res)
     case SPELL_CAST:
     {
         msg_print("You cut too deep ... Your blood explodes!");
-        dispel_living(500);
+        plr_project_los(GF_DISP_LIVING, 500);
         var_set_bool(res, TRUE);
         break;
     }
@@ -569,16 +553,16 @@ static spell_info _spells[] =
 {
     /*lvl cst fail spell */
     {  1,   1, 20, _flow_spell },
-    {  5,  5,  30, _sight_spell},
-    { 10, 10,  30, _spray_spell},
-    { 15, 20,  30, _bath_spell},
-    { 20, 30,  30, _shield_spell},
-    { 25, 50,  40, _seeking_spell},
-    { 30, 60,  40, _rage_spell},
-    { 40, 60,  50, _feast_spell},
-    { 42, 60,   0, _revenge_spell},
-    { 45,200,   0, _pool_spell},
-    { 50,500,  60, _explosion_spell},
+    {  5,   5, 30, _sight_spell},
+    { 10,  10, 30, _spray_spell},
+    { 15,  20, 30, _bath_spell},
+    { 20,  30, 30, _shield_spell},
+    { 25,  50, 40, _seeking_spell},
+    { 30,  60, 40, _rage_spell},
+    { 40,  60, 50, _feast_spell},
+    { 42,  60,  0, _revenge_spell},
+    { 45, 200,  0, _pool_spell},
+    { 50, 500, 60, _explosion_spell},
     { -1, -1,  -1, NULL}
 }; 
 
@@ -603,8 +587,8 @@ static void _character_dump(doc_ptr doc)
 static void _calc_bonuses(void)
 {
     int cut = plr_tim_amount(T_CUT);
-    p_ptr->regen += 100 + 2*p_ptr->lev;
-    if (p_ptr->lev >= 30) res_add(RES_FEAR);
+    plr->regen += 100 + 2*plr->lev;
+    if (plr->lev >= 30) res_add(GF_FEAR);
 
     if (cut > 0)
     {
@@ -623,7 +607,7 @@ static void _calc_bonuses(void)
             to_stealth = -1;
         else
             to_stealth = -1;
-        p_ptr->skills.stl += to_stealth;
+        plr->skills.stl += to_stealth;
     }
 
 }
@@ -631,22 +615,21 @@ static void _calc_bonuses(void)
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_REGEN);
+    if (plr->lev >= 30) add_flag(flgs, OF_RES_(GF_FEAR));
 }
 
 static void _calc_weapon_bonuses(object_type *o_ptr, plr_attack_info_ptr info)
 {
     int cut = plr_tim_amount(T_CUT);
-    int frac = p_ptr->chp * 100 / p_ptr->mhp;
-    if (frac < 20 && p_ptr->lev > 48)
-        info->xtra_blow += 900;
-    else if (frac < 40 && p_ptr->lev > 36)
-        info->xtra_blow += 600;
-    else if (frac < 60 &&  p_ptr->lev > 24)
-        info->xtra_blow += 400;
-    else if (frac < 80 && p_ptr->lev > 12)
-        info->xtra_blow += 200;
-    else if (p_ptr->chp < p_ptr->mhp) /* Hack: frac might be 100 if we are just slightly wounded */
-        info->xtra_blow += 100;
+    if (plr->chp < plr->mhp)
+    {
+        int frac = plr->chp * 100 / plr->mhp;
+        int max = plr_prorata_level(800);
+        int blows = (100 - frac) * max / 90; /* XXX overcharge blows below 10% health (unwise) */
+
+        info->xtra_blow += 100;   /* 3.00x to 4.00x base blows */
+        info->xtra_blow += blows; /* more blows based on pct wounded (up to 12.00x) */
+    }
     if (cut > 0)
     {
         int to_h = 0;
@@ -697,7 +680,7 @@ static void _calc_weapon_bonuses(object_type *o_ptr, plr_attack_info_ptr info)
 static void _on_cast(const spell_info *spell)
 {
     plr_tim_add(T_CUT, spell->level);
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 
 static caster_info * _caster_info(void)
@@ -732,7 +715,7 @@ plr_class_ptr blood_knight_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  18,  32,   2,  16,   6,  70,  20};
-    skills_t xs = { 12,   7,  10,   0,   0,   0,  23,  15};
+    skills_t xs = { 60,  35,  50,   0,   0,   0, 115,  75};
 
         me = plr_class_alloc(CLASS_BLOOD_KNIGHT);
         me->name = "Blood-Knight";

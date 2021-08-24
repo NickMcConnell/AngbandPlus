@@ -164,15 +164,38 @@ static cptr _light_med(_forge_ptr forge)
 static cptr _light_high(_forge_ptr forge)
 {
     static cptr name[] = { "'Altair'", "'Apocalypse Beacon'", "'Arcturus'", "'Aurora Borealis'",
-        "'Avatar of Light'", "'Dawnbringer'", "'Destiny Star'", "'Eye of Ghidora'", "'Eye of Vecna'",
+        "'Avatar of Light'", "'Dawnbringer'", "'Destiny Star'", "'Eye of Ghidora'",
         "'Furnace of Light'", "'Lightbringer'", "'Lux Aeterna'", "'Mirzam'", "'Morinehtar'",
         "'Phoenix Eye'", "'Suncaller'", "'Sundrop of Varda'", "'Vaevictis'", "of Celestial Guidance",
         "of Nystul", "of Revelation", "of Sustarre", "of the Firmament", "of the Zodiac", NULL };
     return _random(name);
 }
 
+static cptr _dark_med(_forge_ptr forge)
+{
+    static cptr name[] = { "of Unlight", "of Remorse", "'Dark Side of the Moon'",
+        "of the Neverborn", "'Blacksphere'", "'Shadowstalk'",
+        "'Darkwalker'", "'Dark Guide'", "'Deluminator'", "of the Dark Age", 
+        "of the Benighted", "'Soul of Blackness'", "'Jewel of the Underworld'",
+        "'Nightbringer'", "of Midnight", NULL };
+    return _random(name);
+}
+
+static cptr _dark_high(_forge_ptr forge)
+{
+    static cptr name[] = { "'Dark Prophecy'", "of the Dark One", "of Vlad", "'Eye of Vecna'",
+        "of the Lord of Darkness", "'Dark Star'", "of Ungoliant", "'Heart of Darkness'",
+        "'Darkenstone'", "of the Lord of Shadows", "'Black Breath'", NULL };
+    return _random(name);
+}
+
 static cptr _light(_forge_ptr forge)
 {
+    if (forge->obj->sval == SV_LIGHT_DARK)
+    {
+        if (forge->score < 30000) return _dark_med(forge);
+        return _dark_high(forge);
+    }
     if (forge->score < 5000) return _light_low(forge);
     else if (forge->score < 15000) return _light_med(forge);
     return _light_high(forge);
@@ -685,7 +708,7 @@ static cptr _name(_forge_ptr forge)
         return _weapon(forge);
     else if (obj_is_armor(forge->obj))
         return _armor(forge);
-    else if (forge->obj->tval == TV_LITE)
+    else if (forge->obj->tval == TV_LIGHT)
         return _light(forge);
     else if (forge->obj->tval == TV_AMULET)
         return _amulet(forge);
@@ -728,18 +751,17 @@ int art_name_count(cptr name)
 /******************************************************************************
  * Savefiles: Remember which names have been used
  ******************************************************************************/
-void art_init(void)
+void art_names_reset(void)
 {
-    /* reset used names on player birth */
     str_map_clear(_names());
 }
 
-void art_save(savefile_ptr file)
+void art_names_save(savefile_ptr file)
 {
     str_map_ptr      names = _names();
     str_map_iter_ptr iter;
 
-    if (p_ptr->wizard) /* XXX for my testing */
+    if (plr->wizard) /* XXX for my testing */
         str_map_clear(names);
 
     savefile_write_s16b(file, str_map_count(names));
@@ -755,7 +777,7 @@ void art_save(savefile_ptr file)
     str_map_iter_free(iter);
 }
 
-void art_load(savefile_ptr file)
+void art_names_load(savefile_ptr file)
 {
     str_map_ptr names = _names();
     int         ct = savefile_read_s16b(file);

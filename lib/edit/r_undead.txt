@@ -1,0 +1,1336 @@
+# Undead
+
+########################################################################
+# Ghost
+T:G.base:Ghost
+I:DISPLAY(G):POS(SEE_INVIS|HOLD_LIFE)
+I:KIND(UNDEAD|NONLIVING):ALIGN(Evil):CAN(INVIS):ATTR(COLD_BLOOD)
+I:ALERT(200',Fairly Observant):MOVE(FLY|PASSWALL)
+I:RESIST(COLD|CONF):IMMUNE(POIS|NETHER|SLEEP)
+P:Stat:Str(-3+3):Int(1+5):Wis(-3):Dex(0+4):Con(-2+3):Chr(0+5)
+P:Skill:Dis(30+60):Dev(35+60):Sav(35+50):Stl(6):Srh(15):Fos(12):Thn(50+75):Thb(50+50)
+P:Class:Rogue
+P:Infra:50'
+P:Weight:1
+
+N:G.poltergeist:G.base:Poltergeist
+I:LVL(3,30):RARITY(1)
+I:SPEED(+20):HP(2d5):AC(15):EXP(9):EVOLVE(G.lost soul, 10)
+I:ALERT(80'):MOVE(RAND_75|PICKUP)
+B:TOUCH:TERRIFY
+I:VULN(LIGHT)
+S:1_IN_15 | BLINK
+O:90%:1d2:OBJ(*$)
+D:It is a ghastly, ghostly form.
+I:COLOR(Slate)
+
+N:G.glutton:G.base:Green glutton ghost
+I:LVL(5,40):RARITY(1)
+I:SPEED(+20):HP(3d4):AC(20):EXP(15):EVOLVE(G.lost soul, 15)
+I:ALERT(100'):MOVE(RAND_75)
+B:TOUCH:DAM(1):EAT_FOOD
+O:90%:1d2:OBJ(*$)
+D:It is a very ugly green ghost with a voracious appetite.
+I:COLOR(Green)
+
+N:G.lost soul:G.base:Lost soul
+I:LVL(7,40):RARITY(2)
+I:HP(2d8):AC(10):EXP(18):EVOLVE(G.moaning spirit, 150)
+I:ALERT(120'):MOVE(RAND_50|PICKUP)
+B:HIT:HURT(1d3+2)
+B:TOUCH:LOSE_WIS(50%)
+B:TOUCH:DRAIN_MANA(1d6)
+O:90%:1d2:OBJ(*$)
+S:1_IN_15 | TELE_SELF | DRAIN_MANA
+D:It is almost insubstantial.
+I:COLOR(Umber)
+
+N:G.jibaku:G.base:Jibaku ghost
+I:LVL(8,40):RARITY(2)
+I:HP(20d5):AC(10):EXP(20)
+I:ALERT(120'):MOVE(NEVER)
+B:HIT:HURT(2d5)
+B:TOUCH:LOSE_WIS
+D:A lost soul of an adventurer still lingering in this world.
+I:COLOR(Light White)
+
+# XXX These are not 'ghosts' proper (e.g. they are visible!)
+N:G.phantom:Phantom warrior
+I:LVL(8,40):RARITY(1)
+I:HP(5d5):AC(10):EXP(15)
+I:KIND(NONLIVING):ATTR(COLD_BLOOD|EMPTY_MIND)
+I:ALERT(200',Unseeing):MOVE(FLY|PASSWALL)
+B:HIT(x2):HURT(1d8+3)
+I:IMMUNE(SLEEP|FEAR)
+M:3d3:MON(G.phantom)
+D:Creatures that are half real, half illusion.
+I:DISPLAY(G,Light Blue):POS(SEE_INVIS)
+P:Copy:Barbarian:Warrior
+P:Weight:10
+
+N:G.moaning spirit:G.base:Moaning spirit
+I:LVL(12,50):RARITY(2)
+I:SPEED(+10):HP(5d8):AC(20):EXP(44):EVOLVE(G.ghost, 600)
+I:ALERT(140'):MOVE(RAND_25)
+B:WAIL:TERRIFY
+B:TOUCH:DAM(1d8):LOSE_DEX(25%)
+B:TOUCH:DRAIN_MANA(1d8)
+S:1_IN_15 | TELE_SELF | SCARE
+O:90%:1d2:OBJ(*$)
+D:A ghostly apparition that shrieks horribly.
+I:COLOR(Light Umber)
+
+# XXX Not really a 'ghost'
+N:G.phantom beast:Phantom beast
+I:LVL(24,70):RARITY(1)
+I:HP(144):AC(40):EXP(100)
+I:KIND(NONLIVING):ATTR(COLD_BLOOD|EMPTY_MIND)
+I:ALERT(200',Unseeing):MOVE(FLY|PASSWALL)
+B:HIT:HURT(20d2+30)
+B:HIT:HURT(10d2+15):LOSE_CHR(25%)
+I:RESIST(TELE):IMMUNE(SLEEP|FEAR)
+D:A creature that is half real, half illusion.
+I:DISPLAY(G,Light Blue):POS(SEE_INVIS)
+P:Copy:Barbarian:Warrior
+P:Weight:1
+
+N:G.banshee:G.base:Banshee
+I:LVL(24,70):RARITY(2)
+I:SPEED(+10):HP(6d8):AC(24):EXP(60):EVOLVE(G.ghost, 600)
+I:ATTR(FEMALE):MOVE(RAND_50|PICKUP)
+B:WAIL:TERRIFY
+B:TOUCH:DRAIN_EXP(20d6)
+B:TOUCH:DRAIN_MANA(2d6)
+O:1d2:OBJ(*$)
+S:1_IN_15 | TELE_SELF | DRAIN_MANA
+D:It is a ghostly woman's form that wails mournfully.
+I:COLOR(Light White)
+
+N:G.ghost:G.base:Ghost
+I:LVL(31,80):RARITY(1)
+I:SPEED(+10):HP(13d8):AC(30):EXP(100):EVOLVE(G.spectre, 800)
+I:MOVE(RAND_25|PICKUP)
+B:WAIL:TERRIFY
+B:TOUCH:DRAIN_EXP(20d6)
+B:CLAW:HURT(1d9):LOSE_WIS(50%)
+B:TOUCH:DRAIN_MANA(2d8)
+S:1_IN_15 | BLIND | PARALYZE | DRAIN_MANA
+O:1d3:OBJ(*$)
+D:You don't believe in them.
+I:COLOR(White)
+
+N:G.logrus:G.base:Logrus ghost
+I:LVL(33):RARITY(3)
+I:SPEED(+10):HP(14d20):AC(30):EXP(350)
+I:MOVE(RAND_25|PICKUP)
+B:WAIL:TERRIFY
+B:TOUCH:DRAIN_EXP(40d6)
+B:CLAW:HURT(1d10):LOSE_INT(50%)
+S:1_IN_15 | BLIND | PARALYZE | DRAIN_MANA | AMNESIA
+O:1d2+1:OBJ(*)
+D:An almost life-like creature which is nothing more than a phantom
+D:created by the Logrus.
+I:DISPLAY(,Red,ATTR_MULTI|ATTR_ANY)
+
+N:G.spectre:G.base:Spectre
+I:LVL(33):RARITY(3)
+I:SPEED(+10):HP(14d20):AC(30):EXP(350):EVOLVE(G.dread, 1500)
+I:MOVE(RAND_25|PICKUP)
+B:WAIL:TERRIFY
+B:TOUCH:UNLIFE(3d6):DRAIN_EXP(40d6)
+B:CLAW:HURT(2d5+9):LOSE_WIS(50%)
+B:TOUCH:DRAIN_MANA(2d10)
+S:1_IN_15 | BLIND | PARALYZE | DRAIN_MANA | AMNESIA
+O:1d2+1:OBJ(*)
+D:A phantasmal shrieking spirit. Its wail drives the intense cold of pure
+D:evil deep within your body.
+I:COLOR(Light Green)
+
+N:G.headless:G.base:Headless ghost
+I:LVL(35,80):RARITY(3)
+I:SPEED(+10):HP(20d25):AC(30):EXP(550)
+I:MOVE(RAND_25|PICKUP)
+B:TOUCH:TERRIFY
+B:TOUCH:DRAIN_EXP(40d6)
+B:CLAW:HURT(2d5+9):LOSE_INT(50%)
+B:CLAW:HURT(2d5+9):LOSE_WIS(50%)
+S:1_IN_15 | BLIND | DRAIN_MANA | SCARE | BO_COLD | AMNESIA
+O:1d2+1:OBJ(*)
+D:A phantasmal apparition with no head.
+I:COLOR(Umber)
+P:Body:Headless
+
+N:G.pattern:G.base:Pattern ghost
+I:LVL(36):RARITY(3):ALLOC(D_AMBER)
+I:SPEED(+10):HP(20d25):AC(30):EXP(400)
+I:ALERT(300',Fairly Unseeing)
+B:TOUCH:DRAIN_EXP(80d6)
+B:TOUCH:DRAIN_MANA(2d10)
+B:CLAW:HURT(1d10):LOSE_INT(50%)
+B:CLAW:HURT(1d10):LOSE_WIS(50%)
+S:1_IN_5 | AMNESIA | MIND_BLAST
+O:1d2:OBJ(*)
+D:An almost life-like creature which is nothing more than a phantom
+D:created by the Pattern.
+I:COLOR(Light Dark)
+
+# XXX Not a 'ghost'
+N:G.shadow demon:Shadow demon
+I:LVL(42):RARITY(3)
+I:SPEED(+10):HP(10d20):AC(30):EXP(425)
+I:KIND(DEMON):ALIGN(Evil):DARK(1):CAN(INVIS|REGEN):ATTR(COLD_BLOOD)
+I:ALERT(300',Fairly Unseeing):MOVE(FLY|PASSWALL)
+B:TOUCH:DRAIN_EXP(80d6)
+B:TOUCH:DRAIN_MANA(2d10)
+B:CLAW:HURT(1d10):LOSE_INT(50%)
+B:CLAW:HURT(1d10):LOSE_WIS(50%)
+I:RESIST(COLD|POIS|CONF|DARK|NETHER):IMMUNE(SLEEP):VULN(LIGHT)
+S:1_IN_8 | BO_NETHER(5d5+112)
+O:1d2:OBJ(*)
+M:25%:3d3:MON(G.shadow demon)
+D:A mighty spirit of darkness of vaguely humanoid form. Razor-edged claws
+D:reach out to end your life as it glides towards you, seeking to suck the
+D:energy from your soul to feed its power.
+I:DISPLAY(G,Violet):POS(SEE_INVIS|HOLD_LIFE)
+P:Copy:Spectre:Paladin
+
+N:G.dread:G.base:Dread
+I:LVL(40):RARITY(1)
+I:SPEED(+10):HP(25d20):AC(30):EXP(600):EVOLVE(G.dreadmaster,6000)
+I:MOVE(RAND_25|PICKUP)
+B:HIT(x2):HURT(3d6+10)
+B:HIT:HURT(3d4):LOSE_STR(50%)
+S:1_IN_15 | BLIND | PARALYZE | CONFUSE | DRAIN_MANA | BO_NETHER
+O:1d3:OBJ(*)
+M:25%:2d2:MON(G.dread)
+D:It is a form that screams its presence against the eye. Death incarnate,
+D:its hideous black body seems to struggle against reality as the universe
+D:itself struggles to banish it.
+I:COLOR(Orange)
+P:Skill:Thn(70+150)
+
+N:G.dreadmaster:G.base:Dreadmaster
+I:LVL(44):RARITY(2)
+I:SPEED(+10):HP(1200):AC(100):EXP(8000):EVOLVE(G.shadowlord, 30000)
+I:CAN(FEAR):ATTR(SMART):MOVE(RAND_25|PICKUP)
+B:HIT(x2):HURT(6d6)
+B:HIT(x2):HURT(3d4):LOSE_STR(50%):UNLIFE(3d4)
+I:IMMUNE(FEAR)
+S:1_IN_9 | TELE_LEVEL | BLIND | PARALYZE | CONFUSE | CAUSE_4 | DRAIN_MANA
+S:BO_NETHER | S_UNDEAD | DETECT_MONSTERS
+O:2d2+2:OBJ(*)
+M:3d3:MON(G.dread)
+D:It is an unlife of power almost unequaled. An affront to existence, its
+D:very touch abuses and disrupts the flow of life, and its unearthly limbs,
+D:of purest black, crush rock and flesh with ease.
+I:COLOR(Yellow)
+P:Stats:2:1:0:1:1:1
+P:Skill:Thn(70+150)
+
+N:G.shadowlord:G.base:Shadowlord
+I:LVL(62):RARITY(2)
+I:SPEED(+20):HP(30d100):AC(150):EXP(22500)
+I:DARK(2):MOVE(PICKUP)
+B:HIT:HURT(3d12+20):UNLIFE(6d12)
+B:HIT:DRAIN_MANA(5d10)
+B:HIT:HURT(4d6):LOSE_STR(60%)
+B:GAZE:DAM(4d6):TERRIFY
+I:RESIST(TELE)
+S:1_IN_3 | PARALYZE | DRAIN_MANA | BLIND | S_UNDEAD | CONFUSE | SCARE | TELE_TO
+S:TELE_SELF | BRAIN_SMASH | ANIM_DEAD | BA_NETHER | DARKNESS | SHRIEK | DETECT_MONSTERS
+O:9d2:OBJ(*)
+M:3d3:MON(G.shadowlord, ANCESTOR)
+D:An aura of hatred, cowardice and falsehood surrounds you as this
+D:cloaked figure floats towards you.
+I:COLOR(Blue)
+P:Stats:3:2:0:2:2:2
+P:Skill:Thn(70+150)
+
+########################################################################
+# Lich
+T:L.base:Lich
+I:DISPLAY(L):POS(SEE_INVIS|HOLD_LIFE)
+I:KIND(UNDEAD|NONLIVING):ALIGN(Evil):ATTR(SMART|COLD_BLOOD)
+I:ALERT(200',Overlooks):MOVE(OPEN|BASH|CLEARWEB)
+I:RESIST(COLD|CONF):IMMUNE(POIS|NETHER|SLEEP)
+P:Stat:Str(-3+5):Int(3+5):Wis(-5):Dex(1+5):Con(-2+5):Chr(1+5)
+P:Skill:Dis(35+60):Dev(35+75):Sav(35+50):Stl(5):Srh(20):Fos(15):Thn(50+75):Thb(50+50)
+P:Class:Mage
+P:Infra:50'
+P:Weight:150
+P:Body:Lich
+
+N:L.lich:L.base:Lich
+I:LVL(34,80):RARITY(3)
+I:HP(30d10):AC(60):EXP(800):EVOLVE(L.crypt, 4000)
+B:TOUCH:UNLIFE(3d6)
+B:TOUCH:DRAIN_CHARGES:UNLIFE(3d6)
+B:TOUCH(x2):HURT(1d8+5):LOSE_DEX(50%)
+I:VULN(LIGHT)
+S:1_IN_4 | BLINK | TELE_TO | TELE_OTHER | BLIND | PARALYZE | SLOW | SCARE |
+S:CAUSE_3 | DRAIN_MANA | BRAIN_SMASH | DETECT_MONSTERS | IDENTIFY
+O:1d2:DROP_MAGE
+D:It is a skeletal form dressed in robes. It radiates vastly evil power.
+I:COLOR(White)
+
+N:L.crypt:L.base:Crypt thing
+I:SPEED(+10):HP(800):AC(60):EXP(2000):EVOLVE(L.master, 10000)
+I:LVL(37,80):RARITY(3)
+B:TOUCH:UNLIFE(2d10)
+B:TOUCH:DRAIN_CHARGES
+B:TOUCH(x2):HURT(1d10+6):UNLIFE(2d10):LOSE_DEX(50%)
+I:VULN(LIGHT)
+S:1_IN_3 | BLINK | TELE_TO | TELE_OTHER | TELE_LEVEL |
+S:CAUSE_3 | DRAIN_MANA | BRAIN_SMASH | DETECT_MONSTERS | IDENTIFY
+O:1d2:DROP_MAGE
+D:It is a skeletal form dressed in robes. It looks evil and devious...
+I:COLOR(Blue)
+
+N:L.master:L.base:Master lich
+I:LVL(41,80):RARITY(2):ALLOC(ESCORT)
+I:SPEED(+10):HP(18d100):AC(80):EXP(10000):EVOLVE(L.demilich, 30000)
+B:TOUCH:UNLIFE(2d12)
+B:TOUCH:DRAIN_CHARGES:UNLIFE(2d12)
+B:TOUCH(x2):HURT(2d12):LOSE_DEX(50%)
+I:RESIST(TELE)
+S:1_IN_3 | BLINK | TELE_TO | BLIND | PARALYZE | CONFUSE | SCARE | CAUSE_3 | CAUSE_4 |
+S:DRAIN_MANA | BRAIN_SMASH | DETECT_MONSTERS | IDENTIFY | S_UNDEAD
+O:3d2+1:DROP_MAGE
+M:25%:2d2:MON(L.lich)
+D:A skeletal form wrapped in robes. Powerful magic crackles along its bony fingers.
+I:COLOR(Light White)
+
+N:L.iron:L.base:Iron lich
+I:LVL(42):RARITY(4)
+I:SPEED(+10):HP(2800):AC(100):EXP(9000)
+I:CAN(REFLECT):ALERT(300',Fairly Observant):MOVE(FLY|-OPEN)
+B:BUTT:COLD(3d6)
+B:BUTT:FIRE(3d6)
+B:BUTT:ELEC(3d6)
+I:RESIST(ELEC|FIRE|TELE)
+O:60%:OBJ(*,GOOD)
+S:FREQ_35 | BA_WATER | BR_FIRE | BO_ICE | BA_ELEC | BA_COLD |
+S:CAUSE_4 | DRAIN_MANA | BRAIN_SMASH | S_UNDEAD
+D:It is a huge, twisted grey skull floating through the air. Its cold eyes
+D:burn with hatred towards all who live.
+I:COLOR(Slate)
+P:Copy:Skeleton:Mauler
+P:Body:Skull
+P:Weight:100
+
+N:L.reaver.lesser:L.base:Lesser black reaver
+I:LVL(45):RARITY(3)
+I:SPEED(+10):HP(2500):AC(120):EXP(12000):EVOLVE(L.reaver, 100000)
+I:MOVE(SWIM|TUNNEL)
+B:HIT(x2):HURT(3d8+15):DISENCHANT
+B:HIT(x2):HURT(3d6+10):LOSE_STR(50%):UNLIFE(6d6)
+I:RESIST(DARK)
+S:1_IN_3 | TELE_TO | BLIND | PARALYZE | CONFUSE | CAUSE_3 | DRAIN_MANA
+S:MIND_BLAST |BA_NETHER | ANIM_DEAD | DETECT_MONSTERS | IDENTIFY
+O:1d2+1:OBJ(*, GOOD)
+D:A humanoid form, black as night, advancing steadily and unstoppably.
+I:COLOR(Light Dark)
+
+N:L.monk:L.base:Monastic lich
+I:LVL(48):RARITY(2)
+I:SPEED(+20):HP(2000):AC(130):EXP(10000)
+I:ALERT(300',Fairly Unseeing)
+B:MONK(Monk.Lich,x6)
+I:RESIST(TELE)
+S:1_IN_3 | BLINK | TELE_TO | BLIND | PARALYZE | CONFUSE | SCARE | CAUSE_3 | CAUSE_4 |
+S:DRAIN_MANA | BRAIN_SMASH | ANIM_DEAD | DETECT_MONSTERS | IDENTIFY
+O:3d2+1:OBJ(*$)
+D:A skeletal form wrapped in priestly robes. Before its un-death, it
+D:was a monk in an evil order...
+I:COLOR(Umber)
+P:Stat:Str(2):Int(3):Wis(-5):Dex(4):Con(1):Chr(1)
+P:Skill:Dis(45+75):Dev(34+55):Sav(38+60):Stl(6):Srh(32):Fos(24):Thn(64+90):Thb(40+75)
+P:Class:Mystic
+P:Speed:+7
+
+N:L.demilich:L.base:Demilich
+I:LVL(54):RARITY(2):ALLOC(ESCORT)
+I:SPEED(+10):HP(3000):AC(100):EXP(12500):EVOLVE(L.archlich, 80000)
+I:MOVE(FLY)
+B:TOUCH:VAMP(1d12):UNLIFE(1d12)
+B:TOUCH:DRAIN_CHARGES:UNLIFE(1d12)
+B:TOUCH(x2):HURT(2d12+13):LOSE_DEX(50%):UNLIFE(1d12)
+I:RESIST(TELE)
+S:1_IN_3 | BLINK | BLINK_OTHER | TELE_TO | BLIND | PARALYZE | CONFUSE | SCARE
+S:CAUSE_3 | CAUSE_4 | DRAIN_MANA | BRAIN_SMASH | S_HI_UNDEAD | S_UNDEAD | AMNESIA |
+S:TELE_SELF | HEAL | ANIM_DEAD | DETECT_MONSTERS | IDENTIFY
+O:1d2+2:OBJ(*,GOOD):DROP_MAGE
+M:25%:1d3:MON(L.demilich, ANCESTOR)
+D:A lich who is partially immaterial, on its way to a new, ethereal form.
+I:COLOR(Light Umber)
+
+N:L.archlich:L.base:Archlich
+I:LVL(64):RARITY(2)
+I:SPEED(+20):HP(3500):AC(120):EXP(20000)
+I:MOVE(FLY|PASSWALL)
+B:TOUCH:VAMP(1d16):UNLIFE(1d16)
+B:TOUCH:DRAIN_CHARGES:UNLIFE(1d16)
+B:TOUCH(x2):HURT(3d12+30):LOSE_DEX(60%):UNLIFE(4d12)
+I:RESIST(TELE)
+S:1_IN_3 | BLINK | BLINK_OTHER | TELE_TO | BLIND | PARALYZE | CONFUSE | SCARE
+S:CAUSE_3 | CAUSE_4 | DRAIN_MANA | BRAIN_SMASH | S_HI_UNDEAD | S_UNDEAD | AMNESIA
+S:TELE_SELF | HEAL | S_KIN | S_DEMON | BA_NETHER | ANIM_DEAD | DISPEL_MAGIC
+S:ANTI_MAGIC | DETECT_MONSTERS | IDENTIFY
+O:2d2+2:OBJ(*,GOOD):DROP_MAGE
+M:25%:1d3:MON(L.archlich, ANCESTOR)
+D:A lich who has reached its ultimate evolutionary stage: a completely immaterial state.
+I:COLOR(Light Blue):POS(TELEPATHY)
+
+N:L.reaver:L.base:Black reaver
+I:LVL(71):RARITY(3)
+I:SPEED(+20):HP(3500):AC(170):EXP(35000)
+I:MOVE(SWIM|TUNNEL)
+B:HIT(x2):HURT(5d8+20):DISENCHANT
+B:HIT(x2):HURT(6d6):LOSE_STR(70%):UNLIFE(6d6)
+I:RESIST(DARK|TELE):IMMUNE(SLOW)
+S:1_IN_4 | TELE_TO | BLIND | PARALYZE | CONFUSE | CAUSE_3 | CAUSE_4 | DRAIN_MANA |
+S:BRAIN_SMASH | MANA_STORM | BA_NETHER(10d10+192) | S_UNDEAD | DETECT_MONSTERS | IDENTIFY
+O:3d2:OBJ(*,GOOD)
+D:A humanoid form, black as night, advancing steadily and unstoppably. Flee!
+I:COLOR(Light Dark)
+
+########################################################################
+# Vampire
+T:V.base:Vampire
+I:DISPLAY(V):POS(SEE_INVIS|HOLD_LIFE)
+I:KIND(UNDEAD|NONLIVING):ALIGN(Evil):CAN(REGEN):ATTR(SMART|COLD_BLOOD)
+I:ALERT(200',Fairly Observant):MOVE(OPEN|BASH|FLY|CLEARWEB)
+I:RESIST(COLD|CONF|DARK):IMMUNE(POIS|NETHER|SLEEP):VULN(LIGHT)
+P:Stat:Str(2+5):Int(1):Wis(-1-5):Dex(0+4):Con(-2):Chr(1+7)
+P:Skill:Dis(25+35):Dev(37+60):Sav(36+50):Stl(7+5):Srh(32):Fos(25):Thn(60+105):Thb(35+55)
+P:Class:Beastmaster
+P:Infra:50'
+P:Life:97
+P:Body:Vampire
+P:Weight:170
+
+N:V.vampire:V.base:Vampire
+I:LVL(27,70):RARITY(1)
+I:HP(25d12):AC(45):EXP(175):EVOLVE(V.master, 2000)
+B:HIT(x2):HURT(1d6)
+B:BITE:VAMP(1d8):UNLIFE(1d8)
+B:TOUCH:DRAIN_MANA(1d10):UNLIFE(1d8)
+S:1_IN_9 | DETECT_MONSTERS | TELE_TO | PARALYZE | SCARE | CAUSE_2 | MIND_BLAST
+S:AMNESIA | DARKNESS
+O:1d3:OBJ(*$)
+D:It is a humanoid with an aura of power. You notice a sharp set of front teeth.
+I:COLOR(Light White)
+
+N:V.master:V.base:Master vampire
+I:LVL(34,80):RARITY(3)
+I:HP(34d10):AC(60):EXP(750):EVOLVE(V.lord, 5000)
+B:HIT:HURT(1d10)
+B:BITE(x2):VAMP(1d11):UNLIFE(1d11)
+B:TOUCH:DRAIN_MANA(2d8):UNLIFE(2d8)
+S:1_IN_6 | TELE_TO | PARALYZE | CONFUSE | SCARE | CAUSE_3 | MIND_BLAST | AMNESIA
+S:DARKNESS | BO_NETHER | DETECT_MONSTERS | MAPPING
+O:2d2+1:OBJ(*$)
+M:25%:1d3:MON(V.vampire)
+D:It is a humanoid form dressed in robes. Power emanates from its chilling frame.
+I:COLOR(Slate)
+
+N:V.oriental:V.base:Oriental vampire
+I:LVL(34,70):RARITY(3)
+I:HP(360):AC(60):EXP(750)
+I:CAN(INVIS):MOVE(PASSWALL)
+B:HIT(x2):HURT(1d6)
+B:BITE:VAMP(1d8):UNLIFE(1d8)
+B:TOUCH:DRAIN_MANA(2d9):UNLIFE(2d9)
+I:RESIST(TELE)
+S:1_IN_6 | TELE_TO | PARALYZE | CONFUSE | SCARE | CAUSE_3 | MIND_BLAST | AMNESIA
+S:DARKNESS | BO_NETHER | DETECT_MONSTERS | MAPPING
+O:2d2+1:OBJ(*$)
+D:The oriental vampire is a mist-like creature.
+I:COLOR(Green)
+
+# XXX Not really a 'vampire'
+N:V.star:Star vampire
+I:LVL(35):RARITY(2)
+I:SPEED(+10):HP(30d25):AC(40):EXP(700)
+I:ALERT(200',Fairly Observant):MOVE(FLY)
+I:KIND(HORROR|NONLIVING):ALIGN(Evil)
+B:CLAW(x2):HURT(2d4+5):LOSE_STR(50%)
+B:BITE(x2):VAMP(4d4):UNLIFE(4d4)
+I:RESIST(ELEC|FIRE|COLD|CONF):IMMUNE(POIS|SLEEP|STUN|BLIND)
+D:"It was red and dripping; an immensity of pulsing, moving jelly;
+D:a scarlet blob with myriad tentacular trunks that waved and waved.
+D:There were suckers on the tips of the appendages, and these were
+D:opening and closing with ghoulish lust... the thing was bloated and
+D:obscene; a headless, faceless, eyeless bulk, with the ravenous maw and
+D:titanic talons of a star-born monster."
+I:DISPLAY(V,Red):POS(SEE_INVIS|HOLD_LIFE)
+P:Copy:Vampire:Rogue
+P:Body:Jelly6
+P:Weight:170
+
+# XXX Not really a 'vampire'
+N:V.fire:Fire vampire
+I:LVL(39,80):RARITY(4)
+I:SPEED(+10):HP(624):AC(133):EXP(1200)
+I:KIND(NONLIVING):ALIGN(Evil):LIGHT(1):ATTR(SMART|EMPTY_MIND)
+I:ALERT(300',Ever Vigilant):MOVE(RAND_25|PASSWALL|DESTROY)
+B:TOUCH(x2):FIRE(1d10)
+B:TOUCH:HURT(1d10):LOSE_WIS(50%)
+B:TOUCH:HURT(1d10):LOSE_INT(50%)
+A:FIRE(2d3)
+I:RESIST(ACID|ELEC|FIRE|CONF|NETHER|PLASMA):IMMUNE(POIS|SLEEP|FEAR|STUN|BLIND)
+S:1_IN_4 | BLINK | TELE_SELF | CONFUSE | BA_FIRE | DRAIN_MANA | HASTE
+S:BO_PLASMA | DETECT_MONSTERS | MAPPING
+D:It is a living entity of fire. Fire springs up wherever this creature touches.
+I:DISPLAY(V,Red):POS(SEE_INVIS|HOLD_LIFE)
+P:Copy:Vampire:Rogue
+P:Body:Vampire
+P:Weight:100
+
+N:V.lord:V.base:Vampire lord
+I:LVL(39):RARITY(3)
+I:SPEED(+10):HP(1600):AC(70):EXP(1800):EVOLVE(V.elder, 20000)
+B:HIT(x2):HURT(1d6)
+B:BITE:VAMP(4d6):UNLIFE(4d6)
+B:TOUCH:DRAIN_MANA(4d6):UNLIFE(4d6)
+I:RESIST(TELE)
+S:1_IN_7 | BLIND | PARALYZE | SCARE | CAUSE_3 | CAUSE_4 | DRAIN_MANA |
+S:BRAIN_SMASH | DARKNESS | BO_NETHER | DETECT_MONSTERS | MAPPING | IDENTIFY
+O:2d2+1:OBJ(*$)
+M:25%:2d3:MON(V.lord, ANCESTOR)
+D:A foul wind chills your bones as this ghastly figure approaches.
+I:COLOR(Blue)
+P:Life:102
+
+N:V.elder:V.base:Elder vampire
+I:LVL(54):RARITY(3)
+I:SPEED(+10):HP(3400):AC(90):EXP(7500)
+I:DARK(1)
+B:HIT(x2):HURT(2d6+6)
+B:BITE:VAMP(6d8):UNLIFE(6d8)
+B:BITE:DRAIN_MANA(6d8):UNLIFE(6d8)
+I:RESIST(TELE):IMMUNE(SLOW)
+S:1_IN_3 | BLIND | PARALYZE | SCARE | CAUSE_3 | CAUSE_4 | DRAIN_MANA
+S:BA_NETHER | BRAIN_SMASH | DARKNESS | BO_NETHER | S_UNDEAD | BA_DARK
+S:DETECT_MONSTERS | MAPPING | IDENTIFY
+O:3d2+1:OBJ(*$)
+M:25%:1d3:MON(V.elder, ANCESTOR)
+D:A terrible robed undead figure, this creature has existed in its
+D:unlife for many centuries by stealing the life of others. It can
+D:summon the very shades of its victims from beyond the grave to
+D:come enslaved to its aid.
+I:COLOR(Light Blue)
+P:Life:105
+
+########################################################################
+# Wraith
+T:W.base:Wraith
+I:DISPLAY(W):POS(SEE_INVIS|HOLD_LIFE)
+I:KIND(UNDEAD|NONLIVING):ALIGN(Evil):ATTR(COLD_BLOOD)
+I:ALERT(200',Fairly Observant):MOVE(OPEN|BASH|FLY|CLEARWEB)
+I:RESIST(COLD|CONF|DARK):IMMUNE(POIS|NETHER|SLEEP):VULN(LIGHT)
+P:Copy:Spectre:Rogue
+P:Weight:150
+
+N:W.kouko:W.base:Kouko
+I:LVL(24,60):RARITY(1)
+I:HP(12d8):AC(30):EXP(50):EVOLVE(W.white, 1000)
+I:ALERT(Fairly Unseeing):MOVE(RAND_25)
+B:HIT(x2):HURT(1d6)
+B:TOUCH:DRAIN_EXP(20d6)
+S:1_IN_10 | SCARE | DRAIN_MANA
+O:1d2:OBJ(*$)
+D:It is a ghostly apparition with a humanoid form.
+I:COLOR(Light Green)
+
+N:W.white:W.base:White wraith
+I:LVL(26,70):RARITY(1)
+I:HP(15d8):AC(40):EXP(100):EVOLVE(W.grey, 2000)
+B:HIT(x2):HURT(1d6)
+B:TOUCH:DRAIN_EXP(20d6)
+S:1_IN_8 | SCARE | CAUSE_2 | DARKNESS
+O:1d2:OBJ(*$)
+D:It is a tangible but ghostly form made of white fog.
+I:COLOR(White)
+
+N:W.grave:W.base:Grave wight
+I:LVL(30,70):RARITY(1)
+I:HP(12d10):AC(50):EXP(325):EVOLVE(W.barrow, 1500)
+I:MOVE(RAND_25)
+B:HIT(x2):HURT(1d7)
+B:TOUCH:DRAIN_EXP(20d6)
+S:1_IN_8 | SCARE | CAUSE_3 | DARKNESS
+O:1d2:OBJ(*)
+D:It is a ghostly form with eyes that haunt you.
+I:COLOR(Blue)
+
+N:W.barrow:W.base:Barrow wight
+I:LVL(33,70):RARITY(3)
+I:HP(15d10):AC(40):EXP(250):EVOLVE(W.emperor, 4000)
+B:HIT(x2):HURT(1d8)
+B:TOUCH:DRAIN_EXP(40d6):UNLIFE(1d8)
+S:1_IN_8 | PARALYZE | SCARE | CAUSE_2 | DARKNESS
+O:60%:OBJ(*$)
+M:3d3:MON(W.barrow)
+D:It is a ghostly nightmare of an entity.
+I:COLOR(Light White)
+
+N:W.grey:W.base:Grey wraith
+I:LVL(36,70):RARITY(1)
+I:HP(19d10):AC(50):EXP(700):EVOLVE(W.black, 5000)
+B:HIT(x2):HURT(1d10)
+B:TOUCH:DRAIN_EXP(40d6)
+S:1_IN_7 | PARALYZE | SCARE | CAUSE_3 | DARKNESS
+O:1d2:OBJ(*$)
+D:A tangible but ghostly form, made of grey fog. The air around it feels deathly cold.
+I:COLOR(Slate)
+
+N:W.revenant:W.base:Revenant
+I:LVL(36,70):RARITY(1)
+I:SPEED(+15):HP(222):AC(70):EXP(800)
+I:CAN(REGEN):ALERT(300',Observant):MOVE(PUSH)
+B:HIT(x2):HURT(1d10+6)
+S:1_IN_4 | BO_FIRE
+O:1d2:DROP_PALADIN_EVIL
+D:Back from the grave to wreak vengeance upon the living. A gaunt, tall,
+D:skeletal figure wearing a ruined plate mail.
+I:COLOR(Umber)
+
+N:W.emperor:W.base:Emperor wight
+I:LVL(38,70):RARITY(2)
+I:SPEED(+10):HP(380):AC(40):EXP(1600)
+B:HIT(x2):HURT(1d9+3)
+B:TOUCH(x2):UNLIFE(1d12)
+S:1_IN_6 | PARALYZE | SCARE | CAUSE_3 | BO_NETHER
+O:2d2+1:OBJ(*)
+D:Your life force is torn from your body as this powerful unearthly being approaches.
+I:COLOR(Yellow)
+
+N:W.black:W.base:Black wraith
+I:LVL(38,70):RARITY(2)
+I:SPEED(+10):HP(500):AC(55):EXP(1700):EVOLVE(W.nether, 5000)
+B:HIT(x2):HURT(1d9+3)
+B:TOUCH(x2):DRAIN_EXP(40d6)
+S:1_IN_7 | BLIND | PARALYZE | SCARE | CAUSE_3 | BO_NETHER
+O:1d2+2:OBJ(*)
+D:A figure that seems made of void, its strangely human shape is cloaked in
+D:shadow. It reaches out at you.
+I:COLOR(Light Dark)
+
+N:W.nether:W.base:Nether wraith
+I:LVL(39,70):RARITY(2)
+I:SPEED(+10):HP(480):AC(55):EXP(1700)
+I:CAN(INVIS):MOVE(PASSWALL)
+B:HIT(x2):HURT(1d12)
+B:TOUCH(x2):UNLIFE(1d12)
+S:1_IN_6 | BLIND | SCARE | CAUSE_3 | MIND_BLAST | DARKNESS | BO_NETHER
+O:2d2+2:OBJ(*)
+D:A form that hurts the eye, death permeates the air around it. As it nears
+D:you a coldness saps your soul.
+I:COLOR(Light Red)
+
+N:W.zephyr:W.base:Zephyr Lord
+I:LVL(43):RARITY(3)
+I:SPEED(+10):HP(1110):AC(70):EXP(3000)
+I:ATTR(MALE|SMART):ALERT(300',Ever Vigilant)
+B:HIT:HURT(5d3+7):DRAIN_EXP(20d6)
+B:HIT:HURT(5d3+7):LOSE_STR(50%)
+B:HIT:HURT(5d3+7):LOSE_CON(50%)
+I:RESIST(ACID|ELEC|FIRE)
+S:1_IN_5 | SHRIEK | S_HOUND
+O:2d2+2:OBJ(*)
+M:2d3:MON(Z)
+D:An undead master of the vicious Zephyr hounds.
+I:DISPLAY(,Violet,ATTR_MULTI)
+P:Stat:Chr(5)
+
+N:W.nightwing:W.base:Nightwing
+I:LVL(50):RARITY(4)
+I:SPEED(+10):HP(60d30):AC(120):EXP(6000)
+I:ATTR(SMART)
+B:TOUCH(x2):HURT(3d5):POISON(3d5)
+B:HIT:HURT(3d8+15):DISENCHANT
+B:HIT:DRAIN_MANA(5d10):UNLIFE(6d5)
+I:RESIST(TELE)
+S:1_IN_4 | BLIND | SCARE | CAUSE_4 | BRAIN_SMASH | BO_MANA | BO_NETHER
+S:BA_NETHER | S_UNDEAD
+O:1d2+1:OBJ(*, GOOD)
+D:Everywhere colors seem paler and the air chiller. At the centre of the cold
+D:stands a mighty figure. Its wings envelop you in the chill of death as the
+D:nightwing reaches out to draw you into oblivion. Your muscles sag and your
+D:mind loses all will to fight as you stand in awe of this mighty being.
+I:COLOR(Light Dark)
+
+N:W.nightcrawler:W.base:Nightcrawler
+I:LVL(54):RARITY(4)
+I:SPEED(+10):HP(80d60):AC(160):EXP(8100)
+I:ATTR(SMART):MOVE(SWIM|TUNNEL)
+B:STING(x2):HURT(5d8+15):LOSE_CON
+B:BITE(x2):ACID(10d10)
+I:RESIST(FIRE|TELE)
+S:1_IN_4 | BLIND | SCARE | BRAIN_SMASH | BO_MANA | BO_NETHER | BA_NETHER |
+S:BR_NETHER | S_UNDEAD
+O:1d2+2:OBJ(*, GOOD)
+D:This intensely evil creature bears the form of a gargantuan black worm.
+D:Its gaping maw is a void of blackness, acid drips from its steely hide.
+D:It is like nothing you have ever seen before, and a terrible chill runs
+D:down your spine as you face it.
+I:COLOR(Light Dark):POS(GAIN_AC)
+P:Copy:Half-Titan:Mauler
+P:Body:Giant Worm
+P:Weight:400
+
+N:W.nightwalker:W.base:Nightwalker
+I:LVL(59):RARITY(4)
+I:SPEED(+20):HP(50d65):AC(175):EXP(15000)
+I:ATTR(SMART):MOVE(SWIM)
+B:HIT(x4):HURT(5d10+25):DISENCHANT
+I:RESIST(ELEC|FIRE|TELE):IMMUNE(SLOW)
+O:4d2:OBJ(*, GOOD)
+S:1_IN_4 | BLIND | SCARE | BRAIN_SMASH | BO_MANA | BO_NETHER | BA_NETHER | S_UNDEAD
+D:A huge giant garbed in black, more massive than a titan and stronger than a dragon.
+D:With terrible blows, it breaks your armour from your back, leaving you defenseless
+D:against its evil wrath. It can smell your fear, and you in turn smell the awful
+D:stench of death as this ghastly figure strides towards you menacingly.
+I:COLOR(Light Dark):POS(GAIN_AC)
+P:Copy:Half-Titan:Mauler
+P:Weight:800
+
+N:W.nazgul:W.base:Nazgul
+I:LVL(63):RARITY(7):ALLOC(D_MINAS_MORGUL|MAX_5)
+I:SPEED(+15):HP(4356):AC(141):EXP(22000)
+I:ALERT(900',Fairly Observant):MOVE(PUSH)
+I:KIND(NAZGUL):ALIGN(Chaotic):CAN(FEAR):ATTR(MALE|SMART)
+B:HIT(x2):HURT(6d6+15):TERRIFY:UNLIFE(6d6)
+B:HIT(x2):HURT(6d6+15):UNLIFE(6d6)
+I:RESIST(TELE):IMMUNE(COLD|SLOW)
+S:FREQ_20 | BR_NETHER | SCARE | PARALYZE | DRAIN_MANA
+O:2d2:OBJ(*, GOOD)
+O:35%:OBJ(RING):EGO(nazgul)
+O:15%:OBJ(CLOAK):EGO(nazgul)
+O:35%:OBJ(SWORD):EGO(morgul)
+D:A tall black cloaked Ringwraith, radiating an aura of fear.
+I:COLOR(Light Dark)
+P:Copy:Vampire:Beastmaster
+P:Stats:0:0:0:0:0:2
+P:Weight:180
+
+########################################################################
+# Druj
+T:s.druj:Druj
+I:DISPLAY(s):POS(SEE_INVIS|HOLD_LIFE)
+I:KIND(UNDEAD|NONLIVING):ALIGN(Evil):ATTR(SMART|COLD_BLOOD)
+I:ALERT(200',Fairly Observant):MOVE(NEVER)
+I:RESIST(COLD|CONF|TELE):IMMUNE(POIS|NETHER|SLEEP|SLOW|FEAR|BLIND)
+P:Copy:Skeleton:Mage
+P:Weight:5
+
+N:s.druj.hand:s.druj:Hand druj
+I:LVL(55):RARITY(4)
+I:SPEED(+20):HP(600):AC(110):EXP(2000):EVOLVE(s.druj.eye, 20000)
+S:1_IN_1 | TELE_OTHER | BLIND | CONFUSE | SCARE | CAUSE_3 | AMNESIA
+S:DARKNESS | DISPEL_MAGIC | ANTI_MAGIC | CLAIRVOYANCE
+D:A skeletal hand floating in the air, motionless except for its flexing fingers.
+I:COLOR(Yellow)
+P:Body:Disembodied Hand
+
+N:s.druj.eye:s.druj:Eye druj
+I:LVL(55):RARITY(4)
+I:SPEED(+20):HP(1000):AC(90):EXP(12000):EVOLVE(s.druj.skull, 50000)
+B:GAZE(x2):DRAIN_EXP(80d6)
+B:GAZE(x2):DRAIN_MANA(5d10)
+S:1_IN_1 | BO_MANA | BO_NETHER | BA_NETHER | S_UNDEAD | CLAIRVOYANCE
+D:A bloodshot eyeball floating in the air, you'd be forgiven for assuming it harmless.
+I:COLOR(Red)
+P:Body:Disembodied Eye
+
+N:s.druj.skull:s.druj:Skull druj
+I:LVL(65):RARITY(4)
+I:SPEED(+20):HP(1400):AC(120):EXP(12500)
+I:LIGHT(1)
+B:BITE:HURT(4d4):DRAIN_EXP(80d6)
+B:BITE:HURT(4d4):PARALYZE
+B:BITE:HURT(4d4):LOSE_INT
+B:BITE:HURT(4d4):LOSE_WIS
+I:RESIST(FIRE)
+S:1_IN_1 | SLOW | CAUSE_4 | MIND_BLAST | BRAIN_SMASH | TRAPS | BO_PLASMA |
+S:BO_NETHER | BA_WATER | S_UNDEAD | CLAIRVOYANCE
+D:A glowing skull possessed by sorcerous power. It need not move, but
+D:merely blast you with mighty magic.
+I:COLOR(Orange)
+P:Body:Skull
+P:Weight:10
+
+########################################################################
+# Skeleton (s)
+T:s.base:Skeleton
+I:DISPLAY(s):POS(SEE_INVIS|HOLD_LIFE)
+I:KIND(UNDEAD|NONLIVING):ALIGN(Evil):ATTR(COLD_BLOOD)
+I:ALERT(200', Unseeing):MOVE(OPEN|BASH|CLEARWEB)
+I:RESIST(COLD|CONF):IMMUNE(POIS|NETHER|SLEEP|FEAR)
+P:Copy:Skeleton:Warrior
+P:Weight:60
+
+N:k.skeleton:s.base:Skeleton kobold
+I:LVL(5,40):RARITY(1)
+I:HP(5d8):AC(26):EXP(12)
+I:ATTR(EMPTY_MIND)
+B:HIT:HURT(1d6+2)
+D:It is a small animated kobold skeleton.
+I:COLOR(White)
+
+N:s.crypt:s.base:Crypt Creep
+I:LVL(7,40):RARITY(2)
+I:HP(6d8):AC(12):EXP(25)
+I:ALERT(Fairly Observant):MOVE(RAND_25)
+B:CLAW(x2):HURT(1d3)
+B:BITE:HURT(1d3):POISON(1d3)
+I:VULN(LIGHT)
+S:1_IN_10 | CAUSE_1 | S_UNDEAD
+M:1d5:MON(s.crypt)
+D:A frightening skeletal figure in black robes.
+I:COLOR(Light Dark)
+P:Copy:Skeleton:Mage
+
+N:p.skeleton:s.base:Skeleton human
+I:LVL(12,50):RARITY(1)
+I:HP(10d8):AC(30):EXP(38)
+I:ATTR(EMPTY_MIND)
+B:HIT:HURT(1d8)
+D:It is an animated human skeleton.
+I:COLOR(White)
+
+N:s.skull:s.base:Flying skull
+I:LVL(15,50):RARITY(3)
+I:HP(10d10):AC(30):EXP(50)
+I:ATTR(WEIRD_MIND):ALERT(300',Fairly Unseeing):MOVE(FLY|-OPEN)
+B:BITE:HURT(1d3):POISON(1d3)
+B:BITE:HURT(1d4):LOSE_STR(50%)
+O:60%:OBJ(*$)
+M:1d7:MON(s.skull)
+D:A skullpack animated by necromantic spells.
+I:COLOR(Slate)
+P:Body:Skull
+P:Weight:10
+
+N:s.ice:s.base:Ice skeleton
+I:LVL(23,50):RARITY(1)
+I:HP(19d9):AC(34):EXP(70)
+I:ALERT(Overlooks)
+B:CLAW(x2):COLD(2d3)
+I:IMMUNE(COLD)
+O:90%:OBJ(*)
+D:It is a skeleton covered in frost.
+I:COLOR(White)
+
+########################################################################
+# Zombie/Mummy (z)
+T:z.base:Zombie
+I:DISPLAY(z):POS(SEE_INVIS|HOLD_LIFE)
+I:KIND(UNDEAD|NONLIVING):ALIGN(Evil):ATTR(EMPTY_MIND|COLD_BLOOD)
+I:ALERT(200',Fairly Unseeing):MOVE(OPEN|BASH)
+I:RESIST(COLD|CONF):IMMUNE(POIS|NETHER|SLEEP|FEAR)
+P:Copy:Zombie:Warrior
+P:Weight:150
+
+N:z.hand:z.base:Disembodied hand that strangled people
+I:LVL(6,40):RARITY(2)
+I:SPEED(+20):HP(7d8):AC(15):EXP(20)
+I:ALERT(300'):MOVE(-BASH)
+B:CRUSH:HURT(1d9)
+I:IMMUNE(BLIND)
+D:Even today, nobody knows where it lurks...
+I:COLOR(Green):POS(CORPSE|GAIN_AC)
+P:Body:Disembodied Hand
+P:Weight:20
+
+N:k.zombie:z.base:Zombified kobold
+I:LVL(7,40):RARITY(1)
+I:HP(6d8):AC(14):EXP(14)
+B:HIT(x2):HURT(1d3)
+D:It is an animated kobold corpse. Flesh falls off in large chunks as it shambles forward.
+I:COLOR(Slate)
+
+N:z.rotting:z.base:Rotting corpse
+I:LVL(7,40):RARITY(1)
+I:HP(8d8):AC(20):EXP(15):EVOLVE(p.zombie, 50)
+B:CLAW(x2):HURT(1d3):POISON(1d3)
+M:2d3:MON(z.rotting)
+D:Corpses awakened from their sleep by dark sorceries.
+I:COLOR(Light Red)
+
+N:z.servant:z.base:Servant of Glaaki
+I:LVL(10,40):RARITY(1)
+I:HP(9d11):AC(20):EXP(25)
+B:CRUSH:HURT(1d8)
+B:CLAW:DISEASE(1d3)
+I:VULN(LIGHT)
+S:1_IN_12 | CAUSE_1 | SCARE
+M:2d2:MON(z.servant)
+D:"...the hand of a corpse -- bloodless and skeletal, and with
+D:impossibly long, cracked nails."
+I:COLOR(Light Green)
+P:Copy:Zombie:Priest
+
+N:p.zombie:z.base:Zombified human
+I:LVL(12,50):RARITY(1)
+I:HP(12d8):AC(24):EXP(34)
+B:HIT(x2):HURT(1d4)
+D:It is a shambling human corpse dropping chunks of flesh behind it.
+I:COLOR(Slate)
+
+N:z.plaguebearer:z.base:Plaguebearer of Nurgle
+I:LVL(15,50):RARITY(2)
+I:HP(110):AC(50):EXP(75)
+I:KIND(DEMON)
+B:CLAW(x2):DISEASE(2d5)
+B:BUTT:HURT(2d5+3)
+S:1_IN_8 | SCARE | S_ANT | CAUSE_2 | SLOW
+O:60%:OBJ(*$)
+D:An unfortunate individual, who was killed by the incurable disease known as
+D:Nurgle's Rot, and was transformed into a rotting demon zombie. It has but one
+D:eye, and a single pale horn in its forehead.
+I:COLOR(Orange)
+P:Copy:Zombie:Priest
+
+N:z.ghast:z.base:Ghast
+I:LVL(19,70):RARITY(1)
+I:HP(12d10):AC(40):EXP(75)
+I:KIND(HORROR):ALERT(400'):MOVE(SWIM)
+B:KICK(x2):HURT(3d3):STUN(1d3, 10%)
+B:BITE:HURT(6d2)
+I:VULN(LIGHT)
+O:60%:OBJ(*$)
+D:A repulsive being which leaps on long hind legs like a kangaroo.
+D:Its face is curiously human despite the absence of a nose, a
+D:forehead, and "other important particulars".
+I:COLOR(Light Umber)
+P:Blows:200
+
+N:p.mummy:z.base:Mummified human
+I:LVL(24,70):RARITY(1)
+I:HP(17d9):AC(34):EXP(70):EVOLVE(z.mummy, 4000)
+I:ALERT(Overlooks)
+B:HIT(x2):HURT(1d4+3)
+O:90%:OBJ(*)
+D:It is a human form encased in mouldy wrappings.
+I:COLOR(Light Umber)
+
+N:z.ghoul:z.base:Ghoul
+I:LVL(26,80):RARITY(1)
+I:HP(15d9):AC(30):EXP(95):EVOLVE(z.ghoulking, 1000)
+I:ATTR(-EMPTY_MIND):ALERT(300')
+B:CLAW(x2):DISEASE(1d4)
+B:BITE:HURT(1d5):PARALYZE(85%)
+I:VULN(LIGHT)
+S:1_IN_9 | SCARE | PARALYZE
+O:60%:OBJ(*$)
+M:1d7:MON(z.ghoul)
+D:Flesh is falling off in chunks from this decaying abomination.
+I:COLOR(Light Umber)
+P:Copy:Zombie:Rage-Mage
+
+N:z.ghoulking:z.base:Ghoulking
+I:LVL(32,70):RARITY(2):ALLOC(ESCORT)
+I:SPEED(+10):HP(180):AC(60):EXP(340)
+I:ATTR(-EMPTY_MIND):ALERT(Fairly Observant):MOVE(SWIM)
+B:CLAW:HURT(1d4+5):LOSE_STR(70%)
+B:CLAW(x2):DISEASE(3d4):UNLIFE(3d4)
+B:BITE:HURT(1d5+6):PARALYZE(85%)
+I:VULN(LIGHT)
+O:1d3:OBJ(*$)
+S:1_IN_7 | SCARE | PARALYZE | DARKNESS | S_UNDEAD | ANIM_DEAD
+M:3d3:MON(z.ghoul)
+D:Flesh is falling off in chunks from this decaying abomination.
+I:COLOR(Light Dark)
+P:Copy:Zombie:Warrior-Mage
+
+N:z.mummy:z.base:Greater mummy
+I:LVL(34):RARITY(3)
+I:HP(702):AC(68):EXP(800)
+I:ATTR(-EMPTY_MIND|SMART):ALERT(300',Ignores):MOVE(PUSH|PICKUP)
+B:CLAW:HURT(1d6):LOSE_CON(50%)
+B:CLAW:DISEASE(1d6):UNLIFE(3d6)
+B:GAZE:VAMP(3d4)
+B:GAZE:DAM(1d4):TERRIFY
+A:CAUSE_2(1d3)
+I:RESIST(ACID|ELEC|FIRE|TELE)
+S:1_IN_3 | HEAL | HASTE | BLIND | SCARE | S_UNDEAD | ANIM_DEAD | DARKNESS | AMNESIA
+S:BA_POISON | BA_NETHER | BA_COLD | DRAIN_MANA | MIND_BLAST | CAUSE_3
+O:1d2+2:OBJ(*)
+D:Once a powerful ruler, now an even more powerful undead menace.
+I:COLOR(Light White)
+P:Copy:Zombie:Warrior-Mage
+
+########################################################################
+# Uniques
+N:G.Q:G.base:The Ghost 'Q'
+I:LVL(15):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+30):HP(200):AC(30):EXP(150)
+I:ALIGN(Neutral):CAN(SPEAK):ATTR(MALE):MOVE(RAND_75|SWIM)
+B:TOUCH(x4):DAM(1):EAT_FOOD
+O:OBJ(*, GOOD)
+D:He has only three hair. He is careless, but kind, and always a bit hungry.
+I:COLOR(White)
+
+N:z.Kharis:z.base:Kharis the Powerslave
+I:LVL(26):RARITY(4):ALLOC(UNIQUE|ESCORT)
+I:HP(935):AC(40):EXP(500)
+I:CAN(SPEAK):ATTR(MALE|-EMPTY_MIND):ALERT(Overlooks)
+B:GAZE:TERRIFY
+B:HIT:DISEASE(6d6)
+B:CLAW(x2):HURT(2d6):LOSE_CON
+A:CAUSE_2(1d3)
+I:RESIST(TELE)
+S:1_IN_5 | TRAPS | CAUSE_3 | DARKNESS | S_UNDEAD | SCARE | SLOW | S_KIN | ANIM_DEAD
+O:OBJ(*, GOOD)
+M:3d7:MON(z)
+D:He is out to have a revenge on you who have desecrated his tomb.
+I:COLOR(Violet)
+P:Copy:Zombie:Warrior-Mage
+
+N:z.Mortis:z.base:Judge Mortis
+I:LVL(41):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+10):HP(1800):AC(70):EXP(13000)
+I:CAN(SPEAK):ATTR(MALE|-EMPTY_MIND)
+I:ALERT(900',Fairly Observant):MOVE(PUSH)
+B:HIT:HURT(5d5):POISON(5d5)
+B:HIT:HURT(5d5):DISEASE
+B:TOUCH:LOSE_ALL:UNLIFE(5d5)
+B:TOUCH:UNLIFE(5d5)
+I:VULN(FIRE)
+S:FREQ_25 | BLIND | SCARE | CAUSE_3 | BO_ACID | BO_NETHER | BR_POISON |
+S:BR_NETHER | BLINK | TELE_SELF | ANIM_DEAD | S_UNDEAD
+O:4d2:OBJ(*, GOOD)
+D:Another Dark Judge, he is a rotting humanoid with a cow's skull as his head.
+I:COLOR(Light Green)
+P:Copy:Zombie:Warrior-Mage
+
+N:s.Fire:s.base:Judge Fire
+I:LVL(41):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+10):HP(1800):AC(70):EXP(12000)
+I:CAN(SPEAK):LIGHT(1):ATTR(MALE)
+I:ALERT(900',Fairly Observant):MOVE(PUSH)
+B:HIT(x2):FIRE(5d5)
+B:GAZE:DRAIN_EXP(80d6)
+B:WAIL:TERRIFY
+I:RESIST(-COLD|PLASMA):IMMUNE(FIRE):VULN(COLD)
+S:FREQ_25 | DARKNESS | S_MONSTER | S_DEMON | S_UNDEAD | TELE_SELF | BLINK | SCARE
+S:CAUSE_3 | BO_FIRE(18d8+26) | BA_FIRE(1d286+20) | BR_FIRE | BO_PLASMA(8d7+71)
+O:4d2:OBJ(*, GOOD)
+D:One of the Dark Judges, he has come to punish your crime of living.
+D:He looks like a skeleton enveloped in flames.
+I:COLOR(Red)
+P:Copy:Skeleton:Chaos-Warrior
+P:Weight:120
+
+N:W.Fear:W.base:Judge Fear
+I:LVL(43):RARITY(4):ALLOC(UNIQUE)
+I:SPEED(+10):HP(1800):AC(70):EXP(12000)
+I:CAN(SPEAK|INVIS|FEAR):ATTR(MALE)
+I:ALERT(900',Fairly Observant):MOVE(PUSH)
+B:GAZE:TERRIFY
+B:GAZE:DRAIN_EXP(40d6)
+B:GAZE:DRAIN_MANA(4d8)
+B:GAZE:HURT(2d20)
+I:RESIST(FIRE)
+O:4d2:OBJ(*, GOOD)
+S:1_IN_3 | BLIND | PARALYZE | SCARE | CAUSE_3 | MIND_BLAST | BRAIN_SMASH
+S:S_UNDEAD | DRAIN_MANA | AMNESIA | ANIM_DEAD
+D:A Dark Judge, reputedly so frightening that his gaze can kill.
+I:COLOR(Light Dark)
+
+N:W.Death:W.base:Judge Death
+I:LVL(44):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+10):HP(2250):AC(90):EXP(14000)
+I:CAN(SPEAK):ATTR(MALE|SMART)
+I:ALERT(900',Fairly Observant):MOVE(PUSH)
+B:CLAW(x2):HURT(2d5+15):POISON(3d5)
+B:CLAW:HURT(10):UNLIFE(3d5):CUT(2d3, 20%)
+B:GAZE:TERRIFY:UNLIFE(3d5)
+I:RESIST(ELEC):VULN(FIRE)
+O:4d2:OBJ(*, GOOD)
+S:1_IN_3 | BLIND | PARALYZE | SCARE | CAUSE_4 | BA_FIRE | BA_NETHER | ANIM_DEAD
+S:S_MONSTER | S_UNDEAD | S_HI_UNDEAD | DRAIN_MANA
+D:The most powerful Dark Judge, whose touch means death.
+I:COLOR(Light Dark)
+
+N:W.Dwar:W.nazgul:Dwar, Dog Lord of Waw
+I:LVL(44):RARITY(3):ALLOC(UNIQUE|ESCORT)
+I:SPEED(+10):HP(2000):AC(90):EXP(13000)
+B:HIT(x2):HURT(5d5)
+B:BITE:HURT(5d5):UNLIFE(5d5)
+B:WAIL:TERRIFY:UNLIFE(5d5)
+I:RESIST(FIRE)
+S:1_IN_3 | BLIND | PARALYZE | SCARE | CAUSE_3 | BA_FIRE | BA_NETHER
+S:S_MONSTER | S_UNDEAD | S_HOUND
+O:4d2:OBJ(*, GOOD)
+O:35%:OBJ(RING):EGO(nazgul)
+O:15%:OBJ(CLOAK):EGO(nazgul)
+O:35%:OBJ(SWORD):EGO(morgul)
+M:3d7:MON(Z)
+D:Dwar had a special affinity for dogs in life, and can still command them
+D:at will. He howls maniacally as he reaches out to destroy you.
+I:COLOR(Light Dark)
+
+N:z.Quachil:Quachil Uttaus, Treader of the Dust
+I:LVL(44):RARITY(3):ALLOC(UNIQUE|NO_QUEST)
+I:SPEED(+10):HP(3300):AC(80):EXP(20000)
+I:KIND(UNDEAD|DEMON|NONLIVING|HORROR):ALIGN(Evil):CAN(REGEN):ATTR(SMART)
+I:ALERT(300',Fairly Observant):MOVE(OPEN|BASH|PICKUP|TRAMPLE)
+B:CLAW:HURT(50):CUT(3d4)
+B:TOUCH(x2):TIME(1d50)
+I:RESIST(COLD|TIME):IMMUNE(NETHER|SLOW)
+S:FREQ_20 | BR_TIME | SLOW | HASTE | HEAL
+O:2d2:OBJ(*, GREAT)
+D:"It was a figure no larger than a young child, but sere and
+D:shriveled as some millennial mummy. Its hairless head, its
+D:unfeatured face, borne on a neck of skeleton thinness, were
+D:lined with a thousand reticulated wrinkles. The body was like
+D:that of some monstrous, withered abortion that had never drawn
+D:breath. The pipy arms, ending in bony claws, were outthrust as if
+D:ankylosed in posture of an eternal dreadful groping."
+I:DISPLAY(z,Light Blue):POS(SEE_INVIS|HOLD_LIFE)
+P:Copy:Human:Warrior-Mage
+P:Weight:30
+
+N:W.Charon:Charon, Boatman of the Styx
+I:LVL(47):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+10):HP(2800):AC(100):EXP(25000)
+I:KIND(UNDEAD|NONLIVING):ALIGN(Evil):ATTR(MALE|SMART|COLD_BLOOD)
+I:ALERT(300',Fairly Observant):MOVE(OPEN|BASH|PUSH|PASSWALL)
+B:WAIL:LOSE_ALL
+B:TOUCH:DRAIN_CHARGES
+B:HIT(x2):HURT(2d12+40):UNLIFE(4d12)
+I:RESIST(COLD|CONF):IMMUNE(POIS|NETHER|SLEEP|TELE)
+S:1_IN_3 | BLIND | PARALYZE | SCARE | CAUSE_3 | DARKNESS |
+S:BO_ICE | BO_NETHER | BA_COLD | BA_NETHER | BA_WATER | S_UNDEAD
+O:5d5+5:OBJ(GOLD)
+D:The ferryman across the river Styx to the land of the dead.
+D:He wishes to receive payment for your entry.
+I:DISPLAY(W,Light Dark):POS(SEE_INVIS|HOLD_LIFE)
+P:Copy:Vampire:Beastmaster
+P:Weight:170
+
+N:W.Hoarmurath:W.nazgul:Hoarmurath of Dir
+I:LVL(52):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+10):HP(2500):AC(100):EXP(20000)
+I:CAN(SPEAK)
+B:HIT:HURT(5d10+25)
+B:HIT:HURT(5d5)
+B:TOUCH:UNLIFE(5d5)
+B:WAIL:TERRIFY:UNLIFE(5d5)
+S:1_IN_3 | BLIND | PARALYZE | SCARE | CAUSE_3 | CAUSE_4 | MIND_BLAST |
+S:BO_COLD | BA_COLD | BA_NETHER | S_UNDEAD | S_HI_UNDEAD
+O:6d2:OBJ(*, GOOD)
+O:35%:OBJ(RING):EGO(nazgul)
+O:15%:OBJ(CLOAK):EGO(nazgul)
+O:35%:OBJ(SWORD):EGO(morgul)
+D:A Ringwraith powerful in fell sorcery, he yearns for the life he has lost
+D:for a life of everlasting torment.
+I:COLOR(Light Dark)
+
+N:W.Khamul:W.nazgul:Khamul the Easterling
+I:LVL(53):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+15):HP(3500):AC(100):EXP(22000)
+I:CAN(SPEAK)
+B:HIT:HURT(5d10+25)
+B:HIT:HURT(5d5)
+B:TOUCH(x2):UNLIFE(7d5)
+I:RESIST(ACID|FIRE)
+S:FREQ_35 | TELE_LEVEL | BLIND | PARALYZE | SCARE | CAUSE_3 | CAUSE_4 | BO_MANA |
+S:BA_FIRE | BA_COLD | BA_NETHER | ANIM_DEAD | S_UNDEAD | S_KIN
+O:7d2:OBJ(*, GOOD)
+O:35%:OBJ(RING):EGO(nazgul)
+O:15%:OBJ(CLOAK):EGO(nazgul)
+O:35%:OBJ(SWORD):EGO(morgul)
+D:A warrior-king of the East. Khamul is a powerful opponent, his skill in
+D:combat awesome and his form twisted by evil cunning.
+I:COLOR(Light Dark)
+
+N:L.King:L.base:The King in Yellow
+I:LVL(53):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+10):HP(3200):AC(100):EXP(30000)
+I:KIND(HORROR):CAN(SPEAK):ATTR(MALE)
+I:ALERT(900',Fairly Observant):MOVE(PUSH)
+B:CRUSH:HURT(8d12+25)
+B:CRUSH:HURT(8d12+25):LOSE_CHR
+B:GAZE:DAM(5d10):LOSE_WIS:UNLIFE(5d10)
+B:GAZE:DAM(5d10):TERRIFY:UNLIFE(5d10)
+I:RESIST(ACID|FIRE):IMMUNE(TELE|SLOW):VULN(LIGHT)
+S:FREQ_35 | S_DEMON | S_UNDEAD | S_KIN | SCARE | CAUSE_3 | CAUSE_4 | ANIM_DEAD
+S:TELE_OTHER | TELE_SELF | BRAIN_SMASH | CONFUSE | DETECT_MONSTERS | IDENTIFY
+O:7d2:OBJ(*, GOOD)
+D:The King in Yellow is an Avatar of Hastur: "He has no
+D:face, and is twice as tall as a man. He wears pointed shoes under
+D:his tattered, fantastically colored robes, and a streamer of silk
+D:appears to fall from the pointed tip of his hood. At times he appears
+D:to be winged; at others, haloed."
+I:DISPLAY(,Yellow,ATTR_MULTI|ATTR_ANY)
+P:Weight:250
+
+N:V.Thuringwethil:V.base:Thuringwethil, the Vampire Messenger
+I:LVL(55):RARITY(4):ALLOC(UNIQUE)
+I:SPEED(+20):HP(4000):AC(145):EXP(23000)
+I:CAN(SPEAK):ATTR(FEMALE)
+B:BITE:DRAIN_MANA(8d8):UNLIFE(8d8)
+B:BITE:VAMP(8d8):UNLIFE(8d8)
+B:HIT(x2):CONFUSE(6d6)
+I:IMMUNE(TELE)
+S:1_IN_3 | BLIND | PARALYZE | SCARE | CAUSE_3 | CAUSE_4 | DRAIN_MANA |
+S:BRAIN_SMASH | BA_NETHER | S_KIN | DETECT_MONSTERS | MAPPING | IDENTIFY
+O:9d2:OBJ(*, GOOD)
+D:Chief messenger between Sauron and Morgoth, she is surely the most deadly
+D:of her vampire race. At first she is charming to meet, but her wings and
+D:eyes give away her true form.
+I:COLOR(Light Dark)
+P:Life:110
+
+N:G.Dionysus:G.base:Dionysus, the Munchkin of Chaos
+I:LVL(55):RARITY(7):ALLOC(UNIQUE)
+I:SPEED(+44):HP(1000):AC(162):EXP(10000)
+I:CAN(SPEAK|REGEN):ATTR(MALE|SMART)
+I:ALERT(1000',Unseeing):MOVE(RAND_75|PICKUP)
+B:SLASH(x2):VAMP(6d8)
+B:TOUCH:EAT_ITEM
+I:RESIST(ACID|ELEC|FIRE|LIGHT|NEXUS|SOUND|SHARDS|CHAOS|DISENCHANT):IMMUNE(SLOW)
+S:FREQ_30 | SHOOT(16d6) | TELE_OTHER | TELE_SELF | HASTE | BLINK | HEAL
+S:DETECT_MONSTERS | MAPPING
+O:OBJ(*, GREAT)
+D:He is one of the greatest tricksters. Even the greatest warrior cannot
+D:defeat him, and his storm of holy might arrows from the dark have
+D:defeated numerous victims.
+I:COLOR(Green):POS(CORPSE|TELEPATHY)
+P:Speed:+15
+
+N:V.Vlad:V.base:Vlad Dracula, Prince of Darkness
+I:LVL(63):RARITY(4):ALLOC(UNIQUE|ESCORT)
+I:SPEED(+20):HP(5000):AC(166):EXP(35000)
+I:CAN(SPEAK):DARK(2):ATTR(MALE)
+B:BITE(x2):VAMP(8d8):UNLIFE(8d8)
+B:HIT(x2):CONFUSE(8d8)
+A:NETHER(3d6)
+I:IMMUNE(COLD|TELE|SLOW)
+S:1_IN_3 | BLIND | PARALYZE | SCARE | CAUSE_3 | CAUSE_4 | DRAIN_MANA | BRAIN_SMASH
+S:BA_NETHER | S_KIN | DARKNESS | BA_DARK | DETECT_MONSTERS | MAPPING | IDENTIFY
+O:9d2:OBJ(*, GOOD)
+O:1%:ART(].Stone Mask)
+M:1d3:MON(V.elder)
+M:1d4:MON(V.lord)
+M:1d5:MON(V.master)
+D:The most feared of all vampires, the Prince of Darkness himself.
+I:COLOR(Blue)
+P:Life:110
+
+N:V.Dio:V.base:Dio Brando
+I:LVL(66):RARITY(4):ALLOC(UNIQUE|ESCORT)
+I:SPEED(+20):HP(5000):AC(166):EXP(33333)
+I:CAN(SPEAK|REFLECT):ATTR(MALE)
+B:CLAW(x2):VAMP(5d10):UNLIFE(5d10)
+B:SPIT:DAM(5d10):BLIND
+B:HIT:HURT(5d10+30):LOSE_CON
+A:COLD(3d4)
+I:RESIST(TIME):IMMUNE(COLD|TELE|SLOW)
+S:1_IN_4 | SCARE | S_KIN | WORLD | TELE_TO | DETECT_MONSTERS | MAPPING | IDENTIFY
+O:1d2:OBJ(*, GREAT)
+O:20%:ART(].Stone Mask)
+M:MON(B.Petshop)
+I:COLOR(Yellow)
+P:Life:110
+
+N:G.Tselakus:G.base:Tselakus, the Dreadlord
+I:LVL(68):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+20):HP(6500):AC(150):EXP(35000)
+I:DARK(3):CAN(SPEAK|FEAR):ATTR(MALE)
+B:HIT(x2):HURT(5d10+25)
+B:HIT(x2):HURT(4d6):LOSE_STR:UNLIFE(4d6)
+A:DARK(3d4)
+I:IMMUNE(FEAR|SLOW)
+S:1_IN_3 | BLIND | PARALYZE | CONFUSE | BA_DARK | BA_NETHER
+S:S_AMBERITE | S_HI_UNDEAD | S_KIN | DETECT_MONSTERS
+O:7d2:OBJ(*, GOOD)
+D:This huge affront to existence twists and tears at the fabric of space.
+D:Darkness itself recoils from the touch of Tselakus as he leaves a trail
+D:of death and destruction. Mighty claws rend reality as he
+D:annihilates all in his path to your soul!
+I:COLOR(Light Red)
+
+N:L.Vecna:L.base:Vecna, the Emperor Lich
+I:LVL(72):RARITY(2):ALLOC(UNIQUE|ESCORT)
+I:SPEED(+20):HP(5000):AC(85):EXP(30000)
+I:CAN(SPEAK):ATTR(MALE)
+B:HAND_OF_VECNA(x4):DAM(5d12+30):UNLIFE(3d10):DRAIN_CHARGES:STUN(1d9+9, 40%)
+I:IMMUNE(TELE|SLOW)
+S:1_IN_2 | BLINK | BLINK_OTHER | TELE_TO | BLIND | PARALYZE | CONFUSE | SCARE
+S:CAUSE_3 | CAUSE_4 | BRAIN_SMASH | TRAPS | MANA_STORM | BO_MANA
+S:BA_NETHER(10d10+193) | DISPEL_MAGIC | ANTI_MAGIC | PSY_SPEAR(1d144+150)
+S:S_MONSTER | S_UNDEAD | S_KIN | ANIM_DEAD | DETECT_MONSTERS | IDENTIFY
+O:6d2:OBJ(*, GOOD)
+O:5%:ART(].Lich)
+M:3d7:MON(L)
+D:He is a highly cunning, extremely magical being, spoken of in legends.
+D:This ancient shadow of death wilts any living thing it passes.
+I:COLOR(Yellow):POS(SKELETON|TELEPATHY)
+P:Skill:Thn(65+110)
+
+N:W.King:W.nazgul:The Witch-King of Angmar
+I:LVL(80):RARITY(3):ALLOC(UNIQUE|GUARDIAN)
+I:SPEED(+20):HP(6000):AC(120):EXP(42000)
+I:CAN(SPEAK):ATTR(MALE)
+B:HIT(x3):HURT(5d10+25):UNLIFE(6d10, 35%)
+B:TOUCH:DRAIN_MANA(6d10):UNLIFE(6d10)
+S:FREQ_40 | TELE_OTHER | BLIND | PARALYZE | SCARE | CAUSE_3 | BRAIN_SMASH | ANIM_DEAD
+S:BO_MANA | BA_NETHER | PSY_SPEAR | S_KIN | S_HI_UNDEAD | S_HI_DRAGON | S_MONSTER
+O:7d2:OBJ(*, GOOD)
+O:35%:OBJ(RING):EGO(nazgul)
+O:15%:OBJ(CLOAK):EGO(nazgul)
+O:35%:OBJ(SWORD):EGO(morgul)
+D:The Chief of the Ringwraiths. A fell being of devastating power. His
+D:spells are lethal and his combat blows crushingly hard. He moves at
+D:speed, and commands legions of evil to do his bidding. It is said that he
+D:is fated never to die by the hand of mortal man.
+I:COLOR(Violet)
+
+N:s.Cantoras:s.base:Cantoras, the Skeletal Lord
+I:LVL(84):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+30):HP(7500):AC(120):EXP(75000)
+I:CAN(SPEAK|FEAR):ATTR(SMART|MALE)
+I:ALERT(200',Inattentive)
+B:GAZE(x2):DRAIN_EXP(80d6)
+B:TOUCH(x2):POISON(3d5)
+I:RESIST(FIRE):IMMUNE(COLD|TELE|BLIND|SLOW)
+S:1_IN_1 | TELE_TO | SLOW | SCARE | CAUSE_4 | BRAIN_SMASH |
+S:BO_ICE(6d8+126) | BO_MANA | BA_WATER(1d168+50) | BA_NETHER(10d10+218) |
+S:S_HI_UNDEAD | ANIM_DEAD | PSY_SPEAR(1d168+150) | CLAIRVOYANCE 
+O:9d2:OBJ(*, GREAT):DROP_MAGE
+D:A legion of evil undead druj animating the skeleton of a once mighty
+D:sorcerer. His power is devastating and his speed unmatched in the
+D:underworld. Flee his wrath!
+I:COLOR(Light Blue):POS(SKELETON|TELEPATHY)
+P:Copy:Skeleton:Mage
+P:Stats:0:4:0:0:0:7
+P:Speed:+15
+P:Weight:170
+
+N:L.Kaschei:L.base:Kaschei the Immortal
+I:LVL(90):RARITY(3):ALLOC(UNIQUE|ESCORT)
+I:SPEED(+20):HP(6000):AC(100):EXP(45000)
+I:CAN(SPEAK|FEAR):ATTR(MALE):ALERT(1000',Ever Vigilant)
+B:HIT(x2):HURT(3d10+10):DISENCHANT
+B:HIT:HURT(3d10+10):UNLIFE(5d10)
+B:HIT:DRAIN_MANA(10d10):UNLIFE(5d10)
+A:UNLIFE(50%, 2d6)
+I:RESIST(ELEC|FIRE):IMMUNE(TELE|SLOW)
+S:1_IN_3 | BO_MANA(1d250+50) | BA_FIRE(1d630+20) | PSY_SPEAR(1d120+120)
+S:TELE_SELF | BLIND | SCARE | CAUSE_4 | BRAIN_SMASH | POLYMORPH
+S:MANA_STORM(400) | DISPEL_MAGIC | ANTI_MAGIC | HAND_DOOM | ANIM_DEAD
+S:S_MONSTER | S_HI_DEMON | S_HI_UNDEAD | DETECT_MONSTERS | IDENTIFY
+O:9d2:OBJ(*, GREAT):DROP_MAGE
+M:3d7:MON(L)
+D:A stench of corruption and decay surrounds this sorcerer, who has clearly
+D:risen from the grave to continue his foul plots and schemes.
+I:COLOR(Violet):POS(SKELETON|TELEPATHY)
+P:Stats:0:3:0:0:0:0
+
+# vim: filetype=ri :
+

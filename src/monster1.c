@@ -13,36 +13,12 @@
 */
 
 #include "angband.h"
-
-
-void mon_lore_1(monster_type *m_ptr, u32b mask)
-{
-    if (is_original_ap_and_seen(m_ptr))
-        mon_lore_aux_1(mon_race(m_ptr), mask);
-}
-
-void mon_lore_2(monster_type *m_ptr, u32b mask)
-{
-    if (is_original_ap_and_seen(m_ptr))
-        mon_lore_aux_2(mon_race(m_ptr), mask);
-}
-
-void mon_lore_3(monster_type *m_ptr, u32b mask)
-{
-    if (is_original_ap_and_seen(m_ptr))
-        mon_lore_aux_3(mon_race(m_ptr), mask);
-}
-
-void mon_lore_r(monster_type *m_ptr, u32b mask)
-{
-    if (is_original_ap_and_seen(m_ptr))
-        mon_lore_aux_r(mon_race(m_ptr), mask);
-}
+#include <assert.h>
 
 void mon_lore_blow(monster_type *m_ptr, mon_blow_ptr blow, int options)
 {
     if (is_original_ap_and_seen(m_ptr))
-        mon_lore_aux_blow(mon_race(m_ptr), blow, options);
+        mon_lore_aux_blow(m_ptr->race, blow, options);
 }
 
 void mon_lore_aux_blow(monster_race *r_ptr, mon_blow_ptr blow, int options)
@@ -56,8 +32,8 @@ void mon_lore_aux_blow(monster_race *r_ptr, mon_blow_ptr blow, int options)
             if (blow->lore < MAX_SHORT)
             {
                 blow->lore++;
-                if (r_ptr->id == p_ptr->monster_race_idx)
-                    p_ptr->window |= PW_MONSTER;
+                if (r_ptr->id == plr->monster_race_idx)
+                    plr->window |= PW_MONSTER;
             }
         }
     }
@@ -66,7 +42,7 @@ void mon_lore_aux_blow(monster_race *r_ptr, mon_blow_ptr blow, int options)
 void mon_lore_effect(monster_type *m_ptr, mon_effect_ptr effect)
 {
     if (is_original_ap_and_seen(m_ptr))
-        mon_lore_aux_effect(mon_race(m_ptr), effect);
+        mon_lore_aux_effect(m_ptr->race, effect);
 }
 
 void mon_lore_aux_effect(monster_race *r_ptr, mon_effect_ptr effect)
@@ -74,89 +50,9 @@ void mon_lore_aux_effect(monster_race *r_ptr, mon_effect_ptr effect)
     if (effect->lore < MAX_SHORT)
     {
         effect->lore++;
-        if (r_ptr->id == p_ptr->monster_race_idx)
-            p_ptr->window |= PW_MONSTER;
+        if (r_ptr->id == plr->monster_race_idx)
+            plr->window |= PW_MONSTER;
     }
-}
-
-void mon_lore_spell(mon_ptr mon, mon_spell_ptr spell)
-{
-    if (is_original_ap_and_seen(mon))
-        mon_lore_aux_spell(mon_race(mon), spell);
-}
-
-void mon_lore_aux_spell(mon_race_ptr race, mon_spell_ptr spell)
-{
-    if (spell->lore < MAX_SHORT)
-    {
-        spell->lore++;
-        if (race->id == p_ptr->monster_race_idx)
-            p_ptr->window |= PW_MONSTER;
-    }
-    mon_lore_aux_spell_turns(race);
-}
-
-void mon_lore_aux_spell_turns(mon_race_ptr race)
-{
-    u32b old = race->r_spell_turns;
-    race->r_spell_turns++;
-    if (race->r_spell_turns < old) /* wrap? */
-        race->r_spell_turns = old;
-
-    if (race->r_spell_turns != old && race->id == p_ptr->monster_race_idx)
-        p_ptr->window |= PW_MONSTER;
-}
-
-void mon_lore_aux_1(monster_race *r_ptr, u32b mask)
-{
-    u32b old = r_ptr->r_flags1;
-
-    r_ptr->r_flags1 |= (r_ptr->flags1 & mask);
-    if (r_ptr->r_flags1 != old && r_ptr->id == p_ptr->monster_race_idx)
-        p_ptr->window |= PW_MONSTER;
-}
-
-void mon_lore_aux_2(monster_race *r_ptr, u32b mask)
-{
-    u32b old = r_ptr->r_flags2;
-
-    r_ptr->r_flags2 |= (r_ptr->flags2 & mask);
-    if (r_ptr->r_flags2 != old && r_ptr->id == p_ptr->monster_race_idx)
-        p_ptr->window |= PW_MONSTER;
-}
-
-void mon_lore_aux_3(monster_race *r_ptr, u32b mask)
-{
-    u32b old = r_ptr->r_flags3;
-
-    r_ptr->r_flags3 |= (r_ptr->flags3 & mask);
-    if (r_ptr->r_flags3 != old && r_ptr->id == p_ptr->monster_race_idx)
-        p_ptr->window |= PW_MONSTER;
-}
-
-static void _mon_lore_aux_move(monster_race *r_ptr)
-{
-    u32b old = r_ptr->r_move_turns;
-    r_ptr->r_move_turns++;
-    if (r_ptr->r_move_turns < old) /* wrap? */
-        r_ptr->r_move_turns = old;
-    if (r_ptr->r_move_turns != old && r_ptr->id == p_ptr->monster_race_idx)
-        p_ptr->window |= PW_MONSTER;
-}
-
-void mon_lore_move(monster_type *m_ptr)
-{
-    if (is_original_ap_and_seen(m_ptr))
-        _mon_lore_aux_move(mon_race(m_ptr));
-}
-
-void mon_lore_aux_r(monster_race *r_ptr, u32b mask)
-{
-    u32b old = r_ptr->r_flagsr;
-
-    r_ptr->r_flagsr |= (r_ptr->flagsr & mask);
-    if (r_ptr->r_flagsr != old && r_ptr->id == p_ptr->monster_race_idx)
-        p_ptr->window |= PW_MONSTER;
 }
 
 /*
@@ -165,19 +61,12 @@ void mon_lore_aux_r(monster_race *r_ptr, u32b mask)
 void roff_top(int r_idx)
 {
     monster_race    *r_ptr = mon_race_lookup(r_idx);
-
-    byte        a1, a2;
-    char        c1, c2;
-
-
-    /* Access the chars */
-    c1 = r_ptr->d_char;
-    c2 = r_ptr->x_char;
-
-    /* Access the attrs */
-    a1 = r_ptr->d_attr;
-    a2 = r_ptr->x_attr;
-
+    term_char_t      r_tc = mon_race_visual(r_ptr);
+    term_char_t      r_atc = mon_race_visual_ascii(r_ptr);
+    byte             a1 = r_atc.a;
+    char             c1 = r_atc.c;
+    byte             a2 = r_tc.a;
+    char             c2 = r_tc.c;
 
     /* Clear the top line */
     Term_erase(0, 0, 255);
@@ -186,13 +75,13 @@ void roff_top(int r_idx)
     Term_gotoxy(0, 0);
 
     /* A title (use "The" for non-uniques) */
-    if (!(r_ptr->flags1 & RF1_UNIQUE))
+    if (!mon_race_is_unique(r_ptr))
     {
         Term_addstr(-1, TERM_WHITE, "The ");
     }
 
     /* Dump the name */
-    Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
+    Term_addstr(-1, TERM_WHITE, r_ptr->name);
 
     /* Append the "standard" attr/char info */
     Term_addstr(-1, TERM_WHITE, " ('");
@@ -205,7 +94,7 @@ void roff_top(int r_idx)
     Term_addstr(-1, TERM_WHITE, "'):");
 
     /* Wizards get extra info */
-    if (p_ptr->wizard)
+    if (plr->wizard)
     {
         char buf[6];
 
@@ -221,11 +110,11 @@ bool mon_hook_dungeon(int r_idx)
 {
     monster_race *r_ptr = mon_race_lookup(r_idx);
 
-    if (cave->dun_type_id == D_SURFACE) return TRUE; /* XXX ignore hook on surface for S_EAGLE */
-    if (r_ptr->flags8 & RF8_WILD_ONLY)
+    if (cave->type->id == D_SURFACE) return TRUE; /* XXX ignore hook on surface for S_EAGLE */
+    if (r_ptr->alloc.flags & RFA_WILD_ONLY)
     {
         /* XXX s/b using mon_alloc_dungeon() instead of mon_hook_dungeon() */
-        if (cave->dun_type_id == D_MOUNTAIN && (r_ptr->flags8 & RF8_WILD_MOUNTAIN)) return TRUE;
+        if (cave->type->id == D_MOUNTAIN && (r_ptr->alloc.flags & RFA_WILD_MOUNTAIN)) return TRUE;
         return FALSE;
     }
     else
@@ -234,18 +123,42 @@ bool mon_hook_dungeon(int r_idx)
 
 void set_friendly(monster_type *m_ptr)
 {
-    m_ptr->smart |= (1U << SM_FRIENDLY);
+    add_flag(m_ptr->smart, SM_FRIENDLY);
 }
 
+static void set_pet_aux(monster_type *m_ptr, bool temp)
+{
+    if (!mon_is_pet(m_ptr))
+    {
+        if (m_ptr->pack)  /* leave my current pack in order to join the plr (plr_pack) */
+            mon_pack_remove(m_ptr->pack, m_ptr);
+    }
+
+    if (!temp)
+        quests_on_kill_mon(m_ptr);
+
+    add_flag(m_ptr->smart, SM_PET);
+    if (temp)
+        add_flag(m_ptr->smart, SM_TEMP_PET);
+
+    /* forget old allegiances */
+    m_ptr->align = m_ptr->race->align;
+    /* XXX align with plr is probably a bad idea, since plr->align is so changeable */
+
+    mon_pack_add(plr_pack(), m_ptr);
+    check_pets_num_and_align();
+    if (plr->pet_extra_flags & PF_HILITE)
+        draw_pos(m_ptr->pos);
+}
+void set_temp_pet(monster_type *m_ptr)
+{
+    set_pet_aux(m_ptr, TRUE);
+}
 void set_pet(monster_type *m_ptr)
 {
-    if (!is_pet(m_ptr)) check_pets_num_and_align(m_ptr, TRUE);
-
-    quests_on_kill_mon(m_ptr);
-
-    m_ptr->smart |= (1U << SM_PET);
-    if (!(mon_race(m_ptr)->flags3 & (RF3_EVIL | RF3_GOOD)))
-        m_ptr->sub_align = SUB_ALIGN_NEUTRAL;
+    assert(!mon_is_pet(m_ptr));
+    if (mon_is_pet(m_ptr)) return;
+    set_pet_aux(m_ptr, FALSE);
 }
 
 /*
@@ -253,10 +166,27 @@ void set_pet(monster_type *m_ptr)
  */
 void set_hostile(monster_type *m_ptr)
 {
-    if (is_pet(m_ptr)) check_pets_num_and_align(m_ptr, FALSE);
+    bool was_pet = FALSE;
+    if (mon_is_pet(m_ptr))
+    {
+        was_pet = TRUE;
+        mon_pack_remove(plr_pack(), m_ptr);
+        check_pets_num_and_align();
+    }
 
-    m_ptr->smart &= ~(1U << SM_PET);
-    m_ptr->smart &= ~(1U << SM_FRIENDLY);
+    remove_flag(m_ptr->smart, SM_PET);
+    remove_flag(m_ptr->smart, SM_TEMP_PET);
+    remove_flag(m_ptr->smart, SM_FRIENDLY);
+
+    /* friendly uniques now wander the dungeon, but if attacked,
+     * they should seek the plr instead */
+    if (m_ptr->pack)
+    {
+        if (m_ptr->pack->ai == AI_WANDER || m_ptr->pack->ai == AI_HUNT)
+            m_ptr->pack->ai = AI_SEEK;
+    }
+    if (was_pet && (plr->pet_extra_flags & PF_HILITE))
+        draw_pos(m_ptr->pos);
 }
 
 
@@ -265,7 +195,7 @@ void set_hostile(monster_type *m_ptr)
  */
 void anger_monster(monster_type *m_ptr)
 {
-    if (is_friendly(m_ptr))
+    if (mon_is_friendly(m_ptr) || mon_is_temp_pet(m_ptr))
     {
         char m_name[80];
 
@@ -283,177 +213,31 @@ void anger_monster(monster_type *m_ptr)
 
 
 /*
- * Check if monster can cross terrain
- */
-bool monster_can_cross_terrain(s16b feat, monster_race *r_ptr, u16b mode)
-{
-    feature_type *f_ptr = &f_info[feat];
-    bool          lev = FALSE;
-
-    if ((mode & CEM_RIDING) && p_ptr->prace == RACE_MON_RING && p_ptr->levitation)
-        lev = TRUE;
-    if ((mode & CEM_MIMIC) && p_ptr->levitation)
-        lev = TRUE;
-
-    /* Pattern */
-    if (have_flag(f_ptr->flags, FF_PATTERN))
-    {
-        if (!(mode & CEM_RIDING))
-        {
-            if (!(r_ptr->flags7 & RF7_CAN_FLY)) return FALSE;
-        }
-        else
-        {
-            if (!(mode & CEM_P_CAN_ENTER_PATTERN)) return FALSE;
-        }
-    }
-
-    /* "CAN" flags */
-    if (have_flag(f_ptr->flags, FF_CAN_FLY) && ((r_ptr->flags7 & RF7_CAN_FLY) || lev)) return TRUE;
-    if (have_flag(f_ptr->flags, FF_CAN_CLIMB) && (r_ptr->flags7 & RF7_CAN_CLIMB)) return TRUE;
-    if (have_flag(f_ptr->flags, FF_CAN_SWIM) && ((r_ptr->flags7 & RF7_CAN_SWIM) || lev)) return TRUE;
-    if (have_flag(f_ptr->flags, FF_CAN_PASS))
-    {
-        if ((r_ptr->flags2 & RF2_PASS_WALL) && (!(mode & CEM_RIDING) || p_ptr->pass_wall)) return TRUE;
-    }
-
-    if (!have_flag(f_ptr->flags, FF_MOVE)) return FALSE;
-
-    /* Some monsters can walk on mountains */
-    if (have_flag(f_ptr->flags, FF_MOUNTAIN) && (r_ptr->flags8 & RF8_WILD_MOUNTAIN)) return TRUE;
-
-    /* Water */
-    if (have_flag(f_ptr->flags, FF_WATER))
-    {
-        if (!(r_ptr->flags7 & RF7_AQUATIC))
-        {
-            /* Deep water */
-            if (have_flag(f_ptr->flags, FF_DEEP)) return FALSE;
-
-            /* Shallow water */
-            else if (mon_auras_find(r_ptr, GF_FIRE)) return FALSE;
-        }
-    }
-
-    /* Aquatic monster into non-water? */
-    else if (r_ptr->flags7 & RF7_AQUATIC) return FALSE;
-
-    /* Lava */
-    if (have_flag(f_ptr->flags, FF_LAVA))
-    {
-        if (!(r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK)) return FALSE;
-    }
-
-    return TRUE;
-}
-
-
-/*
- * Strictly check if monster can enter the grid
- */
-bool monster_can_enter(int y, int x, monster_race *r_ptr, u16b mode)
-{
-    point_t pos = point_create(x, y);
-    if (plr_at(pos)) return FALSE;
-    if (mon_at(pos)) return FALSE;
-    return monster_can_cross_terrain(cave_at(pos)->feat, r_ptr, mode);
-}
-
-
-/*
- * Check if this monster has "hostile" alignment (aux)
- */
-static bool check_hostile_align(byte sub_align1, byte sub_align2)
-{
-    if (sub_align1 != sub_align2)
-    {
-        if (((sub_align1 & SUB_ALIGN_EVIL) && (sub_align2 & SUB_ALIGN_GOOD)) ||
-            ((sub_align1 & SUB_ALIGN_GOOD) && (sub_align2 & SUB_ALIGN_EVIL)))
-            return TRUE;
-    }
-
-    /* Non-hostile alignment */
-    return FALSE;
-}
-
-
-/*
  * Check if two monsters are enemies
  */
 bool are_enemies(monster_type *m_ptr, monster_type *n_ptr)
 {
-    monster_race *r_ptr = mon_race(m_ptr);
-    monster_race *s_ptr = mon_race(n_ptr);
+    if (mon_tim_find(m_ptr, MT_DISCORD) || mon_tim_find(n_ptr, MT_DISCORD))
+        return TRUE;
+    if ((m_ptr->mflag2 & MFLAG2_ILLUSION) && (n_ptr->mflag2 & MFLAG2_ILLUSION)) /* override alignment check */
+        return FALSE;
 
-    if ((r_ptr->flags8 & (RF8_WILD_TOWN | RF8_WILD_ALL))
-        && (s_ptr->flags8 & (RF8_WILD_TOWN | RF8_WILD_ALL)))
-    {
-        if (!is_pet(m_ptr) && !is_pet(n_ptr)) return FALSE;
-    }
-
-    /* Friendly vs. opposite aligned normal or pet */
-    if (check_hostile_align(m_ptr->sub_align, n_ptr->sub_align))
+    if (align_hostile(m_ptr->align, n_ptr->align))
     {
         /* No monster fighting (option) except involving pets */
-        if (!allow_hostile_monster && !is_pet(m_ptr) && !is_pet(n_ptr)) return FALSE;
+        if (!allow_hostile_monster && !mon_is_pet(m_ptr) && !mon_is_pet(n_ptr)) return FALSE;
 
         if (!(m_ptr->mflag2 & MFLAG2_CHAMELEON) || !(n_ptr->mflag2 & MFLAG2_CHAMELEON)) return TRUE;
     }
 
     /* Hostile vs. non-hostile */
-    if (is_hostile(m_ptr) != is_hostile(n_ptr))
+    if (mon_is_hostile(m_ptr) != mon_is_hostile(n_ptr))
     {
         return TRUE;
     }
 
     /* Default */
     return FALSE;
-}
-
-
-/*
- * Check if this monster race has "hostile" alignment
- * If user is player, m_ptr == NULL.
- */
-bool monster_has_hostile_align(monster_type *m_ptr, int pa_good, int pa_evil, monster_race *r_ptr)
-{
-    byte sub_align1 = SUB_ALIGN_NEUTRAL;
-    byte sub_align2 = SUB_ALIGN_NEUTRAL;
-
-    if (m_ptr) /* For a monster */
-    {
-        sub_align1 = m_ptr->sub_align;
-    }
-    else /* For player */
-    {
-        if (p_ptr->align >= pa_good) sub_align1 |= SUB_ALIGN_GOOD;
-        if (p_ptr->align <= pa_evil) sub_align1 |= SUB_ALIGN_EVIL;
-    }
-
-    /* Racial alignment flags */
-    if (r_ptr->flags3 & RF3_EVIL) sub_align2 |= SUB_ALIGN_EVIL;
-    if (r_ptr->flags3 & RF3_GOOD) sub_align2 |= SUB_ALIGN_GOOD;
-
-    if (check_hostile_align(sub_align1, sub_align2)) return TRUE;
-
-    /* Non-hostile alignment */
-    return FALSE;
-}
-
-
-/*
- * Is the monster "alive"?
- *
- * Used to determine the message to print for a killed monster.
- * ("dies", "destroyed")
- */
-bool monster_living(monster_race *r_ptr)
-{
-    /* Non-living, undead, or demon */
-    if (r_ptr->flags3 & (RF3_DEMON | RF3_UNDEAD | RF3_NONLIVING))
-        return FALSE;
-    else
-        return TRUE;
 }
 
 bool monster_magical(monster_race *r_ptr)

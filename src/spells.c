@@ -6,7 +6,34 @@
 /***********************************************************************
  * Spell Skills, Stats and Savefile Support
  ***********************************************************************/
+/* stats for a single spell */
+void spell_stats_load(spell_stats_ptr stats, savefile_ptr file)
+{
+    stats->flags = savefile_read_u32b(file);
+    stats->ct_cast = savefile_read_s32b(file);
+    stats->ct_fail = savefile_read_s32b(file);
+    stats->skill = savefile_read_s32b(file);
+    stats->max_skill = savefile_read_s32b(file);
+    if (!stats->max_skill)
+        stats->max_skill = SPELL_EXP_MASTER; /* XXX */
+    stats->alias = savefile_read_byte(file);
+}
+void spell_stats_save(spell_stats_ptr stats, savefile_ptr file)
+{
+    savefile_write_u32b(file, stats->flags);
+    savefile_write_s32b(file, stats->ct_cast);
+    savefile_write_s32b(file, stats->ct_fail);
+    savefile_write_s32b(file, stats->skill);
+    savefile_write_s32b(file, stats->max_skill);
+    savefile_write_byte(file, stats->alias);
+}
+void spell_stats_wipe(spell_stats_ptr stats)
+{
+    memset(stats, 0, sizeof(spell_stats_t));
+    stats->max_skill = SPELL_EXP_MASTER; /* XXX */
+}
 
+/* global map of spell stats by spell name */
 static str_map_ptr _spell_stats_map(void)
 {
     static str_map_ptr _map = NULL;
@@ -23,7 +50,7 @@ spell_stats_ptr spell_stats_aux(cptr name)
     if (!result)
     {
         result = malloc(sizeof(spell_stats_t));
-        memset(result, 0, sizeof(spell_stats_t));
+        spell_stats_wipe(result);
         str_map_add(map, name, result);
     }
     return result;
@@ -53,14 +80,10 @@ void spell_stats_on_load(savefile_ptr file)
         char            name[255];
         spell_stats_ptr stats = malloc(sizeof(spell_stats_t));
 
-        memset(stats, 0, sizeof(spell_stats_t));
+        spell_stats_wipe(stats);
 
         savefile_read_cptr(file, name, sizeof(name));
-        stats->flags = savefile_read_u32b(file);
-        stats->ct_cast = savefile_read_s32b(file);
-        stats->ct_fail = savefile_read_s32b(file);
-        stats->skill = savefile_read_s32b(file);
-        stats->max_skill = savefile_read_s32b(file);
+        spell_stats_load(stats, file);
 
         str_map_add(map, name, stats);
     }
@@ -80,11 +103,7 @@ void spell_stats_on_save(savefile_ptr file)
         spell_stats_ptr stats = str_map_iter_current(iter);
 
         savefile_write_cptr(file, str_map_iter_current_key(iter));
-        savefile_write_u32b(file, stats->flags);
-        savefile_write_s32b(file, stats->ct_cast);
-        savefile_write_s32b(file, stats->ct_fail);
-        savefile_write_s32b(file, stats->skill);
-        savefile_write_s32b(file, stats->max_skill);
+        spell_stats_save(stats, file);
     }
     str_map_iter_free(iter);
 }
@@ -102,6 +121,84 @@ void spell_stats_on_cast(spell_info *spell)
     spell_stats_ptr stats = spell_stats(spell);
 
     stats->ct_cast++;
+}
+
+/* XXX duplicated from do_cmd_cast for book-based spells ... refactor and share XXX */
+void spell_stats_gain_skill(spell_info *spell)
+{
+    spell_stats_gain_skill_aux(
+        get_spell_stat_name(spell->fn),
+        spell->level
+    );
+}
+void spell_stats_gain_skill_aux(cptr name, int lvl)
+{
+    spell_stats_ptr stats = spell_stats_aux(name);
+    int  current = stats->skill;
+    int  dlvl = cave->difficulty;
+    s16b gain = 0;
+
+    {  /* You'll need to spreadsheet this to see if this is any good ...
+        * Try a cross tab spell level vs dun level. Here is a rough summary
+        * of minimum dlvl to reach desired proficiency (but remember that
+        * interpolation smooths things out. So you can reach 1530 prof with
+        * a L50 spell on DL90, for instance):
+        * SLvl  Be  Sk  Ex  Ma
+        *   50  24  57  73 100
+        *   40  19  47  61  84
+        *   30  14  37  49  68
+        *   20   9  27  36  51
+        *   10   4  17  24  35
+        *    5   1  12  18  27
+        *    1   1   8  13  20 */
+        int ratio = (17 + lvl) * 100 / (10 + dlvl);
+        point_t max_tbl[4] = { {60, 1600}, {100, 1200}, {200, 900}, {300, 0} };
+        int max = interpolate(ratio, max_tbl, 4);
+
+        if (current < max)
+        {
+            point_t gain_tbl[9] = { /* 0->900->1200->1400->1600 */
+                {0, 128}, {200, 64}, {400, 32}, {600, 16},
+                {800, 8}, {1000, 4}, {1200, 2}, {1400, 1}, {1600, 1} };
+            gain = interpolate(current, gain_tbl, 9);
+        }
+        else if (0 || plr->wizard)
+        {
+            msg_format("<color:B>When casting an <color:R>L%d</color> spell on "
+                "<color:R>DL%d</color> your max proficiency is <color:R>%d</color> "
+                "(Current: <color:R>%d</color>).</color> <color:D>%d</color>",
+                lvl, dlvl, max, current, ratio);
+        }
+    }
+
+    if (gain)
+    {
+        int  old_level = spell_exp_level(current);
+        int  new_level = old_level;
+
+        stats->skill += gain;
+        if (stats->skill > stats->max_skill)
+            stats->skill = stats->max_skill;
+        new_level = spell_exp_level(stats->skill);
+        if (new_level > old_level)
+        {
+            cptr desc[5] = { "Unskilled", "a Beginner", "Skilled", "an Expert", "a Master" };
+            msg_format("You are now <color:B>%s</color> in <color:R>%s</color>.",
+                desc[new_level],
+                name);
+        }
+        else if (plr->wizard)
+        {
+            msg_format("You now have <color:B>%d</color> proficiency in <color:R>%s</color>.",
+                stats->skill,
+                name);
+        }
+        else if (stats->skill/100 > current/100)
+        {
+            msg_format("<color:B>You are getting more proficient with <color:R>%s</color>.</color>",
+                name);
+        }
+    }
 }
 
 void spell_stats_on_fail(spell_info *spell)
@@ -129,7 +226,6 @@ void spell_stats_on_fail_old(int realm, int spell)
     spell_stats_ptr stats = spell_stats_old(realm, spell);
     stats->ct_fail++;
 }
-
 
 /***********************************************************************
  * New Spell System ... Spells are objects (implemented as functions)
@@ -294,257 +390,480 @@ cptr get_spell_spoiler_name(ang_spell spell)
     return buf;
 }
 
+dice_t innate_dice(int dd, int ds, int base) { return dice_create(dd, ds, base); }
+dice_t spell_dice(int dd, int ds, int base)
+{
+    dice_t dice;
+    dice.dd = dd;
+    dice.ds = ds;
+    dice.base = base;
+    dice.scale = spell_power(1000);
+    return dice;
+}
+dice_t spell_dam_dice(int dd, int ds, int base)
+{
+    dice_t dice;
+    dice.dd = dd;
+    dice.ds = ds;
+    dice.base = base + plr->to_d_spell;
+    dice.scale = spell_power(1000);
+    return dice;
+}
+
+
 /****************************************************************************************
  * UI Utilities
  *   choose_spell - prompt user with a list of spells, they choose one.
  *   browse_spell - show spell list, user picks spells repeatedly. describe each spell.
  ****************************************************************************************/
+static doc_ptr _doc = NULL;
+#define _BROWSE_MODE 0x01
+#define _INNATE 0x02
 
-static int _col_height(int ct)
+static int _inkey(void)
 {
-    int    result = ct;
-    rect_t display = ui_menu_rect();
-
-    display.cy -= 5; /* Room for browsing */
-    if (result > display.cy)
-    {
-        result = (ct + 1)/2;
-    }
-
-    return result;
+    return inkey_special(TRUE);
 }
-
-static void _list_spells(spell_info* spells, int ct, int max_cost)
+static void _sync_term(doc_ptr doc)
 {
-    char temp[140];
-    int  i;
-    rect_t display = ui_menu_rect();
-    int  col_height = _col_height(ct);
-    int  col_width;
+    Term_load();
+    doc_sync_menu(doc);
+}
+static bool _hidden_spells;
+static bool _alias_spells;
+
+void spell_skill_doc(spell_stats_ptr stats, doc_ptr doc)
+{
+    static cptr _skill_str[5]= {"[Un]", "[Be]", "[Sk]", "[Ex]", "[Ma]"};
+    char qualifier = stats->skill == stats->max_skill ? '!' : ' ';
+    int  level = spell_exp_level(stats->skill);
+    doc_printf(doc, "%c%s ", qualifier, _skill_str[level]);
+}
+static void _list_spells(spell_info* spells, int ct, int max_cost, int browse_idx, bool hide, u32b mode)
+{
+    int   i;
     var_t name = var_create();
     var_t info = var_create();
     var_t color = var_create();
+    bool skill = FALSE;
 
-    Term_erase(display.x, display.y, display.cx);
-    if (col_height == ct)
+    if (!(mode & _INNATE)) /* _list_spells also lists "powers", innate abilities that don't require proficiency */
     {
-        put_str("Lvl Cost Fail Desc", display.y, display.x + 29);
+        caster_info *caster = get_caster_info();
+        if (caster->options & CASTER_GAIN_SKILL)
+            skill = TRUE;
     }
-    else
-    {
-        col_width = 42;
-        put_str("Lvl Cost Fail", display.y, display.x + 29);
-        put_str("Lvl Cost Fail", display.y, display.x + col_width + 29);
-    }
+
+    doc_printf(_doc, "%-27.27s <color:G>", "");
+    if (skill) /*         ![Ma] */
+        doc_insert(_doc, "Skill ");
+    doc_printf(_doc, "Lvl  SP Fail %-20.20s</color>\n", "Desc");
+
+    _hidden_spells = FALSE;
+    _alias_spells = FALSE;
 
     for (i = 0; i < ct; i++)
     {
-        char letter = '\0';
-        byte attr = TERM_WHITE;
-        spell_info* spell = &spells[i];
+        spell_info *spell = &spells[i];
+        byte        attr;
+
+        if (spell->stats->flags & SPELL_FLAG_HIDE)
+        {
+            _hidden_spells = TRUE;
+            if (hide) continue;
+        }
+
+        if (spell->stats->alias)
+            _alias_spells = TRUE;
 
         var_set_int(&color, TERM_WHITE);
 
-        (spell->fn)(SPELL_NAME, &name);
-        (spell->fn)(SPELL_INFO, &info);
-        (spell->fn)(SPELL_COLOR, &color);
+        spell->fn(SPELL_NAME, &name);
+        spell->fn(SPELL_INFO, &info);
+        spell->fn(SPELL_COLOR, &color);
+
+        attr = TERM_YELLOW;
+        if (spell->level > plr->lev || spell->cost > max_cost)
+            attr = TERM_L_DARK;
+        else if (spell->stats->flags & SPELL_FLAG_CONFIRM)
+            attr = TERM_RED;
+        doc_printf(_doc, " <color:%c>%c</color>) ", attr_to_attr_char(attr), spell->alias);
 
         attr = var_get_int(&color);
-
-        if (i < 26)
-            letter = I2A(i);
-        else if (i < 52)
-            letter = 'A' + i - 26;
-        else
-            letter = '0' + i - 52;
-
-        sprintf(temp, "  %c) ", letter);
-
-        strcat(temp, format("%-23.23s %3d %4d %3d%%",
-                            var_get_string(&name),
-                            spell->level,
-                            spell->cost,
-                            spell->fail));
-
-        if (col_height == ct)
-            strcat(temp, format(" %s", var_get_string(&info)));
-
-        if (spell->fail == 100)
+        if (i == browse_idx)
+            attr = TERM_L_BLUE;
+        else if (spell->stats->flags & SPELL_FLAG_HIDE)
             attr = TERM_L_DARK;
+        doc_printf(_doc, "<color:%c>%-23.23s</color> ",
+            attr_to_attr_char(attr), var_get_string(&name));
 
-        if (spell->cost > max_cost)
-            attr = TERM_L_DARK;
-
-        if (spell->level > p_ptr->lev)
-            attr = TERM_L_DARK;
-
-        if (i < col_height)
+        if (skill)
         {
-            Term_erase(display.x, display.y + i + 1, display.cx);
-            c_put_str(attr, temp, display.y + i + 1, display.x);
+            spell_stats_ptr stats = spell_stats(spell);
+            spell_skill_doc(stats, _doc);
         }
+        doc_printf(_doc, "%3d <color:%c>%3d</color> %3d%% ",
+            spell->level,
+            spell->cost <= max_cost ? 'w' : 'r',
+            spell->cost, spell->fail);
+
+        if (spell->level <= plr->lev)
+            doc_printf(_doc, "%-20.20s", var_get_string(&info));
         else
-        {
-            c_put_str(attr, temp, display.y + (i - col_height) + 1, display.x + col_width);
-        }
+            doc_printf(_doc, "%-20.20s", "");
+
+        doc_newline(_doc);
     }
-    Term_erase(display.x, display.y + col_height + 1, display.cx);
     var_destroy(&name);
     var_destroy(&info);
     var_destroy(&color);
 }
 
-static bool _describe_spell(spell_info *spell, int col_height)
+static bool _confirm(spell_info *spell, int max_cost)
 {
-    bool result = TRUE;
-    var_t info = var_create();
+    char cmd;
+    char prompt[255];
 
-    (spell->fn)(SPELL_ON_BROWSE, &info);
-    if (!var_get_bool(&info))
-    {
-        char tmp[62*5];
-        int i, line;
-        rect_t display = ui_menu_rect();
+    if (spell->level > plr->lev) return FALSE;
+    if (spell->cost > max_cost) return FALSE;
+    if (!(spell->stats->flags & SPELL_FLAG_CONFIRM)) return TRUE;
 
-        /* 2 lines below list of spells, 5 lines for description */
-        for (i = 0; i < 7; i++)
-            Term_erase(display.x, display.y + col_height + i + 2, display.cx);
+    sprintf(prompt, "<color:y>Really cast <color:R>%s</color>? [Y,n]</color>",
+            get_spell_name(spell->fn));
 
-        /* Get the description, and line break it (max 5 lines) */
-        (spell->fn)(SPELL_DESC, &info);
-        roff_to_buf(var_get_string(&info), 62, tmp, sizeof(tmp));
+    cmd = msg_prompt(prompt, "ny", PROMPT_YES_NO);
+    msg_line_clear();
+    if (cmd == 'n') return FALSE;
 
-        line = display.y + col_height + 3;
-        for(i = 0; tmp[i]; i += 1+strlen(&tmp[i]))
-        {
-            put_str(&tmp[i], line, display.x + 2);
-            line++;
-        }
-
-        (spell->fn)(SPELL_INFO, &info);
-        put_str(format("%^s", var_get_string(&info)), line, display.x + 2);
-        result = FALSE;
-    }
-    var_destroy(&info);
-    return result;
+    return TRUE;
 }
 
-static int _choose_spell(spell_info* spells, int ct, cptr desc, int max_cost)
+static int _lookup(spell_info* spells, int ct, char alias, bool hide)
 {
-    int choice = -1;
-    char prompt1[140];
-    char prompt2[140];
-    bool describe = FALSE;
-    var_t name = var_create();
+    int i;
+    for (i = 0; i < ct; i++)
+    {
+        if (hide && (spells[i].stats->flags & SPELL_FLAG_HIDE)) continue;
+        if (spells[i].alias == alias) return i;
+    }
+    return -1;
+}
 
+static int _lookup_ctrl(spell_info* spells, int ct, char alias, bool hide)
+{
+    int i;
+    for (i = 0; i < ct; i++)
+    {
+        if (hide && (spells[i].stats->flags & SPELL_FLAG_HIDE)) continue;
+        if (KTRL(spells[i].alias) == alias) return i;
+    }
+    return -1;
+}
+
+static void _reset_labels(spell_info* spells, int ct, bool hide)
+{
+    int i;
+    for (i = 0; i < ct; i++)
+    {
+        if (hide && (spells[i].stats->flags & SPELL_FLAG_HIDE)) continue;
+        spells[i].alias = I2A(i);
+    }
+}
+
+static void _override_labels(spell_info* spells, int ct, bool hide)
+{
+    int i;
+    for (i = 0; i < ct; i++)
+    {
+        char alias;
+        if (hide && (spells[i].stats->flags & SPELL_FLAG_HIDE)) continue;
+        alias = spells[i].stats->alias;
+        /* override default menu key */
+        if (alias)
+        {
+            /* mask any other spell using this alias ... */
+            int j = _lookup(spells, ct, alias, hide);
+            if (0 <= j && j < ct)
+                spells[j].alias = ' ';
+            /* ... before setting the override */
+            spells[i].alias = alias;
+        }
+    }
+}
+
+static void _customize(spell_info* spells, int ct, int which)
+{
+    spell_info *spell = &spells[which];
+    bool redraw = TRUE;
+    int cmd;
     for (;;)
     {
-        char ch = '\0';
-
-        strnfmt(prompt1, 78, "Use which %s? (Type '?' to Browse) ", desc);
-        strnfmt(prompt2, 78, "Browse which %s? (Type '?' to Use)", desc);
-        _list_spells(spells, ct, max_cost);
-
-        /* Prompt User */
-        choice = -1;
-
-        if (!get_com(describe ? prompt2 : prompt1, &ch, FALSE)) break;
-
-        if (ch == '?')
+        if (redraw)
         {
-            describe = !describe;
-            if (!get_com(describe ? prompt2 : prompt1, &ch, FALSE)) break;
-        }
-
-        if (isupper(ch))
-        {
-            if (ct < 26) /* browse unless a big spell list */
+            doc_clear(_doc);
+            doc_printf(_doc, "<color:y>Configure <color:R>%s</color></color>\n\n",
+                get_spell_name(spell->fn));
+            if (spell->stats->alias)
             {
-                choice = ch - 'A';
-                if (0 <= choice && choice < ct)
-                    _describe_spell(&spells[choice], _col_height(ct));
-                continue;
+                doc_printf(_doc,
+                    "   Alias: <color:keypress>%c</color> (Press <color:keypress>DEL</color>"
+                    " to remove, <color:keypress>a-z</color> to change)\n",
+                    spell->stats->alias);
             }
-            choice = ch - 'A' + 26;
-        }
-        else if (islower(ch))
-            choice = ch - 'a';
-        else if (ch >= '0' && ch <= '9')
-            choice = ch - '0' + 52;
+            else
+            {
+                doc_insert(_doc,
+                    "   No Alias (Press <color:keypress>a-z</color> to use a custom menu alias)\n");
+            }
+            doc_printf(_doc,
+                "   %s this spell (Press <color:keypress>^H</color> to toggle)\n",
+                (spell->stats->flags & SPELL_FLAG_HIDE) ? "<color:D>Hide</color>" : "Show");
 
-        /* Valid Choice? */
-        if (choice < 0 || choice >= ct)
+            doc_printf(_doc,
+                "   %s casting spell (Press <color:keypress>^C</color> to toggle)\n",
+                (spell->stats->flags & SPELL_FLAG_CONFIRM) ? "<color:r>Confirm</color>" : "Do not confirm");
+                
+            doc_insert(_doc, "\n<color:y>RET)</color> Return to Main Menu\n");
+            _sync_term(_doc);
+            redraw = FALSE;
+        }
+        cmd = _inkey();
+        if (cmd == ESCAPE || cmd == '\r') break;
+        else if (cmd == 0x7f && spell->stats->alias)
         {
-            bell();
-            continue;
+            spell->stats->alias = '\0';
+            redraw = TRUE;
         }
-
-        if (describe)
+        else if (islower(cmd))
         {
-            _describe_spell(&spells[choice], _col_height(ct));
-            continue;
+            spell->stats->alias = cmd;
+            redraw = TRUE;
         }
+        else if (cmd == KTRL('C'))
+        {
+            if (spell->stats->flags & SPELL_FLAG_CONFIRM)
+                spell->stats->flags &= ~SPELL_FLAG_CONFIRM;
+            else
+                spell->stats->flags |= SPELL_FLAG_CONFIRM;
+            redraw = TRUE;
+        }
+        else if (cmd == KTRL('H'))
+        {
+            if (spell->stats->flags & SPELL_FLAG_HIDE)
+                spell->stats->flags &= ~SPELL_FLAG_HIDE;
+            else
+                spell->stats->flags |= SPELL_FLAG_HIDE;
+            redraw = TRUE;
+        }
+    }
+}
+static void _prep_spell_table(spell_info* spells, int max)
+{
+    int i;
+    for (i = 0; i < max; i++)
+    {
+        spell_info* current = &spells[i];
+        current->stats = spell_stats(current);
+    }
+    _reset_labels(spells, max, TRUE);
+    _override_labels(spells, max, TRUE);
+}
 
-        /* Good to go! */
-        break;
+static int _choose_spell(spell_info* spells, int ct, cptr desc, int max_cost, u32b mode)
+{
+    int result = -1;
+    int browse_idx = -1;
+    int cmd, i;
+    bool redraw = TRUE;
+    bool labels = TRUE;  /* apply spell_stats_s.alias */
+    bool hide = TRUE;    /* apply SPELL_FLAG_HIDE */
+    bool relabel = FALSE;
+    static bool help = TRUE;
+    var_t info = var_create();
+
+    _prep_spell_table(spells, ct);
+
+    if (REPEAT_PULL(&cmd))
+    {
+        i = _lookup(spells, ct, cmd, hide);
+        if (0 <= i && i < ct)
+        {
+            spell_info *spell = &spells[i];
+            if (spell->level <= plr->lev && spell->cost <= max_cost)
+                return i;
+        }
     }
 
-    var_destroy(&name);
-    return choice;
+    assert(!_doc);
+    _doc = doc_alloc(72);
+
+    msg_line_clear();
+    screen_save();
+    for (;;)
+    {
+        if (relabel)
+        {
+            _reset_labels(spells, ct, hide);
+            if (labels)
+                _override_labels(spells, ct, hide);
+        }
+        if (redraw)
+        {
+            doc_clear(_doc);
+            doc_printf(_doc, "<color:y>%s which <color:keyword>%s</color>?</color>\n",
+                (mode & _BROWSE_MODE) ? "Browse" : "Cast", desc);
+            _list_spells(spells, ct, max_cost, browse_idx, hide, mode);
+            if (0 <= browse_idx && browse_idx < ct)
+            {
+                spell_info *spell = &spells[browse_idx];
+                spell->fn(SPELL_ON_BROWSE, &info);
+                if (!var_get_bool(&info))
+                {
+                    spell->fn(SPELL_DESC, &info);
+                    doc_newline(_doc);
+                    doc_insert(_doc, var_get_string(&info));
+                    doc_newline(_doc);
+                }
+            }
+            if (help)
+            {
+                doc_newline(_doc);
+                doc_insert(_doc, "Press <color:keypress>SHIFT+choice</color> to display description.\n");
+                doc_insert(_doc, "Press <color:keypress>CTL+choice</color> to configure options.\n");
+                if (_hidden_spells)
+                    doc_printf(_doc, "Press <color:keypress>!</color> to %s hidden spells.\n", hide ? "show" : "not show");
+                if (_alias_spells)
+                    doc_printf(_doc, "Press <color:keypress>@</color> to %s custom menu keys.\n", labels ? "ignore" : "apply");
+            }
+            _sync_term(_doc);
+            redraw = FALSE;
+        }
+        cmd = _inkey();
+        if (cmd == ESCAPE) break;
+        /* XXX note that KTRL('M') == \r, and so forth ... */
+        else if (cmd == '@')
+        {
+            labels = !labels;
+            relabel = TRUE;
+            redraw = TRUE;
+        }
+        else if (cmd == '!')
+        {
+            hide = !hide;
+            relabel = TRUE;
+            redraw = TRUE;
+        }
+        else if (cmd == '?')
+        {
+            help = !help;
+            redraw = TRUE;
+        }
+        else if (isupper(cmd))
+        {
+            i = _lookup(spells, ct, tolower(cmd), hide);
+            if (i < 0 || i >= ct) continue;
+            browse_idx = i;
+            redraw = TRUE;
+        }
+        else if (islower(cmd))
+        {
+            i = _lookup(spells, ct, cmd, hide);
+            if (i < 0 || i >= ct) continue;
+            if (mode & _BROWSE_MODE)
+            {
+                browse_idx = i;
+                redraw = TRUE;
+            }
+            else
+            {
+                spell_info *spell = &spells[i];
+                if (!_confirm(spell, max_cost))
+                {
+                    if (spell->stats->flags & SPELL_FLAG_CONFIRM)
+                        redraw = TRUE;
+                    continue;
+                }
+                result = i;
+                if (labels && hide && !(spell->stats->flags & SPELL_FLAG_CONFIRM))
+                    REPEAT_PUSH(cmd);
+                break;
+            }
+        }
+        else if (KTRL(cmd) == cmd)
+        {
+            i = _lookup_ctrl(spells, ct, cmd, hide);
+            if (i < 0 || i >= ct) continue;
+            _customize(spells, ct, i);
+            relabel = TRUE;
+            redraw = TRUE;
+        }
+    }
+    screen_load();
+
+    var_destroy(&info);
+    doc_free(_doc);
+    _doc = NULL;
+
+    return result;
 }
 
 int choose_spell(spell_info* spells, int ct, cptr desc, int max_cost)
 {
-    int choice = -1;
+    return _choose_spell(spells, ct, desc, max_cost, 0);
+}
 
-    if (REPEAT_PULL(&choice))
-    {
-        if (choice >= 0 && choice < ct)
-            return choice;
-    }
-
-    screen_save();
-
-    choice = _choose_spell(spells, ct, desc, max_cost);
-    REPEAT_PUSH(choice);
-
-    screen_load();
-
-    return choice;
+int choose_power(spell_info* spells, int ct, cptr desc, int max_cost)
+{
+    return _choose_spell(spells, ct, desc, max_cost, _INNATE);
 }
 
 void browse_spells(spell_info* spells, int ct, cptr desc)
 {
-    screen_save();
-
-    for(;;)
-    {
-        int choice = -1;
-
-        choice = _choose_spell(spells, ct, desc, 10000);
-        if (choice < 0 || choice >= ct) break;
-
-        if (_describe_spell(&spells[choice], _col_height(ct)))
-            break;
-    }
-    screen_load();
+    _choose_spell(spells, ct, desc, 10000, _BROWSE_MODE);
 }
 
-int calculate_cost(int cost)
+void browse_powers(spell_info* spells, int ct, cptr desc)
 {
-    int result = cost;
-
-    if (p_ptr->dec_mana && cost > 0)
-        result = MAX(1, (result + 1) * dec_mana_cost(p_ptr->dec_mana) / 100);
-
-    return result;
+    _choose_spell(spells, ct, desc, 10000, _BROWSE_MODE | _INNATE);
 }
 
-int calculate_fail_rate_aux(int caster_lvl, int spell_lvl, int base_fail, int stat_idx)
+/****************************************************************************************
+ * Cost and Fail Rates
+ ****************************************************************************************/
+int spell_cost(spell_info *spell)
+{
+    int cost = spell->cost;
+    cost += get_spell_cost_extra(spell->fn);
+    return spell_cost_aux(REALM_NONE, get_spell_stat_name(spell->fn), cost);
+}
+int spell_cost_aux(int realm, cptr name, int cost)
+{
+    caster_info *caster = get_caster_info();
+    if (caster->options & CASTER_GAIN_SKILL)
+    {
+        spell_stats_ptr stats = spell_stats_aux(name);
+        int mul = 2400 + SPELL_EXP_EXPERT - stats->skill;
+        int div = 2400;
+        cost = (cost * mul + div - 1) / div;
+    }
+
+    if (cost > 0)
+    {
+        int dec_mana = plr->dec_mana;
+        if (realm != REALM_NONE && plr->easy_realm1 == realm)
+            dec_mana++;
+        if (dec_mana)
+            cost = MAX(1, (cost + 1) * dec_mana_cost(dec_mana) / 100);
+    }
+    return cost;
+}
+
+int calculate_fail_rate_aux(int caster_lvl, int realm, int spell_lvl, int base_fail, int stat_idx)
 {
     int fail = base_fail;
     int min = 0;
     caster_info *caster_ptr = get_caster_info();
+    int dec_mana = plr->dec_mana;
 
     if (caster_lvl < spell_lvl)
         return 100;
@@ -555,13 +874,16 @@ int calculate_fail_rate_aux(int caster_lvl, int spell_lvl, int base_fail, int st
     if (base_fail == 0)
         return 0;
 
+    if (realm != REALM_NONE && plr->easy_realm1 == realm)
+        dec_mana++;
+
     /* Adjust Fail Rate */
     fail -= 3 * (caster_lvl - spell_lvl);
-    fail += p_ptr->to_m_chance;
+    fail += plr->to_m_chance;
     fail -= 3 * (adj_mag_stat[stat_idx] - 1);
-    if (p_ptr->heavy_spell) fail += 20;
+    if (plr->heavy_spell) fail += 20;
 
-    fail += dec_mana_fail1(p_ptr->dec_mana, p_ptr->easy_spell);
+    fail += dec_mana_fail1(dec_mana, plr->easy_spell);
 
     /* Apply Min Fail Rate */
     min = adj_mag_fail[stat_idx];
@@ -586,9 +908,9 @@ int calculate_fail_rate_aux(int caster_lvl, int spell_lvl, int base_fail, int st
     if (fail > 95) fail = 95;
 
     /* Some effects violate the Min/Max Fail Rates */
-    if (p_ptr->heavy_spell) fail += 5; /* Fail could go to 100% */
+    if (plr->heavy_spell) fail += 5; /* Fail could go to 100% */
 
-    fail += dec_mana_fail2(p_ptr->dec_mana, p_ptr->easy_spell);
+    fail += dec_mana_fail2(dec_mana, plr->easy_spell);
 
     if (fail < 0) fail = 0;
     if (fail > 100) fail = 100;
@@ -597,24 +919,20 @@ int calculate_fail_rate_aux(int caster_lvl, int spell_lvl, int base_fail, int st
 
 int calculate_fail_rate(int level, int base_fail, int stat_idx)
 {
-    return calculate_fail_rate_aux(p_ptr->lev, level, base_fail, stat_idx);
+    return calculate_fail_rate_aux(plr->lev, REALM_NONE, level, base_fail, stat_idx);
 }
 
 /****************************************************************
  * Entrypoints for the world
  ****************************************************************/
-
 static void _add_extra_costs(spell_info* spells, int max)
 {
     int i;
-    /* Some spells give extra abilities depending on player level ...
-       Ideally, these spells should scale the costs as well! */
     for (i = 0; i < max; i++)
     {
         spell_info* current = &spells[i];
-        current->cost += get_spell_cost_extra(current->fn);
+        current->cost = spell_cost(current);
         current->fail = MAX(current->fail, get_spell_fail_min(current->fn));
-        current->cost = calculate_cost(current->cost);
     }
 }
 
@@ -628,11 +946,8 @@ static void _add_extra_costs_powers(spell_info* spells, int max)
         spell_info* current = &spells[i];
         current->cost += get_spell_cost_extra(current->fn);
         current->fail = MAX(current->fail, get_spell_fail_min(current->fn));
-        /*Oops: Powers should not benefit from DEC_MANA or CASTER_NO_SPELL_COST!!!
-        current->cost = calculate_cost(current->cost);*/
     }
 }
-
 static int _get_spell_table(spell_info* spells, int max)
 {
     int ct = 0;
@@ -682,7 +997,7 @@ void do_cmd_spell(void)
         return;
     }
 
-    if (p_ptr->special_defense & KATA_MASK)
+    if (plr->special_defense & KATA_MASK)
     {
         set_action(ACTION_NONE);
     }
@@ -695,20 +1010,20 @@ void do_cmd_spell(void)
     }
 
     if (caster->options & CASTER_USE_CONCENTRATION)
-        max_cost = p_ptr->concent;
+        max_cost = plr->concent;
     else if (caster->options & CASTER_USE_HP)
-        max_cost = p_ptr->chp;
+        max_cost = plr->chp;
     else if (caster->options & CASTER_USE_AU)
-        max_cost = p_ptr->au;
+        max_cost = plr->au;
     else
-        max_cost = p_ptr->csp;
+        max_cost = plr->csp;
     choice = choose_spell(spells, ct, caster->magic_desc, max_cost);
 
     if (choice >= 0 && choice < ct)
     {
         spell_info *spell = &spells[choice];
 
-        if (spell->level > p_ptr->lev)
+        if (spell->level > plr->lev)
         {
             msg_print("You can't use that spell yet!");
             return;
@@ -720,7 +1035,7 @@ void do_cmd_spell(void)
         */
         if (caster->options & CASTER_USE_CONCENTRATION)
         {
-            if (spell->cost > p_ptr->concent)
+            if (spell->cost > plr->concent)
             {
                 msg_print("You need to concentrate more to use this power.");
                 return;
@@ -728,7 +1043,7 @@ void do_cmd_spell(void)
         }
         else if (caster->options & CASTER_USE_HP)
         {
-            if (spell->cost > p_ptr->chp)
+            if (spell->cost > plr->chp)
             {
                 msg_print("You do not have enough hp to use this power.");
                 return;
@@ -736,7 +1051,7 @@ void do_cmd_spell(void)
         }
         else if (caster->options & CASTER_USE_AU)
         {
-            if (spell->cost > p_ptr->au)
+            if (spell->cost > plr->au)
             {
                 msg_print("You do not have enough gold to use this power.");
                 return;
@@ -744,12 +1059,12 @@ void do_cmd_spell(void)
         }
         else
         {
-            if (spell->cost > p_ptr->csp)
+            if (spell->cost > plr->csp)
             {
                 msg_print("You do not have enough mana to use this power.");
                 return;
             }
-            p_ptr->csp -= spell->cost;
+            plr->csp -= spell->cost;
         }
 
         /* Check for Failure */
@@ -761,7 +1076,7 @@ void do_cmd_spell(void)
             if (flush_failure) flush();
             msg_print("You failed to concentrate hard enough!");
             if (!(caster->options & (CASTER_USE_HP | CASTER_USE_AU)) && demigod_is_(DEMIGOD_ATHENA) )
-                p_ptr->csp += spell->cost/2;
+                plr->csp += spell->cost/2;
             if (caster->on_fail != NULL)
                 (caster->on_fail)(spell);
         }
@@ -771,11 +1086,13 @@ void do_cmd_spell(void)
             {
                 /* Give back the spell cost, since the user canceled the spell
                  * There is no CASTER_USE_SP flag so we need to check all the alternatives */
-                if (!(caster->options & (CASTER_USE_HP | CASTER_USE_AU | CASTER_USE_CONCENTRATION))) p_ptr->csp += spell->cost;
+                if (!(caster->options & (CASTER_USE_HP | CASTER_USE_AU | CASTER_USE_CONCENTRATION))) plr->csp += spell->cost;
                 return;
             }
             spell_stats_on_cast(spell);
             sound(SOUND_ZAP); /* Wahoo! */
+            if (caster->options & CASTER_GAIN_SKILL)
+                spell_stats_gain_skill(spell);
         }
 
         energy_use = get_spell_energy(spell->fn);
@@ -784,18 +1101,18 @@ void do_cmd_spell(void)
             take_hit(DAMAGE_USELIFE, spell->cost, "concentrating too hard");
         if ((caster->options & CASTER_USE_AU) && spell->cost > 0)
         {
-            p_ptr->au -= spell->cost;
+            plr->au -= spell->cost;
             stats_on_gold_services(spell->cost); /* ? */
-            p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
-            p_ptr->redraw |= (PR_GOLD);
+            plr->update |= (PU_BONUS | PU_HP | PU_MANA);
+            plr->redraw |= (PR_GOLD);
         }
 
         if (caster->on_cast != NULL)
             (caster->on_cast)(spell);
 
-        p_ptr->redraw |= PR_MANA;
-        p_ptr->redraw |= PR_HP;
-        p_ptr->window |= PW_SPELL;
+        plr->redraw |= PR_MANA;
+        plr->redraw |= PR_HP;
+        plr->window |= PW_SPELL;
     }
 }
 
@@ -817,7 +1134,7 @@ void do_cmd_power(void)
        the 'm' command is a million times worse!
        Doppelgangers need to be able to cancel their current mimicry.
        Also, add Mimic power back first so it always stays in the 'a' slot. */
-    if (race_ptr->mimic && p_ptr->prace == RACE_DOPPELGANGER)
+    if (race_ptr->mimic && plr->prace == RACE_DOPPELGANGER)
     {
         ct += (get_true_race()->hooks.get_powers)(spells + ct, MAX_SPELLS - ct);
     }
@@ -842,9 +1159,9 @@ void do_cmd_power(void)
 
     _add_extra_costs_powers(spells, ct);
 
-    choice = choose_spell(spells, ct, "power", p_ptr->csp + p_ptr->chp);
+    choice = choose_power(spells, ct, "power", plr->csp + plr->chp);
 
-    if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
+    if (plr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
     {
         set_action(ACTION_NONE);
     }
@@ -853,13 +1170,13 @@ void do_cmd_power(void)
     {
         spell_info *spell = &spells[choice];
 
-        if (spell->level > p_ptr->lev)
+        if (spell->level > plr->lev)
         {
             msg_print("You can't use that power yet!");
             return;
         }
 
-        if (spell->cost > p_ptr->chp + p_ptr->csp)
+        if (spell->cost > plr->chp + plr->csp)
         {
             msg_print("Using this power will kill you!  Why not rest a bit first?");
             return;
@@ -885,18 +1202,18 @@ void do_cmd_power(void)
         energy_use = get_spell_energy(spell->fn);
 
         /* Casting costs spill over into hit points */
-        if (p_ptr->csp < spell->cost)
+        if (plr->csp < spell->cost)
         {
-            int cost = spell->cost - p_ptr->csp;
-            p_ptr->csp = 0;
+            int cost = spell->cost - plr->csp;
+            plr->csp = 0;
             take_hit(DAMAGE_USELIFE, cost, "concentrating too hard");
         }
         else
-            p_ptr->csp -= spell->cost;
+            plr->csp -= spell->cost;
 
-        p_ptr->redraw |= (PR_MANA);
-        p_ptr->redraw |= (PR_HP);
-        p_ptr->window |= (PW_SPELL);
+        plr->redraw |= (PR_MANA);
+        plr->redraw |= (PR_HP);
+        plr->window |= (PW_SPELL);
     }
 }
 
@@ -915,7 +1232,7 @@ int get_powers_aux(spell_info* spells, int max, power_info* table)
         if (ct >= max) break;
         if (!base->spell.fn) break;
 
-        if (base->spell.level <= p_ptr->lev)
+        if (base->spell.level <= plr->lev)
         {
             spell_info* current = &spells[ct];
             current->fn = base->spell.fn;
@@ -925,7 +1242,7 @@ int get_powers_aux(spell_info* spells, int max, power_info* table)
             current->fail = calculate_fail_rate(
                 base->spell.level,
                 base->spell.fail,
-                p_ptr->stat_ind[base->stat]
+                plr->stat_ind[base->stat]
             );
             ct++;
         }
@@ -938,7 +1255,7 @@ int get_spells_aux(spell_info* spells, int max, spell_info* table)
     int i;
     int ct = 0;
     caster_info *caster_ptr = get_caster_info();
-    int idx = p_ptr->stat_ind[caster_ptr->which_stat];
+    int idx = plr->stat_ind[caster_ptr->which_stat];
 
     for (i = 0; ; i++)
     {
@@ -946,7 +1263,7 @@ int get_spells_aux(spell_info* spells, int max, spell_info* table)
         if (ct >= max) break;
         if (!base->fn) break;
 
-        if (base->level <= p_ptr->lev)
+        if (base->level <= plr->lev)
         {
             spell_info* current = &spells[ct];
             current->fn = base->fn;
@@ -974,72 +1291,26 @@ int spell_stats_fail(spell_stats_ptr stats)
     return result;
 }
 
-void dump_spells_aux(FILE *fff, spell_info *table, int ct)
-{
-    int i;
-    var_t vn, vd, vc, vfm;
-
-    if (!ct) return;
-
-    vn = var_create();
-    vd = var_create();
-    vc = var_create();
-    vfm = var_create();
-
-    if (character_dump_hack)
-    {
-        fprintf(fff, "=================================== Spells ====================================\n\n");
-        fprintf(fff, "%-20.20s Lvl Cost Fail %-15.15s Cast Fail\n", "", "Desc");
-    }
-    else
-    {
-        fprintf(fff, "\n[[[[r|%-20.20s Lvl Cost Fail %-15.15s Cast Fail\n", "Spells", "Desc");
-    }
-    for (i = 0; i < ct; i++)
-    {
-        spell_info     *spell = &table[i];
-        spell_stats_ptr stats = spell_stats(spell);
-
-        spell->fn(SPELL_NAME, &vn);
-        spell->fn(SPELL_INFO, &vd);
-        spell->fn(SPELL_COST_EXTRA, &vc);
-        spell->fn(SPELL_FAIL_MIN, &vfm);
-
-        fprintf(fff, "%-20.20s %3d %4d %3d%% %-15.15s %4d %4d %3d%%\n",
-            var_get_string(&vn),
-            spell->level, calculate_cost(spell->cost + var_get_int(&vc)), MAX(spell->fail, var_get_int(&vfm)),
-            var_get_string(&vd),
-            stats->ct_cast, stats->ct_fail,
-            spell_stats_fail(stats)
-        );
-    }
-
-    var_destroy(&vn);
-    var_destroy(&vd);
-    var_destroy(&vc);
-    var_destroy(&vfm);
-}
-
 static void _dump_book(doc_ptr doc, int realm, int book)
 {
     int          k_idx = lookup_kind(realm2tval(realm), book);
     int          i, increment = 64;
     caster_info *caster_ptr = get_caster_info();
 
-    if ((p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_RED_MAGE)) increment = 0;
-    else if (realm == p_ptr->realm1) increment = 0;
-    else if (realm == p_ptr->realm2) increment = 32;
+    if ((plr->pclass == CLASS_SORCERER) || (plr->pclass == CLASS_RED_MAGE)) increment = 0;
+    else if (realm == plr->realm1) increment = 0;
+    else if (realm == plr->realm2) increment = 32;
 
     if (realm == REALM_HISSATSU)
     {
-        doc_printf(doc, "<color:G>    %-25.25s Lvl  SP %-15.15s  Cast</color>\n", k_name + k_info[k_idx].name, "Desc");
+        doc_printf(doc, "<color:G>    %-25.25s Lvl  SP %-15.15s  Cast</color>\n", k_info[k_idx].name, "Desc");
     }
     else
     {
         if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
-            doc_printf(doc, "<color:G>    %-23.23s Profic Lvl  HP Fail %-15.15s  Cast Fail</color>\n", k_name + k_info[k_idx].name, "Desc");
+            doc_printf(doc, "<color:G> %-26.26s Profic Lvl  HP Fail %-15.15s  Cast Fail</color>\n", k_info[k_idx].name, "Desc");
         else
-            doc_printf(doc, "<color:G>    %-23.23s Profic Lvl  SP Fail %-15.15s  Cast Fail</color>\n", k_name + k_info[k_idx].name, "Desc");
+            doc_printf(doc, "<color:G> %-26.26s Profic Lvl  SP Fail %-15.15s  Cast Fail</color>\n", k_info[k_idx].name, "Desc");
     }
 
     for (i = 0; i < 8; i++)
@@ -1073,7 +1344,7 @@ static void _dump_book(doc_ptr doc, int realm, int book)
             max = FALSE;
             if (!increment && (exp_level == EXP_LEVEL_MASTER)) max = TRUE;
             else if ((increment == 32) && (exp_level >= EXP_LEVEL_EXPERT)) max = TRUE;
-            else if ((p_ptr->pclass == CLASS_RED_MAGE) && (exp_level >= EXP_LEVEL_SKILLED)) max = TRUE;
+            else if ((plr->pclass == CLASS_RED_MAGE) && (exp_level >= EXP_LEVEL_SKILLED)) max = TRUE;
 
             strncpy(proficiency, exp_level_str[exp_level], 4);
             proficiency[3] = ']';
@@ -1083,39 +1354,39 @@ static void _dump_book(doc_ptr doc, int realm, int book)
         strcpy(info, do_spell(realm, s_idx, SPELL_INFO));
         comment = info;
 
-        if (p_ptr->pclass == CLASS_SORCERER || p_ptr->pclass == CLASS_RED_MAGE)
+        if (plr->pclass == CLASS_SORCERER || plr->pclass == CLASS_RED_MAGE)
         {
-            if (s_ptr->slevel > p_ptr->max_plv)
+            if (s_ptr->slevel > plr->max_plv)
             {
                 comment = "unknown";
                 color = 'D';
             }
-            else if (s_ptr->slevel > p_ptr->lev)
+            else if (s_ptr->slevel > plr->lev)
             {
                 comment = "forgotten";
                 color = 'y';
             }
         }
-        else if ((realm == p_ptr->realm1) ?
-            ((p_ptr->spell_forgotten1 & (1L << s_idx))) :
-            ((p_ptr->spell_forgotten2 & (1L << s_idx))))
+        else if ((realm == plr->realm1) ?
+            ((plr->spell_forgotten1 & (1L << s_idx))) :
+            ((plr->spell_forgotten2 & (1L << s_idx))))
         {
             comment = "forgotten";
             color = 'y';
         }
-        else if (!((realm == p_ptr->realm1) ?
-            (p_ptr->spell_learned1 & (1L << s_idx)) :
-            (p_ptr->spell_learned2 & (1L << s_idx))))
+        else if (!((realm == plr->realm1) ?
+            (plr->spell_learned1 & (1L << s_idx)) :
+            (plr->spell_learned2 & (1L << s_idx))))
         {
             comment = "unknown";
-            if (s_ptr->slevel > p_ptr->lev)
+            if (s_ptr->slevel > plr->lev)
                 color = 'D';
             else
                 color = 'B';
         }
-        else if (!((realm == p_ptr->realm1) ?
-            (p_ptr->spell_worked1 & (1L << s_idx)) :
-            (p_ptr->spell_worked2 & (1L << s_idx))))
+        else if (!((realm == plr->realm1) ?
+            (plr->spell_worked1 & (1L << s_idx)) :
+            (plr->spell_worked2 & (1L << s_idx))))
         {
             comment = "untried";
         }
@@ -1179,20 +1450,20 @@ static bool _has_spells(int realm, int book)
 
         if (s_ptr->slevel >= 99) continue;
 
-        if (p_ptr->pclass == CLASS_SORCERER || p_ptr->pclass == CLASS_RED_MAGE)
+        if (plr->pclass == CLASS_SORCERER || plr->pclass == CLASS_RED_MAGE)
         {
-            if (s_ptr->slevel > p_ptr->max_plv) continue;
-            else if (s_ptr->slevel > p_ptr->lev) return TRUE;
+            if (s_ptr->slevel > plr->max_plv) continue;
+            else if (s_ptr->slevel > plr->lev) return TRUE;
         }
-        else if ((realm == p_ptr->realm1) ?
-            ((p_ptr->spell_forgotten1 & (1L << s_idx))) :
-            ((p_ptr->spell_forgotten2 & (1L << s_idx))))
+        else if ((realm == plr->realm1) ?
+            ((plr->spell_forgotten1 & (1L << s_idx))) :
+            ((plr->spell_forgotten2 & (1L << s_idx))))
         {
             return TRUE;
         }
-        else if (realm == p_ptr->realm1 ?
-                    (p_ptr->spell_learned1 & (1L << s_idx)) :
-                    (p_ptr->spell_learned2 & (1L << s_idx)))
+        else if (realm == plr->realm1 ?
+                    (plr->spell_learned1 & (1L << s_idx)) :
+                    (plr->spell_learned2 & (1L << s_idx)))
         {
             return TRUE;
         }
@@ -1217,14 +1488,14 @@ static void _dump_realm(doc_ptr doc, int realm)
         bool dump = FALSE;
 
         /* Red Mages only learn from first 2 books (except for Arcane) */
-        if (p_ptr->pclass == CLASS_RED_MAGE && realm != REALM_ARCANE && i > 1) break;
+        if (plr->pclass == CLASS_RED_MAGE && realm != REALM_ARCANE && i > 1) break;
 
         /* Necromancy probably should be a technique ... Too late now :( */
-        if (p_ptr->pclass == CLASS_RED_MAGE && realm == REALM_NECROMANCY) break;
+        if (plr->pclass == CLASS_RED_MAGE && realm == REALM_NECROMANCY) break;
 
         /* Red Mages and Sorcerers don't learn spells, so make sure the user actually
            has the book in their pack (otherwise we spoil ... ) */
-        if (p_ptr->pclass == CLASS_RED_MAGE || p_ptr->pclass == CLASS_SORCERER)
+        if (plr->pclass == CLASS_RED_MAGE || plr->pclass == CLASS_SORCERER)
             dump = _has_book(realm, i);
         else
             dump = _has_spells(realm, i) || _has_book(realm, i);
@@ -1246,12 +1517,12 @@ static void _dump_realm(doc_ptr doc, int realm)
 
 void spellbook_character_dump(doc_ptr doc)
 {
-    if (p_ptr->pclass == CLASS_RAGE_MAGE)
+    if (plr->pclass == CLASS_RAGE_MAGE)
         return; /* TODO */
 
     doc_printf(doc, "<topic:Spells>==================================== <color:keypress>S</color>pells ===================================\n\n");
 
-    if (p_ptr->pclass == CLASS_RED_MAGE || p_ptr->pclass == CLASS_SORCERER)
+    if (plr->pclass == CLASS_RED_MAGE || plr->pclass == CLASS_SORCERER)
     {
         int realm;
         for (realm = REALM_LIFE; realm <= MAX_MAGIC; realm++)
@@ -1259,26 +1530,26 @@ void spellbook_character_dump(doc_ptr doc)
     }
     else
     {
-        if (p_ptr->realm1)
-            _dump_realm(doc, p_ptr->realm1);
-        if (p_ptr->realm2)
-            _dump_realm(doc, p_ptr->realm2);
+        if (plr->realm1)
+            _dump_realm(doc, plr->realm1);
+        if (plr->realm2)
+            _dump_realm(doc, plr->realm2);
     }
 
-    if (p_ptr->old_realm)
+    if (plr->old_realm)
     {
         int i;
         for (i = 0; i < MAX_MAGIC; i++)
         {
-            if (!(p_ptr->old_realm & 1L << i)) continue;
+            if (!(plr->old_realm & 1L << i)) continue;
             doc_printf(doc, " You were able to use %s magic before.\n", realm_names[i+1]);
         }
         doc_newline(doc);
     }
 
-    if (p_ptr->spells_per_round > 100)
+    if (plr->spells_per_round > 100)
     {
-        doc_printf(doc, " You may cast %d.%02d spells per round.\n\n", p_ptr->spells_per_round/100, p_ptr->spells_per_round%100);
+        doc_printf(doc, " You may cast %d.%02d spells per round.\n\n", plr->spells_per_round/100, plr->spells_per_round%100);
     }
 }
 
@@ -1287,16 +1558,16 @@ void spellbook_destroy(obj_ptr obj)
     bool gain_expr = FALSE;
     if (!high_level_book(obj)) return;
 
-    if (p_ptr->prace == RACE_ANDROID)
+    if (plr->prace == RACE_ANDROID)
     {
     }
-    else if (p_ptr->pclass == CLASS_WARRIOR)
+    else if (plr->pclass == CLASS_WARRIOR)
     {
         gain_expr = TRUE;
     }
-    else if (p_ptr->pclass == CLASS_PALADIN)
+    else if (plr->pclass == CLASS_PALADIN)
     {
-        if (is_good_realm(p_ptr->realm1))
+        if (is_good_realm(plr->realm1))
         {
             if (!is_good_realm(tval2realm(obj->tval))) gain_expr = TRUE;
         }
@@ -1306,9 +1577,9 @@ void spellbook_destroy(obj_ptr obj)
         }
     }
 
-    if (gain_expr && (p_ptr->exp < PY_MAX_EXP))
+    if (gain_expr && (plr->exp < PY_MAX_EXP))
     {
-        s32b tester_exp = p_ptr->max_exp / 20;
+        s32b tester_exp = plr->max_exp / 20;
         if (tester_exp > 10000) tester_exp = 10000;
         if (obj->sval < 3) tester_exp /= 4;
         if (tester_exp<1) tester_exp = 1;

@@ -14,48 +14,21 @@ Symbols on your map can be broken down into three categories: terrain features s
 <color:U>  Terrain                       Shops
   ----------------------        -------------------------------</color>
   <$:FF_TREE>   A Tree                    <$:FF_GENERAL_STORE>   Entrance to General Store
-  <$:FF_SHALLOW_WATER>   Shallow Water             <$:FF_ARMOURY>   Entrance to Armory
+  <$:FF_SHALLOW_WATER>   Shallow Water             <$:FF_ARMORY>   Entrance to Armory
   <$:FF_DEEP_WATER>   Deep Water                <$:FF_WEAPON_SMITHS>   Entrance to Weapon Smith
   <$:FF_SHALLOW_LAVA>   Shallow Lava              <$:FF_TEMPLE>   Entrance to Temple
-  <$:FF_DEEP_LAVA>   Deep Lava                 <$:FF_ALCHEMY_SHOP>   Entrance to Alchemy Shop
+  <$:FF_DEEP_LAVA>   Deep Lava                 <$:FF_ALCHEMIST>   Entrance to Alchemy Shop
   <$:FF_MOUNTAIN>   Mountains                 <$:FF_MAGIC_SHOP>   Entrance to Magic Shop
   <$:FF_FLOOR>   Floor / Road              <$:FF_BLACK_MARKET>   Entrance to the Black Market
   <$:FF_DIRT>   Dirt                      <$:FF_HOME>   Entrance to your Home
   <$:FF_GRASS>   Grass                     <$:FF_BOOKSTORE>   Entrance to Bookstore
   <$:FF_ENTRANCE>   Dungeon Entrance          <$:FF_MUSEUM>   Entrance to the Museum
-  <$:FF_QUEST_ENTER>   Quest Entrance
+  <$:FF_QUEST_ENTRANCE>   Quest Entrance
 </style>
 Note that trees, water (deep and shallow) and lava (deep and shallow) may also appear in the dungeon.
 
 <topic:TownLevel><style:heading>The Town Level</style>
-<style:screenshot>
-<color:U>############################################</color><color:b>~</color><color:u>.</color>.<color:g>.........</color><color:G>:</color><color:g>.....</color><color:G>:</color><color:g>....</color> LEVEL <color:G>     1</color>
-.........................................<color:U>###</color><color:b>~</color><color:u>.</color>.<color:g>....</color><color:G>:</color><color:g>.</color><color:G>:</color><color:g>.</color><color:G>:</color><color:g>:...</color><color:G>:</color><color:g>......</color> EXP <color:G>      10</color>
-...............................<color:U>######</color>....<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>......</color><color:G>:</color><color:g>..</color><color:G>:</color><color:g>........</color><color:G>:</color><color:g>.</color> AU  <color:G>     461</color>
-...............................<color:B>+</color><color:U>#####</color>....<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>...........</color><color:G>:</color><color:g>.....</color><color:G>:</color><color:g>.:</color> <color:W>|</color><color:d> </color><color:U>}</color><color:d>     </color><color:s>[</color><color:d>   </color>
-...............................<color:U>######</color>....<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>.</color><color:G>:</color><color:g>...............</color><color:G>:</color><color:g>.:</color> STR : <color:G> 18/50</color>
-.........................................<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>.............</color><color:G>:</color><color:g>...</color><color:G>:</color><color:g>..</color> INT : <color:G>     4</color>
-.........................................<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>..............</color><color:G>:</color><color:g>..:</color><color:G>::</color> WIS : <color:G>     4</color>
-<color:U>######</color>...................................<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>...................</color><color:G>:</color> DEX : <color:G> 18/10</color>
-<color:U>######</color>.....<color:U>#########</color>.....<color:U>#########</color>.......<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>....................</color> CON : <color:G>    18</color>
-<color:U>######</color>.....<color:U>#########</color>.....<color:U>#########</color>.......<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>....................</color> CHR : <color:G>    11</color>
-<color:U>#</color>3<color:U>####</color>.....<color:U>#########</color>.....<color:U>####1####</color>......<color:U>####</color><color:b>~</color><color:u>.</color>.<color:g>....................</color> AC     <color:G>   16</color>
-...........<color:U>####</color><color:s>2</color><color:U>####</color>....................<color:U>####</color><color:b>~</color><color:u>.</color>.<color:g>...........</color><color:G>:</color><color:g>........</color> HP <color:y>  54</color>/<color:G>  56</color>
-....................................@..........<color:g>.</color><color:G>:::</color><color:g>................</color>             
-........................................<color:U>####</color><color:b>~</color><color:u>.</color>.<color:g>..</color><color:u>..</color><color:g>.............</color><color:u>.</color><color:g>.</color><color:u>.</color>             
-........................................<color:U>####</color><color:b>~</color><color:u>.</color>......<color:u>..</color><color:g>.......</color><color:u>...</color>.<color:u>.</color>. @ <color:y> 96%</color>      
-.........................................<color:U>##</color><color:b>~~</color><color:u>.</color>.......<color:u>..</color><color:g>...</color><color:u>..</color>....... <color:U>,</color>  99%      
-<color:U>#</color><color:b>5</color><color:U>####</color>..................<color:U>#####+######</color>.....<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:y>....</color>....<color:u>...</color>.......<color:y>..</color>             
-<color:U>######</color>......<color:U>####</color><color:r>6</color><color:U>####</color>...<color:U>############</color>.....<color:U>##</color><color:b>~~</color><color:u>.</color>.....<color:y>..</color>........<color:y>....</color>..             
-<color:U>######</color>......<color:U>#########</color>...<color:U>############</color>.....<color:U>##</color><color:b>~~</color><color:u>.</color>.......<color:y>..</color>...<color:y>...</color>......             
-<color:U>######</color>......<color:U>#########</color>...<color:U>############</color>.....<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:u>.</color><color:g>.</color><color:u>.</color>.....<color:y>...</color>........<color:u>.</color>             
-<color:U>######</color>......<color:U>#########</color>....................<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>....</color><color:u>.</color>.........<color:u>.</color><color:g>.</color><color:u>.</color><color:g>...</color>             
-............<color:U>#########</color>....................<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>.....</color><color:u>..</color>.....<color:u>.</color><color:g>.......</color>             
-.........................................<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>.......</color><color:u>..</color><color:g>.</color><color:u>..</color><color:g>.....</color><color:G>:</color><color:g>..</color>             
-....<color:U>###</color><color:v>0</color><color:U>###</color>...................<color:U>####</color>.......<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>...................</color><color:G>:</color>             
-....<color:U>#######</color>.....<color:U>#######</color>.......<color:U>###</color><color:y>8</color>.......<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>...................</color><color:G>:</color>             
-Outpost                                                                         
-</style>
+<screenshot:town01>
 The town level is where you will begin your adventure. The first time you are in town it will be daytime (unless you are playing an undead race who start at night), but note that the sun rises and falls as time passes and if you enter the town at night, the town will be dark. Fortunately, the various shops and the other special buildings are open on a 24-hour basis.
 
 The world includes multiple towns separated by a wilderness and many dungeons as well. Be sure to check the various buildings in each town to see what services are available.
@@ -63,28 +36,7 @@ The world includes multiple towns separated by a wilderness and many dungeons as
 <topic:Wilderness><style:heading>The Wilderness Map</style>
 
 The wilderness requires actual exploration to learn the layout. The following is a sample map from <color:keyword>The World of Amber</color> which I have completely explored:
-<style:screenshot>
-<color:R>World Map</color> [<color:o>dir</color>, <color:o>M</color>, <color:o>q</color> to quit]                                                   
- <color:o>#</color><color:G>#########</color><color:o>############</color><color:G>#########</color><color:g>...</color><color:B>~~~~~~~~~</color><color:g>......</color><color:o>#</color>                             
- <color:o>#</color><color:G>#########</color><color:o>#############</color><color:G>#</color><color:o>#</color><color:G>#######</color><color:g>..</color><color:B>~~~~~~~~~</color><color:g>......</color><color:o>#</color>                             
- <color:o>#</color><color:G>##########</color><color:o>#</color><color:y>></color><color:o>###############</color><color:G>##</color><color:o>#</color><color:G>###</color><color:g>...</color><color:B>~~</color><color:g>.</color><color:B>~~~~~~~~~</color><color:o>#</color>                             
- <color:o>#</color><color:g>...</color><color:G>########</color><color:o>######</color><color:y>></color><color:o>############</color><color:G>######</color><color:g>.....</color><color:B>~~~</color><color:b>~</color><color:B>~~~</color><color:o>#</color>                             
- <color:o>#</color><color:g>...</color><color:G>##########</color><color:o>#</color><color:G>#</color><color:o>###############</color><color:G>#########</color><color:g>..</color><color:B>~~~~~~~</color><color:o>#</color>                             
- <color:o>#</color><color:g>....</color><color:G>#</color><color:g>.</color><color:G>#######</color><color:o>#################</color><color:G>#########</color><color:g>....</color><color:B>~~~~</color><color:b>~</color><color:o>#</color>                             
- <color:o>#</color><color:B>~~~~</color><color:g>..</color><color:G>#########</color><color:o>###########</color><color:W>*</color><color:o>######</color><color:G>####</color><color:y>></color><color:G>#</color><color:g>...</color><color:B>~~</color><color:b>~~~~</color><color:o>#</color>                             
- <color:o>#</color><color:b>~</color><color:B>~</color><color:b>~</color><color:B>~~~</color><color:g>.</color><color:G>########</color><color:o>##################</color><color:G>######</color><color:g>...</color><color:B>~~</color><color:b>~~~~</color><color:o>#</color>                             
- <color:o>#</color><color:b>~~</color><color:B>~~~~</color><color:g>.</color><color:G>######</color><color:o>#####################</color><color:G>#####</color><color:g>..</color><color:B>~~</color><color:b>~~~~~</color><color:o>#</color>                             
- <color:o>#</color><color:b>~~~</color><color:B>~~~</color><color:g>...</color><color:G>######</color><color:o>################</color><color:y>></color><color:o>#</color><color:G>######</color><color:g>..</color><color:B>~~~</color><color:b>~~~~</color><color:o>#</color>                             
- <color:o>#</color><color:b>~~~~</color><color:B>~</color><color:b>~</color><color:B>~</color><color:g>...</color><color:G>########</color><color:o>############</color><color:G>#########</color><color:g>...</color><color:B>~~~~~</color><color:b>~</color><color:o>#</color>                             
- <color:o>#</color><color:b>~~~~~~~</color><color:B>~</color><color:b>~</color><color:B>~</color><color:g>.</color><color:B>~</color><color:g>.</color><color:G>#</color><color:g>.</color><color:G>######</color><color:o>#########</color><color:G>#####</color><color:W>*</color>......<color:g>...</color><color:B>~~~</color><color:o>#</color>                             
- <color:o>#</color><color:b>~~~~~~~~~~</color><color:B>~</color><color:y>></color><color:B>~</color><color:g>...</color><color:G>######</color><color:o>#####</color><color:G>#</color><color:o>#</color><color:G>###########</color><color:g>.</color>.<color:g>....</color><color:B>~~</color><color:o>#</color>                             
- <color:o>#</color><color:b>~~~~~~~~~~~~</color><color:B>~~~</color><color:g>...</color><color:G>####</color><color:o>#####</color><color:G>##############</color>.<color:g>..</color><color:B>~</color><color:g>...</color><color:o>#</color>                             
- <color:o>#</color><color:B>~~~</color><color:y>></color><color:b>~~~~~~~~~</color><color:B>~~</color><color:g>.</color><color:G>########################</color><color:g>.</color>..<color:y>></color><color:g>....</color><color:o>#</color>                             
- <color:o>#</color><color:B>~~~</color><color:b>~~~~~~~~~~</color><color:B>~~</color><color:g>..</color><color:G>#####################</color><color:g>....</color><color:W>*</color>.....<color:o>#</color>                             
- <color:o>#</color><color:g>.</color><color:y>></color><color:g>.</color><color:B>~~~</color><color:b>~~~~~~~</color><color:B>~~</color><color:g>...</color><color:G>#################</color><color:g>............</color><color:W>*</color><color:o>#</color>                             
- <color:o>#</color><color:g>...</color><color:B>~~~</color><color:b>~~~~~~~~~</color><color:g>...</color><color:G>###############</color><color:g>...</color><color:B>~</color><color:g>.</color><color:B>~</color><color:g>.......</color><color:G>##</color><color:o>#</color>                             
- <color:o>##################################################</color>                             
-</style>
+<screenshot:town02>
 This world is randomly generated for each game you play, so the actual map layout will differ from game to game (as will the available dungeons). In <color:keyword>The World of Middle Earth</color> you get a fixed sequence of world maps that do not change from game to game.
 
 The wilderness consists of a moderately sized tile world. Each tile is the size of a standard dungeon level and contains themed wilderness terrain (mountainous areas, oceans, plains, etc). There are several towns located in various parts of the world and each town is situated in its own wilderness square. In addition, there are numerous dungeon entrances in the wilderness. Again, each is located on its own wilderness square.
@@ -122,7 +74,7 @@ Finally, when selling objects, the cap on the store owner's purse is applied so 
   <indent><color:B>The General Store</color> (<$:FF_GENERAL_STORE>)
 The General Store sells foods, drinks, some clothing, torches, lamps, oil, shovels, picks, and spikes. All of these items and some others can be sold back to the General store for money.</indent>
 
-  <indent><color:B>The Armory</color> (<$:FF_ARMOURY>)
+  <indent><color:B>The Armory</color> (<$:FF_ARMORY>)
 The Armory is where the town's armor is fashioned. All sorts of protective gear may be bought and sold here.</indent>
 
   <indent><color:B>The Weaponsmith's Shop</color> (<$:FF_WEAPON_SMITHS>)
@@ -131,7 +83,7 @@ The Weaponsmith's Shop is where the town's weapons are fashioned. Hand and missi
   <indent><color:B>The Temple</color> (<$:FF_TEMPLE>)
 The Temple deals in healing and restoration potions, as well as bless scrolls, word of recall scrolls, some approved priestly weapons, as well as books of Life magic for priests and paladins.</indent>
 
-  <indent><color:B>The Alchemy shop</color> (<$:FF_ALCHEMY_SHOP>)
+  <indent><color:B>The Alchemy shop</color> (<$:FF_ALCHEMIST>)
 The Alchemy Shop deals in all types of potions and scrolls.</indent>
 
   <indent><color:B>The Magic User's Shop</color> (<$:FF_MAGIC_SHOP>)

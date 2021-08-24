@@ -92,12 +92,6 @@
  *
  */
 
-/* Sorry, but I cannot get QtCreator to recognize that this *is* actually being set, probably
-   because it doesn't know to check out CFLAGS in ../mk/buildsys.mk where HAVE_CONFIG_H is defined
-   so that h-basic.h knows to #include "autoconf.h" so that USE_X11 gets defined. Unbelievable! :)
-   If you are having compile problems, just comment this out.
-#define USE_X11 */
-
 #include "angband.h"
 
 
@@ -2245,6 +2239,15 @@ static void handle_button(Time time, int x, int y, int button,
 
 	if (press && button == 1) copy_x11_start(x, y);
 	if (!press && button == 1) copy_x11_end(time);
+    if (press && button == 3)
+    {
+        rect_t r;
+        r.x = s_ptr->init.x;
+        r.y = s_ptr->init.y;
+        r.cx = s_ptr->cur.x - s_ptr->init.x + 1;
+        r.cy = s_ptr->cur.y - s_ptr->init.y + 1;
+        Term_dump(r);
+    }
 	if (!press && button == 2) paste_x11_request(xa_compound_text, time);
 }
 
@@ -2929,7 +2932,7 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp, c
 		{
 
 			/* Mega Hack^2 - assume the top left corner is "black" */
-			blank = XGetPixel(td->tiles, 0, td->fnt->hgt * 6);
+			blank = XGetPixel(td->tiles, 0, 0);
 
 			for (k = 0; k < td->fnt->twid; k++)
 			{
@@ -3346,6 +3349,7 @@ static void hook_quit(const char *str)
 #ifdef USE_GRAPHICS
         if (use_graphics)
         {
+            XDestroyImage(td->tiles);
             XDestroyImage(td->TmpImage);
         }
 #endif
@@ -3420,12 +3424,6 @@ errr init_x11(int argc, char *argv[])
 		if (prefix(argv[i], "-s"))
 		{
 			smoothRescaling = FALSE;
-			continue;
-		}
-
-		if (prefix(argv[i], "-a"))
-		{
-			arg_graphics = GRAPHICS_ADAM_BOLT;
 			continue;
 		}
 
@@ -3556,6 +3554,7 @@ errr init_x11(int argc, char *argv[])
 	switch (arg_graphics)
 	{
 	case GRAPHICS_ORIGINAL:
+        #if 0
 		/* Try the "8x8.bmp" file */
 		path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, "graf/8x8.bmp");
 
@@ -3568,26 +3567,22 @@ errr init_x11(int argc, char *argv[])
 			pict_wid = pict_hgt = 8;
 
 			ANGBAND_GRAF = "old";
-			break;
 		}
-		/* Fall through */
+        #else
+		path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, "graf/13x24.bmp");
 
-	case GRAPHICS_ADAM_BOLT:
-		/* Try the "16x16.bmp" file */
-		path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, "graf/16x16.bmp");
-
-		/* Use the "16x16.bmp" file if it exists */
 		if (0 == fd_close(fd_open(filename, O_RDONLY)))
 		{
 			/* Use graphics */
 			use_graphics = TRUE;
 
-			pict_wid = pict_hgt = 16;
+			pict_wid = 13;
+            pict_hgt = 24;
 
-			ANGBAND_GRAF = "new";
-
-			break;
+			ANGBAND_GRAF = "old";
 		}
+        #endif
+        break;
 	}
 
 	/* Load graphics */
@@ -3644,8 +3639,7 @@ errr init_x11(int argc, char *argv[])
 				td->fnt->twid, td->fnt->hgt, 8, 0);
 
 		}
-
-		/* Free tiles_raw? XXX XXX */
+        XDestroyImage(tiles_raw);
 	}
 
 #endif /* USE_GRAPHICS */

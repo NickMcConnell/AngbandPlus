@@ -20,7 +20,7 @@ struct plr_throw_s
 int     type;
 obj_ptr obj;      /* NULL=>prompt */
 int     range;    /* 0=>calculate range based on obj->wgt and str */
-int     skill;    /* non-zero for extra skill (code will add p_ptr->skill_tht and obj->to_h). */
+int     skill;    /* non-zero for extra skill (code will add plr->skill_tht and obj->to_h). */
 int     mult;     /* scaled by 100. default 100 */
 int     to_d;     /* extra damage (e.g. ninja shuriken) */
 int     to_dd;    /* extra damage dice (e.g. Flying Dagger stance) */

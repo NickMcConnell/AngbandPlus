@@ -53,7 +53,6 @@ enum {
     MAX_CLASS,  /* XXX try to stop using this! */
 };
 struct class_s; /* XXX define this here and rename */
-typedef struct class_s plr_class_t, *plr_class_ptr;
 extern plr_class_ptr plr_class_alloc(int class_id);
 extern plr_class_ptr plr_class_alloc_aux(int class_id, int subclass_id);
 extern void          plr_class_free(plr_class_ptr cls);

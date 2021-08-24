@@ -55,18 +55,18 @@ Melee
   honor in dueling a sleeping enemy). And while the duelist will honor 
   the fight as a one on one affair, many monsters have no such 
   scruples.
-   
+  
   Against a challenged foe, the duelist is very strong gaining a bonus 
   to saving throws, armor class, damage reduction and combat prowess. 
   On the other hand, due to the single-mindedness of their focus, the 
   duelist is quite vulnerable to unchallenged opponents. Most of the 
   techniques of this class aim at enforcing the sanctity of the duel.
-   
+  
   The duelist only ever gains a single attack in combat, but they make 
   the most of this blow by gaining enhanced effects as they gain 
   experience. Able to wound, stun, and even hamstring their foes, the 
   prowess of the duelist in a one on one encounter is legendary!
-   
+  
   Duelists favor light armors and cannot equip a shield. They gain no 
   extra bonus when wielding a weapon with both hands. For their 
   techniques the duelist relies on dexterity.
@@ -498,13 +498,17 @@ Magic
   touch! In addition, they forever hunt for the legendary Eye and Hand 
   of Vecna in order to complete their power.
   
+  The necromancer can see in the dark and need not wear an ordinary 
+  light source. Without a light source they can hide in shadows, but 
+  this requires a necromantic spell.
+  
     Stats                   Skills
     Strength      -2        Disarming   Fair         
     Intelligence  +3        Device      Superb       
     Wisdom        -4        Save        Good         
-    Dexterity     +1        Stealth     Very Good    
-    Constitution  -1        Searching   Poor         
-    Charisma      -2        Perception  Fair         
+    Dexterity     +0        Stealth     Very Good    
+    Constitution  -2        Searching   Poor         
+    Charisma      +2        Perception  Fair         
     Life Rating   95%       Melee       Very Bad     
     Base HP        2        Bows        Very Bad     
     Experience   125%
@@ -1233,7 +1237,7 @@ Blue-Mage      -1   +3   +0   -1   -1   +0  100%   +4  130%
 Gray-Mage      -4   +3   +0   +1   -2   -2   95%   +0  130%
 High-Mage      -4   +4   +0   +0   -2   -2   94%   +0  130%
 Mage           -4   +3   +0   +1   -2   -2   95%   +0  130%
-Necromancer    -2   +3   -4   +1   -1   -2   95%   +2  125%
+Necromancer    -2   +3   -4   +0   -2   +2   95%   +2  125%
 Sorcerer       -5   +0   -2   +2   +0   +6   65%   +0  160%
 Yellow-Mage    -4   +3   +0   +1   -2   -2   95%   +0  130%
 Devicemaster   -1   +2   +1   +2   -2   -2  101%   +6  130%
@@ -1359,5 +1363,5 @@ Wild-Talent   Fair          Poor          Very Good     Very Good
 
 
 
-Automatically generated for PosChengband 7.2.1.
+Automatically generated for PosChengband 7.3.1.
 

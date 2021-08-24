@@ -1,4 +1,4 @@
-<style:title>Monsters</style>
+<style:title>Monsters</style><tab:40><indent><screenshot:monster01></indent>
 
 There are hundreds of different creatures each of which poses a unique challenge to the adventurer. As you progress deeper into the dungeon, the creatures will become progressively more difficult to defeat.
 

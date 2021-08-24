@@ -81,17 +81,17 @@ void alcohol_mut(int cmd, var_ptr res)
     case SPELL_PROCESS:
         if (randint1(6400) == 321)
         {
-            if (!res_save_default(RES_CONF) && !res_save_default(RES_CHAOS))
+            if (!res_save_default(GF_CONF) && !res_save_default(GF_CHAOS))
             {
                 disturb(0, 0);
-                p_ptr->redraw |= PR_EXTRA;
+                plr->redraw |= PR_EXTRA;
                 msg_print("You feel a SSSCHtupor cOmINg over yOu... *HIC*!");
             }
 
-            if (!res_save_default(RES_CONF))
+            if (!res_save_default(GF_CONF))
                 plr_tim_add(T_CONFUSED, randint0(20) + 15);
 
-            if (!res_save_default(RES_CHAOS))
+            if (!res_save_default(GF_CHAOS))
             {
                 if (one_in_(20))
                 {
@@ -232,15 +232,16 @@ void attract_animal_mut(int cmd, var_ptr res)
         var_set_string(res, "You attract animals.");
         break;
     case SPELL_PROCESS:
-        if (!p_ptr->anti_magic && one_in_(7000))
+        if (!plr->anti_magic && one_in_(7000))
         {
             bool pet = one_in_(3);
             u32b mode = PM_ALLOW_GROUP;
+            who_t who = pet ? who_create_plr() : who_create_null();
 
             if (pet) mode |= PM_FORCE_PET;
             else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
 
-            if (summon_specific((pet ? -1 : 0), p_ptr->pos, cave->difficulty, SUMMON_ANIMAL, mode))
+            if (summon_specific(who, plr->pos, cave->difficulty, SUMMON_ANIMAL, mode))
             {
                 msg_print("You have attracted an animal!");
                 disturb(0, 0);
@@ -270,16 +271,16 @@ void attract_demon_mut(int cmd, var_ptr res)
         var_set_string(res, "You attract demons.");
         break;
     case SPELL_PROCESS:
-        if (!p_ptr->anti_magic && (randint1(6666) == 666))
+        if (!plr->anti_magic && (randint1(6666) == 666))
         {
             bool pet = one_in_(6);
             u32b mode = PM_ALLOW_GROUP;
+            who_t who = pet ? who_create_plr() : who_create_null();
 
             if (pet) mode |= PM_FORCE_PET;
             else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
 
-            if (summon_specific((pet ? -1 : 0), p_ptr->pos,
-                        cave->difficulty, SUMMON_DEMON, mode))
+            if (summon_specific(who, plr->pos, cave->difficulty, SUMMON_DEMON, mode))
             {
                 msg_print("You have attracted a demon!");
                 disturb(0, 0);
@@ -309,15 +310,16 @@ void attract_dragon_mut(int cmd, var_ptr res)
         var_set_string(res, "You attract dragons.");
         break;
     case SPELL_PROCESS:
-        if (!p_ptr->anti_magic && one_in_(3000))
+        if (!plr->anti_magic && one_in_(3000))
         {
             bool pet = one_in_(5);
             u32b mode = PM_ALLOW_GROUP;
+            who_t who = pet ? who_create_plr() : who_create_null();
 
             if (pet) mode |= PM_FORCE_PET;
             else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
 
-            if (summon_specific((pet ? -1 : 0), p_ptr->pos, cave->difficulty, SUMMON_DRAGON, mode))
+            if (summon_specific(who, plr->pos, cave->difficulty, SUMMON_DRAGON, mode))
             {
                 msg_print("You have attracted a dragon!");
                 disturb(0, 0);
@@ -410,11 +412,11 @@ void beak_mut(int cmd, var_ptr res)
     case SPELL_GAIN_MUT:
         msg_print("Your mouth turns into a sharp, powerful beak!");
         mut_lose(MUT_TRUNK);
-        p_ptr->update |= PU_INNATE;
+        plr->update |= PU_INNATE;
         break;
     case SPELL_LOSE_MUT:
         msg_print("Your mouth reverts to normal!");
-        p_ptr->update |= PU_INNATE;
+        plr->update |= PU_INNATE;
         break;
     case SPELL_MUT_DESC:
         var_set_string(res, "You have a beak.");
@@ -424,7 +426,7 @@ void beak_mut(int cmd, var_ptr res)
         mon_blow_ptr blow = mon_blow_alloc(RBM_PECK);
         blow->name = "Beak";
         mon_blow_push_effect(blow, RBE_HURT, dice_create(2, 4, 0));
-        vec_add(p_ptr->innate_blows, blow);
+        vec_add(plr->innate_blows, blow);
         break;
     }
     default:
@@ -503,7 +505,7 @@ void cowardice_mut(int cmd, var_ptr res)
         var_set_string(res, "You are subject to cowardice.");
         break;
     case SPELL_PROCESS:
-        if (!res_save_default(RES_FEAR) && (randint1(3000) == 13))
+        if (!res_save_default(GF_FEAR) && (randint1(3000) == 13))
         {
             disturb(0, 0);
             msg_print("It's so dark... so scary!");
@@ -536,7 +538,7 @@ void cult_of_personality_mut(int cmd, var_ptr res)
         var_set_string(res, "Summoned monsters may sometimes switch alliances.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->cult_of_personality = TRUE;
+        plr->cult_of_personality = TRUE;
         break;
     default:
         default_spell(cmd, res);
@@ -618,7 +620,7 @@ void draconian_lore_mut(int cmd, var_ptr res)
         var_set_string(res, "Items will automatically identify as you pick them up.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->auto_id = TRUE;
+        plr->auto_id = TRUE;
         break;
     default:
         default_spell(cmd, res);
@@ -640,7 +642,7 @@ void draconian_magic_resistance_mut(int cmd, var_ptr res)
         var_set_string(res, "You will gain an improved saving throw versus magical attacks.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->skills.sav += 15 + p_ptr->lev / 5;
+        plr->skills.sav += 15 + plr->lev / 5;
         break;
     default:
         default_spell(cmd, res);
@@ -659,7 +661,7 @@ void draconian_metamorphosis_mut(int cmd, var_ptr res)
         var_set_string(res, "You have metamorphosed into a Dragon!");
         break;
     case SPELL_HELP_DESC:
-        if (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER)
+        if (plr->pclass == CLASS_MONK || plr->pclass == CLASS_FORCETRAINER)
             var_set_string(res, "Your body will transform into a dragon (e.g. 6 ring slots and no weapons). WARNING: You will lose access to martial arts!");
         else
             var_set_string(res, "Your body will transform into a dragon (e.g. 6 ring slots and no weapons)");
@@ -684,7 +686,7 @@ void draconian_regen_mut(int cmd, var_ptr res)
         var_set_string(res, "You will regenerate much more quickly.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->regen += 150;
+        plr->regen += 150;
         break;
     default:
         default_spell(cmd, res);
@@ -700,7 +702,7 @@ void draconian_resistance_mut(int cmd, var_ptr res)
         var_set_string(res, "Resistance");
         break;
     case SPELL_MUT_DESC:
-        switch (p_ptr->psubrace)
+        switch (plr->psubrace)
         {
         case DRACONIAN_RED:
             var_set_string(res, "You gain extra fire resistance.");
@@ -735,34 +737,34 @@ void draconian_resistance_mut(int cmd, var_ptr res)
         var_set_string(res, "You will gain extra resistance of the appropriate type (e.g. Fire or Cold).");
         break;
     case SPELL_CALC_BONUS:
-        switch (p_ptr->psubrace)
+        switch (plr->psubrace)
         {
         case DRACONIAN_RED:
-            res_add(RES_FIRE);
+            res_add(GF_FIRE);
             break;
         case DRACONIAN_WHITE:
-            res_add(RES_COLD);
+            res_add(GF_COLD);
             break;
         case DRACONIAN_BLUE:
-            res_add(RES_ELEC);
+            res_add(GF_ELEC);
             break;
         case DRACONIAN_BLACK:
-            res_add(RES_ACID);
+            res_add(GF_ACID);
             break;
         case DRACONIAN_GREEN:
-            res_add(RES_POIS);
+            res_add(GF_POIS);
             break;
         case DRACONIAN_BRONZE:
-            res_add(RES_CONF);
+            res_add(GF_CONF);
             break;
         case DRACONIAN_GOLD:
-            res_add(RES_SOUND);
+            res_add(GF_SOUND);
             break;
         case DRACONIAN_CRYSTAL:
-            res_add(RES_SHARDS);
+            res_add(GF_SHARDS);
             break;
         case DRACONIAN_SHADOW:
-            res_add(RES_NETHER);
+            res_add(GF_NETHER);
             break;
         }
         break;
@@ -780,7 +782,7 @@ void draconian_shield_mut(int cmd, var_ptr res)
         var_set_string(res, "Dragon Skin");
         break;
     case SPELL_MUT_DESC:
-        switch (p_ptr->psubrace)
+        switch (plr->psubrace)
         {
         case DRACONIAN_RED:
             var_set_string(res, "Dragon Skin: You gain +15 AC and an aura of fire");
@@ -804,27 +806,27 @@ void draconian_shield_mut(int cmd, var_ptr res)
     case SPELL_CALC_BONUS:
     {
         int amt = 25;
-        switch (p_ptr->psubrace)
+        switch (plr->psubrace)
         {
         case DRACONIAN_RED:
-            p_ptr->sh_fire = TRUE;
+            plr->sh_fire = TRUE;
             amt = 15;
             break;
         case DRACONIAN_WHITE:
-            p_ptr->sh_cold = TRUE;
+            plr->sh_cold = TRUE;
             amt = 15;
             break;
         case DRACONIAN_BLUE:
-            p_ptr->sh_elec = TRUE;
+            plr->sh_elec = TRUE;
             amt = 15;
             break;
         case DRACONIAN_CRYSTAL:
-            p_ptr->sh_shards = TRUE;
+            plr->sh_shards = TRUE;
             amt = 10;
             break;
         }
-        p_ptr->to_a += amt;
-        p_ptr->dis_to_a += amt;
+        plr->to_a += amt;
+        plr->dis_to_a += amt;
         break;
     }
     default:
@@ -841,7 +843,7 @@ void draconian_strike_mut(int cmd, var_ptr res)
         var_set_string(res, "Dragon Strike");
         break;
     case SPELL_DESC:
-        switch (p_ptr->psubrace)
+        switch (plr->psubrace)
         {
         case DRACONIAN_RED: var_set_string(res, "Attack an adjacent opponent with a fiery blow."); break;
         case DRACONIAN_WHITE: var_set_string(res, "Attack an adjacent opponent with an icy blow."); break;
@@ -862,7 +864,7 @@ void draconian_strike_mut(int cmd, var_ptr res)
             var_set_string(res, "You will be able to attack an adjacent opponent with a special blow (Fire, Cold, etc).");
         else
         {
-            switch (p_ptr->psubrace)
+            switch (plr->psubrace)
             {
             case DRACONIAN_RED: var_set_string(res, "You will be able to attack an adjacent opponent with a fiery blow."); break;
             case DRACONIAN_WHITE: var_set_string(res, "You will be able to attack an adjacent opponent with an icy blow."); break;
@@ -879,7 +881,7 @@ void draconian_strike_mut(int cmd, var_ptr res)
     case SPELL_CAST:
     {
         int mode = 0;
-        switch (p_ptr->psubrace)
+        switch (plr->psubrace)
         {
         case DRACONIAN_RED: mode = PLR_HIT_FIRE; break;
         case DRACONIAN_WHITE: mode = PLR_HIT_COLD; break;
@@ -895,7 +897,7 @@ void draconian_strike_mut(int cmd, var_ptr res)
         break;
     }
     case SPELL_COST_EXTRA:
-        switch (p_ptr->psubrace)
+        switch (plr->psubrace)
         {
         case DRACONIAN_RED:
         case DRACONIAN_WHITE:
@@ -941,15 +943,14 @@ void eat_light_mut(int cmd, var_ptr res)
     case SPELL_PROCESS:
         if (one_in_(3000))
         {
-            int slot = equip_find_obj(TV_LITE, SV_ANY);
+            int slot = equip_find_obj(TV_LIGHT, SV_ANY);
+            dun_cell_ptr cell = dun_cell_at(cave, plr->pos);
 
             msg_print("A shadow passes over you.");
             msg_print(NULL);
 
-            if ((cave_at(p_ptr->pos)->info & (CAVE_GLOW | CAVE_MNDK)) == CAVE_GLOW)
-            {
+            if ((cell->flags & CELL_LIT) && plr_light(plr->pos) > 0)
                 hp_player(10);
-            }
 
             if (slot)
             {
@@ -1012,7 +1013,7 @@ void elec_aura_mut(int cmd, var_ptr res)
         var_set_string(res, "Electricity is running through your veins.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->sh_elec = TRUE;
+        plr->sh_elec = TRUE;
         break;
     default:
         default_spell(cmd, res);
@@ -1062,8 +1063,8 @@ void extra_eyes_mut(int cmd, var_ptr res)
         var_set_string(res, "You have an extra pair of eyes (+15 search).");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->skills.fos += 15;
-        p_ptr->skills.srh += 15;
+        plr->skills.fos += 15;
+        plr->skills.srh += 15;
         break;
     default:
         default_spell(cmd, res);
@@ -1088,7 +1089,7 @@ void extra_legs_mut(int cmd, var_ptr res)
         var_set_string(res, "You have an extra pair of legs (+3 speed).");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->pspeed += 3;
+        plr->pspeed += 3;
         break;
     default:
         default_spell(cmd, res);
@@ -1113,7 +1114,7 @@ void extra_noise_mut(int cmd, var_ptr res)
         var_set_string(res, "You make a lot of strange noise (-3 stealth).");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->skills.stl -= 3;
+        plr->skills.stl -= 3;
         break;
     default:
         default_spell(cmd, res);
@@ -1188,7 +1189,7 @@ void fat_mut(int cmd, var_ptr res)
         var_set_string(res, "You are extremely fat (+2 CON, -2 speed).");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->pspeed -= 2;
+        plr->pspeed -= 2;
         break;
     default:
         default_spell(cmd, res);
@@ -1214,7 +1215,7 @@ void fearless_mut(int cmd, var_ptr res)
         var_set_string(res, "You are completely fearless.");
         break;
     case SPELL_CALC_BONUS:
-        res_add(RES_FEAR);
+        res_add(GF_FEAR);
         break;
     default:
         default_spell(cmd, res);
@@ -1242,7 +1243,7 @@ void fell_sorcery_mut(int cmd, var_ptr res)
         var_set_string(res, "Your spells will grow more powerful.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->spell_power++;
+        plr->spell_power++;
         break;
     default:
         default_spell(cmd, res);
@@ -1267,8 +1268,8 @@ void fire_aura_mut(int cmd, var_ptr res)
         var_set_string(res, "Your body is enveloped in flames.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->sh_fire = TRUE;
-        p_ptr->lite = TRUE;
+        plr->sh_fire = TRUE;
+        plr->weak_lite = TRUE;
         break;
     default:
         default_spell(cmd, res);
@@ -1299,7 +1300,7 @@ void flatulence_mut(int cmd, var_ptr res)
             /* Seriously, this the best mutation!  Ever!! :D */
             msg_print("BRRAAAP! Oops.");
             msg_print(NULL);
-            fire_ball(GF_POIS, 0, p_ptr->lev, 3);
+            plr_burst(3, GF_POIS, plr->lev);
         }
         break;
     default:
@@ -1424,10 +1425,10 @@ void hallucination_mut(int cmd, var_ptr res)
         var_set_string(res, "You have a hallucinatory insanity.");
         break;
     case SPELL_PROCESS:
-        if (!res_save_default(RES_CHAOS) && !mut_present(MUT_WEIRD_MIND) && randint1(6400) == 42)
+        if (!res_save_default(GF_CHAOS) && !mut_present(MUT_WEIRD_MIND) && randint1(6400) == 42)
         {
             disturb(0, 0);
-            p_ptr->redraw |= PR_EXTRA;
+            plr->redraw |= PR_EXTRA;
             plr_tim_add(T_HALLUCINATE, randint0(50) + 20);
         }
         break;
@@ -1469,11 +1470,11 @@ void horns_mut(int cmd, var_ptr res)
         break;
     case SPELL_GAIN_MUT:
         msg_print("Horns pop forth into your forehead!");
-        p_ptr->update |= PU_INNATE;
+        plr->update |= PU_INNATE;
         break;
     case SPELL_LOSE_MUT:
         msg_print("Your horns vanish from your forehead!");
-        p_ptr->update |= PU_INNATE;
+        plr->update |= PU_INNATE;
         break;
     case SPELL_MUT_DESC:
         var_set_string(res, "You have horns.");
@@ -1483,7 +1484,7 @@ void horns_mut(int cmd, var_ptr res)
         mon_blow_ptr blow = mon_blow_alloc(RBM_BUTT);
         blow->name = "Horns";
         mon_blow_push_effect(blow, RBE_HURT, dice_create(2, 6, 0));
-        vec_add(p_ptr->innate_blows, blow);
+        vec_add(plr->innate_blows, blow);
         break;
     }
     default:
@@ -1557,7 +1558,7 @@ void infravision_mut(int cmd, var_ptr res)
         var_set_string(res, "You have remarkable infravision (+3).");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->see_infra += 3;
+        plr->see_infra += 3;
         break;
     default:
         default_spell(cmd, res);
@@ -1582,12 +1583,12 @@ void invulnerability_mut(int cmd, var_ptr res)
         var_set_string(res, "You occasionally feel invincible.");
         break;
     case SPELL_PROCESS:
-        if (!p_ptr->anti_magic && one_in_(5000))
+        if (!plr->anti_magic && one_in_(5000))
         {
             disturb(0, 0);
             msg_print("You feel invincible!");
             msg_print(NULL);
-            plr_tim_add(T_INVULN, randint1(8) + 8);
+            plr_tim_add(T_INVULN, 500 + _1d(1000));
         }
         break;
     default:
@@ -1639,7 +1640,7 @@ void loremaster_mut(int cmd, var_ptr res)
         var_set_string(res, "Items will automatically identify as you pick them up.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->auto_id = TRUE;
+        plr->auto_id = TRUE;
         break;
     default:
         default_spell(cmd, res);
@@ -1664,7 +1665,7 @@ void magic_resistance_mut(int cmd, var_ptr res)
         var_set_string(res, "You are resistant to magic.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->skills.sav += (15 + (p_ptr->lev / 5));
+        plr->skills.sav += (15 + (plr->lev / 5));
         break;
     default:
         default_spell(cmd, res);
@@ -1737,8 +1738,8 @@ void motion_mut(int cmd, var_ptr res)
         var_set_string(res, "Your movements are precise and forceful (+1 STL).");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->free_act++;
-        p_ptr->skills.stl += 1;
+        plr->free_act++;
+        plr->skills.stl += 1;
         break;
     default:
         default_spell(cmd, res);
@@ -1763,7 +1764,7 @@ void nausea_mut(int cmd, var_ptr res)
         var_set_string(res, "You have a seriously upset stomach.");
         break;
     case SPELL_PROCESS:
-        if (!p_ptr->slow_digest && one_in_(9000))
+        if (!plr->slow_digest && one_in_(9000))
         {
             disturb(0, 0);
 
@@ -1857,7 +1858,7 @@ void peerless_sniper_mut(int cmd, var_ptr res)
         var_set_string(res, "Damaging a monster with a missile weapon no longer provokes a retaliation.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->stealthy_snipe = TRUE;
+        plr->stealthy_snipe = TRUE;
         break;
     default:
         default_spell(cmd, res);
@@ -1974,15 +1975,20 @@ void produce_mana_mut(int cmd, var_ptr res)
         var_set_string(res, "You are producing magical energy uncontrollably.");
         break;
     case SPELL_PROCESS:
-        if (!p_ptr->anti_magic && one_in_(9000))
+        if (!plr->anti_magic && one_in_(9000))
         {
-            int dir = 0;
+            point_t pos;
             disturb(0, 0);
-            msg_print("Magical energy flows through you! You must release it!");
             flush();
+            msg_print("Magical energy flows through you! You must release it!");
             msg_print(NULL);
-            (void)get_hack_dir(&dir);
-            fire_ball(GF_MANA, dir, p_ptr->lev * 2, 3);
+            for (;;)
+            {
+                pos = plr_get_ball_target(GF_MANA);
+                if (dun_pos_interior(cave, pos)) break;
+                msg_print("Magical energy flows through you! You must release it!");
+            }
+            plr_ball(3, pos, GF_MANA, 2*plr->lev);
         }
         break;
     default:
@@ -2036,7 +2042,7 @@ void random_banish_mut(int cmd, var_ptr res)
             disturb(0, 0);
             msg_print("You suddenly feel almost lonely.");
 
-            banish_monsters(100);
+            plr_project_los(GF_TELEPORT, 100);
         }
         break;
     default:
@@ -2063,7 +2069,7 @@ void random_teleport_mut(int cmd, var_ptr res)
         var_set_string(res, "You are teleporting randomly.");
         break;
     case SPELL_PROCESS:
-        if (!res_save_default(RES_NEXUS) && !p_ptr->anti_tele && (randint1(5000) == 88))
+        if (!res_save_default(GF_NEXUS) && !plr->anti_tele && (randint1(5000) == 88))
         {
             disturb(0, 0);
             msg_print("Your position suddenly seems very uncertain...");
@@ -2094,12 +2100,12 @@ void raw_chaos_mut(int cmd, var_ptr res)
         var_set_string(res, "You occasionally are surrounded with raw chaos.");
         break;
     case SPELL_PROCESS:
-        if (!p_ptr->anti_magic && one_in_(8000))
+        if (!plr->anti_magic && one_in_(8000))
         {
             disturb(0, 0);
             msg_print("You feel the world warping around you!");
             msg_print(NULL);
-            fire_ball(GF_CHAOS, 0, p_ptr->lev, 8);
+            plr_burst(8, GF_CHAOS, plr->lev);
         }
         break;
     default:
@@ -2126,7 +2132,7 @@ void regeneration_mut(int cmd, var_ptr res)
         var_set_string(res, "You are regenerating.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->regen += 100;
+        plr->regen += 100;
         break;
     default:
         default_spell(cmd, res);
@@ -2176,7 +2182,7 @@ void rotting_flesh_mut(int cmd, var_ptr res)
         var_set_string(res, "Your flesh is rotting (-2 CON, -1 CHR).");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->regen -= 100;
+        plr->regen -= 100;
         break;
     default:
         default_spell(cmd, res);
@@ -2227,8 +2233,8 @@ void scales_mut(int cmd, var_ptr res)
         var_set_string(res, "Your skin has turned into scales (-1 CHR, +10 AC).");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->to_a += 10;
-        p_ptr->dis_to_a += 10;
+        plr->to_a += 10;
+        plr->dis_to_a += 10;
         break;
     default:
         default_spell(cmd, res);
@@ -2245,11 +2251,11 @@ void scorpion_tail_mut(int cmd, var_ptr res)
         break;
     case SPELL_GAIN_MUT:
         msg_print("You grow a scorpion tail!");
-        p_ptr->update |= PU_INNATE;
+        plr->update |= PU_INNATE;
         break;
     case SPELL_LOSE_MUT:
         msg_print("You lose your scorpion tail!");
-        p_ptr->update |= PU_INNATE;
+        plr->update |= PU_INNATE;
         break;
     case SPELL_MUT_DESC:
         var_set_string(res, "You have a scorpion tail.");
@@ -2260,7 +2266,7 @@ void scorpion_tail_mut(int cmd, var_ptr res)
         blow->name = "Tail";
         mon_blow_push_effect(blow, RBE_HURT, dice_create(2, 7, 0));
         mon_blow_push_effect(blow,  GF_POIS, dice_create(1, 7, 0));
-        vec_add(p_ptr->innate_blows, blow);
+        vec_add(plr->innate_blows, blow);
         break;
     }
     default:
@@ -2286,7 +2292,7 @@ void shadow_walk_mut(int cmd, var_ptr res)
         var_set_string(res, "You occasionally stumble into other shadows.");
         break;
     case SPELL_PROCESS:
-        if (!p_ptr->anti_magic && one_in_(12000))
+        if (!plr->anti_magic && one_in_(12000))
             alter_reality();
         break;
     default:
@@ -2312,7 +2318,7 @@ void short_legs_mut(int cmd, var_ptr res)
         var_set_string(res, "Your legs are short stubs (-3 speed).");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->pspeed -= 3;
+        plr->pspeed -= 3;
         break;
     default:
         default_spell(cmd, res);
@@ -2429,8 +2435,8 @@ void steel_skin_mut(int cmd, var_ptr res)
         var_set_string(res, "Your skin is made of steel (-1 DEX, +25 AC).");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->to_a += 25;
-        p_ptr->dis_to_a += 25;
+        plr->to_a += 25;
+        plr->dis_to_a += 25;
         break;
     default:
         default_spell(cmd, res);
@@ -2480,7 +2486,7 @@ void telepathy_mut(int cmd, var_ptr res)
         var_set_string(res, "You are telepathic.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->telepathy = TRUE;
+        plr->telepathy = TRUE;
         break;
     default:
         default_spell(cmd, res);
@@ -2497,11 +2503,11 @@ void tentacles_mut(int cmd, var_ptr res)
         break;
     case SPELL_GAIN_MUT:
         msg_print("Evil-looking tentacles sprout from your sides.");
-        p_ptr->update |= PU_INNATE;
+        plr->update |= PU_INNATE;
         break;
     case SPELL_LOSE_MUT:
         msg_print("Your tentacles vanish from your sides.");
-        p_ptr->update |= PU_INNATE;
+        plr->update |= PU_INNATE;
         break;
     case SPELL_MUT_DESC:
         var_set_string(res, "You have evil looking tentacles.");
@@ -2512,7 +2518,7 @@ void tentacles_mut(int cmd, var_ptr res)
         blow->name = "Tentacles";
         blow->flags &= ~MBF_MASK_HAND;
         mon_blow_push_effect(blow, RBE_HURT, dice_create(2, 5, 0));
-        vec_add(p_ptr->innate_blows, blow);
+        vec_add(plr->innate_blows, blow);
         break;
     }
     default:
@@ -2541,7 +2547,7 @@ void tread_softly_mut(int cmd, var_ptr res)
         var_set_string(res, "Your stealth will increase.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->skills.stl += 3;
+        plr->skills.stl += 3;
         break;
     default:
         default_spell(cmd, res);
@@ -2559,11 +2565,11 @@ void trunk_mut(int cmd, var_ptr res)
     case SPELL_GAIN_MUT:
         msg_print("Your nose grows into an elephant-like trunk.");
         mut_lose(MUT_BEAK);
-        p_ptr->update |= PU_INNATE;
+        plr->update |= PU_INNATE;
         break;
     case SPELL_LOSE_MUT:
         msg_print("Your nose returns to a normal length.");
-        p_ptr->update |= PU_INNATE;
+        plr->update |= PU_INNATE;
         break;
     case SPELL_MUT_DESC:
         var_set_string(res, "You have an elephantine trunk.");
@@ -2574,7 +2580,7 @@ void trunk_mut(int cmd, var_ptr res)
         blow->name = "Trunk";
         blow->flags &= ~MBF_MASK_HAND;
         mon_blow_push_effect(blow, RBE_HURT, dice_create(1, 4, 0));
-        vec_add(p_ptr->innate_blows, blow);
+        vec_add(plr->innate_blows, blow);
         break;
     }
     default:
@@ -2603,8 +2609,8 @@ void untouchable_mut(int cmd, var_ptr res)
         var_set_string(res, "You will gain a bonus to armor class.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->to_a += 20;
-        p_ptr->dis_to_a += 20;
+        plr->to_a += 20;
+        plr->dis_to_a += 20;
         break;
     default:
         default_spell(cmd, res);
@@ -2685,9 +2691,9 @@ void warning_mut(int cmd, var_ptr res)
                     int_map_iter_next(iter))
             {
                 mon_ptr mon = int_map_iter_current(iter);
-                mon_race_ptr race = mon_race(mon);
-                if (race->level >= p_ptr->lev)
-                    danger_amount += race->level - p_ptr->lev + 1;
+                mon_race_ptr race = mon->race;
+                if (race->alloc.lvl >= plr->lev)
+                    danger_amount += race->alloc.lvl - plr->lev + 1;
             }
             int_map_iter_free(iter);
 
@@ -2734,8 +2740,8 @@ void warts_mut(int cmd, var_ptr res)
         var_set_string(res, "Your skin is covered with warts (-2 CHR, +5 AC).");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->to_a += 5;
-        p_ptr->dis_to_a += 5;
+        plr->to_a += 5;
+        plr->dis_to_a += 5;
         break;
     default:
         default_spell(cmd, res);
@@ -2768,22 +2774,22 @@ void wasting_mut(int cmd, var_ptr res)
             switch (which_stat)
             {
             case A_STR:
-                if (p_ptr->sustain_str) sustained = TRUE;
+                if (plr->sustain_str) sustained = TRUE;
                 break;
             case A_INT:
-                if (p_ptr->sustain_int) sustained = TRUE;
+                if (plr->sustain_int) sustained = TRUE;
                 break;
             case A_WIS:
-                if (p_ptr->sustain_wis) sustained = TRUE;
+                if (plr->sustain_wis) sustained = TRUE;
                 break;
             case A_DEX:
-                if (p_ptr->sustain_dex) sustained = TRUE;
+                if (plr->sustain_dex) sustained = TRUE;
                 break;
             case A_CON:
-                if (p_ptr->sustain_con) sustained = TRUE;
+                if (plr->sustain_con) sustained = TRUE;
                 break;
             case A_CHR:
-                if (p_ptr->sustain_chr) sustained = TRUE;
+                if (plr->sustain_chr) sustained = TRUE;
                 break;
             default:
                 msg_print("Invalid stat chosen!");
@@ -2848,7 +2854,7 @@ void random_telepathy_mut(int cmd, var_ptr res)
         var_set_string(res, "Your mind randomly expands and contracts.");
         break;
     case SPELL_PROCESS:
-        if (!p_ptr->anti_magic && one_in_(3000))
+        if (!plr->anti_magic && one_in_(3000))
         {
             if (plr_tim_find(T_TELEPATHY))
             {
@@ -2858,7 +2864,7 @@ void random_telepathy_mut(int cmd, var_ptr res)
             else
             {
                 msg_print("Your mind expands!");
-                plr_tim_add(T_TELEPATHY, p_ptr->lev);
+                plr_tim_add(T_TELEPATHY, plr->lev);
             }
         }
         break;
@@ -2888,7 +2894,7 @@ void weird_mind_mut(int cmd, var_ptr res)
         var_set_string(res, "You resist the Eldritch Horror.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->no_eldritch = TRUE;
+        plr->no_eldritch = TRUE;
         break;
     default:
         default_spell(cmd, res);
@@ -2913,7 +2919,7 @@ void wings_mut(int cmd, var_ptr res)
         var_set_string(res, "You have wings.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->levitation = TRUE;
+        plr->levitation = TRUE;
         break;
     default:
         default_spell(cmd, res);
@@ -2938,12 +2944,12 @@ void wraith_mut(int cmd, var_ptr res)
         var_set_string(res, "You fade in and out of physical reality.");
         break;
     case SPELL_PROCESS:
-        if (!p_ptr->anti_magic && one_in_(3000))
+        if (!plr->anti_magic && one_in_(3000))
         {
             disturb(0, 0);
             msg_print("You feel insubstantial!");
             msg_print(NULL);
-            plr_tim_add(T_WRAITH, randint1(p_ptr->lev / 2) + (p_ptr->lev / 2));
+            plr_tim_add(T_WRAITH, randint1(plr->lev / 2) + (plr->lev / 2));
         }
         break;
     default:

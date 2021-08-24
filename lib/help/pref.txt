@@ -159,7 +159,7 @@ Add the macro sequence R&\r to a convenient key (I use F1 for this). Normally, r
 Inscribe your wand of stone to mud with @am and then bind the macro sequence *\eam to your favorite key. Perhaps the only disadvantage of the use_old_target option occurs when you are done fighting, and want to something else like clear away some rubble. This macro first dismisses the old target with *\e and then aims your inscribed wand of stone to mud. You will be prompted for the desired direction.
 
 <color:G>Example #4: Mass Identify</color>
-Inscribe @ui on your staff of identify (The one with 50+ charges) and then bind ui* to your favorite knowledge key. Use this macro once your pack has filled up with unkown, but pseudo-identified objects.
+Inscribe @ui on your staff of identify (The one with 50+ charges) and then bind ui* to your favorite knowledge key. Use this macro once your pack has filled up with unknown, but pseudo-identified objects.
 
 <color:D>
 Original   : Alexander Cutler and Andy Astrand

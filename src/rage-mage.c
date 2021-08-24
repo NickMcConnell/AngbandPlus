@@ -16,17 +16,17 @@ enum { _ESP_MAGICAL = T_CUSTOM,
 static bool _esp_magical_on(plr_tim_ptr timer)
 {
     msg_print("You feel conscious of magical foes.");
-    p_ptr->update |= PU_BONUS | PU_MONSTERS;
+    plr->update |= PU_BONUS | PU_MONSTERS;
     return TRUE;
 }
 static void _esp_magical_off(plr_tim_ptr timer)
 {
     msg_print("You are no longer conscious of magical foes.");
-    p_ptr->update |= PU_BONUS | PU_MONSTERS;
+    plr->update |= PU_BONUS | PU_MONSTERS;
 }
 static void _esp_magical_calc_bonuses(plr_tim_ptr timer)
 {
-    p_ptr->esp_magical = TRUE;
+    plr->esp_magical = TRUE;
 }
 static status_display_t _esp_magical_display(plr_tim_ptr timer)
 {
@@ -69,19 +69,19 @@ static plr_tim_info_ptr _spell_reaction(void)
 static bool _resist_curses_on(plr_tim_ptr timer)
 {
     msg_print("You feel resistant to curses.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _resist_curses_off(plr_tim_ptr timer)
 {
     msg_print("You are no longer resistant to curses.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _resist_curses_calc_bonuses(plr_tim_ptr timer)
 {
-    p_ptr->skills.sav += 20;
+    plr->skills.sav += 20;
     if (plr_tim_find(T_BERSERK))
-        p_ptr->skills.sav += 20;
+        plr->skills.sav += 20;
 }
 static status_display_t _resist_curses_display(plr_tim_ptr timer)
 {
@@ -158,21 +158,21 @@ static void _register_timers(void)
 void rage_mage_rage_fueled(int dam)
 {
     int x = dam;
-    int y = p_ptr->chp;
-    int sp = x*(p_ptr->mhp*3/2 - y)/p_ptr->mhp;
+    int y = plr->chp;
+    int sp = x*(plr->mhp*3/2 - y)/plr->mhp;
 
-    if (p_ptr->pclass != CLASS_RAGE_MAGE) return;
+    if (plr->pclass != CLASS_RAGE_MAGE) return;
 
     if (sp < 1)
         sp = 1;
 
-    p_ptr->csp += sp;
-    if (p_ptr->csp > p_ptr->msp)
+    plr->csp += sp;
+    if (plr->csp > plr->msp)
     {
-        p_ptr->csp = p_ptr->msp;
-        p_ptr->csp_frac = 0;
+        plr->csp = plr->msp;
+        plr->csp_frac = 0;
     }
-    p_ptr->redraw |= PR_MANA;
+    plr->redraw |= PR_MANA;
 
     /*_unclear_mind = FALSE;*/
 }
@@ -180,7 +180,7 @@ void rage_mage_blood_lust(int dam)
 {
     int sp;
 
-    if (p_ptr->pclass != CLASS_RAGE_MAGE) return;
+    if (plr->pclass != CLASS_RAGE_MAGE) return;
 
     if (plr_tim_find(T_BERSERK))
         sp = dam/8;
@@ -190,13 +190,13 @@ void rage_mage_blood_lust(int dam)
     if (sp < 1)
         sp = 1;
 
-    p_ptr->csp += sp;
-    if (p_ptr->csp > p_ptr->msp)
+    plr->csp += sp;
+    if (plr->csp > plr->msp)
     {
-        p_ptr->csp = p_ptr->msp;
-        p_ptr->csp_frac = 0;
+        plr->csp = plr->msp;
+        plr->csp_frac = 0;
     }
-    p_ptr->redraw |= PR_MANA;
+    plr->redraw |= PR_MANA;
 
     _unclear_mind = FALSE;
 }
@@ -204,15 +204,15 @@ void rage_mage_armor_of_fury(mon_ptr mon, int dam)
 {
     char name[MAX_NLEN_MON];
 
-    if (p_ptr->pclass != CLASS_RAGE_MAGE) return;
+    if (plr->pclass != CLASS_RAGE_MAGE) return;
     if (!plr_tim_find(_ARMOR_OF_FURY)) return;
 
     assert(mon);
     monster_desc(name, mon, 0);
     msg_format("%^s is hit by your fury!", name);
 
-    if ( mon_save_p(mon->r_idx, A_STR)
-      && (!plr_tim_find(T_BERSERK) || mon_save_p(mon->r_idx, A_STR)) )
+    if ( mon_save_p(mon, A_STR)
+      && (!plr_tim_find(T_BERSERK) || mon_save_p(mon, A_STR)) )
     {
         msg_format("%^s resists!", name);
     }
@@ -226,7 +226,7 @@ void rage_mage_armor_of_fury(mon_ptr mon, int dam)
 }
 void rage_mage_spell_reaction(mon_ptr mon)
 {
-    if (p_ptr->pclass != CLASS_RAGE_MAGE) return;
+    if (plr->pclass != CLASS_RAGE_MAGE) return;
     if (!plr_tim_find(_SPELL_REACTION)) return;
     plr_tim_augment(T_FAST, 4);
 }
@@ -234,13 +234,13 @@ bool rage_mage_spell_turning(mon_ptr mon)
 {
     bool turn = FALSE;
 
-    if (p_ptr->pclass != CLASS_RAGE_MAGE) return FALSE;
+    if (plr->pclass != CLASS_RAGE_MAGE) return FALSE;
     if (!plr_tim_find(_SPELL_TURNING)) return FALSE;
 
     if (plr_tim_find(T_BERSERK))
-        turn = randint1(100) <= p_ptr->lev;
+        turn = randint1(100) <= plr->lev;
     else
-        turn = randint1(200) <= 20 + p_ptr->lev;
+        turn = randint1(200) <= 20 + plr->lev;
 
     if (turn)
     {
@@ -266,17 +266,10 @@ static void _anti_magic_ray_spell(int cmd, var_ptr res)
         var_set_string(res, "Block spells from a chosen foe.");
         break;
     case SPELL_CAST:
-    {
-        int dir;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball(GF_ANTIMAGIC, dir, 1, 0);
-        var_set_bool(res, TRUE);
+        var_set_bool(res, plr_cast_direct(GF_ANTIMAGIC, dice_create(0,0,0)));
         break;
-    }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -291,12 +284,11 @@ static void _armor_of_fury_spell(int cmd, var_ptr res)
         var_set_string(res, "Whenever a monster attacks you with magic, they may become slowed and stunned.");
         break;
     case SPELL_CAST:
-        plr_tim_add(_ARMOR_OF_FURY, 25 + randint1(25));
+        plr_tim_add(_ARMOR_OF_FURY, 25 + _1d(25));
         var_set_bool(res, TRUE);
         break;
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -309,7 +301,6 @@ static void _barbarian_lore_spell(int cmd, var_ptr res)
         break;
     default:
         identify_spell(cmd, res);
-        break;
     }
 }
 
@@ -325,23 +316,19 @@ static void _barbaric_resistance_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
     {
-        int base = 10;
+        int base = plr_tim_find(T_BERSERK) ? 20 : 10;
+        dice_t dice = dice_create(1, base, base);
 
-        if (plr_tim_find(T_BERSERK))
-            base = 20;
-
-        plr_tim_add(T_RES_ACID, randint1(base) + base);
-        plr_tim_add(T_RES_ELEC, randint1(base) + base);
-        plr_tim_add(T_RES_FIRE, randint1(base) + base);
-        plr_tim_add(T_RES_COLD, randint1(base) + base);
-        plr_tim_add(T_RES_POIS, randint1(base) + base);
+        plr_tim_add(T_RES_ACID, dice_roll(dice));
+        plr_tim_add(T_RES_ELEC, dice_roll(dice));
+        plr_tim_add(T_RES_FIRE, dice_roll(dice));
+        plr_tim_add(T_RES_COLD, dice_roll(dice));
+        plr_tim_add(T_RES_POIS, dice_roll(dice));
 
         var_set_bool(res, TRUE);
-        break;
     }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -361,7 +348,6 @@ static void _crude_mapping_spell(int cmd, var_ptr res)
         break;
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -369,12 +355,12 @@ static bool _detect = FALSE;
 static void _detect_obj(point_t pos, obj_ptr obj)
 {
     int rng = DETECT_RAD_ALL;
-    if (distance(p_ptr->pos.y, p_ptr->pos.x, pos.y, pos.x) > rng) return;
+    if (plr_distance(pos) > rng) return;
     if (obj_is_art(obj) || obj_is_ego(obj))
     {
         obj->marked |= OM_FOUND;
-        p_ptr->window |= PW_OBJECT_LIST;
-        lite_pos(pos);
+        plr->window |= PW_OBJECT_LIST;
+        draw_pos(pos);
         _detect = TRUE;
     }
 }
@@ -403,7 +389,6 @@ static void _detect_magic_spell(int cmd, var_ptr res)
         break;
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -420,12 +405,11 @@ static void _detect_magical_foes_spell(int cmd, var_ptr res)
     case SPELL_CAST:
         detect_monsters_magical(DETECT_RAD_DEFAULT);
         if (plr_tim_find(T_BERSERK))
-            plr_tim_add(_ESP_MAGICAL, 20 + randint1(20));
+            plr_tim_add(_ESP_MAGICAL, 20 + _1d(20));
         var_set_bool(res, TRUE);
         break;
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -459,21 +443,21 @@ static void _focus_rage_spell(int cmd, var_ptr res)
         var_set_string(res, "Damage yourself and regain spell points.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, 10 + p_ptr->lev/2));
+        var_set_string(res, info_damage(0, 0, 10 + plr->lev/2));
         break;
     case SPELL_FAIL:
     {
-        int hp = 10 + p_ptr->lev/2;
+        int hp = 10 + plr->lev/2;
         take_hit(DAMAGE_NOESCAPE, hp, "Rage");
         break;
     }
     case SPELL_CAST:
     {
-        int hp = 10 + p_ptr->lev/2;
+        int hp = 10 + plr->lev/2;
 
         var_set_bool(res, FALSE);
 
-        if (p_ptr->chp < hp)
+        if (plr->chp < hp)
         {
             if (!get_check("Really? This will kill you!")) return;
         }
@@ -506,7 +490,7 @@ static void _force_brand_spell(int cmd, var_ptr res)
         int base = 4;
         if (plr_tim_find(T_BERSERK))
             base = 10;
-        plr_tim_add(T_BRAND_MANA, base + randint1(base));
+        plr_tim_add(T_BRAND_MANA, base + _1d(base));
         var_set_bool(res, TRUE);
         break;
     }
@@ -528,28 +512,28 @@ static void _greater_focus_rage_spell(int cmd, var_ptr res)
         break;
     case SPELL_INFO:
         if (plr_tim_find(T_BERSERK))
-            var_set_string(res, info_damage(0, 0, 2 * p_ptr->lev));
+            var_set_string(res, info_damage(0, 0, 2 * plr->lev));
         else
-            var_set_string(res, info_damage(0, 0, 10 + p_ptr->lev));
+            var_set_string(res, info_damage(0, 0, 10 + plr->lev));
         break;
     case SPELL_FAIL:
     {
-        int hp = 10 + p_ptr->lev;
+        int hp = 10 + plr->lev;
         if (plr_tim_find(T_BERSERK))
-            hp = 2 * p_ptr->lev;
+            hp = 2 * plr->lev;
         take_hit(DAMAGE_NOESCAPE, hp, "Rage");
         break;
     }
     case SPELL_CAST:
     {
-        int hp = 10 + p_ptr->lev;
+        int hp = 10 + plr->lev;
 
         var_set_bool(res, FALSE);
 
         if (plr_tim_find(T_BERSERK))
-            hp = 2 * p_ptr->lev;
+            hp = 2 * plr->lev;
 
-        if (p_ptr->chp < hp)
+        if (plr->chp < hp)
         {
             if (!get_check("Really? This will kill you!")) return;
         }
@@ -584,24 +568,11 @@ static void _greater_shout_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Projects a cone of sound at a chosen foe.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, _greater_shout_dam()));
-        break;
-    case SPELL_CAST:
-    {
-        int dir;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball(GF_SOUND, dir, _greater_shout_dam(), -3);
-        var_set_bool(res, TRUE);
-        break;
-    }
     case SPELL_COST_EXTRA:
         var_set_int(res, _greater_shout_dam()/10);
         break;
     default:
-        default_spell(cmd, res);
-        break;
+        breath_spell_innate(cmd, res, 3, GF_SOUND, _greater_shout_dam());
     }
 }
 
@@ -615,28 +586,17 @@ static void _mana_clash_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a ball at chosen target. Only spellcasters will be damaged.");
         break;
-    case SPELL_CAST:
-    {
-        int dir;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball(GF_MANA_CLASH, dir, 18 * p_ptr->lev, 2); /* dam = dam * spell_freq / 100 in spells1.c */
-        var_set_bool(res, TRUE);
-        break;
-    }
-    default:
-        default_spell(cmd, res);
-        break;
+    default: /* dam = dam * spell_freq / 100 in gf.c */
+        ball_spell(cmd, res, 2, GF_MANA_CLASH, 18*plr->lev);
     }
 }
 
 static int _rage_strike_dam(void)
 {
-    int sp = p_ptr->csp;
+    int sp = plr->csp;
     int z = sp*sp/100;
     return 1200*z/(1000+z);
 }
-
 static void _rage_strike_spell(int cmd, var_ptr res)
 {
     switch (cmd)
@@ -651,32 +611,31 @@ static void _rage_strike_spell(int cmd, var_ptr res)
         var_set_string(res, info_damage(0, 0, _rage_strike_dam()));
         break;
     case SPELL_FAIL:
-        sp_player(-p_ptr->csp);
+        sp_player(-plr->csp);
         break;
     case SPELL_CAST:
     {
-        int dir;
+        dice_t dice = dice_create(0, 0, _rage_strike_dam());
         var_set_bool(res, FALSE);
 
-        if (p_ptr->chp < 100)
+        if (plr->chp < 100)
         {
             if (!get_check("Really? This will kill you!")) return;
         }
 
-        if (!get_fire_dir(&dir)) return;
+        if (plr_cast_ball(0, GF_MISSILE, dice))
+        {
+            take_hit(DAMAGE_NOESCAPE, 100, "Rage");
+            if (!plr_tim_find(T_BERSERK))
+                plr_tim_add(T_STUN, STUN_KNOCKED_OUT - 1); /* XXX bypass resistance */
 
-        fire_ball(GF_MISSILE, dir, _rage_strike_dam(), 0);
-        take_hit(DAMAGE_NOESCAPE, 100, "Rage");
-        if (!plr_tim_find(T_BERSERK))
-            plr_tim_add(T_STUN, STUN_KNOCKED_OUT - 1); /* XXX bypass p_ptr->no_stun */
-
-        sp_player(-p_ptr->csp); /* Don't use SPELL_COST_EXTRA since we pay mana up front these days! */
-        var_set_bool(res, TRUE);
+            sp_player(-plr->csp); /* Don't use SPELL_COST_EXTRA since we pay mana up front these days! */
+            var_set_bool(res, TRUE);
+        }
         break;
     }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -689,7 +648,6 @@ static void _rage_sustenance_spell(int cmd, var_ptr res)
         break;
     default:
         satisfy_hunger_spell(cmd, res);
-        break;
     }
 }
 
@@ -704,12 +662,11 @@ static void _resist_curses_spell(int cmd, var_ptr res)
         var_set_string(res, "Grants temporary magical resistance.");
         break;
     case SPELL_CAST:
-        plr_tim_add(_RESIST_CURSES, 20 + randint1(20));
+        plr_tim_add(_RESIST_CURSES, 20 + _1d(20));
         var_set_bool(res, TRUE);
         break;
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -724,12 +681,11 @@ static void _resist_disenchantment_spell(int cmd, var_ptr res)
         var_set_string(res, "Grants temporary resistance to disenchantment.");
         break;
     case SPELL_CAST:
-        plr_tim_add(T_RES_DISEN, 10 + randint1(10));
+        plr_tim_add(T_RES_DISEN, 10 + _1d(10));
         var_set_bool(res, TRUE);
         break;
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -777,16 +733,16 @@ static int _object_dam_type(object_type *o_ptr)
     }
 
     case EFFECT_CONFUSE_MONSTERS:
-    case EFFECT_CONFUSING_LITE:
+    case EFFECT_CONFUSING_LIGHT:
         return GF_CONFUSION;
 
     case EFFECT_STARBURST:
-    case EFFECT_STARLITE:
-    case EFFECT_BALL_LITE:
-    case EFFECT_BEAM_LITE:
-    case EFFECT_LITE_AREA:
-    case EFFECT_BEAM_LITE_WEAK:
-        return GF_LITE;
+    case EFFECT_STARLIGHT:
+    case EFFECT_BALL_LIGHT:
+    case EFFECT_BEAM_LIGHT:
+    case EFFECT_LIGHT_AREA:
+    case EFFECT_BEAM_LIGHT_WEAK:
+        return GF_LIGHT;
 
     case EFFECT_DARKNESS:
     case EFFECT_DARKNESS_STORM:
@@ -826,7 +782,7 @@ static int _object_dam_type(object_type *o_ptr)
     case EFFECT_SLOWNESS:
     case EFFECT_HASTE_MONSTERS:
     case EFFECT_SLOW_MONSTERS:
-        return GF_INERT;
+        return GF_INERTIA;
 
     case EFFECT_HOLINESS:
         return GF_HOLY_FIRE;
@@ -868,7 +824,7 @@ static void _shatter_device_spell(int cmd, var_ptr res)
         }
         else if (prompt.obj->activation.type == EFFECT_DESTRUCTION)
         {
-            if (destroy_area(p_ptr->pos.y, p_ptr->pos.x, 15 + p_ptr->lev + randint0(11), 4 * p_ptr->lev))
+            if (destroy_area(plr->pos, 15 + plr->lev + randint0(11), 4 * plr->lev))
                 msg_print("The dungeon collapses...");
             else
                 msg_print("The dungeon trembles.");
@@ -899,14 +855,13 @@ static void _shatter_device_spell(int cmd, var_ptr res)
                || prompt.obj->activation.type == EFFECT_BANISH_EVIL
                || prompt.obj->activation.type == EFFECT_BANISH_ALL )
         {
-            banish_monsters(p_ptr->lev * 4);
+            plr_project_los(GF_TELEPORT, plr->lev * 4);
         }
         else
         {
-            project(0, 5, p_ptr->pos.y, p_ptr->pos.x,
-                prompt.obj->activation.difficulty * 16,
-                _object_dam_type(prompt.obj),
-                PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
+            int gf = _object_dam_type(prompt.obj);
+            int dam = 8*prompt.obj->activation.difficulty;
+            plr_burst(5, gf, dam);
         }
         prompt.obj->number--;
         obj_release(prompt.obj, 0);
@@ -914,10 +869,10 @@ static void _shatter_device_spell(int cmd, var_ptr res)
     }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
+static dice_t _shout_dice(void) { return dice_create(3 + (plr->lev - 1)/5, 4, 0); }
 static void _shout_spell(int cmd, var_ptr res)
 {
     switch (cmd)
@@ -928,21 +883,8 @@ static void _shout_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Projects a cone of sound at a chosen foe.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(3 + (p_ptr->lev-1)/5, 4, 0));
-        break;
-    case SPELL_CAST:
-    {
-        int dir;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball(GF_SOUND, dir, damroll(3 + (p_ptr->lev-1)/5, 4), -2);
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        breath_spell_aux(cmd, res, 2, GF_SOUND, _shout_dice());
     }
 }
 
@@ -958,33 +900,26 @@ static void _smash_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
     {
-        int y, x, dir;
+        int dir;
+        point_t pos;
 
         var_set_bool(res, FALSE);
         if (!get_rep_dir2(&dir)) return;
         if (dir == 5) return;
 
-        y = p_ptr->pos.y + ddy[dir];
-        x = p_ptr->pos.x + ddx[dir];
+        pos = point_step(plr->pos, dir);
+        if (!dun_pos_interior(cave, pos)) return;
 
-        if (!in_bounds(y, x)) return;
-
-        if (cave_have_flag_bold(y, x, FF_HURT_ROCK))
+        if (dun_tunnel(cave, pos, ACTION_FORCE | ACTION_QUIET) != ACTION_SUCCESS)
         {
-            cave_alter_feat(y, x, FF_HURT_ROCK);
-            p_ptr->update |= PU_FLOW;
-        }
-        else
-        {
-            int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-            project(0, 0, y, x, 0, GF_KILL_DOOR, flg);
+            gf_affect_o(who_create_plr(), pos, GF_KILL_DOOR, 0, GF_AFFECT_SPELL); /* disarm chests */
+            gf_affect_f(who_create_plr(), pos, GF_KILL_DOOR, 0, GF_AFFECT_SPELL);
         }
         var_set_bool(res, TRUE);
         break;
     }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -999,12 +934,11 @@ static void _spell_reaction_spell(int cmd, var_ptr res)
         var_set_string(res, "Grants temporary speed whenever you are targetted by a magical attack.");
         break;
     case SPELL_CAST:
-        plr_tim_add(_SPELL_REACTION, 30 + randint1(30));
+        plr_tim_add(_SPELL_REACTION, 30 + _1d(30));
         var_set_bool(res, TRUE);
         break;
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -1019,12 +953,11 @@ static void _spell_turning_spell(int cmd, var_ptr res)
         var_set_string(res, "Whenever you are the target of magic there is a chance of returning the spell to the caster.");
         break;
     case SPELL_CAST:
-        plr_tim_add(_SPELL_TURNING, 20 + randint1(20));
+        plr_tim_add(_SPELL_TURNING, 20 + _1d(20));
         var_set_bool(res, TRUE);
         break;
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -1042,7 +975,8 @@ static void _summon_commando_team_spell(int cmd, var_ptr res)
     {
         int num = 1 + randint1(2);
         int mode = PM_FORCE_PET;
-        int i, x, y;
+        int i;
+        point_t pos;
 
         var_set_bool(res, FALSE);
 
@@ -1050,19 +984,16 @@ static void _summon_commando_team_spell(int cmd, var_ptr res)
             mode |= PM_HASTE;
 
         if (!target_set(TARGET_KILL)) return;
-        x = target_col;
-        y = target_row;
+        pos = who_pos(plr->target);
 
         for (i = 0; i < num; i++)
-        {
-            summon_named_creature(-1, point_create(x, y), MON_G_MASTER_MYS, mode);
-        }
+            summon_named_creature(who_create_plr(), pos, mon_race_parse("p.grand master mystic"), mode);
+
         var_set_bool(res, TRUE);
         break;
     }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -1086,15 +1017,13 @@ static void _summon_horde_spell(int cmd, var_ptr res)
             mode |= PM_HASTE;
 
         for (i = 0; i < num; i++)
-        {
-            summon_named_creature(-1, p_ptr->pos, MON_DAWN, mode);
-        }
+            summon_named_creature(who_create_plr(), plr->pos, mon_race_parse("p.dawn"), mode);
+
         var_set_bool(res, TRUE);
         break;
     }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -1107,7 +1036,6 @@ static void _veterans_blessing_spell(int cmd, var_ptr res)
         break;
     default:
         heroism_spell(cmd, res);
-        break;
     }
 }
 
@@ -1120,7 +1048,6 @@ static void _whirlwind_attack_spell(int cmd, var_ptr res)
         break;
     default:
         massacre_spell(cmd, res);
-        break;
     }
 }
 
@@ -1191,7 +1118,7 @@ static int _spell_index(int book, int spell)
 static bool _is_spell_known(int book, int spell)
 {
     int idx = _spell_index(book, spell);
-    if (p_ptr->spell_learned1 & (1L << idx)) return TRUE;
+    if (plr->spell_learned1 & (1L << idx)) return TRUE;
     return FALSE;
 }
 
@@ -1200,20 +1127,20 @@ static void _learn_spell(int book, int spell)
     int idx = _spell_index(book, spell);
     int i;
 
-    p_ptr->spell_learned1 |= (1L << idx);
+    plr->spell_learned1 |= (1L << idx);
 
-    /* Find the next open entry in "p_ptr->spell_order[]" */
+    /* Find the next open entry in "plr->spell_order[]" */
     for (i = 0; i < 64; i++)
     {
         /* Stop at the first empty space */
-        if (p_ptr->spell_order[i] == 99) break;
+        if (plr->spell_order[i] == 99) break;
     }
 
     /* Add the spell to the known list */
-    p_ptr->spell_order[i++] = spell;
-    p_ptr->learned_spells++;
-    p_ptr->update |= PU_SPELLS;
-    p_ptr->redraw |= PR_EFFECTS;
+    plr->spell_order[i++] = spell;
+    plr->learned_spells++;
+    plr->update |= PU_SPELLS;
+    plr->redraw |= PR_EFFECTS;
 
     msg_format("You have learned the technique of %s.", get_spell_name(_books[book].spells[spell].fn));
 }
@@ -1235,7 +1162,7 @@ static bool _gain_spell(int book)
     {
         spell_info *src = &_books[book].spells[i];
 
-        if (!_is_spell_known(book, i) && src->level <= p_ptr->lev)
+        if (!_is_spell_known(book, i) && src->level <= plr->lev)
         {
             spell_info *dest = &spells[ct];
 
@@ -1244,7 +1171,7 @@ static bool _gain_spell(int book)
             dest->fail = calculate_fail_rate(
                 src->level,
                 src->fail,
-                p_ptr->stat_ind[A_STR]
+                plr->stat_ind[A_STR]
             );
             dest->fn = src->fn;
             indices[ct] = i;
@@ -1275,7 +1202,7 @@ void rage_mage_gain_spell(void)
 {
     obj_prompt_t prompt = {0};
 
-    if (plr_tim_find(T_BLIND) || no_lite())
+    if (plr_tim_find(T_BLIND) || no_light())
     {
         msg_print("You cannot see!");
         return;
@@ -1285,7 +1212,7 @@ void rage_mage_gain_spell(void)
         msg_print("You are too confused!");
         return;
     }
-    if (!p_ptr->new_spells)
+    if (!plr->new_spells)
     {
         msg_print("You cannot learn any new techniques!");
         return;
@@ -1346,16 +1273,16 @@ static void _player_action(void)
     if (_unclear_mind)    /* Hack for Focus Rage spell to bypass sp loss for one action */
     {
         int loss;
-        loss = p_ptr->csp/8 + p_ptr->lev/10 + 1;
+        loss = plr->csp/8 + plr->lev/10 + 1;
         loss = loss * energy_use / 100; /* Prorata normal action energy */
 
-        p_ptr->csp -= loss;
-        if (p_ptr->csp < 0)
+        plr->csp -= loss;
+        if (plr->csp < 0)
         {
-            p_ptr->csp = 0;
-            p_ptr->csp_frac = 0;
+            plr->csp = 0;
+            plr->csp_frac = 0;
         }
-        p_ptr->redraw |= PR_MANA;
+        plr->redraw |= PR_MANA;
     }
     else
         _unclear_mind = TRUE; /* Resume normal sp loss */
@@ -1364,11 +1291,11 @@ static void _player_action(void)
 static void _calc_bonuses(void)
 {
     int squish = 5 + plr_prorata_level(55);
-    p_ptr->spell_cap += 3;
+    plr->spell_cap += 3;
 
     /* Squishy */
-    p_ptr->to_a -= squish;
-    p_ptr->dis_to_a -= squish;
+    plr->to_a -= squish;
+    plr->dis_to_a -= squish;
 
 }
 
@@ -1390,7 +1317,7 @@ static int _get_spells_imp(spell_info* spells, int max, int book)
             dest->fail = calculate_fail_rate(
                 src->level,
                 src->fail,
-                p_ptr->stat_ind[A_STR]
+                plr->stat_ind[A_STR]
             );
             dest->fn = src->fn;
         }
@@ -1452,7 +1379,7 @@ plr_class_ptr rage_mage_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 20,  20,  40,  -1,  12,   2,  50,  30 };
-    skills_t xs = {  7,   8,  15,   0,   0,   0,  15,  15 };
+    skills_t xs = { 35,  40,  75,   0,   0,   0,  75,  75 };
 
         me = plr_class_alloc(CLASS_RAGE_MAGE);
         me->name = "Rage-Mage";

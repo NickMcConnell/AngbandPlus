@@ -33,13 +33,13 @@ bool object_is_shoukinkubi(object_type *o_ptr)
     if (o_ptr->tval != TV_CORPSE) return FALSE;
 
     /* Today's wanted */
-    if (p_ptr->today_mon > 0 && o_ptr->pval == today_mon) return TRUE;
+    if (plr->today_mon && o_ptr->race_id == today_mon) return TRUE;
 
     /* Tsuchinoko */
-    if (o_ptr->pval == MON_TSUCHINOKO) return TRUE;
+    if (sym_equals(o_ptr->race_id, "J.tsuchinoko")) return TRUE;
 
     /* Unique monster */
-    if (mon_is_wanted(o_ptr->pval)) return TRUE;
+    if (mon_is_wanted(o_ptr->race_id)) return TRUE;
 
     /* Not wanted */
     return FALSE;
@@ -59,7 +59,7 @@ bool object_is_favorite(object_type *o_ptr)
     if (prace_is_(RACE_MON_GIANT))
         return giant_is_favorite(o_ptr);
 
-    class_idx = get_class_idx();
+    class_idx = plr_pseudo_class_id();
     if (class_idx == CLASS_WEAPONMASTER)
         return weaponmaster_is_favorite(o_ptr);
 
@@ -69,7 +69,7 @@ bool object_is_favorite(object_type *o_ptr)
     case CLASS_PRIEST:
         if (priest_is_evil())
             return TRUE;
-        else if (p_ptr->realm1 == REALM_NATURE)
+        else if (plr->realm1 == REALM_NATURE)
             return o_ptr->tval == TV_HAFTED;
         else if (o_ptr->tval != TV_HAFTED && !obj_has_known_flag(o_ptr, OF_BLESSED))
             return FALSE;
@@ -81,6 +81,10 @@ bool object_is_favorite(object_type *o_ptr)
         return FALSE;
 
     case CLASS_NINJA:
+        if (o_ptr->tval != TV_BOW && !skills_weapon_is_icky(o_ptr->tval, o_ptr->sval))
+            return TRUE;
+        return FALSE;
+
     case CLASS_DUELIST:
     case CLASS_SKILLMASTER:
         if (skills_weapon_is_icky(o_ptr->tval, o_ptr->sval))
@@ -200,7 +204,7 @@ bool object_is_rare(object_type *o_ptr)
 bool enchantment_hack = FALSE;
 bool object_is_weapon_armour_ammo(object_type *o_ptr)
 {
-    if (enchantment_hack && o_ptr->name1 == ART_HEPHAESTUS) return FALSE;
+    if (enchantment_hack && obj_is_specified_art(o_ptr, "\\.Hephaestus")) return FALSE;
 
     return obj_is_weapon(o_ptr) || obj_is_bow(o_ptr) || obj_is_armor(o_ptr) || obj_is_ammo(o_ptr);
 }

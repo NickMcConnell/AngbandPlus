@@ -44,7 +44,7 @@ static s32b _activation_p(u32b flgs[OF_ARRAY_SIZE], object_type *o_ptr)
     {
         effect_t effect = obj_get_effect(o_ptr);
         assert(effect.type);
-        return effect_value(&effect);
+        return effect_value(&effect)/4; /* cf device_value ... */
     }
     return 0;
 }
@@ -130,7 +130,7 @@ static s32b _abilities_q(u32b flgs[OF_ARRAY_SIZE])
     count = 0;
     cost += _check_flag_and_score(flgs, OF_THROWING, 100, &count);
     cost += _check_flag_and_score(flgs, OF_WARNING, 100, &count);
-    cost += _check_flag_and_score(flgs, OF_LITE, 100, &count);
+    cost += _check_flag_and_score(flgs, OF_LIGHT, 100, &count);
     cost += _check_flag_and_score(flgs, OF_DARKNESS, 100, &count);
     cost += _check_flag_and_score(flgs, OF_SLOW_DIGEST, 100, &count);
     cost += _check_flag_and_score(flgs, OF_SEE_INVIS, 500, &count);
@@ -200,52 +200,52 @@ static s32b _resistances_q(u32b flgs[OF_ARRAY_SIZE])
 
     /* Low Resists */
     count = 0;
-    cost += _check_flag_and_score(flgs, OF_RES_ACID, 3000, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_ELEC, 3000, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_FIRE, 3000, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_COLD, 3000, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_POIS, 5000, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_(GF_ACID), 3000, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_(GF_ELEC), 3000, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_(GF_FIRE), 3000, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_(GF_COLD), 3000, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_(GF_POIS), 5000, &count);
 
     /* High Resists */
     count = 0;
-    cost += _check_flag_and_score(flgs, OF_RES_LITE, 3000, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_DARK, 3000, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_CONF, 3000, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_NETHER, 4500, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_NEXUS, 4500, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_CHAOS, 6000, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_SOUND, 6000, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_SHARDS, 7000, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_DISEN, 6000, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_TIME, 10000, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_(GF_LIGHT), 3000, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_(GF_DARK), 3000, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_(GF_CONF), 3000, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_(GF_NETHER), 4500, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_(GF_NEXUS), 4500, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_(GF_CHAOS), 6000, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_(GF_SOUND), 6000, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_(GF_SHARDS), 7000, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_(GF_DISEN), 6000, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_(GF_TIME), 10000, &count);
 
     /* Other Resists */
     count = 0;
-    cost += _check_flag_and_score(flgs, OF_RES_BLIND, 1000, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_FEAR, 1000, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_(GF_BLIND), 1000, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_(GF_FEAR), 1000, &count);
 
     count = 0; /* Otherwise, immunities *and* lots of resists are absurd :) */
-    cost += _check_flag_and_score(flgs, OF_IM_ACID,  12000, &count);
-    cost += _check_flag_and_score(flgs, OF_IM_ELEC,  15000, &count);
-    cost += _check_flag_and_score(flgs, OF_IM_FIRE,  13000, &count);
-    cost += _check_flag_and_score(flgs, OF_IM_COLD,  14000, &count);
+    cost += _check_flag_and_score(flgs, OF_IM_(GF_ACID),  12000, &count);
+    cost += _check_flag_and_score(flgs, OF_IM_(GF_ELEC),  15000, &count);
+    cost += _check_flag_and_score(flgs, OF_IM_(GF_FIRE),  13000, &count);
+    cost += _check_flag_and_score(flgs, OF_IM_(GF_COLD),  14000, &count);
 
     count = 0;
-    cost -= _check_flag_and_score(flgs, OF_VULN_ACID, 5000, &count);
-    cost -= _check_flag_and_score(flgs, OF_VULN_ELEC, 5000, &count);
-    cost -= _check_flag_and_score(flgs, OF_VULN_FIRE, 5000, &count);
-    cost -= _check_flag_and_score(flgs, OF_VULN_COLD, 5000, &count);
-    cost -= _check_flag_and_score(flgs, OF_VULN_POIS, 5000, &count);
-    cost -= _check_flag_and_score(flgs, OF_VULN_LITE, 5000, &count);
-    cost -= _check_flag_and_score(flgs, OF_VULN_DARK, 5000, &count);
-    cost -= _check_flag_and_score(flgs, OF_VULN_BLIND, 2000, &count);
-    cost -= _check_flag_and_score(flgs, OF_VULN_CONF, 5000, &count);
-    cost -= _check_flag_and_score(flgs, OF_VULN_NETHER, 5000, &count);
-    cost -= _check_flag_and_score(flgs, OF_VULN_NEXUS, 5000, &count);
-    cost -= _check_flag_and_score(flgs, OF_VULN_CHAOS, 5000, &count);
-    cost -= _check_flag_and_score(flgs, OF_VULN_SOUND, 5000, &count);
-    cost -= _check_flag_and_score(flgs, OF_VULN_SHARDS, 5000, &count);
-    cost -= _check_flag_and_score(flgs, OF_VULN_DISEN, 5000, &count);
+    cost -= _check_flag_and_score(flgs, OF_VULN_(GF_ACID), 5000, &count);
+    cost -= _check_flag_and_score(flgs, OF_VULN_(GF_ELEC), 5000, &count);
+    cost -= _check_flag_and_score(flgs, OF_VULN_(GF_FIRE), 5000, &count);
+    cost -= _check_flag_and_score(flgs, OF_VULN_(GF_COLD), 5000, &count);
+    cost -= _check_flag_and_score(flgs, OF_VULN_(GF_POIS), 5000, &count);
+    cost -= _check_flag_and_score(flgs, OF_VULN_(GF_LIGHT), 5000, &count);
+    cost -= _check_flag_and_score(flgs, OF_VULN_(GF_DARK), 5000, &count);
+    cost -= _check_flag_and_score(flgs, OF_VULN_(GF_BLIND), 2000, &count);
+    cost -= _check_flag_and_score(flgs, OF_VULN_(GF_CONF), 5000, &count);
+    cost -= _check_flag_and_score(flgs, OF_VULN_(GF_NETHER), 5000, &count);
+    cost -= _check_flag_and_score(flgs, OF_VULN_(GF_NEXUS), 5000, &count);
+    cost -= _check_flag_and_score(flgs, OF_VULN_(GF_CHAOS), 5000, &count);
+    cost -= _check_flag_and_score(flgs, OF_VULN_(GF_SOUND), 5000, &count);
+    cost -= _check_flag_and_score(flgs, OF_VULN_(GF_SHARDS), 5000, &count);
+    cost -= _check_flag_and_score(flgs, OF_VULN_(GF_DISEN), 5000, &count);
     if (cost < 0) cost = 0;
 
     return (u32b) cost;
@@ -281,28 +281,24 @@ s32b _finalize_p(s32b p, u32b flgs[OF_ARRAY_SIZE], object_type *o_ptr, int optio
             }
         }
 
-        switch (o_ptr->name1)
+        if ( obj_is_specified_art(o_ptr, "~.Nature")
+          || obj_is_specified_art(o_ptr, "~.Life")
+          || obj_is_specified_art(o_ptr, "~.Sorcery")
+          || obj_is_specified_art(o_ptr, "~.Chaos")
+          || obj_is_specified_art(o_ptr, "~.Death")
+          || obj_is_specified_art(o_ptr, "~.Trump")
+          || obj_is_specified_art(o_ptr, "~.Daemon")
+          || obj_is_specified_art(o_ptr, "~.Crusade")
+          || obj_is_specified_art(o_ptr, "~.Craft")
+          || obj_is_specified_art(o_ptr, "~.Armageddon")
+          || obj_is_specified_art(o_ptr, "~.Mind") )
         {
-        case ART_STONE_OF_NATURE:
-        case ART_STONE_OF_LIFE:
-        case ART_STONE_OF_SORCERY:
-        case ART_STONE_OF_CHAOS:
-        case ART_STONE_OF_DEATH:
-        case ART_STONE_OF_TRUMP:
-        case ART_STONE_OF_DAEMON:
-        case ART_STONE_OF_CRUSADE:
-        case ART_STONE_OF_CRAFT:
-        case ART_STONE_OF_ARMAGEDDON:
-        case ART_STONE_OF_MIND:
             xtra = 5000;
-            break;
-        case ART_ASSASSINATOR:
-            xtra = 25000;
-            break;
-        case ART_SPECTRAL_DSM: /* Passwall */
-            xtra = 50000;
-            break;
         }
+        else if (obj_is_specified_art(o_ptr, "|.Assassinator"))
+            xtra = 25000;
+        else if (obj_is_specified_art(o_ptr, "[.Spectral"))
+            xtra = 50000;
         if (xtra)
         {
             p += xtra;
@@ -379,7 +375,7 @@ s32b _finalize_p(s32b p, u32b flgs[OF_ARRAY_SIZE], object_type *o_ptr, int optio
     if (p <= 0)
     {
         p = 0;
-        if (o_ptr->name1 || o_ptr->name2 || o_ptr->art_name)
+        if (o_ptr->art_id || o_ptr->name2 || o_ptr->art_name)
             p = 1;
     }
 
@@ -422,7 +418,7 @@ s32b jewelry_cost(object_type *o_ptr, int options)
 
     switch (o_ptr->tval)
     {
-    case TV_LITE:
+    case TV_LIGHT:
         j = 1000;
         break;
     case TV_RING:
@@ -616,7 +612,7 @@ s32b jewelry_cost(object_type *o_ptr, int options)
     return p;
 }
 
-s32b lite_cost(object_type *o_ptr, int options)
+s32b light_cost(object_type *o_ptr, int options)
 {
     s32b j, y, q, p;
     int  pval = 0;
@@ -632,13 +628,13 @@ s32b lite_cost(object_type *o_ptr, int options)
 
     switch (o_ptr->sval)
     {
-    case SV_LITE_TORCH:
+    case SV_LIGHT_TORCH:
         j = 1;
         break;
-    case SV_LITE_LANTERN:
+    case SV_LIGHT_LANTERN:
         j = 30;
         break;
-    case SV_LITE_FEANOR:
+    case SV_LIGHT_FEANOR:
     default:
         j = 250;
         break;
@@ -653,7 +649,7 @@ s32b lite_cost(object_type *o_ptr, int options)
     /* These egos don't use flags for their effects ... sigh. */
     if ((options & COST_REAL) || obj_is_known(o_ptr))
     {
-        if (o_ptr->name2 == EGO_LITE_DURATION)
+        if (o_ptr->name2 == EGO_LIGHT_DURATION)
             j += 100;
     }
 
@@ -1180,7 +1176,7 @@ s32b weapon_cost(object_type *o_ptr, int options)
         /* Brands now stack with slays */
         ct = 0;
         if (have_flag(flgs, OF_BRAND_TIME)) s += _inc_slay(1.0 * .7, &ct);
-        if (have_flag(flgs, OF_BRAND_LITE)) s += _inc_slay(1.0 * .3, &ct);
+        if (have_flag(flgs, OF_BRAND_LIGHT)) s += _inc_slay(1.0 * .3, &ct);
         if (have_flag(flgs, OF_BRAND_PLASMA)) s += _inc_slay(1.0 * .3, &ct);
         if (have_flag(flgs, OF_BRAND_DARK)) s += _inc_slay(1.0 * .2, &ct);
         if (have_flag(flgs, OF_BRAND_ACID)) s += _inc_slay(1.5 * .15, &ct);
@@ -1639,8 +1635,8 @@ s32b new_object_cost(object_type *o_ptr, int options)
     else if (o_ptr->tval == TV_BOW) return bow_cost(o_ptr, options);
     else if (obj_is_ammo(o_ptr)) return ammo_cost(o_ptr, options);
     else if (obj_is_armor(o_ptr)) return armor_cost(o_ptr, options);
-    else if (obj_is_jewelry(o_ptr) || (o_ptr->tval == TV_LITE && obj_is_art(o_ptr))) return jewelry_cost(o_ptr, options);
-    else if (o_ptr->tval == TV_LITE) return lite_cost(o_ptr, options);
+    else if (obj_is_jewelry(o_ptr) || (o_ptr->tval == TV_LIGHT && obj_is_art(o_ptr))) return jewelry_cost(o_ptr, options);
+    else if (o_ptr->tval == TV_LIGHT) return light_cost(o_ptr, options);
     else if (o_ptr->tval == TV_QUIVER) return quiver_cost(o_ptr, options);
     else if (obj_is_device(o_ptr)) return device_value(o_ptr, options);
     return 0;

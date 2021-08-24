@@ -1,10 +1,5 @@
 #include "angband.h"
 
-#define MON_CHEERFUL_LEPRECHAUN 258
-#define MON_MALICIOUS_LEPRECHAUN 529
-#define MON_DEATH_LEPRECHAUN 680
-#define MON_LEPRECHAUN_FANATIC 700
-
 static cptr _desc =
     "Leprechauns are small, mischevous creatures, always scheming for gold. "
     "They are weak, but quick and stealthy. For combat, they prefer not to use "
@@ -30,14 +25,14 @@ static cptr _desc =
 
 static void _birth(void)
 {
-    p_ptr->current_r_idx = MON_CHEERFUL_LEPRECHAUN;
+    plr_mon_race_set("h.cheerful");
     skills_innate_init("Greedy Hands", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
     msg_print("You feel the luck of the Irish!");
     mut_gain(MUT_GOOD_LUCK);
     mut_lock(MUT_GOOD_LUCK);
 
-    p_ptr->au = 50000;
+    plr->au = 50000;
 
     plr_birth_food();
     plr_birth_light();
@@ -45,19 +40,19 @@ static void _birth(void)
 
 static int _get_toggle(void)
 {
-    return p_ptr->magic_num1[0];
+    return plr->magic_num1[0];
 }
 
 static int _set_toggle(s32b toggle)
 {
-    int result = p_ptr->magic_num1[0];
+    int result = plr->magic_num1[0];
 
     if (toggle == result) return result;
 
-    p_ptr->magic_num1[0] = toggle;
+    plr->magic_num1[0] = toggle;
 
-    p_ptr->redraw |= PR_STATUS;
-    p_ptr->update |= PU_BONUS;
+    plr->redraw |= PR_STATUS;
+    plr->update |= PU_BONUS;
     handle_stuff();
 
     return result;
@@ -69,11 +64,16 @@ static int _set_toggle(s32b toggle)
 static void _calc_innate_bonuses(mon_blow_ptr blow)
 {
     if (blow->method == RBM_TOUCH)
-        plr_calc_blows_innate(blow, 300);
+    {
+        plr->innate_attack_info.blows_calc.wgt = 100;
+        plr->innate_attack_info.blows_calc.mul = 25;
+        plr->innate_attack_info.blows_calc.max = 300;
+        plr_calc_blows_innate(blow);
+    }
 }
 static void _calc_innate_attacks(void)
 {
-    int l = p_ptr->lev;
+    int l = plr->lev;
     mon_blow_ptr blow = mon_blow_alloc(RBM_TOUCH);
 
     blow->name = "Greedy Hands";
@@ -81,7 +81,7 @@ static void _calc_innate_attacks(void)
     blow->power = l;
     mon_blow_push_effect(blow, RBE_EAT_ITEM, dice_create(1, 3 + l/15, 0));
     _calc_innate_bonuses(blow);
-    vec_add(p_ptr->innate_blows, blow);
+    vec_add(plr->innate_blows, blow);
 }
 
 /****************************************************************
@@ -158,15 +158,15 @@ void _fanaticism_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
     {
-        int x, y, i;
+        int i;
+        point_t pos;
 
         var_set_bool(res, FALSE);
         if (!target_set(TARGET_KILL)) return;
-        x = target_col;
-        y = target_row;
+        pos = who_pos(plr->target);
 
         for (i = 0; i < 8; i++)
-            summon_named_creature(-1, point_create(x, y), MON_LEPRECHAUN_FANATIC, PM_FORCE_PET);
+            summon_named_creature(who_create_plr(), pos, mon_race_parse("h.fanatic"), PM_FORCE_PET);
 
         var_set_bool(res, TRUE);
         break;
@@ -216,71 +216,71 @@ static caster_info * _caster_info(void)
 
 static void _calc_bonuses(void)
 {
-    int ac = MIN(p_ptr->au / 250000, 25);
+    int ac = MIN(plr->au / 250000, 25);
 
-    p_ptr->to_a += ac;
-    p_ptr->dis_to_a += ac;
+    plr->to_a += ac;
+    plr->dis_to_a += ac;
 
-    if (p_ptr->au >= 10 * 1000 * 1000)
+    if (plr->au >= 10 * 1000 * 1000)
     {
-        p_ptr->device_power += 2;
+        plr->device_power += 2;
     }
-    else if (p_ptr->au >= 5 * 1000 * 1000)
+    else if (plr->au >= 5 * 1000 * 1000)
     {
-        p_ptr->device_power += 1;
+        plr->device_power += 1;
     }
 
-    p_ptr->skills.thb += MIN(p_ptr->au / 100000, 100);
+    plr->skills.thb += MIN(plr->au / 100000, 100);
 
-    switch (p_ptr->current_r_idx)
+    if (plr_mon_race_is_("h.cheerful"))
     {
-    case MON_CHEERFUL_LEPRECHAUN:
-        p_ptr->align += 200;
-        p_ptr->pspeed += 5;
-        break;
-    case MON_MALICIOUS_LEPRECHAUN:
-        p_ptr->align -= 200;
-        p_ptr->pspeed += 7;
-        p_ptr->levitation = TRUE;
-        res_add_vuln(RES_LITE);
-        break;
-    case MON_DEATH_LEPRECHAUN:
-        p_ptr->align -= 200;
-        p_ptr->pspeed += 10;
-        p_ptr->levitation = TRUE;
-        res_add_vuln(RES_LITE);
-        res_add(RES_NETHER);
-        break;
+        plr->align += 200;
+        plr->pspeed += 5;
+    }
+    else if (plr_mon_race_is_("h.malicious"))
+    {
+        plr->align -= 200;
+        plr->pspeed += 7;
+        plr->levitation = TRUE;
+        res_add_vuln(GF_LIGHT);
+    }
+    else if (plr_mon_race_is_("h.death"))
+    {
+        plr->align -= 200;
+        plr->pspeed += 10;
+        plr->levitation = TRUE;
+        res_add_vuln(GF_LIGHT);
+        res_add(GF_NETHER);
     }
 }
 
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    if (p_ptr->au >= 5 * 1000 * 1000)
+    if (plr->au >= 5 * 1000 * 1000)
         add_flag(flgs, OF_DEVICE_POWER);
 
-    switch (p_ptr->current_r_idx)
+    if (plr_mon_race_is_("h.cheerful"))
     {
-    case MON_CHEERFUL_LEPRECHAUN:
         add_flag(flgs, OF_SPEED);
-        break;
-    case MON_MALICIOUS_LEPRECHAUN:
-        add_flag(flgs, OF_SPEED);
-        add_flag(flgs, OF_LEVITATION);
-        add_flag(flgs, OF_VULN_LITE);
-        break;
-    case MON_DEATH_LEPRECHAUN:
+    }
+    else if (plr_mon_race_is_("h.malicious"))
+    {
         add_flag(flgs, OF_SPEED);
         add_flag(flgs, OF_LEVITATION);
-        add_flag(flgs, OF_RES_NETHER);
-        add_flag(flgs, OF_VULN_LITE);
-        break;
+        add_flag(flgs, OF_VULN_(GF_LIGHT));
+    }
+    else if (plr_mon_race_is_("h.death"))
+    {
+        add_flag(flgs, OF_SPEED);
+        add_flag(flgs, OF_LEVITATION);
+        add_flag(flgs, OF_RES_(GF_NETHER));
+        add_flag(flgs, OF_VULN_(GF_LIGHT));
     }
 }
 
 static void _calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 {
-    info->xtra_blow += MIN(p_ptr->au / 100000, 100);
+    info->xtra_blow += MIN(plr->au / 100000, 100);
 }
 
 static void _player_action(void)
@@ -294,18 +294,10 @@ static void _player_action(void)
  **********************************************************************/
 static void _gain_level(int new_level)
 {
-    if (p_ptr->current_r_idx == MON_CHEERFUL_LEPRECHAUN && new_level >= 15)
-    {
-        p_ptr->current_r_idx = MON_MALICIOUS_LEPRECHAUN;
-        msg_print("You have evolved into a Malicious Leprechaun.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_MALICIOUS_LEPRECHAUN && new_level >= 30)
-    {
-        p_ptr->current_r_idx = MON_DEATH_LEPRECHAUN;
-        msg_print("You have evolved into a Death Leprechaun.");
-        p_ptr->redraw |= PR_MAP;
-    }
+    if (plr_mon_race_is_("h.cheerful") && new_level >= 15)
+        plr_mon_race_evolve("h.malicious");
+    if (plr_mon_race_is_("h.malicious") && new_level >= 30)
+        plr_mon_race_evolve("h.death");
 }
 
 /**********************************************************************
@@ -314,7 +306,7 @@ static void _gain_level(int new_level)
 int leprechaun_get_toggle(void)
 {
     int result = TOGGLE_NONE;
-    if (p_ptr->prace == RACE_MON_LEPRECHAUN)
+    if (plr->prace == RACE_MON_LEPRECHAUN)
         result = _get_toggle();
     return result;
 }
@@ -324,8 +316,8 @@ bool leprechaun_steal(int m_idx)
     bool result = FALSE;
     monster_type *m_ptr = dun_mon(cave, m_idx);
 
-    if ( !mon_save_p(m_ptr->r_idx, A_DEX)
-      || (mon_tim_find(m_ptr, MT_SLEEP) && !mon_save_p(m_ptr->r_idx, A_DEX)))
+    if ( !mon_save_p(m_ptr, A_DEX)
+      || (mon_tim_find(m_ptr, MT_SLEEP) && !mon_save_p(m_ptr, A_DEX)))
     {
         obj_ptr loot = mon_pick_pocket(m_ptr);
 
@@ -339,20 +331,20 @@ bool leprechaun_steal(int m_idx)
 
             result = TRUE;
             object_desc(o_name, loot, 0);
-            if (mon_save_p(m_ptr->r_idx, A_DEX))
+            if (mon_save_p(m_ptr, A_DEX))
             {
                 msg_format("Oops! You drop %s.", o_name);
-                drop_near(loot, p_ptr->pos, -1);
+                drop_near(loot, plr->pos, -1);
             }
             else if (loot->tval == TV_GOLD)
             {
                 msg_format("You steal %d gold pieces worth of %s.", (int)loot->pval, o_name);
                 sound(SOUND_SELL);
-                p_ptr->au += loot->pval;
+                plr->au += loot->pval;
                 stats_on_gold_find(loot->pval);
-                p_ptr->redraw |= (PR_GOLD);
+                plr->redraw |= (PR_GOLD);
                 if (prace_is_(RACE_MON_LEPRECHAUN)) /* possessors and mimics require this check */
-                    p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+                    plr->update |= (PU_BONUS | PU_HP | PU_MANA);
             }
             else
             {
@@ -378,11 +370,11 @@ bool _destroy_object(object_type *o_ptr)
             object_desc(o_name, o_ptr, OD_COLOR_CODED);
             msg_format("You turn %s to %d coins worth of gold.", o_name, amt);
 
-            p_ptr->au += amt;
+            plr->au += amt;
             stats_on_gold_selling(amt); /* ? */
 
-            p_ptr->redraw |= (PR_GOLD);
-            p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+            plr->redraw |= (PR_GOLD);
+            plr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
             return TRUE;
         }
@@ -396,13 +388,13 @@ plr_race_ptr mon_leprechaun_get_race(void)
     static cptr   titles[3] =  {"Cheerful Leprechaun", "Malicious Leprechaun", "Death Leprechaun"};
     int           rank = 0;
 
-    if (p_ptr->lev >= 15) rank++;
-    if (p_ptr->lev >= 30) rank++;
+    if (plr->lev >= 15) rank++;
+    if (plr->lev >= 30) rank++;
 
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  45,  38,  10,  24,  16,  48,  50 };
-    skills_t xs = { 12,  18,  11,   1,   0,   0,  13,  10 };
+    skills_t xs = { 60,  90,  55,   5,   0,   0,  65,  50 };
 
         me = plr_race_alloc(RACE_MON_LEPRECHAUN);
         me->skills = bs;
@@ -428,13 +420,13 @@ plr_race_ptr mon_leprechaun_get_race(void)
         me->hooks.player_action = _player_action;
         me->hooks.destroy_object = _destroy_object;
 
-        me->pseudo_class_idx = CLASS_ROGUE;
+        me->pseudo_class_id = CLASS_ROGUE;
         me->flags = RACE_IS_MONSTER;
     }
 
     me->life = 80;
     if (!spoiler_hack)
-        me->life += MIN(p_ptr->au / 500000, 20);
+        me->life += MIN(plr->au / 500000, 20);
 
     if (!birth_hack && !spoiler_hack)
         me->subname = titles[rank];

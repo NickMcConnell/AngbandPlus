@@ -1,0 +1,283 @@
+########################################################################
+# Golems
+T:g.base:Golem
+I:DISPLAY(g):POS(GAIN_AC|HOLD_LIFE)
+I:KIND(NONLIVING):ATTR(EMPTY_MIND|COLD_BLOOD)
+I:ALERT(120',Fairly Observant):MOVE(BASH|CLEARWEB)
+I:RESIST(COLD|CONF):IMMUNE(POIS|SLEEP|SLOW|FEAR|BLIND|STUN)
+P:Copy:Golem:Warrior
+P:Weight:300
+
+N:g.Borshin:The Borshin
+I:LVL(10):RARITY(2):ALLOC(UNIQUE)
+I:HP(200):AC(30):EXP(45)
+I:ALERT(400',Ever Vigilant):MOVE(BASH)
+B:HIT:HURT(1d11+6)
+B:CRUSH:HURT(1d13+6)
+B:TOUCH:TERRIFY
+I:RESIST(COLD|POIS|CONF):IMMUNE(SLEEP)
+D:Pallid and twisted, this creature hates the very sight of you.
+D:"It looked like something that had started out to be a man but had never
+D:quite made it. It had been stepped on, twisted, had holes poked into the
+D:sickly dough of its head-bulge. Bones showed through the transparent flesh
+D:of its torso and its short legs were as thick as trees, terminating in
+D:disk-shaped pads from which dozens of long toes hung like roots or worms.
+D:Its arms were longer than its entire body. It was a crushed slug, a thing
+D:that had been frozen and thawed before it was fully baked. It was -
+D:'It is the Borshin', said the Lord of Bats."
+I:DISPLAY(g,White):POS(CORPSE)
+P:Copy:Beastman:Warrior
+P:Weight:200
+
+N:g.flesh:g.base:Flesh golem
+I:LVL(14,50):RARITY(1)
+I:HP(12d8):AC(30):EXP(50)
+I:MOVE(SWIM)
+B:HIT:HURT(3d3):STUN(1d3, 20%)
+I:RESIST(ELEC)
+D:A shambling humanoid monster with long scars.
+I:COLOR(Orange)
+
+N:g.clay:g.base:Clay golem
+I:LVL(15,50):RARITY(2)
+I:HP(14d8):AC(30):EXP(50)
+B:HIT:HURT(2d4+5):STUN(1d4, 20%)
+I:RESIST(ELEC|FIRE):VULN(DISINTEGRATE)
+D:It is a massive animated statue made out of hardened clay.
+I:COLOR(Light Umber)
+P:Copy:Golem:Warrior
+
+N:g.stone:g.base:Stone golem
+I:LVL(19,70):RARITY(2)
+I:HP(28d8):AC(75):EXP(100)
+B:HIT:HURT(3d5+10):STUN(1d5, 25%)
+I:RESIST(ELEC|FIRE):VULN(DISINTEGRATE)
+D:It is a massive animated statue.
+I:COLOR(Slate)
+
+N:g.aquatic:g.base:Aquatic golem
+I:LVL(19,70):RARITY(1)
+I:HP(25d10):AC(50):EXP(100)
+I:KIND(AQUATIC):ALERT(350'):MOVE(SWIM)
+B:HIT:HURT(3d8+22):STUN(1d6, 25%)
+I:RESIST(FIRE|WATER)
+D:An ingenious gnomish invention -- a golem designed for underwater usage.
+I:COLOR(Blue)
+
+N:g.iron:g.base:Iron golem
+I:LVL(22,70):RARITY(2)
+I:HP(80d12):AC(80):EXP(160)
+B:HIT:HURT(3d7+16):STUN(1d5, 35%)
+I:RESIST(ELEC|FIRE)
+S:1_IN_7 | SLOW
+D:It is a massive metal statue that moves steadily towards you.
+I:COLOR(Light White)
+P:Copy:Golem:Mauler
+
+N:g.auto-roller:g.base:Auto-roller
+I:LVL(22,70):RARITY(2)
+I:SPEED(+10):HP(70d12):AC(80):EXP(230)
+B:CRUSH(x4):HURT(1d7)
+I:RESIST(ELEC|FIRE|TELE)
+D:It looks like a huge spiked roller, moving on its own towards you.
+I:COLOR(Slate)
+
+N:g.cloud:g.base:Cloud golem
+I:LVL(22,70):RARITY(2)
+I:HP(20d15):AC(30):EXP(120)
+I:ALERT(200'):MOVE(FLY)
+B:HIT:HURT(3d7+16):ELEC(7d7):STUN(1d6, 25%)
+I:RESIST(ELEC)
+D:Lightning crackles around this huge animated cloud entity, sending shivers down your spine.
+I:COLOR(Blue)
+
+N:g.lava:g.base:Lava golem
+I:LVL(22,70):RARITY(2)
+I:HP(25d15):AC(40):EXP(120)
+I:ALERT(200'):MOVE(DESTROY)
+B:HIT:HURT(3d7+16):FIRE(7d7):STUN(1d6, 25%)
+I:RESIST(FIRE|-COLD)
+D:It burns everything in its path with the heat its magma-like body produces.
+I:COLOR(Red)
+
+N:g.watcher:g.base:Silent watcher
+I:LVL(25,70):RARITY(5)
+I:HP(80d20):AC(80):EXP(590)
+I:ALIGN(Evil):ALERT(420'):MOVE(NEVER)
+B:GAZE:TERRIFY
+B:GAZE:PARALYZE(85%)
+B:GAZE:LOSE_CHR(50%)
+I:RESIST(ELEC|FIRE|TELE):VULN(LIGHT|DISINTEGRATE)
+S:1_IN_6 | SHRIEK | S_MONSTER | PARALYZE | CONFUSE | MIND_BLAST | DRAIN_MANA
+D:A figure carved from stone, with three vulture faces. Their eyes glow
+D:a malevolent light...
+I:COLOR(Slate)
+P:Copy:Golem:Beastmaster
+
+N:g.pukelman:g.base:Pukelman
+I:LVL(25,60):RARITY(3)
+I:HP(80d12):AC(80):EXP(600)
+B:HIT(x2):HURT(1d10+3)
+I:RESIST(ELEC|FIRE):VULN(DISINTEGRATE)
+S:1_IN_4 | SLOW | CONFUSE | BO_ACID
+D:A stumpy figure carved from stone, with glittering eyes.
+I:COLOR(Umber)
+P:Copy:Golem:Mauler
+
+N:g.colbran:g.base:Colbran
+I:LVL(27,70):RARITY(2)
+I:SPEED(+10):HP(80d12):AC(80):EXP(900)
+I:LIGHT(1):CAN(REFLECT):MOVE(FLY)
+B:HIT(x2):ELEC(3d8)
+A:ELEC(2d2)
+I:RESIST(ELEC|-COLD)
+S:1_IN_3 | BO_ELEC
+D:A man-shaped form of living lightning, sparks and shocks crackle all over
+D:this madly capering figure, as it leaps and whirls around and about you.
+I:COLOR(Blue)
+P:Copy:Golem:Mauler
+
+N:g.Cleaner:g.base:The Ultimate Dungeon Cleaner
+I:LVL(28):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+10):HP(840):AC(80):EXP(555)
+I:CAN(REFLECT):MOVE(TRAMPLE|DESTROY)
+B:CRUSH(x4):HURT(1d10+6)
+I:RESIST(ELEC|FIRE|SHARDS):IMMUNE(TELE)
+D:It looks like a huge spiked roller. It was designed to keep this dungeon
+D:clean, and you are the biggest spot of dirt in sight.
+I:COLOR(Light Dark)
+P:Body:Auto-roller
+
+N:g.mithril:g.base:Mithril golem
+I:LVL(30,80):RARITY(4)
+I:HP(700):AC(100):EXP(500)
+I:CAN(REFLECT)
+B:HIT:HURT(3d10+35):STUN(2d5, 35%)
+I:RESIST(ELEC|FIRE)
+O:2d2:OBJ(GOLD_MITHRIL)
+D:It is a massive statue of purest mithril. It looks expensive!
+I:COLOR(Light Blue)
+
+N:g.eog:g.base:Eog golem
+I:LVL(35):RARITY(4)
+I:HP(1100):AC(125):EXP(1200)
+I:CAN(REFLECT)
+B:HIT:HURT(3d10+70):STUN(2d6, 35%)
+I:RESIST(ELEC|FIRE)
+O:2d2:OBJ(GOLD)
+D:It is a massive deep brown statue, striding towards you with an all-too-familiar purpose.
+D:Your magic surprisingly feels much less powerful now.
+I:COLOR(Light Dark)
+
+N:g.colossus:g.base:Colossus
+I:LVL(36):RARITY(4)
+I:SPEED(-5):HP(1500):AC(150):EXP(3000)
+I:CAN(REFLECT):ALERT(150')
+B:HIT:HURT(3d10+70):SHATTER(8d8):STUN(2d8, 40%)
+I:RESIST(ELEC|FIRE):VULN(DISINTEGRATE)
+D:An enormous construct resembling a titan made from stone. It strides purposefully towards
+D:you, swinging its slow fists with earth-shattering power.
+I:COLOR(Yellow)
+P:Copy:Golem:Mauler
+P:Life:120
+P:Weight:1000
+
+N:g.sky:g.base:Sky golem
+I:LVL(40):RARITY(3)
+I:HP(800):AC(116):EXP(4000)
+I:ALERT(200'):MOVE(FLY)
+B:HIT:HURT(10d10):COLD(7d7):STUN(2d8, 35%)
+I:RESIST(LIGHT|TIME)
+S:FREQ_10 | BR_LIGHT | BA_COLD | BR_COLD | BO_ICE | BO_COLD | BR_TIME
+D:Obsidian eyes stare at you as you bend before the shower of heavenly powers and spells...
+I:COLOR(Light Blue)
+P:Copy:Golem:Mauler
+P:Weight:1000
+
+N:g.juggernaut:g.base:Juggernaut of Khorne
+I:LVL(43):RARITY(3)
+I:SPEED(+10):HP(90d19):AC(90):EXP(2500)
+I:KIND(DEMON):ALIGN(Evil):CAN(REFLECT):ATTR(RIDING)
+I:MOVE(DESTROY)
+B:BUTT(x2):HURT(3d6+17)
+B:CRUSH(x2):HURT(5d6+17)
+I:RESIST(ELEC|FIRE|NETHER)
+D:A great, vicious beast whose flesh is made of steel and whose blood is fire.
+D:It charges at you ignoring everything else.
+I:COLOR(Light Dark)
+P:Body:Hound
+
+N:g.drolem:g.base:Drolem
+I:LVL(48):RARITY(3)
+I:SPEED(+10):HP(3000):AC(130):EXP(12000)
+I:KIND(DRAGON):ATTR(RIDING)
+I:ALERT(250',Fairly Unseeing):MOVE(SWIM)
+B:BITE(x2):HURT(5d8)
+B:CLAW(x2):HURT(2d3):POISON(2d3)
+I:RESIST(ELEC|FIRE|TELE)
+S:FREQ_10 | SHOOT(5d8) | BR_POISON | BLIND | SLOW | CONFUSE
+D:A constructed dragon, the drolem has massive strength. Powerful spells
+D:weaved during its creation make it a fearsome adversary. Its eyes show
+D:little intelligence, but it has been instructed to destroy all it meets.
+I:COLOR(Green)
+P:Copy:Golem:Mauler
+P:Body:Dragon
+P:Weight:500
+
+N:g.Lems:g.base:Lems the Cyborg
+I:LVL(61):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+20):HP(5000):AC(160):EXP(26000)
+I:CAN(REGEN):ATTR(MALE)
+I:ALERT(300',Ever Vigilant):MOVE(TRAMPLE|SWIM)
+B:PUNCH(x2):HURT(8d10+10)
+B:KICK(x2):SHATTER(10d10+30)
+I:RESIST(FIRE)
+I:COLOR(Light White):POS(CORPSE|SEE_INVIS)
+P:Copy:Golem:Warrior
+P:Stats:3:0:0:0:2:0
+P:Life:105
+P:Body:Monk
+P:Speed:+7
+P:Weight:1000
+
+N:g.Wahha-Man:g.base:Wahha-Man the Golden
+I:LVL(85):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+20):HP(10000):AC(200):EXP(50000)
+I:ALIGN(Good):LIGHT(2):CAN(REFLECT|REGEN)
+I:ALERT(1000',Ever Vigilant):MOVE(RAND_25|PUSH|TUNNEL|FLY)
+B:HIT(x4):HURT(10d10+85)
+I:RESIST(ACID|ELEC|FIRE|NETHER|NEXUS|DISINTEGRATE|TIME|WATER|PLASMA|FORCE|INERTIA|GRAVITY)
+D:He was the braver of Atlantis. His body was converted by a Shinto priest,
+D:in order to fight against "Papa". His body is now made by Orihalcon.
+I:COLOR(Yellow):POS(CORPSE|SEE_INVIS)
+P:Copy:Golem:Warrior
+P:Stats:5:0:0:0:3:3
+P:Life:110
+P:Body:Monk
+P:Speed:+10
+P:Weight:2000
+
+N:g.Destroyer:g.base:The Destroyer
+I:LVL(94):RARITY(1):ALLOC(UNIQUE)
+I:SPEED(+20):HP(20000):AC(200):EXP(125000)
+I:CAN(REFLECT|REGEN)
+I:ALERT(1000',Ever Vigilant):MOVE(PUSH|TUNNEL|FLY)
+B:HIT(x4,70lbs):HURT(10d10+85)
+I:RESIST(NETHER|NEXUS|DISENCHANT|WATER|PLASMA|FORCE|INERTIA|GRAVITY):IMMUNE(BASE)
+S:FREQ_20 | BR_DISINTEGRATE | BO_MANA
+O:1%:ART(].Destroyer)
+D:The Destroyer was built by the Norse deities to be their ultimate weapon
+D:against the space gods who had arrived to judge the world. Unfortunately,
+D:the Destroyer has gone berserk and is destroying everything it sees. The
+D:mystical Destroyer is nearly indestructible, and it is said that when it
+D:uses its power of complete disintegration, the day of Ragnarok is near.
+I:COLOR(Light White)
+P:Copy:Golem:Mauler
+P:Stats:7:0:0:0:5:5
+P:Life:120
+P:Body:Monk
+P:Speed:+10
+P:Weight:5000
+
+# vim: filetype=ri :
+

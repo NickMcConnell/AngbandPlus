@@ -1,5 +1,7 @@
 #include "angband.h"
 
+#include <assert.h>
+
 /****************************************************************
  * Amberite
  ****************************************************************/
@@ -15,8 +17,8 @@ static int _amberite_get_powers(spell_info* spells, int max)
 }
 static void _amberite_calc_bonuses(void)
 {
-    p_ptr->sustain_con = TRUE;
-    p_ptr->regen += 100;
+    plr->sustain_con = TRUE;
+    plr->regen += 100;
 }
 static void _amberite_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -85,24 +87,24 @@ int android_obj_exp(object_type *o_ptr)
     if (!o_ptr) return 0;
     if (!obj_is_wearable(o_ptr)) return 0;
     if (obj_is_jewelry(o_ptr)) return 0;
-    if (o_ptr->tval == TV_LITE) return 0;
+    if (o_ptr->tval == TV_LIGHT) return 0;
 
     value = _obj_value(o_ptr);
     if (value <= 0) return 0;
-    if (object_is_(o_ptr, TV_SOFT_ARMOR, SV_ABUNAI_MIZUGI) && p_ptr->personality != PERS_SEXY)
+    if (object_is_(o_ptr, TV_SOFT_ARMOR, SV_ABUNAI_MIZUGI) && plr->personality != PERS_SEXY)
         value /= 32;
     if (value > 5000000) value = 5000000;
 
     level = MAX(k_info[o_ptr->k_idx].level - 8, 1);
 
-    if (obj_is_std_art(o_ptr))
+    if (o_ptr->art_id)
     {
-        artifact_type *a_ptr = &a_info[o_ptr->name1];
-        int            a_lvl = MAX(a_ptr->level - 8, 5);
-        int            r_div = a_ptr->gen_flags & OFG_INSTA_ART ? 10 : 3;
+        art_ptr art = arts_lookup(o_ptr->art_id);
+        int     a_lvl = MAX(art->level - 8, 5);
+        int     r_div = art->gen_flags & OFG_INSTA_ART ? 10 : 3;
 
         level = (level + a_lvl) / 2;
-        level += MIN(20, a_ptr->rarity/r_div);
+        level += MIN(20, art->rarity/r_div);
     }
     else if (o_ptr->art_name || o_ptr->name2)
     {
@@ -148,16 +150,16 @@ void android_calc_exp(void)
     int slot;
     s32b total_exp = 0;
 
-    if (p_ptr->is_dead) return;
+    if (plr->is_dead) return;
 
-    if (p_ptr->prace != RACE_ANDROID) return;
+    if (plr->prace != RACE_ANDROID) return;
 
     for (slot = 1; slot <= equip_max(); slot++)
     {
         object_type *o_ptr = equip_obj(slot);
         total_exp += android_obj_exp(o_ptr);
     }
-    p_ptr->exp = p_ptr->max_exp = total_exp;
+    plr->exp = plr->max_exp = total_exp;
     check_experience();
 }
 
@@ -167,60 +169,60 @@ static int _android_get_powers(spell_info* spells, int max)
     int         ct = 0;
     spell_info *spell = &spells[ct++];
 
-    if (p_ptr->lev < 10)
+    if (plr->lev < 10)
     {
         spell->level = 1;
         spell->cost = 7;
-        spell->fail = calculate_fail_rate(1, 30, p_ptr->stat_ind[A_STR]);
+        spell->fail = calculate_fail_rate(1, 30, plr->stat_ind[A_STR]);
         spell->fn = android_ray_gun_spell;
     }
-    else if (p_ptr->lev < 25)
+    else if (plr->lev < 25)
     {
         spell->level = 10;
         spell->cost = 13;
-        spell->fail = calculate_fail_rate(10, 30, p_ptr->stat_ind[A_STR]);
+        spell->fail = calculate_fail_rate(10, 30, plr->stat_ind[A_STR]);
         spell->fn = android_blaster_spell;
     }
-    else if (p_ptr->lev < 35)
+    else if (plr->lev < 35)
     {
         spell->level = 25;
         spell->cost = 26;
-        spell->fail = calculate_fail_rate(25, 40, p_ptr->stat_ind[A_STR]);
+        spell->fail = calculate_fail_rate(25, 40, plr->stat_ind[A_STR]);
         spell->fn = android_bazooka_spell;
     }
-    else if (p_ptr->lev < 45)
+    else if (plr->lev < 45)
     {
         spell->level = 35;
         spell->cost = 40;
-        spell->fail = calculate_fail_rate(35, 50, p_ptr->stat_ind[A_STR]);
+        spell->fail = calculate_fail_rate(35, 50, plr->stat_ind[A_STR]);
         spell->fn = android_beam_cannon_spell;
     }
     else
     {
         spell->level = 45;
         spell->cost = 60;
-        spell->fail = calculate_fail_rate(45, 70, p_ptr->stat_ind[A_STR]);
+        spell->fail = calculate_fail_rate(45, 70, plr->stat_ind[A_STR]);
         spell->fn = android_rocket_spell;
     }
     return ct;
 }
 static void _android_calc_bonuses(void)
 {
-    int ac = 10 + (p_ptr->lev * 2 / 5);
+    int ac = 10 + (plr->lev * 2 / 5);
 
-    p_ptr->to_a += ac;
-    p_ptr->dis_to_a += ac;
+    plr->to_a += ac;
+    plr->dis_to_a += ac;
 
-    p_ptr->slow_digest = TRUE;
-    p_ptr->free_act++;
-    res_add(RES_POIS);
-    /*res_add_vuln(RES_ELEC); cf resists.c res_pct_aux() for an alternative*/
-    p_ptr->hold_life++;
+    plr->slow_digest = TRUE;
+    plr->free_act++;
+    res_add(GF_POIS);
+    /*res_add_vuln(GF_ELEC); cf resists.c res_pct_aux() for an alternative*/
+    plr->hold_life++;
 }
 static void _android_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_FREE_ACT);
-    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_RES_(GF_POIS));
     add_flag(flgs, OF_SLOW_DIGEST);
     add_flag(flgs, OF_HOLD_LIFE);
     /*add_flag(flgs, TR_VULN_ELEC);*/
@@ -235,7 +237,7 @@ static void _android_birth(void)
 
     plr_birth_light();
 
-    p_ptr->au /= 5;
+    plr->au /= 5;
 }
 plr_race_ptr android_get_race(void)
 {
@@ -295,9 +297,9 @@ plr_race_ptr android_get_race(void)
  ****************************************************************/
 static void _archon_calc_bonuses(void)
 {
-    p_ptr->levitation = TRUE;
-    p_ptr->see_inv++;
-    p_ptr->align += 200;
+    plr->levitation = TRUE;
+    plr->see_inv++;
+    plr->align += 200;
 }
 static void _archon_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -361,19 +363,19 @@ static int _balrog_get_powers(spell_info* spells, int max)
 }
 static void _balrog_calc_bonuses(void)
 {
-    res_add(RES_FIRE);
-    res_add(RES_NETHER);
-    p_ptr->hold_life++;
-    if (p_ptr->lev >= 10) p_ptr->see_inv++;
-    if (p_ptr->lev >= 45) res_add(RES_FIRE);
-    p_ptr->align -= 200;
+    res_add(GF_FIRE);
+    res_add(GF_NETHER);
+    plr->hold_life++;
+    if (plr->lev >= 10) plr->see_inv++;
+    if (plr->lev >= 45) res_add(GF_FIRE);
+    plr->align -= 200;
 }
 static void _balrog_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_FIRE);
-    add_flag(flgs, OF_RES_NETHER);
+    add_flag(flgs, OF_RES_(GF_FIRE));
+    add_flag(flgs, OF_RES_(GF_NETHER));
     add_flag(flgs, OF_HOLD_LIFE);
-    if (p_ptr->lev >= 10)
+    if (plr->lev >= 10)
         add_flag(flgs, OF_SEE_INVIS);
 }
 static void _balrog_birth(void)
@@ -384,7 +386,7 @@ static void _balrog_birth(void)
     {
         object_type forge = {0};
         object_prep(&forge, lookup_kind(TV_CORPSE, SV_CORPSE));
-        forge.pval = mon_alloc_choose(2)->id;
+        forge.race_id = mon_alloc_choose(2)->id;
         plr_birth_obj(&forge);
     }
     mon_alloc_pop_filter();
@@ -451,11 +453,11 @@ static int _barbarian_get_powers(spell_info* spells, int max)
 }
 static void _barbarian_calc_bonuses(void)
 {
-    res_add(RES_FEAR);
+    res_add(GF_FEAR);
 }
 static void _barbarian_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_FEAR);
+    add_flag(flgs, OF_RES_(GF_FEAR));
 }
 plr_race_ptr barbarian_get_race(void)
 {
@@ -513,13 +515,13 @@ static void _beastman_gain_level(int new_level)
 }
 static void _beastman_calc_bonuses(void)
 {
-    res_add(RES_CONF);
-    res_add(RES_SOUND);
+    res_add(GF_CONF);
+    res_add(GF_SOUND);
 }
 static void _beastman_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_SOUND);
-    add_flag(flgs, OF_RES_CONF);
+    add_flag(flgs, OF_RES_(GF_SOUND));
+    add_flag(flgs, OF_RES_(GF_CONF));
 }
 static void _beastman_birth(void)
 {
@@ -598,29 +600,30 @@ void jump_spell(int cmd, var_ptr res)
         var_set_string(res, "Leap a short distance, clearing any intervening monsters or obstacles.");
         break;
     case SPELL_CAST: {
-        int x, y;
-        int len = 2 + p_ptr->lev/35;
+        point_t pos;
+        int len = 2 + plr->lev/35;
 
         var_set_bool(res, FALSE);
 
-        if (!tgt_pt(&x, &y, len)) return;
+        pos = target_pos(len);
+        if (!dun_pos_interior(cave, pos)) return;
 
-        if (distance(y, x, p_ptr->pos.y, p_ptr->pos.x) > len)
+        if (point_fast_distance(plr->pos, pos) > len)
         {
             msg_print("You can't jump that far.");
             return;
         }
-        if (!los(p_ptr->pos.y, p_ptr->pos.x, y, x))
+        if (!plr_view(pos))
         {
             msg_print("You can't see that location.");
             return;
         }
-        if (!cave_player_teleportable_bold(y, x, 0L))
+        if (!cave_player_teleportable_bold(pos, 0))
         {
             msg_print("You can't leap there!");
             return;
         }
-        teleport_player_to(y, x, 0L);
+        teleport_player_to(pos, 0);
 
         var_set_bool(res, TRUE);
         break; }
@@ -644,43 +647,48 @@ static int _centaur_get_powers(spell_info* spells, int max)
 static void _centaur_calc_bonuses(void)
 {
     int slot = equip_find_first(obj_is_body_armor);
-    p_ptr->pspeed += p_ptr->lev / 10;
+    plr->pspeed += plr->lev / 10;
 
     if (slot)
     {
         object_type *o_ptr = equip_obj(slot);
-        p_ptr->to_a -= o_ptr->ac / 3;
-        p_ptr->dis_to_a -= o_ptr->ac / 3;
+        plr->to_a -= o_ptr->ac / 3;
+        plr->dis_to_a -= o_ptr->ac / 3;
 
         if (o_ptr->to_a > 0)
         {
-            p_ptr->to_a -= o_ptr->to_a / 3;
-            p_ptr->dis_to_a -= o_ptr->to_a / 3;
+            plr->to_a -= o_ptr->to_a / 3;
+            plr->dis_to_a -= o_ptr->to_a / 3;
         }
     }
 }
 
 static void _centaur_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    if (p_ptr->lev >= 10)
+    if (plr->lev >= 10)
         add_flag(flgs, OF_SPEED);
 }
 
 static void _centaur_calc_innate_bonuses(mon_blow_ptr blow)
 {
     if (blow->method == RBM_KICK)
-        plr_calc_blows_innate(blow, 200);
+    {
+        plr->innate_attack_info.blows_calc.wgt = 100;
+        plr->innate_attack_info.blows_calc.mul = 40;
+        plr->innate_attack_info.blows_calc.max = 200;
+        plr_calc_blows_innate(blow);
+    }
 }
 static void _centaur_calc_innate_attacks(void)
 {
-    int l = p_ptr->lev;
+    int l = plr->lev;
     mon_blow_ptr blow = mon_blow_alloc(RBM_KICK);
     blow->name = "Hooves";
     blow->weight = 150;
     blow->power = l*3/2;
     mon_blow_push_effect(blow, RBE_HURT, dice_create(1 + l/16, 4 + l/21, plr_prorata_level(15)));
     _centaur_calc_innate_bonuses(blow);
-    vec_add(p_ptr->innate_blows, blow);
+    vec_add(plr->innate_blows, blow);
 }
 
 plr_race_ptr centaur_get_race(void)
@@ -729,7 +737,7 @@ plr_race_ptr centaur_get_race(void)
         me->hooks.calc_bonuses = _centaur_calc_bonuses;
         me->hooks.get_flags = _centaur_get_flags;
 
-        me->equip_template = &b_info[46];
+        me->equip_template = equip_template_parse("Centaur");
     }
 
     return me;
@@ -749,11 +757,11 @@ static int _cyclops_get_powers(spell_info* spells, int max)
 }
 static void _cyclops_calc_bonuses(void)
 {
-    res_add(RES_SOUND);
+    res_add(GF_SOUND);
 }
 static void _cyclops_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_SOUND);
+    add_flag(flgs, OF_RES_(GF_SOUND));
 }
 plr_race_ptr cyclops_get_race(void)
 {
@@ -812,15 +820,15 @@ static int _dark_elf_get_powers(spell_info* spells, int max)
 }
 static void _dark_elf_calc_bonuses(void)
 {
-    res_add(RES_DARK);
-    p_ptr->spell_cap += 3;
-    if (p_ptr->lev >= 20) p_ptr->see_inv++;
+    res_add(GF_DARK);
+    plr->spell_cap += 3;
+    if (plr->lev >= 20) plr->see_inv++;
 }
 static void _dark_elf_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_DARK);
+    add_flag(flgs, OF_RES_(GF_DARK));
     add_flag(flgs, OF_SPELL_CAP);
-    if (p_ptr->lev >= 20)
+    if (plr->lev >= 20)
         add_flag(flgs, OF_SEE_INVIS);
 }
 plr_race_ptr dark_elf_get_race(void)
@@ -872,27 +880,27 @@ plr_race_ptr dark_elf_get_race(void)
  ****************************************************************/
 static int _draconian_breath_amount(void)
 {
-    int l = p_ptr->lev;
+    int l = plr->lev;
     int amt = 0;
 
-    switch (p_ptr->psubrace)
+    switch (plr->psubrace)
     {
     case DRACONIAN_RED:
     case DRACONIAN_WHITE:
     case DRACONIAN_BLUE:
     case DRACONIAN_BLACK:
     case DRACONIAN_GREEN:
-        amt = MIN(500, p_ptr->chp * (25 + l*l*l/2500) / 100);
+        amt = MIN(500, plr->chp * (25 + l*l*l/2500) / 100);
         break;
 
     case DRACONIAN_SHADOW:
-        amt = MIN(400, p_ptr->chp * (20 + l*l*l*35/125000) / 100);
+        amt = MIN(400, plr->chp * (20 + l*l*l*35/125000) / 100);
         break;
 
     case DRACONIAN_CRYSTAL:
     case DRACONIAN_BRONZE:
     case DRACONIAN_GOLD:
-        amt = MIN(350, p_ptr->chp * (20 + l*l*l*30/125000) / 100);
+        amt = MIN(350, plr->chp * (20 + l*l*l*30/125000) / 100);
         break;
     }
 
@@ -904,7 +912,7 @@ static int _draconian_breath_amount(void)
 
 static int _draconian_breath_cost(void)
 {
-    int l = p_ptr->lev;
+    int l = plr->lev;
     int cost = l/2 + l*l*15/2500;
     if (!mut_present(MUT_DRACONIAN_BREATH))
         cost = cost * 2 / 3;
@@ -913,7 +921,7 @@ static int _draconian_breath_cost(void)
 
 static cptr _draconian_breath_desc(void)
 {
-    switch (p_ptr->psubrace)
+    switch (plr->psubrace)
     {
     case DRACONIAN_RED: return "fire";
     case DRACONIAN_WHITE: return "cold";
@@ -930,7 +938,7 @@ static cptr _draconian_breath_desc(void)
 
 static int _draconian_breath_effect(void)
 {
-    switch (p_ptr->psubrace)
+    switch (plr->psubrace)
     {
     case DRACONIAN_RED: return GF_FIRE;
     case DRACONIAN_WHITE: return GF_COLD;
@@ -945,15 +953,15 @@ static int _draconian_breath_effect(void)
     return 0;
 }
 
-static void _draconian_do_breathe(int effect, int dir, int dam)
+static void _draconian_do_breathe(int effect, point_t pos, int dam)
 {
     /* Dragon breath changes shape with maturity */
-    if (p_ptr->lev < 20)
-        fire_bolt(effect, dir, dam);
-    else if (p_ptr->lev < 30)
-        fire_beam(effect, dir, dam);
+    if (plr->lev < 20)
+        plr_bolt(pos, effect, dam);
+    else if (plr->lev < 30)
+        plr_beam(pos, effect, dam);
     else
-        fire_ball(effect, dir, dam, -1 - (p_ptr->lev / 20));
+        plr_breath(1 + plr->lev/20, pos, effect, dam);
 }
 
 static void _draconian_breathe_spell(int cmd, var_ptr res)
@@ -974,16 +982,15 @@ static void _draconian_breathe_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
     {
-        int dir = 0;
+        point_t pos = get_fire_pos_aux(TARGET_KILL | TARGET_BALL);
         var_set_bool(res, FALSE);
-        if (get_fire_dir(&dir))
+        if (dun_pos_interior(cave, pos))
         {
             int e = _draconian_breath_effect();
             int dam = _draconian_breath_amount();
-            var_set_bool(res, FALSE);
             if (e < 0) return;
             msg_format("You breathe %s.", gf_name(e));
-            _draconian_do_breathe(e, dir, dam);
+            _draconian_do_breathe(e, pos, dam);
             var_set_bool(res, TRUE);
         }
         break;
@@ -1005,95 +1012,95 @@ static int _draconian_get_powers(spell_info* spells, int max)
 }
 static void _draconian_calc_bonuses(void)
 {
-    p_ptr->levitation = TRUE;
-    switch (p_ptr->psubrace)
+    plr->levitation = TRUE;
+    switch (plr->psubrace)
     {
     case DRACONIAN_RED:
-        res_add(RES_FIRE);
+        res_add(GF_FIRE);
         break;
     case DRACONIAN_WHITE:
-        res_add(RES_COLD);
+        res_add(GF_COLD);
         break;
     case DRACONIAN_BLUE:
-        res_add(RES_ELEC);
+        res_add(GF_ELEC);
         break;
     case DRACONIAN_BLACK:
-        res_add(RES_ACID);
+        res_add(GF_ACID);
         break;
     case DRACONIAN_GREEN:
-        res_add(RES_POIS);
+        res_add(GF_POIS);
         break;
     case DRACONIAN_BRONZE:
-        res_add(RES_CONF);
+        res_add(GF_CONF);
         break;
     case DRACONIAN_CRYSTAL:
-        res_add(RES_SHARDS);
-        p_ptr->to_a += 10;
-        p_ptr->dis_to_a += 10;
-        if (p_ptr->lev >= 40)
-            p_ptr->reflect = TRUE;
+        res_add(GF_SHARDS);
+        plr->to_a += 10;
+        plr->dis_to_a += 10;
+        if (plr->lev >= 40)
+            plr->reflect = TRUE;
         break;
     case DRACONIAN_GOLD:
-        res_add(RES_SOUND);
+        res_add(GF_SOUND);
         break;
     case DRACONIAN_SHADOW:
-        res_add(RES_NETHER);
+        res_add(GF_NETHER);
         break;
     }
     if (mut_present(MUT_DRACONIAN_METAMORPHOSIS))
     {
-        int l = p_ptr->lev;
+        int l = plr->lev;
         int to_a = plr_prorata_level(75);
         int ac = 15 + (l/10)*5;
 
-        p_ptr->ac += ac;
-        p_ptr->dis_ac += ac;
+        plr->ac += ac;
+        plr->dis_ac += ac;
 
-        p_ptr->to_a += to_a;
-        p_ptr->dis_to_a += to_a;
+        plr->to_a += to_a;
+        plr->dis_to_a += to_a;
     }
 }
 static void _draconian_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_LEVITATION);
-    switch (p_ptr->psubrace)
+    switch (plr->psubrace)
     {
     case DRACONIAN_RED:
-        add_flag(flgs, OF_RES_FIRE);
+        add_flag(flgs, OF_RES_(GF_FIRE));
         break;
     case DRACONIAN_WHITE:
-        add_flag(flgs, OF_RES_COLD);
+        add_flag(flgs, OF_RES_(GF_COLD));
         break;
     case DRACONIAN_BLUE:
-        add_flag(flgs, OF_RES_ELEC);
+        add_flag(flgs, OF_RES_(GF_ELEC));
         break;
     case DRACONIAN_BLACK:
-        add_flag(flgs, OF_RES_ACID);
+        add_flag(flgs, OF_RES_(GF_ACID));
         break;
     case DRACONIAN_GREEN:
-        add_flag(flgs, OF_RES_POIS);
+        add_flag(flgs, OF_RES_(GF_POIS));
         break;
     case DRACONIAN_BRONZE:
-        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_(GF_CONF));
         break;
     case DRACONIAN_CRYSTAL:
-        add_flag(flgs, OF_RES_SHARDS);
-        if (p_ptr->lev >= 40)
+        add_flag(flgs, OF_RES_(GF_SHARDS));
+        if (plr->lev >= 40)
             add_flag(flgs, OF_REFLECT);
         break;
     case DRACONIAN_GOLD:
-        add_flag(flgs, OF_RES_SOUND);
+        add_flag(flgs, OF_RES_(GF_SOUND));
         break;
     case DRACONIAN_SHADOW:
-        add_flag(flgs, OF_RES_NETHER);
+        add_flag(flgs, OF_RES_(GF_NETHER));
         break;
     }
 }
 /* cf design/dragons.ods */
 static int _draconian_attack_level(void)
 {
-    int l = p_ptr->lev * 2;
-    switch (p_ptr->psubrace)
+    int l = plr->lev * 2;
+    switch (plr->psubrace)
     {
     case DRACONIAN_RED:
     case DRACONIAN_WHITE:
@@ -1119,7 +1126,7 @@ static int _draconian_attack_level(void)
         break;
     }
 
-    switch (p_ptr->pclass)
+    switch (plr->pclass)
     {
     case CLASS_WARRIOR:
     case CLASS_MONK:
@@ -1179,22 +1186,22 @@ static void _draconian_calc_innate_attacks(void)
 }
 static void _draconian_gain_power(void)
 {
-    if (p_ptr->draconian_power < 0)
+    if (plr->draconian_power < 0)
     {
         int idx = mut_gain_choice(mut_draconian_pred);
         mut_lock(idx);
-        p_ptr->draconian_power = idx;
+        plr->draconian_power = idx;
         if (idx == MUT_DRACONIAN_METAMORPHOSIS)
         {
             msg_print("You are transformed into a dragon!");
             equip_on_change_race();
         }
     }
-    else if (!mut_present(p_ptr->draconian_power))
+    else if (!mut_present(plr->draconian_power))
     {
-        mut_gain(p_ptr->draconian_power);
-        mut_lock(p_ptr->draconian_power);
-        if (p_ptr->draconian_power == MUT_DRACONIAN_METAMORPHOSIS)
+        mut_gain(plr->draconian_power);
+        mut_lock(plr->draconian_power);
+        if (plr->draconian_power == MUT_DRACONIAN_METAMORPHOSIS)
             equip_on_change_race();
     }
 }
@@ -1207,6 +1214,11 @@ plr_race_ptr draconian_get_race(int psubrace)
 {
     static plr_race_ptr me = NULL;
     static int subrace_init = -1;
+
+    if (birth_hack && psubrace >= DRACONIAN_MAX)
+        psubrace = 0;
+
+    assert(0 <= psubrace && psubrace < DRACONIAN_MAX);
 
     if (!me)
     {
@@ -1389,7 +1401,7 @@ plr_race_ptr draconian_get_race(int psubrace)
     me->hooks.calc_innate_bonuses = NULL;
     if (mut_present(MUT_DRACONIAN_METAMORPHOSIS))
     {
-        me->equip_template = &b_info[20];
+        me->equip_template = equip_template_parse("Dragon");
         me->hooks.calc_innate_attacks = _draconian_calc_innate_attacks;
         me->hooks.calc_innate_bonuses = _draconian_calc_innate_bonuses;
     }
@@ -1401,7 +1413,7 @@ plr_race_ptr draconian_get_race(int psubrace)
  ****************************************************************/
 static void _dunadan_calc_bonuses(void)
 {
-    p_ptr->sustain_con = TRUE;
+    plr->sustain_con = TRUE;
 }
 static void _dunadan_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -1465,11 +1477,11 @@ static int _dwarf_get_powers(spell_info* spells, int max)
 }
 static void _dwarf_calc_bonuses(void)
 {
-    res_add(RES_BLIND);
+    res_add(GF_BLIND);
 }
 static void _dwarf_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_BLIND);
+    add_flag(flgs, OF_RES_(GF_BLIND));
 }
 plr_race_ptr dwarf_get_race(void)
 {
@@ -1529,9 +1541,9 @@ static int _ent_get_powers(spell_info* spells, int max)
 }
 static void _ent_calc_bonuses(void)
 {
-    /*res_add_vuln(RES_FIRE); cf resists.c res_pct_aux() for an alternative*/
+    /*res_add_vuln(GF_FIRE); cf resists.c res_pct_aux() for an alternative*/
     if (!equip_find_first(obj_is_weapon))
-        p_ptr->skill_dig += p_ptr->lev * 10;
+        plr->skill_dig += plr->lev * 10;
 }
 static void _ent_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -1592,9 +1604,9 @@ plr_race_ptr ent_get_race(void)
         if (!spoiler_hack) /* Otherwise, I need to be careful when generating automatic spoiler files! */
         {
             int amount = 0;
-            if (p_ptr->lev >= 26) amount++;
-            if (p_ptr->lev >= 41) amount++;
-            if (p_ptr->lev >= 46) amount++;
+            if (plr->lev >= 26) amount++;
+            if (plr->lev >= 41) amount++;
+            if (plr->lev >= 46) amount++;
             me->stats[A_STR] += amount;
             me->stats[A_DEX] -= amount;
             me->stats[A_CON] += amount;
@@ -1617,7 +1629,7 @@ static int _gnome_get_powers(spell_info* spells, int max)
 }
 static void _gnome_calc_bonuses(void)
 {
-    p_ptr->free_act++;
+    plr->free_act++;
 }
 static void _gnome_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -1682,28 +1694,28 @@ static int _golem_get_powers(spell_info* spells, int max)
 }
 static void _golem_calc_bonuses(void)
 {
-    int ac = 10 + (p_ptr->lev * 2 / 5);
-    p_ptr->to_a += ac;
-    p_ptr->dis_to_a += ac;
-    p_ptr->no_stun = TRUE;
+    int ac = 10 + (plr->lev * 2 / 5);
+    plr->to_a += ac;
+    plr->dis_to_a += ac;
+    res_add_immune(GF_STUN);
 
-    p_ptr->slow_digest = TRUE;
-    p_ptr->free_act++;
-    p_ptr->see_inv++;
-    res_add(RES_POIS);
-    if (p_ptr->lev >= 35) p_ptr->hold_life++;
+    plr->slow_digest = TRUE;
+    plr->free_act++;
+    plr->see_inv++;
+    res_add(GF_POIS);
+    if (plr->lev >= 35) plr->hold_life++;
 
-    p_ptr->pspeed -= p_ptr->lev/16;
+    plr->pspeed -= plr->lev/16;
 }
 static void _golem_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_SEE_INVIS);
     add_flag(flgs, OF_FREE_ACT);
-    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_RES_(GF_POIS));
     add_flag(flgs, OF_SLOW_DIGEST);
-    if (p_ptr->lev >= 35)
+    if (plr->lev >= 35)
         add_flag(flgs, OF_HOLD_LIFE);
-    if (p_ptr->lev >= 16)
+    if (plr->lev >= 16)
         add_flag(flgs, OF_DEC_SPEED);
 }
 static void _golem_birth(void)
@@ -1776,12 +1788,12 @@ static int _half_giant_get_powers(spell_info* spells, int max)
 }
 static void _half_giant_calc_bonuses(void)
 {
-    p_ptr->sustain_str = TRUE;
-    res_add(RES_SHARDS);
+    plr->sustain_str = TRUE;
+    res_add(GF_SHARDS);
 }
 static void _half_giant_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_SHARDS);
+    add_flag(flgs, OF_RES_(GF_SHARDS));
     add_flag(flgs, OF_SUST_STR);
 }
 plr_race_ptr half_giant_get_race(void)
@@ -1841,13 +1853,13 @@ static int _half_ogre_get_powers(spell_info* spells, int max)
 }
 static void _half_ogre_calc_bonuses(void)
 {
-    res_add(RES_DARK);
-    p_ptr->sustain_str = TRUE;
+    res_add(GF_DARK);
+    plr->sustain_str = TRUE;
 }
 static void _half_ogre_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_SUST_STR);
-    add_flag(flgs, OF_RES_DARK);
+    add_flag(flgs, OF_RES_(GF_DARK));
 }
 plr_race_ptr half_ogre_get_race(void)
 {
@@ -1908,11 +1920,11 @@ static int _half_titan_get_powers(spell_info* spells, int max)
 }
 static void _half_titan_calc_bonuses(void)
 {
-    res_add(RES_CHAOS);
+    res_add(GF_CHAOS);
 }
 static void _half_titan_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_CHAOS);
+    add_flag(flgs, OF_RES_(GF_CHAOS));
 }
 plr_race_ptr half_titan_get_race(void)
 {
@@ -1972,14 +1984,14 @@ static int _half_troll_get_powers(spell_info* spells, int max)
 }
 static void _half_troll_calc_bonuses(void)
 {
-    p_ptr->sustain_str = TRUE;
-    if (p_ptr->lev >= 15)
-        p_ptr->regen += 100;
+    plr->sustain_str = TRUE;
+    if (plr->lev >= 15)
+        plr->regen += 100;
 }
 static void _half_troll_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_SUST_STR);
-    if (p_ptr->lev >= 15)
+    if (plr->lev >= 15)
         add_flag(flgs, OF_REGEN);
 }
 plr_race_ptr half_troll_get_race(void)
@@ -2031,12 +2043,12 @@ plr_race_ptr half_troll_get_race(void)
  ****************************************************************/
 static void _high_elf_calc_bonuses(void)
 {
-    res_add(RES_LITE);
-    p_ptr->see_inv++;
+    res_add(GF_LIGHT);
+    plr->see_inv++;
 }
 static void _high_elf_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_LITE);
+    add_flag(flgs, OF_RES_(GF_LIGHT));
     add_flag(flgs, OF_SEE_INVIS);
 }
 plr_race_ptr high_elf_get_race(void)
@@ -2095,6 +2107,14 @@ static int _hobbit_get_powers(spell_info* spells, int max)
 {
     return get_powers_aux(spells, max, _hobbit_powers);
 }
+void _hobbit_shooter_bonuses(obj_ptr obj, plr_shoot_info_ptr info)
+{
+    if (obj_is_(obj, TV_BOW, SV_SLING))
+    {
+        info->to_h += 5;
+        info->dis_to_h += 5;
+    }
+}
 plr_race_ptr hobbit_get_race(void)
 {
     static plr_race_ptr me = NULL;
@@ -2132,6 +2152,7 @@ plr_race_ptr hobbit_get_race(void)
         me->shop_adjust = 100;
 
         me->hooks.get_powers = _hobbit_get_powers;
+        me->hooks.calc_shooter_bonuses = _hobbit_shooter_bonuses;
     }
 
     return me;
@@ -2144,16 +2165,16 @@ plr_race_ptr hobbit_get_race(void)
 {
     if (new_level >= 30)
     {
-        if (p_ptr->demigod_power[0] < 0)
+        if (plr->demigod_power[0] < 0)
         {
             int idx = mut_gain_choice(mut_demigod_pred/*mut_human_pred*/);
             mut_lock(idx);
-            p_ptr->demigod_power[0] = idx;
+            plr->demigod_power[0] = idx;
         }
-        else if (!mut_present(p_ptr->demigod_power[0]))
+        else if (!mut_present(plr->demigod_power[0]))
         {
-            mut_gain(p_ptr->demigod_power[0]);
-            mut_lock(p_ptr->demigod_power[0]);
+            mut_gain(plr->demigod_power[0]);
+            mut_lock(plr->demigod_power[0]);
         }
     }
 }
@@ -2215,13 +2236,13 @@ static int _imp_get_powers(spell_info* spells, int max)
 }
 static void _imp_calc_bonuses(void)
 {
-    res_add(RES_FIRE);
-    if (p_ptr->lev >= 10) p_ptr->see_inv++;
+    res_add(GF_FIRE);
+    if (plr->lev >= 10) plr->see_inv++;
 }
 static void _imp_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_FIRE);
-    if (p_ptr->lev >= 10)
+    add_flag(flgs, OF_RES_(GF_FIRE));
+    if (plr->lev >= 10)
         add_flag(flgs, OF_SEE_INVIS);
 }
 plr_race_ptr imp_get_race(void)

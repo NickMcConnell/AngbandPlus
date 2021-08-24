@@ -1,0 +1,1267 @@
+# Dragons
+
+########################################################################
+# Templates
+T:d.base:Young Dragon
+I:KIND(DRAGON):ATTR(RIDING)
+I:DISPLAY(d):ALERT(200',Overlooks):MOVE(FLY|BASH):POS(CORPSE|GAIN_AC)
+P:Stat:Str(1+4):Int(-1+4):Wis(-2+4):Dex(-2+4):Con(0+4):Chr(1+4)
+P:Skill:Dis(28+40):Dev(35+45):Sav(38+50):Stl(2):Srh(25):Fos(26):Thn(70+100):Thb(30+35)
+P:Class:Beastmaster
+P:Body:Dragon
+P:Life:105
+P:Infra:50'
+P:Weight:150
+
+T:D.base:d.base:Dragon
+I:DISPLAY(D):SPEED(+10):ALERT(250',Inattentive):MOVE(PUSH|CLEARWEB):ATTR(SMART)
+I:RESIST(CONF):IMMUNE(SLEEP|SLOW)
+P:Stat:Str(4+1):Int(2+1):Wis(1+1):Dex(1+1):Con(3+1):Chr(2+1)
+P:Skill:Thn(70+130)
+P:Life:115
+P:Weight:500
+
+########################################################################
+# Black
+N:d.black.baby:d.base:Baby black dragon
+I:LVL(9,40):RARITY(2)
+I:HP(100):AC(30):EXP(35):EVOLVE(d.black.young, 750)
+I:ALIGN(Neutral Evil):ATTR(-RIDING)
+B:CLAW(x2):HURT(1d4)
+B:BITE:HURT(1d5)
+I:RESIST(ACID)
+S:FREQ_5 | BR_ACID | DETECT_OBJECTS 
+O:1d3:OBJ(GOLD)
+D:This hatchling dragon is still soft, its eyes unaccustomed to light and
+D:its scales a dull black.
+I:COLOR(Slate)
+
+N:d.black.young:d.base:Young black dragon
+I:LVL(35):RARITY(1):WILD(SWAMP)
+I:SPEED(+2):HP(250):AC(50):EXP(680):EVOLVE(d.black.mature, 4000)
+I:ALIGN(Neutral Evil)
+B:CLAW(x2):HURT(1d5)
+B:BITE:HURT(1d6)
+I:RESIST(ACID)
+S:FREQ_7 | SCARE | BR_ACID(30%) | DETECT_OBJECTS 
+O:1d2+1:OBJ(*)
+O:1d3:OBJ(GOLD)
+D:It has a form that legends are made of. Its still-tender scales are a
+D:darkest black hue. Acid drips from its body.
+I:COLOR(Light Dark)
+P:Weight:200
+
+N:d.black.mature:d.base:Mature black dragon
+I:LVL(37):RARITY(1):WILD(SWAMP|MOUNTAIN)
+I:SPEED(+5):HP(460):AC(75):EXP(1600):EVOLVE(D.black, 10000)
+I:ALIGN(Evil)
+B:CLAW(x2):HURT(1d8)
+B:BITE:HURT(2d10)
+I:RESIST(ACID|CONF):IMMUNE(SLEEP)
+S:FREQ_9 | SCARE | BR_ACID(30%) | DETECT_OBJECTS 
+O:2d2+1:OBJ(*)
+O:1d3+1:OBJ(GOLD)
+D:A large dragon, with scales of deepest black.
+I:COLOR(Light Dark)
+P:Weight:250
+
+N:D.black:D.base:Ancient black dragon
+I:LVL(39):RARITY(1):WILD(WASTE|MOUNTAIN)
+I:HP(720):AC(90):EXP(2500):EVOLVE(D.bile, 100000)
+I:ALIGN(Evil)
+B:CLAW(x2):HURT(2d9+10)
+B:BITE:HURT(3d10):ACID(2d10)
+I:RESIST(ACID)
+S:FREQ_10 | BLIND | CONFUSE | SCARE | BR_ACID(35%) | DETECT_OBJECTS 
+O:3d2+1:OBJ(*)
+O:1d3+2:OBJ(GOLD)
+M:25%:3d3:MON(D.black, ANCESTOR)
+D:A huge draconic form. Pools of acid melt the floor around it.
+I:COLOR(Light Dark)
+
+N:D.bile:D.base:Great Bile Wyrm
+I:LVL(54):RARITY(2)
+I:SPEED(+12):HP(4000):AC(150):EXP(17000)
+I:ALIGN(Evil):ALERT(300')
+B:CLAW(x2):HURT(3d12+6)
+B:BITE(x2):HURT(3d14+7):ACID(2d14)
+A:ACID(2d4)
+I:IMMUNE(ACID)
+S:FREQ_12 | BR_ACID | BLIND | CONFUSE | SCARE | DETECT_OBJECTS 
+O:3d2+1:OBJ(*, GOOD)
+O:2d3:OBJ(GOLD)
+O:3%:OBJ(black dragon)
+D:A huge and very powerful dragon. Great steaming pools of acid drip from
+D:its form onto the ground. You shudder when you see the acid eating away
+D:the very stones of the dungeon - what could it do to you?
+I:COLOR(Slate):POS(SEE_INVIS)
+P:Weight:1000
+
+########################################################################
+# Blue
+N:d.blue.baby:d.base:Baby blue dragon
+I:LVL(9,40):RARITY(2)
+I:HP(100):AC(30):EXP(35):EVOLVE(d.blue.young, 700)
+I:ALIGN(Neutral Evil):ATTR(-RIDING)
+B:CLAW(x2):HURT(1d4)
+B:BITE:HURT(1d5)
+I:RESIST(ELEC)
+S:FREQ_5 | BR_ELEC | DETECT_OBJECTS 
+O:1d3:OBJ(GOLD)
+D:This hatchling dragon is still soft, its eyes unaccustomed to light and
+D:its scales a pale blue.
+I:COLOR(Light Blue)
+
+N:d.blue.young:d.base:Young blue dragon
+I:LVL(29):RARITY(1):WILD(MOUNTAIN|WOOD)
+I:SPEED(+2):HP(270):AC(50):EXP(330):EVOLVE(d.blue.mature, 4000)
+I:ALIGN(Neutral Evil):LIGHT(1)
+B:CLAW(x2):HURT(1d4)
+B:BITE:HURT(1d6)
+I:RESIST(ELEC)
+S:FREQ_7 | SCARE | DETECT_OBJECTS | BR_ELEC(30%)
+O:1d2+1:OBJ(*)
+O:1d3:OBJ(GOLD)
+D:It has a form that legends are made of. Its still-tender scales are a
+D:deep blue in hue. Sparks crackle along its length.
+I:COLOR(Blue)
+P:Weight:200
+
+N:d.blue.mature:d.base:Mature blue dragon
+I:LVL(36):RARITY(1):WILD(MOUNTAIN|WOOD)
+I:SPEED(+5):HP(400):AC(75):EXP(1400):EVOLVE(D.blue, 10000)
+I:ALIGN(Evil):LIGHT(1)
+B:CLAW(x2):HURT(1d8)
+B:BITE:HURT(2d10)
+I:RESIST(ELEC|CONF):IMMUNE(SLEEP)
+S:FREQ_9 | SCARE | BR_ELEC(30%) | DETECT_OBJECTS 
+O:2d2+1:OBJ(*)
+O:1d3+1:OBJ(GOLD)
+D:A large dragon, scales tinted deep blue.
+I:COLOR(Blue)
+P:Weight:250
+
+N:D.blue:D.base:Ancient blue dragon
+I:LVL(38):RARITY(1)
+I:HP(700):AC(80):EXP(1500):EVOLVE(D.storm, 100000)
+I:ALIGN(Evil):LIGHT(1)
+B:CLAW(x2):HURT(2d8+9)
+B:BITE:HURT(3d8):ELEC(2d8)
+I:RESIST(ELEC)
+S:FREQ_10 | BLIND | CONFUSE | SCARE | BR_ELEC(35%) | DETECT_OBJECTS 
+O:2d2+1:OBJ(*)
+O:1d3+2:OBJ(GOLD)
+M:25%:3d3:MON(D.blue, ANCESTOR)
+D:A huge draconic form. Lightning crackles along its length.
+I:COLOR(Blue)
+
+N:D.storm:D.base:Great Storm Wyrm
+I:LVL(58):RARITY(2):WILD(MOUNTAIN)
+I:SPEED(+13):HP(3000):AC(175):EXP(22000)
+I:ALIGN(Evil):LIGHT(2):ALERT(300')
+B:CLAW(x3):HURT(3d12+20)
+B:BITE:HURT(4d14):ELEC(3d14)
+A:ELEC(3d4)
+I:IMMUNE(ELEC)
+S:FREQ_12 | BLIND | CONFUSE | SCARE | BR_ELEC | BR_STORM | DETECT_OBJECTS 
+O:2d2+2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+O:3%:OBJ(blue dragon)
+D:A vast dragon of power. Storms and lightning crash around its titanic
+D:form. Deep blue scales reflect the flashes and highlight the creature's
+D:great muscles. It regards you with contempt.
+I:COLOR(Blue):POS(SEE_INVIS)
+P:Weight:2000
+
+########################################################################
+# Red
+N:d.red.baby:d.base:Baby red dragon
+I:LVL(9,40):RARITY(2)
+I:HP(110):AC(30):EXP(35):EVOLVE(d.red.young, 850)
+I:ALIGN(Neutral Evil):ATTR(-RIDING)
+B:CLAW(x2):HURT(1d4)
+B:BITE:HURT(1d5)
+I:RESIST(FIRE)
+S:FREQ_5 | BR_FIRE | DETECT_OBJECTS 
+O:1d3:OBJ(GOLD)
+D:This hatchling dragon is still soft, its eyes unaccustomed to light and
+D:its scales a pale red.
+I:COLOR(Light Red)
+
+N:d.red.young:d.base:Young red dragon
+I:LVL(36):RARITY(1):WILD(MOUNTAIN|VOLCANO)
+I:SPEED(+2):HP(290):AC(60):EXP(700):EVOLVE(d.red.mature, 5000)
+I:ALIGN(Neutral Evil):LIGHT(1)
+B:CLAW(x2):HURT(1d8)
+B:BITE:HURT(2d8)
+I:RESIST(FIRE)
+S:FREQ_7 | SCARE | BR_FIRE(30%) | DETECT_OBJECTS 
+O:1d2+1:OBJ(*)
+O:1d3:OBJ(GOLD)
+D:It has a form that legends are made of. Its still-tender scales are a
+D:deepest red hue. Heat radiates from its form.
+I:COLOR(Red)
+P:Weight:200
+
+N:d.red.mature:d.base:Mature red dragon
+I:LVL(37):RARITY(1):WILD(MOUNTAIN|VOLCANO)
+I:SPEED(+5):HP(480):AC(80):EXP(1700):EVOLVE(D.red, 10000)
+I:ALIGN(Evil):LIGHT(1)
+B:CLAW(x2):HURT(2d4)
+B:BITE:HURT(2d12)
+I:RESIST(FIRE|CONF):IMMUNE(SLEEP)
+S:FREQ_9 | CONFUSE | SCARE | BR_FIRE(30%) | DETECT_OBJECTS 
+O:2d2+1:OBJ(*)
+O:1d3+1:OBJ(GOLD)
+D:A large dragon, scales tinted deep red.
+I:COLOR(Red)
+P:Weight:250
+
+N:D.red:D.base:Ancient red dragon
+I:LVL(40):RARITY(1):WILD(MOUNTAIN|VOLCANO)
+I:HP(1000):AC(100):EXP(2750):EVOLVE(D.hell, 100000)
+I:ALIGN(Evil):LIGHT(2)
+B:CLAW(x2):HURT(2d10+11)
+B:BITE:HURT(3d12):FIRE(3d12)
+I:RESIST(FIRE)
+S:FREQ_10 | BLIND | CONFUSE | SCARE | BR_FIRE(35%) | DETECT_OBJECTS 
+O:3d2+1:OBJ(*)
+O:1d3+2:OBJ(GOLD)
+M:25%:3d3:MON(D.red, ANCESTOR)
+D:A huge draconic form. Wisps of smoke steam from its nostrils and the
+D:extreme heat surrounding it makes you gasp for breath.
+I:COLOR(Red)
+
+N:D.hell:D.base:Great Hell Wyrm
+I:LVL(55):RARITY(2):WILD(VOLCANO)
+I:SPEED(+12):HP(5400):AC(170):EXP(18000)
+I:ALIGN(Evil):LIGHT(3):ALERT(400')
+B:CLAW(x3):HURT(2d12+13)
+B:BITE:HURT(3d14+15)
+A:FIRE(3d4)
+I:IMMUNE(FIRE)
+S:FREQ_12 | BLIND | CONFUSE | SCARE | BR_FIRE | DETECT_OBJECTS 
+O:6d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+O:3%:OBJ(red dragon)
+D:A vast dragon of immense power. Fire leaps continuously from its huge
+D:form. The air around it scalds you. Its slightest glance burns you, and
+D:you truly realize how insignificant you are.
+I:COLOR(Red):POS(SEE_INVIS)
+P:Weight:2000
+
+########################################################################
+# White
+N:d.white.baby:d.base:Baby white dragon
+I:LVL(9,40):RARITY(2)
+I:HP(100):AC(30):EXP(35):EVOLVE(d.white.young, 700)
+I:ALIGN(Neutral Evil):ATTR(-RIDING)
+B:CLAW(x2):HURT(1d4)
+B:BITE:HURT(1d5)
+I:RESIST(COLD)
+O:1d3:OBJ(GOLD)
+S:FREQ_5 | BR_COLD | DETECT_OBJECTS 
+D:This hatchling dragon is still soft, its eyes unaccustomed to light and
+D:its scales a pale white.
+I:COLOR(Light White)
+
+N:d.white.young:d.base:Young white dragon
+I:LVL(29):RARITY(1):WILD(MOUNTAIN|WASTE)
+I:SPEED(+2):HP(270):AC(50):EXP(300):EVOLVE(d.white.mature, 4000)
+I:ALIGN(Neutral Evil)
+B:CLAW(x2):HURT(1d4)
+B:BITE:HURT(1d6)
+I:RESIST(COLD)
+S:FREQ_7 | SCARE | BR_COLD(30%) | DETECT_OBJECTS 
+O:1d2+1:OBJ(*)
+O:1d3:OBJ(GOLD)
+D:It has a form that legends are made of. Its still-tender scales are a
+D:frosty white in hue. Icy blasts of cold air come from it as it breathes.
+I:COLOR(White)
+P:Weight:200
+
+N:d.white.mature:d.base:Mature white dragon
+I:LVL(35):RARITY(1):WILD(MOUNTAIN|WASTE)
+I:SPEED(+5):HP(400):AC(65):EXP(1200):EVOLVE(D.white, 10000)
+I:ALIGN(Evil)
+B:CLAW(x2):HURT(1d8)
+B:BITE:HURT(2d8)
+I:RESIST(COLD|CONF):IMMUNE(SLEEP)
+S:FREQ_9 | SCARE | BR_COLD(30%) | DETECT_OBJECTS 
+O:1d2+1:OBJ(*)
+O:1d3:OBJ(GOLD)
+D:A large dragon, scales gleaming bright white.
+I:COLOR(White)
+P:Weight:250
+
+N:D.white:D.base:Ancient white dragon
+I:LVL(39):RARITY(1):WILD(MOUNTAIN|WASTE)
+I:HP(700):AC(90):EXP(2500):EVOLVE(D.ice, 100000)
+I:ALIGN(Evil)
+B:CLAW(x2):HURT(2d9+10)
+B:BITE:HURT(3d10):COLD(3d10)
+I:RESIST(COLD)
+S:FREQ_10 | BLIND | CONFUSE | SCARE | BR_COLD(35%) | DETECT_OBJECTS 
+O:3d2+1:OBJ(*)
+O:1d3+2:OBJ(GOLD)
+M:25%:3d3:MON(D.white, ANCESTOR)
+D:A huge draconic form. Frost covers it from head to tail.
+I:COLOR(White)
+
+N:D.ice:D.base:Great Ice Wyrm
+I:LVL(54):RARITY(2)
+I:SPEED(+12):HP(3000):AC(170):EXP(15000)
+I:ALIGN(Evil):ALERT(300')
+B:CLAW(x3):HURT(2d12+13)
+B:BITE:HURT(3d14):COLD(2d14)
+A:COLD(3d4)
+I:IMMUNE(COLD)
+S:FREQ_12 | BLIND | CONFUSE | SCARE | BR_COLD | DETECT_OBJECTS 
+O:2d2+2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+O:3%:OBJ(white dragon)
+D:An immense dragon capable of awesome destruction. You have never felt
+D:such extreme cold, or witnessed such an icy stare. Begone quickly or feel
+D:its wrath!
+I:COLOR(White):POS(SEE_INVIS)
+P:Weight:2000
+
+########################################################################
+# Green
+N:d.green.baby:d.base:Baby green dragon
+I:LVL(9,40):RARITY(2)
+I:HP(100):AC(30):EXP(35):EVOLVE(d.green.young, 700)
+I:ALIGN(Neutral Evil):ATTR(-RIDING)
+B:CLAW(x2):HURT(1d4)
+B:BITE:HURT(1d5)
+I:RESIST(POIS)
+S:FREQ_5 | BR_POISON | DETECT_OBJECTS 
+O:1d3:OBJ(GOLD)
+D:This hatchling dragon is still soft, its eyes unaccustomed to light and
+D:its scales a sickly green.
+I:COLOR(Light Green)
+
+N:d.green.young:d.base:Young green dragon
+I:LVL(29):RARITY(1):WILD(MOUNTAIN|SWAMP)
+I:SPEED(+2):HP(270):AC(60):EXP(320):EVOLVE(d.green.mature, 4000)
+I:ALIGN(Neutral Evil)
+B:CLAW(x2):HURT(1d4)
+B:BITE:HURT(1d6)
+I:RESIST(POIS)
+S:FREQ_7 | SCARE | BR_POISON(25%) | DETECT_OBJECTS 
+O:1d2+1:OBJ(*)
+O:1d3:OBJ(GOLD)
+D:It has a form that legends are made of. Its still-tender scales are a
+D:deep green in hue. Foul gas seeps through its scales.
+I:COLOR(Green)
+P:Weight:200
+
+N:d.green.mature:d.base:Mature green dragon
+I:LVL(36):RARITY(1):WILD(MOUNTAIN|SWAMP)
+I:SPEED(+5):HP(400):AC(70):EXP(1300):EVOLVE(D.green, 10000)
+I:ALIGN(Evil)
+B:CLAW(x2):HURT(1d8)
+B:BITE:HURT(2d10)
+I:RESIST(POIS|CONF):IMMUNE(SLEEP)
+S:FREQ_9 | SCARE | BR_POISON | DETECT_OBJECTS 
+O:2d2+1:OBJ(*)
+O:1d3+1:OBJ(GOLD)
+D:A large dragon, scales tinted deep green.
+I:COLOR(Green)
+P:Weight:250
+
+N:D.green:D.base:Ancient green dragon
+I:LVL(39):RARITY(1):WILD(MOUNTAIN|WASTE)
+I:HP(720):AC(85):EXP(2400):EVOLVE(D.venom, 100000)
+I:ALIGN(Evil)
+B:CLAW(x2):HURT(2d8+9)
+B:BITE:HURT(3d10):POISON(3d10)
+I:RESIST(POIS)
+S:FREQ_10 | BLIND | CONFUSE | SCARE | BR_POISON | DETECT_OBJECTS 
+O:3d2+1:OBJ(*)
+O:1d3+2:OBJ(GOLD)
+M:25%:3d3:MON(D.green, ANCESTOR)
+D:A huge draconic form enveloped in clouds of poisonous vapour.
+I:COLOR(Green)
+
+N:D.venom:D.base:Great Venom Wyrm
+I:LVL(55):RARITY(2)
+I:SPEED(+12):HP(5400):AC(170):EXP(16000)
+I:ALIGN(Evil):ALERT(300')
+B:CLAW(x3):HURT(2d12+12)
+B:BITE:HURT(3d14+14):POISON(2d14)
+I:IMMUNE(POIS)
+S:FREQ_12 | BLIND | CONFUSE | SCARE | BR_POISON | DETECT_OBJECTS 
+O:2d2+2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+O:3%:OBJ(green dragon)
+D:A huge dragon of incredible destructive power. Noxious vapours
+D:fill the room near it, leaving you gasping for breath. Flee
+D:now while you still can!
+I:COLOR(Green):POS(SEE_INVIS)
+P:Weight:1000
+
+########################################################################
+# Multi-hued
+T:d.multi-hued.base:d.base:Multi-hued dragon
+I:DISPLAY(,Violet,ATTR_MULTI):ALIGN(Evil):LIGHT(1)
+I:RESIST(BASE|POIS|CONF):IMMUNE(SLEEP)
+
+T:D.multi-hued.base:D.base:Multi-hued dragon
+I:DISPLAY(,Violet,ATTR_MULTI):POS(SEE_INVIS):ALIGN(Evil):LIGHT(2)
+I:RESIST(BASE|POIS)
+
+N:d.multi-hued.baby:d.multi-hued.base:Baby multi-hued dragon
+I:LVL(11,40):RARITY(2)
+I:HP(130):AC(30):EXP(45):EVOLVE(d.multi-hued.young, 1000)
+I:ATTR(-RIDING):LIGHT(0)
+B:CLAW(x2):HURT(1d4)
+B:BITE:HURT(1d5)
+S:FREQ_5 | BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POISON | DETECT_OBJECTS 
+O:1d3:OBJ(GOLD)
+D:This hatchling dragon is still soft, its eyes unaccustomed to light and
+D:its scales shimmering with a hint of color.
+
+N:d.multi-hued.young:d.multi-hued.base:Young multi-hued dragon
+I:LVL(36):RARITY(1)
+I:SPEED(+3):HP(320):AC(60):EXP(1500):EVOLVE(d.multi-hued.mature, 7000)
+B:CLAW(x2):HURT(1d9)
+B:BITE:HURT(2d8+2)
+S:FREQ_7 | SCARE | DETECT_OBJECTS 
+S:BR_ACID(30%) | BR_FIRE(30%) | BR_COLD(30%) | BR_ELEC(30%) | BR_POISON
+O:2d2+1:OBJ(*)
+O:1d3+1:OBJ(GOLD)
+D:It has a form that legends are made of. Beautiful scales of shimmering
+D:and magical colors cover it.
+P:Weight:200
+
+N:d.multi-hued.mature:d.multi-hued.base:Mature multi-hued dragon
+I:LVL(38):RARITY(2)
+I:SPEED(+7):HP(640):AC(65):EXP(2000):EVOLVE(D.multi-hued, 20000)
+B:CLAW(x2):HURT(1d10)
+B:BITE:HURT(2d12)
+S:FREQ_9 | BLIND | CONFUSE | SCARE | DETECT_OBJECTS
+S:BR_ACID(30%) | BR_FIRE(30%) | BR_COLD(30%) | BR_ELEC(30%) | BR_POISON
+O:3d2+1:OBJ(*)
+O:1d3+2:OBJ(GOLD)
+D:A large dragon, scales shimmering many colors.
+P:Weight:250
+
+N:D.multi-hued:D.multi-hued.base:Ancient multi-hued dragon
+I:LVL(43):RARITY(1):WILD(MOUNTAIN)
+I:HP(2100):AC(100):EXP(15000):EVOLVE(D.colors, 300000)
+B:CLAW(x2):HURT(2d12+13)
+B:BITE:HURT(3d12+20)
+S:FREQ_12 | BLIND | CONFUSE | SCARE | DETECT_OBJECTS
+S:BR_ACID(25%) | BR_FIRE(25%) | BR_COLD(25%) | BR_ELEC(25%) | BR_POISON(25%)
+O:4d2+2:OBJ(*)
+O:1d4+2:OBJ(GOLD)
+M:25%:3d3:MON(D.multi-hued, ANCESTOR)
+D:A huge draconic form. Many colors ripple down its massive frame. Few live to see another.
+
+N:D.colors:D.multi-hued.base:Great Wyrm of Many Colors
+I:LVL(68):RARITY(4):WILD(MOUNTAIN)
+I:SPEED(+15):HP(5200):AC(170):EXP(31000)
+I:ALERT(400',Ignores)
+B:CLAW(x3):HURT(3d12+20)
+B:BITE:HURT(5d14+30)
+A:FIRE(3d5):ELEC(3d5):COLD(3d5)
+I:RESIST(TELE)
+S:FREQ_20 | BR_POISON | BR_ELEC | BR_ACID | BR_FIRE | BR_COLD |
+S:CONFUSE | SCARE | BLIND | DETECT_OBJECTS 
+O:7d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+O:3%:OBJ(multi-hued dragon)
+D:A huge dragon whose scales shimmer in myriad hues.
+P:Weight:2000
+
+########################################################################
+# Bronze 
+N:d.bronze.young:d.base:Young bronze dragon
+I:LVL(29):RARITY(3):WILD(MOUNTAIN)
+I:SPEED(+2):HP(270):AC(60):EXP(340):EVOLVE(d.bronze.mature, 4000)
+I:ALERT(Ignores)
+B:CLAW(x2):HURT(1d4)
+B:BITE:HURT(1d6)
+I:RESIST(CONF):IMMUNE(SLEEP)
+S:FREQ_7 | SCARE | BR_CONFUSION | DETECT_OBJECTS 
+O:1d2+2:OBJ(*)
+O:1d3:OBJ(GOLD)
+D:It has a form that legends are made of. Its still-tender scales are a
+D:rich bronze hue, and its shape masks its true form.
+I:COLOR(Light Umber)
+P:Weight:200
+
+N:d.bronze.mature:d.base:Mature bronze dragon
+I:LVL(36):RARITY(2):WILD(MOUNTAIN)
+I:SPEED(+5):HP(440):AC(70):EXP(1500):EVOLVE(D.bronze, 10000)
+I:ALERT(Ignores)
+B:CLAW(x2):HURT(1d8)
+B:BITE:HURT(2d10)
+I:RESIST(CONF):IMMUNE(SLEEP)
+S:FREQ_9 | CONFUSE | SCARE | BR_CONFUSION | DETECT_OBJECTS 
+O:2d2+1:OBJ(*)
+O:1d3+1:OBJ(GOLD)
+D:A large dragon with scales of rich bronze.
+I:COLOR(Light Umber)
+P:Weight:250
+
+N:D.bronze:D.base:Ancient bronze dragon
+I:LVL(38):RARITY(2):WILD(MOUNTAIN)
+I:HP(730):AC(100):EXP(1700)
+I:ALERT(Ignores)
+B:CLAW(x2):HURT(2d8+9)
+B:BITE:HURT(3d8+9):CONFUSE
+S:FREQ_10 | BLIND | CONFUSE | SCARE | BR_CONFUSION(30%) | DETECT_OBJECTS 
+O:3d2+1:OBJ(*)
+O:1d3+2:OBJ(GOLD)
+M:25%:3d3:MON(D.bronze, ANCESTOR)
+D:A huge draconic form enveloped in a cascade of color.
+I:COLOR(Light Umber)
+
+########################################################################
+# Gold
+N:d.gold.young:d.base:Young gold dragon
+I:LVL(36):RARITY(2):WILD(MOUNTAIN)
+I:SPEED(+2):HP(300):AC(60):EXP(1050):EVOLVE(d.gold.mature, 6000)
+I:ALERT(Ignores)
+B:CLAW(x2):HURT(1d8)
+B:BITE:HURT(2d8)
+I:RESIST(SOUND)
+S:FREQ_7 | SCARE | BR_SOUND | DETECT_OBJECTS 
+O:2d2+1:OBJ(*)
+O:1d3+1:OBJ(GOLD)
+D:It has a form that legends are made of. Its still-tender scales are a
+D:tarnished gold hue, and light is reflected from its form.
+I:COLOR(Yellow)
+P:Weight:200
+
+N:d.gold.mature:d.base:Mature gold dragon
+I:LVL(37):RARITY(2):WILD(MOUNTAIN)
+I:SPEED(+5):HP(560):AC(80):EXP(1800):EVOLVE(D.gold, 12000)
+I:ALERT(Ignores)
+B:CLAW(x2):HURT(2d4)
+B:BITE:HURT(2d12)
+I:RESIST(CONF|SOUND):IMMUNE(SLEEP)
+S:FREQ_9 | CONFUSE | SCARE | BR_SOUND | DETECT_OBJECTS 
+O:2d2+1:OBJ(*)
+O:1d3+1:OBJ(GOLD)
+D:A large dragon with scales of gleaming gold.
+I:COLOR(Yellow)
+P:Weight:250
+
+N:D.gold:D.base:Ancient gold dragon
+I:LVL(40):RARITY(2):WILD(MOUNTAIN)
+I:HP(1500):AC(100):EXP(4000)
+I:ALERT(Ignores)
+B:CLAW(x2):HURT(2d10+11)
+B:BITE:HURT(3d13):STUN(2d4, 25%)
+I:RESIST(SOUND)
+S:FREQ_10 | BLIND | CONFUSE | SCARE | BR_SOUND | DETECT_OBJECTS 
+O:3d2+2:OBJ(*)
+O:1d4+2:OBJ(GOLD)
+M:25%:3d3:MON(D.gold, ANCESTOR)
+D:A huge draconic form wreathed in a nimbus of light.
+I:COLOR(Yellow)
+
+########################################################################
+# Crystal
+N:d.crystal:d.base:Crystal drake
+I:LVL(37):RARITY(2)
+I:SPEED(+10):HP(500):AC(100):EXP(1500):EVOLVE(D.crystal, 11000)
+I:ALIGN(Evil):CAN(REFLECT|INVIS):ALERT(Unseeing)
+B:CLAW(x2):HURT(1d10)
+B:BITE:HURT(2d12)
+I:RESIST(COLD|CONF|SHARDS):IMMUNE(SLEEP)
+S:FREQ_10 | SLOW | CONFUSE | SCARE | BLIND | BR_SHARDS | DETECT_OBJECTS 
+O:2d2+1:OBJ(*)
+O:1d3+1:OBJ(GOLD)
+D:A dragon of strange crystalline form. Light shines through it, dazzling
+D:your eyes with spectrums of color.
+I:DISPLAY(,Light Blue,ATTR_CLEAR):POS(SEE_INVIS)
+P:Weight:250
+
+N:D.crystal:D.base:Great crystal drake
+I:LVL(40):RARITY(2):WILD(MOUNTAIN)
+I:HP(1500):AC(100):EXP(7000)
+I:ALIGN(Evil):CAN(REFLECT|INVIS):ALERT(Unseeing)
+B:CLAW(x2):HURT(2d9+10):CUT(3d3, 50%)
+B:BITE:HURT(3d12+13):CUT(5d5, 50%)
+I:RESIST(COLD|SHARDS)
+S:FREQ_10 | SLOW | CONFUSE | SCARE | BR_SHARDS | DETECT_OBJECTS 
+O:3d2+1:OBJ(*)
+O:1d4+2:OBJ(GOLD)
+D:A huge crystalline dragon. Its claws could cut you to shreds and its
+D:teeth are razor sharp. Strange colors ripple through it as it moves in
+D:the light.
+I:DISPLAY(,Light Blue,ATTR_CLEAR):POS(SEE_INVIS)
+
+########################################################################
+# Ethereal
+N:d.pseudo:d.base:Pseudo dragon
+I:LVL(10,50):RARITY(2)
+I:HP(200):AC(30):EXP(150):EVOLVE(d.ethereal, 1200)
+I:ALERT(Unseeing)
+B:CLAW(x2):HURT(1d4)
+B:BITE:HURT(1d5)
+I:RESIST(LIGHT|DARK)
+S:FREQ_5 | CONFUSE | SCARE | BR_LIGHT | BR_DARK | DETECT_OBJECTS 
+O:60%:OBJ(*$)
+D:A small relative of the dragon that inhabits dark caves.
+I:COLOR(Violet)
+
+N:d.ethereal:d.base:Ethereal drake
+I:LVL(33,70):RARITY(3)
+I:SPEED(+5):HP(450):AC(100):EXP(700):EVOLVE(D.ethereal, 20000)
+I:CAN(INVIS):ALERT(Fairly Observant):MOVE(PASSWALL)
+B:CLAW(x2):HURT(1d8)
+B:BITE:HURT(2d6)
+I:RESIST(CONF|LIGHT|DARK):IMMUNE(SLEEP)
+S:FREQ_10 | BR_LIGHT | BR_DARK | SLOW | CONFUSE | SCARE | DETECT_OBJECTS
+O:1d2+1:OBJ(*)
+O:1d3:OBJ(GOLD)
+D:A dragon of elemental power, with control over light and dark, the
+D:ethereal drake's eyes glare with white hatred from the shadows.
+I:COLOR(Orange):POS(-CORPSE)
+P:Weight:250
+
+N:D.ethereal:D.base:Ethereal dragon
+I:LVL(43):RARITY(2)
+I:HP(2100):AC(100):EXP(11000)
+I:CAN(INVIS):ALERT(250',Fairly Observant):MOVE(PASSWALL)
+B:CLAW(x2):HURT(2d12+13)
+B:BITE:HURT(3d12+20)
+I:RESIST(LIGHT|DARK)
+S:FREQ_12 | BR_LIGHT | BR_DARK | BR_CONFUSION | BLIND | CONFUSE | DETECT_OBJECTS
+O:4d2+2:OBJ(*)
+O:1d4+2:OBJ(GOLD)
+D:A huge dragon emanating from the elemental plains, the ethereal dragon is
+D:a master of light and dark. Its form disappears from sight as it cloaks
+D:itself in unearthly shadows.
+I:COLOR(Orange):POS(-CORPSE|SEE_INVIS)
+
+########################################################################
+# Shadow
+N:d.shadow:d.base:Shadow drake
+I:LVL(33,70):RARITY(3)
+I:SPEED(+5):HP(300):AC(50):EXP(700):EVOLVE(D.death, 15000)
+I:ALIGN(Evil):CAN(INVIS):DARK(1):ALERT(250',Unseeing)
+B:CLAW(x2):HURT(2d4)
+B:BITE:HURT(2d6+3):DRAIN_EXP(10d6, 50%)
+I:RESIST(CONF|NETHER):IMMUNE(SLEEP)
+S:FREQ_10 | SLOW | CONFUSE | SCARE | DARKNESS | BR_NETHER | DETECT_OBJECTS
+O:1d2+1:OBJ(*)
+O:1d3:OBJ(GOLD)
+D:It is a dragon-like form wrapped in shadow. Glowing red eyes shine out in the dark.
+I:COLOR(Light Dark)
+P:Weight:200
+
+N:D.death:D.base:Death drake
+I:LVL(40):RARITY(2)
+I:HP(1000):AC(100):EXP(3500):EVOLVE(D.spectral, 250000)
+I:ALIGN(Evil):CAN(INVIS):DARK(1)
+I:ALERT(250',Unseeing):MOVE(PASSWALL|PICKUP)
+B:CLAW(x2):HURT(2d10+11)
+B:BITE(x2):HURT(3d10):DRAIN_EXP(80d6)
+I:RESIST(COLD|NETHER|TELE)
+S:FREQ_10 | SLOW | CONFUSE | SCARE | BR_NETHER | DETECT_OBJECTS
+O:3d2:OBJ(*)
+O:1d3+2:OBJ(GOLD)
+D:It is a dragon-like form wrapped in darkness. You cannot make out its
+D:true form but you sense its evil.
+I:COLOR(Umber):POS(-CORPSE)
+
+N:D.spectral:D.base:Spectral Wyrm
+I:LVL(77):RARITY(4)
+I:SPEED(+20):HP(6000):AC(200):EXP(35000)
+I:KIND(UNDEAD):ALIGN(Chaotic):CAN(INVIS)
+I:ALERT(400',Ignores):MOVE(PASSWALL)
+B:CLAW(x3):HURT(3d12+45)
+B:BITE:HURT(4d14+15):DISENCHANT(4d14, 90%):NEXUS(4d14, 10%)
+A:COLD(3d6)
+I:RESIST(COLD|POIS|NEXUS|DISENCHANT|TELE):IMMUNE(NETHER)
+S:FREQ_20 | BR_NEXUS | BR_NETHER | BR_DISENCHANT | S_HI_DRAGON | SCARE | BLINK | SHRIEK
+S:DETECT_OBJECTS
+O:7d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+O:1%:ART([.Spectral)
+D:The tortured soul of a once powerful wyrm.
+I:COLOR(White):POS(-CORPSE|SEE_INVIS|HOLD_LIFE)
+P:Stats:1:0:0:0:1:1
+P:Weight:1000
+
+########################################################################
+# Chaos
+N:d.chaos:d.base:Chaos drake
+I:LVL(33,80):RARITY(3)
+I:SPEED(+5):HP(500):AC(100):EXP(700):EVOLVE(D.chaos, 150000)
+I:ALIGN(Evil):ALERT(250',Unseeing)
+B:CLAW(x2):HURT(1d8)
+B:BITE:HURT(2d6)
+I:RESIST(CONF|CHAOS|DISENCHANT):IMMUNE(SLEEP)
+S:FREQ_10 | SLOW | CONFUSE | SCARE | BR_DISENCHANT | BR_CHAOS | DETECT_OBJECTS 
+O:1d2+1:OBJ(*)
+O:1d3:OBJ(GOLD)
+D:A dragon twisted by the forces of chaos. It seems first ugly, then fair,
+D:as its form shimmers and changes in front of your eyes.
+I:DISPLAY(,Violet,ATTR_ANY|ATTR_MULTI)
+P:Weight:250
+
+N:D.chaos:D.base:Great Wyrm of Chaos
+I:LVL(67):RARITY(2)
+I:SPEED(+15):HP(4500):AC(170):EXP(25000)
+I:ALIGN(Evil):ALERT(400',Fairly Unseeing)
+B:CLAW(x3):HURT(3d12+13)
+B:BITE:HURT(3d14+13):CHAOS(3d14, 50%):DISENCHANT(3d14, 50%)
+I:RESIST(CHAOS|DISENCHANT)
+S:FREQ_20 | BLIND | CONFUSE | SCARE | BR_CHAOS | BR_DISENCHANT | S_DRAGON | DETECT_OBJECTS 
+O:6d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+O:3%:OBJ(chaos dragon)
+D:A massive dragon of changing form. As you watch, it appears first fair
+D:and then foul. Its body is twisted by chaotic forces as it strives to
+D:stay real. Its very existence distorts the universe around it.
+I:DISPLAY(,Violet,ATTR_ANY|ATTR_MULTI):POS(SEE_INVIS)
+P:Stats:1:0:0:0:1:1
+P:Weight:2000
+
+########################################################################
+# Law
+N:d.law:d.base:Law drake
+I:LVL(33,80):RARITY(3)
+I:SPEED(+5):HP(550):AC(100):EXP(700):EVOLVE(D.law, 150000)
+I:ALIGN(Good):ALERT(250',Unseeing)
+B:CLAW(x2):HURT(1d8)
+B:BITE:HURT(2d6)
+I:RESIST(CONF|SOUND|SHARDS):IMMUNE(SLEEP)
+S:FREQ_10 | SLOW | CONFUSE | SCARE | BR_SOUND | BR_SHARDS | DETECT_OBJECTS 
+O:1d2+1:OBJ(*)
+O:1d3:OBJ(GOLD)
+D:This dragon is clever and cunning. It laughs at your puny efforts to disturb it.
+I:COLOR(Light White)
+P:Weight:250
+
+N:D.law:D.base:Great Wyrm of Law
+I:LVL(67):RARITY(2)
+I:SPEED(+15):HP(4500):AC(170):EXP(25000)
+I:ALIGN(Lawful):ALERT(400',Ignores)
+B:CLAW(x3):HURT(3d12+13)
+B:BITE:HURT(3d14+13):SOUND(3d14, 50%):SHARDS(3d14, 50%)
+I:RESIST(SOUND|SHARDS)
+S:FREQ_20 | BLIND | CONFUSE | SCARE | BR_SOUND | BR_SHARDS | S_DRAGON | DETECT_OBJECTS 
+O:6d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+O:3%:OBJ(law dragon)
+D:A massive dragon of powerful intellect. It seeks to dominate the universe
+D:and despises all other life. It sees all who do not obey it as mere
+D:insects to be crushed underfoot.
+I:COLOR(Light White):POS(SEE_INVIS)
+P:Stats:1:0:0:0:1:1
+P:Weight:2000
+
+########################################################################
+# Balance
+N:d.balance:d.base:Balance drake
+I:LVL(33,80):RARITY(3)
+I:SPEED(+5):HP(600):AC(100):EXP(700):EVOLVE(D.balance, 180000)
+I:ALERT(250',Unseeing)
+B:CLAW(x2):HURT(1d8)
+B:BITE:HURT(2d6)
+I:RESIST(CONF|SOUND|SHARDS|CHAOS|DISENCHANT):IMMUNE(SLEEP)
+S:FREQ_10 | BR_SOUND | BR_SHARDS | BR_DISENCHANT | BR_CHAOS
+S:SLOW | CONFUSE | SCARE | DETECT_OBJECTS 
+O:1d2+1:OBJ(*)
+O:1d3:OBJ(GOLD)
+D:A mighty dragon, the balance drake seeks to maintain the Cosmic Balance,
+D:and despises your feeble efforts to destroy evil.
+I:DISPLAY(,Slate,ATTR_MULTI|ATTR_ANY)
+P:Weight:250
+
+N:D.balance:D.base:Great Wyrm of Balance
+I:LVL(72):RARITY(4)
+I:SPEED(+15):HP(4900):AC(170):EXP(31000)
+I:ALERT(400',Ignores)
+B:CLAW(x3):HURT(3d12+13)
+B:BITE:HURT(3d14+14):SOUND(3d14, 33%):SHARDS(3d14, 33%):CHAOS(3d14, 33%)
+I:RESIST(SOUND|SHARDS|CHAOS|DISENCHANT)
+S:FREQ_20 | BLIND | CONFUSE | SCARE |
+S:BR_SOUND | BR_CHAOS | BR_SHARDS | BR_DISENCHANT |
+S:S_DRAGON | S_HI_DRAGON | DETECT_OBJECTS 
+O:7d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+O:3%:OBJ(balance dragon)
+D:A massive dragon, it is thousands of
+D:years old and seeks to maintain the Cosmic Balance. It sees you as an
+D:upstart troublemaker without the wisdom to control your actions.
+I:DISPLAY(,Slate,ATTR_MULTI|ATTR_ANY):POS(SEE_INVIS)
+P:Stats:1:0:0:0:1:1
+P:Weight:2000
+
+########################################################################
+# Skeletal
+N:D.bone:d.base:Bone dragon
+I:LVL(37,70):RARITY(3)
+I:HP(120d10):AC(55):EXP(1700):EVOLVE(D.dracolich, 30000)
+I:KIND(UNDEAD):ALIGN(Evil):ATTR(COLD_BLOOD)
+B:CLAW(x2):HURT(1d20)
+I:RESIST(COLD|POIS|CONF|NEXUS|DISENCHANT|PLASMA):IMMUNE(NETHER|STUN|SLEEP)
+S:FREQ_5 | BR_NETHER | DETECT_OBJECTS
+O:1d2+2:OBJ(*$)
+D:An undead dragon skeleton.
+I:COLOR(Light White):POS(-CORPSE|SKELETON)
+P:Weight:400
+
+N:D.dracolich:D.base:Dracolich
+I:LVL(46):RARITY(2)
+I:HP(2800):AC(120):EXP(18000)
+I:KIND(UNDEAD):ALIGN(Evil):ATTR(COLD_BLOOD):MOVE(PICKUP)
+B:CLAW(x2):HURT(2d12+12)
+B:BITE:HURT(3d14+8):UNLIFE(3d6)
+B:BITE:VAMP(3d6):UNLIFE(3d6)
+I:RESIST(COLD|TELE):IMMUNE(NETHER|POIS)
+S:FREQ_10 | BR_COLD | BR_NETHER | CONFUSE | SCARE | DETECT_OBJECTS
+O:2d2+1:OBJ(*, GOOD)
+O:1d4+2:OBJ(GOLD)
+D:The skeletal form of a once-great dragon, enchanted by magic most
+D:perilous. Its animated form strikes with speed and drains life from its
+D:prey to satisfy its hunger.
+I:COLOR(Light Blue):POS(-CORPSE|SEE_INVIS)
+P:Weight:700
+
+########################################################################
+# Miscellaneous
+N:d.wyvern:d.base:Wyvern
+I:LVL(20):RARITY(2):WILD(WOOD|MOUNTAIN)
+I:SPEED(+10):HP(300):AC(65):EXP(360)
+I:KIND(ANIMAL):ALIGN(Neutral Evil):ALERT(Fairly Unseeing):MOVE(PUSH)
+B:BITE(x3):HURT(1d6+3)
+B:STING:POISON(1d6)
+I:RESIST(POIS)
+O:1d2:OBJ(GOLD)
+S:DETECT_OBJECTS
+D:A fast-moving and deadly dragonian animal. Beware its poisonous sting!
+I:COLOR(Light Green):POS(SKELETON)
+P:Weight:300
+
+N:d.doom:d.base:Doom drake
+I:LVL(34):RARITY(3)
+I:SPEED(+5):HP(440):AC(100):EXP(450):EVOLVE(d.red.mature, 3000)
+I:ALIGN(Evil):LIGHT(1):ALERT(250',Fairly Unseeing)
+B:CLAW(x2):HURT(1d5)
+B:BITE:HURT(2d6)
+I:RESIST(FIRE|POIS|CONF):IMMUNE(SLEEP)
+S:FREQ_10 | BR_FIRE | DETECT_OBJECTS 
+O:1d2:OBJ(*)
+O:1d3:OBJ(GOLD)
+M:MON(d.doom)
+D:Doom drakes are trained firedrakes, always moving in pairs, looking for a battle.
+I:COLOR(Violet)
+P:Weight:250
+
+N:d.fire angel:d.base:Fire angel
+I:LVL(37,70):RARITY(3)
+I:SPEED(+10):HP(500):AC(100):EXP(1500)
+I:ALIGN(Evil):ATTR(SMART):LIGHT(1):ALERT(100',Fairly Unseeing)
+B:CLAW(x2):HURT(1d8+9)
+B:BITE(x2):HURT(2d5+6)
+I:RESIST(FIRE|CONF|PLASMA):IMMUNE(SLEEP)
+S:FREQ_10 | BR_PLASMA | DETECT_OBJECTS 
+O:2d2+1:OBJ(*)
+O:1d3+1:OBJ(GOLD)
+D:It is a fast, deadly dragonoid creature. It was bred and trained
+D:in the Courts of Chaos for assassination.
+I:COLOR(Yellow)
+P:Weight:250
+
+N:D.dracolisk:D.base:Dracolisk
+I:LVL(46):RARITY(3):WILD(MOUNTAIN)
+I:HP(2800):AC(120):EXP(17000)
+I:KIND(ANIMAL):ALIGN(Evil):ALERT(Unseeing)
+B:BITE(x3):HURT(3d12+12)
+B:GAZE:PARALYZE
+I:RESIST(ACID|FIRE|NETHER|TELE)
+S:FREQ_10 | BR_FIRE | BR_NETHER | PARALYZE | SCARE | DETECT_OBJECTS 
+O:2d2+1:OBJ(*, GOOD)
+D:A mixture of dragon and basilisk, the dracolisk stares at you with deep
+D:piercing eyes, its evil breath burning the ground where it stands.
+I:COLOR(Red):POS(SEE_INVIS)
+
+N:D.time:D.base:Great Wyrm of Space-Time
+I:LVL(72):RARITY(6)
+I:SPEED(+20):HP(4600):AC(170):EXP(31000)
+I:ALERT(1000',Ignores):MOVE(PASSWALL)
+B:CLAW(x3):HURT(3d12+12)
+B:BITE:HURT(3d14+14):TIME(3d14,20%):NEXUS(3d14,20%):GRAVITY(3d14,20%)
+A:GRAVITY(3d3,2%):NEXUS(3d3,10%)
+I:RESIST(NEXUS|TIME|GRAVITY|INERTIA)
+S:FREQ_20 | BR_TIME | BR_NEXUS | BR_GRAVITY | BR_INERTIA
+S:TELE_SELF | BLINK | TELE_OTHER | TELE_LEVEL | HASTE | SLOW
+S:PARALYZE | S_DRAGON | DETECT_OBJECTS 
+O:6d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+I:COLOR(Violet):POS(SEE_INVIS)
+P:Stats:1:0:0:0:1:1
+P:Weight:2000
+
+########################################################################
+# Stone
+N:D.stone:D.base:Stone dragon
+I:LVL(45):RARITY(3)
+I:SPEED(0):HP(2500):AC(170):EXP(4000):EVOLVE(D.steel, 40000)
+I:ALIGN(Evil)
+B:CLAW(x2):HURT(3d10+15)
+B:BITE:HURT(3d13+20)
+B:CRUSH:HURT(7d15)
+I:RESIST(ELEC|FIRE|POIS):IMMUNE(STUN):VULN(COLD|DISINTEGRATE)
+O:4d2:OBJ(*$)
+D:A huge dragon all made of stone. It looks very solid...
+I:COLOR(Light Dark)
+P:Copy:Half-Titan:Mauler
+P:Life:70
+P:Body:Dragon
+P:Weight:1000
+
+N:D.steel:D.base:Steel dragon
+I:LVL(55):RARITY(3)
+I:HP(5000):AC(200):EXP(10000)
+I:ALIGN(Evil)
+B:CLAW(x2):HURT(3d12+25)
+B:BITE:HURT(4d14+25)
+B:CRUSH:HURT(7d17)
+I:RESIST(ELEC|FIRE|POIS|SHARDS):IMMUNE(STUN)
+O:7d2:OBJ(*$)
+D:A huge dragon all made of steel. It looks very solid...
+I:COLOR(Light Dark)
+P:Copy:Half-Titan:Mauler
+P:Life:80
+P:Body:Dragon
+P:Weight:2500
+
+########################################################################
+# Aquatic
+N:D.fastitocalon:D.base:Fastitocalon
+I:LVL(51):RARITY(3):WILD(OCEAN)
+I:HP(4500):AC(150):EXP(16000):EVOLVE(D.leviathan, 200000)
+I:KIND(AQUATIC):ALERT(Fairly Unseeing):MOVE(SWIM|-FLY)
+B:BITE(x2):HURT(5d8)
+B:CRUSH(x2):HURT(2d10):POISON(1d10)
+I:RESIST(ACID|FIRE|COLD|POIS|WATER|TELE)
+S:FREQ_8 | BR_FIRE | BR_ACID | DETECT_OBJECTS
+D:A huge aquatic dragon, its shell is as large as a small island. Some
+D:have called this creature a dragon-turtle.
+I:COLOR(Green):POS(SEE_INVIS)
+P:Weight:1000
+
+N:D.leviathan:D.base:Leviathan
+I:LVL(76):RARITY(3):WILD(OCEAN)
+I:SPEED(+15):HP(6000):AC(180):EXP(28000)
+I:KIND(AQUATIC):ALIGN(Evil):ALERT(400',Fairly Unseeing):MOVE(SWIM|-FLY)
+B:BITE(x2):HURT(3d12):FIRE(2d12)
+B:CRUSH(x2):HURT(4d15+15)
+I:RESIST(ACID|FIRE|COLD|POIS|DARK|WATER)
+S:FREQ_5 | BR_FIRE | BR_ACID | BR_DARK |
+S:S_DRAGON | S_HYDRA | HEAL | CONFUSE | DARKNESS
+D:An enormous, evil sea-dragon.
+I:COLOR(Blue):POS(SEE_INVIS)
+P:Weight:5000
+
+########################################################################
+# Power
+N:D.sky:D.base:Sky Drake
+I:LVL(74):RARITY(4):WILD(MOUNTAIN)
+I:SPEED(+20):HP(6000):AC(200):EXP(40000):EVOLVE(D.power, 600000)
+I:ALIGN(Lawful):CAN(FEAR):LIGHT(3):ALERT(400',Ignores)
+B:CLAW(x3):HURT(4d12+27)
+B:BITE:HURT(4d15+20):ELEC(3d15)
+A:ELEC(3d5):COLD(3d5)
+I:RESIST(ELEC|LIGHT|GRAVITY|TELE)
+S:FREQ_20 | BR_ELEC | BR_GRAVITY | BR_LIGHT |
+S:S_DRAGON | S_HI_DRAGON | SCARE | BLIND | DETECT_OBJECTS 
+O:7d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+D:The mightiest elemental dragon of air, it can destroy you with ease.
+I:COLOR(Light Blue):POS(SEE_INVIS)
+P:Stats:1:0:0:0:1:1
+P:Weight:3000
+
+N:D.power:D.base:Great Wyrm of Power
+I:LVL(90):RARITY(7)
+I:SPEED(+20):HP(12300):AC(180):EXP(80000)
+I:ALIGN(Lawful):CAN(REFLECT|FEAR):LIGHT(2)
+B:CRUSH:HURT(3d12+12):PLASMA(3d12, 80%):GRAVITY(3d12, 20%)
+B:CRUSH:HURT(3d12+12):CHAOS(3d12, 90%):NEXUS(3d12, 10%)
+B:CRUSH:HURT(3d12+12):DISENCHANT(3d12, 50%):DARK(3d12, 50%)
+B:CRUSH:HURT(4d18+25):SOUND(3d18, 50%):SHARDS(3d18, 50%)
+A:LIGHT(3d3):DARK(3d3):SHARDS(3d3)
+I:RESIST(ALL):IMMUNE(BLIND)
+S:FREQ_20 | S_HI_DRAGON | S_DRAGON | S_KIN |
+S:BR_NUKE | BR_ACID | BR_ELEC | BR_FIRE |
+S:BR_COLD | BR_POISON | BR_NETHER | BR_LIGHT | BR_DARK |
+S:BR_CONFUSION | BR_SOUND | BR_CHAOS | BR_DISENCHANT | BR_NEXUS |
+S:BR_TIME | BR_INERTIA | BR_GRAVITY | BR_SHARDS | BR_PLASMA |
+S:BR_FORCE | BR_MANA | BR_DISINTEGRATE | DETECT_OBJECTS 
+O:9d2:OBJ(*, GREAT)
+O:4d4:OBJ(GOLD)
+O:2%:OBJ(power dragon)
+D:The mightiest of all dragonkind, a great wyrm of power is seldom
+D:encountered in our world. It can crush stars with its might.
+I:COLOR(Yellow):POS(SEE_INVIS)
+P:Stats:2:0:0:0:2:2
+P:Weight:10000
+
+########################################################################
+# Unique
+N:d.Kavlax:D.base:Kavlax the Many-Headed
+I:LVL(39):RARITY(3):ALLOC(UNIQUE|NO_QUEST)
+I:HP(1300):AC(85):EXP(3000)
+I:ALIGN(Evil):ATTR(MALE):CAN(SPEAK):LIGHT(2)
+B:BITE(x4):HURT(1d12+6)
+I:RESIST(BASE|NEXUS|SOUND|SHARDS|GRAVITY)
+S:FREQ_15 | BR_SHARDS | BR_GRAVITY(15%) | BR_NEXUS(15%) | BR_SOUND | BR_CONFUSION |
+S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | DETECT_OBJECTS 
+O:4d2:OBJ(*, GOOD)
+O:1d3+2:OBJ(GOLD)
+D:A large dragon with a selection of heads, all shouting and arguing as they
+D:look for prey, but each with its own deadly breath weapon.
+I:DISPLAY(,Violet,ATTR_MULTI|ATTR_ANY)
+P:Body:Kavlax
+P:Weight:350
+
+N:D.Scatha:D.base:Scatha the Worm
+I:LVL(44):RARITY(2):ALLOC(UNIQUE)
+I:HP(2800):AC(130):EXP(17000)
+I:ALIGN(Evil):ATTR(MALE)
+B:CLAW(x3):HURT(2d10+10)
+B:BITE:HURT(3d14+20)
+I:RESIST(COLD)
+S:FREQ_20 | CONFUSE | CAUSE_3 | BR_COLD | DETECT_OBJECTS 
+O:7d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+D:An ancient and wise Dragon. Scatha has grown clever over the long years.
+D:His scales are covered with frost, and his breath sends a shower of ice
+D:into the air.
+I:COLOR(White):POS(SEE_INVIS)
+P:Weight:1000
+
+N:D.Smaug:D.base:Smaug the Golden
+I:LVL(45):RARITY(2):ALLOC(UNIQUE|GUARDIAN)
+I:HP(3000):AC(100):EXP(20000)
+I:ALIGN(Evil):ATTR(MALE):CAN(SPEAK|REFLECT):LIGHT(2)
+B:CLAW(x3):HURT(2d10+10)
+B:BITE:HURT(4d14+15)
+I:RESIST(FIRE)
+S:FREQ_20 | BR_FIRE | CAUSE_3 | CONFUSE | DETECT_OBJECTS 
+O:7d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+D:Smaug is one of the Uruloki that still survive, a fire-drake of immense
+D:cunning and intelligence. His speed through air is matched by few other
+D:dragons and his dragonfire is what legends are made of.
+I:COLOR(Light Red):POS(SEE_INVIS)
+P:Weight:1000
+
+N:D.Itangast:D.base:Itangast the Fire Drake
+I:LVL(47):RARITY(4):ALLOC(UNIQUE)
+I:HP(2600):AC(100):EXP(15000)
+I:ALIGN(Evil):ATTR(MALE):LIGHT(2)
+B:CLAW(x2):HURT(1d10)
+B:BITE(x2):HURT(3d14)
+I:RESIST(FIRE)
+S:FREQ_20 | BR_FIRE | CONFUSE | CAUSE_3 | DETECT_OBJECTS 
+O:7d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+D:A mighty ancient dragon, Itangast's form scorches your flesh. Wisps of
+D:smoke curl up from his nostrils as he regards you with disdain.
+I:COLOR(Red):POS(SEE_INVIS)
+P:Weight:1000
+
+N:D.Fafner:D.base:Fafner the Dragon
+I:LVL(47):RARITY(4):ALLOC(UNIQUE)
+I:HP(3500):AC(100):EXP(25000)
+I:ALIGN(Evil):ATTR(MALE):CAN(SPEAK):LIGHT(2)
+B:CLAW(x2):HURT(2d10+10)
+B:BITE(x2):HURT(7d6+7):FIRE(5d6, 50%):POISON(5d6, 50%)
+I:RESIST(FIRE|POIS)
+S:FREQ_20 | BR_FIRE | BR_POISON | SCARE | CAUSE_3 | CONFUSE | DETECT_OBJECTS 
+O:8d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+D:The mighty dragon of the Norse myth, Fafner was a giant who slew his
+D:brother to win a treasure hoard, and then transformed himself into
+D:a dragon, greedily watching over his hoard.
+I:COLOR(Light Green):POS(SEE_INVIS)
+P:Weight:1000
+
+N:D.Glaurung:D.base:Glaurung, Father of the Dragons
+I:LVL(48):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+15):HP(5000):AC(120):EXP(25000)
+I:ALIGN(Evil):ATTR(MALE):CAN(SPEAK):LIGHT(2):MOVE(SWIM)
+B:CLAW(x2):HURT(4d12+20)
+B:BITE(x2):HURT(5d14+20)
+I:IMMUNE(FIRE)
+S:FREQ_20 | CONFUSE | CAUSE_3 | BR_FIRE | S_DRAGON | DETECT_OBJECTS 
+O:7d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+O:5%:ART(].Dragon)
+D:Glaurung is the father of all dragons, and was for a long time the most
+D:powerful. Nevertheless, he still has full command over his brood and can
+D:command them to appear whenever he so wishes. He is the definition of
+D:dragonfire.
+I:COLOR(Red):POS(SEE_INVIS)
+P:Weight:1000
+
+N:D.Nidhogg:D.base:Nidhogg the Hel-Drake
+I:LVL(55):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+15):HP(4300):AC(133):EXP(25000)
+I:ALIGN(Chaotic):CAN(SPEAK)
+B:CLAW(x2):HURT(3d12+30):LOSE_CON
+B:BITE(x2):VAMP(5d15)
+I:RESIST(ACID|FIRE|COLD|POIS|NETHER)
+S:FREQ_15 | CAUSE_3 | BR_NETHER | BR_COLD | BR_ACID | BR_POISON |
+S:S_DRAGON | S_UNDEAD | DETECT_OBJECTS 
+O:7d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+D:In the bowels of Hel, the dread Nidhogg, a dragon blacker than the
+D:night, feasts on the essences of the dead.
+I:COLOR(Light Dark):POS(SEE_INVIS)
+P:Stats:1:0:0:0:1:1
+P:Weight:2000
+
+N:D.Ancalagon:D.base:Ancalagon the Black
+I:LVL(58):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+15):HP(7500):AC(125):EXP(30000)
+I:ALIGN(Evil):ATTR(MALE):CAN(SPEAK)
+B:CLAW(x3):HURT(4d12+13)
+B:BITE:HURT(6d14+30)
+I:RESIST(FIRE):IMMUNE(ACID)
+S:FREQ_35 | BLIND | CONFUSE | SCARE | BR_ACID | S_DRAGON | S_HI_DRAGON | DETECT_OBJECTS 
+O:7d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+D:'Rushing Jaws' is his name, and death is his game. No dragon of the brood
+D:of Glaurung can match him.
+I:COLOR(Light Dark):POS(SEE_INVIS)
+P:Stats:1:0:0:0:1:1
+P:Weight:2000
+
+N:D.Bramd:D.base:Bramd the Ice Dragon
+I:LVL(60):RARITY(7):ALLOC(UNIQUE)
+I:SPEED(+15):HP(5050):AC(150):EXP(22500)
+I:ALIGN(Good):ATTR(FRIENDLY):ALERT(Very Inattentive)
+B:CLAW(x3):HURT(3d12+12):COLD(3d12)
+B:BITE:HURT(4d12+12):COLD(4d12)
+A:COLD(3d4)
+I:RESIST(COLD|WATER):IMMUNE(TELE)
+S:FREQ_25 | BRAIN_SMASH | BR_COLD | BA_COLD(1d180+20) | DETECT_OBJECTS 
+O:9d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+D:The oldest and wisest of the ancient dragons of Lodoss, it protects the land from
+D:its evil counterparts.
+I:COLOR(White):POS(SEE_INVIS)
+P:Stats:1:0:0:0:1:1
+P:Weight:2000
+
+N:D.Eibra:D.base:Eibra the Water Dragon
+I:LVL(60):RARITY(7):ALLOC(UNIQUE)
+I:SPEED(+15):HP(5050):AC(150):EXP(22500)
+I:ALIGN(Evil):ALERT(Very Inattentive):MOVE(SWIM)
+B:CLAW(x3):HURT(4d12+25)
+B:BITE:HURT(6d12):ACID(4d12)
+I:RESIST(POIS|WATER):IMMUNE(TELE)
+S:FREQ_25 | BRAIN_SMASH | BR_ACID | BA_WATER(1d120+50) | DETECT_OBJECTS 
+O:9d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+D:One of the ancient dragons of Lodoss, it came from the depths of the ocean
+D:to cause destruction.
+I:COLOR(Blue):POS(SEE_INVIS)
+P:Stats:1:0:0:0:1:1
+P:Weight:2500
+
+N:D.Narse:D.base:Narse the Black Dragon
+I:LVL(60):RARITY(7):ALLOC(UNIQUE)
+I:SPEED(+15):HP(5050):AC(150):EXP(22500)
+I:ALIGN(Chaotic):DARK(2):ALERT(Very Inattentive)
+B:CLAW(x3):HURT(4d12+25)
+B:BITE:HURT(6d12+25):DRAIN_EXP(80d6)
+I:RESIST(ACID|DARK|NETHER):IMMUNE(TELE)
+S:FREQ_25 | BRAIN_SMASH | BR_DARK | BR_NETHER | BA_NETHER(10d10+170) | DETECT_OBJECTS 
+O:9d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+D:One of the ancient dragons of Lodoss, it causes destruction with dark and nether breaths.
+I:COLOR(Slate):POS(SEE_INVIS)
+P:Stats:1:0:0:0:1:1
+P:Weight:2000
+
+N:D.Mycen:D.base:Mycen the Gold Dragon
+I:LVL(60):RARITY(7):ALLOC(UNIQUE)
+I:SPEED(+15):HP(5050):AC(150):EXP(22500)
+I:ALIGN(Lawful):ATTR(FRIENDLY):LIGHT(2):ALERT(Very Inattentive)
+B:CLAW(x3):HURT(4d12+25)
+B:BITE:HURT(6d12+25)
+I:RESIST(LIGHT|SOUND):IMMUNE(TELE)
+O:9d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+S:FREQ_25 | BRAIN_SMASH | BR_SOUND | BR_LIGHT | BR_MANA | DETECT_OBJECTS 
+D:One of the ancient dragons of Lodoss, it jointly rules the
+D:Kingdom of Moss and strives to protect it.
+I:COLOR(Yellow):POS(SEE_INVIS)
+P:Stats:1:0:0:0:1:1
+P:Weight:3000
+
+N:D.Shooting Star:D.base:Shooting Star the Red Dragon
+I:LVL(60):RARITY(7):ALLOC(UNIQUE):WILD(VOLCANO)
+I:SPEED(+15):HP(5050):AC(150):EXP(22500)
+I:ALIGN(Evil):LIGHT(2):ALERT(Very Inattentive)
+B:CLAW(x3):HURT(3d12+12):FIRE(3d12)
+B:BITE:HURT(4d12+12):FIRE(4d12)
+I:IMMUNE(FIRE|TELE)
+A:FIRE(3d4)
+O:9d2:OBJ(*, GOOD)
+O:3d3:OBJ(GOLD)
+S:FREQ_25 | BRAIN_SMASH | BR_FIRE | BA_FIRE(1d420+20) | DETECT_OBJECTS 
+D:One of the ancient dragons of Lodoss, it causes destruction
+D:with its breath of fire.
+I:COLOR(Red):POS(SEE_INVIS)
+P:Stats:1:0:0:0:1:1
+P:Weight:2000
+
+N:D.Tiamat:D.base:Tiamat, Celestial Dragon of Evil
+I:SPEED(+20):HP(10000):AC(125)
+I:LVL(70):RARITY(4):EXP(65000):ALLOC(ESCORT|UNIQUE)
+I:ALIGN(Chaotic):ATTR(FEMALE):LIGHT(2)
+B:CLAW(x3):HURT(3d12+20)
+B:BITE:HURT(5d14+35)
+A:FIRE(3d5):COLD(3d5):ELEC(3d5)
+I:RESIST(ACID|ELEC|COLD|POIS):IMMUNE(FIRE)
+S:FREQ_30 | BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POISON |
+S:BLIND | CONFUSE | SCARE | S_HI_DRAGON | DETECT_OBJECTS 
+O:9d2:OBJ(*, GREAT)
+O:5d5:OBJ(GOLD)
+M:3d7:MON(HI_DRAGON)
+D:Usually found guarding the first plane of Hell, Tiamat is a formidable
+D:opponent, her five heads breathing death to all who stand against her.
+I:DISPLAY(,Violet,ATTR_MULTI):POS(SEE_INVIS)
+P:Stats:1:0:0:0:1:1
+P:Body:Tiamat
+P:Weight:2000
+
+N:D.Bahamut:D.base:Bahamut, Celestial Dragon of Good
+I:LVL(86):RARITY(4):ALLOC(ESCORT|UNIQUE)
+I:SPEED(+20):HP(10000):AC(125):EXP(80000)
+I:ALIGN(Lawful):CAN(SPEAK|FEAR):ATTR(MALE):LIGHT(2)
+B:CLAW(x3):HURT(4d12+25)
+B:BITE:HURT(8d14+15)
+I:RESIST(BASE|POIS|LIGHT|DARK|SOUND|SHARDS):IMMUNE(BLIND)
+S:FREQ_30 | BR_LIGHT | BR_DARK | BR_SOUND | BR_CONFUSION | BR_SHARDS | BR_HOLY_FIRE
+S:BLIND | CONFUSE | SCARE | S_HI_DRAGON | DETECT_OBJECTS 
+O:9d2:OBJ(*, GREAT)
+O:5d5:OBJ(GOLD)
+O:3%:ART([.Platinum)
+M:3d7:MON(HI_DRAGON)
+D:Bahamut the Platinum Dragon has been described both as the King of All Good Dragons,
+D:and more accurately, as a glorious and resplendent deity in his own right. He is ever
+D:watchful for the cause of lawful good and sits unsleepingly in his palace on Mount
+D:Celestia, the Seven Heavens. Bahamut is the protector of all good dragons and a
+D:fierce opponent of evil.
+I:DISPLAY(,White,ATTR_MULTI):POS(SEE_INVIS)
+P:Stats:2:0:0:0:2:3
+P:Weight:5000
+
+# vim: filetype=ri :

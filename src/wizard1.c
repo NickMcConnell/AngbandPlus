@@ -73,7 +73,7 @@ static grouper group_item[] =
     { TV_SHIELD,        NULL },
     { TV_CLOAK,         NULL },
 
-    { TV_LITE,          "Light Sources" },
+    { TV_LIGHT,          "Light Sources" },
     { TV_AMULET,        "Amulets" },
     { TV_RING,          "Rings" },
 
@@ -97,6 +97,7 @@ static grouper group_item[] =
     { TV_CRUSADE_BOOK,  "Books (Crusade)" },
     { TV_NECROMANCY_BOOK, "Books (Necromancy)" },
     { TV_ARMAGEDDON_BOOK, "Books (Armageddon)" },
+    { TV_ILLUSION_BOOK, "Books (Illusion)" },
     { TV_MUSIC_BOOK,    "Song Books" },
     { TV_HISSATSU_BOOK, "Books (Kendo)" },
     { TV_HEX_BOOK,      "Books (Hex)" },
@@ -380,52 +381,18 @@ static grouper group_artifact[] =
     { TV_GLOVES,            "Gloves" },
     { TV_BOOTS,             "Boots" },
 
-    { TV_LITE,              "Light-Sources" },
+    { TV_LIGHT,              "Light-Sources" },
     { TV_AMULET,            "Amulets" },
     { TV_RING,              "Rings" },
 
     { 0, NULL }
 };
 
-/*
- * Hack -- Create a "forged" artifact
- * Compare to create_named_art_aux() in artifact.c
- */
-static bool make_fake_artifact(object_type *o_ptr, int name1)
+static int _art_tval;
+static bool _art_filter(int id, art_ptr art)
 {
-    int i;
-
-    artifact_type *a_ptr = &a_info[name1];
-
-
-    /* Ignore "empty" artifacts */
-    if (!a_ptr->name) return FALSE;
-
-    /* Acquire the "kind" index */
-    i = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-    /* Oops */
-    if (!i) return (FALSE);
-
-    /* Create the artifact */
-    object_prep(o_ptr, i);
-
-    /* Save the name */
-    o_ptr->name1 = name1;
-
-    /* Extract the fields */
-    o_ptr->pval = a_ptr->pval;
-    o_ptr->ac = a_ptr->ac;
-    o_ptr->dd = a_ptr->dd;
-    o_ptr->ds = a_ptr->ds;
-    o_ptr->mult = a_ptr->mult;
-    o_ptr->to_a = a_ptr->to_a;
-    o_ptr->to_h = a_ptr->to_h;
-    o_ptr->to_d = a_ptr->to_d;
-    o_ptr->weight = a_ptr->weight;
-
-    /* Success */
-    return (TRUE);
+    if (_art_tval && art->tval != _art_tval) return FALSE;
+    return TRUE;
 }
 
 static void spoil_artifact_desc(void)
@@ -436,27 +403,27 @@ static void spoil_artifact_desc(void)
     spoiler_hack = TRUE;
     for (i = 0; group_artifact[i].tval; i++)
     {
+        vec_ptr v;
         if (group_artifact[i].name)
         {
             if (i) doc_insert(doc, "</indent>\n");
             doc_printf(doc, "<topic:%s><style:heading>%s</style>\n  <indent>\n",
                 group_artifact[i].name, group_artifact[i].name);
         }
-
-        for (j = 1; j < max_a_idx; ++j)
+        _art_tval = group_artifact[i].tval;
+        v = arts_filter_ex(_art_filter);
+        for (j = 0; j < vec_length(v); j++)
         {
-            artifact_type *a_ptr = &a_info[j];
-            object_type    forge = {0};
+            art_ptr art = vec_get(v, j);
+            obj_t   forge;
 
-            if (a_ptr->tval != group_artifact[i].tval) continue;
-
-            if (!make_fake_artifact(&forge, j)) continue;
+            if (!art_create_std(&forge, art, AM_DEBUG | AM_NO_DROP)) continue;
 
             obj_identify_fully(&forge);
-
             obj_display_doc(&forge, doc);
             doc_newline(doc);
         }
+        vec_free(v);
     }
 
     doc_display(doc, "Artifact Spoilers", 0);
@@ -508,21 +475,25 @@ static void _spoil_table_aux(doc_ptr doc, cptr title, _obj_p pred, int options)
 
     if ((options & _SPOIL_ARTS) /* FIXED_ART ... && (!random_artifacts || random_artifact_pct < 100)*/)
     {
-        for (i = 1; i < max_a_idx; ++i)
+        vec_ptr arts;
+        _art_tval = 0;
+        arts = arts_filter_ex(_art_filter);
+        for (i = 0; i < vec_length(arts); i++)
         {
+            art_ptr        art = vec_get(arts, i);
             object_type    forge = {0};
             _art_info_ptr  entry;
 
-            if (!p_ptr->wizard && (a_info[i].gen_flags & OFG_QUESTITEM)) continue;
-            if (!art_create_std(&forge, i, AM_DEBUG)) continue;
-            if ((options & _SPOIL_EGOS) && !a_info[i].found) continue; /* Hack */
+            if (!plr->wizard && (art->gen_flags & OFG_QUESTITEM)) continue;
+            if (!art_create_std(&forge, art, AM_DEBUG | AM_NO_DROP)) continue;
+            if ((options & _SPOIL_EGOS) && !art->found) continue; /* Hack */
             if (pred && !pred(&forge)) continue;
 
             obj_identify_fully(&forge);
 
             entry = malloc(sizeof(_art_info_t));
-            entry->id = i;
-            if (p_ptr->prace == RACE_ANDROID)
+            entry->id = art->id;
+            if (plr->prace == RACE_ANDROID)
             {
                 entry->score = android_obj_exp(&forge);
                 if (!entry->score)
@@ -532,10 +503,10 @@ static void _spoil_table_aux(doc_ptr doc, cptr title, _obj_p pred, int options)
                 entry->score = obj_value_real(&forge);
             object_desc(entry->name, &forge, OD_COLOR_CODED);
             entry->k_idx = forge.k_idx;
-            entry->level = a_info[i].level;
+            entry->level = art->level;
             vec_add(entries, entry);
 
-            if (a_info[entry->id].found)
+            if (art->found)
             {
                 ct_std++;
                 score_std += entry->score;
@@ -556,7 +527,7 @@ static void _spoil_table_aux(doc_ptr doc, cptr title, _obj_p pred, int options)
 
             entry = malloc(sizeof(_art_info_t));
             entry->id = ART_RANDOM;
-            if (p_ptr->prace == RACE_ANDROID)
+            if (plr->prace == RACE_ANDROID)
             {
                 entry->score = android_obj_exp(o_ptr);
                 if (!entry->score)
@@ -568,10 +539,10 @@ static void _spoil_table_aux(doc_ptr doc, cptr title, _obj_p pred, int options)
             entry->k_idx = o_ptr->k_idx;
             entry->level = o_ptr->level;
             entry->pct = 0;
-            if (o_ptr->name3)
+            if (o_ptr->replacement_art_id)
             {
                 obj_t forge = {0};
-                if (art_create_std(&forge, o_ptr->name3, 0))
+                if (art_create_std(&forge, arts_lookup(o_ptr->replacement_art_id), AM_NO_DROP))
                 {
                     int base_score;
                     if (obj_is_weapon_ammo(&forge))
@@ -607,7 +578,7 @@ static void _spoil_table_aux(doc_ptr doc, cptr title, _obj_p pred, int options)
 
             entry = malloc(sizeof(_art_info_t));
             entry->id = ART_EGO;
-            if (p_ptr->prace == RACE_ANDROID)
+            if (plr->prace == RACE_ANDROID)
             {
                 entry->score = android_obj_exp(o_ptr);
                 if (!entry->score)
@@ -658,18 +629,18 @@ static void _spoil_table_aux(doc_ptr doc, cptr title, _obj_p pred, int options)
             }
             else
             {
-                artifact_type *a_ptr = &a_info[entry->id];
+                art_ptr art = arts_lookup(entry->id);
 
                 doc_printf(doc, "<color:%c>%3d) %7d</color> %3d %3d ",
-                    (a_ptr->found) ? 'y' : 'w',
-                    i+1, entry->score, a_ptr->level, a_ptr->rarity);
+                    (art->found) ? 'y' : 'w',
+                    i+1, entry->score, art->level, art->rarity);
 
-                if (a_ptr->gen_flags & OFG_INSTA_ART)
+                if (art->gen_flags & OFG_INSTA_ART)
                     doc_insert(doc, "    ");
                 else
                     doc_printf(doc, "%3d ", k_info[entry->k_idx].counts.found);
                 if (options & _SPOIL_TRIES)
-                    doc_printf(doc, "%3d ", a_ptr->tries);
+                    doc_printf(doc, "%3d ", art->tries);
                 doc_printf(doc, "<indent><style:indent>%s <color:D>#%d</color></style></indent>\n", entry->name, entry->id);
             }
         }
@@ -719,7 +690,7 @@ static void spoil_artifact_tables(void)
     _spoil_artifact_table_aux(doc, "Bows", obj_is_bow);
     _spoil_artifact_table_aux(doc, "Rings", obj_is_ring);
     _spoil_artifact_table_aux(doc, "Amulets", obj_is_amulet);
-    _spoil_artifact_table_aux(doc, "Lights", obj_is_lite);
+    _spoil_artifact_table_aux(doc, "Lights", obj_is_light);
     _spoil_artifact_table_aux(doc, "Body Armor", obj_is_body_armor);
     _spoil_artifact_table_aux(doc, "Cloaks", obj_is_cloak);
     _spoil_artifact_table_aux(doc, "Helmets", obj_is_helmet);
@@ -742,7 +713,7 @@ static void spoil_object_tables(void)
     _spoil_object_table_aux(doc, "Bows", obj_is_bow);
     _spoil_object_table_aux(doc, "Rings", obj_is_ring);
     _spoil_object_table_aux(doc, "Amulets", obj_is_amulet);
-    _spoil_object_table_aux(doc, "Lights", obj_is_lite);
+    _spoil_object_table_aux(doc, "Lights", obj_is_light);
     _spoil_object_table_aux(doc, "Body Armor", obj_is_body_armor);
     _spoil_object_table_aux(doc, "Cloaks", obj_is_cloak);
     _spoil_object_table_aux(doc, "Helmets", obj_is_helmet);
@@ -759,84 +730,70 @@ static void spoil_object_tables(void)
 /************************************************************************
  * Monster Tables
  ************************************************************************/
-typedef bool (*_mon_pred)(monster_race *r_ptr);
+static bool _is_nonunique(mon_race_ptr r) { return !mon_race_is_unique(r); }
 
-static bool _mon_is_unique(monster_race *r_ptr) { return r_ptr->flags1 & RF1_UNIQUE; }
-static bool _mon_is_nonunique(monster_race *r_ptr) { return !_mon_is_unique(r_ptr); }
-
-static int _compare_r_level(monster_race *l, monster_race *r)
+static int _compare_r_level(mon_race_ptr l, mon_race_ptr r)
 {
-    if (l->level < r->level) return -1;
-    if (l->level > r->level) return 1;
+    if (l->alloc.lvl < r->alloc.lvl) return -1;
+    if (l->alloc.lvl > r->alloc.lvl) return 1;
     if (l->mexp < r->mexp) return -1;
     if (l->mexp > r->mexp) return 1;
     if (l->id < r->id) return -1;
     if (l->id > r->id) return 1;
     return 0;
 }
-static int _compare_r_level_desc(monster_race *l, monster_race *r)
+static int _compare_r_level_desc(mon_race_ptr l, mon_race_ptr r)
 {
     return -_compare_r_level(l, r);
 }
 
-static vec_ptr _mon_table(_mon_pred p)
+static vec_ptr _mon_table(mon_race_p p)
 {
-    vec_ptr monsters = vec_alloc(NULL);
+    vec_ptr v = vec_alloc(NULL);
     int     i;
 
-    for (i = 1; i < max_r_idx; i++)
+    for (i = 0; i < vec_length(mon_alloc_tbl); i++)
     {
-        monster_race *r_ptr = &r_info[i];
-
-        if (!r_ptr->name) continue;
-        if (r_ptr->id == MON_MONKEY_CLONE) continue;
-        if (r_ptr->id == MON_KAGE) continue;
-        if (p && !p(r_ptr)) continue;
-
-        vec_add(monsters, r_ptr);
+        mon_race_ptr r = vec_get(mon_alloc_tbl, i);
+        if (p && !p(r)) continue;
+        vec_add(v, r);
     }
 
-    vec_sort(monsters, (vec_cmp_f)_compare_r_level);
-    return monsters;
+    vec_sort(v, (vec_cmp_f)_compare_r_level);
+    return v;
 }
 
-static void _spoil_mon_table(doc_ptr doc, cptr heading, _mon_pred p)
+static void _spoil_mon_table(doc_ptr doc, cptr heading, mon_race_p p)
 {
-    vec_ptr monsters = _mon_table(p);
+    vec_ptr v = _mon_table(p);
     int     i;
 
     doc_printf(doc, "<topic:%s><color:G>%-38.38s Lvl Rar Spd     HP    AC Display</color>\n", heading, heading);
-    for (i = 0; i < vec_length(monsters); i++)
+    for (i = 0; i < vec_length(v); i++)
     {
-        monster_race *r_ptr = vec_get(monsters, i);
-        if (r_ptr->flags1 & RF1_UNIQUE)
-            doc_printf(doc, "<color:%c>%-38.38s</color> ", p == _mon_is_unique ? 'w' : 'v', r_name + r_ptr->name);
-        else if (r_ptr->flags7 & RF7_UNIQUE2)
-            doc_printf(doc, "<color:%c>%-38.38s</color> ", p == _mon_is_nonunique ? 'v' : 'w', r_name + r_ptr->name);
-        else
-            doc_printf(doc, "The %-34.34s ", r_name + r_ptr->name);
+        mon_race_ptr r = vec_get(v, i);
+        term_char_t  ac = mon_race_visual_ascii(r);
+        term_char_t  gc = mon_race_visual(r);
 
-        doc_printf(doc, "%3d %3d %+3d", r_ptr->level, r_ptr->rarity, r_ptr->speed - 110);
-        if ((r_ptr->flags1 & RF1_FORCE_MAXHP) || r_ptr->hside == 1)
-            doc_printf(doc, "%7d ", r_ptr->hdice * r_ptr->hside);
+        if (mon_race_is_unique(r))
+            doc_printf(doc, "<color:%c>%-38.38s</color> ", p == mon_race_is_unique ? 'w' : 'v', r->name);
         else
-        {
-            char buf[20];
-            sprintf(buf, "%dd%d", r_ptr->hdice, r_ptr->hside);
-            doc_printf(doc, "%7.7s ", buf);
-        }
-        doc_printf(doc, "%5d ", r_ptr->ac);
-        doc_printf(doc, "  <color:%c>%c</color>", attr_to_attr_char(r_ptr->d_attr), r_ptr->d_char);
-        if (use_graphics && (r_ptr->x_char != r_ptr->d_char || r_ptr->x_attr != r_ptr->d_attr))
+            doc_printf(doc, "The %-34.34s ", r->name);
+
+        doc_printf(doc, "%3d %3d %+3d", r->alloc.lvl, r->alloc.rarity, r->move.speed);
+        doc_printf(doc, "%7d ", dice_avg_roll(r->hp));
+        doc_printf(doc, "%5d ", r->ac);
+        doc_printf(doc, "  <color:%c>%c</color>", attr_to_attr_char(ac.a), ac.c);
+        if (use_graphics && (gc.c != ac.c || gc.a != ac.a))
         {
             doc_insert(doc, " / ");
-            doc_insert_char(doc, r_ptr->x_attr, r_ptr->x_char);
+            doc_insert_term_char(doc, gc);
         }
         doc_newline(doc);
     }
     doc_newline(doc);
 
-    vec_free(monsters);
+    vec_free(v);
 }
 
 static void spoil_mon_desc(void)
@@ -849,8 +806,8 @@ static void spoil_mon_desc(void)
     doc_insert(doc, "<style:table>");
 
     _spoil_mon_table(doc, "All Monsters", NULL);
-    _spoil_mon_table(doc, "Uniques", _mon_is_unique);
-    _spoil_mon_table(doc, "Non-uniques", _mon_is_nonunique);
+    _spoil_mon_table(doc, "Uniques", mon_race_is_unique);
+    _spoil_mon_table(doc, "Non-uniques", _is_nonunique);
 
     doc_insert(doc, "</style>");
     doc_display(doc, "Monster Tables", 0);
@@ -893,7 +850,7 @@ static void _display_res(doc_ptr doc, int res)
 }
 static void _display_dam(doc_ptr doc, int dam)
 {
-    int ratio = dam * 100 / MAX(1, p_ptr->chp);
+    int ratio = dam * 100 / MAX(1, plr->chp);
     char color;
     if (ratio > 100) color = 'v';
     else if (ratio > 75) color = 'r';
@@ -909,7 +866,7 @@ static void _display_dam(doc_ptr doc, int dam)
 #if 0
 static char _melee_dam_color(int dam)
 {
-    int ratio = dam * 100 / p_ptr->chp;
+    int ratio = dam * 100 / plr->chp;
     if (ratio > 40) return 'v';
     else if (ratio > 25) return 'r';
     else if (ratio > 15) return 'R';
@@ -935,13 +892,11 @@ static void _display_speed(doc_ptr doc, int speed)
 static int _avg_dam_roll(int dd, int ds) { return dd * (ds + 1) / 2; }
 static int _mon_hp(mon_race_ptr r)
 {
-    if (r->flags1 & RF1_FORCE_MAXHP)
-        return r->hdice * r->hside;
-    return _avg_dam_roll(r->hdice, r->hside);
+    return dice_avg_roll(r->hp);
 }
 
 typedef struct {
-    int dam[RES_MAX];
+    int dam[GF_RES_COUNT];
     int unresist;
     int total;
     int count;
@@ -955,7 +910,7 @@ static _spell_dam_info_ptr _spell_dam_info_alloc(void)
 }
 static void _add_spell_dam(_spell_dam_info_ptr info, int which, int amt)
 {
-    if (which == RES_INVALID)
+    if (which == GF_NONE)
     {
         if (info->unresist < amt)
             info->unresist = amt;
@@ -971,23 +926,38 @@ static void _add_spell_dam(_spell_dam_info_ptr info, int which, int amt)
 
 static void _add_bolt_dam(_spell_dam_info_ptr info, int which, int amt)
 {
-    if (p_ptr->reflect)
+    if (plr->reflect)
         _add_spell_dam(info, which, amt/7);
     else
         _add_spell_dam(info, which, amt);
 }
 
-static void _add_curse_dam(_spell_dam_info_ptr info, mon_race_ptr mon, int amt)
+static void _add_curse_dam(_spell_dam_info_ptr info, mon_race_ptr race, int amt)
 {
-    int roll = 100 + mon->level/2;
-    int sav = p_ptr->skills.sav;
+    int roll = 100 + race->alloc.lvl/2;
+    int sav = plr->skills.sav;
     int success = sav * 100 / roll;
     int fail = 100 - success;
     int dam = amt * fail / 100;
-    if (mon->id == MON_KENSHIROU) dam = amt; /* his curses never fail */
-    _add_spell_dam(info, RES_INVALID, dam);
+    if (mon_race_is_(race, "p.Kenshirou"))
+        dam = amt; /* his curses never fail */
+    _add_spell_dam(info, GF_NONE, dam);
 }
-
+static bool _is_gf_spell(mon_spell_ptr spell)
+{
+    switch (spell->id.type)
+    {
+    case MST_BREATH: case MST_BALL: case MST_BOLT: case MST_BEAM:
+        return TRUE;
+    }
+    return FALSE;
+}
+static int _spell_res(mon_spell_ptr spell)
+{
+    if (_is_gf_spell(spell))
+        return gf_resist(spell->id.effect);
+    return GF_NONE;
+}
 static _spell_dam_info_ptr _calc_spell_dam_info(mon_race_ptr r)
 {
     int                 i;
@@ -1003,10 +973,7 @@ static _spell_dam_info_ptr _calc_spell_dam_info(mon_race_ptr r)
         {
             mon_spell_ptr spell = &group->spells[i];
             int           dam = mon_spell_avg_dam(spell, r, TRUE);
-            gf_info_ptr   gf = gf_lookup(spell->id.effect);
-            int           res = RES_INVALID;
-            if (gf) res = gf->resist;
-            _add_spell_dam(info, res, dam);
+            _add_spell_dam(info, _spell_res(spell), dam);
         }
     }
     group = spells->groups[MST_BALL];
@@ -1016,16 +983,14 @@ static _spell_dam_info_ptr _calc_spell_dam_info(mon_race_ptr r)
         {
             mon_spell_ptr spell = &group->spells[i];
             int           dam = mon_spell_avg_dam(spell, r, TRUE);
-            gf_info_ptr   gf = gf_lookup(spell->id.effect);
-            int           res = RES_INVALID;
-            if (gf) res = gf->resist;
+
             if ( spell->id.effect == GF_MIND_BLAST
               || spell->id.effect == GF_BRAIN_SMASH )
             {
                 _add_curse_dam(info, r, dam);
             }
             else
-                _add_spell_dam(info, res, dam);
+                _add_spell_dam(info, _spell_res(spell), dam);
         }
     }
     group = spells->groups[MST_BOLT];
@@ -1035,10 +1000,7 @@ static _spell_dam_info_ptr _calc_spell_dam_info(mon_race_ptr r)
         {
             mon_spell_ptr spell = &group->spells[i];
             int           dam = mon_spell_avg_dam(spell, r, TRUE);
-            gf_info_ptr   gf = gf_lookup(spell->id.effect);
-            int           res = RES_INVALID;
-            if (gf) res = gf->resist;
-            _add_bolt_dam(info, res, dam);
+            _add_bolt_dam(info, _spell_res(spell), dam);
         }
     }
     group = spells->groups[MST_BEAM];
@@ -1048,20 +1010,20 @@ static _spell_dam_info_ptr _calc_spell_dam_info(mon_race_ptr r)
         {
             mon_spell_ptr spell = &group->spells[i];
             int           dam = mon_spell_avg_dam(spell, r, TRUE);
-            gf_info_ptr   gf = gf_lookup(spell->id.effect);
-            int           res = RES_INVALID;
-            if (gf) res = gf->resist;
-            _add_spell_dam(info, res, dam);
+            _add_spell_dam(info, _spell_res(spell), dam);
         }
     }
-    group = spells->groups[MST_CURSE];
+    group = spells->groups[MST_LOS];
     if (group)
     {
         for (i = 0; i < group->count; i++)
         {
             mon_spell_ptr spell = &group->spells[i];
-            int           dam = mon_spell_avg_dam(spell, r, TRUE);
-            _add_curse_dam(info, r, dam);
+            if (spell->id.effect != GF_ATTACK)
+            {
+                int dam = mon_spell_avg_dam(spell, r, TRUE);
+                _add_curse_dam(info, r, dam);
+            }
         }
     }
     return info;
@@ -1074,29 +1036,24 @@ static void _spoil_mon_spell_dam_aux(doc_ptr doc, vec_ptr v)
     {
         mon_race_ptr        r = vec_get(v, i);
         _spell_dam_info_ptr info = _calc_spell_dam_info(r);
-        int                 hp = 0;
+        int                 hp = dice_avg_roll(r->hp);
         char                color = 'w';
-
-        if (r->flags1 & RF1_FORCE_MAXHP)
-            hp = r->hdice * r->hside;
-        else
-            hp = r->hdice * (1 + r->hside)/2;
 
         if (i%25 == 0)
         {
-            doc_printf(doc, "\n<tab:21><color:B>%3d %5d     </color>", p_ptr->lev, p_ptr->chp);
-            for (j = RES_ACID; j <= RES_DISEN; j++)
+            doc_printf(doc, "\n<tab:21><color:B>%3d %5d     </color>", plr->lev, plr->chp);
+            for (j = GF_ACID; j <= GF_DISEN; j++)
                 _display_res(doc, j);
             doc_printf(doc, "\n<color:G>%-20.20s Lvl    HP Freq  Ac  El  Fi  Co  Po  Li  Dk  Cf  Nt  Nx  So  Sh  Ca  Di  Un</color>\n", "Name");
         }
 
-        if (r->flags9 & RF9_DEPRECATED)
+        if (r->attributes & RF_DEPRECATED)
             color = 'D';
-        else if (r->flags3 & RF3_OLYMPIAN)
+        else if (mon_race_is_olympian(r))
             color = 'U';
-        else if (r->id > 1132)
+        else if (mon_race_is_unique(r))
             color = 'B';
-        doc_printf(doc, "<color:%c>%-20.20s</color> %3d %5d", color, r_name + r->name, r->level, hp);
+        doc_printf(doc, "<color:%c>%-20.20s</color> %3d %5d", color, r->name, r->alloc.lvl, hp);
         if (r->spells)
         {
             char color;
@@ -1111,7 +1068,7 @@ static void _spoil_mon_spell_dam_aux(doc_ptr doc, vec_ptr v)
         }
         else
             doc_insert(doc, "     ");
-        for (j = RES_ACID; j <= RES_DISEN; j++)
+        for (j = GF_ACID; j <= GF_DISEN; j++)
             _display_dam(doc, info->dam[j]);
         _display_dam(doc, info->unresist);
         if (info->count)
@@ -1127,7 +1084,7 @@ typedef struct {
 } _melee_dam_t;
 
 typedef struct {
-    mon_race_ptr mon;
+    mon_race_ptr race;
     _spell_dam_info_ptr spells;
     _melee_dam_t melee;
     int          hits;
@@ -1142,19 +1099,17 @@ static int _gf_resist(int which, int dam)
     switch (which)
     {
     case GF_HOLY_FIRE:
-        dam = gf_holy_dam(dam);
+        dam = plr_holy_dam(dam);
         break;
     case GF_HELL_FIRE:
-        dam = gf_hell_dam(dam);
+        dam = plr_hell_dam(dam);
         break;
-    default: {
-        gf_info_ptr gf = gf_lookup(which);
-        if (gf && gf->resist != RES_INVALID)
+    default:
+        if (GF_RES_MIN <= which && which <= GF_RES_MAX)
         {
-            int pct = res_pct_known(gf->resist);
+            int pct = res_pct_known(which);
             dam -= dam * pct / 100;
         }
-        break; }
     }
     return dam;
 }
@@ -1163,10 +1118,10 @@ static int _calc_py_hits(mon_race_ptr r) /* scaled by 100 */
 {
     int i;
     int hits = 0;
-    if (p_ptr->prace == RACE_MON_RING) return 0;
+    if (plr->prace == RACE_MON_RING) return 0;
     for (i = 0; i < MAX_HANDS; i++)
     {
-        switch (p_ptr->attack_info[i].type)
+        switch (plr->attack_info[i].type)
         {
         case PAT_MONK: {
             int blows = NUM_BLOWS(i);
@@ -1175,21 +1130,21 @@ static int _calc_py_hits(mon_race_ptr r) /* scaled by 100 */
             break; }
         case PAT_WEAPON: {
             int blows = NUM_BLOWS(i);
-            obj_ptr obj = equip_obj(p_ptr->attack_info[i].slot);
+            obj_ptr obj = equip_obj(plr->attack_info[i].slot);
             int chance = hit_chance(i, obj->to_h, r->ac);
             hits += blows * chance / 100;
             break; }
         }
     }
     #if 0
-    for (i = 0; i < p_ptr->innate_attack_ct; i++)
+    for (i = 0; i < plr->innate_attack_ct; i++)
     {
-        innate_attack_ptr a = &p_ptr->innate_attacks[i];
-        int to_h = p_ptr->to_h_m + a->to_h;
+        innate_attack_ptr a = &plr->innate_attacks[i];
+        int to_h = plr->to_h_m + a->to_h;
         int chance = XXXhit_chance_innate(to_h, r->ac);
         int blows = a->blows;
         if (i == 0)
-            blows += p_ptr->innate_attack_info.xtra_blow;
+            blows += plr->innate_attack_info.xtra_blow;
         hits += blows * chance / 100;
     }
     #endif
@@ -1202,7 +1157,7 @@ typedef struct {
 static _blow_stats_t _analyze_blow(mon_blow_ptr blow, mon_race_ptr race)
 {
     _blow_stats_t stats = {0};
-    int ac = p_ptr->ac + p_ptr->to_a;
+    int ac = plr->ac + plr->to_a;
     int k;
 
     for (k = 0; k < blow->effect_ct; k++)
@@ -1210,15 +1165,15 @@ static _blow_stats_t _analyze_blow(mon_blow_ptr blow, mon_race_ptr race)
         mon_effect_ptr effect = &blow->effects[k];
         int            effect_dam;
 
-        if (!effect->effect) continue;
+        if (!effect->type) continue;
         /* skip non-damaging effects */
-        if (effect->effect == RBE_CUT) continue;
-        if (effect->effect == RBE_DRAIN_EXP) continue;
-        if (effect->effect == GF_TURN_ALL) continue;
-        if (effect->effect == GF_STUN) continue;
-        if (effect->effect == GF_PARALYSIS) continue;
-        if (effect->effect == GF_DRAIN_MANA) continue;
-        if (effect->effect == GF_UNLIFE) continue;
+        if (effect->type == RBE_CUT) continue;
+        if (effect->type == RBE_DRAIN_EXP) continue;
+        if (effect->type == GF_FEAR) continue;
+        if (effect->type == GF_STUN) continue;
+        if (effect->type == GF_PARALYSIS) continue;
+        if (effect->type == GF_DRAIN_MANA) continue;
+        if (effect->type == GF_UNLIFE) continue;
         /* XXX Delayed damage: if (effect->effect == GF_POIS) continue;*/
 
         effect_dam = _avg_dam_roll(effect->dice.dd, effect->dice.ds);
@@ -1227,15 +1182,15 @@ static _blow_stats_t _analyze_blow(mon_blow_ptr blow, mon_race_ptr race)
             effect_dam = effect_dam * mon_crit_avg_mul(race, blow) / 100;
         }
         effect_dam += effect->dice.base;
-        if (0 && mon_race_has_spell(race, MST_BUFF, 2))
+        if (0 && mon_race_has_spell(race, MST_BUFF, 2)) /* XXX T_BERSERK */
             effect_dam = effect_dam * 5 / 4;
-        effect_dam = _gf_resist(effect->effect, effect_dam);
+        effect_dam = _gf_resist(effect->type, effect_dam);
         if (effect->pct)
             effect_dam = effect_dam * effect->pct / 100;
 
         /* reduce for player AC */
         stats.raw += effect_dam;
-        switch (effect->effect)
+        switch (effect->type)
         {
         case RBE_HURT: case RBE_SHATTER: case RBE_VAMP:
             stats.reduced += effect_dam * ac_melee_pct(ac) / 100;
@@ -1252,7 +1207,7 @@ static _blow_stats_t _sample_monk(cptr tbl_name, mon_race_ptr race, int count)
     mon_t         mon = {0};
     int           i;
 
-    mon.r_idx = race->id; /* monk_choose depends on confused and stunned status */
+    mon.race = race; /* monk_choose depends on confused and stunned status */
     for (i = 0; i < count; i++)
     {
         mon_blow_ptr blow = monk_choose_attack_mon(tbl_name, &mon);
@@ -1267,10 +1222,9 @@ static _blow_stats_t _sample_monk(cptr tbl_name, mon_race_ptr race, int count)
 }
 static bool _skip_aura(int effect)
 {
-    gf_info_ptr info = gf_lookup(effect);
-    if (info)
+    if (GF_RES_MIN <= effect && effect <= GF_RES_MAX)
     {
-        if (info->resist != RES_INVALID && p_ptr->resist[info->resist] > 2)
+        if (plr->resist[effect] > 2)
             return TRUE;
     }
     return FALSE;
@@ -1278,13 +1232,13 @@ static bool _skip_aura(int effect)
 static _mon_dam_info_ptr _mon_dam_info_alloc(mon_race_ptr r)
 {
     int j, blows = 0;
-    int ac = p_ptr->ac + p_ptr->to_a;
+    int ac = plr->ac + plr->to_a;
     int ac2 = 3*ac/4;
     int freq = r->spells ? r->spells->freq : 0;
     _mon_dam_info_ptr info = malloc(sizeof(_mon_dam_info_t));
     memset(info, 0, sizeof(_mon_dam_info_t));
 
-    info->mon = r;
+    info->race = r;
     info->spells = _calc_spell_dam_info(r);
 
     for (j = 0; j < vec_length(r->blows); j++)
@@ -1299,9 +1253,9 @@ static _mon_dam_info_ptr _mon_dam_info_alloc(mon_race_ptr r)
             stats = _sample_monk(blow->name, r, 100);
         else
             stats = _analyze_blow(blow, r);
-        skill = blow->power; /* not quite right for _sample_monk, but all powers s/b 60 atm */
-        skill += 3 * r->level;
-        if (0 && mon_race_has_spell(r, MST_BUFF, 2))
+        skill = mon_race_skill_thn(r);
+        skill += blow->power; /* not quite right for _sample_monk, but all powers s/b 0 atm */
+        if (0 && mon_race_has_spell(r, MST_BUFF, 2)) /* XXX T_BERSERK */
             skill = skill * 5 / 4;
         if (skill > ac2)
             chance = 50 + 19*(1000 - ac2*1000/skill)/20;
@@ -1318,18 +1272,17 @@ static _mon_dam_info_ptr _mon_dam_info_alloc(mon_race_ptr r)
 
         blows += blow->blows;
     }
-    if (!p_ptr->lightning_reflexes)
+    if (!plr->lightning_reflexes)
     {
-        if ((r->flags2 & RF2_AURA_REVENGE) && blows > 0)
+        mon_aura_ptr aura;
+        if (mon_race_can_retaliate(r) && blows > 0)
             info->retaliation += info->melee.effective * 100/blows; /* dam per strike */
-        for (j = 0; j < MAX_MON_AURAS; j++)
+        for (aura = r->auras; aura; aura = aura->next)
         {
-            mon_effect_ptr aura = &r->auras[j];
             int dam;
-            if (!aura->effect) continue;
-            if (_skip_aura(aura->effect)) continue;
-            dam = dice_avg_roll(aura->dice);
-            dam = _gf_resist(aura->effect, dam);
+            if (_skip_aura(aura->gf)) continue;
+            dam = dice_avg_roll(aura->dam);
+            dam = _gf_resist(aura->gf, dam);
             if (aura->pct)
                 dam = dam * aura->pct / 100;
             info->auras += dam;
@@ -1344,8 +1297,8 @@ static _mon_dam_info_ptr _mon_dam_info_alloc(mon_race_ptr r)
 
     if (1)
     {
-        int mf = SPEED_TO_ENERGY(r->speed);
-        int pf = SPEED_TO_ENERGY(p_ptr->pspeed);
+        int mf = speed_to_energy(r->move.speed);
+        int pf = speed_to_energy(plr->pspeed);
         info->nasty1 = info->nasty1 * mf / pf;
         info->nasty2 = info->nasty2 * mf / pf;
     }
@@ -1354,7 +1307,7 @@ static _mon_dam_info_ptr _mon_dam_info_alloc(mon_race_ptr r)
     info->nasty1 += info->auras * info->hits / 100;
     if (info->retaliation)
     {
-        int chance = r->level * 100 / 150;
+        int chance = r->alloc.lvl * 100 / 150;
         int returns = info->hits * chance / 100;
         /* XXX if (returns > blows) returns = blows; cf plr_on_hit_mon */
         info->nasty1 += info->retaliation * returns/100;
@@ -1369,8 +1322,8 @@ static void _mon_dam_info_free(_mon_dam_info_ptr info)
 
 static int _cmp_info1(_mon_dam_info_ptr left, _mon_dam_info_ptr right)
 {
-    if (left->mon->level < right->mon->level) return 1;
-    if (left->mon->level > right->mon->level) return -1;
+    if (left->race->alloc.lvl < right->race->alloc.lvl) return 1;
+    if (left->race->alloc.lvl > right->race->alloc.lvl) return -1;
     return 0;
 }
 static int _cmp_info2(_mon_dam_info_ptr left, _mon_dam_info_ptr right)
@@ -1412,32 +1365,32 @@ static void _spoil_mon_melee_dam_aux_aux(doc_ptr doc, vec_ptr v)
     for (i = 0; i < vec_length(v); i++)
     {
         _mon_dam_info_ptr info = vec_get(v, i);
-        int               hp = _mon_hp(info->mon);
+        int               hp = _mon_hp(info->race);
         char              color = 'w';
         int               xp, nasty;
 
         if (i%25 == 0)
             doc_printf(doc, "\n<color:G>%-30.30s Lvl    HP Speed  AC   Exp Dam         Auras Nastiness</color>\n", "Name");
 
-        if (info->mon->flags9 & RF9_DEPRECATED)
+        if (info->race->attributes & RF_DEPRECATED)
             color = 'D';
-        else if (info->mon->flags3 & RF3_OLYMPIAN)
+        else if (mon_race_is_olympian(info->race))
             color = 'U';
-        else if (info->mon->id > 1132)
+        else if (mon_race_is_unique(info->race))
             color = 'B';
-        doc_printf(doc, "<color:%c>%-30.30s</color>", color, r_name + info->mon->name);
-        color = (info->mon->flags1 & RF1_FORCE_DEPTH) ? 'r' : 'w';
-        doc_printf(doc, " <color:%c>%3d</color> %5d", color, info->mon->level, hp);
-        _display_speed(doc, info->mon->speed - 110);
-        if (info->mon->ac < 999)
-            doc_printf(doc, " %3d", info->mon->ac);
+        doc_printf(doc, "<color:%c>%-30.30s</color>", color, info->race->name);
+        color = (info->race->alloc.flags & RFA_FORCE_DEPTH) ? 'r' : 'w';
+        doc_printf(doc, " <color:%c>%3d</color> %5d", color, info->race->alloc.lvl, hp);
+        _display_speed(doc, info->race->move.speed);
+        if (info->race->ac < 999)
+            doc_printf(doc, " %3d", info->race->ac);
         else
             doc_insert(doc, " <color:y>***</color>"); /* metal babble */
         {
-            int  plev = spoiler_hack ? 50 : p_ptr->lev;
+            int  plev = spoiler_hack ? 50 : plr->lev;
             char buf[10];
 
-            xp = info->mon->mexp * info->mon->level / (plev + 2);
+            xp = info->race->mexp * info->race->alloc.lvl / (plev + 2);
             big_num_display(xp, buf);
             doc_printf(doc, " %5.5s", buf);
         }
@@ -1496,7 +1449,7 @@ static bool _paralysis(mon_blow_ptr blow)
     int i;
     for (i = 0; i < blow->effect_ct; i++)
     {
-        if (blow->effects[i].effect == GF_PARALYSIS)
+        if (blow->effects[i].type == GF_PARALYSIS)
             return TRUE;
     }
     return FALSE;
@@ -1515,7 +1468,7 @@ static bool _has_blow(mon_race_ptr r, _blow_p p)
 
 static bool _is_monk(mon_race_ptr r)
 {
-    if (r->d_char != 'p') return FALSE;
+    if (!mon_race_is_char(r, 'p')) return FALSE;
     return _has_blow(r, _martial_arts);
 }
 
@@ -1532,30 +1485,44 @@ static bool _summon_spell_only(mon_race_ptr r)
     }
     return TRUE;
 }
-static bool _can_breathe(mon_race_ptr r, int gf)
+static bool _ooops(skills_t s)
 {
-    if (!r->spells) return FALSE;
-    return mon_spells_find(r->spells, mon_spell_id(MST_BREATH, gf)) != NULL;
+    return s.dis == 0
+        && s.dev == 0
+        && s.sav == 0
+        && s.stl == 0
+        && s.srh == 0
+        && s.fos == 0
+        && s.thn == 0
+        && s.thb == 0;
 }
-
+static bool _blue_mage(mon_race_ptr r)
+{
+    if (!mon_race_has_noninnate_spell(r)) return FALSE;
+    switch (r->body.class_id)
+    {
+    case CLASS_MAGE:
+    case CLASS_HIGH_MAGE:
+    case CLASS_SORCERER:
+    case CLASS_PRIEST:
+        return TRUE;
+    }
+    return FALSE;
+}
 static bool _mon_dam_p(mon_race_ptr r)
 {
+    return _blue_mage(r);
+    return r->spells != NULL;
+    return _ooops(r->body.skills);
     return TRUE;
-    return r->d_char == 'd' || r->d_char == 'D';
-    return (r->flags1 & RF1_UNIQUE) && (r->flags3 & RF3_UNDEAD);
-    return BOOL(r->flags1 & RF1_UNIQUE);
-    return _can_breathe(r, GF_NETHER) && (r->flagsr & RFR_RES_NETH);
-    return BOOL(r->flagsr & RFR_RES_NETH);
-    return (r->flags3 & RF3_EVIL) && !(r->flagsr & RFR_RES_NETH);
+    return mon_is_type(r, SUMMON_ANIMAL_RANGER);
+    return mon_race_can_passweb(r);
+    return !mon_race_ignore_webs(r);
+    return mon_race_immune(r, GF_SLOW);
+    return BOOL(r->alloc.flags & RFA_WILD_OCEAN);
     return _has_blow(r, _paralysis);
-    return r->d_char == 'Z' || r->d_char == 'd';
     return _summon_spell_only(r);
-    return r->d_char == 'd' || r->d_char == 'D';
-    return r->level <= mimic_max_lvl();
-    return r->d_char == 'P';
-    return r->d_char == 'J' && r->spells && r->spells->groups[MST_BREATH];
-    return BOOL(r->flags3 & RF3_UNDEAD);
-    return !(r->flags9 & RF9_DEPRECATED);
+    return r->alloc.lvl <= mimic_max_lvl();
     return _is_monk(r);
 }
 
@@ -1595,13 +1562,13 @@ static void spoil_mon_melee_dam(void)
     vec_free(v);
 }
 
-static void _display_mon_resist(doc_ptr doc, mon_race_ptr race, u32b res_flag, u32b im_flag, u32b vuln_flag)
+static void _display_mon_resist(doc_ptr doc, mon_race_ptr race, int gf)
 {
-    if (im_flag && (race->flagsr & im_flag))
+    if (mon_race_immune(race, gf))
         doc_insert(doc, " <color:v>*</color>");
-    else if (vuln_flag && (race->flags3 & vuln_flag)) /* XXX all HURT_* flags are in flags3 atm */
+    else if (mon_race_vuln(race, gf))
         doc_insert(doc, " <color:y>v</color>");
-    else if (race->flagsr & res_flag)
+    else if (mon_race_resist(race, gf))
         doc_insert(doc, " <color:r>+</color>");
     else
         doc_insert(doc, " <color:D>-</color>");
@@ -1613,46 +1580,38 @@ static void _spoil_mon_resist_aux(doc_ptr doc, vec_ptr v)
     for (i = 0; i < vec_length(v); i++)
     {
         mon_race_ptr race = vec_get(v, i);
-        int          hp = 0;
+        int          hp = dice_avg_roll(race->hp);
         char         color = 'w';
-
-        if (race->flags1 & RF1_FORCE_MAXHP)
-            hp = race->hdice * race->hside;
-        else
-            hp = race->hdice * (1 + race->hside)/2;
 
         if (i%10 == 0)
         {
             doc_printf(doc, "\n<color:G>%-30.30s Lvl    HP AcElFiCoPo LiDkCfNtNx SoShCaDiTm</color>\n", "Name");
         }
 
-        if (race->flags9 & RF9_DEPRECATED)
+        if (race->attributes & RF_DEPRECATED)
             color = 'D';
-        else if (race->flags3 & RF3_OLYMPIAN)
+        else if (mon_race_is_olympian(race))
             color = 'U';
         else if (race->id > 1132)
             color = 'B';
-        doc_printf(doc, "<color:%c>%-30.30s</color> %3d %5d ", color, r_name + race->name, race->level, hp);
-        _display_mon_resist(doc, race, RFR_RES_ACID, RFR_IM_ACID, 0);
-        _display_mon_resist(doc, race, RFR_RES_ELEC, RFR_IM_ELEC, 0);
-        _display_mon_resist(doc, race, RFR_RES_FIRE, RFR_IM_FIRE, RF3_HURT_FIRE);
-        _display_mon_resist(doc, race, RFR_RES_COLD, RFR_IM_COLD, RF3_HURT_COLD);
-        _display_mon_resist(doc, race, RFR_RES_POIS, RFR_IM_POIS, 0);
+        doc_printf(doc, "<color:%c>%-30.30s</color> %3d %5d ", color, race->name, race->alloc.lvl, hp);
+        _display_mon_resist(doc, race, GF_ACID);
+        _display_mon_resist(doc, race, GF_ELEC);
+        _display_mon_resist(doc, race, GF_FIRE);
+        _display_mon_resist(doc, race, GF_COLD);
+        _display_mon_resist(doc, race, GF_POIS);
         doc_insert(doc, " ");
-        _display_mon_resist(doc, race, RFR_RES_LITE, 0, RF3_HURT_LITE);
-        _display_mon_resist(doc, race, RFR_RES_DARK, 0, 0);
-        if (race->flags3 & RF3_NO_CONF)
-            doc_insert(doc, " <color:r>+</color>");
-        else
-            doc_insert(doc, " <color:D>-</color>");
-        _display_mon_resist(doc, race, RFR_RES_NETH, 0, 0);
-        _display_mon_resist(doc, race, RFR_RES_NEXU, 0, 0);
+        _display_mon_resist(doc, race, GF_LIGHT);
+        _display_mon_resist(doc, race, GF_DARK);
+        _display_mon_resist(doc, race, GF_CONFUSION);
+        _display_mon_resist(doc, race, GF_NETHER);
+        _display_mon_resist(doc, race, GF_NEXUS);
         doc_insert(doc, " ");
-        _display_mon_resist(doc, race, RFR_RES_SOUN, 0, 0);
-        _display_mon_resist(doc, race, RFR_RES_SHAR, 0, 0);
-        _display_mon_resist(doc, race, RFR_RES_CHAO, 0, 0);
-        _display_mon_resist(doc, race, RFR_RES_DISE, 0, 0);
-        _display_mon_resist(doc, race, RFR_RES_TIME, 0, 0);
+        _display_mon_resist(doc, race, GF_SOUND);
+        _display_mon_resist(doc, race, GF_SHARDS);
+        _display_mon_resist(doc, race, GF_CHAOS);
+        _display_mon_resist(doc, race, GF_DISENCHANT);
+        _display_mon_resist(doc, race, GF_TIME);
         doc_newline(doc);
     }
 }
@@ -1956,27 +1915,44 @@ static void spoil_mon_info(void)
 
     spoiler_hack = TRUE;
 
-    for (i = 1; i < max_r_idx; i++)
+    /* XXX vec_copy */
+    for (i = 0; i < vec_length(mon_alloc_tbl); i++)
     {
-        monster_race *r_ptr = &r_info[i];
-        if (!r_ptr->name) continue;
-        if (r_ptr->id == MON_MONKEY_CLONE) continue;
-        if (r_ptr->id == MON_KAGE) continue;
-        vec_add(v, r_ptr);
+        mon_race_ptr r = vec_get(mon_alloc_tbl, i);
+        vec_add(v, r);
     }
     vec_sort(v, (vec_cmp_f)_compare_r_level_desc);
 
     for (i = 0; i < vec_length(v); i++)
     {
-        monster_race *r_ptr = vec_get(v, i);
-        doc_printf(doc, "<topic:%s><color:r>=====================================================================</color>\n", r_name + r_ptr->name);
-        mon_display_doc(r_ptr, doc);
+        mon_race_ptr r = vec_get(v, i);
+        doc_printf(doc, "<topic:%s><color:r>=====================================================================</color>\n", r->name);
+        mon_display_doc(r, doc);
         doc_newline(doc);
     }
     vec_free(v);
 
     doc_display(doc, "Monster Spoilers", 0);
     doc_free(doc);
+
+    spoiler_hack = FALSE;
+}
+static void spoil_possessor(void)
+{
+    int     i;
+    vec_ptr v = vec_alloc(NULL);
+
+    spoiler_hack = TRUE;
+
+    /* XXX vec_copy */
+    for (i = 0; i < vec_length(mon_alloc_tbl); i++)
+    {
+        mon_race_ptr r = vec_get(mon_alloc_tbl, i);
+        vec_add(v, r);
+    }
+    vec_sort(v, (vec_cmp_f)_compare_r_level_desc);
+    possessor_wizard(v);
+    vec_free(v);
 
     spoiler_hack = FALSE;
 }
@@ -1992,21 +1968,21 @@ static vec_ptr _evol_roots(void)
 
     /* Find all the targets (monsters that may
      * be evolved into) */
-    for (i = 1; i < max_r_idx; i++)
+    for (i = 0; i < vec_length(mon_alloc_tbl); i++)
     {
-        monster_race *r_ptr = &r_info[i];
-        if (!r_ptr->next_exp) continue;
-        int_map_add(targets, r_ptr->next_r_idx, NULL);
+        mon_race_ptr r = vec_get(mon_alloc_tbl, i);
+        if (!r->evolution.exp) continue;
+        int_map_add(targets, r->evolution.id, NULL);
     }
 
     /* Now, the roots are simply monsters that
      * may evolve, but aren't themselves targets */
-    for (i = 1; i < max_r_idx; i++)
+    for (i = 0; i < vec_length(mon_alloc_tbl); i++)
     {
-        monster_race *r_ptr = &r_info[i];
-        if (!r_ptr->next_exp) continue;
-        if (int_map_contains(targets, i)) continue;
-        vec_add(roots, r_ptr);
+        mon_race_ptr r = vec_get(mon_alloc_tbl, i);
+        if (!r->evolution.exp) continue;
+        if (int_map_contains(targets, r->id)) continue;
+        vec_add(roots, r);
     }
     int_map_free(targets);
 
@@ -2016,12 +1992,14 @@ static vec_ptr _evol_roots(void)
 
 static void _evol_mon_line(doc_ptr doc, monster_race *r_ptr)
 {
-    doc_printf(doc, "[%d]: <color:B>%s</color> (Level <color:G>%d</color>, ", r_ptr->id, r_name + r_ptr->name, r_ptr->level);
-    doc_printf(doc, "<color:%c>%c</color>", attr_to_attr_char(r_ptr->d_attr), r_ptr->d_char);
-    if (use_graphics && (r_ptr->x_char != r_ptr->d_char || r_ptr->x_attr != r_ptr->d_attr))
+    term_char_t  ac = mon_race_visual_ascii(r_ptr);
+    term_char_t  gc = mon_race_visual(r_ptr);
+    doc_printf(doc, "[%s]: <color:B>%s</color> (Level <color:G>%d</color>, ", sym_str(r_ptr->id), r_ptr->name, r_ptr->alloc.lvl);
+    doc_printf(doc, "<color:%c>%c</color>", attr_to_attr_char(ac.a), ac.c);
+    if (use_graphics && (gc.c != ac.c || gc.a != ac.a))
     {
-        doc_insert(doc, " / ");
-        doc_insert_char(doc, r_ptr->x_attr, r_ptr->x_char);
+        doc_insert(doc, "/");
+        doc_insert_term_char(doc, gc);
     }
     doc_insert(doc, ")\n");
 }
@@ -2030,7 +2008,7 @@ static void spoil_mon_evol(void)
 {
     int     i, j;
     vec_ptr roots = _evol_roots();
-    doc_ptr doc = doc_alloc(80);
+    doc_ptr doc = doc_alloc(100);
 
     doc_change_name(doc, "mon-evol.html");
     doc_printf(doc, "<color:heading>Monster Evolution for %s Version %d.%d.%d</color>\n",
@@ -2042,10 +2020,10 @@ static void spoil_mon_evol(void)
         monster_race *r_ptr = vec_get(roots, i);
 
         _evol_mon_line(doc, r_ptr);
-        for (j = 1; r_ptr->next_exp; j++)
+        for (j = 1; r_ptr->evolution.exp; j++)
         {
-            doc_printf(doc, "%*s<color:y>-<color:R>%d</color>-></color> ", j * 2, "", r_ptr->next_exp);
-            r_ptr = mon_race_lookup(r_ptr->next_r_idx);
+            doc_printf(doc, "%*s<color:y>-<color:R>%d</color>-></color> ", j * 2, "", r_ptr->evolution.exp);
+            r_ptr = mon_race_lookup(r_ptr->evolution.id);
             _evol_mon_line(doc, r_ptr);
         }
         doc_newline(doc);
@@ -2206,7 +2184,7 @@ static void _spoil_spell_book(doc_ptr doc, int class_idx, int realm_idx, int boo
     int           k_idx = lookup_kind(realm2tval(realm_idx), book_idx);
     player_magic *magic_ptr = &m_info[class_idx];
 
-    doc_printf(doc, "<color:o>%-25.25s</color><color:G> Lvl Cst Fail  </color>\n", k_name + k_info[k_idx].name);
+    doc_printf(doc, "<color:o>%-25.25s</color><color:G> Lvl Cst Fail  </color>\n", k_info[k_idx].name);
     for (spell_idx = book_idx*8; spell_idx < (book_idx+1)*8; spell_idx++)
     {
         magic_type *spell_ptr = NULL;
@@ -2259,6 +2237,7 @@ static void spoil_spells_by_class(void)
         bool          class_heading = FALSE;
 
         if (class_idx == CLASS_RAGE_MAGE) continue; /* broken */
+        if (class_idx == CLASS_SAMURAI) continue; /* broken */
 
         for (realm_idx = REALM_LIFE; realm_idx <= MAX_REALM; realm_idx++)
         {
@@ -2307,7 +2286,7 @@ static void _spoil_spell_book2(doc_ptr doc, int class1_idx, int class2_idx, int 
 
     doc_printf(doc, "%-25.25s <color:G>%-12.12s</color>  <color:R>%-12.12s</color>\n",
         "", get_class_aux(class1_idx, 0)->name, get_class_aux(class2_idx, 0)->name);
-    doc_printf(doc, "<color:o>%-25.25s</color><color:G> Lvl Cst Fail</color>  <color:R>Lvl Cst Fail</color>\n", k_name + k_info[k_idx].name);
+    doc_printf(doc, "<color:o>%-25.25s</color><color:G> Lvl Cst Fail</color>  <color:R>Lvl Cst Fail</color>\n", k_info[k_idx].name);
     for (spell_idx = book_idx*8; spell_idx < (book_idx+1)*8; spell_idx++)
     {
         magic_type *spell1_ptr = &magic1_ptr->info[realm_idx - 1][spell_idx];
@@ -2528,6 +2507,7 @@ void do_cmd_spoilers(void)
         c_prt(TERM_RED, "Monster Spoilers", row++, col - 2);
         prt("(m) Brief Descriptions", row++, col);
         prt("(M) Full Descriptions", row++, col);
+        prt("(p) Possessor Info", row++, col);
         prt("(e) Evolution", row++, col);
         prt("(d) Damage by Resistance", row++, col);
         prt("(D) Damage by Melee", row++, col);
@@ -2582,6 +2562,9 @@ void do_cmd_spoilers(void)
             break;
         case 'M':
             spoil_mon_info();
+            break;
+        case 'p':
+            spoil_possessor();
             break;
         case 'e':
             spoil_mon_evol();

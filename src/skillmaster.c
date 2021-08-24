@@ -135,6 +135,7 @@ static _group_t _groups[] = {
          { _TYPE_MAGIC, REALM_NATURE, "Nature", 5, 0 },
          { _TYPE_MAGIC, REALM_SORCERY, "Sorcery", 5, 0 },
          { _TYPE_MAGIC, REALM_TRUMP, "Trump", 5, 0 },
+         { _TYPE_MAGIC, REALM_ILLUSION, "Illusion", 5, 0 },
          { 0 }}},
     { _TYPE_PRAYER, "Prayer",
         "<color:B>Prayer</color> skills work like Magic skills, granting access to various realms of "
@@ -158,7 +159,7 @@ static _group_t _groups[] = {
         "talents in other groups (e.g. Magic increases your device skills), it is often "
         "desirable to directly increase these skills even more. In addition, you can directly "
         "improve your starting stats by investing in some of the skills in this group "
-        "(e.g. Agility improves DEX while Health improve CON).",
+        "(e.g. Agility improves DEX while Health improves CON).",
         {{ _TYPE_SKILLS, _AGILITY, "Agility", 3, 0 },
          { _TYPE_SKILLS, _AWARENESS, "Awareness", 3, 0 },
          { _TYPE_SKILLS, _DEVICE_SKILL, "Device Skill", 3, 0 },
@@ -172,8 +173,8 @@ static _group_t _groups[] = {
          { 0 }}},
     { _TYPE_TECHNIQUE, "Techniques",
         "There are various specialty <color:B>Techniques</color> which you may want to "
-        "learn, including the Riding and Dual Wielding talents, as well as access to the "
-        "Burglary technique. Note that Burglary uses DEX as the primary spell stat.",
+        "learn, including the Riding and Dual Wielding talents as well as access to "
+        "Burglary spells. Note that Burglary uses DEX as the primary spell stat.",
         {{ _TYPE_TECHNIQUE, REALM_BURGLARY, "Burglary", 5, 0 },
          { _TYPE_TECHNIQUE, _DUAL_WIELDING, "Dual Wielding", 5, 0 },
          { _TYPE_TECHNIQUE, _RIDING, "Riding", 5, 0 },
@@ -270,7 +271,7 @@ static int _get_pts(void)
 
 static int _get_max_pts(void)
 {
-    return 5 + p_ptr->lev/5;
+    return 5 + plr->lev/5;
 }
 
 static int _get_free_pts(void)
@@ -384,19 +385,19 @@ static void _melee_init_class(class_t *class_ptr)
 {
     typedef struct { int base_thn; int xtra_thn; int dev; int str; int dex; int int_; } _melee_skill_t;
     static _melee_skill_t _tbl[11] = {
-       /*thn thn dev  S  D   I */
-        { 34,  6,  0, 0, 0,  0 },
-        { 50, 10,  0, 1, 0,  0 },
-        { 55, 12,  0, 1, 1,  0 },
-        { 60, 15,  0, 2, 1,  0 },
-        { 65, 18, -1, 2, 1,  0 },
-        { 70, 21, -2, 2, 2,  0 },
+       /*thn  thn dev  S  D   I */
+        { 34,  30,  0, 0, 0,  0 },
+        { 50,  50,  0, 1, 0,  0 },
+        { 55,  60,  0, 1, 1,  0 },
+        { 60,  75,  0, 2, 1,  0 },
+        { 65,  90, -1, 2, 1,  0 },
+        { 70, 105, -2, 2, 2,  0 },
 
-        { 70, 23, -3, 3, 2, -1 },
-        { 70, 25, -4, 3, 2, -1 },
-        { 70, 27, -5, 3, 2, -1 },
-        { 70, 29, -6, 4, 2, -2 },
-        { 70, 30, -7, 4, 2, -2 }
+        { 70, 115, -3, 3, 2, -1 },
+        { 70, 125, -4, 3, 2, -1 },
+        { 70, 135, -5, 3, 2, -1 },
+        { 70, 145, -6, 4, 2, -2 },
+        { 70, 150, -7, 4, 2, -2 }
     };
     int pts = MIN(10, _get_group_pts(_TYPE_MELEE));
     _melee_skill_t row = _tbl[pts];
@@ -411,7 +412,7 @@ static void _melee_init_class(class_t *class_ptr)
     class_ptr->stats[A_DEX] += pts/4;
 }
 
-typedef struct { int to_h; int to_d; int prof; int blows_max; int blows_mult; int ma_wgt; } _melee_info_t;
+typedef struct { int to_h; int to_d; int prof; int blows_max; int blows_mul; int ma_wgt; } _melee_info_t;
 static _melee_info_t _melee_info[6] = {
     {  0,  0, 2000, 400, 20,   0 },
     {  0,  0, 4000, 500, 30,  60 },
@@ -433,13 +434,13 @@ static void _calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
     /* Blows Calculation */
     info->blows_calc.max = melee.blows_max - 5*magic_pts;
     info->blows_calc.wgt = 70;
-    info->blows_calc.mult = melee.blows_mult;
-    if (p_ptr->riding)
+    info->blows_calc.mul = melee.blows_mul;
+    if (plr->riding)
     {
         if (obj_has_flag(obj, OF_RIDING))
         {
             pts = _get_skill_pts(_TYPE_TECHNIQUE, _RIDING);
-            info->blows_calc.mult += 5 * pts;
+            info->blows_calc.mul += 5 * pts;
         }
     }
 
@@ -480,12 +481,12 @@ static void _melee_calc_bonuses(void)
 {
     int pts = _get_skill_pts(_TYPE_MELEE, _MARTIAL_ARTS);
     assert(0 <= pts && pts <= 5);
-    p_ptr->monk_lvl = (p_ptr->lev * _melee_info[pts].ma_wgt + 50) / 100;
-    if (!equip_find_first(obj_is_weapon) && p_ptr->monk_lvl && !heavy_armor())
+    plr->monk_lvl = (plr->lev * _melee_info[pts].ma_wgt + 50) / 100;
+    if (!equip_find_first(obj_is_weapon) && plr->monk_lvl && !heavy_armor())
     {
         monk_ac_bonus();
         if (pts >= 5)
-            p_ptr->sh_retaliation = TRUE;
+            plr->sh_retaliation = TRUE;
     }
 
     /* I'd prefer this in calc_weapon_bonuses, but we have a sequencing issue ...
@@ -495,8 +496,8 @@ static void _melee_calc_bonuses(void)
     pts = _get_skill_pts(_TYPE_TECHNIQUE, _DUAL_WIELDING);
     if (pts >= 5)
     {
-        add_flag(p_ptr->attack_info[0].paf_flags, PAF_GENJI);
-        add_flag(p_ptr->attack_info[1].paf_flags, PAF_GENJI);
+        add_flag(plr->attack_info[0].paf_flags, PAF_GENJI);
+        add_flag(plr->attack_info[1].paf_flags, PAF_GENJI);
     }
 }
 
@@ -512,12 +513,12 @@ void _melee_get_flags(u32b flgs[OF_ARRAY_SIZE])
  ***********************************************************************/
 typedef struct { int base_thb; int xtra_thb; int prof; } _shoot_info_t;
 static _shoot_info_t _shoot_info[6] = {
-    { 20, 10, 2000 },
-    { 40, 12, 4000 }, /* 100 */
-    { 50, 15, 5000 }, /* 125 */
-    { 60, 18, 6000 }, /* 150 */
-    { 65, 22, 7000 }, /* 175 */
-    { 70, 26, 8000 }  /* 200 */
+    { 20,  50, 2000 },
+    { 40,  60, 4000 },
+    { 50,  75, 5000 },
+    { 60,  90, 6000 },
+    { 65, 110, 7000 },
+    { 70, 130, 8000 }
 };
 static void _shoot_init_class(class_t *class_ptr)
 {
@@ -561,9 +562,9 @@ static void _shoot_calc_bonuses(void)
     /* thb and tht should be separate ... _ARCHERY determines thb, while
      * _THROWING determines tht. Choosing _THROWING no longer benefits archery,
      * and vice versa */
-    p_ptr->skill_tht = row.base_thb + p_ptr->lev * row.xtra_thb / 10;
+    plr->skill_tht = row.base_thb + plr->lev * row.xtra_thb / 10;
     /* bonus skill, since throwing does not gain xtra to_h from ammo */
-    p_ptr->skill_tht += _throw_info[pts].skill;
+    plr->skill_tht += _throw_info[pts].skill;
 }
 
 static void _throw_weapon_spell(int cmd, var_ptr res)
@@ -602,25 +603,25 @@ static void _magic_init_class(class_t *class_ptr)
 {
     typedef struct { int base_dev; int xtra_dev; int int_; int str; int con; } _magic_skill_t;
     static _magic_skill_t _tbl[16] = {
-        { 23,  9, 0,  0,  0 },
+        { 23, 45, 0,  0,  0 },
 
-        { 25,  9, 1,  0,  0 },
-        { 27,  9, 1,  0,  0 },
-        { 29,  9, 2,  0,  0 },
-        { 31,  9, 2,  0, -1 },
-        { 33,  9, 3, -1, -1 },
+        { 25, 45, 1,  0,  0 },
+        { 27, 46, 1,  0,  0 },
+        { 29, 47, 2,  0,  0 },
+        { 31, 48, 2,  0, -1 },
+        { 33, 49, 3, -1, -1 },
 
-        { 33, 10, 3, -1, -1 },
-        { 35, 10, 3, -2, -1 },
-        { 37, 10, 3, -2, -2 },
-        { 39, 10, 3, -2, -2 },
-        { 41, 11, 4, -3, -2 },
+        { 33, 50, 3, -1, -1 },
+        { 35, 51, 3, -2, -1 },
+        { 37, 52, 3, -2, -2 },
+        { 39, 53, 3, -2, -2 },
+        { 41, 54, 4, -3, -2 },
 
-        { 43, 11, 5, -3, -3 },
-        { 45, 11, 5, -4, -3 },
-        { 47, 11, 5, -4, -3 },
-        { 50, 11, 6, -4, -3 },
-        { 55, 12, 7, -5, -3 }
+        { 43, 55, 5, -3, -3 },
+        { 45, 56, 5, -4, -3 },
+        { 47, 57, 5, -4, -3 },
+        { 50, 58, 6, -4, -3 },
+        { 55, 60, 7, -5, -3 }
     };
     int pts = _get_group_pts(_TYPE_MAGIC);
     _magic_skill_t row = _tbl[MIN(15, pts)];
@@ -647,19 +648,19 @@ static void _prayer_init_class(class_t *class_ptr)
 {
     typedef struct { int base_sav; int xtra_sav; int wis; } _prayer_skill_t;
     static _prayer_skill_t _tbl[11] = {
-        { 31, 10, 0 },
+        { 31, 50, 0 },
 
-        { 32, 11, 1 },
-        { 33, 11, 1 },
-        { 34, 11, 2 },
-        { 35, 11, 2 },
-        { 36, 11, 3 },
+        { 32, 55, 1 },
+        { 33, 56, 1 },
+        { 34, 57, 2 },
+        { 35, 58, 2 },
+        { 36, 59, 3 },
 
-        { 38, 11, 3 },
-        { 39, 12, 4 },
-        { 40, 12, 4 },
-        { 40, 13, 4 },
-        { 40, 14, 4 }
+        { 38, 60, 3 },
+        { 39, 61, 4 },
+        { 40, 62, 4 },
+        { 40, 65, 4 },
+        { 40, 70, 4 }
     };
     int pts = _get_group_pts(_TYPE_PRAYER);
     _prayer_skill_t row = _tbl[MIN(10, pts)];
@@ -788,7 +789,7 @@ static bool _can_cast(void)
         flush();
         return FALSE;
     }
-    if (plr_tim_find(T_BLIND) || no_lite())
+    if (plr_tim_find(T_BLIND) || no_light())
     {
         msg_print("You cannot see!");
         flush();
@@ -892,7 +893,7 @@ static vec_ptr _get_spell_list(object_type *spellbook)
     _realm_skill_t skill;
     int            start = 8*spellbook->sval;
     int            stop = start + 8;
-    int            stat = p_ptr->stat_ind[_get_realm_stat(realm)];
+    int            stat = plr->stat_ind[_get_realm_stat(realm)];
     int            i;
 
     assert(0 < pts && pts <= 5);
@@ -900,18 +901,14 @@ static vec_ptr _get_spell_list(object_type *spellbook)
     for (i = start; i < stop; i++)
     {
         _spell_info_ptr spell = _get_spell(realm, i, pts);
-        int old_dec_mana = p_ptr->dec_mana;
 
-        if (p_ptr->easy_realm1 == realm) /* XXX calculate_fail_rate_aux needs a refactor */
-            p_ptr->dec_mana++;
         if (spell->cost && is_magic(realm))
         {
-            if (p_ptr->easy_realm1 == realm || (p_ptr->dec_mana && pts >= 4))
-                spell->cost = MAX(1, (spell->cost + 1) * dec_mana_cost(p_ptr->dec_mana) / 100);
+            if (plr->easy_realm1 == realm || (plr->dec_mana && pts >= 4))
+                spell->cost = MAX(1, (spell->cost + 1) * dec_mana_cost(plr->dec_mana) / 100);
         }
         spell->fail = virtue_mod_spell_fail(realm, spell->fail); /* Ditto with virtues */
-        spell->fail = calculate_fail_rate(spell->level, spell->fail, stat);
-        p_ptr->dec_mana = old_dec_mana;
+        spell->fail = calculate_fail_rate_aux(plr->lev, realm, spell->level, spell->fail, stat);
         if (spell->fail < skill.fail_min)
             spell->fail = skill.fail_min;
 
@@ -928,7 +925,7 @@ static void _list_spells(doc_ptr doc, object_type *spellbook, vec_ptr spells, in
     object_kind *k_ptr = &k_info[spellbook->k_idx];
 
     doc_printf(doc, "<color:%c>%-27.27s</color> <color:G>Lvl  SP Fail %-15.15s",
-        attr_to_attr_char(k_ptr->d_attr), k_name + k_ptr->name, "Desc");
+        attr_to_attr_char(k_ptr->d_attr), k_ptr->name, "Desc");
     if (options & _SHOW_STATS)
         doc_insert(doc, "  Cast Fail");
     doc_insert(doc, "</color>\n");
@@ -943,15 +940,15 @@ static void _list_spells(doc_ptr doc, object_type *spellbook, vec_ptr spells, in
         else
         {
             doc_printf(doc, " <color:%c>%c</color>) ",
-                (spell->level <= p_ptr->lev && spell->cost <= p_ptr->csp) ? 'y' : 'D', I2A(i));
+                (spell->level <= plr->lev && spell->cost <= plr->csp) ? 'y' : 'D', I2A(i));
             doc_printf(doc, "<color:%c>%-23.23s</color> ",
                 i == browse_idx ? 'B' : 'w',
                 do_spell(spell->realm, spell->idx, SPELL_NAME));
             doc_printf(doc, "%3d <color:%c>%3d</color> %3d%% ",
                 spell->level,
-                spell->cost <= p_ptr->csp ? 'w' : 'r',
+                spell->cost <= plr->csp ? 'w' : 'r',
                 spell->cost, spell->fail);
-            if (spell->level <= p_ptr->lev)
+            if (spell->level <= plr->lev)
                 doc_printf(doc, "%-15.15s", do_spell(spell->realm, spell->idx, SPELL_INFO));
             else
                 doc_printf(doc, "%-15.15s", "");
@@ -979,7 +976,7 @@ static void _spoil_book(doc_ptr doc, int realm, int book)
     int stop = start + 8;
     int k_idx = lookup_kind(realm2tval(realm), book);
 
-    doc_printf(doc, "<color:G>%-20.20s</color>", k_name + k_info[k_idx].name);
+    doc_printf(doc, "<color:G>%-20.20s</color>", k_info[k_idx].name);
     for (pts = 1; pts <= 5; pts++)
         doc_printf(doc, " <color:%c>Lv Cst Fail</color>", pts % 2 ? 'G' : 'R');
     doc_newline(doc);
@@ -1025,7 +1022,7 @@ static bool _prompt_spell(object_type *spellbook, _spell_info_ptr chosen_spell, 
         if (0 <= i && i < vec_length(spells))
         {
             _spell_info_ptr spell = vec_get(spells, i);
-            if (spell->level <= p_ptr->lev && spell->cost <= p_ptr->csp)
+            if (spell->level <= plr->lev && spell->cost <= plr->csp)
             {
                 *chosen_spell = *spell;
                 vec_free(spells);
@@ -1069,7 +1066,7 @@ static bool _prompt_spell(object_type *spellbook, _spell_info_ptr chosen_spell, 
                 else
                 {
                     _spell_info_ptr spell = vec_get(spells, i);
-                    if (spell->level <= p_ptr->lev && spell->cost <= p_ptr->csp)
+                    if (spell->level <= plr->lev && spell->cost <= plr->csp)
                     {
                         *chosen_spell = *spell;
                         result = TRUE;
@@ -1091,10 +1088,10 @@ static bool _prompt_spell(object_type *spellbook, _spell_info_ptr chosen_spell, 
 
 static void _cast_spell(_spell_info_ptr spell)
 {
-    assert(spell->level <= p_ptr->lev);
-    assert(spell->cost <= p_ptr->csp);
+    assert(spell->level <= plr->lev);
+    assert(spell->cost <= plr->csp);
 
-    p_ptr->csp -= spell->cost;
+    plr->csp -= spell->cost;
     energy_use = 100;
 
     if (randint0(100) < spell->fail)
@@ -1103,7 +1100,7 @@ static void _cast_spell(_spell_info_ptr spell)
 
         cmsg_format(TERM_VIOLET, "You failed to cast <color:B>%s</color>!", do_spell(spell->realm, spell->idx, SPELL_NAME));
         if (demigod_is_(DEMIGOD_ATHENA))
-            p_ptr->csp += spell->cost/2;
+            plr->csp += spell->cost/2;
         spell_stats_on_fail_old(spell->realm, spell->idx);
         sound(SOUND_FAIL);
         do_spell(spell->realm, spell->idx, SPELL_FAIL);
@@ -1113,7 +1110,7 @@ static void _cast_spell(_spell_info_ptr spell)
     {
         if (!do_spell(spell->realm, spell->idx, SPELL_CAST))
         {  /* Canceled */
-            p_ptr->csp += spell->cost;
+            plr->csp += spell->cost;
             energy_use = 0;
             return;
         }
@@ -1121,8 +1118,8 @@ static void _cast_spell(_spell_info_ptr spell)
         spell_stats_on_cast_old(spell->realm, spell->idx);
         virtue_on_cast_spell(spell->realm, spell->cost, spell->fail);
     }
-    p_ptr->redraw |= PR_MANA;
-    p_ptr->window |= PW_SPELL;
+    plr->redraw |= PR_MANA;
+    plr->window |= PW_SPELL;
 }
 
 void skillmaster_cast(void)
@@ -1173,7 +1170,7 @@ static void _skills_init_class(class_t *class_ptr)
     pts = _get_skill_pts(_TYPE_SKILLS, _AGILITY);
     class_ptr->stats[A_DEX] += pts;
     class_ptr->skills.dis += 25 + 7*pts;
-    class_ptr->extra_skills.dis += 7 + 2*pts;
+    class_ptr->extra_skills.dis += 35 + 10*pts;
 
     pts = _get_skill_pts(_TYPE_SKILLS, _AWARENESS);
     class_ptr->skills.srh += 12 + 15*pts;
@@ -1209,26 +1206,29 @@ static void _skills_calc_bonuses(void)
     pts = _get_skill_pts(_TYPE_SKILLS, _AWARENESS);
     switch (pts)
     {
-    case 3: p_ptr->telepathy = TRUE;
-    case 2: p_ptr->auto_pseudo_id = TRUE;
-    case 1: p_ptr->see_inv++;
+    case 3: plr->telepathy = TRUE;
+    case 2: plr->auto_pseudo_id = TRUE;
+    case 1: plr->see_inv++;
     }
 
     pts = _get_skill_pts(_TYPE_SKILLS, _SPEED);
-    p_ptr->pspeed += 2*pts;
+    plr->pspeed += 2*pts;
 
     pts = _get_skill_pts(_TYPE_SKILLS, _STEALTH);
     if (pts >= 3)
-        p_ptr->ambush = TRUE;
+    {
+        plr->ambush = 300;
+        plr->shoot_sleeping = 300;
+    }
 
     pts = _get_skill_pts(_TYPE_SKILLS, _DEVICE_POWER);
-    p_ptr->device_power += pts;
+    plr->device_power += pts;
 
     pts = _get_skill_pts(_TYPE_SKILLS, _SPELL_CAPACITY);
-    p_ptr->spell_cap += 2*pts;
+    plr->spell_cap += 2*pts;
 
     pts = _get_skill_pts(_TYPE_SKILLS, _SPELL_POWER);
-    p_ptr->spell_power += pts;
+    plr->spell_power += pts;
 
 }
 
@@ -1278,7 +1278,7 @@ void _tech_calc_bonuses(void)
 
     pts = _get_skill_pts(_TYPE_TECHNIQUE, _RIDING);
     if (pts >= 5)
-        p_ptr->easy_capture = TRUE;
+        plr->easy_capture = TRUE;
 }
 
 int skillmaster_riding_prof(void)
@@ -1351,7 +1351,7 @@ static void _skill_display_help(_skill_ptr s)
     int realm = _get_skill_realm(s);
     if (realm != REALM_NONE)
     {
-        if (p_ptr->wizard || 0)
+        if (plr->wizard || 0)
         {
             doc_ptr doc = doc_alloc(80);
             _spoil_realm(doc, realm);
@@ -1413,13 +1413,13 @@ static int _gain_skill_ui(_group_ptr g)
         }
         if (cmd == ESCAPE) return UI_CANCEL;
         else if (cmd == '?') doc_display_help("Skillmasters.txt", g->name);
-        else if (p_ptr->wizard && cmd == KTRL('R'))
+        else if (plr->wizard && cmd == KTRL('R'))
         {
             if (get_check("Really reset this group? "))
             {
                 _reset_group(g);
-                p_ptr->update |= PU_BONUS | PU_HP | PU_MANA;
-                p_ptr->redraw |= PR_EFFECTS | PR_HP | PR_MANA;
+                plr->update |= PU_BONUS | PU_HP | PU_MANA;
+                plr->redraw |= PR_EFFECTS | PR_HP | PR_MANA;
             }
         }
         else if (isupper(cmd))
@@ -1499,13 +1499,13 @@ static int _gain_type_ui(void)
         }
         if (cmd == ESCAPE) return UI_CANCEL;
         else if (cmd == '?') doc_display_help("Skillmasters.txt", NULL);
-        else if (p_ptr->wizard && cmd == KTRL('R'))
+        else if (plr->wizard && cmd == KTRL('R'))
         {
             if (get_check("Really reset all skills? "))
             {
                 _reset_groups();
-                p_ptr->update |= PU_BONUS | PU_HP | PU_MANA;
-                p_ptr->redraw |= PR_EFFECTS | PR_HP | PR_MANA;
+                plr->update |= PU_BONUS | PU_HP | PU_MANA;
+                plr->redraw |= PR_EFFECTS | PR_HP | PR_MANA;
             }
         }
         else if (isupper(cmd))
@@ -1541,8 +1541,8 @@ void skillmaster_gain_skill(void)
     Term_save();
     if (_gain_type_ui() == UI_OK)
     {
-        p_ptr->update |= PU_BONUS | PU_HP | PU_MANA;
-        p_ptr->redraw |= PR_EFFECTS | PR_HP | PR_MANA;
+        plr->update |= PU_BONUS | PU_HP | PU_MANA;
+        plr->redraw |= PR_EFFECTS | PR_HP | PR_MANA;
     }
     Term_load();
 
@@ -1556,13 +1556,13 @@ void skillmaster_gain_skill(void)
 static void _birth(void)
 {
     _reset_groups();
-    p_ptr->au += 500; /* build your own class, so buy your own gear! */
+    plr->au += 500; /* build your own class, so buy your own gear! */
 }
 
 static void _gain_level(int new_lvl)
 {
     if (new_lvl % 5 == 0)
-        p_ptr->redraw |= PR_EFFECTS;
+        plr->redraw |= PR_EFFECTS;
 }
 
 static void _calc_bonuses(void)
@@ -1573,13 +1573,13 @@ static void _calc_bonuses(void)
     _tech_calc_bonuses();
 
     if (_get_skill_pts(_TYPE_ABILITY, _LOREMASTER))
-        p_ptr->auto_id = TRUE;
+        plr->auto_id = TRUE;
     if (_get_skill_pts(_TYPE_ABILITY, _LUCK))
-        p_ptr->good_luck = TRUE;
+        plr->good_luck = TRUE;
     if (_get_skill_pts(_TYPE_ABILITY, _REGENERATION))
-        p_ptr->regen += 150;
+        plr->regen += 150;
     if (_get_skill_pts(_TYPE_ABILITY, _CLEAR_MIND))
-        p_ptr->clear_mind = TRUE;
+        plr->clear_mind = TRUE;
 }
 
 void _get_flags(u32b flgs[OF_ARRAY_SIZE])
@@ -1705,8 +1705,8 @@ static void _character_dump(doc_ptr doc)
         doc_insert(doc, "<topic:Throwing>=================================== <color:keypress>T</color>hrowing ==================================\n\n");
         for (i = 0; i < MAX_HANDS; i++)
         {
-            if (p_ptr->attack_info[i].type != PAT_WEAPON) continue;
-            context.obj = equip_obj(p_ptr->attack_info[i].slot);
+            if (plr->attack_info[i].type != PAT_WEAPON) continue;
+            context.obj = equip_obj(plr->attack_info[i].slot);
             plr_throw_doc(&context, doc);
         }
     }
@@ -1798,8 +1798,8 @@ plr_class_ptr skillmaster_get_class(void)
     for (i = 0; i < MAX_STATS; i++)
         me->stats[i] = 0;
 
-    skills_init(&me->skills);
-    skills_init(&me->extra_skills);
+    skills_wipe(&me->skills);
+    skills_wipe(&me->extra_skills);
 
     me->life = 100;
     me->base_hp = 10;

@@ -32,8 +32,8 @@ void hide_in_mud_spell(int cmd, var_ptr res)
         var_set_string(res, "Gain the ability to pass into walls temporarily, as well as extra resistance to acid.");
         break;
     case SPELL_CAST:
-        plr_tim_add(T_PASSWALL, randint1(p_ptr->lev/2) + p_ptr->lev/2);
-        plr_tim_add(T_RES_ACID, p_ptr->lev);
+        plr_tim_add(T_PASSWALL, randint1(plr->lev/2) + plr->lev/2);
+        plr_tim_add(T_RES_ACID, plr->lev);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -44,9 +44,6 @@ void hide_in_mud_spell(int cmd, var_ptr res)
 
 void ice_bolt_spell(int cmd, var_ptr res)
 {
-    int dd = 5 + p_ptr->lev / 4;
-    int ds = 15;
-
     switch (cmd)
     {
     case SPELL_NAME:
@@ -55,25 +52,8 @@ void ice_bolt_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a bolt of ice.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(dd, spell_power(ds), spell_power(p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_bolt(
-            GF_ICE,
-            dir,
-            spell_power(damroll(dd, ds) + p_ptr->to_d_spell)
-        );
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        bolt_spell(cmd, res, GF_ICE, 5 + plr->lev/4, 15);
     }
 }
 
@@ -128,25 +108,17 @@ void hand_of_doom_spell(int cmd, var_ptr res)
         var_set_string(res, "Attempt to mortally wound a target monster, draining a large proportion of their remaining health.");
         break;
     case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        msg_print("You invoke the Hand of Doom!");
-        fire_ball_hide(GF_HAND_DOOM, dir, spell_power(p_ptr->lev * 3), 0);
-        var_set_bool(res, TRUE);
+        var_set_bool(res, plr_cast_ball(0, GF_HAND_DOOM, spell_dice(0, 0, 3*plr->lev)));
         break;
-    }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
 void haste_self_spell(int cmd, var_ptr res)
 {
-    int base = spell_power(p_ptr->lev);
-    int sides = spell_power(20 + p_ptr->lev);
+    int base = spell_power(plr->lev);
+    int sides = spell_power(20 + plr->lev);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -228,31 +200,15 @@ void hellfire_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a powerful ball of evil power directly from the bowels of hell. Good monsters are especially susceptible.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(666 + p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (get_fire_dir(&dir))
-        {
-            fire_ball(GF_HELL_FIRE, dir, spell_power(666 + p_ptr->to_d_spell), 3);
-            if (!demon_is_(DEMON_BALROG))
-                take_hit(DAMAGE_USELIFE, 20 + randint1(30), "the strain of casting Hellfire");
-            var_set_bool(res, TRUE);
-        }
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 3, GF_HELL_FIRE, 666);
+        if (cmd == SPELL_CAST && !demon_is_(DEMON_BALROG) && var_get_bool(res))
+            take_hit(DAMAGE_USELIFE, 20 + randint1(30), "the strain of casting Hellfire");
     }
 }
 
 void hell_lance_spell(int cmd, var_ptr res)
 {
-    int dam = spell_power(p_ptr->lev * 3 + p_ptr->to_d_spell);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -261,30 +217,14 @@ void hell_lance_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a beam of pure hellfire.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, dam));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (get_fire_dir(&dir))
-        {
-            fire_beam(GF_HELL_FIRE, dir, dam);
-            var_set_bool(res, TRUE);
-        }
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        beam_spell_aux(cmd, res, GF_HELL_FIRE, spell_dam_dice(0, 0, 3*plr->lev));
     }
 }
 bool cast_hell_lance(void) { return cast_spell(hell_lance_spell); }
 
 void holy_lance_spell(int cmd, var_ptr res)
 {
-    int dam = spell_power(p_ptr->lev * 3 + p_ptr->to_d_spell);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -293,23 +233,8 @@ void holy_lance_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a beam of pure holiness.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, dam));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (get_fire_dir(&dir))
-        {
-            fire_beam(GF_HOLY_FIRE, dir, dam);
-            var_set_bool(res, TRUE);
-        }
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        beam_spell_aux(cmd, res, GF_HOLY_FIRE, spell_dam_dice(0, 0, 3*plr->lev));
     }
 }
 bool cast_holy_lance(void) { return cast_spell(holy_lance_spell); }
@@ -334,20 +259,20 @@ void hp_to_sp_spell(int cmd, var_ptr res)
         var_set_string(res, "Your blood sometimes rushes to your head.");
         break;
     case SPELL_PROCESS:
-        if (!p_ptr->anti_magic && one_in_(4000))
+        if (!plr->anti_magic && one_in_(4000))
         {
-            int wounds = p_ptr->msp - p_ptr->csp;
+            int wounds = plr->msp - plr->csp;
 
-            if (wounds > 0 && p_ptr->pclass != CLASS_RUNE_KNIGHT)
+            if (wounds > 0 && plr->pclass != CLASS_RUNE_KNIGHT)
             {
-                int healing = p_ptr->chp;
+                int healing = plr->chp;
 
                 if (healing > wounds)
                     healing = wounds;
 
-                p_ptr->csp += healing;
+                plr->csp += healing;
 
-                p_ptr->redraw |= (PR_MANA);
+                plr->redraw |= (PR_MANA);
                 take_hit(DAMAGE_LOSELIFE, healing, "blood rushing to the head");
             }
         }
@@ -355,17 +280,17 @@ void hp_to_sp_spell(int cmd, var_ptr res)
 
     case SPELL_CAST:
     {
-        int gain_sp = take_hit(DAMAGE_USELIFE, p_ptr->lev, "thoughtless convertion from HP to SP") / 5;
-        if (gain_sp && p_ptr->pclass != CLASS_RUNE_KNIGHT)
+        int gain_sp = take_hit(DAMAGE_USELIFE, plr->lev, "thoughtless convertion from HP to SP") / 5;
+        if (gain_sp && plr->pclass != CLASS_RUNE_KNIGHT)
         {
-            p_ptr->csp += gain_sp;
-            if (p_ptr->csp > p_ptr->msp)
+            plr->csp += gain_sp;
+            if (plr->csp > plr->msp)
             {
-                p_ptr->csp = p_ptr->msp;
-                p_ptr->csp_frac = 0;
+                plr->csp = plr->msp;
+                plr->csp_frac = 0;
             }
 
-            p_ptr->redraw |= PR_MANA;
+            plr->redraw |= PR_MANA;
         }
         else
             msg_print("You failed to convert.");
@@ -398,26 +323,9 @@ void hypnotic_gaze_spell(int cmd, var_ptr res)
     case SPELL_MUT_DESC:
         var_set_string(res, "Your gaze is hypnotic.");
         break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (get_fire_dir(&dir))
-        {
-            int power = p_ptr->lev;
-            
-            if (prace_is_(RACE_MON_VAMPIRE))
-                power *= 2;
-
-            msg_print("Your eyes look mesmerizing...");
-            charm_monster(dir, power);
-            var_set_bool(res, TRUE);
-        }
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+       {int m = prace_is_(RACE_MON_VAMPIRE) ? 2 : 1;
+        bolt_spell_aux(cmd, res, GF_CHARM, spell_dice(0, 0, m*plr->lev));}
     }
 }
 bool cast_hypnotic_gaze(void) { return cast_spell(hypnotic_gaze_spell); }
@@ -428,50 +336,28 @@ void imp_fire_spell(int cmd, var_ptr res)
     switch (cmd)
     {
     case SPELL_NAME:
-        if (p_ptr->lev >= ball_lev)
+        if (plr->lev >= ball_lev)
             var_set_string(res, "Fire Ball");
         else
             var_set_string(res, "Fire Bolt");
         break;
-    case SPELL_SPOIL_NAME:
-        var_set_string(res, "Fire Bolt/Ball");
-        break;
     case SPELL_DESC:
-        if (p_ptr->lev >= ball_lev)
+        if (plr->lev >= ball_lev)
             var_set_string(res, "Generate a Fire Ball on chosen target.");
         else
             var_set_string(res, "Hurls a fiery missile at chosen target.");
         break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Fire Bolt for L damage. At L30, does a radius 2 Fire Ball for 2L damage instead.");
-        break;
-    case SPELL_INFO:
-        if (p_ptr->lev >= ball_lev)
-            var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev * 2)));
-        else
-            var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        if (p_ptr->lev >= ball_lev)
-            fire_ball(GF_FIRE, dir, spell_power(p_ptr->lev * 2), 2);
-        else
-            fire_bolt(GF_FIRE, dir, spell_power(p_ptr->lev));
-        var_set_bool(res, TRUE);
-        break;
-    }
     case SPELL_COST_EXTRA:
-        if (p_ptr->lev >= ball_lev)
+        if (plr->lev >= ball_lev)
             var_set_int(res, 7);
         else
             var_set_int(res, 0);
         break;
     default:
-        default_spell(cmd, res);
-        break;
+        if (plr->lev >= ball_lev)
+            ball_spell_aux(cmd, res, 2, GF_FIRE, innate_dice(0, 0, 2*plr->lev));
+        else
+            bolt_spell_aux(cmd, res, GF_FIRE, innate_dice(0, 0, plr->lev));
     }
 }
 
@@ -485,21 +371,8 @@ void invoke_logrus_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a huge ball of chaos.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(10), 10, spell_power(p_ptr->lev*4 + p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball(GF_CHAOS, dir, spell_power(damroll(10, 10) + p_ptr->lev*4 + p_ptr->to_d_spell), 4);
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell_aux(cmd, res, 4, GF_CHAOS, spell_dam_dice(10, 10, 4*plr->lev));
     }
 }
 
@@ -518,7 +391,7 @@ void invulnerability_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
         msg_print("You cast a Globe of Invulnerability.");
-        plr_tim_add(T_INVULN, spell_power(randint1(7) + 7));
+        plr_tim_add(T_INVULN, spell_power(500 + _1d(1000)));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -529,7 +402,6 @@ void invulnerability_spell(int cmd, var_ptr res)
 
 void kiss_of_succubus_spell(int cmd, var_ptr res)
 {
-    int dam = spell_power(100 + p_ptr->lev * 2 + p_ptr->to_d_spell);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -538,21 +410,8 @@ void kiss_of_succubus_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a ball of nexus.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, dam));
-        break;
-    case SPELL_CAST:
-    {
-        int dir;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) break;
-        fire_ball(GF_NEXUS, dir, dam, 4);
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 4, GF_NEXUS, 100 + 2*plr->lev);
     }
 }
 
@@ -566,9 +425,6 @@ void laser_eye_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a laser beam.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev*2)));
-        break;
     case SPELL_GAIN_MUT:
         msg_print("Your eyes burn for a moment.");
         break;
@@ -578,20 +434,8 @@ void laser_eye_spell(int cmd, var_ptr res)
     case SPELL_MUT_DESC:
         var_set_string(res, "Your eyes can fire laser beams.");
         break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (get_fire_dir(&dir))
-        {
-            fire_beam(GF_LITE, dir, spell_power(2 * p_ptr->lev));
-            var_set_bool(res, TRUE);
-        }
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        beam_spell_aux(cmd, res, GF_LIGHT, innate_dice(0, 0, 2*plr->lev));
     }
 }
 bool cast_laser_eye(void) { return cast_spell(laser_eye_spell); }
@@ -599,8 +443,8 @@ bool cast_laser_eye(void) { return cast_spell(laser_eye_spell); }
 void light_area_spell(int cmd, var_ptr res)
 {
     int dice = 2;
-    int sides = p_ptr->lev / 2;
-    int rad = spell_power(p_ptr->lev / 10 + 1);
+    int sides = plr->lev / 2;
+    int rad = spell_power(plr->lev / 10 + 1);
 
     switch (cmd)
     {
@@ -640,29 +484,13 @@ void lightning_ball_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a ball of electricity.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(3*p_ptr->lev/2 + 20 + p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball(GF_ELEC, dir, spell_power(3*p_ptr->lev/2 + 20 + p_ptr->to_d_spell), 2);
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 2, GF_ELEC, 20 + 3*plr->lev/2);
     }
 }
 
 void lightning_bolt_spell(int cmd, var_ptr res)
 {
-    int dd = 3 + p_ptr->lev / 4;
-    int ds = 8;
-
     switch (cmd)
     {
     case SPELL_NAME:
@@ -671,26 +499,8 @@ void lightning_bolt_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a bolt or beam of electricity.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(dd, spell_power(ds), spell_power(p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_bolt_or_beam(
-            beam_chance(),
-            GF_ELEC,
-            dir,
-            spell_power(damroll(dd, ds) + p_ptr->to_d_spell)
-        );
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        bolt_or_beam_spell(cmd, res, GF_ELEC, 3 + plr->lev/4, 8);
     }
 }
 

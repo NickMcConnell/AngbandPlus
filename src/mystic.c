@@ -5,19 +5,19 @@
  ****************************************************************/
 static int _get_toggle(void)
 {
-    return p_ptr->magic_num1[0];
+    return plr->magic_num1[0];
 }
 
 static int _set_toggle(s32b toggle)
 {
-    int result = p_ptr->magic_num1[0];
+    int result = plr->magic_num1[0];
 
     if (toggle == result) return result;
 
-    p_ptr->magic_num1[0] = toggle;
+    plr->magic_num1[0] = toggle;
 
-    p_ptr->redraw |= PR_STATUS;
-    p_ptr->update |= PU_BONUS;
+    plr->redraw |= PR_STATUS;
+    plr->update |= PU_BONUS;
     handle_stuff();
 
     return result;
@@ -26,7 +26,7 @@ static int _set_toggle(s32b toggle)
 int mystic_get_toggle(void)
 {
     int result = TOGGLE_NONE;
-    if (p_ptr->pclass == CLASS_MYSTIC && !heavy_armor())
+    if (plr->pclass == CLASS_MYSTIC && !heavy_armor())
         result = _get_toggle();
     return result;
 }
@@ -54,7 +54,7 @@ static bool _begin_weapon(plr_attack_ptr context)
             context->info.info = "Attempt to knockout an adjacent opponent.";
             break;
         case PLR_HIT_CRIT:
-            p_ptr->crit_qual_add += 650;
+            context->info.crit.qual_add += 650;
             break;
         }
     }
@@ -64,77 +64,73 @@ static slay_t _calc_brand(plr_attack_ptr context, slay_ptr best_brand)
 {
     slay_t brand = {0};
     bool display = BOOL(context->flags & PAC_DISPLAY);
+    int res_pct = 0;
     if (context->info.type != PAT_MONK) return brand;
     switch (context->mode)
     {
     case _MYSTIC_ACID:
-        if (!display && mon_res_acid(context->mon))
-            mon_lore_res_acid(context->mon);
-        else
+        if (!display) res_pct = mon_res_pct(context->mon, GF_ACID);
+        if (res_pct) mon_lore_resist(context->mon, GF_ACID);
+        if (res_pct <= 0)
         {
             brand.id = OF_BRAND_ACID;
             brand.name = "Acid";
             if (have_flag(context->obj_flags, OF_BRAND_ACID)) brand.mul = 350;
             else brand.mul = 250;
             brand.add = 5;
+            if (res_pct < 0) slay_scale(&brand, 100 - res_pct);
         }
         break;
     case _MYSTIC_ELEC:
-        if (!display && mon_res_elec(context->mon))
-            mon_lore_res_elec(context->mon);
-        else
+        if (!display) res_pct = mon_res_pct(context->mon, GF_ELEC);
+        if (res_pct) mon_lore_resist(context->mon, GF_ELEC);
+        if (res_pct <= 0)
         {
             brand.id = OF_BRAND_ELEC;
             brand.name = "Elec";
             if (have_flag(context->obj_flags, OF_BRAND_ELEC)) brand.mul = 600;
             else brand.mul = 500;
             brand.add = 7;
+            if (res_pct < 0) slay_scale(&brand, 100 - res_pct);
         }
         break;
     case _MYSTIC_FIRE:
-        if (!display && mon_res_fire(context->mon))
-            mon_lore_res_fire(context->mon);
-        else
+        if (!display) res_pct = mon_res_pct(context->mon, GF_FIRE);
+        if (res_pct) mon_lore_resist(context->mon, GF_FIRE);
+        if (res_pct <= 0)
         {
             brand.id = OF_BRAND_FIRE;
             brand.name = "Fire";
             if (have_flag(context->obj_flags, OF_BRAND_FIRE)) brand.mul = 350;
             else brand.mul = 250;
-            if (!display && mon_vuln_fire(context->mon))
-            {
-                mon_lore_vuln_fire(context->mon);
-                brand.mul = 100 + 2*(brand.mul - 100);
-            }
             brand.add = 3;
+            if (res_pct < 0) slay_scale(&brand, 100 - res_pct);
         }
         break;
     case _MYSTIC_COLD:
-        if (!display && mon_res_cold(context->mon))
-            mon_lore_res_cold(context->mon);
-        else
+        if (!display) res_pct = mon_res_pct(context->mon, GF_COLD);
+        if (res_pct) mon_lore_resist(context->mon, GF_COLD);
+        if (res_pct <= 0)
         {
             brand.id = OF_BRAND_COLD;
             brand.name = "Cold";
             if (have_flag(context->obj_flags, OF_BRAND_COLD)) brand.mul = 350;
             else brand.mul = 250;
-            if (!display && mon_vuln_cold(context->mon))
-            {
-                mon_lore_vuln_cold(context->mon);
-                brand.mul = 100 + 2*(brand.mul - 100);
-            }
             brand.add = 3;
+            if (res_pct < 0) slay_scale(&brand, 100 - res_pct);
         }
         break;
     case _MYSTIC_POIS:
-        if (!display && mon_res_pois(context->mon))
-            mon_lore_res_pois(context->mon);
-        else
+        if (!display) res_pct = mon_res_pct(context->mon, GF_POIS);
+        if (res_pct) mon_lore_resist(context->mon, GF_POIS);
+        if (res_pct <= 0)
         {
             brand.id = OF_BRAND_POIS;
             brand.name = "Poison";
             if (have_flag(context->obj_flags, OF_BRAND_POIS)) brand.mul = 350;
             else brand.mul = 250;
             brand.add = 5;
+            if (res_pct < 0) slay_scale(&brand, 100 - res_pct);
         }
         break;
     }
@@ -145,12 +141,7 @@ static void _after_hit(plr_attack_ptr context)
     if (context->info.type != PAT_MONK) return;
     if (context->mode == _MYSTIC_KNOCKOUT && !mon_tim_find(context->mon, T_PARALYZED))
     {
-        if (context->race->flagsr & RFR_RES_ALL)
-        {
-            mon_lore_r(context->mon, RFR_RES_ALL);
-            msg_format("%^s is immune.", context->mon_name);
-        }
-        else if (mon_save_p(context->mon->r_idx, A_DEX))
+        if (mon_save_p(context->mon, A_DEX))
         {
             msg_format("%^s resists.", context->mon_name);
         }
@@ -163,15 +154,6 @@ static void _after_hit(plr_attack_ptr context)
 }
 static void _end_weapon(plr_attack_ptr context)
 {
-    if (context->info.type == PAT_MONK)
-    {
-        switch (context->mode)
-        {
-        case PLR_HIT_CRIT:
-            p_ptr->crit_qual_add -= 650;
-            break;
-        }
-    }
 }
 static void _strike_spell(int mode, int cmd, var_ptr res)
 {
@@ -433,13 +415,13 @@ static void _summon_hounds_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
     {
-        int num = 1; /* randint0(p_ptr->lev/10); */
+        int num = 1; /* randint0(plr->lev/10); */
         int ct = 0, i;
-        int l = p_ptr->lev + randint1(p_ptr->lev);
+        int l = plr->lev + randint1(plr->lev);
 
         for (i = 0; i < num; i++)
         {
-            ct += summon_specific(-1, p_ptr->pos, l, SUMMON_HOUND, PM_FORCE_PET | PM_ALLOW_GROUP);
+            ct += summon_specific(who_create_plr(), plr->pos, l, SUMMON_HOUND, PM_FORCE_PET | PM_ALLOW_GROUP);
         }
         if (!ct)
             msg_print("No hounds arrive.");
@@ -463,13 +445,13 @@ static void _summon_spiders_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
     {
-        int num = 1; /* randint0(p_ptr->lev/10); */
+        int num = 1; /* randint0(plr->lev/10); */
         int ct = 0, i;
-        int l = p_ptr->lev + randint1(p_ptr->lev);
+        int l = plr->lev + randint1(plr->lev);
 
         for (i = 0; i < num; i++)
         {
-            ct += summon_specific(-1, p_ptr->pos, l, SUMMON_SPIDER, PM_FORCE_PET | PM_ALLOW_GROUP);
+            ct += summon_specific(who_create_plr(), plr->pos, l, SUMMON_SPIDER, PM_FORCE_PET | PM_ALLOW_GROUP);
         }
         if (!ct)
             msg_print("No spiders arrive.");
@@ -519,33 +501,33 @@ static int _get_spells(spell_info* spells, int max)
 }
 static void _calc_bonuses(void)
 {
-    p_ptr->monk_lvl = p_ptr->lev;
+    plr->monk_lvl = plr->lev;
     if (!heavy_armor())
     {
-        p_ptr->pspeed += p_ptr->lev/10;
-        if  (p_ptr->lev >= 25)
-            p_ptr->free_act++;
+        plr->pspeed += plr->lev/10;
+        if  (plr->lev >= 25)
+            plr->free_act++;
 
         switch (_get_toggle())
         {
         case MYSTIC_TOGGLE_STEALTH:
-            p_ptr->skills.stl += 2 + 3 * p_ptr->lev/50;
+            plr->skills.stl += 2 + 3 * plr->lev/50;
             break;
         case MYSTIC_TOGGLE_FAST:
-            p_ptr->quick_walk = TRUE;
+            plr->quick_walk = TRUE;
             break;
         case MYSTIC_TOGGLE_DEFENSE:
         {
-            int bonus = 10 + 40*p_ptr->lev/50;
-            p_ptr->to_a += bonus;
-            p_ptr->dis_to_a += bonus;
+            int bonus = 10 + 40*plr->lev/50;
+            plr->to_a += bonus;
+            plr->dis_to_a += bonus;
             break;
         }
         case MYSTIC_TOGGLE_OFFENSE:
         {
-            int penalty = 10 + 40*p_ptr->lev/50;
-            p_ptr->to_a -= penalty;
-            p_ptr->dis_to_a -= penalty;
+            int penalty = 10 + 40*plr->lev/50;
+            plr->to_a -= penalty;
+            plr->dis_to_a -= penalty;
             break;
         }
         }
@@ -558,9 +540,9 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     {
         if (_get_toggle() == MYSTIC_TOGGLE_RETALIATE)
             add_flag(flgs, OF_AURA_REVENGE);
-        if (p_ptr->lev >= 10)
+        if (plr->lev >= 10)
             add_flag(flgs, OF_SPEED);
-        if (p_ptr->lev >= 25)
+        if (plr->lev >= 25)
             add_flag(flgs, OF_FREE_ACT);
     }
 }
@@ -575,7 +557,7 @@ static caster_info * _caster_info(void)
         me.encumbrance.max_wgt = 350;
         me.encumbrance.weapon_pct = 100;
         me.encumbrance.enc_wgt = 800;
-        me.options = CASTER_SUPERCHARGE_MANA;
+        me.options = CASTER_SUPERCHARGE_MANA | CASTER_GAIN_SKILL;
         init = TRUE;
     }
     return &me;
@@ -587,6 +569,29 @@ static void _character_dump(doc_ptr doc)
 
     plr_display_spells(doc, spells, ct);
 }
+static status_display_t _status_display(void)
+{
+    status_display_t d = {0};
+    switch (_get_toggle())
+    {
+    case MYSTIC_TOGGLE_STEALTH:
+        d.name = "Stealth"; d.abbrev = "Sl"; d.color = TERM_L_DARK;
+        break;
+    case MYSTIC_TOGGLE_FAST:
+        d.name = "Fast"; d.abbrev = "Fs"; d.color = TERM_YELLOW;
+        break;
+    case MYSTIC_TOGGLE_RETALIATE:
+        d.name = "Retaliate"; d.abbrev = "Rt"; d.color = TERM_L_BLUE;
+        break;
+    case MYSTIC_TOGGLE_OFFENSE:
+        d.name = "Death"; d.abbrev = "Of"; d.color = TERM_L_RED;
+        break;
+    case MYSTIC_TOGGLE_DEFENSE:
+        d.name = "Defense"; d.abbrev = "Df"; d.color = TERM_L_UMBER;
+        break;
+    }
+    return d;
+}
 plr_class_ptr mystic_get_class(void)
 {
     static plr_class_ptr me = NULL;
@@ -594,7 +599,7 @@ plr_class_ptr mystic_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 45,  34,  36,   5,  32,  24,  64,  40};
-    skills_t xs = { 15,  11,  10,   0,   0,   0,  18,  15};
+    skills_t xs = { 75,  55,  50,   0,   0,   0,  90,  75};
 
         me = plr_class_alloc(CLASS_MYSTIC);
         me->name = "Mystic";
@@ -630,6 +635,7 @@ plr_class_ptr mystic_get_class(void)
         me->hooks.caster_info = _caster_info;
         me->hooks.get_spells = _get_spells;
         me->hooks.character_dump = _character_dump;
+        me->hooks.status_display = _status_display;
     }
 
     return me;

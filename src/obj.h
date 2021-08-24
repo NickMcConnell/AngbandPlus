@@ -15,11 +15,25 @@ typedef struct {
     s16b dd;
     s16b ds;     
     s16b base;
-} dice_t;
+    s16b scale; /* per mil scaling: e.g. 1750 means 1.75x */
+} dice_t, *dice_ptr;
 extern dice_t dice_create(int dd, int ds, int base);
 extern int    dice_roll(dice_t dice);
+extern int    dice_lo_roll(dice_t dice);
 extern int    dice_avg_roll(dice_t dice);
+extern int    dice_hi_roll(dice_t dice);
 extern cptr   dice_format(dice_t dice);
+extern errr   dice_parse(dice_ptr dice, char *token);
+extern cptr   dice_info_dam(dice_t dice);
+extern cptr   dice_info_dam_each(dice_t dice);
+extern cptr   dice_info_heal(dice_t dice);
+extern cptr   dice_info_range(dice_t dice);
+extern cptr   dice_info_dur(dice_t dice);
+extern cptr   dice_info_power(dice_t dice);
+extern cptr   dice_info(dice_t dice, cptr heading); /* "dam " or "dur " (note trailing space!) */
+extern void   dice_doc(dice_t dice, doc_ptr doc);
+extern dice_t dice_load(savefile_ptr file);
+extern void   dice_save(dice_t dice, savefile_ptr file);
 
 /************************************************************************
  * Object Type
@@ -57,7 +71,7 @@ enum {
     TV_SOFT_ARMOR,
     TV_HARD_ARMOR,
     TV_DRAG_ARMOR,
-    TV_LITE,
+    TV_LIGHT,
     TV_AMULET,
     TV_RING = 45,
     TV_QUIVER,
@@ -83,6 +97,7 @@ enum {
     TV_CRUSADE_BOOK,
     TV_NECROMANCY_BOOK,
     TV_ARMAGEDDON_BOOK,
+    TV_ILLUSION_BOOK,
     TV_MUSIC_BOOK = 105,  /* XXX realm_t.book should give the tval */
     TV_HISSATSU_BOOK,
     TV_HEX_BOOK,
@@ -101,7 +116,7 @@ enum {
 #define TVF_AMMO        0x00000010
 #define TVF_RING        0x00000020
 #define TVF_AMULET      0x00000040
-#define TVF_LITE        0x00000080
+#define TVF_LIGHT       0x00000080
 #define TVF_BODY_ARMOR  0x00000100
 #define TVF_CLOAK       0x00000200
 #define TVF_HELMET      0x00000400
@@ -111,7 +126,7 @@ enum {
 /* Masks */
 #define TVF_ARMOR (TVF_SHIELD | TVF_BODY_ARMOR | TVF_CLOAK | TVF_HELMET | TVF_GLOVES | TVF_BOOTS)
 #define TVF_JEWELRY (TVF_RING | TVF_AMULET)
-#define TVF_WEARABLE (TVF_WEAPON | TVF_BOW | TVF_QUIVER | TVF_JEWELRY | TVF_LITE | TVF_ARMOR)
+#define TVF_WEARABLE (TVF_WEAPON | TVF_BOW | TVF_QUIVER | TVF_JEWELRY | TVF_LIGHT | TVF_ARMOR)
 #define TVF_ENCHANTABLE (TVF_WEAPON | TVF_BOW | TVF_AMMO | TVF_ARMOR)
 #define TVF_EQUIPMENT (TVF_WEARABLE | TVF_AMMO)  /* XXX autopicker */
 
@@ -126,6 +141,10 @@ enum {
 
 /* Finally, some additional info */
 #define TVF_STACKABLE   0x00100000  /* tv_info_t.stack and obj_kind_t.stack determine max */
+#define TVF_HATES_ACID  0x00200000
+#define TVF_HATES_ELEC  0x00400000
+#define TVF_HATES_FIRE  0x00800000
+#define TVF_HATES_COLD  0x01000000
 
 typedef struct {
     int  id;
@@ -148,7 +167,7 @@ extern bool tv_is_quiver(int id);
 extern bool tv_is_ammo(int id);
 extern bool tv_is_ring(int id);
 extern bool tv_is_amulet(int id);
-extern bool tv_is_lite(int id);
+extern bool tv_is_light(int id);
 extern bool tv_is_body_armor(int id);
 extern bool tv_is_cloak(int id);
 extern bool tv_is_helmet(int id);
@@ -179,9 +198,6 @@ extern vec_ptr tv_lookup_(int flag);
 /************************************************************************
  * Object Kind
  ************************************************************************/
-struct object_kind;
-typedef struct object_kind obj_kind_t, *obj_kind_ptr;
-
 extern bool obj_kind_is_weapon(int k_idx);
 extern bool obj_kind_is_shield(int k_idx);
 extern bool obj_kind_is_bow(int k_idx);
@@ -189,7 +205,7 @@ extern bool obj_kind_is_quiver(int k_idx);
 extern bool obj_kind_is_ammo(int k_idx);
 extern bool obj_kind_is_ring(int k_idx);
 extern bool obj_kind_is_amulet(int k_idx);
-extern bool obj_kind_is_lite(int k_idx);
+extern bool obj_kind_is_light(int k_idx);
 extern bool obj_kind_is_body_armor(int k_idx);
 extern bool obj_kind_is_cloak(int k_idx);
 extern bool obj_kind_is_helmet(int k_idx);
@@ -217,18 +233,14 @@ extern bool obj_kind_is_(int k_idx, int tv, int sv);
  * Object (obj_)
  ************************************************************************/
 struct object_type;
-typedef struct object_type obj_t, *obj_ptr;
-
-typedef void (*obj_f)(obj_ptr obj);
-typedef bool (*obj_p)(obj_ptr obj);
-typedef int  (*obj_cmp_f)(obj_ptr left, obj_ptr right);
-typedef bool (*obj_create_f)(obj_ptr obj, u32b mode);
 
 /* Creation */
 extern obj_ptr obj_alloc(void);
 extern obj_ptr obj_split(obj_ptr obj, int amt);
 extern obj_ptr obj_copy(obj_ptr obj);
 extern void    obj_free(obj_ptr obj);
+
+extern term_char_t obj_display_char(obj_ptr obj);
 
 #define OBJ_RELEASE_QUIET       0x0001
 #define OBJ_RELEASE_ENCHANT     0x0002
@@ -265,7 +277,7 @@ extern bool obj_is_quiver(obj_ptr obj);
 extern bool obj_is_ammo(obj_ptr obj);
 extern bool obj_is_ring(obj_ptr obj);
 extern bool obj_is_amulet(obj_ptr obj);
-extern bool obj_is_lite(obj_ptr obj);
+extern bool obj_is_light(obj_ptr obj);
 extern bool obj_is_body_armor(obj_ptr obj);
 extern bool obj_is_cloak(obj_ptr obj);
 extern bool obj_is_helmet(obj_ptr obj);
@@ -301,12 +313,29 @@ extern bool obj_can_sense2(obj_ptr obj);
 extern bool obj_is_art(obj_ptr obj);
 extern bool obj_is_std_art(obj_ptr obj);
 extern bool obj_is_rand_art(obj_ptr obj);
+extern bool obj_is_specified_art(obj_ptr obj, cptr which);
 extern bool obj_is_ego(obj_ptr obj);
 extern bool obj_is_cursed(obj_ptr obj);
 extern bool obj_is_broken(obj_ptr obj);
 extern bool obj_is_blessed(obj_ptr obj);
 extern bool obj_is_found(obj_ptr obj);
 extern bool obj_is_inscribed(obj_ptr obj);
+
+/* Helpers */
+extern mon_race_ptr corpse_race(obj_ptr corpse);
+extern bool         corpse_race_is_char(obj_ptr corpse, char c);
+extern bool         corpse_race_is_char_ex(obj_ptr corpse, cptr s);
+
+extern bool    obj_is_chest(obj_ptr obj);
+extern bool    chest_has_trap(obj_ptr chest);
+extern bool    chest_has_known_trap(obj_ptr chest);
+extern bool    chest_is_empty(obj_ptr chest);
+extern bool    chest_is_not_empty(obj_ptr chest);
+extern bool    chest_is_locked(obj_ptr chest);
+extern int     chest_open(obj_ptr chest);
+extern int     chest_disarm(obj_ptr chest);
+extern int     chest_unlock(obj_ptr chest);
+
 
 /* Sorting */
 extern void obj_clear_scratch(obj_ptr obj); /* Call before sorting ... scratch is used to memoize obj_value */
@@ -376,20 +405,13 @@ enum obj_flags_e {
     OF_DEC_SPELL_CAP,
     OF_DEC_LIFE,
 
-    /* Resists */
-    OF_RES_ACID, OF_RES_ELEC, OF_RES_FIRE, OF_RES_COLD, OF_RES_POIS,
-    OF_RES_LITE, OF_RES_DARK, OF_RES_CONF, OF_RES_NETHER, OF_RES_NEXUS,
-    OF_RES_SOUND, OF_RES_SHARDS, OF_RES_CHAOS, OF_RES_DISEN,
-    OF_RES_TIME, OF_RES_BLIND, OF_RES_FEAR,
-
-    OF_IM_ACID, OF_IM_ELEC, OF_IM_FIRE, OF_IM_COLD, OF_IM_POIS,
-    OF_IM_LITE, OF_IM_DARK, OF_IM_NETHER,
-    OF_IM_BLIND, OF_IM_FEAR,
-
-    OF_VULN_ACID, OF_VULN_ELEC, OF_VULN_FIRE, OF_VULN_COLD, OF_VULN_POIS,
-    OF_VULN_LITE, OF_VULN_DARK, OF_VULN_CONF, OF_VULN_NETHER, OF_VULN_NEXUS,
-    OF_VULN_SOUND, OF_VULN_SHARDS, OF_VULN_CHAOS, OF_VULN_DISEN,
-    OF_VULN_BLIND, OF_VULN_FEAR,
+    /* Resists ... we waste a few bits here for convenience */
+    OF_RES_MIN,
+    OF_RES_MAX = OF_RES_MIN + 31,
+    OF_IM_MIN,
+    OF_IM_MAX = OF_IM_MIN + 31,
+    OF_VULN_MIN,
+    OF_VULN_MAX = OF_VULN_MIN + 31,
 
     /* Abilities */
     OF_FREE_ACT,
@@ -407,7 +429,7 @@ enum obj_flags_e {
     OF_NO_REMOVE,
     OF_EASY_SPELL,
     OF_DEC_MANA,
-    OF_LITE,
+    OF_LIGHT,
     OF_DARKNESS,
     OF_LORE1,
     OF_LORE2,
@@ -467,7 +489,7 @@ enum obj_flags_e {
     OF_BRAND_CHAOS,
     OF_BRAND_VAMP,
     OF_BRAND_MANA,
-    OF_BRAND_LITE,
+    OF_BRAND_LIGHT,
     OF_BRAND_DARK,
     OF_BRAND_TIME,
     OF_BRAND_PLASMA,
@@ -505,9 +527,10 @@ enum obj_flags_e {
     /* A few places loop from 0 <= i < OF_COUNT ... (init1, race_sword and race_ring) */
     OF_COUNT,
 };
-#define OF_ARRAY_SIZE          6
-/* u32b flgs[OF_ARRAY_SIZE];
-   assert((OF_COUNT + 31)/32 == OF_ARRAY_SIZE); is checked during initialization */
+#define OF_RES_(A)  (OF_RES_MIN + (A))
+#define OF_IM_(A)   (OF_IM_MIN + (A))
+#define OF_VULN_(A) (OF_VULN_MIN + (A))
+#define OF_ARRAY_SIZE          8
 
 /* Object Flag Types (OFT_*) */
 #define OFT_PVAL      0x0001 /* Flag requires and uses a pval */
@@ -561,9 +584,9 @@ extern bool        of_has(u32b flgs[OF_ARRAY_SIZE], of_info_p p);
  * (../lib/edit/v_info.txt).
  * See mon_drop_t as well in mon.h. */
 typedef struct {
-    s16b object;/* k_idx, a_idx, or kind info, depending on flags */
-    s16b extra; /* e_idx or effect_id depending on flags */
+    s32b object;/* k_idx, a_idx, or kind info, depending on flags */
     u32b flags; /* AM_* flags or OBJ_DROP_* extensions defined below */
+    s16b extra; /* e_idx or effect_id depending on flags */
     byte boost; /* level boost for this drop. Implies AM_GOOD if nonzero */
 } obj_drop_t, *obj_drop_ptr;
 /* Extra flags extend AM_* flags */

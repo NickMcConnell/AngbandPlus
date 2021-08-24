@@ -15,7 +15,6 @@ struct dun_space_s
 struct dun_gen_s
 {
     dun_ptr       dun;
-    dun_type_ptr  type;
 
     /* options */
     int           scale_pct;
@@ -57,7 +56,6 @@ extern void        dun_gen_traps(dun_gen_ptr gen);
 extern void        dun_gen_rubble(dun_gen_ptr gen);
 extern void        dun_gen_objects(dun_gen_ptr gen);
 extern void        dun_gen_streamers(dun_gen_ptr gen);
-extern void        dun_gen_river(dun_gen_ptr gen, int feat1, int feat2);
 extern void        dun_gen_lava_vault(dun_gen_ptr gen);
 
 extern bool        dun_gen_normal_room(dun_gen_ptr gen);

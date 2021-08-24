@@ -4,7 +4,7 @@ static void _birth(void)
 { 
     object_type    forge;
 
-    p_ptr->current_r_idx = MON_UMBER_HULK;
+    plr_mon_race_set("X.umber hulk");
     skills_innate_init("Gaze", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
     object_prep(&forge, lookup_kind(TV_SWORD, SV_LONG_SWORD));
@@ -27,12 +27,12 @@ static void _birth(void)
 
 static void _calc_innate_attacks(void)
 {
-    if (p_ptr->current_r_idx == MON_UMBER_HULK)
+    if (plr_mon_race_is_("X.umber hulk"))
     {
         mon_blow_ptr blow = mon_blow_alloc(RBM_GAZE);
         blow->power = 20;
         mon_blow_push_effect(blow, GF_OLD_CONF, dice_create(0, 0, 0));
-        vec_add(p_ptr->innate_blows, blow);
+        vec_add(plr->innate_blows, blow);
     }
 }
 
@@ -40,65 +40,56 @@ static void _calc_bonuses(void) {
     int to_a = plr_prorata_level(75);
     int ac = 10;
 
-    p_ptr->ac += ac;
-    p_ptr->dis_ac += ac;
+    plr->ac += ac;
+    plr->dis_ac += ac;
 
-    p_ptr->to_a += to_a;
-    p_ptr->dis_to_a += to_a;
+    plr->to_a += to_a;
+    plr->dis_to_a += to_a;
 
-    p_ptr->skill_dig += 500;
+    plr->skill_dig += 500;
 
-    p_ptr->free_act++;
-    res_add(RES_POIS);
-    res_add(RES_CONF);
-    p_ptr->sustain_str = TRUE;
-    if (p_ptr->lev < 20)
-        p_ptr->kill_wall = TRUE;
+    plr->free_act++;
+    res_add(GF_POIS);
+    res_add(GF_CONF);
+    plr->sustain_str = TRUE;
+    if (plr->lev < 20)
+        plr->kill_wall = TRUE;
 
-    if (p_ptr->lev >= 20)
+    if (plr->lev >= 20)
     {
-        res_add(RES_COLD);
-        res_add(RES_ELEC);
-        res_add(RES_FIRE);
-        p_ptr->pass_wall = TRUE;
-        p_ptr->no_passwall_dam = TRUE;
+        res_add(GF_COLD);
+        res_add(GF_ELEC);
+        res_add(GF_FIRE);
+        plr->pass_wall = TRUE;
+        plr->no_passwall_dam = TRUE;
     }
-    if (p_ptr->lev >= 35)
+    if (plr->lev >= 35)
     {
-        p_ptr->pspeed += 2 + (p_ptr->lev - 35)/5;
+        plr->pspeed += 2 + (plr->lev - 35)/5;
     }
 }
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) {
     add_flag(flgs, OF_FREE_ACT);
     add_flag(flgs, OF_SUST_STR);
-    add_flag(flgs, OF_RES_POIS);
-    add_flag(flgs, OF_RES_CONF);
+    add_flag(flgs, OF_RES_(GF_POIS));
+    add_flag(flgs, OF_RES_(GF_CONF));
 
-    if (p_ptr->lev >= 20)
+    if (plr->lev >= 20)
     {
-        add_flag(flgs, OF_RES_COLD);
-        add_flag(flgs, OF_RES_ELEC);
-        add_flag(flgs, OF_RES_FIRE);
+        add_flag(flgs, OF_RES_(GF_COLD));
+        add_flag(flgs, OF_RES_(GF_ELEC));
+        add_flag(flgs, OF_RES_(GF_FIRE));
     }
-    if (p_ptr->lev >= 35)
+    if (plr->lev >= 35)
     {
         add_flag(flgs, OF_SPEED);
     }
 }
 static void _gain_level(int new_level) {
-    if (p_ptr->current_r_idx == MON_UMBER_HULK && new_level >= 20)
-    {
-        p_ptr->current_r_idx = MON_XORN;
-        equip_on_change_race();
-        msg_print("You have evolved into a Xorn.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_XORN && new_level >= 35)
-    {
-        p_ptr->current_r_idx = MON_XAREN;
-        msg_print("You have evolved into a Xaren.");
-        p_ptr->redraw |= PR_MAP;
-    }
+    if (plr_mon_race_is_("X.umber hulk") && new_level >= 20)
+        plr_mon_race_evolve("X.xorn");
+    if (plr_mon_race_is_("X.xorn") && new_level >= 35)
+        plr_mon_race_evolve("X.xaren");
 }
 plr_race_ptr mon_xorn_get_race(void)
 {
@@ -106,13 +97,13 @@ plr_race_ptr mon_xorn_get_race(void)
     static cptr   titles[3] =  {"Umber Hulk", "Xorn", "Xaren"};    
     int           rank = 0;
 
-    if (p_ptr->lev >= 20) rank++;
-    if (p_ptr->lev >= 35) rank++;
+    if (plr->lev >= 20) rank++;
+    if (plr->lev >= 35) rank++;
 
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  20,  31,   2,  14,   5,  56,  30};
-    skills_t xs = { 12,   8,  10,   0,   0,   0,  20,   7};
+    skills_t xs = { 60,  40,  50,   0,   0,   0, 100,  35};
 
         me = plr_race_alloc(RACE_MON_XORN);
         me->skills = bs;
@@ -141,7 +132,7 @@ plr_race_ptr mon_xorn_get_race(void)
         me->hooks.birth = _birth;
 
         me->flags = RACE_IS_MONSTER;
-        me->pseudo_class_idx = CLASS_WARRIOR;
+        me->pseudo_class_id = CLASS_WARRIOR;
     }
 
     me->subname = titles[rank];
@@ -153,7 +144,7 @@ plr_race_ptr mon_xorn_get_race(void)
     me->stats[A_CHR] = -1;
     me->life = 100 + 4*rank;
 
-    me->equip_template = mon_get_equip_template();
+    me->equip_template = plr_equip_template();
 
     if (birth_hack || spoiler_hack)
     {

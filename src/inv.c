@@ -126,7 +126,7 @@ inv_ptr inv_filter_floor(point_t pos, obj_p p)
 
     vec_add(result->objects, NULL); /* slot 0 is invalid */
 
-    for (obj = obj_at(pos); obj; obj = obj->next)
+    for (obj = dun_obj_at(cave, pos); obj; obj = obj->next)
     {
         if (_filter(obj, p))
             vec_add(result->objects, obj);
@@ -172,7 +172,8 @@ static void _add_aux(inv_ptr inv, obj_ptr obj, slot_t slot)
     if (slot >= vec_length(inv->objects))
         _grow(inv, slot);
     vec_set(inv->objects, slot, copy);
-    copy->marked |= OM_DELAYED_MSG;
+    if (!(plr->pflag & PFLAG_BIRTH))
+        copy->marked |= OM_DELAYED_MSG;
 
     obj->number -= ct;
 }
@@ -415,13 +416,13 @@ slot_t inv_last(inv_ptr inv, obj_p p)
     return 0;
 }
 
-slot_t inv_find_art(inv_ptr inv, int which)
+slot_t inv_find_art(inv_ptr inv, cptr which)
 {
     int slot;
     for (slot = 1; slot < vec_length(inv->objects); slot++)
     {
         obj_ptr obj = inv_obj(inv, slot);
-        if (obj && obj->name1 == which) return slot;
+        if (obj && obj_is_specified_art(obj, which)) return slot;
     }
     return 0;
 }
@@ -624,6 +625,8 @@ void inv_display(inv_ptr inv, slot_t start, slot_t stop, obj_p p, doc_ptr doc, i
                 object_desc(name, obj, 0);
                 charging = TRUE;
             }
+            else if ((flags & INV_SHOW_FAIL_RATES) && obj_is_device(obj))
+                object_desc(name, obj, OD_COLOR_CODED | OD_HIDE_DEVICE_FAIL);
             else
                 object_desc(name, obj, OD_COLOR_CODED);
             if (flags & INV_SHOW_SLOT)

@@ -1,4 +1,4 @@
-The Dungeon
+The Dungeon                             
 
 Although the game contains an extensive town level featuring multiple 
 towns and a large wilderness area, the bulk of your adventuring will 
@@ -40,7 +40,7 @@ on your map.
   ~   Deep Water                  5   Alchemy Shop
   ~   Shallow Lava                6   Magic Shop
   ~   Deep Lava                   7   Black Market
-  #   Dark pit                    8   Home
+  .   Dark pit                    8   Home
   '   An open door                9   Bookstore
   '   A broken door               0   Museum
   <   A staircase up
@@ -52,8 +52,7 @@ on your map.
   #   A granite wall              #   A Tree
   %   A magma vein                #   Mountain chain
   %   A quartz vein               +   A door
-  #   A secret door               :   A pile of rubble
-  *   Treasure in wall
+  *   Treasure in wall            :   A pile of rubble
 
 
 Within The Dungeon
@@ -106,7 +105,7 @@ joyful evil sorcerers, who enjoy a good joke when it gets you killed.
 A more complete description of objects is found elsewhere in the 
 documentation (see [b]).
 
-Mining
+Mining                                  
 
 Much of the treasure within the dungeon can be found only by mining it 
 out of the walls. Many rich strikes exist within each level, but must 

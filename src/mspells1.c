@@ -17,109 +17,47 @@
  * Determine if there is a space near the player in which
  * a summoned creature can appear
  */
-bool summon_possible(int y1, int x1)
+bool summon_possible(point_t pos)
 {
-    int y, x;
-
-    /* Start at the player's location, and check 2 grids in each dir */
-    for (y = y1 - 2; y <= y1 + 2; y++)
+    point_t p;
+    for (p.y = pos.y - 2; p.y <= pos.y + 2; p.y++)
     {
-        for (x = x1 - 2; x <= x1 + 2; x++)
+        for (p.x = pos.x - 2; p.x <= pos.x + 2; p.x++)
         {
-            /* Ignore illegal locations */
-            if (!in_bounds(y, x)) continue;
-
-            /* Only check a circular area */
-            if (distance(y1, x1, y, x)>2) continue;
-
-            /* ...nor on the Pattern */
-            if (pattern_tile(y, x)) continue;
-
-            /* Require empty floor grid in line of projection */
-            if (cave_empty_bold(y, x) && projectable(y1, x1, y, x) && projectable(y, x, y1, x1)) return (TRUE);
+            if (!dun_pos_interior(cave, p)) continue;
+            if (point_fast_distance(pos, p) > 2) continue;
+            if (!point_project(pos, p)) continue;
+            if (!dun_allow_mon_at(cave, p)) continue;
+            return TRUE;
         }
     }
-
     return FALSE;
 }
 
 
-bool raise_possible(monster_type *m_ptr)
+bool raise_possible(mon_ptr mon)
 {
-    int xx, yy;
-    int y = m_ptr->pos.y;
-    int x = m_ptr->pos.x;
-
-    for (xx = x - 5; xx <= x + 5; xx++)
+    point_t p;
+    for (p.y = mon->pos.y - 5; p.y <= mon->pos.y + 5; p.y++)
     {
-        for (yy = y - 5; yy <= y + 5; yy++)
+        for (p.x = mon->pos.x - 5; p.x <= mon->pos.x + 5; p.x++)
         {
             obj_ptr obj;
-            if (distance(y, x, yy, xx) > 5) continue;
-            if (!los(y, x, yy, xx)) continue;
-            if (!projectable(y, x, yy, xx)) continue;
-
-            for (obj = obj_at_xy(xx, yy); obj; obj = obj->next)
+            if (!dun_pos_interior(cave, p)) continue;
+            if (point_fast_distance(mon->pos, p) > 5) continue;
+            if (!point_los(mon->pos, p)) continue;
+            if (!point_project(mon->pos, p)) continue;
+            for (obj = dun_obj_at(cave, p); obj; obj = obj->next)
             {
+                mon_race_ptr race;
                 if (obj->tval != TV_CORPSE) continue;
-                if (!monster_has_hostile_align(m_ptr, 0, 0, mon_race_lookup(obj->pval)))
+                race = corpse_race(obj);
+                if (race && !align_hostile(mon->align, race->align))
                     return TRUE;
             }
         }
     }
     return FALSE;
-}
-
-
-/*
- * Originally, it was possible for a friendly to shoot another friendly.
- * Change it so a "clean shot" means no equally friendly monster is
- * between the attacker and target.
- */
-/*
- * Determine if a bolt spell will hit the player.
- *
- * This is exactly like "projectable", but it will
- * return FALSE if a monster is in the way.
- * no equally friendly monster is
- * between the attacker and target.
- */
-bool clean_shot(int y1, int x1, int y2, int x2, bool friend)
-{
-    /* Must be the same as projectable() */
-
-    int i;
-    point_t p1 = point_create(x1, y1);
-    point_t p2 = point_create(x2, y2);
-    point_t p;
-
-    int path_n = 0;
-    point_t path[36];
-
-    /* Check the projection path */
-    path_n = project_path(path, MAX_RANGE, p1, p2, 0);
-
-    /* No grid is ever projectable from itself */
-    if (!path_n) return FALSE;
-
-    /* Hit target? */
-    if (!point_equals(path[path_n - 1], p2)) return FALSE;
-
-    for (i = 0; i < path_n; i++)
-    {
-        mon_ptr mon;
-        p = path[i];
-
-        mon = mon_at(p);
-        if (mon && !point_equals(p, p2))
-        {
-            if (friend == is_pet(mon)) return FALSE;
-        }
-        /* Pets may not shoot through the character - TNB */
-        if (friend && plr_at(p)) return FALSE;
-    }
-
-    return TRUE;
 }
 
 u32b get_curse(int power, object_type *o_ptr)
@@ -200,7 +138,7 @@ void curse_equipment(int chance, int heavy_chance)
             msg_format("There is a malignant black aura surrounding %s...", o_name);
             o_ptr->feeling = FEEL_NONE;
         }
-        p_ptr->update |= PU_BONUS;
+        plr->update |= PU_BONUS;
     }
 }
 
@@ -218,20 +156,20 @@ bool dispel_check(int m_idx)
 
     /* Powerful Mimickry: Note Colossus and Demon-Lord have insane XP requirements,
        so will always trigger a dispel. */
-    if (p_ptr->mimic_form != MIMIC_NONE)
+    if (plr->mimic_form != MIMIC_NONE)
     {
         if (randint1(500) < get_race()->exp) return TRUE;
     }
 
-    if (p_ptr->riding && (dun_mon(cave, p_ptr->riding)->mspeed < 135))
+    if (plr->riding && (dun_mon(cave, plr->riding)->mspeed < 25))
     {
-        if (mon_tim_find(dun_mon(cave, p_ptr->riding), T_FAST)) return TRUE;
+        if (mon_tim_find(dun_mon(cave, plr->riding), T_FAST)) return TRUE;
     }
 
-    if ( p_ptr->prace == RACE_MON_MIMIC
-      && p_ptr->current_r_idx != MON_MIMIC )
+    if ( plr->prace == RACE_MON_MIMIC
+      && !sym_equals(plr->current_r_idx, "@.mimic") )
     {
-        int lvl = mon_race_lookup(p_ptr->current_r_idx)->level;
+        int lvl = plr_mon_race()->alloc.lvl;
         if (lvl >= 50 && randint1(100) < lvl)
             return TRUE;
     }

@@ -79,11 +79,24 @@ static dun_grid_ptr dun_page_grid_at(dun_page_ptr page, point_t pos)
     assert(rect_contains_point(page->rect, pos));
     return &page->grids[i];
 }
+static void dun_page_iter(dun_page_ptr page, dun_grid_f f)
+{
+    dun_grid_ptr grid = page->grids;
+    point_t pos;
+    for (pos.y = page->rect.y; pos.y < page->rect.y + page->rect.cy; pos.y++)
+    {
+        for (pos.x = page->rect.x; pos.x < page->rect.x + page->rect.cx; pos.x++)
+        {
+            f(pos, grid);
+            grid++;
+        }
+    }
+}
 static int _difficulty(dun_grid_ptr grid)
 {
-    if (grid->info & CAVE_TOWN) return towns_lookup(grid->special)->level;
-    if (grid->info & CAVE_DUNGEON) return dun_types_lookup(grid->special)->min_dun_lvl;
-    return grid->special;
+    if (grid->flags & CELL_TOWN) return towns_lookup(grid->parm2)->level;
+    if (grid->flags & CELL_DUNGEON) return dun_types_lookup(grid->parm2)->min_dun_lvl;
+    return grid->parm2;
 }
 static void _set_difficulty(dun_ptr surface)
 {
@@ -103,117 +116,166 @@ static void _set_difficulty(dun_ptr surface)
         ct++;
     }
     surface->difficulty = total/ct;
-    p_ptr->redraw |= PR_DEPTH;
+    plr->redraw |= PR_DEPTH;
 }
 
 /************************************************************************
  * D_SURFACE
  ************************************************************************/
 #define _FEAT_COUNT 18
-static int _initial_height(int feat)
+enum { /* for fractals ... need a 1-dimensional height map */
+    _FEAT_DEEP_WATER,
+    _FEAT_SHALLOW_WATER,
+    _FEAT_SWAMP,
+    _FEAT_DIRT,
+    _FEAT_GRASS,
+    _FEAT_FLOWER,
+    _FEAT_BRAKE,
+    _FEAT_TREE,
+    _FEAT_MOUNTAIN,
+    _FEAT_SHALLOW_LAVA,
+    _FEAT_DEEP_LAVA
+};
+static void _feat_make(int feat, dun_cell_ptr cell)
 {
-    if (feat == feat_deep_water) return 9;
-    else if (feat == feat_shallow_water) return 27;
-    else if (feat == feat_swamp) return 45;
-    else if (feat == feat_dirt) return 63;
-    else if (feat == feat_grass) return 81;
-    else if (feat == feat_tree) return 99;
-    else if (feat == feat_mountain) return 117;
-    else if (feat == feat_shallow_lava) return 135;
-    else if (feat == feat_deep_lava) return 153;
-    else return 117; /* world boundary is MOUNTAIN_WALL */
+    switch (feat)
+    {
+    case _FEAT_DEEP_WATER:
+        cell_make_deep_water(cell);
+        break;
+    case _FEAT_SHALLOW_WATER:
+        cell_make_shallow_water(cell);
+        break;
+    case _FEAT_SWAMP:
+        cell_make_swamp(cell);
+        break;
+    case _FEAT_DIRT:
+        cell_make_dirt(cell);
+        break;
+    case _FEAT_GRASS:
+        cell_make_grass(cell);
+        break;
+    case _FEAT_FLOWER:
+        cell_make_flower(cell);
+        break;
+    case _FEAT_BRAKE:
+        cell_make_brake(cell);
+        break;
+    case _FEAT_TREE:
+        cell_make_tree(cell);
+        break;
+    case _FEAT_MOUNTAIN:
+        cell_make_mountain(cell);
+        break;
+    case _FEAT_SHALLOW_LAVA:
+        cell_make_shallow_lava(cell);
+        break;
+    case _FEAT_DEEP_LAVA:
+        cell_make_deep_lava(cell);
+        break;
+    default:
+        cell_make_floor(cell);
+    }
 }
-static vec_ptr _feat_map(void)
+static int _initial_height(dun_cell_ptr cell)
+{
+    if (water_is_deep(cell)) return 14;
+    if (water_is_shallow(cell)) return 40;
+    if (water_is_swamp(cell)) return 48;
+    if (floor_is_dirt(cell)) return 52;
+    if (floor_is_grass(cell)) return 61;
+    if (cell_is_tree(cell)) return 83;
+    if (wall_is_mountain(cell)) return 120;
+    if (lava_is_shallow(cell)) return 144;
+    if (lava_is_deep(cell)) return 148;
+    return 140; /* world boundary is MOUNTAIN_WALL */
+}
+static vec_ptr _feat_map(void) /* XXX this must match _feat_map in dun_world_gen.c */
 {
     static vec_ptr _v = NULL;
     if (!_v)
     {
         _v = vec_alloc(NULL);
-        /* deep water */
-        _add_feat(_v, feat_deep_water, 6);
-        _add_feat(_v, feat_shallow_water, 6);
-        _add_feat(_v, feat_deep_water, 6);
+        /* deep water 36 0-35 */
+        _add_feat(_v, _FEAT_DEEP_WATER, 30);
+        _add_feat(_v, _FEAT_SHALLOW_WATER, 6);
 
-        /* shallow water */
-        _add_feat(_v, feat_deep_water, 3);
-        _add_feat(_v, feat_shallow_water, 10);
-        _add_feat(_v, feat_swamp, 2);
-        _add_feat(_v, feat_shallow_water, 3);
+        /* shallow water 15 36-50 */
+        _add_feat(_v, _FEAT_SHALLOW_WATER, 10);
+        _add_feat(_v, _FEAT_SWAMP, 5);
 
-        /* swamp */
-        _add_feat(_v, feat_shallow_water, 2);
-        _add_feat(_v, feat_swamp, 2);
-        _add_feat(_v, feat_shallow_water, 1);
-        _add_feat(_v, feat_swamp, 2);
-        _add_feat(_v, feat_shallow_water, 1);
-        _add_feat(_v, feat_swamp, 5);
-        _add_feat(_v, feat_grass, 1);
-        _add_feat(_v, feat_tree, 1);
-        _add_feat(_v, feat_brake, 1);
-        _add_feat(_v, feat_grass, 2);
+        /* grass 15 51-65 */
+        _add_feat(_v, _FEAT_DIRT, 3);
+        _add_feat(_v, _FEAT_GRASS, 7);
+        _add_feat(_v, _FEAT_FLOWER, 1);
+        _add_feat(_v, _FEAT_BRAKE, 2);
+        _add_feat(_v, _FEAT_TREE, 2);
 
-        /* dirt */
-        _add_feat(_v, feat_dirt, 10);
-        _add_feat(_v, feat_flower, 2);
-        _add_feat(_v, feat_brake, 2);
-        _add_feat(_v, feat_grass, 2);
-        _add_feat(_v, feat_tree, 2);
+        /* tree 35 66-100 */
+        _add_feat(_v, _FEAT_TREE, 4);
+        _add_feat(_v, _FEAT_GRASS, 1);
+        _add_feat(_v, _FEAT_BRAKE, 1);
+        _add_feat(_v, _FEAT_TREE, 4);
+        _add_feat(_v, _FEAT_GRASS, 1);
+        _add_feat(_v, _FEAT_BRAKE, 1);
+        _add_feat(_v, _FEAT_TREE, 4);
+        _add_feat(_v, _FEAT_GRASS, 1);
+        _add_feat(_v, _FEAT_BRAKE, 1);
+        _add_feat(_v, _FEAT_TREE, 4);
+        _add_feat(_v, _FEAT_GRASS, 1);
+        _add_feat(_v, _FEAT_BRAKE, 1);
+        _add_feat(_v, _FEAT_GRASS, 1);
+        _add_feat(_v, _FEAT_TREE, 4);
+        _add_feat(_v, _FEAT_GRASS, 2);
+        _add_feat(_v, _FEAT_TREE, 4);
 
-        /* grass */
-        _add_feat(_v, feat_dirt, 3);
-        _add_feat(_v, feat_grass, 9);
-        _add_feat(_v, feat_flower, 1);
-        _add_feat(_v, feat_brake, 2);
-        _add_feat(_v, feat_tree, 3);
+        /* mountain 40 101-140 */
+        _add_feat(_v, _FEAT_MOUNTAIN, 4);
+        _add_feat(_v, _FEAT_TREE, 1);
+        _add_feat(_v, _FEAT_MOUNTAIN, 1);
+        _add_feat(_v, _FEAT_TREE, 1);
+        _add_feat(_v, _FEAT_MOUNTAIN, 5);
+        _add_feat(_v, _FEAT_TREE, 1);
+        _add_feat(_v, _FEAT_MOUNTAIN, 1);
+        _add_feat(_v, _FEAT_TREE, 1);
+        _add_feat(_v, _FEAT_MOUNTAIN, 3);
+        _add_feat(_v, _FEAT_TREE, 1);
+        _add_feat(_v, _FEAT_MOUNTAIN, 3);
+        _add_feat(_v, _FEAT_TREE, 1);
+        _add_feat(_v, _FEAT_MOUNTAIN, 2);
+        _add_feat(_v, _FEAT_TREE, 3);
+        _add_feat(_v, _FEAT_GRASS, 2);
+        _add_feat(_v, _FEAT_MOUNTAIN, 3);
+        _add_feat(_v, _FEAT_TREE, 1);
+        _add_feat(_v, _FEAT_MOUNTAIN, 1);
+        _add_feat(_v, _FEAT_TREE, 1);
+        _add_feat(_v, _FEAT_MOUNTAIN, 4);
 
-        /* tree */
-        _add_feat(_v, feat_tree, 5);
-        _add_feat(_v, feat_brake, 1);
-        _add_feat(_v, feat_tree, 5);
-        _add_feat(_v, feat_grass, 1);
-        _add_feat(_v, feat_tree, 6);
+        /* shallow lava 7 */
+        _add_feat(_v, _FEAT_SHALLOW_LAVA, 7);
 
-        /* mountain */
-        _add_feat(_v, feat_mountain, 2);
-        _add_feat(_v, feat_tree, 1);
-        _add_feat(_v, feat_mountain, 2);
-        _add_feat(_v, feat_tree, 1);
-        _add_feat(_v, feat_mountain, 5);
-        _add_feat(_v, feat_tree, 1);
-        _add_feat(_v, feat_grass, 1);
-        _add_feat(_v, feat_mountain, 5);
-
-        /* shallow lava */
-        _add_feat(_v, feat_mountain, 1);
-        _add_feat(_v, feat_shallow_lava, 2);
-        _add_feat(_v, feat_mountain, 2);
-        _add_feat(_v, feat_shallow_lava, 3);
-        _add_feat(_v, feat_mountain, 1);
-        _add_feat(_v, feat_shallow_lava, 3);
-        _add_feat(_v, feat_deep_lava, 1);
-        _add_feat(_v, feat_shallow_lava, 4);
-
-        /* deep lava */
-        _add_feat(_v, feat_shallow_lava, 3);
-        _add_feat(_v, feat_deep_lava, 6);
-        _add_feat(_v, feat_shallow_lava, 3);
-        _add_feat(_v, feat_deep_lava, 6);
-
+        /* deep lava 3 */
+        _add_feat(_v, _FEAT_DEEP_LAVA, 3);
         assert(vec_length(_v) <= 255);
     }
     return _v;
 }
-static void _road_aux(dun_page_ptr page, point_t start, point_t stop, int feat[3], int width, point_t perturb)
+/* road|river driver (recursive) */
+typedef void (*_road_f)(dun_cell_ptr cell, int d, int w);
+static void _road_aux(dun_page_ptr page, point_t start, point_t stop, _road_f feat, int width, point_t perturb)
 {
     int length = point_distance(start, stop);
 
     if (length > 4)
     {
         point_t mp = point_perturbed_midpoint_aux(start, stop, perturb);
+        dun_grid_ptr g;
         if (!rect_contains_point(page->rect, mp))
             mp = point_midpoint(start, stop);
 
-        dun_page_grid_at(page, mp)->feat = feat[0];
+        g = dun_page_grid_at(page, mp);
+        if (!(g->flags & CELL_TOWN))
+            feat(g, 0, width);
         _road_aux(page, start, mp, feat, width, perturb);
         _road_aux(page, mp, stop, feat, width, perturb);
     }
@@ -237,26 +299,50 @@ static void _road_aux(dun_page_ptr page, point_t start, point_t stop, int feat[3
 
                     if (!rect_contains_point(page->rect, p2)) continue;
                     g = dun_page_grid_at(page, p2);
-                    if (g->feat == feat[0]) continue;
+                    if (g->flags & CELL_TOWN) continue; /* don't clobber towns! */
 
                     dist = point_distance(p2, p);
                     if (dist > rand_spread(width, 1)) continue;
 
-                    if (dist == 0) g->feat = feat[0];
-                    else if (dist <= width) g->feat = feat[1];
-                    else if (g->feat != feat[1]) g->feat = feat[2];
+                    feat(g, dist, width);
                 }
             }
         }
     }
 }
-static void _road(dun_page_ptr page, point_t start, point_t stop, int feat[3], int width)
+/* roads */
+static cell_make_f _feat[3]; /* shared with rivers */
+static void _road_cell(dun_cell_ptr cell, int d, int w)
+{
+    if (d == 0)
+    {
+        _feat[0](cell);
+        cell->flags |= CELL_ROAD;
+        return;
+    }
+    if (cell->flags & CELL_ROAD) return;
+    if (d <= w)
+    {
+        _feat[1](cell);
+        cell->flags |= CELL_ROAD;
+    }
+    else _feat[2](cell);
+}
+static void _road(dun_page_ptr page, point_t start, point_t stop, int width)
 {
     dun_grid_ptr g = dun_page_grid_at(page, start);
-    g->feat = feat[0];
+    if (!(g->flags & CELL_TOWN)) 
+    {
+        _feat[0](g);
+        g->flags |= CELL_ROAD;
+    }
     g = dun_page_grid_at(page, stop);
-    g->feat = feat[0];
-    _road_aux(page, start, stop, feat, width, point_create(75, 25));
+    if (!(g->flags & CELL_TOWN))
+    {
+        _feat[0](g);
+        g->flags |= CELL_ROAD;
+    }
+    _road_aux(page, start, stop, _road_cell, width, point_create(75, 25));
 }
 static void _gen_roads(dun_page_ptr page)
 {
@@ -265,55 +351,79 @@ static void _gen_roads(dun_page_ptr page)
     point_t      world_pos = dun_world_pos(center);
     dun_grid_ptr world_grid = dun_grid_at(world, world_pos);
     point_t      adj_world_pos;
-    int          feat[3];
 
-    feat[0] = feat_road;
-    feat[1] = feat_floor;
-    feat[2] = feat_dirt;
+    _feat[0] = cell_make_road;
+    _feat[1] = cell_make_floor;
+    _feat[2] = cell_make_dirt;
 
-    if (world_grid->feat == feat_mountain)
-        feat[2] = feat_rubble;
-    else if (world_grid->feat == feat_deep_water)
-        feat[2] = feat_swamp;
-    else if (world_grid->feat == feat_tree)
-        feat[2] = feat_flower;
+    if (wall_is_mountain(world_grid))
+        _feat[2] = cell_make_rubble;
+    else if (water_is_deep(world_grid))
+        _feat[2] = cell_make_swamp;
+    else if (cell_is_tree(world_grid))
+        _feat[2] = cell_make_flower;
 
     /* north road */
     adj_world_pos = point_step(world_pos, 8);
-    if (dun_grid_at(world, adj_world_pos)->info & CAVE_ROAD)
+    if (dun_grid_at(world, adj_world_pos)->flags & CELL_ROAD)
     {
         point_t stop = rect_top_center(page->rect);
-        _road(page, center, stop, feat, 2);
+        _road(page, center, stop, 3);
     }
     /* south road */
     adj_world_pos = point_step(world_pos, 2);
-    if (dun_grid_at(world, adj_world_pos)->info & CAVE_ROAD)
+    if (dun_grid_at(world, adj_world_pos)->flags & CELL_ROAD)
     {
         point_t stop = rect_bottom_center(page->rect);
-        _road(page, center, stop, feat, 2);
+        _road(page, center, stop, 3);
     }
     /* east road */
     adj_world_pos = point_step(world_pos, 6);
-    if (dun_grid_at(world, adj_world_pos)->info & CAVE_ROAD)
+    if (dun_grid_at(world, adj_world_pos)->flags & CELL_ROAD)
     {
         point_t stop = rect_right_center(page->rect);
-        _road(page, center, stop, feat, 2);
+        _road(page, center, stop, 2);
     }
     /* weast road */
     adj_world_pos = point_step(world_pos, 4);
-    if (dun_grid_at(world, adj_world_pos)->info & CAVE_ROAD)
+    if (dun_grid_at(world, adj_world_pos)->flags & CELL_ROAD)
     {
         point_t stop = rect_left_center(page->rect);
-        _road(page, center, stop, feat, 2);
+        _road(page, center, stop, 2);
     }
 }
-static void _river(dun_page_ptr page, point_t start, point_t stop, int feat[3], int width)
+/* rivers */
+static void _river_cell(dun_cell_ptr cell, int d, int w)
+{
+    if (d == 0)
+    {
+        _feat[0](cell);
+        cell->flags |= CELL_RIVER;
+        return;
+    }
+    if (cell->flags & CELL_RIVER) return;
+    if (d <= w)
+    {
+        _feat[1](cell);
+        cell->flags |= CELL_RIVER;
+    }
+    else _feat[2](cell);
+}
+static void _river(dun_page_ptr page, point_t start, point_t stop, int width)
 {
     dun_grid_ptr g = dun_page_grid_at(page, start);
-    g->feat = feat[0];
+    if (!(g->flags & CELL_TOWN))
+    {
+        _feat[0](g);
+        g->flags |= CELL_RIVER;
+    }
     g = dun_page_grid_at(page, stop);
-    g->feat = feat[0];
-    _road_aux(page, start, stop, feat, width, point_create(75, 50));
+    if (!(g->flags & CELL_TOWN))
+    {
+        _feat[0](g);
+        g->flags |= CELL_RIVER;
+    }
+    _road_aux(page, start, stop, _river_cell, width, point_create(75, 50));
 }
 static void _gen_rivers(dun_page_ptr page)
 {
@@ -322,54 +432,53 @@ static void _gen_rivers(dun_page_ptr page)
     point_t      world_pos = dun_world_pos(center);
     dun_grid_ptr world_grid = dun_grid_at(world, world_pos);
     point_t      adj_world_pos;
-    int          feat[3];
     int          width = 8;
 
     if (dun_worlds_current()->flags & WF_RIVER_LAVA)
     {
-        feat[0] = feat_shallow_lava;
-        feat[1] = feat_shallow_lava;
-        feat[2] = feat_magma_vein;
+        _feat[0] = cell_make_shallow_lava;
+        _feat[1] = cell_make_shallow_lava;
+        _feat[2] = cell_make_magma;
     }
     else
     {
-        feat[0] = feat_shallow_water;
-        feat[1] = feat_shallow_water;
-        feat[2] = feat_dirt;
-        if (world_grid->feat == feat_deep_water || world_grid->feat == feat_shallow_water)
-            feat[2] = feat_shallow_water;
-        else if (world_grid->feat == feat_swamp)
-            feat[2] = feat_swamp;
-        else if (world_grid->feat == feat_tree)
-            feat[2] = feat_brake;
+        _feat[0] = cell_make_shallow_water;
+        _feat[1] = cell_make_shallow_water;
+        _feat[2] = cell_make_dirt;
+        if (cell_is_water(world_grid))
+            _feat[2] = cell_make_shallow_water;
+        else if (water_is_swamp(world_grid))
+            _feat[2] = cell_make_swamp;
+        else if (cell_is_tree(world_grid))
+            _feat[2] = cell_make_brake;
     }
     /* north river */
     adj_world_pos = point_step(world_pos, 8);
-    if (dun_grid_at(world, adj_world_pos)->info & CAVE_RIVER)
+    if (dun_grid_at(world, adj_world_pos)->flags & CELL_RIVER)
     {
         point_t stop = rect_top_center(page->rect);
-        _river(page, center, stop, feat, width);
+        _river(page, center, stop, width + 2);
     }
     /* south river */
     adj_world_pos = point_step(world_pos, 2);
-    if (dun_grid_at(world, adj_world_pos)->info & CAVE_RIVER)
+    if (dun_grid_at(world, adj_world_pos)->flags & CELL_RIVER)
     {
         point_t stop = rect_bottom_center(page->rect);
-        _river(page, center, stop, feat, width);
+        _river(page, center, stop, width + 2);
     }
     /* east river */
     adj_world_pos = point_step(world_pos, 6);
-    if (dun_grid_at(world, adj_world_pos)->info & CAVE_RIVER)
+    if (dun_grid_at(world, adj_world_pos)->flags & CELL_RIVER)
     {
         point_t stop = rect_right_center(page->rect);
-        _river(page, center, stop, feat, width);
+        _river(page, center, stop, width - 2);
     }
     /* weast river */
     adj_world_pos = point_step(world_pos, 4);
-    if (dun_grid_at(world, adj_world_pos)->info & CAVE_RIVER)
+    if (dun_grid_at(world, adj_world_pos)->flags & CELL_RIVER)
     {
         point_t stop = rect_left_center(page->rect);
-        _river(page, center, stop, feat, width);
+        _river(page, center, stop, width - 2);
     }
 }
 static dun_stairs_ptr _alloc_stairs(void)
@@ -390,13 +499,12 @@ static void _process_town_map(dun_ptr dun, dun_page_ptr page)
     {
         for (p.x = min.x; p.x <= max.x; p.x++)
         {
-            dun_feat_ptr feat = dun_grid_feat(grid);
-            if (have_flag(feat->flags, FF_QUEST_ENTER))
+            if (stairs_enter_quest(grid))
             {
                 dun_stairs_ptr stairs = _alloc_stairs();
                 stairs->pos_here = p;
                 stairs->dun_type_id = D_QUEST;
-                stairs->dun_lvl = grid->special; /* XXX */
+                stairs->dun_lvl = stairs_quest_id(grid); /* XXX */
 
                 dun_add_stairs(dun, stairs);
             }
@@ -415,7 +523,7 @@ static void _gen_town(dun_ptr dun, dun_page_ptr page, int town_id)
     if (town_map)
     {
         transform_ptr xform = transform_alloc(0, rect_create(0, 0, town_map->width, town_map->height));
-        xform->dest = rect_translate(xform->dest, page->rect.x, page->rect.y);
+        xform->dest = rect_translate_xy(xform->dest, page->rect.x, page->rect.y);
         xform->dest = rect_recenter(xform->dest, center);
         assert(rect_contains(page->rect, xform->dest));
         build_room_template_aux(town_map, xform);
@@ -433,8 +541,7 @@ static void _gen_dungeon(dun_ptr dun, dun_page_ptr page, int dun_type_id)
     dun_stairs_ptr s = _alloc_stairs();
     dun_type_ptr   di = dun_types_lookup(dun_type_id);
 
-    g->feat = feat_entrance;
-    g->special = dun_type_id;
+    cell_make_dungeon_entrance(g, dun_type_id);
 
     s->pos_here = p;
     s->dun_type_id = dun_type_id;
@@ -455,40 +562,36 @@ static void _glow_page(dun_page_ptr page)
     point_t      min = rect_top_left(page->rect);
     point_t      max = rect_bottom_right(page->rect), p;
     dun_grid_ptr grid = page->grids;
+    bool         light = is_daytime();
 
     for (p.y = min.y; p.y <= max.y; p.y++)
     {
         for (p.x = min.x; p.x <= max.x; p.x++)
         {
-            dun_feat_ptr feat = dun_grid_feat_mimic(grid);
-            if (is_daytime())
+            if (light)
             {
-                if ( (grid->info & CAVE_ROOM)
-                  && !have_flag(feat->flags, FF_WALL)
-                  && !have_flag(feat->flags, FF_DOOR) )
+                if ( (grid->flags & CELL_ROOM)
+                  && grid->type != FEAT_WALL
+                  && grid->type != FEAT_DOOR )
                 {
                     /* TODO */
                 }
                 else
                 {
-                    grid->info |= CAVE_AWARE | CAVE_GLOW;
-                    if (view_perma_grids) grid->info |= CAVE_MARK;
+                    grid->flags |= CELL_AWARE;
+                    if (view_perma_grids) grid->flags |= CELL_MAP;
                 }
             }
             else
             {
-                if ( !is_mirror_grid(grid)
-                  && !have_flag(feat->flags, FF_QUEST_ENTER)
-                  && !have_flag(feat->flags, FF_ENTRANCE) )
+                if (cell_is_boring(grid))
+                    grid->flags &= ~CELL_MAP;
+
+                if ( stairs_enter_quest(grid)
+                  || stairs_enter_dungeon(grid) )
                 {
-                    grid->info &= ~CAVE_GLOW;
-                    if (!have_flag(feat->flags, FF_REMEMBER))
-                        grid->info &= ~CAVE_MARK;
-                }
-                else if (have_flag(feat->flags, FF_ENTRANCE))
-                {
-                    grid->info |= CAVE_GLOW | CAVE_AWARE;
-                    if (view_perma_grids) grid->info |= CAVE_MARK;
+                    grid->flags |= CELL_AWARE;
+                    if (view_perma_grids) grid->flags |= CELL_MAP;
                 }
             }
             grid++;
@@ -498,28 +601,107 @@ static void _glow_page(dun_page_ptr page)
 }
 static int _wild_perturb(dun_frac_ptr frac, int scale)
     { return rand_range(-frac->rough, frac->rough); }
+static int _feat_weight(dun_cell_ptr cell)
+{
+    if (water_is_deep(cell)) return 3;
+    if (water_is_shallow(cell)) return 3;
+    if (water_is_swamp(cell)) return 2;
+    if (floor_is_dirt(cell)) return 2;
+    if (floor_is_grass(cell)) return 2;
+    if (cell_is_tree(cell)) return 2;
+    if (wall_is_mountain(cell)) return 5;
+    if (lava_is_shallow(cell)) return 5;
+    if (lava_is_deep(cell)) return 5;
+    return 2; /* world boundary is MOUNTAIN_WALL */
+}
+static int _smooth_pos(dun_frac_ptr frac, point_t pos)
+{
+    dun_mgr_ptr  dm = dun_mgr();
+    int th = 16*(100 + dun_frac_get(frac, pos));
+    int tw = 16;
+    int i;
+    for (i = 0; i < 8; i++)
+    {
+        point_t p = point_step(pos, ddd[i]);
+        int h = 100 + dun_frac_get(frac, p);
+        dun_grid_ptr wg = dun_grid_at(dm->world, p);
+        int w = _feat_weight(wg);
+        th += w*h;
+        tw += w;
+    }
+    return th / tw - 100;
+}
+static void _smooth(dun_frac_ptr frac)
+{
+    dun_mgr_ptr  dm = dun_mgr();
+    point_t      min = rect_top_left(frac->rect);
+    point_t      max = rect_bottom_right(frac->rect);
+    point_t      p;
+
+    /* smooth (interior)  XXX need better algorithm XXX */
+    for (p.y = min.y + 1; p.y < max.y; p.y++)
+    {
+        for (p.x = min.x + 1; p.x < max.x; p.x++)
+        {
+            dun_grid_ptr wg = dun_grid_at(dm->world, p);
+            if (wg->type == FEAT_LAVA) continue;
+            dun_frac_set(frac, p, _smooth_pos(frac, p));
+        }
+    }
+}
+static dun_frac_ptr _gen_world_frac(void)
+{
+    dun_mgr_ptr  dm = dun_mgr();
+    dun_frac_ptr frac = dun_frac_alloc(dm->world->rect, vec_length(_feat_map()));
+    point_t      min = rect_top_left(dm->world->rect);
+    point_t      max = rect_bottom_right(dm->world->rect);
+    point_t      p;
+    int i;
+
+    /* initialize */
+    for (p.y = min.y; p.y <= max.y; p.y++)
+    {
+        for (p.x = min.x; p.x <= max.x; p.x++)
+        {
+            dun_grid_ptr wg = dun_grid_at(dm->world, p);
+            dun_frac_set(frac, p, _initial_height(wg));
+        }
+    }
+
+    /* smooth (interior)  XXX need better algorithm XXX */
+    for (i = 0; i < 1; i++)
+        _smooth(frac);
+
+    return frac;
+}
 static dun_frac_ptr _gen_frac(dun_page_ptr page)
 {
-    dun_ptr      world = dun_mgr()->world;
+    dun_mgr_ptr  dm = dun_mgr();
+    dun_ptr      world = dm->world;
     vec_ptr      feat_map = _feat_map();
     dun_frac_ptr frac = dun_frac_alloc(page->rect, vec_length(feat_map) - 1);
 
     /* compute some basic points (4 corners, center, and 4 side mid-points) */
     point_t      tl = rect_top_left(page->rect);
     point_t      br = rect_bottom_right(page->rect);
-    point_t      tr = point_create(br.x, tl.y);
-    point_t      bl = point_create(tl.x, br.y);
+    point_t      tr = rect_top_right(page->rect);
+    point_t      bl = rect_bottom_left(page->rect);
     point_t      c = rect_center(page->rect);
-    point_t      tc = point_create(c.x, tl.y);
-    point_t      lc = point_create(tl.x, c.y);
-    point_t      bc = point_create(c.x, bl.y);
-    point_t      rc = point_create(tr.x, c.y);
+    point_t      tc = rect_top_center(page->rect);
+    point_t      lc = rect_left_center(page->rect);
+    point_t      bc = rect_bottom_center(page->rect);
+    point_t      rc = rect_right_center(page->rect);
 
     point_t      world_pos = dun_world_pos(c);
     int          heights[3][3];
     int          i, j, h;
 
-    /* extract fractal height info for 3x3 world viewport centered on page */
+    /* XXX build a "fractal" for this hard-coded wilderness map */
+    if (!dm->world_frac && plr->world_id != W_AMBER)
+        dm->world_frac = _gen_world_frac();
+
+    /* extract fractal height info for 3x3 world viewport centered on page
+     * XXX use saved world_frac if available (cf dun_world_gen.c) */
     for (j = 0; j < 3; j++)
     {
         for (i = 0; i < 3; i++)
@@ -528,7 +710,10 @@ static dun_frac_ptr _gen_frac(dun_page_ptr page)
             point_t      p = point_add(world_pos, d);
             dun_grid_ptr wg = dun_grid_at(world, p);
 
-            heights[j][i] = _initial_height(wg->feat);
+            if (dm->world_frac) h = dun_frac_get(dm->world_frac, p);
+            else h = _initial_height(wg);
+
+            heights[j][i] = h;
         }
     }
 
@@ -581,37 +766,12 @@ static dun_frac_ptr _gen_frac(dun_page_ptr page)
 
     return frac;
 }
-static int _encounter_terrain_type(int feat)
-{
-    if (feat == feat_shallow_water || feat == feat_deep_water)
-        return TERRAIN_DEEP_WATER;
-    if (feat == feat_swamp) return TERRAIN_SWAMP;
-    if (feat == feat_grass) return TERRAIN_GRASS;
-    if (feat == feat_tree) return TERRAIN_TREES;
-    if (feat == feat_mountain) return TERRAIN_MOUNTAIN;
-    if (feat == feat_shallow_lava || feat == feat_deep_lava)
-        return TERRAIN_DEEP_LAVA;
-    return TERRAIN_EDGE;
-}
-static void _wipe_gen_flags(dun_page_ptr page, rect_t r)
-{
-    point_t min = rect_top_right(r);
-    point_t max = rect_bottom_left(r), p;
-    for (p.y = min.y; p.y <= max.y; p.y++)
-    {
-        for (p.x = min.x; p.x <= max.x; p.x++)
-        {
-            dun_grid_ptr g = dun_page_grid_at(page, p);
-            g->info &= ~CAVE_MASK;
-        }
-    }
-}
 static bool _notice(room_ptr room)
 {
     /* Notice wilderness encounters, but only in the daytime.
      * Don't notice trivial encounters (require ROOM_NOTICE to be set) */
     if (room->type != ROOM_WILDERNESS) return FALSE;
-    if (p_ptr->wizard) return TRUE; /* XXX Testing */
+    if (plr->wizard) return TRUE; /* XXX Testing */
     if (!(room->flags & ROOM_NOTICE)) return FALSE;
     if (!is_daytime()) return FALSE;
     return TRUE;
@@ -619,7 +779,7 @@ static bool _notice(room_ptr room)
 static bool _gen_room_aux(dun_page_ptr page, room_ptr room, transform_ptr xform)
 {
     rect_t pr = rect_deflate(page->rect, 2, 1);
-    rect_t rr = rect_translate(xform->dest,
+    rect_t rr = rect_translate_xy(xform->dest,
         pr.x + 2 + randint0(pr.cx - xform->dest.cx - 4),
         pr.y + 1 + randint0(pr.cy - xform->dest.cy - 2));
 
@@ -627,11 +787,10 @@ static bool _gen_room_aux(dun_page_ptr page, room_ptr room, transform_ptr xform)
 
     xform->dest = rr;
     build_room_template_aux(room, xform);
-    _wipe_gen_flags(page, rr);
 
     if (_notice(room))
     {
-        if (p_ptr->wizard)
+        if (plr->wizard)
             msg_format("You have stumbled onto <color:o>%s</color>.", room->name);
         else
             msg_print("You have stumbled on to something interesting.");
@@ -658,17 +817,19 @@ static void _gen_monsters(dun_ptr dun, dun_page_ptr page)
     rect_t       r = rect_interior(page->rect);
     point_t      world_pos = dun_world_pos(rect_center(r));
     dun_grid_ptr world_grid = dun_grid_at(dun_mgr()->world, world_pos);
-    dun_world_ptr world_info = dun_worlds_lookup(p_ptr->world_id);
     int          lvl = _difficulty(world_grid);
     int          mode = PM_ALLOW_GROUP;
-    bool         allow_encounter = !(world_grid->info & (CAVE_TOWN | CAVE_ROAD | CAVE_RIVER | CAVE_DUNGEON | CAVE_QUEST));
 
-    if (!p_ptr->dun_id && !(world_grid->info & CAVE_TOWN)) /* plr_birth: give an easy start! */
+    #ifdef DEVELOPER
+    if (0 && plr->wizard) return;
+    #endif
+
+    if (!plr->dun_id && !(world_grid->flags & CELL_TOWN)) /* plr_birth: give an easy start! */
         return;
 
-    if (world_grid->info & CAVE_TOWN)
+    if (world_grid->flags & CELL_TOWN)
     {
-        town_ptr town = towns_lookup(world_grid->special);
+        town_ptr town = towns_lookup(world_grid->parm2);
         if (town->populate_f)
         {
             town->populate_f(dun, page->rect);
@@ -680,45 +841,49 @@ static void _gen_monsters(dun_ptr dun, dun_page_ptr page)
             mode |= PM_FORCE_FRIENDLY;
         ct = rand_range(3, 10);
     }
-    else if (world_grid->info & CAVE_ROAD)
+    else if (world_grid->flags & CELL_ROAD)
     {
         if (one_in_(2))
-            ct = randint0(randint1(4));
+            ct = randint0(_1d(4));
     }
     else
     {
-        ct = randint0(randint1(7));
+        ct = randint0(_1d(7));
     }
 
-    /* XXX before adding mon_alloc filters */
-    if (allow_encounter && randint0(1000) < world_info->encounter_chance)
     {
-        int which = _encounter_terrain_type(world_grid->feat);
-        room_ptr room = choose_room_template(ROOM_WILDERNESS, which);
-        assert(cave == dun);
-        if (room && _gen_room(page, room))
-            ct = (ct + 1)/2; /* fewer monsters to compensate */
+        dun_world_ptr world_info = dun_worlds_lookup(plr->world_id);
+        bool          allow_encounter = !(world_grid->flags & (CELL_TOWN | CELL_ROAD | CELL_RIVER | CELL_DUNGEON | CELL_QUEST));
+        /* XXX before adding mon_alloc filters */
+        if (allow_encounter && randint0(1000) < world_info->encounter_chance)
+        {
+            int      which = sym_add(cell_name(world_grid));
+            room_ptr room = choose_room_template(ROOM_WILDERNESS, which);
+            assert(cave == dun);
+            if (room && _gen_room(page, room))
+                ct = (ct + 1)/2; /* fewer monsters to compensate */
+        }
     }
 
-    if (world_grid->info & CAVE_TOWN)
+    if (world_grid->flags & CELL_TOWN)
         mon_alloc_push_filter(mon_alloc_town);
-    else if (world_grid->feat == feat_deep_water)
+    else if (water_is_deep(world_grid))
         mon_alloc_push_filter(mon_alloc_ocean);
-    else if (world_grid->feat == feat_shallow_water)
+    else if (water_is_shallow(world_grid))
         mon_alloc_push_filter(mon_alloc_shore);
-    else if (world_grid->feat == feat_swamp)
+    else if (water_is_swamp(world_grid))
         mon_alloc_push_filter(mon_alloc_shore);
-    else if (world_grid->feat == feat_tree)
-        mon_alloc_push_filter(mon_alloc_woods);
-    else if (world_grid->feat == feat_mountain)
-        mon_alloc_push_filter(mon_alloc_mountain);
-    else if (world_grid->feat == feat_grass)
-        mon_alloc_push_filter(mon_alloc_grass);
-    else if (world_grid->feat == feat_dirt)
+    else if (floor_is_dirt(world_grid))
         mon_alloc_push_filter(mon_alloc_waste);
-    else if (world_grid->feat == feat_shallow_lava)
+    else if (floor_is_grass(world_grid))
+        mon_alloc_push_filter(mon_alloc_grass);
+    else if (cell_is_tree(world_grid))
+        mon_alloc_push_filter(mon_alloc_woods);
+    else if (wall_is_mountain(world_grid))
+        mon_alloc_push_filter(mon_alloc_mountain);
+    else if (lava_is_shallow(world_grid))
         mon_alloc_push_filter(mon_alloc_volcano);
-    else if (world_grid->feat == feat_deep_lava)
+    else if (lava_is_deep(world_grid))
         mon_alloc_push_filter(mon_alloc_volcano);
     else 
         mon_alloc_push_filter(mon_alloc_grass);
@@ -727,7 +892,7 @@ static void _gen_monsters(dun_ptr dun, dun_page_ptr page)
         point_t pos = {0};
         mon_race_ptr race = NULL;
 
-        if ((world_grid->info & CAVE_TOWN) || one_in_(2))
+        if ((world_grid->flags & CELL_TOWN) || one_in_(2))
             mode |= PM_ALLOW_SLEEP;
         else
             mode &= ~PM_ALLOW_SLEEP;
@@ -740,17 +905,17 @@ static void _gen_monsters(dun_ptr dun, dun_page_ptr page)
             break;
         }
         if (!rect_contains_point(r, pos)) continue;
-        /*if (i == 0 && (world_grid->info & CAVE_TOWN))
+        /*if (i == 0 && (world_grid->flags & CELL_TOWN))
             race = mon_alloc_choose_aux2(mon_alloc_current_tbl(), lvl, 0, GMN_DEBUG);
         else*/
             race = mon_alloc_choose(lvl);
         if (!race) continue;
-        place_monster_aux(0, pos, race->id, mode);
+        place_monster_aux(who_create_null(), pos, race, mode);
     }
     mon_alloc_pop_filter();
-    if (world_grid->info & CAVE_TOWN)
+    if (world_grid->flags & CELL_TOWN)
     {
-        town_ptr town = towns_lookup(world_grid->special);
+        town_ptr town = towns_lookup(world_grid->parm2);
         if (town->mon_alloc_f) mon_alloc_pop_weight();
     }
 }
@@ -759,12 +924,12 @@ void dun_world_dump_frac(dun_ptr dun)
     FILE        *fp;
     char         buf[1024];
     dun_frac_ptr frac;
-    dun_page_ptr page = _find_page(dun, p_ptr->pos);
+    dun_page_ptr page = _find_page(dun, plr->pos);
     point_t      min = rect_top_left(page->rect);
     point_t      max = rect_bottom_right(page->rect), p;
     point_t      world_pos = dun_world_pos(min);
 
-    assert(dun->dun_type_id == D_SURFACE);
+    assert(dun->type->id == D_SURFACE);
 
     path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "frac.txt");
     fp = my_fopen(buf, "w");
@@ -787,6 +952,12 @@ void dun_world_dump_frac(dun_ptr dun)
     Rand_quick = FALSE;
     msg_format("Created fractal file %s.", buf);
 }
+static void _remove_cave_mask(point_t pos, dun_grid_ptr grid)
+{ 
+    bool town = BOOL(grid->flags & CELL_TOWN);
+    /*grid->info &= ~CAVE_MASK;*/
+    if (town) grid->flags |= CELL_AWARE;
+}
 static void _gen_page(dun_ptr dun, dun_page_ptr page, dun_grid_ptr world_grid)
 {
     vec_ptr      feat_map = _feat_map();
@@ -794,6 +965,8 @@ static void _gen_page(dun_ptr dun, dun_page_ptr page, dun_grid_ptr world_grid)
     point_t      min = rect_top_left(page->rect);
     point_t      max = rect_bottom_right(page->rect), p;
     dun_grid_ptr grid = page->grids;
+    dun_world_ptr world_info = dun_worlds_lookup(plr->world_id);
+    point_t      world_pos = dun_world_pos(min);
 
     if (dun_pos_boundary(dun_mgr()->world, dun_world_pos(min)))
     {
@@ -801,7 +974,7 @@ static void _gen_page(dun_ptr dun, dun_page_ptr page, dun_grid_ptr world_grid)
         {
             for (p.x = min.x; p.x <= max.x; p.x++)
             {
-                grid->feat = world_grid->feat;
+                *grid = *world_grid;
                 grid++;
             }
         }
@@ -810,7 +983,7 @@ static void _gen_page(dun_ptr dun, dun_page_ptr page, dun_grid_ptr world_grid)
     }
 
     Rand_quick = TRUE;
-    Rand_value = dun_u32b_get(_seeds, dun_world_pos(min));
+    Rand_value = dun_u32b_get(_seeds, world_pos);
 
     /* terrain */
     frac = _gen_frac(page); 
@@ -820,47 +993,50 @@ static void _gen_page(dun_ptr dun, dun_page_ptr page, dun_grid_ptr world_grid)
         {
             byte h = dun_frac_get(frac, p);
             assert(h < vec_length(feat_map));
-            grid->feat = vec_get_int(feat_map, h);
+            /* h -> _FEAT_FOO -> cell_make_foo */
+            _feat_make(vec_get_int(feat_map, h), grid);
+            if (world_info->surface_feat_f)
+                world_info->surface_feat_f(world_info, p, grid);
             grid++;
         }
     }
     dun_frac_free(frac);
-    #if 0
-    dun_page_grid_at(page, min)->feat = feat_pattern_1;
-    dun_page_grid_at(page, point_create(max.x, min.y))->feat = feat_pattern_1;
-    dun_page_grid_at(page, point_create(min.x, max.y))->feat = feat_pattern_1;
-    dun_page_grid_at(page, max)->feat = feat_pattern_1;
-    #endif
     
     /* roads, town, quests and dungeon entrances */
-    if (world_grid->info & CAVE_ROAD)
+    if (world_grid->flags & CELL_TOWN)
+    {
+        assert(!(world_grid->flags & (CELL_DUNGEON | CELL_QUEST)));
+        _gen_town(dun, page, world_grid->parm2);
+        /* note: town grids will be marked with CELL_TOWN. road generation will
+         * skip these grids */
+    }
+    if (world_grid->flags & CELL_ROAD)
         _gen_roads(page);
-    if (world_grid->info & CAVE_RIVER)
+    if (world_grid->flags & CELL_RIVER)
         _gen_rivers(page);
-    if (world_grid->info & CAVE_TOWN)
+    if (world_grid->flags & CELL_DUNGEON)
     {
-        assert(!(world_grid->info & (CAVE_DUNGEON | CAVE_QUEST)));
-        _gen_town(dun, page, world_grid->special);
+        dun_type_ptr type = dun_types_lookup(world_grid->parm2);
+        assert(!(world_grid->flags & (CELL_TOWN | CELL_QUEST)));
+        if (!(type->flags.plr & (DF_PLR_FAILED | DF_PLR_SECRET)))
+            _gen_dungeon(dun, page, world_grid->parm2);
     }
-    if (world_grid->info & CAVE_DUNGEON)
+    if (world_grid->flags & CELL_QUEST)
     {
-        dun_type_ptr type = dun_types_lookup(world_grid->special);
-        assert(!(world_grid->info & (CAVE_TOWN | CAVE_QUEST)));
-        if (!(type->plr_flags & (DFP_FAILED | DFP_SECRET)))
-            _gen_dungeon(dun, page, world_grid->special);
+        assert(!(world_grid->flags & (CELL_TOWN | CELL_DUNGEON)));
+        _gen_quest(dun, page, world_grid->parm2);
     }
-    if (world_grid->info & CAVE_QUEST)
+    if (world_grid->flags & CELL_TOWN)
     {
-        assert(!(world_grid->info & (CAVE_TOWN | CAVE_DUNGEON)));
-        _gen_quest(dun, page, world_grid->special);
+        /* mark town as CELL_AWARE ... perhaps cleanup in future */
+        dun_page_iter(page, _remove_cave_mask);
     }
 
     Rand_quick = FALSE;
 }
 static bool _home(point_t pos, dun_grid_ptr grid)
 {
-    dun_feat_ptr feat = dun_grid_feat(grid);
-    return have_flag(feat->flags, FF_STORE) && feat->subtype == SHOP_HOME;
+    return shop_is_home(grid);
 }
 dun_ptr _gen_surface(point_t world_pos, bool place)
 {
@@ -870,8 +1046,11 @@ dun_ptr _gen_surface(point_t world_pos, bool place)
     dun_page_ptr page;
     int i;
 
-    surface->dun_type_id = D_SURFACE;
+    surface->type = dun_types_lookup(D_SURFACE);
     surface->rect = _viewport_rect(world_pos);
+    surface->flags |= DF_PAGELOCK; /* don't re-order pages since we iterate them */
+    if (is_daytime())
+        surface->ambient_light = 5;
     cave = surface; /* XXX required for build_room_template_aux (towns) */
 
     /* Pass 1: Generate terrain */
@@ -883,11 +1062,13 @@ dun_ptr _gen_surface(point_t world_pos, bool place)
 
         page = dun_page_alloc(r);
         page->next = surface->page;
+        if (surface->page)
+            surface->page->prev = page;
         surface->page = page;
         _gen_page(surface, page, world_grid); /* <=== Might generate a town */
-        world_grid->info |= CAVE_MARK;
+        world_grid->flags |= CELL_MAP;
     }
-    p_ptr->window |= PW_WORLD_MAP;
+    plr->window |= PW_WORLD_MAP;
 
     /* Pass 2: Generate monsters in a separate pass to avoid page
      * faults with monster groups (scatter might leave the current
@@ -900,7 +1081,7 @@ dun_ptr _gen_surface(point_t world_pos, bool place)
     
     cave = old_cave;
     surface->flags |= DF_GENERATED;
-    surface->flags |= (dun_types_lookup(D_SURFACE)->flags & DF_RESTRICT_MASK);
+    surface->flags |= (dun_types_lookup(D_SURFACE)->flags.info & DF_RESTRICT_MASK);
     _set_difficulty(surface);
 
     if (place)
@@ -911,35 +1092,47 @@ dun_ptr _gen_surface(point_t world_pos, bool place)
         dun_mgr_plr_change_dun(surface, pos);
     }
 
+    /* allow locality of reference optimization */
+    surface->flags &= ~DF_PAGELOCK;
+
     return surface;
 }
 void dun_regen_surface(dun_ptr dun)
 {
     dun_ptr world = dun_mgr()->world;
     dun_page_ptr page;
-    assert(dun->dun_type_id == D_SURFACE);
+    assert(dun->type->id == D_SURFACE);
+    dun->flags |= DF_PAGELOCK;
     for (page = dun->page; page; page = page->next)
     {
         point_t      world_pos = dun_world_pos(rect_center(page->rect));
         dun_grid_ptr world_grid = dun_grid_at(world, world_pos);
         _gen_page(dun, page, world_grid);
     }
+    dun->flags &= ~DF_PAGELOCK;
 }
 void dun_regen_town(dun_ptr dun)
 {
-    point_t      world_pos = dun_world_pos(p_ptr->pos);
+    point_t      world_pos = dun_world_pos(plr->pos);
     dun_grid_ptr world_grid = dun_grid_at(dun_mgr()->world, world_pos);
-    dun_page_ptr page = _find_page(dun, p_ptr->pos);
+    dun_page_ptr page = _find_page(dun, plr->pos);
 
     /* plr should be on surface level, inside a town */
-    assert(dun->dun_type_id == D_SURFACE);
-    assert(p_ptr->dun_id == dun->dun_id);
+    assert(dun->type->id == D_SURFACE);
+    assert(plr->dun_id == dun->id);
     assert(page);
 
     _gen_page(dun, page, world_grid); 
 }
 dun_ptr dun_gen_surface(point_t world_pos)
 {
+    dun_mgr_ptr dm = dun_mgr();
+    bool prof = FALSE;
+    if (dm->prof && dm->prof->gen_timer.paused) /* XXX detect dun_gen_connected */
+    {
+        z_timer_resume(&dm->prof->gen_timer);
+        prof = TRUE;
+    }
     /* XXX We enforce a single D_SURFACE level at a time. Care is
      * taken that the topmost level only generates a single up stairs.
      * Should the player find an alternative route to the surface, we
@@ -948,30 +1141,33 @@ dun_ptr dun_gen_surface(point_t world_pos)
      * erase L0b and gen an L0c) cf dun_gen_connected */
     dun_mgr_delete_surface();
     dun_mgr()->surface = _gen_surface(world_pos, FALSE);
+    if (dm->prof && prof)
+        z_timer_pause(&dm->prof->gen_timer);
     return dun_mgr()->surface;
 }
 int dun_world_town_id(void)
 {
     int     town_id = 0;
-    dun_ptr dun = dun_mgr_dun(p_ptr->dun_id);
+    dun_ptr dun = dun_mgr_dun(plr->dun_id);
 
-    if (dun && dun->dun_type_id == D_SURFACE)
+    if (dun && dun->type->id == D_SURFACE)
     {
         dun_ptr      world = dun_mgr()->world;
-        point_t      world_pos = dun_world_pos(p_ptr->pos);
+        point_t      world_pos = dun_world_pos(plr->pos);
         dun_grid_ptr world_grid = dun_grid_at(world, world_pos);
 
-        if (world_grid->info & CAVE_TOWN)
-            town_id = world_grid->special;
+        if (world_grid->flags & CELL_TOWN)
+            town_id = world_grid->parm2;
     }
     return town_id;
 }
 void dun_world_move_plr(dun_ptr dun, point_t pos)
 {
+    dun_mgr_ptr dm = dun_mgr();
     point_t world_pos = dun_world_pos(pos);
     rect_t  new_rect = _viewport_rect(world_pos);
 
-    assert(dun->dun_type_id == D_SURFACE);
+    assert(dun->type->id == D_SURFACE);
     assert(dun_pos_interior(dun, pos));
     assert(cave == dun); /* for place_monster */
 
@@ -983,6 +1179,10 @@ void dun_world_move_plr(dun_ptr dun, point_t pos)
         point_t      max = rect_bottom_right(new_rect);
         point_t      p;
 
+        dun->flags |= DF_PAGELOCK;
+        if (dm->prof)
+            z_timer_resume(&dm->prof->gen_timer);
+
         /* forget old pages outside of new_rect */
         for (page = dun->page; page; page = next)
         {
@@ -993,12 +1193,14 @@ void dun_world_move_plr(dun_ptr dun, point_t pos)
             {
                 page->flags &= ~PF_MARK;
                 page->next = keep;
+                if (keep)
+                    keep->prev = page;
                 keep = page;
                 /* XXX During nightime travel, we only "mark" the player's current grid. */
                 if (rect_contains_point(page->rect, pos))
                 {
                     dun_grid_ptr world_grid = dun_grid_at(dun_mgr()->world, dun_world_pos(pos));
-                    world_grid->info |= CAVE_MARK;
+                    world_grid->flags |= CELL_MAP;
                 }
             }
         }
@@ -1018,14 +1220,16 @@ void dun_world_move_plr(dun_ptr dun, point_t pos)
                     page = dun_page_alloc(r);
                     page->flags |= PF_MARK;
                     page->next = dun->page;
+                    if (dun->page)
+                        dun->page->prev = page;
                     dun->page = page;
                     _gen_page(dun, page, world_grid);
                     if (is_daytime())
-                        world_grid->info |= CAVE_MARK;
-                    if (world_grid->info & CAVE_DUNGEON)
+                        world_grid->flags |= CELL_MAP;
+                    if (world_grid->flags & CELL_DUNGEON)
                     {
-                        dun_type_ptr type = dun_types_lookup(world_grid->special);
-                        if (!(type->plr_flags & DFP_ENTERED))
+                        dun_type_ptr type = dun_types_lookup(world_grid->parm2);
+                        if (!(type->flags.plr & DF_PLR_ENTERED) && !(type->flags.plr & DF_PLR_SECRET))
                         {
                             msg_print("You have stumbled on to something interesting.");
                             disturb(1, 0);
@@ -1047,15 +1251,18 @@ void dun_world_move_plr(dun_ptr dun, point_t pos)
                 page->flags &= ~PF_MARK;
             }
         }
-        p_ptr->window |= PW_WORLD_MAP;
+        dun->flags &= ~DF_PAGELOCK;
+        plr->window |= PW_WORLD_MAP;
+        if (dm->prof)
+            z_timer_pause(&dm->prof->gen_timer);
     }
 }
 
 /************************************************************************
  * D_WORLD
  ************************************************************************/
-static bool _plr_start_pos(point_t pos, dun_grid_ptr grid) { return (grid->info & CAVE_MARK); }
-static bool _plr_start_panic_pos(point_t pos, dun_grid_ptr grid) { return BOOL(grid->info & (CAVE_TOWN)); }
+static bool _plr_start_pos(point_t pos, dun_grid_ptr grid) { return (grid->flags & CELL_MAP); }
+static bool _plr_start_panic_pos(point_t pos, dun_grid_ptr grid) { return BOOL(grid->flags & CELL_TOWN); }
 static point_t _start_pos(dun_ptr world)
 {
     point_vec_ptr pts = dun_filter_grids(world, _plr_start_pos);
@@ -1087,34 +1294,45 @@ static void _process_world_map(dun_ptr world)
         for (p.x = min.x; p.x <= max.x; p.x++)
         {
             dun_grid_ptr grid = dun_grid_at(world, p);
-            if (grid->info & CAVE_DUNGEON)
+            if (grid->flags & CELL_DUNGEON)
             {
-                dun_type_ptr type = dun_types_lookup(grid->special);
+                dun_type_ptr type = dun_types_lookup(grid->parm2);
                 type->world_pos = p;
-                if (type->flags & DF_KNOWN)
-                    grid->info |= CAVE_MARK;
+                if (type->flags.info & DF_KNOWN)
+                    grid->flags |= CELL_MAP;
                 if (type->init_f)
                     type->init_f(type);
             }
-            else if (grid->info & CAVE_TOWN)
-                towns_lookup(grid->special)->world_pos = p;
+            else if (grid->flags & CELL_TOWN)
+                towns_lookup(grid->parm2)->world_pos = p;
         }
     }
 }
 
-bool dun_mgr_teleport_town(void)
+extern void _mru_clear(dun_mgr_ptr dm); /* dun.c ... but not public! */
+/* XXX There is an exploit with Teleport to Town followed by immediate Recall:
+ * A dungeon guardian loses his entourage! This is due to dun_mgr_relocate_unique
+ * which finds the unique on a garbage level, and restores him to the current level
+ * (cf _alloc_guardian). We need to force a GC, carefully removing the mru so that
+ * the old level is considered garbage. XXX */
+bool dun_mgr_teleport_town(u32b flags)
 {
-    town_ptr    town = towns_choose(p_ptr->wizard);
+    town_ptr    town = towns_choose(flags);
     dun_mgr_ptr dm = dun_mgr();
     dun_ptr     old_surface = dm->surface;
+    bool        gc = plr_dun()->type->id != D_SURFACE; /* detect spell vs _inn_tele_town */
 
     if (!quests_check_leave()) return FALSE;
     if (!town) return FALSE;
     if (!dun_pos_interior(dm->world, town->world_pos)) return FALSE;
 
+    if (gc)
+        _mru_clear(dm);
     dm->surface = _gen_surface(town->world_pos, TRUE);
+    if (gc)
+        dm->surface->flags |= DF_GC;
     if (old_surface)
-        int_map_delete(dm->dungeons, old_surface->dun_id); /* paranoia */
+        int_map_delete(dm->dungeons, old_surface->id); /* paranoia */
     return TRUE;
 }
 static void _world_map_msg(void)
@@ -1126,8 +1344,8 @@ void dun_world_map_ui(void)
 {
     dun_ptr old_cave = cave;
     point_t old_viewport_origin = viewport_origin;
-    point_t world_pos = dun_world_pos(p_ptr->pos);
-    point_t old_plr_pos = p_ptr->pos;
+    point_t world_pos = dun_world_pos(plr->pos);
+    point_t old_plr_pos = plr->pos;
     rect_t  map_rect = ui_map_rect();
     bool    done = FALSE;
 
@@ -1137,8 +1355,8 @@ void dun_world_map_ui(void)
 
     /* Make the game think the plr is in D_WORLD */
     cave = dun_mgr()->world;
-    p_ptr->pos = world_pos;
-    viewport_verify_aux(p_ptr->pos, VIEWPORT_FORCE_CENTER);
+    plr->pos = world_pos;
+    viewport_verify_aux(plr->pos, VIEWPORT_FORCE_CENTER);
     while (!done)
     {
         int     cmd;
@@ -1183,7 +1401,7 @@ void dun_world_map_ui(void)
     msg_line_clear();
 
     /* Back to Normal Play */
-    p_ptr->pos = old_plr_pos;
+    plr->pos = old_plr_pos;
     cave = old_cave;
     viewport_origin = old_viewport_origin;
     /* XXX We are now invoked from do_cmd_view_map(): prt_map();*/
@@ -1195,12 +1413,13 @@ void dun_world_map_ui(void)
  ************************************************************************/
 dun_world_ptr dun_worlds_current(void)
 {
-    return dun_worlds_lookup(p_ptr->world_id);
+    return dun_worlds_lookup(plr->world_id);
 }
 
 typedef struct {
     int            id;
-    cptr           parse;
+    cptr           name; /* for flag-like parsing */
+    cptr           parse; /* for more readable parsing */
     dun_world_ptr (*create_f)(void);
 } _entry_t, *_entry_ptr;
 
@@ -1210,10 +1429,10 @@ static dun_world_ptr _sauron(void);
 static dun_world_ptr _amber(void);
 
 static _entry_t _tbl[] = {
-    { W_SMAUG, "Smaug", _smaug },
-    { W_SARUMAN, "Saruman", _saruman },
-    { W_SAURON, "Sauron", _sauron },
-    { W_AMBER, "Amber", _amber }, 
+    { W_SMAUG, "W_SMAUG", "Smaug", _smaug },
+    { W_SARUMAN, "W_SARUMAN", "Saruman", _saruman },
+    { W_SAURON, "W_SAURON", "Sauron", _sauron },
+    { W_AMBER, "W_AMBER", "Amber", _amber }, 
     { 0 }
 };
 static dun_world_ptr dun_world_alloc(int id, cptr name)
@@ -1240,6 +1459,7 @@ int dun_worlds_parse(cptr name)
         _entry_ptr e = &_tbl[i];
         if (!e->create_f) break;
         if (strcmp(e->parse, name) == 0) return e->id;
+        if (strcmp(e->name, name) == 0) return e->id;
     }
     return W_NONE;
 }
@@ -1324,24 +1544,21 @@ static void _dun_worlds_enter(int id)
 
     if (dm->world) /* changing worlds */
     {
-        forget_lite(); /* XXX */
-        forget_view();
-        clear_mon_lite();
-
-        int_map_delete(dm->dungeons, dm->world->dun_id);
+        int_map_delete(dm->dungeons, dm->world->id);
         if (dm->surface)
-            int_map_delete(dm->dungeons, dm->surface->dun_id);
+            int_map_delete(dm->dungeons, dm->surface->id);
         dm->world = NULL;
         dm->surface = NULL;
     }
     towns_reset_world();
     dun_types_reset_world();
+    plr->update = PU_UN_LIGHT | PU_UN_VIEW;
 
-    p_ptr->world_id = id;
+    plr->world_id = id;
     world->plr_flags |= WFP_ENTERED;
 
-    assert(!int_map_find(dm->dungeons, world_map->dun_id));
-    int_map_add(dm->dungeons, world_map->dun_id, world_map);
+    assert(!int_map_find(dm->dungeons, world_map->id));
+    int_map_add(dm->dungeons, world_map->id, world_map);
     dm->world = world_map;
     dm->world_seed = randint0(0x10000000);
     dun_world_reseed(dm->world_seed);
@@ -1356,7 +1573,7 @@ static void _dun_worlds_enter(int id)
 }
 void dun_worlds_birth(void)
 {
-    _dun_worlds_enter(p_ptr->initial_world_id);
+    _dun_worlds_enter(plr->initial_world_id);
 }
 void dun_worlds_wizard(int id)
 {
@@ -1370,7 +1587,7 @@ void dun_mgr_travel_plr(void)
     else
     {
         _dun_worlds_enter(w->next_world_id);
-        assert(p_ptr->world_id == w->next_world_id);
+        assert(plr->world_id == w->next_world_id);
         w = dun_worlds_current();
         msg_format("<color:B>You have entered <color:r>%s</color>.</color>", w->name);
         msg_boundary();
@@ -1392,28 +1609,28 @@ static void _conquer(dun_world_ptr me)
     do_inc_stat(A_DEX);
     do_inc_stat(A_CON);
     do_inc_stat(A_CHR);
-    p_ptr->fame += 5 + randint1(5);
+    plr->fame += 5 + randint1(5);
     me->plr_flags |= WFP_COMPLETED;
 
 }
 static void _kill_mon(dun_world_ptr me, mon_ptr mon)
 {
-    if (!(me->plr_flags & (WFP_COMPLETED | WFP_FAILED)) && mon->r_idx == me->final_guardian)
+    if (!(me->plr_flags & (WFP_COMPLETED | WFP_FAILED)) && mon->race->id == me->final_guardian)
     {
         _conquer(me);
         if (me->next_world_id)
         {
-            dun_ptr dun = mon_dun(mon);
+            dun_ptr dun = mon->dun;
             msg_print("<color:B>New trials await you! Come, the quest continues. Be steadfast!</color>");
             dun_quest_travel(dun, mon->pos);
         }
         else
         {
-            p_ptr->total_winner = TRUE;
-            p_ptr->fame += 50;
-            if (p_ptr->pclass == CLASS_CHAOS_WARRIOR || mut_present(MUT_CHAOS_GIFT))
+            plr->total_winner = TRUE;
+            plr->fame += 50;
+            if (plr->pclass == CLASS_CHAOS_WARRIOR || mut_present(MUT_CHAOS_GIFT))
             {
-                msg_format("The voice of %s booms out:", chaos_patrons[p_ptr->chaos_patron]);
+                msg_format("The voice of %s booms out:", chaos_patrons[plr->chaos_patron]);
                 msg_print("'Thou art donst well, mortal!'");
             }
             cmsg_print(TERM_L_GREEN, "*** CONGRATULATIONS ***");
@@ -1429,11 +1646,18 @@ static void _pre_gen(dun_world_ptr me, dun_gen_ptr gen)
      * next world. */
     if ( (me->plr_flags & WFP_COMPLETED) 
       && me->next_world_id
-      && gen->dun->dun_type_id == me->final_dungeon
-      && gen->dun->dun_lvl == gen->type->max_dun_lvl )
+      && gen->dun->type->id == me->final_dungeon
+      && gen->dun->dun_lvl == gen->dun->type->max_dun_lvl )
     {
-        if (dun_gen_template_room(gen, ROOM_ROOM, ROOM_TRAVEL))
-            gen->dun->flags |= DF_TRAVEL;
+        /* For DF_TOWER levels, there is about a 10% chance that the travel
+         * room will get "clipped". Luck being what she is, this can happen
+         * 2 or 3 times in a row! (cf dun_gen_reserve and _tower_out_of_bounds) */
+        while (!dun_gen_template_room(gen, ROOM_ROOM, ROOM_TRAVEL))
+        {
+            if (plr->wizard)
+                msg_print("<color:y>Failed to create Travel Portal!</color>");
+        }
+        gen->dun->flags |= DF_TRAVEL;
     }
 }
 /************************************************************************
@@ -1450,7 +1674,7 @@ static dun_world_ptr _smaug(void)
                 "greater challenges. Be steadfast and may the light shine on you!";
     me->file = "w_smaug.txt";
     me->final_dungeon = D_LONELY_MOUNTAIN;
-    me->final_guardian = MON_SMAUG;
+    me->final_guardian = mon_race_parse("D.Smaug")->id;
     me->next_world_id = W_SARUMAN;
     me->kill_mon_f = _kill_mon;
     me->pre_gen_f = _pre_gen;
@@ -1469,7 +1693,7 @@ static dun_world_ptr _saruman(void)
                 "treacherous wizard or all hope is lost.";
     me->file = "w_saruman.txt";
     me->final_dungeon = D_ISENGARD;
-    me->final_guardian = MON_SARUMAN;
+    me->final_guardian = mon_race_parse("p.Saruman")->id;
     me->next_world_id = W_SAURON;
     me->kill_mon_f = _kill_mon;
     me->pre_gen_f = _pre_gen;
@@ -1480,15 +1704,31 @@ static dun_world_ptr _saruman(void)
  ************************************************************************/
 static void _sauron_kill_mon(dun_world_ptr me, mon_ptr mon)
 {
-    if (mon->r_idx == MON_SAURON)
+    if (mon_race_is_(mon->race, "p.Sauron"))
     {
         msg_print("<color:v>Congratulations!</color> And now, your greatest challenge remains. "
                    "You must travel east to <color:keyword>The Pits of Angband</color> and "
                    "face the Great Enemy: <color:keyword>Morgoth, Lord of Darkness</color>!");
-        dun_types_lookup(D_ANGBAND)->plr_flags &= ~DFP_SECRET;
+        dun_types_lookup(D_ANGBAND)->flags.plr &= ~DF_PLR_SECRET;
     }
     else _kill_mon(me, mon);
 }
+void _mordor_feat(dun_world_ptr me, point_t pos, dun_cell_ptr cell)
+{
+    int mordor_x = 17 * _TILE_CX; /* XXX hacked from ../lib/edit/w_sauron.txt */
+    
+    if (pos.x > mordor_x)
+    {
+        int dx = pos.x - mordor_x;
+        if (dx > 99 || randint0(100) < dx) /* no life in Mordor! (gradual transition) */
+        {
+            if (cell_is_tree(cell)) cell_make_dirt(cell);
+            if (floor_is_flower(cell)) cell_make_dirt(cell);
+            if (floor_is_grass(cell)) cell_make_swamp(cell);
+        }
+    }
+}
+
 static dun_world_ptr _sauron(void)
 {
     dun_world_ptr me = dun_world_alloc(W_SAURON, "The Depths of Mordor");
@@ -1501,9 +1741,10 @@ static dun_world_ptr _sauron(void)
                 "Morgoth</color> must be slain. Good Luck!";
     me->file = "w_sauron.txt";
     me->final_dungeon = D_ANGBAND;
-    me->final_guardian = MON_MORGOTH;
+    me->final_guardian = mon_race_parse("P.Morgoth")->id;
     me->kill_mon_f = _sauron_kill_mon;
     me->pre_gen_f = _pre_gen;
+    me->surface_feat_f = _mordor_feat;
     return me;
 }
 /************************************************************************
@@ -1516,9 +1757,9 @@ static dun_world_ptr _amber(void)
                "slay the dreaded <color:keyword>Serpent of Chaos</color> in "
                "order to restore balance to the world. Good Luck!";
     me->final_dungeon = D_AMBER;
-    me->final_guardian = MON_SERPENT;
+    me->final_guardian = mon_race_parse("J.Chaos")->id;
     me->kill_mon_f = _kill_mon;
     me->pre_gen_f = _pre_gen;
-    me->encounter_chance = 10;
+    me->encounter_chance = 50;
     return me;
 }

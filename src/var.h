@@ -34,6 +34,7 @@ extern bool  var_is_null(var_ptr var);
 extern void  var_set_int(var_ptr var, int n);
 extern void  var_set_string(var_ptr var, cptr pc);
 extern void  var_set_bool(var_ptr var, bool b);
+extern void  var_printf(var_ptr var, const char *fmt, ...);
 
 extern int   var_get_int(var_ptr var);
 extern cptr  var_get_string(var_ptr var);

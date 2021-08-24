@@ -1,5 +1,4 @@
-Objects
-
+Objects                                 
 Objects are one of the most important elements in the game, and much of 
 your effort will be devoted to getting better, and then even better, 
 stuff. Whether they are potions to heal you during a difficult fight, 

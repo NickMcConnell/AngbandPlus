@@ -7,47 +7,47 @@
 # Tweaked 03-9-2017
 T:TOWN:NORMAL:NO_ROTATE
 %:t_pref.txt
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT,TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT,TTTTTTTWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT,TTTTTTWVTVWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTT#####TTTTTTTTTTTTTTTTTTTT,,,,,,,WT*TWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTT#####TTTTTTTTTTTTTTTTTTTT,TTTTTTWVTVWTTTTTTTT##TTT##TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTT#####TTTTTTTTTTTTTTTTTTTT,TTTTTTTWWWTTTTTTTTT#######TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TT####TTTT#####TTTTTTTTTTTTTTTTTTTT,TTTTTTTTTTTTTTT-TT-T#####TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TT####TTTT##6##TTT#####TTTTTTTTTTTT,TTTTTTTTTTTTTTTT,,,,a####TTTTTTTTTT######TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TT###9,,,TT-,TT-TT#####TTTTTTTTTTTT,TTTTTTTTTTTTTTT-,TTT#####TTTTTTTTTT######TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TT####-T,,,,,,,,,,5####TTTTTTTTTTTT,T-TTTTTTTTTTT-TT,-T#######TTTTTTTTT######TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TT####TTTT,T-TTT,T#####TTTTTTTTTTT,,,TTTTTTTTTTTTT,,,TT##-TT##TTTTTTTTT###f##TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTT###4###-T,T#####TTTTTTTTT,,,,,,,TTTTTTTTTTT,TTTTTTTTTTTTTTTTTTTTTTT,TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTT#######TT,TTTTTTTTTTTTTT,,#####,,TTTTTTTTT-,TTTTTTTTTTTTTTTTTTTTTT-,TTT#####TTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTT#######TT,TTTTTTTTTTTTTT,#######,TTTTTTTTTT,TTTTTTTTTTTTTTTTTTTTTT,,,,,#####TTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTT###p###-T,TTTTTTTTTTTTT,,#######,,TTTTTTT-T,TTTTTTTTTTTTTTTTTTTTT,,TTTT#####TTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTT-TTTT,,,,,,,,,,,,,,,,,,,,,,#######,,,,,,,,TTT,TTTTTTTTTTTT-TT-T-TT,,TTTTTT####TTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTT,,,,,,TTT,T,,TTTTTTTTTTTT,,#######,,T-TTT,,,,,,,,,,,,,,,,,,,,,,,,,,T-TTTTT####TTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:T####,TTTTTTTTTT,,TTTTTTTTTTTTT,#######,-TTTTTTTTTTTTTT,TTTT,TTTTT--TTT,,T-TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:T####i##T-TTTTT,,,TTTTTTTTTTTTT,,##7##,,TTTTTTTTTTTTTTT,TTTT,TTTTTTTTTTT,,TTTTTTTTTTTTTTTTTTTTTTTTTTTTT-TTTTTTTT
-M:T#######TTT,T,,,,TTTTTTTTTTTTT-T,,,,,,,TTTTTTTTTTTTT###1##-T,TTTTTTTTTTTT,,TTTTTTTTTTTTTTTTTTTTTTTTTTTT-----TTT-
-M:T#######-TTT,,,TTTTTTTTTTTTTTTTTTT,,,TT,TTTTTTTTTTTT######TT,TTTT#####TTTT,,,TTTTTTTTTTTTTTTTTTTTTTTTT--###--,-T
-M:TTTTTTTTTTTT,,TTTTTTTTTTTTTTTTTTTT-,TTTT,TTT--TTTT#######1,,,--TT#####TTTTTT,,,TTTTTTTTT-TTTTTTTTTTTT--#####--TT
-M:TTTTTTTTTTTT,,TTTTTTTTTT####TTTT-TT,TTTTT,,,,,,TTT########TT,,,,,3####TTTTTTTT,,,,,,,,,,,,,,,,,,TTTTT-#######-TT
-M:TTTTTTTTTTTT,,TTTTTTTTTT###8,,,,,,,,TTTTTT###h##TT########TT,-T-T#####TTTTTTTTTTTTTTTTTT,TTTTTT,,,,,,,w######-TT
-M:TTTTTTTT#TT,,,TT#TTTTTTT####-TTTTTT,TTTTTT######TT######TTTT,TTTT#####TTTTTTTTTTTTTTTTTT,TTTT,,TTTTTT-#######--T
-M:TTTTTTT#####0#####TTTTTTTTTTTTTTTT,TTTTTTT######TT######TT##2##TTTTTTTTTTTTTTTTTTTTTTTTT,TTTTTTTTTTTT--#####---T
-M:TTTTTTTT#########TTTTTTTTTTTTTTTT,TTTTTTTTTTTTTTTTTTTTTTTT#####TTTTTTTTTTTTTTTTTTTTTTTTT,TTTTTTTTTTT-T--###--TTT
-M:TTTTTTTT#########TTTTTTTTTTTTT,,,TTTTTTTTTTTTTTTTTTTTTTTTT#####TTTTTTTTTTTTTTTTTTTTTT--T,T--TTTTTTTTTTT-----T-TT
-M:TTTTTTTT#########TTTTTTTTTTTT,TTTTTTTTTTTTTTTTTTTTTTTTTTTT#####TTTTTTTTTTTTTTTTTTTTT-#--,--#-TTTTTTTTTTTTT---TTT
-M:TTTTTTT###########TTTTTTTTTT,----TTTTTTTTTTTTTTTTTTTTTTTTT#####TTTTTTTTTTTTTTTTTTTT-#-##p##-#-TTTTTTTTTTTT-T-T-T
-M:TTTTTTTT#TTTTTTT#TTTTTTTT###,###--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT--#######--TTTTTTTTTTT-TTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTT###,###T--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-#######-TTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTT###,###TT-TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT--#######--TTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTT#,#TTTT-TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-T,#-#####-#--TTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTT##,##TTT----TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT--#-----#--TTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTT##t##TTTTTTT-TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---T-,-------TTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTT#####TTTTTTTT-T####TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTT#####TTTTTTTTT-####TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-####TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-####TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-T####TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+M:                                   ,       TTT                                                                  
+M:                                   ,      TWWWT                                                                 
+M:                                   ,     TWVTVWT                                                                
+M:          #####                    ,,,,,,,WT*TWT                                                                
+M:          #####                    ,     TWVTVWT       ##   ##                                                  
+M:          #####                    ,      TWWWT        #######                                                  
+M:  ####    #####                    ,       TTT     -  - #####                                                   
+M:  ####    ##6##   #####            ,                ,,,,a####          ######                                   
+M:  ###9,,,  -,  -  #####            ,               -,   #####          ######                                   
+M:  ####- ,,,,,,,,,,5####            , -           -  ,- #######         ######                                   
+M:  ####    , -   , #####           ,,,             ,,,  ##-  ##         ###f##                                   
+M:       ###4###- , #####         ,,,,,,,           ,                       ,                                     
+M:       #######  ,              ,,#####,,         -,                      -,   #####                             
+M:       #######  ,              ,#######,          ,                      ,,,,,#####                             
+M:       ###p###- ,             ,,#######,,       - ,                     ,,    #####                             
+M:     -    ,,,,,,,,,,,,,,,,,,,,,,#######,,,,,,,,   ,            -  - -  ,,      ####                             
+M:     ,,,,,,   , ,,            ,,#######,, -   ,,,,,,,,,,,,,,,,,,,,,,,,,, -     ####                             
+M: ####,          ,,             ,#######,-              ,    ,     --   ,, -                                     
+M: ####i## -     ,,,             ,,##7##,,               ,    ,           ,,                             -        
+M: #######   , ,,,,             - ,,,,,,,             ###1##- ,            ,,                            -----   -
+M: #######-   ,,,                   ,,,  ,            ######  ,    #####    ,,,                         --###--,- 
+M:            ,,                    -,    ,   --    #######1,,,--  #####      ,,,         -            --#####--  
+M:            ,,          ####    -  ,     ,,,,,,   ########  ,,,,,3####        ,,,,,,,,,,,,,,,,,,     -#######-  
+M:            ,,          ###8,,,,,,,,      ###h##  ########  ,- - #####                  ,      ,,,,,,,w######-  
+M:        #  ,,,  #       ####-      ,      ######  ######    ,    #####                  ,    ,,      -#######-- 
+M:       #####0#####                ,       ######  ######  ##2##                         ,            --#####--- 
+M:        #########                ,                        #####                         ,           - --###--   
+M:        #########             ,,,                         #####                      -- , --           ----- -  
+M:        #########            ,                            #####                     -#--,--#-             ---   
+M:       ###########          ,----                         #####                    -#-##p##-#-            - - - 
+M:        #       #        ###,###--                                                 --#######--           -      
+M:                         ###,### --                                                 -#######-                   
+M:                         ###,###  -                                                --#######--                  
+M:                           #,#    -                                              - ,#-#####-#--                 
+M:                          ##,##   ----                                             --#-----#--                  
+M:                          ##t##       -                                             --- -,-------               
+M:                          #####        - ####                                                                   
+M:                          #####         -####                                                                   
+M:                                        -####                                                                   
+M:                                        -####                                                                   
+M:                                       - ####                                                                   
+M:                                                                                                                
 
 # vim: filetype=q :

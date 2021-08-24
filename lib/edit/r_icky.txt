@@ -1,0 +1,1145 @@
+# Icky: Molds, Jellies and other Icky Things (including worms ... yuk!)
+# Quylthulgs are "jelly-like", so are considered icky as well.
+
+T:m.base:Mold
+I:DISPLAY(m):POS(CORPSE|GAIN_AC)
+I:ATTR(STUPID|EMPTY_MIND)
+I:ALERT(20',Ever Vigilant):MOVE(NEVER)
+I:RESIST(POIS|CONF):IMMUNE(SLEEP|FEAR|BLIND)
+P:Stat:Str(0+3):Int(-10):Wis(-5):Dex(-2):Con(0+5):Chr(-8)
+P:Skill:Dis(20+35):Dev(18+35):Sav(31+45):Stl(9):Srh(10):Fos(2):Thn(50+100):Thb(20+10)
+P:Class:Warrior
+P:SpellStat:Con
+P:Body:Mold
+P:Weight:50
+
+T:,.base:Mushroom
+I:DISPLAY(`,`):POS(CORPSE|GAIN_AC)
+I:HP(1):AC(1)
+I:ATTR(STUPID|EMPTY_MIND)
+I:ALERT(20',Ever Vigilant):MOVE(NEVER)
+I:RESIST(POIS|CONF):IMMUNE(SLEEP|FEAR|BLIND)
+P:Stat:Str(-3+3):Int(-10):Wis(-5):Dex(2+3):Con(-2+3):Chr(-5)
+P:Skill:Dis(20+35):Dev(18+35):Sav(31+45):Stl(9):Srh(10):Fos(2):Thn(35+60):Thb(20+10)
+P:Class:Warrior
+P:SpellStat:Dex
+P:Body:Mold
+P:Life:70
+P:Weight:5
+
+T:j.jelly:Jelly
+I:DISPLAY(j):POS(GAIN_AC)
+I:AC(1)
+I:ATTR(STUPID|EMPTY_MIND)
+I:ALERT(20',Very Inattentive):MOVE(NEVER)
+I:RESIST(POIS|CONF):IMMUNE(SLEEP|FEAR|BLIND):VULN(LIGHT)
+P:Stat:Str(0+3):Int(-7):Wis(-7):Dex(-2):Con(0+5):Chr(-7)
+P:Skill:Dis(25+60):Dev(18+35):Sav(37+55):Stl(7):Srh(14):Fos(7):Thn(70+150):Thb(20+10)
+P:Class:Warrior
+P:SpellStat:Con
+P:Body:Jelly3
+P:Weight:50
+
+T:j.mobile:Jelly (Mobile)
+I:DISPLAY(j):POS(GAIN_AC)
+I:ATTR(STUPID|EMPTY_MIND|COLD_BLOOD)
+I:ALERT(120',Vigilant):MOVE(OPEN|BASH|SWIM)
+I:RESIST(ACID|POIS|CONF):IMMUNE(SLEEP|FEAR|BLIND)
+P:Copy:j.jelly
+P:Class:Warrior
+P:SpellStat:Con
+P:Body:Jelly5
+P:Weight:200
+
+########################################################################
+# Mold (m)
+N:m.grey:m.base:Grey mold
+I:LVL(1,10):RARITY(1)
+I:HP(1d2):AC(1):EXP(6):EVOLVE(m.yellow, 6)
+B:HIT(x2):HURT(1d6)
+D:A small strange growth.
+I:COLOR(Slate)
+P:Life:50
+P:Weight:20
+
+N:m.yellow:m.base:Yellow mold
+I:LVL(3,30):RARITY(1)
+I:HP(8d8):AC(10):EXP(11):EVOLVE(m.brown, 50)
+I:ALERT(Very Inattentive)
+B:HIT:HURT(1d6)
+D:It is a strange growth on the dungeon floor.
+I:COLOR(Yellow)
+P:Life:50
+
+N:m.brown:m.base:Brown mold
+I:LVL(6,40):RARITY(1)
+I:HP(15d8):AC(12):EXP(20):EVOLVE(m.green, 50)
+I:ALERT(Very Inattentive)
+B:HIT:HURT(1d5):CONFUSE
+D:A strange brown growth on the dungeon floor.
+I:COLOR(Umber)
+P:Life:70
+
+N:m.green:m.base:Green mold
+I:LVL(8,40):RARITY(2)
+I:HP(21d8):AC(14):EXP(28):EVOLVE(m.hairy, 100)
+I:ALERT(Inattentive)
+B:HIT:HURT(1d5):TERRIFY
+I:RESIST(ACID)
+D:It is a strange green growth on the dungeon floor.
+I:COLOR(Green)
+P:Life:90
+
+N:m.hairy:m.base:Hairy mold
+I:LVL(10,40):RARITY(2)
+I:HP(15d8):AC(15):EXP(32):EVOLVE(m.disenchant, 80)
+I:ALERT(Inattentive)
+B:HIT:HURT(1d3):POISON(1d3)
+D:It is a strange hairy growth on the dungeon floor.
+I:COLOR(Light Umber)
+
+N:m.disenchant:m.base:Disenchanter mold
+I:LVL(10,40):RARITY(2)
+I:HP(16d8):AC(20):EXP(40):EVOLVE(m.red, 500)
+I:LIGHT(1):ALERT(Inattentive)
+B:TOUCH:DISENCHANT(1d6)
+I:RESIST(DISENCHANT)
+S:1_IN_11 | DRAIN_MANA
+D:It is a strange glowing growth on the dungeon floor.
+I:DISPLAY(,Violet,ATTR_MULTI)
+
+N:m.red:m.base:Red mold
+I:LVL(19,40):RARITY(1)
+I:HP(17d8):AC(16):EXP(64):EVOLVE(m.death, 5000)
+I:ALERT(Inattentive)
+B:TOUCH:FIRE(4d4)
+I:RESIST(FIRE)
+D:It is a strange red growth on the dungeon floor; it seems to burn with flame.
+I:COLOR(Red)
+
+N:m.death:m.base:Death mold
+I:LVL(47):RARITY(1)
+I:SPEED(+30):HP(100d20):AC(60):EXP(1000)
+I:ALIGN(Chaotic):CAN(REVENGE):ALERT(2000')
+B:HIT(x3):HURT(3d9+30):DISENCHANT
+B:HIT:VAMP(5d5)
+I:RESIST(BASE|POIS|NETHER)
+D:It is the epitome of all that is evil ... in a mold. Its lifeless form draws
+D:power from sucking the souls of those that approach it and a nimbus of pure
+D:evil surrounds it. Luckily for you, it can't move.
+I:COLOR(Light Dark):POS(TELEPATHY)
+
+########################################################################
+# Mushroom (,)
+# 22
+N:,.blink:,.base:Blinking dot
+I:LVL(1,10):RARITY(1)
+I:EXP(3)
+B:SPORE:CONFUSE(1d6)
+S:FREQ_50 | BLINK
+D:Is it there or is it not?
+I:COLOR(Slate)
+P:Life:50
+
+N:,.shriek:,.base:Shrieker mushroom patch
+I:LVL(2,50):RARITY(1):WILD(SWAMP)
+I:EXP(3)
+S:1_IN_4 | SHRIEK
+D:Yum! These look quite tasty.
+I:COLOR(Light Red)
+P:Life:50
+
+N:,.yellow:,.base:Yellow mushroom patch
+I:LVL(2,20):RARITY(1):WILD(SWAMP)
+I:EXP(3):EVOLVE(`,.spotted`, 10)
+B:SPORE:DAM(2d5):TERRIFY
+D:Yum! It looks quite tasty.
+I:COLOR(Yellow)
+
+N:,.spotted:,.base:Spotted mushroom patch
+I:LVL(3,30):RARITY(1)
+I:EXP(4):EVOLVE(`,.purple`, 20)
+B:SPORE:POISON(2d8)
+D:Yum! It looks quite tasty.
+I:COLOR(Orange)
+
+N:,.purple:,.base:Purple mushroom patch
+I:LVL(6,40):RARITY(2)
+I:EXP(15)
+B:SPORE(x3):DAM(1d3):LOSE_CON
+D:Yum! It looks quite tasty.
+I:COLOR(Violet)
+
+N:,.clear:,.base:Clear mushroom patch
+I:LVL(10,40):RARITY(2)
+I:SPEED(+5):EXP(3)
+I:CAN(INVIS|MULTIPLY):ATTR(COLD_BLOOD)
+B:SPORE:DAM(1)
+S:MULTIPLY
+D:Yum! It looks quite tasty.
+I:DISPLAY(,White,ATTR_CLEAR)
+
+N:,.quiver:,.base:Quiver slot
+I:LVL(10,40):RARITY(2)
+I:SPEED(+10):EXP(3)
+I:CAN(MULTIPLY):ATTR(COLD_BLOOD)
+B:SPORE:CONFUSE(1)
+S:1_IN_5 | SHOOT(2d5) | MULTIPLY
+D:It looks weird.
+I:COLOR(Light Umber)
+
+N:,.slime:,.base:Slime Mold
+I:LVL(12,30):RARITY(4):WILD(SWAMP)
+I:SPEED(-5):HP(2d8):EXP(10)
+I:ALERT(Fairly Observant):MOVE(-NEVER|PUSH|SWIM)
+I:KIND(NONLIVING|ANIMAL):ALIGN(Good):CAN(REGEN|MULTIPLY):ATTR(WEIRD_MIND|COLD_BLOOD)
+B:TOUCH(x2):POISON(2d5)
+I:RESIST(TELE)
+S:1_IN_10 | SHRIEK | MIND_BLAST | MULTIPLY
+D:It is a slime colony. If you so much as DARE to touch it ...
+I:COLOR(Green)
+P:Weight:15
+
+N:,.magic:,.base:Magic mushroom patch
+I:LVL(15,50):RARITY(2)
+I:SPEED(+20):AC(10):EXP(10)
+I:LIGHT(1):ALERT(400')
+I:RESIST(TELE)
+S:1_IN_1 | BLINK | SLOW | SCARE | DARKNESS | ANTI_MAGIC | POLYMORPH
+M:2d3:MON(`,.magic`)
+D:Yum! It looks quite tasty. It seems to glow with an unusual light.
+I:COLOR(Light Blue)
+
+# XXX Not a mushroom
+N:,.shambling:Shambling mound
+I:LVL(18):RARITY(2):WILD(SWAMP)
+I:HP(20d6):AC(16):EXP(75)
+I:ALIGN(Neutral Evil):ATTR(STUPID|EMPTY_MIND):ALERT(200',Unseeing):MOVE(OPEN|BASH)
+B:HIT(x2):HURT(1d7)
+I:RESIST(CONF):IMMUNE(SLEEP|FEAR|BLIND)
+O:90%:OBJ(GOLD)
+S:1_IN_4 | SHRIEK
+D:A pile of rotting vegetation that slides towards you with a disgusting
+D:stench, waking all it nears.
+I:DISPLAY(`,`,Green)
+P:Copy:j.jelly
+
+N:,.chaos:,.base:Chaos mushroom
+I:LVL(23,70):RARITY(5)
+I:SPEED(+10):HP(16d6):AC(4):EXP(360)
+I:ALERT(100',Very Observant)
+B:SPORE:POISON(3d4)
+B:SPORE:CONFUSE(3d4)
+B:SPORE:DAM(3d4):BLIND
+I:RESIST(DISENCHANT)
+S:1_IN_11 | BR_NUKE | BR_POISON
+D:It is a massive mushroom that seems to have a huge mouth. The air is thick
+D:with miasma, and you notice to your horror that the fungus is sprouting everywhere!
+I:COLOR(Green)
+P:Weight:20
+
+# XXX ... Not a mushroom ... probably a ',' from the description.
+N:,.flamer:Flamer of Tzeentch
+I:LVL(27,80):RARITY(2)
+I:HP(60d15):AC(70):EXP(500)
+I:KIND(DEMON|NONLIVING):ALIGN(Evil)
+I:ALERT(100',Fairly Unseeing):MOVE(BASH)
+B:ENGULF(x2):FIRE(3d6)
+A:FIRE(2d2)
+I:RESIST(FIRE|POIS|CONF|PLASMA):IMMUNE(SLEEP)
+S:1_IN_3 | BO_FIRE | BA_FIRE
+D:It looks like an inverted mushroom, with two flexible arms.
+I:DISPLAY(`,`,Light Red)
+P:Copy:m.base
+P:Body:,.flamer
+P:Weight:150
+
+# XXX Not a mushroom ... XXX Possessor Info?? 
+N:,.corpser:Corpser
+I:LVL(28,70):RARITY(2):WILD(GRASS)
+I:SPEED(+2):HP(30d15):AC(75):EXP(150)
+I:ALIGN(Evil):CAN(INVIS)
+I:ALERT(200',Ever Vigilant):MOVE(OPEN|BASH|NEVER)
+B:CRUSH(x4):HURT(1d8+4)
+I:RESIST(CONF):IMMUNE(SLEEP|BLIND)
+D:A creature who lives underground and eats surface dwellers whom it catches
+D:with its poisonous tentacle, which is the only part of the creature that
+D:is ever seen. Perhaps it is better not to see the part which remains
+D:underground...
+I:DISPLAY(`,`,Green):POS(DISABLED)
+P:Copy:m.base
+P:Weight:100
+
+N:,.memory:,.base:Memory moss
+I:LVL(32):RARITY(3)
+I:EXP(150)
+I:ALERT(300',Observant)
+B:HIT(x2):CONFUSE(1d4)
+S:1_IN_6 | AMNESIA
+D:A mass of green vegetation. You don't remember seeing anything like it before.
+I:COLOR(Blue)
+
+########################################################################
+# Ooze (j)
+T:j.ooze:Ooze
+I:DISPLAY(j):POS(GAIN_AC)
+I:ATTR(STUPID|EMPTY_MIND):ALERT(80',Inattentive):MOVE(SWIM)
+I:RESIST(ACID|POIS|CONF):IMMUNE(SLEEP|FEAR|BLIND)
+P:Copy:j.jelly
+P:Weight:10
+
+N:j.ooze.green:j.ooze:Green ooze
+I:LVL(3,30):RARITY(2)
+I:SPEED(+10):HP(3d4):AC(16):EXP(5):EVOLVE(j.ooze.blue, 15)
+I:MOVE(RAND_75)
+B:CRAWL:ACID(1d7)
+O:90%:OBJ(*$)
+D:It's green and it's oozing.
+I:COLOR(Green)
+
+N:j.ooze.blue:j.ooze:Blue ooze
+I:LVL(5,40):RARITY(1)
+I:HP(3d4):AC(16):EXP(7)
+I:MOVE(RAND_75)
+B:CRAWL:COLD(1d8)
+I:RESIST(COLD)
+O:60%:OBJ(*$)
+D:It's blue and it's oozing.
+I:COLOR(Blue)
+
+N:j.ooze.black:j.ooze:Black ooze
+I:LVL(23,50):RARITY(1)
+I:SPEED(-10):HP(6d8):AC(6):EXP(7):EVOLVE(j.spawn, 1000)
+I:CAN(MULTIPLY):ALERT(100',Vigilant):MOVE(RAND_50|PICKUP|TRAMPLE)
+B:TOUCH:ACID(2d6)
+S:1_IN_11 | DRAIN_MANA | MULTIPLY
+O:60%:OBJ(*$)
+D:It is a strangely moving puddle.
+I:COLOR(Light Dark)
+
+########################################################################
+# Puyo (j)
+T:j.puyo:Puyo
+I:DISPLAY(j):POS(GAIN_AC)
+I:SPEED(+10):HP(3):AC(20)
+I:CAN(MULTIPLY):ATTR(STUPID|EMPTY_MIND)
+I:ALERT(150',Unseeing):MOVE(NEVER)
+I:RESIST(BASE|POIS|CONF):IMMUNE(SLEEP|FEAR|BLIND)
+P:Copy:j.jelly
+P:Body:Jelly5
+P:Weight:50
+
+N:j.puyo.red:j.puyo:Red puyo
+I:LVL(25,50):RARITY(8):EXP(50)
+B:EXPLODE:FIRE(7d2)
+I:RESIST(-FIRE)
+S:MULTIPLY
+D:A mysterious red jelly thing, quivering with strange anticipation.
+I:COLOR(Red)
+
+N:j.puyo.blue:j.puyo:Blue puyo
+I:LVL(25,60):RARITY(8):EXP(50)
+B:EXPLODE:COLD(7d2)
+I:RESIST(-COLD)
+S:MULTIPLY
+D:A mysterious blue jelly thing, quivering with strange anticipation.
+I:COLOR(Blue)
+
+N:j.puyo.yellow:j.puyo:Yellow puyo
+I:LVL(25,60):RARITY(8):EXP(50)
+B:EXPLODE:ELEC(7d2)
+I:RESIST(-ELEC)
+S:MULTIPLY
+D:A mysterious yellow jelly thing, quivering with strange anticipation.
+I:COLOR(Yellow)
+
+N:j.puyo.green:j.puyo:Green puyo
+I:LVL(25,60):RARITY(8):EXP(50)
+B:EXPLODE:ACID(7d2)
+I:RESIST(-ACID)
+S:MULTIPLY
+D:A mysterious green jelly thing, quivering with strange anticipation.
+I:COLOR(Green)
+
+########################################################################
+# Jellies Proper (j)
+N:j.white:j.jelly:White jelly
+I:LVL(2,20):RARITY(1)
+I:HP(8d8):EXP(12):EVOLVE(j.yellow, 6)
+B:TOUCH:DRAIN_MANA(1d3)
+D:It is a large pile of white flesh.
+I:COLOR(White)
+
+N:j.yellow:j.jelly:Yellow jelly
+I:LVL(3,30):RARITY(1)
+I:HP(10d8):EXP(13):EVOLVE(j.silver, 20)
+B:TOUCH:POISON(1d7)
+S:1_IN_15 | DRAIN_MANA
+D:It is a large pile of yellow flesh.
+I:COLOR(Yellow)
+
+N:j.silver:j.jelly:Silver jelly
+I:LVL(3,30):RARITY(2)
+I:HP(10d8):EXP(14):EVOLVE(j.blue, 25)
+I:DARK(0+1)
+B:TOUCH(x2):DAM(1d6):EAT_LIGHT
+S:1_IN_15 | DRAIN_MANA
+D:It is a large pile of silver flesh that sucks all light from its surroundings.
+I:COLOR(Light White)
+
+N:j.blue:j.jelly:Blue jelly
+I:LVL(4,40):RARITY(1)
+I:HP(12d8):EXP(14):EVOLVE(j.green, 30)
+I:ATTR(COLD_BLOOD)
+B:TOUCH:COLD(2d5)
+I:RESIST(COLD)
+D:It is a large pile of pulsing blue flesh.
+I:COLOR(Blue)
+
+N:j.green:j.jelly:Green jelly
+I:LVL(5,40):RARITY(1)
+I:HP(22d8):EXP(18):EVOLVE(j.red, 40)
+B:TOUCH:ACID(1d4)
+I:RESIST(ACID)
+D:It is a large pile of pulsing green flesh.
+I:COLOR(Green)
+
+N:j.red:j.jelly:Red jelly
+I:LVL(7,40):RARITY(1)
+I:HP(26d8):EXP(26):EVOLVE(j.grape, 150)
+B:TOUCH:HURT(1d6):LOSE_STR(50%)
+D:It is a large pulsating mound of red flesh.
+I:COLOR(Light Red)
+
+N:j.undead:j.jelly:Undead mass
+I:LVL(10,40):RARITY(2)
+I:HP(8d8):AC(12):EXP(33)
+I:KIND(UNDEAD):ALIGN(Evil):CAN(MULTIPLY):ALERT(700',Observant)
+B:TOUCH:DISEASE(1d6)
+B:TOUCH:HURT(1d6):LOSE_CON(50%)
+I:RESIST(COLD):IMMUNE(POIS|NETHER)
+S:MULTIPLY
+D:A sickening mound of decaying flesh, bones, hands and so on. It seems to be growing.
+I:COLOR(Umber):POS(SEE_INVIS|SUST_CON)
+
+N:j.grape:j.jelly:Grape jelly
+I:LVL(12,40):RARITY(3)
+I:HP(52d8):EXP(60):EVOLVE(j.ochre, 200)
+I:LIGHT(1)
+B:TOUCH:DRAIN_EXP(10d6)
+S:1_IN_11 | DRAIN_MANA
+D:It is a pulsing mound of glowing flesh.
+I:COLOR(Violet):POS(HOLD_LIFE)
+P:Body:Jelly5
+
+N:j.spotted:j.jelly:Spotted jelly
+I:LVL(12,50):RARITY(3)
+I:SPEED(+5):HP(13d8):AC(18):EXP(33):EVOLVE(j.ochre, 200)
+I:ATTR(COLD_BLOOD):ALERT(120',Vigilant)
+B:TOUCH(x3):ACID(2d6)
+I:RESIST(ACID)
+D:A jelly thing.
+I:COLOR(Slate)
+P:Body:Jelly5
+
+N:j.mouther:j.jelly:Gibbering mouther
+I:LVL(14,50):RARITY(4)
+I:HP(8d6):AC(20):EXP(20)
+I:ALIGN(Neutral Evil):CAN(MULTIPLY):ALERT(150',Fairly Unseeing)
+B:CRAWL:POISON(1d4)
+I:RESIST(LIGHT):VULN(-LIGHT)
+S:1_IN_7 | SCARE | CONFUSE | BR_LIGHT | DETECT_MONSTERS | MULTIPLY
+D:A chaotic mass of pulsating flesh, mouths and eyes.
+I:COLOR(Orange)
+
+########################################################################
+# Jellies Mobile ... Suddenly, jellies can move!!
+N:j.ochre:j.mobile:Ochre jelly
+I:LVL(13,50):RARITY(3)
+I:SPEED(+10):HP(13d8):AC(18):EXP(40):EVOLVE(j.cube, 400)
+I:MOVE(PICKUP)
+B:TOUCH(x4):ACID(2d6)
+D:A fast moving highly acidic jelly thing, that is eating away the floor it rests on.
+I:COLOR(Yellow)
+P:Speed:+10
+
+N:j.cube:j.mobile:Gelatinous cube
+I:LVL(16,50):RARITY(4)
+I:HP(360):AC(18):EXP(80):EVOLVE(j.cytoplasm, 800)
+I:MOVE(PICKUP)
+B:TOUCH(x3):ACID(1d10)
+I:RESIST(ELEC|FIRE|COLD)
+S:DETECT_OBJECTS
+O:2d2+2:OBJ(*$)
+D:It is a strange, vast gelatinous structure that assumes cubic proportions
+D:as it lines all four walls of the corridors it patrols. Through its
+D:transparent jelly structure you can see treasures it has engulfed, and a
+D:few corpses as well.
+I:COLOR(Light Blue)
+
+N:j.black:j.mobile:Black
+I:LVL(25,60):RARITY(3)
+I:SPEED(+1):HP(14d14):AC(65):EXP(50)
+I:ALIGN(Evil):DARK(1):ALERT(Fairly Unseeing):MOVE(RAND_25)
+B:ENGULF(x2):VAMP(2d6)
+I:RESIST(COLD|NETHER):IMMUNE(POIS)
+M:3d3:MON(j.black)
+D:The eldritch blood of Yibb-Tstll is know only as "the Black": it is an amorphous
+D:substance, who will suck your life and deliver it to Yibb-Tstll.
+I:COLOR(Light Dark)
+
+N:j.cytoplasm:j.mobile:Acidic cytoplasm
+I:LVL(35,70):RARITY(5)
+I:SPEED(+10):HP(400):AC(18):EXP(36):EVOLVE(j.pudding, 2000)
+I:MOVE(PICKUP)
+B:TOUCH(x4):ACID(1d10)
+I:RESIST(ELEC|FIRE|COLD):IMMUNE(ACID)
+O:2d2+2:OBJ(*$)
+D:A disgusting animated blob of destruction. Flee its gruesome hunger!
+I:COLOR(Light Green)
+P:Body:Jelly6
+P:Speed:+10
+
+N:j.pudding:j.mobile:Black pudding
+I:LVL(37,70):RARITY(5)
+I:HP(400):AC(18):EXP(36)
+I:MOVE(PICKUP)
+B:TOUCH(x4):ACID(1d10)
+I:RESIST(ELEC|FIRE|COLD):IMMUNE(ACID)
+O:1d3+1:OBJ(*$)
+M:50%:1d3:MON(j.pudding)
+M:50%:2d3:MON(j.pudding, ANCESTOR)
+D:A lump of rotting black flesh that slurrrrrrrps across the dungeon floor.
+I:COLOR(Light Dark)
+P:Body:Jelly6
+P:Weight:400
+
+N:j.spawn:j.mobile:Spawn of Ubbo-Sathla
+I:LVL(40):RARITY(5)
+I:SPEED(+5):HP(30d10):AC(40):EXP(150)
+I:ALIGN(Evil):CAN(MULTIPLY)
+I:ALERT(1000',Overlooks):MOVE(RAND_25|TRAMPLE)
+B:CRUSH(x2):ACID(8d4)
+A:ELEC(2d3)
+I:RESIST(ELEC|FIRE|NETHER|NEXUS)
+S:MULTIPLY
+D:Weird, jelly like creatures. No two look the same.
+I:DISPLAY(,Violet,ATTR_MULTI|ATTR_ANY)
+P:Body:Jelly6
+
+N:j.Ubbo-Sathla:j.mobile:Ubbo-Sathla, the Unbegotten Source
+I:LVL(41):RARITY(3):ALLOC(UNIQUE|ESCORT)
+I:SPEED(+10):HP(2000):AC(80):EXP(13500)
+I:KIND(HORROR):ALIGN(Evil):CAN(SPEAK|REGEN)
+I:ALERT(900',Fairly Observant):MOVE(TRAMPLE)
+B:CRUSH(x2):HURT(3d5):ACID(2d5)
+B:HIT(x2):HURT(3d5):POISON(2d5)
+I:RESIST(COLD|NETHER):IMMUNE(STUN):VULN(FIRE)
+O:4d2:OBJ(*, GOOD)
+O:5%:ART(`(.Ubbo-Sathla`)
+M:3d7:MON(j.spawn)
+D:"There, in the gray beginning of Earth, the formless mass that was
+D:Ubbo-Sathla reposed amid the slime and the vapors. Headless,
+D:without organs or members..."
+I:COLOR(Light White):POS(SEE_INVIS|HOLD_LIFE|SUST_STR|SUST_CON)
+P:Body:Jelly7
+
+N:j.shoggoth:j.mobile:Shoggoth
+I:LVL(44):RARITY(2)
+I:SPEED(+30):HP(1000):AC(80):EXP(2500)
+I:KIND(DEMON|NONLIVING|HORROR):ALIGN(Evil):CAN(SPEAK|REGEN)
+I:ALERT(1000',Fairly Unseeing):MOVE(DESTROY|TRAMPLE)
+B:CRUSH(x3):HURT(2d6):ACID(3d6)
+B:CRUSH:HURT(2d6+10):LOSE_CHR
+I:RESIST(ELEC|FIRE|COLD|DARK|NETHER|PLASMA|TELE):IMMUNE(ACID):VULN(LIGHT)
+D:"The nightmare, plastic column of fetid, black iridescence oozed
+D:tightly onward... A shapeless congerie of protoplasmic bubbles,
+D:faintly self-luminous and with myriads of temporary eyes forming
+D:and unforming as pustules of greenish light all over the
+D:tunnel-filling front that bore down upon us, crushing the frantic
+D:penguins and slithering over glistening floor that it and its
+D:kind had swept so evilly free of all litter. Still came that eldritch
+D:mocking cry -- 'Tekeli-li! Tekeli-li!'"
+I:COLOR(Light Dark):POS(SEE_INVIS|HOLD_LIFE|SUST_STR|SUST_CON)
+P:Body:Jelly7
+P:Speed:+10
+
+N:j.Eihort:j.mobile:Eihort, the Thing in the Labyrinth
+I:LVL(53):RARITY(3):ALLOC(UNIQUE|ESCORT)
+I:SPEED(+10):HP(3300):AC(90):EXP(15000)
+I:KIND(HORROR):ALIGN(Evil):CAN(SPEAK|REGEN):ATTR(-STUPID|-EMPTY_MIND|SMART)
+I:ALERT(500',Fairly Observant):MOVE(PUSH)
+B:BITE:HURT(8):PARALYZE
+B:CRUSH(x3):HURT(8d10+10)
+I:RESIST(FIRE|COLD):IMMUNE(TELE):VULN(LIGHT)
+O:7d2:OBJ(*, GOOD)
+S:1_IN_4 | S_UNDEAD | S_DEMON | S_MONSTER(1) | BLINK | BA_ACID | AMNESIA
+M:3d7:MON(j)
+D:"Then came pale movement in the well, and something clambered
+D:up from the dark, a bloated blanched oval supported on myriad
+D:fleshless legs. Eyes formed in the gelatinous oval and stared
+D:at him."
+I:COLOR(Light Red):POS(SEE_INVIS|HOLD_LIFE|SUST_STR|SUST_CON)
+P:Body:Jelly7
+P:Weight:300
+
+N:j.Nyogtha:j.mobile:Nyogtha, the Thing that Should not Be
+I:LVL(56):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+20):HP(5445):AC(120):EXP(20000)
+I:KIND(HORROR|NONLIVING):ALIGN(Evil):CAN(SPEAK|REGEN):ATTR(-STUPID|-EMPTY_MIND|SMART)
+I:ALERT(200',Fairly Unseeing):MOVE(DESTROY|TRAMPLE)
+B:CRUSH(x3):ACID(10d6)
+B:CRUSH:HURT(6d16+85)
+I:RESIST(ELEC|FIRE|COLD|DARK|NETHER|PLASMA):IMMUNE(ACID|TELE):VULN(LIGHT)
+O:8d2:OBJ(*, GOOD)
+S:1_IN_5 | BRAIN_SMASH | MIND_BLAST | HASTE | TELE_SELF |
+S:S_DEMON | S_UNDEAD | S_HI_UNDEAD | S_KIN | BR_DARK | BR_NUKE | BR_ACID | BR_POISON
+D:"...a little finger of blackness crept out from beneath its edge
+D:a great wave of iridescent blackness, neither liquid nor solid,
+D:a frightful gelatinous mass."
+I:COLOR(Light Dark):POS(SEE_INVIS|HOLD_LIFE|SUST_STR|SUST_CON)
+P:Body:Jelly7
+P:Speed:+10
+
+N:j.Yog-Sothoth:j.mobile:Yog-Sothoth, the All-in-One
+I:LVL(90):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+20):HP(6534):AC(100):EXP(50000)
+I:KIND(HORROR|NONLIVING):ALIGN(Evil):CAN(SPEAK):ATTR(-STUPID|-EMPTY_MIND|SMART|COLD_BLOOD)
+I:ALERT(1000',Fairly Unseeing):MOVE(PASSWALL|FLY)
+B:TOUCH:HURT(20d5+60)
+B:TOUCH(x2):HURT(16d2):LOSE_CON
+A:ELEC(4d6):FIRE(4d6):COLD(4d6)
+I:RESIST(ELEC|FIRE|COLD|NETHER|TIME):IMMUNE(TELE|SLOW)
+S:1_IN_3 | BA_CHAOS(10d10+180) | PSY_SPEAR(1d180+150) | MANA_STORM | BA_LIGHT
+S:BO_MANA | BRAIN_SMASH | S_MONSTER | S_CYBER | DISPEL_MAGIC | ANTI_MAGIC |
+S:S_HI_DEMON | S_HI_UNDEAD | S_HOUND | BR_MANA | BR_DISINTEGRATE |
+O:4d2:OBJ(*, GOOD)
+D:"Great globes of light massing towards the opening... the breaking
+D:apart of the nearest globes, and the protoplasmic flesh that
+D:flowed blackly outward to join together and form that eldritch,
+D:hideous horror from outer space... whose mask was a congeries
+D:of iridescent globes... who froths as primal slime in nuclear
+D:chaos forever beyond the nethermost outposts of space and time!"
+I:DISPLAY(,Violet,ATTR_MULTI|ATTR_ANY):POS(SEE_INVIS|HOLD_LIFE|SUST_STR|SUST_CON)
+P:Body:Jelly7
+P:Speed:+15
+P:Weight:1000
+
+########################################################################
+# Jellies Misc
+N:j.fish:Portuguese man-o-war
+I:LVL(9,40):RARITY(2):WILD(SHORE|OCEAN)
+I:HP(10d10):AC(30):EXP(25)
+I:KIND(AQUATIC|ANIMAL):ALERT(200',Inattentive):MOVE(SWIM)
+B:TOUCH(x2):HURT(1d7):PARALYZE(50%)
+I:RESIST(POIS|WATER)
+D:A strange water creature, whose touch can be deadly.
+I:DISPLAY(j,Violet):POS(GAIN_AC)
+P:Copy:j.jelly
+
+########################################################################
+# Icky (i)
+T:i.base:Icky Thing
+I:DISPLAY(i):POS(CORPSE)
+I:ATTR(EMPTY_MIND)
+I:ALERT(120', Fairly Observant):MOVE(SWIM)
+P:Stat:Str(-3+3):Int(-5):Wis(-5):Dex(0+3):Con(-1+2):Chr(-5)
+P:Skill:Dis(20+25):Dev(18+35):Sav(20+25):Stl(4):Srh(10):Fos(5):Thn(30+50):Thb(20+25)
+P:Class:Rogue
+P:SpellStat:Dex
+P:Life:50
+P:Body:Icky
+P:Weight:25
+
+N:i.white:i.base:White icky thing
+I:LVL(1,10):RARITY(1)
+I:HP(2d5):AC(7):EXP(3):EVOLVE(i.blubber, 7)
+I:MOVE(RAND_75)
+B:TOUCH:HURT(1d5)
+D:It is a smallish, slimy, icky creature.
+I:COLOR(White)
+
+N:i.clear:i.base:Clear icky thing
+I:LVL(2,10):RARITY(1)
+I:HP(3d5):AC(6):EXP(3):EVOLVE(i.blubber, 7)
+I:CAN(INVIS):MOVE(RAND_75)
+B:TOUCH:HURT(1d5)
+D:It is a smallish, slimy, icky, blobby creature.
+I:DISPLAY(,Light Blue,ATTR_CLEAR):POS(SEE_INVIS)
+
+N:i.blubber:i.base:Blubbering icky thing
+I:LVL(2,20):RARITY(1)
+I:HP(5d6):AC(4):EXP(8):EVOLVE(i.grey, 12)
+I:ALERT(140'):MOVE(RAND_50|PICKUP|TRAMPLE)
+B:CRAWL:POISON(1d10)
+B:CRAWL:EAT_FOOD
+B:DROOL(x2)
+A:POISON(1)
+I:RESIST(POIS)
+O:80%:OBJ(*$)
+D:It is a smallish, slimy, icky, hungry creature.
+I:COLOR(Green)
+P:Life:60
+P:Weight:50
+
+N:i.grey:i.base:Grey icky thing
+I:LVL(5,40):RARITY(1)
+I:HP(4d8):AC(12):EXP(10):EVOLVE(i.green, 30)
+I:ALERT(140'):MOVE(RAND_50)
+B:TOUCH:HURT(1d4+2)
+D:It is a smallish, slimy, icky, nasty creature.
+I:COLOR(Slate)
+
+N:i.green:i.base:Green icky thing
+I:LVL(7,40):RARITY(2)
+I:HP(5d8):AC(12):EXP(18):EVOLVE(i.bloodshot, 50)
+I:LIGHT(2):ALERT(140',Fairly Unseeing):MOVE(RAND_50)
+B:TOUCH:ACID(2d6)
+I:RESIST(ACID)
+D:It is a smallish, slimy, icky, acidic creature.
+I:COLOR(Light Green)
+
+N:i.bloodshot:i.base:Bloodshot icky thing
+I:LVL(9,40):RARITY(3)
+I:HP(7d8):AC(18):EXP(24)
+I:ALERT(140',Fairly Unseeing):MOVE(RAND_50)
+B:TOUCH:HURT(1d4)
+B:CRAWL:ACID(2d5)
+I:RESIST(POIS)
+S:1_IN_11 | DRAIN_MANA
+D:It is a strange, slimy, icky creature, the pinnacle of icky evolution.
+I:COLOR(Red)
+P:Weight:50
+
+N:i.blue:i.base:Blue icky thing
+I:LVL(14,50):RARITY(4)
+I:SPEED(-10):HP(10d6):AC(20):EXP(20)
+I:ALIGN(Neutral Evil):CAN(MULTIPLY)
+I:ALERT(150',Fairly Unseeing):MOVE(RAND_50|OPEN|BASH)
+B:CRAWL:POISON(1d4)
+B:CRAWL:EAT_FOOD
+B:HIT(x2):HURT(1d4)
+I:RESIST(POIS)
+S:1_IN_8 | BLIND | CONFUSE | SCARE | MULTIPLY
+D:It is a strange, slimy, icky creature, with rudimentary intelligence,
+D:but evil cunning. It hungers for food, and you look tasty.
+I:COLOR(Blue)
+
+N:i.Queen:i.base:The Icky Queen
+I:LVL(20):RARITY(5):ALLOC(UNIQUE|ESCORT)
+I:SPEED(+10):HP(600):AC(60):EXP(400)
+I:ALIGN(Evil):CAN(SPEAK):ATTR(FEMALE|SMART|WEIRD_MIND|-EMPTY_MIND)
+I:ALERT(200'):MOVE(OPEN|BASH|PICKUP)
+B:CRAWL:POISON(3d4)
+B:CRAWL:HURT(3d4):EAT_FOOD
+B:TOUCH:ACID(3d5)
+B:HIT:HURT(3d5)
+A:POISON(2d3):ACID(2d3)
+I:RESIST(BASE|POIS)
+S:1_IN_5 | DRAIN_MANA | BLIND | CONFUSE | SCARE | S_KIN
+O:1d2:OBJ(*, GOOD)
+M:3d12+12:MON(i)
+D:And you thought her offspring were icky!
+I:COLOR(Violet)
+P:Life:90
+P:Weight:70
+
+########################################################################
+# Worm masses
+T:w.mass:Worm mass
+I:DISPLAY(w):POS(GAIN_AC)
+I:KIND(ANIMAL):CAN(MULTIPLY):ATTR(STUPID|WEIRD_MIND)
+I:SPEED(-10):ALERT(70', Fairly Observant):MOVE(SWIM)
+I:IMMUNE(FEAR|BLIND):VULN(LIGHT)
+P:Stat:Str(-5+3):Int(-5):Wis(-5):Dex(0+3):Con(-3+2):Chr(-5)
+P:Skill:Dis(20+25):Dev(18+35):Sav(20+25):Stl(4):Srh(10):Fos(5):Thn(30+50):Thb(20+25)
+P:Class:Warrior
+P:Life:50
+P:Body:Worm
+P:Weight:10
+
+N:w.white:w.mass:White worm mass
+I:LVL(1,10):RARITY(1)
+I:HP(4d4):AC(1):EXP(4):EVOLVE(w.green, 5)
+I:MOVE(RAND_75)
+B:CRAWL:POISON(1d5)
+I:RESIST(POIS)
+S:MULTIPLY
+D:It is a large slimy mass of worms.
+I:COLOR(White)
+
+N:w.green:w.mass:Green worm mass
+I:LVL(2,20):RARITY(1)
+I:HP(6d4):AC(3):EXP(5):EVOLVE(w.yellow, 8)
+I:MOVE(RAND_75)
+B:CRAWL:ACID(1d6)
+I:RESIST(ACID)
+S:MULTIPLY
+D:It is a large slimy mass of worms.
+I:COLOR(Green)
+
+N:w.yellow:w.mass:Yellow worm mass
+I:LVL(3,30):RARITY(2)
+I:HP(4d8):AC(4):EXP(5):EVOLVE(w.blue, 10)
+I:MOVE(RAND_75)
+B:CRAWL:HURT(1d5):LOSE_DEX
+S:MULTIPLY
+D:It is a large slimy mass of worms.
+I:COLOR(Yellow)
+
+N:w.clear:w.mass:Clear worm mass
+I:LVL(3,30):RARITY(2)
+I:HP(4d4):AC(1):EXP(5)
+I:CAN(INVIS):MOVE(RAND_75)
+B:CRAWL:POISON(1d4)
+I:RESIST(POIS)
+S:MULTIPLY
+D:It is a disgusting mass of poisonous worms.
+I:DISPLAY(,Light Blue,ATTR_CLEAR)
+
+N:w.blue:w.mass:Blue worm mass
+I:LVL(4,40):RARITY(1)
+I:HP(5d8):AC(12):EXP(5):EVOLVE(w.red, 20)
+I:ATTR(COLD_BLOOD):ALERT(70'):MOVE(RAND_75)
+B:CRAWL:COLD(1d7)
+I:RESIST(COLD)
+S:MULTIPLY
+D:It is a large slimy mass of worms.
+I:COLOR(Blue)
+
+N:w.red:w.mass:Red worm mass
+I:LVL(5,40):RARITY(1)
+I:HP(5d8):AC(12):EXP(6):EVOLVE(w.unstable, 80)
+I:ALERT(70'):MOVE(RAND_75)
+B:CRAWL:FIRE(1d9)
+I:RESIST(FIRE)
+S:MULTIPLY
+D:It is a large slimy mass of worms.
+I:COLOR(Red)
+
+N:w.nether:w.mass:Nether worm mass
+I:LVL(12,40):RARITY(4)
+I:HP(5d8):AC(15):EXP(6)
+I:ALERT(100',Very Observant):MOVE(RAND_75)
+B:TOUCH:DRAIN_EXP(10d6)
+I:RESIST(NETHER)
+S:MULTIPLY
+D:It is a disgusting mass of dark worms, eating each other, the floor, the air, you ...
+I:COLOR(Light Dark)
+
+N:w.abyss:w.mass:Abyss worm mass
+I:LVL(12,40):RARITY(4)
+I:HP(5d8):AC(15):EXP(7)
+I:ALIGN(Neutral Evil):CAN(INVIS):ATTR(COLD_BLOOD)
+I:ALERT(100',Very Observant):MOVE(RAND_75|TUNNEL)
+B:CRAWL:DRAIN_EXP(10d6)
+I:RESIST(DARK)
+S:MULTIPLY
+D:Even more disgusting dark worms, their essence that of unbeing.
+I:COLOR(Light Dark)
+
+N:w.unstable:w.mass:Unstable worm mass
+I:LVL(15,50):RARITY(4)
+I:HP(3d10):AC(10):EXP(7)
+I:ALERT(100',Observant):MOVE(RAND_75)
+B:EXPLODE:FIRE(3d5)
+S:MULTIPLY
+D:A seething mass of thick, glowing worms.
+I:COLOR(Orange)
+
+N:w.disenchant:w.mass:Disenchanter worm mass
+I:LVL(40,70):RARITY(3)
+I:HP(10d8):AC(5):EXP(30)
+I:LIGHT(1):MOVE(RAND_50)
+B:CRAWL:DISENCHANT(1d4)
+I:RESIST(DISENCHANT)
+S:MULTIPLY
+D:It is a strange mass of squirming worms.
+D:Magical energy crackles around its disgusting form.
+I:DISPLAY(,Violet,ATTR_MULTI)
+
+########################################################################
+# Other worms ... no templates here
+N:w.leech:Giant leech
+I:LVL(5,40):RARITY(1)
+I:SPEED(+10):HP(6d8):AC(20):EXP(20)
+I:KIND(AQUATIC|ANIMAL):ATTR(WEIRD_MIND)
+I:ALERT(100',Unseeing):MOVE(RAND_25|SWIM)
+B:BITE(x2):HURT(4)
+I:RESIST(WATER)
+D:Yech! The disgusting thing only wants your blood!
+I:DISPLAY(w,Violet):POS(GAIN_AC)
+P:Copy:Snotling:Warrior
+P:Life:60
+P:Body:Scrawny
+P:Weight:25
+
+N:w.slug:Giant slug
+I:LVL(6,40):RARITY(1):WILD(ALL)
+I:SPEED(-10):HP(12d9):AC(25):EXP(25):EVOLVE(w.wereworm, 800)
+I:KIND(ANIMAL):ATTR(EMPTY_MIND)
+I:ALERT(100',Fairly Unseeing):MOVE(SWIM|DESTROY|TRAMPLE)
+B:BITE(x2):ACID(2d5)
+S:FREQ_5 | BR_ACID
+D:It is slowly making its way towards you, eating everything in its path...
+I:DISPLAY(w,Light Umber):POS(CORPSE|GAIN_AC)
+P:Copy:Human:Wild-Talent
+P:Body:Scrawny
+P:Weight:50
+
+N:w.trench:Trench Wurm
+I:LVL(15,50):RARITY(1)
+I:SPEED(+5):HP(300):AC(50):EXP(100)
+I:KIND(ANIMAL):ALIGN(Neutral Evil):ATTR(RIDING|COLD_BLOOD)
+I:ALERT(200',Very Inattentive):MOVE(BASH|TUNNEL)
+B:BITE(x3):HURT(2d2+2)
+I:RESIST(ACID|ELEC|FIRE|DARK|NETHER)
+D:Their arrival marks the end of Yawgmoth's subtlety.
+I:DISPLAY(w,Light Dark):POS(CORPSE|GAIN_AC)
+P:Copy:Demigod:Warrior
+P:Body:Giant Worm
+P:Weight:200
+
+N:w.wereworm:Wereworm
+I:LVL(25,60):RARITY(3):WILD(SWAMP)
+I:HP(100d11):AC(70):EXP(300)
+I:KIND(ANIMAL):ALIGN(Evil)
+I:ALERT(150',Fairly Unseeing):MOVE(BASH|SWIM)
+B:GAZE:DRAIN_EXP(20d6)
+B:CRAWL:ACID(2d4)
+B:BITE:HURT(1d8+2)
+B:BITE:HURT(1d6):POISON(1d6)
+I:RESIST(ACID)
+D:A huge wormlike shape dripping acid, twisted by evil sorcery into a foul
+D:monster that breeds on death.
+I:DISPLAY(w,Umber):POS(CORPSE|GAIN_AC)
+P:Copy:Human:Warrior
+P:Body:Giant Worm
+P:Weight:100
+
+N:w.purple:Giant purple worm
+I:LVL(29,70):RARITY(4)
+I:HP(65d8):AC(65):EXP(400)
+I:KIND(ANIMAL):ALERT(140',Fairly Unseeing):MOVE(BASH|SWIM)
+B:HIT:HURT(1d8)
+B:BITE:HURT(1d8):ACID(1d8)
+B:STING:POISON(1d8)
+I:RESIST(ACID|POIS)
+D:It is a massive worm form, many feet in length. Its vast maw drips acid and poison.
+I:DISPLAY(w,Violet):POS(CORPSE|GAIN_AC)
+P:Copy:Human:Warrior
+P:Body:Giant Worm
+P:Weight:200
+
+N:w.dhole:Dhole
+I:LVL(29,70):RARITY(4)
+I:HP(780):AC(64):EXP(555):EVOLVE(w.chthonian, 4000)
+I:KIND(ANIMAL|HORROR):ALIGN(Evil)
+I:ALERT(140',Fairly Unseeing):MOVE(TUNNEL|SWIM)
+B:SPIT:ACID(1d8)
+B:ENGULF:ACID(2d8)
+B:CRUSH:HURT(2d8+9):HURT(4d8, 20%)
+I:RESIST(ACID)
+S:FREQ_10 | BR_ACID
+D:A gigantic worm dripping with acid. "...even as he looked, one reared up
+D:several hundred feet and leveled a bleached, viscous end at him."
+I:DISPLAY(w,Slate):POS(CORPSE|GAIN_AC)
+P:Copy:Human:Warrior
+P:Body:Dhole
+P:Weight:1000
+
+N:w.chthonian:Chthonian
+I:LVL(39):RARITY(2)
+I:SPEED(+10):HP(1000):AC(90):EXP(2300)
+I:KIND(HORROR):ALIGN(Evil)
+I:ALERT(200',Fairly Unseeing):MOVE(TUNNEL|SWIM)
+B:CRUSH:SHATTER(6d6+17)
+B:TOUCH(x2):HURT(1d2):LOSE_CON(66%)
+I:RESIST(FIRE|COLD|POIS|PLASMA|TELE)
+O:6d2:OBJ(GOLD)
+S:1_IN_5 | SCARE | CONFUSE | PARALYZE | S_DEMON |
+S:MIND_BLAST | HEAL | HASTE | AMNESIA | BRAIN_SMASH
+D:"Flowing tentacles and a pulpy gray-black elongated sack of a body...
+D:no distinguishing features at all other than the reaching, groping
+D:tentacles. Or was there -- yes! -- a lump in the upper body of
+D:the thing... a container of sorts for the brain, ganglia, or
+D:whichever diseased organ governed this horror's loathsome life!"
+I:DISPLAY(w,Light Dark):POS(CORPSE|GAIN_AC|SEE_INVIS)
+P:Copy:Half-Titan:Warrior-Mage
+P:Body:Chthonian
+P:Weight:400
+
+N:w.Shudde:Shudde M'ell
+I:LVL(54):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+15):HP(4000):AC(90):EXP(23000)
+I:KIND(HORROR):ALIGN(Chaotic):ATTR(SMART)
+I:ALERT(200',Fairly Unseeing):MOVE(TUNNEL|SWIM)
+B:CRUSH(x2):SHATTER(33d2+33)
+B:TOUCH(x2):HURT(1d2):LOSE_CON
+I:RESIST(FIRE|COLD|POIS|DARK|PLASMA):IMMUNE(TELE)
+S:1_IN_5 | SCARE | CONFUSE | PARALYZE | S_DEMON | S_KIN | HEAL | HASTE | AMNESIA
+S:BRAIN_SMASH | BR_DARK | BR_ACID | BR_DISENCHANT
+O:6d3:OBJ(GOLD)
+D:The most powerful and most evil of all Chthonians.
+D:"A great gray thing a mile long chanting and exuding strange acids...
+D:charging through the depths of the earth at a fantastic speed, in a
+D:dreadful fury... melting basaltic rocks like butter under a blowtorch."
+I:DISPLAY(w,Slate):POS(CORPSE|GAIN_AC|SEE_INVIS)
+P:Copy:Half-Titan:Mauler
+P:Body:Chthonian
+P:Weight:5000
+
+N:w.ohmu:Ohmu
+I:LVL(60):RARITY(20)
+I:HP(1000):AC(90):EXP(1200)
+I:ALERT(200',Fairly Unseeing):MOVE(SWIM|PUSH|TUNNEL)
+B:CRUSH:HURT(8d6):HURT(8d6, 20%)
+I:RESIST(FIRE|COLD|POIS|PLASMA|TELE)
+O:5d2:OBJ(GOLD)
+I:DISPLAY(w,Green):POS(CORPSE|GAIN_AC|SEE_INVIS)
+P:Copy:Half-Titan:Mauler
+P:Body:Chthonian
+P:Weight:800
+
+########################################################################
+# Quylthulg (Q)
+T:Q.base:Quylthulg
+I:DISPLAY(Q):POS(SEE_INVIS|TELEPATHY)
+I:AC(1)
+I:CAN(INVIS):ATTR(STUPID|EMPTY_MIND)
+I:ALERT(100',Ever Vigilant):MOVE(NEVER)
+I:RESIST(CONF):IMMUNE(SLEEP|FEAR|BLIND)
+P:Stat:Str(-5+5):Int(-5+5):Wis(-5+5):Dex(-5+5):Con(-5+5):Chr(6+9)
+P:Skill:Dis(30+35):Dev(45+75):Sav(40+60):Stl(7):Srh(20):Fos(30)
+P:Life:95
+P:Infra:50'
+P:Class:Sorcerer
+P:Body:Quylthulg
+P:Weight:100
+
+N:Q.quylthulg:Q.base:Quylthulg
+I:LVL(20):RARITY(2)
+I:HP(6d8):EXP(250)
+S:1_IN_4 | BLINK | S_MONSTER(1)
+D:It is a strange pulsing mound of flesh.
+I:COLOR(Light White)
+
+N:Q.nexus:Q.base:Nexus quylthulg
+I:LVL(32):RARITY(3)
+I:HP(10d12):EXP(300)
+I:RESIST(NEXUS):IMMUNE(TELE)
+S:1_IN_1 | BLINK | TELE_OTHER
+D:It is a very unstable, strange pulsing mound of flesh.
+I:COLOR(Violet)
+
+# XXX Not really a Q ...
+N:Q.GHMMWQ:The Greater Hell Magic Mushroom Were-Quylthulg
+I:LVL(36):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+10):HP(1881):AC(80):EXP(2500)
+I:KIND(ANIMAL|HORROR|NONLIVING|DEMON):ALIGN(Evil):ATTR(SMART|COLD_BLOOD)
+I:ALERT(500',Unseeing):MOVE(BASH|TUNNEL|SWIM)
+B:GAZE(x2):VAMP(4d8)
+B:CRUSH(x2):ACID(8d8)
+I:RESIST(ALL):IMMUNE(SLEEP|SLOW|STUN|BLIND|TELE)
+S:1_IN_3 | BLINK | BLINK_OTHER | SLOW | SCARE | DARKNESS | HEAL | ANIM_DEAD
+S:TELE_SELF | TELE_OTHER | HASTE | S_MONSTER | DRAIN_MANA |
+S:S_UNDEAD | S_DEMON | S_DRAGON | S_KIN
+O:2d2:OBJ(*, GREAT)
+D:This unholy abomination will crush you too. Flee while you can!
+I:DISPLAY(Q,Slate):POS(GAIN_AC|SEE_INVIS|HOLD_LIFE)
+P:Copy:Half-Giant:Beastmaster
+P:Body:Demonic Horror
+P:Weight:300
+
+N:Q.rotting:Q.base:Rotting quylthulg
+I:LVL(40):RARITY(2)
+I:SPEED(+10):HP(160):EXP(1500)
+I:KIND(ANIMAL):ALIGN(Evil):ALERT(200')
+S:1_IN_2 | BLINK | TELE_SELF | S_UNDEAD
+D:It is a pulsing flesh mound that reeks of death and putrefaction.
+I:COLOR(Light Umber)
+
+N:Q.demonic:Q.base:Demonic quylthulg
+I:LVL(51):RARITY(2)
+I:SPEED(+10):HP(480):EXP(3000)
+I:KIND(ANIMAL):ALIGN(Evil):ALERT(200')
+S:1_IN_2 | BLINK | TELE_SELF | S_DEMON
+D:A pile of pulsing flesh that glows with an inner hellish fire. The world
+D:itself seems to cry out against it.
+I:COLOR(Light Red)
+
+N:Q.draconic:Q.base:Draconic quylthulg
+I:LVL(55):RARITY(5)
+I:SPEED(+10):HP(720):EXP(5500)
+I:KIND(ANIMAL):ALIGN(Evil):ALERT(200')
+S:1_IN_2 | BLINK | TELE_SELF | S_DRAGON
+D:It looks like it was once a dragon corpse, now deeply infected with
+D:magical bacteria that make it pulse in a foul and degrading way.
+I:COLOR(Light Green)
+
+N:Q.master:Q.base:Master quylthulg
+I:LVL(71):RARITY(5)
+I:SPEED(+10):HP(2000):EXP(12000)
+I:KIND(ANIMAL):ALIGN(Evil):ALERT(200')
+I:RESIST(TELE)
+S:1_IN_2 | S_MONSTER | S_UNDEAD | S_DRAGON | S_HI_UNDEAD | S_HI_DRAGON
+D:A pulsating mound of flesh, shining with silver pulses of throbbing light.
+I:COLOR(Blue)
+
+N:Q.greater draconic:Q.base:Greater draconic quylthulg
+I:LVL(71):RARITY(5)
+I:SPEED(+10):HP(1500):EXP(10500)
+I:KIND(ANIMAL):ALIGN(Evil):LIGHT(1):ALERT(200')
+I:RESIST(TELE)
+S:1_IN_2 | BLINK | BLINK_OTHER | TELE_TO | S_HI_DRAGON
+D:A massive mound of scaled flesh, throbbing and pulsating with multi-hued light.
+I:COLOR(Green)
+
+N:Q.greater rotting:Q.base:Greater rotting quylthulg
+I:LVL(71):RARITY(5)
+I:SPEED(+10):HP(1500):EXP(10500)
+I:KIND(ANIMAL):ALIGN(Evil):ALERT(200')
+I:RESIST(TELE)
+S:1_IN_2 | BLINK | BLINK_OTHER | TELE_TO | S_HI_UNDEAD
+D:A massive pile of rotting flesh. A disgusting stench fills the air as it throbs and writhes.
+I:COLOR(Umber)
+
+N:Q.greater demonic:Q.base:Greater demonic quylthulg
+I:LVL(71):RARITY(5)
+I:SPEED(+10):HP(1500):EXP(10500)
+I:KIND(ANIMAL):ALIGN(Evil):LIGHT(1):ALERT(200')
+S:1_IN_2 | BLINK | BLINK_OTHER | TELE_SELF | S_HI_DEMON
+D:A massive pile of pulsing flesh that glows with an inner hellish fire.
+D:You suddenly feel very uncertain.
+I:COLOR(Light Red)
+
+N:Q.Emperor:Q.base:The Emperor Quylthulg
+I:LVL(78):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+20):HP(5000):EXP(20000)
+I:KIND(ANIMAL):ALIGN(Evil):ALERT(300')
+I:IMMUNE(TELE)
+S:1_IN_2 | BRAIN_SMASH | S_HI_UNDEAD(x3) | S_HI_DRAGON(x3)
+O:4d2:OBJ(*,GOOD)
+O:5%:ART(].Quylthulg)
+D:A huge seething mass of flesh with a rudimentary intelligence, the Emperor
+D:Quylthulg changes colors in front of your eyes. Pulsating first one
+D:color then the next, it knows only it must bring help to protect itself.
+I:COLOR(Yellow):POS(CORPSE)
+P:Weight:500
+
+N:Q.Qlzqqlzuup:Q.base:Qlzqqlzuup, the Lord of Flesh
+I:LVL(92):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+20):HP(6500):EXP(50000)
+I:KIND(ANIMAL):ALIGN(Evil):CAN(SPEAK):ALERT(300')
+I:IMMUNE(TELE)
+S:1_IN_1 | S_MONSTER | S_UNDEAD | S_HI_DEMON | S_DRAGON | S_ANGEL | S_HYDRA | S_KIN
+S:S_SPIDER | S_ANT | S_HOUND | S_UNIQUE | S_AMBERITE | S_HI_UNDEAD | S_HI_DRAGON
+O:4d2:OBJ(*,GOOD)
+D:This disgusting creature squeals and snorts as it writhes on the floor.
+D:It pulsates with evil. Its intent is to overwhelm you with monster after
+D:monster, until it can greedily dine on your remains.
+I:DISPLAY(,Light Blue,ATTR_MULTI):POS(CORPSE)
+P:Weight:500
+
+# vim: filetype=ri :
+

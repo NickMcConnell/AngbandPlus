@@ -225,14 +225,14 @@ void savefile_read_cptr(savefile_ptr file, char *buf, int max)
     buf[max-1] = '\0';
 }
 
-string_ptr savefile_read_string(savefile_ptr file)
+str_ptr savefile_read_string(savefile_ptr file)
 {
-    string_ptr s = string_alloc();
+    str_ptr s = str_alloc();
     for (;;)
     {
         byte c = savefile_read_byte(file);
         if (!c) break;
-        string_append_c(s, c);
+        str_append_c(s, c);
     }
     return s;
 }
@@ -242,6 +242,22 @@ void savefile_write_cptr(savefile_ptr file, const char *buf)
     while (*buf)
         savefile_write_byte(file, *buf++);
     savefile_write_byte(file, 0);
+}
+
+/* Note: The numeric value of a 'symbol', while stable while
+ * the program is running, may change on the next instantiation.
+ * So we save the symbol text rather than the numeric value. */
+sym_t savefile_read_sym(savefile_ptr file)
+{
+    str_ptr s = savefile_read_string(file);
+    sym_t   v = sym_add(str_buffer(s));
+    str_free(s);
+    return v;
+}
+
+void savefile_write_sym(savefile_ptr file, sym_t v)
+{
+    savefile_write_cptr(file, sym_str(v));
 }
 
 void savefile_read_skip(savefile_ptr file, int cb)

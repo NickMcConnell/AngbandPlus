@@ -1,8 +1,15 @@
 #########################################
 # Consumables
 #########################################
-mushroom of restoring#!E
-mushroom of cure poison#!E
+#I usually inscribe @Ea on my stock food. The following
+#inscriptions prevent accidental mushroom consumption:
+mushroom of restoring#@Er
+mushroom of cure poison#@Ep
+
+#junk mushrooms with non-zero costs (often accidentally eaten)
+#note: you can throw these for damage, but I never bother.
+!mushroom of disease
+!mushroom of unhealth
 
 potions:resistance#!kq
 potions:resist#!kq
@@ -33,7 +40,6 @@ potions:*healing*#!kq
 potions:restore mana#!kq
 potions:cure mutation#!kq
 
-?:[NOT [EQU $CLASS Berserker]]
 scrolls:artifact creation#!*
 scrolls:of destruction#!*
 scrolls:mass genocide#!*
@@ -41,11 +47,12 @@ scrolls:genocide#!*
 scrolls:forest creation
 scrolls:acquirement#!*
 scrolls:banish
-?:1
 
 #########################################
 # Devices
 #########################################
+?unidentified lights:feanorian
+
 ?unidentified rods
 ?unidentified staves
 ?unidentified wands
@@ -168,6 +175,12 @@ Iron Spike#@v0
 !potions:apple juice
 #!statue
 #!figurine
+
+?:[LEQ $LEVEL 34]
+#Handle weak pseudo-id until CL35:
+#?unidentified good items
+#?unidentified cursed items
+?:1
 
 ?:[GEQ $LEVEL 35]
 !nameless common armors

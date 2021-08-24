@@ -1,0 +1,505 @@
+# Amber ... monsters restricted to D_AMBER and available when playing
+# the W_AMBER module.
+
+########################################################################
+# Non-uniques
+N:h.shadow creature:Shadow Creature of Fiona
+I:LVL(10,40):RARITY(2):ALLOC(D_AMBER)
+I:HP(9d8):AC(12):EXP(35)
+I:ATTR(MALE):ALERT(120',Fairly Unseeing):MOVE(OPEN|BASH)
+B:HIT(x2):HURT(1d7)
+I:RESIST(POIS|CONF):IMMUNE(SLEEP)
+O:60%:OBJ(*$)
+M:3d3:MON(h.shadow creature)
+D:"There was something unusual about their appearance... For one thing,
+D:all had uniformly bloodshot eyes. Very, very bloodshot eyes. With them,
+D:though, the condition seemed normal. For another, all had an extra joint
+D:to each finger and thumb, and sharp, forward-curving spurs on the backs
+D:of their hands. All of them had prominent jaws (and) forty-four teeth,
+D:most of them longer than human teeth, and several looking to be much
+D:sharper. Their flesh was grayish and hard and shiny. There were
+D:undoubtedly other differences also, but those were sufficient to prove
+D:a point of some sort."
+I:DISPLAY(h,Slate):POS(SKELETON)
+P:Copy:Dark-Elf:Warrior
+P:Weight:120
+
+N:f.hellcat:f.base:Hellcat
+I:LVL(12,50):RARITY(1):ALLOC(D_AMBER)
+I:SPEED(+10):HP(9d8):AC(30):EXP(40)
+I:ALIGN(Evil):ATTR(WEIRD_MIND)
+I:ALERT(Fairly Unseeing):MOVE(RAND_25)
+B:CLAW(x2):HURT(1d5)
+B:BITE:HURT(1d8)
+I:RESIST(FIRE)
+M:3d3:MON(f.hellcat)
+D:It is as large as a tiger, its yellow eyes are pupilless.
+I:COLOR(Light Red):POS(-CORPSE)
+P:Weight:200
+
+N:C.wolfhound:C.base:Irish wolfhound of Flora
+I:LVL(14,50):RARITY(2):ALLOC(D_AMBER)
+I:SPEED(+10):HP(9d9):AC(20):EXP(40)
+I:ALERT(Ever Vigilant)
+B:BITE(x2):HURT(1d5)
+M:3d3:MON(C.wolfhound)
+D:Well-trained watchdogs, obedient to death.
+I:COLOR(Slate)
+P:Life:80
+P:Body:Puppy
+
+N:p.agent of benedict:p.base:Agent of Benedict
+I:LVL(26,60):RARITY(3):ALLOC(D_AMBER)
+I:HP(20d8):AC(54):EXP(100)
+I:ALERT(140',Fairly Unseeing)
+B:HIT(x2):HURT(1d7+2)
+S:1_IN_8 | BLIND | CONFUSE | TELE_SELF
+M:3d3:MON(p.agent of benedict)
+D:A faithful servitor and a skilled warrior.
+I:COLOR(Light White)
+P:Copy:Human:Chaos-Warrior
+
+########################################################################
+# Amberites (Uniques)
+T:p.amberite:Amberite
+I:DISPLAY(p):POS(CORPSE|SKELETON):ALLOC(UNIQUE)
+I:KIND(HUMAN|AMBERITE):LIGHT(0+2):CAN(SPEAK):ATTR(SMART|MALE)
+I:MOVE(OPEN|BASH|PICKUP|SWIM|CLEARWEB)
+I:RESIST(CONF):IMMUNE(SLEEP|SLOW)
+P:Weight:170
+
+N:p.Rinaldo:p.amberite:Rinaldo, Son of Brand
+I:LVL(41):RARITY(3):ALLOC(D_AMBER)
+I:SPEED(+10):HP(1600):AC(120):EXP(7000)
+I:ALERT(200',Unseeing)
+B:HIT(x2):HURT(5d6+10)
+B:HIT(x2):HURT(3d8+14):DISENCHANT
+I:RESIST(ACID|ELEC|COLD|POIS):IMMUNE(TELE)
+S:1_IN_2 | CAUSE_3 | BO_WATER | BO_MANA | BA_CHAOS | POLYMORPH
+O:2d2:OBJ(*, GOOD)
+D:The madman's son is a Logrus Master, almost as great a menace as his father.
+I:COLOR(White)
+P:Copy:Amberite:Beastmaster
+
+N:p.Dworkin:p.amberite:Dworkin Barimen
+I:LVL(56):RARITY(2):ALLOC(D_AMBER)
+I:SPEED(+20):HP(4800):AC(195):EXP(22200)
+I:ALERT(250',Fairly Observant):MOVE(FLY)
+B:HIT:HURT(3d8+40):CONFUSE
+B:HIT:HURT(3d8+40):TERRIFY
+B:HIT:HURT(3d8+40):PARALYZE
+B:HIT:HURT(3d8+40):BLIND
+I:RESIST(BASE|POIS|CHAOS|DISENCHANT):IMMUNE(TELE)
+S:1_IN_4 | HEAL | BLIND | CONFUSE | SCARE | CAUSE_4 | BRAIN_SMASH | TELE_OTHER | S_DEMON
+S:AMNESIA | S_MONSTER | BA_CHAOS | BLINK | BLINK_OTHER | TELE_SELF | TELE_TO
+O:5d2:OBJ(*, GOOD)
+O:20%:ART(~.Judgement)
+D:Once this now gnomish creature created the universe with the Jewel
+D:of Judgement - or so you have been told. There is little sanity left
+D:in his present form even if he still has the power. "He was a small
+D:man. Tiny, might be an even better word. He was around five feet tall
+D:and a hunchback. His hair and beard were as heavy as (Corwin's). The
+D:only distinguishing features in that great mass of fur were
+D:his long, hook nose and his almost black eyes, now squinted
+D:against the light... Dworkin: 'I am Oberon's prisoner.' Corwin:
+D:'Oh? None of us knew that Dad had locked you up.' (Corwin) heard
+D:(Dworkin) weeping. 'Yes,' he said after a long time. 'He didn't
+D:trust me.' 'Why not?' 'I told him I'd thought of a way to
+D:destroy Amber. I described it to him, and he locked me in.'"
+I:DISPLAY(,Violet,ATTR_MULTI|ATTR_ANY|SHAPECHANGER)
+P:Copy:Amberite:Beastmaster
+P:Weight:110
+
+N:p.Brand:p.amberite:Brand, Mad Visionary of Amber
+I:LVL(60):RARITY(1):ALLOC(D_AMBER)
+I:SPEED(+10):HP(5000):AC(100):EXP(35000)
+I:ALIGN(Evil):ALERT(1000',Ever Vigilant)
+B:HIT(x2):HURT(3d8+15):DISENCHANT
+B:HIT(x2):HURT(3d8+15):CONFUSE(50%):DRAIN_CHARGES(50%)
+I:RESIST(ELEC|FIRE|COLD|POIS|CHAOS):IMMUNE(TELE)
+S:FREQ_35 | BLIND | CONFUSE | TELE_SELF | BLINK | BLINK_OTHER | BA_FIRE | BA_COLD
+S:DRAIN_MANA | CAUSE_4 | BA_ACID | TELE_OTHER | MIND_BLAST | TRAPS | HEAL | POLYMORPH
+S:HASTE | BRAIN_SMASH | BA_CHAOS | BA_DARK | PSY_SPEAR
+O:9d2:OBJ(*, GOOD)
+O:33%:ART(|.Werewindle)
+D:Brand sees himself as a hero, the god creator and absolute monarch of a future world.
+D:Unfortunately he needs to erase the existing world to make his new world. "...a figure
+D:both like Bleys and (Corwin). (Corwin's) features, though smaller, his eyes, Bleys' hair,
+D:beardless. He wore a riding suit of green and sat atop a white horse... There was a
+D:quality of both strength and weakness, questing and abandonment about him."
+I:DISPLAY(,Violet,ATTR_MULTI|ATTR_ANY)
+P:Copy:Amberite:Beastmaster
+
+N:p.Bleys:p.amberite:Bleys, Master of Manipulation
+I:LVL(67):RARITY(1):ALLOC(D_AMBER)
+I:SPEED(+20):HP(5000):AC(100):EXP(35000)
+I:KIND(THIEF):ALIGN(Evil):CAN(REGEN):ALERT(1000',Unseeing)
+B:HIT(x2):HURT(3d15+40)
+B:TOUCH:EAT_ITEM
+I:RESIST(ELEC|FIRE):IMMUNE(TELE)
+S:1_IN_3 | SCARE | BLIND | CONFUSE | TELE_SELF | BLINK | TELE_OTHER | TELE_TO
+S:TELE_LEVEL | BA_COLD | BA_FIRE | TRAPS | MIND_BLAST | S_MONSTER
+O:6d2:OBJ(*, GOOD)
+D:This cunning Amberite is the master of subtle ploys. "...a fiery bearded,
+D:flame-crowned man, dressed all in red and orange, mainly of silk stuff,
+D:and he held a sword in his right hand and a glass of wine in his left,
+D:and the devil himself danced behind his eyes... His chin was light, but the
+D:beard covered it. His sword was inlaid with an elaborate filigree of a
+D:golden color. He wore two huge rings on his right hand and one on his
+D:left: an emerald, a ruby, and a sapphire, respectively."
+I:COLOR(Light Umber)
+P:Copy:Amberite:Rogue
+
+N:p.Fiona:p.amberite:Fiona the Sorceress
+I:LVL(68):RARITY(1):ALLOC(D_AMBER)
+I:SPEED(+20):HP(4851):AC(100):EXP(35000)
+I:ALIGN(Evil):CAN(REGEN):ATTR(FEMALE):ALERT(1000',Unseeing)
+B:HIT(x2):HURT(3d15+25):POISON(2d15)
+B:TOUCH:LOSE_CHR
+B:TOUCH:LOSE_CON
+I:RESIST(ELEC|POIS|CHAOS):IMMUNE(TELE)
+S:1_IN_3 | SCARE | BLIND | CONFUSE | TELE_SELF | BLINK | BLINK_OTHER | TELE_OTHER
+S:TELE_TO | TRAPS | CAUSE_4 | BA_POISON | S_DEMON | S_MONSTER | PSY_SPEAR
+O:6d2:OBJ(*, GOOD)
+O:50%:ART(|.Fiona)
+D:She is beautiful and deadly. "...I have always been very fond of Fiona.
+D:She is certainly the loveliest, most civilized of (all Amberites)."
+I:COLOR(Yellow)
+P:Copy:Amberite:Mage
+P:Weight:120
+
+N:p.Julian:p.amberite:Julian, Master of Arden Forest
+I:LVL(69):RARITY(1):ALLOC(D_AMBER)
+I:SPEED(+20):HP(5500):AC(100):EXP(36000)
+I:ALIGN(Evil):CAN(REGEN):ALERT(1000',Fairly Unseeing)
+B:HIT(x2):HURT(3d15+50)
+B:HIT:HURT(1d30):LOSE_CON
+I:RESIST(ELEC|COLD|POIS):IMMUNE(TELE)
+S:1_IN_4 | TELE_SELF | TELE_TO | SHOOT(10d15) | SHRIEK | SCARE | DARKNESS
+S:S_ANT | S_SPIDER | S_HOUND | S_HYDRA | TRAPS | BO_WATER | BO_ELEC
+O:6d2:OBJ(*, GOOD)
+O:45%:ART([.Julian)
+D:Julian is at home in wild woodlands. He enjoys hunting a challenging
+D:prey: you. "Julian, dark hair hanging long, blue eyes containing neither
+D:passion nor compassion. He was dressed completely in scaled white armor,
+D:not silver or metallic-colored, but looking as if it had been enameled."
+I:COLOR(Green)
+P:Copy:Amberite:Ranger
+
+N:p.Caine:p.amberite:Caine, the Conspirator
+I:LVL(71):RARITY(1):ALLOC(D_AMBER)
+I:SPEED(+20):HP(5600):AC(100):EXP(36500)
+I:KIND(THIEF):ALIGN(Evil):CAN(REGEN):ALERT(1000',Fairly Unseeing)
+B:HIT(x2):HURT(3d15+50)
+B:INSULT:EAT_ITEM
+B:INSULT:EAT_GOLD
+I:RESIST(ACID|COLD|POIS):IMMUNE(TELE)
+S:1_IN_4 | TELE_SELF | TELE_TO | SCARE | DARKNESS | S_DRAGON | TRAPS | BO_WATER
+S:BO_NETHER | S_UNDEAD | S_DEMON | CONFUSE | BO_ACID | AMNESIA | MIND_BLAST | CAUSE_4
+O:6d2:OBJ(*, GOOD)
+O:50%:ART(|.Caine)
+D:Caine is perhaps the least reliable Amberite, always ready to ignore
+D:his pacts and promises when it suits him. "...the swarthy, dark-eyed
+D:countenance of Caine, dressed all in satin that was black and green,
+D:wearing a dark three-cornered hat set at a rakish angle, and a green
+D:plume of feathers trailing down in the back. He was standing in the
+D:profile, one arm akimbo, and toes of his boots curled upwards, and he
+D:wore an emerald-studded dagger at his belt... He was dark."
+I:COLOR(Light Dark)
+P:Copy:Amberite:Rogue
+
+N:p.Gerard:p.amberite:Gerard, Strongman of Amber
+I:LVL(74):RARITY(1):ALLOC(D_AMBER)
+I:SPEED(+20):HP(6666):AC(150):EXP(36500)
+I:ALIGN(Evil):CAN(REGEN):ALERT(1000',Fairly Unseeing):MOVE(TUNNEL)
+B:HIT(x2):SHATTER(10d10+65)
+I:RESIST(ACID|FIRE|POIS):IMMUNE(TELE)
+S:1_IN_4 | HEAL | TELE_SELF | TELE_TO | SCARE | BLIND | S_MONSTER
+O:6d2:OBJ(*, GOOD):DROP_WARRIOR
+D:Gerard may not be quite as devious as the other Amberites, but
+D:he is certainly stronger than the rest of them put together. "...a big,
+D:powerful man... (He) resembled (Corwin) quite strongly, save that
+D:his jaw was heavier, and (Corwin) knew he was bigger than him, though
+D:slower. His strength was a thing out of legend. He wore a dressing gown of
+D:blue and gray clasped around the middle with a wide, black belt, and he
+D:stood laughing. About his neck, on a heavy cord, there hung a silver
+D:hunting horn. He wore a fringe beard and a light mustache. In his right
+D:hand he held a goblet of wine."
+I:COLOR(Umber)
+P:Copy:Amberite:Mauler
+P:Life:110
+P:Weight:210
+
+N:p.Eric:p.amberite:Eric the Usurper
+I:LVL(76):RARITY(1):ALLOC(D_AMBER)
+I:SPEED(+20):HP(5800):AC(100):EXP(35500)
+I:KIND(THIEF):ALIGN(Evil):CAN(REGEN):ALERT(1000',Fairly Observant)
+B:HIT(x2):HURT(3d15+50)
+B:HIT:HURT(3d15+50):EAT_ITEM
+I:RESIST(ACID|ELEC|POIS):IMMUNE(TELE)
+S:1_IN_4 | BLIND | DRAIN_MANA | S_MONSTER | SCARE | CONFUSE | TELE_SELF | TELE_TO |
+S:CAUSE_3 | BO_ACID | PARALYZE | BA_FIRE | TRAPS | TELE_OTHER | BRAIN_SMASH | AMNESIA |
+S:BO_WATER | CAUSE_4 | BO_NETHER | DARKNESS | S_ANGEL | S_DEMON | PSY_SPEAR
+O:6d2:OBJ(*, GOOD)
+D:When Oberon disappeared, Eric seized the opportunity and claimed
+D:the throne, eliminating those who would have opposed him. "Handsome by
+D:anyone's standards, his hair was so dark, as to be almost blue. His beard
+D:curled around the mouth that always smiled, and he was dressed simply in a
+D:leather jacket and leggings, a plain cloak, high black boots, and he wore
+D:a red sword belt bearing a long silvery saber and clasped with a ruby,
+D:and his high cloak, collar round his head was lined with red and the
+D:trimmings of his sleeves matched it. His hands, thumbs hooked behind
+D:his belt, were terribly strong and prominent. A pair of black gloves
+D:jutted from his belt near his right tip."
+I:COLOR(Light Red)
+P:Copy:Amberite:Rogue
+
+N:p.Corwin:p.amberite:Corwin, Lord of Avalon
+I:LVL(78):RARITY(1):ALLOC(D_AMBER)
+I:SPEED(+20):HP(5900):AC(100):EXP(35500)
+I:ALIGN(Evil):CAN(REGEN):ALERT(1000',Fairly Observant)
+B:HIT(x3):HURT(3d15+50):LOSE_CON(33%)
+I:RESIST(ACID|ELEC|COLD|POIS):IMMUNE(TELE)
+S:1_IN_4 | SCARE | CONFUSE | TELE_SELF | TELE_TO | S_MONSTER | DRAIN_MANA |
+S:CAUSE_3 | BO_ACID(14d8+52) | BO_MANA | PARALYZE | BO_WATER(10d10+156)
+S:BA_FIRE(1d546+20) | BA_COLD(1d134+20) | BA_WATER(1d156+50)
+S:TRAPS | TELE_OTHER | HEAL | BRAIN_SMASH | BA_NETHER(10d10+206)
+S:AMNESIA | BO_NETHER(5d5+186) | CAUSE_4 | DARKNESS
+S:BO_PLASMA(8d7+127) | S_ANGEL | PSY_SPEAR(1d156+150)
+O:6d2:OBJ(*, GOOD)
+O:25%:ART(|.Grayswandir)
+O:25%:ART(].Corwin)
+D:Corwin is one of the most feared and respected Amberites; his skill
+D:and cunning are well known. "Green eyes, black hair, dressed in black
+D:and silver, yes. (Corwin) had on a cloak and it was slightly furled
+D:as by a wind. (He) had on black boots, like Eric's, and (he) too bore a
+D:blade, only (his) was heavier, though not quite as long as (Eric's).
+D:(He) had (his) gloves on and they were silver and scaled. The clasp
+D:at (his) neck was cast in the form of a silver rose."
+I:COLOR(Red)
+P:Copy:Amberite:Paladin
+
+N:p.Benedict:p.amberite:Benedict, the Ideal Warrior
+I:LVL(79):RARITY(1):ALLOC(D_AMBER)
+I:SPEED(+20):HP(6900):AC(100):EXP(38500)
+I:ALIGN(Evil):CAN(REGEN):ALERT(1000',Fairly Observant)
+B:HIT(x4):HURT(5d15+80)
+I:RESIST(BASE|POIS):IMMUNE(TELE)
+O:6d2:OBJ(*, GOOD):DROP_WARRIOR
+S:1_IN_4 | SCARE | CONFUSE | TELE_SELF | TELE_TO | DRAIN_MANA | TRAPS | BRAIN_SMASH
+S:TELE_OTHER | CAUSE_4 | S_MONSTER | S_DEMON | TELE_LEVEL | AMNESIA | HEAL
+D:In the field of combat Benedict rules supreme: with but one hand
+D:he was still superior to Corwin. "Benedict, tall and dour; thin of
+D:body, thin of face, wide of mind. He wore orange and yellow and brown
+D:and reminded me of haystacks and pumpkins and scarecrows and the
+D:Legend of Sleepy Hollow. He had a long, strong jaw and hazel eyes and
+D:brown hair that never curled. He stood beside a tan horse and leaned
+D:upon a lance about which was twined a rope of flowers. He seldom laughed."
+I:COLOR(Light White):POS(GAIN_AC)
+P:Copy:Amberite:Paladin
+P:Life:105
+P:Speed:+10
+P:Skills:0:0:5:0:0:0:80:0
+P:Stats:2:0:2:2:2:3
+P:Body:Benedict
+P:Weight:225
+
+N:p.Oberon:p.amberite:Oberon, King of Amber
+I:LVL(99):RARITY(1):ALLOC(D_AMBER|GUARDIAN)
+I:SPEED(+35):HP(10989):AC(165):EXP(80000)
+I:ALIGN(Evil):CAN(REGEN|REFLECT):ALERT(1000',Ever Vigilant):MOVE(PUSH)
+B:HIT:HURT(6d12+40):DISENCHANT
+B:HIT:HURT(6d12+40):DRAIN_CHARGES
+B:HIT:HURT(6d12+40):BLIND
+B:TOUCH:DRAIN_MANA(10d8)
+A:ELEC(4d6):FIRE(4d6)
+I:RESIST(ELEC|FIRE|COLD|POIS|NETHER|CHAOS):IMMUNE(BLIND|TELE)
+S:FREQ_40 | BA_FIRE(1d700+20) | BA_NETHER(10d10+250) | BA_WATER(1d200+50) |
+S:BO_ICE(6d8+150) | BO_PLASMA(8d7+160) | BA_CHAOS(10d10+200) | PSY_SPEAR(1d200+150) |
+S:TELE_SELF | SCARE | BLIND | S_HI_DEMON | S_MONSTER |
+S:TELE_TO | CONFUSE | BO_MANA | BRAIN_SMASH | CAUSE_4 | TELE_LEVEL | TELE_OTHER |
+S:AMNESIA | DARKNESS | MANA_STORM | S_HI_DRAGON | S_HI_UNDEAD |
+S:S_AMBERITE | S_CYBER | HAND_DOOM | DISPEL_MAGIC | ANTI_MAGIC |
+O:9d2:OBJ(*, GREAT)
+O:50%:ART(].Amber)
+D:Oberon, the father or grandfather of most Amberites, is as powerful
+D:as ever. He is afraid that you will upset the balance and will not
+D:let you harm the Serpent of Chaos. "Oberon, Lord of Amber, stood before
+D:me in his green and his gold. High, wide and thick, his beard black and
+D:shot with silver, his hair the same. Green rings in gold settings and
+D:a blade of golden color."
+I:DISPLAY(,Violet,ATTR_MULTI)
+P:Copy:Amberite:Chaos-Warrior
+P:Stats:2:0:0:2:2:2
+P:Life:110
+
+########################################################################
+# Other Amber Uniques
+N:p.Jurt:p.base:Jurt the Living Trump
+I:LVL(34):RARITY(5):ALLOC(D_AMBER|UNIQUE)
+I:SPEED(+10):HP(1000):AC(90):EXP(1200)
+I:ALIGN(Evil):CAN(SPEAK):ALERT(Unseeing):MOVE(TRUMP)
+B:HIT(x4):HURT(2d5+9)
+S:1_IN_6 | TELE_SELF | BA_CHAOS
+O:2d2:OBJ(*, GOOD)
+D:A magical treatment has turned Jurt, an adept of Logrus, into a Living Trump.
+I:COLOR(Light Red):POS(SEE_INVIS)
+P:Copy:Dunadan:Beastmaster
+
+N:p.Borel:p.base:Lord Borel of Hendrake
+I:LVL(36):RARITY(2):ALLOC(D_AMBER|UNIQUE)
+I:SPEED(+10):HP(1800):AC(100):EXP(1200)
+I:ALIGN(Evil):CAN(SPEAK):ALERT(250',Fairly Observant)
+B:HIT(x2):HURT(2d6+14)
+B:HIT(x2):HURT(1d10+8)
+I:RESIST(BASE|POIS|CONF):IMMUNE(SLEEP|SLOW)
+S:1_IN_4 | TELE_TO | S_KIN
+O:2d2:OBJ(*, GOOD):DROP_WARRIOR
+D:A Lord of Chaos famous for his skill at arms.
+I:COLOR(Violet)
+P:Copy:Dunadan:Beastmaster
+
+N:p.Mandor:p.base:Mandor, Master of the Logrus
+I:LVL(38):RARITY(5):ALLOC(D_AMBER|UNIQUE)
+I:SPEED(+10):HP(968):AC(90):EXP(1600)
+I:ALIGN(Evil):CAN(SPEAK):ATTR(SMART):ALERT(Unseeing)
+B:HIT(x2):HURT(2d5+6):CHAOS(1d5)
+B:HIT:HURT(2d5+9):DRAIN_CHARGES
+B:HIT:HURT(2d5+9):DISENCHANT
+I:RESIST(CONF|CHAOS):IMMUNE(SLEEP|SLOW|TELE)
+S:1_IN_2 | BO_FIRE | BO_COLD | PARALYZE | BO_MANA | S_MONSTER(1) TRAPS | BO_ICE | HEAL
+S:BO_PLASMA | BA_CHAOS | POLYMORPH | DETECT_MONSTERS | MAPPING | IDENTIFY
+O:2d2:OBJ(*, GOOD)
+D:Mandor is one of the greatest Logrus Masters, a formidable magician.
+I:COLOR(Violet)
+P:Copy:Dark-Elf:Beastmaster
+
+N:E.Moire:Moire, Queen of Rebma
+I:LVL(39):RARITY(3):ALLOC(D_AMBER|UNIQUE):WILD(SHORE|OCEAN|SWAMP)
+I:SPEED(+10):HP(2000):AC(40):EXP(3250)
+I:KIND(HUMAN):ALIGN(Evil):CAN(SPEAK):ATTR(FEMALE)
+I:ALERT(120',Unseeing):MOVE(RAND_25|BASH|DESTROY|TRAMPLE|SWIM|CLEARWEB)
+B:HIT(x4):HURT(2d5+10)
+I:RESIST(POIS|CONF):IMMUNE(SLEEP|SLOW)
+O:3d2:OBJ(*, GOOD)
+O:5%:ART(].Moire)
+S:1_IN_4 | BO_ICE(6d8+59) | BO_WATER(10d10+59) | BA_COLD(1d116+20) | BA_WATER(1d78+50)
+D:The Queen of the Sea where the Pattern is reflected is a cunning
+D:diplomat and a dangerous foe. "A woman sat upon the throne...
+D:and her hair was green, though streaked with silver, and her eyes
+D:were round of moons of jade and her brows rose like the wings of
+D:olive gulls. Her mouth was small, her chin was small; her cheeks
+D:were high and wide and rounded. A circlet of white gold crossed
+D:her brow and there was a crystal necklace about her neck. At its
+D:tip there flashed a sapphire between her sweet bare breasts, whose
+D:nipples were also bare green. She wore scaled trunks of blue and
+D:a silver belt, and she held a scepter of pink coral in her hand
+D:and had a ring upon every finger, and each ring had a stone of
+D:a different blue within it. She did not smile..."
+I:DISPLAY(E,Blue):POS(CORPSE|GAIN_AC|SEE_INVIS)
+P:Copy:Demigod:Beastmaster
+P:Weight:150
+
+N:q.Morgenstern:q.horse.base:Morgenstern, Julian's Steed
+I:LVL(40):RARITY(3):ALLOC(D_AMBER|UNIQUE)
+I:SPEED(+20):HP(3000):AC(100):EXP(2000)
+I:CAN(REGEN):ALERT(Unseeing)
+B:KICK(x2):HURT(2d4+6)
+B:BITE:HURT(2d6+14)
+I:RESIST(ELEC|FIRE|COLD|POIS|CONF):IMMUNE(SLEEP|SLOW)
+D:Morgenstern is tougher and faster than any other horse: "Morgenstern
+D:was six hands higher than any other horse I had ever seen, and his
+D:eyes were the dead color of a Weimaraner dog's and his coat was all
+D:gray and his hooves looked like polished steel. He raced along like
+D:the wind..."
+I:COLOR(Light White)
+P:Stats:1:1:1:1:1:3
+
+N:n.Jasra:Jasra, Brand's Mistress
+I:LVL(40):RARITY(3):ALLOC(D_AMBER|UNIQUE)
+I:SPEED(+10):HP(2400):AC(100):EXP(9000)
+I:ALIGN(Evil):LIGHT(2):CAN(SPEAK):ATTR(FEMALE|SMART)
+I:ALERT(300',Observant):MOVE(OPEN|BASH|SWIM)
+B:GAZE:DRAIN_EXP(80d6)
+B:GAZE:PARALYZE
+B:HIT(x2):HURT(3d6+18)
+I:RESIST(ACID|FIRE|POIS|CONF):IMMUNE(SLEEP|SLOW)
+S:1_IN_2 | PARALYZE | SCARE | CAUSE_3 | BO_FIRE | BO_PLASMA | BA_ACID | S_HYDRA
+O:3d2:OBJ(*, GOOD)
+D:Brand's one-time mistress. Her face could sink a thousand ships, but Brand is not too selective.
+I:DISPLAY(n,Violet):POS(CORPSE|GAIN_AC)
+P:Copy:Kobold:Chaos-Warrior
+P:Body:Naga
+P:Blows:200
+P:Weight:120
+
+# XXX not sure why this is 'Amber' ...
+N:q.Sleipnir:q.horse.base:Sleipnir, Odin's Steed
+I:LVL(51):RARITY(3):ALLOC(D_AMBER|UNIQUE)
+I:SPEED(+20):HP(4000):AC(140):EXP(17000)
+I:CAN(REGEN):ALERT(Unseeing):MOVE(FLY)
+I:RESIST(ELEC|FIRE|COLD|POIS|CONF):IMMUNE(SLEEP|SLOW)
+B:KICK(x4):HURT(3d10+25)
+I:COLOR(Orange)
+P:Stats:2:1:1:2:2:4
+
+N:q.Order:The Unicorn of Order
+I:LVL(99):RARITY(1):ALLOC(D_AMBER|UNIQUE)
+I:SPEED(+50):HP(7777):AC(170):EXP(100000)
+I:KIND(NONLIVING):ALIGN(Lawful):LIGHT(1):CAN(REFLECT|FEAR|REGEN):ATTR(RIDING|SMART)
+I:ALERT(1000',Ever Vigilant):MOVE(TRAMPLE|FLY|CLEARWEB)
+B:KICK:DRAIN_MANA(10d10)
+B:KICK:HURT(6d13+49):DRAIN_CHARGES
+B:BUTT:HURT(5d12+45):DISENCHANT
+B:BITE:HURT(7d14+50):TIME
+A:HOLY_FIRE(4d4):STUN(1d3, 50%):TIME(1d3, 20%)
+I:RESIST(ACID|FIRE|CONF|LIGHT|NETHER|NEXUS|SOUND|DISENCHANT|WATER|PLASMA|FORCE|INERTIA|TIME|GRAVITY)
+I:IMMUNE(ELEC|COLD|POIS|SLEEP|SLOW|TELE|BLIND)
+S:1_IN_3 | SHRIEK | BR_SOUND | BR_LIGHT | BR_INERTIA | BR_TIME | BR_SHARDS |
+S:BR_PLASMA | BR_MANA | BR_DISINTEGRATE | DRAIN_MANA | HEAL | HASTE |
+S:TELE_OTHER | BLINK | BLINK_OTHER | TELE_SELF | AMNESIA | DISPEL_MAGIC | ANTI_MAGIC |
+S:S_MONSTER | S_HI_DRAGON | S_UNIQUE | S_ANGEL
+O:6d2:OBJ(*, GREAT)
+D:The Unicorn of Order, who once stole an eye from the great Serpent
+D:of chaos, is watching the events unfold with growing distress. It
+D:regards you as a mortal meddling in the affairs of immortals, and
+D:attempts to eliminate you.
+I:DISPLAY(q,White):POS(GAIN_AC|SEE_INVIS|TELEPATHY)
+P:Copy:Archon:Paladin
+P:Stats:1:0:3:1:0:3
+P:Body:Unicorn
+P:Weight:300
+
+N:J.Chaos:The Serpent of Chaos
+I:LVL(100):RARITY(1):ALLOC(D_AMBER|FORCE_DEPTH|GUARDIAN|UNIQUE)
+I:SPEED(+40):HP(30000):AC(175):EXP(300000)
+I:KIND(NONLIVING):ALIGN(Chaotic):LIGHT(1):CAN(SPEAK|REFLECT|REGEN):ATTR(SMART|RIDING|IM_ILLUSION)
+I:ALERT(2000',Ever Vigilant):MOVE(TUNNEL|TRAMPLE|FLY)
+B:CRUSH(x2):SHATTER(10d10+50):STUN(5d5, 30%)
+B:BITE:HURT(10d10+50):LOSE_ALL
+B:TOUCH:DRAIN_CHARGES:TERRIFY
+A:SHARDS(4d6):CHAOS(6d6, 20%):DISENCHANT(3d3, 10%)
+I:RESIST(BASE|CONF|NETHER):IMMUNE(POIS|CHAOS|SLEEP|SLOW|BLIND|TELE)
+S:FREQ_35 | BR_CHAOS | BR_NETHER | BR_MANA | BR_NUKE | BR_DISINTEGRATE | BA_CHAOS(10d10+200)
+S:ROCKET(600) | HAND_DOOM | BRAIN_SMASH(200) | TELE_TO | DISPEL_MAGIC | ANTI_MAGIC
+S:S_MONSTER(5) | S_CYBER(3) | S_HI_UNDEAD(5) | S_HI_DRAGON(4) | S_UNIQUE(3)
+#XXX Need to rework this in a multi-world scenario. Only guardians for existing dungeons!
+#S:S_GUARDIAN
+O:10d2:OBJ(*, GREAT)
+O:10d10:OBJ(GOLD)
+O:ART(].Chaos)
+D:The Big Boss himself. Before the universe the Serpent was. The Unicorn
+D:of Order fought with Serpent and stole one of its eyes, known as the
+D:Jewel of Judgement. With the Jewel, Dworkin drew the Pattern and thus
+D:gave birth to the infinite worlds of shadow. Now the balance has been
+D:disrupted, the Pattern damaged, and all the shadow is being absorbed by
+D:the Serpent. Unless it is stopped, the world as we know it will come to
+D:an end, all order reverting to Primal Chaos.
+I:DISPLAY(J,Light Dark,ATTR_MULTI|ATTR_ANY):POS(GAIN_AC|SEE_INVIS|HOLD_LIFE|TELEPATHY|SUST_ALL)
+P:Copy:Half-Giant:Mauler
+P:Life:125
+P:Body:Jormungand
+P:Weight:5000
+
+# vim: filetype=ri :
+

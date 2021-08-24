@@ -88,11 +88,11 @@ static personality_ptr _get_craven_personality(void)
  ****************************************************************/
 static void _fearless_calc_bonuses(void)
 {
-    res_add(RES_FEAR);
+    res_add(GF_FEAR);
 }
 static void _fearless_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_FEAR);
+    add_flag(flgs, OF_RES_(GF_FEAR));
 }
 static personality_ptr _get_fearless_personality(void)
 {
@@ -138,8 +138,8 @@ static personality_ptr _get_fearless_personality(void)
  ****************************************************************/
 static void _hasty_calc_bonuses(void)
 {
-    p_ptr->pspeed += 2 + p_ptr->lev/37;
-    p_ptr->to_m_chance += 1;
+    plr->pspeed += 2 + plr->lev/37;
+    plr->to_m_chance += 1;
 }
 static void _hasty_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -236,7 +236,7 @@ static personality_ptr _get_lucky_personality(void)
  ****************************************************************/
 static void _mighty_calc_bonuses(void)
 {
-    p_ptr->to_m_chance += 1;
+    plr->to_m_chance += 1;
 }
 static personality_ptr _get_mighty_personality(void)
 {
@@ -341,7 +341,7 @@ static personality_ptr _get_odinary_personality(void)
  ****************************************************************/
 static void _patient_calc_bonuses(void)
 {
-    p_ptr->to_m_chance += 1;
+    plr->to_m_chance += 1;
 }
 static personality_ptr _get_patient_personality(void)
 {
@@ -425,12 +425,12 @@ static personality_ptr _get_pious_personality(void)
  ****************************************************************/
 static void _sexy_birth(void)
 {
-    if ( p_ptr->prace != RACE_MON_SWORD
+    if ( plr->prace != RACE_MON_SWORD
       && !demon_is_(DEMON_BALROG) )
     {
         object_type forge = {0};
         object_prep(&forge, lookup_kind(TV_HAFTED, SV_WHIP));
-        if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+        if (plr->pclass == CLASS_RUNE_KNIGHT)
             rune_add(&forge, RUNE_ABSORPTION, FALSE);
         plr_birth_obj(&forge);
         skills_weapon_init(TV_HAFTED, SV_WHIP, WEAPON_EXP_BEGINNER);
@@ -438,7 +438,7 @@ static void _sexy_birth(void)
 }
 static void _sexy_calc_bonuses(void)
 {
-    p_ptr->cursed |= OFC_AGGRAVATE;
+    plr->cursed |= OFC_AGGRAVATE;
 }
 static void _sexy_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -488,7 +488,7 @@ static personality_ptr _get_sexy_personality(void)
  ****************************************************************/
 static void _shrewd_calc_bonuses(void)
 {
-    p_ptr->to_m_chance -= 3;
+    plr->to_m_chance -= 3;
 }
 static personality_ptr _get_shrewd_personality(void)
 {
@@ -580,6 +580,6 @@ personality_ptr get_personality_aux(int index)
 
 personality_ptr get_personality(void)
 {
-    return get_personality_aux(p_ptr->personality);
+    return get_personality_aux(plr->personality);
 }
 

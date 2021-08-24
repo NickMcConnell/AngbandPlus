@@ -1,7 +1,9 @@
 #include "angband.h"
 
+#include <assert.h>
+
 static cptr _desc = 
-    "Liches are skeletal forms back from the dead to hunt the living. Their "
+    "Liches are skeletal forms back from the dead to hunt the living. There "
     "are several types of liches from the <color:keyword>Archlich</color> with powerful undead "
     "sorcery to the <color:keyword>Monastic Lich</color> who prefers martial arts combat, "
     "with a necromantic twist. The <color:keyword>Iron Lich</color> is a floating skull "
@@ -18,9 +20,9 @@ static cptr _desc =
 
 static void _birth(void) 
 { 
-    object_type    forge;
+    obj_t forge;
 
-    p_ptr->current_r_idx = MON_LICH;
+    plr_mon_race_set("L.lich");
     skills_innate_init("Finger", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
     object_prep(&forge, lookup_kind(TV_CROWN, SV_IRON_CROWN));
@@ -32,8 +34,6 @@ static void _birth(void)
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_ROBE));
     plr_birth_obj(&forge);
-
-    plr_birth_light();
 }
 
 /**********************************************************************
@@ -42,11 +42,16 @@ static void _birth(void)
 static void _calc_innate_bonuses(mon_blow_ptr blow)
 {
     if (blow->method == RBM_TOUCH)
-        plr_calc_blows_innate(blow, 400);
+    {
+        plr->innate_attack_info.blows_calc.wgt = 100;
+        plr->innate_attack_info.blows_calc.mul = 30;
+        plr->innate_attack_info.blows_calc.max = 400;
+        plr_calc_blows_innate(blow);
+    }
 }
 static void _calc_innate_attacks(void)
 {
-    int l = p_ptr->lev;
+    int l = plr->lev;
     int dd = 1 + l/12;
     int ds = 6 + l/15;
     mon_blow_ptr blow = mon_blow_alloc(RBM_TOUCH);
@@ -60,7 +65,7 @@ static void _calc_innate_attacks(void)
         mon_blow_push_effect(blow, GF_UNLIFE, dice_create(dd, ds, 0));
 
     _calc_innate_bonuses(blow);
-    vec_add(p_ptr->innate_blows, blow);
+    vec_add(plr->innate_blows, blow);
 }
 
 /**********************************************************************
@@ -68,8 +73,6 @@ static void _calc_innate_attacks(void)
  **********************************************************************/
 static void _disenchantment_ball_spell(int cmd, var_ptr res)
 {
-    int dam = spell_power(plr_prorata_level(300) + p_ptr->to_d_spell);
-    int rad = spell_power(p_ptr->lev / 20 + 2);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -78,27 +81,13 @@ static void _disenchantment_ball_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a huge ball of antimagic which disenchants your enemies.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, dam));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball(GF_DISENCHANT, dir, dam, rad);
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 2 + plr->lev/20, GF_DISENCHANT, plr_prorata_level(300));
     }
 }
 
 static void _orb_of_draining_spell(int cmd, var_ptr res)
 {
-    int dam = spell_power(plr_prorata_level(125) + p_ptr->to_d_spell);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -107,27 +96,13 @@ static void _orb_of_draining_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a powerful ball that damages living monsters, draining their life force.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, dam));
-        break;
-    case SPELL_CAST:
-    {
-        int dir;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball(GF_LICH_DRAIN, dir, dam, 3);
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 3, GF_LICH_DRAIN, plr_prorata_level(125));
     }
 }
 
 static void _send_to_netherworld_spell(int cmd, var_ptr res)
 {
-    int power = spell_power(p_ptr->lev*6);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -136,27 +111,14 @@ static void _send_to_netherworld_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Point at a single living monster to send it directly to the netherworld.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_power(power));
-        break;
-    case SPELL_CAST:
-    {
-        int dir;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball_hide(GF_LICH_GENOCIDE, dir, power, 0);
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        direct_spell(cmd, res, GF_LICH_GENOCIDE, 6*plr->lev);
     }
 }
 
 static void _word_of_vecna_spell(int cmd, var_ptr res)
 {
-    int power = spell_power(plr_prorata_level(150) + p_ptr->to_d_spell);
+    int power = spell_power(plr_prorata_level(150) + plr->to_d_spell);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -171,7 +133,7 @@ static void _word_of_vecna_spell(int cmd, var_ptr res)
         var_set_string(res, info_power(power));
         break;
     case SPELL_CAST:
-        project_los(GF_LICH_WORD, power);
+        plr_project_los(GF_LICH_WORD, power);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -217,97 +179,86 @@ static int _archlich_get_powers(spell_info* spells, int max)
     spell_info* spell = &spells[ct++];
     spell->level = 25;
     spell->cost = 1;
-    spell->fail = calculate_fail_rate(spell->level, 90, p_ptr->stat_ind[A_INT]);
+    spell->fail = calculate_fail_rate(spell->level, 90, plr->stat_ind[A_INT]);
     spell->fn = eat_magic_spell;
 
     return ct;
 }
 
 static void _archlich_calc_bonuses(void) {
-    if (p_ptr->lev < 25)
-        res_add_vuln(RES_LITE);
+    if (plr->lev < 25)
+        res_add_vuln(GF_LIGHT);
 
-    p_ptr->align -= 200;
-    p_ptr->see_inv++;
-    p_ptr->slow_digest = TRUE;
-    p_ptr->hold_life++;
-    res_add(RES_COLD);
-    res_add(RES_POIS);
-    res_add(RES_NETHER);
-    if (p_ptr->lev >= 25)
+    plr->align -= 200;
+    plr->see_nocto = DUN_VIEW_MAX;
+    plr->see_inv++;
+    plr->slow_digest = TRUE;
+    plr->hold_life++;
+    res_add(GF_COLD);
+    res_add(GF_POIS);
+    res_add(GF_NETHER);
+    if (plr->lev >= 25)
     {
-        p_ptr->pspeed += 1;
-        res_add(RES_CONF);
-        res_add(RES_TELEPORT);
-        p_ptr->free_act++;
-        p_ptr->hold_life++;
-        p_ptr->wizard_sight = TRUE;
+        plr->pspeed += 1;
+        res_add(GF_CONF);
+        res_add(GF_TELEPORT);
+        plr->free_act++;
+        plr->hold_life++;
+        plr->wizard_sight = TRUE;
     }
-    if (p_ptr->lev >= 40)
+    if (plr->lev >= 40)
     {
-        p_ptr->pspeed += 2;
-        res_add(RES_COLD);
-        res_add(RES_POIS);
-        res_add(RES_NETHER);
-        p_ptr->hold_life++;
-        p_ptr->telepathy = TRUE;
+        plr->pspeed += 2;
+        res_add(GF_COLD);
+        res_add(GF_POIS);
+        res_add(GF_NETHER);
+        plr->hold_life++;
+        plr->telepathy = TRUE;
     }
-    if (p_ptr->lev >= 50)
+    if (plr->lev >= 50)
     {
-        p_ptr->pspeed += 2;
-        p_ptr->levitation = TRUE;
-        res_add_immune(RES_NETHER);
-        p_ptr->pass_wall = TRUE;
-        p_ptr->no_passwall_dam = TRUE;
-        p_ptr->hold_life++;
+        plr->pspeed += 2;
+        plr->levitation = TRUE;
+        res_add_immune(GF_NETHER);
+        plr->pass_wall = TRUE;
+        plr->no_passwall_dam = TRUE;
+        plr->hold_life++;
     }
 }
 static void _archlich_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
     add_flag(flgs, OF_SEE_INVIS);
     add_flag(flgs, OF_SLOW_DIGEST);
     add_flag(flgs, OF_HOLD_LIFE);
-    add_flag(flgs, OF_RES_COLD);
-    add_flag(flgs, OF_RES_POIS);
-    add_flag(flgs, OF_RES_NETHER);
+    add_flag(flgs, OF_RES_(GF_COLD));
+    add_flag(flgs, OF_RES_(GF_POIS));
+    add_flag(flgs, OF_RES_(GF_NETHER));
 
-    if (p_ptr->lev < 25)
-        add_flag(flgs, OF_VULN_LITE);
+    if (plr->lev < 25)
+        add_flag(flgs, OF_VULN_(GF_LIGHT));
 
-    if (p_ptr->lev >= 25)
+    if (plr->lev >= 25)
     {
         add_flag(flgs, OF_SPEED);
-        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_(GF_CONF));
         add_flag(flgs, OF_FREE_ACT);
     }
-    if (p_ptr->lev >= 40)
+    if (plr->lev >= 40)
     {
         add_flag(flgs, OF_TELEPATHY);
     }
-    if (p_ptr->lev >= 50)
+    if (plr->lev >= 50)
     {
         add_flag(flgs, OF_LEVITATION);
-        add_flag(flgs, OF_IM_NETHER);
+        add_flag(flgs, OF_IM_(GF_NETHER));
     }
 }
 static void _archlich_gain_level(int new_level) {
-    if (p_ptr->current_r_idx == MON_LICH && new_level >= 25)
-    {
-        p_ptr->current_r_idx = MON_MASTER_LICH;
-        msg_print("You have evolved into a Master Lich.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_MASTER_LICH && new_level >= 40)
-    {
-        p_ptr->current_r_idx = MON_DEMILICH;
-        msg_print("You have evolved into a Demilich.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_DEMILICH && new_level >= 50)
-    {
-        p_ptr->current_r_idx = MON_ARCHLICH;
-        msg_print("You have evolved into an Archlich.");
-        p_ptr->redraw |= PR_MAP;
-    }
+    if (plr_mon_race_is_("L.lich") && new_level >= 25)
+        plr_mon_race_evolve("L.master");
+    if (plr_mon_race_is_("L.master") && new_level >= 40)
+        plr_mon_race_evolve("L.demilich");
+    if (plr_mon_race_is_("L.demilich") && new_level >= 50)
+        plr_mon_race_evolve("L.archlich");
 }
 static caster_info * _archlich_caster_info(void)
 {
@@ -320,7 +271,7 @@ static caster_info * _archlich_caster_info(void)
         me.encumbrance.max_wgt = 450;
         me.encumbrance.weapon_pct = 100;
         me.encumbrance.enc_wgt = 600;
-        me.options = CASTER_ALLOW_DEC_MANA;
+        me.options = CASTER_ALLOW_DEC_MANA | CASTER_GAIN_SKILL;
         init = TRUE;
     }
     return &me;
@@ -332,14 +283,14 @@ static plr_race_ptr _archlich_get_race_t(void)
     static cptr   titles[4] =  {"Lich", "Master Lich", "Demilich", "Archlich"};    
     int           rank = 0;
 
-    if (p_ptr->lev >= 25) rank++;
-    if (p_ptr->lev >= 40) rank++;
-    if (p_ptr->lev >= 50) rank++;
+    if (plr->lev >= 25) rank++;
+    if (plr->lev >= 40) rank++;
+    if (plr->lev >= 50) rank++;
 
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  45,  38,   7,  20,  30,  34,  20 };
-    skills_t xs = {  7,  15,  12,   0,   0,   0,   6,   7 };
+    skills_t xs = { 35,  75,  60,   0,   0,   0,  30,  35 };
 
         me = plr_race_alloc_aux(RACE_MON_LICH, LICH_ARCH);
 
@@ -360,12 +311,12 @@ static plr_race_ptr _archlich_get_race_t(void)
         me->hooks.calc_innate_attacks = _calc_innate_attacks;
         me->hooks.calc_innate_bonuses = _calc_innate_bonuses;
 
-        me->pseudo_class_idx = CLASS_MAGE;
-        me->flags = CLASS_MAGE_BONUS;
+        me->pseudo_class_id = CLASS_MAGE;
+        me->flags = RACE_MAGE_BONUS;
     }
 
     me->subname = titles[rank];
-    me->stats[A_STR] =  0 - (p_ptr->lev / 10);
+    me->stats[A_STR] =  0 - (plr->lev / 10);
     me->stats[A_INT] =  3 + rank;
     me->stats[A_WIS] = -3 - rank;
     me->stats[A_DEX] =  1 + rank;
@@ -390,18 +341,11 @@ static void _entomb_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Entombs chosen foe.");
         break;
-    case SPELL_CAST: {
-        int dir; 
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball_hide(GF_ENTOMB, dir, p_ptr->lev, 0);
-        p_ptr->update |= PU_FLOW;
-        p_ptr->redraw |= PR_MAP;
-        var_set_bool(res, TRUE);
-        break; }
+    case SPELL_CAST:
+        direct_spell(cmd, res, GF_ENTOMB, 0);
+        break;
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 static void _massacre_living_spell(int cmd, var_ptr res)
@@ -418,11 +362,11 @@ static void _massacre_living_spell(int cmd, var_ptr res)
         int dir;
         for (dir = 0; dir < 8; dir++)
         {
-            point_t p = point_step(p_ptr->pos, ddd[dir]);
-            mon_ptr mon = mon_at(p);
+            point_t p = point_step(plr->pos, ddd[dir]);
+            mon_ptr mon = dun_mon_at(cave, p);
 
             if (!mon || !mon_is_living(mon)) continue;
-            if (mon->ml || cave_have_flag_at(p, FF_PROJECT))
+            if (mon->ml || cell_project(dun_cell_at(cave, p)))
                 plr_attack_normal(p);
         }
         var_set_bool(res, TRUE);
@@ -443,7 +387,7 @@ static void _summon_kin_spell(int cmd, var_ptr res)
         var_set_string(res, "Attempts to summon some monastic friends.");
         break;
     case SPELL_CAST:
-        if (!summon_named_creature(0, p_ptr->pos, MON_MONASTIC_LICH, PM_FORCE_PET))
+        if (!summon_named_creature(who_create_null(), plr->pos, mon_race_parse("L.monk"), PM_FORCE_PET))
             msg_print("No friends arrive.");
         var_set_bool(res, TRUE);
         break;
@@ -475,44 +419,45 @@ static int _monastic_lich_get_spells(spell_info* spells, int max) {
 }
 
 static void _monastic_lich_calc_bonuses(void) {
-    if (p_ptr->lev < 25)
-        res_add_vuln(RES_LITE);
+    if (plr->lev < 25)
+        res_add_vuln(GF_LIGHT);
 
-    p_ptr->align -= 200;
-    p_ptr->see_inv++;
-    p_ptr->slow_digest = TRUE;
-    p_ptr->hold_life++;
-    res_add(RES_COLD);
-    res_add(RES_POIS);
-    res_add(RES_NETHER);
-    if (p_ptr->lev >= 25)
+    plr->align -= 200;
+    plr->see_nocto = DUN_VIEW_MAX;
+    plr->see_inv++;
+    plr->slow_digest = TRUE;
+    plr->hold_life++;
+    res_add(GF_COLD);
+    res_add(GF_POIS);
+    res_add(GF_NETHER);
+    if (plr->lev >= 25)
     {
-        p_ptr->monk_lvl = p_ptr->lev;
-        p_ptr->monk_tbl = "Monk.Lich";
+        plr->monk_lvl = plr->lev;
+        plr->monk_tbl = "Monk.Lich";
         monk_ac_bonus();
         if (!heavy_armor())
         {
-            p_ptr->pspeed += p_ptr->lev/10; 
-            p_ptr->free_act++;
-            p_ptr->sh_retaliation = TRUE;
+            plr->pspeed += plr->lev/10; 
+            plr->free_act++;
+            plr->sh_retaliation = TRUE;
         }
-        res_add(RES_CONF);
-        res_add(RES_TELEPORT);
-        p_ptr->hold_life++;
+        res_add(GF_CONF);
+        res_add(GF_TELEPORT);
+        plr->hold_life++;
     }
 }
 static void _monastic_lich_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
     add_flag(flgs, OF_SEE_INVIS);
     add_flag(flgs, OF_SLOW_DIGEST);
     add_flag(flgs, OF_HOLD_LIFE);
-    add_flag(flgs, OF_RES_COLD);
-    add_flag(flgs, OF_RES_POIS);
-    add_flag(flgs, OF_RES_NETHER);
+    add_flag(flgs, OF_RES_(GF_COLD));
+    add_flag(flgs, OF_RES_(GF_POIS));
+    add_flag(flgs, OF_RES_(GF_NETHER));
 
-    if (p_ptr->lev < 25)
-        add_flag(flgs, OF_VULN_LITE);
+    if (plr->lev < 25)
+        add_flag(flgs, OF_VULN_(GF_LIGHT));
 
-    if (p_ptr->lev >= 25)
+    if (plr->lev >= 25)
     {
         if (!heavy_armor())
         {
@@ -520,7 +465,7 @@ static void _monastic_lich_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
             add_flag(flgs, OF_FREE_ACT);
             add_flag(flgs, OF_AURA_REVENGE);
         }
-        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_(GF_CONF));
     }
 }
 static caster_info * _monastic_lich_caster_info(void)
@@ -534,17 +479,14 @@ static caster_info * _monastic_lich_caster_info(void)
         me.encumbrance.max_wgt = 350;
         me.encumbrance.weapon_pct = 100;
         me.encumbrance.enc_wgt = 800;
+        me.options = CASTER_GAIN_SKILL;
         init = TRUE;
     }
     return &me;
 }
 static void _monastic_lich_gain_level(int new_level) {
-    if (p_ptr->current_r_idx == MON_LICH && new_level >= 25)
-    {
-        p_ptr->current_r_idx = MON_MONASTIC_LICH;
-        msg_print("You have evolved into a Monastic Lich.");
-        p_ptr->redraw |= PR_MAP;
-    }
+    if (plr_mon_race_is_("L.lich") && new_level >= 25)
+        plr_mon_race_evolve("L.monk");
 }
 
 static plr_race_ptr _monastic_lich_get_race_t(void)
@@ -553,12 +495,12 @@ static plr_race_ptr _monastic_lich_get_race_t(void)
     static cptr   titles[2] =  {"Lich", "Monastic-Lich"}; /* XXX [EQU $SUBRACE "Monastic Lich"] won't work */
     int           rank = 0;
 
-    if (p_ptr->lev >= 25) rank++;
+    if (plr->lev >= 25) rank++;
 
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 45,  34,  38,   6,  32,  24,  64,  40};
-    skills_t xs = { 15,  11,  12,   0,   0,   0,  18,  15};
+    skills_t xs = { 75,  55,  60,   0,   0,   0,  90,  75};
 
         me = plr_race_alloc_aux(RACE_MON_LICH, LICH_MONASTIC);
 
@@ -577,7 +519,7 @@ static plr_race_ptr _monastic_lich_get_race_t(void)
         me->hooks.get_flags = _monastic_lich_get_flags;
         me->hooks.gain_level = _monastic_lich_gain_level;
 
-        me->pseudo_class_idx = CLASS_MONK;
+        me->pseudo_class_id = CLASS_MONK;
     }
 
     if (rank)
@@ -624,6 +566,11 @@ plr_race_ptr mon_lich_get_race(int psubrace)
 {
     plr_race_ptr result = NULL;
 
+    if (birth_hack && psubrace >= LICH_MAX)
+        psubrace = 0;
+
+    assert(0 <= psubrace && psubrace < LICH_MAX);
+
     switch (psubrace)
     {
     case LICH_ARCH:
@@ -645,7 +592,8 @@ plr_race_ptr mon_lich_get_race(int psubrace)
     result->desc = _desc;
     result->flags |= RACE_IS_MONSTER | RACE_IS_NONLIVING | RACE_IS_UNDEAD;
     result->shop_adjust = 135;
-    result->boss_r_idx = MON_VECNA;
+    result->boss_r_idx = mon_race_parse("L.Vecna")->id;
+    result->equip_template = plr_equip_template();
 
     if (birth_hack || spoiler_hack)
     {

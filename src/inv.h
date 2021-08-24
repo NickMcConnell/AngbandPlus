@@ -68,7 +68,7 @@ extern obj_ptr inv_obj(inv_ptr inv, slot_t slot); /* NULL if slot is not occupie
 extern slot_t  inv_first(inv_ptr inv, obj_p p);
 extern slot_t  inv_next(inv_ptr inv, obj_p p, slot_t prev_match); /* Begins new search at prev_match + 1 */
 extern slot_t  inv_last(inv_ptr inv, obj_p p);
-extern slot_t  inv_find_art(inv_ptr inv, int which); /* equip module wants to know if a certain artifact is being worn */
+extern slot_t  inv_find_art(inv_ptr inv, cptr which); /* equip module wants to know if a certain artifact is being worn */
 extern slot_t  inv_find_ego(inv_ptr inv, int which);
 extern slot_t  inv_find_obj(inv_ptr inv, int tval, int sval);
 extern void    inv_for_each(inv_ptr inv, obj_f f); /* apply f to each non-null object */

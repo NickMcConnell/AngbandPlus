@@ -25,11 +25,11 @@ Experience   150%
 </style></indent>
 <topic:Duelist><color:o>Duelist</color>
 The duelist is the ultimate one-on-one fighter, but finds himself at a severe disadvantage when facing numerous strong foes. When facing an enemy, the duelist first issues a challenge, marking that foe for a one on one duel. Of course, this wakes the monster up (There is no honor in dueling a sleeping enemy). And while the duelist will honor the fight as a one on one affair, many monsters have no such scruples.
- 
+
 Against a challenged foe, the duelist is very strong gaining a bonus to saving throws, armor class, damage reduction and combat prowess. On the other hand, due to the single-mindedness of their focus, the duelist is quite vulnerable to unchallenged opponents. Most of the techniques of this class aim at enforcing the sanctity of the duel.
- 
+
 The duelist only ever gains a single attack in combat, but they make the most of this blow by gaining enhanced effects as they gain experience. Able to wound, stun, and even hamstring their foes, the prowess of the duelist in a one on one encounter is legendary!
- 
+
 Duelists favor light armors and cannot equip a shield. They gain no extra bonus when wielding a weapon with both hands. For their techniques the duelist relies on dexterity.
 
   <indent><style:table><color:G>Stats                   Skills</color>
@@ -296,13 +296,15 @@ Experience   130%
 <topic:Necromancer><color:o>Necromancer</color>
 A Necromancer attempts to gain both power and knowledge through communion with the dead. They use powerful necromancy magic to summon aid from the dead, whether directly in terms of undead servitude, or indirectly through other-worldly knowledge. Necromancy also offers myriad foul offensive spells, but all of these require the Necromancer to physically touch his foe. To do so, the Necromancer may wield neither weapon, nor gloves. But a powerful necromancer is truly awe inspiring, and may even kill foes with a single deadly touch! In addition, they forever hunt for the legendary Eye and Hand of Vecna in order to complete their power.
 
+The necromancer can see in the dark and need not wear an ordinary light source. Without a light source they can hide in shadows, but this requires a necromantic spell.
+
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> -2</color>        Disarming   <color:o>Fair         </color>
 Intelligence <color:v> +3</color>        Device      <color:g>Superb       </color>
 Wisdom       <color:w> -4</color>        Save        <color:y>Good         </color>
-Dexterity    <color:w> +1</color>        Stealth     <color:y>Very Good    </color>
-Constitution <color:w> -1</color>        Searching   <color:R>Poor         </color>
-Charisma     <color:w> -2</color>        Perception  <color:o>Fair         </color>
+Dexterity    <color:w> +0</color>        Stealth     <color:y>Very Good    </color>
+Constitution <color:w> -2</color>        Searching   <color:R>Poor         </color>
+Charisma     <color:w> +2</color>        Perception  <color:o>Fair         </color>
 Life Rating   95%       Melee       <color:D>Very Bad     </color>
 Base HP        2        Bows        <color:D>Very Bad     </color>
 Experience   125%
@@ -742,7 +744,7 @@ Blue-Mage      -1 <color:v>  +3 </color>  +0   -1   -1   +0  100%   +4  130%
 Gray-Mage      -4 <color:v>  +3 </color>  +0   +1   -2   -2   95%   +0  130%
 High-Mage      -4 <color:v>  +4 </color>  +0   +0   -2   -2   94%   +0  130%
 Mage           -4 <color:v>  +3 </color>  +0   +1   -2   -2   95%   +0  130%
-Necromancer    -2 <color:v>  +3 </color>  -4   +1   -1   -2   95%   +2  125%
+Necromancer    -2 <color:v>  +3 </color>  -4   +0   -2   +2   95%   +2  125%
 Sorcerer       -5   +0   -2   +2   +0 <color:v>  +6 </color>  65%   +0  160%
 Yellow-Mage    -4 <color:v>  +3 </color>  +0   +1   -2   -2   95%   +0  130%
 Devicemaster   -1 <color:v>  +2 </color>  +1   +2   -2   -2  101%   +6  130%
@@ -868,4 +870,4 @@ Wild-Talent   <color:o>Fair         </color> <color:R>Poor         </color> <col
 </style>
 
 
-<color:s>Automatically generated for PosChengband 7.2.1.</color>
+<color:s>Automatically generated for PosChengband 7.3.1.</color>

@@ -1,4 +1,5 @@
 #include "c-vec.h"
+#include "z-rand.h"
 
 #include <assert.h>
 #include <math.h>
@@ -121,13 +122,21 @@ vptr vec_get(vec_ptr vec, int i)
     }
     return res;
 }
-
+vptr vec_random(vec_ptr vec)
+{
+    if (!vec->len) return 0;
+    return vec_get(vec, randint0(vec->len));
+}
 int vec_get_int(vec_ptr vec, int i)
 {
     vptr pv = vec_get(vec, i);
     return (int)(intptr_t)pv;
 }
-
+int vec_random_int(vec_ptr vec)
+{
+    if (!vec->len) return 0;
+    return vec_get_int(vec, randint0(vec->len));
+}
 void vec_delete(vec_ptr vec, int i)
 {
     int j;

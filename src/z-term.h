@@ -13,6 +13,78 @@
 
 #include "h-basic.h"
 
+/* XXX Future XXX */
+
+/* ascii visuals may use one of 16 colors */
+enum term_attr_e {
+    TERM_DARK,     /* 'd' */
+    TERM_WHITE,    /* 'w' */
+    TERM_SLATE,    /* 's' */
+    TERM_ORANGE,   /* 'o' */
+    TERM_RED,      /* 'r' */
+    TERM_GREEN,    /* 'g' */
+    TERM_BLUE,     /* 'b' */
+    TERM_UMBER,    /* 'u' */
+    TERM_L_DARK,   /* 'D' */
+    TERM_L_WHITE,  /* 'W' */
+    TERM_VIOLET,   /* 'v' */
+    TERM_YELLOW,   /* 'y' */
+    TERM_L_RED,    /* 'R' */
+    TERM_L_GREEN,  /* 'G' */
+    TERM_L_BLUE,   /* 'B' */
+    TERM_L_UMBER,  /* 'U' */
+};
+
+/* a "term char" is a single visual, either ascii or graphical */
+struct term_char_s
+{
+    byte c;
+    byte a;
+};
+typedef struct term_char_s term_char_t, *term_char_ptr;
+extern term_char_t term_char_create(char c, byte a);
+extern bool term_char_is_ascii(term_char_t tc);
+extern bool term_char_is_graphics(term_char_t tc);
+extern void Term_queue_term_char(point_t pos, term_char_t tc);
+extern term_char_t Term_get_term_char(point_t pos);
+
+/* a "map char" is a stack of visuals at a given locations: terrain,trap,object,monster */
+#define MAX_MAP_CHARS 5
+struct map_char_s
+{
+    int count;
+    int light;
+    int priority;
+    int background; /* XXX webbed floor tiles prefer using web background for stuck monsters */
+    term_char_t stack[MAX_MAP_CHARS];
+};
+typedef struct map_char_s map_char_t, *map_char_ptr;
+extern void map_char_push(map_char_ptr mc, term_char_t tc);
+extern term_char_t map_char_pop(map_char_ptr mc);
+extern term_char_t map_char_top(map_char_ptr mc);
+extern void Term_queue_map_char(point_t pos, map_char_ptr mc);
+extern map_char_t Term_get_map_char(point_t pos);
+
+/* "visuals" are ascii characters or graphical images for objects, monsters, features, etc.
+ * pref files defined named visuals during "reset_visuals" */
+extern void visual_set(cptr name, term_char_t tc, int light);
+extern void visual_set_ascii(cptr name, term_char_t tc, int light);
+extern term_char_t visual_get(cptr name, int light);
+extern term_char_t visual_get_ascii(cptr name);
+
+extern term_char_t visual_get_aux(int id, int light);
+extern term_char_t visual_get_ascii_aux(int id);
+extern void visual_set_aux(int id, term_char_t tc, int light);
+extern void visual_set_ascii_aux(int id, term_char_t tc, int light);
+
+extern void visual_clear(void);
+extern void visual_reset(void);
+extern bool visual_find(cptr name);
+
+extern void Term_dump(rect_t rect);
+extern rect_t Term_rect(void);
+
+/* XXX End of Future XXX */
 
 /*
  * A term_win is a "window" for a Term

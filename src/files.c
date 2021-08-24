@@ -209,7 +209,7 @@ int z_string_split(char *buf, char **tokens, int max, cptr delim)
 {
     int i = 0;
     char *s = buf;
-    bool quote = FALSE;
+    char quote_char = '\0';
 
     /* inch-worm alogorithm: s marks the start of the current token
        while t scans ahead for the next delimiter. buf is destroyed. */
@@ -219,8 +219,10 @@ int z_string_split(char *buf, char **tokens, int max, cptr delim)
 
         for (t = s; *t; t++)
         {
-            if (*t == '"') quote = !quote;
-            if (!quote && strchr(delim, *t)) break;
+            if (*t == quote_char) quote_char = '\0';
+            else if (quote_char) {}
+            else if (*t == '\"' || *t == '`') quote_char = *t;
+            else if (strchr(delim, *t)) break;
         }
 
         if (!*t) break;
@@ -254,6 +256,12 @@ void trim_tokens(char **tokens, int ct)
             s++;
             t--;
         }
+        else if (*s && *s == '`' && *t && *t == '`' && t > s)
+        {
+            s++;
+            t--;
+        }
+
 
         t++;
         *t = '\0';
@@ -267,6 +275,7 @@ int parse_args(char *buf, char **name, char **args, int max)
     char *s = buf;
     char *t;
     int   ct = 0;
+    char  quote_char = '\0';
 
     for (t = s; *t; t++)
     {
@@ -285,7 +294,10 @@ int parse_args(char *buf, char **name, char **args, int max)
 
     for (t = s; *t; t++)
     {
-        if (*t == ')') break;
+        if (*t == quote_char) quote_char = '\0';
+        else if (quote_char) {}
+        else if (*t == '\"' || *t == '`') quote_char = *t;
+        else if (*t == ')') break;
     }
 
     if (!*t)
@@ -381,18 +393,47 @@ errr process_pref_file_command(char *buf)
 
     switch (buf[0])
     {
-    /* Process "R:<num>:<a>/<c>" -- attr/char for monster races */
-    case 'R':
-        if (tokenize(buf+2, 3, zz, TOKENIZE_CHECKQUOTE) == 3)
+    /* generic visuals  XXX legacy code already using ACEFKRSTUVXYZ; use 'G' for 'Graphics' XXX
+     * G:<name>:<a>:<c>[:<l>] */
+    case 'G': {
+        int num = tokenize(buf+2, 4, zz, TOKENIZE_NO_SLASH | TOKENIZE_NO_ESCAPE);
+        cptr name;
+        term_char_t tc = {0};
+        int lite = 0;
+
+        if (num < 3 || num > 4)
         {
-            monster_race *r_ptr;
-            i = (huge)strtol(zz[0], NULL, 0);
+            msg_print("Syntax Error: Expected G:<name>:<a>:<c>[:<lite>]");
+            return 1;
+        }
+        name = zz[0];
+        tc.a = strtol(zz[1], NULL, 0); /* parse hexadecimal */
+        tc.c = strtol(zz[2], NULL, 0);
+        if (num >= 4)
+            lite = atoi(zz[3]);
+        visual_set(name, tc, lite);
+        return 0; }
+
+    /* Process "R:<num>:<a>:<c>" -- attr/char for monster races
+     * Slash is no longer supported since mon_race->id might contain it,
+     * and this cannot be quoted since tokenize does not support ` quotes.
+     * (cf parse_args or z_string_split for better handling.) */
+    case 'R':
+        if (tokenize(buf+2, 3, zz, TOKENIZE_NO_SLASH | TOKENIZE_NO_ESCAPE) == 3)
+        {
+            mon_race_ptr race = mon_race_parse(zz[0]);
+            term_char_t tc;
+            if (!race)
+            {
+                msg_format("<color:v>Error</color>: <color:r>%s</color> is not a valid monster race!", zz[0]);
+                return PARSE_ERROR_INVALID_FLAG;
+            }
+            tc = mon_race_visual(race); /* XXX cf ../lib/pref/xtra-xxx.prf */
             n1 = strtol(zz[1], NULL, 0);
             n2 = strtol(zz[2], NULL, 0);
-            if (i >= max_r_idx) return 1;
-            r_ptr = &r_info[i];
-            if (n1 || (!(n2 & 0x80) && n2)) r_ptr->x_attr = n1; /* Allow TERM_DARK text */
-            if (n2) r_ptr->x_char = n2;
+            if (n1 || (!(n2 & 0x80) && n2)) tc.a = n1; /* Allow TERM_DARK text */
+            if (n2) tc.c = n2;
+            visual_set(zz[0], tc, 0);
             return 0;
         }
         break;
@@ -416,60 +457,6 @@ errr process_pref_file_command(char *buf)
             return 0;
         }
         break;
-
-    /* Process "F:<num>:<a>/<c>" -- attr/char for terrain features */
-    /* "F:<num>:<a>/<c>" */
-    /* "F:<num>:<a>/<c>:LIT" */
-    /* "F:<num>:<a>/<c>:<la>/<lc>:<da>/<dc>" */
-    case 'F':
-        {
-            feature_type *f_ptr;
-            int num = tokenize(buf + 2, F_LIT_MAX * 2 + 1, zz, TOKENIZE_CHECKQUOTE);
-
-            if ((num != 3) && (num != 4) && (num != F_LIT_MAX * 2 + 1)) return 1;
-            else if ((num == 4) && !streq(zz[3], "LIT")) return 1;
-
-            i = (huge)strtol(zz[0], NULL, 0);
-            if (i >= max_f_idx) return 1;
-            f_ptr = &f_info[i];
-
-            n1 = strtol(zz[1], NULL, 0);
-            n2 = strtol(zz[2], NULL, 0);
-            if (n1 || (!(n2 & 0x80) && n2)) f_ptr->x_attr[F_LIT_STANDARD] = n1; /* Allow TERM_DARK text */
-            if (n2) f_ptr->x_char[F_LIT_STANDARD] = n2;
-
-            /* Mega-hack -- feat supports lighting */
-            switch (num)
-            {
-            /* No lighting support */
-            case 3:
-                n1 = f_ptr->x_attr[F_LIT_STANDARD];
-                n2 = f_ptr->x_char[F_LIT_STANDARD];
-                for (j = F_LIT_NS_BEGIN; j < F_LIT_MAX; j++)
-                {
-                    f_ptr->x_attr[j] = n1;
-                    f_ptr->x_char[j] = n2;
-                }
-                break;
-
-            /* Use default lighting */
-            case 4:
-                apply_default_feat_lighting(f_ptr->x_attr, f_ptr->x_char);
-                break;
-
-            /* Use desired lighting */
-            case F_LIT_MAX * 2 + 1:
-                for (j = F_LIT_NS_BEGIN; j < F_LIT_MAX; j++)
-                {
-                    n1 = strtol(zz[j * 2 + 1], NULL, 0);
-                    n2 = strtol(zz[j * 2 + 2], NULL, 0);
-                    if (n1 || (!(n2 & 0x80) && n2)) f_ptr->x_attr[j] = n1; /* Allow TERM_DARK text */
-                    if (n2) f_ptr->x_char[j] = n2;
-                }
-                break;
-            }
-        }
-        return 0;
 
     /* Process "S:<num>:<a>/<c>" -- attr/char for special things */
     case 'S':
@@ -582,8 +569,8 @@ errr process_pref_file_command(char *buf)
                 int os = option_info[i].o_set;
                 int ob = option_info[i].o_bit;
 
-                if ((p_ptr->playing || character_xtra) &&
-                    (OPT_PAGE_BIRTH == option_info[i].o_page) && !p_ptr->wizard)
+                if ((plr->playing || character_xtra) &&
+                    (OPT_PAGE_BIRTH == option_info[i].o_page) && !plr->wizard)
                 {
                     msg_format("Birth options can not changed! '%s'", buf);
                     msg_print(NULL);
@@ -941,7 +928,7 @@ cptr process_pref_file_expr(char **sp, char *fp)
             /* Race */
             else if (streq(b+1, "RACE"))
             {
-                if (p_ptr->prace == RACE_DOPPELGANGER) /* Use appropriate visuals for mimicked race */
+                if (plr->prace == RACE_DOPPELGANGER) /* Use appropriate visuals for mimicked race */
                     v = get_race()->name;
                 else
                     v = get_true_race()->name;
@@ -958,7 +945,7 @@ cptr process_pref_file_expr(char **sp, char *fp)
             }
             else if (streq(b+1, "WORLD"))
             {
-                sprintf(tmp, "%d", p_ptr->initial_world_id);
+                sprintf(tmp, "%d", plr->initial_world_id);
                 v = tmp;
             }
 
@@ -978,26 +965,26 @@ cptr process_pref_file_expr(char **sp, char *fp)
             /* First realm */
             else if (streq(b+1, "REALM1"))
             {
-                v = realm_names[p_ptr->realm1];
+                v = realm_names[plr->realm1];
             }
 
             /* Second realm */
             else if (streq(b+1, "REALM2"))
             {
-                v = realm_names[p_ptr->realm2];
+                v = realm_names[plr->realm2];
             }
 
             /* Level */
             else if (streq(b+1, "LEVEL"))
             {
-                sprintf(tmp, "%02d", p_ptr->lev);
+                sprintf(tmp, "%02d", plr->lev);
                 v = tmp;
             }
 
             /* Autopick auto-register is in-use or not? */
             else if (streq(b+1, "AUTOREGISTER"))
             {
-                if (p_ptr->autopick_autoregister)
+                if (plr->autopick_autoregister)
                     v = "1";
                 else
                     v = "0";
@@ -1006,7 +993,7 @@ cptr process_pref_file_expr(char **sp, char *fp)
             /* Money */
             else if (streq(b+1, "MONEY"))
             {
-                sprintf(tmp, "%09d", p_ptr->au);
+                sprintf(tmp, "%09d", plr->au);
                 v = tmp;
             }
         }
@@ -1472,7 +1459,7 @@ void player_flags(u32b flgs[OF_ARRAY_SIZE])
 void tim_player_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     /* Hex bonuses */
-    if (p_ptr->realm1 == REALM_HEX)
+    if (plr->realm1 == REALM_HEX)
     {
         if (hex_spelling(HEX_DEMON_AURA))
         {
@@ -1485,81 +1472,47 @@ void tim_player_flags(u32b flgs[OF_ARRAY_SIZE])
 }
 
 #endif
+static int _ct;
+static void _ct_kills(mon_race_ptr r)
+{
+    if (mon_race_is_fixed_unique(r))
+    {
+        if (r->alloc.max_num == 0) _ct++;
+    }
+    else
+    {
+        _ct += r->lore.kills.current;
+    }
+}
+static void _ct_unique_kills(mon_race_ptr r)
+{
+    if (!mon_race_is_fixed_unique(r)) return;
+    if (r->alloc.max_num == 0) _ct++;
+}
 int ct_kills(void)
 {
-    int i;
-    int result = 0;
-
-    for (i = 0; i < max_r_idx; i++)
-    {
-        monster_race *r_ptr = &r_info[i];
-        if (!r_ptr->name) continue;
-        if (r_ptr->flags1 & RF1_UNIQUE)
-        {
-            if (r_ptr->max_num == 0) result++;
-        }
-        else
-        {
-            result += r_ptr->r_pkills;
-        }
-    }
-
-    return result;
+    _ct = 0;
+    mon_race_iter(_ct_kills);
+    return _ct;
 }
 int ct_kills_all(void)
 {
-    int i;
-    int result = 0;
-
-    for (i = 0; i < max_r_idx; i++)
-    {
-        monster_race *r_ptr = &r_info[i];
-        if (!r_ptr->name) continue;
-        if (r_ptr->flags1 & RF1_UNIQUE)
-        {
-            if (r_ptr->max_num == 0) result++;
-        }
-        else
-        {
-            result += r_ptr->r_pkills;
-        }
-    }
-
-    return result;
+    return ct_kills(); /* XXX not sure the intent here, but was always same as ct_kills() */
 }
-
 int ct_uniques(void)
 {
-    int i;
-    int result = 0;
-
-    for (i = 0; i < max_r_idx; i++)
-    {
-        monster_race *r_ptr = &r_info[i];
-        if (!r_ptr->name) continue;
-        if (r_ptr->flags1 & RF1_UNIQUE)
-        {
-            if (r_ptr->max_num == 0) result++;
-        }
-    }
-
-    return result;
+    _ct = 0;
+    mon_race_iter(_ct_unique_kills);
+    return _ct;
 }
 
+static bool _art_found(int id, art_ptr art) { return art->found; }
 int ct_artifacts(void)
 {
-    int i;
-    int result = 0;
-
-    for (i = 0; i < max_a_idx; i++)
-    {
-        artifact_type *a_ptr = &a_info[i];
-        if (!a_ptr->name) continue;
-        if (!a_ptr->found) continue;
-        result++;
-    }
-
-    return result;
+    vec_ptr v = arts_filter_ex(_art_found);
+    int ct = vec_length(v);
+    vec_free(v);
+    return ct;
 }
 
 /*
@@ -1573,7 +1526,7 @@ cptr map_name(void)
     else if (dun_world_town_id())
         return town_name(dun_world_town_id());
     else
-        return dun_type()->name;
+        return cave->type->name;
 }
 
 /*
@@ -2561,7 +2514,7 @@ void do_cmd_suicide(void)
     flush();
 
     /* Verify Retirement */
-    if (p_ptr->total_winner)
+    if (plr->total_winner)
     {
         /* Verify */
         if (!get_check_strict("Do you want to retire? ", CHECK_NO_HISTORY)) return;
@@ -2576,7 +2529,7 @@ void do_cmd_suicide(void)
     }
 
 
-    if (!p_ptr->noscore)
+    if (!plr->noscore)
     {
         /* Special Verification for suicide */
         prt("Please verify SUICIDE by typing the '@' sign: ", 0, 0);
@@ -2588,11 +2541,11 @@ void do_cmd_suicide(void)
     }
 
     /* Initialize "last message" buffer */
-    if (p_ptr->last_message) z_string_free(p_ptr->last_message);
-    p_ptr->last_message = NULL;
+    if (plr->last_message) z_string_free(plr->last_message);
+    plr->last_message = NULL;
 
     /* Hack -- Note *winning* message */
-    if (p_ptr->total_winner && last_words)
+    if (plr->total_winner && last_words)
     {
         char buf[1024] = "";
 
@@ -2604,22 +2557,22 @@ void do_cmd_suicide(void)
 
         if (buf[0])
         {
-            p_ptr->last_message = z_string_make(buf);
-            msg_print(p_ptr->last_message);
+            plr->last_message = z_string_make(buf);
+            msg_print(plr->last_message);
         }
     }
 
     /* Stop playing */
-    p_ptr->playing = FALSE;
+    plr->playing = FALSE;
 
     /* Kill the player */
-    p_ptr->is_dead = TRUE;
+    plr->is_dead = TRUE;
 
     /* Leaving */
-    p_ptr->leaving = TRUE;
+    plr->leaving = TRUE;
 
     /* Cause of death */
-    (void)strcpy(p_ptr->died_from, "Quitting");
+    (void)strcpy(plr->died_from, "Quitting");
 }
 
 
@@ -2640,7 +2593,7 @@ void do_cmd_save_game(int is_autosave)
     Term_fresh();
 
     /* The player is not dead */
-    (void)strcpy(p_ptr->died_from, "(saved)");
+    (void)strcpy(plr->died_from, "(saved)");
 
     /* Forbid suspend */
     signals_ignore_tstp();
@@ -2664,7 +2617,7 @@ void do_cmd_save_game(int is_autosave)
     Term_fresh();
 
     /* Note that the player is not dead */
-    (void)strcpy(p_ptr->died_from, "(alive and well)");
+    (void)strcpy(plr->died_from, "(alive and well)");
 
     /* HACK -- don't get sanity blast on updating view */
     hack_mind = FALSE;
@@ -2682,10 +2635,10 @@ void do_cmd_save_game(int is_autosave)
  */
 void do_cmd_save_and_exit(void)
 {
-    p_ptr->playing = FALSE;
+    plr->playing = FALSE;
 
     /* Leaving */
-    p_ptr->leaving = TRUE;
+    plr->leaving = TRUE;
 }
 
 #define GRAVE_LINE_WIDTH 31
@@ -2764,7 +2717,7 @@ static void print_tomb(void)
         }
 
         /* King or Queen */
-        if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
+        if (plr->total_winner || (plr->lev > PY_MAX_LEVEL))
         {
             p = "Magnificent";
         }
@@ -2787,15 +2740,15 @@ static void print_tomb(void)
         center_string(buf, get_class()->name);
         put_str(buf, 10, 11);
 
-        (void)sprintf(tmp, "Level: %d", (int)p_ptr->lev);
+        (void)sprintf(tmp, "Level: %d", (int)plr->lev);
         center_string(buf, tmp);
         put_str(buf, 11, 11);
 
-        (void)sprintf(tmp, "Exp: %d", p_ptr->exp);
+        (void)sprintf(tmp, "Exp: %d", plr->exp);
         center_string(buf, tmp);
         put_str(buf, 12, 11);
 
-        (void)sprintf(tmp, "AU: %d", p_ptr->au);
+        (void)sprintf(tmp, "AU: %d", plr->au);
         center_string(buf, tmp);
         put_str(buf, 13, 11);
 
@@ -2803,7 +2756,7 @@ static void print_tomb(void)
         center_string(buf, tmp);
         put_str(buf, 14, 11);
 
-        roff_to_buf(format("by %s.", p_ptr->died_from), GRAVE_LINE_WIDTH + 1, tmp, sizeof tmp);
+        roff_to_buf(format("by %s.", plr->died_from), GRAVE_LINE_WIDTH + 1, tmp, sizeof tmp);
         center_string(buf, tmp);
         put_str(buf, 15, 11);
         t = tmp + strlen(tmp) + 1;
@@ -2843,7 +2796,7 @@ static void show_info(void)
     home_optimize();
 
     /* Hack -- Recalculate bonuses */
-    p_ptr->update |= (PU_BONUS);
+    plr->update |= (PU_BONUS);
 
     /* Handle stuff */
     handle_stuff();
@@ -2897,9 +2850,13 @@ bool check_score(void)
     /* Clear screen */
     Term_clear();
 
+#ifdef NO_SCORES
+    return FALSE;
+#endif
+
 #ifndef SCORE_WIZARDS
     /* Wizard-mode pre-empts scoring */
-    if (p_ptr->noscore & 0x000F)
+    if (plr->noscore & 0x000F)
     {
         msg_print("Score not registered for wizards.");
 
@@ -2910,7 +2867,7 @@ bool check_score(void)
 
 #ifndef SCORE_BORGS
     /* Borg-mode pre-empts scoring */
-    if (p_ptr->noscore & 0x00F0)
+    if (plr->noscore & 0x00F0)
     {
         msg_print("Score not registered for borgs.");
 
@@ -2921,7 +2878,7 @@ bool check_score(void)
 
 #ifndef SCORE_CHEATERS
     /* Cheaters are not scored */
-    if (p_ptr->noscore & 0xFF00)
+    if (plr->noscore & 0xFF00)
     {
         msg_print("Score not registered for cheaters.");
 
@@ -2931,7 +2888,7 @@ bool check_score(void)
 #endif
 
     /* Interupted */
-    if (!p_ptr->total_winner && streq(p_ptr->died_from, "Interrupting"))
+    if (!plr->total_winner && streq(plr->died_from, "Interrupting"))
 
     {
         msg_print("Score not registered due to interruption.");
@@ -2941,7 +2898,7 @@ bool check_score(void)
     }
 
     /* Quitter 
-    if (!p_ptr->total_winner && streq(p_ptr->died_from, "Quitting"))
+    if (!plr->total_winner && streq(plr->died_from, "Quitting"))
 
     {
         msg_print("Score not registered due to quitting.");
@@ -2959,25 +2916,25 @@ void kingly(void)
 {
     int wid, hgt;
     int cx, cy;
-    bool seppuku = streq(p_ptr->died_from, "Seppuku");
+    bool seppuku = streq(plr->died_from, "Seppuku");
 
     /* Fake death */
     if (!seppuku)
-        (void)strcpy(p_ptr->died_from, "Ripe Old Age");
+        (void)strcpy(plr->died_from, "Ripe Old Age");
 
 
     /* Restore the experience */
-    p_ptr->exp = p_ptr->max_exp;
+    plr->exp = plr->max_exp;
 
     /* Restore the level */
-    p_ptr->lev = p_ptr->max_plv;
+    plr->lev = plr->max_plv;
 
     Term_get_size(&wid, &hgt);
     cy = hgt / 2;
     cx = wid / 2;
 
     /* Hack -- Instant Gold */
-    p_ptr->au += 10000000;
+    plr->au += 10000000;
     stats_on_gold_winnings(10000000);
 
     /* Clear screen */
@@ -3000,7 +2957,7 @@ void kingly(void)
     /* Display a message */
     put_str("Veni, Vidi, Vici!", cy + 3, cx - 9);
     put_str("I came, I saw, I conquered!", cy + 4, cx - 14);
-    put_str(format("All Hail the Mighty %s!", sex_info[p_ptr->psex].winner), cy + 5, cx - 13);
+    put_str(format("All Hail the Mighty %s!", sex_info[plr->psex].winner), cy + 5, cx - 13);
 
 
     /* Flush input */
@@ -3035,10 +2992,10 @@ void close_game(void)
 
 
     /* Handle death */
-    if (p_ptr->is_dead)
+    if (plr->is_dead)
     {
         /* Handle retirement */
-        if (p_ptr->total_winner) kingly();
+        if (plr->total_winner) kingly();
 
         /* Save memories */
         if (!save_player()) msg_print("death save failed!");
@@ -3067,6 +3024,8 @@ void close_game(void)
 
     monk_attack_shutdown();
     plr_shutdown();
+    sym_shutdown();
+    point_vec_free(temp_pts);
 
     /* Allow suspending now */
     signals_handle_tstp();
@@ -3094,16 +3053,16 @@ void exit_game_panic(void)
     disturb(1, 0);
 
     /* Mega-Hack -- Delay death */
-    if (p_ptr->chp < 0) p_ptr->is_dead = FALSE;
+    if (plr->chp < 0) plr->is_dead = FALSE;
 
     /* Hardcode panic save */
-    p_ptr->panic_save = 1;
+    plr->panic_save = 1;
 
     /* Forbid suspend */
     signals_ignore_tstp();
 
     /* Indicate panic save */
-    (void)strcpy(p_ptr->died_from, "(panic save)");
+    (void)strcpy(plr->died_from, "(panic save)");
 
 
     /* Panic save, or get worried */
@@ -3119,7 +3078,7 @@ void exit_game_panic(void)
  * Get a random line from a file
  * Based on the monster speech patch by Matt Graham,
  */
-errr get_rnd_line(cptr file_name, int entry, char *output)
+errr get_rnd_line(cptr file_name, cptr entry, char *output)
 {
     FILE    *fp;
     char    buf[1024];
@@ -3136,7 +3095,8 @@ errr get_rnd_line(cptr file_name, int entry, char *output)
     /* Failed */
     if (!fp) return -1;
 
-    /* Find the entry of the monster */
+    /* Find the entry of the monster. Note this is no longer a numeric id, 
+     * but a textual key such as |.Stormbringer or D.sky */
     while (TRUE)
     {
         /* Get a line from the file */
@@ -3148,33 +3108,22 @@ errr get_rnd_line(cptr file_name, int entry, char *output)
             /* Look for lines starting with 'N:' */
             if ((buf[0] == 'N') && (buf[1] == ':'))
             {
-                /* Allow default lines */
-                if (buf[2] == '*')
+                char *zz[10];
+                int   num = tokenize(buf + 2, 10, zz, TOKENIZE_NO_SLASH | TOKENIZE_NO_ESCAPE);
+
+                if (num < 1)
                 {
-                    /* Default lines */
-                    break;
-                }
-                else if (buf[2] == 'M')
-                {
-                    if (r_info[entry].flags1 & RF1_MALE) break;
-                }
-                else if (buf[2] == 'F')
-                {
-                    if (r_info[entry].flags1 & RF1_FEMALE) break;
-                }
-                /* Get the monster number */
-                else if (sscanf(&(buf[2]), "%d", &test) != EOF)
-                {
-                    /* Is it the right number? */
-                    if (test == entry) break;
-                }
-                else
-                {
-                    /* Error while converting the number */
                     msg_format("Error in line %d of %s!", line_num, file_name);
                     my_fclose(fp);
                     return -1;
                 }
+
+                /* Allow default lines */
+                if (strcmp(zz[0], "*") == 0)
+                    break;
+
+                if (entry && strcmp(zz[0], entry) == 0)
+                    break;
             }
         }
         else
@@ -3249,9 +3198,9 @@ static errr counts_seek(int fd, u32b where, bool flag)
     int i;
 
 #ifdef SAVEFILE_USE_UID
-    (void)sprintf(temp1, "%d.%s.%d%d%d", player_uid, savefile_base, p_ptr->pclass, p_ptr->personality, 0);
+    (void)sprintf(temp1, "%d.%s.%d%d%d", player_uid, savefile_base, plr->pclass, plr->personality, 0);
 #else
-    (void)sprintf(temp1, "%s.%d%d%d", savefile_base, p_ptr->pclass, p_ptr->personality, 0);
+    (void)sprintf(temp1, "%s.%d%d%d", savefile_base, plr->pclass, plr->personality, 0);
 #endif
     for (i = 0; temp1[i]; i++)
         temp1[i] ^= (i+1) * 63;
@@ -3430,14 +3379,10 @@ static void handle_signal_simple(int sig)
 
 
     /* Terminate dead characters */
-    if (p_ptr->is_dead)
+    if (plr->is_dead)
     {
         /* Mark the savefile */
-        (void)strcpy(p_ptr->died_from, "Abortion");
-
-        forget_lite();
-        forget_view();
-        clear_mon_lite();
+        (void)strcpy(plr->died_from, "Abortion");
 
         /* Close stuff */
         close_game();
@@ -3451,21 +3396,17 @@ static void handle_signal_simple(int sig)
     else if (signal_count >= 5)
     {
         /* Cause of "death" */
-        (void)strcpy(p_ptr->died_from, "Interrupting");
+        (void)strcpy(plr->died_from, "Interrupting");
 
-
-        forget_lite();
-        forget_view();
-        clear_mon_lite();
 
         /* Stop playing */
-        p_ptr->playing = FALSE;
+        plr->playing = FALSE;
 
         /* Suicide */
-        p_ptr->is_dead = TRUE;
+        plr->is_dead = TRUE;
 
         /* Leaving */
-        p_ptr->leaving = TRUE;
+        plr->leaving = TRUE;
 
         /* Close stuff */
         close_game();
@@ -3521,10 +3462,6 @@ static void handle_signal_abort(int sig)
     if (!character_generated || character_saved) quit(NULL);
 
 
-    forget_lite();
-    forget_view();
-    clear_mon_lite();
-
     /* Clear the bottom line */
     Term_erase(0, hgt - 1, 255);
 
@@ -3542,10 +3479,10 @@ static void handle_signal_abort(int sig)
     Term_fresh();
 
     /* Panic Save */
-    p_ptr->panic_save = 1;
+    plr->panic_save = 1;
 
     /* Panic save */
-    (void)strcpy(p_ptr->died_from, "(panic save)");
+    (void)strcpy(plr->died_from, "(panic save)");
 
     /* Forbid suspend */
     signals_ignore_tstp();

@@ -2,12 +2,13 @@
 #define INCLUDED_Z_DOC_H
 
 #include "h-basic.h"
+#include "z-term.h"
 #include "rect.h"
 
 #include "str_map.h"
 #include "int_map.h"
 #include "c-vec.h"
-#include "c-string.h"
+#include "c-str.h"
 
 /* Utilities for Formatted Text Processing
    We support the ability to render rich text to a "virtual terminal",
@@ -73,8 +74,8 @@ int  doc_region_line_count(doc_region_ptr region);
 
 struct doc_char_s
 {
-    char c;
-    byte a; /* attribute */
+    term_char_t fg;
+    term_char_t bg;
 };
 typedef struct doc_char_s doc_char_t, *doc_char_ptr;
 
@@ -96,15 +97,15 @@ typedef void (*doc_style_f)(doc_style_ptr style);
 
 struct doc_bookmark_s
 {
-    string_ptr name;
+    str_ptr name;
     doc_pos_t  pos;
 };
 typedef struct doc_bookmark_s doc_bookmark_t, *doc_bookmark_ptr;
 
 struct doc_link_s
 {
-    string_ptr   file;
-    string_ptr   topic;
+    str_ptr   file;
+    str_ptr   topic;
     doc_region_t location;
 };
 typedef struct doc_link_s doc_link_t, *doc_link_ptr;
@@ -152,6 +153,7 @@ doc_style_ptr doc_current_style(doc_ptr doc);
               /* Build a document from a text file */
 doc_pos_t     doc_insert(doc_ptr doc, cptr text);
 doc_pos_t     doc_read_file(doc_ptr doc, FILE *fp);
+doc_pos_t     doc_read_term(doc_ptr doc, FILE *fp);
               enum { DOC_FORMAT_TEXT, DOC_FORMAT_HTML, DOC_FORMAT_DOC };
 void          doc_write_file(doc_ptr doc, FILE *fp, int format);
 
@@ -162,6 +164,7 @@ doc_pos_t     doc_insert_doc(doc_ptr dest_doc, doc_ptr src_doc, int indent);
 doc_pos_t     doc_insert_cols(doc_ptr dest_doc, doc_ptr src_cols[], int col_count, int spacing);
 doc_pos_t     doc_insert_space(doc_ptr dest_doc, int count);
 doc_pos_t     doc_newline(doc_ptr doc);
+doc_pos_t     doc_space(doc_ptr doc);
 void          doc_rollback(doc_ptr doc, doc_pos_t pos);
 void          doc_clear(doc_ptr doc);
 
@@ -171,6 +174,7 @@ doc_pos_t     doc_cprintf(doc_ptr doc, byte a, const char *fmt, ...);
 doc_char_ptr  doc_char(doc_ptr doc, doc_pos_t pos);
 void          doc_sync_term(doc_ptr doc, doc_region_t range, doc_pos_t term_pos);
 void          doc_sync_menu(doc_ptr doc);
+void          doc_sync_prompt(doc_ptr doc);
 
 void          doc_change_name(doc_ptr doc, cptr name);
 void          doc_change_html_header(doc_ptr doc, cptr header);
@@ -190,6 +194,7 @@ enum doc_tag_e
     DOC_TAG_INDENT,
     DOC_TAG_CLOSE_INDENT,
     DOC_TAG_TAB,
+    DOC_TAG_SCREENSHOT,
 };
 struct doc_tag_s
 {

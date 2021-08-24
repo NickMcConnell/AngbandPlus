@@ -20,7 +20,7 @@ static doc_pos_t _msg_line_last_msg_pos;
 msg_ptr _msg_alloc(cptr s)
 {
     msg_ptr m = malloc(sizeof(msg_t));
-    m->msg = string_copy_s(s);
+    m->msg = str_copy_s(s);
     m->turn = 0;
     m->count = 1;
     m->color = TERM_WHITE;
@@ -31,12 +31,12 @@ void _msg_free(msg_ptr m)
 {
     if (m)
     {
-        string_free(m->msg);
+        str_free(m->msg);
         free(m);
     }
 }
 
-void msg_on_startup(void)
+void msg_startup(void)
 {
     int cb = _msg_max * sizeof(msg_ptr);
     _msgs = malloc(cb);
@@ -48,7 +48,7 @@ void msg_on_startup(void)
     msg_line_init(ui_msg_rect());
 }
 
-void msg_on_shutdown(void)
+void msg_shutdown(void)
 {
     int i;
     for (i = 0; i < _msg_max; i++)
@@ -78,7 +78,7 @@ int msg_get_plain_text(int age, char *buffer, int max)
     int         ct = 0, i;
     doc_token_t token;
     msg_ptr     msg = msg_get(age);
-    cptr        pos = string_buffer(msg->msg);
+    cptr        pos = str_buffer(msg->msg);
     bool        done = FALSE;
 
     while (!done)
@@ -120,7 +120,7 @@ void cmsg_append(byte color, cptr str)
 
         /* Repeat last message? Even when appending, this scenario
          * is common. For example: "A tree was blasted! (x4)" */
-        if (strcmp(string_buffer(m->msg), str) == 0)
+        if (strcmp(str_buffer(m->msg), str) == 0)
         {
             m->count++;
             return;
@@ -133,12 +133,12 @@ void cmsg_append(byte color, cptr str)
             cmsg_add(color, str);
             return;
         }
-        if (string_length(m->msg) && strlen(str) > 1)
-            string_append_c(m->msg, ' ');
+        if (str_length(m->msg) && strlen(str) > 1)
+            str_append_c(m->msg, ' ');
         if (color != m->color)
-            string_printf(m->msg, "<color:%c>%s</color>", attr_to_attr_char(color), str);
+            str_printf(m->msg, "<color:%c>%s</color>", attr_to_attr_char(color), str);
         else
-            string_append_s(m->msg, str);
+            str_append_s(m->msg, str);
     }
 }
 
@@ -150,7 +150,7 @@ void _cmsg_add_aux(byte color, cptr str, u32b turn, int count)
     if (_msg_count)
     {
         m = msg_get(0);
-        if (strcmp(string_buffer(m->msg), str) == 0)
+        if (strcmp(str_buffer(m->msg), str) == 0)
         {
             m->count += count;
             m->turn = turn;
@@ -168,10 +168,10 @@ void _cmsg_add_aux(byte color, cptr str, u32b turn, int count)
     }
     else
     {
-        string_clear(m->msg);
-        string_shrink(m->msg, 128);
+        str_clear(m->msg);
+        str_shrink(m->msg, 128);
     }
-    string_append_s(m->msg, str);
+    str_append_s(m->msg, str);
 
     m->turn = turn;
     m->count = count;
@@ -182,7 +182,7 @@ void _cmsg_add_aux(byte color, cptr str, u32b turn, int count)
 
 void cmsg_add(byte color, cptr str)
 {
-    _cmsg_add_aux(color, str, p_ptr->turn, 1);
+    _cmsg_add_aux(color, str, plr->turn, 1);
 }
 
 rect_t msg_line_rect(void)
@@ -242,28 +242,30 @@ bool msg_line_is_empty(void)
         return TRUE;
     return FALSE;
 }
-
+static rect_t _delayed_rect;
+void msg_line_delayed_clear(void)
+{
+    if (rect_is_valid(_delayed_rect))
+    {
+        prt_map_aux(_delayed_rect);
+        _delayed_rect = rect_invalid();
+    }
+}
 void msg_line_clear(void)
 {
-    int i;
-    int y = doc_cursor(_msg_line_doc).y;
-
-    for (i = 0; i <= y; i++)
-    {
-        int row = _msg_line_rect.y + i;
-        int cx = row ? _msg_line_rect.cx : 255; /* Hack */
-        Term_erase(_msg_line_rect.x, row, cx);
-    }
+    rect_t r = msg_line_rect();
     doc_rollback(_msg_line_doc, doc_pos_create(0, 0));
     _msg_line_sync_pos = doc_cursor(_msg_line_doc);
     _msg_line_last_msg_pos = doc_cursor(_msg_line_doc);
 
-    if (y > 0)
+    if (r.cy > 0)
     {
-        /* Note: We need not redraw the entire map if this proves too slow */
-        p_ptr->redraw |= PR_MAP;
-        if (_msg_line_rect.x <= 12)
-            p_ptr->redraw |= PR_BASIC | PR_EQUIPPY;
+        Term_clear_rect(r);
+        if (r.cy > 1)
+        {
+            plr->redraw |= PR_MSG_LINE_MAP; /* XXX Later ... but note multiple msg_line_clears before redraw_stuff happens XXX */
+            _delayed_rect = r;
+        }
     }
 }
 
@@ -346,7 +348,7 @@ static void msg_line_display(byte color, cptr msg)
         {
             doc_rollback(_msg_line_doc, _msg_line_last_msg_pos);
             _msg_line_sync_pos = _msg_line_last_msg_pos;
-            doc_insert_text(_msg_line_doc, m->color, string_buffer(m->msg));
+            doc_insert_text(_msg_line_doc, m->color, str_buffer(m->msg));
             doc_printf(_msg_line_doc, " (x%d)", m->count);
             msg_line_sync();
             /* For testing: inkey();*/
@@ -491,7 +493,7 @@ void cmsg_print(byte color, cptr msg)
     if (auto_more_state == AUTO_MORE_SKIP_ONE)
         auto_more_state = AUTO_MORE_PROMPT;
 
-    p_ptr->window |= PW_MESSAGE;
+    plr->window |= PW_MESSAGE;
 
     /* BUG: notice_stuff()
      *       pack_optimize()
@@ -516,7 +518,7 @@ void msg_print(cptr msg)
 }
 
 /* Note: Angband uses proprietary format strings, like %^s
-   that string_vprintf() won't handle. So, let's hope 1024
+   that str_vprintf() won't handle. So, let's hope 1024
    is enough for every message! (It should be ...) */
 void msg_format(cptr fmt, ...)
 {
@@ -542,7 +544,7 @@ void cmsg_format(byte color, cptr fmt, ...)
     cmsg_print(color, buf);
 }
 
-void msg_on_load(savefile_ptr file)
+void msg_load(savefile_ptr file)
 {
     int i;
     int count = savefile_read_s16b(file);
@@ -552,19 +554,19 @@ void msg_on_load(savefile_ptr file)
         s32b turn = 0;
         s32b count = 0;
         byte color = TERM_WHITE;
-        string_ptr msg = 0;
+        str_ptr msg = 0;
 
         msg = savefile_read_string(file);
         turn = savefile_read_s32b(file);
         count = savefile_read_s32b(file);
         color = savefile_read_byte(file);
 
-        _cmsg_add_aux(color, string_buffer(msg), turn, count);
-        string_free(msg);
+        _cmsg_add_aux(color, str_buffer(msg), turn, count);
+        str_free(msg);
     }
 }
 
-void msg_on_save(savefile_ptr file)
+void msg_save(savefile_ptr file)
 {
     int i;
     int count = msg_count();
@@ -574,7 +576,7 @@ void msg_on_save(savefile_ptr file)
     for (i = count - 1; i >= 0; i--)
     {
         msg_ptr m = msg_get(i);
-        savefile_write_cptr(file, string_buffer(m->msg));
+        savefile_write_cptr(file, str_buffer(m->msg));
         savefile_write_s32b(file, m->turn);
         savefile_write_s32b(file, m->count);
         savefile_write_byte(file, m->color);

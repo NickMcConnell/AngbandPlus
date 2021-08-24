@@ -38,7 +38,7 @@ struct quest_s
     int  flags;
 
     int  goal;
-    int  goal_idx;
+    sym_t goal_idx;   /* mon_race->id or art->id */
     int  goal_count;  /* Kill 23 Storm wyrms ... */
     int  goal_current;/* You have killed 19 so far ... */
 
@@ -60,8 +60,8 @@ extern void       quest_complete(quest_ptr q, point_t p);
 extern void       quest_reward(quest_ptr q);
 extern void       quest_fail(quest_ptr q);
 
-extern string_ptr quest_get_description(quest_ptr q); /* read q->file for D: lines */
-extern obj_ptr    quest_get_reward(quest_ptr q); /* read q->file for R: line and create object */
+extern str_ptr quest_get_description(quest_ptr q); /* read q->file for D: lines */
+extern obj_ptr    quest_get_reward(quest_ptr q, int mode); /* read q->file for R: line and create object */
 extern room_ptr   quest_get_map(quest_ptr q); /* QF_GENERATE: read q->file for the level map (M: lines) */
                   /* Note: fetching info from a q_*.txt file always allocates new memory, which *you* must delete */
 

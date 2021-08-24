@@ -1,0 +1,477 @@
+# Orcs and Ogres
+T:o.base:Orc
+I:DISPLAY(o):POS(CORPSE|SKELETON)
+I:KIND(ORC):ALIGN(Evil):ATTR(MALE)
+I:ALERT(200',Fairly Unseeing):MOVE(OPEN|BASH)
+I:RESIST(DARK):VULN(LIGHT)
+P:Stat:Str(3+3):Int(-2):Wis(-2):Dex(-1+2):Con(1+3):Chr(-4)
+P:Skill:Dis(20+35):Dev(18+35):Sav(31+45):Stl(1):Srh(14):Fos(2):Thn(60+125):Thb(40+45)
+P:Life:108
+P:Infra:50'
+P:Class:Warrior
+P:Weight:190
+
+T:O.base:Ogre
+I:DISPLAY(O):POS(CORPSE)
+I:KIND(GIANT):ALIGN(Evil):ATTR(MALE)
+I:ALERT(200',Fairly Unseeing):MOVE(OPEN|BASH)
+P:Stat:Str(4+3):Int(-2):Wis(-2):Dex(-2+2):Con(2+3):Chr(-4)
+P:Skill:Dis(20+35):Dev(18+35):Sav(31+45):Stl(1):Srh(14):Fos(2):Thn(70+150):Thb(40+45)
+P:Life:115
+P:Infra:50'
+P:Class:Warrior
+P:Weight:300
+
+########################################################################
+# Orcs
+N:o.snotling:o.base:Snotling
+I:LVL(4,18):RARITY(1):WILD(WOOD)
+I:HP(5d5):AC(32):EXP(15):EVOLVE(o.snaga, 30)
+I:MOVE(RAND_50)
+B:HIT:HURT(1d5+1)
+O:60%:DROP_WARRIOR
+M:2d3:MON(ORC)
+D:A pathetic breed of tiny snaga-like creatures. They are running
+D:wild and screaming all the time!
+I:COLOR(Light Green)
+P:Stats:-3:-3:-3:-3:-3:-3
+P:Weight:60
+
+N:o.snaga:o.base:Snaga
+I:LVL(6,20):RARITY(1):WILD(ALL)
+I:HP(8d8):AC(32):EXP(15)
+B:HIT:HURT(1d6+2)
+O:60%:DROP_WARRIOR
+M:2d5:MON(o.snaga)
+M:50%:2d3:MON(o.snotling)
+D:He is one of the many weaker 'slave' orcs, often mistakenly known as a goblin.
+I:COLOR(Light Green)
+P:Stats:-2:-2:-2:-2:-2:-2
+P:Weight:80
+
+N:o.cave:o.base:Cave orc
+I:LVL(7,25):RARITY(1)
+I:HP(11d9):AC(32):EXP(20)
+B:HIT:HURT(1d7+2)
+O:60%:DROP_WARRIOR
+M:2d5:MON(o.cave)
+M:50%:2d3:MON(ORC)
+D:He is often found in huge numbers in deep caves.
+I:COLOR(Light Umber)
+P:Stats:-1:-1:-1:-1:-1:-1
+P:Weight:130
+
+N:o.hill:o.base:Hill orc
+I:LVL(8,28):RARITY(1)
+I:HP(13d9):AC(32):EXP(25)
+B:HIT:HURT(1d9+2)
+O:60%:DROP_WARRIOR
+M:2d5:MON(o.hill)
+M:50%:2d3:MON(ORC)
+D:He is a hardy well-weathered survivor.
+I:COLOR(Slate)
+P:Stats:-1:-1:-1:-1:-1:-1
+P:Weight:150
+
+N:o.shaman:o.base:Orc shaman
+I:LVL(9,30):RARITY(1):WILD(WOOD|SWAMP|MOUNTAIN)
+I:HP(9d8):AC(15):EXP(30)
+B:HIT(x2):HURT(1d7)
+S:1_IN_8 | BLINK | CAUSE_1 | MISSILE
+O:90%:DROP_PRIEST_EVIL
+M:10%:3d2:MON(o.shaman)
+D:An orc dressed in skins who gestures wildly.
+I:COLOR(Blue)
+P:Stat:Wis(2)
+P:Skill:Dev(35+55)
+P:Class:Priest
+P:Life:100
+P:Weight:130
+
+N:o.black:o.base:Black orc
+I:LVL(13,40):RARITY(2):WILD(ALL)
+I:HP(12d10):AC(36):EXP(45)
+B:HIT(x2):HURT(1d7+4)
+S:1_IN_15 | SHOOT(2d7)
+O:60%:DROP_WARRIOR_SHOOT
+M:2d5:MON(o.black)
+M:50%:2d3:MON(ORC)
+D:He is a large orc with powerful arms and deep black skin.
+I:COLOR(Light Dark)
+
+N:o.sapper:o.base:Snaga sapper
+I:LVL(14,40):RARITY(1):WILD(ALL)
+I:SPEED(+1):HP(8d8):AC(32):EXP(15)
+B:HIT:HURT(1d8)
+B:EXPLODE:DAM(10d2)
+M:10%:2d4:MON(o.sapper)
+D:He is one of the many weaker 'slave' orcs, often mistakenly known as a
+D:goblin. He is equipped with an explosive charge.
+I:COLOR(Light Green):POS(-CORPSE|-SKELETON)
+P:Stats:-2:-2:-2:-2:-2:-2
+P:Weight:100
+
+N:o.archer:o.base:Orcish Artillery
+I:LVL(14,40):RARITY(3)
+I:HP(10d10):AC(20):EXP(40)
+I:ALERT(400',Overlooks)
+B:HIT(x2):HURT(1d5)
+S:FREQ_30 | SHOOT(3d6)
+O:1d2:DROP_WARRIOR_SHOOT
+D:In a rare display of ingenuity, the Orcs invented an incredibly
+D:destructive weapon. Most Orcish artillerists are those who dared
+D:criticize its effectiveness.
+I:COLOR(Light Blue)
+P:Skill:Thb(55+150)
+P:Weight:130
+
+N:o.half-orc:o.base:Half-orc
+I:LVL(15,40):RARITY(3):WILD(ALL)
+I:HP(16d10):AC(40):EXP(50)
+B:HIT(x2):HURT(2d4+3)
+I:VULN(-LIGHT)
+O:60%:DROP_WARRIOR
+M:2d5:MON(o.half-orc)
+M:50%:2d3:MON(ORC)
+D:He is a hideous deformed cross-breed with man and orc, combining man's
+D:strength and cunning with orcish evil.
+I:COLOR(Slate)
+
+N:o.captain:o.base:Orc captain
+I:LVL(16,45):RARITY(3):ALLOC(ESCORT):WILD(ALL)
+I:HP(20d10):AC(59):EXP(40)
+I:CAN(SPEAK)
+B:HIT(x3):HURT(2d4+3)
+I:VULN(-LIGHT)
+S:1_IN_15 | SHOOT(3d6)
+O:90%:DROP_WARRIOR_SHOOT
+M:3d5:MON(ORC)
+M:50%:1d3:MON(C.warg, STOP)
+M:50%:1d3:MON(C.wolf)
+D:An armoured orc with an air of authority.
+I:COLOR(Green)
+
+N:o.uruk:o.base:Uruk
+I:LVL(18,50):RARITY(1):WILD(ALL)
+I:HP(80):AC(50):EXP(68)
+B:HIT(x2):HURT(2d5+3)
+I:RESIST(POIS):VULN(-LIGHT)
+S:1_IN_12 | SHOOT(3d5)
+O:60%:DROP_WARRIOR_SHOOT
+M:2d5:MON(o.uruk)
+M:10%:MON(T.cave, STOP)
+M:50%:2d3:MON(ORC)
+D:He is a cunning orc of power, as tall as a man, and stronger. He fears little.
+I:COLOR(White)
+
+N:o.digger:o.base:Orc digger
+I:LVL(19,50):RARITY(1)
+I:HP(20d9):AC(32):EXP(50)
+I:MOVE(PUSH|TUNNEL)
+B:HIT(x2):HURT(1d9)
+O:60%:DROP_WARRIOR
+M:10%:2d3:MON(o.digger)
+D:He is a hardy orc with a pick in hand.
+I:COLOR(Slate)
+
+########################################################################
+# Undead Orcs ... We'll treat these a orcs (o.*) rather than undead (s.*, z.*)
+N:o.skeleton:o.base:Skeleton orc
+I:LVL(8,40):RARITY(1)
+I:HP(10d8):AC(36):EXP(26)
+I:KIND(UNDEAD):ATTR(COLD_BLOOD|EMPTY_MIND):ALERT(200',Unseeing)
+B:HIT:HURT(1d6+3)
+I:RESIST(COLD|CONF):IMMUNE(POIS|NETHER|SLEEP|FEAR):VULN(-LIGHT)
+D:It is an animated orc skeleton.
+I:DISPLAY(s,White):POS(-CORPSE|SEE_INVIS|HOLD_LIFE)
+P:Weight:70
+
+N:o.zombie:o.base:Zombified orc
+I:LVL(11,40):RARITY(1)
+I:HP(11d8):AC(24):EXP(30)
+I:KIND(UNDEAD):ATTR(COLD_BLOOD|EMPTY_MIND)
+B:HIT(x3):HURT(1d4)
+I:RESIST(COLD|CONF):IMMUNE(POIS|NETHER|SLEEP|FEAR):VULN(-LIGHT)
+D:It is a shambling orcish corpse leaving behind a trail of flesh.
+I:DISPLAY(z,Slate):POS(-CORPSE|-SKELETON|HOLD_LIFE)
+
+N:o.mummy:o.base:Mummified orc
+I:LVL(21,70):RARITY(1)
+I:HP(15d8):AC(28):EXP(56)
+I:KIND(UNDEAD):ATTR(COLD_BLOOD|EMPTY_MIND)
+B:HIT(x2):HURT(1d4+3)
+I:RESIST(COLD|CONF):IMMUNE(POIS|NETHER|SLEEP|FEAR):VULN(-LIGHT)
+O:90%:OBJ(*$)
+D:It is an orcish figure covered in wrappings.
+I:DISPLAY(z,Umber):POS(-CORPSE|-SKELETON|HOLD_LIFE)
+
+########################################################################
+# Ogres
+N:O.ogre:O.base:Ogre
+I:LVL(13,50):RARITY(2):WILD(WOOD|MOUNTAIN)
+I:HP(13d9):AC(33):EXP(50):EVOLVE(O.black, 300)
+B:HIT:HURT(1d7+4)
+O:60%:DROP_WARRIOR
+M:3d3:MON(O.ogre)
+D:A hideous, smallish giant that is often found near or with orcs.
+I:COLOR(Light Umber)
+
+N:O.black:O.base:Black ogre
+I:LVL(15,60):RARITY(2):WILD(MOUNTAIN)
+I:HP(20d9):AC(33):EXP(75):EVOLVE(O.warrior, 400)
+I:MOVE(RAND_25)
+B:HIT(x2):HURT(1d8+5)
+O:60%:DROP_WARRIOR
+M:3d3:MON(O.black)
+D:A massive orc-like figure with black skin and powerful arms.
+I:COLOR(Light Dark)
+
+N:O.ogrillon:O.base:Ogrillon
+I:LVL(16,60):RARITY(2)
+I:HP(22d9):AC(33):EXP(75)
+I:KIND(ORC)
+B:HIT(x2):HURT(2d10)
+I:RESIST(DARK)
+O:60%:DROP_WARRIOR
+M:2d3:MON(O.ogrillon)
+M:50%:1d3:MON(ORC)
+M:50%:1d3:MON(O.ogre)
+D:An unholy hybrid of ogre and orc.
+I:COLOR(Light White)
+
+N:O.warrior:O.base:Ogre warrior
+I:LVL(21,70):RARITY(2):WILD(WASTE)
+I:HP(10d15):AC(34):EXP(100):EVOLVE(O.cave, 800)
+I:MOVE(RAND_25|PUSH)
+B:HIT(x2):HURT(2d8+8)
+O:90%:OBJ(*$):DROP_WARRIOR
+D:It is a massive ogre in metal armour, a champion of its kind.
+I:COLOR(Light Blue)
+
+N:O.cave:O.base:Cave ogre
+I:LVL(26):RARITY(1)
+I:HP(30d9):AC(33):EXP(100)
+B:HIT(x2):HURT(1d8+9)
+O:60%:DROP_WARRIOR
+M:3d3:MON(O.cave)
+D:A giant orc-like figure with an awesomely muscled frame.
+I:COLOR(Umber)
+
+N:O.mage:O.base:Ogre mage
+I:LVL(27):RARITY(2):WILD(MOUNTAIN)
+I:HP(30d12):AC(40):EXP(300)
+B:HIT(x4):HURT(1d8+8)
+S:1_IN_4 | HEAL | PARALYZE | TRAPS | BA_COLD | S_MONSTER(1) | DETECT_MONSTERS | IDENTIFY
+O:1d2:DROP_MAGE
+D:A hideous ogre wrapped in black sorcerous robes.
+I:COLOR(Orange)
+P:Stats:-4:4:0:0:-1:0
+P:Skill:Dev(35+55)
+P:Class:Mage
+P:Life:102
+
+N:O.shaman:O.base:Ogre shaman
+I:LVL(32,80):RARITY(2)
+I:HP(14d10):AC(55):EXP(250)
+I:LIGHT(0+1)
+B:HIT(x3):HURT(1d6+7)
+S:1_IN_5 | TELE_SELF | PARALYZE | SCARE | CAUSE_2 | TRAPS | BO_FIRE
+S:S_MONSTER(1) | MAPPING | BLESS
+O:90%:DROP_PRIEST_EVIL
+D:It is an ogre wrapped in furs and covered in grotesque body paints.
+I:COLOR(Blue)
+P:Stats:-2:0:4:0:-1:0
+P:Skill:Dev(35+55)
+P:Class:Priest
+P:Life:107
+
+########################################################################
+# Uniques
+N:o.Lagduf:o.base:Lagduf, the Snaga
+I:LVL(8):RARITY(2):ALLOC(UNIQUE|ESCORT)
+I:HP(190):AC(32):EXP(80)
+I:CAN(SPEAK)
+B:HIT(x2):HURT(1d6+3)
+B:HIT(x2):HURT(1d9)
+O:1d2:OBJ(*, GOOD):DROP_WARRIOR
+M:5d5+10:MON(o.snaga)
+D:A captain of a regiment of weaker orcs, Lagduf keeps his troop in order
+D:with displays of excessive violence.
+D:"I've told you twice that Gorbag's swine got to the gate first, and none
+D:of ours got out. Lagduf and Muzgash ran through, but they were shot."
+I:COLOR(Umber)
+
+N:o.Grishnakh:o.base:Grishnakh, the Hill Orc
+I:LVL(10):RARITY(3):ALLOC(UNIQUE|ESCORT):WILD(ALL)
+I:HP(230):AC(20):EXP(160)
+I:CAN(SPEAK)
+B:HIT(x4):HURT(1d9+2)
+I:RESIST(POIS)
+O:1d2:OBJ(*, GOOD):DROP_WARRIOR
+M:4d7:MON(o.hill)
+M:50%:2d3:MON(o.snaga)
+M:80%:2d3:MON(C.wolf)
+D:He is a cunning and devious orc.
+D:"Grishnakh [was] a short crook-legged creature, very broad and with
+D:long arms that hung almost to the ground."
+I:COLOR(Umber)
+
+N:o.Golfimbul:o.base:Golfimbul, the Hill Orc Chief
+I:LVL(12):RARITY(3):ALLOC(UNIQUE|ESCORT):WILD(ALL)
+I:HP(240):AC(60):EXP(230)
+I:CAN(SPEAK)
+B:HIT(x4):HURT(1d9+2)
+I:RESIST(ELEC|FIRE|COLD|POIS)
+O:2d2:OBJ(*, GOOD):DROP_WARRIOR
+M:5d7:MON(o.hill)
+M:50%:3d3:MON(o.snaga)
+M:80%:3d3:MON(C.warg)
+D:A leader of a band of raiding orcs, he picks on hobbits.
+I:COLOR(Umber)
+
+N:o.Mauhur:o.base:Mauhur, the Orc Captain
+I:LVL(12):RARITY(3):ALLOC(UNIQUE|ESCORT):WILD(ALL)
+I:HP(240):AC(60):EXP(160)
+I:CAN(SPEAK)
+B:HIT(x4):HURT(1d9+1)
+I:RESIST(POIS):VULN(-LIGHT)
+O:1d2:OBJ(*, GOOD):DROP_WARRIOR
+M:4d7:MON(ORC)
+I:COLOR(Umber)
+
+N:o.Ufthak:o.base:Ufthak of Cirith Ungol
+I:LVL(14):RARITY(3):ALLOC(UNIQUE|ESCORT)
+I:HP(320):AC(50):EXP(200)
+I:CAN(SPEAK)
+B:HIT(x4):HURT(2d4+3)
+I:RESIST(COLD|POIS)
+O:1d2:OBJ(*, GOOD):DROP_WARRIOR
+M:5d7:MON(o.cave)
+M:50%:3d3:MON(o.snaga)
+M:3d3:MON(o.archer)
+D:A strong orc guarding the pass of Cirith Ungol. He is mortally afraid of spiders.
+I:COLOR(Green)
+
+N:o.Shagrat:o.base:Shagrat, the Orc Captain
+I:LVL(18):RARITY(2):ALLOC(UNIQUE|ESCORT)
+I:HP(400):AC(60):EXP(400)
+I:CAN(SPEAK)
+B:HIT(x4):HURT(2d6+5)
+I:RESIST(POIS):VULN(-LIGHT)
+O:1d2:OBJ(*, GOOD):DROP_WARRIOR
+M:5d7:MON(ORC)
+D:He is an Uruk of power and great cunning.
+I:COLOR(Umber)
+
+N:o.Gorbag:o.base:Gorbag, the Orc Captain
+I:LVL(18):RARITY(3):ALLOC(UNIQUE|ESCORT)
+I:HP(400):AC(60):EXP(400)
+I:CAN(SPEAK)
+B:HIT(x4):HURT(2d6+5)
+I:RESIST(POIS):VULN(-LIGHT)
+O:1d2:OBJ(*, GOOD):DROP_WARRIOR
+M:5d7:MON(ORC)
+D:A gruesomely ugly but cunning orc, his eyes regard you with hatred. His
+D:powerful arms flex menacingly as he advances.
+I:COLOR(Umber)
+
+N:o.Bolg:o.base:Bolg, Son of Azog
+I:LVL(20):RARITY(4):ALLOC(ESCORT|UNIQUE|GUARDIAN)
+I:SPEED(+5):HP(500):AC(50):EXP(800)
+I:CAN(SPEAK)
+B:HIT(x4):HURT(2d5+3)
+I:RESIST(POIS):VULN(-LIGHT)
+O:2d2:OBJ(*, GOOD):DROP_WARRIOR
+M:1d3:MON(o.captain)
+M:4d7:MON(o.uruk)
+M:3d7:MON(ORC)
+M:3d7:MON(C.warg)
+D:A large and powerful orc. He looks just like his daddy. He is tall and
+D:fast, but fortunately blessed with orcish brains.
+I:COLOR(Light Red)
+P:Stats:2:0:0:0:1:0
+P:Weight:200
+
+N:o.Ugluk:o.base:Ugluk, the Uruk
+I:LVL(20):RARITY(4):ALLOC(UNIQUE|ESCORT)
+I:HP(640):AC(90):EXP(550)
+I:CAN(SPEAK)
+B:HIT(x4):HURT(2d5+3)
+I:RESIST(POIS):VULN(-LIGHT)
+O:1d2:OBJ(*, GOOD):DROP_WARRIOR
+M:2d2:MON(o.captain)
+M:3d7:MON(o.uruk)
+M:2d5:MON(ORC)
+M:2d5:MON(C.warg)
+D:Another of Morgoth's servants, this orc is strong and cunning. He is ugly
+D:and scarred from many power struggles.
+I:COLOR(Umber)
+P:Stats:2:0:0:0:1:0
+P:Weight:200
+
+N:o.Lugdush:o.base:Lugdush, the Uruk
+I:LVL(21):RARITY(3):ALLOC(UNIQUE|ESCORT)
+I:HP(720):AC(95):EXP(550)
+I:CAN(SPEAK)
+B:HIT(x4):HURT(2d6+5)
+I:RESIST(FIRE|COLD|POIS|CONF):VULN(-LIGHT):IMMUNE(SLEEP)
+O:1d2:OBJ(*, GOOD):DROP_WARRIOR
+M:2d3:MON(o.captain)
+M:3d7:MON(o.uruk)
+M:2d7:MON(ORC)
+M:2d7:MON(C.warg)
+D:A strong and cunning orc warrior, Lugdush sneers as he insults your mother.
+I:COLOR(Blue)
+P:Stats:2:0:0:0:1:0
+P:Weight:200
+
+N:o.Azog:o.base:Azog, King of the Uruk-Hai
+I:LVL(23):RARITY(5):ALLOC(ESCORT|UNIQUE|GUARDIAN)
+I:SPEED(+10):HP(900):AC(80):EXP(1111)
+I:CAN(SPEAK)
+B:HIT(x3):HURT(3d5+6)
+I:RESIST(POIS):VULN(-LIGHT)
+S:FREQ_5 | BERSERK
+O:2d2:OBJ(*, GOOD):DROP_WARRIOR
+M:3d3:MON(o.captain)
+M:4d7:MON(o.uruk)
+M:3d7:MON(ORC)
+M:3d7:MON(C.warg)
+M:2d2:MON(o.digger)
+D:He is also known as the King of Khazad-dum. His ego is renowned to be
+D:bigger than his head.
+I:COLOR(Red)
+P:Stats:3:0:0:1:1:1
+P:Speed:+5
+P:Weight:220
+
+N:O.Grendel:O.base:Grendel
+I:LVL(27):RARITY(2):ALLOC(UNIQUE|ESCORT):WILD(SWAMP|SHORE)
+I:SPEED(+10):HP(1500):AC(100):EXP(1500)
+I:CAN(SPEAK|REVENGE):LIGHT(0+2):MOVE(SWIM)
+I:RESIST(POIS)
+B:HIT(x3):HURT(3d6+7)
+S:FREQ_5 | BERSERK
+O:2d2:OBJ(*, GOOD):DROP_WARRIOR
+M:3d5+10:MON(O)
+D:An ogre renowned for acts of surpassing cruelty.
+I:COLOR(Green)
+P:Stats:3:0:0:0:2:0
+P:Weight:500
+
+N:O.Shuten-douji:O.base:Shuten-douji, King Ogre of Ooe-Mountain
+I:LVL(47):RARITY(3):ALLOC(D_MOUNTAIN|ESCORT|UNIQUE|GUARDIAN)
+I:SPEED(+15):HP(3000):AC(120):EXP(15000)
+I:CAN(SPEAK):MOVE(SWIM)
+B:HIT(x4):HURT(5d11+30)
+A:ELEC(2d3)
+I:RESIST(ELEC|FIRE|POIS)
+S:FREQ_10 | BERSERK
+O:3d2:OBJ(*, GOOD):DROP_WARRIOR
+O:33%:ART(\.Shuten-douji)
+M:3d5+10:MON(O)
+I:COLOR(Orange)
+P:Stats:4:0:0:0:3:0
+P:Weight:700
+
+# vim: filetype=ri :

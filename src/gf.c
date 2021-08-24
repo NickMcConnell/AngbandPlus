@@ -3,157 +3,185 @@
 
 #include <assert.h>
 
-static gf_info_t _gf_tbl[GF_COUNT] = {
-    { GF_NONE, "None", TERM_L_DARK, RES_INVALID, "NONE"},
+static gf_info_t _gf_tbl[] = {
+    /* Resistable Effects (Mostly Elemental, but some Status) */
+    { GF_ACID, "Acid", TERM_GREEN, "ACID",
+        GFF_ELEMENTAL | GFF_RESIST | GFF_DAMAGE | GFF_RIDING | GFF_DISPLAY },
+    { GF_ELEC, "Lightning", TERM_BLUE, "ELEC",
+        GFF_ELEMENTAL | GFF_RESIST | GFF_DAMAGE | GFF_RIDING | GFF_DISPLAY },
+    { GF_FIRE, "Fire", TERM_RED, "FIRE",
+        GFF_ELEMENTAL | GFF_RESIST | GFF_DAMAGE | GFF_RIDING | GFF_DISPLAY },
+    { GF_COLD, "Frost", TERM_L_WHITE, "COLD",
+        GFF_ELEMENTAL | GFF_RESIST | GFF_DAMAGE | GFF_RIDING | GFF_DISPLAY },
+    { GF_POIS, "Poison", TERM_L_GREEN, "POISON",
+        GFF_ELEMENTAL | GFF_RESIST | GFF_DAMAGE | GFF_RIDING | GFF_DISPLAY },
+    { GF_LIGHT, "Light", TERM_YELLOW, "LIGHT",
+        GFF_ELEMENTAL | GFF_RESIST_HI | GFF_DAMAGE | GFF_RIDING | GFF_DISPLAY },
+    { GF_DARK, "Darkness", TERM_L_DARK, "DARK",
+        GFF_ELEMENTAL | GFF_RESIST_HI | GFF_DAMAGE | GFF_RIDING | GFF_DISPLAY },
+    { GF_CONFUSION, "Confusion", TERM_L_UMBER, "CONFUSION",
+        GFF_ELEMENTAL | GFF_RESIST_HI | GFF_DAMAGE | GFF_DISPLAY },
+    { GF_NETHER, "Nether", TERM_L_DARK, "NETHER",
+        GFF_ELEMENTAL | GFF_RESIST_HI | GFF_DAMAGE | GFF_DISPLAY },
+    { GF_NEXUS, "Nexus", TERM_VIOLET, "NEXUS",
+        GFF_ELEMENTAL | GFF_RESIST_HI | GFF_DAMAGE | GFF_DISPLAY },
+    { GF_SOUND, "Sound", TERM_ORANGE, "SOUND",
+        GFF_ELEMENTAL | GFF_RESIST_HI | GFF_DAMAGE | GFF_DISPLAY },
+    { GF_SHARDS, "Shards", TERM_L_UMBER, "SHARDS",
+        GFF_ELEMENTAL | GFF_RESIST_HI | GFF_DAMAGE | GFF_RIDING | GFF_DISPLAY },
+    { GF_CHAOS, "Chaos", TERM_VIOLET, "CHAOS",
+        GFF_ELEMENTAL | GFF_RESIST_HI | GFF_DAMAGE | GFF_DISPLAY },
+    { GF_DISENCHANT, "Disenchantment", TERM_VIOLET, "DISENCHANTMENT",
+        GFF_ELEMENTAL | GFF_RESIST_HI | GFF_DAMAGE | GFF_DISPLAY },
+    { GF_TIME, "Time", TERM_L_BLUE, "TIME",
+        GFF_ELEMENTAL | GFF_RESIST_HI | GFF_DAMAGE | GFF_DISPLAY },
+    { GF_WATER, "Water", TERM_L_BLUE, "WATER",
+        GFF_ELEMENTAL | GFF_RESIST_HI | GFF_DAMAGE },
+    { GF_PLASMA, "Plasma", TERM_L_RED, "PLASMA",
+        GFF_ELEMENTAL | GFF_RESIST_HI | GFF_DAMAGE },
+    { GF_FORCE, "Force", TERM_L_BLUE, "FORCE",
+        GFF_ELEMENTAL | GFF_RESIST_HI | GFF_DAMAGE },
+    { GF_INERTIA, "Inertia", TERM_L_UMBER, "INERTIA",
+        GFF_ELEMENTAL | GFF_RESIST_HI | GFF_DAMAGE },
+    { GF_GRAVITY, "Gravity", TERM_L_UMBER, "GRAVITY",
+        GFF_ELEMENTAL | GFF_RESIST_HI | GFF_DAMAGE },
+    { GF_DISINTEGRATE, "Disintegration", TERM_L_DARK, "DISINTEGRATE",
+        GFF_ELEMENTAL | GFF_RESIST_HI | GFF_DAMAGE },
+    { GF_BLIND, "Blind", TERM_L_DARK, "BLIND",
+        GFF_RESIST | GFF_STATUS | GFF_HIDE | GFF_DISPLAY },
+    { GF_FEAR, "Fear", TERM_RED, "FEAR",
+        GFF_RESIST | GFF_STATUS | GFF_DISPLAY },
+    { GF_STUN, "Stun", TERM_L_BLUE, "STUN",
+        GFF_RESIST | GFF_STATUS | GFF_HIDE },
+    { GF_TELEPORT, "Teleport", TERM_L_BLUE, "TELEPORT",
+        GFF_RESIST | GFF_TELEPORT },
+    { GF_SLEEP, "Sleep", TERM_BLUE, "SLEEP",
+        GFF_RESIST | GFF_STATUS | GFF_HIDE },
+    { GF_SLOW, "Slow", TERM_L_UMBER, "SLOW",
+        GFF_RESIST | GFF_STATUS | GFF_HIDE },
 
-    /* Elemental Effects */
-    { GF_ACID, "Acid", TERM_GREEN, RES_ACID, "ACID", GFF_ELEMENTAL | GFF_DAMAGE | GFF_RIDING },
-    { GF_ELEC, "Lightning", TERM_BLUE, RES_ELEC, "ELEC", GFF_ELEMENTAL | GFF_DAMAGE | GFF_RIDING },
-    { GF_FIRE, "Fire", TERM_RED, RES_FIRE, "FIRE", GFF_ELEMENTAL | GFF_DAMAGE | GFF_RIDING },
-    { GF_COLD, "Frost", TERM_L_WHITE, RES_COLD, "COLD", GFF_ELEMENTAL | GFF_DAMAGE | GFF_RIDING },
-    { GF_POIS, "Poison", TERM_L_GREEN, RES_POIS, "POIS", GFF_ELEMENTAL | GFF_DAMAGE | GFF_RIDING },
-    { GF_LITE, "Light", TERM_YELLOW, RES_LITE, "LITE", GFF_ELEMENTAL | GFF_DAMAGE | GFF_RIDING },
-    { GF_DARK, "Darkness", TERM_L_DARK, RES_DARK, "DARK", GFF_ELEMENTAL | GFF_DAMAGE | GFF_RIDING },
-    { GF_CONFUSION, "Confusion", TERM_L_UMBER, RES_CONF, "CONFUSION", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_NETHER, "Nether", TERM_L_DARK, RES_NETHER, "NETHER", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_NEXUS, "Nexus", TERM_VIOLET, RES_NEXUS, "NEXUS", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_SOUND, "Sound", TERM_ORANGE, RES_SOUND, "SOUND", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_SHARDS, "Shards", TERM_L_UMBER, RES_SHARDS, "SHARDS", GFF_ELEMENTAL | GFF_DAMAGE | GFF_RIDING },
-    { GF_CHAOS, "Chaos", TERM_VIOLET, RES_CHAOS, "CHAOS", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_DISENCHANT, "Disenchantment", TERM_VIOLET, RES_DISEN, "DISENCHANT", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_TIME, "Time", TERM_L_BLUE, RES_TIME, "TIME", GFF_ELEMENTAL | GFF_DAMAGE },
-
-    { GF_MANA, "Mana", TERM_L_BLUE, RES_INVALID, "MANA", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_GRAVITY, "Gravity", TERM_L_UMBER, RES_INVALID, "GRAVITY", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_INERT, "Inertia", TERM_L_UMBER, RES_INVALID, "INERTIA", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_PLASMA, "Plasma", TERM_L_RED, RES_INVALID, "PLASMA", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_FORCE, "Force", TERM_L_BLUE, RES_INVALID, "FORCE", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_NUKE, "Toxic Waste", TERM_L_GREEN, RES_POIS, "NUKE", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_DISINTEGRATE, "Disintegration", TERM_L_DARK, RES_INVALID, "DISINTEGRATE", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_STORM, "Storm Winds", TERM_BLUE, RES_INVALID, "STORM", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_HOLY_FIRE, "Holy Fire", TERM_YELLOW, RES_INVALID, "HOLY_FIRE", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_HELL_FIRE, "Hell Fire", TERM_L_DARK, RES_INVALID, "HELL_FIRE", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_ICE, "Ice", TERM_L_WHITE, RES_COLD, "ICE", GFF_ELEMENTAL | GFF_DAMAGE | GFF_RIDING },
-    { GF_WATER, "Water", TERM_L_BLUE, RES_INVALID, "WATER", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_ROCKET, "Rocket", TERM_RED, RES_SHARDS, "ROCKET", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_METEOR, "Meteor", TERM_RED, RES_INVALID, "METEOR", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_ROCK, "Rock", TERM_L_UMBER, RES_INVALID, "ROCK", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_ARROW, "Arrow", TERM_L_UMBER, RES_INVALID, "ARROW", GFF_ELEMENTAL | GFF_DAMAGE },
-    { GF_MISSILE, "Missile", TERM_L_UMBER, RES_INVALID, "MISSILE", GFF_ELEMENTAL | GFF_DAMAGE },
+    { GF_MANA, "Mana", TERM_L_BLUE, "MANA", GFF_ELEMENTAL | GFF_DAMAGE },
+    { GF_NUKE, "Toxic Waste", TERM_L_GREEN, "NUKE", GFF_ELEMENTAL | GFF_DAMAGE, GF_POIS },
+    { GF_STORM, "Storm Winds", TERM_BLUE, "STORM", GFF_ELEMENTAL | GFF_DAMAGE },
+    { GF_HOLY_FIRE, "Holy Fire", TERM_YELLOW, "HOLY_FIRE", GFF_ELEMENTAL | GFF_DAMAGE },
+    { GF_HELL_FIRE, "Hell Fire", TERM_L_DARK, "HELL_FIRE", GFF_ELEMENTAL | GFF_DAMAGE },
+    { GF_ICE, "Ice", TERM_L_WHITE, "ICE", GFF_ELEMENTAL | GFF_DAMAGE | GFF_RIDING, GF_COLD },
+    { GF_ROCKET, "Rocket", TERM_RED, "ROCKET", GFF_ELEMENTAL | GFF_DAMAGE | GFF_NO_REFLECT, GF_SHARDS },
+    { GF_METEOR, "Meteor", TERM_RED, "METEOR", GFF_ELEMENTAL | GFF_DAMAGE | GFF_NO_REFLECT },
+    { GF_ROCK, "Rock", TERM_L_UMBER, "ROCK", GFF_ELEMENTAL | GFF_DAMAGE | GFF_NO_REFLECT },
+    { GF_ARROW, "Arrow", TERM_L_UMBER, "ARROW", GFF_ELEMENTAL | GFF_DAMAGE },
+    { GF_SUPER_ARROW, "Arrow", TERM_L_UMBER, "ARROW", GFF_ELEMENTAL | GFF_DAMAGE | GFF_NO_REFLECT },
+    { GF_MISSILE, "Missile", TERM_L_UMBER, "MISSILE", GFF_ELEMENTAL | GFF_DAMAGE }, /* perhaps GFF_PHYSICAL? */
 
     /* Curses */
-    { GF_CAUSE_1, "Cause Light Wounds", TERM_RED, RES_INVALID, "CAUSE_1", GFF_CURSE | GFF_DAMAGE },
-    { GF_CAUSE_2, "Cause Serious Wounds", TERM_RED, RES_INVALID, "CAUSE_2", GFF_CURSE | GFF_DAMAGE },
-    { GF_CAUSE_3, "Cause Critical Wounds", TERM_RED, RES_INVALID, "CAUSE_3", GFF_CURSE | GFF_DAMAGE },
-    { GF_CAUSE_4, "Cause Mortal Wounds", TERM_RED, RES_INVALID, "CAUSE_4", GFF_CURSE | GFF_DAMAGE },
-    { GF_HAND_DOOM, "Hand of Doom", TERM_VIOLET, RES_INVALID, "HAND_DOOM", GFF_CURSE | GFF_DAMAGE },
-    { GF_BLOOD_CURSE, "Blood Curse", TERM_VIOLET, RES_INVALID, "BLOOD_CURSE", GFF_CURSE | GFF_DAMAGE },
+    { GF_CAUSE_1, "Cause Light Wounds", TERM_RED, "CAUSE_1", GFF_CURSE | GFF_DAMAGE | GFF_HIDE | GFF_NO_REFLECT },
+    { GF_CAUSE_2, "Cause Serious Wounds", TERM_RED, "CAUSE_2", GFF_CURSE | GFF_DAMAGE | GFF_HIDE | GFF_NO_REFLECT },
+    { GF_CAUSE_3, "Cause Critical Wounds", TERM_RED, "CAUSE_3", GFF_CURSE | GFF_DAMAGE | GFF_HIDE | GFF_NO_REFLECT },
+    { GF_CAUSE_4, "Cause Mortal Wounds", TERM_RED, "CAUSE_4", GFF_CURSE | GFF_DAMAGE | GFF_HIDE | GFF_NO_REFLECT },
+    { GF_HAND_DOOM, "Hand of Doom", TERM_VIOLET, "HAND_DOOM", GFF_CURSE | GFF_DAMAGE | GFF_HIDE | GFF_NO_REFLECT },
+    { GF_BLOOD_CURSE, "Blood Curse", TERM_VIOLET, "BLOOD_CURSE", GFF_CURSE | GFF_DAMAGE | GFF_HIDE | GFF_NO_REFLECT },
 
     /* Mental Attacks */
-    { GF_PSY_SPEAR, "Psycho-Spear", TERM_L_BLUE, RES_INVALID, "PSY_SPEAR", GFF_MENTAL | GFF_DAMAGE },
-    { GF_PSI, "Psionics", TERM_L_BLUE, RES_INVALID, "PSI", GFF_MENTAL | GFF_DAMAGE },
-    { GF_PSI_DRAIN, "Psionic Drain", TERM_L_BLUE, RES_INVALID, "PSI_DRAIN", GFF_MENTAL },
-    { GF_PSI_BRAIN_SMASH, "Brain Smash", TERM_L_BLUE, RES_INVALID, "PSI_BRAIN_SMASH", GFF_MENTAL | GFF_DAMAGE },
-    { GF_PSI_STORM, "Psycho-Storm", TERM_L_BLUE, RES_INVALID, "PSI_STORM", GFF_MENTAL | GFF_DAMAGE },
-    { GF_TELEKINESIS, "Pulverise", TERM_L_BLUE, RES_INVALID, "TELEKINESIS", GFF_MENTAL | GFF_DAMAGE },
-    { GF_DOMINATION, "Domination", TERM_RED, RES_INVALID, "DOMINATION", GFF_MENTAL },
-    { GF_SUBJUGATION, "Subjugation", TERM_RED, RES_INVALID, "SUBJUGATION", GFF_MENTAL },
-    { GF_DRAIN_MANA, "Drain Mana", TERM_L_BLUE, RES_INVALID, "DRAIN_MANA", GFF_MENTAL },
-    { GF_MIND_BLAST, "Mind Blast", TERM_L_BLUE, RES_INVALID, "MIND_BLAST", GFF_MENTAL },
-    { GF_BRAIN_SMASH, "Brain Smash", TERM_L_BLUE, RES_INVALID, "BRAIN_SMASH", GFF_MENTAL | GFF_DAMAGE },
-    { GF_AMNESIA, "Amnesia", TERM_L_DARK, RES_INVALID, "AMNESIA", GFF_MENTAL },
+    { GF_PSY_SPEAR, "Psycho-Spear", TERM_L_BLUE, "PSY_SPEAR", GFF_MENTAL | GFF_DAMAGE },
+    { GF_PSI, "Psionics", TERM_L_BLUE, "PSI", GFF_MENTAL | GFF_DAMAGE },
+    { GF_PSI_DRAIN, "Psionic Drain", TERM_L_BLUE, "PSI_DRAIN", GFF_MENTAL | GFF_HIDE },
+    { GF_PSI_BRAIN_SMASH, "Brain Smash", TERM_L_BLUE, "PSI_BRAIN_SMASH", GFF_MENTAL | GFF_DAMAGE | GFF_HIDE },
+    { GF_PSI_STORM, "Psycho-Storm", TERM_L_BLUE, "PSI_STORM", GFF_MENTAL | GFF_DAMAGE },
+    { GF_TELEKINESIS, "Pulverise", TERM_L_BLUE, "TELEKINESIS", GFF_MENTAL | GFF_DAMAGE },
+    { GF_DOMINATION, "Domination", TERM_RED, "DOMINATION", GFF_MENTAL | GFF_HIDE },
+    { GF_SUBJUGATION, "Subjugation", TERM_RED, "SUBJUGATION", GFF_MENTAL },
+    { GF_DRAIN_MANA, "Drain Mana", TERM_L_BLUE, "DRAIN_MANA", GFF_MENTAL | GFF_HIDE },
+    { GF_MIND_BLAST, "Mind Blast", TERM_L_BLUE, "MIND_BLAST", GFF_MENTAL | GFF_HIDE },
+    { GF_BRAIN_SMASH, "Brain Smash", TERM_L_BLUE, "BRAIN_SMASH", GFF_MENTAL | GFF_DAMAGE | GFF_HIDE },
+    { GF_AMNESIA, "Amnesia", TERM_L_DARK, "AMNESIA", GFF_MENTAL | GFF_HIDE },
 
     /* Status Effects */
-    { GF_BLIND, "Blind", TERM_L_DARK, RES_INVALID, "BLIND", GFF_STATUS },
-    { GF_OLD_CLONE, "Clone", TERM_RED, RES_INVALID, "OLD_CLONE", GFF_STATUS },
-    { GF_OLD_POLY, "Polymorph", TERM_RED, RES_INVALID, "OLD_POLY", GFF_STATUS },
-    { GF_OLD_HEAL, "Heal", TERM_WHITE, RES_INVALID, "OLD_HEAL", GFF_STATUS },
-    { GF_STAR_HEAL, "Heal", TERM_WHITE, RES_INVALID, "STAR_HEAL", GFF_STATUS },
-    { GF_OLD_SPEED, "Haste", TERM_L_RED, RES_INVALID, "OLD_SPEED", GFF_STATUS },
-    { GF_OLD_SLOW, "Slow", TERM_L_UMBER, RES_INVALID, "OLD_SLOW", GFF_STATUS },
-    { GF_OLD_CONF, "Confuse", TERM_L_UMBER, RES_INVALID, "OLD_CONF", GFF_STATUS },
-    { GF_OLD_SLEEP, "Sleep", TERM_BLUE, RES_INVALID, "OLD_SLEEP", GFF_STATUS },
-    { GF_OLD_DRAIN, "Drain", TERM_L_DARK, RES_INVALID, "OLD_DRAIN", GFF_STATUS },
-    { GF_STASIS, "Freeze", TERM_BLUE, RES_INVALID, "STASIS", GFF_STATUS },
-    { GF_STASIS_EVIL, "Freeze Evil", TERM_BLUE, RES_INVALID, "STASIS_EVIL", GFF_STATUS },
-    { GF_PARALYSIS, "Paralyze", TERM_VIOLET, RES_INVALID, "PARALYZE", GFF_STATUS },
-    { GF_STUN, "Stun", TERM_L_BLUE, RES_INVALID, "STUN", GFF_STATUS },
-    { GF_ELDRITCH, "Eldritch Horror", TERM_VIOLET, RES_INVALID, "ELDRITCH", GFF_STATUS },
-    { GF_ANTIMAGIC, "Anti-magic", TERM_RED, RES_INVALID, "ANTIMAGIC", GFF_STATUS },
-    { GF_CRUSADE, "Crusade", TERM_WHITE, RES_INVALID, "CRUSADE", GFF_STATUS },
-    { GF_UNHOLY_WORD, "Unholy Word", TERM_L_DARK, RES_INVALID, "UNHOLY_WORD", GFF_STATUS },
-    { GF_UNLIFE, "Unlife", TERM_L_DARK, RES_INVALID, "UNLIFE", GFF_STATUS },
+    { GF_OLD_CLONE, "Clone", TERM_RED, "OLD_CLONE", GFF_STATUS | GFF_HIDE },
+    { GF_OLD_POLY, "Polymorph", TERM_RED, "OLD_POLY", GFF_STATUS | GFF_HIDE },
+    { GF_OLD_HEAL, "Heal", TERM_WHITE, "OLD_HEAL", GFF_STATUS | GFF_HIDE | GFF_TARGET_PET },
+    { GF_STAR_HEAL, "Heal", TERM_WHITE, "STAR_HEAL", GFF_STATUS | GFF_HIDE },
+    { GF_OLD_SPEED, "Haste", TERM_L_RED, "OLD_SPEED", GFF_STATUS | GFF_HIDE | GFF_TARGET_PET },
+    { GF_OLD_CONF, "Confuse", TERM_L_UMBER, "OLD_CONF", GFF_STATUS | GFF_HIDE },
+    { GF_OLD_DRAIN, "Drain", TERM_L_DARK, "OLD_DRAIN", GFF_STATUS },
+    { GF_STASIS, "Freeze", TERM_BLUE, "STASIS", GFF_STATUS | GFF_HIDE },
+    { GF_STASIS_EVIL, "Freeze Evil", TERM_BLUE, "STASIS_EVIL", GFF_STATUS | GFF_HIDE },
+    { GF_PARALYSIS, "Paralyze", TERM_VIOLET, "PARALYZE", GFF_STATUS | GFF_HIDE },
+    { GF_ELDRITCH, "Eldritch Horror", TERM_VIOLET, "ELDRITCH", GFF_STATUS }, /* warlock's Eldritch Blast */
+    { GF_ANTIMAGIC, "Anti-magic", TERM_RED, "ANTIMAGIC", GFF_STATUS | GFF_HIDE },
+    { GF_CRUSADE, "Crusade", TERM_WHITE, "CRUSADE", GFF_STATUS | GFF_HIDE },
+    { GF_UNHOLY_WORD, "Unholy Word", TERM_L_DARK, "UNHOLY_WORD", GFF_STATUS | GFF_HIDE },
+    { GF_UNLIFE, "Unlife", TERM_L_DARK, "UNLIFE", GFF_STATUS | GFF_HIDE },
 
     /* Terrain Effects */
-    { GF_LITE_WEAK, "Light", TERM_YELLOW, RES_INVALID, "LITE_WEAK", GFF_TERRAIN },
-    { GF_DARK_WEAK, "Dark", TERM_L_DARK, RES_INVALID, "DARK_WEAK", GFF_TERRAIN },
-    { GF_KILL_WALL, "Stone to Mud", TERM_L_UMBER, RES_INVALID, "KILL_WALL", GFF_TERRAIN },
-    { GF_KILL_DOOR, "Door Destruction", TERM_RED, RES_INVALID, "KILL_DOOR", GFF_TERRAIN },
-    { GF_KILL_TRAP, "Trap Destruction", TERM_RED, RES_INVALID, "KILL_TRAP", GFF_TERRAIN },
-    { GF_REMOVE_OBSTACLE, "Remove Obstacle", TERM_RED, RES_INVALID, "REMOVE_OBSTACLE", GFF_TERRAIN },
-    { GF_MAKE_DOOR, "Door Creation", TERM_L_BLUE, RES_INVALID, "MAKE_DOOR", GFF_TERRAIN },
-    { GF_MAKE_TRAP, "Trap Creation", TERM_L_RED, RES_INVALID, "MAKE_TRAP", GFF_TERRAIN },
-    { GF_MAKE_TREE, "Forest Creation", TERM_L_GREEN, RES_INVALID, "MAKE_TREE", GFF_TERRAIN },
-    { GF_MAKE_GLYPH, "Glyph of Warding", TERM_L_BLUE, RES_INVALID, "MAKE_GLYPH", GFF_TERRAIN },
-    { GF_MAKE_WALL, "Wall Creation", TERM_SLATE, RES_INVALID, "MAKE_WALL", GFF_TERRAIN },
-    { GF_JAM_DOOR, "Wizard Lock", TERM_RED, RES_INVALID, "JAM_DOOR", GFF_TERRAIN },
-    { GF_WATER_FLOW, "Flow of Water", TERM_BLUE, RES_INVALID, "WATER_FLOW", GFF_TERRAIN },
-    { GF_WATER2, "Flow of Water", TERM_BLUE, RES_INVALID, "WATER2", GFF_TERRAIN },
-    { GF_LAVA_FLOW, "Flow of Lava", TERM_RED, RES_INVALID, "LAVA_FLOW", GFF_TERRAIN },
-    { GF_WEB, "Web Spinning", TERM_SLATE, RES_INVALID, "WEB", GFF_TERRAIN },
-    { GF_QUAKE, "Earthquake", TERM_L_UMBER, RES_INVALID, "QUAKE", GFF_TERRAIN },
+    { GF_LIGHT_WEAK, "Light", TERM_YELLOW, "LIGHT_WEAK", GFF_TERRAIN },
+    { GF_DARK_WEAK, "Dark", TERM_L_DARK, "DARK_WEAK", GFF_TERRAIN },
+    { GF_KILL_WALL, "Stone to Mud", TERM_L_UMBER, "KILL_WALL", GFF_TERRAIN },
+    { GF_KILL_DOOR, "Door Destruction", TERM_RED, "KILL_DOOR", GFF_TERRAIN },
+    { GF_KILL_TRAP, "Trap Destruction", TERM_RED, "KILL_TRAP", GFF_TERRAIN },
+    { GF_REMOVE_OBSTACLE, "Remove Obstacle", TERM_RED, "REMOVE_OBSTACLE", GFF_TERRAIN },
+    { GF_MAKE_DOOR, "Door Creation", TERM_L_BLUE, "MAKE_DOOR", GFF_TERRAIN | GFF_HIDE },
+    { GF_MAKE_TRAP, "Trap Creation", TERM_L_RED, "MAKE_TRAP", GFF_TERRAIN | GFF_HIDE },
+    { GF_MAKE_TREE, "Forest Creation", TERM_L_GREEN, "MAKE_TREE", GFF_TERRAIN | GFF_HIDE },
+    { GF_MAKE_GLYPH, "Glyph of Warding", TERM_L_BLUE, "MAKE_GLYPH", GFF_TERRAIN | GFF_HIDE },
+    { GF_MAKE_WALL, "Wall Creation", TERM_SLATE, "MAKE_WALL", GFF_TERRAIN | GFF_HIDE },
+    { GF_JAM_DOOR, "Wizard Lock", TERM_RED, "JAM_DOOR", GFF_TERRAIN },
+    { GF_WATER_FLOW, "Flow of Water", TERM_BLUE, "WATER_FLOW", GFF_TERRAIN | GFF_HIDE },
+    { GF_WATER2, "Flow of Water", TERM_BLUE, "WATER2", GFF_TERRAIN | GFF_HIDE },
+    { GF_LAVA_FLOW, "Flow of Lava", TERM_RED, "LAVA_FLOW", GFF_TERRAIN | GFF_HIDE },
+    { GF_WEB, "Web Spinning", TERM_SLATE, "WEB", GFF_TERRAIN | GFF_HIDE },
+    { GF_QUAKE, "Earthquake", TERM_L_UMBER, "QUAKE", GFF_TERRAIN | GFF_HIDE },
 
     /* Turning, Dispelling, Controlling, etc */
-    { GF_AWAY_UNDEAD, "Banish Undead", TERM_L_BLUE, RES_INVALID, "AWAY_UNDEAD", GFF_TELEPORT },
-    { GF_AWAY_EVIL, "Banish Evil", TERM_L_BLUE, RES_INVALID, "AWAY_EVIL", GFF_TELEPORT },
-    { GF_AWAY_ALL, "Banishment", TERM_L_BLUE, RES_INVALID, "AWAY_ALL", GFF_TELEPORT },
-    { GF_ISOLATION, "Isolation", TERM_L_BLUE, RES_INVALID, "ISOLATION", GFF_TELEPORT },
-    { GF_TURN_UNDEAD, "Turn Undead", TERM_RED, RES_INVALID, "TURN_UNDEAD", GFF_STATUS },
-    { GF_TURN_EVIL, "Turn Evil", TERM_RED, RES_INVALID, "TURN_EVIL", GFF_STATUS },
-    { GF_TURN_ALL, "Turn Monsters", TERM_RED, RES_INVALID, "TURN_ALL", GFF_STATUS },
-    { GF_DISP_UNDEAD, "Dispel Undead", TERM_L_RED, RES_INVALID, "DISP_UNDEAD", GFF_DAMAGE },
-    { GF_DISP_EVIL, "Dispel Evil", TERM_L_RED, RES_INVALID, "DISP_EVIL", GFF_DAMAGE },
-    { GF_DISP_GOOD, "Dispel Good", TERM_L_RED, RES_INVALID, "DISP_GOOD", GFF_DAMAGE },
-    { GF_DISP_DEMON, "Dispel Demon", TERM_L_RED, RES_INVALID, "DISP_DEMON", GFF_DAMAGE },
-    { GF_DISP_LIVING, "Dispel Living", TERM_L_RED, RES_INVALID, "DISP_LIVING", GFF_DAMAGE },
-    { GF_DISP_ALL, "Dispel Monsters", TERM_L_RED, RES_INVALID, "DISP_ALL", GFF_DAMAGE },
-    { GF_CONTROL_UNDEAD, "Enslave Undead", TERM_L_BLUE, RES_INVALID, "CONTROL_UNDEAD", GFF_CHARM },
-    { GF_CONTROL_DEMON, "Dominate Demon", TERM_L_BLUE, RES_INVALID, "CONTROL_DEMON", GFF_CHARM },
-    { GF_CONTROL_ANIMAL, "Charm Animal", TERM_L_BLUE, RES_INVALID, "CONTROL_ANIMAL", GFF_CHARM },
-    { GF_CONTROL_LIVING, "Charm Living", TERM_L_BLUE, RES_INVALID, "CONTROL_LIVING", GFF_CHARM },
-    { GF_CONTROL_PACT_MONSTER, "Control Pact Monster", TERM_L_BLUE, RES_INVALID, "CONTROL_PACT_MONSTER", GFF_CHARM },
-    { GF_CHARM, "Charm Monster", TERM_L_BLUE, RES_INVALID, "CHARM", GFF_CHARM },
-    { GF_CHARM_RING_BEARER, "Charm Ring Bearer", TERM_L_BLUE, RES_INVALID, "CHARM_RING_BEARER", GFF_CHARM },
-    { GF_CAPTURE, "Capture Monster", TERM_L_BLUE, RES_INVALID, "CAPTURE", GFF_CHARM },
-    { GF_ANIM_DEAD, "Raise Dead", TERM_L_DARK, RES_INVALID, "ANIM_DEAD" },
-    { GF_DEATH_RAY, "Death Ray", TERM_L_DARK, RES_INVALID, "DEATH_RAY" },
-    { GF_GENOCIDE, "Genocide", TERM_L_DARK, RES_INVALID, "GENOCIDE" },
+    { GF_AWAY_UNDEAD, "Banish Undead", TERM_L_BLUE, "AWAY_UNDEAD", GFF_TELEPORT },
+    { GF_AWAY_EVIL, "Banish Evil", TERM_L_BLUE, "AWAY_EVIL", GFF_TELEPORT },
+    { GF_ISOLATION, "Isolation", TERM_L_BLUE, "ISOLATION", GFF_TELEPORT },
+    { GF_TURN_UNDEAD, "Turn Undead", TERM_RED, "TURN_UNDEAD", GFF_STATUS },
+    { GF_TURN_EVIL, "Turn Evil", TERM_RED, "TURN_EVIL", GFF_STATUS },
+    { GF_DISP_UNDEAD, "Dispel Undead", TERM_L_RED, "DISP_UNDEAD", GFF_DAMAGE },
+    { GF_DISP_EVIL, "Dispel Evil", TERM_L_RED, "DISP_EVIL", GFF_DAMAGE },
+    { GF_DISP_GOOD, "Dispel Good", TERM_L_RED, "DISP_GOOD", GFF_DAMAGE },
+    { GF_DISP_DEMON, "Dispel Demon", TERM_L_RED, "DISP_DEMON", GFF_DAMAGE },
+    { GF_DISP_LIVING, "Dispel Living", TERM_L_RED, "DISP_LIVING", GFF_DAMAGE },
+    { GF_DISP_ALL, "Dispel Monsters", TERM_L_RED, "DISP_ALL", GFF_DAMAGE },
+    { GF_CONTROL_UNDEAD, "Enslave Undead", TERM_L_BLUE, "CONTROL_UNDEAD", GFF_CHARM },
+    { GF_CONTROL_DEMON, "Dominate Demon", TERM_L_BLUE, "CONTROL_DEMON", GFF_CHARM },
+    { GF_CONTROL_ANIMAL, "Charm Animal", TERM_L_BLUE, "CONTROL_ANIMAL", GFF_CHARM },
+    { GF_CONTROL_LIVING, "Charm Living", TERM_L_BLUE, "CONTROL_LIVING", GFF_CHARM },
+    { GF_CONTROL_PACT_MONSTER, "Control Pact Monster", TERM_L_BLUE, "CONTROL_PACT_MONSTER", GFF_CHARM },
+    { GF_CHARM, "Charm Monster", TERM_L_BLUE, "CHARM", GFF_CHARM },
+    { GF_CHARM_RING_BEARER, "Charm Ring Bearer", TERM_L_BLUE, "CHARM_RING_BEARER", GFF_CHARM },
+    { GF_CAPTURE, "Capture Monster", TERM_L_BLUE, "CAPTURE", GFF_CHARM },
+    { GF_ANIM_DEAD, "Raise Dead", TERM_L_DARK, "ANIM_DEAD", GFF_HIDE },
+    { GF_DEATH_RAY, "Death Ray", TERM_L_DARK, "DEATH_RAY" },
+    { GF_GENOCIDE, "Genocide", TERM_L_DARK, "GENOCIDE", GFF_HIDE },
 
     /* Object Effects */
-    { GF_IDENTIFY, "Identify", TERM_L_BLUE, RES_INVALID, "IDENTIFY", GFF_OBJECT },
+    { GF_IDENTIFY, "Identify", TERM_L_BLUE, "IDENTIFY", GFF_OBJECT | GFF_HIDE },
 
     /* Class Specific */
-    { GF_ATTACK, "Attack", TERM_RED, RES_INVALID, "ATTACK", GFF_SPECIAL },
-    { GF_ENGETSU, "Moon Dazzling", TERM_YELLOW, RES_INVALID, "ENGETSU", GFF_SPECIAL },
-    { GF_SEEKER, "Seeker Ray", TERM_YELLOW, RES_INVALID, "SEEKER", GFF_SPECIAL | GFF_DAMAGE },
-    { GF_SUPER_RAY, "Super Ray", TERM_YELLOW, RES_INVALID, "SUPER_RAY", GFF_SPECIAL | GFF_DAMAGE },
-    { GF_BLOOD, "Blood", TERM_RED, RES_INVALID, "BLOOD", GFF_SPECIAL },
-    { GF_ELDRITCH_STUN, "Eldritch Stun", TERM_L_BLUE, RES_INVALID, "ELDRITCH_STUN", GFF_SPECIAL },
-    { GF_ELDRITCH_DRAIN, "Eldritch Drain", TERM_L_DARK, RES_INVALID, "ELDRITCH_DRAIN", GFF_SPECIAL },
-    { GF_ELDRITCH_DISPEL, "Eldritch Dispel", TERM_L_RED, RES_INVALID, "ELDRITCH_DISPEL", GFF_SPECIAL | GFF_DAMAGE },
-    { GF_ELDRITCH_CONFUSE, "Eldritch Confuse", TERM_L_UMBER, RES_INVALID, "ELDRITCH_CONFUSE", GFF_SPECIAL },
-    { GF_ELDRITCH_HOWL, "Eldritch Howl", TERM_L_DARK, RES_INVALID, "ELDRITCH_HOWL", GFF_SPECIAL },
-    { GF_ENTOMB, "Entomb", TERM_L_UMBER, RES_INVALID, "ENTOMB", GFF_SPECIAL },
-    { GF_MANA_CLASH, "Mana Clash", TERM_L_BLUE, RES_INVALID, "MANA_CLASH", GFF_SPECIAL },
-    { GF_PHARAOHS_CURSE, "Pharaoh's Curse", TERM_VIOLET, RES_INVALID, "PHARAOHS_CURSE", GFF_SPECIAL | GFF_CURSE | GFF_DAMAGE },
-    { GF_DRAINING_TOUCH, "Draining Touch", TERM_L_DARK, RES_INVALID, "DRAINING_TOUCH", GFF_SPECIAL },
-    { GF_DEATH_TOUCH, "Touch of Death", TERM_L_DARK, RES_INVALID, "DEATH_TOUCH", GFF_SPECIAL },
-    { GF_STEAL, "Steal", TERM_WHITE, RES_INVALID, "STEAL", GFF_SPECIAL },
-    { GF_LICH_DRAIN, "Orb of Draining", TERM_L_DARK, RES_INVALID, "LICH_DRAIN", GFF_DAMAGE },
-    { GF_LICH_GENOCIDE, "Send to Netherworld", TERM_L_DARK, RES_INVALID, "LICH_GENOCIDE" },
-    { GF_LICH_WORD, "Word of Vecna", TERM_VIOLET, RES_INVALID, "LICH_WORD", GFF_STATUS | GFF_DAMAGE },
+    { GF_ATTACK, "Attack", TERM_RED, "ATTACK", GFF_SPECIAL | GFF_HIDE | GFF_NO_REFLECT },
+    { GF_ENGETSU, "Moon Dazzling", TERM_YELLOW, "ENGETSU", GFF_SPECIAL | GFF_HIDE },
+    { GF_SEEKER, "Seeker Ray", TERM_YELLOW, "SEEKER", GFF_SPECIAL | GFF_DAMAGE },
+    { GF_SUPER_RAY, "Super Ray", TERM_YELLOW, "SUPER_RAY", GFF_SPECIAL | GFF_DAMAGE },
+    { GF_BLOOD, "Blood", TERM_RED, "BLOOD", GFF_SPECIAL },
+    { GF_ELDRITCH_STUN, "Eldritch Stun", TERM_L_BLUE, "ELDRITCH_STUN", GFF_SPECIAL },
+    { GF_ELDRITCH_DRAIN, "Eldritch Drain", TERM_L_DARK, "ELDRITCH_DRAIN", GFF_SPECIAL },
+    { GF_ELDRITCH_DISPEL, "Eldritch Dispel", TERM_L_RED, "ELDRITCH_DISPEL", GFF_SPECIAL | GFF_DAMAGE },
+    { GF_ELDRITCH_CONFUSE, "Eldritch Confuse", TERM_L_UMBER, "ELDRITCH_CONFUSE", GFF_SPECIAL },
+    { GF_ELDRITCH_HOWL, "Eldritch Howl", TERM_L_DARK, "ELDRITCH_HOWL", GFF_SPECIAL },
+    { GF_ENTOMB, "Entomb", TERM_L_UMBER, "ENTOMB", GFF_SPECIAL | GFF_HIDE },
+    { GF_MANA_CLASH, "Mana Clash", TERM_L_BLUE, "MANA_CLASH", GFF_SPECIAL | GFF_HIDE },
+    { GF_PHARAOHS_CURSE, "Pharaoh's Curse", TERM_VIOLET, "PHARAOHS_CURSE", GFF_SPECIAL | GFF_CURSE | GFF_DAMAGE | GFF_HIDE },
+    { GF_DRAINING_TOUCH, "Draining Touch", TERM_L_DARK, "DRAINING_TOUCH", GFF_SPECIAL | GFF_HIDE },
+    { GF_DEATH_TOUCH, "Touch of Death", TERM_L_DARK, "DEATH_TOUCH", GFF_SPECIAL | GFF_HIDE },
+    { GF_STEAL, "Steal", TERM_WHITE, "STEAL", GFF_SPECIAL | GFF_HIDE },
+    { GF_LICH_DRAIN, "Orb of Draining", TERM_L_DARK, "LICH_DRAIN", GFF_DAMAGE },
+    { GF_LICH_GENOCIDE, "Send to Netherworld", TERM_L_DARK, "LICH_GENOCIDE", GFF_HIDE },
+    { GF_LICH_WORD, "Word of Vecna", TERM_VIOLET, "LICH_WORD", GFF_STATUS | GFF_DAMAGE | GFF_HIDE },
 
     /* New Stuff ... Reorder later */
+    
+    { 0 }
 };
 
 typedef struct {
@@ -162,16 +190,15 @@ typedef struct {
 } _alias_t, *_alias_ptr;
 static _alias_t _aliases[] = {
     { "DAM", GF_MISSILE },
-    { "POISON", GF_POIS },
-    { "LIGHT", GF_LITE },
+    { "POIS", GF_POIS },
     { "CONF", GF_CONFUSION },
     { "CONFUSE", GF_CONFUSION },
-    { "DISENCHANTMENT", GF_DISENCHANT },
+    { "DISENCHANT", GF_DISENCHANT },
+    { "DISEN", GF_DISENCHANT }, /* XXX RES_DISEN in k_info, etc */
     { "PULVERISE", GF_TELEKINESIS },
-    { "TERRIFY", GF_TURN_ALL },
+    { "TERRIFY", GF_FEAR },
+    { "TELE", GF_TELEPORT },
     { "POLYMORPH", GF_OLD_POLY },
-    { "SLOW", GF_OLD_SLOW },
-    { "SLEEP", GF_OLD_SLEEP },
     { 0 }
 };
 
@@ -182,9 +209,10 @@ gf_info_ptr gf_parse_name(cptr token)
     {
         int i;
         _map = str_map_alloc(NULL);
-        for (i = 0; i < GF_COUNT; i++)
+        for (i = 0; ; i++)
         {
             gf_info_ptr info = &_gf_tbl[i];
+            if (!info->id) break;
             str_map_add(_map, info->parse, info);
         }
         for (i = 0; ; i++)
@@ -199,56 +227,62 @@ gf_info_ptr gf_parse_name(cptr token)
 
 gf_info_ptr gf_lookup(int id)
 {
-    gf_info_ptr gf = NULL;
-    if (0 < id && id < GF_COUNT)
+    static int_map_ptr _map = NULL;
+    if (!_map)
     {
-        gf = &_gf_tbl[id];
-        assert(gf->id == id);
+        int i;
+        _map = int_map_alloc(NULL);
+        for (i = 0; ; i++)
+        {
+            gf_info_ptr info = &_gf_tbl[i];
+            if (!info->id) break;
+            int_map_add(_map, info->id, info);
+        }
     }
-    return gf;
+    return int_map_find(_map, id);
+}
+
+int gf_resist(int id)
+{
+    int res_id = id;
+    gf_info_ptr gfi = gf_lookup(id);
+    if (gfi->resist)
+        res_id = gfi->resist;
+    if (GF_RES_MIN <= res_id && res_id <= GF_RES_MAX)
+        return res_id;
+    return GF_NONE;
 }
 
 #define HURT_CHANCE 16
 
-static int _rlev(int m_idx)
+static int _rlev(who_t who)
 {
-    if (m_idx > 0)
-    {
-        mon_ptr mon = dun_mon(cave, m_idx);
-        mon_race_ptr race = mon_race(mon);
-        return race->level;
-    }
-    return 0;
+    if (who_is_mon(who))
+        return mon_lvl(who_mon(who));
+    return 0; /* XXX cave->difficulty? */
 }
-static int _plr_save_odds(int m_idx, int boost)
+static int _plr_save_odds(who_t who, int boost)
 {
-    int rlev = _rlev(m_idx);
+    int rlev = _rlev(who);
     int roll = 100 + rlev/2 + boost;
-    int sav = plr_skill_sav(m_idx);
+    int sav = plr_skill_sav(who);
     int odds = sav * 100 / roll;
     return odds;
 }
-static bool _plr_save(int m_idx, int boost)
+static bool _plr_save(who_t who, int boost)
 {
-    int odds = _plr_save_odds(m_idx, boost);
+    int odds = _plr_save_odds(who, boost);
     return randint0(100) < odds;
 }
-static int _align_dam_pct(int align)
+int plr_holy_dam(int dam)
 {
-    static point_t tbl[6] = { {-150, 200}, {-50, 150}, {-10, 125},
-                              {10, 80}, {50, 66}, {150, 50} };
-
-    return interpolate(align, tbl, 6);
+    return dam * holy_align_dam_pct(plr->align) / 100;
 }
-int gf_holy_dam(int dam)
+int plr_hell_dam(int dam)
 {
-    return dam * _align_dam_pct(p_ptr->align) / 100;
+    return dam * hell_align_dam_pct(plr->align) / 100;
 }
-int gf_hell_dam(int dam)
-{
-    return dam * _align_dam_pct(-p_ptr->align) / 100;
-}
-int gf_affect_p(int who, int type, int dam, int flags)
+int gf_affect_p(who_t who, int type, int dam, int flags)
 {
     int          result = 0;
     mon_ptr      m_ptr = NULL;
@@ -265,28 +299,24 @@ int gf_affect_p(int who, int type, int dam, int flags)
     if (flags & GF_AFFECT_SPELL)
         msg_format("<color:D>gf_affect_p(%s, %d)</color>", gf_lookup(type)->name, dam);
     #endif
-    if (who > 0)
+    if (who_is_mon(who))
     {
-        m_ptr = dun_mon(cave, who);
-        r_ptr = mon_race(m_ptr);
-        rlev = MAX(1, r_ptr->level*m_ptr->mpower/1000);
+        m_ptr = who_mon(who);
+        r_ptr = m_ptr->race;
+        rlev = MAX(1, r_ptr->alloc.lvl*m_ptr->mpower/1000);
 
         monster_desc(m_name, m_ptr, 0);
         monster_desc(m_name_subject, m_ptr, MD_PRON_VISIBLE);
     }
     else
     {
-        switch (who)
+        switch (who.tag)
         {
-        case PROJECT_WHO_UNCTRL_POWER:
+        case WHO_UNCTRL_POWER:
             strcpy(m_name, "uncontrollable power storm");
             break;
 
-        case PROJECT_WHO_GLASS_SHARDS:
-            strcpy(m_name, "shards of glass");
-            break;
-
-        case GF_WHO_TRAP:
+        case WHO_TRAP:
         default:
             strcpy(m_name, "a trap");
             break;
@@ -297,74 +327,74 @@ int gf_affect_p(int who, int type, int dam, int flags)
     switch (type)
     {
     case GF_ACID:
-        dam = res_calc_dam(RES_ACID, dam);
+        dam = res_calc_dam(GF_ACID, dam);
         if (dam)
         {
             if (touch) msg_print("You are <color:G>dissolved</color>!");
             else if (fuzzy) msg_print("You are hit by acid!");
             if (aura || !CHECK_MULTISHADOW())
             {
-                if (!res_save_default(RES_ACID) && one_in_(stat_drain_odds))
+                if (!res_save_default(GF_ACID) && one_in_(stat_drain_odds))
                     do_dec_stat(A_CHR);
                 if (minus_ac()) dam = (dam + 1) / 2;
             }
             result = take_hit(damage_type, dam, m_name);
             if (!aura || randint0(50) < dam)
-                inven_damage(set_acid_destroy, 3, RES_ACID);
+                inven_damage(set_acid_destroy, 3, GF_ACID);
         }
-        update_smart_learn(who, RES_ACID);
+        if (m_ptr) mon_smart_learn(m_ptr, GF_ACID);
         break;
     case GF_FIRE:
-        dam = res_calc_dam(RES_FIRE, dam);
+        dam = res_calc_dam(GF_FIRE, dam);
         if (dam)
         {
             if (touch) msg_print("You are <color:r>burned</color>!");
             else if (fuzzy) msg_print("You are hit by fire!");
             if (aura || !CHECK_MULTISHADOW())
             {
-                if (!res_save_default(RES_FIRE) && one_in_(stat_drain_odds))
+                if (!res_save_default(GF_FIRE) && one_in_(stat_drain_odds))
                     do_dec_stat(A_STR);
             }
 
             result = take_hit(damage_type, dam, m_name);
             if (!aura || randint0(50) < dam)
-                 inven_damage(set_fire_destroy, 3, RES_FIRE);
+                 inven_damage(set_fire_destroy, 3, GF_FIRE);
         }
-        update_smart_learn(who, RES_FIRE);
+        if (m_ptr) mon_smart_learn(m_ptr, GF_FIRE);
         break;
     case GF_COLD:
-        dam = res_calc_dam(RES_COLD, dam);
+        dam = res_calc_dam(GF_COLD, dam);
         if (dam)
         {
             if (touch) msg_print("You are <color:W>frozen</color>!");
             else if (fuzzy) msg_print("You are hit by cold!");
             if (aura || !CHECK_MULTISHADOW())
             {
-                if (!res_save_default(RES_COLD) && one_in_(stat_drain_odds))
+                if (!res_save_default(GF_COLD) && one_in_(stat_drain_odds))
                     do_dec_stat(A_STR);
             }
             result = take_hit(damage_type, dam, m_name);
             if (!aura || randint0(50) < dam)
-                 inven_damage(set_cold_destroy, 3, RES_COLD);
+                 inven_damage(set_cold_destroy, 3, GF_COLD);
         }
-        update_smart_learn(who, RES_COLD);
+        if (m_ptr) mon_smart_learn(m_ptr, GF_COLD);
         break;
     case GF_ELEC:
-        dam = res_calc_dam(RES_ELEC, dam);
+        dam = res_calc_dam(GF_ELEC, dam);
         if (dam)
         {
             if (touch) msg_print("You are <color:b>shocked</color>!");
             else if (fuzzy) msg_print("You are hit by lightning!");
             if (aura || !CHECK_MULTISHADOW())
             {
-                if (!res_save_default(RES_ELEC) && one_in_(stat_drain_odds))
+                if (!res_save_default(GF_ELEC) && one_in_(stat_drain_odds))
                     do_dec_stat(A_DEX);
             }
             result = take_hit(damage_type, dam, m_name);
             if (!aura || randint0(50) < dam)
-                 inven_damage(set_elec_destroy, 3, RES_ELEC);
+                 inven_damage(set_elec_destroy, 3, GF_ELEC);
         }
-        update_smart_learn(who, RES_ELEC);
+        if (m_ptr) mon_smart_learn(m_ptr, GF_ELEC);
         break;
     case GF_POIS:
         if (!aura && CHECK_MULTISHADOW())
@@ -372,7 +402,7 @@ int gf_affect_p(int who, int type, int dam, int flags)
             msg_print("The attack hits your Shadow. You are unharmed!");
             break;
         }
-        dam = res_calc_dam(RES_POIS, dam);
+        dam = res_calc_dam(GF_POIS, dam);
         if (dam)
         {
             if (touch) msg_print("You are <color:G>poisoned</color>!");
@@ -381,12 +411,12 @@ int gf_affect_p(int who, int type, int dam, int flags)
              * value unchanged, else this is a monster nerf! We can scale everything
              * in r_info and BR_POIS, but that is tedious and I'm unsure what a good
              * scale factor is without some playtesting. cf GF_NUKE below. */
-            dam = dam*7/4;
-            plr_tim_add(T_POISON, dam);
-            if (!res_save_default(RES_POIS) && one_in_(stat_drain_odds))
+            plr_tim_add(T_POISON, dam*4/3);
+            result = take_hit(damage_type, dam/3, m_name);
+            if (!res_save_default(GF_POIS) && one_in_(stat_drain_odds))
                 do_dec_stat(A_CON);
         }
-        update_smart_learn(who, RES_POIS);
+        if (m_ptr) mon_smart_learn(m_ptr, GF_POIS);
         break;
     case GF_NUKE:
         if (!aura && CHECK_MULTISHADOW())
@@ -394,14 +424,14 @@ int gf_affect_p(int who, int type, int dam, int flags)
             msg_print("The attack hits your Shadow. You are unharmed!");
             break;
         }
-        dam = res_calc_dam(RES_POIS, dam);
+        dam = res_calc_dam(GF_POIS, dam);
         if (dam)
         {
             if (touch) msg_print("You are <color:G>irradiated</color>!");
             else if (fuzzy) msg_print("You are hit by radiation!");
-            dam = dam*7/4;
-            plr_tim_add(T_POISON, dam);
-            if (!res_save_default(RES_POIS))
+            plr_tim_add(T_POISON, dam*4/3);
+            result = take_hit(damage_type, dam/3, m_name);
+            if (!res_save_default(GF_POIS))
             {
                 if (one_in_(5))
                 {
@@ -411,31 +441,48 @@ int gf_affect_p(int who, int type, int dam, int flags)
                     else
                         mutate_player();
                 }
-                inven_damage(set_acid_destroy, 2, RES_POIS);
+                inven_damage(set_acid_destroy, 2, GF_POIS);
             }
         }
-        update_smart_learn(who, RES_POIS);
+        if (m_ptr) mon_smart_learn(m_ptr, GF_POIS);
         break;
     case GF_MISSILE:
     case GF_BLOOD:  /* Monsters can't do this ... */
         if (fuzzy) msg_print("You are hit by something!");
         result = take_hit(damage_type, dam, m_name);
         break;
-    case GF_HOLY_FIRE:
-        if (touch) msg_format("You are <color:y>%s</color>!", p_ptr->align < -10 ? "*burned*" : "burned");
-        else if (fuzzy) msg_print("You are hit by something!");
-        dam = gf_holy_dam(dam);
-        result = take_hit(damage_type, dam, m_name);
-        break;
-    case GF_HELL_FIRE:
-        if (touch) msg_format("You are <color:D>%s</color>!", p_ptr->align > 10 ? "*burned*" : "burned");
-        else if (fuzzy) msg_print("You are hit by something!");
-        dam = gf_hell_dam(dam);
-        result = take_hit(damage_type, dam, m_name);
-        break;
+    case GF_HOLY_FIRE: {
+        int pct = holy_align_dam_pct(plr->align);
+        dam = dam * pct / 100;
+        if (!dam)
+        {
+            if (!touch) msg_print("You are immune.");
+        }
+        else
+        {
+            if (touch) msg_format("You are <color:y>%s</color>!", pct > 100 ? "*burned*" : "burned");
+            else if (fuzzy) msg_print("You are hit by something!");
+            result = take_hit(damage_type, dam, m_name);
+        }
+        break; }
+    case GF_HELL_FIRE: {
+        int pct = hell_align_dam_pct(plr->align);
+        dam = dam * pct / 100;
+        if (!dam)
+        {
+            if (!touch) msg_print("You are immune.");
+        }
+        else
+        {
+            if (touch) msg_format("You are <color:D>%s</color>!", pct > 100 ? "*burned*" : "burned");
+            else if (fuzzy) msg_print("You are hit by something!");
+            result = take_hit(damage_type, dam, m_name);
+        }
+        break; }
     case GF_ARROW:
+    case GF_SUPER_ARROW:
         if (fuzzy) msg_print("You are hit by something sharp!");
-        else if (equip_find_art(ART_ZANTETSU))
+        else if (equip_find_art("|.Zantetsuken"))
         {
             msg_print("You cut down the arrow!");
             break;
@@ -443,16 +490,26 @@ int gf_affect_p(int who, int type, int dam, int flags)
         result = take_hit(damage_type, dam, m_name);
         break;
     case GF_PLASMA:
-        if (touch) msg_print("You are <color:R>burned</color>!");
-        else if (fuzzy) msg_print("You are hit by something *HOT*!");
-        result = take_hit(damage_type, dam, m_name);
-        if (!p_ptr->no_stun && !res_save_default(RES_SOUND) && !CHECK_MULTISHADOW())
+        if (!aura && CHECK_MULTISHADOW())
         {
-            int k = (randint1((dam > 40) ? 35 : (dam * 3 / 4 + 5)));
-            plr_tim_add(T_STUN, k);
+            msg_print("The attack hits your Shadow. You are unharmed!");
+            break;
         }
+        dam = res_calc_dam(GF_PLASMA, dam);
+        if (dam)
+        {
+            if (touch) msg_print("You are <color:R>burned</color>!");
+            else if (fuzzy) msg_print("You are hit by something *HOT*!");
+            result = take_hit(damage_type, dam, m_name);
+            if (!res_save(GF_STUN, 100) && !res_save_default(GF_SOUND))
+            {
+                int k = (randint1((dam > 40) ? 35 : (dam * 3 / 4 + 5)));
+                plr_tim_add(T_STUN, k);
+            }
 
-        if (!touch) inven_damage(set_acid_destroy, 3, RES_FIRE);
+            if (!touch) inven_damage(set_acid_destroy, 3, GF_FIRE);
+        }
+        if (m_ptr) mon_smart_learn(m_ptr, GF_PLASMA);
         break;
     case GF_UNLIFE:
         if (!(get_race()->flags & RACE_IS_NONLIVING) && !life_save_p(rlev))
@@ -465,46 +522,67 @@ int gf_affect_p(int who, int type, int dam, int flags)
             }
         }
         break;
-    case GF_NETHER: {
-        int unlife;
-        if (touch) msg_print("You are <color:D>drained</color>!");
-        else if (fuzzy) msg_print("You are hit by nether forces!");
-        dam = res_calc_dam(RES_NETHER, dam);
-        unlife = dam*15/100;
-        if (unlife)
+    case GF_NETHER:
+        if (!aura && CHECK_MULTISHADOW())
         {
-            gf_affect_p(who, GF_UNLIFE, unlife, flags);
-            dam -= unlife;
+            msg_print("The attack hits your Shadow. You are unharmed!");
+            break;
         }
-        result = take_hit(damage_type, dam, m_name);
-        update_smart_learn(who, RES_NETHER);
-        break; }
+        dam = res_calc_dam(GF_NETHER, dam);
+        if (dam)
+        {
+            int unlife;
+            if (touch) msg_print("You are <color:D>drained</color>!");
+            else if (fuzzy) msg_print("You are hit by nether forces!");
+            unlife = dam*15/100;
+            if (unlife)
+            {
+                gf_affect_p(who, GF_UNLIFE, unlife, flags);
+                dam -= unlife;
+            }
+            result = take_hit(damage_type, dam, m_name);
+        }
+        if (m_ptr) mon_smart_learn(m_ptr, GF_NETHER);
+        break;
     case GF_WATER:
-    case GF_WATER2:
-        if (fuzzy) msg_print("You are hit by something wet!");
-        if (prace_is_(RACE_WATER_ELF) || elemental_is_(ELEMENTAL_WATER))
+        if (!aura && CHECK_MULTISHADOW())
         {
-            dam /= 2;
+            msg_print("The attack hits your Shadow. You are unharmed!");
+            break;
         }
-        else if(!CHECK_MULTISHADOW())
+        dam = res_calc_dam(GF_WATER, dam);
+        if (dam)
         {
-            if (!p_ptr->no_stun && !res_save_default(RES_SOUND))
-                plr_tim_add(T_STUN, randint1(40));
-            if (!res_save_default(RES_CONF))
-                plr_tim_add(T_CONFUSED, randint1(5) + 5);
-            inven_damage(set_cold_destroy, 3, RES_SOUND);
+            if (fuzzy) msg_print("You are hit by something wet!");
+            if (plr->resist[GF_WATER] > 0)
+            {
+            }
+            else
+            {
+                if (!res_save(GF_STUN, 100) && !res_save_default(GF_SOUND))
+                    plr_tim_add(T_STUN, randint1(40));
+                if (!res_save_default(GF_CONF))
+                    plr_tim_add(T_CONFUSED, randint1(5) + 5);
+                inven_damage(set_cold_destroy, 3, GF_SOUND);
+            }
+            result = take_hit(damage_type, dam, m_name);
         }
-        result = take_hit(damage_type, dam, m_name);
+        if (m_ptr) mon_smart_learn(m_ptr, GF_WATER);
         break;
     case GF_CHAOS:
-        if (touch) msg_print("You are <color:v>unmade</color>!");
-        else if (fuzzy) msg_print("You are hit by a wave of anarchy!");
-        dam = res_calc_dam(RES_CHAOS, dam);
-        if (!CHECK_MULTISHADOW())
+        if (!aura && CHECK_MULTISHADOW())
         {
-            if (!res_save_default(RES_CONF))
+            msg_print("The attack hits your Shadow. You are unharmed!");
+            break;
+        }
+        dam = res_calc_dam(GF_CHAOS, dam);
+        if (dam)
+        {
+            if (touch) msg_print("You are <color:v>unmade</color>!");
+            else if (fuzzy) msg_print("You are hit by a wave of anarchy!");
+            if (!res_save_default(GF_CONF))
                 plr_tim_add(T_CONFUSED, randint0(20) + 10);
-            if (!res_save_default(RES_CHAOS))
+            if (!res_save_default(GF_CHAOS))
             {
                 int count = mut_count(mut_unlocked_pred);
                 if (prace_is_(RACE_BEASTMAN)) count = 0;
@@ -513,157 +591,247 @@ int gf_affect_p(int who, int type, int dam, int flags)
                     msg_print("Your body is twisted by chaos!");
                     mut_gain_random(NULL);
                 }
-                if (p_ptr->pclass == CLASS_WILD_TALENT && one_in_(7))
+                if (plr->pclass == CLASS_WILD_TALENT && one_in_(7))
                     wild_talent_scramble();
 
                 if (!mut_present(MUT_WEIRD_MIND))
                     plr_tim_add(T_HALLUCINATE, randint1(10));
             }
-            if (!res_save_default(RES_NETHER) && !res_save_default(RES_CHAOS))
-                drain_exp(5000 + (p_ptr->exp / 100), 500 + (p_ptr->exp / 1000), 75);
+            if (!res_save_default(GF_NETHER) && !res_save_default(GF_CHAOS))
+                drain_exp(5000 + (plr->exp / 100), 500 + (plr->exp / 1000), 75);
 
             if (!touch)
             {
-                inven_damage(set_elec_destroy, 2, RES_CHAOS);
-                inven_damage(set_fire_destroy, 2, RES_CHAOS);
+                inven_damage(set_elec_destroy, 2, GF_CHAOS);
+                inven_damage(set_fire_destroy, 2, GF_CHAOS);
             }
+            result = take_hit(damage_type, dam, m_name);
         }
-        result = take_hit(damage_type, dam, m_name);
-        update_smart_learn(who, RES_CHAOS);
+        if (m_ptr) mon_smart_learn(m_ptr, GF_CHAOS);
         break;
     case GF_ROCK:
+        if (!aura && CHECK_MULTISHADOW())
+        {
+            msg_print("The attack hits your Shadow. You are unharmed!");
+            break;
+        }
         if (fuzzy) msg_print("You are hit by something solid!");
         if (one_in_(2))
         {
-            if (!p_ptr->no_cut && !res_save_default(RES_SHARDS) && !CHECK_MULTISHADOW())
+            if (!plr->no_cut && !res_save_default(GF_SHARDS))
                 plr_tim_add(T_CUT, dam/2);
-            inven_damage(set_cold_destroy, 2, RES_SHARDS);
+            inven_damage(set_cold_destroy, 2, GF_SHARDS);
         }
         else
         {
-            if (!p_ptr->no_stun && !res_save_default(RES_SOUND) && !CHECK_MULTISHADOW())
+            if (!res_save(GF_STUN, 100) && !res_save_default(GF_SOUND))
             {
                 int k = (randint1((dam > 90) ? 35 : (dam / 3 + 5)));
                 plr_tim_add(T_STUN, k);
             }
-            inven_damage(set_cold_destroy, 2, RES_SOUND);
+            inven_damage(set_cold_destroy, 2, GF_SOUND);
         }
         result = take_hit(damage_type, dam, m_name);
         break;
     case GF_SHARDS:
-        if (touch) msg_print("You are <color:U>shredded</color>!");
-        else if (fuzzy) msg_print("You are hit by something sharp!");
-        dam = res_calc_dam(RES_SHARDS, dam);
-        if (!p_ptr->no_cut && !res_save_default(RES_SHARDS) && !CHECK_MULTISHADOW())
-            plr_tim_add(T_CUT, dam);
-        if (!touch) inven_damage(set_cold_destroy, 2, RES_SHARDS);
-        result = take_hit(damage_type, dam, m_name);
-        update_smart_learn(who, RES_SHARDS);
+        if (!aura && CHECK_MULTISHADOW())
+        {
+            msg_print("The attack hits your Shadow. You are unharmed!");
+            break;
+        }
+        dam = res_calc_dam(GF_SHARDS, dam);
+        if (dam)
+        {
+            if (touch) msg_print("You are <color:U>shredded</color>!");
+            else if (fuzzy) msg_print("You are hit by something sharp!");
+            if (!plr->no_cut && !res_save_default(GF_SHARDS))
+                plr_tim_add(T_CUT, dam);
+            if (!touch) inven_damage(set_cold_destroy, 2, GF_SHARDS);
+            result = take_hit(damage_type, dam, m_name);
+        }
+        if (m_ptr) mon_smart_learn(m_ptr, GF_SHARDS);
         break;
     case GF_SOUND:
-        if (!touch && fuzzy) msg_print("You are hit by a loud noise!");
-        /*if (touch) ... */
-        dam = res_calc_dam(RES_SOUND, dam);
-        if (!p_ptr->no_stun && !res_save_default(RES_SOUND) && !CHECK_MULTISHADOW())
+        if (!aura && CHECK_MULTISHADOW())
         {
-            int k = (randint1((dam > 90) ? 35 : (dam / 3 + 5)));
-            plr_tim_add(T_STUN, k);
+            msg_print("The attack hits your Shadow. You are unharmed!");
+            break;
         }
-        if (!touch) inven_damage(set_cold_destroy, 2, RES_SOUND);
-        result = take_hit(damage_type, dam, m_name);
-        update_smart_learn(who, RES_SOUND);
+        dam = res_calc_dam(GF_SOUND, dam);
+        if (dam)
+        {
+            if (!touch && fuzzy) msg_print("You are hit by a loud noise!");
+            if (!res_save(GF_STUN, 100) && !res_save_default(GF_SOUND))
+            {
+                int k = (randint1((dam > 90) ? 35 : (dam / 3 + 5)));
+                plr_tim_add(T_STUN, k);
+            }
+            if (!touch) inven_damage(set_cold_destroy, 2, GF_SOUND);
+            result = take_hit(damage_type, dam, m_name);
+        }
+        if (m_ptr) mon_smart_learn(m_ptr, GF_SOUND);
         break;
     case GF_CONFUSION:
-        if (!touch && fuzzy) msg_print("You are hit by something puzzling!");
-        /*if (touch) ... */
-        dam = res_calc_dam(RES_CONF, dam);
-        if (!res_save_default(RES_CONF) && !CHECK_MULTISHADOW())
-            plr_tim_add(T_CONFUSED, randint1(20) + 10);
-        result = take_hit(damage_type, dam, m_name);
-        update_smart_learn(who, RES_CONF);
+        if (!aura && CHECK_MULTISHADOW())
+        {
+            msg_print("The attack hits your Shadow. You are unharmed!");
+            break;
+        }
+        dam = res_calc_dam(GF_CONFUSION, dam);
+        if (dam)
+        {
+            if (!touch && fuzzy) msg_print("You are hit by something puzzling!");
+            if (!res_save_default(GF_CONFUSION))
+                plr_tim_add(T_CONFUSED, _1d(20) + 10);
+            result = take_hit(damage_type, dam, m_name);
+        }
+        if (m_ptr) mon_smart_learn(m_ptr, GF_CONFUSION);
         break;
     case GF_DISENCHANT:
-        if (touch) msg_print("You are <color:v>disenchanted</color>!");
-        else if (fuzzy) msg_print("You are hit by something static!");
-        dam = res_calc_dam(RES_DISEN, dam);
-        if (!(flags & GF_AFFECT_SPELL) && !one_in_(5) && !CHECK_MULTISHADOW())
+        if (!aura && CHECK_MULTISHADOW())
         {
-            if (!res_save_default(RES_DISEN) || one_in_(5))
-                plr_tim_disenchant();
+            msg_print("The attack hits your Shadow. You are unharmed!");
+            break;
         }
-        else if (!res_save(RES_DISEN, 31) && !CHECK_MULTISHADOW())
-            apply_disenchant(0);
-        result = take_hit(damage_type, dam, m_name);
-        update_smart_learn(who, RES_DISEN);
+        dam = res_calc_dam(GF_DISENCHANT, dam);
+        if (dam)
+        {
+            if (touch) msg_print("You are <color:v>disenchanted</color>!");
+            else if (fuzzy) msg_print("You are hit by something static!");
+            if (!(flags & GF_AFFECT_SPELL) && !one_in_(5))
+            {
+                if (!res_save_default(GF_DISENCHANT) || one_in_(5))
+                    plr_tim_disenchant();
+            }
+            else if (plr->prace == RACE_MON_SWORD && one_in_(touch ? 13 : 6))
+                sword_disenchant();
+            else if (!res_save(GF_DISEN, 31) && !CHECK_MULTISHADOW())
+                apply_disenchant(0);
+            result = take_hit(damage_type, dam, m_name);
+        }
+        if (m_ptr) mon_smart_learn(m_ptr, GF_DISENCHANT);
         break;
     case GF_NEXUS:
-        if (touch) msg_print("You are <color:v>scrambled</color>!");
-        else if (fuzzy) msg_print("You are hit by something strange!");
-        dam = res_calc_dam(RES_NEXUS, dam);
-        if (!res_save_default(RES_NEXUS) && !CHECK_MULTISHADOW())
-            apply_nexus(m_ptr);
-        result = take_hit(damage_type, dam, m_name);
-        update_smart_learn(who, RES_NEXUS);
+        if (!aura && CHECK_MULTISHADOW())
+        {
+            msg_print("The attack hits your Shadow. You are unharmed!");
+            break;
+        }
+        dam = res_calc_dam(GF_NEXUS, dam);
+        if (dam)
+        {
+            if (touch) msg_print("You are <color:v>scrambled</color>!");
+            else if (fuzzy) msg_print("You are hit by something strange!");
+            if (!res_save_default(GF_NEXUS))
+                apply_nexus(m_ptr);
+            result = take_hit(damage_type, dam, m_name);
+        }
+        if (m_ptr) mon_smart_learn(m_ptr, GF_NEXUS);
         break;
     case GF_FORCE:
-        if (fuzzy) msg_print("You are hit by kinetic force!");
-        if (!p_ptr->no_stun && !res_save_default(RES_SOUND) && !CHECK_MULTISHADOW())
-            plr_tim_add(T_STUN, randint1(20));
-        result = take_hit(damage_type, dam, m_name);
+        if (!aura && CHECK_MULTISHADOW())
+        {
+            msg_print("The attack hits your Shadow. You are unharmed!");
+            break;
+        }
+        dam = res_calc_dam(GF_FORCE, dam);
+        if (dam)
+        {
+            if (fuzzy) msg_print("You are hit by kinetic force!");
+            if (!res_save(GF_STUN, 100) && !res_save_default(GF_SOUND))
+                plr_tim_add(T_STUN, randint1(20));
+            result = take_hit(damage_type, dam, m_name);
+        }
+        if (m_ptr) mon_smart_learn(m_ptr, GF_FORCE);
         break;
     case GF_ROCKET:
-        if (fuzzy) msg_print("There is an explosion!");
-        dam = res_calc_dam(RES_SHARDS, dam);
-        if (!p_ptr->no_stun && !res_save_default(RES_SOUND) && !CHECK_MULTISHADOW())
-            plr_tim_add(T_STUN, randint1(20));
-        if (!p_ptr->no_cut && !res_save_default(RES_SHARDS) && !CHECK_MULTISHADOW())
-            plr_tim_add(T_CUT, (dam / 2));
-        inven_damage(set_cold_destroy, 3, RES_SHARDS);
-        result = take_hit(damage_type, dam, m_name);
-        update_smart_learn(who, RES_SHARDS);
-        break;
-    case GF_INERT:
-        if (!touch && fuzzy) msg_print("You are hit by something slow!");
-        /*if (touch) ... */
-        if (!CHECK_MULTISHADOW() && !free_act_save_p(MAX(rlev, dam)))
-            plr_tim_add(T_SLOW, randint0(4) + 4);
-        result = take_hit(damage_type, dam, m_name);
-        break;
-    case GF_LITE:
-        if (touch) msg_print("You are <color:y>dazzled</color>!");
-        else if (fuzzy) msg_print("You are hit by something!");
-        dam = res_calc_dam(RES_LITE, dam);
-        if (!plr_tim_find(T_BLIND) && !res_save_default(RES_LITE) && !res_save_default(RES_BLIND) && !CHECK_MULTISHADOW())
-            plr_tim_add(T_BLIND, randint1(5) + 2);
-
-        result = take_hit(damage_type, dam, m_name);
-        if (prace_is_(RACE_MON_VAMPIRE))
-            vampire_take_light_damage(dam);
-
-        if (plr_tim_find(T_WRAITH) && !CHECK_MULTISHADOW() && !touch)
+        if (!aura && CHECK_MULTISHADOW())
         {
-            msg_print("The light forces you out of your incorporeal shadow form.");
-            plr_tim_remove(T_WRAITH);
+            msg_print("The attack hits your Shadow. You are unharmed!");
+            break;
         }
-        update_smart_learn(who, RES_LITE);
+        dam = res_calc_dam(GF_SHARDS, dam);
+        if (dam)
+        {
+            if (fuzzy) msg_print("There is an explosion!");
+            if (!res_save(GF_STUN, 100) && !res_save_default(GF_SOUND))
+                plr_tim_add(T_STUN, randint1(20));
+            if (!plr->no_cut && !res_save_default(GF_SHARDS))
+                plr_tim_add(T_CUT, (dam / 2));
+            inven_damage(set_cold_destroy, 3, GF_SHARDS);
+            result = take_hit(damage_type, dam, m_name);
+        }
+        if (m_ptr) mon_smart_learn(m_ptr, GF_SHARDS);
+        break;
+    case GF_INERTIA:
+        if (!aura && CHECK_MULTISHADOW())
+        {
+            msg_print("The attack hits your Shadow. You are unharmed!");
+            break;
+        }
+        dam = res_calc_dam(GF_INERTIA, dam);
+        if (dam)
+        {
+            if (!touch && fuzzy) msg_print("You are hit by something slow!");
+            if (!CHECK_MULTISHADOW() /*&& !free_act_save_p(MAX(rlev, dam))*/)
+                plr_tim_add(T_SLOW, randint0(4) + 4);
+            result = take_hit(damage_type, dam, m_name);
+        }
+        if (m_ptr) mon_smart_learn(m_ptr, GF_INERTIA);
+        break;
+    case GF_LIGHT:
+        if (!aura && CHECK_MULTISHADOW())
+        {
+            msg_print("The attack hits your Shadow. You are unharmed!");
+            break;
+        }
+        dam = res_calc_dam(GF_LIGHT, dam);
+        if (dam)
+        {
+            if (touch) msg_print("You are <color:y>dazzled</color>!");
+            else if (fuzzy) msg_print("You are hit by something!");
+            if (!plr_tim_find(T_BLIND) && !res_save_default(GF_LIGHT) && !res_save_default(GF_BLIND))
+                plr_tim_add(T_BLIND, _1d(5) + 2);
+
+            result = take_hit(damage_type, dam, m_name);
+            if (prace_is_(RACE_MON_VAMPIRE))
+                vampire_take_light_damage(dam);
+
+            if (plr_tim_find(T_WRAITH) && !touch)
+            {
+                msg_print("The light forces you out of your incorporeal shadow form.");
+                plr_tim_remove(T_WRAITH);
+            }
+        }
+        if (m_ptr) mon_smart_learn(m_ptr, GF_LIGHT);
         break;
     case GF_DARK:
-        if (touch) msg_print("You are <color:D>benighted</color>!");
-        else if (fuzzy) msg_print("You are hit by something!");
-        dam = res_calc_dam(RES_DARK, dam);
-        if (!plr_tim_find(T_BLIND) && !res_save_default(RES_DARK) && !res_save_default(RES_BLIND) && !CHECK_MULTISHADOW())
-            plr_tim_add(T_BLIND, randint1(5) + 2);
-        result = take_hit(damage_type, dam, m_name);
-        if (prace_is_(RACE_MON_VAMPIRE))
-            vampire_take_dark_damage(dam);
-        update_smart_learn(who, RES_DARK);
+        if (!aura && CHECK_MULTISHADOW())
+        {
+            msg_print("The attack hits your Shadow. You are unharmed!");
+            break;
+        }
+        dam = res_calc_dam(GF_DARK, dam);
+        if (dam)
+        {
+            if (touch) msg_print("You are <color:D>benighted</color>!");
+            else if (fuzzy) msg_print("You are hit by something!");
+            if (!plr_tim_find(T_BLIND) && !res_save_default(GF_DARK) && !res_save_default(GF_BLIND))
+                plr_tim_add(T_BLIND, _1d(5) + 2);
+            result = take_hit(damage_type, dam, m_name);
+            if (prace_is_(RACE_MON_VAMPIRE))
+                vampire_take_dark_damage(dam);
+        }
+        if (m_ptr) mon_smart_learn(m_ptr, GF_DARK);
         break;
     case GF_ELDRITCH:
         if (touch && m_ptr)
             sanity_blast(m_ptr, FALSE);
         break;
     case GF_STUN:
-        if (!p_ptr->no_stun) plr_tim_add(T_STUN, dam);
+        if (!res_save(GF_STUN, 100))
+            plr_tim_add(T_STUN, dam);
+        if (m_ptr) mon_smart_learn(m_ptr, GF_STUN);
         break;
     case GF_AMNESIA:
         if (_plr_save(who, 0))
@@ -676,58 +844,66 @@ int gf_affect_p(int who, int type, int dam, int flags)
         }
         break;
     case GF_TIME:
-        if (touch) msg_print("You are <color:B>chronosmashed</color>!");
-        else if (fuzzy) msg_print("You are hit by a blast from the past!");
-        if (!res_save_default(RES_TIME) && !CHECK_MULTISHADOW())
+        if (!aura && CHECK_MULTISHADOW())
         {
-            int k = A_STR;
-            cptr act = "";
-            switch (randint1(10))
-            {
-            case 1: case 2: case 3: case 4: case 5:
-                if (p_ptr->prace == RACE_ANDROID) break;
-                msg_print("You feel life has clocked back.");
-                lose_exp(100 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
-                break;
-
-            case 6: case 7: case 8: case 9:
-                switch (randint1(6))
-                {
-                    case 1: k = A_STR; act = "strong"; break;
-                    case 2: k = A_INT; act = "bright"; break;
-                    case 3: k = A_WIS; act = "wise"; break;
-                    case 4: k = A_DEX; act = "agile"; break;
-                    case 5: k = A_CON; act = "hale"; break;
-                    case 6: k = A_CHR; act = "confident"; break;
-                }
-                msg_format("You're not as %s as you used to be...", act);
-                p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 3) / 4;
-                if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
-                p_ptr->update |= (PU_BONUS);
-                break;
-            case 10:
-                msg_print("You're not as powerful as you used to be...");
-                for (k = 0; k < 6; k++)
-                {
-                    p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 7) / 8;
-                    if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
-                }
-                p_ptr->update |= (PU_BONUS);
-                break;
-            }
+            msg_print("The attack hits your Shadow. You are unharmed!");
+            break;
         }
-        dam = res_calc_dam(RES_TIME, dam);
-        result = take_hit(damage_type, dam, m_name);
-        update_smart_learn(who, RES_TIME);
+        dam = res_calc_dam(GF_TIME, dam);
+        if (dam)
+        {
+            if (touch) msg_print("You are <color:B>chronosmashed</color>!");
+            else if (fuzzy) msg_print("You are hit by a blast from the past!");
+            if (!res_save_default(GF_TIME))
+            {
+                int k = A_STR;
+                cptr act = "";
+                switch (randint1(10))
+                {
+                case 1: case 2: case 3: case 4: case 5:
+                    if (plr->prace == RACE_ANDROID) break;
+                    msg_print("You feel life has clocked back.");
+                    lose_exp(100 + (plr->exp / 100) * MON_DRAIN_LIFE);
+                    break;
+
+                case 6: case 7: case 8: case 9:
+                    switch (randint1(6))
+                    {
+                        case 1: k = A_STR; act = "strong"; break;
+                        case 2: k = A_INT; act = "bright"; break;
+                        case 3: k = A_WIS; act = "wise"; break;
+                        case 4: k = A_DEX; act = "agile"; break;
+                        case 5: k = A_CON; act = "hale"; break;
+                        case 6: k = A_CHR; act = "confident"; break;
+                    }
+                    msg_format("You're not as %s as you used to be...", act);
+                    plr->stat_cur[k] = (plr->stat_cur[k] * 3) / 4;
+                    if (plr->stat_cur[k] < 3) plr->stat_cur[k] = 3;
+                    plr->update |= (PU_BONUS);
+                    break;
+                case 10:
+                    msg_print("You're not as powerful as you used to be...");
+                    for (k = 0; k < 6; k++)
+                    {
+                        plr->stat_cur[k] = (plr->stat_cur[k] * 7) / 8;
+                        if (plr->stat_cur[k] < 3) plr->stat_cur[k] = 3;
+                    }
+                    plr->update |= (PU_BONUS);
+                    break;
+                }
+            }
+            result = take_hit(damage_type, dam, m_name);
+        }
+        if (m_ptr) mon_smart_learn(m_ptr, GF_TIME);
         break;
     case GF_STORM:
         msg_print("You are hit by gale force winds!");
         if (!CHECK_MULTISHADOW())
         {
             teleport_player(5, TELEPORT_PASSIVE);
-            if (!p_ptr->levitation)
+            if (!plr->levitation)
                 plr_tim_add(T_SLOW, randint0(4) + 4);
-            if (!(p_ptr->no_stun || res_save_default(RES_SOUND) || p_ptr->levitation))
+            if (!plr->levitation && !res_save(GF_STUN, 100) && !res_save_default(GF_SOUND))
             {
                 int k = (randint1((dam > 90) ? 35 : (dam / 3 + 5)));
                 plr_tim_add(T_STUN, k);
@@ -736,30 +912,49 @@ int gf_affect_p(int who, int type, int dam, int flags)
         result = take_hit(damage_type, dam, m_name);
         break;
     case GF_GRAVITY:
-        if (!touch && fuzzy) msg_print("You are hit by something heavy!");
-        /*if (touch) ... */
-        msg_print("<color:U>Gravity warps around you.</color>");
-        if (!CHECK_MULTISHADOW())
+        if (!aura && CHECK_MULTISHADOW())
         {
-            teleport_player(5, TELEPORT_PASSIVE);
-            if (!p_ptr->levitation)
-                plr_tim_add(T_SLOW, randint0(4) + 4);
-            if (!(p_ptr->no_stun || res_save_default(RES_SOUND) || p_ptr->levitation))
+            msg_print("The attack hits your Shadow. You are unharmed!");
+            break;
+        }
+        dam = res_calc_dam(GF_GRAVITY, dam);
+        if (dam)
+        {
+            if (!touch && fuzzy) msg_print("You are hit by something heavy!");
+            msg_print("<color:U>Gravity warps around you.</color>");
+            if (!CHECK_MULTISHADOW())
             {
-                int k = (randint1((dam > 90) ? 35 : (dam / 3 + 5)));
-                plr_tim_add(T_STUN, k);
+                teleport_player(5, TELEPORT_PASSIVE);
+                if (!plr->levitation)
+                    plr_tim_add(T_SLOW, randint0(4) + 4);
+                if (!plr->levitation && !res_save(GF_STUN, 100) && !res_save_default(GF_SOUND))
+                {
+                    int k = (randint1((dam > 90) ? 35 : (dam / 3 + 5)));
+                    plr_tim_add(T_STUN, k);
+                }
             }
+            if (plr->levitation)
+            {
+                dam = (dam * 2) / 3;
+            }
+            inven_damage(set_cold_destroy, 2, GF_SOUND);
+            result = take_hit(damage_type, dam, m_name);
         }
-        if (p_ptr->levitation)
-        {
-            dam = (dam * 2) / 3;
-        }
-        inven_damage(set_cold_destroy, 2, RES_SOUND);
-        result = take_hit(damage_type, dam, m_name);
+        if (m_ptr) mon_smart_learn(m_ptr, GF_GRAVITY);
         break;
     case GF_DISINTEGRATE:
-        if (fuzzy) msg_print("You are hit by pure energy!");
-        result = take_hit(damage_type, dam, m_name);
+        if (!aura && CHECK_MULTISHADOW())
+        {
+            msg_print("The attack hits your Shadow. You are unharmed!");
+            break;
+        }
+        dam = res_calc_dam(GF_DISINTEGRATE, dam);
+        if (dam)
+        {
+            if (fuzzy) msg_print("You are hit by pure energy!");
+            result = take_hit(damage_type, dam, m_name);
+        }
+        if (m_ptr) mon_smart_learn(m_ptr, GF_DISINTEGRATE);
         break;
     case GF_OLD_HEAL:
         if (fuzzy) msg_print("You are hit by something invigorating!");
@@ -771,43 +966,43 @@ int gf_affect_p(int who, int type, int dam, int flags)
 
         plr_tim_add(T_FAST, randint1(5));
         break;
-    case GF_OLD_SLOW:
+    case GF_SLOW:
         if (fuzzy) msg_print("You are hit by something slow!");
         if (!free_act_save_p(MAX(rlev, dam)))
             plr_tim_add(T_SLOW, randint0(4) + 4);
         break;
-    case GF_OLD_SLEEP:
+    case GF_SLEEP:
         if (!free_act_save_p(rlev))
         {
             if (fuzzy) msg_print("You fall asleep!");
-            plr_tim_add(T_PARALYZED, dam);
+            plr_tim_add(T_PARALYZED, _1d(2));
         }
         break;
     case GF_BLIND:
-        if (res_save_default(RES_BLIND) || (!touch && _plr_save(who, 0)))
+        if (res_save_default(GF_BLIND) || (!touch && _plr_save(who, 0)))
             msg_print("You resist the effects!");
         else
             plr_tim_add(T_BLIND, 12 + randint0(4));
-        update_smart_learn(who, RES_BLIND);
+        if (m_ptr) mon_smart_learn(m_ptr, GF_BLIND);
         break;
     case GF_OLD_CONF:
-        if (res_save_default(RES_CONF) || _plr_save(who, 0))
+        if (res_save_default(GF_CONFUSION) || _plr_save(who, 0))
             msg_print("You disbelieve the feeble spell.");
         else
             plr_tim_add(T_CONFUSED, randint0(4) + 4);
-        update_smart_learn(who, RES_CONF);
+        if (m_ptr) mon_smart_learn(m_ptr, GF_CONFUSION);
         break;
-    case GF_TURN_ALL:
+    case GF_FEAR:
         if (fuzzy) msg_print("Your will is shaken!");
         fear_scare_p(m_ptr);
-        update_smart_learn(who, RES_FEAR);
+        if (m_ptr) mon_smart_learn(m_ptr, GF_FEAR);
         break;
     case GF_PARALYSIS:
         if (free_act_save_p(rlev) || (!touch && _plr_save(who, dam)))
             msg_print("You resist the effects!");
         else
             plr_tim_add(T_PARALYZED, randint1(3));
-        update_smart_learn(who, SM_FREE_ACTION);
+        if (m_ptr) mon_smart_learn(m_ptr, SM_FREE_ACTION);
         break;
     case GF_MANA:
     case GF_SEEKER:
@@ -822,8 +1017,8 @@ int gf_affect_p(int who, int type, int dam, int flags)
     case GF_METEOR:
         if (fuzzy) msg_print("Something falls from the sky on you!");
         result = take_hit(damage_type, dam, m_name);
-        inven_damage(set_fire_destroy, 2, RES_FIRE);
-        inven_damage(set_cold_destroy, 2, RES_SHARDS);
+        inven_damage(set_fire_destroy, 2, GF_FIRE);
+        inven_damage(set_cold_destroy, 2, GF_SHARDS);
         break;
     case GF_ICE:
         if (touch) msg_print("You are <color:W>frozen</color>!");
@@ -831,13 +1026,13 @@ int gf_affect_p(int who, int type, int dam, int flags)
         result = gf_affect_p(who, GF_COLD, dam, 0);
         if (!CHECK_MULTISHADOW())
         {
-            if (!p_ptr->no_cut && !res_save_default(RES_SHARDS))
+            if (!plr->no_cut && !res_save_default(GF_SHARDS))
                 plr_tim_add(T_CUT, (touch ? damroll(3, 5) : damroll(5, 8)));
-            if (!p_ptr->no_stun && !res_save_default(RES_SOUND))
+            if (!res_save(GF_STUN, 100) && !res_save_default(GF_SOUND))
                 plr_tim_add(T_STUN, (touch ? randint1(7) : randint1(15)));
-            inven_damage(set_cold_destroy, 3, RES_COLD);
+            inven_damage(set_cold_destroy, 3, GF_COLD);
         }
-        update_smart_learn(who, RES_COLD);
+        if (m_ptr) mon_smart_learn(m_ptr, GF_COLD);
         break;
     case GF_DEATH_RAY:
         if (fuzzy) msg_print("You are hit by something extremely cold!");
@@ -854,32 +1049,32 @@ int gf_affect_p(int who, int type, int dam, int flags)
             if (!touch) msg_print("Your mental fortress is impenetrable!");
         }
         else if ( prace_is_(RACE_DEMIGOD)
-                && p_ptr->psubrace == DEMIGOD_HERA
-                && randint1(100) > r_ptr->level - 2*(p_ptr->stat_ind[A_WIS] + 3))
+                && plr->psubrace == DEMIGOD_HERA
+                && randint1(100) > r_ptr->alloc.lvl - 2*(plr->stat_ind[A_WIS] + 3))
         {
             if (!touch) msg_print("You keep your wits about you!");
         }
-        else if (p_ptr->csp)
+        else if (plr->csp)
         {
-            if (who > 0) msg_format("%^s draws psychic energy from you!", m_name);
+            if (who_is_mon(who)) msg_format("%^s draws psychic energy from you!", m_name);
             else msg_print("Your psychic energy is drawn!");
-            if (dam >= p_ptr->csp)
+            if (dam >= plr->csp)
             {
-                dam = p_ptr->csp;
-                p_ptr->csp = 0;
-                p_ptr->csp_frac = 0;
+                dam = plr->csp;
+                plr->csp = 0;
+                plr->csp_frac = 0;
             }
             else
-                p_ptr->csp -= dam;
+                plr->csp -= dam;
 
-            p_ptr->redraw |= (PR_MANA);
-            p_ptr->window |= (PW_SPELL);
+            plr->redraw |= (PR_MANA);
+            plr->window |= (PW_SPELL);
 
-            if (who > 0 && m_ptr->hp < m_ptr->maxhp)
+            if (m_ptr && m_ptr->hp < m_ptr->maxhp)
             {
                 m_ptr->hp += (6 * dam);
                 if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
-                check_mon_health_redraw(who);
+                check_mon_health_redraw(m_ptr);
                 if (m_ptr->ml)
                     msg_format("%^s appears healthier.", m_name);
             }
@@ -897,19 +1092,19 @@ int gf_affect_p(int who, int type, int dam, int flags)
         {
             msg_print("Your mind is blasted by psionic energy.");
 
-            if (!res_save_default(RES_CONF))
+            if (!res_save_default(GF_CONF))
                 plr_tim_add(T_CONFUSED, randint0(4) + 4);
 
-            if (!res_save_default(RES_CHAOS) && !mut_present(MUT_WEIRD_MIND) && one_in_(3))
+            if (!res_save_default(GF_CHAOS) && !mut_present(MUT_WEIRD_MIND) && one_in_(3))
                 plr_tim_add(T_HALLUCINATE, randint0(25) + 15);
 
-            p_ptr->csp -= touch ? 10 : 50;
-            if (p_ptr->csp < 0)
+            plr->csp -= (touch || plr->pclass == CLASS_RUNE_KNIGHT) ? 10 : 50;
+            if (plr->csp < 0)
             {
-                p_ptr->csp = 0;
-                p_ptr->csp_frac = 0;
+                plr->csp = 0;
+                plr->csp_frac = 0;
             }
-            p_ptr->redraw |= PR_MANA;
+            plr->redraw |= PR_MANA;
         }
         result = take_hit(damage_type, dam, m_name);
         break;
@@ -924,44 +1119,46 @@ int gf_affect_p(int who, int type, int dam, int flags)
         else
         {
             if ( prace_is_(RACE_DEMIGOD)
-              && p_ptr->psubrace == DEMIGOD_HERA
-              && randint1(100) > r_ptr->level - 2*(p_ptr->stat_ind[A_WIS] + 3))
+              && plr->psubrace == DEMIGOD_HERA
+              && randint1(100) > r_ptr->alloc.lvl - 2*(plr->stat_ind[A_WIS] + 3))
             {
                 if (!touch) msg_print("You keep your wits about you!");
             }
             else if (!CHECK_MULTISHADOW())
             {
                 msg_print("Your mind is blasted by psionic energy.");
-                if (touch)
-                    p_ptr->csp -= 10;
+                if (touch || plr->pclass == CLASS_RUNE_KNIGHT)
+                    plr->csp -= 10;
                 else
-                    p_ptr->csp -= 100;
-                if (p_ptr->csp < 0)
+                    plr->csp -= 100;
+                if (plr->csp < 0)
                 {
-                    p_ptr->csp = 0;
-                    p_ptr->csp_frac = 0;
+                    plr->csp = 0;
+                    plr->csp_frac = 0;
                 }
-                p_ptr->redraw |= PR_MANA;
+                plr->redraw |= PR_MANA;
             }
             result = take_hit(damage_type, dam, m_name);
             if (!CHECK_MULTISHADOW())
             {
-                if (!res_save_default(RES_BLIND))
+                if (!res_save_default(GF_BLIND))
                     plr_tim_add(T_BLIND, 8 + randint0(8));
-                if (!res_save_default(RES_CONF))
+                if (!res_save_default(GF_CONF))
                     plr_tim_add(T_CONFUSED, randint0(4) + 4);
                 if (!free_act_save_p(rlev))
                     plr_tim_add(T_PARALYZED, randint1(4));
 
-                plr_tim_add(T_SLOW, randint0(4) + 4);
-                if (!p_ptr->no_stun) plr_tim_add(T_STUN, MIN(50, dam/6 + randint1(dam/6)));
+                if (!touch || !free_act_save_p(rlev))
+                    plr_tim_add(T_SLOW, randint0(4) + 4);
+                if (!res_save(GF_STUN, 100))
+                    plr_tim_add(T_STUN, MIN(50, dam/6 + randint1(dam/6)));
 
                 while (!_plr_save(who, 0))
                     do_dec_stat(A_INT);
                 while (!_plr_save(who, 0))
                     do_dec_stat(A_WIS);
 
-                if (!res_save_default(RES_CHAOS) && !mut_present(MUT_WEIRD_MIND))
+                if (!res_save_default(GF_CHAOS) && !mut_present(MUT_WEIRD_MIND))
                     plr_tim_add(T_HALLUCINATE, randint0(25) + 15);
             }
         }
@@ -971,7 +1168,7 @@ int gf_affect_p(int who, int type, int dam, int flags)
         {
             if (one_in_(4))
                 teleport_player(5, TELEPORT_PASSIVE);
-            if (!p_ptr->no_stun && !_plr_save(who, dam/5))
+            if (!res_save(GF_STUN, 100) && !_plr_save(who, dam/5))
                 plr_tim_add(T_STUN, MIN(25, dam/6 + randint1(dam/6)));
         }
         result = take_hit(damage_type, dam, m_name);
@@ -1019,7 +1216,7 @@ int gf_affect_p(int who, int type, int dam, int flags)
         }
         break;
     case GF_CAUSE_4:
-        if (_plr_save(who, dam/5) && m_ptr->r_idx != MON_KENSHIROU && !CHECK_MULTISHADOW())
+        if (_plr_save(who, dam/5) && !mon_race_is_(m_ptr->race, "p.Kenshirou") && !CHECK_MULTISHADOW())
         {
             if (!touch)
             {
@@ -1029,7 +1226,7 @@ int gf_affect_p(int who, int type, int dam, int flags)
         else
         {
             result = take_hit(damage_type, dam, m_name);
-            if (!p_ptr->no_cut && !CHECK_MULTISHADOW()) plr_tim_add(T_CUT, damroll(10, 10));
+            if (!plr->no_cut && !CHECK_MULTISHADOW()) plr_tim_add(T_CUT, damroll(10, 10));
         }
         break;
     case GF_HAND_DOOM:
@@ -1050,13 +1247,13 @@ int gf_affect_p(int who, int type, int dam, int flags)
 
             result = take_hit(damage_type, dam, m_name);
 
-            if (p_ptr->chp < 1) p_ptr->chp = 1; /* Paranoia */
+            if (plr->chp < 1) plr->chp = 1; /* Paranoia */
         }
         break;
     case GF_OLD_POLY:
         if ( prace_is_(RACE_ANDROID)
-          || p_ptr->pclass == CLASS_MONSTER
-          || p_ptr->prace == RACE_DOPPELGANGER
+          || plr->pclass == CLASS_MONSTER
+          || plr->prace == RACE_DOPPELGANGER
           || mut_present(MUT_DRACONIAN_METAMORPHOSIS) )
         {
             if (flags & GF_AFFECT_SPELL)
@@ -1073,13 +1270,13 @@ int gf_affect_p(int who, int type, int dam, int flags)
             switch(randint1(5))
             {
             case 1:
-                if (p_ptr->prace != RACE_SNOTLING)
+                if (plr->prace != RACE_SNOTLING)
                 {
                     which = RACE_SNOTLING;
                     break;
                 }
             case 2:
-                if (p_ptr->prace != RACE_YEEK)
+                if (plr->prace != RACE_YEEK)
                 {
                     which = RACE_YEEK;
                     break;
@@ -1097,60 +1294,34 @@ int gf_affect_p(int who, int type, int dam, int flags)
         }
         break;
     case GF_ATTACK:
-        mon_attack(m_ptr, p_ptr->pos);
+        mon_attack(m_ptr, plr->pos);
         break;
     }
     return result;
 }
-static bool _is_mental_attack(int type)
+static bool _mon_save_aux(mon_ptr mon, int power)
 {
-    switch (type)
-    {
-    case GF_PSI:
-    case GF_PSI_BRAIN_SMASH:
-    case GF_BRAIN_SMASH:
-    case GF_PSI_STORM:
-    case GF_ELDRITCH_STUN:
-    case GF_DOMINATION:
-    case GF_SUBJUGATION:
-    case GF_STUN: /* XXX */
-    case GF_LICH_WORD: /* XXX */
-        return TRUE;
-    }
+    if (mon_save_aux(mon, power)) return TRUE;
+    if (mon_is_unique(mon) && mon_save_aux(mon, power)) return TRUE;
     return FALSE;
 }
-static bool _mon_save_aux(mon_race_ptr race, int power)
+static bool _mon_save_p(mon_ptr mon, int stat)
 {
-    if (mon_save_aux(race->id, power)) return TRUE;
-    if ((race->flags1 & RF1_UNIQUE) && mon_save_aux(race->id, power)) return TRUE;
+    if (mon_save_p(mon, stat)) return TRUE;
+    if (mon_is_unique(mon) && mon_save_p(mon, stat)) return TRUE;
     return FALSE;
 }
-static bool _mon_save_p(mon_race_ptr race, int stat)
+bool gf_affect_m(who_t who, mon_ptr mon, int gf, int dam, int flags)
 {
-    if (mon_save_p(race->id, stat)) return TRUE;
-    if ((race->flags1 & RF1_UNIQUE) && mon_save_p(race->id, stat)) return TRUE;
-    return FALSE;
-}
-#define _BABBLE_HACK() \
-            if (race->flagsr & RFR_RES_ALL) \
-            { \
-                note = " is immune."; \
-                dam = 0; \
-                mon_lore_r(mon, RFR_RES_ALL); \
-                break; \
-            }
-
-bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
-{
-    int tmp;
+    int tmp,gfr;
 
     point_t       where = mon->pos;
-    monster_type *caster_ptr = (who > 0) ? dun_mon(cave, who) : NULL;
-    int           caster_lev = (who > 0) ? mon_race(caster_ptr)->level : spell_power(p_ptr->lev * 2);
+    monster_type *caster_ptr = who_mon(who);
+    int           caster_lev = caster_ptr ? mon_lvl(caster_ptr) : spell_power(plr->lev * 2);
     bool          touch = BOOL(flags & (GF_AFFECT_AURA | GF_AFFECT_ATTACK));
     bool          quiet = BOOL(flags & GF_AFFECT_QUIET);
 
-    monster_race *race = mon_race(mon);
+    monster_race *race = mon->race;
 
     char killer[80];
 
@@ -1162,7 +1333,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
      * player is not doing this affect, then we better respect ignore_unview
      * or we'll turn the message spammer back on full blast! */
     bool seen = mon->ml;
-    bool seen_msg = (who == GF_WHO_PLAYER) ? mon->ml : mon_show_msg(mon);
+    bool seen_msg = who_is_plr(who) ? mon->ml : mon_show_msg(mon);
 
     bool slept = BOOL(mon_tim_find(mon, MT_SLEEP));
 
@@ -1178,27 +1349,18 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
     /* Gets the monster angry at the source of the effect? */
     bool get_angry = FALSE;
 
-    /* Polymorph setting (power of polymorph) */
+    /* Various effects: These all happen at the end provided mon survives dam */
     int do_poly = 0;
-
-    /* Teleport setting (max distance) */
     int do_dist = 0;
-
-    /* Confusion setting (amount to confuse) */
     int do_conf = 0;
-
-    /* Stunning setting (amount to stun) */
+    int do_blind = 0;
     int do_stun = 0;
-
-    /* Sleep amount (amount to sleep) */
     int do_sleep = 0;
     int do_paralyzed = 0;
-
-    /* Fear amount (amount to fear) */
     int do_fear = 0;
-
-    /* Time amount (amount to time) */
     int do_time = 0;
+    int res_pct = 0;
+    gf_info_ptr gfi;
 
     bool heal_leper = FALSE;
 
@@ -1219,15 +1381,15 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
 
 
     bool who_is_pet = FALSE;
-    if (who > 0 && is_pet(dun_mon(cave, who)))
+    if (caster_ptr && mon_is_pet(caster_ptr))
         who_is_pet = TRUE;
 
     /* Never affect projector */
-    if (mon->id == who) return FALSE;
+    if (caster_ptr == mon) return FALSE;
 
-    if (mon->id == p_ptr->riding && who == PROJECT_WHO_PLAYER)
+    if (who_is_plr(who) && mon->id == plr->riding)
     {
-        switch (type)
+        switch (gf)
         {
         case GF_OLD_HEAL:
         case GF_OLD_SPEED:
@@ -1245,15 +1407,15 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
     if (mon->hp < 0) return (FALSE);
 
     #if 0
-    if (p_ptr->riding == mon->id && (flags & GF_AFFECT_SPELL))
-        msg_format("<color:D>gf_affect_m(%s, %d)</color>", gf_lookup(type)->name, dam);
+    if (plr->riding == mon->id && (flags & GF_AFFECT_SPELL))
+        msg_format("<color:D>gf_affect_m(%s, %d)</color>", gf_lookup(gf)->name, dam);
     #endif
 
     /* Big hack here ... Jump Spiders are immune to the jumps of their kin
      * (They come in packs, and it would be silly for them to destroy each other) */
     if (mon_spell_current() && race->spells)
     {
-        mon_spell_ptr spell = mon_spell_current();
+        mon_spell_ptr spell = mon_spell_current()->spell;
         mon_spell_group_ptr group = race->spells->groups[MST_TACTIC];
         if (spell->id.type == MST_TACTIC && group && mon_spell_group_find(group, spell->id))
         {
@@ -1276,418 +1438,98 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
     /* Get the monster possessive ("his"/"her"/"its") */
     monster_desc(m_poss, mon, MD_PRON_VISIBLE | MD_POSSESSIVE);
 
+    if (plr->riding && mon->id == plr->riding) disturb(1, 0);
 
-    if (p_ptr->riding && mon->id == p_ptr->riding) disturb(1, 0);
-
-    /* Analyze the damage type */
-    switch (type)
+    /* Handle resistances ... some gf codes use other codes for resistance,
+     * notably NUKE, ROCKET and ICE. 'gfr' tracks the gf code used for resistance.
+     * 'gf' is needed un-altered for the giant switch statement. */
+    gfr = gf;
+    gfi = gf_lookup(gfr);
+    if (!gfi) return FALSE;
+    if (gfi->resist)
     {
-    case GF_MISSILE:
-    case GF_BLOOD:
-    case GF_ELDRITCH:
-    case GF_ELDRITCH_DRAIN:  /* Lazy ... I'll give back hp later */
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        break;
-    case GF_MANA_CLASH:
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (!race->spells || !race->spells->freq)
+        gfr = gfi->resist;
+        gfi = gf_lookup(gfr);
+    }
+    if (gfi->flags & (GFF_RESIST | GFF_RESIST_HI))
+    {
+        res_pct = mon_res_pct(mon, gfr);
+        if (gfi->flags & GFF_DAMAGE)
         {
-            if (!quiet) note = " is immune.";
-            dam = 0;
+            dam -= dam * res_pct / 100;
+            if (dam < 0) dam = 0;
+            if (!quiet)
+            {
+                if (res_pct == 100) note = " is immune.";
+                else if (res_pct > 0) note = " resists.";
+                else if (res_pct < 0) note = " is hit hard.";
+            }
+            if (res_pct != 0)
+                mon_lore_resist(mon, gfr);
         }
-        else /* 900 max dam coming in ... ~600 max dam going out */
-            dam = dam * MIN(66, race->spells->freq) / 100;
-        break;
+    }
+
+    switch (gf)
+    {
     case GF_ACID:
-        if (touch && seen_msg) msg_format("%^s is <color:G>dissolved</color>!", m_name);
+        if (touch && seen_msg && dam) msg_format("%^s is <color:G>dissolved</color>!", m_name);
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_IM_ACID)
-        {
-            if (!quiet) note = " is immune.";
-            dam = 0;
-            mon_lore_r(mon, RFR_IM_ACID);
-        }
-        else if (race->flagsr & RFR_RES_ACID)
-        {
-            if (!quiet) note = " resists.";
-            dam /= 3;
-            mon_lore_r(mon, RFR_RES_ACID);
-        }
         break;
     case GF_ELEC:
-        if (touch && seen_msg) msg_format("%^s is <color:b>shocked</color>!", m_name);
+        if (touch && seen_msg && dam) msg_format("%^s is <color:b>shocked</color>!", m_name);
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_IM_ELEC)
-        {
-            if (!quiet) note = " is immune.";
-            dam = 0;
-            mon_lore_r(mon, RFR_IM_ELEC);
-        }
-        else if (race->flagsr & RFR_RES_ELEC)
-        {
-            if (!quiet) note = " resists.";
-            dam /= 3;
-            mon_lore_r(mon, RFR_RES_ELEC);
-        }
         break;
     case GF_FIRE:
-        if (touch && seen_msg) msg_format("%^s is <color:r>burned</color>!", m_name);
+        if (touch && seen_msg && dam) msg_format("%^s is <color:r>burned</color>!", m_name);
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_IM_FIRE)
-        {
-            if (!quiet) note = " is immune.";
-            dam = 0;
-            mon_lore_r(mon, RFR_IM_FIRE);
-        }
-        else if (race->flagsr & RFR_RES_FIRE)
-        {
-            if (!quiet) note = " resists.";
-            dam /= 3;
-            mon_lore_r(mon, RFR_RES_FIRE);
-        }
-        else if (race->flags3 & RF3_HURT_FIRE)
-        {
-            note = " is hit hard.";
-            dam *= 2;
-            mon_lore_3(mon, RF3_HURT_FIRE);
-        }
         break;
     case GF_COLD:
-        if (touch && seen_msg) msg_format("%^s is <color:W>frozen</color>!", m_name);
+        if (touch && seen_msg && dam) msg_format("%^s is <color:W>frozen</color>!", m_name);
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_IM_COLD)
-        {
-            if (!quiet) note = " is immune.";
-            dam = 0;
-            mon_lore_r(mon, RFR_IM_COLD);
-        }
-        else if (race->flagsr & RFR_RES_COLD)
-        {
-            if (!quiet) note = " resists.";
-            dam /= 3;
-            mon_lore_r(mon, RFR_RES_COLD);
-        }
-        else if (race->flags3 & RF3_HURT_COLD)
-        {
-            note = " is hit hard.";
-            dam *= 2;
-            mon_lore_3(mon, RF3_HURT_COLD);
-        }
         break;
     case GF_POIS:
-        if (touch && seen_msg && !(race->flagsr & RFR_IM_POIS))
-            msg_format("%^s is <color:G>poisoned</color>!", m_name);
+        if (touch && seen_msg && dam) msg_format("%^s is <color:G>poisoned</color>!", m_name);
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_IM_POIS)
+        break;
+    case GF_LIGHT:
+        if (touch && seen_msg && dam) msg_format("%^s is <color:y>dazzled</color>!", m_name);
+        if (seen) obvious = TRUE;
+        if (res_pct < 0) /* flavor ... HURT_LITE is now VULN(LITE) */
         {
-            if (!quiet) note = " is immune.";
-            dam = 0;
-            mon_lore_r(mon, RFR_IM_POIS);
-        }
-        else if (race->flagsr & RFR_RES_POIS)
-        {
-            if (!quiet) note = " resists.";
-            dam /= 3;
-            mon_lore_r(mon, RFR_RES_POIS);
+            note = " cringes from the light!";
+            note_dies = " shrivels away in the light!";
         }
         break;
-    case GF_NUKE:
-        if (touch && seen_msg) msg_format("%^s is <color:G>irradiated</color>!", m_name);
+    case GF_DARK:
+        if (touch && seen_msg && dam) msg_format("%^s is <color:D>benighted</color>!", m_name);
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_IM_POIS)
-        {
-            if (!quiet) note = " is immune.";
-            dam = 0;
-            mon_lore_r(mon, RFR_IM_POIS);
-        }
-        else if (race->flagsr & RFR_RES_POIS)
-        {
-            if (!quiet) note = " resists.";
-            dam /= 2;
-            mon_lore_r(mon, RFR_RES_POIS);
-        }
-        else if (one_in_(3)) do_poly = dam;
         break;
-    case GF_HELL_FIRE:
-        if (touch && seen_msg) msg_format("%^s is <color:D>%s</color>!", m_name, (race->flags3 & RF3_GOOD) ? "*burned*" : "burned");
+    case GF_CONFUSION:
+        if (touch && seen_msg && dam) msg_format("%^s is <color:U>baffled</color>!", m_name);
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flags3 & RF3_GOOD)
-        {
-            dam *= 2;
-            if (!touch) note = " is hit hard.";
-            mon_lore_3(mon, RF3_GOOD);
-        }
-        break;
-    case GF_HOLY_FIRE:
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flags3 & RF3_GOOD)
-        {
-            dam = 0;
-            if (!quiet) note = " is immune.";
-            mon_lore_3(mon, RF3_GOOD);
-        }
-        else if (race->flags3 & RF3_EVIL)
-        {
-            if (touch && seen_msg) msg_format("%^s is <color:D>*burned*</color>!", m_name);
-            dam *= 2;
-            if (!touch) note = " is hit hard.";
-            mon_lore_3(mon, RF3_EVIL);
-        }
-        else
-        {
-            if (touch && seen_msg) msg_format("%^s is <color:D>burned</color>!", m_name);
-            dam *= 3; dam /= randint1(6) + 6;
-        }
-        break;
-    case GF_ARROW:
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        break;
-    case GF_PLASMA:
-        if (touch && seen_msg) msg_format("%^s is <color:R>burned</color>!", m_name);
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_RES_PLAS)
-        {
-            if (!quiet) note = " resists.";
-            dam *= 3; dam /= randint1(6) + 6;
-            mon_lore_r(mon, RFR_RES_PLAS);
-        }
-        else if (who == GF_WHO_PLAYER && mon_save_stun(race->level, dam))
-        {
-            if (!quiet) note = " resists stunning.";
-        }
-        else do_stun = mon_stun_amount(dam);
-        break;
-    case GF_UNLIFE:
-        if (!monster_living(race))
-        {
-            mon_lore_3(mon, RF3_DEMON | RF3_UNDEAD | RF3_NONLIVING);
-            if (seen_msg && !quiet) msg_format("%^s is unaffected.", m_name);
-        }
-        else if (who == GF_WHO_PLAYER && _mon_save_aux(race, p_ptr->lev + dam/2))
-        {
-            if (seen_msg && !quiet) msg_format("%^s resists.", m_name);
-        }
-        else
-        {
-            /* XXX Diminishing returns on player GF_UNLIFE attacks. Consider
-             * polymorphing the monster into an undead form instead if life hits 0 */
-            if (who == GF_WHO_PLAYER)
-                dam = dam*mon->mpower/1000;
-            if (mon->mpower - dam < 0)
-                dam = mon->mpower;
-            mon->mpower -= dam;
-            if (seen_msg)
-            {
-                if (who == GF_WHO_PLAYER)
-                    msg_format("<color:D>You drain life from %s.</color>", m_name_object);
-                else
-                    msg_format("<color:D>%^s grows less powerful.</color>", m_name);
-            }
-            if (who == GF_WHO_PLAYER)
-            {
-                if (get_race()->flags & RACE_IS_UNDEAD)
-                    plr_gain_life(dam);
-                else if (!(flags & GF_AFFECT_SPELL))
-                    plr_restore_life(dam);
-            }
-            return TRUE; /* using note causes messages out of order */
-        }
-        return FALSE;
-    case GF_LICH_DRAIN:
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (!monster_living(race))
-        {
-            mon_lore_3(mon, RF3_DEMON | RF3_UNDEAD | RF3_NONLIVING);
-            if (!quiet) note = " is unaffected!";
-            dam = 0;
-        }
-        else
-        {
-            if (!gf_affect_m(who, mon, GF_UNLIFE, dam, flags))
-                dam = 0;
-        }
-        break;
-    case GF_LICH_GENOCIDE:
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (!monster_living(race))
-        {
-            mon_lore_3(mon, RF3_DEMON | RF3_UNDEAD | RF3_NONLIVING);
-            if (seen_msg && !quiet)
-                msg_format("%^s is unaffected!", m_name);
-        }
-        else if (genocide_aux(mon, dam, who==GF_WHO_PLAYER, (race->level + 1) / 2, "Genocide One"))
-        {
-            if (seen_msg)
-                msg_format("%^s is sent to the netherworld!", m_name);
-
-            virtue_add(VIRTUE_VITALITY, -1);
-            return TRUE; /* monster has been deleted! */
-        }
-        skipped = TRUE;
-        break;
-    case GF_LICH_WORD:
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (is_pet(mon))
-            return FALSE;
-        if (race->flags3 & RF3_UNDEAD)
-        {
-            if (gf_affect_m(who, mon, GF_CONTROL_UNDEAD, dam, flags))
-                return TRUE;
-            else if (gf_affect_m(who, mon, GF_AWAY_UNDEAD, dam, flags))
-                return TRUE;
-        }
-        if (monster_living(race))
-        {
-            gf_affect_m(who, mon, GF_ELDRITCH_HOWL, dam, flags);
-            if (!mon_save_aux(race->level, dam))
-                do_conf = 5 + randint1(11);
-            dam *= 2;
-        }
-        if (!mon_save_stun(race->level, dam))
-            do_stun = mon_stun_amount(dam);
+        if (res_pct <= 0)
+            do_conf = 10 + _1d(15);
         break;
     case GF_NETHER:
-        if (touch && seen_msg) msg_format("%^s is <color:D>drained</color>!", m_name);
+        if (touch && seen_msg && dam) msg_format("%^s is <color:D>drained</color>!", m_name);
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        /* XXX Previously, EVIL monsters had 50% nether resistance, a mechanic
-         * I've never liked. I've changed nether to work against living monsters,
-         * so now non-living monsters get a small automatic resistance. Player
-         * damage amounts have been rescaled. If we want alignment effects, let's
-         * do this in a small way, scaling by no more than +/- 20%. Also, some
-         * monsters are more evil than others, so make alignment a number in r_info.
-         * XXX Statistics reveal that a full 2/3 of all killed monsters are EVIL. */
-        if (race->flagsr & RFR_RES_NETH)
-        {
-            if (race->flags3 & RF3_UNDEAD)  /* Undead are immune, of course! */
-            {
-                if (!quiet) note = " is immune.";
-                dam = 0;
-                mon_lore_3(mon, RF3_UNDEAD);
-            }
-            else if (!monster_living(race)) /* Nonliving monsters get strong resistance */
-            {
-                if (!quiet) note = " resists.";
-                dam = dam*rand_range(25, 50)/100;
-            }
-            else
-            {
-                if (!quiet) note = " resists.";
-                dam = dam/2;
-            }
-            mon_lore_r(mon, RFR_RES_NETH);
-        }
-        else if (!monster_living(race)) /* Without RES_NETH, nonliving monsters get a weak resistance */
+        /* XXX Living monsters get a weak nether resistance XXX */
+        if (!res_pct && mon_is_nonliving(mon))
         {
             if (!quiet) note = " resists somewhat.";
             dam = dam*3/4;
-            mon_lore_3(mon, RF3_DEMON | RF3_UNDEAD | RF3_NONLIVING);
+            mon_lore_nonliving(mon);
         }
         break;
-    case GF_WATER:
-    case GF_WATER2:
+    case GF_NEXUS:
+        if (touch && seen_msg && dam) msg_format("%^s is <color:v>scrambled</color>!", m_name);
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_RES_WATE)
-        {
-            if ((mon->r_idx == MON_WATER_ELEM) || (mon->r_idx == MON_UNMAKER))
-            {
-                if (!quiet) note = " is immune.";
-                dam = 0;
-            }
-            else
-            {
-                if (!quiet) note = " resists.";
-                dam *= 3; dam /= randint1(6) + 6;
-            }
-            mon_lore_r(mon, RFR_RES_WATE);
-        }
-        else if (who == GF_WHO_PLAYER && mon_save_stun(race->level, dam))
-        {
-            if (!quiet) note = " resists stunning.";
-        }
-        else do_stun = mon_stun_amount(dam);
         break;
-    case GF_CHAOS:
-        if (touch && seen_msg) msg_format("%^s is <color:v>unmade</color>!", m_name);
+    case GF_SOUND:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_RES_CHAO)
+        if (res_pct <= 0)
         {
-            if (!quiet) note = " resists.";
-            dam *= 3; dam /= randint1(6) + 6;
-            mon_lore_r(mon, RFR_RES_CHAO);
-        }
-        else if ((race->flags3 & RF3_DEMON) && one_in_(3))
-        {
-            if (!quiet) note = " resists somewhat.";
-            dam *= 3; dam /= randint1(6) + 6;
-            mon_lore_3(mon, RF3_DEMON);
-        }
-        else
-        {
-            if (p_ptr->current_r_idx == MON_CHAOS_VORTEX)
-                do_poly = dam / 5;
-            else
-                do_poly = dam;
-
-            do_conf = 5 + randint1(11);
-        }
-        break;
-    case GF_SHARDS:
-        if (touch && seen_msg) msg_format("%^s is <color:U>shredded</color>!", m_name);
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_RES_SHAR)
-        {
-            if (!quiet) note = " resists.";
-            dam *= 3; dam /= randint1(6) + 6;
-            mon_lore_r(mon, RFR_RES_SHAR);
-        }
-        break;
-    case GF_ROCKET:
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_RES_SHAR)
-        {
-            if (!quiet) note = " resists somewhat.";
-            dam /= 2;
-            mon_lore_r(mon, RFR_RES_SHAR);
-        }
-        break;
-    case GF_ELDRITCH_STUN:
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flags3 & RF3_NO_STUN)
-            mon_lore_3(mon, RF3_NO_STUN);
-        else if (_mon_save_p(race, A_CHR))
-        {
-            if (!quiet) note = " resists stunning.";
-        }
-        else
-            do_stun = mon_stun_amount(dam);
-        break;
-    case GF_ROCK:
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (!(race->flagsr & RFR_RES_SOUN))
-        {
-            if (who == GF_WHO_PLAYER  && mon_save_stun(race->level, dam))
+            if (who_is_plr(who) && mon_save_stun(race->alloc.lvl, dam))
             {
                 if (!quiet) note = " resists stunning.";
             }
@@ -1695,157 +1537,52 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                 do_stun = mon_stun_amount(dam);
         }
         break;
-    case GF_SOUND:
+    case GF_SHARDS:
+        if (touch && seen_msg && dam) msg_format("%^s is <color:U>shredded</color>!", m_name);
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_RES_SOUN)
-        {
-            if (!quiet) note = " resists.";
-            dam *= 2; dam /= randint1(6) + 6;
-            mon_lore_r(mon, RFR_RES_SOUN);
-        }
-        else if (who == GF_WHO_PLAYER && mon_save_stun(race->level, dam))
-        {
-            if (!quiet) note = " resists stunning.";
-        }
-        else
-            do_stun = mon_stun_amount(dam);
         break;
-    case GF_ELDRITCH_DISPEL:
+    case GF_CHAOS:
+        if (touch && seen_msg && dam) msg_format("%^s is <color:v>unmade</color>!", m_name);
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        dispel_monster_status(mon->id);
 
-        /* More Powerful vs. Evil */
-        if ((race->flags3 & RF3_EVIL) && one_in_(5))
+        /* XXX XXX XXX
+        else if (mon_is_demon(mon) && one_in_(3))
         {
-            msg_print("You blast the forces of evil with great power!");
-            dam = dam * 2;
-
-            /* Attempt a Powerful Slow */
-            if (mon_save_p(mon->r_idx, A_CHR))
-            {
-                if (!quiet) note = " resists being slowed!";
-            }
-            else
-            {
-                mon_tim_add(mon, T_SLOW, 50);
-            }
-        }
-        break;
-    case GF_PHARAOHS_CURSE:
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        dam = spell_power(MIN(mon->hp*8/100 + dam, 400));
-        if (p_ptr->lev >= 50)
-            dam += 50;
-        note = " is cursed by ancient pharaohs of long ago!";
-        break;
-    case GF_ELDRITCH_CONFUSE:
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        /* 593 monsters have NO_CONF ... it is more widely resisted than fire ...
-           Eldritch confusion will bypass this check, but that is hacked below */
-        if ((race->flags3 & RF3_NO_CONF) && mon_save_p(mon->r_idx, A_NONE))
-        {   /* XXX Was: race->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_CHR] + 3) - 10
-               Note the A_NONE on mon_save_p for an easy saving throw. */
-            if (!quiet) note = " resists confusion.";
-        }
-        else
-        {
-            /* Recovery is randint1(r_info[mon->r_idx].level / 20 + 1) */
-            do_conf = 3 + randint0(5);
-        }
-        break;
-    case GF_CONFUSION:
-        if (touch && seen_msg && dam) msg_format("%^s is <color:U>baffled</color>!", m_name);
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flags3 & RF3_NO_CONF)
-        {
-            if (!quiet) note = " resists.";
+            if (!quiet) note = " resists somewhat.";
             dam *= 3; dam /= randint1(6) + 6;
-            mon_lore_3(mon, RF3_NO_CONF);
+            mon_lore_demon(mon);
+        } */
+
+        if (res_pct == 0)
+        {
+            if (touch && plr->prace == RACE_MON_VORTEX) /* XXX Aether and Chaos vortices XXX */
+                do_poly = dam / 5;
+            else
+                do_poly = dam;
+
+            do_conf = 5 + _1d(11);
         }
-        else do_conf = 10 + randint1(15);
         break;
     case GF_DISENCHANT:
-        if (touch && seen_msg) msg_format("%^s is <color:v>disenchanted</color>!", m_name);
+        if (touch && seen_msg && dam) msg_format("%^s is <color:v>disenchanted</color>!", m_name);
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_RES_DISE)
+        if (res_pct <= 0)
         {
-            if (!quiet) note = " resists.";
-            dam *= 3; dam /= randint1(6) + 6;
-            mon_lore_r(mon, RFR_RES_DISE);
-        }
-        else if (who == GF_WHO_PLAYER && !mon_save_disenchant(race->id, dam, flags))
-        {
-            mon_tim_disenchant(mon);
-        }
-        break;
-    case GF_NEXUS:
-        if (touch && seen_msg) msg_format("%^s is <color:v>scrambled</color>!", m_name);
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_RES_NEXU)
-        {
-            if (!quiet) note = " resists.";
-            dam *= 3; dam /= randint1(6) + 6;
-            mon_lore_r(mon, RFR_RES_NEXU);
-        }
-        break;
-    case GF_FORCE:
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_RES_WALL)
-        {
-            if (!quiet) note = " resists.";
-            dam *= 3; dam /= randint1(6) + 6;
-            mon_lore_r(mon, RFR_RES_WALL);
-        }
-        else
-            do_stun = mon_stun_amount(dam);
-        break;
-    case GF_INERT:
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_RES_INER)
-        {
-            if (!quiet) note = " resists.";
-
-            dam *= 3; dam /= randint1(6) + 6;
-            mon_lore_r(mon, RFR_RES_INER);
-        }
-        else
-        {
-            /* Powerful monsters can resist */
-            if ( mon_save_slow(race->level, dam)
-              || ((race->flags1 & RF1_UNIQUE) && mon_save_slow(race->level + 15, dam)) )
-            {
-                obvious = FALSE;
-            }
-            /* Normal monsters slow down */
-            else mon_tim_add(mon, T_SLOW, 50);
+            if (who_is_plr(who) && !mon_save_disenchant(race->id, dam, flags))
+                mon_tim_disenchant(mon);
         }
         break;
     case GF_TIME:
-        if (touch && seen_msg) msg_format("%^s is <color:B>chronosmashed</color>!", m_name);
+        if (touch && seen_msg && dam) msg_format("%^s is <color:B>chronosmashed</color>!", m_name);
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_RES_TIME)
+        if (res_pct > 0) break;
+        if (who_is_plr(who))
         {
-            if (!quiet) note = " resists.";
-            dam *= 3; dam /= randint1(6) + 6;
-            mon_lore_r(mon, RFR_RES_TIME);
-        }
-        else if (who == GF_WHO_PLAYER)
-        {
-            bool unique = BOOL(race->flags1 & RF1_UNIQUE);
+            bool unique = mon_race_is_unique(race);
 
             if (mon_save_time(race->id, dam, flags))
             {
-                if (p_ptr->wizard)
+                if (plr->wizard)
                     note = " resists the ravages of time.";
             }
             else
@@ -1855,26 +1592,26 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                 {
                     if (unique && mon_save_time(race->id, dam, flags))
                     {
-                        if (p_ptr->wizard)
+                        if (plr->wizard)
                             note = " resists being slowed.";
                     }
                     else mon_tim_add(mon, T_SLOW, 10 + randint1(15));
                 }
                 else if (which <= 20)
                 {
-                    if (devolve_monster(mon->id, p_ptr->wizard))
+                    if (devolve_monster(mon->id, plr->wizard))
                         return TRUE;
                 }
                 else if (which <= 25)
                 {
-                    if (evolve_monster(mon->id, p_ptr->wizard))
+                    if (evolve_monster(mon->id, plr->wizard))
                         return TRUE;
                 }
                 else if (which <= 40)
                 {
                     if (unique && mon_save_time(race->id, dam, flags))
                     {
-                        if (p_ptr->wizard)
+                        if (plr->wizard)
                             note = " resists being suspended.";
                     }
                     else
@@ -1917,115 +1654,355 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
             }
         }
         else
-        {
             do_time = (dam + 1) / 2;
+        break;
+    case GF_WATER: /* GF_WATER2 is for terrain effects only */
+        if (seen) obvious = TRUE;
+        if (res_pct <= 0)
+        {
+            if (who_is_plr(who) && mon_save_stun(race->alloc.lvl, dam))
+            {
+                if (!quiet) note = " resists stunning.";
+            }
+            else do_stun = mon_stun_amount(dam);
         }
         break;
-    case GF_STORM: /* TODO */
-    case GF_GRAVITY: {
-        bool resist_tele = FALSE;
-
+    case GF_PLASMA:
+        if (touch && seen_msg && dam) msg_format("%^s is <color:R>burned</color>!", m_name);
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_RES_TELE)
+        if (res_pct <= 0)
         {
-            if (race->flags1 & (RF1_UNIQUE))
+            if (who_is_plr(who) && mon_save_stun(race->alloc.lvl, dam))
             {
-                mon_lore_r(mon, RFR_RES_TELE);
-                if (!quiet) note = " is unaffected!";
-                resist_tele = TRUE;
+                if (!quiet) note = " resists stunning.";
             }
-            else if (race->level > randint1(100))
-            {
-                mon_lore_r(mon, RFR_RES_TELE);
-                if (!quiet) note = " resists!";
-                resist_tele = TRUE;
-            }
+            else do_stun = mon_stun_amount(dam);
         }
-
-        if (!resist_tele) do_dist = 10;
-        else do_dist = 0;
-        if (p_ptr->riding && (mon->id == p_ptr->riding)) do_dist = 0;
-
-        if (type == GF_GRAVITY && (race->flagsr & RFR_RES_GRAV))
+        break;
+    case GF_FORCE:
+        if (seen) obvious = TRUE;
+        if (res_pct <= 0)
+            do_stun = mon_stun_amount(dam);
+        break;
+    case GF_INERTIA:
+        if (seen) obvious = TRUE;
+        if (res_pct <= 0)
         {
-            if (!quiet) note = " resists.";
-
-            dam *= 3; dam /= randint1(6) + 6;
-            do_dist = 0;
-            mon_lore_r(mon, RFR_RES_GRAV);
-        }
-        else
-        {
-            /* 1. slowness */
             /* Powerful monsters can resist */
-            if ( mon_save_slow(race->level, dam)
-              || ((race->flags1 & RF1_UNIQUE) && mon_save_slow(race->level + 15, dam)) )
+            if ( mon_save_slow(race->alloc.lvl, dam)
+              || (mon_race_is_unique(race) && mon_save_slow(race->alloc.lvl + 15, dam)) )
             {
                 obvious = FALSE;
             }
             /* Normal monsters slow down */
             else mon_tim_add(mon, T_SLOW, 50);
+        }
+        break;
+    case GF_STORM: /* TODO */
+    case GF_GRAVITY: {
+        if (seen) obvious = TRUE;
 
-            /* 2. stun */
-            do_stun = mon_stun_amount(dam);
+        /* 1. teleport */
+        if (plr->riding && (mon->id == plr->riding)) {} /* XXX */
+        else if (touch && !one_in_(5)) {} /* XXX Aether vortex XXX */
+        else if (_1d(100) > mon_res_pct(mon, GF_TELEPORT))
+            do_dist = 10;
+        else
+            mon_lore_resist(mon, GF_TELEPORT);
 
-            /* Attempt a saving throw */
-            if ( mon_save_stun(race->level, dam)
-              || ((race->flags1 & RF1_UNIQUE) && mon_save_stun(race->level + 15, dam)) )
+        if (res_pct <= 0)
+        {
+            /* 2. slow */
+            if ( mon_save_slow(race->alloc.lvl, dam)
+              || (mon_race_is_unique(race) && mon_save_slow(race->alloc.lvl + 15, dam)) )
             {
-                /* Resist */
-                do_stun = 0;
-                /* No obvious effect */
-                if (!quiet) note = " is unaffected!";
+            }
+            else mon_tim_add(mon, T_SLOW, 50);
 
-                obvious = FALSE;
+            /* 3. stun */
+            if (_1d(100) > mon_res_pct(mon, GF_STUN))
+            {
+                do_stun = mon_stun_amount(dam);
+
+                if ( mon_save_stun(race->alloc.lvl, dam)
+                  || (mon_race_is_unique(race) && mon_save_stun(race->alloc.lvl + 15, dam)) )
+                {
+                    do_stun = 0;
+                }
             }
         }
         break; }
+    case GF_DISINTEGRATE:
+        if (touch && seen_msg) msg_format("%^s is <color:D>disintegrated</color>!", m_name);
+        if (seen) obvious = TRUE;
+        if (res_pct < 0) /* XXX HURT_ROCK is now VULN(DISINTEGRATE) */
+        {
+            note = " loses some skin!";
+            note_dies = " evaporates!";
+        }
+        break;
+
+    case GF_MISSILE:
+        /* XXX Note that mon vs mon *melee* currently uses gf_affect_m(GF_MISSILE) to
+         * handle damaging the monster. See _effect_mon in mon_attack.c. */
+        if (seen) obvious = TRUE;
+        break;
+    case GF_BLOOD:
+    case GF_ELDRITCH:
+    case GF_ELDRITCH_DRAIN:  /* Lazy ... I'll give back hp later */
+        if (seen) obvious = TRUE;
+        break;
+    case GF_MANA_CLASH:
+        if (seen) obvious = TRUE;
+        if (!race->spells || !race->spells->freq)
+        {
+            if (!quiet) note = " is immune.";
+            dam = 0;
+        }
+        else /* 900 max dam coming in ... ~600 max dam going out */
+            dam = dam * MIN(66, race->spells->freq) / 100;
+        break;
+    case GF_NUKE:
+        if (touch && seen_msg && dam) msg_format("%^s is <color:G>irradiated</color>!", m_name);
+        if (seen) obvious = TRUE;
+        if (dam && one_in_(3)) do_poly = dam;
+        break;
+    case GF_HELL_FIRE: {
+        int pct = hell_align_dam_pct(race->align); /* XXX race->align not mon->align */
+        if (seen) obvious = TRUE;
+        dam = dam * pct / 100;
+        if (!dam)
+            note = " is immune.";
+        else if (pct > 100)
+        {
+            if (touch && seen_msg) msg_format("%^s is <color:D>*burned*</color>!", m_name);
+            if (!touch) note = " is hit hard.";
+        }
+        else
+        {
+            if (touch && seen_msg) msg_format("%^s is <color:D>burned</color>!", m_name);
+        }
+        mon_lore_align(mon);
+        break; }
+    case GF_HOLY_FIRE: {
+        int pct = holy_align_dam_pct(race->align); /* XXX race->align not mon->align */
+        if (seen) obvious = TRUE;
+        dam = dam * pct / 100;
+        if (!dam)
+            note = " is immune.";
+        else if (pct > 100)
+        {
+            if (touch && seen_msg) msg_format("%^s is <color:y>*burned*</color>!", m_name);
+            if (!touch) note = " is hit hard.";
+        }
+        else
+        {
+            if (touch && seen_msg) msg_format("%^s is <color:y>burned</color>!", m_name);
+            if (!touch && pct < 100) note = " resists.";
+        }
+        mon_lore_align(mon);
+        break; }
+    case GF_ARROW:
+    case GF_SUPER_ARROW:
+        if (seen) obvious = TRUE;
+        break;
+    case GF_UNLIFE:
+        if (mon_is_nonliving(mon))
+        {
+            mon_lore_nonliving(mon);
+            if (seen_msg && !quiet) msg_format("%^s is unaffected.", m_name);
+        }
+        else if (who_is_plr(who) && _mon_save_aux(mon, plr->lev + dam/2))
+        {
+            if (seen_msg && !quiet) msg_format("%^s resists.", m_name);
+        }
+        else
+        {
+            /* XXX Diminishing returns on player GF_UNLIFE attacks. Consider
+             * polymorphing the monster into an undead form instead if life hits 0 */
+            if (who_is_plr(who))
+                dam = dam*mon->mpower/1000;
+            if (mon->mpower - dam < 0)
+                dam = mon->mpower;
+            mon->mpower -= dam;
+            if (seen_msg)
+            {
+                if (who_is_plr(who))
+                    msg_format("<color:D>You drain life from %s.</color>", m_name_object);
+                else
+                    msg_format("<color:D>%^s grows less powerful.</color>", m_name);
+            }
+            if (who_is_plr(who))
+            {
+                if (get_race()->flags & RACE_IS_UNDEAD)
+                {
+                    if (!mon_is_pet(mon)) /* XXX no spamming _SummonHydras et. al. */
+                        plr_gain_life(dam);
+                }
+                else if (!(flags & GF_AFFECT_SPELL))
+                    plr_restore_life(dam);
+            }
+            return TRUE; /* using note causes messages out of order */
+        }
+        return FALSE;
+    case GF_LICH_DRAIN:
+        if (seen) obvious = TRUE;
+        if (mon_is_nonliving(mon))
+        {
+            mon_lore_nonliving(mon);
+            if (!quiet) note = " is unaffected!";
+            dam = 0;
+        }
+        else
+        {
+            if (!gf_affect_m(who, mon, GF_UNLIFE, dam, flags))
+                dam = 0;
+        }
+        break;
+    case GF_LICH_GENOCIDE:
+        if (seen) obvious = TRUE;
+        if (mon_is_nonliving(mon))
+        {
+            mon_lore_nonliving(mon);
+            if (seen_msg && !quiet)
+                msg_format("%^s is unaffected!", m_name);
+        }
+        else if (genocide_aux(mon, dam, who_is_plr(who), (race->alloc.lvl + 1) / 2, "Genocide One"))
+        {
+            if (seen_msg)
+                msg_format("%^s is sent to the netherworld!", m_name);
+
+            virtue_add(VIRTUE_VITALITY, -1);
+            return TRUE; /* monster has been deleted! */
+        }
+        skipped = TRUE;
+        break;
+    case GF_LICH_WORD:
+        if (seen) obvious = TRUE;
+        if (mon_is_pet(mon))
+            return FALSE;
+        if (mon_is_undead(mon))
+        {
+            if (gf_affect_m(who, mon, GF_CONTROL_UNDEAD, dam, flags))
+                return TRUE;
+            else if (gf_affect_m(who, mon, GF_AWAY_UNDEAD, dam, flags))
+                return TRUE;
+        }
+        if (mon_is_living(mon))
+        {
+            int power = (dam + 2)/3; /* dam is 150 at CL50, boosted by unlife */
+            gf_affect_m(who, mon, GF_ELDRITCH_HOWL, power, flags);
+            if (!mon_save_aux(mon, power))
+                do_conf = 5 + _1d(11);
+            if (!mon_save_stun(race->alloc.lvl, power))
+                do_stun = mon_stun_amount(power);
+            dam *= 2;
+        }
+        break;
+    case GF_ROCKET:
+        if (seen) obvious = TRUE;
+        break;
+    case GF_ELDRITCH_STUN:
+        if (seen) obvious = TRUE;
+
+        if (_mon_save_p(mon, A_CHR))
+        {
+            if (!quiet) note = " resists stunning.";
+        }
+        else
+            do_stun = mon_stun_amount(dam);
+        break;
+    case GF_ROCK:
+        if (seen) obvious = TRUE;
+        if (mon_res_pct(mon, GF_SOUND) <= 0)
+        {
+            if (who_is_plr(who)  && mon_save_stun(race->alloc.lvl, dam))
+            {
+                if (!quiet) note = " resists stunning.";
+            }
+            else
+                do_stun = mon_stun_amount(dam);
+        }
+        break;
+    case GF_ELDRITCH_DISPEL:
+        if (seen) obvious = TRUE;
+
+        dispel_monster_status(mon);
+
+        /* More Powerful vs. Evil */
+        if (mon_is_evil(mon) && one_in_(5))
+        {
+            msg_print("You blast the forces of evil with great power!");
+            dam = dam * 2;
+
+            /* Attempt a Powerful Slow */
+            if (mon_save_p(mon, A_CHR))
+            {
+                if (!quiet) note = " resists being slowed!";
+            }
+            else
+            {
+                mon_tim_add(mon, T_SLOW, 50);
+            }
+        }
+        break;
+    case GF_PHARAOHS_CURSE:
+        if (seen) obvious = TRUE;
+
+        dam = spell_power(MIN(mon->hp*8/100 + dam, 400));
+        if (plr->lev >= 50)
+            dam += 50;
+        note = " is cursed by ancient pharaohs of long ago!";
+        break;
+    case GF_ELDRITCH_CONFUSE:
+        if (seen) obvious = TRUE;
+
+        /* XXX normally RESIST(CONF) prevents T_CONFUSED ... cf below when do_conf is applied */
+        if (mon_res_pct(mon, GF_CONFUSION) > 0 && mon_save_p(mon, A_NONE))
+        {   /* XXX Was: race->level + randint1(100) > plr->lev*2 + (plr->stat_ind[A_CHR] + 3) - 10
+               Note the A_NONE on mon_save_p for an easy saving throw. */
+            if (!quiet) note = " resists confusion.";
+        }
+        else
+        {
+            /* Recovery is randint1(r_info[mon->r_idx].level / 20 + 1) */
+            do_conf = 3 + randint0(5);
+        }
+        break;
     case GF_MANA:
     case GF_SEEKER:
     case GF_SUPER_RAY:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        break;
-    case GF_DISINTEGRATE:
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flags3 & RF3_HURT_ROCK)
-        {
-            mon_lore_3(mon, RF3_HURT_ROCK);
-            note = " loses some skin!";
-            note_dies = " evaporates!";
-            dam *= 2;
-        }
+
         break;
     case GF_PSI_STORM:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flags2 & RF2_EMPTY_MIND)
+
+        if (mon_has_empty_mind(mon))
         {
             dam = 0;
             if (!quiet) note = " is immune!";
-            mon_lore_2(mon, RF2_EMPTY_MIND);
+            mon_lore_empty_mind(mon);
             break;
 
         }
-        else if (race->flags2 & (RF2_STUPID | RF2_WEIRD_MIND))
+        else if (mon_is_stupid(mon) || mon_has_weird_mind(mon))
         {
             dam /= 3;
             if (!quiet) note = " resists.";
+            mon_lore_stupid(mon);
+            mon_lore_weird_mind(mon);
             break;
         }
         if (one_in_(4))
         {
-            if (p_ptr->riding && (mon->id == p_ptr->riding)) do_dist = 0;
+            if (plr->riding && (mon->id == plr->riding)) do_dist = 0;
             else do_dist = 7;
         }
         if (one_in_(2))
         {
             do_stun = mon_stun_amount(dam);
-            if (mon_save_stun(race->level, dam))
+            if (mon_save_stun(race->alloc.lvl, dam))
             {
                 do_stun = 0;
                 obvious = FALSE;
@@ -2050,43 +2027,42 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         break;
     case GF_PSI:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
+
         /* PSI only works if the monster can see you! -- RG */
-        if (!point_los(mon->pos, p_ptr->pos))
+        if (!point_los(mon->pos, plr->pos))
         {
             if (seen_msg) msg_format("%^s can't see you, and isn't affected!", m_name);
             skipped = TRUE;
             break;
         }
-        if (race->flags2 & RF2_EMPTY_MIND)
+        if (mon_has_empty_mind(mon))
         {
             dam = 0;
             if (!quiet) note = " is immune!";
-            mon_lore_2(mon, RF2_EMPTY_MIND);
-
+            mon_lore_empty_mind(mon);
         }
-        else if ((race->flags2 & (RF2_STUPID | RF2_WEIRD_MIND)) ||
-                 (race->flags3 & RF3_ANIMAL) ||
-                 mon_save_psi(race->level, dam))
+        else if ( mon_is_stupid(mon)
+               || mon_has_weird_mind(mon) 
+               || mon_is_animal(mon)
+               || mon_save_psi(race->alloc.lvl, dam) )
         {
             dam /= 3;
             if (!quiet) note = " resists.";
-
 
             /*
              * Powerful demons & undead can turn a mindcrafter's
              * attacks back on them
              */
-            if ((race->flags3 & (RF3_UNDEAD | RF3_DEMON)) &&
-                (race->level > p_ptr->lev / 2) &&
-                one_in_(2))
+            if ( (mon_is_undead(mon) || mon_is_demon(mon))
+              && mon_lvl(mon) > plr->lev/2
+              && one_in_(2) )
             {
                 note = NULL;
                 msg_format("%^s%s corrupted mind backlashes your attack!",
                     m_name, (seen ? "'s" : "s"));
 
                 /* Saving throw */
-                if ((randint0(100 + race->level / 2) < p_ptr->skills.sav) && !CHECK_MULTISHADOW())
+                if ((randint0(100 + race->alloc.lvl / 2) < plr->skills.sav) && !CHECK_MULTISHADOW())
                 {
                     msg_print("You resist the effects!");
 
@@ -2104,16 +2080,13 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                             plr_tim_add(T_CONFUSED, 3 + randint1(dam));
                             break;
                         case 2:
-                            if (!p_ptr->no_stun) plr_tim_add(T_STUN, randint1(dam));
+                            if (!res_save(GF_STUN, 100)) plr_tim_add(T_STUN, randint1(dam));
                             break;
                         case 3:
-                            if (race->flags3 & RF3_NO_FEAR)
-                                note = " is unaffected.";
-                            else
-                                fear_add_p(FEAR_SCARED);
+                            fear_add_p(FEAR_SCARED);
                             break;
                         default:
-                            if (!free_act_save_p(race->level))
+                            if (!free_act_save_p(race->alloc.lvl))
                                 plr_tim_add(T_PARALYZED, randint1(dam));
                         }
                     }
@@ -2145,16 +2118,17 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         break;
     case GF_PSI_DRAIN:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flags2 & RF2_EMPTY_MIND)
+
+        if (mon_has_empty_mind(mon))
         {
             dam = 0;
             if (!quiet) note = " is immune!";
-
+            mon_lore_empty_mind(mon);
         }
-        else if ((race->flags2 & (RF2_STUPID | RF2_WEIRD_MIND)) ||
-                 (race->flags3 & RF3_ANIMAL) ||
-                 mon_save_psi(race->level, dam))
+        else if ( mon_is_stupid(mon)
+               || mon_has_weird_mind(mon) 
+               || mon_is_animal(mon)
+               || mon_save_psi(race->alloc.lvl, dam) )
         {
             dam /= 3;
             if (!quiet) note = " resists.";
@@ -2164,16 +2138,16 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
              * Powerful demons & undead can turn a mindcrafter's
              * attacks back on them
              */
-            if ((race->flags3 & (RF3_UNDEAD | RF3_DEMON)) &&
-                 (race->level > p_ptr->lev / 2) &&
-                 (one_in_(2)))
+            if ( (mon_is_undead(mon) || mon_is_demon(mon))
+              && mon_lvl(mon) > plr->lev/2
+              && one_in_(2) )
             {
                 note = NULL;
                 msg_format("%^s%s corrupted mind backlashes your attack!",
                     m_name, (seen ? "'s" : "s"));
 
                 /* Saving throw */
-                if ((randint0(100 + race->level / 2) < p_ptr->skills.sav) && !CHECK_MULTISHADOW())
+                if ((randint0(100 + race->alloc.lvl / 2) < plr->skills.sav) && !CHECK_MULTISHADOW())
                 {
                     msg_print("You resist the effects!");
                 }
@@ -2185,10 +2159,10 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                     {
                         msg_print("Your psychic energy is drained!");
 
-                        p_ptr->csp -= damroll(5, dam) / 2;
-                        if (p_ptr->csp < 0) p_ptr->csp = 0;
-                        p_ptr->redraw |= PR_MANA;
-                        p_ptr->window |= (PW_SPELL);
+                        plr->csp -= damroll(5, dam) / 2;
+                        if (plr->csp < 0) plr->csp = 0;
+                        plr->redraw |= PR_MANA;
+                        plr->window |= (PW_SPELL);
                     }
                     take_hit(DAMAGE_ATTACK, dam, killer);  /* has already been /3 */
                 }
@@ -2198,29 +2172,29 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         else if (dam > 0)
         {
             int b = damroll(5, dam) / 4;
-            cptr str = (p_ptr->pclass == CLASS_MINDCRAFTER) ? "psychic energy" : "mana";
+            cptr str = (plr->pclass == CLASS_MINDCRAFTER) ? "psychic energy" : "mana";
             msg_format("You convert %s%s pain into %s!",
                 m_name, (seen ? "'s" : "s"), str);
 
-            b = MIN(p_ptr->msp, p_ptr->csp + b);
-            p_ptr->csp = b;
-            p_ptr->redraw |= PR_MANA;
-            p_ptr->window |= (PW_SPELL);
+            b = MIN(plr->msp, plr->csp + b);
+            plr->csp = b;
+            plr->redraw |= PR_MANA;
+            plr->window |= (PW_SPELL);
         }
 
         note_dies = " collapses, a mindless husk.";
         break;
     case GF_TELEKINESIS:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
+
         if (one_in_(4))
         {
-            if (p_ptr->riding && (mon->id == p_ptr->riding)) do_dist = 0;
+            if (plr->riding && (mon->id == plr->riding)) do_dist = 0;
             else do_dist = 7;
         }
 
         do_stun = mon_stun_amount(dam);
-        if (mon_save_stun(race->level, dam))
+        if (mon_save_stun(race->alloc.lvl, dam))
         {
             do_stun = 0;
             obvious = FALSE;
@@ -2228,11 +2202,11 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         break;
     case GF_PSY_SPEAR:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
+
         break;
     case GF_METEOR:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
+
         break;
     case GF_DOMINATION: {
         int power = dam;
@@ -2240,27 +2214,27 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         /* No "real" damage */
         dam = 0;
 
-        if (!is_hostile(mon)) break;
+        if (!mon_is_hostile(mon)) break;
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
+
 
         /* Attempt a saving throw */
-        if (mon_save_aux(mon->r_idx, power))
+        if (mon_save_aux(mon, power))
         {
             /*
              * Powerful demons & undead can turn a mindcrafter's
              * attacks back on them
              */
-            if ((race->flags3 & (RF3_UNDEAD | RF3_DEMON)) &&
-                (race->level > p_ptr->lev / 2) &&
-                (one_in_(2)))
+            if ( (mon_is_undead(mon) || mon_is_demon(mon))
+              && mon_lvl(mon) > plr->lev/2
+              && one_in_(2) )
             {
                 note = NULL;
                 msg_format("%^s%s corrupted mind backlashes your attack!",
                     m_name, (seen ? "'s" : "s"));
 
                 /* Saving throw */
-                if (randint0(100 + race->level/2) < p_ptr->skills.sav)
+                if (randint0(100 + race->alloc.lvl/2) < plr->skills.sav)
                 {
                     msg_print("You resist the effects!");
 
@@ -2271,19 +2245,13 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                     switch (randint1(4))
                     {
                         case 1:
-                            if (!p_ptr->no_stun) plr_tim_add(T_STUN, power / 2);
+                            if (!res_save(GF_STUN, 100)) plr_tim_add(T_STUN, power / 2);
                             break;
                         case 2:
                             plr_tim_add(T_CONFUSED, power / 2);
                             break;
                         default:
-                        {
-                            if (race->flags3 & RF3_NO_FEAR)
-                                note = " is unaffected.";
-
-                            else
-                                fear_add_p(power);
-                        }
+                            fear_add_p(power);
                     }
                 }
             }
@@ -2295,7 +2263,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         }
         else
         {
-            bool unique = BOOL(race->flags1 & RF1_UNIQUE);
+            bool unique = mon_race_is_unique(race);
 
             if (!unique && !(mon->mflag2 & MFLAG2_QUESTOR) && power > 29 && randint1(100) < power)
             {
@@ -2310,9 +2278,9 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                     do_stun = power / 2;
                     break;
                 case 2:
-                    if (race->flags3 & RF3_NO_CONF)
+                    if (mon_res_pct(mon, GF_CONFUSION) > 0)
                     {
-                        mon_lore_3(mon, RF3_NO_CONF);
+                        mon_lore_resist(mon, GF_CONFUSION);
                         if (!quiet) note = " is unaffected.";
                         break;
                     }
@@ -2321,10 +2289,11 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                         do_conf = power / 2;
                         break;
                     }
+                /* FALL THROUGH */
                 default:
                     if (prace_is_(RACE_MON_VAMPIRE))
                     {
-                        if (!unique && !mon_save_aux(mon->r_idx, power))
+                        if (!unique && !mon_save_aux(mon, power))
                         {
                             note = " is frozen in terror!";
                             do_paralyzed = randint1(3);
@@ -2337,41 +2306,21 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         }
         break; }
     case GF_ICE:
-        if (touch && seen_msg) msg_format("%^s is <color:W>frozen</color>!", m_name);
+        if (touch && seen_msg && dam) msg_format("%^s is <color:W>frozen</color>!", m_name);
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_IM_COLD)
+        if (res_pct <= 0)
         {
-            if (!quiet) note = " is immune.";
-            dam = 0;
-            mon_lore_r(mon, RFR_IM_COLD);
-        }
-        else if (race->flagsr & RFR_RES_COLD)
-        {
-            if (!quiet) note = " resists.";
-            dam /= 2;
-            mon_lore_r(mon, RFR_RES_COLD);
-        }
-        else
-        {
-            if (race->flags3 & (RF3_HURT_COLD))
-            {
-                note = " is hit hard.";
-                dam *= 2;
-                mon_lore_3(mon, RF3_HURT_COLD);
-            }
-            if (!mon_save_stun(race->level, dam))
+            if (!mon_save_stun(race->alloc.lvl, dam))
                 do_stun = mon_stun_amount(dam);
         }
         break;
     case GF_OLD_DRAIN:
+        if (touch && seen_msg) msg_format("%^s is <color:D>drained</color>!", m_name);
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (!monster_living(race))
+
+        if (mon_is_nonliving(mon))
         {
-            mon_lore_3(mon, RF3_DEMON);
-            mon_lore_3(mon, RF3_UNDEAD);
-            mon_lore_3(mon, RF3_NONLIVING);
+            mon_lore_nonliving(mon);
             if (!quiet) note = " is unaffected!";
             obvious = FALSE;
             dam = 0;
@@ -2385,19 +2334,17 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         break;
     case GF_DEATH_TOUCH:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (!monster_living(race))
+
+        if (mon_is_nonliving(mon))
         {
-            mon_lore_3(mon, RF3_DEMON);
-            mon_lore_3(mon, RF3_UNDEAD);
-            mon_lore_3(mon, RF3_NONLIVING);
+            mon_lore_nonliving(mon);
             if (!quiet) note = " is immune.";
             obvious = FALSE;
             dam = 0;
         }
-        else if (((race->flags1 & RF1_UNIQUE) && randint1(888) != 666)
-                || mon_save_p(mon->r_idx, A_INT)
-                || mon_save_p(mon->r_idx, A_INT) )
+        else if ((mon_race_is_unique(race) && randint1(888) != 666)
+                || mon_save_p(mon, A_INT)
+                || mon_save_p(mon, A_INT) )
         {
             if (!quiet) note = " resists!";
             obvious = FALSE;
@@ -2406,18 +2353,16 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         break;
     case GF_DEATH_RAY:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (!monster_living(race))
+
+        if (mon_is_nonliving(mon))
         {
-            mon_lore_3(mon, RF3_DEMON);
-            mon_lore_3(mon, RF3_UNDEAD);
-            mon_lore_3(mon, RF3_NONLIVING);
+            mon_lore_nonliving(mon);
             if (!quiet) note = " is immune.";
             obvious = FALSE;
             dam = 0;
         }
-        else if ( ((race->flags1 & RF1_UNIQUE) && randint1(888) != 666)
-               || (race->level + randint1(20) > randint1(caster_lev)))
+        else if ( (mon_race_is_unique(race) && randint1(888) != 666)
+               || (race->alloc.lvl + randint1(20) > randint1(caster_lev)))
         {
             if (!quiet) note = " resists!";
             obvious = FALSE;
@@ -2427,17 +2372,17 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         break;
     case GF_OLD_POLY:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
+
         do_poly = dam; /* save later ... */
         dam = 0;
         break;
     case GF_OLD_CLONE:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
 
-        if ( is_pet(mon)
-          || (race->flags1 & RF1_UNIQUE)
-          || (race->flags7 & (RF7_NAZGUL | RF7_UNIQUE2))
+
+        if ( mon_is_pet(mon)
+          || mon_race_is_unique(race)
+          || mon_race_is_nazgul(race)
           || (mon->mflag2 & MFLAG2_QUESTOR) )
         {
             if (!quiet) note = " is unaffected!";
@@ -2445,14 +2390,14 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         else
         {
             mon->hp = mon->maxhp;
-            if (multiply_monster(mon->id, TRUE, 0L))
+            if (multiply_monster(mon, TRUE, 0L))
                 note = " spawns!";
         }
         dam = 0;
         break;
     case GF_STAR_HEAL:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
+
         mon_tim_delete(mon, MT_SLEEP);
 
         if (mon->maxhp < mon->max_maxhp)
@@ -2469,21 +2414,21 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         if (!dam)
         {
             /* Redraw (later) if needed */
-            check_mon_health_redraw(mon->id);
+            check_mon_health_redraw(mon);
             break;
         }
 
         /* Fall through */
     case GF_OLD_HEAL:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
+
 
         mon_tim_delete(mon, MT_SLEEP);
         mon_tim_remove(mon, T_STUN);
         mon_tim_remove(mon, T_CONFUSED);
         mon_tim_remove(mon, T_FEAR);
 
-        if (!who && !(race->flags3 & RF3_EVIL))
+        if (who_is_plr(who) && !mon_is_evil(mon))
             dam = dam * (625 + virtue_current(VIRTUE_COMPASSION))/625;
 
         /* Heal */
@@ -2492,35 +2437,35 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         /* No overflow */
         if (mon->hp > mon->maxhp) mon->hp = mon->maxhp;
 
-        if (!who)
+        if (who_is_plr(who))
         {
             virtue_add(VIRTUE_VITALITY, 1);
 
-            if (race->flags1 & RF1_UNIQUE)
+            if (mon_race_is_unique(race))
                 virtue_add(VIRTUE_INDIVIDUALISM, 1);
 
-            if (is_friendly(mon))
+            if (mon_is_friendly(mon))
                 virtue_add(VIRTUE_HONOUR, 1);
-            else if (!(race->flags3 & RF3_EVIL))
+            else if (!mon_is_evil(mon))
             {
-                if (race->flags3 & RF3_GOOD)
+                if (mon_is_good(mon))
                     virtue_add(VIRTUE_COMPASSION, 2);
                 else
                     virtue_add(VIRTUE_COMPASSION, 1);
             }
 
-            if (race->flags3 & RF3_ANIMAL)
+            if (mon_is_animal(mon))
                 virtue_add(VIRTUE_NATURE, 1);
         }
 
-        if (mon->r_idx == MON_LEPER)
+        if (mon_race_is_(mon->race, "t.leper"))
         {
             heal_leper = TRUE;
-            if (!who) virtue_add(VIRTUE_COMPASSION, 5);
+            if (who_is_plr(who)) virtue_add(VIRTUE_COMPASSION, 5);
         }
 
         /* Redraw (later) if needed */
-        check_mon_health_redraw(mon->id);
+        check_mon_health_redraw(mon);
 
         /* Message */
         note = " looks healthier.";
@@ -2530,33 +2475,21 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         break;
     case GF_OLD_SPEED:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
+
         mon_tim_add(mon, T_FAST, 100);
-        if (!who)
+        if (who_is_plr(who))
         {
-            if (race->flags1 & RF1_UNIQUE)
+            if (mon_race_is_unique(race))
                 virtue_add(VIRTUE_INDIVIDUALISM, 1);
-            if (is_friendly(mon))
+            if (mon_is_friendly(mon))
                 virtue_add(VIRTUE_HONOUR, 1);
         }
 
         /* No "real" damage */
         dam = 0;
         break;
-    case GF_OLD_SLOW:
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-
-        if (_mon_save_aux(race, dam))
-        {
-            if (!quiet) note = " is unaffected!";
-            obvious = FALSE;
-        }
-        else mon_tim_add(mon, T_SLOW, 50);
-        dam = 0;
-        break;
     case GF_UNHOLY_WORD:
-        if (is_pet(mon) && (race->flags3 & RF3_EVIL))
+        if (mon_is_pet(mon) && mon_is_evil(mon))
         {
             if (seen) obvious = TRUE;
 
@@ -2574,8 +2507,8 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         break;
     case GF_STASIS_EVIL:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (!(race->flags3 & RF3_EVIL) || _mon_save_aux(race, dam))
+
+        if (!mon_is_evil(mon) || _mon_save_aux(mon, dam))
         {
             if (!quiet) note = " is unaffected!";
             obvious = FALSE;
@@ -2589,13 +2522,13 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         break;
     case GF_PARALYSIS:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (_mon_save_aux(race, dam))
+
+        if (_mon_save_aux(mon, dam))
         {
             if (!quiet) note = " is unaffected!";
             obvious = FALSE;
         }
-        else if ((race->flags3 & RF3_NO_SLEEP) && mon_save_aux(mon->r_idx, dam))
+        else if (_1d(100) <= mon_res_pct(mon, GF_SLEEP))
         {
             if (!quiet) note = " is unaffected!";
             obvious = FALSE;
@@ -2608,8 +2541,8 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         break;
     case GF_STASIS:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (_mon_save_aux(race, dam))
+
+        if (_mon_save_aux(mon, dam))
         {
             if (!quiet) note = " is unaffected!";
             obvious = FALSE;
@@ -2621,116 +2554,113 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         dam = 0;
         break;
     case GF_SUBJUGATION: {
-        bool unique = BOOL(race->flags1 & RF1_UNIQUE);
-        int  attempts = randint1(1 + p_ptr->lev/50);
+        bool unique = mon_race_is_unique(race);
+        int  attempts = _1d(1 + plr->lev/50);
         int  ct = 0;
 
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
+
         mon_tim_delete(mon, MT_SLEEP);
-        if (is_pet(mon))
+        if (mon_is_pet(mon))
             return FALSE;
         while (attempts--)
         {
-            switch (randint1(5))
+            switch (_1d(5))
             {
             case 1:
-                if (!mon_save_aux(mon->r_idx, dam))
-                {
-                    do_stun = dam / 2;
-                    ct++;
-                }
-                break;
-            case 2:
-                if (!(race->flags3 & RF3_NO_CONF) && !mon_save_aux(mon->r_idx, dam))
-                {
-                    do_conf = dam / 2;
-                    ct++;
-                }
-                break;
-            case 3:
-                if (!unique && !(mon->mflag2 & MFLAG2_QUESTOR) && !mon_save_aux(mon->r_idx, dam))
+                if (unique || (mon->mflag2 & MFLAG2_QUESTOR))
+                    attempts++;
+                else if (!mon_save_aux(mon, dam))
                 {
                     note = " is frozen in terror!";
-                    do_paralyzed = randint1(3);
+                    do_paralyzed = _1d(3);
                     attempts = 0;
                     ct++;
                 }
                 break;
-            case 4:
-                if (!mon_save_aux(mon->r_idx, dam))
-                {
-                    do_fear = dam;
-                    ct++;
-                }
-                break;
-            default:
+            case 2:
                 if (unique || (mon->mflag2 & MFLAG2_QUESTOR))
-                {
-                }
-                else if ((mon->mflag2 & MFLAG2_NOPET) || mon_save_aux(mon->r_idx, dam))
+                    attempts++;
+                else if ((mon->mflag2 & MFLAG2_NOPET) || mon_save_aux(mon, dam))
                 {
                     if (one_in_(4))
                         mon->mflag2 |= MFLAG2_NOPET;
                 }
                 else
                 {
-                    msg_format("%s bows to your will!", m_name);
+                    msg_format("%^s bows to your will!", m_name);
 
                     set_pet(mon);
                     attempts = 0;
                     ct++;
 
                     virtue_add(VIRTUE_INDIVIDUALISM, -1);
-                    if (race->flags3 & RF3_ANIMAL)
+                    if (mon_is_animal(mon))
                         virtue_add(VIRTUE_NATURE, 1);
 
                     /* Ignore any prior effects */
                     return TRUE;
                 }
+                break;
+            case 3:
+                if (!mon_save_aux(mon, dam))
+                {
+                    do_conf = dam / 2;
+                    ct++;
+                }
+                break;
+            case 4:
+                if (!mon_save_aux(mon, dam))
+                {
+                    do_stun = dam / 2;
+                    ct++;
+                }
+                break;
+            case 5:
+                if (!mon_save_aux(mon, dam))
+                {
+                    do_fear = dam;
+                    ct++;
+                }
+                break;
             }
         }
         if (!ct && !quiet)
-            note = " resists";
+            note = " resists!";
         dam = 0;
         break; }
     case GF_ELDRITCH_HOWL:
-        if (race->flagsr & RFR_RES_ALL)
-        {
-            skipped = TRUE;
-            break;
-        }
         if (seen) obvious = TRUE;
-
-        do_fear = damroll(3, (dam / 2)) + 1;
-
-        if (race->flags3 & RF3_NO_FEAR)
+        dam = mon_res_calc_dam(mon, GF_FEAR, dam);
+        if (dam)
         {
-            if (!quiet) note = " is unaffected!";
-            obvious = FALSE;
-            do_fear = 0;
+            do_fear = damroll(3, (dam / 2)) + 1;
+            if ( mon_save_aux(mon, dam)
+                   || (mon_race_is_unique(race) && mon_save_aux(mon, dam)) )
+            {
+                if (!quiet) note = " resists!";
+                obvious = FALSE;
+                do_fear = 0;
+            }
+            else if (!mon_save_aux(mon, dam))
+            {
+                note = " is frozen with terror!";
+                do_paralyzed = randint1(3);
+            }
+            dam = 0;
         }
-        else if ( mon_save_aux(mon->r_idx, dam)
-               || ((race->flags1 & RF1_UNIQUE) && mon_save_aux(mon->r_idx, dam)) )
+        else
         {
-            if (!quiet) note = " resists!";
-            obvious = FALSE;
-            do_fear = 0;
+            if (!quiet) note = " is immune!";
         }
-        else if (!mon_save_aux(mon->r_idx, dam))
-        {
-            note = " is frozen with terror!";
-            do_paralyzed = randint1(3);
-        }
-        dam = 0;
         break;
     case GF_CHARM:
     case GF_CHARM_RING_BEARER:
         if (seen) obvious = TRUE;
 
-        if (type == GF_CHARM_RING_BEARER)
+        if (gf == GF_CHARM_RING_BEARER)
         {
-            if (!mon_is_type(mon->r_idx, SUMMON_RING_BEARER))
+            if (!mon_is_type(mon->race, SUMMON_RING_BEARER))
             {
                 note = " is not a suitable ring bearer.";
                 dam = 0;
@@ -2739,44 +2669,37 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         }
         else
         {
-            dam += (adj_con_fix[p_ptr->stat_ind[A_CHR]] - 1);
+            dam += (adj_con_fix[plr->stat_ind[A_CHR]] - 1);
             dam += virtue_current(VIRTUE_HARMONY)/10;
             dam -= virtue_current(VIRTUE_INDIVIDUALISM)/20;
-            if ((race->flags1 & RF1_UNIQUE) || (race->flags7 & RF7_NAZGUL))
+            if (mon_race_is_unique(race) || mon_race_is_nazgul(race))
                 dam = dam * 2 / 3;
         }
 
-        if (race->flagsr & RFR_RES_ALL)
-        {
-            if (!quiet) note = " is immune.";
-            dam = 0;
-            mon_lore_r(mon, RFR_RES_ALL);
-            break;
-        }
-        else if (mon->mflag2 & MFLAG2_QUESTOR)
+        if (mon->mflag2 & MFLAG2_QUESTOR)
         {
             if (!quiet) note = " is unaffected!";
             obvious = FALSE;
         }
-        else if ((mon->mflag2 & MFLAG2_NOPET) || race->level > randint1(dam))
+        else if ((mon->mflag2 & MFLAG2_NOPET) || race->alloc.lvl > randint1(dam))
         {
             if (!quiet) note = " resists!";
             obvious = FALSE;
             if (one_in_(4)) mon->mflag2 |= MFLAG2_NOPET;
         }
-        else if (p_ptr->cursed & OFC_AGGRAVATE)
+        else if (plr->cursed & OFC_AGGRAVATE)
         {
             note = " hates you too much!";
             if (one_in_(4)) mon->mflag2 |= MFLAG2_NOPET;
         }
-        else
+        else if (!mon_is_pet(mon))
         {
             note = " suddenly seems friendly!";
 
             set_pet(mon);
 
             virtue_add(VIRTUE_INDIVIDUALISM, -1);
-            if (race->flags3 & RF3_ANIMAL)
+            if (mon_is_animal(mon))
                 virtue_add(VIRTUE_NATURE, 1);
         }
         dam = 0;
@@ -2787,22 +2710,14 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         dam += virtue_current(VIRTUE_UNLIFE)/10;
         dam -= virtue_current(VIRTUE_INDIVIDUALISM)/20;
 
-        if (race->flagsr & RFR_RES_ALL)
-        {
-            if (!quiet) note = " is immune.";
-            dam = 0;
-            mon_lore_r(mon, RFR_RES_ALL);
-            break;
-        }
-
-        if ((race->flags1 & RF1_UNIQUE) || (race->flags7 & RF7_NAZGUL))
+        if (mon_race_is_unique(race) || mon_race_is_nazgul(race))
             dam = dam * 2 / 3;
 
         /* Attempt a saving throw */
         if ((mon->mflag2 & MFLAG2_QUESTOR) ||
-            !(race->flags3 & RF3_UNDEAD) ||
+            !mon_is_undead(mon) ||
             (mon->mflag2 & MFLAG2_NOPET) ||
-            (race->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+            (race->alloc.lvl > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
         {
             /* No obvious effect */
             if (!quiet) note = " is unaffected!";
@@ -2810,7 +2725,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
             obvious = FALSE;
             if (one_in_(4)) mon->mflag2 |= MFLAG2_NOPET;
         }
-        else if (p_ptr->cursed & OFC_AGGRAVATE)
+        else if (plr->cursed & OFC_AGGRAVATE)
         {
             note = " hates you too much!";
 
@@ -2830,22 +2745,14 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         dam += virtue_current(VIRTUE_UNLIFE)/10;
         dam -= virtue_current(VIRTUE_INDIVIDUALISM)/20;
 
-        if (race->flagsr & RFR_RES_ALL)
-        {
-            if (!quiet) note = " is immune.";
-            dam = 0;
-            mon_lore_r(mon, RFR_RES_ALL);
-            break;
-        }
-
-        if ((race->flags1 & RF1_UNIQUE) || (race->flags7 & RF7_NAZGUL))
+        if (mon_race_is_unique(race) || mon_race_is_nazgul(race))
             dam = dam * 2 / 3;
 
         /* Attempt a saving throw */
         if ((mon->mflag2 & MFLAG2_QUESTOR) ||
-            !(race->flags3 & RF3_DEMON) ||
+            !mon_is_demon(mon) ||
             (mon->mflag2 & MFLAG2_NOPET) ||
-            (race->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+            (race->alloc.lvl > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
         {
             /* No obvious effect */
             if (!quiet) note = " is unaffected!";
@@ -2853,7 +2760,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
             obvious = FALSE;
             if (one_in_(4)) mon->mflag2 |= MFLAG2_NOPET;
         }
-        else if (p_ptr->cursed & OFC_AGGRAVATE)
+        else if (plr->cursed & OFC_AGGRAVATE)
         {
             note = " hates you too much!";
 
@@ -2875,30 +2782,15 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         dam += virtue_current(VIRTUE_NATURE)/10;
         dam -= virtue_current(VIRTUE_INDIVIDUALISM)/20;
 
-        if (race->flagsr & RFR_RES_ALL)
-        {
-            if (!quiet) note = " is immune.";
-            dam = 0;
-            mon_lore_r(mon, RFR_RES_ALL);
-            break;
-        }
-
-        if ((race->flags1 & RF1_UNIQUE) || (race->flags7 & RF7_NAZGUL))
+        if (mon_race_is_unique(race) || mon_race_is_nazgul(race))
             dam = dam * 2 / 3;
 
         /* Attempt a saving throw */
         if ((mon->mflag2 & MFLAG2_QUESTOR) ||
-            !(race->flags3 & RF3_ANIMAL) ||
+            !mon_is_animal(mon) ||
             (mon->mflag2 & MFLAG2_NOPET) ||
-            (race->flags3 & RF3_NO_CONF) ||
-            (race->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+            (race->alloc.lvl > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
         {
-            /* Memorize a flag */
-            if (race->flags3 & (RF3_NO_CONF))
-            {
-                mon_lore_3(mon, RF3_NO_CONF);
-            }
-
             /* Resist */
             /* No obvious effect */
             if (!quiet) note = " is unaffected!";
@@ -2906,7 +2798,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
             obvious = FALSE;
             if (one_in_(4)) mon->mflag2 |= MFLAG2_NOPET;
         }
-        else if (p_ptr->cursed & OFC_AGGRAVATE)
+        else if (plr->cursed & OFC_AGGRAVATE)
         {
             note = " hates you too much!";
 
@@ -2918,7 +2810,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
 
             set_pet(mon);
 
-            if (race->flags3 & RF3_ANIMAL)
+            if (mon_is_animal(mon))
                 virtue_add(VIRTUE_NATURE, 1);
         }
 
@@ -2926,15 +2818,15 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         dam = 0;
         break;
     case GF_CONTROL_PACT_MONSTER:
-        if (warlock_is_pact_monster(race) && !is_pet(mon))
+        if (warlock_is_pact_monster(race) && !mon_is_pet(mon))
         {
             if (seen) obvious = TRUE;
 
             /* Attempt a saving throw */
             if ( (mon->mflag2 & MFLAG2_QUESTOR)
               || (mon->mflag2 & MFLAG2_NOPET)
-              || mon_save_p(mon->r_idx, A_CHR)
-              || ((race->flags1 & RF1_UNIQUE) && mon_save_p(mon->r_idx, A_CHR)) )
+              || mon_save_p(mon, A_CHR)
+              || (mon_race_is_unique(race) && mon_save_p(mon, A_CHR)) )
             {
                 if (warlock_is_(WARLOCK_HOUNDS))
                     note = " growls at you in defiance!";
@@ -2944,7 +2836,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                 if (one_in_(4))
                     mon->mflag2 |= MFLAG2_NOPET;
             }
-            else if (p_ptr->cursed & OFC_AGGRAVATE)
+            else if (plr->cursed & OFC_AGGRAVATE)
             {
                 note = " finds you very aggravating!";
                 if (one_in_(4))
@@ -2966,29 +2858,21 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
     case GF_CONTROL_LIVING:
         if (seen) obvious = TRUE;
 
-        dam += (adj_chr_chm[p_ptr->stat_ind[A_CHR]]);
+        dam += (adj_chr_chm[plr->stat_ind[A_CHR]]);
         dam -= virtue_current(VIRTUE_UNLIFE)/10;
         dam -= virtue_current(VIRTUE_INDIVIDUALISM)/20;
 
-        if (race->flags3 & (RF3_NO_CONF)) dam -= 30;
         if (dam < 1) dam = 1;
         msg_format("You stare into %s.", m_name_object);
-        if (race->flagsr & RFR_RES_ALL)
-        {
-            if (!quiet) note = " is immune.";
-            dam = 0;
-            mon_lore_r(mon, RFR_RES_ALL);
-            break;
-        }
 
-        if ((race->flags1 & RF1_UNIQUE) || (race->flags7 & RF7_NAZGUL))
+        if (mon_race_is_unique(race) || mon_race_is_nazgul(race))
             dam = dam * 2 / 3;
 
         /* Attempt a saving throw */
         if ((mon->mflag2 & MFLAG2_QUESTOR) ||
             (mon->mflag2 & MFLAG2_NOPET) ||
-             !monster_living(race) ||
-             ((race->level+10) > randint1(dam)))
+             !mon_is_living(mon) ||
+             ((race->alloc.lvl+10) > randint1(dam)))
         {
             /* Resist */
             /* No obvious effect */
@@ -2997,7 +2881,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
             obvious = FALSE;
             if (one_in_(4)) mon->mflag2 |= MFLAG2_NOPET;
         }
-        else if (p_ptr->cursed & OFC_AGGRAVATE)
+        else if (plr->cursed & OFC_AGGRAVATE)
         {
             note = " hates you too much!";
 
@@ -3009,133 +2893,154 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
 
             set_pet(mon);
 
-            if (race->flags3 & RF3_ANIMAL)
+            if (mon_is_animal(mon))
                 virtue_add(VIRTUE_NATURE, 1);
         }
         dam = 0;
         break;
-    case GF_OLD_SLEEP:
+    case GF_SLEEP:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flags3 & RF3_NO_SLEEP)
+        dam = mon_res_calc_dam(mon, GF_SLEEP, dam);
+        if (dam)
         {
-            if (!quiet) note = " is immune!";
-            mon_lore_3(mon, RF3_NO_SLEEP);
-            obvious = FALSE;
-        }
-        else if (_mon_save_aux(race, dam))
-        {
-            if (!quiet) note = " resists!";
-            obvious = FALSE;
+            if (_mon_save_aux(mon, dam))
+            {
+                if (!quiet) note = " resists!";
+                obvious = FALSE;
+            }
+            else
+            {
+                do_sleep = 500;
+            }
+            dam = 0;
         }
         else
         {
-            do_sleep = 500;
-        }
-        dam = 0;
-        break;
-    case GF_BLIND:
-    case GF_OLD_CONF:
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        do_conf = damroll(3, dam/2) + 1;
-        if (race->flags3 & RF3_NO_CONF)
-        {
-            do_conf = 0;
             if (!quiet) note = " is immune!";
-            mon_lore_3(mon, RF3_NO_CONF);
-            obvious = FALSE;
         }
-        else if (_mon_save_aux(race, dam))
+        break;
+    case GF_SLOW:
+        if (seen) obvious = TRUE;
+        dam = mon_res_calc_dam(mon, GF_SLOW, dam);
+        if (dam)
         {
-            do_conf = 0;
-            if (!quiet) note = " resists!";
-            obvious = FALSE;
+            if (_mon_save_aux(mon, dam))
+            {
+                if (!quiet) note = " is unaffected!";
+                obvious = FALSE;
+            }
+            else mon_tim_add(mon, T_SLOW, 10 + _1d(15));
+            dam = 0;
         }
-        dam = 0;
+        else
+        {
+            if (!quiet) note = " is immune!";
+        }
+        break;
+    case GF_BLIND: /* `dam` is the power of the effect */
+        if (seen) obvious = TRUE;
+        dam = mon_res_calc_dam(mon, GF_BLIND, dam);
+        if (dam)
+        {
+            do_blind = 10 + _1d(15);
+            if (_mon_save_aux(mon, dam))
+            {
+                do_blind = 0;
+                if (!quiet) note = " resists!";
+                obvious = FALSE;
+            }
+            dam = 0;
+        }
+        else
+        {
+            if (!quiet) note = " is immune!";
+        }
+        break;
+    case GF_OLD_CONF: /* `dam` is the power of the effect */
+        if (seen) obvious = TRUE;
+        dam = mon_res_calc_dam(mon, GF_CONFUSION, dam);
+        if (dam)
+        {
+            do_conf = 10 + _1d(15);
+            if (_mon_save_aux(mon, dam))
+            {
+                do_conf = 0;
+                if (!quiet) note = " resists!";
+                obvious = FALSE;
+            }
+            dam = 0;
+        }
+        else
+        {
+            if (!quiet) note = " is immune!";
+        }
         break;
     case GF_STUN:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        do_stun = dam;
-        if (race->flags3 & RF3_NO_STUN)
+        dam = mon_res_calc_dam(mon, GF_STUN, dam);
+        if (dam)
         {
-            do_stun = 0;
-            if (!quiet) note = " is unaffected!";
-            mon_lore_3(mon, RF3_NO_STUN);
-            obvious = FALSE;
+            do_stun = dam;
+            dam = 0;
         }
-        dam = 0;
+        else
+        {
+            if (!quiet) note = " is immune!";
+        }
         break;
-    case GF_LITE_WEAK:
+    case GF_FEAR:
+        if (seen) obvious = TRUE;
+        dam = mon_res_calc_dam(mon, GF_FEAR, dam);
+        if (dam)
+        {
+            do_fear = damroll(3, (dam / 2)) + 1;
+            if (fear_save_m(mon))
+            {
+                if (!quiet) note = " resists!";
+                obvious = FALSE;
+                do_fear = 0;
+            }
+            dam = 0;
+        }
+        else
+        {
+            if (!quiet) note = " is immune!";
+        }
+        break;
+    case GF_TELEPORT:
+        if (seen) obvious = TRUE;
+        dam = mon_res_calc_dam(mon, GF_TELEPORT, dam);
+        if (dam)
+        {
+            do_dist = dam;
+            dam = 0;
+        }
+        else
+        {
+            if (!quiet) note = " is immune!";
+        }
+        break;
+    case GF_LIGHT_WEAK:
         if (!dam)
         {
             skipped = TRUE;
             break;
         }
-        if (race->flagsr & RFR_RES_ALL)
+        if (mon_vuln(mon, GF_LIGHT)) /* LITE_WEAK requires VULN(LITE) for damage (unscaled) */
         {
-            dam = 0;
-            break;
-        }
-        /* Hurt by light */
-        if (race->flags3 & (RF3_HURT_LITE))
-        {
-            /* Obvious effect */
             if (seen) obvious = TRUE;
+            mon_lore_resist(mon, GF_LIGHT);
 
-            /* Memorize the effects */
-            mon_lore_3(mon, RF3_HURT_LITE);
-
-            /* Special effect */
             note = " cringes from the light!";
             note_dies = " shrivels away in the light!";
-
         }
-        /* Normally no damage */
         else dam = 0;
         break;
-    case GF_LITE:
-        if (touch && seen_msg) msg_format("%^s is <color:y>dazzled</color>!", m_name);
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_RES_LITE)
-        {
-            if (!quiet) note = " resists.";
-
-            dam *= 2; dam /= (randint1(6)+6);
-            mon_lore_r(mon, RFR_RES_LITE);
-        }
-        else if (race->flags3 & (RF3_HURT_LITE))
-        {
-            mon_lore_3(mon, RF3_HURT_LITE);
-            note = " cringes from the light!";
-            note_dies = " shrivels away in the light!";
-
-            dam *= 2;
-        }
-        break;
-    case GF_DARK:
-        if (touch && seen_msg) msg_format("%^s is <color:D>benighted</color>!", m_name);
-        if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flagsr & RFR_RES_DARK)
-        {
-            if (!quiet) note = " resists.";
-            dam *= 2; dam /= (randint1(6)+6);
-            mon_lore_r(mon, RFR_RES_DARK);
-        }
-        break;
     case GF_KILL_WALL: /* e.g. Stone to Mud */
-        if (race->flagsr & RFR_RES_ALL)
-        {
-            dam = 0;
-            break;
-        }
-        if (race->flags3 & (RF3_HURT_ROCK))
+        if (mon_vuln(mon, GF_DISINTEGRATE)) /* formerly HURT_ROCK */
         {
             if (seen) obvious = TRUE;
-            mon_lore_3(mon, RF3_HURT_ROCK);
+            mon_lore_resist(mon, GF_DISINTEGRATE);
             note = " loses some skin!";
             note_dies = " dissolves!";
         }
@@ -3143,137 +3048,40 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         else dam = 0;
         break;
     case GF_AWAY_UNDEAD:
-        if (race->flags3 & (RF3_UNDEAD))
+        if (mon_is_undead(mon))
         {
-            bool resists_tele = FALSE;
-            if (race->flagsr & RFR_RES_TELE)
-            {
-                if ((race->flags1 & (RF1_UNIQUE)) || (race->flagsr & RFR_RES_ALL))
-                {
-                    mon_lore_r(mon, RFR_RES_TELE);
-                    if (!quiet) note = " is unaffected!";
-
-                    resists_tele = TRUE;
-                }
-                else if (race->level > randint1(100))
-                {
-                    mon_lore_r(mon, RFR_RES_TELE);
-                    if (!quiet) note = " resists!";
-
-                    resists_tele = TRUE;
-                }
-            }
-            if (!resists_tele)
-            {
-                if (seen) obvious = TRUE;
-                mon_lore_3(mon, RF3_UNDEAD);
-                do_dist = dam;
-            }
+            if (seen) obvious = TRUE;
+            mon_lore_undead(mon);
+            do_dist = dam;
         }
         else skipped = TRUE;
         dam = 0;
         break;
     case GF_AWAY_EVIL:
-        if (race->flags3 & (RF3_EVIL))
+        if (mon_is_evil(mon))
         {
-            bool resists_tele = FALSE;
-            if (race->flagsr & RFR_RES_TELE)
-            {
-                if ((race->flags1 & (RF1_UNIQUE)) || (race->flagsr & RFR_RES_ALL))
-                {
-                    mon_lore_r(mon, RFR_RES_TELE);
-                    if (!quiet) note = " is unaffected!";
-
-                    resists_tele = TRUE;
-                }
-                else if (race->level > randint1(100))
-                {
-                    mon_lore_r(mon, RFR_RES_TELE);
-                    if (!quiet) note = " resists!";
-
-                    resists_tele = TRUE;
-                }
-            }
-            if (!resists_tele)
-            {
-                if (seen) obvious = TRUE;
-                mon_lore_3(mon, RF3_EVIL);
-                do_dist = dam;
-            }
+            if (seen) obvious = TRUE;
+            mon_lore_evil(mon);
+            do_dist = dam;
         }
         else skipped = TRUE;
         dam = 0;
         break;
-    case GF_ISOLATION: {
-        bool resists_tele = FALSE;
-        if (mon->id == p_ptr->duelist_target_idx)
+    case GF_ISOLATION:
+        if (mon == who_mon(plr->duelist_target))
         {
             dam = 0;
             return TRUE;
         }
-        if (race->flagsr & RFR_RES_TELE)
-        {
-            if (race->flagsr & RFR_RES_ALL)
-            {
-                mon_lore_r(mon, RFR_RES_TELE);
-                if (!quiet) note = " is unaffected!";
-                resists_tele = TRUE;
-            }
-            else if (mon_save_p(mon->r_idx, A_DEX))
-            {
-                mon_lore_r(mon, RFR_RES_TELE);
-                if (!quiet) note = " resists!";
-                resists_tele = TRUE;
-            }
-        }
-        if (!resists_tele)
-        {
-            if (seen) obvious = TRUE;
-            do_dist = dam;
-        }
+        if (seen) obvious = TRUE;
+        do_dist = dam;
         dam = 0;
-        break; }
-    case GF_AWAY_ALL: {
-        bool resists_tele = FALSE;
-        if (race->flagsr & RFR_RES_TELE)
-        {
-            if ( (race->flags1 & RF1_UNIQUE)
-              || (race->flagsr & RFR_RES_ALL) 
-              || (mon->smart & (1U << SM_GUARDIAN)) )
-            {
-                mon_lore_r(mon, RFR_RES_TELE);
-                if (!quiet) note = " is unaffected!";
-                resists_tele = TRUE;
-            }
-            else if (race->level > randint1(100))
-            {
-                mon_lore_r(mon, RFR_RES_TELE);
-                if (!quiet) note = " resists!";
-                resists_tele = TRUE;
-            }
-        }
-        else if (mon->smart & (1U << SM_GUARDIAN))
-        {
-            if (!quiet) note = " is unaffected!";
-            resists_tele = TRUE;
-        }
-        if (!resists_tele)
-        {
-            if (seen) obvious = TRUE;
-            do_dist = dam;
-        }
-        dam = 0;
-        break; }
+        break;
     case GF_TURN_UNDEAD:
-        if (race->flagsr & RFR_RES_ALL)
-        {
-            skipped = TRUE;
-            break;
-        }
-        if (race->flags3 & (RF3_UNDEAD))
+        if (mon_is_undead(mon))
         {
             if (seen) obvious = TRUE;
-            mon_lore_3(mon, RF3_UNDEAD);
+            mon_lore_undead(mon);
 
             do_fear = damroll(3, (dam / 2)) + 1;
             if (fear_save_m(mon))
@@ -3287,15 +3095,10 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         dam = 0;
         break;
     case GF_TURN_EVIL:
-        if (race->flagsr & RFR_RES_ALL)
-        {
-            skipped = TRUE;
-            break;
-        }
-        if (race->flags3 & (RF3_EVIL))
+        if (mon_is_evil(mon))
         {
             if (seen) obvious = TRUE;
-            mon_lore_3(mon, RF3_EVIL);
+            mon_lore_align(mon);
 
             do_fear = damroll(3, (dam / 2)) + 1;
 
@@ -3309,33 +3112,11 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         else skipped = TRUE;
         dam = 0;
         break;
-    case GF_TURN_ALL:
-        if (race->flagsr & RFR_RES_ALL)
-        {
-            skipped = TRUE;
-            break;
-        }
-        if (seen) obvious = TRUE;
-        do_fear = damroll(3, (dam / 2)) + 1;
-        if ((race->flags3 & RF3_NO_FEAR) || fear_save_m(mon))
-        {
-            if (!quiet) note = " is unaffected!";
-            obvious = FALSE;
-            do_fear = 0;
-        }
-        dam = 0;
-        break;
     case GF_DISP_UNDEAD:
-        if (race->flagsr & RFR_RES_ALL)
-        {
-            skipped = TRUE;
-            dam = 0;
-            break;
-        }
-        if (race->flags3 & (RF3_UNDEAD))
+        if (mon_is_undead(mon))
         {
             if (seen) obvious = TRUE;
-            mon_lore_3(mon, RF3_UNDEAD);
+            mon_lore_undead(mon);
             note = " shudders.";
             note_dies = " dissolves!";
         }
@@ -3346,16 +3127,10 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         }
         break;
     case GF_DISP_EVIL:
-        if (race->flagsr & RFR_RES_ALL)
-        {
-            skipped = TRUE;
-            dam = 0;
-            break;
-        }
-        if (race->flags3 & RF3_EVIL)
+        if (mon_is_evil(mon))
         {
             if (seen) obvious = TRUE;
-            mon_lore_3(mon, RF3_EVIL);
+            mon_lore_align(mon);
             note = " shudders.";
             note_dies = " dissolves!";
         }
@@ -3366,16 +3141,10 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         }
         break;
     case GF_DISP_GOOD:
-        if (race->flagsr & RFR_RES_ALL)
-        {
-            skipped = TRUE;
-            dam = 0;
-            break;
-        }
-        if (race->flags3 & RF3_GOOD)
+        if (mon_is_good(mon))
         {
             if (seen) obvious = TRUE;
-            mon_lore_3(mon, RF3_GOOD);
+            mon_lore_align(mon);
             note = " shudders.";
             note_dies = " dissolves!";
         }
@@ -3386,15 +3155,10 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         }
         break;
     case GF_DISP_LIVING:
-        if (race->flagsr & RFR_RES_ALL)
-        {
-            skipped = TRUE;
-            dam = 0;
-            break;
-        }
-        if (monster_living(race))
+        if (mon_is_living(mon))
         {
             if (seen) obvious = TRUE;
+            mon_lore_living(mon);
             note = " shudders.";
             note_dies = " dissolves!";
         }
@@ -3405,16 +3169,10 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         }
         break;
     case GF_DISP_DEMON:
-        if (race->flagsr & RFR_RES_ALL)
-        {
-            skipped = TRUE;
-            dam = 0;
-            break;
-        }
-        if (race->flags3 & (RF3_DEMON))
+        if (mon_is_demon(mon))
         {
             if (seen) obvious = TRUE;
-            mon_lore_3(mon, RF3_DEMON);
+            mon_lore_demon(mon);
             note = " shudders.";
             note_dies = " dissolves!";
         }
@@ -3425,22 +3183,16 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         }
         break;
     case GF_DISP_ALL:
-        if (race->flagsr & RFR_RES_ALL)
-        {
-            skipped = TRUE;
-            dam = 0;
-            break;
-        }
         if (seen) obvious = TRUE;
         note = " shudders.";
         note_dies = " dissolves!";
         break;
     case GF_DRAINING_TOUCH:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
+
         if (mon_is_magical(mon))
         {
-            if (who == GF_WHO_PLAYER && sp_player(dam))
+            if (who_is_plr(who) && sp_player(dam))
             {
                 if (seen_msg) msg_format("You draw psychic energy from %s.", m_name_object);
             }
@@ -3453,21 +3205,21 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         break;
     case GF_DRAIN_MANA:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
+
         if (mon_is_magical(mon))
         {
-            if (who > 0)
+            if (caster_ptr)
             {
                 if (caster_ptr->hp < caster_ptr->maxhp)
                 {
                     caster_ptr->hp += 6 * dam;
                     if (caster_ptr->hp > caster_ptr->maxhp) caster_ptr->hp = caster_ptr->maxhp;
-                    check_mon_health_redraw(who);
+                    check_mon_health_redraw(caster_ptr);
                     monster_desc(killer, caster_ptr, 0);
                     if (seen_msg) msg_format("%^s appears healthier.", killer);
                 }
             }
-            else if (who == GF_WHO_PLAYER && p_ptr->chp < p_ptr->mhp)
+            else if (who_is_plr(who) && plr->chp < plr->mhp)
             {
                 msg_format("You draw psychic energy from %s.", m_name_object);
                 hp_player(dam);
@@ -3479,27 +3231,27 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
     case GF_ANTIMAGIC: { /* Formerly restricted to rage-mage. But now, mon vs mon */
         bool save = FALSE;/* and the possessor can use the ANTIMAGIC monster spell */
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()            /*v---Possessor uses monster level (dam) for the save */
-        if (who == GF_WHO_PLAYER && !mon_spell_current())
+                                  /*v---Possessor uses monster level (dam) for the save */
+        if (who_is_plr(who) && !mon_spell_current())
         {
             int stat = A_CHR;
             int rolls = 1, made = 0;
             int i;
-            if (p_ptr->pclass == CLASS_RAGE_MAGE)
+            if (plr->pclass == CLASS_RAGE_MAGE)
             {
                 stat = A_STR;
                 if (plr_tim_find(T_BERSERK)) rolls++;
             }
             for (i = 0; i < rolls; i++)
             {
-                if (mon_save_p(mon->r_idx, stat))
+                if (mon_save_p(mon, stat))
                     made++;
             }
             save = (made == rolls);
         }
         else
         {
-            save = mon_save_aux(mon->r_idx, dam);
+            save = mon_save_aux(mon, dam);
         }
         if (save)
         {
@@ -3519,21 +3271,21 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         break; }
     case GF_PSI_BRAIN_SMASH: /* dam is the power of the effect (1-5) */
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flags2 & RF2_EMPTY_MIND)
+
+        if (mon_has_empty_mind(mon))
         {
-            mon_lore_2(mon, RF2_EMPTY_MIND);
+            mon_lore_empty_mind(mon);
             if (!quiet) note = " is immune!";
             dam = 0;
         }
-        else if (psion_mon_save_p(mon->r_idx, dam))
+        else if (psion_mon_save_p(mon->race->id, dam))
         {
             if (!quiet) note = " resists!";
             dam = 0;
         }
-        else if (race->flags2 & RF2_WEIRD_MIND)
+        else if (mon_has_weird_mind(mon))
         {
-            mon_lore_2(mon, RF2_WEIRD_MIND);
+            mon_lore_weird_mind(mon);
             if (!quiet) note = " resists somewhat.";
             dam /= 2;
             if (dam == 0) dam = 1;
@@ -3541,37 +3293,31 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         if (dam)
         {
             note = " is blasted by psionic energy.";
-            if (race->flags3 & RF3_NO_CONF)
-                mon_lore_3(mon, RF3_NO_CONF);
-            else
-                do_conf = 2*dam;
-            if (race->flags3 & RF3_NO_STUN)
-                mon_lore_3(mon, RF3_NO_STUN);
-            else
-                do_stun = 2*dam;
+            do_conf = 2*dam;
+            do_stun = 2*dam;
             if (dam) mon_tim_add(mon, T_SLOW, 2*dam);
             dam = 0;
         }
         break;
     case GF_MIND_BLAST:
         if (seen) obvious = TRUE;
-        if (who == GF_WHO_PLAYER) msg_format("You gaze intently at %s.", m_name_object);
-        _BABBLE_HACK()
-        if ( mon_save_smash(race->level, dam)
-          || ((race->flags1 & RF1_UNIQUE) && mon_save_smash(race->level+15, dam)) )
+        if (who_is_plr(who)) msg_format("You gaze intently at %s.", m_name_object);
+
+        if ( mon_save_smash(race->alloc.lvl, dam)
+          || (mon_race_is_unique(race) && mon_save_smash(race->alloc.lvl+15, dam)) )
         {
             if (!quiet) note = " is unaffected!";
             dam = 0;
         }
-        else if (race->flags2 & RF2_EMPTY_MIND)
+        else if (mon_has_empty_mind(mon))
         {
-            mon_lore_2(mon, RF2_EMPTY_MIND);
+            mon_lore_empty_mind(mon);
             if (!quiet) note = " is immune!";
             dam = 0;
         }
-        else if (race->flags2 & RF2_WEIRD_MIND)
+        else if (mon_has_weird_mind(mon))
         {
-            mon_lore_2(mon, RF2_WEIRD_MIND);
+            mon_lore_weird_mind(mon);
             if (!quiet) note = " resists.";
             dam /= 3;
         }
@@ -3580,35 +3326,29 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
             note = " is blasted by psionic energy.";
             note_dies = " collapses, a mindless husk.";
 
-            if (who > 0) do_conf = randint0(4) + 4;
+            if (caster_ptr) do_conf = randint0(4) + 4;
             else do_conf = randint0(8) + 8;
-            if (race->flags3 & RF3_NO_CONF)
-            {
-                do_conf = 0;
-                if (race->flags3 & (RF3_NO_CONF))
-                    mon_lore_3(mon, RF3_NO_CONF);
-            }
         }
         break;
     case GF_BRAIN_SMASH:
         if (seen) obvious = TRUE;
-        if (who == GF_WHO_PLAYER) msg_format("You gaze intently at %s.", m_name_object);
-        _BABBLE_HACK()
-        if ( mon_save_smash(race->level, dam)
-          || ((race->flags1 & RF1_UNIQUE) && mon_save_smash(race->level+15, dam)) )
+        if (who_is_plr(who)) msg_format("You gaze intently at %s.", m_name_object);
+
+        if ( mon_save_smash(race->alloc.lvl, dam)
+          || (mon_race_is_unique(race) && mon_save_smash(race->alloc.lvl+15, dam)) )
         {
             if (!quiet) note = " is unaffected!";
             dam = 0;
         }
-        else if (race->flags2 & RF2_EMPTY_MIND)
+        else if (mon_has_empty_mind(mon))
         {
-            mon_lore_2(mon, RF2_EMPTY_MIND);
+            mon_lore_empty_mind(mon);
             if (!quiet) note = " is immune!";
             dam = 0;
         }
-        else if (race->flags2 & RF2_WEIRD_MIND)
+        else if (mon_has_weird_mind(mon))
         {
-            mon_lore_2(mon, RF2_WEIRD_MIND);
+            mon_lore_weird_mind(mon);
             if (!quiet) note = " resists.";
             dam /= 3;
         }
@@ -3617,7 +3357,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
             note = " is blasted by psionic energy.";
             note_dies = " collapses, a mindless husk.";
 
-            if (who > 0)
+            if (caster_ptr)
             {
                 do_conf = randint0(4) + 4;
                 do_stun = randint0(4) + 4;
@@ -3627,22 +3367,15 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                 do_conf = randint0(8) + 8;
                 do_stun = randint0(8) + 8;
             }
-            if (!(race->flags1 & RF1_UNIQUE) || !mon_save_smash(race->level+15, dam))
+            if (!mon_race_is_unique(race) || !mon_save_smash(race->alloc.lvl+15, dam))
                 mon_tim_add(mon, T_SLOW, 10);
-
-            if (race->flags3 & RF3_NO_CONF)
-            {
-                do_conf = 0;
-                if (race->flags3 & (RF3_NO_CONF))
-                    mon_lore_3(mon, RF3_NO_CONF);
-            }
         }
         break;
     case GF_CAUSE_1:
         if (seen) obvious = TRUE;
-        if (!who) msg_format("You %s at %s and curse.", prace_is_(RACE_MON_BEHOLDER) ? "gaze" : "point", m_name);
-        _BABBLE_HACK()
-        if (randint0(100 + (caster_lev / 2)) < (race->level + 35))
+        if (who_is_plr(who)) msg_format("You %s at %s and curse.", prace_is_(RACE_MON_BEHOLDER) ? "gaze" : "point", m_name);
+
+        if (randint0(100 + (caster_lev / 2)) < (race->alloc.lvl + 35))
         {
             if (!quiet) note = " is unaffected!";
             dam = 0;
@@ -3650,9 +3383,9 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         break;
     case GF_CAUSE_2:
         if (seen) obvious = TRUE;
-        if (!who) msg_format("You %s at %s and curse horribly.", prace_is_(RACE_MON_BEHOLDER) ? "gaze" : "point", m_name);
-        _BABBLE_HACK()
-        if (randint0(100 + (caster_lev / 2)) < (race->level + 35))
+        if (who_is_plr(who)) msg_format("You %s at %s and curse horribly.", prace_is_(RACE_MON_BEHOLDER) ? "gaze" : "point", m_name);
+
+        if (randint0(100 + (caster_lev / 2)) < (race->alloc.lvl + 35))
         {
             if (!quiet) note = " is unaffected!";
             dam = 0;
@@ -3660,9 +3393,9 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         break;
     case GF_CAUSE_3:
         if (seen) obvious = TRUE;
-        if (!who) msg_format("You point at %s, incanting terribly!", m_name);
-        _BABBLE_HACK()
-        if (randint0(100 + (caster_lev / 2)) < (race->level + 35))
+        if (who_is_plr(who)) msg_format("You point at %s, incanting terribly!", m_name);
+
+        if (randint0(100 + (caster_lev / 2)) < (race->alloc.lvl + 35))
         {
             if (!quiet) note = " is unaffected!";
             dam = 0;
@@ -3671,16 +3404,16 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
     case GF_CAUSE_4: {
         bool save = FALSE;
         if (seen) obvious = TRUE;
-        if (!who) msg_format("You %s at %s and scream the word, 'DIE!'.", prace_is_(RACE_MON_BEHOLDER) ? "gaze" : "point", m_name);
-        _BABBLE_HACK()
-        if (who == GF_WHO_PLAYER)
+        if (who_is_plr(who)) msg_format("You %s at %s and scream the word, 'DIE!'.", prace_is_(RACE_MON_BEHOLDER) ? "gaze" : "point", m_name);
+
+        if (who_is_plr(who))
         {
-            save = p_ptr->current_r_idx != MON_KENSHIROU && mon_save_p(mon->r_idx, A_WIS);
+            save = !plr_mon_race_is_("p.Kenshirou") && mon_save_p(mon, A_WIS);
         }
         else
         {
-            save = ((randint0(100 + (caster_lev / 2)) < (race->level + 35))
-                && ((who <= 0) || (caster_ptr->r_idx != MON_KENSHIROU)));
+            save = randint0(100 + caster_lev / 2) < race->alloc.lvl + 35
+                && (!caster_ptr || !mon_race_is_(caster_ptr->race, "p.Kenshirou"));
         }
         if (save)
         {
@@ -3690,15 +3423,15 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         break; }
     case GF_HAND_DOOM:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flags1 & RF1_UNIQUE)
+
+        if (mon_race_is_unique(race))
         {
             if (!quiet) note = " is unaffected!";
             dam = 0;
         }
         else
         {
-            if (randint1(dam) >= race->level + randint1(20))
+            if (randint1(dam) >= race->alloc.lvl + randint1(20))
             {
                 dam = ((40 + randint1(20)) * mon->hp) / 100;
                 if (mon->hp < dam) dam = mon->hp - 1;
@@ -3712,28 +3445,28 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         break;
     case GF_CAPTURE: {
         int nokori_hp;
-        if (!quests_allow_all_spells() && !is_pet(mon))
+        if (!quests_allow_all_spells() && !mon_is_pet(mon))
         {
             msg_format("%^s is unaffected.", m_name);
             skipped = TRUE;
             break;
         }
-        if ( (race->flags1 & RF1_UNIQUE)
-          || (race->flags7 & RF7_NAZGUL)
-          || (race->flags7 & RF7_UNIQUE2)
+        if ( mon_race_is_unique(race)
+          || mon_race_is_nazgul(race)
           || (mon->mflag2 & MFLAG2_QUESTOR)
-          || mon->parent_m_idx )
+          || (mon->mflag2 & MFLAG2_ILLUSION)
+          || mon->parent_id )
         {
             msg_format("%^s is unaffected.", m_name);
             skipped = TRUE;
             break;
         }
-        if (is_pet(mon)) nokori_hp = mon->maxhp * 4;
-        else if ((p_ptr->pclass == CLASS_BEASTMASTER) && monster_living(race))
+        if (mon_is_pet(mon)) nokori_hp = mon->maxhp * 4;
+        else if ((plr->pclass == CLASS_BEASTMASTER) && mon_is_living(mon))
             nokori_hp = mon->maxhp * 3 / 10;
-        else if (p_ptr->easy_capture)
+        else if (plr->easy_capture)
             nokori_hp = mon->maxhp * 3 / 10;
-        else if (warlock_is_(WARLOCK_DRAGONS) && (race->flags3 & RF3_DRAGON))
+        else if (warlock_is_(WARLOCK_DRAGONS) && mon_is_dragon(mon))
             nokori_hp = mon->maxhp * 3 / 15;
         else
             nokori_hp = mon->maxhp * 3 / 20;
@@ -3745,16 +3478,17 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         }
         else if (mon->hp < randint0(nokori_hp))
         {
-            if (mon->mflag2 & MFLAG2_CHAMELEON) choose_new_monster(mon, FALSE, MON_CHAMELEON);
+            if (mon->mflag2 & MFLAG2_CHAMELEON)
+                choose_new_monster(mon, FALSE, mon_race_parse("R.chameleon"));
             msg_format("You capture %^s!", m_name);
             quests_on_kill_mon(mon);
             mon_tim_clear(mon); /* undo T_FAST et. al. before "capturing" mspeed */
-            cap_mon = mon->r_idx;
+            cap_mon = mon->race->id;
             cap_mspeed = mon->mspeed;
             cap_hp = mon->hp;
             cap_maxhp = mon->max_maxhp;
             cap_nickname = mon->nickname;
-            if (mon->id == p_ptr->riding)
+            if (mon->id == plr->riding)
             {
                 if (rakuba(-1, FALSE))
                 {
@@ -3771,9 +3505,9 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         }
         break; }
     case GF_ATTACK:
-        if (who > 0)
+        if (caster_ptr)
             return mon_attack(caster_ptr, mon->pos);
-        else if (who == GF_WHO_PLAYER)
+        else if (who_is_plr(who))
         {
             plr_attack_t context = {0};
             context.mode = dam;
@@ -3785,13 +3519,13 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         bool done = TRUE;
 
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (race->flags2 & RF2_EMPTY_MIND)
+
+        if (mon_has_empty_mind(mon))
         {
+            mon_lore_empty_mind(mon);
             note = " is immune!";
             dam = 0;
             skipped = TRUE;
-            mon_lore_2(mon, RF2_EMPTY_MIND);
             break;
         }
         if (mon_tim_find(mon, MT_SLEEP))
@@ -3810,8 +3544,8 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         if (effect == 1)
         {
             /* Powerful monsters can resist */
-            if ((race->flags1 & RF1_UNIQUE) ||
-                (race->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+            if (mon_race_is_unique(race) ||
+                (race->alloc.lvl > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
             {
                 note = " is unaffected!";
 
@@ -3824,11 +3558,11 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
 
         else if (effect == 2)
         {
-            do_stun = damroll((p_ptr->lev / 10) + 3 , (dam)) + 1;
+            do_stun = damroll((plr->lev / 10) + 3 , (dam)) + 1;
 
             /* Attempt a saving throw */
-            if ((race->flags1 & (RF1_UNIQUE)) ||
-                (race->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+            if (mon_race_is_unique(race) ||
+                (race->alloc.lvl > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
             {
                 /* Resist */
                 do_stun = 0;
@@ -3842,26 +3576,25 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
 
         else if (effect == 3)
         {
-            /* Attempt a saving throw */
-            if ((race->flags1 & RF1_UNIQUE) ||
-                (race->flags3 & RF3_NO_SLEEP) ||
-                (race->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+            if (mon_race_is_unique(race))
             {
-                /* Memorize a flag */
-                if (race->flags3 & RF3_NO_SLEEP)
-                {
-                    mon_lore_3(mon, RF3_NO_SLEEP);
-                }
-
-                /* No obvious effect */
-                note = " is unaffected!";
-
+                note = " is immune!";
+                obvious = FALSE;
+            }
+            else if (_1d(100) < mon_res_pct(mon, GF_SLEEP))
+            {
+                mon_lore_resist(mon, GF_SLEEP);
+                note = " resists!";
+                obvious = FALSE;
+            }
+            else if (race->alloc.lvl > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10)
+            {
+                note = " resists!";
                 obvious = FALSE;
             }
             else
             {
-                /* Go to sleep (much) later */
-                note = " falls asleep!";
+                note = " is paralyzed!";
                 do_paralyzed = 5;
             }
         }
@@ -3875,7 +3608,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
     case GF_ENTOMB: {
         int dir;
 
-        if (is_pet(mon) || is_friendly(mon))
+        if (mon_is_pet(mon) || mon_is_friendly(mon))
         {
             msg_print("Failed!");
             return FALSE;
@@ -3885,25 +3618,22 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         {
             point_t p = point_step(mon->pos, ddd[dir]);
 
-            if (!cave_naked_at(p)) continue;
-            if (p_ptr->lev < 45)
-                cave_set_feat(p.y, p.x, feat_rubble);
+            if (!dun_naked_at(cave, p)) continue;
+            if (plr->lev < 45)
+                dun_place_rubble(cave, p);
             else
-                cave_set_feat(p.y, p.x, feat_granite);
+                dun_place_granite(cave, p);
         }
+        plr->update |= PU_FLOW; /* XXX no PU_MON_FLOW ... let hunters continue to seek */
+        plr->redraw |= PR_MAP;
         return TRUE; }
     case GF_GENOCIDE:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
-        if (genocide_aux(mon, dam, !who, (race->level + 1) / 2, "Genocide One"))
+
+        if (genocide_aux(mon, dam, who_is_plr(who), (race->alloc.lvl + 1) / 2, "Genocide One"))
         {
             if (seen_msg)
-            {
-                if (dam == 666) /* Hack for Daemon flavored message */
-                    msg_format("%^s is sent directly to hell!", m_name);
-                else
-                    msg_format("%^s disappeared!", m_name);
-            }
+                msg_format("%^s disappeared!", m_name);
 
             virtue_add(VIRTUE_VITALITY, -1);
             return TRUE;
@@ -3912,19 +3642,18 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         break;
     case GF_BLOOD_CURSE:
         if (seen) obvious = TRUE;
-        _BABBLE_HACK()
+
         break;
     case GF_CRUSADE: {
         bool success = FALSE;
         if (seen) obvious = TRUE;
 
-        if (race->flags3 & RF3_GOOD)
+        if (mon_is_good(mon))
         {
-            if (race->flags3 & (RF3_NO_CONF)) dam -= 50;
             if (dam < 1) dam = 1;
 
             /* No need to tame your pet */
-            if (is_pet(mon))
+            if (mon_is_pet(mon))
             {
                 mon_tim_add(mon, T_FAST, 100);
                 success = TRUE;
@@ -3932,10 +3661,10 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
 
             /* Attempt a saving throw */
             else if ((mon->mflag2 & MFLAG2_QUESTOR) ||
-                (race->flags1 & (RF1_UNIQUE)) ||
+                mon_race_is_unique(race) ||
                 (mon->mflag2 & MFLAG2_NOPET) ||
-                (p_ptr->cursed & OFC_AGGRAVATE) ||
-                 ((race->level+10) > randint1(dam)))
+                (plr->cursed & OFC_AGGRAVATE) ||
+                 ((race->alloc.lvl+10) > randint1(dam)))
             {
                 /* Resist */
                 if (one_in_(4)) mon->mflag2 |= MFLAG2_NOPET;
@@ -3945,21 +3674,14 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                 note = " is tamed!";
                 set_pet(mon);
                 mon_tim_add(mon, T_FAST, 100);
-                mon_lore_3(mon, RF3_GOOD);
+                mon_lore_align(mon);
                 success = TRUE;
             }
         }
 
         if (!success)
         {
-            if (!(race->flags3 & RF3_NO_FEAR))
-            {
-                do_fear = randint1(90)+10;
-            }
-            else
-            {
-                mon_lore_3(mon, RF3_NO_FEAR);
-            }
+            do_fear = randint1(90)+10;
         }
         dam = 0;
         break; }
@@ -3972,34 +3694,34 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
     if (skipped) return (FALSE);
 
     /* "Unique" monsters cannot be polymorphed */
-    if (race->flags1 & (RF1_UNIQUE)) do_poly = 0;
+    if (mon_race_is_unique(race)) do_poly = 0;
 
     /* Quest monsters cannot be polymorphed */
     if (mon->mflag2 & MFLAG2_QUESTOR) do_poly = 0;
 
-    if (p_ptr->riding && (mon->id == p_ptr->riding)) do_poly = 0;
+    if (plr->riding && (mon->id == plr->riding)) do_poly = 0;
 
     /* "Unique" and "quest" monsters can only be "killed" by the player. */
-    if (((race->flags1 & RF1_UNIQUE) || (race->flags7 & RF7_NAZGUL) || (mon->mflag2 & MFLAG2_QUESTOR))
+    if ((mon_race_is_unique(race) || mon_race_is_nazgul(race) || (mon->mflag2 & MFLAG2_QUESTOR))
       && !prace_is_(RACE_MON_QUYLTHULG))
     {
-        if (who && (dam > mon->hp)) dam = mon->hp;
+        if (!who_is_plr(who) && (dam > mon->hp)) dam = mon->hp;
     }
 
-    if (!who && slept)
+    if (who_is_plr(who) && slept)
     {
-        if (!(race->flags3 & RF3_EVIL) || one_in_(5)) virtue_add(VIRTUE_COMPASSION, -1);
-        if (!(race->flags3 & RF3_EVIL) || one_in_(5)) virtue_add(VIRTUE_HONOUR, -1);
+        if (!mon_is_evil(mon) || one_in_(5)) virtue_add(VIRTUE_COMPASSION, -1);
+        if (!mon_is_evil(mon) || one_in_(5)) virtue_add(VIRTUE_HONOUR, -1);
     }
 
     /* Modify the damage */
     tmp = dam;
     if (dam)
     {
-        if (who > 0)
-            dam = mon_damage_mod_mon(mon, dam, type == GF_PSY_SPEAR);
+        if (who_is_plr(who))
+            dam = mon_damage_mod(mon, dam, gf == GF_PSY_SPEAR);
         else
-            dam = mon_damage_mod(mon, dam, type == GF_PSY_SPEAR);
+            dam = mon_damage_mod_mon(mon, dam, gf == GF_PSY_SPEAR);
     }
     if (tmp > 0 && dam == 0)
         note = " is unharmed.";
@@ -4012,22 +3734,45 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
     }
     else
     {
-        /* Sound and Impact resisters never stun
-         * XXX Why should RES_SOUND protect from mental attacks?! */
-        if ( do_stun
-          && (_is_mental_attack(type) || !(race->flagsr & (RFR_RES_SOUN | RFR_RES_WALL)))
-          && !(race->flags3 & RF3_NO_STUN) )
+        if (do_stun)
         {
-            mon_stun(mon, do_stun);
-            if (seen) obvious = TRUE;
-            get_angry = TRUE;
+            if (_1d(100) <= mon_res_pct(mon, GF_STUN))
+            {
+                mon_lore_resist(mon, GF_STUN);
+            }
+            else
+            {
+                mon_stun(mon, do_stun);
+                if (seen) obvious = TRUE;
+                get_angry = TRUE;
+            }
         }
 
-        if (do_conf && (type == GF_ELDRITCH_CONFUSE || !(race->flags3 & RF3_NO_CONF)))
+        if (do_blind)
         {
-            if (seen) obvious = TRUE;
-            mon_tim_add(mon, T_CONFUSED, do_conf);
-            get_angry = TRUE;
+            if (_1d(100) <= mon_res_pct(mon, GF_BLIND))
+            {
+                mon_lore_resist(mon, GF_BLIND);
+            }
+            else
+            {
+                if (seen) obvious = TRUE;
+                mon_tim_add(mon, T_BLIND, do_blind);
+                get_angry = TRUE;
+            }
+        }
+        if (do_conf)
+        {
+            if (gf != GF_ELDRITCH_CONFUSE && mon_res_pct(mon, GF_CONFUSION) > 0)
+            { /* XXX note the lack of resistance roll! */
+                mon_lore_resist(mon, GF_CONFUSION);
+            }
+            else
+            {
+                if (seen) obvious = TRUE;
+                mon_tim_add(mon, T_CONFUSED, do_conf);
+                get_angry = TRUE;
+            }
         }
 
         if (do_time)
@@ -4048,12 +3793,12 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         }
 
         /* Mega-Hack -- Handle "polymorph" -- monsters get a saving throw */
-        if (do_poly && !mon_save_poly(race->level, do_poly))
+        if (do_poly && !mon_save_poly(race->alloc.lvl, do_poly))
         {
             if (polymorph_monster(mon))
             {
                 if (seen) obvious = TRUE;
-                race = mon_race(mon);
+                race = mon->race;
             }
             else
             {
@@ -4064,45 +3809,64 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         /* Teleport */
         if (do_dist)
         {
+            dun_grid_ptr g = dun_grid_at(cave, mon->pos);
             if ((mon->mflag2 & MFLAG2_VAULT) && !one_in_(3))
             {
                 note = " resists!";
             }
-            else if (mon->smart & (1U << SM_GUARDIAN))
+            else if (g->flags & CELL_VAULT)
             {
-                note = " is unaffected!";
+                note = " is held in place by a mysterious force!";
+            }
+            else if (_1d(100) <= mon_res_pct(mon, GF_TELEPORT))
+            {
+                note = " resists!";
+                mon_lore_resist(mon, GF_TELEPORT);
             }
             else
             {
                 if (seen) obvious = TRUE;
                 note = " disappears!";
-                teleport_away(mon->id, do_dist,
-                            (!who ? TELEPORT_DEC_VALOUR : 0L) | TELEPORT_PASSIVE);
+                teleport_away(mon, do_dist,
+                            (who_is_plr(who) ? TELEPORT_DEC_VALOUR : 0L) | TELEPORT_PASSIVE);
                 where = mon->pos;
             }
         }
 
         /* Fear */
-        if (do_fear && !mon_tim_find(mon, T_BERSERK))
+        if (do_fear)
         {
-            mon_tim_add(mon, T_FEAR, do_fear);
-            if ((flags & GF_AFFECT_ATTACK) && plr_attack_current()) /* beholder */
-                plr_attack_current()->fear = TRUE;
-            get_angry = TRUE;
+            if (mon_tim_find(mon, T_BERSERK))
+            {
+                note = " is immune!";
+            }
+            else if (_1d(100) <= mon_res_pct(mon, GF_FEAR))
+            {
+                note = " resists!";
+                mon_lore_resist(mon, GF_FEAR);
+            }
+            else
+            {
+                mon_tim_add(mon, T_FEAR, do_fear);
+                if ((flags & GF_AFFECT_ATTACK) && plr_attack_current()) /* beholder */
+                    plr_attack_current()->fear = TRUE;
+                get_angry = TRUE;
+            }
         }
     }
 
-    if (type == GF_DRAIN_MANA)
+    if (gf == GF_DRAIN_MANA)
     {
         /* Drain mana does nothing */
     }
     /* If another monster did the damage, hurt the monster by hand */
-    else if (who)
+    else if (!who_is_plr(who))
     {
-        check_mon_health_redraw(mon->id);
+        check_mon_health_redraw(mon);
         mon_tim_delete(mon, MT_SLEEP);
 
         /* Hurt the monster */
+        mon->project_dam += MIN(dam, mon->hp);
         mon->hp -= dam;
 
         /* Dead monster */
@@ -4110,8 +3874,11 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         {
             bool sad = FALSE;
 
-            if (is_pet(mon) && !(mon->ml))
+            if (mon_is_pet(mon) && !(mon->ml))
                 sad = TRUE;
+
+            if (mon->mflag2 & MFLAG2_ILLUSION)
+                note = " is dispelled.";
 
             /* Give detailed messages if destroyed */
             if (known && note && seen_msg)
@@ -4120,12 +3887,13 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                 msg_format("%^s%s", m_name, note);
             }
 
-            if (who > 0) monster_gain_exp(who, mon->r_idx);
+            if (caster_ptr)
+                monster_gain_exp(caster_ptr, mon->race);
 
-            mon_check_kill_unique(mon->id);
+            mon_check_kill_unique(mon);
 
             /* Generate treasure, etc */
-            monster_death(mon, who_is_pet || p_ptr->spell_turned);
+            monster_death(mon, who_is_pet || plr->spell_turned);
 
             /* Delete the monster */
             delete_monster(mon);
@@ -4164,7 +3932,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
 
         /* Hacks  ... these effects probably belong in the gargantuan switch statement above ... sigh */
         /* Hack: The Draining Blast power gives hitpoints back. */
-        if (type == GF_ELDRITCH_DRAIN && monster_living(race))
+        if (gf == GF_ELDRITCH_DRAIN && mon_is_living(mon))
         {
             int heal = dam;
             if (heal > mon->hp)
@@ -4176,10 +3944,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         /* Hack for device lore: Keep track of max damage experienced by any single
          * monster for this effect. */
         if (dam)
-        {
-            int lore_dam = MIN(dam, mon->hp);
-            hack_max_m_dam = MAX(hack_max_m_dam, lore_dam);
-        }
+            mon->project_dam += MIN(dam, mon->hp);
 
         /* Player innate blows often gf_affect_m for effects. Keep the total damage up to
          * date, but be prepared for weirdness like Splatter that might affect other monsters. */
@@ -4187,11 +3952,11 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
             plr_attack_current()->dam_total += dam;
 
         /* Hurt the monster, check for fear and death
-              v---- Revert 525c2ace: Warlocks: Playtesting Dragon Pact. Massive problems with project()
+              v---- Revert 525c2ace: Warlocks: Playtesting Dragon Pact. Massive problems with project
                     The problem here is that many attacks, like Slow Monster, do no physical damage, but
                     rely on mon_take_hit to do other things, like wake up sleeping monsters (or reveal
                     player ring mimics). This code needs refactoring ...*/
-        if (/*dam &&*/ mon_take_hit(mon->id, dam, &fear, note_dies))
+        if (/*dam &&*/ mon_take_hit(mon, dam, &fear, note_dies))
         {
             /* Dead monster */
         }
@@ -4207,7 +3972,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
 
             /* HACK - tick off smart monsters whenever damaged by the player
                from a distance. */
-            if ( who == GF_WHO_PLAYER
+            if ( who_is_plr(who)
               && dam > 0     /* v---- Too easy for spellcasters otherwise! */
               && (mon->cdis > 1 || (cave->flags & DF_NO_MELEE)) )
             {
@@ -4225,38 +3990,35 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                        they will actually pursue the player (cf get_moves in melee2.c) */
                     if (splashed && mon->cdis > MAX_RANGE)
                     {
-                        pack_info_t *pack_ptr = pack_info_ptr(mon->id);
-                        if (pack_ptr && pack_ptr->ai == AI_GUARD_POS)
+                        if (mon->pack && mon->pack->ai == AI_GUARD_POS)
                             mon->anger = 100;
                         else
                             mon_anger(mon);
                     }
                 }
                 /* Splashing Uniques out of LOS makes them rethink their approach */
-                if (splashed && (race->flags1 & RF1_UNIQUE))
+                if (splashed && mon_race_is_unique(race))
                 {
-                    pack_info_t *pack_ptr = pack_info_ptr(mon->id);
-
-                    if (pack_ptr)
+                    if (mon->pack)
                     {
                         int odds = MAX(1, 7 - mon->anger/10);
 
                         if (!allow_ticked_off(race)) /* Paranoia ... These should already be seeking! */
                             odds = 1;
 
-                        switch (pack_ptr->ai)
+                        switch (mon->pack->ai)
                         {
                         case AI_MAINTAIN_DISTANCE:
                             if (one_in_(odds))
-                                pack_ptr->ai = AI_SEEK;
+                                mon->pack->ai = AI_SEEK;
                             else
-                                pack_ptr->distance += 2;
+                                mon->pack->distance += 2;
                             break;
 
                         case AI_SHOOT:
                         case AI_LURE:
                             if (one_in_(odds))
-                                pack_ptr->ai = AI_SEEK;
+                                mon->pack->ai = AI_SEEK;
                             break;
                         }
                     }
@@ -4297,9 +4059,8 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         }
     }
 
-    if ((type == GF_BLOOD_CURSE) && one_in_(4))
+    if (gf == GF_BLOOD_CURSE && mon_is_valid(mon) && one_in_(4))
     {
-        int curse_flg = (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP);
         int count = 0;
         do
         {
@@ -4310,16 +4071,14 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                 {
                     msg_print("The ground trembles...");
 
-                    earthquake(point_create(tx, ty), 4 + randint0(4));
+                    earthquake(mon->pos, 3 + _1d(4));
                     if (!one_in_(6)) break;
                 }
             case 3: case 4: case 5: case 6: case 7: case 8:
                 if (!count)
                 {
-                    int dam = damroll(10, 10);
                     msg_print("A portal opens to a plane of raw mana!");
-
-                    project(0, 8, ty,tx, dam, GF_MANA, curse_flg);
+                    plr_ball_direct(8, mon->pos, GF_MANA, _10d(10));
                     if (!one_in_(6)) break;
                 }
             case 9: case 10: case 11:
@@ -4327,38 +4086,38 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                 {
                     msg_print("Space warps about it!");
 
-                    if (mon->r_idx) teleport_away(mon->id, damroll(10, 10), TELEPORT_PASSIVE);
-                    if (one_in_(13)) count += activate_hi_summon(ty, tx, TRUE);
+                    if (mon->race->id) teleport_away(mon, damroll(10, 10), TELEPORT_PASSIVE);
+                    if (one_in_(13)) count += activate_hi_summon(point_create(tx, ty), TRUE);
                     if (!one_in_(6)) break;
                 }
             case 12: case 13: case 14: case 15: case 16:
                 msg_print("It feels a surge of energy!");
-
-                project(0, 7, ty, tx, 50, GF_DISINTEGRATE, curse_flg);
+                plr_ball_direct(7, mon->pos, GF_DISINTEGRATE, 50);
                 if (!one_in_(6)) break;
             case 17: case 18: case 19:
-                aggravate_monsters(0);
+                aggravate_monsters(who_create_null());
                 if (!one_in_(6)) break;
             case 20: case 21:
-                count += activate_hi_summon(ty, tx, TRUE);
+                count += activate_hi_summon(point_create(tx, ty), TRUE);
                 if (!one_in_(6)) break;
             case 22: case 23: case 24: case 25: case 26:
             {
                 bool pet = !one_in_(3);
+                who_t  who = pet ? who_create_plr() : who_create_null();
                 u32b mode = PM_ALLOW_GROUP;
 
                 if (pet) mode |= PM_FORCE_PET;
                 else mode |= (PM_NO_PET | PM_FORCE_FRIENDLY);
 
-                count += summon_specific((pet ? -1 : 0), p_ptr->pos, (pet ? p_ptr->lev*2/3+randint1(p_ptr->lev/2) : cave->dun_lvl), 0, mode);
+                count += summon_specific(who, plr->pos, (pet ? plr->lev*2/3+randint1(plr->lev/2) : cave->dun_lvl), 0, mode);
                 if (!one_in_(6)) break;
             }
             case 27:
-                if (p_ptr->hold_life && (randint0(100) < 75)) break;
+                if (plr->hold_life && (randint0(100) < 75)) break;
                 msg_print("You feel your life draining away...");
 
-                if (p_ptr->hold_life) lose_exp(p_ptr->exp / 160);
-                else lose_exp(p_ptr->exp / 16);
+                if (plr->hold_life) lose_exp(plr->exp / 160);
+                else lose_exp(plr->exp / 16);
                 if (!one_in_(6)) break;
             case 28:
             {
@@ -4390,43 +4149,293 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
     /* XXX XXX XXX Verify this code */
 
     /* Update the monster */
-    if (mon->r_idx) update_mon(mon, FALSE);
+    if (mon_is_valid(mon)) update_mon(mon, FALSE);
 
     /* Redraw the monster grid */
-    lite_pos(where);
-
+    draw_pos(where);
 
     /* Update monster recall window */
-    if (p_ptr->monster_race_idx == mon->r_idx && (seen || mon_is_dead(mon)))
+    if (plr->monster_race_idx == mon->race->id && (seen || mon_is_dead(mon)))
     {
         /* Window stuff */
-        p_ptr->window |= (PW_MONSTER);
+        plr->window |= (PW_MONSTER);
     }
 
-    if ((dam > 0) && !is_pet(mon) && !is_friendly(mon))
+    /* Update monster target: Spells only. For melee, cf plr_attack_end and
+     * mon_attack_end. Auras and traps should never alter the target.
+     * XXX Not every spell does damage ... */
+    if (dam > 0 && mon_is_valid(mon) && (flags & GF_AFFECT_SPELL))
     {
-        if (who == GF_WHO_PLAYER)
+        if (who_is_plr(who))
         {
-            assert(GF_WHO_PLAYER == PROJECT_WHO_PLAYER);
-            /* FYI: monster_target_* is generally the player, but
-             * it gets changed for various mirror master effects. I
-             * suppose this is a subtle touch to confuse monsters
-             * but I never noticed this when I played one ... */
-            set_target(mon, monster_target);
+            /* FYI: monster_target is a hack for the mirror-master, and
+             * it is only used via project. This allows mirror trick
+             * shots to fool monsters, luring them to the last broken mirror. */
+            if (mon_is_hostile(mon))
+            {
+                if (flags & GF_AFFECT_PROJECT) /* XXX cf project_m */
+                    mon_set_target(mon, monster_target);
+                else
+                    mon_set_target(mon, plr->pos);
+            }
         }
-        else if ((who > 0) && is_pet(caster_ptr) && !plr_at(mon->target))
+        else if (caster_ptr)
         {
-            set_target(mon, caster_ptr->pos);
+            if (are_enemies(mon, caster_ptr))
+                mon_set_target(mon, caster_ptr->pos);
         }
-    }
-
-    if (p_ptr->riding && (p_ptr->riding == mon->id) && (dam > 0))
-    {
-        if (mon->hp > mon->maxhp/3) dam = (dam + 1) / 2;
-        rakubadam_m = (dam > 200) ? 200 : dam;
     }
 
     /* Return "Anything seen?" */
+    mon->project_notice = obvious;
     return (obvious);
 }
 
+bool gf_affect_f(who_t who, point_t where, int type, int dam, int flags)
+{
+    dun_cell_ptr cell = dun_grid_at(cave, where);
+    return cell_affect(cave, where, cell, type, dam);
+}
+
+bool gf_affect_o(who_t who, point_t where, int type, int dam, int flags)
+{
+    int i;
+    bool notice = FALSE;
+    bool los = plr_view(where);
+    u32b flgs[OF_ARRAY_SIZE];
+    char o_name[MAX_NLEN];
+
+    /* Note that potion_smash_effect induces recursion, 
+     * perhaps destroying the very pile we are processing!
+     * Thus, we smash potions after processing this pile. */
+    int potion_k_idx[32];
+    int potion_ct = 0;
+
+    /* Using a pile (vs obj->next links) simplifies deletion during iteration. */
+    vec_ptr pile = dun_pile_at(cave, where);
+
+    /* Scan all objects in the grid */
+    for (i = 0; i < vec_length(pile); i++)
+    {
+        obj_ptr obj = vec_get(pile, i);
+        bool is_art = FALSE;
+        bool ignore = FALSE;
+        bool do_kill = FALSE;
+
+        cptr note_kill = NULL;
+
+        /* Get the "plural"-ness */
+        bool plural = (obj->number > 1);
+
+        /* Extract the flags */
+        obj_flags(obj, flgs);
+
+        /* Check for artifact */
+        if (obj_is_art(obj)) is_art = TRUE;
+        else if (obj->name2 == EGO_AMMO_ENDURANCE) is_art = TRUE; /* lazy */
+
+        /* Analyze the type */
+        switch (type)
+        {
+        case GF_ACID:
+            if (hates_acid(obj))
+            {
+                do_kill = TRUE;
+                note_kill = (plural ? " melt!" : " melts!");
+                if (have_flag(flgs, OF_IGNORE_ACID)) ignore = TRUE;
+            }
+            break;
+        case GF_ELEC:
+            if (hates_elec(obj))
+            {
+                do_kill = TRUE;
+                note_kill = (plural ? " are destroyed!" : " is destroyed!");
+                if (have_flag(flgs, OF_IGNORE_ELEC)) ignore = TRUE;
+            }
+            break;
+        case GF_FIRE:
+            if (hates_fire(obj))
+            {
+                do_kill = TRUE;
+                note_kill = (plural ? " burn up!" : " burns up!");
+                if (have_flag(flgs, OF_IGNORE_FIRE)) ignore = TRUE;
+            }
+            break;
+        case GF_COLD:
+            if (hates_cold(obj))
+            {
+                note_kill = (plural ? " shatter!" : " shatters!");
+                do_kill = TRUE;
+                if (have_flag(flgs, OF_IGNORE_COLD)) ignore = TRUE;
+            }
+            break;
+        case GF_PLASMA:
+            if (hates_fire(obj))
+            {
+                do_kill = TRUE;
+                note_kill = (plural ? " burn up!" : " burns up!");
+                if (have_flag(flgs, OF_IGNORE_FIRE)) ignore = TRUE;
+            }
+            if (hates_elec(obj))
+            {
+                ignore = FALSE;
+                do_kill = TRUE;
+                note_kill = (plural ? " are destroyed!" : " is destroyed!");
+                if (have_flag(flgs, OF_IGNORE_ELEC)) ignore = TRUE;
+            }
+            break;
+        case GF_METEOR:
+        case GF_ROCKET:
+            if (hates_fire(obj))
+            {
+                do_kill = TRUE;
+                note_kill = (plural ? " burn up!" : " burns up!");
+                if (have_flag(flgs, OF_IGNORE_FIRE)) ignore = TRUE;
+            }
+            if (hates_cold(obj))
+            {
+                ignore = FALSE;
+                do_kill = TRUE;
+                note_kill = (plural ? " shatter!" : " shatters!");
+                if (have_flag(flgs, OF_IGNORE_COLD)) ignore = TRUE;
+            }
+            break;
+        case GF_ICE:
+        case GF_SHARDS:
+        case GF_ROCK:
+        case GF_FORCE:
+        case GF_SOUND:
+            if (hates_cold(obj))
+            {
+                note_kill = (plural ? " shatter!" : " shatters!");
+                do_kill = TRUE;
+            }
+            break;
+        case GF_MANA:
+        case GF_SEEKER:
+        case GF_SUPER_RAY:
+            do_kill = TRUE;
+            note_kill = (plural ? " are destroyed!" : " is destroyed!");
+            break;
+        case GF_DISINTEGRATE:
+            do_kill = TRUE;
+            note_kill = (plural ? " evaporate!" : " evaporates!");
+            break;
+        case GF_CHAOS:
+            do_kill = TRUE;
+            note_kill = (plural ? " are destroyed!" : " is destroyed!");
+            if (have_flag(flgs, OF_RES_(GF_CHAOS))) ignore = TRUE;
+            break;
+        case GF_HOLY_FIRE:
+        case GF_HELL_FIRE:
+            if (obj_is_cursed(obj))
+            {
+                do_kill = TRUE;
+                note_kill = (plural ? " are destroyed!" : " is destroyed!");
+            }
+            break;
+        case GF_IDENTIFY:
+            identify_item(obj);
+            autopick_alter_obj(obj, FALSE); /* inscription */
+            break;
+    case GF_KILL_TRAP:
+    case GF_KILL_DOOR:
+    case GF_REMOVE_OBSTACLE:
+            /* Chests are noticed only if trapped or locked */
+            if (obj->tval == TV_CHEST)
+            {
+                /* Disarm/Unlock traps */
+                if (obj->pval > 0)
+                {
+                    /* Disarm or Unlock */
+                    obj->pval = (0 - obj->pval);
+
+                    /* Identify */
+                    obj_identify(obj);
+
+                    /* Notice */
+                    if (los && (obj->marked & OM_FOUND))
+                    {
+                        msg_print("Click!");
+                        notice = TRUE;
+                    }
+                }
+            }
+            break;
+        case GF_ANIM_DEAD:
+            if (obj->tval == TV_CORPSE)
+            {
+                int i;
+                u32b mode = 0L;
+
+                if (who_is_plr(who) || who_is_pet(who))
+                    mode |= PM_FORCE_PET;
+
+                for (i = 0; i < obj->number ; i++)
+                {
+                    if ( (obj->sval == SV_CORPSE && randint1(100) > 80)
+                      || (obj->sval == SV_SKELETON && randint1(100) > 60) )
+                    {
+                        if (!note_kill)
+                            note_kill = (plural ? " become dust." : " becomes dust.");
+                        continue;
+                    }
+                    else if (summon_named_creature(who, where, mon_race_lookup(obj->race_id), mode))
+                    {
+                        note_kill = " revived.";
+                    }
+                    else if (!note_kill)
+                    {
+                        note_kill = (plural ? " become dust." : " becomes dust.");
+                    }
+                }
+                do_kill = TRUE;
+                notice = TRUE;
+            }
+            break;
+        }
+
+        /* Attempt to destroy the object */
+        if (do_kill)
+        {
+            /* Effect "observed" */
+            if (los && (obj->marked & OM_FOUND))
+            {
+                notice = TRUE;
+                object_desc(o_name, obj, (OD_OMIT_PREFIX | OD_NAME_ONLY | OD_COLOR_CODED));
+            }
+
+            /* Artifacts, and other objects, get to resist */
+            if (is_art || ignore)
+            {
+                if (los && (obj->marked & OM_FOUND))
+                {
+                    msg_format("The %s %s unaffected!",
+                            o_name, (plural ? "are" : "is"));
+                }
+            }
+            /* Kill it */
+            else
+            {
+                if (los && (obj->marked & OM_FOUND) && note_kill)
+                {
+                    msg_format("The %s%s", o_name, note_kill);
+                    stats_on_m_destroy(obj, obj->number);
+                }
+
+                if (obj_is_potion(obj)) /* smash it later */
+                    potion_k_idx[potion_ct++] = obj->k_idx;
+
+                delete_object_idx(obj->loc.v.floor.obj_id);
+                draw_pos(where);
+            }
+        }
+    }
+    vec_free(pile);
+
+    /* Potions produce effects when 'shattered' */
+    for (i = 0; i < potion_ct; i++)
+        potion_smash_effect(who, where, potion_k_idx[i]);
+
+    return notice;
+}

@@ -13,6 +13,7 @@
 
 #include "z-util.h"
 
+#include <assert.h>
 
 /*
  * Allow debugging messages to track memory usage.
@@ -160,6 +161,34 @@ cptr z_string_make(cptr str)
     /* Return the allocated, initialized, string */
     return (res);
 }
+cptr z_string_append(cptr str, cptr add, char sep)
+{
+    char *s;
+    int cb1, cb2, cb;
+    bool do_sep = FALSE;
+
+    if (!str) return z_string_make(add);
+    if (!add) return str;
+
+    cb1 = strlen(str);
+    cb2 = strlen(add);
+    cb = cb1 + cb2 + 1;
+    if (sep)
+    {
+        if (str[cb1 - 1] != sep && add[0] != sep)
+        {
+            do_sep = TRUE;
+            cb++;
+        }
+    }
+    s = malloc(cb);
+    memcpy(s, str, cb1);
+    if (do_sep)
+        s[cb1++] = sep;
+    memcpy(s + cb1, add, cb2+1);
+    free((char *)str);
+    return s;
+}
 
 
 /*
@@ -183,4 +212,29 @@ errr z_string_free(cptr str)
     return (0);
 }
 
-
+z_timer_t z_timer_create(void)
+{
+    z_timer_t t = {0};
+    t.start = clock();
+    return t;
+}
+void z_timer_pause(z_timer_ptr timer)
+{
+    assert(!timer->paused);
+    timer->paused = TRUE;
+    timer->elapsed += clock() - timer->start;
+}
+void z_timer_resume(z_timer_ptr timer)
+{
+    assert(timer->paused);
+    timer->paused = FALSE;
+    timer->start = clock();
+    timer->counter++;
+}
+double z_timer_elapsed(z_timer_ptr timer)
+{
+    clock_t elapsed = timer->elapsed;
+    if (!timer->paused)
+        elapsed += clock() - timer->start;
+    return (double)elapsed * 1000. / CLOCKS_PER_SEC;
+}

@@ -2155,6 +2155,7 @@ M:%%%%%%%%%%%%%%%%
 N:Oval Crypt II
 T:ROOM:NORMAL
 W:25:8
+L:.:DARK_FLOOR
 L:M:MON(UNDEAD, DEPTH+5):OBJ(*, DEPTH+3)
 M:       %%%%%%%       
 M:     %##.....##%     
@@ -2177,6 +2178,7 @@ M:       %%%%%%%
 N:Oval Crypt III
 T:ROOM:NORMAL
 W:30:16
+L:.:DARK_FLOOR
 L:M:MON(UNDEAD, DEPTH+5):OBJ(*, DEPTH+3)
 M:       %%%%%%%       
 M:     %##.....##%     
@@ -2199,6 +2201,7 @@ M:       %%%%%%%
 N:Oval Crypt IV
 T:ROOM:NORMAL
 W:45:32
+L:.:DARK_FLOOR
 L:M:MON(UNDEAD, DEPTH+10):OBJ(*, DEPTH+5)
 M:       %%%%%%%       
 M:     %##.....##%     
@@ -2221,6 +2224,7 @@ M:       %%%%%%%
 N:Oval Crypt V
 T:ROOM:NORMAL:FORMATION
 W:50:64
+L:.:DARK_FLOOR
 L:0:MON(UNDEAD, DEPTH+15):OBJ(*, DEPTH+20):EGO(*)
 L:1:OBJ(*, DEPTH+5)
 M:       %%%%%%%       
@@ -2519,6 +2523,13 @@ N:Pattern I
 T:ROOM:PATTERN
 W:Amber(1):1
 L:M:MON(*, 50%)
+L:p:PATTERN_START
+L:a:PATTERN_1
+L:b:PATTERN_2
+L:c:PATTERN_3
+L:d:PATTERN_4
+L:P:PATTERN_END
+L:B:PATTERN_EXIT
 M:%%%%%%%%%%%%%%%%%
 M:%...............%
 M:%.pabcdabcdabcd.%
@@ -2539,6 +2550,13 @@ N:Pattern II
 T:ROOM:PATTERN
 W:Amber(1):1
 L:M:MON(*, 50%)
+L:p:PATTERN_START
+L:a:PATTERN_1
+L:b:PATTERN_2
+L:c:PATTERN_3
+L:d:PATTERN_4
+L:P:PATTERN_END
+L:B:PATTERN_EXIT
 M:%%%%%%%%%%%%%%%%%
 M:%...............%
 M:%.pabcdabcdabcd.%
@@ -2561,6 +2579,13 @@ N:Pattern III
 T:ROOM:PATTERN
 W:Amber(1):1
 L:M:MON(*, 50%)
+L:p:PATTERN_START
+L:a:PATTERN_1
+L:b:PATTERN_2
+L:c:PATTERN_3
+L:d:PATTERN_4
+L:P:PATTERN_END
+L:B:PATTERN_EXIT
 M:%%%%%%%%%%%%%%%%%%%%%%%%%
 M:%.......................%
 M:%.p.dda.dda.dda.dda.....%
@@ -2636,7 +2661,7 @@ M:%%%%%%%%%%%
 N:Black Market
 T:ROOM:SHOP
 W:20:1
-L:7:BLACK_MARKET(GLOW)
+L:7:BLACK_MARKET
 M:%%%%%%%%%%%%%
 M:%...........%
 M:%.XXXX'XXXX.%
@@ -2650,7 +2675,7 @@ M:%%%%%%%%%%%%%
 N:Jeweler
 T:ROOM:SHOP
 W:20:32
-L:7:JEWELER(GLOW)
+L:7:JEWELER
 M:%%%%%%%%%%%%%
 M:%...........%
 M:%.XXXX'XXXX.%
@@ -2664,14 +2689,14 @@ M:%%%%%%%%%%%%%
 N:Vanilla Town
 T:ROOM:SHOP:NO_ROTATE
 W:20:2
-L:1:GENERAL_STORE(GLOW)
-L:2:ARMOURY(GLOW)
-L:3:WEAPON_SMITHS(GLOW)
-L:4:TEMPLE(GLOW)
-L:5:ALCHEMY_SHOP(GLOW)
-L:6:MAGIC_SHOP(GLOW)
-L:7:BLACK_MARKET(GLOW)
-L:9:BOOKSTORE(GLOW)
+L:1:GENERAL_STORE
+L:2:ARMORY
+L:3:WEAPON_SMITHS
+L:4:TEMPLE
+L:5:ALCHEMIST
+L:6:MAGIC_SHOP
+L:7:BLACK_MARKET
+L:9:BOOKSTORE
 M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 M:%.....................................................%
 M:%...............XXXXXXXXX...................XXXXXXXXX.%

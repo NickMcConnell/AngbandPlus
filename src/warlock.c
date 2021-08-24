@@ -39,21 +39,21 @@ static void _toggle_off(int toggle)
 
 static int _get_toggle(void)
 {
-    return p_ptr->magic_num1[0];
+    return plr->magic_num1[0];
 }
 
 static int _set_toggle(s32b toggle)
 {
-    int result = p_ptr->magic_num1[0];
+    int result = plr->magic_num1[0];
 
     if (toggle == result) return result;
 
     _toggle_off(result);
-    p_ptr->magic_num1[0] = toggle;
+    plr->magic_num1[0] = toggle;
     _toggle_on(toggle);
 
-    p_ptr->redraw |= PR_STATUS;
-    p_ptr->update |= PU_BONUS;
+    plr->redraw |= PR_STATUS;
+    plr->update |= PU_BONUS;
     handle_stuff();
 
     return result;
@@ -62,9 +62,9 @@ static int _set_toggle(s32b toggle)
 int warlock_get_toggle(void)
 {
     int result = TOGGLE_NONE;
-    if (warlock_is_(WARLOCK_DRAGONS) && p_ptr->riding)
+    if (warlock_is_(WARLOCK_DRAGONS) && plr->riding)
         result = _get_toggle();
-    else if (p_ptr->pclass == CLASS_WARLOCK) /* In case I add toggles for other pacts ... */
+    else if (plr->pclass == CLASS_WARLOCK) /* In case I add toggles for other pacts ... */
         result = _get_toggle();
     return result;
 }
@@ -82,11 +82,11 @@ static int _blast_range(void)
 {
     int rng = 5;
 
-    if (p_ptr->lev >= 48)
+    if (plr->lev >= 48)
         rng = 8;
-    else if (p_ptr->lev >= 32)
+    else if (plr->lev >= 32)
         rng = 7;
-    else if (p_ptr->lev >= 16)
+    else if (plr->lev >= 16)
         rng = 6;
 
     return rng;
@@ -94,7 +94,7 @@ static int _blast_range(void)
 
 static int _blast_dd(void)
 {
-    return 1 + (p_ptr->lev/5) + (p_ptr->lev * p_ptr->lev * 10/2500);
+    return 1 + (plr->lev/5) + (plr->lev * plr->lev * 10/2500);
 }
 
 static int _blast_ds(void)
@@ -140,9 +140,53 @@ static int _blast_ds(void)
         19    /* 18/210-18/219 */,
         20    /* 18/220+ */
     };
-    return _table[p_ptr->stat_ind[A_CHR]];
+    return _table[plr->stat_ind[A_CHR]];
 }
 
+static dice_t _blast_dice(int scale)
+{
+    dice_t dice = spell_dam_dice(_blast_dd(), _blast_ds(), 0);
+    if (scale)
+    {
+        assert(dice.scale);
+        dice.scale = dice.scale * scale / 1000;
+    }
+    return dice;
+}
+
+static void _blast_aux(int cmd, var_ptr res, dice_t dice, int rng)
+{
+    switch (cmd)
+    {
+    case SPELL_INFO:
+        var_printf(res, "dam ~%d (rng %d)", dice_avg_roll(dice), rng);
+        break;
+    default:
+        default_spell(cmd, res);
+    }
+}
+static void _blast_ball_aux(int cmd, var_ptr res, int rad, int gf, dice_t dice, int rng)
+{
+    switch (cmd)
+    {
+    case SPELL_CAST:
+        var_set_bool(res, plr_cast_ball_aux(rad, gf, dice, rng));
+        break;
+    default:
+        _blast_aux(cmd, res, dice, rng);
+    }
+}
+static void _blast_beam_aux(int cmd, var_ptr res, int gf, dice_t dice, int rng)
+{
+    switch (cmd)
+    {
+    case SPELL_CAST:
+        var_set_bool(res, plr_cast_beam_aux(gf, dice, rng));
+        break;
+    default:
+        _blast_aux(cmd, res, dice, rng);
+    }
+}
 static void _basic_blast(int cmd, var_ptr res)
 {
     switch (cmd)
@@ -153,32 +197,8 @@ static void _basic_blast(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires your basic Eldritch Blast.");
         break;
-    case SPELL_INFO:
-        if (p_ptr->to_d_spell)
-            var_set_string(res, format("%dd%d+%d (Rng %d)", _blast_dd(), _blast_ds(), p_ptr->to_d_spell, _blast_range()));
-        else
-            var_set_string(res, format("%dd%d (Rng %d)", _blast_dd(), _blast_ds(), _blast_range()));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-
-        var_set_bool(res, FALSE);
-
-        project_length = _blast_range();
-        if (!get_fire_dir(&dir)) return;
-
-        fire_ball(GF_ELDRITCH,
-                  dir,
-                  spell_power(damroll(_blast_dd(), _blast_ds()) + p_ptr->to_d_spell),
-                  0);
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        _blast_ball_aux(cmd, res, 0, GF_ELDRITCH, _blast_dice(1000), _blast_range());
     }
 }
 
@@ -192,29 +212,8 @@ static void _extended_blast(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a slightly weakened Eldritch Blast with increased range.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, format("75%% Damage. +%d Range", 10*p_ptr->lev/50));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-
-        var_set_bool(res, FALSE);
-
-        project_length = _blast_range() + 10 * p_ptr->lev/50;
-        if (!get_fire_dir(&dir)) return;
-
-        fire_ball(GF_ELDRITCH,
-                  dir,
-                  spell_power(damroll(_blast_dd(), _blast_ds())*3/4 + p_ptr->to_d_spell),
-                  0);
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        _blast_ball_aux(cmd, res, 0, GF_ELDRITCH, _blast_dice(750), _blast_range() + plr->lev/5);
     }
 }
 
@@ -228,25 +227,8 @@ static void _spear_blast(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires an Eldritch Beam.");
         break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-
-        var_set_bool(res, FALSE);
-
-        project_length = _blast_range();
-        if (!get_fire_dir(&dir)) return;
-
-        fire_beam(GF_ELDRITCH,
-                  dir,
-                  spell_power(damroll(_blast_dd(), _blast_ds()) + p_ptr->to_d_spell));
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        _blast_beam_aux(cmd, res, GF_ELDRITCH, _blast_dice(1000), _blast_range());
     }
 }
 
@@ -260,29 +242,8 @@ static void _burst_blast(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires an Eldritch Blast with increased radius.");
         break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-
-        var_set_bool(res, FALSE);
-
-        project_length = _blast_range();
-        if (!get_fire_dir(&dir)) return;
-
-        fire_ball_aux(
-            GF_ELDRITCH,
-            dir,
-            spell_power(damroll(_blast_dd(), _blast_ds()) + p_ptr->to_d_spell),
-            2,
-            PROJECT_FULL_DAM
-        );
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        _blast_ball_aux(cmd, res, 2, GF_ELDRITCH, _blast_dice(1000), _blast_range());
     }
 }
 
@@ -296,26 +257,8 @@ static void _stunning_blast(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Augments your Eldritch Blast with stunning effects.");
         break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-
-        var_set_bool(res, FALSE);
-
-        project_length = _blast_range();
-        if (!get_fire_dir(&dir)) return;
-
-        fire_ball(GF_ELDRITCH_STUN,
-                  dir,
-                  spell_power(damroll(_blast_dd(), _blast_ds()) + p_ptr->to_d_spell),
-                  0);
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        _blast_ball_aux(cmd, res, 0, GF_ELDRITCH_STUN, _blast_dice(1000), _blast_range());
     }
 }
 
@@ -329,29 +272,10 @@ static void _empowered_blast(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a very powerful Eldritch Blast, but you can't use your powers again for a bit.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, "175% Damage");
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-
-        var_set_bool(res, FALSE);
-
-        project_length = _blast_range();
-        if (!get_fire_dir(&dir)) return;
-
-        fire_ball(GF_ELDRITCH,
-                  dir,
-                  spell_power(damroll(_blast_dd(), _blast_ds())*7/4 + p_ptr->to_d_spell),
-                  0);
-        plr_tim_add(T_NO_SPELLS, 2);
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        _blast_ball_aux(cmd, res, 0, GF_ELDRITCH, _blast_dice(1750), _blast_range());
+        if (cmd == SPELL_CAST && var_get_bool(res))
+            plr_tim_add(T_NO_SPELLS, 2);
     }
 }
 
@@ -385,49 +309,49 @@ typedef struct {
  ****************************************************************/
 static void _undead_calc_bonuses(void)
 {
-    p_ptr->align -= 200;
-    res_add(RES_COLD);
-    if (p_ptr->lev >= 15)
+    plr->align -= 200;
+    res_add(GF_COLD);
+    if (plr->lev >= 15)
     {
-        p_ptr->see_inv++;
-        res_add(RES_POIS);
+        plr->see_inv++;
+        res_add(GF_POIS);
     }
-    if (p_ptr->lev >= 30)
+    if (plr->lev >= 30)
     {
-        res_add(RES_NETHER);
-        p_ptr->hold_life++;
+        res_add(GF_NETHER);
+        plr->hold_life++;
     }
-    if (p_ptr->lev >= 35)
-        res_add(RES_DARK);
+    if (plr->lev >= 35)
+        res_add(GF_DARK);
 
-    if (equip_find_art(ART_STONE_OF_DEATH))
+    if (equip_find_art("~.Death"))
     {
-        p_ptr->dec_mana++;
-        p_ptr->easy_spell++;
+        plr->dec_mana++;
+        plr->easy_spell++;
     }
 }
 
 static void _undead_calc_stats(s16b stats[MAX_STATS])
 {
-    stats[A_WIS] -= 3 * p_ptr->lev/50;
-    stats[A_CON] += 3 * p_ptr->lev/50;
+    stats[A_WIS] -= 3 * plr->lev/50;
+    stats[A_CON] += 3 * plr->lev/50;
 }
 
 static void _undead_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_COLD);
-    if (p_ptr->lev >= 15)
+    add_flag(flgs, OF_RES_(GF_COLD));
+    if (plr->lev >= 15)
     {
-        add_flag(flgs, OF_RES_POIS);
+        add_flag(flgs, OF_RES_(GF_POIS));
         add_flag(flgs, OF_SEE_INVIS);
     }
-    if (p_ptr->lev >= 30)
+    if (plr->lev >= 30)
     {
-        add_flag(flgs, OF_RES_NETHER);
+        add_flag(flgs, OF_RES_(GF_NETHER));
         add_flag(flgs, OF_HOLD_LIFE);
     }
-    if (p_ptr->lev >= 35)
-        add_flag(flgs, OF_RES_DARK);
+    if (plr->lev >= 35)
+        add_flag(flgs, OF_RES_(GF_DARK));
 }
 
 static void _draining_blast(int cmd, var_ptr res)
@@ -440,26 +364,8 @@ static void _draining_blast(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires an Eldritch Blast which also does Drain Life.");
         break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-
-        var_set_bool(res, FALSE);
-
-        project_length = _blast_range();
-        if (!get_fire_dir(&dir)) return;
-
-        fire_ball(GF_ELDRITCH_DRAIN,
-                  dir,
-                  spell_power(damroll(_blast_dd(), _blast_ds()) + p_ptr->to_d_spell),
-                  0);
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        _blast_ball_aux(cmd, res, 0, GF_ELDRITCH_DRAIN, _blast_dice(1000), _blast_range());
     }
 }
 
@@ -484,7 +390,7 @@ static _pact_t _undead_pact = {
   {-1,  2, -3,  0,  2,  4},
 /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
   {  20,  40,  40,   4,  16,  20, 48, 35},
-  {   8,  15,  12,   0,   0,   0, 13, 11},
+  {  40,  75,  60,   0,   0,   0, 65, 55},
 /*Life  BaseHP     Exp */
    107,     15,    135,
   {
@@ -515,8 +421,8 @@ static _pact_t _undead_pact = {
 static monster_type *_get_mount(void)
 {
     monster_type *result = NULL;
-    if (p_ptr->riding)
-        result = dun_mon(cave, p_ptr->riding);
+    if (plr->riding)
+        result = dun_mon(cave, plr->riding);
     return result;
 }
 
@@ -528,9 +434,9 @@ static bool _is_lance(object_type *o_ptr)
 
 static void _dragon_calc_bonuses(void)
 {
-    res_add(RES_FEAR);
-    if (p_ptr->lev >= 30)
-        p_ptr->sustain_str = TRUE;
+    res_add(GF_FEAR);
+    if (plr->lev >= 30)
+        plr->sustain_str = TRUE;
 }
 
 static status_display_t _dragon_status_display(void)
@@ -557,7 +463,7 @@ static status_display_t _dragon_status_display(void)
 static void _dragon_calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 {
     if ( _get_toggle() == WARLOCK_DRAGON_TOGGLE_HEROIC_CHARGE
-      && p_ptr->riding
+      && plr->riding
       && _is_lance(obj) )
     {
         info->to_dd += 2;
@@ -566,18 +472,19 @@ static void _dragon_calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 
 static void _dragon_calc_stats(s16b stats[MAX_STATS])
 {
-    stats[A_STR] += 3 * p_ptr->lev/50;
+    stats[A_STR] += 3 * plr->lev/50;
 }
 
 static void _dragon_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_FEAR);
-    if (p_ptr->lev >= 30)
+    add_flag(flgs, OF_RES_(GF_FEAR));
+    if (plr->lev >= 30)
         add_flag(flgs, OF_SUST_STR);
 }
 
 static void _dragon_blast(int cmd, var_ptr res)
 {
+    dice_t dice = spell_dam_dice(_blast_dd(), _blast_ds(), 0);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -587,23 +494,12 @@ static void _dragon_blast(int cmd, var_ptr res)
         var_set_string(res, "Breathes your eldritch blast at a chosen foe.");
         break;
     case SPELL_CAST:
-    {
-        int dir = 0;
-        int dice = _blast_dd();
-        int sides = _blast_ds();
-
-        var_set_bool(res, FALSE);
-
-        project_length = _blast_range();
-        if (!get_fire_dir(&dir)) return;
-
-        fire_ball_aux(GF_ELDRITCH, dir, spell_power(damroll(dice, sides) + p_ptr->to_d_spell), -1 - (p_ptr->lev / 20), PROJECT_FULL_DAM);
-        var_set_bool(res, TRUE);
+        var_set_bool(res,
+            plr_cast_breath_aux(1 + plr->lev/20, GF_ELDRITCH, dice, _blast_range()));
+        /* XXX PROJECT_FULL_DAM */
         break;
-    }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -658,7 +554,7 @@ static void _word_of_command_spell(int cmd, var_ptr res)
         var_set_string(res, "By uttering a word of obediance, the true dragon rider can bend the will of all but the mightiest serpents.");
         break;
     case SPELL_CAST:                        /*v-- This is meaningless, but set high enough so that the project code actually works */
-        project_los(GF_CONTROL_PACT_MONSTER, 100);
+        plr_project_los(GF_CONTROL_PACT_MONSTER, 100);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -692,13 +588,13 @@ static void _dragon_upkeep_song(void)
         cost = 5;
         break;
     case WARLOCK_DRAGON_TOGGLE_HEALING:
-        cost = p_ptr->lev/2;
+        cost = plr->lev/2;
         break;
     case WARLOCK_DRAGON_TOGGLE_HEROIC_CHARGE:
-        cost = p_ptr->lev/2;
+        cost = plr->lev/2;
         break;
     }
-    if (cost > p_ptr->csp)
+    if (cost > plr->csp)
     {
         msg_print("You can no longer maintain the song.");
         _set_toggle(TOGGLE_NONE);
@@ -711,10 +607,10 @@ static void _dragon_upkeep_song(void)
            perhaps scattered throughout the code base as 'hacks' */
         if (_get_toggle() == WARLOCK_DRAGON_TOGGLE_HEALING)
         {
-            hp_player(p_ptr->lev);
+            hp_player(plr->lev);
             if (mount->hp < mount->maxhp)
             {
-                int heal = MIN(p_ptr->lev*3, mount->maxhp - mount->hp);
+                int heal = MIN(plr->lev*3, mount->maxhp - mount->hp);
                 mount->hp += heal;
             }
         }
@@ -854,7 +750,7 @@ static void _mount_jump_spell(int cmd, var_ptr res)
         var_set_string(res, "Jump");
         break;
     case SPELL_CAST:
-        if (!p_ptr->riding)
+        if (!plr->riding)
         {
             msg_print("This is a riding technique. Where is your dragon?");
             var_set_bool(res, FALSE);
@@ -917,11 +813,11 @@ static bool _dragonrider_ai(mon_spell_cast_ptr cast)
 
     if (_hack_dir == 5)
     {
-        cast->dest = point_create(target_col, target_row);
-        if (target_who > 0)
+        cast->dest = who_pos(plr->target);
+        if (who_is_mon(plr->target))
         {
             char tmp[MAX_NLEN];
-            cast->mon2 = dun_mon(cave, target_who);
+            cast->mon2 = who_mon(plr->target);
             monster_desc(tmp, cast->mon2, 0);
             tmp[0] = toupper(tmp[0]);
             sprintf(cast->name2, "<color:o>%s</color>", tmp);
@@ -929,8 +825,8 @@ static bool _dragonrider_ai(mon_spell_cast_ptr cast)
     }
     else
     {
-        cast->dest.x = p_ptr->pos.x + 99 * ddx[_hack_dir];
-        cast->dest.y = p_ptr->pos.y + 99 * ddy[_hack_dir];
+        cast->dest.x = plr->pos.x + 99 * ddx[_hack_dir];
+        cast->dest.y = plr->pos.y + 99 * ddy[_hack_dir];
     }
 
     if (!cast->mon2)
@@ -1012,7 +908,7 @@ static void _pets_breathe_spell(int cmd, var_ptr res)
 
         if (!get_fire_dir(&_hack_dir)) return;
 
-        pets = plr_pets();
+        pets = plr_pets_for_dismiss(); /* since we might delete_monster */
         msg_print("<color:v>Dragons: As One!!</color>");
         msg_boundary();
 
@@ -1026,9 +922,9 @@ static void _pets_breathe_spell(int cmd, var_ptr res)
         {
             mon_ptr pet = vec_get(pets, i);
 
-            if (mon_is_dead(pet)) continue;
+            if (!mon_is_valid(pet)) continue;
             if (pet == mount) continue;
-            if (!(mon_race(pet)->flags3 & RF3_DRAGON)) continue;
+            if (!mon_is_dragon(pet)) continue;
 
             if (mon_spell_cast_mon(pet, _dragonrider_ai))
             {
@@ -1076,7 +972,7 @@ static _pact_t _dragons_pact = {
   { 2,  0,  0, -1,  1,  3},
 /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
   {  20,  25,  30,   1,  14,  12, 52, 35},
-  {   7,  11,  10,   0,   0,   0, 14, 11},
+  {  35,  55,  50,   0,   0,   0, 70, 55},
 /*Life  BaseHP     Exp */
    102,     10,    130,
   {
@@ -1106,31 +1002,31 @@ static _pact_t _dragons_pact = {
  ****************************************************************/
 static void _angel_calc_bonuses(void)
 {
-    p_ptr->align += 200;
-    p_ptr->levitation = TRUE;
-    if (p_ptr->lev >= 15)
-        p_ptr->see_inv++;
-    if (p_ptr->lev >= 35)
-        p_ptr->reflect = TRUE;
+    plr->align += 200;
+    plr->levitation = TRUE;
+    if (plr->lev >= 15)
+        plr->see_inv++;
+    if (plr->lev >= 35)
+        plr->reflect = TRUE;
 
-    if (equip_find_art(ART_STONE_OF_CRUSADE) || equip_find_art(ART_STONE_OF_LIFE))
+    if (equip_find_art("~.Crusade") || equip_find_art("~.Life"))
     {
-        p_ptr->dec_mana++;
-        p_ptr->easy_spell++;
+        plr->dec_mana++;
+        plr->easy_spell++;
     }
 }
 
 static void _angel_calc_stats(s16b stats[MAX_STATS])
 {
-    stats[A_WIS] += 3 * p_ptr->lev/50;
+    stats[A_WIS] += 3 * plr->lev/50;
 }
 
 static void _angel_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_LEVITATION);
-    if (p_ptr->lev >= 15)
+    if (plr->lev >= 15)
         add_flag(flgs, OF_SEE_INVIS);
-    if (p_ptr->lev >= 35)
+    if (plr->lev >= 35)
         add_flag(flgs, OF_REFLECT);
 }
 
@@ -1144,26 +1040,8 @@ static void _dispelling_blast(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires an Eldritch Blast which also does Dispel Magic.");
         break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-
-        var_set_bool(res, FALSE);
-
-        project_length = _blast_range();
-        if (!get_fire_dir(&dir)) return;
-
-        fire_ball(GF_ELDRITCH_DISPEL,
-                  dir,
-                  spell_power(damroll(_blast_dd(), _blast_ds()) + p_ptr->to_d_spell),
-                  0);
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        _blast_ball_aux(cmd, res, 0, GF_ELDRITCH_DISPEL, _blast_dice(1000), _blast_range());
     }
 }
 
@@ -1185,7 +1063,7 @@ static _pact_t _angels_pact = {
   { 1,  1,  2,  1,  1,  3},
 /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
   {  20,  35,  40,   1,  16,   8, 48, 35},
-  {   7,  11,  15,   0,   0,   0, 13, 11},
+  {  35,  55,  75,   0,   0,   0, 65, 55},
 /*Life  BaseHP     Exp */
     98,      4,    150,
   {
@@ -1212,37 +1090,37 @@ static _pact_t _angels_pact = {
  ****************************************************************/
 static void _demon_calc_bonuses(void)
 {
-    res_add(RES_FIRE);
-    p_ptr->device_power += 3 * p_ptr->lev/50;
-    if (p_ptr->lev >= 15)
-        p_ptr->hold_life++;
-    if (p_ptr->lev >= 30)
-        p_ptr->no_eldritch = TRUE;
-    if (p_ptr->lev >= 40)
-        p_ptr->no_charge_drain = TRUE;
-    if (p_ptr->lev >= 45)
-        p_ptr->kill_wall = TRUE;
-    if (p_ptr->lev >= 50)
-        res_add_immune(RES_FIRE);
+    res_add(GF_FIRE);
+    plr->device_power += 3 * plr->lev/50;
+    if (plr->lev >= 15)
+        plr->hold_life++;
+    if (plr->lev >= 30)
+        plr->no_eldritch = TRUE;
+    if (plr->lev >= 40)
+        plr->no_charge_drain = TRUE;
+    if (plr->lev >= 45)
+        plr->kill_wall = TRUE;
+    if (plr->lev >= 50)
+        res_add_immune(GF_FIRE);
 
-    if (equip_find_art(ART_STONE_OF_DAEMON))
+    if (equip_find_art("~.Daemon"))
     {
-        p_ptr->dec_mana++;
-        p_ptr->easy_spell++;
+        plr->dec_mana++;
+        plr->easy_spell++;
     }
 }
 
 static void _demon_calc_stats(s16b stats[MAX_STATS])
 {
-    stats[A_INT] += 3 * p_ptr->lev/50;
+    stats[A_INT] += 3 * plr->lev/50;
 }
 
 static void _demon_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_FIRE);
-    if (p_ptr->lev >= 10) add_flag(flgs, OF_DEVICE_POWER);
-    if (p_ptr->lev >= 15) add_flag(flgs, OF_HOLD_LIFE);
-    if (p_ptr->lev >= 50) add_flag(flgs, OF_IM_FIRE);
+    add_flag(flgs, OF_RES_(GF_FIRE));
+    if (plr->lev >= 10) add_flag(flgs, OF_DEVICE_POWER);
+    if (plr->lev >= 15) add_flag(flgs, OF_HOLD_LIFE);
+    if (plr->lev >= 50) add_flag(flgs, OF_IM_(GF_FIRE));
 }
 
 static void _vengeful_blast(int cmd, var_ptr res)
@@ -1255,30 +1133,10 @@ static void _vengeful_blast(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires an extremely deadly Eldritch Blast, but you also take damage.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, "200% Damage");
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        int dam = damroll(_blast_dd(), _blast_ds());
-        dam *= 2;
-        dam = spell_power(dam + p_ptr->to_d_spell);
-
-        var_set_bool(res, FALSE);
-
-        project_length = _blast_range();
-        if (!get_fire_dir(&dir)) return;
-
-        fire_ball(GF_ELDRITCH, dir, dam, 0);
-        take_hit(DAMAGE_USELIFE, 100, "vengeful blast");
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        _blast_ball_aux(cmd, res, 0, GF_ELDRITCH, _blast_dice(2000), _blast_range());
+        if (cmd == SPELL_CAST && var_get_bool(res))
+            take_hit(DAMAGE_USELIFE, 100, "vengeful blast");
     }
 }
 
@@ -1300,7 +1158,7 @@ static _pact_t _demons_pact = {
   { 3,  1,-10,  1,  1,  3},
 /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
   {  20,  40,  40,   0,  12,   2, 64, 35},
-  {   7,  15,  12,   0,   0,   0, 18, 11},
+  {  35,  75,  60,   0,   0,   0, 90, 55},
 /*Life  BaseHP     Exp */
    100,     15,    150,
   {
@@ -1323,41 +1181,41 @@ static _pact_t _demons_pact = {
  ****************************************************************/
 static void _hound_calc_bonuses(void)
 {
-    p_ptr->skill_dig += 60;
-    p_ptr->pspeed += 5 * p_ptr->lev / 50;
+    plr->skill_dig += 60;
+    plr->pspeed += 5 * plr->lev / 50;
 
-    if (p_ptr->lev >= 5)
-        res_add(RES_FIRE);
-    if (p_ptr->lev >= 10)
-        res_add(RES_COLD);
-    if (p_ptr->lev >= 15)
-        res_add(RES_ELEC);
-    if (p_ptr->lev >= 20)
-        res_add(RES_ACID);
-    if (p_ptr->lev >= 35)
-        res_add(RES_POIS);
+    if (plr->lev >= 5)
+        res_add(GF_FIRE);
+    if (plr->lev >= 10)
+        res_add(GF_COLD);
+    if (plr->lev >= 15)
+        res_add(GF_ELEC);
+    if (plr->lev >= 20)
+        res_add(GF_ACID);
+    if (plr->lev >= 35)
+        res_add(GF_POIS);
 }
 
 static void _hound_calc_stats(s16b stats[MAX_STATS])
 {
-    stats[A_DEX] += 3 * p_ptr->lev/50;
+    stats[A_DEX] += 3 * plr->lev/50;
 }
 
 static void _hound_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    if (p_ptr->lev >= 10)
+    if (plr->lev >= 10)
         add_flag(flgs, OF_SPEED);
 
-    if (p_ptr->lev >= 5)
-        add_flag(flgs, OF_RES_FIRE);
-    if (p_ptr->lev >= 10)
-        add_flag(flgs, OF_RES_COLD);
-    if (p_ptr->lev >= 15)
-        add_flag(flgs, OF_RES_ELEC);
-    if (p_ptr->lev >= 20)
-        add_flag(flgs, OF_RES_ACID);
-    if (p_ptr->lev >= 35)
-        add_flag(flgs, OF_RES_POIS);
+    if (plr->lev >= 5)
+        add_flag(flgs, OF_RES_(GF_FIRE));
+    if (plr->lev >= 10)
+        add_flag(flgs, OF_RES_(GF_COLD));
+    if (plr->lev >= 15)
+        add_flag(flgs, OF_RES_(GF_ELEC));
+    if (plr->lev >= 20)
+        add_flag(flgs, OF_RES_(GF_ACID));
+    if (plr->lev >= 35)
+        add_flag(flgs, OF_RES_(GF_POIS));
 }
 
 #define _AETHER_EFFECT_CT 15
@@ -1372,40 +1230,39 @@ static void _aether_blast(int cmd, var_ptr res)
         var_set_string(res, "You channel the aether to unleash a random number of random effects via your Eldritch Blast.");
         break;
     case SPELL_INFO:
-        var_set_string(res, "50% Damage");
+        var_set_string(res, dice_info_dam_each(_blast_dice(500)));
         break;
     case SPELL_CAST:
     {
-        int dir = 0, i;
+        int i;
         int ct = rand_range(3, 7);
-        int dice = _blast_dd();
-        int sides = _blast_ds();
+        dice_t dice = _blast_dice(500);
         int effects[_AETHER_EFFECT_CT] =
                {GF_ACID,  GF_ELEC,   GF_FIRE,      GF_COLD,       GF_POIS,
-                GF_LITE,  GF_DARK,   GF_CONFUSION, GF_NETHER,     GF_NEXUS,
+                GF_LIGHT,  GF_DARK,   GF_CONFUSION, GF_NETHER,     GF_NEXUS,
                 GF_SOUND, GF_SHARDS, GF_CHAOS,     GF_DISENCHANT, GF_TIME};
         int resists[_AETHER_EFFECT_CT] =
-               {RES_ACID, RES_ELEC,  RES_FIRE,     RES_COLD,      RES_POIS,
-                RES_LITE, RES_DARK,  RES_CONF,     RES_NETHER,    RES_NEXUS,
-                RES_SOUND,RES_SHARDS,RES_CHAOS,    RES_DISEN,     RES_TIME};
+               {GF_ACID, GF_ELEC,  GF_FIRE,     GF_COLD,      GF_POIS,
+                GF_LIGHT, GF_DARK,  GF_CONF,     GF_NETHER,    GF_NEXUS,
+                GF_SOUND,GF_SHARDS,GF_CHAOS,    GF_DISEN,     GF_TIME};
+        point_t pos;
 
         var_set_bool(res, FALSE);
-
-        project_length = _blast_range();
-        if (!get_fire_dir(&dir)) return;
+        pos = plr_get_ball_target_aux(GF_ELDRITCH, _blast_range());
+        if (!dun_pos_interior(cave, pos)) return;
 
         for (i = 0; i < ct; i++)
         {
             int idx = randint0(_AETHER_EFFECT_CT);
             int effect = effects[idx];
             int resist = resists[idx];
-            int dam = spell_power(damroll(dice, sides)/2 + p_ptr->to_d_spell);
+            int dam = dice_roll(dice);
 
             msg_format("You channel <color:%c>%s</color>.",
                 attr_to_attr_char(res_color(resist)),
                 res_name(resist)
             );
-            fire_ball(effect, dir, dam, 0);
+            plr_ball(0, pos, effect, dam);
             msg_boundary();
         }
 
@@ -1414,7 +1271,6 @@ static void _aether_blast(int cmd, var_ptr res)
     }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -1429,7 +1285,7 @@ static void _dog_whistle_spell(int cmd, var_ptr res)
         var_set_string(res, "By emitting a shrill whistle, unaudible to most, you attempt to control nearby canines.");
         break;
     case SPELL_CAST:
-        project(0, 18, p_ptr->pos.y, p_ptr->pos.x, 1000, GF_CONTROL_PACT_MONSTER, PROJECT_KILL | PROJECT_HIDE);
+        plr_project_los(GF_CONTROL_PACT_MONSTER, 1000);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1450,9 +1306,9 @@ static void _aether_shield_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
         plr_tim_add(T_AURA_FIRE, randint1(30) + 20);
-        if (p_ptr->lev >= 25)
+        if (plr->lev >= 25)
             plr_tim_add(T_AURA_COLD, randint1(30) + 20);
-        if (p_ptr->lev >= 35)
+        if (plr->lev >= 35)
             plr_tim_add(T_AURA_ELEC, randint1(30) + 20);
         var_set_bool(res, TRUE);
         break;
@@ -1479,9 +1335,9 @@ static _pact_t _hounds_pact = {
   NULL,
 /*  S   I   W   D   C   C */
   { 0, -2, -2,  2,  2,  2},
-/* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
-  {  20,  25,  31,   5,  20,  15, 56, 25},
-  {   7,  10,  10,   0,   0,   0, 20, 11},
+/* Dsrm Dvce Save Stlh Srch Prcp  Thn Thb*/
+  {  20,  25,  31,   5,  20,  15,  56, 25},
+  {  35,  50,  50,   0,   0,   0, 100, 55},
 /*Life  BaseHP     Exp */
    102,     12,    110,
   {
@@ -1501,30 +1357,32 @@ static _pact_t _hounds_pact = {
  ****************************************************************/
 static void _spider_calc_bonuses(void)
 {
-    p_ptr->pspeed += 7 * p_ptr->lev / 50;
+    plr->pspeed += 7 * plr->lev / 50;
 
-    if (p_ptr->lev >= 10)
-        res_add(RES_POIS);
-    if (p_ptr->lev >= 20)
-        res_add(RES_NEXUS);
-    if (p_ptr->lev >= 30)
-        res_add(RES_TELEPORT);
+    if (plr->lev >= 10)
+        res_add(GF_POIS);
+    if (plr->lev >= 20)
+        res_add(GF_NEXUS);
+    if (plr->lev >= 30)
+        res_add(GF_TELEPORT);
+
+    plr->pass_web = TRUE;
 }
 
 static void _spider_calc_stats(s16b stats[MAX_STATS])
 {
-    stats[A_DEX] += 3 * p_ptr->lev/50;
+    stats[A_DEX] += 3 * plr->lev/50;
 }
 
 static void _spider_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    if (p_ptr->lev >= 8)
+    if (plr->lev >= 8)
         add_flag(flgs, OF_SPEED);
 
-    if (p_ptr->lev >= 10)
-        add_flag(flgs, OF_RES_POIS);
-    if (p_ptr->lev >= 20)
-        add_flag(flgs, OF_RES_NEXUS);
+    if (plr->lev >= 10)
+        add_flag(flgs, OF_RES_(GF_POIS));
+    if (plr->lev >= 20)
+        add_flag(flgs, OF_RES_(GF_NEXUS));
 }
 
 static void _phase_blast(int cmd, var_ptr res)
@@ -1537,27 +1395,10 @@ static void _phase_blast(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fire an Eldritch Blast and then jump to safety in a single move.");
         break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-
-        var_set_bool(res, FALSE);
-
-        project_length = _blast_range();
-        if (!get_fire_dir(&dir)) return;
-
-        fire_ball(GF_ELDRITCH,
-                  dir,
-                  spell_power(damroll(_blast_dd(), _blast_ds()) + p_ptr->to_d_spell),
-                  0);
-
-        teleport_player(25, 0);
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        _blast_ball_aux(cmd, res, 0, GF_ELDRITCH, _blast_dice(1000), _blast_range());
+        if (cmd == SPELL_CAST && var_get_bool(res))
+            teleport_player(25, 0);
     }
 }
 
@@ -1571,33 +1412,15 @@ static void _nexus_ball_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Generates a ball of nexus on chosen target.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev + 20 + p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball(
-            GF_NEXUS,
-            dir,
-            spell_power(3*p_ptr->lev/2 + 30 + p_ptr->to_d_spell),
-            2
-        );
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 2, GF_NEXUS, 30 + plr_prorata_level(70));
     }
 }
 
 /* Spider Jumps*/
-static int _jump_rad(void) { return 2 + p_ptr->lev/10; }
+static int _jump_rad(void) { return 2 + plr->lev/10; }
 
-static int _poison_jump_dam(void) { return spell_power(p_ptr->lev + p_ptr->to_d_spell); }
+static int _poison_jump_dam(void) { return spell_power(plr->lev + plr->to_d_spell); }
 static void _poison_jump_spell(int cmd, var_ptr res)
 {
     switch (cmd)
@@ -1612,17 +1435,16 @@ static void _poison_jump_spell(int cmd, var_ptr res)
         var_set_string(res, info_damage(0, 0, _poison_jump_dam()));
         break;
     case SPELL_CAST:
-        fire_ball(GF_POIS, 0, _poison_jump_dam()*2, _jump_rad());
+        plr_burst(_jump_rad(), GF_POIS, _poison_jump_dam());
         teleport_player(30, 0);
         var_set_bool(res, TRUE);
         break;
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
-static int _nexus_jump_dam(void) { return spell_power(p_ptr->lev + 5 + p_ptr->to_d_spell); }
+static int _nexus_jump_dam(void) { return spell_power(plr->lev + 5 + plr->to_d_spell); }
 static void _nexus_jump_spell(int cmd, var_ptr res)
 {
     switch (cmd)
@@ -1637,17 +1459,16 @@ static void _nexus_jump_spell(int cmd, var_ptr res)
         var_set_string(res, info_damage(0, 0, _nexus_jump_dam()));
         break;
     case SPELL_CAST:
-        fire_ball(GF_NEXUS, 0, _nexus_jump_dam()*2, _jump_rad());
+        plr_burst(_jump_rad(), GF_NEXUS, _nexus_jump_dam());
         teleport_player(30, 0);
         var_set_bool(res, TRUE);
         break;
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
-static int _greater_nexus_jump_dam(void) { return spell_power(plr_prorata_level_aux(200, 0, 0, 1) + p_ptr->to_d_spell); }
+static int _greater_nexus_jump_dam(void) { return spell_power(plr_prorata_level_aux(200, 0, 0, 1) + plr->to_d_spell); }
 static void _greater_nexus_jump_spell(int cmd, var_ptr res)
 {
     switch (cmd)
@@ -1662,13 +1483,12 @@ static void _greater_nexus_jump_spell(int cmd, var_ptr res)
         var_set_string(res, info_damage(0, 0, _greater_nexus_jump_dam()));
         break;
     case SPELL_CAST:
-        fire_ball(GF_NEXUS, 0, _greater_nexus_jump_dam()*2, 3 + _jump_rad());
+        plr_burst(_jump_rad() + 3, GF_NEXUS, _greater_nexus_jump_dam());
         teleport_player(30, 0);
         var_set_bool(res, TRUE);
         break;
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -1693,7 +1513,7 @@ static _pact_t _spiders_pact = {
   {-1,  0, -2,  2,  0,  2},
 /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
   {  20,  37,  31,   7,  12,   2, 56, 60},
-  {   7,  11,  10,   0,   0,   0, 12, 15},
+  {  35,  55,  50,   0,   0,   0, 60, 75},
 /*Life  BaseHP     Exp */
     97,      1,    120,
   {
@@ -1718,21 +1538,21 @@ static _pact_t _spiders_pact = {
  ****************************************************************/
 static void _giant_calc_bonuses(void)
 {
-    if (p_ptr->lev >= 30)
-        res_add(RES_SOUND);
-    if (p_ptr->lev >= 40)
-        res_add(RES_SHARDS);
-    if (p_ptr->lev >= 50)
-        res_add(RES_CHAOS);
-    p_ptr->skill_tht += 2*p_ptr->lev;
+    if (plr->lev >= 30)
+        res_add(GF_SOUND);
+    if (plr->lev >= 40)
+        res_add(GF_SHARDS);
+    if (plr->lev >= 50)
+        res_add(GF_CHAOS);
+    plr->skill_tht += 2*plr->lev;
 }
 
 static void _giant_calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 {
     if (obj->weight >= 200)
     {
-        int to_h = 10 * p_ptr->lev / 50;
-        int to_d = 10 * p_ptr->lev / 50;
+        int to_h = 10 * plr->lev / 50;
+        int to_d = 10 * plr->lev / 50;
 
         info->to_h += to_h;
         info->dis_to_h += to_h;
@@ -1744,18 +1564,18 @@ static void _giant_calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 
 static void _giant_calc_stats(s16b stats[MAX_STATS])
 {
-    stats[A_STR] += 5 * p_ptr->lev/50;
-    stats[A_CON] += 3 * p_ptr->lev/50;
+    stats[A_STR] += 5 * plr->lev/50;
+    stats[A_CON] += 3 * plr->lev/50;
 }
 
 static void _giant_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    if (p_ptr->lev >= 30)
-        add_flag(flgs, OF_RES_SOUND);
-    if (p_ptr->lev >= 40)
-        add_flag(flgs, OF_RES_SHARDS);
-    if (p_ptr->lev >= 50)
-        add_flag(flgs, OF_RES_CHAOS);
+    if (plr->lev >= 30)
+        add_flag(flgs, OF_RES_(GF_SOUND));
+    if (plr->lev >= 40)
+        add_flag(flgs, OF_RES_(GF_SHARDS));
+    if (plr->lev >= 50)
+        add_flag(flgs, OF_RES_(GF_CHAOS));
 }
 
 static void _confusing_blast(int cmd, var_ptr res)
@@ -1768,26 +1588,8 @@ static void _confusing_blast(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires an Eldritch Blast that also confuses your opponent.");
         break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-
-        var_set_bool(res, FALSE);
-
-        project_length = _blast_range();
-        if (!get_fire_dir(&dir)) return;
-
-        fire_ball(GF_ELDRITCH_CONFUSE,
-                  dir,
-                  spell_power(damroll(_blast_dd(), _blast_ds()) + p_ptr->to_d_spell),
-                  0);
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        _blast_ball_aux(cmd, res, 0, GF_ELDRITCH_CONFUSE, _blast_dice(1000), _blast_range());
     }
 }
 
@@ -1802,10 +1604,10 @@ static void _giant_healing_spell(int cmd, var_ptr res)
         var_set_string(res, "All powerful giants can heal themselves, right? Why not you?");
         break;
     case SPELL_INFO:
-        var_set_string(res, format("Heals %d", spell_power(p_ptr->lev * 4)));
+        var_set_string(res, format("Heals %d", spell_power(plr->lev * 4)));
         break;
     case SPELL_CAST:
-        hp_player(spell_power(p_ptr->lev * 4));
+        hp_player(spell_power(plr->lev * 4));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1832,16 +1634,16 @@ static _pact_t _giants_pact = {
   NULL,
 /*  S   I   W   D   C   C */
   { 2, -4, -4, -3,  2,  2},
-/* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
-  {  20,  20,  31,   0,  12,   2, 70, 30},
-  {   7,   8,  10,   0,   0,   0, 30, 15},
+/* Dsrm Dvce Save Stlh Srch Prcp  Thn Thb*/
+  {  20,  20,  31,   0,  12,   2,  70, 30},
+  {  35,  40,  50,   0,   0,   0, 150, 75},
 /*Life  BaseHP     Exp */
    112,     25,    140,
   {
     {  5,   0, 50, throw_boulder_spell},
     { 10,   7,  0, stunning_blow_spell},
-    { 30,   0,  0, monster_toss_spell},
-    { 40,  30, 50, summon_kin_spell},
+    { 30,  30,  0, monster_toss_spell},
+    { 40,  80, 50, summon_kin_spell},
     { 50,  50, 70, _giant_healing_spell},
     { -1,   0,  0, NULL },
   },
@@ -1894,8 +1696,8 @@ static int _get_powers(spell_info* spells, int max)
 {
     int       i;
     int       ct = 0;
-    int       stat_idx = p_ptr->stat_ind[A_CHR];
-    _pact_ptr pact = _get_pact(p_ptr->psubclass);
+    int       stat_idx = plr->stat_ind[A_CHR];
+    _pact_ptr pact = _get_pact(plr->psubclass);
 
     assert(pact);
 
@@ -1910,7 +1712,7 @@ static int _get_powers(spell_info* spells, int max)
     {
         spell_info *base = &_powers[i];
         if (ct >= max) break;
-        if (base->level <= p_ptr->lev)
+        if (base->level <= plr->lev)
         {
             spell_info* current = &spells[ct];
             current->fn = base->fn;
@@ -1929,8 +1731,8 @@ static int _get_spells(spell_info* spells, int max)
 {
     int       i;
     int       ct = 0;
-    int       stat_idx = p_ptr->stat_ind[A_CHR];
-    _pact_ptr pact = _get_pact(p_ptr->psubclass);
+    int       stat_idx = plr->stat_ind[A_CHR];
+    _pact_ptr pact = _get_pact(plr->psubclass);
 
     assert(pact);
 
@@ -1939,7 +1741,7 @@ static int _get_spells(spell_info* spells, int max)
         spell_info *base = &pact->spells[i];
         if (base->level <= 0) break;
         if (ct >= max) break;
-        if (base->level <= p_ptr->lev)
+        if (base->level <= plr->lev)
         {
             spell_info* current = &spells[ct++];
             current->fn = base->fn;
@@ -1969,13 +1771,20 @@ static caster_info * _caster_info(void)
         me.magic_desc = "arcane power";
         me.which_stat = A_CHR;
         me.encumbrance.max_wgt = 450;
-        if (p_ptr->psubclass == WARLOCK_DRAGONS)
-            me.encumbrance.weapon_pct = 33;
-        else if (p_ptr->psubclass == WARLOCK_GIANTS)
-            me.encumbrance.weapon_pct = 20;
-        else
-            me.encumbrance.weapon_pct = 67;
         me.encumbrance.enc_wgt = 800;
+        me.encumbrance.weapon_pct = 67;
+        me.options = CASTER_GAIN_SKILL;
+
+        /* dragon pact wants heavy lances ... */
+        if (plr->psubclass == WARLOCK_DRAGONS)
+            me.encumbrance.weapon_pct = 33;
+        /* giant pact is more of a 'warrior' ... */
+        else if (plr->psubclass == WARLOCK_GIANTS)
+        {
+            me.encumbrance.weapon_pct = 20;
+            me.encumbrance.max_wgt = 600;
+        }
+
         init = TRUE;
     }
     return &me;
@@ -1983,7 +1792,7 @@ static caster_info * _caster_info(void)
 
 static void _birth(void)
 {
-    if (p_ptr->psubclass == WARLOCK_GIANTS)
+    if (plr->psubclass == WARLOCK_GIANTS)
     {
         skills_weapon_init(TV_SWORD, SV_CLAYMORE, WEAPON_EXP_BEGINNER);
         plr_birth_obj_aux(TV_SWORD, SV_CLAYMORE, 1);
@@ -1999,39 +1808,39 @@ static void _birth(void)
  ****************************************************************/
 bool warlock_is_pact_monster(monster_race *r_ptr)
 {
-    if (p_ptr->pclass == CLASS_WARLOCK)
+    if (plr->pclass == CLASS_WARLOCK)
     {
-        _pact_ptr pact = _get_pact(p_ptr->psubclass);
-        char     *pc = my_strchr(pact->alliance, r_ptr->d_char);
+        _pact_ptr pact = _get_pact(plr->psubclass);
+        char     *pc = my_strchr(pact->alliance, r_ptr->display.c);
 
         if (pc != NULL)
             return TRUE;
 
-        switch (p_ptr->psubclass)
+        switch (plr->psubclass)
         {
         case WARLOCK_UNDEAD:
-            if (r_ptr->flags3 & RF3_UNDEAD)
+            if (mon_race_is_undead(r_ptr))
                 return TRUE;
             break;
 
         case WARLOCK_DRAGONS:
-            if (r_ptr->flags3 & RF3_DRAGON)
+            if (mon_race_is_dragon(r_ptr))
                 return TRUE;
             break;
 
         case WARLOCK_ANGELS:
             /* Angel pact is now all good monsters!!! */
-            if (r_ptr->flags3 & RF3_GOOD)
+            if (mon_race_is_good(r_ptr))
                 return TRUE;
             break;
 
         case WARLOCK_DEMONS:
-            if (r_ptr->flags3 & RF3_DEMON)
+            if (mon_race_is_demon(r_ptr))
                 return TRUE;
             break;
 
         case WARLOCK_GIANTS:
-            if (r_ptr->flags3 & RF3_GIANT)
+            if (mon_race_is_giant(r_ptr))
                 return TRUE;
             break;
         }

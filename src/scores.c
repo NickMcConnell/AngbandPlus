@@ -32,13 +32,13 @@ char *_version(void)
 static char *_status(void)
 {
     cptr status = 
-        p_ptr->total_winner ? "Winner" : (p_ptr->is_dead ? "Dead" : "Alive");
+        plr->total_winner ? "Winner" : (plr->is_dead ? "Dead" : "Alive");
     return _str_copy(status);
 }
 static char *_killer(void)
 {
-    if (p_ptr->is_dead)
-        return _str_copy(p_ptr->died_from);
+    if (plr->is_dead)
+        return _str_copy(plr->died_from);
     return NULL;
 }
 
@@ -59,11 +59,11 @@ score_ptr score_current(void)
     class_t        *class_ = get_class();
     personality_ptr personality = get_personality();
 
-    score->id = p_ptr->id;
+    score->id = plr->id;
     score->uid = player_uid;
     score->date = _timestamp();
     score->version = _version();
-    score->score = p_ptr->max_max_exp;  /* XXX */
+    score->score = plr->max_max_exp;  /* XXX */
 
     score->name = _str_copy(player_name);
     score->race = _str_copy(race->name);
@@ -71,20 +71,20 @@ score_ptr score_current(void)
     score->class_ = _str_copy(class_->name);
     score->subclass = _str_copy(class_->subname);
 
-    score->sex = _str_copy(p_ptr->psex == SEX_MALE ? "Male" : "Female");
+    score->sex = _str_copy(plr->psex == SEX_MALE ? "Male" : "Female");
     score->personality = _str_copy(personality->name);
 
-    score->gold = p_ptr->au;
-    score->turns = p_ptr->turn;
-    score->clvl = p_ptr->lev;
+    score->gold = plr->au;
+    score->turns = plr->turn;
+    score->clvl = plr->lev;
     score->dlvl = cave->dun_lvl;
     score->dungeon = _str_copy(map_name());
     score->killer = _killer();
     score->status = _status();
 
-    score->exp = p_ptr->exp;
+    score->exp = plr->exp;
     score->max_depth = plr_max_dun_lvl();
-    score->fame = p_ptr->fame;
+    score->fame = plr->fame;
 
     return score;
 }
@@ -93,8 +93,8 @@ static int _parse_int(vec_ptr v, int i)
 {
     if (i < vec_length(v))
     {
-        string_ptr s = vec_get(v, i);
-        return atoi(string_buffer(s));
+        str_ptr s = vec_get(v, i);
+        return atoi(str_buffer(s));
     }
     return 0;
 }
@@ -102,8 +102,8 @@ static char *_parse_string(vec_ptr v, int i)
 {
     if (i < vec_length(v))
     {
-        string_ptr s = vec_get(v, i);
-        return _str_copy(string_buffer(s));
+        str_ptr s = vec_get(v, i);
+        return _str_copy(str_buffer(s));
     }
     return NULL;
 }
@@ -111,12 +111,12 @@ static char *_parse_string(vec_ptr v, int i)
 static score_ptr score_read(FILE *fp)
 {
     score_ptr  score = NULL;
-    string_ptr line = string_alloc();
+    str_ptr line = str_alloc();
     vec_ptr    fields;
 
-    string_read_line(line, fp);
-    fields = string_split(line, '|');
-    string_free(line);
+    str_read_line(line, fp);
+    fields = str_split(line, '|');
+    str_free(line);
     if (vec_length(fields))
     {
         score = score_alloc();
@@ -154,23 +154,23 @@ static score_ptr score_read(FILE *fp)
 static cptr _opt(cptr s) { return s ? s : ""; }
 static void score_write(score_ptr score, FILE* fp)
 {
-    string_ptr line = string_alloc();
+    str_ptr line = str_alloc();
 
-    string_printf(line, "%d|%d|%s|%s|%d|",
+    str_printf(line, "%d|%d|%s|%s|%d|",
         score->id, score->uid, score->date, score->version, score->score);
 
-    string_printf(line, "%s|%s|%s|%s|%s|",
+    str_printf(line, "%s|%s|%s|%s|%s|",
         score->name, score->race, _opt(score->subrace), score->class_, _opt(score->subclass));
 
-    string_printf(line, "%s|%s|%d|%d|%d|%d|%s|%s|%s|",
+    str_printf(line, "%s|%s|%d|%d|%d|%d|%s|%s|%s|",
         score->sex, score->personality, score->gold, score->turns,
         score->clvl, score->dlvl, _opt(score->dungeon), _opt(score->killer),
         _opt(score->status));
 
-    string_printf(line, "%d|%d|%d\n", score->exp, score->max_depth, score->fame);
+    str_printf(line, "%d|%d|%d\n", score->exp, score->max_depth, score->fame);
 
-    fputs(string_buffer(line), fp);
-    string_free(line);
+    fputs(str_buffer(line), fp);
+    str_free(line);
 }
 
 void score_free(score_ptr score)
@@ -193,25 +193,23 @@ void score_free(score_ptr score)
     }
 }
 
-static int score_cmp(score_ptr l, score_ptr r)
+static int score_cmp_id(score_ptr l, score_ptr r)
 {
-    if (l->score < r->score) return 1;
-    if (l->score > r->score) return -1;
     if (l->id < r->id) return 1;
     if (l->id > r->id) return -1;
     return 0;
 }
-
 static int score_cmp_score(score_ptr l, score_ptr r)
 {
-    return score_cmp(l, r);
+    if (l->score < r->score) return 1;
+    if (l->score > r->score) return -1;
+    return score_cmp_id(l, r);
 }
-
 static int score_cmp_date(score_ptr l, score_ptr r)
 {
     int result = -strcmp(l->date, r->date);
     if (!result)
-        result = score_cmp_score(l, r);
+        result = score_cmp_id(l, r); /* XXX multiple deaths on same day XXX */
     return result;
 }
 
@@ -286,7 +284,7 @@ vec_ptr scores_load(score_p filter)
         }
         fclose(fp);
     }
-    vec_sort(v, (vec_cmp_f)score_cmp);
+    vec_sort(v, (vec_cmp_f)score_cmp_score);
     return v;
 }
 
@@ -300,7 +298,7 @@ void scores_save(vec_ptr scores)
         msg_print("<color:v>Error:</color> Unable to open scores.txt");
         return;
     }
-    vec_sort(scores, (vec_cmp_f)score_cmp);
+    vec_sort(scores, (vec_cmp_f)score_cmp_score);
     for (i = 0; i < vec_length(scores); i++)
     {
         score_ptr score = vec_get(scores, i);
@@ -357,7 +355,7 @@ void scores_update(void)
     scores_save(scores);
     vec_free(scores); /* current is now in scores[] and need not be freed */
 
-    sprintf(name, "dump%d.doc", p_ptr->id);
+    sprintf(name, "dump%d.doc", plr->id);
     fp = _scores_fopen(name, "w");
     if (fp)
     {
@@ -377,7 +375,11 @@ static void _display(doc_ptr doc, vec_ptr scores, int top, int page_size)
     int i, j;
     doc_clear(doc);
     doc_insert(doc, "<style:table>");
+    #ifdef NO_SCORES
+    doc_insert(doc, "<tab:32><color:R>High Score Listing (CLOSED)</color>\n");
+    #else
     doc_insert(doc, "<tab:32><color:R>High Score Listing</color>\n");
+    #endif
     doc_insert(doc, "<color:G>    <color:keypress>N</color>ame            "
         "CL <color:keypress>R</color>ace         "
         "<color:keypress>C</color>lass            "
@@ -393,7 +395,7 @@ static void _display(doc_ptr doc, vec_ptr scores, int top, int page_size)
             continue;
         }
         score = vec_get(scores, j);
-        if (score->id == p_ptr->id)
+        if (score->id == plr->id)
             doc_insert(doc, "<color:B>");
         doc_printf(doc, " <color:y>%c</color>) %-15.15s", I2A(i), score->name);
         doc_printf(doc, " %2d %-12.12s %-13.13s", score->clvl, score->race, score->class_);
@@ -405,7 +407,7 @@ static void _display(doc_ptr doc, vec_ptr scores, int top, int page_size)
             doc_insert(doc, " <color:r>Dead</color>");
         else
             doc_insert(doc, " Alive");
-        if (score->id == p_ptr->id)
+        if (score->id == plr->id)
             doc_insert(doc, "</color>");
         doc_newline(doc);
     }
@@ -423,39 +425,39 @@ static void _display(doc_ptr doc, vec_ptr scores, int top, int page_size)
  * up to keep oook happy, but this is untested. */
 static void _add_html_header(score_ptr score, doc_ptr doc)
 {
-    string_ptr header = string_alloc();
+    str_ptr header = str_alloc();
 
-    string_append_s(header, "<head>\n");
-    string_append_s(header, " <meta name='filetype' value='character dump'>\n");
-    string_printf(header,  " <meta name='variant' value='%s'>\n", VERSION_NAME); /* never changes */
-    string_printf(header,  " <meta name='variant_version' value='%s'>\n", score->version);
-    string_printf(header,  " <meta name='character_name' value='%s'>\n", score->name);
-    string_printf(header,  " <meta name='race' value='%s'>\n", score->race);
-    string_printf(header,  " <meta name='class' value='%s'>\n", score->class_);
-    string_printf(header,  " <meta name='level' value='%d'>\n", score->clvl);
-    string_printf(header,  " <meta name='experience' value='%d'>\n", score->exp);
-    string_printf(header,  " <meta name='turncount' value='%d'>\n", score->turns);
-    string_printf(header,  " <meta name='max_depth' value='%d'>\n", score->max_depth);
-    string_printf(header,  " <meta name='score' value='%d'>\n", score->score);
-    string_printf(header,  " <meta name='fame' value='%d'>\n", score->fame);
+    str_append_s(header, "<head>\n");
+    str_append_s(header, " <meta name='filetype' value='character dump'>\n");
+    str_printf(header,  " <meta name='variant' value='%s'>\n", VERSION_NAME); /* never changes */
+    str_printf(header,  " <meta name='variant_version' value='%s'>\n", score->version);
+    str_printf(header,  " <meta name='character_name' value='%s'>\n", score->name);
+    str_printf(header,  " <meta name='race' value='%s'>\n", score->race);
+    str_printf(header,  " <meta name='class' value='%s'>\n", score->class_);
+    str_printf(header,  " <meta name='level' value='%d'>\n", score->clvl);
+    str_printf(header,  " <meta name='experience' value='%d'>\n", score->exp);
+    str_printf(header,  " <meta name='turncount' value='%d'>\n", score->turns);
+    str_printf(header,  " <meta name='max_depth' value='%d'>\n", score->max_depth);
+    str_printf(header,  " <meta name='score' value='%d'>\n", score->score);
+    str_printf(header,  " <meta name='fame' value='%d'>\n", score->fame);
 
     { /* XXX Is oook case sensitive? */
         char status[100];
         sprintf(status, "%s", score->status);
         status[0] = tolower(status[0]);
-        string_printf(header,  " <meta name='status' value='%s'>\n", status);
+        str_printf(header,  " <meta name='status' value='%s'>\n", status);
     }
 
     /* XXX drop winner, dead and retired boolean fields. Hopefully oook relies on
      * the status field instead */
 
     if (score_is_dead(score))
-        string_printf(header,  " <meta name='killer' value='%s'>\n", score->killer);
-    string_append_s(header, "</head>");
+        str_printf(header,  " <meta name='killer' value='%s'>\n", score->killer);
+    str_append_s(header, "</head>");
 
-    doc_change_html_header(doc, string_buffer(header));
+    doc_change_html_header(doc, str_buffer(header));
 
-    string_free(header);
+    str_free(header);
 }
 
 static void _show_dump(score_ptr score)

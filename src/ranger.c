@@ -4,13 +4,13 @@ static void _calc_bonuses(void)
 {
     /* rangers are decent shooters all around, but especially good with bows */
     slot_t slot = equip_find_obj(TV_BOW, SV_ANY); /* fyi, shooter_info not set yet ... */
-    if (slot) p_ptr->skills.thb += 20 + p_ptr->lev;
+    if (slot) plr->skills.thb += 20 + plr->lev;
 }
 
-static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
+static void _calc_shooter_bonuses(object_type *o_ptr, plr_shoot_info_ptr info_ptr)
 {
-    if (p_ptr->shooter_info.tval_ammo != TV_ARROW )
-        p_ptr->shooter_info.base_shot = 100;
+    if (plr->shooter_info.tval_ammo != TV_ARROW )
+        plr->shooter_info.base_shot = 100;
 }
 
 static int _get_powers(spell_info* spells, int max)
@@ -20,7 +20,7 @@ static int _get_powers(spell_info* spells, int max)
     spell_info* spell = &spells[ct++];
     spell->level = 15;
     spell->cost = 20;
-    spell->fail = calculate_fail_rate(spell->level, 90, p_ptr->stat_ind[A_WIS]);
+    spell->fail = calculate_fail_rate(spell->level, 90, plr->stat_ind[A_WIS]);
     spell->fn = probing_spell;
 
     return ct;
@@ -63,7 +63,7 @@ plr_class_ptr ranger_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  37,  36,   3,  24,  16,  56,  50};
-    skills_t xs = {  8,  11,  10,   0,   0,   0,  18,  16};
+    skills_t xs = { 40,  55,  50,   0,   0,   0,  90,  80};
 
         me = plr_class_alloc(CLASS_RANGER);
         me->name = "Ranger";

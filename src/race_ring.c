@@ -1,12 +1,5 @@
 #include "angband.h"
 
-static cptr _mon_name(int r_idx)
-{
-    if (r_idx)
-        return r_name + mon_race_lookup(r_idx)->name;
-    return ""; /* Birth Menu */
-}
-
 static int _count(int list[])
 {
     int i;
@@ -177,22 +170,22 @@ static bool _of_filter(of_info_ptr info)
     case OF_DEC_DEX:
     case OF_DEC_CON:
     case OF_DEC_CHR:
-    case OF_VULN_ACID:
-    case OF_VULN_ELEC:
-    case OF_VULN_FIRE:
-    case OF_VULN_COLD:
-    case OF_VULN_POIS:
-    case OF_VULN_FEAR:
-    case OF_VULN_LITE:
-    case OF_VULN_DARK:
-    case OF_VULN_BLIND:
-    case OF_VULN_CONF:
-    case OF_VULN_SOUND:
-    case OF_VULN_SHARDS:
-    case OF_VULN_NETHER:
-    case OF_VULN_NEXUS:
-    case OF_VULN_CHAOS:
-    case OF_VULN_DISEN:
+    case OF_VULN_(GF_ACID):
+    case OF_VULN_(GF_ELEC):
+    case OF_VULN_(GF_FIRE):
+    case OF_VULN_(GF_COLD):
+    case OF_VULN_(GF_POIS):
+    case OF_VULN_(GF_FEAR):
+    case OF_VULN_(GF_LIGHT):
+    case OF_VULN_(GF_DARK):
+    case OF_VULN_(GF_BLIND):
+    case OF_VULN_(GF_CONF):
+    case OF_VULN_(GF_SOUND):
+    case OF_VULN_(GF_SHARDS):
+    case OF_VULN_(GF_NETHER):
+    case OF_VULN_(GF_NEXUS):
+    case OF_VULN_(GF_CHAOS):
+    case OF_VULN_(GF_DISEN):
     case OF_DEC_STEALTH:
     case OF_DEC_SPEED:
     case OF_DEC_LIFE:
@@ -257,7 +250,7 @@ static bool _absorb(object_type *o_ptr)
             else
             {
                 _essences[info->id]++;
-                if (info->id == OF_AURA_FIRE && !have_flag(flags, OF_LITE)) _essences[OF_LITE]++;
+                if (info->id == OF_AURA_FIRE && !have_flag(flags, OF_LIGHT)) _essences[OF_LIGHT]++;
                 result = TRUE;
             }
         }
@@ -282,7 +275,7 @@ static bool _absorb(object_type *o_ptr)
 
     if (result)
     {
-        p_ptr->update |= PU_BONUS;
+        plr->update |= PU_BONUS;
         msg_print("You grow stronger!");
     }
     return result;
@@ -366,29 +359,29 @@ static int _res_power(int which)
 {
     switch (which)
     {
-    case RES_ELEC:
+    case GF_ELEC:
         return 3;
 
-    case RES_ACID:
-    case RES_FIRE:
-    case RES_COLD:
-    case RES_CONF:
-    case RES_FEAR:
-    case RES_TIME:
-    case RES_TELEPORT:
+    case GF_ACID:
+    case GF_FIRE:
+    case GF_COLD:
+    case GF_CONF:
+    case GF_FEAR:
+    case GF_TIME:
+    case GF_TELEPORT:
         return 2;
 
-    case RES_SOUND:
-    case RES_SHARDS:
-    case RES_CHAOS:
+    case GF_SOUND:
+    case GF_SHARDS:
+    case GF_CHAOS:
         return 4;
 
-    case RES_DISEN:
-    case RES_POIS:
-    case RES_LITE:
-    case RES_DARK:
-    case RES_NETHER:
-    case RES_NEXUS:
+    case GF_DISEN:
+    case GF_POIS:
+    case GF_LIGHT:
+    case GF_DARK:
+    case GF_NETHER:
+    case GF_NEXUS:
         return 3;
     }
 
@@ -418,7 +411,6 @@ static int _calculate_cost(int which, int base)
 static void _birth(void) 
 { 
     object_type forge;
-    char        buf[MAX_NLEN];
     int i;
 
     for (i = 0; i < _MAX_ESSENCE; i++)
@@ -427,27 +419,26 @@ static void _birth(void)
     for (i = 0; i < EFFECT_MAX; i++)
         _effects[i] = 0;
 
-    p_ptr->current_r_idx = MON_RING_MIMIC;
-    equip_on_change_race();
+    plr_mon_race_set("=.mimic");
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     add_flag(forge.flags, OF_NO_REMOVE);
     plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
-    get_rnd_line("ring_low.txt", 0, buf);
-    forge.art_name = quark_add(buf);
     forge.to_a = 10;
     effect_add(&forge, EFFECT_BOLT_MISSILE);
+    forge.art_name = quark_add(art_get_name(&forge, 0));
+    art_remember_name(quark_str(forge.art_name));
     plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_AMULET, 0));
-    get_rnd_line("ring_low.txt", 0, buf);
-    forge.art_name = quark_add(buf);
     forge.pval = 1;
     add_flag(forge.flags, OF_INT);
     add_flag(forge.flags, OF_CHR);
     effect_add(&forge, EFFECT_PHASE_DOOR);
+    forge.art_name = quark_add(art_get_name(&forge, 0));
+    art_remember_name(quark_str(forge.art_name));
     plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SCROLL, SV_SCROLL_TELEPORT));
@@ -455,8 +446,6 @@ static void _birth(void)
     plr_birth_obj(&forge);
 
     plr_birth_obj_aux(TV_STAFF, EFFECT_NOTHING, 1);
-
-    doc_display_help("rings.txt", NULL);
 }
 
 static bool _drain_essences(int div)
@@ -476,7 +465,7 @@ static bool _drain_essences(int div)
             result = TRUE;
     }
     if (result)
-        p_ptr->update |= PU_BONUS;
+        plr->update |= PU_BONUS;
     return result;
 }
 
@@ -497,7 +486,7 @@ static void _gain_level(int new_level)
     {
     case 10:
     {
-        int choices[] = {EFFECT_LITE_AREA, EFFECT_DETECT_TRAPS, EFFECT_DETECT_MONSTERS, 
+        int choices[] = {EFFECT_LIGHT_AREA, EFFECT_DETECT_TRAPS, EFFECT_DETECT_MONSTERS, 
                          EFFECT_DETECT_OBJECTS, EFFECT_SATISFY_HUNGER, -1};
         _gain_one_effect(choices);
         break;
@@ -525,7 +514,7 @@ static void _gain_level(int new_level)
     }
     case 45:
     {
-        int choices[] = {EFFECT_BOLT_WATER, EFFECT_BOLT_MANA, EFFECT_BALL_LITE, 
+        int choices[] = {EFFECT_BOLT_WATER, EFFECT_BOLT_MANA, EFFECT_BALL_LIGHT, 
                          EFFECT_BALL_DARK, EFFECT_BALL_CHAOS, EFFECT_BALL_WATER,
                          EFFECT_BALL_MANA, EFFECT_BREATHE_SOUND, EFFECT_BREATHE_SHARDS,
                          EFFECT_BREATHE_CHAOS, -1};
@@ -584,10 +573,10 @@ static void _detect_obj(point_t pos, obj_ptr obj)
 {
     int rng = DETECT_RAD_ALL;
     if (!obj_is_jewelry(obj)) return;
-    if (distance(p_ptr->pos.y, p_ptr->pos.x, pos.y, pos.x) > rng) return;
+    if (plr_distance(pos) > rng) return;
     obj->marked |= OM_FOUND;
-    p_ptr->window |= PW_OBJECT_LIST;
-    lite_pos(pos);
+    plr->window |= PW_OBJECT_LIST;
+    draw_pos(pos);
     _detect = TRUE;
 }
 static void _detect_pile(point_t pos, obj_ptr pile)
@@ -632,7 +621,7 @@ static void _judge_spell(int cmd, var_ptr res)
         var_set_string(res, "Identifies a piece of jewelry.");
         break;
     case SPELL_CAST:
-        if (p_ptr->lev >= 35)
+        if (plr->lev >= 35)
             var_set_bool(res, identify_fully(obj_is_jewelry));
         else
             var_set_bool(res, ident_spell(obj_is_jewelry));
@@ -655,7 +644,7 @@ static void _glitter_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
-        if (p_ptr->riding)
+        if (plr->riding)
         {
             msg_print("You already have a ring bearer.");
             return;
@@ -671,7 +660,7 @@ static void _glitter_spell(int cmd, var_ptr res)
 
 static int _charm_power(void)
 {
-    return spell_power(p_ptr->lev * 3 / 2 + p_ptr->stat_ind[A_CHR] + 3);
+    return spell_power(plr->lev * 3 / 2 + plr->stat_ind[A_CHR] + 3);
 }
 static void _charm_spell(int cmd, var_ptr res)
 {
@@ -683,23 +672,8 @@ static void _charm_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Attempt to dominate a single ring bearer.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_power(_charm_power()));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (get_fire_dir(&dir))
-        {
-            project_hook(GF_CHARM_RING_BEARER, dir, _charm_power(), PROJECT_STOP | PROJECT_KILL);
-            var_set_bool(res, TRUE);
-        }
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        direct_spell(cmd, res, GF_CHARM_RING_BEARER, _charm_power());
     }
 }
 
@@ -763,7 +737,7 @@ static _group_t _groups[] = {
         { EFFECT_BOLT_COLD,           13,   6, 45 },
         { EFFECT_BOLT_ACID,           14,   8, 55 },
         { EFFECT_BOLT_FIRE,           15,   9, 55 },
-        { EFFECT_BOLT_LITE,           17,  11, 55 },
+        { EFFECT_BOLT_LIGHT,           17,  11, 55 },
         { EFFECT_BOLT_DARK,           19,  12, 60 },
         { EFFECT_BOLT_NETHER,         20,  12, 60 },
         { EFFECT_BOLT_NEXUS,          22,  15, 65 },
@@ -792,7 +766,7 @@ static _group_t _groups[] = {
         { EFFECT_BALL_SHARDS,         32,  27, 65 },
         { EFFECT_BALL_DISEN,          34,  27, 65 },
         { EFFECT_BALL_TIME,           34,  30, 65 },
-        { EFFECT_BALL_LITE,           35,  35, 65 },
+        { EFFECT_BALL_LIGHT,           35,  35, 65 },
         { EFFECT_BALL_DARK,           36,  35, 65 },
         { EFFECT_BALL_CHAOS,          37,  35, 65 },
         { EFFECT_BALL_WATER,          38,  37, 70 },
@@ -805,7 +779,7 @@ static _group_t _groups[] = {
         { EFFECT_BREATHE_ACID,        27,  35, 55 },
         { EFFECT_BREATHE_FIRE,        28,  35, 55 },
         { EFFECT_BREATHE_POIS,        30,  35, 45 },
-        { EFFECT_BREATHE_LITE,        32,  35, 55 },
+        { EFFECT_BREATHE_LIGHT,        32,  35, 55 },
         { EFFECT_BREATHE_DARK,        33,  35, 60 },
         { EFFECT_BREATHE_NETHER,      35,  35, 60 },
         { EFFECT_BREATHE_NEXUS,       36,  40, 65 },
@@ -833,7 +807,7 @@ static _group_t _groups[] = {
         { EFFECT_DISPEL_GOOD,         33,  30, 55 }, 
         { EFFECT_DISPEL_EVIL,         35,  35, 60 }, 
         { EFFECT_DISPEL_LIFE,         35,  35, 60 }, 
-        { EFFECT_CONFUSING_LITE,      37,  40, 60 },
+        { EFFECT_CONFUSING_LIGHT,      37,  40, 60 },
         { EFFECT_HOLINESS,            40,  40, 60 },
         { EFFECT_DISPEL_EVIL_HERO,    40,  40, 60 },
         { EFFECT_ROCKET,              42,  50, 65 },
@@ -883,14 +857,14 @@ static _group_t _groups[] = {
         { EFFECT_NONE } } },
 
     { "Detection/Knowledge", 'D', TERM_L_BLUE,
-      { { EFFECT_LITE_AREA,            1,   2, 25 },
+      { { EFFECT_LIGHT_AREA,            1,   2, 25 },
         { EFFECT_DETECT_TRAPS,         3,   4, 30 },
         { EFFECT_DETECT_GOLD,          4,   4, 30 },
         { EFFECT_DETECT_EVIL,          5,   5, 35 },
         { EFFECT_DETECT_MONSTERS,      7,   5, 35 },
         { EFFECT_DETECT_OBJECTS,       8,   7, 40 },
         { EFFECT_IDENTIFY,            15,  12, 55 },
-        { EFFECT_LITE_MAP_AREA,       20,  10, 50 },
+        { EFFECT_LIGHT_MAP_AREA,       20,  10, 50 },
         { EFFECT_ENLIGHTENMENT,       20,  10, 50 },
         { EFFECT_DETECT_ALL,          25,  15, 60 },
         { EFFECT_PROBING,             27,  20, 60 },
@@ -1148,9 +1122,9 @@ static void _spell_menu_fn(int cmd, int which, vptr cookie, var_ptr res)
         break;
     }
     case MENU_COLOR:
-        if (s->level > p_ptr->lev)
+        if (s->level > plr->lev)
             var_set_int(res, TERM_L_DARK);
-        else if (s->cost > p_ptr->csp)
+        else if (s->cost > plr->csp)
             var_set_int(res, TERM_L_DARK);
         else
             var_set_int(res, TERM_WHITE);
@@ -1178,7 +1152,7 @@ static _spell_t _prompt_spell(_spell_ptr spells)
             choice->effect = spell->effect;
             choice->level = spell->level;
             choice->cost = _calculate_cost(spell->effect, spell->cost);
-            choice->fail = calculate_fail_rate(spell->level, spell->fail, p_ptr->stat_ind[A_INT]);
+            choice->fail = calculate_fail_rate(spell->level, spell->fail, plr->stat_ind[A_INT]);
 
             ct_avail++;
         }
@@ -1237,18 +1211,18 @@ void ring_cast(void)
     if (spell.effect == EFFECT_NONE)
         return;
 
-    if (spell.level > p_ptr->lev)
+    if (spell.level > plr->lev)
     {
         msg_print("You can't use that spell yet!");
         return;
     }
-    if (spell.cost > p_ptr->csp)
+    if (spell.cost > plr->csp)
     {
         msg_print("You do not have enough mana to use this power.");
         return;
     }
 
-    p_ptr->csp -= spell.cost;
+    plr->csp -= spell.cost;
 
     if (randint0(100) < spell.fail)
     {
@@ -1262,13 +1236,13 @@ void ring_cast(void)
         device_known = TRUE; /* Hack */
         if (!do_effect(&effect, SPELL_CAST, _boost(spell.effect)))
         {
-            p_ptr->csp += spell.cost;
+            plr->csp += spell.cost;
         }
     }
     energy_use = 100;
-    p_ptr->redraw |= PR_MANA;
-    p_ptr->redraw |= PR_HP;
-    p_ptr->window |= PW_SPELL;
+    plr->redraw |= PR_MANA;
+    plr->redraw |= PR_HP;
+    plr->window |= PW_SPELL;
 }
 
 static void _browse(void)
@@ -1318,114 +1292,114 @@ void ring_browse(void)
 static void _calc_bonuses(void) 
 {
     int i;
-    int l = p_ptr->lev;
+    int l = plr->lev;
     int to_a = l;
 
-    p_ptr->skill_dig += 30;
+    plr->skill_dig += 30;
 
     to_a += _calc_amount(_essences[_ESSENCE_AC], 1, 15);
-    p_ptr->to_a += to_a;
-    p_ptr->dis_to_a += to_a;
+    plr->to_a += to_a;
+    plr->dis_to_a += to_a;
 
-    res_add_vuln(RES_ELEC);
-    p_ptr->no_cut = TRUE;
+    res_add_vuln(GF_ELEC);
+    plr->no_cut = TRUE;
 
     /* Speed rings come very late, and very unreliably ... */
-    p_ptr->pspeed += p_ptr->lev / 10;
+    plr->pspeed += plr->lev / 10;
 
-    for (i = 0; i < RES_MAX; i++)
+    for (i = GF_RES_MIN; i <= GF_RES_MAX; i++)
     {
-        int j = res_get_object_flag(i);
+        int j = OF_RES_(i);
         int n = _calc_amount(_essences[j], _res_power(i), 1);
 
         for (; n; --n)
             res_add(i);
     }
-    if (_essences[OF_IM_ACID] >= 2)
-        res_add_immune(RES_ACID);
-    if (_essences[OF_IM_ELEC] >= 2)
-        res_add_immune(RES_ELEC);
-    if (_essences[OF_IM_FIRE] >= 2)
-        res_add_immune(RES_FIRE);
-    if (_essences[OF_IM_COLD] >= 2)
-        res_add_immune(RES_COLD);
+    if (_essences[OF_IM_(GF_ACID)] >= 2)
+        res_add_immune(GF_ACID);
+    if (_essences[OF_IM_(GF_ELEC)] >= 2)
+        res_add_immune(GF_ELEC);
+    if (_essences[OF_IM_(GF_FIRE)] >= 2)
+        res_add_immune(GF_FIRE);
+    if (_essences[OF_IM_(GF_COLD)] >= 2)
+        res_add_immune(GF_COLD);
 
-    p_ptr->life += 3*_calc_amount(_essences[OF_LIFE], 7, 1);
+    plr->life += 3*_calc_amount(_essences[OF_LIFE], 7, 1);
 
-    p_ptr->skills.stl += _calc_amount(_essences[OF_STEALTH], 2, 1);
-    p_ptr->pspeed += _calc_amount(_essences[OF_SPEED], 1, 5);
-    p_ptr->skills.dev += 8*_calc_amount(_essences[OF_MAGIC_MASTERY], 2, 1);
-    p_ptr->device_power += _calc_amount(_essences[OF_DEVICE_POWER], 2, 1);
-    p_ptr->spell_power += _calc_amount(_essences[OF_SPELL_POWER], 2, 1);
-    p_ptr->spell_cap += _calc_amount(_essences[OF_SPELL_CAP], 2, 1);
-    p_ptr->skills.srh += 5*_calc_amount(_essences[OF_SEARCH], 2, 1);
-    p_ptr->skills.fos += 5*_calc_amount(_essences[OF_SEARCH], 2, 1);
-    p_ptr->see_infra += _calc_amount(_essences[OF_INFRA], 2, 1);
+    plr->skills.stl += _calc_amount(_essences[OF_STEALTH], 2, 1);
+    plr->pspeed += _calc_amount(_essences[OF_SPEED], 1, 5);
+    plr->skills.dev += 8*_calc_amount(_essences[OF_MAGIC_MASTERY], 2, 1);
+    plr->device_power += _calc_amount(_essences[OF_DEVICE_POWER], 2, 1);
+    plr->spell_power += _calc_amount(_essences[OF_SPELL_POWER], 2, 1);
+    plr->spell_cap += _calc_amount(_essences[OF_SPELL_CAP], 2, 1);
+    plr->skills.srh += 5*_calc_amount(_essences[OF_SEARCH], 2, 1);
+    plr->skills.fos += 5*_calc_amount(_essences[OF_SEARCH], 2, 1);
+    plr->see_infra += _calc_amount(_essences[OF_INFRA], 2, 1);
 
     if (_essences[OF_DEC_MANA] >= 7)
-        p_ptr->dec_mana++;
+        plr->dec_mana++;
     if (_essences[OF_EASY_SPELL] >= 7)
-        p_ptr->easy_spell++;
+        plr->easy_spell++;
 
     if (_essences[OF_SUST_STR] >= 5)
-        p_ptr->sustain_str = TRUE;
+        plr->sustain_str = TRUE;
     if (_essences[OF_SUST_INT] >= 5)
-        p_ptr->sustain_int = TRUE;
+        plr->sustain_int = TRUE;
     if (_essences[OF_SUST_WIS] >= 5)
-        p_ptr->sustain_wis = TRUE;
+        plr->sustain_wis = TRUE;
     if (_essences[OF_SUST_DEX] >= 5)
-        p_ptr->sustain_dex = TRUE;
+        plr->sustain_dex = TRUE;
     if (_essences[OF_SUST_CON] >= 5)
-        p_ptr->sustain_con = TRUE;
+        plr->sustain_con = TRUE;
     if (_essences[OF_SUST_CHR] >= 5)
-        p_ptr->sustain_chr = TRUE;
+        plr->sustain_chr = TRUE;
 
     if (_essences[OF_TELEPATHY] >= 2)
-        p_ptr->telepathy = TRUE;
+        plr->telepathy = TRUE;
     if (_essences[OF_ESP_ANIMAL] >= 2)
-        p_ptr->esp_animal = TRUE;
+        plr->esp_animal = TRUE;
     if (_essences[OF_ESP_UNDEAD] >= 2)
-        p_ptr->esp_undead = TRUE;
+        plr->esp_undead = TRUE;
     if (_essences[OF_ESP_DEMON] >= 2)
-        p_ptr->esp_demon = TRUE;
+        plr->esp_demon = TRUE;
     if (_essences[OF_ESP_ORC] >= 2)
-        p_ptr->esp_orc = TRUE;
+        plr->esp_orc = TRUE;
     if (_essences[OF_ESP_TROLL] >= 2)
-        p_ptr->esp_troll = TRUE;
+        plr->esp_troll = TRUE;
     if (_essences[OF_ESP_GIANT] >= 2)
-        p_ptr->esp_giant = TRUE;
+        plr->esp_giant = TRUE;
     if (_essences[OF_ESP_DRAGON] >= 2)
-        p_ptr->esp_dragon = TRUE;
+        plr->esp_dragon = TRUE;
     if (_essences[OF_ESP_HUMAN] >= 2)
-        p_ptr->esp_human = TRUE;
+        plr->esp_human = TRUE;
     if (_essences[OF_ESP_EVIL] >= 2)
-        p_ptr->esp_evil = TRUE;
+        plr->esp_evil = TRUE;
     if (_essences[OF_ESP_GOOD] >= 2)
-        p_ptr->esp_good = TRUE;
+        plr->esp_good = TRUE;
     if (_essences[OF_ESP_NONLIVING] >= 2)
-        p_ptr->esp_nonliving = TRUE;
+        plr->esp_nonliving = TRUE;
     if (_essences[OF_ESP_UNIQUE] >= 2)
-        p_ptr->esp_unique = TRUE;
+        plr->esp_unique = TRUE;
 
     if (_essences[OF_LEVITATION] >= 2)
-        p_ptr->levitation = TRUE;
+        plr->levitation = TRUE;
 
-    p_ptr->free_act += _calc_amount(_essences[OF_FREE_ACT], 2, 1);
-    p_ptr->see_inv += _calc_amount(_essences[OF_SEE_INVIS], 3, 1);
-    p_ptr->hold_life += _calc_amount(_essences[OF_HOLD_LIFE], 3, 1);
-    p_ptr->regen += 5 * _calc_amount(_essences[OF_REGEN], 2, 10);
+    plr->free_act += _calc_amount(_essences[OF_FREE_ACT], 2, 1);
+    plr->see_inv += _calc_amount(_essences[OF_SEE_INVIS], 3, 1);
+    plr->hold_life += _calc_amount(_essences[OF_HOLD_LIFE], 3, 1);
+    plr->regen += 5 * _calc_amount(_essences[OF_REGEN], 2, 10);
 
     if (_essences[OF_SLOW_DIGEST] >= 2)
-        p_ptr->slow_digest = TRUE;
+        plr->slow_digest = TRUE;
     if (_essences[OF_REFLECT] >= 7)
-        p_ptr->reflect = TRUE;
+        plr->reflect = TRUE;
 
     if (_essences[OF_AURA_FIRE] >= 7)
-        p_ptr->sh_fire = TRUE;
+        plr->sh_fire = TRUE;
     if (_essences[OF_AURA_ELEC] >= 7)
-        p_ptr->sh_elec = TRUE;
+        plr->sh_elec = TRUE;
     if (_essences[OF_AURA_COLD] >= 7)
-        p_ptr->sh_cold = TRUE;
+        plr->sh_cold = TRUE;
 }
 
 static void _calc_stats(s16b stats[MAX_STATS])
@@ -1439,8 +1413,8 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     int i;
 
-    add_flag(flgs, OF_LITE);
-    add_flag(flgs, OF_VULN_ELEC);
+    add_flag(flgs, OF_LIGHT);
+    add_flag(flgs, OF_VULN_(GF_ELEC));
 
     for (i = 0; i < 6; i++) /* Assume in order */
     {
@@ -1450,12 +1424,11 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
             add_flag(flgs, OF_SUST_STR + i);
     }
 
-    for (i = 0; i < RES_MAX; i++)
+    for (i = GF_RES_MIN; i <= GF_RES_MAX; i++)
     {
-        int j = res_get_object_flag(i);
+        int j = OF_RES_(i);
         int n = _calc_amount(_essences[j], _res_power(i), 1);
 
-        if (j == OF_NO_TELE) continue; /* TODO: Need TR_RES_TELE */
         if (n)
             add_flag(flgs, j);
     }
@@ -1465,7 +1438,7 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     if (_essences[OF_EASY_SPELL] >= 7)
         add_flag(flgs, OF_EASY_SPELL);
 
-    if (p_ptr->lev >= 10 || _calc_amount(_essences[OF_SPEED], 1, 5))
+    if (plr->lev >= 10 || _calc_amount(_essences[OF_SPEED], 1, 5))
         add_flag(flgs, OF_SPEED);
     if (_calc_amount(_essences[OF_STEALTH], 2, 1))
         add_flag(flgs, OF_STEALTH);
@@ -1532,14 +1505,14 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     if (_essences[OF_AURA_COLD] >= 7)
         add_flag(flgs, OF_AURA_COLD);
 
-    if (_essences[OF_IM_ACID] >= 2)
-        add_flag(flgs, OF_IM_ACID);
-    if (_essences[OF_IM_ELEC] >= 2)
-        add_flag(flgs, OF_IM_ELEC);
-    if (_essences[OF_IM_FIRE] >= 2)
-        add_flag(flgs, OF_IM_FIRE);
-    if (_essences[OF_IM_COLD] >= 2)
-        add_flag(flgs, OF_IM_COLD);
+    if (_essences[OF_IM_(GF_ACID)] >= 2)
+        add_flag(flgs, OF_IM_(GF_ACID));
+    if (_essences[OF_IM_(GF_ELEC)] >= 2)
+        add_flag(flgs, OF_IM_(GF_ELEC));
+    if (_essences[OF_IM_(GF_FIRE)] >= 2)
+        add_flag(flgs, OF_IM_(GF_FIRE));
+    if (_essences[OF_IM_(GF_COLD)] >= 2)
+        add_flag(flgs, OF_IM_(GF_COLD));
 }
 
 /**********************************************************************
@@ -1601,7 +1574,7 @@ static void _dump_effects(doc_ptr doc)
         {
             _spell_ptr s = g->spells + j;
             if (s->effect == EFFECT_NONE) break;
-            if (_effects[s->effect] || p_ptr->wizard)
+            if (_effects[s->effect] || plr->wizard)
             {
                 char     buf[1024];
                 char     name[255];
@@ -1614,7 +1587,7 @@ static void _dump_effects(doc_ptr doc)
                 sprintf(buf, "<color:%c>%-30.30s %3d %3d %3d %3d%% %s</color>",
                               _effects[s->effect] ? 'w' : 'D',
                               name, _effects[s->effect], s->level, _calculate_cost(s->effect, s->cost), 
-                              calculate_fail_rate(s->level, s->fail, p_ptr->stat_ind[A_INT]), info);
+                              calculate_fail_rate(s->level, s->fail, plr->stat_ind[A_INT]), info);
 
                 if (!ct)
                 {
@@ -1625,7 +1598,7 @@ static void _dump_effects(doc_ptr doc)
             }
         }
     }
-    if (p_ptr->wizard)
+    if (plr->wizard)
         _dump_missing_effects(doc);
 }
 
@@ -1645,20 +1618,20 @@ static void _character_dump(doc_ptr doc)
     _dump_bonus_flag(doc, OF_SEARCH, 2, 1, "Searching");
     _dump_bonus_flag(doc, OF_INFRA, 2, 1, "Infravision");
     _dump_bonus_flag(doc, OF_TUNNEL, 2, 1, "Digging");
-    _dump_bonus_flag(doc, OF_LITE, 1, 1, "Light");
+    _dump_bonus_flag(doc, OF_LIGHT, 1, 1, "Light");
     _dump_bonus_flag(doc, OF_MAGIC_MASTERY, 2, 1, "Magic Mastery");
     _dump_bonus_flag(doc, OF_DEVICE_POWER, 2, 1, "Device Power");
     _dump_bonus_flag(doc, OF_SPELL_POWER, 2, 1, "Spell Power");
     _dump_bonus_flag(doc, OF_SPELL_CAP, 2, 1, "Spell Capacity");
  
     doc_printf(doc, "\n   <color:G>%-22.22s Total  Need Bonus</color>\n", "Resistances");
-    for (i = 0; i < RES_MAX; i++)
-        _dump_bonus_flag(doc, res_get_object_flag(i), _res_power(i), 1, format("%^s", res_name(i)));
+    for (i = GF_RES_MIN; i <= GF_RES_MAX; i++)
+        _dump_bonus_flag(doc, OF_RES_(i), _res_power(i), 1, format("%^s", res_name(i)));
 
-    _dump_ability_flag(doc, OF_IM_ACID, 2, "Immune Acid");
-    _dump_ability_flag(doc, OF_IM_ELEC, 2, "Immune Elec");
-    _dump_ability_flag(doc, OF_IM_FIRE, 2, "Immune Fire");
-    _dump_ability_flag(doc, OF_IM_COLD, 2, "Immune Cold");
+    _dump_ability_flag(doc, OF_IM_(GF_ACID), 2, "Immune Acid");
+    _dump_ability_flag(doc, OF_IM_(GF_ELEC), 2, "Immune Elec");
+    _dump_ability_flag(doc, OF_IM_(GF_FIRE), 2, "Immune Fire");
+    _dump_ability_flag(doc, OF_IM_(GF_COLD), 2, "Immune Cold");
 
     doc_printf(doc, "\n   <color:G>%-22.22s Total  Need Bonus</color>\n", "Abilities");
     _dump_bonus_flag(doc, OF_FREE_ACT, 2, 1, "Free Action");
@@ -1718,7 +1691,7 @@ plr_race_ptr mon_ring_get_race(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  40,  38,   5,  25,  20,  34,  20};
-    skills_t xs = {  7,  15,  11,   0,   0,   0,   6,   7};
+    skills_t xs = { 35,  75,  55,   0,   0,   0,  30,  35};
 
         me = plr_race_alloc(RACE_MON_RING);
         me->skills = bs;
@@ -1766,27 +1739,30 @@ plr_race_ptr mon_ring_get_race(void)
         me->hooks.destroy_object = _absorb_object;
 
         me->flags = RACE_IS_MONSTER | RACE_IS_NONLIVING;
-        me->pseudo_class_idx = CLASS_MAGE;
+        me->pseudo_class_id = CLASS_MAGE;
     }
 
-    if (p_ptr->riding)
-        me->subname = _mon_name(dun_mon(cave, p_ptr->riding)->r_idx);
-    else
-        me->subname = NULL;
+    me->subname = NULL;
+    if (plr->riding && !plr->is_dead && character_loaded)
+    {
+        mon_race_ptr race = plr_riding_race();
+        if (race)
+            me->subname = race->name;
+    }
 
-    me->equip_template = mon_get_equip_template();
+    me->equip_template = plr_equip_template();
     return me;
 }
 
 int ring_calc_torch(void)
 {
-    return 1 + _calc_amount(_essences[OF_LITE], 1, 1);
+    return 1 + _calc_amount(_essences[OF_LIGHT], 1, 1);
 }
 
 bool ring_disenchant(void)
 {
     bool result = FALSE;
-    if (!res_save(RES_DISEN, 44) && _drain_essences(20))
+    if (!res_save(GF_DISEN, 44) && _drain_essences(20))
     {
         msg_print("You feel power draining from your body!");
         result = TRUE;
@@ -1796,17 +1772,17 @@ bool ring_disenchant(void)
 
 static int _plev(void)
 {
-    if (p_ptr->lev <= 40)
-        return p_ptr->lev;
+    if (plr->lev <= 40)
+        return plr->lev;
 
-    return 40 + (p_ptr->lev - 40)*2;
+    return 40 + (plr->lev - 40)*2;
 }
 
 static int _r_level(monster_race *r_ptr)
 {
-int ml = r_ptr->level;
+    int ml = r_ptr->alloc.lvl;
     
-    if (r_ptr->flags1 & RF1_UNIQUE)
+    if (mon_race_is_unique(r_ptr))
         ml += ml/5;
 
     return ml;
@@ -1815,7 +1791,7 @@ int ml = r_ptr->level;
 static bool _mon_save_p(monster_type *m_ptr)
 {
     int           pl = _plev();
-    monster_race *r_ptr = mon_race_lookup(m_ptr->r_idx);
+    monster_race *r_ptr = m_ptr->race;
     int           ml = _r_level(r_ptr);
     bool          result = FALSE;
 
@@ -1824,7 +1800,7 @@ static bool _mon_save_p(monster_type *m_ptr)
     
     /* Player may not exert their force of will out of sight! */
     if (plr_project_mon(m_ptr))
-        pl += adj_stat_save_fear[p_ptr->stat_ind[A_CHR]];
+        pl += adj_stat_save_fear[plr->stat_ind[A_CHR]];
 
     if (pl <= 1) 
         return TRUE;
@@ -1835,25 +1811,24 @@ static bool _mon_save_p(monster_type *m_ptr)
     return result;
 }
 
-bool ring_dominate_m(int m_idx)
+bool ring_dominate_m(mon_ptr mon)
 {
-    monster_type *m_ptr = dun_mon(cave, m_idx);
-    if ( p_ptr->prace == RACE_MON_RING 
-      && !p_ptr->riding
-      && !is_aware(m_ptr) 
-      && mon_is_type(m_ptr->r_idx, SUMMON_RING_BEARER) )
+    if ( plr->prace == RACE_MON_RING 
+      && !plr->riding
+      && !is_aware(mon) 
+      && mon_is_type(mon->race, SUMMON_RING_BEARER) )
     {
         char m_name[MAX_NLEN];
-        monster_desc(m_name, m_ptr, 0);
-        if (_mon_save_p(m_ptr))
+        monster_desc(m_name, mon, 0);
+        if (_mon_save_p(mon))
         {
             msg_format("%^s sees you for what you truly are!", m_name);
-            m_ptr->mflag2 |= MFLAG2_AWARE;
+            mon->mflag2 |= MFLAG2_AWARE;
         }
         else
         {
             /* Pick the pretty up! */
-            set_pet(m_ptr);
+            set_pet(mon);
 
             switch (randint1(5))
             {
@@ -1864,15 +1839,15 @@ bool ring_dominate_m(int m_idx)
             case 5: msg_format("%^s says, 'This better be a Ring of Speed!'", m_name); break;
             }
             msg_format("%^s picks you up.", m_name);
-            p_ptr->riding = m_idx;
-            if (p_ptr->riding == p_ptr->health_who) health_track(0);
+            plr->riding = mon->id;
+            if (plr->riding == plr->health_who) health_track(NULL);
             set_action(ACTION_NONE);
 
-            p_ptr->update |= PU_UN_VIEW | PU_UN_LITE;
-            p_ptr->update |= PU_BONUS;
-            p_ptr->redraw |= PR_MAP | PR_EXTRA;
-            p_ptr->redraw |= PR_HEALTH_BARS;
-            move_player_effect(m_ptr->pos, MPE_HANDLE_STUFF | MPE_ENERGY_USE | MPE_DONT_PICKUP | MPE_DONT_SWAP_MON);
+            plr->update |= PU_UN_VIEW | PU_UN_LIGHT;
+            plr->update |= PU_BONUS;
+            plr->redraw |= PR_MAP | PR_EXTRA;
+            plr->redraw |= PR_HEALTH_BARS;
+            move_player_effect(mon->pos, MPE_HANDLE_STUFF | MPE_ENERGY_USE | MPE_DONT_PICKUP | MPE_DONT_SWAP_MON);
         
             return TRUE;
         }
@@ -1880,37 +1855,35 @@ bool ring_dominate_m(int m_idx)
     return FALSE;
 }
 
-void ring_process_m(int m_idx)
+void ring_process_m(mon_ptr mon)
 {
-    if (p_ptr->prace == RACE_MON_RING && p_ptr->riding == m_idx)
+    if (plr->prace == RACE_MON_RING && plr->riding == mon->id)
     {
-        monster_type *m_ptr = dun_mon(cave, m_idx);
-        monster_race *r_ptr = mon_race_lookup(m_ptr->r_idx);
-        int           odds = 10000;
+        int odds = 10000;
 
-        if (r_ptr->flags1 & RF1_UNIQUE)
+        if (mon_race_is_unique(mon->race))
             odds = 1000;
 
-        if (one_in_(odds) && _mon_save_p(m_ptr))
+        if (one_in_(odds) && _mon_save_p(mon))
         {
             int  sn = 0;
-            point_t sp = p_ptr->pos;
+            point_t sp = plr->pos;
             int  i;
 
             for (i = 0; i < 8; i++)
             {
-                point_t p = point_step(p_ptr->pos, ddd[i]);
-                cave_ptr c_ptr;
+                point_t p = point_step(plr->pos, ddd[i]);
+                dun_cell_ptr cell;
 
                 if (!dun_pos_interior(cave, p)) continue;
-                if (mon_at(p)) continue;
+                if (dun_mon_at(cave, p)) continue;
 
-                c_ptr = cave_at(p);
-                if (!cave_have_flag_grid(c_ptr, FF_MOVE) && !cave_have_flag_grid(c_ptr, FF_CAN_FLY))
+                cell = dun_cell_at(cave, p);
+                if (cell_is_wall(cell) || door_is_closed(cell))
                 {
                     if (!player_can_ride_aux(p, FALSE)) continue;
                 }
-                if (cave_have_flag_grid(c_ptr, FF_PATTERN)) continue;
+                if (cell->type == FEAT_PATTERN) continue;
 
                 /* This location is safe! */
                 sn++;
@@ -1920,19 +1893,19 @@ void ring_process_m(int m_idx)
             if (sn)
             {
                 char m_name[MAX_NLEN];
-                monster_desc(m_name, m_ptr, 0);
+                monster_desc(m_name, mon, 0);
                 cmsg_format(TERM_VIOLET, "%^s removes you in disgust.", m_name);
-                dun_lite_pos(cave, p_ptr->pos);
-                dun_lite_pos(cave, sp);
+                dun_draw_pos(cave, plr->pos);
+                dun_draw_pos(cave, sp);
                 viewport_verify();
-                set_hostile(m_ptr);
-                p_ptr->riding = 0;
+                set_hostile(mon);
+                plr->riding = 0;
                 calc_bonuses();
 
-                p_ptr->update |= PU_BONUS | PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE | PU_MONSTERS;
-                p_ptr->window |= PW_OVERHEAD | PW_DUNGEON;
-                p_ptr->redraw |= PR_EXTRA;
-                p_ptr->redraw |= PR_HEALTH_BARS;
+                plr->update |= PU_BONUS | PU_VIEW | PU_LIGHT | PU_FLOW | PU_MON_LIGHT | PU_MONSTERS;
+                plr->window |= PW_OVERHEAD | PW_DUNGEON;
+                plr->redraw |= PR_EXTRA;
+                plr->redraw |= PR_HEALTH_BARS;
 
                 move_player_effect(sp, MPE_DONT_PICKUP | MPE_DONT_SWAP_MON);
                 handle_stuff();
@@ -1953,17 +1926,17 @@ void ring_process_m(int m_idx)
 
 void ring_summon_ring_bearer(void)
 {
-    if (p_ptr->prace == RACE_MON_RING && p_ptr->action == ACTION_GLITTER && !p_ptr->riding)
+    if (plr->prace == RACE_MON_RING && plr->action == ACTION_GLITTER && !plr->riding)
     {
         int i;
         const int max_attempts = 10000;
 
         for (i = 0; i < max_attempts; i++)
         {
-            point_t pos = point_random_jump(p_ptr->pos, 10);
+            point_t pos = point_random_jump(plr->pos, 10);
             if (!dun_pos_interior(cave, pos)) continue;
-            if (!cave_empty_at(pos)) continue;
-            summon_specific(-1, pos, cave->difficulty, SUMMON_RING_BEARER, PM_ALLOW_UNIQUE);
+            if (!dun_allow_mon_at(cave, pos)) continue;
+            summon_specific(who_create_plr(), pos, MAX(5, cave->difficulty), SUMMON_RING_BEARER, PM_ALLOW_UNIQUE);
             break;
         }
     }    

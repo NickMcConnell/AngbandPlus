@@ -1,7 +1,5 @@
-#include "z-doc.h"
-
 #include "angband.h"
-#include "c-string.h"
+#include "c-str.h"
 
 #include <assert.h>
 #include <stdint.h>
@@ -18,8 +16,8 @@ struct doc_s
     vec_ptr        bookmarks;
     int_map_ptr    links;
     vec_ptr        style_stack;
-    string_ptr     name;
-    string_ptr     html_header;
+    str_ptr        name;
+    str_ptr        html_header;
 };
 
 doc_pos_t doc_pos_create(int x, int y)
@@ -115,15 +113,15 @@ int doc_region_line_count(doc_region_ptr region)
 static void _doc_bookmark_free(vptr pv)
 {
     doc_bookmark_ptr mark = pv;
-    string_free(mark->name);
+    str_free(mark->name);
     free(mark);
 }
 
 static void _doc_link_free(vptr pv)
 {
     doc_link_ptr link = pv;
-    string_free(link->file);
-    string_free(link->topic);
+    str_free(link->file);
+    str_free(link->topic);
     free(link);
 }
 
@@ -135,6 +133,7 @@ static void _normal_style(doc_style_ptr style)
 {
     style->color = TERM_WHITE;
     style->right = 72;
+    style->options &= ~DOC_STYLE_NO_WORDWRAP;
 }
 
 static void _note_style(doc_style_ptr style)
@@ -171,13 +170,13 @@ static void _link_style(doc_style_ptr style)
 
 static void _screenshot_style(doc_style_ptr style)
 {
-    style->right = 255;
+    style->right = 1000;
     style->options |= DOC_STYLE_NO_WORDWRAP;
 }
 
 static void _table_style(doc_style_ptr style)
 {
-    style->right = 255;
+    style->right = 1000;
     style->options |= DOC_STYLE_NO_WORDWRAP;
 }
 
@@ -193,7 +192,7 @@ static void _indent_style(doc_style_ptr style)
 
 static void _wide_style(doc_style_ptr style)
 {
-    style->right = 255;
+    style->right = 1000;
 }
 
 /* doc_style_f <-> void * is forbidden in ISO C ... I'm not sure
@@ -227,8 +226,8 @@ doc_ptr doc_alloc(int width)
     res->bookmarks = vec_alloc(_doc_bookmark_free);
     res->links = int_map_alloc(_doc_link_free);
     res->style_stack = vec_alloc(free);
-    res->name = string_alloc();
-    res->html_header = string_alloc();
+    res->name = str_alloc();
+    res->html_header = str_alloc();
 
     /* Default Styles */
     _add_doc_style_f(res, "normal", _normal_style);
@@ -260,8 +259,8 @@ void doc_free(doc_ptr doc)
         vec_free(doc->bookmarks);
         int_map_free(doc->links);
         vec_free(doc->style_stack);
-        string_free(doc->name);
-        string_free(doc->html_header);
+        str_free(doc->name);
+        str_free(doc->html_header);
 
         free(doc);
     }
@@ -269,14 +268,14 @@ void doc_free(doc_ptr doc)
 
 void doc_change_name(doc_ptr doc, cptr name)
 {
-    string_clear(doc->name);
-    string_append_s(doc->name, name);
+    str_clear(doc->name);
+    str_append_s(doc->name, name);
 }
 
 void doc_change_html_header(doc_ptr doc, cptr header)
 {
-    string_clear(doc->html_header);
-    string_append_s(doc->html_header, header);
+    str_clear(doc->html_header);
+    str_append_s(doc->html_header, header);
 }
 
 doc_pos_t doc_cursor(doc_ptr doc)
@@ -403,10 +402,10 @@ doc_pos_t doc_next_bookmark_char(doc_ptr doc, doc_pos_t pos, int c)
         cptr             name;
 
         assert(mark->name);
-        name = string_buffer(mark->name);
+        name = str_buffer(mark->name);
 
         if ( doc_pos_compare(pos, mark->pos) <= 0 /* Subtle: So I can wrap and start at (0,0) *and* pick up an initial topic */
-          && string_length(mark->name) > 0
+          && str_length(mark->name) > 0
           && tolower(name[0]) == tolower(c) )
         {
             return mark->pos;
@@ -442,7 +441,7 @@ doc_pos_t doc_find_bookmark(doc_ptr doc, cptr name)
     {
         doc_bookmark_ptr mark = vec_get(doc->bookmarks, i);
 
-        if (strcmp(name, string_buffer(mark->name)) == 0)
+        if (strcmp(name, str_buffer(mark->name)) == 0)
             return mark->pos;
     }
     return doc_pos_invalid();
@@ -457,7 +456,7 @@ static bool _line_test_str(doc_char_ptr cell, int ncell, cptr what, int nwhat)
 
     for (i = 0; i < nwhat; i++, cell++)
     {
-        char c = cell->c ? cell->c : ' ';
+        char c = cell->fg.c ? cell->fg.c : ' ';
         assert(i < ncell);
         if (c != what[i]) break;
     }
@@ -599,6 +598,7 @@ doc_pos_t doc_newline(doc_ptr doc)
     }
     return doc->cursor;
 }
+doc_pos_t doc_space(doc_ptr doc) { return doc_insert_char(doc, TERM_WHITE, ' '); }
 
 cptr doc_parse_tag(cptr pos, doc_tag_ptr tag)
 {
@@ -607,7 +607,7 @@ cptr doc_parse_tag(cptr pos, doc_tag_ptr tag)
     tag->arg = NULL;
     tag->arg_size = 0;
 
-    /* <name:arg> where name in {"color", "style", "topic", "link"} */
+    /* <name:arg> where name in {"color", "style", "topic", "link", "screenshot"} */
     if (*pos == '<')
     {
         doc_tag_t result = {0};
@@ -645,6 +645,8 @@ cptr doc_parse_tag(cptr pos, doc_tag_ptr tag)
             result.type = DOC_TAG_CLOSE_INDENT;
         else if (strcmp(name, "tab") == 0)
             result.type = DOC_TAG_TAB;
+        else if (strcmp(name, "screenshot") == 0)
+            result.type = DOC_TAG_SCREENSHOT;
         else
             return pos;
 
@@ -766,32 +768,40 @@ static void _doc_process_var(doc_ptr doc, cptr name)
 {
     if (strcmp(name, "version") == 0)
     {
-        string_ptr s = string_alloc_format("%d.%d.%d", VER_MAJOR, VER_MINOR, VER_PATCH);
-        /*if (VER_MINOR == 0) string_append_s(s, "<color:r> (Beta)</color>");*/
-        doc_insert(doc, string_buffer(s));
-        string_free(s);
+        str_ptr s = str_alloc_format("%d.%d.%d", VER_MAJOR, VER_MINOR, VER_PATCH);
+        /*if (VER_MINOR == 0) str_append_s(s, "<color:r> (Beta)</color>");*/
+        doc_insert(doc, str_buffer(s));
+        str_free(s);
     }
     else if (strlen(name) > 3 && strncmp(name, "FF_", 3) == 0)
     {
-        char buf[100];
-        int  f_idx;
+        term_char_t tc;
 
-        sprintf(buf, "%s", name + 3);
-        f_idx = f_tag_to_index(buf);
+        if (spoiler_hack)
+            tc = visual_get_ascii(name + 3);
+        else
+            tc = visual_get(name + 3, 0);
 
-        if (0 <= f_idx && f_idx < max_f_idx)
-        {
-            string_ptr s = string_alloc();
-            feature_type *feat = &f_info[f_idx];
-
-            string_printf(s, "<color:%c>%c</color>",
-                attr_to_attr_char(feat->d_attr[F_LIT_STANDARD]),
-                feat->d_char[F_LIT_STANDARD]);
-
-            doc_insert(doc, string_buffer(s));
-            string_free(s);
-        }
+        doc_insert_char(doc, tc.a, tc.c);
     }
+    else /* XXX */
+    {
+        term_char_t tc;
+        if (spoiler_hack)
+            tc = visual_get_ascii(name);
+        else
+            tc = visual_get(name, 0);
+
+        doc_insert_char(doc, tc.a, tc.c);
+    }
+}
+
+static FILE *_help_fopen(cptr name)
+{
+    char buf1[1024], buf2[1024];
+    path_build(buf1, sizeof(buf1), ANGBAND_DIR_HELP, "screen");
+    path_build(buf2, sizeof(buf2), buf1, name);
+    return my_fopen(buf2, "r");
 }
 
 static void _doc_process_tag(doc_ptr doc, doc_tag_ptr tag)
@@ -836,9 +846,9 @@ static void _doc_process_tag(doc_ptr doc, doc_tag_ptr tag)
         }
         else
         {
-            string_ptr  arg = string_copy_sn(tag->arg, tag->arg_size);
+            str_ptr  arg = str_copy_sn(tag->arg, tag->arg_size);
             doc_style_t style = *doc_current_style(doc); /* copy */
-            doc_style_f f = _get_doc_style_f(doc, string_buffer(arg));
+            doc_style_f f = _get_doc_style_f(doc, str_buffer(arg));
 
             if (f)
                 f(&style);
@@ -850,7 +860,7 @@ static void _doc_process_tag(doc_ptr doc, doc_tag_ptr tag)
                 copy.color = style.color;
                 doc_push_style(doc, &copy);
             }
-            string_free(arg);
+            str_free(arg);
         }
     }
     else if (tag->type == DOC_TAG_INDENT)
@@ -861,7 +871,7 @@ static void _doc_process_tag(doc_ptr doc, doc_tag_ptr tag)
     }
     else
     {
-        string_ptr arg = string_copy_sn(tag->arg, tag->arg_size);
+        str_ptr arg = str_copy_sn(tag->arg, tag->arg_size);
 
         switch (tag->type)
         {
@@ -871,7 +881,7 @@ static void _doc_process_tag(doc_ptr doc, doc_tag_ptr tag)
             else
             {/* Better silently add one if name doesn't exist ... */
                 doc_style_t copy = *doc_current_style(doc);
-                doc_style_f f = _get_doc_style_f(doc, string_buffer(arg));
+                doc_style_f f = _get_doc_style_f(doc, str_buffer(arg));
 
                 if (f)
                     f(&copy);
@@ -879,39 +889,54 @@ static void _doc_process_tag(doc_ptr doc, doc_tag_ptr tag)
             }
             break;
         case DOC_TAG_VAR:
-            _doc_process_var(doc, string_buffer(arg));
+            _doc_process_var(doc, str_buffer(arg));
             break;
-        case DOC_TAG_TAB:
-        {
-            int pos = atoi(string_buffer(arg)) + doc_current_style(doc)->left;
+        case DOC_TAG_SCREENSHOT: {
+            FILE *fp = 0;
+            char buf[100];
+
+            if (strcmp(ANGBAND_GRAF, "old") == 0 && !spoiler_hack) /* try for graphics */
+            {
+                sprintf(buf, "%s.old", str_buffer(arg));
+                fp = _help_fopen(buf);
+                if (fp)
+                    doc_read_term(doc, fp);
+            }
+            if (!fp) /* fallback to ascii */
+            {
+                sprintf(buf, "%s.ascii", str_buffer(arg));
+                fp = _help_fopen(buf);
+                if (fp)
+                    doc_read_term(doc, fp);
+            }
+            my_fclose(fp);
+            break; }
+        case DOC_TAG_TAB: {
+            int pos = atoi(str_buffer(arg)) + doc_current_style(doc)->left;
             if (pos > doc->cursor.x)
                 doc_insert_space(doc, pos - doc->cursor.x);
             else
                 doc_rollback(doc, doc_pos_create(pos, doc->cursor.y));
-            break;
-        }
-        case DOC_TAG_TOPIC:
-        {
+            break; }
+        case DOC_TAG_TOPIC: {
             doc_bookmark_ptr mark = malloc(sizeof(doc_bookmark_t));
             mark->name = arg; /* steal ownership */
             arg = NULL;
             mark->pos = doc->cursor;
             vec_add(doc->bookmarks, mark);
-            break;
-        }
-        case DOC_TAG_LINK:
-        {
+            break; }
+        case DOC_TAG_LINK: {
             doc_link_ptr link = malloc(sizeof(doc_link_t));
-            int          split = string_chr(arg, 0, '#');
+            int          split = str_chr(arg, 0, '#');
             int          ch = 'a' + int_map_count(doc->links);
 
             if (split >= 0)
             {
-                substring_t left = string_left(arg, split);
-                substring_t right = string_right(arg, string_length(arg) - split - 1);
+                substr_t left = str_left(arg, split);
+                substr_t right = str_right(arg, str_length(arg) - split - 1);
 
-                link->file = substring_copy(&left);
-                link->topic = substring_copy(&right);
+                link->file = substr_copy(&left);
+                link->topic = substr_copy(&right);
             }
             else
             {
@@ -929,17 +954,16 @@ static void _doc_process_tag(doc_ptr doc, doc_tag_ptr tag)
                    word. To fix this, we'll need a parser with a token queue
                    that we can push onto, but this raises storage issues.
                 */
-                string_ptr s = string_alloc_format("<style:link>[%c]</style>", ch);
-                doc_insert(doc, string_buffer(s));
-                string_free(s);
+                str_ptr s = str_alloc_format("<style:link>[%c]</style>", ch);
+                doc_insert(doc, str_buffer(s));
+                str_free(s);
 
                 link->location.stop = doc->cursor;
             }
-            break;
-        }
+            break; }
         }
 
-        string_free(arg);
+        str_free(arg);
     }
 }
 
@@ -1042,10 +1066,10 @@ doc_pos_t doc_insert(doc_ptr doc, cptr text)
 
                 for (j = 0; j < current->size && !nowrap; j++)
                 {
-                    cell->a = style->color;
-                    cell->c = current->pos[j];
-                    if (cell->c == '\t')
-                        cell->c = ' ';
+                    cell->fg.a = style->color;
+                    cell->fg.c = current->pos[j];
+                    if (cell->fg.c == '\t')
+                        cell->fg.c = ' ';
                     if (doc->cursor.x == style->right - 1)
                     {
                         if (style->options & DOC_STYLE_NO_WORDWRAP)
@@ -1080,8 +1104,8 @@ doc_pos_t doc_insert_char(doc_ptr doc, byte a, char c)
     doc_char_ptr cell = doc_char(doc, doc->cursor);
     doc_style_ptr style = doc_current_style(doc);
 
-    cell->a = a;
-    cell->c = c;
+    cell->fg.a = a;
+    cell->fg.c = c;
 
     if (doc->cursor.x >= style->right - 1)
     {
@@ -1103,8 +1127,8 @@ doc_pos_t doc_insert_space(doc_ptr doc, int count)
 
     for (i = 0; i < count; i++)
     {
-        cell->a = style->color;
-        cell->c = ' ';
+        cell->fg.a = style->color;
+        cell->fg.c = ' ';
         if (doc->cursor.x >= style->right - 1)
             break;
         doc->cursor.x++;
@@ -1134,29 +1158,29 @@ doc_pos_t doc_insert_text(doc_ptr doc, byte a, cptr text)
 
 doc_pos_t doc_printf(doc_ptr doc, const char *fmt, ...)
 {
-    string_ptr s = string_alloc();
+    str_ptr s = str_alloc();
     va_list vp;
 
     va_start(vp, fmt);
-    string_vprintf(s, fmt, vp);
+    str_vprintf(s, fmt, vp);
     va_end(vp);
 
-    doc_insert(doc, string_buffer(s));
-    string_free(s);
+    doc_insert(doc, str_buffer(s));
+    str_free(s);
     return doc->cursor;
 }
 
 doc_pos_t doc_cprintf(doc_ptr doc, byte a, const char *fmt, ...)
 {
-    string_ptr s = string_alloc();
+    str_ptr s = str_alloc();
     va_list vp;
 
     va_start(vp, fmt);
-    string_vprintf(s, fmt, vp);
+    str_vprintf(s, fmt, vp);
     va_end(vp);
 
-    doc_insert_text(doc, a, string_buffer(s));
-    string_free(s);
+    doc_insert_text(doc, a, str_buffer(s));
+    str_free(s);
     return doc->cursor;
 }
 
@@ -1177,8 +1201,14 @@ doc_pos_t doc_insert_doc(doc_ptr dest_doc, doc_ptr src_doc, int indent)
         int          count = src_doc->width;
         int          i;
 
-        dest_pos.x += indent;
         dest = doc_char(dest_doc, dest_pos);
+        for (i = 0; i < indent; i++)
+        {
+            dest->fg.a = TERM_WHITE;
+            dest->fg.c = ' ';
+            dest++;
+            dest_pos.x++;
+        }
 
         if (count > dest_doc->width - dest_pos.x)
             count = dest_doc->width - dest_pos.x;
@@ -1187,8 +1217,8 @@ doc_pos_t doc_insert_doc(doc_ptr dest_doc, doc_ptr src_doc, int indent)
 
         for (i = 0; i < count; i++)
         {
-            dest->a = src->a;
-            dest->c = src->c;
+            dest->fg.a = src->fg.a;
+            dest->fg.c = src->fg.c;
 
             dest++;
             src++;
@@ -1246,17 +1276,17 @@ doc_pos_t doc_insert_cols(doc_ptr dest_doc, doc_ptr src_cols[], int col_count, i
                        from Windows builds. Interestingly, oook displays files correctly
                        from Linux even without this hack, which is puzzling since
                        the files seem identical on both platforms.*/
-                    if (i == col_count - 1 && !src->c)
+                    if (i == col_count - 1 && !src->fg.c)
                     {
                         count = j;
                         break;
                     }
 
-                    dest->a = src->a;
-                    dest->c = src->c;
+                    dest->fg.a = src->fg.a;
+                    dest->fg.c = src->fg.c;
 
-                    if (!dest->c)
-                        dest->c = ' ';
+                    if (!dest->fg.c)
+                        dest->fg.c = ' ';
 
                     dest++;
                     src++;
@@ -1272,8 +1302,8 @@ doc_pos_t doc_insert_cols(doc_ptr dest_doc, doc_ptr src_cols[], int col_count, i
 
                 for (j = 0; j < count; j++)
                 {
-                    dest->a = TERM_WHITE;
-                    dest->c = ' ';
+                    dest->fg.a = TERM_WHITE;
+                    dest->fg.c = ' ';
                     dest++;
                 }
             }
@@ -1293,8 +1323,8 @@ doc_pos_t doc_insert_cols(doc_ptr dest_doc, doc_ptr src_cols[], int col_count, i
                 int          j;
                 for (j = 0; j < count; j++)
                 {
-                    dest->a = TERM_WHITE;
-                    dest->c = ' ';
+                    dest->fg.a = TERM_WHITE;
+                    dest->fg.c = ' ';
                     dest++;
                 }
             }
@@ -1335,9 +1365,49 @@ doc_char_ptr doc_char(doc_ptr doc, doc_pos_t pos)
 
 doc_pos_t doc_read_file(doc_ptr doc, FILE *fp)
 {
-    string_ptr s = string_read_file(fp);
-    doc_insert(doc, string_buffer(s));
-    string_free(s);
+    str_ptr s = str_read_file(fp);
+    doc_insert(doc, str_buffer(s));
+    str_free(s);
+    return doc->cursor;
+}
+
+doc_pos_t doc_read_term(doc_ptr doc, FILE *fp)
+{
+    char buf[1024];
+    errr err = 0;
+
+    while (!err && 0 == my_fgets(fp, buf, sizeof(buf))) /* cf do_cmd_save_screen_term */
+    {
+        if (!buf[0]) continue; /* empty line */
+        if (isspace(buf[0])) continue; /* blank line */
+        if (buf[0] == '#') continue; /* comment */
+        if (buf[0] == 'D' && buf[1] == ':') /* display line */
+        {
+            char *zz[256];
+            int   num = tokenize(buf + 2, 256, zz, TOKENIZE_NO_SLASH | TOKENIZE_NO_ESCAPE), i;
+            doc_char_ptr cell = doc_char(doc, doc->cursor);
+            for (i = 0; i < num; i++)
+            {
+                unsigned n;
+
+                if (doc->cursor.x >= doc->width)
+                    break;
+
+                if (sscanf(zz[i], "%x", &n) == 1)
+                {
+                    cell->fg.a = n & 0x000000FF;
+                    cell->fg.c = (n & 0x0000FF00) >> 8;
+                    cell->bg.a = (n & 0x00FF0000) >> 16;
+                    cell->bg.c = (n & 0xFF000000) >> 24;
+                    if (!cell->bg.c && !cell->bg.a)
+                        cell->bg = cell->fg;
+                }
+                doc->cursor.x++;
+                cell++;
+            }
+            doc_newline(doc);
+        }
+    }
     return doc->cursor;
 }
 
@@ -1355,8 +1425,8 @@ static void _doc_write_text_file(doc_ptr doc, FILE *fp)
         cell = doc_char(doc, pos);
         for (; pos.x < cx; pos.x++)
         {
-            if (!cell->c) break;
-            fputc(cell->c, fp);
+            if (!cell->fg.c) break;
+            fputc(cell->fg.c, fp);
             cell++;
         }
         fprintf(fp, "\n");
@@ -1404,8 +1474,8 @@ static void _doc_write_html_file(doc_ptr doc, FILE *fp)
         next_link = vec_get(links, link_idx);
 
     fprintf(fp, "<!DOCTYPE html>\n<html>\n");
-    if (string_length(doc->html_header))
-        fprintf(fp, "%s\n", string_buffer(doc->html_header));
+    if (str_length(doc->html_header))
+        fprintf(fp, "%s\n", str_buffer(doc->html_header));
     fprintf(fp, "<body text=\"#ffffff\" bgcolor=\"#000000\"><pre>\n");
 
     for (pos.y = 0; pos.y <= doc->cursor.y; pos.y++)
@@ -1418,7 +1488,7 @@ static void _doc_write_html_file(doc_ptr doc, FILE *fp)
 
         if (next_bookmark && pos.y == next_bookmark->pos.y)
         {
-            fprintf(fp, "<a name=\"%s\"></a>", string_buffer(next_bookmark->name));
+            fprintf(fp, "<a name=\"%s\"></a>", str_buffer(next_bookmark->name));
             bookmark_idx++;
             if (bookmark_idx < vec_length(doc->bookmarks))
                 next_bookmark = vec_get(doc->bookmarks, bookmark_idx);
@@ -1428,30 +1498,30 @@ static void _doc_write_html_file(doc_ptr doc, FILE *fp)
 
         for (; pos.x < cx; pos.x++)
         {
-            char c = cell->c;
-            byte a = cell->a & 0x0F;
+            char c = cell->fg.c;
+            byte a = cell->fg.a & 0x0F;
 
             if (next_link)
             {
                 if (doc_pos_compare(next_link->location.start, pos) == 0)
                 {
-                    string_ptr s;
-                    int        pos = string_last_chr(next_link->file, '.');
+                    str_ptr s;
+                    int     pos = str_last_chr(next_link->file, '.');
 
                     if (pos >= 0)
                     {
-                        s = string_copy_sn(string_buffer(next_link->file), pos + 1);
-                        string_append_s(s, "html");
+                        s = str_copy_sn(str_buffer(next_link->file), pos + 1);
+                        str_append_s(s, "html");
                     }
                     else
-                        s = string_copy(next_link->file);
+                        s = str_copy(next_link->file);
 
-                    fprintf(fp, "<a href=\"%s", string_buffer(s));
+                    fprintf(fp, "<a href=\"%s", str_buffer(s));
                     if (next_link->topic)
-                        fprintf(fp, "#%s", string_buffer(next_link->topic));
+                        fprintf(fp, "#%s", str_buffer(next_link->topic));
                     fprintf(fp, "\">");
 
-                    string_free(s);
+                    str_free(s);
                 }
                 if (doc_pos_compare(next_link->location.stop, pos) == 0)
                 {
@@ -1512,8 +1582,8 @@ static void _doc_write_doc_file(doc_ptr doc, FILE *fp)
 
         for (; pos.x < cx; pos.x++)
         {
-            char c = cell->c;
-            byte a = cell->a & 0x0F;
+            char c = cell->fg.c;
+            byte a = cell->fg.a & 0x0F;
 
             if (!c) break;
 
@@ -1576,8 +1646,7 @@ static void _doc_for_each(doc_ptr doc, doc_region_t range, _doc_char_fn f)
 }
 static void _doc_clear_char(doc_pos_t pos, doc_char_ptr cell)
 {
-    cell->c = '\0';
-    cell->a = TERM_DARK;
+    memset(cell, 0, sizeof(doc_char_t));
 }
 void doc_rollback(doc_ptr doc, doc_pos_t pos)
 {
@@ -1611,7 +1680,13 @@ void doc_sync_menu(doc_ptr doc)
         Term_clear_rect(sr);
         doc_sync_term(doc, doc_range_all(doc), doc_pos_create(dr.x, dr.y));
     }
+}
 
+void doc_sync_prompt(doc_ptr doc)
+{
+    rect_t r = ui_prompt_rect();
+    Term_clear_rect(r);
+    doc_sync_term(doc, doc_range_top_lines(doc, r.cy), doc_pos_create(r.x, r.y));
 }
 
 void doc_sync_term(doc_ptr doc, doc_region_t range, doc_pos_t term_pos)
@@ -1637,6 +1712,8 @@ void doc_sync_term(doc_ptr doc, doc_region_t range, doc_pos_t term_pos)
         int term_y = term_pos.y + (pos.y - range.start.y);
         int max_x = doc->width;
 
+        if (term_y >= Term->hgt) break;
+
         pos.x = 0;
         if (pos.y == range.start.y)
             pos.x = range.start.x;
@@ -1650,17 +1727,33 @@ void doc_sync_term(doc_ptr doc, doc_region_t range, doc_pos_t term_pos)
             doc_char_ptr cell = doc_char(doc, pos);
             for (; pos.x < max_x; pos.x++, cell++)
             {
-                if (cell->c)
+                if (cell->fg.c)
                 {
                     int term_x = term_pos.x + pos.x;
-                    byte         a = cell->a;
 
-                    if ( selection_color != _INVALID_COLOR
-                      && doc_region_contains(&doc->selection, pos) )
+                    if (term_x >= Term->wid) break;
+
+                    if (term_char_is_ascii(cell->fg))
                     {
-                        a = selection_color;
+                        if (selection_color != _INVALID_COLOR && doc_region_contains(&doc->selection, pos))
+                            Term_putch(term_x, term_y, selection_color, cell->fg.c);
+                        else
+                            Term_putch(term_x, term_y, cell->fg.a, cell->fg.c);
                     }
-                    Term_putch(term_x, term_y, a, cell->c);
+                    else
+                    {
+                        point_t tp = point_create(term_x, term_y);
+                        map_char_t mc = {0};
+
+                        if (!cell->bg.a || term_char_is_ascii(cell->bg))
+                        {
+                            map_char_push(&mc, visual_get("CHASM", 0));
+                        }
+                        else
+                            map_char_push(&mc, cell->bg);
+                        map_char_push(&mc, cell->fg);
+                        Term_queue_map_char(tp, &mc);
+                    }
                 }
             }
         }
@@ -1714,7 +1807,7 @@ int doc_display_aux(doc_ptr doc, cptr caption, int top, rect_t display)
             doc_link_ptr link = int_map_find(doc->links, cmd);
             if (link)
             {
-                rc = doc_display_help_aux(string_buffer(link->file), string_buffer(link->topic), display);
+                rc = doc_display_help_aux(str_buffer(link->file), str_buffer(link->topic), display);
                 if (rc == _UNWIND)
                     done = TRUE;
                 continue;
@@ -1827,7 +1920,7 @@ int doc_display_aux(doc_ptr doc, cptr caption, int top, rect_t display)
             int  cb;
             int  format = DOC_FORMAT_TEXT;
 
-            strcpy(name, string_buffer(doc->name));
+            strcpy(name, str_buffer(doc->name));
 
             if (!get_string("File name: ", name, 80)) break;
             path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
@@ -1934,10 +2027,10 @@ int doc_display_help_aux(cptr file_name, cptr topic, rect_t display)
         cptr pos = strchr(file_name, '#');
         if (pos)
         {
-            string_ptr name = string_copy_sn(file_name, pos - file_name);
-            int        result = doc_display_help_aux(string_buffer(name), pos + 1, display);
+            str_ptr name = str_copy_sn(file_name, pos - file_name);
+            int     result = doc_display_help_aux(str_buffer(name), pos + 1, display);
 
-            string_free(name);
+            str_free(name);
             return result;
         }
     }

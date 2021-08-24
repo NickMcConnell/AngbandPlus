@@ -8,8 +8,8 @@ struct mon_attack_s
 /* State: Info about monster who is fighting */
 int             stop;       /* non-zero ends the carnage and gives the reason why (e.g. STOP_MON_DEAD) */
 mon_ptr         mon;        /* attacking monster */
-mon_race_ptr    race;
-int             level;      /* context->race->level ... possibly boosted (Dragonriders) */
+mon_race_ptr    race;       /* XXX duplicate of mon->race, but needed to detect polymorph race change */
+int             to_h;
 char            mon_full_name[MAX_NLEN];
 char            mon_name[MAX_NLEN];
 char            mon_name_obj[MAX_NLEN];

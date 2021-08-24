@@ -50,7 +50,7 @@ The crossbowmaster shoots deadly bolts for great damage. Their bolts may explode
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:v> +2</color>        Disarming   <color:o>Fair         </color>
 Intelligence <color:w> -2</color>        Device      <color:o>Fair         </color>
-Wisdom       <color:w> -2</color>        Save        <color:r>Bad          </color>
+Wisdom       <color:w> -2</color>        Save        <color:o>Fair         </color>
 Dexterity    <color:w> +2</color>        Stealth     <color:y>Good         </color>
 Constitution <color:w> +2</color>        Searching   <color:o>Fair         </color>
 Charisma     <color:w> +1</color>        Perception  <color:r>Bad          </color>
@@ -178,7 +178,7 @@ Diggers            +3   -2   -2   +1   +2   +1  109%  +12  135%
 Axes              <color:o>Fair         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Bows              <color:o>Fair         </color> <color:y>Good         </color> <color:R>Poor         </color> <color:y>Very Good    </color>
 Clubs             <color:o>Fair         </color> <color:o>Fair         </color> <color:y>Very Good    </color> <color:o>Fair         </color>
-Crossbows         <color:o>Fair         </color> <color:o>Fair         </color> <color:r>Bad          </color> <color:y>Good         </color>
+Crossbows         <color:o>Fair         </color> <color:o>Fair         </color> <color:o>Fair         </color> <color:y>Good         </color>
 Daggers           <color:y>Very Good    </color> <color:y>Good         </color> <color:o>Fair         </color> <color:G>Excellent    </color>
 Polearms          <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Shields           <color:o>Fair         </color> <color:o>Fair         </color> <color:G>Excellent    </color> <color:o>Fair         </color>
@@ -206,4 +206,4 @@ Diggers           <color:R>Poor         </color> <color:r>Bad          </color> 
 </style>
 
 
-<color:s>Automatically generated for PosChengband 7.2.1.</color>
+<color:s>Automatically generated for PosChengband 7.3.1.</color>

@@ -8,9 +8,9 @@ PosChengband is a single player role playing game where you, the brave adventure
 
 <topic:CreatingACharacter><style:heading>Creating a Character</style>
 
-Your first step will be to create your character. Since you are new to the game, I suggest you choose <color:keyword>Beginner Mode</color> at the initial prompt. This will greatly limit the complexity of the character creation process and also remove the wilderness option. After playing a few characters to get an idea of how to play, you can start a new character in <color:keyword>Normal Mode</color> to view all the options as well as enable the wilderness. Hey, it's not like your first character is going to win anyway!
+Your first step will be to create your character. Since you are new to the game, I suggest you choose <color:keyword>Beginner Mode</color> at the initial prompt. This will greatly limit the complexity of the character creation process. After playing a few characters to get an idea of how to play, you can start a new character in <color:keyword>Normal Mode</color> to view all the options. Hey, it's not like your first character is going to win anyway!
 
-After choosing Beginner Mode, the game is going to walk you through creating your character. You can refer to <link:birth.txt> for more detailed info, but the basics are that you will choose a sex, a race and a class and then roll for stats. While your sex is not important (to the game), your race and class are key to everything that follows. Normally, the game has a vast (overwhelming?) array of choices that offer myriad, diverse playstyles, and it can take a while to even learn what is available. For now, we'll consider a few basic playstyles in order to get you going.
+After choosing Beginner Mode, the game is going to walk you through creating your character. You can refer to <link:birth.txt> for more detailed info, but the basics are that you will choose a sex, a race and a class and then roll for stats. While sex is not important (to the game), your race and class are key to everything that follows. Normally, the game has a vast (overwhelming?) array of choices that offer myriad, diverse playstyles, and it can take a while to even learn what is available. For now, we'll consider a few basic playstyles in order to get you going.
 
 The easiest style is 'Hack and Slash' and it is the essence of the warrior. Almost any race will make a good one, but you might consider trying a High-Elf or a Hobbit. Both are stealthy and have good magic skills that will assist the warriors weak points. But if you really want to turn on the melee power, nothing beats a Half-Troll. Be warned: Trolls are ugly and stupid, not to mention widely hated. Shopkeepers are loath to sell to one as ugly as you so you'll have a harder time shopping. You can compensate by going on a killing rampage, which is more fun anyway. As a warrior, there isn't much strategy: simply find monsters and kill them! Look for better armor and weapons. Perhaps you can shoot a crossbow for a little bit of distance damage but your mainstay will be hand to hand combat. For stats, you'll want to start with 17 in both Strength and Dexterity and can ignore everything else.
 
@@ -22,173 +22,38 @@ We'll discuss these three styles more as we proceed through this guide.
 
 <topic:EquippingForDanger><style:heading>Equipping for Danger</style>
 
-Once you have completed the birth process, you will find yourself in the town on the surface. Since you picked <color:keyword>Beginner Mode</color>, there will be no wilderness to explore. In this case, the only reason to return to the surface is to buy and sell equipment in the town. When you start, you have some initial gear that varies with your class, and it should already be equipped for you. You also have a small amount of gold which you can use to augment your supplies for that first trip into danger.
+Once you have completed the birth process, you will find yourself in the town on the surface. Currently, you may choose to play <color:keyword>The World of Middle Earth</color> or <color:keyword>The World of Amber</color>. This document will assume the former, but both modules require wilderness exploration and both modules begin play in a starting town. After birth, you have some initial gear that varies with your class, and it should already be equipped for you. You also have a small amount of gold which you can use to augment your supplies for that first trip into danger.
 
 So, what do you see at first?
-<style:screenshot>
-LEVEL <color:G>     1</color> ..................................................................
-EXP <color:G>       6</color> ..................................................................
-AU  <color:G>     228</color> <color:U>################################</color>.<color:U>################################</color>.
-<color:d>            </color> <color:U>################################</color>.<color:U>#################################</color>
-STR : <color:G> 18/10</color> <color:U>#####</color>.......................................................<color:U>######</color>
-INT : <color:G> 18/30</color> <color:U>####</color><color:u>+</color>.......................................................<color:B>+</color><color:U>#####</color>
-WIS : <color:G>    11</color> <color:U>#####</color>.......................................................<color:U>######</color>
-DEX : <color:G> 18/50</color> <color:U>####</color>.........<color:U>###</color><color:v>0</color><color:U>###</color>..<color:U>####</color><color:o>+</color><color:U>####</color>...<color:U>####+####</color>..<color:U>###</color><color:G>+</color><color:U>###</color>.........<color:U>#####</color>
-CON : <color:G>    11</color> <color:U>#+#</color>...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>...<color:U>#</color><color:B>+</color><color:U>##</color>
-CHR : <color:G>    12</color> ......<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>......<color:U>#</color>
-AC     <color:G>    7</color> ......<color:U>##+##</color>..<color:U>###</color><color:o>9</color><color:U>###</color>..<color:U>####</color>3<color:U>####</color>...<color:U>####</color><color:r>6</color><color:U>####</color>..<color:U>###</color><color:g>4</color><color:U>###</color>..<color:U>##+##</color>......<color:U>#</color>
-HP <color:G>  43</color>/<color:G>  43</color> .................................................................<color:U>#</color>
-             ......................................<color:U>f</color>..........................<color:U>#</color>
-             .................................................................<color:U>#</color>
-@[<color:G>*********</color>] ................................<color:v>></color>@................................
-<color:U>,</color>[*********] .................................................................<color:U>#</color>
-             .................................................................<color:U>#</color>
-             .................................................................<color:U>#</color>
-             ......<color:U>##1##</color>..<color:U>###</color><color:D>7</color><color:U>###</color>..<color:U>####</color><color:s>2</color><color:U>####</color>...<color:U>####</color><color:b>5</color><color:U>####</color>..<color:U>###</color><color:y>8</color><color:U>###</color>..<color:U>##+##</color>......<color:U>#</color>
-             ......<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>......<color:U>#</color>
-             <color:U>#+#</color>...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>...<color:U>#</color><color:R>+</color><color:U>##</color>
-             <color:U>####</color>.........<color:U>###</color><color:v>+</color><color:U>###</color>..<color:U>####</color>+<color:U>####</color>...<color:U>####</color><color:B>+</color><color:U>####</color>..<color:U>#######</color>.........<color:U>#####</color>
-             <color:U>#####</color>.......................................................<color:U>######</color>
-             <color:U>#####</color>.......................................................<color:v>+</color><color:U>#####</color>
-             <color:U>#####</color>.......................................................<color:U>######</color>
-                                                                           Town
-</style>
-Well, that @ in the center of the screen is you for starters. Also, those <color:U>#</color> characters are walls and you can see they are shaped into buildings for the various shops. Each building has a number or '+' character that you may enter by moving onto that square. Each number stands for a different type of shop. You can move about with the arrow keys and look about with the <color:keypress>l</color> command followed by the arrow keys. That <color:U>f</color> is a monster and you should look at it with the <color:keypress>l</color> command to see if it seems threatening:
-<style:screenshot>
-The Scrawny cat ('<color:U>f</color>')/('<color:U>f</color>'): [r,q,t,p,o,+,-,<dir>]
-No battles to the death are recalled.
-A skinny little furball with sharp claws and a menacing look.
-It lives in the town, and moves a bit erratically at normal speed. Nothing is
-known about its attack.
-</style>
+<screenshot:tang01>
+You (<$:@.hobbit.warrior>) begin life situated near your home (<$:FF_HOME>). Your home is present in almost every town and, somehow, all your stuff seems to follow you around, so you don't have to worry about where you stashed important items. Other buildings, such as the Weapon Smiths (<$:FF_WEAPON_SMITHS>) are shops where you may purchase supplies or sell your findings. You enter a shop by walking on top the entrance location. Once inside, you can press <style:keypress>?</color> for detailed help on how to interact with shop keepers. One final note: that <$:FF_RECALL> is a special <color:keyword>Wizard Tile</color> that allows free teleportation back and forth from the town and any dungeon you have visited. Most towns do not have such a luxury, and you must instead pay for recall services. In order for it to work, you must first enter a dungeon, which we will do shortly.
+
+You can move about with the arrow keys and look about with the <color:keypress>l</color> command followed by the arrow keys. That <$:f.scrawny> is a monster and you should look at it with the <color:keypress>l</color> command to see if it seems threatening:
+
+<screenshot:tang02>
 Hmmm, probably no need to worry about Ms. Kitty.
 
 If you are playing a mage, your first order of business is to learn a new spell (<color:keypress>G</color> to Gain a spell). At first level, you can only learn one, so make it count. I recommend learning Magic Missile first, assuming you followed my advice and chose the Chaos realm. As a mage, you really need to use magic to kill stuff so your first spell has to be something offensive. Later on, when you are more experienced, you may pick Detect Monsters from the Sorcery realm. To cast a spell, use the magic command (<color:keypress>m</color>) and follow the instructions. Not every class can learn a spell right away, however. A rogue, for example, must reach level 5 (CL5) in order to learn their first spell.
 
-Next, you should shop for gear. I recommend buying some means of escape, such as scrolls of teleport or phase door from the Alchemy Shop (<$:FF_ALCHEMY_SHOP>). Also, you will want some means of healing from the Temple (<$:FF_TEMPLE>). If you are playing a rogue, try to buy a sling and some ammo (pebbles or shots) from the Weapon Smiths (<$:FF_WEAPON_SMITHS>). When you enter a store, you will see a list of inventory as well as a list of commands to use. Simply follow the instructions to make a purchase.
-<style:screenshot>
-          Eddie Beast-Master (Snotling)           Weapon Smiths (25000)
-
-   Item Description                                         Weight      Price
-a) <color:o>?</color> <color:u>2 Books of Kendo [Yagyuu Bugeichou]</color>                       3.0  <color:D>     1510  </color>
-b) <color:W>|</color> a Dagger (1d4) (+1,+2)                                    1.2        230
-c) <color:W>|</color> a Bastard Sword (3d4) (+0,+0)                            14.0  <color:D>      720  </color>
-d) <color:y>/</color> a Trident (1d8) (+0,+0)                                   7.0  <color:D>      267  </color>
-e) / a Broad Spear (1d9) (+3,+2)                              10.0  <color:D>      926  </color>
-f) <color:u>}</color> <color:u>a Sling (x2) (+0,+0)</color>                                      0.5         54
-g) <color:U>}</color> <color:u>a Short Bow (x3) (+0,+0)</color>                                  3.0        122
-h) <color:s>}</color> <color:u>2 Light Crossbows (x4) (+0,+0)</color>                           11.0  <color:D>      489  </color>
-i) <color:s>{</color> <color:U>26 Bolts (1d5) (+0,+0)</color>                                    0.3          3
-j) <color:s>{</color> <color:U>36 Rounded Pebbles (1d2) (+0,+0)</color>                          0.4          2
-k) <color:s>{</color> <color:U>17 Iron Shots (1d3) (+0,+0)</color>                               0.5          3
-
-
-
-
-
-                                                     Gold Remaining:   231
-You may:
- ESC) Exit from Building.     p) Purchase an item       i/e) Inventry/Equipment
-                              s) Sell an item           w/t) Wear/Take off equi
-                              x) eXamine an item          b) Buyout store
-</style>
+Next, you should shop for gear. I recommend buying some means of escape, such as scrolls of teleport or phase door from the Alchemy Shop (<$:FF_ALCHEMIST>). Also, you will want some means of healing from the Temple (<$:FF_TEMPLE>). If you are playing a rogue, try to buy a sling and some ammo (pebbles or shots) from the Weapon Smiths (<$:FF_WEAPON_SMITHS>). When you enter a store, you will see a list of inventory as well as a list of commands to use. Simply follow the instructions to make a purchase.
+<screenshot:tang03>
 After buying something, it will be added to your pack. Use the <color:keypress>i</color> command to view your pack:
-<style:screenshot>
-Inventory: carrying 39.2 pounds (30% of capacity). Command:
-LEVEL <color:G>     1</color> ...  a) <color:o>?</color> <color:u>a Thieves' Guide [Burglar's Handbook] {@ma!k}</color>     3.0 lb
-EXP <color:G>       6</color> ...  b) <color:U>,</color> <color:U>6 Rations of Food</color>                                 6.0 lb
-AU  <color:G>     126</color> <color:U>###</color>  c) <color:u>~</color> <color:y>3 Wooden Torches (with 2500 turns of light)</color>       9.0 lb
-<color:d>            </color> <color:U>###</color>  d) <color:u>}</color> <color:u>a Sling (x2) (+0,+0)</color>                              0.5 lb
-STR : <color:G> 18/10</color> <color:U>###</color>  e) <color:s>{</color> <color:U>17 Iron Shots (1d3) (+0,+0)</color>                       8.5 lb
-INT : <color:G> 18/30</color> <color:U>###</color>
-WIS : <color:G>    11</color> <color:U>#####</color>.......................................................<color:U>######</color>
-DEX : <color:G> 18/50</color> <color:U>####</color>.........<color:U>###</color><color:v>0</color><color:U>###</color>..<color:U>####</color><color:o>+</color><color:U>####</color>...<color:U>####+####</color>..<color:U>###</color><color:G>+</color><color:U>###</color>.........<color:U>#####</color>
-CON : <color:G>    11</color> <color:U>#+#</color>...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>...<color:U>#</color><color:B>+</color><color:U>##</color>
-CHR : <color:G>    12</color> ......<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>......<color:U>#</color>
-AC     <color:G>    7</color> ......<color:U>##+##</color>..<color:U>###</color><color:o>9</color><color:U>###</color>..<color:U>####</color>@<color:U>####</color>...<color:U>####</color><color:r>6</color><color:U>####</color>..<color:U>###</color><color:g>4</color><color:U>###</color>..<color:U>##+##</color>......<color:U>#</color>
-HP <color:G>  43</color>/<color:G>  43</color> .................................................................<color:U>#</color>
-             .................................................................<color:U>#</color>
-             .................................................................<color:U>#</color>
-@[<color:G>*********</color>] ................................<color:v>></color>.................................
-<color:U>,</color>[*********] .................................................................<color:U>#</color>
-             .................................................................<color:U>#</color>
-             .................................................................<color:U>#</color>
-             ......<color:U>##1##</color>..<color:U>###</color><color:D>7</color><color:U>###</color>..<color:U>####</color><color:s>2</color><color:U>####</color>...<color:U>####</color><color:b>5</color><color:U>####</color>..<color:U>###</color><color:y>8</color><color:U>###</color>..<color:U>##+##</color>......<color:U>#</color>
-             ......<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>......<color:U>#</color>
-             <color:U>#+#</color>...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>...<color:U>#</color><color:R>+</color><color:U>##</color>
-             <color:U>####</color>.........<color:U>###</color><color:v>+</color><color:U>###</color>..<color:U>####</color>+<color:U>####</color>...<color:U>####</color><color:B>+</color><color:U>####</color>..<color:U>#######</color>.........<color:U>#####</color>
-             <color:U>#####</color>.......................................................<color:U>######</color>
-             <color:U>#####</color>.......................................................<color:v>+</color><color:U>#####</color>
-             <color:U>#####</color>.......................................................<color:U>######</color>
-                                                                           Town
-</style>
+
+<screenshot:tang04>
 In my case, I bought a sling and some ammo (Each type of missile weapon uses a corresponding type of ammo. Obviously, arrows are for bows and bolts are for crossbows, so they wouldn't work with my sling!). Now the sling is doing me no good in my pack: I need to equip it first in order to use it in combat, and I do this with the <color:keypress>w</color> command, after which is it visible in the equipment list which can be viewed with the <color:keypress>e</color> command.
-<style:screenshot>
-Equipment: carrying 39.2 pounds (30% of capacity). Command:
-LEVEL <color:G>  </color>  a) <color:W>|</color> Right Hand: a Dagger (1d4) (+0,+0)                        1.2 lb
-EXP <color:G>    </color>  b)   Left Hand :
-AU  <color:G>    </color>  c) <color:u>}</color> Shooting  : <color:u>a Sling (x2) (+0,+0)</color>                          0.5 lb
-<color:d>        </color>  d)   Right Ring:
-STR : <color:G> 1</color>  e)   Left Ring :
-INT : <color:G> 1</color>  f)   Neck      :
-WIS : <color:G>  </color>  g) <color:u>~</color> Light     : <color:y>a Wooden Torch (with 2442 turns of light)</color>     3.0 lb
-DEX : <color:G> 1</color>  h) <color:U>(</color> Body      : <color:s>Soft Leather Armour [4,+0]</color>                    8.0 lb
-CON : <color:G>  </color>  i)   Cloak     :
-CHR : <color:G>  </color>  j)   Head      :
-AC     <color:G> </color>  k)   Hands     :
-HP <color:G>  43</color>/  l)   Feet      :
+<screenshot:tang05>
+To shoot something simply fire (<color:keypress>f</color>) one of your pebbles and see if you hit:
 
-             .................................................................<color:U>#</color>
-@[<color:G>*********</color>] ................................<color:v>></color>.................................
-<color:U>,</color>[*********] .................................................................<color:U>#</color>
-             .................................................................<color:U>#</color>
-             .................................................................<color:U>#</color>
-             ......<color:U>##1##</color>..<color:U>###</color><color:D>7</color><color:U>###</color>..<color:U>####</color><color:s>2</color><color:U>####</color>...<color:U>####</color><color:b>5</color><color:U>####</color>..<color:U>###</color><color:y>8</color><color:U>###</color>..<color:U>##+##</color>......<color:U>#</color>
-             ......<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>......<color:U>#</color>
-             <color:U>#+#</color>...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>...<color:U>#</color><color:R>+</color><color:U>##</color>
-             <color:U>####</color>.........<color:U>###</color><color:v>+</color><color:U>###</color>..<color:U>####</color>+<color:U>####</color>...<color:U>####</color><color:B>+</color><color:U>####</color>..<color:U>#######</color>.........<color:U>#####</color>
-             <color:U>#####</color>.......................................................<color:U>######</color>
-             <color:U>#####</color>.......................................................<color:v>+</color><color:U>#####</color>
-             <color:U>#####</color>.......................................................<color:U>######</color>
-                                                                           Town
-</style>
-To shoot something simply fire (<color:keypress>f</color>) one of your bolts and see if you hit:
-<style:screenshot>
-             You have <color:U>16 Iron Shots (1d3) (+0,+0) (4/5)</color>. That was rather
-LEVEL <color:G>     1</color> dishonorable. The Iron Shot (1d3) (+0,+0) (4/5) hits the Scrawny
-EXP <color:G>       6</color> cat. The Scrawny cat mewls pitifully. The Scrawny cat flees in
-AU  <color:G>     126</color> terror!
-<color:d>            </color> <color:U>################################</color>.<color:U>#################################</color>
-STR : <color:G> 18/10</color> <color:U>#####</color>.......................................................<color:U>######</color>
-INT : <color:G> 18/30</color> <color:U>####</color><color:u>+</color>.......................................................<color:B>+</color><color:U>#####</color>
-WIS : <color:G>    11</color> <color:U>#####</color>.......................................................<color:U>######</color>
-DEX : <color:G> 18/50</color> <color:U>####</color>.........<color:U>###</color><color:v>0</color><color:U>###</color>..<color:U>####</color><color:o>+</color><color:U>####</color>...<color:U>####+####</color>..<color:U>###</color><color:G>+</color><color:U>###</color>.........<color:U>#####</color>
-CON : <color:G>    11</color> <color:U>#+#</color>...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>...<color:U>#</color><color:B>+</color><color:U>##</color>
-CHR : <color:G>    12</color> ......<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>......<color:U>#</color>
-AC     <color:G>    7</color> ......<color:U>##+##</color>..<color:U>###</color><color:o>9</color><color:U>###</color>..<color:U>####</color>3<color:U>####</color>...<color:U>####</color><color:r>6</color><color:U>####</color>..<color:U>###</color><color:g>4</color><color:U>###</color>..<color:U>##+##</color>......<color:U>#</color>
-HP <color:G>  43</color>/<color:G>  43</color> .......................................<color:U>f</color>.........................<color:U>#</color>
-             ..............................@.......<color:s>{</color>..........................<color:U>#</color>
-             .................................................................<color:U>#</color>
-@[<color:G>*********</color>] ................................<color:v>></color>.................................
-<color:U>,</color>[*********] .................................................................<color:U>#</color>
-<color:U>f</color><color:R>[</color><color:v>*</color><color:R>--------]</color> .................................................................<color:U>#</color>
-             .................................................................<color:U>#</color>
-             ......<color:U>##1##</color>..<color:U>###</color><color:D>7</color><color:U>###</color>..<color:U>####</color><color:s>2</color><color:U>####</color>...<color:U>####</color><color:b>5</color><color:U>####</color>..<color:U>###</color><color:y>8</color><color:U>###</color>..<color:U>##+##</color>......<color:U>#</color>
-             ......<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>......<color:U>#</color>
-             <color:U>#+#</color>...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>...<color:U>#</color><color:R>+</color><color:U>##</color>
-             <color:U>####</color>.........<color:U>###</color><color:v>+</color><color:U>###</color>..<color:U>####</color>+<color:U>####</color>...<color:U>####</color><color:B>+</color><color:U>####</color>..<color:U>#######</color>.........<color:U>#####</color>
-             <color:U>#####</color>.......................................................<color:U>######</color>
-             <color:U>#####</color>.......................................................<color:v>+</color><color:U>#####</color>
-             <color:U>#####</color>.......................................................<color:U>######</color>
-                                                                           Town
-</style>
-Sorry about that, Ms. Kitty! She's not dead yet, but will be shortly. I want you to notice a few things. First, as you play the game, notice that messages will be displayed in the top region of the screen. Back when I was a youngster, the game only had a single message line, and we hapless players were plagued with <color:B>-more-</color> prompts out the wazoo, not to mention sore fingers from all the extra keypresses! You may still get a <color:B>-more-</color> from time to time. If you do, simply press <color:keypress>SPACE</color> when you are finished reading and the next batch of output will be displayed. The messages will clear automatically after you enter your next command, so make sure you are done reading before pressing any keys. You can always review messages with the <color:keyword>Previous Messages</color> command (<color:keypress>CTRL+P</color>).
+<screenshot:tang06>
+Sorry about that, Ms. Kitty! I tried hard not to kill her, but she's just too weak!
 
-Next, on the left hand side of the screen you can see 3 status bars. The first one (@[<color:G>*********</color>]) is for the player's hp. It is full since I haven't been hurt yet. The second one (<color:U>,</color>[*********]) displays my food status. I'm not hungry yet, so this one is full as well. Both of these are optional (and the food one in particular might not interest you). But the third one (<color:U>f</color><color:R>[</color><color:v>*</color><color:R>--------]</color>) is very important. It tracks your current target, or the monster you most recently damaged. In this case, it shows me the health of Ms. Kitty, and you can see she is in some pretty dire straits.
+I want you to notice a few things. First, as you play the game, notice that messages will be displayed in the top region of the screen. Back when I was a youngster, the game only had a single message line, and we hapless players were plagued with <color:B>-more-</color> prompts out the wazoo, not to mention sore fingers from all the extra keypresses! You may still get a <color:B>-more-</color> from time to time. If you do, simply press <color:keypress>SPACE</color> when you are finished reading and the next batch of output will be displayed. The messages will clear automatically after you enter your next command, so make sure you are done reading before pressing any keys. You can always review messages with the <color:keyword>Previous Messages</color> command (<color:keypress>CTRL+P</color>).
 
-Finally, notice my shot (<color:s>{</color>) laying on the ground next to Ms. Kitty. Sometimes your missile ammo will break on impact, but if it doesn't you'll want to go gather it up after you are done fighting. You can pickup objects by moving on top of them and using the get command (<color:keypress>g</color>).
+Next, there are some silly messages about your being a dishonorable brute. You can ignore these: they are simply messages about the morality of various actions your player takes. Over time, the game calculates your player's alignment which occasionally has game play consequences (For example, holy monsters are on a crusade against evil, and you wouldn't want to be too evil when fighting them!). Probably, I should disable the virtue system for <color:keyword>Beginner</color> mode, though.
 
-Killing cats is fun, but it is time to move on. If you have money left over, go to the General Store (<color:U>1</color>) and buy a lantern and some oil. Lanterns cast more light than torches and allow you to see further in the dark. Sell your starting torches. Oh, and be sure to equip your lantern to actually use it (<color:keypress>w</color> to wear an item).
+Finally, notice my shot (<color:s>{</color>) laying on the ground next to (the remains of) Ms. Kitty. Sometimes your missile ammo will break on impact, but if it doesn't you'll want to go gather it up after you are done fighting. You can pickup objects by moving on top of them and using the get command (<color:keypress>g</color>).
+
+Killing cats is fun, but it is time to move on. If you have money left over, go to the General Store (<$:FF_GENERAL_STORE>) and buy a lantern and some oil. Lanterns cast more light than torches and allow you to see further in the dark. Sell your starting torches. Oh, and be sure to equip your lantern to actually use it (<color:keypress>w</color> to wear an item).
 
 Of course, it's possible that these items will not be available in the stores. The stores will "refresh" themselves every so often, getting rid of old items and buying new ones. If you ever find that there's something you need which the stores don't currently have, you can come back a bit later. However, to prevent <color:keyword>town scumming</color>, the stores won't actually restock unless you do a bit of adventuring first.
 
@@ -196,135 +61,35 @@ Hopefully, you managed all of this without too much trouble from the locals (<co
 
 <topic:MyFirstTripDown><style:heading>My First Trip Down</style>
 
-Since this is the 'Beginner' mode, there is only one dungeon to enter. The <color:v>></color> character represents the entrance to a dungeon. >, in general refers to stairs down, but dungeon entrances <color:v>></color> and quest entrances <color:y>></color> are color coded to stand out. Similarly, < refers to stairs up. By some cosmic accident, these are also the keys you press to take the stairs: <color:keypress>></color> to go down and <color:keypress><</color> to go up. What could be easier to remember? So move to the stairs down to <color:keyword>Angband</color> and enter the dungeon!
+To enter a dungeon, you must first locate its entrance (<$:FF_ENTRANCE>) on the surface. Currently, <color:keyword>The Stronghold</color> is available close to the starting town in both the <color:keyword>Amber</color> and <color:keyword>Middle Earth</color> modules. You can locate the entrance in one of two ways. First, press the <color:keypress>M</color> key to view the surface map:
+<screenshot:tang07>This is a compressed view of the surface terrain, but it allows you to see your current location relative to important terrain and objects. Now you know which way to go, and can move in that direction, re-checking the map to ascertain your progress.
 
-As you walk about, beware of monsters and use the look command (<color:keypress>l</color>) together with the recall option (<color:keypress>r</color>) to get a verbose monster description. For example:
-<style:screenshot>
-The Soldier ant ('<color:u>a</color>')/('<color:u>a</color>'):  [r,q,t,p,o,+,-,?,<dir>]
-Your ancestors have killed at least 1 of these creatures.
-A large ant with powerful mandibles.
-It is normally found on dungeon level 1, won't be found deeper than dungeon
-level 10, and moves at normal speed.  A kill of this<color:G> natural</color> creature is worth
-about 1.50 points for a 2nd level character.  Nothing is known about its
-attack.
+But there is an easier way! Press <color:keypress>]</color> to bring up the <color:keyword>Object List</color>. Normally, you use this command in the dungeon to locate important treasures. But on the surface, you can also use it to navigate to a specific location. Simply position the cursor on the line for the entrance and press <color:keypress>`</color> to travel to that location:
+<screenshot:tang08>You will then automatically go to the desired location, stopping if any monsters get in your way.
 
-DEX : <color:G> 18/50</color>
-CON : <color:G>    11</color>
-CHR : <color:G>    12</color>
-AC     <color:G>    7</color>
-HP <color:G>  47</color>/<color:G>  47</color>
+Once you have made it to the entrance, simple press <color:keypress>></color> to take the stairs down:
 
+<screenshot:tang09>
+Now that you have entered a dungeon, the town recall services will function so you don't need to walk back to the entrance any more (unless you need to save gold).
 
-@[<color:G>*********</color>]
-<color:U>,</color>[*********]     #######<color:U>+</color>##<color:U>+</color>######<color:U>+</color>##.####
-<color:u>a</color>[<color:b>*********</color>]     #................<color:U>R</color>......#
-                 #.......................#
-                 #.......................#
-                 #.............<color:u>a</color>.........#
-                 #.......................#
-                 #............@..........#
-                 #.......................#
-                 #.......................#
-                 #########################
-                                                                    <color:s>Angband: L1</color>
-</style>
-In this case, a previous character had encountered and slain a soldier ant, so I have some basic knowledge of this type of monster. This illustrates what the game calls <color:keyword>Monster Memory</color>. As you battle monsters, you learn more about them, and the game tracks your knowledge for you. All of the memory is retained in your savefile so that future characters may benefit. After killing a foe, you can recall details of your glory with the <color:keypress>/</color> command, followed by the letter representing the monster (<color:u>a</color> in this case) and then follow the prompts to choose the recall option. Notice that the description updates.
+Now that you have made it someplace interesting, it is time to begin exploring. As you wander about, you will notice that the map display is updated, tracking your progress through the current level. You will need to be on your guard against monsters as you explore. Whenever you see something you don't know, use the look command (<color:keypress>l</color>) together with the recall option (<color:keypress>r</color>) to get a verbose monster description. For example:
+
+<screenshot:tang10>
+Uh Oh! It's Mr. Dog!! In this case a previous character had encountered and slain Mr. Dog, so I have some basic knowledge of this type of monster. This illustrates what the game calls <color:keyword>Monster Memory</color>. As you battle monsters, you learn more about them, and the game tracks your knowledge for you. All of the memory is retained in your savefile so that future characters may benefit. After killing a foe, you can recall details of your glory with the <color:keypress>/</color> command, followed by the letter representing the monster (<color:u>C</color> in this case) and then follow the prompts to choose the recall option. Notice that the description updates.
 
 At this point, you basically explore the current level. You can walk back to town at any time by going back up those stairs you just descended. You can also find new stairs down to deeper depths. Basically, the deeper you go, the more difficult things become, so you'll want to take it easy on the stairs at first.
 
 So, walk around a bit and kill stuff. Don't worry too much about dying as it will probably happen quite a bit at first. And if it does, the next time you load this savefile the birth process will give you an extra option to <color:keyword>Quick Start</color> this character, which basically skips the entire birth process and rolls a character identical to the last one. So it's easy to start up again after you die. (See, we streamline the common cases :)
 
 So, I will continue to play a bit. You can just sit back and watch! ... Oops, I think I'm in trouble:
-<style:screenshot>
-             <color:g>The Novice warrior attacks you: </color>He hits. He hits. He hits.
-LEVEL <color:G>     2</color> <color:g>The Novice warrior attacks you: </color>He hits. He hits. You stand your
-EXP <color:G>      24</color> ground! He hits. <color:v>*** LOW HITPOINT WARNING! ***</color> Press <color:y>Space</color> to
-AU  <color:G>     144</color> continue.
-<color:d>            </color>
-STR : <color:G> 18/10</color>
-INT : <color:G> 18/30</color>                                              #<color:s>%</color>##################<color:U>#</color>
-WIS : <color:G>    11</color>                                              <color:U>+</color>...................<color:U>#</color>
-DEX : <color:G> 18/50</color>                                              %...................<color:U>#</color>
-CON : <color:G>    11</color>                                              ....................<color:U>#</color>
-CHR : <color:G>    12</color>                                              #.......<...........<color:U>#</color>
-AC     <color:G>    6</color>                                              #...................<color:U>#</color>
-HP <color:r>  10</color>/<color:G>  47</color>                                              #<color:s>%</color>##.###############<color:U>#</color>
-                                                             #.#
-                                                             #.#
-@[<color:r>**</color>-------]                                       <color:s>%%%</color>%#%<color:s>%</color>##%%.#%#####%
-<color:U>,</color>[********-]                                       %<color:y>!</color>.................#
-<color:U>p</color>[<color:R>***</color>------]                                       <color:s>%</color>........<color:U>p</color>.........%
-                                                   %.....<color:U>CC</color>@.........<color:r>~</color>%
-                                                   <color:s>%</color>..................#
-                                                   <color:s>%</color>..............j...#
-                                                   <color:s>%</color>..................#
-                                                   <color:s>%</color>..................%
-                                                   %%#<color:s>%</color>%<color:s>%%%%</color>##.####%<color:U>+</color><color:s>%%</color>
 
+<screenshot:tang11>
+Notice my <color:r>19</color> hp? Well, if my hp go below 0, I am dead. Also notice the very loud <color:v>*** LOW HITPOINT WARNING! ***</color>? This is to make sure you notice when you are in trouble. The game even forces me to press <color:keypress>SPACE</color> before continuing. Really, I think I am about to die!
 
-                                                                    <color:s>Angband: L2</color>
-</style>
-Notice my <color:r>10</color> hp? Well, if my hp go below 0, I am dead. Also notice the very loud <color:v>*** LOW HITPOINT WARNING! ***</color>? This is to make sure you notice when you are in trouble. The game even forces me to press <color:keypress>SPACE</color> before continuing. Really, I think I am about to die!
-<style:screenshot>
-             <color:g>The Novice warrior attacks you: </color>He hits. What a noble sacrifice!
-LEVEL <color:G>     2</color>
-EXP <color:G>      23</color>
-AU  <color:G>     144</color>
-<color:d>            </color>
-STR : <color:G> 18/10</color>
-INT : <color:G> 18/30</color>                                              #<color:s>%</color>##################<color:U>#</color>
-WIS : <color:G>    11</color>                                              <color:U>+</color>...................<color:U>#</color>
-DEX : <color:G> 18/50</color>                                              %...................<color:U>#</color>
-CON : <color:G>    11</color>                                              ....................<color:U>#</color>
-CHR : <color:G>    12</color>                                              #.......<...........<color:U>#</color>
-AC     <color:G>    6</color>                                              #...................<color:U>#</color>
-HP <color:r>  -3</color>/<color:G>  47</color>                                              #<color:s>%</color>##.###############<color:U>#</color>
-                                                             #.#
-                                                             #.#
-@[<color:r>*</color>--------]                                       <color:s>%%%</color>%#%<color:s>%</color>##%%.#%#####%
-<color:U>,</color>[********-]                                       %<color:y>!</color>.................#
-                                                   <color:s>%</color>..................%
-                                                   %.....<color:U>C</color>@<color:U>p</color>.........<color:r>~</color>%
-                                                   <color:s>%</color>..................#
-                                                   <color:s>%</color>..............j...#
-                                                   <color:s>%</color>..................#
-                                                   <color:s>%</color>..................%
-                                                   %%#<color:s>%</color>%<color:s>%%%%</color>##.####%<color:U>+</color><color:s>%%</color>
-
-
-                                                                    <color:s>Angband: L2</color>
-</style>
+<screenshot:tang12>
 <color:v>Ouch!</color> That really hurt!
-<style:screenshot>
-             Goodbye, Filcher! <color:B>-more-</color>
-               _______________________
-              /                       \         ___
-             /                         \ ___   /   \      ___
-            /            RIP            \   \  :   :     /   \
-           /                             \  : _;,,,;_    :   :
-          /            Filcher            \,;_          _;,,,;_
-         |               the               |   ___
-         |            Cutpurse             |  /   \
-         |                                 |  :   :
-         |              Rogue              | _;,,,;_   ____
-         |            Level: 2             |          /    \
-         |             Exp: 36             |          :    :
-         |             AU: 144             |          :    :
-         |        Killed on Level 2        |         _;,,,,;_
-         |      by a Novice warrior.       |
-         |                                 |
-         |    Tue Sep 22 14:41:58 2015     |
-        *|   *     *     *    *   *     *  | *
-________)/\\_)_/___(\/___(//_\)/_\//__\\(/_|_)_______
-</style>
-But never fear, I can quickly start over. Notice the new birth option:
-<style:screenshot>
-  Do you want to use the quick start function(same character as your last one).
 
-
-          Use quick start? [y/N]
-</style>
-Choosing <color:keypress>y</color> immediately recreates a new character with the same race, class and stats as the old one and immediately places me back in town. This is a brand new character, so any objects I acquired (like that sling) are gone, and I have no experience. However, my monster memory survives, so I don't have to memorize all the monsters as you encounter them.
+<screenshot:tang13>
 
 Go ahead an play a bit. At this point, the tutorial is over and I'll just give some basic tidbits about the game.
 

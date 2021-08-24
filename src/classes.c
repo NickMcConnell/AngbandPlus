@@ -13,33 +13,33 @@ bool plr_allow_martial_arts(void)
     return FALSE;
 }
 
-/* In general, the class index is given by player_type.pclass. However, for various
+/* In general, the class id is given by player_type.pclass. However, for various
  * monster races, the "class" behavior is actually determined by the race, and we
- * encode this desire with race_t.pseudo_class_idx. As another twist, consider the
+ * encode this desire with race_t.pseudo_class_id. As another twist, consider the
  * possessor. Here, the "class" behavior depends on the current body (see r_info.text).
  */
-int get_class_idx(void)
+int plr_pseudo_class_id(void)
 {
-    int result = p_ptr->pclass;
+    int result = plr->pclass;
 
     if (result == CLASS_MONSTER)
     {
-        switch (p_ptr->prace)
+        switch (plr->prace)
         {
         case RACE_MON_POSSESSOR:
         case RACE_MON_MIMIC:
-            if (p_ptr->current_r_idx)
+            if (plr->current_r_idx)
             {
-                mon_race_ptr race = mon_race_lookup(p_ptr->current_r_idx);
-                result = race->body.class_idx;
+                mon_race_ptr race = plr_mon_race();
+                result = race->body.class_id;
                 break;
             }
-            /* vvv Fall Through vvv */
+            /* FALL THROUGH */
         default:
         {
             race_t *race_ptr = get_race();
-            /*if (race_ptr->pseudo_class_idx) Note: CLASS_WARRIOR = 0! */
-                result = race_ptr->pseudo_class_idx;
+            if (race_ptr->pseudo_class_id != CLASS_NONE)
+                result = race_ptr->pseudo_class_id;
         }
         }
     }

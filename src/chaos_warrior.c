@@ -200,7 +200,7 @@ void chaos_warrior_reward(void)
     if (one_in_(6 + count*count)) /* XXX removing mutations is now highly non-trivial */
     {
         msg_format("%^s rewards you with a mutation!",
-            chaos_patrons[p_ptr->chaos_patron]);
+            chaos_patrons[plr->chaos_patron]);
 
         mut_gain_random(NULL);
     }
@@ -212,9 +212,9 @@ void chaos_warrior_reward(void)
         int         type, effect;
         int         count = 0;
 
-        if (p_ptr->lev == 13) nasty_chance = 2;
-        else if (!(p_ptr->lev % 13)) nasty_chance = 3;
-        else if (!(p_ptr->lev % 14)) nasty_chance = 12;
+        if (plr->lev == 13) nasty_chance = 2;
+        else if (!(plr->lev % 13)) nasty_chance = 3;
+        else if (!(plr->lev % 14)) nasty_chance = 12;
 
         if (one_in_(nasty_chance))
             type = randint1(20); /* Allow the 'nasty' effects */
@@ -226,27 +226,27 @@ void chaos_warrior_reward(void)
         type--;
 
         sprintf(wrath_reason, "the Wrath of %s",
-            chaos_patrons[p_ptr->chaos_patron]);
+            chaos_patrons[plr->chaos_patron]);
 
-        effect = chaos_rewards[p_ptr->chaos_patron][type];
+        effect = chaos_rewards[plr->chaos_patron][type];
         switch (effect)
         {
         case REW_POLY_SLF:
             msg_format("The voice of %s booms out:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Thou needst a new form, mortal!'");
 
             do_poly_self();
             break;
         case REW_GAIN_EXP:
             msg_format("The voice of %s booms out:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Well done, mortal! Lead on!'");
-            if (p_ptr->prace == RACE_ANDROID)
+            if (plr->prace == RACE_ANDROID)
                 msg_print("But, nothing happen.");
-            else if (p_ptr->exp < PY_MAX_EXP)
+            else if (plr->exp < PY_MAX_EXP)
             {
-                s32b ee = (p_ptr->exp / 2) + 10;
+                s32b ee = (plr->exp / 2) + 10;
                 if (ee > 100000L) ee = 100000L;
                 msg_print("You feel more experienced.");
                 gain_exp(ee);
@@ -254,39 +254,39 @@ void chaos_warrior_reward(void)
             break;
         case REW_LOSE_EXP:
             msg_format("The voice of %s booms out:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Thou didst not deserve that, slave.'");
 
-            if (p_ptr->prace == RACE_ANDROID)
+            if (plr->prace == RACE_ANDROID)
                 msg_print("But, nothing happen.");
             else
             {
-                lose_exp(p_ptr->exp / 6);
+                lose_exp(plr->exp / 6);
             }
             break;
         case REW_GOOD_OBJ:
             msg_format("The voice of %s whispers:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Use my gift wisely.'");
-            acquirement(p_ptr->pos.y, p_ptr->pos.x, 1, FALSE, FALSE);
+            acquirement(plr->pos.y, plr->pos.x, 1, FALSE, FALSE);
             break;
         case REW_GREA_OBJ:
             msg_format("The voice of %s booms out:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Use my gift wisely.'");
 
-            acquirement(p_ptr->pos.y, p_ptr->pos.x, 1, TRUE, FALSE);
+            acquirement(plr->pos.y, plr->pos.x, 1, TRUE, FALSE);
             break;
         case REW_CHAOS_WP:
         {
             object_type forge;
 
             msg_format("The voice of %s booms out:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Thy deed hath earned thee a worthy blade.'");
 
             dummy = TV_SWORD;
-            switch (randint1(p_ptr->lev))
+            switch (randint1(plr->lev))
             {
                 case 0: case 1:
                     dummy2 = SV_DAGGER;
@@ -379,71 +379,71 @@ void chaos_warrior_reward(void)
             one_resistance(&forge);
             forge.name2 = EGO_WEAPON_CHAOS;
 
-            drop_near(&forge, p_ptr->pos, -1);
+            drop_near(&forge, plr->pos, -1);
             break;
         }
         case REW_GOOD_OBS:
             msg_format("The voice of %s booms out:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Thy deed hath earned thee a worthy reward.'");
 
-            acquirement(p_ptr->pos.y, p_ptr->pos.x, randint1(2) + 1, FALSE, FALSE);
+            acquirement(plr->pos.y, plr->pos.x, randint1(2) + 1, FALSE, FALSE);
             break;
         case REW_GREA_OBS:
             msg_format("The voice of %s booms out:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Behold, mortal, how generously I reward thy loyalty.'");
 
-            acquirement(p_ptr->pos.y, p_ptr->pos.x, randint1(2) + 1, TRUE, FALSE);
+            acquirement(plr->pos.y, plr->pos.x, randint1(2) + 1, TRUE, FALSE);
             break;
         case REW_TY_CURSE:
             msg_format("The voice of %s thunders:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Thou art growing arrogant, mortal.'");
 
             activate_ty_curse(FALSE, &count);
             break;
         case REW_SUMMON_M:
             msg_format("The voice of %s booms out:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'My pets, destroy the arrogant mortal!'");
             for (dummy = 0; dummy < randint1(5) + 1; dummy++)
-                summon_specific(0, p_ptr->pos, cave->dun_lvl, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
+                summon_specific(who_create_null(), plr->pos, cave->dun_lvl, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
             break;
         case REW_H_SUMMON:
             msg_format("The voice of %s booms out:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Thou needst worthier opponents!'");
-            activate_hi_summon(p_ptr->pos.y, p_ptr->pos.x, FALSE);
+            activate_hi_summon(plr->pos, FALSE);
             break;
         case REW_DO_HAVOC:
             msg_format("The voice of %s booms out:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Death and destruction! This pleaseth me!'");
             call_chaos(100);
             break;
         case REW_GAIN_ABL:
             msg_format("The voice of %s rings out:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Stay, mortal, and let me mold thee.'");
-            if (one_in_(3) && !(chaos_stats[p_ptr->chaos_patron] < 0))
-                do_inc_stat(chaos_stats[p_ptr->chaos_patron]);
+            if (one_in_(3) && !(chaos_stats[plr->chaos_patron] < 0))
+                do_inc_stat(chaos_stats[plr->chaos_patron]);
             else
                 do_inc_stat(randint0(6));
             break;
         case REW_LOSE_ABL:
             msg_format("The voice of %s booms out:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'I grow tired of thee, mortal.'");
 
-            if (one_in_(3) && !(chaos_stats[p_ptr->chaos_patron] < 0))
-                do_dec_stat(chaos_stats[p_ptr->chaos_patron]);
+            if (one_in_(3) && !(chaos_stats[plr->chaos_patron] < 0))
+                do_dec_stat(chaos_stats[plr->chaos_patron]);
             else
                 do_dec_stat(randint0(6));
             break;
         case REW_RUIN_ABL:
             msg_format("The voice of %s thunders:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Thou needst a lesson in humility, mortal!'");
             msg_print("You feel less powerful!");
 
@@ -451,26 +451,26 @@ void chaos_warrior_reward(void)
                 dec_stat(dummy, 10 + randint1(15), TRUE);
             break;
         case REW_POLY_WND:
-            msg_format("You feel the power of %s touch you.", chaos_patrons[p_ptr->chaos_patron]);
+            msg_format("You feel the power of %s touch you.", chaos_patrons[plr->chaos_patron]);
             do_poly_wounds();
             break;
         case REW_AUGM_ABL:
             msg_format("The voice of %s booms out:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Receive this modest gift from me!'");
             for (dummy = 0; dummy < 6; dummy++)
                 do_inc_stat(dummy);
             break;
         case REW_HURT_LOT:
             msg_format("The voice of %s booms out:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Suffer, pathetic fool!'");
-            fire_ball(GF_DISINTEGRATE, 0, p_ptr->lev * 4, 4);
-            take_hit(DAMAGE_NOESCAPE, p_ptr->lev * 4, wrath_reason);
+            plr_burst(4, GF_DISINTEGRATE, 4*plr->lev);
+            take_hit(DAMAGE_NOESCAPE, plr->lev * 4, wrath_reason);
             break;
        case REW_HEAL_FUL:
             msg_format("The voice of %s booms out:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Rise, my servant!'");
             restore_level();
             plr_tim_remove(T_POISON);
@@ -489,7 +489,7 @@ void chaos_warrior_reward(void)
             if (slot)
             {
                 msg_format("The voice of %s booms out:",
-                    chaos_patrons[p_ptr->chaos_patron]);
+                    chaos_patrons[plr->chaos_patron]);
                 msg_print("'Thou reliest too much on thy weapon.'");
                 curse_weapon(FALSE, slot);
             }
@@ -501,7 +501,7 @@ void chaos_warrior_reward(void)
             if (slot)
             {
                 msg_format("The voice of %s booms out:",
-                    chaos_patrons[p_ptr->chaos_patron]);
+                    chaos_patrons[plr->chaos_patron]);
                 msg_print("'Thou reliest too much on thine equipment.'");
                 curse_armor(slot);
             }
@@ -509,7 +509,7 @@ void chaos_warrior_reward(void)
         }
         case REW_PISS_OFF:
             msg_format("The voice of %s whispers:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Now thou shalt pay for annoying me.'");
             switch (randint1(4))
             {
@@ -517,7 +517,7 @@ void chaos_warrior_reward(void)
                     activate_ty_curse(FALSE, &count);
                     break;
                 case 2:
-                    activate_hi_summon(p_ptr->pos.y, p_ptr->pos.x, FALSE);
+                    activate_hi_summon(plr->pos, FALSE);
                     break;
                 case 3:
                     if (one_in_(2))
@@ -540,13 +540,13 @@ void chaos_warrior_reward(void)
             }
             break;
         case REW_WRATH:
-            msg_format("The voice of %s thunders:", chaos_patrons[p_ptr->chaos_patron]);
+            msg_format("The voice of %s thunders:", chaos_patrons[plr->chaos_patron]);
             msg_print("'Die, mortal!'");
 
-            take_hit(DAMAGE_LOSELIFE, p_ptr->lev * 4, wrath_reason);
+            take_hit(DAMAGE_LOSELIFE, plr->lev * 4, wrath_reason);
             for (dummy = 0; dummy < 6; dummy++)
                 dec_stat(dummy, 10 + randint1(15), FALSE);
-            activate_hi_summon(p_ptr->pos.y, p_ptr->pos.x, FALSE);
+            activate_hi_summon(plr->pos, FALSE);
             activate_ty_curse(FALSE, &count);
             if (one_in_(2))
             {
@@ -563,48 +563,48 @@ void chaos_warrior_reward(void)
             break;
         case REW_DESTRUCT:
             msg_format("The voice of %s booms out:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Death and destruction! This pleaseth me!'");
-            destroy_area(p_ptr->pos.y, p_ptr->pos.x, 25, 3 * p_ptr->lev);
+            destroy_area(plr->pos, 25, 3 * plr->lev);
             break;
         case REW_GENOCIDE:
             msg_format("The voice of %s booms out:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Let me relieve thee of thine oppressors!'");
             symbol_genocide(0, FALSE);
             break;
         case REW_MASS_GEN:
             msg_format("The voice of %s booms out:",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             msg_print("'Let me relieve thee of thine oppressors!'");
             mass_genocide(0, FALSE);
             break;
         case REW_DISPEL_C:
             msg_format("You can feel the power of %s assault your enemies!",
-                chaos_patrons[p_ptr->chaos_patron]);
-            dispel_monsters(p_ptr->lev * 4);
+                chaos_patrons[plr->chaos_patron]);
+            plr_project_los(GF_DISP_ALL, plr->lev * 4);
             break;
         case REW_IGNORE:
             msg_format("%s ignores you.",
-                chaos_patrons[p_ptr->chaos_patron]);
+                chaos_patrons[plr->chaos_patron]);
             break;
         case REW_SER_DEMO:
-            msg_format("%s rewards you with a demonic servant!",chaos_patrons[p_ptr->chaos_patron]);
-            if (!summon_specific(-1, p_ptr->pos, cave->dun_lvl, SUMMON_DEMON, PM_FORCE_PET))
+            msg_format("%s rewards you with a demonic servant!",chaos_patrons[plr->chaos_patron]);
+            if (!summon_specific(who_create_plr(), plr->pos, cave->dun_lvl, SUMMON_DEMON, PM_FORCE_PET))
                 msg_print("Nobody ever turns up...");
             break;
         case REW_SER_MONS:
-            msg_format("%s rewards you with a servant!",chaos_patrons[p_ptr->chaos_patron]);
-            if (!summon_specific(-1, p_ptr->pos, cave->dun_lvl, 0, PM_FORCE_PET))
+            msg_format("%s rewards you with a servant!",chaos_patrons[plr->chaos_patron]);
+            if (!summon_specific(who_create_plr(), plr->pos, cave->dun_lvl, 0, PM_FORCE_PET))
                 msg_print("Nobody ever turns up...");
             break;
         case REW_SER_UNDE:
-            msg_format("%s rewards you with an undead servant!",chaos_patrons[p_ptr->chaos_patron]);
-            if (!summon_specific(-1, p_ptr->pos, cave->dun_lvl, SUMMON_UNDEAD, PM_FORCE_PET))
+            msg_format("%s rewards you with an undead servant!",chaos_patrons[plr->chaos_patron]);
+            if (!summon_specific(who_create_plr(), plr->pos, cave->dun_lvl, SUMMON_UNDEAD, PM_FORCE_PET))
                 msg_print("Nobody ever turns up...");
             break;
         default:
-            msg_format("The voice of %s stammers:", chaos_patrons[p_ptr->chaos_patron]);
+            msg_format("The voice of %s stammers:", chaos_patrons[plr->chaos_patron]);
             msg_format("'Uh... uh... the answer's %d/%d, what's the question?'", type, effect);
         }
     }
@@ -613,18 +613,18 @@ void chaos_warrior_reward(void)
 
 static void _calc_bonuses(void)
 {
-    if (p_ptr->lev >= 30) 
-        res_add(RES_CHAOS);
-    if (p_ptr->lev >= 40) 
-        res_add(RES_FEAR);
+    if (plr->lev >= 30) 
+        res_add(GF_CHAOS);
+    if (plr->lev >= 40) 
+        res_add(GF_FEAR);
 }
 
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    if (p_ptr->lev >= 30)
-        add_flag(flgs, OF_RES_CHAOS);
-    if (p_ptr->lev >= 40)
-        add_flag(flgs, OF_RES_FEAR);
+    if (plr->lev >= 30)
+        add_flag(flgs, OF_RES_(GF_CHAOS));
+    if (plr->lev >= 40)
+        add_flag(flgs, OF_RES_(GF_FEAR));
 }
 
 static int _get_powers(spell_info* spells, int max)
@@ -634,7 +634,7 @@ static int _get_powers(spell_info* spells, int max)
     spell_info* spell = &spells[ct++];
     spell->level = 40;
     spell->cost = 50;
-    spell->fail = calculate_fail_rate(spell->level, 80, p_ptr->stat_ind[A_INT]);
+    spell->fail = calculate_fail_rate(spell->level, 80, plr->stat_ind[A_INT]);
     spell->fn = confusing_lights_spell;
 
     return ct;
@@ -680,7 +680,7 @@ plr_class_ptr chaos_warrior_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 20,  25,  34,   1,  14,  12,  65,  40};
-    skills_t xs = {  7,  11,  10,   0,   0,   0,  20,  17};
+    skills_t xs = { 35,  55,  50,   0,   0,   0, 100,  85};
 
         me = plr_class_alloc(CLASS_CHAOS_WARRIOR);
         me->name = "Chaos-Warrior";

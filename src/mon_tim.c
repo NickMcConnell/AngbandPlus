@@ -7,12 +7,18 @@
  ************************************************************************/
 static mon_tim_info_ptr _amnesia(void);
 static mon_tim_info_ptr _berserk(void);
+static mon_tim_info_ptr _blind(void);
+static mon_tim_info_ptr _bound(void);
 static mon_tim_info_ptr _confused(void);
+static mon_tim_info_ptr _discord(void);
 static mon_tim_info_ptr _ego_whip(void);
+static mon_tim_info_ptr _illusion(void);
 static mon_tim_info_ptr _fast(void);
 static mon_tim_info_ptr _fear(void);
-static mon_tim_info_ptr _paralyzed(void);
 static mon_tim_info_ptr _invuln(void);
+static mon_tim_info_ptr _paralyzed(void);
+static mon_tim_info_ptr _prot_evil(void);
+static mon_tim_info_ptr _prot_good(void);
 static mon_tim_info_ptr _sleep(void);
 static mon_tim_info_ptr _slow(void);
 static mon_tim_info_ptr _stun(void);
@@ -41,12 +47,18 @@ static int_map_ptr _info(void)
         map = int_map_alloc(free);
         _register(map, _amnesia());
         _register(map, _berserk());
+        _register(map, _blind());
+        _register(map, _bound());
         _register(map, _confused());
+        _register(map, _discord());
         _register(map, _ego_whip());
+        _register(map, _illusion());
         _register(map, _fast());
         _register(map, _fear());
         _register(map, _invuln());
         _register(map, _paralyzed());
+        _register(map, _prot_evil());
+        _register(map, _prot_good());
         _register(map, _sleep());
         _register(map, _slow());
         _register(map, _stun());
@@ -107,7 +119,7 @@ static void _add(mon_ptr mon, mon_tim_ptr t)
     mon_tim_info_ptr info = _find_info(t->id);
     _add_aux(mon, t);
     t->flags |= info->flags;
-    check_mon_health_redraw(mon->id);
+    check_mon_health_redraw(mon);
     info->on_f(mon, t);
 }
 static void _remove(mon_ptr mon, mon_tim_ptr tim)
@@ -127,7 +139,7 @@ static void _remove(mon_ptr mon, mon_tim_ptr tim)
             else p->next = t->next;
             _off(mon, t);
             free(t);
-            check_mon_health_redraw(mon->id);
+            check_mon_health_redraw(mon);
             break;
         }
     }
@@ -153,7 +165,7 @@ void mon_tim_add_aux(mon_ptr mon, int id, int count, int parm)
     mon_tim_ptr t = NULL;
     mon_tim_info_ptr info = _find_info(id);
     if (count <= 0) return;
-    if (mon_is_dead(mon)) return;
+    if (!mon_is_valid(mon)) return;
 
     if (!(info->flags & TF_DUPLICATE))
         t = _find(mon, id);
@@ -226,7 +238,7 @@ void mon_tim_dispel(mon_ptr mon)
             _off(mon, t);
             t = t->next;
             free(x);
-            check_mon_health_redraw(mon->id);
+            check_mon_health_redraw(mon);
         }
         else
         {
@@ -264,6 +276,16 @@ bool mon_tim_find(mon_ptr mon, int id)
 {
     return _find(mon, id) != NULL;
 }
+bool mon_tim_find_p(mon_ptr mon, mon_tim_p p)
+{
+    mon_tim_ptr t;
+    assert(p);
+    for (t = mon->timers; t; t = t->next)
+    {
+        if (p(t)) return TRUE;
+    }
+    return FALSE;
+}
 int mon_tim_parm(mon_ptr mon, int id)
 {
     mon_tim_ptr t = _find(mon, id);
@@ -297,7 +319,7 @@ static void _cleanup(mon_ptr mon)
             _off(mon, t);
             t = t->next;
             free(x);
-            check_mon_health_redraw(mon->id);
+            check_mon_health_redraw(mon);
         }
         else
         {
@@ -315,7 +337,7 @@ static void _cleanup(mon_ptr mon)
 void mon_tim_tick(mon_ptr mon)
 {
     mon_tim_ptr t;
-    if (mon_is_dead(mon)) return;
+    if (!mon_is_valid(mon)) return;
     mon->mflag |= MFLAG_TICK;
     for (t = mon->timers; t; t = t->next)
     {
@@ -325,7 +347,7 @@ void mon_tim_tick(mon_ptr mon)
             if (info->tick_f)
             {
                 info->tick_f(mon, t);
-                if (mon_is_dead(mon)) return; /* dead */
+                if (!mon_is_valid(mon)) return; /* dead */
             }
             else
                 t->count--;
@@ -337,7 +359,7 @@ void mon_tim_tick(mon_ptr mon)
 void mon_tim_fast_tick(mon_ptr mon)
 {
     mon_tim_ptr t;
-    if (mon_is_dead(mon)) return;
+    if (!mon_is_valid(mon)) return;
     mon->mflag |= MFLAG_TICK;
     for (t = mon->timers; t; t = t->next)
     {
@@ -347,7 +369,7 @@ void mon_tim_fast_tick(mon_ptr mon)
             if (info->tick_f)
             {
                 info->tick_f(mon, t);
-                if (mon_is_dead(mon)) return; /* dead */
+                if (!mon_is_valid(mon)) return; /* dead */
             }
             else
                 t->count--;
@@ -365,7 +387,7 @@ void mon_tim_clear(mon_ptr mon)
         mon->timers = mon->timers->next;
         free(x);
     }
-    if (mon->r_idx) check_mon_health_redraw(mon->id);
+    if (mon->race->id) check_mon_health_redraw(mon);
 }
 void mon_tim_display(mon_ptr mon, doc_ptr doc)
 {
@@ -399,10 +421,7 @@ void mon_tim_load(mon_ptr mon, savefile_ptr file)
         s16b ct = savefile_read_s16b(file);
         mon_tim_ptr t = _alloc(e, ct);
         t->flags = savefile_read_u16b(file);
-        if (savefile_is_older_than(file, 7, 1, 2, 2))
-            t->parm = savefile_read_s16b(file);
-        else
-            t->parm = savefile_read_s32b(file);
+        t->parm = savefile_read_s32b(file);
         _add_aux(mon, t);
     }
 }
@@ -427,7 +446,7 @@ static bool _mon_show_msg(mon_ptr mon, mon_tim_ptr timer)
 {
     if (!(cave->flags & DF_GENERATED)) return FALSE;
     if (timer->flags & TF_NO_MSG) return FALSE;
-    if (mon_is_dead(mon)) return FALSE;
+    if (!mon_is_valid(mon)) return FALSE;
     return mon_show_msg(mon);
 }
 static cptr _mon_name_aux(mon_ptr mon, int options)
@@ -478,6 +497,88 @@ static mon_tim_info_ptr _berserk(void)
     return info;
 }
 /************************************************************************
+ * T_BOUND
+ ************************************************************************/
+static void _bound_on(mon_ptr mon, mon_tim_ptr timer)
+{
+    if (_mon_show_msg(mon, timer))
+        msg_format("%^s is bound by ropes of illusion!", _mon_name(mon));
+}
+static void _bound_off(mon_ptr mon, mon_tim_ptr timer)
+{
+    if (_mon_show_msg(mon, timer))
+        msg_format("%^s is no longer bound.", _mon_name(mon));
+}
+static void _bound_tick(mon_ptr mon, mon_tim_ptr timer)
+{
+    int l = mon->race->alloc.lvl;
+
+    if (mon_is_unique(mon))
+        l = 5 + 2*l;
+
+    do {
+        timer->count--;
+    } while (timer->count > 0 && randint1(l) > plr->lev); /* XXX vs plr only atm */
+}
+static void _bound_display(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
+{
+    doc_insert_char(doc, TERM_L_BLUE, 'B');
+}
+static void _bound_probe(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
+{
+    doc_printf(doc, "<color:B>Bound (<color:w>%d</color>)</color>\n", timer->count);
+}
+static mon_tim_info_ptr _bound(void)
+{
+    mon_tim_info_ptr info = mon_tim_info_alloc(MT_BOUND, "Bound");
+    info->on_f = _bound_on;
+    info->off_f = _bound_off;
+    info->tick_f = _bound_tick;
+    info->display_f = _bound_display;
+    info->probe_f = _bound_probe;
+    info->flags = TF_NO_DISPEL | TF_FAST_TICK; /* !TF_AUGMENT */
+    return info;
+}
+/************************************************************************
+ * T_BLIND
+ ************************************************************************/
+static void _blind_on(mon_ptr mon, mon_tim_ptr timer)
+{
+    if (_mon_show_msg(mon, timer))
+        msg_format("%^s is <color:D>blind</color>.", _mon_name(mon));
+}
+static void _blind_off(mon_ptr mon, mon_tim_ptr timer)
+{
+    if (_mon_show_msg(mon, timer))
+        msg_format("%^s is no longer blind.", _mon_name(mon));
+}
+static void _blind_tick(mon_ptr mon, mon_tim_ptr timer)
+{
+    int lvl = mon->race->alloc.lvl;
+    int dec = randint1(lvl/20 + 1);
+
+    timer->count = MAX(0, timer->count - dec);
+}
+static void _blind_display(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
+{
+    doc_insert_char(doc, TERM_L_DARK, 'B'); /* XXX Blind, Bound, Berserk ... too many B's */
+}
+static void _blind_probe(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
+{
+    doc_printf(doc, "<color:D>Blind (<color:w>%d</color>)</color>\n", timer->count);
+}
+static mon_tim_info_ptr _blind(void)
+{
+    mon_tim_info_ptr info = mon_tim_info_alloc(T_BLIND, "Blind");
+    info->on_f = _blind_on;
+    info->off_f = _blind_off;
+    info->tick_f = _blind_tick;
+    info->display_f = _blind_display;
+    info->probe_f = _blind_probe;
+    info->flags = TF_BIFF;
+    return info;
+}
+/************************************************************************
  * T_CONFUSED
  ************************************************************************/
 static void _confused_on(mon_ptr mon, mon_tim_ptr timer)
@@ -492,7 +593,7 @@ static void _confused_off(mon_ptr mon, mon_tim_ptr timer)
 }
 static void _confused_tick(mon_ptr mon, mon_tim_ptr timer)
 {
-    int lvl = mon_race(mon)->level;
+    int lvl = mon->race->alloc.lvl;
     int dec = randint1(lvl/20 + 1);
 
     timer->count = MAX(0, timer->count - dec);
@@ -517,6 +618,35 @@ static mon_tim_info_ptr _confused(void)
     return info;
 }
 /************************************************************************
+ * MT_DISCORD (Illusionist: cf are_enemies and _preprocess in mon_ai.c)
+ ************************************************************************/
+static void _discord_on(mon_ptr mon, mon_tim_ptr timer)
+{
+    /* messaging might be too noisy ... this is for T_MASK_DISCORD
+     * which projects discord every 10 game turns. */
+}
+static void _discord_off(mon_ptr mon, mon_tim_ptr timer)
+{
+}
+static void _discord_display(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
+{
+    doc_insert_char(doc, TERM_VIOLET, 'D');
+}
+static void _discord_probe(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
+{
+    doc_printf(doc, "<color:v>Discord (<color:w>%d</color>)</color>\n", timer->count);
+}
+static mon_tim_info_ptr _discord(void)
+{
+    mon_tim_info_ptr info = mon_tim_info_alloc(MT_DISCORD, "Discord");
+    info->on_f = _discord_on;
+    info->off_f = _discord_off;
+    info->display_f = _discord_display;
+    info->probe_f = _discord_probe;
+    info->flags = TF_NO_DISPEL | TF_FAST_TICK; /* note lack of TF_AUGMENT (implied by TF_BIFF) */
+    return info;
+}
+/************************************************************************
  * T_EGO_WHIP (cf psion.c for _EGO_WHIP. This is for the possessor.)
  ************************************************************************/
 static void _ego_whip_on(mon_ptr mon, mon_tim_ptr timer)
@@ -536,10 +666,10 @@ static void _ego_whip_tick(mon_ptr mon, mon_tim_ptr timer)
     bool fear = FALSE;
     if (_mon_show_msg(mon, timer))
         msg_format("%^s is lashed!", _mon_name(mon));
-    if (mon_take_hit(mon->id, dam, &fear, NULL)) return; /* dead */
+    if (mon_take_hit(mon, dam, &fear, NULL)) return; /* dead */
     do {
         timer->count--;
-    } while (timer->count > 0 && mon_save_aux(mon->r_idx, rlev));
+    } while (timer->count > 0 && mon_save_aux(mon, rlev));
 }
 static void _ego_whip_display(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
 {
@@ -568,16 +698,16 @@ static void _fast_on(mon_ptr mon, mon_tim_ptr timer)
     if (_mon_show_msg(mon, timer))
         msg_format("%^s starts moving faster.", _mon_name(mon));
     mon->mspeed += 10;
-    if (p_ptr->riding == mon->id && !p_ptr->leaving)
-        p_ptr->update |= PU_BONUS;
+    if (plr->riding == mon->id && !plr->leaving)
+        plr->update |= PU_BONUS;
 }
 static void _fast_off(mon_ptr mon, mon_tim_ptr timer)
 {
     if (_mon_show_msg(mon, timer))
         msg_format("%^s is no longer fast.", _mon_name(mon));
     mon->mspeed -= 10;
-    if (p_ptr->riding == mon->id && !p_ptr->leaving)
-        p_ptr->update |= PU_BONUS;
+    if (plr->riding == mon->id && !plr->leaving)
+        plr->update |= PU_BONUS;
 }
 static void _fast_display(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
 {
@@ -637,6 +767,44 @@ static mon_tim_info_ptr _fear(void)
     return info;
 }
 /************************************************************************
+ * MT_ILLUSION: Illusory monsters disappear upon timeout. This is a tricky
+ * timer and we must take care to avoid double "delete_monster" calls.
+ * Note that normal monster_death->mon_tim_clear->_illusion_off before
+ * (another?) call to delete_monster (cf gf_affect_m, mon_take_hit, etc.).
+ ************************************************************************/
+static void _illusion_on(mon_ptr mon, mon_tim_ptr timer) {}
+static void _illusion_off(mon_ptr mon, mon_tim_ptr timer) {}
+static void _illusion_tick(mon_ptr mon, mon_tim_ptr timer)
+{
+    timer->count--;
+    if (timer->count <= 0)
+    {
+        assert(mon_is_valid(mon)); /* paranoia */
+        if (_mon_show_msg(mon, timer))
+            msg_format("%^s disappears.", _mon_name(mon));
+        delete_monster(mon);
+    }
+}
+static void _illusion_display(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
+{
+    doc_insert_char(doc, TERM_L_BLUE, 'I');
+}
+static void _illusion_probe(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
+{
+    doc_printf(doc, "<color:B>Illusion (<color:w>%d</color>)</color>\n", timer->count);
+}
+static mon_tim_info_ptr _illusion(void)
+{
+    mon_tim_info_ptr info = mon_tim_info_alloc(MT_ILLUSION, "Illusion");
+    info->on_f = _illusion_on;
+    info->off_f = _illusion_off;
+    info->tick_f = _illusion_tick;
+    info->display_f = _illusion_display;
+    info->probe_f = _illusion_probe;
+    info->flags = TF_FAST_TICK | TF_NO_DISPEL | TF_IGNORE;
+    return info;
+}
+/************************************************************************
  * T_INVULN
  ************************************************************************/
 static void _invuln_on(mon_ptr mon, mon_tim_ptr timer)
@@ -648,6 +816,21 @@ static void _invuln_off(mon_ptr mon, mon_tim_ptr timer)
 {
     if (_mon_show_msg(mon, timer))
         msg_format("%^s no longer seems invincible.", _mon_name(mon));
+}
+static void _invuln_tick(mon_ptr mon, mon_tim_ptr timer)
+{
+    /* invulnerability is a fixed damage shield. timer->count is the
+     * amount of damage that can still be absorbed. cf _mon_apply_invuln */
+    if (timer->count > 0) /* paranoia */
+    {
+        int amt = (timer->count + 9)/10; /* fast tick timer */
+        int min = 50; /* last a little longer than plr version */
+
+        if (amt < min) amt = min;
+        if (amt > timer->count) amt = timer->count;
+
+        timer->count -= amt;
+    }
 }
 static void _invuln_display(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
 {
@@ -662,8 +845,10 @@ static mon_tim_info_ptr _invuln(void)
     mon_tim_info_ptr info = mon_tim_info_alloc(T_INVULN, "Invulnerability");
     info->on_f = _invuln_on;
     info->off_f = _invuln_off;
+    info->tick_f = _invuln_tick;
     info->display_f = _invuln_display;
     info->probe_f = _invuln_probe;
+    info->flags = TF_FAST_TICK;
     return info;
 }
 /************************************************************************
@@ -688,7 +873,7 @@ static void _paralyzed_tick(mon_ptr mon, mon_tim_ptr timer)
 {
     do {
         timer->count--;
-    } while (timer->count > 0 && (mon_is_unique(mon) || mon_save_aux(mon->r_idx, 100)));
+    } while (timer->count > 0 && (mon_is_unique(mon) || mon_save_aux(mon, 100)));
 }
 static void _paralyzed_display(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
 {
@@ -710,13 +895,73 @@ static mon_tim_info_ptr _paralyzed(void)
     return info;
 }
 /************************************************************************
+ * T_PROT_EVIL
+ ************************************************************************/
+static void _prot_evil_on(mon_ptr mon, mon_tim_ptr timer)
+{
+    if (_mon_show_msg(mon, timer))
+        msg_format("%^s seems protected!", _mon_name(mon));
+}
+static void _prot_evil_off(mon_ptr mon, mon_tim_ptr timer)
+{
+    if (_mon_show_msg(mon, timer))
+        msg_format("%^s no longer seems protected.", _mon_name(mon));
+}
+static void _prot_evil_display(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
+{
+    doc_insert_char(doc, TERM_YELLOW, 'P');
+}
+static void _prot_evil_probe(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
+{
+    doc_printf(doc, "<color:y>Protection from Evil (<color:w>%d</color>)</color>\n", timer->count);
+}
+static mon_tim_info_ptr _prot_evil(void)
+{
+    mon_tim_info_ptr info = mon_tim_info_alloc(T_PROT_EVIL, "Protection from Evil");
+    info->on_f = _prot_evil_on;
+    info->off_f = _prot_evil_off;
+    info->display_f = _prot_evil_display;
+    info->probe_f = _prot_evil_probe;
+    return info;
+}
+/************************************************************************
+ * T_PROT_GOOD
+ ************************************************************************/
+static void _prot_good_on(mon_ptr mon, mon_tim_ptr timer)
+{
+    if (_mon_show_msg(mon, timer))
+        msg_format("%^s seems protected!", _mon_name(mon));
+}
+static void _prot_good_off(mon_ptr mon, mon_tim_ptr timer)
+{
+    if (_mon_show_msg(mon, timer))
+        msg_format("%^s no longer seems protected.", _mon_name(mon));
+}
+static void _prot_good_display(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
+{
+    doc_insert_char(doc, TERM_L_DARK, 'P');
+}
+static void _prot_good_probe(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
+{
+    doc_printf(doc, "<color:D>Protection from Good (<color:w>%d</color>)</color>\n", timer->count);
+}
+static mon_tim_info_ptr _prot_good(void)
+{
+    mon_tim_info_ptr info = mon_tim_info_alloc(T_PROT_GOOD, "Protection from Good");
+    info->on_f = _prot_good_on;
+    info->off_f = _prot_good_off;
+    info->display_f = _prot_good_display;
+    info->probe_f = _prot_good_probe;
+    return info;
+}
+/************************************************************************
  * MT_SLEEP
  ************************************************************************/
 static void _sleep_change(mon_ptr mon)
 {
-    if (mon_race(mon)->flags7 & RF7_HAS_LD_MASK)
-        p_ptr->update |= PU_MON_LITE;
-    p_ptr->window |= PW_MONSTER_LIST;
+    if (mon->race->lantern)
+        plr->update |= PU_MON_LIGHT;
+    plr->window |= PW_MONSTER_LIST;
 }
 static void _sleep_on(mon_ptr mon, mon_tim_ptr timer)
 {
@@ -751,48 +996,41 @@ static void _sleep_tick(mon_ptr mon, mon_tim_ptr timer)
     mon_race_ptr race;
 
     if (dis >= AAF_LIMIT) return;
-    race = mon_race(mon);
-    aaf = race->aaf;
-    if (is_pet(mon)) aaf = MIN(MAX_SIGHT, aaf);
+    race = mon->race;
+    aaf = race->move.range;
+    if (mon_is_pet(mon)) aaf = MIN(MAX_SIGHT, aaf);
 
-    if (dis <= aaf || (dis <= MAX_SIGHT && plr_los(mon->pos)))
+    if (dis <= aaf || (dis <= MAX_SIGHT && plr_view(mon->pos)))
     {
         #if 0
         u32b notice = randint0(1024);
-        u32b noise = (1L << (30 - p_ptr->skills.stl));
+        u32b noise = (1L << (30 - plr->skills.stl));
 
         if (notice * notice * notice <= noise)
         #endif
-        if (_sleep_check(p_ptr->skills.stl))
+        if (_sleep_check(plr->skills.stl))
         {
             /* Wake up faster near the player */
             int d = (dis < AAF_LIMIT / 2) ? (AAF_LIMIT / dis) : 1;
 
             /* Hack -- amount of "waking" is affected by speed of player */
-            d = (d * SPEED_TO_ENERGY(p_ptr->pspeed)) / 10;
+            d = (d * speed_to_energy(plr->pspeed)) / 10;
             if (d < 0) d = 1;
 
             #if 0
             msg_boundary();
             msg_format("<color:R>%^s (<color:D>%d, %d</color>)</color> notices you (<color:D>%d.%2d%%</color>): %d-%d=%d.",
-                _mon_name_aux(mon, MD_ASSUME_VISIBLE), dis, race->aaf,
-                _sleep_odds(p_ptr->skills.stl) * 100 / 1024,
-                (_sleep_odds(p_ptr->skills.stl) * 10000 / 1024) % 100,
+                _mon_name_aux(mon, MD_ASSUME_VISIBLE), dis, race->move.range,
+                _sleep_odds(plr->skills.stl) * 100 / 1024,
+                (_sleep_odds(plr->skills.stl) * 10000 / 1024) % 100,
                 timer->count, d, MAX(0, timer->count - d));
             msg_boundary();
             #endif
             timer->count = MAX(0, timer->count - d);
             if (timer->count)
-            {
-                if (is_original_ap_and_seen(mon))
-                {
-                    if (race->r_ignore < MAX_UCHAR) race->r_ignore++;
-                }
-            }
-            else if (is_original_ap_and_seen(mon))
-            {
-                if (race->r_wake < MAX_UCHAR) race->r_wake++;
-            }
+                mon_lore_sleep(mon);
+            else
+                mon_lore_wake(mon);
         }
     }
 }
@@ -824,22 +1062,22 @@ static void _slow_on(mon_ptr mon, mon_tim_ptr timer)
     if (_mon_show_msg(mon, timer))
         msg_format("%^s starts moving slower.", _mon_name(mon));
     mon->mspeed -= 10;
-    if (p_ptr->riding == mon->id && !p_ptr->leaving)
-        p_ptr->update |= PU_BONUS;
+    if (plr->riding == mon->id && !plr->leaving)
+        plr->update |= PU_BONUS;
 }
 static void _slow_off(mon_ptr mon, mon_tim_ptr timer)
 {
     if (_mon_show_msg(mon, timer))
         msg_format("%^s is no longer slow.", _mon_name(mon));
     mon->mspeed += 10;
-    if (p_ptr->riding == mon->id && !p_ptr->leaving)
-        p_ptr->update |= PU_BONUS;
+    if (plr->riding == mon->id && !plr->leaving)
+        plr->update |= PU_BONUS;
 }
 static void _slow_tick(mon_ptr mon, mon_tim_ptr timer)
 {
     do {
         timer->count--;
-    } while (timer->count > 0 && mon_is_unique(mon) && mon_save_aux(mon->r_idx, 50));
+    } while (timer->count > 0 && mon_is_unique(mon) && mon_save_aux(mon, 50));
 }
 static void _slow_display(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
 {
@@ -877,7 +1115,7 @@ static void _stun_off(mon_ptr mon, mon_tim_ptr timer)
 }
 static void _stun_tick(mon_ptr mon, mon_tim_ptr timer)
 {
-    int rlev = mon_race(mon)->level;
+    int rlev = mon->race->alloc.lvl;
     int dec = 1 + rlev/10;
     if (randint0(10000) < rlev * rlev) /* shake it off ... */
         dec = MAX(dec, timer->count/2);
@@ -918,7 +1156,7 @@ static void _amnesia_off(mon_ptr mon, mon_tim_ptr timer)
 }
 static void _amnesia_probe(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
 {
-    mon_race_ptr race = mon_race(mon);
+    mon_race_ptr race = mon->race;
     if (race->spells) /* devolution? */
     {
         mon_spell_id_t id = mon_spell_unpack(timer->parm);

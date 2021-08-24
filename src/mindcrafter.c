@@ -9,44 +9,41 @@ void _precognition_spell(int cmd, var_ptr res)
         break;
     case SPELL_DESC:
     {
-        if (p_ptr->lev < 5)
+        if (plr->lev < 5)
             var_set_string(res, "Detects visible monsters in your vicinity.");
-        else if (p_ptr->lev < 15)
+        else if (plr->lev < 15)
             var_set_string(res, "Detects visible monsters, traps, and doors in your vicinity.");
-        else if (p_ptr->lev < 20)
+        else if (plr->lev < 20)
             var_set_string(res, "Detects monsters, traps, and doors in your vicinity.");
-        else if (p_ptr->lev < 25)
+        else if (plr->lev < 25)
             var_set_string(res, "Detects monsters, traps, and doors in your vicinity and maps nearby area.");
-        else if (p_ptr->lev < 30)
+        else if (plr->lev < 30)
             var_set_string(res, "Detects monsters, traps, and doors in your vicinity and maps nearby area. Grants temporary ESP.");
-        else if (p_ptr->lev < 40)
+        else if (plr->lev < 40)
             var_set_string(res, "Detects monsters, traps, doors, stairs and objects in your vicinity and maps nearby area. Grants temporary ESP.");
-        else if (p_ptr->lev < 45)
+        else if (plr->lev < 45)
             var_set_string(res, "Detects monsters, traps, doors, stairs and objects in your vicinity and maps nearby area.");
         else
             var_set_string(res, "Detects monsters, traps, doors, stairs and objects in your vicinity and maps the entire level.");
         break;
     }
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Detects monsters (L1), traps and doors (L5), invisible monsters (L15) and items (L30). Gives magic mapping (L20) and telepathy (L25). Enlightens level (L45).");
-        break;
     case SPELL_CAST:
     {
         int b = 0;
-        if (p_ptr->lev > 44)
+        if (plr->lev > 44)
         {
             virtue_add(VIRTUE_KNOWLEDGE, 1);
             virtue_add(VIRTUE_ENLIGHTENMENT, 1);
             wiz_lite();
         }
-        else if (p_ptr->lev > 19)
+        else if (plr->lev > 19)
             map_area(DETECT_RAD_MAP);
 
-        if (p_ptr->lev < 30)
+        if (plr->lev < 30)
         {
             b = detect_monsters_normal(DETECT_RAD_DEFAULT);
-            if (p_ptr->lev > 14) b |= detect_monsters_invis(DETECT_RAD_DEFAULT);
-            if (p_ptr->lev > 4)  {
+            if (plr->lev > 14) b |= detect_monsters_invis(DETECT_RAD_DEFAULT);
+            if (plr->lev > 4)  {
                 b |= detect_traps(DETECT_RAD_DEFAULT, TRUE);
                 b |= detect_doors(DETECT_RAD_DEFAULT);
             }
@@ -56,8 +53,8 @@ void _precognition_spell(int cmd, var_ptr res)
             b = detect_all(DETECT_RAD_DEFAULT);
         }
 
-        if ((p_ptr->lev > 24) && (p_ptr->lev < 40))
-            plr_tim_add(T_TELEPATHY, p_ptr->lev + randint1(p_ptr->lev));
+        if ((plr->lev > 24) && (plr->lev < 40))
+            plr_tim_add(T_TELEPATHY, plr->lev + randint1(plr->lev));
 
         if (!b) msg_print("You feel safe.");
 
@@ -68,17 +65,17 @@ void _precognition_spell(int cmd, var_ptr res)
     {
         int n = 0;
 
-        if (p_ptr->lev >= 45)
+        if (plr->lev >= 45)
             n += 9;
-        else if (p_ptr->lev >= 30)
+        else if (plr->lev >= 30)
             n += 4;
-        else if (p_ptr->lev >= 25)
+        else if (plr->lev >= 25)
             n += 3;
-        else if (p_ptr->lev >= 20)
+        else if (plr->lev >= 20)
             n += 1;
-        else if (p_ptr->lev >= 15)
+        else if (plr->lev >= 15)
             n += 0;
-        else if (p_ptr->lev >= 5)
+        else if (plr->lev >= 5)
             n += 0;
 
         var_set_int(res, n);
@@ -92,6 +89,9 @@ void _precognition_spell(int cmd, var_ptr res)
 
 void _neural_blast_spell(int cmd, var_ptr res)
 {
+    int dd = 3 + (plr->lev - 1)/4;
+    int ds = 3 + plr->lev/15;
+    dice_t dice = spell_dam_dice(dd, ds, 0);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -100,29 +100,15 @@ void _neural_blast_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a beam or ball which inflicts psionic damage.");
         break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Fires a beam or ball (Radius 0) which inflicts (3 + (L-1)/4)d(3 + L/15) psionic damage.");
-        break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(3 + ((p_ptr->lev - 1) / 4)), 3 + p_ptr->lev / 15, spell_power(p_ptr->to_d_spell)));
+        var_printf(res, "dam ~%d", dice_avg_roll(dice));
         break;
     case SPELL_CAST:
-    {
-        int dir = 0;
-        int dice = 3 + ((p_ptr->lev - 1) / 4);
-        int sides = (3 + p_ptr->lev / 15);
-        var_set_bool(res, FALSE);
-
-        if (!get_fire_dir(&dir)) return;
-
-        if (randint1(100) < p_ptr->lev * 2)
-            fire_beam(GF_PSI, dir, spell_power(damroll(dice, sides) + p_ptr->to_d_spell));
+        if (randint1(100) < 2*plr->lev)
+            var_set_bool(res, plr_cast_beam(GF_PSI, dice));
         else
-            fire_ball(GF_PSI, dir, spell_power(damroll(dice, sides) + p_ptr->to_d_spell), 0);
-
-        var_set_bool(res, TRUE);
+            var_set_bool(res, plr_cast_bolt(GF_PSI, dice));
         break;
-    }
     default:
         default_spell(cmd, res);
         break;
@@ -134,42 +120,15 @@ void _minor_displacement_spell(int cmd, var_ptr res)
     switch (cmd)
     {
     case SPELL_NAME:
-        if (p_ptr->lev >= 45)
-            var_set_string(res, "Dimension Door");
-        else
-            var_set_string(res, "Minor Displacement");
-        break;
-    case SPELL_SPOIL_NAME:
         var_set_string(res, "Minor Displacement");
         break;
     case SPELL_DESC:
-        if (p_ptr->lev >= 45)
-            var_set_string(res, "Attempt to teleport to a specific location.");
-        else
-            var_set_string(res, "Teleport short distance.");
-        break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Teleports the player (Range 10). At L45, gives dimension door instead (Range L/2 + 10).");
+        var_set_string(res, "Teleport short distance.");
         break;
     case SPELL_CAST:
-    {
-        if (p_ptr->lev >= 45)
-            var_set_bool(res, dimension_door(p_ptr->lev / 2 + 10));
-        else
-        {
-            teleport_player(10, 0L);
-            var_set_bool(res, TRUE);
-        }
+        teleport_player(10, 0L);
+        var_set_bool(res, TRUE);
         break;
-    }
-    case SPELL_COST_EXTRA:
-    {
-        int n = 0;
-        if (p_ptr->lev >= 45)
-            n += 40;
-        var_set_int(res, n);
-        break;
-    }
     default:
         default_spell(cmd, res);
         break;
@@ -186,12 +145,9 @@ void _major_displacement_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Teleport long distance.");
         break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Teleports the player (Range L*5).");
-        break;
     case SPELL_CAST:
     {
-        teleport_player(p_ptr->lev * 5, 0L);
+        teleport_player(plr->lev * 5, 0L);
         var_set_bool(res, TRUE);
         break;
     }
@@ -201,6 +157,14 @@ void _major_displacement_spell(int cmd, var_ptr res)
     }
 }
 
+static int _domination_power(void) /* cf _gaze_power in race_vampire.c */
+{
+    int power = plr->lev;
+    if (plr->lev > 40)
+        power += plr->lev - 40;
+    power += adj_con_fix[plr->stat_ind[A_CHR]] - 1;
+    return power;
+}
 void _domination_spell(int cmd, var_ptr res)
 {
     switch (cmd)
@@ -211,32 +175,22 @@ void _domination_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Stuns, confuses or scares a monster. Or attempts to charm all monsters in sight at level 30.");
         break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Stuns, confuses or scares a monster. Or attempts to charm all monsters in sight at L30.");
-        break;
-    case SPELL_CAST:
-    {
-        var_set_bool(res, FALSE);
-        if (p_ptr->lev < 30)
-        {
-            int dir = 0;
-            if (!get_fire_dir(&dir)) return;
-
-            fire_ball(GF_DOMINATION, dir, spell_power(p_ptr->lev), 0);
-        }
-        else
-        {
-            charm_monsters(spell_power(p_ptr->lev * 2));
-        }
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        if (plr->lev < 30)
+            direct_spell(cmd, res, GF_DOMINATION, _domination_power());
+        else
+            los_spell(cmd, res, GF_DOMINATION, _domination_power());
     }
 }
 
+static int _pulverise_rad(void) {
+    if (plr->lev > 20)
+        return 1 + (plr->lev - 20)/8;
+    return 0;
+}
+static dice_t _pulverise_dice(void) {
+    return spell_dam_dice(8 + (plr->lev - 5)/4, 8, 0);
+}
 void _pulverise_spell(int cmd, var_ptr res)
 {
     switch (cmd)
@@ -247,35 +201,8 @@ void _pulverise_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a ball which hurts monsters with telekinesis.");
         break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Fires a ball (Radius 0 or (L-20)/8 + 1) of Telekinesis (Damage (8 + (L-5)/4)d8).");
-        break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(8 + ((p_ptr->lev - 5) / 4)), 8, spell_power(p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        int dice = 8 + ((p_ptr->lev - 5) / 4);
-        int sides = 8;
-        int rad = p_ptr->lev > 20 ? spell_power((p_ptr->lev - 20) / 8 + 1) : 0;
-
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-
-        fire_ball(
-            GF_TELEKINESIS,
-            dir,
-            spell_power(damroll(dice, sides) + p_ptr->to_d_spell),
-            rad
-        );
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell_aux(cmd, res, _pulverise_rad(), GF_TELEKINESIS, _pulverise_dice());
     }
 }
 
@@ -290,21 +217,16 @@ void _character_armor_spell(int cmd, var_ptr res)
         var_set_string(res, "Gives stone skin and some resistance to elements for a while. The level "
                               "increased, the more number of resistances given.");
         break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Gives Stone Skin, Resist Acid (L15), Resist Fire (L20), Resist Cold (L25), Resist Lightning (L30) and Resist Poison (L35).");
-        break;
-    case SPELL_CAST:
-    {
-        int dur = spell_power(p_ptr->lev + randint1(p_ptr->lev));
-        plr_tim_add(T_STONE_SKIN, dur);
-        if (p_ptr->lev > 14) plr_tim_add(T_RES_ACID, dur);
-        if (p_ptr->lev > 19) plr_tim_add(T_RES_FIRE, dur);
-        if (p_ptr->lev > 24) plr_tim_add(T_RES_COLD, dur);
-        if (p_ptr->lev > 29) plr_tim_add(T_RES_ELEC, dur);
-        if (p_ptr->lev > 34) plr_tim_add(T_RES_POIS, dur);
+    case SPELL_CAST: {
+        dice_t dice = spell_dice(1, plr->lev, plr->lev);
+        plr_tim_add(T_STONE_SKIN, dice_roll(dice));
+        if (plr->lev > 14) plr_tim_add(T_RES_ACID, dice_roll(dice));
+        if (plr->lev > 19) plr_tim_add(T_RES_FIRE, dice_roll(dice));
+        if (plr->lev > 24) plr_tim_add(T_RES_COLD, dice_roll(dice));
+        if (plr->lev > 29) plr_tim_add(T_RES_ELEC, dice_roll(dice));
+        if (plr->lev > 34) plr_tim_add(T_RES_POIS, dice_roll(dice));
         var_set_bool(res, TRUE);
-        break;
-    }
+        break; }
     default:
         default_spell(cmd, res);
         break;
@@ -321,17 +243,12 @@ void _psychometry_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Gives feeling of an item. Or identify an item at level 25.");
         break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Pseudo-identifies and object. At L25, identifies an object instead.");
-        break;
     case SPELL_CAST:
-    {
-        if (p_ptr->lev < 25)
+        if (plr->lev < 25)
             var_set_bool(res, psychometry());
         else
             var_set_bool(res, ident_spell(NULL));
         break;
-    }
     default:
         default_spell(cmd, res);
         break;
@@ -349,37 +266,13 @@ void _mind_wave_spell(int cmd, var_ptr res)
         var_set_string(res, "Generate a ball centered on you which inflict monster with PSI damage. "
                               "Or inflict all monsters with PSI damage at level 25.");
         break;
-
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Generates a ball (Radius 2 + L/10) of psionic energy (Damage L*3). At L25, damages all monsters in line of sight instead (Damage 1d(L*((L-5)/10 + 1))).");
-        break;
-
-    case SPELL_INFO:
-        if (p_ptr->lev < 25)
-            var_set_string(res, format("dam %d", spell_power(p_ptr->lev * 3 / 2 + p_ptr->to_d_spell)));
-        else
-            var_set_string(res, info_damage(1, p_ptr->lev * ((p_ptr->lev - 5) / 10 + 1), spell_power(p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        msg_print("Mind-warping forces emanate from your brain!");
-
-        if (p_ptr->lev < 25)
-        {
-            project(0, 2 + p_ptr->lev / 10, p_ptr->pos.y, p_ptr->pos.x,
-                        spell_power(p_ptr->lev * 3 + p_ptr->to_d_spell), GF_PSI, PROJECT_KILL);
-        }
-        else
-        {
-            int ds = p_ptr->lev * ((p_ptr->lev - 5) / 10 + 1);
-            mindblast_monsters(spell_power(randint1(ds) + p_ptr->to_d_spell));
-        }
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        if (plr->lev < 25)
+            burst_spell(cmd, res, 2 + plr->lev/10, GF_PSI, 3*plr->lev/2);
+        else {
+            int ds = plr->lev*(1 + (plr->lev - 5)/10);
+            los_spell_aux(cmd, res, GF_PSI, spell_dam_dice(1, ds, 0));
+        }
     }
 }
 
@@ -394,28 +287,22 @@ void _adrenaline_spell(int cmd, var_ptr res)
         var_set_string(res, "Removes fear and stun. Gives heroism and speed. Heals HP a little unless "
                               "you already have heroism and temporary speed boost.");
         break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Removes stun. Heals 10 + 1d(L*3/2). Grants heroism and haste.");
-        break;
-    case SPELL_CAST:
-    {
-        int dur = spell_power(15 + randint1(p_ptr->lev*3/2));
+    case SPELL_CAST: {
+        dice_t dice = spell_dice(1, 3*plr->lev/2, 15);
         bool heal = !plr_tim_find(T_FAST);
 
         plr_tim_remove(T_STUN);
 
-        plr_tim_add(T_HERO, dur);
-        plr_tim_add(T_FAST, dur);
+        plr_tim_add(T_HERO, dice_roll(dice));
+        plr_tim_add(T_FAST, dice_roll(dice));
 
         if (heal) /* Heal after granting Heroism to fill the +10 mhp */
-            hp_player(p_ptr->lev);
+            hp_player(plr->lev);
 
         var_set_bool(res, TRUE);
-        break;
-    }
+        break; }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -429,16 +316,13 @@ void _telekinesis_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Pulls a distant item close to you.");        
         break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Fetch a nearby object (Weight <= L*15).");
-        break;
     case SPELL_CAST:
     {
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
 
-        fetch(dir, p_ptr->lev * 15, FALSE);
+        fetch(dir, plr->lev * 15, FALSE);
         var_set_bool(res, TRUE);
         break;
     }
@@ -448,6 +332,7 @@ void _telekinesis_spell(int cmd, var_ptr res)
     }
 }
 
+static dice_t _drain_dice(void) { return spell_dam_dice(plr->lev/2, 6, 0); }
 void _psychic_drain_spell(int cmd, var_ptr res)
 {
     switch (cmd)
@@ -459,32 +344,28 @@ void _psychic_drain_spell(int cmd, var_ptr res)
         var_set_string(res, "Fires a ball which damages monsters and absorbs monsters' mind power. "
                               "Absorbing takes from 0 to 1.5 more turns.");
         break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Drain target monster (Damage (L/2)d6) to regain 5d(damage)/4 spell points. But this spell also consumes 1d150 extra energy.");
-        break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(p_ptr->lev/2), 6, spell_power(p_ptr->to_d_spell)));
+        var_printf(res, "dam ~%d", dice_avg_roll(_drain_dice()));
         break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        int dam = spell_power(damroll(p_ptr->lev / 2, 6) + p_ptr->to_d_spell);
+    case SPELL_CAST: {
+        point_t pos = plr_get_ball_target(GF_PSI_DRAIN);
+        dice_t  dice = _drain_dice();
+
         var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
+        if (!dun_pos_interior(cave, pos)) return;
 
         /* Only charge extra energy if the drain succeeded */
-        if (fire_ball(GF_PSI_DRAIN, dir, dam, 0))
-            p_ptr->energy_need += randint1(150);
+        if (plr_ball(0, pos, GF_PSI_DRAIN, dice_roll(dice)))
+            plr->energy_need += _1d(150);
 
         var_set_bool(res, TRUE);
-        break;
-    }
+        break; }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
+static dice_t _spear_dice(void) { return spell_dam_dice(1, 3*plr->lev, 3*plr->lev); }
 void psycho_spear_spell(int cmd, var_ptr res)
 {
     switch (cmd)
@@ -495,24 +376,12 @@ void psycho_spear_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a beam of pure energy which penetrate the invulnerability barrier.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(1, spell_power(p_ptr->lev * 3), spell_power(p_ptr->lev * 3 + p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_beam(GF_PSY_SPEAR, dir, spell_power(randint1(p_ptr->lev*3)+p_ptr->lev*3 + p_ptr->to_d_spell));
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        beam_spell_aux(cmd, res, GF_PSY_SPEAR, _spear_dice());
     }
 }
 
+static dice_t _storm_dice(void) { return spell_dam_dice(10, 10, 5*plr->lev); }
 void _psycho_storm_spell(int cmd, var_ptr res)
 {
     switch (cmd)
@@ -523,23 +392,8 @@ void _psycho_storm_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a large ball of pure mental energy.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(10, spell_power(10), spell_power(p_ptr->lev * 5 + p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-
-        fire_ball(GF_PSI_STORM, dir, spell_power(p_ptr->lev * 5 + damroll(10, 10) + p_ptr->to_d_spell), 4);
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell_aux(cmd, res, 4, GF_PSI_STORM, _storm_dice());
     }
 }
 
@@ -584,33 +438,33 @@ static int _get_powers(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
-    if (equip_find_art(ART_STONE_OF_MIND))
+    if (equip_find_art("~.Mind"))
     {
-        p_ptr->dec_mana++;
-        p_ptr->easy_spell++;
+        plr->dec_mana++;
+        plr->easy_spell++;
     }
 
-    if (p_ptr->lev >= 10) res_add(RES_FEAR);
-    if (p_ptr->lev >= 15) p_ptr->clear_mind = TRUE;
-    if (p_ptr->lev >= 20) p_ptr->sustain_wis = TRUE;
-    if (p_ptr->lev >= 25) p_ptr->auto_id_sp = 12;
-    if (p_ptr->lev >= 30) res_add(RES_CONF);
-    if (p_ptr->lev >= 40)
+    if (plr->lev >= 10) res_add(GF_FEAR);
+    if (plr->lev >= 15) plr->clear_mind = TRUE;
+    if (plr->lev >= 20) plr->sustain_wis = TRUE;
+    if (plr->lev >= 25) plr->auto_id_sp = 12;
+    if (plr->lev >= 30) res_add(GF_CONF);
+    if (plr->lev >= 40)
     {
-        p_ptr->telepathy = TRUE;
-        p_ptr->wizard_sight = TRUE;
+        plr->telepathy = TRUE;
+        plr->wizard_sight = TRUE;
     }
 }
 
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    if (p_ptr->lev >= 10)
-        add_flag(flgs, OF_RES_FEAR);
-    if (p_ptr->lev >= 20)
+    if (plr->lev >= 10)
+        add_flag(flgs, OF_RES_(GF_FEAR));
+    if (plr->lev >= 20)
         add_flag(flgs, OF_SUST_WIS);
-    if (p_ptr->lev >= 30)
-        add_flag(flgs, OF_RES_CONF);
-    if (p_ptr->lev >= 40)
+    if (plr->lev >= 30)
+        add_flag(flgs, OF_RES_(GF_CONF));
+    if (plr->lev >= 40)
         add_flag(flgs, OF_TELEPATHY);
 }
 
@@ -637,15 +491,13 @@ static void _on_fail(const spell_info *spell)
         }
         else if (b < 90)
         {
-            if (!p_ptr->no_stun) plr_tim_add(T_STUN, randint1(8));
+            if (!res_save(GF_STUN, 100)) plr_tim_add(T_STUN, randint1(8));
         }
         else
         {
             msg_print("Your mind unleashes its power in an uncontrollable storm!");
-
-            project(PROJECT_WHO_UNCTRL_POWER, 2 + p_ptr->lev / 10, p_ptr->pos.y, p_ptr->pos.x, p_ptr->lev * 2,
-                GF_MANA, PROJECT_JUMP | PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM);
-            p_ptr->csp = MAX(0, p_ptr->csp - p_ptr->lev * MAX(1, p_ptr->lev / 10));
+            dun_burst(cave, who_create_unctrl_power(), 2 + plr->lev/10, plr->pos, GF_MANA, 2*plr->lev);
+            plr->csp = MAX(0, plr->csp - plr->lev * MAX(1, plr->lev / 10));
         }
     }
 }
@@ -662,6 +514,7 @@ static caster_info * _caster_info(void)
         me.encumbrance.weapon_pct = 50;
         me.encumbrance.enc_wgt = 800;
         me.on_fail = _on_fail;
+        me.options = CASTER_GAIN_SKILL;
         init = TRUE;
     }
     return &me;
@@ -689,7 +542,7 @@ plr_class_ptr mindcrafter_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  33,  38,   3,  22,  16,  50,  35 };
-    skills_t xs = { 10,  11,  10,   0,   0,   0,  14,  11 };
+    skills_t xs = { 50,  55,  50,   0,   0,   0,  70,  55 };
 
         me = plr_class_alloc(CLASS_MINDCRAFTER);
         me->name = "Mindcrafter";

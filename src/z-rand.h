@@ -63,6 +63,21 @@
 #define randint1(M) \
     (randint0(M) + 1)
 
+#define _1d(M) (damroll(1, (M)))
+#define _2d(M) (damroll(2, (M)))
+#define _3d(M) (damroll(3, (M)))
+#define _4d(M) (damroll(4, (M)))
+#define _5d(M) (damroll(5, (M)))
+#define _6d(M) (damroll(6, (M)))
+#define _7d(M) (damroll(7, (M)))
+#define _8d(M) (damroll(8, (M)))
+#define _9d(M) (damroll(9, (M)))
+#define _10d(M) (damroll(10, (M)))
+#define _11d(M) (damroll(11, (M)))
+#define _12d(M) (damroll(12, (M)))
+#define _13d(M) (damroll(13, (M)))
+#define _14d(M) (damroll(14, (M)))
+#define _15d(M) (damroll(15, (M)))
 
 /*
  * Evaluate to TRUE "P" percent of the time

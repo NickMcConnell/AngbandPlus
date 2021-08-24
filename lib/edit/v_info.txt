@@ -98,7 +98,7 @@
 #           but there are others as well. Separate multiple options with the | character.
 #              - NO_GROUP: Suppress normal group code for certain monsters
 #              - NO_SLEEP: Monster is always awake
-#              - NO_UNIQUE: Prevent unique monsters from being chosen.
+#              - UNIQUE: Allow unique monsters to be chosen.
 #              - FRIENDLY: Force monster to be friendly to the player.
 #              - HASTE: Monster is generated with extra speed.
 #              - DEPTH+NN: Monster is generated up to NN levels out of depth (e.g. DEPTH+40 or DEPTH+7)
@@ -198,23 +198,13 @@
 # M: line. You must make all lines the same length, padding with spaces as neeed. The height of the
 # room is determined by the number of M: lines.
 #
-# You can use any symbol defined in an L line for this room entry in your
-# map. In addition, the following hard-coded symbols are allowed (TODO: I plan
-# to move these to a global pref file in the future):
-#
-#    % - outside of the vault, where corridors may be connected
-#    # - granite
-#    $ - glass wall
-#    X - impenetrable rock
-#    Y - impenetrable glass wall
-#
-######################################################################
-# OK ... let's try remove the hardcoding. There is much voodoo going on
-# in the source that I don't yet understand.
-# I'm having trouble with the tunneler ...
-#L:%:GRANITE(OUTER)
-#L:#:GRANITE(INNER)
-# ... but at least we can control the OoD levels for vault monsters/objects
+# You can use any symbol defined in an L line for this room entry in your map.
+
+L:%:OUTER
+L:#:INNER
+L:X:INNER_PERM
+L:+:SECRET_DOOR
+L:':CURTAIN
 L:*:TRAP(*, 25%):OBJ(*, DEPTH+1)
 L:^:TRAP(*)
 L:&:MON(*, DEPTH+5)
@@ -227,6 +217,7 @@ L:6:MON(*, NO_GROUP | DEPTH+5):OBJ(*, DEPTH+5)
 L:7:MON(*, NO_GROUP | DEPTH+9):OBJ(*, DEPTH+7)
 L:8:MON(*, NO_GROUP | DEPTH+10):OBJ(*, DEPTH+5):EGO(*)
 L:9:MON(*, NO_GROUP | DEPTH+15):OBJ(*, DEPTH+20):EGO(*)
+L:@:MON(*, DEPTH+11)
 
 %:rooms.txt
 %:vaults.txt
@@ -234,11 +225,8 @@ L:9:MON(*, NO_GROUP | DEPTH+15):OBJ(*, DEPTH+20):EGO(*)
 ######################################################################
 # PosChengband Wilderness Encounters
 #
-# Type:    WILD | AMBUSH
-# Subtype: GRASS | WATER | SWAMP | TREES | LAVA | MOUNTAIN
-#
-# Wilderness Encounters must fit snugly inside a single 128x64 page.
-# cf dun_world.c
+# Type:    WILD
+# Subtype: cf cell_name (e.g. GRASS, TREE, SHALLOW_LAVA, ... )
 #
 # The terrain subtype limits where the encounter can occur on the surface.
 # For example, lava infested demon swarms make sense in lava terrains, but
@@ -263,7 +251,7 @@ M: 4 0 2
 N:Murder
 T:WILD:GRASS
 W:10:16
-L:M:MON(^crow$)
+L:M:MON(B.crow)
 M: M M 
 M:M   M
 M:  M  
@@ -274,11 +262,11 @@ M: M M
 # Lava Encounters #
 ###################
 N:Random Volcano Level
-T:WILD:LAVA:NOTICE
+T:WILD:SHALLOW_LAVA:NOTICE
 W:40:1
-L:>:ENTRANCE(GLOW | MARK, Random Volcano)
-L:~:DEEP_LAVA(GLOW)
-L:.:SHALLOW_LAVA(GLOW)
+L:>:ENTRANCE(Random Volcano)
+L:~:DEEP_LAVA
+L:.:SHALLOW_LAVA
 L:^:MOUNTAIN
 M:  ^^^^^  
 M: ^^...^^ 
@@ -289,11 +277,11 @@ M: ^^...^^
 M:  ^^^^^  
 
 N:Demonologist
-T:WILD:LAVA
+T:WILD:SHALLOW_LAVA
 W:40:16
 L:~:DEEP_LAVA
 L:U:DEEP_LAVA:MON(BALROG, NO_SLEEP | DEPTH+40)
-L:p:DIRT:MON(demonologist, NO_SLEEP)
+L:p:DIRT:MON(p.demonologist, NO_SLEEP)
 L:.:SHALLOW_LAVA
 M:.......
 M:..~~~..
@@ -304,9 +292,9 @@ M:..~~~..
 M:...p...
 
 N:How Vile!
-T:WILD:LAVA
+T:WILD:SHALLOW_LAVA
 W:20:2
-L:u:MON(arch-vile)
+L:u:MON(u.arch-vile)
 M:u   u
 M:  u  
 M:u   u
@@ -327,15 +315,15 @@ M:    8
 N:Random Mountain Level
 T:WILD:MOUNTAIN:NOTICE
 W:30:16
-L:>:ENTRANCE(GLOW | MARK, Random Mountain)
+L:>:ENTRANCE(Random Mountain)
 M:>
 
 N:Random Volcano Level
 T:WILD:MOUNTAIN:NOTICE
 W:40:16
-L:>:ENTRANCE(GLOW | MARK, Random Volcano)
-L:~:DEEP_LAVA(GLOW)
-L:.:SHALLOW_LAVA(GLOW)
+L:>:ENTRANCE(Random Volcano)
+L:~:DEEP_LAVA
+L:.:SHALLOW_LAVA
 L:^:MOUNTAIN
 M:  ^^^^^  
 M: ^^...^^ 
@@ -383,7 +371,7 @@ M:    89
 # Forest Encounters #
 #####################
 N:Spiders
-T:WILD:TREES:FORMATION
+T:WILD:TREE:FORMATION
 W:10:2
 L:0:MON(S, DEPTH+10)
 L:$:OBJ(SKELETON)
@@ -396,10 +384,10 @@ M:  8  $232$  8
 M:   8$  4  $8   
 
 N:Roasting Hobbits
-T:WILD:TREES:NIGHT
+T:WILD:TREE:NIGHT
 W:15:4
-L:T:MON(forest troll, NO_SLEEP)
-L:h:MON(scruffy looking hobbit, FRIENDLY)
+L:T:MON(T.forest, NO_SLEEP)
+L:h:MON(h.scruffy hobbit, FRIENDLY)
 L:~:SHALLOW_LAVA
 L:$:OBJ(*)
 M:            T
@@ -409,11 +397,11 @@ M:   T   T h
 M:T            
 
 N:Druidic Circle
-T:WILD:TREES
+T:WILD:TREE
 W:10:32
 L:T:TREE
-L:M:GRASS:MON(^huorn$, NO_SLEEP)
-L:p:GRASS:MON(^druid$)
+L:M:GRASS:MON(#.huorn, NO_SLEEP)
+L:p:GRASS:MON(p.druid)
 L:~:GRASS
 M:       TTT       
 M:     TTTTTTT     
@@ -432,24 +420,24 @@ M:     TTTTTTT
 M:       TTT       
 
 N:Treeherder
-T:WILD:TREES
+T:WILD:TREE
 W:30:200
-L:T:MON(^ent$, FRIENDLY | NO_SLEEP)
+L:T:MON(#.ent, FRIENDLY | NO_SLEEP)
 M:T
 
 N:Random Forest Level
-T:WILD:TREES:NOTICE
+T:WILD:TREE:NOTICE
 W:10:4
-L:>:ENTRANCE(GLOW | MARK, Random Forest)
+L:>:ENTRANCE(Random Forest)
 M:>
 
 ####################
 # Water Encounters #
 ####################
 N:Random Sea Level
-T:WILD:WATER:NOTICE
+T:WILD:DEEP_WATER:NOTICE
 W:30:8
-L:>:ENTRANCE(GLOW | MARK, Random Sea)
+L:>:ENTRANCE(Random Sea)
 L:~:DEEP_WATER
 L:_:SHALLOW_WATER
 M:>

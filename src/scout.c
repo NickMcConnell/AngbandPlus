@@ -9,17 +9,17 @@ enum { _STEALTHY_SNIPE = T_CUSTOM,
 static bool _stealthy_snipe_on(plr_tim_ptr timer)
 {
     msg_print("You are a stealthy sniper.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _stealthy_snipe_off(plr_tim_ptr timer)
 {
     msg_print("You are no longer a stealthy sniper.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _stealthy_snipe_bonus(plr_tim_ptr timer)
 {
-    p_ptr->stealthy_snipe = TRUE;
+    plr->stealthy_snipe = TRUE;
 }
 static status_display_t _stealthy_snipe_display(plr_tim_ptr timer)
 {
@@ -39,17 +39,17 @@ static plr_tim_info_ptr _stealthy_snipe(void)
 static bool _nimble_dodge_on(plr_tim_ptr timer)
 {
     msg_print("You begin to dodge enemy breaths.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _nimble_dodge_off(plr_tim_ptr timer)
 {
     msg_print("You no longer dodge enemy breaths.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _nimble_dodge_bonus(plr_tim_ptr timer)
 {
-    p_ptr->nimble_dodge = TRUE;
+    plr->nimble_dodge = TRUE;
 }
 static status_display_t _nimble_dodge_display(plr_tim_ptr timer)
 {
@@ -88,14 +88,13 @@ static void _cavern_creation_spell(int cmd, var_ptr res)
         int dir, ct = 0;
         for (dir = 0; dir < 8; dir++)
         {
-            point_t p = point_step(p_ptr->pos, ddd[dir]);
+            point_t p = point_step(plr->pos, ddd[dir]);
 
             if (!dun_pos_interior(cave, p)) continue;
-            if (!cave_have_flag_at(p, FF_HURT_ROCK))  continue;
-            cave_alter_feat(p.y, p.x, FF_HURT_ROCK);
-            ct++;
+            if (dun_tunnel(cave, p, ACTION_FORCE | ACTION_QUIET) == ACTION_SUCCESS)
+                ct++;
         }
-        if (ct) p_ptr->update |= (PU_FLOW | PU_BONUS);
+        if (ct) plr->update |= (PU_FLOW | PU_MON_FLOW | PU_BONUS);
         var_set_bool(res, TRUE);
         break; }
     default:
@@ -152,8 +151,8 @@ static void _greater_whirlwind_attack_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
     {
-        int              i, x, y;
-        monster_type    *m_ptr;
+        int i;
+        mon_ptr mon;
 
 /*       cba
         d218l
@@ -161,64 +160,47 @@ static void _greater_whirlwind_attack_spell(int cmd, var_ptr res)
         f456j
          ghi  */
 
-        typedef struct _offset_t { int dx; int dy; } _offset;
-        static _offset offsets[] = {
-            { 0, -1},
-            {-1, -1},
-            {-1,  0},
-            {-1,  1},
-            { 0,  1},
-            { 1,  1},
-            { 1,  0},
-            { 1, -1},
-            { 1, -2},
-            { 0, -2},
-            {-1, -2},
-            {-2, -1},
-            {-2,  0},
-            {-2,  1},
-            {-1,  2},
-            { 0,  2},
-            { 1,  2},
-            { 2,  1},
-            { 2,  0},
-            { 2, -1},
+        static point_t offsets[] = {
+            { 0, -1}, {-1, -1}, {-1,  0}, {-1,  1},
+            { 0,  1}, { 1,  1}, { 1,  0}, { 1, -1},
+            { 1, -2}, { 0, -2}, {-1, -2}, {-2, -1},
+            {-2,  0}, {-2,  1}, {-1,  2}, { 0,  2},
+            { 1,  2}, { 2,  1}, { 2,  0}, { 2, -1},
             { 0,  0}, /* sentinel */
         };
 
         for (i = 0;; i++)
         {
-            _offset offset = offsets[i];
-            if (offset.dx == 0 && offset.dy == 0) break;
+            point_t v = offsets[i];
+            point_t p;
 
-            y = p_ptr->pos.y + offset.dy;
-            x = p_ptr->pos.x + offset.dx;
+            if (!v.x && !v.y) break;
 
-            if (!in_bounds(y, x)) continue;
-            if (!projectable(p_ptr->pos.y, p_ptr->pos.x, y, x)) continue;
+            p = point_add(plr->pos, v);
+            if (!dun_pos_interior(cave, p)) continue;
+            if (!plr_project(p)) continue;
 
-            m_ptr = mon_at_xy(x, y);
+            mon = dun_mon_at(cave, p);
+            if (!mon) continue;
 
-            if (!m_ptr) continue;
-
-            if (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT))
+            if (mon->ml || cell_project(dun_cell_at(cave, p)))
             {
-                if (panel_contains(y, x) && player_can_see_bold(y, x))
+                if (cave_pt_is_visible(p) && plr_can_see(p))
                 {
                     char c = '*';
                     byte a = TERM_WHITE;
 
-                    print_rel(c, a, y, x);
-                    move_cursor_relative(point_create(x, y));
+                    print_rel(c, a, p.y, p.x);
+                    move_cursor_relative(p);
                     Term_fresh();
                     Term_xtra(TERM_XTRA_DELAY, delay_animation);
-                    lite_spot(y, x);
+                    draw_pos(p);
                     Term_fresh();
                 }
                 else
                     Term_xtra(TERM_XTRA_DELAY, delay_animation);
 
-                plr_attack_normal(point_create(x, y));
+                plr_attack_normal(p);
             }
         }
         var_set_bool(res, TRUE);
@@ -330,10 +312,8 @@ static void _sniping_spell(int cmd, var_ptr res)
             msg_print("You need a bow to use this talent.");
             break;
         }
-        shoot_hack = SHOOT_SNIPING;
         command_cmd = 'f'; /* Hack for inscriptions (e.g. '@f1') */
-        var_set_bool(res, do_cmd_fire());
-        shoot_hack = SHOOT_NONE;
+        var_set_bool(res, plr_shoot_special(PLR_SHOOT_AMBUSH, 0));
         break;
     default:
         default_spell(cmd, res);
@@ -436,12 +416,9 @@ static int _get_spells(spell_info* spells, int max)
 
 static bool _cave_is_open(point_t pos)
 {
-    cave_ptr grid;
-    if (cave_have_flag_at(pos, FF_HURT_ROCK)) return FALSE;
-    grid = cave_at(pos);
-    if (grid->feat == feat_permanent) return FALSE;
-    if (grid->feat == feat_permanent_glass_wall) return FALSE;
-    if (grid->feat == feat_mountain) return FALSE;
+    dun_cell_ptr cell = dun_cell_at(cave, pos);
+    if (cell_is_wall(cell)) return FALSE;
+    if (door_is_closed(cell)) return FALSE;
     return TRUE;
 }
 
@@ -451,13 +428,13 @@ static int _count_open_terrain(void)
     int count = 0;
     for (dir = 0; dir < 8; dir++)
     {
-        point_t p = point_step(p_ptr->pos, ddd[dir]);
+        point_t p = point_step(plr->pos, ddd[dir]);
 
         if (!dun_pos_interior(cave, p))
         {
-            /* Count the edge of wilderness maps as open.
+            /* Count the edge of wilderness maps as open. XXX impossible case XXX
                Count the edge of dungeon maps as permanent walls. */
-            if (cave->dun_type_id == D_SURFACE) count++;
+            if (cave->type->id == D_SURFACE) count++;
             continue;
         }
         if (_cave_is_open(p)) count++;
@@ -469,7 +446,7 @@ static int _prorate_effect(int amt)
 {
     int base = (amt + 3) / 4;
     int xtra = amt - base;
-    xtra = xtra * (p_ptr->lev/2) / 25;
+    xtra = xtra * (plr->lev/2) / 25;
 
     return base + xtra;
 }
@@ -496,27 +473,27 @@ static void _calc_bonuses(void)
     if (disrupt)
         ct = 0;
 
-    p_ptr->open_terrain_ct = ct; /* Nimble Dodge needs this information! */
+    plr->open_terrain_ct = ct; /* Nimble Dodge needs this information! */
 
     /* Unfettered Body */
-    if (p_ptr->lev >= 1)
+    if (plr->lev >= 1)
     {
         int amt = _unfettered_body(ct);
-        p_ptr->to_a += amt;
-        p_ptr->dis_to_a += amt;
+        plr->to_a += amt;
+        plr->dis_to_a += amt;
     }
 
     /* Unfettered Mind */
-    if (p_ptr->lev >= 1)
+    if (plr->lev >= 1)
     {
-        p_ptr->skills.sav += _unfettered_mind(ct);
+        plr->skills.sav += _unfettered_mind(ct);
     }
 
-    if (!disrupt && p_ptr->lev >= 20)
-        p_ptr->ambush = 300 + p_ptr->lev*4;
+    if (!disrupt && plr->lev >= 20)
+        plr->ambush = 300 + plr->lev*4;
 
-    if (!disrupt && p_ptr->lev >= 50)
-        p_ptr->peerless_stealth = TRUE;
+    if (!disrupt && plr->lev >= 50)
+        plr->peerless_stealth = TRUE;
 }
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -527,7 +504,7 @@ static void _character_dump(doc_ptr doc)
     int ct = _count_open_terrain();
     bool disrupt = heavy_armor();
 
-    if (!disrupt && p_ptr->lev >= 5)
+    if (!disrupt && plr->lev >= 5)
     {
         spell_info spells[MAX_SPELLS];
         int        ct = _get_spells(spells, MAX_SPELLS);
@@ -555,7 +532,7 @@ static void _character_dump(doc_ptr doc)
     }
 
     /* Unfettered Body */
-    if (p_ptr->lev >= 1)
+    if (plr->lev >= 1)
     {
         int amt = _unfettered_body(ct);
         if (amt > 0)
@@ -565,7 +542,7 @@ static void _character_dump(doc_ptr doc)
     }
 
     /* Unfettered Mind */
-    if (p_ptr->lev >= 1)
+    if (plr->lev >= 1)
     {
         int amt = _unfettered_mind(ct);
         if (amt > 0)
@@ -574,10 +551,10 @@ static void _character_dump(doc_ptr doc)
             doc_printf(doc, "  * You lose %+d to your Saving Throws being so confined.\n", amt);
     }
 
-    if (!disrupt && p_ptr->lev >= 20)
+    if (!disrupt && plr->lev >= 20)
         doc_printf(doc, "  * You ambush sleeping monsters for extra damage.\n");
 
-    if (!disrupt && p_ptr->lev >= 50)
+    if (!disrupt && plr->lev >= 50)
         doc_printf(doc, "  * You have Peerless Stealth and will never aggravate monsters.\n");
 
     doc_newline(doc);
@@ -594,6 +571,7 @@ static caster_info * _caster_info(void)
         me.encumbrance.max_wgt = 350;
         me.encumbrance.weapon_pct = 50;
         me.encumbrance.enc_wgt = 800;
+        me.options = CASTER_GAIN_SKILL;
         init = TRUE;
     }
     return &me;
@@ -601,7 +579,7 @@ static caster_info * _caster_info(void)
 
 static void _move_player(void)
 {
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 
 static void _birth(void)
@@ -619,7 +597,7 @@ plr_class_ptr scout_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  33,  34,   6,  50,  24,  50,  65 };
-    skills_t xs = { 15,  11,  10,   0,   0,   0,  20,  25 };
+    skills_t xs = { 75,  55,  50,   0,   0,   0, 100, 125 };
 
         me = plr_class_alloc(CLASS_SCOUT);
         me->name = "Scout";

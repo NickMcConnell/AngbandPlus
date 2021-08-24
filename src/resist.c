@@ -2,143 +2,80 @@
 
 #include <assert.h>
 
-void res_add(int which)
+void res_add(int gf)
 {
-    assert(0 <= which && which < RES_MAX);
-    p_ptr->resist[which]++;
+    assert(GF_RES_MIN <= gf && gf <= GF_RES_MAX);
+    plr->resist[gf]++;
 }
 
-void res_add_amt(int which, int amt)
+void res_add_amt(int gf, int amt)
 {
-    p_ptr->resist[which] += amt;
-}
-
-void res_add_all(void)
-{
-    int i;
-    for (i = 0; i < RES_MAX; i++)
-        res_add(i);
+    assert(GF_RES_MIN <= gf && gf <= GF_RES_MAX);
+    plr->resist[gf] += amt;
 }
 
 void res_add_ultimate(void)
 {
-    int i;
-    for (i = 0; i < RES_MAX; i++)
+    res_add(GF_ACID);
+    res_add(GF_ELEC);
+    res_add(GF_FIRE);
+    res_add(GF_COLD);
+    res_add(GF_POIS);
+    res_add(GF_LIGHT);
+    res_add(GF_DARK);
+    res_add(GF_CONFUSION);
+    res_add(GF_NETHER);
+    res_add(GF_NEXUS);
+    res_add(GF_SOUND);
+    res_add(GF_SHARDS);
+    res_add(GF_CHAOS);
+    res_add(GF_DISENCHANT);
+    res_add(GF_FEAR);
+}
+
+void res_add_immune(int gf)
+{
+    assert(GF_RES_MIN <= gf && gf <= GF_RES_MAX);
+    plr->resist[gf] += 100;
+}
+
+void res_add_vuln(int gf)
+{
+    assert(GF_RES_MIN <= gf && gf <= GF_RES_MAX);
+    plr->resist[gf]--;
+}
+
+bool res_is_high(int gf)
+{
+    gf_info_ptr gfi = gf_lookup(gf);
+    return BOOL(gfi->flags & GFF_RESIST_HI);
+}
+
+bool res_is_low(int gf)
+{
+    switch (gf)
     {
-        if (i == RES_TIME) continue;
-        if (i == RES_TELEPORT) continue;
-        if (i == RES_BLIND) continue;
-        res_add(i);
-    }
-}
-
-void res_add_immune(int which)
-{
-    p_ptr->resist[which] += 100;
-}
-
-void res_add_vuln(int which)
-{
-    p_ptr->resist[which]--;
-}
-
-bool res_is_high(int which)
-{
-    if (res_is_low(which))
-        return FALSE;
-    return TRUE;
-}
-
-bool res_is_low(int which)
-{
-    switch (which)
-    {
-    case RES_ACID:
-    case RES_ELEC:
-    case RES_FIRE:
-    case RES_COLD:
-    case RES_POIS:
-        return TRUE;
+    case GF_ACID:
+    case GF_ELEC:
+    case GF_FIRE:
+    case GF_COLD:
+    case GF_POIS: return TRUE;
     }
     return FALSE;
 }
-
-typedef struct {
-    cptr name;
-    byte color;
-    int flg;
-    int vuln_flg;
-    int im_flg;
-} _res_info_t;
-
-static _res_info_t _resist_map[RES_MAX] = {
-    { "Acid",           TERM_GREEN,   OF_RES_ACID,    OF_VULN_ACID,   OF_IM_ACID },
-    { "Electricity",    TERM_BLUE,    OF_RES_ELEC,    OF_VULN_ELEC,   OF_IM_ELEC },
-    { "Fire",           TERM_RED,     OF_RES_FIRE,    OF_VULN_FIRE,   OF_IM_FIRE },
-    { "Cold",           TERM_L_WHITE, OF_RES_COLD,    OF_VULN_COLD,   OF_IM_COLD },
-    { "Poison",         TERM_L_GREEN, OF_RES_POIS,    OF_VULN_POIS,   OF_IM_POIS },
-    { "Light",          TERM_YELLOW,  OF_RES_LITE,    OF_VULN_LITE,   OF_IM_LITE },
-    { "Dark",           TERM_L_DARK,  OF_RES_DARK,    OF_VULN_DARK,   OF_IM_DARK },
-    { "Confusion",      TERM_L_RED,   OF_RES_CONF,    OF_VULN_CONF,   OF_INVALID },
-    { "Nether",         TERM_L_DARK,  OF_RES_NETHER,  OF_VULN_NETHER, OF_IM_NETHER },
-    { "Nexus",          TERM_VIOLET,  OF_RES_NEXUS,   OF_VULN_NEXUS,  OF_INVALID },
-    { "Sound",          TERM_ORANGE,  OF_RES_SOUND,   OF_VULN_SOUND,  OF_INVALID },
-    { "Shards",         TERM_L_UMBER, OF_RES_SHARDS,  OF_VULN_SHARDS, OF_INVALID },
-    { "Chaos",          TERM_VIOLET,  OF_RES_CHAOS,   OF_VULN_CHAOS,  OF_INVALID },
-    { "Disenchantment", TERM_VIOLET,  OF_RES_DISEN,   OF_VULN_DISEN,  OF_INVALID },
-    { "Time",           TERM_L_BLUE,  OF_RES_TIME,    OF_INVALID,     OF_INVALID },
-    { "Blindness",      TERM_L_DARK,  OF_RES_BLIND,   OF_VULN_BLIND,  OF_IM_BLIND },
-    { "Fear",           TERM_L_RED,   OF_RES_FEAR,    OF_VULN_FEAR,   OF_IM_FEAR },
-    { "Teleportation",  TERM_ORANGE,  OF_NO_TELE,     OF_INVALID,     OF_INVALID }
-};
 
 void res_calc_bonuses(u32b flgs[OF_ARRAY_SIZE])
 {
     int i;
-    for (i = RES_BEGIN; i < RES_END; i++)
+    for (i = GF_RES_MIN; i <= GF_RES_MAX; i++)
     {
-        _res_info_t m = _resist_map[i];
-        if (m.flg != OF_INVALID && have_flag(flgs, m.flg))
-            res_add(i);
-        if (m.vuln_flg != OF_INVALID && have_flag(flgs, m.vuln_flg))
-            res_add_vuln(i);
-        if (m.im_flg != OF_INVALID && have_flag(flgs, m.im_flg))
+        if (have_flag(flgs, OF_IM_(i)))
             res_add_immune(i);
+        else if (have_flag(flgs, OF_VULN_(i)))
+            res_add_vuln(i);
+        else if (have_flag(flgs, OF_RES_(i)))
+            res_add(i);
     }
-}
-
-bool res_has_bonus(u32b flgs[OF_ARRAY_SIZE])
-{
-    int i;
-    for (i = RES_BEGIN; i < RES_END; i++)
-    {
-        _res_info_t m = _resist_map[i];
-        int    net = 0;
-        if (m.im_flg != OF_INVALID && have_flag(flgs, m.im_flg))
-            return TRUE;
-        if (m.flg != OF_INVALID && have_flag(flgs, m.flg))
-            net++;
-        if (m.vuln_flg != OF_INVALID && have_flag(flgs, m.vuln_flg))
-            net--;
-        if (net)
-            return TRUE;
-    }
-    return FALSE;
-}
-
-int  res_get_object_flag(int which)
-{
-    return _resist_map[which].flg;
-}
-
-int  res_get_object_vuln_flag(int which)
-{
-    return _resist_map[which].vuln_flg;
-}
-
-int  res_get_object_immune_flag(int which)
-{
-    return _resist_map[which].im_flg;
 }
 
 static int _randomize(int pct)
@@ -152,9 +89,9 @@ static int _randomize(int pct)
     }
     return pct;
 }
-int res_calc_dam(int which, int dam)
+int res_calc_dam(int gf, int dam)
 {
-    int pct1 = res_pct(which);
+    int pct1 = res_pct(gf);
     int pct2 = _randomize(pct1);
     int result = dam;
 
@@ -164,12 +101,12 @@ int res_calc_dam(int which, int dam)
 
     if (result < dam)
     {
-        int flag = result ? res_get_object_flag(which) : res_get_object_immune_flag(which);
+        int flag = result ? OF_RES_(gf) : OF_IM_(gf);
         equip_learn_resist(flag);
     }
     else if (result > dam)
     {
-        equip_learn_vuln(res_get_object_vuln_flag(which));
+        equip_learn_vuln(OF_VULN_(gf));
     }
 
     return result;
@@ -178,23 +115,23 @@ int res_calc_dam(int which, int dam)
 void res_clear(void)
 {
     int i;
-    for (i = 0; i < RES_MAX; i++)
-        p_ptr->resist[i] = 0;
+    for (i = GF_RES_MIN; i <= GF_RES_MAX; i++)
+        plr->resist[i] = 0;
 }
 
-cptr res_name(int which)
+cptr res_name(int gf)
 {
-    return _resist_map[which].name;
+    return gf_lookup(gf)->name;
 }
 
-byte res_color(int which)
+byte res_color(int gf)
 {
-    return _resist_map[which].color;
+    return gf_lookup(gf)->color;
 }
 
 
 #define _MAX_PCTS 29
-static int _lo_pcts[_MAX_PCTS] = {
+static int _pcts[_MAX_PCTS] = {
    0, 50, 65, 72, 75,
   77, 78, 79, 80, 81,
   82, 83, 84, 85, 86,
@@ -203,32 +140,45 @@ static int _lo_pcts[_MAX_PCTS] = {
   97, 98, 99, 100
 };
 
-static int _hi_pcts[_MAX_PCTS] = {
-   0, 30, 40, 45, 47,
-  48, 49, 50, 51, 52,
-  53, 54, 55, 56, 57,
-  58, 59, 60, 61, 62,
-  63, 64, 65, 66, 67,
-  68, 69, 70, 100
-};
-/* Note: I've decided to move back to a two-tiered resistance system.
- * While I like the simplicity of a single system, the fact is that it
- * forced the player to cover all resists, especially rather early on when
- * it is practically impossible to do so. This redesign is closer to the
- * original Hengband system. Also, you can no longer "shut-down" end game
- * high damage with multiple resists like before:
- * Attack  Hengband(1x) Old(3x) New(3x) New(1x)
- * ======= ============ ======= ======= =======
- * ROCKET           400     224     330     420
- * BR_CHAO          439     196     330     420
- * BR_NETH          356     182     302     385
+/* each resistance scales the default percentage table in a
+ * customizable manner */
+static int _gf_pct(int gf)
+{
+    /* high resists */
+    switch (gf)
+    {
+    case GF_LIGHT:
+    case GF_DARK:
+    case GF_TIME:
+        return 85;
 
- * These are the Serpent's big three attacks. As you can see, he could be
- * made quite tame with enough resists. But no longer ;)
- */
+    case GF_SOUND:
+    case GF_CONFUSION:
+        return 70;
 
+    case GF_NETHER:
+    case GF_CHAOS:
+    case GF_SHARDS:
+    case GF_DISENCHANT:
+    case GF_NEXUS:
+        return 60;
+    }
 
-int res_pct_aux(int which, int count)
+    /* low resists */
+    return 100;
+}
+static int _gf_scale(int gf, int amount)
+{
+    int pct = _gf_pct(gf);
+    int x = (100 * amount + 50) * pct / 100;
+
+    return x / 100;
+}
+int res_pct_mon(int gf)
+{
+    return _gf_scale(gf, _pcts[2]); /* cf mon_res_pct */
+}
+int res_pct_aux(int gf, int count)
 {
     int result = 0;
     int idx = count;
@@ -239,34 +189,33 @@ int res_pct_aux(int which, int count)
     if (idx >= _MAX_PCTS)
         idx = _MAX_PCTS-1;
 
-    if (res_is_low(which))
-        result = _lo_pcts[idx];
-    else
-        result = _hi_pcts[idx];
+    result = _pcts[idx];
+    if (result < 100)
+        result = _gf_scale(gf, result);
 
     if (count < 0)
         result *= -1;
     else if (result < 100)
     {
-        if (which == RES_CONF)
+        if (gf == GF_CONFUSION)
         {
             if (demon_is_(DEMON_CYBERDEMON))
                 result = (result + 1) / 2;
         }
 
-        if (which == RES_LITE)
+        if (gf == GF_LIGHT)
         {
             if (prace_is_(RACE_VAMPIRE) || prace_is_(RACE_MON_VAMPIRE) || prace_is_(MIMIC_VAMPIRE))
                 result = (result + 1) / 2;
         }
 
-        if (which == RES_FIRE)
+        if (gf == GF_FIRE)
         {
             if (prace_is_(RACE_ENT))
                 result = result * 7 / 10;
         }
 
-        if (which == RES_ELEC)
+        if (gf == GF_ELEC)
         {
             if (prace_is_(RACE_ANDROID))
                 result = result * 7 / 10;
@@ -275,18 +224,18 @@ int res_pct_aux(int which, int count)
     return result;
 }
 
-int res_pct(int which)
+int res_pct(int gf)
 {
-    int ct = p_ptr->resist[which];
-    return res_pct_aux(which, ct);
+    int ct = plr->resist[gf];
+    return res_pct_aux(gf, ct);
 }
 
-int res_ct_known(int which)
+int res_ct_known(int gf)
 {
-    int ct = p_ptr->resist[which];
+    int ct = plr->resist[gf];
     int hidden = 0;
-    int flg = res_get_object_flag(which);
-    int vuln_flg = res_get_object_vuln_flag(which);
+    int flg = OF_RES_(gf);
+    int vuln_flg = OF_VULN_(gf);
     int i;
 
     /* Life is a bit hard at the moment since "player flags"
@@ -306,7 +255,7 @@ int res_ct_known(int which)
 
         if (have_flag(flgs, flg) && !have_flag(flgs_known, flg))
             hidden++;
-        if (vuln_flg != OF_INVALID && have_flag(flgs, vuln_flg) && !have_flag(flgs_known, vuln_flg))
+        if (have_flag(flgs, vuln_flg) && !have_flag(flgs_known, vuln_flg))
             hidden--;
     }
 
@@ -314,40 +263,40 @@ int res_ct_known(int which)
     return ct;
 }
 
-int res_pct_known(int which)
+int res_pct_known(int gf)
 {
-    return res_pct_aux(which, res_ct_known(which));
+    return res_pct_aux(gf, res_ct_known(gf));
 }
 
-bool res_save(int which, int power)
+bool res_save(int gf, int power)
 {
-    int pct = res_pct(which);
+    int pct = res_pct(gf);
     int roll = randint0(power);
     if (roll < pct)
     {
-        int flag = res_get_object_flag(which);
-        equip_learn_resist(flag);
+        equip_learn_resist(OF_RES_(gf));
+        equip_learn_resist(OF_IM_(gf));
         return TRUE;
     }
     return FALSE;
 }
 
-bool res_save_default(int which)
+bool res_save_default(int gf)
 {
-    int power = res_is_low(which) ? 55 : 33;
-    return res_save(which, power);
+    int power = _gf_scale(gf, 55);
+    return res_save(gf, power);
 }
-bool res_can_ignore(int which)
+bool res_can_ignore(int gf)
 {
-    int power = res_is_low(which) ? 55 : 33;
-    if (res_pct(which) >= power)
+    int power = _gf_scale(gf, 55);
+    if (res_pct(gf) >= power)
         return TRUE;
     return FALSE;
 }
 
-bool res_save_inventory(int which)
+bool res_save_inventory(int gf)
 {
-    int power = res_is_low(which) ? 66 : 41;
+    int power = _gf_scale(gf, 66);
 
     /* Mercy for racial vulnerabilities:
         ResCt  Old% New%
@@ -359,10 +308,10 @@ bool res_save_inventory(int which)
           5          1.9
           6          0.0
     */
-    if (prace_is_(RACE_ENT) && which == RES_FIRE)
+    if (prace_is_(RACE_ENT) && gf == GF_FIRE)
         power = 54;
-    if (prace_is_(RACE_ANDROID) && which == RES_ELEC)
+    if (prace_is_(RACE_ANDROID) && gf == GF_ELEC)
         power = 54;
 
-    return res_save(which, power);
+    return res_save(gf, power);
 }

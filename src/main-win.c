@@ -186,9 +186,6 @@
 
 #define IDM_OPTIONS_NO_GRAPHICS     400
 #define IDM_OPTIONS_OLD_GRAPHICS 401
-#define IDM_OPTIONS_NEW_GRAPHICS 402
-#define IDM_OPTIONS_BIGTILE        409
-#define IDM_OPTIONS_SOUND        410
 #define IDM_OPTIONS_SAVER        420
 #define IDM_OPTIONS_MAP            430
 
@@ -365,6 +362,9 @@ struct _term_data
     HDC  hDC;
     HBITMAP hBitmap;
     HBITMAP hOldBitmap;
+    HDC  hDC2;
+    HBITMAP hBitmap2;
+    HBITMAP hOldBitmap2;
     RECT updateRect;
 
     DWORD dwStyle;
@@ -502,6 +502,7 @@ typedef struct {
     HDC     hdcMask;
     int        width;
     int        height;
+    COLORREF transparent; /* XXX Hack: Use alpha channel instead some day ... XXX */
 } graphics_t;
 
 static graphics_t _graphics = {0};
@@ -800,16 +801,32 @@ static void term_init_double_buffer(term_data *td)
         DeleteObject(td->hBitmap);
         DeleteDC(td->hDC);
     }
+    if (td->hDC2)
+    {
+        SelectObject(td->hDC2, td->hOldBitmap2);
+        DeleteObject(td->hBitmap2);
+        DeleteDC(td->hDC2);
+    }
 
     hdc = GetDC(td->w);
 
-    td->hDC = CreateCompatibleDC(hdc);        
+    /* primary bitmap for double buffering */
+    td->hDC = CreateCompatibleDC(hdc);
     td->hBitmap = CreateCompatibleBitmap(
         hdc, 
         td->size_wid,
         td->size_hgt
     );
     td->hOldBitmap = SelectObject(td->hDC, td->hBitmap);
+
+    /* scratch bitmap for transparency */
+    td->hDC2 = CreateCompatibleDC(hdc);
+    td->hBitmap2 = CreateCompatibleBitmap(
+        hdc, 
+        2*td->tile_wid,
+        td->tile_hgt
+    );
+    td->hOldBitmap2 = SelectObject(td->hDC2, td->hBitmap2);
 
     ReleaseDC(td->w, hdc);
 }
@@ -1059,7 +1076,7 @@ static void load_prefs(void)
     int i;
 
     /* Extract the "arg_graphics" flag */
-    arg_graphics = GetPrivateProfileInt("Angband", "Graphics", GRAPHICS_NONE, ini_file);
+    arg_graphics = GetPrivateProfileInt("Angband", "Graphics", GRAPHICS_ORIGINAL, ini_file);
 
     /* Extract the "arg_bigtile" flag */
     arg_bigtile = GetPrivateProfileInt("Angband", "Bigtile", FALSE, ini_file);
@@ -1311,23 +1328,18 @@ static bool init_graphics(void)
         int wid, hgt;
         cptr name;
 
-        if (arg_graphics == GRAPHICS_ADAM_BOLT)
-        {
-            wid = 16;
-            hgt = 16;
+        #if 0
+        wid = 8;
+        hgt = 8;
 
-            name = "16X16.BMP";
+        name = "8X8.BMP";
+        #else
+        wid = 13;
+        hgt = 24;
 
-            ANGBAND_GRAF = "new";
-        }
-        else
-        {
-            wid = 8;
-            hgt = 8;
-
-            name = "8X8.BMP";
-            ANGBAND_GRAF = "old";
-        }
+        name = "13X24.BMP";
+        #endif
+        ANGBAND_GRAF = "old";
 
         /* Access the bitmap file */
         path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, name);
@@ -1346,22 +1358,7 @@ static bool init_graphics(void)
         /* Save the new sizes */
         _graphics.width = wid;
         _graphics.height = hgt;
-
-        if (arg_graphics == GRAPHICS_ADAM_BOLT)
-        {
-            /* Access the mask file */
-            path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, "mask.bmp");
-
-            /* Load the bitmap or quit */
-            if (!ReadDIB(data[0].w, buf, &_graphics.mask))
-            {
-                plog_fmt("Cannot read bitmap file '%s'", buf);
-                return (FALSE);
-            }
-
-            _graphics.hdcMask = CreateCompatibleDC(NULL);
-            SelectObject(_graphics.hdcMask, _graphics.mask.hBitmap);
-        }
+        _graphics.transparent = GetPixel(_graphics.hdcTiles, 0, 0); /* XXX cf Term_pict_x11 */
 
         /* Activate a palette */
         if (!new_palette())
@@ -2263,10 +2260,8 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 #ifdef USE_GRAPHICS
 
     int i;
-    int x1, y1, w1, h1;
-    int x2, y2, w2, h2, tw2 = 0;
-    int x3, y3;
-    HDC hdc;
+    int x1, y1, w1, h1, tx1, ty1;
+    int x2, y2, w2, h2;
     
     /* Paranoia */
     if (!use_graphics)
@@ -2289,88 +2284,70 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
     {
         w2 = td->tile_wid;
         h2 = td->tile_hgt;
-        tw2 = w2;
-
-        /* big tile mode */
-        if (use_bigtile) tw2 *= 2;
     }
 
     /* Location of window cell */
     x2 = x * w2 + td->size_ow1;
     y2 = y * h2 + td->size_oh1;
 
-    /* Info */
-    hdc = td->hDC;
-
     /* Draw attr/char pairs */
     for (i = 0; i < n; i++, x2 += w2)
     {
         byte a = ap[i];
         char c = cp[i];
+        byte ta = tap[i];
+        char tc = tcp[i];
 
         /* Extract picture */
         int row = (a & 0x7F);
         int col = (c & 0x7F);
+        int trow = (ta & 0x7F);
+        int tcol = (tc & 0x7F);
 
         /* Location of bitmap cell */
         x1 = col * w1;
         y1 = row * h1;
+        tx1 = tcol * w1;
+        ty1 = trow * h1;
 
-        if (arg_graphics == GRAPHICS_ADAM_BOLT)
-        {
-            x3 = (tcp[i] & 0x7F) * w1;
-            y3 = (tap[i] & 0x7F) * h1;
-
+		/* Optimise the common case */
+        if ( !((ta & 0x80) && (tc & 0x80)) /* no terrain specified (*COMMON*) */
+          || (x1 == tx1 && y1 == ty1) ) /* same image */
+		{
             /* Perfect size */
-            if ((w1 == tw2) && (h1 == h2))
+            if (w1 == w2 && h1 == h2)
             {
-                /* Copy the terrain picture from the bitmap to the window */
-                BitBlt(hdc, x2, y2, tw2, h2, _graphics.hdcTiles, x3, y3, SRCCOPY);
-
-                /* Mask out the tile */
-                BitBlt(hdc, x2, y2, tw2, h2, _graphics.hdcMask, x1, y1, SRCAND);
-
-                /* Draw the tile */
-                BitBlt(hdc, x2, y2, tw2, h2, _graphics.hdcTiles, x1, y1, SRCPAINT);
+                /* Copy the picture from the bitmap to the window */
+                BitBlt(td->hDC, x2, y2, w2, h2, _graphics.hdcTiles, x1, y1, SRCCOPY);
             }
 
             /* Need to stretch */
             else
             {
                 /* Set the correct mode for stretching the tiles */
-                SetStretchBltMode(hdc, COLORONCOLOR);
+                SetStretchBltMode(td->hDC, COLORONCOLOR);
 
-                /* Copy the terrain picture from the bitmap to the window */
-                StretchBlt(hdc, x2, y2, tw2, h2, _graphics.hdcTiles, x3, y3, w1, h1, SRCCOPY);
-
-                /* Only draw if terrain and overlay are different */
-                if ((x1 != x3) || (y1 != y3))
-                {
-                    /* Mask out the tile */
-                    StretchBlt(hdc, x2, y2, tw2, h2, _graphics.hdcMask, x1, y1, w1, h1, SRCAND);
-
-                    /* Draw the tile */
-                    StretchBlt(hdc, x2, y2, tw2, h2, _graphics.hdcTiles, x1, y1, w1, h1, SRCPAINT);
-                }
+                /* Copy the picture from the bitmap to the window */
+                StretchBlt(td->hDC, x2, y2, w2, h2, _graphics.hdcTiles, x1, y1, w1, h1, SRCCOPY);
             }
         }
-        else
+        else /* handle transparency */
         {
-            /* Perfect size */
-            if ((w1 == tw2) && (h1 == h2))
+            int x, y;
+            SetStretchBltMode(td->hDC2, COLORONCOLOR); /* XXX */
+            StretchBlt(td->hDC2, 0, 0, w2, h2, _graphics.hdcTiles, x1, y1, w1, h1, SRCCOPY); 
+            StretchBlt(td->hDC2, w2, 0, w2, h2, _graphics.hdcTiles, tx1, ty1, w1, h1, SRCCOPY); 
+            for (y = 0; y < h2; y++)
             {
-                /* Copy the picture from the bitmap to the window */
-                BitBlt(hdc, x2, y2, tw2, h2, _graphics.hdcTiles, x1, y1, SRCCOPY);
-            }
-
-            /* Need to stretch */
-            else
-            {
-                /* Set the correct mode for stretching the tiles */
-                SetStretchBltMode(hdc, COLORONCOLOR);
-
-                /* Copy the picture from the bitmap to the window */
-                StretchBlt(hdc, x2, y2, tw2, h2, _graphics.hdcTiles, x1, y1, w1, h1, SRCCOPY);
+                for (x = 0; x < w2; x++)
+                {
+                    COLORREF p = GetPixel(td->hDC2, x, y);
+                    COLORREF tp = GetPixel(td->hDC2, w2+x, y);
+                    if (p == _graphics.transparent)
+                        SetPixel(td->hDC, x2 + x, y2 + y, tp);
+                    else
+                        SetPixel(td->hDC, x2 + x, y2 + y, p);
+                }
             }
         }
 
@@ -2378,7 +2355,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
             RECT rc;
             rc.left = x2;
             rc.top = y2;
-            rc.right = x2 + tw2;
+            rc.right = x2 + w2;
             rc.bottom = y2 + h2;
             _update_rect_enlarge(td, &rc);
         }
@@ -2434,7 +2411,7 @@ static void windows_map(void)
     }
 
     /* Hilite the player */
-    Term_curs_win(p_ptr->pos.x - min_x, p_ptr->pos.y - min_y);
+    Term_curs_win(plr->pos.x - min_x, plr->pos.y - min_y);
 
     /* Wait for a keypress, flush key buffer */
     Term_inkey(&c, TRUE, TRUE);
@@ -2508,8 +2485,8 @@ static void init_windows(void)
     td->s = angband_term_name[0];
 
     td->keys = 1024;
-    td->rows = 27;
-    td->cols = 80;
+    td->rows = 40;
+    td->cols = 100;
     td->visible = TRUE;
     td->size_ow1 = 2;
     td->size_ow2 = 2;
@@ -2830,12 +2807,6 @@ static void setup_menus(void)
                MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
     EnableMenuItem(hm, IDM_OPTIONS_OLD_GRAPHICS,
                MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
-    EnableMenuItem(hm, IDM_OPTIONS_NEW_GRAPHICS,
-               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
-    EnableMenuItem(hm, IDM_OPTIONS_BIGTILE,
-               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
-    EnableMenuItem(hm, IDM_OPTIONS_SOUND,
-               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
     EnableMenuItem(hm, IDM_OPTIONS_SAVER,
                MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 
@@ -2851,12 +2822,6 @@ static void setup_menus(void)
               (arg_graphics == GRAPHICS_NONE ? MF_CHECKED : MF_UNCHECKED));
     CheckMenuItem(hm, IDM_OPTIONS_OLD_GRAPHICS,
               (arg_graphics == GRAPHICS_ORIGINAL ? MF_CHECKED : MF_UNCHECKED));
-    CheckMenuItem(hm, IDM_OPTIONS_NEW_GRAPHICS,
-              (arg_graphics == GRAPHICS_ADAM_BOLT ? MF_CHECKED : MF_UNCHECKED));
-    CheckMenuItem(hm, IDM_OPTIONS_BIGTILE,
-              (arg_bigtile ? MF_CHECKED : MF_UNCHECKED));
-    CheckMenuItem(hm, IDM_OPTIONS_SOUND,
-              (arg_sound ? MF_CHECKED : MF_UNCHECKED));
     CheckMenuItem(hm, IDM_OPTIONS_SAVER,
               (hwndSaver ? MF_CHECKED : MF_UNCHECKED));
 
@@ -2865,16 +2830,7 @@ static void setup_menus(void)
     EnableMenuItem(hm, IDM_OPTIONS_NO_GRAPHICS, MF_ENABLED);
     /* Menu "Options", Item "Graphics" */
     EnableMenuItem(hm, IDM_OPTIONS_OLD_GRAPHICS, MF_ENABLED);
-    /* Menu "Options", Item "Graphics" */
-    EnableMenuItem(hm, IDM_OPTIONS_NEW_GRAPHICS, MF_ENABLED);
-    /* Menu "Options", Item "Graphics" */
-    EnableMenuItem(hm, IDM_OPTIONS_BIGTILE, MF_ENABLED);
 #endif /* USE_GRAPHICS */
-
-#ifdef USE_SOUND
-    /* Menu "Options", Item "Sound" */
-    EnableMenuItem(hm, IDM_OPTIONS_SOUND, MF_ENABLED);
-#endif /* USE_SOUND */
 
 #ifdef USE_SAVER
     /* Menu "Options", Item "ScreenSaver" */
@@ -3029,10 +2985,6 @@ static void process_menus(WORD wCmd)
 
                     break;
                 }
-
-                forget_lite();
-                forget_view();
-                clear_mon_lite();
 
                 Term_key_push(SPECIAL_KEY_QUIT);
                 break;
@@ -3300,77 +3252,6 @@ static void process_menus(WORD wCmd)
                 /* Hack -- Force redraw */
                 Term_key_push(KTRL('R'));
             }
-
-            break;
-        }
-
-        case IDM_OPTIONS_NEW_GRAPHICS:
-        {
-            /* Paranoia */
-            if (!inkey_flag)
-            {
-                plog("You may not do that right now.");
-                break;
-            }
-
-            /* Toggle "arg_graphics" */
-            if (arg_graphics != GRAPHICS_ADAM_BOLT)
-            {
-                arg_graphics = GRAPHICS_ADAM_BOLT;
-
-                /* React to changes */
-                Term_xtra_win_react();
-
-                /* Hack -- Force redraw */
-                Term_key_push(KTRL('R'));
-            }
-
-            break;
-        }
-
-        case IDM_OPTIONS_BIGTILE:
-        {
-            term_data *td = &data[0];
-
-            /* Paranoia */
-            if (!inkey_flag)
-            {
-                plog("You may not do that right now.");
-                break;
-            }
-
-            /* Toggle "arg_sound" */
-            arg_bigtile = !arg_bigtile;
-
-            /* Activate */
-            Term_activate(&td->t);
-
-            /* Resize the term */
-            Term_resize(td->cols, td->rows);
-
-            /* Redraw later */
-            InvalidateRect(td->w, NULL, TRUE);
-
-            break;
-        }
-
-        case IDM_OPTIONS_SOUND:
-        {
-            /* Paranoia */
-            if (!inkey_flag)
-            {
-                plog("You may not do that right now.");
-                break;
-            }
-
-            /* Toggle "arg_sound" */
-            arg_sound = !arg_sound;
-
-            /* React to changes */
-            Term_xtra_win_react();
-
-            /* Hack -- Force redraw */
-            Term_key_push(KTRL('R'));
 
             break;
         }
@@ -3755,10 +3636,6 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
                     return 0;
                 }
 
-                forget_lite();
-                forget_view();
-                clear_mon_lite();
-
                 Term_key_push(SPECIAL_KEY_QUIT);
                 return 0;
             }
@@ -3771,17 +3648,17 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
             if (game_in_progress && character_generated)
             {
                 /* Mega-Hack -- Delay death */
-                if (p_ptr->chp < 0) p_ptr->is_dead = FALSE;
+                if (plr->chp < 0) plr->is_dead = FALSE;
 
 
                 /* Hardcode panic save */
-                p_ptr->panic_save = 1;
+                plr->panic_save = 1;
 
                 /* Forbid suspend */
                 signals_ignore_tstp();
 
                 /* Indicate panic save */
-                (void)strcpy(p_ptr->died_from, "(panic save)");
+                (void)strcpy(plr->died_from, "(panic save)");
 
                 /* Panic save */
                 (void)save_player();
@@ -4056,7 +3933,7 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
                 InvalidateRect(td->w, NULL, TRUE);
 
                 /* HACK - Redraw all windows */
-                p_ptr->window = 0xFFFFFFFF;
+                plr->window = 0xFFFFFFFF;
                 window_stuff();
             }
 
@@ -4312,9 +4189,13 @@ static void hook_quit(cptr str)
         if (data[i].w) DestroyWindow(data[i].w);
         if (data[i].hDC) DeleteDC(data[i].hDC);
         if (data[i].hBitmap) DeleteObject(data[i].hBitmap);
+        if (data[i].hDC2) DeleteDC(data[i].hDC2);
+        if (data[i].hBitmap2) DeleteObject(data[i].hBitmap2);
         data[i].w = 0;
         data[i].hDC = 0;
         data[i].hBitmap = 0;
+        data[i].hDC2 = 0;
+        data[i].hBitmap2 = 0;
     }
 
     /* Free the bitmap stuff */
@@ -4608,6 +4489,7 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
     check_for_save_file(lpCmdLine);
 
     Term_flush();
+    Term_xtra_win_react();
     display_news();
     c_prt(TERM_YELLOW, "                 [Choose 'New' or 'Open' from the 'File' menu]", Term->hgt - 1, 0);
     Term_fresh();

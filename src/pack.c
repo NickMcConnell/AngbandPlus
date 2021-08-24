@@ -66,14 +66,14 @@ void pack_carry_aux(obj_ptr obj)
             obj_ptr new_obj = inv_obj(_inv, slot);
             new_obj->marked |= OM_TOUCHED;
             autopick_alter_obj(new_obj, FALSE);
-            p_ptr->notice |= PN_OPTIMIZE_PACK;
+            plr->notice |= PN_OPTIMIZE_PACK;
         }
     }
     if (obj->number)
         pack_push_overflow(obj);
-    p_ptr->update |= PU_BONUS; /* Weight changed */
-    p_ptr->window |= PW_INVEN;
-    p_ptr->notice |= PN_CARRY;
+    plr->update |= PU_BONUS; /* Weight changed */
+    plr->window |= PW_INVEN;
+    plr->notice |= PN_CARRY;
 }
 
 /* Helper for pack_get_floor ... probably s/b private but the autopicker needs it */
@@ -92,13 +92,13 @@ void pack_get(obj_ptr obj)
 
         sound(SOUND_SELL);
 
-        p_ptr->au += value;
+        plr->au += value;
         stats_on_gold_find(value);
 
-        p_ptr->redraw |= PR_GOLD;
+        plr->redraw |= PR_GOLD;
 
         if (prace_is_(RACE_MON_LEPRECHAUN))
-            p_ptr->update |= PU_BONUS | PU_HP | PU_MANA;
+            plr->update |= PU_BONUS | PU_HP | PU_MANA;
 
         obj->number = 0;
     }
@@ -173,7 +173,7 @@ bool pack_get_floor(void)
 
     autopick_get_floor(); /* no energy charge */
 
-    floor = inv_filter_floor(p_ptr->pos, NULL);
+    floor = inv_filter_floor(plr->pos, NULL);
     result = _get_floor(floor);
     inv_free(floor);
 
@@ -216,9 +216,9 @@ void pack_describe(obj_ptr obj)
 void pack_remove(slot_t slot)
 {
     inv_remove(_inv, slot);
-    p_ptr->notice |= PN_OPTIMIZE_PACK;
-    p_ptr->update |= PU_BONUS;
-    p_ptr->window |= PW_INVEN;
+    plr->notice |= PN_OPTIMIZE_PACK;
+    plr->update |= PU_BONUS;
+    plr->window |= PW_INVEN;
 }
 
 /* Accessing, Iterating, Searching */
@@ -257,7 +257,7 @@ slot_t pack_find_next(obj_p p, slot_t prev_match)
     return inv_next(_inv, p, prev_match);
 }
 
-slot_t pack_find_art(int which)
+slot_t pack_find_art(cptr which)
 {
     return inv_find_art(_inv, which);
 }
@@ -302,9 +302,9 @@ void pack_calc_bonuses(void)
         obj_ptr obj = inv_obj(_inv, slot);
         if (!obj) continue;
         if (obj->rune == RUNE_ELEMENTAL_PROTECTION)
-            p_ptr->rune_elem_prot = TRUE;
+            plr->rune_elem_prot = TRUE;
         if (obj->rune == RUNE_GOOD_FORTUNE)
-            p_ptr->good_luck = TRUE;
+            plr->good_luck = TRUE;
     }
 }
 
@@ -333,7 +333,7 @@ bool pack_overflow(void)
 
     /* quest reward on a full pack ... the reward forces
      * reinit_wilderness, but we better wait to drop the reward! */
-    if (p_ptr->leaving) return FALSE;
+    if (plr->leaving) return FALSE;
 
     while (vec_length(_overflow))
     {
@@ -358,7 +358,7 @@ bool pack_overflow(void)
         }
         object_desc(name, obj, OD_COLOR_CODED);
         msg_format("You drop %s.", name);
-        drop_near(obj, p_ptr->pos, -1);
+        drop_near(obj, plr->pos, -1);
         free(obj);
     }
     if (result)
@@ -378,11 +378,11 @@ bool pack_optimize(void)
     if (_lock)
     {
         /* Try again later ... */
-        p_ptr->notice |= PN_OPTIMIZE_PACK;
+        plr->notice |= PN_OPTIMIZE_PACK;
     }
     else if (inv_optimize(_inv))
     {
-        p_ptr->window |= PW_INVEN;
+        plr->window |= PW_INVEN;
         return TRUE;
     }
     return FALSE;
@@ -390,7 +390,7 @@ bool pack_optimize(void)
 void pack_delayed_describe(void)
 {
     if (_lock)
-        p_ptr->notice |= PN_CARRY;
+        plr->notice |= PN_CARRY;
     else
     {
         msg_boundary();

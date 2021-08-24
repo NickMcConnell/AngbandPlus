@@ -12,6 +12,7 @@
 
 #include "angband.h"
 
+#include <assert.h>
 #include "init.h"
 #include "z-doc.h"
 #include "dun.h"
@@ -330,6 +331,12 @@ void create_needed_dirs(void)
 
     path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_HELP, "");
     if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
+
+    path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_FILE, "screen");
+    if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
+
+    path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_HELP, "screen");
+    if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
 }
 
 
@@ -488,27 +495,6 @@ static errr init_info(cptr filename, header *head,
 
 
 /*
- * Initialize the "f_info" array
- */
-static errr init_f_info(void)
-{
-    /* Init the header */
-    init_header(&f_head, max_f_idx, sizeof(feature_type));
-
-
-    /* Save a pointer to the parsing function */
-    f_head.parse_info_txt = parse_f_info;
-
-    /* Save a pointer to the retouch fake tags */
-    f_head.retouch = retouch_f_info;
-
-
-    return init_info("f_info", &f_head,
-             (void*)&f_info, &f_name, NULL, &f_tag);
-}
-
-
-/*
  * Initialize the "k_info" array
  */
 static errr init_k_info(void)
@@ -522,26 +508,7 @@ static errr init_k_info(void)
 
 
     return init_info("k_info", &k_head,
-             (void*)&k_info, &k_name, &k_text, NULL);
-}
-
-
-
-/*
- * Initialize the "a_info" array
- */
-static errr init_a_info(void)
-{
-    /* Init the header */
-    init_header(&a_head, max_a_idx, sizeof(artifact_type));
-
-
-    /* Save a pointer to the parsing function */
-    a_head.parse_info_txt = parse_a_info;
-
-
-    return init_info("a_info", &a_head,
-             (void*)&a_info, &a_name, &a_text, NULL);
+             (void*)&k_info, NULL, NULL, NULL);
 }
 
 
@@ -560,38 +527,7 @@ static errr init_e_info(void)
 
 
     return init_info("e_info", &e_head,
-             (void*)&e_info, &e_name, &e_text, NULL);
-}
-
-static errr init_b_info(void)
-{
-    /* Init the header */
-    init_header(&b_head, max_b_idx, sizeof(equip_template_t));
-
-
-    /* Save a pointer to the parsing function */
-    b_head.parse_info_txt = parse_b_info;
-
-
-    return init_info("b_info", &b_head,
-             (void*)&b_info, &b_name, NULL, &b_tag);
-}
-
-/*
- * Initialize the "r_info" array
- */
-static errr init_r_info(void)
-{
-    /* Init the header */
-    init_header(&r_head, max_r_idx, sizeof(monster_race));
-
-
-    /* Save a pointer to the parsing function */
-    r_head.parse_info_txt = parse_r_info;
-
-
-    return init_info("r_info", &r_head,
-             (void*)&r_info, &r_name, &r_text, NULL);
+             (void*)&e_info, NULL, NULL, NULL);
 }
 
 /*
@@ -640,16 +576,10 @@ static errr _parse_misc(char *line, int options)
     char *zz[2];
     if (tokenize(line, 2, zz, 0) == 2)
     {
-        if (streq(zz[0], "R"))
-            max_r_idx = atoi(zz[1]);
-        else if (zz[0][0] == 'B')
-            max_b_idx = atoi(zz[1]);
-        else if (zz[0][0] == 'K')
+        if (zz[0][0] == 'K')
             max_k_idx = atoi(zz[1]);
         else if (zz[0][0] == 'F')
             max_f_idx = atoi(zz[1]);
-        else if (zz[0][0] == 'A')
-            max_a_idx = atoi(zz[1]);
         else if (zz[0][0] == 'E')
             max_e_idx = atoi(zz[1]);
         return 0;
@@ -661,172 +591,6 @@ static errr init_misc(void)
 {
     return parse_edit_file("misc.txt", _parse_misc, 0);
 }
-
-static bool feat_tag_is_not_found = FALSE;
-
-
-s16b f_tag_to_index_in_init(cptr str)
-{
-    s16b feat = f_tag_to_index(str);
-
-    if (feat < 0) feat_tag_is_not_found = TRUE;
-
-    return feat;
-}
-
-
-/*
- * Initialize feature variables
- */
-static errr init_feat_variables(void)
-{
-    int i;
-
-    /* Nothing */
-    feat_none = f_tag_to_index_in_init("NONE");
-
-    /* Floor */
-    feat_floor = f_tag_to_index_in_init("FLOOR");
-    feat_road = f_tag_to_index_in_init("ROAD");
-
-    /* Objects */
-    feat_glyph = f_tag_to_index_in_init("GLYPH");
-    feat_explosive_rune = f_tag_to_index_in_init("EXPLOSIVE_RUNE");
-    feat_rogue_trap1 = f_tag_to_index_in_init("ROGUE_TRAP_1");
-    feat_rogue_trap2 = f_tag_to_index_in_init("ROGUE_TRAP_2");
-    feat_rogue_trap3 = f_tag_to_index_in_init("ROGUE_TRAP_3");
-    feat_mirror = f_tag_to_index_in_init("MIRROR");
-
-    /* Doors */
-    feat_door[DOOR_DOOR].open = f_tag_to_index_in_init("OPEN_DOOR");
-    feat_door[DOOR_DOOR].broken = f_tag_to_index_in_init("BROKEN_DOOR");
-    feat_door[DOOR_DOOR].closed = f_tag_to_index_in_init("CLOSED_DOOR");
-
-    /* Locked doors */
-    for (i = 1; i < MAX_LJ_DOORS; i++)
-    {
-        s16b door = f_tag_to_index(format("LOCKED_DOOR_%d", i));
-        if (door < 0) break;
-        feat_door[DOOR_DOOR].locked[i - 1] = door;
-    }
-    if (i == 1) return PARSE_ERROR_UNDEFINED_TERRAIN_TAG;
-    feat_door[DOOR_DOOR].num_locked = i - 1;
-
-    /* Jammed doors */
-    for (i = 0; i < MAX_LJ_DOORS; i++)
-    {
-        s16b door = f_tag_to_index(format("JAMMED_DOOR_%d", i));
-        if (door < 0) break;
-        feat_door[DOOR_DOOR].jammed[i] = door;
-    }
-    if (!i) return PARSE_ERROR_UNDEFINED_TERRAIN_TAG;
-    feat_door[DOOR_DOOR].num_jammed = i;
-
-    /* Glass doors */
-    feat_door[DOOR_GLASS_DOOR].open = f_tag_to_index_in_init("OPEN_GLASS_DOOR");
-    feat_door[DOOR_GLASS_DOOR].broken = f_tag_to_index_in_init("BROKEN_GLASS_DOOR");
-    feat_door[DOOR_GLASS_DOOR].closed = f_tag_to_index_in_init("CLOSED_GLASS_DOOR");
-
-    /* Locked glass doors */
-    for (i = 1; i < MAX_LJ_DOORS; i++)
-    {
-        s16b door = f_tag_to_index(format("LOCKED_GLASS_DOOR_%d", i));
-        if (door < 0) break;
-        feat_door[DOOR_GLASS_DOOR].locked[i - 1] = door;
-    }
-    if (i == 1) return PARSE_ERROR_UNDEFINED_TERRAIN_TAG;
-    feat_door[DOOR_GLASS_DOOR].num_locked = i - 1;
-
-    /* Jammed glass doors */
-    for (i = 0; i < MAX_LJ_DOORS; i++)
-    {
-        s16b door = f_tag_to_index(format("JAMMED_GLASS_DOOR_%d", i));
-        if (door < 0) break;
-        feat_door[DOOR_GLASS_DOOR].jammed[i] = door;
-    }
-    if (!i) return PARSE_ERROR_UNDEFINED_TERRAIN_TAG;
-    feat_door[DOOR_GLASS_DOOR].num_jammed = i;
-
-    /* Curtains */
-    feat_door[DOOR_CURTAIN].open = f_tag_to_index_in_init("OPEN_CURTAIN");
-    feat_door[DOOR_CURTAIN].broken = feat_door[DOOR_CURTAIN].open;
-    feat_door[DOOR_CURTAIN].closed = f_tag_to_index_in_init("CLOSED_CURTAIN");
-    feat_door[DOOR_CURTAIN].locked[0] = feat_door[DOOR_CURTAIN].closed;
-    feat_door[DOOR_CURTAIN].num_locked = 1;
-    feat_door[DOOR_CURTAIN].jammed[0] = feat_door[DOOR_CURTAIN].closed;
-    feat_door[DOOR_CURTAIN].num_jammed = 1;
-
-    /* Stairs */
-    feat_up_stair = f_tag_to_index_in_init("UP_STAIR");
-    feat_down_stair = f_tag_to_index_in_init("DOWN_STAIR");
-    feat_entrance = f_tag_to_index_in_init("ENTRANCE");
-    feat_quest_entrance = f_tag_to_index_in_init("QUEST_ENTER");
-
-    /* Normal traps */
-    init_normal_traps();
-
-    /* Special traps */
-    feat_trap_open = f_tag_to_index_in_init("TRAP_OPEN");
-    feat_trap_armageddon = f_tag_to_index_in_init("TRAP_ARMAGEDDON");
-    feat_trap_piranha = f_tag_to_index_in_init("TRAP_PIRANHA");
-
-    /* Rubble */
-    feat_rubble = f_tag_to_index_in_init("RUBBLE");
-
-    /* Seams */
-    feat_magma_vein = f_tag_to_index_in_init("MAGMA_VEIN");
-    feat_quartz_vein = f_tag_to_index_in_init("QUARTZ_VEIN");
-
-    /* Walls */
-    feat_granite = f_tag_to_index_in_init("GRANITE");
-    feat_permanent = f_tag_to_index_in_init("PERMANENT");
-
-    /* Glass floor */
-    feat_glass_floor = f_tag_to_index_in_init("GLASS_FLOOR");
-
-    /* Glass walls */
-    feat_glass_wall = f_tag_to_index_in_init("GLASS_WALL");
-    feat_permanent_glass_wall = f_tag_to_index_in_init("PERMANENT_GLASS_WALL");
-
-    /* Pattern */
-    feat_pattern_start = f_tag_to_index_in_init("PATTERN_START");
-    feat_pattern_1 = f_tag_to_index_in_init("PATTERN_1");
-    feat_pattern_2 = f_tag_to_index_in_init("PATTERN_2");
-    feat_pattern_3 = f_tag_to_index_in_init("PATTERN_3");
-    feat_pattern_4 = f_tag_to_index_in_init("PATTERN_4");
-    feat_pattern_end = f_tag_to_index_in_init("PATTERN_END");
-    feat_pattern_old = f_tag_to_index_in_init("PATTERN_OLD");
-    feat_pattern_exit = f_tag_to_index_in_init("PATTERN_EXIT");
-    feat_pattern_corrupted = f_tag_to_index_in_init("PATTERN_CORRUPTED");
-
-    /* Various */
-    feat_black_market = f_tag_to_index_in_init("BLACK_MARKET");
-    feat_town = f_tag_to_index_in_init("TOWN");
-
-    /* Terrains */
-    feat_deep_water = f_tag_to_index_in_init("DEEP_WATER");
-    feat_shallow_water = f_tag_to_index_in_init("SHALLOW_WATER");
-    feat_deep_lava = f_tag_to_index_in_init("DEEP_LAVA");
-    feat_shallow_lava = f_tag_to_index_in_init("SHALLOW_LAVA");
-    feat_dirt = f_tag_to_index_in_init("DIRT");
-    feat_grass = f_tag_to_index_in_init("GRASS");
-    feat_flower = f_tag_to_index_in_init("FLOWER");
-    feat_brake = f_tag_to_index_in_init("BRAKE");
-    feat_tree = f_tag_to_index_in_init("TREE");
-    feat_mountain = f_tag_to_index_in_init("MOUNTAIN");
-    feat_mountain_wall = f_tag_to_index_in_init("MOUNTAIN_WALL");
-    feat_swamp = f_tag_to_index_in_init("SWAMP");
-    feat_dark_pit = f_tag_to_index_in_init("DARK_PIT");
-    feat_web = f_tag_to_index_in_init("WEB");
-    feat_recall = f_tag_to_index_in_init("RECALL");
-    feat_travel = f_tag_to_index_in_init("TRAVEL");
-
-    /* Unknown grid (not detected) */
-    feat_undetected = f_tag_to_index_in_init("UNDETECTED");
-
-    return feat_tag_is_not_found ? PARSE_ERROR_UNDEFINED_TERRAIN_TAG : 0;
-}
-
 
 /*
  * Initialize some other arrays
@@ -1054,7 +818,7 @@ static void note(cptr str)
  * may or may not be initialized, but the "plog()" and "quit()"
  * functions are "supposed" to work under any conditions.
  */
-static void init_angband_aux(cptr why)
+static void init_angband_quit(cptr why)
 {
     /* Why */
     plog(why);
@@ -1073,10 +837,90 @@ static void init_angband_aux(cptr why)
 
 }
 
+/************************************************************************
+ * News: Display a (graphical) startup screen to whet the appetite
+ *
+ * screenshots are placed in ./lib/file/screen as news%2d.old|ascii
+ * ./lib/file/screen/count.old|ascii gives the number of start screens,
+ * and one is randomly chosen for display.
+ *
+ * Screenshots change every release and are not under version control.
+ * Use ^] to create screen.old in ANGBAND_DIR_USER. Under X11, use mouse
+ * to select a rectangular region and then right-click to create screen.old
+ * in ANGBAND_DIR_USER.
+ ************************************************************************/
+static FILE *_news_fopen(cptr name)
+{
+    char buf1[1024], buf2[1024];
+    path_build(buf1, sizeof(buf1), ANGBAND_DIR_FILE, "screen");
+    path_build(buf2, sizeof(buf2), buf1, name);
+    return my_fopen(buf2, "r");
+}
+static int _news_count(void)
+{
+    FILE *fp = _news_fopen(format("count.%s", ANGBAND_GRAF));
+    int count = 1;
+    if (!fp) return count;
+    fscanf(fp, "%d", &count);
+    fclose(fp);
+    return count;
+}
+static void _term_erase(doc_ptr doc)
+{
+    int y;
+    for (y = doc_cursor(doc).y; y < Term->hgt - 1; y++)
+        Term_erase(0, y, Term->wid);
+}
+static void _display_screen_old(FILE *fp)
+{
+    doc_ptr doc = doc_alloc(120);
+    doc_read_term(doc, fp);
+    doc_sync_term(doc, doc_range_all(doc), doc_pos_create(0, 1));
+    _term_erase(doc);
+    doc_free(doc);
+}
+static void _display_screen_doc(FILE *fp)
+{
+    doc_ptr doc = doc_alloc(120);
+    doc_read_file(doc, fp);
+    doc_sync_term(doc, doc_range_all(doc), doc_pos_create(0, 1));
+    _term_erase(doc);
+    doc_free(doc);
+}
+static void _display_screen(cptr name)
+{
+    FILE *fp = 0;
+    char buf[100];
+
+    c_prt(TERM_YELLOW,
+        format("%s (%d.%d.%d)", VERSION_NAME, VER_MAJOR, VER_MINOR, VER_PATCH),
+        0, 0);
+    if (strcmp(ANGBAND_GRAF, "old") == 0) /* try for graphics */
+    {
+        sprintf(buf, "%s.old", name);
+        fp = _news_fopen(buf);
+        if (fp)
+            _display_screen_old(fp);
+    }
+    if (!fp) /* fallback to ascii */
+    {
+        sprintf(buf, "%s.doc", name);
+        fp = _news_fopen(buf);
+        if (fp)
+            _display_screen_doc(fp);
+    }
+    if (!fp) /* XXX */
+    {
+    }
+    my_fclose(fp);
+    c_prt(TERM_YELLOW, "              [Press ? for Credits. Press Any Other Key to Play]", Term->hgt - 1, 0);
+    Term_fresh();
+}
 static void _display_file(cptr name)
 {
     FILE *fp;
     char buf[1024];
+
     Term_clear();
     path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, name);
     fp = my_fopen(buf, "r");
@@ -1100,7 +944,7 @@ static void _display_file(cptr name)
 
 void display_news(void)
 {
-    const int max_n = 19;
+    int max_n = _news_count();
     int n;
     bool done = FALSE;
 
@@ -1112,10 +956,10 @@ void display_news(void)
         char name[100];
         int  cmd;
 
-        sprintf(name, "news%d.txt", n);
-        _display_file(name);
+        sprintf(name, "news%02d", n);
+        _display_screen(name);
 
-        /* Windows is an odd duck, indeed! */
+        /* Windows is an odd duck, indeed! User must select a menu item to continue. */
         if (strcmp(ANGBAND_SYS, "win") == 0)
             break;
 
@@ -1196,6 +1040,13 @@ void init_angband(void)
     int fd = -1;
     char buf[1024];
 
+    /* tell me when "flags" need more space */
+    assert(OF_COUNT <= OF_ARRAY_SIZE * 32);
+    assert(PAF_COUNT <= PAF_ARRAY_SIZE * 32);
+    assert(OF_COUNT < 240); /* XXX cf _MIN_SPECIAL in sword|smith ... these need a re-write! */
+
+    temp_pts = point_vec_alloc();
+
     /* XXX needs to be first */
     plr_startup();
 
@@ -1218,13 +1069,14 @@ void init_angband(void)
 
 
         /* Crash and burn */
-        init_angband_aux(why);
+        init_angband_quit(why);
     }
 
     /* Close it */
     (void)fd_close(fd);
 
-    msg_on_startup();
+    msg_startup();
+    sym_startup();
 
     /*** Initialize some arrays ***/
 
@@ -1235,8 +1087,7 @@ void init_angband(void)
 
     /* Initialize feature info */
     note("[Initializing arrays... (features)]");
-    if (init_f_info()) quit("Cannot initialize features");
-    if (init_feat_variables()) quit("Cannot initialize features");
+    if (!dun_feat_init()) quit("Cannot initialize features");
 
     /* Initialize object info */
     note("[Initializing arrays... (objects)]");
@@ -1244,7 +1095,7 @@ void init_angband(void)
 
     /* Initialize artifact info */
     note("[Initializing arrays... (artifacts)]");
-    if (init_a_info()) quit("Cannot initialize artifacts");
+    if (!arts_init()) quit("Cannot initialize artifacts");
 
     /* Initialize ego-item info */
     note("[Initializing arrays... (ego-items)]");
@@ -1252,14 +1103,14 @@ void init_angband(void)
 
     /* Initialize monster info */
     note("[Initializing arrays... (body-types)]");
-    if (init_b_info()) quit("Cannot initialize body types");
+    if (!equip_template_init()) quit("Cannot initialize equipment templates");
 
     note("[Initializing arrays... (monk attacks)]");
     if (!monk_attack_init()) quit("Cannot initialize monk attacks");
 
     /* Initialize monster info ... requires b_info, k_info, a_info, e_info, monk_attacks */
     note("[Initializing arrays... (monsters)]");
-    if (init_r_info()) quit("Cannot initialize monsters");
+    if (!mon_race_init()) quit("Cannot initialize monsters");
 
     /* Initialize magic info */
     note("[Initializing arrays... (magic)]");
@@ -1274,6 +1125,7 @@ void init_angband(void)
 
     /* Initialize vault info */
     if (init_v_info(0)) quit("Cannot initialize vaults");
+    if (parse_n_choose_k()) quit("Cannot initialize line generator");
 
     /* Initialize some other arrays */
     note("[Initializing arrays... (other)]");

@@ -127,9 +127,6 @@ s16b energy_use;        /* Energy use this turn */
 s16b running;            /* Current counter for running, if any */
 s16b resting;            /* Current counter for resting, if any */
 
-s16b cur_hgt;            /* Current dungeon height */
-s16b cur_wid;            /* Current dungeon width */
-
 bool use_sound;            /* The "sound" mode is enabled */
 bool use_graphics;        /* The "graphics" mode is enabled */
 bool use_bigtile = FALSE;
@@ -152,15 +149,7 @@ bool repair_objects;    /* Hack -- optimize detect objects */
 
 bool hack_mind;
 
-u16b hack_m_idx = 0;    /* Hack -- see "process_monsters()" */
-u16b hack_m_idx_ii = 0; /* Hack -- place_monster_one() XXX Try not to use this. It is buggy with ESCORTS and FRIENDS */
-int  hack_max_m_dam = 0;
 char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
-
-int total_friends = 0;
-s32b friend_align = 0;
-
-bool reinit_wilderness = FALSE;
 
 /*
  * Software options (set via the '=' command). See "tables.c"
@@ -199,10 +188,9 @@ bool use_pack_slots;
 
 bool center_player;    /* Center map while walking (*slow*) */
 bool center_running;    /* Centering even while running */
-bool view_yellow_lite;    /* Use special colors for torch-lit grids */
-bool view_bright_lite;    /* Use special colors for 'viewable' grids */
-bool view_granite_lite;    /* Use special colors for wall grids (slow) */
-bool view_special_lite;    /* Use special colors for floor grids (slow) */
+bool view_light;
+bool view_daylight;
+bool view_gridlight;
 bool view_perma_grids;    /* Map remembers all perma-lit grids */
 bool view_torch_grids;    /* Map remembers all torch-lit grids */
 bool view_unsafe_grids;    /* Map marked by detect traps */
@@ -226,6 +214,7 @@ bool equippy_chars;    /* Display 'equippy' chars */
 bool display_food_bar;
 bool display_hp_bar;
 bool display_sp_bar;
+bool display_light_bar;
 bool compress_savefile;    /* Compress messages in savefiles */
 bool abbrev_extra;    /* Describe obj's extra resistances by abbreviation */
 bool abbrev_all;    /* Describe obj's all resistances by abbreviation */
@@ -240,7 +229,6 @@ bool display_race; /* Display monster races with their racial char */
 bool stack_force_notes;    /* Merge inscriptions when stacking */
 bool stack_force_costs;    /* Merge discounts when stacking */
 bool expand_list;    /* Expand the power of the list commands */
-bool bound_walls_perm;    /* Boundary walls become 'permanent wall' */
 bool last_words;    /* Leave last words when your character dies */
 
 bool allow_debug_opts;    /* Allow use of debug/cheat options */
@@ -300,6 +288,7 @@ byte mana_warn;    /* Mana color (0 to 9) */
 
 int delay_animation = 10;
 int delay_run = 5;
+int delay_rest = 0;
 
 bool autosave_l;    /* Autosave before entering new levels */
 bool autosave_t;    /* Timed autosave */
@@ -317,14 +306,6 @@ bool closing_flag;        /* Dungeon is closing */
  * Dungeon size info
  */
 point_t viewport_origin;
-
-/*
- * Targetting variables
- */
-int target_who;
-int target_col;
-int target_row;
-
 
 /*
  * User info
@@ -352,33 +333,9 @@ char savefile[1024];
 char savefile_base[40];
 
 /*
- * Array of grids lit by player lite (see "cave.c")
- */
-s16b lite_n;
-s16b lite_y[LITE_MAX];
-s16b lite_x[LITE_MAX];
-
-/*
- * Array of grids lit by player lite (see "cave.c")
- */
-s16b mon_lite_n;
-s16b mon_lite_y[MON_LITE_MAX];
-s16b mon_lite_x[MON_LITE_MAX];
-
-/*
  * Array of grids for use by various functions (see "cave.c")
  */
-s16b temp_n;
-s16b temp_y[TEMP_MAX];
-s16b temp_x[TEMP_MAX];
-
-/*
- * Array of grids for delayed visual updating (see "cave.c")
- */
-s16b redraw_n = 0;
-s16b redraw_y[REDRAW_MAX];
-s16b redraw_x[REDRAW_MAX];
-
+point_vec_ptr temp_pts;
 
 /*
  * Number of active macros.
@@ -603,44 +560,14 @@ int_map_ptr room_letters = NULL;
 player_magic *m_info;
 
 /*
- * The terrain feature arrays
- */
-feature_type *f_info;
-char *f_name;
-char *f_tag;
-
-/*
  * The object kind arrays
  */
 object_kind *k_info;
-char *k_name;
-char *k_text;
-
-/*
- * The artifact arrays
- */
-artifact_type *a_info;
-char *a_name;
-char *a_text;
 
 /*
  * The ego-item arrays
  */
 ego_type *e_info;
-char *e_name;
-char *e_text;
-
-/*
- * The monster race arrays
- */
-monster_race *r_info;
-char *r_name;
-char *r_text;
-
-/* Body Types for Player Monster Races */
-equip_template_ptr b_info;
-char *b_name;
-char *b_tag;
 
 /*
  * Hack -- The special Angband "System Suffix"
@@ -740,19 +667,6 @@ cptr ANGBAND_DIR_XTRA;
 
 
 /*
- * Current "comp" function for ang_sort()
- */
-bool (*ang_sort_comp)(vptr u, vptr v, int a, int b);
-
-
-/*
- * Current "swap" function for ang_sort()
- */
-void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
-
-
-
-/*
  * Hack -- function hook to restrict "get_obj_num_prep()" function
  */
 bool (*get_obj_num_hook)(int k_idx);
@@ -787,12 +701,6 @@ bool leave_chest;
 bool leave_special;
 
 /*
- * Maximum number of monsters in r_info.txt
- */
-u16b max_r_idx;
-u16b max_b_idx;
-
-/*
  * Maximum number of items in k_info.txt
  */
 u16b max_k_idx;
@@ -801,11 +709,6 @@ u16b max_k_idx;
  * Maximum number of terrain features in f_info.txt
  */
 u16b max_f_idx;
-
-/*
- * Maximum number of artifacts in a_info.txt
- */
-u16b max_a_idx;
 
 /*
  * Maximum number of ego-items in e_info.txt
@@ -821,7 +724,7 @@ int mutant_regenerate_mod = 100;
 
 bool can_save = FALSE;        /* Game can be saved */
 
-s16b world_monster;
+mon_ptr world_monster;
 bool world_player;
 
 int cap_mon;
@@ -830,11 +733,8 @@ int cap_hp;
 int cap_maxhp;
 u16b cap_nickname;
 
-int pet_t_m_idx;
-int riding_t_m_idx;
-
-s16b kubi_r_idx[MAX_KUBI];
-s16b today_mon;
+sym_t kubi_r_idx[MAX_KUBI];
+sym_t today_mon;
 
 int tsuri_dir;
 
@@ -842,90 +742,6 @@ bool new_mane;
 
 bool mon_fight;
 
-/*** Terrain feature variables ***/
-
-/* Nothing */
-s16b feat_none;
-
-/* Floor */
-s16b feat_floor;
-s16b feat_road;
-
-/* Objects */
-s16b feat_glyph;
-s16b feat_explosive_rune;
-s16b feat_rogue_trap1;
-s16b feat_rogue_trap2;
-s16b feat_rogue_trap3;
-s16b feat_mirror;
-
-/* Doors */
-door_type feat_door[MAX_DOOR_TYPES];
-
-/* Stairs */
-s16b feat_up_stair;
-s16b feat_down_stair;
-s16b feat_entrance;
-s16b feat_quest_entrance;
-
-/* Special traps */
-s16b feat_trap_open;
-s16b feat_trap_armageddon;
-s16b feat_trap_piranha;
-
-/* Rubble */
-s16b feat_rubble;
-
-/* Seams */
-s16b feat_magma_vein;
-s16b feat_quartz_vein;
-
-/* Walls */
-s16b feat_granite;
-s16b feat_permanent;
-
-/* Glass floor */
-s16b feat_glass_floor;
-
-/* Glass walls */
-s16b feat_glass_wall;
-s16b feat_permanent_glass_wall;
-
-/* Pattern */
-s16b feat_pattern_start;
-s16b feat_pattern_1;
-s16b feat_pattern_2;
-s16b feat_pattern_3;
-s16b feat_pattern_4;
-s16b feat_pattern_end;
-s16b feat_pattern_old;
-s16b feat_pattern_exit;
-s16b feat_pattern_corrupted;
-
-/* Various */
-s16b feat_black_market;
-s16b feat_town;
-
-/* Terrains */
-s16b feat_deep_water;
-s16b feat_shallow_water;
-s16b feat_deep_lava;
-s16b feat_shallow_lava;
-s16b feat_dirt;
-s16b feat_grass;
-s16b feat_flower;
-s16b feat_brake;
-s16b feat_tree;
-s16b feat_mountain;
-s16b feat_mountain_wall;
-s16b feat_swamp;
-s16b feat_dark_pit;
-s16b feat_web;
-s16b feat_recall;
-s16b feat_travel;
-
-/* Unknown grid (not detected) */
-s16b feat_undetected;
 
 s32b now_turn;
 bool use_menu;

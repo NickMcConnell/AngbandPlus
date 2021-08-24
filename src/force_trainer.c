@@ -1,6 +1,6 @@
 #include "angband.h"
 
-static int _force_boost(void) { return p_ptr->magic_num1[0]; }
+static int _force_boost(void) { return plr->magic_num1[0]; }
 
 /************************************************************************
  * Timers
@@ -36,18 +36,13 @@ static void _after_hit(mon_attack_ptr context)
 {
     if (plr_tim_find(_SH_FORCE)) /* paranoia */
     {
-        if (!(context->race->flagsr & RFR_RES_ALL))
-        {
-            int dam = 2 + damroll(1 + (p_ptr->lev / 10), 2 + (p_ptr->lev / 10));
+        int dam = 2 + damroll(1 + (plr->lev / 10), 2 + (plr->lev / 10));
 
-            dam = mon_damage_mod(context->mon, dam, FALSE);
-            msg_format("%^s is injured by the <color:B>Force</color>.", context->mon_name);
+        dam = mon_damage_mod(context->mon, dam, FALSE);
+        msg_format("%^s is injured by the <color:B>Force</color>.", context->mon_name);
 
-            if (mon_take_hit(context->mon->id, dam, &context->fear, " is destroyed."))
-                context->stop = STOP_MON_DEAD;
-        }
-        else
-            mon_lore_r(context->mon, RFR_RES_ALL);
+        if (mon_take_hit(context->mon, dam, &context->fear, " is destroyed."))
+            context->stop = STOP_MON_DEAD;
     }
 }
 static void _mon_attack_init(mon_attack_ptr context)
@@ -60,44 +55,18 @@ static void _mon_attack_init(mon_attack_ptr context)
  ************************************************************************/
 static void _small_force_ball_spell(int cmd, var_ptr res)
 {
+    int dd = 3 + (plr->lev - 1)/5 + _force_boost()/12;
+    int ds = 4;
     switch (cmd)
     {
     case SPELL_NAME:
         var_set_string(res, "Small Force Ball");
         break;
     case SPELL_DESC:
-    {        
         var_set_string(res, "Fires a very small energy ball.");
         break;
-    }
-    case SPELL_INFO:
-    {
-        int dice = 3 + ((p_ptr->lev - 1) / 5) + _force_boost()/ 12;
-        int sides = 4;
-        var_set_string(res, info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell)));
-        break;
-    }
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (get_fire_dir(&dir))
-        {
-            int dice = 3 + ((p_ptr->lev - 1) / 5) + _force_boost()/ 12;
-            int sides = 4;
-            fire_ball(
-                GF_MISSILE,
-                dir,
-                spell_power(damroll(dice, sides) + p_ptr->to_d_spell),
-                0
-            );
-            var_set_bool(res, TRUE);
-        }
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell_aux(cmd, res, 0, GF_MISSILE, spell_dam_dice(dd, ds, 0));
     }
 }
 
@@ -123,6 +92,10 @@ static void _flying_technique_spell(int cmd, var_ptr res)
     }
 }
 
+static dice_t _kamehameha_dice(void)
+{
+    return spell_dam_dice(5 + (plr->lev - 1)/5 + _force_boost()/10, 5, 0);
+}
 static void _kamehameha_spell(int cmd, var_ptr res)
 {
     switch (cmd)
@@ -134,30 +107,12 @@ static void _kamehameha_spell(int cmd, var_ptr res)
         var_set_string(res, "Fires a short energy beam.");
         break;
     case SPELL_INFO:
-    {
-        int dice = 5 + ((p_ptr->lev - 1) / 5) + _force_boost() / 10;
-        int sides = 5;
-        var_set_string(res, info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell)));
+        var_printf(res, "dam ~%d", dice_avg_roll(_kamehameha_dice()));
         break;
-    }
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        project_length = p_ptr->lev / 8 + 3;
-        var_set_bool(res, FALSE);
-        if (get_fire_dir(&dir))
-        {
-            int dice = 5 + ((p_ptr->lev - 1) / 5) + _force_boost() / 10;
-            int sides = 5;
-            fire_beam(
-                GF_MISSILE,
-                dir,
-                spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
-            );
-            var_set_bool(res, TRUE);
-        }
-        break;
-    }
+    case SPELL_CAST: {
+        int rng = 3 + plr->lev/8;
+        var_set_bool(res, plr_cast_beam_aux(GF_MISSILE, _kamehameha_dice(), rng));
+        break; }
     default:
         default_spell(cmd, res);
         break;
@@ -199,21 +154,21 @@ static void _improve_force_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
     {
-        int oops = 4*p_ptr->lev + 120;
+        int oops = 4*plr->lev + 120;
         msg_print("You improved the Force.");
-        p_ptr->magic_num1[0] += (70 + p_ptr->lev);
-        p_ptr->update |= PU_BONUS;
-        p_ptr->redraw |= PR_EFFECTS;
-        if (randint1(p_ptr->magic_num1[0]) > oops)
+        plr->magic_num1[0] += (70 + plr->lev);
+        plr->update |= PU_BONUS;
+        plr->redraw |= PR_EFFECTS;
+        if (randint1(plr->magic_num1[0]) > oops)
         {
-            int prob = (p_ptr->magic_num1[0] - oops) * 100 / p_ptr->magic_num1[0];
+            int prob = (plr->magic_num1[0] - oops) * 100 / plr->magic_num1[0];
             /* XXX shouldn't show the odds ... right? */
             msg_format("<color:r>The Force exploded!</color> <color:B>(%d%%)</color>", prob);
-            fire_ball(GF_MANA, 0, p_ptr->magic_num1[0] / 2, 10);
-            take_hit(DAMAGE_LOSELIFE, p_ptr->magic_num1[0] / 2, "Explosion of the Force");
-            p_ptr->magic_num1[0] = 0;
-            p_ptr->update |= PU_BONUS;
-            p_ptr->redraw |= PR_EFFECTS;
+            plr_burst(10, GF_MANA, plr->magic_num1[0]/2);
+            take_hit(DAMAGE_LOSELIFE, plr->magic_num1[0] / 2, "Explosion of the Force");
+            plr->magic_num1[0] = 0;
+            plr->update |= PU_BONUS;
+            plr->redraw |= PR_EFFECTS;
             var_set_bool(res, FALSE); /* no energy consumed?? */
         }
         else var_set_bool(res, TRUE);
@@ -223,7 +178,7 @@ static void _improve_force_spell(int cmd, var_ptr res)
     {
         int n = 0;
         int j;
-        for (j = 0; j < p_ptr->magic_num1[0] / 50; j++)
+        for (j = 0; j < plr->magic_num1[0] / 50; j++)
             n += (j+1) * 3 / 2;
 
         var_set_int(res, n);
@@ -247,7 +202,7 @@ static void _aura_of_force_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
     {
-        plr_tim_add(_SH_FORCE, spell_power(randint1(p_ptr->lev / 2) + 15 + _force_boost() / 7));
+        plr_tim_add(_SH_FORCE, spell_power(randint1(plr->lev / 2) + 15 + _force_boost() / 7));
         var_set_bool(res, TRUE);
         break;
     }
@@ -257,6 +212,10 @@ static void _aura_of_force_spell(int cmd, var_ptr res)
     }
 }
 
+static dice_t _shock_power_dice(void)
+{
+    return spell_dam_dice(8 + (plr->lev - 5)/4 + _force_boost()/12, 8, 0);
+}
 static void _shock_power_spell(int cmd, var_ptr res)
 {
     switch (cmd)
@@ -268,75 +227,42 @@ static void _shock_power_spell(int cmd, var_ptr res)
         var_set_string(res, "Damages an adjacent monster, and blow it away.");
         break;
     case SPELL_INFO:
-    {
-        int dice = 8 + ((p_ptr->lev - 5) / 4) + _force_boost() / 12;
-        int sides = 8;
-        var_set_string(res, info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell)));
+        var_printf(res, "dam ~%d", dice_avg_roll(_shock_power_dice()));
         break;
-    }
-    case SPELL_CAST:
-    {
-        int y, x, dam, dir;
-        mon_ptr mon;
-        project_length = 1;
-        /*if (!get_fire_dir(&dir)) XXX blow away won't work if a target is chosen ... dir == 5 */
-        if (!get_rep_dir2(&dir))
+    case SPELL_CAST: {
+        mon_ptr      mon = plr_target_adjacent_mon();
+        mon_race_ptr race;
+        int          dam = dice_roll(_shock_power_dice());
+        char         m_name[80];
+
+        if (!mon) /* XXX require an adjacent monster to use */
         { 
             var_set_bool(res, FALSE);
             return;
         }
-
-        y = p_ptr->pos.y + ddy[dir];
-        x = p_ptr->pos.x + ddx[dir];
-        dam = spell_power(damroll(8 + ((p_ptr->lev - 5) / 4) + _force_boost() / 12, 8) + p_ptr->to_d_spell);
-        fire_beam(GF_MISSILE, dir, dam);
-        mon = mon_at_xy(x, y);
-        if (mon)
-        {
-            int i;
-            int ty = y, tx = x;
-            int oy = y, ox = x;
-            mon_race_ptr race = mon_race(mon);
-            char m_name[80];
-
-            monster_desc(m_name, mon, 0);
-            if (randint1(race->level * 3 / 2) > randint0(dam / 2) + dam/2)
-            {
-                msg_format("%^s was not blown away.", m_name);
-            }
-            else
-            {
-                for (i = 0; i < 5; i++)
-                {
-                    y += ddy[dir];
-                    x += ddx[dir];
-                    if (cave_empty_bold(y, x))
-                    {
-                        ty = y;
-                        tx = x;
-                    }
-                    else break;
-                }
-                if (ty != oy || tx != ox)
-                {
-                    msg_format("You blow %s away!", m_name);
-
-                    dun_move_mon(cave, mon, point_create(tx, ty));
-
-                    if (race->flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
-                        p_ptr->update |= PU_MON_LITE;
-                }
-            }
-        }
         var_set_bool(res, TRUE);
-        break;
-    }
+        plr_beam(mon->pos, GF_MISSILE, dam);
+        if (!mon_is_valid(mon)) return; /* dead */
+        race = mon->race;
+        monster_desc(m_name, mon, 0);
+        if (_1d(3*race->alloc.lvl/2) > randint0(dam/2) + dam/2)
+        {
+            msg_format("%^s was not blown away.", m_name);
+            return;
+        }
+        msg_format("You blow %s away!", m_name);
+        do_monster_knockback(mon, 5);
+        break; }
     default:
         default_spell(cmd, res);
         break;
     }
 }
 
+static dice_t _large_force_ball_dice(void) {
+    int base = 3*plr->lev/2 + 3*_force_boost()/5;
+    return spell_dam_dice(10, 6, base);
+}
 static void _large_force_ball_spell(int cmd, var_ptr res)
 {
     switch (cmd)
@@ -347,33 +273,8 @@ static void _large_force_ball_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a large energy ball.");
         break;
-    case SPELL_INFO:
-    {
-        int dice = spell_power(10);
-        int sides = 6;
-        int base = spell_power(p_ptr->lev * 3 / 2 + _force_boost() * 3 / 5 + p_ptr->to_d_spell);
-        var_set_string(res, info_damage(dice, sides, base));
-        break;
-    }
-    case SPELL_CAST:
-    {
-        int dir;
-        var_set_bool(res, FALSE);
-        if (get_fire_dir(&dir))
-        {
-            int dice = 10;
-            int sides = 6;
-            int base = p_ptr->lev * 3 / 2 + _force_boost() * 3 / 5;
-            int radius = spell_power((p_ptr->lev < 30) ? 2 : 3);
-            int dam = spell_power(damroll(dice, sides) + base + p_ptr->to_d_spell);
-            fire_ball(GF_MISSILE, dir, dam, radius);
-            var_set_bool(res, TRUE);
-        }
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell_aux(cmd, res, 2 + plr->lev/30, GF_MISSILE, _large_force_ball_dice());
     }
 }
 
@@ -393,7 +294,7 @@ static void _summon_ghost_spell(int cmd, var_ptr res)
         bool success = FALSE;
 
         for (i = 0; i < 1 + _force_boost()/100; i++)
-            if (summon_specific(-1, p_ptr->pos, p_ptr->lev, SUMMON_PHANTOM, PM_FORCE_PET))
+            if (summon_specific(who_create_plr(), plr->pos, plr->lev, SUMMON_PHANTOM, PM_FORCE_PET))
                 success = TRUE;
         if (success)
             msg_print("'Your wish, master?'");
@@ -404,7 +305,6 @@ static void _summon_ghost_spell(int cmd, var_ptr res)
     }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -418,23 +318,8 @@ static void _exploding_flame_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Generates a huge ball of flame centered on you.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(100 + p_ptr->lev + _force_boost() + p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        fire_ball(
-            GF_FIRE,
-            0,
-            spell_power((100 +  p_ptr->lev + _force_boost() + p_ptr->to_d_spell) * 2),
-            10
-        );
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        burst_spell(cmd, res, 10, GF_FIRE, 100 + plr->lev + _force_boost());
     }
 }
 
@@ -448,33 +333,8 @@ static void _super_kamehameha_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a long, powerful energy beam.");
         break;
-    case SPELL_INFO:
-    {
-        int dice = spell_power(10 + p_ptr->lev/2 + _force_boost()*3/10);
-        int sides = 15;
-        var_set_string(res, info_damage(dice, sides, spell_power(p_ptr->to_d_spell)));
-        break;
-    }
-    case SPELL_CAST:
-    {
-        int dir;
-        int dice = 10 + p_ptr->lev/2 + _force_boost()*3/10;
-        int sides = 15;
-        
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-
-        fire_beam(
-            GF_MANA,
-            dir,
-            spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
-        );
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        beam_spell(cmd, res, GF_MANA, 10 + plr->lev/2 + 3*_force_boost()/10, 15);
     }
 }
 
@@ -490,13 +350,12 @@ static void _light_speed_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
     {
-        plr_tim_add(T_LIGHT_SPEED, spell_power(randint1(16) + 16 + _force_boost() / 20));
+        plr_tim_add(T_LIGHT_SPEED, spell_power(_1d(16) + 16 + _force_boost() / 20));
         var_set_bool(res, TRUE);
         break;
     }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -529,7 +388,7 @@ static int _get_spells(spell_info* spells, int max)
 {
     int i, hand;
     int ct = 0;
-    int stat_idx = p_ptr->stat_ind[A_WIS];
+    int stat_idx = plr->stat_ind[A_WIS];
     int penalty1 = 0;
     int penalty2 = 0;
 
@@ -543,12 +402,12 @@ static int _get_spells(spell_info* spells, int max)
     }
     for (hand = 0; hand < MAX_HANDS; hand++)
     {
-        if (have_flag(p_ptr->attack_info[hand].paf_flags, PAF_ICKY))
+        if (have_flag(plr->attack_info[hand].paf_flags, PAF_ICKY))
         {
             penalty1 += 20;
             penalty2 += 5;
         }
-        else if (p_ptr->attack_info[hand].type == PAT_WEAPON)
+        else if (plr->attack_info[hand].type == PAT_WEAPON)
         {
             penalty1 += 10;
         }
@@ -557,7 +416,7 @@ static int _get_spells(spell_info* spells, int max)
     {
         spell_info *base = &_spells[i];
         if (ct >= max) break;
-        if (base->level <= p_ptr->lev)
+        if (base->level <= plr->lev)
         {
             spell_info* current = &spells[ct];
             current->fn = base->fn;
@@ -584,7 +443,7 @@ static int _get_powers(spell_info* spells, int max)
     spell_info* spell = &spells[ct++];
     spell->level = 15;
     spell->cost = 0;
-    spell->fail = calculate_fail_rate(spell->level, 30, p_ptr->stat_ind[A_WIS]);
+    spell->fail = calculate_fail_rate(spell->level, 30, plr->stat_ind[A_WIS]);
     spell->fn = clear_mind_spell;
 
     return ct;
@@ -592,23 +451,23 @@ static int _get_powers(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
-    if (p_ptr->lev <= 30)
-        p_ptr->monk_lvl = p_ptr->lev;
+    if (plr->lev <= 30)
+        plr->monk_lvl = plr->lev;
     else
     {
-        int l = p_ptr->lev - 30;
-        p_ptr->monk_lvl = 30 + l * 17 / 20;
+        int l = plr->lev - 30;
+        plr->monk_lvl = 30 + l * 17 / 20;
     }
         
-    if (p_ptr->lev >= 15) 
-        p_ptr->clear_mind = TRUE;
+    if (plr->lev >= 15) 
+        plr->clear_mind = TRUE;
 
     if (!(heavy_armor()))
     {
-        p_ptr->pspeed += (p_ptr->lev) / 10;
-        p_ptr->sh_retaliation = TRUE;
-        if  (p_ptr->lev >= 25)
-            p_ptr->free_act++;
+        plr->pspeed += (plr->lev) / 10;
+        plr->sh_retaliation = TRUE;
+        if  (plr->lev >= 25)
+            plr->free_act++;
 
     }
     monk_ac_bonus();
@@ -619,9 +478,9 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     if (!heavy_armor())
     {
         add_flag(flgs, OF_AURA_REVENGE);
-        if (p_ptr->lev >= 10)
+        if (plr->lev >= 10)
             add_flag(flgs, OF_SPEED);
-        if (p_ptr->lev >= 25)
+        if (plr->lev >= 25)
             add_flag(flgs, OF_FREE_ACT);
     }
 }
@@ -629,23 +488,23 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 static void _on_fail(const spell_info *spell)
 {
     /* reset force counter for all spells *except* Improve Force */
-    if (spell->fn != _improve_force_spell && p_ptr->magic_num1[0])
+    if (spell->fn != _improve_force_spell && plr->magic_num1[0])
     {
         msg_print("Your improved Force has gone away...");
-        p_ptr->magic_num1[0] = 0;
-        p_ptr->update |= PU_BONUS;
-        p_ptr->redraw |= PR_EFFECTS;
+        plr->magic_num1[0] = 0;
+        plr->update |= PU_BONUS;
+        plr->redraw |= PR_EFFECTS;
     }
 }
 
 static void _on_cast(const spell_info *spell)
 {
     /* reset force counter for all spells *except* Improve Force */
-    if (spell->fn != _improve_force_spell && p_ptr->magic_num1[0])
+    if (spell->fn != _improve_force_spell && plr->magic_num1[0])
     {
-        p_ptr->magic_num1[0] = 0;
-        p_ptr->update |= PU_BONUS;
-        p_ptr->redraw |= PR_EFFECTS;
+        plr->magic_num1[0] = 0;
+        plr->update |= PU_BONUS;
+        plr->redraw |= PR_EFFECTS;
     }
 }
 
@@ -663,6 +522,7 @@ static caster_info * _caster_info(void)
         me.on_fail = _on_fail;
         me.on_cast = _on_cast;
         me.realm1_choices = CH_LIFE | CH_NATURE | CH_DEATH | CH_ENCHANT | CH_CRUSADE;
+        me.options = CASTER_GAIN_SKILL;
         init = TRUE;
     }
     return &me;
@@ -686,10 +546,10 @@ static void _character_dump(doc_ptr doc)
 
 static void _prt_effects(doc_ptr doc)
 {
-    if (p_ptr->magic_num1[0])
+    if (plr->magic_num1[0])
     {
         int color;
-        int force = p_ptr->magic_num1[0];
+        int force = plr->magic_num1[0];
 
         if (force > 400) color = TERM_VIOLET;
         else if (force > 300) color = TERM_RED;
@@ -708,7 +568,7 @@ plr_class_ptr force_trainer_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  34,  38,   4,  32,  24,  50,  40 };
-    skills_t xs = { 10,  11,  11,   0,   0,   0,  14,  15 };
+    skills_t xs = { 50,  55,  55,   0,   0,   0,  70,  75 };
 
         me = plr_class_alloc(CLASS_FORCETRAINER);
         me->name = "Force-Trainer";

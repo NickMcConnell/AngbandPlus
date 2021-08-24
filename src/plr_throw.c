@@ -26,7 +26,7 @@ static void _animate(plr_throw_ptr context)
 {
     point_t p = context->path[context->path_pos];
 
-    if (panel_contains(p.y, p.x) && player_can_see_bold(p.y, p.x))
+    if (cave_pt_is_visible(p) && plr_can_see(p))
     {
         char c = object_char(context->obj);
         byte a = object_attr(context->obj);
@@ -36,7 +36,7 @@ static void _animate(plr_throw_ptr context)
         move_cursor_relative(p);
         Term_fresh();
         Term_xtra(TERM_XTRA_DELAY, delay_animation);
-        lite_pos(p);
+        draw_pos(p);
         Term_fresh();
     }
     else
@@ -55,7 +55,7 @@ static obj_ptr _get_obj(int type)
     if (type & THROW_BOOMERANG)
     {
         slot_t slot = equip_find_first(obj_is_weapon);
-        if (slot && ((type & THROW_DISPLAY) || p_ptr->weapon_ct == 1))
+        if (slot && ((type & THROW_DISPLAY) || plr->weapon_ct == 1))
             return equip_obj(slot);
         prompt.where[0] = INV_EQUIP;
         prompt.filter = obj_is_weapon;
@@ -72,7 +72,7 @@ static obj_ptr _get_obj(int type)
 
 static bool _get_target(plr_throw_ptr context)
 {
-    int tx, ty;
+    point_t tgt;
     if (context->dir == 5 && !target_okay())
         context->dir = 0;
     if (!context->dir)
@@ -82,25 +82,17 @@ static bool _get_target(plr_throw_ptr context)
         project_length = 0;
     }
     if (context->dir == DIR_RANDOM) /* Shuriken Spreading (ninja.c) */
-    {
-        tx = randint0(101)-50+p_ptr->pos.x;
-        ty = randint0(101)-50+p_ptr->pos.y;
-    }
+        tgt = point_random_jump(plr->pos, 50);
     else if (context->dir == DIR_TARGET && target_okay())
-    {
-        tx = target_col;
-        ty = target_row;
-    }
+        tgt = who_pos(plr->target);
     else
-    {
-        tx = p_ptr->pos.x + 99 * ddx[context->dir];
-        ty = p_ptr->pos.y + 99 * ddy[context->dir];
-    }
-    if (tx == p_ptr->pos.x && ty == p_ptr->pos.y) return FALSE;
+        tgt = point_jump(plr->pos, context->dir, 99);
+
+    if (point_equals(plr->pos, tgt)) return FALSE;
 
     assert(context->range <= MAX_SIGHT);
     context->path_ct = project_path(context->path,
-        context->range, p_ptr->pos, point_create(tx, ty), PROJECT_PATH);
+        context->range, plr->pos, tgt, 0);
     context->path_pos = 0;
     if (!context->path_ct) return FALSE;
     return TRUE;
@@ -113,6 +105,12 @@ static bool _init_context(plr_throw_ptr context)
     {
         context->obj = _get_obj(context->type);
         if (!context->obj) return FALSE;
+        if ( context->obj->loc.where == INV_EQUIP
+          && obj_has_flag(context->obj, OF_NO_REMOVE) )
+        {
+            msg_print("You cannot throw that item!");
+            return FALSE;
+        }
         if ( context->obj->loc.where == INV_EQUIP
           && context->obj->tval == TV_QUIVER
           && quiver_count(NULL) )
@@ -130,8 +128,8 @@ static bool _init_context(plr_throw_ptr context)
         if (!context->energy)
         {
             context->energy = 100;
-            if (p_ptr->pclass == CLASS_ROGUE || p_ptr->pclass == CLASS_NINJA)
-                context->energy -= p_ptr->lev;
+            if (plr->pclass == CLASS_ROGUE || plr->pclass == CLASS_NINJA)
+                context->energy -= plr->lev;
         }
         energy_use = context->energy;
         if (!fear_allow_shoot())
@@ -146,11 +144,11 @@ static bool _init_context(plr_throw_ptr context)
     /* multiplier (required for range calc) */
     if (!context->mult)
         context->mult = 100;
-    if (p_ptr->mighty_throw)
+    if (plr->mighty_throw)
         context->mult += 100;
     if (have_flag(context->flags, OF_THROWING))
         context->mult += 100;
-    context->mult = context->mult * (100 + adj_str_td[p_ptr->stat_ind[A_STR]] - 128) / 100;
+    context->mult = context->mult * (100 + adj_str_td[plr->stat_ind[A_STR]] - 128) / 100;
 
     /* range */
     if (!context->range)
@@ -162,7 +160,7 @@ static bool _init_context(plr_throw_ptr context)
         if (have_flag(context->flags, OF_THROWING) || (context->type & THROW_BOOMERANG))
             div /= 2;
 
-        rng = (adj_str_blow[p_ptr->stat_ind[A_STR]] + 20) * mul / div;
+        rng = (adj_str_blow[plr->stat_ind[A_STR]] + 20) * mul / div;
         if (rng > mul) rng = mul;
         if (rng < 5) rng = 5;
 
@@ -179,14 +177,15 @@ static bool _init_context(plr_throw_ptr context)
     /* boomerang? */
     context->come_back = FALSE;
     context->fail_catch = FALSE;
-    if (context->obj->name1 == ART_MJOLLNIR || context->obj->name1 == ART_AEGISFANG)
+    if ( obj_is_specified_art(context->obj, "\\.Mjollnir")
+      || obj_is_specified_art(context->obj, "\\.Aegis Fang") )
     {
         context->type |= THROW_BOOMERANG;
         context->back_chance += 20; /* upgrade the odds if already Boomerang */
     }
     if (context->type & THROW_BOOMERANG)
     {
-        context->back_chance += adj_dex_th[p_ptr->stat_ind[A_DEX]] - 128;
+        context->back_chance += adj_dex_th[plr->stat_ind[A_DEX]] - 128;
         if (!(context->type & THROW_DISPLAY))
         {
             int oops = 100;
@@ -209,14 +208,14 @@ static bool _init_context(plr_throw_ptr context)
     }
 
     /* skill and some ninja hacks (hengband) */
-    context->skill += p_ptr->skill_tht + (p_ptr->shooter_info.to_h + context->obj->to_h) * BTH_PLUS_ADJ;
-    if (p_ptr->pclass == CLASS_NINJA)
+    context->skill += plr->skill_tht + (plr->shooter_info.to_h + context->obj->to_h) * BTH_PLUS_ADJ;
+    if (plr->pclass == CLASS_NINJA)
     {
         if ( context->obj->tval == TV_SPIKE
           || (context->obj->tval == TV_SWORD && have_flag(context->flags, OF_THROWING)) )
         {
             context->skill *= 2; /* wow! */
-            context->to_d += ((p_ptr->lev+30)*(p_ptr->lev+30)-900)/55; /* +100 at CL50 */
+            context->to_d += ((plr->lev+30)*(plr->lev+30)-900)/55; /* +100 at CL50 */
         }
     }
     if (plr_tim_find(T_STUN))
@@ -260,7 +259,7 @@ static bool _hit_mon(plr_throw_ptr context, mon_ptr mon)
     if (hits)
     {
         bool fear = FALSE;
-        bool ambush = mon_tim_find(mon, MT_SLEEP) && visible && p_ptr->ambush;
+        bool ambush = mon_tim_find(mon, MT_SLEEP) && visible && plr->ambush;
         int  to_d = 0;
         slay_t slay = {0};
 
@@ -272,12 +271,12 @@ static bool _hit_mon(plr_throw_ptr context, mon_ptr mon)
             monster_desc(m_name, mon, 0);
             if (ambush)
                 cmsg_format(TERM_RED, "The %s cruelly hits %s.", context->obj_name, m_name);
-            else if (p_ptr->wizard)
+            else if (plr->wizard)
                 msg_format("The %s hits %s (x%d).", context->obj_name, m_name, hits);
             else
                 msg_format("The %s hits %s.", context->obj_name, m_name);
             if (!plr_tim_find(T_HALLUCINATE)) mon_track(mon);
-            health_track(mon->id);
+            health_track(mon);
         }
 
         /***** The Damage Calculation!!! *****/
@@ -341,7 +340,7 @@ static bool _hit_mon(plr_throw_ptr context, mon_ptr mon)
         if (tdam < 0) tdam = 0;
         tdam = mon_damage_mod(mon, tdam, FALSE);
         context->dam = tdam;
-        if (mon_take_hit(mon->id, tdam, &fear, extract_note_dies(real_r_ptr(mon))))
+        if (mon_take_hit(mon, tdam, &fear, extract_note_dies(real_r_ptr(mon))))
         {
             /* Dead monster */
         }
@@ -358,11 +357,14 @@ static bool _hit_mon(plr_throw_ptr context, mon_ptr mon)
             }
             message_pain(mon->id, tdam);
             if (tdam > 0)
-                anger_monster(mon);
-
-            if (tdam > 0 && mon->cdis > 1 && allow_ticked_off(mon_race(mon)))
             {
-                if (!p_ptr->stealthy_snipe)
+                anger_monster(mon);
+                mon_set_target(mon, plr->pos);
+            }
+
+            if (tdam > 0 && mon->cdis > 1 && allow_ticked_off(mon->race))
+            {
+                if (!plr->stealthy_snipe)
                     mon_anger_shoot(mon, tdam);
             }
 
@@ -408,7 +410,7 @@ static void _throw(plr_throw_ptr context)
     for (context->path_pos = 0; ; context->path_pos++)
     {
         point_t p = context->path[context->path_pos];
-        mon_ptr mon = mon_at(p);
+        mon_ptr mon = dun_mon_at(cave, p);
 
         _animate(context);
 
@@ -417,7 +419,7 @@ static void _throw(plr_throw_ptr context)
             if (_hit_mon(context, mon)) break;
         }
 
-        if (!cave_have_flag_bold(p.y, p.x, FF_PROJECT))
+        if (!cell_project(dun_cell_at(cave, p)))
         {
             if (_hit_wall(context)) break;
         }
@@ -426,7 +428,7 @@ static void _throw(plr_throw_ptr context)
          * so we can drop the object if needed */
         if (context->path_pos == context->path_ct - 1) break;
     }
-    if (p_ptr->pclass == CLASS_NINJA && context->obj->tval == TV_SPIKE)
+    if (plr->pclass == CLASS_NINJA && context->obj->tval == TV_SPIKE)
         stats_on_use(context->obj, 1);
 }
 
@@ -472,7 +474,7 @@ static void _return(plr_throw_ptr context)
             /* Figurines transform into pets (enemies if cursed) */
             if (context->obj->tval == TV_FIGURINE)
             {
-                if (!summon_named_creature(0, p, context->obj->pval,
+                if (!summon_named_creature(who_create_null(), p, mon_race_lookup(context->obj->race_id),
                                 !obj_is_cursed(context->obj) ? PM_FORCE_PET : 0))
                     msg_print("The Figurine writhes and then shatters.");
 
@@ -486,11 +488,11 @@ static void _return(plr_throw_ptr context)
             else if (context->obj->tval == TV_POTION && randint0(100) < context->break_chance)
             {
                 msg_format("The %s shatters!", context->obj_name);
-                if (potion_smash_effect(0, p.y, p.x, context->obj->k_idx))
+                if (potion_smash_effect(who_create_null(), p, context->obj->k_idx))
                 {
                     /* I think this needs fixing in project_m ... */
-                    mon_ptr mon = mon_at(p);
-                    if (mon && is_friendly(mon) && !mon_tim_find(mon, T_INVULN))
+                    mon_ptr mon = dun_mon_at(cave, p);
+                    if (mon && mon_is_friendly(mon) && !mon_tim_find(mon, T_INVULN))
                     {
                         char m_name[80];
                         monster_desc(m_name, mon, 0);
@@ -506,7 +508,7 @@ static void _return(plr_throw_ptr context)
                 obj_drop_at(context->obj, 1, p.x, p.y, context->break_chance);
         }
         else
-            obj_drop_at(context->obj, 1, p_ptr->pos.x, p_ptr->pos.y, context->break_chance);
+            obj_drop_at(context->obj, 1, plr->pos.x, plr->pos.y, context->break_chance);
         context->obj = NULL;
     }
     else
@@ -596,7 +598,7 @@ void plr_throw_doc(plr_throw_ptr context, doc_ptr doc)
     if (have_flag(context->flags, OF_BRAND_MANA))
     {
         int cost = 1 + context->obj->dd * context->obj->ds / 7;
-        if (p_ptr->csp >= cost)
+        if (plr->csp >= cost)
             force = TRUE;
     }
 
@@ -606,7 +608,7 @@ void plr_throw_doc(plr_throw_ptr context, doc_ptr doc)
         mult = mult * 11 / 9; /* 1 + 1/6(1 + 1/4 + ...) = 1.222x */
 
     crit_chance = crit_chance_aux(CRIT_FREQ_ROLL, context->obj->weight, context->skill);
-    crit = crit_avg(CRIT_FREQ_ROLL, context->obj->weight);
+    crit = crit_avg(CRIT_QUAL_ROLL, context->obj->weight);
     crit.mul = (1000 - crit_chance)*100/1000 + (crit_chance*crit.mul)/1000;
     crit.add = crit_chance*crit.add/1000;
 
@@ -620,10 +622,10 @@ void plr_throw_doc(plr_throw_ptr context, doc_ptr doc)
     doc_printf(cols[0], "<color:y> Throwing:</color> <indent><style:indent>%s</style></indent>\n", context->obj_name);
 
     doc_printf(cols[0], " %-7.7s: %d.%d lbs\n", "Weight", context->obj->weight/10, context->obj->weight%10);
-    doc_printf(cols[0], " %-7.7s: %d + %d = %d\n", "To Hit", to_h, p_ptr->shooter_info.dis_to_h, to_h + p_ptr->shooter_info.dis_to_h);
+    doc_printf(cols[0], " %-7.7s: %d + %d = %d\n", "To Hit", to_h, plr->shooter_info.dis_to_h, to_h + plr->shooter_info.dis_to_h);
 
     doc_printf(cols[0], " %-7.7s: %d\n", "Range", context->range);
-    if (p_ptr->wizard && 0)
+    if (plr->wizard && 0)
         doc_printf(cols[0], " %-7.7s: %d (31 to return; 38 to catch)\n", "Back", context->back_chance);
     doc_printf(cols[0], " %-7.7s: %d%%\n", "Return", 99*(1000 - MAX(0, (30 - context->back_chance))*1000/30)/1000);
     doc_printf(cols[0], " %-7.7s: %d%%\n", "Catch", 99*(1000 - MAX(0, (37 - context->back_chance))*1000/30)/1000);

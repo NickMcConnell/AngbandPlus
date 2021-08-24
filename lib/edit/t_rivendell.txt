@@ -2,23 +2,23 @@ T:TOWN:NORMAL:NO_ROTATE
 %:t_pref.txt
 ############### Buildings ###############
 
-M:                                        TTTT TTTTTT     TTTTTTTTTTT
-M:  ####TTTTTT           TTT   TTTT    TTTTTTTTTTTT############TTTTTT
-M:  ###8-----TTT      TTT#######TTTT  TTTTTTTTTTT--4##########pTTTT  
-M:  ####TTTT-TTTTTTTTTTTT#######TTTTT TTTTTTTTTTT-T############TTTTT 
-M:       TTT-TTTTTTTTTTTT###i###TTTTT TTTTTTTTTTT-TTTTTTTTTTTTTTTTTTT
-M:        TT--------TTTTTTTT-TTTTTTTT TTTTTTTTTTT-TTTTTTTTTTTT######T
-M:         TTTTTTTT-TTTTTTTT-TTTTTTTVVVTTTTTTTTTT-------------5#####T
-M:          TTTTTTT-TTTTTTTT-TTTTTTVV#VVTTTTTTTTT-TTTTTTTTT-TT######T
-M:    #####  TTTTTT----------------V#*#V----------TTTTTTTTT-TTTTTTTTT
-M:    ##### TTTTTTT-TTTTTTTT-TTTTTTVV#VVTTTTTT-TTT#####TTTT-TTTTTTTTT
-M:   T##3##TTTTTTTT-TTTTTTTT-TTTTTTTVVVTTTTTTT-TTT#####TTTT-TTTT#####
-M:  TTT--TTTTTTTTTT-TTTTTTTT-TTTTTTTT TTTTTTTT----6####TTTT-----9####
-M:###TT-TTTTTTTTTTT-TTTTT###a###TTTTT TTTTTTTTTTTT#####TTTTTTTTT#####
-M:##2---------------TTTTT#######TTTTT  TTTTTTTTTTT#####TTTTTTTTTTTTTT
-M:###TT-TTTTTTTTTTTTTTTTT#######TTTT    TTTTTTTTTTTTTTTTTTTTTTTTTTTT 
-M:  TTT-TTTTTTTTTTT TTTTTTTTTTTTTTT      TTTTTTTTTTTTTTTTTTTTTTTTT   
-M:  ###1###TTT        TTTTTTTTTTTT       TTT   TT TTTTTTTTTTT        
-M:  #######T                                                         
+M:                                                                   
+M:  ####                                           ############      
+M:  ###8-----            #######                 --4##########p      
+M:  ####    -            #######                 - ############      
+M:          -            ###i###                 -                   
+M:          --------        -                    -            ###### 
+M:                 -        -       VVV          -------------5##### 
+M:                 -        -      VV#VV         -         -  ###### 
+M:    #####        ----------------V#*#V----------         -         
+M:    #####        -        -      VV#VV      -   #####    -         
+M:    ##3##        -        -       VVV       -   #####    -    #####
+M:     --          -        -                 ----6####    -----9####
+M:###  -           -     ###a###                  #####         #####
+M:##2---------------     #######                  #####              
+M:###  -                 #######                                     
+M:     -                                                             
+M:  ###1###                                                          
+M:  #######                                                          
 M:  #######                                                          
 # vim: filetype=q :

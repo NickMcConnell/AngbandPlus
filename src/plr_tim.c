@@ -5,22 +5,22 @@
 /* XXX move to plr_bonus.c */
 void plr_bonus_ac(int amt)
 {
-    int add = amt - p_ptr->bonus_to_a;
+    int add = amt - plr->bonus_to_a;
     /* magical bonuses to ac do not stack ... take the highest */
     if (add > 0)
     {
-        p_ptr->to_a += add;
-        p_ptr->dis_to_a += add;
-        p_ptr->bonus_to_a += add;
+        plr->to_a += add;
+        plr->dis_to_a += add;
+        plr->bonus_to_a += add;
     }
 }
 void plr_bonus_speed(int amt)
 {
-    int add = amt - p_ptr->bonus_speed;
+    int add = amt - plr->bonus_speed;
     if (add > 0)
     {
-        p_ptr->pspeed += add;
-        p_ptr->bonus_speed += add;
+        plr->pspeed += add;
+        plr->bonus_speed += add;
     }
 }
 
@@ -67,6 +67,7 @@ static plr_tim_info_ptr _paralyzed(void);
 static plr_tim_info_ptr _passwall(void);
 static plr_tim_info_ptr _poison(void);
 static plr_tim_info_ptr _prot_evil(void);
+static plr_tim_info_ptr _prot_good(void);
 static plr_tim_info_ptr _regen(void);
 static plr_tim_info_ptr _reflect(void);
 static plr_tim_info_ptr _res_acid(void);
@@ -74,6 +75,7 @@ static plr_tim_info_ptr _res_elec(void);
 static plr_tim_info_ptr _res_fire(void);
 static plr_tim_info_ptr _res_cold(void);
 static plr_tim_info_ptr _res_pois(void);
+static plr_tim_info_ptr _res_conf(void);
 static plr_tim_info_ptr _res_nether(void);
 static plr_tim_info_ptr _res_disen(void);
 static plr_tim_info_ptr _res_time(void);
@@ -164,6 +166,7 @@ static int_map_ptr _info(void)
         _register(map, _passwall());
         _register(map, _poison());
         _register(map, _prot_evil());
+        _register(map, _prot_good());
         _register(map, _reflect());
         _register(map, _regen());
         _register(map, _res_acid());
@@ -171,6 +174,7 @@ static int_map_ptr _info(void)
         _register(map, _res_fire());
         _register(map, _res_cold());
         _register(map, _res_pois());
+        _register(map, _res_conf());
         _register(map, _res_nether());
         _register(map, _res_disen());
         _register(map, _res_time());
@@ -188,6 +192,8 @@ static int_map_ptr _info(void)
         _register(map, _ult_res());
         _register(map, _weaponmastery());
         _register(map, _wraith());
+        /* this file is getting too big ... */
+        register_illusion_timers();
     }
     return map;
 }
@@ -275,7 +281,7 @@ static bool _add(plr_tim_ptr t)
     bool notice;
     _add_head(t); /* before on_f ... cf T_BRAND_FIRE et. al. */
     t->flags |= info->flags;
-    p_ptr->redraw |= PR_STATUS;
+    plr->redraw |= PR_STATUS;
     notice = info->on_f(t);
     _plr_hook_on(t);
     if (disturb_state) disturb(0, 0);
@@ -298,7 +304,7 @@ static void _remove(plr_tim_ptr tim)
             else p->next = t->next;
             _off(t);
             free(t);
-            p_ptr->redraw |= PR_STATUS;
+            plr->redraw |= PR_STATUS;
             break;
         }
     }
@@ -324,7 +330,7 @@ bool plr_tim_add_aux(int id, int count, int parm)
     plr_tim_ptr t;
     assert(count > 0);
     if (count <= 0) return FALSE;
-    if (p_ptr->is_dead) return FALSE;
+    if (plr->is_dead) return FALSE;
     t = _find(id);
     if (t)
     {
@@ -352,7 +358,7 @@ bool plr_tim_augment(int id, int count)
     plr_tim_ptr t;
     assert(count > 0);
     if (count <= 0) return FALSE;
-    if (p_ptr->is_dead) return FALSE;
+    if (plr->is_dead) return FALSE;
     t = _find(id);
     if (t)
     {
@@ -443,7 +449,7 @@ static void _cleanup(void)
             _off(t);
             t = t->next;
             free(x);
-            p_ptr->redraw |= PR_STATUS;
+            plr->redraw |= PR_STATUS;
         }
         else
         {
@@ -455,7 +461,7 @@ static void _cleanup(void)
 void plr_tim_tick(void)
 {
     plr_tim_ptr t;
-    if (p_ptr->is_dead) return;
+    if (plr->is_dead) return;
     _tick = TRUE;
     for (t = _timers; t; t = t->next)
     {
@@ -465,20 +471,20 @@ void plr_tim_tick(void)
             if (info->tick_f)
             {
                 info->tick_f(t);
-                if (p_ptr->is_dead) return;
+                if (plr->is_dead) return;
             }
             else
                 t->count--;
         }
     }
     _cleanup();
-    if (p_ptr->wizard) p_ptr->redraw |= PR_STATUS;
+    if (plr->wizard) plr->redraw |= PR_STATUS;
     _tick = FALSE;
 }
 void plr_tim_fast_tick(void)
 {
     plr_tim_ptr t;
-    if (p_ptr->is_dead) return;
+    if (plr->is_dead) return;
     _tick = TRUE;
     for (t = _timers; t; t = t->next)
     {
@@ -488,14 +494,14 @@ void plr_tim_fast_tick(void)
             if (info->tick_f)
             {
                 info->tick_f(t);
-                if (p_ptr->is_dead) return;
+                if (plr->is_dead) return;
             }
             else
                 t->count--;
         }
     }
     _cleanup();
-    if (p_ptr->wizard) p_ptr->redraw |= PR_STATUS;
+    if (plr->wizard) plr->redraw |= PR_STATUS;
     _tick = FALSE;
 }
 void plr_tim_clear(void)
@@ -506,7 +512,7 @@ void plr_tim_clear(void)
         _timers = _timers->next;
         free(x);
     }
-    p_ptr->redraw |= PR_STATUS;
+    plr->redraw |= PR_STATUS;
 }
 bool plr_tim_dispel(void)
 {
@@ -523,7 +529,7 @@ bool plr_tim_dispel(void)
             t = t->next;
             free(x);
             notice = TRUE;
-            p_ptr->redraw |= PR_STATUS;
+            plr->redraw |= PR_STATUS;
         }
         else
         {
@@ -602,7 +608,7 @@ void plr_tim_calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr attack_info)
             info->calc_weapon_bonuses_f(t, obj, attack_info);
     }
 }
-void plr_tim_calc_shooter_bonuses(obj_ptr obj, shooter_info_ptr shooter_info)
+void plr_tim_calc_shooter_bonuses(obj_ptr obj, plr_shoot_info_ptr shooter_info)
 {
     plr_tim_ptr t;
     for (t = _timers; t; t = t->next)
@@ -661,13 +667,13 @@ void plr_tim_status_bar(void)
         status_display_t sd;
         if (!info->status_display_f) continue;
         sd = info->status_display_f(t);
-        if (p_ptr->wizard)
+        if (plr->wizard)
             doc_printf(doc, "<color:%c>%s(%d)</color> ", attr_to_attr_char(sd.color), sd.name, t->count);
         else
             doc_printf(doc, "<color:%c>%s</color> ", attr_to_attr_char(sd.color), sd.name);
         ct++;
         long_len += strlen(sd.name) + 1;
-        if (p_ptr->wizard) long_len += 4;  /* XXX not quite right */
+        if (plr->wizard) long_len += 4;  /* XXX not quite right */
         short_len += strlen(sd.abbrev);
     }
     if (custom.name)
@@ -762,8 +768,8 @@ void plr_tim_load(savefile_ptr file)
     for (i = 0; i < ct; i++)
     {
         s16b id = savefile_read_s16b(file);
-        s16b ct = savefile_read_s16b(file);
-        plr_tim_ptr t = _alloc(id, ct);
+        s16b count = savefile_read_s16b(file);
+        plr_tim_ptr t = _alloc(id, count);
         t->flags = savefile_read_u16b(file);
         t->parm = savefile_read_s16b(file);
         _add_tail(t);
@@ -789,7 +795,7 @@ void plr_tim_save(savefile_ptr file)
 static int _plr_save_odds(int rlev, int boost)
 {
     int roll = 100 + rlev/2 + boost;
-    int sav = p_ptr->skills.sav;
+    int sav = plr->skills.sav;
     int odds = sav * 100 / roll;
     return odds;
 }
@@ -804,17 +810,17 @@ static bool _plr_save(int rlev, int boost)
 static bool _aura_cold_on(plr_tim_ptr timer)
 {
     msg_print("You are enveloped by a freezing aura!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _aura_cold_off(plr_tim_ptr timer)
 {
     msg_print("Your freezing aura disappears.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _aura_cold_bonus(plr_tim_ptr timer)
 {
-    p_ptr->sh_cold = TRUE;
+    plr->sh_cold = TRUE;
 }
 static void _aura_cold_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
@@ -842,17 +848,17 @@ static plr_tim_info_ptr _aura_cold(void)
 static bool _aura_elec_on(plr_tim_ptr timer)
 {
     msg_print("You are enveloped in sparks!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _aura_elec_off(plr_tim_ptr timer)
 {
     msg_print("Your aura of electricity disappears.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _aura_elec_bonus(plr_tim_ptr timer)
 {
-    p_ptr->sh_elec = TRUE;
+    plr->sh_elec = TRUE;
 }
 static void _aura_elec_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
@@ -880,17 +886,17 @@ static plr_tim_info_ptr _aura_elec(void)
 static bool _aura_fire_on(plr_tim_ptr timer)
 {
     msg_print("You are enveloped by a fiery aura!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _aura_fire_off(plr_tim_ptr timer)
 {
     msg_print("Your fiery aura disappears.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _aura_fire_bonus(plr_tim_ptr timer)
 {
-    p_ptr->sh_fire = TRUE;
+    plr->sh_fire = TRUE;
 }
 static void _aura_fire_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
@@ -943,24 +949,24 @@ static plr_tim_info_ptr _aura_holy(void)
  ************************************************************************/
 static bool _aura_shards_on(plr_tim_ptr timer)
 {
-    if (p_ptr->pclass == CLASS_MIRROR_MASTER)
+    if (plr->pclass == CLASS_MIRROR_MASTER)
         msg_print("You were enveloped by mirror shards.");
     else
         msg_print("You are enveloped in shards!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _aura_shards_off(plr_tim_ptr timer)
 {
-    if (p_ptr->pclass == CLASS_MIRROR_MASTER)
+    if (plr->pclass == CLASS_MIRROR_MASTER)
         msg_print("The mirror shards disappear.");
     else
         msg_print("You are no longer enveloped in shards.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _aura_shards_bonus(plr_tim_ptr timer)
 {
-    p_ptr->sh_shards = TRUE;
+    plr->sh_shards = TRUE;
 }
 static void _aura_shards_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
@@ -988,48 +994,49 @@ static plr_tim_info_ptr _aura_shards(void)
 static bool _berserk_on(plr_tim_ptr timer)
 {
     msg_print("You feel like a killing machine!");
-    p_ptr->update |= PU_BONUS | PU_HP;
+    fear_clear_p();
+    plr->update |= PU_BONUS | PU_HP;
     return TRUE;
 }
 static void _berserk_off(plr_tim_ptr timer)
 {
     msg_print("You feel less Berserk.");
-    p_ptr->update |= PU_BONUS | PU_HP;
+    plr->update |= PU_BONUS | PU_HP;
 }
 static void _berserk_bonus(plr_tim_ptr timer)
 {
-    int pct = p_ptr->pclass == CLASS_RAGE_MAGE ? 50 : 100; /* XXX tweak me */
-    res_add_immune(RES_FEAR);
-    p_ptr->pspeed += 3;
+    int pct = plr->pclass == CLASS_RAGE_MAGE ? 50 : 100; /* XXX tweak me */
+    res_add_immune(GF_FEAR);
+    plr->pspeed += 3;
     /* Note: The Rage Mage is no longer skill smashed by Berserk */
-    p_ptr->to_a -= 10 * pct / 100;
-    p_ptr->dis_to_a -= 10 * pct / 100;
-    p_ptr->skills.stl -= 7 * pct / 100;
-    p_ptr->skills.dev -= 20 * pct / 100;
-    p_ptr->skills.sav -= 30 * pct / 100;
-    p_ptr->skills.srh -= 15 * pct / 100;
-    p_ptr->skills.fos -= 15 * pct / 100;
-    p_ptr->skill_tht -= 20;
-    p_ptr->skill_dig += 30;
-    p_ptr->to_h_m += 12;
-    p_ptr->innate_attack_info.to_h += 12;
-    p_ptr->innate_attack_info.dis_to_h += 12;
-    if (p_ptr->prace != RACE_MON_BEHOLDER)
+    plr->to_a -= 10 * pct / 100;
+    plr->dis_to_a -= 10 * pct / 100;
+    plr->skills.stl -= 7 * pct / 100;
+    plr->skills.dev -= 20 * pct / 100;
+    plr->skills.sav -= 30 * pct / 100;
+    plr->skills.srh -= 15 * pct / 100;
+    plr->skills.fos -= 15 * pct / 100;
+    plr->skill_tht -= 20;
+    plr->skill_dig += 30;
+    plr->to_h_m += 12;
+    plr->innate_attack_info.to_h += 12;
+    plr->innate_attack_info.dis_to_h += 12;
+    if (plr->prace != RACE_MON_BEHOLDER)
     {
-        int to_d = 3 + p_ptr->lev/5;
-        p_ptr->to_d_m += to_d;
-        p_ptr->innate_attack_info.to_d += to_d;
-        p_ptr->innate_attack_info.dis_to_d += to_d;
+        int to_d = 3 + plr->lev/5;
+        plr->to_d_m += to_d;
+        plr->innate_attack_info.to_d += to_d;
+        plr->innate_attack_info.dis_to_d += to_d;
     }
 }
 static void _berserk_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_IM_FEAR);
+    add_flag(flgs, OF_IM_(GF_FEAR));
     add_flag(flgs, OF_SPEED);
 }
 static void _berserk_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
 {
-    int to_d = 3 + p_ptr->lev/5;
+    int to_d = 3 + plr->lev/5;
     info->to_h += 12;
     info->dis_to_h += 12;
     /* Dual wielding prorates damage across weaponry (unless Genji) ... */
@@ -1046,7 +1053,7 @@ static void _berserk_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_inf
         info->dis_to_d += to_d;
     }
 }
-static void _berserk_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, shooter_info_ptr info)
+static void _berserk_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, plr_shoot_info_ptr info)
 {
     info->to_h -= 12;
     info->dis_to_h -= 12;
@@ -1076,27 +1083,27 @@ static plr_tim_info_ptr _berserk(void)
 static bool _blessed_on(plr_tim_ptr timer)
 {
     msg_print("You feel righteous!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _blessed_off(plr_tim_ptr timer)
 {
     msg_print("The prayer has expired.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _blessed_bonus(plr_tim_ptr timer)
 {
     plr_bonus_ac(5);
-    p_ptr->to_h_m += 10;
-    p_ptr->innate_attack_info.to_h += 10;
-    p_ptr->innate_attack_info.dis_to_h += 10;
+    plr->to_h_m += 10;
+    plr->innate_attack_info.to_h += 10;
+    plr->innate_attack_info.dis_to_h += 10;
 }
 static void _blessed_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
 {
     info->to_h += 10;
     info->dis_to_h += 10;
 }
-static void _blessed_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, shooter_info_ptr info)
+static void _blessed_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, plr_shoot_info_ptr info)
 {
     info->to_h += 10;
     info->dis_to_h += 10;
@@ -1123,12 +1130,12 @@ static plr_tim_info_ptr _blessed(void)
  ************************************************************************/
 static void _blind_status(void)
 {
-    p_ptr->update |= PU_UN_VIEW | PU_UN_LITE | PU_VIEW | PU_LITE | PU_MONSTERS | PU_MON_LITE;
+    plr->update |= PU_UN_VIEW | PU_UN_LIGHT | PU_VIEW | PU_LIGHT | PU_MONSTERS | PU_MON_LIGHT;
     if (prace_is_(RACE_MON_BEHOLDER))
-        p_ptr->update |= PU_BONUS;
+        plr->update |= PU_BONUS;
 
-    p_ptr->redraw |= PR_MAP | PR_EFFECTS;
-    p_ptr->window |= PW_OVERHEAD | PW_DUNGEON;
+    plr->redraw |= PR_MAP | PR_EFFECTS;
+    plr->window |= PW_OVERHEAD | PW_DUNGEON;
 }
 static bool _blind_on(plr_tim_ptr timer)
 {
@@ -1145,7 +1152,7 @@ static void _blind_off(plr_tim_ptr timer)
 static void _blind_tick(plr_tim_ptr timer)
 {
     do { timer->count--; }
-    while (timer->count > 0 && res_save_default(RES_BLIND));
+    while (timer->count > 0 && res_save_default(GF_BLIND));
 }
 static void _blind_display(plr_tim_ptr timer, doc_ptr doc)
 {
@@ -1173,22 +1180,23 @@ static bool _brand_acid_on(plr_tim_ptr timer)
     plr_tim_remove(T_BRAND_COLD);
     plr_tim_remove(T_BRAND_POIS);
     msg_print("For a while, the blows you deal will melt with acid!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _brand_acid_off(plr_tim_ptr timer)
 {
     msg_print("Your temporary acidic brand fades away.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _brand_acid_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
 {
     add_flag(info->obj_flags, OF_BRAND_ACID);
     add_flag(info->obj_known_flags, OF_BRAND_ACID);
 }
-static void _brand_acid_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, shooter_info_ptr info)
+static void _brand_acid_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, plr_shoot_info_ptr info)
 {
     add_flag(info->flags, OF_BRAND_ACID);
+    add_flag(info->known_flags, OF_BRAND_ACID);
 }
 static void _brand_acid_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
 {
@@ -1196,7 +1204,8 @@ static void _brand_acid_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
 }
 static bool _brand_acid_dispel(plr_tim_ptr timer, mon_ptr mon)
 {
-    return !BOOL(mon_race(mon)->flagsr & RFR_EFF_RES_ACID_MASK); 
+    if (mon_res_pct(mon, GF_ACID) > 0) return FALSE;
+    return TRUE;
 }
 static status_display_t _brand_acid_display(plr_tim_ptr timer)
 {
@@ -1226,22 +1235,23 @@ static bool _brand_elec_on(plr_tim_ptr timer)
     plr_tim_remove(T_BRAND_COLD);
     plr_tim_remove(T_BRAND_POIS);
     msg_print("For a while, the blows you deal will shock your foes!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _brand_elec_off(plr_tim_ptr timer)
 {
     msg_print("Your temporary electrical brand fades away.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _brand_elec_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
 {
     add_flag(info->obj_flags, OF_BRAND_ELEC);
     add_flag(info->obj_known_flags, OF_BRAND_ELEC);
 }
-static void _brand_elec_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, shooter_info_ptr info)
+static void _brand_elec_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, plr_shoot_info_ptr info)
 {
     add_flag(info->flags, OF_BRAND_ELEC);
+    add_flag(info->known_flags, OF_BRAND_ELEC);
 }
 static void _brand_elec_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
 {
@@ -1249,7 +1259,8 @@ static void _brand_elec_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
 }
 static bool _brand_elec_dispel(plr_tim_ptr timer, mon_ptr mon)
 {
-    return !BOOL(mon_race(mon)->flagsr & RFR_EFF_RES_ELEC_MASK); 
+    if (mon_res_pct(mon, GF_ELEC) > 0) return FALSE;
+    return TRUE;
 }
 static status_display_t _brand_elec_display(plr_tim_ptr timer)
 {
@@ -1279,22 +1290,23 @@ static bool _brand_fire_on(plr_tim_ptr timer)
     plr_tim_remove(T_BRAND_COLD);
     plr_tim_remove(T_BRAND_POIS);
     msg_print("For a while, the blows you deal will burn with fire!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _brand_fire_off(plr_tim_ptr timer)
 {
     msg_print("Your temporary fiery brand fades away.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _brand_fire_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
 {
     add_flag(info->obj_flags, OF_BRAND_FIRE);
     add_flag(info->obj_known_flags, OF_BRAND_FIRE);
 }
-static void _brand_fire_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, shooter_info_ptr info)
+static void _brand_fire_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, plr_shoot_info_ptr info)
 {
     add_flag(info->flags, OF_BRAND_FIRE);
+    add_flag(info->known_flags, OF_BRAND_FIRE);
 }
 static void _brand_fire_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
 {
@@ -1302,7 +1314,8 @@ static void _brand_fire_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
 }
 static bool _brand_fire_dispel(plr_tim_ptr timer, mon_ptr mon)
 {
-    return !BOOL(mon_race(mon)->flagsr & RFR_EFF_RES_FIRE_MASK); 
+    if (mon_res_pct(mon, GF_FIRE) > 0) return FALSE;
+    return TRUE;
 }
 static status_display_t _brand_fire_display(plr_tim_ptr timer)
 {
@@ -1332,22 +1345,23 @@ static bool _brand_cold_on(plr_tim_ptr timer)
     plr_tim_remove(T_BRAND_FIRE);
     plr_tim_remove(T_BRAND_POIS);
     msg_print("For a while, the blows you deal will chill to the bone!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _brand_cold_off(plr_tim_ptr timer)
 {
     msg_print("Your temporary frost brand fades away.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _brand_cold_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
 {
     add_flag(info->obj_flags, OF_BRAND_COLD);
     add_flag(info->obj_known_flags, OF_BRAND_COLD);
 }
-static void _brand_cold_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, shooter_info_ptr info)
+static void _brand_cold_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, plr_shoot_info_ptr info)
 {
     add_flag(info->flags, OF_BRAND_COLD);
+    add_flag(info->known_flags, OF_BRAND_COLD);
 }
 static void _brand_cold_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
 {
@@ -1355,7 +1369,8 @@ static void _brand_cold_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
 }
 static bool _brand_cold_dispel(plr_tim_ptr timer, mon_ptr mon)
 {
-    return !BOOL(mon_race(mon)->flagsr & RFR_EFF_RES_COLD_MASK); 
+    if (mon_res_pct(mon, GF_COLD) > 0) return FALSE;
+    return TRUE;
 }
 static status_display_t _brand_cold_display(plr_tim_ptr timer)
 {
@@ -1385,22 +1400,23 @@ static bool _brand_pois_on(plr_tim_ptr timer)
     plr_tim_remove(T_BRAND_FIRE);
     plr_tim_remove(T_BRAND_COLD);
     msg_print("For a while, the blows you deal will poison your enemies!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _brand_pois_off(plr_tim_ptr timer)
 {
     msg_print("Your temporary poison brand fades away.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _brand_pois_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
 {
     add_flag(info->obj_flags, OF_BRAND_POIS);
     add_flag(info->obj_known_flags, OF_BRAND_POIS);
 }
-static void _brand_pois_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, shooter_info_ptr info)
+static void _brand_pois_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, plr_shoot_info_ptr info)
 {
     add_flag(info->flags, OF_BRAND_POIS);
+    add_flag(info->known_flags, OF_BRAND_POIS);
 }
 static void _brand_pois_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
 {
@@ -1408,7 +1424,8 @@ static void _brand_pois_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
 }
 static bool _brand_pois_dispel(plr_tim_ptr timer, mon_ptr mon)
 {
-    return !BOOL(mon_race(mon)->flagsr & RFR_EFF_RES_POIS_MASK); 
+    if (mon_res_pct(mon, GF_POIS) > 0) return FALSE;
+    return TRUE;
 }
 static status_display_t _brand_pois_display(plr_tim_ptr timer)
 {
@@ -1433,29 +1450,30 @@ static plr_tim_info_ptr _brand_pois(void)
  ************************************************************************/
 static bool _brand_mana_on(plr_tim_ptr timer)
 {
-    if (p_ptr->attack_info[0].type == PAT_MONK || p_ptr->attack_info[1].type == PAT_MONK)
+    if (plr->attack_info[0].type == PAT_MONK || plr->attack_info[1].type == PAT_MONK)
         msg_print("Your fists begin to thrum with power!");
     else
         msg_print("Your weapon begins to thrum with power!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _brand_mana_off(plr_tim_ptr timer)
 {
-    if (p_ptr->attack_info[0].type == PAT_MONK || p_ptr->attack_info[1].type == PAT_MONK)
+    if (plr->attack_info[0].type == PAT_MONK || plr->attack_info[1].type == PAT_MONK)
         msg_print("Your fists no longer thrum with power.");
     else
         msg_print("Your weapon no longer thrums with power.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _brand_mana_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
 {
     add_flag(info->obj_flags, OF_BRAND_MANA);
     add_flag(info->obj_known_flags, OF_BRAND_MANA);
 }
-static void _brand_mana_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, shooter_info_ptr info)
+static void _brand_mana_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, plr_shoot_info_ptr info)
 {
     add_flag(info->flags, OF_BRAND_MANA);
+    add_flag(info->known_flags, OF_BRAND_MANA);
 }
 static void _brand_mana_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
 {
@@ -1486,28 +1504,28 @@ static bool _confused_on(plr_tim_ptr timer)
 {
     msg_print("You are confused!");
     #if 0
-    if (p_ptr->action == ACTION_LEARN) XXX Blue Mage
+    if (plr->action == ACTION_LEARN) XXX Blue Mage
     {
         msg_print("You cannot continue Learning!");
         new_mane = FALSE;
 
-        p_ptr->redraw |= PR_STATE;
-        p_ptr->action = ACTION_NONE;
+        plr->redraw |= PR_STATE;
+        plr->action = ACTION_NONE;
     }
     #endif
     virtue_add(VIRTUE_HARMONY, -1);
-    p_ptr->redraw |= PR_EFFECTS;
+    plr->redraw |= PR_EFFECTS;
     return TRUE;
 }
 static void _confused_off(plr_tim_ptr timer)
 {
     msg_print("You feel less confused now.");
-    p_ptr->redraw |= PR_EFFECTS;
+    plr->redraw |= PR_EFFECTS;
 }
 static void _confused_tick(plr_tim_ptr timer)
 {
     do { timer->count--; }
-    while (timer->count > 0 && res_save_default(RES_CONF));
+    while (timer->count > 0 && res_save_default(GF_CONF));
 }
 static void _confused_display(plr_tim_ptr timer, doc_ptr doc)
 {
@@ -1592,15 +1610,15 @@ static void _cut_change(int old, int new)
     if (new_cut.level > old_cut.level)
     {
         msg_format("You have been given a <color:%c>%s</color>.", attr_to_attr_char(new_cut.attr), new_cut.desc);
-        p_ptr->redraw |= PR_EFFECTS;
-        if (p_ptr->pclass == CLASS_BLOOD_KNIGHT) p_ptr->update = PU_BONUS;
+        plr->redraw |= PR_EFFECTS;
+        if (plr->pclass == CLASS_BLOOD_KNIGHT) plr->update = PU_BONUS;
     }
     else if (new_cut.level < old_cut.level)
     {
         if (new_cut.level == CUT_NONE)
             msg_print("You are no longer bleeding.");
-        p_ptr->redraw |= PR_EFFECTS;
-        if (p_ptr->pclass == CLASS_BLOOD_KNIGHT) p_ptr->update = PU_BONUS;
+        plr->redraw |= PR_EFFECTS;
+        if (plr->pclass == CLASS_BLOOD_KNIGHT) plr->update = PU_BONUS;
     }
 }
 static bool _cut_on(plr_tim_ptr timer)
@@ -1619,7 +1637,7 @@ static void _cut_off(plr_tim_ptr timer)
 }
 static void _cut_tick(plr_tim_ptr timer)
 {
-    int amt = MIN(timer->count, adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
+    int amt = MIN(timer->count, adj_con_fix[plr->stat_ind[A_CON]] + 1);
 
     if (!plr_tim_find(T_INVULN))
     {
@@ -1630,7 +1648,7 @@ static void _cut_tick(plr_tim_ptr timer)
 
     if (timer->count > CUT_MORTAL_WOUND) return; /* mortal wounds do not heal ... you need to see a doctor! */
 
-    if (p_ptr->pclass == CLASS_BLOOD_KNIGHT) /* Blood-Knights *want* to be cut (cf _cauterize_wounds_spell) */
+    if (plr->pclass == CLASS_BLOOD_KNIGHT) /* Blood-Knights *want* to be cut (cf _cauterize_wounds_spell) */
         amt = MAX(1, amt/3);
 
     _cut_add(timer, -amt);
@@ -1660,18 +1678,18 @@ static plr_tim_info_ptr _cut(void)
 static bool _device_power_on(plr_tim_ptr timer)
 {
     msg_print("Your magical devices feel more powerful.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _device_power_off(plr_tim_ptr timer)
 {
     msg_print("Your magical devices return to normal.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _device_power_bonus(plr_tim_ptr timer)
 {
-    int bonus = 1 + (p_ptr->lev + 10)/15;
-    p_ptr->device_power += bonus;
+    int bonus = 1 + (plr->lev + 10)/15;
+    plr->device_power += bonus;
 }
 static void _device_power_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
 {
@@ -1699,13 +1717,13 @@ static plr_tim_info_ptr _device_power(void)
 static bool _ego_whip_on(plr_tim_ptr timer)
 {
     msg_print("Your mind is lashed by an ego whip!");
-    p_ptr->redraw |= PR_EFFECTS;
+    plr->redraw |= PR_EFFECTS;
     return TRUE;
 }
 static void _ego_whip_off(plr_tim_ptr timer)
 {
     msg_print("You shake off the ego whip!");
-    p_ptr->redraw |= PR_EFFECTS;
+    plr->redraw |= PR_EFFECTS;
 }
 static void _ego_whip_tick(plr_tim_ptr timer)
 {
@@ -1738,18 +1756,18 @@ static plr_tim_info_ptr _ego_whip(void)
 static bool _enlarge_weapon_on(plr_tim_ptr timer)
 {
     msg_print("You feel your weapon is much bigger.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _enlarge_weapon_off(plr_tim_ptr timer)
 {
     msg_print("Your weapon returns to normal.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _enlarge_weapon_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
 {
     if (!obj) return;
-    if (obj->name1 != ART_MONKEY_KING) return; /* restricted to 'Ruyi Jingu Bang' */
+    if (!obj_is_specified_art(obj, "\\.Ruyi")) return;
     info->to_dd += 2;
     info->to_ds += 2;
 
@@ -1781,21 +1799,21 @@ static bool _fast_on(plr_tim_ptr timer)
     msg_print("You feel yourself moving much faster!");
     virtue_add(VIRTUE_PATIENCE, -1);
     virtue_add(VIRTUE_DILIGENCE, 1);
-    p_ptr->update |= PU_BONUS;
-    p_ptr->redraw |= PR_EFFECTS;
+    plr->update |= PU_BONUS;
+    plr->redraw |= PR_EFFECTS;
     return TRUE;
 }
 static void _fast_off(plr_tim_ptr timer)
 {
     if (plr_tim_find(T_LIGHT_SPEED)) return;
     msg_print("You feel yourself slow down.");
-    p_ptr->update |= PU_BONUS;
-    p_ptr->redraw |= PR_EFFECTS;
+    plr->update |= PU_BONUS;
+    plr->redraw |= PR_EFFECTS;
 }
 static void _fast_bonus(plr_tim_ptr timer)
 {
     if (plr_tim_find(T_LIGHT_SPEED)) return;
-    if (!p_ptr->riding)
+    if (!plr->riding)
         plr_bonus_speed(10);
 }
 static void _fast_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
@@ -1804,7 +1822,7 @@ static void _fast_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 }
 static bool _fast_dispel(plr_tim_ptr timer, mon_ptr mon)
 {
-    return p_ptr->pspeed < 145;
+    return plr->pspeed < 35;
 }
 static plr_tim_info_ptr _fast(void)
 {
@@ -1824,21 +1842,21 @@ static plr_tim_info_ptr _fast(void)
 static bool _giant_strength_on(plr_tim_ptr timer)
 {
     msg_print("You become gigantic!");
-    p_ptr->update |= PU_BONUS | PU_HP;
+    plr->update |= PU_BONUS | PU_HP;
     return TRUE;
 }
 static void _giant_strength_off(plr_tim_ptr timer)
 {
     msg_print("Your body reverts to normal size.");
-    p_ptr->update |= PU_BONUS | PU_HP;
+    plr->update |= PU_BONUS | PU_HP;
 }
 static void _giant_strength_bonus(plr_tim_ptr timer)
 {
-    p_ptr->skills.thn += 60*p_ptr->lev/50;
+    plr->skills.thn += 60*plr->lev/50;
 }
 static void _giant_strength_stats(plr_tim_ptr timer, s16b stats[MAX_STATS])
 {
-    int amt = 4 * p_ptr->lev / 50; /* 13, 25, 38, 50 */
+    int amt = 4 * plr->lev / 50; /* 13, 25, 38, 50 */
     stats[A_STR] += amt;
     stats[A_DEX] += amt;
     stats[A_CON] += amt;
@@ -1852,7 +1870,7 @@ static void _giant_strength_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 static void _giant_strength_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
 {
     info->blows_calc.wgt /= 2;
-    info->blows_calc.mult += 20;
+    info->blows_calc.mul += 20;
 }
 static status_display_t _giant_strength_display(plr_tim_ptr timer)
 {
@@ -1877,9 +1895,9 @@ static plr_tim_info_ptr _giant_strength(void)
  ************************************************************************/
 static void _hallucinate_status(void)
 {
-    p_ptr->redraw |= PR_EFFECTS | PR_MAP | PR_HEALTH_BARS;
-    p_ptr->update |= PU_MONSTERS;
-    p_ptr->window |= PW_OVERHEAD | PW_DUNGEON;
+    plr->redraw |= PR_EFFECTS | PR_MAP | PR_HEALTH_BARS;
+    plr->update |= PU_MONSTERS;
+    plr->window |= PW_OVERHEAD | PW_DUNGEON;
 }
 static bool _hallucinate_on(plr_tim_ptr timer)
 {
@@ -1895,7 +1913,7 @@ static void _hallucinate_off(plr_tim_ptr timer)
 static void _hallucinate_tick(plr_tim_ptr timer)
 {
     do { timer->count--; }
-    while (timer->count > 0 && res_save_default(RES_CHAOS));
+    while (timer->count > 0 && res_save_default(GF_CHAOS));
 }
 static void _hallucinate_display(plr_tim_ptr timer, doc_ptr doc)
 {
@@ -1919,31 +1937,32 @@ static plr_tim_info_ptr _hallucinate(void)
 static bool _hero_on(plr_tim_ptr timer)
 {
     msg_print("You feel like a hero!");
-    p_ptr->update |= PU_BONUS | PU_HP;
+    fear_clear_p();
+    plr->update |= PU_BONUS | PU_HP;
     return TRUE;
 }
 static void _hero_off(plr_tim_ptr timer)
 {
     msg_print("The heroism wears off.");
-    p_ptr->update |= PU_BONUS | PU_HP;
+    plr->update |= PU_BONUS | PU_HP;
 }
 static void _hero_bonus(plr_tim_ptr timer)
 {
-    p_ptr->to_h_m += 12;
-    p_ptr->innate_attack_info.to_h += 12;
-    p_ptr->innate_attack_info.dis_to_h += 12;
-    res_add(RES_FEAR);
+    plr->to_h_m += 12;
+    plr->innate_attack_info.to_h += 12;
+    plr->innate_attack_info.dis_to_h += 12;
+    res_add(GF_FEAR);
 }
 static void _hero_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_FEAR);
+    add_flag(flgs, OF_RES_(GF_FEAR));
 }
 static void _hero_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
 {
     info->to_h += 12;
     info->dis_to_h += 12;
 }
-static void _hero_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, shooter_info_ptr info)
+static void _hero_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, plr_shoot_info_ptr info)
 {
     info->to_h += 12;
     info->dis_to_h += 12;
@@ -1975,21 +1994,21 @@ static bool _im_acid_on(plr_tim_ptr timer)
     plr_tim_remove(T_IM_FIRE);
     plr_tim_remove(T_IM_COLD);
     msg_print("You feel immune to acid!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _im_acid_off(plr_tim_ptr timer)
 {
     msg_print("You are no longer immune to acid.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _im_acid_bonus(plr_tim_ptr timer)
 {
-    res_add_immune(RES_ACID);
+    res_add_immune(GF_ACID);
 }
 static void _im_acid_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_IM_ACID);
+    add_flag(flgs, OF_IM_(GF_ACID));
 }
 static bool _im_acid_dispel(plr_tim_ptr timer, mon_ptr mon)
 {
@@ -2021,21 +2040,21 @@ static bool _im_elec_on(plr_tim_ptr timer)
     plr_tim_remove(T_IM_FIRE);
     plr_tim_remove(T_IM_COLD);
     msg_print("You feel immune to electricity!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _im_elec_off(plr_tim_ptr timer)
 {
     msg_print("You are no longer immune to electricity.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _im_elec_bonus(plr_tim_ptr timer)
 {
-    res_add_immune(RES_ELEC);
+    res_add_immune(GF_ELEC);
 }
 static void _im_elec_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_IM_ELEC);
+    add_flag(flgs, OF_IM_(GF_ELEC));
 }
 static bool _im_elec_dispel(plr_tim_ptr timer, mon_ptr mon)
 {
@@ -2067,21 +2086,21 @@ static bool _im_fire_on(plr_tim_ptr timer)
     plr_tim_remove(T_IM_ELEC);
     plr_tim_remove(T_IM_COLD);
     msg_print("You feel immune to fire!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _im_fire_off(plr_tim_ptr timer)
 {
     msg_print("You are no longer immune to fire.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _im_fire_bonus(plr_tim_ptr timer)
 {
-    res_add_immune(RES_FIRE);
+    res_add_immune(GF_FIRE);
 }
 static void _im_fire_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_IM_FIRE);
+    add_flag(flgs, OF_IM_(GF_FIRE));
 }
 static bool _im_fire_dispel(plr_tim_ptr timer, mon_ptr mon)
 {
@@ -2113,21 +2132,21 @@ static bool _im_cold_on(plr_tim_ptr timer)
     plr_tim_remove(T_IM_ELEC);
     plr_tim_remove(T_IM_FIRE);
     msg_print("You feel immune to cold!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _im_cold_off(plr_tim_ptr timer)
 {
     msg_print("You are no longer immune to cold.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _im_cold_bonus(plr_tim_ptr timer)
 {
-    res_add_immune(RES_COLD);
+    res_add_immune(GF_COLD);
 }
 static void _im_cold_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_IM_COLD);
+    add_flag(flgs, OF_IM_(GF_COLD));
 }
 static bool _im_cold_dispel(plr_tim_ptr timer, mon_ptr mon)
 {
@@ -2156,17 +2175,17 @@ static plr_tim_info_ptr _im_cold(void)
 static bool _infravision_on(plr_tim_ptr timer)
 {
     msg_print("Your eyes begin to tingle!");
-    p_ptr->update |= PU_BONUS | PU_MONSTERS;
+    plr->update |= PU_BONUS | PU_MONSTERS;
     return TRUE;
 }
 static void _infravision_off(plr_tim_ptr timer)
 {
     msg_print("Your eyes stop tingling.");
-    p_ptr->update |= PU_BONUS | PU_MONSTERS;
+    plr->update |= PU_BONUS | PU_MONSTERS;
 }
 static void _infravision_bonus(plr_tim_ptr timer)
 {
-    p_ptr->see_infra += 3;
+    plr->see_infra += 3;
 }
 static void _infravision_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
@@ -2193,24 +2212,24 @@ static plr_tim_info_ptr _infravision(void)
  ************************************************************************/
 static bool _inv_prot_on(plr_tim_ptr timer)
 {
-    if (p_ptr->pclass == CLASS_ROGUE)
+    if (plr->pclass == CLASS_ROGUE)
         msg_print("You feel your loot is safe.");
     else
         msg_print("Your inventory seems safer now.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _inv_prot_off(plr_tim_ptr timer)
 {
-    if (p_ptr->pclass == CLASS_ROGUE)
+    if (plr->pclass == CLASS_ROGUE)
         msg_print("Your loot feels exposed once again.");
     else
         msg_print("Your inventory is no longer protected.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _inv_prot_bonus(plr_tim_ptr timer)
 {
-    p_ptr->inven_prot = TRUE;
+    plr->inven_prot = TRUE;
 }
 static status_display_t _inv_prot_display(plr_tim_ptr timer)
 {
@@ -2237,22 +2256,40 @@ static bool _invuln_on(plr_tim_ptr timer)
     virtue_add(VIRTUE_HONOUR, -2);
     virtue_add(VIRTUE_SACRIFICE, -3);
     virtue_add(VIRTUE_VALOUR, -5);
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _invuln_off(plr_tim_ptr timer)
 {
-    msg_print("The invulnerability wears off.");
-    p_ptr->energy_need += ENERGY_NEED();
-    p_ptr->update |= PU_BONUS;
+    msg_print("Your shield of Invulnerability collapses!");
+    plr->energy_need += ENERGY_NEED();
+    plr->update |= PU_BONUS;
+}
+static void _invuln_tick(plr_tim_ptr timer)
+{
+    /* invulnerability is a fixed damage shield. timer->count is the
+     * amount of damage that can still be absorbed. cf take_hit */
+    if (timer->count > 0) /* paranoia */
+    {
+        int amt = (timer->count + 9)/10; /* fast tick timer */
+        int min = plr->mhp/20;
+
+        if (amt < min) amt = min;
+        if (amt > timer->count) amt = timer->count;
+
+        if (energy_use) /* e.g. fast walking ninjas */
+            amt = amt * energy_use / 100;
+
+        timer->count -= amt;
+    }
 }
 static void _invuln_bonus(plr_tim_ptr timer)
 {
-    res_add_immune(RES_FEAR);
+    res_add_immune(GF_FEAR);
 }
 static void _invuln_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_IM_FEAR);
+    add_flag(flgs, OF_IM_(GF_FEAR));
 }
 static status_display_t _invuln_display(plr_tim_ptr timer)
 {
@@ -2264,6 +2301,7 @@ static plr_tim_info_ptr _invuln(void)
     info->desc = "You are invulnerable.";
     info->on_f = _invuln_on;
     info->off_f = _invuln_off;
+    info->tick_f = _invuln_tick;
     info->calc_bonuses_f = _invuln_bonus;
     info->flags_f = _invuln_flags;
     info->status_display_f = _invuln_display;
@@ -2278,18 +2316,18 @@ static plr_tim_info_ptr _invuln(void)
 static bool _kutar_expand_on(plr_tim_ptr timer)
 {
     msg_print("Your body expands horizontally.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _kutar_expand_off(plr_tim_ptr timer)
 {
     msg_print("Your body returns to normal.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _kutar_expand_bonus(plr_tim_ptr timer)
 {
-    plr_bonus_ac(10 + 40*p_ptr->lev/50);
-    p_ptr->vuln_magic = TRUE;
+    plr_bonus_ac(10 + 40*plr->lev/50);
+    plr->vuln_magic = TRUE;
 }
 static status_display_t _kutar_expand_display(plr_tim_ptr timer)
 {
@@ -2312,17 +2350,17 @@ static plr_tim_info_ptr _kutar_expand(void)
 static bool _levitation_on(plr_tim_ptr timer)
 {
     msg_print("You begin to fly!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _levitation_off(plr_tim_ptr timer)
 {
     msg_print("You stop flying.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _levitation_bonus(plr_tim_ptr timer)
 {
-    p_ptr->levitation = TRUE;
+    plr->levitation = TRUE;
 }
 static void _levitation_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
@@ -2352,20 +2390,20 @@ static bool _light_speed_on(plr_tim_ptr timer)
     msg_print("You feel yourself moving <color:y>unbelievably fast</color>!");
     virtue_add(VIRTUE_PATIENCE, -1);
     virtue_add(VIRTUE_DILIGENCE, 1);
-    p_ptr->update |= PU_BONUS;
-    p_ptr->redraw |= PR_EFFECTS;
+    plr->update |= PU_BONUS;
+    plr->redraw |= PR_EFFECTS;
     return TRUE;
 }
 static void _light_speed_off(plr_tim_ptr timer)
 {
     msg_print("You feel yourself <color:U>slow down</color>.");
-    p_ptr->update |= PU_BONUS;
-    p_ptr->redraw |= PR_EFFECTS;
+    plr->update |= PU_BONUS;
+    plr->redraw |= PR_EFFECTS;
 }
 static void _light_speed_bonus(plr_tim_ptr timer)
 {
-    if (!p_ptr->riding)
-        p_ptr->pspeed += 500; /* calc_bonuses will trim it later to 209 = 110 + 99 */
+    if (!plr->riding)
+        plr->pspeed += 500; /* calc_bonuses will trim it later */
 }
 static void _light_speed_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
@@ -2373,7 +2411,7 @@ static void _light_speed_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 }
 static bool _light_speed_dispel(plr_tim_ptr timer, mon_ptr mon)
 {
-    return mon->mspeed < 136;
+    return mon->mspeed < 25;
 }
 static status_display_t _light_speed_display(plr_tim_ptr timer)
 {
@@ -2399,28 +2437,28 @@ static plr_tim_info_ptr _light_speed(void)
 static bool _magical_armor_on(plr_tim_ptr timer)
 {
     msg_print("You feel more resistant to magic.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _magical_armor_off(plr_tim_ptr timer)
 {
     msg_print("You feel less resistant to magic.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _magical_armor_bonus(plr_tim_ptr timer)
 {
-    p_ptr->res_magic = TRUE;
-    plr_bonus_ac(10 + 40*p_ptr->lev/50);
-    res_add(RES_BLIND);
-    res_add(RES_CONF);
-    p_ptr->reflect = TRUE;
-    p_ptr->free_act++;
-    p_ptr->levitation = TRUE;
+    plr->res_magic = TRUE;
+    plr_bonus_ac(10 + 40*plr->lev/50);
+    res_add(GF_BLIND);
+    res_add(GF_CONF);
+    plr->reflect = TRUE;
+    plr->free_act++;
+    plr->levitation = TRUE;
 }
 static void _magical_armor_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_BLIND);
-    add_flag(flgs, OF_RES_CONF);
+    add_flag(flgs, OF_RES_(GF_BLIND));
+    add_flag(flgs, OF_RES_(GF_CONF));
     add_flag(flgs, OF_REFLECT);
     add_flag(flgs, OF_FREE_ACT);
     add_flag(flgs, OF_LEVITATION);
@@ -2503,14 +2541,14 @@ static bool _paralyzed_on(plr_tim_ptr timer)
 {
     if (!(timer->flags & TF_NO_MSG))
         msg_print("<color:v>You are paralyzed!</color>");
-    p_ptr->redraw |= PR_EFFECTS;
+    plr->redraw |= PR_EFFECTS;
     return TRUE;
 }
 static void _paralyzed_off(plr_tim_ptr timer)
 {
     if (!(timer->flags & TF_NO_MSG))
         msg_print("<color:B>You can move again.</color>");
-    p_ptr->redraw |= PR_EFFECTS;
+    plr->redraw |= PR_EFFECTS;
 }
 static void _paralyzed_tick(plr_tim_ptr timer)
 {
@@ -2540,18 +2578,18 @@ static plr_tim_info_ptr _paralyzed(void)
 static bool _passwall_on(plr_tim_ptr timer)
 {
     msg_print("You become ethereal.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _passwall_off(plr_tim_ptr timer)
 {
     msg_print("You are no longer ethereal.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _passwall_bonus(plr_tim_ptr timer)
 {
-    p_ptr->pass_wall = TRUE;
-    p_ptr->no_passwall_dam = TRUE;
+    plr->pass_wall = TRUE;
+    plr->no_passwall_dam = TRUE;
 }
 static status_display_t _passwall_display(plr_tim_ptr timer)
 {
@@ -2574,25 +2612,25 @@ static plr_tim_info_ptr _passwall(void)
  ************************************************************************/
 static bool _poison_on(plr_tim_ptr timer)
 {
-    p_ptr->redraw |= PR_EFFECTS;
+    plr->redraw |= PR_EFFECTS;
     return TRUE;
 }
 static void _poison_add(plr_tim_ptr timer, int amt)
 {
     timer->count += amt;
-    p_ptr->redraw |= PR_EFFECTS;
+    plr->redraw |= PR_EFFECTS;
 }
 static void _poison_off(plr_tim_ptr timer)
 {
     msg_print("You are no longer poisoned.");
-    p_ptr->redraw |= PR_EFFECTS;
+    plr->redraw |= PR_EFFECTS;
 }
 static void _poison_tick(plr_tim_ptr timer)
 {
     if (timer->count > 0) /* paranoia */
     {
         int amt = (timer->count + 6)/7; /* XXX 700 counters are high-end; perhaps 1000 max */
-        int min = p_ptr->mhp/60;
+        int min = plr->mhp/60;
 
         if (amt < min)
         {
@@ -2609,7 +2647,7 @@ static void _poison_tick(plr_tim_ptr timer)
             take_hit(DAMAGE_NOESCAPE, amt, "poison");
         }
         timer->count -= amt;
-        p_ptr->redraw |= PR_EFFECTS;
+        plr->redraw |= PR_EFFECTS;
     }
 }
 static void _poison_display(plr_tim_ptr timer, doc_ptr doc)
@@ -2643,7 +2681,7 @@ static void _prot_evil_off(plr_tim_ptr timer)
 }
 static status_display_t _prot_evil_display(plr_tim_ptr timer)
 {
-    return status_display_create("PrtEvl", "Ev", TERM_SLATE);
+    return status_display_create("PrtEvl", "Ev", TERM_YELLOW);
 }
 static plr_tim_info_ptr _prot_evil(void)
 {
@@ -2656,22 +2694,48 @@ static plr_tim_info_ptr _prot_evil(void)
 }
 
 /************************************************************************
+ * T_PROT_GOOD
+ ************************************************************************/
+static bool _prot_good_on(plr_tim_ptr timer)
+{
+    msg_print("You feel safe from good!");
+    return TRUE;
+}
+static void _prot_good_off(plr_tim_ptr timer)
+{
+    msg_print("You no longer feel safe from good.");
+}
+static status_display_t _prot_good_display(plr_tim_ptr timer)
+{
+    return status_display_create("PrtGood", "Gd", TERM_L_DARK);
+}
+static plr_tim_info_ptr _prot_good(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(T_PROT_GOOD, "Protection from Good");
+    info->desc = "You are protected from the melee attacks of good monsters.";
+    info->on_f = _prot_good_on;
+    info->off_f = _prot_good_off;
+    info->status_display_f = _prot_good_display;
+    return info;
+}
+
+/************************************************************************
  * T_REFLECT
  ************************************************************************/
 static bool _reflect_on(plr_tim_ptr timer)
 {
     msg_print("Your body becomes smooth.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _reflect_off(plr_tim_ptr timer)
 {
     msg_print("Your body is no longer smooth.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _reflect_bonus(plr_tim_ptr timer)
 {
-    p_ptr->reflect = TRUE;
+    plr->reflect = TRUE;
 }
 static void _reflect_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
@@ -2699,19 +2763,19 @@ static plr_tim_info_ptr _reflect(void)
 static bool _regen_on(plr_tim_ptr timer)
 {
     msg_print("You feel yourself regenerating quickly!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _regen_off(plr_tim_ptr timer)
 {
     msg_print("You feel yourself regenerating slowly.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _regen_bonus(plr_tim_ptr timer)
 {
     int amt = timer->parm;
     if (!amt) amt = 100;
-    p_ptr->regen += amt;
+    plr->regen += amt;
 }
 static void _regen_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
@@ -2739,25 +2803,25 @@ static plr_tim_info_ptr _regen(void)
 static bool _res_acid_on(plr_tim_ptr timer)
 {
     msg_print("You feel resistant to acid!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _res_acid_off(plr_tim_ptr timer)
 {
     msg_print("You feel less resistant to acid.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _res_acid_bonus(plr_tim_ptr timer)
 {
-    res_add(RES_ACID);
+    res_add(GF_ACID);
 }
 static void _res_acid_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_ACID);
+    add_flag(flgs, OF_RES_(GF_ACID));
 }
 static bool _res_acid_dispel(plr_tim_ptr timer, mon_ptr mon)
 {
-    return mon_has_breath(mon, GF_ACID) && res_pct(RES_ACID) < 75;
+    return mon_has_breath(mon, GF_ACID) && res_pct(GF_ACID) < 75;
 }
 static status_display_t _res_acid_display(plr_tim_ptr timer)
 {
@@ -2782,25 +2846,25 @@ static plr_tim_info_ptr _res_acid(void)
 static bool _res_elec_on(plr_tim_ptr timer)
 {
     msg_print("You feel resistant to electricity!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _res_elec_off(plr_tim_ptr timer)
 {
     msg_print("You feel less resistant to electricity.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _res_elec_bonus(plr_tim_ptr timer)
 {
-    res_add(RES_ELEC);
+    res_add(GF_ELEC);
 }
 static void _res_elec_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_ELEC);
+    add_flag(flgs, OF_RES_(GF_ELEC));
 }
 static bool _res_elec_dispel(plr_tim_ptr timer, mon_ptr mon)
 {
-    return mon_has_breath(mon, GF_ELEC) && res_pct(RES_ELEC) < 75;
+    return mon_has_breath(mon, GF_ELEC) && res_pct(GF_ELEC) < 75;
 }
 static status_display_t _res_elec_display(plr_tim_ptr timer)
 {
@@ -2825,25 +2889,25 @@ static plr_tim_info_ptr _res_elec(void)
 static bool _res_fire_on(plr_tim_ptr timer)
 {
     msg_print("You feel resistant to fire!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _res_fire_off(plr_tim_ptr timer)
 {
     msg_print("You feel less resistant to fire.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _res_fire_bonus(plr_tim_ptr timer)
 {
-    res_add(RES_FIRE);
+    res_add(GF_FIRE);
 }
 static void _res_fire_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_FIRE);
+    add_flag(flgs, OF_RES_(GF_FIRE));
 }
 static bool _res_fire_dispel(plr_tim_ptr timer, mon_ptr mon)
 {
-    return mon_has_breath(mon, GF_FIRE) && res_pct(RES_FIRE) < 75;
+    return mon_has_breath(mon, GF_FIRE) && res_pct(GF_FIRE) < 75;
 }
 static status_display_t _res_fire_display(plr_tim_ptr timer)
 {
@@ -2868,25 +2932,25 @@ static plr_tim_info_ptr _res_fire(void)
 static bool _res_cold_on(plr_tim_ptr timer)
 {
     msg_print("You feel resistant to cold!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _res_cold_off(plr_tim_ptr timer)
 {
     msg_print("You feel less resistant to cold.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _res_cold_bonus(plr_tim_ptr timer)
 {
-    res_add(RES_COLD);
+    res_add(GF_COLD);
 }
 static void _res_cold_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_COLD);
+    add_flag(flgs, OF_RES_(GF_COLD));
 }
 static bool _res_cold_dispel(plr_tim_ptr timer, mon_ptr mon)
 {
-    return mon_has_breath(mon, GF_COLD) && res_pct(RES_COLD) < 75;
+    return mon_has_breath(mon, GF_COLD) && res_pct(GF_COLD) < 75;
 }
 static status_display_t _res_cold_display(plr_tim_ptr timer)
 {
@@ -2911,25 +2975,25 @@ static plr_tim_info_ptr _res_cold(void)
 static bool _res_pois_on(plr_tim_ptr timer)
 {
     msg_print("You feel resistant to poison!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _res_pois_off(plr_tim_ptr timer)
 {
     msg_print("You feel less resistant to poison.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _res_pois_bonus(plr_tim_ptr timer)
 {
-    res_add(RES_POIS);
+    res_add(GF_POIS);
 }
 static void _res_pois_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_RES_(GF_POIS));
 }
 static bool _res_pois_dispel(plr_tim_ptr timer, mon_ptr mon)
 {
-    return (mon_has_breath(mon, GF_POIS) || mon_has_breath(mon, GF_NUKE)) && res_pct(RES_POIS) < 75;
+    return (mon_has_breath(mon, GF_POIS) || mon_has_breath(mon, GF_NUKE)) && res_pct(GF_POIS) < 75;
 }
 static status_display_t _res_pois_display(plr_tim_ptr timer)
 {
@@ -2949,26 +3013,64 @@ static plr_tim_info_ptr _res_pois(void)
 }
 
 /************************************************************************
+ * T_RES_CONF
+ ************************************************************************/
+static bool _res_conf_on(plr_tim_ptr timer)
+{
+    msg_print("You feel resistant to confusion!");
+    plr->update |= PU_BONUS;
+    return TRUE;
+}
+static void _res_conf_off(plr_tim_ptr timer)
+{
+    msg_print("You feel less resistant to confusion.");
+    plr->update |= PU_BONUS;
+}
+static void _res_conf_bonus(plr_tim_ptr timer)
+{
+    res_add(GF_CONF);
+}
+static void _res_conf_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
+{
+    add_flag(flgs, OF_RES_(GF_CONF));
+}
+static status_display_t _res_conf_display(plr_tim_ptr timer)
+{
+    return status_display_create("Conf", "Cf", TERM_L_UMBER);
+}
+static plr_tim_info_ptr _res_conf(void)
+{
+    plr_tim_info_ptr info = plr_tim_info_alloc(T_RES_CONF, "Resist Confusion");
+    info->desc = "You are resistant to conf.";
+    info->on_f = _res_conf_on;
+    info->off_f = _res_conf_off;
+    info->calc_bonuses_f = _res_conf_bonus;
+    info->flags_f = _res_conf_flags;
+    info->status_display_f = _res_conf_display;
+    return info;
+}
+
+/************************************************************************
  * T_RES_NETHER
  ************************************************************************/
 static bool _res_nether_on(plr_tim_ptr timer)
 {
     msg_print("You feel resistant to nether!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _res_nether_off(plr_tim_ptr timer)
 {
     msg_print("You feel less resistant to nether.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _res_nether_bonus(plr_tim_ptr timer)
 {
-    res_add(RES_NETHER);
+    res_add(GF_NETHER);
 }
 static void _res_nether_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_NETHER);
+    add_flag(flgs, OF_RES_(GF_NETHER));
 }
 static status_display_t _res_nether_display(plr_tim_ptr timer)
 {
@@ -2992,21 +3094,21 @@ static plr_tim_info_ptr _res_nether(void)
 static bool _res_disen_on(plr_tim_ptr timer)
 {
     msg_print("You feel resistant to disenchantment!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _res_disen_off(plr_tim_ptr timer)
 {
     msg_print("You feel less resistant to disenchantment.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _res_disen_bonus(plr_tim_ptr timer)
 {
-    res_add(RES_DISEN);
+    res_add(GF_DISEN);
 }
 static void _res_disen_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_DISEN);
+    add_flag(flgs, OF_RES_(GF_DISEN));
 }
 static status_display_t _res_disen_display(plr_tim_ptr timer)
 {
@@ -3030,21 +3132,21 @@ static plr_tim_info_ptr _res_disen(void)
 static bool _res_time_on(plr_tim_ptr timer)
 {
     msg_print("You feel resistant to time!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _res_time_off(plr_tim_ptr timer)
 {
     msg_print("You feel less resistant to time.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _res_time_bonus(plr_tim_ptr timer)
 {
-    res_add(RES_TIME);
+    res_add(GF_TIME);
 }
 static void _res_time_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_TIME);
+    add_flag(flgs, OF_RES_(GF_TIME));
 }
 static status_display_t _res_time_display(plr_tim_ptr timer)
 {
@@ -3065,20 +3167,20 @@ static plr_tim_info_ptr _res_time(void)
 /************************************************************************
  * T_RES_MAGIC
  ************************************************************************/
-static bool _res_magic_on(plr_tim_ptr magicr)
+static bool _res_magic_on(plr_tim_ptr timer)
 {
     msg_print("You have been protected from magic!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
-static void _res_magic_off(plr_tim_ptr magicr)
+static void _res_magic_off(plr_tim_ptr timer)
 {
     msg_print("You are no longer protected from magic.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
-static void _res_magic_bonus(plr_tim_ptr magicr)
+static void _res_magic_bonus(plr_tim_ptr timer)
 {
-    p_ptr->res_magic = TRUE;
+    plr->res_magic = TRUE;
 }
 static status_display_t _res_magic_display(plr_tim_ptr timer)
 {
@@ -3100,7 +3202,7 @@ static plr_tim_info_ptr _res_magic(void)
  ************************************************************************/
 static bool _revenge_on(plr_tim_ptr timer)
 {
-    if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+    if (plr->pclass == CLASS_BLOOD_KNIGHT)
         msg_print("You feel like bloody revenge!");
     else 
         msg_print("You feel like a keeper of commandments!");
@@ -3108,7 +3210,7 @@ static bool _revenge_on(plr_tim_ptr timer)
 }
 static void _revenge_off(plr_tim_ptr timer)
 {
-    if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+    if (plr->pclass == CLASS_BLOOD_KNIGHT)
         msg_print("You no longer feel like bloody revenge.");
     else 
         msg_print("You no longer feel like a keeper.");
@@ -3133,17 +3235,17 @@ static plr_tim_info_ptr _revenge(void)
 static bool _see_invis_on(plr_tim_ptr timer)
 {
     msg_print("Your eyes feel very sensitive!");
-    p_ptr->update |= PU_BONUS | PU_MONSTERS;
+    plr->update |= PU_BONUS | PU_MONSTERS;
     return TRUE;
 }
 static void _see_invis_off(plr_tim_ptr timer)
 {
     msg_print("Your eyes feel less sensitive.");
-    p_ptr->update |= PU_BONUS | PU_MONSTERS;
+    plr->update |= PU_BONUS | PU_MONSTERS;
 }
 static void _see_invis_bonus(plr_tim_ptr timer)
 {
-    p_ptr->see_inv++;
+    plr->see_inv++;
 }
 static void _see_invis_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
@@ -3171,15 +3273,15 @@ static plr_tim_info_ptr _see_invis(void)
 static bool _slow_on(plr_tim_ptr timer)
 {
     msg_print("You feel yourself moving slower!");
-    p_ptr->update |= PU_BONUS;
-    p_ptr->redraw |= PR_EFFECTS;
+    plr->update |= PU_BONUS;
+    plr->redraw |= PR_EFFECTS;
     return TRUE;
 }
 static void _slow_off(plr_tim_ptr timer)
 {
     msg_print("You feel yourself speed up.");
-    p_ptr->update |= PU_BONUS;
-    p_ptr->redraw |= PR_EFFECTS;
+    plr->update |= PU_BONUS;
+    plr->redraw |= PR_EFFECTS;
 }
 static void _slow_tick(plr_tim_ptr timer)
 {
@@ -3188,8 +3290,8 @@ static void _slow_tick(plr_tim_ptr timer)
 }
 static void _slow_bonus(plr_tim_ptr timer)
 {
-    if (!p_ptr->riding)
-        p_ptr->pspeed -= 10;
+    if (!plr->riding)
+        plr->pspeed -= 10;
 }
 static void _slow_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
@@ -3253,28 +3355,28 @@ static plr_tim_info_ptr _star_regen(void)
  ************************************************************************/
 static bool _stealth_on(plr_tim_ptr timer)
 {
-    if (p_ptr->pclass == CLASS_ROGUE || p_ptr->pclass == CLASS_SKILLMASTER)
+    if (plr->pclass == CLASS_ROGUE || plr->pclass == CLASS_SKILLMASTER)
         msg_print("You begin to tread softly.");
-    else if (p_ptr->pclass == CLASS_NECROMANCER || p_ptr->pclass == CLASS_RUNE_KNIGHT)
+    else if (plr->pclass == CLASS_NECROMANCER || plr->pclass == CLASS_RUNE_KNIGHT)
         msg_print("You are cloaked in darkness.");
     else
         msg_print("You begin to stalk your prey.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _stealth_off(plr_tim_ptr timer)
 {
-    if (p_ptr->pclass == CLASS_ROGUE || p_ptr->pclass == CLASS_SKILLMASTER)
+    if (plr->pclass == CLASS_ROGUE || plr->pclass == CLASS_SKILLMASTER)
         msg_print("You no longer tread softly.");
-    else if (p_ptr->pclass == CLASS_NECROMANCER || p_ptr->pclass == CLASS_RUNE_KNIGHT)
+    else if (plr->pclass == CLASS_NECROMANCER || plr->pclass == CLASS_RUNE_KNIGHT)
         msg_print("You are no longer cloaked in darkness.");
     else
         msg_print("You no longer stalk your prey.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _stealth_bonus(plr_tim_ptr timer)
 {
-    p_ptr->skills.stl += 3 + p_ptr->lev/5;
+    plr->skills.stl += 3 + plr->lev/5;
 }
 static void _stealth_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
 {
@@ -3303,18 +3405,18 @@ static bool _stone_skin_on(plr_tim_ptr timer)
 {
     if (plr_tim_find(T_ULT_RES)) return FALSE;
     msg_print("Your skin turns to stone.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _stone_skin_off(plr_tim_ptr timer)
 {
     if (plr_tim_find(T_ULT_RES)) return;
     msg_print("Your skin returns to normal.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _stone_skin_bonus(plr_tim_ptr timer)
 {
-    plr_bonus_ac(10 + 40*p_ptr->lev/50);
+    plr_bonus_ac(10 + plr_prorata_level(40));
 }
 static status_display_t _stone_skin_display(plr_tim_ptr timer)
 {
@@ -3401,19 +3503,19 @@ static void _stun_change(int old, int new)
             msg_print("A vicious blow hits your head.");
             if (one_in_(3))
             {
-                if (!p_ptr->sustain_int) do_dec_stat(A_INT);
-                if (!p_ptr->sustain_wis) do_dec_stat(A_WIS);
+                if (!plr->sustain_int) do_dec_stat(A_INT);
+                if (!plr->sustain_wis) do_dec_stat(A_WIS);
             }
             else if (one_in_(2))
             {
-                if (!p_ptr->sustain_int) do_dec_stat(A_INT);
+                if (!plr->sustain_int) do_dec_stat(A_INT);
             }
             else
             {
-                if (!p_ptr->sustain_wis) do_dec_stat(A_WIS);
+                if (!plr->sustain_wis) do_dec_stat(A_WIS);
             }
         }
-        p_ptr->redraw |= PR_EFFECTS | PR_HEALTH_BARS;
+        plr->redraw |= PR_EFFECTS | PR_HEALTH_BARS;
     }
     else if (new_stun.level < old_stun.level)
     {
@@ -3425,7 +3527,7 @@ static void _stun_change(int old, int new)
             msg_format("You are no longer <color:%c>%s</color>.", attr_to_attr_char(old_stun.attr), old_stun.msg);
             if (disturb_state) disturb(0, 0);
         }
-        p_ptr->redraw |= PR_EFFECTS | PR_HEALTH_BARS;
+        plr->redraw |= PR_EFFECTS | PR_HEALTH_BARS;
     }
 }
 static bool _stun_on(plr_tim_ptr timer)
@@ -3445,7 +3547,7 @@ static void _stun_off(plr_tim_ptr timer)
 }
 static void _stun_tick(plr_tim_ptr timer)
 {
-    int amt = adj_con_fix[p_ptr->stat_ind[A_CON]] + 1;
+    int amt = adj_con_fix[plr->stat_ind[A_CON]] + 1;
     if (amt > timer->count) amt = timer->count;
     _stun_add(timer, -amt);
 }
@@ -3473,26 +3575,30 @@ static plr_tim_info_ptr _stun(void)
  ************************************************************************/
 static void _superstealth_status(void)
 {
-    p_ptr->update |= PU_BONUS | PU_TORCH; /* Note: Forcing PU_TORCH is the key!!! */
-    p_ptr->update |= PU_UN_VIEW | PU_UN_LITE | PU_VIEW | PU_LITE;
-    p_ptr->redraw |= PR_EFFECTS;
+    plr->update |= PU_BONUS | PU_TORCH; /* Note: Forcing PU_TORCH is the key!!! */
+    plr->update |= PU_UN_VIEW | PU_UN_LIGHT | PU_VIEW | PU_LIGHT;
+    plr->redraw |= PR_EFFECTS;
 }
 static bool _superstealth_on(plr_tim_ptr timer)
 {
-    msg_print("You can hide in shadows!");
+    if (plr->cur_light && plr->pclass == CLASS_NECROMANCER)
+        msg_print("You can hide in shadows once you remove that nasty light source!");
+    else
+        msg_print("You can hide in shadows!");
+
     _superstealth_status();
     return TRUE;
 }
 static void _superstealth_off(plr_tim_ptr timer)
 {
     msg_print("You can no longer hide in shadows.");
-    if (p_ptr->pclass != CLASS_NINJA)
+    if (plr->pclass != CLASS_NINJA)
         set_superstealth(FALSE);
     _superstealth_status();
 }
 static void _superstealth_bonus(plr_tim_ptr timer)
 {
-    p_ptr->see_nocto = TRUE;
+    plr->see_nocto = DUN_VIEW_MAX;
 }
 static void _superstealth_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
 {
@@ -3511,6 +3617,7 @@ static plr_tim_info_ptr _superstealth(void)
     info->calc_bonuses_f = _superstealth_bonus;
     info->flags_f = _superstealth_flags;
     info->status_display_f = _superstealth_display;
+    info->flags = TF_IGNORE;
     return info;
 }
 
@@ -3520,23 +3627,23 @@ static plr_tim_info_ptr _superstealth(void)
 static bool _sustain_on(plr_tim_ptr timer)
 {
     msg_print("You feel sustained by your supreme righteousness!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _sustain_off(plr_tim_ptr timer)
 {
     msg_print("You no longer feel sustained.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _sustain_bonus(plr_tim_ptr timer)
 {
-    p_ptr->sustain_str = TRUE;
-    p_ptr->sustain_int = TRUE;
-    p_ptr->sustain_wis = TRUE;
-    p_ptr->sustain_dex = TRUE;
-    p_ptr->sustain_con = TRUE;
-    p_ptr->sustain_chr = TRUE;
-    p_ptr->hold_life++;
+    plr->sustain_str = TRUE;
+    plr->sustain_int = TRUE;
+    plr->sustain_wis = TRUE;
+    plr->sustain_dex = TRUE;
+    plr->sustain_con = TRUE;
+    plr->sustain_chr = TRUE;
+    plr->hold_life++;
 }
 static void _sustain_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
@@ -3570,17 +3677,17 @@ static plr_tim_info_ptr _sustain(void)
 static bool _telepathy_on(plr_tim_ptr timer)
 {
     msg_print("You feel your consciousness expand!");
-    p_ptr->update |= PU_BONUS | PU_MONSTERS;
+    plr->update |= PU_BONUS | PU_MONSTERS;
     return TRUE;
 }
 static void _telepathy_off(plr_tim_ptr timer)
 {
     msg_print("Your consciousness contracts again.");
-    p_ptr->update |= PU_BONUS | PU_MONSTERS;
+    plr->update |= PU_BONUS | PU_MONSTERS;
 }
 static void _telepathy_bonus(plr_tim_ptr timer)
 {
-    p_ptr->telepathy = TRUE;
+    plr->telepathy = TRUE;
 }
 static void _telepathy_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
@@ -3608,47 +3715,47 @@ static plr_tim_info_ptr _telepathy(void)
 static bool _ult_res_on(plr_tim_ptr timer)
 {
     msg_print("You feel resistant!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _ult_res_off(plr_tim_ptr timer)
 {
     msg_print("You feel less resistant");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _ult_res_bonus(plr_tim_ptr timer)
 {
     res_add_ultimate();
-    p_ptr->reflect = TRUE;
-    p_ptr->see_inv++;
-    p_ptr->free_act++;
-    p_ptr->hold_life++;
-    p_ptr->res_magic = TRUE;
-    p_ptr->sustain_str = TRUE;
-    p_ptr->sustain_int = TRUE;
-    p_ptr->sustain_wis = TRUE;
-    p_ptr->sustain_con = TRUE;
-    p_ptr->sustain_dex = TRUE;
-    p_ptr->sustain_chr = TRUE;
+    plr->reflect = TRUE;
+    plr->see_inv++;
+    plr->free_act++;
+    plr->hold_life++;
+    plr->res_magic = TRUE;
+    plr->sustain_str = TRUE;
+    plr->sustain_int = TRUE;
+    plr->sustain_wis = TRUE;
+    plr->sustain_con = TRUE;
+    plr->sustain_dex = TRUE;
+    plr->sustain_chr = TRUE;
     plr_bonus_ac(75);
 }
 static void _ult_res_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, OF_RES_ACID);
-    add_flag(flgs, OF_RES_ELEC);
-    add_flag(flgs, OF_RES_FIRE);
-    add_flag(flgs, OF_RES_COLD);
-    add_flag(flgs, OF_RES_POIS);
-    add_flag(flgs, OF_RES_LITE);
-    add_flag(flgs, OF_RES_DARK);
-    add_flag(flgs, OF_RES_CONF);
-    add_flag(flgs, OF_RES_NETHER);
-    add_flag(flgs, OF_RES_NEXUS);
-    add_flag(flgs, OF_RES_SOUND);
-    add_flag(flgs, OF_RES_SHARDS);
-    add_flag(flgs, OF_RES_CHAOS);
-    add_flag(flgs, OF_RES_DISEN);
-    add_flag(flgs, OF_RES_FEAR);
+    add_flag(flgs, OF_RES_(GF_ACID));
+    add_flag(flgs, OF_RES_(GF_ELEC));
+    add_flag(flgs, OF_RES_(GF_FIRE));
+    add_flag(flgs, OF_RES_(GF_COLD));
+    add_flag(flgs, OF_RES_(GF_POIS));
+    add_flag(flgs, OF_RES_(GF_LIGHT));
+    add_flag(flgs, OF_RES_(GF_DARK));
+    add_flag(flgs, OF_RES_(GF_CONF));
+    add_flag(flgs, OF_RES_(GF_NETHER));
+    add_flag(flgs, OF_RES_(GF_NEXUS));
+    add_flag(flgs, OF_RES_(GF_SOUND));
+    add_flag(flgs, OF_RES_(GF_SHARDS));
+    add_flag(flgs, OF_RES_(GF_CHAOS));
+    add_flag(flgs, OF_RES_(GF_DISEN));
+    add_flag(flgs, OF_RES_(GF_FEAR));
     add_flag(flgs, OF_REFLECT);
     add_flag(flgs, OF_HOLD_LIFE);
     add_flag(flgs, OF_FREE_ACT);
@@ -3682,28 +3789,28 @@ static plr_tim_info_ptr _ult_res(void)
  ************************************************************************/
 static bool _weaponmastery_on(plr_tim_ptr timer)
 {
-    if (p_ptr->attack_info[0].type == PAT_MONK || p_ptr->attack_info[1].type == PAT_MONK)
+    if (plr->attack_info[0].type == PAT_MONK || plr->attack_info[1].type == PAT_MONK)
         msg_print("Your fists seem more powerful!");
     else
         msg_print("Your weapon seems more powerful!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _weaponmastery_off(plr_tim_ptr timer)
 {
-    if (p_ptr->attack_info[0].type == PAT_MONK || p_ptr->attack_info[1].type == PAT_MONK)
+    if (plr->attack_info[0].type == PAT_MONK || plr->attack_info[1].type == PAT_MONK)
         msg_print("Your fists return to normal.");
     else
         msg_print("Your weapon returns to normal.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _weaponmastery_bonus(plr_tim_ptr timer)
 {
-    equip_xtra_might(p_ptr->lev/23);
+    equip_xtra_might(plr->lev/23);
 }
 static void _weaponmastery_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
 {
-    info->to_dd += p_ptr->lev/23;
+    info->to_dd += plr->lev/23;
 }
 static status_display_t _weaponmastery_display(plr_tim_ptr timer)
 {
@@ -3731,26 +3838,26 @@ static bool _wraith_on(plr_tim_ptr timer)
     virtue_add(VIRTUE_HONOUR, -2);
     virtue_add(VIRTUE_SACRIFICE, -2);
     virtue_add(VIRTUE_VALOUR, -5);
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _wraith_off(plr_tim_ptr timer)
 {
     msg_print("You feel opaque.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _wraith_bonus(plr_tim_ptr timer)
 {
-    res_add_immune(RES_DARK);
-    res_add_vuln(RES_LITE);
-    p_ptr->reflect = TRUE;
-    p_ptr->pass_wall = TRUE;
-    p_ptr->no_passwall_dam = TRUE;
+    res_add_immune(GF_DARK);
+    res_add_vuln(GF_LIGHT);
+    plr->reflect = TRUE;
+    plr->pass_wall = TRUE;
+    plr->no_passwall_dam = TRUE;
 }
 static void _wraith_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
 {
-    add_flag(flags, OF_IM_DARK);
-    add_flag(flags, OF_VULN_LITE);
+    add_flag(flags, OF_IM_(GF_DARK));
+    add_flag(flags, OF_VULN_(GF_LIGHT));
     add_flag(flags, OF_REFLECT);
 }
 static status_display_t _wraith_display(plr_tim_ptr timer)

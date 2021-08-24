@@ -9,6 +9,14 @@
  * Handle innate attacks for Monster mode, mutations and possessors/mimics.
  * Allow for rich class-specific customization.
  *************************************************************************/
+typedef struct plr_crit_s plr_crit_t, *plr_crit_ptr;
+struct plr_crit_s
+{
+    s16b freq_mul;  /* per cent; so 150 makes 10%->15% and 20%->30%; 0 disables crits; 100 default */
+    s16b freq_add;  /* per mil; so 25 makes 10%->12.5% and 20%->22.5% (ninja); 1000 forces every hit critical */
+    s16b qual_mul;  /* per cent; scale the base of critical roll (i.e., the weight) */
+    s16b qual_add;  /* add to quality roll (see _plr_attack_crit_aux) */
+};
 
 /*************************************************************************
  * Player Attack Info
@@ -36,16 +44,10 @@ enum {
 };
 #define PAF_ARRAY_SIZE 1  /* (PAF_COUNT + 31)/32 */
 
-typedef struct {
-    int max;
-    int wgt;
-    int mult;
-} blows_calc_t;
-
 struct plr_attack_info_s
 {
     int  type;   /* type of attack: none, weapon, monk or innate (PAT_*) */
-    int  which;  /* which hand ... or which blow index into p_ptr->innate_blows */
+    int  which;  /* which hand ... or which blow index into plr->innate_blows */
     int  slot;   /* equipment slot for this hand */
     int  to_h;
     int  to_d;
@@ -58,6 +60,7 @@ struct plr_attack_info_s
     int  xtra_blow;
     int  giant_wield;
     int  skill_mul;      /* per mil; scale the player's skill with this attack (cf dual wielding) */
+    plr_crit_t crit;
     u32b paf_flags[PAF_ARRAY_SIZE]; /* paf_ prevents confusion with obj_flags */
     u32b obj_flags[OF_ARRAY_SIZE];
     u32b obj_known_flags[OF_ARRAY_SIZE];
@@ -78,8 +81,29 @@ typedef struct {
     cptr msg;   /* "%^s is <color:G>dissolved</color>!" */
     cptr name;  /* "Acid" */
 } slay_t, *slay_ptr;
+extern int slay_compare(slay_ptr left, slay_ptr right);
+extern void slay_scale(slay_ptr slay, int pct); /* e.g. 200 => doubling the slay effectiveness */
 
 /* for plr_shoot and plr_throw: */
+typedef struct {
+    int        id;
+    mon_p      check_p;
+    mon_lore_f lore_f;
+    int        mul;
+    int        add;
+    cptr       name;  /* for plr_attack_display() */
+    cptr       lore_msg; /* for obj_learn_slay() */
+    int        gf;  /* better support for branded weapons */
+    int        mask_id; /* don't show SLAY_ORC if KILL_ORC as well */
+} slay_info_t, *slay_info_ptr;
+
+extern slay_info_t slay_tbl[];
+extern slay_info_t brand_tbl[];
+
+extern slay_t slay_info_apply(slay_info_ptr info, mon_ptr mon, obj_ptr obj);
+extern slay_t slay_find_best(u32b flags[OF_ARRAY_SIZE], mon_ptr mon, obj_ptr obj, slay_info_ptr tbl);
+extern slay_t slay_apply_force(slay_t slay, obj_ptr obj, int cost, bool display);
+
 extern slay_t slay_mon(u32b flags[OF_ARRAY_SIZE], mon_ptr mon, obj_ptr obj);
 extern slay_t slay_lookup(int id); /* e.g. lookup OF_BRAND_ACID or OF_KILL_ORC */
 extern bool   obj_slays_mon(obj_ptr obj, mon_ptr mon);
@@ -201,8 +225,8 @@ slay_t (*calc_brand_f)(plr_attack_ptr context, slay_ptr best_brand);
 typedef void (*plr_attack_init_f)(plr_attack_ptr context);
 
 /* OK, here is the actual context. We support normal melee with weapons or bare-hands.
- * We support innate blows (p_ptr->innate_blows). Possessors should use calc_innate_attacks
- * to *copy* unmasked blows from mon_race.blows to p_ptr->innate_blows. XXX */
+ * We support innate blows (plr->innate_blows). Possessors should use calc_innate_attacks
+ * to *copy* unmasked blows from mon_race.blows to plr->innate_blows. XXX */
 struct plr_attack_s
 {
 /* Input */
@@ -218,6 +242,7 @@ int             stop;       /* non-zero ends the carnage and gives the reason wh
 mon_ptr         mon;        /* monster we are fighting */
 int             retaliation_ct;
 mon_race_ptr    race;       /* XXX Need to recompute if monster polymorphs. Don't forget this!! */
+                            /* XXX duplicate of mon->race, but needed to detect polymorph race change */
 char            mon_full_name[MAX_NLEN]; /* "the Greater titan" */
 char            mon_name[MAX_NLEN];      /* "he" */
 char            mon_name_obj[MAX_NLEN];  /* "him" */
@@ -225,7 +250,7 @@ point_t         mon_pos;    /* remember starting pos to detect monster relocatio
 point_t         plr_pos;    /* remember starting pos to detect player relocation (e.g. Nexus aura) */
 bool            fear;       /* mon_take_hit wants this ... limit message spam to a single fear message at the end */
 
-/* State: Information about the current attack. Always a copy of appropriate p_ptr->attack_info or innate_attack_info */
+/* State: Information about the current attack. Always a copy of appropriate plr->attack_info or innate_attack_info */
 plr_attack_info_t info;
 u32b            obj_flags[OF_ARRAY_SIZE];
 
@@ -235,9 +260,9 @@ obj_ptr         obj;
 int             skill;    /* calculated skill of attack (not counting stun) */
 char            obj_name[MAX_NLEN];
 
-/* State: Innate Attacks. p_ptr->innate_blows includes possessor blows, mutations, and monster mode blows
+/* State: Innate Attacks. plr->innate_blows includes possessor blows, mutations, and monster mode blows
  * During innate processing, the hand fields will be cleared, and vice versa. (check hand == HAND_NONE) */
-int             which_blow;   /* runs [0, vec_length(p_ptr->innate_blows)) */
+int             which_blow;   /* runs [0, vec_length(plr->innate_blows)) */
 mon_blow_ptr    blow;
 
 /* State: Info about current round of attacks. Resets for each weapon */
@@ -252,11 +277,12 @@ int             dam_base;   /* base damage of current strike (dice only, with cr
                              * monastic lich is using this to gf_affect_m with GF_UNLIFE. Since the intention
                              * is to gf_affect_m with this amount, it should *not* be boosted by any
                              * existing slays but should be boosted by crit/vorpal/technique  XXX */
+int             dam_xtra;   /* slay_t.add for crits and slays */
 int             dam;        /* total damage of current strike */
 int             dam_drain;  /* typically same as dam, but perhaps less (cf ninja). For OF_BRAND_VAMP */
 int             technique;  /* Handle ambush, backstab, shadowstrike ... This is an extra multipler
-                set to non-zero if a known technique is being used. For example, p_ptr->ambush or
-                p_ptr->backstab allow any class to gain access to these abilities. We also handle
+                set to non-zero if a known technique is being used. For example, plr->ambush or
+                plr->backstab allow any class to gain access to these abilities. We also handle
                 the ninja's shadowstrike since burglary rogues can do this too. Don't mess with this! */
 
 /* State: Info about all attacks ... running totals for all weapons and innate attacks */
@@ -270,6 +296,7 @@ int             counter;    /* total number of swings. stealth techniques give  
 bool            do_quake;
 bool            do_blink;
 int             do_knockback;
+bool            do_sleep;
 
 plr_attack_hooks_t hooks;
 void           *cookie; /* in case you need more info for your callbacks */
@@ -326,7 +353,6 @@ extern void plr_on_hit_mon(plr_attack_ptr context); /* monster auras */
 
 /* Apply auras for spells that touch the player; or for riding players */
 extern void plr_on_touch_mon(mon_ptr mon); /* necromancer */
-extern void plr_on_ride_mon(int m_idx);
 
 extern void monk_hit_mon(plr_attack_ptr context);  /* single successful strike (monk.c) */
 extern void monk_apply_slays(plr_attack_ptr context); /* monk.c */
@@ -341,9 +367,15 @@ extern int mon_crit_chance(mon_race_ptr race, mon_blow_ptr blow);
 
 /* for plr_throw and plr_shoot */
 #define CRIT_FREQ_ROLL  5000
+#define CRIT_QUAL_ROLL  650
 extern slay_t crit_aux(int roll, int weight, int skill);
 extern int crit_chance_aux(int roll, int weight, int skill);
 extern slay_t crit_avg(int roll, int weight); /* add is scaled by 100 */
+extern void   crit_doc(doc_ptr doc, slay_t crit, int crit_chance);
+
+extern slay_t plr_crit(int roll, int weight, int skill, plr_crit_ptr scale); 
+extern int    plr_crit_chance(int roll, int weight, int skill, plr_crit_ptr scale);
+extern slay_t plr_crit_avg(int roll, int weight, plr_crit_ptr scale, int crit_chance);
 
 /*************************************************************************
  * Display Code (Character Sheet)
@@ -358,6 +390,6 @@ extern void plr_attack_display_doc(plr_attack_ptr context, doc_ptr doc);
  * By tradition, the number of blows are calculated in calc_bonuses (PU_BONUS)
  *************************************************************************/
 extern void plr_calc_blows_hand(int hand);  /* normal melee weapon (not martial arts) */
-extern void plr_calc_blows_innate(mon_blow_ptr blow, int max);
+extern void plr_calc_blows_innate(mon_blow_ptr blow);
 
 #endif

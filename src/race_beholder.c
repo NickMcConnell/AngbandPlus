@@ -2,8 +2,7 @@
 
 static void _birth(void)
 {
-    p_ptr->current_r_idx = MON_GAZER;
-    equip_on_change_race();
+    plr_mon_race_set("e.gazer");
     skills_innate_init("Gaze", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
     plr_birth_food();
@@ -13,10 +12,10 @@ static void _birth(void)
 static int _rank(void)
 {
     int rank = 0;
-    if (p_ptr->lev >= 10) rank++;
-    if (p_ptr->lev >= 25) rank++;
-    if (p_ptr->lev >= 35) rank++;
-    if (p_ptr->lev >= 45) rank++;
+    if (plr->lev >= 10) rank++;
+    if (plr->lev >= 25) rank++;
+    if (plr->lev >= 35) rank++;
+    if (plr->lev >= 45) rank++;
     return rank;
 }
 
@@ -25,14 +24,14 @@ static int _rank(void)
  **********************************************************************/
 static void _calc_innate_bonuses(mon_blow_ptr blow)
 {
-    int pow = p_ptr->lev + adj_dex_blow[p_ptr->stat_ind[A_INT]];
+    int pow = plr->lev + adj_dex_blow[plr->stat_ind[A_INT]];
     if (blow->method != RBM_GAZE) return;
     blow->blows = 100 + MIN(300, 300 * pow / 60);
 }
 static void _calc_innate_attacks(void)
 {
     mon_blow_ptr blow = mon_blow_alloc(RBM_GAZE);
-    int l = p_ptr->lev;
+    int l = plr->lev;
     int r = _rank();
     int dd = 2 + r;
     int ds = 3 + r;
@@ -40,19 +39,19 @@ static void _calc_innate_attacks(void)
     /* Beholder melee is unusual as the attacks are not physical. So, Str and Dex
        do not affect blows, accuracy or damage (cf calc_bonuses in xtra1.c). Rings
        of Combat still work, though, as does Weaponmastery (if you can find it!) */
-    blow->power = p_ptr->lev*BTH_PLUS_ADJ;
-    mon_blow_push_effect(blow, GF_MISSILE, dice_create(dd, ds, p_ptr->lev/2));
+    blow->power = plr->lev*BTH_PLUS_ADJ;
+    mon_blow_push_effect(blow, GF_MISSILE, dice_create(dd, ds, plr->lev/2));
     mon_blow_push_effect(blow, GF_DRAIN_MANA, dice_create(dd, ds, 0))->pct = 50 + l;
     mon_blow_push_effect(blow, GF_OLD_CONF, dice_create(0, 0, l*2))->pct = 40 + l;
 
-    if (p_ptr->lev >= 45)
+    if (plr->lev >= 45)
         mon_blow_push_effect(blow, GF_STASIS, dice_create(dd, ds, 0))->pct = 15 + (l - 45);
     else
-        mon_blow_push_effect(blow, GF_OLD_SLEEP, dice_create(0, 0, l*2))->pct = 30 + l;
+        mon_blow_push_effect(blow, GF_SLEEP, dice_create(0, 0, l*2))->pct = 30 + l;
 
-    mon_blow_push_effect(blow, GF_TURN_ALL, dice_create(0, 0, l))->pct = 15 + l/2;
+    mon_blow_push_effect(blow, GF_FEAR, dice_create(0, 0, l))->pct = 15 + l/2;
 
-    if (p_ptr->lev >= 35)
+    if (plr->lev >= 35)
     {
         mon_blow_push_effect(blow, GF_STUN, dice_create(dd/2, ds, 0))->pct = 15 + (l - 35)/3;
         /* XXX no longer works in new spell system
@@ -60,7 +59,7 @@ static void _calc_innate_attacks(void)
     }
 
     _calc_innate_bonuses(blow);
-    vec_add(p_ptr->innate_blows, blow);
+    vec_add(plr->innate_blows, blow);
 }
 
 static void _gaze_spell(int cmd, var_ptr res)
@@ -82,18 +81,30 @@ static void _gaze_spell(int cmd, var_ptr res)
         var_set_int(res, costs[_rank()]);
         break;
     }
-    case SPELL_CAST:
-    case SPELL_ON_BROWSE: {
-        plr_attack_t context = {0};
-        int rng = 6 + _rank();
-        context.attack_desc = "gaze at";
-        if (cmd == SPELL_CAST)
-            var_set_bool(res, plr_attack_special_aux(&context, rng));
+    case SPELL_CAST: {
+        point_t pos;
+        mon_ptr mon;
+
+        var_set_bool(res, FALSE);
+
+        project_length = 6 + _rank(); /* XXX */
+        pos = get_fire_pos_aux(TARGET_KILL | TARGET_LOS);
+        if (!dun_pos_interior(cave, pos)) break;
+        mon = dun_mon_at(cave, pos);
+        if (!mon)
+        {
+            dun_cell_ptr cell = dun_cell_at(cave, pos);
+            msg_format("You gaze at the %s.", cell_desc(cell));
+        }
         else
         {
-            plr_attack_display_aux(&context);
-            var_set_bool(res, TRUE);
+            char name[MAX_NLEN_MON];
+            monster_desc(name, mon, 0);
+            msg_format("You gaze at <color:o>%s</color>.", name);
         }
+        plr_bolt(pos, GF_ATTACK, 0);
+
+        var_set_bool(res, TRUE);
         break; }
     default:
         default_spell(cmd, res);
@@ -162,9 +173,9 @@ static int _get_spells(spell_info* spells, int max) {
         return 0;
     }
 
-    if (p_ptr->lev >= 45)
+    if (plr->lev >= 45)
         return get_spells_aux(spells, max, _ultimate_beholder_spells);
-    else if (p_ptr->lev >= 35)
+    else if (plr->lev >= 35)
         return get_spells_aux(spells, max, _undead_beholder_spells);
     else
         return get_spells_aux(spells, max, _beholder_spells);
@@ -176,148 +187,127 @@ static int _get_powers(spell_info* spells, int max)
     spell_info* spell = &spells[ct++];
     spell->level = 25;
     spell->cost = 1;
-    spell->fail = calculate_fail_rate(spell->level, 90, p_ptr->stat_ind[A_INT]);
+    spell->fail = calculate_fail_rate(spell->level, 90, plr->stat_ind[A_INT]);
     spell->fn = eat_magic_spell;
 
     return ct;
 }
 static void _calc_bonuses(void) {
-    int l = p_ptr->lev;
+    int l = plr->lev;
     int ac = l/2;
 
-    p_ptr->to_a += ac;
-    p_ptr->dis_to_a += ac;
+    plr->to_a += ac;
+    plr->dis_to_a += ac;
 
-    p_ptr->levitation = TRUE;
-    if (p_ptr->lev >= 45)
+    plr->levitation = TRUE;
+    if (plr->lev >= 45)
     {
-        p_ptr->to_a += 40;
-        p_ptr->dis_to_a += 40;
+        plr->to_a += 40;
+        plr->dis_to_a += 40;
 
-        p_ptr->telepathy = TRUE;
-        res_add(RES_TELEPORT);
-        res_add(RES_POIS);
-        res_add(RES_CONF);
-        p_ptr->free_act++;
-        p_ptr->pspeed += 6;
+        plr->telepathy = TRUE;
+        res_add(GF_TELEPORT);
+        res_add(GF_POIS);
+        res_add(GF_CONF);
+        plr->free_act++;
+        plr->pspeed += 6;
     }
-    else if (p_ptr->lev >= 35)
+    else if (plr->lev >= 35)
     {
-        p_ptr->to_a += 30;
-        p_ptr->dis_to_a += 30;
+        plr->to_a += 30;
+        plr->dis_to_a += 30;
 
-        p_ptr->telepathy = TRUE;
-        res_add(RES_TELEPORT);
-        res_add(RES_ACID);
-        res_add(RES_FIRE);
-        res_add(RES_COLD);
-        res_add(RES_ELEC);
-        res_add(RES_POIS);
-        res_add(RES_NETHER);
-        res_add(RES_CONF);
-        p_ptr->free_act++;
-        p_ptr->pspeed += 4;
-        p_ptr->hold_life++;
+        plr->telepathy = TRUE;
+        res_add(GF_TELEPORT);
+        res_add(GF_ACID);
+        res_add(GF_FIRE);
+        res_add(GF_COLD);
+        res_add(GF_ELEC);
+        res_add(GF_POIS);
+        res_add(GF_NETHER);
+        res_add(GF_CONF);
+        plr->free_act++;
+        plr->pspeed += 4;
+        plr->hold_life++;
     }
-    else if (p_ptr->lev >= 25)
+    else if (plr->lev >= 25)
     {
-        p_ptr->to_a += 20;
-        p_ptr->dis_to_a += 20;
+        plr->to_a += 20;
+        plr->dis_to_a += 20;
 
-        res_add(RES_TELEPORT);
-        res_add(RES_POIS);
-        res_add(RES_CONF);
-        p_ptr->free_act++;
-        p_ptr->pspeed += 2;
+        res_add(GF_TELEPORT);
+        res_add(GF_POIS);
+        res_add(GF_CONF);
+        plr->free_act++;
+        plr->pspeed += 2;
     }
-    else if (p_ptr->lev >= 10)
+    else if (plr->lev >= 10)
     {
-        p_ptr->to_a += 10;
-        p_ptr->dis_to_a += 10;
+        plr->to_a += 10;
+        plr->dis_to_a += 10;
 
-        res_add(RES_FEAR);
-        res_add(RES_CONF);
-        p_ptr->free_act++;
+        res_add(GF_FEAR);
+        res_add(GF_CONF);
+        plr->free_act++;
     }
     else
     {
-        res_add(RES_POIS);
+        res_add(GF_POIS);
     }
-    if (p_ptr->lev >= 25)
-        p_ptr->wizard_sight = TRUE;
+    if (plr->lev >= 25)
+        plr->wizard_sight = TRUE;
 }
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) {
     add_flag(flgs, OF_LEVITATION);
-    if (p_ptr->lev >= 45)
+    if (plr->lev >= 45)
     {
         add_flag(flgs, OF_TELEPATHY);
-        add_flag(flgs, OF_RES_POIS);
-        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_(GF_POIS));
+        add_flag(flgs, OF_RES_(GF_CONF));
         add_flag(flgs, OF_FREE_ACT);
         add_flag(flgs, OF_SPEED);
     }
-    else if (p_ptr->lev >= 35)
+    else if (plr->lev >= 35)
     {
         add_flag(flgs, OF_TELEPATHY);
-        add_flag(flgs, OF_RES_ACID);
-        add_flag(flgs, OF_RES_COLD);
-        add_flag(flgs, OF_RES_FIRE);
-        add_flag(flgs, OF_RES_ELEC);
-        add_flag(flgs, OF_RES_POIS);
-        add_flag(flgs, OF_RES_CONF);
-        add_flag(flgs, OF_RES_NETHER);
+        add_flag(flgs, OF_RES_(GF_ACID));
+        add_flag(flgs, OF_RES_(GF_COLD));
+        add_flag(flgs, OF_RES_(GF_FIRE));
+        add_flag(flgs, OF_RES_(GF_ELEC));
+        add_flag(flgs, OF_RES_(GF_POIS));
+        add_flag(flgs, OF_RES_(GF_CONF));
+        add_flag(flgs, OF_RES_(GF_NETHER));
         add_flag(flgs, OF_FREE_ACT);
         add_flag(flgs, OF_SPEED);
         add_flag(flgs, OF_HOLD_LIFE);
     }
-    else if (p_ptr->lev >= 25)
+    else if (plr->lev >= 25)
     {
-        add_flag(flgs, OF_RES_POIS);
-        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_(GF_POIS));
+        add_flag(flgs, OF_RES_(GF_CONF));
         add_flag(flgs, OF_FREE_ACT);
         add_flag(flgs, OF_SPEED);
     }
-    else if (p_ptr->lev >= 10)
+    else if (plr->lev >= 10)
     {
-        add_flag(flgs, OF_RES_FEAR);
-        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_(GF_FEAR));
+        add_flag(flgs, OF_RES_(GF_CONF));
         add_flag(flgs, OF_FREE_ACT);
     }
     else
     {
-        add_flag(flgs, OF_RES_POIS);
+        add_flag(flgs, OF_RES_(GF_POIS));
     }
 }
 static void _gain_level(int new_level) {
-    if (p_ptr->current_r_idx == MON_GAZER && new_level >= 10)
-    {
-        p_ptr->current_r_idx = MON_SPECTATOR;
-        msg_print("You have evolved into a Spectator.");
-        equip_on_change_race();
-        p_ptr->redraw |= PR_MAP | PR_BASIC;
-    }
-    if (p_ptr->current_r_idx == MON_SPECTATOR && new_level >= 25)
-    {
-        p_ptr->current_r_idx = MON_BEHOLDER;
-        msg_print("You have evolved into a Beholder.");
-        equip_on_change_race();
-        p_ptr->redraw |= PR_MAP | PR_BASIC;
-    }
-    if (p_ptr->current_r_idx == MON_BEHOLDER && new_level >= 35)
-    {
-        p_ptr->current_r_idx = MON_UNDEAD_BEHOLDER;
-        msg_print("You have evolved into an Undead Beholder.");
-        equip_on_change_race();
-        p_ptr->redraw |= PR_MAP | PR_BASIC;
-    }
-    if (p_ptr->current_r_idx == MON_UNDEAD_BEHOLDER && new_level >= 45)
-    {
-        p_ptr->current_r_idx = MON_ULTIMATE_BEHOLDER;
-        p_ptr->psex = SEX_FEMALE;
-        msg_print("You have evolved into an Ultimate Beholder.");
-        equip_on_change_race();
-        p_ptr->redraw |= PR_MAP | PR_BASIC;
-    }
+    if (plr_mon_race_is_("e.gazer") && new_level >= 10)
+        plr_mon_race_evolve("e.spectator");
+    if (plr_mon_race_is_("e.spectator") && new_level >= 25)
+        plr_mon_race_evolve("e.beholder");
+    if (plr_mon_race_is_("e.beholder") && new_level >= 35)
+        plr_mon_race_evolve("e.undead");
+    if (plr_mon_race_is_("e.undead") && new_level >= 45)
+        plr_mon_race_evolve("e.ultimate");
 }
 static caster_info * _caster_info(void)
 {
@@ -330,7 +320,7 @@ static caster_info * _caster_info(void)
         me.encumbrance.max_wgt = 100;
         me.encumbrance.weapon_pct = 100;
         me.encumbrance.enc_wgt = 600;
-        me.options = CASTER_ALLOW_DEC_MANA;
+        me.options = CASTER_ALLOW_DEC_MANA | CASTER_GAIN_SKILL;
         init = TRUE;
     }
     return &me;
@@ -348,7 +338,7 @@ plr_race_ptr mon_beholder_get_race(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  50,  47,   7,  20,  20,  40,  20};
-    skills_t xs = { 10,  20,  15,   1,  20,  20,  16,   7};
+    skills_t xs = { 50, 100,  75,   5, 100, 100,  80,  35};
 
         me = plr_race_alloc(RACE_MON_BEHOLDER);
         me->name = "Beholder";
@@ -391,11 +381,13 @@ plr_race_ptr mon_beholder_get_race(void)
         me->hooks.gain_level = _gain_level;
 
         me->flags = RACE_IS_MONSTER;
-        me->boss_r_idx = MON_OMARAX;
+        me->boss_r_idx = mon_race_parse("e.Omarax")->id;
     }
 
-    if (!birth_hack && !spoiler_hack)
-        me->subname = titles[rank];
+    if (birth_hack || spoiler_hack)
+        rank = 0;
+
+    me->subname = titles[rank];
     me->stats[A_STR] = -3;
     me->stats[A_INT] =  4 + rank;
     me->stats[A_WIS] =  0;
@@ -403,9 +395,9 @@ plr_race_ptr mon_beholder_get_race(void)
     me->stats[A_CON] =  0;
     me->stats[A_CHR] =  0 + rank/2;
 
-    me->pseudo_class_idx = CLASS_MAGE;
+    me->pseudo_class_id = CLASS_MAGE;
 
-    me->equip_template = mon_get_equip_template();
+    me->equip_template = plr_equip_template();
 
     return me;
 }

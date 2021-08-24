@@ -1,0 +1,88 @@
+########################################################################
+# The Stronghold of the Southerlings (I assume 'Southering' was a typo)
+
+N:p.Dailai:p.base:Dailai Dongzhu, Captain of Southerlings
+I:LVL(10):RARITY(2):ALLOC(D_STRONGHOLD|UNIQUE)
+I:HP(220):AC(35):EXP(100)
+I:ALIGN(Evil):CAN(SPEAK)
+B:HIT(x4):HURT(1d10)
+S:FREQ_10 | SHOOT(1d10)
+O:1d2:OBJ(*, GOOD):DROP_WARRIOR_SHOOT
+D:He is one of the captains of Nanman. He comes to help his sister and her husband Meng Huo.
+I:COLOR(Umber)
+P:Copy:Human:Paladin
+
+N:p.Duosi:p.base:King Duosi, the Chief of Southerlings
+I:LVL(11):RARITY(2):ALLOC(D_STRONGHOLD|UNIQUE)
+I:HP(250):AC(45):EXP(150)
+I:ALIGN(Evil):CAN(SPEAK)
+B:HIT(x3):HURT(1d10)
+S:1_IN_5 | BA_POISON | BLINK
+O:1d2:OBJ(*, GOOD)
+D:He is the best wise man of Nanman. His intelligence afflicted the enemy.
+I:COLOR(Violet)
+P:Copy:Human:Priest
+
+N:p.Meng You:p.base:Meng You, the Brother of Meng Huo
+I:LVL(12):RARITY(2):ALLOC(D_STRONGHOLD|UNIQUE)
+I:HP(250):AC(25):EXP(100)
+I:ALIGN(Evil):CAN(SPEAK)
+B:HIT(x4):HURT(1d15)
+O:1d2:OBJ(*, GOOD):DROP_WARRIOR
+D:He is the younger brother of Meng Huo, the king of the southerlings.
+I:COLOR(Orange)
+P:Copy:Human:Warrior
+
+N:p.Zhurong:p.base:Lady Zhurong, the Avatar of Flame Spirit
+I:LVL(14):RARITY(2):ALLOC(D_STRONGHOLD|UNIQUE)
+I:SPEED(+5):HP(264):AC(45):EXP(150)
+I:ALIGN(Evil):CAN(SPEAK):ATTR(FEMALE)
+B:HIT(x2):HURT(1d8+2)
+B:HIT:HURT(1d7):FIRE(1d7)
+A:FIRE(1d1)
+I:RESIST(FIRE)
+S:1_IN_9 | SHRIEK
+O:1d2:OBJ(*, GOOD)
+D:She is the wife of king Meng Huo. She is called as the avatar of flame spirit.
+I:COLOR(Light Red)
+P:Copy:Human:Warrior-Mage
+P:Weight:120
+
+N:p.Mulu:p.base:King Mulu, the Chief of Southerlings
+I:LVL(16):RARITY(2):ALLOC(D_STRONGHOLD|UNIQUE)
+I:HP(350):AC(45):EXP(250)
+I:ALIGN(Evil):CAN(SPEAK)
+B:HIT(x4):HURT(1d14)
+S:1_IN_6 | S_ANT | S_SPIDER
+O:1d2:OBJ(*, GOOD)
+D:He is one of chiefs of Nanman. He is also good beast master.
+I:COLOR(Green)
+P:Copy:Human:Beastmaster
+
+N:p.Wutugu:p.base:Wutugu, the Chief of Southerlings
+I:LVL(17):RARITY(2):ALLOC(D_STRONGHOLD|UNIQUE|GUARDIAN)
+I:HP(350):AC(60):EXP(250)
+I:ALIGN(Evil):CAN(SPEAK)
+B:HIT(x2):HURT(1d15+10)
+I:RESIST(ACID|ELEC|POIS):VULN(FIRE)
+O:1d2:OBJ(*, GOOD):DROP_WARRIOR
+D:This giant man is the king of southern Nanman. It is said that
+D:he is about 10 feet tall. His army has hard rattan armor.
+I:DISPLAY(P,Umber)
+P:Copy:Half-Giant:Warrior
+P:Weight:350
+
+N:p.Meng Huo:p.base:Meng Huo, the King of Southerlings
+I:LVL(18):RARITY(2):ALLOC(D_STRONGHOLD|ESCORT|UNIQUE|GUARDIAN)
+I:HP(380):AC(50):EXP(250)
+I:ALIGN(Evil):CAN(SPEAK)
+B:HIT(x4):HURT(1d15)
+S:FREQ_7 | S_KIN
+O:2d2:OBJ(*, GOOD):DROP_WARRIOR
+M:3d7:MON(p)
+D:He is the king of Nanman. He was arrested by Zhuge Liang 7 times.
+I:COLOR(Orange)
+P:Copy:Human:Paladin
+
+# vim: filetype=ri :
+

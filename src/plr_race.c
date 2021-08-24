@@ -162,21 +162,21 @@ plr_race_ptr plr_race_aux(int race_id, int subrace_id)
 plr_race_ptr plr_race(void)
 {
     plr_race_ptr result;
-    if (p_ptr->mimic_form != MIMIC_NONE)
+    if (plr->mimic_form != MIMIC_NONE)
     {
-        result = plr_race_aux(p_ptr->mimic_form, 0);
+        result = plr_race_aux(plr->mimic_form, 0);
         result->mimic = TRUE;
     }
     else
     {
-        result = plr_race_aux(p_ptr->prace, p_ptr->psubrace);
+        result = plr_race_aux(plr->prace, plr->psubrace);
         result->mimic = FALSE;
     }
     return result;
 }
 plr_race_ptr plr_true_race(void)
 {
-    return plr_race_aux(p_ptr->prace, p_ptr->psubrace);
+    return plr_race_aux(plr->prace, plr->psubrace);
 }
 int plr_race_polymorph(void)
 {
@@ -186,20 +186,20 @@ int plr_race_polymorph(void)
         _race_info_ptr info = &_race_tbl[i];
         if (!info->name) break;
         if (info->flags & _RACE_NO_POLY) continue;
-        if (info->id == p_ptr->prace) continue;
+        if (info->id == plr->prace) continue;
         tot++;
     }
-    if (!tot) return p_ptr->prace;
+    if (!tot) return plr->prace;
     n = randint0(tot);
     for (i = 0; ; i++)
     {
         _race_info_ptr info = &_race_tbl[i];
         if (!info->name) break;
         if (info->flags & _RACE_NO_POLY) continue;
-        if (info->id == p_ptr->prace) continue;
+        if (info->id == plr->prace) continue;
         n--;
         if (n < 0) return info->id;
     }
-    return p_ptr->prace;
+    return plr->prace;
 }
 

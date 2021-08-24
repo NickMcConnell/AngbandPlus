@@ -217,6 +217,20 @@ Armageddon
   offense. Still, if you want the ultimate in destruction, then look no 
   further.
 
+Illusion
+  The Illusionist survives through trickery and misdirection. There are 
+  several kinds of illusions including: one time flashes of light that 
+  confuse, blind or hypnotize; illusory monsters that, although 
+  harmless, may provide a useful distraction; illusory walls that fool 
+  even the most intelligent of monsters; self illusions that mask and 
+  protect the illusionist; and finally, illusions of self that affect 
+  all visible monsters inducing fear, confusion, command or discord. 
+  The Illusionist even has a few tricks of escape including diversions 
+  and decoys. For a mage, this realm is best paired with an offensive 
+  realm, since, after all, an illusion never really hurt anybody. Note 
+  that visual illusions are not noticed by all monsters: mindless, 
+  sleeping and blind foes cannot be affected.
+
 Class Specific Realms of Spellbook Magic
 
 In addition to the realms listed above, there are a few class specific 

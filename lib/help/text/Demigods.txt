@@ -382,5 +382,5 @@ you will choose for your character.
 
 
 
-Automatically generated for PosChengband 7.2.1.
+Automatically generated for PosChengband 7.3.1.
 

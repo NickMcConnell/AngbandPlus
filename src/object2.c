@@ -25,10 +25,10 @@ void delete_object_idx(int o_idx)
     point_t pos = point_create(obj->loc.v.floor.x, obj->loc.v.floor.y);
 
     dun_delete_obj(cave, o_idx);
-    if (cave->dun_id == p_ptr->dun_id)
+    if (cave->id == plr->dun_id)
     {
-        lite_pos(pos);
-        p_ptr->window |= PW_OBJECT_LIST;
+        draw_pos(pos);
+        plr->window |= PW_OBJECT_LIST;
     }
 }
 
@@ -36,13 +36,13 @@ void delete_object_idx(int o_idx)
 /*
  * Deletes all objects at given location
  */
-void delete_object(int y, int x)
+void delete_object(point_t pos)
 {
-    dun_destroy_obj_at(cave, point_create(x, y));
-    if (cave->dun_id == p_ptr->dun_id)
+    dun_destroy_obj_at(cave, pos);
+    if (cave->id == plr->dun_id)
     {
-        lite_spot(y, x);
-        p_ptr->window |= PW_OBJECT_LIST;
+        draw_pos(pos);
+        plr->window |= PW_OBJECT_LIST;
     }
 }
 
@@ -151,8 +151,8 @@ s16b get_obj_num(int level)
 
         k_idx = table[i].index;
         k_ptr = &k_info[k_idx];
-        if (k_ptr->tval == TV_FOOD && k_ptr->sval == SV_FOOD_AMBROSIA && cave->dun_type_id != D_OLYMPUS) continue;
-        if (k_ptr->tval == TV_BOW && k_ptr->sval == SV_HARP && p_ptr->pclass != CLASS_BARD) continue;
+        if (k_ptr->tval == TV_FOOD && k_ptr->sval == SV_FOOD_AMBROSIA && cave->type->id != D_OLYMPUS) continue;
+        if (k_ptr->tval == TV_BOW && k_ptr->sval == SV_HARP && plr->pclass != CLASS_BARD) continue;
         /* Hack -- prevent embedded chests */
         if (opening_chest && (k_ptr->tval == TV_CHEST)) continue;
 
@@ -366,10 +366,11 @@ void stats_on_sell(object_type *o_ptr)
         o_ptr->marked |= OM_EFFECT_COUNTED;
     }
 
-    if (o_ptr->name1)
+    if (o_ptr->art_id)
     {
-        assert(a_info[o_ptr->name1].generated);
-        a_info[o_ptr->name1].found = TRUE;
+        art_ptr art = arts_lookup(o_ptr->art_id);
+        assert(art->generated);
+        art->found = TRUE;
     }
 
     if (o_ptr->name2 && !(o_ptr->marked & OM_EGO_COUNTED))
@@ -535,10 +536,11 @@ void stats_on_identify(object_type *o_ptr)
         o_ptr->marked |= OM_EFFECT_COUNTED;
     }
 
-    if (o_ptr->name1)
+    if (o_ptr->art_id)
     {
-        assert(a_info[o_ptr->name1].generated);
-        a_info[o_ptr->name1].found = TRUE;
+        art_ptr art = arts_lookup(o_ptr->art_id);
+        assert(art->generated);
+        art->found = TRUE;
     }
 
     if (o_ptr->name2 && !(o_ptr->marked & OM_EGO_COUNTED))
@@ -613,7 +615,7 @@ static s32b object_value_base(object_type *o_ptr)
         /* Figurines, relative to monster level */
         case TV_FIGURINE:
         {
-            int level = mon_race_lookup(o_ptr->pval)->level;
+            int level = mon_race_lookup(o_ptr->race_id)->alloc.lvl;
             if (level < 20) return level*50L;
             else if (level < 30) return 1000+(level-20)*150L;
             else if (level < 40) return 2500+(level-30)*350L;
@@ -622,8 +624,8 @@ static s32b object_value_base(object_type *o_ptr)
         }
 
         case TV_CAPTURE:
-            if (!o_ptr->pval) return 1000L;
-            else return ((mon_race_lookup(o_ptr->pval)->level) * 50L + 1000);
+            if (!o_ptr->race_id) return 1000L;
+            else return ((mon_race_lookup(o_ptr->race_id)->alloc.lvl) * 50L + 1000);
     }
 
     /* Paranoia -- Oops */
@@ -645,8 +647,8 @@ s32b obj_value_real(object_type *o_ptr)
     if (obj_is_ammo(o_ptr)) return ammo_cost(o_ptr, COST_REAL);
     if (o_ptr->tval == TV_BOW) return bow_cost(o_ptr, COST_REAL);
     if (obj_is_armor(o_ptr)) return armor_cost(o_ptr, COST_REAL);
-    if (obj_is_jewelry(o_ptr) || (o_ptr->tval == TV_LITE && obj_is_art(o_ptr))) return jewelry_cost(o_ptr, COST_REAL);
-    if (o_ptr->tval == TV_LITE) return lite_cost(o_ptr, COST_REAL);
+    if (obj_is_jewelry(o_ptr) || (o_ptr->tval == TV_LIGHT && obj_is_art(o_ptr))) return jewelry_cost(o_ptr, COST_REAL);
+    if (o_ptr->tval == TV_LIGHT) return light_cost(o_ptr, COST_REAL);
     if (o_ptr->tval == TV_QUIVER) return quiver_cost(o_ptr, COST_REAL);
     if (obj_is_device(o_ptr)) return device_value(o_ptr, COST_REAL);
 
@@ -662,7 +664,7 @@ s32b obj_value_real(object_type *o_ptr)
         /* Figurines, relative to monster level */
         case TV_FIGURINE:
         {
-            int level = mon_race_lookup(o_ptr->pval)->level;
+            int level = mon_race_lookup(o_ptr->race_id)->alloc.lvl;
             if (level < 20) value = level*50L;
             else if (level < 30) value = 1000+(level-20)*150L;
             else if (level < 40) value = 2500+(level-30)*350L;
@@ -674,7 +676,7 @@ s32b obj_value_real(object_type *o_ptr)
         case TV_CAPTURE:
         {
             if (!o_ptr->pval) value = 1000L;
-            else value = ((mon_race_lookup(o_ptr->pval)->level) * 50L + 1000);
+            else value = ((mon_race_lookup(o_ptr->race_id)->alloc.lvl) * 50L + 1000);
             break;
         }
 
@@ -780,10 +782,10 @@ bool can_player_destroy_object(object_type *o_ptr)
         o_ptr->ident |= IDENT_SENSE;
 
         /* Combine the pack */
-        p_ptr->notice |= PN_OPTIMIZE_PACK;
+        plr->notice |= PN_OPTIMIZE_PACK;
 
         /* Window stuff */
-        p_ptr->window |= PW_INVEN | PW_EQUIP;
+        plr->window |= PW_INVEN | PW_EQUIP;
 
         /* Done */
         return FALSE;
@@ -1052,52 +1054,44 @@ static void dragon_resist(object_type * o_ptr)
 
 /*
  * Mega-Hack -- Attempt to create one of the "Special Objects"
- *
- * We are only called from "make_object()", and we assume that
- * "apply_magic()" is called immediately after we return.
- *
- * Note -- see "make_artifact()" and "apply_magic()"
  */
-static bool make_artifact_special(object_type *o_ptr, int level)
+static bool make_artifact_special(object_type *o_ptr, int level, int mode)
 {
     int i;
     int k_idx = 0;
-
+    vec_ptr v;
+    bool result = FALSE;
 
     /* No artifacts in the town */
-    if (cave->dun_type_id == D_SURFACE) return (FALSE);
+    if (cave->type->id == D_SURFACE) return FALSE;
     if (no_artifacts) return FALSE;
 
     /* Themed object */
     if (get_obj_num_hook) return (FALSE);
 
     /* Check the artifact list (just the "specials") */
-    for (i = 0; i < max_a_idx; i++)
+    v = arts_filter_special();
+    for (i = 0; i < vec_length(v) && !result; i++)
     {
-        artifact_type *a_ptr = &a_info[i];
-
-        if (!a_ptr->name) continue;
-        if (a_ptr->generated) continue;
-        if (a_ptr->gen_flags & OFG_QUESTITEM) continue;
-        if (!(a_ptr->gen_flags & OFG_INSTA_ART)) continue;
+        art_ptr art = vec_get(v, i);
 
         /* XXX XXX Enforce minimum "depth" (loosely) */
-        if (a_ptr->level > cave->dun_lvl)
+        if (art->level > cave->dun_lvl)
         {
             /* Acquire the "out-of-depth factor" */
-            int d = (a_ptr->level - cave->dun_lvl) * 2;
+            int d = (art->level - cave->dun_lvl) * 2;
 
             /* Roll for out-of-depth creation */
             if (d > 24 || !one_in_(d)) continue;
         }
 
-        a_ptr->tries++; /* Debug for statistics runs */
+        art->tries++; /* Debug for statistics runs */
 
         /* Artifact "rarity roll" */
-        if (!one_in_(a_ptr->rarity)) continue;
+        if (!one_in_(art->rarity)) continue;
 
         /* Find the base object */
-        k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+        k_idx = lookup_kind(art->tval, art->sval);
 
         /* XXX XXX Enforce minimum "object" level (loosely) */
         if (k_info[k_idx].level > level)
@@ -1110,24 +1104,21 @@ static bool make_artifact_special(object_type *o_ptr, int level)
         }
 
         if ( random_artifacts
-          && !(a_ptr->gen_flags & OFG_FIXED_ART)
+          && !(art->gen_flags & OFG_FIXED_ART)
           && randint0(100) < random_artifact_pct )
         {
-            if (!art_create_replacement(o_ptr, i))
-                return FALSE;
+            if (art_create_replacement(o_ptr, art, mode))
+                result = TRUE;
         }
         else
         {
-            art_create_std(o_ptr, i, 0);
-            a_info[i].generated = TRUE;
+            if (art_create_std(o_ptr, art, mode))
+                result = TRUE;
         }
-
-        /* Success */
-        return (TRUE);
     }
+    vec_free(v);
 
-    /* Failure */
-    return (FALSE);
+    return result;
 }
 
 
@@ -1138,63 +1129,54 @@ static bool make_artifact_special(object_type *o_ptr, int level)
  *
  * Note -- see "make_artifact_special()" and "apply_magic()"
  */
-static bool make_artifact(object_type *o_ptr, int level)
+static bool make_artifact(object_type *o_ptr, int level, int mode)
 {
     int i;
-
+    vec_ptr v;
+    bool result = FALSE;
 
     /* No artifacts in the town */
     if (!level) return FALSE;
     if (no_artifacts) return FALSE;
 
     /* Paranoia -- no "plural" artifacts */
-    if (o_ptr->number != 1) return (FALSE);
+    if (o_ptr->number != 1) return FALSE;
 
     /* Check the artifact list (skip the "specials") */
-    for (i = 0; i < max_a_idx; i++)
+    v = arts_filter(o_ptr);
+    for (i = 0; i < vec_length(v) && !result; i++)
     {
-        artifact_type *a_ptr = &a_info[i];
-
-        if (!a_ptr->name) continue;
-        if (a_ptr->generated) continue;
-        if (a_ptr->gen_flags & OFG_QUESTITEM) continue;
-        if (a_ptr->gen_flags & OFG_INSTA_ART) continue;
-        if (a_ptr->tval != o_ptr->tval) continue;
-        if (a_ptr->sval != o_ptr->sval) continue;
+        art_ptr art = vec_get(v, i);
 
         /* XXX XXX Enforce minimum "depth" (loosely) */
-        if (a_ptr->level > level)
+        if (art->level > level)
         {
             /* Acquire the "out-of-depth factor" */
-            int d = a_ptr->level - level;
+            int d = art->level - level;
 
             /* Roll for out-of-depth creation */
             if (d > 24 || !one_in_(d)) continue;
         }
 
-        a_ptr->tries++; /* Debug for statistics runs */
+        art->tries++; /* Debug for statistics runs */
 
-        if (!one_in_(a_ptr->rarity)) continue;
+        if (!one_in_(art->rarity)) continue;
 
         if ( random_artifacts
-          && !(a_ptr->gen_flags & OFG_FIXED_ART)
+          && !(art->gen_flags & OFG_FIXED_ART)
           && randint0(100) < random_artifact_pct )
         {
-            if (!art_create_replacement(o_ptr, i))
-                return FALSE;
+            if (art_create_replacement(o_ptr, art, mode))
+                result = TRUE;
         }
         else
         {
-            art_create_std(o_ptr, i, 0);
-            a_info[i].generated = TRUE;
+            if (art_create_std(o_ptr, art, mode))
+                result = TRUE;
         }
-
-        /* Success */
-        return (TRUE);
     }
-
-    /* Failure */
-    return (FALSE);
+    vec_free(v);
+    return result;
 }
 
 bool add_esp_strong(object_type *o_ptr)
@@ -1256,12 +1238,10 @@ void add_esp_weak(object_type *o_ptr, bool extra)
  */
 static bool item_monster_okay(mon_race_ptr r_ptr)
 {
-    if (r_ptr->flags1 & RF1_UNIQUE) return FALSE;
-    if (r_ptr->flags7 & RF7_KAGE) return FALSE;
-    if (r_ptr->flagsr & RFR_RES_ALL) return FALSE;
-    if (r_ptr->flags7 & RF7_NAZGUL) return FALSE;
-    if (r_ptr->flags1 & RF1_FORCE_DEPTH) return FALSE;
-    if (r_ptr->flags7 & RF7_UNIQUE2) return FALSE;
+    if (mon_race_is_unique(r_ptr)) return FALSE;
+    if (mon_race_is_(r_ptr, "N.shadower")) return FALSE;
+    if (mon_race_is_nazgul(r_ptr)) return FALSE;
+    if (r_ptr->alloc.flags & RFA_FORCE_DEPTH) return FALSE;
     return TRUE;
 }
 
@@ -1294,7 +1274,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power, int mode)
 
         case TV_FIGURINE:
         {
-            int r_idx = 0;
+            sym_t r_idx = 0;
 
             /* Pick a random non-unique monster race */
             mon_alloc_push_filter(item_monster_okay);
@@ -1302,11 +1282,11 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power, int mode)
             {
                 mon_race_ptr race = mon_alloc_choose_aux2(mon_alloc_tbl, cave->difficulty, 0, 0);
                 if (!race) break; /* panic */
-                if (race->id == MON_TSUCHINOKO) continue;
-                if (!race->rarity || race->rarity > 100) continue;
+                if (mon_race_is_(race, "J.tsuchinoko")) continue;
+                if (!race->alloc.rarity || race->alloc.rarity > 100) continue;
 
                 /* Prefer less out-of-depth monsters */
-                if (cave->difficulty < race->level && !one_in_(race->level - cave->difficulty))
+                if (cave->difficulty < race->alloc.lvl && !one_in_(race->alloc.lvl - cave->difficulty))
                     continue;
 
                 r_idx = race->id;
@@ -1314,32 +1294,32 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power, int mode)
             }
             mon_alloc_pop_filter();
 
-            o_ptr->pval = r_idx;
+            o_ptr->race_id = r_idx;
             if (one_in_(6)) o_ptr->curse_flags |= OFC_CURSED;
             break;
         }
 
         case TV_CORPSE:
         {
-            int r_idx = 0;
+            sym_t r_idx = 0;
             int count = 100;
             u32b match = 0;
 
             if (o_ptr->sval == SV_SKELETON)
-                match = RF9_DROP_SKELETON;
+                match = RF_DROP_SKELETON;
             else if (o_ptr->sval == SV_CORPSE)
-                match = RF9_DROP_CORPSE;
+                match = RF_DROP_CORPSE;
 
             mon_alloc_push_filter(item_monster_okay);
             while (--count) /* This loop is spinning forever at deep levels ... */
             {
                 mon_race_ptr race = mon_alloc_choose(cave->difficulty);
 
-                if (!race->rarity || race->rarity > 100) continue;
-                if (!(race->flags9 & match)) continue;
+                if (!race->alloc.rarity || race->alloc.rarity > 100) continue;
+                if (!(race->body.flags & match)) continue; /* XXX move this check to the 'filter' XXX */
 
                 /* Prefer less out-of-depth monsters */
-                if (cave->difficulty < race->level && !one_in_(race->level - cave->difficulty))
+                if (cave->difficulty < race->alloc.lvl && !one_in_(race->alloc.lvl - cave->difficulty))
                     continue;
 
                 r_idx = race->id;
@@ -1347,32 +1327,18 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power, int mode)
             }
             mon_alloc_pop_filter();
 
-            o_ptr->pval = r_idx;
+            if (!r_idx) /* defense */
+                r_idx = mon_race_parse("p.novice warrior")->id;
+
+            o_ptr->race_id = r_idx;
             obj_identify(o_ptr);
             break;
         }
 
         case TV_STATUE:
         {
-            int i = 1;
-
-            monster_race *r_ptr;
-
-            /* Pick a random monster race */
-            while (1)
-            {
-                i = randint1(max_r_idx - 1);
-
-                r_ptr = &r_info[i];
-
-                /* Ignore dead monsters */
-                if (!r_ptr->rarity) continue;
-
-                break;
-            }
-
-            o_ptr->pval = i;
-
+            mon_race_ptr race = vec_random(mon_alloc_tbl);
+            o_ptr->race_id = race->id;
             obj_identify(o_ptr);
             break;
         }
@@ -1434,11 +1400,18 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power, int mode)
  * "good" and "great" arguments are false. As a total hack, if "great" is
  * true, then the item gets 3 extra "attempts" to become an artifact.
  */
+static int _max_f2(obj_ptr obj)
+{
+    /* XXX I'd like some mechanism to vary object quality at the tval level ... pending obj
+     * re-design XXX */
+    if (obj_is_ammo(obj)) return 30;
+    return 20;
+}
 bool apply_magic(object_type *o_ptr, int lev, u32b mode)
 {
     int i, rolls, f1, f2, power;
     int maxf1 = 75;
-    int maxf2 = 20;
+    int maxf2 = _max_f2(o_ptr);
 
     if (mode & AM_QUEST)
         lev += 10;
@@ -1472,7 +1445,7 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
         if (f1 > maxf1) f1 = maxf1;
     }
 
-    if (p_ptr->good_luck)
+    if (plr->good_luck)
     {
         f1 += 5;
         f2 += 2;
@@ -1564,7 +1537,7 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
     if (rolls & (mode & AM_VAULT)) rolls += 3;
 
     /* Hack -- Get no rolls if not allowed */
-    if ((mode & AM_NO_FIXED_ART) || o_ptr->name1 || o_ptr->name3) rolls = 0;
+    if ((mode & AM_NO_FIXED_ART) || o_ptr->art_id || o_ptr->replacement_art_id) rolls = 0;
     if (mode & AM_AVERAGE) rolls = 0;
     if (mode & AM_FORCE_EGO)
     {
@@ -1583,10 +1556,10 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
     for (i = 0; i < rolls; i++)
     {
         /* Roll for an artifact */
-        if (make_artifact(o_ptr, lev)) break;
-        if (p_ptr->good_luck && one_in_(77))
+        if (make_artifact(o_ptr, lev, mode)) break;
+        if (plr->good_luck && one_in_(77))
         {
-            if (make_artifact(o_ptr, lev)) break;
+            if (make_artifact(o_ptr, lev, mode)) break;
         }
     }
 
@@ -1596,53 +1569,14 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
     if (!o_ptr->level)
         o_ptr->level = lev;
 
-    /* Hack -- analyze replacement artifacts */
-    if (o_ptr->name3)
-    {
-        artifact_type *a_ptr = &a_info[o_ptr->name3];
-
-        /* Hack -- Mark the artifact as "created" */
-        a_ptr->generated = TRUE;
-
+    if (o_ptr->replacement_art_id)
         return TRUE;
-    }
 
-    if (obj_is_std_art(o_ptr))
-    {
-        artifact_type *a_ptr = &a_info[o_ptr->name1];
-
-        /* Hack -- Mark the artifact as "created" */
-        a_ptr->generated = TRUE;
-
-        /* Extract the other fields */
-        o_ptr->pval = a_ptr->pval;
-        o_ptr->ac = a_ptr->ac;
-        o_ptr->dd = a_ptr->dd;
-        o_ptr->ds = a_ptr->ds;
-        o_ptr->to_a = a_ptr->to_a;
-        o_ptr->to_h = a_ptr->to_h;
-        o_ptr->to_d = a_ptr->to_d;
-        o_ptr->weight = a_ptr->weight;
-
-        /* Hack -- extract the "broken" flag */
-        if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
-
-        /* Hack -- extract the "cursed" flag */
-        if (a_ptr->gen_flags & OFG_CURSED) o_ptr->curse_flags |= (OFC_CURSED);
-        if (a_ptr->gen_flags & OFG_HEAVY_CURSE) o_ptr->curse_flags |= (OFC_HEAVY_CURSE);
-        if (a_ptr->gen_flags & OFG_PERMA_CURSE) o_ptr->curse_flags |= (OFC_PERMA_CURSE);
-        if (a_ptr->gen_flags & (OFG_RANDOM_CURSE0)) o_ptr->curse_flags |= get_curse(0, o_ptr);
-        if (a_ptr->gen_flags & (OFG_RANDOM_CURSE1)) o_ptr->curse_flags |= get_curse(1, o_ptr);
-        if (a_ptr->gen_flags & (OFG_RANDOM_CURSE2)) o_ptr->curse_flags |= get_curse(2, o_ptr);
-
-        /* Done */
+    if (o_ptr->art_id)
         return TRUE;
-    }
 
     if (o_ptr->art_name)
-    {
         return TRUE;
-    }
 
 
     /* Apply magic */
@@ -1721,8 +1655,8 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
         case TV_AMULET:
             if (power) ego_create_amulet(o_ptr, lev, power, mode);
             break;
-        case TV_LITE:
-            obj_create_lite(o_ptr, lev, power, mode);
+        case TV_LIGHT:
+            obj_create_light(o_ptr, lev, power, mode);
             break;
         case TV_WAND:
         case TV_ROD:
@@ -1737,7 +1671,7 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
 
     if ((o_ptr->tval == TV_SOFT_ARMOR) &&
         (o_ptr->sval == SV_ABUNAI_MIZUGI) &&
-        (p_ptr->personality == PERS_SEXY || demigod_is_(DEMIGOD_APHRODITE)))
+        (plr->personality == PERS_SEXY || demigod_is_(DEMIGOD_APHRODITE)))
     {
         o_ptr->pval = 3;
         add_flag(o_ptr->flags, OF_STR);
@@ -1775,7 +1709,7 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
 
 static bool _is_favorite_weapon(int tval, int sval)
 {
-    if (p_ptr->pclass != CLASS_ARCHER)
+    if (plr->pclass != CLASS_ARCHER)
     {
         object_type forge;
         int         k_idx = lookup_kind(tval, sval);
@@ -1788,12 +1722,12 @@ static bool _is_favorite_weapon(int tval, int sval)
 
 static bool _is_device_class(void)
 {
-    int class_idx = p_ptr->pclass;
+    int class_id = plr->pclass;
 
-    if (class_idx == CLASS_MONSTER)
-        return get_race()->pseudo_class_idx;
+    if (class_id == CLASS_MONSTER)
+        class_id = get_race()->pseudo_class_id;
 
-    switch (class_idx)
+    switch (class_id)
     {
     case CLASS_ARCHAEOLOGIST:
     case CLASS_HIGH_MAGE:
@@ -1819,16 +1753,16 @@ static bool kind_is_tailored(int k_idx)
     switch (k_ptr->tval)
     {
     case TV_SHIELD:
-        if ( p_ptr->pclass == CLASS_NINJA
-          || p_ptr->pclass == CLASS_MAULER
-          || p_ptr->pclass == CLASS_DUELIST 
+        if ( plr->pclass == CLASS_NINJA
+          || plr->pclass == CLASS_MAULER
+          || plr->pclass == CLASS_DUELIST 
           || weaponmaster_is_(WEAPONMASTER_STAVES) )
         {
             return FALSE; /* These classes cannot wear shields */
         }
-        else if (plr_allow_martial_arts() || p_ptr->pclass == CLASS_SCOUT)
+        else if (plr_allow_martial_arts() || plr->pclass == CLASS_SCOUT)
         {
-            int max_wgt = 50 + p_ptr->lev;
+            int max_wgt = 50 + plr->lev;
             return k_ptr->weight <= max_wgt && equip_can_wield_kind(k_ptr->tval, k_ptr->sval);
         }
         return equip_can_wield_kind(k_ptr->tval, k_ptr->sval);
@@ -1837,11 +1771,11 @@ static bool kind_is_tailored(int k_idx)
     case TV_SOFT_ARMOR:
     case TV_DRAG_ARMOR:
         if ( plr_allow_martial_arts()
-          || p_ptr->pclass == CLASS_DUELIST
-          || p_ptr->pclass == CLASS_SCOUT
-          || p_ptr->pclass == CLASS_NINJA )
+          || plr->pclass == CLASS_DUELIST
+          || plr->pclass == CLASS_SCOUT
+          || plr->pclass == CLASS_NINJA )
         {
-            int max_wgt = 100 + 2*p_ptr->lev;
+            int max_wgt = 100 + 2*plr->lev;
             return k_ptr->weight <= max_wgt && equip_can_wield_kind(k_ptr->tval, k_ptr->sval);
         }
         return equip_can_wield_kind(k_ptr->tval, k_ptr->sval);
@@ -1856,7 +1790,7 @@ static bool kind_is_tailored(int k_idx)
 
     case TV_RING:
     case TV_AMULET:
-        if (p_ptr->prace == RACE_MON_RING) return TRUE;
+        if (plr->prace == RACE_MON_RING) return TRUE;
         else return equip_can_wield_kind(k_ptr->tval, k_ptr->sval);
 
     case TV_SWORD:
@@ -1889,6 +1823,7 @@ static bool kind_is_tailored(int k_idx)
     case TV_CRUSADE_BOOK:
     case TV_NECROMANCY_BOOK:
     case TV_ARMAGEDDON_BOOK:
+    case TV_ILLUSION_BOOK:
     case TV_MUSIC_BOOK:
     case TV_HISSATSU_BOOK:
     case TV_HEX_BOOK:
@@ -1981,6 +1916,7 @@ bool kind_is_great(int k_idx)
         case TV_CRUSADE_BOOK:
         case TV_NECROMANCY_BOOK:
         case TV_ARMAGEDDON_BOOK:
+        case TV_ILLUSION_BOOK:
         case TV_MUSIC_BOOK:
         case TV_HISSATSU_BOOK:
         case TV_HEX_BOOK:
@@ -1992,7 +1928,7 @@ bool kind_is_great(int k_idx)
         }
         case TV_RAGE_BOOK:
         {
-            int max = (p_ptr->pclass == CLASS_RAGE_MAGE) ? 8 : 2;
+            int max = (plr->pclass == CLASS_RAGE_MAGE) ? 8 : 2;
             if (k_ptr->sval == SV_BOOK_MIN_GOOD) return k_ptr->counts.found < max; /* Third Spellbooks: I want ?Acquirement to grant these! */
             if (k_ptr->sval >= SV_BOOK_MIN_GOOD + 1) return k_ptr->counts.found < max;   /* Fourth Spellbooks */
             return FALSE;
@@ -2086,6 +2022,7 @@ bool kind_is_good(int k_idx)
         case TV_CRUSADE_BOOK:
         case TV_NECROMANCY_BOOK:
         case TV_ARMAGEDDON_BOOK:
+        case TV_ILLUSION_BOOK:
         case TV_MUSIC_BOOK:
         case TV_HISSATSU_BOOK:
         case TV_HEX_BOOK:
@@ -2097,7 +2034,7 @@ bool kind_is_good(int k_idx)
         }
         case TV_RAGE_BOOK:
         {
-            int max = (p_ptr->pclass == CLASS_RAGE_MAGE) ? 8 : 2;
+            int max = (plr->pclass == CLASS_RAGE_MAGE) ? 8 : 2;
             if (k_ptr->sval == SV_BOOK_MIN_GOOD) return k_ptr->counts.found < max; /* Third Spellbooks: I want ?Acquirement to grant these! */
             if (k_ptr->sval >= SV_BOOK_MIN_GOOD + 1) return k_ptr->counts.found < max;   /* Fourth Spellbooks */
             return FALSE;
@@ -2207,7 +2144,7 @@ static _kind_alloc_entry _kind_alloc_table[] = {
     { _kind_is_bow_quiver,      60,    0,    0, EQUIP_SLOT_BOW },
     { obj_kind_is_ring,         25,    0,    0, EQUIP_SLOT_RING },   /* beholders = rings only */
     { obj_kind_is_amulet,       25,    0,    0, EQUIP_SLOT_AMULET }, /* hydras = amulets only */
-    { obj_kind_is_lite,         10,    0,    0, EQUIP_SLOT_LITE },
+    { obj_kind_is_light,        10,    0,    0, EQUIP_SLOT_LIGHT },
     { obj_kind_is_body_armor,  160,    0,    0, EQUIP_SLOT_BODY_ARMOR },
     { obj_kind_is_cloak,        40,    0,    0, EQUIP_SLOT_CLOAK },
     { obj_kind_is_helmet,       40,    0,    0, EQUIP_SLOT_HELMET },
@@ -2234,7 +2171,7 @@ static int _kind_alloc_weight(_kind_alloc_entry *entry, u32b mode)
     else if (mode & AM_GOOD)
         w += entry->good;
 
-    if (p_ptr->prace == RACE_MON_RING && entry->hook == obj_kind_is_jewelry)
+    if (plr->prace == RACE_MON_RING && entry->hook == obj_kind_is_jewelry)
         w = w * 2;
 
     /* EXPERIMENTAL: Adjust frequencies of unusable objects down. For example, hounds
@@ -2326,6 +2263,7 @@ static bool _kind_theme_mage(int k_idx) {
     case TV_CRAFT_BOOK:
     case TV_DAEMON_BOOK:
     case TV_ARMAGEDDON_BOOK:
+    case TV_ILLUSION_BOOK:
         return TRUE;
     }
     if (k_info[k_idx].tval == TV_POTION)
@@ -2595,7 +2533,7 @@ static bool _kind_theme_junk(int k_idx) {
     case TV_JUNK:
     case TV_SPIKE:
     case TV_CORPSE:
-    case TV_LITE:
+    case TV_LIGHT:
     case TV_FLASK:
     case TV_FOOD:
         return TRUE;
@@ -2607,15 +2545,15 @@ static bool _kind_theme_junk(int k_idx) {
 static bool _needs_book(void)
 {
     int k_idx;
-    if (p_ptr->pclass == CLASS_SORCERER || p_ptr->pclass == CLASS_RAGE_MAGE)
+    if (plr->pclass == CLASS_SORCERER || plr->pclass == CLASS_RAGE_MAGE)
     {
         return TRUE;
     }
-    else if (p_ptr->pclass == CLASS_RED_MAGE)
+    else if (plr->pclass == CLASS_RED_MAGE)
     {
         return FALSE;
     }
-    else if (p_ptr->pclass == CLASS_GRAY_MAGE)
+    else if (plr->pclass == CLASS_GRAY_MAGE)
     {
         vec_ptr v = tv_lookup_(TVF_SPELLBOOK);
         int     i;
@@ -2633,7 +2571,7 @@ static bool _needs_book(void)
         vec_free(v);
         return result;
     }
-    else if (p_ptr->pclass == CLASS_SKILLMASTER)
+    else if (plr->pclass == CLASS_SKILLMASTER)
     {
         vec_ptr v = tv_lookup_(TVF_SPELLBOOK);
         int     i;
@@ -2651,14 +2589,14 @@ static bool _needs_book(void)
         vec_free(v);
         return result;
     }
-    if (p_ptr->realm1)
+    if (plr->realm1)
     {
         k_idx = lookup_kind(REALM1_BOOK, 2);
         if (k_info[k_idx].counts.found < 3) return TRUE;
         k_idx = lookup_kind(REALM1_BOOK, 3);
         if (k_info[k_idx].counts.found < 2) return TRUE;
     }
-    if (p_ptr->realm2)
+    if (plr->realm2)
     {
         k_idx = lookup_kind(REALM2_BOOK, 2);
         if (k_info[k_idx].counts.found < 3) return TRUE;
@@ -2742,7 +2680,7 @@ static _kind_p _choose_obj_kind(u32b mode)
     else if (_drop_tailored)
     {
         _kind_hook2 = kind_is_tailored;
-        switch (p_ptr->pclass)
+        switch (plr->pclass)
         {
         case CLASS_ARCHAEOLOGIST:
             if (one_in_(5))
@@ -2764,7 +2702,7 @@ static _kind_p _choose_obj_kind(u32b mode)
         case CLASS_DEVICEMASTER:
             if (one_in_(5))
             {
-                switch (p_ptr->psubclass)
+                switch (plr->psubclass)
                 {
                 case DEVICEMASTER_POTIONS:
                     _kind_hook1 = obj_kind_is_potion;
@@ -2799,7 +2737,7 @@ static _kind_p _choose_obj_kind(u32b mode)
             break;
 
         case CLASS_MONSTER:
-            switch (p_ptr->prace)
+            switch (plr->prace)
             {
             case RACE_MON_BEHOLDER:
                 if (one_in_(5))
@@ -2841,7 +2779,7 @@ static _kind_p _choose_obj_kind(u32b mode)
                 _kind_hook1 = obj_kind_is_device;
         }
     }
-    else if (p_ptr->pclass == CLASS_WEAPONMASTER && one_in_(50))
+    else if (plr->pclass == CLASS_WEAPONMASTER && one_in_(50))
         _kind_hook1 = _kind_is_weaponmaster;
 
     /* Otherwise, pick the kind of drop using the allocation table defined above.
@@ -2889,7 +2827,7 @@ void choose_obj_kind(int mode)
  */
 static bool _make_object_aux(object_type *j_ptr, int level, u32b mode)
 {
-    int prob, base;
+    int prob, base, k_idx;
 
     /* Chance of "special object" */
     prob = ((mode & AM_GOOD) ? 10 : 1000);
@@ -2897,31 +2835,28 @@ static bool _make_object_aux(object_type *j_ptr, int level, u32b mode)
     /* Base level for the object */
     base = ((mode & AM_GOOD) ? (level + 10) : level);
 
-    /* Generate a special object, or a normal object */
-    if (!one_in_(prob) || !make_artifact_special(j_ptr, level))
+    /* Try for a "special" INSTA_ART (e.g. artifact lightsources) */
+    if (one_in_(prob) && make_artifact_special(j_ptr, level, mode))
+        return TRUE;
+
+    /* pick an object type */
+    if (!get_obj_num_hook)
+        get_obj_num_hook = _choose_obj_kind(mode);
+
+    if (get_obj_num_hook)
+        get_obj_num_prep();
+
+    k_idx = get_obj_num(base);
+
+    if (get_obj_num_hook)
     {
-        int k_idx;
-
-        if (!get_obj_num_hook)
-            get_obj_num_hook = _choose_obj_kind(mode);
-
-        if (get_obj_num_hook)
-            get_obj_num_prep();
-
-        k_idx = get_obj_num(base);
-
-        if (get_obj_num_hook)
-        {
-            get_obj_num_hook = NULL;
-            get_obj_num_prep();
-        }
-
-        /* Handle failure */
-        if (!k_idx) return FALSE;
-
-        /* Prepare the object */
-        object_prep(j_ptr, k_idx);
+        get_obj_num_hook = NULL;
+        get_obj_num_prep();
     }
+    if (!k_idx) return FALSE;
+
+    /* Prepare the object */
+    object_prep(j_ptr, k_idx);
 
     /* Apply magic (allow artifacts) */
     if (!apply_magic(j_ptr, level, mode))
@@ -2978,13 +2913,13 @@ void place_object(point_t pos, int level, u32b mode)
     object_type forge = {0};
 
     if (!dun_pos_interior(cave, pos)) return;
-    if (!cave_drop_at(pos)) return;
-    if (obj_at(pos)) return;
+    if (!dun_allow_drop_at(cave, pos)) return;
+    if (dun_obj_at(cave, pos)) return;
 
     if (!make_object(&forge, level, mode)) return;
     dun_place_obj(cave, &forge, pos);
     note_pos(pos);
-    lite_pos(pos);
+    draw_pos(pos);
 }
 
 /*
@@ -3043,25 +2978,19 @@ bool make_gold(object_type *j_ptr, int boost)
  *
  * The location must be a legal, clean, floor grid.
  */
-void place_gold(int y, int x)
+void place_gold(point_t pos)
 {
     object_type forge = {0};
 
-    /* Paranoia -- check bounds */
-    if (!in_bounds(y, x)) return;
+    if (!dun_pos_interior(cave, pos)) return;
+    if (!dun_allow_drop_at(cave, pos)) return;
+    if (dun_obj_at(cave, pos)) return;
 
-    /* Require floor space */
-    if (!cave_drop_at_xy(x, y)) return;
-
-    /* Avoid stacking on other objects */
-    if (obj_at_xy(x, y)) return;
-
-    /* Make some gold */
     if (!make_gold(&forge, 0)) return;
 
-    dun_place_obj(cave, &forge, point_create(x, y));
-    note_spot(y, x);
-    lite_spot(y, x);
+    dun_place_obj(cave, &forge, pos);
+    note_pos(pos);
+    draw_pos(pos);
 }
 
 
@@ -3135,143 +3064,6 @@ void acquirement(int y1, int x1, int num, bool great, bool known)
 }
 
 
-#define MAX_NORMAL_TRAPS 18
-
-/* See init_feat_variables() in init2.c */
-typedef struct { s16b feat; byte min_lvl; byte rarity; } _trap_info_t, *_trap_info_ptr;
-static _trap_info_t normal_traps[MAX_NORMAL_TRAPS];
-
-/*
- * Initialize arrays for normal traps
- */
-static void _init_normal_trap(int which, cptr feat, byte min_lvl, byte rarity)
-{
-    _trap_info_ptr trap;
-    assert(0 <= which && which < MAX_NORMAL_TRAPS);
-    trap = &normal_traps[which];
-    trap->feat = f_tag_to_index_in_init(feat);
-    trap->min_lvl = min_lvl;
-    trap->rarity = rarity;
-}
-
-void init_normal_traps(void)
-{
-    int i = 0;
-
-    _init_normal_trap(i++, "TRAP_TRAPDOOR",    0,  3);
-    _init_normal_trap(i++, "TRAP_SLEEP",       0,  2);
-    _init_normal_trap(i++, "TRAP_TRAPS",       0,  3);
-    _init_normal_trap(i++, "TRAP_ALARM",       0,  2);
-    _init_normal_trap(i++, "TRAP_PIT",         0,  3);
-    _init_normal_trap(i++, "TRAP_TELEPORT",    0,  2);
-    _init_normal_trap(i++, "TRAP_SLOW",        0,  2);
-    _init_normal_trap(i++, "TRAP_BLIND",       0,  2);
-    _init_normal_trap(i++, "TRAP_CONFUSE",     0,  2);
-    _init_normal_trap(i++, "TRAP_FIRE",        3,  3);
-    _init_normal_trap(i++, "TRAP_ACID",        5,  3);
-    _init_normal_trap(i++, "TRAP_POISON",      5,  3);
-    _init_normal_trap(i++, "TRAP_SPIKED_PIT",  5,  5);
-    _init_normal_trap(i++, "TRAP_POISON_PIT",  7,  5);
-    _init_normal_trap(i++, "TRAP_LOSE_STR",   15,  6);
-    _init_normal_trap(i++, "TRAP_LOSE_DEX",   15,  6);
-    _init_normal_trap(i++, "TRAP_LOSE_CON",   15,  6);
-    _init_normal_trap(i++, "TRAP_TY_CURSE",   30, 20);
-}
-
-s16b choose_random_trap(void)
-{
-    int  tot = 0, i, roll;
-    bool allow_down = TRUE;
-
-    if (quests_get_current() || cave->dun_lvl >= dun_type()->max_dun_lvl)
-    {
-        allow_down = FALSE;
-    }
-
-    for (i = 0; i < MAX_NORMAL_TRAPS; i++)
-    {
-        _trap_info_ptr trap = &normal_traps[i];
-
-        if (!trap->rarity) continue;
-        if (trap->min_lvl > cave->dun_lvl) continue;
-        if (!allow_down && have_flag(f_info[trap->feat].flags, FF_MORE)) continue;
-
-        tot += 100 / trap->rarity;
-    }
-
-    if (tot <= 0) return feat_floor; /* impossible */
-    roll = randint1(tot);
-
-    for (i = 0; i < MAX_NORMAL_TRAPS; i++)
-    {
-        _trap_info_ptr trap = &normal_traps[i];
-
-        if (!trap->rarity) continue;
-        if (trap->min_lvl > cave->dun_lvl) continue;
-        if (!allow_down && have_flag(f_info[trap->feat].flags, FF_MORE)) continue;
-
-        roll -= 100 / trap->rarity;
-        if (roll <= 0)
-            return trap->feat;
-    }
-    return feat_floor; /* unreachable */
-}
-
-/*
- * Disclose an invisible trap
- */
-void disclose_grid(int y, int x)
-{
-    cave_type *c_ptr = cave_at_xy(x, y);
-
-    if (cave_have_flag_grid(c_ptr, FF_SECRET))
-    {
-        /* No longer hidden */
-        cave_alter_feat(y, x, FF_SECRET);
-    }
-    else if (c_ptr->mimic)
-    {
-        /* No longer hidden */
-        c_ptr->mimic = 0;
-
-        /* Notice */
-        note_spot(y, x);
-
-        /* Redraw */
-        lite_spot(y, x);
-    }
-}
-
-
-/*
- * Places a random trap at the given location.
- *
- * The location must be a legal, naked, floor grid.
- *
- * Note that all traps start out as "invisible" and "untyped", and then
- * when they are "discovered" (by detecting them or setting them off),
- * the trap is "instantiated" as a visible, "typed", trap.
- */
-void place_trap(int y, int x)
-{
-    cave_type *c_ptr = cave_at_xy(x, y);
-
-    /* Paranoia -- verify location */
-    if (!in_bounds(y, x)) return;
-
-    /* Require empty, clean, floor grid */
-    if (!cave_clean_bold(y, x)) return;
-
-    /* Place an invisible trap */
-    c_ptr->mimic = c_ptr->feat;
-    c_ptr->feat = choose_random_trap();
-
-    #if 0
-    if (p_ptr->wizard)
-        msg_format("<color:r>Trap:</color> %s", f_tag + f_info[c_ptr->feat].tag);
-    #endif
-}
-
 
 /*
  * Hack -- display an object kind in the current window
@@ -3323,15 +3115,15 @@ void display_koff(int k_idx)
     use_realm = tval2realm(q_ptr->tval);
 
     /* Warriors are illiterate */
-    if (p_ptr->realm1 || p_ptr->realm2)
+    if (plr->realm1 || plr->realm2)
     {
-        if ((use_realm != p_ptr->realm1) && (use_realm != p_ptr->realm2)) return;
+        if ((use_realm != plr->realm1) && (use_realm != plr->realm2)) return;
     }
     else
     {
-        if ((p_ptr->pclass != CLASS_SORCERER) && (p_ptr->pclass != CLASS_RED_MAGE)) return;
+        if ((plr->pclass != CLASS_SORCERER) && (plr->pclass != CLASS_RED_MAGE)) return;
         if (!is_magic(use_realm)) return;
-        if ((p_ptr->pclass == CLASS_RED_MAGE) && (use_realm != REALM_ARCANE) && (sval > 1)) return;
+        if ((plr->pclass == CLASS_RED_MAGE) && (use_realm != REALM_ARCANE) && (sval > 1)) return;
     }
 
     /* Display spells in readible books */
@@ -3369,22 +3161,24 @@ object_type *choose_warning_item(void)
 /* Examine the grid (xx,yy) and warn the player if there are any danger */
 bool process_warning(point_t pos)
 {
-    cave_type *c_ptr;
-    char o_name[MAX_NLEN];
+    dun_cell_ptr cell = dun_cell_at(cave, pos);
+    bool warn = FALSE;
 
-    c_ptr = cave_at(pos);
-    if (((!easy_disarm && is_trap(c_ptr->feat))
-        || (c_ptr->mimic && is_trap(c_ptr->feat))) && !one_in_(13))
+    if (!easy_disarm && floor_has_known_trap(cell))
+        warn = TRUE;
+    if (floor_has_secret_trap(cell))
+        warn = TRUE;
+    if (warn && !one_in_(13))
     {
-        object_type *o_ptr = choose_warning_item();
+        obj_ptr obj = choose_warning_item();
+        char name[MAX_NLEN];
 
-        if (o_ptr) object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-        else strcpy(o_name, "body"); /* Warning ability without item */
-        msg_format("Your %s pulsates!", o_name);
-        if (o_ptr) obj_learn_flag(o_ptr, OF_WARNING);
+        if (obj) object_desc(name, obj, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+        else strcpy(name, "body"); /* Warning ability without item */
+        msg_format("Your %s pulsates!", name);
+        if (obj) obj_learn_flag(obj, OF_WARNING);
         disturb(0, 0);
         return get_check("Do you really want to go ahead? ");
     }
-
     return TRUE;
 }

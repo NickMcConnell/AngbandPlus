@@ -93,7 +93,7 @@ Body Armor    L29 Hold Life; +1 CON
 Lights        L29 Hold Life
 
 Stability
-Body Armor    L31 Resist Nexus, Chaos and Disenchantment
+Body Armor    L31 Resist Nexus and Chaos
 Helmets       L31 Resist Nexus
 Cloaks        L31 Resist Nexus
 Boots         L31 Resist Nexus
@@ -167,7 +167,7 @@ Water         L13 Resist Acid and Stunning
 Shadow        L17 Resist Darkness; Stealth
 Earth         L19 Resist Shards; Aura of Shards
 Life          L29 Hold Life; +1 CON
-Stability     L31 Resist Nexus, Chaos and Disenchantment
+Stability     L31 Resist Nexus and Chaos
 Death         L35 Resist Nether and Poison
 Might         L39 +2 STR, DEX, CON; Sustain STR, DEX, CON
 Immortality   L45 Resist Time; Hold Life; Sustain All Stats

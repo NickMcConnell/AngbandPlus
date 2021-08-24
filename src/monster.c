@@ -2,11 +2,11 @@
 
 bool player_is_monster_king(void)
 {
-    plr_race_ptr race_ptr;
-    if (p_ptr->pclass != CLASS_MONSTER) return FALSE;
-    race_ptr = plr_race();
-    if (!race_ptr->boss_r_idx) return FALSE;
-    return unique_is_dead(race_ptr->boss_r_idx);
+    mon_race_ptr boss = NULL;
+    if (plr->pclass != CLASS_MONSTER) return FALSE;
+    boss = plr_boss_race();
+    if (!boss) return FALSE;
+    return mon_race_is_dead_unique(boss);
 }
 
 static void _calc_bonuses(void)
@@ -15,16 +15,10 @@ static void _calc_bonuses(void)
         plr_tim_lock(T_HERO);
 }
 
-equip_template_ptr mon_get_equip_template(void)
-{
-    monster_race *r_ptr = mon_race_lookup(p_ptr->current_r_idx);
-    return &b_info[r_ptr->body.body_idx];
-}
-
 cptr mon_name(int r_idx)
 {
     if (r_idx)
-        return r_name + mon_race_lookup(r_idx)->name;
+        return mon_race_lookup(r_idx)->name;
     return ""; /* Birth Menu */
 }
 

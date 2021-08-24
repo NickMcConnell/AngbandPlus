@@ -7,13 +7,13 @@ static int _get_powers(spell_info* spells, int max)
     spell_info* spell = &spells[ct++];
     spell->level = 1;
     spell->cost = 0;
-    spell->fail = calculate_fail_rate(spell->level, 70, p_ptr->stat_ind[A_CHR]);
+    spell->fail = calculate_fail_rate(spell->level, 70, plr->stat_ind[A_CHR]);
     spell->fn = dominate_living_I_spell;
 
     spell = &spells[ct++];
     spell->level = 30;
     spell->cost = 0;
-    spell->fail = calculate_fail_rate(spell->level, 70, p_ptr->stat_ind[A_CHR]);
+    spell->fail = calculate_fail_rate(spell->level, 70, plr->stat_ind[A_CHR]);
     spell->fn = dominate_living_II_spell;
 
     return ct;
@@ -44,6 +44,7 @@ static void _birth(void)
     plr_birth_obj_aux(TV_POLEARM, SV_SPEAR, 1);
     plr_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
     plr_birth_spellbooks();
+    plr_birth_pet("q.scrawny horse");
 }
 
 plr_class_ptr beastmaster_get_class(void)
@@ -53,7 +54,7 @@ plr_class_ptr beastmaster_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 20,  25,  32,   2,  18,  16,  52,  63};
-    skills_t xs = {  7,  10,  10,   0,   0,   0,  14,  25};
+    skills_t xs = { 35,  50,  50,   0,   0,   0,  70, 125};
 
         me = plr_class_alloc(CLASS_BEASTMASTER);
         me->name = "Beastmaster";

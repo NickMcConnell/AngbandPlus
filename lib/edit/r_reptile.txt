@@ -1,0 +1,633 @@
+# Reptiles: Snakes (J), Hydras (M) and Reptiles (R)
+
+########################################################################
+# Snakes (J)
+T:J.base:Snake
+I:DISPLAY(J):WILD(WOOD|GRASS|SWAMP):POS(CORPSE|GAIN_AC)
+I:KIND(ANIMAL):ALERT(50', Inattentive):MOVE(SWIM)
+P:Stat:Str(-2+2):Int(0):Wis(0):Dex(5):Con(1+2):Chr(-1)
+P:Skill:Dis(10+5):Dev(18+25):Sav(30+40):Stl(7):Srh(10):Fos(10):Thn(60+100)
+P:Class:Warrior
+P:Body:Snake
+P:Life:60
+P:Weight:15
+
+N:J.white:J.base:Large white snake
+I:LVL(1,10):RARITY(1)
+I:SPEED(-10):HP(3d6):AC(30):EXP(4):EVOLVE(J.brown, 5)
+I:MOVE(RAND_50)
+B:BITE:HURT(1d3)
+B:CRUSH:HURT(1d3)
+D:It is about eight feet long.
+I:COLOR(White)
+
+N:J.brown:J.base:Large brown snake
+I:LVL(1,10):RARITY(1)
+I:SPEED(-10):HP(4d6):AC(35):EXP(6):EVOLVE(J.yellow, 6)
+I:MOVE(RAND_25)
+B:BITE:HURT(1d6)
+B:CRUSH:HURT(1d7+1)
+D:It is about eight feet long.
+I:COLOR(Umber)
+
+N:J.yellow:J.base:Large yellow snake
+I:LVL(2,20):RARITY(1)
+I:SPEED(-10):HP(4d8):AC(38):EXP(11):EVOLVE(J.grey, 15)
+I:MOVE(RAND_25)
+B:BITE:HURT(1d7)
+B:CRUSH:HURT(2d5)
+D:It is about ten feet long.
+I:COLOR(Yellow)
+
+N:J.grey:J.base:Large grey snake
+I:LVL(4,40):RARITY(1)
+I:SPEED(-10):HP(6d8):AC(41):EXP(14):EVOLVE(J.copperhead, 25)
+I:MOVE(RAND_25)
+B:BITE:HURT(1d4+2)
+B:CRUSH:HURT(1d6+2)
+D:It is about ten feet long.
+I:COLOR(Slate)
+
+N:J.copperhead:J.base:Copperhead snake
+I:LVL(5,40):RARITY(1)
+I:HP(4d6):AC(20):EXP(15):EVOLVE(J.rattlesnake, 30)
+I:ALERT(60',Vigilant):MOVE(RAND_50)
+B:BITE:HURT(1d3):POISON(2d6)
+I:RESIST(POIS)
+D:It has a copper head and sharp venomous fangs.
+I:COLOR(Orange)
+
+N:J.rattlesnake:J.base:Rattlesnake
+I:LVL(6,40):RARITY(1)
+I:HP(6d7):AC(24):EXP(20):EVOLVE(J.cobra, 80)
+I:ALERT(60',Vigilant):MOVE(RAND_50)
+B:BITE:HURT(1d6):POISON(2d6)
+I:RESIST(POIS)
+D:It is recognized by the hard-scaled end of its body that is often rattled to frighten its prey.
+I:COLOR(Red)
+
+N:J.cobra:J.base:King cobra
+I:LVL(9,40):RARITY(2)
+I:HP(8d10):AC(30):EXP(28):EVOLVE(J.mamba, 80)
+I:ALERT(80',Vigilant):MOVE(RAND_50)
+B:SPIT:DAM(1d5):BLIND
+B:BITE:HURT(1d5):POISON(3d4)
+I:RESIST(POIS)
+D:It is a large snake with a hooded face.
+I:COLOR(Green)
+
+N:J.mamba:J.base:Black mamba
+I:LVL(12,40):RARITY(3)
+I:SPEED(+10):HP(10d8):AC(32):EXP(40)
+I:ALERT(100',Vigilant):MOVE(RAND_50)
+B:BITE:HURT(2d4):POISON(4d4)
+I:RESIST(POIS)
+D:It has glistening black skin, a sleek body and highly venomous fangs.
+I:COLOR(Light Dark)
+
+N:J.eel:Electric eel
+I:LVL(20,70):RARITY(2):WILD(SHORE|OCEAN)
+I:HP(15d15):AC(40):EXP(145)
+I:KIND(ANIMAL|AQUATIC):ALERT(150',Inattentive):MOVE(RAND_25|SWIM)
+B:TOUCH(x3):ELEC(2d7)
+I:RESIST(ELEC|WATER)
+D:This cute little serpentine creature can create a deadly voltage. Better watch out!
+I:DISPLAY(J,Light Blue):POS(GAIN_AC)
+P:Copy:J.base
+
+N:J.coatl:Coatl
+I:LVL(29):RARITY(4)
+I:SPEED(+5):HP(30d20):AC(80):EXP(330)
+I:KIND(ANIMAL):ALIGN(Good):ATTR(FRIENDLY)
+I:ALERT(300',Unseeing):MOVE(OPEN|BASH|FLY|PICKUP)
+B:HIT(x3):HURT(1d7+7)
+I:RESIST(ACID|POIS|CONF):IMMUNE(SLEEP)
+S:1_IN_3 | BLIND | CONFUSE | SCARE | PARALYZE
+O:1d2+1:OBJ(*)
+I:DISPLAY(J,Light Blue):POS(CORPSE|GAIN_AC)
+P:Copy:J.base
+P:SpellStat:Int
+
+N:J.tsuchinoko:Tsuchinoko
+I:LVL(30):RARITY(100)
+I:HP(10d10):AC(10):EXP(1000)
+I:KIND(ANIMAL):ALERT(200',Fairly Unseeing)
+B:CLAW(x2):HURT(1d5+2)
+B:BITE:HURT(1d4+5)
+B:CRUSH:HURT(5d8)
+I:DISPLAY(J,Umber):POS(CORPSE|SKELETON)
+P:Copy:J.base
+
+N:J.Jormungand:Jormungand the Midgard Serpent
+I:LVL(75):RARITY(1):ALLOC(UNIQUE):WILD(OCEAN)
+I:SPEED(+20):HP(12000):AC(160):EXP(30000)
+I:KIND(AQUATIC):ALIGN(Evil):CAN(REGEN):ATTR(RIDING)
+I:ALERT(1000',Ever Vigilant):MOVE(PUSH|TUNNEL|SWIM)
+B:CRUSH(x2):HURT(10d10+70)
+B:BITE:HURT(2d50+75)
+I:RESIST(ACID|FIRE|COLD|POIS|CONF|NEXUS|WATER|PLASMA):IMMUNE(SLEEP|SLOW)
+S:FREQ_15 | BA_WATER(1d150+50)
+D:The Midgard Serpent is so huge that its body surrounds the world of
+D:mortal men. It can grind gods themselves to lifeless pulp.
+I:DISPLAY(J,Green):POS(CORPSE|GAIN_AC)
+P:Copy:Half-Giant:Mauler
+P:Life:125
+P:Body:Jormungand
+P:Weight:3000
+
+N:J.Abhoth:Abhoth the Source of Uncleanness
+I:LVL(85):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+20):HP(8400):AC(150):EXP(60000)
+I:KIND(DEMON|NONLIVING|HORROR):ALIGN(Chaotic):CAN(SPEAK):ATTR(SMART|COLD_BLOOD)
+I:ALERT(500',Ever Vigilant):MOVE(NEVER|SWIM)
+B:TOUCH(x4):DAM(7d11):ACID(4d11,50%):POISON(4d11,50%):DISEASE(25%)
+A:POISON(4d11)
+I:RESIST(ACID|ELEC|COLD|POIS|CONF|NETHER|NEXUS|CHAOS|DISENCHANT|WATER)
+I:IMMUNE(SLEEP|SLOW|FEAR|BLIND|STUN)
+S:1_IN_6 | S_MONSTER | S_HI_DEMON | S_HI_DRAGON | S_HI_UNDEAD | HEAL |
+S:TELE_OTHER | TELE_SELF | CAUSE_4 | BRAIN_SMASH | DRAIN_MANA
+S:BR_NUKE | BR_POISON | BR_CHAOS | BR_NEXUS | ANIM_DEAD
+O:1d2:OBJ(*,GREAT)
+D:"...in the pool [there was] a grayish, horrid mass that nearly choked
+D:it from rim to rim. Here, it seemed, was the ultimate source of all
+D:miscreation and abomination. For the gray mass quobbed and quivered,
+D:and swelled perpetually; and from it, in manifold fission, were
+D:spawned the anatomies that crept away on every side through the
+D:grotto."
+I:DISPLAY(J,Light Green):POS(GAIN_AC)
+P:Copy:Half-Giant:Mauler
+P:Body:Demonic Horror
+P:Weight:1000
+
+# XXX J.Chaos is in r_amber.txt ... he's not really a reptile!
+
+########################################################################
+# Hydras (M)
+T:M.base:Hydra
+I:DISPLAY(M):WILD(SHORE|SWAMP):POS(CORPSE|SKELETON|GAIN_AC)
+I:KIND(ANIMAL):ATTR(RIDING)
+I:ALERT(200',Fairly Unseeing):MOVE(OPEN|BASH|PUSH|SWIM)
+P:Stat:Str(0+7):Int(-2):Wis(-2):Dex(0+4):Con(0+7):Chr(0)
+P:Skill:Dis(25+60):Dev(21+50):Sav(35+50):Stl(1):Srh(10):Fos(7):Thn(62+125)
+P:Life:108
+P:Class:Warrior
+P:SpellStat:Con
+P:Body:Hydra1
+P:Weight:250
+
+N:M.2:M.base:2-headed hydra
+I:LVL(17,70):RARITY(2)
+I:HP(100d3):AC(60):EXP(80):EVOLVE(M.4, 1200)
+B:BITE(x2):HURT(1d6+3)
+S:1_IN_11 | SCARE
+O:1d2:OBJ(GOLD)
+D:A strange reptilian hybrid with two heads, guarding its hoard.
+I:COLOR(Umber)
+
+N:M.4:M.base:4-headed hydra
+I:LVL(24):RARITY(2)
+I:SPEED(+10):HP(100d6):AC(70):EXP(350):EVOLVE(M.5, 2500)
+B:BITE(x4):HURT(1d6+3)
+S:1_IN_7 | SCARE
+O:4d2:OBJ(GOLD)
+D:A strange reptilian hybrid with four heads, guarding its hoard.
+I:COLOR(Light Umber)
+P:Body:Hydra2
+P:Weight:300
+
+N:M.5:M.base:5-headed hydra
+I:LVL(28):RARITY(2)
+I:SPEED(+10):HP(100d8):AC(80):EXP(350):EVOLVE(M.7, 3500)
+B:BITE(x5):HURT(1d6+3):POISON(1d3)
+I:RESIST(POIS)
+S:1_IN_5 | SCARE | BA_POISON
+O:5d2:OBJ(GOLD)
+D:A strange reptilian hybrid with five heads dripping venom.
+I:COLOR(Green)
+P:Body:Hydra3
+P:Weight:350
+
+N:M.7:M.base:7-headed hydra
+I:LVL(39):RARITY(2)
+I:SPEED(+10):HP(100d10):AC(90):EXP(2000):EVOLVE(M.9, 9000)
+B:BITE(x7):HURT(1d6+3):POISON(1d3)
+B:SPIT:BLIND
+I:RESIST(POIS)
+S:1_IN_5 | SCARE | BA_POISON | BR_POISON
+O:6d2:OBJ(GOLD)
+D:A strange reptilian hybrid with seven heads dripping venom.
+I:COLOR(Light Green)
+P:Body:Hydra4
+P:Weight:400
+
+N:M.Scylla:M.base:Scylla
+I:LVL(39):RARITY(2):ALLOC(UNIQUE|ESCORT)
+I:SPEED(+15):HP(1500):AC(90):EXP(3500)
+I:ALIGN(Neutral Evil)
+B:BITE(x4):HURT(3d3+8):POISON(3d3)
+I:RESIST(POIS)
+S:1_IN_5 | BR_POISON | BR_FIRE | SCARE | CONFUSE
+O:6d2:OBJ(GOLD)
+M:3d7:MON(M)
+D:A strange reptilian hybrid with multiple heads dripping venom.
+I:COLOR(Yellow)
+P:Body:Hydra5
+P:Weight:500
+
+N:M.9:M.base:9-headed hydra
+I:LVL(40):RARITY(2)
+I:SPEED(+10):HP(100d12):AC(95):EXP(3000):EVOLVE(M.11, 11000)
+B:BITE(x9):HURT(1d6+3):FIRE(1d3)
+I:RESIST(FIRE)
+S:FREQ_20 | BR_FIRE | BO_FIRE | SCARE
+O:6d2:OBJ(GOLD)
+D:A strange reptilian hybrid with nine smouldering heads.
+I:COLOR(Orange)
+P:Body:Hydra5
+P:Weight:400
+
+N:M.11:M.base:11-headed hydra
+I:LVL(44):RARITY(2)
+I:SPEED(+10):HP(100d18):AC(100):EXP(6000)
+B:BITE(x11):HURT(1d6+3):FIRE(1d3)
+I:RESIST(FIRE)
+S:FREQ_20 | BR_FIRE | SCARE | BO_FIRE | BO_PLASMA | BA_FIRE |
+O:6d2:OBJ(GOLD)
+D:A strange reptilian hybrid with eleven smouldering heads.
+I:COLOR(Light Red)
+P:Body:Hydra5
+P:Weight:450
+
+N:M.Lernean:M.base:The Lernean Hydra
+I:LVL(55):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+10):HP(4500):AC(140):EXP(20000)
+I:ATTR(SMART):MOVE(TRAMPLE)
+B:BITE(x6):HURT(4d6):POISON(2d6)
+B:BITE(x6):HURT(3d6):FIRE(2d6)
+I:RESIST(FIRE|CONF):IMMUNE(POIS|SLEEP)
+S:FREQ_25 | SCARE | S_HYDRA | BO_PLASMA(8d7+95) | BA_FIRE(1d385+20) | BR_FIRE | BR_POISON
+O:7d5:OBJ(GOLD)
+O:5%:ART(~.Hydra)
+D:A massive legendary hydra. It has twelve powerful heads. Its many eyes stare at you
+D:as clouds of smoke and poisonous vapour rise from its seething form.
+I:COLOR(Light Blue)
+P:Body:Hydra6
+P:Weight:1000
+
+N:M.Yamata:The Yamata-no-Orochi
+I:LVL(63):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+13):HP(6000):AC(160):EXP(35000)
+I:KIND(ANIMAL):ALIGN(Evil)
+I:ALERT(500',Fairly Unseeing):MOVE(OPEN|BASH|PUSH|SWIM)
+B:HIT(x2):HURT(3d10+35)
+B:CLAW:HURT(3d10):POISON(3d10)
+B:CRUSH:HURT(5d12):DISENCHANT
+I:RESIST(ELEC|FIRE|COLD|POIS|CONF|DARK|CHAOS|WATER):IMMUNE(SLEEP)
+S:FREQ_40 | BR_FIRE | BR_NEXUS | BR_CHAOS | BR_POISON | BR_DISENCHANT | BR_PLASMA | BR_NUKE | BR_DARK
+O:5d2:OBJ(*, GOOD)
+O:25%:ART(|.Kusanagi)
+I:DISPLAY(M,Violet,ATTR_MULTI):POS(CORPSE|GAIN_AC)
+P:Copy:Half-Titan:Mauler
+P:Body:Hydra5
+P:Weight:1000
+
+########################################################################
+# Reptiles (R)
+T:R.small:Reptile
+I:DISPLAY(R):POS(CORPSE|GAIN_AC)
+I:KIND(ANIMAL):ATTR(WEIRD_MIND)
+I:ALERT(200', Fairly Unseeing):MOVE(SWIM)
+P:Stat:Str(0+7):Int(-2):Wis(-2):Dex(0+4):Con(0+7):Chr(0)
+P:Skill:Dis(15+25):Dev(15+35):Sav(30+25):Stl(3):Srh(10):Fos(7):Thn(50+75)
+P:Class:Warrior
+P:Life:50
+P:Body:Scrawny
+P:Weight:20
+
+T:R.big:Reptile
+I:DISPLAY(R):POS(CORPSE|GAIN_AC)
+I:KIND(ANIMAL)
+I:ALERT(200', Fairly Unseeing):MOVE(BASH|PUSH|SWIM|CLEARWEB)
+P:Stat:Str(2+7):Int(-2):Wis(-2):Dex(0+4):Con(0+7):Chr(0)
+P:Skill:Dis(15+25):Dev(15+40):Sav(30+45):Stl(2):Srh(10):Fos(7):Thn(70+150)
+P:Class:Warrior
+P:Body:Reptile
+P:Weight:250
+
+N:R.newt:R.small:Newt
+I:LVL(1,10):RARITY(1):WILD(GRASS|WASTE|SHORE|SWAMP|MOUNTAIN)
+I:HP(2d6):AC(12):ALERT(80'):EXP(4)
+B:BITE(x2):HURT(1d7)
+D:A small, harmless lizard.
+I:COLOR(Yellow)
+
+N:R.rock lizard:R.small:Rock lizard
+I:LVL(1,10):RARITY(1):WILD(MOUNTAIN)
+I:HP(3d4):AC(4):EXP(4):EVOLVE(R.cave lizard, 20)
+B:BITE:HURT(1d3)
+D:It is a small lizard with a hardened hide.
+I:COLOR(Light Umber)
+
+N:R.salamander:R.small:Salamander
+I:LVL(2,20):RARITY(1):WILD(VOLCANO)
+I:HP(4d6):AC(20):EXP(12):EVOLVE(R.giant salamander, 50)
+I:ALERT(80',Inattentive):MOVE(RAND_25)
+B:BITE:FIRE(1d7)
+I:RESIST(FIRE)
+D:A small black and orange lizard.
+I:COLOR(Orange)
+
+N:R.green frog:R.small:Giant green frog
+I:LVL(2,20):RARITY(1):WILD(ONLY|SHORE|SWAMP)
+I:HP(2d8):AC(8):EXP(8):EVOLVE(R.pink frog, 30)
+I:ALERT(120'):MOVE(RAND_25|BASH)
+B:BITE:HURT(1d6)
+D:It is as big as a wolf.
+I:COLOR(Green)
+P:Body:Puppy
+P:Weight:50
+
+N:R.cave lizard:R.small:Cave lizard
+I:LVL(4,30):RARITY(1)
+I:HP(3d6):AC(16):EXP(9):EVOLVE(R.night lizard, 30)
+I:ALERT(80',Inattentive)
+B:BITE:HURT(1d8)
+D:It is an armoured lizard with a powerful bite.
+I:COLOR(Umber)
+
+N:R.pink frog:R.small:Giant pink frog
+I:LVL(7,40):RARITY(1):WILD(ONLY|SHORE|SWAMP)
+I:HP(5d8):AC(16):EXP(16)
+I:ALERT(120'):MOVE(RAND_50|BASH)
+B:BITE:HURT(1d5+3):LOSE_STR(50%)
+D:It looks poisonous.
+I:COLOR(Light Red)
+P:Body:Puppy
+P:Weight:50
+
+N:R.night lizard:R.small:Night lizard
+I:LVL(7,40):RARITY(2):WILD(ALL)
+I:HP(4d8):AC(16):EXP(35):EVOLVE(R.vlasta, 200)
+B:BITE:HURT(1d8)
+B:BITE:HURT(1d8)
+D:It is a black lizard with overlapping scales and a powerful jaw.
+I:COLOR(Blue)
+P:Life:70
+
+N:R.giant salamander:R.small:Giant salamander
+I:LVL(8,40):RARITY(1)
+I:HP(6d7):AC(40):EXP(50)
+I:LIGHT(1):ALERT(60',Vigilant):MOVE(RAND_25)
+B:BITE:HURT(1d7):FIRE(2d7)
+I:RESIST(FIRE)
+S:1_IN_9 | BR_FIRE
+D:A large black and yellow lizard. You'd better run away!
+I:COLOR(Red)
+P:Life:70
+
+N:R.vlasta:R.small:Vlasta
+I:LVL(14,50):RARITY(3)
+I:SPEED(+10):HP(12d6):AC(20):EXP(40):EVOLVE(R.rex, 800)
+I:ALERT(120',Fairly Observant):MOVE(OPEN)
+B:BITE(x2):HURT(1d6+2):BLIND
+D:This strange creature looks like a miniature tyrannosaurus. It has empty, pale eyes
+D:and a sharp beak, which it aims at your eyes as it jumps at you!
+I:COLOR(Blue):POS(SKELETON)
+P:Life:100
+P:Weight:90
+
+# XXX Reference? Don't understand a 'NONLIVING' 'EMPTY_MIND' beetle ... And why is it a reptile?
+N:R.buzzy:Buzzy beetle
+I:LVL(15,60):RARITY(4)
+I:SPEED(-10):HP(15d15):AC(90):EXP(60)
+I:KIND(NONLIVING):CAN(REFLECT):ATTR(EMPTY_MIND)
+I:ALERT(200',Fairly Observant):MOVE(BASH)
+B:HIT(x4):HURT(2d5)
+I:RESIST(BASE|POIS|CONF):IMMUNE(SLEEP)
+O:90%:OBJ(GOLD)
+I:DISPLAY(R,Light Dark):POS(GAIN_AC)
+P:Copy:Barbarian:Warrior
+P:Body:Beetle
+P:Weight:250
+
+# XXX You never find chameleons in this form ... cf choose_new_monster
+N:R.chameleon:Chameleon
+I:LVL(20):RARITY(1)
+I:HP(10d100):EXP(0)
+I:KIND(ANIMAL)
+I:ALERT(200',Ever Vigilant):MOVE(FLY)
+I:RESIST(BASE|POIS)
+O:1d2:OBJ(*$)
+I:DISPLAY(R,Violet):POS(CORPSE|SKELETON|DISABLED)
+P:Class:Warrior
+P:Weight:150
+
+N:R.rex:R.big:Tyrannosaurus
+I:LVL(24,70):RARITY(2)
+I:SPEED(+10):HP(200d3):AC(70):EXP(350)
+I:ATTR(RIDING):MOVE(OPEN)
+B:CLAW(x2):HURT(1d6)
+B:BITE(x2):HURT(2d6+3)
+D:A horror from prehistory, reawakened by chaos.
+I:COLOR(Green)
+P:Weight:500
+
+N:R.crocodile:R.big:White crocodile
+I:LVL(26,70):RARITY(3)
+I:SPEED(+5):HP(300):AC(40):EXP(200)
+B:BITE(x4):HURT(3d4)
+I:RESIST(POIS|WATER)
+O:1d2:OBJ(*)
+D:This crocodile has grown large in the sewer feasting upon the unwary.
+I:COLOR(White)
+P:Body:Crocodile
+
+N:R.basilisk:R.big:Basilisk
+I:LVL(28,70):RARITY(3):WILD(MOUNTAIN)
+I:SPEED(+10):HP(20d30):AC(90):EXP(350):EVOLVE(R.greater basilisk, 10000)
+I:ALIGN(Neutral Evil):ALERT(150')
+B:GAZE:PARALYZE
+B:BITE(x3):HURT(1d12+6)
+I:RESIST(POIS|CONF):IMMUNE(SLEEP)
+S:FREQ_10 | BR_POISON
+O:1d2:OBJ(*)
+D:An evil reptile whose eyes stare deeply at you making your very soul wilt!
+I:COLOR(Light Dark)
+
+# XXX Not a reptile
+N:R.rex.skeleton:Skeletal tyrannosaurus
+I:LVL(30,70):RARITY(2)
+I:SPEED(+10):HP(50d10):AC(55):EXP(400):EVOLVE(R.rex.spectral, 40000)
+I:KIND(UNDEAD|NONLIVING):ALIGN(Evil):ATTR(RIDING|COLD_BLOOD|EMPTY_MIND)
+I:ALERT(200',Fairly Unseeing):MOVE(OPEN|BASH)
+B:CLAW(x2):HURT(1d8)
+B:BITE:HURT(2d6+7):LOSE_CON(50%)
+B:GAZE:TERRIFY
+I:RESIST(COLD|CONF):IMMUNE(POIS|NETHER|SLEEP|FEAR)
+D:It is the skeleton of a tyrannosaurus, animated by dark dweomers.
+I:DISPLAY(R,White):POS(GAIN_AC|SEE_INVIS|HOLD_LIFE)
+P:Copy:Half-Troll:Warrior
+P:Body:Giant Reptile
+P:Weight:150
+
+N:R.Bokrug:Bokrug
+I:LVL(33):RARITY(7):ALLOC(UNIQUE)
+I:HP(990):AC(70):EXP(1600)
+I:KIND(DEMON|NONLIVING|HORROR):ALIGN(Evil):CAN(SPEAK)
+I:ALERT(200',Unseeing):MOVE(OPEN|BASH|SWIM)
+B:BITE:HURT(2d5+10)
+B:CRUSH(x2):HURT(1d10+6)
+I:RESIST(COLD|POIS)
+S:1_IN_5 | S_UNDEAD | MIND_BLAST | CAUSE_3 | SCARE | BO_WATER | S_KIN
+O:1d2:OBJ(*, GOOD)
+D:A lizard-like Great Old One worshipped by the men of Sarnath.
+I:DISPLAY(R,Green):POS(GAIN_AC)
+P:Copy:Barbarian:Beastmaster
+P:Body:Reptile
+P:Weight:200
+
+N:R.greater basilisk:R.big:Greater basilisk
+I:LVL(42):RARITY(2)
+I:SPEED(+10):HP(2000):AC(100):EXP(10000)
+I:ALIGN(Neutral Evil):ATTR(RIDING):ALERT(250')
+B:GAZE:PARALYZE
+B:BITE(x3):HURT(2d12+20)
+I:RESIST(POIS|CONF|DARK|NETHER):IMMUNE(SLEEP)
+S:FREQ_10 | BR_POISON | BR_DARK | BR_NETHER
+O:1d2:OBJ(*, GOOD)
+D:A large basilisk, whose shape resembles that of a great wyrm.
+I:COLOR(Light Dark)
+P:Body:Giant Reptile
+P:Life:105
+P:Weight:350
+
+N:R.Zoth-Ommog:R.big:Zoth-Ommog
+I:LVL(45):RARITY(4):ALLOC(UNIQUE)
+I:SPEED(+10):HP(2500):AC(50):EXP(18000)
+I:KIND(HORROR):ALIGN(Evil):CAN(SPEAK)
+I:ALERT(120',Unseeing):MOVE(RAND_25|DESTROY)
+B:CRUSH(x2):HURT(10d3+30)
+B:BITE(x2):HURT(2d10+5):LOSE_DEX(50%):LOSE_CON(50%)
+I:RESIST(ACID|ELEC|COLD|POIS|CONF):IMMUNE(SLEEP)
+S:1_IN_5 | S_MONSTER | SCARE | CAUSE_4 | S_HYDRA | S_SPIDER |
+S:BA_NETHER(10d10+140) | BA_POISON(12d4) | BA_ACID(1d270+15) | CAUSE_3 | PARALYZE | MIND_BLAST
+D:"A body shaped like a road-based, truncated cone. A flat, blunt,
+D:wedge-shaped, vaguely reptilian head surmounts this conical torso,
+D:and the head is almost entirely hidden behind swirling tresses.
+D:This hair, or beard and mane, consists of thickly carved and
+D:coiling ropes, like serpents or worms... Through this repulsive
+D:Medusa-mane of ropy tendrils, two fierce, serpent-like eyes
+D:glare in a horrible intermingling of cold, inhuman mockery and
+D:what I can only describe as gloating menace."
+I:COLOR(Umber)
+P:Copy:Barbarian:Mauler
+P:Body:Giant Reptile
+P:Weight:350
+
+N:R.Chameleon:Chameleon Lord
+I:LVL(45):RARITY(1):ALLOC(UNIQUE|ESCORT|NO_QUEST)
+I:HP(2500):AC(0):EXP(0)
+I:KIND(ANIMAL):ALERT(200',Ever Vigilant):MOVE(FLY)
+I:RESIST(BASE|POIS)
+O:3d2:OBJ(*, GOOD)
+M:3d7:MON(R.chameleon)
+I:DISPLAY(R,Violet):POS(CORPSE|SKELETON|DISABLED)
+P:Class:Warrior
+P:Weight:150
+
+N:R.rex.spectral:Spectral tyrannosaurus
+I:LVL(46):RARITY(3)
+I:SPEED(+10):HP(3000):AC(120):EXP(15000)
+I:KIND(UNDEAD|NONLIVING):ALIGN(Evil):ATTR(RIDING)
+I:ALERT(250',Unseeing):MOVE(OPEN|BASH|PUSH)
+B:BITE(x2):HURT(2d13):DRAIN_EXP(40d6)
+B:BITE:HURT(5d8):LOSE_STR(50%)
+B:GAZE:TERRIFY
+I:RESIST(ACID|COLD|CONF|NEXUS|TELE):IMMUNE(POIS|NETHER|SLEEP)
+S:FREQ_8 | BR_NEXUS | BR_POISON | BR_NETHER | PARALYZE | SCARE
+O:2d2+1:OBJ(*, GOOD)
+D:A deadly undead horror which looks like a skeletal tyrannosaurus surrounded by a sickly green glow.
+I:DISPLAY(R,Light Green):POS(GAIN_AC)
+P:Copy:Barbarian:Rage-Mage
+P:Body:Giant Reptile
+P:Weight:500
+
+N:R.Zhar:Zhar the Twin Obscenity
+I:LVL(47):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+10):HP(5000):AC(120):EXP(20000)
+I:KIND(HORROR):ALIGN(Evil):ATTR(SMART)
+I:ALERT(300',Fairly Unseeing):MOVE(OPEN|BASH|TRAMPLE|PICKUP|SWIM)
+B:CRUSH(x3):HURT(9d13+70)
+O:4d2:OBJ(*, GOOD)
+S:1_IN_6 | S_DEMON | SHRIEK | CONFUSE | SCARE | MIND_BLAST | BLIND
+D:"The thing that crouched in the weird green dusk was a living mass
+D:of shuddering horror, a ghastly mountain of sensate, quivering
+D:flesh, whose tentacles, far-flung in the dim reaches of the
+D:subterranean cavern, emitted a strange humming sound, while from
+D:the depths of the creature's body came a weird and horrific
+D:undulation."
+I:DISPLAY(R,Light Dark):POS(GAIN_AC)
+P:Copy:Barbarian:Mauler
+P:Body:Demonic Horror
+P:Weight:1000
+
+N:R.Yig:Yig, Father of Serpents
+I:LVL(76):RARITY(1):ALLOC(UNIQUE|ESCORT)
+I:SPEED(+20):HP(6660):AC(123):EXP(37500)
+I:KIND(ANIMAL|HORROR):ALIGN(Evil):CAN(SPEAK|REGEN):ATTR(MALE|SMART)
+I:ALERT(1000',Fairly Observant):MOVE(OPEN|BASH|SWIM)
+B:CLAW(x2):HURT(3d10+10):POISON(3d10)
+B:CRUSH:HURT(5d15+20)
+B:BITE:HURT(50d2+25):CUT(3d8, 50%)
+I:RESIST(ACID|ELEC|POIS|CONF):IMMUNE(SLEEP|SLOW|TELE)
+S:FREQ_20 | BR_POISON | BR_NUKE | BR_ACID | S_HYDRA | S_KIN | S_DEMON |
+O:6d2:OBJ(*, GOOD)
+M:3d7+5:MON(R)
+D:"The half-human father of serpents... the snake-god of the central plains tribes 
+D:-- presumably the primal source of the more southerly Quetzalcoatl or Kukulcan --
+D:was [an] odd, half-anthropomorphic devil."
+I:DISPLAY(R,Green):POS(GAIN_AC)
+P:Copy:Half-Giant:Mauler
+P:Body:Giant Reptile
+P:Weight:900
+
+N:R.Godzilla:Godzilla
+I:LVL(84):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+20):HP(8500):AC(185):EXP(50000)
+I:ALIGN(Evil):ATTR(RIDING)
+I:ALERT(500',Fairly Unseeing):MOVE(OPEN|BASH|PUSH|SWIM)
+B:CLAW(x2):HURT(3d10):POISON(2d10)
+B:BITE:HURT(10d10+50)
+B:CRUSH:DISENCHANT(5d12)
+I:RESIST(FIRE|COLD|POIS|CONF|DISENCHANT|PLASMA):IMMUNE(SLEEP|SLOW|TELE)
+S:FREQ_40 | BR_DISENCHANT | BR_PLASMA | BR_NUKE | BR_POISON | BR_ACID
+O:6d2:OBJ(*, GOOD)
+D:Godzilla rose from the contaminated sea. Fear its anger, for its devastation is unmatched!
+I:DISPLAY(R,Green):POS(CORPSE|GAIN_AC)
+P:Copy:Barbarian:Warrior
+P:Life:120
+P:Body:Giant Reptile
+P:SpellStat:Con
+P:Weight:5000
+
+N:R.Tarrasque:The Tarrasque
+I:LVL(84):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+20):HP(8500):AC(185):EXP(50000)
+I:ALIGN(Evil):ATTR(RIDING)
+I:ALERT(500',Fairly Unseeing):MOVE(OPEN|BASH|PUSH)
+B:HIT(x2):HURT(10d10)
+B:TOUCH(x2):DRAIN_CHARGES
+I:RESIST(CONF|DISENCHANT):IMMUNE(FIRE|COLD|SLEEP|SLOW)
+S:FREQ_40 | BR_FIRE | BR_COLD | BR_DISENCHANT
+O:6d2:OBJ(*, GOOD)
+D:The Tarrasque is a massive reptile of legend, rumoured to be unkillable
+D:and immune to magic. Fear its anger, for its devastation is unmatched!
+I:DISPLAY(R,Violet,ATTR_MULTI):POS(CORPSE|GAIN_AC)
+P:Copy:Barbarian:Warrior
+P:Life:120
+P:Body:Giant Reptile
+P:SpellStat:Con
+P:Weight:2000
+
+# vim: filetype=ri :
+

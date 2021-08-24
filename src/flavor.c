@@ -35,6 +35,7 @@ static bool object_easy_know(int i)
         case TV_CRUSADE_BOOK:
         case TV_NECROMANCY_BOOK:
         case TV_ARMAGEDDON_BOOK:
+        case TV_ILLUSION_BOOK:
         case TV_MUSIC_BOOK:
         case TV_HISSATSU_BOOK:
         case TV_HEX_BOOK:
@@ -145,10 +146,10 @@ void get_table_sindarin_aux(char *out_string)
 {
     char Syllable[80];
 
-    get_rnd_line("sname.txt", 1, Syllable);
+    get_rnd_line("sname.txt", "1", Syllable);
     strcpy(out_string, Syllable);
 
-    get_rnd_line("sname.txt", 2, Syllable);
+    get_rnd_line("sname.txt", "2", Syllable);
     strcat(out_string, Syllable);
 }
 
@@ -471,53 +472,53 @@ static flag_insc_table flag_insc_minus[] =
 
 static flag_insc_table flag_insc_immune[] =
 {
-    { "Ac", OF_IM_ACID, -1 },
-    { "El", OF_IM_ELEC, -1 },
-    { "Fi", OF_IM_FIRE, -1 },
-    { "Co", OF_IM_COLD, -1 },
+    { "Ac", OF_IM_(GF_ACID), -1 },
+    { "El", OF_IM_(GF_ELEC), -1 },
+    { "Fi", OF_IM_(GF_FIRE), -1 },
+    { "Co", OF_IM_(GF_COLD), -1 },
     { NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_resistance[] =
 {
-    { "Ac", OF_RES_ACID, OF_IM_ACID },
-    { "El", OF_RES_ELEC, OF_IM_ELEC },
-    { "Fi", OF_RES_FIRE, OF_IM_FIRE },
-    { "Co", OF_RES_COLD, OF_IM_COLD },
-    { "Po", OF_RES_POIS, -1 },
-    { "Li", OF_RES_LITE, -1 },
-    { "Dk", OF_RES_DARK, -1 },
-    { "Cf", OF_RES_CONF, -1 },
-    { "Nt", OF_RES_NETHER, -1 },
-    { "Nx", OF_RES_NEXUS, -1 },
-    { "So", OF_RES_SOUND, -1 },
-    { "Sh", OF_RES_SHARDS, -1 },
-    { "Ca", OF_RES_CHAOS, -1 },
-    { "Di", OF_RES_DISEN, -1 },
-    { "Ti", OF_RES_TIME, -1 },
-    { "Bl", OF_RES_BLIND, -1 },
-    { "Fe", OF_RES_FEAR, -1 },
+    { "Ac", OF_RES_(GF_ACID), OF_IM_(GF_ACID) },
+    { "El", OF_RES_(GF_ELEC), OF_IM_(GF_ELEC) },
+    { "Fi", OF_RES_(GF_FIRE), OF_IM_(GF_FIRE) },
+    { "Co", OF_RES_(GF_COLD), OF_IM_(GF_COLD) },
+    { "Po", OF_RES_(GF_POIS), -1 },
+    { "Li", OF_RES_(GF_LIGHT), -1 },
+    { "Dk", OF_RES_(GF_DARK), -1 },
+    { "Cf", OF_RES_(GF_CONF), -1 },
+    { "Nt", OF_RES_(GF_NETHER), -1 },
+    { "Nx", OF_RES_(GF_NEXUS), -1 },
+    { "So", OF_RES_(GF_SOUND), -1 },
+    { "Sh", OF_RES_(GF_SHARDS), -1 },
+    { "Ca", OF_RES_(GF_CHAOS), -1 },
+    { "Di", OF_RES_(GF_DISEN), -1 },
+    { "Ti", OF_RES_(GF_TIME), -1 },
+    { "Bl", OF_RES_(GF_BLIND), -1 },
+    { "Fe", OF_RES_(GF_FEAR), -1 },
     { NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_vulnerability[] =
 {
-    { "Ac", OF_VULN_ACID, -1 },
-    { "El", OF_VULN_ELEC, -1 },
-    { "Fi", OF_VULN_FIRE, -1 },
-    { "Co", OF_VULN_COLD, -1 },
-    { "Po", OF_VULN_POIS, -1 },
-    { "Li", OF_VULN_LITE, -1 },
-    { "Dk", OF_VULN_DARK, -1 },
-    { "Nt", OF_VULN_NETHER, -1 },
-    { "Nx", OF_VULN_NEXUS, -1 },
-    { "Cf", OF_VULN_CONF, -1 },
-    { "So", OF_VULN_SOUND, -1 },
-    { "Sh", OF_VULN_SHARDS, -1 },
-    { "Ca", OF_VULN_CHAOS, -1 },
-    { "Di", OF_VULN_DISEN, -1 },
-    { "Bl", OF_VULN_BLIND, -1 },
-    { "Fe", OF_VULN_FEAR, -1 },
+    { "Ac", OF_VULN_(GF_ACID), -1 },
+    { "El", OF_VULN_(GF_ELEC), -1 },
+    { "Fi", OF_VULN_(GF_FIRE), -1 },
+    { "Co", OF_VULN_(GF_COLD), -1 },
+    { "Po", OF_VULN_(GF_POIS), -1 },
+    { "Li", OF_VULN_(GF_LIGHT), -1 },
+    { "Dk", OF_VULN_(GF_DARK), -1 },
+    { "Nt", OF_VULN_(GF_NETHER), -1 },
+    { "Nx", OF_VULN_(GF_NEXUS), -1 },
+    { "Cf", OF_VULN_(GF_CONF), -1 },
+    { "So", OF_VULN_(GF_SOUND), -1 },
+    { "Sh", OF_VULN_(GF_SHARDS), -1 },
+    { "Ca", OF_VULN_(GF_CHAOS), -1 },
+    { "Di", OF_VULN_(GF_DISEN), -1 },
+    { "Bl", OF_VULN_(GF_BLIND), -1 },
+    { "Fe", OF_VULN_(GF_FEAR), -1 },
     { NULL, 0, -1 }
 };
 
@@ -533,7 +534,7 @@ static flag_insc_table flag_insc_misc[] =
     { "Sd", OF_SLOW_DIGEST, -1 },
     { "Rg", OF_REGEN, -1 },
     { "Lv", OF_LEVITATION, -1 },
-    { "Lu", OF_LITE, -1 },
+    { "Lu", OF_LIGHT, -1 },
     { "Wr", OF_WARNING, -1 },
     { "Xm", OF_XTRA_MIGHT, -1 },
     { "Xs", OF_XTRA_SHOTS, -1 },
@@ -569,7 +570,7 @@ static flag_insc_table flag_insc_brand[] =
     { "F", OF_BRAND_FIRE, -1 },
     { "Co", OF_BRAND_COLD, -1 },
     { "P", OF_BRAND_POIS, -1 },
-    { "L", OF_BRAND_LITE, -1 },
+    { "L", OF_BRAND_LIGHT, -1 },
     { "D", OF_BRAND_DARK, -1 },
     { "P", OF_BRAND_PLASMA, -1 },
     { "Ca", OF_BRAND_CHAOS, -1 },
@@ -704,12 +705,11 @@ static char *get_ability_abbreviation(char *ptr, object_type *o_ptr, bool all)
         for (j = 0; j < OF_ARRAY_SIZE; j++)
             flgs[j] &= ~k_ptr->flags[j];
 
-        if (obj_is_std_art(o_ptr))
+        if (o_ptr->art_id)
         {
-            artifact_type *a_ptr = &a_info[o_ptr->name1];
-                    
+            art_ptr art = arts_lookup(o_ptr->art_id);
             for (j = 0; j < OF_ARRAY_SIZE; j++)
-                flgs[j] &= ~a_ptr->flags[j];
+                flgs[j] &= ~art->flags[j];
         }
 
         if (obj_is_ego(o_ptr))
@@ -966,7 +966,7 @@ char tval_to_attr_char(int tval)
 void object_desc(char *buf, object_type *o_ptr, u32b mode)
 {
     /* Extract object kind name */
-    cptr            kindname = k_name + k_info[o_ptr->k_idx].name;
+    cptr            kindname = k_info[o_ptr->k_idx].name;
 
     /* Extract default "base" string */
     cptr            basenm = kindname;
@@ -1014,8 +1014,11 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
     /* Hack object_is_aware() is wrong in this case.
        Anybody know how k_info[].aware gets set?  Perhaps flavor_init? */
-    if (o_ptr->name1 == ART_HAND_OF_VECNA || o_ptr->name1 == ART_EYE_OF_VECNA)
+    if ( obj_is_specified_art(o_ptr, "~.Vecna")
+      || obj_is_specified_art(o_ptr, "].Vecna") )
+    {
         aware = FALSE;
+    }
 
     /* See if the object is "known" */
     if (obj_is_known(o_ptr)) known = TRUE;
@@ -1062,19 +1065,19 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
         case TV_CAPTURE:
         {
-            monster_race *r_ptr = &r_info[o_ptr->pval];
 
             if (known)
             {
-                if (!o_ptr->pval)
+                if (!o_ptr->race_id)
                 {
                     modstr = " (empty)";
                 }
                 else
                 {
-                    cptr t = r_name + r_ptr->name;
+                    monster_race *r_ptr = mon_race_lookup(o_ptr->race_id);
+                    cptr t = r_ptr->name;
 
-                    if (!(r_ptr->flags1 & RF1_UNIQUE))
+                    if (!mon_race_is_unique(r_ptr))
                     {
                         sprintf(tmp_val2, " (%s%s)", (is_a_vowel(*t) ? "an " : "a "), t);
 
@@ -1095,14 +1098,12 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         case TV_FIGURINE:
         case TV_STATUE:
         {
-            monster_race *r_ptr = &r_info[o_ptr->pval];
+            mon_race_ptr race = mon_race_lookup(o_ptr->race_id);
+            cptr t = race->name;
 
-            cptr t = r_name + r_ptr->name;
-
-            if (!(r_ptr->flags1 & RF1_UNIQUE))
+            if (!mon_race_is_unique(race))
             {
                 sprintf(tmp_val2, "%s%s", (is_a_vowel(*t) ? "an " : "a "), t);
-
                 modstr = tmp_val2;
             }
             else
@@ -1115,11 +1116,11 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         /* Corpses */
         case TV_CORPSE:
         {
-            monster_race *r_ptr = &r_info[o_ptr->pval];
+            mon_race_ptr race = mon_race_lookup(o_ptr->race_id);
 
-            modstr = r_name + r_ptr->name;
+            modstr = race->name;
 
-            if (r_ptr->flags1 & RF1_UNIQUE)
+            if (mon_race_is_unique(race))
                 basenm = "& % of #";
             else
                 basenm = "& # %";
@@ -1165,9 +1166,9 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         case TV_HARD_ARMOR:
         case TV_DRAG_ARMOR:
         {
-            if (o_ptr->name1 == ART_HAND_OF_VECNA)
+            if (obj_is_specified_art(o_ptr, "].Vecna"))
             {
-                modstr = k_name + flavor_k_ptr->flavor_name;
+                modstr = flavor_k_ptr->flavor_name;
                 if (!flavor)    basenm = "& Hand~ of %";
                 else if (aware) break;
                 else            basenm = "& # Hand~";
@@ -1178,11 +1179,11 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         }
 
         /* Lites (including a few "Specials") */
-        case TV_LITE:
+        case TV_LIGHT:
         {
-            if (o_ptr->name1 == ART_EYE_OF_VECNA)
+            if (obj_is_specified_art(o_ptr, "~.Vecna"))
             {
-                modstr = k_name + flavor_k_ptr->flavor_name;
+                modstr = flavor_k_ptr->flavor_name;
                 if (!flavor)    basenm = "& Eye~ of %";
                 else if (aware) break;
                 else            basenm = "& # Eye~";
@@ -1215,7 +1216,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         case TV_SCROLL:
         {
             /* Color the object */
-            modstr = k_name + flavor_k_ptr->flavor_name;
+            modstr = flavor_k_ptr->flavor_name;
 
             if (!flavor)    basenm = "& Scroll~ of %";
             else if (aware) basenm = "& Scroll~ titled \"#\" of %";
@@ -1227,7 +1228,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         case TV_POTION:
         {
             /* Color the object */
-            modstr = k_name + flavor_k_ptr->flavor_name;
+            modstr = flavor_k_ptr->flavor_name;
 
             if (!flavor)    basenm = "& Potion~ of %";
             else if (aware) basenm = "& # Potion~ of %";
@@ -1241,7 +1242,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             if (!k_ptr->flavor_name) break;
 
             /* Color the object */
-            modstr = k_name + flavor_k_ptr->flavor_name;
+            modstr = flavor_k_ptr->flavor_name;
 
             if (!flavor)    basenm = "& Mushroom~ of %";
             else if (aware) basenm = "& # Mushroom~ of %";
@@ -1368,6 +1369,10 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             basenm = "& Armageddon Spellbook~ %";
             break;
 
+        case TV_ILLUSION_BOOK:
+            basenm = "& Book~ of Illusion %";
+            break;
+
         case TV_MUSIC_BOOK:
         {
             basenm = "& Song Book~ %";
@@ -1410,8 +1415,8 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     /* Use full name from k_info or a_info */
     if (aware && have_flag(flgs, OF_FULL_NAME))
     {
-        if (known && o_ptr->name1) basenm = a_name + a_info[o_ptr->name1].name;
-        else if (known && o_ptr->name2) basenm = e_name + e_info[o_ptr->name2].name;
+        if (known && o_ptr->art_id) basenm = arts_lookup(o_ptr->art_id)->name;
+        else if (known && o_ptr->name2) basenm = e_info[o_ptr->name2].name;
         else basenm = kindname;
     }
 
@@ -1455,9 +1460,9 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         }
 
         /* Hack -- The only one of its kind */
-        else if ((known && obj_is_art(o_ptr)) ||
-                 ((o_ptr->tval == TV_CORPSE) &&
-                  (r_info[o_ptr->pval].flags1 & RF1_UNIQUE)))
+        else if ( (known && obj_is_art(o_ptr))
+               || ( o_ptr->tval == TV_CORPSE
+                 && mon_race_is_unique(mon_race_lookup(o_ptr->race_id)) ) )
         {
             t = object_desc_str(t, "The ");
         }
@@ -1596,12 +1601,11 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         }
 
         /* Grab any artifact name */
-        else if (obj_is_std_art(o_ptr))
+        else if (o_ptr->art_id)
         {
-            artifact_type *a_ptr = &a_info[o_ptr->name1];
-
+            art_ptr art = arts_lookup(o_ptr->art_id);
             t = object_desc_chr(t, ' ');
-            t = object_desc_str(t, a_name + a_ptr->name);
+            t = object_desc_str(t, art->name);
         }
 
         /* Grab any ego-item name */
@@ -1612,7 +1616,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
                 ego_type *e_ptr = &e_info[o_ptr->name2];
 
                 t = object_desc_chr(t, ' ');
-                t = object_desc_str(t, e_name + e_ptr->name);
+                t = object_desc_str(t, e_ptr->name);
             }
 
             if (o_ptr->inscription && my_strchr(quark_str(o_ptr->inscription), '#'))
@@ -1772,13 +1776,15 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             int dd = o_ptr->dd;
             int ds = o_ptr->ds;
 
-            if (p_ptr->big_shot && o_ptr->tval == p_ptr->shooter_info.tval_ammo)
-                ds += 2;
-
-            if (hand >= 0 && hand < MAX_HANDS && !(mode & OD_THROWING))
+            if (o_ptr->tval == plr->shooter_info.tval_ammo)
             {
-                dd += p_ptr->attack_info[hand].to_dd;
-                ds += p_ptr->attack_info[hand].to_ds;
+                dd += plr->shooter_info.to_dd;
+                ds += plr->shooter_info.to_ds;
+            }
+            else if (hand >= 0 && hand < MAX_HANDS && !(mode & OD_THROWING))
+            {
+                dd += plr->attack_info[hand].to_dd;
+                ds += plr->attack_info[hand].to_ds;
             }
             /* Append a "damage" string */
             t = object_desc_chr(t, ' ');
@@ -1805,7 +1811,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
         /* Are we describing a wielded bow? */
         if (equip_is_worn(o_ptr))
-            power += p_ptr->shooter_info.to_mult;
+            power += plr->shooter_info.to_mult;
 
         if (power % 100)
             sprintf(tmp, "x%d.%2.2d", power / 100, power % 100);
@@ -1867,12 +1873,12 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         }
     }
 
-    if ((p_ptr->pclass == CLASS_NINJA) && (o_ptr->tval == TV_SPIKE))
+    if ((plr->pclass == CLASS_NINJA) && (o_ptr->tval == TV_SPIKE))
     {
         int avgdam = 1;
-        s16b energy_fire = 100 - p_ptr->lev;
+        s16b energy_fire = 100 - plr->lev;
 
-        avgdam += ((p_ptr->lev + 30) * (p_ptr->lev + 30) - 900) / 55;
+        avgdam += ((plr->lev + 30) * (plr->lev + 30) - 900) / 55;
 
         /* Display (shot damage/ avg damage) */
         t = object_desc_chr(t, ' ');
@@ -2057,12 +2063,12 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     if (known)
     {
         /* Hack -- Process Lanterns/Torches */
-        if ((o_ptr->tval == TV_LITE) && (!(o_ptr->name1 || o_ptr->art_name || (o_ptr->sval == SV_LITE_FEANOR))))
+        if ((o_ptr->tval == TV_LIGHT) && (!(o_ptr->art_id || o_ptr->art_name || o_ptr->sval == SV_LIGHT_FEANOR || o_ptr->sval == SV_LIGHT_DARK)))
         {
             /* Hack -- Turns of light for normal lites */
             t = object_desc_str(t, " (with ");
 
-            if (o_ptr->name2 == EGO_LITE_DURATION) t = object_desc_num(t, o_ptr->xtra4 * 2);
+            if (o_ptr->name2 == EGO_LIGHT_DURATION) t = object_desc_num(t, o_ptr->xtra4 * 2);
             else t = object_desc_num(t, o_ptr->xtra4);
             t = object_desc_str(t, " turns of light)");
         }
@@ -2115,7 +2121,8 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     if (obj_is_device(o_ptr) && obj_is_identified_fully(o_ptr))
     {
         int  fail = device_calc_fail_rate(o_ptr);
-        strcat(tmp_val2, format("%d%%", (fail + 5)/10));
+        if (!(mode & OD_HIDE_DEVICE_FAIL))
+            strcat(tmp_val2, format("%d%%", (fail + 5)/10));
         if (statistics_hack || (mode & OD_SHOW_DEVICE_INFO))
         {
             cptr info = do_device(o_ptr, SPELL_INFO, 0);
@@ -2136,9 +2143,10 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         }
     }
 
-    if (o_ptr->name3 && obj_is_known(o_ptr) && abbrev_all)
+    if (o_ptr->replacement_art_id && obj_is_known(o_ptr) && abbrev_all)
     {
-        cptr  t = a_name + a_info[o_ptr->name3].name;
+        art_ptr art = arts_lookup(o_ptr->replacement_art_id);
+        cptr    t = art->name;
 
         if (!o_ptr->art_name || !streq(t, quark_str(o_ptr->art_name)))
         {
@@ -2211,7 +2219,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     }
 
     /* Note "unidentified" if the item is unidentified */
-    else if ( (o_ptr->tval == TV_LITE || o_ptr->tval == TV_FIGURINE || o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
+    else if ( (o_ptr->tval == TV_LIGHT || o_ptr->tval == TV_FIGURINE || o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
            && aware 
            && !known
            && !(o_ptr->ident & IDENT_SENSE) )

@@ -80,7 +80,7 @@ static cptr _skill_desc(int amt, int div)
 }
 
 /* Disarming */
-static cptr _dis_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra - 40, 8); }
+static cptr _dis_skill_desc(int base, int xtra) { return _skill_desc(base + xtra - 40, 8); }
 static cptr _class_dis_skill_desc(class_t *class_ptr) { return _dis_skill_desc(class_ptr->skills.dis, class_ptr->extra_skills.dis); }
 static cptr _mon_race_dis_skill_desc(race_t *race_ptr) { return _dis_skill_desc(race_ptr->skills.dis, race_ptr->extra_skills.dis); }
 
@@ -89,7 +89,7 @@ static cptr _race_dis_skill_desc(race_t *race_ptr) { return _dis_skill_desc2(rac
 static cptr _pers_dis_skill_desc(personality_ptr pers_ptr) { return _dis_skill_desc2(pers_ptr->skills.dis*2); }
 
 /* Devices */
-static cptr _dev_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra - 50, 6); }
+static cptr _dev_skill_desc(int base, int xtra) { return _skill_desc(base + xtra - 50, 6); }
 static cptr _class_dev_skill_desc(class_t *class_ptr) { return _dev_skill_desc(class_ptr->skills.dev, class_ptr->extra_skills.dev); }
 static cptr _mon_race_dev_skill_desc(race_t *race_ptr) { return _dev_skill_desc(race_ptr->skills.dev, race_ptr->extra_skills.dev); }
 
@@ -98,7 +98,7 @@ static cptr _race_dev_skill_desc(race_t *race_ptr) { return _dev_skill_desc2(rac
 static cptr _pers_dev_skill_desc(personality_ptr pers_ptr) { return _dev_skill_desc2(pers_ptr->skills.dev*2); }
 
 /* Saving Throws */
-static cptr _sav_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra - 65, 5); }
+static cptr _sav_skill_desc(int base, int xtra) { return _skill_desc(base + xtra - 65, 5); }
 static cptr _class_sav_skill_desc(class_t *class_ptr) { return _sav_skill_desc(class_ptr->skills.sav, class_ptr->extra_skills.sav); }
 static cptr _mon_race_sav_skill_desc(race_t *race_ptr) { return _sav_skill_desc(race_ptr->skills.sav, race_ptr->extra_skills.sav); }
 
@@ -107,7 +107,7 @@ static cptr _race_sav_skill_desc(race_t *race_ptr) { return _sav_skill_desc2(rac
 static cptr _pers_sav_skill_desc(personality_ptr pers_ptr) { return _sav_skill_desc2(pers_ptr->skills.sav*2); }
 
 /* Melee */
-static cptr _thn_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra - 70, 12); }
+static cptr _thn_skill_desc(int base, int xtra) { return _skill_desc(base + xtra - 70, 12); }
 static cptr _class_thn_skill_desc(class_t *class_ptr) { return _thn_skill_desc(class_ptr->skills.thn, class_ptr->extra_skills.thn); }
 static cptr _mon_race_thn_skill_desc(race_t *race_ptr) { return _thn_skill_desc(race_ptr->skills.thn, race_ptr->extra_skills.thn); }
 
@@ -116,7 +116,7 @@ static cptr _race_thn_skill_desc(race_t *race_ptr) { return _thn_skill_desc2(rac
 static cptr _pers_thn_skill_desc(personality_ptr pers_ptr) { return _thn_skill_desc2(pers_ptr->skills.thn*2); }
 
 /* Bows */
-static cptr _thb_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra - 60, 12); }
+static cptr _thb_skill_desc(int base, int xtra) { return _skill_desc(base + xtra - 60, 12); }
 static cptr _class_thb_skill_desc(class_t *class_ptr) { return _thb_skill_desc(class_ptr->skills.thb, class_ptr->extra_skills.thb); }
 static cptr _mon_race_thb_skill_desc(race_t *race_ptr) { return _thb_skill_desc(race_ptr->skills.thb, race_ptr->extra_skills.thb); }
 
@@ -125,7 +125,7 @@ static cptr _race_thb_skill_desc(race_t *race_ptr) { return _thb_skill_desc2(rac
 static cptr _pers_thb_skill_desc(personality_ptr pers_ptr) { return _thb_skill_desc2(pers_ptr->skills.thb*2); }
 
 /* Stealth */
-static cptr _stl_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xtra + 2, 1); }
+static cptr _stl_skill_desc(int base, int xtra) { return _skill_desc(base + xtra + 2, 1); }
 static cptr _class_stl_skill_desc(class_t *class_ptr) { return _stl_skill_desc(class_ptr->skills.stl, class_ptr->extra_skills.stl); }
 static cptr _mon_race_stl_skill_desc(race_t *race_ptr) { return _stl_skill_desc(race_ptr->skills.stl, race_ptr->extra_skills.stl); }
 static cptr _race_stl_skill_desc(race_t *race_ptr) { return _stl_skill_desc(race_ptr->skills.stl, 0); }
@@ -316,20 +316,20 @@ static void _races_help(FILE* fp)
     fputs("\n</style>\n", fp);
 }
 
-struct _name_desc_s { string_ptr name; string_ptr desc; };
+struct _name_desc_s { str_ptr name; str_ptr desc; };
 typedef struct _name_desc_s _name_desc_t, *_name_desc_ptr;
 static int _compare_name_desc(const _name_desc_ptr left, const _name_desc_ptr right) {
-    return string_compare(left->name, right->name);
+    return str_compare(left->name, right->name);
 }
 static void _name_desc_free(_name_desc_ptr p) {
-    string_free(p->name);
-    string_free(p->desc);
+    str_free(p->name);
+    str_free(p->desc);
     free(p);
 }
 static _name_desc_ptr _name_desc_alloc(void) {
     _name_desc_ptr result = malloc(sizeof(_name_desc_t));
-    result->name = string_alloc();
-    result->desc = string_alloc();
+    result->name = str_alloc();
+    result->desc = str_alloc();
     return result;
 }
 
@@ -413,10 +413,10 @@ static void _demigods_help(FILE* fp)
                 _name_desc_ptr nd = _name_desc_alloc();
 
                 mut_name(i, buf);
-                string_append_s(nd->name, buf);
+                str_append_s(nd->name, buf);
 
                 mut_help_desc(i, buf);
-                string_append_s(nd->desc, buf);
+                str_append_s(nd->desc, buf);
                 vec_add(vec, nd);
             }
         }
@@ -428,7 +428,7 @@ static void _demigods_help(FILE* fp)
             _name_desc_ptr nd = vec_get(vec, i);
             /*fprintf(fp, "<color:G>%s: </color>%s\n",*/
             fprintf(fp, "  <indent><color:G>%s</color>\n%s</indent>\n\n",
-                string_buffer(nd->name), string_buffer(nd->desc));
+                str_buffer(nd->name), str_buffer(nd->desc));
         }
 
         vec_free(vec);
@@ -516,10 +516,10 @@ static void _draconians_help(FILE* fp)
                 _name_desc_ptr nd = _name_desc_alloc();
 
                 mut_name(i, buf);
-                string_append_s(nd->name, buf);
+                str_append_s(nd->name, buf);
 
                 mut_help_desc(i, buf);
-                string_append_s(nd->desc, buf);
+                str_append_s(nd->desc, buf);
                 vec_add(vec, nd);
             }
         }
@@ -531,7 +531,7 @@ static void _draconians_help(FILE* fp)
             _name_desc_ptr nd = vec_get(vec, i);
             /*fprintf(fp, "<color:G>%s: </color>%s\n",*/
             fprintf(fp, "  <indent><color:G>%s</color>\n%s</indent>\n\n",
-                string_buffer(nd->name), string_buffer(nd->desc));
+                str_buffer(nd->name), str_buffer(nd->desc));
         }
 
         vec_free(vec);
@@ -598,11 +598,11 @@ static void _mon_race_help_table(FILE *fp, race_t *race_ptr)
     fprintf(fp, "Constitution <color:%c>%+3d</color>        Searching   %s\n",
         (caster_ptr && caster_ptr->which_stat == A_CON) ? 'v' : 'w',
         race_ptr->stats[A_CON],
-        _skill_desc(race_ptr->skills.srh + 5*race_ptr->extra_skills.srh, 6));
+        _skill_desc(race_ptr->skills.srh + race_ptr->extra_skills.srh, 6));
     fprintf(fp, "Charisma     <color:%c>%+3d</color>        Perception  %s\n",
         (caster_ptr && caster_ptr->which_stat == A_CHR) ? 'v' : 'w',
         race_ptr->stats[A_CHR],
-        _skill_desc(race_ptr->skills.fos + 5*race_ptr->extra_skills.fos, 6));
+        _skill_desc(race_ptr->skills.fos + race_ptr->extra_skills.fos, 6));
     fprintf(fp, "Life Rating  %3d%%       Melee       %s\n",
         race_ptr->life,
         _mon_race_thn_skill_desc(race_ptr));
@@ -741,8 +741,8 @@ static void _monster_races_help(FILE* fp)
 
             race_ptr = get_race_aux(race_idx, 0);
             fprintf(fp, "%-12.12s", race_ptr->name);
-            fprintf(fp, " %s", _skill_desc(race_ptr->skills.srh + 5*race_ptr->extra_skills.srh, 6));
-            fprintf(fp, " %s", _skill_desc(race_ptr->skills.fos + 5*race_ptr->extra_skills.fos, 6));
+            fprintf(fp, " %s", _skill_desc(race_ptr->skills.srh + race_ptr->extra_skills.srh, 6));
+            fprintf(fp, " %s", _skill_desc(race_ptr->skills.fos + race_ptr->extra_skills.fos, 6));
             fprintf(fp, " %s", _mon_race_thn_skill_desc(race_ptr));
             fprintf(fp, " %s", _mon_race_thb_skill_desc(race_ptr));
             fprintf(fp, " %4d'", race_ptr->infra * 10);
@@ -802,8 +802,8 @@ static void _demons_help(FILE* fp)
     {
         race_t *race_ptr = get_race_aux(RACE_MON_DEMON, i);
         fprintf(fp, "%-17.17s", race_ptr->subname);
-        fprintf(fp, " %s", _skill_desc(race_ptr->skills.srh + 5*race_ptr->extra_skills.srh, 6));
-        fprintf(fp, " %s", _skill_desc(race_ptr->skills.fos + 5*race_ptr->extra_skills.fos, 6));
+        fprintf(fp, " %s", _skill_desc(race_ptr->skills.srh + race_ptr->extra_skills.srh, 6));
+        fprintf(fp, " %s", _skill_desc(race_ptr->skills.fos + race_ptr->extra_skills.fos, 6));
         fprintf(fp, " %s", _mon_race_thn_skill_desc(race_ptr));
         fprintf(fp, " %s", _mon_race_thb_skill_desc(race_ptr));
         fprintf(fp, " %4d'", race_ptr->infra * 10);
@@ -863,8 +863,8 @@ static void _dragons_help(FILE* fp)
     {
         race_t *race_ptr = get_race_aux(RACE_MON_DRAGON, i);
         fprintf(fp, "%-17.17s", race_ptr->subname);
-        fprintf(fp, " %s", _skill_desc(race_ptr->skills.srh + 5*race_ptr->extra_skills.srh, 6));
-        fprintf(fp, " %s", _skill_desc(race_ptr->skills.fos + 5*race_ptr->extra_skills.fos, 6));
+        fprintf(fp, " %s", _skill_desc(race_ptr->skills.srh + race_ptr->extra_skills.srh, 6));
+        fprintf(fp, " %s", _skill_desc(race_ptr->skills.fos + race_ptr->extra_skills.fos, 6));
         fprintf(fp, " %s", _mon_race_thn_skill_desc(race_ptr));
         fprintf(fp, " %s", _mon_race_thb_skill_desc(race_ptr));
         fprintf(fp, " %4d'", race_ptr->infra * 10);
@@ -1007,11 +1007,11 @@ static void _class_help_table(FILE *fp, class_t *class_ptr)
     fprintf(fp, "Constitution <color:%c>%+3d</color>        Searching   %s\n",
         (caster_ptr && caster_ptr->which_stat == A_CON) ? 'v' : 'w',
         class_ptr->stats[A_CON],
-        _skill_desc(class_ptr->skills.srh + 5*class_ptr->extra_skills.srh, 6));
+        _skill_desc(class_ptr->skills.srh + class_ptr->extra_skills.srh, 6));
     fprintf(fp, "Charisma     <color:%c>%+3d</color>        Perception  %s\n",
         (caster_ptr && caster_ptr->which_stat == A_CHR) ? 'v' : 'w',
         class_ptr->stats[A_CHR],
-        _skill_desc(class_ptr->skills.fos + 5*class_ptr->extra_skills.fos, 6));
+        _skill_desc(class_ptr->skills.fos + class_ptr->extra_skills.fos, 6));
     fprintf(fp, "Life Rating  %3d%%       Melee       %s\n",
         class_ptr->life,
         _class_thn_skill_desc(class_ptr));
@@ -1173,8 +1173,8 @@ static void _classes_help(FILE* fp)
             if (class_idx == -1) break;
             class_ptr = get_class_aux(class_idx, 0);
             fprintf(fp, "%-13.13s", class_ptr->name);
-            fprintf(fp, " %s", _skill_desc(class_ptr->skills.srh + 5*class_ptr->extra_skills.srh, 6));
-            fprintf(fp, " %s", _skill_desc(class_ptr->skills.fos + 5*class_ptr->extra_skills.fos, 6));
+            fprintf(fp, " %s", _skill_desc(class_ptr->skills.srh + class_ptr->extra_skills.srh, 6));
+            fprintf(fp, " %s", _skill_desc(class_ptr->skills.fos + class_ptr->extra_skills.fos, 6));
             fprintf(fp, " %s", _class_thn_skill_desc(class_ptr));
             fprintf(fp, " %s", _class_thb_skill_desc(class_ptr));
             fputc('\n', fp);
@@ -1233,8 +1233,8 @@ static void _weaponmasters_help(FILE *fp)
     {
         class_t *class_ptr = get_class_aux(CLASS_WEAPONMASTER, i);
         fprintf(fp, "%-17.17s", class_ptr->subname);
-        fprintf(fp, " %s", _skill_desc(class_ptr->skills.srh + 5*class_ptr->extra_skills.srh, 6));
-        fprintf(fp, " %s", _skill_desc(class_ptr->skills.fos + 5*class_ptr->extra_skills.fos, 6));
+        fprintf(fp, " %s", _skill_desc(class_ptr->skills.srh + class_ptr->extra_skills.srh, 6));
+        fprintf(fp, " %s", _skill_desc(class_ptr->skills.fos + class_ptr->extra_skills.fos, 6));
         fprintf(fp, " %s", _class_thn_skill_desc(class_ptr));
         fprintf(fp, " %s", _class_thb_skill_desc(class_ptr));
         fputc('\n', fp);
@@ -1292,8 +1292,8 @@ static void _warlocks_help(FILE *fp)
     {
         class_t *class_ptr = get_class_aux(CLASS_WARLOCK, i);
         fprintf(fp, "%-17.17s", class_ptr->subname);
-        fprintf(fp, " %s", _skill_desc(class_ptr->skills.srh + 5*class_ptr->extra_skills.srh, 6));
-        fprintf(fp, " %s", _skill_desc(class_ptr->skills.fos + 5*class_ptr->extra_skills.fos, 6));
+        fprintf(fp, " %s", _skill_desc(class_ptr->skills.srh + class_ptr->extra_skills.srh, 6));
+        fprintf(fp, " %s", _skill_desc(class_ptr->skills.fos + class_ptr->extra_skills.fos, 6));
         fprintf(fp, " %s", _class_thn_skill_desc(class_ptr));
         fprintf(fp, " %s", _class_thb_skill_desc(class_ptr));
         fputc('\n', fp);
@@ -1426,33 +1426,39 @@ static void _personalities_help(FILE* fp)
 static void _possessor_stats_table(FILE* fp)
 {
     int i;
-    fprintf(fp, "Name,Idx,Lvl,Speed,AC,Attacks,Dam,Body,Str,Int,Wis,Dex,Con,Chr,Life,Disarm,Device,Save,Stealth,Search,Perception,Melee,Bows\n");
-    for (i = 0; i < max_r_idx; i++)
+    fprintf(fp, "Name,Lvl,Speed,AC,Attacks,Dam,Body,Str,Int,Wis,Dex,Con,Chr,Life,Disarm,Device,Save,Stealth,Search,Perception,Melee,Bows\n");
+    for (i = 0; i < vec_length(mon_alloc_tbl); i++)
     {
-        monster_race *r_ptr = &r_info[i];
+        monster_race *r_ptr = vec_get(mon_alloc_tbl, i);
 
-        /*XXX if (r_ptr->flags9 & RF9_DROP_CORPSE)*/
+        /*XXX if (r_ptr->body.flags & RF_DROP_CORPSE)*/
         {
-            int ac = 0, dam = 0, attacks = 0/*, j*/;
+            int ac = 0, dam = 0, attacks = 0, j;
 
-            if (r_ptr->flags9 & RF9_POS_GAIN_AC)
+            if (r_ptr->body.flags & RF_POS_GAIN_AC)
                 ac = r_ptr->ac;
 
-            #if 0
-            for (j = 0; j < 4; j++)
+            for (j = 0; j < vec_length(r_ptr->blows); j++)
             {
-                if (!r_ptr->blow[j].effect) continue;
-                if (r_ptr->blow[j].method == RBM_EXPLODE) continue;
-
-                dam += r_ptr->blow[j].d_dice * (r_ptr->blow[j].d_side + 1) / 2;
+                mon_blow_ptr blow = vec_get(r_ptr->blows, j);
+                if (blow->method == RBM_EXPLODE) continue;
+                if (!blow->effect_ct) continue;
+                if (blow->effects[0].type == RBE_CUT) continue;
+                if (blow->effects[0].type == RBE_DRAIN_EXP) continue;
+                if (blow->effects[0].type == GF_FEAR) continue;
+                if (blow->effects[0].type == GF_STUN) continue;
+                if (blow->effects[0].type == GF_PARALYSIS) continue;
+                if (blow->effects[0].type == GF_DRAIN_MANA) continue;
+                if (blow->effects[0].type == GF_UNLIFE) continue;
+                dam += dice_avg_roll(blow->effects[0].dice);
                 attacks++;
             }
-            #endif
 
-            fprintf(fp, "\"%s\",%d,%d,%d,%d,%d,%d,%s,%d,%d,%d,%d,%d,%d,%d,=\"%d+%d\",=\"%d+%d\",=\"%d+%d\",%d,%d,%d,=\"%d+%d\",=\"%d+%d\"\n",
-                i == MON_ECHIZEN ? "Combat Echizen" : r_name + r_ptr->name, i, r_ptr->level,
-                r_ptr->speed - 110, ac, attacks, dam,
-                b_name + b_info[r_ptr->body.body_idx].name,
+            fprintf(fp, "\"%s\",%d,%d,%d,%d,%d,\"%s\",%d,%d,%d,%d,%d,%d,%d,=\"%d+%d\",=\"%d+%d\",=\"%d+%d\",%d,%d,%d,=\"%d+%d\",=\"%d+%d\"\n",
+                sym_str(r_ptr->id),
+                r_ptr->alloc.lvl,
+                r_ptr->move.speed, ac, attacks, dam,
+                sym_str(r_ptr->body.body_id),
                 r_ptr->body.stats[A_STR], r_ptr->body.stats[A_INT], r_ptr->body.stats[A_WIS],
                 r_ptr->body.stats[A_DEX], r_ptr->body.stats[A_CON], r_ptr->body.stats[A_CHR],
                 r_ptr->body.life,
@@ -1535,14 +1541,14 @@ static void _skills_class_table(FILE* fp)
             else
                 fprintf(fp, "\"%s\",", class_ptr->name);
             fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,%d,%d+%d,%d+%d,%d+%d,%d+%d,%d+%d,%d,%d,%d,%d\n",
-                class_ptr->skills.dis + 5*class_ptr->extra_skills.dis,
-                class_ptr->skills.dev + 5*class_ptr->extra_skills.dev,
-                class_ptr->skills.sav + 5*class_ptr->extra_skills.sav,
-                class_ptr->skills.stl + 5*class_ptr->extra_skills.stl,
+                class_ptr->skills.dis + class_ptr->extra_skills.dis,
+                class_ptr->skills.dev + class_ptr->extra_skills.dev,
+                class_ptr->skills.sav + class_ptr->extra_skills.sav,
+                class_ptr->skills.stl + class_ptr->extra_skills.stl,
                 class_ptr->skills.srh,
                 class_ptr->skills.fos,
-                class_ptr->skills.thn + 5*class_ptr->extra_skills.thn,
-                class_ptr->skills.thb + 5*class_ptr->extra_skills.thb,
+                class_ptr->skills.thn + class_ptr->extra_skills.thn,
+                class_ptr->skills.thb + class_ptr->extra_skills.thb,
                 class_ptr->skills.dis, class_ptr->extra_skills.dis,
                 class_ptr->skills.dev, class_ptr->extra_skills.dev,
                 class_ptr->skills.sav, class_ptr->extra_skills.sav,
@@ -1592,71 +1598,71 @@ static void _spells_table(FILE* fp) /*m_info.txt*/
  * Auto-generate HTML and TEXT files from the help system
  ******************************************************************************/
 typedef struct {
-    string_ptr dir;
-    string_ptr base;
-    string_ptr ext;
+    str_ptr dir;
+    str_ptr base;
+    str_ptr ext;
 } _file_parts_t, *_file_parts_ptr;
 static _file_parts_ptr _file_parts_alloc(void)
 {
     _file_parts_ptr result = malloc(sizeof(_file_parts_t));
-    result->dir = string_alloc();
-    result->base = string_alloc();
-    result->ext = string_alloc();
+    result->dir = str_alloc();
+    result->base = str_alloc();
+    result->ext = str_alloc();
     return result;
 }
 static void _file_parts_free(_file_parts_ptr fp)
 {
     if (fp)
     {
-        string_free(fp->dir);
-        string_free(fp->base);
-        string_free(fp->ext);
+        str_free(fp->dir);
+        str_free(fp->base);
+        str_free(fp->ext);
         free(fp);
     }
 }
-static string_ptr _file_parts_build_fullname(_file_parts_ptr fp)
+static str_ptr _file_parts_build_fullname(_file_parts_ptr fp)
 {
-    string_ptr result = string_copy(fp->dir);
+    str_ptr result = str_copy(fp->dir);
 
-    string_append_s(result, PATH_SEP);
-    string_append(result, fp->base);
-    if (string_length(fp->ext))
+    str_append_s(result, PATH_SEP);
+    str_append(result, fp->base);
+    if (str_length(fp->ext))
     {
-        string_append_c(result, '.');
-        string_append(result, fp->ext);
+        str_append_c(result, '.');
+        str_append(result, fp->ext);
     }
     return result;
 }
 static void _file_parts_change_name(_file_parts_ptr fp, cptr filename)
 {
-    string_ptr s = string_copy_s(filename);
-    int        pos = string_last_chr(s, '.');
+    str_ptr s = str_copy_s(filename);
+    int        pos = str_last_chr(s, '.');
 
-    string_clear(fp->base);
-    string_clear(fp->ext);
+    str_clear(fp->base);
+    str_clear(fp->ext);
 
     if (pos >= 0)
     {
-        string_append_sn(fp->base, string_buffer(s), pos);
-        string_append_s(fp->ext, string_buffer(s) + pos + 1);
+        str_append_sn(fp->base, str_buffer(s), pos);
+        str_append_s(fp->ext, str_buffer(s) + pos + 1);
     }
     else
     {
-        string_append(fp->base, s);
+        str_append(fp->base, s);
     }
-    string_free(s);
+    str_free(s);
 }
 static void _file_parts_change_extension(_file_parts_ptr fp, cptr ext)
 {
-    string_clear(fp->ext);
-    string_append_s(fp->ext, ext);
+    str_clear(fp->ext);
+    str_append_s(fp->ext, ext);
 }
 static void _file_parts_extend_path(_file_parts_ptr fp, cptr dirname)
 {
     char buf[1024];
-    path_build(buf, sizeof(buf), string_buffer(fp->dir), dirname);
-    string_clear(fp->dir);
-    string_append_s(fp->dir, buf);
+    path_build(buf, sizeof(buf), str_buffer(fp->dir), dirname);
+    str_clear(fp->dir);
+    str_append_s(fp->dir, buf);
 }
 
 static void _generate_html_help_aux(cptr name, str_map_ptr prev, int format)
@@ -1667,7 +1673,7 @@ static void _generate_html_help_aux(cptr name, str_map_ptr prev, int format)
         doc_ptr          doc;
         FILE            *fff;
         _file_parts_ptr  dfp;
-        string_ptr       dest_path;
+        str_ptr       dest_path;
         char             src_path[1024];
         vec_ptr          links;
 
@@ -1685,7 +1691,7 @@ static void _generate_html_help_aux(cptr name, str_map_ptr prev, int format)
 
         /* Output Dest Document */
         dfp = _file_parts_alloc();
-        string_append_s(dfp->dir, ANGBAND_DIR_HELP);
+        str_append_s(dfp->dir, ANGBAND_DIR_HELP);
         if (format == DOC_FORMAT_HTML)
         {
             _file_parts_extend_path(dfp, "html");
@@ -1700,21 +1706,21 @@ static void _generate_html_help_aux(cptr name, str_map_ptr prev, int format)
         }
         dest_path = _file_parts_build_fullname(dfp);
 
-        fff = my_fopen(string_buffer(dest_path), "w");
+        fff = my_fopen(str_buffer(dest_path), "w");
         if (fff)
         {
             doc_write_file(doc, fff, format);
             my_fclose(fff);
         }
         _file_parts_free(dfp);
-        string_free(dest_path);
+        str_free(dest_path);
 
         /* Recurse On Links */
         links = doc_get_links(doc);
         for (i = 0; i < vec_length(links); i++)
         {
             doc_link_ptr link = vec_get(links, i);
-            _generate_html_help_aux(string_buffer(link->file), prev, format);
+            _generate_html_help_aux(str_buffer(link->file), prev, format);
         }
         vec_free(links);
 

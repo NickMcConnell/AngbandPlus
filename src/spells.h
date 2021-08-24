@@ -1,8 +1,8 @@
 /* spells.c */
+extern void browse_powers(spell_info* spells, int ct, cptr desc);
 extern void browse_spells(spell_info* spells, int ct, cptr desc);
-extern int calculate_cost(int cost);
 extern int calculate_fail_rate(int level, int base_fail, int stat_idx);
-extern int calculate_fail_rate_aux(int caster_lvl, int spell_lvl, int base_fail, int stat_idx);
+extern int calculate_fail_rate_aux(int caster_lvl, int realm, int spell_lvl, int base_fail, int stat_idx);
 extern bool cast_spell(ang_spell spell);
 extern int  choose_spell(spell_info* spells, int ct, cptr desc, int max_cost);
 extern void default_spell(int cmd, var_ptr res);
@@ -17,16 +17,30 @@ extern cptr get_spell_name(ang_spell spell); /* buffer reset on each call */
 extern cptr get_spell_stat_name(ang_spell spell); /* buffer reset on each call */
 extern cptr get_spell_desc(ang_spell spell); /* buffer reset on each call */
 extern cptr get_spell_spoiler_name(ang_spell spell); /* buffer reset on each call */
+extern int  spell_cost(spell_info *spell); /* apply spell skill and dec_mana to spell->cost + SPELL_COST_EXTRA */
+extern int  spell_cost_aux(int realm, cptr name, int cost); /* for Gray-Mage */
+extern void spell_stats_load(spell_stats_ptr stats, savefile_ptr file);
+extern void spell_stats_save(spell_stats_ptr stats, savefile_ptr file);
+extern void spell_stats_wipe(spell_stats_ptr stats);
 extern void spell_stats_on_birth(void);
 extern void spell_stats_on_load(savefile_ptr file);
 extern void spell_stats_on_save(savefile_ptr file);
 extern void spell_stats_on_learn(spell_info *spell, int max_skill);
 extern void spell_stats_on_cast(spell_info *spell);
 extern void spell_stats_on_fail(spell_info *spell);
+extern void spell_stats_gain_skill(spell_info *spell);
+extern void spell_stats_gain_skill_aux(cptr name, int lvl); /* XXX for legacy book-based system  XXX */
+extern void spell_skill_doc(spell_stats_ptr stats, doc_ptr doc);
 extern spell_stats_ptr spell_stats_aux(cptr name);
 extern spell_stats_ptr spell_stats(spell_info *spell);
 extern int spell_stats_fail(spell_stats_ptr stats);
 extern void spellbook_destroy(obj_ptr obj);
+
+/* use "spell_dice" to apply spell power and to_d_spell
+ * use "dice_create" for innate spells */
+extern dice_t innate_dice(int dd, int ds, int base);  /* same as dice_create */
+extern dice_t spell_dice(int dd, int ds, int base);   /* applies spell power */
+extern dice_t spell_dam_dice(int dd, int ds, int base); /* applies spell power and spell damage */
 
 extern spell_stats_ptr spell_stats_old(int realm, int spell); /* Deprecated */
 extern void spell_stats_on_cast_old(int realm, int spell); /* Deprecated */
@@ -103,6 +117,29 @@ extern bool cast_teleport(void);
 extern bool cast_teleport_level(void);
 extern bool cast_vampirism(void);
 extern bool cast_weigh_magic(void);
+
+/* helpers: spell_power and plr->to_d_spell apply by default.
+ * use the "aux" versions to bypass this (e.g. android_ray_gun_spell) */
+extern void ball_spell(int cmd, var_ptr res, int rad, int gf, int base);
+extern void ball_spell_aux(int cmd, var_ptr res, int rad, int gf, dice_t dice);
+extern void burst_spell(int cmd, var_ptr res, int rad, int gf, int base);
+extern void burst_spell_aux(int cmd, var_ptr res, int rad, int gf, dice_t dice);
+extern void bolt_spell(int cmd, var_ptr res, int gf, int dd, int ds);
+extern void bolt_spell_aux(int cmd, var_ptr res, int gf, dice_t dice);
+extern void beam_spell(int cmd, var_ptr res, int gf, int dd, int ds);
+extern void beam_spell_aux(int cmd, var_ptr res, int gf, dice_t dice);
+extern void bolt_or_beam_spell(int cmd, var_ptr res, int gf, int dd, int ds);
+extern void bolt_or_beam_spell_aux(int cmd, var_ptr res, int gf, dice_t dice);
+extern void breath_spell(int cmd, var_ptr res, int rad, int gf, int base);
+extern void breath_spell_innate(int cmd, var_ptr res, int rad, int gf, int base);
+extern void breath_spell_aux(int cmd, var_ptr res, int rad, int gf, dice_t dice);
+extern void curse_spell(int cmd, var_ptr res, int gf, int dd, int ds);
+extern void direct_spell(int cmd, var_ptr res, int gf, int power);
+extern void los_spell(int cmd, var_ptr res, int gf, int power);
+extern void los_dam_spell(int cmd, var_ptr res, int gf, int power);
+extern void los_spell_aux(int cmd, var_ptr res, int gf, dice_t dice);
+extern void rocket_spell(int cmd, var_ptr res, int dam);
+extern void rocket_spell_aux(int cmd, var_ptr res, dice_t dice);
 
 extern void acid_ball_spell(int cmd, var_ptr res);
 extern void acid_bolt_spell(int cmd, var_ptr res);
@@ -330,4 +367,3 @@ extern void water_bolt_spell(int cmd, var_ptr res);
 extern void weigh_magic_spell(int cmd, var_ptr res);
 extern void wonder_spell(int cmd, var_ptr res);
 extern void wraithform_spell(int cmd, var_ptr res);
-

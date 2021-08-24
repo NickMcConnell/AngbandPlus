@@ -18,21 +18,19 @@ Creating a Character
 Your first step will be to create your character. Since you are new to 
 the game, I suggest you choose Beginner Mode at the initial prompt. 
 This will greatly limit the complexity of the character creation 
-process and also remove the wilderness option. After playing a few 
-characters to get an idea of how to play, you can start a new character 
-in Normal Mode to view all the options as well as enable the 
-wilderness. Hey, it's not like your first character is going to win 
-anyway!
+process. After playing a few characters to get an idea of how to play, 
+you can start a new character in Normal Mode to view all the options. 
+Hey, it's not like your first character is going to win anyway!
 
 After choosing Beginner Mode, the game is going to walk you through 
 creating your character. You can refer to [a] for more detailed info, 
 but the basics are that you will choose a sex, a race and a class and 
-then roll for stats. While your sex is not important (to the game), 
-your race and class are key to everything that follows. Normally, the 
-game has a vast (overwhelming?) array of choices that offer myriad, 
-diverse playstyles, and it can take a while to even learn what is 
-available. For now, we'll consider a few basic playstyles in order to 
-get you going.
+then roll for stats. While sex is not important (to the game), your 
+race and class are key to everything that follows. Normally, the game 
+has a vast (overwhelming?) array of choices that offer myriad, diverse 
+playstyles, and it can take a while to even learn what is available. 
+For now, we'll consider a few basic playstyles in order to get you 
+going.
 
 The easiest style is 'Hack and Slash' and it is the essence of the 
 warrior. Almost any race will make a good one, but you might consider 
@@ -79,56 +77,70 @@ We'll discuss these three styles more as we proceed through this guide.
 Equipping for Danger
 
 Once you have completed the birth process, you will find yourself in 
-the town on the surface. Since you picked Beginner Mode, there will be 
-no wilderness to explore. In this case, the only reason to return to 
-the surface is to buy and sell equipment in the town. When you start, 
-you have some initial gear that varies with your class, and it should 
-already be equipped for you. You also have a small amount of gold which 
-you can use to augment your supplies for that first trip into danger.
+the town on the surface. Currently, you may choose to play The World of 
+Middle Earth or The World of Amber. This document will assume the 
+former, but both modules require wilderness exploration and both 
+modules begin play in a starting town. After birth, you have some 
+initial gear that varies with your class, and it should already be 
+equipped for you. You also have a small amount of gold which you can 
+use to augment your supplies for that first trip into danger.
 
 So, what do you see at first?
+########################:################
+###########################:#:##########:
+###########################:#######::#:##
+#######################:#:#:#:######:####
+#######8@....######:####:################
+##########:f.######################:#####
+##########.#.###.###########+#####:.:#:##
+############........########.####:#::####
+####:##############.##.#####.#####::~~~##
+:##################.########.##::..~~#~~#
+::::###############................~#*#~.
+#:.::##############.########.:#::.#~~#~~#
+#:######3##########.########.:##:###~~~#:
+:.#.###..:::#######.########.###:########
+:######.:#:.#:#####.########+############
+#.##2...............#####################
+#.###...:.:.#:...:#:############:::####:#
+#:#::#...:#.#..##..::.#:#::#############.
+#:::###1###..#:####.:##:###:###::#####:#:
+#.:########::.#:#:#::#:::.:####:.:####:#:
+..#.########:...########...:#############
+#.#####:...###..####:###:################
 
-LEVEL      1 ..................................................................
-EXP        6 ..................................................................
-AU       228 ################################.################################.
-             ################################.#################################
-STR :  18/10 #####.......................................................######
-INT :  18/30 ####+.......................................................+#####
-WIS :     11 #####.......................................................######
-DEX :  18/50 ####.........###0###..####+####...####+####..###+###.........#####
-CON :     11 #+#...#####..#######..#########...#########..#######..#####...#+##
-CHR :     12 ......#####..#######..#########...#########..#######..#####......#
-AC         7 ......##+##..###9###..####3####...####6####..###4###..##+##......#
-HP   43/  43 .................................................................#
-             ......................................f..........................#
-             .................................................................#
-@[*********] ................................>@................................
-,[*********] .................................................................#
-             .................................................................#
-             .................................................................#
-             ......##1##..###7###..####2####...####5####..###8###..##+##......#
-             ......#####..#######..#########...#########..#######..#####......#
-             #+#...#####..#######..#########...#########..#######..#####...#+##
-             ####.........###+###..####+####...####+####..#######.........#####
-             #####.......................................................######
-             #####.......................................................+#####
-             #####.......................................................######
-                                                                           Town
+You (@) begin life situated near your home (8). Your home is present in 
+almost every town and, somehow, all your stuff seems to follow you 
+around, so you don't have to worry about where you stashed important 
+items. Other buildings, such as the Weapon Smiths (3) are shops where 
+you may purchase supplies or sell your findings. You enter a shop by 
+walking on top the entrance location. Once inside, you can press ? for 
+detailed help on how to interact with shop keepers. One final note: 
+that * is a special Wizard Tile that allows free teleportation back and 
+forth from the town and any dungeon you have visited. Most towns do not 
+have such a luxury, and you must instead pay for recall services. In 
+order for it to work, you must first enter a dungeon, which we will do 
+shortly.
 
-Well, that @ in the center of the screen is you for starters. Also, 
-those # characters are walls and you can see they are shaped into 
-buildings for the various shops. Each building has a number or '+' 
-character that you may enter by moving onto that square. Each number 
-stands for a different type of shop. You can move about with the arrow 
-keys and look about with the l command followed by the arrow keys. That 
-f is a monster and you should look at it with the l command to see if 
-it seems threatening:
+You can move about with the arrow keys and look about with the l 
+command followed by the arrow keys. That f is a monster and you should 
+look at it with the l command to see if it seems threatening:
 
-The Scrawny cat ('f')/('f'): [r,q,t,p,o,+,-,<dir>]
-No battles to the death are recalled.
+You see a Scrawny cat (Rng 3) [r,q,t,p,o,+,-,<dir>]          
+Name    : Scrawny cat                                        
+Display : f         Speed: +0 A Bit Erratic                  
+Level   : Town      Type :                                   
+AC      : ?                                                  
+HP      : ?                                                  
+                                                             
+Attacks : ?                                                  
+                                                             
+Kills   : 0                                                  
+                                                             
 A skinny little furball with sharp claws and a menacing look.
-It lives in the town, and moves a bit erratically at normal speed. Nothing is
-known about its attack.
+##############:###.::###########8@....######:####:###########
+:#:::##::###:#:#:#:.::#############:f.######################:
+##.###:..#.#:######:#:##:##########.#.###.###########+#####:.
 
 Hmmm, probably no need to worry about Ms. Kitty.
 
@@ -150,62 +162,58 @@ you are playing a rogue, try to buy a sling and some ammo (pebbles or
 shots) from the Weapon Smiths (3). When you enter a store, you will see 
 a list of inventory as well as a list of commands to use. Simply follow 
 the instructions to make a purchase.
-
-          Eddie Beast-Master (Snotling)           Weapon Smiths (25000)
-
-   Item Description                                         Weight      Price
-a) ? 2 Books of Kendo [Yagyuu Bugeichou]                       3.0       1510  
-b) | a Dagger (1d4) (+1,+2)                                    1.2        230
-c) | a Bastard Sword (3d4) (+0,+0)                            14.0        720  
-d) / a Trident (1d8) (+0,+0)                                   7.0        267  
-e) / a Broad Spear (1d9) (+3,+2)                              10.0        926  
-f) } a Sling (x2) (+0,+0)                                      0.5         54
-g) } a Short Bow (x3) (+0,+0)                                  3.0        122
-h) } 2 Light Crossbows (x4) (+0,+0)                           11.0        489  
-i) { 26 Bolts (1d5) (+0,+0)                                    0.3          3
-j) { 36 Rounded Pebbles (1d2) (+0,+0)                          0.4          2
-k) { 17 Iron Shots (1d3) (+0,+0)                               0.5          3
-
-
-
-
-
-                                                     Gold Remaining:   231
-You may:
- ESC) Exit from Building.     p) Purchase an item       i/e) Inventry/Equipment
-                              s) Sell an item           w/t) Wear/Take off equi
-                              x) eXamine an item          b) Buyout store
+                                                                                
+    Delantha (Water-Elf)                                 Weapon Smiths (10000)  
+                                                                                
+    Item Description                                                Price  Score
+ a) ? 4 Rage Spellbooks [Northern Frights]                           1590   1000
+ b) ? Book of Kendo [Bugei Shofu]                                     159    100
+ c) ? Book of Kendo [Yagyuu Bugeichou]                               1590   1000
+ d) | a Short Sword (1d7) (+6,+4)                                    1980   1242
+ e) | a Cutlass (1d7) (+0,+0)                                         281    177
+ f) | a Scimitar (2d5) (+0,+0)                                        363    228
+ g) / a Broad Axe (2d6) (+0,+0)                                       402    253
+ h) / 2 Glaives (2d6) (+0,+0)                                         498    313
+ i) } a Sling (x2) (+0,+0)                                             56     35
+ j) } a Sling (x2) (+0,+0) {50% off}                                   29     18
+ k) } a Short Bow (x2.50) (+3,+4)                                    1960   1235
+ l) } a Short Bow (x2.50) (+0,+0)                                     270    170
+ m) } a Short Bow (x2.50) (+0,+0) {75% off}                            68     43
+ n) { 51 Bolts (1d5) (+0,+0)                                            2      1
+ o) { 23 Rounded Pebbles (1d3) (+0,+0)                                  2      1
+                                                                                
+Gold Remaining: 732                                                             
+                                                                                
+b to buy. s to sell. x to begin examining items.                                
+B to buyout inventory.                                                          
+Esc to exit. ? for help.                                                        
 
 After buying something, it will be added to your pack. Use the i 
 command to view your pack:
 
-Inventory: carrying 39.2 pounds (30% of capacity). Command:
-LEVEL      1 ...  a) ? a Thieves' Guide [Burglar's Handbook] {@ma!k}     3.0 lb
-EXP        6 ...  b) , 6 Rations of Food                                 6.0 lb
-AU       126 ###  c) ~ 3 Wooden Torches (with 2500 turns of light)       9.0 lb
-             ###  d) } a Sling (x2) (+0,+0)                              0.5 lb
-STR :  18/10 ###  e) { 17 Iron Shots (1d3) (+0,+0)                       8.5 lb
-INT :  18/30 ###
-WIS :     11 #####.......................................................######
-DEX :  18/50 ####.........###0###..####+####...####+####..###+###.........#####
-CON :     11 #+#...#####..#######..#########...#########..#######..#####...#+##
-CHR :     12 ......#####..#######..#########...#########..#######..#####......#
-AC         7 ......##+##..###9###..####@####...####6####..###4###..##+##......#
-HP   43/  43 .................................................................#
-             .................................................................#
-             .................................................................#
-@[*********] ................................>.................................
-,[*********] .................................................................#
-             .................................................................#
-             .................................................................#
-             ......##1##..###7###..####2####...####5####..###8###..##+##......#
-             ......#####..#######..#########...#########..#######..#####......#
-             #+#...#####..#######..#########...#########..#######..#####...#+##
-             ####.........###+###..####+####...####+####..#######.........#####
-             #####.......................................................######
-             #####.......................................................+#####
-             #####.......................................................######
-                                                                           Town
+Inventory | Equipment                        
+ a) ? a Thieves' Guide [Burglar's Handbook]  
+ b) , 7 Rations of Food                      
+ c) ! 2 Flasks of oil                        
+ d) ? a Scroll of Teleportation              
+ e) } a Sling (x2) (+0,+0) {50% off}         
+ f) { 23 Rounded Pebbles (1d3) (+0,+0)       
+                                             
+Carrying 36.4 pounds (33% capacity).         
+                                             
+Examine which item (Esc to exit)?            
+                                             
+.:.:#########################################
+.##.####################.###.####8.....#.####
+#:#.#:################################.######
+.::##:############.###################.######
+#::##:::#:##############.#############.......
+#:..::::###:##::#############################
+::..#..:######:##:###########################
+###:#:.:#####################################
+#.:::::.#:###################################
+:::::#############################@##########
+##::#############################..#########:
 
 In my case, I bought a sling and some ammo (Each type of missile weapon 
 uses a corresponding type of ammo. Obviously, arrows are for bows and 
@@ -215,67 +223,30 @@ to use it in combat, and I do this with the w command, after which is
 it visible in the equipment list which can be viewed with the e 
 command.
 
-Equipment: carrying 39.2 pounds (30% of capacity). Command:
-LEVEL     a) | Right Hand: a Dagger (1d4) (+0,+0)                        1.2 lb
-EXP       b)   Left Hand :
-AU        c) } Shooting  : a Sling (x2) (+0,+0)                          0.5 lb
-          d)   Right Ring:
-STR :  1  e)   Left Ring :
-INT :  1  f)   Neck      :
-WIS :     g) ~ Light     : a Wooden Torch (with 2442 turns of light)     3.0 lb
-DEX :  1  h) ( Body      : Soft Leather Armour [4,+0]                    8.0 lb
-CON :     i)   Cloak     :
-CHR :     j)   Head      :
-AC        k)   Hands     :
-HP   43/  l)   Feet      :
-
-             .................................................................#
-@[*********] ................................>.................................
-,[*********] .................................................................#
-             .................................................................#
-             .................................................................#
-             ......##1##..###7###..####2####...####5####..###8###..##+##......#
-             ......#####..#######..#########...#########..#######..#####......#
-             #+#...#####..#######..#########...#########..#######..#####...#+##
-             ####.........###+###..####+####...####+####..#######.........#####
-             #####.......................................................######
-             #####.......................................................+#####
-             #####.......................................................######
-                                                                           Town
-
-To shoot something simply fire (f) one of your bolts and see if you 
+To shoot something simply fire (f) one of your pebbles and see if you 
 hit:
 
-             You have 16 Iron Shots (1d3) (+0,+0) (4/5). That was rather
-LEVEL      1 dishonorable. The Iron Shot (1d3) (+0,+0) (4/5) hits the Scrawny
-EXP        6 cat. The Scrawny cat mewls pitifully. The Scrawny cat flees in
-AU       126 terror!
-             ################################.#################################
-STR :  18/10 #####.......................................................######
-INT :  18/30 ####+.......................................................+#####
-WIS :     11 #####.......................................................######
-DEX :  18/50 ####.........###0###..####+####...####+####..###+###.........#####
-CON :     11 #+#...#####..#######..#########...#########..#######..#####...#+##
-CHR :     12 ......#####..#######..#########...#########..#######..#####......#
-AC         7 ......##+##..###9###..####3####...####6####..###4###..##+##......#
-HP   43/  43 .......................................f.........................#
-             ..............................@.......{..........................#
-             .................................................................#
-@[*********] ................................>.................................
-,[*********] .................................................................#
-f[*--------] .................................................................#
-             .................................................................#
-             ......##1##..###7###..####2####...####5####..###8###..##+##......#
-             ......#####..#######..#########...#########..#######..#####......#
-             #+#...#####..#######..#########...#########..#######..#####...#+##
-             ####.........###+###..####+####...####+####..#######.........#####
-             #####.......................................................######
-             #####.......................................................+#####
-             #####.......................................................######
-                                                                           Town
+Stop, you brute! That was rather dishonorable. The Rounded Pebble 
+hits the Scrawny cat. You have slain the Scrawny cat.             
+#####:###:##########################################::#:##########
+#######:::########################################:#:::###########
+######################################:####################.####:#
+#######:##########################################################
+#####:::#:#:::##::::##########:###################################
+#############:#:####################.#############################
+#####:######################################################:#####
+#:#:#.::#:################.#####################.####:::##:#.#:###
+######::############.#########.###.#####:############:#::#####:##:
+##################################################::::#::#########
+##################.###.####8..~..@.####################::#####:#:#
+##############################{#.###########.###########:#########
+############.###################.##########.####+#########:#######
+::#:##############.#############........##.#####.######::#:#:#:###
 
-Sorry about that, Ms. Kitty! She's not dead yet, but will be shortly. I 
-want you to notice a few things. First, as you play the game, notice 
+Sorry about that, Ms. Kitty! I tried hard not to kill her, but she's 
+just too weak!
+
+I want you to notice a few things. First, as you play the game, notice 
 that messages will be displayed in the top region of the screen. Back 
 when I was a youngster, the game only had a single message line, and we 
 hapless players were plagued with -more- prompts out the wazoo, not to 
@@ -286,20 +257,19 @@ messages will clear automatically after you enter your next command, so
 make sure you are done reading before pressing any keys. You can always 
 review messages with the Previous Messages command (CTRL+P).
 
-Next, on the left hand side of the screen you can see 3 status bars. 
-The first one (@[*********]) is for the player's hp. It is full since I 
-haven't been hurt yet. The second one (,[*********]) displays my food 
-status. I'm not hungry yet, so this one is full as well. Both of these 
-are optional (and the food one in particular might not interest you). 
-But the third one (f[*--------]) is very important. It tracks your 
-current target, or the monster you most recently damaged. In this case, 
-it shows me the health of Ms. Kitty, and you can see she is in some 
-pretty dire straits.
+Next, there are some silly messages about your being a dishonorable 
+brute. You can ignore these: they are simply messages about the 
+morality of various actions your player takes. Over time, the game 
+calculates your player's alignment which occasionally has game play 
+consequences (For example, holy monsters are on a crusade against evil, 
+and you wouldn't want to be too evil when fighting them!). Probably, I 
+should disable the virtue system for Beginner mode, though.
 
-Finally, notice my shot ({) laying on the ground next to Ms. Kitty. 
-Sometimes your missile ammo will break on impact, but if it doesn't 
-you'll want to go gather it up after you are done fighting. You can 
-pickup objects by moving on top of them and using the get command (g).
+Finally, notice my shot ({) laying on the ground next to (the remains 
+of) Ms. Kitty. Sometimes your missile ammo will break on impact, but if 
+it doesn't you'll want to go gather it up after you are done fighting. 
+You can pickup objects by moving on top of them and using the get 
+command (g).
 
 Killing cats is fun, but it is time to move on. If you have money left 
 over, go to the General Store (1) and buy a lantern and some oil. 
@@ -326,55 +296,138 @@ spell).
 
 My First Trip Down
 
-Since this is the 'Beginner' mode, there is only one dungeon to enter. 
-The > character represents the entrance to a dungeon. >, in general 
-refers to stairs down, but dungeon entrances > and quest entrances > 
-are color coded to stand out. Similarly, < refers to stairs up. By some 
-cosmic accident, these are also the keys you press to take the stairs: 
-> to go down and < to go up. What could be easier to remember? So move 
-to the stairs down to Angband and enter the dungeon!
+To enter a dungeon, you must first locate its entrance (>) on the 
+surface. Currently, The Stronghold is available close to the starting 
+town in both the Amber and Middle Earth modules. You can locate the 
+entrance in one of two ways. First, press the M key to view the surface 
+map:
+~.:::::.:~~.:#:#:..#..##:::#.::#.::.#:#
+~:.#:#:~~~~:#::.#.::#:##:#:##.#::.#>#.:
+:~~::~~~~~:::.:.:.::###:.:::#..::#::.##
+#:~~~~#~::.:.::#.#..:###:#..###::.:##:#
+:#~~~~::##..:#::#:#.:.:##:.::::#:.::#::
+:###::#:::#::::#..:.#...::::::::..:.#:#
+:::#:::#.::::#.:###:#.:#:#:###::#:::..:
+#:#:::###::::#::..:##:::::::..:#:###.#.
+....:#.#:.###::#::::::#.::#:#:.#:###..#
+:....:#.::::##..##:::#::####:#.##.::#.#
+:#::::.:#:.:###::::.::.####::#....:::..
+:::.#~@:##:#4#+.::::::.:::##:#:###...::
+#:..#{..+#####5##.#::.::###:...##:::##.
+###.#3#.+#*.6#9..............:.........
+#..#21..###.###..#.:.#:.:..#:.:##::.:#:
+:.::##:#:#...::.#:::.#.####::#:#::#.#.:
+.:::::::::.:::.:::::.::.#:.::::::#:::#:
+This is a compressed view of the surface terrain, but it allows you to 
+see your current location relative to important terrain and objects. 
+Now you know which way to go, and can move in that direction, 
+re-checking the map to ascertain your progress.
 
-As you walk about, beware of monsters and use the look command (l) 
-together with the recall option (r) to get a verbose monster 
-description. For example:
+But there is an easier way! Press ] to bring up the Object List. 
+Normally, you use this command in the dungeon to locate important 
+treasures. But on the surface, you can also use it to navigate to a 
+specific location. Simply position the cursor on the line for the 
+entrance and press ` to travel to that location:
+                                                    
+There are 11 interesting features:                ##
+ > The Stronghold (L1)                  N 51 E176 ##
+ * Wizard Tile                          S  6 E 24 ##
+ 1 General Store                        S 14 W  6 ##
+ 2 Armory                               S 11 W  9 ##
+ 3 Weapon Smiths                        S  8 W  5 ##
+ 4 Temple                               N  0 E 38 ::
+ 5 Alchemist                            S  4 E 49 ##
+ 6 Magic Shop                           S  9 E 37 ##
+ 8 Home                                 N  0 W  6 ##
+ 9 Bookstore                            S  9 E 51 ##
+ + Inn                                  S  2 E 15 #:
+                                                  ##
+There is 1 wanted object:                         ##
+ { a Rounded Pebble (1d3) (+0,+0)       S  1 W  3 ##
+                                                  ##
+There is 1 other object:                          ##
+ ~ a Scrawny cat Skeleton               N  0 W  3 ##
+   [Press ESC to exit. Press ? for help]          ##
+###################################################:
+###################.###.####8..~..@.################
+:##############################{#.###########.######
+:############.###################.##########.####+##
+:::#:##############.#############........##.#####.##
+You will then automatically go to the desired location, stopping if any 
+monsters get in your way.
 
-The Soldier ant ('a')/('a'):  [r,q,t,p,o,+,-,?,<dir>]
-Your ancestors have killed at least 1 of these creatures.
-A large ant with powerful mandibles.
-It is normally found on dungeon level 1, won't be found deeper than dungeon
-level 10, and moves at normal speed.  A kill of this natural creature is worth
-about 1.50 points for a 2nd level character.  Nothing is known about its
-attack.
+Once you have made it to the entrance, simple press > to take the 
+stairs down:
 
-DEX :  18/50
-CON :     11
-CHR :     12
-AC         7
-HP   47/  47
+This is the entrance of The Stronghold (Danger level: 1)  
+Do you really go into this dungeon? [y/n]                 
+#:.####:.##.####....:.::#:#::..::.#...:::...##:#::#:#.####
+:..:.##::..:::.#.:#.:#####:##:.#..###.:##:...##::##::##.#.
+##:#:#:#....:..#.::..:###.#..###.##.#.:..##:#.:.###:#..#..
+::##:########:##:########.##:#.#.#.:#.#..#:.::#:..#:###::.
+.:##::##::#####:#::####.::#...#:..:##:#::.:#::##:##:#:####
+..####::#######:###:##:.:...#::#::#::...#:###:#::.:##:::##
+:#::.#:::#:###:###########:#::::#.#.:#:##:##:.::##.:##:.#.
+:#.#:#:##:##################:##:..#####:#.:##.#.###::##.:#
+#.#.:##::.:#::###:##############.:##:#::@:#.#::::.#.##.###
+.#:###:::###:::##########################::::.:##.:::##:..
+...#.:..:###:::#::#####################:###:...:.#..:.####
+#:.:.:.::#.#:######:::#:#:####:::::#######::#.:.:#.#..####
+#::..:...#.#:::::####:#::############:#######..:.:.:#...##
 
+Now that you have entered a dungeon, the town recall services will 
+function so you don't need to walk back to the entrance any more 
+(unless you need to save gold).
 
-@[*********]
-,[*********]     #######+##+######+##.####
-a[*********]     #................R......#
-                 #.......................#
-                 #.......................#
-                 #.............a.........#
-                 #.......................#
-                 #............@..........#
-                 #.......................#
-                 #.......................#
-                 #########################
-                                                                    Angband: L1
+Now that you have made it someplace interesting, it is time to begin 
+exploring. As you wander about, you will notice that the map display is 
+updated, tracking your progress through the current level. You will 
+need to be on your guard against monsters as you explore. Whenever you 
+see something you don't know, use the look command (l) together with 
+the recall option (r) to get a verbose monster description. For 
+example:
 
-In this case, a previous character had encountered and slain a soldier 
-ant, so I have some basic knowledge of this type of monster. This 
-illustrates what the game calls Monster Memory. As you battle monsters, 
-you learn more about them, and the game tracks your knowledge for you. 
-All of the memory is retained in your savefile so that future 
-characters may benefit. After killing a foe, you can recall details of 
-your glory with the / command, followed by the letter representing the 
-monster (a in this case) and then follow the prompts to choose the 
-recall option. Notice that the description updates.
+You see Wolf, Farmer Maggot's dog (Rng 8) [r,q,t,p,o,+,-,<dir>]    
+Name    : Wolf, Farmer Maggot's dog                                
+Display : C         Speed: +10 A Bit Erratic                       
+Level   : 2         Type : Natural                                 
+AC      : ?                                                        
+HP      : ?                                                        
+                                                                   
+Attacks : ?                                                        
+                                                                   
+Status  : Alive                                                    
+Exp     : 26 at CL1                                                
+Drops   : 1 Object                                                 
+                                                                   
+A rather vicious dog belonging to Farmer Maggot. It thinks you are 
+stealing mushrooms.                                                
+                                                                   
+                            #%#%%%%%%%%%%%%%%%%                    
+                            #.................#                    
+                            #.................#                    
+                            #...........C.....#                    
+                            #.................                     
+                            #.................#                    
+                            #.................#                    
+                            #.................#                    
+                            ######@############                    
+                                ...#                               
+                                ##.#                               
+                                 #<#                               
+                                 ###                               
+                                                                   
+                                                                   
+
+Uh Oh! It's Mr. Dog!! In this case a previous character had encountered 
+and slain Mr. Dog, so I have some basic knowledge of this type of 
+monster. This illustrates what the game calls Monster Memory. As you 
+battle monsters, you learn more about them, and the game tracks your 
+knowledge for you. All of the memory is retained in your savefile so 
+that future characters may benefit. After killing a foe, you can recall 
+details of your glory with the / command, followed by the letter 
+representing the monster (C in this case) and then follow the prompts 
+to choose the recall option. Notice that the description updates.
 
 At this point, you basically explore the current level. You can walk 
 back to town at any time by going back up those stairs you just 
@@ -393,103 +446,94 @@ common cases :)
 So, I will continue to play a bit. You can just sit back and watch! ... 
 Oops, I think I'm in trouble:
 
-             The Novice warrior attacks you: He hits. He hits. He hits.
-LEVEL      2 The Novice warrior attacks you: He hits. He hits. You stand your
-EXP       24 ground! He hits. *** LOW HITPOINT WARNING! *** Press Space to
-AU       144 continue.
-            
-STR :  18/10
-INT :  18/30                                              #%###################
-WIS :     11                                              +...................#
-DEX :  18/50                                              %...................#
-CON :     11                                              ....................#
-CHR :     12                                              #.......<...........#
-AC         6                                              #...................#
-HP   10/  47                                              #%##.################
-                                                             #.#
-                                                             #.#
-@[**-------]                                       %%%%#%%##%%.#%#####%
-,[********-]                                       %!.................#
-p[***------]                                       %........p.........%
-                                                   %.....CC@.........~%
-                                                   %..................#
-                                                   %..............j...#
-                                                   %..................#
-                                                   %..................%
-                                                   %%#%%%%%%##.####%+%%
+Wolf, Farmer Maggot's dog attacks you: It bites. *** LOW HITPOINT               
+WARNING! *** Press Space to continue.                                 LEVEL     
+                                                                      EXP       
+                                                                      AU       6
+                                                                      | }    ~( 
+                                                                      STR :     
+                                                                      INT :     
+                                                                      WIS :     
+                                                                      DEX :  18/
+                                                                      CON :     
+                                                                      CHR :     
+                                                                      AC        
+                                                                      HP   19/  
+                                                                      SP   17/  
+                                                                                
+                                                                      @  51%    
+                          #%#%%%%%%%%%%%%%%%%                         ? 100%    
+                          #.................#                         ,  90%    
+                          #.................#                         ~  20' 3  
+                          #.................#                                   
+                          #.................                                    
+                          #.................#                         Study (1) 
+                          #.......@C........#                                   
+                          #.................#                                   
+                          ######'############                                   
+                              ...#                                              
+                              ##.#                                              
+                               #<#                                              
+                               ###                                              
+                                                                                
 
-
-                                                                    Angband: L2
-
-Notice my 10 hp? Well, if my hp go below 0, I am dead. Also notice the 
+Notice my 19 hp? Well, if my hp go below 0, I am dead. Also notice the 
 very loud *** LOW HITPOINT WARNING! ***? This is to make sure you 
 notice when you are in trouble. The game even forces me to press SPACE 
 before continuing. Really, I think I am about to die!
 
-             The Novice warrior attacks you: He hits. What a noble sacrifice!
-LEVEL      2
-EXP       23
-AU       144
-            
-STR :  18/10
-INT :  18/30                                              #%###################
-WIS :     11                                              +...................#
-DEX :  18/50                                              %...................#
-CON :     11                                              ....................#
-CHR :     12                                              #.......<...........#
-AC         6                                              #...................#
-HP   -3/  47                                              #%##.################
-                                                             #.#
-                                                             #.#
-@[*--------]                                       %%%%#%%##%%.#%#####%
-,[********-]                                       %!.................#
-                                                   %..................%
-                                                   %.....C@p.........~%
-                                                   %..................#
-                                                   %..............j...#
-                                                   %..................#
-                                                   %..................%
-                                                   %%#%%%%%%##.####%+%%
-
-
-                                                                    Angband: L2
+Wolf, Farmer Maggot's dog attacks you: It bites. *Ouch!*                        
+Wolf, Farmer Maggot's dog attacks you: It bites. *Ouch!*              LEVEL     
+Wolf, Farmer Maggot's dog attacks you: It bites. What a noble         EXP       
+sacrifice!-more-                                                      AU       6
+                                                                      | }    ~( 
+                                                                      STR :     
+                                                                      INT :     
+                                                                      WIS :     
+                                                                      DEX :  18/
+                                                                      CON :     
+                                                                      CHR :     
+                                                                      AC        
+                                                                      HP   -2/  
+                                                                      SP   20/  
+                                                                                
+                                                                      @  -4%    
+                          #%#%%%%%%%%%%%%%%%%                         ? 100%    
+                          #.................#                         ,  90%    
+                          #.................#                         ~  20' 3  
+                          #.................#                         C  68%    
+                          #.................                                    
+                          #.......C.........#                         Study (2) 
+                          #.......@.........#                                   
+                          #.................#                                   
+                          ######'############                                   
 
 Ouch! That really hurt!
 
-             Goodbye, Filcher! -more-
-               _______________________
-              /                       \         ___
-             /                         \ ___   /   \      ___
-            /            RIP            \   \  :   :     /   \
-           /                             \  : _;,,,;_    :   :
-          /            Filcher            \,;_          _;,,,;_
-         |               the               |   ___
-         |            Cutpurse             |  /   \
-         |                                 |  :   :
-         |              Rogue              | _;,,,;_   ____
-         |            Level: 2             |          /    \
-         |             Exp: 36             |          :    :
-         |             AU: 144             |          :    :
-         |        Killed on Level 2        |         _;,,,,;_
-         |      by a Novice warrior.       |
-         |                                 |
-         |    Tue Sep 22 14:41:58 2015     |
-        *|   *     *     *    *   *     *  | *
-________)/\\_)_/___(\/___(//_\)/_\//__\\(/_|_)_______
+                                                                
+               _______________________                          
+              /                       \         ___             
+             /                         \ ___   /   \      ___   
+            /            RIP            \   \  :   :     /   \  
+           /                             \  : _;,,,;_    :   :  
+          /         Fatty Bolger          \,;_          _;,,,;_ 
+         |               the               |   ___              
+         |           Vanquished            |  /   \             
+         |                                 |  :   :             
+         |              Rogue              | _;,,,;_   ____     
+         |            Level: 2             |          /    \    
+         |             Exp: 31             |          :    :    
+         |             AU: 657             |          :    :    
+         |        Killed on Level 1        |         _;,,,,;_   
+         |  by Wolf, Farmer Maggot's dog.  |                    
+         |                                 |                    
+         |    Mon Jun 15 12:50:18 2020     |                    
+        *|   *     *     *    *   *     *  | *                  
+________)/\\_)_/___(\/___(//_\)/_\//__\\(/_|_)_______           
+                                                                
+You may now dump a character record to one or more files.       
+Then, hit RETURN to see the character, or ESC to abort.         
 
-But never fear, I can quickly start over. Notice the new birth option:
-
-  Do you want to use the quick start function(same character as your last one).
-
-
-          Use quick start? [y/N]
-
-Choosing y immediately recreates a new character with the same race, 
-class and stats as the old one and immediately places me back in town. 
-This is a brand new character, so any objects I acquired (like that 
-sling) are gone, and I have no experience. However, my monster memory 
-survives, so I don't have to memorize all the monsters as you encounter 
-them.
 
 Go ahead an play a bit. At this point, the tutorial is over and I'll 
 just give some basic tidbits about the game.

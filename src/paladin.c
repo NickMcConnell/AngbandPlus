@@ -2,14 +2,14 @@
 
 static void _calc_bonuses(void)
 {
-    if (p_ptr->lev >= 40)
-        res_add(RES_FEAR);
+    if (plr->lev >= 40)
+        res_add(GF_FEAR);
 }
 
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    if (p_ptr->lev >= 40)
-        add_flag(flgs, OF_RES_FEAR);
+    if (plr->lev >= 40)
+        add_flag(flgs, OF_RES_(GF_FEAR));
 }
 
 static int _get_powers(spell_info* spells, int max)
@@ -17,18 +17,18 @@ static int _get_powers(spell_info* spells, int max)
     int ct = 0;
     spell_info* spell = &spells[ct++];
 
-    if (is_good_realm(p_ptr->realm1))
+    if (is_good_realm(plr->realm1))
     {
         spell->level = 30;
         spell->cost = 30;
-        spell->fail = calculate_fail_rate(spell->level, 70, p_ptr->stat_ind[A_WIS]);
+        spell->fail = calculate_fail_rate(spell->level, 70, plr->stat_ind[A_WIS]);
         spell->fn = holy_lance_spell;
     }
     else
     {
         spell->level = 30;
         spell->cost = 30;
-        spell->fail = calculate_fail_rate(spell->level, 70, p_ptr->stat_ind[A_WIS]);
+        spell->fail = calculate_fail_rate(spell->level, 70, plr->stat_ind[A_WIS]);
         spell->fn = hell_lance_spell;
     }
 
@@ -67,7 +67,7 @@ plr_class_ptr paladin_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 20,  24,  34,   1,  12,   2,  68,  40};
-    skills_t xs = {  7,  10,  11,   0,   0,   0,  21,  18};
+    skills_t xs = { 35,  50,  55,   0,   0,   0, 105,  90};
 
         me = plr_class_alloc(CLASS_PALADIN);
         me->name = "Paladin";

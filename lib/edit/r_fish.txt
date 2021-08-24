@@ -1,0 +1,381 @@
+# Fish
+
+T:l.fish:Fish
+I:DISPLAY(l):WILD(SHORE|OCEAN):POS(GAIN_AC)
+I:KIND(ANIMAL|AQUATIC):ALERT(200',Fairly Unseeing):MOVE(SWIM)
+I:RESIST(WATER)
+P:Stat:Str(-1+5):Int(-2):Wis(-2):Dex(1+4):Con(0+5):Chr(0)
+P:Skill:Dis(25+35):Dev(15+35):Sav(30+45):Stl(4):Srh(10):Fos(10):Thn(65+125)
+P:Class:Warrior
+P:Body:Fish
+P:Weight:10
+
+T:l.shark:Shark
+I:DISPLAY(l):WILD(OCEAN):POS(GAIN_AC)
+I:KIND(ANIMAL|AQUATIC):MOVE(SWIM)
+I:RESIST(WATER)
+P:Copy:l.fish
+P:Stats:5:0:0:1:2:0
+P:Weight:200
+
+N:l.piranha:l.fish:Piranha
+I:LVL(3,60):RARITY(1)
+I:SPEED(+10):HP(2d6):AC(8):EXP(9):EVOLVE(l.giant piranha, 40)
+I:ALERT(Observant)
+B:BITE:HURT(2d4+6):CUT(1d3, 30%)
+M:3d3:MON(l.piranha)
+D:Bloodthirsty fish who can smell your blood from a great distance.
+I:COLOR(Light Blue)
+
+N:l.swordfish:l.fish:Swordfish
+I:LVL(4,40):RARITY(2)
+I:SPEED(+10):HP(5d12):AC(10):EXP(15)
+I:ALERT(140')
+B:STING(x2):HURT(3d3+2):CUT(1d3, 10%)
+D:An animal with a swordlike "beak".
+I:COLOR(Light White)
+P:Weight:20
+
+N:l.barracuda:l.fish:Barracuda
+I:LVL(5,40):RARITY(2)
+I:SPEED(+10):HP(6d12):AC(45):EXP(30)
+B:BITE:HURT(2d4+8):CUT(2d3, 30%)
+B:BITE:HURT(1d9+4)
+D:A predatory fish with razor-sharp teeth.
+I:COLOR(Blue)
+P:Weight:20
+
+N:l.giant piranha:l.fish:Giant piranha
+I:LVL(10,90):RARITY(2)
+I:SPEED(+10):HP(6d9):AC(30):EXP(40)
+I:ALERT(300',Fairly Observant)
+B:BITE(x2):HURT(2d4+5):CUT(2d3, 50%)
+M:1d3:MON(l.giant piranha)
+M:2d3:MON(l.piranha)
+D:A very large and bloodthirsty fish.
+I:COLOR(Light Blue)
+P:Weight:50
+
+N:l.devil ray:l.fish:Ixitxachitl
+I:LVL(12,50):RARITY(1)
+I:HP(12d8):AC(30):EXP(40):EVOLVE(l.vampiric devil ray, 600)
+I:ALIGN(Neutral Evil)
+B:STING(x2):POISON(2d5)
+I:RESIST(POIS)
+D:A devil ray of the depths.
+I:COLOR(Slate)
+P:Weight:50
+
+N:l.devilfish:l.fish:Devilfish
+I:LVL(12,50):RARITY(4)
+I:SPEED(-5):HP(11d5):AC(16):EXP(60)
+I:ALERT(100',Observant)
+I:RESIST(CONF|LIGHT|DARK|SOUND|CHAOS|TIME)
+S:FREQ_5 | BR_CHAOS | BR_DARK | BR_LIGHT | BR_SOUND | BR_DISENCHANT | BR_TIME
+D:A disgusting fish, it has a large gaping mouth and a small lantern dangling
+D:from an outgrowth on its head.
+I:DISPLAY(,Violet,ATTR_MULTI)
+P:Weight:20
+
+N:l.octopus:l.fish:Giant octopus
+I:LVL(15,50):RARITY(2)
+I:SPEED(-5):HP(30d11):AC(60):EXP(60)
+I:ATTR(RIDING):ALERT(600',Overlooks):MOVE(RAND_25)
+B:SPIT:DAM(1d3):BLIND
+B:CRUSH(x3):HURT(3d3+10):HURT(3d3, 20%)
+I:RESIST(COLD)
+D:It doesn't move very fast, but when it does - watch out!
+I:COLOR(Violet)
+P:Weight:100
+
+N:l.undead devilfish:l.fish:Undead devilfish
+I:LVL(15,50):RARITY(4):WILD(-SHORE|-OCEAN)
+I:SPEED(-5):HP(15d5):AC(20):EXP(75)
+I:KIND(-ANIMAL|UNDEAD|NONLIVING):ALIGN(Evil):CAN(INVIS)
+I:ALERT(100',Observant)
+I:RESIST(CONF|TIME):IMMUNE(NETHER)
+S:FREQ_10 | BR_NETHER | BR_DISENCHANT | BR_TIME | BR_NEXUS | BR_POISON
+D:A devilfish brought back from the dead.
+I:DISPLAY(,Violet,ATTR_MULTI):POS(SEE_INVIS)
+
+N:l.hammerhead:l.shark:Hammerhead
+I:LVL(16,50):RARITY(3)
+I:SPEED(+5):HP(16d10):AC(59):EXP(40):EVOLVE(l.white shark, 300)
+B:BITE(x2):HURT(2d4+5)
+B:BUTT:HURT(2d4+5)
+D:A hungry shark with a strange head.
+I:COLOR(Blue)
+
+N:l.white shark:l.shark:White shark
+I:LVL(18):RARITY(1)
+I:SPEED(+10):HP(10d10):AC(50):EXP(68):EVOLVE(l.great white shark, 400)
+I:ALERT(Fairly Observant)
+B:BITE(x2):HURT(3d5)
+D:Fast moving hunter of the depths, when this creature moves,
+D:everybody in water is in danger!
+I:COLOR(Light White)
+P:Weight:300
+
+N:l.devil ray priest:l.fish:Ixitxachitl priest
+I:LVL(19,80):RARITY(1)
+I:HP(10d10):AC(40):EXP(80)
+I:ALIGN(Neutral Evil)
+B:STING(x2):POISON(2d7)
+I:RESIST(POIS)
+S:1_IN_6 | TELE_TO | HEAL | SCARE | CAUSE_2 | BLIND | S_MONSTER(1)
+D:A devil ray of the depths, with priestly magic.
+I:COLOR(Slate)
+P:Copy:Kobold:Priest
+P:Body:Fish
+P:Weight:100
+
+N:l.whale:l.fish:Whale
+I:LVL(20,70):RARITY(4)
+I:HP(660):AC(50):EXP(175):EVOLVE(l.sky whale, 3000)
+I:ALERT(150',Inattentive):MOVE(RAND_25)
+B:CRUSH(x2):HURT(1d12+6)
+D:Although it looks like a fish and lives in water, it is in fact a mammal. And it is huge!
+I:COLOR(Light Green)
+P:Copy:Barbarian:Warrior
+P:Body:Fish
+P:Weight:1000
+
+N:l.globefish:l.fish:Globefish
+I:LVL(21,60):RARITY(1)
+I:HP(200):AC(30):EXP(200)
+I:ATTR(EMPTY_MIND)
+B:BITE(x2):HURT(2d5+3):POISON(2d5)
+I:RESIST(POIS)
+S:1_IN_10 | BR_POISON
+D:This cute fish is among the most poisonous creatures there are.
+I:COLOR(White)
+
+N:l.killer whale:l.whale:Killer whale
+I:LVL(22,80):RARITY(1)
+I:SPEED(+5):HP(450):AC(55):EXP(85)
+I:ALERT(Fairly Unseeing)
+B:BITE(x2):HURT(5d3+6)
+D:An almost beautiful, deadly beast.
+I:COLOR(White)
+
+N:l.great white shark:l.shark:Great white shark
+I:LVL(24,70):RARITY(2)
+I:SPEED(+10):HP(350):AC(70):EXP(250)
+B:BITE(x3):HURT(2d6+3)
+D:A very large carnivorous fish.
+I:COLOR(White)
+P:Weight:350
+
+N:l.small kraken:Small kraken
+I:LVL(25):RARITY(1):WILD(OCEAN)
+I:HP(20d10):AC(50):EXP(500):EVOLVE(l.lesser kraken, 70000)
+I:KIND(AQUATIC|ANIMAL):ATTR(SMART|WEIRD_MIND)
+I:ALERT(600',Inattentive):MOVE(SWIM)
+B:ENGULF:HURT(3d6+6)
+B:ENGULF:HURT(3d6):POISON(2d6)
+I:RESIST(POIS|CONF|WATER):IMMUNE(SLEEP)
+S:1_IN_4 | DARKNESS | BO_ACID | PARALYZE
+D:A kraken with a tough, scaly hide.
+I:DISPLAY(l,Green):POS(CORPSE|GAIN_AC)
+P:Copy:Human:Mauler
+P:Body:Small Kraken
+P:Weight:300
+
+N:l.vampiric devil ray:l.fish:Vampiric ixitxachitl
+I:LVL(26,70):RARITY(1)
+I:HP(22d22):AC(50):EXP(120)
+I:ALIGN(Evil)
+B:STING:POISON(2d8)
+B:STING:HURT(1d8):VAMP(1d8)
+I:RESIST(POIS|NETHER)
+S:1_IN_6 | HEAL | SCARE | CAUSE_3 | BLIND | AMNESIA | HASTE
+D:A devil ray of the depths, with vampiric powers.
+I:COLOR(Light Dark)
+P:Copy:Kobold:Priest
+P:Body:Fish
+P:Weight:60
+
+N:l.Jaws:l.shark:Jaws
+I:LVL(30):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+10):HP(864):AC(80):EXP(1300)
+I:ALERT(100',Fairly Observant):MOVE(PUSH|PICKUP)
+B:BITE(x4):HURT(3d2+12)
+I:RESIST(ELEC|COLD|POIS|CONF):IMMUNE(SLEEP)
+O:1d2:OBJ(*, GOOD)
+D:The biggest white shark who has ever lived, it is hunting for you now!
+I:COLOR(White):POS(CORPSE)
+P:Weight:400
+
+N:l.kshitigarbha:Octopus of Kshitigarbha
+I:LVL(30):RARITY(100)
+I:HP(10d20):AC(30):EXP(30)
+I:KIND(ANIMAL):ATTR(WEIRD_MIND)
+I:ALERT(100',Fairly Unseeing):MOVE(SWIM)
+B:SPIT:BLIND
+B:TOUCH:CONFUSE
+B:CRUSH:HURT(6d6)
+B:CRAWL:POISON(4d4)
+I:RESIST(POIS|DARK|WATER)
+S:FREQ_15 | BR_DARK
+M:3d3:MON(l.kshitigarbha)
+I:DISPLAY(l,White):POS(GAIN_AC)
+P:Copy:Kobold:Warrior
+P:Body:Octopus
+P:Weight:100
+
+N:l.squid:l.fish:Giant squid
+I:LVL(32,70):RARITY(3):WILD(-SHORE)
+I:HP(800):AC(80):EXP(600):EVOLVE(l.lesser kraken, 50000)
+I:ATTR(RIDING):ALERT(80',Inattentive):MOVE(PUSH)
+B:CRUSH(x3):HURT(4d4+10)
+I:RESIST(ACID|COLD)
+S:FREQ_5 | BR_ELEC | BR_ACID | BR_POISON
+D:Besides being capable of dragging whole ships underwater,
+D:this creature can also harm you with ranged attacks.
+I:COLOR(Green)
+P:Body:Octopus
+P:Weight:300
+
+N:l.seahorse:l.fish:Seahorse
+I:LVL(36,80):RARITY(2):WILD(-SHORE)
+I:SPEED(+10):HP(650):AC(60):EXP(860)
+I:ALIGN(Good)
+B:BITE:HURT(2d5+6):PARALYZE
+B:BITE:HURT(2d5+6):LOSE_DEX(50%)
+B:BITE:HURT(2d5+6):LOSE_CON(50%)
+I:RESIST(ELEC|FIRE|COLD|POIS)
+S:1_IN_5 | BO_WATER | BO_COLD | BO_ICE | BO_MANA
+D:Your mind is filled with admiration as you view this wondrous, magical seahorse.
+I:COLOR(Orange)
+P:Copy:Sprite:Mage
+P:Body:Fish
+P:Weight:70
+
+N:l.flying polyp:Flying polyp
+I:LVL(37,70):RARITY(5)
+I:SPEED(+10):HP(350):AC(70):EXP(1000)
+I:KIND(HORROR):ALIGN(Evil):CAN(INVIS)
+I:ALERT(900',Fairly Observant):MOVE(FLY|PASSWALL)
+B:CRUSH(x3):HURT(2d4+15):PARALYZE(35%)
+I:RESIST(ACID|COLD|POIS|CONF|DISENCHANT|FORCE):IMMUNE(SLEEP)
+S:FREQ_8 | BR_FORCE
+D:"They were only partly material and had the power of aerial motion,
+D:despite the absence of wings... Suggestions of monstrous plasticity
+D:and of temporary lapses of visibility..."
+I:DISPLAY(l,Light Red):POS(GAIN_AC)
+P:Copy:Beastman:Warrior
+P:Body:Polyp
+P:Weight:100
+
+# XXX not AQUATIC
+N:l.sky whale:Sky whale
+I:LVL(38,70):RARITY(6)
+I:HP(800):AC(75):EXP(1750)
+I:ALIGN(Good):ATTR(RIDING|SMART)
+I:ALERT(200',Fairly Unseeing):MOVE(BASH|FLY)
+B:CRUSH(x3):HURT(1d15+20)
+I:RESIST(CONF|NEXUS|DISENCHANT|WATER|TELE):IMMUNE(SLEEP)
+S:1_IN_9 | BRAIN_SMASH | CONFUSE | SCARE | AMNESIA | TELE_TO | TELE_OTHER | SHRIEK
+O:1d3+1:OBJ(*$)
+D:A vastly intelligent whale from the stars.
+I:DISPLAY(l,Light Blue):POS(CORPSE|GAIN_AC)
+P:Copy:Mindflayer:Warrior-Mage
+P:Body:Fish
+P:Weight:750
+
+N:l.Giganto:Giganto the Gargantuan
+I:LVL(38):RARITY(6):ALLOC(UNIQUE):WILD(OCEAN)
+I:HP(2000):AC(75):EXP(7750)
+I:ALIGN(Evil):ATTR(RIDING|SMART|WEIRD_MIND)
+I:ALERT(200',Fairly Unseeing):MOVE(BASH|SWIM)
+B:CRUSH(x3):HURT(20d2+20)
+I:RESIST(FIRE|COLD|CONF|WATER):IMMUNE(SLEEP)
+S:FREQ_5 | BR_NUKE | BA_WATER
+O:2d2+1:OBJ(*, GOOD)
+D:A gargantuan mutant whale, who has grown legs that enable it to walk on dry land as well.
+I:DISPLAY(l,Slate):POS(CORPSE|GAIN_AC)
+P:Copy:Barbarian:Mauler
+P:Body:Fish
+P:Weight:1000
+
+N:l.Narwhal:l.whale:Narwhal
+I:LVL(40):RARITY(20):ALLOC(UNIQUE)
+I:SPEED(+20):HP(2500):AC(100):EXP(8000)
+I:ATTR(RIDING):ALERT(500',Overlooks)
+B:BUTT(x2):HURT(5d5+10)
+B:BUTT:HURT(5d8+8):COLD(3d8)
+I:RESIST(COLD|POIS|CONF):IMMUNE(SLEEP)
+O:2d2:OBJ(*, GOOD)
+D:This is the whale of the tradition which gets across to the Inuit
+D:who lives in the world of winter. It is said that the mystical horn
+D:of this whale cures all illnesses.
+I:COLOR(White):POS(CORPSE)
+
+N:l.Charybdis:Charybdis
+I:LVL(49):RARITY(1):ALLOC(UNIQUE)
+I:SPEED(+10):HP(4000):AC(100):EXP(13000)
+I:KIND(AQUATIC):ALIGN(Evil):ATTR(RIDING|SMART)
+I:ALERT(200',Overlooks):MOVE(NEVER|PUSH|SWIM)
+B:ENGULF(x3):HURT(3d8+30)
+I:RESIST(BASE|POIS|CONF|WATER):IMMUNE(SLEEP|SLOW|STUN)
+O:5d2:OBJ(*, GOOD)
+S:FREQ_20 | BA_WATER(1d98+50)
+D:A monstrous dweller of the depths; its hungry maw has been the doom of innumerable sailors!
+I:DISPLAY(l,Red):POS(CORPSE|GAIN_AC)
+P:Copy:Barbarian:Mauler
+P:Body:Fish
+P:Weight:1000
+
+N:l.lesser kraken:Lesser kraken
+I:LVL(54):RARITY(2):WILD(OCEAN)
+I:SPEED(+10):HP(3300):AC(150):EXP(20000):EVOLVE(l.greater kraken, 100000)
+I:KIND(AQUATIC):ALIGN(Evil):ATTR(RIDING|SMART)
+I:ALERT(300',Inattentive):MOVE(BASH|PUSH|SWIM)
+B:CRUSH(x4):HURT(6d12+65)
+I:RESIST(ELEC|FIRE|POIS|CONF|DARK|WATER):IMMUNE(SLEEP)
+S:1_IN_6 | BLIND | CONFUSE | SCARE | CAUSE_4 | CAUSE_3 |
+S:BA_WATER(1d108+50) | DARKNESS | BR_DARK | TELE_TO
+O:2d2:OBJ(*, GOOD)
+D:An enormously fearsome and powerful inhabitant of the depths. It
+D:resembles a gargantuan octopus and its evil is almost tangible.
+I:DISPLAY(l,Light Green):POS(CORPSE|GAIN_AC)
+P:Copy:Half-Giant:Mauler
+P:Body:Kraken
+P:Weight:1000
+
+N:l.greater kraken:l.lesser kraken:Greater kraken
+I:HP(4000):AC(175)
+I:LVL(63):RARITY(2):EXP(25000)
+B:CRUSH(x4):HURT(10d10+60)
+S:1_IN_6 | BLIND | CONFUSE | SCARE | CAUSE_4 | CAUSE_3 | TELE_TO | TELE_OTHER |
+S:BA_WATER(1d126+50) | DARKNESS | BR_DARK | BR_ACID | BR_POISON
+O:3d2:OBJ(*, GOOD)
+D:An enormously fearsome and powerful inhabitant of the depths. It
+D:resembles a gargantuan octopus and its evil is almost tangible.
+P:Weight:2000
+
+N:l.Glaaki:Glaaki
+I:LVL(67):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+20):HP(5148):AC(150):EXP(36000)
+I:KIND(DEMON|NONLIVING|HORROR):ALIGN(Evil):CAN(SPEAK|REGEN):ATTR(SMART)
+I:ALERT(200',Fairly Observant):MOVE(SWIM)
+B:STING:DAM(20d1)
+B:STING:DISEASE(20d1)
+B:CRUSH:HURT(3d20)
+I:RESIST(ACID|COLD|POIS|CONF|NETHER|NEXUS|WATER):IMMUNE(SLEEP|SLOW|STUN)
+S:1_IN_5 | BA_WATER | S_HYDRA | S_DRAGON | S_DEMON | SCARE | BLIND | CONFUSE | CAUSE_4 | BR_POISON
+O:9d2:OBJ(*, GOOD)
+D:"From an oval body protruded countless thin, pointed spines of
+D:multi-colored metal; at the more rounded end of the oval a
+D:circular, thick-lipped mouth formed the center of a spongy
+D:face, from which rose three yellow eyes on thin stalks. Around
+D:the underside of the body were many white pyramids, presumably
+D:used for locomotion. The diameter of the body must have been
+D:at least ten feet at its least wide..."
+I:DISPLAY(l,Green,ATTR_MULTI):POS(GAIN_AC|SEE_INVIS|HOLD_LIFE)
+P:Copy:Beastman:Mystic
+P:Body:Glaaki
+P:Weight:500
+
+# vim: filetype=ri :
+

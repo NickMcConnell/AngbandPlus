@@ -1325,32 +1325,36 @@ byte adj_chr_chm[] =
  * the (compiled out) small random energy boost code. It may
  * also tend to cause more "clumping" at high speeds.
  */
-byte extract_energy[200] =
+int speed_to_energy(int speed)
 {
-    /* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-    /* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-    /* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-    /* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-    /* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-    /* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-    /* S-50 */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-    /* S-40 */     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
-    /* S-30 */     2,  2,  2,  2,  2,  2,  2,  3,  3,  3,
-    /* S-20 */     3,  3,  3,  3,  3,  4,  4,  4,  4,  4,
-    /* S-10 */     5,  5,  5,  5,  6,  6,  7,  7,  8,  9,
-    /* Norm */    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-    /* F+10 */    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-    /* F+20 */    30, 31, 32, 33, 34, 35, 36, 36, 37, 37,
-    /* F+30 */    38, 38, 39, 39, 40, 40, 40, 41, 41, 41,
-    /* F+40 */    42, 42, 42, 43, 43, 43, 44, 44, 44, 44,
-    /* F+50 */    45, 45, 45, 45, 45, 46, 46, 46, 46, 46,
-    /* F+60 */    47, 47, 47, 47, 47, 48, 48, 48, 48, 48,
-    /* F+70 */    49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
-    /* Fast */    49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
-};
-
-
-
+    static byte _energy[200] =
+    {
+        /* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+        /* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+        /* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+        /* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+        /* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+        /* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+        /* S-50 */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+        /* S-40 */     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
+        /* S-30 */     2,  2,  2,  2,  2,  2,  2,  3,  3,  3,
+        /* S-20 */     3,  3,  3,  3,  3,  4,  4,  4,  4,  4,
+        /* S-10 */     5,  5,  5,  5,  6,  6,  7,  7,  8,  9,
+        /* Norm */    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+        /* F+10 */    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+        /* F+20 */    30, 31, 32, 33, 34, 35, 36, 36, 37, 37,
+        /* F+30 */    38, 38, 39, 39, 40, 40, 40, 41, 41, 41,
+        /* F+40 */    42, 42, 42, 43, 43, 43, 44, 44, 44, 44,
+        /* F+50 */    45, 45, 45, 45, 45, 46, 46, 46, 46, 46,
+        /* F+60 */    47, 47, 47, 47, 47, 48, 48, 48, 48, 48,
+        /* F+70 */    49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
+        /* Fast */    49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
+    };
+    int i = speed + 110;
+    if (i < 0) i = 0;
+    if (i > 199) i = 199;
+    return _energy[i];
+}
 
 /*
  * Player Sexes
@@ -1549,7 +1553,7 @@ cptr realm_names[]
     "Crusade",
     "Necromancy",
     "Armageddon",
-    "unknown",
+    "Illusion",
     "unknown",
     "unknown",
     "Music",
@@ -1732,9 +1736,9 @@ cptr window_flag_desc[32] =
 
     NULL,
     NULL,
-    "Display borg messages",
+    NULL,
 
-    "Display borg status",
+    NULL,
 
     NULL,
     NULL,
@@ -1825,17 +1829,14 @@ option_type option_info[] =
     { &center_running,              TRUE,  OPT_PAGE_MAPSCREEN, 5, 12,
     "center_running",               "Centering even while running" },
 
-    { &view_yellow_lite,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 28,
-    "view_yellow_lite",             "Use special colors for torch-lit grids" },
+    { &view_light,                   TRUE,  OPT_PAGE_MAPSCREEN, 1, 28,
+    "view_light",                    "Use special graphics for lighting" },
 
-    { &view_bright_lite,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 29,
-    "view_bright_lite",             "Use special colors for 'viewable' grids" },
+    { &view_daylight,                TRUE,  OPT_PAGE_MAPSCREEN, 1, 29,
+    "view_daylight",                 "Use special graphics for surface daylight" }, 
 
-    { &view_granite_lite,           TRUE,  OPT_PAGE_MAPSCREEN, 1, 30,
-    "view_granite_lite",            "Use special colors for wall grids (slow)" },
-
-    { &view_special_lite,           TRUE,  OPT_PAGE_MAPSCREEN, 1, 31,
-    "view_special_lite",            "Use special colors for floor grids (slow)" },
+    { &view_gridlight,               TRUE,  OPT_PAGE_MAPSCREEN, 1, 30,
+    "view_gridlight",                "Use special graphics for lit rooms" },
 
     { &view_perma_grids,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 6,
     "view_perma_grids",             "Map remembers all perma-lit grids" },
@@ -1896,6 +1897,9 @@ option_type option_info[] =
     { &display_food_bar,            FALSE,  OPT_PAGE_TEXT, 1, 13,
     "display_food_bar",             "Display detailed food status" },
 
+    { &display_light_bar,            FALSE,  OPT_PAGE_TEXT, 1, 9,
+    "display_light_bar",             "Display detailed light status" },
+
     { &compress_savefile,           FALSE, OPT_PAGE_TEXT, 1, 26,
     "compress_savefile",            "Compress messages in savefiles" },
 
@@ -1927,9 +1931,6 @@ option_type option_info[] =
 
     { &expand_list,                 TRUE,  OPT_PAGE_GAMEPLAY, 1, 5,
     "expand_list",                  "Expand the power of the list commands" },
-
-    { &bound_walls_perm,            FALSE, OPT_PAGE_GAMEPLAY, 2, 1,
-    "bound_walls_perm",             "Boundary walls become 'permanent wall'" },
 
     { &last_words,                  TRUE,  OPT_PAGE_GAMEPLAY, 0, 28,
     "last_words",                   "Leave last words when your character dies" },
@@ -2265,125 +2266,3 @@ cptr ident_info[] =
     NULL
 };
 
-/*
- * The table of features' actions
- */
-byte feature_action_flags[FF_FLAG_MAX] =
-{
-    0, /* LOS */
-    0, /* PROJECT */
-    0, /* MOVE */
-    0, /* PLACE */
-    0, /* DROP */
-    0, /* SECRET */
-    0, /* NOTICE */
-    0, /* REMEMBER */
-    0, /* OPEN */
-    0, /* CLOSE */
-    FAF_CRASH_GLASS, /* BASH */
-    0, /* SPIKE */
-    FAF_DESTROY, /* DISARM */
-    0, /* STORE */
-    FAF_DESTROY | FAF_CRASH_GLASS, /* TUNNEL */
-    0, /* MAY_HAVE_GOLD */
-    0, /* HAS_GOLD */
-    0, /* HAS_ITEM */
-    0, /* DOOR */
-    0, /* TRAP */
-    0, /* STAIRS */
-    0, /* GLYPH */
-    0, /* LESS */
-    0, /* MORE */
-    0, /* RUN */
-    0, /* FLOOR */
-    0, /* WALL */
-    0, /* PERMANENT */
-    0, /* INNER */
-    0, /* OUTER */
-    0, /* SOLID */
-    0, /* HIT_TRAP */
-
-    0, /* BRIDGE */
-    0, /* RIVER */
-    0, /* LAKE */
-    0, /* BRIDGED */
-    0, /* COVERED */
-    0, /* GLOW */
-    0, /* ENSECRET */
-    0, /* WATER */
-    0, /* LAVA */
-    0, /* SHALLOW */
-    0, /* DEEP */
-    0, /* FILLED */
-    FAF_DESTROY | FAF_CRASH_GLASS, /* HURT_ROCK */
-    0, /* HURT_FIRE */
-    0, /* HURT_COLD */
-    0, /* HURT_ACID */
-    0, /* ICE */
-    0, /* ACID */
-    0, /* OIL */
-    0, /* XXX04 */
-    0, /* CAN_CLIMB */
-    0, /* CAN_FLY */
-    0, /* CAN_SWIM */
-    0, /* CAN_PASS */
-    0, /* CAN_OOZE */
-    0, /* CAN_DIG */
-    0, /* HIDE_ITEM */
-    0, /* HIDE_SNEAK */
-    0, /* HIDE_SWIM */
-    0, /* HIDE_DIG */
-    0, /* KILL_HUGE */
-    0, /* KILL_MOVE */
-
-    0, /* PICK_TRAP */
-    0, /* PICK_DOOR */
-    0, /* ALLOC */
-    0, /* CHEST */
-    0, /* DROP_1D2 */
-    0, /* DROP_2D2 */
-    0, /* DROP_GOOD */
-    0, /* DROP_GREAT */
-    0, /* HURT_POIS */
-    0, /* HURT_ELEC */
-    0, /* HURT_WATER */
-    0, /* HURT_BWATER */
-    0, /* USE_FEAT */
-    0, /* GET_FEAT */
-    0, /* GROUND */
-    0, /* OUTSIDE */
-    0, /* EASY_HIDE */
-    0, /* EASY_CLIMB */
-    0, /* MUST_CLIMB */
-    0, /* TREE */
-    0, /* NEED_TREE */
-    0, /* BLOOD */
-    0, /* DUST */
-    0, /* SLIME */
-    0, /* PLANT */
-    0, /* XXX2 */
-    0, /* INSTANT */
-    0, /* EXPLODE */
-    0, /* TIMED */
-    0, /* ERUPT */
-    0, /* STRIKE */
-    0, /* SPREAD */
-
-    0, /* SPECIAL */
-    FAF_DESTROY | FAF_NO_DROP | FAF_CRASH_GLASS, /* HURT_DISI */
-    0, /* QUEST_ENTER */
-    0, /* QUEST_EXIT */
-    0, /* QUEST */
-    0, /* SHAFT */
-    0, /* MOUNTAIN */
-    0, /* BLDG */
-    0, /* MINOR_GLYPH */
-    0, /* PATTERN */
-    0, /* TOWN */
-    0, /* ENTRANCE */
-    0, /* MIRROR */
-    0, /* UNPERM */
-    0, /* TELEPORTABLE */
-    0, /* CONVERT */
-    0, /* GLASS */
-};

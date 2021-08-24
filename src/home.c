@@ -193,8 +193,6 @@ void museum_ui(void)
 
 static void _ui(_ui_context_ptr context)
 {
-    forget_lite(); /* resizing the term would redraw the map ... sigh */
-    forget_view();
     character_icky = TRUE;
 
     msg_line_clear();
@@ -437,14 +435,14 @@ static void _drop(_ui_context_ptr context)
 
     if (inv_loc(context->inv) == INV_MUSEUM)
     {
-        char       name[MAX_NLEN];
-        string_ptr s = string_copy_s("<color:v>Warning:</color> All donations are final! ");
-        char       c;
+        char    name[MAX_NLEN];
+        str_ptr s = str_copy_s("<color:v>Warning:</color> All donations are final! ");
+        char    c;
 
         object_desc(name, prompt.obj, OD_COLOR_CODED);
-        string_printf(s, "Really donate %s to the museum? <color:y>[y/n]</color>", name);
-        c = msg_prompt(string_buffer(s), "ny", PROMPT_YES_NO);
-        string_free(s);
+        str_printf(s, "Really donate %s to the museum? <color:y>[y/n]</color>", name);
+        c = msg_prompt(str_buffer(s), "ny", PROMPT_YES_NO);
+        str_free(s);
         if (c == 'n') return;
     }
     else

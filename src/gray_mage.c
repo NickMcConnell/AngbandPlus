@@ -39,17 +39,31 @@ static magic_type *_get_spell_info(int realm, int spell)
     return &mp_ptr->info[realm - 1][spell];
 }
 
+static int _spell_fail(int realm, int spell)
+{
+    magic_type *spell_ptr = _get_spell_info(realm, spell);
+    cptr        name = do_spell(realm, spell, SPELL_NAME);
+    int         fail = virtue_mod_spell_fail(realm, spell_ptr->sfail);
+    spell_stats_ptr stats = spell_stats_aux(name);
+
+    fail = calculate_fail_rate_aux(plr->lev, realm, spell_ptr->slevel, fail, plr->stat_ind[A_INT]);
+    if (stats->skill >= SPELL_EXP_EXPERT) fail--;
+    if (stats->skill >= SPELL_EXP_MASTER) fail--;
+
+    return MAX(0, fail);
+}
 static void _list_spell(doc_ptr doc, int realm, int spell, int choice, int options)
 {
     magic_type *spell_ptr = _get_spell_info(realm, spell);
-    int         cost = calculate_cost(spell_ptr->smana);
-    int         fail = calculate_fail_rate(spell_ptr->slevel, spell_ptr->sfail, p_ptr->stat_ind[A_INT]);
+    cptr        name = do_spell(realm, spell, SPELL_NAME);
+    int         cost = spell_cost_aux(realm, name, spell_ptr->smana);
+    int         fail = _spell_fail(realm, spell);
 
-    if (cost > p_ptr->csp)
+    if (cost > plr->csp)
         doc_insert(doc, "<color:D>");
     else if (choice == _browse_choice)
         doc_insert(doc, "<color:B>");
-    else if (spell_ptr->slevel > p_ptr->lev)
+    else if (spell_ptr->slevel > plr->lev)
     {
         if (options & _FROM_BOOK)
             doc_insert(doc, "<color:D>");
@@ -59,15 +73,16 @@ static void _list_spell(doc_ptr doc, int realm, int spell, int choice, int optio
     else
         doc_insert(doc, "<color:w>");
 
-    if (spell_ptr->slevel > p_ptr->lev)
+    if (spell_ptr->slevel > plr->lev)
         doc_printf(doc, " <color:D>%c)</color> ", I2A(choice));
     else
         doc_printf(doc, " %c) ", I2A(choice));
 
-    doc_printf(doc, "%-20.20s ", do_spell(realm, spell, SPELL_NAME));
+    doc_printf(doc, "%-23.23s ", name);
+    spell_skill_doc(spell_stats_aux(name), doc);
     doc_printf(doc, "%3d %3d %3d%% ", spell_ptr->slevel, cost, fail);
 
-    if (spell_ptr->slevel > p_ptr->lev)
+    if (spell_ptr->slevel > plr->lev)
     {
         if (options & _FROM_BOOK)
             doc_printf(doc, "%-15.15s", "");
@@ -98,7 +113,7 @@ static void _list_spells(doc_ptr doc, int options)
     int i;
 
     doc_insert(doc, "<style:table>");
-    doc_printf(doc, "<color:G>    %-20.20s Lvl  SP Fail %-15.15s", "Name", "Desc");
+    doc_printf(doc, "<color:G>    %-23.23s Skill Lvl  SP Fail %-15.15s", "Name", "Desc");
     if (options & _SHOW_STATS)
         doc_insert(doc, "  Cast Fail");
     doc_insert(doc, "</color>\n");
@@ -147,7 +162,7 @@ static _slot_info_ptr _choose(cptr verb, int options)
     int            slot = 0;
     int            cmd;
     rect_t         r = _menu_rect();
-    string_ptr     prompt = NULL;
+    str_ptr        prompt = NULL;
     bool           done = FALSE;
     bool           exchange = FALSE;
     int            slot1 = _INVALID_SLOT, slot2 = _INVALID_SLOT;
@@ -159,27 +174,27 @@ static _slot_info_ptr _choose(cptr verb, int options)
             return &_spells[slot];
     }
 
-    prompt = string_alloc();
+    prompt = str_alloc();
     screen_save();
     while (!done)
     {
-        string_clear(prompt);
+        str_clear(prompt);
 
         if (exchange)
         {
             if (slot1 == _INVALID_SLOT)
-                string_append_s(prompt, "Select the first spell:");
+                str_append_s(prompt, "Select the first spell:");
             else
-                string_append_s(prompt, "Select the second spell:");
+                str_append_s(prompt, "Select the second spell:");
         }
         else
         {
-            string_printf(prompt, "%s which spell", verb);
+            str_printf(prompt, "%s which spell", verb);
             if (options & _ALLOW_EXCHANGE)
-                string_append_s(prompt, " [Press 'X' to Exchange]");
-            string_append_c(prompt, ':');
+                str_append_s(prompt, " [Press 'X' to Exchange]");
+            str_append_c(prompt, ':');
         }
-        prt(string_buffer(prompt), 0, 0);
+        prt(str_buffer(prompt), 0, 0);
         _display(r, options);
 
         cmd = inkey_special(FALSE);
@@ -233,7 +248,7 @@ static _slot_info_ptr _choose(cptr verb, int options)
     }
 
     screen_load();
-    string_free(prompt);
+    str_free(prompt);
     return result;
 }
 
@@ -248,7 +263,7 @@ static void _birth(void)
     object_prep(&forge, lookup_kind(TV_SWORD, SV_DAGGER));
     plr_birth_obj(&forge);
 
-    if (p_ptr->psubclass == GRAY_MAGE_GOOD)
+    if (plr->psubclass == GRAY_MAGE_GOOD)
     {
         object_prep(&forge, lookup_kind(TV_LIFE_BOOK, 0));
         plr_birth_obj(&forge);
@@ -256,12 +271,15 @@ static void _birth(void)
         object_prep(&forge, lookup_kind(TV_CRUSADE_BOOK, 0));
         plr_birth_obj(&forge);
     }
-    else if (p_ptr->psubclass == GRAY_MAGE_NEUTRAL)
+    else if (plr->psubclass == GRAY_MAGE_NEUTRAL)
     {
         object_prep(&forge, lookup_kind(TV_NATURE_BOOK, 0));
         plr_birth_obj(&forge);
+
+        object_prep(&forge, lookup_kind(TV_CHAOS_BOOK, 0));
+        plr_birth_obj(&forge);
     }
-    else if (p_ptr->psubclass == GRAY_MAGE_EVIL)
+    else if (plr->psubclass == GRAY_MAGE_EVIL)
     {
         object_prep(&forge, lookup_kind(TV_DEATH_BOOK, 0));
         plr_birth_obj(&forge);
@@ -286,8 +304,8 @@ static void _birth(void)
  **********************************************************************/
 static void _calc_bonuses(void)
 {
-    if (p_ptr->lev >= 30)
-        p_ptr->wizard_sight = TRUE;
+    if (plr->lev >= 30)
+        plr->wizard_sight = TRUE;
 }
 
 static void _character_dump(doc_ptr doc)
@@ -338,7 +356,7 @@ static int _get_powers(spell_info* spells, int max)
     spell_info* spell = &spells[ct++];
     spell->level = 25;
     spell->cost = 1;
-    spell->fail = calculate_fail_rate(spell->level, 90, p_ptr->stat_ind[A_INT]);
+    spell->fail = calculate_fail_rate(spell->level, 90, plr->stat_ind[A_INT]);
     spell->fn = eat_magic_spell;
 
     return ct;
@@ -355,7 +373,7 @@ static caster_info * _caster_info(void)
         me.encumbrance.max_wgt = 430;
         me.encumbrance.weapon_pct = 100;
         me.encumbrance.enc_wgt = 600;
-        me.options = CASTER_ALLOW_DEC_MANA | CASTER_GLOVE_ENCUMBRANCE;
+        me.options = CASTER_ALLOW_DEC_MANA | CASTER_GLOVE_ENCUMBRANCE | CASTER_GAIN_SKILL;
         init = TRUE;
     }
     return &me;
@@ -367,21 +385,27 @@ static bool _is_allowed_realm(int realm)
     {
     case REALM_LIFE:
     case REALM_CRUSADE:
-        return p_ptr->psubclass == GRAY_MAGE_GOOD;
+        return plr->psubclass == GRAY_MAGE_GOOD;
 
     case REALM_NATURE:
-        return p_ptr->psubclass == GRAY_MAGE_NEUTRAL;
+    case REALM_CHAOS:
+        return plr->psubclass == GRAY_MAGE_NEUTRAL;
 
     case REALM_DEATH:
     case REALM_DAEMON:
-        return p_ptr->psubclass == GRAY_MAGE_EVIL;
+        return plr->psubclass == GRAY_MAGE_EVIL;
 
     case REALM_SORCERY:
-    case REALM_CHAOS:
     case REALM_TRUMP:
     case REALM_ARCANE:
     case REALM_CRAFT:
+    case REALM_ILLUSION:
+        return TRUE;
+
     case REALM_ARMAGEDDON:
+        /* XXX Consider removing access to this realm to make the 
+         * primary realm choice more meaningful. Currently, gray-mages
+         * cast armageddon spells about as well as a priest. XXX */
         return TRUE;
     }
     return FALSE;
@@ -416,7 +440,7 @@ static void _display_spells_to_gain(object_type *o_ptr, rect_t r)
     int     start_idx = o_ptr->sval * _SPELLS_PER_BOOK;
 
     doc_insert(doc, "<style:table>");
-    doc_printf(doc, "<color:G>    %-20.20s Lvl  SP Fail Desc</color>\n", "Name");
+    doc_printf(doc, "<color:G>    %-23.23s Skill Lvl  SP Fail Desc</color>\n", "Name");
 
     for (i = start_idx; i < start_idx + _SPELLS_PER_BOOK; i++)
         _list_spell(doc, realm, i, i - start_idx, _FROM_BOOK);
@@ -450,7 +474,7 @@ static int _choose_spell_to_gain(object_type *o_ptr)
             int         spell_idx = o_ptr->sval * _SPELLS_PER_BOOK + A2I(cmd);
             magic_type *spell_ptr = _get_spell_info(tval2realm(o_ptr->tval), spell_idx);
 
-            if (spell_ptr->slevel <= p_ptr->lev) /* Note: Illegible spells have slevel == 99 in m_info.txt */
+            if (spell_ptr->slevel <= plr->lev) /* Note: Illegible spells have slevel == 99 in m_info.txt */
             {
                 done = TRUE;
                 result = spell_idx;
@@ -498,22 +522,24 @@ void gray_mage_cast(void)
     if (slot_ptr)
     {
         magic_type *spell_ptr = _get_spell_info(slot_ptr->realm, slot_ptr->spell);
-        int         cost = calculate_cost(spell_ptr->smana);
-        int         fail = calculate_fail_rate(spell_ptr->slevel, spell_ptr->sfail, p_ptr->stat_ind[A_INT]);
+        cptr        name = do_spell(slot_ptr->realm, slot_ptr->spell, SPELL_NAME);
+        int         cost = spell_cost_aux(slot_ptr->realm, name, spell_ptr->smana);
+        int         fail = _spell_fail(slot_ptr->realm, slot_ptr->spell);
+        spell_stats_ptr stats = spell_stats_aux(name);
 
-        if (spell_ptr->slevel > p_ptr->lev) /* Experience Drain? */
+        if (spell_ptr->slevel > plr->lev) /* Experience Drain? */
         {
             msg_format("You need to be level %d to use that spell.", spell_ptr->slevel);
             return;
         }
 
-        if (cost > p_ptr->csp)
+        if (cost > plr->csp)
         {
             msg_print("You do not have enough mana to cast this spell.");
             return;
         }
 
-        p_ptr->csp -= cost;
+        plr->csp -= cost;
         energy_use = 100;
 
         if (randint0(100) < fail)
@@ -522,25 +548,30 @@ void gray_mage_cast(void)
 
             cmsg_format(TERM_VIOLET, "You failed to cast %s!", do_spell(slot_ptr->realm, slot_ptr->spell, SPELL_NAME));
             if (demigod_is_(DEMIGOD_ATHENA))
-                p_ptr->csp += cost/2;
+                plr->csp += cost/2;
             spell_stats_on_fail_old(slot_ptr->realm, slot_ptr->spell);
             sound(SOUND_FAIL);
             do_spell(slot_ptr->realm, slot_ptr->spell, SPELL_FAIL);
+            virtue_on_fail_spell(slot_ptr->realm, fail);
         }
         else
         {
             if (!do_spell(slot_ptr->realm, slot_ptr->spell, SPELL_CAST))
             {  /* Canceled */
-                p_ptr->csp += cost;
+                plr->csp += cost;
                 energy_use = 0;
                 return;
             }
             sound(SOUND_ZAP);
-            spell_stats_on_cast_old(slot_ptr->realm, slot_ptr->spell);
+            if (!stats->ct_cast)
+                virtue_on_first_cast_spell(slot_ptr->realm);
+            stats->ct_cast++;
+            spell_stats_gain_skill_aux(name, spell_ptr->slevel);
+            virtue_on_cast_spell(slot_ptr->realm, cost, fail);
         }
     }
-    p_ptr->redraw |= PR_MANA;
-    p_ptr->window |= PW_SPELL;
+    plr->redraw |= PR_MANA;
+    plr->window |= PW_SPELL;
 }
 
 void gray_mage_gain_spell(void)
@@ -549,7 +580,7 @@ void gray_mage_gain_spell(void)
     int             spell_idx;
     _slot_info_ptr  slot_ptr;
 
-    if (plr_tim_find(T_BLIND) || no_lite())
+    if (plr_tim_find(T_BLIND) || no_light())
     {
         msg_print("You cannot see!");
         return;
@@ -561,7 +592,7 @@ void gray_mage_gain_spell(void)
         return;
     }
 
-    if (!p_ptr->new_spells)
+    if (!plr->new_spells)
     {
         msg_print("You cannot learn any new spells!");
         return;
@@ -586,24 +617,39 @@ void gray_mage_gain_spell(void)
 
     if (slot_ptr->realm != REALM_NONE)
     {
-        char       c;
-        string_ptr prompt = string_alloc_format(
+        char    c;
+        str_ptr prompt = str_alloc_format(
             "Really replace %s? <color:y>[y/N]</color>",
             do_spell(slot_ptr->realm, slot_ptr->spell, SPELL_NAME));
 
-        c = msg_prompt(string_buffer(prompt), "ny", PROMPT_DEFAULT);
-        string_free(prompt);
+        c = msg_prompt(str_buffer(prompt), "ny", PROMPT_DEFAULT);
+        str_free(prompt);
         if (c == 'n') return;
     }
 
     /* Learn the spell: Note, we don't bother with spell_learned# and spell_order[], since
        these are hard coded for 2 spell realms. Hopefully, ticking up learned_spells is enough? */
-    p_ptr->learned_spells++;
+    plr->learned_spells++;
     slot_ptr->realm = tval2realm(prompt.obj->tval);
     slot_ptr->spell = spell_idx;
     msg_format("You have learned the spell '%s'.", do_spell(slot_ptr->realm, slot_ptr->spell, SPELL_NAME));
-    p_ptr->update |= PU_SPELLS;
-    p_ptr->redraw |= PR_EFFECTS;
+    switch (slot_ptr->realm)
+    {
+    case REALM_LIFE:
+        virtue_add(VIRTUE_FAITH, 1);
+        break;
+    case REALM_DEATH:
+        virtue_add(VIRTUE_UNLIFE, 1);
+        break;
+    case REALM_NATURE:
+        virtue_add(VIRTUE_NATURE, 1);
+        break;
+    default:
+        virtue_add(VIRTUE_KNOWLEDGE, 1);
+        break;
+    }
+    plr->update |= PU_SPELLS;
+    plr->redraw |= PR_EFFECTS;
     energy_use = 100;
 }
 
@@ -636,7 +682,7 @@ plr_class_ptr gray_mage_get_class(int psubclass)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  40,  38,   3,  16,  20,  34,  20};
-    skills_t xs = {  7,  15,  11,   0,   0,   0,   6,   7};
+    skills_t xs = { 35,  75,  55,   0,   0,   0,  30,  35};
 
         me = plr_class_alloc(CLASS_GRAY_MAGE);
         me->name = "Gray-Mage";
@@ -649,9 +695,9 @@ plr_class_ptr gray_mage_get_class(int psubclass)
                     "The Gray-Mage does not choose spell realms the way an ordinary "
                     "spell caster would. Instead, they choose a general bias towards "
                     "one of Good, Neutral or Evil magic. So while all Gray-Mages may "
-                    "learn spells from the Arcane, Armageddon, Chaos, Craft, Sorcery and "
+                    "learn spells from the Arcane, Armageddon, Craft, Sorcery and "
                     "Trump realms, only a Good Bias allows access to Life and Crusade magic; "
-                    "only a Neutral Bias allows access to Nature magic; and only an Evil Bias "
+                    "only a Neutral Bias allows access to Nature and Chaos magic; and only an Evil Bias "
                     "allows access to Death and Daemon magic. Still, it is obvious that "
                     "the Gray Mage will have an extremely large pool of spells from which "
                     "to choose. Like the Mage, Intelligence is the key stat.";

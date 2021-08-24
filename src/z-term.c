@@ -13,11 +13,337 @@
 
 #include "z-term.h"
 #include "z-virt.h"
+#include <assert.h>
 
 /* Special flags in the attr data */
 #define AF_BIGTILE2 0xf0
 #define AF_TILE1   0x80
 
+/************************************************************************
+ * Visuals
+ ************************************************************************/
+typedef struct {
+    term_char_t base; /* ascii: default visual */
+    term_char_t pref; /* possible custom override via pref files; possible graphical visual */
+    int light; /* supported lighting radius (0 for no lighting support) */
+} _visual_t, *_visual_ptr;
+
+static _visual_ptr _visual_alloc(term_char_t tc, int light)
+{
+    _visual_ptr v = malloc(sizeof(_visual_t));
+    v->base = tc;
+    v->pref = tc;
+    v->light = MAX(0, light);
+    return v;
+}
+static int _ascii_dark(int color) /* from lighting_colours in cave.c */
+{
+    switch (color)
+    {
+    case TERM_DARK: return TERM_DARK;
+    case TERM_WHITE: return TERM_SLATE;
+    case TERM_SLATE: return TERM_L_DARK;
+    case TERM_ORANGE: return TERM_UMBER;
+    case TERM_UMBER: return TERM_RED;
+    case TERM_L_WHITE: return TERM_SLATE;
+    case TERM_VIOLET: return TERM_BLUE;
+    case TERM_YELLOW: return TERM_ORANGE;
+    case TERM_L_GREEN: return TERM_GREEN;
+    case TERM_L_UMBER: return TERM_UMBER;
+    }
+    return color;
+}
+static int _ascii_light(int color)
+{
+    switch (color)
+    {
+    case TERM_DARK: return TERM_L_DARK;
+    case TERM_WHITE: return TERM_YELLOW;
+    case TERM_SLATE: return TERM_YELLOW; /*TERM_WHITE; e.g Magma vs Quartz: slate == white on my display*/
+    case TERM_ORANGE: return TERM_L_UMBER;
+    case TERM_GREEN: return TERM_L_GREEN;
+    case TERM_UMBER: return TERM_L_UMBER;
+    case TERM_L_DARK: return TERM_SLATE;
+    case TERM_L_WHITE: return TERM_WHITE;
+    case TERM_VIOLET: return TERM_L_RED;
+    }
+    return color;
+}
+static term_char_t _apply_lighting(_visual_ptr v, int light)
+{
+    term_char_t tc = v->pref;
+
+    if (light && v->light && view_light)
+    {
+        if (term_char_is_ascii(tc))
+        {
+            if (light > 0) tc.a = _ascii_light(tc.a);
+            else if (light < 0) tc.a = _ascii_dark(tc.a);
+        }
+        else
+        {
+            if (light < -v->light)
+                light = -v->light;
+            if (light > v->light)
+                light = v->light;
+            tc.c += light;
+        }
+    }
+    return tc;
+}
+static int_map_ptr _visuals(void)
+{
+    static int_map_ptr _map = NULL;
+    if (!_map)
+        _map = int_map_alloc(free);
+    return _map;
+}
+void visual_set(cptr name, term_char_t tc, int light)
+{
+    visual_set_aux(sym_add(name), tc, light);
+}
+void visual_set_aux(int id, term_char_t tc, int light)
+{
+    int_map_ptr map = _visuals();
+    _visual_ptr v = int_map_find(map, id);
+
+    if (!v)
+    {
+        v = _visual_alloc(tc, light);
+        int_map_add(map, id, v);
+    }
+    else
+    {
+        v->pref = tc;
+        v->light = light;
+    }
+}
+void visual_set_ascii(cptr name, term_char_t tc, int light)
+{
+    visual_set_ascii_aux(sym_add(name), tc, light);
+}
+void visual_set_ascii_aux(int id, term_char_t tc, int light)
+{
+    int_map_ptr map = _visuals();
+    _visual_ptr v = int_map_find(map, id);
+
+    if (!v)
+    {
+        v = _visual_alloc(tc, light);
+        int_map_add(map, id, v);
+    }
+    else
+    {
+        v->base = tc;
+        v->light = light;
+    }
+}
+static _visual_ptr _visual_find(cptr name)
+{
+    sym_t id = sym_find(name);
+    if (!id) return NULL;
+    return int_map_find(_visuals(), id);
+}
+term_char_t visual_get(cptr name, int light)
+{
+    return visual_get_aux(sym_find(name), light);
+}
+term_char_t visual_get_ascii(cptr name)
+{
+    return visual_get_ascii_aux(sym_find(name));
+}
+term_char_t visual_get_aux(int id, int light)
+{
+    _visual_ptr v = int_map_find(_visuals(), id);
+    if (!v)
+        return term_char_create('?', TERM_L_DARK);
+    return _apply_lighting(v, light);
+}
+term_char_t visual_get_ascii_aux(int id)
+{
+    _visual_ptr v = int_map_find(_visuals(), id);
+    if (!v)
+        return term_char_create('?', TERM_L_DARK);
+    return v->base;
+}
+bool visual_find(cptr name)
+{
+    return _visual_find(name) != NULL;
+}
+void visual_clear(void)
+{
+    int_map_clear(_visuals());
+}
+static void _visual_reset(sym_t id, _visual_ptr v)
+{
+    v->pref = v->base;
+}
+void visual_reset(void)
+{
+    int_map_iter(_visuals(), (int_map_iter_f)_visual_reset);
+}
+
+/************************************************************************
+ * Term Char: The basic unit of display (ascii or graphics)
+ ************************************************************************/
+term_char_t term_char_create(char c, byte a)
+{
+    term_char_t tc;
+    tc.c = c;
+    tc.a = a;
+    return tc;
+}
+bool term_char_is_graphics(term_char_t tc) /* XXX might be neither graphics nor ascii if mal-formed */
+{
+    return (tc.a & 0x80) && (tc.c & 0x80);
+}
+bool term_char_is_ascii(term_char_t tc)
+{
+    if (tc.c & 0x80) return FALSE;
+    if (tc.a & 0x80) return FALSE;
+    return TRUE;
+}
+void Term_queue_term_char(point_t pos, term_char_t tc)
+{
+    Term_putch(pos.x, pos.y, tc.a, tc.c); /* N.B. this verifies (x,y) in bounds */
+}
+static bool _in_bounds(point_t pos)
+{
+    return 0 <= pos.x && pos.x < Term->wid
+        && 0 <= pos.y && pos.y < Term->hgt;
+}
+term_char_t Term_get_term_char(point_t pos)
+{
+    term_char_t tc;
+    if (!_in_bounds(pos))
+        return term_char_create(' ', TERM_L_DARK);
+    tc.a = Term->scr->a[pos.y][pos.x];
+    tc.c = Term->scr->c[pos.y][pos.x];
+    return tc;
+}
+map_char_t Term_get_map_char(point_t pos)
+{
+    map_char_t mc = {0};
+    if (_in_bounds(pos))
+    {
+        term_char_t fg, bg;
+        fg.a = Term->scr->a[pos.y][pos.x];
+        fg.c = Term->scr->c[pos.y][pos.x];
+        bg.a = Term->scr->ta[pos.y][pos.x];
+        bg.c = Term->scr->tc[pos.y][pos.x];
+        if ((bg.a || bg.c) && (bg.c != fg.c || bg.a != fg.a))
+        {
+            map_char_push(&mc, bg);
+            map_char_push(&mc, fg);
+        }
+        else
+            map_char_push(&mc, fg);
+    }
+    return mc;
+}
+
+/************************************************************************
+ * Map Char: Layered visual info for a specific map location
+ ************************************************************************/
+void map_char_push(map_char_ptr mc, term_char_t tc)
+{
+    if (mc->count < MAX_MAP_CHARS)
+        mc->stack[mc->count++] = tc;
+    else
+    {
+        int i;
+        for (i = 0; i < mc->count - 1; i++)
+            mc->stack[i] = mc->stack[i+1];
+        mc->stack[mc->count - 1] = tc;
+    }
+}
+term_char_t map_char_top(map_char_ptr mc)
+{
+    if (!mc->count) return term_char_create(' ', TERM_WHITE);
+    return mc->stack[mc->count - 1];
+}
+term_char_t map_char_pop(map_char_ptr mc)
+{
+    term_char_t tc = map_char_top(mc);
+    if (mc->count) mc->count--;
+    return tc;
+}
+void Term_queue_map_char(point_t pos, map_char_ptr mc)
+{
+    if (pos.x < 0 || pos.x >= Term->wid) return; /* XXX Term_queue_char does not bounds check */
+    if (pos.y < 0 || pos.y >= Term->hgt) return;
+    if (mc->count <= 0)
+    {
+        Term_putch(pos.x, pos.y, TERM_WHITE, ' '); /* XXX TERM_DARK breaks curses ... */
+    }
+    else if (mc->count == 1)
+    {
+        term_char_t tc = mc->stack[0];
+        Term_putch(pos.x, pos.y, tc.a, tc.c);
+    }
+    else
+    {
+        term_char_t fg = mc->stack[mc->count - 1];
+        term_char_t bg;
+        if (mc->background != mc->count - 1) /* XXX hack for webbed floor tiles; prefer web for stuck monsters */
+            bg = mc->stack[mc->background];
+        else
+            bg = mc->stack[0];
+        Term_queue_char(pos.x, pos.y, fg.a, fg.c, bg.a, bg.c);
+    }
+}
+
+/************************************************************************
+ * Utility
+ ************************************************************************/
+rect_t Term_rect(void) { return rect_create(0, 0, Term->wid, Term->hgt); }
+static void _dump(rect_t rect, FILE *fp)
+{
+    point_t pos, min, max;
+
+    rect = rect_intersect(Term_rect(), rect);
+    min = rect_top_left(rect);
+    max = rect_bottom_right(rect);
+    for (pos.y = min.y; pos.y <= max.y; pos.y++)
+    {
+        fputc('D', fp);
+        for (pos.x = min.x; pos.x <= max.x; pos.x++)
+        {
+            map_char_t mc = Term_get_map_char(pos);
+            term_char_t fg = map_char_top(&mc);
+            unsigned n = 0;
+
+            n |= fg.a;
+            n |= fg.c << 8;
+            if (mc.count > 1)
+            {
+                term_char_t bg = mc.stack[0];
+                n |= bg.a << 16;
+                n |= bg.c << 24;
+            }
+
+            fprintf(fp, ":%x", n);
+        }
+        fputc('\n', fp);
+    }
+}
+void Term_dump(rect_t rect)
+{
+    char    buf[1024];
+    char    name[32];
+    FILE   *fp;
+
+    sprintf(name, "screen.%s", ANGBAND_GRAF);
+    path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
+    fp = my_fopen(buf, "w");
+    if (!fp) return;
+    _dump(rect, fp);
+    my_fclose(fp);
+}
+
+/************************************************************************
+ * XXX Old z-term code ... XXX
+ ************************************************************************/
 /*
  * This file provides a generic, efficient, terminal window package,
  * which can be used not only on standard terminal environments such

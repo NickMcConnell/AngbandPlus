@@ -72,7 +72,7 @@ static void _display(object_type *list, rect_t display)
         if (o_ptr->k_idx)
         {
             int len;
-            object_desc(buf, o_ptr, 0);
+            object_desc(buf, o_ptr, OD_HIDE_DEVICE_FAIL);
             len = strlen(buf);
             if (len > max_o_len)
                 max_o_len = len;
@@ -95,7 +95,7 @@ static void _display(object_type *list, rect_t display)
         {
             int  fail = device_calc_fail_rate(o_ptr);
 
-            object_desc(buf, o_ptr, OD_COLOR_CODED);
+            object_desc(buf, o_ptr, OD_COLOR_CODED | OD_HIDE_DEVICE_FAIL);
             doc_insert(doc, buf);
 
             if (fail == 1000)
@@ -123,7 +123,7 @@ static object_type *_choose(cptr verb, int tval, int options)
     int          cmd;
     rect_t       display = ui_menu_rect();
     int          which_tval = tval;
-    string_ptr   prompt = NULL;
+    str_ptr      prompt = NULL;
     bool         done = FALSE;
     bool         exchange = FALSE;
     int          slot1 = _INVALID_SLOT, slot2 = _INVALID_SLOT;
@@ -148,38 +148,38 @@ static object_type *_choose(cptr verb, int tval, int options)
     if (display.cx > 80)
         display.cx = 80;
 
-    prompt = string_alloc();
+    prompt = str_alloc();
     screen_save();
     while (!done)
     {
-        string_clear(prompt);
+        str_clear(prompt);
 
         if (exchange)
         {
             if (slot1 == _INVALID_SLOT)
-                string_printf(prompt, "Select the first %s:", _which_name(which_tval));
+                str_printf(prompt, "Select the first %s:", _which_name(which_tval));
             else
-                string_printf(prompt, "Select the second %s:", _which_name(which_tval));
+                str_printf(prompt, "Select the second %s:", _which_name(which_tval));
         }
         else
         {
-            string_printf(prompt, "%s which %s", verb, _which_name(which_tval));
+            str_printf(prompt, "%s which %s", verb, _which_name(which_tval));
             if (options & _ALLOW_SWITCH)
             {
                 switch (which_tval)
                 {
-                case TV_WAND: string_append_s(prompt, " [Press 'S' for Staves, 'R' for Rods"); break;
-                case TV_STAFF: string_append_s(prompt, " [Press 'W' for Wands, 'R' for Rods"); break;
-                case TV_ROD: string_append_s(prompt, " [Press 'W' for Wands, 'S' for Staves"); break;
+                case TV_WAND: str_append_s(prompt, " [Press 'S' for Staves, 'R' for Rods"); break;
+                case TV_STAFF: str_append_s(prompt, " [Press 'W' for Wands, 'R' for Rods"); break;
+                case TV_ROD: str_append_s(prompt, " [Press 'W' for Wands, 'S' for Staves"); break;
                 }
                 if (options & _ALLOW_EXCHANGE)
-                    string_append_s(prompt, ", 'X' to Exchange");
-                string_append_s(prompt, "]:");
+                    str_append_s(prompt, ", 'X' to Exchange");
+                str_append_s(prompt, "]:");
             }
             else
-                string_append_c(prompt, ':');
+                str_append_c(prompt, ':');
         }
-        prt(string_buffer(prompt), 0, 0);
+        prt(str_buffer(prompt), 0, 0);
         _display(_which_list(which_tval), display);
 
         cmd = inkey_special(FALSE);
@@ -265,7 +265,7 @@ static object_type *_choose(cptr verb, int tval, int options)
     }
 
     screen_load();
-    string_free(prompt);
+    str_free(prompt);
     return result;
 }
 
@@ -333,7 +333,7 @@ void magic_eater_cast(int tval)
 
     /* Duplicate anti-magic checks since "device" commands might re-route here (as "magic" commands)
        For example, do_cmd_use_staff() will allow magic-eaters to invoke staff based spells. */
-    if (cave->dun_type_id == D_SURFACE && (cave->flags & DF_NO_MAGIC))
+    if (cave->type->id == D_SURFACE && (cave->flags & DF_NO_MAGIC))
     {
         msg_print("The dungeon absorbs all attempted magic!");
         return;
@@ -343,7 +343,7 @@ void magic_eater_cast(int tval)
         msg_print("Your spells are blocked!");
         return;
     }
-    else if (p_ptr->anti_magic)
+    else if (plr->anti_magic)
     {
         msg_print("An anti-magic shell disrupts your magic!");
         return;
@@ -442,8 +442,8 @@ int magic_eater_regen_amt(int tval)
 {
    int amt = 3; /* per mill */
 
-    if (p_ptr->regen > 100)
-        amt += (p_ptr->regen - 100) / 100;
+    if (plr->regen > 100)
+        amt += (plr->regen - 100) / 100;
 
     if (tval == TV_ROD)
         amt *= 5;
@@ -472,7 +472,7 @@ static void _do_regen(int tval)
 
 bool magic_eater_regen(int pct)
 {
-    if (p_ptr->pclass != CLASS_MAGIC_EATER) return FALSE;
+    if (plr->pclass != CLASS_MAGIC_EATER) return FALSE;
 
     _do_regen(TV_WAND);
     _do_regen(TV_STAFF);
@@ -484,7 +484,7 @@ bool magic_eater_regen(int pct)
 void magic_eater_restore(void)
 {
     int i;
-    if (p_ptr->pclass != CLASS_MAGIC_EATER) return;
+    if (plr->pclass != CLASS_MAGIC_EATER) return;
     for (i = 0; i < _MAX_SLOTS; i++)
     {
         object_type *o_ptr = _which_obj(TV_WAND, i);
@@ -504,7 +504,7 @@ void magic_eater_restore(void)
 void magic_eater_restore_all(void)
 {
     int i;
-    if (p_ptr->pclass != CLASS_MAGIC_EATER) return;
+    if (plr->pclass != CLASS_MAGIC_EATER) return;
     for (i = 0; i < _MAX_SLOTS; i++)
     {
         object_type *o_ptr = _which_obj(TV_WAND, i);
@@ -521,7 +521,7 @@ void magic_eater_restore_all(void)
 bool magic_eater_can_regen(void)
 {
     int i;
-    if (p_ptr->pclass != CLASS_MAGIC_EATER) return FALSE;
+    if (plr->pclass != CLASS_MAGIC_EATER) return FALSE;
     for (i = 0; i < _MAX_SLOTS; i++)
     {
         object_type *o_ptr = _which_obj(TV_WAND, i);
@@ -541,7 +541,7 @@ bool magic_eater_can_regen(void)
 bool magic_eater_auto_id(object_type *o_ptr)
 {
     int i;
-    if (p_ptr->pclass != CLASS_MAGIC_EATER) return FALSE;
+    if (plr->pclass != CLASS_MAGIC_EATER) return FALSE;
     for (i = 0; i < _MAX_SLOTS; i++)
     {
         object_type *device_ptr = _which_obj(TV_STAFF, i);
@@ -559,7 +559,7 @@ bool magic_eater_auto_id(object_type *o_ptr)
 bool magic_eater_auto_detect_traps(void)
 {
     int i;
-    if (p_ptr->pclass != CLASS_MAGIC_EATER) return FALSE;
+    if (plr->pclass != CLASS_MAGIC_EATER) return FALSE;
     for (i = 0; i < _MAX_SLOTS; i++)
     {
         object_type *device_ptr = _which_obj(TV_STAFF, i);
@@ -592,7 +592,7 @@ bool magic_eater_auto_detect_traps(void)
 bool magic_eater_auto_mapping(void)
 {
     int i;
-    if (p_ptr->pclass != CLASS_MAGIC_EATER) return FALSE;
+    if (plr->pclass != CLASS_MAGIC_EATER) return FALSE;
     for (i = 0; i < _MAX_SLOTS; i++)
     {
         object_type *device_ptr = _which_obj(TV_STAFF, i);
@@ -716,7 +716,7 @@ plr_class_ptr magic_eater_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  42,  36,   2,  20,  16,  48,  35 };
-    skills_t xs = {  7,  16,  10,   0,   0,   0,  13,  11 };
+    skills_t xs = { 35,  80,  50,   0,   0,   0,  65,  55 };
 
         me = plr_class_alloc(CLASS_MAGIC_EATER);
         me->name = "Magic-Eater";

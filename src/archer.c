@@ -23,9 +23,9 @@ static bool _create_arrows(void)
 
     if (!prompt.obj) return FALSE;
 
-    object_prep(&forge, lookup_kind(TV_ARROW, SV_ARROW + m_bonus(4, p_ptr->lev)));
+    object_prep(&forge, lookup_kind(TV_ARROW, SV_ARROW + m_bonus(4, plr->lev)));
     forge.number = rand_range(5, 10);
-    apply_magic(&forge, p_ptr->lev, AM_NO_FIXED_ART);
+    apply_magic(&forge, plr->lev, AM_NO_FIXED_ART);
     obj_identify_fully(&forge);
     forge.discount = 99;
 
@@ -55,9 +55,9 @@ static bool _create_bolts(void)
 
     if (!prompt.obj) return FALSE;
 
-    object_prep(&forge, lookup_kind(TV_BOLT, SV_BOLT + m_bonus(3, p_ptr->lev)));
+    object_prep(&forge, lookup_kind(TV_BOLT, SV_BOLT + m_bonus(3, plr->lev)));
     forge.number = rand_range(4, 8);
-    apply_magic(&forge, p_ptr->lev, AM_NO_FIXED_ART);
+    apply_magic(&forge, plr->lev, AM_NO_FIXED_ART);
     obj_identify_fully(&forge);
     forge.discount = 99;
 
@@ -75,31 +75,25 @@ static bool _create_shots(void)
 {
     point_t       pos;
     int           dir;
-    dun_grid_ex_t grid;
+    dun_grid_ptr  grid;
     obj_t         forge;
     char          name[MAX_NLEN];
 
     if (!get_rep_dir(&dir, FALSE)) 
         return FALSE;
 
-    pos = point_step(p_ptr->pos, dir);
-    grid = dun_grid_ex_at(cave, pos);
+    pos = point_step(plr->pos, dir);
+    grid = dun_grid_at(cave, pos);
 
-    if (!have_flag(grid.feat_mimic->flags, FF_CAN_DIG))
+    if (!wall_is_rubble(grid))
     {
         msg_print("You need pile of rubble.");
         return FALSE;
     }
 
-    if (!cave_have_flag_grid(grid.grid, FF_CAN_DIG) || !cave_have_flag_grid(grid.grid, FF_HURT_ROCK))
-    {
-        msg_print("You failed to make ammo.");
-        return FALSE;
-    }
-
-    object_prep(&forge, lookup_kind(TV_SHOT, SV_PEBBLE + m_bonus(2, p_ptr->lev)));
+    object_prep(&forge, lookup_kind(TV_SHOT, SV_PEBBLE + m_bonus(2, plr->lev)));
     forge.number = rand_range(15,30);
-    apply_magic(&forge, p_ptr->lev, AM_NO_FIXED_ART);
+    apply_magic(&forge, plr->lev, AM_NO_FIXED_ART);
     obj_identify_fully(&forge);
     forge.discount = 99;
 
@@ -107,8 +101,8 @@ static bool _create_shots(void)
     msg_format("You make %s.", name);
     pack_carry(&forge);
 
-    cave_alter_feat(pos.y, pos.x, FF_HURT_ROCK);
-    p_ptr->update |= PU_FLOW;
+    cave->type->place_floor(cave, pos);
+    plr->update |= PU_FLOW | PU_MON_FLOW;
     return TRUE;
 }
 
@@ -135,19 +129,19 @@ static bool _create_ammo(void)
         case 's': case 'S':
             return _create_shots();
         case 'a': case 'A':
-            if (p_ptr->lev >= 10)
+            if (plr->lev >= 10)
                 return _create_arrows();
             break;
         case 'b': case 'B':
-            if (p_ptr->lev >= 20)
+            if (plr->lev >= 20)
                 return _create_bolts();
             break;
         }
     }
 
-    if (p_ptr->lev >= 20)
+    if (plr->lev >= 20)
         sprintf(com, "Create [S]hots, Create [A]rrow or Create [B]olt ?");
-    else if (p_ptr->lev >= 10)
+    else if (plr->lev >= 10)
         sprintf(com, "Create [S]hots or Create [A]rrow ?");
     else
         sprintf(com, "Create [S]hots ?");
@@ -162,12 +156,12 @@ static bool _create_ammo(void)
             REPEAT_PUSH('s');
             return _create_shots();
         }
-        if ((ch == 'A' || ch == 'a') && p_ptr->lev >= 10)
+        if ((ch == 'A' || ch == 'a') && plr->lev >= 10)
         {
             REPEAT_PUSH('a');
             return _create_arrows();
         }
-        else if ((ch == 'B' || ch == 'b') && p_ptr->lev >= 20)
+        else if ((ch == 'B' || ch == 'b') && plr->lev >= 20)
         {
             REPEAT_PUSH('b');
             return _create_bolts();
@@ -194,10 +188,10 @@ void create_ammo_spell(int cmd, var_ptr res)
     }
 }
 
-static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
+static void _calc_shooter_bonuses(object_type *o_ptr, plr_shoot_info_ptr info_ptr)
 {
-    if (!p_ptr->shooter_info.heavy_shoot && p_ptr->shooter_info.tval_ammo)
-        p_ptr->shooter_info.breakage -= 10;
+    if (!plr->shooter_info.heavy_shoot && plr->shooter_info.tval_ammo)
+        plr->shooter_info.breakage -= 10;
 }
 
 static int _get_powers(spell_info* spells, int max)
@@ -237,7 +231,7 @@ plr_class_ptr archer_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 38,  24,  35,   4,  24,  16,  56,  82};
-    skills_t xs = { 12,  10,  10,   0,   0,   0,  18,  36};
+    skills_t xs = { 60,  50,  50,   0,   0,   0,  90, 180};
 
         me = plr_class_alloc(CLASS_ARCHER);
         me->name = "Archer";

@@ -41,7 +41,7 @@ static void _build_general1(doc_ptr doc)
     personality_ptr  pers_ptr = get_personality();
 
     doc_printf(doc, " Name       : <color:B>%s</color>\n", player_name);
-    doc_printf(doc, " Sex        : <color:B>%s</color>\n", sex_info[p_ptr->psex].title);
+    doc_printf(doc, " Sex        : <color:B>%s</color>\n", sex_info[plr->psex].title);
     doc_printf(doc, " Personality: <color:B>%s</color>\n", pers_ptr->name);
 
     if (race_ptr->mimic)
@@ -51,11 +51,11 @@ static void _build_general1(doc_ptr doc)
 
     if (race_ptr->subname)
     {
-        if (p_ptr->prace == RACE_MON_RING)
+        if (plr->prace == RACE_MON_RING)
             doc_printf(doc, " Controlling: <color:B>%-26.26s</color>\n", race_ptr->subname);
-        else if (p_ptr->prace == RACE_MON_MIMIC)
+        else if (plr->prace == RACE_MON_MIMIC)
         {
-            if (p_ptr->current_r_idx == MON_MIMIC)
+            if (sym_equals(plr->current_r_idx, "@.mimic"))
                 doc_printf(doc, " Mimicking  : <color:B>%-26.26s</color>\n", "Nothing");
             else
                 doc_printf(doc, " Mimicking  : <color:B>%-26.26s</color>\n", race_ptr->subname);
@@ -71,43 +71,43 @@ static void _build_general1(doc_ptr doc)
     /* Assume Subclass and Magic are mutually exclusive ... */
     if (class_ptr->subname)
         doc_printf(doc, " Subclass   : <color:B>%-26.26s</color>\n", class_ptr->subname);
-    else if (p_ptr->prace == RACE_MON_DRAGON)
+    else if (plr->prace == RACE_MON_DRAGON)
     {
-        dragon_realm_ptr realm = dragon_get_realm(p_ptr->dragon_realm);
+        dragon_realm_ptr realm = dragon_get_realm(plr->dragon_realm);
         doc_printf(doc, " Realm      : <color:B>%-26.26s</color>\n", realm->name);
     }
-    else if (p_ptr->realm1)
+    else if (plr->realm1)
     {
-        if (p_ptr->realm2)
-            doc_printf(doc, " Realm      : <color:B>%s, %s</color>\n", realm_names[p_ptr->realm1], realm_names[p_ptr->realm2]);
+        if (plr->realm2)
+            doc_printf(doc, " Realm      : <color:B>%s, %s</color>\n", realm_names[plr->realm1], realm_names[plr->realm2]);
         else
-            doc_printf(doc, " Realm      : <color:B>%s</color>\n", realm_names[p_ptr->realm1]);
+            doc_printf(doc, " Realm      : <color:B>%s</color>\n", realm_names[plr->realm1]);
     }
     else
         doc_newline(doc);
 
-    if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || mut_present(MUT_CHAOS_GIFT))
-        doc_printf(doc, " Patron     : <color:B>%s</color>\n", chaos_patrons[p_ptr->chaos_patron]);
+    if ((plr->pclass == CLASS_CHAOS_WARRIOR) || mut_present(MUT_CHAOS_GIFT))
+        doc_printf(doc, " Patron     : <color:B>%s</color>\n", chaos_patrons[plr->chaos_patron]);
     else
         doc_newline(doc);
 
 
-    doc_printf(doc, " Level      : <color:G>%8d</color>\n", p_ptr->lev);
-    if (p_ptr->prace == RACE_ANDROID)
+    doc_printf(doc, " Level      : <color:G>%8d</color>\n", plr->lev);
+    if (plr->prace == RACE_ANDROID)
     {
-        doc_printf(doc, " Construct  : <color:%c>%8d</color>\n", p_ptr->exp >= p_ptr->max_exp ? 'G' : 'y', p_ptr->exp);
+        doc_printf(doc, " Construct  : <color:%c>%8d</color>\n", plr->exp >= plr->max_exp ? 'G' : 'y', plr->exp);
         doc_newline(doc);
     }
     else
     {
-        doc_printf(doc, " Cur Exp    : <color:%c>%8d</color>\n", p_ptr->exp >= p_ptr->max_exp ? 'G' : 'y', p_ptr->exp);
-        doc_printf(doc, " Max Exp    : <color:G>%8d</color>\n", p_ptr->max_exp);
+        doc_printf(doc, " Cur Exp    : <color:%c>%8d</color>\n", plr->exp >= plr->max_exp ? 'G' : 'y', plr->exp);
+        doc_printf(doc, " Max Exp    : <color:G>%8d</color>\n", plr->max_exp);
     }
-    doc_printf(doc, " Adv Exp    : <color:G>%8.8s</color>\n", p_ptr->lev >= PY_MAX_LEVEL ? "*****" : format("%d", exp_requirement(p_ptr->lev)));
+    doc_printf(doc, " Adv Exp    : <color:G>%8.8s</color>\n", plr->lev >= PY_MAX_LEVEL ? "*****" : format("%d", exp_requirement(plr->lev)));
     doc_newline(doc);
     doc_newline(doc);
 
-    doc_printf(doc, " Gold       : <color:G>%8d</color>\n", p_ptr->au);
+    doc_printf(doc, " Gold       : <color:G>%8d</color>\n", plr->au);
     doc_printf(doc, " Kills      : <color:G>%8d</color>\n", ct_kills());
     doc_printf(doc, " Uniques    : <color:G>%8d</color>\n", ct_uniques());
     doc_printf(doc, " Artifacts  : <color:G>%8.8s</color>\n",
@@ -129,84 +129,84 @@ static void _display_skill(doc_ptr doc, cptr name, int amt, int div)
 {
     skill_desc_t desc = skills_describe(amt, div);
     doc_printf(doc, "   %-11.11s: <color:%c>%s</color>", name, attr_to_attr_char(desc.color), desc.desc);
-    if (p_ptr->wizard || 0)
+    if (plr->wizard || 0)
         doc_printf(doc, " (%d)", amt);
     doc_newline(doc);
 }
 
 static void _build_general2(doc_ptr doc)
 {
-    string_ptr s = string_alloc();
+    str_ptr s = str_alloc();
     char       buf[255];
     int        i;
 
     doc_insert(doc, "   ========== Stats ==========\n");
     for (i = 0; i < MAX_STATS; i++)
     {
-        if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
+        if (plr->stat_use[i] < plr->stat_top[i])
             doc_printf(doc, "<tab:9>%3.3s", stat_names_reduced[i]);
         else
             doc_printf(doc, "<tab:9>%3.3s", stat_names[i]);
 
-        if (p_ptr->stat_max[i] == p_ptr->stat_max_max[i])
+        if (plr->stat_max[i] == plr->stat_max_max[i])
             doc_insert(doc, "! : ");
         else
             doc_insert(doc, "  : ");
 
-        cnv_stat(p_ptr->stat_use[i], buf);
-        doc_printf(doc, "<color:%c>%9.9s</color>\n", p_ptr->stat_use[i] < p_ptr->stat_top[i] ? 'y' : 'G', buf);
+        cnv_stat(plr->stat_use[i], buf);
+        doc_printf(doc, "<color:%c>%9.9s</color>\n", plr->stat_use[i] < plr->stat_top[i] ? 'y' : 'G', buf);
     }
 
     doc_newline(doc);
 
-    string_clear(s);
-    string_printf(s, "%d/%d", p_ptr->chp , p_ptr->mmhp);
+    str_clear(s);
+    str_printf(s, "%d/%d", plr->chp , plr->mmhp);
     doc_printf(doc, "<tab:9>HP   : <color:%c>%9.9s</color>\n",
-                    p_ptr->chp >= p_ptr->mhp ? 'G' :
-                        p_ptr->chp > (p_ptr->mmhp * hitpoint_warn) / 10 ? 'y' : 'r',
-                    string_buffer(s));
+                    plr->chp >= plr->mhp ? 'G' :
+                        plr->chp > (plr->mmhp * hitpoint_warn) / 10 ? 'y' : 'r',
+                    str_buffer(s));
 
-    string_clear(s);
-    string_printf(s, "%d/%d", p_ptr->csp , p_ptr->msp);
+    str_clear(s);
+    str_printf(s, "%d/%d", plr->csp , plr->msp);
     doc_printf(doc, "<tab:9>SP   : <color:%c>%9.9s</color>\n",
-                    p_ptr->csp >= p_ptr->msp ? 'G' :
-                        p_ptr->csp > (p_ptr->msp * mana_warn) / 10 ? 'y' : 'r',
-                    string_buffer(s));
+                    plr->csp >= plr->msp ? 'G' :
+                        plr->csp > (plr->msp * mana_warn) / 10 ? 'y' : 'r',
+                    str_buffer(s));
 
-    doc_printf(doc, "<tab:9>AC   : <color:G>%9d</color>\n", p_ptr->dis_ac + p_ptr->dis_to_a);
+    doc_printf(doc, "<tab:9>AC   : <color:G>%9d</color>\n", plr->dis_ac + plr->dis_to_a);
 
     /* Dump speed ... What a monster! */
     {
         int  tmp_speed = 0;
         byte attr;
-        int  speed = p_ptr->pspeed-110;
+        int  speed = plr->pspeed;
 
         /* Hack -- Visually "undo" the Search Mode Slowdown */
-        if (p_ptr->action == ACTION_SEARCH) speed += 10;
+        if (plr->action == ACTION_SEARCH) speed += 10;
 
         if (speed > 0)
         {
-            if (!p_ptr->riding)
+            if (!plr->riding)
                 attr = TERM_L_GREEN;
             else
                 attr = TERM_GREEN;
         }
         else if (i == 0)
         {
-            if (!p_ptr->riding)
+            if (!plr->riding)
                 attr = TERM_L_BLUE;
             else
                 attr = TERM_GREEN;
         }
         else
         {
-            if (!p_ptr->riding)
+            if (!plr->riding)
                 attr = TERM_L_UMBER;
             else
                 attr = TERM_RED;
         }
 
-        if (!p_ptr->riding)
+        if (!plr->riding)
         {
             if (plr_tim_find(T_FAST)) tmp_speed += 10;
             if (plr_tim_find(T_SLOW)) tmp_speed -= 10;
@@ -214,14 +214,14 @@ static void _build_general2(doc_ptr doc)
         }
         else
         {
-            if (mon_tim_find(dun_mon(cave, p_ptr->riding), T_FAST)) tmp_speed += 10;
-            if (mon_tim_find(dun_mon(cave, p_ptr->riding), T_SLOW)) tmp_speed -= 10;
+            if (mon_tim_find(dun_mon(cave, plr->riding), T_FAST)) tmp_speed += 10;
+            if (mon_tim_find(dun_mon(cave, plr->riding), T_SLOW)) tmp_speed -= 10;
         }
 
-        string_clear(s);
+        str_clear(s);
         if (tmp_speed)
         {
-            string_printf(s, "%+d%+d", speed-tmp_speed, tmp_speed);
+            str_printf(s, "%+d%+d", speed-tmp_speed, tmp_speed);
             if (tmp_speed > 0)
                 attr = TERM_YELLOW;
             else
@@ -229,26 +229,26 @@ static void _build_general2(doc_ptr doc)
         }
         else
         {
-            string_printf(s, "%+d", speed);
+            str_printf(s, "%+d", speed);
         }
 
-        doc_printf(doc, "<tab:9>Speed: <color:%c>%9.9s</color>\n", attr_to_attr_char(attr), string_buffer(s));
+        doc_printf(doc, "<tab:9>Speed: <color:%c>%9.9s</color>\n", attr_to_attr_char(attr), str_buffer(s));
     }
 
     doc_newline(doc);
     doc_insert(doc, "   ========== Skills =========\n");
 
     {
-        skills_t skills = p_ptr->skills;
+        skills_t skills = plr->skills;
         int      slot = equip_find_obj(TV_BOW, SV_ANY);
 
         /* Patch Up Skills a bit */
-        skills.thn += p_ptr->to_h_m * BTH_PLUS_ADJ;
+        skills.thn += plr->to_h_m * BTH_PLUS_ADJ;
         if (slot)
         {
             object_type *bow = equip_obj(slot);
             if (bow)
-                skills.thb += (p_ptr->shooter_info.to_h + bow->to_h) * BTH_PLUS_ADJ;
+                skills.thb += (plr->shooter_info.to_h + bow->to_h) * BTH_PLUS_ADJ;
         }
         if (!skills.stl)
             skills.stl = -1; /* Force "Very Bad" */
@@ -264,7 +264,7 @@ static void _build_general2(doc_ptr doc)
         _display_skill(doc, "Device", skills.dev, 6);
     }
 
-    string_free(s);
+    str_free(s);
 }
 
 static void _build_general(doc_ptr doc)
@@ -373,45 +373,43 @@ static void _flagzilla_free(_flagzilla_ptr flagzilla)
     free(flagzilla);
 }
 
-static void _build_res_flags(doc_ptr doc, int which, _flagzilla_ptr flagzilla)
+static void _build_res_flags(doc_ptr doc, int gf, _flagzilla_ptr flagzilla)
 {
     int i;
-    int flg = res_get_object_flag(which);
-    int im_flg = res_get_object_immune_flag(which);
-    int vuln_flg = res_get_object_vuln_flag(which);
-    int pct = res_pct_known(which);
+    int ct = res_ct_known(gf);
+    int pct = res_pct_known(gf);
     char color = 'w';
 
-    doc_printf(doc, " %-11.11s: ", res_name(which));
+    doc_printf(doc, " %-11.11s: ", res_name(gf));
 
     for (i = 1; i <= equip_max(); i++)
     {
-        if (im_flg != OF_INVALID && have_flag(flagzilla->obj_flgs[i], im_flg))
+        if (have_flag(flagzilla->obj_flgs[i], OF_IM_(gf)))
             doc_insert_char(doc, TERM_VIOLET, '*');
-        else if (vuln_flg != OF_INVALID && have_flag(flagzilla->obj_flgs[i], vuln_flg) && have_flag(flagzilla->obj_flgs[i], flg))
+        else if (have_flag(flagzilla->obj_flgs[i], OF_VULN_(gf)) && have_flag(flagzilla->obj_flgs[i], OF_RES_(gf)))
             doc_insert_char(doc, TERM_L_DARK, '.');
-        else if (vuln_flg != OF_INVALID && have_flag(flagzilla->obj_flgs[i], vuln_flg))
+        else if (have_flag(flagzilla->obj_flgs[i], OF_VULN_(gf)))
             doc_insert_char(doc, TERM_L_RED, '-');
-        else if (have_flag(flagzilla->obj_flgs[i], flg))
+        else if (have_flag(flagzilla->obj_flgs[i], OF_RES_(gf)))
             doc_insert_char(doc, TERM_WHITE, '+');
         else
             doc_insert_char(doc, TERM_L_DARK, '.');
     }
 
-    if (im_flg != OF_INVALID && have_flag(flagzilla->plr_flgs, im_flg))
+    if (have_flag(flagzilla->plr_flgs, OF_IM_(gf)))
         doc_insert_char(doc, TERM_VIOLET, '*');
-    else if (im_flg != OF_INVALID && have_flag(flagzilla->tim_plr_flgs, im_flg))
+    else if (have_flag(flagzilla->tim_plr_flgs, OF_IM_(gf)))
         doc_insert_char(doc, TERM_YELLOW, '*');
-    else if (have_flag(flagzilla->tim_plr_flgs, flg))
+    else if (have_flag(flagzilla->tim_plr_flgs, OF_RES_(gf)))
     {
-        if (vuln_flg != OF_INVALID && have_flag(flagzilla->plr_flgs, vuln_flg))
+        if (have_flag(flagzilla->plr_flgs, OF_VULN_(gf)))
             doc_insert_char(doc, TERM_ORANGE, '#');
         else
             doc_insert_char(doc, TERM_YELLOW, '#');
     }
-    else if (vuln_flg != OF_INVALID && have_flag(flagzilla->plr_flgs, vuln_flg))
+    else if (have_flag(flagzilla->plr_flgs, OF_VULN_(gf)))
         doc_insert_char(doc, TERM_RED, 'v');
-    else if (have_flag(flagzilla->plr_flgs, flg))
+    else if (have_flag(flagzilla->plr_flgs, OF_RES_(gf)))
         doc_insert_char(doc, TERM_WHITE, '+');
     else
         doc_insert_char(doc, TERM_L_DARK, '.');
@@ -420,27 +418,15 @@ static void _build_res_flags(doc_ptr doc, int which, _flagzilla_ptr flagzilla)
         color = 'v';
     else if (pct < 0)
         color = 'D';
-    else if (res_is_low(which))
-    {
-        if (pct >= 72)
-            color =  'r';
-        else if (pct >= 65)
-            color =  'R';
-        else if (pct >= 50)
-            color =  'y';
-    }
-    else
-    {
-        if (pct >= 45)
-            color =  'r';
-        else if (pct >= 40)
-            color =  'R';
-        else if (pct >= 30)
-            color =  'y';
-    }
+    else if (ct == 1)
+        color = 'y';
+    else if (ct == 2)
+        color = 'R';
+    else if (ct >= 3)
+        color = 'r';
 
-    if (which == RES_FEAR && res_pct(RES_FEAR) < 100)
-        doc_printf(doc, " %3dx", res_ct_known(which));
+    if (gf == GF_FEAR && res_pct(GF_FEAR) < 100)
+        doc_printf(doc, " %3dx", ct);
     else
         doc_printf(doc, " <color:%c>%3d%%</color>", color, pct);
     doc_newline(doc);
@@ -544,7 +530,7 @@ static void _build_flags_aura(doc_ptr doc, cptr name, int flg, _flagzilla_ptr fl
 {
     if (_build_flags_imp(doc, name, flg, OF_INVALID, flagzilla))
     {
-        doc_printf(doc, " %dd%d+2", 1 + p_ptr->lev/10, 2 + p_ptr->lev/ 10);
+        doc_printf(doc, " %dd%d+2", 1 + plr->lev/10, 2 + plr->lev/ 10);
     }
     doc_newline(doc);
 }
@@ -561,8 +547,12 @@ static void _build_flags1(doc_ptr doc, _flagzilla_ptr flagzilla)
     _equippy_chars(doc, 14);
     _equippy_heading(doc, "Resistances", 14);
 
-    for (i = RES_BEGIN; i < RES_END; i++)
-        _build_res_flags(doc, i, flagzilla);
+    for (i = GF_RES_MIN; i <= GF_RES_MAX; i++)
+    {
+        gf_info_ptr gfi = gf_lookup(i);
+        if (gfi->flags & GFF_DISPLAY)
+            _build_res_flags(doc, i, flagzilla);
+    }
 
     doc_newline(doc);
     _equippy_chars(doc, 14);
@@ -631,61 +621,69 @@ static void _build_flags2(doc_ptr doc, _flagzilla_ptr flagzilla)
 
     _build_flags(doc, "Speed", OF_SPEED, OF_DEC_SPEED, flagzilla);
 
-    _build_flags_imp(doc, "Free Act", OF_FREE_ACT, OF_INVALID, flagzilla);
-    _display_known_count(doc, p_ptr->free_act, OF_FREE_ACT);
+    _build_flags_imp(doc, "Free Action", OF_FREE_ACT, OF_INVALID, flagzilla);
+    _display_known_count(doc, plr->free_act, OF_FREE_ACT);
 
     _build_flags_imp(doc, "See Invis", OF_SEE_INVIS, OF_INVALID, flagzilla);
-    _display_known_count(doc, p_ptr->see_inv, OF_SEE_INVIS);
+    _display_known_count(doc, plr->see_inv, OF_SEE_INVIS);
 
     _build_flags(doc, "Warning", OF_WARNING, OF_INVALID, flagzilla);
     _build_flags(doc, "Slow Digest", OF_SLOW_DIGEST, OF_INVALID, flagzilla);
 
     _build_flags_imp(doc, "Regenerate", OF_REGEN, OF_INVALID, flagzilla);
-    doc_printf(doc, " %3d%%\n", p_ptr->regen); /* TODO: Only display known amount ... but then again, you can feel this, no? */
+    doc_printf(doc, " %3d%%\n", plr->regen); /* TODO: Only display known amount ... but then again, you can feel this, no? */
 
     _build_flags(doc, "Levitation", OF_LEVITATION, OF_INVALID, flagzilla);
-    _build_flags(doc, "Perm Lite", OF_LITE, OF_DARKNESS, flagzilla);
+
+    _build_flags_imp(doc, "Perm Light", OF_LIGHT, OF_DARKNESS, flagzilla);
+    if (plr->cur_light > 0)
+        doc_printf(doc, " <color:w>%3d'</color>\n", 10*plr->cur_light);
+    else if (plr->cur_light < 0)
+        doc_printf(doc, " <color:D>%3d'</color>\n", -10*plr->cur_light);
+    else
+        doc_newline(doc);
+
     _build_flags(doc, "Reflection", OF_REFLECT, OF_INVALID, flagzilla);
 
     _build_flags_imp(doc, "Hold Life", OF_HOLD_LIFE, OF_INVALID, flagzilla);
-    _display_known_count(doc, p_ptr->hold_life, OF_HOLD_LIFE);
+    _display_known_count(doc, plr->hold_life, OF_HOLD_LIFE);
 
     _build_flags_imp(doc, "Dec Mana", OF_DEC_MANA, OF_INVALID, flagzilla);
-    if (p_ptr->dec_mana)
-        doc_printf(doc, " %3d%%", dec_mana_cost(p_ptr->dec_mana));
+    if (plr->dec_mana)
+        doc_printf(doc, " %3d%%", dec_mana_cost(plr->dec_mana));
     doc_newline(doc);
 
     _build_flags(doc, "Easy Spell", OF_EASY_SPELL, OF_INVALID, flagzilla);
     _build_flags(doc, "Anti Magic", OF_NO_MAGIC, OF_INVALID, flagzilla);
 
     _build_flags_imp(doc, "Magic Skill", OF_MAGIC_MASTERY, OF_DEC_MAGIC_MASTERY, flagzilla);
-    if (p_ptr->device_power)
+    if (plr->device_power)
     {
-        int pow = device_power_aux(100, p_ptr->device_power) - 100;
+        int pow = device_power_aux(100, plr->device_power) - 100;
         doc_printf(doc, " %+3d%%", pow);
     }
     doc_newline(doc);
 
     if (_build_flags_imp(doc, "Spell Power", OF_SPELL_POWER, OF_DEC_SPELL_POWER, flagzilla))
     {
-        int  pow = spell_power_aux(100, p_ptr->spell_power) - 100;
+        int  pow = spell_power_aux(100, plr->spell_power) - 100;
         doc_printf(doc, " %+3d%%", pow);
     }
     doc_newline(doc);
 
     if (_build_flags_imp(doc, "Spell Cap", OF_SPELL_CAP, OF_DEC_SPELL_CAP, flagzilla))
     {
-        int cap = spell_cap_aux(100, p_ptr->spell_cap) - 100;
+        int cap = spell_cap_aux(100, plr->spell_cap) - 100;
         doc_printf(doc, " %+3d%%", cap);
     }
     doc_newline(doc);
 
     if (_build_flags_imp(doc, "Magic Res", OF_MAGIC_RESISTANCE, OF_INVALID, flagzilla))
-        doc_printf(doc, " %+3d%%", p_ptr->magic_resistance);
+        doc_printf(doc, " %+3d%%", plr->magic_resistance);
     doc_newline(doc);
 
     if (_build_flags_imp(doc, "Infravision", OF_INFRA, OF_INVALID, flagzilla))
-        doc_printf(doc, " %3d'", p_ptr->see_infra * 10);
+        doc_printf(doc, " %3d'", plr->see_infra * 10);
     doc_newline(doc);
 
     _build_flags(doc, "Stealth", OF_STEALTH, OF_DEC_STEALTH, flagzilla);
@@ -753,12 +751,12 @@ static void _build_stats(doc_ptr doc, _flagzilla_ptr flagzilla)
         int sust_flg = OF_SUST_STR + i;
         int e_adj = 0;
 
-        if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
+        if (plr->stat_use[i] < plr->stat_top[i])
             doc_printf(doc, "<tab:7>%3.3s", stat_names_reduced[i]);
         else
             doc_printf(doc, "<tab:7>%3.3s", stat_names[i]);
 
-        if (p_ptr->stat_max[i] == p_ptr->stat_max_max[i])
+        if (plr->stat_max[i] == plr->stat_max_max[i])
             doc_insert(doc, "! : ");
         else
             doc_insert(doc, "  : ");
@@ -859,18 +857,18 @@ static void _build_stats(doc_ptr doc, _flagzilla_ptr flagzilla)
         }
 
         /* Base R C P E */
-        cnv_stat(p_ptr->stat_max[i], buf);
+        cnv_stat(plr->stat_max[i], buf);
         doc_printf(doc, " <color:B>%6.6s%3d%3d%3d%3d</color>",
                     buf, race_ptr->stats[i], class_ptr->stats[i], pers_ptr->stats[i], e_adj);
 
         /* Total */
-        cnv_stat(p_ptr->stat_top[i], buf);
+        cnv_stat(plr->stat_top[i], buf);
         doc_printf(doc, " <color:G>%6.6s</color>", buf);
 
         /* Current */
-        if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
+        if (plr->stat_use[i] < plr->stat_top[i])
         {
-            cnv_stat(p_ptr->stat_use[i], buf);
+            cnv_stat(plr->stat_use[i], buf);
             doc_printf(doc, " <color:y>%6.6s</color>", buf);
         }
 
@@ -938,8 +936,8 @@ static void _build_equipment(doc_ptr doc)
 /****************************** Combat ************************************/
 static void _build_melee(doc_ptr doc)
 {
-    if (p_ptr->prace == RACE_MON_RING) return;
-    if (!vec_length(p_ptr->innate_blows) && !p_ptr->weapon_ct) return;
+    if (plr->prace == RACE_MON_RING) return;
+    if (!vec_length(plr->innate_blows) && !plr->weapon_ct) return;
     {
         plr_attack_t ctx = {0};
         doc_insert(doc, "<topic:Melee>==================================== <color:keypress>M</color>elee ====================================\n\n");
@@ -949,10 +947,10 @@ static void _build_melee(doc_ptr doc)
 
 static void _build_shooting(doc_ptr doc)
 {
-    if (equip_find_obj(TV_BOW, SV_ANY) && !prace_is_(RACE_MON_JELLY) && p_ptr->shooter_info.tval_ammo)
+    if (equip_find_obj(TV_BOW, SV_ANY) && !prace_is_(RACE_MON_JELLY) && plr->shooter_info.tval_ammo)
     {
         doc_insert(doc, "<topic:Shooting>=================================== <color:keypress>S</color>hooting ==================================\n\n");
-        display_shooter_info(doc);
+        plr_shoot_doc(doc);
     }
 }
 
@@ -969,7 +967,7 @@ void plr_display_powers(doc_ptr doc, spell_info *table, int ct)
     vfm  = var_create();
 
     doc_printf(doc, "<topic:Powers>=================================== <color:keypress>P</color>owers ====================================\n\n");
-    doc_printf(doc, "<color:G><tab:30>Lvl Cost Fail %-15.15s  Cast Fail</color>\n", "Desc");
+    doc_printf(doc, "<color:G><tab:30>Lvl Cost Fail %-19.19s  Cast Fail</color>\n", "Desc");
     for (i = 0; i < ct; i++)
     {
         spell_info     *spell = &table[i];
@@ -980,10 +978,10 @@ void plr_display_powers(doc_ptr doc, spell_info *table, int ct)
         spell->fn(SPELL_COST_EXTRA, &vc);
         spell->fn(SPELL_FAIL_MIN, &vfm);
 
-        doc_printf(doc, " %c) %-25.25s %3d %4d %3d%% %-15.15s %5d %4d %3d%%\n",
+        doc_printf(doc, " %c) %-25.25s %3d %4d %3d%% %-19.19s %5d %4d %3d%%\n",
             I2A(i),
             var_get_string(&vn),
-            spell->level, calculate_cost(spell->cost + var_get_int(&vc)), MAX(spell->fail, var_get_int(&vfm)),
+            spell->level, spell->cost + var_get_int(&vc), MAX(spell->fail, var_get_int(&vfm)),
             var_get_string(&vd),
             stats->ct_cast, stats->ct_fail,
             spell_stats_fail(stats)
@@ -1026,16 +1024,19 @@ void plr_display_spells(doc_ptr doc, spell_info *table, int ct)
 void plr_display_spells_aux(doc_ptr doc, spell_info *table, int ct, cptr heading)
 {
     int i;
-    var_t vn, vd, vc, vfm;
+    var_t vn, vd, vfm;
+    caster_info *caster = get_caster_info();
 
     if (!ct) return;
 
     vn = var_create();
     vd = var_create();
-    vc = var_create();
     vfm = var_create();
 
-    doc_printf(doc, "    %s <color:G><tab:30>Lvl Cost Fail %-15.15s  Cast Fail</color>\n", heading, "Desc");
+    doc_printf(doc, "    %s <color:G><tab:28>", heading);
+    if (caster->options & CASTER_GAIN_SKILL)
+        doc_insert(doc, "Skill ");
+    doc_printf(doc, "Lvl Cost Fail %-15.15s  Cast Fail</color>\n", "Desc");
 
     for (i = 0; i < ct; i++)
     {
@@ -1044,13 +1045,16 @@ void plr_display_spells_aux(doc_ptr doc, spell_info *table, int ct, cptr heading
 
         spell->fn(SPELL_NAME, &vn);
         spell->fn(SPELL_INFO, &vd);
-        spell->fn(SPELL_COST_EXTRA, &vc);
         spell->fn(SPELL_FAIL_MIN, &vfm);
 
-        doc_printf(doc, " %c) %-25.25s %3d %4d %3d%% %-15.15s %5d %4d %3d%%\n",
-            I2A(i),
-            var_get_string(&vn),
-            spell->level, calculate_cost(spell->cost + var_get_int(&vc)), MAX(spell->fail, var_get_int(&vfm)),
+        doc_printf(doc, " %c) %-23.23s ", I2A(i), var_get_string(&vn));
+        if (caster->options & CASTER_GAIN_SKILL)
+        {
+            spell_stats_ptr stats = spell_stats(spell);
+            spell_skill_doc(stats, doc);
+        }
+        doc_printf(doc, "%3d %4d %3d%% %-15.15s %5d %4d %3d%%\n",
+            spell->level, spell_cost(spell), MAX(spell->fail, var_get_int(&vfm)),
             var_get_string(&vd),
             stats->ct_cast, stats->ct_fail,
             spell_stats_fail(stats)
@@ -1059,7 +1063,6 @@ void plr_display_spells_aux(doc_ptr doc, spell_info *table, int ct, cptr heading
 
     var_destroy(&vn);
     var_destroy(&vd);
-    var_destroy(&vc);
     var_destroy(&vfm);
 
     doc_newline(doc);
@@ -1097,23 +1100,23 @@ static void _doc_race(doc_ptr doc, plr_race_ptr race)
 }
 static void _build_race_history(doc_ptr doc)
 {
-    if (p_ptr->old_race1 || p_ptr->old_race2)
+    if (plr->old_race1 || plr->old_race2)
     {
         int i;
 
         doc_insert(doc, "You were born as");
-        _doc_race(doc, plr_race_aux(p_ptr->start_race, 0));
+        _doc_race(doc, plr_race_aux(plr->start_race, 0));
         doc_insert(doc, ".\n");
         for (i = 0; i < MIN(64, MAX_RACES); i++)
         {
-            if (p_ptr->start_race == i) continue;
+            if (plr->start_race == i) continue;
             if (i < 32)
             {
-                if (!(p_ptr->old_race1 & 1L << i)) continue;
+                if (!(plr->old_race1 & 1L << i)) continue;
             }
             else
             {
-                if (!(p_ptr->old_race2 & 1L << (i-32))) continue;
+                if (!(plr->old_race2 & 1L << (i-32))) continue;
             }
             doc_insert(doc, "You were");
             _doc_race(doc, plr_race_aux(i, 0));
@@ -1121,23 +1124,23 @@ static void _build_race_history(doc_ptr doc)
         }
         doc_newline(doc);
     }
-    else if (p_ptr->mimic_form != MIMIC_NONE)
+    else if (plr->mimic_form != MIMIC_NONE)
     {
         doc_insert(doc, "You were born as");
-        _doc_race(doc, plr_race_aux(p_ptr->start_race, 0));
+        _doc_race(doc, plr_race_aux(plr->start_race, 0));
         doc_insert(doc, ".\n\n");
     }
 }
 
 static int _compare_monsters_counts(monster_race *left, monster_race *right)
 {
-    if (left->r_pkills < right->r_pkills)
+    if (left->lore.kills.current < right->lore.kills.current)
         return -1;
-    if (left->r_pkills > right->r_pkills)
+    if (left->lore.kills.current > right->lore.kills.current)
         return 1;
-    if (left->level < right->level)
+    if (left->alloc.lvl < right->alloc.lvl)
         return -1;
-    if (left->level > right->level)
+    if (left->alloc.lvl > right->alloc.lvl)
         return 1;
     if (left->mexp < right->mexp)
         return -1;
@@ -1147,19 +1150,24 @@ static int _compare_monsters_counts(monster_race *left, monster_race *right)
 }
 static int _compare_monsters(monster_race *left, monster_race *right)
 {
-    if (left->level < right->level)
+    if (left->alloc.lvl < right->alloc.lvl)
         return -1;
-    if (left->level > right->level)
+    if (left->alloc.lvl > right->alloc.lvl)
         return 1;
     if (left->mexp < right->mexp)
         return -1;
     if (left->mexp > right->mexp)
         return 1;
-    if (left->r_pkills < right->r_pkills)
+    if (left->lore.kills.current < right->lore.kills.current)
         return -1;
-    if (left->r_pkills > right->r_pkills)
+    if (left->lore.kills.current > right->lore.kills.current)
         return 1;
     return 0;
+}
+static bool _dead_nonunique(mon_race_ptr r)
+{
+    if (mon_race_is_unique(r)) return FALSE;
+    return r->lore.kills.current > 0;
 }
 static void _build_uniques(doc_ptr doc)
 {
@@ -1168,22 +1176,12 @@ static void _build_uniques(doc_ptr doc)
     if (ct)
     {
         int     i;
-        vec_ptr v = vec_alloc(NULL);
+        vec_ptr v;
         int     ct_uniques_dead;
 
         doc_printf(doc, "<topic:Kills>================================ Monster <color:keypress>K</color>ills ================================\n\n");
 
-        for (i = 0; i < max_r_idx; i++)
-        {
-            monster_race *r_ptr = &r_info[i];
-            if (!r_ptr->name) continue;
-            if (r_ptr->flags1 & RF1_UNIQUE)
-            {
-                if (r_ptr->max_num == 0)
-                    vec_add(v, r_ptr);
-            }
-        }
-
+        v = mon_race_filter(mon_race_is_dead_unique);
         ct_uniques_dead = vec_length(v);
         if (ct_uniques_dead)
         {
@@ -1199,26 +1197,17 @@ static void _build_uniques(doc_ptr doc)
             for (i = ct_uniques_dead - 1; i >= 0 && i >= ct_uniques_dead - 20; i--)
             {
                 monster_race *r_ptr = vec_get(v, i);
-                doc_printf(doc, "  %-40.40s %3d\n", (r_name + r_ptr->name), r_ptr->level);
+                doc_printf(doc, "  %-40.40s %3d\n", r_ptr->name, r_ptr->alloc.lvl);
             }
         }
         else
             doc_printf(doc,"You have defeated %d %s.\n", ct, ct == 1 ? "enemy" : "enemies");
 
         doc_newline(doc);
+        vec_free(v);
 
 
-        vec_clear(v);
-        for (i = 0; i < max_r_idx; i++)
-        {
-            monster_race *r_ptr = &r_info[i];
-            if (!r_ptr->name) continue;
-            if (!(r_ptr->flags1 & RF1_UNIQUE))
-            {
-                if (r_ptr->r_pkills)
-                    vec_add(v, r_ptr);
-            }
-        }
+        v = mon_race_filter(_dead_nonunique);
         ct = vec_length(v);
         if (ct)
         {
@@ -1233,7 +1222,7 @@ static void _build_uniques(doc_ptr doc)
             for (i = ct - 1; i >= 0 && i >= ct - 20; i--)
             {
                 monster_race *r_ptr = vec_get(v, i);
-                doc_printf(cols[0], "  %-25.25s %3d %5d\n", (r_name + r_ptr->name), r_ptr->level, r_ptr->r_pkills);
+                doc_printf(cols[0], "  %-25.25s %3d %5d\n", r_ptr->name, r_ptr->alloc.lvl, r_ptr->lore.kills.current);
             }
             doc_newline(cols[0]);
 
@@ -1242,7 +1231,7 @@ static void _build_uniques(doc_ptr doc)
             for (i = ct - 1; i >= 0 && i >= ct - 20; i--)
             {
                 monster_race *r_ptr = vec_get(v, i);
-                doc_printf(cols[1], "  %-25.25s %3d %5d\n", (r_name + r_ptr->name), r_ptr->level, r_ptr->r_pkills);
+                doc_printf(cols[1], "  %-25.25s %3d %5d\n", r_ptr->name, r_ptr->alloc.lvl, r_ptr->lore.kills.current);
             }
             doc_newline(cols[1]);
 
@@ -1250,7 +1239,6 @@ static void _build_uniques(doc_ptr doc)
             doc_free(cols[0]);
             doc_free(cols[1]);
         }
-
         vec_free(v);
     }
 }
@@ -1274,38 +1262,39 @@ static void _build_mutations(doc_ptr doc)
 
 static void _build_pets(doc_ptr doc)
 {
-    vec_ptr v = plr_pets();
-    int     i;
+    mon_pack_ptr pets = plr_pets();
+    int     i, ct = mon_pack_count(pets);
     char    pet_name[MAX_NLEN_MON];
 
-    if (vec_length(v))
+    if (ct)
     {
         doc_printf(doc, "<topic:Pets>==================================== <color:keypress>P</color>ets =====================================\n\n");
         doc_printf(doc, "  <color:G>Leading Pets</color>\n");
     }
 
-    for (i = 0; i < vec_length(v); i++)
+    for (i = 0; i < ct; i++)
     {
-        mon_ptr mon = vec_get(v, i);
+        mon_ptr mon = vec_get(pets->members, i);
         monster_desc(pet_name, mon, MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE | MD_NO_PET_ABBREV);
-        doc_printf(doc, "  <indent><style:indent>%s</style></indent>\n", pet_name);
+        doc_printf(doc, "  <indent><style:indent><color:%c>%s</color></style></indent>\n",
+            mon->dun->id == plr->dun_id ? 'w' : 'D',
+            pet_name);
     }
 
-    if (vec_length(v))
+    if (ct)
     {
         doc_printf(doc, "\n  <color:G>Options</color>\n");
-        doc_printf(doc, "  Pets open doors:                    %s\n", (p_ptr->pet_extra_flags & PF_OPEN_DOORS) ? "ON" : "OFF");
-        doc_printf(doc, "  Pets pick up items:                 %s\n", (p_ptr->pet_extra_flags & PF_PICKUP_ITEMS) ? "ON" : "OFF");
-        doc_printf(doc, "  Allow teleport:                     %s\n", (p_ptr->pet_extra_flags & PF_TELEPORT) ? "ON" : "OFF");
-        doc_printf(doc, "  Allow cast attack spell:            %s\n", (p_ptr->pet_extra_flags & PF_ATTACK_SPELL) ? "ON" : "OFF");
-        doc_printf(doc, "  Allow cast summon spell:            %s\n", (p_ptr->pet_extra_flags & PF_SUMMON_SPELL) ? "ON" : "OFF");
-        doc_printf(doc, "  Allow involve player in area spell: %s\n", (p_ptr->pet_extra_flags & PF_BALL_SPELL) ? "ON" : "OFF");
-        if (0 || p_ptr->wizard)
+        doc_printf(doc, "  Pets open doors:                    %s\n", (plr->pet_extra_flags & PF_OPEN_DOORS) ? "ON" : "OFF");
+        doc_printf(doc, "  Pets pick up items:                 %s\n", (plr->pet_extra_flags & PF_PICKUP_ITEMS) ? "ON" : "OFF");
+        doc_printf(doc, "  Allow teleport:                     %s\n", (plr->pet_extra_flags & PF_TELEPORT) ? "ON" : "OFF");
+        doc_printf(doc, "  Allow cast attack spell:            %s\n", (plr->pet_extra_flags & PF_ATTACK_SPELL) ? "ON" : "OFF");
+        doc_printf(doc, "  Allow cast summon spell:            %s\n", (plr->pet_extra_flags & PF_SUMMON_SPELL) ? "ON" : "OFF");
+        doc_printf(doc, "  Allow involve player in area spell: %s\n", (plr->pet_extra_flags & PF_BALL_SPELL) ? "ON" : "OFF");
+        if (0 || plr->wizard)
             doc_printf(doc, "  Riding Skill:                       %d\n", skills_riding_current());
 
         doc_newline(doc);
     }
-    vec_free(v);
 }
 
 /****************************** Objects ************************************/
@@ -1381,7 +1370,7 @@ static void _object_counts_imp(doc_ptr doc, int tval, int sval)
         doc_printf(
             doc,
             "  %-20.20s %5d %6d %5d %5d\n",
-            k_name + k_ptr->name,
+            k_ptr->name,
             k_ptr->counts.found,
             k_ptr->counts.bought,
             k_ptr->counts.used,
@@ -1554,114 +1543,28 @@ static void _ego_counts_imp(doc_ptr doc, int idx, cptr text)
     }
 }
 
-typedef bool (*_mon_p)(int r_idx);
-static bool _mon_is_animal(int r_idx)
+static int _kills(mon_race_ptr r)
 {
-    if (mon_race_lookup(r_idx)->flags3 & RF3_ANIMAL)
-        return TRUE;
-    return FALSE;
+    if (mon_race_is_fixed_unique(r)) /* XXX problem with r_pkills and uniques */
+    {
+        if (r->alloc.max_num == 0)
+            return 1;
+        return 0;
+    }
+    return r->lore.kills.current;
 }
-static bool _mon_is_breeder(int r_idx)
-{
-    if (mon_race_lookup(r_idx)->flags2 & RF2_MULTIPLY)
-        return TRUE;
-    return FALSE;
-}
-static bool _mon_is_demon(int r_idx)
-{
-    if (mon_race_lookup(r_idx)->flags3 & RF3_DEMON)
-        return TRUE;
-    return FALSE;
-}
-static bool _mon_is_dragon(int r_idx)
-{
-    if (mon_race_lookup(r_idx)->flags3 & RF3_DRAGON)
-        return TRUE;
-    return FALSE;
-}
-static bool _mon_is_evil(int r_idx)
-{
-    if (mon_race_lookup(r_idx)->flags3 & RF3_EVIL)
-        return TRUE;
-    return FALSE;
-}
-static bool _mon_is_giant(int r_idx)
-{
-    if (mon_race_lookup(r_idx)->flags3 & RF3_GIANT)
-        return TRUE;
-    return FALSE;
-}
-static bool _mon_is_good(int r_idx)
-{
-    if (mon_race_lookup(r_idx)->flags3 & RF3_GOOD)
-        return TRUE;
-    return FALSE;
-}
-static bool _mon_is_hound(int r_idx)
-{
-    if (mon_race_lookup(r_idx)->d_char == 'Z')
-        return TRUE;
-    return FALSE;
-}
-static bool _mon_is_human(int r_idx)
-{
-    if (mon_race_lookup(r_idx)->flags2 & RF2_HUMAN)
-        return TRUE;
-    return FALSE;
-}
-static bool _mon_is_neutral(int r_idx)
-{
-    if (mon_race_lookup(r_idx)->flags3 & RF3_GOOD)
-        return FALSE;
-    if (mon_race_lookup(r_idx)->flags3 & RF3_EVIL)
-        return FALSE;
-    return TRUE;
-}
-static bool _mon_is_orc(int r_idx)
-{
-    if (mon_race_lookup(r_idx)->flags3 & RF3_ORC)
-        return TRUE;
-    return FALSE;
-}
-static bool _mon_is_troll(int r_idx)
-{
-    if (mon_race_lookup(r_idx)->flags3 & RF3_TROLL)
-        return TRUE;
-    return FALSE;
-}
-static bool _mon_is_undead(int r_idx)
-{
-    if (mon_race_lookup(r_idx)->flags3 & RF3_UNDEAD)
-        return TRUE;
-    return FALSE;
-}
-static bool _mon_is_unique(int r_idx)
-{
-    if (mon_race_lookup(r_idx)->flags1 & RF1_UNIQUE)
-        return TRUE;
-    return FALSE;
-}
-static bool _mon_is_pact(int r_idx)
-{
-    return warlock_is_pact_monster(mon_race_lookup(r_idx));
-}
-static void _kill_counts_imp(doc_ptr doc, _mon_p p, cptr text, int total)
+static void _kill_counts_imp(doc_ptr doc, mon_race_p p, cptr text, int total)
 {
     int i;
     int kills = 0;
-    for (i = 0; i < max_r_idx; i++)
+
+    vec_ptr v = mon_race_filter(p);
+    for (i = 0; i < vec_length(v); i++)
     {
-        if (p(i))
-        {
-            if (_mon_is_unique(i))
-            {
-                if (mon_race_lookup(i)->max_num == 0)
-                    kills++;   /* Perhaps The Cloning Pits is messing up r_akills? */
-            }
-            else
-                kills += mon_race_lookup(i)->r_pkills;
-        }
+        mon_race_ptr r = vec_get(v, i);
+        kills += _kills(r);
     }
+    vec_free(v);
 
     if (kills)
     {
@@ -1680,23 +1583,23 @@ static void _build_mon_kill_stats(doc_ptr doc)
 {
     int total_kills = ct_kills_all();
     doc_printf(doc, "  <color:G>Monsters             Kills   Pct</color>\n");
-    _kill_counts_imp(doc, _mon_is_animal, "Animals", total_kills);
-    _kill_counts_imp(doc, _mon_is_breeder, "Breeders", total_kills);
-    _kill_counts_imp(doc, _mon_is_demon, "Demons", total_kills);
-    _kill_counts_imp(doc, _mon_is_dragon, "Dragons", total_kills);
-    _kill_counts_imp(doc, _mon_is_giant, "Giants", total_kills);
-    _kill_counts_imp(doc, _mon_is_hound, "Hounds", total_kills);
-    _kill_counts_imp(doc, _mon_is_human, "Humans", total_kills);
-    _kill_counts_imp(doc, _mon_is_orc, "Orcs", total_kills);
-    _kill_counts_imp(doc, _mon_is_troll, "Trolls", total_kills);
-    _kill_counts_imp(doc, _mon_is_undead, "Undead", total_kills);
-    _kill_counts_imp(doc, _mon_is_unique, "Uniques", total_kills);
-    if (p_ptr->pclass == CLASS_WARLOCK)
-        _kill_counts_imp(doc, _mon_is_pact, "Pact", total_kills);
+    _kill_counts_imp(doc, mon_race_is_animal, "Animals", total_kills);
+    _kill_counts_imp(doc, mon_race_can_multiply, "Breeders", total_kills);
+    _kill_counts_imp(doc, mon_race_is_demon, "Demons", total_kills);
+    _kill_counts_imp(doc, mon_race_is_dragon, "Dragons", total_kills);
+    _kill_counts_imp(doc, mon_race_is_giant, "Giants", total_kills);
+    _kill_counts_imp(doc, mon_race_is_hound, "Hounds", total_kills);
+    _kill_counts_imp(doc, mon_race_is_human, "Humans", total_kills);
+    _kill_counts_imp(doc, mon_race_is_orc, "Orcs", total_kills);
+    _kill_counts_imp(doc, mon_race_is_troll, "Trolls", total_kills);
+    _kill_counts_imp(doc, mon_race_is_undead, "Undead", total_kills);
+    _kill_counts_imp(doc, mon_race_is_fixed_unique, "Uniques", total_kills);
+    if (plr->pclass == CLASS_WARLOCK)
+        _kill_counts_imp(doc, warlock_is_pact_monster, "Pact", total_kills);
     doc_newline(doc);
-    _kill_counts_imp(doc, _mon_is_evil, "Evil Monsters", total_kills);
-    _kill_counts_imp(doc, _mon_is_good, "Good Monsters", total_kills);
-    _kill_counts_imp(doc, _mon_is_neutral, "Neutral Monsters", total_kills);
+    _kill_counts_imp(doc, mon_race_is_evil, "Evil Monsters", total_kills);
+    _kill_counts_imp(doc, mon_race_is_good, "Good Monsters", total_kills);
+    _kill_counts_imp(doc, mon_race_is_neutral, "Neutral Monsters", total_kills);
     doc_printf(doc, "\n  %-20.20s %5d\n", "Totals", total_kills);
 }
 
@@ -1718,16 +1621,16 @@ static void _build_mon_spell_stats(doc_ptr doc, cptr heading, mon_race_p filter)
     int allocation[MST_COUNT] = {0};
     int i, j, k;
 
-    for (i = 1; i < max_r_idx; i++)
+    vec_ptr v = mon_race_filter(filter);
+    for (i = 0; i < vec_length(v); i++)
     {
-        mon_race_ptr race = &r_info[i];
+        mon_race_ptr race = vec_get(v, i);
         int          moves;
-        if (!race->name) continue;
+
         if (!race->spells) continue;
-        if (filter && !filter(race)) continue;
-        moves = race->r_move_turns + race->r_spell_turns;
+        moves = race->lore.turns.total;
         ct_total_moves += moves;
-        ct_spell_moves += race->r_spell_turns;
+        ct_spell_moves += race->lore.turns.spell;
         total_freq += race->spells->freq * moves;
         for (j = 0; j < MST_COUNT; j++)
         {
@@ -1741,7 +1644,10 @@ static void _build_mon_spell_stats(doc_ptr doc, cptr heading, mon_race_p filter)
             }
         }
     }
+    vec_free(v);
+
     if (!ct_total_moves) return;
+
     doc_printf(doc, "  <color:G>%-20.20s Count   Pct</color>\n", heading);
     _spell_count_imp(doc, "Observed", ct_spell_moves, ct_total_moves);
     expected_freq = (double)total_freq/(ct_total_moves * 100.0);
@@ -1753,16 +1659,13 @@ static void _build_mon_spell_stats(doc_ptr doc, cptr heading, mon_race_p filter)
     _spell_count_imp(doc, "Escape", allocation[MST_ESCAPE], ct_spell_moves);
     _spell_count_imp(doc, "Offense",
         allocation[MST_BREATH] + allocation[MST_BALL] + allocation[MST_BOLT]
-            + allocation[MST_BEAM] + allocation[MST_CURSE],
+            + allocation[MST_BEAM] + allocation[MST_LOS],
         ct_spell_moves);
     _spell_count_imp(doc, "Other",
         allocation[MST_BUFF] + allocation[MST_BIFF] + allocation[MST_ANNOY]
             + allocation[MST_TACTIC] + allocation[MST_WEIRD],
         ct_spell_moves);
 }
-static bool _is_unique(mon_race_ptr race) { return BOOL(race->flags1 & RF1_UNIQUE); }
-/*static bool _is_hound(mon_race_ptr race) { return race->d_char == 'Z'; }*/
-/*static bool _is_deep(mon_race_ptr race) { return race->level >= 60; }*/
 static void _build_monster_stats(doc_ptr doc)
 {
     doc_ptr cols[2];
@@ -1771,42 +1674,32 @@ static void _build_monster_stats(doc_ptr doc)
     _build_mon_kill_stats(cols[0]);
     _build_mon_spell_stats(cols[1], "Spells", NULL);
     doc_newline(cols[1]);
-    _build_mon_spell_stats(cols[1], "Unique Spells", _is_unique);
-    /*doc_newline(cols[1]);
-    _build_mon_spell_stats(cols[1], "Hound Spells", _is_hound);
-    doc_newline(cols[1]);
-    _build_mon_spell_stats(cols[1], "Deep Spells", _is_deep);*/
+    _build_mon_spell_stats(cols[1], "Unique Spells", mon_race_is_unique);
     doc_insert_cols(doc, cols, 2, 0);
     doc_free(cols[0]);
     doc_free(cols[1]);
+}
+static bool _has_kills(mon_race_ptr r)
+{
+    return _kills(r) > 0;
 }
 static void _build_monster_histogram(doc_ptr doc)
 {
     int histogram[20] = {0};
     int i, max_bucket = 0, total = 0, running = 0;
-
-    for (i = 0; i < max_r_idx; i++)
+    
+    vec_ptr v = mon_race_filter(_has_kills);
+    for (i = 0; i < vec_length(v); i++)
     {
-        mon_race_ptr race = &r_info[i];
-        int          bucket = MIN(19, race->level/5);
-        int          amt = 0;
-        if (!race->name) continue;
-
-        if (race->flags1 & RF1_UNIQUE) /* XXX problem with r_pkills and uniques */
-        {
-            if (race->max_num == 0)
-                amt = 1;
-        }
-        else
-            amt = race->r_pkills;
-
-        if (amt)
-        {
-            histogram[bucket] += amt;
-            total += amt;
-            max_bucket = MAX(bucket, max_bucket);
-        }
+        mon_race_ptr race = vec_get(v, i);
+        int          bucket = MIN(19, race->alloc.lvl/5);
+        int          amt = _kills(race);;
+        histogram[bucket] += amt;
+        total += amt;
+        max_bucket = MAX(bucket, max_bucket);
     }
+    vec_free(v);
+
     if (!total) return;
 
     doc_insert(doc, "  <color:G>Level   Count</color>\n");
@@ -1846,7 +1739,7 @@ static void _build_statistics(doc_ptr doc)
     doc_printf(doc, "  Stolen   : <color:w>%8d</color> <color:w>%8d</color>\n",
         stats_gold_counts.stolen,
         stats_gold_counts.buying + stats_gold_counts.services + stats_gold_counts.stolen);
-    doc_printf(doc, "                      <color:y>%8d</color>\n\n", p_ptr->au);
+    doc_printf(doc, "                      <color:y>%8d</color>\n\n", plr->au);
 
     /* Objects */
     for (i = 0; i < max_k_idx; i++)
@@ -1870,7 +1763,7 @@ static void _build_statistics(doc_ptr doc)
     _group_counts_tval_imp(doc, TV_QUIVER, "Quivers");
     _group_counts_tval_imp(doc, TV_RING, "Rings");
     _group_counts_tval_imp(doc, TV_AMULET, "Amulets");
-    _group_counts_tval_imp(doc, TV_LITE, "Lights");
+    _group_counts_tval_imp(doc, TV_LIGHT, "Lights");
     _group_counts_imp(doc, obj_kind_is_body_armor, "Body Armor");
     _group_counts_tval_imp(doc, TV_CLOAK, "Cloaks");
     _group_counts_imp(doc, obj_kind_is_helmet, "Helmets");
@@ -1890,7 +1783,7 @@ static void _build_statistics(doc_ptr doc)
     _group_counts_tval_imp(doc, TV_SHOT, "Shots");
     _group_counts_tval_imp(doc, TV_ARROW, "Arrows");
     _group_counts_tval_imp(doc, TV_BOLT, "Bolts");
-    if (p_ptr->pclass == CLASS_NINJA)
+    if (plr->pclass == CLASS_NINJA)
         _group_counts_tval_imp(doc, TV_SPIKE, "Syuriken");
     _group_counts_imp(doc, obj_kind_is_spellbook, "Spellbooks");
     _group_counts_tval_imp(doc, TV_FOOD, "Food");
@@ -1903,6 +1796,8 @@ static void _build_statistics(doc_ptr doc)
     _object_counts_imp(doc, TV_POTION, SV_POTION_CURE_CRITICAL);
     _object_counts_imp(doc, TV_POTION, SV_POTION_CURING);
     _object_counts_imp(doc, TV_POTION, SV_POTION_SPEED);
+    if (plr->pclass == CLASS_BLOOD_KNIGHT)
+        _object_counts_imp(doc, TV_POTION, SV_POTION_BLOOD);
     _object_counts_imp(doc, TV_POTION, SV_POTION_HEALING);
     _object_counts_imp(doc, TV_POTION, SV_POTION_STAR_HEALING);
     _object_counts_imp(doc, TV_POTION, SV_POTION_LIFE);
@@ -1937,7 +1832,7 @@ static void _build_statistics(doc_ptr doc)
     _group_counts_tval_imp(doc, TV_SCROLL, "Totals");
 
     doc_printf(doc, "\n  <color:G>Wands                Found Bought  Used  Dest</color>\n");
-    if (p_ptr->wizard)
+    if (plr->wizard)
     {
         for (i = 0; ; i++)
         {
@@ -1964,7 +1859,7 @@ static void _build_statistics(doc_ptr doc)
     _group_counts_tval_imp(doc, TV_WAND, "Totals");
 
     doc_printf(doc, "\n  <color:G>Staves               Found Bought  Used  Dest</color>\n");
-    if (p_ptr->wizard)
+    if (plr->wizard)
     {
         for (i = 0; ; i++)
         {
@@ -1994,7 +1889,7 @@ static void _build_statistics(doc_ptr doc)
     _group_counts_tval_imp(doc, TV_STAFF, "Totals");
 
     doc_printf(doc, "\n  <color:G>Rods                 Found Bought  Used  Dest</color>\n");
-    if (p_ptr->wizard)
+    if (plr->wizard)
     {
         for (i = 0; ; i++)
         {
@@ -2009,7 +1904,7 @@ static void _build_statistics(doc_ptr doc)
         _device_counts_imp(doc, TV_ROD, EFFECT_DETECT_TRAPS);
         _device_counts_imp(doc, TV_ROD, EFFECT_DETECT_DOOR_STAIRS);
         _device_counts_imp(doc, TV_ROD, EFFECT_DETECT_MONSTERS);
-        _device_counts_imp(doc, TV_ROD, EFFECT_LITE_AREA);
+        _device_counts_imp(doc, TV_ROD, EFFECT_LIGHT_AREA);
         _device_counts_imp(doc, TV_ROD, EFFECT_RECALL);
         _device_counts_imp(doc, TV_ROD, EFFECT_DETECT_ALL);
         _device_counts_imp(doc, TV_ROD, EFFECT_ENLIGHTENMENT);
@@ -2020,7 +1915,7 @@ static void _build_statistics(doc_ptr doc)
         _device_counts_imp(doc, TV_ROD, EFFECT_BALL_SHARDS);
         _device_counts_imp(doc, TV_ROD, EFFECT_BALL_CHAOS);
         _device_counts_imp(doc, TV_ROD, EFFECT_CLAIRVOYANCE);
-        _device_counts_imp(doc, TV_ROD, EFFECT_BALL_LITE);
+        _device_counts_imp(doc, TV_ROD, EFFECT_BALL_LIGHT);
     }
     _group_counts_tval_imp(doc, TV_ROD, "Totals");
 
@@ -2052,7 +1947,7 @@ static void _build_statistics(doc_ptr doc)
 
     doc_newline(doc);
     _build_monster_stats(doc);
-    if (0 || p_ptr->wizard)
+    if (0 || plr->wizard)
         _build_monster_histogram(doc);
 }
 
@@ -2066,8 +1961,8 @@ void plr_display_dungeons(doc_ptr doc)
     {
         dun_type_ptr type = vec_get(v, i);
         char color = 'w';
-        if (type->plr_flags & DFP_COMPLETED) color = 'G';
-        else if (type->plr_flags & DFP_FAILED) color = 'r';
+        if (type->flags.plr & DF_PLR_COMPLETED) color = 'G';
+        else if (type->flags.plr & DF_PLR_FAILED) color = 'r';
         doc_printf(doc, " <color:%c>%-21s</color>: level %3d\n", color, type->name, type->plr_max_lvl);
     }
     vec_free(v);
@@ -2081,9 +1976,9 @@ void plr_display_dungeons(doc_ptr doc)
     {
         dun_type_ptr type = vec_get(v, i);
         if (!type->max_dun_lvl) continue;
-        if (type->flags & DF_RANDOM) continue;
+        if (type->flags.info & DF_RANDOM) continue;
         if (!dun_pos_interior(dun_mgr()->world, type->world_pos)) continue;
-        if (dun_grid_at(dun_mgr()->world, type->world_pos)->info & CAVE_MARK) continue;
+        if (dun_grid_at(dun_mgr()->world, type->world_pos)->flags & CELL_MAP) continue;
         ct++;
     }
     vec_free(v);
@@ -2094,30 +1989,30 @@ void plr_display_dungeons(doc_ptr doc)
         ct,
         ct == 1 ? "" : "s");
 
-    if (p_ptr->is_dead)
+    if (plr->is_dead)
     {
-        if (p_ptr->total_winner)
+        if (plr->total_winner)
         {
             doc_printf(doc, " <color:v>You %s after winning.</color>\n",
-                streq(p_ptr->died_from, "Seppuku") ? "did Seppuku" : "retired from the adventure");
+                streq(plr->died_from, "Seppuku") ? "did Seppuku" : "retired from the adventure");
         }
         else if (plr_on_surface())
         {
-            doc_printf(doc, " You were killed by %s in %s.\n", p_ptr->died_from, map_name());
+            doc_printf(doc, " You were killed by %s in %s.\n", plr->died_from, map_name());
         }
         else if (plr_in_dungeon())
         {
             doc_printf(doc, " You were killed by %s on level %d of %s.\n",
-                p_ptr->died_from, cave->dun_lvl, map_name());
+                plr->died_from, cave->dun_lvl, map_name());
         }
         else if (quests_get_current())
         {
             doc_printf(doc, " You were killed by %s in the quest '%s'.\n",
-                p_ptr->died_from, quests_get_current()->name);
+                plr->died_from, quests_get_current()->name);
         }
         else /* ??? */
         {
-            doc_printf(doc, " You were killed by %s in %s.\n", p_ptr->died_from, map_name());
+            doc_printf(doc, " You were killed by %s in %s.\n", plr->died_from, map_name());
         }
     }
     else if (cave->flags & DF_GENERATED)
@@ -2132,20 +2027,20 @@ void plr_display_dungeons(doc_ptr doc)
             doc_insert(doc, " Hmmm ... Where are you?");
     }
 
-    if (p_ptr->last_message)
+    if (plr->last_message)
     {
-        if (p_ptr->is_dead)
-            doc_printf(doc, "\n Last Message: %s\n", p_ptr->last_message);
-        else if (p_ptr->total_winner)
-            doc_printf(doc, "\n *Winning* Message: %s\n", p_ptr->last_message);
+        if (plr->is_dead)
+            doc_printf(doc, "\n Last Message: %s\n", plr->last_message);
+        else if (plr->total_winner)
+            doc_printf(doc, "\n *Winning* Message: %s\n", plr->last_message);
     }
     doc_newline(doc);
 }
 
 static cptr _world_name(void)
 {
-    if (p_ptr->initial_world_id == W_SMAUG) return "The World of Middle Earth";
-    return dun_worlds_lookup(p_ptr->initial_world_id)->name;
+    if (plr->initial_world_id == W_SMAUG) return "The World of Middle Earth";
+    return dun_worlds_lookup(plr->initial_world_id)->name;
 }
 static void _build_dungeons(doc_ptr doc)
 {
@@ -2175,7 +2070,7 @@ static void _build_messages(doc_ptr doc)
             current_row = doc_cursor(doc).y;
         }
 
-        doc_insert_text(doc, m->color, string_buffer(m->msg));
+        doc_insert_text(doc, m->color, str_buffer(m->msg));
         if (m->count > 1)
         {
             char buf[10];
@@ -2190,7 +2085,7 @@ static void _build_messages(doc_ptr doc)
 /******************************** Options ************************************/
 static void _build_options(doc_ptr doc)
 {
-    if (no_artifacts || random_artifacts || p_ptr->noscore)
+    if (no_artifacts || random_artifacts || plr->noscore)
     {
         doc_printf(doc, "<topic:Options>=================================== <color:keypress>O</color>ptions ===================================\n\n");
 
@@ -2199,7 +2094,7 @@ static void _build_options(doc_ptr doc)
         else if (random_artifacts)
             doc_printf(doc, " Random Artifacts:   %d%%\n", random_artifact_pct);
 
-        if (p_ptr->noscore)
+        if (plr->noscore)
             doc_printf(doc, "\n <color:v>You have done something illegal.</color>\n");
 
         doc_newline(doc);
@@ -2209,54 +2104,56 @@ static void _build_options(doc_ptr doc)
 /****************************** Character Sheet ************************************/
 static void _build_quests(doc_ptr doc)
 {
-    if (p_ptr->initial_world_id == W_AMBER)
+    #if 0
+    if (plr->initial_world_id == W_AMBER)
     {
         doc_printf(doc, "<topic:uQuests>==================================== Q<color:keypress>u</color>ests ===================================\n\n");
         quests_doc(doc);
     }
+    #endif
 }
 
 static bool _is_retired(void)
 {
-    if (p_ptr->total_winner && p_ptr->is_dead && strcmp(p_ptr->died_from, "Ripe Old Age") == 0)
+    if (plr->total_winner && plr->is_dead && strcmp(plr->died_from, "Ripe Old Age") == 0)
         return TRUE;
     return FALSE;
 }
 
 static void _add_html_header(doc_ptr doc)
 {
-    string_ptr s = string_alloc_format("%s.html", player_base);
-    string_ptr header = string_alloc();
+    str_ptr s = str_alloc_format("%s.html", player_base);
+    str_ptr header = str_alloc();
 
-    doc_change_name(doc, string_buffer(s));
+    doc_change_name(doc, str_buffer(s));
 
-    string_append_s(header, "<head>\n");
-    string_append_s(header, " <meta name='filetype' value='character dump'>\n");
-    string_printf(header,  " <meta name='variant' value='%s'>\n", VERSION_NAME);
-    string_printf(header,  " <meta name='variant_version' value='%d.%d.%d'>\n", VER_MAJOR, VER_MINOR, VER_PATCH);
-    string_printf(header,  " <meta name='character_name' value='%s'>\n", player_name);
-    string_printf(header,  " <meta name='race' value='%s'>\n", get_race()->name);
-    string_printf(header,  " <meta name='class' value='%s'>\n", get_class()->name);
-    string_printf(header,  " <meta name='level' value='%d'>\n", p_ptr->lev);
-    string_printf(header,  " <meta name='experience' value='%d'>\n", p_ptr->exp);
-    string_printf(header,  " <meta name='turncount' value='%d'>\n", dun_mgr()->turn);
-    string_printf(header,  " <meta name='max_depth' value='%d'>\n", plr_max_dun_lvl());
-    string_printf(header,  " <meta name='score' value='%d'>\n", p_ptr->exp);
-    string_printf(header,  " <meta name='fame' value='%d'>\n", p_ptr->fame);
-    string_printf(header,  " <meta name='status' value='%s'>\n",
-        p_ptr->total_winner ? "winner" : (p_ptr->is_dead ? "dead" : "alive"));
-    string_printf(header,  " <meta name='winner' value='%d'>\n", p_ptr->total_winner ? 1 : 0);
-    string_printf(header,  " <meta name='dead' value='%d'>\n", p_ptr->is_dead ? 1 : 0);
-    string_printf(header,  " <meta name='retired' value='%d'>\n", _is_retired() ? 1 : 0);
+    str_append_s(header, "<head>\n");
+    str_append_s(header, " <meta name='filetype' value='character dump'>\n");
+    str_printf(header,  " <meta name='variant' value='%s'>\n", VERSION_NAME);
+    str_printf(header,  " <meta name='variant_version' value='%d.%d.%d'>\n", VER_MAJOR, VER_MINOR, VER_PATCH);
+    str_printf(header,  " <meta name='character_name' value='%s'>\n", player_name);
+    str_printf(header,  " <meta name='race' value='%s'>\n", get_race()->name);
+    str_printf(header,  " <meta name='class' value='%s'>\n", get_class()->name);
+    str_printf(header,  " <meta name='level' value='%d'>\n", plr->lev);
+    str_printf(header,  " <meta name='experience' value='%d'>\n", plr->exp);
+    str_printf(header,  " <meta name='turncount' value='%d'>\n", dun_mgr()->turn);
+    str_printf(header,  " <meta name='max_depth' value='%d'>\n", plr_max_dun_lvl());
+    str_printf(header,  " <meta name='score' value='%d'>\n", plr->exp);
+    str_printf(header,  " <meta name='fame' value='%d'>\n", plr->fame);
+    str_printf(header,  " <meta name='status' value='%s'>\n",
+        plr->total_winner ? "winner" : (plr->is_dead ? "dead" : "alive"));
+    str_printf(header,  " <meta name='winner' value='%d'>\n", plr->total_winner ? 1 : 0);
+    str_printf(header,  " <meta name='dead' value='%d'>\n", plr->is_dead ? 1 : 0);
+    str_printf(header,  " <meta name='retired' value='%d'>\n", _is_retired() ? 1 : 0);
 
-    if (p_ptr->is_dead)
-        string_printf(header,  " <meta name='killer' value='%s'>\n", p_ptr->died_from);
-    string_append_s(header, "</head>");
+    if (plr->is_dead)
+        str_printf(header,  " <meta name='killer' value='%s'>\n", plr->died_from);
+    str_append_s(header, "</head>");
 
-    doc_change_html_header(doc, string_buffer(header));
+    doc_change_html_header(doc, str_buffer(header));
 
-    string_free(s);
-    string_free(header);
+    str_free(s);
+    str_free(header);
 }
 
 void plr_display_character_sheet(doc_ptr doc)
@@ -2264,9 +2161,9 @@ void plr_display_character_sheet(doc_ptr doc)
     _add_html_header(doc);
 
     doc_printf(doc, "<style:wide>  [%s <$:version> Character Dump]\n", VERSION_NAME);
-    if (p_ptr->total_winner)
+    if (plr->total_winner)
         doc_insert(doc, "              <color:B>***WINNER***</color>\n");
-    else if (p_ptr->is_dead)
+    else if (plr->is_dead)
         doc_insert(doc, "              <color:v>***LOSER***</color>\n");
     else
         doc_newline(doc);
@@ -2293,6 +2190,7 @@ void plr_display_character_sheet(doc_ptr doc)
     _build_statistics(doc);
     _build_messages(doc);
     _build_options(doc);
+    dun_mgr_doc(doc);
 
     doc_insert(doc, "</style>");
 }

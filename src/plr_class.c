@@ -120,6 +120,6 @@ plr_class_ptr plr_class_aux(int class_id, int subclass_id)
     result->subid = subclass_id;
     return result;
 }
-plr_class_ptr plr_class(void) { return plr_class_aux(p_ptr->pclass, p_ptr->psubclass); }
+plr_class_ptr plr_class(void) { return plr_class_aux(plr->pclass, plr->psubclass); }
 
 

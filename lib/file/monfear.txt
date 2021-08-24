@@ -28,67 +28,53 @@
 #
 # Entries by Matt Graham, Andrew Hill, and Topi Ylinen
 
-N:8:Farmer Maggot
+N:h.Maggot
 screams, 'Don't hurt a poor helpless hobbit!'
 yells, 'Where are my vicious dogs when I need them?'
 
-#N:19:Martti Ihrasaari
-N:19:Lion Heart
-N:1059:Mori troll
-N:1060:Noborta Kesyta
-yells, 'I'm a head of state!  You can't *do* this!'
-yells, 'Help! Psycho on the loose!'
-
-N:53:Grip, Farmer Maggot's dog
-N:54:Wolf, Farmer Maggot's dog
-N:55:Fang, Farmer Maggot's dog
+N:C.Grip
+N:C.Wolf
+N:C.Fang
 whimpers.
 pines.
 limps away, howling.
 howls.
 looks at you sadly.
 
-#スメアゴル語は 日本の第一人者 Tessi さんに監修していただきました。
-N:63:Smeagol
+N:h.Smeagol
 says, 'Don't hurt us, mastersisis.'
 says, 'Poor Smeagol, poor Smeagol.'
 says, 'No AH! Don't hurtsis us.'
 
-N:135:Mughash the Kobold Lord
+N:k.Mughash
 screams, 'Cowards! Why did you abandon me?'
 begs for mercy.
 
-N:137:Wormtongue, Agent of Saruman
+N:p.Wormtongue
 begs you to spare his miserable life.
 whines, 'This is not my fault!'
 screams, 'Help! Help!'
 
-N:138:Robin Hood, the Outlaw
+N:p.Robin Hood
 begs you to spare his life.
 says, 'But I'm a GOOD guy, really!'
 says, 'Money? Sure, take it all back!'
 
-#N:169:Brodda, the Easterling
-#N:291:Ulfast, Son of Ulfang
-
-N:180:Orfax, Son of Boldor
-N:237:Boldor, King of the Yeeks
+N:y.Orfax
+N:y.Boldor
 sobs, 'I didn't MEAN it...'
 whimpers and moans.
 
-N:200:Hobbes the Tiger
-yells, 'Ow! Get me back to the comics!'
-
-N:140:Lagduf, the Snaga
-N:186:Grishnakh, the Hill Orc
-N:215:Golfimbul, the Hill Orc Chief
-N:260:Ufthak of Cirith Ungol
-N:314:Shagrat, the Orc Captain
-N:315:Gorbag, the Orc Captain
-N:330:Bolg, Son of Azog
-N:350:Ugluk, the Uruk
-N:356:Lugdush, the Uruk
-N:373:Azog, King of the Uruk-Hai
+N:o.Lagduf
+N:o.Grishnakh
+N:o.Golfimbul
+N:o.Ufthak
+N:o.Shagrat
+N:o.Gorbag
+N:o.Bolg
+N:o.Ugluk
+N:o.Lugdush
+N:o.Azog
 screams, 'Hey, orcs have rights too!'
 says, 'You're just prejudiced against orc-kind, aren't you?'
 begs, 'Spare me and I'll get you Ringil! Really!'
@@ -96,7 +82,7 @@ says, 'Next time, I'm bringing more Uruks with me!'
 says, 'Don't hate me because I'm ugly!'
 whimpers and grovels.
 
-N:382:Mime, the Nibelung
+N:h.Mime
 sobs.
 sobs and whines.
 screams, 'Ohe! Ohe! Au! Au!'
@@ -106,12 +92,12 @@ says, 'I was so good to you, and this is my reward?'
 moans, 'Such ingratitude!'
 says, 'Go now, on your way!'
 
-N:383:Hagen, son of Alberich
+N:h.Hagen
 shouts, 'Vassals, rouse yourselves! Take your weapons, good strong weapons!'
 shouts, 'There is danger! Danger!'
 cries, 'Woe! Woe!'
 
-N:419:Alberich the Nibelung King
+N:h.Alberich
 screams, 'Help! Murder! Murder!'
 screams, 'Aaah! Crushed! Shattered!'
 moans, 'Base trickery, foul deceit!'
@@ -124,132 +110,87 @@ says, 'Smile now, but you can never escape my curse!'
 wails, 'Alas! Alas! Woe is me!'
 moans, 'Do you mock me?'
 
-#N:392:Sangahyando of Umbar
-#N:380:Angamaite of Umbar
-
 #This next may be unnecessarily evil... :-]
 
-N:393:It
+N:..It
 howls, 'I'll be back!'
 whimpers, 'They said this invisibility thing was better than it is!'
 teleports away.
 
-N:409:Kharis the Powerslave
+N:z.Kharis
 howls, 'Nnnnooo!'
 says, 'I don't want to die, I'm a god, why can't I live on?'
 says, 'In my last hour, I'm a slave to the power of death.'
 curses you.
 
-#N:413:Ulwarth, Son of Ulfang
-
 #Grendel's fear line makes sense if you've read "Beowulf"...
 
-N:431:Grendel
+N:O.Grendel
 whines, 'Mommy, save me!'
 
-N:441:Gachapin
-N:1061:Barney the Dinosaur
-begs, 'Don't! Think of the children!'
-screams, 'But I'm a big TV star!'
-sobs, 'All right! I apologize! I really really do!'
-
-#N:489:Bokrug
-
-N:493:Bert the Stone Troll
-N:494:Bill the Stone Troll
-N:495:Tom the Stone Troll
-N:551:Rogrog the Black Troll
+N:T.Bert
+N:T.Bill
+N:T.Tom
+N:T.Rogrog
 says, 'Now, stop it!'
 yells, 'Ey, watch it, you cheeky sod!'
 screams, 'Me mates'll settle yer hash!'
 
-N:1062:Groo the Wanderer
-says, 'Oops... me get in big trouble!'
-
-N:506:Fasolt the Giant
+N:P.Fasolt
 cries, 'Take my life, but not my gold!'
 complains, 'Why do you rush at me? I sought justice, my just payment!'
 whines, 'Why do you threaten me?'
 
-# I have no idea what these next 4 should say, so.... --MG
-#N:506:Fasolt the Giant
-#N:517:Jurt the Living Trump
-#N:573:Lord Borel of Hendrake
-#N:598:Mandor, Master of the Logrus
-
-N:595:Father Dagon
-N:596:Mother Hydra
+N:u.Father
+N:u.Mother
 sobs, 'No! I'm an endangered aquatic species!'
 
-N:606:Loge, Spirit of Fire
+N:E.Loge
 pants and gasps.
 
-N:615:Moire, Queen of Rebma
+N:E.Moire
 wails, 'Help! Murder! Murder!'
 
-N:616:Kavlax the Many-Headed
+N:d.Kavlax
 says, 'This is YOUR fault!' and bites itself.
 blames its problems on the head you've managed to kill.
 says, 'Run while you can, I'll breathe inertia next!'
 
-N:628:Malekith the Accursed
+N:h.Malekith
 says, 'C'mon! I'm sure we can work this out...'
 pleads for his miserable life.
 
-N:642:Jasra, Brand's Mistress
+N:n.Jasra
 hisses, 'We don't die, we multiply!'
 
-#N:651:Strygalldwir
-
-N:660:Rinaldo, son of Brand
-N:670:Jack of Shadows
+N:p.Rinaldo
+N:p.Jack
 screams, 'Not the face! Not the face!'
 says, 'Yikes! Where'd I put my mail-order Cyberdemon?'
 
-#N:681:Chaugnar Faugn, Horror from the Hills
-
-N:686:Judge Death
-N:674:Judge Fear
-N:654:Judge Fire
-N:656:Judge Mortis
+N:W.Death
+N:W.Fear
+N:s.Fire
+N:z.Mortis
 says, 'You'll never get away with this...'
 says, 'Hey! I've got LAWYERS!'
 
-#N:687:Ariel, Queen of Air
 
-N:697:Smaug the Golden
+N:D.Smaug
 groans in disbelief.
 roars furiously.
 howls, 'Black Arrow? NOOOO!'
 howls, 'This CAN'T be happening!'
 
-N:712:Fafner the Dragon
+N:D.Fafner
 wails, 'Who are you that have wounded me so? Speak me your name!'
 complains, 'Who kindled your childish courage to this deadly deed?'
 
-#N:713:Fangorn the Treebeard
-
-N:715:Glaurung, Father of the Dragons
+N:D.Glaurung
 writhes as he spouts black blood from many wounds.
 says, 'I shall be avenged!'
 
-#N:729:Ulik the Troll
-#N:730:Baphomet the Minotaur Lord
-
-N:732:Bull Gates
-sobs, 'OK, Linux doesn't suck. Let me live?'
-screams, 'Is megalomania THAT bad?'
-apologizes for MS-DOS.
-
-N:733:Santa Claus
-sobs, 'Think of the children you'll disappoint!'
-sobs, 'No, Virginia, there isn't... not any more...'
-attempts to buy you off with offers of goodies.
-cries, 'Naughty! You are going on the naughty list!'
-
-#N:738:Khamul the Easterling
-
-N:743:The Phoenix
+N:B.Phoenix
 defiantly caws, 'I shall rise again!'
 
 #N:753:Nidhogg the Hel-Drake
@@ -258,158 +199,141 @@ defiantly caws, 'I shall rise again!'
 #N:762:Fundin Bluecloak
 #N:763:Dworkin Barimen
 
-N:764:Uriel, Angel of Fire
-N:765:Azriel, Angel of Death
-N:769:Raphael, the Messenger
+N:A.Uriel
+N:A.Azriel
+N:A.Raphael
 screams, 'Help! I am undone!'
 says, 'The Most High hath ordained this; I must follow.'
 screams, 'My God, my God, why hast thou forsaken me?'
 
-N:766:Ancalagon the Black
+N:D.Ancalagon
 writhes as he spouts acidic blood from many wounds.
 says, 'My friends the Wyrms of Power will get you!'
 says, 'This would be a lot different if this was Sil!'
 
 
-#N:770:Artsi the Champion of Chaos
-
 # Saruman's first line is a paraphrase from LoTR when he insults Theoden.
 
-N:771:Saruman of Many Colours
+N:p.Saruman
 says, 'Wait! Look behind you!'
 howls, 'Wormtongue! Where are you, you bastard?'
 
-N:772:Gandalf the Grey
+N:p.Gandalf
 screams, 'How have things come to this... again?!'
 yells, 'Ouch!'
 
-N:777:Bast, Goddess of Cats
+N:f.Bast
 spits, 'I'll be back, worse than ever!'
 snarls weakly.
 
-N:780:Vlad Dracula, Prince of Darkness
+N:V.Vlad
 howls with pain and fear.
 
-#N:787:Hypnos, Lord of Sleep
-#N:792:Tselakus, the Dreadlord
-#N:796:The Norsa
-#N:805:Omarax the Eye Tyrant
-#N:814:Yig, Father of Serpents
 
 # I have little familiarity with the Amber books, so these are left
 # for others to fill in as they see fit.
 
-
-N:820:Corwin, Lord of Avalon
+N:p.Corwin
 says, 'Who am I? Where is here? Why do you attack me?'
 says, 'Let's make it a clean game as Olympics'
 says, 'Something something Champs d'Elysees'
 
-N:773:Brand, Mad Visionary of Amber
-N:789:Bleys, Master of Manipulation
-N:791:Fiona the Sorceress
-N:794:Julian, Master of Forest Amber
-N:799:Caine, the Conspirator
-N:807:Gerard, Strongman of Amber
-N:813:Eric the Usurper
-N:824:Benedict, the Ideal Warrior
+N:p.Brand
+N:p.Bleys
+N:p.Fiona
+N:p.Julian
+N:p.Caine
+N:p.Gerard
+N:p.Eric
+N:p.Benedict
 says, 'Do you know the terrors of Amberite blood curse?!'
 says, 'Dammit! I knew I should have brought my Trumps along!'
 
-
-N:825:The Witch-King of Angmar
+N:W.King
 wails, 'Nooooo!'
 
-#N:828:Ithaqua the Windwalker
-
-N:817:Hela, Queen of the Dead
-N:834:Ymir the Ice Giant
-N:835:Loki the Trickster
-N:837:Surtur the Giant Fire Demon
+N:p.Hela
+N:P.Ymir
+N:P.Loki
+N:P.Surtur
 shouts, 'Why didn't I just stay in Asgard?'
 offers you everything in exchange for life.
 yells, 'I'll be back, with a squad of Cyberdemons!'
 
-N:655:Ubbo-Sathla, the Unbegotten Source
-N:695:Zoth-Ommog
-N:706:Yibb-Tstll the Patient One
-N:734:Eihort, the Thing in the Labyrinth
-N:735:The King in Yellow
-N:757:Hastur the Unspeakable
-N:760:Nyogtha, the Thing that Should not Be
-N:761:Ahtu, Avatar of Nyarlathotep
-N:767:Daoloth, the Render of the Veils
-N:788:Glaaki
-N:797:Rhan-Tegoth
-N:806:Tsathoggua, the Sleeper of N'kai
-N:809:Atlach-Nacha, the Spider God
-N:810:Y'golonac
-N:826:Cyaegha
-N:833:Abhoth, Source of Uncleanness
-N:841:Shuma-Gorath
-N:845:Yog-Sothoth, the All-in-One
-N:848:Shub-Niggurath, Black Goat of the Woods
-N:849:Nodens, Lord of the Great Abyss
-N:851:Nyarlathotep, the Crawling Chaos
-N:857:Great Cthulhu
+N:j.Ubbo-Sathla
+N:R.Zoth-Ommog
+N:P.Yibb-Tstll
+N:j.Eihort
+N:L.King
+N:H.Hastur
+N:j.Nyogtha
+N:#.Ahtu
+N:U.Daoloth
+N:l.Glaaki
+N:S.Rhan-Tegoth
+N:r.Tsathoggua
+N:S.Atlach-Nacha
+N:H.Y'golonac
+N:e.Cyaegha
+N:J.Abhoth
+N:e.Shuma-Gorath
+N:j.Yog-Sothoth
+N:U.Shub-Niggurath
+N:P.Nodens
+N:U.Nyarlathotep
+N:U.Cthulhu
 sobs, 'I'm not bad, I was just born this way!'
 gibbers weakly.
 mumbles, 'kill -9 adventurer, kill -9 adventurer', and you say 'No such process'
 oozes greenish blood from many wounds.
 burbles 'kyary pamyu pamyu!'
 
-N:850:Carcharoth, the Jaws of Thirst
-N:846:Fenris Wolf
-N:840:Draugluin, Sire of All Werewolves
+N:C.Carcharoth
+N:C.Fenris
+N:C.Draugluin
 cringes and whimpers.
 says, 'Look, I promise I won't bite the mailman anymore!'
 says, 'Hey, put that rolled-up newspaper down!'
 begins a song of oaths.
 
-N:830:Cantoras, the Skeletal Lord
-N:831:Mephistopheles, Lord of Hell
-N:818:The Mouth of Sauron
-N:819:Klingsor, Evil Master of Magic
-N:804:Vecna, the Emperor Lich
-N:844:Kaschei the Immortal
-N:856:Gothmog, the High Captain of Balrogs
-N:858:Sauron, the Sorcerer
-N:860:Oberon, King of Amber
+N:s.Cantoras
+N:U.Mephistopheles
+N:p.Mouth of Sauron
+N:p.Klingsor
+N:L.Vecna
+N:L.Kaschei
+N:U.Gothmog
+N:p.Sauron
+N:p.Oberon
 screams, 'This CAN'T be happening!'
 shouts, 'Kill me if you want, the Boss will getcha!'
 
-N:862:The Serpent of Chaos
-N:883:Zombified Serpent of Chaos
+N:J.Chaos
 screams, 'This CAN'T be happening!'
 
-N:873:Combat-Echizen
+N:p.Echizen
 says shiftlessly, 'Shit...!'
 says shiftlessly, 'Yegg...!'
 says shiftlessly, 'yariyagattana!'
 says 'I knew I should have picked the Mighty personality!'
 
-N:878:Dio Brando
+N:V.Dio
 says, 'This CAN'T be happening! I feel horror?!'
 
-N:880:Wong
+N:p.Wong
 says, 'You are no fool.'
 says, 'What you are doing is pointless.'
 says, 'Two Wongs don't make a Wight!'
 
-N:921:Internet Exploder
-is slow.
-throws off some dorky packets.
-says, 'Can't we just fix this with a patch???'
-
-N:1004:Pip, the Braver from Another World
+N:p.Pip
 says, 'Magic ducks, Cover me. I don't shit hits the fan!'
 
 
-N:1005:Antharom, Magic Master in the Castle of Darkness
+N:p.Ansalom
 cries, 'Oh! My gun dogs was dead! Damn it!'
 shouts, 'You! have been and killed my darling gun dogs!'
 
-N:1029:Baby satan
+N:u.demonite
 teleports away.
 casts a Globe of Invulnerability.
 magically summons Cyberdemons!
@@ -420,12 +344,10 @@ invokes a starburst.
 throw a Psyco-Spear.
 invokes the Hand of Doom!
 casts a Globe of Invulnerability.
-#が自分の傷に集中した。
-#↑これは英文の構造上ちょっと無理っぽい
 magically summons Lords of Amber!
 yells 'The World! Time has stopped!'
 
-N:1094:The Variant Maintainer
+N:p.VM
 whimpers, 'Why does everybody try to kill me?'
 pleads, 'Let's make a deal instead. What do you want? Ringil? Vorpal Blade? Harpies?'
 boasts, 'You can kill me, but I will only have my revenge later!'

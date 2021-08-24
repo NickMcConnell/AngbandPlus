@@ -5,42 +5,37 @@
  ****************************************************************************/
 static cptr _rogue_pick_pocket(int power)
 {
-    int           y, x, dir;
-    monster_type *m_ptr;
-    monster_race *r_ptr;
-    char          m_name[MAX_NLEN];
-    char          o_name[MAX_NLEN];
+    int     dir;
+    point_t pos;
+    mon_ptr mon;
+    char    m_name[MAX_NLEN];
+    char    o_name[MAX_NLEN];
 
-    power += p_ptr->lev;
-    power += adj_stat_save[p_ptr->stat_ind[A_DEX]];
+    power += plr->lev;
+    power += adj_stat_save[plr->stat_ind[A_DEX]];
 
     if (!get_rep_dir2(&dir)) return NULL;
     if (dir == 5) return NULL;
 
-    y = p_ptr->pos.y + ddy[dir];
-    x = p_ptr->pos.x + ddx[dir];
-
-    m_ptr = mon_at_xy(x, y);
-    if (!m_ptr)
+    pos = point_step(plr->pos, dir);
+    mon = dun_mon_at(cave, pos);
+    if (!mon)
+    {
+        msg_print("There is no monster.");
+        return NULL;
+    }
+    if (!mon->ml || plr_tim_find(T_HALLUCINATE)) /* Can't see it, so can't steal! */
     {
         msg_print("There is no monster.");
         return NULL;
     }
 
-    r_ptr = mon_race_lookup(m_ptr->r_idx);
+    monster_desc(m_name, mon, 0);
 
-    if (!m_ptr->ml || plr_tim_find(T_HALLUCINATE)) /* Can't see it, so can't steal! */
+    if ( !mon_save_aux(mon, power)
+      || (mon_tim_find(mon, MT_SLEEP) && !mon_save_aux(mon, power)))
     {
-        msg_print("There is no monster.");
-        return NULL;
-    }
-
-    monster_desc(m_name, m_ptr, 0);
-
-    if ( !mon_save_aux(m_ptr->r_idx, power)
-      || (mon_tim_find(m_ptr, MT_SLEEP) && !mon_save_aux(m_ptr->r_idx, power)))
-    {
-        obj_ptr loot = mon_pick_pocket(m_ptr);
+        obj_ptr loot = mon_pick_pocket(mon);
         if (!loot)
         {
             msg_print("There is nothing to steal!");
@@ -48,18 +43,18 @@ static cptr _rogue_pick_pocket(int power)
         else
         {
             object_desc(o_name, loot, 0);
-            if (mon_save_aux(m_ptr->r_idx, power))
+            if (mon_save_aux(mon, power))
             {
                 msg_format("Oops! You drop %s.", o_name);
-                drop_near(loot, point_create(x, y), -1);
+                dun_drop_near(cave, loot, pos);
             }
             else if (loot->tval == TV_GOLD)
             {
-                msg_format("You steal %d gold pieces worth of %s.", (int)loot->pval, o_name);
+                msg_format("You steal %d gold pieces worth of %s.", loot->pval, o_name);
                 sound(SOUND_SELL);
-                p_ptr->au += loot->pval;
+                plr->au += loot->pval;
                 stats_on_gold_find(loot->pval);
-                p_ptr->redraw |= PR_GOLD;
+                plr->redraw |= PR_GOLD;
             }
             else
             {
@@ -68,122 +63,119 @@ static cptr _rogue_pick_pocket(int power)
             }
         }
 
-        if ((r_ptr->flags1 & RF1_UNIQUE) || mon_save_aux(m_ptr->r_idx, power))
+        if (mon_is_unique(mon) || mon_save_aux(mon, power))
         {
-            mon_tim_remove(m_ptr, MT_SLEEP);
-            if ( allow_ticked_off(r_ptr)
-              && ((r_ptr->flags1 & RF1_UNIQUE) || mon_save_aux(m_ptr->r_idx, power)) )
+            mon_tim_remove(mon, MT_SLEEP);
+            if ( allow_ticked_off(mon->race)
+              && (mon_is_unique(mon) || mon_save_aux(mon, power)) )
             {
-                mon_anger(m_ptr);
+                mon_anger(mon);
             }
         }
 
         if (loot)
         {
-            if (mon_save_aux(m_ptr->r_idx, power))
+            if (mon_save_aux(mon, power))
                 msg_print("You fail to run away!");
             else
             {
-                if (p_ptr->lev < 35 || get_check("Run away?"))
-                    teleport_player(25 + p_ptr->lev/2, 0L);
+                if (plr->lev < 35 || get_check("Run away? "))
+                    teleport_player(25 + plr->lev/2, 0L);
             }
             obj_free(loot);
         }
     }
-    else if (mon_tim_find(m_ptr, MT_SLEEP))
+    else if (mon_tim_find(mon, MT_SLEEP))
     {
         msg_print("Failed!");
-        mon_tim_remove(m_ptr, MT_SLEEP);
-        if (allow_ticked_off(r_ptr))
-            mon_anger(m_ptr);
+        mon_tim_remove(mon, MT_SLEEP);
+        if (allow_ticked_off(mon->race))
+            mon_anger(mon);
     }
-    else if (allow_ticked_off(r_ptr))
+    else if (allow_ticked_off(mon->race))
     {
         msg_format("Failed! %^s looks very mad!", m_name);
-        mon_anger(m_ptr);
+        mon_anger(mon);
     }
     else
     {
         msg_print("Failed!");
     }
 
-    if (is_friendly(m_ptr) || is_pet(m_ptr))
+    if (mon_is_friendly(mon) || mon_is_pet(mon))
     {
         msg_format("%^s suddenly becomes hostile!", m_name);
-        set_hostile(m_ptr);
+        set_hostile(mon);
     }
     return "";
 }
 
 static cptr _rogue_negotiate(void)
 {
-    monster_type *m_ptr = plr_target_mon();
-    monster_race *r_ptr;
-    char          m_name[MAX_NLEN];
+    mon_ptr mon = plr_target_mon();
+    char    m_name[MAX_NLEN];
 
-    if (!m_ptr) return NULL;
+    if (!mon) return NULL;
 
-    r_ptr = mon_race_lookup(m_ptr->r_idx);
-
-    if (!m_ptr->ml || plr_tim_find(T_HALLUCINATE))
+    if (!mon->ml || plr_tim_find(T_HALLUCINATE))
     {
         msg_print("There is no monster.");
         return NULL;
     }
 
-    monster_desc(m_name, m_ptr, 0);
+    monster_desc(m_name, mon, 0);
 
-    if (is_pet(m_ptr) || is_friendly(m_ptr))
+    if (mon_is_pet(mon) || mon_is_friendly(mon))
     {
         msg_format("%^s is already in your services.", m_name);
         return NULL;
     }
 
-    mon_tim_delete(m_ptr, MT_SLEEP);
+    mon_tim_delete(mon, MT_SLEEP);
 
-    if (r_ptr->flags2 & RF2_THIEF)
-        mon_lore_2(m_ptr, RF2_THIEF);
+    if (mon_is_thief(mon))
+        mon_lore_thief(mon);
 
-    if (!(r_ptr->flags2 & RF2_THIEF))
+    if (!mon_is_thief(mon))
     {
         msg_format("%^s is not open to any sort of deal!", m_name);
     }
-    else if (!mon_save_p(m_ptr->r_idx, A_CHR))
+    else if (!mon_save_p(mon, A_CHR))
     {
-        int cost = 10 + r_ptr->level * 100;
+        int cost = 10 + mon_lvl(mon) * 100;
 
-        if (r_ptr->flags1 & RF1_UNIQUE)
+        if (mon_is_unique(mon))
             cost *= 10;
 
-        if (p_ptr->au >= cost)
+        if (plr->au >= cost)
         {
             msg_format("%^s says 'My services will cost you %d gold pieces.'", m_name, cost);
 
-            if (get_check("Do you pay?"))
+            if (get_check("Do you pay? "))
             {
                 sound(SOUND_SELL);
-                p_ptr->au -= cost;
+                plr->au -= cost;
                 stats_on_gold_services(cost);
-                p_ptr->redraw |= PR_GOLD;
+                plr->redraw |= PR_GOLD;
 
-                if (mon_save_p(m_ptr->r_idx, A_CHR))
+                if (mon_save_p(mon, A_CHR))
                 {
                     msg_format("%^s says 'Fool! Never trust a thief!'", m_name);
-                    mon_anger(m_ptr);
+                    mon_anger(mon);
                 }
                 else
                 {
                     msg_format("%^s says 'Deal!'", m_name);
-                    if (!(r_ptr->flags1 & RF1_UNIQUE) && !mon_save_p(m_ptr->r_idx, A_CHR))
-                        set_pet(m_ptr);
+                    if (!mon_is_unique(mon) && !mon_save_p(mon, A_CHR))
+                        set_pet(mon);
                     else
-                        set_friendly(m_ptr);
+                        set_friendly(mon);
                 }
             }
             else
             {
                 msg_format("%^s says 'Scoundrel!'", m_name);
-                mon_anger(m_ptr);
+                mon_anger(mon);
             }
         }
         else
@@ -194,7 +186,7 @@ static cptr _rogue_negotiate(void)
     else
     {
         msg_format("%^s is insulted you would ask such a question!", m_name);
-        mon_anger(m_ptr);
+        mon_anger(mon);
     }
     return "";
 }
@@ -210,7 +202,7 @@ static void _assassinate_check(plr_attack_ptr ctx)
 }
 static void _assassinate_mod_damage(plr_attack_ptr ctx)
 {
-    if (mon_is_unique(ctx->mon) || mon_save_p(ctx->race->id, A_DEX))
+    if (mon_is_unique(ctx->mon) || mon_save_p(ctx->mon, A_DEX))
     {
         ctx->dam *= 5;
         ctx->dam_drain *= 2;
@@ -231,6 +223,13 @@ static bool _assassinate(void)
     return plr_attack_special_aux(&ctx, 1);
 }
 
+static void _panic(void)
+{
+    if (randint0(plr->skills.dis) < 7)
+        msg_print("You failed to teleport.");
+    else
+        teleport_player(30, 0);
+}
 
 cptr do_burglary_spell(int spell, int mode)
 {
@@ -240,9 +239,13 @@ cptr do_burglary_spell(int spell, int mode)
     bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
     bool fail = (mode == SPELL_FAIL) ? TRUE : FALSE;
 
-    int plev = p_ptr->lev;
+    int plev = plr->lev;
     int rad = DETECT_RAD_DEFAULT;
+    int rng = 0;
     int dir;
+    dice_t dice = {0};
+
+    dice.scale = spell_power(1000);
 
     if (plev >= 45)
         rad = DETECT_RAD_ALL;
@@ -256,124 +259,85 @@ cptr do_burglary_spell(int spell, int mode)
         if (name) return "Detect Traps";
         if (desc) return "Detects nearby traps.";
         if (info) return info_radius(rad);
-        if (cast)
-            detect_traps(rad, TRUE);
+        if (cast) detect_traps(rad, TRUE);
         break;
-
     case 1:
         if (name) return "Disarm Traps";
         if (desc) return "Fires a beam which disarms traps.";
-
-        if (cast)
-        {
-            if (!get_aim_dir(&dir)) return NULL;
-            disarm_trap(dir);
-        }
+        if (cast && !plr_cast_beam(GF_KILL_TRAP, dice)) return NULL;
         break;
-
     case 2:
         if (name) return "Detect Treasure";
         if (desc) return "Detects all treasures in your vicinity.";
         if (info) return info_radius(rad);
-
-        if (cast)
-        {
+        if (cast) {
             detect_treasure(rad);
             detect_objects_gold(rad);
         }
         break;
-
     case 3:
         if (name) return "Detect Objects";
         if (desc) return "Detects all items in your vicinity.";
         if (info) return info_radius(rad);
-
-        if (cast)
-            detect_objects_normal(rad);
+        if (cast) detect_objects_normal(rad);
         break;
-
     case 4:
         if (name) return "See in the Dark";
         if (desc) return "Gives infravision for a while.";
-        {
-            int base = spell_power(100);
-
-            if (info) return info_duration(base, base);
-
-            if (cast)
-                plr_tim_add(T_INFRAVISION, base + randint1(base));
-        }
+        dice.dd = 1;
+        dice.ds = 100;
+        dice.base = 100;
+        if (info) return dice_info_dur(dice);
+        if (cast) plr_tim_add(T_INFRAVISION, dice_roll(dice));
         break;
-
     case 5:
         if (name) return "Tread Softly";
         if (desc) return "Grants enhanced stealth for a bit.";
-        {
-            int base = spell_power(50);
-
-            if (info) return info_duration(base, base);
-            if (cast) plr_tim_add(T_STEALTH, base + randint1(base));
-        }
+        dice.dd = 1;
+        dice.ds = 50;
+        dice.base = 50;
+        if (info) return dice_info_dur(dice);
+        if (cast) plr_tim_add(T_STEALTH, dice_roll(dice));
         break;
-
     case 6:
         if (name) return "Minor Getaway";
         if (desc) return "Teleport medium distance.";
-
-        {
-            int range = 30;
-
-            if (info) return info_range(range);
-
-            if (cast)
-            {
-                if (mut_present(MUT_ASTRAL_GUIDE))
-                    energy_use = 30;
-                teleport_player(range, 0L);
-            }
+        rng = 30;
+        if (info) return info_range(rng);
+        if (cast) {
+            if (mut_present(MUT_ASTRAL_GUIDE))
+                energy_use = 30;
+            teleport_player(rng, 0);
         }
         break;
-
     case 7:
         if (name) return "Set Minor Trap";
         if (desc) return "Sets a weak trap under you. This trap will have various weak effects on a passing monster.";
-
-        if (cast)
-            set_trap(p_ptr->pos.y, p_ptr->pos.x, feat_rogue_trap1);
+        if (cast) dun_place_plr_trap_minor(cave, plr->pos);
         break;
-
     /* Thieving Ways */
     case 8:
         if (name) return "Map Escape Route";
         if (desc) return "Maps nearby area.";
         if (info) return info_radius(rad);
-
-        if (cast)
-            map_area(rad);
+        if (cast) map_area(rad);
         break;
-
     case 9:
         if (name) return "Pick Pocket";
         if (desc) return "Attempt to steal an item or treasure from an adjacent monster.";
-
-        if (cast)
-            return _rogue_pick_pocket(0);
+        if (cast) return _rogue_pick_pocket(0);
         break;
-
     case 10:
         if (name) return "Negotiate";
         if (desc) return "Attempt to bargain for the services of a nearby thief.";
-
-        if (cast)
-            return _rogue_negotiate();
+        if (cast) return _rogue_negotiate();
         break;
-
     case 11:
         if (name) return "Fetch Object";
         if (desc) return "Pulls a distant item close to you.";
 
-        {
-            int weight = spell_power(plev * 15);
+        { /* XXX */
+            int weight = spell_power(plr->lev * 15);
             if (info) return info_weight(weight);
             if (cast)
             {
@@ -386,244 +350,148 @@ cptr do_burglary_spell(int spell, int mode)
     case 12:
         if (name) return "Eye for Danger";
         if (desc) return "Gives telepathy for a while.";
-        {
-            int base = spell_power(25);
-            int sides = spell_power(30);
-
-            if (info) return info_duration(base, sides);
-
-            if (cast)
-                plr_tim_add(T_TELEPATHY, randint1(sides) + base);
-        }
+        dice.dd = 1;
+        dice.ds = 30;
+        dice.base = 25;
+        if (info) return dice_info_dur(dice);
+        if (cast) plr_tim_add(T_TELEPATHY, dice_roll(dice));
         break;
-
     case 13:
         if (name) return "Examine Loot";
         if (desc) return "Identifies an item.";
-
-        if (cast)
-        {
-            if (!ident_spell(NULL))
-                return NULL;
-        }
+        if (cast && !ident_spell(NULL)) return NULL;
         break;
-
     case 14:
         if (name) return "Set Major Trap";
         if (desc) return "Sets a trap under you. This trap will have various effects on a passing monster.";
-
-        if (cast)
-            set_trap(p_ptr->pos.y, p_ptr->pos.x, feat_rogue_trap2);
+        if (cast) dun_place_plr_trap_major(cave, plr->pos);
         break;
-
     case 15:
         if (name) return "Make Haste";
         if (desc) return "Hastes you for a while.";
-
-        {
-            int base = spell_power(plev);
-            int sides = spell_power(20 + plev);
-
-            if (info) return info_duration(base, sides);
-
-            if (cast)
-                plr_tim_add(T_FAST, randint1(sides) + base);
-        }
+        dice.dd = 1;
+        dice.ds = 20 + plr->lev;
+        dice.base = plr->lev;
+        if (info) return dice_info_dur(dice);
+        if (cast) plr_tim_add(T_FAST, dice_roll(dice));
         break;
-
     /* Great Escapes */
     case 16:
         if (name) return "Create Stairs";
         if (desc) return "Creates a flight of stairs underneath you.";
-
-        if (cast)
-            dun_create_stairs(cave, FALSE);
+        if (cast) dun_create_stairs(cave, FALSE);
         break;
-
     case 17:
         if (name) return "Panic Hit";
         if (desc) return "Attack an adjacent monster and attempt a getaway.";
         if (cast && !plr_attack_special(PLR_HIT_TELEPORT, 0)) return NULL;
         break;
-
     case 18:
         if (name) return "Panic Shot";
         if (desc) return "Shoot a nearby monster and attempt a getaway.";
-
-        if (cast)
-        {
-            if (!do_cmd_fire()) return NULL;
-            if (randint0(p_ptr->skills.dis) < 7)
-                msg_print("You failed to teleport.");
-            else
-                teleport_player(30, 0);
+        if (cast) {
+            if (!plr_shoot()) return NULL;
+            _panic();
         }
         break;
-
     case 19:
         if (name) return "Panic Summons";
         if (desc) return "Summon assistance and attempt a getaway.";
-
-        if (cast)
-        {
-            trump_summoning(damroll(2, 3), !fail, p_ptr->pos, 0, SUMMON_THIEF, PM_ALLOW_GROUP);
-
-            if (randint0(p_ptr->skills.dis) < 7)
-                msg_print("You failed to teleport.");
-            else
-                teleport_player(30, 0);
+        if (cast) {
+            trump_summoning(damroll(2, 3), !fail, plr->pos, 0, SUMMON_THIEF, PM_ALLOW_GROUP);
+            _panic();
         }
         break;
-
     case 20:
         if (name) return "Panic Traps";
         if (desc) return "Set multiple weak traps and attempt a getaway.";
-
-        if (cast)
-        {
-            int y = 0, x = 0;
+        if (cast) {
             int dir;
-
             for (dir = 0; dir <= 8; dir++)
             {
-                y = p_ptr->pos.y + ddy_ddd[dir];
-                x = p_ptr->pos.x + ddx_ddd[dir];
-
-                set_trap(y, x, feat_rogue_trap1);
+                point_t p = point_step(plr->pos, ddd[dir]);
+                dun_place_plr_trap_minor(cave, p);
             }
-
-            if (randint0(p_ptr->skills.dis) < 7)
-                msg_print("You failed to teleport.");
-            else
-                teleport_player(30, 0);
+            _panic();
         }
         break;
-
     case 21:
         if (name) return "Flee Level";
         if (desc) return "Flee your current level without delay.";
-
-        if (cast)
-        {
-            if (!get_check("Are you sure? (Flee Level)")) return NULL;
-            teleport_level(0);
+        if (cast) {
+            if (!get_check("Are you sure? (Flee Level) ")) return NULL;
+            dun_teleport_level_plr(cave);
         }
         break;
-
     case 22:
         if (name) return "New Beginnings";
         if (desc) return "Recreates current dungeon level after a short delay.";
-
-        if (cast)
-            alter_reality();
+        if (cast) alter_reality();
         break;
-
     case 23:
         if (name) return "Major Getaway";
         if (desc) return "Teleport long distance with very little energy use.";
-
-        {
-            int range = spell_power(plev * 5);
-
-            if (info) return info_range(range);
-
-            if (cast)
-            {
-                energy_use = 15;
-                teleport_player(range, 0L);
-            }
+        rng = 5*plr->lev;
+        if (info) return info_range(rng);
+        if (cast) {
+            teleport_player(rng, 0);
+            energy_use = 15;
         }
         break;
-
     /* Book of Shadows */
     case 24:
         if (name) return "Protect Loot";
         if (desc) return "For a long time, items in your inventory will have a chance at resisting destruction.";
-        {
-            int base = spell_power(plev*2);
-            int sides = spell_power(plev*2);
-            if (info) return info_duration(base, sides);
-            if (cast) plr_tim_add(T_INV_PROT, randint1(sides) + base);
-        }
+        dice.dd = 1;
+        dice.ds = 2*plr->lev;
+        dice.base = 2*plr->lev;
+        if (info) return dice_info_dur(dice);
+        if (cast) plr_tim_add(T_INV_PROT, dice_roll(dice));
         break;
-
     case 25:
         if (name) return "Teleport To";
         if (desc) return "Teleport a visible monster next to you without disturbing it.";
 
         if (cast)
         {
-            mon_ptr      mon = plr_target_mon();
-            mon_race_ptr race;
-            char         m_name[80];
+            mon_ptr mon = plr_target_mon();
+            char    m_name[80];
 
             if (!mon) return NULL;
-            race = mon_race(mon);
             monster_desc(m_name, mon, 0);
-            if (race->flagsr & RFR_RES_TELE)
+            if (_1d(100) <= mon_res_pct(mon, GF_TELEPORT))
             {
-                if ((race->flags1 & (RF1_UNIQUE)) || (race->flagsr & RFR_RES_ALL))
-                {
-                    mon_lore_r(mon, RFR_RES_TELE);
-                    msg_format("%s is unaffected!", m_name);
-                    break;
-                }
-                else if (race->level > randint1(100))
-                {
-                    mon_lore_r(mon, RFR_RES_TELE);
-                    msg_format("%s resists!", m_name);
-                    break;
-                }
+                mon_lore_resist(mon, GF_TELEPORT);
+                msg_format("%s resists!", m_name);
             }
-            msg_format("You command %s to return.", m_name);
-            teleport_monster_to(mon->id, p_ptr->pos.y, p_ptr->pos.x, 100, TELEPORT_PASSIVE);
+            else
+            {
+                msg_format("You command %s to return.", m_name);
+                teleport_monster_to(mon, plr->pos, 100, TELEPORT_PASSIVE);
+            }
         }
         break;
-
     case 26:
         if (name) return "Master Thievery";
         if (desc) return "The ultimate in thievery. With a light touch, you attempt to relieve monsters of their goods.";
-
-        if (cast)
-            return _rogue_pick_pocket(spell_power(100));
+        if (cast) return _rogue_pick_pocket(spell_power(100));
         break;
-
     case 27:
         if (name) return "Shadow Storm";
         if (desc) return "Fires a huge ball of darkness.";
-
-        {
-            int dam = spell_power(10 * (plev - 20) + p_ptr->to_d_spell);
-            int rad = spell_power(4);
-
-            if (info) return info_damage(0, 0, dam);
-
-            if (cast)
-            {
-                if (!get_fire_dir(&dir)) return NULL;
-                fire_ball(GF_DARK, dir, dam, rad);
-            }
-        }
+        dice.base = 10*(plr->lev - 20) + plr->to_d_spell;
+        if (info) return dice_info_dam(dice);
+        if (cast && !plr_cast_ball(4, GF_DARK, dice)) return NULL;
         break;
-
     case 28:
         if (name) return "Hide in Shadows";
         if (desc) return "You become shrouded in darkness, your torch light magically dimmed.";
-        {
-            int d = plev;
-            if (info) return info_duration(spell_power(d), spell_power(d));
-            if (cast)
-            {
-                if (plr_tim_find(T_SUPERSTEALTH))
-                {
-                    msg_print("You are already hiding in the shadows.");
-                    return NULL;
-                }
-                plr_tim_add(T_SUPERSTEALTH, spell_power(randint1(d) + d));
-            }
-        }
+        dice.dd = 1;
+        dice.ds = plr->lev;
+        dice.base = plr->lev;
+        if (info) return dice_info_dur(dice);
+        if (cast) plr_tim_add(T_SUPERSTEALTH, dice_roll(dice)); /* TF_IGNORE */
         break;
-
     case 29:
         if (name) return "Den of Thieves";
         if (desc) return "As a Thief Lord, you may summon assistance from your minions at will.";
@@ -637,30 +505,25 @@ cptr do_burglary_spell(int spell, int mode)
 
                 while (attempt--)
                 {
-                    pos = scatter(p_ptr->pos, 4);
-                    if (cave_empty_at(pos)) break;
+                    pos = scatter(plr->pos, 4);
+                    if (dun_allow_mon_at(cave, pos)) break;
                 }
                 if (attempt < 0) continue;
-                summon_specific(-1, pos, plev*3/2, SUMMON_THIEF, PM_FORCE_PET | PM_HASTE);
+                summon_specific(who_create_plr(), pos, plev*3/2, SUMMON_THIEF, PM_FORCE_PET | PM_HASTE);
             }
         }
         break;
-
     case 30:
         if (name) return "Set Ultimate Trap";
         if (desc) return "Sets an extremely powerful trap under you. This trap will have various strong effects on a passing monster.";
-
-        if (cast)
-            set_trap(p_ptr->pos.y, p_ptr->pos.x, feat_rogue_trap3);
+        if (cast) dun_place_plr_trap_ultimate(cave, plr->pos);
         break;
-
     case 31:
         if (name) return "Assassinate";
         if (desc) return "Attempt to instantly kill a sleeping monster.";
         if (cast && !_assassinate()) return NULL;
         break;
     }
-
     return "";
 }
 
@@ -671,13 +534,14 @@ static void _calc_bonuses(void)
 {
     /* rogues are decent shooters all around, but especially good with slings */
     slot_t slot = equip_find_obj(TV_BOW, SV_SLING); /* fyi, shooter_info not set yet ... */
-    if (slot) p_ptr->skills.thb += 20 + p_ptr->lev;
+    if (slot) plr->skills.thb += 20 + plr->lev;
 
-    p_ptr->ambush = 300 + p_ptr->lev*4;
-    p_ptr->backstab = 150;
+    plr->ambush = 300 + plr->lev*4;
+    plr->backstab = 150;
+    plr->shoot_fleeing = 300;
 
-    if (p_ptr->realm1 == REALM_BURGLARY && equip_find_ego(EGO_GLOVES_THIEF))
-        p_ptr->dec_mana++;
+    if (plr->realm1 == REALM_BURGLARY && equip_find_ego(EGO_GLOVES_THIEF))
+        plr->dec_mana++;
 }
 
 static caster_info * _caster_info(void)
@@ -690,11 +554,11 @@ static caster_info * _caster_info(void)
         me.encumbrance.max_wgt = 400;
         me.encumbrance.weapon_pct = 33;
         me.encumbrance.enc_wgt = 1000;
-        me.realm1_choices = CH_SORCERY | CH_DEATH | CH_TRUMP | CH_ARCANE | CH_ENCHANT | CH_BURGLARY;
+        me.realm1_choices = CH_SORCERY | CH_DEATH | CH_TRUMP | CH_ARCANE | CH_ENCHANT | CH_BURGLARY | CH_ILLUSION;
         me.options = CASTER_GLOVE_ENCUMBRANCE;
         init = TRUE;
     }
-    if (p_ptr->realm1 == REALM_BURGLARY)
+    if (plr->realm1 == REALM_BURGLARY)
     {
         me.which_stat = A_DEX;
         me.min_level = 1;
@@ -716,7 +580,7 @@ static void _birth(void)
     plr_birth_obj_aux(TV_SCROLL, SV_SCROLL_TELEPORT, randint1(3));
     plr_birth_spellbooks();
 
-    p_ptr->au += 200;
+    plr->au += 200;
 }
 
 /****************************************************************************
@@ -729,7 +593,7 @@ plr_class_ptr rogue_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 45,  37,  36,   5,  32,  24,  60,  60};
-    skills_t xs = { 15,  12,  10,   0,   0,   0,  21,  14};
+    skills_t xs = { 75,  60,  50,   0,   0,   0, 105,  70};
 
         me = plr_class_alloc(CLASS_ROGUE);
         me->name = "Rogue";

@@ -32,19 +32,19 @@ void death_scythe_miss(object_type *o_ptr, int hand, int skill)
     else
     {
         cmsg_print(TERM_VIOLET, "Your scythe returns to you!");
-        dd += p_ptr->attack_info[hand].to_dd;
-        ds += p_ptr->attack_info[hand].to_ds;
-        to_h += p_ptr->attack_info[hand].to_h;
-        to_d += p_ptr->attack_info[hand].to_d;
+        dd += plr->attack_info[hand].to_dd;
+        ds += plr->attack_info[hand].to_ds;
+        to_h += plr->attack_info[hand].to_h;
+        to_d += plr->attack_info[hand].to_d;
     }
 
     k = damroll(dd, ds);
     {
         int mult;
-        switch (p_ptr->mimic_form)
+        switch (plr->mimic_form)
         {
         case MIMIC_NONE:
-            switch (p_ptr->prace)
+            switch (plr->prace)
             {
                 case RACE_YEEK:
                 case RACE_KLACKON:
@@ -84,23 +84,23 @@ void death_scythe_miss(object_type *o_ptr, int hand, int skill)
             mult = 10;break;
         }
 
-        if (p_ptr->align < 0 && mult < 20)
+        if (plr->align < 0 && mult < 20)
             mult = 20;
-        if (!res_save_default(RES_ACID) && mult < 25)
+        if (!res_save_default(GF_ACID) && mult < 25)
             mult = 25;
-        if (!res_save_default(RES_ELEC) && mult < 25)
+        if (!res_save_default(GF_ELEC) && mult < 25)
             mult = 25;
-        if (!res_save_default(RES_FIRE) && mult < 25)
+        if (!res_save_default(GF_FIRE) && mult < 25)
             mult = 25;
-        if (!res_save_default(RES_COLD) && mult < 25)
+        if (!res_save_default(GF_COLD) && mult < 25)
             mult = 25;
-        if (!res_save_default(RES_POIS) && mult < 25)
+        if (!res_save_default(GF_POIS) && mult < 25)
             mult = 25;
 
-        if (obj_has_flag(o_ptr, OF_BRAND_MANA) && (p_ptr->csp > (p_ptr->msp / 30)))
+        if (obj_has_flag(o_ptr, OF_BRAND_MANA) && (plr->csp > (plr->msp / 30)))
         {
-            p_ptr->csp -= (1+(p_ptr->msp / 30));
-            p_ptr->redraw |= (PR_MANA);
+            plr->csp -= (1+(plr->msp / 30));
+            plr->redraw |= (PR_MANA);
             mult = mult * 3 / 2 + 15;
         }
 
@@ -191,562 +191,66 @@ bool test_hit_norm(int chance, int ac, int vis)
     return (TRUE);
 }
 
-
-
-/*
- * Critical hits (from bows/crossbows/slings)
- * Factor in item weight, total plusses, and player level.
- */
-critical_t critical_shot(int weight, int plus)
+int search(void)
 {
-    critical_t result = {0};
-    int i, k;
-
-    /* Extract "shot" power */
-    i = (p_ptr->shooter_info.to_h + plus) * 3 + p_ptr->skills.thb * 2;
-
-    /* Snipers and Crossbowmasters get more crits */
-    if (p_ptr->concent) i += i * p_ptr->concent / 10;
-    if (p_ptr->pclass == CLASS_SNIPER && p_ptr->shooter_info.tval_ammo == TV_BOLT) i = i * 3 / 2;
-    if (weaponmaster_get_toggle() == TOGGLE_CAREFUL_AIM)
-        i *= 3;
-    if (p_ptr->pclass == CLASS_ARCHER) i += i * p_ptr->lev / 100;
-
-    /* Critical hit */
-    if (randint1(5000) <= i)
+    int i, rc = ACTION_CONTINUE;
+    for (i = 0; i < 9 && rc == ACTION_CONTINUE; i++) /* XXX need to search '5' for chests under foot */
     {
-        k = weight * randint1(500);
-        result.mul = 150 + k * 200 / 2000;
-
-        if (result.mul < 200)
-            result.desc = "It was a <color:y>decent</color> shot!";
-        else if (result.mul < 240)
-            result.desc = "It was a <color:R>good</color> shot!";
-        else if (result.mul < 270)
-            result.desc = "It was a <color:r>great</color> shot!";
-        else if (result.mul < 300)
-            result.desc = "It was a <color:v>superb</color> shot!";
-        else
-            result.desc = "It was a <color:v>*GREAT*</color> shot!";
-    }
-
-    return result;
-}
-
-/*
- * Search for hidden things
- */
-static void _search_grid(point_t pos, dun_grid_ptr grid)
-{
-    obj_ptr obj;
-
-    int chance = p_ptr->skills.srh;
-    if (plr_tim_find(T_BLIND) || no_lite()) chance = chance / 10;
-    if (plr_tim_find(T_CONFUSED) || plr_tim_find(T_HALLUCINATE)) chance = chance / 10;
-    if (randint1(100) > chance) return;
-
-    /* Invisible trap */
-    if (grid->mimic && is_trap(grid->feat))
-    {
-        disclose_grid(pos.y, pos.x);
-        msg_print("You have found a trap.");
-        disturb(0, 0);
-    }
-
-    /* Secret door */
-    if (is_hidden_door(grid))
-    {
-        msg_print("You have found a secret door.");
-        disclose_grid(pos.y, pos.x);
-        disturb(0, 0);
-    }
-
-    /* Trapped Chests */
-    for (obj = obj_at(pos); obj; obj = obj->next)
-    {
-        if (obj->tval != TV_CHEST) continue;
-        if (obj->pval < 0 || !chest_traps[obj->pval]) continue; /* not trapped */
-        if (!obj_is_known(obj))
-        {
-            msg_print("You have discovered a trap on the chest!");
-            obj_identify(obj);
-            disturb(0, 0);
-        }
-    }
-}
-void search(void)
-{
-    int i;
-    for (i = 0; i < 9; i++) /* XXX need to search '5' for chests under foot */
-    {
-        point_t p = point_step(p_ptr->pos, ddd[i]);
+        point_t p = point_step(plr->pos, ddd[i]);
         if (dun_pos_interior(cave, p))
-            _search_grid(p, dun_grid_at(cave, p));
+            rc = dun_search(cave, p, 0);
     }
+    return rc;
 }
 
-/*
- * Determine if a trap affects the player.
- * Always miss 5% of the time, Always hit 5% of the time.
- * Otherwise, match trap power against player armor.
- */
-static int _check_hit(int power)
+static bool _knockback_seek(dun_line_gen_ptr gen, point_t pos)
 {
-    int k, ac;
-
-    /* Percentile dice */
-    k = randint0(100);
-
-    /* Hack -- 5% hit, 5% miss */
-    if (k < 10) return (k < 5);
-
-    /* Paranoia -- No power */
-    if (power <= 0) return (FALSE);
-
-    /* Total armor */
-    ac = p_ptr->ac + p_ptr->to_a;
-
-    /* Power competes against Armor */
-    if (randint1(power) > ((ac * 3) / 4)) return (TRUE);
-
-    /* Assume miss */
-    return (FALSE);
-}
-
-
-
-/*
- * Handle player hitting a real trap
- */
-static void hit_trap(bool break_trap)
-{
-    int i, num, dam;
-    point_t pos = p_ptr->pos;
-
-    /* Get the cave grid */
-    cave_type *c_ptr = cave_at(pos);
-    feature_type *f_ptr = &f_info[c_ptr->feat];
-    int trap_feat_type = have_flag(f_ptr->flags, FF_TRAP) ? f_ptr->subtype : NOT_TRAP;
-
-    cptr name = "a trap";
-
-    /* Disturb the player */
-    disturb(0, 0);
-
-    cave_alter_feat(pos.y, pos.x, FF_HIT_TRAP);
-
-    /* Analyze XXX XXX XXX */
-    switch (trap_feat_type)
+    for (dun_line_gen_first(gen); !point_equals(gen->current_point, pos); dun_line_gen_next(gen))
     {
-        case TRAP_TRAPDOOR:
-        {
-            if (p_ptr->levitation)
-            {
-                msg_print("You fly over a trap door.");
-
-            }
-            else
-            {
-                msg_print("You have fallen through a trap door!");
-                sound(SOUND_FALL);
-                dam = damroll(2, 8);
-                name = "a trap door";
-
-                take_hit(DAMAGE_NOESCAPE, dam, name);
-                dun_trap_door_plr(cave);
-            }
-            break;
-        }
-
-        case TRAP_PIT:
-        {
-            if (p_ptr->levitation)
-            {
-                msg_print("You fly over a pit trap.");
-
-            }
-            else
-            {
-                msg_print("You have fallen into a pit!");
-
-                dam = damroll(2, 6);
-                name = "a pit trap";
-
-                take_hit(DAMAGE_NOESCAPE, dam, name);
-            }
-            break;
-        }
-
-        case TRAP_SPIKED_PIT:
-        {
-            if (p_ptr->levitation)
-            {
-                msg_print("You fly over a spiked pit.");
-
-            }
-            else
-            {
-                msg_print("You fall into a spiked pit!");
-
-
-                /* Base damage */
-                name = "a pit trap";
-
-                dam = damroll(2, 6);
-
-                /* Extra spike damage */
-                if (randint0(100) < 50)
-                {
-                    msg_print("You are impaled!");
-
-
-                    name = "a spiked pit";
-
-                    dam = dam * 2;
-                    if (!p_ptr->no_cut) plr_tim_add(T_CUT, randint1(dam));
-                }
-
-                /* Take the damage */
-                take_hit(DAMAGE_NOESCAPE, dam, name);
-            }
-            break;
-        }
-
-        case TRAP_POISON_PIT:
-        {
-            if (p_ptr->levitation)
-            {
-                msg_print("You fly over a spiked pit.");
-
-            }
-            else
-            {
-                msg_print("You fall into a spiked pit!");
-
-
-                /* Base damage */
-                dam = damroll(2, 6);
-
-                name = "a pit trap";
-
-
-                /* Extra spike damage */
-                if (randint0(100) < 50)
-                {
-                    msg_print("You are impaled on poisonous spikes!");
-
-
-                    name = "a spiked pit";
-
-
-                    dam = dam * 2;
-                    if (!p_ptr->no_cut) plr_tim_add(T_CUT, randint1(dam));
-
-                    if (res_save_default(RES_POIS))
-                        msg_print("The poison does not affect you!");
-                    else
-                        plr_tim_add(T_POISON, dam);
-                }
-
-                /* Take the damage */
-                take_hit(DAMAGE_NOESCAPE, dam, name);
-            }
-
-            break;
-        }
-
-        case TRAP_TY_CURSE:
-        {
-            msg_print("There is a flash of shimmering light!");
-
-            num = 2 + randint1(3);
-            for (i = 0; i < num; i++)
-                summon_specific(0, pos, cave->dun_lvl, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
-
-            if (cave->dun_lvl > randint1(100)) /* No nasty effect for low levels */
-            {
-                bool stop_ty = FALSE;
-                int count = 0;
-                do {
-                    stop_ty = activate_ty_curse(stop_ty, &count);
-                } while (one_in_(6));
-            }
-            break;
-        }
-
-        case TRAP_TELEPORT:
-        {
-            msg_print("You hit a teleport trap!");
-
-            teleport_player(100, TELEPORT_PASSIVE);
-            break;
-        }
-
-        case TRAP_FIRE:
-        {
-            msg_print("You are enveloped in flames!");
-
-            dam = damroll(4, 6);
-            gf_affect_p(GF_WHO_TRAP, GF_FIRE, dam, GF_AFFECT_TRAP);
-            break;
-        }
-
-        case TRAP_ACID:
-        {
-            msg_print("You are splashed with acid!");
-
-            dam = damroll(4, 6);
-            gf_affect_p(GF_WHO_TRAP, GF_ACID, dam, GF_AFFECT_TRAP);
-            break;
-        }
-
-        case TRAP_SLOW:
-        {
-            if (_check_hit(125))
-            {
-                msg_print("A small dart hits you!");
-
-                dam = damroll(1, 4);
-                take_hit(DAMAGE_ATTACK, dam, "a dart trap");
-
-                if (!CHECK_MULTISHADOW() && !free_act_save_p(cave->dun_lvl))
-                    plr_tim_add(T_SLOW, randint0(20) + 20);
-            }
-            else
-            {
-                msg_print("A small dart barely misses you.");
-
-            }
-            break;
-        }
-
-        case TRAP_LOSE_STR:
-        {
-            if (_check_hit(125))
-            {
-                msg_print("A small dart hits you!");
-
-                dam = damroll(1, 4);
-                take_hit(DAMAGE_ATTACK, dam, "a dart trap");
-
-                if (!CHECK_MULTISHADOW()) (void)do_dec_stat(A_STR);
-            }
-            else
-            {
-                msg_print("A small dart barely misses you.");
-
-            }
-            break;
-        }
-
-        case TRAP_LOSE_DEX:
-        {
-            if (_check_hit(125))
-            {
-                msg_print("A small dart hits you!");
-
-                dam = damroll(1, 4);
-                take_hit(DAMAGE_ATTACK, dam, "a dart trap");
-
-                if (!CHECK_MULTISHADOW()) (void)do_dec_stat(A_DEX);
-            }
-            else
-            {
-                msg_print("A small dart barely misses you.");
-
-            }
-            break;
-        }
-
-        case TRAP_LOSE_CON:
-        {
-            if (_check_hit(125))
-            {
-                msg_print("A small dart hits you!");
-
-                dam = damroll(1, 4);
-                take_hit(DAMAGE_ATTACK, dam, "a dart trap");
-
-                if (!CHECK_MULTISHADOW()) (void)do_dec_stat(A_CON);
-            }
-            else
-            {
-                msg_print("A small dart barely misses you.");
-
-            }
-            break;
-        }
-
-        case TRAP_BLIND:
-        {
-            msg_print("A black gas surrounds you!");
-            if (!res_save_default(RES_BLIND))
-                plr_tim_add(T_BLIND, randint0(50) + 25);
-            break;
-        }
-
-        case TRAP_CONFUSE:
-        {
-            msg_print("A gas of scintillating colors surrounds you!");
-            if (!res_save_default(RES_CONF))
-                plr_tim_add(T_CONFUSED, randint0(20) + 10);
-            break;
-        }
-
-        case TRAP_POISON:
-        {
-            msg_print("A pungent green gas surrounds you!");
-            if (!res_save_default(RES_POIS))
-                plr_tim_add(T_POISON, randint0(20) + 10);
-            break;
-        }
-
-        case TRAP_SLEEP:
-        {
-            msg_print("A strange white mist surrounds you!");
-
-            if (!free_act_save_p(0))
-            {
-                msg_print("You fall asleep.");
-                plr_tim_add(T_PARALYZED, randint1(4));
-            }
-            else equip_learn_flag(OF_FREE_ACT);
-            break;
-        }
-
-        case TRAP_TRAPS:
-        {
-            msg_print("There is a bright flash of light!");
-            /* Make some new traps */
-            project(0, 1, pos.y, pos.x, 0, GF_MAKE_TRAP, PROJECT_HIDE | PROJECT_JUMP | PROJECT_GRID);
-            break;
-        }
-
-        case TRAP_ALARM:
-        {
-            msg_print("An alarm sounds!");
-            aggravate_monsters(0);
-            break;
-        }
-
-        case TRAP_OPEN:
-        {
-            msg_print("Suddenly, surrounding walls are opened!");
-            /*TODO: Fire beams in 4 principle directions that kill adjacent walls ... */
-            project(0, 10, pos.y, pos.x, 0, GF_DISINTEGRATE, PROJECT_GRID | PROJECT_HIDE);
-            aggravate_monsters(0);
-            break;
-        }
-
-        case TRAP_ARMAGEDDON:
-        {
-            static int levs[10] = {0, 0, 20, 10, 5, 3, 2, 1, 1, 1};
-            int evil_idx = 0, good_idx = 0;
-
-            int lev;
-            msg_print("Suddenly, you are surrounded by immotal beings!");
-
-            /* Summon Demons and Angels */
-            for (lev = cave->dun_lvl; lev >= 20; lev -= 1 + lev/16)
-            {
-                num = levs[MIN(lev/10, 9)];
-                for (i = 0; i < num; i++)
-                {
-                    point_t pos2 = point_random_jump(pos, 6);
-                    if (!dun_pos_interior(cave, pos2)) continue;
-                    if (!point_project(p_ptr->pos, pos2)) continue;
-                    if (summon_specific(0, pos2, lev, SUMMON_ARMAGE_EVIL, (PM_NO_PET)))
-                        evil_idx = hack_m_idx_ii;
-
-                    if (summon_specific(0, pos2, lev, SUMMON_ARMAGE_GOOD, (PM_NO_PET)))
-                        good_idx = hack_m_idx_ii;
-
-                    /* Let them fight each other */
-                    if (evil_idx && good_idx)
-                    {
-                        monster_type *evil_ptr = dun_mon(cave, evil_idx);
-                        monster_type *good_ptr = dun_mon(cave, good_idx);
-                        evil_ptr->target = good_ptr->pos;
-                        good_ptr->target = evil_ptr->pos;
-                    }
-                }
-            }
-            break;
-        }
-
-        case TRAP_PIRANHA:
-        {
-            msg_print("Suddenly, the room is filled with water with piranhas!");
-
-            /* Water fills room */
-            fire_ball_hide(GF_WATER_FLOW, 0, 1, 10);
-
-            /* Summon Piranhas */
-            num = 1 + cave->dun_lvl/20;
-            for (i = 0; i < num; i++)
-                summon_specific(0, pos, cave->dun_lvl, SUMMON_PIRANHA, (PM_ALLOW_GROUP | PM_NO_PET));
-            break;
-        }
+        if (!dun_pos_interior(cave, gen->current_point)) return FALSE;
+        if (dun_stop_project(cave, gen->current_point, pos, 0)) return FALSE;
     }
-
-    if (break_trap && is_trap(c_ptr->feat))
-    {
-        cave_alter_feat(pos.y, pos.x, FF_DISARM);
-        msg_print("You destroyed the trap.");
-    }
+    assert(point_equals(gen->current_point, pos));
+    return TRUE;
 }
-
-int calculate_dir(int sx, int sy, int tx, int ty)
+/* advanced monster knockback. we cannot just allocate a longer dun_path
+ * since we might exceed DUN_PATH_MAX */
+static bool _knockback(mon_ptr mon, int dist)
 {
-    int dir;
-    for (dir = 0; dir <= 9; dir++)
+    line_t line = line_create(plr->pos, mon->pos);
+    dun_line_gen_ptr gen = dun_line_gen_alloc(line);
+    bool ok = FALSE;
+
+    /* find the path from plr to mon (respecting FF_PROJECT) */
+    for (;;)
     {
-        int x = sx + ddx[dir];
-        int y = sy + ddy[dir];
-
-        if (x == tx && y == ty) return dir;
+        if (_knockback_seek(gen, mon->pos)) break;
+        if (!dun_line_gen_next_strategy(gen)) break;
     }
-    return 5;
-}
 
-void do_monster_knockback(int x, int y, int dist)
-{
-    mon_ptr mon = dun_mon_at(cave, point_create(x, y));
-    mon_race_ptr race = mon_race(mon);
-    int     dir = calculate_dir(p_ptr->pos.x, p_ptr->pos.y, x, y);
-
-    if (dir != 5)
+    /* now push the monster back along this path */
+    if (point_equals(gen->current_point, mon->pos))
     {
         int i;
-
         for (i = 0; i < dist; i++)
         {
-            int ty = y, tx = x;
-            int oy = y, ox = x;
-
-            y += ddy[dir];
-            x += ddx[dir];
-            if (cave_empty_bold(y, x))
-            {
-                ty = y;
-                tx = x;
-            }
-            if (ty != oy || tx != ox)
-            {
-                dun_move_mon(cave, mon, point_create(tx, ty));
-                lite_spot(oy, ox);
-                lite_spot(ty, tx);
-
-                if (race->flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
-                    p_ptr->update |= PU_MON_LITE;
-
-                Term_xtra(TERM_XTRA_DELAY, delay_animation);
-                Term_fresh();
-            }
-            else
-                break;
+            point_t p = dun_line_gen_next(gen);
+            dun_cell_ptr cell = dun_cell_at(cave, p);
+            if (!dun_allow_mon_at(cave, p)) break;
+            if (!cell_allow_mon(cell, mon)) break;
+            dun_move_mon(cave, mon, p);
+            Term_xtra(TERM_XTRA_DELAY, delay_animation);
+            Term_fresh();
         }
+        ok = TRUE;
     }
+    dun_line_gen_free(gen);
+    return ok;
+}
+void do_monster_knockback(mon_ptr mon, int dist)
+{
+    if (point_equals(plr->pos, mon->pos)) return;
+    _knockback(mon, dist);
 }
 bool random_opponent(int *y, int *x)
 {
@@ -757,15 +261,15 @@ bool random_opponent(int *y, int *x)
 
     for (i = 0; i < 8; i++)
     {
-        p = point_step(p_ptr->pos, ddd[i]);
-        if (mon_at(p))
+        p = point_step(plr->pos, ddd[i]);
+        if (dun_mon_at(cave, p))
             dirs[ct++] = i;
     }
 
     if (ct)
     {
         i = randint0(ct);
-        p = point_step(p_ptr->pos, ddd[dirs[i]]);
+        p = point_step(plr->pos, ddd[dirs[i]]);
         *y = p.y;
         *x = p.x;
         return TRUE;
@@ -773,171 +277,17 @@ bool random_opponent(int *y, int *x)
     return FALSE;
 }
 
-bool pattern_seq(point_t cur, point_t next)
-{
-    feature_type *cur_f_ptr = feat_at(cur);
-    feature_type *new_f_ptr = feat_at(next);
-    bool is_pattern_tile_cur = have_flag(cur_f_ptr->flags, FF_PATTERN);
-    bool is_pattern_tile_new = have_flag(new_f_ptr->flags, FF_PATTERN);
-    int pattern_type_cur, pattern_type_new;
-
-    if (!is_pattern_tile_cur && !is_pattern_tile_new) return TRUE;
-
-    pattern_type_cur = is_pattern_tile_cur ? cur_f_ptr->subtype : NOT_PATTERN_TILE;
-    pattern_type_new = is_pattern_tile_new ? new_f_ptr->subtype : NOT_PATTERN_TILE;
-
-    if (pattern_type_new == PATTERN_TILE_START)
-    {
-        if (!is_pattern_tile_cur && !plr_tim_find(T_CONFUSED) && !plr_tim_find(T_STUN) && !plr_tim_find(T_HALLUCINATE))
-        {
-            if (get_check("If you start walking the Pattern, you must walk the whole way. Ok? "))
-                return TRUE;
-            else
-                return FALSE;
-        }
-        else
-            return TRUE;
-    }
-    else if ((pattern_type_new == PATTERN_TILE_OLD) ||
-         (pattern_type_new == PATTERN_TILE_END) ||
-         (pattern_type_new == PATTERN_TILE_WRECKED))
-    {
-        if (is_pattern_tile_cur)
-        {
-            return TRUE;
-        }
-        else
-        {
-            msg_print("You must start walking the Pattern from the startpoint.");
-
-            return FALSE;
-        }
-    }
-    else if ((pattern_type_new == PATTERN_TILE_TELEPORT) ||
-         (pattern_type_cur == PATTERN_TILE_TELEPORT))
-    {
-        return TRUE;
-    }
-    else if (pattern_type_cur == PATTERN_TILE_START)
-    {
-        if (is_pattern_tile_new)
-            return TRUE;
-        else
-        {
-            msg_print("You must walk the Pattern in correct order.");
-
-            return FALSE;
-        }
-    }
-    else if ((pattern_type_cur == PATTERN_TILE_OLD) ||
-         (pattern_type_cur == PATTERN_TILE_END) ||
-         (pattern_type_cur == PATTERN_TILE_WRECKED))
-    {
-        if (!is_pattern_tile_new)
-        {
-            msg_print("You may not step off from the Pattern.");
-
-            return FALSE;
-        }
-        else
-        {
-            return TRUE;
-        }
-    }
-    else
-    {
-        if (!is_pattern_tile_cur)
-        {
-            msg_print("You must start walking the Pattern from the startpoint.");
-
-            return FALSE;
-        }
-        else
-        {
-            byte ok_move = PATTERN_TILE_START;
-            switch (pattern_type_cur)
-            {
-                case PATTERN_TILE_1:
-                    ok_move = PATTERN_TILE_2;
-                    break;
-                case PATTERN_TILE_2:
-                    ok_move = PATTERN_TILE_3;
-                    break;
-                case PATTERN_TILE_3:
-                    ok_move = PATTERN_TILE_4;
-                    break;
-                case PATTERN_TILE_4:
-                    ok_move = PATTERN_TILE_1;
-                    break;
-                default:
-                    if (p_ptr->wizard)
-                        msg_format("Funny Pattern walking, %d.", pattern_type_cur);
-
-                    return TRUE; /* Goof-up */
-            }
-
-            if ((pattern_type_new == ok_move) ||
-                (pattern_type_new == pattern_type_cur))
-                return TRUE;
-            else
-            {
-                if (!is_pattern_tile_new)
-                    msg_print("You may not step off from the Pattern.");
-                else
-                    msg_print("You must walk the Pattern in correct order.");
-
-                return FALSE;
-            }
-        }
-    }
-}
-
-
-bool player_can_enter(s16b feature, u16b mode)
-{
-    feature_type *f_ptr = &f_info[feature];
-
-    if (p_ptr->riding)
-    {
-        mon_race_ptr race = plr_riding_race();
-        return monster_can_cross_terrain(feature, race, mode | CEM_RIDING);
-    }
-
-    if (p_ptr->prace == RACE_MON_POSSESSOR && p_ptr->current_r_idx != MON_POSSESSOR_SOUL)
-    {
-        mon_race_ptr race = mon_race_lookup(p_ptr->current_r_idx);
-        return monster_can_cross_terrain(feature, race, mode | CEM_MIMIC);
-    }
-
-    if (p_ptr->prace == RACE_MON_MIMIC && p_ptr->current_r_idx != MON_MIMIC)
-    {
-        mon_race_ptr race = mon_race_lookup(p_ptr->current_r_idx);
-        return monster_can_cross_terrain(feature, race, mode | CEM_MIMIC);
-    }
-
-    /* Pattern */
-    if (have_flag(f_ptr->flags, FF_PATTERN))
-    {
-        if (!(mode & CEM_P_CAN_ENTER_PATTERN)) return FALSE;
-    }
-
-    /* "CAN" flags */
-    if (have_flag(f_ptr->flags, FF_CAN_FLY) && p_ptr->levitation) return TRUE;
-    /*if (have_flag(f_ptr->flags, FF_CAN_CLIMB) && p_ptr->climbing) return TRUE;*/
-    if (have_flag(f_ptr->flags, FF_CAN_SWIM) && p_ptr->can_swim) return TRUE;
-    if (have_flag(f_ptr->flags, FF_CAN_PASS) && p_ptr->pass_wall) return TRUE;
-
-    if (!have_flag(f_ptr->flags, FF_MOVE)) return FALSE;
-
-    return TRUE;
-}
-
 static bool _auto_detect_traps(void)
 {
     slot_t slot;
     if (!auto_detect_traps) return FALSE;
-    if (p_ptr->pclass == CLASS_MAGIC_EATER && magic_eater_auto_detect_traps()) return TRUE;
-    if ((prace_is_(RACE_DWARF) || prace_is_(RACE_NIBELUNG)) && p_ptr->lev > 20)
+    /* Hooks go first. For example, the Necromancer prefers Undead Sight which throws
+     * magic mapping into the bargain. They might also carry -Detection to locate monsters
+     * and we should only used that as a last resort. */
+    if (plr_hook_auto_detect()) return TRUE;
+    /* XXX These s/b hooks */
+    if (plr->pclass == CLASS_MAGIC_EATER && magic_eater_auto_detect_traps()) return TRUE;
+    if ((prace_is_(RACE_DWARF) || prace_is_(RACE_NIBELUNG)) && plr->lev > 20)
     {
         cast_detect_doors_stairs_traps();
         /* hp charge is only 5 ... forget about it. */
@@ -987,42 +337,53 @@ static bool _auto_detect_traps(void)
     return FALSE;
 }
 
+static bool _cell_allow_quickwalk(dun_cell_ptr cell)
+{
+    if (!cell_project(cell)) return FALSE;
+    if (lava_is_deep(cell) || water_is_deep(cell))
+        return plr->levitation;
+    return TRUE;
+}
+
 /*
  * Move the player
  */
 bool move_player_effect(point_t pos, u32b mpe_mode)
 {
-    cave_type *c_ptr = cave_at(pos);
-    feature_type *f_ptr = &f_info[c_ptr->feat];
-    bool old_dtrap = FALSE, new_dtrap = FALSE;
+    dun_cell_ptr old_cell = dun_cell_at(cave, plr->pos);
+    dun_cell_ptr cell = dun_cell_at(cave, pos);
+    bool old_dtrap = BOOL(old_cell->flags & CELL_DETECT);
+    bool new_dtrap = BOOL(cell->flags & CELL_DETECT);
 
-    if (cave_at(p_ptr->pos)->info & CAVE_IN_DETECT)
-        old_dtrap = TRUE;
-    if (c_ptr->info & CAVE_IN_DETECT)
-        new_dtrap = TRUE;
-
-    /* Stop running if leaving a trap detected zone */
-    if (!(mpe_mode & MPE_STAYING) && (running || travel.run) && disturb_trap_detect)
+    /* leaving a trap detected zone: note we apply detection before moving. the distance
+     * check is to handle teleportation. */
+    if (!(mpe_mode & MPE_STAYING) && disturb_trap_detect && point_fast_distance(plr->pos, pos) < 2)
     {
-        if (old_dtrap && !new_dtrap && !_auto_detect_traps())
+        if (old_dtrap && !new_dtrap)
         {
-            disturb(0, 0);
-            energy_use = 0;
-            cmsg_print(TERM_VIOLET, "You are about to leave a trap detected zone.");
-            return FALSE;
+            if (!_auto_detect_traps())
+            {
+                if (running || travel.run)
+                {
+                    disturb(0, 0);
+                    energy_use = 0;
+                    cmsg_print(TERM_VIOLET, "You are about to leave a trap detected zone.");
+                    return FALSE;
+                }
+            }
+            else
+            {
+                old_dtrap = BOOL(old_cell->flags & CELL_DETECT);
+                new_dtrap = BOOL(cell->flags & CELL_DETECT);
+            }
         }
     }
 
-    if (cave_at(p_ptr->pos)->info & CAVE_IN_DETECT)
-        old_dtrap = TRUE;
-    if (c_ptr->info & CAVE_IN_DETECT)
-        new_dtrap = TRUE;
-
     if (!(mpe_mode & MPE_STAYING))
     {
-        point_t old_pos = p_ptr->pos;
-        mon_ptr old_mon = mon_at(old_pos);
-        mon_ptr new_mon = mon_at(pos);
+        point_t old_pos = plr->pos;
+        mon_ptr old_mon = dun_mon_at(cave, old_pos);
+        mon_ptr new_mon = dun_mon_at(cave, pos);
         bool diagonal = old_pos.y != pos.y && old_pos.x != pos.x;
 
         /* Move the player */
@@ -1039,8 +400,8 @@ bool move_player_effect(point_t pos, u32b mpe_mode)
             else if (new_mon) dun_move_mon(cave, new_mon, old_pos);
         }
 
-        dun_lite_pos(cave, old_pos);
-        dun_lite_pos(cave, pos);
+        dun_draw_pos(cave, old_pos);
+        dun_draw_pos(cave, pos);
         viewport_verify();
 
         /* Check detection status */
@@ -1051,23 +412,23 @@ bool move_player_effect(point_t pos, u32b mpe_mode)
                 cmsg_print(TERM_VIOLET, "You leave a trap detected zone.");
                 msg_print(NULL); /* Force a -more- prompt (unless auto_more is enabled!) */
             }
-            p_ptr->redraw |= PR_STATUS;
+            /* XXX plr->redraw |= PR_STATUS; */
         }
         else if (!old_dtrap && new_dtrap)
         {
             if (alert_trap_detect)
                 cmsg_print(TERM_L_BLUE, "You enter a trap detected zone.");
-            p_ptr->redraw |= PR_STATUS;
+            /* XXX plr->redraw |= PR_STATUS; */
         }
 
         if (mpe_mode & MPE_FORGET_FLOW)
         {
             dun_forget_flow(cave);
-            p_ptr->update |= PU_UN_VIEW;
-            p_ptr->redraw |= PR_MAP;
+            plr->update |= PU_UN_VIEW;
+            plr->redraw |= PR_MAP;
         }
-        p_ptr->update |= PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE;
-        p_ptr->window |= PW_MONSTER_LIST | PW_OBJECT_LIST;
+        plr->update |= PU_VIEW | PU_LIGHT | PU_FLOW | PU_MON_LIGHT;
+        plr->window |= PW_MONSTER_LIST | PW_OBJECT_LIST;
 
         /* Position Targets are confusing. They should be dismissed when no longer valid.
          * Note: Originally, I had this check in target_okay(), which is, of course, called
@@ -1076,40 +437,39 @@ bool move_player_effect(point_t pos, u32b mpe_mode)
          * (such as Breathe Disintegration or Beam of Disintegration). For these, the user
          * needs to target a non-projectable monster. As a compromise, we will continue to
          * dismiss such targets, but only once the player moves. */
-        if (target_who < 0)
+        if (who_is_pos(plr->target))
         {
-            point_t tgt = point_create(target_col, target_row);
-            if (!dun_pos_interior(cave, tgt) || !point_project(p_ptr->pos, tgt))
+            point_t pos = who_pos(plr->target);
+            if (!dun_pos_interior(cave, pos) || !plr_project(pos))
             {
-                target_who = 0;
-                target_row = 0;
-                target_col = 0;
-                p_ptr->redraw |= PR_HEALTH_BARS;
+                plr->target = who_create_null();
+                plr->redraw |= PR_HEALTH_BARS;
             }
         }
 
+        /* XXX 
         if (!view_unsafe_grids)
-            p_ptr->redraw |= PR_STATUS;
+            plr->redraw |= PR_STATUS;
+        */
 
         plr_hook_move_player();
 
-        p_ptr->window |= PW_OVERHEAD | PW_DUNGEON;
+        plr->window |= PW_OVERHEAD | PW_DUNGEON;
 
         /* Remove "unsafe" flag */
-        if ((!plr_tim_find(T_BLIND) && !no_lite()) || !is_trap(c_ptr->feat)) c_ptr->info &= ~(CAVE_UNSAFE);
-
-        /* Handle stuff */
-        if (mpe_mode & MPE_HANDLE_STUFF) handle_stuff();
-
-        if (p_ptr->pclass == CLASS_NINJA || plr_tim_find(T_SUPERSTEALTH))
+        if ( (!plr_tim_find(T_BLIND) && !no_light())
+          || !floor_has_trap(cell) )
         {
-            if (c_ptr->info & (CAVE_GLOW)) set_superstealth(FALSE);
-            else if (p_ptr->cur_lite <= 0) set_superstealth(TRUE);
+            cell->flags &= ~CELL_UNSAFE;
         }
 
-        if (p_ptr->action == ACTION_QUICK_WALK &&
-            (!have_flag(f_ptr->flags, FF_PROJECT) ||
-             (!p_ptr->levitation && have_flag(f_ptr->flags, FF_DEEP))))
+        /* Handle stuff XXX Why?! */
+        if (mpe_mode & MPE_HANDLE_STUFF) handle_stuff();
+
+        if (plr_tim_find(T_CLOAK_INVIS))
+            set_invisible(TRUE);
+
+        if (plr->action == ACTION_QUICK_WALK && !_cell_allow_quickwalk(cell))
         {
             msg_print("You cannot run in here.");
             set_action(ACTION_NONE);
@@ -1126,18 +486,16 @@ bool move_player_effect(point_t pos, u32b mpe_mode)
     {
         if (music_singing(MUSIC_WALL))
         {
-            (void)project(0, 0, p_ptr->pos.y, p_ptr->pos.x, (60 + p_ptr->lev), GF_DISINTEGRATE,
-                PROJECT_KILL | PROJECT_ITEM);
-
-            if (!plr_at(pos) || p_ptr->is_dead || p_ptr->leaving) return FALSE;
+            gf_affect_o(who_create_plr(), plr->pos, GF_DISINTEGRATE, 0, 0);
+            if (!dun_plr_at(cave, pos) || plr->is_dead) return FALSE;
         }
 
         /* Spontaneous Searching */
-        if ((p_ptr->skills.fos >= 50) || (0 == randint0(50 - p_ptr->skills.fos)))
+        if ((plr->skills.fos >= 50) || (0 == randint0(50 - plr->skills.fos)))
             search();
 
         /* Continuous Searching */
-        if (p_ptr->action == ACTION_SEARCH)
+        if (plr->action == ACTION_SEARCH)
             search();
     }
 
@@ -1148,134 +506,34 @@ bool move_player_effect(point_t pos, u32b mpe_mode)
             pack_get_floor();
         else
         {
+            cptr verb = no_light() ? "feel" : "see";
             char name[MAX_NLEN_OBJ];
             obj_ptr obj;
             autopick_get_floor();
-            for (obj = obj_at(p_ptr->pos); obj; obj = obj->next)
+            for (obj = dun_obj_at(cave, plr->pos); obj; obj = obj->next)
             {
                 object_desc(name, obj, OD_COLOR_CODED);
-                msg_format("You see %s.", name);
+                msg_format("You %s %s.", verb, name);
                 disturb(0, 0);
             }
         }
     }
 
-    /* Handle "store doors" */
-    if (have_flag(f_ptr->flags, FF_STORE))
+    /* XXX move these to cell_accept_plr ... */
+    if (stairs_enter_quest(cell))
     {
-        /* Disturb */
         disturb(0, 0);
-
         energy_use = 0;
-        /* Hack -- Enter store */
-        command_new = SPECIAL_KEY_STORE;
-    }
-
-    /* Handle "building doors" -KMW- */
-    else if (have_flag(f_ptr->flags, FF_BLDG))
-    {
-        /* Disturb */
-        disturb(0, 0);
-
-        energy_use = 0;
-        /* Hack -- Enter building */
-        command_new = SPECIAL_KEY_BUILDING;
-    }
-
-    /* Handle quest areas -KMW- */
-    else if (have_flag(f_ptr->flags, FF_QUEST_ENTER))
-    {
-        /* Disturb */
-        disturb(0, 0);
-
-        energy_use = 0;
-        /* Hack -- Enter quest level */
         command_new = SPECIAL_KEY_QUEST;
     }
-    else if (have_flag(f_ptr->flags, FF_TRAVEL))
-    {
-        disturb(0, 0);
-        if (msg_prompt("Travel to next world? <color:y>[y/n]</color>", "ny", PROMPT_YES_NO) == 'y')
-            dun_mgr_travel_plr();
-    }
-    else if (have_flag(f_ptr->flags, FF_RECALL))
-    {
-        disturb(0, 0);
-        if (msg_prompt("Activate Recall? <color:y>[y/n]</color>", "ny", PROMPT_YES_NO) == 'y')
-            dun_mgr_recall_plr();
-    }
-    /* Set off a trap */
-    else if (have_flag(f_ptr->flags, FF_HIT_TRAP) && !(mpe_mode & MPE_STAYING))
-    {
-        /* Disturb */
-        disturb(0, 0);
+    else if (!(mpe_mode & MPE_STAYING))
+        cell_accept_plr(cave, pos, cell);
+    else if (cell_is_portal(cell) || cell_is_bldg(cell))
+        cell_accept_plr(cave, pos, cell);
 
-        /* Hidden trap */
-        if (c_ptr->mimic || have_flag(f_ptr->flags, FF_SECRET))
-        {
-            /* Message */
-            msg_print("You found a trap!");
-
-            /* Pick a trap */
-            disclose_grid(p_ptr->pos.y, p_ptr->pos.x);
-        }
-
-        /* Hit the trap */
-        hit_trap((mpe_mode & MPE_BREAK_TRAP) ? TRUE : FALSE);
-
-        if (!plr_at(pos) || p_ptr->is_dead || p_ptr->leaving) return FALSE;
-    }
-
-    return plr_at(pos) && !p_ptr->is_dead && !p_ptr->leaving;
+    return dun_plr_at(cave, pos) && !plr->is_dead;
 }
 
-
-bool trap_can_be_ignored(int feat)
-{
-    feature_type *f_ptr = &f_info[feat];
-
-    if (!have_flag(f_ptr->flags, FF_TRAP)) return TRUE;
-
-    switch (f_ptr->subtype)
-    {
-    case TRAP_TRAPDOOR:
-    case TRAP_PIT:
-    case TRAP_SPIKED_PIT:
-    case TRAP_POISON_PIT:
-        if (p_ptr->levitation) return TRUE;
-        break;
-    case TRAP_TELEPORT:
-        if (p_ptr->anti_tele) return TRUE;
-        break;
-    case TRAP_FIRE:
-        if (res_can_ignore(RES_FIRE)) return TRUE;
-        break;
-    case TRAP_ACID: /* Note: Your armor still gets messed up even if your pack is safe! */
-        if (res_pct(RES_ACID) == 100) return TRUE;
-        break;
-    case TRAP_BLIND:
-        if (res_can_ignore(RES_BLIND)) return TRUE;
-        break;
-    case TRAP_CONFUSE:
-        if (res_can_ignore(RES_CONF)) return TRUE;
-        break;
-    case TRAP_POISON:
-        if (res_can_ignore(RES_POIS)) return TRUE;
-        break;
-    }
-
-    return FALSE;
-}
-
-
-/*
- * Determine if a "boundary" grid is "floor mimic"
- */
-#define boundary_floor(C, F, MF) \
-    ((C)->mimic && permanent_wall(F) && \
-     (have_flag((MF)->flags, FF_MOVE) || have_flag((MF)->flags, FF_CAN_FLY)) && \
-     have_flag((MF)->flags, FF_PROJECT) && \
-     !have_flag((MF)->flags, FF_OPEN))
 
 /*
  * Move player in the given direction, with the given "pickup" flag.
@@ -1288,52 +546,73 @@ bool trap_can_be_ignored(int feat)
  */
 void move_player(int dir, bool do_pickup, bool break_trap)
 {
-    /* Find the result of moving */
-    point_t pos = point_step(p_ptr->pos, dir);
-
-    /* Examine the destination */
-    cave_type    *c_ptr = cave_at(pos);
-    feature_type *f_ptr = &f_info[c_ptr->feat];
-    monster_type *m_ptr = mon_at(pos);
+    dun_cell_ptr old_cell = dun_cell_at(cave, plr->pos);
+    point_t      pos = point_step(plr->pos, dir);
+    dun_cell_ptr cell = dun_cell_at(cave, pos);
+    mon_ptr      mon = dun_mon_at(cave, pos);
 
     char m_name[80];
 
-    bool p_can_enter = player_can_enter(c_ptr->feat, CEM_P_CAN_ENTER_PATTERN);
-    bool p_can_kill_walls = FALSE;
-    bool stormbringer = equip_find_art(ART_STORMBRINGER);
+    bool p_can_enter = cell_allow_plr(cell);
+    bool stormbringer = equip_find_art("|.Stormbringer");
     bool shadow_strike = FALSE;
     bool oktomove = TRUE;
     bool do_past = FALSE;
-    bool ring_lev = p_ptr->prace == RACE_MON_RING && p_ptr->levitation;
 
-
-    /* Player can not walk through "walls"... */
-    /* unless in Shadow Form */
-    p_can_kill_walls = p_ptr->kill_wall && have_flag(f_ptr->flags, FF_HURT_DISI) &&
-        (!p_can_enter || !have_flag(f_ptr->flags, FF_LOS)) &&
-        !have_flag(f_ptr->flags, FF_PERMANENT);
-
-    /* Hack -- attack monsters */
-    if (m_ptr && (m_ptr->ml || p_can_enter || p_can_kill_walls))
+/* BLOCK: If the player is stuck in a web, they may lose a turn trying to escape. */
+    if (floor_has_web(old_cell))
     {
-        monster_race *r_ptr = mon_race(m_ptr);
+        if ( plr->pass_web
+          || plr->pass_wall)
+        {
+        }
+        else if (plr->kill_wall || plr->sh_fire)
+        {
+            msg_print("The webs evaporate!");
+            floor_remove_web(old_cell);
+            dun_draw_pos(cave, plr->pos);
+        }
+        else if (plr->clear_web)
+        {
+            msg_print("You hack at the sticky webs.");
+            floor_remove_web(old_cell);
+            dun_draw_pos(cave, plr->pos);
+            return; /* no move */
+        }
+        else if (!old_cell->parm2 || plr->skill_dig > randint0(30*old_cell->parm2))
+        {
+            msg_print("You hack at the sticky webs.");
+            floor_remove_web(old_cell);
+            dun_draw_pos(cave, plr->pos);
+            return; /* no move */
+        }
+        else
+        {
+            msg_print("You are stuck!");
+            old_cell->parm2--;
+            return; /* no move */
+        }
+    }
 
+/* BLOCK: Attack adjacent monsters; possibly decide to push past friendly monsters */
+    if (mon && (mon->ml || p_can_enter))
+    {
         /* Normally, the plr should not attack friendly monsters when moving */
-        if ( !is_hostile(m_ptr)
-          && !( !m_ptr->ml 
+        if ( !mon_is_hostile(mon)
+          && !( !mon->ml 
              || plr_tim_find(T_CONFUSED)
              || plr_tim_find(T_HALLUCINATE)
              || plr_tim_find(T_STUN)
              || (mut_present(MUT_BERS_RAGE) && plr_tim_find(T_BERSERK)) )
-          && pattern_seq(p_ptr->pos, pos)
-          && (p_can_enter || p_can_kill_walls) )
+          && pattern_legal_move(old_cell, cell)
+          && p_can_enter )
         {
-            mon_tim_delete(m_ptr, MT_SLEEP);
-            monster_desc(m_name, m_ptr, 0); /* see "You push past %s" below */
-            if (m_ptr->ml)
+            mon_tim_delete(mon, MT_SLEEP);
+            monster_desc(m_name, mon, 0); /* see "You push past %s" below */
+            if (mon->ml)
             {
-                if (!plr_tim_find(T_HALLUCINATE)) mon_track(m_ptr);
-                health_track(m_ptr->id);
+                if (!plr_tim_find(T_HALLUCINATE)) mon_track(mon);
+                health_track(mon);
             }
 
             /* displace? */
@@ -1342,7 +621,7 @@ void move_player(int dir, bool do_pickup, bool break_trap)
                 plr_attack_normal(pos);
                 oktomove = FALSE;
             }
-            else if (monster_can_cross_terrain(cave_at(p_ptr->pos)->feat, r_ptr, 0))
+            else if (cell_allow_mon(old_cell, mon))
             {
                 do_past = TRUE;
             }
@@ -1364,13 +643,16 @@ void move_player(int dir, bool do_pickup, bool break_trap)
         }
     }
 
+/* BLOCK: Check for legal movement. Formerly handled riding and possessors, 
+ * but cell_allow_plr() now does this. There are some other riding checks
+ * if your mount is paralyzed|stunned|sleeping ... */
     if (!oktomove)
     {
     }
-    else if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
+    else if (plr->prace == RACE_MON_POSSESSOR || plr->prace == RACE_MON_MIMIC)
     {
-        monster_race *r_ptr = mon_race_lookup(p_ptr->current_r_idx);
-        if (r_ptr->flags1 & RF1_NEVER_MOVE)
+        mon_race_ptr plr_race = plr_mon_race();
+        if (mon_race_never_move(plr_race))
         {
             energy_use *= 3;
             /*msg_print("You can't move!");
@@ -1378,49 +660,28 @@ void move_player(int dir, bool do_pickup, bool break_trap)
             oktomove = FALSE;
             disturb(0, 0);*/
         }
-        else if (have_flag(f_ptr->flags, FF_CAN_FLY) && ((r_ptr->flags7 & RF7_CAN_FLY) || p_ptr->levitation))
+        else if (!p_can_enter && !cell_is_door(cell))
         {
-            /* Allow moving */
-        }
-        else if (have_flag(f_ptr->flags, FF_CAN_CLIMB) && (r_ptr->flags7 & RF7_CAN_CLIMB))
-        {
-            /* Allow moving */
-        }
-        else if (have_flag(f_ptr->flags, FF_CAN_SWIM) && (r_ptr->flags7 & RF7_CAN_SWIM))
-        {
-            /* Allow moving */
-        }
-        else if (have_flag(f_ptr->flags, FF_WATER) &&
-            !(r_ptr->flags7 & RF7_AQUATIC) &&
-            (have_flag(f_ptr->flags, FF_DEEP) || mon_auras_find(r_ptr, GF_FIRE)) )
-        {
-            msg_print("You can't swim.");
-            energy_use = 0;
-            oktomove = FALSE;
-            disturb(0, 0);
-        }
-        else if (!have_flag(f_ptr->flags, FF_WATER) && (r_ptr->flags7 & RF7_AQUATIC))
-        {
-            msg_print("You can't move onto dry land.");
+            msg_print("Your current form cannot enter that location.");
             energy_use = 0;
             oktomove = FALSE;
             disturb(0, 0);
         }
     }
-    else if (p_ptr->prace == RACE_MON_RING && !p_ptr->riding)
+    else if (plr->prace == RACE_MON_RING && !plr->riding)
     {
         msg_print("You can't move! Try using your Glitter power to lure a ringbearer instead.");
         energy_use = 0;
         oktomove = FALSE;
         disturb(0, 0);
     }
-    else if (p_ptr->riding)
+    else if (plr->riding)
     {
         mon_ptr riding_m_ptr = plr_riding_mon();
-        mon_race_ptr riding_r_ptr = mon_race(riding_m_ptr);
-        if (riding_r_ptr->flags1 & RF1_NEVER_MOVE)
+        mon_race_ptr riding_r_ptr = riding_m_ptr->race;
+        if (mon_race_never_move(riding_r_ptr))
         {
-            msg_print("You can't move!");
+            msg_print("Your mount cannot move!");
             energy_use = 0;
             oktomove = FALSE;
             disturb(0, 0);
@@ -1449,42 +710,14 @@ void move_player(int dir, bool do_pickup, bool break_trap)
             oktomove = FALSE;
             disturb(0, 0);
         }
-        else if (p_ptr->riding_ryoute)
+        else if (plr->riding_ryoute) /* your mount is in control and decides where to move */
         {
             oktomove = FALSE;
             disturb(0, 0);
         }
-        else if (have_flag(f_ptr->flags, FF_CAN_FLY) && ((riding_r_ptr->flags7 & RF7_CAN_FLY) || ring_lev))
+        else if (!p_can_enter)
         {
-            /* Allow moving */
-        }
-        else if (have_flag(f_ptr->flags, FF_CAN_CLIMB) && (riding_r_ptr->flags7 & RF7_CAN_CLIMB))
-        {
-            /* Allow moving */
-        }
-        else if (have_flag(f_ptr->flags, FF_CAN_SWIM) && ((riding_r_ptr->flags7 & RF7_CAN_SWIM) || ring_lev))
-        {
-            /* Allow moving */
-        }
-        else if (have_flag(f_ptr->flags, FF_WATER) &&
-            !(riding_r_ptr->flags7 & RF7_AQUATIC) &&
-            (have_flag(f_ptr->flags, FF_DEEP) || mon_auras_find(riding_r_ptr, GF_FIRE)))
-        {
-            msg_print("Can't swim.");
-            energy_use = 0;
-            oktomove = FALSE;
-            disturb(0, 0);
-        }
-        else if (!have_flag(f_ptr->flags, FF_WATER) && (riding_r_ptr->flags7 & RF7_AQUATIC))
-        {
-            msg_print("Can't land.");
-            energy_use = 0;
-            oktomove = FALSE;
-            disturb(0, 0);
-        }
-        else if (have_flag(f_ptr->flags, FF_LAVA) && !(riding_r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK))
-        {
-            msg_print("Too hot to go through.");
+            msg_print("Your current mount cannot enter that location.");
             energy_use = 0;
             oktomove = FALSE;
             disturb(0, 0);
@@ -1499,187 +732,99 @@ void move_player(int dir, bool do_pickup, bool break_trap)
             disturb(0, 0);
         }
     }
-    else if ( !have_flag(f_ptr->flags, FF_MOVE)
-           && (have_flag(f_ptr->flags, FF_CAN_FLY) || have_flag(f_ptr->flags, FF_CAN_CLIMB))
-           && !p_ptr->levitation )
+    /* XXX was features without MOVE but with CAN_FLY */
+    else if (!p_can_enter && (cell_is_chasm(cell) || wall_is_mountain(cell)))
     {
-        msg_format("You need to fly to go through the %s.", f_name + f_info[get_feat_mimic(c_ptr)].name);
+        msg_print("You need levitation to move there!");
         oktomove = FALSE;
         if (!shadow_strike)
             energy_use = 0;
         running = 0;
     }
 
-
+/* BLOCK: Disarm traps; Open Doors; Bump into Walls */
     if (!oktomove)
     {
         /* FYI: Either the player was blocked from movement -OR- the player attacked
-           because a monster was in the way.*/
+         * because a monster was in the way. */
     }
-    /*
-     * Player can move through trees and
-     * has effective -10 speed
-     */
-    else if (have_flag(f_ptr->flags, FF_TREE) && !p_can_kill_walls)
-    {
-        if ( p_ptr->pclass != CLASS_RANGER
-          && p_ptr->pclass != CLASS_SCOUT
-          && !prace_is_(RACE_ENT)
-          && !prace_is_(RACE_CENTAUR)
-          && !prace_is_(RACE_WOOD_ELF)
-          && !p_ptr->levitation
-          && (!p_ptr->riding || !(plr_riding_race()->flags8 & RF8_WILD_WOOD)))
-        {
-            energy_use *= 2;
-        }
-    }
-    else if (have_flag(f_ptr->flags, FF_WEB))
-    {
-        if (prace_is_(RACE_MON_SPIDER))
-            energy_use = energy_use * (90 - p_ptr->lev) / 100;
-        else if (warlock_is_(WARLOCK_SPIDERS))
-            energy_use = energy_use * (150 - p_ptr->lev) / 150;
-        else
-            energy_use *= 2;
-    }
-
 #ifdef ALLOW_EASY_DISARM /* TNB */
-
     /* Disarm a visible trap */
-    else if ((do_pickup != easy_disarm) && have_flag(f_ptr->flags, FF_DISARM) && !c_ptr->mimic)
+    else if ((do_pickup != easy_disarm) && floor_has_known_trap(cell))
     {
-        if (!trap_can_be_ignored(c_ptr->feat))
+        if (!plr_can_ignore_trap(cell))
         {
-            (void)do_cmd_disarm_aux(pos.y, pos.x, dir);
-            return;
+            if (dun_disarm(cave, pos, 0) == ACTION_CONTINUE)
+                return; /* failed to disarm, but didn't trigger */
         }
     }
 
 #endif /* ALLOW_EASY_DISARM -- TNB */
 
-    /* Player can not walk through "walls" unless in wraith form...*/
-    else if (!p_can_enter && !p_can_kill_walls)
+    else if (!p_can_enter)
     {
-        /* Feature code (applying "mimic" field) */
-        s16b feat = get_feat_mimic(c_ptr);
-        feature_type *mimic_f_ptr = &f_info[feat];
-        cptr name = f_name + mimic_f_ptr->name;
-
         oktomove = FALSE;
-
-        /* Disturb the player */
         disturb(0, 0);
 
         /* Notice things in the dark */
-        if (!(c_ptr->info & CAVE_MARK) && !plr_can_see(pos))
+        if (!(cell->flags & CELL_MAP) && !plr_can_see(pos))
         {
-            /* Boundary floor mimic */
-            if (boundary_floor(c_ptr, f_ptr, mimic_f_ptr))
-            {
-                msg_print("You feel you cannot go any more.");
-            }
+            cptr desc = cell_desc(cell);
+            msg_format("You feel %s %s blocking your way.",
+                is_a_vowel(desc[0]) ? "an" : "a", desc);
 
-            /* Wall (or secret door) */
-            else
-            {
-                msg_format("You feel %s %s blocking your way.",
-                    is_a_vowel(name[0]) ? "an" : "a", name);
-
-                c_ptr->info |= (CAVE_MARK | CAVE_AWARE);
-                dun_lite_pos(cave, pos);
-            }
+            cell->flags |= (CELL_MAP | CELL_AWARE);
+            dun_draw_pos(cave, pos);
         }
 
         /* Notice things */
         else
         {
-            /* Boundary floor mimic */
-            if (boundary_floor(c_ptr, f_ptr, mimic_f_ptr))
-            {
-                msg_print("You cannot go any more.");
+            cptr desc = cell_desc(cell);
 
-                if (!(plr_tim_find(T_CONFUSED) || plr_tim_find(T_STUN) || plr_tim_find(T_HALLUCINATE)))
-                {
-                    if (!shadow_strike)
-                        energy_use = 0;
-                }
-            }
-
-            /* Wall (or secret door) */
-            else
-            {
 #ifdef ALLOW_EASY_OPEN
-                /* Closed doors */
-                if (easy_open && is_closed_door(feat) && easy_open_door(pos.y, pos.x, dir))
+            /* Closed doors */
+            if (easy_open && door_is_closed(cell))
+            {
+                int rc = dun_open(cave, pos, 0);
+                if (rc == ACTION_CONTINUE && always_repeat)
                 {
-                    /* Hack. Try to deduce what happened since easy_open_door hides this.
-                       Try to repeat attempting to unlock the door, but do a quick check
-                       for jammed doors so we don't waste 99 turns. Also, only make
-                       99 attempts to pick the lock ... But using command_rep would be
-                       unwise since we will then run thru the door once we pick the lock! */
-                    if (always_repeat)
+                    static int _repeat_count = 0;
+                    if (door_is_locked(cell))
                     {
-                        static int _repeat_count = 0;
-
-                        cave_type *c_ptr = cave_at(pos);
-                        feature_type *f_ptr = &f_info[c_ptr->feat];
-
-                        if (is_closed_door(c_ptr->feat) && have_flag(f_ptr->flags, FF_OPEN))
-                        {
-                            if (_repeat_count == 0)
-                                _repeat_count = 99;
-                            else
-                                --_repeat_count;
-
-                            if (_repeat_count)
-                                command_rep = 1;
-                        }
+                        if (_repeat_count == 0)
+                            _repeat_count = 99;
                         else
-                            _repeat_count = 0;
+                            --_repeat_count;
+
+                        if (_repeat_count)
+                            command_rep = 1;
                     }
-                    return;
+                    else
+                        _repeat_count = 0;
                 }
+                return;
+            }
 #endif /* ALLOW_EASY_OPEN */
 
-                msg_format("There is %s %s blocking your way.",
-                    is_a_vowel(name[0]) ? "an" : "a", name);
+            msg_format("There is %s %s blocking your way.",
+                is_a_vowel(desc[0]) ? "an" : "a", desc);
 
-                /*
-                 * Well, it makes sense that you lose time bumping into
-                 * a wall _if_ you are confused, stunned or blind; but
-                 * typing mistakes should not cost you a turn...
-                 */
-                if (!(plr_tim_find(T_CONFUSED) || plr_tim_find(T_STUN) || plr_tim_find(T_HALLUCINATE)))
-                {
-                    if (!shadow_strike)
-                        energy_use = 0;
-                }
+            /*
+             * Well, it makes sense that you lose time bumping into
+             * a wall _if_ you are confused, stunned or blind; but
+             * typing mistakes should not cost you a turn...
+             */
+            if (!(plr_tim_find(T_CONFUSED) || plr_tim_find(T_STUN) || plr_tim_find(T_HALLUCINATE)))
+            {
+                if (!shadow_strike)
+                    energy_use = 0;
             }
         }
-
-        /* Sound */
-        if (!boundary_floor(c_ptr, f_ptr, mimic_f_ptr)) sound(SOUND_HITWALL);
     }
 
-    if (oktomove)
-    {
-        if (have_flag(f_ptr->flags, FF_CAN_PASS) && !p_can_kill_walls && !elemental_is_(ELEMENTAL_EARTH))
-            energy_use = energy_use * 3 / 2;
-
-        if (have_flag(f_ptr->flags, FF_LAVA) && elemental_is_(ELEMENTAL_FIRE))
-            energy_use /= 2;
-
-        if (have_flag(f_ptr->flags, FF_WATER))
-        {
-            if (elemental_is_(ELEMENTAL_WATER))
-                energy_use /= 2;
-            else if (prace_is_(RACE_WATER_ELF))
-                energy_use = energy_use * 7 / 10;
-        }
-    }
-
-    /* Normal movement */
-    if (oktomove && !pattern_seq(p_ptr->pos, pos))
+/* BLOCK: Handle walking the pattern */
+    if (oktomove && !pattern_legal_move(old_cell, cell))
     {
         if (!(plr_tim_find(T_CONFUSED) || plr_tim_find(T_STUN) || plr_tim_find(T_HALLUCINATE)))
         {
@@ -1693,12 +838,12 @@ void move_player(int dir, bool do_pickup, bool break_trap)
         oktomove = FALSE;
     }
 
-    /* Normal movement */
+/* BLOCK: Actually move */
     if (oktomove)
     {
         u32b mpe_mode = MPE_ENERGY_USE;
 
-        if (p_ptr->warning)
+        if (plr->warning)
         {
             if (!process_warning(pos))
             {
@@ -1711,11 +856,6 @@ void move_player(int dir, bool do_pickup, bool break_trap)
         if (do_past)
             msg_format("You push past %s.", m_name);
 
-        if (p_can_kill_walls)
-        {
-            cave_alter_feat(pos.y, pos.x, FF_HURT_DISI);
-            p_ptr->update |= PU_FLOW;
-        }
 
 #ifdef ALLOW_EASY_DISARM /* TNB */
 
@@ -1736,41 +876,38 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 
 
 static bool ignore_avoid_run;
-
+static bool _cell_avoid_run(dun_cell_ptr cell)
+{
+    if (cell->type == FEAT_TREE) return TRUE;
+    if (wall_is_mountain(cell)) return TRUE;
+    if (floor_has_web(cell)) return TRUE;
+    return FALSE;
+}
 /*
  * Hack -- Check for a "known wall" (see below)
  */
-static int see_wall(int dir, int y, int x)
+static int see_wall(point_t pos, int dir)
 {
-    cave_type   *c_ptr;
+    point_t next = point_step(pos, dir);
+    dun_cell_ptr cell;
 
-    /* Get the new location */
-    y += ddy[dir];
-    x += ddx[dir];
-
-    /* Illegal grids are not known walls */
-    if (!in_bounds2(y, x)) return (FALSE);
-
-    /* Access grid */
-    c_ptr = cave_at_xy(x, y);
+    if (!dun_pos_valid(cave, next)) return FALSE;
+    
+    cell = dun_cell_at(cave, next);
 
     /* Must be known to the player */
-    if (c_ptr->info & (CAVE_MARK))
+    if (cell->flags & CELL_MAP)
     {
-        /* Feature code (applying "mimic" field) */
-        s16b         feat = get_feat_mimic(c_ptr);
-        feature_type *f_ptr = &f_info[feat];
+        if (!cell_allow_plr(cell))
+            return cell->type != FEAT_DOOR;
 
-        /* Wall grids are known walls */
-        if (!player_can_enter(feat, 0)) return !have_flag(f_ptr->flags, FF_DOOR);
-
-        /* Don't run on a tree unless explicitly requested */
-        if (have_flag(f_ptr->flags, FF_AVOID_RUN) && !ignore_avoid_run)
+        if (_cell_avoid_run(cell))
+        {
+            if (!ignore_avoid_run)
+                return TRUE;
+        }
+        else if (cell->type == FEAT_WALL) /* passwall */
             return TRUE;
-
-        /* Don't run in a wall */
-        if (!have_flag(f_ptr->flags, FF_MOVE) && !have_flag(f_ptr->flags, FF_CAN_FLY))
-            return !have_flag(f_ptr->flags, FF_DOOR);
     }
 
     return FALSE;
@@ -1780,28 +917,16 @@ static int see_wall(int dir, int y, int x)
 /*
  * Hack -- Check for an "unknown corner" (see below)
  */
-static int see_nothing(int dir, int y, int x)
+static int see_nothing(point_t pos, int dir)
 {
-    /* Get the new location */
-    y += ddy[dir];
-    x += ddx[dir];
+    point_t next = point_step(pos, dir);
+    dun_cell_ptr cell;
 
-    /* Illegal grids are unknown */
-    if (!in_bounds2(y, x)) return (TRUE);
-
-    /* Memorized grids are always known */
-    if (cave_at_xy(x, y)->info & (CAVE_MARK)) return (FALSE);
-
-    /* Viewable door/wall grids are known */
-    if (player_can_see_bold(y, x)) return (FALSE);
-
-    /* Default */
-    return (TRUE);
+    if (!dun_pos_valid(cave, next)) return FALSE;
+    cell = dun_cell_at(cave, next);
+    if (cell->flags & CELL_MAP) return FALSE;
+    return plr_can_see(next);
 }
-
-
-
-
 
 /*
  * The running algorithm:                       -CJS-
@@ -1983,9 +1108,9 @@ static bool find_road;
  */
 static void run_init(int dir)
 {
-    int row, col, deepleft, deepright;
-    int i, shortleft, shortright;
-
+    point_t next;
+    int i;
+    bool deepleft, deepright, shortleft, shortright;
 
     /* Save the direction */
     find_current = dir;
@@ -1993,15 +1118,14 @@ static void run_init(int dir)
     /* Assume running straight */
     find_prevdir = dir;
 
-    p_ptr->run_py = p_ptr->pos.y;
-    p_ptr->run_px = p_ptr->pos.x;
+    plr->run_pos = plr->pos;
+    next = point_step(plr->pos, dir);
 
     /* Hack: Stay on the road when running on surface */
     find_road = FALSE;
-    if (cave->dun_type_id == D_SURFACE && cave_at(p_ptr->pos)->feat == feat_road)
+    if (cave->type->id == D_SURFACE && floor_is_road(dun_cell_at(cave, plr->pos))) 
     {
-        point_t next = point_step(p_ptr->pos, dir);
-        if (cave_at(next)->feat == feat_road)
+        if (floor_is_road(dun_cell_at(cave, next)))
         {
             find_road = TRUE;
             find_openarea = FALSE;
@@ -2020,35 +1144,30 @@ static void run_init(int dir)
     deepleft = deepright = FALSE;
     shortright = shortleft = FALSE;
 
-    /* Find the destination grid */
-    row = p_ptr->pos.y + ddy[dir];
-    col = p_ptr->pos.x + ddx[dir];
-
-    ignore_avoid_run = cave_have_flag_bold(row, col, FF_AVOID_RUN);
-
+    ignore_avoid_run = _cell_avoid_run(dun_cell_at(cave, next));
 
     /* Extract cycle index */
     i = chome[dir];
 
     /* Check for walls */
-    if (see_wall(cycle[i+1], p_ptr->pos.y, p_ptr->pos.x))
+    if (see_wall(plr->pos, cycle[i+1]))
     {
         find_breakleft = TRUE;
         shortleft = TRUE;
     }
-    else if (see_wall(cycle[i+1], row, col))
+    else if (see_wall(next, cycle[i+1]))
     {
         find_breakleft = TRUE;
         deepleft = TRUE;
     }
 
     /* Check for walls */
-    if (see_wall(cycle[i-1], p_ptr->pos.y, p_ptr->pos.x))
+    if (see_wall(plr->pos, cycle[i-1]))
     {
         find_breakright = TRUE;
         shortright = TRUE;
     }
-    else if (see_wall(cycle[i-1], row, col))
+    else if (see_wall(next, cycle[i-1]))
     {
         find_breakright = TRUE;
         deepright = TRUE;
@@ -2074,7 +1193,7 @@ static void run_init(int dir)
         }
 
         /* Hack -- allow blunt corridor entry */
-        else if (see_wall(cycle[i], row, col))
+        else if (see_wall(next, cycle[i]))
         {
             if (shortleft && !shortright)
             {
@@ -2097,18 +1216,15 @@ static void run_init(int dir)
 static bool run_test(void)
 {
     int         prev_dir, new_dir, check_dir = 0;
-    int         row, col;
+    point_t     next;
     int         i, max, inv;
     int         option = 0, option2 = 0;
-    cave_type  *c_ptr;
-    s16b        feat;
-    feature_type *f_ptr;
+    dun_cell_ptr cell;
     obj_ptr     obj;
     mon_ptr     mon;
 
     /* Where we came from */
     prev_dir = find_prevdir;
-
 
     /* Range of newly adjacent grids */
     max = (prev_dir & 0x01) + 1;
@@ -2120,80 +1236,68 @@ static bool run_test(void)
         new_dir = cycle[chome[prev_dir] + i];
 
         /* New location */
-        row = p_ptr->pos.y + ddy[new_dir];
-        col = p_ptr->pos.x + ddx[new_dir];
-
-        /* Access grid */
-        c_ptr = cave_at_xy(col, row);
-
-        /* Feature code (applying "mimic" field) */
-        feat = get_feat_mimic(c_ptr);
-        f_ptr = &f_info[feat];
+        next = point_step(plr->pos, new_dir);
+        cell = dun_cell_at(cave, next);
+        mon = dun_mon_at(cave, next);
 
         /* Visible monsters abort running */
-        mon = mon_at_xy(col, row);
-        if (mon && mon->ml) return TRUE;
+        if (mon && !mon_is_pet(mon) && mon->ml) return TRUE;
 
         /* Visible objects abort running */
-        for (obj = obj_at_xy(col, row); obj; obj = obj->next)
+        for (obj = dun_obj_at(cave, next); obj; obj = obj->next)
             if (obj->marked & OM_FOUND) return TRUE;
 
         /* Assume unknown */
         inv = TRUE;
 
         /* Check memorized grids */
-        if (c_ptr->info & (CAVE_MARK))
+        if (cell->flags & CELL_MAP)
         {
-            bool notice = have_flag(f_ptr->flags, FF_NOTICE);
+            bool notice = cell_notice(cell);
+            bool move = cell_allow_plr(cell) && !cell_is_wall(cell);
 
-            if (notice && have_flag(f_ptr->flags, FF_MOVE))
+            /* optionally (or conditionally) ignore terrain */
+            if (notice && move)
             {
-                /* Open doors */
-                if (find_ignore_doors && have_flag(f_ptr->flags, FF_DOOR) && have_flag(f_ptr->flags, FF_CLOSE))
-                {
-                    /* Option -- ignore */
+                if (find_ignore_doors && door_is_open(cell))
                     notice = FALSE;
-                }
 
-                /* Stairs */
-                else if (find_ignore_stairs && have_flag(f_ptr->flags, FF_STAIRS))
-                {
-                    /* Option -- ignore */
+                else if (find_ignore_stairs && cell_is_stairs(cell))
                     notice = FALSE;
-                }
 
-                /* Lava */
-                else if (have_flag(f_ptr->flags, FF_LAVA) && (res_pct(RES_FIRE) >= 100 || plr_tim_find(T_INVULN)))
+                else if (cell_is_lava(cell))
                 {
-                    /* Ignore */
-                    notice = FALSE;
+                    if (res_pct(GF_FIRE) >= 100 || plr_tim_find(T_INVULN))
+                        notice = FALSE;
                 }
-
-                /* Deep water */
-                else if (have_flag(f_ptr->flags, FF_WATER) && have_flag(f_ptr->flags, FF_DEEP) &&
-                         (p_ptr->levitation || p_ptr->can_swim || (plr_total_weight() <= weight_limit())))
+                else if (water_is_deep(cell))
                 {
-                    /* Ignore */
-                    notice = FALSE;
+                    if ( plr->levitation
+                      || plr->can_swim
+                      || plr_total_weight() <= weight_limit() )
+                    {
+                        notice = FALSE;
+                    }
                 }
             }
 
             /* Interesting feature */
-            if (notice) return (TRUE);
+            if (notice) return TRUE;
 
             /* The grid is "visible" */
             inv = FALSE;
         }
 
         /* Analyze unknown grids and floors considering mimic */
-        if (inv || !see_wall(0, row, col))
+        if (inv || !see_wall(next, 0))
         {
             /* Looking for open area */
             if (find_openarea)
             {
                 /* Nothing */
             }
-            else if (find_road && c_ptr->feat != feat_road)
+            /* stay on road */
+            else if (find_road && !floor_is_road(cell))
             {
                 /* Nothing */
             }
@@ -2259,7 +1363,7 @@ static bool run_test(void)
         for (i = -max; i < 0; i++)
         {
             /* Unknown grid or non-wall */
-            if (!see_wall(cycle[chome[prev_dir] + i], p_ptr->pos.y, p_ptr->pos.x))
+            if (!see_wall(plr->pos, cycle[chome[prev_dir] + i]))
             {
                 /* Looking to break right */
                 if (find_breakright)
@@ -2283,7 +1387,7 @@ static bool run_test(void)
         for (i = max; i > 0; i--)
         {
             /* Unknown grid or non-wall */
-            if (!see_wall(cycle[chome[prev_dir] + i], p_ptr->pos.y, p_ptr->pos.x))
+            if (!see_wall(plr->pos, cycle[chome[prev_dir] + i]))
             {
                 /* Looking to break left */
                 if (find_breakleft)
@@ -2337,18 +1441,17 @@ static bool run_test(void)
         else
         {
             /* Get next location */
-            row = p_ptr->pos.y + ddy[option];
-            col = p_ptr->pos.x + ddx[option];
+            next = point_step(plr->pos, option);
 
             /* Don't see that it is closed off. */
             /* This could be a potential corner or an intersection. */
-            if (!see_wall(option, row, col) ||
-                !see_wall(check_dir, row, col))
+            if (!see_wall(next, option) ||
+                !see_wall(next, check_dir))
             {
                 /* Can not see anything ahead and in the direction we */
                 /* are turning, assume that it is a potential corner. */
-                if (see_nothing(option, row, col) &&
-                    see_nothing(option2, row, col))
+                if (see_nothing(next, option) &&
+                    see_nothing(next, option2))
                 {
                     find_current = option;
                     find_prevdir = option2;
@@ -2379,7 +1482,7 @@ static bool run_test(void)
     }
 
     /* About to hit a known wall, stop */
-    if (see_wall(find_current, p_ptr->pos.y, p_ptr->pos.x))
+    if (see_wall(plr->pos, find_current))
     {
         return (TRUE);
     }
@@ -2402,7 +1505,7 @@ void run_step(int dir)
         ignore_avoid_run = TRUE;
 
         /* Hack -- do not start silly run */
-        if (see_wall(dir, p_ptr->pos.y, p_ptr->pos.x))
+        if (see_wall(plr->pos, dir))
         {
             /* Message */
             msg_print("You cannot run in that direction.");
@@ -2452,10 +1555,10 @@ void run_step(int dir)
     Term_xtra(TERM_XTRA_DELAY, delay_run);
     Term_fresh();
 
-    if (player_bold(p_ptr->run_py, p_ptr->run_px))
+    if (dun_plr_at(cave, plr->run_pos))
     {
-        p_ptr->run_py = 0;
-        p_ptr->run_px = 0;
+        plr->run_pos.x = 0;
+        plr->run_pos.y = 0;
         disturb(0, 0);
     }
 }
@@ -2463,9 +1566,10 @@ void run_step(int dir)
 
 static int travel_cost(point_t pos)
 {
-    int cost = dun_flow_at(travel.flow, pos).cost;
+    int cost;
     assert(travel.flow);
-    if (!cost && !point_equals(pos, travel.pos))
+    cost = dun_flow_at(travel.flow, pos);
+    if (cost == DUN_FLOW_NULL)
         cost = 9999;
     return cost;
 }
@@ -2473,8 +1577,9 @@ static int travel_cost(point_t pos)
 static bool _travel_abort_direct(point_t pos)
 {
     mon_ptr mon;
+    int i;
 
-    if (plr_tim_find(T_BLIND) || no_lite())
+    if (plr_tim_find(T_BLIND) || no_light())
     {
         msg_print("You cannot see!");
         return TRUE;
@@ -2483,12 +1588,12 @@ static bool _travel_abort_direct(point_t pos)
     {
         bool         old_dtrap = FALSE;
         bool         new_dtrap = FALSE;
-        dun_grid_ptr grid = cave_at(pos);
+        dun_grid_ptr grid = dun_grid_at(cave, pos);
 
-        if (cave_at(p_ptr->pos)->info & CAVE_IN_DETECT)
+        if (dun_grid_at(cave, plr->pos)->flags & CELL_DETECT)
             old_dtrap = TRUE;
 
-        if (grid->info & CAVE_IN_DETECT)
+        if (grid->flags & CELL_DETECT)
             new_dtrap = TRUE;
 
         if (old_dtrap && !new_dtrap && !_auto_detect_traps())
@@ -2497,8 +1602,19 @@ static bool _travel_abort_direct(point_t pos)
             return TRUE;
         }
     }
-    mon = mon_at(pos);
-    if (mon && mon->ml) return TRUE;
+    /* stop if hostile mon on target square */
+    mon = dun_mon_at(cave, pos);
+    if (mon && !mon_is_pet(mon) && mon->ml) return TRUE;
+
+    /* stop if hostile mon adjacent to target square
+     * it is annoying when auto_get_objects runs you into a Death mold! */
+    for (i = 0; i < 8; i++)
+    {
+        point_t p = point_step(pos, ddd[i]);
+        if (!dun_pos_interior(cave, p)) continue;
+        mon = dun_mon_at(cave, p);
+        if (mon && !mon_is_pet(mon) && mon->ml) return TRUE;
+    }
 
     return FALSE;
 }
@@ -2508,7 +1624,7 @@ static bool travel_abort(void)
     int prev_dir;
     int i, max;
     bool stop = TRUE;
-    int current_cost = travel_cost(p_ptr->pos);
+    int current_cost = travel_cost(plr->pos);
 
     /* Where we came from */
     prev_dir = find_prevdir;
@@ -2518,7 +1634,7 @@ static bool travel_abort(void)
 
     for (i = 0; i < 8; i++)
     {
-        point_t pos = point_step(p_ptr->pos, ddd[i]);
+        point_t pos = point_step(plr->pos, ddd[i]);
         int     cost = travel_cost(pos);
         if (cost < current_cost)
             stop = FALSE;
@@ -2527,7 +1643,7 @@ static bool travel_abort(void)
     if (stop) return TRUE;
 
     /* Cannot travel when blind */
-    if (plr_tim_find(T_BLIND) || no_lite())
+    if (plr_tim_find(T_BLIND) || no_light())
     {
         msg_print("You cannot see!");
         return TRUE;
@@ -2537,7 +1653,7 @@ static bool travel_abort(void)
     for (i = -max; i <= max; i++)
     {
         int          dir = cycle[chome[prev_dir] + i];
-        point_t      pos = point_step(p_ptr->pos, dir);
+        point_t      pos = point_step(plr->pos, dir);
         dun_grid_ptr grid;
         mon_ptr      mon;
 
@@ -2549,10 +1665,10 @@ static bool travel_abort(void)
             bool old_dtrap = FALSE;
             bool new_dtrap = FALSE;
 
-            if (cave_at(p_ptr->pos)->info & CAVE_IN_DETECT)
+            if (dun_grid_at(cave, plr->pos)->flags & CELL_DETECT)
                 old_dtrap = TRUE;
 
-            if (grid->info & CAVE_IN_DETECT)
+            if (grid->flags & CELL_DETECT)
                 new_dtrap = TRUE;
 
             if (old_dtrap && !new_dtrap && !_auto_detect_traps())
@@ -2563,8 +1679,8 @@ static bool travel_abort(void)
         }
 
         /* Visible monsters abort running */
-        mon = mon_at(pos);
-        if (mon && mon->ml) return TRUE;
+        mon = dun_mon_at(cave, pos);
+        if (mon && !mon_is_pet(mon) && mon->ml) return TRUE;
     }
 
     return FALSE;
@@ -2586,12 +1702,12 @@ void travel_step(void)
         pos = point_vec_get(travel.path, travel.path_idx);
         next_pos = point_vec_get(travel.path, ++travel.path_idx);
 
-        if (!point_equals(pos, p_ptr->pos) || _travel_abort_direct(next_pos))
+        if (!point_equals(pos, plr->pos) || _travel_abort_direct(next_pos))
         {
             disturb(0, 0);
             return;
         }
-        dir = point_step_dir(p_ptr->pos, next_pos); /* XXX */
+        dir = point_step_dir(plr->pos, next_pos); /* XXX */
     }
     else
     {
@@ -2614,7 +1730,7 @@ void travel_step(void)
         for (i = 0; i < 8; i++)
         {
             int     d = dirs[i];
-            point_t pt = point_step(p_ptr->pos, d);
+            point_t pt = point_step(plr->pos, d);
 
             if (!dir || travel_cost(pt) < travel_cost(next_pos))
             {
@@ -2630,14 +1746,14 @@ void travel_step(void)
     grid = dun_grid_at(cave, next_pos);
 
     /* Travelling is bumping into jammed doors and getting stuck */
-    if (is_jammed_door(grid->feat))
+    if (door_is_jammed(grid))
     {
         disturb(0, 0);
         return;
     }
 
     /* Closed door */
-    else if (is_closed_door(grid->feat))
+    else if (door_is_closed(grid))
     {
         if (!easy_open)
         {
@@ -2646,7 +1762,7 @@ void travel_step(void)
         }
     }
     /* Travelling is bumping into mountains and permanent walls and getting stuck */
-    else if (!player_can_enter(grid->feat, 0))
+    else if (!cell_allow_plr(grid) || cell_is_wall(grid) || cell_is_pattern(grid))
     {
         disturb(0, 0);
         return;
@@ -2654,13 +1770,13 @@ void travel_step(void)
 
     travel.dir = dir;
     move_player(dir, always_pickup, easy_disarm);
-    if (!point_equals(p_ptr->pos, next_pos)) /* open door; attack invisible monster; etc. */
+    if (!point_equals(plr->pos, next_pos)) /* open door; attack invisible monster; etc. */
         --travel.path_idx;
     Term_xtra(TERM_XTRA_DELAY, delay_run);
     Term_fresh();
     travel.run = old_run;
 
-    if (point_equals(p_ptr->pos, travel.pos))
+    if (point_equals(plr->pos, travel.pos))
         travel_end();
     else
         travel.run--;

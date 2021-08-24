@@ -1,58 +1,52 @@
-N:53:Grip, Farmer Maggot's dog
-N:54:Wolf, Farmer Maggot's dog
-N:55:Fang, Farmer Maggot's dog
+N:C.Grip
+N:C.Wolf
+N:C.Fang
 
-N:63:Smeagol
+N:h.Smeagol
 says, 'We hates, hates, hatesss!'
 
-N:393:It
+N:..It
 says, 'It's appalling.'
 
-N:573:Lord Borel
+N:p.Borel
 says, 'Oh, basely done! I had hoped for better of thee!'
 
-N:670:Jack of Shadows
+N:p.Jack
 says, 'I'll get even! Next time I see you, Death is yours!'
 
-N:732:Bull Gates
-says, 'Empire Micro$oft is eternal!'
-
-N:764:Uriel, Angel of Fire
-N:765:Azriel, Angel of Death
-N:769:Raphael, the Messenger
+N:A.Uriel
+N:A.Azriel
+N:A.Raphael
 says, 'My God, Please visit a punishment upon this unrighteous sinner!'
 
-N:780:Vlad Dracula, Prince of Darkness
+N:V.Vlad
 says, 'Faugh, I'll be back...so long as human psyche has a blackness. Ho-ho.'
 
-N:873:Combat-Echizen
+N:p.Echizen
 says shiftlessly, 'Oh. No.'
 
-N:878:Dio Brando
+N:V.Dio
 shouts, 'This CAN'T be happening! I am Dying....!!!!!'
 
-N:880:Wong, Master of Time
+N:p.Wong
 shouts, 'This CAN'T be happening!'
 
-N:921:Internet Exploder
-was deprecated.
-
-N:931:Caldarm the third
+N:p.Caldarm
 says, 'I desire peace ... for all people... '
 
-N:936:Kenshirou of hokuto
+N:p.Kenshirou
 shouts, 'JuliaAAAAAAA!!!'
 
-N:1004:Pip, the Braver from Another World
+N:p.Pip
 was killed by a cruel venturer. Go to 14.
 
-N:1018:Raou
+N:p.Raou
 points at himself and shouts, 'I finished my life with no regrets!'
 
-N:1063:lousy, the King of louses
+N:I.Lousy
 says, 'Ah, PosChengband is too difficult!  I'm going back to Chengband!!'
 
-N:1094:The Variant Maintainer
+N:p.VM
 says, 'I guess PosChengband is too easy!'
 says, 'Wait until you see me next release!'
 says, 'I guess this is the last version of PosChengband!'

@@ -1,0 +1,212 @@
+########################################################################
+# Eyes
+N:e.floating:Floating eye
+I:LVL(1,10):RARITY(1)
+I:HP(3d6):AC(6):EXP(3)
+I:ALERT(20',Very Observant):MOVE(NEVER|FLY)
+B:GAZE:PARALYZE
+I:VULN(BLIND|LIGHT):IMMUNE(FEAR)
+D:A disembodied eye, floating a few feet above the ground.
+I:DISPLAY(e,Blue):POS(CORPSE|TELEPATHY)
+P:Copy:Human:Mage
+P:Body:Eye
+P:Weight:25
+
+N:e.radiation:e.floating:Radiation eye
+I:LVL(3,30):RARITY(1)
+I:HP(3d6):AC(6):EXP(7)
+I:LIGHT(1)
+B:GAZE:DAM(1d10):LOSE_STR
+S:1_IN_11 | DRAIN_MANA
+D:A disembodied eye, crackling with energy.
+I:COLOR(Light Red)
+
+N:e.disenchanter:e.floating:Disenchanter eye
+I:LVL(5,40):RARITY(2)
+I:SPEED(-10):HP(7d8):AC(10):EXP(20)
+B:GAZE:DISENCHANT
+I:RESIST(DISENCHANT)
+S:1_IN_9 | DRAIN_MANA
+D:A disembodied eye, crackling with magic.
+I:DISPLAY(,Violet,ATTR_MULTI|ATTR_ANY)
+
+N:e.bloodshot:e.floating:Bloodshot eye
+I:LVL(7,40):RARITY(3)
+I:HP(5d8):AC(6):EXP(15)
+B:GAZE:DAM(2d7):BLIND
+S:1_IN_7 | DRAIN_MANA
+D:A disembodied eye, bloodshot and nasty.
+I:COLOR(Red)
+
+N:e.gazer:Gazer
+I:LVL(12,50):RARITY(1):WILD(WOOD)
+I:HP(9d9):AC(18):EXP(40):EVOLVE(e.spectator, 300)
+I:ALIGN(Neutral Evil):ALERT(150',Unseeing):MOVE(FLY)
+B:GAZE:DAM(1d2):PARALYZE(75%)
+B:GAZE:CONFUSE(1d2)
+B:GAZE:DRAIN_MANA(1d6)
+I:RESIST(POISON):VULN(BLIND)
+S:1_IN_8 | PARALYZE | CONFUSE
+D:A floating eye surrounded by number of smaller eyestalks. Its gaze seems mesmerizing.
+I:DISPLAY(e,Light Green):POS(CORPSE|GAIN_AC|TELEPATHY)
+P:Copy:Gnome:Mage
+P:Body:Eye
+P:Weight:50
+
+N:e.spectator:Spectator
+I:LVL(32,70):RARITY(3)
+I:HP(20d10):AC(1):EXP(150):EVOLVE(e.beholder, 4000)
+I:ATTR(STUPID|EMPTY_MIND):ALERT(300',Observant):MOVE(FLY)
+B:GAZE:DAM(1d4):PARALYZE
+B:GAZE:CONFUSE(1d4)
+B:GAZE:DISENCHANT
+B:GAZE:DRAIN_MANA(1d10)
+I:RESIST(CONFUSION):IMMUNE(SLEEP|FEAR):VULN(BLIND)
+S:1_IN_6 | AMNESIA | CAUSE_2 | PARALYZE | SLOW
+D:It has two small eyestalks and a large central eye.
+I:DISPLAY(e,Light Blue):POS(CORPSE|GAIN_AC|TELEPATHY)
+P:Copy:Hobbit:Mage
+P:Body:Eye2
+P:Weight:30
+
+N:e.gas spore:Gas spore
+I:LVL(34,60):RARITY(4)
+I:HP(25d10):AC(1):EXP(100)
+I:ATTR(STUPID|EMPTY_MIND):ALERT(300',Observant):MOVE(FLY)
+B:EXPLODE:POISON(30d2)
+I:RESIST(CONFUSION):IMMUNE(SLEEP|FEAR):VULN(BLIND)
+D:From a distance, this creature is often mistaken for the much more dangerous beholder.
+I:DISPLAY(e,Green):POS(GAIN_AC)
+P:Copy:Hobbit:Warrior
+P:Body:Eye6
+P:Weight:50
+
+N:e.chaos spawn:Chaos spawn
+I:LVL(36,70):RARITY(2)
+I:HP(676):AC(50):EXP(600)
+I:ALIGN(Evil):ALERT(200',Fairly Unseeing):MOVE(BASH|FLY)
+B:GAZE:DAM(7d6)
+B:GAZE:DISENCHANT(5d2)
+B:GAZE:VAMP(5d2)
+B:GAZE:DAM(5d2):PARALYZE
+I:RESIST(CHAOS):VULN(BLIND)
+D:It has two eyestalks and a large central eye. Its gaze can kill.
+I:DISPLAY(e,Umber):POS(GAIN_AC|TELEPATHY)
+P:Copy:Hobbit:Warrior
+P:Body:Eye2
+P:Weight:50
+
+N:e.beholder:Beholder
+I:LVL(38,80):RARITY(4)
+I:SPEED(+10):HP(1600):AC(80):EXP(4000):EVOLVE(e.undead, 8000)
+I:ALIGN(Evil):ALERT(300',Fairly Observant):MOVE(BASH|FLY)
+B:GAZE:DAM(2d4):DRAIN_MANA(5d5):CONFUSE(40%)
+B:GAZE:DAM(2d4):TERRIFY:SLEEP(35%)
+B:GAZE:DAM(2d4):STUN(3d3):AMNESIA(25%)
+I:RESIST(POISON|CONFUSION|TELEPORT):IMMUNE(SLEEP):VULN(BLIND)
+S:FREQ_35 | GAZE
+D:A disembodied eye, surrounded by twelve smaller eyes on stalks.
+I:DISPLAY(e,Green):POS(CORPSE|GAIN_AC|TELEPATHY)
+P:Copy:High-Elf:Mage
+P:Skill:Thn(50+100)
+P:Body:Eye6
+P:Weight:70
+
+N:e.undead:e.beholder:Undead beholder
+I:LVL(42):RARITY(4)
+I:SPEED(+10):HP(2700):AC(100):EXP(6000):EVOLVE(e.ultimate, 40000)
+I:KIND(UNDEAD):DARK(1):ATTR(COLD_BLOOD)
+B:GAZE:MIND_BLAST(2d6):DRAIN_MANA(7d7):CONFUSE:UNLIFE(2d6)
+B:GAZE:MIND_BLAST(2d6):TERRIFY:PARALYZE:UNLIFE(2d6)
+B:GAZE:MIND_BLAST(2d6):STUN(3d3):AMNESIA(25%):LOSE_INT(50%)
+I:RESIST(BASE):IMMUNE(POISON|NETHER)
+S:FREQ_35 | GAZE | CAUSE_4 | MIND_BLAST | BRAIN_SMASH | BO_MANA |
+S:ANIM_DEAD | BA_NETHER | S_UNDEAD
+D:A disembodied eye, floating in the air. Black nether storms rage around
+D:its bloodshot pupil and light seems to bend as it sucks its power from the
+D:very air around it. Your soul chills as it drains your vitality for its
+D:evil enchantments.
+I:COLOR(Slate):POS(-CORPSE|HOLD_LIFE)
+
+N:e.ultimate:e.beholder:Ultimate beholder
+I:LVL(66):RARITY(4)
+I:SPEED(+10):HP(4000):AC(80):EXP(18000)
+I:ATTR(FEMALE|SMART)
+B:GAZE:BRAIN_SMASH(5d5):DRAIN_MANA(8d8):CONFUSE:DRAIN_EXP(40d6)
+B:GAZE:BRAIN_SMASH(5d5):TERRIFY:PARALYZE
+B:GAZE:BRAIN_SMASH(5d5):DRAIN_CHARGES:AMNESIA(25%):LOSE_INT
+S:FREQ_35 | GAZE | MIND_BLAST | DARKNESS | S_KIN | BO_MANA | DISPEL_MAGIC | ANTI_MAGIC | BA_DARK
+D:A disembodied eye, surrounded by twelve smaller eyes on stalks. This is a beholder
+D:hive-mother, far more powerful than normal beholders.
+I:COLOR(Orange)
+P:Body:Eye8
+P:Weight:100
+
+N:e.Omarax:Omarax the Eye Tyrant
+I:LVL(73):RARITY(4):ALLOC(UNIQUE)
+I:SPEED(+20):HP(6500):AC(80):EXP(32000)
+I:ALIGN(Evil):CAN(SPEAK):ATTR(MALE|SMART)
+I:ALERT(300',Fairly Observant):MOVE(BASH|FLY)
+B:GAZE:BRAIN_SMASH(7d5):DRAIN_MANA(9d9):CONFUSE:DRAIN_EXP(40d6)
+B:GAZE:BRAIN_SMASH(7d5):TERRIFY:PARALYZE:CONFUSE
+B:GAZE:BRAIN_SMASH(7d5):DRAIN_CHARGES:AMNESIA(25%):LOSE_INT
+B:GAZE:BRAIN_SMASH(7d5):DISENCHANT:PARALYZE:LOSE_WIS
+I:RESIST(POISON|CONFUSION):IMMUNE(SLEEP|SLOW|TELEPORT):VULN(BLIND)
+S:FREQ_40 | GAZE | BRAIN_SMASH(150) | S_KIN | BO_MANA | BA_DARK | DISPEL_MAGIC
+O:5%:ART(].Eyes)
+D:A disembodied eye, floating in the air. His gaze seems to shred your
+D:soul and his spells crush your will. He is ancient, his history steeped
+D:in forgotten evils, his atrocities numerous and sickening.
+I:DISPLAY(e,Yellow):POS(GAIN_AC|TELEPATHY)
+P:Copy:High-Elf:Warrior-Mage
+P:Skill:Thn(60+120)
+P:Body:Eye8
+P:Weight:100
+
+N:e.Cyaegha:Cyaegha
+I:LVL(80):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+20):HP(6400):AC(120):EXP(44444)
+I:KIND(DEMON|NONLIVING|HORROR):DARK(3):ALIGN(Chaotic):CAN(SPEAK):ATTR(SMART|COLD_BLOOD)
+I:ALERT(900',Fairly Observant):MOVE(OPEN|BASH|PUSH|FLY)
+B:CRUSH(x4):HURT(5d15+80)
+I:RESIST(ACID|ELEC|COLD|POISON|DARK|NETHER|CONFUSION):IMMUNE(SLEEP|SLOW|TELEPORT):VULN(BLIND)
+S:FREQ_30 | TELE_OTHER | BLIND | PARALYZE | SCARE | BRAIN_SMASH | AMNESIA | HAND_DOOM
+S:BR_DARK | BA_DARK | BR_NETHER | S_HI_UNDEAD | S_HI_DEMON | S_MONSTER | S_HYDRA
+O:7d2:OBJ(*,GOOD)
+D:"...it was a gigantic eye staring down at them. Around the eye, the sky split; deep
+D:clefts opened through which the darkness began to ooze, a darkness blacker than the
+D:night, which crawled down as a set of slimy tentacles, taking on more form, more definite
+D:shape... something was standing, outlined against the black sky, something which had
+D:tentacles of darkness and a green-glowing eye."
+I:DISPLAY(e,Light Dark):POS(GAIN_AC|HOLD_LIFE|TELEPATHY)
+P:Copy:High-Elf:Warrior-Mage
+P:Skill:Thn(70+150)
+P:Body:Cyaegha
+P:Weight:300
+
+N:e.Shuma-Gorath:Shuma-Gorath
+I:LVL(88):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+20):HP(8500):AC(150):EXP(60000)
+I:KIND(DEMON|NONLIVING|HORROR):ALIGN(Chaotic):CAN(SPEAK):ATTR(SMART|COLD_BLOOD)
+I:ALERT(500',Ever Vigilant):MOVE(NEVER|SWIM)
+B:CRUSH:HURT(6d12+40)
+B:CRUSH:HURT(2d12):LOSE_CHR
+B:GAZE:DAM(2d12):LOSE_INT
+B:GAZE:DAM(2d12):LOSE_WIS
+I:RESIST(ACID|ELEC|COLD|POISON|CONFUSION|NETHER|NEXUS|CHAOS|DISENCHANT|WATER)
+I:IMMUNE(SLEEP|SLOW|STUN|BLIND)
+S:1_IN_2 | PSY_SPEAR(1d176+150) | HAND_DOOM | MANA_STORM | AMNESIA | HEAL | TELE_SELF | TELE_OTHER
+S:TELE_LEVEL | CONFUSE | BLIND | BRAIN_SMASH | DRAIN_MANA | S_MONSTER | S_KIN | S_CYBER | S_HOUND
+S:S_HYDRA | S_HI_DEMON | S_UNIQUE | S_HI_UNDEAD | S_HI_DRAGON | ANIM_DEAD | DISPEL_MAGIC | ANTI_MAGIC
+O:1d2:OBJ(*,GREAT)
+D:Shuma-Gorath is one of the immortal lords of chaos. The true form of
+D:this blasphemous horror is a huge, all-seeing eye surrounded by tentacles.
+I:DISPLAY(e,Light Green):POS(GAIN_AC|HOLD_LIFE|TELEPATHY)
+P:Copy:High-Elf:High-Mage
+P:Skill:Thn(60+120)
+P:Body:Cyaegha
+P:Weight:1000
+# Note the IMMUNE(BLIND): The all-seeing eye can never be blinded!
+
+# vim: filetype=ri :
+

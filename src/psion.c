@@ -5,25 +5,25 @@
 static int _spell_stat(void)
 {
     int result = A_INT;
-    int max = p_ptr->stat_ind[A_INT];
+    int max = plr->stat_ind[A_INT];
     
-    if (p_ptr->stat_ind[A_WIS] > max)
+    if (plr->stat_ind[A_WIS] > max)
     {
         result = A_WIS;
-        max = p_ptr->stat_ind[A_WIS];
+        max = plr->stat_ind[A_WIS];
     }
 
-    if (p_ptr->stat_ind[A_CHR] > max)
+    if (plr->stat_ind[A_CHR] > max)
     {
         result = A_CHR;
-        max = p_ptr->stat_ind[A_CHR];
+        max = plr->stat_ind[A_CHR];
     }
     return result;
 }
 
 static int _spell_stat_idx(void)
 {
-    return p_ptr->stat_ind[_spell_stat()];
+    return plr->stat_ind[_spell_stat()];
 }
 
 /************************************************************************
@@ -50,18 +50,18 @@ static bool _archery_on(plr_tim_ptr timer)
 {
     plr_tim_remove(_COMBAT);
     msg_print("You transform into a shooting machine!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _archery_off(plr_tim_ptr timer)
 {
     msg_print("Your archery transformation expires.");    
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _archery_bonus(plr_tim_ptr timer)
 {
     /* Note: This also increases shots per round ... cf calc_bonuses in xtra1.c */
-    p_ptr->skills.thb += 20 * timer->parm;
+    plr->skills.thb += 20 * timer->parm;
 }
 static status_display_t _archery_display(plr_tim_ptr timer)
 {
@@ -82,21 +82,21 @@ static plr_tim_info_ptr _archery(void)
 static bool _blending_on(plr_tim_ptr timer)
 {
     msg_print("You blend into your surroundings.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _blending_off(plr_tim_ptr timer)
 {
     msg_print("You no longer blend into your surroundings.");    
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _blending_bonus(plr_tim_ptr timer)
 {
-    p_ptr->skills.stl += 5 * timer->parm;
-    if ((p_ptr->cursed & OFC_AGGRAVATE) && timer->parm == 5)
+    plr->skills.stl += 5 * timer->parm;
+    if ((plr->cursed & OFC_AGGRAVATE) && timer->parm == 5)
     {
-        p_ptr->cursed &= ~(OFC_AGGRAVATE);
-        p_ptr->skills.stl = MIN(p_ptr->skills.stl - 3, (p_ptr->skills.stl + 2) / 2);
+        plr->cursed &= ~(OFC_AGGRAVATE);
+        plr->skills.stl = MIN(plr->skills.stl - 3, (plr->skills.stl + 2) / 2);
     }
 }
 static void _blending_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
@@ -148,17 +148,17 @@ static bool _combat_on(plr_tim_ptr timer)
 {
     plr_tim_remove(_ARCHERY);
     msg_print("You transform into a fighting machine!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _combat_off(plr_tim_ptr timer)
 {
     msg_print("Your combat transformation expires.");    
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _combat_bonus(plr_tim_ptr timer)
 {
-    p_ptr->skills.thn += 20 * timer->parm;
+    plr->skills.thn += 20 * timer->parm;
 }
 static void _combat_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
 {
@@ -240,33 +240,33 @@ static cptr _mon_name(mon_ptr mon)
 static void _ego_whip_on(mon_ptr mon, mon_tim_ptr timer)
 {
     msg_format("%^s is lashed by an ego whip!", _mon_name(mon));
-    p_ptr->redraw |= PR_HEALTH_BARS;
+    plr->redraw |= PR_HEALTH_BARS;
 }
 static void _ego_whip_off(mon_ptr mon, mon_tim_ptr timer)
 {
-    p_ptr->redraw |= PR_HEALTH_BARS;
+    plr->redraw |= PR_HEALTH_BARS;
 }
 static void _ego_whip_tick(mon_ptr mon, mon_tim_ptr timer)
 {
     anger_monster(mon);
-    if (psion_mon_save_p(mon->r_idx, timer->parm))
+    if (psion_mon_save_p(mon->race->id, timer->parm))
     {
         msg_format("%^s shakes off your ego whip!", _mon_name(mon));
         timer->count = 0;
-        p_ptr->redraw |= PR_HEALTH_BARS;
+        plr->redraw |= PR_HEALTH_BARS;
     }
     else
     {
         bool fear = FALSE;
         if (mon->ml) msg_format("Your ego whip lashes %s!", _mon_name(mon));
-        if (mon_take_hit(mon->id, spell_power(40*timer->parm), &fear, NULL)) return;
+        if (mon_take_hit(mon, spell_power(40*timer->parm), &fear, NULL)) return;
         timer->count--;
         if (!plr_project(mon->pos))
             mon_anger(mon);
         if (timer->count <= 0)
         {
             if (mon->ml) msg_format("Your ego whip on %s disappears.", _mon_name(mon));
-            p_ptr->redraw |= PR_HEALTH_BARS;
+            plr->redraw |= PR_HEALTH_BARS;
         }
     }
 }
@@ -319,31 +319,31 @@ static plr_tim_info_ptr _foresight(void)
 static bool _fortress_on(plr_tim_ptr timer)
 {
     msg_print("You erect a mental fortress.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _fortress_off(plr_tim_ptr timer)
 {
     msg_print("Your mental fortress collapses.");    
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _fortress_bonus(plr_tim_ptr timer)
 {
-    p_ptr->spell_power += timer->parm;
-    res_add(RES_TIME);
-    p_ptr->sustain_str = TRUE;
-    p_ptr->sustain_int = TRUE;
-    p_ptr->sustain_wis = TRUE;
-    p_ptr->sustain_dex = TRUE;
-    p_ptr->sustain_con = TRUE;
-    p_ptr->sustain_chr = TRUE;
-    p_ptr->hold_life++;
-    p_ptr->no_stun = TRUE;
+    plr->spell_power += timer->parm;
+    res_add(GF_TIME);
+    plr->sustain_str = TRUE;
+    plr->sustain_int = TRUE;
+    plr->sustain_wis = TRUE;
+    plr->sustain_dex = TRUE;
+    plr->sustain_con = TRUE;
+    plr->sustain_chr = TRUE;
+    plr->hold_life++;
+    res_add_immune(GF_STUN);
 }
 static void _fortress_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
 {
     add_flag(flags, OF_SPELL_POWER);
-    add_flag(flags, OF_RES_TIME);
+    add_flag(flags, OF_RES_(GF_TIME));
     add_flag(flags, OF_SUST_STR);
     add_flag(flags, OF_SUST_INT);
     add_flag(flags, OF_SUST_WIS);
@@ -397,17 +397,17 @@ static plr_tim_info_ptr _mindspring(void)
 static bool _shielding_on(plr_tim_ptr timer)
 {
     msg_print("You create a psionic shield.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _shielding_off(plr_tim_ptr timer)
 {
     msg_print("Your psionic shield disappears.");    
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _shielding_bonus(plr_tim_ptr timer)
 {
-    p_ptr->free_act++;
+    plr->free_act++;
     plr_bonus_ac(15 * timer->parm);
 }
 static void _shielding_flags(plr_tim_ptr timer, u32b flags[OF_ARRAY_SIZE])
@@ -437,18 +437,18 @@ static bool _speed_on(plr_tim_ptr timer)
     msg_print("You gain psionic speed.");
     virtue_add(VIRTUE_PATIENCE, -1);
     virtue_add(VIRTUE_DILIGENCE, 1);
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _speed_off(plr_tim_ptr timer)
 {
     if (plr_tim_find(T_LIGHT_SPEED)) return;
     msg_print("Your psionic speed fades.");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _speed_bonus(plr_tim_ptr timer)
 {
-    if (!p_ptr->riding)
+    if (!plr->riding)
         plr_bonus_speed(4 * timer->parm);
 }
 static void _speed_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
@@ -457,7 +457,7 @@ static void _speed_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 }
 static bool _speed_dispel(plr_tim_ptr timer, mon_ptr mon)
 {
-    return p_ptr->pspeed < 145 && timer->parm > 2;
+    return plr->pspeed < 35 && timer->parm > 2;
 }
 static status_display_t _speed_display(plr_tim_ptr timer)
 {
@@ -480,13 +480,13 @@ static plr_tim_info_ptr _speed(void)
 static bool _weapon_graft_on(plr_tim_ptr timer)
 {
     msg_print("Your weapon fuses to your arm!");
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _weapon_graft_off(plr_tim_ptr timer)
 {
     msg_print("Your melee weapon is no longer fused to your arm.");    
-    p_ptr->update |= PU_BONUS;
+    plr->update |= PU_BONUS;
 }
 static void _weapon_graft_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
 {
@@ -535,7 +535,7 @@ static void _register_timers(void)
 bool psion_can_wield(object_type *o_ptr)
 {
     if ( obj_is_weapon(o_ptr) 
-      && p_ptr->pclass == CLASS_PSION
+      && plr->pclass == CLASS_PSION
       && plr_tim_find(_WEAPON_GRAFT) )
     {
         msg_print("Failed! Your weapon is currently grafted to your arm!");
@@ -553,25 +553,25 @@ int psion_backlash_dam(int dam)
 
 bool psion_mental_fortress(void)
 {
-    if (p_ptr->pclass != CLASS_PSION) return FALSE;
+    if (plr->pclass != CLASS_PSION) return FALSE;
     return plr_tim_find(_FORTRESS);
 }
 
 void _do_mindspring(int energy)
 {
     if (!plr_tim_find(_MINDSPRING)) return;
-    p_ptr->csp += 20 * plr_tim_parm(_MINDSPRING) * energy / 100;
-    if (p_ptr->csp >= p_ptr->msp)
+    plr->csp += 20 * plr_tim_parm(_MINDSPRING) * energy / 100;
+    if (plr->csp >= plr->msp)
     {
-        p_ptr->csp = p_ptr->msp;
-        p_ptr->csp_frac = 0;
+        plr->csp = plr->msp;
+        plr->csp_frac = 0;
     }
-    p_ptr->redraw |= PR_MANA;
+    plr->redraw |= PR_MANA;
 }
 
 bool psion_disruption(void)
 {
-    if (p_ptr->pclass != CLASS_PSION) return FALSE;
+    if (plr->pclass != CLASS_PSION) return FALSE;
     return plr_tim_find(_DISRUPTION);
 }
 
@@ -584,10 +584,10 @@ bool psion_check_disruption_aux(mon_ptr m_ptr)
 {
     if (psion_disruption())
     {
-        monster_race *r_ptr = mon_race(m_ptr);
-        int           pl = p_ptr->lev + 8*plr_tim_parm(_DISRUPTION);
+        monster_race *r_ptr = m_ptr->race;
+        int           pl = plr->lev + 8*plr_tim_parm(_DISRUPTION);
 
-        if (randint0(r_ptr->level) < pl) 
+        if (randint0(r_ptr->alloc.lvl) < pl) 
             return TRUE;
     }
     return FALSE;
@@ -595,18 +595,18 @@ bool psion_check_disruption_aux(mon_ptr m_ptr)
 
 bool psion_drain(void)
 {
-    if (p_ptr->pclass != CLASS_PSION) return FALSE;
+    if (plr->pclass != CLASS_PSION) return FALSE;
     return plr_tim_find(_DRAIN);
 }
 
 int psion_do_drain(int dam)
 {
     int result = dam, drain, power;
-    mon_spell_ptr spell = mon_spell_current();
+    mon_spell_cast_ptr cast = mon_spell_current();
 
     if (!psion_drain()) return result;
-    if (!spell) return result;
-    if (spell->flags & MSF_INNATE) return result;
+    if (!cast) return result;
+    if (cast->spell->flags & MSF_INNATE) return result;
 
     power = plr_tim_parm(_DRAIN);
     drain = dam * 5 * power / 100;
@@ -619,7 +619,7 @@ int psion_do_drain(int dam)
 
 bool psion_foresight(void)
 {
-    if (p_ptr->pclass != CLASS_PSION) return FALSE;
+    if (plr->pclass != CLASS_PSION) return FALSE;
     return plr_tim_find(_FORESIGHT);
 }
 
@@ -636,8 +636,8 @@ bool psion_check_foresight(void)
 
 bool psion_mon_save_p(int r_idx, int power)
 {
-    int pl = p_ptr->lev;
-    int ml = mon_race_lookup(r_idx)->level;
+    int pl = plr->lev;
+    int ml = mon_race_lookup(r_idx)->alloc.lvl;
     int s = _spell_stat_idx() + 3;
 
     if (ml + randint1(100) > pl + s + power*14) return TRUE;
@@ -705,25 +705,8 @@ static void _brain_smash_spell(int power, int cmd, var_ptr res)
     case SPELL_INFO:
         var_set_string(res, info_radius(2));
         break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-
-        fire_ball(
-            GF_PSI_BRAIN_SMASH, 
-            dir, 
-            power,
-            2
-        );
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 2, GF_PSI_BRAIN_SMASH, power);
     }
 }
 static void _brain_smash1_spell(int cmd, var_ptr res) { _brain_smash_spell(1, cmd, res); }
@@ -849,6 +832,7 @@ static int _get_energy_blast_type(int power)
 
 static void _energy_blast_spell(int power, int cmd, var_ptr res)
 {
+    dice_t dice = spell_dam_dice(4*power, 4*power, 0);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -858,31 +842,19 @@ static void _energy_blast_spell(int power, int cmd, var_ptr res)
         var_set_string(res, "Fires an elemental ball.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(4*power), spell_power(4*power), 0));
+        var_printf(res, "dam ~%d", dice_avg_roll(dice));
         break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        int type = _get_energy_blast_type(power);
+    case SPELL_CAST: {
+        int gf = _get_energy_blast_type(power); /* menu */
+        int rad = (power + 1)/2;
         
         var_set_bool(res, FALSE);
-        
-        if (type < 0) return;
-        if (!get_fire_dir(&dir)) return;
-
-        fire_ball_aux(
-            type, 
-            dir, 
-            spell_power(damroll(4*power, 4*power)),
-            spell_power((1 + power)/2),
-            PROJECT_FULL_DAM
-        );
-        var_set_bool(res, TRUE);
-        break;
-    }
+        if (gf < 0) return; /* cancelled menu */
+        var_set_bool(res, plr_cast_ball(rad, gf, dice));
+        /* XXX PROJECT_FULL_DAM ... I want to kill this. */
+        break; }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -938,21 +910,8 @@ static void _mana_thrust_spell(int power, int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a bolt of pure mana.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(4*power), spell_power(4*power), 0));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_bolt(GF_MANA, dir, spell_power(damroll(4*power, 4*power)));
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        bolt_spell(cmd, res, GF_MANA, 4*power, 4*power);
     }
 }
 
@@ -1140,7 +1099,7 @@ static void _psionic_clarity5_spell(int cmd, var_ptr res) { _psionic_clarity_spe
 /* Psionic Crafting */
 static int _enchant_power = 0;
 int psion_enchant_power(void) { 
-    if (p_ptr->pclass == CLASS_PSION)
+    if (plr->pclass == CLASS_PSION)
         return _enchant_power;
     return 0;
 }
@@ -1250,7 +1209,7 @@ static void _psionic_disruption_spell(int power, int cmd, var_ptr res)
         var_set_string(res, "For a short while, your mental focus will disrupt the minds of others.");
         break;
     case SPELL_INFO:
-        var_set_string(res, format("Power: %d", p_ptr->lev + 8*power));
+        var_set_string(res, format("Power: %d", plr->lev + 8*power));
         break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
@@ -1438,9 +1397,9 @@ static void _psionic_protection_spell(int power, int cmd, var_ptr res)
             if (power >= 4)
             {
                 plr_tim_add(T_AURA_FIRE, dur);
-                if (p_ptr->lev >= 25)
+                if (plr->lev >= 25)
                     plr_tim_add(T_AURA_COLD, dur);
-                if (p_ptr->lev >= 35)
+                if (plr->lev >= 35)
                     plr_tim_add(T_AURA_ELEC, dur);
             }
         }
@@ -1487,7 +1446,7 @@ static void _psionic_seeing_spell(int power, int cmd, var_ptr res)
         if (power >= 4)
         {
             plr_tim_add(T_TELEPATHY, spell_power(randint1(30) + 25));
-            p_ptr->wizard_sight = TRUE;
+            plr->wizard_sight = TRUE;
         }
 
         if (power >= 5)
@@ -1602,29 +1561,8 @@ static void _psionic_storm_spell(int power, int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a ball of psionic energy.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(power*125 - 25)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-
-        fire_ball_aux(
-            GF_PSI_STORM, 
-            dir, 
-            spell_power(power*125 - 25),
-            2 + power/5,
-            0
-        );
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 2 + power/5, GF_PSI_STORM, 125*power - 25);
     }
 }
 static void _psionic_storm1_spell(int cmd, var_ptr res) { _psionic_storm_spell(1, cmd, res); }
@@ -1657,9 +1595,9 @@ static void _psionic_travel_spell(int power, int cmd, var_ptr res)
         if (power == 1)
             var_set_string(res, info_range(10));
         else if (power == 2)
-            var_set_string(res, info_range(25 + p_ptr->lev / 2));
+            var_set_string(res, info_range(25 + plr->lev / 2));
         else if (power == 3)
-            var_set_string(res, info_range(p_ptr->lev * 4));
+            var_set_string(res, info_range(plr->lev * 4));
         else
             var_set_string(res, info_range(15*(power - 3)));
         break;
@@ -1669,9 +1607,9 @@ static void _psionic_travel_spell(int power, int cmd, var_ptr res)
         if (power == 1)
             teleport_player(10, 0L);
         else if (power == 2)
-            teleport_player(25 + p_ptr->lev/2, 0L);
+            teleport_player(25 + plr->lev/2, 0L);
         else if (power == 3)
-            teleport_player(p_ptr->lev * 4, 0L);
+            teleport_player(plr->lev * 4, 0L);
         else
             dimension_door(15*(power-3));
 
@@ -1709,7 +1647,7 @@ static void _psionic_wave_spell(int power, int cmd, var_ptr res)
         var_set_string(res, info_damage(0, 0, spell_power(power*50)));
         break;
     case SPELL_CAST:
-        project_los(GF_PSI_STORM, spell_power(power*50));
+        plr_project_los(GF_PSI_STORM, spell_power(power*50));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -2047,7 +1985,7 @@ static int _num_spells_learned(void)
     int i;
     for (i = 0; i < 64; i++) 
     {
-        if (p_ptr->spell_order[i] == 99) break;
+        if (plr->spell_order[i] == 99) break;
     }
     return i;
 }
@@ -2057,8 +1995,8 @@ static bool _spell_is_known(int idx)
     int i;
     for (i = 0; i < 64; i++) 
     {
-        if (p_ptr->spell_order[i] == idx) return TRUE;
-        if (p_ptr->spell_order[i] == 99) break;
+        if (plr->spell_order[i] == idx) return TRUE;
+        if (plr->spell_order[i] == 99) break;
     }
     return FALSE;
 }
@@ -2085,7 +2023,7 @@ static int _num_spells_allowed(void)
     for (i = 0; ; i++)
     {
         if (_spell_ranks[i].lvl <= 0) break;
-        if (p_ptr->lev >= _spell_ranks[i].lvl)
+        if (plr->lev >= _spell_ranks[i].lvl)
             ct++;
     }
     return ct;
@@ -2175,8 +2113,8 @@ static void _study(int level)
             if (get_check(prompt))
             {
                 screen_load();
-                p_ptr->spell_order[_num_spells_learned()] = spell->id;
-                p_ptr->redraw |= PR_EFFECTS;
+                plr->spell_order[_num_spells_learned()] = spell->id;
+                plr->redraw |= PR_EFFECTS;
                 msg_format("You have gained %s.", spell->name);
                 break;
             }
@@ -2207,7 +2145,7 @@ static int _get_powers(spell_info* spells, int max)
 
 static void _choose_menu_fn(int cmd, int which, vptr cookie, var_ptr res)
 {
-    _spell_ptr spell = _get_spell(p_ptr->spell_order[which]);
+    _spell_ptr spell = _get_spell(plr->spell_order[which]);
     switch (cmd)
     {
     case MENU_TEXT:
@@ -2229,7 +2167,7 @@ static int _choose_spell(void)
 
     i = menu_choose(&menu);
     if (i >= 0)
-        i = p_ptr->spell_order[i];
+        i = plr->spell_order[i];
     return i;
 }
 
@@ -2249,7 +2187,7 @@ static int _get_spells(spell_info* spells, int max)
     for (i = 0; i < _MAX_POWER; i++)
     {
         if (ct >= max) break;
-        if (base->level <= p_ptr->lev)
+        if (base->level <= plr->lev)
         {
             spell_info* current = &spells[ct];
             int fail = base->info[i].fail;
@@ -2280,14 +2218,14 @@ static int _get_spells(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
-    if (equip_find_art(ART_STONE_OF_MIND))
+    if (equip_find_art("~.Mind"))
     {
-        p_ptr->dec_mana++;
-        p_ptr->easy_spell++;
+        plr->dec_mana++;
+        plr->easy_spell++;
     }
 
-    if (p_ptr->lev >= 15)
-        p_ptr->clear_mind = TRUE;
+    if (plr->lev >= 15)
+        plr->clear_mind = TRUE;
 
 }
 
@@ -2319,7 +2257,7 @@ static void _character_dump(doc_ptr doc)
 
     for (i = 0; i < num_learned; i++)
     {
-        _spell_t *power = _get_spell(p_ptr->spell_order[i]);
+        _spell_t *power = _get_spell(plr->spell_order[i]);
 
         doc_printf(doc, "\n<color:G>%-23.23s Cost Fail %-15.15s Cast Fail</color>\n", power->name, "Info");
         for (j = 0; j < _MAX_POWER; j++)
@@ -2383,7 +2321,7 @@ plr_class_ptr psion_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  35,  40,   2,  16,   8,  48,  35};
-    skills_t xs = {  7,  11,  12,   0,   0,   0,  13,  11};
+    skills_t xs = { 35,  55,  60,   0,   0,   0,  65,  55};
 
         me = plr_class_alloc(CLASS_PSION);
         me->name = "Psion";
@@ -2431,12 +2369,12 @@ void psion_relearn_powers(void)
 {
     int i;
     for (i = 0; i < 64; i++) 
-        p_ptr->spell_order[i] = 99;
+        plr->spell_order[i] = 99;
 
     for (i = 0; ; i++)
     {
         if (_spell_ranks[i].lvl <= 0) break;
-        if (p_ptr->lev >= _spell_ranks[i].lvl)
+        if (plr->lev >= _spell_ranks[i].lvl)
             _study(_spell_ranks[i].lvl);
     }
 }

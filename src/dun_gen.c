@@ -7,8 +7,7 @@
 
 static dun_ptr _generating;
 
-static int _1d(int n) { return randint1(n); }
-static bool _scale(int amt, int pct)
+static int _scale(int amt, int pct)
 {
     int num = amt * pct / 10; /* scaled by 10 */
     int result = num / 10;
@@ -45,10 +44,10 @@ static dun_ptr dun_gen_aux(int dun_type_id, int dun_lvl)
 
     /* allocate */
     dun = dun_mgr_alloc_dun(_get_dun_rect(dun_type, dun_lvl));
-    dun->dun_type_id = dun_type_id;
+    dun->type = dun_type;
     dun->dun_lvl = dun_lvl;
     dun->difficulty = dun_lvl;
-    dun->flags |= (dun_type->flags & DF_RESTRICT_MASK);
+    dun->flags |= (dun_type->flags.info & DF_RESTRICT_MASK);
     _generating = dun; /* needed for stair and player placement */
 
     /* generate */
@@ -67,37 +66,30 @@ static dun_ptr dun_gen_aux(int dun_type_id, int dun_lvl)
 static int _stair_wall_ct;
 static int _stair_pos(point_t pos, dun_grid_ptr grid)
 {
-    dun_feat_ptr feat;
     int wall_ct = 0, i;
 
-    if (grid->info & CAVE_ROOM) return 0;
+    if (grid->type != FEAT_FLOOR) return 0;
+    if (grid->flags & CELL_ROOM) return 0;
     if (dun_obj_at(_generating, pos)) return 0;
     if (dun_mon_at(_generating, pos)) return 0;
-
-    feat = dun_grid_feat(grid);
-    if (!have_flag(feat->flags, FF_FLOOR)) return 0; 
-    if (have_flag(feat->flags, FF_PATTERN)) return 0; 
 
     for (i = 0; i < 4; i++)
     {
         point_t p = point_step(pos, ddd[i]);
-        dun_feat_ptr feat2 = dun_feat_at(_generating, p);
-        if (have_flag(feat2->flags, FF_WALL)) wall_ct++;
+        dun_grid_ptr g2 = dun_grid_at(_generating, p);
+        if (g2->type == FEAT_WALL) wall_ct++;
     }
     if (wall_ct < _stair_wall_ct) return 0;
     return 1;
 }
 static int _stair_pos_panic(point_t pos, dun_grid_ptr grid)
 {
-    dun_feat_ptr feat = dun_grid_feat(grid);
-    if (!have_flag(feat->flags, FF_PLACE)) return 0;
-    if (have_flag(feat->flags, FF_PATTERN)) return 0; 
+    if (!cell_allow_mon(grid, NULL)) return 0; /* old FF_PLACE */
     return 1;
 }
-static point_t _place_stairs_aux(dun_ptr dun, int feat_id, int wall_ct)
+static point_t _place_stairs_aux(dun_ptr dun, dun_place_f f, int wall_ct)
 {
     point_t pos = {0};
-    dun_grid_ptr grid;
 
     assert(_generating == dun);
 
@@ -117,10 +109,7 @@ static point_t _place_stairs_aux(dun_ptr dun, int feat_id, int wall_ct)
         dun_destroy_obj_at(dun, pos);
     }
     if (!dun_pos_interior(dun, pos)) return pos;
-    grid = dun_grid_at(dun, pos);
-    grid->mimic = 0;
-    grid->feat = feat_id;
-    grid->info &= ~CAVE_FLOOR;
+    f(dun, pos);
     return pos;
 }
 static dun_stairs_ptr _alloc_stairs(void)
@@ -129,36 +118,35 @@ static dun_stairs_ptr _alloc_stairs(void)
     memset(stairs, 0, sizeof(dun_stairs_t));
     return stairs;
 }
-static void _place_stairs(dun_ptr dun, int feat_id, int ct, int wall_ct)
+static void _place_stairs(dun_ptr dun, dun_place_f f, int ct, int wall_ct)
 {
-    dun_feat_ptr feat = &f_info[feat_id];
-    dun_type_ptr dun_type = dun_types_lookup(dun->dun_type_id);
-    int          dun_type_id = dun->dun_type_id;
-    int          dun_lvl = dun->dun_lvl;
-    int          i;
+    int dun_type_id = dun->type->id;
+    int dun_lvl = dun->dun_lvl;
+    int i;
 
     assert(_generating == dun);
 
-    if (have_flag(feat->flags, FF_LESS))
+    if (f == dun_place_upstairs)
     {
         dun_lvl = dun->dun_lvl - 1;
-        if (dun_lvl < dun_type->min_dun_lvl)
+        if (dun_lvl < dun->type->min_dun_lvl)
         {
             dun_type_id = D_SURFACE;
             dun_lvl = 0;
             ct = 1;
         }
     }
-    else if (have_flag(feat->flags, FF_MORE))
+    else
     {
+        assert(f == dun_place_downstairs);
         dun_lvl = dun->dun_lvl + 1;
-        if (dun_lvl > dun_type->max_dun_lvl) return;
-        if (dun_lvl == dun_type->max_dun_lvl) ct = 1;
+        if (dun_lvl > dun->type->max_dun_lvl) return;
+        if (dun_lvl == dun->type->max_dun_lvl) ct = 1;
     }
 
     for (i = 0; i < ct; i++)
     {
-        point_t pos = _place_stairs_aux(dun, feat_id, wall_ct);
+        point_t pos = _place_stairs_aux(dun, f, wall_ct);
         dun_stairs_ptr stairs;
         if (!dun_pos_interior(dun, pos)) continue;
         stairs = _alloc_stairs();
@@ -170,31 +158,36 @@ static void _place_stairs(dun_ptr dun, int feat_id, int ct, int wall_ct)
 }
 static int _plr_pos(point_t pos, dun_grid_ptr grid)
 {
-    dun_feat_ptr feat;
     if (dun_mon_at(_generating, pos)) return 0;
-    if (!player_can_enter(grid->feat, 0)) return 0;
-    if (grid->info & CAVE_ICKY) return 0;
+    if (!cell_allow_plr(grid)) return 0;
+    if (grid->flags & CELL_VAULT) return 0;
 
-    feat = dun_grid_feat(grid);
-    if (!have_flag(feat->flags, FF_TELEPORTABLE)) return 0;
-    if (!have_flag(feat->flags, FF_MOVE)) return 0;
+    if (floor_has_trap(grid)) return 0;
+    switch (grid->type)
+    {
+    case FEAT_FLOOR: return 100;
+    case FEAT_STAIRS:
+    case FEAT_TREE:
+    case FEAT_WATER:
+    case FEAT_LAVA:
+    case FEAT_CHASM: return 1;
+    }
 
-    if (have_flag(feat->flags, FF_FLOOR)) return 100; 
-
-    if (have_flag(feat->flags, FF_HIT_TRAP)) return 0;
-    return 1;
+    return 0;
 }
 static int _plr_pos_panic(point_t pos, dun_grid_ptr grid)
 {
-    dun_feat_ptr feat;
-    if (!player_can_enter(grid->feat, 0)) return 0;
-
-    feat = dun_grid_feat(grid);
-    if (!have_flag(feat->flags, FF_MOVE)) return 0;
-    if (have_flag(feat->flags, FF_PATTERN)) return 0; 
-    if (have_flag(feat->flags, FF_TREE)) return 1; 
-    if (have_flag(feat->flags, FF_FLOOR)) return 100; 
-    return 1;
+    if (!cell_allow_plr(grid)) return 0;
+    switch (grid->type)
+    {
+    case FEAT_FLOOR: return 100;
+    case FEAT_STAIRS:
+    case FEAT_TREE:
+    case FEAT_WATER:
+    case FEAT_LAVA:
+    case FEAT_CHASM: return 1;
+    }
+    return 0;
 }
 point_t dun_random_plr_pos(dun_ptr dun)
 {
@@ -215,7 +208,7 @@ static bool _mon_can_enter(dun_ptr dun, point_t pos, mon_race_ptr race)
 {
     if (dun_plr_at(dun, pos)) return FALSE;
     if (dun_mon_at(dun, pos)) return FALSE;
-    return monster_can_cross_terrain(dun_grid_at(dun, pos)->feat, race, 0);
+    return cell_allow_mon_race(dun_grid_at(dun, pos), race);
 }
 point_t dun_random_mon_pos(dun_ptr dun, mon_race_ptr race)
 {
@@ -226,12 +219,10 @@ point_t dun_random_mon_pos(dun_ptr dun, mon_race_ptr race)
     {
         point_t p =  rect_random_point(rect);
         dun_grid_ptr grid = dun_grid_at(dun, p);
-        dun_feat_ptr feat = dun_grid_feat(grid);
 
-        if (!have_flag(feat->flags, FF_MOVE) && !have_flag(feat->flags, FF_CAN_FLY)) continue;
         if (!_mon_can_enter(dun, p, race)) continue;
-        if (grid->info & CAVE_ICKY) continue;
-        if (p_ptr->dun_id == dun->dun_id && plr_distance(p) < 10) continue;
+        if (grid->flags & CELL_VAULT) continue;
+        if (plr->dun_id == dun->id && plr_distance(p) < 10) continue;
 
         return p;
     }
@@ -239,26 +230,39 @@ point_t dun_random_mon_pos(dun_ptr dun, mon_race_ptr race)
 }
 dun_ptr dun_gen_wizard(int dun_type_id, int dun_lvl)
 {
-    dun_ptr dun = dun_gen_aux(dun_type_id, dun_lvl);
-    dun_type_ptr type = dun_types_lookup(dun_type_id);
+    dun_mgr_ptr dm = dun_mgr();
+    dun_ptr dun;
+    dun_type_ptr type;
     point_t pos;
+
+    if (dm->prof)
+        z_timer_resume(&dm->prof->gen_timer);
+
+    /* generate*/
+    dun = dun_gen_aux(dun_type_id, dun_lvl);
+    type = dun_types_lookup(dun_type_id);
 
     /* place stairs */
     if (!quests_find_quest(dun_type_id, dun_lvl))
-        _place_stairs(dun, feat_down_stair, 2, 3);
+        _place_stairs(dun, dun_place_downstairs, 2, 3);
     if (dun_lvl == type->min_dun_lvl)
-        _place_stairs(dun, feat_up_stair, 1, 3);
+        _place_stairs(dun, dun_place_upstairs, 1, 3);
     else
-        _place_stairs(dun, feat_up_stair, _1d(2), 3);
+        _place_stairs(dun, dun_place_upstairs, _1d(2), 3);
     dun->flags |= DF_GENERATED;
     _generating = NULL;
+    if (dm->prof)
+        z_timer_pause(&dm->prof->gen_timer);
 
     /* place player */
     pos = dun_random_plr_pos(dun);
     dun_mgr_plr_change_dun(dun, pos);
     return dun;
 }
-static void _place_perm(point_t pos, dun_grid_ptr grid) { grid->feat = feat_permanent; }
+static void _place_perm(point_t pos, dun_grid_ptr grid)
+{ 
+    dun_place_mountain_wall(cave, pos);
+}
 dun_ptr dun_gen_quest(quest_ptr quest)
 {
     dun_ptr dun, old_cave = cave;
@@ -268,7 +272,7 @@ dun_ptr dun_gen_quest(quest_ptr quest)
 
     /* allocate */
     dun = dun_mgr_alloc_dun(xform->dest);
-    dun->dun_type_id = D_QUEST;
+    dun->type = dun_types_lookup(D_QUEST);
     dun->dun_lvl = quest->level;
     dun->difficulty = quest->level;
     dun->quest_id = quest->id;
@@ -277,47 +281,50 @@ dun_ptr dun_gen_quest(quest_ptr quest)
     cave = dun;
     dun_iter_grids(dun, _place_perm);
     mon_alloc_push_filter(mon_alloc_dungeon);
-    p_ptr->new_pos = point_create(0, 0); /* quest maps *should* locate the player */
+    plr->new_pos = point_create(0, 0); /* quest maps *should* locate the player */
     build_room_template_aux(room, xform);
     mon_alloc_pop_filter();
     cave = old_cave;
 
     transform_free(xform);
     room_free(room);
-    dun->flags |= (dun_types_lookup(D_QUEST)->flags & DF_RESTRICT_MASK);
+    dun->flags |= (dun_types_lookup(D_QUEST)->flags.info & DF_RESTRICT_MASK);
     dun->flags |= DF_GENERATED;
 
     return dun;
 }
-static bool _quest_stairs(point_t pos, dun_grid_ptr grid) { return grid->feat == feat_up_stair; }
+static bool _quest_stairs(point_t pos, dun_grid_ptr grid) { return stairs_go_up(grid); }
 static point_t _find_quest_stairs(dun_ptr dun) { return dun_find_grid(dun, _quest_stairs); }
 dun_ptr dun_gen_connected(dun_ptr return_dun, dun_stairs_ptr return_stairs)
 {
+    dun_mgr_ptr dm = dun_mgr();
     dun_ptr dun;
 
+    if (dm->prof)
+        z_timer_resume(&dm->prof->gen_timer);
     if (return_stairs->dun_type_id == D_SURFACE)
     {
         /* For returning to the surface, we disregard the recall return
-         * pos (p_ptr->old_pos). Instead, we need to find and use the 
+         * pos (plr->old_pos). Instead, we need to find and use the 
          * world grid for this particular dungeon. */
-        dun_type_ptr   type = dun_types_lookup(return_dun->dun_type_id);
+        dun_type_ptr   type = dun_types_lookup(return_dun->type->id);
         point_t        world_pos = type->world_pos;
         dun_stairs_ptr stairs;
 
         dun = dun_gen_surface(world_pos);
-        return_stairs->dun_id = dun->dun_id;
+        return_stairs->dun_id = dun->id;
 
         /* update existing surface stairs (cf _gen_dungeon in dun_world.c)
          * But consider that D_SURFACE has 9 world grids and there might
          * be mutliple entrance grids for the current world pos. */
         for (stairs = dun->stairs; stairs; stairs = stairs->next)
         {
-            if (stairs->dun_type_id == return_dun->dun_type_id)
+            if (stairs->dun_type_id == return_dun->type->id)
                 break;
         }
         assert(stairs);
         stairs->dun_lvl = return_dun->dun_lvl; /* in case of shafts (XXX) */
-        stairs->dun_id = return_dun->dun_id;
+        stairs->dun_id = return_dun->id;
         stairs->pos_there = return_stairs->pos_here;
         return_stairs->pos_there = stairs->pos_here;
         dun->flow_pos = stairs->pos_here;
@@ -336,14 +343,14 @@ dun_ptr dun_gen_connected(dun_ptr return_dun, dun_stairs_ptr return_stairs)
         pos = _find_quest_stairs(dun);
         assert(dun_pos_interior(dun, pos));
 
-        return_stairs->dun_id = dun->dun_id;
+        return_stairs->dun_id = dun->id;
         return_stairs->pos_there = pos;
 
         stairs = _alloc_stairs();
         stairs->pos_here = pos;
         stairs->pos_there = return_stairs->pos_here;
-        stairs->dun_id = return_dun->dun_id;
-        stairs->dun_type_id = return_dun->dun_type_id;
+        stairs->dun_id = return_dun->id;
+        stairs->dun_type_id = return_dun->type->id;
         stairs->dun_lvl = return_dun->dun_lvl;
         dun_add_stairs(dun, stairs);
         dun->flow_pos = stairs->pos_here;
@@ -352,39 +359,41 @@ dun_ptr dun_gen_connected(dun_ptr return_dun, dun_stairs_ptr return_stairs)
     }
     else
     {
-        int            feat_id = feat_down_stair;
+        dun_place_f f = dun_place_downstairs;
         dun_stairs_ptr stairs;
 
         if (return_stairs->dun_lvl > return_dun->dun_lvl)
-            feat_id = feat_up_stair;
+            f = dun_place_upstairs;
 
         dun = dun_gen_aux(return_stairs->dun_type_id, return_stairs->dun_lvl);
-        return_stairs->dun_id = dun->dun_id;
+        return_stairs->dun_id = dun->id;
 
         /* allocate new connected stairs */
-        return_stairs->pos_there = _place_stairs_aux(dun, feat_id, 3);
+        return_stairs->pos_there = _place_stairs_aux(dun, f, 3);
         stairs = _alloc_stairs();
         stairs->pos_here = return_stairs->pos_there;
         stairs->pos_there = return_stairs->pos_here;
-        stairs->dun_id = return_dun->dun_id;
-        stairs->dun_type_id = return_dun->dun_type_id;
+        stairs->dun_id = return_dun->id;
+        stairs->dun_type_id = return_dun->type->id;
         stairs->dun_lvl = return_dun->dun_lvl;
         dun_add_stairs(dun, stairs);
         dun->flow_pos = stairs->pos_here;
 
-        if (!(dun_types_lookup(dun->dun_type_id)->flags & DF_RANDOM))
+        if (!(dun->type->flags.info & DF_RANDOM))
         {
             /* random down stairs */
-            if (!quests_find_quest(dun->dun_type_id, dun->dun_lvl))
-                _place_stairs(dun, feat_down_stair, 2, 3);
+            if (!quests_find_quest(dun->type->id, dun->dun_lvl))
+                _place_stairs(dun, dun_place_downstairs, 2, 3);
 
             /* random up stairs */
-            if (return_dun->dun_type_id != D_SURFACE)
-                _place_stairs(dun, feat_up_stair, 1, 3);
+            if (return_dun->type->id != D_SURFACE)
+                _place_stairs(dun, dun_place_upstairs, 1, 3);
         }
         dun->flags |= DF_UPDATE_FLOW | DF_GENERATED;
         _generating = NULL;
     }
+    if (dm->prof)
+        z_timer_pause(&dm->prof->gen_timer);
 
     return dun;
 }
@@ -463,7 +472,6 @@ dun_gen_ptr dun_gen_alloc(dun_ptr dun)
     memset(gen, 0, sizeof(dun_gen_t));
 
     gen->dun = dun;
-    gen->type = dun_types_lookup(dun->dun_type_id);
     gen->scale_pct = 100 * rect_area(dun->rect) / (198*66); /* pct of traditional dungeon size */
     gen->rooms = point_vec_alloc();
     gen->floors = point_vec_alloc();
@@ -505,23 +513,7 @@ static dun_gen_ptr _dun_gen = NULL;
 
 static void _solid_perm_wall(point_t pos, dun_grid_ptr grid);
 static void _extra_wall(point_t pos, dun_grid_ptr grid);
-static void _wipe_mask(point_t pos, dun_grid_ptr grid) { grid->info &= ~CAVE_MASK; }
-static void _set_unsafe(point_t pos, dun_grid_ptr grid) { grid->info |= CAVE_UNSAFE; }
-static void _glow_lava(point_t pos, dun_grid_ptr grid)
-{
-    dun_feat_ptr feat = dun_grid_feat_mimic(grid);
-    int          i;
-
-    if (!have_flag(feat->flags, FF_GLOW)) return;
-    grid->info |= CAVE_GLOW;
-
-    if (!dun_pos_interior(_dun_gen->dun, pos)) return;
-    for (i = 0; i < 8; i++)
-    {
-        point_t p = point_step(pos, ddd[i]);
-        dun_grid_at(_dun_gen->dun, p)->info |= CAVE_GLOW;
-    }
-}
+static void _set_unsafe(point_t pos, dun_grid_ptr grid) { grid->flags |= CELL_UNSAFE; }
 void dun_gen(dun_ptr dun)
 {
     bool success = FALSE;
@@ -539,16 +531,14 @@ void dun_gen(dun_ptr dun)
 
             dun_gen_monsters(_dun_gen);
             dun_gen_traps(_dun_gen);
-            if (!(_dun_gen->type->flags & DF_NO_CAVE))
+            if (!(dun->type->flags.gen & DF_GEN_NO_CAVE))
                 dun_gen_rubble(_dun_gen);
             dun_gen_objects(_dun_gen);
-            if (_dun_gen->type->post_gen_f)
-                _dun_gen->type->post_gen_f(_dun_gen->type, _dun_gen);
+            if (dun->type->post_gen_f)
+                dun->type->post_gen_f(dun->type, _dun_gen);
 
-            dun_iter_grids(_dun_gen->dun, _glow_lava);
-
-            dun_iter_grids(dun, _wipe_mask);
-            if (cave->dun_type_id != D_SURFACE) dun_iter_grids(dun, _set_unsafe);
+            /*dun_iter_grids(dun, _wipe_mask); XXX not needed yet */
+            if (cave->type->id != D_SURFACE) dun_iter_grids(dun, _set_unsafe);
             success = TRUE;
         }
         else
@@ -560,11 +550,11 @@ void dun_gen(dun_ptr dun)
                 dun->town = NULL;
             }
             else
-                _dun_gen->type->last_shop--; 
+                dun->type->last_shop--; 
             if (dun->flags & DF_RECALL)
                 dun->flags &= ~DF_RECALL;
             else
-                _dun_gen->type->last_recall--; 
+                dun->type->last_recall--; 
             msg_format("<color:r>Generation Restarted: <color:y>%s</color>.</color>", _dun_gen->error);
             if (_debug_f)
                 _debug_f(_dun_gen, format("Generation Restarted: %s", _dun_gen->error));
@@ -593,8 +583,15 @@ static rect_t _random_block(rect_t rect, point_t size)
     int which_x = randint0(blocks_x);
     int which_y = randint0(blocks_y);
     point_t v = point_create(which_x * size.x, which_y * size.y);
-    point_t tl = point_add(rect_top_left(rect), v);
-    rect_t block = rect_create(tl.x, tl.y, size.x, size.y);
+    point_t tl;
+    rect_t block;
+
+    assert(blocks_x >= 1);
+    assert(blocks_y >= 1);
+    if (blocks_x == 1) v.x += randint0(rect.cx - size.x);
+    if (blocks_y == 1) v.y += randint0(rect.cy - size.y);
+    tl = point_add(rect_top_left(rect), v);
+    block = rect_create(tl.x, tl.y, size.x, size.y);
     assert(rect_contains(rect, block));
     return block;
 }
@@ -753,193 +750,76 @@ bool dun_gen_reserve_rect(dun_gen_ptr gen, rect_t rect)
  * Extra Walls are walls outside of any room.
  * Solid Walls cannot be pierced by the tunneler.
  ************************************************************************/
-static void _delete_mon(mon_ptr mon)
-{
-    dun_delete_mon(_dun_gen->dun, mon->id);
-}
-static void _delete_mon_at(point_t pos)
-{
-    mon_ptr mon = dun_mon_at(_dun_gen->dun, pos);
-    if (mon) _delete_mon(mon);
-}
 static dun_grid_ptr _grid_at(point_t pos) { return dun_grid_at(_dun_gen->dun, pos); }
+static dun_type_ptr _type(void) { return _dun_gen->dun->type; }
 static void _extra_wall(point_t pos, dun_grid_ptr grid)
 {
-    _delete_mon_at(pos);
-    grid->feat = _dun_gen->type->fill_type[randint0(100)];
-    grid->info &= ~CAVE_MASK;
-    grid->info |= CAVE_EXTRA;
+    _type()->place_wall(_dun_gen->dun, pos);
+    grid->flags &= ~CELL_GEN_MASK;
+    grid->flags |= CELL_EXTRA;
 }
 static void _outer_wall(point_t pos, dun_grid_ptr grid)
 {
-    _delete_mon_at(pos);
-    grid->feat = _dun_gen->type->feat_wall_outer;
-    grid->info &= ~CAVE_MASK;
-    grid->info |= CAVE_OUTER | CAVE_ROOM;
+    _type()->place_outer_wall(_dun_gen->dun, pos);
+    grid->flags &= ~CELL_GEN_MASK;
+    grid->flags |= CELL_OUTER | CELL_ROOM;
 }
 static void _lit_outer_wall(point_t pos, dun_grid_ptr grid)
 {
     _outer_wall(pos, grid);
-    grid->info |= CAVE_GLOW;
+    grid->flags |= CELL_LIT;
 }
 static void _inner_wall(point_t pos, dun_grid_ptr grid)
 {
-    _delete_mon_at(pos);
-    grid->feat = _dun_gen->type->feat_wall_inner;
-    grid->info &= ~CAVE_MASK;
-    grid->info |= CAVE_INNER | CAVE_ROOM;
+    _type()->place_inner_wall(_dun_gen->dun, pos);
+    grid->flags &= ~CELL_GEN_MASK;
+    grid->flags |= CELL_INNER | CELL_ROOM;
 }
 static void _inner_wall_at(point_t pos) { _inner_wall(pos, _grid_at(pos)); }
 static void _inner_wall_at_xy(int x, int y) { _inner_wall_at(point_create(x, y)); }
 static void _solid_noperm_wall(point_t pos, dun_grid_ptr grid)
 {
-    feat_ptr feat = &f_info[_dun_gen->type->feat_wall_solid];
-    _delete_mon_at(pos);
-    if ((grid->info & CAVE_VAULT) && permanent_wall(feat))
-        grid->feat = feat_state(_dun_gen->type->feat_wall_solid, FF_UNPERM);
-    else
-        grid->feat = _dun_gen->type->feat_wall_solid;
-    grid->info &= ~CAVE_MASK;
-    grid->info |= CAVE_SOLID;
+    _type()->place_outer_wall(_dun_gen->dun, pos);
+    grid->flags &= ~CELL_GEN_MASK;
+    grid->flags |= CELL_SOLID;
 }
 static void _solid_perm_wall(point_t pos, dun_grid_ptr grid)
 {
-    _delete_mon_at(pos);
-    grid->mimic = 0;
-    grid->feat = feat_permanent;
-    grid->info &= ~CAVE_MASK;
-    grid->info |= CAVE_SOLID;
+    dun_place_mountain_wall(_dun_gen->dun, pos);
+    assert(grid->flags & CELL_PERM);
+    grid->flags |= CELL_SOLID;
 }
 static void _solid_wall(point_t pos, dun_grid_ptr grid)
 {
-    _delete_mon_at(pos);
-    grid->feat = _dun_gen->type->feat_wall_solid;
-    grid->info &= ~CAVE_MASK;
-    grid->info |= CAVE_SOLID;
+    _type()->place_outer_wall(_dun_gen->dun, pos);
+    grid->flags &= ~CELL_GEN_MASK;
+    grid->flags |= CELL_SOLID;
 }
 static void _solid_wall_at(point_t pos) { _solid_wall(pos, _grid_at(pos)); }
 static void _solid_wall_at_xy(int x, int y) { _solid_wall_at(point_create(x, y)); }
 
 static void _floor(point_t pos, dun_grid_ptr grid)
 {
-    _delete_mon_at(pos);
-    grid->feat = _dun_gen->type->floor_type[randint0(100)];
-    grid->info &= ~CAVE_MASK;
-    grid->info |= CAVE_FLOOR;
+    _type()->place_floor(_dun_gen->dun, pos);
+    grid->flags &= ~CELL_GEN_MASK;
 }
 static void _room(point_t pos, dun_grid_ptr grid)
 {
     _floor(pos, grid);
-    grid->info |= CAVE_ROOM;
+    grid->flags |= CELL_ROOM;
 }
 static void _lit_room(point_t pos, dun_grid_ptr grid)
 {
     _room(pos, grid);
-    grid->info |= CAVE_GLOW;
+    grid->flags |= CELL_LIT;
 }
 /************************************************************************
  * Doors
  ************************************************************************/
-static void _closed_curtain(point_t pos, dun_grid_ptr grid)
-{
-    grid->feat = feat_door[DOOR_CURTAIN].closed;
-    grid->info &= ~CAVE_MASK;
-}
-static void _set_door_feat(point_t pos, dun_grid_ptr grid, int feat)
-{
-    if (feat != feat_none)
-    {
-        grid->feat = feat;
-        grid->info &= ~CAVE_MASK; /* remove CAVE_FLOOR */
-    }
-    else _floor(pos, grid);
-}
-static void _closed_door(point_t pos, dun_grid_ptr grid, int type)
-{
-    int  roll;
-    s16b feat = feat_none;
-
-    assert(type != DOOR_DEFAULT);
-    if (_dun_gen->type->flags & DF_NO_DOORS)
-    {
-        _floor(pos, grid);
-        return;
-    }
-    roll = randint0(400);
-    if (roll < 300)
-        feat = feat_door[type].closed;
-    else if (roll < 399)
-        feat = feat_locked_door_random(type);
-    else
-        feat = feat_jammed_door_random(type);
-
-    _set_door_feat(pos, grid, feat);
-}
-static void _secret_door(point_t pos, dun_grid_ptr grid, int type)
-{
-    _closed_door(pos, grid, type);
-    if (_dun_gen->type->flags & DF_NO_DOORS) return;
-    if (type != DOOR_CURTAIN)
-    {
-        dun_feat_ptr feat = dun_grid_feat(grid), mimic;
-
-        if (grid->info & CAVE_ROOM)
-            grid->mimic = _dun_gen->type->feat_wall_inner;
-        else
-            grid->mimic = _dun_gen->type->fill_type[randint0(100)];
-
-        mimic = dun_grid_feat_mimic(grid);
-
-        /* Floor type terrain cannot hide a door */
-        if (have_flag(mimic->flags, FF_LOS) && !have_flag(feat->flags, FF_LOS))
-        {
-            if (have_flag(mimic->flags, FF_MOVE) || have_flag(mimic->flags, FF_CAN_FLY)) /* XXX ? */
-                grid->feat = one_in_(2) ? grid->mimic : _dun_gen->type->floor_type[randint0(100)];
-            grid->mimic = 0;
-        }
-    }
-}
-void dun_gen_secret_door(point_t pos, dun_grid_ptr grid, int type)
-{
-    if (type == DOOR_DEFAULT)
-    {
-        type = DOOR_DOOR;
-        if (_dun_gen->type->flags & DF_CURTAIN)
-        {
-            int odds = 256;
-            if (_dun_gen->type->flags & DF_NO_CAVE) odds = 16;
-            if (one_in_(odds)) type = DOOR_CURTAIN;
-        }            
-    }
-    _secret_door(pos, grid, type);
-}
 static void _random_door(point_t pos, dun_grid_ptr grid)
 {
-    int roll, type = DOOR_DOOR;
-
-    _delete_mon_at(pos);
-    grid->mimic = 0;
-    if (_dun_gen->type->flags & DF_NO_DOORS)
-    {
-        _floor(pos, grid);
-        return;
-    }
-    if (_dun_gen->type->flags & DF_CURTAIN)
-    {
-        int odds = 256;
-        if (_dun_gen->type->flags & DF_NO_CAVE) odds = 16;
-        if (one_in_(odds)) type = DOOR_CURTAIN;
-    }            
-
-    roll = randint0(1000);
-    if (roll < 300)
-        _set_door_feat(pos, grid, feat_door[type].open);
-    else if (roll < 400)
-        _set_door_feat(pos, grid, feat_door[type].broken);
-    else if (roll < 600)
-        _secret_door(pos, grid, type);
-    else
-        _closed_door(pos, grid, type);
+    dun_place_random_door(_dun_gen->dun, pos);
+    grid->flags &= ~CELL_GEN_MASK;
 }
 /************************************************************************
  * Monsters, Traps and Objects
@@ -966,35 +846,29 @@ static point_t _random_drop_pos(dun_ptr dun, dun_grid_p filter)
     {
         point_t      pos = rect_random_point(rect);
         dun_grid_ptr grid = dun_grid_at(dun, pos);
-        dun_feat_ptr feat;
 
-        if (!(grid->info & CAVE_FLOOR)) continue;
-        if (grid->info & CAVE_OBJECT) continue;
+        if (grid->type != FEAT_FLOOR) continue;
+        if (!cell_allow_obj(grid)) continue;
         if (dun_obj_at(dun, pos)) continue;
         if (dun_mon_at(dun, pos)) continue;
 
         /* Don't rubble out shop entrances or wizard tiles. Seems to happen quite a bit! */
-        feat = dun_grid_feat(grid);
-        if (have_flag(feat->flags, FF_PERMANENT)) continue;
+        if (grid->flags & CELL_PERM) continue;
 
         if (filter && !filter(pos, grid)) continue;
         return pos;
     }
     return point_create(0, 0);
 }
-static bool _room_p(point_t pos, dun_grid_ptr grid) { return BOOL(grid->info & CAVE_ROOM); }
-static bool _not_room_p(point_t pos, dun_grid_ptr grid) { return !(grid->info & CAVE_ROOM); }
+static bool _room_p(point_t pos, dun_grid_ptr grid) { return BOOL(grid->flags & CELL_ROOM); }
+static bool _not_room_p(point_t pos, dun_grid_ptr grid) { return !(grid->flags & CELL_ROOM); }
 static void _trap(point_t pos, dun_grid_ptr grid)
 {
-    grid->mimic = grid->feat;
-    grid->feat = choose_random_trap();
-    grid->info &= ~CAVE_FLOOR;
+    dun_place_trap(_dun_gen->dun, pos);
 }
 static void _rubble(point_t pos, dun_grid_ptr grid)
 {
-    grid->mimic = 0;
-    grid->feat = feat_rubble;
-    grid->info &= ~CAVE_FLOOR;
+    dun_place_rubble(_dun_gen->dun, pos);
 }
 static void _object(point_t pos, dun_grid_ptr grid)
 {
@@ -1042,7 +916,7 @@ static void _light(point_t pos, dun_grid_ptr grid)
     if (one_in_(3))
         k_idx = lookup_kind(TV_FLASK, SV_FLASK_OIL);
     else
-        k_idx = lookup_kind(TV_LITE, SV_LITE_LANTERN);
+        k_idx = lookup_kind(TV_LIGHT, SV_LIGHT_LANTERN);
     object_prep(&forge, k_idx);
     apply_magic(&forge, _dun_gen->dun->difficulty, 0);
     obj_make_pile(&forge);
@@ -1055,6 +929,8 @@ static void _skeleton(point_t pos, dun_grid_ptr grid)
     if (!dun_allow_drop_at(_dun_gen->dun, pos)) return;
     object_prep(&forge, k_idx);
     apply_magic(&forge, _dun_gen->dun->difficulty, 0);
+    if (!forge.race_id)
+        return; /* e.g. Graveyard ... unable to reproduce why no race was chosen (a_m_aux_4) XXX */
     dun_place_obj(_dun_gen->dun, &forge, pos);
 }
 static void _gen_stuff(dun_gen_ptr gen, int num, dun_grid_p filter, dun_grid_f action)
@@ -1077,7 +953,7 @@ void dun_gen_traps(dun_gen_ptr gen) { _gen_misc(gen, NULL, _trap); }
 void dun_gen_rubble(dun_gen_ptr gen) { _gen_misc(gen, _not_room_p, _rubble); }
 static bool _mon_extra_drop_check(mon_ptr mon)
 {
-    mon_race_ptr race = mon_race(mon);
+    mon_race_ptr race = mon->race;
     mon_drop_ptr drop;
 
     /* Look for a monster that might drop an object. It's rather weird
@@ -1139,20 +1015,25 @@ void dun_gen_objects(dun_gen_ptr gen)
 
     _mon_give_extra_drop(MFLAG2_DROP_BASIC, 1);
     _mon_give_extra_drop(MFLAG2_DROP_UTILITY, randint0(4));
-    if (gen->dun->dun_lvl > gen->type->plr_max_lvl)
+    if (gen->dun->dun_lvl > gen->dun->type->plr_max_lvl)
         _mon_give_extra_drop(MFLAG2_DROP_PRIZE, 1);
 }
 /************************************************************************
  * Room Builders
  ************************************************************************/
+static void _closed_curtain(point_t pos, dun_grid_ptr grid)
+{
+    dun_place_closed_curtain(_dun_gen->dun, pos);
+    grid->flags &= ~CELL_GEN_MASK;
+}
 bool dun_gen_normal_room(dun_gen_ptr gen)
 {
     point_t size = size_create(5 + _1d(11) + _1d(11), 3 + _1d(4) + _1d(3));
     rect_t  rect = dun_gen_reserve(gen, size);
     dun_grid_f floor_f = _room, wall_f = _outer_wall;
     point_t min, max, p;
-    bool curtain = (gen->type->flags & DF_CURTAIN) &&
-        one_in_((gen->type->flags & DF_NO_CAVE) ? 48 : 512);
+    bool curtain = (gen->dun->type->flags.gen & DF_GEN_CURTAIN) &&
+        one_in_((gen->dun->type->flags.gen & DF_GEN_NO_CAVE) ? 48 : 512);
 
     if (gen->dun->dun_lvl <= _1d(25))
     {
@@ -1211,8 +1092,8 @@ bool dun_gen_normal_room(dun_gen_ptr gen)
         point_t center = rect_center(rect);
         dun_grid_ptr grid;
         bool ok = FALSE;
-        bool curtain2 = (gen->type->flags & DF_CURTAIN) &&
-            one_in_((gen->type->flags & DF_NO_CAVE) ? 2 : 128);
+        bool curtain2 = (gen->dun->type->flags.gen & DF_GEN_CURTAIN) &&
+            one_in_((gen->dun->type->flags.gen & DF_GEN_NO_CAVE) ? 2 : 128);
 
         if (rect.cy % 2 && _1d(100) < 50) /* Horizontal wall */
         {
@@ -1220,7 +1101,7 @@ bool dun_gen_normal_room(dun_gen_ptr gen)
             for (p.x = min.x; p.x <= max.x; p.x++)
             {
                 grid = _grid_at(p);
-                if (curtain2) grid->feat = feat_door[DOOR_CURTAIN].closed;
+                if (curtain2) _closed_curtain(p, grid);
                 else _inner_wall(p, grid);
             }
             /* Prevent edge of wall from being tunneled */
@@ -1234,7 +1115,7 @@ bool dun_gen_normal_room(dun_gen_ptr gen)
             for (p.y = min.y; p.y <= max.y; p.y++)
             {
                 grid = _grid_at(p);
-                if (curtain2) grid->feat = feat_door[DOOR_CURTAIN].closed;
+                if (curtain2) _closed_curtain(p, grid);
                 else _inner_wall(p, grid);
             }
             /* Prevent edge of wall from being tunneled */
@@ -1245,7 +1126,7 @@ bool dun_gen_normal_room(dun_gen_ptr gen)
         if (ok)
         {
             grid = _grid_at(center);
-            if (curtain2) grid->feat = feat_door[DOOR_CURTAIN].closed;
+            if (curtain2) _closed_curtain(p, grid);
             else _random_door(center, grid);
         }
     }
@@ -1329,7 +1210,7 @@ bool dun_gen_template_room(dun_gen_ptr gen, int type, int subtype)
     }
 
     /* Position the destination rect */
-    xform->dest = rect_translate(xform->dest, rect.x, rect.y);
+    xform->dest = rect_translate_xy(xform->dest, rect.x, rect.y);
 
     /* XXX */
     assert(cave == gen->dun);
@@ -1348,7 +1229,8 @@ static bool _massage(dun_frac_ptr frac)
     point_t max = rect_bottom_right(frac->rect), p;
     point_t center = rect_center(frac->rect);
     point_queue_ptr q = point_queue_alloc();
-    dun_bmp_ptr bmp = dun_bmp_alloc(frac->rect);
+    dun_ptr dun = _dun_gen ? _dun_gen->dun : cave; /* XXX dun_gen_cave_wizard */
+    dun_bmp_ptr bmp = dun_bmp_alloc(dun, frac->rect);
 
     assert(dun_frac_get(frac, center) < frac->cutoff);
 
@@ -1436,15 +1318,15 @@ static void _fix_outer_wall(point_t pos, dun_grid_ptr grid)
     {
         point_t p = point_step(pos, ddd[i]);
         dun_grid_ptr g = _grid_at(p);
-        if (g->info & CAVE_EXTRA)
+        if (g->flags & CELL_EXTRA)
             fix = FALSE;
-        else if ((g->info & CAVE_FLOOR) && !(g->info & CAVE_ROOM))
+        else if (g->type == FEAT_FLOOR && !(g->flags & CELL_ROOM))
             fix = FALSE;
     }
     if (fix)
     {
-        grid->info &= ~CAVE_OUTER;
-        grid->info |= CAVE_INNER;
+        grid->flags &= ~CELL_OUTER;
+        grid->flags |= CELL_INNER;
     }
 }
 static void _fix_outer_walls(dun_frac_ptr frac)
@@ -1456,7 +1338,7 @@ static void _fix_outer_walls(dun_frac_ptr frac)
         for (p.x = min.x; p.x <= max.x; p.x++)
         {
             dun_grid_ptr g = _grid_at(p);
-            if (g->info & CAVE_OUTER)
+            if (g->flags & CELL_OUTER)
                 _fix_outer_wall(p, g);
         }
     }
@@ -1466,11 +1348,11 @@ static void _fix_outer_walls(dun_frac_ptr frac)
  * using the hook. */
 typedef void (*_cave_fill_f)(dun_frac_ptr frac, point_t pos, dun_grid_ptr grid);
 static void _cave_f(dun_frac_ptr frac, point_t pos, dun_grid_ptr grid) { _room(pos, grid); }
-static void _cave_fill(dun_frac_ptr frac, _cave_fill_f f, u32b info)
+static void _cave_fill(dun_frac_ptr frac, _cave_fill_f f, u32b flags)
 {
     point_t         center = rect_center(frac->rect);
     point_queue_ptr q = point_queue_alloc();
-    dun_bmp_ptr     bmp = dun_bmp_alloc(frac->rect);
+    dun_bmp_ptr     bmp = dun_bmp_alloc(_dun_gen->dun, frac->rect);
 
     point_queue_add(q, center);
     dun_bmp_set(bmp, center);
@@ -1481,7 +1363,7 @@ static void _cave_fill(dun_frac_ptr frac, _cave_fill_f f, u32b info)
         int          i;
 
         f(frac, p, g);
-        g->info |= info;
+        g->flags |= flags;
 
         for (i = 0; i < 8; i++)
         {
@@ -1494,7 +1376,7 @@ static void _cave_fill(dun_frac_ptr frac, _cave_fill_f f, u32b info)
             {
                 g = _grid_at(p2);
                 _outer_wall(p2, g);
-                g->info |= info;
+                g->flags |= flags;
                 continue;
             }
             point_queue_add(q, p2);
@@ -1508,7 +1390,7 @@ bool dun_gen_cave_room(dun_gen_ptr gen)
 {
     point_t      size;
     rect_t       rect;
-    u32b         info;
+    u32b         flags;
     dun_frac_ptr frac;
 
     /* try for a big cave first */
@@ -1526,10 +1408,10 @@ bool dun_gen_cave_room(dun_gen_ptr gen)
     if (!frac) return FALSE;
 
     /* build the room from the fractal */
-    info = CAVE_ROOM;
+    flags = CELL_ROOM;
     if (gen->dun->dun_lvl <= _1d(25))
-        info |= CAVE_GLOW;
-    _cave_fill(frac, _cave_f, info);
+        flags |= CELL_LIT;
+    _cave_fill(frac, _cave_f, flags);
 
     dun_frac_free(frac);
     return TRUE;
@@ -1561,12 +1443,12 @@ void dun_gen_cave_wizard(void)
             for (p.x = min.x; p.x <= max.x; p.x++)
             {
                 int h = dun_frac_get(frac, p);
-                int feat_id = h < frac->cutoff ? feat_dirt : feat_mountain;
-                dun_feat_ptr feat = &f_info[feat_id];
-                Term_putch(p.x, p.y, feat->x_attr[F_LIT_STANDARD], feat->x_char[F_LIT_STANDARD]);
+                term_char_t tc = h < frac->cutoff ? visual_get("DIRT", 0) : 
+                                                    visual_get("MOUNTAIN", 0);
+                Term_queue_term_char(p, tc);
             }
         }
-        msg_format("Cutoff = %d [r, +, -, q]", frac->cutoff);
+        msg_format("Cutoff = %d [r,+,-,q]", frac->cutoff);
         Term_gotoxy(center.x, center.y);
         cmd = inkey_special(FALSE);
         if (cmd == ESCAPE || cmd == 'q' || cmd == 'Q' || cmd == '\r') break;
@@ -1587,7 +1469,7 @@ void dun_gen_cave_wizard(void)
             break;
         }
     }
-    p_ptr->redraw |= PR_MAP;
+    plr->redraw |= PR_MAP;
     dun_frac_free(frac);
 }
 /************************************************************************
@@ -1598,7 +1480,7 @@ static bool _gen_template(dun_gen_ptr gen) { return dun_gen_template_room(gen, R
 static bool _gen_shop(dun_gen_ptr gen) { return dun_gen_template_room(gen, ROOM_ROOM, ROOM_SHOP); }
 static bool _gen_recall(dun_gen_ptr gen)
 { 
-    if (gen->dun->dun_type_id == D_AMBER && gen->dun->dun_lvl < 99 && randint0(150) < gen->dun->difficulty)
+    if (gen->dun->type->id == D_AMBER && gen->dun->dun_lvl < 99 && randint0(150) < gen->dun->difficulty)
         return dun_gen_template_room(gen, ROOM_ROOM, ROOM_PATTERN); /* PATTERN_EXIT can recall (pattern_effect) */
     return dun_gen_template_room(gen, ROOM_ROOM, ROOM_RECALL);
 }
@@ -1608,31 +1490,36 @@ static int _template_weight(dun_gen_ptr gen) { return MIN(500, 5*gen->dun->diffi
 static int _lesser_vault_weight(dun_gen_ptr gen)
 {
     int l = gen->dun->difficulty;
-    if (gen->type->flags & DF_NO_VAULT) return 0;
+    if (gen->dun->type->flags.gen & DF_GEN_NO_VAULT) return 0;
     if (l < 40) return 0;
     return MIN(5, 1 + (l - 40)/10);
 }
 static int _greater_vault_weight(dun_gen_ptr gen)
 {
     int l = gen->dun->difficulty;
-    if (gen->type->flags & DF_NO_VAULT) return 0;
+    if (gen->dun->type->flags.gen & DF_GEN_NO_VAULT) return 0;
     if (l < 50) return 0;
     return MIN(5, 1 + (l - 50)/7);
 }
 static int _cave_weight(dun_gen_ptr gen)
 {
-    if (gen->type->flags & DF_NO_CAVE) return 0;
+    int p;
+    if (gen->dun->type->flags.gen & DF_GEN_NO_CAVE) return 0;
     if (gen->scale_pct < 75) return 0;
-    return MIN(900, 200 + 10*gen->dun->difficulty);
+    p = MIN(900, 200 + 10*gen->dun->difficulty);
+    if (gen->dun->type->flags.gen & DF_GEN_CAVE)
+        p += MAX(100, 700 - 7*gen->dun->difficulty);
+    return p;
 }
 static int _normal_weight(dun_gen_ptr gen)
 { 
-    if (gen->type->flags & DF_NO_CAVE) return 700;
+    if (gen->dun->type->flags.gen & DF_GEN_NO_CAVE) return 700;
+    if (gen->dun->type->flags.gen & DF_GEN_CAVE) return 0;
     return MAX(100, 700 - 7*gen->dun->difficulty);
 }
 static int _overlap_weight(dun_gen_ptr gen)
 { 
-    if (gen->type->flags & DF_NO_CAVE) return 300;
+    if (gen->dun->type->flags.gen & DF_GEN_NO_CAVE) return 300;
     return MAX(30, 300 - 3*gen->dun->difficulty); 
 }
 typedef struct {
@@ -1699,71 +1586,71 @@ static void _lava_f(dun_frac_ptr frac, point_t pos, dun_grid_ptr grid)
 {
     int h = dun_frac_get(frac, pos);
     if (h < frac->cutoff/3)
-        grid->feat = feat_deep_lava;
+        dun_place_deep_lava(_dun_gen->dun, pos);
     else if (h < 2*frac->cutoff/3)
-        grid->feat = feat_shallow_lava;
+        dun_place_shallow_lava(_dun_gen->dun, pos);
     else
-        grid->feat = _dun_gen->type->floor_type[randint0(100)];
+        _floor(pos, grid);
 }
 static void _lava_vault_f(dun_frac_ptr frac, point_t pos, dun_grid_ptr grid)
 {
     int h = dun_frac_get(frac, pos);
     if (h < frac->cutoff/3)
-        grid->feat = feat_shallow_lava;
+        dun_place_shallow_lava(_dun_gen->dun, pos);
     else if (h < 2*frac->cutoff/3)
-        grid->feat = feat_deep_lava;
+        dun_place_deep_lava(_dun_gen->dun, pos);
     else
-        grid->feat = feat_shallow_lava;
+        dun_place_shallow_lava(_dun_gen->dun, pos);
 }
 static void _water_f(dun_frac_ptr frac, point_t pos, dun_grid_ptr grid)
 {
     int h = dun_frac_get(frac, pos);
     if (h < frac->cutoff/3)
-        grid->feat = feat_deep_water;
+        dun_place_deep_water(_dun_gen->dun, pos);
     else if (h < 2*frac->cutoff/3)
-        grid->feat = feat_shallow_water;
+        dun_place_shallow_water(_dun_gen->dun, pos);
     else
-        grid->feat = _dun_gen->type->floor_type[randint0(100)];
+        _floor(pos, grid);
 }
 static void _water_vault_f(dun_frac_ptr frac, point_t pos, dun_grid_ptr grid)
 {
     int h = dun_frac_get(frac, pos);
     if (h < frac->cutoff/3)
-        grid->feat = feat_shallow_water;
+        dun_place_shallow_water(_dun_gen->dun, pos);
     else if (h < 2*frac->cutoff/3)
-        grid->feat = feat_deep_water;
+        dun_place_deep_water(_dun_gen->dun, pos);
     else
-        grid->feat = feat_shallow_water;
+        dun_place_shallow_water(_dun_gen->dun, pos);
 }
 static void _collapsed_cave_f(dun_frac_ptr frac, point_t pos, dun_grid_ptr grid)
 {
     int h = dun_frac_get(frac, pos);
     if (h < frac->cutoff/3)
-        grid->feat = _dun_gen->type->floor_type[randint0(100)];
+        _floor(pos, grid);
     else if (h < 2*frac->cutoff/3)
-        grid->feat = _dun_gen->type->floor_type[randint0(100)];
+        _floor(pos, grid);
     else
-        grid->feat = feat_rubble;
+        _rubble(pos, grid);
 }
 static void _earth_vault_f(dun_frac_ptr frac, point_t pos, dun_grid_ptr grid)
 {
     int h = dun_frac_get(frac, pos);
     if (h < frac->cutoff/3)
-        grid->feat = feat_rubble;
+        _rubble(pos, grid);
     else if (h < 2*frac->cutoff/3)
-        grid->feat = _dun_gen->type->floor_type[randint0(100)];
+        _floor(pos, grid);
     else
-        grid->feat = feat_rubble;
+        _rubble(pos, grid);
 }
 static void _tree_f(dun_frac_ptr frac, point_t pos, dun_grid_ptr grid)
 {
     int h = dun_frac_get(frac, pos);
     if (h < frac->cutoff/3)
-        grid->feat = feat_grass;
+        dun_place_grass(_dun_gen->dun, pos);
     else if (h < 2*frac->cutoff/3)
-        grid->feat = feat_tree;
+        dun_place_tree(_dun_gen->dun, pos);
     else
-        grid->feat = feat_grass;
+        dun_place_grass(_dun_gen->dun, pos);
 }
 static bool _lake(rect_t rect, _cave_fill_f f, int cutoff_pct)
 {
@@ -1779,20 +1666,20 @@ static bool _lake(rect_t rect, _cave_fill_f f, int cutoff_pct)
 static int _random_lake(dun_gen_ptr gen)
 {
     struct { _cave_fill_f f; u32b mask; int lvl; int prob; } tbl[] = {
-        {_water_f, DF_LAKE_WATER, 30, 2 },
-        {_water_vault_f, DF_LAKE_WATER, 30, 1 },
-        {_lava_f, DF_LAKE_LAVA, 50, 2},
-        {_lava_vault_f, DF_LAKE_LAVA, 50, 1},
-        {_collapsed_cave_f, DF_LAKE_RUBBLE, 20, 2},
-        {_earth_vault_f, DF_LAKE_RUBBLE, 20, 1},
-        {_tree_f, DF_LAKE_TREE, 1, 2},
+        {_water_f, DF_GEN_LAKE_WATER, 30, 2 },
+        {_water_vault_f, DF_GEN_LAKE_WATER, 30, 1 },
+        {_lava_f, DF_GEN_LAKE_LAVA, 50, 2},
+        {_lava_vault_f, DF_GEN_LAKE_LAVA, 50, 1},
+        {_collapsed_cave_f, DF_GEN_LAKE_RUBBLE, 20, 2},
+        {_earth_vault_f, DF_GEN_LAKE_RUBBLE, 20, 1},
+        {_tree_f, DF_GEN_LAKE_TREE, 1, 2},
         {0},
     };
     int i, tot = 0, pick;
     for (i = 0; ; i++)
     {
         if (!tbl[i].f) break;
-        if (!(gen->type->flags & tbl[i].mask)) continue;
+        if (!(gen->dun->type->flags.gen & tbl[i].mask)) continue;
         if (gen->dun->difficulty < tbl[i].lvl) continue;
         tot += tbl[i].prob;
     }
@@ -1801,23 +1688,54 @@ static int _random_lake(dun_gen_ptr gen)
     for (i = 0; ; i++)
     {
         if (!tbl[i].f) break;
-        if (!(gen->type->flags & tbl[i].mask)) continue;
+        if (!(gen->dun->type->flags.gen & tbl[i].mask)) continue;
         if (gen->dun->difficulty < tbl[i].lvl) continue;
         pick -= tbl[i].prob;
         if (pick < 0 && _lake(rect_interior(gen->dun->rect), tbl[i].f, 60))
         {
             switch (tbl[i].mask)
             {
-            case DF_LAKE_WATER: return feat_deep_water; /* prevents rivers of lava later */
-            case DF_LAKE_LAVA: return feat_deep_lava;   /* prevents rivers of water later */
-            case DF_LAKE_RUBBLE: return feat_rubble;
-            case DF_LAKE_TREE: return feat_tree;
+            case DF_GEN_LAKE_WATER: return FEAT_WATER; /* prevents rivers of lava later */
+            case DF_GEN_LAKE_LAVA: return FEAT_LAVA;   /* prevents rivers of water later */
+            case DF_GEN_LAKE_RUBBLE: return FEAT_WALL;
+            case DF_GEN_LAKE_TREE: return FEAT_TREE;
             }
         }
     }
     return 0;
 }
-static void _river_aux(dun_gen_ptr gen, point_t start, point_t stop, int feat1, int feat2, int width)
+typedef void (*_river_f)(dun_ptr dun, point_t pos, dun_cell_ptr cell, int d, int w);
+static void _river_lava(dun_ptr dun, point_t pos, dun_cell_ptr cell, int d, int w)
+{
+    if (d > w)
+    {
+        if (!lava_is_deep(cell))
+            dun_place_shallow_lava(dun, pos);
+    }
+    else
+        dun_place_deep_lava(dun, pos);
+}
+static void _river_water(dun_ptr dun, point_t pos, dun_cell_ptr cell, int d, int w)
+{
+    if (d > w)
+    {
+        if (!water_is_deep(cell))
+            dun_place_shallow_water(dun, pos);
+    }
+    else
+        dun_place_deep_water(dun, pos);
+}
+static void _river_chasm(dun_ptr dun, point_t pos, dun_cell_ptr cell, int d, int w)
+{
+    if (d > w)
+    {
+        if (!cell_is_chasm(cell))
+            dun_place_rubble(dun, pos);
+    }
+    else
+        dun_place_chasm(dun, pos);
+}
+static void _river_aux(dun_gen_ptr gen, point_t start, point_t stop, _river_f feat, int width)
 {
     int length = point_distance(start, stop);
 
@@ -1827,13 +1745,12 @@ static void _river_aux(dun_gen_ptr gen, point_t start, point_t stop, int feat1, 
         if (!dun_pos_interior(gen->dun, mp))
             mp = point_midpoint(start, stop);
 
-        _river_aux(gen, start, mp, feat1, feat2, width);
-        _river_aux(gen, mp, stop, feat1, feat2, width);
+        _river_aux(gen, start, mp, feat, width);
+        _river_aux(gen, mp, stop, feat, width);
     }
     else
     {
         int l;
-        bool lava = have_flag(f_info[feat1].flags, FF_LAVA);
         for (l = 0; l < length; l++)
         {
             point_t p, d;
@@ -1851,53 +1768,65 @@ static void _river_aux(dun_gen_ptr gen, point_t start, point_t stop, int feat1, 
 
                     if (!dun_pos_interior(gen->dun, p2)) continue;
                     g = dun_grid_at(gen->dun, p2);
-                    if (g->feat == feat1 || g->feat == feat2) continue;
+                    if (g->flags & CELL_PERM) continue;
 
                     dist = point_distance(p2, p);
                     if (dist > rand_spread(width, 1)) continue;
-
-                    if (have_flag(dun_grid_feat(g)->flags, FF_PERMANENT)) continue;
-
-                    if (dist > width) g->feat = feat2;
-                    else g->feat = feat1;
-
-                    g->mimic = 0;
-
-                    if (lava) g->info |= CAVE_GLOW;
-                    g->info |= CAVE_ICKY;
+                    feat(gen->dun, p2, g, dist, width);
                 }
             }
         }
     }
 }
-void dun_gen_river(dun_gen_ptr gen, int feat1, int feat2)
+static point_t _rect_random_left(rect_t r)
+{
+    int y = rand_range(r.y, rect_bottom(r));
+    return point_create(r.x, y);
+}
+static point_t _rect_random_right(rect_t r)
+{
+    int y = rand_range(r.y, rect_bottom(r));
+    return point_create(rect_right(r), y);
+}
+static point_t _rect_random_top(rect_t r)
+{
+    int x = rand_range(r.x, rect_right(r));
+    return point_create(x, r.y);
+}
+static point_t _rect_random_bottom(rect_t r)
+{
+    int x = rand_range(r.x, rect_right(r));
+    return point_create(x, rect_bottom(r));
+}
+static void dun_gen_river(dun_gen_ptr gen, _river_f feat)
 {
     rect_t  rect = rect_interior(gen->dun->rect);
-    point_t start = rect_random_point(rect);
+    point_t start = {0};
     point_t stop = {0};
+    int width = 2;
 
-    switch (_1d(4))
+    if (one_in_(2))
     {
-    case 1:
-        stop.x = rand_range(rect.x, rect_right(rect));
-        stop.y = rect.y;
-        break;
-    case 2:
-        stop.x = rect.x;
-        stop.y = rand_range(rect.y, rect_bottom(rect));
-        break;
-    case 3:
-        stop.x = rect_right(rect);
-        stop.y = rand_range(rect.y, rect_bottom(rect));
-        break;
-    case 4:
-        stop.x = rand_range(rect.x, rect_right(rect));
-        stop.y = rect_bottom(rect);
-        break;
+        start = _rect_random_top(rect);
+        width = 3;
+        switch (_1d(7))
+        {
+        case 1: stop = _rect_random_left(rect); break;
+        case 2: stop = _rect_random_right(rect); break;
+        default: stop = _rect_random_bottom(rect);
+        }
     }
-
-    _river_aux(gen, start, stop, feat1, feat2, _1d(2));
-    point_vec_push(gen->rooms, start); /* XXX counts as a room for the tunneler */
+    else
+    {
+        start = _rect_random_left(rect);
+        switch (_1d(7))
+        {
+        case 1: stop = _rect_random_top(rect); break;
+        case 2: stop = _rect_random_bottom(rect); break;
+        default: stop = _rect_random_right(rect);
+        }
+    }
+    _river_aux(gen, start, stop, feat, width);
     gen->river = TRUE;
 }
 static void _pre_gen_hooks(dun_gen_ptr gen)
@@ -1907,13 +1836,13 @@ static void _pre_gen_hooks(dun_gen_ptr gen)
     if (world->pre_gen_f)
         world->pre_gen_f(world, gen);
 
-    if (gen->type->pre_gen_f)
-        gen->type->pre_gen_f(gen->type, gen);
+    if (gen->dun->type->pre_gen_f)
+        gen->dun->type->pre_gen_f(gen->dun->type, gen);
 }
 void dun_gen_lava_vault(dun_gen_ptr gen)
 {
     _lake(rect_interior(gen->dun->rect), _lava_vault_f, 80);
-    gen->lake = feat_deep_lava;
+    gen->lake = FEAT_LAVA;
 }
 static void _pre_gen_rooms(dun_gen_ptr gen)
 {
@@ -1925,23 +1854,23 @@ static void _pre_gen_rooms(dun_gen_ptr gen)
      * any existing rooms (e.g. ROOM_TRAVEL; cf _pre_gen in dun_world.c) */
     if (point_vec_length(gen->rooms) == 0)
     {
-        if (gen->dun->dun_lvl > 30 && one_in_(36) && (gen->type->flags & DF_DESTROY))
+        if (gen->dun->dun_lvl > 30 && one_in_(36) && (gen->dun->type->flags.gen & DF_GEN_DESTROY))
         {
             gen->destroyed = TRUE;
             if (one_in_(2)) _lake(rect, _collapsed_cave_f, 60);
             else _lake(rect, _earth_vault_f, 60);
         }
-        else if ((gen->type->flags & DF_ARENA) && one_in_(24))
+        else if ((gen->dun->type->flags.gen & DF_GEN_ARENA) && one_in_(24))
         {
             gen->arena = TRUE;
             dun_iter_grids(gen->dun, _floor);
             dun_iter_boundary(gen->dun, _extra_wall);
         }
-        else if (!gen->lake && one_in_(24) && (gen->type->flags & DF_LAKE_MASK))
+        else if (!gen->lake && one_in_(24) && (gen->dun->type->flags.gen & DF_GEN_LAKE_MASK))
         {
             gen->lake = _random_lake(gen);
         }
-        else if (!gen->cavern && gen->dun->dun_lvl > 20 && (gen->type->flags & DF_CAVERN) && randint0(1000) < gen->dun->dun_lvl)
+        else if (!gen->cavern && gen->dun->dun_lvl > 20 && (gen->dun->type->flags.gen & DF_GEN_CAVERN) && randint0(1000) < gen->dun->dun_lvl)
         {
             gen->cavern = _lake(rect, _cavern_f, 60);
         }
@@ -1951,25 +1880,25 @@ static void _pre_gen_rooms(dun_gen_ptr gen)
      * to happen every N (visited) levels. */
     if (gen->dun->dun_lvl >= 4)
     {
-        if (gen->type->last_recall >= 2 || randint0(400) < 200 + gen->dun->dun_lvl)
+        if (gen->dun->type->last_recall >= 2 || randint0(400) < 200 + gen->dun->dun_lvl)
         {
             /* XXX FF_RECALL might get "clipped" on DF_TOWER levels */
             if (_gen_recall(gen)) gen->dun->flags |= DF_RECALL;
-            else gen->type->last_recall++;
+            else gen->dun->type->last_recall++;
         }
         else
-            gen->type->last_recall++;
+            gen->dun->type->last_recall++;
     }
     if (gen->dun->dun_lvl >= 15)
     {
-        if (gen->type->last_shop >= 20 || one_in_(20))
+        if (gen->dun->type->last_shop >= 20 || one_in_(20))
         {
             gen->dun->town = town_alloc(TOWN_RANDOM, "Random");
             _gen_shop(gen);
             gen->dun->flags |= DF_SHOP;
         }
         else
-            gen->type->last_shop++;
+            gen->dun->type->last_shop++;
     }
 }
 static int _tower_dist_squared(point_t p1, point_t p2)
@@ -1990,7 +1919,7 @@ static int _tower_max(dun_gen_ptr gen)
 }
 static bool _tower_out_of_bounds(dun_gen_ptr gen, point_t p)
 {
-    if (gen->type->flags & DF_TOWER)
+    if (gen->dun->type->flags.gen & DF_GEN_TOWER)
     {
         int d2 = _tower_dist_squared(rect_center(gen->dun->rect), p);
         if (d2 >= _tower_max(gen)) return TRUE;
@@ -1999,7 +1928,7 @@ static bool _tower_out_of_bounds(dun_gen_ptr gen, point_t p)
 }
 static void _post_gen_rooms(dun_gen_ptr gen)
 {
-    if (gen->type->flags & DF_TOWER) /* XXX */
+    if (gen->dun->type->flags.gen & DF_GEN_TOWER) /* XXX */
     {
         rect_t  r = gen->dun->rect;
         point_t center = rect_center(r);
@@ -2030,33 +1959,28 @@ static void _post_gen_rooms(dun_gen_ptr gen)
         {
             point_t pos = rect_random_point(r);
             assert(cave == gen->dun);
-            destroy_area(pos.y, pos.x, 15, -1);
+            destroy_area(pos, 15, -1);
         }
     }
     if (!gen->river && one_in_(7) && _1d(gen->dun->dun_lvl) > 5)
     {
-        int feat1 = 0, feat2 = 0;
-        if (_1d(200) > gen->dun->dun_lvl && (gen->type->flags & DF_RIVER_WATER))
+        _river_f feat = NULL;
+        if (_1d(200) > gen->dun->dun_lvl && (gen->dun->type->flags.gen & DF_GEN_RIVER_WATER))
         {
-            feat1 = feat_deep_water;
-            feat2 = feat_shallow_water;
+            if (gen->lake != FEAT_LAVA)
+                feat = _river_water;
         }
-        else if (gen->dun->flags & DF_RIVER_LAVA)
+        else if (gen->dun->type->flags.gen & DF_GEN_RIVER_LAVA)
         {
-            feat1 = feat_deep_lava;
-            feat2 = feat_shallow_lava;
+            if (gen->lake != FEAT_WATER)
+                feat = _river_lava;
         }
-        if (feat1 && gen->lake)
-        {
-            dun_feat_ptr river = &f_info[feat1];
-            dun_feat_ptr lake = &f_info[gen->lake];
-            if (have_flag(river->flags, FF_LAVA) && !have_flag(lake->flags, FF_LAVA))
-                feat1 = 0;
-            if (have_flag(river->flags, FF_WATER) && !have_flag(lake->flags, FF_WATER))
-                feat1 = 0;
-        }
-        if (feat1)
-            dun_gen_river(gen, feat1, feat2);
+        /* XXX Experimental: DF_GEN_RIVER_CHASM */
+        if (!gen->lake && one_in_(20) && (gen->dun->type->flags.gen & DF_GEN_CAVERN))
+            feat = _river_chasm;
+
+        if (feat)
+            dun_gen_river(gen, feat);
     }
 }
 bool dun_gen_rooms(dun_gen_ptr gen)
@@ -2075,6 +1999,7 @@ bool dun_gen_rooms(dun_gen_ptr gen)
     if (point_vec_length(gen->rooms) < 3)
     {
         gen->error = "Unable to generate enough rooms.";
+        vec_free(rooms);
         return FALSE;
     }
     _post_gen_rooms(gen);
@@ -2085,75 +2010,31 @@ bool dun_gen_rooms(dun_gen_ptr gen)
 /************************************************************************
  * Streamers
  ************************************************************************/
-static void _streamer(dun_gen_ptr gen, int feat, int treasure)
+static dun_place_f _streamer_f;
+static void _river_streamer(dun_ptr dun, point_t pos, dun_cell_ptr cell, int d, int w)
 {
-    dun_feat_ptr streamer = &f_info[feat];
-    bool         is_wall = have_flag(streamer->flags, FF_WALL) && !have_flag(streamer->flags, FF_PERMANENT);
-    bool         allow_gold = have_flag(streamer->flags, FF_MAY_HAVE_GOLD);
-    point_t      center = rect_center(gen->dun->rect);
-    rect_t       rect = rect_create_centered(center, gen->dun->rect.cx/6, gen->dun->rect.cy/6);
-    point_t      pos = rect_random_point(rect);
-    int          dir = ddd[randint0(8)];
-    int          attempts = 5000, i;
-
-    while (--attempts)
+    if (_1d(100) <= 70) return; /* XXX tune me: _river_aux will test cells multiple times */
+    if (cell_is_water(cell) || cell_is_lava(cell)) return;
+    if (_streamer_f != dun_place_brake) /* XXX _forest_aux */
     {
-        for (i = 0; i < 5; i++)
-        {
-            point_t       next;
-            dun_grid_ex_t gx;
-            do { next = point_random_jump(pos, 5); }
-            while (!dun_pos_interior(gen->dun, next)); 
-            gx = dun_grid_ex_at(gen->dun, next);
-            if (have_flag(gx.feat->flags, FF_MOVE) && (have_flag(gx.feat->flags, FF_WATER) || have_flag(gx.feat->flags, FF_LAVA)))
-                continue;
-            if (have_flag(gx.feat->flags, FF_PERMANENT)) continue;
-            if (is_wall) /* wall streamers require walls */
-            {
-                if (!(gx.grid->info & (CAVE_EXTRA | CAVE_INNER | CAVE_OUTER | CAVE_SOLID))) continue;
-                if (is_closed_door(gx.grid->feat)) continue; /* XXX */
-            }
-            if (gx.mon && !(have_flag(streamer->flags, FF_PLACE) && monster_can_cross_terrain(feat, mon_race(gx.mon), 0)))
-            {
-                _delete_mon(gx.mon);
-                gx.mon = NULL;
-            }
-            if (gx.obj && !have_flag(streamer->flags, FF_DROP))
-            {
-                dun_destroy_obj_at(gen->dun, next);
-                gx.obj = NULL;
-            }
-            gx.grid->feat = feat;
-            gx.grid->mimic = 0;
-            if (allow_gold) /* XXX */
-            {
-                if (one_in_(treasure))
-                    gx.grid->feat = feat_state(gx.grid->feat, FF_MAY_HAVE_GOLD);
-                else if (one_in_(treasure/3))
-                {
-                    gx.grid->feat = feat_state(gx.grid->feat, FF_MAY_HAVE_GOLD);
-                    gx.grid->feat = feat_state(gx.grid->feat, FF_ENSECRET);
-                }
-            }
-        }
-        pos = point_step(pos, dir);
-        if (!dun_pos_interior(gen->dun, pos)) break;
+        /*if (!cell_is_wall(cell)) return; XXX in forest, 'wall' might be a tree ... or brake! */
+        if (!(cell->flags & (CELL_EXTRA | CELL_INNER | CELL_OUTER | CELL_SOLID))) return;
+        if (wall_has_secret_door(cell)) return;
     }
+    _streamer_f(dun, pos);
+}
+static void _streamer(dun_gen_ptr gen, dun_place_f feat)
+{
+    _streamer_f = feat;
+    dun_gen_river(gen, _river_streamer);
 }
 void dun_gen_streamers(dun_gen_ptr gen)
 {
-    int i;
     if (gen->lake) return;
-    if (gen->type->stream2)
-    {
-        for (i = 0; i < 4; i++)
-            _streamer(gen, gen->type->stream2, 30);
-    }
-    if (gen->type->stream1)
-    {
-        for (i = 0; i < 6; i++)
-            _streamer(gen, gen->type->stream1, 60);
-    }
+    if (gen->dun->type->place_stream1)
+        _streamer(gen, gen->dun->type->place_stream1);
+    if (gen->dun->type->place_stream2)
+        _streamer(gen, gen->dun->type->place_stream2);
 }
 
 /************************************************************************
@@ -2192,7 +2073,7 @@ static void _pierce(dun_gen_ptr gen, point_t pos)
     {
         point_t p = point_step(pos, ddd[i]);
         dun_grid_ptr g = _grid_at(p);
-        if (g->info & CAVE_OUTER)
+        if (g->flags & CELL_OUTER)
             _solid_noperm_wall(p, g);
     }
 }
@@ -2217,21 +2098,21 @@ static bool _tunnel(dun_gen_ptr gen, point_t start, point_t stop)
             next_pos = point_step(pos, dir);
         }
         grid = _grid_at(next_pos);
-        if (grid->info & CAVE_SOLID) /* work around SOLID obstacles */
+        if (grid->flags & CELL_SOLID) /* work around SOLID obstacles */
             dir = _change_dir(gen, pos, stop);
-        else if (grid->info & CAVE_OUTER) /* pierce room walls (coming and going) */
+        else if (grid->flags & CELL_OUTER) /* pierce room walls (coming and going) */
         {
             /* peeking ahead prevents piercing room corners */
             point_t p = point_step(next_pos, dir);
             dun_grid_ptr g = _grid_at(p);
-            if (g->info & (CAVE_OUTER | CAVE_SOLID)) continue;
+            if (g->flags & (CELL_OUTER | CELL_SOLID)) continue;
 
             pos = next_pos;
             _pierce(gen, pos);
         }
-        else if (grid->info & CAVE_ROOM) /* ignore room grids (including INNER walls) */
+        else if (grid->flags & CELL_ROOM) /* ignore room grids (including INNER walls) */
             pos = next_pos;
-        else if (grid->info & (CAVE_EXTRA | CAVE_INNER)) /* lay down tunnel floor grids */
+        else if (grid->flags & (CELL_EXTRA | CELL_INNER)) /* lay down tunnel floor grids */
         {
             pos = next_pos;
             point_vec_push(gen->floors, pos);
@@ -2270,11 +2151,10 @@ static int _adjacent_corridor_count(point_t pos)
     {
         point_t      p = point_step(pos, ddd[i]);
         dun_grid_ptr grid = _grid_at(p);
-        dun_feat_ptr feat = dun_grid_feat(grid);
 
-        if (have_flag(feat->flags, FF_WALL)) continue;
-        if (!(grid->info & CAVE_FLOOR)) continue;
-        if (grid->info & CAVE_ROOM) continue;
+        if (grid->type == FEAT_WALL) continue;
+        if (grid->type != FEAT_FLOOR) continue;
+        if (grid->flags & CELL_ROOM) continue;
         ct++;
     }
     return ct;
@@ -2282,8 +2162,7 @@ static int _adjacent_corridor_count(point_t pos)
 static bool _is_wall_at(point_t pos)
 {
     dun_grid_ptr grid = _grid_at(pos);
-    dun_feat_ptr feat = dun_grid_feat(grid);
-    return have_flag(feat->flags, FF_WALL);
+    return grid->type == FEAT_WALL;
 }
 static bool _possible_door_at(point_t pos)
 {
@@ -2295,15 +2174,13 @@ static bool _possible_door_at(point_t pos)
 static void _try_door_at(point_t pos)
 {
     dun_grid_ptr grid;
-    dun_feat_ptr feat;
     if (!dun_pos_interior(_dun_gen->dun, pos)) return;
-    if (_dun_gen->type->flags & DF_NO_DOORS) return;
+    if (_type()->flags.gen & DF_GEN_NO_DOORS) return;
 
     grid = _grid_at(pos);
-    feat = dun_grid_feat(grid);
 
-    if (have_flag(feat->flags, FF_WALL)) return;
-    if (grid->info & CAVE_ROOM) return;
+    if (grid->type == FEAT_WALL) return;
+    if (grid->flags & CELL_ROOM) return;
     if (!_possible_door_at(pos)) return;
     if (_1d(100) > _dun_gen->door_intersect_pct) return;
 
@@ -2320,18 +2197,15 @@ static bool _connect(dun_gen_ptr gen, point_t start, point_t stop)
     if (!_tunnel(gen, start, stop))
         fail = TRUE;
 
-    /* build the tunnel */
+    /* build the tunnel: note that EXTRA walls are often chasms in certain dun_types.
+     * dun_gen begins with dun_iter_grids(_extra_wall) ... */
     for (j = 0; j < point_vec_length(gen->floors); j++)
     {
         point_t      p = point_vec_get(gen->floors, j);
         dun_grid_ptr grid = _grid_at(p);
-        dun_feat_ptr feat = dun_grid_feat(grid);
-        if ( !have_flag(feat->flags, FF_MOVE)
-          || (!have_flag(feat->flags, FF_WATER) && !have_flag(feat->flags, FF_LAVA)) )
-        {
-            grid->mimic = 0;
+
+        if (grid->type == FEAT_WALL || grid->type == FEAT_TREE || grid->type == FEAT_CHASM)
             _floor(p, grid);
-        }
     }
 
     /* pierce outer walls of rooms */
@@ -2340,21 +2214,20 @@ static bool _connect(dun_gen_ptr gen, point_t start, point_t stop)
         point_t      p = point_vec_get(gen->walls, j);
         dun_grid_ptr grid = _grid_at(p);
 
-        grid->mimic = 0;
         _room(p, grid);
 
-        if (!(gen->type->flags & DF_NO_DOORS) && randint0(100) < gen->door_pierce_pct)
+        if (!(gen->dun->type->flags.gen & DF_GEN_NO_DOORS) && randint0(100) < gen->door_pierce_pct)
             _random_door(p, grid);
     }
     if (_debug_f)
     {
-        _grid_at(start)->info |= CAVE_TEMP;
-        _grid_at(stop)->info |= CAVE_TEMP;
+        _grid_at(start)->flags |= CELL_TEMP;
+        _grid_at(stop)->flags |= CELL_TEMP;
         _debug_f(gen, format("Tunnel %s from (%d, %d) to (%d, %d).", 
             fail ? "*FAILED*" : "worked", 
             start.x, start.y, stop.x, stop.y));
-        _grid_at(start)->info &= ~CAVE_TEMP;
-        _grid_at(stop)->info &= ~CAVE_TEMP;
+        _grid_at(start)->flags &= ~CELL_TEMP;
+        _grid_at(stop)->flags &= ~CELL_TEMP;
         if (fail)
             cmsg_print(TERM_VIOLET, "TUNNEL ***FAILED***");
     }

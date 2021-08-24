@@ -2,10 +2,10 @@
 
 void mimic_race(int new_race, const char *msg)
 {
-    int  old_race = p_ptr->mimic_form;
+    int  old_race = plr->mimic_form;
 
-    if (p_ptr->prace != RACE_DOPPELGANGER) return;
-    if (p_ptr->tim_mimic) return;
+    if (plr->prace != RACE_DOPPELGANGER) return;
+    if (plr->tim_mimic) return;
     if (new_race == old_race) return;
 
     if (msg)
@@ -16,13 +16,13 @@ void mimic_race(int new_race, const char *msg)
         int i, idx;
         for (i = 0; i < MAX_DEMIGOD_POWERS; i++)
         {
-            idx = p_ptr->demigod_power[i];
+            idx = plr->demigod_power[i];
             if (idx >= 0)
             {
                 mut_unlock(idx);
                 mut_lose(idx);
             /*    Lose the mutation, but not the choice!
-                p_ptr->demigod_power[i] = -1; */
+                plr->demigod_power[i] = -1; */
             }
         }
     }
@@ -41,28 +41,28 @@ void mimic_race(int new_race, const char *msg)
             msg_format("You turn into a %s!", race_ptr->name);
     }
 
-    p_ptr->mimic_form = new_race;
-    p_ptr->expfact = calc_exp_factor();
+    plr->mimic_form = new_race;
+    plr->expfact = calc_exp_factor();
     check_experience();
 
     if (new_race == RACE_HUMAN || new_race == RACE_DEMIGOD)
     {
-        get_race()->hooks.gain_level(p_ptr->lev);    /* This is OK ... Just make sure we get to choose racial powers on mimicry */
+        get_race()->hooks.gain_level(plr->lev);    /* This is OK ... Just make sure we get to choose racial powers on mimicry */
     }
 
     if (new_race == RACE_BEASTMAN)
     {
         int i;
         mut_gain_random(mut_good_pred);
-        for (i = 2; i <= p_ptr->lev; i++)
+        for (i = 2; i <= plr->lev; i++)
         {
             if (one_in_(5))
                 mut_gain_random(NULL);
         }
     }
 
-    p_ptr->redraw |= (PR_BASIC | PR_STATUS | PR_MAP | PR_EFFECTS);
-    p_ptr->update |= (PU_BONUS | PU_INNATE | PU_HP | PU_MANA);
+    plr->redraw |= (PR_BASIC | PR_STATUS | PR_MAP | PR_EFFECTS);
+    plr->update |= (PU_BONUS | PU_INNATE | PU_HP | PU_MANA);
 
     equip_on_change_race();
     reset_visuals();
@@ -90,28 +90,28 @@ static int _form_upkeep(int exp)
 
 static void _pay_cost(int cost)
 {
-    if (p_ptr->csp < cost)
+    if (plr->csp < cost)
     {
-        int dam = cost - p_ptr->csp;
-        p_ptr->csp = 0;
+        int dam = cost - plr->csp;
+        plr->csp = 0;
         take_hit(DAMAGE_USELIFE, dam, "concentrating too hard");
     }
     else 
-        p_ptr->csp -= cost;
+        plr->csp -= cost;
 
-    p_ptr->redraw |= (PR_MANA | PR_HP);
+    plr->redraw |= (PR_MANA | PR_HP);
 }
 
 void mimic_upkeep(void)
 {
     int cost;
 
-    if (p_ptr->prace != RACE_DOPPELGANGER) return;
-    if (p_ptr->tim_mimic) return;
-    if (p_ptr->mimic_form == MIMIC_NONE) return;
+    if (plr->prace != RACE_DOPPELGANGER) return;
+    if (plr->tim_mimic) return;
+    if (plr->mimic_form == MIMIC_NONE) return;
 
     cost = _form_upkeep(get_race()->exp);
-    if (cost > p_ptr->csp + p_ptr->chp)
+    if (cost > plr->csp + plr->chp)
         mimic_race(MIMIC_NONE, "You can no longer afford the upkeep for this form.");
     else
         _pay_cost(cost);
@@ -119,9 +119,14 @@ void mimic_upkeep(void)
 
 bool mimic_no_regen(void)
 {
-    if (p_ptr->prace == RACE_DOPPELGANGER && !p_ptr->tim_mimic && p_ptr->mimic_form != MIMIC_NONE) return TRUE;
+    if (plr->prace == RACE_DOPPELGANGER && !plr->tim_mimic && plr->mimic_form != MIMIC_NONE) return TRUE;
     /* XXX doppelganger has stolen the race_mimic namespace!! */
-    if (p_ptr->prace == RACE_MON_MIMIC && p_ptr->current_r_idx != MON_MIMIC && !mimic_is_memorized(p_ptr->current_r_idx)) return TRUE;
+    if ( plr->prace == RACE_MON_MIMIC
+      && !sym_equals(plr->current_r_idx, "@.mimic")
+      && !mimic_is_memorized(plr->current_r_idx))
+    {
+        return TRUE;
+    }
     return FALSE;
 }
 
@@ -218,7 +223,7 @@ static void _list_forms(int ct)
         int    race_idx = _forms[i].race;
         race_t *race_ptr = get_race_aux(race_idx, 0);
         int    cost = _form_cost(race_ptr->exp);
-        int    fail = calculate_fail_rate(level, _forms[i].fail, p_ptr->stat_ind[A_DEX]);
+        int    fail = calculate_fail_rate(level, _forms[i].fail, plr->stat_ind[A_DEX]);
 
         if (i < 26)
             letter = I2A(i);
@@ -331,7 +336,7 @@ static int _choose_form(void)
     for (i = 0; ; i++)
     {
         if (_forms[i].race == MIMIC_NONE) break;
-        if (_forms[i].level > p_ptr->lev) break;
+        if (_forms[i].level > plr->lev) break;
         ct++;
     }
 
@@ -356,7 +361,7 @@ static void _mimic_spell(int cmd, var_ptr res)
     switch (cmd)
     {
     case SPELL_NAME:
-        if (p_ptr->mimic_form != MIMIC_NONE)
+        if (plr->mimic_form != MIMIC_NONE)
             var_set_string(res, "Stop Mimicry");
         else
             var_set_string(res, "Mimic");
@@ -370,12 +375,12 @@ static void _mimic_spell(int cmd, var_ptr res)
     case SPELL_CAST:
         var_set_bool(res, TRUE);
         /* Drawback: Casting polymorph magic will block racial shape shifting until the spell wears off */
-        if (p_ptr->tim_mimic)
+        if (plr->tim_mimic)
         {
             msg_print("Something seems to be interfering with your racial shape shifting!");
         }
         /* Drawback: Before shifting to a new form, they must revert to their original form. */
-        else if (p_ptr->mimic_form != MIMIC_NONE)
+        else if (plr->mimic_form != MIMIC_NONE)
         {
             mimic_race(MIMIC_NONE, NULL);
         }
@@ -388,9 +393,9 @@ static void _mimic_spell(int cmd, var_ptr res)
             int    race_idx = _forms[i].race;
             race_t *race_ptr = get_race_aux(race_idx, 0);
             int    cost = _form_cost(race_ptr->exp);
-            int    fail = calculate_fail_rate(level, _forms[i].fail, p_ptr->stat_ind[A_DEX]);
+            int    fail = calculate_fail_rate(level, _forms[i].fail, plr->stat_ind[A_DEX]);
 
-                if (cost > p_ptr->csp + p_ptr->chp)
+                if (cost > plr->csp + plr->chp)
                 {
                     msg_print("Choosing this form will kill you. You need to rest first!");
                     return;

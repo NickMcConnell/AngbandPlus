@@ -1,0 +1,505 @@
+# Mimics ... including "wall" and "floor" mimics as well as animated weapons.
+
+########################################################################
+# Animated Weapons
+T:|.base:Animated Weapon
+I:DISPLAY(|):POS(GAIN_AC|HOLD_LIFE|DISABLED)
+I:KIND(NONLIVING):ATTR(COLD_BLOOD)
+I:ALERT(200',Ever Vigilant):MOVE(FLY)
+I:RESIST(CONF):IMMUNE(POIS|SLEEP|SLOW|FEAR|BLIND)
+P:Stat:Str(1+5):Int(-5):Wis(-5):Dex(0+3):Con(1+5):Chr(0)
+P:Skill:Dis(25+60):Dev(24+50):Sav(40+60):Stl(4):Srh(20):Fos(5):Thn(56+100):Thb(20+35)
+P:Class:Warrior
+P:Body:Death-Sword
+P:Weight:15
+
+N:|.broken:|.base:Broken death sword
+I:LVL(4,40):RARITY(5)
+I:SPEED(+10):HP(6d3):AC(20):EXP(15):EVOLVE(|.death, 130)
+I:ALIGN(Evil):ATTR(STUPID)
+B:HIT(x2):HURT(1d2)
+B:HIT:HURT(1d1):TERRIFY
+B:HIT:POISON(1d1)
+I:RESIST(ELEC|FIRE|COLD)
+O:OBJ(broken sword)
+I:COLOR(Light Dark)
+P:Weight:2
+
+N:|.death:|.base:Death sword
+I:LVL(8,40):RARITY(5)
+I:SPEED(+10):HP(36):AC(40):EXP(30)
+I:ALIGN(Evil):ATTR(STUPID):MOVE(NEVER)
+B:SLASH(x2):HURT(2d5+10):CUT(2d3, 30%)
+B:SLASH:HURT(2d5+10):TERRIFY
+B:SLASH:HURT(2d5):POISON(3d5)
+I:RESIST(ELEC|FIRE|COLD)
+O:OBJ(long sword)
+D:A bloodthirsty blade lurking for prey. Beware!
+I:COLOR(Light White)
+
+N:/.animated:|.base:Pole axe of animated attack
+I:LVL(21,80):RARITY(2)
+I:SPEED(+10):HP(10d14):AC(40):EXP(60)
+I:ALERT(300'):MOVE(CLEARWEB)
+B:CRUSH(x4):HURT(2d5)
+S:1_IN_6 | SCARE | BLIND | CONFUSE | S_MONSTER(1)
+O:OBJ(POLEARM)
+D:A powerful weapon from a time long past when heroes walked the earth and
+D:magical weapons of power unmatched were created. Blood drips from its
+D:wicked blade.
+I:DISPLAY(/,White)
+P:SpellStat:Str
+P:Weight:20
+
+N:\.hell:|.base:Hammer of hell
+I:LVL(24,70):RARITY(5)
+I:SPEED(-10):HP(50d10):AC(40):EXP(400)
+I:ALIGN(Evil):ALERT(300'):MOVE(BASH)
+B:CRUSH:HURT(5d8):STUN(2d3)
+I:RESIST(ACID|COLD|DARK|NETHER)
+O:OBJ(HAFTED)
+D:A foul iron hammer forged with body and souls of victims on the infernal anvil.
+I:DISPLAY(\,Violet)
+P:Weight:150
+
+N:|.hell:|.base:Hellblade
+I:LVL(27):RARITY(2)
+I:SPEED(+10):HP(13d13):AC(40):EXP(130)
+I:ALIGN(Evil):MOVE(BASH|CLEARWEB)
+B:SLASH(x2):HURT(1d13+7):DRAIN_EXP(20d6):CUT(3d3,20%)
+I:RESIST(COLD|CHAOS)
+O:OBJ(SWORD)
+D:A deadly blade of chaos, moving of its own volition.
+I:COLOR(Violet)
+
+N:|.Stormbringer:|.base:The Stormbringer
+I:LVL(45):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+10):HP(1599):AC(99):EXP(13333)
+I:ALIGN(Evil):CAN(REVENGE)
+I:ALERT(Fairly Unseeing):MOVE(BASH|CLEARWEB)
+B:WAIL:TERRIFY
+B:SLASH(x2):HURT(66):DRAIN_EXP(80d6):CUT(6d6)
+B:SLASH:VAMP(8d8)
+I:RESIST(COLD|FIRE|NETHER|CHAOS)
+O:ART(|.Stormbringer)
+D:The mightiest of hellblades, a black runesword which thirsts for your soul.
+I:COLOR(Light Dark)
+
+N:/.death:|.base:Death Scythe
+I:LVL(70):RARITY(5)
+I:SPEED(+40):HP(2500):AC(150):EXP(10000)
+I:ALIGN(Evil):ALERT(Fairly Unseeing):MOVE(BASH|CLEARWEB)
+B:SLASH(x4):HURT(10d10):DRAIN_EXP(20d6):CUT(5d5, 50%)
+I:RESIST(BASE|NETHER):IMMUNE(TELE)
+O:10%:OBJ(death scythe)
+D:The deadliest weapon: You've heard of these before! Few are brave enough to wield one,
+D:and many a great adventurer has been betrayed at a critical moment. Yet, this one seems
+D:a bit different ...
+I:DISPLAY(/,Violet)
+P:Weight:50
+
+########################################################################
+# Creeping Coins
+T:$.base:Creeping coins
+I:DISPLAY($):POS(GAIN_AC|HOLD_LIFE|DISABLED)
+I:KIND(ANIMAL):ATTR(COLD_BLOOD)
+I:ALERT(50',Fairly Observant):MOVE(BASH)
+I:RESIST(CONF):IMMUNE(POIS|SLEEP|FEAR|BLIND)
+P:Stat:Str(1+2):Int(-5):Wis(-5):Dex(0+2):Con(0+3):Chr(0)
+P:Skill:Dis(25+30):Dev(24+30):Sav(30+40):Stl(4):Srh(10):Fos(5):Thn(56+100):Thb(20+35)
+P:Class:Warrior
+P:Weight:70
+
+N:$.copper:$.base:Creeping copper coins
+I:LVL(4,40):RARITY(2)
+I:SPEED(-10):HP(7d8):AC(24):EXP(9):EVOLVE($.silver, 40)
+I:ALERT(30')
+B:HIT:HURT(1d7)
+B:TOUCH:POISON(2d5)
+O:1d2:OBJ(GOLD_COPPER)
+D:It is a pile of coins.
+I:COLOR(Umber)
+
+N:$.silver:$.base:Creeping silver coins
+I:LVL(6,40):RARITY(2)
+I:SPEED(-10):HP(12d8):AC(30):EXP(18):EVOLVE($.gold, 50)
+I:ALERT(40')
+B:HIT:HURT(1d5+1)
+B:TOUCH:POISON(2d7)
+O:60%:1d2:OBJ(GOLD_SILVER)
+D:It is a pile of coins, crawling forward on thousands of tiny legs.
+I:COLOR(Slate)
+
+N:$.gold:$.base:Creeping gold coins
+I:LVL(10,40):RARITY(3)
+I:SPEED(-10):HP(18d8):AC(36):EXP(32):EVOLVE($.mithril, 150)
+B:HIT:HURT(1d5+3)
+B:TOUCH:POISON(3d5)
+O:90%:1d2:OBJ(GOLD_GOLD)
+D:It is a pile of coins, crawling forward on thousands of tiny legs.
+I:COLOR(Yellow)
+
+N:$.mithril:$.base:Creeping mithril coins
+I:LVL(13,50):RARITY(4)
+I:HP(20d8):AC(50):EXP(45):EVOLVE($.adamantite, 500)
+B:HIT:HURT(2d5)
+B:TOUCH:POISON(3d5)
+O:2d2+1:OBJ(GOLD_MITHRIL)
+D:It is a pile of coins, shambling forward on thousands of tiny legs.
+I:COLOR(Light Blue)
+
+N:$.adamantite:$.base:Creeping adamantite coins
+I:LVL(27):RARITY(4)
+I:SPEED(+10):HP(20d25):AC(50):EXP(45)
+B:BITE:HURT(1d4+3):POISON(1d4)
+B:TOUCH:POISON(3d5)
+B:HIT(x2):HURT(1d7+4)
+O:2d2+1:OBJ(GOLD_ADAMANT)
+D:It is a pile of coins, slithering forward on thousands of tiny legs.
+I:COLOR(Light Green)
+
+N:$.Hoard:$.base:The Hoard
+I:LVL(30):RARITY(5):ALLOC(UNIQUE|ESCORT)
+I:SPEED(+5):HP(1000):AC(80):EXP(1000)
+I:ALIGN(Evil):CAN(REFLECT):ATTR(SMART)
+I:ALERT(200'):MOVE(PUSH)
+B:CRUSH(x2):HURT(1d7+7):POISON(3d7)
+B:CRUSH:HURT(1d7+7):EAT_ITEM
+B:CRUSH:HURT(1d7+7):EAT_GOLD
+I:RESIST(BASE)
+S:1_IN_3 | S_KIN
+O:8d8:OBJ(GOLD)
+M:8d3:MON($)
+D:A massive pile of coins, wealth beyond your wildest dreams.
+I:COLOR(Yellow)
+P:SpellStat:Chr
+P:Weight:500
+
+########################################################################
+# Walls
+T:#.base:Wall
+I:DISPLAY(#):POS(DISABLED)
+I:CAN(MULTIPLY):ATTR(EMPTY_MIND|COLD_BLOOD):MOVE(NEVER)
+I:RESIST(BASE|POIS|CONF|SHARDS):IMMUNE(SLEEP|FEAR|STUN|BLIND):VULN(DISINTEGRATE)
+P:Copy:Ent:Warrior
+P:Weight:500
+
+N:#.stun:#.base:Stunwall
+I:LVL(18,50):RARITY(5)
+I:HP(4d8):AC(25):EXP(50)
+I:CAN(-MULTIPLY):ALERT(450',Ever Vigilant)
+B:TOUCH(x2):HURT(10):PARALYZE(50%)
+D:A sentient section of wall.
+I:COLOR(Light White)
+
+N:%.quartz:#.base:Quartz vein
+I:LVL(18,60):RARITY(2)
+I:SPEED(-10):HP(15d11):AC(30):EXP(40):EVOLVE(%.magma, 500)
+I:KIND(ANIMAL):ALERT(150',Fairly Observant)
+B:TOUCH:ELEC(3d3)
+B:TOUCH:HURT(3d3):PARALYZE
+S:MULTIPLY
+O:1d2+1:OBJ(GOLD)
+D:Look! A nice vein of rock to dig in for gold! Wait a minute...
+I:DISPLAY(%,White)
+
+N:#.living:#.base:Livingstone
+I:LVL(20,70):RARITY(4)
+I:HP(6d8):AC(28):EXP(30):EVOLVE(#.lesser, 700)
+I:ALERT(450',Fairly Unseeing)
+B:HIT(x2):HURT(2d4)
+S:MULTIPLY
+M:3d3:MON(#.living)
+D:A sentient section of wall.
+I:COLOR(Light White)
+
+N:%.magma:#.base:Magma intrusion
+I:LVL(25,60):RARITY(2)
+I:SPEED(-10):HP(15d25):AC(120):EXP(100):EVOLVE(#.granite, 700)
+I:KIND(ANIMAL):ALERT(150',Fairly Observant)
+B:TOUCH:FIRE(5d5)
+B:TOUCH:HURT(3d3):PARALYZE
+S:MULTIPLY
+O:1d2:OBJ(GOLD)
+D:It's just a block of dark rock. But wait! It seems to be growing...
+I:DISPLAY(%,Light Dark)
+
+N:#.lesser:#.base:Lesser wall monster
+I:LVL(28):RARITY(4)
+I:HP(13d8):AC(75):EXP(60):EVOLVE(#.greater, 2000)
+I:KIND(NONLIVING):ALERT(200',Unseeing):MOVE(RAND_50|BASH|TUNNEL|-NEVER)
+B:HIT(x3):HURT(2d6)
+S:MULTIPLY
+D:A sentient, moving section of wall.
+I:COLOR(Light White)
+P:Weight:500
+
+N:#.granite:#.base:Granite wall
+I:LVL(30,70):RARITY(2)
+I:SPEED(-10):HP(15d15):AC(120):EXP(350)
+I:KIND(ANIMAL):ALERT(150',Fairly Observant)
+B:TOUCH:ACID(8d8)
+B:TOUCH:HURT(3d3):PARALYZE
+O:90%:OBJ(GOLD)
+S:MULTIPLY
+D:Just a normal wall, boring gray rock. But wait! It seems to be growing...
+I:COLOR(White)
+
+N:#.greater:#.base:Greater wall monster
+I:LVL(50,90):RARITY(4)
+I:SPEED(+10):HP(15d40):AC(80):EXP(500)
+I:KIND(NONLIVING)
+I:ALERT(200',Fairly Unseeing):MOVE(RAND_50|BASH|PASSWALL|FLY|-NEVER)
+B:HIT(x3):HURT(3d6)
+S:MULTIPLY
+D:A sentient, moving section of wall.
+I:COLOR(Light White)
+
+########################################################################
+# Bombs
+N:..mine:Landmine
+I:LVL(20):RARITY(5)
+I:HP(36):AC(25):EXP(50)
+I:KIND(NONLIVING):CAN(INVIS):ATTR(EMPTY_MIND|COLD_BLOOD)
+I:ALERT(300',Fairly Observant):MOVE(NEVER)
+B:EXPLODE:DAM(20d2)
+I:RESIST(CONF):IMMUNE(SLEEP|FEAR|BLIND)
+D:It was left here to be used against intruders.
+I:DISPLAY(.,White,CHAR_CLEAR|ATTR_CLEAR):POS(DISABLED)
+P:Copy:Human:Warrior
+P:Weight:20
+
+N:..time bomb:..mine:Time bomb
+I:LVL(36):RARITY(5)
+I:SPEED(+20):HP(144):AC(40):EXP(50)
+I:ALERT(300',Ever Vigilant)
+B:EXPLODE:TIME(20d2)
+I:RESIST(TIME)
+D:It was left here to be used against intruders.
+
+N:..bouncing mine:..mine:Bouncing mine
+I:LVL(70):RARITY(6)
+I:SPEED(+10):HP(600):AC(10):EXP(2000)
+I:ATTR(STUPID):ALERT(500',Fairly Observant)
+B:EXPLODE:SHARDS(15d5)
+I:RESIST(ACID|POIS|CHAOS)
+S:FREQ_20 | ROCKET(100) | SHOOT(15d10) | BLINK | BR_POISON | BR_CHAOS | BR_NEXUS
+D:It was left here to be used against intruders.
+P:Copy:Half-Titan:Mauler
+
+########################################################################
+# Puddles
+N:~.puddle:Shallow puddle
+I:LVL(11,30):RARITY(6)
+I:SPEED(+5):HP(9d6):AC(17):EXP(70)
+I:KIND(NONLIVING):ATTR(EMPTY_MIND|COLD_BLOOD)
+I:ALERT(100',Ever Vigilant):MOVE(NEVER|SWIM)
+B:TOUCH(x2):ACID(2d3)
+I:RESIST(ACID|ELEC|POIS|CONF):IMMUNE(SLEEP|FEAR|BLIND)
+D:It is a placid watery pool.
+I:DISPLAY(~,Light Blue):POS(DISABLED)
+P:Copy:Human:Warrior
+P:Weight:10
+
+N:~.puddle.deep:~.puddle:Deep puddle
+I:LVL(23,60):RARITY(6)
+I:SPEED(+15):HP(17d6):AC(40):EXP(70)
+B:TOUCH(x2):ACID(4d3)
+D:It is a large, rippling watery pool.
+I:COLOR(Blue)
+
+########################################################################
+# Floors
+N:..lurker:Lurker
+I:LVL(14,50):RARITY(3)
+I:HP(200):AC(25):EXP(80):EVOLVE(..trapper, 1200)
+I:CAN(INVIS):ATTR(EMPTY_MIND|COLD_BLOOD)
+I:ALERT(300',Fairly Observant):MOVE(NEVER)
+B:HIT(x2):HURT(1d8)
+I:RESIST(CONF):IMMUNE(SLEEP|FEAR|BLIND)
+D:A strange creature that merges with the dungeon floor, trapping its
+D:victims by enveloping them within its perfectly disguised form.
+I:DISPLAY(.,White,CHAR_CLEAR|ATTR_CLEAR):POS(DISABLED)
+P:Copy:Human:Warrior
+P:Weight:100
+
+N:..trapper:..lurker:Trapper
+I:LVL(36):RARITY(3)
+I:SPEED(+10):HP(600):AC(75):EXP(580)
+B:HIT(x2):HURT(1d8+9)
+B:HIT(x2):HURT(15):PARALYZE(50%)
+D:This creature traps unsuspecting victims and paralyzes them to be slowly digested later.
+
+N:..chaos:Chaos tile
+I:LVL(29):RARITY(6)
+I:SPEED(+10):HP(3d5):AC(60):EXP(120)
+I:CAN(MULTIPLY):ATTR(EMPTY_MIND|COLD_BLOOD)
+I:ALERT(300',Very Inattentive):MOVE(NEVER)
+B:HIT:POISON(3d4)
+B:HIT:CONFUSE(3d4)
+I:RESIST(CONF):IMMUNE(SLEEP|FEAR|BLIND)
+S:1_IN_4 | BLIND | CONFUSE | SCARE | CAUSE_2 | BLINK | S_MONSTER(1) | MULTIPLY
+D:It is a floor tile corrupted by chaos.
+I:DISPLAY(.,Violet,ATTR_MULTI|ATTR_ANY):POS(DISABLED)
+P:Copy:Human:Chaos-Warrior
+P:Weight:100
+
+N:..It:It
+I:LVL(24):RARITY(3):ALLOC(UNIQUE)
+I:HP(847):AC(80):EXP(400)
+I:KIND(THIEF):ALIGN(Evil):CAN(SPEAK|INVIS|REFLECT):ATTR(COLD_BLOOD|EMPTY_MIND|SMART)
+I:ALERT(250',Fairly Unseeing):MOVE(FLY)
+B:GAZE:DAM(8d8):BLIND
+B:TOUCH:TERRIFY
+B:GAZE:DRAIN_EXP(40d6)
+B:TOUCH:EAT_ITEM
+I:RESIST(ELEC|FIRE|CONF):IMMUNE(SLEEP|TELE)
+S:1_IN_4 | DRAIN_MANA | BLINK | BLIND | SCARE | CONFUSE | S_UNDEAD | S_MONSTER(1) |
+S:HEAL | TELE_OTHER | DARKNESS | S_HYDRA | TRAPS | AMNESIA | TELE_TO | SHRIEK
+O:1d2+1:OBJ(*, GREAT)
+O:2d2:OBJ(GOLD)
+D:Nobody has ever seen It.
+I:DISPLAY(.,Light White,CHAR_CLEAR|ATTR_CLEAR):POS(CORPSE|SEE_INVIS)
+P:Copy:Shadow-Fairy:Rogue
+P:Weight:150
+
+########################################################################
+# Misc Terrain
+# 439
+N:>.hell:Stairway to hell
+I:LVL(28):RARITY(5)
+I:SPEED(+10):HP(120):AC(40):EXP(125)
+I:KIND(UNDEAD|NONLIVING):ALIGN(Evil):ATTR(EMPTY_MIND|COLD_BLOOD)
+I:ALERT(900',Fairly Observant):MOVE(NEVER)
+B:WAIL:DISENCHANT
+B:WAIL:DRAIN_EXP(20d6)
+B:WAIL:EAT_GOLD
+B:WAIL:EAT_ITEM
+I:RESIST(ACID|ELEC|FIRE|CONF):IMMUNE(POIS|NETHER|SLEEP|FEAR|BLIND)
+S:1_IN_15 | S_DEMON | SHRIEK
+D:Often found in graveyards.
+I:DISPLAY(>,Light White):POS(DISABLED)
+P:Copy:Imp:Priest
+P:Weight:300
+
+########################################################################
+# Items (Stationary)
+T:?.base:Item Mimic
+I:DISPLAY(?):POS(DISABLED)
+I:KIND(NONLIVING):ATTR(EMPTY_MIND|COLD_BLOOD)
+I:ALERT(250',Ever Vigilant):MOVE(NEVER)
+I:RESIST(CONF):IMMUNE(POIS|SLEEP|FEAR|BLIND|STUN)
+P:Weight:10
+
+N:(.cloaker:?.base:Cloaker
+I:LVL(13,50):RARITY(5)
+I:SPEED(+5):HP(49):AC(40):EXP(30)
+I:ALIGN(Evil)
+B:HIT:HURT(3d3+3):PARALYZE(75%)
+B:HIT:HURT(3d3+3):TERRIFY
+I:RESIST(ELEC|COLD)
+O:OBJ(CLOAK)
+D:It resembles a normal cloak until some poor fool ventures too close!
+I:DISPLAY(`(`,Green)
+P:Copy:Human:Warrior
+
+N:!.mimic:?.base:Potion mimic
+I:LVL(18,80):RARITY(3)
+I:HP(10d10):AC(30):EXP(60)
+B:HIT:POISON(3d4)
+B:HIT:HURT(1d5+3)
+B:HIT:DRAIN_MANA(2d5)
+I:VULN(COLD)
+S:1_IN_6 | BLIND | CONFUSE | SCARE | CAUSE_2 | BO_COLD
+O:OBJ(POTION)
+D:A strange creature that disguises itself as discarded objects to lure
+D:unsuspecting adventurers within reach of its venomous claws.
+I:DISPLAY(!,White,ATTR_SEMIRAND)
+P:Copy:Human:Warrior-Mage
+P:Weight:2
+
+N:+.mimic:?.base:Door mimic
+I:LVL(18,80):RARITY(6)
+I:HP(10d10):AC(30):EXP(70)
+B:HIT:POISON(3d4)
+B:HIT:CONFUSE(2d3)
+B:HIT:HURT(1d3+3):PARALYZE(75%)
+S:1_IN_6 | BLIND | CONFUSE | SCARE | CAUSE_2 | BO_COLD
+D:A strange creature that disguises itself as a door to lure
+D:unsuspecting adventurers within reach of its venomous claws.
+I:DISPLAY(+,Light Umber)
+P:Copy:Human:Warrior-Mage
+P:Weight:20
+
+N:?.mimic:?.base:Scroll mimic
+I:LVL(21):RARITY(3)
+I:HP(10d14):AC(40):EXP(60)
+B:HIT(x2):POISON(3d4)
+B:HIT(x2):HURT(1d3+2)
+S:1_IN_5 | BLIND | CONFUSE | SCARE | CAUSE_2 | BO_FIRE | S_MONSTER(1)
+I:VULN(FIRE)
+O:OBJ(SCROLL)
+D:A strange creature that disguises itself as discarded objects to lure
+D:unsuspecting adventurers within reach of its venomous claws.
+I:COLOR(White)
+P:Copy:Human:Warrior-Mage
+P:Weight:1
+
+N:&.mimic:?.base:Chest mimic
+I:LVL(21):RARITY(6)
+I:HP(10d14):AC(40):EXP(70)
+B:GAZE:CONFUSE(2d3)
+B:CLAW(x2):POISON(3d4)
+B:SPIT:DAM(2d3):BLIND
+S:1_IN_5 | BLIND | CONFUSE | SCARE | CAUSE_2 | BA_POISON | S_MONSTER(1)
+O:OBJ(CHEST)
+D:A strange creature that disguises itself as a chest to lure
+D:unsuspecting adventurers within reach of its venomous claws.
+I:DISPLAY(&,Light White)
+P:Copy:Human:Warrior-Mage
+P:Weight:100
+
+N:[.living:?.base:Living armor
+I:LVL(26,70):RARITY(5)
+I:SPEED(-5):HP(500):AC(120):EXP(200)
+I:ALIGN(Evil)
+B:CRUSH(x2):HURT(6d10)
+B:CRUSH(x2):HURT(4d8)
+I:RESIST(ELEC|FIRE|COLD|POIS)
+O:OBJ(HARD_ARMOR)
+D:It resembles a normal armor until some poor fool ventures too close!
+I:DISPLAY([,White)
+P:Copy:Half-Titan:Mauler
+P:Weight:50
+
+N:=.mimic:?.base:Ring mimic
+I:LVL(29):RARITY(4)
+I:SPEED(+10):HP(10d35):AC(60):EXP(200)
+B:HIT(x4):POISON(3d4)
+I:VULN(ELEC)
+S:1_IN_4 | BLIND | CONFUSE | SCARE | CAUSE_2 | AMNESIA
+S:BO_ACID | BO_FIRE | BO_COLD | BO_ELEC | S_MONSTER(1)
+O:OBJ(RING)
+D:A strange creature that disguises itself as discarded objects to lure
+D:unsuspecting adventurers within reach of its venomous claws.
+I:DISPLAY(=,White)
+P:Copy:Hobbit:Mage
+P:Body:Ring
+P:Weight:2
+
+N:?.raal's:?.base:Raal's Tome of Destruction
+I:LVL(36):RARITY(4)
+I:SPEED(+10):HP(500):AC(150):EXP(1500)
+I:ALIGN(Evil):ALERT(Fairly Observant)
+I:RESIST(ACID|ELEC|COLD|NETHER|TELE):VULN(FIRE)
+S:1_IN_2 | BO_ACID | BR_FIRE | BO_MANA | BR_COLD | BR_POISON |
+S:BO_WATER | BA_POISON | BR_NETHER
+O:20%:OBJ(HI_BOOK, DEPTH+9)
+D:A sentient arcane tome casting spells with malevolent intent.
+I:COLOR(Red):POS(-DISABLED|CORPSE|GAIN_AC|SEE_INVIS|TELEPATHY)
+P:Copy:High-Elf:Mage
+P:Body:Tome
+P:Weight:10
+
+# vim: filetype=ri :
+

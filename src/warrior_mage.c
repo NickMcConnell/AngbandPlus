@@ -7,13 +7,13 @@ static int _get_powers(spell_info* spells, int max)
     spell_info* spell = &spells[ct++];
     spell->level = 25;
     spell->cost = 0;
-    spell->fail = calculate_fail_rate(spell->level, 50, p_ptr->stat_ind[A_INT]);
+    spell->fail = calculate_fail_rate(spell->level, 50, plr->stat_ind[A_INT]);
     spell->fn = hp_to_sp_spell;
 
     spell = &spells[ct++];
     spell->level = 25;
     spell->cost = 0;
-    spell->fail = calculate_fail_rate(spell->level, 50, p_ptr->stat_ind[A_INT]);
+    spell->fail = calculate_fail_rate(spell->level, 50, plr->stat_ind[A_INT]);
     spell->fn = sp_to_hp_spell;
 
     return ct;
@@ -53,7 +53,7 @@ plr_class_ptr warrior_mage_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  35,  36,   2,  18,  16,  50,  50};
-    skills_t xs = {  7,  10,  10,   0,   0,   0,  15,  15};
+    skills_t xs = { 35,  50,  50,   0,   0,   0,  75,  75};
 
         me = plr_class_alloc(CLASS_WARRIOR_MAGE);
         me->name = "Warrior-Mage";

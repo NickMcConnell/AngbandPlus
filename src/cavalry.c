@@ -21,7 +21,7 @@ void rodeo_spell(int cmd, var_ptr res)
         bool tame_success = FALSE;
 
         var_set_bool(res, FALSE);
-        if (p_ptr->riding)
+        if (plr->riding)
         {
             msg_print("You are already riding.");
             return;
@@ -29,55 +29,55 @@ void rodeo_spell(int cmd, var_ptr res)
         if (!do_riding(TRUE)) return;
         
         var_set_bool(res, TRUE);
-        assert(p_ptr->riding);
+        assert(plr->riding);
 
         m_ptr = plr_riding_mon();
         assert(m_ptr);
-        r_ptr = mon_race(m_ptr);
+        r_ptr = m_ptr->race;
 
         monster_desc(m_name, m_ptr, 0);
         cmsg_format(TERM_L_GREEN, "You ride on %s.", m_name);
-        if (is_pet(m_ptr)) break;
-        rlev = r_ptr->level;
-        if (r_ptr->flags1 & RF1_UNIQUE) rlev = rlev * 3 / 2;
+        if (mon_is_pet(m_ptr)) break;
+        rlev = r_ptr->alloc.lvl;
+        if (mon_race_is_unique(r_ptr)) rlev = rlev * 3 / 2;
         if (rlev > 60) rlev = 60+(rlev-60)/2;
 
-        if ((r_ptr->flags7 & RF7_GUARDIAN) || (r_ptr->flagsx & (RFX_QUESTOR | RFX_GUARDIAN)))
+        if ((r_ptr->alloc.flags & RFA_GUARDIAN) || (r_ptr->flagsx & (RFX_QUESTOR | RFX_GUARDIAN)))
         {
             cmsg_format(TERM_RED, "It is impossible to tame %s!", m_name);
             tame_success = FALSE;
         }
-        else if (!((skills_riding_current() / 120 + p_ptr->lev * 2 / 3) > rlev
-          && rlev < p_ptr->lev * 3 / 2 + (p_ptr->lev / 5)))
+        else if (!((skills_riding_current() / 120 + plr->lev * 2 / 3) > rlev
+          && rlev < plr->lev * 3 / 2 + (plr->lev / 5)))
         {
             cmsg_format(TERM_RED, "You are not powerful enough to tame %s.", m_name);
             tame_success = FALSE;
         }
         else
         {
-            if (0 || p_ptr->wizard)
+            if (0 || plr->wizard)
             {
-                int r1 = skills_riding_current()/120 * p_ptr->lev*2/3;
+                int r1 = skills_riding_current()/120 * plr->lev*2/3;
                 double p1 = 1.0 - (double)rlev/r1;
                 double p2 = 0.5;
                 double p3 = 1.0;
-                if (rlev < p_ptr->lev*3/2)
+                if (rlev < plr->lev*3/2)
                     p3 = 1.0;
-                else if (rlev >= p_ptr->lev*3/2 + p_ptr->lev/5 - 1)
+                else if (rlev >= plr->lev*3/2 + plr->lev/5 - 1)
                     p3 = 0.0;
                 else
                 {
-                    int b3 = rlev - p_ptr->lev*3/2;
-                    int r3 = p_ptr->lev/5;
+                    int b3 = rlev - plr->lev*3/2;
+                    int r3 = plr->lev/5;
                     p3 = (double)b3/r3;
                 }
                 /* all 3 tests need to pass for rodeo to succeed */
                 msg_format("<color:D>Rodeo = %.2f%% * %.2f%% * %.2f%% = %.2f%%.</color>",
                     p1*100., p2*100., p3*100., p1*p2*p3*100.);
             }
-            if (!( randint1(skills_riding_current() / 120 + p_ptr->lev * 2 / 3) > rlev
+            if (!( randint1(skills_riding_current() / 120 + plr->lev * 2 / 3) > rlev
                 && one_in_(2) 
-                && rlev < p_ptr->lev * 3 / 2 + randint0(p_ptr->lev / 5) ))
+                && rlev < plr->lev * 3 / 2 + randint0(plr->lev / 5) ))
             {
                 // No message here, but still the "you have been thrown off" later down.
                 tame_success = FALSE;
@@ -96,7 +96,7 @@ void rodeo_spell(int cmd, var_ptr res)
         {
             cmsg_format(TERM_VIOLET, "You have been thrown off %s.", m_name);
             rakuba(1,TRUE);
-            p_ptr->riding = 0;
+            plr->riding = 0;
         }
         break;
     }
@@ -114,10 +114,10 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
 }
 
-static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
+static void _calc_shooter_bonuses(object_type *o_ptr, plr_shoot_info_ptr info_ptr)
 {
-    if (p_ptr->shooter_info.tval_ammo != TV_ARROW )
-        p_ptr->shooter_info.base_shot = 100;
+    if (plr->shooter_info.tval_ammo != TV_ARROW )
+        plr->shooter_info.base_shot = 100;
 }
 
 static int _get_powers(spell_info* spells, int max)
@@ -127,7 +127,7 @@ static int _get_powers(spell_info* spells, int max)
     spell_info* spell = &spells[ct++];
     spell->level = 10;
     spell->cost = 0;
-    spell->fail = calculate_fail_rate(spell->level, 50, p_ptr->stat_ind[A_STR]);
+    spell->fail = calculate_fail_rate(spell->level, 50, plr->stat_ind[A_STR]);
     spell->fn = rodeo_spell;
 
     return ct;
@@ -139,6 +139,7 @@ static void _birth(void)
     plr_birth_obj_aux(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL, 1);
     plr_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
     plr_birth_obj_aux(TV_ARROW, SV_ARROW, rand_range(15, 25));
+    plr_birth_pet("q.horse");
 }
 
 plr_class_ptr cavalry_get_class(void)
@@ -148,7 +149,7 @@ plr_class_ptr cavalry_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 20,  18,  32,   1,  16,  10,  60,  66};
-    skills_t xs = { 10,   7,  10,   0,   0,   0,  22,  26};
+    skills_t xs = { 50,  35,  50,   0,   0,   0, 110, 130};
 
         me = plr_class_alloc(CLASS_CAVALRY);
         me->name = "Cavalry";

@@ -28,25 +28,23 @@ static void _mod_damage(plr_attack_ptr context)
     switch (context->mode)
     {
     case _HISSATSU_ZANMA:
-        if (monster_living(context->race) || !(context->race->flags3 & RF3_EVIL))
+        if (mon_is_living(context->mon) || !mon_is_evil(context->mon))
             context->dam = 0;
         break;
     case _HISSATSU_SEKIRYUKA:
-        if (!monster_living(context->race))
+        if (!mon_is_living(context->mon))
             context->dam = 0;
         else if (!plr_tim_find(T_CUT))
             context->dam /= 2;
         break;
     case _HISSATSU_MINEUCHI: {
-        int tmp = 10 + randint1(15) + p_ptr->lev / 2;
+        int tmp = 10 + randint1(15) + plr->lev / 2;
 
         context->dam = 0; /* no damage, but monsters don't get a saving throw either */
         anger_monster(context->mon);
 
-        if (!(context->race->flags3 & RF3_NO_STUN))
-        {
+        if (_1d(100) > mon_res_pct(context->mon, GF_STUN)) /* XXX don't bypass IMMUNE(STUN) */
             mon_stun(context->mon, tmp);
-        }
         else
             msg_format("%s is not effected.", context->mon_name);
         break; }
@@ -98,7 +96,6 @@ static slay_t _calc_slay(plr_attack_ptr context, slay_ptr best_slay)
             if (mon_is_undead(context->mon))
             {
                 mon_lore_undead(context->mon);
-                mon_lore_3(context->mon, RF3_UNDEAD);
                 slay.mul = MIN(1400, mul + 600);
             }
             else
@@ -114,11 +111,11 @@ static slay_t _calc_slay(plr_attack_ptr context, slay_ptr best_slay)
         }
         break;
     case _HISSATSU_HAGAN:
-        if (display || (context->race->flags3 & RF3_HURT_ROCK))
+        if (display || mon_vuln(context->mon, GF_DISINTEGRATE))
         {
             slay.id = _HISSATSU_HAGAN;
             slay.name = "Rock Smash";
-            if (!display) mon_lore_3(context->mon, RF3_HURT_ROCK);
+            if (!display) mon_lore_resist(context->mon, GF_DISINTEGRATE);
             if (mul == 100) slay.mul = 400;
             else slay.mul = 600;
         }
@@ -130,61 +127,56 @@ static slay_t _calc_brand(plr_attack_ptr context, slay_ptr best_brand)
 {
     slay_t brand = {0};
     bool   display = BOOL(context->flags & PAC_DISPLAY);
+    int    res_pct = 0;
     if (!context->obj) return brand; /* don't affect innate attacks or martial arts */
     switch (context->mode)
     {
     case _HISSATSU_FIRE:
-        if (!display && mon_res_fire(context->mon))
-            mon_lore_res_fire(context->mon);
-        else
+        if (!display) res_pct = mon_res_pct(context->mon, GF_FIRE);
+        if (res_pct) mon_lore_resist(context->mon, GF_FIRE);
+        if (res_pct <= 0)
         {
             brand.id = OF_BRAND_FIRE;
             brand.name = "Fire";
             brand.mul = 250;
             if (have_flag(context->obj_flags, OF_BRAND_FIRE)) brand.mul = 350;
-            if (!display && mon_vuln_fire(context->mon))
-            {
-                mon_lore_vuln_fire(context->mon);
-                brand.mul *= 2;
-            }
+            if (res_pct < 0) slay_scale(&brand, 100 - res_pct);
         }
         break;
     case _HISSATSU_COLD:
-        if (!display && mon_res_cold(context->mon))
-            mon_lore_res_cold(context->mon);
-        else
+        if (!display) res_pct = mon_res_pct(context->mon, GF_COLD);
+        if (res_pct) mon_lore_resist(context->mon, GF_COLD);
+        if (res_pct <= 0)
         {
             brand.id = OF_BRAND_COLD;
             brand.name = "Cold";
             brand.mul = 250;
             if (have_flag(context->obj_flags, OF_BRAND_COLD)) brand.mul = 350;
-            if (!display && mon_vuln_cold(context->mon))
-            {
-                mon_lore_vuln_cold(context->mon);
-                brand.mul *= 2;
-            }
+            if (res_pct < 0) slay_scale(&brand, 100 - res_pct);
         }
         break;
     case _HISSATSU_POIS:
-        if (!display && mon_res_pois(context->mon))
-            mon_lore_res_pois(context->mon);
-        else
+        if (!display) res_pct = mon_res_pct(context->mon, GF_POIS);
+        if (res_pct) mon_lore_resist(context->mon, GF_POIS);
+        if (res_pct <= 0)
         {
             brand.id = OF_BRAND_POIS;
             brand.name = "Poison";
             if (have_flag(context->obj_flags, OF_BRAND_POIS)) brand.mul = 350;
             else brand.mul = 250;
+            if (res_pct < 0) slay_scale(&brand, 100 - res_pct);
         }
         break;
     case _HISSATSU_ELEC:
-        if (!display && mon_res_elec(context->mon))
-            mon_lore_res_elec(context->mon);
-        else
+        if (!display) res_pct = mon_res_pct(context->mon, GF_ELEC);
+        if (res_pct) mon_lore_resist(context->mon, GF_ELEC);
+        if (res_pct <= 0)
         {
             brand.id = OF_BRAND_ELEC;
             brand.name = "Elec";
             if (have_flag(context->obj_flags, OF_BRAND_ELEC)) brand.mul = 700;
             else brand.mul = 500;
+            if (res_pct < 0) slay_scale(&brand, 100 - res_pct);
         }
         break;
     }
@@ -208,17 +200,17 @@ static void _begin(plr_attack_ptr context)
     switch (context->mode)
     {
     case _HISSATSU_3DAN:
-        p_ptr->crit_freq_add += 1000;
-        p_ptr->crit_qual_add += 650;
+        context->info.crit.freq_add += 1000;
+        context->info.crit.qual_add += 650;
         break;
     case PLR_HIT_CRIT:
-        p_ptr->crit_qual_add += 650;
+        context->info.crit.qual_add += 650;
         break;
     case _HISSATSU_SUTEMI:
         context->to_h += 20; /* XXX */
         break;
     }
-    if (p_ptr->special_defense & KATA_KOUKIJIN) context->to_h += 50;
+    if (plr->special_defense & KATA_KOUKIJIN) context->to_h += 50;
 }
     
 bool _begin_weapon(plr_attack_ptr context)
@@ -266,18 +258,7 @@ bool _begin_weapon(plr_attack_ptr context)
 
 static void _end(plr_attack_ptr context)
 {
-    switch (context->mode)
-    {
-    case _HISSATSU_3DAN:
-        p_ptr->crit_freq_add -= 1000;
-        p_ptr->crit_qual_add -= 650;
-        break;
-    case PLR_HIT_CRIT:
-        p_ptr->crit_qual_add -= 650;
-        break;
-    }
-
-    if (!(context->flags & PAC_DISPLAY) && (p_ptr->special_defense & KATA_IAI))
+    if (!(context->flags & PAC_DISPLAY) && (plr->special_defense & KATA_IAI))
     {
         if (context->mode != HISSATSU_IAI || context->stop == STOP_MON_DEAD)
             set_action(ACTION_NONE);
@@ -293,6 +274,19 @@ static void _attack_init(plr_attack_ptr context)
     context->hooks.mod_damage_f = _mod_damage;
     context->hooks.mod_blows_f = _mod_blows;
     context->hooks.end_f = _end;
+}
+static bool _begin_bow(plr_shoot_ptr context)
+{
+    if (!(context->flags & PSC_DISPLAY))
+    {
+        if (plr->special_defense & KATA_MUSOU)
+            set_action(ACTION_NONE);
+    }
+    return TRUE;
+}
+static void _shoot_init(plr_shoot_ptr context)
+{
+    context->hooks.begin_bow_f = _begin_bow;
 }
 
 /***********************************************************************
@@ -348,20 +342,20 @@ static void _3_way_attack_spell(int cmd, var_ptr res)
 
         if (cdir == 8) return;
 
-        pos = point_step(p_ptr->pos, cdd[cdir]);
-        if (mon_at(pos))
+        pos = point_step(plr->pos, cdd[cdir]);
+        if (dun_mon_at(cave, pos))
             _3_way_attack(pos);
         else
             msg_print("You attack the empty air.");
 
-        pos = point_step(p_ptr->pos, cdd[(cdir + 7)%8]);
-        if (mon_at(pos))
+        pos = point_step(plr->pos, cdd[(cdir + 7)%8]);
+        if (dun_mon_at(cave, pos))
             _3_way_attack(pos);
         else
             msg_print("You attack the empty air.");
 
-        pos = point_step(p_ptr->pos, cdd[(cdir + 1)%8]);
-        if (mon_at(pos))
+        pos = point_step(plr->pos, cdd[(cdir + 1)%8]);
+        if (dun_mon_at(cave, pos))
             _3_way_attack(pos);
         else
             msg_print("You attack the empty air.");
@@ -476,7 +470,7 @@ static void _counter_spell(int cmd, var_ptr res)
         var_set_string(res, "For a single turn, you will counter-attack all attacking monsters. This costs SP for each counter-attack.");
         break;
     case SPELL_CAST:
-        if (p_ptr->riding)
+        if (plr->riding)
         {
             msg_print("You cannot do it when riding.");
             var_set_bool(res, FALSE);
@@ -484,7 +478,7 @@ static void _counter_spell(int cmd, var_ptr res)
         else
         {
             msg_print("You prepare to counter blow.");
-            p_ptr->counter = TRUE;
+            plr->counter = TRUE;
             var_set_bool(res, TRUE);
         }
         break;
@@ -506,11 +500,11 @@ static void _harainuke_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST: {
         point_t pos;
-        cave_ptr grid;
+        dun_cell_ptr cell;
         int dir;
 
         var_set_bool(res, FALSE);
-        if (p_ptr->riding)
+        if (plr->riding)
         {
             msg_print("You cannot do it when riding.");
             return;
@@ -519,9 +513,9 @@ static void _harainuke_spell(int cmd, var_ptr res)
         if (!get_rep_dir2(&dir)) return;
 
         if (dir == 5) return;
-        pos = point_step(p_ptr->pos, dir);
+        pos = point_step(plr->pos, dir);
 
-        if (!mon_at(pos))
+        if (!dun_mon_at(cave, pos))
         {
             msg_print("There is no monster.");
             return;
@@ -529,12 +523,12 @@ static void _harainuke_spell(int cmd, var_ptr res)
 
         plr_attack_normal(pos);
 
-        grid = cave_at(pos);
-        if (player_can_enter(grid->feat, 0) && !is_trap(grid->feat))
+        cell = dun_cell_at(cave, pos);
+        if (cell_allow_plr(cell) && !floor_has_known_trap(cell))
         {
             pos = point_step(pos, dir);
-            grid = cave_at(pos);
-            if (player_can_enter(grid->feat, 0) && !is_trap(grid->feat) && !mon_at(pos))
+            cell = dun_cell_at(cave, pos);
+            if (cell_allow_plr(cell) && !floor_has_known_trap(cell) && !dun_mon_at(cave, pos))
             {
                 msg_print(NULL);
                 move_player_effect(pos, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
@@ -624,7 +618,7 @@ static void _judge_spell(int cmd, var_ptr res)
         var_set_string(res, "Identifies a weapon or armor. Or *identifies* these at level 45.");
         break;
     case SPELL_CAST:
-        if (p_ptr->lev > 44)
+        if (plr->lev > 44)
             var_set_bool(res, identify_fully(object_is_weapon_armour_ammo));
         else
             var_set_bool(res, ident_spell(object_is_weapon_armour_ammo));
@@ -653,18 +647,14 @@ static void _rock_smash_spell(int cmd, var_ptr res)
         if (!get_rep_dir2(&dir)) return;
         if (dir == 5) return;
 
-        pos = point_step(p_ptr->pos, dir);
-        if (mon_at(pos))
+        pos = point_step(plr->pos, dir);
+        if (dun_mon_at(cave, pos))
         {
             plr_attack_t ctx = {0};
             ctx.mode = _HISSATSU_HAGAN;
             plr_attack(&ctx, pos);
         }
-        if (cave_have_flag_at(pos, FF_HURT_ROCK))
-        {
-            cave_alter_feat(pos.y, pos.x, FF_HURT_ROCK);
-            p_ptr->update |= PU_FLOW;
-        }
+        dun_tunnel(cave, pos, ACTION_FORCE | ACTION_QUIET);
         var_set_bool(res, TRUE);
         break; }
     case SPELL_ON_BROWSE:
@@ -756,7 +746,7 @@ static void _desperate_attack_spell(int cmd, var_ptr res)
         var_set_bool(res, FALSE);
         if (plr_attack_special(_HISSATSU_SUTEMI, 0))
         {
-            p_ptr->sutemi = TRUE;
+            plr->sutemi = TRUE;
             var_set_bool(res, TRUE);
         }
         break;
@@ -820,7 +810,7 @@ static void _bloody_maelstrom_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST: {
         int dir;
-        if (!p_ptr->no_cut)
+        if (!plr->no_cut)
         {
             if (plr_tim_amount(T_CUT) < 300)
                 plr_tim_add(T_CUT, 300);
@@ -829,10 +819,11 @@ static void _bloody_maelstrom_spell(int cmd, var_ptr res)
         } 
         for (dir = 0; dir < 8; dir++)
         {
-            point_t p = point_step(p_ptr->pos, ddd[dir]);
-            mon_ptr mon = mon_at(p);
+            point_t      p = point_step(plr->pos, ddd[dir]);
+            dun_cell_ptr cell = dun_cell_at(cave, p);
+            mon_ptr      mon = dun_mon_at(cave, p);
             
-            if (mon && (mon->ml || cave_have_flag_at(p, FF_PROJECT)))
+            if (mon && (mon->ml || cell_project(cell)))
             {
                 if (!mon_is_living(mon))
                 {
@@ -889,8 +880,8 @@ static int _crack_dam(void)
         u32b flgs[OF_ARRAY_SIZE];
         object_type *o_ptr = NULL;
 
-        if (p_ptr->attack_info[hand].type != PAT_WEAPON) continue;
-        o_ptr = equip_obj(p_ptr->attack_info[hand].slot);
+        if (plr->attack_info[hand].type != PAT_WEAPON) continue;
+        o_ptr = equip_obj(plr->attack_info[hand].slot);
         if (!o_ptr) continue; /* paranoia */
 
         basedam = (o_ptr->dd * (o_ptr->ds + 1)) * 50;
@@ -913,6 +904,9 @@ static int _crack_dam(void)
     }
     return total_dam;
 }
+static dice_t _crack_dice(void) {
+    return dice_create(0, 0, _crack_dam());
+}
 static void _crack_spell(int cmd, var_ptr res)
 {
     switch (cmd)
@@ -923,20 +917,8 @@ static void _crack_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a beam of shock wave.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, _crack_dam()));
-        break;
-    case SPELL_CAST: {
-        int dir;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        msg_print("You swing your weapon downward.");
-        fire_beam(GF_FORCE, dir, _crack_dam());
-        var_set_bool(res, TRUE);
-        break; }
     default:
-        default_spell(cmd, res);
-        break;
+        beam_spell_aux(cmd, res, GF_FORCE, _crack_dice());
     }
 }
 
@@ -951,12 +933,12 @@ static void _war_cry_spell(int cmd, var_ptr res)
         var_set_string(res, "Damages all monsters in sight with sound. Aggravate nearby monsters.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(1, p_ptr->lev * 3, 0));
+        var_set_string(res, info_damage(1, plr->lev * 3, 0));
         break;
     case SPELL_CAST:
         msg_print("You roar out!");
-        project_los(GF_SOUND, randint1(p_ptr->lev * 3));
-        aggravate_monsters(0);
+        plr_project_los(GF_SOUND, randint1(plr->lev * 3));
+        aggravate_monsters(who_create_plr());
         var_set_bool(res, TRUE);
         break;
     default:
@@ -984,13 +966,10 @@ static void _musou_sandan_spell(int cmd, var_ptr res)
 
         for (i = 0; i < 3; i++)
         {
-            point_t pos = point_step(p_ptr->pos, dir), next_pos;
-            cave_type *c_ptr;
+            point_t pos = point_step(plr->pos, dir), next_pos;
             plr_attack_t ctx = {0}; /* paranoia: new context for each attack */
 
-            c_ptr = cave_at(pos);
-
-            if (!mon_at(pos))
+            if (!dun_mon_at(cave, pos))
             {
                 msg_print("There is no monster.");
                 return;
@@ -1005,7 +984,7 @@ static void _musou_sandan_spell(int cmd, var_ptr res)
             next_pos = point_step(pos, dir);
 
             /* move the monster from pos to next_pos */
-            if (!monster_can_enter(next_pos.y, next_pos.x, ctx.race, 0))
+            if (!mon_can_enter(ctx.mon, next_pos))
             {
                 if (i < 2) msg_print(NULL); /* -more- */
                 continue; /* keep attacking! */
@@ -1013,7 +992,7 @@ static void _musou_sandan_spell(int cmd, var_ptr res)
             dun_move_mon(cave, ctx.mon, next_pos);
 
             /* move the player to pos */
-            if (!player_can_enter(c_ptr->feat, 0)) return;
+            if (!cell_allow_plr(dun_cell_at(cave, pos))) return;
             if (!move_player_effect(pos, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP)) return;
             if (i < 2) msg_print(NULL); /* -more- */
         }
@@ -1055,9 +1034,9 @@ static void _moon_dazzling_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
         msg_print("You irregularly wave your weapon...");
-        project_los(GF_ENGETSU, p_ptr->lev * 4);
-        project_los(GF_ENGETSU, p_ptr->lev * 4);
-        project_los(GF_ENGETSU, p_ptr->lev * 4);
+        plr_project_los(GF_ENGETSU, plr->lev * 4);
+        plr_project_los(GF_ENGETSU, plr->lev * 4);
+        plr_project_los(GF_ENGETSU, plr->lev * 4);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1084,15 +1063,15 @@ static void _hundred_slaughter_spell(int cmd, var_ptr res)
         {
             if (!rush_attack(5, &mdeath)) break;
             var_set_bool(res, TRUE);
-            p_ptr->csp -= mana_cost_per_monster;
+            plr->csp -= mana_cost_per_monster;
 
             if (!mdeath) break;
             command_dir = 0;
-            p_ptr->redraw |= PR_MANA;
+            plr->redraw |= PR_MANA;
             handle_stuff();
             /*msg_print(NULL);*/
         }
-        while (p_ptr->csp > mana_cost_per_monster);
+        while (plr->csp > mana_cost_per_monster);
         break; }
     default:
         default_spell(cmd, res);
@@ -1111,27 +1090,28 @@ static void _dragonic_flash_spell(int cmd, var_ptr res)
         var_set_string(res, "Runs toward given location while attacking all monsters on the path.");
         break;
     case SPELL_CAST: {
-        int y, x;
+        point_t pos;
 
         var_set_bool(res, FALSE);
-        if (!tgt_pt(&x, &y, MAX_SIGHT / 2)) return;
+        pos = target_pos(MAX_SIGHT/2);
+        if (!dun_pos_interior(cave, pos)) return;
 
-        if (!cave_player_teleportable_bold(y, x, 0L) ||
-            (distance(y, x, p_ptr->pos.y, p_ptr->pos.x) > MAX_SIGHT / 2) ||
-            !projectable(p_ptr->pos.y, p_ptr->pos.x, y, x))
+        if ( !cave_player_teleportable_bold(pos, 0L)
+          || point_fast_distance(plr->pos, pos) > MAX_SIGHT/2
+          || !point_project(plr->pos, pos) )
         {
             msg_print("You cannot move to that place!");
             return;
         }
-        if (p_ptr->anti_tele)
+        if (plr->anti_tele)
         {
             msg_print("A mysterious force prevents you from teleporting!");
             equip_learn_flag(OF_NO_TELE);
         }
         else
         {
-            project(0, 0, y, x, _HISSATSU_ISSEN, GF_ATTACK, PROJECT_BEAM | PROJECT_KILL);
-            teleport_player_to(y, x, 0);
+            plr_beam(pos, GF_ATTACK, _HISSATSU_ISSEN);
+            teleport_player_to(pos, 0);
         }
         var_set_bool(res, TRUE);
         break; }
@@ -1182,8 +1162,8 @@ static void _kofuku_zettousei_spell(int cmd, var_ptr res)
         var_set_string(res, info_damage(0, 0, _kofuku_dam()));
         break;
     case SPELL_CAST: {
-        int dir;
-        int y, x;
+        int dir, rad = 0;
+        point_t pos;
 
         var_set_bool(res, FALSE);
         if (!get_rep_dir2(&dir)) return;
@@ -1195,10 +1175,10 @@ static void _kofuku_zettousei_spell(int cmd, var_ptr res)
             msg_print("Something prevent you from attacking.");
             return;
         }
-        y = p_ptr->pos.y + ddy[dir];
-        x = p_ptr->pos.x + ddx[dir];
+        pos = point_step(plr->pos, dir);
+        if (dun_allow_project_at(cave, pos)) rad = 5;
         msg_print("You swing your weapon downward.");
-        project(0, (cave_have_flag_bold(y, x, FF_PROJECT) ? 5 : 0), y, x, _kofuku_dam(), GF_METEOR, PROJECT_KILL | PROJECT_JUMP | PROJECT_ITEM);
+        plr_ball_direct(rad, pos, GF_METEOR, _kofuku_dam());
         break; }
     default:
         default_spell(cmd, res);
@@ -1253,10 +1233,10 @@ static void _harakiri_spell(int cmd, var_ptr res)
         i = inkey();
         prt("", 0, 0);
         if (i != '@') return;
-        if (p_ptr->total_winner)
+        if (plr->total_winner)
         {
             take_hit(DAMAGE_FORCE, 9999, "Seppuku");
-            p_ptr->total_winner = TRUE;
+            plr->total_winner = TRUE;
         }
         else
         {
@@ -1335,7 +1315,7 @@ static int _spell_index(int book, int spell)
 static bool _is_spell_known(int book, int spell)
 {
     int idx = _spell_index(book, spell);
-    if (p_ptr->spell_learned1 & (1L << idx)) return TRUE;
+    if (plr->spell_learned1 & (1L << idx)) return TRUE;
     return FALSE;
 }
 
@@ -1344,20 +1324,20 @@ static void _learn_spell(int book, int spell)
     int idx = _spell_index(book, spell);
     int i;
 
-    p_ptr->spell_learned1 |= (1L << idx);
+    plr->spell_learned1 |= (1L << idx);
 
-    /* Find the next open entry in "p_ptr->spell_order[]" */
+    /* Find the next open entry in "plr->spell_order[]" */
     for (i = 0; i < 64; i++)
     {
         /* Stop at the first empty space */
-        if (p_ptr->spell_order[i] == 99) break;
+        if (plr->spell_order[i] == 99) break;
     }
 
     /* Add the spell to the known list */
-    p_ptr->spell_order[i++] = spell;
-    p_ptr->learned_spells++;
-    p_ptr->update |= PU_SPELLS;
-    p_ptr->redraw |= PR_EFFECTS;
+    plr->spell_order[i++] = spell;
+    plr->learned_spells++;
+    plr->update |= PU_SPELLS;
+    plr->redraw |= PR_EFFECTS;
 
     msg_format("You have learned the technique of <color:B>%s</color>.", get_spell_name(_books[book].spells[spell].fn));
 }
@@ -1371,7 +1351,7 @@ static bool _gain_spell(int book)
     {
         spell_info *src = &_books[book].spells[i];
 
-        if (!_is_spell_known(book, i) && src->level <= p_ptr->lev)
+        if (!_is_spell_known(book, i) && src->level <= plr->lev)
         {
             _learn_spell(book, i);
             ct++;
@@ -1392,10 +1372,10 @@ void samurai_gain_spell(void)
 {
     obj_prompt_t prompt = {0};
 
-    if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
+    if (plr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
         set_action(ACTION_NONE);
 
-    if (plr_tim_find(T_BLIND) || no_lite())
+    if (plr_tim_find(T_BLIND) || no_light())
     {
         msg_print("You cannot see!");
         return;
@@ -1405,7 +1385,7 @@ void samurai_gain_spell(void)
         msg_print("You are too confused!");
         return;
     }
-    if (!p_ptr->new_spells)
+    if (!plr->new_spells)
     {
         msg_print("You cannot learn any new techniques!");
         return;
@@ -1443,7 +1423,7 @@ static int _get_spells_imp(spell_info* spells, int max, int book, int options)
             dest->fail = calculate_fail_rate(
                 src->level,
                 src->fail,
-                p_ptr->stat_ind[A_STR]
+                plr->stat_ind[A_STR]
             );
             dest->fn = src->fn;
         }
@@ -1457,7 +1437,7 @@ void samurai_browse_spell(void)
     spell_info spells[MAX_SPELLS];
     int ct;
 
-    if (plr_tim_find(T_BLIND) || no_lite())
+    if (plr_tim_find(T_BLIND) || no_light())
     {
         msg_print("You cannot see!");
         return;
@@ -1512,7 +1492,7 @@ static int _get_spells(spell_info* spells, int max)
         msg_print("Your weapon is dishonorable!");
         return 0;
     }
-    if (!p_ptr->spell_learned1)
+    if (!plr->spell_learned1)
     {
         msg_print("You don't know any special attacks.");
         return 0;
@@ -1551,50 +1531,50 @@ static void _character_dump(doc_ptr doc)
  ***********************************************************************/
 void samurai_posture_calc_bonuses(void)
 {
-    if (p_ptr->special_defense & KATA_FUUJIN)
+    if (plr->special_defense & KATA_FUUJIN)
     {
         /* see project_p for special handling ... review?
-        if (!p_ptr->blind)
-            p_ptr->reflect = TRUE; */
+        if (!plr->blind)
+            plr->reflect = TRUE; */
     }
-    if (p_ptr->special_defense & KATA_KOUKIJIN)
+    if (plr->special_defense & KATA_KOUKIJIN)
     {
-        p_ptr->to_a -= 50;
-        p_ptr->dis_to_a -= 50;
-        res_add_vuln(RES_ACID);
-        res_add_vuln(RES_ELEC);
-        res_add_vuln(RES_FIRE);
-        res_add_vuln(RES_COLD);
+        plr->to_a -= 50;
+        plr->dis_to_a -= 50;
+        res_add_vuln(GF_ACID);
+        res_add_vuln(GF_ELEC);
+        res_add_vuln(GF_FIRE);
+        res_add_vuln(GF_COLD);
     }
 
-    if (p_ptr->special_defense & KATA_MUSOU)
+    if (plr->special_defense & KATA_MUSOU)
     {
-        p_ptr->see_inv++;
-        p_ptr->free_act++;
-        p_ptr->slow_digest = TRUE;
-        p_ptr->regen += 100;
-        p_ptr->levitation = TRUE;
-        p_ptr->hold_life++;
-        p_ptr->sustain_str = TRUE;
-        p_ptr->sustain_int = TRUE;
-        p_ptr->sustain_wis = TRUE;
-        p_ptr->sustain_con = TRUE;
-        p_ptr->sustain_dex = TRUE;
-        p_ptr->sustain_chr = TRUE;
-        p_ptr->telepathy = TRUE;
-        p_ptr->lite = TRUE;
+        plr->see_inv++;
+        plr->free_act++;
+        plr->slow_digest = TRUE;
+        plr->regen += 100;
+        plr->levitation = TRUE;
+        plr->hold_life++;
+        plr->sustain_str = TRUE;
+        plr->sustain_int = TRUE;
+        plr->sustain_wis = TRUE;
+        plr->sustain_con = TRUE;
+        plr->sustain_dex = TRUE;
+        plr->sustain_chr = TRUE;
+        plr->telepathy = TRUE;
+        plr->weak_lite = TRUE;
         res_add_ultimate();
-        p_ptr->reflect = TRUE;
-        p_ptr->sh_fire = TRUE;
-        p_ptr->sh_elec = TRUE;
-        p_ptr->sh_cold = TRUE;
+        plr->reflect = TRUE;
+        plr->sh_fire = TRUE;
+        plr->sh_elec = TRUE;
+        plr->sh_cold = TRUE;
         plr_bonus_ac(100);
     }
 }
 
 void samurai_posture_calc_stats(s16b stats[MAX_STATS])
 {
-    if (p_ptr->special_defense & KATA_KOUKIJIN)
+    if (plr->special_defense & KATA_KOUKIJIN)
     {
         int i;
         for (i = 0; i < MAX_STATS; i++)
@@ -1604,26 +1584,26 @@ void samurai_posture_calc_stats(s16b stats[MAX_STATS])
 
 void samurai_posture_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    if (p_ptr->special_defense & KATA_FUUJIN)
+    if (plr->special_defense & KATA_FUUJIN)
         add_flag(flgs, OF_REFLECT);
 
-    if (p_ptr->special_defense & KATA_MUSOU)
+    if (plr->special_defense & KATA_MUSOU)
     {
-        add_flag(flgs, OF_RES_ACID);
-        add_flag(flgs, OF_RES_ELEC);
-        add_flag(flgs, OF_RES_FIRE);
-        add_flag(flgs, OF_RES_COLD);
-        add_flag(flgs, OF_RES_POIS);
-        add_flag(flgs, OF_RES_LITE);
-        add_flag(flgs, OF_RES_DARK);
-        add_flag(flgs, OF_RES_CONF);
-        add_flag(flgs, OF_RES_NETHER);
-        add_flag(flgs, OF_RES_NEXUS);
-        add_flag(flgs, OF_RES_SOUND);
-        add_flag(flgs, OF_RES_SHARDS);
-        add_flag(flgs, OF_RES_CHAOS);
-        add_flag(flgs, OF_RES_DISEN);
-        add_flag(flgs, OF_RES_FEAR);
+        add_flag(flgs, OF_RES_(GF_ACID));
+        add_flag(flgs, OF_RES_(GF_ELEC));
+        add_flag(flgs, OF_RES_(GF_FIRE));
+        add_flag(flgs, OF_RES_(GF_COLD));
+        add_flag(flgs, OF_RES_(GF_POIS));
+        add_flag(flgs, OF_RES_(GF_LIGHT));
+        add_flag(flgs, OF_RES_(GF_DARK));
+        add_flag(flgs, OF_RES_(GF_CONF));
+        add_flag(flgs, OF_RES_(GF_NETHER));
+        add_flag(flgs, OF_RES_(GF_NEXUS));
+        add_flag(flgs, OF_RES_(GF_SOUND));
+        add_flag(flgs, OF_RES_(GF_SHARDS));
+        add_flag(flgs, OF_RES_(GF_CHAOS));
+        add_flag(flgs, OF_RES_(GF_DISEN));
+        add_flag(flgs, OF_RES_(GF_FEAR));
         add_flag(flgs, OF_REFLECT);
         add_flag(flgs, OF_HOLD_LIFE);
         add_flag(flgs, OF_FREE_ACT);
@@ -1631,7 +1611,7 @@ void samurai_posture_get_flags(u32b flgs[OF_ARRAY_SIZE])
         add_flag(flgs, OF_AURA_ELEC);
         add_flag(flgs, OF_AURA_COLD);
         add_flag(flgs, OF_LEVITATION);
-        add_flag(flgs, OF_LITE);
+        add_flag(flgs, OF_LIGHT);
         add_flag(flgs, OF_SEE_INVIS);
         add_flag(flgs, OF_TELEPATHY);
         add_flag(flgs, OF_SLOW_DIGEST);
@@ -1644,12 +1624,12 @@ void samurai_posture_get_flags(u32b flgs[OF_ARRAY_SIZE])
         add_flag(flgs, OF_SUST_CHR);
     }
 
-    if (p_ptr->special_defense & KATA_KOUKIJIN)
+    if (plr->special_defense & KATA_KOUKIJIN)
     {
-        add_flag(flgs, OF_VULN_ACID);
-        add_flag(flgs, OF_VULN_ELEC);
-        add_flag(flgs, OF_VULN_FIRE);
-        add_flag(flgs, OF_VULN_COLD);
+        add_flag(flgs, OF_VULN_(GF_ACID));
+        add_flag(flgs, OF_VULN_(GF_ELEC));
+        add_flag(flgs, OF_VULN_(GF_FIRE));
+        add_flag(flgs, OF_VULN_(GF_COLD));
     }
 }
 
@@ -1670,7 +1650,7 @@ static bool _choose_kata(void)
         msg_print("You are not clear headed");
         return FALSE;
     }
-    if (p_ptr->afraid)
+    if (plr->afraid)
     {
         msg_print("You are trembling with fear!");
         return FALSE;
@@ -1682,7 +1662,7 @@ static bool _choose_kata(void)
 
     for (i = 0; i < MAX_KATA; i++)
     {
-        if (p_ptr->lev >= kata_shurui[i].min_level)
+        if (plr->lev >= kata_shurui[i].min_level)
         {
             sprintf(buf," %c) Form of %-12s  %s",I2A(i+1), kata_shurui[i].desc, kata_shurui[i].info);
             prt(buf, 3+i, 20);
@@ -1703,7 +1683,7 @@ static bool _choose_kata(void)
         }
         else if ((choice == 'a') || (choice == 'A'))
         {
-            if (p_ptr->action == ACTION_KATA)
+            if (plr->action == ACTION_KATA)
                 set_action(ACTION_NONE);
             else
                 msg_print("You are not assuming posture.");
@@ -1716,17 +1696,17 @@ static bool _choose_kata(void)
             new_kata = 0;
             break;
         }
-        else if (((choice == 'c') || (choice == 'C')) && (p_ptr->lev > 29))
+        else if (((choice == 'c') || (choice == 'C')) && (plr->lev > 29))
         {
             new_kata = 1;
             break;
         }
-        else if (((choice == 'd') || (choice == 'D')) && (p_ptr->lev > 34))
+        else if (((choice == 'd') || (choice == 'D')) && (plr->lev > 34))
         {
             new_kata = 2;
             break;
         }
-        else if (((choice == 'e') || (choice == 'E')) && (p_ptr->lev > 39))
+        else if (((choice == 'e') || (choice == 'E')) && (plr->lev > 39))
         {
             new_kata = 3;
             break;
@@ -1734,47 +1714,47 @@ static bool _choose_kata(void)
     }
     set_action(ACTION_KATA);
 
-    if (p_ptr->special_defense & (KATA_IAI << new_kata))
+    if (plr->special_defense & (KATA_IAI << new_kata))
     {
         msg_print("You reassume a posture.");
     }
     else
     {
-        p_ptr->special_defense &= ~(KATA_MASK);
-        p_ptr->update |= (PU_BONUS);
-        p_ptr->update |= (PU_MONSTERS);
+        plr->special_defense &= ~(KATA_MASK);
+        plr->update |= (PU_BONUS);
+        plr->update |= (PU_MONSTERS);
         msg_format("You assume a posture of %s form.",kata_shurui[new_kata].desc);
-        p_ptr->special_defense |= (KATA_IAI << new_kata);
+        plr->special_defense |= (KATA_IAI << new_kata);
     }
-    p_ptr->redraw |= (PR_STATE);
-    p_ptr->redraw |= (PR_STATUS);
+    plr->redraw |= (PR_STATE);
+    plr->redraw |= (PR_STATUS);
     screen_load();
     return TRUE;
 }
 
 static int _max_sp(void)
 {
-    return MAX(p_ptr->msp*4, p_ptr->lev*5+5);
+    return MAX(plr->msp*4, plr->lev*5+5);
 }
 
 void cast_concentration(void)
 {
     int max_csp = _max_sp();
-    if (total_friends)
+    if (plr_pet_count())
         return;
-    if (p_ptr->special_defense & KATA_MASK)
+    if (plr->special_defense & KATA_MASK)
         return;
         
     msg_print("You concentrate to charge your power.");
 
-    p_ptr->csp += p_ptr->msp / 2;
-    if (p_ptr->csp >= max_csp)
+    plr->csp += plr->msp / 2;
+    if (plr->csp >= max_csp)
     {
-        p_ptr->csp = max_csp;
-        p_ptr->csp_frac = 0;
+        plr->csp = max_csp;
+        plr->csp_frac = 0;
     }
 
-    p_ptr->redraw |= (PR_MANA);
+    plr->redraw |= (PR_MANA);
  }
 
 void samurai_concentration_spell(int cmd, var_ptr res)
@@ -1790,12 +1770,12 @@ void samurai_concentration_spell(int cmd, var_ptr res)
     case SPELL_CAST:
     {
         var_set_bool(res, FALSE);
-        if (total_friends)
+        if (plr_pet_count())
         {
             msg_print("You need concentration on the pets now.");
             return;
         }
-        if (p_ptr->special_defense & KATA_MASK)
+        if (plr->special_defense & KATA_MASK)
         {
             msg_print("You need concentration on your form.");
             return;
@@ -1830,7 +1810,7 @@ static void _posture_spell(int cmd, var_ptr res)
         }
         if (!_choose_kata()) return;
 
-        p_ptr->update |= (PU_BONUS);
+        plr->update |= (PU_BONUS);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1842,8 +1822,8 @@ static void _posture_spell(int cmd, var_ptr res)
 static void _calc_bonuses(void)
 {
     samurai_posture_calc_bonuses();
-    if (p_ptr->lev >= 30)
-        res_add(RES_FEAR);
+    if (plr->lev >= 30)
+        res_add(GF_FEAR);
 }
 
 static void _calc_stats(s16b stats[MAX_STATS])
@@ -1854,8 +1834,8 @@ static void _calc_stats(s16b stats[MAX_STATS])
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     samurai_posture_get_flags(flgs);
-    if (p_ptr->lev >= 30)
-        add_flag(flgs, OF_RES_FEAR);
+    if (plr->lev >= 30)
+        add_flag(flgs, OF_RES_(GF_FEAR));
 }
 
 static int _get_powers(spell_info* spells, int max)
@@ -1908,20 +1888,20 @@ static void _timer_on(plr_tim_ptr timer)
     {
     case T_HALLUCINATE:
     case T_PARALYZED:
-        p_ptr->counter = FALSE;
+        plr->counter = FALSE;
         break;
     case T_CONFUSED:
     case T_STUN:
-        p_ptr->counter = FALSE;
-        if (p_ptr->action == ACTION_KATA)
+        plr->counter = FALSE;
+        if (plr->action == ACTION_KATA)
         {
             msg_print("Your posture gets loose.");
-            p_ptr->special_defense &= ~(KATA_MASK);
-            p_ptr->update |= PU_BONUS;
-            p_ptr->update |= PU_MONSTERS;
-            p_ptr->redraw |= PR_STATE;
-            p_ptr->redraw |= PR_STATUS;
-            p_ptr->action = ACTION_NONE;
+            plr->special_defense &= ~(KATA_MASK);
+            plr->update |= PU_BONUS;
+            plr->update |= PU_MONSTERS;
+            plr->redraw |= PR_STATE;
+            plr->redraw |= PR_STATUS;
+            plr->action = ACTION_NONE;
         }
         break;
     }
@@ -1934,7 +1914,7 @@ plr_class_ptr samurai_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  18,  32,   2,  16,   6,  70,  40};
-    skills_t xs = { 12,   7,  10,   0,   0,   0,  23,  18};
+    skills_t xs = { 60,  35,  50,   0,   0,   0, 115,  90};
 
 
         me = plr_class_alloc(CLASS_SAMURAI);
@@ -1975,6 +1955,7 @@ plr_class_ptr samurai_get_class(void)
         me->hooks.get_spells = _get_spells;
         me->hooks.caster_info = _caster_info;
         me->hooks.attack_init = _attack_init;
+        me->hooks.shoot_init = _shoot_init;
         me->hooks.calc_bonuses = _calc_bonuses;
         me->hooks.calc_stats = _calc_stats;
         me->hooks.get_flags = _get_flags;

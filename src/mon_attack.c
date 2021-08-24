@@ -12,8 +12,7 @@
 static void _init_race(mon_attack_ptr context)
 {
     assert(context->mon);
-    context->race = mon_race(context->mon);
-    context->level = context->race->level;
+    context->race = context->mon->race;
     monster_desc(context->mon_full_name, context->mon, 0);
     monster_desc(context->mon_name, context->mon, MD_PRON_VISIBLE);
     monster_desc(context->mon_name_obj, context->mon, MD_PRON_VISIBLE | MD_OBJECTIVE);
@@ -21,23 +20,23 @@ static void _init_race(mon_attack_ptr context)
 static void _init_race2(mon_attack_ptr context)
 {
     assert(context->mon2);
-    context->race2 = mon_race(context->mon2);
+    context->race2 = context->mon2->race;
     monster_desc(context->mon2_full_name, context->mon2, 0);
     monster_desc(context->mon2_name, context->mon2, MD_PRON_VISIBLE);
     monster_desc(context->mon2_name_obj, context->mon2, MD_PRON_VISIBLE | MD_OBJECTIVE);
 }
 static void _check_race(mon_attack_ptr context) /* GF_CHAOS might polymorph */
 {
-    if (context->race->id != context->mon->r_idx)
+    if (context->race->id != context->mon->race->id)
         _init_race(context);
-    if (context->race2 && context->race2->id != context->mon2->r_idx)
+    if (context->race2 && context->race2->id != context->mon2->race->id)
         _init_race2(context);
 }
 static bool _stop_attack(mon_attack_ptr context)
 {
     if (context->stop) return TRUE;
-    if (mon_is_dead(context->mon))
-        context->stop = STOP_MON_DEAD;
+    if (!mon_is_valid(context->mon))
+        context->stop = STOP_MON_DEAD; /* .. or deleted */
     else if (mon_tim_find(context->mon, T_PARALYZED) || mon_tim_find(context->mon, MT_SLEEP))
         context->stop = STOP_MON_PARALYZED;
     /* XXX Confused monsters should be able to stumble into the player for melee attacks ...
@@ -49,18 +48,18 @@ static bool _stop_attack(mon_attack_ptr context)
         context->stop = STOP_MON_MOVED;
     else if (context->flags & _ATTACK_PLR)
     {
-        if (p_ptr->is_dead)
+        if (plr->is_dead)
             context->stop = STOP_PLR_DEAD;
-        else if (p_ptr->leaving)
+        else if (plr->leaving)
             context->stop = STOP_PLR_LEAVING;
-        else if (!is_hostile(context->mon))
+        else if (!mon_is_hostile(context->mon))
             context->stop = STOP_MON_FRIENDLY;
-        else if (!point_equals(p_ptr->pos, context->tgt_pos))
+        else if (!point_equals(plr->pos, context->tgt_pos))
             context->stop = STOP_PLR_MOVED;
     }
     else
     {
-        if (mon_is_dead(context->mon2))
+        if (!mon_is_valid(context->mon2))
             context->stop = STOP_MON_DEAD;
         if (!point_equals(context->mon2->pos, context->tgt_pos))
             context->stop = STOP_MON_MOVED;
@@ -92,30 +91,33 @@ bool mon_attack_begin(mon_attack_ptr context, mon_ptr mon, point_t pos)
     context->mon_pos = mon->pos;
     context->tgt_pos = pos;
 
-    if (context->race->flags1 & RF1_NEVER_BLOW) return FALSE;
+    if (mon_race_never_blow(context->race)) return FALSE;
 
-    if (point_equals(p_ptr->pos, pos))
+    assert(cave == mon->dun);
+    if (dun_plr_at(cave, pos))
     {
-        if (p_ptr->riding && one_in_(2))
+        if (plr->riding && (!mon_is_hostile(mon) || one_in_(2)))
         {
             context->mon2 = plr_riding_mon();
             _init_race2(context);
+            if (!mon_tim_find(mon, T_CONFUSED) && !are_enemies(mon, context->mon2)) return FALSE;
         }
         else
         {
             context->mon2 = NULL;
             context->flags |= _ATTACK_PLR;
-            if (!is_hostile(context->mon)) return FALSE;
+            if (!mon_tim_find(mon, T_CONFUSED) && !mon_is_hostile(mon)) return FALSE;
         }
     }
     else
     {
-        mon_ptr tgt_mon = mon_at(pos);
+        mon_ptr tgt_mon = dun_mon_at(mon->dun, pos);
         if (!tgt_mon) return FALSE;
         context->mon2 = tgt_mon;
         _init_race2(context);
         if (!mon_show_msg(context->mon) && !mon_show_msg(context->mon2))
             context->flags |= _UNVIEW;
+        if (!mon_tim_find(mon, T_CONFUSED) && !are_enemies(mon, context->mon2)) return FALSE;
     }
 
     if (context->flags & _ATTACK_PLR)
@@ -134,6 +136,21 @@ bool mon_attack_begin(mon_attack_ptr context, mon_ptr mon, point_t pos)
 
 void mon_attack_end(mon_attack_ptr context)
 {
+    if (context->stop != STOP_MON_DEAD)
+    {
+        /* fixup ai targetting */
+        if (context->flags & _ATTACK_PLR) /* "lock on" to player */
+            mon_clear_target(context->mon);
+        else if (context->mon2)
+        {
+            if (context->hits || (context->mon->mflag2 & MFLAG2_ILLUSION))
+                mon_set_target(context->mon2, context->mon->pos);
+            if (mon_race_is_(context->mon2->race, "@.player")) /* lock on to "player" */
+                mon_set_target(context->mon, context->mon2->pos);
+        }
+        /* remember last enemy */
+        context->mon->last_enemy_pos = context->tgt_pos;
+    }
     _current = NULL;
 }
 
@@ -162,18 +179,18 @@ bool mon_check_hit(mon_attack_ptr context)
     int skill;
 
     if (context->flags & _ATTACK_PLR)
-    {
-        context->ac = p_ptr->ac + p_ptr->to_a;
-        if (p_ptr->pclass == CLASS_DUELIST && p_ptr->duelist_target_idx == context->mon->id)
-            context->ac += 100;
-        /*msg_format("AC%d", context->ac);*/
-    }
+        context->ac = plr_ac(context->mon);
     else
         context->ac = mon_ac(context->mon2);
 
+    if (context->mon->mflag2 & MFLAG2_ILLUSION) return FALSE;
     if (!context->blow->effect_ct) return TRUE;  /* B:(DROOL|MOAN|BEG|INSULT)$ always hit */
 
-    skill = _scale(context->mon, context->blow->power + context->level*3);
+    skill = mon_skill_thn(context->mon);
+    skill += context->blow->power;
+    skill += context->to_h * BTH_PLUS_ADJ;
+    skill = _scale(context->mon, skill);
+
     return _check_hit(skill, context->ac);
 }
 
@@ -263,7 +280,7 @@ static bool _explode(mon_attack_ptr context)
 {
     if (context->blow->method != RBM_EXPLODE) return FALSE;
     mon_tim_delete(context->mon, T_INVULN); /* otherwise mon_take_hit will fail */
-    if (mon_take_hit(context->mon->id, context->mon->hp + 1, &context->fear, NULL))
+    if (mon_take_hit(context->mon, context->mon->hp + 1, &context->fear, NULL))
     {
         context->stop = STOP_MON_DEAD;
         return TRUE;
@@ -296,7 +313,7 @@ static obj_ptr _get_drain_device(void)
 static void _effect_plr(mon_attack_ptr context, mon_effect_ptr effect, int dam)
 {
     int k;
-    switch (effect->effect)
+    switch (effect->type)
     {
     case RBE_HURT: {
         int pct = ac_melee_pct(context->ac);
@@ -306,10 +323,10 @@ static void _effect_plr(mon_attack_ptr context, mon_effect_ptr effect, int dam)
     case RBE_DRAIN_CHARGES: {
         char buf[MAX_NLEN];
         bool drained = FALSE;
-        int  drain_amt = context->level;
+        int  drain_amt = mon_lvl(context->mon);
 
         context->dam += take_hit(DAMAGE_ATTACK, dam, context->mon_full_name);
-        if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
+        if (plr->is_dead || CHECK_MULTISHADOW()) break;
 
         /* Find an item */
         for (k = 0; k < 10; k++)
@@ -331,12 +348,12 @@ static void _effect_plr(mon_attack_ptr context, mon_effect_ptr effect, int dam)
             if (drain_amt > device_sp(obj))
                 drain_amt = device_sp(obj);
 
-            if (p_ptr->no_charge_drain)
+            if (plr->no_charge_drain)
                 break;
 
-            if (p_ptr->pclass == CLASS_DEVICEMASTER)
+            if (plr->pclass == CLASS_DEVICEMASTER)
             {
-                int pl = p_ptr->lev;
+                int pl = plr->lev;
                 int dl = obj->activation.difficulty;
 
                 if (devicemaster_is_speciality(obj))
@@ -360,8 +377,8 @@ static void _effect_plr(mon_attack_ptr context, mon_effect_ptr effect, int dam)
             if (context->mon->hp > context->mon->maxhp)
                 context->mon->hp = context->mon->maxhp;
 
-            check_mon_health_redraw(context->mon->id);
-            p_ptr->window |= (PW_INVEN);
+            check_mon_health_redraw(context->mon);
+            plr->window |= (PW_INVEN);
             break;
         }
 
@@ -370,33 +387,33 @@ static void _effect_plr(mon_attack_ptr context, mon_effect_ptr effect, int dam)
           && !prace_is_(RACE_MON_JELLY) )
         {
             msg_print("Food drains from your belly!");
-            set_food(MAX(0, MIN(p_ptr->food - 1000, p_ptr->food*2/3)));
+            set_food(MAX(0, MIN(plr->food - 1000, plr->food*2/3)));
         }
         break; }
     case RBE_EAT_GOLD:
         if (mon_tim_find(context->mon, T_CONFUSED)) break;
-        if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
+        if (plr->is_dead || CHECK_MULTISHADOW()) break;
 
-        if (context->race->flags2 & RF2_THIEF)
-            mon_lore_2(context->mon, RF2_THIEF);
+        if (mon_is_thief(context->mon))
+            mon_lore_thief(context->mon);
 
         if (!plr_tim_find(T_PARALYZED) &&
-            (randint0(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] + p_ptr->lev)))
+            (randint0(100) < (adj_dex_safe[plr->stat_ind[A_DEX]] + plr->lev)))
         {
             msg_print("You quickly protect your money pouch!");
             if (randint0(3)) context->do_blink = TRUE;
         }
         else
         {
-            int gold = (p_ptr->au / 10) + randint1(25);
+            int gold = (plr->au / 10) + randint1(25);
             if (gold < 2) gold = 2;
-            if (gold > 5000) gold = (p_ptr->au / 20) + randint1(3000);
-            if (gold > p_ptr->au) gold = p_ptr->au;
-            p_ptr->au -= gold;
+            if (gold > 5000) gold = (plr->au / 20) + randint1(3000);
+            if (gold > plr->au) gold = plr->au;
+            plr->au -= gold;
             stats_on_gold_stolen(gold);
             if (gold <= 0)
                 msg_print("Nothing was stolen.");
-            else if (p_ptr->au)
+            else if (plr->au)
             {
                 msg_print("Your purse feels lighter.");
                 msg_format("%d coins were stolen!", gold);
@@ -409,22 +426,22 @@ static void _effect_plr(mon_attack_ptr context, mon_effect_ptr effect, int dam)
                 virtue_add(VIRTUE_SACRIFICE, 2);
             }
 
-            p_ptr->redraw |= PR_GOLD;
+            plr->redraw |= PR_GOLD;
             if (prace_is_(RACE_MON_LEPRECHAUN))
-                p_ptr->update |= PU_BONUS | PU_HP | PU_MANA;
+                plr->update |= PU_BONUS | PU_HP | PU_MANA;
 
             context->do_blink = TRUE;
         }
         break;
     case RBE_EAT_ITEM:
         if (mon_tim_find(context->mon, T_CONFUSED)) break;
-        if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
+        if (plr->is_dead || CHECK_MULTISHADOW()) break;
 
-        if (context->race->flags2 & RF2_THIEF)
-            mon_lore_2(context->mon, RF2_THIEF);
+        if (mon_is_thief(context->mon))
+            mon_lore_thief(context->mon);
 
         if (!plr_tim_find(T_PARALYZED) &&
-            (randint0(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] + p_ptr->lev)))
+            (randint0(100) < (adj_dex_safe[plr->stat_ind[A_DEX]] + plr->lev)))
         {
             msg_print("You grab hold of your backpack!");
             context->do_blink = TRUE;
@@ -465,10 +482,10 @@ static void _effect_plr(mon_attack_ptr context, mon_effect_ptr effect, int dam)
         }
         break;
     case RBE_EAT_FOOD:
-        if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
+        if (plr->is_dead || CHECK_MULTISHADOW()) break;
 
-        if (context->race->flags2 & RF2_THIEF)
-            mon_lore_2(context->mon, RF2_THIEF);
+        if (mon_is_thief(context->mon))
+            mon_lore_thief(context->mon);
 
         for (k = 0; k < 10; k++)
         {
@@ -492,10 +509,10 @@ static void _effect_plr(mon_attack_ptr context, mon_effect_ptr effect, int dam)
             break;
         }
         break;
-    case RBE_EAT_LITE: {
+    case RBE_EAT_LIGHT: {
         int slot;
-        if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
-        slot = equip_find_obj(TV_LITE, SV_ANY);
+        if (plr->is_dead || CHECK_MULTISHADOW()) break;
+        slot = equip_find_obj(TV_LIGHT, SV_ANY);
         if (slot)
         {
             obj_ptr o_ptr = equip_obj(slot);
@@ -506,7 +523,7 @@ static void _effect_plr(mon_attack_ptr context, mon_effect_ptr effect, int dam)
 
                 if (!plr_tim_find(T_BLIND))
                     msg_print("Your light dims.");
-                p_ptr->window |= PW_EQUIP;
+                plr->window |= PW_EQUIP;
             }
         }
         break; }
@@ -547,25 +564,25 @@ static void _effect_plr(mon_attack_ptr context, mon_effect_ptr effect, int dam)
         break; }
     case RBE_DRAIN_EXP:
         if (CHECK_MULTISHADOW()) break;
-        dam += MON_DRAIN_LIFE * p_ptr->exp / 100;
+        dam += MON_DRAIN_LIFE * plr->exp / 100;
         if (dam > 25000) dam = 25000;
         dam = drain_exp(dam, dam/10, 95 - dam/15);
         if (dam)
             mon_gain_exp(context->mon, dam);
         break;
     case RBE_DISEASE:
-        if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
+        if (plr->is_dead || CHECK_MULTISHADOW()) break;
         context->dam += take_hit(DAMAGE_ATTACK, dam, context->mon_full_name);
 
         /* XXX should we do both immediate and delayed damage? */
         {
-            int d = res_calc_dam(RES_POIS, dam);
+            int d = res_calc_dam(GF_POIS, dam);
             if (d) plr_tim_add(T_POISON, d);
         }
 
-        if (randint1(100) < 11 && p_ptr->prace != RACE_ANDROID)
+        if (randint1(100) < 11 && plr->prace != RACE_ANDROID)
         {
-            bool perm = one_in_(10) && one_in_(100/MAX(1, context->level));
+            bool perm = one_in_(10) && one_in_(100/MAX(1, mon_lvl(context->mon)));
             if (dec_stat(A_CON, randint1(10), perm))
                 msg_print("You feel strange sickness.");
         }
@@ -578,7 +595,7 @@ static void _effect_plr(mon_attack_ptr context, mon_effect_ptr effect, int dam)
         dam = take_hit(DAMAGE_ATTACK, dam, context->mon_full_name);
         context->dam += dam;
 
-        if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
+        if (plr->is_dead || CHECK_MULTISHADOW()) break;
         if (!(get_race()->flags & RACE_IS_NONLIVING))
         {
             if (context->mon->hp < context->mon->maxhp)
@@ -586,17 +603,17 @@ static void _effect_plr(mon_attack_ptr context, mon_effect_ptr effect, int dam)
                 context->mon->hp += dam;
                 if (context->mon->hp > context->mon->maxhp)
                     context->mon->hp = context->mon->maxhp;
-                check_mon_health_redraw(context->mon->id);
+                check_mon_health_redraw(context->mon);
                 if (context->mon->ml)
                     msg_format("%^s appears healthier.", context->mon_name);
             }
         }
         break;
     case RBE_CUT:
-        if (!p_ptr->no_cut) plr_tim_add(T_CUT, dam);
+        if (!plr->no_cut) plr_tim_add(T_CUT, dam);
         break;
     default: /* using GF_* ... damage 0 is OK: B:BITE:HURT(4d4):DISENCHANT */
-        gf_affect_p(context->mon->id, effect->effect, dam, GF_AFFECT_ATTACK);
+        gf_affect_p(who_create_mon(context->mon), effect->type, dam, GF_AFFECT_ATTACK);
         _check_race(context); /* GF_CHAOS and GF_TIME */
     }
 }
@@ -604,6 +621,27 @@ static void _effect_plr(mon_attack_ptr context, mon_effect_ptr effect, int dam)
 static bool _is_touch(mon_blow_ptr blow)
 {
     return BOOL(blow->flags & MBF_TOUCH);
+}
+
+static bool _repelled(mon_attack_ptr context)
+{
+    if ( plr_tim_find(T_PROT_EVIL)
+      && _1d(200) <= -context->race->align
+      && !mon_save_p(context->mon, A_CHR) )
+    {
+        cmsg_format(TERM_L_BLUE, "%^s is repelled.", context->mon_name);
+        plr_tim_subtract(T_PROT_EVIL, _1d(1 + mon_lvl(context->mon)/10));
+        return TRUE;
+    }
+    if ( plr_tim_find(T_PROT_GOOD)
+      && _1d(200) <= context->race->align
+      && !mon_save_p(context->mon, A_CHR) )
+    {
+        cmsg_format(TERM_L_BLUE, "%^s is repelled.", context->mon_name);
+        plr_tim_subtract(T_PROT_GOOD, _1d(1 + mon_lvl(context->mon)/10));
+        return TRUE;
+    }
+    return FALSE;
 }
 
 bool mon_hit_plr(mon_attack_ptr context)
@@ -623,12 +661,10 @@ bool mon_hit_plr(mon_attack_ptr context)
     disturb(1, 0);
     context->hits++;
 
-    /* Early exit if player repels evil */
-    if (plr_tim_find(T_PROT_EVIL) && (context->race->flags3 & RF3_EVIL) &&
-        !mon_save_p(context->race->id, A_WIS) && !one_in_(3))
+    /* Early exit if repelled (T_PROT_EVIL|GOOD) */
+    if (_repelled(context))
     {
-        mon_lore_3(context->mon, RF3_EVIL);
-        cmsg_format(TERM_L_BLUE, "%^s is repelled.", context->mon_name);
+        mon_lore_align(context->mon);
         return FALSE;
     }
 
@@ -643,7 +679,7 @@ bool mon_hit_plr(mon_attack_ptr context)
         mon_effect_ptr effect = &context->blow->effects[i];
         int            dam = 0;
 
-        if (!effect->effect) break;
+        if (!effect->type) break;
         if (_stop_attack(context)) break;
         if (effect->pct && randint1(100) > effect->pct) continue;
 
@@ -660,7 +696,7 @@ bool mon_hit_plr(mon_attack_ptr context)
         }
         dam += effect->dice.base;
         dam = _scale(context->mon, dam);
-        if (p_ptr->pclass == CLASS_DUELIST && p_ptr->duelist_target_idx == context->mon->id) /* XXX */
+        if (context->mon == who_mon(plr->duelist_target))
             dam -= dam/3;
 
         /* apply the effect */
@@ -687,14 +723,14 @@ bool mon_hit_plr(mon_attack_ptr context)
     }
 
     /* XXX Hacks processed on every hit */
-    if (p_ptr->riding && context->dam)
+    if (plr->riding && context->dam)
     {
         char m_name[MAX_NLEN];
         monster_desc(m_name, plr_riding_mon(), 0);
-        if (rakuba(MIN(200, context->dam), FALSE)) /* XXX might clear p_ptr->riding */
+        if (rakuba(MIN(200, context->dam), FALSE)) /* XXX might clear plr->riding */
             msg_format("You have fallen from %s.", m_name);
     }
-    if (p_ptr->special_defense & NINJA_KAWARIMI)
+    if (plr->special_defense & NINJA_KAWARIMI)
     {
         if (kawarimi(FALSE))
         {
@@ -707,7 +743,7 @@ bool mon_hit_plr(mon_attack_ptr context)
 
 static int _aura_dam_p(void)
 {
-    return 2 + damroll(1 + (p_ptr->lev / 10), 2 + (p_ptr->lev / 10));
+    return 2 + damroll(1 + (plr->lev / 10), 2 + (plr->lev / 10));
 }
 
 static void _check_plr_retaliate(mon_attack_ptr context)
@@ -723,22 +759,22 @@ static void _check_plr_retaliate(mon_attack_ptr context)
     /* check for ability */
     if (weaponmaster_get_toggle() == TOGGLE_TRADE_BLOWS)
         ctx.flags |= PAC_NO_INNATE;
-    else if (mystic_get_toggle() == MYSTIC_TOGGLE_RETALIATE && p_ptr->csp >= 7)
+    else if (mystic_get_toggle() == MYSTIC_TOGGLE_RETALIATE && plr->csp >= 7)
     {
-        if (p_ptr->csp < 7) return;
+        if (plr->csp < 7) return;
         ctx.flags |= PAC_NO_INNATE;
     }
-    else if (p_ptr->sh_retaliation)
+    else if (plr->sh_retaliation)
     {
-        if (p_ptr->prace == RACE_MON_SWORD) /* death scythe */
+        if (plr->prace == RACE_MON_SWORD) /* death scythe */
         {
             if (!one_in_(3)) return;
             ctx.flags |= PAC_NO_INNATE;
         }
-        else if (p_ptr->monk_lvl) /* monk */
+        else if (plr->monk_lvl) /* monk */
         {
-            if (mon_save_p(context->mon->r_idx, A_DEX)) return;
-            if (p_ptr->prace != RACE_MON_POSSESSOR && p_ptr->prace != RACE_MON_MIMIC)
+            if (mon_save_p(context->mon, A_DEX)) return;
+            if (plr->prace != RACE_MON_POSSESSOR && plr->prace != RACE_MON_MIMIC)
                 ctx.flags |= PAC_NO_INNATE;
         }
         else if (weaponmaster_is_(WEAPONMASTER_STAVES))
@@ -749,7 +785,7 @@ static void _check_plr_retaliate(mon_attack_ptr context)
 
     /* check player status */
     if (plr_tim_find(T_CONFUSED) || plr_tim_find(T_PARALYZED)) return;
-    if (p_ptr->pclass != CLASS_FORCETRAINER && (plr_tim_find(T_BLIND) || !context->mon->ml)) return;
+    if (plr->pclass != CLASS_FORCETRAINER && (plr_tim_find(T_BLIND) || !context->mon->ml)) return;
     if (plr_tim_find(T_STUN) && randint0(35) < plr_tim_amount(T_STUN)) return;
 
     /* retaliate! */
@@ -773,7 +809,7 @@ void mon_on_hit_plr(mon_attack_ptr context)
         if (_stop_attack(context)) return;
     }
 
-    if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
+    if (plr->prace == RACE_MON_POSSESSOR || plr->prace == RACE_MON_MIMIC)
     {
         possessor_do_auras(context->mon);
         if (_stop_attack(context)) return;
@@ -783,155 +819,136 @@ void mon_on_hit_plr(mon_attack_ptr context)
     _check_plr_retaliate(context);
     if (context->stop) return;
 
-    if (p_ptr->sh_fire)
+    if (plr->sh_fire)
     {
-        if (!(context->race->flagsr & RFR_EFF_RES_FIRE_MASK))
+        int dam = _aura_dam_p();
+        dam = mon_res_calc_dam(context->mon, GF_FIRE, dam);
+        if (dam)
         {
-            int dam = _aura_dam_p();
-
             dam = mon_damage_mod(context->mon, dam, FALSE);
             msg_format("%^s is <color:r>burned</color>!", context->mon_name);
 
-            if (mon_take_hit(context->mon->id, dam, &context->fear, " turns into a pile of ash."))
+            if (mon_take_hit(context->mon, dam, &context->fear, " turns into a pile of ash."))
             {
                 context->stop = STOP_MON_DEAD;
                 return;
             }
         }
-        else
-        {
-            mon_lore_r(context->mon, RFR_EFF_RES_FIRE_MASK);
-        }
     }
 
-    if (p_ptr->sh_elec)
+    if (plr->sh_elec)
     {
-        if (!(context->race->flagsr & RFR_EFF_RES_ELEC_MASK))
+        int dam = _aura_dam_p();
+        dam = mon_res_calc_dam(context->mon, GF_ELEC, dam);
+        if (dam)
         {
-            int dam = _aura_dam_p();
-
             dam = mon_damage_mod(context->mon, dam, FALSE);
             msg_format("%^s is <color:b>zapped</color>!", context->mon_name);
 
-            if (mon_take_hit(context->mon->id, dam, &context->fear, " turns into a pile of cinder."))
+            if (mon_take_hit(context->mon, dam, &context->fear, " turns into a pile of cinder."))
             {
                 context->stop = STOP_MON_DEAD;
                 return;
             }
         }
-        else
-        {
-            mon_lore_r(context->mon, RFR_EFF_RES_ELEC_MASK);
-        }
     }
 
-    if (p_ptr->sh_cold)
+    if (plr->sh_cold)
     {
-        if (!(context->race->flagsr & RFR_EFF_RES_COLD_MASK))
+        int dam = _aura_dam_p();
+        dam = mon_res_calc_dam(context->mon, GF_COLD, dam);
+        if (dam)
         {
-            int dam = _aura_dam_p();
-
             dam = mon_damage_mod(context->mon, dam, FALSE);
             msg_format("%^s is <color:w>frozen</color>!", context->mon_name);
 
-            if (mon_take_hit(context->mon->id, dam, &context->fear, " was frozen."))
+            if (mon_take_hit(context->mon, dam, &context->fear, " was frozen."))
             {
                 context->stop = STOP_MON_DEAD;
                 return;
             }
         }
-        else
-        {
-            mon_lore_r(context->mon, RFR_EFF_RES_COLD_MASK);
-        }
     }
 
-    if (p_ptr->sh_shards)
+    if (plr->sh_shards)
     {
-        if (!(context->race->flagsr & RFR_EFF_RES_SHAR_MASK))
+        int dam = _aura_dam_p();
+        dam = mon_res_calc_dam(context->mon, GF_SHARDS, dam);
+        if (dam)
         {
-            int dam = _aura_dam_p();
-
             dam = mon_damage_mod(context->mon, dam, FALSE);
             msg_format("%^s is <color:u>shredded</color>!", context->mon_name);
-            if (mon_take_hit(context->mon->id, dam, &context->fear," was torn to pieces."))
+            if (mon_take_hit(context->mon, dam, &context->fear," was torn to pieces."))
             {
                 context->stop = STOP_MON_DEAD;
                 return;
             }
         }
-        else
+        if ( plr->pclass == CLASS_MIRROR_MASTER
+          && plr_tim_find(T_AURA_SHARDS)
+          && floor_has_mirror(dun_cell_at(cave, plr->pos)) )
         {
-            mon_lore_r(context->mon, RFR_EFF_RES_SHAR_MASK);
-        }
-
-        if (p_ptr->pclass == CLASS_MIRROR_MASTER && plr_tim_find(T_AURA_SHARDS) && is_mirror_grid(cave_at(p_ptr->pos)))
             teleport_player(10, 0L);
+        }
     }
 
-    if (p_ptr->sh_fear)
+    if (plr->sh_fear)
     {
-        gf_affect_m(GF_WHO_PLAYER, context->mon, GF_TURN_ALL, 2*p_ptr->lev, GF_AFFECT_AURA);
+        gf_affect_m(who_create_plr(), context->mon, GF_FEAR, 2*plr->lev, GF_AFFECT_AURA);
         if (_stop_attack(context)) return;
     }
 
     if (plr_tim_find(T_AURA_HOLY))
     {
-        if (context->race->flags3 & RF3_EVIL)
+        if (mon_is_evil(context->mon))
         {
-            if (!(context->race->flagsr & RFR_RES_ALL))
-            {
-                int dam = _aura_dam_p();
+            int dam = _aura_dam_p();
 
-                dam = mon_damage_mod(context->mon, dam, FALSE);
-                msg_format("%^s is injured by holy power!", context->mon_name);
+            dam = mon_damage_mod(context->mon, dam, FALSE);
+            msg_format("%^s is injured by holy power!", context->mon_name);
 
-                if (mon_take_hit(context->mon->id, dam, &context->fear, " is destroyed."))
-                {
-                    context->stop = STOP_MON_DEAD;
-                    return;
-                }
-                mon_lore_3(context->mon, RF3_EVIL);
-            }
-            else
+            if (mon_take_hit(context->mon, dam, &context->fear, " is destroyed."))
             {
-                mon_lore_r(context->mon, RFR_RES_ALL);
+                context->stop = STOP_MON_DEAD;
+                return;
             }
+            mon_lore_align(context->mon);
         }
     }
 
+    /* XXX move to hex.c */
     if (hex_spelling(HEX_SHADOW_CLOAK))
     {
-        if (!(context->race->flagsr & RFR_RES_ALL || context->race->flagsr & RFR_RES_DARK))
+        int dam = 1;
+        int slot, hand;
+
+        for (hand = 0; hand < MAX_HANDS; hand++)
         {
-            int dam = 1;
-            int slot, hand;
-
-            for (hand = 0; hand < MAX_HANDS; hand++)
+            object_type *o_ptr = NULL;
+            if (plr->attack_info[hand].type != PAT_NONE)
+                o_ptr = equip_obj(plr->attack_info[hand].slot);
+            if (o_ptr)
             {
-                object_type *o_ptr = NULL;
-                if (p_ptr->attack_info[hand].type != PAT_NONE)
-                    o_ptr = equip_obj(p_ptr->attack_info[hand].slot);
-                if (o_ptr)
-                {
-                    int dd = o_ptr->dd + p_ptr->attack_info[hand].to_dd;
-                    int ds = o_ptr->ds + p_ptr->attack_info[hand].to_ds;
-                    dam = dd * (ds + 1) / 2 + o_ptr->to_d + p_ptr->attack_info[hand].to_d;
-                    break;
-                }
+                int dd = o_ptr->dd + plr->attack_info[hand].to_dd;
+                int ds = o_ptr->ds + plr->attack_info[hand].to_ds;
+                dam = dd * (ds + 1) / 2 + o_ptr->to_d + plr->attack_info[hand].to_d;
+                break;
             }
-            slot = equip_find_first(obj_is_body_armor);
-            if (slot)
-            {
-                object_type *o_ptr = equip_obj(slot);
-                if (obj_is_cursed(o_ptr))
-                    dam *= 2;
-            }
-
+        }
+        slot = equip_find_first(obj_is_body_armor);
+        if (slot)
+        {
+            object_type *o_ptr = equip_obj(slot);
+            if (obj_is_cursed(o_ptr))
+                dam *= 2;
+        }
+        dam = mon_res_calc_dam(context->mon, GF_DARK, dam);
+        if (dam)
+        {
             dam = mon_damage_mod(context->mon, dam, FALSE);
             msg_format("Enveloped shadows attack %^s.", context->mon_name);
 
-            if (mon_take_hit(context->mon->id, dam, &context->fear, " is destroyed."))
+            if (mon_take_hit(context->mon, dam, &context->fear, " is destroyed."))
             {
                 context->stop = STOP_MON_DEAD;
                 return;
@@ -948,21 +965,17 @@ void mon_on_hit_plr(mon_attack_ptr context)
                     switch (equip_slot_type(slot))
                     {
                     case EQUIP_SLOT_HELMET: effect = GF_OLD_CONF; break;
-                    case EQUIP_SLOT_GLOVES: effect = GF_TURN_ALL; break;
-                    case EQUIP_SLOT_BOOTS: effect = GF_OLD_SLOW; break;
-                    default: if (obj_is_shield(o_ptr)) effect = GF_OLD_SLEEP;
+                    case EQUIP_SLOT_GLOVES: effect = GF_FEAR; break;
+                    case EQUIP_SLOT_BOOTS: effect = GF_SLOW; break;
+                    default: if (obj_is_shield(o_ptr)) effect = GF_SLEEP;
                     }
                     if (effect)
                     {
-                        gf_affect_m(GF_WHO_PLAYER, context->mon, effect, p_ptr->lev*2, GF_AFFECT_AURA);
+                        gf_affect_m(who_create_plr(), context->mon, effect, plr->lev*2, GF_AFFECT_AURA);
                         if (_stop_attack(context)) return;
                     }
                 }
             }
-        }
-        else
-        {
-            mon_lore_r(context->mon, RFR_RES_ALL | RFR_RES_DARK);
         }
     }
 }
@@ -970,14 +983,14 @@ void mon_on_hit_plr(mon_attack_ptr context)
 /*************************************************************************
  * Attack Monster
  *************************************************************************/
-static bool _mon_gf_mon(int who, mon_ptr tgt, int type, int dam)
+static bool _mon_gf_mon(mon_ptr who, mon_ptr tgt, int type, int dam)
 {
-    return gf_affect_m(who, tgt, type, dam, GF_AFFECT_ATTACK);
+    return gf_affect_m(who_create_mon(who), tgt, type, dam, GF_AFFECT_ATTACK);
 }
 static void _effect_mon(mon_attack_ptr context, mon_effect_ptr effect, int dam)
 {
     int gf = GF_MISSILE;
-    switch (effect->effect)
+    switch (effect->type)
     {
     case 0:
     case RBE_HURT:
@@ -995,9 +1008,9 @@ static void _effect_mon(mon_attack_ptr context, mon_effect_ptr effect, int dam)
     /* non-damaging attacks */
     case RBE_EAT_ITEM:
     case RBE_EAT_GOLD:
-        if ((p_ptr->riding != context->mon->id) && one_in_(2)) context->do_blink = TRUE;
+        if ((plr->riding != context->mon->id) && one_in_(2)) context->do_blink = TRUE;
     case RBE_EAT_FOOD:
-    case RBE_EAT_LITE:
+    case RBE_EAT_LIGHT:
     case RBE_LOSE_STR:
     case RBE_LOSE_INT:
     case RBE_LOSE_WIS:
@@ -1011,7 +1024,11 @@ static void _effect_mon(mon_attack_ptr context, mon_effect_ptr effect, int dam)
 
     case RBE_SHATTER:
         dam = dam * ac_melee_pct(context->ac) / 100;
-        if (dam > 23) earthquake_aux(context->mon->pos, 8, context->mon->id);
+        if (dam > 23)
+        {
+            earthquake_aux(context->mon->pos, 8, context->mon->id);
+            if (_stop_attack(context)) return;
+        }
         break;
 
     case RBE_VAMP:
@@ -1019,16 +1036,16 @@ static void _effect_mon(mon_attack_ptr context, mon_effect_ptr effect, int dam)
         break;
 
     default:
-        gf = effect->effect;
+        gf = effect->type;
         break;
     }
     if (!gf) return;
 
     context->dam += dam;
-    _mon_gf_mon(context->mon->id, context->mon2, gf, dam);
+    _mon_gf_mon(context->mon, context->mon2, gf, dam);
     if (_stop_attack(context)) return;
     _check_race(context);
-    if (effect->effect == RBE_VAMP && monster_living(context->race2) && dam > 2)
+    if (effect->type == RBE_VAMP && mon_is_living(context->mon2) && dam > 2)
     {
         bool did_heal = FALSE;
 
@@ -1037,7 +1054,7 @@ static void _effect_mon(mon_attack_ptr context, mon_effect_ptr effect, int dam)
         context->mon->hp += damroll(4, dam / 6);
         if (context->mon->hp > context->mon->maxhp) context->mon->hp = context->mon->maxhp;
 
-        check_mon_health_redraw(context->mon->id);
+        check_mon_health_redraw(context->mon);
         if (!(context->flags & _UNVIEW) && did_heal)
             msg_format("%^s appears healthier.", context->mon_name);
     }
@@ -1048,6 +1065,8 @@ bool mon_hit_mon(mon_attack_ptr context)
     context->dam = 0;
     context->blow_lore = MON_BLOW_OBVIOUS;
 
+    mon_tim_delete(context->mon2, MT_SLEEP); /* Even missing wakes him up */
+
     /* Early exit if monster misses */
     if (!mon_check_hit(context))
     {
@@ -1056,7 +1075,6 @@ bool mon_hit_mon(mon_attack_ptr context)
         return FALSE;
     }
 
-    mon_tim_delete(context->mon2, MT_SLEEP);
     context->hits++;
 
     _hit_msg(context);
@@ -1070,7 +1088,7 @@ bool mon_hit_mon(mon_attack_ptr context)
         mon_effect_ptr effect = &context->blow->effects[i];
         int            dam = 0;
 
-        if (!effect->effect) break;
+        if (!effect->type) break;
         if (_stop_attack(context)) break;
         if (effect->pct && randint1(100) > effect->pct) continue;
 
@@ -1111,25 +1129,23 @@ bool mon_hit_mon(mon_attack_ptr context)
 
 void mon_on_hit_mon(mon_attack_ptr context)
 {
-    int k;
+    mon_aura_ptr aura;
 
-    if ( (context->race2->flags2 & RF2_AURA_REVENGE)
+    if ( mon_can_retaliate(context->mon2)
       && !(context->flags & _RETALIATE)
-      && randint0(150) < context->race2->level )
+      && randint0(150) < context->race2->alloc.lvl )
     {
         mon_retaliate_mon(context->mon2, context->mon);
         if (_stop_attack(context)) return;
     }
 
-    for (k = 0; k < MAX_MON_AURAS; k++)
+    for (aura = context->race2->auras; aura; aura = aura->next)
     {
-        mon_effect_t aura = context->race2->auras[k];
-        int          dam;
-        if (!aura.effect) continue;
-        if (aura.pct && randint1(100) > aura.pct) continue;
+        int dam;
+        if (aura->pct && randint1(100) > aura->pct) continue;
         /* XXX skip aura if resist? */
-        dam = dice_roll(aura.dice);
-        _mon_gf_mon(context->mon2->id, context->mon, aura.effect, dam);
+        dam = dice_roll(aura->dam);
+        _mon_gf_mon(context->mon2, context->mon, aura->gf, dam);
         if (_stop_attack(context)) return;
         _check_race(context);
     }
@@ -1152,7 +1168,7 @@ static void _delayed_effects(mon_attack_ptr context)
         {
             if (!(context->flags & _UNVIEW))
                 msg_print("The thief flees laughing!");
-            teleport_away(context->mon->id, MAX_SIGHT * 2 + 5, 0);
+            teleport_away(context->mon, MAX_SIGHT * 2 + 5, 0);
             context->stop = STOP_MON_MOVED;
         }
     }
@@ -1184,6 +1200,19 @@ static void _mon_hit(mon_attack_ptr context)
     else
         mon_hit_mon(context);
 }
+static bool _skip_blow(mon_attack_ptr context)
+{
+    /* a Blind Beholder cannot gaze */
+    if ((context->blow->flags & MBF_MASK_BLIND) && mon_tim_find(context->mon, T_BLIND))
+        return TRUE;
+    /* a Bound Dragon cannot claw (but can still Bite) (Illusionist Bind Monster) */
+    if ((context->blow->flags & MBF_MASK_HAND) && mon_tim_find(context->mon, MT_BOUND))
+        return TRUE;
+    /* XXX limit melee at a distance. Currently, only beholders have Gaze spells, and
+     * all of their attacks are Gaze, so no problem. Consider a Dracolisk that could
+     * project its Gaze blow at a distance ... but not its claws or bites! */
+    return FALSE;
+}
 static void _loop(mon_attack_ptr context)
 {
     int i, j, ct;
@@ -1195,6 +1224,7 @@ static void _loop(mon_attack_ptr context)
         if (_stop_attack(context)) return;
         context->which = i;
         context->blow = vec_get(context->race->blows, i);
+        if (_skip_blow(context)) continue;
         ct = _get_num_blows(context->blow->blows); /* fractional system */
         for (j = 0; j < ct; j++)
         {
@@ -1205,7 +1235,7 @@ static void _loop(mon_attack_ptr context)
 }
 static bool _kawarimi(void)
 {
-    int odds = p_ptr->lev*3/5 + 20;
+    int odds = plr->lev*3/5 + 20;
     if (randint0(55) < odds && kawarimi(TRUE))
         return TRUE;
     return FALSE;
@@ -1213,15 +1243,15 @@ static bool _kawarimi(void)
 static void _pre_attack(mon_attack_ptr context) /* XXX remove these if possible, using hooks */
 {
     /* Apply Dragon Songs to the player's mount */
-    if (p_ptr->riding == context->mon->id && warlock_is_(WARLOCK_DRAGONS))
+    if (plr->riding == context->mon->id && warlock_is_(WARLOCK_DRAGONS))
     {
         switch (warlock_get_toggle())
         {
         case WARLOCK_DRAGON_TOGGLE_BLESS:
-            context->level += 5;
+            context->to_h += 5;
             break;
         case WARLOCK_DRAGON_TOGGLE_HEROIC_CHARGE:
-            context->level += 20;
+            context->to_h += 12;
             context->to_dd += 2;
             break;
         }
@@ -1229,9 +1259,9 @@ static void _pre_attack(mon_attack_ptr context) /* XXX remove these if possible,
 
     if (!(context->flags & _ATTACK_PLR)) return;
 
-    if (p_ptr->prace == RACE_MON_RING && ring_dominate_m(context->mon->id))
+    if (plr->prace == RACE_MON_RING && ring_dominate_m(context->mon))
         context->stop = STOP_MON_FRIENDLY;
-    else if (p_ptr->special_defense & KATA_IAI) /* XXX move to samurai.c and make HISSATSU_IAI private */
+    else if (plr->special_defense & KATA_IAI) /* XXX move to samurai.c and make HISSATSU_IAI private */
     {
         plr_attack_t ctx = {0};
         context->stop = STOP_PLR_SPECIAL;
@@ -1242,15 +1272,15 @@ static void _pre_attack(mon_attack_ptr context) /* XXX remove these if possible,
         msg_format("You took sen, draw and cut in one motion before %s can move.", context->mon_name);
         plr_retaliate(&ctx, context->mon_pos);
     }
-    else if ((p_ptr->special_defense & NINJA_KAWARIMI) && _kawarimi())
+    else if ((plr->special_defense & NINJA_KAWARIMI) && _kawarimi())
         context->stop = STOP_PLR_MOVED;
 }
 static void _post_attack(mon_attack_ptr context)
 {
     if (!(context->flags & _ATTACK_PLR)) return;
 
-    if (p_ptr->is_dead && context->race->r_deaths < MAX_SHORT)
-        context->race->r_deaths++;
+    if (plr->is_dead && context->race->lore.deaths < MAX_SHORT)
+        context->race->lore.deaths++;
 
     if (context->stop) return;
 
@@ -1259,14 +1289,13 @@ static void _post_attack(mon_attack_ptr context)
         char m_name_self[80];
         monster_desc(m_name_self, context->mon, MD_PRON_VISIBLE | MD_POSSESSIVE | MD_OBJECTIVE);
         msg_format("The attack of %s has wounded %s!", context->mon_name, m_name_self);
-        project(0, 0, context->mon->pos.y, context->mon->pos.x,
-            psion_backlash_dam(context->dam_total), GF_MISSILE, PROJECT_KILL);
+        gf_affect_m(who_create_plr(), context->mon, GF_MISSILE, psion_backlash_dam(context->dam_total), 0);
         plr_tim_subtract(T_REVENGE, 5);
     }
-    if ( (p_ptr->counter || (p_ptr->special_defense & KATA_MUSOU))
+    if ( (plr->counter || (plr->special_defense & KATA_MUSOU))
       && !(context->flags & _RETALIATE)
       && context->mon->ml
-      && p_ptr->csp > 7 )
+      && plr->csp > 7 )
     {
         plr_attack_t ctx = {0};
         sp_player(-7);
@@ -1342,7 +1371,7 @@ bool mon_retaliate_plr(mon_ptr mon)
     context.mon = mon;
     _init_race(&context);
     context.mon_pos = mon->pos;
-    context.tgt_pos = p_ptr->pos;
+    context.tgt_pos = plr->pos;
 
     context.which = _random_blow(context.race);
     context.blow = vec_get(context.race->blows, context.which);
@@ -1352,7 +1381,7 @@ bool mon_retaliate_plr(mon_ptr mon)
     _post_attack(&context);
     _delayed_effects(&context);
     cmsg_print(TERM_GREEN, ")");
-    mon_lore_2(mon, RF2_AURA_REVENGE);
+    mon_lore_can_retaliate(mon);
     return TRUE;
 }
 
@@ -1382,7 +1411,7 @@ bool mon_retaliate_mon(mon_ptr mon, mon_ptr mon2)
     if (!(context.flags & _UNVIEW))
     {
         cmsg_print(TERM_GREEN, ")");
-        mon_lore_2(mon, RF2_AURA_REVENGE);
+        mon_lore_can_retaliate(mon);
     }
     return TRUE;
 }

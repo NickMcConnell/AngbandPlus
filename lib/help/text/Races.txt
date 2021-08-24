@@ -948,5 +948,5 @@ Yeek         Good          Heroic        Bad           Fair            20'
 
 
 
-Automatically generated for PosChengband 7.2.1.
+Automatically generated for PosChengband 7.3.1.
 

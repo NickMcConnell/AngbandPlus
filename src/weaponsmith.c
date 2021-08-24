@@ -58,7 +58,7 @@ enum {
 };
 
 /* Some essences are restricted to certain types of objects:
-     Vorpal only works on swords
+     Vorpal only works on swords, arrows and bolts
      Impact/Stun only on hafted weapons
      Ammo only gets slays and certain brands
      Extra Shots/Might only work on bows, etc
@@ -69,24 +69,28 @@ enum {
 #define _ALLOW_DIGGER   0x0008
 #define _ALLOW_MELEE   (_ALLOW_SWORD | _ALLOW_POLEARM | _ALLOW_HAFTED | _ALLOW_DIGGER)
 #define _ALLOW_BOW      0x0010
-#define _ALLOW_AMMO     0x0020
-#define _ALLOW_ARMOR    0x0040
+#define _ALLOW_SHOT     0x0020
+#define _ALLOW_ARROW    0x0040
+#define _ALLOW_BOLT     0x0080
+#define _ALLOW_AMMO    (_ALLOW_SHOT | _ALLOW_ARROW | _ALLOW_BOLT)
+#define _ALLOW_ARMOR    0x0100
 #define _ALLOW_ALL     (_ALLOW_MELEE | _ALLOW_BOW | _ALLOW_AMMO | _ALLOW_ARMOR)
 
 static bool _object_is_allowed(object_type *o_ptr, int flags)
 {
     if (obj_is_armor(o_ptr))
         return (flags & _ALLOW_ARMOR) ? TRUE : FALSE;
-    else if (obj_is_ammo(o_ptr))
-        return (flags & _ALLOW_AMMO) ? TRUE : FALSE;
 
     switch (o_ptr->tval)
     {
-    case TV_SWORD: return (flags & _ALLOW_SWORD) ? TRUE : FALSE;
-    case TV_POLEARM: return (flags & _ALLOW_POLEARM) ? TRUE : FALSE;
-    case TV_HAFTED: return (flags & _ALLOW_HAFTED) ? TRUE : FALSE;
-    case TV_DIGGING: return (flags & _ALLOW_DIGGER) ? TRUE : FALSE;
-    case TV_BOW: return (flags & _ALLOW_BOW) ? TRUE : FALSE;
+    case TV_SWORD:   return BOOL(flags & _ALLOW_SWORD);
+    case TV_POLEARM: return BOOL(flags & _ALLOW_POLEARM);
+    case TV_HAFTED:  return BOOL(flags & _ALLOW_HAFTED);
+    case TV_DIGGING: return BOOL(flags & _ALLOW_DIGGER);
+    case TV_BOW:     return BOOL(flags & _ALLOW_BOW);
+    case TV_SHOT:    return BOOL(flags & _ALLOW_SHOT);
+    case TV_ARROW:   return BOOL(flags & _ALLOW_ARROW);
+    case TV_BOLT:    return BOOL(flags & _ALLOW_BOLT);
     }
 
     assert(FALSE);
@@ -154,8 +158,8 @@ static _essence_group_t _essence_groups[ESSENCE_TYPE_MAX] = {
 
     { ESSENCE_TYPE_SLAYS, "Slays", {
         { OF_SLAY_EVIL,   "Slay Evil",  100, _ALLOW_MELEE | _ALLOW_AMMO },
-        { OF_SLAY_GOOD,   "Slay Good",   90, _ALLOW_MELEE },
-        { OF_SLAY_LIVING, "Slay Living", 80, _ALLOW_MELEE },
+        { OF_SLAY_GOOD,   "Slay Good",   90, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_SLAY_LIVING, "Slay Living", 80, _ALLOW_MELEE | _ALLOW_AMMO },
         { OF_SLAY_UNDEAD, "Slay Undead", 20, _ALLOW_MELEE | _ALLOW_AMMO },
         { OF_SLAY_DEMON,  "Slay Demon",  20, _ALLOW_MELEE | _ALLOW_AMMO },
         { OF_SLAY_DRAGON, "Slay Dragon", 20, _ALLOW_MELEE | _ALLOW_AMMO },
@@ -182,41 +186,41 @@ static _essence_group_t _essence_groups[ESSENCE_TYPE_MAX] = {
         { OF_BRAND_COLD,    "Brand Cold",      20, _ALLOW_MELEE | _ALLOW_AMMO },
         { _ESSENCE_SPECIAL, "Brand Elements", 100, _ALLOW_MELEE | _ALLOW_AMMO, 0, _SPECIAL_BRAND_ELEMENTS },
         { OF_BRAND_POIS,    "Brand Poison",    20, _ALLOW_MELEE | _ALLOW_AMMO },
-        { OF_BRAND_LITE,    "Brand Light",     30, _ALLOW_MELEE },
-        { OF_BRAND_DARK,    "Brand Dark",      30, _ALLOW_MELEE },
-        { OF_BRAND_PLASMA,  "Brand Plasma",    30, _ALLOW_MELEE },
+        { OF_BRAND_LIGHT,    "Brand Light",     30, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_BRAND_DARK,    "Brand Dark",      30, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_BRAND_PLASMA,  "Brand Plasma",    30, _ALLOW_MELEE | _ALLOW_AMMO },
         { OF_BRAND_CHAOS,   "Chaotic",         50, _ALLOW_MELEE },
         { OF_BRAND_VAMP,    "Vampiric",        60, _ALLOW_MELEE },
-        { OF_IMPACT,        "Impact",          20, _ALLOW_HAFTED },
-        { OF_STUN,          "Stun",            50, _ALLOW_HAFTED },
-        { OF_VORPAL,        "Vorpal",         100, _ALLOW_SWORD },
-        { OF_VORPAL2,       "*Vorpal*",       100, _ALLOW_SWORD },
+        { OF_IMPACT,        "Impact",          20, _ALLOW_HAFTED /* | _ALLOW_SHOT */ },
+        { OF_STUN,          "Stun",            50, _ALLOW_HAFTED /* | _ALLOW_SHOT */ },
+        { OF_VORPAL,        "Vorpal",         100, _ALLOW_SWORD | _ALLOW_ARROW | _ALLOW_BOLT },
+        { OF_VORPAL2,       "*Vorpal*",       100, _ALLOW_SWORD | _ALLOW_ARROW | _ALLOW_BOLT },
         { _ESSENCE_NONE } } },
 
     { ESSENCE_TYPE_RESISTS, "Resists", {
-        { OF_RES_ACID,      "Resist Acid",    15, _ALLOW_ALL },
-        { OF_RES_ELEC,      "Resist Elec",    15, _ALLOW_ALL },
-        { OF_RES_FIRE,      "Resist Fire",    15, _ALLOW_ALL },
-        { OF_RES_COLD,      "Resist Cold",    15, _ALLOW_ALL },
+        { OF_RES_(GF_ACID),      "Resist Acid",    15, _ALLOW_ALL },
+        { OF_RES_(GF_ELEC),      "Resist Elec",    15, _ALLOW_ALL },
+        { OF_RES_(GF_FIRE),      "Resist Fire",    15, _ALLOW_ALL },
+        { OF_RES_(GF_COLD),      "Resist Cold",    15, _ALLOW_ALL },
         { _ESSENCE_SPECIAL, "Resist Base",    50, _ALLOW_ALL, 0, _SPECIAL_RES_BASE },
-        { OF_RES_POIS,      "Resist Poison",  30, _ALLOW_ALL },
-        { OF_RES_LITE,      "Resist Light",   30, _ALLOW_ALL },
-        { OF_RES_DARK,      "Resist Dark",    30, _ALLOW_ALL },
-        { OF_RES_CONF,      "Resist Conf",    20, _ALLOW_ALL },
-        { OF_RES_NETHER,    "Resist Nether",  30, _ALLOW_ALL },
-        { OF_RES_NEXUS,     "Resist Nexus",   30, _ALLOW_ALL },
-        { OF_RES_SOUND,     "Resist Sound",   40, _ALLOW_ALL },
-        { OF_RES_SHARDS,    "Resist Shards",  40, _ALLOW_ALL },
-        { OF_RES_CHAOS,     "Resist Chaos",   40, _ALLOW_ALL },
-        { OF_RES_DISEN,     "Resist Disench", 30, _ALLOW_ALL },
-        { OF_RES_TIME,      "Resist Time",    20, _ALLOW_ALL },
-        { OF_RES_BLIND,     "Resist Blind",   20, _ALLOW_ALL },
-        { OF_RES_FEAR,      "Resist Fear",    20, _ALLOW_ALL },
+        { OF_RES_(GF_POIS),      "Resist Poison",  30, _ALLOW_ALL },
+        { OF_RES_(GF_LIGHT),      "Resist Light",   30, _ALLOW_ALL },
+        { OF_RES_(GF_DARK),      "Resist Dark",    30, _ALLOW_ALL },
+        { OF_RES_(GF_CONF),      "Resist Conf",    20, _ALLOW_ALL },
+        { OF_RES_(GF_NETHER),    "Resist Nether",  30, _ALLOW_ALL },
+        { OF_RES_(GF_NEXUS),     "Resist Nexus",   30, _ALLOW_ALL },
+        { OF_RES_(GF_SOUND),     "Resist Sound",   40, _ALLOW_ALL },
+        { OF_RES_(GF_SHARDS),    "Resist Shards",  40, _ALLOW_ALL },
+        { OF_RES_(GF_CHAOS),     "Resist Chaos",   40, _ALLOW_ALL },
+        { OF_RES_(GF_DISEN),     "Resist Disench", 30, _ALLOW_ALL },
+        { OF_RES_(GF_TIME),      "Resist Time",    20, _ALLOW_ALL },
+        { OF_RES_(GF_BLIND),     "Resist Blind",   20, _ALLOW_ALL },
+        { OF_RES_(GF_FEAR),      "Resist Fear",    20, _ALLOW_ALL },
         { OF_NO_TELE,       "Resist Tele",    20, _ALLOW_ALL },
-        { OF_IM_ACID,       "Immune Acid",    20, _ALLOW_ALL },
-        { OF_IM_ELEC,       "Immune Elec",    20, _ALLOW_ALL },
-        { OF_IM_FIRE,       "Immune Fire",    20, _ALLOW_ALL },
-        { OF_IM_COLD,       "Immune Cold",    20, _ALLOW_ALL },
+        { OF_IM_(GF_ACID),       "Immune Acid",    20, _ALLOW_ALL },
+        { OF_IM_(GF_ELEC),       "Immune Elec",    20, _ALLOW_ALL },
+        { OF_IM_(GF_FIRE),       "Immune Fire",    20, _ALLOW_ALL },
+        { OF_IM_(GF_COLD),       "Immune Cold",    20, _ALLOW_ALL },
         { _ESSENCE_NONE } } },
 
     { ESSENCE_TYPE_SUSTAINS, "Sustains", {
@@ -247,7 +251,7 @@ static _essence_group_t _essence_groups[ESSENCE_TYPE_MAX] = {
         { _ESSENCE_SPECIAL, "Aura Elements",          50, _ALLOW_ALL, 0, _SPECIAL_AURA_ELEMENTS },
         { OF_AURA_SHARDS,     "Aura Shards",            30, _ALLOW_ARMOR },
         { OF_AURA_REVENGE,    "Revenge",                40, _ALLOW_ARMOR },
-        { OF_LITE,          "Extra Light",            15, _ALLOW_ALL },
+        { OF_LIGHT,          "Extra Light",            15, _ALLOW_ALL },
         { OF_IGNORE_ACID,   "Rustproof", _COST_RUSTPROOF, _ALLOW_ARMOR },
         { _ESSENCE_NONE } } },
 
@@ -291,7 +295,7 @@ static _essence_info_ptr _find_essence_info(int id)
 /* Storage of acquired essences. For now, this is a flat table with many
    unused slots. We could switch to an int_map for more efficiency if desired.
    Note the restriction of direct access to _essences[].
-   We no longer use p_ptr->magic_num[108] and all the weird mappings that implied.
+   We no longer use plr->magic_num[108] and all the weird mappings that implied.
    Savefiles broke for 4.0.2 with no effort to upgrade :( */
 static int _essences[_MAX_ESSENCE] = {0};
 
@@ -509,9 +513,11 @@ static void _absorb_all(object_type *o_ptr, _absorb_essence_f absorb_f)
     }
 
     /* Extra Boosts */
-    if (old_obj.name1 == ART_MUSASI_KATANA || old_obj.name1 == ART_MUSASI_WAKIZASI)
+    if ( obj_is_specified_art(&old_obj, "|.Musashi1")
+      || obj_is_specified_art(&old_obj, "|.Musashi2") )
+    {
         absorb_f(_find_essence_info(OF_DUAL_WIELDING), 10);
-
+    }
     *o_ptr = new_obj;
 }
 
@@ -646,7 +652,7 @@ static int _smith_add_slaying(object_type *o_ptr);
      After absorption, we report the gained essences, but only if they differ
      from the predicted results.
  */
-static string_ptr _spy_results = NULL;
+static str_ptr _spy_results = NULL;
 static u32b       _spy_known_flags[OF_ARRAY_SIZE];
 static void _absorb_one_spy(_essence_info_ptr info, int amt)
 {
@@ -656,7 +662,7 @@ static void _absorb_one_spy(_essence_info_ptr info, int amt)
     /*           v~~~~~~ All of the special flags are obvious if the object has been identified */
     if (info->id >= OF_COUNT || have_flag(_spy_known_flags, info->id))
     {                             /* ^~~~~~~~ But everything else requires player awareness */
-        string_printf(_spy_results, "      You will gain <color:B>%s</color>: %d\n", info->name, amt);
+        str_printf(_spy_results, "      You will gain <color:B>%s</color>: %d\n", info->name, amt);
     }
 }
 static void _absorb_one_smithing(_essence_info_ptr info, int amt)
@@ -666,7 +672,7 @@ static void _absorb_one_smithing(_essence_info_ptr info, int amt)
     if (amt > 0)
     {
         _add_essence(info->id, amt); /* always report, even if capped */
-        string_printf(_spy_results, "      You gained <color:B>%s</color>: %d\n", info->name, amt);
+        str_printf(_spy_results, "      You gained <color:B>%s</color>: %d\n", info->name, amt);
     }
 }
 static int _smith_absorb(object_type *o_ptr)
@@ -675,14 +681,14 @@ static int _smith_absorb(object_type *o_ptr)
     object_type copy = *o_ptr;
     bool        done = FALSE;
     int         result = _OK;
-    string_ptr  spy_before = NULL;
-    string_ptr  spy_after = NULL;
+    str_ptr  spy_before = NULL;
+    str_ptr  spy_after = NULL;
 
     if (obj_is_known(o_ptr))
     {
         obj_flags_known(o_ptr, _spy_known_flags);
 
-        spy_before = string_alloc();
+        spy_before = str_alloc();
         _spy_results = spy_before;
         _absorb_all(&copy, _absorb_one_spy);
         _spy_results = NULL;
@@ -699,7 +705,7 @@ static int _smith_absorb(object_type *o_ptr)
             doc_insert(_doc, " <color:y>  A</color>) Absorb all essences from this object\n");
             if (spy_before)
             {
-                doc_insert(_doc, string_buffer(spy_before));
+                doc_insert(_doc, str_buffer(spy_before));
                 if (!obj_is_identified_fully(o_ptr) && !object_is_nameless(o_ptr))
                     doc_insert(_doc, "      And perhaps more?\n");
             }
@@ -708,10 +714,10 @@ static int _smith_absorb(object_type *o_ptr)
         }
         else
         {
-            if (string_length(spy_after) == 0)
+            if (str_length(spy_after) == 0)
                 doc_insert(_doc, "      You were unable to extract any essences.\n");
             else
-                doc_insert(_doc, string_buffer(spy_after));
+                doc_insert(_doc, str_buffer(spy_after));
         }
         doc_insert(_doc, "\n <color:y>ESC</color>) Return to main menu\n");
         doc_insert(_doc, " <color:y>  Q</color>) Quit work on this object\n");
@@ -732,11 +738,11 @@ static int _smith_absorb(object_type *o_ptr)
         case 'A': case 'a':
             if (!spy_after)
             {
-                spy_after = string_alloc();
+                spy_after = str_alloc();
                 _spy_results = spy_after;
                 _absorb_all(o_ptr, _absorb_one_smithing);
                 _spy_results = NULL;
-                if (spy_before && string_count_chr(spy_before, '\n') == string_count_chr(spy_after, '\n'))
+                if (spy_before && str_count_chr(spy_before, '\n') == str_count_chr(spy_after, '\n'))
                     done = TRUE;
             }
             break;
@@ -744,9 +750,9 @@ static int _smith_absorb(object_type *o_ptr)
     }
 
     if (spy_before)
-        string_free(spy_before);
+        str_free(spy_before);
     if (spy_after)
-        string_free(spy_after);
+        str_free(spy_after);
 
     return result;
 }
@@ -1286,18 +1292,18 @@ static int _smith_add_essence(object_type *o_ptr, int type)
                 }
                 else if (info_ptr->xtra == _SPECIAL_RES_BASE)
                 {
-                    if ( !_get_essence(OF_RES_ACID)
-                      || !_get_essence(OF_RES_ELEC)
-                      || !_get_essence(OF_RES_FIRE)
-                      || !_get_essence(OF_RES_COLD) )
+                    if ( !_get_essence(OF_RES_(GF_ACID))
+                      || !_get_essence(OF_RES_(GF_ELEC))
+                      || !_get_essence(OF_RES_(GF_FIRE))
+                      || !_get_essence(OF_RES_(GF_COLD)) )
                     {
                         continue;
                     }
 
-                    if ( have_flag(flgs, OF_RES_ACID)
-                      && have_flag(flgs, OF_RES_ELEC)
-                      && have_flag(flgs, OF_RES_FIRE)
-                      && have_flag(flgs, OF_RES_COLD) )
+                    if ( have_flag(flgs, OF_RES_(GF_ACID))
+                      && have_flag(flgs, OF_RES_(GF_ELEC))
+                      && have_flag(flgs, OF_RES_(GF_FIRE))
+                      && have_flag(flgs, OF_RES_(GF_COLD)) )
                     {
                         continue;
                     }
@@ -1423,10 +1429,10 @@ static int _smith_add_essence(object_type *o_ptr, int type)
                     else if (info_ptr->xtra == _SPECIAL_RES_BASE)
                     {
                         bool ok = TRUE;
-                        if (cost > _get_essence(OF_RES_ACID)) ok = FALSE;
-                        else if (cost > _get_essence(OF_RES_ELEC)) ok = FALSE;
-                        else if (cost > _get_essence(OF_RES_FIRE)) ok = FALSE;
-                        else if (cost > _get_essence(OF_RES_COLD)) ok = FALSE;
+                        if (cost > _get_essence(OF_RES_(GF_ACID))) ok = FALSE;
+                        else if (cost > _get_essence(OF_RES_(GF_ELEC))) ok = FALSE;
+                        else if (cost > _get_essence(OF_RES_(GF_FIRE))) ok = FALSE;
+                        else if (cost > _get_essence(OF_RES_(GF_COLD))) ok = FALSE;
                         doc_printf(cols[doc_idx], " <color:%c>  %c</color>) %-15.15s  <color:%c>%4d</color>\n",
                             ok ? 'y' : 'D',
                             'A' + i,
@@ -1549,17 +1555,17 @@ static int _smith_add_essence(object_type *o_ptr, int type)
                 }
                 else if (info_ptr->xtra == _SPECIAL_RES_BASE)
                 {
-                    if ( cost <= _get_essence(OF_RES_ACID)
-                      && cost <= _get_essence(OF_RES_ELEC)
-                      && cost <= _get_essence(OF_RES_FIRE)
-                      && cost <= _get_essence(OF_RES_COLD) )
+                    if ( cost <= _get_essence(OF_RES_(GF_ACID))
+                      && cost <= _get_essence(OF_RES_(GF_ELEC))
+                      && cost <= _get_essence(OF_RES_(GF_FIRE))
+                      && cost <= _get_essence(OF_RES_(GF_COLD)) )
                     {
                         o_ptr->xtra3 = _ESSENCE_SPECIAL;
                         o_ptr->xtra1 = _SPECIAL_RES_BASE;
-                        _add_essence(OF_RES_ACID, -cost);
-                        _add_essence(OF_RES_ELEC, -cost);
-                        _add_essence(OF_RES_FIRE, -cost);
-                        _add_essence(OF_RES_COLD, -cost);
+                        _add_essence(OF_RES_(GF_ACID), -cost);
+                        _add_essence(OF_RES_(GF_ELEC), -cost);
+                        _add_essence(OF_RES_(GF_FIRE), -cost);
+                        _add_essence(OF_RES_(GF_COLD), -cost);
                         done = TRUE;
                     }
                 }
@@ -2201,7 +2207,7 @@ static bool _smithing(void)
     }
 
     /* Smithing now automatically 'Judges' the object for free */
-    if (p_ptr->lev < 10)
+    if (plr->lev < 10)
     {
         if (!obj_is_identified(prompt.obj))
         {
@@ -2213,7 +2219,7 @@ static bool _smithing(void)
     else
     {
         identify_item(prompt.obj);
-        if (p_ptr->lev >= 30)
+        if (plr->lev >= 30)
             obj_identify_fully(prompt.obj);
     }
 
@@ -2495,7 +2501,7 @@ plr_class_ptr weaponsmith_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  28,  28,   1,  20,  10,  60,  45};
-    skills_t xs = { 10,  10,  10,   0,   0,   0,  21,  15};
+    skills_t xs = { 50,  50,  50,   0,   0,   0, 105,  75};
 
         me = plr_class_alloc(CLASS_WEAPONSMITH);
         me->name = "Weaponsmith";
@@ -2553,10 +2559,10 @@ void weaponsmith_object_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE])
             switch (o_ptr->xtra1)
             {
             case _SPECIAL_RES_BASE:
-                add_flag(flgs, OF_RES_ACID);
-                add_flag(flgs, OF_RES_ELEC);
-                add_flag(flgs, OF_RES_FIRE);
-                add_flag(flgs, OF_RES_COLD);
+                add_flag(flgs, OF_RES_(GF_ACID));
+                add_flag(flgs, OF_RES_(GF_ELEC));
+                add_flag(flgs, OF_RES_(GF_FIRE));
+                add_flag(flgs, OF_RES_(GF_COLD));
                 break;
             case _SPECIAL_SUST_ALL:
                 add_flag(flgs, OF_SUST_STR);

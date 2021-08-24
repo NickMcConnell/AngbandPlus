@@ -16,8 +16,8 @@ HEADERS = \
     c-string.h c-vec.h \
     z-term.h z-rand.h z-util.h z-virt.h z-form.h z-doc.h
 
-CFILES = c-string.o c-vec.o
-ZFILES = z-doc.o z-form.o z-rand.o z-term.o z-util.o z-virt.o
+CFILES = c-str.o c-vec.o
+ZFILES = z-doc.o z-form.o z-rand.o z-sym.o z-term.o z-util.o z-virt.o
 
 # MAINFILES is defined by autotools (or manually) to be combinations of these
 
@@ -36,25 +36,25 @@ X11MAINFILES = main-x11.o
 WINMAINFILES = $(PROGNAME).res main-win.o readdib.o
 
 ANGFILES = \
+	dun.o dun_cell.o dun_gen.o dun_mon.o dun_obj.o dun_project.o dun_tim.o dun_type.o dun_util.o dun_world.o dun_world_gen.o \
     archaeologist.o archer.o art.o art_name.o artifact.o autopick.o virtue.o bard.o \
     beastmaster.o birth.o blood_knight.o blue_mage.o \
     cavalry.o cave.o chaos_warrior.o classes.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o \
     cmd6.o combat.o demigod.o devicemaster.o devices.o do-spell.o doppelganger.o duelist.o \
-	dun.o dun_gen.o dun_mon.o dun_obj.o dun_type.o dun_util.o dun_world.o dun_world_gen.o \
     dungeon.o ego.o effects.o equip.o fear.o files.o flavor.o force_trainer.o gf.o gray_mage.o \
     hex.o high_mage.o home.o init1.o init2.o int_map.o inv.o load.o mage.o map.o \
     magic_eater.o mauler.o melee1.o melee2.o menu.o message.o mindcrafter.o mirror_master.o \
-    mon.o mon_attack.o mon_display.o mon_spell.o mon_tim.o monk.o monk_attack.o monster.o monster1.o monster2.o mspells1.o mspells2.o mut.o \
+    mon.o mon_ai.o mon_attack.o mon_display.o mon_race.o mon_spell.o mon_tim.o monk.o monk_attack.o monster.o monster1.o monster2.o mspells1.o mut.o \
     mut_a.o mystic.o necromancer.o ninja.o obj.o obj_display.o obj_prompt.o \
 	object1.o object2.o object3.o obj_kind.o pack.o paladin.o personality.o \
-    plr.o plr_attack.o plr_birth.o plr_class.o plr_display.o plr_race.o plr_throw.o plr_tim.o \
+    plr.o plr_attack.o plr_birth.o plr_class.o plr_display.o plr_race.o plr_shoot.o plr_throw.o plr_tim.o \
 	point_map.o priest.o psion.o quest.o quiver.o \
 	races.o races_a.o races_k.o races_mimic.o race_angel.o \
     race_beholder.o race_centipede.o race_demon.o race_dragon.o race_elemental.o race_giant.o race_golem.o \
     race_hound.o race_hydra.o race_jelly.o race_leprechaun.o race_lich.o \
 	race_mimic.o race_possessor.o race_quylthulg.o race_spider.o \
     race_ring.o race_sword.o race_troll.o race_vampire.o race_vortex.o \
-    race_xorn.o racial.o rage-mage.o ranger.o rect.o red_mage.o \
+    race_xorn.o racial.o rage-mage.o ranger.o realm_illusion.o rect.o red_mage.o \
     resist.o rogue.o rooms.o rune_knight.o samurai.o save.o savefile.o scores.o scout.o shop.o skillmaster.o \
     skills.o sniper.o sorcerer.o spells.o spells1.o spells2.o spells3.o spells_a.o \
     spells_c.o spells_h.o spells_m.o spells_s.o spoilers.o str_map.o \

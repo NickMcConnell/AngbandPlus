@@ -1,5 +1,7 @@
 #include "angband.h"
 
+#include <assert.h>
+
 static cptr _desc = 
     "Golems are creatures animated by powerful magics: living stone conjured "
     "to serve their creators. But you have broken loose and are running amok!\n \n"
@@ -10,28 +12,26 @@ static cptr _desc =
     "and are very strong in melee. They are also resistant to magic, and become "
     "more resistant as they evolve. This resistance is quite powerful, reducing the "
     "damage taken from all magical attacks.\n \n"
-    "There are several varieties of golem, all sharing a common evolutionary "
+    "There are two varieties of golem, both sharing a common evolutionary "
     "heritage. First there is the mighty Colossus, the biggest (and slowest) of their "
     "kind. Next is the Sky Golem, a creature of powerful magic, resistant to the "
-    "ravages of time. Finally, there is the Spellwarp Automaton, a creature of "
-    "utter destruction, almost completely immune to magic. This last form takes "
-    "nearly forever to build, unfortunately.";
+    "ravages of time.";
 
 static cptr _mon_name(int r_idx)
 {
     if (r_idx)
-        return r_name + mon_race_lookup(r_idx)->name;
+        return mon_race_lookup(r_idx)->name;
     return ""; /* Birth Menu */
 }
 
 static int _rank(void)
 {
     int r = 0;
-    if (p_ptr->lev >= 10) r++;
-    if (p_ptr->lev >= 20) r++;
-    if (p_ptr->lev >= 30) r++;
-    if (p_ptr->lev >= 40) r++;
-    if (p_ptr->lev >= 45) r++;
+    if (plr->lev >= 10) r++;
+    if (plr->lev >= 20) r++;
+    if (plr->lev >= 30) r++;
+    if (plr->lev >= 40) r++;
+    if (plr->lev >= 45) r++;
     return r;
 }
 
@@ -39,7 +39,7 @@ static void _birth(void)
 { 
     object_type forge;
 
-    p_ptr->current_r_idx = MON_CLAY_GOLEM;
+    plr_mon_race_set("g.clay");
     skills_innate_init("Punch", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
@@ -59,48 +59,25 @@ static void _birth(void)
  **********************************************************************/
 static void _gain_level(int new_level) 
 {
-    if (p_ptr->current_r_idx == MON_CLAY_GOLEM && new_level >= 10)
+    if (plr_mon_race_is_("g.clay") && new_level >= 10)
+        plr_mon_race_evolve("g.stone");
+    if (plr_mon_race_is_("g.stone") && new_level >= 20)
+        plr_mon_race_evolve("g.iron");
+    if (plr_mon_race_is_("g.iron") && new_level >= 30)
+        plr_mon_race_evolve("g.mithril");
+    if (plr_mon_race_is_("g.mithril") && new_level >= 40)
+        plr_mon_race_evolve("g.eog");
+    if (plr_mon_race_is_("g.eog") && new_level >= 45)
     {
-        p_ptr->current_r_idx = MON_STONE_GOLEM;
-        msg_print("You have evolved into a Stone Golem.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_STONE_GOLEM && new_level >= 20)
-    {
-        p_ptr->current_r_idx = MON_IRON_GOLEM;
-        msg_print("You have evolved into an Iron Golem.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_IRON_GOLEM && new_level >= 30)
-    {
-        p_ptr->current_r_idx = MON_MITHRIL_GOLEM;
-        msg_print("You have evolved into a Mithril Golem.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_MITHRIL_GOLEM && new_level >= 40)
-    {
-        p_ptr->current_r_idx = MON_EOG_GOLEM;
-        msg_print("You have evolved into an Eog Golem.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_EOG_GOLEM && new_level >= 45)
-    {
-        switch (p_ptr->psubrace)
+        switch (plr->psubrace)
         {
         case GOLEM_COLOSSUS:
-            p_ptr->current_r_idx = MON_COLOSSUS;
-            msg_print("You have evolved into a Colossus.");
+            plr_mon_race_evolve("g.colossus");
             break;
         case GOLEM_SKY:
-            p_ptr->current_r_idx = MON_SKY_GOLEM;
-            msg_print("You have evolved into a Sky Golem.");
-            break;
-        case GOLEM_SPELLWARP:
-            p_ptr->current_r_idx = MON_SPELLWARP_AUTOMATON;
-            msg_print("You have evolved into a Spellwarp Automaton.");
+            plr_mon_race_evolve("g.sky");
             break;
         }
-        p_ptr->redraw |= PR_MAP;
     }
 }
 
@@ -109,7 +86,7 @@ static void _gain_level(int new_level)
  **********************************************************************/
 static int _attack_level_aux(int l)
 {
-    switch (p_ptr->psubrace)
+    switch (plr->psubrace)
     {
     case GOLEM_COLOSSUS:
         l = MAX(1, l * 100 / 100);
@@ -117,15 +94,12 @@ static int _attack_level_aux(int l)
     case GOLEM_SKY:
         l = MAX(1, l * 95 / 100);
         break;
-    case GOLEM_SPELLWARP:
-        l = MAX(1, l * 97 / 100);
-        break;
     }
     return l;
 }
 static int _attack_level(void)
 {
-    return _attack_level_aux(p_ptr->lev);
+    return _attack_level_aux(plr->lev);
 }
 static dice_t _calc_dice(int dam, int pct_dice)
 {
@@ -164,22 +138,22 @@ static void _calc_innate_attacks(void)
     mon_blow_push_effect(blow, RBE_HURT, _calc_dice(dam, 30));
     if (l >= 30)
         mon_blow_push_effect(blow, GF_STUN, dice_create(3, 3 + l/16, 0))->pct = l;
-    vec_add(p_ptr->innate_blows, blow);
+    vec_add(plr->innate_blows, blow);
 }
 static void _calc_innate_bonuses(mon_blow_ptr blow)
 {
     if (blow->method != RBM_PUNCH) return;
-    p_ptr->innate_attack_info.xtra_blow = 0;  /* never gain extra attacks */
+    plr->innate_attack_info.xtra_blow = 0;  /* never gain extra attacks */
     blow->blows = 100;
     if (!equip_find_first(obj_is_shield)) /* give 2-handed wielding bonus */
     {
-        int to_h = ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128) + ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
-        int to_d = ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128) * 3/4;
+        int to_h = ((int)(adj_str_th[plr->stat_ind[A_STR]]) - 128) + ((int)(adj_dex_th[plr->stat_ind[A_DEX]]) - 128);
+        int to_d = ((int)(adj_str_td[plr->stat_ind[A_STR]]) - 128) * 3/4;
 
-        p_ptr->innate_attack_info.to_h += to_h;
-        p_ptr->innate_attack_info.dis_to_h += to_h;
-        p_ptr->innate_attack_info.to_d += to_d;
-        p_ptr->innate_attack_info.dis_to_d += to_d;
+        plr->innate_attack_info.to_h += to_h;
+        plr->innate_attack_info.dis_to_h += to_h;
+        plr->innate_attack_info.to_d += to_d;
+        plr->innate_attack_info.dis_to_d += to_d;
     }
 }
 static bool _begin_weapon(plr_attack_ptr context)
@@ -201,93 +175,70 @@ static void _attack_init(plr_attack_ptr context)
 static void _calc_bonuses(void) 
 {
     /* Clay Golem */
-    p_ptr->to_a += 5;
-    p_ptr->dis_to_a += 5;
-    p_ptr->free_act++;
-    p_ptr->hold_life++;
-    res_add(RES_POIS);
+    plr->to_a += 5;
+    plr->dis_to_a += 5;
+    plr->free_act++;
+    plr->hold_life++;
+    res_add(GF_POIS);
 
     /* Stone Golem */
-    if (p_ptr->lev >= 10)
+    if (plr->lev >= 10)
     {
-        p_ptr->to_a += 5;
-        p_ptr->dis_to_a += 5;
-        res_add(RES_FEAR);
+        plr->to_a += 5;
+        plr->dis_to_a += 5;
+        res_add(GF_FEAR);
     }
 
     /* Iron Golem */
-    if (p_ptr->lev >= 20)
+    if (plr->lev >= 20)
     {
-        p_ptr->to_a += 10;
-        p_ptr->dis_to_a += 10;
-        p_ptr->see_inv++;
-        res_add(RES_FIRE);
-        res_add(RES_COLD);
-        res_add(RES_ELEC);
-        p_ptr->magic_resistance += 5;
+        plr->to_a += 10;
+        plr->dis_to_a += 10;
+        plr->see_inv++;
+        res_add(GF_FIRE);
+        res_add(GF_COLD);
+        res_add(GF_ELEC);
+        plr->magic_resistance += 5;
     }
 
     /* Mithril Golem */
-    if (p_ptr->lev >= 30)
+    if (plr->lev >= 30)
     {
-        p_ptr->to_a += 10;
-        p_ptr->dis_to_a += 10;
-        p_ptr->pspeed -= 1;
-        p_ptr->reflect = TRUE;
-        res_add(RES_CONF);
-        res_add(RES_SHARDS);
-        p_ptr->magic_resistance += 5;
+        plr->to_a += 10;
+        plr->dis_to_a += 10;
+        plr->pspeed -= 1;
+        plr->reflect = TRUE;
+        res_add(GF_CONF);
+        res_add(GF_SHARDS);
+        plr->magic_resistance += 5;
     }
 
     /* Eog Golem */
-    if (p_ptr->lev >= 40)
+    if (plr->lev >= 40)
     {
-        p_ptr->to_a += 10;            /* +40 */
-        p_ptr->dis_to_a += 10;
-        p_ptr->pspeed -= 1;
-        p_ptr->magic_resistance += 5; /* 15% */
+        plr->to_a += 10;            /* +40 */
+        plr->dis_to_a += 10;
+        plr->pspeed -= 1;
+        plr->magic_resistance += 5; /* 15% */
     }
 
-    if (p_ptr->current_r_idx == MON_COLOSSUS)
+    if (plr_mon_race_is_("g.colossus"))
     {
-        res_add(RES_SOUND);
-        res_add(RES_DISEN);
-        p_ptr->pspeed -= 3;
-        p_ptr->to_a += 35;
-        p_ptr->dis_to_a += 35;
-        p_ptr->magic_resistance += 5;
+        res_add(GF_SOUND);
+        res_add(GF_DISEN);
+        plr->pspeed -= 3;
+        plr->to_a += 35;
+        plr->dis_to_a += 35;
+        plr->magic_resistance += 5;
     }
-
-    if (p_ptr->current_r_idx == MON_SKY_GOLEM)
+    else if (plr_mon_race_is_("g.sky"))
     {
-        res_add(RES_COLD);
-        res_add(RES_TIME);
-        res_add(RES_LITE);
-        p_ptr->to_a += 10;
-        p_ptr->dis_to_a += 10;
-        p_ptr->magic_resistance += 5;
-    }
-
-    if (p_ptr->current_r_idx == MON_SPELLWARP_AUTOMATON)
-    {
-        res_add(RES_TELEPORT);
-
-        p_ptr->pspeed -= 1;
-        p_ptr->no_stun = TRUE;
-        p_ptr->to_a += 10;
-        p_ptr->dis_to_a += 10;
-        p_ptr->magic_resistance += 20;
-
-        /* RES_ALL ... Magic Resistance no longer applies
-           to innate breath attacks which are not really magical */
-        res_add(RES_ACID);
-        res_add(RES_LITE);
-        res_add(RES_DARK);
-        res_add(RES_NETHER);
-        res_add(RES_NEXUS);
-        res_add(RES_SOUND);
-        res_add(RES_CHAOS);
-        res_add(RES_DISEN);
+        res_add(GF_COLD);
+        res_add(GF_TIME);
+        res_add(GF_LIGHT);
+        plr->to_a += 10;
+        plr->dis_to_a += 10;
+        plr->magic_resistance += 5;
     }
 }
 
@@ -296,61 +247,48 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     /* Clay Golem */
     add_flag(flgs, OF_FREE_ACT);
     add_flag(flgs, OF_HOLD_LIFE);
-    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_RES_(GF_POIS));
 
     /* Stone Golem */
-    if (p_ptr->lev >= 10)
+    if (plr->lev >= 10)
     {
-        add_flag(flgs, OF_RES_FEAR);
+        add_flag(flgs, OF_RES_(GF_FEAR));
     }
 
     /* Iron Golem */
-    if (p_ptr->lev >= 20)
+    if (plr->lev >= 20)
     {
         add_flag(flgs, OF_SEE_INVIS);
-        add_flag(flgs, OF_RES_FIRE);
-        add_flag(flgs, OF_RES_COLD);
-        add_flag(flgs, OF_RES_ELEC);
+        add_flag(flgs, OF_RES_(GF_FIRE));
+        add_flag(flgs, OF_RES_(GF_COLD));
+        add_flag(flgs, OF_RES_(GF_ELEC));
         add_flag(flgs, OF_MAGIC_RESISTANCE);
     }
 
     /* Mithril Golem */
-    if (p_ptr->lev >= 30)
+    if (plr->lev >= 30)
     {
         add_flag(flgs, OF_DEC_SPEED);
-        add_flag(flgs, OF_RES_CONF);
-        add_flag(flgs, OF_RES_SHARDS);
+        add_flag(flgs, OF_RES_(GF_CONF));
+        add_flag(flgs, OF_RES_(GF_SHARDS));
         add_flag(flgs, OF_REFLECT);
     }
 
     /* Eog Golem */
-    if (p_ptr->lev >= 40)
+    if (plr->lev >= 40)
     {
     }
 
-    if (p_ptr->current_r_idx == MON_COLOSSUS)
+    if (plr_mon_race_is_("g.colossus"))
     {
-        add_flag(flgs, OF_RES_SOUND);
-        add_flag(flgs, OF_RES_DISEN);
+        add_flag(flgs, OF_RES_(GF_SOUND));
+        add_flag(flgs, OF_RES_(GF_DISEN));
     }
-
-    if (p_ptr->current_r_idx == MON_SKY_GOLEM)
+    else if (plr_mon_race_is_("g.sky"))
     {
-        add_flag(flgs, OF_RES_TIME);
-        add_flag(flgs, OF_RES_COLD);
-        add_flag(flgs, OF_RES_LITE);
-    }
-
-    if (p_ptr->current_r_idx == MON_SPELLWARP_AUTOMATON)
-    {
-        add_flag(flgs, OF_RES_ACID);
-        add_flag(flgs, OF_RES_LITE);
-        add_flag(flgs, OF_RES_DARK);
-        add_flag(flgs, OF_RES_NETHER);
-        add_flag(flgs, OF_RES_NEXUS);
-        add_flag(flgs, OF_RES_SOUND);
-        add_flag(flgs, OF_RES_CHAOS);
-        add_flag(flgs, OF_RES_DISEN);
+        add_flag(flgs, OF_RES_(GF_TIME));
+        add_flag(flgs, OF_RES_(GF_COLD));
+        add_flag(flgs, OF_RES_(GF_LIGHT));
     }
 }
 
@@ -359,7 +297,7 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
  **********************************************************************/
 static bool _check_punch(void)
 {
-    mon_blow_ptr punch = mon_blows_find(p_ptr->innate_blows, RBM_PUNCH);
+    mon_blow_ptr punch = mon_blows_find(plr->innate_blows, RBM_PUNCH);
     if (!punch) return FALSE; /* paranoia */
     if (!punch->blows) return FALSE;
     return TRUE;
@@ -405,24 +343,8 @@ void _breathe_cold_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Breathes cold at chosen target");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, p_ptr->chp / 2));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-
-        msg_print("You breathe cold.");
-        fire_ball(GF_COLD, dir, p_ptr->chp / 2, -3);
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        breath_spell_innate(cmd, res, 3, GF_COLD, plr->chp/2);
     }
 }
 void _breathe_disintegration_spell(int cmd, var_ptr res)
@@ -435,24 +357,8 @@ void _breathe_disintegration_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "A disintegration breath. Not even the dungeon walls can withstand its power!");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, p_ptr->chp / 4));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir_aux(&dir, TARGET_DISI)) return;
-
-        msg_print("You breathe disintegration.");
-        fire_ball(GF_DISINTEGRATE, dir, p_ptr->chp / 4, -3);
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        breath_spell_innate(cmd, res, 3, GF_DISINTEGRATE, plr->chp/4);
     }
 }
 void _breathe_light_spell(int cmd, var_ptr res)
@@ -465,24 +371,8 @@ void _breathe_light_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Breathes light at chosen target");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, p_ptr->chp / 3));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-
-        msg_print("You breathe light.");
-        fire_ball(GF_LITE, dir, p_ptr->chp / 3, -3);
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        breath_spell_innate(cmd, res, 3, GF_LIGHT, plr->chp/3);
     }
 }
 void _breathe_time_spell(int cmd, var_ptr res)
@@ -495,24 +385,8 @@ void _breathe_time_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Breathes time at chosen target");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, p_ptr->chp / 5));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-
-        msg_print("You breathe time.");
-        fire_ball(GF_TIME, dir, p_ptr->chp / 5, -3);
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        breath_spell_innate(cmd, res, 3, GF_TIME, plr->chp/5);
     }
 }
 void _shoot_spell(int cmd, var_ptr res)
@@ -525,22 +399,8 @@ void _shoot_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Shoot a missile at chosen target.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(15, 15, 0));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        msg_print("You shoot a missile.");
-        fire_bolt(GF_MISSILE, dir, damroll(15, 15));
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        bolt_spell_aux(cmd, res, GF_MISSILE, dice_create(15, 15, 0));
     }
 }
 static void _stone_smash_spell(int cmd, var_ptr res)
@@ -555,22 +415,17 @@ static void _stone_smash_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
     {
-        int y, x, dir;
+        int dir;
+        point_t pos;
         
         var_set_bool(res, FALSE);
         if (!get_rep_dir2(&dir)) return;
         if (dir == 5) return;
 
-        y = p_ptr->pos.y + ddy[dir];
-        x = p_ptr->pos.x + ddx[dir];
-        
-        if (!in_bounds(y, x)) return;
+        pos = point_step(plr->pos, dir);
+        if (!dun_pos_interior(cave, pos)) return;
 
-        if (cave_have_flag_bold(y, x, FF_HURT_ROCK))
-        {
-            cave_alter_feat(y, x, FF_HURT_ROCK);
-            p_ptr->update |= PU_FLOW;
-        }
+        dun_tunnel(cave, pos, ACTION_FORCE | ACTION_QUIET);
         var_set_bool(res, TRUE);
         break;
     }
@@ -599,27 +454,13 @@ static power_info _sky_powers[] =
     { A_CON, { 50, 35, 60, _breathe_time_spell} },
     {    -1, { -1, -1, -1, NULL} }
 };
-static power_info _spellwarp_powers[] = 
-{
-    { A_STR, { 45, 25, 50, _breathe_disintegration_spell} },
-    {    -1, { -1, -1, -1, NULL} }
-};
 static int _get_powers(spell_info* spells, int max) 
 {
     int ct = get_powers_aux(spells, max, _powers);
-    switch (p_ptr->current_r_idx)
-    {
-    case MON_COLOSSUS:
+    if (plr_mon_race_is_("g.colossus"))
         ct += get_powers_aux(spells + ct, max - ct, _colossus_powers);
-        break;
-    case MON_SKY_GOLEM:
+    else if (plr_mon_race_is_("g.sky"))
         ct += get_powers_aux(spells + ct, max - ct, _sky_powers);
-        break;
-    case MON_SPELLWARP_AUTOMATON:
-        ct += get_powers_aux(spells + ct, max - ct, _spellwarp_powers);
-        break;
-    }
-
     return ct;
 }
 
@@ -629,9 +470,6 @@ static name_desc_t _info[GOLEM_MAX] = {
                   "account of their great size." },
     { "Sky Golem", "The Sky Golem is the product of powerful enchantments, resistant "
                    "to the ravages of time. They may even breathe time!" },
-    { "Spellwarp Automaton", "The Spellwarp Automaton is nearly indestructible, being "
-                             "almost completely immune to magic. However, their great "
-                             "power takes a seeming eternity to mature." },
 };
 
 /**********************************************************************
@@ -642,10 +480,15 @@ plr_race_ptr mon_golem_get_race(int psubrace)
     static plr_race_ptr me = NULL;
     int           rank = _rank();
 
+    if (birth_hack && psubrace >= GOLEM_MAX)
+        psubrace = 0;
+
+    assert(0 <= psubrace && psubrace < GOLEM_MAX);
+
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  18,  40,   0,  10,   7,  70,  30};
-    skills_t xs = { 10,   7,  15,   0,   0,   0,  30,  10};
+    skills_t xs = { 50,  35,  75,   0,   0,   0, 150,  50};
 
         me = plr_race_alloc(RACE_MON_GOLEM);
 
@@ -656,8 +499,8 @@ plr_race_ptr mon_golem_get_race(int psubrace)
         me->infra = 5;
         me->shop_adjust = 130;
         me->base_hp = 50;
-        me->pseudo_class_idx = CLASS_MAULER;
-        me->boss_r_idx = MON_DESTROYER;
+        me->pseudo_class_id = CLASS_MAULER;
+        me->boss_r_idx = mon_race_parse("g.Destroyer")->id;
         me->flags = RACE_IS_MONSTER | RACE_IS_NONLIVING;
 
         me->hooks.attack_init = _attack_init;
@@ -671,7 +514,7 @@ plr_race_ptr mon_golem_get_race(int psubrace)
     }
 
     me->subid = psubrace;
-    me->subname = _mon_name(p_ptr->current_r_idx);
+    me->subname = _mon_name(plr->current_r_idx);
 
     me->stats[A_STR] =  1 + rank;
     me->stats[A_INT] = -2 - (rank+1)/2;
@@ -687,14 +530,9 @@ plr_race_ptr mon_golem_get_race(int psubrace)
         me->exp = 250;
         break;
 
-    case GOLEM_SPELLWARP:
-        me->life = 100 + 3*rank;
-        me->exp = 350;
-        break;
-
     case GOLEM_COLOSSUS:
     default:
-        if (p_ptr->current_r_idx == MON_COLOSSUS)
+        if (plr_mon_race_is_("g.colossus"))
         {
             me->stats[A_STR] += 3;
             me->stats[A_DEX] -= 2;
@@ -710,7 +548,7 @@ plr_race_ptr mon_golem_get_race(int psubrace)
         me->subname = _info[psubrace].name;
         me->subdesc = _info[psubrace].desc;
     }
-    me->hooks.character_dump = p_ptr->wizard ? _spoiler_dump : NULL;
+    me->hooks.character_dump = plr->wizard ? _spoiler_dump : NULL;
 
     return me;
 }

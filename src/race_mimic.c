@@ -6,7 +6,7 @@
  * Memorized Forms
  **********************************************************************/
 #define _MAX_FORMS 5
-static int _forms[_MAX_FORMS];
+static sym_t _forms[_MAX_FORMS];
 
 static bool _is_memorized(int r_idx)
 {
@@ -82,7 +82,7 @@ struct _choice_s
     int  slot;
     char key;
 };
-typedef struct _choice_s _choice_t;
+typedef struct _choice_s _choice_t, *_choice_ptr;
 
 enum _choose_mode_e
 {
@@ -95,12 +95,12 @@ enum _choose_mode_e
 
 struct _choice_array_s
 {
+    int        mode;
     _choice_t  choices[_MAX_CHOICES];
     int        size;
     int        current;
-    int        mode;
 };
-typedef struct _choice_array_s _choice_array_t;
+typedef struct _choice_array_s _choice_array_t, *_choice_array_ptr;
 
 enum _display_mode_e
 {
@@ -149,7 +149,7 @@ static void _clear_row(int row)
     Term_erase(_start_col(), row, _display_width());
 }
 
-static cptr _choose_prompt(_choice_array_t *choices)
+static cptr _choose_prompt(_choice_array_ptr choices)
 {
     switch (choices->mode)
     {
@@ -165,8 +165,17 @@ static cptr _choose_prompt(_choice_array_t *choices)
 
 static int _learn_chance(int r_idx);
 static int _mimic_chance(int r_idx);
+static void _format_pml(char *buf, int pml)
+{
+    if (pml == 0)
+        strcpy(buf, "0%");
+    else if (pml == 1000)
+        strcpy(buf, "100%");
+    else
+        sprintf(buf, "%2d.%1d%%", pml/10, pml%10);
+}
 
-static void _list(_choice_array_t *choices)
+static void _list(_choice_array_ptr choices)
 {
     int start_col = _start_col();
     int extra_col = _extra_col();
@@ -200,7 +209,7 @@ static void _list(_choice_array_t *choices)
 
     for (i = 0; i < choices->size; i++)
     {
-        _choice_t *choice = &choices->choices[i];
+        _choice_ptr choice = &choices->choices[i];
 
         /* Group Header */
         if (choice->type != current_type)
@@ -243,26 +252,27 @@ static void _list(_choice_array_t *choices)
             char          buf[255];
             byte          attr = TERM_WHITE;
             monster_race *r_ptr = mon_race_lookup(choice->r_idx);
+            term_char_t   r_tc = mon_race_visual(r_ptr);
 
             /* Name */
             if (i == choices->current)
                 attr = TERM_L_BLUE;
 
             if (choice->key)
-                sprintf(buf, " %c) %-20.20s", choice->key, r_name + r_ptr->name);
+                sprintf(buf, " %c) %-20.20s", choice->key, r_ptr->name);
             else
-                sprintf(buf, "    %-20.20s", r_name + r_ptr->name);
+                sprintf(buf, "    %-20.20s", r_ptr->name);
 
-            Term_putch(start_col, row, r_ptr->x_attr, r_ptr->x_char);
+            Term_putch(start_col, row, r_tc.a, r_tc.c);
             c_put_str(attr, buf, row, start_col + 1);
 
             /* Extra Info */
-            if ((p_ptr->wizard || (r_ptr->r_xtra1 & MR1_POSSESSOR)) && r_ptr->body.life)
+            if ((plr->wizard || (r_ptr->lore.flags & RFL_POSSESSOR)) && !(r_ptr->body.flags & RF_POS_DISABLED))
             {
                 if (_display_mode == _DISPLAY_MODE_STATS)
                 {
                     int                j;
-                    equip_template_ptr body = &b_info[r_ptr->body.body_idx];
+                    equip_template_ptr body = equip_template_lookup(r_ptr->body.body_id);
 
                     for (j = 0; j < 6; j++)
                     {
@@ -270,7 +280,7 @@ static void _list(_choice_array_t *choices)
                         c_put_str(j == r_ptr->body.spell_stat ? TERM_L_GREEN : TERM_WHITE,
                                     buf, row, extra_col + j * 5);
                     }
-                    sprintf(buf, "%+3d%%", r_ptr->body.life);
+                    sprintf(buf, "%+3d%%", r_ptr->body.life ? r_ptr->body.life : 100);
                     c_put_str(TERM_WHITE, buf, row, extra_col + 30);
 
                     for (j = 1; j <= body->max; j++)
@@ -300,8 +310,8 @@ static void _list(_choice_array_t *choices)
                         case EQUIP_SLOT_AMULET:
                             _prt_equippy(r, c, TV_AMULET, 0);
                             break;
-                        case EQUIP_SLOT_LITE:
-                            _prt_equippy(r, c, TV_LITE, SV_LITE_FEANOR);
+                        case EQUIP_SLOT_LIGHT:
+                            _prt_equippy(r, c, TV_LIGHT, SV_LIGHT_FEANOR);
                             break;
                         case EQUIP_SLOT_BODY_ARMOR:
                             _prt_equippy(r, c, TV_HARD_ARMOR, SV_CHAIN_MAIL);
@@ -345,17 +355,26 @@ static void _list(_choice_array_t *choices)
                 {
                     int speed = possessor_r_speed(choice->r_idx);
                     int ac = possessor_r_ac(choice->r_idx);
+                    char mimic_buf[10], learn_buf[10];
 
-                    sprintf(buf, "%3d %3d %4d%% %4d%% %+5d %+3d %-20.20s",
-                        r_ptr->level, possessor_max_plr_lvl(choice->r_idx),
-                        _mimic_chance(choice->r_idx), _learn_chance(choice->r_idx),
-                        speed, ac, get_class_aux(r_ptr->body.class_idx, 0)->name);
+                    _format_pml(mimic_buf, _mimic_chance(choice->r_idx));
+                    _format_pml(learn_buf, _learn_chance(choice->r_idx));
+
+                    sprintf(buf, "%3d %3d %5s %5s %+5d %+3d %-20.20s",
+                        r_ptr->alloc.lvl, possessor_max_plr_lvl(choice->r_idx),
+                        mimic_buf, learn_buf,
+                        speed, ac, get_class_aux(r_ptr->body.class_id, 0)->name);
                     c_put_str(TERM_WHITE, buf, row, extra_col);
                 }
             }
             else if (_display_mode == _DISPLAY_MODE_EXTRA)
             {
-                sprintf(buf, "        %4d%% %4d%%", _mimic_chance(choice->r_idx), _learn_chance(choice->r_idx));
+                char mimic_buf[10], learn_buf[10];
+
+                _format_pml(mimic_buf, _mimic_chance(choice->r_idx));
+                _format_pml(learn_buf, _learn_chance(choice->r_idx));
+
+                sprintf(buf, "        %5s %5s", mimic_buf, learn_buf);
                 c_put_str(TERM_WHITE, buf, row, extra_col);
             }
         }
@@ -373,14 +392,14 @@ static void _list(_choice_array_t *choices)
         Term_gotoxy(start_col, current_row);
 }
 
-static bool _confirm(_choice_array_t *choices, int which)
+static bool _confirm(_choice_array_ptr choices, int which)
 {
     if (choices->mode == _CHOOSE_MODE_BROWSE)
         return FALSE;
 
     if (choices->mode == _CHOOSE_MODE_LEARN)
     {
-        _choice_t *choice = &choices->choices[which];
+        _choice_ptr choice = &choices->choices[which];
         if (choice->type != _TYPE_KNOWN)
         {
             msg_print("Choose an existing slot for this new form.");
@@ -395,7 +414,7 @@ static bool _confirm(_choice_array_t *choices, int which)
             monster_race *r_ptr2 = mon_race_lookup(r_idx2);
             char          prompt[512];
 
-            sprintf(prompt, "Really replace %s with %s? ", r_name + r_ptr2->name, r_name + r_ptr1->name);
+            sprintf(prompt, "Really replace %s with %s? ", r_ptr2->name, r_ptr1->name);
             if (!get_check(prompt))
                 return FALSE;
         }
@@ -403,7 +422,7 @@ static bool _confirm(_choice_array_t *choices, int which)
     return TRUE;
 }
 
-static bool _choose(_choice_array_t *choices)
+static bool _choose(_choice_array_ptr choices)
 {
     int  key = 0, i;
     bool redraw = TRUE;
@@ -434,7 +453,7 @@ static bool _choose(_choice_array_t *choices)
             int r_idx = choices->choices[choices->current].r_idx;
             if (r_idx > 0)
             {
-                monster_race_track(r_idx);
+                monster_race_track(mon_race_lookup(r_idx));
                 window_stuff();
             }
         }
@@ -542,7 +561,7 @@ static bool _choose(_choice_array_t *choices)
     return result;
 }
 
-static void _add_visible_form(_choice_array_t *choices, int r_idx)
+static void _add_visible_form(_choice_array_ptr choices, int r_idx)
 {
     int       i = 0;
     _choice_t src = {0};
@@ -552,14 +571,14 @@ static void _add_visible_form(_choice_array_t *choices, int r_idx)
 
     for (i = 0; i < _MAX_CHOICES; i++)
     {
-        _choice_t *dest = &choices->choices[i];
+        _choice_ptr dest = &choices->choices[i];
 
         /* Already in list? */
         if (dest->r_idx == src.r_idx)
             break;
 
         /* Sort in order of decreasing power */
-        if (dest->type == _TYPE_VISIBLE && mon_race_lookup(dest->r_idx)->level < mon_race_lookup(src.r_idx)->level)
+        if (dest->type == _TYPE_VISIBLE && mon_race_lookup(dest->r_idx)->alloc.lvl < mon_race_lookup(src.r_idx)->alloc.lvl)
         {
             /* Swap */
             _choice_t tmp = *dest;
@@ -581,7 +600,7 @@ static int _choose_mimic_form(bool browse)
 {
     int             r_idx = -1;
     int             i;
-    _choice_array_t choices = {{{0}}};
+    _choice_array_t choices = {0};
 
     /* List Known Forms */
     for (i = 0; i < _MAX_FORMS; i++)
@@ -589,7 +608,7 @@ static int _choose_mimic_form(bool browse)
         if (_forms[i])
         {
             int        j = choices.size++;
-            _choice_t *choice = &choices.choices[j];
+            _choice_ptr choice = &choices.choices[j];
 
             choice->r_idx = _forms[i];
             choice->slot = i;
@@ -607,19 +626,20 @@ static int _choose_mimic_form(bool browse)
         mon_ptr mon = point_map_iter_current(iter);
 
         if (!mon->ml) continue;
-        if (!plr_project(mon->pos)) continue;
-        if (!mon_race(mon)->body.life) continue; /* Form not implemented yet ... */
-        if (mon->r_idx == MON_TANUKI) continue; /* XXX This reveals the Tanuki! */
-        if (mon->ap_r_idx == MON_KAGE) continue; /* Shadower */
+        if (mon->mflag2 & MFLAG2_FUZZY) continue;
+        if (!plr_view(mon->pos)) continue;
+        if (mon->race->body.flags & RF_POS_DISABLED) continue;
+        if (mon_race_is_(mon->race, "q.tanuki")) continue;
+        if (mon_race_is_(mon->apparent_race, "N.shadower")) continue;
 
-        _add_visible_form(&choices, mon->r_idx);
+        _add_visible_form(&choices, mon->race->id);
     }
     point_map_iter_free(iter);}
 
     /* Assign menu keys at the end due to insertion sort */
     for (i = 0; i < choices.size; i++)
     {
-        _choice_t *choice = &choices.choices[i];
+        _choice_ptr choice = &choices.choices[i];
 
         if (choice->type == _TYPE_VISIBLE)
             choice->key = I2A(i);
@@ -640,12 +660,12 @@ static int _choose_new_slot(int new_r_idx)
 {
     int             slot = -1;
     int             i;
-    _choice_array_t choices = {{{0}}};
+    _choice_array_t choices = {0};
 
     /* Display the Newly Learned Form */
     assert(new_r_idx);
     {
-        _choice_t *choice = &choices.choices[choices.size++];
+        _choice_ptr choice = &choices.choices[choices.size++];
         choice->r_idx = new_r_idx;
         choice->slot = -1; /* paranoia ... it should not be possible to choose this choice! */
         choice->type = _TYPE_NEW;
@@ -657,7 +677,7 @@ static int _choose_new_slot(int new_r_idx)
         if (_forms[i])
         {
             int        j = choices.size++;
-            _choice_t *choice = &choices.choices[j];
+            _choice_ptr choice = &choices.choices[j];
             choice->r_idx = _forms[i];
             choice->slot = i;
             choice->type = _TYPE_KNOWN;
@@ -684,7 +704,7 @@ static bool _memorize_form(int r_idx)
 
     if (_is_memorized(r_idx))
     {
-        msg_format("You already know this form (%s).", r_name + r_ptr->name);
+        msg_format("You already know this form (%s).", r_ptr->name);
         return FALSE;
     }
 
@@ -692,7 +712,7 @@ static bool _memorize_form(int r_idx)
     if (i >= 0 && i < _MAX_FORMS)
     {
         _forms[i] = r_idx;
-        msg_format("You have learned this form (%s).", r_name + r_ptr->name);
+        msg_format("You have learned this form (%s).", r_ptr->name);
         return TRUE;
     }
     return FALSE;
@@ -710,7 +730,7 @@ static void _load(savefile_ptr file)
     ct = savefile_read_s16b(file);
     for (i = 0; i < ct; i++)
     {
-        int r_idx = savefile_read_s16b(file);
+        int r_idx = savefile_read_sym(file);
         if (i < _MAX_FORMS)
             _forms[i] = r_idx;
     }
@@ -726,7 +746,7 @@ static void _save(savefile_ptr file)
     for (i = 0; i < _MAX_FORMS; i++)
     {
         if (_forms[i])
-            savefile_write_s16b(file, _forms[i]);
+            savefile_write_sym(file, _forms[i]);
     }
     possessor_on_save(file);
 }
@@ -760,8 +780,8 @@ static int _max_level[51] = {
 int mimic_max_lvl(void)
 {
     int l = 5;
-    if (1 <= p_ptr->lev && p_ptr->lev <= 50) /* paranoia */
-        l = _max_level[p_ptr->lev];
+    if (1 <= plr->lev && plr->lev <= 50) /* paranoia */
+        l = _max_level[plr->lev];
     return l;
 }
 
@@ -769,48 +789,49 @@ int mimic_max_lvl(void)
  * learned. Learning forms below the current max level is also easier
  * (except for uniques). Players should not be able to count on learning
  * any particular form ... This enhances replayability. */
-static int _learn_chance(int r_idx)
+static int _learn_chance(int r_idx) /* per mil */
 {
     mon_race_ptr race = mon_race_lookup(r_idx);
-    int          pct = 0;
-    int          max = _max_level[p_ptr->lev];
+    int          pml = 0;
+    int          max = _max_level[plr->lev];
 
-    if (race->level <= max)
+    if (race->alloc.lvl <= max)
     {
-        pct = 300 / MAX(3, race->level);
-        if (!(race->flags1 & RF1_UNIQUE))
-            pct += (max - race->level)/5;
+        pml = 5000 / MAX(3, race->alloc.lvl); /* 5% chance to learn Morgoth */
+        if (!mon_race_is_unique(race))
+            pml += (max - race->alloc.lvl)*2;
     }
 
-    return MAX(0, MIN(25, pct));
+    return MAX(0, MIN(250, pml));
 }
 
-static int _mimic_chance(int r_idx)
+static int _mimic_chance(int r_idx) /* per mil */
 {
     mon_race_ptr race = mon_race_lookup(r_idx);
-    int          pct = 0;
+    int          pml = 0;
 
-    if (race->level <= p_ptr->lev)
-        pct = 100;
+    if (race->alloc.lvl <= plr->lev)
+        pml = 1000;
     else if (_is_memorized(r_idx))
-        pct = 100;
+        pml = 1000;
     else
     {
-        int pl = _max_level[p_ptr->lev];
-        int rl = race->level;
-        pl += 3 + p_ptr->stat_ind[A_DEX];
+        int pl = _max_level[plr->lev];
+        int rl = race->alloc.lvl;
+        int fudge_pct = 120; /* tweakable way to make mimicry, say, 20% easier */
+        pl += 3 + plr->stat_ind[A_DEX];
         if (pl > rl)
-            pct = (pl - rl) * 100 / pl;
+            pml = (pl - rl) * 1000 * fudge_pct / (pl * 100);
         else
-            pct = 0;
+            pml = 0;
     }
-    return MAX(0, MIN(100, pct));
+    return MAX(0, MIN(1000, pml));
 }
 
 static void _dismiss_pets(void)
 {
-    vec_ptr pets = plr_pets();
-    int i, ct = vec_length(pets);
+    vec_ptr pets = plr_pets_for_dismiss();
+    int i, ct = vec_length(pets), dismissed = 0;
     for (i = 0; i < ct; i++)
     {
         mon_ptr mon = vec_get(pets, i);
@@ -818,27 +839,27 @@ static void _dismiss_pets(void)
         monster_desc(name, mon, MD_ASSUME_VISIBLE);
         msg_format("%s disappears.", name);
         delete_monster(mon);
-        ct++;
+        dismissed++;
     }
     vec_free(pets);
-    if (ct) calculate_upkeep();
+    if (dismissed) calculate_upkeep();
 }
 
 static void _set_current_r_idx(int r_idx)
 {
-    if (r_idx == p_ptr->current_r_idx)
+    if (r_idx == plr->current_r_idx)
         return;
 
     disturb(1, 0);
-    if (r_idx == MON_MIMIC && p_ptr->current_r_idx)
+    if (sym_equals(r_idx, "@.mimic") && plr->current_r_idx)
     {
-        msg_format("You stop mimicking %s.", r_name + mon_race_lookup(p_ptr->current_r_idx)->name);
+        msg_format("You stop mimicking %s.", plr_mon_race()->name);
         plr_tim_remove(T_INVULN); /* XXX dispel_player? what is this here for?? */
         _dismiss_pets(); /* They no longer recognize you as their leader! */
     }
     possessor_set_current_r_idx(r_idx);
-    if (r_idx != MON_MIMIC)
-        msg_format("You start mimicking %s.", r_name + mon_race_lookup(p_ptr->current_r_idx)->name);
+    if (!sym_equals(r_idx, "@.mimic"))
+        msg_format("You start mimicking %s.", plr_mon_race()->name);
     /* Mimics shift forms often enough to be annoying if shapes
        have dramatically different body types (e.g. dragons vs humanoids).
        Inscribe gear with @mimic to autoequip on shifing. */
@@ -859,7 +880,7 @@ static void _birth(void)
     for (i = 0; i < _MAX_FORMS; i++)
         _forms[i] = 0;
 
-    p_ptr->current_r_idx = MON_MIMIC;
+    plr->current_r_idx = mon_race_parse("@.mimic")->id;
     equip_on_change_race();
 
     object_prep(&forge, lookup_kind(TV_SWORD, SV_LONG_SWORD));
@@ -892,8 +913,8 @@ static void _player_action(void)
         teleport_player(10, TELEPORT_LINE_OF_SIGHT);
 
     /* Maintain current form. Non-memorized forms require los of target race */
-    if ( p_ptr->current_r_idx != MON_MIMIC
-      && !_is_memorized(p_ptr->current_r_idx) )
+    if ( !sym_equals(plr->current_r_idx, "@.mimic")
+      && !_is_memorized(plr->current_r_idx) )
     {
         cptr msg = NULL;
 
@@ -901,13 +922,13 @@ static void _player_action(void)
             msg = "You are too confused to maintain your current form.";
         else if (plr_tim_find(T_HALLUCINATE))
             msg = "Groovy! I think I'll mimic that guy instead!!";
-        else if (one_in_(100) && (plr_tim_find(T_BLIND) || !_is_visible(p_ptr->current_r_idx)))
+        else if (one_in_(100) && (plr_tim_find(T_BLIND) || !_is_visible(plr->current_r_idx)))
             msg = "You can no longer see the source of your current form.";
 
         if (msg)
         {
             msg_print(msg);
-            _set_current_r_idx(MON_MIMIC);
+            _set_current_r_idx(mon_race_parse("@.mimic")->id);
         }
     }
 }
@@ -943,7 +964,7 @@ static void _mimic_spell(int cmd, var_ptr res)
     switch (cmd)
     {
     case SPELL_NAME:
-        if (p_ptr->current_r_idx == MON_MIMIC)
+        if (sym_equals(plr->current_r_idx, "@.mimic"))
             var_set_string(res, "Mimic");
         else
             var_set_string(res, "Stop Mimicry");
@@ -952,43 +973,41 @@ static void _mimic_spell(int cmd, var_ptr res)
         var_set_string(res, format("Max L%d", mimic_max_lvl()));
         break;
     case SPELL_DESC:
-        if (p_ptr->current_r_idx == MON_MIMIC)
+        if (sym_equals(plr->current_r_idx, "@.mimic"))
         {
-            string_ptr s = string_alloc();
-            string_append_s(s, "Mimic a nearby visible monster, gaining the powers and abilities of that form.");
-            string_printf(s, " You may attempt to mimic a monster of any level, but may fail if the monster is higher than level %d.", p_ptr->lev);
-            string_printf(s, " You may permanently learn monster forms up to level %d.", _max_level[p_ptr->lev]);
-            var_set_string(res, string_buffer(s));
-            string_free(s);
+            str_ptr s = str_alloc();
+            str_append_s(s, "Mimic a nearby visible monster, gaining the powers and abilities of that form.");
+            str_printf(s, " You may attempt to mimic a monster of any level, but may fail if the monster is higher than level %d.", plr->lev);
+            str_printf(s, " You may permanently learn monster forms up to level %d.", _max_level[plr->lev]);
+            var_set_string(res, str_buffer(s));
+            str_free(s);
         }
         else
             var_set_string(res, "Return to your native form.");
         break;
     case SPELL_CAST: {
         var_set_bool(res, FALSE);
-        if (p_ptr->current_r_idx == MON_MIMIC)
+        if (sym_equals(plr->current_r_idx, "@.mimic"))
         {
             int           r_idx = _choose_mimic_form(FALSE);
             monster_race *r_ptr = 0;
-            int           pct;
+            int           pml;
 
-            if (r_idx <= 0 || r_idx > max_r_idx) return;
+            if (!r_idx) return;
 
             r_ptr = mon_race_lookup(r_idx);
-            pct = _mimic_chance(r_idx);
-            if (pct <= 0)
-                msg_format("You are not powerful enough to mimic this form (%s: Lvl %d).", r_name + r_ptr->name, r_ptr->level);
-            else if (randint1(100) > pct)
-            {
+            if (!r_ptr) return;
+
+            pml = _mimic_chance(r_idx);
+            if (pml <= 0)
+                msg_format("You are not powerful enough to mimic this form (%s: Lvl %d).", r_ptr->name, r_ptr->alloc.lvl);
+            else if (randint1(1000) > pml)
                 msg_print("<color:v>Failed!</color>");
-                if (0 || p_ptr->wizard)
-                    msg_format("<color:B>You have a <color:R>%d%%</color> chance to mimic this form.</color>", pct);
-            }
             else
                 _set_current_r_idx(r_idx);
         }
         else
-            _set_current_r_idx(MON_MIMIC);
+            _set_current_r_idx(mon_race_parse("@.mimic")->id);
         var_set_bool(res, TRUE);
         break; }
     default:
@@ -1010,12 +1029,12 @@ static int _get_powers(spell_info* spells, int max)
     int ct = 0;
 
     if (ct < max)
-        _add_power(&spells[ct++], 1, 0, 0, _mimic_spell, p_ptr->stat_ind[A_DEX]);
+        _add_power(&spells[ct++], 1, 0, 0, _mimic_spell, plr->stat_ind[A_DEX]);
 
     ct += possessor_get_powers(spells + ct, max - ct);
 
-    if (p_ptr->current_r_idx != MON_MIMIC)
-        _add_power(&spells[ct++], 1, 0, 0, _browse_spell, p_ptr->stat_ind[A_DEX]);
+    if (!sym_equals(plr->current_r_idx, "@.mimic"))
+        _add_power(&spells[ct++], 1, 0, 0, _browse_spell, plr->stat_ind[A_DEX]);
     return ct;
 }
 
@@ -1033,7 +1052,7 @@ void _character_dump(doc_ptr doc)
                 doc_printf(doc, "<topic:LearnedForms>================================ <color:keypress>L</color>earned Forms ================================\n\n");
                 first = FALSE;
             }
-            doc_printf(doc, " %s\n", r_name + mon_race_lookup(_forms[i])->name);
+            doc_printf(doc, " %s\n", mon_race_lookup(_forms[i])->name);
         }
     }
     doc_newline(doc);
@@ -1075,6 +1094,8 @@ plr_race_ptr mon_mimic_get_race(void)
         me->hooks.get_powers = _get_powers;
         me->hooks.calc_innate_attacks = possessor_calc_innate_attacks;
         me->hooks.calc_bonuses = possessor_calc_bonuses;
+        me->hooks.calc_shooter_bonuses = possessor_calc_shooter_bonuses;
+        me->hooks.calc_weapon_bonuses = possessor_calc_weapon_bonuses;
         me->hooks.get_flags = possessor_get_flags;
         me->hooks.player_action = _player_action;
         me->hooks.character_dump = _character_dump;
@@ -1082,36 +1103,34 @@ plr_race_ptr mon_mimic_get_race(void)
         me->hooks.save_player = _save;
 
         me->flags = RACE_IS_MONSTER;
-        me->boss_r_idx = MON_CHAMELEON_K;
+        me->boss_r_idx = mon_race_parse("R.Chameleon")->id;
     }
-    possessor_init_race_t(me, MON_MIMIC);
+    possessor_init_race_t(me, mon_race_parse("@.mimic")->id);
     return me;
 }
 
 void mimic_dispel_player(void)
 {
-    if (p_ptr->prace != RACE_MON_MIMIC) return;
-    if (p_ptr->current_r_idx == MON_MIMIC) return;
+    if (plr->prace != RACE_MON_MIMIC) return;
+    if (sym_equals(plr->current_r_idx, "@.mimic")) return;
 
-    if (randint0(150) < p_ptr->skills.sav) /* Anti-magic gives 145 */
+    if (randint0(150) < plr->skills.sav) /* Anti-magic gives 145 */
         msg_print("You maintain your current form.");
     else
-        _set_current_r_idx(MON_MIMIC);
+        _set_current_r_idx(mon_race_parse("@.mimic")->id);
 }
 
 void mimic_on_kill_monster(int r_idx)
 {
-    int pct;
-    if (p_ptr->prace != RACE_MON_MIMIC) return;
+    int pml;
+    if (plr->prace != RACE_MON_MIMIC) return;
 
     /* To learn a form, you must be mimicking it when you land the killing blow. */
-    if (r_idx != p_ptr->current_r_idx) return;
+    if (r_idx != plr->current_r_idx) return;
     if (_is_memorized(r_idx)) return;
 
-    pct = _learn_chance(r_idx);
-    if (0 || p_ptr->wizard)
-        msg_format("<color:B>You have a <color:R>%d%%</color> chance to learn this form.</color>", pct);
-    if (randint0(100) < pct)
+    pml = _learn_chance(r_idx);
+    if (randint0(1000) < pml)
         _memorize_form(r_idx);
 }
 

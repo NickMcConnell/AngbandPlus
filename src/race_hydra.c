@@ -20,13 +20,12 @@ static void _birth(void)
 { 
     object_type    forge;
 
-    p_ptr->current_r_idx = MON_TWO_HEADED_HYDRA;
-    equip_on_change_race();
+    plr_mon_race_set("M.2");
     skills_innate_init("Bite", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
     object_prep(&forge, lookup_kind(TV_AMULET, 0));
     forge.name2 = EGO_JEWELRY_ELEMENTAL;
-    add_flag(forge.flags, OF_RES_ACID);
+    add_flag(forge.flags, OF_RES_(GF_ACID));
     plr_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_CROWN, SV_IRON_CROWN));
@@ -44,37 +43,35 @@ static void _birth(void)
  **********************************************************************/
 static int _head_count(void)
 {
-    switch (p_ptr->current_r_idx)
-    {
-    case MON_TWO_HEADED_HYDRA: return 2;
-    case MON_FOUR_HEADED_HYDRA: return 4;
-    case MON_FIVE_HEADED_HYDRA: return 5;
-    case MON_SEVEN_HEADED_HYDRA: return 7;
-    case MON_NINE_HEADED_HYDRA: return 9;
-    case MON_ELEVEN_HEADED_HYDRA: return 11;
-    }
+    if (plr_mon_race_is_("M.2")) return 2;
+    if (plr_mon_race_is_("M.4")) return 4;
+    if (plr_mon_race_is_("M.5")) return 5;
+    if (plr_mon_race_is_("M.7")) return 7;
+    if (plr_mon_race_is_("M.9")) return 9;
+    if (plr_mon_race_is_("M.11")) return 11;
     return 2; /* paranoia */
 }
 static int _bite_effect(void)
 {
-    switch (p_ptr->current_r_idx)
-    {
-    case MON_FIVE_HEADED_HYDRA:
-    case MON_SEVEN_HEADED_HYDRA: return GF_POIS;
-
-    case MON_NINE_HEADED_HYDRA:
-    case MON_ELEVEN_HEADED_HYDRA: return GF_FIRE;
-    }
-    return 0;
+    if (plr_mon_race_is_("M.5")) return GF_POIS;
+    if (plr_mon_race_is_("M.7")) return GF_POIS;
+    if (plr_mon_race_is_("M.9")) return GF_FIRE;
+    if (plr_mon_race_is_("M.11")) return GF_FIRE;
+    return GF_NONE;
 }
 static void _calc_innate_bonuses(mon_blow_ptr blow)
 {
     if (blow->method == RBM_BITE)
-        plr_calc_blows_innate(blow, _head_count() * 100);
+    {
+        plr->innate_attack_info.blows_calc.wgt = 150;
+        plr->innate_attack_info.blows_calc.mul = 45 + plr->lev/5;
+        plr->innate_attack_info.blows_calc.max = 100 * _head_count();
+        plr_calc_blows_innate(blow);
+    }
 }
 static void _calc_innate_attacks(void)
 {
-    int l = p_ptr->lev;
+    int l = plr->lev;
     int dd = 1 + (l+3)/14;
     int ds = 4 + l/16;
     mon_blow_ptr blow = mon_blow_alloc(RBM_BITE);
@@ -85,7 +82,7 @@ static void _calc_innate_attacks(void)
     if (_bite_effect())
         mon_blow_push_effect(blow, _bite_effect(), dice_create(dd, ds, 0));
     _calc_innate_bonuses(blow);
-    vec_push(p_ptr->innate_blows, blow);
+    vec_push(plr->innate_blows, blow);
 }
 
 /**********************************************************************
@@ -93,24 +90,20 @@ static void _calc_innate_attacks(void)
  **********************************************************************/
 static int _breath_effect(void)
 {
-    switch (p_ptr->current_r_idx)
-    {
-    case MON_NINE_HEADED_HYDRA:
-    case MON_ELEVEN_HEADED_HYDRA: 
+    if (plr_mon_race_is_("M.9") || plr_mon_race_is_("M.11"))
         return GF_FIRE;
-    }
     return GF_POIS;
 }
 
 static int _breath_amount(void)
 {
-    int l = p_ptr->lev;
-    return MIN(375, p_ptr->chp * (20 + l*l*l*15/125000) / 100);
+    int l = plr->lev;
+    return MIN(375, plr->chp * (20 + l*l*l*15/125000) / 100);
 }
 
 static int _breath_cost(void)
 {
-    int l = p_ptr->lev;
+    int l = plr->lev;
     return MAX(l/2 + l*l*15/2500, 1);
 }
 
@@ -122,30 +115,13 @@ static void _breathe_spell(int cmd, var_ptr res)
         var_set_string(res, "Breathe");
         break;
     case SPELL_DESC:
-        var_set_string(res, format("Breathes %s at your opponent.", gf_name(_breath_effect())));
-        break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, _breath_amount()));
+        var_printf(res, "Breathes %s at your opponent.", gf_name(_breath_effect()));
         break;
     case SPELL_COST_EXTRA:
         var_set_int(res, _breath_cost());
         break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (get_fire_dir(&dir))
-        {
-            int e = _breath_effect();
-            msg_format("You breathe %s", gf_name(e));
-            fire_ball(e, dir, _breath_amount(), -2);
-            var_set_bool(res, TRUE);
-        }
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        breath_spell_innate(cmd, res, 2, _breath_effect(), _breath_amount());
     }
 }
 
@@ -170,12 +146,8 @@ static power_info _poison_powers[] = {
 
 static int _get_powers(spell_info* spells, int max) 
 {
-    switch (p_ptr->current_r_idx)
-    {
-    case MON_NINE_HEADED_HYDRA:
-    case MON_ELEVEN_HEADED_HYDRA: 
+    if (plr_mon_race_is_("M.9") || plr_mon_race_is_("M.11"))
         return get_powers_aux(spells, max, _fire_powers);
-    }
     return get_powers_aux(spells, max, _poison_powers);
 }
 
@@ -184,66 +156,62 @@ static int _get_powers(spell_info* spells, int max)
  **********************************************************************/
 static void _calc_bonuses(void) 
 {
-    int ac = 20 + p_ptr->lev/10;
+    int ac = 20 + plr->lev/10;
 
-    p_ptr->skill_dig += 50;
-    p_ptr->to_a += ac;
-    p_ptr->dis_to_a += ac;
-    p_ptr->regen += 100 + 4*p_ptr->lev;
+    plr->skill_dig += 50;
+    plr->to_a += ac;
+    plr->dis_to_a += ac;
+    plr->regen += 100 + 4*plr->lev;
 
-    switch (p_ptr->current_r_idx)
+    if (plr_mon_race_is_("M.4"))
+        plr->pspeed += 2;
+    else if (plr_mon_race_is_("M.5"))
     {
-    case MON_TWO_HEADED_HYDRA:
-        break;
-    case MON_FOUR_HEADED_HYDRA:
-        p_ptr->pspeed += 2;
-        break;
-    case MON_FIVE_HEADED_HYDRA:
-        p_ptr->pspeed += 3;
-        res_add(RES_POIS);
-        break;
-    case MON_SEVEN_HEADED_HYDRA:
-        p_ptr->pspeed += 5;
-        res_add(RES_POIS);
-        break;
-    case MON_NINE_HEADED_HYDRA:
-        p_ptr->pspeed += 7;
-        res_add(RES_FIRE);
-        break;
-    case MON_ELEVEN_HEADED_HYDRA:
-        p_ptr->pspeed += 10;
-        res_add(RES_FIRE);
-        break;
-    }    
+        plr->pspeed += 3;
+        res_add(GF_POIS);
+    }
+    else if (plr_mon_race_is_("M.7"))
+    {
+        plr->pspeed += 5;
+        res_add(GF_POIS);
+    }
+    else if (plr_mon_race_is_("M.9"))
+    {
+        plr->pspeed += 7;
+        res_add(GF_FIRE);
+    }
+    else if (plr_mon_race_is_("M.11"))
+    {
+        plr->pspeed += 10;
+        res_add(GF_FIRE);
+    }
 }
 
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) 
 {
     add_flag(flgs, OF_REGEN);
-    switch (p_ptr->current_r_idx)
+    if (plr_mon_race_is_("M.4"))
+        add_flag(flgs, OF_SPEED);
+    else if (plr_mon_race_is_("M.5"))
     {
-    case MON_TWO_HEADED_HYDRA:
-        break;
-    case MON_FOUR_HEADED_HYDRA:
         add_flag(flgs, OF_SPEED);
-        break;
-    case MON_FIVE_HEADED_HYDRA:
+        add_flag(flgs, OF_RES_(GF_POIS));
+    }
+    else if (plr_mon_race_is_("M.7"))
+    {
         add_flag(flgs, OF_SPEED);
-        add_flag(flgs, OF_RES_POIS);
-        break;
-    case MON_SEVEN_HEADED_HYDRA:
+        add_flag(flgs, OF_RES_(GF_POIS));
+    }
+    else if (plr_mon_race_is_("M.9"))
+    {
         add_flag(flgs, OF_SPEED);
-        add_flag(flgs, OF_RES_POIS);
-        break;
-    case MON_NINE_HEADED_HYDRA:
+        add_flag(flgs, OF_RES_(GF_FIRE));
+    }
+    else if (plr_mon_race_is_("M.11"))
+    {
         add_flag(flgs, OF_SPEED);
-        add_flag(flgs, OF_RES_FIRE);
-        break;
-    case MON_ELEVEN_HEADED_HYDRA:
-        add_flag(flgs, OF_SPEED);
-        add_flag(flgs, OF_RES_FIRE);
-        break;
-    }    
+        add_flag(flgs, OF_RES_(GF_FIRE));
+    }
 }
 
 /**********************************************************************
@@ -251,41 +219,16 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
  **********************************************************************/
 static void _gain_level(int new_level) 
 {
-    if (p_ptr->current_r_idx == MON_TWO_HEADED_HYDRA && new_level >= 10)
-    {
-        p_ptr->current_r_idx = MON_FOUR_HEADED_HYDRA;
-        equip_on_change_race();
-        msg_print("You have evolved into a 4-headed hydra.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_FOUR_HEADED_HYDRA && new_level >= 20)
-    {
-        p_ptr->current_r_idx = MON_FIVE_HEADED_HYDRA;
-        equip_on_change_race();
-        msg_print("You have evolved into a 5-headed hydra.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_FIVE_HEADED_HYDRA && new_level >= 30)
-    {
-        p_ptr->current_r_idx = MON_SEVEN_HEADED_HYDRA;
-        equip_on_change_race();
-        msg_print("You have evolved into a 7-headed hydra.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_SEVEN_HEADED_HYDRA && new_level >= 37)
-    {
-        p_ptr->current_r_idx = MON_NINE_HEADED_HYDRA;
-        equip_on_change_race();
-        msg_print("You have evolved into a 9-headed hydra.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_NINE_HEADED_HYDRA && new_level >= 45)
-    {
-        p_ptr->current_r_idx = MON_ELEVEN_HEADED_HYDRA;
-        equip_on_change_race();
-        msg_print("You have evolved into an 11-headed hydra.");
-        p_ptr->redraw |= PR_MAP;
-    }
+    if (plr_mon_race_is_("M.2") && new_level >= 10)
+        plr_mon_race_evolve("M.4");
+    if (plr_mon_race_is_("M.4") && new_level >= 20)
+        plr_mon_race_evolve("M.5");
+    if (plr_mon_race_is_("M.5") && new_level >= 30)
+        plr_mon_race_evolve("M.7");
+    if (plr_mon_race_is_("M.7") && new_level >= 37)
+        plr_mon_race_evolve("M.9");
+    if (plr_mon_race_is_("M.9") && new_level >= 45)
+        plr_mon_race_evolve("M.11");
 }
 
 /**********************************************************************
@@ -297,16 +240,16 @@ plr_race_ptr mon_hydra_get_race(void)
     static cptr   titles[6] =  {"2-headed hydra", "4-headed hydra", "5-headed hydra", "7-headed hydra", "9-headed hydra", "11-headed hydra"};    
     int           rank = 0;
 
-    if (p_ptr->lev >= 10) rank++;
-    if (p_ptr->lev >= 20) rank++;
-    if (p_ptr->lev >= 30) rank++;
-    if (p_ptr->lev >= 37) rank++;
-    if (p_ptr->lev >= 45) rank++;
+    if (plr->lev >= 10) rank++;
+    if (plr->lev >= 20) rank++;
+    if (plr->lev >= 30) rank++;
+    if (plr->lev >= 37) rank++;
+    if (plr->lev >= 45) rank++;
 
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  21,  35,   1,  10,   7,  62,  30};
-    skills_t xs = { 12,  10,  10,   0,   0,   0,  25,   7};
+    skills_t xs = { 60,  50,  50,   0,   0,   0, 125,  35};
 
         me = plr_race_alloc(RACE_MON_HYDRA);
 
@@ -318,8 +261,8 @@ plr_race_ptr mon_hydra_get_race(void)
         me->exp = 130;
         me->base_hp = 45;
         me->shop_adjust = 130;
-        me->pseudo_class_idx = CLASS_WARRIOR;
-        me->boss_r_idx = MON_LERNEAN_HYDRA;
+        me->pseudo_class_id = CLASS_WARRIOR;
+        me->boss_r_idx = mon_race_parse("M.Lernean")->id;
         me->flags = RACE_IS_MONSTER;
 
         me->hooks.get_powers = _get_powers;
@@ -341,7 +284,7 @@ plr_race_ptr mon_hydra_get_race(void)
     me->stats[A_CON] = rank;
     me->stats[A_CHR] =  0;
     me->life = 100 + 3*rank;
-    me->equip_template = mon_get_equip_template();
+    me->equip_template = plr_equip_template();
 
     return me;
 }

@@ -1,0 +1,417 @@
+# Spiders, Scorpions and Ticks
+
+########################################################################
+# Spiders
+T:S.spider:Spider
+I:DISPLAY(S):POS(CORPSE|SKELETON|GAIN_AC)
+I:KIND(ANIMAL):ATTR(WEIRD_MIND)
+I:ALERT(80',Inattentive):MOVE(BASH|WEB)
+I:RESIST(POIS)
+P:Stat:Str(-3+5):Int(-2+5):Wis(-1):Dex(2+5):Con(-2+3):Chr(-1)
+P:Skill:Dis(25+40):Dev(20+40):Sav(38+50):Stl(5+5):Srh(20):Fos(15):Thn(56+100):Thb(30+35)
+P:Class:Rogue
+P:SpellStat:Dex
+P:Body:Spider
+P:Weight:120
+
+N:S.cave:S.spider:Cave spider
+I:LVL(2,30):RARITY(1):ALLOC(WEB)
+I:SPEED(+10):HP(2d6):AC(16):EXP(9):EVOLVE(S.wood, 30)
+B:BITE:HURT(1d5)
+I:VULN(LIGHT)
+S:DETECT_MONSTERS | WEB
+M:3d3:MON(S.cave)
+D:It is a black spider that moves in fits and starts.
+I:COLOR(Light Dark)
+P:Life:70
+P:Weight:20
+
+N:S.wood:S.spider:Wood spider
+I:LVL(7,40):RARITY(3):WILD(WOOD):ALLOC(WEB)
+I:SPEED(+10):HP(3d6):AC(16):EXP(15):EVOLVE(S.mirkwood, 100)
+B:BITE:HURT(1d4)
+B:STING:POISON(1d5)
+S:DETECT_MONSTERS | WEB
+M:3d3:MON(S.wood)
+D:It scuttles towards you.
+I:COLOR(Light Umber)
+P:Life:80
+P:Weight:20
+
+N:S.giant:S.spider:Giant spider
+I:LVL(10,40):RARITY(2):WILD(ALL):ALLOC(WEB)
+I:HP(10d10):AC(16):EXP(35):EVOLVE(S.tarantula, 120)
+B:BITE(x4):HURT(1d7):POISON(1d7, 50%)
+S:DETECT_MONSTERS | WEB
+D:It is a vast black spider whose bulbous body is bloated with poison.
+I:COLOR(Slate)
+
+N:S.drider:S.spider:Drider
+I:LVL(13,50):RARITY(2)
+I:HP(10d13):AC(30):EXP(55)
+I:ALIGN(Evil)
+B:HIT(x2):HURT(1d6+4)
+B:BITE:HURT(1d6):POISON(1d6)
+S:1_IN_8 | CONFUSE | CAUSE_1 | DARKNESS | MISSILE | SHOOT(3d6) | DETECT_MONSTERS | WEB
+D:A dark elven torso merged with the bloated form of a giant spider.
+I:COLOR(Blue)
+P:Stat:Int(3)
+P:SpellStat:Int
+P:Body:Drider
+P:Weight:150
+
+N:S.tarantula:S.spider:Giant tarantula
+I:LVL(15,60):RARITY(3):WILD(ALL)
+I:SPEED(+10):HP(10d15):AC(32):EXP(70)
+B:BITE(x3):HURT(1d3):POISON(2d3)
+S:DETECT_MONSTERS | WEB
+D:A giant spider with hairy black and red legs.
+I:COLOR(Light Green)
+P:Weight:70
+
+N:S.mirkwood:S.spider:Mirkwood spider
+I:LVL(15,50):RARITY(2):WILD(WOOD):ALLOC(WEB)
+I:SPEED(+10):HP(9d8):AC(25):EXP(25)
+I:ALIGN(Evil):ALERT(150')
+B:BITE:HURT(1d8)
+B:BITE(x2):HURT(1d3):POISON(2d3)
+I:RESIST(DARK):VULN(LIGHT)
+S:DETECT_MONSTERS | WEB
+M:3d3:MON(S.mirkwood)
+D:A strong and powerful spider from Mirkwood forest. Cunning and evil, it
+D:seeks to taste your juicy insides.
+I:COLOR(Umber)
+P:Weight:60
+
+N:S.phase:S.spider:Phase spider
+I:LVL(20):RARITY(2):WILD(WOOD):ALLOC(WEB)
+I:SPEED(+10):HP(6d8):AC(25):EXP(60)
+I:ALERT(150'):MOVE(SWIM)
+B:BITE:HURT(1d7)
+B:BITE(x2):HURT(1d5):POISON(1d3)
+I:IMMUNE(TELE)
+S:1_IN_5 | BLINK | TELE_TO | DETECT_MONSTERS | WEB
+M:3d3:MON(S.phase)
+D:A spider that never seems quite there. Everywhere you look it is just
+D:half-seen in the corner of one eye.
+I:COLOR(Light Blue)
+P:Skill:Dev(40+75)
+P:Weight:50
+
+N:S.bomb:S.spider:Spider bomb
+I:LVL(20,50):RARITY(4)
+I:SPEED(+10):HP(5d10):AC(50):EXP(10)
+I:KIND(NONLIVING):ATTR(COLD_BLOOD):ALERT(300',Ever Vigilant)
+B:EXPLODE:DAM(15d2)
+I:RESIST(ELEC|FIRE|COLD|CONF):IMMUNE(SLEEP|FEAR|TELE)
+S:DETECT_MONSTERS
+D:It is a small bomb of a form like a spider. It scuttles towards you!
+I:COLOR(Light White):POS(-CORPSE|-SKELETON)
+P:Weight:30
+
+N:S.leng:S.spider:Leng spider
+I:LVL(35):RARITY(4):ALLOC(WEB)
+I:SPEED(+10):HP(26d20):AC(50):EXP(250)
+I:KIND(HORROR):ALIGN(Evil):ALERT(120',Unseeing)
+B:BITE:HURT(1d9):POISON(1d9)
+B:STING:POISON(3d6)
+P:Weight:200
+S:DETECT_MONSTERS | WEB
+M:3d3:MON(S.leng)
+D:Bloated purple spiders with long, bristly legs.
+I:COLOR(Violet):POS(SEE_INVIS)
+
+N:S.vore:S.spider:Vore
+I:LVL(44):RARITY(2)
+I:SPEED(+15):HP(35d10):AC(30):EXP(850)
+I:ALIGN(Evil):ALERT(200',Unseeing):MOVE(OPEN)
+B:CLAW(x2):HURT(2d8+8)
+I:RESIST(ACID|COLD)
+S:1_IN_5 | BO_MANA | DETECT_MONSTERS | WEB
+O:1d2+2:OBJ(*$)
+D:A gaunt, vaguely humanoid torso merged with the form of a giant
+D:spider, ugly as sin. It screams horribly as it charges at you.
+I:COLOR(Violet)
+P:Weight:170
+
+N:S.lourph:S.spider:Lourph
+I:LVL(79):RARITY(7)
+I:SPEED(+30):HP(23d7):AC(110):EXP(1000)
+I:CAN(REGEN):ATTR(COLD_BLOOD|EMPTY_MIND)
+I:ALERT(2000',Ever Vigilant):MOVE(DESTROY|TRAMPLE)
+B:BITE(x2):HURT(5d5):PARALYZE
+B:BITE:HURT(5d5):POISON(5d5)
+B:BITE:HURT(5d5):LOSE_ALL(80%)
+I:RESIST(BASE|CONF|DARK|NETHER|DISENCHANT|TELE):IMMUNE(SLEEP|SLOW|FEAR|BLIND):VULN(LIGHT)
+S:DETECT_MONSTERS | WEB
+M:3d3:MON(S.lourph)
+D:Small brown spiders that lurk in the darkness deep underground.
+D:An individual would be nearly harmless, but their size allows many
+D:to crawl where only a single Mirkwood spider could stand. Packs of
+D:these arachnids may scour the depths untiringly, and their hunger is
+D:never satisfied.
+I:COLOR(Umber)
+P:Weight:5
+
+########################################################################
+# Jump Spiders
+N:S.flame:S.spider:Flame spider
+I:LVL(40):RARITY(4)
+I:SPEED(+10):HP(30d20):AC(50):EXP(500)
+I:ALERT(150',Ever Vigilant)
+B:BITE(x2):HURT(2d8):FIRE(1d8)
+A:FIRE(2d3)
+I:RESIST(FIRE):VULN(COLD)
+S:1_IN_5 | JMP_FIRE | DETECT_MONSTERS | WEB
+M:3d3:MON(S.flame)
+D:A spider wreathed in flames. It seems to pulse and quiver with
+D:barely constrained energy.
+I:COLOR(Red)
+
+N:S.nexus:S.spider:Nexus spider
+I:LVL(45):RARITY(5)
+I:SPEED(+10):HP(30d20):AC(50):EXP(700)
+I:ALERT(150',Ever Vigilant)
+B:BITE(x2):HURT(2d8):NEXUS(1d8)
+I:RESIST(NEXUS):IMMUNE(TELE)
+S:1_IN_5 | JMP_NEXUS | TELE_TO | DETECT_MONSTERS | WEB
+M:3d3:MON(S.nexus)
+D:A spider which inhabits the crossroads of time and space, pulsating
+D:with barely constrained energy.
+I:COLOR(Violet)
+
+N:S.ice:S.spider:Ice spider
+I:LVL(50):RARITY(4)
+I:SPEED(+10):HP(30d20):AC(50):EXP(700)
+I:ALERT(150',Ever Vigilant)
+B:BITE(x2):HURT(2d8):ICE(1d8)
+A:ICE(3d3)
+I:RESIST(COLD):VULN(FIRE)
+S:1_IN_5 | JMP_ICE | DETECT_MONSTERS | WEB
+M:3d3:MON(S.ice)
+D:A giant white spider, seemingly frozen solid yet with an odd
+D:sense of imminent motion.
+I:COLOR(White)
+
+N:S.venom:S.spider:Venom spider
+I:LVL(40):RARITY(4)
+I:SPEED(+10):HP(30d20):AC(50):EXP(750)
+I:ALERT(150',Ever Vigilant)
+B:BITE(x2):HURT(2d8):POISON(3d8)
+A:POISON(4d4)
+I:IMMUNE(POIS)
+S:1_IN_5 | JMP_POISON | DETECT_MONSTERS | WEB
+M:3d3:MON(S.venom)
+D:A giant spider covered in putresence. It seems ready to leap for your throat.
+I:COLOR(Green)
+
+N:S.disintegrate:S.spider:Disintegrate spider
+I:LVL(70):RARITY(5)
+I:SPEED(+15):HP(30d20):AC(50):EXP(1000)
+I:ALERT(150',Ever Vigilant)
+B:BITE(x2):DISINTEGRATE(4d8)
+A:DISINTEGRATE(3d3)
+S:1_IN_5 | JMP_DISINTEGRATE | DETECT_MONSTERS | WEB
+M:3d3:MON(S.disintegrate)
+D:A large spider that seems capable of destroying the world around it, even you!
+I:COLOR(Slate)
+
+N:S.undead:S.spider:Undead spider
+I:LVL(60):RARITY(4)
+I:SPEED(+15):HP(40d20):AC(50):EXP(1250)
+I:KIND(UNDEAD|NONLIVING):ALIGN(Evil):DARK(1):ATTR(COLD_BLOOD)
+I:ALERT(150',Ever Vigilant)
+B:BITE(x2):HURT(2d8):UNLIFE(2d6)
+A:NETHER(3d3)
+I:RESIST(COLD|DARK):IMMUNE(NETHER):VULN(LIGHT)
+S:1_IN_5 | JMP_NETHER | DETECT_MONSTERS | WEB
+M:3d3:MON(S.undead)
+D:Rotting, putrescent, and shrouded in darkness, this bloated
+D:abomination is back from the nether world to hunt the living.
+I:COLOR(Light Dark)
+
+N:S.hell:S.spider:Hell spider
+I:LVL(80):RARITY(6)
+I:SPEED(+20):HP(60d20):AC(50):EXP(1500)
+I:KIND(DEMON):ALIGN(Evil)
+I:ALERT(150',Ever Vigilant)
+B:BITE(x2):HELL_FIRE(6d6)
+A:HELL_FIRE(2d6)
+I:RESIST(FIRE|NETHER)
+S:1_IN_5 | JMP_HELL_FIRE(66) | DETECT_MONSTERS | WEB
+M:3d3:MON(S.hell)
+D:A giant spider from the planes of hell sent to rend your soul in eternal damnation.
+I:COLOR(Light Red)
+
+########################################################################
+# Scorpions et. al.
+T:S.scorpion:Scorpion
+I:DISPLAY(S):POS(CORPSE|SKELETON|GAIN_AC)
+I:KIND(ANIMAL):ATTR(WEIRD_MIND)
+I:ALERT(120',Fairly Unseeing):MOVE(BASH)
+P:Stat:Str(1+5):Int(-3):Wis(-3):Dex(2+3):Con(1+3):Chr(-2)
+P:Skill:Dis(25+40):Dev(20+40):Sav(38+50):Stl(5):Srh(10):Fos(5):Thn(60+125):Thb(30+35)
+P:Class:Beastmaster
+P:Body:Scorpion
+P:Weight:200
+
+N:S.tick.white:S.scorpion:Giant white tick
+I:LVL(10,40):RARITY(2)
+I:SPEED(-10):HP(12d8):AC(40):EXP(27):EVOLVE(S.tick.red, 500)
+B:BITE:HURT(1d6):POISON(2d6)
+I:RESIST(POIS)
+D:It is moving slowly towards you.
+I:COLOR(White):POS(-SKELETON)
+P:Body:Spider
+P:Weight:100
+
+N:S.scorpion.red:S.scorpion:Giant red scorpion
+I:LVL(17,80):RARITY(1):WILD(ALL)
+I:HP(11d8):AC(44):EXP(62):EVOLVE(S.scorpion.yellow, 400)
+B:BITE:HURT(1d4+3)
+B:STING:HURT(1d6):LOSE_STR(50%)
+D:It is fast and poisonous.
+I:COLOR(Light Red)
+P:Weight:70
+
+N:S.scorpion.yellow:S.scorpion:Giant yellow scorpion
+I:LVL(22,60):RARITY(1):WILD(ALL)
+I:HP(12d8):AC(38):EXP(60):EVOLVE(S.scorpion.grey, 700)
+B:BITE:HURT(1d7)
+B:STING:POISON(2d5)
+D:It is a giant scorpion with a sharp stinger.
+I:COLOR(Yellow)
+P:Weight:120
+
+N:S.boadile:Boadile
+I:LVL(25,50):RARITY(40):WILD(SHORE|OCEAN)
+I:SPEED(+10):HP(300):AC(25):EXP(300)
+I:KIND(ANIMAL):ATTR(STUPID|COLD_BLOOD)
+I:ALERT(200',Fairly Unseeing):MOVE(BASH|SWIM)
+B:BITE:HURT(2d5)
+B:CRUSH(x2):HURT(2d8)
+I:RESIST(WATER)
+D:"...Head something like a croc's, only bigger. Around forty
+D: feet long. Able to roll itself into a big beachball with teeth.
+D: Fast on land or in water - and a hell of a lot of little legs
+D: on each side."
+I:DISPLAY(S,Green):POS(GAIN_AC)
+P:Copy:Barbarian:Warrior
+P:Body:Reptile
+P:Weight:700
+
+N:S.tick.red:S.scorpion:Giant red tick
+I:LVL(26,70):RARITY(1)
+I:HP(16d8):AC(54):EXP(90)
+I:ALERT(140'):MOVE(RAND_25)
+B:BITE:FIRE(3d6)
+I:RESIST(FIRE)
+P:Body:Spider
+D:It is smoking and burning with great heat.
+I:COLOR(Red):POS(-SKELETON)
+
+N:S.fiend:Fiend of Slaanesh
+I:LVL(28,70):RARITY(4)
+I:SPEED(+10):HP(25d20):AC(50):EXP(225)
+I:KIND(DEMON):ALIGN(Evil)
+I:ALERT(120',Unseeing):MOVE(BASH)
+B:STING:POISON(8d1)
+B:STING:HURT(8):LOSE_STR(50%)
+B:WAIL:HURT(1d4):TERRIFY
+D:Slaanesh's pet, a large scorpion-like creature with a human face and reptile skin.
+I:DISPLAY(S,Light Red):POS(GAIN_AC)
+P:Copy:Beastman:Warrior
+P:Body:Spider
+P:Weight:200
+
+N:S.scorpion.grey:S.scorpion:Giant grey scorpion
+I:LVL(34,80):RARITY(4):WILD(ALL)
+I:SPEED(+10):HP(18d20):AC(50):EXP(275)
+B:BITE:HURT(1d6)
+B:STING:POISON(3d4)
+D:It is a giant grey scorpion. It looks poisonous.
+I:COLOR(Slate)
+
+########################################################################
+# Uniques
+N:S.Shelob:S.spider:Shelob, Spider of Darkness
+I:LVL(32):RARITY(3):ALLOC(ESCORT|UNIQUE|GUARDIAN|WEB)
+I:HP(1200):AC(80):EXP(1500)
+I:ALIGN(Evil):DARK(2):ATTR(FEMALE|SMART)
+B:BITE:HURT(1d10+5)
+B:STING(x2):POISON(2d5)
+B:STING:HURT(1d4):LOSE_STR
+I:RESIST(CONF|DARK):IMMUNE(SLEEP):VULN(LIGHT)
+S:FREQ_30 | BR_DARK | CAUSE_3 | CAUSE_4 | DETECT_MONSTERS
+S:HEAL | BLIND | SLOW | CONFUSE | SCARE | TRAPS | S_SPIDER | WEB
+O:3d2:OBJ(*, GOOD)
+M:3d7:MON(SPIDER)
+D:Shelob is an enormous bloated spider, rumoured to have been one of the
+D:brood of Ungoliant the Unlight. Her poison is legendary, as is her ego,
+D:which may be her downfall. She used to guard the pass through Cirith
+D:Ungol, but has not been seen there for many eons.
+I:COLOR(Light Dark):POS(SEE_INVIS)
+P:Life:110
+P:Weight:350
+
+N:S.Rhan-Tegoth:S.spider:Rhan-Tegoth
+I:LVL(70):RARITY(4):ALLOC(UNIQUE)
+I:SPEED(+20):HP(9000):AC(125):EXP(37500)
+I:KIND(HORROR):ALIGN(Evil):CAN(SPEAK)
+I:ALERT(200',Overlooks):MOVE(FLY|SWIM|PUSH)
+B:CLAW(x2):HURT(4d12+25)
+B:CRUSH:HURT(4d12+25):LOSE_STR
+B:CRUSH:HURT(3d12):ACID(2d12)
+A:FIRE(3d5):ELEC(3d5)
+I:RESIST(ACID|ELEC|POIS|CONF|WATER):IMMUNE(SLEEP|SLOW)
+S:1_IN_5 | S_DEMON | BR_ACID | S_UNDEAD | S_KIN | CONFUSE | SCARE |
+S:MIND_BLAST | BR_CONFUSION | DETECT_MONSTERS | WEB
+O:9d2:OBJ(*, GOOD)
+D:"An almost globular torso, with six long, sinuous limbs terminating
+D:in crab-like claws. From the upper end a subsidiary globe bulged
+D:forward bubble-like; its triangle of three staring, fishy eyes,
+D:its foot-long and evidently flexible proboscis, and a distended
+D:lateral system analogous to gills, suggested that it was a head."
+I:COLOR(Blue):POS(GAIN_AC)
+P:Weight:700
+
+N:S.Ungoliant:S.spider:Ungoliant, the Unlight
+I:LVL(75):RARITY(1):ALLOC(UNIQUE|WEB)
+I:SPEED(+15):HP(13000):AC(160):EXP(30000)
+I:ALIGN(Evil):DARK(3):ATTR(FEMALE|SMART)
+B:BITE(x2):HURT(3d9):POISON(3d9)
+B:STING(x2):HURT(2d5):DARK(2d5)
+A:DARK(3d3)
+I:RESIST(CONF|DARK|NETHER):IMMUNE(POIS|SLEEP|SLOW):VULN(LIGHT)
+O:4d2:OBJ(*, GOOD)
+O:5%:ART(=.Darkness)
+S:FREQ_30 | HEAL | BLIND | SLOW | CONFUSE | SCARE | DARKNESS | BA_DARK |
+S:BR_POISON | BR_DARK | S_SPIDER | DETECT_MONSTERS | WEB
+D:This enormous, hideous spirit of void is in the form of a spider of
+D:immense proportions. She is surrounded by a cloud of Unlight as she sucks
+D:in all living light into her bloated body. She is always ravenously
+D:hungry and would even eat herself to avoid starvation. She is rumoured to
+D:have a foul and deadly breath.
+I:COLOR(Light Dark)
+P:Life:120
+P:Weight:400
+
+N:S.Atlach-Nacha:S.spider:Atlach-Nacha, the Spider God
+I:LVL(75):RARITY(1):ALLOC(UNIQUE|WEB)
+I:SPEED(+15):HP(13000):AC(160):EXP(30000)
+I:KIND(NONLIVING|HORROR):ALIGN(Evil):CAN(SPEAK)ATTR(SMART):MOVE(PUSH)
+B:BITE(x2):HURT(3d9):POISON(3d9)
+B:STING(x2):HURT(2d5):LOSE_STR
+I:RESIST(CONF|DARK|NETHER):IMMUNE(POIS|SLEEP|SLOW|TELE):VULN(LIGHT)
+O:4d2:OBJ(*, GOOD)
+S:FREQ_30 | SCARE | BLIND | CONFUSE | PARALYZE | BR_POISON |
+S:DARKNESS | BA_DARK | BR_DARK | S_SPIDER | S_DEMON | DETECT_MONSTERS | WEB
+D:"...there was a kind of face on the squat ebon body, low down amid
+D:the several-jointed legs. The face peered up with a weird expression
+D:of doubt and inquiry..."
+I:COLOR(Light Dark)
+P:Life:120
+P:Weight:500
+
+# vim: filetype=ri :
+

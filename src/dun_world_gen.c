@@ -4,8 +4,6 @@
 #include "dun_util.h"
 #include <assert.h>
 
-static int _1d(int n) { return randint1(n); }
-
 /************************************************************************
  * Read D_WORLD map from a file (hard-coded layout)
  * This currently re-uses room templates in a hackish way.
@@ -34,7 +32,7 @@ static dun_ptr _read_world_map(dun_world_ptr world)
         return NULL;
     }
     world_map = dun_alloc(dun_mgr_next_dun_id(), rect_create(0, 0, _room->width, _room->height));
-    world_map->dun_type_id = D_WORLD;
+    world_map->type = dun_types_lookup(D_WORLD);
     world_map->flags |= DF_LOCKED | DF_GENERATED;
 
     cave = world_map;
@@ -56,26 +54,64 @@ static dun_ptr _read_world_map(dun_world_ptr world)
  * to convert fractal "heights" into terrain features. */
 static int _cutoff = 0; /* marks the mountain index in _feat_map() */
 static int _scratch = 0;
+enum { /* for fractals ... need a 1-dimensional height map */
+    _FEAT_DEEP_WATER,
+    _FEAT_SHALLOW_WATER,
+    _FEAT_GRASS,
+    _FEAT_TREE,
+    _FEAT_MOUNTAIN,
+    _FEAT_SHALLOW_LAVA,
+    _FEAT_DEEP_LAVA
+};
+static void _feat_make(int feat, dun_cell_ptr cell)
+{
+    switch (feat)
+    {
+    case _FEAT_DEEP_WATER:
+        cell_make_deep_water(cell);
+        break;
+    case _FEAT_SHALLOW_WATER:
+        cell_make_shallow_water(cell);
+        break;
+    case _FEAT_GRASS:
+        cell_make_grass(cell);
+        break;
+    case _FEAT_TREE:
+        cell_make_tree(cell);
+        break;
+    case _FEAT_MOUNTAIN:
+        cell_make_mountain(cell);
+        break;
+    case _FEAT_SHALLOW_LAVA:
+        cell_make_shallow_lava(cell);
+        break;
+    case _FEAT_DEEP_LAVA:
+        cell_make_deep_lava(cell);
+        break;
+    default:
+        cell_make_grass(cell);
+    }
+}
 static void _add_feat(vec_ptr v, int feat, int ct)
 {
     int i;
     for (i = 0; i < ct; i++)
         vec_add_int(v, feat);
 }
-static vec_ptr _feat_map(void)
+static vec_ptr _feat_map(void) /* XXX heights must match _feat_map in dun_world.c */
 {
     static vec_ptr _v = NULL;
     if (!_v)
     {
         _v = vec_alloc(NULL);
-        _add_feat(_v, feat_deep_water, 36);
-        _add_feat(_v, feat_shallow_water, 15);
-        _add_feat(_v, feat_grass, 15);
-        _add_feat(_v, feat_tree, 35);
+        _add_feat(_v, _FEAT_DEEP_WATER, 36);
+        _add_feat(_v, _FEAT_SHALLOW_WATER, 15);
+        _add_feat(_v, _FEAT_GRASS, 15);
+        _add_feat(_v, _FEAT_TREE, 35);
         _cutoff = vec_length(_v);
-        _add_feat(_v, feat_mountain, 40);
-        _add_feat(_v, feat_shallow_lava, 7);
-        _add_feat(_v, feat_deep_lava, 3);
+        _add_feat(_v, _FEAT_MOUNTAIN, 40);
+        _add_feat(_v, _FEAT_SHALLOW_LAVA, 7);
+        _add_feat(_v, _FEAT_DEEP_LAVA, 3);
         assert(vec_length(_v) <= 255);
     }
     return _v;
@@ -163,7 +199,7 @@ static bool _road(dun_ptr dun, point_t start, point_t stop)
     /* prevent towns being too close to one another */
     if (point_fast_distance(start, stop) < 5) return FALSE;
 
-    dun_grid_at(dun, pos)->info |= CAVE_ROAD;
+    dun_grid_at(dun, pos)->flags |= CELL_ROAD;
     while (!point_equals(pos, stop))
     {
         if (ct++ > 2000) return FALSE;
@@ -176,14 +212,14 @@ static bool _road(dun_ptr dun, point_t start, point_t stop)
             next_pos = point_step(pos, dir);
         }
         grid = dun_grid_at(dun, next_pos);
-        if (grid->feat == feat_deep_water || grid->feat == feat_shallow_water)
+        if (water_is_deep(grid) || water_is_shallow(grid))
             dir = _change_dir(pos, stop, 10);
-        else if ((grid->info & CAVE_ROAD) && randint0(100) < 25)
+        else if ((grid->flags & CELL_ROAD) && randint0(100) < 25)
             return FALSE;
         else
         {
             pos = next_pos;
-            grid->info |= CAVE_ROAD;
+            grid->flags |= CELL_ROAD;
         }
     }
     return TRUE;
@@ -196,7 +232,7 @@ static bool _river(dun_ptr dun, point_t start, point_t stop)
     int          ct = 0;
     dun_grid_ptr grid;
 
-    dun_grid_at(dun, pos)->info |= CAVE_RIVER;
+    dun_grid_at(dun, pos)->flags |= CELL_RIVER;
     while (!point_equals(pos, stop))
     {
         if (ct++ > 2000) return FALSE;
@@ -209,19 +245,19 @@ static bool _river(dun_ptr dun, point_t start, point_t stop)
             next_pos = point_step(pos, dir);
         }
         grid = dun_grid_at(dun, next_pos);
-        if (grid->feat == feat_deep_water)
+        if (water_is_deep(grid))
         {
-            grid->info |= CAVE_RIVER;
+            grid->flags |= CELL_RIVER;
             return TRUE; /* XXX */
         }
-        else if (grid->info & CAVE_TOWN)
+        else if (grid->flags & CELL_TOWN)
             return FALSE;
-        else if (grid->info & CAVE_RIVER)
+        else if (grid->flags & CELL_RIVER)
             return FALSE;
         else
         {
             pos = next_pos;
-            grid->info |= CAVE_RIVER;
+            grid->flags |= CELL_RIVER;
         }
     }
     return TRUE;
@@ -253,8 +289,8 @@ static void _context_free(_context_ptr c)
  * resets towns, dungeons and roads. */
 static void _reset_grid(point_t pos, dun_grid_ptr grid)
 {
-    grid->info &= ~(CAVE_TOWN | CAVE_DUNGEON | CAVE_ROAD | CAVE_MARK | CAVE_GLOW);
-    grid->special = 0;
+    grid->flags &= ~(CELL_TOWN | CELL_DUNGEON | CELL_ROAD | CELL_MAP);
+    grid->parm2 = 0;
 }
 static void _context_reset(_context_ptr c)
 {
@@ -268,6 +304,7 @@ static void _context_reset(_context_ptr c)
 
 static void _terrain(point_t size)
 {
+    dun_mgr_ptr  dm = dun_mgr();
     vec_ptr      feat = _feat_map();
     dun_frac_ptr frac = _world_frac(size, feat);
 
@@ -281,7 +318,7 @@ static void _terrain(point_t size)
         point_t pos;
 
         _context->dun = dun_alloc(dun_mgr_next_dun_id(), rect);
-        _context->dun->dun_type_id = D_WORLD;
+        _context->dun->type = dun_types_lookup(D_WORLD);
         _context->dun->flags |= DF_LOCKED | DF_GENERATED;
 
         for (pos.y = min.y; pos.y <= max.y; pos.y++)
@@ -293,12 +330,14 @@ static void _terrain(point_t size)
 
                 /* boundary tiles must be PERMANENT */
                 if (dun_pos_boundary(_context->dun, pos))
-                    grid->feat = feat_mountain_wall;
-                else
-                    grid->feat = vec_get_int(feat, h);
+                    cell_make_mountain_wall(grid);
+                else /* h -> _FEAT_FOO -> cell_make_foo */
+                    _feat_make(vec_get_int(feat, h), grid);
             }
         }
-        dun_frac_free(frac);
+        /* remember world fractal for better terrain generation (cf _gen_frac in dun_world.c) */
+        if (dm->world_frac) dun_frac_free(dm->world_frac);
+        dm->world_frac = frac;
     }
     else
     {
@@ -308,9 +347,9 @@ static void _terrain(point_t size)
 static int _town_w(point_t pos, dun_grid_ptr grid)
 {
     int w, i;
-    if (grid->info & (CAVE_TOWN | CAVE_DUNGEON)) return 0;
-    if (grid->feat == feat_shallow_water) return 0;
-    if (grid->feat == feat_deep_water) return 0;
+    if (grid->flags & (CELL_TOWN | CELL_DUNGEON)) return 0;
+    if (water_is_shallow(grid)) return 0;
+    if (water_is_deep(grid)) return 0;
 
     /* towns like to be near water (for trading) but not near mountains (too many orcs!) */
     w = 100;
@@ -320,29 +359,42 @@ static int _town_w(point_t pos, dun_grid_ptr grid)
         point_t p = point_step(pos, ddd[i]);
         dun_grid_ptr g = dun_grid_at(_context->dun, p);
 
-        if (g->feat == feat_shallow_water) w += 10;
-        else if (g->feat == feat_deep_water) w += 10;
-        else if (g->feat == feat_mountain) w -= 5;
-        else if (g->feat == feat_shallow_lava) w -= 10;
-        else if (g->feat == feat_deep_lava) w -= 20;
+        if (water_is_shallow(g)) w += 10;
+        else if (water_is_deep(g)) w += 10;
+        else if (wall_is_mountain(g)) w -= 5;
+        else if (lava_is_shallow(g)) w -= 10;
+        else if (lava_is_deep(g)) w -= 20;
     }
     return MAX(0, w);
 }
 static int _town_grass_w(point_t pos, dun_grid_ptr grid)
 {
-    if (grid->feat != feat_grass) return 0;
+    if (!floor_is_grass(grid)) return 0;
     return _town_w(pos, grid);
 }
 static int _town_forest_w(point_t pos, dun_grid_ptr grid)
 {
-    if (grid->feat != feat_tree) return 0;
-    return _town_w(pos, grid);
+    int i, ct = 0;
+    if (!cell_is_tree(grid)) return 0;
+    if (grid->flags & (CELL_TOWN | CELL_DUNGEON)) return 0;
+
+    /* TOWN_ANGWIL should be buried deep in a forest ... */
+    assert(dun_pos_interior(_context->dun, pos));
+    for (i = 0; i < 8; i++)
+    {
+        point_t p = point_step(pos, ddd[i]);
+        dun_grid_ptr g = dun_grid_at(_context->dun, p);
+        if (!cell_is_tree(g))
+            ct++;
+    }
+    if (ct) return 1; /* ... most of the time (paranoia) */
+    return 1000;
 }
 static int _town_mountain_w(point_t pos, dun_grid_ptr grid)
 {
     int i, ct = 0;
-    if (grid->feat != feat_mountain) return 0;
-    if (grid->info & (CAVE_TOWN | CAVE_DUNGEON)) return 0;
+    if (!wall_is_mountain(grid)) return 0;
+    if (grid->flags & (CELL_TOWN | CELL_DUNGEON)) return 0;
 
     /* TOWN_ZUL should be buried deep in the mountains ... */
     assert(dun_pos_interior(_context->dun, pos));
@@ -350,13 +402,8 @@ static int _town_mountain_w(point_t pos, dun_grid_ptr grid)
     {
         point_t p = point_step(pos, ddd[i]);
         dun_grid_ptr g = dun_grid_at(_context->dun, p);
-        if ( g->feat != feat_mountain
-          && g->feat != feat_mountain_wall
-          && g->feat != feat_shallow_lava
-          && g->feat != feat_deep_lava )
-        {
+        if (g->type != FEAT_WALL && g->type != FEAT_LAVA)
             ct++;
-        }
     }
     if (ct) return 1; /* ... most of the time (paranoia) */
     return 1000;
@@ -373,14 +420,14 @@ static void _town(int which, dun_grid_weight_f weight)
         return;
     }
     g = dun_grid_at(_context->dun, p);
-    g->info |= CAVE_TOWN;
-    g->special = which;
+    g->flags |= CELL_TOWN;
+    g->parm2 = which;
     if (!(t->flags & TF_SECRET))
     {
         point_vec_add(_context->towns, p);
         if (!dun_pos_interior(_context->dun, _context->start_pos))
         {
-            g->info |= CAVE_MARK | CAVE_GLOW;
+            g->flags |= CELL_MAP;
             _context->start_pos = p;
         }
     }
@@ -394,7 +441,7 @@ static void _towns(void)
 }
 static void _road_check(point_t pos, dun_grid_ptr grid)
 {
-    if (grid->info & CAVE_ROAD)
+    if (grid->flags & CELL_ROAD)
     {
         int i, ct = 0;
         bool on = FALSE;
@@ -405,7 +452,7 @@ static void _road_check(point_t pos, dun_grid_ptr grid)
         {
             point_t p = point_step(pos, cdd[i]);
             dun_grid_ptr g = dun_grid_at(_context->dun, p);
-            if (g->info & CAVE_ROAD)
+            if (g->flags & CELL_ROAD)
             {
                 if (!on)
                 {
@@ -453,8 +500,8 @@ static void _roads(void)
 }
 static int _start_dun_w(point_t pos, dun_grid_ptr grid)
 {
-    if (grid->info & (CAVE_TOWN | CAVE_DUNGEON | CAVE_ROAD | CAVE_RIVER)) return 0;
-    if (grid->feat != feat_grass && grid->feat != feat_tree) return 0;
+    if (grid->flags & (CELL_TOWN | CELL_DUNGEON | CELL_ROAD | CELL_RIVER)) return 0;
+    if (!floor_is_grass(grid) && !cell_is_tree(grid)) return 0;
 
     /* the start dungeon s/b adjacent to the start town so the player knows what to do */
     switch (point_fast_distance(pos, _context->start_pos))
@@ -468,12 +515,12 @@ static int _win_dun_w(point_t pos, dun_grid_ptr grid)
 {
     int d, w;
 
-    if (grid->info & (CAVE_TOWN | CAVE_DUNGEON | CAVE_ROAD | CAVE_RIVER)) return 0;
+    if (grid->flags & (CELL_TOWN | CELL_DUNGEON | CELL_ROAD | CELL_RIVER)) return 0;
 
     /* the win dungeon s/b reasonably close to town. we assume this dungeon is
      * running DL1 to DL100, so it should be easy to find. don't require levitation
      * for access. */
-    if (grid->feat != feat_grass && grid->feat != feat_tree) return 0;
+    if (!floor_is_grass(grid) && !cell_is_tree(grid)) return 0;
 
     d = point_fast_distance(pos, _context->start_pos);
     if (d < 3) w = 0;  /* not too close, though */
@@ -497,7 +544,7 @@ static int _shy_dun_w(point_t pos, dun_grid_ptr grid)
 {
     int d, w;
 
-    if (grid->info & (CAVE_TOWN | CAVE_DUNGEON | CAVE_ROAD | CAVE_RIVER)) return 0;
+    if (grid->flags & (CELL_TOWN | CELL_DUNGEON | CELL_ROAD | CELL_RIVER)) return 0;
 
     d = _closest_town(pos);
     if (d < 5) w = 0;
@@ -508,43 +555,38 @@ static int _shy_dun_w(point_t pos, dun_grid_ptr grid)
 }
 static int _dun_w(point_t pos, dun_grid_ptr grid)
 {
-    if (grid->info & (CAVE_TOWN | CAVE_DUNGEON | CAVE_ROAD | CAVE_RIVER)) return 0;
+    if (grid->flags & (CELL_TOWN | CELL_DUNGEON | CELL_ROAD | CELL_RIVER)) return 0;
     if (_closest_town(pos) < 5) return 0;
     return 1;
 }
 static int _forest_w(point_t pos, dun_grid_ptr grid)
 {
-    if (grid->feat != feat_tree) return 0;
+    if (!cell_is_tree(grid)) return 0;
     return _dun_w(pos, grid);
 }
 static int _shy_mountain_w(point_t pos, dun_grid_ptr grid)
 {
-    if (grid->feat != feat_mountain) return 0;
+    if (!wall_is_mountain(grid)) return 0;
     return _shy_dun_w(pos, grid);
 }
 static int _mountain_w(point_t pos, dun_grid_ptr grid)
 {
-    if (grid->feat != feat_mountain) return 0;
+    if (!wall_is_mountain(grid)) return 0;
     return _dun_w(pos, grid);
 }
 static int _inner_mountain_w(point_t pos, dun_grid_ptr grid)
 {
     int i, ct = 0;
-    if (grid->feat != feat_mountain) return 0;
-    if (grid->info & (CAVE_TOWN | CAVE_DUNGEON | CAVE_ROAD | CAVE_RIVER)) return 0;
+    if (!wall_is_mountain(grid)) return 0;
+    if (grid->flags & (CELL_TOWN | CELL_DUNGEON | CELL_ROAD | CELL_RIVER)) return 0;
 
     assert(dun_pos_interior(_context->dun, pos));
     for (i = 0; i < 8; i++)
     {
         point_t p = point_step(pos, ddd[i]);
         dun_grid_ptr g = dun_grid_at(_context->dun, p);
-        if ( g->feat != feat_mountain
-          && g->feat != feat_mountain_wall
-          && g->feat != feat_shallow_lava
-          && g->feat != feat_deep_lava )
-        {
+        if (g->type != FEAT_WALL && g->type != FEAT_LAVA)
             ct++;
-        }
     }
     if (ct) return 1; /* ... most of the time (paranoia) */
     return 1000;
@@ -552,8 +594,8 @@ static int _inner_mountain_w(point_t pos, dun_grid_ptr grid)
 static int _foothills_w(point_t pos, dun_grid_ptr grid)
 {
     int ct = 0, i;
-    if (grid->feat != feat_mountain) return 0;
-    if (grid->info & (CAVE_TOWN | CAVE_DUNGEON | CAVE_ROAD | CAVE_RIVER)) return 0;
+    if (!wall_is_mountain(grid)) return 0;
+    if (grid->flags & (CELL_TOWN | CELL_DUNGEON | CELL_ROAD | CELL_RIVER)) return 0;
 
     /* This is for D_ORC_CAVE, a low level dungeon. We are looking for a mountain
      * entrance the won't be too difficult (should be a boundary point for a
@@ -563,21 +605,16 @@ static int _foothills_w(point_t pos, dun_grid_ptr grid)
     {
         point_t p = point_step(pos, ddd[i]);
         dun_grid_ptr g = dun_grid_at(_context->dun, p);
-        if ( g->feat != feat_mountain
-          && g->feat != feat_mountain_wall
-          && g->feat != feat_shallow_lava
-          && g->feat != feat_deep_lava )
-        {
+        if (g->type != FEAT_WALL && g->type != FEAT_LAVA)
             ct++;
-        }
     }
     return ct*ct*ct;
 }
 static int _swamp_w(point_t pos, dun_grid_ptr grid)
 {
     int i, ct = 0;
-    if (grid->feat != feat_shallow_water) return 0;
-    if (grid->info & (CAVE_TOWN | CAVE_DUNGEON | CAVE_ROAD | CAVE_RIVER)) return 0;
+    if (!water_is_shallow(grid)) return 0;
+    if (grid->flags & (CELL_TOWN | CELL_DUNGEON | CELL_ROAD | CELL_RIVER)) return 0;
     if (_closest_town(pos) < 5) return 0;
 
     /* feat_swamp is not being used, so fake it, looking for the shores of a lake */
@@ -585,7 +622,7 @@ static int _swamp_w(point_t pos, dun_grid_ptr grid)
     {
         point_t p = point_step(pos, ddd[i]);
         dun_grid_ptr g = dun_grid_at(_context->dun, p);
-        if (g->feat == feat_grass || g->feat == feat_tree) ct++;
+        if (floor_is_grass(g) || cell_is_tree(g)) ct++;
     }
     return 1 + 10*ct*ct;
 }
@@ -602,13 +639,12 @@ static int _shy_swamp_w(point_t pos, dun_grid_ptr grid)
 }
 static int _shy_dry_w(point_t pos, dun_grid_ptr grid)
 {
-    if (grid->feat == feat_shallow_water) return 0;
-    if (grid->feat == feat_deep_water) return 0;
+    if (grid->type == FEAT_WATER) return 0;
     return _shy_dun_w(pos, grid);
 }
 static int _deep_water_w(point_t pos, dun_grid_ptr grid)
 {
-    if (grid->feat != feat_deep_water) return 0;
+    if (!water_is_deep(grid)) return 0;
     return _dun_w(pos, grid);
 }
 /* The game is more interesting if the available dungeons are
@@ -659,8 +695,8 @@ static void _dungeon(int which, dun_grid_weight_f weight)
         return;
     }
     g = dun_grid_at(_context->dun, p);
-    g->info |= CAVE_DUNGEON;
-    g->special = which;
+    g->flags |= CELL_DUNGEON;
+    g->parm2 = which;
     point_vec_add(_context->dungeons, p);
 }
 static bool _random_dungeon(int tier)
@@ -714,13 +750,12 @@ static void _dungeons(void)
 }
 static int _water_w(point_t pos, dun_grid_ptr grid)
 {
-    /*if (grid->feat == feat_shallow_water) return 1;*/
-    if (grid->feat == feat_deep_water) return 1;
+    if (water_is_deep(grid)) return 1;
     return 0;
 }
 static void _river_check(point_t pos, dun_grid_ptr grid)
 {
-    if (grid->info & CAVE_RIVER)
+    if (grid->flags & CELL_RIVER)
     {
         int i, ct = 0;
         bool on = FALSE;
@@ -731,7 +766,7 @@ static void _river_check(point_t pos, dun_grid_ptr grid)
         {
             point_t p = point_step(pos, cdd[i]);
             dun_grid_ptr g = dun_grid_at(_context->dun, p);
-            if (g->info & CAVE_RIVER)
+            if (g->flags & CELL_RIVER)
             {
                 if (!on)
                 {
@@ -766,24 +801,24 @@ static void _rivers(void)
     if (_scratch / 2 > 0)
         _context->fail = TRUE;
 }
-static int _terrain_difficulty(int feat)
+static int _terrain_difficulty(dun_cell_ptr cell)
 {
-    if (feat == feat_deep_water) return 50;
-    if (feat == feat_shallow_water) return 10; /* towns are common by the sea */
-    if (feat == feat_grass) return 5;
-    if (feat == feat_tree) return 20;
-    if (feat == feat_mountain) return 40;
-    if (feat == feat_shallow_lava) return 60;
-    if (feat == feat_deep_lava) return 70;
-    if (feat == feat_mountain_wall) return 20;
+    if (water_is_deep(cell)) return 50;
+    if (water_is_shallow(cell)) return 10; /* towns are common by the sea */
+    if (floor_is_grass(cell)) return 5;
+    if (cell_is_tree(cell)) return 20;
+    if (wall_is_mountain(cell)) return 40;
+    if (lava_is_shallow(cell)) return 60;
+    if (lava_is_deep(cell)) return 70;
+    if (wall_is_mountain_wall(cell)) return 20;
 
     return 0;
 }
 static void _grid_difficulty(point_t pos, dun_grid_ptr grid)
 {
     int i, t = 0, w = 0;
-    /* grid->special means something else for towns and dungeons */
-    if (grid->info & (CAVE_TOWN | CAVE_DUNGEON)) return;
+    /* grid->parm2 means something else for towns and dungeons */
+    if (grid->flags & (CELL_TOWN | CELL_DUNGEON)) return;
 
     /* weigh in nearby dungeons */
     for (i = 0; i < point_vec_length(_context->dungeons); i++)
@@ -794,8 +829,8 @@ static void _grid_difficulty(point_t pos, dun_grid_ptr grid)
         int d = point_fast_distance(pos, p);
 
         if (d > 9) continue;
-        assert(g->info & CAVE_DUNGEON);
-        dt = dun_types_lookup(g->special);
+        assert(g->flags & CELL_DUNGEON);
+        dt = dun_types_lookup(g->parm2);
         /* closer dungeons get weighted more heavily */
         t += (100 - d*d) * dt->min_dun_lvl;
         w += 100 - d*d; 
@@ -810,8 +845,8 @@ static void _grid_difficulty(point_t pos, dun_grid_ptr grid)
         int d = point_fast_distance(pos, p);
 
         if (d > 9) continue;
-        assert(g->info & CAVE_TOWN);
-        town = towns_lookup(g->special);
+        assert(g->flags & CELL_TOWN);
+        town = towns_lookup(g->parm2);
         /* closer towns get weighted more heavily */
         t += (100 - d*d) * town->level;
         w += 100 - d*d;
@@ -819,20 +854,20 @@ static void _grid_difficulty(point_t pos, dun_grid_ptr grid)
 
     if (!w) /* XXX nothing close by */
     {
-        grid->special = _terrain_difficulty(grid->feat);
+        grid->parm2 = _terrain_difficulty(grid);
     }
     else
     {
         /* weigh in current terrain (heavily) */
-        t += 2 * w * _terrain_difficulty(grid->feat);
+        t += 2 * w * _terrain_difficulty(grid);
         w += 2 * w;
 
-        grid->special = MAX(0, MIN(90, t / w));
+        grid->parm2 = MAX(0, MIN(90, t / w));
     }
 
     /* roads are "safe" */
-    if (grid->info & CAVE_ROAD)
-        grid->special = (grid->special + 3)/4;
+    if (grid->flags & CELL_ROAD)
+        grid->parm2 = (grid->parm2 + 3)/4;
 }
 static void _difficulty(void)
 {
@@ -879,7 +914,15 @@ dun_ptr dun_world_gen_map(dun_world_ptr world)
     int try = 1000;
     assert(world);
     if (world->file)
+    {
+        dun_mgr_ptr dm = dun_mgr();
+        if (dm->world_frac)
+        {
+            dun_frac_free(dm->world_frac);
+            dm->world_frac = NULL;
+        }
         return _read_world_map(world);
+    }
     /* XXX consider adding a hook to dun_world_s. */
     while (try--)
     {
@@ -890,6 +933,7 @@ dun_ptr dun_world_gen_map(dun_world_ptr world)
 }
 void dun_gen_world_wizard(void)
 {
+    #if FEAT_BUGZ
     rect_t map_rect = ui_map_rect();
     point_t size = size_create(map_rect.cx, map_rect.cy);
     point_t min = rect_top_left(map_rect);
@@ -923,11 +967,12 @@ void dun_gen_world_wizard(void)
             done = TRUE;
             break;
         case 'r':
-            int_map_delete(dm->dungeons, dun->dun_id);
+            int_map_delete(dm->dungeons, dun->id);
             dun = _random_world_map(size);
             break;
         }
     }
-    p_ptr->redraw |= PR_MAP;
-    if (dun) int_map_delete(dm->dungeons, dun->dun_id);
+    plr->redraw |= PR_MAP;
+    if (dun) int_map_delete(dm->dungeons, dun->id);
+    #endif
 }

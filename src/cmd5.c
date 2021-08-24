@@ -99,9 +99,9 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 
     /* No "okay" spells */
     if (!okay) return (FALSE);
-    if (((use_realm) != p_ptr->realm1) && ((use_realm) != p_ptr->realm2) && (p_ptr->pclass != CLASS_SORCERER) && (p_ptr->pclass != CLASS_RED_MAGE)) return FALSE;
-    if (((p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_RED_MAGE)) && !is_magic(use_realm)) return FALSE;
-    if ((p_ptr->pclass == CLASS_RED_MAGE) && ((use_realm) != REALM_ARCANE) && (sval > 1)) return FALSE;
+    if (((use_realm) != plr->realm1) && ((use_realm) != plr->realm2) && (plr->pclass != CLASS_SORCERER) && (plr->pclass != CLASS_RED_MAGE)) return FALSE;
+    if (((plr->pclass == CLASS_SORCERER) || (plr->pclass == CLASS_RED_MAGE)) && !is_magic(use_realm)) return FALSE;
+    if ((plr->pclass == CLASS_RED_MAGE) && ((use_realm) != REALM_ARCANE) && (sval > 1)) return FALSE;
 
     /* Assume cancelled */
     *sn = (-1);
@@ -113,7 +113,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
     redraw = FALSE;
 
     /* Show choices */
-    p_ptr->window |= (PW_SPELL);
+    plr->window |= (PW_SPELL);
 
     /* Window stuff */
     window_stuff();
@@ -278,7 +278,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 
 
     /* Show choices */
-    p_ptr->window |= (PW_SPELL);
+    plr->window |= (PW_SPELL);
 
     /* Window stuff */
     window_stuff();
@@ -303,7 +303,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 
 static caster_info *_caster_info(void)
 {
-    class_t *class_ptr = get_class_aux(p_ptr->pclass, p_ptr->psubclass);
+    class_t *class_ptr = get_class_aux(plr->pclass, plr->psubclass);
     if (class_ptr->hooks.caster_info)
         return class_ptr->hooks.caster_info();
     return NULL;
@@ -318,20 +318,20 @@ static bool item_tester_learn_spell(object_type *o_ptr)
 {
     u32b choices = _realm2_bits();
 
-    if (p_ptr->pclass == CLASS_PRIEST)
+    if (plr->pclass == CLASS_PRIEST)
     {
-        if (p_ptr->realm1 == REALM_NATURE)
+        if (plr->realm1 == REALM_NATURE)
             choices &= ~(CH_DEATH | CH_DAEMON | CH_LIFE | CH_CRUSADE);
-        else if (is_good_realm(p_ptr->realm1))
+        else if (is_good_realm(plr->realm1))
             choices &= ~(CH_DEATH | CH_DAEMON);
         else
             choices &= ~(CH_LIFE | CH_CRUSADE);
     }
 
     if (!obj_is_spellbook(o_ptr)) return FALSE;
-    if (o_ptr->tval == TV_MUSIC_BOOK && p_ptr->pclass == CLASS_BARD) return TRUE;
-    if (o_ptr->tval == TV_BURGLARY_BOOK && p_ptr->pclass == CLASS_ROGUE) return TRUE;
-    else if (o_ptr->tval == TV_HEX_BOOK && p_ptr->pclass == CLASS_HIGH_MAGE && REALM1_BOOK == o_ptr->tval) return TRUE;
+    if (o_ptr->tval == TV_MUSIC_BOOK && plr->pclass == CLASS_BARD) return TRUE;
+    if (o_ptr->tval == TV_BURGLARY_BOOK && plr->pclass == CLASS_ROGUE) return TRUE;
+    else if (o_ptr->tval == TV_HEX_BOOK && plr->pclass == CLASS_HIGH_MAGE && REALM1_BOOK == o_ptr->tval) return TRUE;
     else if (!is_magic(tval2realm(o_ptr->tval))) return FALSE;
     if (REALM1_BOOK == o_ptr->tval || REALM2_BOOK == o_ptr->tval) return TRUE;
     if (choices & (0x0001 << (tval2realm(o_ptr->tval) - 1))) return TRUE;
@@ -343,25 +343,25 @@ static void change_realm2(int next_realm)
     int i, j = 0;
     for (i = 0; i < 64; i++)
     {
-        p_ptr->spell_order[j] = p_ptr->spell_order[i];
-        if (p_ptr->spell_order[i] < 32) j++;
+        plr->spell_order[j] = plr->spell_order[i];
+        if (plr->spell_order[i] < 32) j++;
     }
     for (; j < 64; j++)
-        p_ptr->spell_order[j] = 99;
+        plr->spell_order[j] = 99;
 
     for (i = 32; i < 64; i++)
     {
-        p_ptr->spell_exp[i] = SPELL_EXP_UNSKILLED;
+        plr->spell_exp[i] = SPELL_EXP_UNSKILLED;
     }
-    p_ptr->spell_learned2 = 0L;
-    p_ptr->spell_worked2 = 0L;
-    p_ptr->spell_forgotten2 = 0L;
+    plr->spell_learned2 = 0L;
+    plr->spell_worked2 = 0L;
+    plr->spell_forgotten2 = 0L;
 
-    p_ptr->old_realm |= 1 << (p_ptr->realm2-1);
-    p_ptr->realm2 = next_realm;
+    plr->old_realm |= 1 << (plr->realm2-1);
+    plr->realm2 = next_realm;
 
-    p_ptr->notice |= (PN_OPTIMIZE_PACK); /* cf obj_cmp's initial hack */
-    p_ptr->update |= (PU_SPELLS);
+    plr->notice |= (PN_OPTIMIZE_PACK); /* cf obj_cmp's initial hack */
+    plr->update |= (PU_SPELLS);
     handle_stuff();
 
     /* Load an autopick preference file */
@@ -381,13 +381,13 @@ void do_cmd_study(void)
     int          spell = -1; /* Spells of realm2 will have an increment of +32 */
     cptr         p = spell_category_name(mp_ptr->spell_book);
 
-    if (!p_ptr->realm1)
+    if (!plr->realm1)
     {
         msg_print("You cannot read books!");
         return;
     }
 
-    if (plr_tim_find(T_BLIND) || no_lite())
+    if (plr_tim_find(T_BLIND) || no_light())
     {
         msg_print("You cannot see!");
         return;
@@ -399,18 +399,18 @@ void do_cmd_study(void)
         return;
     }
 
-    if (!p_ptr->new_spells)
+    if (!plr->new_spells)
     {
         msg_format("You cannot learn any new %ss!", p);
         return;
     }
 
-    if (p_ptr->special_defense & KATA_MUSOU)
+    if (plr->special_defense & KATA_MUSOU)
         set_action(ACTION_NONE);
 
 /*  Please, no more -more-!
-    msg_format("You can learn %d new %s%s.", p_ptr->new_spells, p,
-        (p_ptr->new_spells == 1?"":"s"));
+    msg_format("You can learn %d new %s%s.", plr->new_spells, p,
+        (plr->new_spells == 1?"":"s"));
 
     msg_print(NULL);*/
 
@@ -463,7 +463,7 @@ void do_cmd_study(void)
             {
                 /* Skip non "okay" prayers */
                 if (!spell_okay(spell, FALSE, TRUE,
-                    (increment ? p_ptr->realm2 : p_ptr->realm1))) continue;
+                    (increment ? plr->realm2 : plr->realm1))) continue;
 
                 /* Hack -- Prepare the randomizer */
                 k++;
@@ -489,21 +489,21 @@ void do_cmd_study(void)
     /* Learn the spell */
     if (spell < 32)
     {
-        if (p_ptr->spell_learned1 & (1L << spell)) learned = TRUE;
-        else p_ptr->spell_learned1 |= (1L << spell);
+        if (plr->spell_learned1 & (1L << spell)) learned = TRUE;
+        else plr->spell_learned1 |= (1L << spell);
     }
     else
     {
-        if (p_ptr->spell_learned2 & (1L << (spell - 32))) learned = TRUE;
-        else p_ptr->spell_learned2 |= (1L << (spell - 32));
+        if (plr->spell_learned2 & (1L << (spell - 32))) learned = TRUE;
+        else plr->spell_learned2 |= (1L << (spell - 32));
     }
 
     if (learned)
     {
         int max_exp = (spell < 32) ? SPELL_EXP_MASTER : SPELL_EXP_EXPERT;
-        int old_exp = p_ptr->spell_exp[spell];
+        int old_exp = plr->spell_exp[spell];
         int new_rank = EXP_LEVEL_UNSKILLED;
-        cptr name = do_spell(increment ? p_ptr->realm2 : p_ptr->realm1, spell%32, SPELL_NAME);
+        cptr name = do_spell(increment ? plr->realm2 : plr->realm1, spell%32, SPELL_NAME);
 
         if (old_exp >= max_exp)
         {
@@ -516,42 +516,42 @@ void do_cmd_study(void)
         }
         else if (old_exp >= SPELL_EXP_EXPERT)
         {
-            p_ptr->spell_exp[spell] = SPELL_EXP_MASTER;
+            plr->spell_exp[spell] = SPELL_EXP_MASTER;
             new_rank = EXP_LEVEL_MASTER;
         }
         else if (old_exp >= SPELL_EXP_SKILLED)
         {
-            if (spell >= 32) p_ptr->spell_exp[spell] = SPELL_EXP_EXPERT;
-            else p_ptr->spell_exp[spell] += SPELL_EXP_EXPERT - SPELL_EXP_SKILLED;
+            if (spell >= 32) plr->spell_exp[spell] = SPELL_EXP_EXPERT;
+            else plr->spell_exp[spell] += SPELL_EXP_EXPERT - SPELL_EXP_SKILLED;
             new_rank = EXP_LEVEL_EXPERT;
         }
         else if (old_exp >= SPELL_EXP_BEGINNER)
         {
-            p_ptr->spell_exp[spell] = SPELL_EXP_SKILLED + (old_exp - SPELL_EXP_BEGINNER) * 2 / 3;
+            plr->spell_exp[spell] = SPELL_EXP_SKILLED + (old_exp - SPELL_EXP_BEGINNER) * 2 / 3;
             new_rank = EXP_LEVEL_SKILLED;
         }
         else
         {
-            p_ptr->spell_exp[spell] = SPELL_EXP_BEGINNER + old_exp / 3;
+            plr->spell_exp[spell] = SPELL_EXP_BEGINNER + old_exp / 3;
             new_rank = EXP_LEVEL_BEGINNER;
         }
         msg_format("Your proficiency of %s is now %s rank.", name, exp_level_str[new_rank]);
     }
     else
     {
-        /* Find the next open entry in "p_ptr->spell_order[]" */
+        /* Find the next open entry in "plr->spell_order[]" */
         for (i = 0; i < 64; i++)
         {
             /* Stop at the first empty space */
-            if (p_ptr->spell_order[i] == 99) break;
+            if (plr->spell_order[i] == 99) break;
         }
 
         /* Add the spell to the known list */
-        p_ptr->spell_order[i++] = spell;
+        plr->spell_order[i++] = spell;
 
         /* Mention the result */
         msg_format("You have learned the %s of %s.",
-            p, do_spell(increment ? p_ptr->realm2 : p_ptr->realm1, spell % 32, SPELL_NAME));
+            p, do_spell(increment ? plr->realm2 : plr->realm1, spell % 32, SPELL_NAME));
     }
 
     /* Take a turn */
@@ -578,20 +578,20 @@ void do_cmd_study(void)
     sound(SOUND_STUDY);
 
     /* One less spell available */
-    p_ptr->learned_spells++;
+    plr->learned_spells++;
 #if 0
     /* Message if needed */
-    if (p_ptr->new_spells)
+    if (plr->new_spells)
     {
         /* Message */
-        msg_format("You can learn %d more %s%s.", p_ptr->new_spells, p,
-                   (p_ptr->new_spells != 1) ? "s" : "");
+        msg_format("You can learn %d more %s%s.", plr->new_spells, p,
+                   (plr->new_spells != 1) ? "s" : "");
     }
 #endif
 
-    p_ptr->update |= PU_SPELLS;
-    p_ptr->redraw |= PR_EFFECTS;
-    p_ptr->window |= PW_OBJECT;
+    plr->update |= PU_SPELLS;
+    plr->redraw |= PR_EFFECTS;
+    plr->window |= PW_OBJECT;
 }
 
 
@@ -628,12 +628,13 @@ static void wild_magic(int spell)
         break;
     case 16: case 17:
         wall_breaker();
+        break;
     case 18:
-        sleep_monsters_touch();
+        plr_burst(1, GF_SLEEP, plr->lev);
         break;
     case 19:
     case 20:
-        trap_creation(p_ptr->pos.y, p_ptr->pos.x);
+        trap_creation(plr->pos);
         break;
     case 21:
     case 22:
@@ -642,11 +643,11 @@ static void wild_magic(int spell)
     case 23:
     case 24:
     case 25:
-        aggravate_monsters(0);
+        aggravate_monsters(who_create_null());
         break;
     case 26:
     case 27:
-        earthquake(p_ptr->pos, 5);
+        earthquake(plr->pos, 5);
         break;
     case 28:
         mut_gain_random(NULL);
@@ -659,7 +660,7 @@ static void wild_magic(int spell)
         lose_all_info();
         break;
     case 32:
-        fire_ball(GF_CHAOS, 0, spell + 5, 1 + (spell / 10));
+        plr_burst(1 + spell/10, GF_CHAOS, spell + 5);
         break;
     case 33:
     case 34:
@@ -671,13 +672,13 @@ static void wild_magic(int spell)
         int type = rand_range(SUMMON_BIZARRE1, SUMMON_BIZARRE6);
         int dl = cave->dun_lvl*3/2;
         while (counter++ < 8)
-            summon_specific(0, p_ptr->pos, dl, type, PM_ALLOW_GROUP | PM_NO_PET);
+            summon_specific(who_create_null(), plr->pos, dl, type, PM_ALLOW_GROUP | PM_NO_PET);
         break; }
     case 37:
     case 38:
     case 39: /* current max */
     default: /* paranoia */
-        activate_hi_summon(p_ptr->pos.y, p_ptr->pos.x, FALSE);
+        activate_hi_summon(plr->pos, FALSE);
         break;
     }
 
@@ -704,7 +705,7 @@ static obj_ptr _get_spellbook(int mode)
 
     sprintf(msg, "%s which book%s?",
         mode == _CAST ? "Use" : "Browse",
-        p_ptr->pclass == CLASS_FORCETRAINER ?
+        plr->pclass == CLASS_FORCETRAINER ?
             " (<color:keypress>F</color> for the Force)" : "");
 
     prompt.prompt = msg;
@@ -713,7 +714,7 @@ static obj_ptr _get_spellbook(int mode)
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_FLOOR;
 
-    if (p_ptr->pclass == CLASS_FORCETRAINER)
+    if (plr->pclass == CLASS_FORCETRAINER)
     {
         prompt.error = NULL;
         prompt.cmd_handler = _force_handler;
@@ -748,16 +749,16 @@ void do_cmd_cast(void)
     caster_info *caster_ptr = get_caster_info();
 
     /* Require spell ability */
-    if (!p_ptr->realm1 && p_ptr->pclass != CLASS_SORCERER && p_ptr->pclass != CLASS_RED_MAGE)
+    if (!plr->realm1 && plr->pclass != CLASS_SORCERER && plr->pclass != CLASS_RED_MAGE)
     {
         msg_print("You cannot cast spells!");
         return;
     }
 
     /* Require lite */
-    if (plr_tim_find(T_BLIND) || no_lite())
+    if (plr_tim_find(T_BLIND) || no_light())
     {
-        if (p_ptr->pclass == CLASS_FORCETRAINER) do_cmd_spell();
+        if (plr->pclass == CLASS_FORCETRAINER) do_cmd_spell();
         else
         {
             msg_print("You cannot see!");
@@ -775,14 +776,14 @@ void do_cmd_cast(void)
     }
 
     /* Hex */
-    if (p_ptr->realm1 == REALM_HEX)
+    if (plr->realm1 == REALM_HEX)
     {
         if (hex_spell_fully())
         {
             bool flag = FALSE;
             msg_print("Can not spell new spells more.");
             flush();
-            if (p_ptr->lev >= 35) flag = stop_hex_spell();
+            if (plr->lev >= 35) flag = stop_hex_spell();
             if (!flag) return;
         }
     }
@@ -792,7 +793,7 @@ void do_cmd_cast(void)
     book = _get_spellbook(_CAST);
     if (!book) return;
 
-    if (p_ptr->pclass != CLASS_SORCERER && p_ptr->pclass != CLASS_RED_MAGE && book->tval == REALM2_BOOK)
+    if (plr->pclass != CLASS_SORCERER && plr->pclass != CLASS_RED_MAGE && book->tval == REALM2_BOOK)
         increment = 32;
 
     object_kind_track(book->k_idx);
@@ -834,14 +835,14 @@ void do_cmd_cast(void)
     /* Verify "dangerous" spells */
     if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
     {
-        if (need_mana > p_ptr->chp)
+        if (need_mana > plr->chp)
         {
             msg_print("You do not have enough hp to use this spell.");
             if (flush_failure) flush();
             return;
         }
     }
-    else if (need_mana > p_ptr->csp)
+    else if (need_mana > plr->csp)
     {
         if (flush_failure) flush();
 
@@ -867,9 +868,9 @@ void do_cmd_cast(void)
     else
     {
         take_mana = 0;
-        if (need_mana <= p_ptr->csp)
+        if (need_mana <= plr->csp)
         {
-            p_ptr->csp -= need_mana;
+            plr->csp -= need_mana;
             take_mana = need_mana;
         }
     }
@@ -879,13 +880,13 @@ void do_cmd_cast(void)
         value when handling SPELL_CAST.
     */
     energy_use = 100;
-    if (p_ptr->pclass == CLASS_YELLOW_MAGE)
+    if (plr->pclass == CLASS_YELLOW_MAGE)
     {
-        int delta = p_ptr->lev - s_ptr->slevel;
+        int delta = plr->lev - s_ptr->slevel;
         if (delta > 0) /* paranoia */
             energy_use -= delta;
     }
-    energy_use = energy_use * 100 / p_ptr->spells_per_round;
+    energy_use = energy_use * 100 / plr->spells_per_round;
 
     /* Failed spell */
     if (randint0(100) < chance)
@@ -894,8 +895,8 @@ void do_cmd_cast(void)
 
         msg_format("You failed to cast %s!", do_spell(use_realm, spell % 32, SPELL_NAME));
 
-        if (take_mana && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA)
-            p_ptr->csp += take_mana/2;
+        if (take_mana && prace_is_(RACE_DEMIGOD) && plr->psubrace == DEMIGOD_ATHENA)
+            plr->csp += take_mana/2;
 
         spell_stats_on_fail_old(use_realm, spell);
         sound(SOUND_FAIL);
@@ -933,14 +934,14 @@ void do_cmd_cast(void)
 
                 take_hit(DAMAGE_LOSELIFE, damroll(book->sval + 1, 6), "a miscast Death spell");
 
-                if ((spell > 15) && one_in_(6) && !p_ptr->hold_life)
+                if ((spell > 15) && one_in_(6) && !plr->hold_life)
                     lose_exp(spell * 250);
             }
         }
         else if ((book->tval == TV_MUSIC_BOOK) && (randint1(200) < spell))
         {
             msg_print("An infernal sound echoed.");
-            aggravate_monsters(0);
+            aggravate_monsters(who_create_null());
         }
     }
 
@@ -952,7 +953,7 @@ void do_cmd_cast(void)
         {
             /* If we eagerly took mana for this spell, then put it back! */
             if (take_mana > 0)
-                p_ptr->csp += take_mana;
+                plr->csp += take_mana;
             energy_use = 0;
             return;
         }
@@ -973,70 +974,30 @@ void do_cmd_cast(void)
 
         /* A spell was cast */
         if (!(increment ?
-            (p_ptr->spell_worked2 & (1L << spell)) :
-            (p_ptr->spell_worked1 & (1L << spell)))
-            && (p_ptr->pclass != CLASS_SORCERER)
-            && (p_ptr->pclass != CLASS_RED_MAGE))
+            (plr->spell_worked2 & (1L << spell)) :
+            (plr->spell_worked1 & (1L << spell)))
+            && (plr->pclass != CLASS_SORCERER)
+            && (plr->pclass != CLASS_RED_MAGE))
         {
             int e = s_ptr->sexp;
 
             /* The spell worked */
-            if (use_realm == p_ptr->realm1)
+            if (use_realm == plr->realm1)
             {
-                p_ptr->spell_worked1 |= (1L << spell);
+                plr->spell_worked1 |= (1L << spell);
             }
             else
             {
-                p_ptr->spell_worked2 |= (1L << spell);
+                plr->spell_worked2 |= (1L << spell);
             }
 
             /* Gain experience */
             gain_exp(e * s_ptr->slevel);
 
             /* Redraw object recall */
-            p_ptr->window |= (PW_OBJECT);
+            plr->window |= (PW_OBJECT);
 
-            switch (use_realm)
-            {
-            case REALM_LIFE:
-                virtue_add(VIRTUE_TEMPERANCE, 1);
-                virtue_add(VIRTUE_COMPASSION, 1);
-                virtue_add(VIRTUE_VITALITY, 1);
-                virtue_add(VIRTUE_DILIGENCE, 1);
-                break;
-            case REALM_DEATH:
-            case REALM_NECROMANCY:
-                virtue_add(VIRTUE_UNLIFE, 1);
-                virtue_add(VIRTUE_JUSTICE, -1);
-                virtue_add(VIRTUE_FAITH, -1);
-                virtue_add(VIRTUE_VITALITY, -1);
-                break;
-            case REALM_DAEMON:
-                virtue_add(VIRTUE_JUSTICE, -1);
-                virtue_add(VIRTUE_FAITH, -1);
-                virtue_add(VIRTUE_HONOUR, -1);
-                virtue_add(VIRTUE_TEMPERANCE, -1);
-                break;
-            case REALM_CRUSADE:
-                virtue_add(VIRTUE_FAITH, 1);
-                virtue_add(VIRTUE_JUSTICE, 1);
-                virtue_add(VIRTUE_SACRIFICE, 1);
-                virtue_add(VIRTUE_HONOUR, 1);
-                break;
-            case REALM_NATURE:
-                virtue_add(VIRTUE_NATURE, 1);
-                virtue_add(VIRTUE_HARMONY, 1);
-                break;
-            case REALM_HEX:
-                virtue_add(VIRTUE_JUSTICE, -1);
-                virtue_add(VIRTUE_FAITH, -1);
-                virtue_add(VIRTUE_HONOUR, -1);
-                virtue_add(VIRTUE_COMPASSION, -1);
-                break;
-            default:
-                virtue_add(VIRTUE_KNOWLEDGE, 1);
-                break;
-            }
+            virtue_on_first_cast_spell(use_realm);
         }
 
         virtue_on_cast_spell(use_realm, need_mana, chance);
@@ -1044,7 +1005,7 @@ void do_cmd_cast(void)
         if (mp_ptr->spell_xtra & MAGIC_GAIN_EXP)
         {
             int  index = (increment ? 32 : 0)+spell;
-            s16b cur_exp = p_ptr->spell_exp[index];
+            s16b cur_exp = plr->spell_exp[index];
             int  dlvl = cave->difficulty; /* gain prof in wilderness ... */
             s16b exp_gain = 0;
 
@@ -1073,7 +1034,7 @@ void do_cmd_cast(void)
                         {800, 8}, {1000, 4}, {1200, 2}, {1400, 1}, {1600, 1} };
                     exp_gain = interpolate(cur_exp, gain_tbl, 9);
                 }
-                else if (0 || p_ptr->wizard)
+                else if (0 || plr->wizard)
                 {
                     msg_format("<color:B>When casting an <color:R>L%d</color> spell on "
                         "<color:R>DL%d</color> your max proficiency is <color:R>%d</color> "
@@ -1088,10 +1049,10 @@ void do_cmd_cast(void)
                 int  new_level = old_level;
                 int  max = increment ? SPELL_EXP_EXPERT : SPELL_EXP_MASTER;
 
-                p_ptr->spell_exp[index] += exp_gain;
-                if (p_ptr->spell_exp[index] > max)
-                    p_ptr->spell_exp[index] = max;
-                new_level = spell_exp_level(p_ptr->spell_exp[index]);
+                plr->spell_exp[index] += exp_gain;
+                if (plr->spell_exp[index] > max)
+                    plr->spell_exp[index] = max;
+                new_level = spell_exp_level(plr->spell_exp[index]);
                 if (new_level > old_level)
                 {
                     cptr desc[5] = { "Unskilled", "a Beginner", "Skilled", "an Expert", "a Master" };
@@ -1099,13 +1060,13 @@ void do_cmd_cast(void)
                         desc[new_level],
                         do_spell(use_realm, spell % 32, SPELL_NAME));
                 }
-                else if (p_ptr->wizard)
+                else if (plr->wizard)
                 {
                     msg_format("You now have <color:B>%d</color> proficiency in <color:R>%s</color>.",
-                        p_ptr->spell_exp[index],
+                        plr->spell_exp[index],
                         do_spell(use_realm, spell % 32, SPELL_NAME));
                 }
-                else if (p_ptr->spell_exp[index]/100 > cur_exp/100)
+                else if (plr->spell_exp[index]/100 > cur_exp/100)
                 {
                     msg_format("<color:B>You are getting more proficient with <color:R>%s</color>.</color>",
                         do_spell(use_realm, spell % 32, SPELL_NAME));
@@ -1127,17 +1088,17 @@ void do_cmd_cast(void)
         if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
         {
         }
-        else if (need_mana <= p_ptr->csp)
+        else if (need_mana <= plr->csp)
         {
-            p_ptr->csp -= need_mana;
+            plr->csp -= need_mana;
         }
     }
 
     /* Redraw mana */
-    p_ptr->redraw |= (PR_MANA);
+    plr->redraw |= (PR_MANA);
 
     /* Window stuff */
-    p_ptr->window |= (PW_SPELL);
+    plr->window |= (PW_SPELL);
 }
 
 /*
@@ -1158,13 +1119,13 @@ void do_cmd_browse(void)
     byte    spells[64];
     char    temp[62*4];
 
-    if (!(p_ptr->realm1 || p_ptr->realm2) && (p_ptr->pclass != CLASS_SORCERER) && (p_ptr->pclass != CLASS_RED_MAGE))
+    if (!(plr->realm1 || plr->realm2) && (plr->pclass != CLASS_SORCERER) && (plr->pclass != CLASS_RED_MAGE))
     {
         msg_print("You cannot read books!");
         return;
     }
 
-    if (p_ptr->special_defense & KATA_MUSOU)
+    if (plr->special_defense & KATA_MUSOU)
         set_action(ACTION_NONE);
 
     book = _get_spellbook(_BROWSE);
@@ -1235,99 +1196,85 @@ void do_cmd_browse(void)
     screen_load();
 }
 
-void check_pets_num_and_align(monster_type *m_ptr, bool inc)
+/* we need to calc_bonuses any time the plr_pack() changes, since
+ * plr->align initializes to `plr_pack()->align`. since calc_bonuses
+ * is an enormous sledge-hammer, try to detect changes ... */
+void check_pets_num_and_align(void)
 {
-    s32b old_friend_align = friend_align;
-    monster_race *r_ptr = mon_race(m_ptr);
+    static int old_align = 2000; /* impossible! */
+    int align = mon_pack_align(plr_pack()); /* -255 to 255 */
 
-    if (inc)
+    if (align != old_align) /* XXX ignore slight differences? */
     {
-        total_friends++;
-        if (r_ptr->flags3 & RF3_GOOD) friend_align += r_ptr->level;
-        if (r_ptr->flags3 & RF3_EVIL) friend_align -= r_ptr->level;
+        old_align = align;
+        plr->update |= PU_BONUS;
     }
-    else
-    {
-        total_friends--;
-        if (r_ptr->flags3 & RF3_GOOD) friend_align -= r_ptr->level;
-        if (r_ptr->flags3 & RF3_EVIL) friend_align += r_ptr->level;
-    }
-
-    if (old_friend_align != friend_align) p_ptr->update |= (PU_BONUS);
 }
 
 int calculate_upkeep(void)
 {
-    vec_ptr pets = plr_pets();
+    mon_pack_ptr pets = plr_pack();
+    int     i, ct = mon_pack_count(pets);
     int     upkeep_factor = 0;
-    s32b    old_friend_align = friend_align;
     bool    have_a_unique = FALSE;
     s32b    total_friend_levels = 0;
-    int     i;
 
-    total_friends = 0;
-    friend_align = 0;
-
-    for (i = 0; i < vec_length(pets); i++)
+    for (i = 0; i < ct; i++)
     {
-        mon_ptr mon = vec_get(pets, i);
-        mon_race_ptr race = mon_race(mon);
+        mon_ptr mon = vec_get(pets->members, i);
+        mon_race_ptr race = mon->race;
 
-        total_friends++;
-        if (warlock_is_pact_monster(race))
+        if (!mon_is_valid(mon)) continue;
+        if (mon_has_smart_flag(mon, SM_TEMP_PET)) continue;
+        if (warlock_is_pact_monster(race) || (mon->mflag2 & MFLAG2_ILLUSION))
         {
-            total_friend_levels += race->level/2;
-            if (race->flags1 & RF1_UNIQUE)
+            total_friend_levels += mon_race_lvl(race)/2;
+            if (mon_race_is_unique(race))
             {
-                total_friend_levels += race->level/2;
+                total_friend_levels += mon_race_lvl(race)/2;
                 have_a_unique = TRUE;
             }
         }
-        else if (race->flags1 & RF1_UNIQUE)
+        else if (mon_race_is_unique(race))
         {
-            if (p_ptr->pclass == CLASS_CAVALRY || p_ptr->prace == RACE_MON_RING)
+            if (plr->pclass == CLASS_CAVALRY || plr->prace == RACE_MON_RING)
             {
-                if (p_ptr->riding == mon->id)
-                    total_friend_levels += (race->level+5)*2;
-                else if (!have_a_unique && (race->flags7 & RF7_RIDING))
-                    total_friend_levels += (race->level+5)*7/2;
+                if (plr->riding == mon->id)
+                    total_friend_levels += (mon_race_lvl(race)+5)*2;
+                else if (!have_a_unique && mon_race_is_ridable(race))
+                    total_friend_levels += (mon_race_lvl(race)+5)*7/2;
                 else
-                    total_friend_levels += (race->level+5)*10;
+                    total_friend_levels += (mon_race_lvl(race)+5)*10;
                 have_a_unique = TRUE;
             }
             else
-                total_friend_levels += (race->level+5)*10;
+                total_friend_levels += (mon_race_lvl(race)+5)*10;
         }
         else
-            total_friend_levels += race->level;
-
-        /* Determine pet alignment */
-        if (race->flags3 & RF3_GOOD) friend_align += race->level;
-        if (race->flags3 & RF3_EVIL) friend_align -= race->level;
+            total_friend_levels += mon_race_lvl(race);
     }
-    if (old_friend_align != friend_align) p_ptr->update |= (PU_BONUS);
-    if (total_friends)
+    check_pets_num_and_align();
+    if (ct)
     {
         int div = plr_class()->pets;
 
-        if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APHRODITE)
+        if (prace_is_(RACE_DEMIGOD) && plr->psubrace == DEMIGOD_APHRODITE)
             div /= 2;
 
         if (prace_is_(RACE_MON_QUYLTHULG))
             div = 7;
 
-        if (p_ptr->dragon_realm == DRAGON_REALM_DOMINATION)
+        if (plr->dragon_realm == DRAGON_REALM_DOMINATION)
             div = 9;
 
         if (prace_is_(RACE_MON_VAMPIRE))
             div = 10;
 
-        upkeep_factor = (total_friend_levels - (p_ptr->lev * 80 / div));
+        upkeep_factor = (total_friend_levels - (plr->lev * 80 / div));
 
         if (upkeep_factor < 0) upkeep_factor = 0;
         if (upkeep_factor > 1000) upkeep_factor = 1000;
     }
-    vec_free(pets);
     return upkeep_factor;
 }
 
@@ -1354,13 +1301,13 @@ void do_cmd_pet_dismiss(void)
         bool kakunin;
 
         delete_this = FALSE;
-        kakunin = m_ptr->id == p_ptr->riding || m_ptr->nickname;
+        kakunin = m_ptr->id == plr->riding || m_ptr->nickname;
         monster_desc(friend_name, m_ptr, MD_ASSUME_VISIBLE);
 
         if (!all_pets)
         {
             /* Hack -- health bar for this monster */
-            health_track(m_ptr->id);
+            health_track(m_ptr);
 
             /* Hack -- handle stuff */
             handle_stuff();
@@ -1403,18 +1350,18 @@ void do_cmd_pet_dismiss(void)
 
         if ((all_pets && !kakunin) || (!all_pets && delete_this))
         {
-            if (m_ptr->id == p_ptr->riding)
+            if (m_ptr->id == plr->riding)
             {
                 msg_format("You have got off %s. ", friend_name);
-                p_ptr->riding = 0;
-                p_ptr->update |= (PU_BONUS | PU_MONSTERS);
-                p_ptr->redraw |= (PR_EXTRA | PR_HEALTH_BARS);
+                plr->riding = 0;
+                plr->update |= (PU_BONUS | PU_MONSTERS);
+                plr->redraw |= (PR_EXTRA | PR_HEALTH_BARS);
             }
 
             sprintf(buf, "Dismissed %s.", friend_name);
 
             msg_add(buf);
-            p_ptr->window |= (PW_MESSAGE);
+            plr->window |= (PW_MESSAGE);
             window_stuff();
 
             delete_monster(m_ptr);
@@ -1438,33 +1385,33 @@ bool player_can_ride_aux(point_t pos, bool now_riding)
 {
     bool p_can_enter;
     bool old_character_xtra = character_xtra;
-    int  old_riding = p_ptr->riding;
-    bool old_riding_ryoute = p_ptr->riding_ryoute;
-    bool old_old_riding_ryoute = p_ptr->old_riding_ryoute;
-    bool old_pf_ryoute = (p_ptr->pet_extra_flags & PF_RYOUTE) ? TRUE : FALSE;
-    cave_ptr c_ptr = cave_at(pos);
-    mon_ptr mon = mon_at(pos);
+    int  old_riding = plr->riding;
+    bool old_riding_ryoute = plr->riding_ryoute;
+    bool old_old_riding_ryoute = plr->old_riding_ryoute;
+    bool old_pf_ryoute = (plr->pet_extra_flags & PF_RYOUTE) ? TRUE : FALSE;
+    dun_cell_ptr cell = dun_cell_at(cave, pos);
+    mon_ptr mon = dun_mon_at(cave, pos);
 
     /* Hack -- prevent "icky" message */
     character_xtra = TRUE;
 
-    if (now_riding && mon) p_ptr->riding = mon->id;
+    if (now_riding && mon) plr->riding = mon->id;
     else
     {
-        p_ptr->riding = 0;
-        p_ptr->pet_extra_flags &= ~(PF_RYOUTE);
-        p_ptr->riding_ryoute = p_ptr->old_riding_ryoute = FALSE;
+        plr->riding = 0;
+        plr->pet_extra_flags &= ~(PF_RYOUTE);
+        plr->riding_ryoute = plr->old_riding_ryoute = FALSE;
     }
 
     calc_bonuses();
 
-    p_can_enter = player_can_enter(c_ptr->feat, CEM_P_CAN_ENTER_PATTERN);
+    p_can_enter = cell_allow_plr(cell);
 
-    p_ptr->riding = old_riding;
-    if (old_pf_ryoute) p_ptr->pet_extra_flags |= (PF_RYOUTE);
-    else p_ptr->pet_extra_flags &= ~(PF_RYOUTE);
-    p_ptr->riding_ryoute = old_riding_ryoute;
-    p_ptr->old_riding_ryoute = old_old_riding_ryoute;
+    plr->riding = old_riding;
+    if (old_pf_ryoute) plr->pet_extra_flags |= (PF_RYOUTE);
+    else plr->pet_extra_flags &= ~(PF_RYOUTE);
+    plr->riding_ryoute = old_riding_ryoute;
+    plr->old_riding_ryoute = old_old_riding_ryoute;
 
     calc_bonuses();
 
@@ -1475,15 +1422,17 @@ bool player_can_ride_aux(point_t pos, bool now_riding)
 
 bool rakuba(int dam, bool force)
 {
-    int i, y, x, oy, ox;
-    int sn = 0, sy = 0, sx = 0;
+    int i;
+    point_t o;
+    point_t s = {0};
+    int sn = 0;
     char m_name[80];
-    monster_type *m_ptr = dun_mon(cave, p_ptr->riding);
-    monster_race *r_ptr = mon_race(m_ptr);
+    monster_type *m_ptr = dun_mon(cave, plr->riding);
+    monster_race *r_ptr = m_ptr->race;
     bool fall_dam = FALSE;
 
-    if (!p_ptr->riding) return FALSE;
-    if (p_ptr->prace == RACE_MON_RING) return FALSE; /* cf ring_process_m instead ... */
+    if (!plr->riding) return FALSE;
+    if (plr->prace == RACE_MON_RING) return FALSE; /* cf ring_process_m instead ... */
 
     if (dam >= 0 || force)
     {
@@ -1491,30 +1440,33 @@ bool rakuba(int dam, bool force)
         {
             int cur = skills_riding_current();
             int max = skills_riding_max();
-            int rakubalevel = r_ptr->level;
-            if (p_ptr->riding_ryoute) rakubalevel += 20;
+            int rakubalevel = mon_race_lvl(r_ptr);
+            if (plr->riding_ryoute) rakubalevel += 20;
 
             skills_riding_gain_rakuba(dam);
 
-            if (0 || p_ptr->wizard)
+            #ifdef DEVELOPER
+            if (0 || plr->wizard)
             {
                 int r = dam/2 + rakubalevel*2;
                 int n = cur/30 + 10;
                 if (r > n)
                 {
                     double p1 = (double)n/(double)r;
-                    int    r2 = p_ptr->lev*(p_ptr->riding_ryoute ? 2 : 3) + 30;
+                    int    r2 = plr->lev*(plr->riding_ryoute ? 2 : 3) + 30;
                     double p2 = 1.0 - 1.0/(double)r2;
-                    if (max == RIDING_EXP_MASTER && !p_ptr->riding_ryoute) p2 = 1.0;
+                    if (max == RIDING_EXP_MASTER && !plr->riding_ryoute) p2 = 1.0;
                     msg_format("<color:D>StayMounted = %.2f%% * %.2f%% = %.2f%%.</color>", 
                         p1*100., p2*100., p1*p2*100.);
                 }
             }
+            #endif
+
             if (randint0(dam / 2 + rakubalevel * 2) < cur / 30 + 10)
             {
-                if (max == RIDING_EXP_MASTER && !p_ptr->riding_ryoute)
+                if (max == RIDING_EXP_MASTER && !plr->riding_ryoute)
                     return FALSE;
-                if (!one_in_(p_ptr->lev*(p_ptr->riding_ryoute ? 2 : 3) + 30))
+                if (!one_in_(plr->lev*(plr->riding_ryoute ? 2 : 3) + 30))
                     return FALSE;
             }
         }
@@ -1522,23 +1474,19 @@ bool rakuba(int dam, bool force)
         /* Check around the player */
         for (i = 0; i < 8; i++)
         {
-            cave_type *c_ptr;
+            point_t pos = point_step(plr->pos, ddd[i]);
+            dun_cell_ptr cell = dun_cell_at(cave, pos);
+            mon_ptr mon = dun_mon_at(cave, pos);
 
-            /* Access the location */
-            y = p_ptr->pos.y + ddy_ddd[i];
-            x = p_ptr->pos.x + ddx_ddd[i];
-
-            c_ptr = cave_at_xy(x, y);
-
-            if (mon_at_xy(x, y)) continue;
+            if (mon) continue;
 
             /* Skip non-empty grids */
-            if (!cave_have_flag_grid(c_ptr, FF_MOVE) && !cave_have_flag_grid(c_ptr, FF_CAN_FLY))
+            if (cell_is_wall(cell) || door_is_closed(cell))
             {
-                if (!player_can_ride_aux(point_create(x, y), FALSE)) continue;
+                if (!player_can_ride_aux(pos, FALSE)) continue;
             }
 
-            if (cave_have_flag_grid(c_ptr, FF_PATTERN)) continue;
+            if (cell->type == FEAT_PATTERN) continue;
 
             /* Count "safe" grids */
             sn++;
@@ -1547,61 +1495,55 @@ bool rakuba(int dam, bool force)
             if (randint0(sn) > 0) continue;
 
             /* Save the safe location */
-            sy = y; sx = x;
+            s = pos;
         }
         if (!sn)
         {
             monster_desc(m_name, m_ptr, 0);
             msg_format("You have nearly fallen from %s, but bumped into wall.",m_name);
-            take_hit(DAMAGE_NOESCAPE, r_ptr->level+3, "bumping into wall");
+            take_hit(DAMAGE_NOESCAPE, mon_race_lvl(r_ptr)+3, "bumping into wall");
             return FALSE;
         }
 
-        oy = p_ptr->pos.y;
-        ox = p_ptr->pos.x;
-
-        dun_move_plr(cave, point_create(sx, sy));
-
-        /* Redraw the old spot */
-        lite_spot(oy, ox);
-
-        /* Check for new panel */
+        o = plr->pos;
+        dun_move_plr(cave, s);
+        draw_pos(o);
         viewport_verify();
     }
 
-    p_ptr->riding = 0;
-    p_ptr->pet_extra_flags &= ~(PF_RYOUTE);
-    p_ptr->riding_ryoute = p_ptr->old_riding_ryoute = FALSE;
+    plr->riding = 0;
+    plr->pet_extra_flags &= ~(PF_RYOUTE);
+    plr->riding_ryoute = plr->old_riding_ryoute = FALSE;
 
     calc_bonuses();
 
-    p_ptr->update |= (PU_BONUS);
+    plr->update |= (PU_BONUS);
 
     /* Update stuff */
-    p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE | PU_MONSTERS);
+    plr->update |= (PU_VIEW | PU_LIGHT | PU_FLOW | PU_MON_LIGHT | PU_MONSTERS);
 
     /* Window stuff */
-    p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+    plr->window |= (PW_OVERHEAD | PW_DUNGEON);
 
-    p_ptr->redraw |= (PR_EXTRA);
+    plr->redraw |= (PR_EXTRA);
 
     /* Update health track of mount */
-    p_ptr->redraw |= PR_HEALTH_BARS;
+    plr->redraw |= PR_HEALTH_BARS;
 
-    if (p_ptr->levitation && !force)
+    if (plr->levitation && !force)
     {
         monster_desc(m_name, m_ptr, 0);
         msg_format("You are thrown from %s, but make a good landing.",m_name);
     }
     else
     {
-        take_hit(DAMAGE_NOESCAPE, r_ptr->level+3, "Falling from riding");
+        take_hit(DAMAGE_NOESCAPE, mon_race_lvl(r_ptr)+3, "Falling from riding");
         fall_dam = TRUE;
     }
 
     /* Move the player */
-    if (sy && !p_ptr->is_dead)
-        move_player_effect(p_ptr->pos, MPE_DONT_PICKUP | MPE_DONT_SWAP_MON);
+    if (s.y && !plr->is_dead)
+        move_player_effect(plr->pos, MPE_DONT_PICKUP | MPE_DONT_SWAP_MON);
 
     return fall_dam;
 }
@@ -1610,17 +1552,18 @@ bool do_riding(bool force)
 {
     int dir = 0;
     point_t pos;
-    cave_ptr c_ptr;
+    dun_cell_ptr old_cell = dun_cell_at(cave, plr->pos);
+    dun_cell_ptr cell;
     mon_ptr mon;
 
     if (!get_rep_dir2(&dir)) return FALSE;
-    pos = point_step(p_ptr->pos, dir);
-    c_ptr = cave_at(pos);
-    mon = mon_at(pos);
+    pos = point_step(plr->pos, dir);
+    cell = dun_cell_at(cave, pos);
+    mon = dun_mon_at(cave, pos);
 
-    if (p_ptr->special_defense & KATA_MUSOU) set_action(ACTION_NONE);
+    if (plr->special_defense & KATA_MUSOU) set_action(ACTION_NONE);
 
-    if (p_ptr->riding)
+    if (plr->riding)
     {
         /* Skip non-empty grids */
         if (!player_can_ride_aux(pos, FALSE))
@@ -1629,7 +1572,7 @@ bool do_riding(bool force)
             return FALSE;
         }
 
-        if (!pattern_seq(p_ptr->pos, pos)) return FALSE;
+        if (!pattern_legal_move(old_cell, cell)) return FALSE;
 
         if (mon)
         {
@@ -1639,13 +1582,12 @@ bool do_riding(bool force)
             return FALSE;
         }
 
-        p_ptr->riding = 0;
-        p_ptr->pet_extra_flags &= ~(PF_RYOUTE);
-        p_ptr->riding_ryoute = p_ptr->old_riding_ryoute = FALSE;
+        plr->riding = 0;
+        plr->pet_extra_flags &= ~(PF_RYOUTE);
+        plr->riding_ryoute = plr->old_riding_ryoute = FALSE;
     }
     else
     {
-        mon_race_ptr race = NULL;
         int roll;
 
         if (plr_tim_find(T_CONFUSED))
@@ -1658,14 +1600,14 @@ bool do_riding(bool force)
             msg_print("There is no monster.");
             return FALSE;
         }
-        if (!is_pet(mon) && !force)
+        if (!mon_is_pet(mon) && !force)
         {
             msg_print("That monster is not a pet.");
             return FALSE;
         }
-        if (p_ptr->prace == RACE_MON_RING)
+        if (plr->prace == RACE_MON_RING)
         {
-            if (!mon_is_type(mon->r_idx, SUMMON_RING_BEARER))
+            if (!mon_is_type(mon->race, SUMMON_RING_BEARER))
             {
                 msg_print("This monster is not a suitable ring bearer.");
                 return FALSE;
@@ -1673,41 +1615,38 @@ bool do_riding(bool force)
         }
         else
         {
-            race = mon_race(mon);
-            if (!(race->flags7 & RF7_RIDING))
+            if (!mon_race_is_ridable(mon->race))
             {
                 msg_print("This monster doesn't seem suitable for riding.");
                 return FALSE;
             }
-            if (warlock_is_(WARLOCK_DRAGONS) && !(race->flags3 & RF3_DRAGON))
+            if (warlock_is_(WARLOCK_DRAGONS) && !mon_is_dragon(mon))
             {
                 msg_print("You are a dragon rider!");
                 return FALSE;
             }
         }
 
-        if (!pattern_seq(p_ptr->pos, pos)) return FALSE;
+        if (!pattern_legal_move(old_cell, cell)) return FALSE;
 
         if (!player_can_ride_aux(pos, TRUE))
         {
-            /* Feature code (applying "mimic" field) */
-            feature_type *f_ptr = &f_info[get_feat_mimic(c_ptr)];
-            msg_format("This monster is %s the %s.",
-                       ((!have_flag(f_ptr->flags, FF_MOVE) && !have_flag(f_ptr->flags, FF_CAN_FLY)) ||
-                        (!have_flag(f_ptr->flags, FF_LOS) && !have_flag(f_ptr->flags, FF_TREE))) ?
-                       "in" : "on", f_name + f_ptr->name);
-
+            cptr desc = cell_desc(cell);
+            cptr join = "on";
+            if (cell->type == FEAT_WALL && !wall_is_mountain(cell)) join = "in";
+            if (!cell_los(cell) && !cell_is_tree(cell)) join = "in";
+            msg_format("This monster is %s the %s.", join, desc);
             return FALSE;
         }
-        roll = skills_riding_current()/50 + p_ptr->lev/2 + 20;
-        if (0 || p_ptr->wizard)
+        roll = skills_riding_current()/50 + plr->lev/2 + 20;
+        if (0 || plr->wizard)
         {
-            int n = roll - race->level + 1;
+            int n = roll - mon_lvl(mon) + 1;
             msg_format("<color:D>Riding = %d.%d%%</color>", n * 100 /roll, (n * 1000 / roll) % 10);
         }
-        if (p_ptr->prace != RACE_MON_RING && race->level > randint1(roll))
+        if (plr->prace != RACE_MON_RING && mon_lvl(mon) > randint1(roll))
         {
-            if (race->level > roll) /* XXX spoil that it is hopeless! */
+            if (mon_lvl(mon) > roll) /* XXX spoil that it is hopeless! */
                 msg_print("This monster is too powerful for you to ride!");
             else
                 msg_print("You failed to ride.");
@@ -1717,25 +1656,25 @@ bool do_riding(bool force)
         }
 
         mon_tim_remove(mon, MT_SLEEP);
-        if (p_ptr->action == ACTION_KAMAE) set_action(ACTION_NONE);
-        if (p_ptr->action == ACTION_GLITTER) set_action(ACTION_NONE);
+        if (plr->action == ACTION_KAMAE) set_action(ACTION_NONE);
+        if (plr->action == ACTION_GLITTER) set_action(ACTION_NONE);
 
-        p_ptr->riding = mon->id;
-        if (p_ptr->riding == p_ptr->health_who) health_track(0);
+        plr->riding = mon->id;
+        if (plr->riding == plr->health_who) health_track(NULL);
     }
 
     energy_use = 100;
 
     /* Mega-Hack -- Forget the view and lite */
-    p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
+    plr->update |= (PU_UN_VIEW | PU_UN_LIGHT);
 
     /* Update the monsters */
-    p_ptr->update |= (PU_BONUS);
+    plr->update |= (PU_BONUS);
 
     /* Redraw map */
-    p_ptr->redraw |= (PR_MAP | PR_EXTRA);
+    plr->redraw |= (PR_MAP | PR_EXTRA);
 
-    p_ptr->redraw |= PR_HEALTH_BARS;
+    plr->redraw |= PR_HEALTH_BARS;
 
     /* Move the player */
     move_player_effect(pos, MPE_HANDLE_STUFF | MPE_ENERGY_USE | MPE_DONT_PICKUP | MPE_DONT_SWAP_MON);
@@ -1751,23 +1690,23 @@ static void do_name_pet(void)
     bool old_target_pet = target_pet;
 
     target_pet = TRUE;
-    if (!target_set(TARGET_KILL))
+    if (!target_set(TARGET_KILL) || !who_is_mon(plr->target))
     {
         target_pet = old_target_pet;
         return;
     }
     target_pet = old_target_pet;
 
-    m_ptr = mon_at_xy(target_col, target_row);
+    m_ptr = who_mon(plr->target);
     if (m_ptr)
     {
-        if (!is_pet(m_ptr))
+        if (!mon_is_pet(m_ptr))
         {
             /* Message */
             msg_format("This monster is not a pet.");
             return;
         }
-        if (mon_race(m_ptr)->flags1 & RF1_UNIQUE)
+        if (mon_is_unique(m_ptr))
         {
             msg_format("You cannot change name of this monster!");
             return;
@@ -1809,13 +1748,23 @@ static void do_name_pet(void)
  */
 static cptr _pet_tgt_desc(void)
 {
-    mon_ptr mon;
-    if (!pet_t_m_idx) return "nothing";
+    if (who_is_null(plr->pet_target)) return "nothing";
     if (plr_tim_find(T_HALLUCINATE)) return "something strange";
-    mon = dun_mon(cave, pet_t_m_idx);
-    if (!mon) return "something on another level";
-    return r_name + mon_apparent_race(mon)->name;
+    if (who_is_mon(plr->pet_target))
+    {
+        mon_ptr mon = who_mon(plr->pet_target);
+        if (mon->dun != cave)
+        {
+            static char buf[MAX_NLEN_MON];
+            sprintf(buf, "%s (off level)", mon->apparent_race->name);
+            return buf;
+        }
+        return mon->apparent_race->name;
+    }
+    plr->pet_target = who_create_null(); /* positional pet targets disallowed */
+    return "nothing";
 }
+
 void do_cmd_pet(void)
 {
     int            i = 0;
@@ -1847,30 +1796,30 @@ void do_cmd_pet(void)
 
     power_desc[num] = "stay close";
 
-    if (p_ptr->pet_follow_distance == PET_CLOSE_DIST) mode = num;
+    if (plr->pet_follow_distance == PET_CLOSE_DIST) mode = num;
     powers[num++] = PET_STAY_CLOSE;
 
     power_desc[num] = "follow me";
 
-    if (p_ptr->pet_follow_distance == PET_FOLLOW_DIST) mode = num;
+    if (plr->pet_follow_distance == PET_FOLLOW_DIST) mode = num;
     powers[num++] = PET_FOLLOW_ME;
 
     power_desc[num] = "seek and destroy";
 
-    if (p_ptr->pet_follow_distance == PET_DESTROY_DIST) mode = num;
+    if (plr->pet_follow_distance == PET_DESTROY_DIST) mode = num;
     powers[num++] = PET_SEEK_AND_DESTROY;
 
     power_desc[num] = "give me space";
 
-    if (p_ptr->pet_follow_distance == PET_SPACE_DIST) mode = num;
+    if (plr->pet_follow_distance == PET_SPACE_DIST) mode = num;
     powers[num++] = PET_ALLOW_SPACE;
 
     power_desc[num] = "stay away";
 
-    if (p_ptr->pet_follow_distance == PET_AWAY_DIST) mode = num;
+    if (plr->pet_follow_distance == PET_AWAY_DIST) mode = num;
     powers[num++] = PET_STAY_AWAY;
 
-    if (p_ptr->pet_extra_flags & PF_OPEN_DOORS)
+    if (plr->pet_extra_flags & PF_OPEN_DOORS)
     {
         power_desc[num] = "pets open doors (now On)";
     }
@@ -1880,7 +1829,7 @@ void do_cmd_pet(void)
     }
     powers[num++] = PET_OPEN_DOORS;
 
-    if (p_ptr->pet_extra_flags & PF_PICKUP_ITEMS)
+    if (plr->pet_extra_flags & PF_PICKUP_ITEMS)
     {
         power_desc[num] = "pets pick up items (now On)";
     }
@@ -1890,7 +1839,7 @@ void do_cmd_pet(void)
     }
     powers[num++] = PET_TAKE_ITEMS;
 
-    if (p_ptr->pet_extra_flags & PF_TELEPORT)
+    if (plr->pet_extra_flags & PF_TELEPORT)
     {
         power_desc[num] = "allow teleport (now On)";
     }
@@ -1900,7 +1849,7 @@ void do_cmd_pet(void)
     }
     powers[num++] = PET_TELEPORT;
 
-    if (p_ptr->pet_extra_flags & PF_ATTACK_SPELL)
+    if (plr->pet_extra_flags & PF_ATTACK_SPELL)
     {
         power_desc[num] = "allow cast attack spell (now On)";
     }
@@ -1910,7 +1859,7 @@ void do_cmd_pet(void)
     }
     powers[num++] = PET_ATTACK_SPELL;
 
-    if (p_ptr->pet_extra_flags & PF_SUMMON_SPELL)
+    if (plr->pet_extra_flags & PF_SUMMON_SPELL)
     {
         power_desc[num] = "allow cast summon spell (now On)";
     }
@@ -1920,7 +1869,7 @@ void do_cmd_pet(void)
     }
     powers[num++] = PET_SUMMON_SPELL;
 
-    if (p_ptr->pet_extra_flags & PF_BALL_SPELL)
+    if (plr->pet_extra_flags & PF_BALL_SPELL)
     {
         power_desc[num] = "allow involve player in area spell (now On)";
     }
@@ -1930,7 +1879,7 @@ void do_cmd_pet(void)
     }
     powers[num++] = PET_BALL_SPELL;
 
-    if (p_ptr->riding)
+    if (plr->riding)
     {
         power_desc[num] = "get off a pet";
     }
@@ -1944,10 +1893,10 @@ void do_cmd_pet(void)
 
     powers[num++] = PET_NAME;
 
-    if (p_ptr->riding && p_ptr->prace != RACE_MON_RING)
+    if (plr->riding && plr->prace != RACE_MON_RING)
     {
         /* TODO: We used to check weapons to see if 2-handed was an option ... */
-        if (p_ptr->pet_extra_flags & PF_RYOUTE)
+        if (plr->pet_extra_flags & PF_RYOUTE)
             power_desc[num] = "use one hand to control a riding pet";
         else
             power_desc[num] = "use both hands for a weapon";
@@ -1955,7 +1904,7 @@ void do_cmd_pet(void)
         powers[num++] = PET_RYOUTE;
     }
 
-    if (p_ptr->pet_extra_flags & PF_NO_BREEDING)
+    if (plr->pet_extra_flags & PF_NO_BREEDING)
     {
         power_desc[num] = "no breeding (now On)";
     }
@@ -1965,18 +1914,15 @@ void do_cmd_pet(void)
     }
     powers[num++] = PET_NO_BREEDING;
 
-    if (!use_graphics)
+    if (plr->pet_extra_flags & PF_HILITE)
     {
-        if (p_ptr->pet_extra_flags & PF_HILITE)
-        {
-            power_desc[num] = "highlight pets (now On)";
-        }
-        else
-        {
-            power_desc[num] = "highlight pets (now Off)";
-        }
-        powers[num++] = PET_HILITE;
+        power_desc[num] = "highlight pets (now On)";
     }
+    else
+    {
+        power_desc[num] = "highlight pets (now Off)";
+    }
+    powers[num++] = PET_HILITE;
 
 #ifdef ALLOW_REPEAT
     if (!(repeat_pull(&i) && (i >= 0) && (i < num)))
@@ -2154,27 +2100,12 @@ void do_cmd_pet(void)
     {
         case PET_DISMISS: /* Dismiss pets */
         {
-            bool have_pet = FALSE;
-            int_map_iter_ptr iter;
-            for (iter = int_map_iter_alloc(cave->mon);
-                    int_map_iter_is_valid(iter);
-                    int_map_iter_next(iter))
+            if (mon_pack_count(plr_pack()))
             {
-                mon_ptr mon = int_map_iter_current(iter);
-                if (mon_is_pet(mon))
-                {
-                    have_pet = TRUE;
-                    break;
-                }
+                do_cmd_pet_dismiss();
+                calculate_upkeep();
             }
-            int_map_iter_free(iter);
-            if (!have_pet)
-            {
-                msg_print("You have no pets!");
-                break;
-            }
-            do_cmd_pet_dismiss();
-            calculate_upkeep();
+            else msg_print("You have no pets!");
             break;
         }
         case PET_TARGET:
@@ -2182,19 +2113,12 @@ void do_cmd_pet(void)
             project_length = -1;
             target_pet = FALSE;
             if (!target_set(TARGET_MARK))
-                pet_t_m_idx = 0;
+                plr->pet_target = who_create_null();
             else
             {
-                if (target_who > 0)
-                    pet_t_m_idx = target_who;
-                else
-                {
-                    mon_ptr mon = mon_at_xy(target_col, target_row);
-                    if (mon)
-                        pet_t_m_idx = mon->id;
-                    else
-                        pet_t_m_idx = 0;
-                }
+                plr->pet_target = plr->target;
+                if (who_is_mon(plr->pet_target))
+                    mon_set_hunted(who_mon(plr->pet_target)); /* flow */
             }
             project_length = 0;
 
@@ -2203,88 +2127,80 @@ void do_cmd_pet(void)
         /* Call pets */
         case PET_STAY_CLOSE:
         {
-            p_ptr->pet_follow_distance = PET_CLOSE_DIST;
-            pet_t_m_idx = 0;
+            plr->pet_follow_distance = PET_CLOSE_DIST;
+            plr->pet_target = who_create_null();
             break;
         }
         /* "Follow Me" */
         case PET_FOLLOW_ME:
         {
-            p_ptr->pet_follow_distance = PET_FOLLOW_DIST;
-            pet_t_m_idx = 0;
+            plr->pet_follow_distance = PET_FOLLOW_DIST;
+            plr->pet_target = who_create_null();
             break;
         }
         /* "Seek and destoy" */
         case PET_SEEK_AND_DESTROY:
         {
-            p_ptr->pet_follow_distance = PET_DESTROY_DIST;
+            plr->pet_follow_distance = PET_DESTROY_DIST;
             break;
         }
         /* "Give me space" */
         case PET_ALLOW_SPACE:
         {
-            p_ptr->pet_follow_distance = PET_SPACE_DIST;
+            plr->pet_follow_distance = PET_SPACE_DIST;
             break;
         }
         /* "Stay away" */
         case PET_STAY_AWAY:
         {
-            p_ptr->pet_follow_distance = PET_AWAY_DIST;
+            plr->pet_follow_distance = PET_AWAY_DIST;
             break;
         }
         /* flag - allow pets to open doors */
         case PET_OPEN_DOORS:
         {
-            if (p_ptr->pet_extra_flags & PF_OPEN_DOORS) p_ptr->pet_extra_flags &= ~(PF_OPEN_DOORS);
-            else p_ptr->pet_extra_flags |= (PF_OPEN_DOORS);
+            if (plr->pet_extra_flags & PF_OPEN_DOORS) plr->pet_extra_flags &= ~(PF_OPEN_DOORS);
+            else plr->pet_extra_flags |= (PF_OPEN_DOORS);
             break;
         }
         /* flag - allow pets to pickup items */
         case PET_TAKE_ITEMS:
         {
-            if (p_ptr->pet_extra_flags & PF_PICKUP_ITEMS)
+            if (plr->pet_extra_flags & PF_PICKUP_ITEMS)
             {
-                vec_ptr pets = plr_pets();
-                int i;
-                for (i = 0; i < vec_length(pets); i++)
-                {
-                    mon_ptr pet = vec_get(pets, i);
-                    dun_mon_drop_carried_obj(cave, pet);
-                }
-                vec_free(pets);
-
-                p_ptr->pet_extra_flags &= ~(PF_PICKUP_ITEMS);
+                mon_pack_iter(plr_pack(), mon_drop_carried_obj);
+                plr->pet_extra_flags &= ~(PF_PICKUP_ITEMS);
             }
-            else p_ptr->pet_extra_flags |= (PF_PICKUP_ITEMS);
+            else plr->pet_extra_flags |= (PF_PICKUP_ITEMS);
 
             break;
         }
         /* flag - allow pets to teleport */
         case PET_TELEPORT:
         {
-            if (p_ptr->pet_extra_flags & PF_TELEPORT) p_ptr->pet_extra_flags &= ~(PF_TELEPORT);
-            else p_ptr->pet_extra_flags |= (PF_TELEPORT);
+            if (plr->pet_extra_flags & PF_TELEPORT) plr->pet_extra_flags &= ~(PF_TELEPORT);
+            else plr->pet_extra_flags |= (PF_TELEPORT);
             break;
         }
         /* flag - allow pets to cast attack spell */
         case PET_ATTACK_SPELL:
         {
-            if (p_ptr->pet_extra_flags & PF_ATTACK_SPELL) p_ptr->pet_extra_flags &= ~(PF_ATTACK_SPELL);
-            else p_ptr->pet_extra_flags |= (PF_ATTACK_SPELL);
+            if (plr->pet_extra_flags & PF_ATTACK_SPELL) plr->pet_extra_flags &= ~(PF_ATTACK_SPELL);
+            else plr->pet_extra_flags |= (PF_ATTACK_SPELL);
             break;
         }
         /* flag - allow pets to cast attack spell */
         case PET_SUMMON_SPELL:
         {
-            if (p_ptr->pet_extra_flags & PF_SUMMON_SPELL) p_ptr->pet_extra_flags &= ~(PF_SUMMON_SPELL);
-            else p_ptr->pet_extra_flags |= (PF_SUMMON_SPELL);
+            if (plr->pet_extra_flags & PF_SUMMON_SPELL) plr->pet_extra_flags &= ~(PF_SUMMON_SPELL);
+            else plr->pet_extra_flags |= (PF_SUMMON_SPELL);
             break;
         }
         /* flag - allow pets to cast attack spell */
         case PET_BALL_SPELL:
         {
-            if (p_ptr->pet_extra_flags & PF_BALL_SPELL) p_ptr->pet_extra_flags &= ~(PF_BALL_SPELL);
-            else p_ptr->pet_extra_flags |= (PF_BALL_SPELL);
+            if (plr->pet_extra_flags & PF_BALL_SPELL) plr->pet_extra_flags &= ~(PF_BALL_SPELL);
+            else plr->pet_extra_flags |= (PF_BALL_SPELL);
             break;
         }
 
@@ -2302,23 +2218,23 @@ void do_cmd_pet(void)
 
         case PET_RYOUTE:
         {
-            if (p_ptr->pet_extra_flags & PF_RYOUTE) p_ptr->pet_extra_flags &= ~(PF_RYOUTE);
-            else p_ptr->pet_extra_flags |= (PF_RYOUTE);
-            p_ptr->update |= (PU_BONUS);
+            if (plr->pet_extra_flags & PF_RYOUTE) plr->pet_extra_flags &= ~(PF_RYOUTE);
+            else plr->pet_extra_flags |= (PF_RYOUTE);
+            plr->update |= (PU_BONUS);
             handle_stuff();
             break;
         }
         case PET_NO_BREEDING:
         {
-            if (p_ptr->pet_extra_flags & PF_NO_BREEDING) p_ptr->pet_extra_flags &= ~(PF_NO_BREEDING);
-            else p_ptr->pet_extra_flags |= PF_NO_BREEDING;
+            if (plr->pet_extra_flags & PF_NO_BREEDING) plr->pet_extra_flags &= ~(PF_NO_BREEDING);
+            else plr->pet_extra_flags |= PF_NO_BREEDING;
             break;
         }
         case PET_HILITE:
         {
-            if (p_ptr->pet_extra_flags & PF_HILITE) p_ptr->pet_extra_flags &= ~(PF_HILITE);
-            else p_ptr->pet_extra_flags |= PF_HILITE;
-            p_ptr->redraw |= PR_MAP;
+            if (plr->pet_extra_flags & PF_HILITE) plr->pet_extra_flags &= ~(PF_HILITE);
+            else plr->pet_extra_flags |= PF_HILITE;
+            plr->redraw |= PR_MAP;
             break;
         }
     }

@@ -43,21 +43,21 @@ bool restore_mana(void)
 {
     bool result = FALSE;
 
-    if (p_ptr->pclass == CLASS_MAGIC_EATER)
+    if (plr->pclass == CLASS_MAGIC_EATER)
     {
         magic_eater_restore();
         result = TRUE;
     }
-    else if (p_ptr->csp < p_ptr->msp)
+    else if (plr->csp < plr->msp)
     {
-        if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
-            p_ptr->csp += (p_ptr->msp - p_ptr->csp) / 3;
+        if (plr->pclass == CLASS_RUNE_KNIGHT)
+            plr->csp += (plr->msp - plr->csp) / 3;
         else
-            p_ptr->csp = p_ptr->msp;
+            plr->csp = plr->msp;
 
-        p_ptr->csp_frac = 0;
-        p_ptr->redraw |= (PR_MANA);
-        p_ptr->window |= (PW_SPELL);
+        plr->csp_frac = 0;
+        plr->redraw |= (PR_MANA);
+        plr->window |= (PW_SPELL);
         result = TRUE;
     }
 
@@ -93,7 +93,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
         {
             case SV_FOOD_POISON:
             {
-                if (!res_save_default(RES_POIS))
+                if (!res_save_default(GF_POIS))
                 {
                     if (plr_tim_add(T_POISON, randint0(10) + 10))
                         ident = TRUE;
@@ -103,7 +103,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
 
             case SV_FOOD_BLINDNESS:
             {
-                if (!res_save_default(RES_BLIND))
+                if (!res_save_default(GF_BLIND))
                 {
                     if (plr_tim_add(T_BLIND, randint0(25) + 25))
                         ident = TRUE;
@@ -120,7 +120,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
 
             case SV_FOOD_CONFUSION:
             {
-                if (!res_save_default(RES_CONF))
+                if (!res_save_default(GF_CONFUSION))
                 {
                     if (plr_tim_add(T_CONFUSED, randint0(10) + 10))
                         ident = TRUE;
@@ -130,7 +130,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
 
             case SV_FOOD_HALLUCINATION:
             {
-                if (!res_save_default(RES_CHAOS) && !mut_present(MUT_WEIRD_MIND))
+                if (!res_save_default(GF_CHAOS) && !mut_present(MUT_WEIRD_MIND))
                 {
                     if (plr_tim_add(T_HALLUCINATE, randint0(25) + 25))
                         ident = TRUE;
@@ -207,7 +207,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
 
             case SV_FOOD_CURE_PARANOIA:
             {
-                if (p_ptr->afraid)
+                if (plr->afraid)
                 {
                     fear_clear_p();
                     ident = TRUE;
@@ -321,19 +321,19 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
     {
         object_aware(obj);
         stats_on_notice(obj, 1);
-        gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
-        p_ptr->notice |= PN_OPTIMIZE_PACK;
+        gain_exp((lev + (plr->lev >> 1)) / plr->lev);
+        plr->notice |= PN_OPTIMIZE_PACK;
     }
 
     /* Food can feed the player */
     if ( prace_is_(RACE_VAMPIRE)
-      || p_ptr->prace == RACE_MON_VAMPIRE  /* Mimicking a wolf should now allow the vampire to feed! */
-      || p_ptr->mimic_form == MIMIC_VAMPIRE )
+      || plr->prace == RACE_MON_VAMPIRE  /* Mimicking a wolf should now allow the vampire to feed! */
+      || plr->mimic_form == MIMIC_VAMPIRE )
     {
         /* Reduced nutritional benefit */
-        set_food(p_ptr->food + obj->pval / 10);
+        set_food(plr->food + obj->pval / 10);
         msg_print("Mere victuals hold scant sustenance for a being such as yourself.");
-        if (p_ptr->food < PY_FOOD_ALERT)   /* Hungry */
+        if (plr->food < PY_FOOD_ALERT)   /* Hungry */
             msg_print("Your hunger can only be satisfied with fresh blood!");
     }
     else if (prace_is_(RACE_MON_JELLY))
@@ -345,15 +345,17 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
              || prace_is_(RACE_MON_GOLEM)
              || prace_is_(RACE_MON_SWORD)
              || prace_is_(RACE_MON_RING)
-             || p_ptr->mimic_form == MIMIC_CLAY_GOLEM
-             || p_ptr->mimic_form == MIMIC_IRON_GOLEM
-             || p_ptr->mimic_form == MIMIC_MITHRIL_GOLEM
-             || p_ptr->mimic_form == MIMIC_COLOSSUS
+             || plr->mimic_form == MIMIC_CLAY_GOLEM
+             || plr->mimic_form == MIMIC_IRON_GOLEM
+             || plr->mimic_form == MIMIC_MITHRIL_GOLEM
+             || plr->mimic_form == MIMIC_COLOSSUS
              || prace_is_(RACE_ZOMBIE)
              || prace_is_(RACE_MON_LICH)
              || prace_is_(RACE_SPECTRE)
              || prace_is_(RACE_MON_VORTEX)
-             || elemental_is_(ELEMENTAL_AIR) )
+             || elemental_is_(ELEMENTAL_AIR)
+             || ( (prace_is_(RACE_MON_MIMIC) || prace_is_(RACE_MON_POSSESSOR))
+               && (plr_mon_race()->kind & RFK_NONLIVING) ) )
            && obj_is_device(obj) )
     {
         int amt = obj->activation.cost;
@@ -368,28 +370,28 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
         }
 
         device_decrease_sp(obj, amt);
-        set_food(p_ptr->food + 5000);
+        set_food(plr->food + 5000);
 
         obj_describe_charges(obj);
-        p_ptr->window |= PW_INVEN;
+        plr->window |= PW_INVEN;
 
         /* Don't consume the object */
         return;
     }
     else if ( (get_race()->flags & RACE_IS_DEMON)
            && object_is_(obj, TV_CORPSE, SV_CORPSE)
-           && my_strchr("pht", r_info[obj->pval].d_char) )
+           && corpse_race_is_char_ex(obj, "pht") )
     {
         /* Drain vitality of humanoids */
         char         o_name[MAX_NLEN];
-        mon_race_ptr r = &r_info[obj->pval];
+        mon_race_ptr r = mon_race_lookup(obj->race_id);
 
         object_desc(o_name, obj, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
         msg_format("%^s is burnt to ashes. You absorb its vitality!", o_name);
         set_food(PY_FOOD_MAX - 1);
 
-        if (r->flags1 & RF1_UNIQUE)
+        if (mon_race_is_unique(r))
         {
             hp_player(damroll(15, 15));
             do_res_stat(A_STR);
@@ -400,7 +402,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
             do_res_stat(A_CHR);
             restore_level();
         }
-        plr_tim_add(T_HERO, MAX(1, r->level));
+        plr_tim_add(T_HERO, MAX(1, r->alloc.lvl));
     }
     else if (prace_is_(RACE_SKELETON))
     {
@@ -408,27 +410,27 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
               obj->sval < SV_FOOD_BISCUIT))
         {
             msg_print("The food falls through your jaws!");
-            drop_near(obj, p_ptr->pos, -1);
+            drop_near(obj, plr->pos, -1);
         }
         else
         {
             msg_print("The food falls through your jaws and vanishes!");
         }
     }
-    else if (((get_race()->flags & RACE_IS_NONLIVING) && p_ptr->prace != RACE_MON_POSSESSOR) || prace_is_(RACE_ENT))
+    else if ((get_race()->flags & RACE_IS_NONLIVING) || prace_is_(RACE_ENT))
     {
         msg_print("The food of mortals is poor sustenance for you.");
-        set_food(p_ptr->food + obj->pval / 20);
+        set_food(plr->food + obj->pval / 20);
     }
     else if (obj->tval == TV_FOOD && (obj->sval == SV_FOOD_WAYBREAD || obj->sval == SV_FOOD_AMBROSIA))
     {
         /* Waybread is always fully satisfying. */
-        set_food(MAX(p_ptr->food, PY_FOOD_MAX - 1));
+        set_food(MAX(plr->food, PY_FOOD_MAX - 1));
     }
     else
     {
         /* Food can feed the player */
-        set_food(p_ptr->food + obj->pval);
+        set_food(plr->food + obj->pval);
     }
 
     /* Consume the object */
@@ -449,15 +451,22 @@ static bool _can_eat(object_type *o_ptr)
 {
     if (o_ptr->tval==TV_FOOD) return TRUE;
 
+    if ( (prace_is_(RACE_MON_MIMIC) || prace_is_(RACE_MON_POSSESSOR))
+      && (plr_mon_race()->kind & RFK_NONLIVING) )
+    {
+        if (obj_is_device(o_ptr))
+            return TRUE;
+    }
+
     if (prace_is_(RACE_SKELETON) ||
         prace_is_(RACE_GOLEM) ||
         prace_is_(RACE_MON_GOLEM) ||
         prace_is_(RACE_MON_SWORD) ||
         prace_is_(RACE_MON_RING) ||
-        p_ptr->mimic_form == MIMIC_CLAY_GOLEM ||
-        p_ptr->mimic_form == MIMIC_IRON_GOLEM ||
-        p_ptr->mimic_form == MIMIC_MITHRIL_GOLEM ||
-        p_ptr->mimic_form == MIMIC_COLOSSUS ||
+        plr->mimic_form == MIMIC_CLAY_GOLEM ||
+        plr->mimic_form == MIMIC_IRON_GOLEM ||
+        plr->mimic_form == MIMIC_MITHRIL_GOLEM ||
+        plr->mimic_form == MIMIC_COLOSSUS ||
         prace_is_(RACE_ZOMBIE) ||
         prace_is_(RACE_MON_LICH) ||
         prace_is_(RACE_MON_VORTEX) ||
@@ -471,7 +480,7 @@ static bool _can_eat(object_type *o_ptr)
     {
         if (o_ptr->tval == TV_CORPSE &&
             o_ptr->sval == SV_CORPSE &&
-            my_strchr("pht", r_info[o_ptr->pval].d_char))
+            corpse_race_is_char_ex(o_ptr, "pht"))
             return TRUE;
     }
     else if (prace_is_(RACE_MON_JELLY))
@@ -488,7 +497,7 @@ void do_cmd_eat_food(void)
 {
     obj_prompt_t prompt = {0};
 
-    if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
+    if (plr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
         set_action(ACTION_NONE);
 
     prompt.prompt = "Eat which item?";
@@ -535,7 +544,7 @@ static void do_cmd_quaff_potion_aux(obj_ptr obj)
 
     if (devicemaster_is_(DEVICEMASTER_POTIONS) && !devicemaster_desperation)
     {
-        int delta = MIN(50, 2*p_ptr->lev - lev);
+        int delta = MIN(50, 2*plr->lev - lev);
         if (delta > 0)
         {
             energy_use -= delta;
@@ -558,10 +567,10 @@ static void do_cmd_quaff_potion_aux(obj_ptr obj)
     if (obj->tval == TV_POTION) /* Skip Flasks of Oil */
         device_use(obj, 0);
 
-    if (prace_is_(RACE_SKELETON) || (p_ptr->current_r_idx && mon_race_lookup(p_ptr->current_r_idx)->d_char == 's'))
+    if (prace_is_(RACE_SKELETON) || (plr->current_r_idx && mon_race_is_char(plr_mon_race(), 's')))
     {
         msg_print("Some of the fluid falls through your jaws!");
-        potion_smash_effect(0, p_ptr->pos.y, p_ptr->pos.x, obj->k_idx);
+        potion_smash_effect(who_create_null(), plr->pos, obj->k_idx);
     }
 
     if (!object_is_aware(obj))
@@ -575,19 +584,19 @@ static void do_cmd_quaff_potion_aux(obj_ptr obj)
     if (device_noticed && !object_is_aware(obj))
     {
         object_aware(obj);
-        gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
-        p_ptr->notice |= PN_OPTIMIZE_PACK;
+        gain_exp((lev + (plr->lev >> 1)) / plr->lev);
+        plr->notice |= PN_OPTIMIZE_PACK;
     }
 
     /* Potions can feed the player */
-    switch (p_ptr->mimic_form)
+    switch (plr->mimic_form)
     {
     case MIMIC_NONE:
-        switch (p_ptr->prace)
+        switch (plr->prace)
         {
             case RACE_VAMPIRE:
             case RACE_MON_VAMPIRE:
-                set_food(p_ptr->food + obj->pval / 10);
+                set_food(plr->food + obj->pval / 10);
                 break;
             case RACE_SKELETON:
             case RACE_MON_JELLY:
@@ -602,53 +611,53 @@ static void do_cmd_quaff_potion_aux(obj_ptr obj)
             case RACE_MON_DEMON:
             case RACE_MON_SWORD:
             case RACE_MON_RING:
-                set_food(p_ptr->food + obj->pval / 20);
+                set_food(plr->food + obj->pval / 20);
                 break;
             case RACE_ANDROID:
                 if (obj->tval == TV_FLASK)
                 {
                     msg_print("You replenish yourself with the oil.");
-                    set_food(p_ptr->food + 5000);
+                    set_food(plr->food + 5000);
                 }
                 else
                 {
-                    set_food(p_ptr->food + obj->pval / 20);
+                    set_food(plr->food + obj->pval / 20);
                 }
                 break;
             case RACE_ENT:
                 msg_print("You are moistened.");
-                set_food(MIN(p_ptr->food + obj->pval + MAX(0, obj->pval * 10) + 2000, PY_FOOD_MAX - 1));
+                set_food(MIN(plr->food + obj->pval + MAX(0, obj->pval * 10) + 2000, PY_FOOD_MAX - 1));
                 break;
             default:
                 if (elemental_is_(ELEMENTAL_WATER))
                 {
                     msg_print("That tastes delicious.");
-                    set_food(MIN(p_ptr->food + obj->pval + MAX(0, obj->pval * 10) + 2000, PY_FOOD_MAX - 1));
+                    set_food(MIN(plr->food + obj->pval + MAX(0, obj->pval * 10) + 2000, PY_FOOD_MAX - 1));
                 }
                 else if (elemental_is_(ELEMENTAL_FIRE) && obj->tval == TV_FLASK)
                 {
                     msg_print("Your body flames up with renewed vigor.");
-                    set_food(p_ptr->food + 5000);
+                    set_food(plr->food + 5000);
                 }
                 else
-                    set_food(p_ptr->food + obj->pval);
+                    set_food(plr->food + obj->pval);
                 break;
         }
         break;
     case MIMIC_DEMON:
     case MIMIC_DEMON_LORD:
-        set_food(p_ptr->food + obj->pval / 20);
+        set_food(plr->food + obj->pval / 20);
         break;
     case MIMIC_VAMPIRE:
-        set_food(p_ptr->food + obj->pval / 10);
+        set_food(plr->food + obj->pval / 10);
         break;
     default:
-        set_food(p_ptr->food + obj->pval);
+        set_food(plr->food + obj->pval);
         break;
     }
 
     /* Consume Item */
-    if (devicemaster_is_(DEVICEMASTER_POTIONS) && !devicemaster_desperation && randint1(3*p_ptr->lev/2) > MAX(10, lev))
+    if (devicemaster_is_(DEVICEMASTER_POTIONS) && !devicemaster_desperation && randint1(3*plr->lev/2) > MAX(10, lev))
     {
         msg_print("You sip the potion sparingly.");
     }
@@ -660,7 +669,7 @@ static void do_cmd_quaff_potion_aux(obj_ptr obj)
 
         obj->number -= number;
         obj_release(obj, OBJ_RELEASE_DELAYED_MSG);
-        p_ptr->notice |= PN_OPTIMIZE_PACK;
+        plr->notice |= PN_OPTIMIZE_PACK;
     }
 }
 
@@ -689,7 +698,7 @@ void do_cmd_quaff_potion(void)
 {
     obj_prompt_t prompt = {0};
 
-    if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
+    if (plr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
         set_action(ACTION_NONE);
 
     prompt.prompt = "Quaff which potion?";
@@ -726,7 +735,7 @@ static void do_cmd_read_scroll_aux(obj_ptr o_ptr)
 
     if (devicemaster_is_(DEVICEMASTER_SCROLLS) && !devicemaster_desperation)
     {
-        int delta = MIN(50, 2*p_ptr->lev - lev);
+        int delta = MIN(50, 2*plr->lev - lev);
         if (delta > 0)
         {
             energy_use -= delta;
@@ -751,7 +760,7 @@ static void do_cmd_read_scroll_aux(obj_ptr o_ptr)
     if (music_singing_any()) bard_stop_singing();
 
     /* Hex */
-    if (hex_spelling_any() && ((p_ptr->lev < 35) || hex_spell_fully())) stop_hex_spell_all();
+    if (hex_spelling_any() && ((plr->lev < 35) || hex_spell_fully())) stop_hex_spell_all();
 
     warlock_stop_singing();
 
@@ -786,7 +795,7 @@ static void do_cmd_read_scroll_aux(obj_ptr o_ptr)
         if (object_is_(o_ptr, TV_SCROLL, SV_SCROLL_IDENTIFY))
             number = device_used_charges;
     }
-    else if (o_ptr->name1 == ART_POWER)
+    else if (sym_equals(o_ptr->art_id, "=.Power"))
     {
         msg_print("'One Ring to rule them all, ");
         msg_print(NULL);
@@ -826,14 +835,14 @@ static void do_cmd_read_scroll_aux(obj_ptr o_ptr)
         object_aware(o_ptr);
         gear_notice_id(o_ptr);
         stats_on_notice(o_ptr, o_ptr->number);
-        gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
+        gain_exp((lev + (plr->lev >> 1)) / plr->lev);
     }
 
     if (!used_up)
         return;
 
     sound(SOUND_SCROLL);
-    if (devicemaster_is_(DEVICEMASTER_SCROLLS) && !devicemaster_desperation && randint1(2*p_ptr->lev) > MAX(10, lev))
+    if (devicemaster_is_(DEVICEMASTER_SCROLLS) && !devicemaster_desperation && randint1(2*plr->lev) > MAX(10, lev))
     {
         msg_print("Your mental focus preserves the scroll!");
     }
@@ -842,14 +851,14 @@ static void do_cmd_read_scroll_aux(obj_ptr o_ptr)
         stats_on_use(o_ptr, number);
         o_ptr->number -= number;
         obj_release(o_ptr, OBJ_RELEASE_DELAYED_MSG);
-        p_ptr->notice |= PN_OPTIMIZE_PACK;
+        plr->notice |= PN_OPTIMIZE_PACK;
     }
 }
 
 static bool _can_read(object_type *o_ptr)
 {
     if (!o_ptr) return FALSE;
-    if (o_ptr->tval==TV_SCROLL || o_ptr->tval==TV_PARCHMENT || o_ptr->name1 == ART_POWER)
+    if (o_ptr->tval==TV_SCROLL || o_ptr->tval==TV_PARCHMENT || sym_equals(o_ptr->art_id, "=.Power"))
         return TRUE;
     return FALSE;
 }
@@ -858,7 +867,7 @@ void do_cmd_read_scroll(void)
 {
     obj_prompt_t prompt = {0};
 
-    if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
+    if (plr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
         set_action(ACTION_NONE);
 
     /* Check some conditions */
@@ -867,7 +876,7 @@ void do_cmd_read_scroll(void)
         msg_print("You can't see anything.");
         return;
     }
-    if (no_lite())
+    if (no_light())
     {
         msg_print("You have no light to read by.");
         return;
@@ -904,7 +913,7 @@ static void do_cmd_device_aux(obj_ptr obj)
     /* Devicemasters get extra power */
     is_devicemaster = devicemaster_is_speciality(obj);
     if (is_devicemaster)
-        boost = device_power_aux(100, p_ptr->device_power + p_ptr->lev/10) - 100;
+        boost = device_power_aux(100, plr->device_power + plr->lev/10) - 100;
     else
         boost = device_power(100) - 100;
 
@@ -912,7 +921,7 @@ static void do_cmd_device_aux(obj_ptr obj)
     energy_use = 100;
     if (is_devicemaster && !devicemaster_desperation)
     {
-        int delta = MIN(50, 2*p_ptr->lev - obj->activation.power);
+        int delta = MIN(50, 2*plr->lev - obj->activation.power);
         if (delta > 0)
             energy_use -= delta;
     }
@@ -954,20 +963,6 @@ static void do_cmd_device_aux(obj_ptr obj)
         }
         return;
     }
-
-    #if 0
-    if ((obj->curse_flags & OFC_CURSED) && one_in_(6))
-    {
-        msg_print("Oops! The device explodes!");
-        project(
-            PROJECT_WHO_UNCTRL_POWER, 4, p_ptr->pos.y, p_ptr->pos.x,
-            device_sp(obj), GF_MANA,
-            PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
-        obj->number = 0;
-        obj_release(obj, OBJ_RELEASE_QUIET);
-        return;
-    }
-    #endif
 
     if (device_sp(obj) < obj->activation.cost)
     {
@@ -1028,8 +1023,8 @@ static void do_cmd_device_aux(obj_ptr obj)
         /* Devicemasters can power the device with their mana once in a while */
         if ( is_devicemaster
           && !devicemaster_desperation
-          && p_ptr->csp > obj->activation.cost
-          && randint1(20 + obj->activation.difficulty) <= p_ptr->lev )
+          && plr->csp > obj->activation.cost
+          && randint1(20 + obj->activation.difficulty) <= plr->lev )
         {
             msg_print("<color:B>Your mental focus powers the device!</color>");
             sp_player(-obj->activation.cost);
@@ -1037,7 +1032,7 @@ static void do_cmd_device_aux(obj_ptr obj)
         else
         {
             /* Devicemaster Desperation can destroy the device! */
-            if (is_devicemaster && devicemaster_desperation && randint0(p_ptr->lev*7) < k_info[obj->k_idx].level)
+            if (is_devicemaster && devicemaster_desperation && randint0(plr->lev*7) < k_info[obj->k_idx].level)
             {
                 char o_name[MAX_NLEN];
                 object_desc(o_name, obj, OD_OMIT_PREFIX | OD_NAME_ONLY | OD_COLOR_CODED);
@@ -1048,7 +1043,7 @@ static void do_cmd_device_aux(obj_ptr obj)
             {
                 device_decrease_sp(obj, obj->activation.cost * charges);
                 obj->marked |= OM_DELAYED_MSG;
-                p_ptr->notice |= PN_CARRY;
+                plr->notice |= PN_CARRY;
             }
         }
     }
@@ -1062,10 +1057,10 @@ void do_cmd_use_staff(void)
 {
     obj_prompt_t prompt = {0};
 
-    if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
+    if (plr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
         set_action(ACTION_NONE);
 
-    if (p_ptr->pclass == CLASS_MAGIC_EATER && !pack_find_obj(TV_STAFF, SV_ANY))
+    if (plr->pclass == CLASS_MAGIC_EATER && !pack_find_obj(TV_STAFF, SV_ANY))
     {
         magic_eater_cast(TV_STAFF);
         return;
@@ -1089,10 +1084,10 @@ void do_cmd_aim_wand(void)
 {
     obj_prompt_t prompt = {0};
 
-    if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
+    if (plr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
         set_action(ACTION_NONE);
 
-    if (p_ptr->pclass == CLASS_MAGIC_EATER && !pack_find_obj(TV_WAND, SV_ANY))
+    if (plr->pclass == CLASS_MAGIC_EATER && !pack_find_obj(TV_WAND, SV_ANY))
     {
         magic_eater_cast(TV_WAND);
         return;
@@ -1116,10 +1111,10 @@ void do_cmd_zap_rod(void)
 {
     obj_prompt_t prompt = {0};
 
-    if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
+    if (plr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
         set_action(ACTION_NONE);
 
-    if (p_ptr->pclass == CLASS_MAGIC_EATER && !pack_find_obj(TV_ROD, SV_ANY))
+    if (plr->pclass == CLASS_MAGIC_EATER && !pack_find_obj(TV_ROD, SV_ANY))
     {
         magic_eater_cast(TV_ROD);
         return;
@@ -1139,93 +1134,17 @@ void do_cmd_zap_rod(void)
     do_cmd_device_aux(prompt.obj);
 }
 
-
-/*
- * Hack -- activate the ring of power
- */
-void ring_of_power(int dir)
-{
-    /* Pick a random effect */
-    switch (randint1(10))
-    {
-        case 1:
-        case 2:
-        {
-            /* Message */
-            msg_print("You are surrounded by a malignant aura.");
-
-            sound(SOUND_EVIL);
-
-            /* Decrease all stats (permanently) */
-            (void)dec_stat(A_STR, 50, TRUE);
-            (void)dec_stat(A_INT, 50, TRUE);
-            (void)dec_stat(A_WIS, 50, TRUE);
-            (void)dec_stat(A_DEX, 50, TRUE);
-            (void)dec_stat(A_CON, 50, TRUE);
-            (void)dec_stat(A_CHR, 50, TRUE);
-
-            /* Lose some experience (permanently) */
-            p_ptr->exp -= (p_ptr->exp / 4);
-            p_ptr->max_exp -= (p_ptr->exp / 4);
-            check_experience();
-
-            break;
-        }
-
-        case 3:
-        {
-            /* Message */
-            msg_print("You are surrounded by a powerful aura.");
-
-
-            /* Dispel monsters */
-            dispel_monsters(1000);
-
-            break;
-        }
-
-        case 4:
-        case 5:
-        case 6:
-        {
-            /* Mana Ball */
-            fire_ball(GF_MANA, dir, 600, 3);
-
-            break;
-        }
-
-        case 7:
-        case 8:
-        case 9:
-        case 10:
-        {
-            /* Mana Bolt */
-            fire_bolt(GF_MANA, dir, 500);
-
-            break;
-        }
-    }
-}
-
-
 static void _do_capture_ball(object_type *o_ptr)
 {
     int dir;
     if (!o_ptr->pval)
     {
-        bool old_target_pet = target_pet;
-        target_pet = TRUE;
-        if (!get_aim_dir(&dir))
+        mon_ptr mon = plr_target_adjacent_pet();
+        if (!mon) return;
+        if (gf_affect_m(who_create_plr(), mon, GF_CAPTURE, 0, GF_AFFECT_SPELL))
         {
-            target_pet = old_target_pet;
-            return;
-        }
-        target_pet = old_target_pet;
-
-        if (fire_ball(GF_CAPTURE, dir, 0, 0))
-        {
-            o_ptr->pval = cap_mon;
-            o_ptr->xtra3 = cap_mspeed;
+            o_ptr->race_id = cap_mon;
+            o_ptr->xtra3 = cap_mspeed + 110;
             o_ptr->xtra4 = cap_hp;
             o_ptr->xtra5 = cap_maxhp;
             if (cap_nickname)
@@ -1259,15 +1178,17 @@ static void _do_capture_ball(object_type *o_ptr)
     else
     {
         bool success = FALSE;
-        point_t p;
+        point_t pos;
+        mon_race_ptr race;
         if (!get_rep_dir2(&dir)) return;
-        p = point_step(p_ptr->pos, dir);
-        if (monster_can_enter(p.y, p.x, &r_info[o_ptr->pval], 0))
+        pos = point_step(plr->pos, dir);
+        race = mon_race_lookup(o_ptr->race_id);
+        if (mon_race_can_enter(race, pos))
         {
-            mon_ptr mon = place_monster_aux(0, p, o_ptr->pval, (PM_FORCE_PET | PM_NO_KAGE));
+            mon_ptr mon = place_monster_aux(who_create_plr(), pos, race, (PM_FORCE_PET | PM_NO_KAGE));
             if (mon)
             {
-                if (o_ptr->xtra3) mon->mspeed = o_ptr->xtra3;
+                if (o_ptr->xtra3) mon->mspeed = o_ptr->xtra3 - 110; /* XXX xtra3 is a byte */
                 if (o_ptr->xtra5) mon->max_maxhp = o_ptr->xtra5;
                 if (o_ptr->xtra4) mon->hp = o_ptr->xtra4;
                 mon->maxhp = mon->max_maxhp;
@@ -1385,7 +1306,7 @@ static void do_cmd_activate_aux(obj_ptr obj)
             obj_learn_activation(obj);
 
         obj->timeout = effect.cost;
-        p_ptr->window |= (PW_INVEN | PW_EQUIP);
+        plr->window |= (PW_INVEN | PW_EQUIP);
     }
 }
 
@@ -1398,7 +1319,7 @@ void do_cmd_activate(void)
 {
     obj_prompt_t prompt = {0};
 
-    if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
+    if (plr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
         set_action(ACTION_NONE);
 
     prompt.prompt ="Activate which item?"; 

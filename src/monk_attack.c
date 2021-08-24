@@ -98,15 +98,15 @@ static _monk_attack_tbl_ptr _get_monk_attack_tbl(cptr tbl_name)
 static int _max_tries_plr(void)
 {
     int tries = 0;
-    int lvl = p_ptr->monk_lvl;
+    int lvl = plr->monk_lvl;
     /* XXX This assumes a certain table size ... 17 was the original
      * value. Perhaps we should make an effort to support smaller or
      * larger tables? XXX */
-    if (p_ptr->special_defense & KAMAE_BYAKKO)
+    if (plr->special_defense & KAMAE_BYAKKO)
         tries = (lvl < 3 ? 1 : lvl / 3);
-    else if (p_ptr->special_defense & KAMAE_SUZAKU)
+    else if (plr->special_defense & KAMAE_SUZAKU)
         tries = 1;
-    else if (p_ptr->special_defense & KAMAE_GENBU)
+    else if (plr->special_defense & KAMAE_GENBU)
         tries = 1;
     else if (mystic_get_toggle() == MYSTIC_TOGGLE_OFFENSE)
         tries = 1 + lvl/4;
@@ -117,8 +117,8 @@ static int _max_tries_plr(void)
         tries = (lvl < 7 ? 1 : lvl / 7);
         /* Note: Forcetrainers hit a max monk lvl of 47 for only 6 tries.
          * In Hengband, they got 7 tries, so we boost with the force a bit. */
-        if (p_ptr->pclass == CLASS_FORCETRAINER)
-            tries += p_ptr->magic_num1[0]/120;
+        if (plr->pclass == CLASS_FORCETRAINER)
+            tries += plr->magic_num1[0]/120;
     }
     if (plr_tim_find(T_CONFUSED))
         tries = 1;
@@ -129,21 +129,21 @@ static int _max_tries_plr(void)
 static int _get_weight_plr(void)
 {
     int weight = 6;
-    if (p_ptr->special_defense & KAMAE_SUZAKU) weight = 3;
+    if (plr->special_defense & KAMAE_SUZAKU) weight = 3;
     if (mystic_get_toggle() == MYSTIC_TOGGLE_DEFENSE) weight = 4;
     if (mystic_get_toggle() == MYSTIC_TOGGLE_OFFENSE) weight = 8;
-    if ((p_ptr->pclass == CLASS_FORCETRAINER) && (p_ptr->magic_num1[0]))
+    if ((plr->pclass == CLASS_FORCETRAINER) && (plr->magic_num1[0]))
     {
-        weight += (p_ptr->magic_num1[0]/40);
+        weight += (plr->magic_num1[0]/40);
         if (weight > 20) weight = 20;
     }
-    return weight * p_ptr->monk_lvl;
+    return weight * plr->monk_lvl;
 }
 mon_blow_ptr monk_choose_attack_plr(cptr tbl_name)
 {
     _monk_attack_tbl_ptr tbl = _get_monk_attack_tbl(tbl_name);
     int                  tries = _max_tries_plr();
-    mon_blow_ptr         blow = _monk_attack_tbl_choose(tbl, p_ptr->monk_lvl, tries);
+    mon_blow_ptr         blow = _monk_attack_tbl_choose(tbl, plr->monk_lvl, tries);
     blow->weight = _get_weight_plr();
     return blow;
 }
@@ -153,7 +153,7 @@ mon_blow_ptr monk_choose_attack_plr(cptr tbl_name)
  *************************************************************************/
 static int _monk_lvl_mon(mon_race_ptr race)
 {
-    return MAX(1, MIN(50, race->level));
+    return MAX(1, MIN(50, race->alloc.lvl));
 }
 
 static int _max_tries_mon(mon_ptr mon, int lvl)
@@ -169,7 +169,7 @@ static int _max_tries_mon(mon_ptr mon, int lvl)
 mon_blow_ptr monk_choose_attack_mon(cptr tbl_name, mon_ptr mon)
 {
     _monk_attack_tbl_ptr tbl = _get_monk_attack_tbl(tbl_name);
-    int                  lvl = _monk_lvl_mon(mon_race(mon));
+    int                  lvl = _monk_lvl_mon(mon->race);
     int                  tries = _max_tries_mon(mon, lvl);
     mon_blow_ptr         blow = _monk_attack_tbl_choose(tbl, lvl, tries);
     blow->weight = 8*lvl;

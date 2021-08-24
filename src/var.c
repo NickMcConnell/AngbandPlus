@@ -56,6 +56,23 @@ void var_set_string(var_ptr var, cptr pc)
     }
 }
 
+void var_printf(var_ptr var, const char *fmt, ...)
+{
+    va_list vp;
+    str_t s;
+
+    str_create(&s, 20);
+
+    va_start(vp, fmt);
+    str_vprintf(&s, fmt, vp);
+    va_end(vp);
+
+    /* steal ownership of s.buf. do not str_destroy(&s) */
+    var_clear(var);
+    var->tag = VAR_STRING;
+    var->data.pc = s.buf;
+}
+
 void var_set_bool(var_ptr var, bool b)
 {
     var_clear(var);

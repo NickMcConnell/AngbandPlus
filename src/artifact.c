@@ -52,18 +52,18 @@ void one_high_resistance(object_type *o_ptr)
 {
     switch (randint0(12))
     {
-        case  0: add_flag(o_ptr->flags, OF_RES_POIS);   break;
-        case  1: add_flag(o_ptr->flags, OF_RES_LITE);   break;
-        case  2: add_flag(o_ptr->flags, OF_RES_DARK);   break;
-        case  3: add_flag(o_ptr->flags, OF_RES_SHARDS); break;
-        case  4: add_flag(o_ptr->flags, OF_RES_BLIND);  break;
-        case  5: add_flag(o_ptr->flags, OF_RES_CONF);   break;
-        case  6: add_flag(o_ptr->flags, OF_RES_SOUND);  break;
-        case  7: add_flag(o_ptr->flags, OF_RES_NETHER); break;
-        case  8: add_flag(o_ptr->flags, OF_RES_NEXUS);  break;
-        case  9: add_flag(o_ptr->flags, OF_RES_CHAOS);  break;
-        case 10: add_flag(o_ptr->flags, OF_RES_DISEN);  break;
-        case 11: add_flag(o_ptr->flags, OF_RES_FEAR);   break;
+        case  0: add_flag(o_ptr->flags, OF_RES_(GF_POIS));   break;
+        case  1: add_flag(o_ptr->flags, OF_RES_(GF_LIGHT));   break;
+        case  2: add_flag(o_ptr->flags, OF_RES_(GF_DARK));   break;
+        case  3: add_flag(o_ptr->flags, OF_RES_(GF_SHARDS)); break;
+        case  4: add_flag(o_ptr->flags, OF_RES_(GF_BLIND));  break;
+        case  5: add_flag(o_ptr->flags, OF_RES_(GF_CONFUSION)); break;
+        case  6: add_flag(o_ptr->flags, OF_RES_(GF_SOUND));  break;
+        case  7: add_flag(o_ptr->flags, OF_RES_(GF_NETHER)); break;
+        case  8: add_flag(o_ptr->flags, OF_RES_(GF_NEXUS));  break;
+        case  9: add_flag(o_ptr->flags, OF_RES_(GF_CHAOS));  break;
+        case 10: add_flag(o_ptr->flags, OF_RES_(GF_DISENCHANT));  break;
+        case 11: add_flag(o_ptr->flags, OF_RES_(GF_FEAR));   break;
     }
 }
 bool one_high_vulnerability(object_type *o_ptr)
@@ -72,23 +72,23 @@ bool one_high_vulnerability(object_type *o_ptr)
     int i;
     for (i = 0; i < attempts; i++)
     {
-        int good_flag = 0, bad_flag = 0;
+        int gf;
         switch (randint0(12))
         {
-            case  0: bad_flag = OF_VULN_POIS; good_flag = OF_RES_POIS; break;
-            case  1: bad_flag = OF_VULN_LITE; good_flag = OF_RES_LITE; break;
-            case  2: bad_flag = OF_VULN_DARK; good_flag = OF_RES_DARK; break;
-            case  3: bad_flag = OF_VULN_SHARDS; good_flag = OF_RES_SHARDS; break;
-            case  4: bad_flag = OF_VULN_BLIND; good_flag = OF_RES_BLIND; break;
-            case  5: bad_flag = OF_VULN_CONF; good_flag = OF_RES_CONF; break;
-            case  6: bad_flag = OF_VULN_SOUND; good_flag = OF_RES_SOUND; break;
-            case  7: bad_flag = OF_VULN_NETHER; good_flag = OF_RES_NETHER; break;
-            case  8: bad_flag = OF_VULN_NEXUS; good_flag = OF_RES_NEXUS; break;
-            case  9: bad_flag = OF_VULN_CHAOS; good_flag = OF_RES_CHAOS; break;
-            case 10: bad_flag = OF_VULN_DISEN; good_flag = OF_RES_DISEN; break;
-            case 11: bad_flag = OF_VULN_FEAR; good_flag = OF_RES_FEAR; break;
+        case  0: gf = GF_POIS; break;
+        case  1: gf = GF_LIGHT; break;
+        case  2: gf = GF_DARK; break;
+        case  3: gf = GF_SHARDS; break;
+        case  4: gf = GF_BLIND; break;
+        case  5: gf = GF_CONFUSION; break;
+        case  6: gf = GF_SOUND; break;
+        case  7: gf = GF_NETHER; break;
+        case  8: gf = GF_NEXUS; break;
+        case  9: gf = GF_CHAOS; break;
+        case 10: gf = GF_DISENCHANT; break;
+        case 11: gf = GF_FEAR; break;
         }
-        if (_add_bad_flag(o_ptr, bad_flag, good_flag))
+        if (_add_bad_flag(o_ptr, OF_VULN_(gf), OF_RES_(gf)))
             return TRUE;
     }
     return FALSE;
@@ -97,24 +97,24 @@ void one_undead_resistance(object_type *o_ptr)
 {
     switch (randint1(6))
     {
-        case 1: add_flag(o_ptr->flags, OF_RES_COLD);   break;
-        case 2: add_flag(o_ptr->flags, OF_RES_POIS);   break;
-        case 3: add_flag(o_ptr->flags, OF_RES_DARK);   break;
-        case 4: add_flag(o_ptr->flags, OF_RES_NETHER); break;
-        case 5: add_flag(o_ptr->flags, OF_RES_DISEN);  break;
-        case 6: add_flag(o_ptr->flags, OF_RES_FEAR);   break;
+        case 1: add_flag(o_ptr->flags, OF_RES_(GF_COLD));   break;
+        case 2: add_flag(o_ptr->flags, OF_RES_(GF_POIS));   break;
+        case 3: add_flag(o_ptr->flags, OF_RES_(GF_DARK));   break;
+        case 4: add_flag(o_ptr->flags, OF_RES_(GF_NETHER)); break;
+        case 5: add_flag(o_ptr->flags, OF_RES_(GF_DISENCHANT));  break;
+        case 6: add_flag(o_ptr->flags, OF_RES_(GF_FEAR));   break;
     }
 }
 void one_demon_resistance(object_type *o_ptr)
 {
     switch (randint1(6))
     {
-        case 1: add_flag(o_ptr->flags, OF_RES_FIRE);   break;
-        case 2: add_flag(o_ptr->flags, OF_RES_CONF);   break;
-        case 3: add_flag(o_ptr->flags, OF_RES_NEXUS);  break;
-        case 4: add_flag(o_ptr->flags, OF_RES_CHAOS);  break;
-        case 5: add_flag(o_ptr->flags, OF_RES_DISEN);  break;
-        case 6: add_flag(o_ptr->flags, OF_RES_FEAR);   break;
+        case 1: add_flag(o_ptr->flags, OF_RES_(GF_FIRE));   break;
+        case 2: add_flag(o_ptr->flags, OF_RES_(GF_CONFUSION));   break;
+        case 3: add_flag(o_ptr->flags, OF_RES_(GF_NEXUS));  break;
+        case 4: add_flag(o_ptr->flags, OF_RES_(GF_CHAOS));  break;
+        case 5: add_flag(o_ptr->flags, OF_RES_(GF_DISENCHANT));  break;
+        case 6: add_flag(o_ptr->flags, OF_RES_(GF_FEAR));   break;
     }
 }
 
@@ -122,10 +122,10 @@ void one_holy_resistance(object_type *o_ptr)
 {
     switch (randint1(4))
     {
-        case 1: add_flag(o_ptr->flags, OF_RES_LITE);   break;
-        case 2: add_flag(o_ptr->flags, OF_RES_SOUND);  break;
-        case 3: add_flag(o_ptr->flags, OF_RES_SHARDS); break;
-        case 4: add_flag(o_ptr->flags, OF_RES_DISEN);  break;
+        case 1: add_flag(o_ptr->flags, OF_RES_(GF_LIGHT));   break;
+        case 2: add_flag(o_ptr->flags, OF_RES_(GF_SOUND));  break;
+        case 3: add_flag(o_ptr->flags, OF_RES_(GF_SHARDS)); break;
+        case 4: add_flag(o_ptr->flags, OF_RES_(GF_DISENCHANT));  break;
     }
 }
 
@@ -136,16 +136,16 @@ void one_lordly_high_resistance(object_type *o_ptr)
 {
     switch (randint0(10))
     {
-        case 0: add_flag(o_ptr->flags, OF_RES_LITE);   break;
-        case 1: add_flag(o_ptr->flags, OF_RES_DARK);   break;
-        case 2: add_flag(o_ptr->flags, OF_RES_SHARDS); break;
-        case 3: add_flag(o_ptr->flags, OF_RES_BLIND);  break;
-        case 4: add_flag(o_ptr->flags, OF_RES_CONF);   break;
-        case 5: add_flag(o_ptr->flags, OF_RES_SOUND);  break;
-        case 6: add_flag(o_ptr->flags, OF_RES_NETHER); break;
-        case 7: add_flag(o_ptr->flags, OF_RES_NEXUS);  break;
-        case 8: add_flag(o_ptr->flags, OF_RES_CHAOS);  break;
-        case 9: add_flag(o_ptr->flags, OF_RES_FEAR);   break;
+        case 0: add_flag(o_ptr->flags, OF_RES_(GF_LIGHT));   break;
+        case 1: add_flag(o_ptr->flags, OF_RES_(GF_DARK));   break;
+        case 2: add_flag(o_ptr->flags, OF_RES_(GF_SHARDS)); break;
+        case 3: add_flag(o_ptr->flags, OF_RES_(GF_BLIND));  break;
+        case 4: add_flag(o_ptr->flags, OF_RES_(GF_CONFUSION));   break;
+        case 5: add_flag(o_ptr->flags, OF_RES_(GF_SOUND));  break;
+        case 6: add_flag(o_ptr->flags, OF_RES_(GF_NETHER)); break;
+        case 7: add_flag(o_ptr->flags, OF_RES_(GF_NEXUS));  break;
+        case 8: add_flag(o_ptr->flags, OF_RES_(GF_CHAOS));  break;
+        case 9: add_flag(o_ptr->flags, OF_RES_(GF_FEAR));   break;
     }
 }
 
@@ -156,10 +156,10 @@ void one_ele_resistance(object_type *o_ptr)
 {
     switch (randint0(4))
     {
-        case  0: add_flag(o_ptr->flags, OF_RES_ACID); break;
-        case  1: add_flag(o_ptr->flags, OF_RES_ELEC); break;
-        case  2: add_flag(o_ptr->flags, OF_RES_COLD); break;
-        case  3: add_flag(o_ptr->flags, OF_RES_FIRE); break;
+        case  0: add_flag(o_ptr->flags, OF_RES_(GF_ACID)); break;
+        case  1: add_flag(o_ptr->flags, OF_RES_(GF_ELEC)); break;
+        case  2: add_flag(o_ptr->flags, OF_RES_(GF_COLD)); break;
+        case  3: add_flag(o_ptr->flags, OF_RES_(GF_FIRE)); break;
     }
 }
 bool one_ele_vulnerability(object_type *o_ptr)
@@ -168,15 +168,15 @@ bool one_ele_vulnerability(object_type *o_ptr)
     int i;
     for (i = 0; i < attempts; i++)
     {
-        int good_flag = 0, bad_flag = 0;
+        int gf = 0;
         switch (randint0(4))
         {
-            case  0: bad_flag = OF_VULN_ACID; good_flag = OF_RES_ACID; break;
-            case  1: bad_flag = OF_VULN_ELEC; good_flag = OF_RES_ELEC; break;
-            case  2: bad_flag = OF_VULN_COLD; good_flag = OF_RES_COLD; break;
-            case  3: bad_flag = OF_VULN_FIRE; good_flag = OF_RES_FIRE; break;
+            case  0: gf = GF_ACID; break;
+            case  1: gf = GF_ELEC; break;
+            case  2: gf = GF_FIRE; break;
+            case  3: gf = GF_COLD; break;
         }
-        if (_add_bad_flag(o_ptr, bad_flag, good_flag))
+        if (_add_bad_flag(o_ptr, OF_VULN_(gf), OF_RES_(gf)))
             return TRUE;
     }
     return FALSE;
@@ -202,7 +202,7 @@ void one_dragon_ele_resistance(object_type *o_ptr)
 {
     if (one_in_(7))
     {
-        add_flag(o_ptr->flags, OF_RES_POIS);
+        add_flag(o_ptr->flags, OF_RES_(GF_POIS));
     }
     else
     {
@@ -211,9 +211,9 @@ void one_dragon_ele_resistance(object_type *o_ptr)
 }
 bool one_dragon_ele_vulnerability(object_type *o_ptr)
 {
-    if (one_in_(7) && !have_flag(o_ptr->flags, OF_RES_POIS))
+    if (one_in_(7) && !have_flag(o_ptr->flags, OF_RES_(GF_POIS)))
     {
-        add_flag(o_ptr->flags, OF_VULN_POIS);
+        add_flag(o_ptr->flags, OF_VULN_(GF_POIS));
         return TRUE;
     }
     return one_ele_vulnerability(o_ptr);
@@ -348,7 +348,7 @@ void one_ability(object_type *o_ptr)
     switch (randint0(10))
     {
     case 0: add_flag(o_ptr->flags, OF_LEVITATION);     break;
-    case 1: add_flag(o_ptr->flags, OF_LITE);        break;
+    case 1: add_flag(o_ptr->flags, OF_LIGHT);        break;
     case 2: add_flag(o_ptr->flags, OF_SEE_INVIS);   break;
     case 3: add_flag(o_ptr->flags, OF_WARNING);     break;
     case 4: add_flag(o_ptr->flags, OF_SLOW_DIGEST); break;
@@ -477,27 +477,24 @@ void get_bloody_moon_flags(object_type *o_ptr)
 /*
  * Create the artifact of the specified number
  */
-bool create_named_art(int a_idx, point_t pos)
+bool create_named_art(art_ptr art, point_t pos)
 {
-    assert(0 <= a_idx && a_idx < max_a_idx);
     if (no_artifacts) return FALSE;
+    if (!art) return FALSE;
 
     if ( random_artifacts
-      && !(a_info[a_idx].gen_flags & OFG_FIXED_ART)
+      && !(art->gen_flags & OFG_FIXED_ART)
       && randint0(100) < random_artifact_pct )
     {
         object_type forge;
-        if (art_create_replacement(&forge, a_idx))
+        if (art_create_replacement(&forge, art, 0))
             return drop_near(&forge, pos, -1);
     }
     else
     {
         object_type forge;
-        if (art_create_std(&forge, a_idx, 0))
-        {
-            a_info[a_idx].generated = TRUE;
+        if (art_create_std(&forge, art, 0))
             return drop_near(&forge, pos, -1);
-        }
     }
     return FALSE;
 }

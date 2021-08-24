@@ -10,22 +10,9 @@ void cause_wounds_I_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Attempts to damage a single foe.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(3, spell_power(8), spell_power(p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball_hide(GF_CAUSE_1, dir, spell_power(damroll(3, 8) + p_ptr->to_d_spell), 0);
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
-    }
+        curse_spell(cmd, res, GF_CAUSE_1, 3, 8);
+    } 
 }
 
 void cause_wounds_II_spell(int cmd, var_ptr res)
@@ -38,21 +25,8 @@ void cause_wounds_II_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Attempts to damage a single foe.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(8, spell_power(8), spell_power(p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball_hide(GF_CAUSE_2, dir, spell_power(damroll(8, 8) + p_ptr->to_d_spell), 0);
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        curse_spell(cmd, res, GF_CAUSE_2, 8, 8);
     }
 }
 
@@ -66,21 +40,8 @@ void cause_wounds_III_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Attempts to damage a single foe.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(10, spell_power(15), spell_power(p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball_hide(GF_CAUSE_3, dir, spell_power(damroll(10, 15) + p_ptr->to_d_spell), 0);
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        curse_spell(cmd, res, GF_CAUSE_3, 10, 15);
     }
 }
 
@@ -94,21 +55,8 @@ void cause_wounds_IV_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Attempts to damage a single foe.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(15, spell_power(15), spell_power(p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball_hide(GF_CAUSE_4, dir, spell_power(damroll(15, 15) + p_ptr->to_d_spell), 0);
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        curse_spell(cmd, res, GF_CAUSE_4, 15, 15);
     }
 }
 
@@ -155,12 +103,12 @@ void clear_mind_spell(int cmd, var_ptr res)
         int amt;
 
         var_set_bool(res, FALSE);
-        if (total_friends)
+        if (plr_pet_count())
         {
             msg_print("You need to concentrate on your pets now.");
             return;
         }
-        if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+        if (plr->pclass == CLASS_RUNE_KNIGHT)
         {
             msg_print("Your mind remains cloudy.");
             return;
@@ -168,10 +116,10 @@ void clear_mind_spell(int cmd, var_ptr res)
 
         msg_print("You feel your head clear a little.");
 
-        if (p_ptr->pclass == CLASS_PSION) /* Testing ... */
-            amt = 3 + p_ptr->lev/10;
+        if (plr->pclass == CLASS_PSION) /* Testing ... */
+            amt = 3 + plr->lev/10;
         else
-            amt = 3 + p_ptr->lev/20;
+            amt = 3 + plr->lev/20;
 
         sp_player(amt);
         var_set_bool(res, TRUE);
@@ -194,21 +142,11 @@ void confuse_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Attempt to confuse one or more monsters.");
         break;
-    case SPELL_CAST:
-        var_set_bool(res, FALSE);
-        if (p_ptr->lev < 40)
-        {
-            int dir = 0;
-            if (!get_fire_dir(&dir)) return;
-            confuse_monster(dir, p_ptr->lev*2);
-        }
-        else
-            confuse_monsters(p_ptr->lev*2);
-        var_set_bool(res, TRUE);
-        break;
     default:
-        default_spell(cmd, res);
-        break;
+        if (plr->lev < 40)
+            bolt_spell_aux(cmd, res, GF_OLD_CONF, spell_dice(0, 0, 2*plr->lev));
+        else
+            los_spell(cmd, res, GF_OLD_CONF, 2*plr->lev);
     }
 }
 
@@ -223,7 +161,7 @@ void cold_touch_spell(int cmd, var_ptr res)
         var_set_string(res, "Freeze things with your icy fingers!");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(2 * p_ptr->lev)));
+        var_set_string(res, info_damage(0, 0, spell_power(2 * plr->lev)));
         break;
     case SPELL_GAIN_MUT:
         msg_print("Your hands get very cold.");
@@ -238,7 +176,7 @@ void cold_touch_spell(int cmd, var_ptr res)
         mon_ptr mon = plr_target_adjacent_mon();
         var_set_bool(res, FALSE);
         if (!mon) break;
-        plr_touch_mon(mon, GF_COLD, spell_power(2*p_ptr->lev));
+        plr_touch_mon(mon, GF_COLD, spell_power(2*plr->lev));
         var_set_bool(res, TRUE);
         break; }
     default:
@@ -260,11 +198,7 @@ void confusing_lights_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
         msg_print("You glare nearby monsters with a dazzling array of confusing lights!");
-        slow_monsters(p_ptr->lev * 4);
-        stun_monsters(5 + p_ptr->lev/5);
-        confuse_monsters(p_ptr->lev * 4);
-        turn_monsters(p_ptr->lev * 4);
-        stasis_monsters(p_ptr->lev * 3 / 2);
+        confusing_lights(plr_prorata_level(100));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -398,7 +332,7 @@ void create_food_spell(int cmd, var_ptr res)
         var_set_string(res, "Create Food");
         break;
     case SPELL_DESC:
-        if (p_ptr->prace == RACE_HOBBIT)
+        if (plr->prace == RACE_HOBBIT)
             var_set_string(res, "It's time for second breakfast!  Cook up a tasty meal.");
         else
             var_set_string(res, "Create a ration of tasty food.");
@@ -408,7 +342,7 @@ void create_food_spell(int cmd, var_ptr res)
         object_type forge;
 
         object_prep(&forge, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-        drop_near(&forge, p_ptr->pos, -1);
+        drop_near(&forge, plr->pos, -1);
 
         var_set_bool(res, TRUE);
         break;
@@ -431,7 +365,7 @@ void create_major_trap_spell(int cmd, var_ptr res)
         var_set_string(res, "Sets a trap under you. This trap will have various effects on a passing monster.");
         break;
     case SPELL_CAST:
-        set_trap(p_ptr->pos.y, p_ptr->pos.x, feat_rogue_trap2);
+        dun_place_plr_trap_major(cave, plr->pos);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -451,7 +385,7 @@ void create_minor_trap_spell(int cmd, var_ptr res)
         var_set_string(res, "Sets a weak trap under you. This trap will have various weak effects on a passing monster.");
         break;
     case SPELL_CAST:
-        set_trap(p_ptr->pos.y, p_ptr->pos.x, feat_rogue_trap1);
+        dun_place_plr_trap_minor(cave, plr->pos);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -471,7 +405,7 @@ void create_ultimate_trap_spell(int cmd, var_ptr res)
         var_set_string(res, "Sets an extremely powerful trap under you. This trap will have various strong effects on a passing monster.");
         break;
     case SPELL_CAST:
-        set_trap(p_ptr->pos.y, p_ptr->pos.x, feat_rogue_trap3);
+        dun_place_plr_trap_ultimate(cave, plr->pos);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -492,11 +426,11 @@ void crusade_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST: {
         int base = 25;
-        int sp_sides = 20 + p_ptr->lev;
-        int sp_base = p_ptr->lev;
+        int sp_sides = 20 + plr->lev;
+        int sp_base = plr->lev;
         int i;
 
-        project_los(GF_CRUSADE, p_ptr->lev*4);
+        plr_project_los(GF_CRUSADE, plr->lev*4);
         for (i = 0; i < 12; i++)
         {
             int attempt = 10;
@@ -504,11 +438,11 @@ void crusade_spell(int cmd, var_ptr res)
 
             while (attempt--)
             {
-                pos = scatter(p_ptr->pos, 4);
-                if (cave_empty_at(pos)) break;
+                pos = scatter(plr->pos, 4);
+                if (dun_allow_mon_at(cave, pos)) break;
             }
             if (attempt < 0) continue;
-            summon_specific(-1, pos, p_ptr->lev, SUMMON_KNIGHT, (PM_ALLOW_GROUP | PM_FORCE_PET | PM_HASTE));
+            summon_specific(who_create_plr(), pos, plr->lev, SUMMON_KNIGHT, (PM_ALLOW_GROUP | PM_FORCE_PET | PM_HASTE));
         }
         plr_tim_add(T_HERO, randint1(base) + base);
         plr_tim_add(T_BLESSED, randint1(base) + base);
@@ -649,13 +583,11 @@ void curing_spell(int cmd, var_ptr res)
     }
 }
 
-static int _darkness_storm_I_dam(void)
-{
-    if (p_ptr->pclass == CLASS_WILD_TALENT) /* Wild-Talents gain both I and II versions ... */
+static int _darkness_storm_I_dam(void) {
+    if (plr->pclass == CLASS_WILD_TALENT) /* Wild-Talents gain both I and II versions ... */
         return 100 + plr_prorata_level_aux(100, 1, 1, 0);
     return 100 + plr_prorata_level_aux(200, 1, 1, 2);
 }
-
 void darkness_storm_I_spell(int cmd, var_ptr res)
 {
     switch (cmd)
@@ -666,35 +598,14 @@ void darkness_storm_I_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a huge ball of darkness.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(_darkness_storm_I_dam() + p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        msg_print("You invoke a darkness storm.");
-        fire_ball(
-            GF_DARK,
-            dir,
-            spell_power(_darkness_storm_I_dam() + p_ptr->to_d_spell),
-            spell_power(4)
-        );
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 4, GF_DARK, _darkness_storm_I_dam());
     }
 }
 
-static int _darkness_storm_II_dam(void)
-{
+static int _darkness_storm_II_dam(void) {
     return plr_prorata_level_aux(450, 1, 0, 2);
 }
-
 void darkness_storm_II_spell(int cmd, var_ptr res)
 {
     switch (cmd)
@@ -705,30 +616,13 @@ void darkness_storm_II_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a huge ball of darkness of unmatched power");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(_darkness_storm_II_dam() + p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        msg_print("You invoke a darkness storm.");
-        fire_ball(GF_DARK, dir,
-            spell_power(_darkness_storm_II_dam() + p_ptr->to_d_spell),
-            spell_power(4));
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 4, GF_DARK, _darkness_storm_II_dam());
     }
 }
 
 void day_of_the_dove_spell(int cmd, var_ptr res)
 {
-    int power = spell_power(p_ptr->lev * 2);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -737,16 +631,8 @@ void day_of_the_dove_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Attempts to charm all monsters in sight.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_power(power));
-        break;
-    case SPELL_CAST:
-        charm_monsters(power);
-        var_set_bool(res, TRUE);
-        break;
     default:
-        default_spell(cmd, res);
-        break;
+        los_spell(cmd, res, GF_CHARM, 2*plr->lev);
     }
 }
 
@@ -770,9 +656,9 @@ void dazzle_spell(int cmd, var_ptr res)
         var_set_string(res, "You can emit confusing, blinding radiation.");
         break;
     case SPELL_CAST:
-        stun_monsters(5 + p_ptr->lev/5);
-        confuse_monsters(p_ptr->lev * 4);
-        turn_monsters(p_ptr->lev * 4);
+        plr_project_los(GF_STUN, 5 + plr->lev/5);
+        plr_project_los(GF_OLD_CONF, plr->lev * 4);
+        plr_project_los(GF_FEAR, plr->lev * 4);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -832,30 +718,12 @@ void demon_breath_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Breathe a powerful blast of either fire or nether at your opponent.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev * 3)));
-        break;
-    case SPELL_CAST:
-    {
-        int type = (one_in_(2) ? GF_NETHER : GF_FIRE);
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-
-        stop_mouth();
-
-        msg_format("You breathe %s.", (type == GF_NETHER) ? "nether" : "fire");
-
-        fire_ball(type, dir, spell_power(p_ptr->lev * 3), -(p_ptr->lev / 15) - 1);
-        var_set_bool(res, TRUE);
-        break;
-    }
     case SPELL_COST_EXTRA:
-        var_set_int(res, p_ptr->lev/3);
+        var_set_int(res, plr->lev/3);
         break;
     default:
-        default_spell(cmd, res);
-        break;
+       {int gf = one_in_(2) ? GF_NETHER : GF_FIRE;
+        breath_spell_innate(cmd, res, 1 + plr->lev/15, gf, 3*plr->lev);}
     }
 }
 
@@ -870,7 +738,7 @@ void destruction_spell(int cmd, var_ptr res)
         var_set_string(res, "Destroys everything in your nearby vicinity ... except you, of course.");
         break;
     case SPELL_CAST:
-        destroy_area(p_ptr->pos.y, p_ptr->pos.x, 12 + randint1(4), spell_power(4 * p_ptr->lev));
+        destroy_area(plr->pos, 12 + randint1(4), spell_power(4 * plr->lev));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1109,7 +977,7 @@ void dimension_door_spell(int cmd, var_ptr res)
         var_set_string(res, "Open a portal to another dimension and step to a nearby location with great precision.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, dimension_door(p_ptr->lev / 2 + 10));
+        var_set_bool(res, dimension_door(plr->lev / 2 + 10));
         break;
     case SPELL_ENERGY:
         if (mut_present(MUT_ASTRAL_GUIDE))
@@ -1134,26 +1002,8 @@ void disintegrate_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a huge ball of disintegration.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev + 70 + p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dam = spell_power(p_ptr->lev + 70 + p_ptr->to_d_spell);
-        int rad = 3 + p_ptr->lev / 40;
-        int dir;
-
-        var_set_bool(res, FALSE);
-
-        if (!get_fire_dir(&dir)) return;
-        fire_ball(GF_DISINTEGRATE, dir, dam, rad);
-
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 3 + plr->lev/40, GF_DISINTEGRATE, 70 + plr->lev);
     }
 }
 
@@ -1167,16 +1017,8 @@ void dispel_evil_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Damages all evil monsters in sight.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev*5/2 + p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-        dispel_evil(spell_power(p_ptr->lev*5/2 + p_ptr->to_d_spell));
-        var_set_bool(res, TRUE);
-        break;
     default:
-        default_spell(cmd, res);
-        break;
+        los_dam_spell(cmd, res, GF_DISP_EVIL, 5*plr->lev/2);
     }
 }
 
@@ -1190,16 +1032,8 @@ void dispel_life_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Damages all living monsters in sight.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev*5/2 + p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-        dispel_living(spell_power(p_ptr->lev*5/2 + p_ptr->to_d_spell));
-        var_set_bool(res, TRUE);
-        break;
     default:
-        default_spell(cmd, res);
-        break;
+        los_dam_spell(cmd, res, GF_DISP_LIVING, 5*plr->lev/2);
     }
 }
 
@@ -1236,17 +1070,8 @@ void dispel_undead_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Damages all undead monsters in sight.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev*3 + p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-        if(project_los(GF_DISP_UNDEAD, spell_power(p_ptr->lev*3 + p_ptr->to_d_spell)))
-            virtue_add(VIRTUE_UNLIFE, -2);
-        var_set_bool(res, TRUE);
-        break;
     default:
-        default_spell(cmd, res);
-        break;
+        los_dam_spell(cmd, res, GF_DISP_UNDEAD, 3*plr->lev);
     }
 }
 
@@ -1260,21 +1085,11 @@ void dominate_living_I_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "");
         break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball_hide(GF_CONTROL_LIVING, dir, p_ptr->lev, 0);
-        var_set_bool(res, TRUE);
-        break;
-    }
     case SPELL_COST_EXTRA:
-        var_set_int(res, (p_ptr->lev+3)/4);
+        var_set_int(res, (plr->lev+3)/4);
         break;
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 0, GF_CONTROL_LIVING, plr->lev);
     }
 }
 
@@ -1288,19 +1103,17 @@ void dominate_living_II_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "");
         break;
-    case SPELL_CAST:
-        project_los(GF_CONTROL_LIVING, p_ptr->lev);
-        var_set_bool(res, TRUE);
-        break;
     case SPELL_COST_EXTRA:
-        var_set_int(res, (p_ptr->lev+20)/2);
+        var_set_int(res, (plr->lev+20)/2);
         break;
     default:
-        default_spell(cmd, res);
-        break;
+        los_spell(cmd, res, GF_CONTROL_LIVING, plr->lev);
     }
 }
 
+static dice_t _drain_mana_dice(void) {
+    return spell_dice(1, 3*plr->lev, plr->lev);
+}
 void drain_mana_spell(int cmd, var_ptr res)
 {
     switch (cmd)
@@ -1312,20 +1125,13 @@ void drain_mana_spell(int cmd, var_ptr res)
         var_set_string(res, "Attempts to drain mana from chosen monster.");
         break;
     case SPELL_INFO:
-        var_set_string(res, format("%d+d%d", spell_power(p_ptr->lev), spell_power(p_ptr->lev*3)));
+        var_set_string(res, dice_info_dam(_drain_mana_dice()));
         break;
     case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball_hide(GF_DRAIN_MANA, dir, spell_power(randint1(p_ptr->lev*3)+p_ptr->lev), 0);
-        var_set_bool(res, TRUE);
+        var_set_bool(res, plr_cast_ball(0, GF_DRAIN_MANA, _drain_mana_dice()));
         break;
-    }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -1349,7 +1155,7 @@ void earthquake_spell(int cmd, var_ptr res)
         var_set_string(res, "You can bring down the dungeon around your ears.");
         break;
     case SPELL_CAST:
-        earthquake(p_ptr->pos, 10);
+        earthquake(plr->pos, 10);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1380,7 +1186,7 @@ void eat_magic_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
-        if (eat_magic(20 + p_ptr->lev * 8 / 5)) /* skillmasters can do this on CL1 ... */
+        if (eat_magic(20 + plr->lev * 8 / 5)) /* skillmasters can do this on CL1 ... */
             var_set_bool(res, TRUE);
         break;
     case SPELL_FAIL_MIN:
@@ -1414,83 +1220,65 @@ void eat_rock_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
     {
-        int x, y;
-        cave_type *c_ptr;
-        feature_type *f_ptr, *mimic_f_ptr;
         int dir = 0;
+        point_t pos;
+        dun_cell_ptr cell;
+        mon_ptr mon;
 
         var_set_bool(res, FALSE);
 
         if (!get_rep_dir2(&dir)) break;
-        y = p_ptr->pos.y + ddy[dir];
-        x = p_ptr->pos.x + ddx[dir];
-        c_ptr = cave_at_xy(x, y);
-        f_ptr = &f_info[c_ptr->feat];
-        mimic_f_ptr = &f_info[get_feat_mimic(c_ptr)];
 
+        pos = point_step(plr->pos, dir);
+        cell = dun_cell_at(cave, pos);
         stop_mouth();
 
-        if (!have_flag(mimic_f_ptr->flags, FF_HURT_ROCK))
+        if (!cell_is_wall(cell)) /* XXX no longer support doors or trees */
         {
             msg_print("You cannot eat this feature.");
             break;
         }
-        else if (have_flag(f_ptr->flags, FF_PERMANENT))
+        else if (cell->flags & CELL_PERM)
         {
             msg_format("Ouch!  This %s is harder than your teeth!",
-                f_name + mimic_f_ptr->name);
-
+                cell_desc(cell));
             break;
         }
-        else if (mon_at_xy(x, y))
+        mon = dun_mon_at(cave, pos);
+        if (mon)
         {
-            monster_type *m_ptr = mon_at_xy(x, y);
             msg_print("There's something in the way!");
-            if (!m_ptr->ml || !is_pet(m_ptr)) plr_attack_normal(point_create(x,y));
+            if (!mon->ml || !mon_is_pet(mon)) plr_attack_normal(pos);
             break;
         }
-        else if (have_flag(f_ptr->flags, FF_TREE))
-        {
-            msg_print("You don't like the woody taste!");
-            break;
-        }
-        else if (have_flag(f_ptr->flags, FF_GLASS))
-        {
-            msg_print("You don't like the glassy taste!");
-            break;
-        }
-        else if (have_flag(f_ptr->flags, FF_DOOR) || have_flag(f_ptr->flags, FF_CAN_DIG))
+        else if (wall_is_rubble(cell))
         {
             if (elemental_is_(ELEMENTAL_EARTH))
-                set_food(MIN(p_ptr->food + 500, PY_FOOD_MAX - 1));
+                set_food(MIN(plr->food + 500, PY_FOOD_MAX - 1));
             else
-                set_food(p_ptr->food + 3000);
+                set_food(plr->food + 3000);
         }
-        else if (have_flag(f_ptr->flags, FF_MAY_HAVE_GOLD) || have_flag(f_ptr->flags, FF_HAS_GOLD))
+        else if (wall_is_granite(cell))
         {
             if (elemental_is_(ELEMENTAL_EARTH))
-                set_food(MIN(p_ptr->food + 1000, PY_FOOD_MAX - 1));
+                set_food(MIN(plr->food + 2000, PY_FOOD_MAX - 1));
             else
-                set_food(p_ptr->food + 5000);
+            {
+                msg_format("This %s is very filling!",
+                    cell_desc(cell));
+                set_food(plr->food + 10000);
+            }
         }
         else
         {
             if (elemental_is_(ELEMENTAL_EARTH))
-                set_food(MIN(p_ptr->food + 2000, PY_FOOD_MAX - 1));
+                set_food(MIN(plr->food + 1000, PY_FOOD_MAX - 1));
             else
-            {
-                msg_format("This %s is very filling!",
-                    f_name + mimic_f_ptr->name);
-
-                set_food(p_ptr->food + 10000);
-            }
+                set_food(plr->food + 5000);
         }
 
-        /* Destroy the wall */
-        cave_alter_feat(y, x, FF_HURT_ROCK);
-
-        /* Move the player */
-        move_player_effect(point_create(x, y), MPE_DONT_PICKUP);
+        if (dun_tunnel(cave, pos, ACTION_FORCE | ACTION_QUIET) == ACTION_SUCCESS)
+            move_player_effect(pos, MPE_DONT_PICKUP);
         var_set_bool(res, TRUE);
         break;
     }
@@ -1516,8 +1304,8 @@ void evil_bless_spell(int cmd, var_ptr res)
 
 void evocation_spell(int cmd, var_ptr res)
 {
-    int dam = spell_power(p_ptr->lev * 4 + p_ptr->to_d_spell);
-    int power = spell_power(p_ptr->lev * 4);
+    int dam = spell_power(plr->lev * 4 + plr->to_d_spell);
+    int power = spell_power(plr->lev * 4);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -1530,9 +1318,9 @@ void evocation_spell(int cmd, var_ptr res)
         var_set_string(res, info_damage(0, 0, dam));
         break;
     case SPELL_CAST:
-        dispel_monsters(dam);
-        turn_monsters(power);
-        banish_monsters(power);
+        plr_project_los(GF_DISP_ALL, dam);
+        plr_project_los(GF_FEAR, power);
+        plr_project_los(GF_TELEPORT, power);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1552,7 +1340,7 @@ void minor_enchantment_spell(int cmd, var_ptr res)
         var_set_string(res, "Attempts to enchant a weapon, ammo or armor.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, craft_enchant(2 + p_ptr->lev/5, 1));
+        var_set_bool(res, craft_enchant(2 + plr->lev/5, 1));
         break;
     default:
         default_spell(cmd, res);
@@ -1580,6 +1368,10 @@ void enchantment_spell(int cmd, var_ptr res)
 }
 bool cast_enchantment(void) { return cast_spell(enchantment_spell); }
 
+static dice_t _enslave_undead_dice(void) { 
+    int m = plr->pclass == CLASS_NECROMANCER ? 3 : 1;
+    return spell_dice(0, 0, m*plr->lev);
+}
 void enslave_undead_spell(int cmd, var_ptr res)
 {
     switch (cmd)
@@ -1590,23 +1382,14 @@ void enslave_undead_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Attempts to enslave an undead monster.");
         break;
-    case SPELL_CAST:
-    {
-        int power, dir;
-        if (p_ptr->pclass == CLASS_NECROMANCER)
-            power = spell_power(p_ptr->lev*3);
-        else
-            power = spell_power(p_ptr->lev);
-
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        control_one_undead(dir, power);
-        var_set_bool(res, TRUE);
+    case SPELL_INFO:
+        var_set_string(res, dice_info_power(_enslave_undead_dice()));
         break;
-    }
+    case SPELL_CAST:
+        var_set_bool(res, plr_cast_bolt(GF_CONTROL_UNDEAD, _enslave_undead_dice()));
+        break;
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -1661,34 +1444,13 @@ void fire_ball_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Generate a Fire Ball on chosen target.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(3*p_ptr->lev/2 + 30 + p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball(
-            GF_FIRE,
-            dir,
-            spell_power(3*p_ptr->lev/2 + 30 + p_ptr->to_d_spell),
-            2
-        );
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 2, GF_FIRE, 30 + 3*plr->lev/2);
     }
 }
 
 void fire_bolt_spell(int cmd, var_ptr res)
 {
-    int dd = 5 + p_ptr->lev / 4;
-    int ds = 8;
-
     switch (cmd)
     {
     case SPELL_NAME:
@@ -1697,26 +1459,8 @@ void fire_bolt_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a bolt or beam of fire.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(dd, spell_power(ds), spell_power(p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_bolt_or_beam(
-            beam_chance(),
-            GF_FIRE,
-            dir,
-            spell_power(damroll(dd, ds) + p_ptr->to_d_spell)
-        );
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        bolt_or_beam_spell(cmd, res, GF_FIRE, 5 + plr->lev/4, 8);
     }
 }
 
@@ -1731,16 +1475,18 @@ void flow_of_lava_spell(int cmd, var_ptr res)
         var_set_string(res, "Generates a ball of fire centered on you which transforms floors to magma.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(55 + p_ptr->lev + p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-        fire_ball(GF_FIRE, 0, spell_power(55 + p_ptr->lev + p_ptr->to_d_spell), 3);
-        fire_ball_hide(GF_LAVA_FLOW, 0, 2 + randint1(2), 3);
-        var_set_bool(res, TRUE);
-        break;
+    case SPELL_CAST: {
+        dice_t dice = spell_dam_dice(0, 0, 55 + plr->lev);
+        if (cmd == SPELL_INFO)
+            var_set_string(res, dice_info_dam(dice));
+        else {
+            plr_burst(3, GF_FIRE, dice_roll(dice));
+            plr_ball(3, plr->pos, GF_LAVA_FLOW, 2 + _1d(2));
+            var_set_bool(res, TRUE);
+        }
+        break; }
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
@@ -1756,7 +1502,7 @@ void force_branding_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
     {
-        int base = spell_power(p_ptr->lev / 4);
+        int base = spell_power(plr->lev / 4);
         plr_tim_add(T_BRAND_MANA, base + randint1(base));
         var_set_bool(res, TRUE);
         break;
@@ -1777,29 +1523,13 @@ void frost_ball_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Generate a Frost Ball on chosen target.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(3*p_ptr->lev/2 + 25 + p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_ball(GF_COLD, dir, spell_power(3*p_ptr->lev/2 + 25 + p_ptr->to_d_spell), 2);
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        ball_spell(cmd, res, 2, GF_COLD, 25 + 3*plr->lev/2);
     }
 }
 
 void frost_bolt_spell(int cmd, var_ptr res)
 {
-    int dd = 4 + p_ptr->lev / 4;
-    int ds = 8;
-
     switch (cmd)
     {
     case SPELL_NAME:
@@ -1808,26 +1538,8 @@ void frost_bolt_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a bolt or beam of frost.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(dd, spell_power(ds), spell_power(p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_bolt_or_beam(
-            beam_chance(),
-            GF_COLD,
-            dir,
-            spell_power(damroll(dd, ds) + p_ptr->to_d_spell)
-        );
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        bolt_or_beam_spell(cmd, res, GF_COLD, 4 + plr->lev/4, 8);
     }
 }
 
@@ -1842,11 +1554,11 @@ void genocide_spell(int cmd, var_ptr res)
         var_set_string(res, "Eliminates an entire class of monster, exhausting you. Powerful or unique monsters may resist.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_power(spell_power(p_ptr->lev*3)));
+        var_set_string(res, info_power(spell_power(plr->lev*3)));
         break;
     case SPELL_CAST:
     {
-        int power = spell_power(p_ptr->lev*3);
+        int power = spell_power(plr->lev*3);
         var_set_bool(res, symbol_genocide(power, TRUE));
         break;
     }
@@ -1900,7 +1612,7 @@ void grow_mold_spell(int cmd, var_ptr res)
         int i;
         for (i = 0; i < 8; i++)
         {
-            summon_specific(-1, p_ptr->pos, p_ptr->lev, SUMMON_BIZARRE1, PM_FORCE_PET);
+            summon_specific(who_create_plr(), plr->pos, plr->lev, SUMMON_BIZARRE1, PM_FORCE_PET);
         }
         var_set_bool(res, TRUE);
         break;

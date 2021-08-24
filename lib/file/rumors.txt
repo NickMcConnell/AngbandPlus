@@ -4,7 +4,7 @@ The way back to the surface can be found below level 3, but not on every level.
 A <color:keyword>Word of Recall</color> spell is very useful!
 Don't rest near staircases.
 Wilderness travel is easy if you run along the center of the road.
-Shelob has been reported in Mirkwood Forest, near the Mountains of Mirkwook.
+Shelob has been reported in Mirkwood Forest, near the Mountains of Mirkwood.
 You don't need to take travel portals right away. They will always re-appear where you first found them.
 Towns are no longer peaceful places for rest and comtemplation.
 To face the <color:keyword>Great Enemy</color> is to face your greatest fears. Are you bold enough?
@@ -30,7 +30,6 @@ You should spend considerable time below DL90 if you hope to win.
 Artifacts get better the deeper you go.
 If your gear stops improving, then it is time to go deeper.
 To win the game, you should kill as many uniques as possible.
-To win the game, you should kill as few uniques as possible.
 Stat potions are more common in Isengard.
 You should probably save those *Healing* and Life potions for the end.
 You will need a strong distance attack to survive.
@@ -42,3 +41,20 @@ A vampiric weapon will first restore your life force, then your health.
 I've heard that some vault monsters cannot be teleported. Yikes!
 Don't feel like shooting? Try a Mage Quiver instead!
 You can never remove the <color:keyword>Eye of Vecna</color>.
+If you truly miss the <color:v>Ancient Foul Curse</color>, try playing <color:B>The World of Amber</color>.
+A <color:D>blind</color> beholder is fairly harmless!
+<color:D>Blind</color> monsters only have a rough idea of your current location.
+An Illusionist can lure monsters out of a vault with a horrible, screeching, auditory illusion.
+A Rogue can ambush more than just sleeping monsters!
+Confusing Lights are visual illusions: sleeping monsters won't notice them.
+Frightened monsters will head for the nearest stairs!
+A confused cyberdemon is still dangerous, launching rockets in random directions. You might get accidentally hit!
+Pets are now much smarter at finding a targetted enemy.
+Try joining up with Gandalf the next time you see him, assuming he is friendly!
+A Necromancer can attack with the <color:keyword>Hand of Vecna</color>.
+Tired of everbody attacking you? Don a <color:keyword>Cloak of Innocence</color>!
+I hear a <color:keyword>Mask of Discord</color> will make enemy monsters attack one another.
+An illusory wall will fool monsters even if they see you walk right through one.
+With a <color:keyword>Mask of Command</color> you can steal control over an enemy's summons.
+To slay the <color:keyword>Lord of Darkness</color> requires a very bright light source!
+Monster darkness can completely overwhelm weak light sources: you might even no longer see yourself!

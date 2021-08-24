@@ -11,10 +11,10 @@ extern bool store_hack;
 struct shop_s;
 typedef struct shop_s shop_t, *shop_ptr;
 
-enum
+enum /* shared with FEAT_BLDG implementation */
 {
-    SHOP_NONE = -1, /* TODO: f_info.txt */
-    SHOP_GENERAL = 0,
+    SHOP_NONE = 0,
+    SHOP_GENERAL,
     SHOP_ARMORY,
     SHOP_WEAPON,
     SHOP_TEMPLE,
@@ -25,6 +25,7 @@ enum
     SHOP_BOOK,
     SHOP_MUSEUM,
     SHOP_JEWELER,
+    SHOP_COUNT
 };
 
 extern shop_ptr shop_load(savefile_ptr file);
@@ -43,10 +44,10 @@ extern void     shop_save(shop_ptr shop, savefile_ptr file);
 struct bldg_s;
 typedef struct bldg_s bldg_t, *bldg_ptr;
 
-enum
+enum /* shared with FEAT_BLDG implementation */
 {
     BLDG_NONE = 0,
-    BLDG_INN = 1,
+    BLDG_INN,
     BLDG_CASTLE,
     BLDG_FIGHTERS_GUILD,
     BLDG_ARCHERS_GUILD,
@@ -60,6 +61,8 @@ extern bldg_ptr bldg_load(savefile_ptr file);
 extern void     bldg_save(bldg_ptr bldg, savefile_ptr file);
 extern void     bldg_free(bldg_ptr bldg);
 extern void     bldg_ui(bldg_ptr bldg);
+
+extern void     display_wanted_uniques(void);
 
 /************************************************************************
  * Towns
@@ -112,11 +115,10 @@ extern int      towns_parse(cptr name);
 extern town_ptr towns_lookup(int which);
 
 extern town_ptr towns_current_town(void);
-extern town_ptr towns_choose(bool wizard);
+extern town_ptr towns_choose(u32b flags);
 extern void     towns_save(savefile_ptr file);
 extern void     towns_load(savefile_ptr file);
 
-extern void     towns_init_buildings(void);
 extern room_ptr towns_get_map(int town_id);
 
 extern town_ptr town_alloc(int which, cptr name);

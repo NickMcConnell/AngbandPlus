@@ -19,6 +19,8 @@
     <link:option_contents.txt> Options
     <link:pref_contents.txt> User Preference Files
     <link:editor_contents.txt> The <color:U>Mo</color><color:y>g</color><color:o>am</color><color:R>in</color><color:r>at</color><color:v>or</color>
+
+    <link:release.txt> What's New?
     <link:credits.txt> Credits
 
     <color:y>(?) Help System Commands</color>

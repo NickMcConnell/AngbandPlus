@@ -1,21 +1,17 @@
 #ifndef INCLUDED_GF_H
 #define INCLUDED_GF_H
 
-/* Player and monster effects. GF_ is a mysterious historical abbreviation
- * Note: I reordered constants for the mon_spell system to provide sensible
- *       sorting (cf Possessor Spell UI).
- * Note: These constants are used in savefiles for purposes of monster lore.
- *       Any changes or reordering should be avoided (add to end instead).*/
+/* Player and monster effects. GF_ is a mysterious historical abbreviation */
 enum {
     GF_NONE = 0,  /* if (type) project(..., type,...) */
 
-    /* Elemental Effects */
-    GF_ACID,
+    /* Resistable Effects */
+    GF_ACID = 1,
     GF_ELEC,
     GF_FIRE,
     GF_COLD,
     GF_POIS,
-    GF_LITE,
+    GF_LIGHT,
     GF_DARK,
     GF_CONFUSION,
     GF_NETHER,
@@ -25,23 +21,34 @@ enum {
     GF_CHAOS,
     GF_DISENCHANT,
     GF_TIME,
-
-    GF_MANA,
-    GF_GRAVITY,
-    GF_INERT,
+    GF_WATER,
     GF_PLASMA,
     GF_FORCE,
+    GF_INERTIA,
+    GF_GRAVITY,
+    GF_DISINTEGRATE,  /* XXX Vuln => HURT_ROCK */
+    GF_BLIND,
+    GF_FEAR,
+    GF_STUN,
+    GF_TELEPORT,
+    GF_SLEEP,         /* plr->free_act */
+    GF_SLOW,
+
+    GF_RES_MIN = 1,
+    GF_RES_MAX = GF_SLOW,
+    GF_RES_COUNT = GF_RES_MAX+1, /* plr->resist[GF_RES_COUNT] */
+
+    GF_MANA = 32,
     GF_NUKE,
-    GF_DISINTEGRATE,
     GF_STORM,
     GF_HOLY_FIRE,
     GF_HELL_FIRE,
     GF_ICE,
-    GF_WATER,
     GF_ROCKET,
     GF_METEOR,
     GF_ROCK,
     GF_ARROW,
+    GF_SUPER_ARROW,
     GF_MISSILE,
 
     /* Curses */
@@ -67,20 +74,16 @@ enum {
     GF_AMNESIA,
 
     /* Status Effects */
-    GF_BLIND,
     GF_OLD_CLONE,
     GF_OLD_POLY,
     GF_OLD_HEAL,
     GF_STAR_HEAL,  /* smash potion effect */
     GF_OLD_SPEED,
-    GF_OLD_SLOW,
     GF_OLD_CONF,
-    GF_OLD_SLEEP,
     GF_OLD_DRAIN,
     GF_STASIS,
     GF_STASIS_EVIL,
     GF_PARALYSIS,
-    GF_STUN,
     GF_ELDRITCH,
     GF_ANTIMAGIC,
     GF_CRUSADE,
@@ -88,7 +91,7 @@ enum {
     GF_UNLIFE,
 
     /* Terrain Effects */
-    GF_LITE_WEAK,
+    GF_LIGHT_WEAK,
     GF_DARK_WEAK,
     GF_KILL_WALL,
     GF_KILL_DOOR,
@@ -109,11 +112,9 @@ enum {
     /* Turning, Dispelling, Controlling, etc */
     GF_AWAY_UNDEAD,
     GF_AWAY_EVIL,
-    GF_AWAY_ALL,
     GF_ISOLATION,
     GF_TURN_UNDEAD,
     GF_TURN_EVIL,
-    GF_TURN_ALL,
     GF_DISP_UNDEAD,
     GF_DISP_EVIL,
     GF_DISP_GOOD,
@@ -161,6 +162,9 @@ enum {
 
     GF_COUNT  /* enumerate 0 <= i < GF_COUNT */
 };            /* allocate gf[GF_COUNT] */
+/* XXX Temp */
+#define GF_CONF GF_CONFUSION
+#define GF_DISEN GF_DISENCHANT
 
 /* GF_* flags (GFF_*) provide a loose classification of effects.
  * Mostly, we need to know when to display damage numbers or apply
@@ -175,31 +179,33 @@ enum {
 #define GFF_OBJECT      0x00000080  /* identify (bard?) */
 #define GFF_SPECIAL     0x00000100  /* class specific special effect */
 
+
 #define GFF_DAMAGE      0x00010000  /* causes physical damage */
 #define GFF_RIDING      0x00020000  /* apply aura to player when riding */
+#define GFF_HIDE        0x00040000  /* no animation during spell projection (e.g. ball GF_DRAIN_MANA) */
+#define GFF_TARGET_PET  0x00080000
+#define GFF_NO_REFLECT  0x00100000
+#define GFF_RESIST      0x00200000
+#define GFF_RESIST_HI   0x00400000
+#define GFF_DISPLAY     0x00800000  /* display on character sheet (for resists) */
+
 typedef struct {
     int  id;
     cptr name;
     byte color;
-    int  resist;
     cptr parse;
     int  flags;
+    int  resist;
 } gf_info_t, *gf_info_ptr;
 
 extern gf_info_ptr gf_parse_name(cptr token);
 extern gf_info_ptr gf_lookup(int id);
+extern int         gf_resist(int id);
 
 /* Directly damage the player or a monster with a GF_* attack type, 
  * bypassing the project() code. This is needed for monster melee,
  * monster auras, and player innate attacks where project() is overly
- * complicated and error prone if flg is incorrectly set.
- *
- * We still need a "who" done it parameter. This is either the player (0)
- * or a monster index (m_idx > 0). Occasionally, it might be a special
- * negative code when using project(), but not for the gf_affect_* routines.
- */
-#define GF_WHO_PLAYER      0  /* same as PROJECT_WHO_PLAYER */
-#define GF_WHO_TRAP       -3  /* same as PROJECT_WHO_TRAP */
+ * complicated and error prone if flg is incorrectly set. */
 
 /* We also need information on whether the effect is spell/breath based,
  * or whether it is the result of melee contact. Mostly, this if for message
@@ -215,12 +221,15 @@ extern gf_info_ptr gf_lookup(int id);
 #define GF_AFFECT_AURA   0x04 /* Monster aura  A:DISENCHANT(3d5) */
 #define GF_AFFECT_TRAP   0x08
 #define GF_AFFECT_QUIET  0x10 /* stop "It resists" and "It is unaffected" message spam */
-extern int gf_affect_p(int who, int type, int dam, int flags);
-extern bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags);
+#define GF_AFFECT_PROJECT 0x20 /* hack for "monster_target" (cf project) */
+extern int gf_affect_p(who_t who, int type, int dam, int flags); /* returns damage for "revenge" */
+extern bool gf_affect_m(who_t who, mon_ptr mon, int type, int dam, int flags);
+extern bool gf_affect_f(who_t who, point_t where, int type, int dam, int flags);
+extern bool gf_affect_o(who_t who, point_t where, int type, int dam, int flags);
 
 /* exposed for the sake of wizard commands: calculate damage based
  * on the player's alignment */
-extern int gf_holy_dam(int dam);
-extern int gf_hell_dam(int dam);
+extern int plr_holy_dam(int dam);
+extern int plr_hell_dam(int dam);
 
 #endif

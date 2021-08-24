@@ -8,9 +8,11 @@
 enum {
     MT_SLEEP = T_MONSTER, /* XXX we share some T_* codes with plr_tim (T_PARALYZED, T_INVULN, etc) */
     MT_AMNESIA,
+    MT_DISCORD,
+    MT_BOUND,
+    MT_ILLUSION,
 };
 
-typedef struct mon_tim_s  mon_tim_t, *mon_tim_ptr;
 struct mon_tim_s
 {
     s16b id;
@@ -19,6 +21,7 @@ struct mon_tim_s
     s32b parm;
     mon_tim_ptr next;
 };
+typedef bool (*mon_tim_p)( mon_tim_ptr timer);
 
 typedef struct mon_tim_info_s mon_tim_info_t, *mon_tim_info_ptr;
 struct mon_tim_info_s
@@ -45,6 +48,7 @@ extern void mon_tim_delete(mon_ptr mon, int id); /* same as remove, but no msg *
 extern void mon_tim_dispel(mon_ptr mon);
 extern void mon_tim_disenchant(mon_ptr mon);
 extern bool mon_tim_find(mon_ptr mon, int id);
+extern bool mon_tim_find_p(mon_ptr mon, mon_tim_p p);
 extern int  mon_tim_parm(mon_ptr mon, int id);
 extern int  mon_tim_amount(mon_ptr mon, int id);
 extern int  mon_tim_count(mon_ptr mon);

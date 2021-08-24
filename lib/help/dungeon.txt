@@ -1,4 +1,4 @@
-<style:title>The Dungeon</style>
+<style:title>The Dungeon</style><tab:40><indent><screenshot:dungeon01></indent>
 
 Although the game contains an extensive town level featuring multiple towns and a large wilderness area, the bulk of your adventuring will take place in the dungeon. Symbols appearing on your screen will represent the dungeon's walls, floor, objects, features, and creatures lurking about. In order to direct your character through his adventure, you will enter single character commands (see command.txt <link:command.txt>).
 
@@ -14,31 +14,30 @@ It will not be necessary to remember all of the symbols and their meanings. The 
 
   <color:U>Features that do not block line of sight</color><style:table>
   <$:FF_FLOOR>   Floor                       <$:FF_MIRROR>   A Mirror
-  <$:FF_FLOOR>   A trap (hidden)             <$:FF_GLYPH>   A glyph of warding
-  <$:FF_TRAP_TELEPORT>   A trap (known)              <$:FF_EXPLOSIVE_RUNE>   A explosive rune
+  <$:FF_FLOOR>   A trap (hidden)             <$:FF_GLYPH_WARDING>   A glyph of warding
+  <$:FF_TRAP_TELEPORT>   A trap (known)              <$:FF_GLYPH_EXPLODING>   A explosive rune
   <$:FF_DIRT>   Dirt                        <$:FF_PATTERN_1>   Section of the Pattern
   <$:FF_GRASS>   Patch of grass              <$:FF_PATTERN_2>   Section of the Pattern
   <$:FF_FLOWER>   Flower                      <$:FF_GENERAL_STORE>   General Store
-  <$:FF_BRAKE>   Brake                       <$:FF_ARMOURY>   Armoury
+  <$:FF_BRAKE>   Brake                       <$:FF_ARMORY>   Armoury
   <$:FF_SWAMP>   Swamp                       <$:FF_WEAPON_SMITHS>   Weapon Smiths
   <$:FF_SHALLOW_WATER>   Shallow Water               <$:FF_TEMPLE>   Temple
-  <$:FF_DEEP_WATER>   Deep Water                  <$:FF_ALCHEMY_SHOP>   Alchemy Shop
+  <$:FF_DEEP_WATER>   Deep Water                  <$:FF_ALCHEMIST>   Alchemy Shop
   <$:FF_SHALLOW_LAVA>   Shallow Lava                <$:FF_MAGIC_SHOP>   Magic Shop
   <$:FF_DEEP_LAVA>   Deep Lava                   <$:FF_BLACK_MARKET>   Black Market
-  <$:FF_DARK_PIT>   Dark pit                    <$:FF_HOME>   Home
-  <$:FF_OPEN_DOOR>   An open door                <$:FF_BOOKSTORE>   Bookstore
-  <$:FF_BROKEN_DOOR>   A broken door               <$:FF_MUSEUM>   Museum
-  <$:FF_UP_STAIR>   A staircase up
-  <$:FF_DOWN_STAIR>   A staircase down
+  <$:FF_CHASM>   Dark pit                    <$:FF_HOME>   Home
+  <$:FF_DOOR_OPEN>   An open door                <$:FF_BOOKSTORE>   Bookstore
+  <$:FF_DOOR_BROKEN>   A broken door               <$:FF_MUSEUM>   Museum
+  <$:FF_STAIRS_UP>   A staircase up
+  <$:FF_STAIRS_DOWN>   A staircase down
   <$:FF_ENTRANCE>   An entrance to dungeon
-  <$:FF_QUEST_ENTER>   quest entrance
+  <$:FF_QUEST_ENTRANCE>   quest entrance
 </style>
   <color:U>Features that block line of sight</color><style:table>
   <$:FF_GRANITE>   A granite wall              <$:FF_TREE>   A Tree
   <$:FF_MAGMA_VEIN>   A magma vein                <$:FF_MOUNTAIN>   Mountain chain
-  <$:FF_QUARTZ_VEIN>   A quartz vein               <$:FF_CLOSED_DOOR>   A door
-  <$:FF_SECRET_DOOR>   A secret door               <$:FF_RUBBLE>   A pile of rubble
-  <$:FF_MAGMA_TREASURE>   Treasure in wall
+  <$:FF_QUARTZ_VEIN>   A quartz vein               <$:FF_DOOR_CLOSED>   A door
+  <$:FF_MAGMA_TREASURE>   Treasure in wall            <$:FF_RUBBLE>   A pile of rubble
 </style>
 
 <topic:WithinDungeon><style:heading>Within The Dungeon</style>
@@ -59,7 +58,7 @@ The dungeons are full of objects just waiting to be picked up and used. How did 
 
 A more complete description of objects is found elsewhere in the documentation (see <link:objects.txt>).
 
-<topic:Mining><style:heading>Mining</style>
+<topic:Mining><style:heading>Mining</style><tab:40><indent><screenshot:dungeon02></indent>
 
 Much of the treasure within the dungeon can be found only by mining it out of the walls. Many rich strikes exist within each level, but must be found and mined. Quartz veins are the richest, yielding the most metals and gems, but magma veins will have some hordes hidden within.
 
@@ -77,7 +76,7 @@ There are rumors of certain incredibly profitable rooms buried deep in the dunge
 
 <topic:StairsDoorsEtc><style:heading>Staircases, Secret Doors, Passages, and Rooms</style>
 
-Staircases are the manner in which you get deeper or climb out of the dungeon. The symbols for the up and down staircases are the same as the commands to use them. A "<$:FF_UP_STAIR>" represents an up staircase and a "<$:FF_DOWN_STAIR>" represents a down staircase. You must move your character over the staircase before you can use it.
+Staircases are the manner in which you get deeper or climb out of the dungeon. The symbols for the up and down staircases are the same as the commands to use them. A "<$:FF_STAIRS_UP>" represents an up staircase and a "<$:FF_STAIRS_DOWN>" represents a down staircase. You must move your character over the staircase before you can use it.
 
 Each level has at least one up staircase and at least two down staircases. There are no exceptions to this rule. You may have trouble finding some well hidden secret doors, or you may have to dig through obstructions to get to them, but you can always find the stairs if you look hard enough. Stairs, like titanium walls, and the doors into shops, cannot be destroyed by any means.
 

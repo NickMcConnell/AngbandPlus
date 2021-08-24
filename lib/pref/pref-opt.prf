@@ -32,10 +32,9 @@ X:use_pack_slots
 
 X:center_player
 X:center_running
-Y:view_yellow_lite
-X:view_bright_lite
-Y:view_granite_lite
-Y:view_special_lite
+Y:view_light
+X:view_daylight
+X:view_gridlight
 Y:view_perma_grids
 Y:view_torch_grids
 X:view_unsafe_grids
@@ -57,6 +56,7 @@ Y:equippy_chars
 Y:display_food_bar
 Y:display_hp_bar
 Y:display_sp_bar
+Y:display_light_bar
 X:compress_savefile
 Y:abbrev_extra
 X:abbrev_all
@@ -69,7 +69,6 @@ Y:display_distance
 Y:stack_force_notes
 Y:stack_force_costs
 Y:expand_list
-Y:bound_walls_perm
 Y:last_words
 
 ##### Disturbance #####

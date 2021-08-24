@@ -363,7 +363,7 @@ stone to mud. You will be prompted for the desired direction.
 Example #4: Mass Identify
 Inscribe @ui on your staff of identify (The one with 50+ charges) and 
 then bind ui* to your favorite knowledge key. Use this macro once your 
-pack has filled up with unkown, but pseudo-identified objects.
+pack has filled up with unknown, but pseudo-identified objects.
 
 
 Original   : Alexander Cutler and Andy Astrand

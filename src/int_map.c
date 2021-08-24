@@ -85,7 +85,10 @@ void int_map_free(int_map_ptr map)
         free(map);
     }
 }
-
+void int_map_add_int(int_map_ptr map, int key, int val)
+{
+    int_map_add(map, key, (void *)(intptr_t)val);
+}
 void int_map_add(int_map_ptr map, int key, void *val)
 {
     hash_t      hash = _hash(key);
@@ -165,6 +168,11 @@ void *int_map_detach(int_map_ptr map, int key)
     return result;
 }
 
+int int_map_find_int(int_map_ptr map, int key)
+{
+    void *pv = int_map_find(map, key);
+    return (int)(intptr_t)pv;
+}
 
 void *int_map_find(int_map_ptr map, int key)
 {
@@ -247,6 +255,24 @@ void int_map_iter(int_map_ptr map, int_map_iter_f f)
         for (current = map->buckets[i]; current; current = current->next)
             f(current->key, current->val);
     }
+}
+vec_ptr int_map_filter(int_map_ptr map, int_map_filter_f f)
+{
+    vec_ptr v = vec_alloc(NULL);
+    int     i;
+    int     prime = hash_tbl_primes[map->prime_idx];
+
+    for (i = 0; i < prime; i++)
+    {
+        _node_ptr current;
+        for (current = map->buckets[i]; current; current = current->next)
+        {
+            if (f(current->key, current->val))
+                vec_add(v, current->val);
+        }
+    }
+
+    return v;
 }
 
 int_map_iter_ptr int_map_iter_alloc(int_map_ptr map)

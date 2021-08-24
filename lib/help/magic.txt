@@ -59,6 +59,9 @@ Finally, there are some classes with special rules. For example, the Sorcerer ma
 <topic:Armageddon><color:G>Armageddon</color>
   <indent>Death. Destruction. Slaughter. This realm knows nothing else and every spell is a direct offensive spell. From elemental attacks to mighty breath attacks, this realm offers the ultimate in destructive prowess. But it might be better to seek a more balanced approach, and even Chaos magic offers some utility spells to complement the mighty offense. Still, if you want the ultimate in destruction, then look no further.</indent>
 
+<topic:Illusion><color:G>Illusion</color>
+  <indent>The Illusionist survives through trickery and misdirection. There are several kinds of illusions including: one time flashes of light that confuse, blind or hypnotize; illusory monsters that, although harmless, may provide a useful distraction; illusory walls that fool even the most intelligent of monsters; self illusions that mask and protect the illusionist; and finally, illusions of self that affect all visible monsters inducing fear, confusion, command or discord. The Illusionist even has a few tricks of escape including diversions and decoys. For a mage, this realm is best paired with an offensive realm, since, after all, an illusion never really hurt anybody. Note that visual illusions are not noticed by all monsters: mindless, sleeping and blind foes cannot be affected.</indent>
+
 <topic:OtherMagicRealms><style:heading>Class Specific Realms of Spellbook Magic</style>
 
 In addition to the realms listed above, there are a few class specific spell realms. These realms also use books to gain access to magic but might behave slightly differently than normal spellbook realms.

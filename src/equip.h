@@ -30,7 +30,7 @@ enum {
     EQUIP_SLOT_RING,
     EQUIP_SLOT_BOW,
     EQUIP_SLOT_AMULET,
-    EQUIP_SLOT_LITE,
+    EQUIP_SLOT_LIGHT,
     EQUIP_SLOT_BODY_ARMOR,
     EQUIP_SLOT_CLOAK,
     EQUIP_SLOT_BOOTS,
@@ -39,6 +39,7 @@ enum {
     EQUIP_SLOT_WEAPON,
     EQUIP_SLOT_CAPTURE_BALL,
     EQUIP_SLOT_QUIVER,
+    EQUIP_SLOT_DARK,
     EQUIP_SLOT_MAX
 };
 
@@ -74,7 +75,7 @@ extern slot_t  equip_first_empty_slot(obj_ptr obj);
 extern slot_t  equip_next_slot(obj_ptr obj, slot_t last);
 extern slot_t  equip_find_first(obj_p p);
 extern slot_t  equip_find_next(obj_p p, slot_t prev_match);
-extern slot_t  equip_find_art(int which);
+extern slot_t  equip_find_art(cptr which);
 extern slot_t  equip_find_ego(int which);
 extern slot_t  equip_find_device(int effect);
 extern slot_t  equip_find_empty_hand(void);
@@ -104,5 +105,25 @@ extern void    equip_learn_slay(int slay_flag, cptr msg);
 
 extern void    equip_load(savefile_ptr file);
 extern void    equip_save(savefile_ptr file);
+
+/* Equipment Templates are defined in b_info.txt */
+typedef struct {
+    int  type;
+    int  hand;
+    sym_t tag;
+} equip_slot_t;
+
+struct equip_template_s
+{
+    sym_t        name;
+    int          max;
+    equip_slot_t slots[EQUIP_MAX + 1];
+};
+
+extern bool    equip_template_init(void);
+extern equip_template_ptr equip_template_alloc(sym_t name);
+extern void    equip_template_free(equip_template_ptr body);
+extern equip_template_ptr equip_template_parse(cptr token);
+extern equip_template_ptr equip_template_lookup(sym_t name);
 
 #endif

@@ -1,0 +1,428 @@
+# Giants
+T:P.base:Giant
+I:DISPLAY(P):POS(CORPSE|SKELETON|SUST_STR)
+I:KIND(GIANT):ALIGN(Evil):ATTR(MALE)
+I:ALERT(200',Overlooks):MOVE(OPEN|BASH|CLIMB|PICKUP|CLEARWEB)
+P:Stat:Str(6+4):Int(-3):Wis(-3):Dex(-2):Con(3+3):Chr(0+2)
+P:Skill:Dis(25+50):Dev(18+35):Sav(30+50):Srh(13):Fos(7):Thn(75+170):Thb(30+75)
+P:Infra:50'
+P:Class:Mauler
+P:Life:117
+P:Weight:400
+
+N:P.hill:P.base:Hill giant
+I:LVL(17,60):RARITY(3):WILD(MOUNTAIN)
+I:HP(32d10):AC(45):EXP(250):EVOLVE(P.stone, 400)
+B:HIT(x3):HURT(2d5+5)
+S:FREQ_5 | THROW
+O:1d2:DROP_WARRIOR
+M:25%:1d4:MON(P.hill)
+D:A ten foot tall humanoid with powerful muscles.
+I:COLOR(Light Umber)
+P:Weight:350
+P:Life:110
+
+N:P.frost:P.base:Frost giant
+I:LVL(20,70):RARITY(3):WILD(WASTE|MOUNTAIN)
+I:HP(64d10):AC(50):EXP(450):EVOLVE(P.ice, 25000)
+B:HIT(x3):HURT(2d6+6):COLD(2d6)
+A:COLD(1d2)
+I:RESIST(COLD)
+S:FREQ_10 | BO_COLD | BA_COLD | THROW
+O:1d2+1:OBJ(*)
+M:25%:1d4:MON(P.frost)
+M:25%:1d4:MON(Z.cold)
+D:A twelve foot tall giant covered in furs.
+I:COLOR(White)
+
+N:P.fire:P.base:Fire giant
+I:LVL(21,70):RARITY(3):WILD(VOLCANO)
+I:HP(72d10):AC(60):EXP(500):EVOLVE(P.efreeti, 2000)
+I:LIGHT(1)
+B:HIT(x3):HURT(2d7+7):FIRE(2d7)
+A:FIRE(1d2)
+I:RESIST(FIRE)
+S:FREQ_10 | SCARE | BO_FIRE | BA_FIRE | THROW
+O:1d2+1:DROP_WARRIOR
+M:25%:1d4:MON(P.fire)
+M:25%:1d4:MON(Z.fire)
+D:A glowing fourteen foot tall giant. Flames drip from its red skin.
+I:COLOR(Red)
+
+N:P.stone:P.base:Stone giant
+I:LVL(18,70):RARITY(3):WILD(MOUNTAIN)
+I:HP(50d10):AC(75):EXP(350):EVOLVE(P.rock, 10000)
+B:HIT(x3):HURT(2d6+6)
+S:FREQ_5 | THROW
+O:1d2:DROP_WARRIOR
+M:25%:1d4:MON(P.stone)
+M:25%:1d4:MON(Z.earth)
+D:It is eighteen feet tall and looking at you.
+I:COLOR(Slate)
+
+N:P.cloud:P.base:Cloud giant
+I:SPEED(+2):HP(80d10):AC(60)
+I:LVL(30,80):RARITY(3):EXP(700):EVOLVE(P.storm, 1500)
+B:HIT(x3):HURT(2d8+8):ELEC(2d8)
+I:RESIST(ELEC)
+S:FREQ_10 | THROW | BO_ELEC | BA_ELEC
+O:1d2+1:DROP_WARRIOR
+M:25%:1d4:MON(P.cloud)
+M:25%:1d4:MON(Z.energy)
+D:It is a twenty foot tall giant wreathed in clouds.
+I:COLOR(Light Blue)
+P:Weight:500
+
+N:P.cyclops:P.base:Cyclops
+I:LVL(28):RARITY(5):WILD(SHORE|MOUNTAIN)
+I:SPEED(+5):HP(66d12):AC(90):EXP(1250):EVOLVE(P.biclops, 2000)
+I:ALERT(Fairly Unseeing):MOVE(PUSH)
+B:HIT(x2):HURT(2d8+30)
+I:RESIST(ACID|POIS)
+S:FREQ_7 | THROW
+O:1d2+1:DROP_WARRIOR
+D:A gigantic humanoid with but one eye.
+I:COLOR(Umber)
+
+N:P.gug:P.base:Gug
+I:LVL(31,60):RARITY(2)
+I:HP(22d15):AC(60):EXP(210)
+I:ALERT(140',Fairly Unseeing)
+B:BITE:HURT(4d4+15)
+B:CLAW(x3):HURT(1d7+4)
+I:RESIST(ACID|POIS)
+O:1d2:DROP_WARRIOR
+D:A hideous, beastly, four-armed unclean giant: "...large as a
+D:barrel... The eyes jutted two inches from each side, shaded by
+D:bony protuberances overgrown of the mouth. That mouth had great
+D:yellow fangs and ran from the top to the tally."
+I:COLOR(Light Dark)
+P:Body:Gug
+P:Weight:250
+
+N:P.biclops:P.base:Biclops
+I:LVL(33):RARITY(5)
+I:SPEED(+5):HP(60d12):AC(90):EXP(2400)
+I:ALERT(Fairly Unseeing):MOVE(PUSH)
+B:HIT(x2):HURT(3d8+35)
+I:RESIST(ACID|POIS)
+S:FREQ_7 | THROW
+O:1d2+1:DROP_WARRIOR
+D:Oh, no! Aaargh! It is the most unnatural, most disgusting
+D:creature imaginable: a two-eyed cyclops! This perversion
+D:of nature must be exterminated!
+I:COLOR(Umber)
+
+N:P.storm:P.base:Storm giant
+I:LVL(35):RARITY(5):WILD(MOUNTAIN):ALLOC(ESCORT)
+I:SPEED(+3):HP(700):AC(60):EXP(2700):EVOLVE(P.storm.elder, 30000)
+I:LIGHT(1):ALERT(Unseeing)
+B:HIT(x3):HURT(2d9+9):ELEC(2d9)
+A:ELEC(2d3)
+I:RESIST(ELEC|COLD)
+S:FREQ_15 | BLINK | TELE_TO | BO_ELEC | BA_ELEC | THROW
+O:1d2+2:OBJ(*, GOOD):DROP_WARRIOR
+M:1d3:MON(P.cloud)
+D:It is a twenty-five foot tall giant wreathed in lighting.
+I:COLOR(Blue)
+P:Weight:600
+
+N:#.mist giant:P.base:Mist giant
+I:LVL(36):RARITY(2):WILD(SWAMP)
+I:SPEED(+10):HP(700):AC(50):EXP(450)
+I:ATTR(-MALE):MOVE(FLY|-PICKUP)
+B:CRUSH(x3):HURT(2d8+9)
+B:BITE:HURT(1d9+10):DRAIN_EXP(40d6, 25%)
+I:RESIST(POIS)
+O:60%:OBJ(*$)
+D:"Two eyes, the color of a thin, yellow wine, were set high in the
+D:thing's body; though it had no separate head. A mouthing, obscene slit,
+D:filled with fangs lay just beneath the eyes. It had no nose or ears...
+D:Four appendages sprang from its upper parts and its lower body
+D:slithered along the ground, unsupported by any limbs... incredibly
+D:disgusting to behold and its amorphous body gave off a stench of death
+D:and decay..."
+I:COLOR(Light Blue):POS(-CORPSE|-SKELETON)
+
+N:P.rock:P.base:Rock giant
+I:LVL(40):RARITY(3)
+I:SPEED(+5):HP(1000):AC(100):EXP(5000):EVOLVE(P.hru, 25000)
+I:ALERT(300'):MOVE(PUSH|DESTROY|TUNNEL)
+B:HIT(x4):SHATTER(9d9)
+I:VULN(DISINTEGRATE)
+S:FREQ_10 | THROW
+O:3d2:OBJ(GOLD)
+D:A minor rock giant, a being made of living stone. It's boring straight for you!
+I:COLOR(Slate):POS(-SKELETON)
+P:Weight:500
+
+# XXX not a GIANT ... but in the evolution of P.fire
+N:P.efreeti:Efreeti
+I:LVL(40):RARITY(3)
+I:SPEED(+10):HP(70d10):AC(70):EXP(900):EVOLVE(P.fire.elder, 25000)
+I:ALIGN(Evil):LIGHT(2):ALERT(300',Fairly Observant):MOVE(PICKUP|OPEN|BASH)
+B:HIT(x2):HURT(5d4):FIRE(3d4)
+A:FIRE(2d3)
+I:RESIST(FIRE|CONF|PLASMA):IMMUNE(SLEEP)
+O:60%:OBJ(*$)
+S:1_IN_6 | BO_FIRE | BO_PLASMA | BA_FIRE
+D:Wrapped in fire, this giant red figure turns to face you.
+I:DISPLAY(P,Red):POS(SUST_STR)
+P:Copy:Half-Giant:Mauler
+P:Weight:300
+
+N:P.titan.lesser:P.base:Lesser titan
+I:LVL(40):RARITY(5):WILD(MOUNTAIN)
+I:SPEED(+10):HP(1000):AC(80):EXP(4000):EVOLVE(P.titan, 25000)
+I:ALERT(300',Fairly Unseeing)
+B:HIT(x4):HURT(2d8+25):CONFUSE(33%)
+S:FREQ_15 | THROW | HEAL | TELE_TO | SCARE | S_MONSTER
+O:3d2+1:DROP_WARRIOR
+D:It is a humanoid figure thirty feet tall that gives off an aura of power and hate.
+I:COLOR(Yellow)
+P:Weight:500
+
+N:P.titan:P.base:Greater titan
+I:LVL(46):RARITY(5):WILD(MOUNTAIN):ALLOC(ESCORT)
+I:SPEED(+10):HP(3000):AC(125):EXP(15000)
+I:ATTR(SMART):ALERT(300',Fairly Unseeing):MOVE(PUSH)
+B:HIT(x4):HURT(3d10+35):CONFUSE(50%)
+S:FREQ_15 | THROW | HEAL | TELE_TO | S_MONSTER
+O:2d2+1:OBJ(*, GOOD):DROP_WARRIOR
+M:1d3:MON(P.titan.lesser)
+D:A forty foot tall humanoid that shakes the ground as it walks. The power radiating
+D:from its frame shakes your courage, its hatred inspired by your defiance.
+I:COLOR(Violet)
+P:Weight:800
+
+N:#.ent:P.base:Ent
+I:LVL(46):RARITY(3)
+I:SPEED(+10):HP(4000):AC(120):EXP(15000)
+I:ALIGN(Good):ATTR(FRIENDLY|RIDING|SMART)
+I:ALERT(300',Fairly Unseeing):MOVE(PUSH)
+B:CRUSH(x4):HURT(5d11+30)
+I:VULN(FIRE)
+O:2d2+1:OBJ(*, GOOD)
+S:FREQ_10 | THROW
+D:A treeherd: a sentient, moving tree. Its wrath is fearsome!
+I:DISPLAY(#,Light Green)
+P:Weight:800
+P:Blows:200
+
+N:P.ice:P.base:Ice giant
+I:LVL(50):RARITY(3):ALLOC(ESCORT)
+I:SPEED(+15):HP(3500):AC(120):EXP(12000)
+I:ALERT(500',Fairly Unseeing)
+B:HIT(x4):HURT(3d10):COLD(2d10)
+A:COLD(2d3)
+I:RESIST(CONF):IMMUNE(COLD|SLEEP):VULN(FIRE)
+S:FREQ_25 | BR_COLD | BO_ICE | HEAL | TELE_TO | BLINK | THROW
+O:2d2+1:OBJ(*, GOOD)
+M:1d4:MON(P.frost)
+M:1d4:MON(Z.cold)
+D:An ancient giant nearly twenty feet tall. The air around you suddenly grows chill.
+I:COLOR(White)
+P:Weight:800
+
+N:P.fire.elder:P.base:Elder fire giant
+I:LVL(50):RARITY(3):WILD(VOLCANO):ALLOC(ESCORT)
+I:SPEED(+15):HP(3500):AC(120):EXP(13000)
+I:LIGHT(2):ALERT(500',Fairly Unseeing)
+B:HIT(x4):HURT(3d11):FIRE(2d11)
+A:FIRE(2d3)
+I:RESIST(CONF):IMMUNE(FIRE|SLEEP):VULN(COLD)
+S:FREQ_25 | BO_PLASMA | BR_PLASMA | BR_FIRE | THROW | HEAL | BLINK | TELE_TO
+O:2d2+1:OBJ(*, GOOD)
+M:1d4:MON(P.fire)
+M:1d4:MON(Z.fire)
+D:An ancient giant nearly twenty feet tall. The air around you suddenly grows hot.
+I:COLOR(Red)
+P:Weight:800
+
+N:P.storm.elder:P.base:Elder storm giant
+I:LVL(56):RARITY(3):WILD(MOUNTAIN):ALLOC(ESCORT)
+I:SPEED(+15):HP(3500):AC(120):EXP(15000)
+I:LIGHT(2):ALERT(500',Fairly Unseeing)
+B:HIT(x4):HURT(3d12):ELEC(2d12)
+A:ELEC(3d4)
+I:RESIST(COLD):IMMUNE(ELEC)
+S:FREQ_25 | BLINK | TELE_TO | BR_ELEC | BR_STORM | THROW | HEAL
+O:2d2+2:OBJ(*, GOOD)
+M:1d4:MON(P.storm)
+M:1d4:MON(Z.energy)
+D:It is a thirty foot tall giant wreathed in lighting. Winds howl about its massive frame.
+I:COLOR(Blue)
+P:Weight:900
+
+N:P.hru:P.base:Hru
+I:LVL(56):RARITY(3):WILD(MOUNTAIN):ALLOC(ESCORT)
+I:SPEED(+10):HP(4000):AC(150):EXP(25000)
+I:ALERT(300',Fairly Unseeing):MOVE(PUSH|DESTROY|TUNNEL)
+B:HIT(x4):SHATTER(5d11+30)
+I:RESIST(SHARDS):VULN(DISINTEGRATE)
+S:FREQ_10 | THROW
+O:4d2:OBJ(GOLD)
+M:25%:MON(P.rock)
+D:A rock giant, a being made of living stone.
+I:COLOR(Slate):POS(-SKELETON)
+P:Weight:700
+
+########################################################################
+# Uniques
+N:P.Fasolt:P.base:Fasolt the Giant
+I:LVL(33):RARITY(7):ALLOC(UNIQUE)
+I:SPEED(+2):HP(1221):AC(70):EXP(2500)
+I:KIND(THIEF):CAN(SPEAK)
+B:HIT:HURT(2d6+14)
+B:BITE:HURT(1d10+11)
+B:HIT:HURT(2d2):EAT_GOLD
+I:RESIST(COLD|POIS)
+S:FREQ_10 | THROW
+O:2d2:OBJ(*, GOOD):DROP_WARRIOR
+O:1d2:OBJ(GOLD)
+D:Big, brawny, powerful and with a greed for gold.
+I:COLOR(Umber)
+P:Weight:500
+
+N:P.Utgard:P.base:Utgard-Loke
+I:LVL(44):RARITY(3):ALLOC(UNIQUE|GUARDIAN)
+I:SPEED(+10):HP(4000):AC(125):EXP(20000)
+I:ATTR(SMART):ALERT(300',Fairly Observant):MOVE(PUSH)
+B:HIT(x4):HURT(3d12+33):COLD(3d12)
+A:COLD(2d3)
+I:IMMUNE(COLD)
+S:FREQ_20 | BR_COLD | THROW | HEAL | TELE_TO | S_KIN
+O:4d2:OBJ(*, GOOD):DROP_WARRIOR
+D:A frost giant chieftain, unusually smart for a giant.
+I:COLOR(White):POS(-SKELETON)
+P:Speed:+5
+P:Weight:600
+
+N:#.Fangorn:P.base:Fangorn
+I:LVL(47):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+10):HP(5000):AC(120):EXP(20000)
+I:ALIGN(Good):CAN(SPEAK):ATTR(FRIENDLY|SMART)
+I:ALERT(300',Fairly Unseeing):MOVE(PUSH)
+B:CRUSH(x4):HURT(6d13+42)
+I:VULN(FIRE)
+S:FREQ_10 | THROW
+O:4d2:OBJ(*, GOOD)
+D:The oldest of all ents, a respected and feared ancient creature.
+I:DISPLAY(#,Light Green):POS(-SKELETON)
+P:Weight:900
+P:Blows:200
+
+N:P.Atlas:P.base:Atlas the Titan
+I:LVL(76):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+15):HP(10000):AC(160):EXP(45000)
+I:LIGHT(2):CAN(REVENGE):ATTR(SMART|MALE)
+I:ALERT(300',Fairly Unseeing):MOVE(TRAMPLE|TUNNEL)
+B:HIT(x2):SHATTER(11d11)
+B:HIT(x2):HURT(6d11+30):CONFUSE
+I:RESIST(BASE|POIS):VULN(DISINTEGRATE)
+S:FREQ_15 | THROW
+O:4d2:OBJ(*, GOOD)
+O:5%:ART(\.Atlas)
+D:The strongest of all the Titans. Legend has it that he use to hold the sky
+D:on his shoulders; and the mountain range that now does so is named after him.
+I:COLOR(Slate):POS(-SKELETON)
+P:Stats:5:0:0:0:2:1
+P:Weight:1000
+
+N:P.Typhoeus:P.base:Typhoeus the Storm Giant
+I:LVL(85):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+20):HP(9300):AC(170):EXP(50000)
+I:LIGHT(2):CAN(SPEAK|REGEN):ATTR(SMART)
+I:ALERT(500',Fairly Unseeing):MOVE(PUSH)
+B:HIT(x4):HURT(3d12+18):ELEC(6d12)
+A:ELEC(4d6)
+I:RESIST(POIS|CONF|NETHER):IMMUNE(ELEC|SLEEP|SLOW|BLIND|TELE)
+S:FREQ_25 | BR_ELEC | BR_STORM | THROW | S_KIN | S_HI_UNDEAD
+S:TELE_TO | TELE_OTHER | TELE_SELF | HEAL | HASTE
+O:6d2:OBJ(*, GOOD)
+O:5%:ART(|.Typhoeus)
+D:Typhoeus is a monstrous, immortal storm giant, huge beyond comprehension.
+D:According to legend, he was defeated by Zeus and imprisoned in the Pit of Tartaros.
+D:I guess he managed to escape!
+I:COLOR(Blue):POS(-SKELETON)
+P:Weight:5000
+
+N:P.Ymir:P.base:Ymir the Ice Giant
+I:LVL(85):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+20):HP(8514):AC(160):EXP(40000)
+I:CAN(SPEAK):ATTR(COLD_BLOOD)
+I:ALERT(500',Fairly Unseeing):MOVE(PUSH)
+B:HIT(x4):HURT(3d10+10):ICE(5d10)
+A:ICE(3d4, 25%):COLD(4d6, 75%)
+I:RESIST(POIS|CONF|NETHER|DISENCHANT|WATER):IMMUNE(COLD|SLEEP|SLOW|TELE):VULN(FIRE)
+S:1_IN_3 | BR_COLD | BO_ICE(6d8+127) | DARKNESS | HEAL |
+S:TELE_TO | S_KIN | S_HI_UNDEAD | THROW
+O:6d2:OBJ(*, GOOD)
+O:5%:ART(|.Ymir)
+D:Ymir is one of the oldest beings there are. He looks like a giant humanoid made of ice.
+I:COLOR(White):POS(-SKELETON)
+P:Weight:1000
+
+N:P.Loki:P.base:Loki the Trickster
+I:LVL(85):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+20):HP(9350):AC(160):EXP(50000)
+I:CAN(SPEAK|REGEN):ALERT(500',Fairly Observant):MOVE(PUSH)
+B:HIT:HURT(4d11+40):BLIND
+B:HIT:HURT(4d11+40):DISENCHANT
+B:HIT:HURT(4d11+40):DRAIN_CHARGES
+B:TOUCH:DRAIN_MANA(6d11)
+A:FIRE(4d6)
+I:RESIST(FIRE|POIS|CONF|NETHER|PLASMA):IMMUNE(SLEEP|SLOW|TELE):VULN(COLD)
+S:1_IN_3 | SHRIEK | HASTE | HEAL | DRAIN_MANA | TELE_SELF | TELE_TO | TELE_OTHER |
+S:TELE_LEVEL | AMNESIA | S_CYBER | S_HI_DEMON | HAND_DOOM | S_HI_UNDEAD |
+S:S_UNIQUE | S_HI_DRAGON | BA_DARK | MANA_STORM | S_AMBERITE | ANIM_DEAD
+S:INVULN | DISPEL_MAGIC | ANTI_MAGIC | PSY_SPEAR(1d170+150)
+O:4d2:OBJ(*, GREAT)
+D:Loki, the god of mischief, is a nasty person. He will use every
+D:dirty trick in the book, and then some. In the end, his half-giant
+D:heritage is bound to show, as he will defect to the side of the
+D:giants and fight against the other gods of Asgard.
+I:COLOR(Green):POS(-SKELETON)
+P:Stat:Int(3):Dex(2)
+P:Skill:Dev(35+55)
+P:Class:Rogue
+P:Weight:1000
+
+N:P.Surtur:P.base:Surtur the Giant Fire Demon
+I:LVL(85):RARITY(2):ALLOC(UNIQUE)
+I:SPEED(+20):HP(9460):AC(160):EXP(50000)
+I:KIND(DEMON|NONLIVING):CAN(SPEAK):LIGHT(2)
+I:ALERT(500',Fairly Unseeing):MOVE(PUSH)
+B:HIT(x2):HURT(3d11+18):FIRE(6d11)
+B:HIT(x2):HURT(3d11+18):PLASMA(4d11)
+A:FIRE(4d6)
+I:RESIST(POIS|CONF|NETHER|PLASMA):IMMUNE(FIRE|SLEEP|SLOW|TELE):VULN(COLD)
+S:1_IN_5 | BR_FIRE | BR_PLASMA | BLIND | TELE_TO | S_KIN | S_HI_UNDEAD
+S:HAND_DOOM | TELE_OTHER | S_CYBER | S_HI_DEMON | THROW
+O:6d2:OBJ(*, GOOD)
+O:5%:ART(|.Twilight)
+D:Surtur is one of the most ancient of all creatures. He is a demonic
+D:giant of fire who is destined to set the nine worlds afire with his
+D:accursed sword of doom on the day of Ragnarok.
+I:COLOR(Red):POS(-CORPSE|-SKELETON)
+P:Weight:1000
+
+N:P.Kronos:P.base:Kronos, Lord of the Titans
+I:LVL(87):RARITY(3):ALLOC(UNIQUE|ESCORT)
+I:SPEED(+15):HP(11000):AC(150):EXP(80000)
+I:ATTR(SMART):LIGHT(2):ALERT(300',Fairly Unseeing):MOVE(PUSH)
+B:HIT(x4):HURT(13d13):CONFUSE
+I:RESIST(BASE|POIS|SOUND|SHARDS|TIME):IMMUNE(SLEEP|SLOW)
+S:FREQ_20 | BR_FIRE | BR_COLD | BR_SHARDS | BR_SOUND | THROW
+S:S_MONSTER | S_KIN | TELE_TO | HEAL
+O:7d2:OBJ(*, GOOD)
+O:5%:ART(/.Kronos)
+M:3d3:MON(P.titan)
+M:3d7:MON(P.titan.lesser)
+D:The lord of the Titans has broken loose from his confinement in
+D:the nether hells to seek revenge upon the world.
+I:COLOR(Violet):POS(-SKELETON)
+P:Weight:1000
+
+# vim: filetype=ri :
+

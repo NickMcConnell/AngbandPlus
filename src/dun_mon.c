@@ -6,12 +6,39 @@ mon_ptr dun_alloc_mon(dun_ptr dun)
 {
     mon_ptr mon = mon_alloc();
     mon->id = dun_mgr_next_mon_id();
-    mon->dun_id = dun->dun_id;
+    mon->dun = dun;
     return mon;
 }
-mon_ptr dun_mon(dun_ptr dun, int id)
+mon_ptr dun_mon(dun_ptr dun, u32b id)
 {
     return int_map_find(dun->mon, id);
+}
+static void _unmark(int id, dun_ptr dun) { dun->flags &= ~DF_MARK; }
+static mon_ptr _find_mon(dun_ptr dun, u32b id)
+{
+    mon_ptr mon = int_map_find(dun->mon, id);
+    if (!mon)
+    {
+        dun_stairs_ptr stairs;
+        dun->flags |= DF_MARK;
+        for (stairs = dun->stairs; stairs; stairs = stairs->next)
+        {
+            dun_ptr adj_dun;
+            if (!stairs->dun_id) continue;
+            adj_dun = dun_mgr_dun(stairs->dun_id);
+            if (!adj_dun) continue;
+            if (adj_dun->flags & DF_MARK) continue; /* dungeons form a tree ... but let's not rely on this */
+            mon = _find_mon(adj_dun, id);
+            if (mon) break;
+        }
+    }
+    return mon;
+}
+mon_ptr dun_mon_ex(dun_ptr dun, u32b id)
+{
+    dun_mgr_ptr dm = dun_mgr();
+    int_map_iter(dm->dungeons, (int_map_iter_f)_unmark);
+    return _find_mon(dun, id);
 }
 vec_ptr dun_mon_filter(dun_ptr dun, mon_p p)
 {
@@ -53,7 +80,7 @@ void dun_attach_mon(dun_ptr dun, mon_ptr mon)
     assert(mon->id);
     assert(!int_map_find(dun->mon, mon->id));
 
-    mon->dun_id = dun->dun_id;
+    mon->dun = dun;
     int_map_add(dun->mon, mon->id, mon);
     point_map_add(dun->mon_pos, mon->pos, mon);
 
@@ -64,7 +91,7 @@ void dun_attach_mon(dun_ptr dun, mon_ptr mon)
         assert(obj->loc.v.mon_pack.mon_id == mon->id);
         assert(!int_map_find(dun->obj, obj->loc.v.mon_pack.obj_id));
 
-        obj->loc.v.mon_pack.dun_id = dun->dun_id;
+        obj->loc.v.mon_pack.dun_id = dun->id;
         int_map_add(dun->obj, obj->loc.v.mon_pack.obj_id, obj);
     }
 }
@@ -73,10 +100,10 @@ void dun_place_mon(dun_ptr dun, mon_ptr mon, point_t pos)
     assert(dun_pos_interior(dun, pos));
     mon->pos = pos;
     dun_attach_mon(dun, mon);
-    if (p_ptr->dun_id == dun->dun_id && (dun->flags & DF_GENERATED))
+    if (plr->dun_id == dun->id && (dun->flags & DF_GENERATED))
     {
         update_mon(mon, TRUE);
-        dun_lite_pos(dun, pos);
+        dun_draw_pos(dun, pos);
     }
 }
 void dun_move_mon(dun_ptr dun, mon_ptr mon, point_t pos)
@@ -87,7 +114,7 @@ void dun_move_mon(dun_ptr dun, mon_ptr mon, point_t pos)
     assert(dun_pos_valid(dun, mon->pos));
     assert(dun_pos_valid(dun, pos));
     assert(mon->id);
-    assert(dun->dun_id == mon->dun_id);
+    assert(dun == mon->dun);
     assert(int_map_find(dun->mon, mon->id));
 
     swap_mon = point_map_find(dun->mon_pos, pos);
@@ -95,7 +122,7 @@ void dun_move_mon(dun_ptr dun, mon_ptr mon, point_t pos)
     {
         swap_mon->pos = old_pos;
         point_map_add(dun->mon_pos, old_pos, swap_mon);
-        if (p_ptr->dun_id == dun->dun_id && (dun->flags & DF_GENERATED))
+        if (plr->dun_id == dun->id && (dun->flags & DF_GENERATED))
             update_mon(swap_mon, TRUE);
     }
     else
@@ -103,19 +130,26 @@ void dun_move_mon(dun_ptr dun, mon_ptr mon, point_t pos)
 
     mon->pos = pos;
     point_map_add(dun->mon_pos, pos, mon);
-
-    if (p_ptr->dun_id == dun->dun_id && (dun->flags & DF_GENERATED))
+    if (mon->mflag2 & MFLAG2_HUNTED)
     {
-        dun_lite_pos(dun, old_pos);
-        dun_lite_pos(dun, pos);
+        if (!mon->flow) mon->flow = dun_flow_calc(dun, pos, MON_HUNT_RAD, NULL);
+        else dun_flow_recalc(mon->flow, pos);
+    }
+
+    if (plr->dun_id == dun->id && (dun->flags & DF_GENERATED))
+    {
+        dun_draw_pos(dun, old_pos);
+        dun_draw_pos(dun, pos);
         update_mon(mon, TRUE);
-        p_ptr->window |= PW_MONSTER_LIST;
+        plr->window |= PW_MONSTER_LIST;
+        if (mon->race->light || mon->race->lantern)
+            plr->update |= PU_MON_LIGHT;
     }
 }
 /* move a monster (and all of its carried objects) between levels:
  * [1] dun_detach_mon(old_dun, mon->id)
  * [2] dun_place_mon(new_dun, mon, new_pos); */
-mon_ptr dun_detach_mon(dun_ptr dun, int id)
+mon_ptr dun_detach_mon(dun_ptr dun, u32b id)
 {
     mon_ptr mon = int_map_find(dun->mon, id);
     obj_ptr obj;
@@ -123,20 +157,20 @@ mon_ptr dun_detach_mon(dun_ptr dun, int id)
 
     assert(mon);
     assert(mon->id == id);
-    assert(mon->dun_id == dun->dun_id);
+    assert(mon->dun == dun);
     assert(point_map_find(dun->mon_pos, mon->pos) == mon);
 
     point_map_delete(dun->mon_pos, mon->pos);
-    mon->dun_id = 0;
+    mon->dun = NULL;
     mon->pos.x = 0;
     mon->pos.y = 0;
-    mon->target.x = 0;
-    mon->target.y = 0;
+    mon_clear_target(mon);
+    mon->mflag2 &= ~(MFLAG2_MARK | MFLAG2_SHOW); /* XXX take stairs while "detected" (cf _repair_aux) */
 
     for (obj = mon->obj; obj; obj = obj->next)
     {
         assert(obj->loc.where == INV_MON_PACK);
-        assert(obj->loc.v.mon_pack.dun_id == dun->dun_id);
+        assert(obj->loc.v.mon_pack.dun_id == dun->id);
         assert(obj->loc.v.mon_pack.mon_id == mon->id);
         assert(int_map_find(dun->obj, obj->loc.v.mon_pack.obj_id));
 
@@ -144,24 +178,24 @@ mon_ptr dun_detach_mon(dun_ptr dun, int id)
         obj->loc.v.mon_pack.dun_id = 0;
     }
     int_map_detach(dun->mon, id);
-    dun_lite_pos(dun, pos);
+    dun_draw_pos(dun, pos);
     return mon;
 }
-void dun_delete_mon(dun_ptr dun, int id)
+void dun_delete_mon(dun_ptr dun, u32b id)
 {
     mon_ptr mon = dun_mon(dun, id);
     obj_ptr obj;
 
     assert(mon);
     assert(mon->id == id);
-    assert(mon->dun_id == dun->dun_id);
+    assert(mon->dun == dun);
     assert(point_map_find(dun->mon_pos, mon->pos) == mon);
 
     point_map_delete(dun->mon_pos, mon->pos);
     for (obj = mon->obj; obj; obj = obj->next)
     {
         assert(obj->loc.where == INV_MON_PACK);
-        assert(obj->loc.v.mon_pack.dun_id == dun->dun_id);
+        assert(obj->loc.v.mon_pack.dun_id == dun->id);
         assert(obj->loc.v.mon_pack.mon_id == mon->id);
         assert(int_map_find(dun->obj, obj->loc.v.mon_pack.obj_id));
 
@@ -171,7 +205,9 @@ void dun_delete_mon(dun_ptr dun, int id)
     }
     int_map_detach(dun->mon, id);
     mon->obj = NULL;
-    mon->dun_id = 0; /* mon_is_deleted() */
+    mon->dun = NULL; /* mon_is_deleted() */
+    if (mon_is_pet(mon)) /* now rather than in _mon_free since pet commands do not use energy */
+        mon_pack_remove(plr_pack(), mon);
     vec_push(dun->graveyard, mon);
 }
 void dun_iter_mon(dun_ptr dun, void (*f)(int id, mon_ptr mon))

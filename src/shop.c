@@ -402,7 +402,7 @@ static bool _stock_p(int k_idx)
     if (k_info[k_idx].gen_flags & OFG_INSTA_ART)
         return FALSE;
 
-    if (plr_dun()->dun_type_id == D_SURFACE)
+    if (plr_dun()->type->id == D_SURFACE)
     {
         town_ptr town = towns_current_town();
         assert(town);
@@ -463,10 +463,10 @@ static bool _create(obj_ptr obj, int k_idx, int lvl, u32b mode)
 
     object_prep(obj, k_idx);
     apply_magic(obj, lvl, mode);
-    if (obj->tval == TV_LITE)
+    if (obj->tval == TV_LIGHT)
     {
-        if (obj->sval == SV_LITE_TORCH) obj->xtra4 = FUEL_TORCH / 2;
-        if (obj->sval == SV_LITE_LANTERN) obj->xtra4 = FUEL_LAMP / 2;
+        if (obj->sval == SV_LIGHT_TORCH) obj->xtra4 = FUEL_TORCH / 2;
+        if (obj->sval == SV_LIGHT_LANTERN) obj->xtra4 = FUEL_LAMP / 2;
     }
 
     if (obj_is_cursed(obj)) return FALSE;
@@ -490,7 +490,7 @@ static bool _general_will_buy(obj_ptr obj)
         if (obj->sval != SV_POTION_WATER) return FALSE;
     case TV_WHISTLE:
     case TV_FOOD:
-    case TV_LITE:
+    case TV_LIGHT:
     case TV_FLASK:
     case TV_SPIKE:
     case TV_SHOT:
@@ -525,7 +525,7 @@ static bool _general_stock_p(int k_idx)
     case TV_CAPTURE:
     case TV_FIGURINE:
     case TV_CLOAK:
-    case TV_LITE:
+    case TV_LIGHT:
     case TV_FOOD:
     case TV_DIGGING:
         return TRUE;
@@ -559,7 +559,7 @@ static bool _general_create(obj_ptr obj, u32b mode)
     else if (one_in_(3))
         k_idx = lookup_kind(TV_FLASK, SV_FLASK_OIL);
     else if (one_in_(3))
-        k_idx = lookup_kind(TV_LITE, one_in_(2) ? SV_LITE_LANTERN : SV_LITE_TORCH);
+        k_idx = lookup_kind(TV_LIGHT, one_in_(2) ? SV_LIGHT_LANTERN : SV_LIGHT_TORCH);
     else if (one_in_(3))
         k_idx = _get_k_idx(_stock_ammo_p, _mod_lvl(10));
     else if (one_in_(3))
@@ -703,13 +703,13 @@ static bool _temple_will_buy(obj_ptr obj)
         break;
     case TV_FIGURINE:
     case TV_STATUE: {
-        monster_race *r_ptr = mon_race_lookup(obj->pval);
+        monster_race *r_ptr = mon_race_lookup(obj->race_id);
 
-        if (!(r_ptr->flags3 & RF3_EVIL))
+        if (!mon_race_is_evil(r_ptr))
         {
-            if (r_ptr->flags3 & RF3_GOOD) break;
-            if (r_ptr->flags3 & RF3_ANIMAL) break;
-            if (strchr("?!", r_ptr->d_char)) break; /* mimics?? */
+            if (mon_race_is_good(r_ptr)) break;
+            if (mon_race_is_animal(r_ptr)) break;
+            if (mon_race_is_char_ex(r_ptr, "?!")) break; /* mimics?? */
         }
         return FALSE; }
     case TV_POLEARM:
@@ -848,6 +848,7 @@ static bool _magic_will_buy(obj_ptr obj)
     case TV_NATURE_BOOK:
     case TV_CHAOS_BOOK:
     case TV_ARMAGEDDON_BOOK:
+    case TV_ILLUSION_BOOK:
     case TV_DEATH_BOOK:
     case TV_TRUMP_BOOK:
     case TV_ARCANE_BOOK:
@@ -867,8 +868,8 @@ static bool _magic_will_buy(obj_ptr obj)
     case TV_HAFTED:
         if(obj->sval == SV_WIZSTAFF) break;
         else return FALSE;
-    case TV_LITE:
-        return obj->name1 == ART_STONE_OF_SORCERY;
+    case TV_LIGHT:
+        return obj_is_specified_art(obj, "~.Sorcery");
     default:
         return FALSE;
     }
@@ -914,16 +915,16 @@ static bool _magic_create(obj_ptr obj, u32b mode)
         switch (randint1(5))
         {
         case 1: case 2:
-            add_flag(obj->flags, OF_RES_COLD);
-            add_flag(e_info[EGO_JEWELRY_ELEMENTAL].xtra_flags, OF_RES_COLD);
+            add_flag(obj->flags, OF_RES_(GF_COLD));
+            add_flag(e_info[EGO_JEWELRY_ELEMENTAL].xtra_flags, OF_RES_(GF_COLD));
             break;
         case 3: case 4:
-            add_flag(obj->flags, OF_RES_FIRE);
-            add_flag(e_info[EGO_JEWELRY_ELEMENTAL].xtra_flags, OF_RES_FIRE);
+            add_flag(obj->flags, OF_RES_(GF_FIRE));
+            add_flag(e_info[EGO_JEWELRY_ELEMENTAL].xtra_flags, OF_RES_(GF_FIRE));
             break;
         case 5:
-            add_flag(obj->flags, OF_RES_ACID);
-            add_flag(e_info[EGO_JEWELRY_ELEMENTAL].xtra_flags, OF_RES_ACID);
+            add_flag(obj->flags, OF_RES_(GF_ACID));
+            add_flag(e_info[EGO_JEWELRY_ELEMENTAL].xtra_flags, OF_RES_(GF_ACID));
             break;
         }
         obj->ident |= IDENT_STORE;
@@ -1027,6 +1028,7 @@ static bool _book_will_buy(obj_ptr obj)
     case TV_CRUSADE_BOOK:
     case TV_NECROMANCY_BOOK:
     case TV_ARMAGEDDON_BOOK:
+    case TV_ILLUSION_BOOK:
     case TV_MUSIC_BOOK:
     case TV_HEX_BOOK:
         break;
@@ -1054,6 +1056,7 @@ static bool _book_stock_p(int k_idx)
     case TV_HEX_BOOK:
     case TV_NECROMANCY_BOOK:
     case TV_ARMAGEDDON_BOOK:
+    case TV_ILLUSION_BOOK:
         return TRUE;
     }
     return FALSE;
@@ -1172,6 +1175,7 @@ shop_ptr shop_load(savefile_ptr file)
 
     guard = savefile_read_u32b(file);
     assert(guard == 0xFEEDFEED);
+    if (guard != 0xFEEDFEED) quit("Corrupted savefile in shop_load");
 
     return shop;
 }
@@ -1220,8 +1224,8 @@ static int _price_factor_aux(int greed)
     if (factor == 0)
         factor = 110;
 
-    factor = (factor * adj_gold[p_ptr->stat_ind[A_CHR]] + 50) / 100;
-    factor = (factor * (135 - MIN(200, p_ptr->fame)/4) + 50) / 100;
+    factor = (factor * adj_gold[plr->stat_ind[A_CHR]] + 50) / 100;
+    factor = (factor * (135 - MIN(200, plr->fame)/4) + 50) / 100;
     factor = (factor * greed + 50) / 100;
 
     return factor;
@@ -1260,7 +1264,7 @@ static int _sell_price(shop_ptr shop, int price)
     price = _sell_price_aux(price, factor);
     if (shop->type->id == SHOP_BLACK_MARKET)
     {
-        if (p_ptr->realm1 != REALM_BURGLARY && !mut_present(MUT_BLACK_MARKETEER))
+        if (plr->realm1 != REALM_BURGLARY && !mut_present(MUT_BLACK_MARKETEER))
             price = price * 2;
 
         price = price * (625 + virtue_current(VIRTUE_JUSTICE)) / 625;
@@ -1309,7 +1313,7 @@ static int _buy_price(shop_ptr shop, int price)
     price = _buy_price_aux(price, factor);
     if (shop->type->id == SHOP_BLACK_MARKET)
     {
-        if (p_ptr->realm1 != REALM_BURGLARY && !mut_present(MUT_BLACK_MARKETEER))
+        if (plr->realm1 != REALM_BURGLARY && !mut_present(MUT_BLACK_MARKETEER))
             price = price / 2;
 
         price = price * (625 - virtue_current(VIRTUE_JUSTICE)) / 625;
@@ -1365,8 +1369,6 @@ void shop_ui(shop_ptr shop)
 
 static void _shop_ui(_ui_context_ptr context)
 {
-    forget_lite(); /* resizing the term would redraw the map ... sigh */
-    forget_view();
     character_icky = TRUE;
 
     msg_line_clear();
@@ -1402,12 +1404,12 @@ static void _shop_ui(_ui_context_ptr context)
             case 'S': _shuffle_stock(context->shop); break;
             case 'R': _reserve(context); break;
             case KTRL('A'):
-                if (p_ptr->wizard) _wizard_stock(context->shop);
+                if (plr->wizard) _wizard_stock(context->shop);
             case KTRL('S'):
-                if (p_ptr->wizard) inv_sort(context->shop->inv);
+                if (plr->wizard) inv_sort(context->shop->inv);
                 break;
             case KTRL('O'):
-                if (p_ptr->wizard) _shop_change_owner(context->shop, TRUE);
+                if (plr->wizard) _shop_change_owner(context->shop, TRUE);
                 break;
             case '?':
                 doc_display_help("context_shop.txt", NULL);
@@ -1502,7 +1504,7 @@ static void _shop_display(_ui_context_ptr context)
         }
     }
 
-    big_num_display(p_ptr->au, buf);
+    big_num_display(plr->au, buf);
     doc_printf(doc, "Gold Remaining: <color:y>%s</color>\n\n", buf);
     doc_insert(doc, "<color:keypress>b</color> to buy. ");
     doc_insert(doc, "<color:keypress>s</color> to sell. ");
@@ -1533,7 +1535,7 @@ static int _add_obj(shop_ptr shop, obj_ptr obj);
 static bool _buy_aux(shop_ptr shop, obj_ptr obj)
 {
     char       name[MAX_NLEN];
-    string_ptr s = string_alloc();
+    str_ptr s = str_alloc();
     char       c;
     int        price = obj_value(obj);
 
@@ -1546,17 +1548,17 @@ static bool _buy_aux(shop_ptr shop, obj_ptr obj)
     price *= obj->number;
 
     object_desc(name, obj, OD_COLOR_CODED);
-    string_printf(s, "Really sell %s for <color:R>%d</color> gp? <color:y>[y/n]</color>", name, price);
-    c = msg_prompt(string_buffer(s), "ny", PROMPT_YES_NO);
-    string_free(s);
+    str_printf(s, "Really sell %s for <color:R>%d</color> gp? <color:y>[y/n]</color>", name, price);
+    c = msg_prompt(str_buffer(s), "ny", PROMPT_YES_NO);
+    str_free(s);
     if (c == 'n') return FALSE;
 
-    p_ptr->au += price;
+    plr->au += price;
     stats_on_gold_selling(price);
 
-    p_ptr->redraw |= PR_GOLD;
+    plr->redraw |= PR_GOLD;
     if (prace_is_(RACE_MON_LEPRECHAUN))
-        p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+        plr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
     obj->inscription = 0;
     obj->feeling = FEEL_NONE;
@@ -1623,11 +1625,11 @@ static void _buy(_ui_context_ptr context)
             obj_identify_fully(prompt.obj);
             prompt.obj->number -= amt;
             prompt.obj->marked |= OM_DELAYED_MSG;
-            p_ptr->notice |= PN_CARRY;
+            plr->notice |= PN_CARRY;
             if (prompt.obj->loc.where == INV_QUIVER)
-                p_ptr->notice |= PN_OPTIMIZE_QUIVER;
+                plr->notice |= PN_OPTIMIZE_QUIVER;
             else if (prompt.obj->loc.where == INV_PACK)
-                p_ptr->notice |= PN_OPTIMIZE_PACK;
+                plr->notice |= PN_OPTIMIZE_PACK;
         }
     }
     else
@@ -1659,26 +1661,26 @@ static void _examine(_ui_context_ptr context)
 static void _reserve_aux(shop_ptr shop, obj_ptr obj)
 {
     int        cost = _sell_price(shop, 10000);
-    string_ptr s;
+    str_ptr s;
     char       c;
     char       name[MAX_NLEN];
 
     object_desc(name, obj, OD_COLOR_CODED);
-    s = string_alloc_format("Reserve %s for <color:R>%d</color> gp? <color:y>[y/n]</color>", name, cost);
-    c = msg_prompt(string_buffer(s), "ny", PROMPT_YES_NO);
-    string_free(s);
+    s = str_alloc_format("Reserve %s for <color:R>%d</color> gp? <color:y>[y/n]</color>", name, cost);
+    c = msg_prompt(str_buffer(s), "ny", PROMPT_YES_NO);
+    str_free(s);
     if (c == 'n') return;
-    if (cost > p_ptr->au)
+    if (cost > plr->au)
     {
         msg_print("You don't have enough gold.");
         return;
     }
-    p_ptr->au -= cost;
+    plr->au -= cost;
     stats_on_gold_services(cost);
 
-    p_ptr->redraw |= PR_GOLD;
+    plr->redraw |= PR_GOLD;
     if (prace_is_(RACE_MON_LEPRECHAUN))
-        p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+        plr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
     obj->marked |= OM_RESERVED;
     msg_format("Done! I'll hold on to %s for you. You may come back at any time to purchase it.", name);
@@ -1686,7 +1688,7 @@ static void _reserve_aux(shop_ptr shop, obj_ptr obj)
 
 static void _reserve(_ui_context_ptr context)
 {
-    if (p_ptr->wizard || mut_present(MUT_MERCHANTS_FRIEND))
+    if (plr->wizard || mut_present(MUT_MERCHANTS_FRIEND))
     {
         for (;;)
         {
@@ -1717,7 +1719,7 @@ static void _reserve(_ui_context_ptr context)
 static bool _sell_aux(shop_ptr shop, obj_ptr obj)
 {
     char       name[MAX_NLEN];
-    string_ptr s = string_alloc();
+    str_ptr s = str_alloc();
     char       c;
     int        price = obj_value(obj);
 
@@ -1725,22 +1727,22 @@ static bool _sell_aux(shop_ptr shop, obj_ptr obj)
     price *= obj->number;
 
     object_desc(name, obj, OD_COLOR_CODED);
-    string_printf(s, "Really buy %s for <color:R>%d</color> gp? <color:y>[y/n]</color>", name, price);
-    c = msg_prompt(string_buffer(s), "ny", PROMPT_YES_NO);
-    string_free(s);
+    str_printf(s, "Really buy %s for <color:R>%d</color> gp? <color:y>[y/n]</color>", name, price);
+    c = msg_prompt(str_buffer(s), "ny", PROMPT_YES_NO);
+    str_free(s);
     if (c == 'n') return FALSE;
 
-    if (price > p_ptr->au)
+    if (price > plr->au)
     {
         msg_print("You do not have enough gold.");
         return FALSE;
     }
-    p_ptr->au -= price;
+    plr->au -= price;
     stats_on_gold_buying(price);
 
-    p_ptr->redraw |= PR_GOLD;
+    plr->redraw |= PR_GOLD;
     if (prace_is_(RACE_MON_LEPRECHAUN))
-        p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+        plr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
     obj->ident &= ~IDENT_STORE;
     obj->inscription = 0;
@@ -1817,7 +1819,7 @@ static void _sellout(shop_ptr shop)
         if (!obj) continue;
         price = _sell_price(shop, obj_value(obj));
         price *= obj->number;
-        if (price <= p_ptr->au)
+        if (price <= plr->au)
         {
             bool destroy = FALSE;
             int auto_pick_idx = is_autopick(obj);
@@ -1846,11 +1848,11 @@ static void _sellout(shop_ptr shop)
             obj->number = 0;
             inv_remove(shop->inv, slot);
 
-            p_ptr->au -= price;
+            plr->au -= price;
             total_price += price;
             stats_on_gold_buying(price);
 
-            p_ptr->redraw |= PR_GOLD;
+            plr->redraw |= PR_GOLD;
         }
         else
         {
@@ -1861,7 +1863,7 @@ static void _sellout(shop_ptr shop)
 
     msg_format("You spent <color:R>%d</color> gp.", total_price);
     if (prace_is_(RACE_MON_LEPRECHAUN))
-        p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+        plr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
     inv_sort(shop->inv);
 }
@@ -1904,9 +1906,9 @@ static void _maintain(shop_ptr shop)
         {
             int xp = shop->last_restock.exp;
             xp += MIN(MAX(xp / 20, 1000), 100000);
-            if ( p_ptr->max_plv <= shop->last_restock.level
-              && p_ptr->max_exp <= xp
-              && p_ptr->prace != RACE_ANDROID )
+            if ( plr->max_plv <= shop->last_restock.level
+              && plr->max_exp <= xp
+              && plr->prace != RACE_ANDROID )
             {
                 allow_restock = FALSE;
             }
@@ -1990,7 +1992,7 @@ static void _wizard_stock(shop_ptr shop)
 {
     u32b mode = AM_NO_FIXED_ART;
 
-    if (plr_dun()->dun_type_id == D_SURFACE && _shop_is_basic(shop))
+    if (plr_dun()->type->id == D_SURFACE && _shop_is_basic(shop))
         mode |=  AM_STOCK_TOWN;
 
     if (shop->type->id == SHOP_BLACK_MARKET)
@@ -2006,7 +2008,7 @@ static int _restock(shop_ptr shop, int target)
     int attempt = 0;
     u32b mode = AM_NO_FIXED_ART;
 
-    if (plr_dun()->dun_type_id == D_SURFACE && _shop_is_basic(shop))
+    if (plr_dun()->type->id == D_SURFACE && _shop_is_basic(shop))
         mode |=  AM_STOCK_TOWN;
 
     if (shop->type->id == SHOP_BLACK_MARKET)
@@ -2025,35 +2027,35 @@ static int _restock(shop_ptr shop, int target)
     inv_sort(shop->inv);
     assert(ct == inv_count_slots(shop->inv, obj_exists));
     shop->last_restock.turn = dun_mgr()->turn;
-    shop->last_restock.level = p_ptr->max_plv;
-    shop->last_restock.exp = p_ptr->max_exp;
+    shop->last_restock.level = plr->max_plv;
+    shop->last_restock.exp = plr->max_exp;
     return ct;
 }
 
 static void _shuffle_stock(shop_ptr shop)
 {
-    if (p_ptr->wizard || mut_present(MUT_MERCHANTS_FRIEND))
+    if (plr->wizard || mut_present(MUT_MERCHANTS_FRIEND))
     {
-        if (!p_ptr->wizard)
+        if (!plr->wizard)
         {
             int        cost = _sell_price(shop, 5000);
-            string_ptr s;
+            str_ptr s;
             char       c;
-            s = string_alloc_format("Shuffle stock for <color:R>%d</color> gp? <color:y>[y/n]</color>", cost);
-            c = msg_prompt(string_buffer(s), "ny", PROMPT_YES_NO);
-            string_free(s);
+            s = str_alloc_format("Shuffle stock for <color:R>%d</color> gp? <color:y>[y/n]</color>", cost);
+            c = msg_prompt(str_buffer(s), "ny", PROMPT_YES_NO);
+            str_free(s);
             if (c == 'n') return;
-            if (cost > p_ptr->au)
+            if (cost > plr->au)
             {
                 msg_print("You don't have enough gold.");
                 return;
             }
-            p_ptr->au -= cost;
+            plr->au -= cost;
             stats_on_gold_services(cost);
 
-            p_ptr->redraw |= PR_GOLD;
+            plr->redraw |= PR_GOLD;
             if (prace_is_(RACE_MON_LEPRECHAUN))
-                p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+                plr->update |= (PU_BONUS | PU_HP | PU_MANA);
         }
         _cull(shop, 0);
         _restock(shop, _stock_base(shop));
@@ -2118,7 +2120,7 @@ static void _display_inv(doc_ptr doc, shop_ptr shop, slot_t top, int page_size)
     char    name[MAX_NLEN];
     inv_ptr inv = shop->inv;
     bool    show_prices = inv_loc(inv) == INV_SHOP;
-    bool    show_values = inv_loc(inv) != INV_SHOP || p_ptr-> wizard;
+    bool    show_values = inv_loc(inv) != INV_SHOP || plr-> wizard;
 
     if (show_weights)
         xtra += 10;  /* " 123.0 lbs" */
@@ -2183,7 +2185,7 @@ static void _display_inv(doc_ptr doc, shop_ptr shop, slot_t top, int page_size)
                     if (show_prices)
                     {
                         int price = _sell_price(shop, value);
-                        doc_printf(doc, " <color:%c>%6d</color>", price <= p_ptr->au ? 'w' : 'D', price);
+                        doc_printf(doc, " <color:%c>%6d</color>", price <= plr->au ? 'w' : 'D', price);
                     }
                     if (show_values)
                         doc_printf(doc, " %6d", value);
@@ -2399,21 +2401,21 @@ static void _bldg_change_owner(bldg_ptr bldg, bool msg)
 
 static void _bldg_display_aux(char cmd, cptr desc, int price, doc_ptr doc)
 {
-    doc_printf(doc, " <color:%c>%c</color>) %s", price > p_ptr->au ? 'D' : 'y', cmd, desc);
+    doc_printf(doc, " <color:%c>%c</color>) %s", price > plr->au ? 'D' : 'y', cmd, desc);
     if (price)
     {
         doc_printf(doc, "<tab:%d><color:%c>%6d</color>",
-            doc_width(doc) - 6, price > p_ptr->au ? 'D' : 'w', price);
+            doc_width(doc) - 6, price > plr->au ? 'D' : 'w', price);
     }
     doc_newline(doc);
 }
 
 static void _plr_pay(int price)
 {
-    p_ptr->au -= price;
+    plr->au -= price;
     stats_on_gold_services(price);
     if (prace_is_(RACE_MON_LEPRECHAUN))
-        p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+        plr->update |= (PU_BONUS | PU_HP | PU_MANA);
 }
 
 /************************************************************************
@@ -2434,7 +2436,7 @@ static void _rest(int price) /* shared with BLDG_THIEVES_GUILD */
         msg_print("You need a healer, not a room. Sorry, but I don't want anyone dying in here.");
         return;
     }
-    if (price > p_ptr->au)
+    if (price > plr->au)
     {
         msg_print("You don't have enough gold!");
         return;
@@ -2443,15 +2445,15 @@ static void _rest(int price) /* shared with BLDG_THIEVES_GUILD */
     extract_day_hour_min(&prev_day, &prev_hour, &prev_min);
     dun_mgr()->turn = (dun_mgr()->turn / (TURNS_PER_TICK*TOWN_DAWN/2) + 1) * (TURNS_PER_TICK*TOWN_DAWN/2);
 
-    p_ptr->chp = p_ptr->mhp;
+    plr->chp = plr->mhp;
     plr_tim_remove(T_BLIND);
     plr_tim_remove(T_CONFUSED);
     plr_tim_remove(T_STUN);
-    p_ptr->chp = p_ptr->mhp;
-    if (p_ptr->pclass != CLASS_RUNE_KNIGHT)
-        p_ptr->csp = p_ptr->msp;
+    plr->chp = plr->mhp;
+    if (plr->pclass != CLASS_RUNE_KNIGHT)
+        plr->csp = plr->msp;
 
-    if (p_ptr->pclass == CLASS_MAGIC_EATER)
+    if (plr->pclass == CLASS_MAGIC_EATER)
         magic_eater_restore_all();
 
     for (slot = 1; slot <= pack_max(); slot++)
@@ -2490,12 +2492,12 @@ static void _inn_rest(bldg_ptr bldg)
 static void _inn_food(bldg_ptr bldg)
 {
     int price = _bldg_price(bldg, _INN_FOOD_AU);
-    if (((plr_race()->flags & RACE_IS_NONLIVING) && p_ptr->prace != RACE_MON_POSSESSOR) || prace_is_(RACE_ENT))
+    if (((plr_race()->flags & RACE_IS_NONLIVING) && plr->prace != RACE_MON_POSSESSOR) || prace_is_(RACE_ENT))
     {
         msg_print("The food of mortals is poor sustenance for one such as yourself!");
         return;
     }
-    if (price > p_ptr->au)
+    if (price > plr->au)
     {
         msg_print("You don't have enough gold!");
         return;
@@ -2507,12 +2509,13 @@ static void _inn_food(bldg_ptr bldg)
 static void _inn_tele_town(bldg_ptr bldg)
 {
     int price = _bldg_price(bldg, _INN_TOWN_AU);
-    if (price > p_ptr->au)
+    u32b flags = plr->wizard ? TF_SECRET : TF_VISITED;
+    if (price > plr->au)
     {
         msg_print("You don't have enough gold!");
         return;
     }
-    if (dun_mgr_teleport_town())
+    if (dun_mgr_teleport_town(flags))
     {
         _plr_pay(price);
         leave_bldg = TRUE;
@@ -2521,24 +2524,24 @@ static void _inn_tele_town(bldg_ptr bldg)
 static void _inn_fame(bldg_ptr bldg)
 {
     int price = _bldg_price(bldg, _INN_FAME_AU);
-    if (price > p_ptr->au)
+    if (price > plr->au)
     {
         msg_print("You don't have enough gold!");
         return;
     }
-    if (p_ptr->fame <= 0)
+    if (plr->fame <= 0)
         cmsg_print(TERM_WHITE, "Who the hell are you?");
-    else if (p_ptr->fame < 20)
+    else if (plr->fame < 20)
         cmsg_print(TERM_WHITE, "I've never even heard of you!");
-    else if (p_ptr->fame < 40)
+    else if (plr->fame < 40)
         cmsg_print(TERM_L_UMBER, "Hmmm ... You've done a few minor notable deeds, but hardly anything worth bragging about!");
-    else if (p_ptr->fame < 60)
+    else if (plr->fame < 60)
         cmsg_print(TERM_YELLOW, "Yes, I've heard of you. The townfolk are talking!");
-    else if (p_ptr->fame < 80)
+    else if (plr->fame < 80)
         cmsg_print(TERM_ORANGE, "Ah, good sir. 'Tis an honor to see you again!");
-    else if (p_ptr->fame < 100)
+    else if (plr->fame < 100)
         cmsg_print(TERM_L_RED, "You are a true hero!");
-    else if (p_ptr->fame < 150)
+    else if (plr->fame < 150)
         cmsg_print(TERM_RED, "You are the stuff of legends!");
     else
         cmsg_print(TERM_VIOLET, "The bards doth sing of ye: Heroic ballads both far 'n wide!");
@@ -2548,7 +2551,7 @@ static void _inn_rumor(bldg_ptr bldg)
 {
     int  price = _bldg_price(bldg, _INN_RUMOR_AU);
     char rumor[1024];
-    if (price > p_ptr->au)
+    if (price > plr->au)
     {
         msg_print("You don't have enough gold!");
         return;
@@ -2559,9 +2562,11 @@ static void _inn_rumor(bldg_ptr bldg)
         _plr_pay(price);
     }
 }
+static vec_ptr _towns_filter(u32b flags);
 static void _inn_display(bldg_ptr bldg, doc_ptr doc)
 {
-    vec_ptr towns = p_ptr->wizard ? world_towns() : plr_towns();
+    u32b    flags = plr->wizard ? TF_SECRET : TF_VISITED;
+    vec_ptr towns = _towns_filter(flags);
     _bldg_display_aux('r', "Rest for the Night", _bldg_price(bldg, _INN_REST_AU), doc);
     _bldg_display_aux('f', "Buy Food and Drink", _bldg_price(bldg, _INN_FOOD_AU), doc);
     if (vec_length(towns) > 1)
@@ -2605,7 +2610,7 @@ static void _enchant_menu_fn(int cmd, int which, vptr cookie, var_ptr res)
         break;
     }
     case MENU_COLOR:
-        if (ptr->cost > p_ptr->au)
+        if (ptr->cost > plr->au)
         {
             var_set_int(res, TERM_L_DARK);
             break;
@@ -2626,7 +2631,7 @@ static bool enchant_item(bldg_ptr bldg, obj_p filter, int cost, int to_hit, int 
     if (cost == 0)
         cost = _bldg_price(bldg, 1500);
 
-    if (p_ptr->prace == RACE_MON_SWORD)
+    if (plr->prace == RACE_MON_SWORD)
     {
         msg_print("Go enchant yourself!");
         return FALSE;
@@ -2642,9 +2647,9 @@ static bool enchant_item(bldg_ptr bldg, obj_p filter, int cost, int to_hit, int 
     if (!prompt.obj) return FALSE;
 
     if (is_guild)
-        maxenchant = 5 + p_ptr->lev/5;
+        maxenchant = 5 + plr->lev/5;
     else
-        maxenchant = 2 + p_ptr->lev/5;
+        maxenchant = 2 + plr->lev/5;
 
     {
         int idx = -1;
@@ -2738,7 +2743,7 @@ static bool enchant_item(bldg_ptr bldg, obj_p filter, int cost, int to_hit, int 
     }
 
     /* Check if the player has enough money */
-    if (p_ptr->au < cost)
+    if (plr->au < cost)
     {
         object_desc(tmp_str, prompt.obj, OD_NAME_ONLY | OD_COLOR_CODED);
         msg_format("You do not have the gold to improve %s!", tmp_str);
@@ -2819,7 +2824,7 @@ static bool _fighter_command(bldg_ptr bldg, int cmd)
 }
 static bool _fighter_guild(void)
 {
-    switch (p_ptr->pclass)
+    switch (plr->pclass)
     {
     case CLASS_WARRIOR:
     case CLASS_SAMURAI:
@@ -2858,7 +2863,7 @@ static bool _archer_command(bldg_ptr bldg, int cmd)
 }
 static bool _archer_guild(void)
 {
-    switch (p_ptr->pclass)
+    switch (plr->pclass)
     {
     case CLASS_ARCHER:
     case CLASS_SNIPER:
@@ -2879,7 +2884,7 @@ static void _thief_rest(bldg_ptr bldg)
 static void _thief_identify(bldg_ptr bldg)
 {
     int price = _bldg_price2(bldg, 100, 600);
-    if (price > p_ptr->au)
+    if (price > plr->au)
     {
         msg_print("You don't have enough gold!");
         return;
@@ -2902,14 +2907,14 @@ static bool _thief_command(bldg_ptr bldg, int cmd)
     }
     return TRUE;
 }
-static bool _thief_guild(void) { return p_ptr->pclass == CLASS_ROGUE; }
+static bool _thief_guild(void) { return plr->pclass == CLASS_ROGUE; }
 /************************************************************************
  * The Wizards' Tower
  ***********************************************************************/
 static void _wizard_identify(bldg_ptr bldg)
 {
     int price = _bldg_price(bldg, 50);
-    if (price > p_ptr->au)
+    if (price > plr->au)
     {
         msg_print("You don't have enough gold!");
         return;
@@ -2920,7 +2925,7 @@ static void _wizard_identify(bldg_ptr bldg)
 static void _wizard_identify_full(bldg_ptr bldg)
 {
     int price = _bldg_price(bldg, 1300);
-    if (price > p_ptr->au)
+    if (price > plr->au)
     {
         msg_print("You don't have enough gold!");
         return;
@@ -2931,7 +2936,7 @@ static void _wizard_identify_full(bldg_ptr bldg)
 static void _wizard_self_knowledge(bldg_ptr bldg)
 {
     int price = _bldg_price(bldg, 50000);
-    if (price > p_ptr->au)
+    if (price > plr->au)
     {
         msg_print("You don't have enough gold!");
         return;
@@ -2942,7 +2947,7 @@ static void _wizard_self_knowledge(bldg_ptr bldg)
 static void _wizard_recall(bldg_ptr bldg)
 {
     int price = _bldg_price(bldg, 200);
-    if (price > p_ptr->au)
+    if (price > plr->au)
     {
         msg_print("You don't have enough gold!");
         return;
@@ -2958,7 +2963,7 @@ static void _wizard_locate(bldg_ptr bldg)
     dun_ptr world = dun_mgr()->world;
     int price = _bldg_price(bldg, 10000), i, tot = 0;
     vec_ptr v;
-    if (price > p_ptr->au)
+    if (price > plr->au)
     {
         msg_print("You don't have enough gold!");
         return;
@@ -2967,10 +2972,10 @@ static void _wizard_locate(bldg_ptr bldg)
     for (i = 0; i < vec_length(v); i++)
     {
         dun_type_ptr dt = vec_get(v, i);
-        if (dt->plr_flags & DFP_ENTERED) continue;
-        if (dt->plr_flags & DFP_SECRET) continue;
+        if (dt->flags.plr & DF_PLR_ENTERED) continue;
+        if (dt->flags.plr & DF_PLR_SECRET) continue;
         if (!dun_pos_interior(world, dt->world_pos)) continue; /* paranoia */
-        if (dun_grid_at(world, dt->world_pos)->info & CAVE_MARK) continue;
+        if (dun_grid_at(world, dt->world_pos)->flags & CELL_MAP) continue;
         tot++;
     }
     if (!tot)
@@ -2981,14 +2986,14 @@ static void _wizard_locate(bldg_ptr bldg)
         for (i = 0; i < vec_length(v); i++)
         {
             dun_type_ptr dt = vec_get(v, i);
-            if (dt->plr_flags & DFP_ENTERED) continue;
-            if (dt->plr_flags & DFP_SECRET) continue;
+            if (dt->flags.plr & DF_PLR_ENTERED) continue;
+            if (dt->flags.plr & DF_PLR_SECRET) continue;
             if (!dun_pos_interior(world, dt->world_pos)) continue; /* paranoia */
-            if (dun_grid_at(world, dt->world_pos)->info & CAVE_MARK) continue;
+            if (dun_grid_at(world, dt->world_pos)->flags & CELL_MAP) continue;
             if (--n < 0)
             {
                 dun_grid_ptr grid = dun_grid_at(world, dt->world_pos);
-                grid->info |= CAVE_MARK;
+                grid->flags |= CELL_MAP;
                 _plr_pay(price);
                 msg_format("I have located <color:o>%s</color> for you. Check your wilderness map once you leave my premises (MM).",
                     dt->name);
@@ -3034,7 +3039,7 @@ static void _priest_heal(bldg_ptr bldg)
     mon_ptr mount = plr_riding_mon();
     int     price = _bldg_price2(bldg, 0, 100);
 
-    if (price > p_ptr->au)
+    if (price > plr->au)
     {
         msg_print("You don't have enough gold!");
         return;
@@ -3051,14 +3056,14 @@ static void _priest_heal(bldg_ptr bldg)
     {
         if (mount->hp < 30000) mount->hp += 500;
         if (mount->hp > mount->maxhp) mount->hp = mount->maxhp;
-        p_ptr->redraw |= PR_HEALTH_BARS;
+        plr->redraw |= PR_HEALTH_BARS;
     }
     _plr_pay(price);
 }
 static void _priest_restore(bldg_ptr bldg)
 {
     int price = _bldg_price2(bldg, 300, 1000);
-    if (price > p_ptr->au)
+    if (price > plr->au)
     {
         msg_print("You don't have enough gold!");
         return;
@@ -3074,7 +3079,7 @@ static void _priest_restore(bldg_ptr bldg)
 static void _priest_cure_mutation(bldg_ptr bldg)
 {
     int price = _bldg_price2(bldg, 10000, 250000);
-    if (price > p_ptr->au)
+    if (price > plr->au)
     {
         msg_print("You don't have enough gold!");
         return;
@@ -3109,7 +3114,7 @@ static bool _priest_command(bldg_ptr bldg, int cmd)
 }
 static bool _priest_guild(void)
 {
-    if (p_ptr->realm1 == REALM_LIFE) return TRUE;
+    if (plr->realm1 == REALM_LIFE) return TRUE;
     if (prace_is_(RACE_MON_ANGEL)) return TRUE;
     return FALSE;
 }
@@ -3129,33 +3134,33 @@ static struct {
     {TV_POTION, SV_POTION_ENLIGHTENMENT},
 
     {TV_POTION, SV_POTION_HEALING},
-    {TV_POTION, SV_POTION_RESTORE_MANA},
     {TV_SCROLL, SV_SCROLL_STAR_DESTRUCTION},
     {TV_POTION, SV_POTION_STAR_ENLIGHTENMENT},
-    {TV_SCROLL, SV_SCROLL_CRAFTING},
-
     {TV_SCROLL, SV_SCROLL_GENOCIDE},
-    {TV_POTION, SV_POTION_STAR_HEALING},
-    {TV_POTION, SV_POTION_STAR_HEALING},
+    {TV_POTION, SV_POTION_AUGMENTATION},
+
     {TV_POTION, SV_POTION_NEW_LIFE},
+    {TV_SCROLL, SV_SCROLL_CRAFTING},
+    {TV_POTION, SV_POTION_STAR_HEALING},
+    {TV_POTION, SV_POTION_STAR_HEALING},
     {TV_SCROLL, SV_SCROLL_MASS_GENOCIDE},
 
     {TV_POTION, SV_POTION_LIFE},
     {TV_POTION, SV_POTION_LIFE},
-    {TV_POTION, SV_POTION_AUGMENTATION},
+    {TV_POTION, SV_POTION_RESTORE_MANA},
     {TV_POTION, SV_POTION_INVULNERABILITY},
     {TV_SCROLL, SV_SCROLL_ARTIFACT},
 };
 
 static bool _is_captured_tsuchinoko(obj_ptr obj)
 {
-    if (obj->tval == TV_CAPTURE && obj->pval == MON_TSUCHINOKO)
+    if (obj->tval == TV_CAPTURE && sym_equals(obj->race_id, "J.tsuchinoko"))
         return TRUE;
     return FALSE;
 }
 static bool _is_corpse_tsuchinoko(obj_ptr obj)
 {
-    if (obj->tval == TV_CORPSE && obj->pval == MON_TSUCHINOKO)
+    if (obj->tval == TV_CORPSE && sym_equals(obj->race_id, "J.tsuchinoko"))
         return TRUE;
     return FALSE;
 }
@@ -3172,12 +3177,12 @@ static int _tsuchinoko_amt(obj_ptr obj)
 static void _obj_reward(obj_ptr obj, int amt)
 {
     msg_format("You get %dgp.", amt);
-    p_ptr->au += amt;
+    plr->au += amt;
     stats_on_gold_winnings(amt);
     obj->number = 0;
     obj_release(obj, 0);
-    p_ptr->redraw |= PR_GOLD;
-    p_ptr->notice |= PN_OPTIMIZE_PACK;
+    plr->redraw |= PR_GOLD;
+    plr->notice |= PN_OPTIMIZE_PACK;
 }
 static void _process_tsuchinoko(obj_ptr obj)
 {
@@ -3192,7 +3197,7 @@ static void _process_tsuchinoko(obj_ptr obj)
 static bool _is_todays_prize(obj_ptr obj)
 {
     if (obj->tval == TV_CORPSE)
-        return obj->pval == today_mon;
+        return obj->race_id == today_mon;
     return FALSE;
 }
 static void _process_todays_prize(obj_ptr obj)
@@ -3204,7 +3209,7 @@ static void _process_todays_prize(obj_ptr obj)
     if (get_check(buf))
     {
         int mult = obj->sval == SV_CORPSE ? 50 : 30;
-        int amt = (mon_race_lookup(today_mon)->level * mult + 100) * obj->number;
+        int amt = (mon_race_lookup(today_mon)->alloc.lvl * mult + 100) * obj->number;
         _obj_reward(obj, amt);
     }
     ++_prize_count;
@@ -3238,7 +3243,7 @@ static void _forge_wanted_monster_prize(obj_ptr obj, int r_idx)
 }
 static bool _is_wanted_corpse(obj_ptr obj)
 {
-    if (obj->tval == TV_CORPSE && _is_wanted_monster(obj->pval))
+    if (obj->tval == TV_CORPSE && _is_wanted_monster(obj->race_id))
         return TRUE;
     return FALSE;
 }
@@ -3247,7 +3252,7 @@ static void _process_wanted_corpse(obj_ptr obj)
     char  name[MAX_NLEN];
     char  buf[MAX_NLEN+30];
     obj_t prize;
-    int   r_idx = obj->pval;
+    int   r_idx = obj->race_id;
     int   num, k;
 
     ++_prize_count;
@@ -3261,7 +3266,7 @@ static void _process_wanted_corpse(obj_ptr obj)
     obj_release(obj, 0);
 
     virtue_add(VIRTUE_JUSTICE, 5);
-    p_ptr->fame++;
+    plr->fame++;
     mon_race_lookup(r_idx)->flagsx |= RFX_BOUNTY;
 
     /* Count number of unique corpses already handed */
@@ -3297,10 +3302,10 @@ static void _today_mon(void)
 {
     mon_race_ptr race = mon_race_lookup(today_mon);
 
-    msg_format("<color:R>Today's Wanted Monster:</color> %s\n", r_name + race->name);
-    msg_format("<color:U>Corpse:</color> %dgp.\n", race->level * 50 + 100);
-    msg_format("<color:U>Bones :</color> %dgp.\n", race->level * 30 + 60);
-    p_ptr->today_mon = today_mon;
+    msg_format("<color:R>Today's Wanted Monster:</color> %s\n", race->name);
+    msg_format("<color:U>Corpse:</color> %dgp.\n", race->alloc.lvl * 50 + 100);
+    msg_format("<color:U>Bones :</color> %dgp.\n", race->alloc.lvl * 30 + 60);
+    plr->today_mon = today_mon;
 }
 static void _hunter_display(bldg_ptr bldg, doc_ptr doc)
 {
@@ -3308,7 +3313,7 @@ static void _hunter_display(bldg_ptr bldg, doc_ptr doc)
     _bldg_display_aux('u', "Wanted Unique Monsters", 0, doc);
     _bldg_display_aux('b', "Receive Bounty", 0, doc);
 }
-static void _uniques(void)
+void display_wanted_uniques(void)
 {
     doc_ptr doc = doc_alloc(80);
     int i;
@@ -3327,7 +3332,7 @@ static void _uniques(void)
         if (race->flagsx & RFX_BOUNTY) done = TRUE;
 
         doc_printf(doc, "<color:%c>%s%s</color>\n", done ? 'R' : 'w',
-            r_name + race->name, done ? " (done)" : "");
+            race->name, done ? " (done)" : "");
     }
     doc_insert(doc, "\n\nWanted for crimes against the peoples of Middle Earth. "
                     "Be warned: These uniques are armed and considered extremely dangerous. "
@@ -3344,7 +3349,7 @@ static bool _hunter_command(bldg_ptr bldg, int cmd)
     {
     case 't': _today_mon(); break;
     case 'b': _bounty(); break;
-    case 'u': _uniques(); break;
+    case 'u': display_wanted_uniques(); break;
     default: return FALSE;
     }
     return TRUE;
@@ -3405,7 +3410,7 @@ static void _bldg_display(bldg_ptr bldg, doc_ptr doc)
 
     bldg->type->display_f(bldg, doc);
 
-    big_num_display(p_ptr->au, buf);
+    big_num_display(plr->au, buf);
     doc_printf(doc, "\n\nGold Remaining: <color:y>%s</color>\n\n", buf);
     doc_insert(doc,
         "<color:keypress>Esc</color> to exit. "
@@ -3420,8 +3425,6 @@ static void _bldg_display(bldg_ptr bldg, doc_ptr doc)
 void bldg_ui(bldg_ptr bldg)
 {
     doc_ptr doc;
-    forget_lite(); /* resizing the term would redraw the map ... sigh */
-    forget_view();
     character_icky = TRUE;
 
     msg_line_clear();
@@ -3442,7 +3445,7 @@ void bldg_ui(bldg_ptr bldg)
         if (cmd == ESCAPE || cmd == 'q' || cmd == 'Q') break;
         if (!bldg->type->command_f(bldg, cmd))
         {
-            if (cmd == KTRL('O') && p_ptr->wizard)
+            if (cmd == KTRL('O') && plr->wizard)
             {
                 _bldg_change_owner(bldg, TRUE);
             }
@@ -3687,7 +3690,7 @@ void towns_reset_world(void)
 }
 town_ptr towns_current_town(void)
 {
-    if (cave->dun_type_id == D_SURFACE)
+    if (cave->type->id == D_SURFACE)
     {
         int id = dun_world_town_id();
         if (id) return towns_lookup(dun_world_town_id());
@@ -3696,7 +3699,7 @@ town_ptr towns_current_town(void)
         return cave->town;
     return NULL;
 }
-vec_ptr world_towns(void)
+static vec_ptr _towns_filter(u32b flags)
 {
     vec_ptr v = vec_alloc(NULL);
     dun_ptr world = dun_mgr()->world;
@@ -3707,23 +3710,10 @@ vec_ptr world_towns(void)
     {
         town_ptr town = int_map_iter_current(iter);
         if (!dun_pos_interior(world, town->world_pos)) continue;
-        vec_add(v, town);
-    }
-    int_map_iter_free(iter);
-    return v;
-}
-vec_ptr plr_towns(void)
-{
-    vec_ptr v = vec_alloc(NULL);
-    dun_ptr world = dun_mgr()->world;
-    int_map_iter_ptr iter;
-    for (iter = int_map_iter_alloc(_towns());
-            int_map_iter_is_valid(iter);
-            int_map_iter_next(iter))
-    {
-        town_ptr town = int_map_iter_current(iter);
-        if (!dun_pos_interior(world, town->world_pos)) continue;
-        if (!(town->flags & TF_VISITED)) continue;
+        /* TF_SECRET allows inclusion of "secret" town (Zul) */
+        if (!(flags & TF_SECRET) && (town->flags & TF_SECRET)) continue;
+        /* TF_VISITED restricts choices to visited towns only (wizard mode bypasses this) */
+        if ((flags & TF_VISITED) && !(town->flags & TF_VISITED)) continue;
         vec_add(v, town);
     }
     int_map_iter_free(iter);
@@ -3777,9 +3767,9 @@ static town_ptr _towns_choose(vec_ptr towns)
     Term_load();
     return result;
 }
-town_ptr towns_choose(bool wizard)
+town_ptr towns_choose(u32b flags)
 {
-    vec_ptr towns = wizard ? world_towns() : plr_towns();
+    vec_ptr towns = _towns_filter(flags);
     town_ptr town = _towns_choose(towns);
     vec_free(towns);
     return town;
@@ -3819,9 +3809,9 @@ void towns_load(savefile_ptr file)
  ***********************************************************************/
 static int _rivendell_mon_alloc(mon_race_ptr race, int prob)
 {
-    if (race->d_char == 'h') return 10 * prob;
-    if (race->d_char == 't') return 0;
-    if (race->flags3 & RF3_EVIL) return 0;
+    if (mon_race_is_char(race, 'h')) return 10 * prob;
+    if (mon_race_is_char(race, 't')) return 0;
+    if (race->align < 0) return 0;
     return prob;
 }
 static bool _rivendell_owner_race(int id)
@@ -3891,8 +3881,8 @@ static bool _edoras_owner_race(int id)
 }
 static int _edoras_mon_alloc(mon_race_ptr race, int prob)
 {
-    if (race->d_char == 'p') return 10 * prob;
-    if (race->d_char == 't') return 0;
+    if (mon_race_is_char(race, 'p')) return 10 * prob;
+    if (mon_race_is_char(race, 't')) return 0;
     return prob;
 }
 static town_ptr _edoras(void)
@@ -3906,13 +3896,13 @@ static town_ptr _edoras(void)
 }
 static int _morannon_mon_alloc(mon_race_ptr race, int prob)
 {
-    if (!(race->flags3 & RF3_EVIL)) return 0;
-    if (race->flags3 & RF3_UNDEAD) return 0;
-    if (race->level < 10) return 0;
-    if (race->flags3 & RF3_TROLL) return 10*prob;
-    if (race->flags3 & RF3_ORC) return 10*prob;
-    if (race->d_char == 'P' && (race->flags3 & RF3_GIANT)) return 3*prob;
-    if (race->flags2 & RF2_HUMAN) return prob;
+    if (!mon_race_is_evil(race)) return 0;
+    if (mon_race_is_undead(race)) return 0;
+    if (race->alloc.lvl < 10) return 0;
+    if (mon_race_is_troll(race)) return 10*prob;
+    if (mon_race_is_orc(race)) return 10*prob;
+    if (mon_race_is_char(race, 'P') && mon_race_is_giant(race)) return 3*prob;
+    if (mon_race_is_human(race)) return prob;
     return (prob + 4)/5;
 }
 static void _morannon_populate(dun_ptr dun, rect_t rect)
@@ -3937,7 +3927,7 @@ static void _morannon_populate(dun_ptr dun, rect_t rect)
         if (!rect_contains_point(r, pos)) continue;
         race = mon_alloc_choose_aux2(mon_alloc_tbl, 50, 0, GMN_NO_UNIQUES | GMN_IGNORE_MAX_LEVEL);
         if (!race) continue;
-        place_monster_aux(0, pos, race->id, PM_ALLOW_GROUP);
+        place_monster_aux(who_create_null(), pos, race, PM_ALLOW_GROUP);
     }
     mon_alloc_pop_weight();
 }
@@ -3972,9 +3962,9 @@ static town_ptr _outpost(void)
 }
 static int _angwil_mon_alloc(mon_race_ptr race, int prob)
 {
-    if (race->d_char == 'h') return 10 * prob;
-    if (race->d_char == 't') return 0;
-    if (race->flags3 & RF3_EVIL) return 0;
+    if (mon_race_is_char(race, 'h')) return 10 * prob;
+    if (mon_race_is_char(race, 't')) return 0;
+    if (race->align < 0) return 0;
     return prob;
 }
 static bool _angwil_owner_race(int id)
@@ -4039,16 +4029,5 @@ room_ptr towns_get_map(int town_id)
     }
     _temp_room = NULL;
     return room;
-}
-
-void towns_init_buildings(void)
-{
-    int town_id = dun_world_town_id();
-    town_ptr town;
-    if (!town_id) return;
-    town = int_map_find(_towns(), town_id);
-    if (!town) return;
-    if (!town->file) return;
-    parse_edit_file(town->file, _parse_town, 0);
 }
 

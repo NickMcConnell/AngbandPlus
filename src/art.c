@@ -1,5 +1,7 @@
 #include "angband.h"
 
+#include <assert.h>
+
 #define _ONCE 0x0001
 #define ACTIVATION_CHANCE 5
 #define TIER_CURSED 0
@@ -20,7 +22,7 @@ typedef struct {
     int     mode;
     int     powers;
     int     bias;  /* more for naming than anything else ... */
-    art_ptr template;
+    art_ptr art;
     ego_ptr ego;
 } _forge_t, *_forge_ptr;
 
@@ -32,7 +34,7 @@ static _forge_t _forge(obj_ptr obj, int lvl, int mode)
     f.mode = mode;
     f.powers = 0;
     f.bias = 0;
-    f.template = NULL;
+    f.art = NULL;
     f.ego = NULL;
     _current++;
     return f;
@@ -182,10 +184,10 @@ static void _one_aura(_forge_ptr forge)
 static void _one_ele_resist(_forge_ptr forge)
 {
     static _table_t tbl[] = {
-        { OF_RES_ACID, NULL, NULL, 1 },
-        { OF_RES_ELEC, NULL, NULL, 1 },
-        { OF_RES_FIRE, NULL, NULL, 1 },
-        { OF_RES_COLD, NULL, NULL, 1 },
+        { OF_RES_(GF_ACID), NULL, NULL, 1 },
+        { OF_RES_(GF_ELEC), NULL, NULL, 1 },
+        { OF_RES_(GF_FIRE), NULL, NULL, 1 },
+        { OF_RES_(GF_COLD), NULL, NULL, 1 },
         { 0 } };
 
     _one(forge, tbl);
@@ -195,7 +197,7 @@ static void _one_low_resist(_forge_ptr forge)
 {
     static _table_t tbl[] = {
         { 0, _one_ele_resist, NULL, 10 },
-        { OF_RES_POIS, NULL, NULL, 1 },
+        { OF_RES_(GF_POIS), NULL, NULL, 1 },
         { 0 } };
 
     _one(forge, tbl);
@@ -209,20 +211,20 @@ static void _many_low_resists(_forge_ptr forge)
 static void _one_high_resist(_forge_ptr forge)
 {
     static _table_t tbl[] = {
-        { OF_RES_LITE, NULL, NULL, 100 },
-        { OF_RES_DARK, NULL, NULL, 100 },
-        { OF_RES_CONF, NULL, NULL, 100 },
-        { OF_RES_NETHER, NULL, NULL, 100 },
-        { OF_RES_NEXUS, NULL, NULL, 100 },
-        { OF_RES_SOUND, NULL, NULL, 80 },
-        { OF_RES_SHARDS, NULL, NULL, 70 },
-        { OF_RES_CHAOS, NULL, NULL, 80 },
-        { OF_RES_DISEN, NULL, NULL, 90 },
-        { OF_RES_TIME, NULL, NULL, 1 },
-        { OF_RES_BLIND, NULL, NULL, 50 },
-        { OF_RES_BLIND, NULL, obj_is_helmet, 400 },
-        { OF_RES_FEAR, NULL, NULL, 50 },
-        { OF_RES_FEAR, NULL, obj_is_boots, 200 }, /* so you can stand your ground! */
+        { OF_RES_(GF_LIGHT), NULL, NULL, 100 },
+        { OF_RES_(GF_DARK), NULL, NULL, 100 },
+        { OF_RES_(GF_CONFUSION), NULL, NULL, 100 },
+        { OF_RES_(GF_NETHER), NULL, NULL, 100 },
+        { OF_RES_(GF_NEXUS), NULL, NULL, 100 },
+        { OF_RES_(GF_SOUND), NULL, NULL, 80 },
+        { OF_RES_(GF_SHARDS), NULL, NULL, 70 },
+        { OF_RES_(GF_CHAOS), NULL, NULL, 80 },
+        { OF_RES_(GF_DISENCHANT), NULL, NULL, 90 },
+        { OF_RES_(GF_TIME), NULL, NULL, 1 },
+        { OF_RES_(GF_BLIND), NULL, NULL, 50 },
+        { OF_RES_(GF_BLIND), NULL, obj_is_helmet, 400 },
+        { OF_RES_(GF_FEAR), NULL, NULL, 50 },
+        { OF_RES_(GF_FEAR), NULL, obj_is_boots, 200 }, /* so you can stand your ground! */
         { 0 } };
 
     _one(forge, tbl);
@@ -258,10 +260,10 @@ static void _bias_cold(_forge_ptr forge) { forge->bias |= BIAS_COLD; }
 static void _one_immunity(_forge_ptr forge)
 {
     static _table_t tbl[] = {
-        { OF_IM_ACID, _bias_acid, NULL, 1 },
-        { OF_IM_ELEC, _bias_elec, NULL, 1 },
-        { OF_IM_FIRE, _bias_fire, NULL, 1 },
-        { OF_IM_COLD, _bias_cold, NULL, 1 },
+        { OF_IM_(GF_ACID), _bias_acid, NULL, 1 },
+        { OF_IM_(GF_ELEC), _bias_elec, NULL, 1 },
+        { OF_IM_(GF_FIRE), _bias_fire, NULL, 1 },
+        { OF_IM_(GF_COLD), _bias_cold, NULL, 1 },
         { 0 } };
 
     if (randint1(100) < (forge->lvl - 40))
@@ -394,7 +396,7 @@ static void _one_slay(_forge_ptr forge)
 static void _one_ability(_forge_ptr forge)
 {
     static _table_t tbl[] = {
-        { OF_LITE, NULL, NULL, 3 },
+        { OF_LIGHT, NULL, NULL, 3 },
         { OF_SLOW_DIGEST, NULL, NULL, 2 },
         { OF_WARNING, NULL, NULL, 5 },
         { OF_SEE_INVIS, NULL, NULL, 2 },
@@ -526,11 +528,11 @@ static void _slaying(_forge_ptr forge)
 static void _one_resist_base(_forge_ptr forge)
 {
     static _table_t tbl[] = {
-        { OF_RES_ACID, NULL, NULL,  3, _ONCE },
-        { OF_RES_ELEC, NULL, NULL,  3, _ONCE },
-        { OF_RES_FIRE, NULL, NULL,  3, _ONCE },
-        { OF_RES_COLD, NULL, NULL,  3, _ONCE },
-        { OF_RES_POIS, NULL, NULL,  1, _ONCE },
+        { OF_RES_(GF_ACID), NULL, NULL,  3, _ONCE },
+        { OF_RES_(GF_ELEC), NULL, NULL,  3, _ONCE },
+        { OF_RES_(GF_FIRE), NULL, NULL,  3, _ONCE },
+        { OF_RES_(GF_COLD), NULL, NULL,  3, _ONCE },
+        { OF_RES_(GF_POIS), NULL, NULL,  1, _ONCE },
         { 0 } };
 
     _one(forge, tbl);
@@ -548,10 +550,10 @@ static void _resist_base(_forge_ptr forge)
 static void _one_balance(_forge_ptr forge)
 {
     static _table_t tbl[] = {
-        { OF_RES_SOUND,  NULL, NULL,  1, _ONCE },
-        { OF_RES_SHARDS, NULL, NULL,  1, _ONCE },
-        { OF_RES_CHAOS,  NULL, NULL,  1, _ONCE },
-        { OF_RES_DISEN,  NULL, NULL,  1, _ONCE },
+        { OF_RES_(GF_SOUND),  NULL, NULL,  1, _ONCE },
+        { OF_RES_(GF_SHARDS), NULL, NULL,  1, _ONCE },
+        { OF_RES_(GF_CHAOS),  NULL, NULL,  1, _ONCE },
+        { OF_RES_(GF_DISENCHANT),  NULL, NULL,  1, _ONCE },
         { 0 } };
 
     _one(forge, tbl);
@@ -566,10 +568,10 @@ static void _resist_balance(_forge_ptr forge)
 static void _one_undead_power(_forge_ptr forge)
 {
     static _table_t tbl[] = {
-        { OF_RES_COLD,     NULL, NULL,  2, _ONCE },
-        { OF_RES_POIS,     NULL, NULL,  3, _ONCE },
-        { OF_RES_DARK,     NULL, NULL,  2, _ONCE },
-        { OF_RES_NETHER,   NULL, NULL,  5, _ONCE },
+        { OF_RES_(GF_COLD),     NULL, NULL,  2, _ONCE },
+        { OF_RES_(GF_POIS),     NULL, NULL,  3, _ONCE },
+        { OF_RES_(GF_DARK),     NULL, NULL,  2, _ONCE },
+        { OF_RES_(GF_NETHER),   NULL, NULL,  5, _ONCE },
         { OF_HOLD_LIFE,    NULL, NULL,  3, _ONCE },
         { 0 } };
 
@@ -612,7 +614,7 @@ static void _one_boots(_forge_ptr forge)
         { OF_FREE_ACT,   _freebie, NULL,  9, _ONCE },
         { OF_LEVITATION, _freebie, NULL,  9, _ONCE },
         { OF_DEX,            NULL, NULL,  3, _ONCE },
-        { OF_RES_NEXUS,      NULL, NULL,  3, _ONCE },
+        { OF_RES_(GF_NEXUS),      NULL, NULL,  3, _ONCE },
         { OF_NO_TELE,        NULL, NULL,  1, _ONCE },
         { 0,           _one_armor, NULL, 45 },
         { 0 } };
@@ -643,7 +645,7 @@ static void _one_helmet(_forge_ptr forge)
 {
     static _table_t tbl[] = {
         { 0,            _one_esp, NULL,  6, _ONCE },
-        { OF_RES_BLIND, _freebie, NULL,  9, _ONCE },
+        { OF_RES_(GF_BLIND), _freebie, NULL,  9, _ONCE },
         { OF_SEE_INVIS, _freebie, NULL,  9, _ONCE },
         { OF_SEARCH,        NULL, NULL,  9, _ONCE },
         { OF_INFRA,         NULL, NULL,  9, _ONCE },
@@ -701,11 +703,11 @@ static void _one_body_armor(_forge_ptr forge)
 static void _one_rogue_resist(_forge_ptr forge)
 {
     static _table_t tbl[] = {
-        { OF_RES_POIS,  NULL, NULL,  5, _ONCE },
-        { OF_RES_DARK,  NULL, NULL,  5, _ONCE },
-        { OF_RES_CONF,  NULL, NULL,  2, _ONCE },
-        { OF_RES_NEXUS, NULL, NULL,  2, _ONCE },
-        { OF_RES_DISEN, NULL, NULL,  1, _ONCE },
+        { OF_RES_(GF_POIS),  NULL, NULL,  5, _ONCE },
+        { OF_RES_(GF_DARK),  NULL, NULL,  5, _ONCE },
+        { OF_RES_(GF_CONFUSION),  NULL, NULL,  2, _ONCE },
+        { OF_RES_(GF_NEXUS), NULL, NULL,  2, _ONCE },
+        { OF_RES_(GF_DISENCHANT), NULL, NULL,  1, _ONCE },
         { 0 } };
 
     _one(forge, tbl);
@@ -747,12 +749,12 @@ static void _one_rogue_armor(_forge_ptr forge)
 static void _one_demon_resist(_forge_ptr forge)
 {
     static _table_t tbl[] = {
-        { OF_RES_FIRE,  NULL, NULL,  3, _ONCE },
-        { OF_RES_CONF,  NULL, NULL,  1, _ONCE },
-        { OF_RES_NEXUS, NULL, NULL,  2, _ONCE },
-        { OF_RES_CHAOS, NULL, NULL,  3, _ONCE },
-        { OF_RES_DISEN, NULL, NULL,  2, _ONCE },
-        { OF_RES_FEAR,  NULL, NULL,  2, _ONCE },
+        { OF_RES_(GF_FIRE),  NULL, NULL,  3, _ONCE },
+        { OF_RES_(GF_CONFUSION),  NULL, NULL,  1, _ONCE },
+        { OF_RES_(GF_NEXUS), NULL, NULL,  2, _ONCE },
+        { OF_RES_(GF_CHAOS), NULL, NULL,  3, _ONCE },
+        { OF_RES_(GF_DISENCHANT), NULL, NULL,  2, _ONCE },
+        { OF_RES_(GF_FEAR),  NULL, NULL,  2, _ONCE },
         { 0 } };
 
     _one(forge, tbl);
@@ -776,7 +778,7 @@ static void _demon_immunity(_forge_ptr forge)
 {
     if (randint1(100) < (forge->lvl - 35))
     {
-        add_flag(forge->obj->flags, OF_IM_FIRE);
+        add_flag(forge->obj->flags, OF_IM_(GF_FIRE));
         forge->powers--;
     }
     else
@@ -792,7 +794,7 @@ static void _one_demon_armor(_forge_ptr forge)
         { 0,   _one_demon_resist, NULL, 10 },
         { 0,     _one_demon_stat, NULL, 10 },
         { OF_AURA_FIRE, _freebie, NULL, 15, _ONCE },
-        { OF_RES_FIRE,  _freebie, NULL, 25, _ONCE },
+        { OF_RES_(GF_FIRE),  _freebie, NULL, 25, _ONCE },
         { 0,            _slaying, NULL, 10, _ONCE },
         { 0,           _boost_ac, NULL, 10, _ONCE },
         { 0,     _demon_immunity, NULL,  1, _ONCE },
@@ -808,12 +810,12 @@ static void _one_demon_armor(_forge_ptr forge)
 static void _one_undead_resist(_forge_ptr forge)
 {
     static _table_t tbl[] = {
-        { OF_RES_COLD,   NULL, NULL,  3, _ONCE },
-        { OF_RES_POIS,   NULL, NULL,  3, _ONCE },
-        { OF_RES_DARK,   NULL, NULL,  3, _ONCE },
-        { OF_RES_NETHER, NULL, NULL,  6, _ONCE },
-        { OF_RES_DISEN,  NULL, NULL,  1, _ONCE },
-        { OF_RES_FEAR,   NULL, NULL,  1, _ONCE },
+        { OF_RES_(GF_COLD),   NULL, NULL,  3, _ONCE },
+        { OF_RES_(GF_POIS),   NULL, NULL,  3, _ONCE },
+        { OF_RES_(GF_DARK),   NULL, NULL,  3, _ONCE },
+        { OF_RES_(GF_NETHER), NULL, NULL,  6, _ONCE },
+        { OF_RES_(GF_DISENCHANT),  NULL, NULL,  1, _ONCE },
+        { OF_RES_(GF_FEAR),   NULL, NULL,  1, _ONCE },
         { 0 } };
 
     _one(forge, tbl);
@@ -837,7 +839,7 @@ static void _undead_immunity(_forge_ptr forge)
 {
     if (randint1(100) < (forge->lvl - 35))
     {
-        add_flag(forge->obj->flags, OF_IM_COLD);
+        add_flag(forge->obj->flags, OF_IM_(GF_COLD));
         forge->powers--;
     }
     else
@@ -854,7 +856,7 @@ static void _one_undead_armor(_forge_ptr forge)
         { 0,  _one_undead_resist, NULL, 10 },
         { 0,    _one_undead_stat, NULL, 10 },
         { OF_AURA_COLD, _freebie, NULL, 15, _ONCE },
-        { OF_RES_COLD,  _freebie, NULL, 25, _ONCE },
+        { OF_RES_(GF_COLD),  _freebie, NULL, 25, _ONCE },
         { 0,            _slaying, NULL, 10, _ONCE },
         { 0,           _boost_ac, NULL, 10, _ONCE },
         { 0,    _undead_immunity, NULL,  1, _ONCE },
@@ -871,11 +873,11 @@ static void _one_holy_resist(_forge_ptr forge)
 {
     static _table_t tbl[] = {
         { 0,        _resist_base, NULL, 10, _ONCE },
-        { OF_RES_LITE,      NULL, NULL,  3, _ONCE },
-        { OF_RES_SOUND,     NULL, NULL,  3, _ONCE },
-        { OF_RES_SHARDS,    NULL, NULL,  3, _ONCE },
-        { OF_RES_DISEN,     NULL, NULL,  3, _ONCE },
-        { OF_RES_FEAR,      NULL, NULL,  3, _ONCE },
+        { OF_RES_(GF_LIGHT),      NULL, NULL,  3, _ONCE },
+        { OF_RES_(GF_SOUND),     NULL, NULL,  3, _ONCE },
+        { OF_RES_(GF_SHARDS),    NULL, NULL,  3, _ONCE },
+        { OF_RES_(GF_DISENCHANT),     NULL, NULL,  3, _ONCE },
+        { OF_RES_(GF_FEAR),      NULL, NULL,  3, _ONCE },
         { 0 } };
 
     _one(forge, tbl);
@@ -1048,7 +1050,7 @@ static void _one_demon_weapon(_forge_ptr forge)
         { 0,      _one_demon_stat, NULL, 16 },
         { OF_BRAND_FIRE, _freebie, NULL, 45, _ONCE },
         { OF_BRAND_PLASMA,   NULL, NULL,  2, _ONCE },
-        { OF_RES_FIRE,   _freebie, NULL, 45, _ONCE },
+        { OF_RES_(GF_FIRE),   _freebie, NULL, 45, _ONCE },
         { 0,          _boost_dice, NULL, 30, _ONCE },
         { 0,           _boost_dam, NULL, 30, _ONCE },
         { 0,      _demon_immunity, NULL,  3, _ONCE },
@@ -1067,7 +1069,7 @@ static void _one_undead_weapon(_forge_ptr forge)
         { 0,     _one_undead_stat, NULL, 16 },
         { OF_BRAND_COLD, _freebie, NULL, 45, _ONCE },
         { OF_BRAND_DARK,     NULL, NULL,  2, _ONCE },
-        { OF_RES_COLD,   _freebie, NULL, 45, _ONCE },
+        { OF_RES_(GF_COLD),   _freebie, NULL, 45, _ONCE },
         { 0,          _boost_dice, NULL, 30, _ONCE },
         { 0,           _boost_dam, NULL, 30, _ONCE },
         { 0,     _undead_immunity, NULL,  3, _ONCE },
@@ -1088,7 +1090,7 @@ static void _one_holy_slay(_forge_ptr forge)
         { OF_SLAY_EVIL,     NULL, NULL,  50 },
         { OF_KILL_UNDEAD,   NULL, NULL,   4 },
         { OF_KILL_DEMON,    NULL, NULL,   4 },
-        { OF_BRAND_LITE,    NULL, NULL,   2 },
+        { OF_BRAND_LIGHT,   NULL, NULL,   2 },
         { OF_KILL_EVIL,     NULL, NULL,   1 },
         { 0 } };
 
@@ -1121,8 +1123,8 @@ static void _one_wizardstaff(_forge_ptr forge)
         { OF_INT,             _freebie, NULL,  5, _ONCE },
         { OF_SUST_INT,        _freebie, NULL,  5, _ONCE },
         { OF_EASY_SPELL,      _freebie, NULL,  5, _ONCE },
-        { OF_RES_CONF,        _freebie, NULL,  5, _ONCE },
-        { OF_RES_BLIND,       _freebie, NULL,  5, _ONCE },
+        { OF_RES_(GF_CONFUSION),        _freebie, NULL,  5, _ONCE },
+        { OF_RES_(GF_BLIND),       _freebie, NULL,  5, _ONCE },
         { 0,               _one_resist, NULL,  5 }, 
         { 0,              _one_ability, NULL,  5 },
         { 0,                 _one_plus, NULL,  5 },
@@ -1205,6 +1207,30 @@ static void _one_light(_forge_ptr forge)
     _one(forge, tbl);
 }
 
+static void _one_dark(_forge_ptr forge)
+{
+    static _table_t tbl[] = {
+        { 0,       _one_undead_stat, NULL, 200 },
+        { 0,     _one_undead_resist, NULL, 250 },
+        { 0,            _one_resist, NULL,  50 },
+        { OF_HOLD_LIFE,    _freebie, NULL,  50, _ONCE },
+        { OF_SEE_INVIS,    _freebie, NULL,  50, _ONCE },
+        { OF_AURA_COLD,    _freebie, NULL,  15, _ONCE },
+        { OF_RES_(GF_COLD),     _freebie, NULL,  15, _ONCE },
+        { OF_FREE_ACT,         NULL, NULL,  25, _ONCE },
+        { OF_SLOW_DIGEST,      NULL, NULL,  25, _ONCE },
+        { OF_LEVITATION,       NULL, NULL,  25, _ONCE },
+        { OF_REGEN,            NULL, NULL,  25, _ONCE },
+        { OF_SPEED,            NULL, NULL,  25, _ONCE },
+        { OF_SPELL_POWER,      NULL, NULL,   5, _ONCE },
+        { 0,               _slaying, NULL,   5, _ONCE },
+        { 0,                   _esp, NULL,   5, _ONCE },
+        { 0 } };
+
+    _one(forge, tbl);
+    forge->bias = BIAS_NECROMANTIC;
+}
+
 static void _one_ring(_forge_ptr forge)
 {
     static _table_t tbl[] = {
@@ -1259,6 +1285,8 @@ static bool obj_is_robe(obj_ptr o) { return obj_is_(o, TV_SOFT_ARMOR, SV_ROBE); 
 static bool obj_is_wizardstaff(obj_ptr o) { return obj_is_(o, TV_HAFTED, SV_WIZSTAFF); }
 static bool obj_is_hard_armor(obj_ptr o) { return o->tval == TV_HARD_ARMOR; }
 static bool obj_is_soft_armor(obj_ptr o) { return o->tval == TV_SOFT_ARMOR; }
+static bool _obj_is_light(obj_ptr o) { return o->tval == TV_LIGHT && o->sval != SV_LIGHT_DARK; }
+static bool _obj_is_dark(obj_ptr o) { return o->tval == TV_LIGHT && o->sval == SV_LIGHT_DARK; }
 
 /* Pick the forge function for this artifact. The goal here is twofold:
  * [1] To pick a forge function appropriate to the kind of object being forged
@@ -1279,7 +1307,8 @@ static _forge_f _choose_forge_f(_forge_ptr forge)
         { 0, _one_holy_armor,   obj_is_hard_armor,     5 },
         { 0, _one_rogue_armor,  obj_is_soft_armor,    15 },
 
-        { 0, _one_light,        obj_is_lite,           1 },
+        { 0, _one_light,        _obj_is_light,         1 },
+        { 0, _one_dark,         _obj_is_dark,          1 },
         { 0, _one_ring,         obj_is_ring,           1 },
         { 0, _one_amulet,       obj_is_amulet,         1 },
 
@@ -1313,7 +1342,7 @@ static _slot_weight_t _slot_weight_tbl[] = {
     {"Bows",       obj_is_bow,         57},
     {"Rings",      obj_is_ring,        50},
     {"Amulets",    obj_is_amulet,      50},
-    {"Lights",     obj_is_lite,        38},
+    {"Lights",     obj_is_light,       38},
     {"Body Armor", obj_is_body_armor, 100},
     {"Cloaks",     obj_is_cloak,       44},
     {"Helmets",    obj_is_helmet,      50},
@@ -1603,8 +1632,8 @@ static void _activation(_forge_ptr forge)
 
 static void _hack(_forge_ptr forge)
 {
-    if (have_flag(forge->obj->flags, OF_BRAND_FIRE) || have_flag(forge->obj->flags, OF_BRAND_LITE))
-        add_flag(forge->obj->flags, OF_LITE);
+    if (have_flag(forge->obj->flags, OF_BRAND_FIRE) || have_flag(forge->obj->flags, OF_BRAND_LIGHT))
+        add_flag(forge->obj->flags, OF_LIGHT);
 
     if (obj_is_weapon(forge->obj))
         ego_weapon_adjust_weight(forge->obj);
@@ -1645,14 +1674,8 @@ static void _cleanup(_forge_ptr forge)
     for (i = 0; i < 6; i++)
         _flag_cancel(forge, OF_STR + i, OF_DEC_STR + i);
 
-    for (i = RES_BEGIN; i < RES_END; i++)
-    {
-        int flag1 = res_get_object_flag(i);
-        int flag2 = res_get_object_vuln_flag(i);
-
-        if (flag1 != RES_INVALID && flag2 != RES_INVALID)
-            _flag_cancel(forge, flag1, flag2);
-    }
+    for (i = GF_RES_MIN; i <= GF_RES_MAX; i++)
+        _flag_cancel(forge, OF_RES_(i), OF_VULN_(i));
 
     _flag_cancel(forge, OF_LIFE, OF_DEC_LIFE);
     _flag_cancel(forge, OF_MAGIC_MASTERY, OF_DEC_MAGIC_MASTERY);
@@ -1673,10 +1696,8 @@ static void _cleanup(_forge_ptr forge)
     _flag_superfluous(forge, OF_KILL_GIANT, OF_SLAY_GIANT);
     _flag_superfluous(forge, OF_VORPAL2, OF_VORPAL);
 
-    _flag_superfluous(forge, OF_IM_ACID, OF_RES_ACID);
-    _flag_superfluous(forge, OF_IM_ELEC, OF_RES_ELEC);
-    _flag_superfluous(forge, OF_IM_FIRE, OF_RES_FIRE);
-    _flag_superfluous(forge, OF_IM_COLD, OF_RES_COLD);
+    for (i = GF_RES_MIN; i <= GF_RES_MAX; i++)
+        _flag_superfluous(forge, OF_IM_(i), OF_RES_(i));
 
     /* double check if pval is still required */
     if ( forge->obj->pval
@@ -1702,9 +1723,9 @@ static void _finalize(_forge_ptr forge)
 
 static void _initialize(_forge_ptr forge)
 {
-    forge->obj->name1 = 0;
+    forge->obj->art_id = 0;
+    forge->obj->replacement_art_id = 0;
     forge->obj->name2 = 0;
-    forge->obj->name3 = 0;
 
     if (obj_is_ammo(forge->obj))
     {
@@ -1713,7 +1734,7 @@ static void _initialize(_forge_ptr forge)
     }
 
     /* hack for torches of demeter (pval = 4000) */
-    if (forge->obj->tval == TV_LITE)
+    if (forge->obj->tval == TV_LIGHT)
         forge->obj->pval = 0;
 
     /* XXX We should already be 'plussed' as an ego. Boost slightly at no charge */
@@ -1779,66 +1800,61 @@ void art_create_ego(obj_ptr obj, int level, int mode)
     _finalize(&forge);
 }
 
-static bool _forge_basic(_forge_ptr forge, int a_idx)
+static bool _forge_basic(_forge_ptr forge, art_ptr art)
 {
     int k_idx;
 
-    forge->template = &a_info[a_idx];
+    forge->art = art;
 
-    if (!forge->template->name) return FALSE;
-    k_idx = lookup_kind(forge->template->tval, forge->template->sval);
+    k_idx = lookup_kind(forge->art->tval, forge->art->sval);
     if (!k_idx) return FALSE;
 
     object_prep(forge->obj, k_idx);
 
-    forge->obj->name1 = a_idx;
-    forge->obj->pval = forge->template->pval;
-    forge->obj->ac = forge->template->ac;
-    forge->obj->dd = forge->template->dd;
-    forge->obj->ds = forge->template->ds;
-    forge->obj->mult = forge->template->mult;
-    forge->obj->to_a = forge->template->to_a;
-    forge->obj->to_h = forge->template->to_h;
-    forge->obj->to_d = forge->template->to_d;
-    forge->obj->weight = forge->template->weight;
+    forge->obj->art_id = art->id;
+    forge->obj->pval = forge->art->pval;
+    forge->obj->ac = forge->art->ac;
+    forge->obj->dd = forge->art->dd;
+    forge->obj->ds = forge->art->ds;
+    forge->obj->mult = forge->art->mult;
+    forge->obj->to_a = forge->art->to_a;
+    forge->obj->to_h = forge->art->to_h;
+    forge->obj->to_d = forge->art->to_d;
+    forge->obj->weight = forge->art->weight;
 
     if (obj_is_(forge->obj, TV_HAFTED, SV_WIZSTAFF))
     {
-        device_init(forge->obj, forge->template->level, AM_GOOD | AM_GREAT);
-        if (forge->template->activation.type)
-            forge->obj->activation = forge->template->activation;
+        device_init(forge->obj, forge->art->level, AM_GOOD | AM_GREAT);
+        if (forge->art->activation.type)
+            forge->obj->activation = forge->art->activation;
     }
 
     return TRUE;
 }
-
 static void _forge_extra(_forge_ptr forge)
 {
     int resistance_ct = 0, power_ct = 0, i;
 
     /* Object Generation Flags */
-    if (forge->template->gen_flags & OFG_CURSED) forge->obj->curse_flags |= OFC_CURSED;
-    if (forge->template->gen_flags & OFG_HEAVY_CURSE) forge->obj->curse_flags |= OFC_HEAVY_CURSE;
-    if (forge->template->gen_flags & OFG_PERMA_CURSE) forge->obj->curse_flags |= OFC_PERMA_CURSE;
-    if (forge->template->gen_flags & (OFG_RANDOM_CURSE0)) forge->obj->curse_flags |= get_curse(0, forge->obj);
-    if (forge->template->gen_flags & (OFG_RANDOM_CURSE1)) forge->obj->curse_flags |= get_curse(1, forge->obj);
-    if (forge->template->gen_flags & (OFG_RANDOM_CURSE2)) forge->obj->curse_flags |= get_curse(2, forge->obj);
-    if (forge->template->gen_flags & OFG_XTRA_POWER) power_ct++;
-    if (forge->template->gen_flags & OFG_XTRA_H_RES) resistance_ct++;
-    if (forge->template->gen_flags & OFG_XTRA_RES_OR_POWER)
+    if (forge->art->gen_flags & OFG_CURSED) forge->obj->curse_flags |= OFC_CURSED;
+    if (forge->art->gen_flags & OFG_HEAVY_CURSE) forge->obj->curse_flags |= OFC_HEAVY_CURSE;
+    if (forge->art->gen_flags & OFG_PERMA_CURSE) forge->obj->curse_flags |= OFC_PERMA_CURSE;
+    if (forge->art->gen_flags & (OFG_RANDOM_CURSE0)) forge->obj->curse_flags |= get_curse(0, forge->obj);
+    if (forge->art->gen_flags & (OFG_RANDOM_CURSE1)) forge->obj->curse_flags |= get_curse(1, forge->obj);
+    if (forge->art->gen_flags & (OFG_RANDOM_CURSE2)) forge->obj->curse_flags |= get_curse(2, forge->obj);
+    if (forge->art->gen_flags & OFG_XTRA_POWER) power_ct++;
+    if (forge->art->gen_flags & OFG_XTRA_H_RES) resistance_ct++;
+    if (forge->art->gen_flags & OFG_XTRA_RES_OR_POWER)
     {
         if (one_in_(2)) resistance_ct++;
         else power_ct++;
     }
 
-
     /* Special Cases for Class Specific Artifacts */
-    switch (forge->obj->name1)
-    {
-    case ART_BLOOD:
+    if (obj_is_specified_art(forge->obj, "/.Bloody Moon"))
         get_bloody_moon_flags(forge->obj);
-        break;
-    case ART_DESTROYER:
+    else if (obj_is_specified_art(forge->obj, "].Destroyer"))
+    {
         if (!prace_is_(RACE_MON_GOLEM))
         {
             add_flag(forge->obj->flags, OF_DEC_BLOWS);
@@ -1848,16 +1864,18 @@ static void _forge_extra(_forge_ptr forge)
             forge->obj->curse_flags |=
                 (OFC_CURSED | OFC_HEAVY_CURSE | OFC_PERMA_CURSE);
         }
-        break;
-    case ART_DRAGONLANCE:
+    }
+    else if (obj_is_specified_art(forge->obj, "/.Dragonlance"))
+    {
         if (warlock_is_(WARLOCK_DRAGONS))
         {
             add_flag(forge->obj->flags, OF_SLAY_EVIL);
             add_flag(forge->obj->flags, OF_SLAY_DEMON);
             add_flag(forge->obj->flags, OF_SLAY_UNDEAD);
         }
-        break;
-    case ART_GOTHMOG:
+    }
+    else if (obj_is_specified_art(forge->obj, "\\.Gothmog"))
+    {
         if (prace_is_(RACE_MON_DEMON))
         {
             forge->obj->dd = 6;
@@ -1867,13 +1885,15 @@ static void _forge_extra(_forge_ptr forge)
         }
         else
             forge->obj->curse_flags |= (OFC_CURSED | OFC_HEAVY_CURSE);
-        break;
-    case ART_HEAVENLY_MAIDEN:
-        if (p_ptr->psex != SEX_FEMALE)
+    }
+    else if (obj_is_specified_art(forge->obj, "(.Maiden"))
+    {
+        if (plr->psex != SEX_FEMALE)
             add_flag(forge->obj->flags, OF_AGGRAVATE);
-        break;
-    case ART_JONES:
-        if (p_ptr->pclass == CLASS_ARCHAEOLOGIST)
+    }
+    else if (obj_is_specified_art(forge->obj, "\\.Jones"))
+    {
+        if (plr->pclass == CLASS_ARCHAEOLOGIST)
         {
             power_ct++;
             resistance_ct++;
@@ -1881,24 +1901,27 @@ static void _forge_extra(_forge_ptr forge)
             add_flag(forge->obj->flags, OF_SEARCH);
             add_flag(forge->obj->flags, OF_FREE_ACT);
         }
-        break;
-    case ART_MURAMASA:
-        if (p_ptr->pclass != CLASS_SAMURAI && p_ptr->pclass != CLASS_BLOOD_KNIGHT)
+    }
+    else if (obj_is_specified_art(forge->obj, "|.Muramasa"))
+    {
+        if (plr->pclass != CLASS_SAMURAI && plr->pclass != CLASS_BLOOD_KNIGHT)
         {
             add_flag(forge->obj->flags, OF_NO_MAGIC);
             forge->obj->curse_flags |= (OFC_HEAVY_CURSE);
         }
-        break;
-    case ART_STONEMASK:
-        if (p_ptr->prace == RACE_MON_VAMPIRE)
+    }
+    else if (obj_is_specified_art(forge->obj, "].Stone Mask"))
+    {
+        if (plr->prace == RACE_MON_VAMPIRE)
         {
             add_flag(forge->obj->flags, OF_CHR);
             forge->obj->to_a = 20;
         }
         else
-            add_flag(forge->obj->flags, OF_VULN_LITE);
-        break;
-    case ART_STORMBRINGER:
+            add_flag(forge->obj->flags, OF_VULN_(GF_LIGHT));
+    }
+    else if (obj_is_specified_art(forge->obj, "|.Stormbringer"))
+    {
         if (prace_is_(RACE_MON_SWORD))
             add_flag(forge->obj->flags, OF_BLOWS); /* Just like the good 'ol days :) */
         else
@@ -1907,14 +1930,15 @@ static void _forge_extra(_forge_ptr forge)
             add_flag(forge->obj->flags, OF_DRAIN_EXP);
             forge->obj->curse_flags |= (OFC_CURSED | OFC_HEAVY_CURSE);
         }
-        break;
-    case ART_TERROR:
-        if ( p_ptr->pclass == CLASS_WARRIOR
-          || p_ptr->pclass == CLASS_CAVALRY
-          || p_ptr->pclass == CLASS_MAULER
-          || p_ptr->prace == RACE_MON_HYDRA
-          || p_ptr->prace == RACE_MON_TROLL
-          || p_ptr->prace == RACE_MON_JELLY )
+    }
+    else if (obj_is_specified_art(forge->obj, "].Terror"))
+    {
+        if ( plr->pclass == CLASS_WARRIOR
+          || plr->pclass == CLASS_CAVALRY
+          || plr->pclass == CLASS_MAULER
+          || plr->prace == RACE_MON_HYDRA
+          || plr->prace == RACE_MON_TROLL
+          || plr->prace == RACE_MON_JELLY )
         {
             power_ct++;
             resistance_ct++;
@@ -1928,8 +1952,9 @@ static void _forge_extra(_forge_ptr forge)
             power_ct = 0;
             resistance_ct = 0;
         }
-        break;
-    case ART_TWILIGHT:
+    }
+    else if (obj_is_specified_art(forge->obj, "|.Twilight"))
+    {
         if (giant_is_(GIANT_FIRE)) /* Boss reward for Fire Giants */
         {
             forge->obj->to_h = 10;
@@ -1952,11 +1977,11 @@ static void _forge_extra(_forge_ptr forge)
                 (OFC_CURSED | OFC_HEAVY_CURSE);
             forge->obj->curse_flags |= get_curse(2, forge->obj);
         }
-        break;
-    case ART_XIAOLONG:
-        if (p_ptr->pclass == CLASS_MONK)
+    }
+    else if (obj_is_specified_art(forge->obj, "\\.Xiaolong"))
+    {
+        if (plr->pclass == CLASS_MONK)
             add_flag(forge->obj->flags, OF_BLOWS);
-        break;
     }
 
     for (i = 0; i < power_ct; i++)
@@ -1966,15 +1991,19 @@ static void _forge_extra(_forge_ptr forge)
         _one_high_resist(forge);
 }
 
-bool art_create_std(obj_ptr obj, int a_idx, int mode)
+bool art_create_std(obj_ptr obj, art_ptr art, int mode)
 {
     _forge_t forge = _forge(obj, cave->difficulty, mode);
 
-    if (!_forge_basic(&forge, a_idx))
+    if (!art) return FALSE;
+    if (!_forge_basic(&forge, art))
         return FALSE;
 
     if (!(mode & AM_DEBUG))
         _forge_extra(&forge);
+
+    if (!(mode & (AM_DEBUG | AM_NO_DROP)))
+        art->generated = TRUE;
 
     return TRUE;
 }
@@ -1984,21 +2013,20 @@ bool art_create_std(obj_ptr obj, int a_idx, int mode)
 int original_score = 0;
 int replacement_score = 0;
 
-bool art_create_replacement(obj_ptr obj, int a_idx)
+bool art_create_replacement(obj_ptr obj, art_ptr art, int mode)
 {
     object_type    forge1 = {0};
     object_type    forge2 = {0};
     object_type    best = {0}, worst = {0};
     int            base_power, best_power, power = 0, worst_power = 10000000;
     int            min_power, max_power;
-    artifact_type *a_ptr = &a_info[a_idx];
     int            i;
 
-    if (!a_ptr->name) return FALSE;
+    if (!art) return FALSE;
     if (no_artifacts) return FALSE;
 
     /* Score the Original */
-    if (!art_create_std(&forge1, a_idx, 0)) return FALSE;
+    if (!art_create_std(&forge1, art, AM_NO_DROP)) return FALSE;
     if (obj_is_weapon_ammo(&forge1))
     {
         forge1.to_h = MAX(10, forge1.to_h);
@@ -2024,13 +2052,13 @@ bool art_create_replacement(obj_ptr obj, int a_idx)
         /* since we are bypassing apply_magic, we need to give the object
          * some random starting plusses */
         if (obj_is_weapon_ammo(&forge2))
-            obj_create_weapon_aux(&forge2, a_ptr->level, 3);
+            obj_create_weapon_aux(&forge2, art->level, 3);
         else if (obj_is_armor(&forge2))
-            obj_create_armor_aux(&forge2, a_ptr->level, 3);
-        art_create_random(&forge2, a_ptr->level, 0);
-        if (a_ptr->gen_flags & OFG_FIXED_ACT)
+            obj_create_armor_aux(&forge2, art->level, 3);
+        art_create_random(&forge2, art->level, 0);
+        if (art->gen_flags & OFG_FIXED_ACT)
         {
-            forge2.activation = a_ptr->activation;
+            forge2.activation = art->activation;
             add_flag(forge2.flags, OF_ACTIVATE); /* for object lore */
         }
         power = obj_value_real(&forge2);
@@ -2051,9 +2079,9 @@ bool art_create_replacement(obj_ptr obj, int a_idx)
             /* Success! First replacement to match the power range wins. */
             replacement_score += power;
             object_copy(obj, &forge2);
-            obj->name3 = a_idx;
+            obj->replacement_art_id = art->id;
             obj->weight = forge1.weight;
-            obj->level = a_ptr->level;
+            obj->level = art->level;
             art_remember_name(quark_str(obj->art_name));
             return TRUE;
         }
@@ -2070,10 +2098,13 @@ bool art_create_replacement(obj_ptr obj, int a_idx)
         replacement_score += best_power;
         object_copy(obj, &best);
     }
-    obj->name3 = a_idx;
+    obj->replacement_art_id = art->id;
     obj->weight = forge1.weight;
-    obj->level = a_ptr->level;
+    obj->level = art->level;
     art_remember_name(quark_str(obj->art_name));
+
+    if (!(mode & (AM_DEBUG | AM_NO_DROP)))
+        art->generated = TRUE;
 
     return TRUE;
 }
@@ -2091,7 +2122,7 @@ bool art_reforge(obj_ptr src, obj_ptr dest, int fame)
     /* Score the Original */
     base_power = obj_value_real(src);
 
-    /* Penalize reforging a powerful slot into a weak slot (e.g. weapons into lites)
+    /* Penalize reforging a powerful slot into a weak slot (e.g. weapons into lights)
      * Also consider moving power from something strong into a weak weapon, such as
      * a falcon sword or a dagger (e.g. ninja's do this) */
     if (obj_is_weapon(dest))
@@ -2158,10 +2189,10 @@ bool art_reforge(obj_ptr src, obj_ptr dest, int fame)
     }
 
     /* Flavor: Keep name of source artifact if possible */
-    if (src->name1)
+    if (src->art_id)
     {
-        dest->name3 = src->name1;
-        dest->art_name = quark_add(a_name + a_info[src->name1].name);
+        art_ptr art = arts_lookup(src->art_id);
+        dest->art_name = quark_add(art->name);
     }
     else
         dest->art_name = src->art_name;
@@ -2169,3 +2200,294 @@ bool art_reforge(obj_ptr src, obj_ptr dest, int fame)
     return result;
 }
 
+/******************************************************************************
+ * a_info.txt
+ ******************************************************************************/
+static int_map_ptr _artifacts = NULL;
+
+art_ptr art_alloc(sym_t id)
+{
+    art_ptr a = malloc(sizeof(art_t));
+    memset(a, 0, sizeof(art_t));
+    a->id = id;
+    add_flag(a->flags, OF_IGNORE_ACID);
+    add_flag(a->flags, OF_IGNORE_ELEC);
+    add_flag(a->flags, OF_IGNORE_FIRE);
+    add_flag(a->flags, OF_IGNORE_COLD);
+    return a;
+}
+void art_free(art_ptr a)
+{
+    if (!a) return;
+    if (a->name) z_string_free(a->name);
+    if (a->text) z_string_free(a->text);
+    if (a->activation_msg) z_string_free(a->activation_msg);
+    free(a);
+}
+art_ptr arts_lookup(sym_t id)
+{
+    assert(_artifacts);
+    assert(id);
+    return int_map_find(_artifacts, id);
+}
+art_ptr arts_parse(cptr token)
+{
+    sym_t id = sym_find(token);
+    if (!id) return NULL;
+    return arts_lookup(id);
+}
+static obj_ptr _filter_obj;
+static bool _filter(int id, art_ptr art)
+{
+    if (art->generated) return FALSE;
+    if (art->gen_flags & OFG_QUESTITEM) return FALSE;
+    if (art->gen_flags & OFG_INSTA_ART) return FALSE;
+    if (art->tval != _filter_obj->tval) return FALSE;
+    if (art->sval != _filter_obj->sval) return FALSE;
+    return TRUE;
+}
+static int _cmp_lvl(art_ptr left, art_ptr right)
+{
+    if (left->level < right->level) return -1;
+    if (left->level > right->level) return 1;
+    return 0;
+}
+vec_ptr arts_filter(obj_ptr obj)
+{
+    vec_ptr v;
+    _filter_obj = obj;
+    v = int_map_filter(_artifacts, (int_map_filter_f)_filter);
+    vec_sort(v, (vec_cmp_f)_cmp_lvl); /* XXX try to make_artifact() in order of increasing power */
+    return v;
+}
+static bool _filter_special(int id, art_ptr art)
+{
+    if (art->generated) return FALSE;
+    if (art->gen_flags & OFG_QUESTITEM) return FALSE;
+    if (art->gen_flags & OFG_INSTA_ART) return TRUE;
+    return FALSE;
+}
+vec_ptr arts_filter_special(void)
+{
+    vec_ptr v = int_map_filter(_artifacts, (int_map_filter_f)_filter_special);
+    vec_sort(v, (vec_cmp_f)_cmp_lvl); /* XXX try to make_artifact_special() in order of increasing power */
+    return v;
+}
+vec_ptr arts_filter_ex(bool (*f)(int id, art_ptr art))
+{
+    return int_map_filter(_artifacts, (int_map_filter_f)f);
+}
+static errr _parse_art(char *line, int options)
+{
+    static art_ptr current = NULL;
+
+    /* N:~.Galadriel:of Galadriel */
+    if (line[0] == 'N')
+    {
+        char *zz[10];
+        int   num = tokenize(line + 2, 10, zz, TOKENIZE_NO_SLASH | TOKENIZE_NO_ESCAPE);
+        sym_t id;
+
+        if (num != 2) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+
+        id = sym_add(zz[0]);
+        if (int_map_find(_artifacts, id)) return PARSE_ERROR_NON_SEQUENTIAL_RECORDS;
+        current = art_alloc(id);
+        current->name = z_string_make(zz[1]);
+        int_map_add(_artifacts, id, current);
+    }
+
+    else if (!current) return PARSE_ERROR_MISSING_RECORD_HEADER; /* missing initial N: line */
+
+    else if (line[0] == 'E')
+    {
+        /* First E: line is required and defines the activation. */
+        if (!current->activation.type)
+        {
+            errr rc = effect_parse(line + 2, &current->activation);
+            if (rc) return rc;
+            add_flag(current->flags, OF_ACTIVATE); /* for object lore */
+        }
+        /* Second E: line is optional and describes the activation. */
+        else if (!current->activation_msg)
+        {
+            current->activation_msg = z_string_make(line + 2);
+        }
+        else
+            return PARSE_ERROR_GENERIC;
+    }
+
+    /* D:<line> ... multiple lines are concatenated into a single description */
+    else if (line[0] == 'D')
+    {
+        current->text = z_string_append(current->text, line + 2, ' ');
+    }
+
+    /* I:<tval>:<sval>[:<pval>] */
+    else if (line[0] == 'I')
+    {
+        char *zz[3];
+        int   num = tokenize(line + 2, 3, zz, TOKENIZE_CHECKQUOTE | TOKENIZE_NO_SLASH | TOKENIZE_NO_ESCAPE);
+
+        if (num < 2) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+        if (is_numeric(zz[0]))
+            current->tval = atoi(zz[0]);
+        else
+        {
+            tv_info_ptr info = tv_parse_name(zz[0]);
+            if (!info)
+            {
+                msg_format("Unknown tval=%s", zz[0]);
+                return PARSE_ERROR_GENERIC;
+            }
+            current->tval = info->id;
+        }
+        current->sval = atoi(zz[1]);
+        if (num >= 3)
+            current->pval = atoi(zz[2]);
+    }
+
+    else if (line[0] == 'W')
+    {
+        int level, rarity, wgt;
+        int cost;
+
+        if (4 != sscanf(line+2, "%d:%d:%d:%d",
+                &level, &rarity, &wgt, &cost)) return (1);
+
+        current->level = level;
+        current->rarity = rarity;
+        current->weight = wgt;
+        current->cost = cost;
+    }
+
+    else if (line[0] == 'P')
+    {
+        int ac, hd1, hd2, th, td, ta, mult = 0;
+
+        if (current->tval == TV_BOW)
+        {
+            if (6 != sscanf(line+2, "%d:x%d.%d:%d:%d:%d",
+                    &ac, &hd1, &hd2, &th, &td, &ta)) return (1);
+            mult = hd1 * 100 + hd2; /* x3.25 -> 325 (alas, x3.2 -> 302 so use x3.20 instead) */
+            hd1 = 0;
+            hd2 = 0;
+        }
+        else
+        {
+            if (6 != sscanf(line+2, "%d:%dd%d:%d:%d:%d",
+                    &ac, &hd1, &hd2, &th, &td, &ta)) return (1);
+        }
+        current->ac = ac;
+        current->dd = hd1;
+        current->ds = hd2;
+        current->mult = mult;
+        current->to_h = th;
+        current->to_d = td;
+        current->to_a =  ta;
+    }
+
+    else if (line[0] == 'F')
+    {
+        char *zz[20];
+        int   num = z_string_split(line + 2, zz, 20, "|");
+        int   i;
+
+        for (i = 0; i < num; i++)
+        {
+            cptr token = zz[i];
+            errr ooops = grab_one_artifact_flag(current, token);
+            if (ooops)
+            {
+                msg_format("Unknown artifact flag: %s.", token);
+                return ooops;
+            }
+        }
+    }
+
+    else return PARSE_ERROR_UNDEFINED_DIRECTIVE;
+
+    return ERROR_SUCCESS;
+}
+
+bool arts_init(void)
+{
+    assert(!_artifacts);
+    _artifacts = int_map_alloc((int_map_free_f)art_free);
+    return !parse_edit_file("a_info.txt", _parse_art, 0); /* errr -> bool */
+}
+
+static void _art_reset(int id, art_ptr art)
+{
+    art->generated = FALSE;
+    art->found = FALSE;
+}
+void arts_reset(void)
+{
+    assert(_artifacts);
+    int_map_iter(_artifacts, (int_map_iter_f)_art_reset);
+    art_names_reset();
+}
+
+/******************************************************************************
+ * Savefiles
+ ******************************************************************************/
+static bool _art_has_lore(art_ptr art)
+{
+    int i;
+    for (i = 0; i < OF_ARRAY_SIZE; i++)
+    {
+        if (art->known_flags[i]) return TRUE;
+    }
+    return FALSE;
+}
+static savefile_ptr _file;
+static void _art_save(int id, art_ptr art)
+{
+    int i;
+    if (_art_has_lore(art) || art->generated || art->found)
+    {
+        savefile_write_sym(_file, art->id);
+        if (_art_has_lore(art))
+        {
+            for (i = 0; i < OF_ARRAY_SIZE; i++)
+            {
+                if (!art->known_flags[i]) continue;
+                savefile_write_byte(_file, i);
+                savefile_write_u32b(_file, art->known_flags[i]);
+            }
+        }
+        savefile_write_byte(_file, 0xFF);
+        savefile_write_byte(_file, art->generated);
+        savefile_write_byte(_file, art->found);
+    }
+}
+void arts_save(savefile_ptr file)
+{
+    _file = file;
+    int_map_iter(_artifacts, (int_map_iter_f)_art_save);
+    savefile_write_sym(_file, 0);
+    art_names_save(file);
+}
+void arts_load(savefile_ptr file)
+{
+    for (;;)
+    {
+        sym_t id = savefile_read_sym(file);
+        art_ptr art;
+        if (!id) break;
+        art = arts_lookup(id);
+        if (!art)
+            quit(format("Art (%d) out of range!", id));
+        for (;;)
+        {
+            byte b = savefile_read_byte(file);
+            if (b == 0xFF) break;
+            assert(/*0 <= b &&*/ b < OF_ARRAY_SIZE);
+            art->known_flags[b] = savefile_read_u32b(file);
+        }
+        art->generated = savefile_read_byte(file);
+        art->found = savefile_read_byte(file);
+    }
+    art_names_load(file);
+}

@@ -12,6 +12,7 @@
 #include "z-doc.h"
 
 
+/* XXX pending realm re-write: realm_lookup(REALM_FOO)->desc */
 cptr realm_jouhou[VALID_REALM] =
 {
 "Life magic is very good for healing; it relies mostly on healing, protection and detection spells. Also life magic have a few attack spells as well. It said that some high level spell of life magic can disintegrate Undead monsters into ash.",
@@ -28,6 +29,7 @@ cptr realm_jouhou[VALID_REALM] =
 "Armageddon is the most deadly offensive realm. You won't be lacking for firepower here. "
     "However, every spell is an offensive spell, so this realm suffers from a lack of any "
     "utility spells.",
+"The Illusionist survives through trickery and misdirection. There are several kinds of illusions including: one time flashes of light that confuse, blind or hypnotize; illusory monsters that, although harmless, may provide a useful distraction; illusory walls that fool even the most intelligent of monsters; self illusions that mask and protect the illusionist; and finally, illusions of self that affect all visible monsters inducing fear, confusion, command or discord. The Illusionist even has a few tricks of escape including diversions and decoys. For a mage, this realm is best paired with an offensive realm, since, after all, an illusion never really hurt anybody. Note that visual illusions are not noticed by all monsters: mindless, sleeping and blind foes cannot be affected.",
 "Music magic shows various effects as sing song. There is two type of song; the one which shows effects instantly and the other one shows effect continuously until SP runs out. But the latter type has a limit; only one song can be sing at the same time.",
 "The books of Kendo describe about various combat techniques. When learning new techniques, you are required to carry the books, but once you memorizes them, you don't have to carry them. When using a technique, wielding a weapon is required.",
 "Hex is a very terrible realm. Spells gives continual effects when they are spelled continually like songs. Spells may obstract monsters' actions, may deal damages in sight, may revenge against enemies.",
@@ -77,21 +79,21 @@ void get_max_stats(void)
         j = 18 + 60 + dice[i]*10;
 
         /* Save that value */
-        p_ptr->stat_max_max[i] = j;
-        if (p_ptr->stat_max[i] > j)
-            p_ptr->stat_max[i] = j;
-        if (p_ptr->stat_cur[i] > j)
-            p_ptr->stat_cur[i] = j;
+        plr->stat_max_max[i] = j;
+        if (plr->stat_max[i] > j)
+            plr->stat_max[i] = j;
+        if (plr->stat_cur[i] > j)
+            plr->stat_cur[i] = j;
     }
-    p_ptr->knowledge &= ~(KNOW_STAT);
+    plr->knowledge &= ~(KNOW_STAT);
 
     /* Redisplay the stats later */
-    p_ptr->redraw |= (PR_STATS);
+    plr->redraw |= (PR_STATS);
 }
 
 int _race_exp_factor(void)
 {
-    if (p_ptr->prace == RACE_DOPPELGANGER)
+    if (plr->prace == RACE_DOPPELGANGER)
         return get_race()->exp;
     return get_true_race()->exp;
 }
@@ -102,15 +104,15 @@ int calc_exp_factor(void)
     int c_exp = get_class()->exp;
     int a_exp = get_personality()->exp;
 
-    if (p_ptr->prace == RACE_ANDROID)
+    if (plr->prace == RACE_ANDROID)
         return r_exp;
 
     exp = r_exp * c_exp / 100;
     exp = exp * a_exp / 100;
 
-    if (p_ptr->prace == RACE_MON_DRAGON)
+    if (plr->prace == RACE_MON_DRAGON)
     {
-        dragon_realm_ptr realm = dragon_get_realm(p_ptr->dragon_realm);
+        dragon_realm_ptr realm = dragon_get_realm(plr->dragon_realm);
         exp = exp * realm->exp / 100;
     }
 
@@ -141,17 +143,10 @@ static void k_info_reset(void)
  */
 static void player_wipe(void)
 {
-    int i;
-
     plr_wipe();
 
     /* Start with no artifacts made yet */
-    for (i = 0; i < max_a_idx; i++)
-    {
-        artifact_type *a_ptr = &a_info[i];
-        a_ptr->generated = FALSE;
-        a_ptr->found = FALSE;
-    }
+    arts_reset();
 
     /* Reset the objects */
     k_info_reset();
@@ -159,40 +154,7 @@ static void player_wipe(void)
     stats_reset();
 
     /* Reset the "monsters" */
-    for (i = 1; i < max_r_idx; i++)
-    {
-        monster_race *r_ptr = &r_info[i];
-
-        /* Hack -- Reset the counter */
-        r_ptr->cur_num = 0;
-
-        /* Hack -- Reset the max counter */
-        r_ptr->max_num = 30000;
-        r_ptr->flagsx = 0;
-
-        /* Hack -- Reset the max counter */
-        if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 1;
-
-        /* Hack -- Non-unique Nazguls are semi-unique */
-        else if (r_ptr->flags7 & RF7_NAZGUL) r_ptr->max_num = MAX_NAZGUL_NUM;
-        else if (i == MON_CAMELOT_KNIGHT) r_ptr->max_num = MAX_CAMELOT_KNIGHT_NUM;
-
-        /* Clear visible kills in this life */
-        r_ptr->r_pkills = 0;
-
-        /* Clear all kills in this life */
-        r_ptr->r_akills = 0;
-        r_ptr->r_skills = 0;
-        r_ptr->stolen_ct = 0;
-
-        /* Wipe out pact alliances from previous character
-           Currently, flagsr is only set to make the memory field
-           work, but perhaps it would be better to set this once
-           and for all when a pact is made?  This would break
-           my savefiles though ...*/
-        r_ptr->flagsr &= ~(RFR_PACT_MONSTER);
-        r_ptr->r_flagsr &= ~(RFR_PACT_MONSTER);
-    }
+    mon_race_reset();
 
     /* Clean the mutation count */
     mutant_regenerate_mod = 100;
@@ -208,9 +170,8 @@ static void player_wipe(void)
  */
 bool monster_hook_human(mon_race_ptr r_ptr)
 {
-    if (r_ptr->flags1 & (RF1_UNIQUE)) return FALSE;
-    if (my_strchr("pht", r_ptr->d_char)) return TRUE;
-    return FALSE;
+    if (mon_race_is_unique(r_ptr)) return FALSE;
+    return mon_race_is_char_ex(r_ptr, "pht");
 }
 
 /*

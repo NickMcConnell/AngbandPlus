@@ -61,7 +61,7 @@ static void _birth(void)
 {
     int i;
     for (i = 0; i < 64; i++)
-        p_ptr->spell_exp[i] = SPELL_EXP_EXPERT;
+        plr->spell_exp[i] = SPELL_EXP_EXPERT;
 
     plr_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
     plr_birth_obj_aux(TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR, 1);
@@ -75,7 +75,7 @@ plr_class_ptr red_mage_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 20,  34,  34,   1,  16,  10,  56,  25};
-    skills_t xs = {  7,  11,  11,   0,   0,   0,  18,  11};
+    skills_t xs = { 35,  55,  55,   0,   0,   0,  90,  55};
 
         me = plr_class_alloc(CLASS_RED_MAGE);
         me->name = "Red-Mage";

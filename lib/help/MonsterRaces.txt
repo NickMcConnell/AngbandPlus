@@ -64,9 +64,7 @@ Experience   130%       Infravision 50'
 <topic:Spider><color:o>Spider</color>
 Spiders are stealthy monsters that prefer to wait for their prey. They have poisonous attacks and can weave sticky webs to entangle their enemies. They have 8 legs, 4 of which may wear rings and the remaining may equip 2 pairs of boots. They are unable to wield weapons or bows, but may wear a helmet, an amulet, a cloak and even a suit of body armor (after slight adjustments, of course). They cannot wield a light source, but this is not an issue as spiders have grown accustomed to the dark.
  
-There are two paths of evolution for the spider: The Phase Spider and The Aranea. The former is somewhat weaker than the latter in fortitude, stats and melee, but this is compensated by the Phase Spider's amazing powers of teleportation. However, the Elder Aranea's poison touch is more powerful than that of the Phase Spider and often paralyzes its opponents.
- 
-All spiders begin in the very weak form of the Cave Spider. Lacking any special talents, the cave spider must play carefully if it is to survive.
+Spiders begin in the very weak form of the Cave Spider. Lacking any special talents, the cave spider must play carefully if it is to survive.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> -2</color>        Disarming   <color:o>Fair         </color>
@@ -202,7 +200,7 @@ Golems are creatures animated by powerful magics: living stone conjured to serve
  
 Golems are very slow when it comes to moving about, but this slowness does not affect their non-movement actions. Except for melee, where they are limited to just a single (but mighty) blow. They fight best with their powerful fists. Golems have a very high armor class, possess good resistances and saving throws, and are very strong in melee. They are also resistant to magic, and become more resistant as they evolve. This resistance is quite powerful, reducing the damage taken from all magical attacks.
  
-There are several varieties of golem, all sharing a common evolutionary heritage. First there is the mighty Colossus, the biggest (and slowest) of their kind. Next is the Sky Golem, a creature of powerful magic, resistant to the ravages of time. Finally, there is the Spellwarp Automaton, a creature of utter destruction, almost completely immune to magic. This last form takes nearly forever to build, unfortunately.
+There are two varieties of golem, both sharing a common evolutionary heritage. First there is the mighty Colossus, the biggest (and slowest) of their kind. Next is the Sky Golem, a creature of powerful magic, resistant to the ravages of time.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> +1</color>        Disarming   <color:o>Fair         </color>
@@ -309,15 +307,15 @@ The Possessor is an odd creature, completely harmless in its natural form. Howev
 Possessors are monsters and do not choose a normal class. Their stats, skills, resistances and spells are completely determined by the body they inhabit. Their current body also determines their spell stat (e.g. a novice priest uses wisdom, a novice mage uses intelligence). Their current body may offer innate powers (e.g. breath weapons or rockets) in addition to or in lieu of magical powers (e.g. mana storms and frost bolts). Be sure to check both the racial power command ('U') and the magic command ('m') after possessing a new body.
 
   <indent><style:table><color:G>Stats                   Skills</color>
-Strength     <color:w> -3</color>        Disarming   <color:o>Fair         </color>
-Intelligence <color:w> +2</color>        Device      <color:y>Good         </color>
-Wisdom       <color:w> -1</color>        Save        <color:o>Fair         </color>
-Dexterity    <color:w> +2</color>        Stealth     <color:b>Heroic       </color>
-Constitution <color:w> -4</color>        Searching   <color:o>Fair         </color>
-Charisma     <color:w> -3</color>        Perception  <color:y>Good         </color>
-Life Rating   64%       Melee       <color:y>Good         </color>
-Base HP       15        Bows        <color:y>Very Good    </color>
-Experience   250%       Infravision 70'
+Strength     <color:w> -4</color>        Disarming   <color:o>Fair         </color>
+Intelligence <color:w> +0</color>        Device      <color:G>Excellent    </color>
+Wisdom       <color:w> +0</color>        Save        <color:g>Superb       </color>
+Dexterity    <color:w> +2</color>        Stealth     <color:g>Superb       </color>
+Constitution <color:w> -2</color>        Searching   <color:o>Fair         </color>
+Charisma     <color:w> +1</color>        Perception  <color:o>Fair         </color>
+Life Rating   80%       Melee       <color:D>Very Bad     </color>
+Base HP       15        Bows        <color:r>Bad          </color>
+Experience   250%       Infravision 50'
 </style></indent>
 <topic:Ring><color:o>Ring</color>
 Rings are sentient creatures animated by magical means.
@@ -378,7 +376,7 @@ Experience   150%       Infravision 50'
 </indent>
 <style:heading>Undead</style>
   <indent><topic:Lich><color:o>Lich</color>
-Liches are skeletal forms back from the dead to hunt the living. Their are several types of liches from the <color:keyword>Archlich</color> with powerful undead sorcery to the <color:keyword>Monastic Lich</color> who prefers martial arts combat, with a necromantic twist. The <color:keyword>Iron Lich</color> is a floating skull with a powerful arsenal of attack spells but severely limited equipment slots. Finally, the <color:keyword> Black Reaver</color> is out to harvest the living, allowing nothing to stand in his way! Each form of lich will begin life as a normal Lich with some weak magic, and must evolve a bit before they gain their specific powers.
+Liches are skeletal forms back from the dead to hunt the living. There are several types of liches from the <color:keyword>Archlich</color> with powerful undead sorcery to the <color:keyword>Monastic Lich</color> who prefers martial arts combat, with a necromantic twist. The <color:keyword>Iron Lich</color> is a floating skull with a powerful arsenal of attack spells but severely limited equipment slots. Finally, the <color:keyword> Black Reaver</color> is out to harvest the living, allowing nothing to stand in his way! Each form of lich will begin life as a normal Lich with some weak magic, and must evolve a bit before they gain their specific powers.
  
 Liches are monsters and cannot choose a normal class. Instead, they are born with magical powers and gain additional powers as they advance. Intelligence is the primary spell stat. In their initial form, they gain the ability to touch opponents in melee for various foul effects should they forgo the use of a normal melee weapon.
 
@@ -446,7 +444,7 @@ Quylthulg     -5   -5   -5   -5   -5   +6   95%   +0  150%  120%
 Leprechaun    -2   +1   +1   +3   -2   -2   80%  +15  150%   85%
 Death-Sword   +1   -5   -5   +0   +1   +0   85%  +30  150%  110%
 Mimic         +0   +1   -1   +2   +0   -1  108%  +15  250%  110%
-Possessor     -3   +2   -1   +2   -4   -3   64%  +15  250%  110%
+Possessor     -4   +0   +0   +2   -2   +1   80%  +15  250%  110%
 Ring          -3   +4   +1   +0   -1   +3   85%  +10  150%  110%
 Giant         +6   -3   -3   -2   +3   +0  107%  +46  200%  130%
 Troll         +3   -5   -5   -2   +3   +0  100%  +50  150%  135%
@@ -473,7 +471,7 @@ Quylthulg    <color:o>Fair         </color> <color:g>Superb       </color> <colo
 Leprechaun   <color:y>Very Good    </color> <color:b>Heroic       </color> <color:y>Good         </color> <color:b>Heroic       </color>
 Death-Sword  <color:y>Good         </color> <color:o>Fair         </color> <color:G>Excellent    </color> <color:y>Very Good    </color>
 Mimic        <color:R>Poor         </color> <color:y>Good         </color> <color:o>Fair         </color> <color:o>Fair         </color>
-Possessor    <color:o>Fair         </color> <color:y>Good         </color> <color:o>Fair         </color> <color:b>Heroic       </color>
+Possessor    <color:o>Fair         </color> <color:G>Excellent    </color> <color:g>Superb       </color> <color:g>Superb       </color>
 Ring         <color:o>Fair         </color> <color:g>Superb       </color> <color:y>Good         </color> <color:G>Excellent    </color>
 Giant        <color:o>Fair         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:R>Poor         </color>
 Troll        <color:R>Poor         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:o>Fair         </color>
@@ -500,7 +498,7 @@ Quylthulg    <color:o>Fair         </color> <color:y>Good         </color> <colo
 Leprechaun   <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:o>Fair         </color>   50'
 Death-Sword  <color:o>Fair         </color> <color:r>Bad          </color> <color:G>Excellent    </color> <color:D>Very Bad     </color>   30'
 Mimic        <color:o>Fair         </color> <color:R>Poor         </color> <color:y>Very Good    </color> <color:G>Excellent    </color>    0'
-Possessor    <color:o>Fair         </color> <color:y>Good         </color> <color:y>Good         </color> <color:y>Very Good    </color>   70'
+Possessor    <color:o>Fair         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:r>Bad          </color>   50'
 Ring         <color:o>Fair         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>   50'
 Giant        <color:R>Poor         </color> <color:r>Bad          </color> <color:b>Heroic       </color> <color:o>Fair         </color>   50'
 Troll        <color:R>Poor         </color> <color:r>Bad          </color> <color:g>Superb       </color> <color:r>Bad          </color>   50'
@@ -511,4 +509,4 @@ Xorn         <color:R>Poor         </color> <color:r>Bad          </color> <colo
 </style>
 
 
-<color:s>Automatically generated for PosChengband 7.2.1.</color>
+<color:s>Automatically generated for PosChengband 7.3.1.</color>

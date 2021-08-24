@@ -17,7 +17,7 @@ static void _birth(void)
 {
     object_type    forge;
 
-    p_ptr->current_r_idx = MON_ANGEL;
+    plr_mon_race_set("A.angel");
 
     object_prep(&forge, lookup_kind(TV_POTION, SV_POTION_HEALING));
     plr_birth_obj(&forge);
@@ -46,21 +46,8 @@ static void _psycho_spear_spell(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Fires a beam of pure energy which penetrate the invulnerability barrier.");
         break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(1, spell_power(p_ptr->lev * 3), spell_power(p_ptr->lev * 3 + p_ptr->to_d_spell)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-        fire_beam(GF_PSY_SPEAR, dir, spell_power(randint1(p_ptr->lev*3) + p_ptr->lev*3 + p_ptr->to_d_spell));
-        var_set_bool(res, TRUE);
-        break;
-    }
     default:
-        default_spell(cmd, res);
-        break;
+        beam_spell_aux(cmd, res, GF_PSY_SPEAR, spell_dam_dice(1, 3*plr->lev, 3*plr->lev));
     }
 }
 
@@ -96,118 +83,94 @@ static int _get_spells(spell_info* spells, int max) {
 static void _calc_bonuses(void) {
     /* cf calc_torch in xtra1.c for the 'extra light' */
 
-    p_ptr->align += 200;
-    p_ptr->levitation = TRUE;
-    res_add(RES_POIS);
+    plr->align += 200;
+    plr->levitation = TRUE;
+    res_add(GF_POIS);
 
-    if (equip_find_art(ART_STONE_OF_CRUSADE))
+    if (equip_find_art("~.Crusade"))
     {
-        p_ptr->dec_mana++;
-        p_ptr->easy_spell++;
+        plr->dec_mana++;
+        plr->easy_spell++;
     }
 
-    if (p_ptr->lev >= 10)
+    if (plr->lev >= 10)
     {
-        res_add(RES_FIRE);
-        p_ptr->see_inv++;
+        res_add(GF_FIRE);
+        plr->see_inv++;
     }
-    if (p_ptr->lev >= 20)
+    if (plr->lev >= 20)
     {
-        p_ptr->pspeed += 1;
-        res_add(RES_COLD);
+        plr->pspeed += 1;
+        res_add(GF_COLD);
     }
-    if (p_ptr->lev >= 30)
+    if (plr->lev >= 30)
     {
-        p_ptr->pspeed += 1;
-        res_add(RES_ACID);
-        res_add(RES_ELEC);
-        res_add(RES_CONF);
+        plr->pspeed += 1;
+        res_add(GF_ACID);
+        res_add(GF_ELEC);
+        res_add(GF_CONF);
     }
-    if (p_ptr->lev >= 40)
+    if (plr->lev >= 40)
     {
-        p_ptr->pspeed += 3;
-        p_ptr->reflect = TRUE;
-        res_add(RES_TELEPORT);
-        res_add(RES_LITE);
+        plr->pspeed += 3;
+        plr->reflect = TRUE;
+        res_add(GF_TELEPORT);
+        res_add(GF_LIGHT);
     }
-    if (p_ptr->lev >= 45)
+    if (plr->lev >= 45)
     {
-        p_ptr->pspeed += 1;
+        plr->pspeed += 1;
     }
-    if (p_ptr->lev >= 50)
+    if (plr->lev >= 50)
     {
-        p_ptr->pspeed += 1;
+        plr->pspeed += 1;
     }
 }
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) {
     add_flag(flgs, OF_LEVITATION);
-    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_RES_(GF_POIS));
 
-    if (p_ptr->lev >= 10)
+    if (plr->lev >= 10)
     {
-        add_flag(flgs, OF_RES_FIRE);
+        add_flag(flgs, OF_RES_(GF_FIRE));
         add_flag(flgs, OF_SEE_INVIS);
     }
-    if (p_ptr->lev >= 20)
+    if (plr->lev >= 20)
     {
         add_flag(flgs, OF_SPEED);
-        add_flag(flgs, OF_RES_COLD);
+        add_flag(flgs, OF_RES_(GF_COLD));
     }
-    if (p_ptr->lev >= 30)
+    if (plr->lev >= 30)
     {
-        add_flag(flgs, OF_RES_ACID);
-        add_flag(flgs, OF_RES_ELEC);
-        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_(GF_ACID));
+        add_flag(flgs, OF_RES_(GF_ELEC));
+        add_flag(flgs, OF_RES_(GF_CONF));
     }
-    if (p_ptr->lev >= 40)
+    if (plr->lev >= 40)
     {
         add_flag(flgs, OF_REFLECT);
-        add_flag(flgs, OF_RES_LITE);
+        add_flag(flgs, OF_RES_(GF_LIGHT));
     }
-    if (p_ptr->lev >= 45)
+    if (plr->lev >= 45)
     {
     }
-    if (p_ptr->lev >= 50)
+    if (plr->lev >= 50)
     {
     }
 }
 static void _gain_level(int new_level) {
-    if (p_ptr->current_r_idx == MON_ANGEL && new_level >= 10)
-    {
-        p_ptr->current_r_idx = MON_ARCHANGEL;
-        msg_print("You have evolved into an Archangel.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_ARCHANGEL && new_level >= 20)
-    {
-        p_ptr->current_r_idx = MON_CHERUB;
-        msg_print("You have evolved into a Cherub.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_CHERUB && new_level >= 30)
-    {
-        p_ptr->current_r_idx = MON_SERAPH;
-        msg_print("You have evolved into a Seraph.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_SERAPH && new_level >= 40)
-    {
-        p_ptr->current_r_idx = MON_ARCHON;
-        msg_print("You have evolved into an Archon.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_ARCHON && new_level >= 45)
-    {
-        p_ptr->current_r_idx = MON_PLANETAR;
-        msg_print("You have evolved into a Planetar.");
-        p_ptr->redraw |= PR_MAP;
-    }
-    if (p_ptr->current_r_idx == MON_PLANETAR && new_level >= 50)
-    {
-        p_ptr->current_r_idx = MON_SOLAR;
-        msg_print("You have evolved into a Solar.");
-        p_ptr->redraw |= PR_MAP;
-    }
+    if (plr_mon_race_is_("A.angel") && new_level >= 10)
+        plr_mon_race_evolve("A.archangel");
+    if (plr_mon_race_is_("A.archangel") && new_level >= 20)
+        plr_mon_race_evolve("A.cherub");
+    if (plr_mon_race_is_("A.cherub") && new_level >= 30)
+        plr_mon_race_evolve("A.seraph");
+    if (plr_mon_race_is_("A.seraph") && new_level >= 40)
+        plr_mon_race_evolve("A.archon");
+    if (plr_mon_race_is_("A.archon") && new_level >= 45)
+        plr_mon_race_evolve("A.planetar");
+    if (plr_mon_race_is_("A.planetar") && new_level >= 50)
+        plr_mon_race_evolve("A.solar");
 }
 static plr_race_ptr _solar_get_race_t(void)
 {
@@ -215,17 +178,17 @@ static plr_race_ptr _solar_get_race_t(void)
     static cptr   titles[7] =  {"Angel", "Archangel", "Cherub", "Seraph", "Archon", "Planetar", "Solar"};
     int           rank = 0;
 
-    if (p_ptr->lev >= 10) rank++;
-    if (p_ptr->lev >= 20) rank++;
-    if (p_ptr->lev >= 30) rank++;
-    if (p_ptr->lev >= 40) rank++;
-    if (p_ptr->lev >= 45) rank++;
-    if (p_ptr->lev >= 50) rank++;
+    if (plr->lev >= 10) rank++;
+    if (plr->lev >= 20) rank++;
+    if (plr->lev >= 30) rank++;
+    if (plr->lev >= 40) rank++;
+    if (plr->lev >= 45) rank++;
+    if (plr->lev >= 50) rank++;
 
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  35,  40,   3,  18,  12,  48,  35};
-    skills_t xs = {  7,  13,  15,   0,   0,   0,  18,  13};
+    skills_t xs = { 35,  65,  75,   0,   0,   0,  90,  65};
 
         me = plr_race_alloc(RACE_MON_ANGEL);
         me->skills = bs;
@@ -240,6 +203,9 @@ static plr_race_ptr _solar_get_race_t(void)
         me->hooks.get_flags = _get_flags;
         me->hooks.gain_level = _gain_level;
     }
+
+    if (birth_hack || spoiler_hack)
+        rank = 0;
 
     me->subname = titles[rank];
     me->stats[A_STR] =  1 + rank/2;
@@ -264,6 +230,7 @@ static caster_info * _caster_info(void)
         me.encumbrance.max_wgt = 450;
         me.encumbrance.weapon_pct = 67;
         me.encumbrance.enc_wgt = 800;
+        me.options = CASTER_GAIN_SKILL;
         init = TRUE;
     }
     return &me;
@@ -276,7 +243,7 @@ plr_race_ptr mon_angel_get_race(void)
 {
     plr_race_ptr result = NULL;
 
-    switch (p_ptr->psubrace)
+    switch (plr->psubrace)
     {
     /* TODO: Fallen Angel ? */
     default: /* Birth Menus */
@@ -288,10 +255,10 @@ plr_race_ptr mon_angel_get_race(void)
     result->flags = RACE_IS_MONSTER;
     result->hooks.birth = _birth;
     result->hooks.caster_info = _caster_info;
-    result->pseudo_class_idx = CLASS_PRIEST;
+    result->pseudo_class_id = CLASS_PRIEST;
     result->shop_adjust = 90;
 
-    result->boss_r_idx = MON_RAPHAEL;
+    result->boss_r_idx = mon_race_parse("A.Raphael")->id;
 
     if (birth_hack || spoiler_hack)
     {

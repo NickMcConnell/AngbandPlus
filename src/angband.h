@@ -47,6 +47,7 @@ SUCH DAMAGES.
 #include "z-rand.h"
 #include "z-term.h"
 #include "z-doc.h"
+#include "z-sym.h"
 
 /*
  * Include the "Angband" configuration header
@@ -61,9 +62,11 @@ SUCH DAMAGES.
 #include "defines.h"
 #include "var.h"
 
+#include "poschengband.h"
 #include "obj.h"
 #include "art.h"
 #include "inv.h"
+#include "mon_race.h"
 #include "mon.h"
 #include "plr.h"
 #include "equip.h"
@@ -74,16 +77,20 @@ SUCH DAMAGES.
 #include "quest.h"
 #include "shop.h"
 #include "dun.h"
+#include "dun_cell.h"
 #include "dun_util.h"
+#include "dun_project.h"
 #include "obj_prompt.h"
 #include "plr_throw.h"
 #include "monk_attack.h"
 #include "plr_attack.h"
+#include "plr_shoot.h"
 #include "plr_tim.h"
 #include "gf.h"
 #include "mon_spell.h"
 #include "mon_tim.h"
 #include "mon_attack.h"
+#include "mon_ai.h"
 #include "resist.h"
 
 #include "types.h"

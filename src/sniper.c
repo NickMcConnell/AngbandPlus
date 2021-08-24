@@ -11,15 +11,300 @@ static void _birth(void)
 /************************************************************************
  * Bonuses
  ***********************************************************************/
-static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
+static void _calc_shooter_bonuses(object_type *o_ptr, plr_shoot_info_ptr info_ptr)
 {
     if (info_ptr->tval_ammo == TV_BOLT)
     {
-        info_ptr->to_h += 10 + p_ptr->lev/5;
-        info_ptr->dis_to_h += 10 + p_ptr->lev/5;
+        info_ptr->to_h += 10 + plr->lev/5;
+        info_ptr->dis_to_h += 10 + plr->lev/5;
     }
     if (info_ptr->base_shot > 100)
         info_ptr->base_shot = 100 + (info_ptr->base_shot - 100) / 2;
+}
+
+/************************************************************************
+ * Custom Shooting
+ ***********************************************************************/
+enum {
+    _LITE = PLR_SHOOT_CUSTOM,
+    _AWAY,
+    _FIRE,
+    _KILL_WALL,
+    _COLD,
+    _KILL_TRAP,
+    _ELEC,
+    _KNOCKBACK,
+    _DOUBLE,
+    _EVILNESS,
+    _HOLINESS,
+    _FINAL,
+    _NEEDLE,
+};
+static bool _begin(plr_shoot_ptr context)
+{
+    context->mult = context->mult * (10 + plr->concent) / 10; /* XXX mult only: new */
+    return TRUE;
+}
+static bool _begin_bow(plr_shoot_ptr context)
+{
+    context->skill = context->skill * 10 / MAX(1, 10 - plr->concent);
+    /* XXX consider improving crits as well ... that seems OP though
+     * note that skill will improve the crit multiplier:
+     * C   Crit             Mult     Eff Mult
+     * 0x: 1.10x            6.00x       6.60x
+     * 1x: 1.11x (10.4%)    6.60x       7.33x
+     * 2x: 1.13x (11.7%)    7.20x       8.14x
+     * 3x: 1.15x (13.4%)    7.80x       8.97x
+     * 4x: 1.18x (15.6%)    8.40x       9.91x
+     * 5x: 1.21x (18.7%)    9.00x      10.89x
+     * 6x: 1.26x (23.4%)    9.60x      12.10x
+     * 7x: 1.36x (31.1%)   10.20x      13.87x
+     */
+    if (!(context->flags & PSC_DISPLAY) && context->mode == _DOUBLE)
+        plr->concent = (plr->concent + 1) / 2;
+    return TRUE;
+}
+static int _get_shots(plr_shoot_ptr context)
+{
+    if (context->mode == _DOUBLE) return 2;
+    return 1;
+}
+static int _prepath(plr_shoot_ptr context, point_t pos)
+{
+    if (context->mode == _KILL_WALL && !dun_mon_at(cave, pos))
+    {
+        if (dun_tunnel(cave, pos, ACTION_FORCE|ACTION_QUIET) == ACTION_SUCCESS)
+        {
+            dun_cell_ptr cell = dun_cell_at(cave, pos);
+            if (cell->flags & CELL_MAP)
+                msg_print("Wall rocks were shattered.");
+            cell->flags &= ~CELL_MAP;
+            plr->update |= (PU_VIEW | PU_LIGHT | PU_FLOW | PU_MON_FLOW | PU_MON_LIGHT);
+            context->hit_body = TRUE;
+            context->action = AMMO_BREAK;
+            return PATH_STOP;
+        }
+    }
+    return PATH_OK;
+}
+static int _path(plr_shoot_ptr context, point_t pos)
+{
+    if (context->mode == _LITE || context->mode == _HOLINESS)
+    {
+        dun_grid_at(cave, pos)->flags |= CELL_LIT;
+        plr->update |= PU_LIGHT;
+    }
+    if (context->mode == _KILL_TRAP)
+    {
+        gf_affect_o(who_create_plr(), pos, GF_KILL_TRAP, 0, 0); /* chests */
+        gf_affect_f(who_create_plr(), pos, GF_KILL_TRAP, 0, 0);
+    }
+    if (context->mode == _EVILNESS)
+    {
+        dun_grid_at(cave, pos)->flags &= ~(CELL_LIT | CELL_MAP);
+        plr->update |= PU_LIGHT;
+    }
+    return PATH_OK;
+}
+static slay_t _calc_slay(plr_shoot_ptr context, mon_ptr mon, slay_ptr best_slay)
+{
+    slay_t slay = {0};
+    switch (context->mode)
+    {
+    case _KILL_WALL:
+        if (!mon || mon_vuln(mon, GF_DISINTEGRATE))
+        {
+            if (mon) mon_lore_resist(mon, GF_DISINTEGRATE);
+            slay.id = _KILL_WALL;
+            slay.name = "Rock";
+            slay.mul = 150 + 40*plr->concent;
+        }
+        else if (!mon || mon_is_nonliving(mon))
+        {
+            if (mon) mon_lore_nonliving(mon);
+            slay.id = _KILL_WALL;
+            slay.name = "Nonliving";
+            slay.mul = 150 + 40*plr->concent;
+        }
+        break;
+    case _EVILNESS:
+        if (!mon || mon_is_good(mon))
+        {
+            if (mon) mon_lore_good(mon);
+            slay.id = OF_SLAY_GOOD;
+            slay.name = "Good";
+            slay.mul = 150 + 60*plr->concent;
+            if (have_flag(context->ammo_flags, OF_SLAY_GOOD))
+                slay.mul += 50;
+        }
+        break;
+    case _HOLINESS:
+        if (!mon || mon_is_evil(mon))
+        {
+            if (mon) mon_lore_evil(mon);
+            slay.id = OF_SLAY_EVIL;
+            slay.name = "Evil";
+            slay.mul = 150 + 60*plr->concent;
+            if (mon && mon_vuln(mon, GF_LIGHT))
+            {
+                mon_lore_resist(mon, GF_LIGHT);
+                slay.mul += 40*plr->concent;
+            }
+            if (have_flag(context->ammo_flags, OF_KILL_EVIL))
+                slay.mul += 100;
+            else if (have_flag(context->ammo_flags, OF_SLAY_EVIL))
+                slay.mul += 50;
+        }
+        break;
+    case _FINAL:
+        slay.id = _FINAL;
+        slay.name = "<color:v>*ALL*</color>";
+        slay.mul = 800;
+        break;
+    }
+    return slay;
+}
+static slay_t _calc_brand(plr_shoot_ptr context, mon_ptr mon, slay_ptr best_brand)
+{
+    slay_t brand = {0};
+    int res_pct = 0;
+    switch (context->mode)
+    {
+    case _FIRE:
+        if (mon) res_pct = mon_res_pct(mon, GF_FIRE);
+        if (res_pct) mon_lore_resist(mon, GF_FIRE);
+        if (res_pct <= 0)
+        {
+            brand.id = OF_BRAND_FIRE;
+            brand.name = "Fire";
+            brand.mul = 150 + 50*plr->concent;
+            if (have_flag(context->ammo_flags, OF_BRAND_FIRE)) brand.mul += 50;
+            if (res_pct < 0) slay_scale(&brand, 100 - res_pct);
+        }
+        break;
+    case _COLD:
+        if (mon) res_pct = mon_res_pct(mon, GF_COLD);
+        if (res_pct) mon_lore_resist(mon, GF_COLD);
+        if (res_pct <= 0)
+        {
+            brand.id = OF_BRAND_COLD;
+            brand.name = "Cold";
+            brand.mul = 150 + 50*plr->concent;
+            if (have_flag(context->ammo_flags, OF_BRAND_COLD)) brand.mul += 50;
+            if (res_pct < 0) slay_scale(&brand, 100 - res_pct);
+        }
+        break;
+    case _ELEC:
+        if (mon) res_pct = mon_res_pct(mon, GF_ELEC);
+        if (res_pct) mon_lore_resist(mon, GF_ELEC);
+        if (res_pct <= 0)
+        {
+            brand.id = OF_BRAND_ELEC;
+            brand.name = "Elec";
+            brand.mul = 180 + 60*plr->concent;
+            if (have_flag(context->ammo_flags, OF_BRAND_ELEC))
+                brand.mul += 70;
+            if (res_pct < 0) slay_scale(&brand, 100 - res_pct);
+        }
+        break;
+    case _LITE:
+        if (mon) res_pct = mon_res_pct(mon, GF_LIGHT);
+        if (!mon || res_pct < 0) /* GF_LIGHT_WEAK */
+        {
+            if (res_pct) mon_lore_resist(mon, GF_LIGHT);
+            brand.id = OF_BRAND_LIGHT;
+            brand.name = "Light";
+            brand.mul = 200 + 20*plr->concent;
+        }
+        break;
+    }
+    return brand;
+}
+static bool _check_hit(plr_shoot_ptr context, mon_ptr mon)
+{
+    int dis = 1 + context->path_pos;
+    bool hit = FALSE;
+
+    if (context->mode == _NEEDLE)
+        hit = TRUE;
+    else
+        hit = test_hit_fire(context->skill - dis, mon_ac(mon), mon->ml);
+
+    return hit;
+}
+static void _before_hit(plr_shoot_ptr context, mon_ptr mon)
+{
+    if (context->mode == _NEEDLE)
+    {
+        mon_race_ptr race = mon->race;
+        int lvl = race->alloc.lvl/(3 + plr->concent);
+        int N = _1d(lvl) + 8 - plr->concent;
+        if (_1d(N) == 1 && !mon_race_is_unique(race))
+        {
+            char m_name[MAX_NLEN];
+            monster_desc(m_name, mon, 0);
+            context->dam = mon->hp + 1;
+            cmsg_format(TERM_RED, "You shot %s on a fatal spot!", m_name);
+        }
+        else
+            context->dam_base = context->dam = 1;
+    }
+}
+static void _after_hit(plr_shoot_ptr context, mon_ptr mon)
+{
+    if (mon_is_valid(mon) && context->mode == _KNOCKBACK)
+    {
+        /* animate path, knockback then return ... */
+        do_monster_knockback(mon, 3 + _1d(5));
+        if (context->action == AMMO_PIERCE) /* paranoia ... don't want a double hit */
+            context->action = AMMO_DROP;
+    }
+    else if (context->mode == _EVILNESS || context->mode == _HOLINESS)
+    {
+        /* increase the breakage chance ... note that AMMO_PIERCE => AMMO_BREAK
+         * XXX even endurance ammo will break XXX */
+        if (context->action != AMMO_PIERCE && randint0(100) < 40)
+            context->action = AMMO_BREAK;
+    }
+    else if (context->mode == _NEEDLE || context->mode == _FINAL)
+    {
+        context->action = AMMO_BREAK;
+    }
+}
+static void _end(plr_shoot_ptr context)
+{
+    if (context->flags & PSC_DISPLAY) return;
+    if (!context->shots) return; /* fear */
+
+    switch (context->mode)
+    {
+    case _AWAY:
+        teleport_player(10 + 2*plr->concent, 0);
+        break;
+    case _FINAL:
+        msg_print("You experience a powerful recoil!");
+        plr_tim_add(T_SLOW, 7 + _1d(6));
+        if (!res_save(GF_STUN, 100))
+            plr_tim_add(T_STUN, _1d(25));
+        break;
+    }
+
+    if (plr->concent)
+        reset_concentration(FALSE);
+}
+static void _shoot_init(plr_shoot_ptr context)
+{
+    context->hooks.begin_f = _begin;
+    context->hooks.begin_bow_f = _begin_bow;
+    context->hooks.prepath_f = _prepath;
+    context->hooks.path_f = _path;
+    context->hooks.get_shots_f = _get_shots;
+    context->hooks.calc_slay_f = _calc_slay;
+    context->hooks.calc_brand_f = _calc_brand;
+    context->hooks.check_hit_f = _check_hit;
+    context->hooks.before_hit_f = _before_hit;
+    context->hooks.after_hit_f = _after_hit;
+    context->hooks.end_f = _end;
 }
 
 /************************************************************************
@@ -27,7 +312,7 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
  ***********************************************************************/
 static int _max_concentration(void)
 {
-    return 2 + (p_ptr->lev + 5)/10;
+    return 2 + (plr->lev + 5)/10;
 }
 
 void reset_concentration(bool msg)
@@ -35,19 +320,14 @@ void reset_concentration(bool msg)
     if (msg)
         msg_print("You stop concentrating.");
 
-    if (p_ptr->concent >= CONCENT_TELE_THRESHOLD)
+    if (plr->concent >= CONCENT_TELE_THRESHOLD)
         plr_tim_unlock(T_TELEPATHY);
 
-    p_ptr->concent = 0;
+    plr->concent = 0;
     reset_concent = FALSE;
-    p_ptr->update |= PU_BONUS;
-    p_ptr->redraw |= PR_STATUS;
-    p_ptr->update |= PU_MONSTERS;
-}
-
-int boost_concentration_damage(int tdam)
-{
-    return tdam * (10 + p_ptr->concent) / 10;
+    plr->update |= PU_BONUS;
+    plr->redraw |= PR_STATUS;
+    plr->update |= PU_MONSTERS;
 }
 
 static void _concentrate(int cmd, var_ptr res)
@@ -64,24 +344,24 @@ static void _concentrate(int cmd, var_ptr res)
             "In addition, you will land more critical shots as your aim improves.");
         break;
     case SPELL_INFO:
-        var_set_string(res, format("(%d of %d)", p_ptr->concent, _max_concentration()));
+        var_set_string(res, format("(%d of %d)", plr->concent, _max_concentration()));
         break;
     case SPELL_CAST: {
         int max = _max_concentration();
-        if (p_ptr->concent < max)
+        if (plr->concent < max)
         {
-            p_ptr->concent++;
+            plr->concent++;
             msg_format("You concentrate deeply (<color:%c>%dx</color>).",
-                p_ptr->concent == max ? 'r' : 'B',
-                p_ptr->concent);
-            if (p_ptr->concent >= CONCENT_TELE_THRESHOLD)
+                plr->concent == max ? 'r' : 'B',
+                plr->concent);
+            if (plr->concent >= CONCENT_TELE_THRESHOLD)
                 plr_tim_lock(T_TELEPATHY);
-            p_ptr->update |= PU_BONUS;
-            p_ptr->redraw |= PR_STATUS;
-            p_ptr->update |= PU_MONSTERS;
+            plr->update |= PU_BONUS;
+            plr->redraw |= PR_STATUS;
+            plr->update |= PU_MONSTERS;
         }
         else
-            msg_format("You maintain maximum focus (<color:r>%dx</color>).", p_ptr->concent);
+            msg_format("You maintain maximum focus (<color:r>%dx</color>).", plr->concent);
         reset_concent = FALSE;
         var_set_bool(res, TRUE);
         break; }
@@ -97,122 +377,9 @@ static void _timer_on(plr_tim_ptr timer)
     case T_CONFUSED:
     case T_HALLUCINATE:
     case T_STUN:
-        if (p_ptr->concent) reset_concentration(TRUE);
+        if (plr->concent) reset_concentration(TRUE);
         break;
     }
-}
-/************************************************************************
- * Snipe Techniques: Callbacks for do_cmd_fire based on shoot_hack
- ***********************************************************************/
-int sniper_multiplier(int which, obj_ptr ammo, monster_type *m_ptr)
-{
-    int           mult = 10;
-    monster_race *r_ptr = NULL;
-    u32b          flgs[OF_ARRAY_SIZE] = {0};
-
-    if (m_ptr)
-        r_ptr = mon_race(m_ptr);
-    if (ammo)
-        missile_flags(ammo, flgs);
-
-    switch (which)
-    {
-    case SP_LITE:
-        if (!r_ptr || (r_ptr->flags3 & RF3_HURT_LITE))
-        {
-            mult = 20 + p_ptr->concent;
-            if (m_ptr) mon_lore_3(m_ptr, RF3_HURT_LITE);
-        }
-        break;
-    case SP_FIRE:
-        if (r_ptr && (r_ptr->flagsr & RFR_EFF_RES_FIRE_MASK))
-        {
-            mon_lore_r(m_ptr, RFR_EFF_RES_FIRE_MASK);
-        }
-        else
-        {
-            mult = 15 + 3*p_ptr->concent;
-            if (have_flag(flgs, OF_BRAND_FIRE))
-                mult += 5;
-            if (r_ptr && (r_ptr->flags3 & RF3_HURT_FIRE))
-            {
-                mult *= 2;
-                mon_lore_3(m_ptr, RF3_HURT_FIRE);
-            }
-        }
-        break;
-    case SP_COLD:
-        if (r_ptr && (r_ptr->flagsr & RFR_EFF_RES_COLD_MASK))
-        {
-            mon_lore_r(m_ptr, RFR_EFF_RES_COLD_MASK);
-        }
-        else
-        {
-            mult = 15 + 3*p_ptr->concent;
-            if (have_flag(flgs, OF_BRAND_COLD))
-                mult += 5;
-            if (r_ptr && (r_ptr->flags3 & RF3_HURT_COLD))
-            {
-                mult *= 2;
-                mon_lore_3(m_ptr, RF3_HURT_COLD);
-            }
-        }
-        break;
-    case SP_ELEC:
-        if (r_ptr && (r_ptr->flagsr & RFR_EFF_RES_ELEC_MASK))
-        {
-            mon_lore_r(m_ptr, RFR_EFF_RES_ELEC_MASK);
-        }
-        else
-        {
-            mult = 18 + 4*p_ptr->concent;
-            if (have_flag(flgs, OF_BRAND_ELEC))
-                mult += 7;
-        }
-        break;
-    case SP_KILL_WALL:
-        if (!r_ptr || (r_ptr->flags3 & RF3_HURT_ROCK))
-        {
-            mult = 15 + 2*p_ptr->concent;
-            if (m_ptr) mon_lore_3(m_ptr, RF3_HURT_ROCK);
-        }
-        else if (!r_ptr || (r_ptr->flags3 & RF3_NONLIVING))
-        {
-            mult = 15 + 2*p_ptr->concent;
-            if (m_ptr) mon_lore_3(m_ptr, RF3_NONLIVING);
-        }
-        break;
-    case SP_EVILNESS:
-        if (!r_ptr || (r_ptr->flags3 & RF3_GOOD))
-        {
-            mult = 15 + 4*p_ptr->concent;
-            if (m_ptr) mon_lore_3(m_ptr, RF3_GOOD);
-            if (have_flag(flgs, OF_SLAY_GOOD))
-                mult += 5;
-        }
-        break;
-    case SP_HOLYNESS:
-        if (!r_ptr || (r_ptr->flags3 & RF3_EVIL))
-        {
-            mult = 15 + 4*p_ptr->concent;
-            if (m_ptr) mon_lore_3(m_ptr, RF3_EVIL);
-            if (r_ptr && (r_ptr->flags3 & RF3_HURT_LITE))
-            {
-                mult += 3*p_ptr->concent;
-                mon_lore_3(m_ptr, RF3_HURT_LITE);
-            }
-            if (have_flag(flgs, OF_KILL_EVIL))
-                mult += 10;
-            if (have_flag(flgs, OF_SLAY_EVIL))
-                mult += 5;
-        }
-        break;
-    case SP_FINAL:
-        mult = 50;
-        break;
-    }
-
-    return mult;
 }
 /************************************************************************
  * Spells
@@ -225,39 +392,27 @@ static bool _do_shot(int which)
         msg_print("You need to wield a bow!");
         return FALSE;
     }
-    shoot_hack = which;
     command_cmd = 'f'; /* hack for @fa inscriptions */
-    result = do_cmd_fire();
-    shoot_hack = 0;
+    result = plr_shoot_special(which, 0);
     return result;
-}
-static char *_mult_info(int mult)
-{
-    return format("%d.%dx", mult/10, mult%10);
 }
 static void _default(int which, int cmd, var_ptr res)
 {
     switch (cmd)
     {
-    case SPELL_INFO:
-        var_set_string(res, _mult_info(sniper_multiplier(which, NULL, NULL)));
-        break;
     case SPELL_CAST:
         var_set_bool(res, _do_shot(which));
         break;
-    case SPELL_ON_BROWSE: {
-        bool screen_hack = screen_is_saved();
-        if (screen_hack) screen_load();
-
-        display_shooter_mode = which;
-        do_cmd_knowledge_shooter();
-        display_shooter_mode = 0;
-
-        if (screen_hack) screen_save();
-        var_set_bool(res, TRUE);
-        break; }
+    case SPELL_ON_BROWSE:
+        if (plr->concent) {
+            plr_shoot_t ctx = {0};
+            ctx.mode = which;
+            plr_shoot_display_aux(&ctx);
+            var_set_bool(res, TRUE);
+        }
+        break;
     case SPELL_ENERGY:
-        var_set_int(res, energy_use); /* roundabout ... but do_cmd_fire already set this */
+        var_set_int(res, energy_use); /* roundabout ... but plr_shoot already set this */
         break;
     default:
         default_spell(cmd, res);
@@ -277,7 +432,7 @@ static void _shining_arrow(int cmd, var_ptr res)
             "enemies that are hurt by bright light.");
         break;
     default:
-        _default(SP_LITE, cmd, res);
+        _default(_LITE, cmd, res);
     }
 }
 static void _shoot_and_away(int cmd, var_ptr res)
@@ -290,8 +445,10 @@ static void _shoot_and_away(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Shoot at target and then blink away in a single move.");
         break;
+    case SPELL_ON_BROWSE:
+        break;
     default:
-        _default(SP_AWAY, cmd, res);
+        _default(_AWAY, cmd, res);
     }
 }
 static void _disarming_shot(int cmd, var_ptr res)
@@ -304,8 +461,10 @@ static void _disarming_shot(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Shoot an arrow able to shatter traps.");
         break;
+    case SPELL_ON_BROWSE:
+        break;
     default:
-        _default(SP_KILL_TRAP, cmd, res);
+        _default(_KILL_TRAP, cmd, res);
     }
 }
 static void _burning_shot(int cmd, var_ptr res)
@@ -319,7 +478,7 @@ static void _burning_shot(int cmd, var_ptr res)
         var_set_string(res, "Deals extra damage of fire.");
         break;
     default:
-        _default(SP_FIRE, cmd, res);
+        _default(_FIRE, cmd, res);
     }
 }
 static void _shatter(int cmd, var_ptr res)
@@ -333,7 +492,7 @@ static void _shatter(int cmd, var_ptr res)
         var_set_string(res, "Shoot an arrow able to shatter rocks.");
         break;
     default:
-        _default(SP_KILL_WALL, cmd, res);
+        _default(_KILL_WALL, cmd, res);
     }
 }
 static void _freezing_shot(int cmd, var_ptr res)
@@ -347,7 +506,7 @@ static void _freezing_shot(int cmd, var_ptr res)
         var_set_string(res, "Deals extra damage of cold.");
         break;
     default:
-        _default(SP_COLD, cmd, res);
+        _default(_COLD, cmd, res);
     }
 }
 static void _knockback(int cmd, var_ptr res)
@@ -360,8 +519,10 @@ static void _knockback(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "A powerful shot that knocks an enemy target backwards.");
         break;
+    case SPELL_ON_BROWSE:
+        break;
     default:
-        _default(SP_RUSH, cmd, res);
+        _default(_KNOCKBACK, cmd, res);
     }
 }
 static void _piercing_shot(int cmd, var_ptr res)
@@ -375,7 +536,7 @@ static void _piercing_shot(int cmd, var_ptr res)
         var_set_string(res, "An arrow pierces some monsters.");
         break;
     default:
-        _default(SP_RUSH, cmd, res);
+        _default(PLR_SHOOT_PIERCE, cmd, res);
     }
 }
 static void _evil_shot(int cmd, var_ptr res)
@@ -389,7 +550,7 @@ static void _evil_shot(int cmd, var_ptr res)
         var_set_string(res, "Deals more damage to good monsters.");
         break;
     default:
-        _default(SP_EVILNESS, cmd, res);
+        _default(_EVILNESS, cmd, res);
     }
 }
 static void _holy_shot(int cmd, var_ptr res)
@@ -403,7 +564,7 @@ static void _holy_shot(int cmd, var_ptr res)
         var_set_string(res, "Deals more damage to evil monsters.");
         break;
     default:
-        _default(SP_HOLYNESS, cmd, res);
+        _default(_HOLINESS, cmd, res);
     }
 }
 static void _exploding_shot(int cmd, var_ptr res)
@@ -416,8 +577,10 @@ static void _exploding_shot(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "An arrow explodes when it hits a monster.");
         break;
+    case SPELL_ON_BROWSE:
+        break;
     default:
-        _default(SP_EXPLODE, cmd, res);
+        _default(PLR_SHOOT_EXPLODE, cmd, res);
     }
 }
 static void _double_shot(int cmd, var_ptr res)
@@ -430,8 +593,10 @@ static void _double_shot(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Shoot arrows twice.");
         break;
+    case SPELL_ON_BROWSE:
+        break;
     default:
-        _default(SP_DOUBLE, cmd, res);
+        _default(_DOUBLE, cmd, res);
     }
 }
 static void _thunder_shot(int cmd, var_ptr res)
@@ -445,7 +610,7 @@ static void _thunder_shot(int cmd, var_ptr res)
         var_set_string(res, "Deals great extra damage of lightning.");
         break;
     default:
-        _default(SP_ELEC, cmd, res);
+        _default(_ELEC, cmd, res);
     }
 }
 static void _needle_shot(int cmd, var_ptr res)
@@ -458,8 +623,10 @@ static void _needle_shot(int cmd, var_ptr res)
     case SPELL_DESC:
         var_set_string(res, "Deals quick death or 1 damage.");
         break;
+    case SPELL_ON_BROWSE:
+        break;
     default:
-        _default(SP_NEEDLE, cmd, res);
+        _default(_NEEDLE, cmd, res);
     }
 }
 static void _saint_stars_arrow(int cmd, var_ptr res)
@@ -473,7 +640,7 @@ static void _saint_stars_arrow(int cmd, var_ptr res)
         var_set_string(res, "Deals great damage to all monsters, and some side effects to you.");
         break;
     default:
-        _default(SP_FINAL, cmd, res);
+        _default(_FINAL, cmd, res);
     }
 }
 static spell_info _spells[] = 
@@ -525,7 +692,7 @@ static int _get_powers(spell_info* spells, int max)
     spell_info* spell = &spells[ct++];
     spell->level = 15;
     spell->cost = 20;
-    spell->fail = calculate_fail_rate(spell->level, 80, p_ptr->stat_ind[A_INT]);
+    spell->fail = calculate_fail_rate(spell->level, 80, plr->stat_ind[A_INT]);
     spell->fn = probing_spell;
 
     return ct;
@@ -548,7 +715,7 @@ plr_class_ptr sniper_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  24,  28,   5,  32,  18,  35,  72};
-    skills_t xs = { 12,  10,  10,   0,   0,   0,  12,  28};
+    skills_t xs = { 60,  50,  50,   0,   0,   0,  60, 140};
 
         me = plr_class_alloc(CLASS_SNIPER);
         me->name = "Sniper";
@@ -583,6 +750,7 @@ plr_class_ptr sniper_get_class(void)
         me->hooks.get_spells = _get_spells;
         me->hooks.character_dump = _character_dump;
         me->hooks.timer_on = _timer_on;
+        me->hooks.shoot_init = _shoot_init;
     }
 
     return me;

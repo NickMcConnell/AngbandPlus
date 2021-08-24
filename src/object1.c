@@ -35,20 +35,10 @@
  */
 void reset_visuals(void)
 {
-    int i, j;
+    int i;
 
-    /* Extract some info about terrain features */
-    for (i = 0; i < max_f_idx; i++)
-    {
-        feature_type *f_ptr = &f_info[i];
-
-        /* Assume we will use the underlying values */
-        for (j = 0; j < F_LIT_MAX; j++)
-        {
-            f_ptr->x_attr[j] = f_ptr->d_attr[j];
-            f_ptr->x_char[j] = f_ptr->d_char[j];
-        }
-    }
+    visual_set_ascii("@.hobbit.warrior", term_char_create('@', TERM_WHITE), 0); /* tang.txt */
+    visual_reset();
 
     /* Extract default attr/char code for objects */
     for (i = 0; i < max_k_idx; i++)
@@ -58,16 +48,6 @@ void reset_visuals(void)
         /* Default attr/char */
         k_ptr->x_attr = k_ptr->d_attr;
         k_ptr->x_char = k_ptr->d_char;
-    }
-
-    /* Extract default attr/char code for monsters */
-    for (i = 0; i < max_r_idx; i++)
-    {
-        monster_race *r_ptr = &r_info[i];
-
-        /* Default attr/char */
-        r_ptr->x_attr = r_ptr->d_attr;
-        r_ptr->x_char = r_ptr->d_char;
     }
 
     if (use_graphics)
@@ -107,34 +87,34 @@ void reset_visuals(void)
 void weapon_flags(int hand, u32b flgs[OF_ARRAY_SIZE])
 {
     int i;
-    object_type *o_ptr = equip_obj(p_ptr->attack_info[hand].slot);
+    object_type *o_ptr = equip_obj(plr->attack_info[hand].slot);
     if (o_ptr)
     {
         obj_flags(o_ptr, flgs);
         for (i = 0; i < OF_ARRAY_SIZE; i++)
-            flgs[i] |= p_ptr->attack_info[hand].obj_flags[i];
+            flgs[i] |= plr->attack_info[hand].obj_flags[i];
     }
     else /* martial arts */
     {
         for (i = 0; i < OF_ARRAY_SIZE; i++)
-            flgs[i] = p_ptr->attack_info[hand].obj_flags[i];
+            flgs[i] = plr->attack_info[hand].obj_flags[i];
     }
 }
 
 void weapon_flags_known(int hand, u32b flgs[OF_ARRAY_SIZE])
 {
     int i;
-    object_type *o_ptr = equip_obj(p_ptr->attack_info[hand].slot);
+    object_type *o_ptr = equip_obj(plr->attack_info[hand].slot);
     if (o_ptr)
     {
         obj_flags_known(o_ptr, flgs);
         for (i = 0; i < OF_ARRAY_SIZE; i++)
-            flgs[i] |= p_ptr->attack_info[hand].obj_known_flags[i];
+            flgs[i] |= plr->attack_info[hand].obj_known_flags[i];
     }
     else /* martial arts */
     {
         for (i = 0; i < OF_ARRAY_SIZE; i++)
-            flgs[i] = p_ptr->attack_info[hand].obj_known_flags[i];
+            flgs[i] = plr->attack_info[hand].obj_known_flags[i];
     }
 }
 
@@ -145,7 +125,7 @@ void missile_flags(object_type *arrow, u32b flgs[OF_ARRAY_SIZE])
 
     obj_flags(arrow, flgs);
     for (i = 0; i < OF_ARRAY_SIZE; i++)
-        flgs[i] |= p_ptr->shooter_info.flags[i];
+        flgs[i] |= plr->shooter_info.flags[i];
 
     if (slot)
     {
@@ -165,7 +145,7 @@ void missile_flags_known(object_type *arrow, u32b flgs[OF_ARRAY_SIZE])
 
     obj_flags_known(arrow, flgs);
     for (i = 0; i < OF_ARRAY_SIZE; i++)
-        flgs[i] |= p_ptr->shooter_info.flags[i];
+        flgs[i] |= plr->shooter_info.known_flags[i];
 
     if (slot)
     {
@@ -188,12 +168,11 @@ void obj_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE])
         flgs[i] = k_ptr->flags[i];
 
     /* Artifact */
-    if (obj_is_std_art(o_ptr))
+    if (o_ptr->art_id)
     {
-        artifact_type *a_ptr = &a_info[o_ptr->name1];
-
+        art_ptr art = arts_lookup(o_ptr->art_id);
         for (i = 0; i < OF_ARRAY_SIZE; i++)
-            flgs[i] |= a_ptr->flags[i];
+            flgs[i] |= art->flags[i];
     }
 
     /* Ego-item */
@@ -205,10 +184,10 @@ void obj_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE])
         /* Ego lamps lose powers when they run out of fuel */
         switch (o_ptr->name2)
         {
-        case EGO_LITE_IMMOLATION:
-        case EGO_LITE_INFRAVISION:
-        case EGO_LITE_IMMORTAL_EYE:
-            if (o_ptr->sval <= SV_LITE_LANTERN && !o_ptr->xtra4)
+        case EGO_LIGHT_IMMOLATION:
+        case EGO_LIGHT_INFRAVISION:
+        case EGO_LIGHT_IMMORTAL_EYE:
+            if (o_ptr->sval <= SV_LIGHT_LANTERN && !o_ptr->xtra4)
                 skip = TRUE;
             break;
         }
@@ -268,12 +247,12 @@ void obj_flags_known(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE])
     }
 
     /* Identified objects generally mark lore at the level of the flag itself */
-    if (obj_is_std_art(o_ptr))
+    if (o_ptr->art_id)
     {
-        artifact_type *a_ptr = &a_info[o_ptr->name1];
+        art_ptr art = arts_lookup(o_ptr->art_id);
 
         for (i = 0; i < OF_ARRAY_SIZE; i++)
-            flgs[i] |= (a_ptr->flags[i] & a_ptr->known_flags[i]);
+            flgs[i] |= (art->flags[i] & art->known_flags[i]);
     }
     else if (obj_is_ego(o_ptr))
     {
@@ -283,10 +262,10 @@ void obj_flags_known(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE])
         /* Ego lamps lose powers when they run out of fuel */
         switch (o_ptr->name2)
         {
-        case EGO_LITE_IMMOLATION:
-        case EGO_LITE_INFRAVISION:
-        case EGO_LITE_IMMORTAL_EYE:
-            if (o_ptr->sval <= SV_LITE_LANTERN && !o_ptr->xtra4)
+        case EGO_LIGHT_IMMOLATION:
+        case EGO_LIGHT_INFRAVISION:
+        case EGO_LIGHT_IMMORTAL_EYE:
+            if (o_ptr->sval <= SV_LIGHT_LANTERN && !o_ptr->xtra4)
                 skip = TRUE;
             break;
         }
@@ -369,18 +348,18 @@ static void _obj_identify_aux(object_type *o_ptr)
     /* Lore on unidentified objects is tricky, but flavorful.
        Patch up the lore flags, putting them in their correct
        hierarchical locations. */
-    if (o_ptr->name1)
+    if (o_ptr->art_id)
     {
-        artifact_type *a_ptr = &a_info[o_ptr->name1];
+        art_ptr art = arts_lookup(o_ptr->art_id);
         for (i = 0; i < OF_ARRAY_SIZE; i++)
         {
-            a_ptr->known_flags[i] |= (o_ptr->known_flags[i] & a_ptr->flags[i]);
-            o_ptr->known_flags[i] &= ~a_ptr->flags[i];
+            art->known_flags[i] |= (o_ptr->known_flags[i] & art->flags[i]);
+            o_ptr->known_flags[i] &= ~art->flags[i];
         }
-        add_flag(a_ptr->known_flags, OF_IGNORE_ACID);
-        add_flag(a_ptr->known_flags, OF_IGNORE_ELEC);
-        add_flag(a_ptr->known_flags, OF_IGNORE_FIRE);
-        add_flag(a_ptr->known_flags, OF_IGNORE_COLD);
+        add_flag(art->known_flags, OF_IGNORE_ACID);
+        add_flag(art->known_flags, OF_IGNORE_ELEC);
+        add_flag(art->known_flags, OF_IGNORE_FIRE);
+        add_flag(art->known_flags, OF_IGNORE_COLD);
     }
     else if (o_ptr->art_name)
     {
@@ -424,13 +403,13 @@ static void _obj_identify_fully_aux(object_type *o_ptr)
 {
     int i;
 
-    if (o_ptr->name1)
+    if (o_ptr->art_id)
     {
-        artifact_type *a_ptr = &a_info[o_ptr->name1];
+        art_ptr art = arts_lookup(o_ptr->art_id);
         for (i = 0; i < OF_ARRAY_SIZE; i++)
         {
-            a_ptr->known_flags[i] |= a_ptr->flags[i];
-            o_ptr->known_flags[i] |= o_ptr->flags[i] & (~a_ptr->flags[i]);
+            art->known_flags[i] |= art->flags[i];
+            o_ptr->known_flags[i] |= o_ptr->flags[i] & (~art->flags[i]);
         }
     }
     else if (o_ptr->name2)
@@ -520,13 +499,13 @@ bool obj_learn_flag(object_type *o_ptr, int which)
         }
         return FALSE;
     }
-    if (o_ptr->name1)
+    if (o_ptr->art_id)
     {
-        artifact_type *a_ptr = &a_info[o_ptr->name1];
-        if (have_flag(a_ptr->flags, which))
+        art_ptr art = arts_lookup(o_ptr->art_id);
+        if (have_flag(art->flags, which))
         {
-            if (have_flag(a_ptr->known_flags, which)) return FALSE;
-            add_flag(a_ptr->known_flags, which);
+            if (have_flag(art->known_flags, which)) return FALSE;
+            add_flag(art->known_flags, which);
             return TRUE;
         }
         else if (have_flag(o_ptr->flags, which))
@@ -589,11 +568,11 @@ void obj_learn_activation(object_type *o_ptr)
         add_flag(o_ptr->known_flags, OF_ACTIVATE);
         effect_learn(o_ptr->activation.type);
     }
-    else if (o_ptr->name1)
+    if (o_ptr->art_id)
     {
-        artifact_type *a_ptr = &a_info[o_ptr->name1];
-        if (a_ptr->activation.type)
-            add_flag(a_ptr->known_flags, OF_ACTIVATE);
+        art_ptr art = arts_lookup(o_ptr->art_id);
+        if (art->activation.type)
+            add_flag(art->known_flags, OF_ACTIVATE);
         else
             add_flag(o_ptr->known_flags, OF_ACTIVATE); /* Paranoia: Activation on k_ptr, but that should be known by default! */
     }
@@ -648,7 +627,7 @@ void obj_learn_equipped(object_type *o_ptr)
         if (obj_learn_flag(o_ptr, info->id)) learned = TRUE;
     }
 
-    if (p_ptr->pclass == CLASS_PRIEST)
+    if (plr->pclass == CLASS_PRIEST)
     {
         if (obj_learn_flag(o_ptr, OF_BLESSED)) learned = TRUE;
     }
@@ -676,8 +655,11 @@ bool obj_has_lore(object_type *o_ptr)
 {
     if (_obj_flags_any(o_ptr->known_flags))
         return TRUE;
-    if (o_ptr->name1)
-        return art_has_lore(&a_info[o_ptr->name1]);
+    if (o_ptr->art_id)
+    {
+        art_ptr art = arts_lookup(o_ptr->art_id);
+        return art_has_lore(art);
+    }
     if (o_ptr->name2)
         return ego_has_lore(&e_info[o_ptr->name2]);
     return FALSE;
@@ -688,20 +670,20 @@ bool obj_has_lore(object_type *o_ptr)
 bool check_book_realm(const byte book_tval, const byte book_sval)
 {
     if (book_tval < TV_LIFE_BOOK) return FALSE;
-    if (p_ptr->pclass == CLASS_SORCERER)
+    if (plr->pclass == CLASS_SORCERER)
     {
         return is_magic(tval2realm(book_tval));
     }
-    else if (p_ptr->pclass == CLASS_RED_MAGE)
+    else if (plr->pclass == CLASS_RED_MAGE)
     {
         if (is_magic(tval2realm(book_tval)))
             return ((book_tval == TV_ARCANE_BOOK) || (book_sval < 2));
     }
-    else if (p_ptr->pclass == CLASS_GRAY_MAGE)
+    else if (plr->pclass == CLASS_GRAY_MAGE)
     {
         return gray_mage_is_allowed_book(book_tval, book_sval);
     }
-    else if (p_ptr->pclass == CLASS_SKILLMASTER)
+    else if (plr->pclass == CLASS_SKILLMASTER)
     {
         return skillmaster_is_allowed_book(book_tval, book_sval);
     }
@@ -729,7 +711,7 @@ void toggle_inven_equip(void)
             window_flag[j] |= (PW_EQUIP);
 
             /* Window stuff */
-            p_ptr->window |= (PW_EQUIP);
+            plr->window |= (PW_EQUIP);
         }
 
         /* Flip inven to equip */
@@ -740,7 +722,7 @@ void toggle_inven_equip(void)
             window_flag[j] |= (PW_INVEN);
 
             /* Window stuff */
-            p_ptr->window |= (PW_INVEN);
+            plr->window |= (PW_INVEN);
         }
     }
 }
@@ -756,13 +738,13 @@ void toggle_mon_obj_lists(void)
         {
             window_flag[i] &= ~PW_MONSTER_LIST;
             window_flag[i] |= PW_OBJECT_LIST;
-            p_ptr->window |= PW_OBJECT_LIST;
+            plr->window |= PW_OBJECT_LIST;
         }
         else if (window_flag[i] & PW_OBJECT_LIST)
         {
             window_flag[i] &= ~PW_OBJECT_LIST;
             window_flag[i] |= PW_MONSTER_LIST;
-            p_ptr->window |= PW_MONSTER_LIST;
+            plr->window |= PW_MONSTER_LIST;
         }
     }
 }

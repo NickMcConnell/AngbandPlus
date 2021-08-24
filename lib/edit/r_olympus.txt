@@ -1,0 +1,222 @@
+########################################################################
+# Olympians ... These are waiting on a W_GREEK module
+T:P.olympian:Olympian
+I:DISPLAY(P):ALLOC(D_OLYMPUS|UNIQUE)
+I:KIND(OLYMPIAN):LIGHT(0+2):CAN(REGEN|FEAR):ATTR(MALE|SMART)
+I:ALERT(800',Fairly Observant):MOVE(OPEN|BASH|PICKUP|PUSH|SWIM|FLY|CLEARWEB)
+I:RESIST(CONF):IMMUNE(SLEEP|SLOW|BLIND)
+P:Weight:1000
+
+N:P.Zeus:P.olympian:Zeus, King of the Olympians
+I:LVL(90):RARITY(3)
+I:SPEED(+27):HP(15000):AC(175):EXP(150000)
+B:HIT(x2):HURT(10d10+50):DISENCHANT
+B:HIT:HURT(10d10+50):BLIND
+B:HIT:DRAIN_MANA(10d8)
+I:RESIST(ACID|FIRE|COLD|POIS|SHARDS|CHAOS|DISENCHANT):IMMUNE(ELEC)
+S:1_IN_3 | BR_ELEC | BR_DISENCHANT | HASTE | TELE_TO | S_OLYMPIAN | S_KIN
+S:PSY_SPEAR(1d180+150) | DISPEL_MAGIC | ANTI_MAGIC | TELE_SELF | ROCKET(550) | BR_CHAOS
+O:3d2:OBJ(*, GREAT)
+O:20%:ART(`".Zeus`)
+K:1d2+1:MON(E.shambler)
+D:Zeus, King of the gods and ruler of Mount Olympus, god of the Sky and Thunder, and
+D:nominal husband of Hera. He commands the Olympians, and his wrath is fearsome. Flee
+D:his presence! Unless you're a really cute girl, in which case you're screwed.
+I:COLOR(Violet):POS(SUST_STR)
+P:Copy:Half-Titan:Warrior-Mage
+P:Skill:Thn(70+165)
+P:Stats:2:2:2:2:2:2
+P:Life:110
+
+N:P.Poseidon:P.olympian:Poseidon, Lord of Seas and Storm
+I:LVL(88):RARITY(3)
+I:SPEED(+18):HP(14000):AC(175):EXP(55000)
+I:MOVE(TRAMPLE)
+B:HIT(x4):SHATTER(10d10)
+I:RESIST(ELEC|FIRE|COLD|POIS):IMMUNE(ACID)
+S:1_IN_3 | BA_WATER(1d176+50) | S_KIN | BR_DISINTEGRATE
+K:1d2+1:MON(l.greater kraken)
+O:3d2:OBJ(*, GREAT)
+O:20%:ART(/.Poseidon)
+D:Poseidon, Brother of Zeus, Lord of the Seas and Storm. Entire cities have been buried
+D:by his wrath and seamen always utter a prayer to him for safe passage. He lost the
+D:patronage of Athens to Athena.
+I:COLOR(Light Green)
+P:Copy:Half-Titan:Beastmaster
+P:Skill:Thn(70+150)
+P:Stats:1:0:0:1:1:2
+P:Life:105
+
+N:P.Hades:P.olympian:Hades, Ruler of the Underworld
+I:LVL(88):RARITY(3)
+I:SPEED(+20):HP(25000):AC(175):EXP(120000)
+I:DARK(2):MOVE(PASSWALL)
+B:HIT(x2):HURT(6d13+50):DISENCHANT
+B:HIT:HURT(6d13+50):LOSE_ALL
+B:TOUCH:DRAIN_CHARGES
+I:RESIST(BASE|POIS|DARK|DISENCHANT):IMMUNE(NETHER|TELE)
+S:1_IN_3 | BR_DARK | BR_NETHER | BA_NETHER(10d10+226) | HAND_DOOM | S_KIN | BR_DISINTEGRATE
+K:1d2:MON(U.balrog)
+K:1d2:MON(L.archlich)
+O:3d2:OBJ(*, GREAT)
+O:20%:ART(`(.Hades`)
+D:Hades, Ruler of the Underworld, as demarked by the River Styx. He rarely lets those who have
+D:seen his realm leave it. He is ever protective of his time with Persephone, daughter of Demeter.
+I:COLOR(Light Dark)
+P:Copy:Half-Titan:Blood-Knight
+P:Stats:2:0:0:0:3:2
+P:Life:110
+
+N:P.Athena:P.olympian:Athena, the Goddess of Wisdom
+I:LVL(86):RARITY(3)
+I:SPEED(+20):HP(10000):AC(120):EXP(100000)
+I:ATTR(FEMALE):MOVE(TRUMP)
+B:HIT(x3):HURT(8d12+25)
+B:TOUCH:DRAIN_CHARGES
+I:RESIST(ACID|ELEC|COLD|POIS|LIGHT|SOUND|SHARDS)
+S:1_IN_2 | S_KIN | PSY_SPEAR(1d172+150) | HASTE | HEAL | INVULN | MANA_STORM | TELE_TO | TELE_OTHER
+K:33%:MON(P.Zeus, STOP)
+K:1d2:MON(p.ultimate magus)
+O:3d2:OBJ(*, GREAT)
+O:20%:ART(/.Athena)
+D:Athena is the great goddess of wisdom and the protector of Athens. She was born of Zeus
+D:and the Titan Metis, and her cunning far surpasses that of the other deities.
+I:COLOR(Light Red)
+P:Copy:Half-Titan:Priest
+P:Stats:0:0:3:0:0:3
+
+N:P.Ares:P.olympian:Ares, the God of War
+I:LVL(86):RARITY(3)
+I:SPEED(+25):HP(10000):AC(250):EXP(70000)
+I:CAN(REFLECT)
+B:SLASH(100,x2):HURT(33d5):TERRIFY:CUT(10d10, 70%)
+B:SLASH(100,x2):HURT(33d5):LOSE_CHR:CUT(10d10, 70%)
+A:STUN(2d3, 20%)
+I:RESIST(BASE|POIS)
+S:1_IN_5 | TELE_TO | S_KIN
+K:MON(P.Zeus)
+K:MON(P.Hera)
+O:3d2:OBJ(*, GREAT):DROP_WARRIOR
+O:20%:ART(].Ares)
+D:Ares is the bold son of Zeus and Hera, whose very name is feared and respected by
+D:warriors and citizens alike. His legendary combat prowess exceeds that of Zeus and
+D:Poseidon, but he is less skilled in wiles than the other Olympians.
+I:COLOR(Red):POS(GAIN_AC)
+P:Copy:Half-Titan:Mauler
+P:Stats:1:0:3:1:0:0
+
+N:P.Hermes:P.olympian:Hermes, the Messenger God
+I:LVL(86):RARITY(3)
+I:SPEED(+45):HP(9000):AC(120):EXP(75000)
+I:KIND(THIEF):DARK(2):ATTR(WEIRD_MIND):ALERT(1000')
+B:HIT(x2):HURT(5d9+25)
+B:HIT(x2):HURT(5d9+25):EAT_ITEM
+I:RESIST(ACID|FIRE|COLD|POIS)
+S:1_IN_3 | HASTE | SLOW | DISPEL_MAGIC | BR_TIME | BR_NEXUS | TELE_SELF | TELE_TO | TELE_OTHER
+S:PSY_SPEAR(1d172+150) | S_OLYMPIAN | HEAL | ANTI_MAGIC | BA_DARK | S_KIN
+K:1d16:MON(`,.magic`)
+O:3d2:OBJ(*, GREAT)
+O:20%:ART(].Hermes)
+D:Hermes, the Messenger, is the extremely cunning diplomat used by the Olympians to
+D:negotiate truces. With his Winged Sandals and his powerful magic, there is no place
+D:barred from him, and there is no way to detain him.
+I:COLOR(Orange)
+P:Copy:Half-Titan:Rogue
+P:Stats:0:0:0:7:0:0
+P:Skills:0:0:0:7:0:0:0:0
+
+N:P.Apollo:P.olympian:Apollo, the Sun God
+I:LVL(86):RARITY(3)
+I:SPEED(+20):HP(6000):AC(120):EXP(40000)
+I:LIGHT(3+3)
+B:HIT(x2):HURT(5d7+20):LIGHT(5d5)
+B:HIT(x2):HURT(5d7+20):SOUND(5d5)
+A:LIGHT(5d5)
+I:RESIST(ACID|FIRE|COLD|POIS|SOUND|DISENCHANT):IMMUNE(LIGHT)
+S:FREQ_35 | BA_LIGHT | JMP_LIGHT(150) | BR_LIGHT | S_KIN | TELE_SELF
+K:33%:MON(P.Artemis, STOP)
+K:1d2+1:MON(B.fenghuang)
+O:3d2:OBJ(*, GREAT)
+O:20%:ART(}.Apollo)
+I:COLOR(Yellow)
+P:Copy:Half-Titan:Priest
+P:Stats:0:0:3:0:0:3
+
+N:P.Artemis:P.olympian:Artemis, the Moon Goddess
+I:LVL(86):RARITY(3)
+I:SPEED(+20):HP(7000):AC(120):EXP(30000)
+I:ATTR(FEMALE)
+I:RESIST(ACID|FIRE|COLD|POIS|LIGHT|SOUND|DISENCHANT)
+S:FREQ_40 | BLINK | SHOOT(12d12, x3) | HEAL | S_KIN | TELE_SELF
+K:MON(P.Apollo)
+O:3d2:OBJ(*, GREAT)
+O:20%:ART(}.Artemis)
+I:COLOR(Slate)
+P:Copy:Half-Titan:Ranger
+P:Stats:0:0:2:0:0:0
+
+N:P.Hephaestus:P.olympian:Hephaestus, the Smith God
+I:LVL(86):RARITY(3)
+I:SPEED(+25):HP(10000):AC(200):EXP(110000)
+B:HIT(x2):HURT(15d15+80):STUN(10d2,70%)
+I:RESIST(BASE|POIS|SOUND|SHARDS|CHAOS)
+S:1_IN_5 | ROCKET(500) | HEAL | TELE_SELF | TELE_TO | S_KIN
+K:33%:MON(P.Zeus, STOP)
+K:33%:MON(P.Hera, STOP)
+K:1d2+1:MON(P.titan)
+O:3d2:OBJ(*, GREAT)
+O:20%:ART(\.Hephaestus)
+I:COLOR(Light Blue):POS(GAIN_AC)
+P:Copy:Half-Titan:Mauler
+P:Stats:3:0:0:0:0:0
+
+N:P.Hera:P.olympian:Hera, Queen of the Gods
+I:LVL(89):RARITY(3)
+I:SPEED(+20):HP(13000):AC(150):EXP(125000)
+I:ATTR(FEMALE)
+B:HIT(x2):DISENCHANT(12d10)
+B:HIT:HURT(7d5+15):BLIND
+B:HIT:DRAIN_MANA(10d8)
+I:RESIST(BASE|POIS|CHAOS|DISENCHANT)
+S:1_IN_2 | MANA_STORM | BO_MANA | BA_LIGHT | HASTE | TELE_TO | S_KIN
+S:PSY_SPEAR(1d178+150) | DISPEL_MAGIC | ANTI_MAGIC | TELE_SELF | BLINK
+K:33%:MON(P.Ares, STOP)
+K:33%:MON(P.Hephaestus, STOP)
+K:1d2+1:MON(Z.death)
+O:3d2:OBJ(*, GREAT)
+O:20%:ART(].Hera)
+I:COLOR(Green)
+P:Copy:Half-Titan:Priest
+P:Stats:0:0:4:0:0:4
+
+N:P.Demeter:P.olympian:Demeter, the Goddess of Nature
+I:LVL(86):RARITY(3)
+I:SPEED(+20):HP(9000):AC(150):EXP(30000)
+I:ATTR(FEMALE)
+B:HIT:HURT(5d10+25):BLIND
+B:HIT(x3):HURT(5d10+25):CONFUSE
+I:RESIST(BASE|POIS|CHAOS|DISENCHANT)
+S:1_IN_3 | HEAL(1000) | TELE_SELF | BLINK | S_KIN
+K:1d2+1:MON(#.ent)
+O:3d2:OBJ(*, GREAT)
+O:20%:ART(~.Demeter)
+I:COLOR(Umber)
+P:Copy:Half-Titan:Beastmaster
+P:Stats:0:0:0:0:0:3
+
+N:P.Aphrodite:P.olympian:Aphrodite, the Goddess of Love
+I:LVL(86):RARITY(3)
+I:SPEED(+20):HP(8000):AC(150):EXP(40000)
+I:ATTR(FEMALE)
+B:HIT:HURT(5d10+25):BLIND
+B:HIT(x3):HURT(5d10+25):CONFUSE
+I:RESIST(BASE|POIS|CHAOS|DISENCHANT)
+S:1_IN_3 | HEAL | BLINK | S_UNIQUE | S_OLYMPIAN | TELE_SELF
+O:3d2:OBJ(*, GREAT)
+O:20%:ART(`".Aphrodite`)
+I:COLOR(Umber)
+P:Copy:Half-Titan:Beastmaster
+P:Stats:0:0:0:0:0:7
+
+# vim: filetype=ri :
+

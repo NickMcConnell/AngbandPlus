@@ -1,0 +1,153 @@
+# Camelot
+
+########################################################################
+# The Knights of the Round Table
+N:p.camelot knight:p.base:Camelot Knight
+I:LVL(26):RARITY(1):ALLOC(D_CAMELOT | MAX_7)
+I:SPEED(+10):HP(70d20):AC(80):EXP(1400)
+I:KIND(KNIGHT):ALIGN(Good):CAN(REGEN):ATTR(SMART)
+I:ALERT(300',Fairly Observant):MOVE(PUSH)
+B:HIT(x3):HURT(1d8+8):BLIND(10%)
+I:RESIST(ACID|FIRE|CONF):IMMUNE(SLEEP)
+S:FREQ_10 | SHOOT(6d8) | BO_FIRE | TELE_TO | BLINK | TELE_SELF | S_KNIGHT(1d2) | HEAL
+O:1d2:OBJ(*, GOOD)
+D:A Knight of the Round Table of King Arthur's Court.
+I:COLOR(White)
+P:Copy:Dunadan:Paladin
+
+N:p.Arthur:p.camelot knight:Arthur Pendragon
+I:LVL(32):ALLOC(UNIQUE|GUARDIAN)
+I:SPEED(+15):HP(1200):AC(90):EXP(2000)
+I:LIGHT(0+3)
+B:HIT(x4):HURT(2d8+8):BLIND(15%):CONFUSE(15%)
+I:RESIST(COLD|ELEC|POIS)
+S:FREQ_25 | SHOOT(4d8) | TELE_SELF | HEAL | BO_FIRE(18d8+20) | BA_ACID(1d192+30)
+S:SHRIEK | HASTE | TELE_TO | S_CAMELOT(1d2)
+O:2d2:OBJ(*, GREAT)
+O:25%:ART(|.Excalibur Jr)
+D:Arthur Pendragon, who wields the Sword in the Stone and rules the Knights of Camelot.
+D:He charges at you with righteous vengeance for upsetting his realm.
+I:COLOR(Red)
+P:Stats:1:0:2:1:1:3
+
+N:p.Lancelot:p.camelot knight:Sir Lancelot
+I:LVL(30):ALLOC(UNIQUE)
+I:SPEED(+15):HP(1300):AC(120):EXP(1800)
+I:CAN(REVENGE)
+B:SLASH(x2):HURT(15d2+15):TERRIFY:CUT(5d5, 70%)
+I:RESIST(COLD|ELEC):IMMUNE(FEAR)
+S:FREQ_10 | TELE_TO | HEAL | S_CAMELOT(1d2)
+O:2d2:OBJ(*, GREAT)
+D:The strongest of the Knights, Lancelot is also the most handsome,
+D:and leaves a trail of broken hearts in his wake. Fated never
+D:to be with his true love Guinevere, Lancelot nevertheless protects
+D:her whenever he needs to, even if it means destroying Camelot
+I:COLOR(Blue)
+P:Stats:3:0:0:0:1:1
+
+N:p.Gawain:p.camelot knight:Sir Gawain
+I:LVL(29):ALLOC(UNIQUE)
+I:SPEED(+12):HP(800):AC(90):EXP(1800)
+B:HIT:HURT(4d6+35):CONFUSE(50%)
+I:RESIST(COLD|POIS)
+S:FREQ_20 | SHOOT(14d6) | BO_MANA | BLINK | TELE_SELF | S_CAMELOT(1d2) | HEAL
+O:2d2:OBJ(*, GREAT)
+D:The second strongest of the Round Table, Gawain is usually the voice of reason.
+I:COLOR(Orange)
+P:Stats:1:0:1:0:0:1
+
+N:p.Galahad:p.camelot knight:Sir Galahad
+I:LVL(28):ALLOC(UNIQUE)
+I:SPEED(+14):HP(1000):AC(110):EXP(1800)
+I:CAN(REFLECT)
+B:SLASH:HURT(10d2+15):TERRIFY:CUT(3d3, 40%)
+B:HIT(x2):HURT(3d6):CONFUSE(25%):BLIND(25%)
+I:RESIST(ELEC|COLD|POIS)
+S:FREQ_15 | SHOOT(6d8) | TELE_TO | TELE_SELF | S_CAMELOT(1d2) | HEAL
+O:1d2:OBJ(*, GREAT)
+O:10%:ART(`".Grail`)
+D:Sir Galahad the Pure takes after his father Lancelot in his
+D:combat abilities and after his mother Elaine in his calm. He
+D:is the one who finally completed the Quest for the Holy Grail.
+I:COLOR(Green)
+
+N:p.Gareth:p.camelot knight:Sir Gareth
+I:LVL(28):ALLOC(UNIQUE)
+I:SPEED(+10):HP(1000):AC(80):EXP(1800)
+B:HIT(x3):HURT(3d8):BLIND(35%)
+I:RESIST(ELEC|COLD)
+O:1d2:OBJ(*, GREAT)
+S:FREQ_15 | SHOOT(6d8) | BO_ELEC | HASTE | TELE_TO | TELE_SELF | S_CAMELOT(1d2) | HEAL
+D:The protege of Lancelot and the younger brother of Gawain, Gareth served as a Nexus
+D:of the Round Table, and after his death, Camelot itself soon dissolved.
+I:COLOR(Green)
+
+N:p.Kay:p.camelot knight:Sir Kay
+I:LVL(22):ALLOC(UNIQUE)
+I:SPEED(+7):HP(600):AC(60):EXP(1000)
+I:ALIGN(Neutral)
+B:HIT(x3):HURT(1d8+7)
+O:1d2:OBJ(*, GREAT)
+S:FREQ_10 | BO_FIRE | BLINK | TELE_SELF | S_CAMELOT(1d2)
+D:The weakest and most petty of the knights, Kay is often bullying squires and pages,
+D:forcing them to do demeaning tasks. Several of the Knights in their youths suffered Kay.
+I:COLOR(Umber)
+
+########################################################################
+# Other Camelot Uniques
+N:p.Morgana:p.base:Morgana Le Fay
+I:LVL(35):RARITY(2):ALLOC(D_CAMELOT|UNIQUE)
+I:SPEED(+12):HP(700):AC(90):EXP(2500)
+I:DARK(1):CAN(REGEN|FEAR):ATTR(FEMALE)
+I:ALERT(300',Fairly Observant):MOVE(PUSH)
+B:HIT(x2):HURT(2d6):CONFUSE(50%)
+B:HIT(x2):HURT(1d9):DISENCHANT(50%):LOSE_CON(50%)
+I:RESIST(BASE|POIS|CONF):IMMUNE(SLEEP|SLOW)
+S:1_IN_3 | BO_MANA | TELE_SELF | HEAL | HASTE | BA_WATER(1d70+50)
+O:2d2:OBJ(*, GREAT):DROP_MAGE
+D:The great keeper of Pagan traditions, Morgana Le Fay is seen as a savior by some,
+D:and a witch by many. She refused to let her lands be invaded by Christianity, and
+D:took to arms against her brother and lover.
+I:COLOR(Red)
+P:Copy:Human:Mage
+P:Stat:Int(7)
+P:Weight:110
+
+N:p.Mordred:p.base:Mordred
+I:LVL(32):RARITY(2):ALLOC(D_CAMELOT|UNIQUE)
+I:SPEED(+12):HP(1100):AC(90):EXP(1800)
+I:DARK(1):CAN(REGEN|REVENGE)
+I:ALERT(300',Fairly Observant):MOVE(PUSH)
+B:SLASH:HURT(5d2+15):TERRIFY:CUT(3d3, 30%)
+B:HIT:HURT(2d8+8):CONFUSE(50%)
+B:HIT:HURT(1d10+10):PARALYZE(50%)
+I:RESIST(ACID|ELEC|COLD|CONF):IMMUNE(SLEEP)
+O:1d2:OBJ(*, GREAT):DROP_MAGE
+S:1_IN_6 | BO_MANA | TELE_SELF | HEAL | HASTE | BA_WATER(1d64+50)
+D:A mighty spellsword and the son of Morgana Le Fay, Mordred is prophesied to unite
+D:the lands after the fall of Camelot.
+I:COLOR(Red)
+P:Copy:Human:Mage
+P:Stat:Int(6)
+
+N:q.Questing Beast:The Questing Beast
+I:LVL(35):RARITY(7):ALLOC(D_CAMELOT|UNIQUE)
+I:SPEED(+15):HP(1000):AC(90):EXP(2500)
+I:KIND(NONLIVING):CAN(REGEN):ATTR(FEMALE|RIDING|SMART)
+I:ALERT(770',Vigilant):MOVE(OPEN|BASH)
+B:KICK:HURT(3d6+10):CONFUSE
+B:KICK:HURT(3d6+10):TERRIFY
+B:DROOL:POISON(5d5)
+I:RESIST(BASE|POIS|CONF):IMMUNE(SLEEP)
+S:FREQ_20 | BLINK | HEAL | SHRIEK | SCARE | CONFUSE | BLIND | MIND_BLAST | BR_CHAOS | BR_NEXUS
+O:2d2:OBJ(*, GREAT)
+D:Beast Glatisant, the Barking Beast, is a strange creature indeed. It has the head
+D:of a snake, the body of a leopard, the haunches of a lion, and the feet of a deer.
+D:A great noise rumbles from its belly, a barking like "thirty couple hounds questing."
+#Description help from wikipedia
+I:DISPLAY(q,Violet):POS(GAIN_AC)
+P:Copy:Dunadan:Paladin
+P:Body:Questing Beast
+P:Weight:400
+
+# vim: filetype=ri :

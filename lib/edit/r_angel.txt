@@ -1,0 +1,220 @@
+# Angels
+
+T:A.base:Angel
+I:DISPLAY(A):POS(GAIN_AC|SEE_INVIS|HOLD_LIFE)
+I:ALIGN(Lawful):ATTR(SMART):LIGHT(2)
+I:ALERT(300',Ignores):MOVE(FLY|PICKUP|OPEN|BASH|CLEARWEB)
+I:RESIST(POIS|CONF):IMMUNE(SLEEP|SLOW|BLIND)
+P:Copy:Archon:Priest
+P:Skill:Thn(70+120)
+P:Weight:190
+
+N:A.angel:A.base:Angel
+I:LVL(26):RARITY(4)
+I:HP(300):AC(60):EXP(220):EVOLVE(A.archangel, 2000)
+I:LIGHT(1)
+B:HIT(x4):HURT(2d4+3)
+I:RESIST(ACID)
+S:1_IN_3 | BLIND | CONFUSE | SCARE | AMNESIA | DETECT_EVIL | BLESS | PROT_EVIL
+O:1d2+1:DROP_PALADIN
+D:A lesser angel wearing little more than a loincloth - its steely skin
+D:provides all the protection it needs.
+I:COLOR(Blue)
+
+N:A.archangel:A.base:Archangel
+I:LVL(29):RARITY(4)
+I:HP(400):AC(68):EXP(400):EVOLVE(A.cherub, 2500)
+I:LIGHT(1)
+B:HIT(x4):HURT(1d5+6)
+I:RESIST(FIRE|COLD|TELE)
+S:1_IN_3 | HEAL | HASTE | BLIND | CONFUSE | SCARE | DETECT_EVIL | BLESS | HOLY_ORB | PROT_EVIL
+O:1d2+1:DROP_PALADIN
+D:A lesser angel protected by an aura of holiness. Its muscular form looks
+D:extremely powerful next to your own frail body.
+I:COLOR(Light Blue)
+
+N:A.cherub:A.base:Cherub
+I:LVL(33):RARITY(4)
+I:SPEED(+10):HP(450):AC(68):EXP(400):EVOLVE(A.seraph, 5000)
+I:CAN(REFLECT):MOVE(PUSH)
+B:HIT(x3):HURT(2d3+4)
+B:HIT:HURT(2d3+4):LOSE_CHR(25%)
+I:RESIST(BASE|TELE)
+S:1_IN_3 | HEAL | HASTE | BLIND | SCARE | MIND_BLAST | PROT_EVIL
+S:S_MONSTER | DETECT_EVIL | BLESS | HOLY_ORB
+O:1d2+2:DROP_PALADIN
+D:It is an angel moving very quickly, wielding a holy war hammer and casting
+D:a volley of powerful spells in your direction.
+I:COLOR(Light White)
+
+N:A.seraph:A.base:Seraph
+I:LVL(38):RARITY(4)
+I:SPEED(+10):HP(500):AC(68):EXP(1800):EVOLVE(A.archon, 8000)
+I:CAN(REFLECT):MOVE(PUSH)
+I:RESIST(BASE|TELE)
+B:HIT(x4):HURT(2d6+8)
+S:1_IN_11 | HEAL | HASTE | TELE_OTHER | CONFUSE | BO_MANA | HOLY_ORB | PROT_EVIL
+S:S_MONSTER | DETECT_EVIL | BLESS | HEROISM | MAPPING
+O:1d2+2:DROP_PALADIN
+D:It is an angel, fast and strong. You are stunned by its extreme holiness
+D:and try to resist all desires to obey it.
+I:COLOR(White)
+
+N:A.archon:A.base:Archon
+I:LVL(41):RARITY(5)
+I:SPEED(+20):HP(100d35):AC(140):EXP(8000):EVOLVE(A.planetar, 50000)
+I:CAN(REFLECT):MOVE(PUSH)
+B:GAZE(x2):DAM(4d4):TERRIFY
+B:HIT(x2):HURT(3d6+18)
+I:RESIST(BASE|LIGHT|TELE)
+S:1_IN_3 | TELE_TO | BLIND | SCARE | CAUSE_2 | CAUSE_4 | BO_MANA | HOLY_ORB(77)
+S:S_MONSTER | INVULN | DETECT_MONSTERS | BLESS | HEROISM | MAPPING | PROT_EVIL
+O:2d2+2:OBJ(*, GOOD):DROP_PALADIN
+D:Never a more heavenly being have you seen. The very holiness of its
+D:presence makes you deeply respect it. Few creatures can match the powers
+D:of an Archon; fewer still live to tell the tale after attacking one.
+I:COLOR(Violet)
+
+N:A.fallen:A.base:Fallen angel
+I:LVL(41):RARITY(5)
+I:SPEED(+20):HP(100d35):AC(140):EXP(8000)
+I:ALIGN(Chaotic):CAN(REFLECT):DARK(2):MOVE(PUSH)
+B:GAZE(x2):VAMP(4d4)
+B:HIT(x2):HURT(5d6+10):LOSE_CHR(25%)
+I:RESIST(BASE|DARK|NETHER|TELE)
+O:2d2+2:OBJ(*, GOOD)
+S:1_IN_3 | TELE_TO | BLIND | SCARE | CAUSE_2 | CAUSE_4 | BO_MANA | MAPPING
+S:S_DEMON | BO_NETHER(5d5+111) | INVULN | DETECT_MONSTERS | BLESS | HEROISM
+D:An angelic being who was mighty once but dared defy the Omnipotent to arms.
+I:COLOR(Light Dark)
+
+N:A.planetar:A.base:Planetar
+I:LVL(50):RARITY(6)
+I:SPEED(+20):HP(2200):AC(150):EXP(15000):EVOLVE(A.solar, 100000)
+I:CAN(REFLECT):MOVE(PUSH)
+B:HIT(x3):HURT(5d6+10)
+B:HIT:HURT(5d6+10):LOSE_CHR(50%)
+I:RESIST(BASE|LIGHT|TELE)
+S:1_IN_4 | HEAL | HASTE | TELE_OTHER | BO_MANA | HOLY_ORB(111) | CAUSE_4 |
+S:S_MONSTER | S_ANGEL | INVULN | PSY_SPEAR(1d100+150) | S_DRAGON | DISPEL_MAGIC |
+S:ANTI_MAGIC | DETECT_MONSTERS | BLESS | HEROISM | MAPPING | PROT_EVIL
+O:1d2+2:OBJ(*, GOOD):DROP_PALADIN
+D:It is an angel, fast and strong. You are stunned by its extreme holiness
+D:and try to resist all desires to obey it.
+I:COLOR(Red)
+
+N:A.solar:A.base:Solar
+I:LVL(64):RARITY(6)
+I:SPEED(+20):HP(3000):AC(160):EXP(25000)
+I:CAN(REFLECT):MOVE(PUSH)
+B:GAZE(x2):DISENCHANT(10d4)
+B:HIT(x2):HURT(8d8+18):LOSE_CHR(25%)
+A:HOLY_FIRE(3d3)
+I:RESIST(BASE|LIGHT|TELE)
+S:1_IN_3 | TELE_TO | BLIND | SCARE | CAUSE_4 | BO_MANA | PSY_SPEAR(1d128+150) | INVULN
+S:S_ANGEL | S_DRAGON | BA_LIGHT | HEAL | DISPEL_MAGIC | ANTI_MAGIC | HOLY_ORB(177)
+S:DETECT_MONSTERS | BLESS | HEROISM | MAPPING | PROT_EVIL
+O:7d2:OBJ(*, GOOD):DROP_PALADIN
+D:Never a more heavenly being have you seen. The very holiness of its
+D:presence makes you deeply respect it. Few creatures can match the powers
+D:of a Solar; fewer still live to tell the tale after attacking one.
+I:COLOR(Yellow)
+
+########################################################################
+# Joke?
+N:A.silver:A.base:Silver Angel
+I:LVL(30):RARITY(30):ALLOC(UNIQUE2)
+I:SPEED(+20):HP(300):AC(50):EXP(1):EVOLVE(A.gold, 10000)
+B:TOUCH:EAT_GOLD
+I:RESIST(BASE)
+S:1_IN_3 | TELE_SELF | HASTE | TELE_OTHER | TELE_LEVEL | BLINK
+D:Collect 5 marks of Silver Angel or 1 mark of Gold Angel
+D:and you will win The Can of Toys!
+I:COLOR(White)
+P:Copy:Archon:Rogue
+P:Speed:+10
+P:Weight:180
+
+N:A.gold:A.base:Golden Angel
+I:LVL(50):RARITY(100):ALLOC(UNIQUE2)
+I:SPEED(+50):HP(1500):AC(120):EXP(1)
+B:TOUCH:EAT_GOLD
+B:TOUCH:EAT_ITEM
+I:RESIST(BASE)
+S:1_IN_3 | TELE_SELF | HASTE | TELE_OTHER | TELE_LEVEL | BLINK
+O:OBJ(can of toys)
+D:Collect 5 marks of Silver Angel or 1 mark of Gold Angel
+D:and you will win The Can of Toys!
+I:COLOR(Yellow)
+P:Copy:Archon:Rogue
+P:Speed:+15
+P:Weight:180
+
+########################################################################
+# Uniques
+N:A.Uriel:A.base:Uriel, Angel of Fire
+I:LVL(73):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+20):HP(6000):AC(180):EXP(40000)
+I:CAN(SPEAK|REFLECT):ATTR(MALE):ALERT(400',Fairly Observant):MOVE(PUSH)
+B:HIT(x4):HURT(3d10+25):FIRE(7d10)
+A:PLASMA(4d5)
+I:RESIST(ACID|ELEC|COLD|LIGHT):IMMUNE(FIRE|TELE)
+S:FREQ_40 | TELE_TO | BLIND | BO_MANA | BA_FIRE(1d511+20) | BR_FIRE | BR_MANA | WRATH_OF_GOD
+S:INVULN | BO_PLASMA | BR_PLASMA | S_ANGEL | PSY_SPEAR | HEAL | BA_LIGHT
+S:DETECT_MONSTERS | BLESS | HEROISM | MAPPING | PROT_EVIL
+O:7d2:OBJ(*, GOOD):DROP_PALADIN
+D:A creature of godly appearance, you dare not challenge Uriel's supremacy.
+D:Those who stood against him before are but a memory, cremated by his
+D:mastery of elemental fire.
+I:COLOR(Light Red)
+P:Stats:1:0:3:1:1:3
+P:Skill:Thn(70+150)
+
+N:A.Azriel:A.base:Azriel, Angel of Death
+I:LVL(80):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+20):HP(6500):AC(190):EXP(75000)
+I:CAN(SPEAK|REFLECT):ATTR(MALE):ALERT(400',Fairly Observant):MOVE(PUSH)
+B:TOUCH(x2):VAMP(6d12):TERRIFY
+B:TOUCH(x2):VAMP(6d12):BLIND
+A:NETHER(5d5)
+I:RESIST(BASE|DARK|NETHER):IMMUNE(TELE)
+S:FREQ_40 | TELE_TO | BLIND | BO_MANA | BA_NETHER(10d10+210) | BR_NETHER | WRATH_OF_GOD
+S:PSY_SPEAR | S_MONSTER | HEAL | S_ANGEL | BR_MANA | BR_COLD | S_DRAGON
+S:INVULN | BA_LIGHT | BLESS | HEROISM | MAPPING | DETECT_MONSTERS | PROT_EVIL
+O:7d2:OBJ(*, GOOD):DROP_PALADIN
+D:Azriel commands awesome power, his visage holy enough to shrivel your
+D:soul. You shriek with disbelief as his mastery of death draws you to your
+D:grave. It is truly beyond all but the mightiest of warriors to stand
+D:against him and live.
+I:COLOR(Light Dark)
+P:Stats:1:0:3:1:1:3
+P:Skill:Thn(70+150)
+
+N:A.Raphael:A.base:Raphael, the Messenger
+I:LVL(89):RARITY(3):ALLOC(ESCORT|UNIQUE)
+I:SPEED(+20):HP(7500):AC(200):EXP(80000)
+I:CAN(SPEAK|REFLECT|FEAR):ATTR(MALE):LIGHT(3):ALERT(400',Fairly Observant):MOVE(PUSH)
+B:HIT(x2):HURT(7d7+27):HOLY_FIRE(7d7)
+B:HIT(x2):HURT(7d7+27):DISENCHANT(50%):TERRIFY(50%)
+A:LIGHT(3d5):HOLY_FIRE(3d5)
+I:RESIST(ACID|FIRE|COLD|LIGHT):IMMUNE(ELEC|TELE)
+S:FREQ_40 | BR_HOLY_FIRE | WRATH_OF_GOD
+S:TELE_TO | BLIND | BO_MANA | S_ANGEL | S_KIN | INVULN | DISPEL_MAGIC
+S:ANTI_MAGIC | PSY_SPEAR(1d178+150)
+S:BR_MANA | BR_LIGHT | BR_ELEC | MANA_STORM | HAND_DOOM | S_HI_DRAGON |
+S:BRAIN_SMASH | S_MONSTER | HEAL | BR_DISENCHANT | BA_LIGHT
+S:DETECT_MONSTERS | BLESS | HEROISM | MAPPING | PROT_EVIL
+O:7d2:OBJ(*, GOOD):DROP_PALADIN
+O:5%:ART([.Lohengrin)
+M:1d9:MON(A.solar)
+M:2d9:MON(A.solar, ANCESTOR)
+D:Commanding a legion of angels, Raphael will destroy you for your sins. He
+D:will crush you like the pitiful insignificant being he sees you to be.
+D:Your very soul will be taken into judgement by his supreme authority as he
+D:cleanses the world of evil.
+I:COLOR(White)
+P:Stats:2:2:5:2:2:5
+P:Skill:Thn(70+160)
+P:Speed:+10
+
+# vim: filetype=ri :

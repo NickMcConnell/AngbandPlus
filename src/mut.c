@@ -157,7 +157,7 @@ int _mut_prob_gain(int i)
     {
     case MUT_CHAOS_GIFT:
         /* TODO: Birth Chaos Warriors with this mutation */
-        if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
+        if (plr->pclass == CLASS_CHAOS_WARRIOR)
             return 0;
         break;
 
@@ -167,27 +167,27 @@ int _mut_prob_gain(int i)
         break;
 
     case MUT_HYPN_GAZE:
-        if (p_ptr->prace == RACE_VAMPIRE)
+        if (plr->prace == RACE_VAMPIRE)
             return racial_odds;
         break;
 
     case MUT_HORNS:
-        if (p_ptr->prace == RACE_IMP)
+        if (plr->prace == RACE_IMP)
             return racial_odds;
         break;
 
     case MUT_SHRIEK:
-        if (p_ptr->prace == RACE_YEEK)
+        if (plr->prace == RACE_YEEK)
             return racial_odds;
         break;
 
     case MUT_POLYMORPH:
-        if (p_ptr->prace == RACE_BEASTMAN)
+        if (plr->prace == RACE_BEASTMAN)
             return racial_odds;
         break;
 
     case MUT_TENTACLES:
-        if (p_ptr->prace == RACE_MIND_FLAYER)
+        if (plr->prace == RACE_MIND_FLAYER)
             return racial_odds;
         break;
     }
@@ -204,7 +204,7 @@ int _mut_prob_gain(int i)
         result = 1;
     }
 
-    if (p_ptr->prace == RACE_MON_RING || p_ptr->prace == RACE_MON_SWORD)
+    if (plr->prace == RACE_MON_RING || plr->prace == RACE_MON_SWORD)
     {
         switch (i)
         {
@@ -247,10 +247,10 @@ int _mut_prob_lose(int i)
 void _mut_refresh(void)
 {
     mutant_regenerate_mod = mut_regenerate_mod();
-    p_ptr->update |= PU_BONUS;
-    p_ptr->update |= PU_HP;
-    p_ptr->update |= PU_MANA;
-    p_ptr->update |= PU_SPELLS;
+    plr->update |= PU_BONUS;
+    plr->update |= PU_HP;
+    plr->update |= PU_MANA;
+    plr->update |= PU_SPELLS;
     handle_stuff();
 }
 
@@ -311,14 +311,14 @@ void mut_get_flags(u32b flgs[OF_ARRAY_SIZE])
     if (mut_present(MUT_FIRE_AURA))
     {
         add_flag(flgs, OF_AURA_FIRE);
-        add_flag(flgs, OF_LITE);
+        add_flag(flgs, OF_LIGHT);
     }
 
     if (mut_present(MUT_WINGS))
         add_flag(flgs, OF_LEVITATION);
 
     if (mut_present(MUT_FEARLESS))
-        add_flag(flgs, OF_RES_FEAR);
+        add_flag(flgs, OF_RES_(GF_FEAR));
 
     if (mut_present(MUT_REGEN))
         add_flag(flgs, OF_REGEN);
@@ -340,7 +340,7 @@ void mut_get_flags(u32b flgs[OF_ARRAY_SIZE])
 
     if (mut_present(MUT_DRACONIAN_SHIELD))
     {
-        switch (p_ptr->psubrace)
+        switch (plr->psubrace)
         {
         case DRACONIAN_RED:
             add_flag(flgs, OF_AURA_FIRE);
@@ -362,10 +362,10 @@ void mut_get_flags(u32b flgs[OF_ARRAY_SIZE])
 
     if (mut_present(MUT_VULN_ELEM))
     {
-        add_flag(flgs, OF_VULN_ACID);
-        add_flag(flgs, OF_VULN_ELEC);
-        add_flag(flgs, OF_VULN_FIRE);
-        add_flag(flgs, OF_VULN_COLD);
+        add_flag(flgs, OF_VULN_(GF_ACID));
+        add_flag(flgs, OF_VULN_(GF_ELEC));
+        add_flag(flgs, OF_VULN_(GF_FIRE));
+        add_flag(flgs, OF_VULN_(GF_COLD));
     }
 }
 
@@ -475,7 +475,7 @@ bool mut_gain(int mut_idx)
     if (mut_present(mut_idx)) return FALSE;
     
     v = var_create();
-    add_flag(p_ptr->muta, mut_idx);
+    add_flag(plr->muta, mut_idx);
     (_mutations[mut_idx].spell.fn)(SPELL_GAIN_MUT, &v);
     var_destroy(&v);
 
@@ -611,7 +611,7 @@ int mut_get_powers(spell_info* spells, int max)
         {
             spell_info *base = &_mutations[i].spell;
             spell_info* current = NULL;
-            int stat_idx = p_ptr->stat_ind[_mutations[i].stat];
+            int stat_idx = plr->stat_ind[_mutations[i].stat];
 
             if (ct >= max) break;
 
@@ -668,7 +668,7 @@ bool mut_demigod_pred(int mut_idx)
     switch (mut_idx)
     {
     case MUT_FAST_LEARNER:
-        /*?? if (p_ptr->prace != RACE_DOPPELGANGER)*/
+        /*?? if (plr->prace != RACE_DOPPELGANGER)*/
             return TRUE;
         break;
 
@@ -722,7 +722,7 @@ bool mut_draconian_pred(int mut_idx)
 
     case MUT_DRACONIAN_METAMORPHOSIS:
         /* OK, what classes will actually work with no bow or weapon slots? */
-        switch (p_ptr->pclass)
+        switch (plr->pclass)
         {
         /*case CLASS_MONK:
         case CLASS_FORCETRAINER: */
@@ -753,13 +753,13 @@ void mut_lock(int mut_idx)
 {
     if (mut_idx < 0 || mut_idx >= MAX_MUTATIONS) return;
     if (mut_locked(mut_idx)) return;
-    add_flag(p_ptr->muta_lock, mut_idx);
+    add_flag(plr->muta_lock, mut_idx);
 }
 
 bool mut_locked(int mut_idx)
 {
     if (mut_idx < 0 || mut_idx >= MAX_MUTATIONS) return FALSE;
-    return have_flag(p_ptr->muta_lock, mut_idx);
+    return have_flag(plr->muta_lock, mut_idx);
 }
 
 bool mut_lose(int mut_idx)
@@ -770,7 +770,7 @@ bool mut_lose(int mut_idx)
     if (mut_locked(mut_idx)) return FALSE;
     
     v = var_create();
-    remove_flag(p_ptr->muta, mut_idx);
+    remove_flag(plr->muta, mut_idx);
     (_mutations[mut_idx].spell.fn)(SPELL_LOSE_MUT, &v);
     var_destroy(&v);
 
@@ -787,7 +787,7 @@ void mut_lose_all(void)
         msg_print("You are cured of all mutations.");
 
         for (i = 0; i < MUT_FLAG_SIZE; ++i)
-            p_ptr->muta[i] = p_ptr->muta_lock[i];
+            plr->muta[i] = plr->muta_lock[i];
 
         _mut_refresh();
     }
@@ -871,7 +871,7 @@ void mut_help_desc(int i, char* buf)
 bool mut_present(int mut_idx)
 {
     if (mut_idx < 0 || mut_idx >= MAX_MUTATIONS) return FALSE;
-    return have_flag(p_ptr->muta, mut_idx);
+    return have_flag(plr->muta, mut_idx);
 }
 
 void mut_process(void)
@@ -910,7 +910,7 @@ int mut_regenerate_mod(void)
      * only 5% decrease per additional mutation
      */
 
-    if (p_ptr->prace == RACE_BEASTMAN)
+    if (plr->prace == RACE_BEASTMAN)
     {
         count -= 10;
         mod = 5;
@@ -937,7 +937,7 @@ void mut_unlock(int mut_idx)
 {
     if (mut_idx < 0 || mut_idx >= MAX_MUTATIONS) return;
     if (!mut_locked(mut_idx)) return;
-    remove_flag(p_ptr->muta_lock, mut_idx);
+    remove_flag(plr->muta_lock, mut_idx);
 }
 
 bool mut_unlocked_pred(int mut_idx)

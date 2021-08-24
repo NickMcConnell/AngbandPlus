@@ -1,9 +1,19 @@
------ How to install -----
+----- What is PosChengband? ----
+
+PosChengband is a rogue-like, fantasy, role-playing game. It was born as
+a fork of Hengband, my favorite Angband variant, though it has evolved
+quite a bit into its own game. There are many, many classes to play, tons
+of races, and you can even play as a monster if you like. Currently,
+there are two 'modules' available: a quasi-Tolkien based Middle Earth
+module where you must defeat Sauron and the Morgoth; and a Zelazny Zangband
+world similar to Hengband, where you must defeat the Amberites, Oberon, and 
+then the Serpent of Chaos. I have plans for a third module based on Greek
+Mythology once I finish re-coding the game engine.
+
+----- How do I Install? -----
 
 --- LINUX
-  Download and unpack the source archive, or clone the git repository:
-    $ git clone https://github.com/poschengband/poschengband.git
-
+  Download and unpack the source archive.
   Make sure you have the appropriate development packages installed.
   For example, you might run (Ubuntu or Mint):
     $ sudo apt-get install autoconf gcc libc6-dev libncursesw5-dev libx11-dev
@@ -43,24 +53,18 @@
   (ALT: For development, doing an install is undesirable. Try the following instead:
     $ sudo apt-get install clang-3.5 llvm-3.5
     $ sh autogen.sh
-    $ ./configure SANITIZE_FLAGS=-fsanitize=address --with-no-install CC=clang-3.5
+    $ ./configure --with-no-install
+    $ cd src
     $ make clean
     $ make -j4
     $ cp src/poschengband .
-    $ ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-3.5 ./poschengband -g -u<Savefile> -- -n1
-    
-    Note: Never pass sanitizer flags to CFLAGS as sanitizing configure causes it to fail.
-    Instead, configure will append SANITIZE_FLAGS to CFLAGS and LDFLAGS once it has finished
-    generating test programs. (see configure.ac)
+    $ ./poschengband -g -u<Savefile> -- -n1
 
-    Note, you need to remember to copy the executable up after every build (TODO: Fix Makefile to do this!)
-    Also, I like to develop with the address sanitizer enabled at all times. This works best with clang as
-    your compiler, rather than gcc. Of course, 3.5 should be replaced with latest version of clang.).
+    N.B. You can run poschengband directly from the src directory: there is no need
+    to copy the executable up to the top-level. This is useful for development, since
+    you never accidentally run a stale version!)
 
-    ***Fonts on Linux: My experience with linux has been that the fonts are just plain awful. Here, I document
-    how I managed to install better fonts and use them in PosChengband. I spent nearly a day on this, so I'm
-    hoping this might prove useful to somebody else. But mostly, it is here to remind me how I did so I don't
-    stumble so much next time.
+   (Fonts: The game looks better if you use native fonts.
 
     [1] Install some better fonts. For example
     $ sudo apt-get install fonts-liberation
@@ -88,9 +92,7 @@
     /usr/share/fonts/truetype/liberation/LiberationSansNarrow-Bold.ttf: Liberation Sans Narrow:style=Bold
     /usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf: Liberation Sans:style=Bold
 
-    [4] Bang head on wall in frustration!!
-
-    [5] Tell X Server about the fonts:
+    [4] Tell X Server about the fonts:
     $ cd /usr/share/fonts/truetype/liberation/
     $ su
     $ mkfontscale
@@ -116,10 +118,9 @@
 
     [6] Now, try to find a font you like. For example:
     $ cd [path to poschengband]
-    ~/Src/poschengband> ANGBAND_X11_FONT='-misc-liberation mono-medium-r-normal--20-0-0-0-m-0-iso8859-1' ./poschengband -mx11
-    You can play with the point size since these are vector fonts. I chose 20pt since my eyes suck!
+    $ ANGBAND_X11_FONT='-misc-liberation mono-medium-r-normal--20-0-0-0-m-0-iso8859-1' ./poschengband -mx11
+    You can play with the point size since these are vector fonts. I chose 20pt since my eyes suck!)
 
-    [7] Smile. Grab beer to recover from step [4].
 
 --- Curses
 
@@ -169,11 +170,8 @@
   Download the binary archive for Windows.  Unzip it to any location that you 
   will have full permissions and launch poschengband to play.
 
-  To compile, download the poschengband source code and unzip. I currently use
-  Visual C++ 2010 Express which is freely available. I tried and don't recommend
-  the 2012 Express edition as the MS seems to have "broken" Intellisense once
-  again. Open poschengband.sln and compile.
-
+  I no longer compile on Windows. To make a windows executable, use the my-windows
+  script on Linux. (For example: $>./my-windows 7.2.2).
 
 -----  Basic for Playing  ------
 

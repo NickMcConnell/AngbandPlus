@@ -7,7 +7,7 @@ static int _get_powers(spell_info* spells, int max)
     spell_info* spell = &spells[ct++];
     spell->level = 25;
     spell->cost = 1;
-    spell->fail = calculate_fail_rate(spell->level, 90, p_ptr->stat_ind[A_CHR]);
+    spell->fail = calculate_fail_rate(spell->level, 90, plr->stat_ind[A_CHR]);
     spell->fn = eat_magic_spell;
 
     return ct;
@@ -15,9 +15,9 @@ static int _get_powers(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
-    p_ptr->to_a -= 50;
-    p_ptr->dis_to_a -= 50;
-    p_ptr->wizard_sight = TRUE;
+    plr->to_a -= 50;
+    plr->dis_to_a -= 50;
+    plr->wizard_sight = TRUE;
 }
 
 static void _calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
@@ -60,7 +60,7 @@ static void _birth(void)
 {
     int i;
     for (i = 0; i < 64; i++)
-        p_ptr->spell_exp[i] = SPELL_EXP_MASTER;
+        plr->spell_exp[i] = SPELL_EXP_MASTER;
 
     plr_birth_obj_aux(TV_HAFTED, SV_WIZSTAFF, 1);
     plr_birth_obj_aux(TV_WAND, EFFECT_BOLT_MISSILE, 1);
@@ -80,7 +80,7 @@ plr_class_ptr sorcerer_get_class(void)
     if (!me)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 30,  48,  75,   2,  12,  22,   0,   0};
-    skills_t xs = {  7,  18,  13,   0,   0,   0,   0,   0};
+    skills_t xs = { 35,  90,  65,   0,   0,   0,   0,   0};
 
         me = plr_class_alloc(CLASS_SORCERER);
         me->name = "Sorcerer";

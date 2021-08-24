@@ -91,17 +91,16 @@ With this option enabled, the map window automatically recenters on the player a
 <topic:center_running><color:U>Centering even while running</color> <color:D>(center_running)</color>
 Normally, the map does not center on the player if the player moves with the "run" command, only when the running finishes. If this option is set, the map always centers on the player.
 
-<topic:view_yellow_lite><color:U>Use special colors for torch-lit grids</color> <color:D>(view_yellow_lite)</color>
-This option causes special colors to be used for "torch-lit" grids in certain situations (see the entries for"view_granite_lite" and "view_special_lite"). Turning this option off will slightly improve game speed.
+<topic:view_light><color:U>Use special graphics for lighting</color> <color:D>(view_light)</color>
+This option causes special graphics to be used to indicate the lighting level. Lighting is a super-position of player light (or darkness), monster light (or darkness) and terrain light (or darkness). This option is further refined by sub-options to "View Daylight" (not recommended) and to "View Grid Light", both described below.
 
-<topic:view_bright_lite><color:U>Use special colors for 'viewable' grids</color> <color:D>(view_bright_lite)</color>
-This option causes special colors to be used for non "viewable" grids in certain situations (see "view_granite_lite" and "view_special_lite"). When this option is set, floor grids which are normally drawn in "white" but which are not currently "viewable" by the player are instead drawn in "dark gray". This makes the "viewable" grids to appear "brighter" than the others, allowing the player to easily determine which floor grids are in "line of sight". Turning this option off will probably increase the speed of the game.
+<topic:view_daylight><color:U>Use special graphics for surface daylight</color> <color:D>(view_daylight)</color>
+Enabling this option will include surface daylight in the lighting level for displaying special graphical lighting with the <color:keyword>view_light</color> option. It is not recommended. In the daytime, the surface level has an ambient ligthing level of 5 which is quite bright and washes out any further lighting effects (for example, the player's torch or a shopkeeper's entrance).
 
-<topic:view_granite_lite><color:U>Use special colors for wall grids</color> <color:D>(view_granite_lite)</color>
-This option activates a special color scheme for all "wall" grids which are normally drawn in "white" (as walls and rubble normally are). When the player is blind, we use "dark gray", else if the grid is torch-lit, we use "yellow" (or "white") depending on the "view_yellow_lite" option, else if the "view_bright_lite" option is set, and the grid is not in line of sight, or the grid is dark, or the grid is only "partially" lit, then we use "gray", otherwise we use the normal "white". Turning this option off will probably increase the speed of the game. This option may not work well if the attr/char codes for walls/veins have been changed.
+<topic:view_gridlight><color:U>Use special graphics for lit rooms</color> <color:D>(view_gridlight)</color>
+Enabling this option will include room lighting in the lighting level for displaying special graphical lighting with the <color:keyword>view_light</color> option. There are situations when this information is important (e.g. Vampires and Ninjas). You may also prefer this display but I usually disable this option. Without it, there is no display difference between a lit room and an un-lit room.
 
-<topic:view_special_lite><color:U>Use special colors for floor grids</color> <color:D>(view_special_lite)</color>
-This option activates a special color scheme for all "floor" grids which are normally drawn in "white" (as they normally are). When the player is blind, we use "dark gray", else if the grid is torch-lit, we use "yellow" (or "white") depending on the "view_yellow_lite" option, else if the grid is "dark", we use "dark gray", else if the "view_bright_lite" option is set, and the grid is not in line of sight, we use "gray", otherwise we use the normal "white". Turning this option off will probably increase the speed of the game. This option may not work well if the attr/char codes for walls/veins have been changed
+  <style:note><indent>Lighting options work best when playing with graphics enabled since we currently have terrain graphics for lighting levels between -5 and +5 inclusive (and more can be added). For ASCII display, the game can only indicate darkness (light < 0), lack of light (light = 0) and presence of light (light > 0) providing less useful information. Also, some terrain does not indicate lighting at all in ASCII mode, and the presence of a monster, the player or an object will hide the lighting display of the underlying terrain.</indent></style>
 
 <topic:view_perma_grids><color:U>Map remembers all perma-lit grids</color> <color:D>(view_perma_grids)</color>
 Memorize all perma-lit floor grids which are seen by the player. This option allows you to keep track of which explored floor grids were perma-lit, but does not distinguish between dark floor grids, unexplored floor grids, and unknown grids. Turning off this option allows the player to always know which lit floor grids are in line of sight, but this is better accomplished by the "view_bright_lite" option. Note that any non-floor grids which is seen by the player are always memorized, and "object" which is seen by the player is memorized independently from the memorization of the grid itself.
@@ -199,9 +198,6 @@ Force otherwise identical objects to merge, even if they have different discount
 
 <topic:expand_list><color:U>Expand the power of the list commands</color> <color:D>(expand_list)</color>
 Expand the "listing" commands so that they "wrap" at the "edges" of the appropriate list. This allows the "look" and "target" commands to "cycle" through all appropriate grids forever, and the "identify symbol" to browse through all of the monsters of a given type.
-
-<topic:bound_walls_perm><color:U>Boundary walls become 'permanent wall'</color> <color:D>(bound_walls_perm)</color>
-If this option is set, boundaries of dungeon floors will explicitly look like permanent walls. If unset, those will look like normal walls, but still behave as permanent walls.
 
 <topic:last_words><color:U>Leave last words when your character dies</color> <color:D>(last_words)</color>
 Display a random line from the "death.txt" file when your character dies and then allow you to rewrite these last words. If this option is not selected, the "You die." message is displayed instead.

@@ -41,73 +41,6 @@ void rd_item(savefile_ptr file, object_type *o_ptr)
 
 
 
-static void rd_lore_aux(savefile_ptr file, mon_race_ptr race)
-{
-    bool pact = FALSE;
-    int  i, j, ct_blows, ct_effects, ct_auras;
-
-    race->r_sights = savefile_read_s16b(file);
-    race->r_deaths = savefile_read_s16b(file);
-    race->r_pkills = savefile_read_s16b(file);
-    race->r_akills = savefile_read_s16b(file);
-    race->r_skills = savefile_read_s16b(file);
-    race->r_tkills = savefile_read_s16b(file);
-    race->r_wake = savefile_read_byte(file);
-    race->r_ignore = savefile_read_byte(file);
-    race->r_xtra1 = savefile_read_byte(file);
-    race->r_xtra2 = savefile_read_byte(file);
-    race->r_drop_gold = savefile_read_byte(file);
-    race->r_drop_item = savefile_read_byte(file);
-    race->r_spell_turns = savefile_read_u32b(file);
-    race->r_move_turns = savefile_read_u32b(file);
-
-    race->r_flags1 = savefile_read_u32b(file);
-    race->r_flags2 = savefile_read_u32b(file);
-    race->r_flags3 = savefile_read_u32b(file);
-    race->r_flagsr = savefile_read_u32b(file);
-
-    mon_spells_load(race->spells, file);
-    ct_blows = savefile_read_byte(file);
-    for (i = 0; i < ct_blows; i++)
-    {
-        mon_blow_ptr blow;
-        if (i >= vec_length(race->blows))
-        {
-            savefile_read_s16b(file);
-            ct_effects = savefile_read_byte(file);
-            for (j = 0; j < ct_effects; j++)
-                savefile_read_s16b(file);
-            continue;
-        }
-        blow = vec_get(race->blows, i);
-        blow->lore = savefile_read_s16b(file);
-        ct_effects = savefile_read_byte(file);
-        for (j = 0; j < ct_effects; j++)
-        {
-            if (j >= blow->effect_ct)
-                savefile_read_s16b(file);
-            else
-                blow->effects[j].lore = savefile_read_s16b(file);
-        }
-    }
-    ct_auras = savefile_read_byte(file);
-    for (i = 0; i < ct_auras; i++)
-    {
-        mon_effect_ptr aura = &race->auras[i];
-        aura->lore = savefile_read_s16b(file);
-    }
-
-    if (race->r_flagsr & (RFR_PACT_MONSTER)) pact = TRUE;
-
-    /* Repair the lore flags */
-    race->r_flags1 &= race->flags1;
-    race->r_flags2 &= race->flags2;
-    race->r_flags3 &= race->flags3;
-    race->r_flagsr &= race->flagsr;
-
-    if (pact)
-        race->r_flagsr |= RFR_PACT_MONSTER;
-}
 static void rd_randomizer(savefile_ptr file)
 {
     int i;
@@ -139,20 +72,16 @@ static void rd_options(savefile_ptr file)
     u32b flag[8];
     u32b mask[8];
 
-    if (savefile_is_older_than(file, 7, 1, 0, 8))
-        savefile_read_byte(file);
-    else
-    {
-        delay_animation = savefile_read_s16b(file);
-        delay_run = savefile_read_s16b(file);
-    }
+    delay_animation = savefile_read_s16b(file);
+    delay_run = savefile_read_s16b(file);
+    delay_rest = savefile_read_s16b(file);
     hitpoint_warn = savefile_read_byte(file);
     mana_warn = savefile_read_byte(file);
     random_artifact_pct = savefile_read_byte(file);
 
     /*** Cheating options ***/
     c = savefile_read_u16b(file);
-    if (c & 0x0002) p_ptr->wizard = TRUE;
+    if (c & 0x0002) plr->wizard = TRUE;
 
     autosave_l = savefile_read_byte(file);
     autosave_t = savefile_read_byte(file);
@@ -209,10 +138,7 @@ static void rd_quick_start(savefile_ptr file)
 {
     int i;
 
-    if (savefile_is_older_than(file, 7, 2, 0, 1))
-        previous_char.initial_world_id = W_SMAUG;
-    else
-        previous_char.initial_world_id = savefile_read_s16b(file);
+    previous_char.initial_world_id = savefile_read_s16b(file);
     previous_char.game_mode = savefile_read_byte(file);
     previous_char.psex = savefile_read_byte(file);
     previous_char.prace = savefile_read_s16b(file);
@@ -235,86 +161,86 @@ static void rd_extra(savefile_ptr file)
     int i,j;
     char buf[1024];
 
-    p_ptr->id = savefile_read_s32b(file);
+    plr->id = savefile_read_s32b(file);
     savefile_read_cptr(file, player_name, sizeof(player_name));
-    savefile_read_cptr(file, p_ptr->died_from, sizeof(p_ptr->died_from));
+    savefile_read_cptr(file, plr->died_from, sizeof(plr->died_from));
 
     savefile_read_cptr(file, buf, sizeof buf);
-    if (buf[0]) p_ptr->last_message = z_string_make(buf);
+    if (buf[0]) plr->last_message = z_string_make(buf);
 
     rd_quick_start(file);
 
     game_mode = savefile_read_s32b(file);
 
-    p_ptr->prace = savefile_read_s16b(file);
-    p_ptr->pclass = savefile_read_byte(file);
-    p_ptr->personality = savefile_read_byte(file);
-    p_ptr->psex = savefile_read_byte(file);
-    p_ptr->realm1 = savefile_read_byte(file);
-    p_ptr->realm2 = savefile_read_byte(file);
-    p_ptr->dragon_realm = savefile_read_byte(file);
-    p_ptr->psubclass = savefile_read_byte(file);
-    p_ptr->psubrace = savefile_read_byte(file);
-    p_ptr->current_r_idx = savefile_read_s16b(file);
-    p_ptr->expfact = savefile_read_u16b(file);
+    plr->prace = savefile_read_s16b(file);
+    plr->pclass = savefile_read_byte(file);
+    plr->personality = savefile_read_byte(file);
+    plr->psex = savefile_read_byte(file);
+    plr->realm1 = savefile_read_byte(file);
+    plr->realm2 = savefile_read_byte(file);
+    plr->dragon_realm = savefile_read_byte(file);
+    plr->psubclass = savefile_read_byte(file);
+    plr->psubrace = savefile_read_byte(file);
+    plr->current_r_idx = savefile_read_sym(file);
+    plr->expfact = savefile_read_u16b(file);
 
-    for (i = 0; i < 6; i++) p_ptr->stat_max[i] = savefile_read_s16b(file);
-    for (i = 0; i < 6; i++) p_ptr->stat_max_max[i] = savefile_read_s16b(file);
-    for (i = 0; i < 6; i++) p_ptr->stat_cur[i] = savefile_read_s16b(file);
+    for (i = 0; i < 6; i++) plr->stat_max[i] = savefile_read_s16b(file);
+    for (i = 0; i < 6; i++) plr->stat_max_max[i] = savefile_read_s16b(file);
+    for (i = 0; i < 6; i++) plr->stat_cur[i] = savefile_read_s16b(file);
 
-    p_ptr->au = savefile_read_s32b(file);
-    p_ptr->fame = savefile_read_s16b(file);
-    p_ptr->max_exp = savefile_read_s32b(file);
-    p_ptr->max_max_exp = savefile_read_s32b(file);
-    p_ptr->exp = savefile_read_s32b(file);
-    p_ptr->exp_frac = savefile_read_u32b(file);
-    p_ptr->lev = savefile_read_s16b(file);
+    plr->au = savefile_read_s32b(file);
+    plr->fame = savefile_read_s16b(file);
+    plr->max_exp = savefile_read_s32b(file);
+    plr->max_max_exp = savefile_read_s32b(file);
+    plr->exp = savefile_read_s32b(file);
+    plr->exp_frac = savefile_read_u32b(file);
+    plr->lev = savefile_read_s16b(file);
 
-    for (i = 0; i < 64; i++) p_ptr->spell_exp[i] = savefile_read_s16b(file);
-    for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) p_ptr->weapon_exp[i][j] = savefile_read_s16b(file);
-    for (i = 0; i < 10; i++) p_ptr->skill_exp[i] = savefile_read_s16b(file);
-    for (i = 0; i < MAX_MAGIC_NUM; i++) p_ptr->magic_num1[i] = savefile_read_s32b(file);
-    for (i = 0; i < MAX_MAGIC_NUM; i++) p_ptr->magic_num2[i] = savefile_read_byte(file);
-    if (music_singing_any()) p_ptr->action = ACTION_SING;
+    for (i = 0; i < 64; i++) plr->spell_exp[i] = savefile_read_s16b(file);
+    for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) plr->weapon_exp[i][j] = savefile_read_s16b(file);
+    for (i = 0; i < 10; i++) plr->skill_exp[i] = savefile_read_s16b(file);
+    for (i = 0; i < MAX_MAGIC_NUM; i++) plr->magic_num1[i] = savefile_read_s32b(file);
+    for (i = 0; i < MAX_MAGIC_NUM; i++) plr->magic_num2[i] = savefile_read_byte(file);
+    if (music_singing_any()) plr->action = ACTION_SING;
 
-    p_ptr->start_race = savefile_read_s16b(file);
-    p_ptr->old_race1 = savefile_read_s32b(file);
-    p_ptr->old_race2 = savefile_read_s32b(file);
-    p_ptr->old_realm = savefile_read_s16b(file);
+    plr->start_race = savefile_read_s16b(file);
+    plr->old_race1 = savefile_read_s32b(file);
+    plr->old_race2 = savefile_read_s32b(file);
+    plr->old_realm = savefile_read_s16b(file);
 
     for (i = 0; i < MAX_KUBI; i++)
-        kubi_r_idx[i] = savefile_read_s16b(file);
+        kubi_r_idx[i] = savefile_read_sym(file);
 
-    p_ptr->mmhp = savefile_read_s32b(file);
-    p_ptr->mhp = savefile_read_s32b(file);
-    p_ptr->chp = savefile_read_s32b(file);
-    p_ptr->chp_frac = savefile_read_u32b(file);
-    p_ptr->msp = savefile_read_s32b(file);
-    p_ptr->csp = savefile_read_s32b(file);
-    p_ptr->csp_frac = savefile_read_u32b(file);
-    p_ptr->clp = savefile_read_s16b(file);
-    p_ptr->max_plv = savefile_read_s16b(file);
+    plr->mmhp = savefile_read_s32b(file);
+    plr->mhp = savefile_read_s32b(file);
+    plr->chp = savefile_read_s32b(file);
+    plr->chp_frac = savefile_read_u32b(file);
+    plr->msp = savefile_read_s32b(file);
+    plr->csp = savefile_read_s32b(file);
+    plr->csp_frac = savefile_read_u32b(file);
+    plr->clp = savefile_read_s16b(file);
+    plr->max_plv = savefile_read_s16b(file);
 
-    if (p_ptr->max_plv < p_ptr->lev) p_ptr->max_plv = p_ptr->lev;
+    if (plr->max_plv < plr->lev) plr->max_plv = plr->lev;
 
-    p_ptr->concent = savefile_read_s16b(file);
-    p_ptr->food = savefile_read_s16b(file);
-    p_ptr->energy_need = savefile_read_s16b(file);
+    plr->concent = savefile_read_s16b(file);
+    plr->food = savefile_read_s16b(file);
+    plr->energy_need = savefile_read_s16b(file);
     plr_tim_load(file);
-    p_ptr->afraid = savefile_read_s16b(file);
-    p_ptr->see_infra = savefile_read_s16b(file);
-    p_ptr->mimic_form = savefile_read_s16b(file);
-    p_ptr->tim_mimic = savefile_read_s16b(file);
+    plr->afraid = savefile_read_s16b(file);
+    plr->see_infra = savefile_read_s16b(file);
+    plr->mimic_form = savefile_read_s16b(file);
+    plr->tim_mimic = savefile_read_s16b(file);
     {
         int i, ct;
-        monster_race *r_ptr = &r_info[MON_MONKEY_CLONE];
-        r_ptr->cur_num = savefile_read_byte(file);
-        if (r_ptr->cur_num)
+        monster_race *r_ptr = mon_race_parse("@.clone");
+        r_ptr->alloc.cur_num = savefile_read_byte(file);
+        if (r_ptr->alloc.cur_num)
         {
-            r_ptr->hdice = savefile_read_byte(file);
-            r_ptr->hside = savefile_read_byte(file);
+            r_ptr->alloc.lvl = savefile_read_byte(file);
+            r_ptr->hp = dice_load(file);
             r_ptr->ac = savefile_read_s16b(file);
-            r_ptr->speed = savefile_read_byte(file);
+            r_ptr->move.speed = savefile_read_s16b(file);
             ct = savefile_read_byte(file);
             vec_clear(r_ptr->blows);
             for (i = 0; i < ct; i++)
@@ -330,62 +256,63 @@ static void rd_extra(savefile_ptr file)
                 mon_blow_push_effect(blow, e, dice_create(dd, ds, base));
                 vec_add(r_ptr->blows, blow);
             }
-            r_ptr->flags3 = savefile_read_u32b(file);
-            r_ptr->flagsr = savefile_read_u32b(file);
-            r_ptr->flags2 = savefile_read_u32b(file);
-            r_ptr->flags7 = savefile_read_u32b(file);
+            r_ptr->resist = savefile_read_u32b(file);
+            r_ptr->immune = savefile_read_u32b(file);
+            r_ptr->vuln = savefile_read_u32b(file);
+            r_ptr->abilities = savefile_read_u32b(file);
+            r_ptr->move.flags = savefile_read_u16b(file);
         }
     }
 
-    p_ptr->entrench_x = savefile_read_s16b(file);
-    p_ptr->entrench_y = savefile_read_s16b(file);
-    p_ptr->entrench_ct = savefile_read_s16b(file);
-    p_ptr->sense_artifact = savefile_read_byte(file);
-    p_ptr->duelist_target_idx = savefile_read_s16b(file);
-    p_ptr->free_turns = savefile_read_s16b(file);
-    p_ptr->chaos_patron= savefile_read_s16b(file);
+    plr->entrench_x = savefile_read_s16b(file);
+    plr->entrench_y = savefile_read_s16b(file);
+    plr->entrench_ct = savefile_read_s16b(file);
+    plr->sense_artifact = savefile_read_byte(file);
+    plr->duelist_target_idx = savefile_read_u32b(file);
+    plr->free_turns = savefile_read_s16b(file);
+    plr->chaos_patron= savefile_read_s16b(file);
 
     for (i = 0; i < MUT_FLAG_SIZE; ++i)
-        p_ptr->muta[i] = savefile_read_u32b(file);
+        plr->muta[i] = savefile_read_u32b(file);
 
     for (i = 0; i < MUT_FLAG_SIZE; ++i)
-        p_ptr->muta_lock[i] = savefile_read_u32b(file);
+        plr->muta_lock[i] = savefile_read_u32b(file);
 
     for (i = 0; i < MAX_DEMIGOD_POWERS; ++i)
-        p_ptr->demigod_power[i] = savefile_read_s16b(file);
+        plr->demigod_power[i] = savefile_read_s16b(file);
 
-    p_ptr->draconian_power = savefile_read_s16b(file);
+    plr->draconian_power = savefile_read_s16b(file);
 
     for (i = 0; i < 8; i++)
-        p_ptr->virtues[i] = savefile_read_s16b(file);
+        plr->virtues[i] = savefile_read_s16b(file);
     for (i = 0; i < 8; i++)
-        p_ptr->vir_types[i] = savefile_read_s16b(file);
+        plr->vir_types[i] = savefile_read_s16b(file);
 
     mutant_regenerate_mod = mut_regenerate_mod();
 
-    p_ptr->special_attack = savefile_read_u32b(file);
+    plr->special_attack = savefile_read_u32b(file);
 
-    if (p_ptr->special_attack & KAMAE_MASK) p_ptr->action = ACTION_KAMAE;
-    else if (p_ptr->special_attack & KATA_MASK) p_ptr->action = ACTION_KATA;
+    if (plr->special_attack & KAMAE_MASK) plr->action = ACTION_KAMAE;
+    else if (plr->special_attack & KATA_MASK) plr->action = ACTION_KATA;
 
-    p_ptr->special_defense = savefile_read_u32b(file);
-    p_ptr->knowledge = savefile_read_byte(file);
+    plr->special_defense = savefile_read_u32b(file);
+    plr->knowledge = savefile_read_byte(file);
 
-    p_ptr->autopick_autoregister = savefile_read_byte(file) ? TRUE: FALSE;
-    p_ptr->action = savefile_read_byte(file);
+    plr->autopick_autoregister = savefile_read_byte(file) ? TRUE: FALSE;
+    plr->action = savefile_read_byte(file);
 
     seed_flavor = savefile_read_u32b(file);
-    p_ptr->panic_save = savefile_read_u16b(file);
-    p_ptr->total_winner = savefile_read_u16b(file);
-    p_ptr->noscore = savefile_read_u16b(file);
-    p_ptr->is_dead = savefile_read_byte(file) ? TRUE : FALSE;
+    plr->panic_save = savefile_read_u16b(file);
+    plr->total_winner = savefile_read_u16b(file);
+    plr->noscore = savefile_read_u16b(file);
+    plr->is_dead = savefile_read_byte(file) ? TRUE : FALSE;
 
-    today_mon = savefile_read_s16b(file);
-    p_ptr->today_mon = savefile_read_s16b(file);
-    p_ptr->riding = savefile_read_u16b(file);
+    today_mon = savefile_read_sym(file);
+    plr->today_mon = savefile_read_sym(file);
+    plr->riding = savefile_read_u32b(file);
 
     playtime = savefile_read_u32b(file);
-    p_ptr->count = savefile_read_u32b(file);
+    plr->count = savefile_read_u32b(file);
 
     plr_hook_load(file);
 }
@@ -419,45 +346,11 @@ static errr rd_savefile_new_aux(savefile_ptr file)
     rd_options(file);
     if (arg_fiddle) note("Loaded Option Flags");
 
-    msg_on_load(file);
+    msg_load(file);
     if (arg_fiddle) note("Loaded Messages");
 
-    for (i = 0; i < max_r_idx; i++)
-    {
-        /* Access that monster */
-        monster_race *r_ptr = &r_info[i];
-
-        /* Hack -- Reset the death counter */
-        r_ptr->max_num = 30000;
-
-        if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 1;
-
-        /* Hack -- Non-unique Nazguls are semi-unique */
-        else if (r_ptr->flags7 & RF7_NAZGUL) r_ptr->max_num = MAX_NAZGUL_NUM;
-        else if (i == MON_CAMELOT_KNIGHT)
-            r_ptr->max_num = MAX_CAMELOT_KNIGHT_NUM;
-    }
-
     /* Monster Memory */
-    tmp16u = savefile_read_u16b(file);
-
-    if (tmp16u > max_r_idx)
-    {
-        note(format("Too many (%u) monster races!", tmp16u));
-        return 22;
-    }
-    for (i = 0; i < tmp16u; i++)
-    {
-        mon_race_ptr race = &r_info[i];
-        byte header = savefile_read_byte(file);
-
-        race->max_num = savefile_read_s16b(file);
-        race->stolen_ct = savefile_read_byte(file);
-        if (header & 0x01)
-            race->flagsx = savefile_read_u32b(file);
-        if (header & 0x02)
-            rd_lore_aux(file, race);
-    }
+    mon_race_load(file);
     if (arg_fiddle) note("Loaded Monster Memory");
 
 
@@ -520,49 +413,15 @@ static errr rd_savefile_new_aux(savefile_ptr file)
         /*ego->counts.used = savefile_read_s16b(file);*/
         ego->counts.destroyed = savefile_read_s16b(file);
     }
-    for (;;)
-    {
-        int a_idx = savefile_read_s16b(file);
-        art_ptr art;
-        if (a_idx < 0) break;
-        if (a_idx > max_a_idx)
-        {
-            note(format("Art (%d) out of range!", a_idx));
-            return (22);
-        }
-        art = &a_info[a_idx];
-        for (;;)
-        {
-            byte b = savefile_read_byte(file);
-            if (b == 0xFF) break;
-            assert(/*0 <= b &&*/ b < OF_ARRAY_SIZE);
-            art->known_flags[b] = savefile_read_u32b(file);
-        }
-    }
+    arts_load(file);
     if (arg_fiddle) note("Loaded Object Memory");
 
     quests_load(file); /* quests must load after monster lore ... see above */
     if (arg_fiddle) note("Loaded Quests");
 
-    /* Load the Artifacts */
-    tmp16u = savefile_read_u16b(file);
-    if (tmp16u > max_a_idx)
-    {
-        note(format("Too many (%u) artifacts!", tmp16u));
-        return (24);
-    }
-    for (i = 0; i < tmp16u; i++)
-    {
-        artifact_type *a_ptr = &a_info[i];
-        a_ptr->generated = savefile_read_byte(file);
-        a_ptr->found = savefile_read_byte(file);
-    }
-    if (arg_fiddle) note("Loaded Artifacts");
-
-
     rd_extra(file);
 
-    if (p_ptr->energy_need < -999) world_player = TRUE;
+    if (plr->energy_need < -999) world_player = TRUE;
 
     if (arg_fiddle) note("Loaded extra information");
 
@@ -574,33 +433,33 @@ static errr rd_savefile_new_aux(savefile_ptr file)
         return (25);
     }
     for (i = 0; i < tmp16u; i++)
-        p_ptr->player_hp[i] = savefile_read_s16b(file);
+        plr->player_hp[i] = savefile_read_s16b(file);
 
     /* Important -- Initialize stuff */
-    mp_ptr = &m_info[p_ptr->pclass];
+    mp_ptr = &m_info[plr->pclass];
     /* Hack ... external files always make easy stuff hard ... Burglary is natural for rogues!!!*/
     /* Note: Class and Realm are read in in rd_extra a few lines back */
-    if (p_ptr->pclass == CLASS_ROGUE)
+    if (plr->pclass == CLASS_ROGUE)
     {
-        if (p_ptr->realm1 == REALM_BURGLARY)
+        if (plr->realm1 == REALM_BURGLARY)
             mp_ptr->spell_first = 1;
         else
             mp_ptr->spell_first = 5;
     }
 
     /* Read spell info */
-    p_ptr->spell_learned1 = savefile_read_u32b(file);
-    p_ptr->spell_learned2 = savefile_read_u32b(file);
-    p_ptr->spell_worked1 = savefile_read_u32b(file);
-    p_ptr->spell_worked2 = savefile_read_u32b(file);
-    p_ptr->spell_forgotten1 = savefile_read_u32b(file);
-    p_ptr->spell_forgotten2 = savefile_read_u32b(file);
-    p_ptr->learned_spells = savefile_read_s16b(file);
-    p_ptr->add_spells = savefile_read_s16b(file);
-    if (p_ptr->pclass == CLASS_MINDCRAFTER) p_ptr->add_spells = 0;
+    plr->spell_learned1 = savefile_read_u32b(file);
+    plr->spell_learned2 = savefile_read_u32b(file);
+    plr->spell_worked1 = savefile_read_u32b(file);
+    plr->spell_worked2 = savefile_read_u32b(file);
+    plr->spell_forgotten1 = savefile_read_u32b(file);
+    plr->spell_forgotten2 = savefile_read_u32b(file);
+    plr->learned_spells = savefile_read_s16b(file);
+    plr->add_spells = savefile_read_s16b(file);
+    if (plr->pclass == CLASS_MINDCRAFTER) plr->add_spells = 0;
 
     for (i = 0; i < 64; i++)
-        p_ptr->spell_order[i] = savefile_read_byte(file);
+        plr->spell_order[i] = savefile_read_byte(file);
 
 
     /* Read the inventory */
@@ -609,27 +468,24 @@ static errr rd_savefile_new_aux(savefile_ptr file)
     quiver_init();
     home_init();
 
-    art_load(file);
     equip_load(file);
     pack_load(file);
     quiver_load(file);
     towns_load(file);
     home_load(file);
 
-    p_ptr->pet_follow_distance = savefile_read_s16b(file);
-    p_ptr->pet_extra_flags = savefile_read_s16b(file);
+    plr->pet_follow_distance = savefile_read_s16b(file);
+    plr->pet_extra_flags = savefile_read_s16b(file);
 
     spell_stats_on_load(file);
     skills_on_load(file);
     stats_on_load(file);
 
     /* I'm not dead yet... */
-    if (!p_ptr->is_dead)
+    if (!plr->is_dead)
     {
-        int tmp_ix = p_ptr->duelist_target_idx;
         note("Restoring Dungeon...");
         dun_mgr_load(file);
-        p_ptr->duelist_target_idx = tmp_ix;
     }
 
 #ifdef VERIFY_CHECKSUMS
@@ -651,6 +507,7 @@ static errr rd_savefile_new_aux(savefile_ptr file)
 
 #endif
 
+    plr->panic_save = 0;
     return 0;
 }
 

@@ -1,0 +1,372 @@
+# Horses et. al.
+T:q.bear.base:Bear
+I:DISPLAY(q):POS(CORPSE|GAIN_AC)
+I:KIND(ANIMAL)
+I:ALERT(100',Fairly Observant):MOVE(BASH)
+P:Stat:Str(4+3):Int(-2):Wis(-2):Dex(1+2):Con(3+2):Chr(-2)
+P:Skill:Dis(20+35):Dev(18+35):Sav(31+45):Stl(2):Srh(14):Fos(2):Thn(70+150):Thb(40+45)
+P:Life:115
+P:Class:Warrior
+P:Body:Bear
+P:Weight:350
+
+T:q.horse.base:Horse
+I:DISPLAY(q):POS(CORPSE|GAIN_AC)
+I:KIND(ANIMAL):ATTR(RIDING)
+I:ALERT(200',Fairly Unseeing):MOVE(BASH)
+P:Stat:Str(1+3):Int(-2):Wis(-2):Dex(2+2):Con(1+2):Chr(-2)
+P:Skill:Dis(20+35):Dev(18+35):Sav(31+45):Stl(3):Srh(20):Fos(10):Thn(50+100):Thb(40+45)
+P:Life:108
+P:Class:Warrior
+P:Body:Horse
+P:Weight:280
+
+########################################################################
+# Bears
+N:q.Wounded Bear:q.bear.base:The Wounded Bear
+I:LVL(9):RARITY(1):ALLOC(UNIQUE):WILD(ONLY|WOOD|GRASS|MOUNTAIN)
+I:HP(100):AC(35):EXP(25)
+B:CLAW(x2):HURT(1d7)
+B:BITE:HURT(1d10)
+S:FREQ_15 | BERSERK
+D:A wounded bear, who has occasionally attacked humans.
+I:COLOR(Red)
+
+N:q.war bear:q.bear.base:War bear
+I:LVL(9,40):RARITY(1)
+I:HP(10d10):AC(35):EXP(25):EVOLVE(q.grizzly bear, 100)
+I:ATTR(WEIRD_MIND)
+B:CLAW(x2):HURT(1d5)
+B:BITE:HURT(1d6)
+S:FREQ_5 | BERSERK
+M:3d3:MON(q.war bear)
+D:Bears with tusks, trained to kill.
+I:COLOR(Umber):POS(SKELETON)
+
+N:q.grizzly bear:q.bear.base:Grizzly bear
+I:LVL(10,40):RARITY(1):WILD(ONLY|WOOD|MOUNTAIN)
+I:HP(12d12):AC(35):EXP(25):EVOLVE(q.mad bear, 300)
+B:CLAW(x2):HURT(1d5)
+B:BITE:HURT(1d10)
+S:FREQ_5 | BERSERK
+D:A huge, beastly bear.
+I:COLOR(Umber)
+
+N:q.mad bear:q.bear.base:Mad bear
+I:LVL(15,40):RARITY(1):WILD(WOOD|MOUNTAIN)
+I:HP(18d10):AC(35):EXP(70):EVOLVE(q.mumak, 1000)
+I:ALIGN(Neutral Evil):ATTR(WEIRD_MIND)
+B:CLAW(x2):HURT(1d5+3)
+B:BITE:HURT(1d6+6)
+S:FREQ_5 | BERSERK
+M:1d3:MON(q.mad bear)
+M:2d3:MON(q.war bear)
+D:These bears are followers of Red Helm.
+I:COLOR(Light Dark):POS(SKELETON)
+
+N:q.Red Helm:q.bear.base:Red Helm the King of Bear
+I:LVL(25):RARITY(2):ALLOC(UNIQUE|ESCORT):WILD(WOOD|MOUNTAIN)
+I:SPEED(+10):HP(1000):AC(100):EXP(1200)
+I:ALIGN(Neutral Evil):ATTR(MALE):ALERT(200')
+B:CLAW(x2):HURT(1d6+6)
+B:BITE(x2):HURT(1d10+10)
+I:IMMUNE(SLEEP)
+S:FREQ_10 | BERSERK
+M:3d7:MON(q.mad bear)
+M:3d7:MON(q.war bear)
+D:The king of mad bears, his rage knows no bounds. His sharp claws have
+D:harrowed many an impudent adventurer!
+I:COLOR(Red)
+P:Stats:2:0:0:0:1:2
+
+########################################################################
+# Elephants
+# 673
+N:q.mumak:Mumak
+I:LVL(40,90):RARITY(2)
+I:HP(90d10):AC(55):EXP(1000):EVOLVE(H.behemoth, 50000)
+I:KIND(ANIMAL):ATTR(RIDING):ALERT(200',Very Inattentive):MOVE(BASH)
+B:BUTT(x2):HURT(3d6)
+B:CRUSH:HURT(4d6)
+S:FREQ_5 | BERSERK
+M:25%:3d3:MON(q.mumak)
+D:A massive elephantine form with eyes twisted by madness.
+I:DISPLAY(q,Slate):POS(CORPSE|GAIN_AC)
+P:Copy:Human:Mauler
+P:Body:Elephant
+P:Weight:700
+
+# 716 ... here for evolution from q.mumak
+N:H.behemoth:Behemoth
+I:LVL(64):RARITY(3)
+I:SPEED(+15):HP(5000):AC(180):EXP(24000)
+I:KIND(ANIMAL):ATTR(RIDING):ALERT(250',Fairly Unseeing):MOVE(SWIM)
+B:BITE(x2):HURT(4d8):FIRE(4d8)
+B:CRUSH(x2):HURT(3d15+15):HURT(5d15, 20%)
+I:RESIST(ACID|FIRE|COLD|POIS|CONF):IMMUNE(SLEEP)
+S:1_IN_9 | BR_FIRE
+D:A great water-beast, with an almost impenetrable skin.
+I:DISPLAY(H,Green):POS(CORPSE|GAIN_AC)
+P:Copy:Half-Titan:Warrior
+P:Body:Dragon
+P:Weight:1000
+
+########################################################################
+# Horses
+N:q.scrawny horse:q.horse.base:Scrawny horse
+I:LVL(0):RARITY(1):WILD(ONLY|TOWN)
+I:HP(4d5):AC(5):EXP(0):EVOLVE(q.horse,10)
+I:MOVE(RAND_25|-BASH)
+B:BITE:HURT(1d2)
+B:KICK:HURT(1d3)
+D:This pitiful horse has not been well fed. It walks unsteadily.
+# Description in English by Nick Keulmann
+I:COLOR(Orange):POS(SKELETON)
+P:Stats:-1:0:0:-1:-2:-2
+P:Weight:180
+
+N:q.horse:q.horse.base:Horse
+I:LVL(5,20):RARITY(1):WILD(GRASS)
+I:SPEED(+2):HP(11d8):AC(30):EXP(25):EVOLVE(q.unruly horse, 70)
+B:BITE:HURT(1d8)
+B:KICK:HURT(2d4)
+D:As for the horse with the animal of four feet which can run fast,
+D:it was utilized for a long time as the vehicle of the human.
+# Description in English by Nick Keulmann
+I:COLOR(Orange):POS(SKELETON)
+
+N:q.unruly horse:q.horse.base:Unruly horse
+I:LVL(9,30):RARITY(2):WILD(GRASS)
+I:SPEED(+3):HP(12d10):AC(30):EXP(35)
+I:ALERT(Ever Vigilant):MOVE(RAND_25)
+B:BITE:HURT(1d8)
+B:KICK(x2):HURT(2d4)
+D:This creature is gentle and submissive until you try to ride it.
+D:Watch out for its reckless kicking.
+# Description in English by Nick Keulmann
+I:COLOR(Light Green):POS(SKELETON)
+
+N:q.kavu:q.horse.base:Radiant Kavu
+I:LVL(15,50):RARITY(1)
+I:SPEED(+5):HP(300):AC(60):EXP(100)
+I:ALIGN(Good):LIGHT(2):ALERT(Overlooks)
+B:CLAW(x3):HURT(2d2+2)
+I:RESIST(FIRE|COLD|POIS|LIGHT|DARK)
+S:1_IN_10 | HEAL | BLESS | HEROISM
+D:When angered or frightened, it protects itself with a burst of blinding light.
+I:COLOR(Green)
+P:Stat:Wis(4)
+P:Class:Paladin
+
+N:q.pegasus:q.horse.base:Pegasus
+I:LVL(34):RARITY(6)
+I:SPEED(+10):HP(30d20):AC(100):EXP(700)
+I:ALERT(300',Unseeing):MOVE(FLY)
+B:BITE(x2):HURT(1d8+8)
+B:KICK(x2):HURT(2d10+10)
+I:IMMUNE(SLEEP)
+O:1d2+1:OBJ(*$)
+I:COLOR(White)
+
+N:q.night mare:q.horse.base:Night mare
+I:LVL(39):RARITY(3)
+I:SPEED(+10):HP(1500):AC(85):EXP(2900)
+I:KIND(UNDEAD):ALIGN(Evil):CAN(FEAR):ATTR(COLD_BLOOD)
+I:ALERT(300',Ever Vigilant):MOVE(FLY)
+B:BITE:DRAIN_MANA(4d6)
+B:HIT:HURT(1d8+9)
+B:HIT:HURT(1d8+9):LOSE_CHR(50%)
+B:HIT:HURT(3d6+10):CONFUSE
+I:RESIST(COLD|CONF):IMMUNE(POIS|NETHER|SLEEP|FEAR)
+O:2d2:OBJ(GOLD)
+D:A fearsome skeletal horse with glowing eyes watching you with little
+D:more than a hatred of all that lives. Flying hooves don't touch the
+D:ground...
+I:COLOR(Violet):POS(-CORPSE|SEE_INVIS|HOLD_LIFE)
+P:Infra:50'
+
+N:q.unicorn:q.horse.base:Unicorn
+I:LVL(39):RARITY(6)
+I:SPEED(+15):HP(30d50):AC(100):EXP(2000):EVOLVE(q.kirin, 200000)
+I:CAN(REFLECT|REGEN):ALERT(300',Ever Vigilant):MOVE(SWIM)
+B:KICK:DRAIN_MANA(1d20)
+B:KICK:HURT(1d10):DRAIN_CHARGES
+B:BUTT:HURT(2d12+12)
+B:BITE:HURT(1d8+8):LOSE_ALL(50%)
+I:RESIST(BASE|POIS|CONF|DISENCHANT|TELE):IMMUNE(SLEEP|SLOW)
+O:1d2+2:OBJ(*$)
+I:COLOR(Light White):POS(SEE_INVIS)
+P:Body:Unicorn
+
+N:q.Kokuo:q.horse.base:Kokuo, Raou's Steed
+I:LVL(40):RARITY(3):ALLOC(UNIQUE)
+I:SPEED(+20):HP(3000):AC(100):EXP(2000)
+I:CAN(REGEN):ALERT(200',Unseeing)
+B:KICK(x2):HURT(5d5)
+B:BITE:HURT(6d6)
+I:RESIST(ELEC|FIRE|COLD|POIS|CONF):IMMUNE(SLEEP)
+I:COLOR(Light Dark)
+P:Stats:1:1:1:1:1:3
+P:Weight:350
+
+N:q.kirin:Kirin
+I:LVL(76):RARITY(5)
+I:SPEED(+20):HP(3333):AC(230):EXP(30000)
+I:KIND(NONLIVING):ALIGN(Lawful):ATTR(SMART|RIDING)
+I:ALERT(500',Fairly Unseeing):MOVE(PUSH|SWIM|OPEN|CLEARWEB)
+B:KICK:HURT(6d12+40)
+B:BITE:HURT(5d11+35):DISENCHANT
+B:CRUSH:HURT(6d13+50):TIME
+A:ELEC(3d6)
+I:RESIST(ACID|FIRE|COLD|POIS|CONF|NETHER|DISENCHANT|PLASMA|TELE):IMMUNE(ELEC|SLEEP|SLOW|BLIND)
+S:1_IN_6 | BLIND | SHRIEK | DISPEL_MAGIC | ANTI_MAGIC | INVULN | S_ANGEL | HEAL
+O:3d2:OBJ(*, GOOD)
+I:DISPLAY(q,Yellow):POS(CORPSE|GAIN_AC|SEE_INVIS|TELEPATHY)
+P:Copy:Archon:Paladin
+P:Body:Unicorn
+P:Weight:350
+
+########################################################################
+# Other (beasts) ... Note that most of the following do not use templates.
+N:q.moon:Moon beast
+I:LVL(12,50):RARITY(1)
+I:SPEED(+10):HP(9d10):AC(30):EXP(57)
+I:KIND(ANIMAL):ALIGN(Evil):ALERT(300',Fairly Unseeing):MOVE(OPEN|BASH)
+B:CLAW(x2):HURT(1d3)
+B:BUTT:HURT(1d6)
+I:RESIST(FIRE)
+S:1_IN_6 | HEAL | BLIND | DARKNESS | CONFUSE | CAUSE_2
+O:1d2:OBJ(*)
+D:"Great greyish-white slippery things which could expand and
+D:contract at will, and whose principle shape... was that of a
+D:sort of toad without any eyes, but with a curious vibrating mass
+D:of short pink tentacles on the end of its blunt, vague snout."
+I:DISPLAY(q,Light White):POS(CORPSE|GAIN_AC)
+P:Copy:Human:Mage
+P:Body:Scrawny
+P:Weight:50
+
+N:q.rust:Rust monster
+I:LVL(16,50):RARITY(2)
+I:HP(240):AC(55):EXP(50):EVOLVE(q.disenchanter, 500)
+I:ATTR(STUPID|WEIRD_MIND):ALERT(120',Fairly Observant):MOVE(DESTROY)
+B:TOUCH(x4):ACID(1d10)
+I:RESIST(ACID|POIS|CONF)
+D:It is a weird, small animal with two antennae popping forth from
+D:its forehead. It looks hungry.
+I:DISPLAY(q,Orange):POS(CORPSE|GAIN_AC)
+P:Copy:Human:Warrior
+P:Body:Horse
+P:Weight:50
+
+N:q.tanuki:Tanuki
+I:LVL(24):RARITY(10)
+I:SPEED(+10):HP(30d20):AC(5):EXP(200)
+I:KIND(ANIMAL):ALERT(180',Unseeing):MOVE(RAND_25|PICKUP|OPEN)
+B:HIT:HURT(1d5)
+B:CRUSH:HURT(1d6)
+D:Tanuki (raccoon dog) is thought to bewitch people in Japanese.
+D:Tanuki can disguise as human beings by putting a magic leaf on his/her head.
+I:DISPLAY(q,Light Umber):POS(CORPSE|GAIN_AC)
+P:Copy:Human:Warrior
+P:Body:Horse
+P:Weight:120
+
+N:q.disenchanter:Disenchanter beast
+I:LVL(25,70):RARITY(2)
+I:HP(30d30):AC(60):EXP(250):EVOLVE(q.unicorn, 8000)
+I:ATTR(STUPID|WEIRD_MIND):ALERT(120',Fairly Observant)
+B:TOUCH(x4):DISENCHANT(1d10)
+I:RESIST(ACID|POIS|CONF|DISENCHANT)
+S:1_IN_6 | DRAIN_MANA
+D:It looks like an anteater, and there is a static feeling
+D:crackling around its long trunk.
+I:DISPLAY(q,Violet,ATTR_MULTI):POS(CORPSE|GAIN_AC)
+P:Copy:q.horse.base
+P:SpellStat:Con
+
+N:q.gnoph-keh:q.horse.base:Gnoph-Keh
+I:LVL(26,80):RARITY(2)
+I:HP(20d15):AC(50):EXP(95)
+I:ALIGN(Neutral Evil):ALERT(120',Fairly Observant):MOVE(RAND_25)
+B:CLAW(x2):COLD(2d4)
+B:BUTT:HURT(1d9+5)
+A:COLD(2d2)
+I:RESIST(COLD)
+O:1d2:OBJ(*$)
+S:1_IN_8 | BR_COLD | BO_ICE | BO_COLD | BA_COLD
+D:A creature with a sharp horn: "the hairy myth-thing of the
+D:Greenland ice, that walked sometimes on two legs, sometimes
+D:on four, and sometimes on six."
+I:COLOR(Slate)
+P:SpellStat:Con
+
+N:q.nurgle:Beast of Nurgle
+I:LVL(27,70):RARITY(2)
+I:HP(15d10):AC(50):EXP(100)
+I:KIND(DEMON):ALIGN(Evil):ATTR(WEIRD_MIND)
+I:ALERT(140',Fairly Unseeing):MOVE(BASH|SWIM)
+B:TOUCH:POISON(3d3)
+B:TOUCH:DISEASE(3d3)
+B:BITE:HURT(1d5+3):ACID(2d5)
+I:RESIST(ACID|FIRE|POIS)
+D:It walks on four legs, but mostly resembles a slug-shaped jelly.
+D:It even has two disgusting antennae in its head. Yecch!
+I:DISPLAY(q,Orange):POS(GAIN_AC)
+P:Copy:q.horse.base
+P:Body:q.nurgle
+
+N:q.catoblepas:q.horse.base:Catoblepas
+I:LVL(29,70):RARITY(2):WILD(SWAMP)
+I:HP(30d10):AC(55):EXP(400)
+I:ALIGN(Evil):ALERT(150',Unseeing):MOVE(SWIM)
+B:GAZE:DAM(2d4):TERRIFY
+B:GAZE:DAM(2d4):BLIND
+B:BUTT:HURT(1d6+3)
+B:BITE:HURT(1d12+7)
+I:RESIST(POIS)
+O:2d2:OBJ(GOLD)
+D:A strange ox-like form with a huge head but a thin, weak neck, it looks
+D:like the creation of some deranged alchemist.
+I:COLOR(Green)
+
+N:q.Chaugnar:Chaugnar Faugn, Horror from the Hills
+I:LVL(44):RARITY(4):ALLOC(UNIQUE)
+I:HP(3000):AC(125):EXP(6250)
+I:KIND(DEMON|HORROR):ALIGN(Chaotic):CAN(SPEAK)
+I:ALERT(100',Inattentive):MOVE(NEVER)
+B:CRUSH(x2):HURT(3d10+40)
+B:BITE(x2):HURT(7d2):LOSE_CON(50%):LOSE_CHR(50%)
+I:RESIST(ELEC|FIRE|COLD|POIS|CONF|NETHER):IMMUNE(SLEEP|FEAR):VULN(DISINTEGRATE)
+S:1_IN_6 | PARALYZE | CAUSE_4 | CONFUSE | SCARE | AMNESIA | BRAIN_SMASH
+S:MIND_BLAST | CAUSE_3 | S_DEMON | S_MONSTER
+D:"The ears were webbed and tentacled, the trunk terminated in
+D:a huge flaring disk at least a foot in diameter... Its forelimbs
+D:were bent stiffly at the elbow, and its hands... rested palms
+D:upward on its lap."
+I:DISPLAY(q,Light Dark):POS(GAIN_AC)
+P:Copy:Beastman:Chaos-Warrior
+P:Weight:300
+
+N:q.mendes:Goat of Mendes
+I:LVL(50):RARITY(3)
+I:SPEED(+10):HP(1998):AC(66):EXP(6666)
+I:ALERT(300',Unseeing):MOVE(OPEN|BASH|PUSH)
+I:KIND(DEMON|NONLIVING):ALIGN(Chaotic):ATTR(SMART)
+B:GAZE:TERRIFY
+B:BUTT:HURT(3d6):LOSE_CHR(50%)
+B:BITE:DRAIN_EXP(40d6)
+B:BITE:LOSE_CON
+I:RESIST(FIRE|COLD|CONF|DARK|NETHER):IMMUNE(SLEEP):VULN(LIGHT)
+S:1_IN_4 | BLIND | CONFUSE | BRAIN_SMASH | SCARE | AMNESIA | CAUSE_4 | ANIM_DEAD
+S:BA_NETHER(10d10+150) | S_UNDEAD | DRAIN_MANA | S_DEMON | BA_COLD(1d150+20)
+O:1d2+1:OBJ(*)
+D:It is a demonic creature from the lowest hell, vaguely resembling a
+D:large black he-goat.
+I:DISPLAY(q,Light Dark):POS(GAIN_AC|SEE_INVIS|HOLD_LIFE)
+P:Copy:Vampire:Warrior-Mage
+P:Body:Horse
+P:Weight:120
+
+# vim: filetype=ri :
+

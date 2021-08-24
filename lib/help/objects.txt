@@ -1,5 +1,4 @@
-<style:title>Objects</style>
-
+<style:title>Objects</style><tab:40><indent><screenshot:objects01></indent>
 Objects are one of the most important elements in the game, and much of your effort will be devoted to getting better, and then even better, stuff. Whether they are potions to heal you during a difficult fight, scrolls to teleport you out of danger, armor to protect you from fire breathing dragons, or swords to slay the minions of evil, objects permeate every aspect of your journey from the safety of town to the halls of Oberon and finally to the lair of the dreaded Serpent of Chaos. Naked, you are nothing. Well equipped, and perhaps, just maybe, you will stand a chance.
 
 There are various types of objects, each with its own symbol for display, and generally with its own command for use. These will be described fully in the reference section near the end of this document. For now, here is an informal introduction.

@@ -10,145 +10,145 @@
 ##### Remap the player icon #####
 
 ?:[EQU $RACE Human Doppelganger]
-R:0:0/0x80
+R:@.player:0:0x80
 ?:[EQU $RACE Demigod]
-R:0:0/0x80
+R:@.player:0:0x80
 ?:[EQU $RACE Hobbit]
-R:0:0/0x83
+R:@.player:0:0x83
 ?:[EQU $RACE Gnome]
-R:0:0/0x84
+R:@.player:0:0x84
 ?:[EQU $RACE Dwarf]
-R:0:0/0x85
+R:@.player:0:0x85
 ?:[EQU $RACE Snotling]
-R:0:0/0x8F
+R:@.player:0:0x8F
 ?:[EQU $RACE Half-Troll]
-R:0:0/0x87
+R:@.player:0:0x87
 ?:[EQU $RACE Amberite]
-R:0:0/0x88
+R:@.player:0:0x88
 ?:[EQU $RACE High-Elf Wood-Elf Water-Elf]
-R:0:0/0x89
+R:@.player:0:0x89
 ?:[EQU $RACE Barbarian]
-R:0:0/0x8A
+R:@.player:0:0x8A
 ?:[EQU $RACE Half-Ogre]
-R:0:0/0x8B
+R:@.player:0:0x8B
 ?:[EQU $RACE Half-Giant]
-R:0:0/0x8C
+R:@.player:0:0x8C
 ?:[EQU $RACE Half-Titan]
-R:0:0/0x8D
+R:@.player:0:0x8D
 ?:[EQU $RACE Cyclops]
-R:0:0/0x8E
+R:@.player:0:0x8E
 ?:[EQU $RACE Yeek]
-R:0:0/0x8F
+R:@.player:0:0x8F
 ?:[EQU $RACE Klackon Centaur]
-R:0:0/0x90
+R:@.player:0:0x90
 ?:[EQU $RACE Kobold]
-R:0:0/0x91
+R:@.player:0:0x91
 ?:[EQU $RACE Nibelung]
-R:0:0/0x92
+R:@.player:0:0x92
 ?:[EQU $RACE Dark-Elf]
-R:0:0/0x93
+R:@.player:0:0x93
 ?:[EQU $RACE Draconian]
-R:0:0/0x94
+R:@.player:0:0x94
 ?:[EQU $RACE Mindflayer]
-R:0:0/0x95
+R:@.player:0:0x95
 ?:[EQU $RACE Imp]
-R:0:0/0x96
+R:@.player:0:0x96
 ?:[EQU $RACE Golem]
-R:0:0/0x97
+R:@.player:0:0x97
 ?:[EQU $RACE Skeleton]
-R:0:0/0x98
+R:@.player:0:0x98
 ?:[EQU $RACE Zombie]
-R:0:0/0x99
+R:@.player:0:0x99
 ?:[EQU $RACE Vampire]
-R:0:0/0x9A
+R:@.player:0:0x9A
 ?:[EQU $RACE Spectre]
-R:0:0/0x9B
+R:@.player:0:0x9B
 ?:[EQU $RACE Sprite]
-R:0:0/0x9C
+R:@.player:0:0x9C
 ?:[EQU $RACE Beastman]
-R:0:0/0x9D
+R:@.player:0:0x9D
 ?:[EQU $RACE Ent]
-R:0:0/0x97
+R:@.player:0:0x97
 ?:[EQU $RACE Archon]
-R:0:0/0x9C
+R:@.player:0:0x9C
 ?:[EQU $RACE Balrog]
-R:0:0/0x96
+R:@.player:0:0x96
 ?:[EQU $RACE Dunadan]
-R:0:0/0x81
+R:@.player:0:0x81
 ?:[EQU $RACE Shadow-Fairy]
-R:0:0/0x86
+R:@.player:0:0x86
 ?:[EQU $RACE Kutar]
-R:0:0/0x91
+R:@.player:0:0x91
 ?:[EQU $RACE Android]
-R:0:0/0x97
+R:@.player:0:0x97
 
 ?:[EQU $CLASS Warrior]
-R:0:0xA4/0
+R:@.player:0xA4:0
 ?:[EQU $CLASS Mage Blood-Mage Necromancer Yellow-Mage Gray-Mage]
-R:0:0xA5/0
+R:@.player:0xA5:0
 ?:[EQU $CLASS Priest]
-R:0:0xA6/0
+R:@.player:0xA6:0
 ?:[EQU $CLASS Rogue Skillmaster]
-R:0:0xA7/0
+R:@.player:0xA7:0
 ?:[EQU $CLASS Ranger]
-R:0:0xA8/0
+R:@.player:0xA8:0
 ?:[EQU $CLASS Paladin]
-R:0:0xA9/0
+R:@.player:0xA9:0
 ?:[EQU $CLASS Warrior-Mage]
-R:0:0xAA/0
+R:@.player:0xAA:0
 ?:[EQU $CLASS Chaos-Warrior]
-R:0:0xAB/0
+R:@.player:0xAB:0
 ?:[EQU $CLASS Monk Mystic]
-R:0:0xAC/0
+R:@.player:0xAC:0
 ?:[EQU $CLASS Mindcrafter Psion]
-R:0:0xAD/0
+R:@.player:0xAD:0
 ?:[EQU $CLASS High-Mage]
-R:0:0xAE/0
+R:@.player:0xAE:0
 ?:[EQU $CLASS Imitator]
-R:0:0xAC/0
+R:@.player:0xAC:0
 ?:[EQU $CLASS Beastmaster]
-R:0:0xAA/0
+R:@.player:0xAA:0
 ?:[EQU $CLASS Sorcerer]
-R:0:0xA5/0
+R:@.player:0xA5:0
 ?:[EQU $CLASS Archer]
-R:0:0xA8/0
+R:@.player:0xA8:0
 ?:[EQU $CLASS Magic-Eater Devicemaster]
-R:0:0xAD/0
+R:@.player:0xAD:0
 ?:[EQU $CLASS Bard]
-R:0:0xA8/0
+R:@.player:0xA8:0
 ?:[EQU $CLASS Red-Mage]
-R:0:0xAB/0
+R:@.player:0xAB:0
 ?:[EQU $CLASS Samurai]
-R:0:0xAA/0
+R:@.player:0xAA:0
 ?:[EQU $CLASS Force-Trainer]
-R:0:0xAC/0
+R:@.player:0xAC:0
 ?:[EQU $CLASS Blue-Mage]
-R:0:0xAD/0
+R:@.player:0xAD:0
 ?:[EQU $CLASS Cavalry]
-R:0:0xA4/0
+R:@.player:0xA4:0
 ?:[EQU $CLASS Berserker Rage-Mage Mauler]
-R:0:0xAB/0
+R:@.player:0xAB:0
 ?:[EQU $CLASS Weaponsmith]
-R:0:0xAA/0
+R:@.player:0xAA:0
 ?:[EQU $CLASS Mirror-Master]
-R:0:0xAD/0
+R:@.player:0xAD:0
 ?:[EQU $CLASS Ninja Scout]
-R:0:0xAA/0
+R:@.player:0xAA:0
 ?:[EQU $CLASS Sniper]
-R:0:0xA8/0
+R:@.player:0xA8:0
 ?:[EQU $CLASS Time-Lord]
-R:0:0xA5/0
+R:@.player:0xA5:0
 ?:[EQU $CLASS Blood-Knight]
-R:0:0xAA/0
+R:@.player:0xAA:0
 ?:[EQU $CLASS Warlock]
-R:0:0xA5/0
+R:@.player:0xA5:0
 ?:[EQU $CLASS Archaeologist]
-R:0:0xAC/0
+R:@.player:0xAC:0
 ?:[EQU $CLASS Duelist]
-R:0:0xAA/0
+R:@.player:0xAA:0
 ?:[EQU $CLASS Wild-Talent]
-R:0:0xAB/0
+R:@.player:0xAB:0
 ?:[EQU $CLASS Rune-Knight]
-R:0:0xA9/0
+R:@.player:0xA9:0
 ?:[EQU $CLASS Weaponmaster]
-R:0:0xA4/0
+R:@.player:0xA4:0

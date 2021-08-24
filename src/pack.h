@@ -55,7 +55,7 @@ extern void    pack_for_each(obj_f f);
 extern void    pack_for_each_that(obj_f f, obj_p p);
 extern slot_t  pack_find_first(obj_p p);
 extern slot_t  pack_find_next(obj_p p, slot_t prev_match);
-extern slot_t  pack_find_art(int which);
+extern slot_t  pack_find_art(cptr which);
 extern slot_t  pack_find_ego(int which);
 extern slot_t  pack_find_obj(int tval, int sval);
 extern slot_t  pack_find_device(int effect);

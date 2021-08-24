@@ -19,7 +19,9 @@ Welcome to the Online Help System
     [l] Options
     [m] User Preference Files
     [n] The Mogaminator
-    [o] Credits
+
+    [o] What's New?
+    [p] Credits
 
     (?) Help System Commands
 

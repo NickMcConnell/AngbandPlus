@@ -90,7 +90,6 @@ enum {
     MIMIC_WOLF,
 };
 struct race_s; /* XXX define this here and rename */
-typedef struct race_s plr_race_t, *plr_race_ptr;
 extern plr_race_ptr plr_race_alloc(int race_id);
 extern plr_race_ptr plr_race_alloc_aux(int race_id, int subrace_id);
 extern void         plr_race_free(plr_race_ptr race);

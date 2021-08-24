@@ -6,7 +6,7 @@
 
 # The old "MULTI_HUED" objects are now "violet", and no other object
 # is violet, so all six violet objects can be made "multi-hued", though
-# this would be a heinous hack.  XXX XXX
+# this would be a heinous hack. XXX XXX
 
 # Note that object zero is used for the "stack" picture (unused).
 
@@ -279,7 +279,7 @@ I:,:36:3000
 W:1:20:5:2
 A:1/1
 M:100:1d5
-D:An utterly hideous fungal growth.  It is strangely appealing...
+D:An utterly hideous fungal growth. It is strangely appealing...
 
 N:*:& Pint~ of Fine Ale
 G:,:y
@@ -304,7 +304,7 @@ W:5:0:3:30
 A:5/1:10/1
 M:50:1d4
 F:TOWN
-D:Small golden-brown wafers wrapped in silven leaves.  Made with elvish art,
+D:Small golden-brown wafers wrapped in silven leaves. Made with elvish art,
 D:it sustains life where nothing else can.
 
 N:*:& Serving~ of Ambrosia
@@ -493,7 +493,7 @@ W:15:0:140:350
 A:15/1
 P:0:3d4:0:0:0
 F:SHOW_MODS | TOWN
-D:Also known as the hand-and-a-half blade.  A larger-than-normal straight-
+D:Also known as the hand-and-a-half blade. A larger-than-normal straight-
 D:sided sword with two cutting edges.
 
 N:*:& Falchion~
@@ -772,7 +772,7 @@ W:15:0:170:334
 A:15/1
 P:0:2d8:0:0:0
 F:SHOW_MODS | TOWN
-D:A double-bladed axe.  Very popular among Dwarves.
+D:A double-bladed axe. Very popular among Dwarves.
 
 N:*:& Great Axe~
 G:/:s
@@ -1037,7 +1037,7 @@ W:40:0:120:200
 A:40/1
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
-D:A broad shovel, fit for the strong shoulders of a dwarf.  It bears runes
+D:A broad shovel, fit for the strong shoulders of a dwarf. It bears runes
 D:of delving and no ordinary rock can resist it.
 
 N:*:& Pick~
@@ -1057,7 +1057,7 @@ W:30:0:150:300
 A:30/4
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
-D:A crude, ugly, but effective pickaxe.  Made in enormous quantities for
+D:A crude, ugly, but effective pickaxe. Made in enormous quantities for
 D:the slave-mines of Durthang.
 
 N:*:& Dwarven Pick~
@@ -1318,6 +1318,15 @@ F:SHOW_MODS
 F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC
 M:100:6d7
 
+N:*:& Lead Shot~
+G:{:s
+I:SHOT:4
+W:30:90:10:5
+A:30/2
+P:0:3d3:0:0:0
+F:SHOW_MODS
+M:100:6d7
+
 ########################################################################
 #  Cloaks (TV_CLOAK)
 ########################################################################
@@ -1364,7 +1373,7 @@ I:CLOAK:6
 W:60:0:5:7500
 A:75/5
 P:6:0d0:0:0:4
-F:RES_DARK | RES_LITE
+F:RES_DARK | RES_LIGHT
 D:A midnight-hued cloak that wreathes the wearer in folds of shadow.
 
 N:*:& Dragon Cloak~
@@ -1484,7 +1493,7 @@ I:CROWN:10
 W:30:0:20:500
 A:30/1
 P:0:1d1:0:0:0
-D:A plain band of iron, crowned with iron spikes.  It is a tyrant's
+D:A plain band of iron, crowned with iron spikes. It is a tyrant's
 D:symbol.
 
 N:*:& Golden Crown~
@@ -1596,7 +1605,7 @@ I:SHIELD:5
 W:30:0:120:200
 A:30/1
 P:8:1d3:0:0:0
-D:An oval shield of wood covered by leather and rimmed with metal.  A large
+D:An oval shield of wood covered by leather and rimmed with metal. A large
 D:iron shield boss offers excellent hand protection.
 
 N:*:& Dragon Shield~
@@ -1620,7 +1629,7 @@ I:SHIELD:10
 W:70:0:100:10000
 A:70/8
 P:10:1d1:0:0:10
-F:IGNORE_ACID | REFLECT | RES_LITE
+F:IGNORE_ACID | REFLECT | RES_LIGHT
 
 N:*:& Mirror~
 G:*:b
@@ -1941,7 +1950,7 @@ A:60/4
 P:35:2d4:-3:0:0
 F:IGNORE_ACID
 D:A shimmering suit of true-silver, forged long ago by dwarven smiths of
-D:legend.  It gleams with purest white as you gaze upon it.
+D:legend. It gleams with purest white as you gaze upon it.
 
 N:*:Adamantite Plate Mail~
 G:[:G
@@ -2038,7 +2047,7 @@ I:DSM:10
 W:65:0:200:60000
 A:65/16
 P:40:2d4:-2:0:10
-F:RES_LITE | RES_DARK |
+F:RES_LIGHT | RES_DARK |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_ONE_SHINING:40:50:200
 
@@ -2114,7 +2123,7 @@ W:100:0:200:350000
 A:100/64
 P:40:2d4:-3:0:15
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS |
-F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK |
+F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LIGHT | RES_DARK |
 F:RES_SHARDS | RES_SOUND | RES_DISEN | RES_CONF |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_ELEMENTS:50:100:300
@@ -2803,7 +2812,7 @@ M:100:1d5
 N:*:Speed:Magenta
 G:!:r
 I:!:29
-W:10:0:4:75
+W:10:0:4:250
 A:10/1:40/1
 P:0:1d1:0:0:0
 M:50:1d3
@@ -2838,7 +2847,7 @@ M:100:1d5
 N:*:Berserk Strength:Puce
 G:!:v
 I:!:33
-W:20:0:4:100
+W:20:0:4:150
 A:20/3
 P:0:1d1:0:0:0
 M:100:1d3
@@ -3067,7 +3076,7 @@ M:50:1d5
 
 N:*:Invulnerability:Dark Green
 G:!:g
-I:!:62:-2500
+I:!:62:100
 W:110:0:4:100000
 A:90/9
 P:0:1d1:0:0:0
@@ -3505,7 +3514,7 @@ A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:*:[Necromatic Tome]
+N:*:[Necromantic Tome]
 G:?:D
 I:NECROMANCY_BOOK:3
 W:80:0:30:100000
@@ -3544,6 +3553,40 @@ G:?:r
 I:ARMAGEDDON_BOOK:3
 W:85:0:30:100000
 A:85/3
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:*:[Elusive Beginnings]
+G:?:B
+I:ILLUSION_BOOK:0
+W:10:30:30:100
+A:10/1
+P:0:1d1:0:0:0
+F:TOWN
+M:100:1d3
+
+N:*:[The Art of Misdirection]
+G:?:B
+I:ILLUSION_BOOK:1
+W:20:50:30:1000
+A:20/1
+P:0:1d1:0:0:0
+F:TOWN
+M:50:1d2
+
+N:*:[Illusion Mastery]
+G:?:b
+I:ILLUSION_BOOK:2
+W:45:90:30:15000
+A:45/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:*:[Phantasmagoric Tome]
+G:?:b
+I:ILLUSION_BOOK:3
+W:80:0:30:100000
+A:80/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3716,7 +3759,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ########################################################################
-#  Lights (TV_LITE) and Flasks of Oil (TV_FLASK)
+#  Lights (TV_LIGHT) and Flasks of Oil (TV_FLASK)
 ########################################################################
 N:600:& Wooden Torch~
 G:~:u
@@ -3899,6 +3942,13 @@ I:~:23
 W:50:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
+
+N:*:& Black Stone~
+G:*:D
+I:~:24
+W:15:0:60:450
+A:30/5
+F:DARKNESS | RES_DARK | IGNORE_FIRE
 
 ########################################################################
 # Chests (TV_CHEST)

@@ -18,7 +18,9 @@ extern void    vec_add(vec_ptr vec, vptr obj);
 extern void    vec_add_int(vec_ptr vec, int val);
 extern void    vec_clear(vec_ptr vec);
 extern vptr    vec_get(vec_ptr vec, int i);
+extern vptr    vec_random(vec_ptr vec);
 extern int     vec_get_int(vec_ptr vec, int i);
+extern int     vec_random_int(vec_ptr vec);
 extern void    vec_delete(vec_ptr vec, int i);        /* frees vec[i] */
 extern void    vec_set(vec_ptr vec, int i, vptr obj); /* frees old vec[i] */
 extern void    vec_set_int(vec_ptr vec, int i, int val);

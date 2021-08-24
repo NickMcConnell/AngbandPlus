@@ -1,0 +1,401 @@
+# Trolls
+T:T.base:Troll
+I:DISPLAY(T):POS(CORPSE|GAIN_AC)
+I:KIND(TROLL):ALIGN(Evil):ATTR(MALE):CAN(REGEN)
+I:ALERT(200',Fairly Unseeing):MOVE(OPEN|BASH)
+I:VULN(LIGHT)
+P:Copy:Half-Troll:Warrior
+P:Weight:250
+
+N:T.forest:T.base:Forest troll
+I:LVL(17,80):RARITY(1):WILD(WOOD)
+I:HP(20d10):AC(40):EXP(70):EVOLVE(T.stone, 500)
+B:HIT(x2):HURT(1d4)
+B:BITE:HURT(1d6)
+S:FREQ_5 | BERSERK
+O:60%:DROP_WARRIOR
+M:3d3:MON(T.forest)
+D:He is green skinned and ugly.
+I:COLOR(Light Green):POS(SKELETON)
+P:Blows:300
+
+N:T.stone:T.base:Stone troll
+I:LVL(25,70):RARITY(1)
+I:HP(23d10):AC(40):EXP(85):EVOLVE(T.algroth, 800)
+B:HIT(x2):HURT(1d5+1)
+B:BITE:HURT(2d4+3)
+S:FREQ_5 | BERSERK
+O:60%:DROP_WARRIOR
+M:3d3:MON(T.stone)
+M:50%:2d2:MON(Z.earth)
+D:He is a giant troll with scabrous black skin.
+I:COLOR(Light Dark):POS(SKELETON)
+P:Blows:300
+
+N:T.priest:T.base:Troll priest
+I:LVL(25,60):RARITY(1)
+I:HP(300):AC(50):EXP(100)
+B:HIT(x2):HURT(1d7)
+B:BITE:HURT(2d4+3)
+I:RESIST(CONF):IMMUNE(SLEEP)
+S:1_IN_5 | BLINK | SCARE | CAUSE_1 | MISSILE | DARKNESS
+O:90%:DROP_PRIEST_EVIL
+D:A troll who is so bright he knows how to read.
+I:COLOR(Blue)
+P:Copy:Half-Troll:Priest
+P:Weight:250
+P:Blows:300
+
+N:T.fire:T.base:Fire troll
+I:LVL(25,70):RARITY(1):WILD(VOLCANO)
+I:HP(23d10):AC(50):EXP(90):EVOLVE(T.algroth, 800)
+I:LIGHT(1)
+B:HIT(x2):HURT(1d6):FIRE(1d6)
+B:BITE:HURT(1d4):FIRE(1d4)
+I:RESIST(FIRE):VULN(COLD)
+O:60%:OBJ(*$)
+S:FREQ_5 | BERSERK
+M:3d3:MON(T.fire)
+M:50%:2d2:MON(Z.fire)
+D:Fire trolls are believed to have been created by an
+D:evil wizard trying to make forest trolls immune to fire.
+I:COLOR(Red)
+P:Blows:300
+
+N:T.algroth:T.base:Algroth
+I:LVL(27,80):RARITY(1):WILD(WOOD|MOUNTAIN|SWAMP)
+I:HP(21d12):AC(60):EXP(150):EVOLVE(T.ice, 1200)
+B:CLAW(x2):HURT(1d3+3):POISON(1d3)
+B:BITE:HURT(1d7)
+I:VULN(-LIGHT)
+O:60%:DROP_WARRIOR
+S:FREQ_5 | BERSERK
+M:3d3:MON(T.algroth)
+D:A powerful troll form. Venom drips from its needlelike claws.
+I:COLOR(Slate)
+P:Blows:300
+
+N:T.ice:T.base:Ice troll
+I:LVL(28,70):RARITY(1):WILD(WASTE)
+I:HP(24d10):AC(50):EXP(160):EVOLVE(T.aklash, 1200)
+B:HIT(x3):HURT(1d5)
+B:BITE:HURT(1d6+4):COLD(1d6)
+I:RESIST(COLD):VULN(FIRE)
+S:FREQ_5 | BERSERK
+O:60%:DROP_WARRIOR
+M:3d3:MON(T.ice)
+M:50%:2d2:MON(Z.cold)
+D:He is a white troll with powerfully clawed hands.
+I:COLOR(White)
+P:Blows:300
+
+N:T.aklash:T.base:Aklash
+I:LVL(29,80):RARITY(4)
+I:HP(30d9):AC(64):EXP(300):EVOLVE(T.half-troll, 1500)
+B:CLAW(x2):HURT(1d6)
+B:BITE:HURT(1d10):POISON(1d10)
+B:CRUSH:HURT(2d9)
+I:RESIST(ACID|POIS)
+S:FREQ_10 | BR_POISON | BERSERK
+M:3d3:MON(T.aklash)
+D:Pale, bald, fat, hairless troll creatures. Ugly beyond description.
+D:Not to mention how bad their breath smells...
+I:COLOR(Light White)
+P:Blows:200
+
+N:T.half-troll:T.base:Half-troll
+I:LVL(33,80):RARITY(2)
+I:HP(25d14):AC(50):EXP(300):EVOLVE(T.cave, 1800)
+B:CLAW(x3):HURT(1d5)
+B:BITE:HURT(2d6)
+I:RESIST(POIS):VULN(-LIGHT)
+S:FREQ_5 | BERSERK
+O:90%:DROP_WARRIOR
+M:2d3:MON(T.half-troll)
+M:1d3:MON(T)
+D:A huge, ugly, half-human in search of plunder.
+I:COLOR(Orange)
+P:Blows:300
+
+N:T.cave:T.base:Cave troll
+I:LVL(33,70):RARITY(1)
+I:HP(24d12):AC(50):EXP(350):EVOLVE(T.olog, 3000)
+B:HIT(x3):HURT(1d8)
+B:BITE:HURT(2d4)
+I:RESIST(POIS)
+S:FREQ_5 | BERSERK
+O:60%:DROP_WARRIOR
+M:2d3:MON(T.cave)
+M:1d3:MON(T)
+D:He is a vicious monster, feared for his ferocity.
+I:COLOR(Umber)
+P:Blows:300
+
+N:T.water:T.base:Water troll
+I:LVL(33):RARITY(1):WILD(SHORE|SWAMP)
+I:HP(360):AC(50):EXP(420):EVOLVE(T.olog, 2000)
+I:MOVE(SWIM)
+B:HIT(x3):HURT(1d9)
+B:BITE:HURT(2d4)
+I:RESIST(COLD|POIS|WATER)
+S:FREQ_5 | BERSERK
+O:60%:DROP_WARRIOR
+M:2d3:MON(T.water)
+M:1d3:MON(T)
+D:He is a troll that reeks of brine.
+I:COLOR(Light Blue)
+P:Blows:300
+
+N:T.olog:T.base:Olog
+I:LVL(35):RARITY(1)
+I:HP(420):AC(50):EXP(450):EVOLVE(T.eldrak, 4000)
+B:HIT(x2):HURT(1d12)
+B:BITE(x2):HURT(2d3)
+I:RESIST(POIS)
+S:FREQ_5 | BERSERK
+O:60%:DROP_WARRIOR
+M:2d3:MON(T.olog)
+M:1d3:MON(T)
+D:It is a massive intelligent troll with needle sharp fangs.
+I:COLOR(Green)
+P:Blows:300
+
+N:T.sea:T.base:Sea troll
+I:LVL(35):RARITY(1):WILD(OCEAN)
+I:HP(410):AC(50):EXP(440)
+I:KIND(AQUATIC):MOVE(SWIM)
+B:HIT(x2):HURT(1d10)
+B:BITE(x2):HURT(3d2)
+I:RESIST(COLD|POIS|WATER)
+S:FREQ_5 | BERSERK
+O:60%:DROP_WARRIOR
+M:3d3:MON(T.sea)
+D:He is a troll that reeks of brine, close relative to water trolls.
+I:COLOR(Light Blue)
+P:Blows:300
+
+N:T.eldrak:T.base:Eldrak
+I:LVL(39):RARITY(3):WILD(SHORE|WOOD)
+I:HP(750):AC(80):EXP(800):EVOLVE(T.ettin, 3000)
+I:MOVE(SWIM|PICKUP)
+B:HIT(x3):HURT(3d4)
+B:BITE:HURT(2d4)
+I:RESIST(POIS|CONF):IMMUNE(SLEEP)
+S:FREQ_5 | BERSERK
+O:1d2:DROP_WARRIOR
+D:A massive troll, larger and stronger than many men together.
+I:COLOR(Red)
+P:Stats:2:0:0:0:1:0
+P:Weight:500
+
+N:T.ettin:T.base:Ettin
+I:LVL(39):RARITY(3):WILD(MOUNTAIN|WOOD|SWAMP)
+I:HP(1000):AC(80):EXP(800):EVOLVE(T.king, 5000)
+I:MOVE(CLIMB)
+B:HIT(x2):HURT(3d6)
+B:BITE(x2):HURT(3d4)
+I:RESIST(POIS|CONF):IMMUNE(SLEEP)
+O:1d2:DROP_WARRIOR
+S:FREQ_5 | BERSERK
+D:A massive troll of huge strength. Ettins are stupid but violent.
+I:COLOR(Yellow)
+P:Stats:2:0:0:0:1:0
+P:Body:Ettin
+P:Weight:600
+
+N:T.spirit:T.base:Spirit troll
+I:LVL(40):RARITY(3)
+I:HP(1000):AC(90):EXP(900)
+I:CAN(INVIS):ALERT(200',Unseeing):MOVE(FLY|PASSWALL)
+B:HIT(x2):HURT(3d6)
+B:BITE:HURT(2d4)
+I:RESIST(COLD|ELEC|POIS|CONF):IMMUNE(SLEEP)
+S:FREQ_5 | BERSERK
+O:1d2:DROP_WARRIOR
+D:A weird troll from the elemental planes.
+I:COLOR(Violet):POS(-CORPSE)
+P:Stats:2:0:0:0:1:0
+P:Weight:400
+
+N:T.war:T.base:War troll
+I:LVL(40):RARITY(3)
+I:SPEED(+10):HP(500):AC(100):EXP(800)
+B:HIT(x3):HURT(2d5+10)
+B:BITE:HURT(2d4+10)
+I:RESIST(POIS|CONF):IMMUNE(SLEEP)
+S:FREQ_25 | BERSERK
+O:1d2:DROP_WARRIOR
+M:2d3:MON(T.war)
+M:1d3:MON(T)
+M:1d3:MON(O)
+D:A massive troll, equipped with a scimitar and heavy armour.
+I:COLOR(Green)
+P:Stats:3:0:0:1:2:0
+P:Weight:400
+
+N:T.king:T.base:Troll king
+I:LVL(40):RARITY(2):ALLOC(ESCORT)
+I:SPEED(+10):HP(1000):AC(90):EXP(2000):EVOLVE(T.storm, 18000)
+I:ALERT(300'):MOVE(PICKUP)
+B:HIT(x2):HURT(1d12+12)
+B:BITE(x2):HURT(3d12+12)
+I:RESIST(POIS|CONF):IMMUNE(SLEEP)
+S:1_IN_8 | BLINK | BERSERK | S_TROLL
+O:1d2+2:OBJ(*$):DROP_WARRIOR
+M:1d5+3:MON(T.war)
+M:1d3+3:MON(T.eldrak, ANCESTOR | SAME)
+M:1d3+3:MON(T.eldrak, ANCESTOR | SAME)
+M:1d3+3:MON(T.eldrak, ANCESTOR | SAME)
+M:1d3+3:MON(T.eldrak, ANCESTOR | SAME)
+D:This troll is a king, which means it's still stupid, but has even more power.
+D:It never comes alone, and can call out to other trolls.
+I:COLOR(Light Red)
+P:Stats:3:0:0:1:2:0
+P:SpellStat:Str
+P:Weight:600
+
+N:T.storm:T.base:Storm troll
+I:LVL(51):RARITY(2)
+I:SPEED(+10):HP(3000):AC(110):EXP(3500)
+I:LIGHT(1):ALERT(Very Inattentive):MOVE(PUSH|CLIMB|PICKUP)
+B:HIT(x2):HURT(2d10):ELEC(2d10)
+B:BITE(x2):HURT(1d22)
+I:RESIST(ACID|ELEC|COLD)
+S:FREQ_10 | BA_COLD(1d152+20) | BO_ICE(6d8+76) | BO_WATER(10d10+76)
+S:BA_ELEC(1d152+16) | BERSERK
+O:3d2:OBJ(*$):DROP_WARRIOR
+M:1d3:MON(P.storm)
+D:The dungeon shakes as an enormous troll-form thunders into view, hurling
+D:ice and lightning in every direction. It is enraged by your impudence.
+I:COLOR(Blue)
+P:Copy:Half-Troll:Mauler
+P:Weight:800
+
+########################################################################
+# Undead ... we will treat these as T. rather than s. or z.
+# 465
+N:T.skeleton:T.base:Skeleton troll
+I:LVL(30,90):RARITY(1)
+I:HP(20d10):AC(55):EXP(100):EVOLVE(T.skeleton.giant, 1500)
+I:KIND(UNDEAD):ATTR(COLD_BLOOD|EMPTY_MIND)
+B:HIT(x2):HURT(1d6)
+B:BITE:HURT(2d4+3)
+I:RESIST(COLD|CONF):IMMUNE(POIS|NETHER|SLEEP|FEAR):VULN(-LIGHT)
+D:It is a troll skeleton animated by dark dweomers.
+I:DISPLAY(s,White):POS(-CORPSE|SEE_INVIS|HOLD_LIFE)
+P:Weight:200
+P:Blows:300
+
+N:T.skeleton.giant:T.base:Giant skeleton troll
+I:LVL(33,80):RARITY(1)
+I:HP(450):AC(50):EXP(325)
+I:KIND(UNDEAD):ATTR(COLD_BLOOD|EMPTY_MIND)
+B:HIT(x2):HURT(1d9)
+B:BITE(x2):HURT(1d5)
+I:RESIST(COLD|CONF):IMMUNE(POIS|NETHER|SLEEP|FEAR):VULN(-LIGHT)
+M:2d3:MON(T.skeleton)
+D:It is the animated form of a massive troll.
+I:DISPLAY(s,Blue):POS(-CORPSE|SEE_INVIS|HOLD_LIFE)
+P:Blows:300
+
+N:T.mummy:T.base:Mummified troll
+I:LVL(37,80):RARITY(1)
+I:HP(190):AC(50):EXP(420)
+I:KIND(UNDEAD):ATTR(COLD_BLOOD|EMPTY_MIND)
+B:HIT(x2):HURT(2d6)
+I:RESIST(COLD|CONF):IMMUNE(POIS|NETHER|SLEEP|FEAR):VULN(-LIGHT)
+O:60%:OBJ(*$)
+D:It is a massive figure clothed in wrappings. You are wary of its massive fists.
+I:DISPLAY(z,White):POS(-CORPSE|SEE_INVIS|HOLD_LIFE)
+
+########################################################################
+# Uniques
+N:T.Bert:T.base:Bert the Stone Troll
+I:LVL(33):RARITY(7):ALLOC(UNIQUE):WILD(WOOD)
+I:SPEED(+5):HP(1100):AC(70):EXP(2000)
+I:ALERT(Overlooks):MOVE(PICKUP)
+B:HIT:HURT(2d5+9):HURT(5d5, 20%)
+B:BITE(x2):HURT(1d10+6)
+I:RESIST(COLD|POIS):VULN(DISINTEGRATE)
+S:FREQ_5 | BERSERK
+O:1d2:OBJ(*, GOOD):DROP_WARRIOR
+M:MON(T.Bill)
+M:MON(T.Tom)
+D:Big, brawny, powerful and with a taste for hobbit. He has friends called
+D:Bill and Tom.
+I:COLOR(Light White)
+P:Weight:300
+P:Blows:300
+
+N:T.Bill:T.base:Bill the Stone Troll
+I:LVL(33):RARITY(7):ALLOC(UNIQUE):WILD(WOOD)
+I:SPEED(+5):HP(1100):AC(70):EXP(2000)
+I:ALERT(Overlooks):MOVE(PICKUP)
+B:HIT:HURT(2d5+9):HURT(5d5, 20%)
+B:BITE(x2):HURT(1d10+6)
+I:RESIST(COLD|POIS):VULN(DISINTEGRATE)
+S:FREQ_5 | BERSERK
+O:1d2:OBJ(*, GOOD):DROP_WARRIOR
+M:MON(T.Bert)
+M:MON(T.Tom)
+D:Big, brawny, powerful and with a taste for hobbit. He has friends called
+D:Bert and Tom.
+I:COLOR(Light White)
+P:Weight:300
+P:Blows:300
+
+N:T.Tom:T.base:Tom the Stone Troll
+I:LVL(33):RARITY(7):ALLOC(UNIQUE):WILD(WOOD)
+I:SPEED(+5):HP(1100):AC(70):EXP(2000)
+I:ALERT(Overlooks):MOVE(PICKUP)
+B:HIT:HURT(2d5+9):HURT(5d5, 20%)
+B:BITE(x2):HURT(1d10+6)
+I:RESIST(COLD|POIS):VULN(DISINTEGRATE)
+S:FREQ_5 | BERSERK
+O:1d2:OBJ(*, GOOD):DROP_WARRIOR
+M:MON(T.Bert)
+M:MON(T.Bill)
+D:Big, brawny, powerful and with a taste for hobbit. He has friends called
+D:Bert and Bill.
+I:COLOR(Light White)
+P:Weight:300
+P:Blows:300
+
+N:T.Rogrog:T.base:Rogrog the Black Troll
+I:LVL(36):RARITY(5):ALLOC(UNIQUE|ESCORT)
+I:SPEED(+10):HP(1500):AC(70):EXP(5000)
+I:ALERT(Overlooks):MOVE(PICKUP)
+B:HIT:HURT(3d6+10)
+B:BITE(x2):HURT(1d10+6)
+B:SPIT:ACID(3d8)
+I:RESIST(ACID|COLD|POIS)
+S:FREQ_15 | BERSERK
+O:2d2:OBJ(*, GOOD):DROP_WARRIOR
+M:6d7:MON(T)
+D:A massive and cruel troll of great power, drool slides caustically down
+D:his muscular frame. Despite his bulk, he strikes with stunning speed.
+I:COLOR(Light Dark)
+P:Copy:Half-Troll:Mauler
+P:Weight:350
+P:Blows:300
+
+N:T.Ulik:T.base:Ulik the Troll
+I:LVL(51):RARITY(4):ALLOC(UNIQUE)
+I:SPEED(+20):HP(3500):AC(120):EXP(18000)
+I:ALERT(300'):MOVE(TUNNEL)
+I:CAN(SPEAK)
+B:HIT(x2):SHATTER(10d12+55)
+B:BITE:HURT(4d14):POISON(2d14)
+I:RESIST(ELEC|FIRE|COLD|POIS|CONF):IMMUNE(SLEEP|SLOW|TELE)
+S:FREQ_15 | BERSERK
+O:5d2+1:OBJ(*, GOOD):DROP_WARRIOR
+O:5%:ART(\.Ulik)
+D:Ulik is the strongest troll who has ever lived. He could challenge
+D:the immortals and pound them to dust with his great strength.
+I:COLOR(Orange)
+P:Stats:5:0:0:1:4:1
+P:Life:107
+P:Weight:800
+
+# vim: filetype=ri :
+

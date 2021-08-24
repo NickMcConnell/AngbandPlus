@@ -127,6 +127,11 @@ void point_map_add(point_map_ptr map, point_t key, void *val)
     map->buckets[bucket] = current;
 }
 
+void point_map_add_int(point_map_ptr map, point_t key, int val)
+{
+    point_map_add(map, key, (void *)(intptr_t)val);
+}
+
 bool point_map_delete(point_map_ptr map, point_t key)
 {
     void *val = point_map_detach(map, key);
@@ -184,6 +189,12 @@ void *point_map_find(point_map_ptr map, point_t key)
         }
     }
     return NULL;
+}
+
+int point_map_find_int(point_map_ptr map, point_t key)
+{
+    void *pv = point_map_find(map, key);
+    return (int)(intptr_t)pv;
 }
 
 bool point_map_contains(point_map_ptr map, point_t key)
@@ -247,6 +258,21 @@ void point_map_iter(point_map_ptr map, point_map_iter_f f)
         _node_ptr current;
         for (current = map->buckets[i]; current; current = current->next)
             f(current->key, current->val);
+    }
+}
+void point_map_iter_int(point_map_ptr map, point_map_iter_int_f f)
+{
+    int i;
+    int prime = hash_tbl_primes[map->prime_idx];
+
+    for (i = 0; i < prime; i++)
+    {
+        _node_ptr current;
+        for (current = map->buckets[i]; current; current = current->next)
+        {
+            int val = (int)(intptr_t)current->val;
+            f(current->key, val);
+        }
     }
 }
 
