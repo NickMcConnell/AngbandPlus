@@ -517,6 +517,7 @@ static bool do_cmd_tunnel_aux(struct loc grid)
 	if (best_digger && best_digger != current_weapon) {
 		player->body.slots[weapon_slot].obj = best_digger;
 		player->upkeep->update |= (PU_BONUS);
+		player->upkeep->only_partial = true;
 		update_stuff(player);
 	}
 	calc_digging_chances(&player->state, digging_chances);
@@ -529,6 +530,7 @@ static bool do_cmd_tunnel_aux(struct loc grid)
 		player->body.slots[weapon_slot].obj = current_weapon;
 		player->upkeep->update |= (PU_BONUS);
 		update_stuff(player);
+		player->upkeep->only_partial = false;
 	}
 
 	/* Success */
@@ -926,7 +928,7 @@ void do_cmd_steal_aux(int dir)
 
 	/* Attack or steal from monsters */
 	if ((square(cave, grid).mon > 0) && player_has(player, PF_STEAL)) {
-			steal_monster_item(square_monster(cave, grid), -1);
+		steal_monster_item(square_monster(cave, grid), -1);
 	} else {
 		/* Oops */
 		msg("You spin around.");
@@ -959,8 +961,8 @@ void move_player(int dir, bool disarm)
 	int m_idx = square(cave, grid).mon;
 	struct monster *mon = cave_monster(cave, m_idx);
 	bool trapsafe = player_is_trapsafe(player);
-	bool alterable = square_isdisarmabletrap(cave, grid) ||
-		square_iscloseddoor(cave, grid);
+	bool trap = square_isdisarmabletrap(cave, grid);
+	bool door = square_iscloseddoor(cave, grid);
 
 	/* Many things can happen on movement */
 	if (m_idx > 0) {
@@ -973,13 +975,12 @@ void move_player(int dir, bool disarm)
 		} else {
 			py_attack(player, grid);
 		}
-	} else if (alterable && disarm && square_isknown(cave, grid)) {
+	} else if (((trap && disarm) || door) && square_isknown(cave, grid)) {
 		/* Auto-repeat if not already repeating */
 		if (cmd_get_nrepeats() == 0)
 			cmd_set_repeat(99);
 		do_cmd_alter_aux(dir);
-	} else if (player->upkeep->running && square_isdisarmabletrap(cave, grid)
-		&& !trapsafe) {
+	} else if (trap && player->upkeep->running && !trapsafe) {
 		/* Stop running before known traps */
 		disturb(player, 0);
 	} else if (!square_ispassable(cave, grid)) {
@@ -1017,7 +1018,7 @@ void move_player(int dir, bool disarm)
 		int dam_taken = player_check_terrain_damage(player, grid);
 
 		/* Check if running, or going to cost more than a third of hp */
-		if (player->upkeep->running) {
+		if (player->upkeep->running && dam_taken) {
 			if (!get_check(feat->run_msg)) {
 				player->upkeep->running = 0;
 				step = false;
@@ -1051,6 +1052,11 @@ void move_player(int dir, bool disarm)
 			old_dtrap && !new_dtrap) {
 			disturb(player, 0);
 			return;
+		}
+
+		/* Trap immune player learns that they are */
+		if (trap && player_of_has(player, OF_TRAP_IMMUNE)) {
+			equip_learn_flag(player, OF_TRAP_IMMUNE);
 		}
 
 		/* Move player */
@@ -1407,7 +1413,7 @@ static const char *obj_feeling_text[] =
 	"there may not be much interesting here.",
 	"there aren't many treasures here.",
 	"there are only scraps of junk here.",
-	"there are naught but cobwebs here."
+	"there is naught but cobwebs here."
 };
 
 /**
@@ -1500,10 +1506,11 @@ void do_cmd_mon_command(struct command *cmd)
 {
 	int dir;
 	struct monster *mon = get_commanded_monster();
-	struct monster_lore *lore = get_lore(mon->race);
+	struct monster_lore *lore = NULL;
 	char m_name[80];
 
 	assert(mon);
+	lore = get_lore(mon->race);
 
 	/* Get the monster name */
 	monster_desc(m_name, sizeof(m_name), mon, MDESC_CAPITAL | MDESC_IND_HID);

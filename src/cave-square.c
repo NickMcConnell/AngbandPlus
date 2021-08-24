@@ -965,7 +965,7 @@ struct monster *square_monster(struct chunk *c, struct loc grid)
 	if (!square_in_bounds(c, grid)) return NULL;
 	if (square(c, grid).mon > 0) {
 		struct monster *mon = cave_monster(c, square(c, grid).mon);
-		return mon->race ? mon : NULL;
+		return mon && mon->race ? mon : NULL;
 	}
 
 	return NULL;
@@ -1314,7 +1314,7 @@ void square_smash_wall(struct chunk *c, struct loc grid)
 		}
 
 		/* Remove it */
-		square_set_feat(c, grid, FEAT_FLOOR);
+		square_set_feat(c, adj_grid, FEAT_FLOOR);
 	}
 }
 

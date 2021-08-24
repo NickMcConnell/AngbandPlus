@@ -104,6 +104,7 @@ static void remove_old_dump(const char *cur_fname, const char *mark)
 	/* Open new file */
 	new_file = file_open(new_fname, MODE_WRITE, FTYPE_TEXT);
 	if (!new_file) {
+		file_close(cur_file);
 		msg("Failed to create file %s", new_fname);
 		return;
 	}
@@ -506,7 +507,7 @@ static const char *process_pref_file_expr(char **sp, char *fp)
 			}
 		} else {
 			while (*s && (f != ']')) {
-				t = process_pref_file_expr(&s, &f);
+				(void) process_pref_file_expr(&s, &f);
 			}
 		}
 

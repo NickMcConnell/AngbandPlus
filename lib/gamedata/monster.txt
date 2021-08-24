@@ -3313,7 +3313,7 @@ experience:6
 blow:TOUCH:EXP_10
 flags:WEIRD_MIND | MULTIPLY | STUPID
 flags:RAND_25 | RAND_50 | BASH_DOOR
-flags:HURT_LIGHT | NO_FEAR
+flags:HURT_LIGHT | NO_FEAR | IM_NETHER
 desc:It is a disgusting mass of dark worms, eating each other, the floor, the
 desc: air, you....
 
@@ -3388,7 +3388,7 @@ flags:FORCE_SLEEP
 spell-freq:3
 spell-power:6
 spells:HEAL | SCARE | HEAL_KIN
-spells:BA_LIGHT
+spells:BA_LIGHT | BA_HOLY
 spells:S_KIN
 drop-base:prayer book:8:1:1
 drop-base:prayer book:8:1:1
@@ -7476,6 +7476,7 @@ desc:A tree which has become entish, or maybe an ent which has become tree-ish.
 ### Dungeon level 32 ###
 
 name:serpent of the brownlands
+plural:serpents of the brownlands
 base:snake
 color:u
 speed:120
@@ -9725,7 +9726,7 @@ flags:NO_CONF | NO_SLEEP | NO_HOLD
 flags:FORCE_SLEEP
 spell-freq:2
 spells:BLIND | HEAL | HEAL_KIN | MIND_BLAST
-spells:BA_LIGHT | BA_ELEC
+spells:BA_LIGHT | BA_ELEC | BA_HOLY
 spells:S_KIN
 drop-base:prayer book:5:1:1
 drop-base:prayer book:10:1:1
@@ -11032,6 +11033,7 @@ innate-freq:12
 spell-freq:6
 spells:CONF | SCARE | SLOW
 spells:BR_SHAR
+color-cycle:fancy:crystal
 desc:A huge crystalline dragon.  Its claws could cut you to shreds and its teeth
 desc: are razor sharp.  Strange colours ripple through it as it moves in the
 desc: light.
@@ -11421,7 +11423,7 @@ blow:CLAW:HURT:3d4
 blow:BITE:ACID:3d10
 blow:BITE:BLIND:3d10
 flags:SMART | DROP_1
-flags:IM_FIRE IM_ACID | NO_FEAR
+flags:IM_FIRE | IM_ACID | NO_FEAR
 spell-freq:3
 spells:BO_FIRE | BO_ACID
 spells:BR_FIRE | BR_ACID
@@ -12014,7 +12016,7 @@ blow:HIT:COLD:9d10
 blow:HIT:COLD:9d10
 blow:HIT:HURT:10d9
 blow:HIT:CONFUSE:10d9
-flags:UNIQUE | MALE | SMART
+flags:UNIQUE | MALE | SMART | ATTR_FLICKER
 flags:DROP_4 | DROP_GOOD | ONLY_ITEM
 flags:OPEN_DOOR | TAKE_ITEM
 flags:FORCE_SLEEP
@@ -12315,6 +12317,7 @@ desc:A massive wolf, appearing like a mighty shadow.  Its glowing red eyes
 desc: glare malevolently as it defends its evil master's fortress.
 
 name:spider of Gorgoroth
+plural:spiders of Gorgoroth
 base:spider
 color:P
 speed:120
@@ -12914,6 +12917,7 @@ innate-freq:8
 spell-freq:5
 spells:BLIND | CONF | SCARE
 spells:BR_ELEC
+color-cycle:fancy:storm
 desc:A vast dragon of power.  Storms and lightning crash around its titanic
 desc: form.  Deep blue scales reflect the flashes and highlight the creature's
 desc: great muscles.  It regards you with contempt.
@@ -12941,6 +12945,7 @@ innate-freq:8
 spell-freq:5
 spells:BLIND | CONF | SCARE
 spells:BR_COLD
+color-cycle:fancy:ice
 desc:An immense dragon capable of awesome destruction.  You have never felt such
 desc: extreme cold, or witnessed such an icy stare.  Begone quickly or feel its
 desc: wrath!
@@ -12968,6 +12973,7 @@ innate-freq:8
 spell-freq:5
 spells:BLIND | CONF | SCARE
 spells:BR_POIS
+color-cycle:fancy:swamp
 desc:A truly enormous dragon with great powers.  The foul gases issuing from the
 desc: beast nearly make you vomit; and while you may try to hold your breath as
 desc: you fight it, it sees no reason to do likewise.
@@ -13174,6 +13180,7 @@ innate-freq:8
 spell-freq:5
 spells:BLIND | CONF | SCARE
 spells:BR_FIRE
+color-cycle:fancy:hell
 desc:A vast dragon of immense power.  Fire leaps continuously from its huge
 desc: form. The air around it scalds you.  Its slightest glance burns you, and
 desc: you truly realize how insignificant you are.
@@ -13201,6 +13208,7 @@ innate-freq:8
 spell-freq:5
 spells:BLIND | CONF | SCARE
 spells:BR_ACID
+color-cycle:fancy:bile
 desc:A huge and very powerful dragon.  Great steaming pools of acid drip from
 desc: its form onto the ground.  You shudder when you see the acid eating away
 desc: the very stones of the dungeon - what could it do to you?
@@ -13229,6 +13237,7 @@ innate-freq:8
 spell-freq:5
 spells:BLIND | CONF | SCARE
 spells:BR_SOUN
+color-cycle:fancy:thunder
 desc:A dragon of gigantic proportions, with destructive abilities to match.  The
 desc: sheer loudness of its roar leaves you stunned and unable to think clearly
 desc: enough to defend yourself adequately.
@@ -13428,6 +13437,7 @@ spell-freq:5
 spells:BLIND | CONF | SCARE
 spells:BR_SHAR | BR_SOUN
 spells:S_DRAGON | S_HI_DRAGON
+color-cycle:fancy:law
 desc:A massive dragon of powerful intellect.  It seeks to dominate the universe
 desc: and despises all other life.  It sees all who do not obey it as mere
 desc: insects to be crushed underfoot.
@@ -13662,6 +13672,7 @@ desc: to taste your blood.
 ### Dungeon level 78 ###
 
 name:serpent of chaos
+plural:serpents of chaos
 base:snake
 color:y
 speed:130
@@ -13987,6 +13998,7 @@ spell-freq:5
 spells:BLIND | CONF | SCARE
 spells:BR_CHAO | BR_DISE | BR_SHAR | BR_SOUN
 spells:S_DRAGON | S_HI_DRAGON
+color-cycle:fancy:balance
 desc:A massive dragon, one of the mightiest of dragonkind.  It is thousands of
 desc: years old and seeks to maintain the Cosmic Balance.  It sees you as an
 desc: upstart troublemaker without the wisdom to control your actions.  It will
@@ -14178,7 +14190,7 @@ blow:GAZE:EXP_80:5d5
 blow:GAZE:EXP_80:5d5
 blow:TOUCH:POISON:5d5
 blow:TOUCH:POISON:5d5
-flags:UNIQUE | MALE | SMART | SPIRIT
+flags:UNIQUE | MALE | SMART | SPIRIT | ATTR_FLICKER
 flags:DROP_4 | DROP_GOOD | DROP_GREAT | ONLY_ITEM
 flags:OPEN_DOOR | BASH_DOOR
 flags:IM_FIRE

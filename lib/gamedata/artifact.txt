@@ -12,7 +12,8 @@
 # weight: weight
 # cost: cost
 # alloc: allocation probability : min depth : max depth
-# power: base armor class : base damage : plus to-hit : plus to-dam : plus to-ac
+# attack: base damage : plus to-hit : plus to-dam
+# armor: base armor class : plus to-ac
 # flags: flag | flag | etc
 # act: activation
 # time : recharge time
@@ -40,8 +41,10 @@
 # being generated, min depth is the earliest it is normally found, max
 # depth is the deepest it is ever found.
 
-# 'power' is for power information. The items base armor class, its base
-# damage and pluses to-hit, to-dam and to-ac.
+# 'attack' is for combat attack information, the item's base damage and pluses
+# to-hit and to-dam.
+
+# 'armor' is for armor information, the item's base armor class and plus to-ac.
 
 # 'flags' is for object flags as listed in list-object-flags.h. These are
 # fairly self-explanatory. As many flags: lines may be used as are needed to 
@@ -161,8 +164,8 @@ base-object:sword:Dagger
 level:20
 weight:12
 cost:100000
-alloc:2:20 to 100
-attack:2d4:10:15
+alloc:2:60 to 100
+attack:2d7:18:16
 armor:0:5
 flags:FREE_ACT | SUST_DEX
 values:DEX[4] | RES_ACID[1] | RES_DARK[1]
@@ -252,7 +255,7 @@ desc: an edge to wound the wind.
 name:of Azaghâl
 base-object:sword:Main Gauche
 level:18
-weight:30
+weight:15
 cost:50000
 alloc:3:18 to 100
 attack:2d5:12:14
@@ -269,10 +272,10 @@ desc: wounded.
 name:of Maedhros
 base-object:sword:Main Gauche
 level:15
-weight:30
+weight:15
 cost:20000
 alloc:3:15 to 65
-attack:2d5:12:15
+attack:2d6:12:15
 armor:0:0
 flags:FREE_ACT | SEE_INVIS
 values:INT[3] | DEX[3]
@@ -285,10 +288,10 @@ desc: from Angband.
 name:'Forasgil'
 base-object:sword:Rapier
 level:1
-weight:40
+weight:20
 cost:15000
 alloc:38:5 to 50
-attack:1d6:12:19
+attack:1d12:12:19
 armor:0:0
 values:LIGHT[1] | RES_COLD[1] | RES_LIGHT[1]
 brand:COLD_3
@@ -298,7 +301,7 @@ desc:A slender, tapered needle of ice that coldly grips its impaled prey.
 name:'Careth Asdriag'
 base-object:sword:Rapier
 level:15
-weight:40
+weight:20
 cost:25000
 alloc:10:15 to 80
 attack:2d6:16:12
@@ -315,7 +318,7 @@ desc: of dismay to creatures natural and unnatural.
 name:'Sting'
 base-object:sword:Short Sword
 level:20
-weight:75
+weight:35
 cost:100000
 alloc:6:20 to 100
 attack:1d7:7:8
@@ -334,7 +337,7 @@ desc: abilities he did not know he had.
 name:'Dagmor'
 base-object:sword:Short Sword
 level:20
-weight:80
+weight:40
 cost:15000
 alloc:12:20 to 80
 attack:1d7:13:11
@@ -349,7 +352,7 @@ desc: Brethil.
 name:'Gondricam'
 base-object:sword:Cutlass
 level:20
-weight:110
+weight:55
 cost:28000
 alloc:12:20 to 65
 attack:1d8:10:11
@@ -364,7 +367,7 @@ desc: men of Umbar who met it in combat.
 name:'Haradekket'
 base-object:sword:Scimitar
 level:20
-weight:130
+weight:65
 cost:30000
 alloc:7:20 to 80
 attack:4d2:9:11
@@ -380,7 +383,7 @@ desc: as the "Sickle of Harad", and a deadly foe to the undead.
 name:'Ringil'
 base-object:sword:Long Sword
 level:20
-weight:130
+weight:65
 cost:300000
 alloc:1:20 to 127
 attack:4d5:22:25
@@ -402,7 +405,7 @@ desc: again.
 name:'Andúril'
 base-object:sword:Long Sword
 level:20
-weight:130
+weight:65
 cost:80000
 alloc:3:20 to 127
 attack:3d5:10:15
@@ -423,7 +426,7 @@ desc: and no creature of Sauron can withstand it.
 name:'Anguirel'
 base-object:sword:Long Sword
 level:20
-weight:130
+weight:65
 cost:40000
 alloc:3:20 to 127
 attack:2d5:10:12
@@ -440,7 +443,7 @@ desc: other blade he forged.
 name:'Elvagil'
 base-object:sword:Long Sword
 level:1
-weight:130
+weight:65
 cost:30000
 alloc:50:10 to 50
 attack:2d5:12:12
@@ -455,7 +458,7 @@ desc: and secret places of the earth.
 name:'Aranrúth'
 base-object:sword:Broad Sword
 level:20
-weight:150
+weight:75
 cost:50000
 alloc:2:20 to 100
 attack:3d5:20:12
@@ -473,7 +476,7 @@ desc: lightfooted as you clasp its hilt of gold and silver inlay.
 name:'Glamdring'
 base-object:sword:Broad Sword
 level:20
-weight:150
+weight:75
 cost:40000
 alloc:5:20 to 80
 attack:2d5:10:15
@@ -490,7 +493,7 @@ desc: from dying orcs who dared to behold hidden Gondolin.
 name:'Aeglin'
 base-object:sword:Broad Sword
 level:20
-weight:150
+weight:75
 cost:45000
 alloc:3:20 to 100
 attack:2d5:12:16
@@ -508,7 +511,7 @@ desc: eerily in the globes of light they create.
 name:'Orcrist'
 base-object:sword:Broad Sword
 level:20
-weight:150
+weight:75
 cost:40000
 alloc:5:20 to 80
 attack:2d5:10:15
@@ -525,10 +528,10 @@ desc: by orcs who came to know its power all too well.
 name:'Calris'
 base-object:sword:Bastard Sword
 level:30
-weight:140
+weight:70
 cost:100000
 alloc:7:30 to 127
-attack:5d4:0:20
+attack:3d7:0:20
 armor:0:0
 # F:DRAIN_HP | 
 flags:AGGRAVATE
@@ -545,7 +548,7 @@ desc: peril.
 name:of Éowyn
 base-object:sword:Bastard Sword
 level:30
-weight:140
+weight:70
 cost:120000
 alloc:3:30 to 127
 attack:4d4:12:16
@@ -563,10 +566,10 @@ desc: himself, whom no mortal man could hinder.
 name:'Aglarang'
 base-object:sword:Katana
 level:30
-weight:50
+weight:25
 cost:40000
 alloc:4:30 to 100
-attack:6d5:10:10
+attack:6d6:10:10
 armor:0:0
 flags:SUST_DEX
 values:SPEED[5] | DEX[5] | BLOWS[1]
@@ -577,7 +580,7 @@ desc:  It is combat incarnate.
 name:'Gurthang'
 base-object:sword:Zweihander
 level:30
-weight:200
+weight:100
 cost:100000
 alloc:3:30 to 100
 attack:3d6:13:17
@@ -594,10 +597,10 @@ desc: Glaurung's blood?
 name:'Zarcuthra'
 base-object:sword:Zweihander
 level:30
-weight:240
+weight:120
 cost:200000
 alloc:1:30 to 127
-attack:4d6:19:21
+attack:3d8:19:21
 armor:0:0
 # F:DRAIN_MANA | 
 flags:FREE_ACT | SEE_INVIS | AGGRAVATE
@@ -618,7 +621,7 @@ desc: slowly approach.
 name:'Mormegil'
 base-object:sword:Zweihander
 level:30
-weight:250
+weight:125
 cost:10000
 alloc:7:30 to 100
 attack:3d6:-15:-15
@@ -636,10 +639,10 @@ desc: very lifeblood of its wielder.
 name:'Crisdurian'
 base-object:sword:Executioner's Sword
 level:40
-weight:260
+weight:130
 cost:100000
 alloc:4:40 to 127
-attack:4d5:18:19
+attack:4d6:18:19
 armor:0:0
 flags:SEE_INVIS
 slay:DRAGON_3
@@ -655,10 +658,10 @@ desc: both the living and undead.
 name:'Doomcaller'
 base-object:sword:Blade of Chaos
 level:70
-weight:180
+weight:90
 cost:200000
 alloc:4:70 to 127
-attack:6d5:18:28
+attack:4d7:18:28
 armor:0:-50
 # F:DRAIN_HP | 
 flags:FREE_ACT | SEE_INVIS | TELEPATHY | AGGRAVATE
@@ -679,7 +682,7 @@ desc: shadow of death even as you inflict wounds that will not heal.
 name:of Gothmog
 base-object:hafted:Whip
 level:60
-weight:90
+weight:45
 cost:25000
 alloc:4:60 to 127
 attack:6d3:13:15
@@ -701,7 +704,7 @@ desc: even Ungoliant to heel.
 name:of Fundin Bluecloak
 base-object:hafted:Ball-and-Chain
 level:65
-weight:130
+weight:65
 cost:60000
 alloc:2:65 to 127
 attack:4d4:13:17
@@ -718,7 +721,7 @@ desc: haunt the halls of Angband still.
 name:'Bloodspike'
 base-object:hafted:Morning Star
 level:20
-weight:150
+weight:75
 cost:30000
 alloc:3:20 to 75
 attack:2d6:8:22
@@ -735,7 +738,7 @@ desc: bathe it in the blood of your foes.
 name:'Firestar'
 base-object:hafted:Morning Star
 level:20
-weight:150
+weight:75
 cost:35000
 alloc:7:20 to 100
 attack:2d6:15:17
@@ -750,7 +753,7 @@ desc: up in wrath.
 name:'Totila'
 base-object:hafted:Flail
 level:20
-weight:150
+weight:75
 cost:55000
 alloc:12:20 to 65
 attack:3d6:16:12
@@ -767,10 +770,10 @@ desc: becomes a fiery comet as you bring it down.
 name:'Thunderfist'
 base-object:hafted:Two-Handed Great Flail
 level:45
-weight:300
+weight:150
 cost:160000
 alloc:3:45 to 127
-attack:4d6:5:18
+attack:3d9:5:18
 armor:0:0
 flags:PROT_FEAR | 
 values:STR[4] | CON[3] | RES_ELEC[1] | RES_FIRE[1] | RES_DARK[1]
@@ -786,10 +789,10 @@ desc: crackle around its massive head.
 name:'Taratol'
 base-object:hafted:Mace
 level:20
-weight:200
+weight:100
 cost:50000
 alloc:7:20 to 100
-attack:3d4:12:12
+attack:3d6:12:12
 armor:0:0
 values:RES_ELEC[3]
 brand:ELEC_3
@@ -803,7 +806,7 @@ desc: fingers and eyebrows.
 name:'Nar-i-vagil'
 base-object:hafted:Quarterstaff
 level:20
-weight:150
+weight:75
 cost:70000
 alloc:5:20 to 80
 attack:1d9:10:20
@@ -817,7 +820,7 @@ desc: auras of protection and thought.
 name:'Eriril'
 base-object:hafted:Quarterstaff
 level:20
-weight:150
+weight:75
 cost:20000
 alloc:5:20 to 100
 attack:1d9:13:15
@@ -833,7 +836,7 @@ desc: grants keen sight and clear knowledge of many hidden things.
 name:of Olórin
 base-object:hafted:Quarterstaff
 level:30
-weight:150
+weight:75
 cost:130000
 alloc:1:30 to 100
 attack:2d9:10:13
@@ -855,7 +858,7 @@ desc: deals.
 name:of Aulë
 base-object:hafted:Great Hammer
 level:40
-weight:120
+weight:60
 cost:250000
 alloc:1:40 to 127
 attack:18d1:19:21
@@ -876,7 +879,7 @@ desc: invokes the strength of mountains to ward off the tumult of the elements.
 name:'Deathwreaker'
 base-object:hafted:Mace of Disruption
 level:80
-weight:400
+weight:200
 cost:400000
 alloc:3:80 to 127
 attack:7d8:18:18
@@ -902,7 +905,7 @@ desc: of the Undead!
 name:'Aiglos'
 base-object:polearm:Spear
 level:15
-weight:50
+weight:25
 cost:140000
 alloc:2:15 to 100
 attack:3d6:15:25
@@ -922,7 +925,7 @@ desc:  Against it, all the foul corruptions of Sauron dashed in vain.
 name:of Oromë
 base-object:polearm:Spear
 level:15
-weight:50
+weight:25
 cost:60000
 alloc:2:15 to 127
 attack:4d6:15:15
@@ -941,10 +944,10 @@ desc: frost, and able to pierce rock or flesh with ease.
 name:'Nimloth'
 base-object:polearm:Spear
 level:15
-weight:50
+weight:25
 cost:30000
 alloc:8:15 to 65
-attack:1d6:11:13
+attack:1d7:11:13
 armor:0:0
 flags:BLESSED | SEE_INVIS
 values:STEALTH[3] | SPEED[3] | RES_COLD[1]
@@ -958,7 +961,7 @@ desc: spear.
 name:of Melkor
 base-object:polearm:Spear
 level:65
-weight:200
+weight:100
 cost:100000
 alloc:2:65 to 127
 attack:4d6:-12:20
@@ -974,7 +977,7 @@ desc: the Two Trees with wounds that would not heal.
 name:of Wrath
 base-object:polearm:Trident
 level:15
-weight:70
+weight:35
 cost:90000
 alloc:3:15 to 100
 attack:3d10:16:18
@@ -991,7 +994,7 @@ desc: evil and undead.
 name:of Ulmo
 base-object:polearm:Trident
 level:30
-weight:70
+weight:35
 cost:120000
 alloc:1:30 to 127
 attack:4d10:15:19
@@ -1009,10 +1012,10 @@ desc: of the undead, and is utterly in command of the Element of water.
 name:'Osondir'
 base-object:polearm:Halberd
 level:20
-weight:140
+weight:70
 cost:22000
 alloc:12:25 to 80
-attack:3d5:16:12
+attack:3d7:16:12
 armor:0:0
 flags:BLESSED | FEATHER | SEE_INVIS
 values:STR[3] | WIS[3] | RES_FIRE[1] | RES_SOUND[1]
@@ -1025,10 +1028,10 @@ desc: clear-eyed in barrows fell, wielding a halberd glowing ruby red.
 name:'Til-i-arc'
 base-object:polearm:Pike
 level:20
-weight:160
+weight:80
 cost:32000
 alloc:7:20 to 80
-attack:3d5:10:12
+attack:1d15:10:12
 armor:0:10
 flags:SUST_INT | SLOW_DIGEST
 values:STR[3] | INT[3] | SPEED[2] | RES_FIRE[1] | RES_COLD[1]
@@ -1043,7 +1046,7 @@ desc: fire demons, who war forever, fettered by sorcerous binds.
 name:of Théoden
 base-object:polearm:Beaked Axe
 level:20
-weight:180
+weight:90
 cost:40000
 alloc:7:20 to 100
 attack:2d6:8:10
@@ -1059,7 +1062,7 @@ desc: Dragon, and the designs of your enemies stand naked and revealed.
 name:of Húrin
 base-object:polearm:Beaked Axe
 level:20
-weight:180
+weight:90
 cost:90000
 alloc:7:20 to 100
 attack:3d6:12:15
@@ -1082,7 +1085,7 @@ desc: come again!"
 name:'Barukkheled'
 base-object:polearm:Broad Axe
 level:20
-weight:160
+weight:80
 cost:50000
 alloc:12:20 to 75
 attack:2d6:13:19
@@ -1099,7 +1102,7 @@ desc: creatures of earth.
 name:of Balli Stonehand
 base-object:polearm:Battle Axe
 level:30
-weight:170
+weight:85
 cost:90000
 alloc:7:30 to 100
 attack:3d8:8:11
@@ -1116,7 +1119,7 @@ desc: forces to resist and endure lie ready for its next owner.
 name:'Lotharang'
 base-object:polearm:Battle Axe
 level:30
-weight:170
+weight:85
 cost:21000
 alloc:7:30 to 100
 attack:2d8:14:13
@@ -1132,10 +1135,10 @@ desc: of the Rangers of Arnor.
 name:'Mundwine'
 base-object:polearm:Lochaber Axe
 level:30
-weight:240
+weight:120
 cost:30000
 alloc:12:30 to 100
-attack:3d8:12:17
+attack:3d10:12:17
 armor:0:0
 values:RES_ACID[1] | RES_ELEC[1] | RES_FIRE[1] | RES_COLD[1]
 slay:EVIL_2
@@ -1148,7 +1151,7 @@ desc: intricately engraved upon its surface in filleted gold.
 name:of Durin
 base-object:polearm:Great Axe
 level:30
-weight:230
+weight:115
 cost:150000
 alloc:1:40 to 127
 attack:4d4:10:20
@@ -1169,7 +1172,7 @@ desc: Khazad-dûm protect its wielder and slay all evils found underground.
 name:of Eönwë
 base-object:polearm:Great Axe
 level:30
-weight:230
+weight:115
 cost:200000
 alloc:1:40 to 127
 attack:5d4:15:18
@@ -1190,7 +1193,7 @@ desc: evil at a word, and grants Maia-like powers of body and mind.
 name:'Avavir'
 base-object:polearm:Scythe
 level:40
-weight:180
+weight:90
 cost:18000
 alloc:12:45 to 100
 attack:5d3:18:12
@@ -1208,10 +1211,10 @@ desc: returning.
 name:of Pain
 base-object:polearm:Glaive
 level:30
-weight:300
+weight:150
 cost:50000
 alloc:4:30 to 127
-attack:9d6:0:30
+attack:6d9:0:30
 armor:0:0
 desc:The massive cleaver that crowns this glaive glows blood-red and black;
 desc: fell spells of annihilation swirl and dance as you swing death's myrmidon
@@ -1220,10 +1223,10 @@ desc: down.
 name:of the Eorlingas
 base-object:polearm:Lance
 level:20
-weight:360
+weight:180
 cost:55000
 alloc:4:20 to 100
-attack:3d8:13:21
+attack:2d17:3:21
 armor:0:0
 flags:PROT_FEAR | SEE_INVIS
 values:STR[2] | DEX[2] | SPEED[2]
@@ -1235,12 +1238,12 @@ desc: hope to save beleaguered Gondor, and from his lance fled massive trolls
 desc: and dire wolves.
 
 name:'Turmil'
-base-object:polearm:Lucerne Hammer
+base-object:hafted:Lead-Filled Mace
 level:20
-weight:120
+weight:60
 cost:30000
 alloc:7:20 to 100
-attack:2d5:10:11
+attack:4d4:10:11
 armor:0:8
 flags:BLESSED | REGEN
 act:DRAIN_LIFE1
@@ -1342,7 +1345,7 @@ desc: with mighty power for those brave enough to risk betrayal.
 name:of Erebor
 base-object:digger:Pick
 level:55
-weight:180
+weight:90
 cost:30000
 alloc:20:55 to 100
 attack:4d3:5:20
@@ -1360,7 +1363,7 @@ desc: should the wielder ever tunnel through into a foe's stronghold.
 name:of Náin
 base-object:digger:Mattock
 level:60
-weight:240
+weight:120
 cost:30000
 alloc:12:60 to 100
 attack:2d8:12:18

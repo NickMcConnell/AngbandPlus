@@ -849,7 +849,7 @@ int rd_ignore(void)
 
 	for (i = 0; i < file_e_max; i++) {
 		if (i < z_info->e_max) {
-			bitflag flags, itypes[itype_size];
+			bitflag flags, itypes[ITYPE_SIZE];
 			
 			/* Read and extract the everseen flag */
 			rd_byte(&flags);
@@ -1238,7 +1238,7 @@ int rd_stores(void) { return rd_stores_aux(rd_item); }
  */
 static int rd_dungeon_aux(struct chunk **c)
 {
-	struct chunk *c1 = *c;
+	struct chunk *c1;
 	int i, n, y, x;
 
 	u16b height, width;

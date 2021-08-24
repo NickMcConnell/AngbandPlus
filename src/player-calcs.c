@@ -546,44 +546,44 @@ static const int adj_str_dig[STAT_RANGE] =
  */
 const int adj_str_blow[STAT_RANGE] =
 {
-	3	/* 3 */,
-	4	/* 4 */,
-	5	/* 5 */,
-	6	/* 6 */,
-	7	/* 7 */,
-	8	/* 8 */,
-	9	/* 9 */,
-	10	/* 10 */,
-	11	/* 11 */,
-	12	/* 12 */,
-	13	/* 13 */,
-	14	/* 14 */,
-	15	/* 15 */,
-	16	/* 16 */,
-	17	/* 17 */,
-	20 /* 18/00-18/09 */,
-	30 /* 18/10-18/19 */,
-	40 /* 18/20-18/29 */,
-	50 /* 18/30-18/39 */,
-	60 /* 18/40-18/49 */,
-	70 /* 18/50-18/59 */,
-	80 /* 18/60-18/69 */,
-	90 /* 18/70-18/79 */,
-	100 /* 18/80-18/89 */,
-	110 /* 18/90-18/99 */,
-	120 /* 18/100-18/109 */,
-	130 /* 18/110-18/119 */,
-	140 /* 18/120-18/129 */,
-	150 /* 18/130-18/139 */,
-	160 /* 18/140-18/149 */,
-	170 /* 18/150-18/159 */,
-	180 /* 18/160-18/169 */,
-	190 /* 18/170-18/179 */,
-	200 /* 18/180-18/189 */,
-	210 /* 18/190-18/199 */,
-	220 /* 18/200-18/209 */,
-	230 /* 18/210-18/219 */,
-	240 /* 18/220+ */
+	 9	/* 3 */,
+	12	/* 4 */,
+	15	/* 5 */,
+	18	/* 6 */,
+	21	/* 7 */,
+	25	/* 8 */,
+	28	/* 9 */,
+	31	/* 10 */,
+	34	/* 11 */,
+	37	/* 12 */,
+	41	/* 13 */,
+	44	/* 14 */,
+	47	/* 15 */,
+	50	/* 16 */,
+	60	/* 17 */,
+	70 /* 18/00-18/09 */,
+	100 /* 18/10-18/19 */,
+	130 /* 18/20-18/29 */,
+	160 /* 18/30-18/39 */,
+	190 /* 18/40-18/49 */,
+	225 /* 18/50-18/59 */,
+	260 /* 18/60-18/69 */,
+	300 /* 18/70-18/79 */,
+	330 /* 18/80-18/89 */,
+	360 /* 18/90-18/99 */,
+	400 /* 18/100-18/109 */,
+	450 /* 18/110-18/119 */,
+	500 /* 18/120-18/129 */,
+	550 /* 18/130-18/139 */,
+	600 /* 18/140-18/149 */,
+	650 /* 18/150-18/159 */,
+	700 /* 18/160-18/169 */,
+	750 /* 18/170-18/179 */,
+	800 /* 18/180-18/189 */,
+	850 /* 18/190-18/199 */,
+	900 /* 18/200-18/209 */,
+	950 /* 18/210-18/219 */,
+	1000 /* 18/220+ */
 };
 
 
@@ -604,11 +604,11 @@ static const int adj_dex_blow[STAT_RANGE] =
 	1	/* 12 */,
 	1	/* 13 */,
 	1	/* 14 */,
-	1	/* 15 */,
-	1	/* 16 */,
+	2	/* 15 */,
+	2	/* 16 */,
 	2	/* 17 */,
 	2	/* 18/00-18/09 */,
-	2	/* 18/10-18/19 */,
+	3	/* 18/10-18/19 */,
 	3	/* 18/20-18/29 */,
 	3	/* 18/30-18/39 */,
 	4	/* 18/40-18/49 */,
@@ -889,44 +889,44 @@ static const int blows_table[12][12] =
 {
 	/* P */
    /* D:   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11+ */
-   /* DEX: 3,   10,  17,  /20, /40, /60, /80, /100,/120,/150,/180,/200 */
+   /* DEX: 3,   10,  15,  /10, /40, /60, /80, /100,/120,/150,/180,/200 */
 
 	/* 0  */
-	{  100, 100, 95,  85,  75,  60,  50,  42,  35,  30,  25,  23 },
+	{  100, 100, 100,  100,  100,  100,  100,  100,  100,  100,  100,  100 },
 
 	/* 1  */
-	{  100, 95,  85,  75,  60,  50,  42,  35,  30,  25,  23,  21 },
+	{  100, 100,  95,  85,  75,  75,  66,  66,  60,  60,  50,  50 },
 
 	/* 2  */
-	{  95,  85,  75,  60,  50,  42,  35,  30,  26,  23,  21,  20 },
+	{  100,  95,  95,  85,  75,  66,  66,  60,  50,  50,  42,  42 },
 
 	/* 3  */
-	{  85,  75,  60,  50,  42,  36,  32,  28,  25,  22,  20,  19 },
+	{  100,  95,  85,  75,  66,  66,  60,  50,  50,  42,  36,  33 },
 
 	/* 4  */
-	{  75,  60,  50,  42,  36,  33,  28,  25,  23,  21,  19,  18 },
+	{  100,  85,  85,  75,  66,  60,  50,  42,  36,  33,  30,  28 },
 
 	/* 5  */
-	{  60,  50,  42,  36,  33,  30,  27,  24,  22,  21,  19,  17 },
+	{  100,  85,  75,  66,  66,  60,  50,  42,  33,  30,  28,  25 },
 
 	/* 6  */
-	{  50,  42,  36,  33,  30,  27,  25,  23,  21,  20,  18,  17 },
+	{  100,  75,  75,  66,  60,  50,  42,  36,  32,  28,  25,  24 },
 
 	/* 7  */
-	{  42,  36,  33,  30,  28,  26,  24,  22,  20,  19,  18,  17 },
+	{  100,  75,  66,  60,  60,  50,  42,  36,  31,  25,  24,  23 },
 
 	/* 8  */
-	{  36,  33,  30,  28,  26,  24,  22,  21,  20,  19,  17,  16 },
+	{  100,  75,  66,  60,  50,  42,  36,  35,  30,  24,  23,  22 },
 
 	/* 9  */
-	{  35,  32,  29,  26,  24,  22,  21,  20,  19,  18,  17,  16 },
+	{  100,  75,  60,  50,  50,  42,  36,  32,  28,  23,  22,  21 },
 
 	/* 10 */
-	{  34,  30,  27,  25,  23,  22,  21,  20,  19,  18,  17,  16 },
+	{  100,  75,  60,  50,  42,  36,  35,  30,  27,  22,  21,  20 },
 
 	/* 11+ */
-	{  33,  29,  26,  24,  22,  21,  20,  19,  18,  17,  16,  15 },
-   /* DEX: 3,   10,  17,  /20, /40, /60, /80, /100,/120,/150,/180,/200 */
+	{  100,  75,  60,  50,  42,  36,  32,  28,  26,  21,  20,  20 },
+   /* DEX: 3,   10,  15,  /10, /40, /60, /80, /100,/120,/150,/180,/200 */
 };
 
 /**
@@ -1555,11 +1555,17 @@ static void calc_light(struct player *p, struct player_state *state,
 		if (!obj) continue;
 
 		/* Light radius - innate plus modifier */
-		if (of_has(obj->flags, OF_LIGHT_2))
+		if (of_has(obj->flags, OF_LIGHT_2)) {
 			amt = 2;
-		else if (of_has(obj->flags, OF_LIGHT_3))
+		} else if (of_has(obj->flags, OF_LIGHT_3)) {
 			amt = 3;
+		}
 		amt += obj->modifiers[OBJ_MOD_LIGHT];
+
+		/* Adjustment to allow UNLIGHT players to use +1 LIGHT gear */
+		if ((obj->modifiers[OBJ_MOD_LIGHT] > 0) && player_has(p, PF_UNLIGHT)) {
+			amt--;
+		}
 
 		/* Examine actual lights */
 		if (tval_is_light(obj) && !of_has(obj->flags, OF_NO_FUEL) &&
@@ -1630,9 +1636,14 @@ int calc_blows(struct player *p, const struct object *obj,
 	blow_energy = blows_table[str_index][dex_index];
 
 	blows = MIN((10000 / blow_energy), (100 * p->class->max_attacks));
+	
+	/* Warriors get an extra blow */
+	
+	if player_has(p, PF_EXTRA_BLOW) blows += 100;
 
-	/* Require at least one blow */
-	return MAX(blows + (100 * extra_blows), 100);
+	/* Require at least one blow, two for O-combat */
+	return MAX(blows + (100 * extra_blows),
+			   OPT(p, birth_percent_damage) ? 200 : 100);
 }
 
 
@@ -1927,6 +1938,12 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 		state->el_info[ELEM_DARK].res_level = 1;
 	}
 
+	/* Evil */
+	if (player_has(p, PF_EVIL) && character_dungeon) {
+		state->el_info[ELEM_NETHER].res_level = 1;
+		state->el_info[ELEM_HOLY_ORB].res_level = -1;
+	}
+
 	/* Calculate the various stat values */
 	for (i = 0; i < STAT_MAX; i++) {
 		int add, use, ind;
@@ -2012,10 +2029,16 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 		state->to_h -= 20;
 		state->to_d -= 20;
 		state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 8 / 10;
+		if (update) {
+			p->timed[TMD_FASTCAST] = 0;
+		}
 	} else if (player_timed_grade_eq(p, TMD_STUN, "Stun")) {
 		state->to_h -= 5;
 		state->to_d -= 5;
 		state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 9 / 10;
+		if (update) {
+			p->timed[TMD_FASTCAST] = 0;
+		}
 	}
 	if (p->timed[TMD_INVULN]) {
 		state->to_a += 100;
@@ -2192,7 +2215,7 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 		/* Normal weapons */
 		if (!state->heavy_wield) {
 			state->num_blows = calc_blows(p, weapon, state, extra_blows);
-			state->skills[SKILL_DIGGING] += (weapon->weight / 10);
+			state->skills[SKILL_DIGGING] += (weapon->weight / 5);
 		}
 
 		/* Divine weapon bonus for blessed weapons */
@@ -2212,7 +2235,12 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 	}
 
 	/* Movement speed */
-	state->num_moves = 1 + extra_moves;;
+	state->num_moves = 1 + extra_moves;
+
+	/* Damage reduction for blackguards */
+	if (player_has(p, PF_CROWD_FIGHT)) {
+		state->perc_dam_red = player_crowd_damage_reduction(p);
+	}
 
 	return;
 }
@@ -2574,7 +2602,7 @@ void redraw_stuff(struct player *p)
 
 	/* Hack - rarely update while resting or running, makes it over quicker */
 	if (((player_resting_count(p) % 100) || (p->upkeep->running % 100))
-		&& !(redraw & PR_MESSAGE))
+		&& !(redraw & (PR_MESSAGE | PR_MAP)))
 		return;
 
 	/* For each listed flag, send the appropriate signal to the UI */

@@ -122,15 +122,15 @@ skill-throw:55:45
 skill-dig:0:0
 hitdie:9
 max-attacks:6
-min-weight:30
-strength-multiplier:5
+min-weight:10
+strength-multiplier:1
 equip:food:Ration of Food:1:3
 equip:light:Wooden Torch:1:3
 equip:potion:Berserk Strength:1:1
-equip:sword:Dagger:1:1
+equip:sword:Short Sword:1:1
 equip:soft armour:Soft Leather Armour:1:1
 equip:scroll:Word of Recall:1:1
-player-flags:BRAVERY_30 | NO_MANA | SHIELD_BASH
+player-flags:BRAVERY_30 | NO_MANA | SHIELD_BASH | EXTRA_BLOW
 title:Rookie
 title:Soldier
 title:Swordsman
@@ -158,11 +158,11 @@ skill-throw:20:15
 skill-dig:0:0
 hitdie:0
 max-attacks:4
-min-weight:40
-strength-multiplier:2
+min-weight:10
+strength-multiplier:1
 equip:food:Ration of Food:1:3
 equip:light:Wooden Torch:1:3
-equip:sword:Rapier:1:1
+equip:sword:Dagger:1:1
 equip:scroll:Word of Recall:1:1
 player-flags:ZERO_FAIL | BEAM | CHOOSE_SPELLS
 title:Novice
@@ -242,7 +242,7 @@ book-properties:400:40:10 to 100
 spell:Recharging:5:5:28:6
 effect:RECHARGE
 dice:$B
-expr:B:PLAYER_LEVEL:+ 0
+expr:B:PLAYER_LEVEL:/ 8 + 6
 desc:Adds charges to a stack of wands or staves.
 desc:  Chance of success and number of charges gained increase with your
 desc: level and decrease with level of wand or staff and number of charges.
@@ -316,12 +316,14 @@ desc:Grants you resistance to acid, cold, fire and lightning for 20+1d20 turns.
 
 spell:Tap Magical Energy:22:2:30:12
 effect:TAP_DEVICE
-desc:Turns wand or staff energy into mana.
+effect:TIMED_INC:STUN
+dice:1d2
+desc:Turns wand or staff energy into mana; tapping stuns the player briefly.
 
-spell:Mana Channel:25:3:50:20
+spell:Mana Channel:25:10:50:20
 effect:TIMED_INC:FASTCAST
-dice:25+1d25
-desc:Doubles spellcasting speed for 25 +1d25 turns.
+dice:5+1d5
+desc:Doubles spellcasting speed for 5+1d5 turns.
 
 book:magic book:dungeon:[Arcane Control]:6:arcane
 book-graphics:?:r
@@ -431,8 +433,8 @@ skill-throw:40:30
 skill-dig:0:0
 hitdie:2
 max-attacks:4
-min-weight:35
-strength-multiplier:3
+min-weight:10
+strength-multiplier:1
 equip:food:Ration of Food:1:3
 equip:hafted:Whip:1:1
 equip:light:Wooden Torch:1:3
@@ -665,8 +667,8 @@ skill-throw:35:20
 skill-dig:0:0
 hitdie:2
 max-attacks:4
-min-weight:35
-strength-multiplier:3
+min-weight:10
+strength-multiplier:1
 equip:food:Ration of Food:1:3
 equip:light:Wooden Torch:1:3
 equip:hafted:Mace:1:1
@@ -934,12 +936,12 @@ skill-throw:20:15
 skill-dig:0:0
 hitdie:2
 max-attacks:4
-min-weight:35
-strength-multiplier:3
+min-weight:10
+strength-multiplier:1
 equip:food:Ration of Food:1:3
-equip:sword:Main Gauche:1:1
+equip:sword:Dagger:1:1
 equip:scroll:Word of Recall:1:1
-player-flags:ZERO_FAIL | CHOOSE_SPELLS | UNLIGHT
+player-flags:ZERO_FAIL | CHOOSE_SPELLS | UNLIGHT | EVIL
 title:Acolyte
 title:Curser
 title:Dark Student
@@ -1189,11 +1191,11 @@ skill-throw:50:30
 skill-dig:0:0
 hitdie:6
 max-attacks:5
-min-weight:30
-strength-multiplier:5
+min-weight:10
+strength-multiplier:1
 equip:food:Ration of Food:1:3
 equip:light:Wooden Torch:1:3
-equip:sword:Main Gauche:1:1
+equip:sword:Short Sword:1:1
 equip:scroll:Protection from Evil:1:1
 equip:scroll:Word of Recall:1:1
 equip:prayer book:[Novice's Handbook]:1:1
@@ -1264,7 +1266,7 @@ desc:Cures 10 points of damage, removes fear and, from character level 15,
 desc: grants you heroism (resistance to fear, and a bonus of +12 to-hit)
 desc: for a level-dependent duration.
 
-book:prayer book:dungeon:[Healing and Sanctuary]:6:divine
+book:prayer book:dungeon:[Healing and Sanctuary]:5:divine
 
 spell:Protection from Evil:15:8:42:5
 effect:TIMED_INC:PROTEVIL
@@ -1350,8 +1352,8 @@ skill-throw:72:45
 skill-dig:0:0
 hitdie:4
 max-attacks:5
-min-weight:20
-strength-multiplier:4
+min-weight:10
+strength-multiplier:1
 equip:food:Ration of Food:1:3
 equip:light:Wooden Torch:1:3
 equip:sword:Dagger:1:1
@@ -1400,7 +1402,7 @@ desc:Detects all stairs in a wide area.
 spell:Recharging:20:10:50:6
 effect:RECHARGE
 dice:$B
-expr:B:PLAYER_LEVEL:+ 0
+expr:B:PLAYER_LEVEL:/ 10 + 4
 desc:Adds charges to a stack of wands or staves.
 desc:  Chance of success and number of charges gained increase with your
 desc: level and decrease with level of wand or staff and number of charges.
@@ -1454,11 +1456,11 @@ skill-throw:66:30
 skill-dig:0:0
 hitdie:5
 max-attacks:5
-min-weight:35
-strength-multiplier:4
+min-weight:10
+strength-multiplier:1
 equip:food:Ration of Food:1:3
 equip:light:Wooden Torch:1:3
-equip:sword:Main Gauche:1:1
+equip:sword:Dagger:1:1
 equip:bow:Short Bow:1:1
 equip:arrow:Arrow:15:20
 equip:scroll:Word of Recall:1:1
@@ -1515,8 +1517,8 @@ desc:Maps the nearby area.
 
 book:nature book:dungeon:[Nature Craft]:5:nature
 
-spell:Cover Tracks:20:10:40:40
-effect:TIMED_INC:SCENTLESS:0:5
+spell:Cover Tracks:20:20:40:40
+effect:TIMED_INC:COVERTRACKS:0:5
 dice:$B+d20
 expr:B:PLAYER_LEVEL:* 2
 desc:Prevents you from leaving scent for monsters to track you by for a
@@ -1552,22 +1554,22 @@ skill-disarm-phys:20:15
 skill-disarm-magic:20:10
 skill-device:24:10
 skill-save:25:11
-skill-stealth:0:0
+skill-stealth:-1:-1
 skill-search:10:12
 skill-melee:60:40
 skill-shoot:50:30
 skill-throw:50:30
 skill-dig:0:0
-hitdie:7
+hitdie:10
 max-attacks:5
-min-weight:100
-strength-multiplier:5
+min-weight:10
+strength-multiplier:1
 equip:food:Ration of Food:1:3
 equip:light:Wooden Torch:1:3
 equip:sword:Cutlass:1:1
 equip:scroll:Word of Recall:1:1
 obj-flags:IMPAIR_HP
-player-flags:CHOOSE_SPELLS | SHIELD_BASH
+player-flags:CHOOSE_SPELLS | SHIELD_BASH | CROWD_FIGHT
 title:Rat
 title:Bully
 title:Thug
@@ -1579,7 +1581,7 @@ title:Marauder
 title:Destroyer
 title:Tyrant
 
-magic:8:400:2
+magic:8:800:2
 
 book:shadow book:town:[Dark Rituals]:4:shadow
 
@@ -1613,6 +1615,12 @@ desc:Temporarily makes your melee attacks branded with poison.
 
 book:shadow book:dungeon:[Deadly Powers]:4:shadow
 
+spell:Taunt:24:10:40:150
+effect:TIMED_INC:TAUNT
+dice:10+d10
+desc:Makes anything that can move more inclined to run toward you than make a
+desc: ranged attack.
+
 spell:Throw Monster:27:12:50:30
 effect:SHORT_BEAM:FORCE:1
 dice:200
@@ -1632,9 +1640,3 @@ spell:Piercing Shot:35:20:40:120
 effect:TIMED_INC:POWERSHOT
 dice:3
 desc:Makes your next shot powerful enough to pierce several enemies.
-
-spell:Forceful Blow:38:20:40:150
-effect:TIMED_INC:POWERBLOW
-dice:10
-desc:Makes your next blow strong enough to hurl your enemy back, maybe even
-desc: through walls.

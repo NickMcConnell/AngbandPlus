@@ -395,6 +395,10 @@ static void display_resistance_panel(const struct player_flag_record *rec,
 					if ((rec[i].tmd_flag == TMD_AFRAID) &&
 						(player->timed[TMD_TERROR]))
 						timed = true;
+					/* ..and a couple more... */
+					if ((rec[i].tmd_flag == TMD_BOLD) &&
+						(player->timed[TMD_HERO] || player->timed[TMD_SHERO]))
+						timed = true;
 				}
 
 				/* Set which (if any) symbol and color are used */
@@ -666,15 +670,6 @@ static void display_player_sust_info(void)
 		/* Dump */
 		Term_putch(col, row + stat, a, c);
 	}
-
-	/* Column */
-	col = 26;
-
-	/* Footer */
-	//c_put_str(COLOUR_WHITE, "abcdefghijkl@", row + 5, col);
-
-	/* Equippy */
-	//display_player_equippy(row + 7, col);
 }
 
 

@@ -33,6 +33,7 @@
 #include "object.h"
 #include "player-spell.h"
 #include "project.h"
+#include "ui-visuals.h"
 
 struct blow_method *blow_methods;
 struct blow_effect *blow_effects;
@@ -399,9 +400,11 @@ static enum parser_error parse_eff_resist(struct parser *p) {
 
 static enum parser_error parse_eff_lash_type(struct parser *p) {
 	struct blow_effect *eff = parser_priv(p);
+	int type;
 	assert(eff);
 
-	eff->lash_type = proj_name_to_idx(parser_getstr(p, "type"));
+	type = proj_name_to_idx(parser_getstr(p, "type"));
+	eff->lash_type = type >= 0 ? type : PROJ_MISSILE;
 	return PARSE_ERROR_NONE;
 }
 
@@ -1555,6 +1558,26 @@ static enum parser_error parse_monster_plural(struct parser *p)
 	return PARSE_ERROR_NONE;
 }
 
+static enum parser_error parse_monster_color_cycle(struct parser *p)
+{
+	struct monster_race *r = parser_priv(p);
+	const char *group = parser_getsym(p, "group");
+	const char *cycle = parser_getsym(p, "cycle");
+
+	if (r == NULL)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+
+	if (group == NULL || strlen(group) == 0)
+		return PARSE_ERROR_INVALID_VALUE;
+
+	if (cycle == NULL || strlen(cycle) == 0)
+		return PARSE_ERROR_INVALID_VALUE;
+
+	visuals_cycler_set_cycle_for_race(r, group, cycle);
+
+	return PARSE_ERROR_NONE;
+}
+
 struct parser *init_parse_monster(void) {
 	struct parser *p = parser_new();
 	parser_setpriv(p, NULL);
@@ -1588,6 +1611,7 @@ struct parser *init_parse_monster(void) {
 	parser_reg(p, "friends-base uint chance rand number sym name ?sym role", parse_monster_friends_base);
 	parser_reg(p, "mimic sym tval sym sval", parse_monster_mimic);
 	parser_reg(p, "shape str name", parse_monster_shape);
+	parser_reg(p, "color-cycle sym group sym cycle", parse_monster_color_cycle);
 	return p;
 }
 

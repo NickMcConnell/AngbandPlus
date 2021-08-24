@@ -210,6 +210,7 @@ void do_cmd_inscribe(struct command *cmd)
 		return;
 
 	obj->note = quark_add(str);
+	string_free((char *)str);
 
 	player->upkeep->notice |= (PN_COMBINE | PN_IGNORE);
 	player->upkeep->redraw |= (PR_INVEN | PR_EQUIP);
@@ -358,10 +359,10 @@ void do_cmd_wield(struct command *cmd)
 	else
 		act = "You were wearing";
 
+	inven_wield(obj, slot);
+
 	/* Message */
 	msgt(MSG_WIELD, "%s %s (%c).", act, o_name, gear_to_label(equip_obj));
-
-	inven_wield(obj, slot);
 }
 
 /**
@@ -486,7 +487,7 @@ static void use_aux(struct command *cmd, struct object *obj, enum use use,
 		}
 
 		/* Boost damage effects if skill > difficulty */
-		boost = MAX(player->state.skills[SKILL_DEVICE] - level, 0);
+		boost = MAX((player->state.skills[SKILL_DEVICE] - level) / 2, 0);
 
 		/* Do effect */
 		target_fix();
@@ -893,7 +894,7 @@ void do_cmd_refill(struct command *cmd)
 			USE_INVEN | USE_FLOOR) != CMD_OK) return;
 
 	/* Check what we're wielding. */
-	if (!tval_is_light(light)) {
+	if (!light || !tval_is_light(light)) {
 		msg("You are not wielding a light.");
 		return;
 	} else if (of_has(light->flags, OF_NO_FUEL)) {
@@ -973,7 +974,7 @@ void do_cmd_cast(struct command *cmd)
 	target_fix();
 	if (spell_cast(spell_index, dir)) {
 		if (player->timed[TMD_FASTCAST]) {
-			player->upkeep->energy_use = z_info->move_energy / 2;
+			player->upkeep->energy_use = (z_info->move_energy * 3) / 4;
 		} else {
 			player->upkeep->energy_use = z_info->move_energy;
 		}

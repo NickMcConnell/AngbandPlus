@@ -353,13 +353,13 @@ void ego_apply_magic(struct object *obj, int level)
 		/* Get a base resist if available, mark it as random */
 		if (random_base_resist(obj, &resist)) {
 			obj->el_info[resist].res_level = 1;
-			obj->el_info[resist].flags |= EL_INFO_RANDOM;
+			obj->el_info[resist].flags |= EL_INFO_RANDOM | EL_INFO_IGNORE;
 		}
 	} else if (kf_has(obj->ego->kind_flags, KF_RAND_HI_RES)) {
 		/* Get a high resist if available, mark it as random */
 		if (random_high_resist(obj, &resist)) {
 			obj->el_info[resist].res_level = 1;
-			obj->el_info[resist].flags |= EL_INFO_RANDOM;
+			obj->el_info[resist].flags |= EL_INFO_RANDOM | EL_INFO_IGNORE;
 		}
 	}
 
@@ -717,14 +717,36 @@ static void apply_magic_weapon(struct object *obj, int level, int power)
 		obj->to_h += m_bonus(10, level);
 		obj->to_d += m_bonus(10, level);
 
-		if (tval_is_melee_weapon(obj) || tval_is_ammo(obj)) {
+		if (tval_is_melee_weapon(obj)) {
 			/* Super-charge the damage dice */
-			while ((obj->dd * obj->ds > 0) &&
-					one_in_(10L * obj->dd * obj->ds))
-				obj->dd++;
-
-			/* But not too high */
-			if (obj->dd > 9) obj->dd = 9;
+			while ((obj->dd * obj->ds > 0) && one_in_(4 * obj->dd * obj->ds)) {
+				/* More dice or sides means more likely to get still more */
+				if (randint0(obj->dd + obj->ds) < obj->dd) {
+					int newdice = randint1(2 + obj->dd/obj->ds);
+					while (((obj->dd + 1) * obj->ds <= 40) && newdice) {
+						if (!one_in_(3)) {
+							obj->dd++;
+						}
+						newdice--;
+					}
+				} else {
+					int newsides = randint1(2 + obj->ds/obj->dd);
+					while ((obj->dd * (obj->ds + 1) <= 40) && newsides) {
+						if (!one_in_(3)) {
+							obj->ds++;
+						}
+						newsides--;
+					}
+				}
+			}
+		} else if (tval_is_ammo(obj)) {
+			/* Up to two chances to enhance damage dice. */
+			if (one_in_(6) == 1) {
+				obj->ds++;
+				if (one_in_(10) == 1) {
+					obj->ds++;
+				}
+			}
 		}
 	}
 }
@@ -1104,7 +1126,7 @@ struct object_kind *get_obj_num(int level, bool good, int tval)
 struct object *make_object(struct chunk *c, int lev, bool good, bool great,
 						   bool extra_roll, s32b *value, int tval)
 {
-	int base;
+	int base, tries = 3;
 	struct object_kind *kind;
 	struct object *new_obj;
 
@@ -1123,8 +1145,18 @@ struct object *make_object(struct chunk *c, int lev, bool good, bool great,
 	/* Base level for the object */
 	base = (good ? (lev + 10) : lev);
 
-	/* Try to choose an object kind */
-	kind = get_obj_num(base, good || great, tval);
+	/* Try to choose an object kind; reject most books the player can't read */
+	while (tries) {
+		kind = get_obj_num(base, good || great, tval);
+		if (kind && tval_is_book_k(kind) && !obj_kind_can_browse(kind)) {
+			if (one_in_(5)) break;
+			kind = NULL;
+			tries--;
+			continue;
+		} else {
+			break;
+		}
+	}
 	if (!kind)
 		return NULL;
 

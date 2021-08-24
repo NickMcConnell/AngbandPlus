@@ -34,7 +34,7 @@ void object_base_name(char *buf, size_t max, int tval, bool plural)
 	size_t end = 0;
 
 	if (kb->name && kb->name[0]) 
-		end = obj_desc_name_format(buf, max, end, kb->name, NULL, plural);
+		(void) obj_desc_name_format(buf, max, end, kb->name, NULL, plural);
 }
 
 
@@ -54,7 +54,7 @@ void object_kind_name(char *buf, size_t max, const struct object_kind *kind,
 
 	/* Use proper name (Healing, or whatever) */
 	else
-		obj_desc_name_format(buf, max, 0, kind->name, NULL, false);
+		(void) obj_desc_name_format(buf, max, 0, kind->name, NULL, false);
 }
 
 
@@ -542,7 +542,7 @@ static size_t obj_desc_charges(const struct object *obj, char *buf, size_t max,
 static size_t obj_desc_inscrip(const struct object *obj, char *buf,
 							   size_t max, size_t end)
 {
-	const char *u[5] = { 0, 0, 0, 0, 0 };
+	const char *u[6] = { 0, 0, 0, 0, 0, 0 };
 	int n = 0;
 
 	/* Get inscription */

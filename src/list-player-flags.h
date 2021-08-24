@@ -14,6 +14,7 @@
 /* symbol            descr                                                        birth-descr */
 PF(NONE,             "",                                                          NULL)
 PF(FAST_SHOT,        "improve shooting speed with tension bows every 10 levels",  "Gains extra shots with bow")
+PF(EXTRA_BLOW,       "warriors extra blow",                                       "Gains an extra blow")
 PF(BRAVERY_30,       "become immune to fear at level 30",                         "Gains immunity to fear")
 PF(BLESS_WEAPON,     "may only wield blessed or hafted weapons",                  "Prefers blunt/blessed weapons")
 PF(ZERO_FAIL,        "may obtain a perfect success rate with magic",              "Advanced spellcasting")
@@ -28,3 +29,5 @@ PF(UNLIGHT,          "gains stealth in, can see in, and resists the dark",      
 PF(ROCK,             "is made of rock",                                           "Is made of rock")
 PF(STEAL,            "can steal from monsters",                                   "Steals from monsters")
 PF(SHIELD_BASH,      "can bash monsters with a shield in melee",                  "Employs shield-bashes")
+PF(EVIL,             "resist nether but is hurt by holy attacks",                 "Is evil")
+PF(CROWD_FIGHT,      "gains advantages from fighting many monsters at once",      "Fights crowds well")

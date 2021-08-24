@@ -599,12 +599,20 @@ void object_absorb_partial(struct object *obj1, struct object *obj2)
  */
 void object_absorb(struct object *obj1, struct object *obj2)
 {
+	struct object *known = obj2->known;
 	int total = obj1->number + obj2->number;
 
 	/* Add together the item counts */
 	obj1->number = MIN(total, obj1->kind->base->max_stack);
 
 	object_absorb_merge(obj1, obj2);
+	if (known) {
+		if (!loc_is_zero(known->grid)) {
+			square_excise_object(player->cave, known->grid, known);
+		}
+		delist_object(player->cave, known);
+		object_delete(&known);
+	}
 	object_delete(&obj2);
 }
 
@@ -724,8 +732,8 @@ struct object *object_split(struct object *src, int amt)
 	if (src->note)
 		dest->note = src->note;
 	if (src->known) {
-		dest->known->number = amt;
-		src->known->number -= amt;
+		dest->known->number = dest->number;
+		src->known->number = src->number;
 		dest->known->note = src->known->note;
 	}
 
