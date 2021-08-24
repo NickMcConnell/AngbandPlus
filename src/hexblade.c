@@ -18,11 +18,11 @@ static caster_info * _caster_info(void)
 	if (!init)
 	{
 		me.magic_desc = "spell";
-		me.which_stat = A_INT;
-		me.encumbrance.max_wgt = 430;
-		me.encumbrance.weapon_pct = 33;
+		me.which_stat = A_CHR;
+		me.encumbrance.max_wgt = 450;
+		me.encumbrance.weapon_pct = 20;
 		me.encumbrance.enc_wgt = 1200;
-		me.options = CASTER_GLOVE_ENCUMBRANCE;
+		me.options = CASTER_ALLOW_DEC_MANA;
 		init = TRUE;
 	}
 	return &me;
@@ -30,8 +30,8 @@ static caster_info * _caster_info(void)
 
 static void _birth(void)
 {
-	py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
-	py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+	py_birth_obj_aux(TV_SWORD, SV_LONG_SWORD, 1);
+	py_birth_obj_aux(TV_HARD_ARMOR, SV_RING_MAIL, 1);
 	py_birth_spellbooks();
 }
 
@@ -46,14 +46,14 @@ class_t *hexblade_get_class(void)
 		skills_t xs = { 7,  10,  10,   0,   0,   0,  15,  15 };
 
 		me.name = "Hexblade";
-		me.desc = "A Hexblade is a warrior-mage using Hex magic ";
+		me.desc = "A Hexblade is an evil fighter who employs hex magic.";
 
 		me.stats[A_STR] = 2;
-		me.stats[A_INT] = 2;
+		me.stats[A_INT] = 1;
 		me.stats[A_WIS] = 0;
 		me.stats[A_DEX] = 1;
 		me.stats[A_CON] = 0;
-		me.stats[A_CHR] = 1;
+		me.stats[A_CHR] = 2;
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.life = 106;

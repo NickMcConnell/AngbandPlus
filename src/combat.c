@@ -107,6 +107,7 @@ void init_blows_calc(object_type *o_ptr, weapon_info_t *info_ptr)
     case CLASS_HIGH_MAGE:
     case CLASS_YELLOW_MAGE:
     case CLASS_GRAY_MAGE:
+	case CLASS_CHAOS_MAGE:
         info_ptr->blows_calc.max = 400;
         info_ptr->blows_calc.wgt = 100;
         info_ptr->blows_calc.mult = 20;
@@ -202,6 +203,7 @@ void init_blows_calc(object_type *o_ptr, weapon_info_t *info_ptr)
 
     case CLASS_WARRIOR_MAGE:
     case CLASS_RED_MAGE:
+	case CLASS_HEXBLADE:
         info_ptr->blows_calc.max = 525; info_ptr->blows_calc.wgt = 70; info_ptr->blows_calc.mult = 30; break;
 
     case CLASS_CHAOS_WARRIOR:

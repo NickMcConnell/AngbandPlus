@@ -1958,18 +1958,30 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
                 }
                 else
                 {
-                    int  charges = device_sp(o_ptr) / o_ptr->activation.cost;
+					cptr info;
+					int  charges = device_sp(o_ptr) / o_ptr->activation.cost;
                     int  max_charges = device_max_sp(o_ptr) / o_ptr->activation.cost;
+					int  boost = 0;
+
+					if (devicemaster_is_speciality(o_ptr))
+						boost = device_power_aux(100, p_ptr->device_power + p_ptr->lev / 10) - 100;
+					else
+						boost = device_power(100) - 100;
+
+					info = do_device(o_ptr, SPELL_INFO, boost);
+
+					if ((info && strlen(info)) && (obj_is_identified_fully(o_ptr) || (o_ptr->known_xtra & OFL_DEVICE_POWER)))
+						t = object_desc_str(t, format("%s, ", info));
 
                     if ((mode & OD_COLOR_CODED) && charges < max_charges)
                     {
                         if (!charges)
-                            t = object_desc_str(t, format("<color:r>%d/%d charges</color>", charges, max_charges));
+                            t = object_desc_str(t, format("<color:r>%d/%d</color>", charges, max_charges));
                         else
-                            t = object_desc_str(t, format("<color:y>%d/%d charges</color>", charges, max_charges));
+                            t = object_desc_str(t, format("<color:y>%d/%d</color>", charges, max_charges));
                     }
                     else
-                        t = object_desc_str(t, format("%d/%d charges", charges, max_charges));
+                        t = object_desc_str(t, format("%d/%d", charges, max_charges));
                 }
                 t = object_desc_chr(t, p2);
             }

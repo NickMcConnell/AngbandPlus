@@ -828,6 +828,36 @@ says, 'Fire burn and cauldron bubble.'
 says, 'Whether ye be soldier or wanderer or sailor lost, into my stew you must be tossed.'
 says, 'Please don't make yourself at home.'
 
+N:1258:Melissa the Emaciated Wight
+rasps, 'Too much meat on your bones.'
+rasps, 'A feasst for my children.'
+rasps, 'It seeks to persssecute us.'
+rasps, 'Children, Mother is upset.'
+rasps, 'It is a danger to us.'
+rasps, 'Be brave my little ones. It is only made of flesh.'
+rasps, 'It hides its bones, we must peel it open.'
+rasps, 'Remember children to leave the bones for Mother.
+
+N:1259:Ychram the Anathema
+laughs, 'Do you know how many have been sent for me?'
+boasts, 'I have slain better men by the score.'
+sneers, 'Who are you to end *my* story?'
+says, 'I have withstood the might of an Empire!'
+says, 'I was their best, so they sent their second best. Then they sent them all.'
+says, 'I have wielded the power of a hundred dead souls. Now I will claim yours.'
+says, 'Thy doom is upon thee, stranger.'
+
+N:1260:Eleri the Blademistress
+says, 'The balance must be maintained.'
+says, 'My blades will be the last thing you see.'
+says, 'Feel the cold heart of judgement.'
+
+N:1262:Tharuzg the Putrid
+says, 'Long have I lingered under the earth; so shall you!'
+says, 'The East taught me well.'
+says, 'Of all my spawns, he were the least pestersome.'
+says, 'Arnor and Rhun have fallen; little do you have left to fight for!'
+
 N:*:Default lines
 cackles evilly.
 cackles diabolically.

@@ -4503,11 +4503,11 @@ D:The chaotic evil master's favourite pet.
 
 N:295:Sphinx
 G:H:o
-I:110:60d5:20:80:20:150
+I:115:60d5:20:80:20:150
 W:17:2:50:80:0:0
 B:CLAW:HURT(2d6)
 B:CLAW:HURT(2d6):LOSE_CHR(50%)
-F:FORCE_SLEEP | RIDING |
+F:FORCE_SLEEP | RIDING | FORCE_MAXHP
 F:ONLY_GOLD | DROP_1D2 | CAN_FLY |
 F:OPEN_DOOR | BASH_DOOR | WILD_MOUNTAIN
 F:ANIMAL
@@ -5253,18 +5253,18 @@ D:acrid smell of acid rises from the dog's pelt.
 
 N:341:Chimera
 G:H:y
-I:110:13d8:12:22:10:150
+I:115:40d10:12:22:10:150
 W:20:1:70:100:800:433
 B:BITE:HURT(1d10)
 B:BITE:FIRE(1d3)
 B:BITE:FIRE(1d3)
-F:FORCE_SLEEP | CAN_FLY |
+F:FORCE_SLEEP | CAN_FLY | FORCE_MAXHP
 F:BASH_DOOR | WILD_MOUNTAIN |
 F:RES_FIRE | RIDING
 F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Human:Warrior
 P:Body:Dragon
-S:1_IN_10 |
+S:1_IN_5 |
 S:BR_FIRE
 D:It is a strange concoction of lion, dragon and goat. It looks very odd
 D:but very avoidable.
@@ -6775,19 +6775,19 @@ D:teeth.
 
 N:433:Gorgimera
 G:H:D
-I:110:25d20:12:82:10:300
+I:115:25d20:12:82:10:300
 W:27:2:70:200:0:0
 B:BITE:FIRE(1d3)
 B:BITE:FIRE(1d3)
 B:BITE:HURT(1d10)
 B:GAZE:DAM(2d4):PARALYZE(85%)
-F:FORCE_SLEEP |
+F:FORCE_SLEEP | FORCE_MAXHP
 F:BASH_DOOR | CAN_FLY |
 F:RES_FIRE | RIDING
 F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Human:Warrior
 P:Body:Gorgimera
-S:1_IN_8 |
+S:1_IN_4 |
 S:BR_FIRE
 D:It has 3 heads - gorgon, goat and dragon - all attached to a
 D:lion's body.
@@ -7452,7 +7452,7 @@ D:the dark.
 
 N:472:Manticore
 G:H:o
-I:120:25d10:12:22:10:250
+I:120:25d20:12:22:10:250
 W:30:2:60:300:0:0
 B:HIT:HURT(4d4)
 B:HIT:HURT(4d4)
@@ -7463,7 +7463,7 @@ F:EVIL
 F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Human:Warrior
 P:Body:Hound
-S:FREQ_10 | SHOOT(7d6)
+S:FREQ_5 | SHOOT(7d6)
 D:It is a winged lion's body with a human head and a tail covered in
 D:vicious spikes.
 
@@ -7495,7 +7495,7 @@ D:carapace.
 
 N:475:Gorgon
 G:H:b
-I:110:30d20:12:88:20:300
+I:120:30d20:12:88:20:300
 W:31:2:70:275:0:0
 B:BUTT:HURT(3d9)
 B:BUTT:HURT(3d9)
@@ -7503,10 +7503,10 @@ B:BITE:HURT(1d7):POISON(1d3)
 B:KICK:HURT(2d4)
 F:FORCE_SLEEP | ANIMAL | MOVE_BODY | WILD_WOOD |
 F:BASH_DOOR | RES_POIS | RES_ACID | EVIL | RIDING |
-F:DROP_CORPSE | POS_GAIN_AC
+F:DROP_CORPSE | POS_GAIN_AC | FORCE_MAXHP
 P:Copy:Human:Warrior
 P:Body:Hound
-S:FREQ_10 | BR_POISON
+S:FREQ_5 | BR_POISON
 D:A bull whose skin is made of steel plates. Watch out for its
 D:deadly breath!
 
@@ -10524,7 +10524,7 @@ B:HIT:HURT(4d6)
 B:HIT:HURT(4d6)
 B:BUTT:HURT(2d6)
 B:BUTT:HURT(2d6)
-F:BASH_DOOR | EVIL
+F:BASH_DOOR | EVIL | FORCE_MAXHP
 F:DROP_SKELETON | DROP_CORPSE
 P:Copy:Human:Mauler
 P:Body:Minotaur
@@ -22036,7 +22036,7 @@ F:ANIMAL | RIDING | WILD_MOUNTAIN
 F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Human:Mauler
 P:Body:Elephant
-S:BERSERK
+S:1_IN_4 | BIRD_DROP
 D:A great winged reptile in search of prey.
 
 N:1221:Giant land sloth
@@ -22703,43 +22703,74 @@ D:A great purple rat with sharp teeth and sorcerous powers.
 
 # Some originals
 
-#N:1258:Melissa the Emaciated Wight
-#D:The creature you see here resembles the corpse of a woman, although not
-#D:quite. It is not yet ridden with decay, but the skin is held tight across the
-#D:bones, with little in the way of flesh to intervene.
+N:1258:Melissa the Emaciated Wight
+G:W:W
+I:130:70d100:100:150:5:160
+W:77:3:999:50000:0:0
+B:HIT:VAMP(10d10):UNLIFE(10d10)
+B:CLAW:HURT(10d10):DISEASE
+B:TOUCH:DRAIN_FOOD
+F:UNIQUE | FEMALE | UNDEAD | CAN_SPEAK
+F:FORCE_SLEEP | FORCE_MAXHP | SMART |
+F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD |
+F:INVISIBLE | OPEN_DOOR | BASH_DOOR |
+F:EVIL | RES_COLD | RES_POIS | RES_NETH | RES_CHAO
+F:NO_CONF | NO_SLEEP 
+F:DROP_CORPSE | DROP_SKELETON | POS_SEE_INVIS
+P:Copy:Skeleton:Mage
+P:Stats:-1:1:0:0:0:0
+S:1_IN_2 | S_HI_UNDEAD | DRAIN_MANA | BRAIN_SMASH |
+S:TELE_TO | PARALYZE | CAUSE_3 | TELE_SELF | 
+D:The creature you see here resembles the corpse of a woman, although not
+D:quite. It is not yet ridden with decay, but the skin is held tight across the
+D:bones, with little in the way of flesh to intervene.
 
-#N:1259:Ychram the Anathema
-#G:p:v
-#I:130:70d100:60:120:5:160
-#W:80:3:999:40000:0:0
-#B:HIT:HURT(8d8):BLIND
-#B:HIT:HURT(8d8):CONFUSE
-#B:HIT:HURT(8d8):CUT(8d8)
-#B:TOUCH:LOSE_STR:LOSE_CON
-#F:UNIQUE | MALE | HUMAN |
-#F:FORCE_SLEEP | FORCE_MAXHP | SMART |
-#F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD |
-#F:INVISIBLE | OPEN_DOOR | BASH_DOOR |
-#F:EVIL | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS
-#F:NO_CONF | NO_SLEEP | RES_NETHER | RES_CHAOS
-#F:DROP_CORPSE | DROP_SKELETON | POS_SEE_INVIS
-#P:Copy:Human:Mage
-#P:Stats:3:2:0:2:0:0
-#S:1_IN_2 | BA_ICE | HELL_LANCE | MIND_BLAST |
-#S:TELE_TO | PARALYZE | CAUSE_3 | TELE_SELF | HASTE_SELF |
-#D:A gaunt man with a pale face clothed in worn black armour, dull and bloodstained. 
-#D:His eyes are bloodshot and rimmed in dark circles. He was once the most feared
-#D:warlock of the Black Sect, but defiance of the priesthood cost him his rank
-#D:and citizenship. The Imperial death squads sent to dispose of their former
-#D:champion so far have joined his countless victims, but without friends or refuge
-#D:he grows more desperate by the hour. With unnerving speed and efficiency he moves
-#D:in to relieve you of your loot.
+N:1259:Ychram the Anathema
+G:p:v
+I:130:70d100:100:120:5:160
+W:71:3:999:40000:0:0
+B:HIT:HURT(8d8):BLIND
+B:HIT:HURT(8d8):CONFUSE
+B:HIT:HURT(8d8):CUT(8d8)
+B:TOUCH:LOSE_STR:LOSE_CON
+F:UNIQUE | MALE | HUMAN | CAN_SPEAK
+F:FORCE_SLEEP | FORCE_MAXHP | SMART |
+F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD |
+F:INVISIBLE | OPEN_DOOR | BASH_DOOR |
+F:EVIL | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS
+F:NO_CONF | NO_SLEEP | RES_NETH | RES_CHAO
+F:DROP_CORPSE | DROP_SKELETON | POS_SEE_INVIS
+P:Copy:Human:Mage
+P:Stats:3:2:0:2:0:0
+S:1_IN_2 | BA_ICE | HELL_LANCE | MIND_BLAST |
+S:TELE_TO | PARALYZE | CAUSE_3 | TELE_SELF | HASTE |
+D:A gaunt man with a pale face clothed in worn black armour, dull and bloodstained. 
+D:His eyes are bloodshot and rimmed in dark circles. He was once the most feared
+D:warlock of the Black Sect, but defiance of the priesthood cost him his rank
+D:and citizenship. The Imperial death squads sent to dispose of their former
+D:champion so far have joined his countless victims, but without friends or refuge
+D:he grows more desperate by the hour. With unnerving speed and efficiency he moves
+D:in to relieve you of your loot.
 
-#N:1260:Eleri the Blademistress
-#D:An androgynous looking wood elf with a lithe and muscular build, standing
-#D:six feet tall. Her hair is a deep auburn red. Her green eyes are spotted with
-#D:freckles, and besides a strong jaw she shares the delicate features of her
-#D:kin. Guardian of the nexus vault, she fights to maintain the cosmic balance.
+N:1260:Eleri the Blademistress
+G:h:r
+I:125:40d100:100:120:5:150
+W:51:3:999:28000:0:0
+B:HIT:HURT(7d8)
+B:HIT:HURT(7d8):CUT(4d5):LOSE_DEX(30%)
+B:HIT:HURT(7d8):POISON(4d5):LOSE_STR(30%)
+F:UNIQUE | FORCE_MAXHP | HUMAN | FEMALE | CAN_SPEAK
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD
+F:OPEN_DOOR | BASH_DOOR | AURA_REVENGE | AURA_COLD
+F:RES_SHAR | RES_SOUN | RES_FIRE | RES_COLD | RES_DISE | RES_CHAO | RES_NEXU
+F:NO_CONF | NO_SLEEP | NO_QUEST
+S:1_IN_6 | HEAL | TELE_SELF
+P:Copy:Human:Warrior
+P:Stats:3:0:0:0:4:0
+D:An androgynous looking wood elf with a lithe and muscular build, standing
+D:six feet tall. Her hair is a deep auburn red. Her green eyes are spotted with
+D:freckles, and besides a strong jaw she shares the delicate features of her
+D:kin. Guardian of the nexus vault, she fights to maintain the cosmic balance.
 
 N:1261:City Watchman
 G:t:B
@@ -22753,6 +22784,27 @@ P:Copy:Human:Warrior
 P:Stats:0:0:0:0:-1:-1
 P:Life:85
 D:He is here to keep the peace.
+
+N:1262:Tharuzg the Putrid
+G:d:D
+I:115:56d10:20:106:40:350
+W:40:2:999:2500:0:0
+B:CLAW:HURT(1d12)
+B:CLAW:HURT(1d12)
+B:CLAW:HURT(1d12)
+B:BITE:HURT(3d10):ACID(1d15):CUT(1d14, 30%)
+F:UNIQUE | MALE | CAN_SPEAK |
+F:FORCE_SLEEP | FORCE_MAXHP |
+F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD |
+F:OPEN_DOOR | BASH_DOOR | MOVE_BODY |
+F:EVIL | DRAGON | IM_ACID | RES_FIRE | RIDING |
+F:NO_CONF | NO_SLEEP
+F:DROP_CORPSE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Barbarian:Beastmaster
+P:Body:Dragon
+S:FREQ_35 | BLIND | CONFUSE | SCARE | BR_ACID | S_DRAGON | S_HI_DRAGON | DETECT_OBJECTS 
+D:A wingless black wyrm, acid dripping from both its fangs and hatefully whispered words.
+D:It has sired many spawns in the forgotten lands of Rhun and many in the Trollshaws have fallen prey to it.
 
 
 # N: serial number : monster name

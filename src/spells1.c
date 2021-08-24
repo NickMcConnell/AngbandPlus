@@ -993,7 +993,6 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
         case GF_ELEC:
         case GF_COLD:
         case GF_ICE:
-        case GF_FIRE:
         case GF_PLASMA:
         case GF_METEOR:
         case GF_CHAOS:
@@ -1152,6 +1151,29 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 
             break;
         }
+
+		/* melt things (ice walls) */
+		case GF_FIRE:
+		{
+			if (have_flag(f_ptr->flags, FF_HURT_FIRE) && !have_flag(f_ptr->flags, FF_PERMANENT) && (dam >= 10))
+			{
+				/* Message */
+				if (known && (c_ptr->info & (CAVE_MARK)))
+				{
+					msg_format("The %s melts!", f_name + f_info[get_feat_mimic(c_ptr)].name);
+
+					obvious = TRUE;
+				}
+
+				/* Destroy the wall */
+				cave_alter_feat(y, x, FF_HURT_FIRE);
+
+				/* Update some things */
+				p_ptr->update |= (PU_FLOW);
+			}
+
+			break;
+		}
 
         /* Make doors */
         case GF_MAKE_DOOR:

@@ -13,7 +13,7 @@ D:Nicely done. Here's another trophy of your victory.
 D:So you can't handle big dragons.
 ?:1
 
-R:OBJ(gold dragon scale mail):EGO(87)
+R:OBJ(dragon helm)
 
 ?:[EQU $RACE Death-Sword]
 R:OBJ(long sword)

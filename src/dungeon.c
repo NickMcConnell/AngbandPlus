@@ -723,6 +723,33 @@ static void process_world_aux_hp_and_sp(void)
         }
     }
 
+	/* todo - smash potions */
+	if (have_flag(f_ptr->flags, FF_ICE) && !IS_INVULN())
+	{
+		int damage = 3000 + randint0(3000);
+		damage = res_calc_dam(RES_COLD, damage);
+		if (p_ptr->levitation) damage = damage / 2;
+
+		if (damage)
+		{
+			damage = damage / 100 + (randint0(100) < (damage % 100));
+
+			if (p_ptr->levitation)
+			{
+				msg_print("The extreme cold freezes you!");
+				take_hit(DAMAGE_NOESCAPE, damage, format("flying over %s", f_name + f_info[get_feat_mimic(&cave[py][px])].name));
+			}
+			else
+			{
+				cptr name = f_name + f_info[get_feat_mimic(&cave[py][px])].name;
+				msg_format("The extreme cold freezes you!", name);
+				take_hit(DAMAGE_NOESCAPE, damage, name);
+			}
+
+			cave_no_regen = TRUE;
+		}
+	}
+
 	if (have_flag(f_ptr->flags, FF_ACID) && !IS_INVULN() && !one_in_(3))
 	{
 		int a_damage = 0, p_damage = 0;

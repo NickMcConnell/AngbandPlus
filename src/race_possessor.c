@@ -494,6 +494,10 @@ void possessor_attack(point_t where, bool *fear, bool *mdeath, int mode)
                         /* XXX limit amt per turn? */
                     }
                     break;
+				case RBE_DRAIN_FOOD:
+					gf_affect_m(GF_WHO_PLAYER, foe, GF_NETHER,
+						(dam ? dam : p_ptr->lev), GF_AFFECT_ATTACK);
+					break;
                 default:
                     gf_affect_m(GF_WHO_PLAYER, foe, effect->effect, dam, GF_AFFECT_ATTACK);
                 }

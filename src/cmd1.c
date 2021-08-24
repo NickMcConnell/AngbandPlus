@@ -5430,12 +5430,6 @@ bool trap_can_be_ignored(int feat)
 
 /*
  * Move player in the given direction, with the given "pickup" flag.
- *
- * This routine should (probably) always induce energy expenditure.
- *
- * Note that moving will *always* take a turn, and will *always* hit
- * any monster which might be in the destination grid. Previously,
- * moving into walls was "free" and did NOT hit invisible monsters.
  */
 void move_player(int dir, bool do_pickup, bool break_trap)
 {

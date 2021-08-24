@@ -1129,6 +1129,7 @@ s16b feat_mountain;
 s16b feat_swamp;
 s16b feat_dark_pit;
 s16b feat_web;
+s16b feat_ice_slick;
 
 /* Unknown grid (not detected) */
 s16b feat_undetected;

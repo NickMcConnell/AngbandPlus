@@ -122,6 +122,7 @@ static int _get_r_blow_effect(cptr which)
         {"DRAIN_EXP", RBE_DRAIN_EXP},
         {"VAMP", RBE_VAMP},
         {"CUT", RBE_CUT},
+		{"DRAIN_FOOD", RBE_DRAIN_FOOD },
         {0}};
     for (i = 0;; i++)
     {
@@ -823,8 +824,8 @@ static cptr d_info_flags1[] =
     "CAVERN",
     "RANDOM",
     "SMALL",
-    "XXX",
-    "XXX",
+    "ICE_RIVER",
+    "LAKE_ICE",
     "FORGET",
     "LAKE_WATER",
     "LAKE_LAVA",
@@ -3639,6 +3640,7 @@ static int _default_blow_power(int effect)
     case GF_DISENCHANT:
         return 20;
     case RBE_DRAIN_CHARGES:
+	case RBE_DRAIN_FOOD:
         return 15;
     }
     return 5;

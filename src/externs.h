@@ -570,6 +570,7 @@ extern s16b feat_swamp;
 extern s16b feat_undetected;
 extern s16b feat_dark_pit;
 extern s16b feat_web;
+extern s16b feat_ice_slick;
 
 extern byte dungeon_type;
 extern s16b *max_dlv;

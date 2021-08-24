@@ -600,7 +600,6 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp, bool no_flow)
 
     /* Monster can go through rocks */
     if ( dungeon_type != DUNGEON_ARENA 
-      && dungeon_type != DUNGEON_MOUNTAIN 
       && dungeon_type != DUNGEON_GIANTS_HALL )
     {
         if ((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || p_ptr->pass_wall))
@@ -1618,7 +1617,7 @@ bool mon_attack_mon(int m_idx, int t_idx)
     monster_desc(t_name, t_ptr, MD_PRON_VISIBLE);
 
     /* Scan through all four blows */
-    for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
+    for (ap_cnt = 0; ap_cnt < MAX_MON_BLOWS; ap_cnt++)
     {
         int method;
         int power = 0;
@@ -1629,7 +1628,7 @@ bool mon_attack_mon(int m_idx, int t_idx)
         if (retaliation_hack)
         {
             ap_cnt = retaliation_count;
-            if (ap_cnt >= 4) return FALSE;
+            if (ap_cnt >= MAX_MON_BLOWS) return FALSE;
         }
 
         method = r_ptr->blows[ap_cnt].method;
@@ -1815,6 +1814,7 @@ bool mon_attack_mon(int m_idx, int t_idx)
                 case RBE_LOSE_CHR:
                 case RBE_LOSE_ALL:
                 case RBE_DRAIN_EXP:
+				case RBE_DRAIN_FOOD:
                     pt = 0;
                     break;
 

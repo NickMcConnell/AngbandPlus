@@ -1328,13 +1328,10 @@ static void _do_capture_ball(object_type *o_ptr)
  * Activate a wielded object. Wielded objects never stack.
  * And even if they did, activatable objects never stack.
  *
- * Currently, only (some) artifacts, and Dragon Scale Mail, can be activated.
- * But one could, for example, easily make an activatable "Ring of Plasma".
+ * Return false for illegal activation attempts and use no energy
  *
- * Note that it always takes a turn to activate an artifact, even if
- * the user hits "escape" at the "direction" prompt.
  */
-static void do_cmd_activate_aux(obj_ptr obj)
+static bool do_cmd_activate_aux(obj_ptr obj)
 {
     cptr     msg;
     effect_t effect;
@@ -1343,16 +1340,19 @@ static void do_cmd_activate_aux(obj_ptr obj)
 
     obj_flags_known(obj, flgs);
 
-    /* Take a turn */
-    energy_use = 100;
-
     if (world_player)
     {
         if (flush_failure) flush();
         msg_print("It shows no reaction.");
         sound(SOUND_FAIL);
-        return;
+        return FALSE;
     }
+
+	if (obj->timeout)
+	{
+		msg_print("This item is still recharging.");
+		return FALSE;
+	}
 
     effect = obj_get_effect(obj);
     if (!effect_try(&effect))
@@ -1361,13 +1361,7 @@ static void do_cmd_activate_aux(obj_ptr obj)
         msg_print("You failed to activate it properly.");
         if (prompt_on_failure) msg_print(NULL);
         sound(SOUND_FAIL);
-        return;
-    }
-
-    if (obj->timeout)
-    {
-        msg_print("It whines, glows and fades...");
-        return;
+        return TRUE;
     }
 
     msg_print("You activate it...");
@@ -1380,7 +1374,7 @@ static void do_cmd_activate_aux(obj_ptr obj)
     if (obj->tval == TV_CAPTURE)
     {
         _do_capture_ball(obj);
-        return;
+        return TRUE;
     }
     device_known = have_flag(flgs, OF_ACTIVATE);
     if (effect_use(&effect, boost))
@@ -1391,6 +1385,7 @@ static void do_cmd_activate_aux(obj_ptr obj)
         obj->timeout = effect.cost;
         p_ptr->window |= (PW_INVEN | PW_EQUIP);
     }
+	return TRUE;
 }
 
 static bool _activate_p(object_type *o_ptr)
@@ -1413,6 +1408,34 @@ void do_cmd_activate(void)
 
     obj_prompt(&prompt);
     if (!prompt.obj) return;
-    do_cmd_activate_aux(prompt.obj);
+    if (do_cmd_activate_aux(prompt.obj))
+		/* Take a turn */
+		energy_use = 100;
 }
 
+/* helper code from experimental aut-activations */
+/* auto-activations have no energy cost but they have increased  cooldowns */
+/* they incur cooldown periods even when the activation fails */
+bool do_auto_activate(obj_ptr obj)
+{
+	cptr     msg;
+	cptr     desc;
+	effect_t effect;
+	int      boost = device_power(100) - 100;
+	u32b     flgs[OF_ARRAY_SIZE];
+
+	if (world_player)
+	{
+		if (flush_failure) flush();
+		return FALSE;
+	}
+
+	effect = obj_get_effect(obj);
+
+	msg = obj_get_effect_msg(obj);
+	if (msg)
+	{
+		msg_print(msg);
+	}
+
+}

@@ -67,5 +67,14 @@ says, 'I will be resurrected!'
 N:1236:Moe, the Cyclops
 shouts, 'I don't deserve this kind of shabby treatment!'
 
+N:1258:Melissa the Emaciated Wight
+rasps, 'Oh thou wretched knave.'
+
+N:1259:Ychram the Anathema
+says, 'At last.. I die.'
+
+N:1260:Eleri the Blademistress
+says, 'The balance will endure.'
+
 N:*:Default
 shouts, 'AAAARRRGGGHHH!!!'

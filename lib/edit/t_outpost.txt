@@ -36,6 +36,9 @@ L:o:PERMANENT
 # Default for Quest 62 = entrance is grass
 L:y:GRASS
 
+# Default for Quest 77 = entrance is shallow water
+L:u:SHALLOW_WATER
+
 
 ############### Quest Sequence #1 #######################
 ############### Quest 1 - Thieves Hideout ###############
@@ -58,6 +61,14 @@ L:r:QUEST_ENTER(2)
 ?:[EQU $QUEST2 Taken Completed Failed]
 L:b:BUILDING_1(2)
 ?:[EQU $QUEST2 Finished FailedDone]
+L:b:BUILDING_1(78)
+?:1
+############### Quest 78 - Poisoning of Water (from Kangband 12)
+?:[EQU $QUEST78 Taken]
+L:u:QUEST_ENTER(78)
+?:[EQU $QUEST78 Taken Completed Failed]
+L:b:BUILDING_1(78)
+?:[EQU $QUEST78 Finished FailedDone]
 L:b:BUILDING_1(25)
 ?:1
 ############### Quest 25 - Haunted House ###############
@@ -201,7 +212,7 @@ M:          VWWV                                       -------------------------
 M:          WWWW                                        ---------------------------------------------------------------------------------------                                              .          
 M:         WWWWWW                                         -------------------------------------------------------------------------------------                                              .          
 M:        VWWWWWWWW                                        ------                                                                     -------                                                .          
-M:       VWWWWWWWWWWV                                        --                                                                          --                                                   ^^^^      
+M:       VWWWWWWWWWWu                                        --                                                                          --                                                   ^^^^      
 M:       WWWWWWWWWWWW                                                                                                                                                                     ^^^^y^^^^^    
 M:     WWWWWWWWWWWWWWWW                                                                                                                                                                ^^^^^^^^^^^^^^   
 M:       WWWWWWWWWWWWW                                                                                                                                                               ^^^^^^^^^^^^^^^    

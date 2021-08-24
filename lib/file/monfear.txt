@@ -450,6 +450,19 @@ pleads you to think of his crippled parents.
 says, 'If it's loot you're after, I have none, try Jack of Shadows.'
 says, 'Three kobolds walk into a bar. Kill me and you'll never hear the punchline.'
 
+N:1258:Melissa the Emaciated Wight
+rasps, 'Mother is in peril!'
+rasps, 'But what will become of my little ones?'
+rasps, 'Oh murder, our innocent heart.'
+
+N:1259:Ychram the Anathema
+says, 'You'll never take me!'
+says, 'If only I had my souls..'
+says, 'In my prime I'd have cut you down.'
+
+N:1260:Eleri the Blademistress
+says, 'No! The secret must remain kept.'
+
 N:*:Default lines
 says, 'I am too young to die.'
 says, 'Ok, ok! I get it: no more pals.'

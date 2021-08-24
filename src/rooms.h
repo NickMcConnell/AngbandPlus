@@ -26,6 +26,8 @@
 #define LAKE_T_AIR_VAULT   5
 #define LAKE_T_WATER_VAULT 6
 #define LAKE_T_FIRE_VAULT  7
+#define LAKE_T_ICE         8
+#define LAKE_T_ICE_VAULT   9
 
 
 /* Room types for room_build() */

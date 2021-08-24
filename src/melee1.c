@@ -804,6 +804,16 @@ bool make_attack_normal(int m_idx)
                 case RBE_CUT:
                     set_cut(p_ptr->cut + effect_dam, FALSE);
                     break;
+
+				case RBE_DRAIN_FOOD:
+					if (!(get_race()->flags & RACE_IS_NONLIVING)
+						&& !prace_is_(RACE_MON_JELLY))
+					{
+						msg_print("Food drains from your belly!");
+						set_food(MAX(0, MIN(p_ptr->food - 1000, p_ptr->food * 2 / 3)));
+					}
+					break;
+
                 default: /* using GF_* ... damage 0 is OK: B:BITE:HURT(4d4):DISENCHANT */
                     effect_dam = reduce_melee_dam_p(effect_dam);
                     gf_affect_p(m_idx, effect->effect, effect_dam, GF_AFFECT_ATTACK);

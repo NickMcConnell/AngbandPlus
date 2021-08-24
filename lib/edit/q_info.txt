@@ -315,6 +315,10 @@ T:TOWN | GENERATE
 G:KILL(logrus master)
 F:q_logrus_master.txt
 
+N:78:32:The Poisoning of Water (Outpost)
+T:TOWN | GENERATE
+F:q_poison.txt
+
 #####################################################################
 # FrogComposband quests
 #####################################################################

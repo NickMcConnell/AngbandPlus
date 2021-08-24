@@ -919,6 +919,7 @@ static errr init_feat_variables(void)
     feat_swamp = f_tag_to_index_in_init("SWAMP");
     feat_dark_pit = f_tag_to_index_in_init("DARK_PIT");
     feat_web = f_tag_to_index_in_init("WEB");
+	feat_ice_slick = f_tag_to_index_in_init("ICE_SLICK");
 
     /* Unknown grid (not detected) */
     feat_undetected = f_tag_to_index_in_init("UNDETECTED");

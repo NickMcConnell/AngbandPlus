@@ -1478,6 +1478,11 @@ void eat_rock_spell(int cmd, variant *res)
             msg_print("You don't like the glassy taste!");
             break;
         }
+		else if (have_flag(f_ptr->flags, FF_ICE))
+		{
+			msg_print("You don't like the icy taste!");
+			break;
+		}
         else if (have_flag(f_ptr->flags, FF_DOOR) || have_flag(f_ptr->flags, FF_CAN_DIG))
         {
             if (elemental_is_(ELEMENTAL_EARTH))

@@ -60,7 +60,7 @@ M:X^^^^^^^^^^^^^^^^^^^^^^^^^^.....^^^^^^^^^^^^^^^^^^^^^^^^^^X
 M:X^^^^^^^^^^^^^^^^^^^^^^^^^^^^<^^^^^^^^^^^^^^^^^^^^^^^^^^^^X
 M:X^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^X
 M:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-R:OBJ(potion of life)
+R:OBJ(potion of new)
 
 # vim: filetype=q :
 

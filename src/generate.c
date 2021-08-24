@@ -608,6 +608,7 @@ static void gen_caverns_and_lakes(void)
         if (d_info[dungeon_type].flags1 & DF1_LAKE_LAVA) count += 3;
         if (d_info[dungeon_type].flags1 & DF1_LAKE_RUBBLE) count += 3;
         if (d_info[dungeon_type].flags1 & DF1_LAKE_TREE) count += 3;
+		if (d_info[dungeon_type].flags1 & DF1_LAKE_ICE) count += 3;
 
         if (d_info[dungeon_type].flags1 & DF1_LAKE_LAVA)
         {
@@ -641,6 +642,17 @@ static void gen_caverns_and_lakes(void)
             if (!dun->laketype && (dun_level > 35) && one_in_(count)) dun->laketype = LAKE_T_EARTH_VAULT;
             count--;
         }
+
+		if ((d_info[dungeon_type].flags1 & DF1_LAKE_ICE) && !dun->laketype)
+		{
+			/* Lake of ice */
+			if ((dun_level > 20) && (randint0(count) < 2)) dun->laketype = LAKE_T_ICE;
+			count -= 2;
+
+			/* Lake of ice2 */
+			if (!dun->laketype && (dun_level > 35) && one_in_(count)) dun->laketype = LAKE_T_ICE_VAULT;
+			count--;
+		}
 
         /* Lake of tree */
         if ((dun_level > 5) && (d_info[dungeon_type].flags1 & DF1_LAKE_TREE) && !dun->laketype) dun->laketype = LAKE_T_AIR_VAULT;
@@ -900,6 +912,11 @@ static bool cave_gen(void)
                 feat1 = feat_deep_lava;
                 feat2 = feat_shallow_lava;
             }
+			else if (d_info[dungeon_type].flags1 & DF1_ICE_RIVER)
+			{
+				feat1 = feat_shallow_water;
+				feat2 = feat_ice_slick;
+			}
             else feat1 = 0;
 
             if (feat1)
@@ -909,6 +926,7 @@ static bool cave_gen(void)
                 /* Only add river if matches lake type or if have no lake at all */
                 if (((dun->laketype == LAKE_T_LAVA) && have_flag(f_ptr->flags, FF_LAVA)) ||
                     ((dun->laketype == LAKE_T_WATER) && have_flag(f_ptr->flags, FF_WATER)) ||
+					((dun->laketype == LAKE_T_ICE) && have_flag(f_ptr->flags, FF_ICE)) ||
                      !dun->laketype)
                 {
                     add_river(feat1, feat2);

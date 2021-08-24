@@ -16,10 +16,10 @@ Q:You have failed me, beware you do not do so again!
 ?:1
 
 T:QUEST:NORMAL
-L:#:PERMANENT
+L:#:PERMANENT(GLOW)
 L:<:UP_STAIR
 L:.:FLOOR(GLOW)
-L:+:CLOSED_DOOR
+L:+:CLOSED_DOOR(GLOW)
 L:$:OBJ(*, DEPTH+1)
 L:&:MON(*, DEPTH+5 | NO_GROUP)
 L:a:MON(mean looking mercenary, NO_SLEEP)

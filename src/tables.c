@@ -2716,7 +2716,7 @@ byte feature_action_flags[FF_FLAG_MAX] =
     0, /* DEEP */
     0, /* FILLED */
     FAF_DESTROY | FAF_CRASH_GLASS, /* HURT_ROCK */
-    0, /* HURT_FIRE */
+	FAF_DESTROY, /* HURT_FIRE */
     0, /* HURT_COLD */
     0, /* HURT_ACID */
     0, /* ICE */

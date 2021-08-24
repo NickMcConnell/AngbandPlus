@@ -172,7 +172,7 @@ cptr info_weight(int weight)
  */
 int beam_chance(void)
 {
-    if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_BLOOD_MAGE || p_ptr->pclass == CLASS_NECROMANCER || p_ptr->pclass == CLASS_YELLOW_MAGE || p_ptr->pclass == CLASS_GRAY_MAGE)
+    if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_BLOOD_MAGE || p_ptr->pclass == CLASS_NECROMANCER || p_ptr->pclass == CLASS_YELLOW_MAGE || p_ptr->pclass == CLASS_GRAY_MAGE || p_ptr->pclass == CLASS_CHAOS_MAGE)
         return p_ptr->lev;
     if (p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER)
         return p_ptr->lev + 10;
@@ -2827,6 +2827,7 @@ static cptr do_chaos_spell(int spell, int mode)
                 p_ptr->pclass == CLASS_HIGH_MAGE ||
                 p_ptr->pclass == CLASS_SORCERER ||
                 p_ptr->pclass == CLASS_YELLOW_MAGE ||
+				p_ptr->pclass == CLASS_CHAOS_MAGE ||
                 p_ptr->pclass == CLASS_GRAY_MAGE)
                 base = plev + plev / 2;
             else
@@ -3571,7 +3572,8 @@ static cptr do_death_spell(int spell, int mode)
                 p_ptr->pclass == CLASS_HIGH_MAGE ||
                 p_ptr->pclass == CLASS_SORCERER ||
                 p_ptr->pclass == CLASS_YELLOW_MAGE ||
-                p_ptr->pclass == CLASS_GRAY_MAGE)
+                p_ptr->pclass == CLASS_GRAY_MAGE ||
+				p_ptr->pclass == CLASS_CHAOS_MAGE)
                 base = plev + plev / 2;
             else
                 base = plev + plev / 4;
@@ -6015,7 +6017,8 @@ static cptr do_daemon_spell(int spell, int mode)
                 p_ptr->pclass == CLASS_HIGH_MAGE ||
                 p_ptr->pclass == CLASS_SORCERER ||
                 p_ptr->pclass == CLASS_YELLOW_MAGE ||
-                p_ptr->pclass == CLASS_GRAY_MAGE)
+                p_ptr->pclass == CLASS_GRAY_MAGE ||
+				p_ptr->pclass == CLASS_CHAOS_MAGE)
                 base = plev + plev / 2;
             else
                 base = plev + plev / 4;

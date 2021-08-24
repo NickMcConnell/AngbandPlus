@@ -12,7 +12,7 @@ D:Good start. Our armourers have made you a trophy.
 D:Not tough enough eh? Try harder next time.
 ?:1
 
-R:OBJ(steel helm):EGO(troll)
+R:OBJ(metal scale):EGO(olog)
 
 ?:[EQU $RACE Death-Sword]
 R:OBJ(long sword)

@@ -2217,7 +2217,6 @@ static void _stats_init(void)
         case CLASS_RED_MAGE:
         case CLASS_RUNE_KNIGHT:
         case CLASS_DEVICEMASTER:
-		case CLASS_HEXBLADE:
         {
             int stats[6] = { 16, 16, 9, 16, 14, 10 };
             _stats_init_aux(stats);
@@ -2238,8 +2237,9 @@ static void _stats_init(void)
         case CLASS_BEASTMASTER:
         case CLASS_BARD:
         case CLASS_WARLOCK:
+		case CLASS_HEXBLADE:
         {
-            int stats[6] = { 16, 8, 8, 16, 11, 17 };
+            int stats[6] = { 16, 10, 9, 16, 14, 16 };
             _stats_init_aux(stats);
             break;
         }

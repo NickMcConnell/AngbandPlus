@@ -1675,28 +1675,25 @@ static _obj_list_ptr _create_obj_list(void)
     int i, y, x;
 
     /* The object list now includes features */
-    if (!dun_level && !p_ptr->wild_mode)
+    for (y = 0; y < cur_hgt - 1; y++)
     {
-        for (y = 0; y < cur_hgt - 1; y++)
+        for (x = 0; x < cur_wid - 1; x++)
         {
-            for (x = 0; x < cur_wid - 1; x++)
+            cave_type *c_ptr = &cave[y][x];
+            feature_type *f_ptr = &f_info[c_ptr->feat];
+            if ((have_flag(f_ptr->flags, FF_STORE) || have_flag(f_ptr->flags, FF_STAIRS) || have_flag(f_ptr->flags, FF_BLDG)) && (c_ptr->info & (CAVE_MARK)))
             {
-                cave_type *c_ptr = &cave[y][x];
-                feature_type *f_ptr = &f_info[c_ptr->feat];
-                if (have_flag(f_ptr->flags, FF_STORE) || have_flag(f_ptr->flags, FF_STAIRS) || have_flag(f_ptr->flags, FF_BLDG))
-                {
-                    _obj_list_info_ptr info = _obj_list_info_alloc();
-                    info->group = _GROUP_FEATURE;
-                    info->subgroup = _SUBGROUP_DATA;
-                    info->idx = c_ptr->feat;
-                    info->x = x;
-                    info->y = y;
-                    info->dy = info->y - py;
-                    info->dx = info->x - px;
+                _obj_list_info_ptr info = _obj_list_info_alloc();
+                info->group = _GROUP_FEATURE;
+                info->subgroup = _SUBGROUP_DATA;
+                info->idx = c_ptr->feat;
+                info->x = x;
+                info->y = y;
+                info->dy = info->y - py;
+                info->dx = info->x - px;
 
-                    vec_add(list->list, info);
-                    list->ct_feature++;
-                }
+                vec_add(list->list, info);
+                list->ct_feature++;
             }
         }
     }
