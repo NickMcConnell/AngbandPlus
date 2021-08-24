@@ -1,5 +1,5 @@
-#ifndef INCLUDED_PLAYER_H
-#define INCLUDED_PLAYER_H
+#ifndef PLAYER_H
+#define PLAYER_H
 
 /* File: player.h */
 
@@ -12,7 +12,7 @@
  * under the terms of either:
  *
  * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 2, or
+ *    Foundation, version 3, or
  *
  * b) the "Angband licence":
  *    This software may be copied and distributed for educational, research,
@@ -75,9 +75,9 @@
 
 /*Define the spell slot for the various classes*/
 #define SPELL_STAT_SLOT \
-		((cp_ptr->spell_book == TV_DRUID_BOOK) ? \
-		 ((p_ptr->state.stat_ind[A_INT] + p_ptr->state.stat_ind[A_WIS]) / 2) : \
-		 ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? p_ptr->state.stat_ind[A_INT] : p_ptr->state.stat_ind[A_WIS]))
+        ((cp_ptr->spell_book == TV_DRUID_BOOK) ? \
+         ((p_ptr->state.stat_index[A_INT] + p_ptr->state.stat_index[A_WIS]) / 2) : \
+         ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? p_ptr->state.stat_index[A_INT] : p_ptr->state.stat_index[A_WIS]))
 
 /*Define the spell stat for the various classes (Note, can't handle druids) */
 #define MORIA_SPELL_STAT ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? A_INT : A_WIS)
@@ -377,6 +377,21 @@
 #define PY_MAX_LEVEL		50		/* Maximum level */
 #define PY_MAX_LEVEL_MORIA	40		/* Maximum level */
 
+//Except for graze, should be greater than the value below to qualify.
+#define CUT_MORTAL_WOUND    1000
+#define CUT_DEEP_GASH       200
+#define CUT_SEVERE          100
+#define CUT_NASTY           50
+#define CUT_BAD             25
+#define CUT_LIGHT           10
+#define CUT_GRAZE           1
+#define CUT_NONE            0
+
+// 100 or greater is knocked out, heavy stun is > 51, light stun > 1
+#define STUN_KNOCKED_OUT    100
+#define STUN_HEAVY          50
+#define STUN_LIGHT          1
+#define STUN_NONE           0
 
 /*
  * Player "food" crucial values
@@ -422,9 +437,9 @@
 #define DETECT_ALL_MONSTERS 		(DETECT_MONSTERS | DETECT_INVISIBLE)
 #define DETECT_DOORS_STAIRS_TRAPS  	(DETECT_DOORS_STAIRS | DETECT_TRAPS)
 #define DETECT_ENLIGHTENMENT 		(DETECT_DOORS_STAIRS | DETECT_TRAPS | \
-										DETECT_ALL_TREASURE | DETECT_OBJECTS)
+                                        DETECT_ALL_TREASURE | DETECT_OBJECTS)
 #define DETECT_ALL					(DETECT_DOORS_STAIRS_TRAPS | DETECT_ALL_TREASURE | \
-										DETECT_OBJECTS | DETECT_ALL_MONSTERS)
+                                        DETECT_OBJECTS | DETECT_ALL_MONSTERS)
 
 #define DETECT_RADIUS		40
 
@@ -446,6 +461,8 @@
  */
 #define INVEN_MAX_PACK  (INVEN_PACK - p_ptr->quiver_slots)
 
+#define OBJ_MAX_STACK   99
+
 /*
  * Indexes used for various "equipment" slots (hard-coded by savefiles, etc).
  */
@@ -462,10 +479,9 @@
 #define INVEN_HANDS     34
 #define INVEN_FEET      35
 
-/*
- * Total number of inventory slots (hard-coded).
- */
+
 #define INVEN_TOTAL		36
+#define NUM_INVEN_SLOTS (INVEN_TOTAL - INVEN_WIELD)
 
 /* Used for the swap_weapons option */
 #define INVEN_MAIN_WEAPON	INVEN_WIELD
@@ -493,40 +509,40 @@
  */
 enum
 {
-	TMD_FAST = 0,
-	TMD_SLOW,
-	TMD_BLIND,
-	TMD_PARALYZED,
-	TMD_CONFUSED,
-	TMD_AFRAID,
-	TMD_IMAGE,
-	TMD_POISONED,
-	TMD_CUT,
-	TMD_STUN,
-	TMD_PROTEVIL,
-	TMD_INVULN,
-	TMD_HERO,
-	TMD_SHERO,
-	TMD_SHIELD,
-	TMD_BLESSED,
-	TMD_SINVIS,
-	TMD_SINFRA,
-	TMD_OPP_ACID,
-	TMD_OPP_ELEC,
-	TMD_OPP_FIRE,
-	TMD_OPP_COLD,
-	TMD_OPP_POIS,
-	TMD_FLYING,
-	TMD_NAT_LAVA,
-	TMD_NAT_OIL,
-	TMD_NAT_SAND,
-	TMD_NAT_TREE,
-	TMD_NAT_WATER,
-	TMD_NAT_MUD,
-	TMD_SLAY_ELEM,
-	TMD_CALL_HOURNS,
+    TMD_FAST = 0,
+    TMD_SLOW,
+    TMD_BLIND,
+    TMD_PARALYZED,
+    TMD_CONFUSED,
+    TMD_AFRAID,
+    TMD_IMAGE,
+    TMD_POISONED,
+    TMD_CUT,
+    TMD_STUN,
+    TMD_PROTEVIL,
+    TMD_INVULN,
+    TMD_HERO,
+    TMD_BERSERK,
+    TMD_SHIELD,
+    TMD_BLESSED,
+    TMD_SINVIS,
+    TMD_SINFRA,
+    TMD_OPP_ACID,
+    TMD_OPP_ELEC,
+    TMD_OPP_FIRE,
+    TMD_OPP_COLD,
+    TMD_OPP_POIS,
+    TMD_FLYING,
+    TMD_NAT_LAVA,
+    TMD_NAT_OIL,
+    TMD_NAT_SAND,
+    TMD_NAT_TREE,
+    TMD_NAT_WATER,
+    TMD_NAT_MUD,
+    TMD_SLAY_ELEM,
+    TMD_CALL_HOURNS,
 
-	TMD_MAX
+    TMD_MAX
 };
 
 
@@ -535,18 +551,18 @@ enum
  */
 enum
 {
-	SKILL_DISARM,			/* Skill: Disarming */
-	SKILL_DEVICE,			/* Skill: Magic Devices */
-	SKILL_SAVE,				/* Skill: Saving throw */
-	SKILL_STEALTH,			/* Skill: Stealth factor */
-	SKILL_SEARCH,			/* Skill: Searching ability */
-	SKILL_SEARCH_FREQUENCY,	/* Skill: Searching frequency */
-	SKILL_TO_HIT_MELEE,		/* Skill: To hit (normal) */
-	SKILL_TO_HIT_BOW,		/* Skill: To hit (shooting) */
-	SKILL_TO_HIT_THROW,		/* Skill: To hit (throwing) */
-	SKILL_DIGGING,			/* Skill: Digging */
+    SKILL_DISARM,			/* Skill: Disarming */
+    SKILL_DEVICE,			/* Skill: Magic Devices */
+    SKILL_SAVE,				/* Skill: Saving throw */
+    SKILL_STEALTH,			/* Skill: Stealth factor */
+    SKILL_SEARCH_CHANCE,	/* Skill: Searching ability */
+    SKILL_SEARCH_FREQUENCY,	/* Skill: Searching frequency */
+    SKILL_TO_HIT_MELEE,		/* Skill: To hit (normal) */
+    SKILL_TO_HIT_BOW,		/* Skill: To hit (shooting) */
+    SKILL_TO_HIT_THROW,		/* Skill: To hit (throwing) */
+    SKILL_DIGGING,			/* Skill: Digging */
 
-	SKILL_MAX
+    SKILL_MAX
 };
 
 
@@ -555,15 +571,18 @@ enum
  */
 enum
 {
-	A_STR = 0,
-	A_INT,
-	A_WIS,
-	A_DEX,
-	A_CON,
-	A_CHR,
+    A_STR = 0,
+    A_INT,
+    A_WIS,
+    A_DEX,
+    A_CON,
+    A_CHR,
 
-	A_MAX
+    A_MAX
 };
+
+#define STAT_TABLE_SIZE         38
+#define STAT_TABLE_MAX_VALUE    (STAT_TABLE_SIZE - 1)
 
 /*** Player flags ***/
 
@@ -598,8 +617,8 @@ enum
 #define PU_FLOW_FLYING		0x00001000L	/* Update flow for flying creatures */
 #define PU_FLOW_PASS_WALLS     0x00002000L     /* Update flow for creatures who pass through or kill walls */
 #define PU_FLOW_NO_DOORS_SPECIAL       0x00004000L /* Update the "doorless" versions of the flows */
-
-#define PU_NATIVE		0x00100000L	/* Calculate nativity */
+#define PU_PLAYER_SCORE 0x00008000L  // Update player score
+#define PU_UNUSED   	0x00100000L
 #define PU_STEALTH		0x00200000L	/* Calculate bonuses */
 #define PU_BONUS		0x00400000L	/* Calculate bonuses */
 #define PU_TORCH		0x00800000L	/* Calculate torch radius */
@@ -617,72 +636,42 @@ enum
 /*
  * Bit flags for the "p_ptr->redraw" variable
  */
-#define PR_MISC			0x00000001L	/* Display Race/Class */
-#define PR_TITLE		0x00000002L	/* Display Title */
-#define PR_LEV			0x00000004L	/* Display Level */
-#define PR_EXP			0x00000008L	/* Display Experience */
-#define PR_STATS		0x00000010L	/* Display Stats */
-#define PR_ARMOR		0x00000020L	/* Display Armor */
-#define PR_HP			0x00000040L	/* Display Hitpoints */
-#define PR_MANA			0x00000080L	/* Display Mana */
-#define PR_GOLD			0x00000100L	/* Display Gold */
-#define PR_DEPTH		0x00000200L	/* Display Depth */
-#define PR_QUEST_ST		0x00000400L	/* Display quest status */
-#define PR_HEALTH		0x00000800L	/* Display Monster Health Bar */
-#define PR_FEELING		0x00001000L	/* Display Level Feeling */
-#define PR_OBJECT		0x00002000L	/* Display object recall */
-#define PR_MONSTER		0x00004000L	/* Display monster recall */
-#define PR_MON_MANA		0x00008000L	/* Display Monster Mana Bar */
-#define PR_MESSAGE		0x00010000L	/* Display messages */
-#define PR_EQUIP		0x00020000L	/* Display equip/inven */
-#define PR_INVEN		0x00040000L	/* Display inven/equip */
-#define PR_STATE		0x00080000L	/* Display Extra (State) */
-#define PR_STATUS		0x00100000L	/* Display Status */
-#define PR_SPEED		0x00200000L	/* Display Extra (Speed) */
-#define PR_STUDY		0x00400000L	/* Display Extra (Study) */
-#define PR_RESIST		0X00800000L	/* Display Resistances */
-#define PR_BUTTONS      0x01000000L /* Display mouse buttons */
-#define PR_DTRAP		0x02000000L /* Trap Detection Indicator */
-#define PR_ITEMLIST     0x04000000L /* Display item list */
-#define PR_MAP			0x08000000L	/* Display Map */
-#define PR_MONLIST		0x10000000L	/* Display monster list */
-#define PR_FEATURE		0x20000000L	/* Display feature */
-#define PR_PLAYER_NATIVE 0x40000000L	/* Returns whether the terrain is native or not */
-#define PR_UNUSED2		0x80000000L	/* Unused */
-/* xxx (many) */
-/* Display Basic Info */
-#define PR_BASIC \
-	(PR_MISC | PR_TITLE | PR_STATS | PR_LEV |\
-	 PR_EXP | PR_GOLD | PR_ARMOR | PR_HP | PR_FEELING | \
-	 PR_MANA | PR_DEPTH | PR_HEALTH | PR_SPEED | PR_QUEST_ST)
-
-/* Display Extra Info */
-#define PR_EXTRA \
-	(PR_STATUS | PR_STATE | PR_STUDY)
-
-/*Number of possible display options*/
-#define	 MAX_DISPLAY_OPTIONS 17
-
-/*
- * Bit flags for the "p_ptr->window" variable (etc)
- */
-#define PW_INVEN            0x00000001L /* Display inven/equip */
-#define PW_EQUIP            0x00000002L /* Display equip/inven */
-#define PW_PLAYER_0         0x00000004L /* Display player (basic) */
-#define PW_PLAYER_1         0x00000008L /* Display player (extra) */
-#define PW_PLAYER_2         0x00000010L /* Display player (compact) */
-#define PW_MAP              0x00000020L /* Display dungeon map */
-#define PW_MESSAGE          0x00000040L /* Display messages */
-#define PW_OVERHEAD         0x00000080L /* Display overhead view */
-#define PW_MONSTER          0x00000100L /* Display monster recall */
-#define PW_OBJECT           0x00000200L /* Display object recall */
-#define PW_MONLIST          0x00000400L /* Display monster list */
-#define PW_STATUS           0x00000800L /* Display Status */
-#define PW_ITEMLIST	        0x00001000L /* Display item list */
-#define PW_FEATURE		    0x00002000L /* Display feature status */
+#define PR_XXX1             0x00000001L
+#define PR_SIDEBAR_PL       0x00000002L	/* Update the sidebar */
+#define PR_SIDEBAR_MON      0x00000004L	/* Display Monster Health Bar */
+#define PR_STATUSBAR        0x00000008L	// Update the statusbar
+#define PR_TITLEBAR         0x00000010L // Update the titlebar
+#define PR_XXX3             0x00000020L
+#define PR_XXX4             0x00000040L
+#define PR_PLYR_SCORE       0x00000080L // Update only player score
+#define PR_TURNCOUNT        0x00000100L // Update only the turncount
+#define PR_XXX7             0x00000200L
+#define PR_XXX8             0x00000400L
+#define PR_XXX9             0x00000800L
+#define PR_XX10             0x00001000L
+#define PR_XX16             0x00002000L
+#define PR_XXX2             0x00004000L
+#define PR_XX11             0x00008000L
+#define PR_MESSAGES         0x00010000L	// Display messages
+#define PR_WIN_EQUIPMENT    0x00020000L	/* Display equipment and quiver window */
+#define PR_WIN_INVENTORY    0x00040000L	/* Display inventory */
+#define PR_WIN_OBJLIST      0x00080000L /* Display item list */
+#define PR_WIN_MONLIST      0x00100000L /* Update Monster List Window */
+#define PR_WIN_MON_RECALL   0x00200000L /* Monster recall Window */
+#define PR_WIN_OBJ_RECALL   0x00400000L // Object Recall Window
+#define PR_WIN_FEAT_RECALL  0X00800000L // Feature Recall Window
+#define PR_WIN_MESSAGES     0x01000000L // Update message window
+#define PR_WIN_CHAR_BASIC   0x02000000L // Update basic character window
+#define PR_WIN_CHAR_EQUIP_INFO  0x04000000L // Update basic equipment information window
+#define PR_MAP              0x08000000L
+#define PR_DRAW             0x10000000L
+#define PR_XX12             0x20000000L
+#define PR_XX18             0x40000000L
+#define PR_UNUSED2          0x80000000L	/* Unused */
 
 
-#define PW_MAX_FLAGS		14
+//Both player and monster sidebar
+#define PR_SIDEBAR_ALL (PR_SIDEBAR_PL | PR_SIDEBAR_MON)
 
 
 /*Player Native Flags*/
@@ -753,31 +742,38 @@ enum
 
 /*slots for the following tables*/
 /*The code assumes QUEST_SLOT_MONSTER is first and always available to the player*/
-#define QUEST_SLOT_MONSTER			0
-#define QUEST_SLOT_GUARDIAN			1
-#define QUEST_SLOT_PIT_NEST			2
-#define QUEST_SLOT_WILDERNESS		3
-#define QUEST_SLOT_LEVEL			4
-#define QUEST_SLOT_VAULT			5
-#define QUEST_SLOT_ARENA			6
-#define QUEST_SLOT_LABYRINTH		7
-#define QUEST_SLOT_GREATER_VAULT	8
-#define QUEST_SLOT_MAX				9
+enum
+{
+    QUEST_SLOT_MONSTER = 0,
+    QUEST_SLOT_GUARDIAN,
+    QUEST_SLOT_PIT_NEST,
+    QUEST_SLOT_WILDERNESS,
+    QUEST_SLOT_LEVEL,
+    QUEST_SLOT_VAULT,
+    QUEST_SLOT_ARENA,
+    QUEST_SLOT_LABYRINTH,
+    QUEST_SLOT_GREATER_VAULT,
+    QUEST_SLOT_MAX,
+};
 
 /*
  * Quest types
  */
-#define QUEST_PERMANENT			1	/* A fixed quest from quest.txt for specific monster race or unique */
-#define QUEST_MONSTER			2	/* Kill a specific monster race or unique*/
-#define QUEST_GUARDIAN			3  	/* A fixed monster quest from the guild */
-#define QUEST_PIT				4	/* clear out an entire monster pit*/
-#define QUEST_NEST				5	/* clear out a monster next*/
-#define QUEST_THEMED_LEVEL		6	/* clear out an entire level of creatures*/
-#define QUEST_WILDERNESS		7	/* Clear out an entire wilderness level */
-#define QUEST_VAULT				8	/* retrieve a artifact from a vault and return it to the guild*/
-#define QUEST_ARENA_LEVEL		9	/* Kill a given # of creatures in a closed arena  */
-#define QUEST_LABYRINTH   		10   /* Clear out an entire labrynth level */
-#define QUEST_GREATER_VAULT	    11   /* Go into a greater vault for a set amoutn of time */
+ enum
+ {
+    QUEST_PERMANENT = 1,    /* A fixed quest from quest.txt for specific monster race or unique */
+    QUEST_MONSTER,          /* Kill a specific monster race or unique*/
+    QUEST_GUARDIAN,         /* A fixed monster quest from the guild */
+    QUEST_PIT,              /* clear out an entire monster pit*/
+    QUEST_NEST,             /* clear out a monster next*/
+    QUEST_THEMED_LEVEL,     /* clear out an entire level of creatures*/
+    QUEST_WILDERNESS,       /* Clear out an entire wilderness level */
+    QUEST_VAULT,            /* retrieve a artifact from a vault and return it to the guild*/
+    QUEST_ARENA_LEVEL,      /* Kill a given # of creatures in a closed arena  */
+    QUEST_LABYRINTH,        /* Clear out an entire labrynth level */
+    QUEST_GREATER_VAULT,    /* Go into a greater vault for a set amount of time */
+ };
+
 
 #define MON_RARE_FREQ	15
 #define MON_LESS_FREQ	50
@@ -814,11 +810,6 @@ enum
 #define REWARD_RANDART		0x0040
 #define REWARD_AUGMENTATION	0x0080
 
-/*Quest description Modes*/
-#define QMODE_HALF_1 1
-#define QMODE_HALF_2 2
-#define QMODE_SHORT  3
-#define QMODE_FULL   4
 
 /*artifact slot reserved for vault quest artifact*/
 #define QUEST_ART_SLOT	z_info->art_norm_max
@@ -840,7 +831,7 @@ enum
 #define QFLAG_GREATER_VAULT_QUEST	0x80  	/* Allow the player to choose a greater vault quest	 */
 
 #define QFLAG_PRESERVE_MASK  (QFLAG_EXTRA_LEVEL | QFLAG_VAULT_QUEST | QFLAG_ARENA_QUEST | \
-							  QFLAG_LABYRINTH_QUEST | QFLAG_WILDERNESS_QUEST | QFLAG_GREATER_VAULT_QUEST)
+                              QFLAG_LABYRINTH_QUEST | QFLAG_WILDERNESS_QUEST | QFLAG_GREATER_VAULT_QUEST)
 
 /*
  * Return true if the guild quest is not completed.
@@ -862,12 +853,39 @@ enum
 
 #define player_on_guild_quest_level() \
        ((q_info[GUILD_QUEST_SLOT].base_level == p_ptr->depth) && \
-    	(guild_quest_level()))
+        (guild_quest_level()))
+
+/*
+ * Hack -- The quest indicator timer is compacted along with a bit that indicates
+ * whether the current quest was successfully completed or not.
+ * The value of the bit is 0 if the quest was failed.
+ */
+#define QUEST_INDICATOR_COMPLETE_BIT 0x8000
 
 #define NPPMORIA_LOWEST_SPEED	9
 #define NPPMORIA_MAX_SPEED		14
 #define NPPMORIA_NORMAL_SPEED	11
 #define STANDARD_ENERGY_GAIN	10
 
-#endif /*INCLUDED_PLAYER_H*/
+#define NPPANGBAND_SPEED_TABLE 200
+#define NPPANGBAND_MAX_SPEED   (NPPANGBAND_SPEED_TABLE - 1)
 
+ enum
+{
+     DIR_UNKNOWN = 0,
+     DIR_SOUTHWEST,
+     DIR_SOUTH,
+     DIR_SOUTHEAST,
+     DIR_WEST,
+     DIR_TARGET,
+     DIR_EAST,
+     DIR_NORTHWEST,
+     DIR_NORTH,
+     DIR_NORTHEAST,
+     DIR_CLOSEST,
+     DIR_TARGET_PLAYER,
+};
+
+
+
+#endif // PLAYER_H

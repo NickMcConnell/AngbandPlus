@@ -1,0 +1,212 @@
+
+*******floor_query_flag
+If turned on, you will always be prompted to select an item off the floor, even if there is only one possible choice.  Turning off this option means if there is only one possible item to select it will be automatically selected.  Note this means, with certain commands, an item on the floor could be automatically used if it is the only possible choice.
+*******<end>
+
+*******carry_query_flag
+The game gives you a menu of items on the floor to pick up, after any objects marked for automatic pickup have been picked up.
+*******<end>  
+
+*******use_old_target
+Forces all commands which normally ask for a direction to use the current target if there is one.  Use of this option can be dangerous if you target locations on the ground, unless you clear them when done.
+*******<end>
+
+*******always_pickup
+Tells the game that walking onto an item should attempt to pick it up.  Picking up objects this way takes no additional energy.  Individual objects can be marked for auto_pickup by inscribing them with '=g'.  This option can also be overridden by setting an objects squelch setting to NEVER_PICKUP in either the knowledge or squelch menus.
+*******<end>
+
+*******stack_force_notes
+Allows objects with and without inscriptions to stack, retaining any inscription.  This allows the player to use their 24 inventory slots more efficiently.
+*******<end>
+
+*******stack_force_costs
+Allows objects with greater and lesser discounts to stack, retaining the larger discount.  This allows the player to use their 24 inventory slots more efficiently.
+*******<end>
+
+********easy_open
+When you issue the open, close, or disarm commands, if there is only one possible door or trap to select, it is automatically selected without a menu prompt.
+*******<end>
+
+*******easy_alter
+When you move into a door, you automatically attempt to open it.   When you move into a trap, you automatically attempt to disarm it.
+*******<end>
+
+********auto_scum
+Regenerates dungeon levels until one is found with enough dangerous monsters and nifty objects.  use of this option makes for more intense but dangerous games.
+*******<end>
+
+********allow_themed_levels
+Allows the generation of themed levels.  Themed levels are levels packed with many monsters of a particular type, such as orcs, trolls, hydras, or dragons.  Once the level is created, no additional monsters will be created on a themed level.  With this option set to "on", it is highly recommended that the dungeon_stair option be set to "on" as well.
+*******<end>
+
+********smart_cheat
+As monsters cast spells, they learn which spells the player resists.  With this option on, monsters instantly know all your resistances and weaknesses.
+*******<end>
+
+********hp_changes_color
+As a player's hitpoints drops, the color of the player changes as a warning. 90-100% of max hp - White.  70-89% - Yellow.  50-69% - Orange.  30-49% - Light Red.  Less than 30% of max hp - Red.
+*******<end>
+
+********hilight_player
+Place the visible cursor on the player.
+*******<end>
+
+********center_player
+Center the map continuously.  Advantages include removal of the need to adjust the map panel and less jerky character movement; disadvantages include not being able to control your field of view and constant map shifting. This causes the game to use significantly more processor power.
+*******<end>
+
+********show_piles
+Displays a stack of floor objects using a special character.  With this option turned off, the object on the top of the pile is displayed.
+*******<end>
+
+********show_flavors
+Display "flavors" (color or variety) in object descriptions and information screens, even for objects whose type is known.  This does not affect objects in stores.
+*******<end>
+
+********view_yellow_light
+If the option "view_special_light" is also on, floor grids that are only lit by the player's own light source will appear yellow.  If the option "view_granite_light" is on, walls will be colored in the same way.  Turning this option off will slightly increase the speed of the game.
+*******<end>
+
+********view_bright_light
+This option causes special colors to be used for non "viewable" grids in certain situations (see "view_granite_lite" and "view_special_lite"). When this option is set, floor grids which are normally drawn in "white" but which are not currently "viewable" by the player are instead drawn in "dark gray".  This makes the "viewable" grids to appear "brighter" than the others, allowing the player to easily determine which floor grids are in "line of sight".  Turning this option off will slightly increase the speed of the game.
+*******<end>
+
+********view_granite_light
+This option activates a special color scheme for all "wall" grids which are normally drawn in "white" (as walls and rubble normally are).  When the player is blind, we use "dark gray", else if the grid is torch-lit, we use "yellow" (or "white") depending on the "view_yellow_lite" option, else if the "view_bright_lite" option is set, and the grid is not in line of sight, or the grid is dark, or the grid is only "partially" lit, then we use "gray", otherwise we use the normal "white".  Turning this option off will slightly increase the speed of the game.
+*******<end>
+
+********view_special_light
+This option activates a special color scheme for all "floor" grids which are normally drawn in "white" (as they normally are).  When the player is blind, we use "dark gray", else if the grid is torch-lit, we use "yellow" (or "white") depending on the view_yellow_lite" option, else if the grid is "dark", we use  dark gray", else if the "view_bright_lite" option is set, and the grid is not in line of sight, we use "gray", otherwise we use the normal "white".  Turning this option off will slightly increase the speed of the game.
+*******<end>
+
+*******view_perma_grids
+Memorize all permanently lit floor grids.  Turning this option off allows you to know which lit floor grids are in line of sight.  The "view_bright_lite" option works better for this purpose.
+
+*******view_torch_grids
+Memorize all floor grids that have ever been lit up by the player.  This is one way to help keep track of which areas you have explored.
+*******<end>
+
+*******mark_squelch_items
+Any item that is marked for squelching on the dungeon floor or ground appears as a purple dot on-screen, allowing the player to easily ignore that item.
+*******<end>
+
+*******animate_flicker
+Certain powerful monsters and items will shimmer in real time.
+*******<end>
+
+*******disturb_move
+Disturb the player when any visible monster moves, appears, or disappears, whether in line of sight or out of it.  This increases safety, but makes it difficult to rest when the player has telepathy.
+*******<end>
+
+*******disturb_near
+Disturb the player when any viewable (visible and in direct line of sight) monster moves, whenever any monster becomes viewable, and whenever any viewable monster becomes no longer viewable.  It is highly recommended that this option stay; turning it off may cause you to be ambushed by monsters as you rest.
+*******<end>
+
+*******disturb_detect
+Disturbs you when you leave the edge of the area where you have detected traps.
+*******<end>
+
+*******disturb_state
+This option causes you to be disturbed whenever the player state changes, including changes in hunger, resistance, confusion, etc.
+*******<end>
+
+*******verify_destroy
+Gives you an "are you sure" message when you try to destroy an object.  In the object options screen, the player also has an option to get this prompt for individual items as well.
+*******<end>
+
+*******verify_leave_quest
+Asks for confirmation when you enter a command to leave a quest level (thereby risking quest failure).
+*******<end>
+
+*******death_char_dump
+When a character dies, prompt the player to save a screenshot and charater file of the character's final turn.
+*******<end>
+
+*******birth_maximize
+If maximize mode is ON, racial and class adjustments to vital statistics (stat) act as permanent modifiers.  A Dwarven priest will be able to raise his inherent wisdom to 18/150, but his intelligence only to 18/40.  Maximize mode makes races and classes play more differently, usually to the player's benefit; it is therefore recommended in most cases.
+*******<end>
+
+*******birth_rand_artifacts
+Most of the artifacts will get random names and qualities.  This can make for a fun change of pace.
+*******<end>
+
+*******birth_money
+The character starts with no equipment, and 500 in gold.
+*******<end>
+
+*******birth_force_small_lev
+All levels will be generated as small levels, giving you less space to explore, and less space to escape.  It tends to make for a faster paced, but more dangerous game.
+*******<end>
+
+*******birth_ironman
+Ironman Play:  "Go down into the dungeon.  Return with Morgoth's Crown or not at all."  In Ironman mode, you can never go up any staircase, and can never return to the surface by any means, until victorious.  If by accident you do, you must immediately return to the dungeon.  Some forms of Ironman play require that you visit no stores before going into the dungeon, or that you must use a down staircase as soon as you see it ("crash-dive ironman"), but they are variants on the basic theme.  There are certain objects available in ironman mode that are not available in a regular game.
+*******<end>
+
+*******birth_no_stores
+Cannot use any stores or your home.
+*******<end>
+
+*******birth_no_artifacts
+No artifacts will appear.
+*******<end>
+
+*******birth_no_stacking
+The game normally allows many objects to stack in each floor grid.  However, some people prefer the challenge of allowing only one object to appear in each floor grid.  Turning this option ON causes objects dropped by monsters to disappear if space is tight, and therefore encourages you to fight battles in wide-open spaces.
+*******<end>
+
+*******birth_preserve
+If preserve mode is ON, artifacts will not be lost unless you actually identify then abandon them.  However, you get no special feelings (which help you to find artifacts).  If this option is OFF, artifacts appear once and once only, but you get special feelings on levels where they have been generated.
+*******<end>
+
+*******birth_connected_stairs
+If false, no stairs are ever placed under you when you change levels.
+*******<end>
+
+*******birth_no_quests
+If this option is set, the adventurer's guild will not assign quests to the player.  The two fixed quests, kill Sauron and Morgoth, are unaffected.
+*******<end>
+
+*******birth_no_player_ghosts
+If this option is set, no player ghosts will be generated.
+*******<end>
+
+*******birth_no_store_services
+If this option is set, the stores will not offer any services.  Note that, if the birth_no_stores option is set to true, the stores are always closed and this option has no effect.
+*******<end>
+
+*******birth_no_xtra_artifacts
+If this option is set, no additional artifacts are created during game play.  Note that the standard artifact set, or any alternate set of artifacts created with the birth_rand_artifacts option, are unaffected.  This option just prevents additional artifacts from being created in mid-game.  If birth_no_artifacts option is set to true, no artifacts are generated and this option has no effect.
+*******<end>
+
+*******birth_no_selling
+If this option is set, items will sell to the stores for 0 gold.  Gold found in the dungeon will be approximately 5 times the value.
+*******<end>
+
+*******birth_classic_dungeons
+If this option is set, only simple, Angband dungeons will be generated.  No NPP unusual terrains (trees, water, smart traps, etc) will be created.  Also, no wilderness levels, themed levels, starburst rooms will be created.
+*******<end>
+
+*******cheat_peek
+Cheaters never win.  But they can peek at object creation.  Using this option changes the character into wizard mode, unscored character.
+*******<end>
+
+*******cheat_hear
+Cheaters never win.  But they can peek at monster creation.  Using this option changes the character into wizard mode, unscored character.
+*******<end>
+
+*******cheat_room
+Cheaters never win.  But they can peek at room creation.  Using this option changes the character into wizard mode, unscored character.
+*******<end>
+
+*******cheat_xtra
+Cheaters never win.  But they can know when shopkeepers are shuffled, dungeon level generation is restarted, or monsters can not be placed.  Using this option changes the character into wizard mode, unscored character.
+*******<end>
+
+*******cheat_know
+Cheaters never win.  But they can know all about monsters.  Using this option changes the character into wizard mode, unscored character.
+*******<end>
+
+*******cheat_live
+Cheaters never win.  But they can cheat death.  Using this option changes the character into wizard mode, unscored character.
+*******<end>
+

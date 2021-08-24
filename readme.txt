@@ -1,4 +1,4 @@
-NPPAngband v.6.1.2
+NPPAngband v.8.0.0
 
 Along with the resources below, the NPPAngband home page and forums are located at:
 

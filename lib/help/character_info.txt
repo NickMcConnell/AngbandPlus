@@ -1,0 +1,397 @@
+*******Strength
+Strength is extremely important in fighting with weapons and in melee combat, and can greatly increase a player's killing power.  A high strength helps increase total number of melee blows per round, melee to-hit, melee to-damage, player weight carrying capacity, maximum weildable weapon weight, bashing chances, throwing range, and digging capability.  Characters with low strengths may receive penalties in these areas.
+*******<end>
+
+*******Intelligence
+Intelligence affects the ability of mages and rogues to cast spells, and a druid or ranger's ability to chant incantations.  Intelligence will affect the number of spells or incantations you may learn each level as well as the number of spell points you receive.  A high intelligence also improves your chances of successfully casting a spell or incantations.  You cannot learn spells if your intelligence is 7 or lower.  A good intelligence can also help with using magic devices, picking locks, and disarming traps.  Characters with low intelligence may receive penalties in these areas.
+*******<end>
+
+*******Wisdom
+Wisdom affects the ability of a priest or paladin to use prayers, and a druid's or ranger's ability to chant incantations.  High wisdom will increase the number of spell points you have and increase the number of prayers you can learn each level.  A high wisdom also improves the chance that a prayer will be successful.  A good wisdom can also help to improve your saving throw against magical spells cast upon you by monsters.  Characters with low wisdom may receive penalties in these areas.
+*******<end>
+
+*******Dexterity
+Dexterity is a combination of agility and quickness.  A high dexterity may allow a character to get multiple blows with weapons, thus greatly increasing his kill power, and will increase his chances of hitting with any weapon and dodging blows from enemies.  A high dexterity is also useful in picking locks, disarming traps, and protecting yourself from some of the thieves that inhabit the dungeons. Indeed, if the character has a dexterity of 18/150 or greater, thieves will never be successful in stealing from the player.  A high dexterity also reduces the possibility of the player getting stunned while bashing a door or a creature.  Characters with low dexterity may receive penalties in these areas.
+*******<end>
+
+*******Constitution
+Constitution is a character's ability to resist damage to his body, and to recover from damage received.  Therefore a character with a high constitution will receive more hit points and also regenerate them faster.  A high consitution also affects the player's recovery rate from cuts, poison, and being stunned.  Characters with a low constitution may receive penalties in these areas.
+*******<end>
+
+*******Charisma
+Charisma represents a character's personality and physical appearance.  A character with a high charisma will receive better prices from store owners, whereas a character with a very low charisma may be robbed blind. Charisma also affects the character's chances to use magic to sleep, slow, confuse, scare or stun a monster.  Characters with a low charisma may receive penalties in these areas.
+*******<end>
+
+*******Character Name
+The character name is for game "flavor" and does not have any significant gameplay effects.
+*******<end>
+
+*******Gender
+Gender is for game "flavor" and does not have any significant gameplay effects.
+*******<end>
+
+*******Title
+Title indicates a gain in status as the player gains levels.  It does not have any significant gameplay effects.
+*******<end>
+
+*******Hit Points
+When the player's hit points go below zero, the player dies.  The player's maximum hit points are gained when the player levels up or increases their Constitution.  There is also a chance that the Adventurer's Guild will offer to increase the player's maximum hit points as a quest reward.  Unless the player has a dangerous temporary effect (e.g. being poisoned, being cut), the player will regenerate a small amount of hit points each turn.  The player also has the option to rest until their hit points are fully recovered, or use magic to heal themselves.
+*******<end>
+
+*******Spell Points
+Spell points are required for spellcasting classes to cast spells (Mage, Ranger), pray prayers (Priest, Paladin), or chant incantations (Druid, Ranger).  Casting a spell without having sufficient mana can damage the player's health, or cause them to pass out.  Maximum spell points increase as the player levels up, or their primary spell stat increases.  Unless the player has a dangerous temporary effect (e.g. being poisoned, being cut), the player will regenerate a small amount of hit points each turn.  The player also has the option to rest until their hit points are fully recovered.  The player will regenerate a small amount of spell points each turn.  The player also has the option to rest until their spell points are fully recovered, or use magic items to recover spell potions.
+*******<end>
+
+*******Fame
+The player increases their fame by completing quests, killing uniques, and killing player ghosts.  A high enough player fame prompts the Adventurer's Guild to offer a wider variety of quests, and greatly increases the variety and quantity of quest rewards.  If the player fails or abandons a quest, the player's fame is sharply decreased.
+*******<end>
+
+*******Gold
+The player can collect gold found in the dungeon, as a quest reward, as well as by selling object in the town stores.  Gold can be used to purchase items and services in the town shops.
+*******<end>
+
+*******Player Age
+Player Age is for game "flavor" and does not have any significant gameplay effects.
+*******<end>
+
+*******Player Height
+Player height in inches.  Player height is for game "flavor" and does not have any significant gameplay effects.
+*******<end>
+
+*******Player Weight
+Player weight in pounds.  Player weight is for game "flavor" and does not have any significant gameplay effects.
+*******<end>
+
+*******Social Class
+Player Social Class is for game "flavor" and does not have any significant gameplay effects.  Social class is related to the player history.
+*******<end>
+
+*******Game Turn
+10 game turns is equivalent to one player turn at normal speed.  The player's score is eventually reduced if the game turn count gets high enough.
+*******<end>
+
+*******Player Turn
+Player Turn is the number of player turns, independent of player speed.
+*******<end>
+
+*******Current Depth
+The player's current dungeon depth.
+*******<end>
+
+*******Max Depth
+The deepest dungeon depth the player has reached.
+*******<end>
+
+*******Player Level
+Current character level. Player's hit points, spell points and abilities such as Disarming, Fighting Ability, and Magic Device usage, increase as the player's level increases.  In NPPAngband, the maximum level is 50.  In NPPMoria, the maximum level is 40.
+*******<end>
+
+*******Player Current Experience
+Total current player experience.  If current experience is less than maximum experience, the player's experience has been drained.  While current experience is less than maximum experience, when the player gains experience, the maximum experience increases only 10% of the experience gain until current experience catches up.  There are magical spells and items that can restore a player's experience back to the maximumm level.
+*******<end>
+
+*******Player Maximum Experience
+Maximum player experience.  If current experience is less than maximum experience, the player's experience has been drained.  While current experience is less than maximum experience, when the player gains experience, the maximum experience increases only 10% of the experience gain until current experience catches up.  There are magical spells and items that can restore a player's experience back to the maximum level.
+*******<end>
+
+*******Player Experience Advance
+The amount of experience needed to advance to the next level.  A mouse hover over this number will show the required experience to advance to the next level.  The amount of experience to gain the next level depends on player level, player race, and player class.
+*******<end>
+
+*******Player Score
+Player score is an attempt to quantify the player accomplishments.  It does not have any gameplay effects.  The score is based on the uniques killed, artifacts found, player fame, experience gained, and how deep in the dungeon the player has gone.  After 300,000 game turns have elapsed, total score is adjusted downward based on the number of game turns the player has taken.
+*******<end>
+
+*******Player Burden
+Player Burden is the current total weight of all the player's equipment and inventory.  Player gold is not factored into the player's weight.
+*******<end>
+
+*******Max Burden
+Max weight is the total weight the player can carry without being slowed.
+*******<end>
+
+*******Percent Burden
+The player is slowed when this percentage exceeds 100%
+*******<end>
+
+*******Armor Class
+A higher armor class reduces the chance the player being hit by a physical attack.  This includes monster melee attacks, as well as arrows, shots, and bolts.  Usually the character's known armor class is displayed onscreen.  The player's known armor class may vary due to unidentified magical equipment.  Armor class comes from dexterity and equipment.  The format for displaying armor class is: [Intrinsic AC, dexterity and magical bonuses to AC].
+*******<end>
+
+*******Infravision
+Infravision is the ability to see heat sources. Since most of the dungeon is cool or cold, infra-vision will not allow the player to see walls and objects.  Infravision will allow a character to see any warm-blooded creatures up to a certain distance past the player's light source, even if the players are invisible.  However, many of Angband's creatures are cold-blooded, and will not be detected unless lit up by a light source. All non-human races have innate infra-vision ability.  Humans (including Dúnedain) cannot gain infra-vision unless it is magically enhanced. Infravision does not increase with character level, and is purely dependent on race, magical equipment, and magical items.  1 square = 10 feet.
+*******<end>
+
+*******Speed
+Speed has a dramatic effect on player power and survivability.  Boots, rings, and weapons that hasten you are rare and powerful. In battle, the one that moves faster has a tremendous advantage, as they will sometimes get to attack their opponent multiple times before their foe gets a turn. There are magical spells that can temporarily speed up or slow down both the player and monsters.  
+
+For NPPAngband, the incremental changes in speed have less effect as the extremes are approached.  
+Normal speed = 1 player turn every 10 game turns.  
+-7 speed = twice as slow as normal speed  
++10 speed = 2x normal speed
++20 speed = 3x normal speed
++44 speed = 4x normal speed
++70 speed = 4.9x normal speed (maximum achievable speed).  
+
+For NPPMoria, Each positive increment doubles player speed.  Each negative increment cuts player speed in half.  
+(+1)=2x normal speed  
+(+2)=4x normal speed  
+(+3)=8x normal speed 
+(-1)= half normal speed.
+
+On the character screen, base speed is displayed without the temporary effects.  On the sidebar, temporary hasting and slowing are factored in.
+*******<end>
+
+*******Saving Throw
+A Saving Throw is the ability of a character to resist the effects of a spell cast at them.  The player gets a saving throw against most monster magical attacks such as fear, paralysis, slowness, blindness, and confusion.  This does not include spells cast on the player by his own stupidity, such as quaffing a nasty potion.  It is based on player race, class, and wisdom.  This ability increases with the level of the character, but then most high level creatures are better at casting spells, so it tends to even out.  Note some monster attacks do not allow a saving throw, so even a perfect saving throw doesn't offer complete protection from all forms of these attacks.
+*******<end>
+
+*******Stealth
+The ability to move silently about is very useful.  Characters with good stealth can usually surprise their opponents gaining the first blow.  Also, creatures may fail to notice a stealthy character entirely, allowing a player to avoid certain fights.  This skill is based entirely upon race and class, and will never improve unless magically enhanced.  A high stealth can make the player extremely quiet, but the player cannot achieve perfect silence.
+*******<end>
+
+*******Fighting Ability
+Fighting Ability is the ability to hit and do damage with weapons or fists.  Fighting ability is based on character race and class, and increases with the level of the character.  It is a significant factor in making a weapon attack successful, and the chances of getting a critical hit.  Critical hits increase total damage dice and +to-damage, and cause multiple damage rolls with the highest calculated damage used.  In terms of total damage inflicted, Fighting Abiliy is significantly less important than the number of attacks per round, player speed, player to-damage, and the weight of the of weapon the player is wielding.  Normally a character gets a single blow from any weapon, but if his dexterity and strength are high enough, he may receive more blows per round with lighter weapons.  A quirk of the combat calculations is that low level fighting classes, even a half-troll warrior, can do more damage in combat getting multiple attacks with a light weapon such as a whip or a dagger than with a heavy weapon such as a broad sword.  In NPPAngband, Warriors get an extra attack when they reach level 26.  More details of the player's ability with a weapon can be found by examining the weapon.
+*******<end>
+
+*******Shooting Ability
+Shooting ability is the skill in firing ranged missile weapons (arrows, bolts, and shots) from missile launchers (bows, crossbows, and slings).  It is based on race and class and increases with the level of the character.  It is a significant factor in making a successful hit, and for getting a critical hit. Critical hits increase total damage dice and +to-damage, and cause multiple damage rolls with the highest calculated damage used.  In terms of total damage inflicted, this factor is significantly less important than shooting speed, player speed, bow multiplier, the quality of missile launcher, and the quality of ammunition fired.  It can also increase the maximum distance an object is fired.  In NPPAngband, Rogues, Brigands, and Rangers can get a faster shooting speed with an appropriate missile launcher at level 26.  More details of the player's ability with a missile launcher or ammunition can be found by examining the launcher or the ammunition.
+******<end>
+
+*******Throwing Ability
+Throwing abillity is the skill in throwing objects at creatures.  It is based on race and class and increases with the level of the character.  It is a significant factor in making a sucessful hit, and for getting a critical hit. Critical hits increase total damage dice and +to-damage, and cause multiple damage rolls with the highest calculated damage used.  In terms of total damage inflicted, this factor is significantly less important than the qualities of the item thrown.  It can also increase the maximum distance an object is fired.  Well balanced weapons can be thrown for more damage than regular weapons.  Some potions can have interesting side effects when thrown.  In NPPAngband, Rogues and brigands get extra damage when throwing a well balanced weapon.  A level 10-15 rogue with an ego item, well-balanced throwing weapon or an artifact throwing weapon can kill most creatures down to 750' with a single throw;
+******<end>
+
+*******Disarming
+Disarming is the ability to remove traps safely, and also includes picking locks on traps and doors.  A successful disarming will gain the character some experience.  A trap must be found before it can be disarmed.  Disarming ability is based on player race, class, dexterity, intelligence and player level.
+******<end>
+
+*******Magic Device
+Magic Device ability is used in determining if the player has successfully activated an object, or used a wand, rod, or staff.  Spell users such as mages, druids and priests are therefore much better at using a magical device than say a warrior.  It is based on player race, class, intelligence, and level.  Object or artifact level also factors into the equation of whether the object has been successfully used.
+******<end>
+
+*******Melee
+Known Melee statistics comes from strength, dexterity, player class, and equipment (does not factor in changes from unidentified equipment).  x(number attacks), [damage dice, damage sides], (known-to-hit-adj., known-to-damage-adj).  Examine weapon for more detailed information.
+******<end>
+
+*******Critical Hit
+Critic hit represent the percent chance of extra damage from a well placed strike.  The chance is based on weapon weight, player melee skill, and to-hit bonus.
+******<end>
+
+*******Shooting Stats
+Known shooting statistics comes from dexterity, player class, and equipment (does not factor in changes from unidentified equipment).  The format is: x(num shots) x(damage multiplier), [damage dice, damage sides], (known-to-hit-adj., known-to-damage-adj).  Examine bow or ammunition for more detailed information.
+******<end>
+
+*******Searching
+Searching affects the chance of searching each player turn, as well as the percent chance of noticing any hidden doors or traps that are within 10 feet of player while searching.  Also affects how quickly the player gets a feeling about the level they are on.
+
+*******Search Frequency
+Searching Frequency is affected by player equipment race, class and level.  The chance of searching each player turn at normal speed.
+******<end>
+
+*******Search Chance
+Chance of searching is affected by player equipment race, class and level.  Percent chance of, if searching, noticing any hidden doors or traps that are within 10 feet of player.  Also affects how quickly the player gets a feeling about the level they are on.
+******<end>
+
+*******Tunneling
+The chance of successfuly tunneling is based on player strength, weapon weight, and equipment bonuses.  Improves chance of sucessfully tunneling through a walls.  The actual chance of success depends on the terrain into which the player is tunneling.
+******<end>
+
+*******Extra Blows
+Extra blows increases the number of player attacks the player has during per one melee round.
+******<end>
+
+*******Extra Shots
+Reduces the amount of time it takes the player to fire ammunition from a bow, crossbow, or sling.
++1 = 1/2 of a player turn
++2 = 1/3 of a player turn etc.
+******<end>
+
+*******Extra Might
+Increases the damage multiplier for ammunition fired from a bow, crossbow, or sling.
+******<end>
+
+
+*******Acid Immunity
+Acid immunity means acid based spells do not damage the player or the player's equipment and inventory.
+******<end>
+
+*******Lightning Immunity
+Lightning immunity means lightning based spells do not damage the player or the player's inventory.
+******<end>
+
+*******Fire Immunity
+Fire immunity means fire based spells do not damage the player or the player's inventory.
+******<end>
+
+*******Cold Immunity
+Cold immunity means cold or ice based spells do not damage the player or the player's inventory.
+******<end>
+
+*******Poison Immunity
+Poison immunity means poison based spells do not damage the player.
+******<end>
+
+*******Resist Acid
+Acid attacks have a maximum damage of 1,600 hp, and can harm player inventory and equipment.  Having temporary or permanent resistance divides damage by 3, and helps protect equipment and inventory.  Having both permanent and temporary resist divides damage by 9, and gives further protection to equipment and inventory.
+******<end>
+
+*******Resist Electricity
+Electricity attacks have a maximum damage of 1,600 hp, and can destroy rings, wands, and rods in the player inventory.  Having temporary or permanent resistance divides damage by 3, and helps protect player inventory.  Having both permanent and temporary resist divides damage by 9, and gives further protection to player inventory.
+******<end>
+
+*******Resist Fire
+Fire attacks have a maximum damage of 1,600 hp, and can destroy wearable equipment, spellbooks, chests, staffs, and scrolls in the player inventory.  Having temporary or permanent resistance divides damage by 3, and helps protect player inventory.  Having both permanent and temporary resist divides damage by 9, and gives further protection to player inventory.
+******<end>
+
+*******Resist Cold
+Ice and Cold attacks have a maximum damage of 1,600 hp, and can destroy potions, flasks, and bottles in the player inventory.  Having temporary or permanent resistance divides damage by 3, and helps protect player inventory.  Having both permanent and temporary resist divides damage by 9, and gives further protection to player inventory.
+******<end>
+
+*******Resist Poison
+Poison attacks have a maximum damage of 800 hp, and can poison the player inventory.  Having temporary or permanent resistance divides damage by 3, and prevents the player from being poisoned.  Having both permanent and temporary resist divides damage by 9.
+******<end>
+
+*******Resist Blindness
+Resist blindness prevents the player from being blinded.  Blindness prevents the player from seeing, reading scrolls and casting spells.
+******<end>
+
+*******Resist Confusion
+Confusion attacks have a maximum damage of 400, and can cause the player to be confused.  Resist confusion prevents the player from being confused, and reduces damage from confusion attacks by between 28 and 58 percent (damage=(damage*5)/(6+1d6))
+******<end>
+
+*******Resist Nexus
+Nexus attacks have a maximum damage of 450, and can cause the player to be teleported or teleported off the level, or the player can permanently have two of their stats switched.  Resist nexus prevents the nexus side effects, and reduces damage from nexus spells by between 14 and 50 percent (damage=(damage*6)/(6+1d6))
+******<end>
+
+*******Resist Nether
+Nether attacks have a maximum damage of 450, and can drain the player's experience.  Resist nether prevents prevents experience drain from nether and chaos attacks, and reduces damage from nether spells by between 14 and 50 percent (damage=(damage*6)/(6+1d6))
+******<end>
+
+*******Resist Chaos
+Chaos attacks have a maximum damage of 500, can polymorph nearby creatures, can drain the player's experience, and causes them to hallucinate and become confused.  Resist chaos prevents the hallucination side effect, the confusion side effect from chaos and confusion attacks, the experience drain side effect from nether or chaos attacks, and reduces damage from chaos spells by between 14 and 50 percent  (damage=(damage*6)/(6+1d6))
+******<end>
+
+*******Resist Disenchantment
+Disenchantment attacks have a maximum damage of 500, and can reduce the bonus to-hit, to damage, and armor class qualities of player equipment.  Resist disenchantment protects the player's equipment from disenchantment, and reduces damage from disenchantment spells by between 14 and 50 percent (damage=(damage*6)/(6+1d6))
+******<end>
+
+*******Resist Sound
+Sound attacks have a maximum damage of 500 and also causes the player to be stunned.  Resist sound protects the player from being stunned by sound attacks, and reduces damage from sound attacks by between 28 and 58 percent (damage=(damage*5)/(6+1d6))
+******<end>
+
+*******Resist Shards
+Shard attacks have a maximum damage of 500 and can cut the player.  Resist shards protects the player from cuts by shard attacks, and reduces damage from shard attacks by between 14 and 50 percent (damage=(damage*6)/(6+1d6))
+******<end>
+
+*******Resist Light
+Light attacks have a maximum damage of 400 and can blind on the player.  Resist light protects the player from being blinded by light attacks, and reduces damage from light attacks by between 42 and 67 percent--(damage=(damage*4)/(6+1d6))
+******<end>
+
+*******Resist Darkness
+Darkness attacks have a maximum damage of 400 and can blind on the player.  Resist darkness protects the player from being blinded by darkness attacks, and reduces damage from darkness attacks by between 42 and 67 percent (damage=(damage*4)/(6+1d6))
+******<end>
+
+*******Resist Fear
+Fear attacks prevents the player from making melee attacks.  Resist fear prevents the player from becoming afraid.
+******<end>
+
+*******See Invisible
+See Invisible allows the player to see invisible creatures that are within line of sight.
+******<end>
+
+*******Free Action
+Free Action prevents the player from being paralyzed, slowed, or slept.  If the player is heavily stunned, free action does not prevent them from passing out.
+******<end>
+
+*******Telepathy
+Allows the player to sense creatures with an active mind.  Telepathy works even if the creatures are out of line of sight, or the player is blind.  Telepathy does not sense 'mindless' creatures.
+******<end>
+
+*******Hold Life
+Hold life helps prevent the player from getting their experience drained.  Experience can sometimes still be drained, however with hold life the amount of experience drained is much smaller.
+******<end>
+
+*******Permanent Light
+An item with permanent Light increases the player's light radius by 1 while worn.
+******<end>
+
+*******Regeneration
+Regeneration doubles the rate at which a player heals, however it greatly increases the rate of player food consumption.  At normal speed, the rate of food consumption is quadrupled.
+******<end>
+
+*******Slow Digestion
+Slow Digestion reduces the rate of player food consumption.  At normal speed, the rate of food consumption is cut in half.
+******<end>
+
+*******Feather Falling
+Feather Falling prevents injury when the player hits a trap that causes them to fall.
+******<end>
+
+*******Teleportation
+Teleportation causes the player to have a 1% chance of being randomly teleported every game turn at normal speed.  Items that randomly teleport the player are almost always cursed, and cannot be removed without first having the curse removed.
+******<end>
+
+*******Aggravation
+Aggravation wakes up all monsters who are able to sense the player.  Aggravation negates all player stealth.
+******<end>
+
+*******Cursed Items
+Once worn, a cursed item cannot be taken off until the curse is broken.  An item that is permanently cursed cannot be removed once wielded.
+******<end>
+
+*******Drain Experience
+Causes the player's experience to be drained by one point on 10% of player turns at normal speed, and cannot be prevented by hold life.  Experience loss is to both current experience and maximum experience.
+******<end>
+
+*******Native Lava
+Being native to lava allows the player to be on lava terrains without taking any damage, and affects the player's stealth.  It allows the player to move more efficiently through lava terrains, and gives the player a bonus to-hit in combat.  Being non-native makes the player suceptable to damage from terrain, slows their movement, and reduces their to-hit chances.
+******<end>
+
+*******Native Ice
+Being native to ice allows the player to be on icy terrains without taking any damage, and affects the player's stealth.  It allows the player to move more efficiently through icy terrains, and gives the player a bonus to-hit in combat.  Being non-native makes the player suceptable to damage from terrain, slows their movement, and reduces their to-hit chances.
+******<end>
+
+*******Native Oil
+Being native to oily terrains allows the player to stand on them without taking any damage, and affects the player's stealth.  It allows the player to move more efficiently through oily terrains, and gives the player a bonus to-hit in combat.  Being non-native makes the player suceptable to damage from terrain, slows their movement, and reduces their to-hit chances.
+******<end>
+
+*******Native Fire
+Being native to fiery terrains allows the player to stand on fiery terrains without taking any damage, and affects the player's stealth.  It allows the player to move more efficiently through fiery terrains, and gives the player a bonus to-hit in combat.  Being non-native makes the player suceptable to damage from terrain, slows their movement, and reduces their to-hit chances.
+******<end>
+
+*******Native Sand
+Being native to sandy terrains allows the player to stand on them without taking any damage, and affects the player's stealth.  It allows the player to move more efficiently through sandy terrains, and gives the player a bonus to-hit in combat.  Being non-native makes the player suceptable to damage from terrain, slows their movement, and reduces their to-hit chances.
+******<end>
+
+*******Native Forest
+Being native to forest terrains allows the player to stand on them without taking any damage, and affects the player's stealth.  It allows the player to move more efficiently through forest terrains, and gives the player a bonus to-hit in combat.  Being non-native makes the player suceptable to damage from terrain, slows their movement, and reduces their to-hit chances.
+******<end>
+
+*******Native Water
+Being native to watery terrains allows the player to stand on them without taking any damage, and affects the player's stealth.  It allows the player to move more efficiently through watery terrains, and gives the player a bonus to-hit in combat.  Being non-native makes the player suceptable to damage from terrain, slows their movement, and reduces their to-hit chances.
+******<end>
+
+*******Native Acid
+Being native to acidic terrains allows the player to be stand on them without taking any damage, and affects the player's stealth.  It allows the player to move more efficiently through acidic terrains, and gives the player a bonus to-hit in combat.  Being non-native makes the player suceptable to damage from terrain, slows their movement, and reduces their to-hit chances.
+******<end>
+
+*******Native Mud
+Being native to muddy terrains allows the player to stand on them without taking any damage, and affects the player's stealth.  It allows the player to move more efficiently through muddy terrains, and gives the player a bonus to-hit in combat.  Being non-native makes the player suceptable to damage from terrain, slows their movement, and reduces their to-hit chances.
+******<end>
+
+*******Native Boiling Mud
+The player becomes native to boiling mud by being native to both lava and mud.  This allows the player to stand on boiling mud terrains without taking any damage, and affects the player's stealth.  It allows the player to move more efficiently through boiling mud terrains, and gives the player a bonus to-hit in combat.  Being non-native makes the player suceptable to damage from terrain, slows their movement, and reduces their to-hit chances.
+******<end>
+
+*******Native Boiling Water
+The player becomes native to boiling water by being native to both lava and water.  This allows the player to stand on boiling water terrains without taking any damage, and affects the player's stealth.  It allows the player to move more efficiently through boiling water terrains, and gives the player a bonus to-hit in combat.  Being non-native makes the player suceptable to damage from terrain, slows their movement, and reduces their to-hit chances.
+******<end>
+
+*******Experience Factor
+The amount of experience required to advance levels depends on the selected race and class.  A race/class combination with an experience factor of 200 percent requires twice as much experience than a race class combination of 100 percent.  The more powerful races and classes require more experience to advance levels.
+******<end>
+
+*******Hit Die
+The combined hit die figure is the number of hit points the player will have as a level 1 character.  For each level gained, the player's hit points will increase by a randomly generated number between 1 and the combined hit die figure.
+******<end>
