@@ -1469,13 +1469,17 @@ static cptr do_life_spell(int spell, int mode)
         break;
 
     case 30:
-        if (name) return "Holy Vision";
-        if (desc) return "Fully identifies an item.";
 
+        if (name) return "Day of the Dove";
+        if (desc) return "Attempts to charm all monsters in sight.";
         {
+			int power = spell_power(p_ptr->lev * 2);
+
+			if (info) return info_power(power);
+
             if (cast)
             {
-                if (!identify_fully(NULL)) return NULL;
+				charm_monsters(power);
             }
         }
         break;
@@ -1798,13 +1802,16 @@ static cptr do_sorcery_spell(int spell, int mode)
         break;
 
     case 15:
-        if (name) return "Identify True";
-        if (desc) return "*Identifies* an item.";
+		if (name) return "Conjure Elemental";
+        if (desc) return "Summons an elemental";
 
         {
             if (cast)
             {
-                if (!identify_fully(NULL)) return NULL;
+				if (!summon_specific(-1, py, px, plev, SUMMON_ELEMENTAL, (PM_ALLOW_GROUP | PM_FORCE_PET)))
+				{
+					msg_print("No Elementals arrive.");
+				}
             }
         }
         break;
@@ -1920,13 +1927,18 @@ static cptr do_sorcery_spell(int spell, int mode)
         break;
 
     case 24:
-        if (name) return "Probing";
-        if (desc) return "Proves all monsters' alignment, HP, speed and their true character.";
+        if (name) return "Word of Power";
+        if (desc) return "Attempts to stun and slow a monster";
 
         {
             if (cast)
             {
-                probing();
+				int dir;
+				int power = spell_power(p_ptr->lev * 2);
+				if (!get_fire_dir(&dir)) return NULL;
+
+				slow_monster(dir, power);
+				stun_monster(dir, 5 + p_ptr->lev / 5);
             }
         }
         break;
@@ -2459,12 +2471,12 @@ static cptr do_nature_spell(int spell, int mode)
 
     case 20:
         if (name) return "Stone Tell";
-        if (desc) return "*Identifies* an item.";
+        if (desc) return "Identifies an item.";
 
         {
             if (cast)
             {
-                if (!identify_fully(NULL)) return NULL;
+                if (!ident_spell(NULL)) return NULL;
             }
         }
         break;
@@ -3977,19 +3989,12 @@ static cptr do_death_spell(int spell, int mode)
 
     case 26:
         if (name) return "Esoteria";
-        if (desc) return "Identifies an item. Or *identifies* an item at higher level.";
+        if (desc) return "Identifies an item.";
 
         {
             if (cast)
             {
-                if (randint1(50) > spell_power(plev))
-                {
-                    if (!ident_spell(NULL)) return NULL;
-                }
-                else
-                {
-                    if (!identify_fully(NULL)) return NULL;
-                }
+				if (!ident_spell(NULL)) return NULL;
             }
         }
         break;
@@ -4596,12 +4601,12 @@ static cptr do_trump_spell(int spell, int mode)
 
     case 25:
         if (name) return "Trump Lore";
-        if (desc) return "*Identifies* an item.";
+        if (desc) return "Identifies an item.";
 
         {
             if (cast)
             {
-                if (!identify_fully(NULL)) return NULL;
+                if (!ident_spell(NULL)) return NULL;
             }
         }
         break;
@@ -5779,13 +5784,20 @@ static cptr do_craft_spell(int spell, int mode)
         break;
 
     case 26:
-        if (name) return "Knowledge True";
-        if (desc) return "*Identifies* an item.";
+        if (name) return "Create Golem";
+        if (desc) return "Creates a golem.";
 
         {
             if (cast)
             {
-                if (!identify_fully(NULL)) return NULL;
+				if (summon_specific(-1, py, px, plev, SUMMON_GOLEM, PM_FORCE_PET))
+				{
+					msg_print("You make a golem.");
+				}
+				else
+				{
+					msg_print("No Golems arrive.");
+				}
             }
         }
         break;
@@ -8212,11 +8224,8 @@ static cptr do_hex_spell(int spell, int mode)
                     project(0, rad, py, px, power, GF_HELL_FIRE,
                         (PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
                 }
-                if (p_ptr->wizard || easy_damage)
-                {
-                    msg_format("You return %d damages.", power);
-                }
-
+				msg_format("You return %d damages.", power);
+                
                 /* Reset */
                 p_ptr->magic_num2[1] = 0;
                 p_ptr->magic_num2[2] = 0;
@@ -8748,16 +8757,13 @@ static cptr do_hex_spell(int spell, int mode)
 
                     do
                     {
-                        msg_print("Time to revenge!");
+                        msg_print("Time for revenge!");
                     }
                     while (!get_fire_dir(&dir));
 
                     fire_ball(GF_HELL_FIRE, dir, power, 1);
 
-                    if (p_ptr->wizard || easy_damage)
-                    {
-                        msg_format("You return %d damages.", power);
-                    }
+                    msg_format("You return %d damages.", power);
                 }
                 else
                 {

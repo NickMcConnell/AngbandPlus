@@ -1945,8 +1945,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
         else msg_print("The attack bounces!");
 
         equip_learn_flag(OF_REFLECT);
-        update_smart_learn(who, SM_REFLECTION);
-
+        
         /* Choose 'new' target */
         if (who > 0)
         {

@@ -280,10 +280,10 @@ static void _mystic_insights_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Mystic Insights");
+        var_set_string(res, "Mystify Foe");
         break;
     default:
-        probing_spell(cmd, res);
+		word_of_power_spell(cmd, res);
         break;
     }
 }

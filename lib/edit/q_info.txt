@@ -444,7 +444,7 @@ F:q_balrog.txt
 
 N:97:585:Metatron
 T:RETAKE | INVIS
-W:heaven
+W:amber
 G:KILL(metatron)
 F:q_meta.txt
 

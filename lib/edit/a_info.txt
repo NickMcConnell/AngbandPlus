@@ -285,7 +285,7 @@ D:warding and stability deeply engraved into its surface.
 # The Metal Brigandine Armor of the Rohirrim
 
 N:21:of the Rohirrim
-I:37:9:2
+I:37:10:2
 W:35:3:200:30000
 P:19:1d4:0:15
 F:STR | DEX | HIDE_TYPE | XTRA_H_RES |
@@ -309,7 +309,7 @@ E:A heavenly choir sings...
 # The Mithril Plate Mail of Celeborn -> Julian
 
 N:23:of Julian
-I:37:3:4
+I:37:5:4
 W:75:15:250:120000
 P:15:2d4:0:40
 F:STR | CHR | HIDE_TYPE |
@@ -321,7 +321,7 @@ E:Your armor glows deep blue...
 # The Chain Mail of Arvedui
 
 N:24:of Arvedui
-I:37:4:2
+I:37:5:2
 W:40:3:220:32000
 P:14:1d4:0:15
 F:STR | CHR | HIDE_TYPE | XTRA_H_RES |
@@ -333,7 +333,7 @@ D:as you put it on.
 # The Augmented Chain Mail of Caspanion
 
 N:25:of Caspanion
-I:37:6:3
+I:37:7:3
 W:45:9:270:40000
 P:16:1d4:0:20
 F:INT | WIS | CON | HIDE_TYPE | XTRA_H_RES |
@@ -756,7 +756,7 @@ F:SPEED | DEX | SUST_DEX | RES_NEXUS | FREE_ACT | LEVITATION
 # The Main Gauche of Maedhros
 
 N:64:of Maedhros
-I:23:5:3
+I:26:5:3
 W:25:30:30:62500
 P:0:2d6:15:0
 F:INT | DEX | HIDE_TYPE | SPEED | XTRA_RES_OR_POWER |
@@ -769,7 +769,7 @@ D:his right hand in the pits of Thangorodrim.
 # The Dagger 'Angrist' -> of Caine
 
 N:65:of Caine
-I:23:4:4
+I:26:4:4
 W:40:80:12:125000
 P:0:2d5:15:5
 F:DEX | HIDE_TYPE | STEALTH | SEARCH | SLAY_HUMAN |
@@ -779,7 +779,7 @@ F:FREE_ACT | RES_DARK | SUST_DEX | SEE_INVIS | SHOW_MODS | THROWING
 # The Dagger 'Narthanc'
 
 N:66:'Narthanc'
-I:23:4:1
+I:26:4:1
 W:4:5:12:12000
 P:0:2d5:12:0
 F:BRAND_FIRE | RES_FIRE | SHOW_MODS | LITE | THROWING | XTRA_H_RES
@@ -791,7 +791,7 @@ D:A fiery dagger finely balanced for deadly throws.
 # The Dagger 'Nimthanc'
 
 N:67:'Nimthanc'
-I:23:4:1
+I:26:4:1
 W:3:5:12:11000
 P:0:2d5:12:0
 F:BRAND_COLD | RES_COLD | SHOW_MODS | THROWING | XTRA_H_RES
@@ -803,7 +803,7 @@ D:A frosty dagger finely balanced for deadly throws.
 # The Dagger 'Dethanc'
 
 N:68:'Dethanc'
-I:23:4:1
+I:26:4:1
 W:5:5:12:13000
 P:0:2d5:12:0
 F:BRAND_ELEC | RES_ELEC | SHOW_MODS | LITE | THROWING | XTRA_H_RES
@@ -815,7 +815,7 @@ D:A dagger covered in sparks and finely balanced for deadly throws.
 # The Dagger of Rilia
 
 N:69:of Rilia
-I:23:4:1
+I:26:4:1
 W:15:15:12:35000
 P:0:3d5:6:0
 F:SLAY_ORC | RES_POIS | RES_DISEN | SHOW_MODS | BRAND_POIS | THROWING
@@ -828,7 +828,7 @@ D:wearer seems oddly immune.
 # The Dagger 'Belangil' -> of Fiona
 
 N:70:of Fiona
-I:23:4:3
+I:26:4:3
 W:50:40:12:50000
 P:0:3d5:9:0
 F:DEX | HIDE_TYPE | SPEED | BLOWS | BRAND_COLD | RES_COLD |
@@ -853,7 +853,7 @@ D:peril.
 # The Broad Sword 'Arunruth' -> 'Grayswandir'
 
 N:72:'Grayswandir'
-I:23:11:4
+I:26:11:4
 W:45:45:50:125000
 P:0:2d9:12:0
 F:STR | DEX | CON | SUST_CON | SUST_STR |
@@ -866,7 +866,7 @@ F:SLOW_DIGEST | SHOW_MODS | HIDE_TYPE | BLESSED | RIDING
 # The Broad Sword 'Glamdring'
 
 N:73:'Glamdring'
-I:23:16:1
+I:23:17:1
 W:30:20:150:40000
 P:0:2d6:15:0
 F:SEARCH |
@@ -879,7 +879,7 @@ D:who dared to come near hidden Gondolin.
 # The Broad Sword 'Aeglin' -> 'Nothung'
 
 N:74:'Nothung'
-I:23:16:4
+I:23:17:4
 W:30:90:150:95000
 P:0:2d6:16:0
 F:SEARCH | BRAND_ELEC | SLAY_ORC | KILL_DRAGON |
@@ -889,7 +889,7 @@ F:SLOW_DIGEST | SHOW_MODS | RIDING
 # The Broad Sword 'Orcrist'
 
 N:75:'Orcrist'
-I:23:16:3
+I:23:17:3
 W:20:20:150:40000
 P:0:2d6:15:0
 F:STEALTH | SLAY_EVIL | BRAND_COLD | KILL_ORC | RES_COLD | LITE |
@@ -949,7 +949,7 @@ D:men of Umbar who met it in combat.
 # The Executioner's Sword 'Crisdurian'
 
 N:80:'Crisdurian'
-I:23:28:0
+I:23:22:0
 W:60:15:260:111000
 P:0:4d6:24:0
 F:SLAY_DRAGON | SLAY_EVIL | SLAY_UNDEAD | SLAY_TROLL | SLAY_GIANT |
@@ -1017,7 +1017,7 @@ E:ESCAPE:20:35
 # The Long Sword 'Elvagil'-> 'Chainsword'
 
 N:85:'Chainsword'
-I:23:16:2
+I:23:17:2
 W:50:50:130:66666
 P:0:9d6:7:0
 F:DEC_DEX | DEC_CHR | HIDE_TYPE | AGGRAVATE | VORPAL2 | VORPAL
@@ -1027,7 +1027,7 @@ F:ESP_ORC | ESP_TROLL | ESP_HUMAN
 # The Rapier 'Forasgil'
 
 N:86:'Forasgil'
-I:23:7:1
+I:26:7:1
 W:15:8:40:15000
 P:0:1d8:19:0
 F:SLAY_ANIMAL | BRAND_COLD | RES_COLD | RES_LITE | LITE | SHOW_MODS
@@ -1038,7 +1038,7 @@ D:accuracy.
 # The Sabre 'Careth Asdriag'
 
 N:87:'Careth Asdriag'
-I:23:11:3
+I:26:11:3
 W:15:8:50:25000
 P:0:1d9:12:0
 F:BLOWS | SLAY_DRAGON | SLAY_ANIMAL | SLAY_TROLL | SLAY_GIANT | SLAY_HUMAN |
@@ -1063,7 +1063,7 @@ D:abilities they did not know they had.
 # The Scimitar 'Haradekket' -> Soulsword
 
 N:89:'Soulsword'
-I:23:18:3
+I:23:17:3
 W:40:20:130:111111
 P:0:3d6:11:0
 F:INT | WIS | LIFE | SEE_INVIS | BLESSED |
@@ -1074,7 +1074,7 @@ F:SHOW_MODS | XTRA_RES_OR_POWER
 # The Short Sword Gilettar -> of Merlin
 
 N:90:of Merlin
-I:23:10:4
+I:23:15:4
 W:20:8:80:35000
 P:0:1d8:7:0
 F:BLOWS |
@@ -1109,7 +1109,7 @@ D:went snicker-snack!"
 # The Beaked Axe of Theoden
 
 N:93:of Theoden
-I:22:10:3
+I:25:11:3
 W:30:30:120:40000
 P:0:2d7:12:0
 F:WIS | CON | HIDE_TYPE | BLESSED |
@@ -1145,8 +1145,8 @@ D:clear-eyed in barrows fell, wielding a halberd glowing ruby red.
 
 # The Pike 'Til-i-arc'
 
-N:96:'Til-i-arc'
-I:22:8:2
+N:96:of Fire and Frost
+I:22:7:2
 W:20:15:160:32000
 P:0:2d6:15:10
 F:INT | HIDE_TYPE |
@@ -1205,7 +1205,7 @@ D:and dire wolves.
 # The Great Axe of Durin
 
 N:101:of Durin
-I:22:25:3
+I:25:25:3
 W:50:90:230:150000
 P:0:4d5:20:15
 F:CON | HIDE_TYPE |
@@ -1218,7 +1218,7 @@ D:Khazad-dum to protect the wearer and slay all evils found underground.
 # The Great Axe of Eonwe
 
 N:102:of Eonwe
-I:22:25:2
+I:25:25:2
 W:50:120:230:200000
 P:0:4d5:18:8
 F:STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE |
@@ -1234,7 +1234,7 @@ D:evil at a word, and grants Maia-like powers of body and mind.
 # The Battle Axe of Balli Stonehand
 
 N:103:of Balli Stonehand
-I:22:22:3
+I:25:22:3
 W:40:15:170:90000
 P:0:3d9:11:5
 F:STR | CON | STEALTH | HIDE_TYPE |
@@ -1245,7 +1245,7 @@ D:The twin blades of this weapon were forged in Belegost, and powerful forces
 D:to resist and endure lie ready for he who shall wield it once more.
 
 N:104:'Lotharang'
-I:22:22:1
+I:25:22:1
 W:10:5:170:21000
 P:0:2d9:8:0
 F:STR | DEX | HIDE_TYPE |
@@ -1262,7 +1262,7 @@ D:repelled their foul invasion.
 # The Lochaber Axe 'Mundwine' -> of the Dwarves
 
 N:105:of the Dwarves
-I:22:28:10
+I:25:28:10
 W:50:8:250:80000
 P:0:3d9:17:0
 F:SLAY_EVIL | TUNNEL | INFRA | SEARCH | SLAY_GIANT |
@@ -1275,7 +1275,7 @@ D:to ward off the elements and smite evil.
 # The Broad Axe 'Barukkheled'
 
 N:106:'Barukkheled'
-I:22:11:3
+I:25:10:3
 W:35:8:130:50000
 P:0:2d7:19:0
 F:CON | HIDE_TYPE |
@@ -1359,7 +1359,7 @@ D:whose wielder holds the lives of all Morgoth's servants in his hand.
 
 # The Flail 'Totila'
 
-N:112:'Totila'
+N:112:'Twin-Tailed Comet'
 I:21:13:2
 W:20:8:150:55000
 P:0:3d7:8:0
@@ -1387,7 +1387,7 @@ D:crackle around its massive head.
 # The Morning Star 'Bloodspike'
 
 N:114:'Bloodspike'
-I:21:12:4
+I:21:13:4
 W:35:30:150:50000
 P:0:2d7:22:0
 F:STR | HIDE_TYPE | SLAY_HUMAN |
@@ -1399,7 +1399,7 @@ D:around - and bathe it in the blood of your foes.
 # The Morning Star 'Firestar'
 
 N:115:'Firestar'
-I:21:12:0
+I:21:15:0
 W:25:8:150:35000
 P:0:2d7:7:2
 F:BRAND_FIRE | RES_FIRE | SHOW_MODS | LITE
@@ -1410,8 +1410,8 @@ D: can yet rise up in wrath.
 
 # The Mace 'Taratol'
 
-N:116:'Taratol'
-I:21:5:0
+N:116:of Tesla
+I:21:8:0
 W:35:15:200:50000
 P:0:3d5:12:0
 F:KILL_DRAGON | BRAND_ELEC | IM_ELEC | SHOW_MODS
@@ -1424,7 +1424,7 @@ D:fingers and eyebrows.
 # The Great Hammer of Aule (light)
 
 N:117:of Aule
-I:21:19:4
+I:21:18:4
 W:80:75:120:250000
 P:0:5d7:21:5
 F:WIS | HIDE_TYPE |
@@ -1438,7 +1438,7 @@ D:invokes the strength of mountains to ward off the tumult of the elements.
 # The Quarterstaff 'Nar-i-vagil'
 
 N:118:'Nar-i-vagil'
-I:21:3:3
+I:24:3:3
 W:25:10:150:70000
 P:0:1d10:20:0
 F:INT | HIDE_TYPE |
@@ -1449,7 +1449,7 @@ D:virtues of protection and thought.
 # The Quarterstaff 'Eriril'
 
 N:119:'Eriril'
-I:21:3:4
+I:24:3:4
 W:20:30:150:100000
 P:0:1d10:5:0
 F:INT | WIS | HIDE_TYPE | SPELL_CAP
@@ -1460,7 +1460,7 @@ D:The radiant golden staff of an Istar of legend, this wizard's companion
 D:grants keen sight and the knowledge of many hidden things.
 
 N:120:of Gandalf
-I:21:21:4
+I:24:21:4
 W:80:50:40:140000
 P:0:4d2:13:0
 F:INT | WIS | CHR | HIDE_TYPE | SEARCH | BRAND_FIRE | BRAND_MANA |
@@ -1506,7 +1506,7 @@ D:though moonlit, and it can strike as mighty a blow spiritually as
 D:physically.
 
 N:123:'Slayer'
-I:23:28:2
+I:23:22:2
 W:60:60:260:200000
 P:0:5d6:15:0
 F:BLOWS | BRAND_VAMP | HOLD_LIFE | SLAY_UNDEAD | SLAY_EVIL | SLAY_HUMAN |
@@ -1607,7 +1607,7 @@ D:A crown of massive gold, set with wondrous jewels of thought and warding,
 D: worn by the kings of ancient Numenor.
 
 N:133:of Hurin
-I:22:10:4
+I:25:10:4
 W:50:30:180:120000
 P:0:3d7:12:2
 F:CON | BLOWS | HIDE_TYPE | BRAND_ACID | SHOW_MODS
@@ -1628,7 +1628,7 @@ D:A sling granting extraordinary clarity of mind amidst darkness and
 D:confusion, and which hurls shot with deadly speed.
 
 N:135:of Azaghal
-I:23:5:0
+I:26:5:0
 W:15:30:30:40000
 P:0:2d6:14:0
 F:KILL_DRAGON | ESP_DRAGON | IM_FIRE | XTRA_RES_OR_POWER
@@ -1646,7 +1646,7 @@ D:The famous throwing hammer of the Norse god Thor, it crackles with
 D:lightning as you swing it at your opponents.
 
 N:137:'Goln Nova'
-I:23:16:2
+I:23:17:2
 W:30:50:150:100000
 P:0:2d6:15:0
 F:STR | DEX | HIDE_TYPE | BRAND_MANA |
@@ -1672,7 +1672,7 @@ F:SHOW_MODS | BRAND_CHAOS | IMPACT | DEC_SPEED
 F:RANDOM_CURSE0
 
 N:140:'Silver Chariot'
-I:23:7:3
+I:26:7:3
 W:50:15:75:100000
 P:0:2d7:12:0
 F:DEX | BLOWS | SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | SLAY_DEMON |
@@ -1719,7 +1719,7 @@ E:MURAMASA:1
 E:The Muramasa pulsates...
 
 N:145:of Xiaolong
-I:21:4:3
+I:24:4:3
 W:45:14:30:100000
 P:0:4d4:10:10
 F:STEALTH | SUST_STR | SUST_DEX | SUST_CON |
@@ -1820,7 +1820,7 @@ F:VORPAL | SLAY_DRAGON | KILL_GIANT |
 F:FREE_ACT | LITE | LEVITATION | SHOW_MODS
 
 N:157:'Nyoi-bou'
-I:21:16:5
+I:21:15:5
 W:80:70:500:300000
 P:0:7d8:25:10
 F:STR | SLAY_EVIL | SEE_INVIS | RIDING
@@ -1900,7 +1900,7 @@ F:HIDE_TYPE | FULL_NAME
 E:MITO_KOUMON:30:225
 
 N:167:'Tailbiter'
-I:23:16:3
+I:23:17:3
 W:40:15:150:35000
 P:0:2d6:9:0
 F:CON | SEARCH | BLOWS |
@@ -1918,7 +1918,7 @@ F:RES_FIRE | RES_CHAOS | RES_NEXUS | RES_COLD
 F:HIDE_TYPE
 
 N:169:'Hyousi-gi'
-I:21:4:3
+I:24:4:3
 W:15:5:15:808
 P:0:1d2:-7:6
 F:SEARCH | SHOW_MODS | HIDE_TYPE
@@ -1926,7 +1926,7 @@ E:AGGRAVATE:1
 E:You beat your wooden clappers.
 
 N:170:'Matoi'
-I:21:7:3
+I:24:7:3
 W:20:5:100:808
 P:0:1d8:10:3
 F:STR | CHR | RES_FIRE |
@@ -1949,21 +1949,21 @@ D:It is the wakizashi of the famed creator of the dual sword technique,
 D:Miyamoto Musashi, and wielded with his left hand in combat.
 
 N:173:'Iron ball'
-I:21:6:6
+I:21:8:6
 W:66:40:666:66666
 P:0:22d5:0:20
 F:DEC_SPEED | DEC_STEALTH | DEC_WIS | STR | IMPACT | SHOW_MODS | HIDE_TYPE |
 F:CURSED | HEAVY_CURSE
 
 N:174:'Quickthorn'
-I:23:7:4
+I:26:7:4
 W:35:15:55:75000
 P:0:1d8:9:0
 F:DEX | BLOWS | SLAY_DEMON | RIDING | SPEED
 F:FREE_ACT | SEE_INVIS | SHOW_MODS | RES_CHAOS | RES_DISEN |
 
 N:175:'Littlethorn'
-I:23:5:3
+I:26:5:3
 W:20:6:30:22500
 P:0:1d6:6:0
 F:INT | CHR | REGEN | SLAY_EVIL |
@@ -2036,7 +2036,7 @@ F:HIDE_TYPE | SHOW_MODS | QUESTITEM | INSTA_ART
 E:HEAL_CURING:20:52:726
 
 N:184:'Aranruth'
-I:23:16:4
+I:23:17:4
 W:30:45:150:50000
 P:0:3d6:12:0
 F:DEX | HIDE_TYPE |
@@ -2089,7 +2089,7 @@ F:KILL_ANIMAL | ESP_ANIMAL | BRAND_FIRE
 E:CHARM_ANIMAL:25:200
 
 N:189:of Destruction
-I:23:33:4
+I:26:33:4
 W:70:8:30:100000
 P:0:3d7:25:0
 F:STR | DEX | BLOWS | BRAND_CHAOS | CURSED | HEAVY_CURSE | TY_CURSE | AGGRAVATE
@@ -2104,12 +2104,13 @@ F:RES_CHAOS | QUESTITEM
 F:SLAY_HUMAN | SLAY_GOOD
 
 N:191:'Narsil'
-I:23:2:3
+I:23:8:3
 W:20:4:130:20000
 P:0:4d2:10:0
 F:STR | BLOWS | HIDE_TYPE |
 F:SLAY_ORC | SLAY_TROLL | RES_FIRE
-D:A blade of Elendil that was broken by his fall as the battled Sauron upon
+D:This is actually the hilt and about a foot of blade from the famous sword 'Narsil'
+D: a blade of Elendil that was broken by his fall as he battled Sauron upon
 D: the steps of Barad-Dur.
 
 N:192:'I killed the GHB and all I got was this lousy T-shirt!'
@@ -2126,7 +2127,7 @@ F:STR | DEX | CON | SLAY_EVIL | SLAY_HUMAN |
 F:VORPAL | SHOW_MODS
 
 N:194:of Shuten-douji
-I:21:16:6
+I:21:15:6
 W:40:40:350:100000
 P:0:4d8:20:10
 F:STR
@@ -2137,7 +2138,7 @@ W:45:5:50:300000
 P:0:2d7:0:0
 
 N:196:'Grimtooth'
-I:23:4:3
+I:26:4:3
 W:7:8:12:25000
 P:0:1d5:5:0
 F:DEX | BLOWS | BRAND_POIS | SHOW_MODS | THROWING
@@ -2150,7 +2151,7 @@ F:STR | RES_ACID | RES_COLD |
 F:REFLECT | SUST_STR |
 
 N:198:of Kamui the Escapee
-I:23:19:4
+I:26:19:4
 W:20:8:100:60000
 P:0:2d10:2:0
 F:DEX | STEALTH | SEARCH | RES_FIRE | BRAND_POIS |
@@ -2181,7 +2182,7 @@ E:RESISTANCE:30:111
 E:Your armor glows many colors ...
 
 N:202:'Ama-no-NumaHoko'
-I:22:4:4
+I:22:5:4
 W:50:40:240:150000
 P:0:2d10:20:0
 F:WIS | CHR | SUST_WIS | SUST_CHR | HIDE_TYPE |
@@ -2189,10 +2190,10 @@ F:SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD |
 F:RES_ACID | RES_COLD | RES_BLIND | RES_CHAOS |
 F:LITE | BLESSED | SEE_INVIS | SHOW_MODS
 E:BALL_WATER:50:250:200
-E:Your awl pike throbs deep blue...
+E:Your trident throbs deep blue...
 
 N:203:of The High Priest of Morlok
-I:37:1:2
+I:37:5:2
 W:90:8:200:100000
 P:14:1d4:0:-40
 F:INT | WIS | CHR | HIDE_TYPE | RES_LITE | RES_DARK |
@@ -2219,7 +2220,7 @@ E:RESIST_COLD:20:60
 E:Your cloak grows white.
 
 N:206:of The Padre
-I:37:13:2
+I:37:15:2
 W:55:5:340:80000
 P:23:1d6:5:17
 F:CHR | REFLECT |
@@ -2289,7 +2290,7 @@ D:With this unbearably bright whip of flame, the Balrog Gothmog has become
 D: known for never having lost in combat.
 
 N:213:of The Bonze Octopus
-I:21:7:4
+I:24:7:4
 W:35:40:70:125000
 P:0:1d8:8:8
 F:STR | WIS | BLOWS | TUNNEL | RES_ACID | RES_ELEC
@@ -2297,7 +2298,7 @@ F:REGEN | FREE_ACT | BRAND_ELEC | BLESSED | XTRA_H_RES
 E:SUMMON_OCTOPUS:30:400
 
 N:214:of Fundin Bluecloak
-I:21:6:4
+I:21:8:4
 W:65:65:130:150000
 P:0:4d5:17:10
 F:STR | WIS | SPEED | LITE | HIDE_TYPE |
@@ -2400,7 +2401,7 @@ D:It is said that this bolt sticked onto the heart of Gessler
 D:when Wilhelm Tell shot it.
 
 N:225:of Asclepius
-I:21:14:3
+I:24:14:3
 W:40:45:160:300000
 P:0:2d12:15:5
 F:WIS | CHR | BLESSED | LITE | LIFE
@@ -2437,7 +2438,7 @@ D:blade which looks like a half moon. Sha Wujing helped a
 D:long journey of Tang Sanzang with it.
 
 N:228:of Elmi the Murderer
-I:22:1:2
+I:25:1:2
 W:15:10:60:50000
 P:0:3d6:19:0
 F:DEX | STEALTH | HIDE_TYPE | BRAND_MANA |
@@ -2452,7 +2453,7 @@ P:0:9d5:0:-5
 F:STR | VORPAL |
 F:SLAY_HUMAN | SLAY_ORC | SLAY_TROLL | SLAY_GIANT
 D:Asakura's captain Naotaka Magara defeated a lot of soldiers
-D:with this large katana.
+D:with this shining blade.
 
 #N:230:of Magician
 #I:23:1:0
@@ -2461,14 +2462,14 @@ D:with this large katana.
 #D:This dagger can hardly injure anybody at all.
 
 N:231:of Jing Ke
-I:23:6:3
+I:26:6:3
 W:30:15:20:50000
 P:0:2d6:13:0
 F:DEX | BLOWS | SPEED | HIDE_TYPE |
 F:BRAND_COLD | BRAND_POIS | VORPAL
 
 N:232:of Maggot
-I:22:3:1
+I:22:16:1
 W:10:4:70:10000
 P:0:2d4:9:0
 F:STR | DEX | RES_FIRE | RES_LITE | VORPAL |
@@ -2498,7 +2499,7 @@ D:This is Yositsune's kabuto. It defended his head against
 D:many arrows and blades from his enemies.
 
 N:235:of Yositsune
-I:37:14:2
+I:37:15:2
 W:50:20:200:40000
 P:17:1d4:0:28
 F:DEX | SPEED | STEALTH | HIDE_TYPE |
@@ -2627,7 +2628,7 @@ F:FREE_ACT | SUST_STR | SUST_CON | STR | CON | RES_TIME | RES_DISEN
 F:DEC_BLOWS | DEC_SPEED | VULN_CONF | QUESTITEM
 
 N:248:of the Duelist
-I:23:7:4
+I:26:7:4
 W:50:7:30:150000
 P:0:1d8:17:17
 F:BRAND_VAMP | SHOW_MODS | SPEED | DEX | INT | FREE_ACT
@@ -2635,7 +2636,7 @@ E:STRAFING:10:3
 E:Your rapier glows a deep purple...
 
 N:249:of Saruman
-I:21:21:3
+I:24:21:3
 W:66:20:40:100000
 P:0:3d2:8:0
 F:INT | HIDE_TYPE | DEC_MANA | REGEN |
@@ -2645,7 +2646,7 @@ E:RESISTANCE:25:111
 E:Your staff glows many colours...
 
 N:250:of Kaschei
-I:21:21:4
+I:24:21:4
 W:90:66:40:300000
 P:0:3d2:-6:0
 F:CURSED | HEAVY_CURSE | PERMA_CURSE | AGGRAVATE | DRAIN_EXP
@@ -2667,7 +2668,7 @@ D:terrifying to behold when angered. You feel the contained rage
 D:within this heavy truncheon, awaiting your command to be released.
 
 N:252:of the Defender of the Crown
-I:21:6:3
+I:21:8:3
 W:50:50:200:150000
 P:0:5d5:20:0
 F:STR | CON | LITE | HIDE_TYPE |
@@ -2680,7 +2681,7 @@ D:It emits a curiously muted bell-like tone when you strike
 D:your foes.
 
 N:253:of Rygar
-I:21:12:1
+I:21:13:1
 W:70:50:150:150000
 P:0:3d9:22:5
 F:STR | DEX | BLOWS | HIDE_TYPE | SLAY_HUMAN |
@@ -2700,7 +2701,7 @@ D:from an ancient dwarven king to an adventurer for saving
 D:his people from a fearsome demon.
 
 N:255:'Ruyi Jingu Bang'
-I:21:14:2
+I:24:14:2
 W:70:80:160:300000
 P:0:2d11:15:15
 F:SLAY_ANIMAL | SLAY_DEMON | SLAY_UNDEAD |
@@ -2911,7 +2912,7 @@ F:RES_TIME | HOLD_LIFE |
 D:Forged you know not when, this ring seems to have withstood the test of time.
 
 N:275:'Assassinator'
-I:23:4:4
+I:26:4:4
 W:44:250:12:110000
 P:0:1d5:4:0
 F:VORPAL | STEALTH | DEX
@@ -2961,7 +2962,7 @@ F:VULN_ACID | VULN_ELEC | VULN_FIRE | VULN_COLD | VULN_POIS | DEC_CON
 F:WEAPONMASTERY | QUESTITEM
 
 N:281:of Ancalagon
-I:23:35:4
+I:26:35:4
 W:60:50:20:100000
 P:0:3d9:16:0
 F:STR | DEX | BLOWS | BRAND_ACID | IM_ACID
@@ -3152,7 +3153,7 @@ F:QUESTITEM
 F:IM_ELEC | RES_ELEC | BRAND_ELEC | VORPAL
 
 N:305:of Kronos
-I:22:3:3
+I:22:16:3
 W:90:4:250:10000
 P:0:10d4:15:0
 F:QUESTITEM
@@ -3329,7 +3330,7 @@ D:This bow belonged to the greatest of Greek heroes. Its
 D:arrows are coated in the Lernaean Hydra's venom.
 
 N:326:'Dramborleg'
-I:22:25:1
+I:25:25:1
 W:50:70:230:21000
 P:0:4d5:12:0
 F:STR | CON | INFRA | HIDE_TYPE
@@ -3378,7 +3379,7 @@ F:SPEED | DEX | SHOW_MODS
 D:This sword is light as a feather. The air howls as you swing it.
 
 N:331:'VainGlory'
-I:21:12:5
+I:21:13:5
 W:30:20:150:30000
 P:0:3d7:15:0
 F:DEC_WIS | DEC_STEALTH
@@ -3452,7 +3453,7 @@ D:As you lift this great hammer, all your doubts are dispelled: it's time to
 D: get going and crush your enemies into a pulp.
 
 N:339:'Curiosity'
-I:23:10:3
+I:23:15:3
 W:20:20:80:40000
 P:0:2d8:5:0
 F:INT | SUST_INT | VORPAL | KILL_ANIMAL
@@ -3460,7 +3461,7 @@ D:Very sharp, and ideal for cutting stray felines open for examination.
 
 # Many thanks to bostock for providing the flags here
 N:340:of Mokomagi
-I:21:21:3
+I:24:21:3
 W:42:20:40:30000
 P:0:2d2:10:0
 F:INT | HIDE_TYPE | DEC_MANA | EASY_SPELL |
@@ -3470,7 +3471,7 @@ D: playing with forces beyond his control. (Not a mistake you would ever
 D: make.)
 
 N:341:'Skynail'
-I:23:16:3
+I:23:17:3
 W:60:50:150:150000
 P:0:4d6:14:0
 F:SLAY_EVIL | BRAND_FIRE | RES_COLD | RES_DARK | LITE | SHOW_MODS | RIDING |
@@ -3525,7 +3526,7 @@ D:An old, timeworn leather cap, embroidered with the motto of Fell Livery
 D:Stable: 'FELL. The rider - it's you.'
 
 N:347:of the Vagabond
-I:21:12:4
+I:21:13:4
 W:22:7:150:35000
 P:0:2d7:15:0
 F:CON | SUST_CON | RES_FEAR | REGEN | HOLD_LIFE | SLOW_DIGEST | HIDE_TYPE |
@@ -3551,7 +3552,7 @@ D:Tiotullo, the spear of Tweutox, carved from the wood of a Seepumis tree.
 D:It seems to pulsate with energy as you hold it.
 
 N:350:of Amun
-I:23:4:5
+I:26:4:5
 W:60:120:12:100000
 P:0:3d5:17:0
 F:BRAND_FIRE | BRAND_POIS | IM_FIRE | RES_POIS | INT | SPEED | RES_LITE
@@ -3566,7 +3567,7 @@ D:remains shiny and razor-sharp.
 # (with the description from V)
 
 N:351:'Angrist'
-I:23:4:2
+I:26:4:2
 W:25:40:12:100000
 P:0:2d5:14:6
 F:DEX | HIDE_TYPE | STEALTH | VORPAL | BLOWS
@@ -3588,7 +3589,7 @@ D:to dragonkind. The city of Liweris was razed by dragons as soon as the word
 D:got out, and the king died in flames; but his spear survived.
 
 N:353:of Manychin
-I:22:3:3
+I:22:16:3
 W:20:9:70:25000
 P:0:3d4:8:0
 F:STR | DEC_STEALTH | SLAY_HUMAN | SLAY_UNDEAD | ESP_HUMAN | ESP_UNDEAD |
@@ -3706,7 +3707,7 @@ E:EYE_HYPNO:66:6:128
 E:Your eye blinks hypnotically...
 
 N:366:'Urog'
-I:23:28:3
+I:23:22:3
 W:60:50:300:180000
 P:0:6d6:23:10
 F:STR | CON | CHR | RES_DARK | RES_DISEN | SHOW_MODS | VORPAL | SEE_INVIS |

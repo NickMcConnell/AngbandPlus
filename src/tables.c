@@ -2412,6 +2412,9 @@ option_type option_info[] =
     { &auto_sticky_labels,           TRUE,  OPT_PAGE_TEXT, 2, 17,
     "auto_sticky_labels",           "Automatically make all power labels sticky" },
 
+	{ &show_damage,                  TRUE, OPT_PAGE_TEXT, 2, 12,
+	"show_damage",					"Show damage amounts in messages" },
+
 
     /*** Game-Play ***/
 
@@ -2432,11 +2435,6 @@ option_type option_info[] =
 
     { &last_words,                  TRUE,  OPT_PAGE_GAMEPLAY, 0, 28,
     "last_words",                   "Leave last words when your character dies" },
-
-#ifdef ALLOW_WIZARD
-    { &allow_debug_opts,            FALSE, OPT_PAGE_GAMEPLAY, 6, 11,
-    "allow_debug_opts",             "Allow use of debug/cheat options" },
-#endif
 
     /*** Disturbance ***/
 
@@ -2514,23 +2512,20 @@ option_type option_info[] =
 	{ &coffee_break,		FALSE, OPT_PAGE_BIRTH, 6, 3,
 	"coffee_break",			"Coffee-break mode (accelerated game) (*)" },
 
-	{ &easy_id,			FALSE, OPT_PAGE_BIRTH, 6, 31,
-	"easy_id",			"Easy Identify" },
+	{ &no_id,			FALSE, OPT_PAGE_BIRTH, 6, 31,
+	"no_id",			"No ID is needed" },
 
-	{ &easy_damage,			FALSE, OPT_PAGE_BIRTH, 6, 16,
-	"easy_damage",			"Easy monster health and damage information (*)" },
-	
 	{ &power_tele,			FALSE, OPT_PAGE_BIRTH, 6, 6,
 	"power_tele",			"Use enhanced telepathy" },
 
 	{ &easy_thalos,			TRUE, OPT_PAGE_BIRTH, 6, 28,
-	"easy_thalos",			"Allow easy teleportation to Thalos" },
+	"easy_thalos",			"Allow easy teleportation to Thalos (*)" },
 
 	{ &never_forget,		FALSE, OPT_PAGE_BIRTH, 6, 27,
 	"never_forget",			"Easy Labyrinth and no amnesia" },
 
-    { &smart_learn,                 TRUE,  OPT_PAGE_BIRTH, 1, 14,
-    "smart_learn",                  "Monsters learn from their mistakes (*)" },
+    { &xp_penalty_to_score,                 TRUE,  OPT_PAGE_BIRTH, 1, 14,
+    "xp_penalty_to_score",                  "Exp multiplier affect score instead (*)" },
 
     { &smart_cheat,                 FALSE, OPT_PAGE_BIRTH, 1, 15,
     "smart_cheat",                  "Monsters exploit player's weaknesses (*)" },
@@ -2696,23 +2691,23 @@ cptr lv_size_options[SMALL_LVL_MAX + 1] =
 
 martial_arts ma_blows[MAX_MA] =
 {
-    { "Punch",         "You punch.",                                 1, 0, 1, 4, 0 },
-    { "Kick",          "You kick.",                                  2, 0, 1, 6, 0 },
-    { "Strike",        "You strike.",                                3, 0, 1, 7, 0 },
-    { "Knee",          "You knee.",                                  5, 5, 2, 3, MA_KNEE },
-    { "Elbow",         "You elbow.",                                 7, 5, 1, 8, 0 },
-    { "Butt",          "You <color:U>butt</color>.",                 9, 10, 2, 5, 0 },
-    { "Kick",          "You <color:U>kick</color>.",                 11, 10, 3, 4, MA_SLOW },
-    { "Uppercut",      "You <color:U>uppercut</color>.",             13, 12, 4, 4, 6 },
-    { "Double Kick",   "You <color:y>double-kick</color>.",          16, 15, 5, 4, 8 },
-    { "Cat's Claw",    "You land a <color:y>Cat's Claw</color>.",     20, 20, 5, 5, 0 },
-    { "Jump Kick",     "You <color:y>jump kick</color>.",            25, 25, 5, 6, 10 },
-    { "Eagle's Claw",  "You land an <color:o>Eagle's Claw</color>.", 29, 25, 6, 6, 0 },
-    { "Circle Kick",   "You <color:o>circle kick</color>.",          33, 30, 6, 8, 10 },
-    { "Iron Fist",     "You land an <color:R>Iron Fist</color>.",    37, 35, 8, 8, 10 },
-    { "Flying Kick",   "You land a <color:R>flying kick</color>.",   41, 35, 8, 10, 12 },
-    { "Dragon Fist",   "You land a <color:r>Dragon Fist</color>.",   45, 35, 10, 10, 16 },
-    { "Crushing Blow", "You land a <color:v>Crushing Blow</color>.", 48, 35, 10, 12, 18 },
+    { "Punch",         "You punch",                                 1, 0, 1, 4, 0 },
+    { "Kick",          "You kick",                                  2, 0, 1, 6, 0 },
+    { "Strike",        "You strike",                                3, 0, 1, 7, 0 },
+    { "Knee",          "You knee",                                  5, 5, 2, 3, MA_KNEE },
+    { "Elbow",         "You elbow",                                 7, 5, 1, 8, 0 },
+    { "Butt",          "You <color:U>butt</color>",                 9, 10, 2, 5, 0 },
+    { "Kick",          "You <color:U>kick</color>",                 11, 10, 3, 4, MA_SLOW },
+    { "Uppercut",      "You <color:U>uppercut</color>",             13, 12, 4, 4, 6 },
+    { "Double Kick",   "You <color:y>double-kick</color>",          16, 15, 5, 4, 8 },
+    { "Cat's Claw",    "You land a <color:y>Cat's Claw</color>",     20, 20, 5, 5, 0 },
+    { "Jump Kick",     "You <color:y>jump kick</color>",            25, 25, 5, 6, 10 },
+    { "Eagle's Claw",  "You land an <color:o>Eagle's Claw</color>", 29, 25, 6, 6, 0 },
+    { "Circle Kick",   "You <color:o>circle kick</color>",          33, 30, 6, 8, 10 },
+    { "Iron Fist",     "You land an <color:R>Iron Fist</color>",    37, 35, 8, 8, 10 },
+    { "Flying Kick",   "You land a <color:R>flying kick</color>",   41, 35, 8, 10, 12 },
+    { "Dragon Fist",   "You land a <color:r>Dragon Fist</color>",   45, 35, 10, 10, 16 },
+    { "Crushing Blow", "You land a <color:v>Crushing Blow</color>", 48, 35, 10, 12, 18 },
 };
 
 /*

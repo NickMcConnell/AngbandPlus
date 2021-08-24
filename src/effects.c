@@ -5012,7 +5012,7 @@ bool set_food(int v)
     v = (v > 20000) ? 20000 : (v < 0) ? 0 : v;
 
     /* CTK: I added a "food bar" to track hunger ... */
-    if (easy_damage || p_ptr->wizard)
+    if (p_ptr->wizard)
     {
         old_pct = p_ptr->food * 100 / PY_FOOD_FULL;
         new_pct = v * 100 / PY_FOOD_FULL;
@@ -5396,15 +5396,9 @@ bool hp_player_aux(int num)
 {
     int old_hp = p_ptr->chp;
 
-    num = num * (virtue_current(VIRTUE_VITALITY) + 1250) / 1250;
 
-    if (mut_present(MUT_SACRED_VITALITY))
-    {
-        num += num/5;
-    }
-
-    if ((p_ptr->prace == RACE_EINHERI) || (p_ptr->mimic_form == RACE_EINHERI)) num /= 2;
-    if (disciple_is_(DISCIPLE_YEQREZH)) num = hp_player_yeqrezh(num);
+	/* Display amount healed */
+	if (num && show_damage) msg_format("(Healed <color:G>+%d</color>)", num);
 
     /* Healing needed */
     if (p_ptr->chp < p_ptr->mhp)
@@ -5881,7 +5875,7 @@ void change_race(int new_race, cptr effect_msg)
     p_ptr->psubrace = 0;
 
     /* Experience factor */
-    p_ptr->expfact = calc_exp_factor();
+    if (!xp_penalty_to_score) p_ptr->expfact = calc_exp_factor();
 
     do_cmd_rerate(FALSE);
 
@@ -6184,8 +6178,17 @@ int take_hit(int damage_type, int damage, cptr hit_from)
     }
 
     
-    if ((p_ptr->wizard || easy_damage) && (damage > 0))
-        msg_format("You take %d damage.", damage);
+	if (show_damage & damage > 0)
+	{
+		if (hit_from == "poison")
+			msg_format("(<color:g>Poison: %d</color>)", damage);
+		else if (hit_from == "a fatal wound")
+			msg_format("(<color:R>Bleed: %d</color>)", damage);
+		else if (hit_from == "starvation")
+			msg_format("(<color:R>Starving: %d</color>)", damage);
+		else
+			msg_format("<color:r>(%d)</color>", damage);
+	}
 
     p_ptr->chp -= damage;
     if(damage_type == DAMAGE_GENO && p_ptr->chp < 0)

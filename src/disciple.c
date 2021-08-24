@@ -39,6 +39,8 @@ void disciple_birth(void)
 /* Basically, this is the level the player would be if he were a Dunadan */
 int karrot_level(void)
 {
+    if (xp_penalty_to_score) return p_ptr->lev;
+
     int real_xp_factor = p_ptr->expfact;
     int i, sopiva = 1;
     p_ptr->expfact = 200;

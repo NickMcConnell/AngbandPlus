@@ -195,11 +195,18 @@ static void _background_check_spell(int cmd, variant *res)
         var_set_string(res, "Background Check");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Reveals information about nearby monsters.");
+        var_set_string(res, "Reveals a monster's dirty secrets, embarressing them.");
         break;
     case SPELL_CAST:
-        probing();
-        var_set_bool(res, TRUE);
+		{
+			int dir;
+			int power = spell_power(2 * p_ptr->lev);
+			if (!get_fire_dir(&dir)) return NULL;
+
+			fear_monster(dir, power);
+			stun_monster(dir, 5 + p_ptr->lev / 5);
+			var_set_bool(res, TRUE);
+		}
         break;
     default:
         default_spell(cmd, res);
@@ -899,7 +906,7 @@ static void _save_player(savefile_ptr file)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_DAGGER, SV_RAPIER, 1);
+    py_birth_obj_aux(TV_DAGGER, SV_DAGGER, 1);
     py_birth_obj_aux(TV_SOFT_ARMOR, SV_ROBE, 1);
     py_birth_obj_aux(TV_POTION, SV_POTION_CURE_LIGHT, 3 + randint1(3));
     py_birth_obj_aux(TV_SCROLL, SV_SCROLL_PHASE_DOOR, 3 + randint1(3));

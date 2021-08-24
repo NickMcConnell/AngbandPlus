@@ -2912,19 +2912,24 @@ void do_cmd_save_and_exit(void)
  */
 long total_points(void)
 {
-    int i, mult = 100;
+    int i;
+    int mult = 100;
     s16b max_dl = 0;
     u32b point, point_h, point_l;
     int arena_win = MIN(p_ptr->arena_number, MAX_ARENA_MONS);
 
-    if (smart_learn) mult += 20;
+    int div = 100;
+    if (xp_penalty_to_score)
+    {
+        div = p_ptr->expfact;
+    }
+
     if (smart_cheat) mult += 30;
     if (ironman_shops) mult += 50;
     if (ironman_empty_levels) mult += 20;
     if (ironman_nightmare) mult += 100;
     if (wacky_rooms) mult += 10;
     if (thrall_mode) mult += (p_ptr->personality == PERS_SEXY) ? 50 : 10;
-    if (easy_damage) mult /= 2;
     if (coffee_break)
     {
         mult /= 2; /* This only cancels out the x2 from ironman_downward */
@@ -2946,7 +2951,7 @@ long total_points(void)
     point_l %= 0x10000L;
 
     point_l += ((point_h % 100) << 16);
-    point_h /= 100;
+    point_h /= div;
     point_l /= 100;
 
     point = (point_h << 16) + (point_l);

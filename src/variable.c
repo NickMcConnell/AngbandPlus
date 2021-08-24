@@ -271,6 +271,7 @@ bool list_stairs;  /* Display stairs in object list */
 bool display_skill_num; /* Give skills numerically in char sheet */
 bool reforge_details; /* Show statistics before proceeding with reforge */
 bool auto_sticky_labels; /* Automatically make power labels sticky */
+bool show_damage; /* Show the exact damage dealt and taken */
 bool show_power; /* Display device powers in inventory */
 
 /*** Game-Play Options ***/
@@ -286,9 +287,6 @@ bool last_words;    /* Leave last words when your character dies */
 #ifdef WORLD_SCORE
 bool send_score;    /* Send score dump to the world score server */
 #endif
-
-bool allow_debug_opts;    /* Allow use of debug/cheat options */
-
 
 /*** Disturbance Options ***/
 
@@ -318,10 +316,9 @@ bool alert_poison;   /* Alert on high poisoning */
 /*** Birth Options ***/
 
 bool coffee_break;   /* Coffee-break mode */
-bool easy_id;        /* Easy Identify */
-bool easy_damage;    /* Access wizard info about damage and monster health */
+bool no_id;        /* All objects identified on creation / all flavors known */
 bool power_tele;     /* Use old-style, non-fuzzy telepathy */
-bool smart_learn;    /* Monsters learn from their mistakes (*) */
+bool xp_penalty_to_score;    /* Monsters learn from their mistakes (*) */
 bool smart_cheat;    /* Monsters exploit players weaknesses (*) */
 bool no_wilderness;
 bool ironman_shops;    /* Stores are permanently closed (*) */

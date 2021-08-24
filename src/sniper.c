@@ -3,7 +3,7 @@
 static void _birth(void)
 {
     py_birth_obj_aux(TV_DAGGER, SV_DAGGER, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_CLOTH_ARMOR, 1);
     py_birth_obj_aux(TV_BOW, SV_LIGHT_XBOW, 1);
     py_birth_obj_aux(TV_BOLT, SV_BOLT, rand_range(20, 30));
 
@@ -523,6 +523,28 @@ static caster_info * _caster_info(void)
 /************************************************************************
  * Powers
  ***********************************************************************/
+
+void booby_trap_spell(int cmd, variant* res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Booby trap");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Sets a trap which will explode on a passing monster.");
+		break;
+	case SPELL_CAST:
+		msg_print("You carefully set up a booby trap...");
+		explosive_rune();
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 static int _get_powers(spell_info* spells, int max)
 {
     int ct = 0;
@@ -531,7 +553,7 @@ static int _get_powers(spell_info* spells, int max)
     spell->level = 15;
     spell->cost = 20;
     spell->fail = calculate_fail_rate(spell->level, 80, p_ptr->stat_ind[A_INT]);
-    spell->fn = probing_spell;
+    spell->fn = booby_trap_spell;
 
     return ct;
 }

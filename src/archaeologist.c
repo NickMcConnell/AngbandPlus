@@ -490,21 +490,14 @@ static void _identify_spell(int cmd, variant *res)
         var_set_string(res, "Identify");
         break;
     case SPELL_DESC:
-        if (p_ptr->lev < 25)
-            var_set_string(res, "New Treasure!  You examine your new discovery.");
-        else
-            var_set_string(res, "New Treasure!  You examine your new discovery and learn its deepest truths.");
+        var_set_string(res, "New Treasure!  You examine your new discovery and learn its deepest truths.");
         break;
     case SPELL_SPOIL_DESC:
-        var_set_string(res, "Identifies an object. At L25, fully identifies an object.");
+        var_set_string(res, "Identifies an object.");
         break;
     case SPELL_CAST:
         {
-            bool b = TRUE;
-            if (p_ptr->lev < 25)
-                b = ident_spell(NULL);
-            else
-                b = identify_fully(NULL);
+            bool b = ident_spell(NULL);
             var_set_bool(res, b);
         }
         break;
@@ -787,7 +780,7 @@ static void _character_dump(doc_ptr doc)
 static void _birth(void)
 {
     py_birth_obj_aux(TV_HAFTED, SV_WHIP, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_CLOTH_ARMOR, 1);
     py_birth_obj_aux(TV_SCROLL, SV_SCROLL_MAPPING, rand_range(5, 10));
 
     p_ptr->proficiency[PROF_BLUNT] = WEAPON_EXP_BEGINNER;

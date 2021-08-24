@@ -34,7 +34,7 @@ static void _calc_innate_attacks(void)
         a.effect[0] = GF_OLD_CONF;
         a.blows = 100;
         a.to_h = p_ptr->lev/5;
-        a.msg = "You gaze.";
+        a.msg = "You gaze";
         a.name = "Gaze";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;

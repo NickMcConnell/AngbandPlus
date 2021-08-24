@@ -780,10 +780,7 @@ static void _judge_spell(int cmd, variant *res)
         var_set_string(res, "Identifies a weapon.");
         break;
     case SPELL_CAST:
-        if (p_ptr->lev >= 35)
-            var_set_bool(res, identify_fully(object_is_melee_weapon));
-        else
-            var_set_bool(res, ident_spell(object_is_melee_weapon));
+        var_set_bool(res, ident_spell(object_is_melee_weapon));
         break;
     default:
         default_spell(cmd, res);

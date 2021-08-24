@@ -98,7 +98,7 @@ score_ptr score_current(void)
     score->killer = _killer();
     score->status = _status();
 
-    score->exp = oook_score();
+    score->exp = total_points();
     score->max_depth = _max_depth();
     score->fame = p_ptr->fame;
 

@@ -667,8 +667,8 @@ static void _character_dump(doc_ptr doc)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_SMALL_SWORD, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_CLOTH_ARMOR, 1);
     py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, rand_range(2, 5));
 
     p_ptr->proficiency[PROF_SWORD] = WEAPON_EXP_BEGINNER;

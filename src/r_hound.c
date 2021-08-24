@@ -131,7 +131,7 @@ void hound_calc_innate_attacks(void)
 
         a.weight = 100;
         calc_innate_blows(&a, 200);
-        a.msg = "You claw.";
+        a.msg = "You claw";
         a.name = "Claw";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -156,7 +156,7 @@ void hound_calc_innate_attacks(void)
         }
 
         calc_innate_blows(&a, 300);
-        a.msg = "You bite.";
+        a.msg = "You bite";
         a.name = "Bite";
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
     }

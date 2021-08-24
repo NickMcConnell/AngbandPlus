@@ -804,10 +804,7 @@ static void _judge_spell(int cmd, variant *res)
         var_set_string(res, "Identifies gloves, boots or body armor.");
         break;
     case SPELL_CAST:
-        if (p_ptr->lev >= 35)
-            var_set_bool(res, identify_fully(_object_is_rag_usable));
-        else
-            var_set_bool(res, ident_spell(_object_is_rag_usable));
+        var_set_bool(res, ident_spell(_object_is_rag_usable));
         break;
     default:
         default_spell(cmd, res);

@@ -298,17 +298,10 @@ cptr do_hissatsu_spell(int spell, int mode)
 
     case 11:
         if (name) return "Judge";
-        if (desc) return "Identifies a weapon or armor. Or *identifies* these at level 45.";
+        if (desc) return "Identifies a weapon or armor.";
         if (cast)
         {
-            if (plev > 44)
-            {
-                if (!identify_fully(object_is_weapon_armor_ammo)) return NULL;
-            }
-            else
-            {
-                if (!ident_spell(object_is_weapon_armor_ammo)) return NULL;
-            }
+            if (!ident_spell(object_is_weapon_armor_ammo)) return NULL;
         }
         break;
 
@@ -1256,7 +1249,7 @@ static int _get_powers(spell_info* spells, int max)
 static void _birth(void)
 {
 	py_birth_obj_aux(TV_SWORD, SV_KATANA, 1);
-	py_birth_obj_aux(TV_HARD_ARMOR, SV_CHAIN_MAIL, 1);
+	py_birth_obj_aux(TV_HARD_ARMOR, SV_USED_SAMURAI_ARMOR, 1);
     py_birth_spellbooks();
 
 	p_ptr->proficiency[PROF_BLUNT] = WEAPON_EXP_BEGINNER;

@@ -1419,11 +1419,8 @@ static void _build_pets(doc_ptr doc)
         doc_printf(doc, "  Allow cast attack spell:            %s\n", (p_ptr->pet_extra_flags & PF_ATTACK_SPELL) ? "ON" : "OFF");
         doc_printf(doc, "  Allow cast summon spell:            %s\n", (p_ptr->pet_extra_flags & PF_SUMMON_SPELL) ? "ON" : "OFF");
         doc_printf(doc, "  Allow involve player in area spell: %s\n", (p_ptr->pet_extra_flags & PF_BALL_SPELL) ? "ON" : "OFF");
-        if (p_ptr->wizard || easy_damage)
-        {
-            doc_printf(doc, "  Riding Skill:                       %d\n", skills_riding_current());
-        }
-
+        doc_printf(doc, "  Riding Skill:                       %d\n", skills_riding_current());
+        
         doc_newline(doc);
     }
 }
@@ -2172,7 +2169,7 @@ static void _build_statistics(doc_ptr doc)
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_PHASE_DOOR);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_WORD_OF_RECALL);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_IDENTIFY);
-    _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_STAR_IDENTIFY);
+/*    _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_STAR_IDENTIFY);*/
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_REMOVE_CURSE);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE);
     if (class_uses_spell_scrolls(p_ptr->pclass))
@@ -2238,7 +2235,6 @@ static void _build_statistics(doc_ptr doc)
         _device_counts_imp(doc, TV_STAFF, EFFECT_HEAL);
         _device_counts_imp(doc, TV_STAFF, EFFECT_TELEPATHY);
         _device_counts_imp(doc, TV_STAFF, EFFECT_SPEED);
-        _device_counts_imp(doc, TV_STAFF, EFFECT_IDENTIFY_FULL);
         _device_counts_imp(doc, TV_STAFF, EFFECT_DESTRUCTION);
         _device_counts_imp(doc, TV_STAFF, EFFECT_HEAL_CURING);
         _device_counts_imp(doc, TV_STAFF, EFFECT_GENOCIDE);
@@ -2483,11 +2479,8 @@ static void _build_options(doc_ptr doc)
     if (small_level_type <= SMALL_LVL_MAX)
          doc_printf(doc, " Level Size:         %s\n", lv_size_options[small_level_type]);
 
-    if (easy_damage)
-		doc_printf(doc, " Easy Damage Info:   On\n");
-
-	if (easy_id)
-		doc_printf(doc, " Easy Identify:      On\n");
+	if (no_id)
+		doc_printf(doc, " All items pre-IDed: On\n");
 
     if (no_wilderness)
         doc_printf(doc, " Wilderness:         Off\n");
@@ -2600,13 +2593,6 @@ static bool _is_retired(void)
     return FALSE;
 }
 
-int oook_score(void)
-{
-    int tulos = p_ptr->max_max_exp;
-    if ((easy_damage) && ((p_ptr->total_winner) || (tulos > 6500000L))) tulos = (p_ptr->total_winner ? (tulos / 2) : ((tulos - 6500000L) / 2)) + 6500000L;
-    return tulos;
-}
-
 char *version_modifier(void)
 {
     return format("%s%s%s", coffee_break ? " (coffee)" : "", thrall_mode ? " (thrall)" : "", wacky_rooms ? " (wacky)" : "");
@@ -2627,10 +2613,10 @@ static void _add_html_header(doc_ptr doc)
     string_printf(header,  " <meta name='race' value='%s'>\n", get_true_race()->name);
     string_printf(header,  " <meta name='class' value='%s'>\n", get_class()->name);
     string_printf(header,  " <meta name='level' value='%d'>\n", p_ptr->max_plv);
-    string_printf(header,  " <meta name='experience' value='%d'>\n", oook_score());
+    string_printf(header,  " <meta name='experience' value='%d'>\n", p_ptr->max_max_exp);
     string_printf(header,  " <meta name='turncount' value='%d'>\n", game_turn);
     string_printf(header,  " <meta name='max_depth' value='%d'>\n", _max_depth());
-    string_printf(header,  " <meta name='score' value='%d'>\n", oook_score()); /* ?? Does oook need this? */
+    string_printf(header,  " <meta name='score' value='%d'>\n", total_points()); /* ?? Does oook need this? */
     string_printf(header,  " <meta name='fame' value='%d'>\n", p_ptr->fame);
 
     /* For angband.oook.cz ... I'm not sure what is best for proper display of html dumps so I'll need to ask pav

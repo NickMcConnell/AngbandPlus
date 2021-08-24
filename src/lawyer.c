@@ -168,16 +168,13 @@ cptr do_law_spell(int spell, int mode)
         break;
 
     case 6:
-        lisa = ((plev >= 45) && (lawyer_aptitude));
         if (name) return "Identify";
-        if (desc) return (lisa ? "Fully identifies an item." : "Identifies an item.");
+        if (desc) return "Identifies an item.";
 
         {
             if (cast)
             {
-                if ((lisa) && (!identify_fully(NULL))) return NULL;
-                else if (lisa) break;
-                else if (!ident_spell(NULL)) return NULL;
+                if (!ident_spell(NULL)) return NULL;
             }
         }
         break;
@@ -387,9 +384,16 @@ cptr do_law_spell(int spell, int mode)
         break;
 
     case 20:
-        if (name) return "Probe";
-        if (desc) return "Reveals information about nearby monsters.";
-        if (cast) probing();
+        if (name) return "Contempt of Court";
+        if (desc) return "Scare and stun a lawbreaking monster";
+		if (cast)
+		{
+
+			if (!get_fire_dir(&dir)) return NULL;
+
+			fear_monster(dir, 2 * plev);
+			stun_monster(dir, 5 + plev / 5);
+		}
         break;
 
     case 21:
@@ -640,7 +644,7 @@ static caster_info * _caster_info(void)
 static void _birth(void)
 {
     py_birth_obj_aux(TV_DAGGER, SV_DAGGER, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_CLOTH_ARMOR, 1);
     py_birth_obj_aux(TV_SCROLL, SV_SCROLL_PHASE_DOOR, 3 + randint1(3));
     py_birth_spellbooks();
 

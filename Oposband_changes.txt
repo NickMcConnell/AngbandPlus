@@ -1,3 +1,17 @@
+-Rejiggered the weapon types, adding a couple of new axes and removing a number of weapons that were outclassed by other weapons of the same type that were better and shallower / less rare.
+Removed / replaced *Identify* spells: 
+-Archeologists, Lawyers, Filthy Rags, Rings, Deathswords, Samurai, and Weaponmasters all had ID spells that eventually did *ID*, now they just always ID (which is the same as the old *ID*, so a buff anyways).
+-Building's Research Item does a regular ID. TODO: Fix costing
+-Tourist lost their *ID* class power, they already had a regular ID spell in Arcane that was lower level.
+-Nature, Death, and Trump realms only had an *ID* spell, it just became a regular ID spell (again, no debuff as ID is the same as old *ID*).
+-Some realms have both ID and *ID* spells, those were replaced with spells from Hengband that I liked but were removed from later versions somewhere along the way: Life spell "Holy Vision" replaced with "Day of the Dove" (LOS charm, life spell from older versions); Sorcery Spell "Identify True" replaced with "Conjure Elemental" (summon E, arcane spell from older versions); Craft spell "Knowledge True" replaced with "Craft Golem" (summon g, craft spell from older version)
+-Lore dragon realm's *ID* spell replaced with Alter Reality.
+
+
+0.2.2
+-Fixed bug where bow/xbow/sling proficiency used max for calculating bonuses instead of current
+-Fixed weapon proficiency page
+
 0.2.1
 -Nerfed dragons back to their previous levels; in Vanilla Angband breath damage is reduced by distance unlike variants so the buff was too much. 
 -Restored Mage's ability to change their second magic realm, now via a class power. They can only do this once but they will be able to cast all of the spells in the new realm.

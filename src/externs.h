@@ -291,6 +291,7 @@ extern bool list_stairs; /* Display stairs in the object list */
 extern bool display_skill_num; /* Give skills numerically in char sheet */
 extern bool reforge_details; /* Show statistics before reforge */
 extern bool auto_sticky_labels; /* Automatically make power labels sticky */
+extern bool show_damage; /* Show the exact damage dealt and taken - no longer a score modifier */
 extern bool show_power; /* Display device powers in inventory */
 
 /*** Game-Play Options ***/
@@ -306,9 +307,6 @@ extern bool last_words;    /* Leave last words when your character dies */
 #ifdef WORLD_SCORE
 extern bool send_score;    /* Send score dump to the world score server */
 #endif
-
-extern bool allow_debug_opts;    /* Allow use of debug/cheat options */
-
 
 /*** Disturbance Options ***/
 
@@ -339,10 +337,9 @@ extern bool alert_poison;       /* Alert on poisoning */
 /*** Birth Options ***/
 
 extern bool coffee_break;   /* Coffeebreak mode */
-extern bool easy_id;        /* Easy Identify */
-extern bool easy_damage;    /* Peek into damage and monster health */
+extern bool no_id;        /* No ID needed */
 extern bool power_tele;     /* Use old-style, non-fuzzy telepathy */
-extern bool smart_learn;    /* Monsters learn from their mistakes (*) */
+extern bool xp_penalty_to_score;    /* XP modifiers used to modify score instead. Was smart_learn. (*) */
 extern bool smart_cheat;    /* Monsters exploit players weaknesses (*) */
 extern bool no_wilderness;  /* Play without a normal wilderness */
 extern bool ironman_shops;    /* Stores are permanently closed (*) */
@@ -1221,7 +1218,6 @@ extern bool alloc_monster(int dis, u32b mode);
 extern bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode);
 extern bool summon_named_creature (int who, int oy, int ox, int r_idx, u32b mode);
 extern bool multiply_monster(int m_idx, bool clone, u32b mode);
-extern void update_smart_learn(int m_idx, int what);
 extern void choose_new_monster(int m_idx, bool born, int r_idx);
 extern byte get_mspeed(monster_race *r_ptr);
 extern bool player_place(int y, int x);
@@ -1254,7 +1250,6 @@ extern void py_display_spells_aux(doc_ptr doc, spell_info *table, int ct);
 extern void py_display_powers(doc_ptr doc, spell_info *table, int ct);
 extern void py_display_character_sheet(doc_ptr doc);
 extern void py_display_dungeons(doc_ptr doc);
-extern int  oook_score(void);
 extern char *version_modifier(void);
 
 /* object1.c */

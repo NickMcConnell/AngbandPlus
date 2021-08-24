@@ -57,7 +57,7 @@ static void _calc_innate_attacks(void)
             a.effect[i++] = GF_DISENCHANT;
         
         calc_innate_blows(&a, 400);
-        a.msg = "You touch.";
+        a.msg = "You touch";
         a.name = "Finger";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;

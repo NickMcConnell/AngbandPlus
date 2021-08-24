@@ -389,7 +389,7 @@ bool make_attack_normal(int m_idx)
                 {
                     act = silly_attacks[randint0(MAX_SILLY_ATTACK)];
                 }
-                msg_format("%^s %s%s%s", m_name, act, do_silly_attack ? " you" : "", retaliation_hack ? ".<color:g>)</color>" : ".");
+                msg_format("%^s %s%s%s", m_name, act, do_silly_attack ? " you" : "", retaliation_hack ? ".<color:g>)</color>" : "");
             }
 
             /* Hack -- assume all attacks are obvious */

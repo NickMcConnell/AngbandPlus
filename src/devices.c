@@ -329,10 +329,26 @@ static cptr _do_potion(int sval, int mode)
     switch (sval)
     {
     case SV_POTION_WATER:
-        if (desc) return "It is just water.";
+		if (desc)
+		{
+			if (p_ptr->pclass == CLASS_PRIEST)
+				return "It is holy water, blessed by the gods to remove curses and cleanse the mind";
+			else
+				return "It is just water.";
+		}
         if (cast)
         {
-            msg_print("You feel less thirsty.");
+			if (p_ptr->pclass == CLASS_PRIEST)
+			{
+				//Dispel curses
+				msg_print("You annoint yourself with the holy water, purging curses and closing wounds.");
+				remove_all_curse(FALSE);
+				set_cut(0, TRUE);
+				set_hero(25, FALSE);
+			}
+			else 
+				msg_print("You feel less thirsty.");
+
             device_noticed = TRUE;
         }
         break;
@@ -1301,14 +1317,6 @@ static cptr _do_scroll(int sval, int mode)
             if (!_do_identify()) return NULL;
         }
         break;
-    case SV_SCROLL_STAR_IDENTIFY:
-        if (desc) return "It reveals all information about an item when you read it.";
-        if (cast)
-        {
-            device_noticed = TRUE;
-            if (!identify_fully(NULL)) return NULL;
-        }
-        break;
     case SV_SCROLL_REMOVE_CURSE:
         if (desc) return "It removes normal curses from equipped items when you read it.";
         if (cast)
@@ -1975,8 +1983,8 @@ static _effect_info_t _effect_info[] =
 
     {"ENCHANTMENT",     EFFECT_ENCHANTMENT,         30, 900, 16, 0},
     {"IDENTIFY",        EFFECT_IDENTIFY,            15,  50,  1, BIAS_ROGUE | BIAS_MAGE},
-    {"IDENTIFY_FULL",   EFFECT_IDENTIFY_FULL,       50, 200,  3, BIAS_ROGUE | BIAS_MAGE},
-    {"PROBING",         EFFECT_PROBING,             30,  50,  1, BIAS_MAGE},
+    {"IDENTIFY_FULL",   EFFECT_IDENTIFY_FULL,       50, 200,  0, 0},
+    {"PROBING",         EFFECT_PROBING,             30,  50,  0, 0},
     {"RUNE_EXPLOSIVE",  EFFECT_RUNE_EXPLOSIVE,      30, 100,  2, BIAS_MAGE},
     {"RUNE_PROTECTION", EFFECT_RUNE_PROTECTION,     70, 500,  4, BIAS_PRIESTLY},
 
@@ -2506,7 +2514,7 @@ device_effect_info_t staff_effect_table[] =
     {EFFECT_DETECT_EVIL,            7,   5,     1,  30,    10,  0, 0},
     {EFFECT_HASTE_MONSTERS,        10,   5,     1,  30,    50, 10, 0},
     {EFFECT_SUMMON_ANGRY_MONSTERS, 10,   5,     1,  30,    50, 10, 0},
-    {EFFECT_IDENTIFY,              10,   4,     1,   0,    10,  0, _STOCK_TOWN | _COMMON},
+    {EFFECT_IDENTIFY,              40,  20,     4,   0,    10,  0, 0},
     {EFFECT_SLEEP_MONSTERS,        10,   6,     1,  40,    33,  0, 0},
     {EFFECT_SLOW_MONSTERS,         10,   6,     1,  40,    33,  0, 0},
     {EFFECT_CONFUSE_MONSTERS,      15,   8,     1,  40,    33,  0, 0},
@@ -2519,13 +2527,13 @@ device_effect_info_t staff_effect_table[] =
     {EFFECT_SUMMON_HOUNDS,         27,  25,     2,   0,    10,  0, 0},
     {EFFECT_SUMMON_HYDRAS,         27,  25,     3,   0,    10,  0, 0},
     {EFFECT_SUMMON_ANTS,           27,  20,     2,   0,    10,  0, 0},
-    {EFFECT_PROBING,               30,  15,     3,  70,    10,  0, 0},
+    {EFFECT_PROBING,               30,  15,     0,  70,    10,  0, 0},
     {EFFECT_TELEPATHY,             30,  16,     2,   0,    10,  0, 0},
     {EFFECT_SUMMON_MONSTERS,       32,  30,     2,   0,    33,  0, 0},
     {EFFECT_ANIMATE_DEAD,          35,  17,     2,  70,    33,  0, 0},
     {EFFECT_SLOWNESS,              40,  19,     3,  70,    50, 10, 0},
     {EFFECT_SPEED,                 40,  19,     2,   0,    10,  0, _COMMON},
-    {EFFECT_IDENTIFY_FULL,         40,  20,     3,   0,    10,  0, _COMMON},
+    {EFFECT_IDENTIFY_FULL,         40,  20,     0,   0,    10,  0, _COMMON},
     {EFFECT_REMOVE_CURSE,          40,  20,     4,   0,    10,  0, 0},
     {EFFECT_DISPEL_DEMON,          45,  10,     2,   0,    50, 10, 0},
     {EFFECT_DISPEL_UNDEAD,         45,  10,     2,   0,    50, 10, 0},
@@ -2644,7 +2652,6 @@ static void _device_pick_effect(object_type *o_ptr, device_effect_info_ptr table
         if ((mode & AM_GOOD) && !(entry->flags & _DROP_GOOD)) continue;
         if ((mode & AM_GREAT) && !(entry->flags & _DROP_GREAT)) continue;
         if ((mode & AM_STOCK_TOWN) && !(entry->flags & _STOCK_TOWN)) continue;
-		if (entry->type == EFFECT_IDENTIFY_FULL) continue;
 		if (entry->type == EFFECT_PROBING) continue;
 
         entry->prob = 64 / rarity;
@@ -3686,16 +3693,6 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         {
             device_noticed = TRUE;
             if (!_do_identify()) return NULL;
-        }
-        break;
-    case EFFECT_IDENTIFY_FULL:
-        if (name) return "*Identify*";
-        if (desc) return "It reveals all information about an item.";
-        if (value) return format("%d", 5000);
-        if (cast)
-        {
-            device_noticed = TRUE;
-            if (!identify_fully(NULL)) return NULL;
         }
         break;
     case EFFECT_PROBING:
@@ -7072,8 +7069,8 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         }
         break;
     case EFFECT_SACRED_KNIGHTS:
-        if (name) return "Dispel Curse and Probing";
-        if (desc) return "It removes all normal curses from your equipment and probes nearby monsters.";
+        if (name) return "Dispel Curse and Healing";
+        if (desc) return "It removes all normal curses from your equipment and heals for 500.";
         if (value) return format("%d", 5000);
         if (cast)
         {
@@ -7082,7 +7079,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
                 msg_print("You feel as if someone is watching over you.");
                 device_noticed = TRUE;
             }
-            if (probing())
+            if (hp_player(500))
                 device_noticed = TRUE;
         }
         break;

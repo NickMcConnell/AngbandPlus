@@ -3478,7 +3478,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                     /* Handle unseen monster */
                     if (!visible)
                     {
-                        msg_format("The %s finds a mark.", o_name);
+                        msg_format("The %s finds a mark", o_name);
                     }
                     /* Handle visible monster */
                     else
@@ -3486,9 +3486,9 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                         char m_name[80];
                         monster_desc(m_name, m_ptr, 0);
                         if (ambush)
-                            cmsg_format(TERM_VIOLET, "You cruelly shoot %s!", m_name);
+                            cmsg_format(TERM_VIOLET, "You cruelly shoot %s", m_name);
                         else
-                            msg_format("The %s hits %s.", o_name, m_name);
+                            msg_format("The %s hits %s", o_name, m_name);
 
                         if (m_ptr->ml)
                         {
@@ -3504,7 +3504,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                             char m_name[80];
                             monster_desc(m_name, m_ptr, 0);
                             tdam = m_ptr->hp + 1;
-                            msg_format("Your shot hit a fatal spot of %s!", m_name);
+                            msg_format("Your shot hit a fatal spot of %s", m_name);
                         }
                         else
                             tdam = 1;
@@ -3517,7 +3517,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                             char m_name[MAX_NLEN];
                             monster_desc(m_name, m_ptr, 0);
                             tdam = m_ptr->hp + 1;
-                            msg_format("Your shot hit a fatal spot of %s!", m_name);
+                            msg_format("Your shot hit a fatal spot of %s", m_name);
                         }
                         else
                             tdam = 1;

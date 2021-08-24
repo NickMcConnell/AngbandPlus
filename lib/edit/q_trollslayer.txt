@@ -24,6 +24,6 @@ R:OBJ(^ring$):EGO(combat)
 R:OBJ(metal shod boots)
 
 ?:[EQU $RACE Filthy-Rag]
-R:OBJ(partial plate armor):EGO(olog-hai)
+R:OBJ(steel plate armor):EGO(olog-hai)
 
 # vim: filetype=q :

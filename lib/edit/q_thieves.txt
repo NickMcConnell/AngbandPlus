@@ -54,6 +54,9 @@ R:OBJ(^ring$):EGO(protection)
 ?:[EQU $RACE Centipede]
 R:OBJ(metal shod boots)
 
+?:[EQU $RACE Orc]
+R:OBJ(curved sword)
+
 ?:[EQU $RACE Dragon]
 R:OBJ(^cloak$)
 
@@ -73,7 +76,7 @@ R:OBJ(^ring$):EGO(protection)
 R:OBJ(studded leather gloves)
 
 ?:[EQU $CLASS Duelist]
-R:OBJ(rapier)
+R:OBJ(thrusting sword)
 
 ?:[EQU $CLASS Archaeologist]
 R:OBJ(^whip$)

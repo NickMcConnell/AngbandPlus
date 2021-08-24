@@ -363,7 +363,7 @@ static void _calc_innate_attacks(void)
 
         a.weight = 100 + l;
         calc_innate_blows(&a, 400);
-        a.msg = "You claw.";
+        a.msg = "You claw";
         a.name = "Claw";
 
         /*if (p_ptr->dragon_realm == DRAGON_REALM_ATTACK && p_ptr->lev >= 40)
@@ -391,7 +391,7 @@ static void _calc_innate_attacks(void)
             calc_innate_blows(&a, 150);
         else
             a.blows = 100;
-        a.msg = "You bite.";
+        a.msg = "You bite";
         a.name = "Bite";
 
         /*if (p_ptr->dragon_realm == DRAGON_REALM_ATTACK && p_ptr->lev >= 40)
@@ -419,7 +419,7 @@ static dragon_realm_t _realms[DRAGON_REALM_MAX] = {
         "Armed with a vast array of detection and knowledge spells, dragons of lore "
         "seek power through knowledge. They eventually gain powers of telepathy and "
         "automatic object identification. Lore dragons are quick learners and gain "
-        "maturity much more rapidly than the rest of their kind.",
+		"maturity much more rapidly than the rest of their kind.",
     /*  S   I   W   D   C   C    Dsrm Dvce Save Stlh Srch Prcp Thn Thb  Life  Exp Attack Breath*/
       {-1, +3,  0, -1, -1,  0}, {   3,   8,   2,   0,   5,   5, -8,  0}, 100,  80,   100,   100, A_INT},
 
@@ -534,9 +534,9 @@ static spell_info _lore_spells[] = {
     { 12, 10, 60, identify_spell },
     { 15, 12, 60, sense_surroundings_spell },
     { 20, 15, 60, detection_spell },
-    { 22, 17, 60, probing_spell },
+    { 22, 17, 60, word_of_power_spell },
     { 25, 20, 65, self_knowledge_spell },
-    { 30, 25, 70, identify_fully_spell },
+    { 30, 25, 70, alter_reality_spell },
     { 40, 50, 90, clairvoyance_spell },
     { -1, -1, -1, NULL}
 };
@@ -2138,7 +2138,7 @@ void dragon_tail_sweep_spell(int cmd, variant *res)
 
             a.weight = 100 + l;
             a.blows = 100;
-            a.msg = "You hit.";
+            a.msg = "You hit";
             a.name = "Tail";
 
             p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;

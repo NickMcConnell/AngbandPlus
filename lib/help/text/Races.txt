@@ -151,9 +151,9 @@ Elves
   intelligent, extremely stealthy and at home with magical devices, but 
   their size handicaps them in physical combat. They greatly prefer 
   light headwear, and cannot think clearly with a heavy helmet 
-  squeezing their brains. Tomtes have the ability to assess monsters 
-  and items at a glance (they gain auto-identify at level 40); and 
-  being accustomed to long winters, they are not much bothered by cold.
+  squeezing their brains. Tomtes have the ability to sense monsters and 
+  items at a glance (they gain auto-identify at level 40); and being 
+  accustomed to long winters, they are not much bothered by cold.
   
     Stats                   Skills
     Strength      -4        Disarming   Good         
@@ -443,9 +443,9 @@ Orcs/Trolls/Giants
   Half-mortal descendants of the mighty titans, these immensely 
   powerful creatures put almost any other race to shame. They may lack 
   the fascinating special powers of certain other races, but their 
-  enhanced attributes more than make up for that. They learn to 
-  estimate the strengths of their foes, and their love for law and 
-  order makes them resistant to the effects of Chaos.
+  enhanced attributes more than make up for that. They learn to speak 
+  words of power to their foes, and their love for law and order makes 
+  them resistant to the effects of Chaos.
   
     Stats                   Skills
     Strength      +5        Disarming   Bad          
@@ -1096,5 +1096,5 @@ Yeek         Fair          Heroic        Bad           Poor            20'
 
 
 
-Automatically generated for Oposband 0.2.2.
+Automatically generated for Oposband 0.3.0.
 

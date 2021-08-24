@@ -78,7 +78,7 @@ static void _calc_innate_attacks(void)
             int pow = p_ptr->lev + adj_dex_blow[p_ptr->stat_ind[A_INT]];
             a.blows = 100 + MIN(300, 300 * pow / 60);
         }
-        a.msg = "You gaze.";
+        a.msg = "You gaze";
         a.name = "Gaze";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;

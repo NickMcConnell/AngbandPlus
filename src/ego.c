@@ -1679,9 +1679,6 @@ static void _ego_create_bow(object_type *o_ptr, int level)
 
         switch (o_ptr->name2)
         {
-        case EGO_BOW_ACCURACY:
-            o_ptr->to_h += 10;
-            break;
         case EGO_BOW_VELOCITY:
             _increase_bow_mult(o_ptr, 5 + m_bonus(20, level));
             o_ptr->to_h += 5;
@@ -1873,7 +1870,7 @@ static void _ego_create_weapon_armageddon(object_type *o_ptr, int level)
                 o_ptr->ds = 5; /* Muramasa */
             }
         }
-        if (object_is_(o_ptr, TV_HAFTED, SV_WAR_HAMMER) && one_in_(2))
+        if (object_is_(o_ptr, TV_HAFTED, SV_MACE) && one_in_(2))
             o_ptr->dd = 9; /* Aule */
     }
     else
@@ -2533,7 +2530,7 @@ static void _ego_create_dragon_armor(object_type *o_ptr, int level)
             if (one_in_(ACTIVATION_CHANCE))
             {   /* Only do strong effects since we lose the DSM's breathe activation! */
                 int choices[] = {
-                    EFFECT_IDENTIFY_FULL, EFFECT_DETECT_ALL, EFFECT_ENLIGHTENMENT,
+                    EFFECT_DETECT_ALL, EFFECT_ENLIGHTENMENT,
                     EFFECT_CLAIRVOYANCE, EFFECT_SELF_KNOWLEDGE, -1
                 };
                 _effect_add_list(o_ptr, choices);
@@ -2834,7 +2831,7 @@ static void _ego_create_body_armor(object_type *o_ptr, int level)
             _ego_create_armor_elvenkind(o_ptr, level);
             break;
         case EGO_BODY_DWARVEN:
-            if (o_ptr->tval != TV_HARD_ARMOR || o_ptr->sval == SV_RUSTY_CHAIN_MAIL)
+            if (o_ptr->tval != TV_HARD_ARMOR)
                 done = FALSE;
             else
             {
@@ -3132,7 +3129,7 @@ static void _ego_create_helmet(object_type *o_ptr, int level)
             if (one_in_(ACTIVATION_CHANCE))
             {
                 int choices[] = {
-                    EFFECT_IDENTIFY, EFFECT_IDENTIFY_FULL, EFFECT_PROBING, EFFECT_DETECT_TRAPS,
+                    EFFECT_IDENTIFY, EFFECT_DETECT_TRAPS,
                     EFFECT_DETECT_MONSTERS, EFFECT_DETECT_OBJECTS, EFFECT_DETECT_ALL,
                     EFFECT_ENLIGHTENMENT, EFFECT_CLAIRVOYANCE, EFFECT_SELF_KNOWLEDGE, -1
                 };

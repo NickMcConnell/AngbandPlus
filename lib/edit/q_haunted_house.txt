@@ -27,7 +27,7 @@ L:^:TRAP(*)
 L:<:UP_STAIR
 L:Z:MON(hound of tindalos)
 L:?:MON(raal's)
-L:I:MON(ipsissimus)
+L:I:MON(chaos cultist)
 L:Q:MON(nexus q)
 L:S:MON(shadow demon)
 L:>:MON(stairway to hell)

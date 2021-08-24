@@ -806,7 +806,7 @@ static void _centaur_calc_innate_attacks(void)
 
     a.weight = 150;
     calc_innate_blows(&a, 200);
-    a.msg = "You kick.";
+    a.msg = "You kick";
     a.name = "Hooves";
 
     p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -1345,7 +1345,7 @@ static void _draconian_calc_innate_attacks(void)
 
         a.weight = 100 + l;
         calc_innate_blows(&a, 400);
-        a.msg = "You claw.";
+        a.msg = "You claw";
         a.name = "Claw";
 
         if (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER)
@@ -1382,7 +1382,7 @@ static void _draconian_calc_innate_attacks(void)
             calc_innate_blows(&a, 150);
         else
             a.blows = 100;
-        a.msg = "You bite.";
+        a.msg = "You bite";
         a.name = "Bite";
 
         if (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER)
@@ -2305,7 +2305,7 @@ race_t *half_orc_get_race(void)
  ****************************************************************/
 static power_info _half_titan_powers[] =
 {
-    { A_INT, {15, 10, 60, probing_spell}},
+    { A_INT, {15, 10, 60, word_of_power_spell}},
     { -1, {-1, -1, -1, NULL} }
 };
 static int _half_titan_get_powers(spell_info* spells, int max)
@@ -2331,7 +2331,7 @@ race_t *half_titan_get_race(void)
         me.desc = "Half-mortal descendants of the mighty titans, these immensely powerful creatures "
                     "put almost any other race to shame. They may lack the fascinating special powers "
                     "of certain other races, but their enhanced attributes more than make up for that. "
-                    "They learn to estimate the strengths of their foes, and their love for law and "
+                    "They learn to speak words of power to their foes, and their love for law and "
                     "order makes them resistant to the effects of Chaos.";
 
         me.stats[A_STR] =  5;

@@ -585,7 +585,7 @@ static void _understanding_spell(int cmd, variant *res)
         var_set_string(res, "Understanding");
         break;
     default:
-        probing_spell(cmd, res);
+		word_of_power_spell(cmd, res);
         break;
     }
 }
@@ -1975,7 +1975,7 @@ static void _birth(void)
     if (p_ptr->psubclass == WARLOCK_GIANTS)
     {
         p_ptr->proficiency[PROF_SWORD] = WEAPON_EXP_BEGINNER;
-        py_birth_obj_aux(TV_SWORD, SV_CLAYMORE, 1);
+        py_birth_obj_aux(TV_SWORD, SV_TWO_HANDED_SWORD, 1);
 
         p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_MASTER;
         p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_MASTER;
@@ -1996,7 +1996,7 @@ static void _birth(void)
         p_ptr->proficiency[PROF_SWORD] = WEAPON_EXP_BEGINNER;
     }
         
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_CLOTH_ARMOR, 1);
     py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
 }
 

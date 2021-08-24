@@ -22,7 +22,7 @@ static void _birth(void)
     object_prep(&forge, lookup_kind(TV_POTION, SV_POTION_HEALING));
     py_birth_obj(&forge);
 
-    object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
+    object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_MUMAK_HIDE_ARMOR));
     py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_HAFTED, SV_MACE));

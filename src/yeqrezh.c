@@ -1469,7 +1469,7 @@ static void _yeqrezh_gain_item(int new_level)
      { 39, TV_STAFF, EFFECT_TELEPATHY},
      { 39, TV_POTION, SV_POTION_POLYMORPH},
      { 41, TV_STAFF, EFFECT_CONFUSING_LITE},
-     { 43, TV_STAFF, EFFECT_IDENTIFY_FULL},
+     { 43, TV_POTION, SV_POTION_STAR_HEALING},
      { 43, TV_SCROLL, SV_SCROLL_CRAFTING},
      { 45, TV_STAFF, EFFECT_STARBURST},
      { 45, TV_STAFF, EFFECT_BANISH_ALL},
@@ -1654,7 +1654,7 @@ static void _birth(void)
 {
     disciple_birth();
     py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_STUDDED_LEATHER_ARMOR, 1);
     _yeqrezh_ini_picks();
 }
 

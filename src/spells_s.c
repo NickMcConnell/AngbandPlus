@@ -798,6 +798,33 @@ void summon_ants_spell(int cmd, variant *res)
     }
 }
 
+void animal_companion_spell(int cmd, variant* res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Call Animal Companion");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Summons an animal for assitance.");
+		break;
+	case SPELL_CAST:
+	{
+		int ct = 0;
+		int l = p_ptr->lev + randint1(p_ptr->lev);
+
+		ct = summon_specific(-1, py, px, l, SUMMON_ANIMAL, PM_FORCE_PET);
+		if (!ct)
+			msg_print("No animals heed your call.");
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void summon_cyberdemon_spell(int cmd, variant *res)
 {
     switch (cmd)

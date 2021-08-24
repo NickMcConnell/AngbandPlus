@@ -53,8 +53,12 @@ void mimic_race(int new_race, const char *msg)
     }
 
     p_ptr->mimic_form = new_race;
-    p_ptr->expfact = calc_exp_factor();
-    check_experience();
+
+    if (!xp_penalty_to_score)
+    {
+        p_ptr->expfact = calc_exp_factor();
+        check_experience();
+    }
 
     if (new_race == RACE_HUMAN || new_race == RACE_DEMIGOD)
     {

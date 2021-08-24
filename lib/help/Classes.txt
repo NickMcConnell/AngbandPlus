@@ -855,7 +855,7 @@ Experience   130%
 <topic:Tourist><color:o>Tourist</color>
 Tourists have visited this world for the purpose of sightseeing. Their fighting skills are bad and they cannot cast powerful spells. They are the most difficult class to win the game with. Intelligence determines a tourist's spell casting ability.
  
-Tourists are always seeing more of the world to add to their stock of information; no other class can compete with their identification skills. They have two class powers - 'Take a Photograph' and 'Identify True'. Their magic is based on Arcane, and - aside from identify - is very weak indeed.
+Tourists are always seeing more of the world to add to their stock of information; no other class can compete with their identification skills. They have a class power - 'Take a Photograph' Their magic is based on Arcane, and - aside from identify - is very weak indeed.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> -2</color>        Disarming   <color:r>Bad          </color>
@@ -1064,4 +1064,4 @@ Wild-Talent   <color:o>Fair         </color> <color:R>Poor         </color> <col
 </style>
 
 
-<color:s>Automatically generated for Oposband 0.2.2.</color>
+<color:s>Automatically generated for Oposband 0.3.0.</color>

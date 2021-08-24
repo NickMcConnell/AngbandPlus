@@ -452,16 +452,31 @@ critical_t critical_shot(int weight, int plus)
         k = weight * randint1(500);
         result.mul = 150 + k * 200 / 2000;
 
-        if (result.mul < 200)
-            result.desc = "It was a <color:y>decent</color> shot!";
-        else if (result.mul < 240)
-            result.desc = "It was a <color:R>good</color> shot!";
-        else if (result.mul < 270)
-            result.desc = "It was a <color:r>great</color> shot!";
-        else if (result.mul < 300)
-            result.desc = "It was a <color:v>superb</color> shot!";
-        else
-            result.desc = "It was a <color:v>*GREAT*</color> shot!";
+		if (result.mul < 200)
+		{
+			result.mul = 150;
+			result.desc = "(<color:y>Critical 1.5x</color>)";
+		}
+		else if (result.mul < 240)
+		{
+			result.mul = 200;
+			result.desc = "(<color:R>Critical 2x</color>)";
+		}
+		else if (result.mul < 270)
+		{
+			result.mul = 250;
+			result.desc = "(<color:r>Critical 2.5x</color>)";
+		}
+		else if (result.mul < 300)
+		{
+			result.mul = 300;
+			result.desc = "(<color:v>Critical 3x</color>)";
+		}
+		else
+		{
+			result.mul = 350;
+			result.desc = "(<color:v>Critical 3.5x</color>)";
+		}
     }
 
     return result;
@@ -486,17 +501,17 @@ critical_t critical_throw(int weight, int plus)
 
         if (k < 400)
         {
-            result.desc = "It was a <color:y>good</color> hit!";
+            result.desc = "(<color:y>Critical 1.5x</color>)";
             result.mul = 150;
         }
         else if (k < 700)
         {
-            result.desc = "It was a <color:R>great</color> hit!";
+            result.desc = "(<color:R>Critical 2x</color>)";
             result.mul = 200;
         }
         else
         {
-            result.desc = "It was a <color:r>superb</color> hit!";
+			result.desc = "(<color:r>Critical 2.5x</color>)";
             result.mul = 250;
         }
     }
@@ -566,37 +581,73 @@ critical_t critical_norm(int weight, int plus, s16b meichuu, int mode, int hand)
             k += randint1(250*p_ptr->lev/50);
         }
 
-        if (k < 400)
-        {
-            result.desc = "It was a <color:y>good</color> hit!";
-            result.mul = 200;
-        }
-        else if (k < 700)
-        {
-            result.desc = "It was a <color:R>great</color> hit!";
-            result.mul = 250;
-        }
-        else if (k < 900)
-        {
-            result.desc = "It was a <color:r>superb</color> hit!";
-            result.mul = 300;
-        }
-        else if (k < 1300)
-        {
-            result.desc = "It was a <color:v>*GREAT*</color> hit!";
-            result.mul = 350;
-        }
-        else
-        {
-            result.desc = "It was a <color:v>*SUPERB*</color> hit!";
-            result.mul = 400;
-        }
-    }
+		if (prace_is_(RACE_MON_GOLEM))
+		{
+			if (k < 400)
+			{
+				/*result.desc = "It was a <color:y>good</color> hit!";*/
+				result.desc = "(<color:y>Critical 1.67x</color>)";
+				result.mul = 167;
+			}
+			else if (k < 700)
+			{
+				/*result.desc = "It was a <color:R>great</color> hit!";*/
+				result.desc = "(<color:R>Critical 2x</color>)";
+				result.mul = 200;
+			}
+			else if (k < 900)
+			{
+				/*result.desc = "It was a <color:r>superb</color> hit!";*/
+				result.desc = "(<color:r>Critical 2.33x</color>)";
+				result.mul = 233;
+			}
+			else if (k < 1300)
+			{
+				/*result.desc = "It was a <color:v>*GREAT*</color> hit!";*/
+				result.desc = "(<color:v>Critical 2.67x</color>)";
+				result.mul = 267;
+			}
+			else
+			{
+				/*result.desc = "It was a <color:v>*SUPERB*</color> hit!";*/
+				result.desc = "(<color:v>Critical 3x</color>)";
+				result.mul = 300;
+			}
+		}
+		else
+		{
 
-    /* Golem criticals are too strong */
-    if (prace_is_(RACE_MON_GOLEM) && (result.mul > 100))
-    {
-        result.mul -= ((result.mul - 100) / 3);
+			if (k < 400)
+			{
+				/*result.desc = "It was a <color:y>good</color> hit!";*/
+				result.desc = "(<color:y>Critical 2x</color>)";
+				result.mul = 200;
+			}
+			else if (k < 700)
+			{
+				/*result.desc = "It was a <color:R>great</color> hit!";*/
+				result.desc = "(<color:R>Critical 2.5x</color>)";
+				result.mul = 250;
+			}
+			else if (k < 900)
+			{
+				/*result.desc = "It was a <color:r>superb</color> hit!";*/
+				result.desc = "(<color:r>Critical 3x</color>)";
+				result.mul = 300;
+			}
+			else if (k < 1300)
+			{
+				/*result.desc = "It was a <color:v>*GREAT*</color> hit!";*/
+				result.desc = "(<color:v>Critical 3.5x</color>)";
+				result.mul = 350;
+			}
+			else
+			{
+				/*result.desc = "It was a <color:v>*SUPERB*</color> hit!";*/
+				result.desc = "(<color:v>Critical 4x</color>)";
+				result.mul = 400;
+			}
+		}
     }
 
     return result;
@@ -3223,8 +3274,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             if (backstab) cmsg_format(TERM_L_GREEN, "You cruelly attack %s!", m_name_object);
             else if (fuiuchi) cmsg_format(TERM_L_GREEN, "You make a surprise attack, and hit %s with a powerful blow!", m_name_object);
             else if (stab_fleeing) cmsg_format(TERM_L_GREEN, "You backstab %s!",  m_name_object);
-            else if (perfect_strike) msg_format("You land a <color:G>perfect strike</color> against %s.", m_name_object);
-            else if (!monk_attack) msg_format("You hit.", m_name_object);
+            else if (perfect_strike) msg_format("You land a <color:G>perfect strike</color> against %s", m_name_object);
+            else if (!monk_attack) msg_format("You hit", m_name_object);
 
             /* Hack -- bare hands do one damage */
             k = 1;

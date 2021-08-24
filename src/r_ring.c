@@ -682,10 +682,7 @@ static void _judge_spell(int cmd, variant *res)
         var_set_string(res, "Identifies a piece of jewelry.");
         break;
     case SPELL_CAST:
-        if (p_ptr->lev >= 35)
-            var_set_bool(res, identify_fully(object_is_jewelry));
-        else
-            var_set_bool(res, ident_spell(object_is_jewelry));
+        var_set_bool(res, ident_spell(object_is_jewelry));
         break;
     default:
         default_spell(cmd, res);
@@ -942,9 +939,8 @@ static _group_t _groups[] = {
         { EFFECT_LITE_MAP_AREA,       20,  10, 50 },
         { EFFECT_ENLIGHTENMENT,       20,  10, 50 },
         { EFFECT_DETECT_ALL,          25,  15, 60 },
-        { EFFECT_PROBING,             27,  20, 60 },
+        /*{ EFFECT_PROBING,             27,  20, 60 },*/
         { EFFECT_SELF_KNOWLEDGE,      30,  23, 65 },
-        { EFFECT_IDENTIFY_FULL,       33,  25, 65 },
         { EFFECT_LIST_UNIQUES,        40,  50, 75 },
         { EFFECT_LIST_ARTIFACTS,      42,  50, 75 }, 
         { EFFECT_CLAIRVOYANCE,        45,  50, 70 },

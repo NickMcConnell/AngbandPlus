@@ -46,12 +46,6 @@ static int _get_powers(spell_info* spells, int max)
     spell->fail = 0;
     spell->fn = _take_photo_spell;
 
-    spell = &spells[ct++];
-    spell->level = 25;
-    spell->cost = 20;
-    spell->fail = calculate_fail_rate(spell->level, 30, p_ptr->stat_ind[A_INT]);
-    spell->fn = identify_fully_spell;
-
     return ct;
 }
 
@@ -174,9 +168,9 @@ class_t *tourist_get_class(void)
                     "Intelligence determines a tourist's spell casting ability.\n \n"
                     "Tourists are always seeing more of the world to add to their stock "
                     "of information; no other class can compete with their "
-                    "identification skills. They have two class powers - 'Take a "
-                    "Photograph' and 'Identify True'. Their magic is based on Arcane, "
-                    "and - aside from identify - is very weak indeed.";
+                    "identification skills. They have a class power - 'Take a "
+                    "Photograph' Their magic is based on Arcane, and - aside from "
+					"identify - is very weak indeed.";
 
         me.stats[A_STR] = -2;
         me.stats[A_INT] = -1;

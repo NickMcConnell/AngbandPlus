@@ -142,10 +142,14 @@ int exp_requirement(int level)
 {
     bool android = (p_ptr->prace == RACE_ANDROID ? TRUE : FALSE);
     int base = (android ? _player_exp_a : _player_exp)[level-1];
+
+    int div = p_ptr->expfact;
+    if (xp_penalty_to_score) div = 150; //Average normal XP multiplier is 190, monster race is 180, give everyone a bit of a break.
+
     if (base % 100 == 0)
-        return base / 100 * p_ptr->expfact;
+        return base / 100 * div;
     else
-        return base * p_ptr->expfact / 100;
+        return base * div / 100;
 }
 
 void gain_chosen_stat(void)
@@ -260,8 +264,12 @@ void check_experience(void)
             p_ptr->max_plv = p_ptr->lev;
 
 			/* Oposband: FUll heal / recharge */
-			hp_player(p_ptr->mhp * 2); /* x2 so halving from blood knight/mage won't prevent it */
-			sp_player(p_ptr->msp);
+			int healed = p_ptr->mhp - p_ptr->chp;
+			if (healed) msg_format("Healed <color:g>%d</color>.", healed);
+			p_ptr->chp = p_ptr->mhp;
+			p_ptr->chp_frac = 0;
+			p_ptr->csp = p_ptr->msp;
+			p_ptr->csp_frac = 0;
 
             sound(SOUND_LEVEL);
             cmsg_format(TERM_L_GREEN, "Welcome to level %d.", p_ptr->lev);
@@ -770,8 +778,9 @@ static bool _kind_is_utility(int k_idx)
         case SV_SCROLL_DETECT_MONSTERS:
             return TRUE;
         case SV_SCROLL_IDENTIFY:
-        case SV_SCROLL_STAR_IDENTIFY:
-			return easy_id ? FALSE : TRUE;
+			return no_id ? FALSE : TRUE;
+		case SV_SCROLL_STAR_IDENTIFY:
+			return FALSE;
         }
         break;
 
@@ -2580,8 +2589,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
     /* Genocided by chaos patron */
     if (!m_idx) return TRUE;
 
-    if (dam > 0 && (p_ptr->wizard || cheat_xtra || easy_damage))
-        msg_format("You do %d damage.", dam);
+    if (show_damage && dam > 0)
+        msg_format("for <color:y>%d</color>.", dam);
 
     if ( p_ptr->melt_armor
       && note == NULL /* Hack: Trying to just get melee and shooting */
@@ -2590,10 +2599,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
     {
         char m_name[MAX_NLEN];
         monster_desc(m_name, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE);
-        msg_format("%^s armor melts.", m_name);
-        m_ptr->ac_adj -= randint1(2);
-        if (p_ptr->wizard || cheat_xtra || easy_damage)
-            msg_format("Melt Armor: AC is now %d", mon_ac(m_ptr));
+		m_ptr->ac_adj -= randint1(2);
+		msg_format("%^s armor melts (now %d).", m_name, mon_ac(m_ptr));
     }
 
     /* Rage Mage: "Blood Lust" */

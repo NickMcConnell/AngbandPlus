@@ -2131,11 +2131,11 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
         }
 
         /* "Cursed" items become tedious in the late game ... */
+		/* CR: They're always tedious */
         if ( power == -1
           && o_ptr->tval != TV_RING
           && o_ptr->tval != TV_AMULET
-          && !object_is_device(o_ptr)
-          && randint1(lev) > 10 )
+          && !object_is_device(o_ptr))
         {
             power = 0;
         }
@@ -2149,20 +2149,7 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
     if (mode & AM_AVERAGE)
         power = 0;
 
-    /* Apply curse */
-    if (mode & AM_CURSED)
-    {
-        /* Assume 'cursed' */
-        if (power > 0)
-        {
-            power = 0 - power;
-        }
-        /* Everything else gets more badly cursed */
-        else
-        {
-            power--;
-        }
-    }
+  
 
     /* Assume no rolls */
     rolls = 0;
@@ -3089,7 +3076,7 @@ static bool _kind_theme_warrior(int k_idx) {
     switch (k_info[k_idx].tval)
     {
     case TV_DAGGER:
-        if (k_info[k_idx].sval >= SV_SABRE && k_info[k_idx].sval < SV_POISON_NEEDLE)
+        if (k_info[k_idx].sval == SV_NINJATO)
             return TRUE;
         break;
     case TV_STAVES:
@@ -3333,7 +3320,8 @@ static bool _kind_theme_paladin_evil(int k_idx) {
 static bool _kind_theme_samurai(int k_idx) {
     if ( _kind_is_(k_idx, TV_SWORD, SV_KATANA)
       || _kind_is_(k_idx, TV_SWORD, SV_WAKIZASHI)
-      || _kind_is_(k_idx, TV_HARD_ARMOR, SV_HARAMAKIDO) )
+		|| _kind_is_(k_idx, TV_HARD_ARMOR, SV_USED_SAMURAI_ARMOR)
+      || _kind_is_(k_idx, TV_HARD_ARMOR, SV_SAMURAI_ARMOR) )
     {
         return TRUE;
     }
@@ -3395,8 +3383,8 @@ static bool _kind_theme_hobbit(int k_idx) {
 }
 static bool _kind_theme_dwarf(int k_idx) {
     if ( _kind_is_(k_idx, TV_AXE, SV_LOCHABER_AXE)
-      || _kind_is_(k_idx, TV_AXE, SV_BEAKED_AXE)
       || _kind_is_(k_idx, TV_AXE, SV_BROAD_AXE)
+      || _kind_is_(k_idx, TV_AXE, SV_BEAKED_AXE)
       || _kind_is_(k_idx, TV_AXE, SV_BATTLE_AXE)
       || _kind_is_(k_idx, TV_AXE, SV_GREAT_AXE)
       || _kind_is_(k_idx, TV_BOOTS, SV_PAIR_OF_METAL_SHOD_BOOTS)

@@ -39,10 +39,10 @@ static void _fighter_birth(void)
 { 
     object_type forge;
     
-    object_prep(&forge, lookup_kind(TV_DAGGER, SV_RAPIER));
+    object_prep(&forge, lookup_kind(TV_SWORD, SV_CURVED_SWORD));
     py_birth_obj(&forge);
 
-    object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
+    object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_MUMAK_HIDE_ARMOR));
     py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SHIELD, SV_SMALL_LEATHER_SHIELD));
@@ -191,7 +191,7 @@ static void _shaman_birth(void)
     object_prep(&forge, lookup_kind(TV_POLEARM, SV_SPEAR));
     py_birth_obj(&forge);
 
-    object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR));
+    object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_ARMOR));
     py_birth_obj(&forge);
 
     py_birth_light();

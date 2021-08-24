@@ -1867,14 +1867,12 @@ static void _annoy_p(void)
             msg_print("You resist the effects!");
         else
             set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
-        update_smart_learn(_current.mon->id, SM_FREE_ACTION);
 		break;
     case ANNOY_TELE_LEVEL:
         if (res_save_default(RES_NEXUS) || _curse_save())
             msg_print("You resist the effects!");
         else
             teleport_level(0);
-        update_smart_learn(_current.mon->id, RES_NEXUS);
         break;
     case ANNOY_TELE_TO:
         /* Only powerful monsters can choose this spell when the player is not in
@@ -1885,7 +1883,6 @@ static void _annoy_p(void)
             msg_print("You resist the effects!");
         else
             teleport_player_to(_current.src.y, _current.src.x, TELEPORT_PASSIVE);
-        update_smart_learn(_current.mon->id, RES_TELEPORT);
         break;
     case ANNOY_TRAPS:
 		trap_creation(_current.dest.y, _current.dest.x);
@@ -2055,7 +2052,6 @@ static void _escape(void)
                 msg_print("You resist the effects!");
             else
                 teleport_player_away(_current.mon->id, 100);
-            update_smart_learn(_current.mon->id, RES_TELEPORT);
         }
         else if (_current.mon2) /* MSF_DIRECT */
         {
@@ -2097,7 +2093,6 @@ static void _m_tactic(void)
                 msg_print("You resist the effects!");
             else
                 teleport_player_away(_current.mon->id, 10);
-            update_smart_learn(_current.mon->id, RES_TELEPORT);
         }
         else
         {
@@ -3558,7 +3553,7 @@ static void _ai_direct(mon_spell_cast_ptr cast)
         return;
 
     /* Apply monster knowledge of player's strengths and weaknesses */
-    if (smart_cheat || smart_learn)
+    if (smart_cheat)
         _smart_remove(cast);
 
     _ai_wounded(cast);
@@ -3766,7 +3761,7 @@ static void _ai_indirect(mon_spell_cast_ptr cast)
         cast->dest = new_dest;
         cast->flags |= MSC_SPLASH;
 
-        if (!stupid && (smart_cheat || smart_learn))
+        if (!stupid && (smart_cheat))
             _smart_remove(cast);
         _ai_wounded(cast);
 

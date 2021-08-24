@@ -259,15 +259,15 @@ bool _hit_mon(py_throw_ptr context, int m_idx)
         int  tdam;
 
         if (!visible)
-            msg_format("The %s finds a mark.", context->obj_name);
+            msg_format("The %s finds a mark", context->obj_name);
         else
         {
             char m_name[80];
             monster_desc(m_name, m_ptr, 0);
             if (ambush)
-                cmsg_format(TERM_RED, "The %s cruelly hits %s.", context->obj_name, m_name);
+                cmsg_format(TERM_RED, "The %s cruelly hits %s", context->obj_name, m_name);
             else
-                msg_format("The %s hits %s.", context->obj_name, m_name);
+                msg_format("The %s hits %s", context->obj_name, m_name);
             if (!p_ptr->image) mon_track(m_ptr);
             health_track(m_idx);
         }

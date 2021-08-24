@@ -41,7 +41,6 @@ static bool _weapon_is_small(int tval, int sval)
         switch (sval)
         {
         case SV_BROKEN_SWORD:
-        case SV_SMALL_SWORD:
         case SV_SHORT_SWORD:
             return TRUE;
         }
@@ -52,8 +51,7 @@ static bool _weapon_is_small(int tval, int sval)
     {
         switch (sval)
         {
-        case SV_SICKLE:
-        case SV_TSURIZAO:
+        case SV_FISHING_POLE:
             return TRUE;
         }
     }
@@ -86,12 +84,10 @@ static bool _weapon_is_giant(int tval, int sval)
     {
         switch (sval)
         {
-        case SV_GREAT_SCIMITAR:
-        case SV_FLAMBERGE:
-        case SV_TWO_HANDED_SWORD:
-        case SV_NO_DACHI:
         case SV_EXECUTIONERS_SWORD:
-        case SV_ZWEIHANDER:
+        case SV_GREATSWORD:
+        case SV_TWO_HANDED_SWORD:
+        case SV_BUSTER_SWORD:
             return TRUE;
         }
     }
@@ -120,8 +116,8 @@ static bool _weapon_is_giant(int tval, int sval)
     {
         switch (sval)
         {
-        case SV_TWO_HANDED_FLAIL:
-        case SV_GREAT_HAMMER:
+        case SV_WAR_HAMMER:
+        case SV_MORNING_STAR:
         case SV_MACE_OF_DISRUPTION:
         case SV_GROND:
             return TRUE;

@@ -5227,8 +5227,8 @@ P:Body:Hound
 D:A fierce and dangerous cat, its huge tusks and sharp claws would lacerate
 D:even the strongest armor.
 
-N:340:Water hound
-G:Z:b
+N:340:Acid hound
+G:Z:G
 I:110:15d8:30:30:0:150
 W:20:3:90:200:0:0
 B:BITE:ACID(2d8)
@@ -21531,15 +21531,15 @@ S:1_IN_4 |
 S:BR_DARK | BR_CONF | BR_INERTIA | S_DEMON |
 D:The prince of evil.
 
-N:1195:Lucifer, Father of Lies
-G:A:W
+N:1195:sUrGoL lOgRuS, lOrD oF cHaOs
+G:A:v
 I:140:192d100:50:242:25:235
 W:100:2:999:80586:0:0
 B:HIT:HURT(20d20):DISENCHANT(5d5, 50%):SLOW(3d3, 40%)
 B:TOUCH:DRAIN_CHARGES:UNLIFE(2d12, 50%):SLOW(3d3, 40%)
 B:GAZE:HURT(7d7):LOSE_WIS:CONFUSE
 B:GAZE:HURT(7d7):LOSE_CHR:DRAIN_EXP(10d6, 25%)
-A:LIGHT(3d4)
+A:CHAOS(3d4):FIRE(2d3):COLD(2d3)
 F:UNIQUE | MALE | CAN_SPEAK | CAN_FLY | AURA_REVENGE |
 F:FORCE_SLEEP | FORCE_MAXHP | REGENERATE | SELF_LITE_2 |
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
@@ -21551,8 +21551,8 @@ P:Copy:Archon:Paladin
 S:FREQ_30 |
 S:BR_COLD | BR_NETHER | BR_SHARDS | PSY_SPEAR(1d200+150) | S_ANGEL | BA_LITE
 S:S_HI_DEMON
-D:The bringer of dawn, tempter of men's souls, the angel of the
-D: thirty-one-level pit; he twists reality around him and appears
+D:The heart and soul of the courts of chaos, Surgol is the embodiment of 
+D:chaos and madness; he twists reality around him and appears
 D: cloaked in both ice and flames.
 
 N:1196:The Lurking Horror
@@ -22618,7 +22618,7 @@ F:POS_GAIN_AC | POS_HOLD_LIFE
 P:Copy:Human:Rage-Mage
 D:An icy whirlwind of cold air.
 
-N:1250:Polyphemus, the Blind Cyclops
+N:1250N:1250:Polyphemus, the Blind Cyclops
 G:P:g
 I:134:42d242:40:200:20:1000
 W:80:3:999:58080:0:0
@@ -22673,7 +22673,7 @@ P:Copy:Human:Warrior
 P:Body:Fish
 D:It always grows louder when it's about to feed.
 
-N:1253:Metatron, the High Angel
+N:1253:Metatron, the Living Pattern
 G:A:G
 I:136:108d148:100:192:2:250
 W:100:1:999:80586:0:0
@@ -22696,7 +22696,7 @@ S:FREQ_36 |
 S:TELE_TO | INVULN | BR_FIRE | BR_DISENCHANT | BR_MANA | S_ANGEL
 S:BA_LITE | BO_MANA | BRAIN_SMASH | HASTE | HEAL | ANTI_MAGIC | BR_GRAVITY
 S:BLINK | BR_NEXUS | MANA_STORM | BA_DARK | S_HI_DRAGON | PSY_SPEAR(1d200+150)
-D:You assume that, as the leading angel in Heaven, he must be officially good;
+D:You assume that, as the leading angel in Amber, he must be officially good;
 D:but you sense in him a ruthless scheming manipulator, one who has remained
 D:home and ruled in absolute comfort as Michael and Raphael have led the
 D:heavenly legions to the world outside in their fight against evil.
@@ -24245,6 +24245,75 @@ S:FREQ_12 | BR_SOUND | BLIND | CONFUSE | SCARE | DETECT_OBJECTS
 D:A dragon of great size and power. Its polished gold scales gleam brightly
 D:and the throbs of its beating wings reverberate through the dungeon with
 D:deafening volume. You feel its dissonant roaring shaking your very bones.
+
+N:1334:Water hound
+G:Z:b
+I:110:15d8:30:30:0:150
+W:25:3:90:200:0:0
+B:BITE:ACID(2d8)
+B:BITE:ACID(2d8)
+B:CLAW:HURT(3d3)
+B:CLAW:HURT(3d3)
+F:FORCE_SLEEP |
+F:FRIENDS(3d3) |
+F:BASH_DOOR | CAN_SWIM
+F:ANIMAL | RES_WATE
+F:DROP_CORPSE | POS_GAIN_AC
+P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
+P:SpellStat:Dex
+P:Body:Hound
+S:FREQ_5 | BO_WATER | DETECT_MONSTERS
+D:Liquid footprints follow this hound as it pads around the dungeon. An
+D:salty smell of the sea rises from the dog's pelt.
+
+# New monsters for Oposband 0.3
+#Gnome trickster (shoot, traps, blink, otherwise annoy)
+#Gnome worm mage (summon worms)
+#Gnome Munchkin (blink and shoot seeker bolts, very high spell chance (1-in-3 or 1-in-2)
+#Naga Priestess (summon spiders + curse)
+#Naga Princess (summon spiders, summon naga)
+#Magic mirror (stationary, weak but has reflect and elemental resistances, hurt by rock remover. Blinds and summons)
+#Poison golem (stone golem with poison aura, fires starburst-pattern poison beams)
+#From TOME:
+#Golgarach, the Living Rock
+#Glass golem
+#Tik'srvzllat
+#Sandworm
+#The Sandworm Queen
+#Thiazi the storm giant
+#Avatar of Nyarlathotep
+#Servitor of the Outer gods
+#Cult leader
+#Cultist?
+#Snake of Yig
+#Glaryssa, Succubus Queen
+#The Insane Player
+#Vort the Kobold Queen
+#Rat King
+#Hrungnir, the Stone Giant
+#Death orb
+#Aranea
+#Elder Aranea
+#Blood sprout
+#Water demon
+#Merrow
+#Dragon turtles and Fastitocaoln
+#Giant turtle
+#Elder stargazer
+#stargazer
+#(water elf)aquatic elf shaman
+#(water elf name)aquatic elf warrior
+#(Water elf name) aquatic elf
+#aquatic golem (diver golem)
+#drowned soul
+#murk dweller
+#eye of the deep
+#octupus
+#mermaid
+#elite uruk
+
 
 # N: serial number : monster name
 # G: symbol : color

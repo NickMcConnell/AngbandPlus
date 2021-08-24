@@ -805,7 +805,7 @@ void do_cmd_options_aux(int page, cptr info)
     int     opt[40];
     char    buf[80];
     bool    browse_only = (page == OPT_PAGE_BIRTH) && character_generated &&
-                          (!p_ptr->wizard || !allow_debug_opts);
+                          (!p_ptr->wizard);
     bool    scroll_mode;
     byte    option_offset = 0;
     byte    bottom_opt = Term->hgt - ((page == OPT_PAGE_AUTODESTROY) ? 5 : 2);
@@ -1359,7 +1359,7 @@ void do_cmd_options(void)
         int n = OPT_NUM;
 
         /* Does not list cheat option when cheat option is off */
-        if (!p_ptr->noscore && !allow_debug_opts) n--;
+        if (!p_ptr->noscore) n--;
 
         /* Clear screen */
         Term_clear();
@@ -1468,7 +1468,7 @@ void do_cmd_options(void)
             case 'B':
             case 'b':
             {
-                do_cmd_options_aux(OPT_PAGE_BIRTH, (!p_ptr->wizard || !allow_debug_opts) ? "Birth Options(browse only)" : "Birth Options((*)s effect score)");
+                do_cmd_options_aux(OPT_PAGE_BIRTH, (!p_ptr->wizard) ? "Birth Options(browse only)" : "Birth Options((*)s effect score)");
                 break;
             }
 
@@ -1476,7 +1476,7 @@ void do_cmd_options(void)
             case 'C':
             {
 #ifdef ALLOW_WIZARD
-                if (!p_ptr->noscore && !allow_debug_opts)
+                if (!p_ptr->noscore)
                 {
                     /* Cheat options are not permitted */
                     bell();
@@ -3932,14 +3932,16 @@ static int collect_objects(int grp_cur, int object_idx[], byte mode)
         }
         else
         {
-            if (!k_ptr->flavor)
+            if (!no_id)
             {
-                if (!k_ptr->counts.found && !k_ptr->counts.bought) continue;
+                if (!k_ptr->flavor)
+                {
+                    if (!k_ptr->counts.found && !k_ptr->counts.bought) continue;
+                }
+
+                /* Require objects ever seen */
+                if (!k_ptr->aware) continue;
             }
-
-            /* Require objects ever seen */
-            if (!k_ptr->aware) continue;
-
             /* Skip items with no distribution (special artifacts) */
             for (j = 0, k = 0; j < 4; j++) k += k_ptr->chance[j];
             if (!k) continue;
@@ -4149,7 +4151,7 @@ static int _collect_arts(int grp_cur, int art_idx[], bool show_all)
         object_type    forge;
 
         if (!a_ptr->name) continue;
-        if (!a_ptr->found)
+        if (!a_ptr->found && !no_id)
         {
             if (!show_all) continue;
             /*if (!a_ptr->generated) continue;*/
@@ -6192,7 +6194,7 @@ static int _collect_egos(int grp_cur, int ego_idx[])
 
         if (!e_ptr->name) continue;
         /*if (!e_ptr->aware) continue;*/
-        if (!ego_has_lore(e_ptr) && !e_ptr->counts.found && !e_ptr->counts.bought) continue;
+        if (!no_id && !ego_has_lore(e_ptr) && !e_ptr->counts.found && !e_ptr->counts.bought) continue;
         if (!(e_ptr->type & type)) continue;
 
         ego_idx[cnt++] = i;

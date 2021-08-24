@@ -1558,11 +1558,6 @@ void do_cmd_debug(void)
 		}
 		break;
 
-    /* View item info */
-    case 'f':
-        identify_fully(NULL);
-        break;
-
     /* Create desired feature */
     case 'F':
         do_cmd_wiz_create_feature();

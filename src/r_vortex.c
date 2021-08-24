@@ -222,7 +222,7 @@ static void _birth(void)
     forge.to_h = 7;
     py_birth_obj(&forge);
 
-    object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_JACK));
+    object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_SPIDERHIDE_JACKET));
     py_birth_obj(&forge);
 
     py_birth_obj_aux(TV_STAFF, EFFECT_NOTHING, 1);

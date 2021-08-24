@@ -2137,7 +2137,7 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
         strcat(desc, buf);
     }
     #endif
-    if ((p_ptr->wizard || easy_damage) && (m_ptr->mpower != 1000))
+    if ((p_ptr->wizard) && (m_ptr->mpower != 1000)) /*easy_damage showed - display? */
     {
         strcat(desc, format(" (%d.%d%%)", m_ptr->mpower/10, m_ptr->mpower%10));
     }
@@ -5035,34 +5035,6 @@ void message_pain(int m_idx, int dam)
             msg_format("%^s cries out feebly.", m_name);
 
     }
-}
-
-
-/*
- * Learn about an "observed" resistance.
- */
-void update_smart_learn(int m_idx, int what)
-{
-    monster_type *m_ptr;
-    monster_race *r_ptr;
-
-    if (m_idx <= 0) return; /* paranoia */
-
-    /* Not allowed to learn */
-    if (!smart_learn) return;
-
-    m_ptr = &m_list[m_idx];
-    r_ptr = &r_info[m_ptr->r_idx];
-
-    /* Too stupid to learn anything */
-    if (r_ptr->flags2 & (RF2_STUPID)) return;
-
-    /* Not intelligent, only learn sometimes */
-    if (!(r_ptr->flags2 & (RF2_SMART)) && (randint0(100) < 50)) return;
-
-    /* Analyze the knowledge */
-    assert(0 <= what && what < 32);
-    m_ptr->smart |= (1U << what);
 }
 
 

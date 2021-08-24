@@ -18,10 +18,10 @@ static int _get_powers(spell_info* spells, int max)
     int ct = 0;
 
     spell_info* spell = &spells[ct++];
-    spell->level = 15;
+    spell->level = 5;
     spell->cost = 20;
     spell->fail = calculate_fail_rate(spell->level, 90, p_ptr->stat_ind[A_WIS]);
-    spell->fn = probing_spell;
+    spell->fn = animal_companion_spell;
 
     return ct;
 }
@@ -48,7 +48,7 @@ static caster_info * _caster_info(void)
 static void _birth(void)
 {
     py_birth_obj_aux(TV_DAGGER, SV_DAGGER, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_CLOTH_ARMOR, 1);
     py_birth_obj_aux(TV_BOW, SV_SHORT_BOW, 1);
     py_birth_obj_aux(TV_ARROW, SV_ARROW, rand_range(20, 40));
     py_birth_spellbooks();

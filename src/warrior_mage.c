@@ -41,7 +41,7 @@ static void _birth(void)
     p_ptr->proficiency[PROF_SWORD] = WEAPON_EXP_BEGINNER;
 
     py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_CLOTH_ARMOR, 1);
     py_birth_spellbooks();
 
     p_ptr->proficiency_cap[PROF_DIGGER] = WEAPON_EXP_SKILLED;

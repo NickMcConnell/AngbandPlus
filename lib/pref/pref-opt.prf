@@ -97,14 +97,15 @@ Y:alert_trap_detect
 
 ##### Birth Options #####
 
-X:easy_id
-X:smart_learn
+X:no_id
+Y:xp_penalty_to_score
 X:smart_cheat
 X:no_wilderness
 X:ironman_shops
 X:ironman_downward
 X:ironman_empty_levels
 X:ironman_nightmare
+X:easy_thalos
 
 ##### Easy Object Auto-Destroyer #####
 

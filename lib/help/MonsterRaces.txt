@@ -566,4 +566,4 @@ Xorn         <color:R>Poor         </color> <color:r>Bad          </color> <colo
 </style>
 
 
-<color:s>Automatically generated for Oposband 0.2.2.</color>
+<color:s>Automatically generated for Oposband 0.3.0.</color>

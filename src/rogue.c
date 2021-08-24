@@ -787,7 +787,7 @@ static caster_info * _caster_info(void)
 static void _birth(void)
 {
     py_birth_obj_aux(TV_DAGGER, SV_DAGGER, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_CLOTH_ARMOR, 1);
     py_birth_obj_aux(TV_SCROLL, SV_SCROLL_TELEPORT, randint1(3));
     py_birth_spellbooks();
 

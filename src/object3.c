@@ -60,7 +60,7 @@ static s32b _activation_p(u32b flgs[OF_ARRAY_SIZE], object_type *o_ptr)
 
 static s32b _aura_p(u32b flgs[OF_ARRAY_SIZE])
 {
-    s32b cost = 0;
+    double cost = 0;
     int count = 0;
 
     cost += _check_flag_and_score(flgs, OF_AURA_FIRE,     1452, &count);
@@ -69,7 +69,8 @@ static s32b _aura_p(u32b flgs[OF_ARRAY_SIZE])
     cost += _check_flag_and_score(flgs, OF_AURA_SHARDS,   2420, &count);
     cost += _check_flag_and_score(flgs, OF_AURA_REVENGE,  6050, &count);
 
-    return cost;
+    s32b final_cost = (s32b)cost;
+    return final_cost;
 }
 
 static s32b _stats_q(u32b flgs[OF_ARRAY_SIZE], int pval)

@@ -100,26 +100,6 @@ void identify_spell(int cmd, variant *res)
 }
 bool cast_identify(void) { return cast_spell(identify_spell); }
 
-void identify_fully_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Identify True");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "");
-        break;
-    case SPELL_CAST:
-        var_set_bool(res, identify_fully(NULL));
-        break;
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-}
-bool cast_identify_fully(void) { return cast_spell(identify_fully_spell); }
-
 void hand_of_doom_spell(int cmd, variant *res)
 {
     switch (cmd)

@@ -280,11 +280,7 @@ static void _judge_spell(int cmd, variant *res)
         var_set_string(res, "Identifies a favored item.");
         break;
     case SPELL_CAST:
-        if (p_ptr->lev >= 45)
-            var_set_bool(res, identify_fully(_can_judge));
-        else
-            var_set_bool(res, ident_spell(_can_judge));
-        break;
+        var_set_bool(res, ident_spell(_can_judge));
         break;
     default:
         default_spell(cmd, res);
@@ -2263,10 +2259,12 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
       {   9,   7,  10,   0,   0,   0, 30, 11},
       { { TV_AXE, SV_HATCHET },
         { TV_AXE, SV_BATTLE_AXE },
-        { TV_AXE, SV_BEAKED_AXE },
         { TV_AXE, SV_BROAD_AXE },
+        { TV_AXE, SV_BEAKED_AXE },
         { TV_AXE, SV_LOCHABER_AXE },
         { TV_AXE, SV_GREAT_AXE },
+	    { TV_AXE, SV_CLEAVER },
+		{ TV_AXE, SV_SLAUGHTER_AXE },
         { 0, 0 },
       },
       { { 10,   0,  0, _power_attack_spell },
@@ -2277,7 +2275,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
         { 40,  25,  0, _vicious_strike_spell },
         { -1,   0,  0, NULL },
       },
-      { TV_AXE, SV_BROAD_AXE },
+      { TV_AXE, SV_BEAKED_AXE },
     },
     { "Bows",
       "You will shoot to kill! The bowmaster gains techniques to enhance shooting, "
@@ -2318,15 +2316,12 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
     /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
       {  25,  23,  35,   1,  14,   2, 65, 30},
       {   9,   9,  12,   0,   0,   0, 20, 15},
-        { { TV_HAFTED, SV_BALL_AND_CHAIN },
-          { TV_HAFTED, SV_CLUB },
+        { { TV_HAFTED, SV_CLUB },
           { TV_HAFTED, SV_FLAIL },
-          { TV_HAFTED, SV_GREAT_HAMMER },
-          { TV_HAFTED, SV_LEAD_FILLED_MACE },
-          { TV_HAFTED, SV_MACE },
-          { TV_HAFTED, SV_MACE_OF_DISRUPTION },
           { TV_HAFTED, SV_MORNING_STAR },
-          { TV_HAFTED, SV_TWO_HANDED_FLAIL },
+		  { TV_HAFTED, SV_MACE },
+		  { TV_HAFTED, SV_BALL_AND_CHAIN },
+          { TV_HAFTED, SV_MACE_OF_DISRUPTION },
           { TV_HAFTED, SV_WAR_HAMMER },
           { TV_HAFTED, SV_GROND },
           { TV_HAFTED, SV_NAMAKE_HAMMER },
@@ -2383,16 +2378,14 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
     /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
       {  30,  29,  31,   5,  30,  20, 60, 66},
       {  12,   9,  10,   0,   0,   0, 18, 20},
-      { { TV_DAGGER, SV_BASILLARD },
-        { TV_DAGGER, SV_BROKEN_DAGGER },
-        { TV_DAGGER, SV_DAGGER },
+      { { TV_DAGGER, SV_DAGGER },
         { TV_DAGGER, SV_FALCON_SWORD },
-        { TV_DAGGER, SV_MAIN_GAUCHE },
+        { TV_DAGGER, SV_DIRK },
         { TV_DAGGER, SV_NINJATO },
-        { TV_DAGGER, SV_RAPIER },
-        { TV_DAGGER, SV_SABRE },
-        { TV_DAGGER, SV_TANTO },
+        { TV_DAGGER, SV_CRYSKNIFE },
+        { TV_DAGGER, SV_CAT_CLAW },
         { TV_DAGGER, SV_DRAGON_FANG },
+	    { TV_DAGGER, SV_MITHRIL_DAGGER },
         { 0, 0 },
       },
       {
@@ -2417,16 +2410,13 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
       {  25,  23,  31,   1,  14,   2, 68, 25},
       {  10,   7,  10,   0,   0,   0, 28, 11},
       {
-        { TV_POLEARM, SV_AWL_PIKE },
         { TV_POLEARM, SV_BROAD_SPEAR },
         { TV_POLEARM, SV_DEATH_SCYTHE },
         { TV_POLEARM, SV_HALBERD },
-        { TV_POLEARM, SV_FAUCHARD },
         { TV_POLEARM, SV_GLAIVE },
-        { TV_POLEARM, SV_GUISARME },
+        { TV_POLEARM, SV_SICKLE },
         { TV_POLEARM, SV_LUCERNE_HAMMER },
-        { TV_POLEARM, SV_NAGINATA },
-        { TV_POLEARM, SV_PIKE },
+        { TV_POLEARM, SV_POLEAXE },
         { TV_POLEARM, SV_SCYTHE },
         { TV_POLEARM, SV_SCYTHE_OF_SLICING },
         { TV_POLEARM, SV_SPEAR },
@@ -2543,28 +2533,19 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
     /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
       {  25,  21,  31,   1,  14,   2, 70, 25},
       {  11,   8,  10,   0,   0,   0, 29, 11},
-      { { TV_SWORD, SV_BASTARD_SWORD } ,
-        { TV_SWORD, SV_BROKEN_SWORD } ,
+      { { TV_SWORD, SV_BROAD_SWORD } ,
         { TV_SWORD, SV_BLADE_OF_CHAOS } ,
-        { TV_SWORD, SV_BROAD_SWORD } ,
-        { TV_SWORD, SV_CLAYMORE } ,
-        { TV_SWORD, SV_CUTLASS } ,
+        { TV_SWORD, SV_MEDIUM_SWORD } ,
         { TV_SWORD, SV_DIAMOND_EDGE } ,
-        { TV_SWORD, SV_ESPADON } ,
-        { TV_SWORD, SV_EXECUTIONERS_SWORD } ,
-        { TV_SWORD, SV_FLAMBERGE } ,
-        { TV_SWORD, SV_GREAT_SCIMITAR } , /* Falchion */
+        { TV_SWORD, SV_GREATSWORD } ,
+        { TV_SWORD, SV_EXECUTIONERS_SWORD } , /* Falchion */
         { TV_SWORD, SV_KATANA } ,
         { TV_SWORD, SV_LONG_SWORD } ,
-        { TV_SWORD, SV_KHOPESH } ,
-        { TV_SWORD, SV_NO_DACHI },
-        { TV_SWORD, SV_SCIMITAR } ,
         { TV_SWORD, SV_SHORT_SWORD } ,
-        { TV_SWORD, SV_SMALL_SWORD } ,
-        { TV_SWORD, SV_TULWAR } ,
+        { TV_SWORD, SV_CURVED_SWORD } ,
         { TV_SWORD, SV_TWO_HANDED_SWORD } ,
         { TV_SWORD, SV_WAKIZASHI } ,
-        { TV_SWORD, SV_ZWEIHANDER } ,
+        { TV_SWORD, SV_BUSTER_SWORD } ,
         { TV_SWORD, SV_RUNESWORD } ,
         { 0, 0 },
       },
@@ -2846,7 +2827,7 @@ void _on_birth(void)
         py_birth_obj(&forge);
     }
     
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_LEATHER_JACK, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SPIDERHIDE_JACKET, 1);
 }
 
 static int _max_pval(void)

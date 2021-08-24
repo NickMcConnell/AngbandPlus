@@ -73,7 +73,7 @@ static void _jelly_calc_innate_attacks(void)
         a.weight = 100;
         a.effect[0] = GF_ACID;
         calc_innate_blows(&a, 600);
-        a.msg = "You shoot acid.";
+        a.msg = "You shoot acid";
         a.name = "Pseudopod";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -329,7 +329,7 @@ static void _birth(void)
     add_flag(forge.flags, OF_STR);
     py_birth_obj(&forge);
 
-    object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
+    object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_MUMAK_HIDE_ARMOR));
     py_birth_obj(&forge);
 }
 

@@ -608,8 +608,8 @@ static caster_info * _caster_info(void)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_DAGGER, SV_RAPIER, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_SWORD, SV_THRUSTING_SWORD, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_CLOTH_ARMOR, 1);
     py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
 
     p_ptr->proficiency[PROF_DAGGER] = WEAPON_EXP_BEGINNER;
@@ -617,7 +617,7 @@ static void _birth(void)
     p_ptr->proficiency_cap[PROF_DIGGER] = WEAPON_EXP_UNSKILLED;
     p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_BEGINNER;
     p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_BEGINNER;
-    p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_SKILLED;
+    p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_EXPERT;
     p_ptr->proficiency_cap[PROF_STAVE] = WEAPON_EXP_BEGINNER;
     p_ptr->proficiency_cap[PROF_AXE] = WEAPON_EXP_BEGINNER;
     p_ptr->proficiency_cap[PROF_DAGGER] = WEAPON_EXP_EXPERT;

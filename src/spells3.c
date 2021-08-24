@@ -3017,9 +3017,20 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
         case SV_POTION_DEC_DEX:
         case SV_POTION_DEC_CON:
         case SV_POTION_DEC_CHR:
-        case SV_POTION_WATER:   /* perhaps a 'water' attack? */
+        
         case SV_POTION_APPLE_JUICE:
             return TRUE;
+
+		case SV_POTION_WATER:   /* Holy water harms undead */
+			if (p_ptr->pclass == CLASS_PRIEST)
+			{
+				dt = GF_DISP_UNDEAD;
+				dam = damroll(25, 25);
+				angry = TRUE;
+				break;
+			}
+			else
+				return TRUE;
 
         case SV_POTION_SIGHT:
         case SV_POTION_CURE_POISON:

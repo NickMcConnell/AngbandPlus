@@ -331,102 +331,32 @@ D:It cures poison, heals hp a bit, and restores your stats and life when eaten.
 # Edged Weapons (TV_SWORD)
 ########################################################################
 
-N:45:& Broken Dagger~
-G:|:D
-I:26:1:0
-W:0:0:0:5:1
-A:0/1
-P:0:1d3:-4:0
-F:SHOW_MODS
-
-N:*:& Broken Sword~
+#Hack for Death sword race
+N:45:& Broken Sword~
 G:|:D
 I:23:2:0
 W:0:0:0:30:2
-A:0/1
 P:0:2d3:-4:0
 F:SHOW_MODS
 D:Above the hilt, a foot of steel rises, ending in a jagged edge.
 
-N:*:& Dagger~
-G:|:W
-I:26:4:0
-W:0:0:0:12:10
-A:0/1
-P:0:1d5:0:0
-F:SHOW_MODS | TOWN
-D:A two-edged knife with a sharp point.
-
-N:*:& Main Gauche~
-G:|:W
-I:26:5:0
-W:3:0:0:30:25
-A:3/1
-P:0:1d6:0:0
-F:SHOW_MODS | TOWN
-D:A short thrusting blade with a large guard, primarily used in duels.
-
-N:*:& Tanto~
-G:|:W
-I:26:6:0
-W:3:0:0:20:30
-A:3/2
-P:0:1d7:0:0
-F:SHOW_MODS | TOWN
-
-N:*:& Rapier~
-G:|:W
-I:26:7:0
-W:5:0:0:40:42
-A:5/1
-P:0:1d8:0:0
-F:SHOW_MODS | TOWN
-D:A long, thin thrusting blade, mainly used in duels.
-
-N:*:& Small Sword~
+N:*:& Short Sword~
 G:|:W
 I:23:8:0
 W:5:0:0:75:48
 A:5/1
 P:0:1d8:0:0
 F:SHOW_MODS | TOWN
-D:A smaller version of the longsword, perfectly sized for Hobbits.
+D:A short thrusting sword, perfectly sized for Hobbits.
 
-N:*:& Basillard~
-G:|:w
-I:26:9:0
-W:15:0:0:80:220
-A:15/3
-P:0:1d9:0:0
-F:SHOW_MODS | TOWN
-
-N:*:& Short Sword~
-G:|:W
-I:23:10:0
-W:5:0:0:80:90
-A:5/1
-P:0:1d8:0:0
-F:SHOW_MODS | TOWN
-D:A short thrusting sword.
-
-N:*:& Sabre~
-G:|:W
-I:26:11:0
-W:5:0:0:50:50
-A:5/1
-P:0:1d9:0:0
-F:SHOW_MODS | RIDING | TOWN
-D:A light, somewhat curved blade that can be used to thrust or slash; familiar
-D:to horseman and duelists alike.
-
-N:*:& Cutlass~
+N:*:& Medium Sword~
 G:|:W
 I:23:12:0
 W:5:0:0:110:85
 A:5/1
 P:0:1d9:0:0
 F:SHOW_MODS | TOWN
-D:A large, curved chopper with a basket hilt, well known to seamen.
+D:Short sword too small, but long sword too big? Here is the blade for you!
 
 N:*:& Wakizashi~
 G:|:W
@@ -436,30 +366,23 @@ A:15/3
 P:0:2d5:0:0
 F:SHOW_MODS | TOWN
 
-N:*:& Khopesh~
+N:*:& Thrusting Sword~
 G:|:W
-I:23:14:0
-W:10:0:0:130:190
-A:10/2
-P:0:2d5:0:0
-F:SHOW_MODS | TOWN
+I:23:7:0
+W:5:0:0:40:42
+A:5/1
+P:0:1d8:0:0:0
+F:SHOW_MODS | RIDING | TOWN
+D:A long, thin thrusting blade, known to cavalry and duelists alike.
 
-N:*:& Tulwar~
+N:*:& Curved Sword~
 G:|:W
 I:23:15:0
 W:5:0:0:100:200
 A:5/1
 P:0:2d5:0:0
 F:SHOW_MODS | RIDING | TOWN
-
-N:*:& Broad Sword~
-G:|:W
-I:23:16:0
-W:10:0:0:150:255
-A:10/1
-P:0:2d6:0:0
-F:SHOW_MODS | RIDING | TOWN
-D:A heavy, double-edged sword with a strong grip.
+D:A one-edged sword with a long, curving blade. Favored by Orcs.
 
 N:*:& Long Sword~
 G:|:W
@@ -471,23 +394,6 @@ F:SHOW_MODS | RIDING | TOWN
 D:A long, straight, two-edged blade, with two hand guards projecting out from
 D:the hilt to form a perfect cross.
 
-N:*:& Scimitar~
-G:|:W
-I:23:18:0
-W:10:0:0:130:250
-A:10/1
-P:0:2d6:0:0
-F:SHOW_MODS | TOWN
-D:A single-edged slashing sword with a blade like a crescent.
-
-N:*:& Ninjato~
-G:|:s
-I:26:19:0
-W:15:0:0:100:265
-A:15/2
-P:0:1d10:0:0
-F:SHOW_MODS | TOWN
-
 N:*:& Katana~
 G:|:W
 I:23:20:0
@@ -498,39 +404,24 @@ F:SHOW_MODS | TOWN
 D:A slightly curved long-handled slashing sword with a single-edged
 D:blade and a chisel tip.
 
-N:*:& Bastard Sword~
+N:*:& Broad Sword~
 G:|:W
 I:23:21:0
 W:15:0:0:140:350
 A:15/1
 P:0:3d5:0:0
 F:SHOW_MODS | TOWN
-D:Also known as the hand-and-a-half blade.  A larger-than-normal
-D:straight-sided sword with two cutting edges.
+D:A heavy, double-edged sword with a strong grip.
 
-N:*:& Falchion~
+N:*:& Executioner's Sword~
 G:|:W
 I:23:22:0
 W:40:0:0:240:500
 A:40/3
 P:0:4d6:0:0
-F:SHOW_MODS | RIDING
-
-N:*:& Claymore~
-G:|:W
-I:23:23:0
-W:40:0:0:200:600
-A:40/2
-P:0:2d9:0:0
-F:SHOW_MODS | TOWN
-
-N:*:& Espadon~
-G:|:W
-I:23:24:0
-W:40:0:0:200:600
-A:40/3
-P:0:2d10:0:0
 F:SHOW_MODS
+D:A giant, curved blade designed to cleave the head cleanly from the
+D:body.
 
 N:*:& Two-Handed Sword~
 G:|:W
@@ -541,33 +432,15 @@ P:0:3d7:0:0
 F:SHOW_MODS | TOWN
 D:A great, double-edged broadsword which few can wield in one hand.
 
-N:*:& Flamberge~
-G:|:W
-I:23:26:0
-W:40:0:0:230:600
-A:40/2
-P:0:3d8:0:0
-F:SHOW_MODS | TOWN
-
-N:*:& No-dachi~
-G:|:W
+N:*:& Greatsword~
+G:|:B
 I:23:27:0
 W:35:0:0:190:579
 A:35/3
 P:0:5d4:0:0
 F:SHOW_MODS | TOWN
 
-N:*:& Executioner's Sword~
-G:|:r
-I:23:28:0
-W:40:0:0:260:850
-A:40/1
-P:0:4d6:0:0
-F:SHOW_MODS
-D:A giant, curved blade designed to cleave the head cleanly from the
-D:body.
-
-N:*:& Zweihander~
+N:*:& Buster Sword~
 G:|:w
 I:23:29:0
 W:40:0:0:280:580
@@ -593,23 +466,6 @@ A:90/16
 P:0:6d6:10:0
 F:SHOW_MODS | VORPAL | TUNNEL | RIDING
 
-N:*:& Poison Needle~
-G:|:g
-I:26:32:0
-W:0:0:0:5:2000
-A:30/6
-P:0:1d1:0:0
-F:SHOW_MODS
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:*:& Falcon Sword~
-G:|:y
-I:26:33:3
-W:65:0:0:30:3500
-A:65/8
-P:0:1d7:0:0
-F:SHOW_MODS | BLOWS
-
 N:*:& Rune Sword~
 G:|:D
 I:23:34:0
@@ -622,6 +478,65 @@ D:A black blade, covered with gleaming runes. It is rumored
 D:to be an evil weapon of great power that will ultimately control
 D:its bearer.
 
+#########################################################################
+# Daggers (TV_DAGGER)
+#########################################################################
+
+N:*:& Dagger~
+G:|:W
+I:26:4:0
+W:0:0:0:18:10
+A:0/1
+P:0:1d5:0:0
+F:SHOW_MODS | TOWN
+D:A two-edged knife with a sharp point.
+
+N:*:& Dirk~
+G:|:W
+I:26:5:0
+W:3:0:0:30:25
+A:3/1
+P:0:1d6:0:0
+F:SHOW_MODS | TOWN
+D:A short thrusting blade with a large guard, primarily used in duels.
+
+N:*:& Cat Claw~
+G:|:d
+I:26:6:0
+W:10:0:0:30:50
+A:10/1
+P:0:1d9:0:0
+F:SHOW_MODS | TOWN
+D:A dark, curved dagger blade with a bone handle.
+
+N:*:& Shadow Blade~
+G:|:s
+I:26:19:0
+W:15:0:0:100:865
+A:15/2
+P:0:2d5:0:1
+F:SHOW_MODS | TOWN | STEALTH
+D:A long, straight blade; often carried by ninjas.
+
+N:*:& Crysknife~
+G:|:b
+I:26:11:0
+W:20:0:0:20:500
+A:20/2
+P:0:2d5:0:0
+F:SHOW_MODS | BRAND_POIS
+D:A long, thin thrusting blade, made from the tooth of a giant worm.
+D:It is naturally poisonous.
+
+N:*:& Poison Needle~
+G:|:g
+I:26:32:0
+W:0:0:0:5:2000
+A:30/6
+P:0:1d1:0:0
+F:SHOW_MODS
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
 N:*:& Dragon Fang~
 G:|:G
 I:26:35:0
@@ -630,6 +545,25 @@ A:40/15
 P:0:1d9:3:0
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
 
+N:*:& Mithril Dagger~
+G:|:B
+I:26:7:0
+W:50:0:0:12:1500
+A:50/1
+P:0:2d8:0:0
+F:SHOW_MODS | BRAND_POIS
+F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
+D:A long, thin thrusting blade, it glitters with a pale gleam.
+D:Runes of wasting and death are carved into its blade.
+
+N:*:& Falcon Sword~
+G:|:y
+I:26:33:3
+W:65:0:0:30:3500
+A:65/8
+P:0:1d7:0:0
+F:SHOW_MODS | BLOWS
+
 ########################################################################
 # Polearms (TV_POLEARM)
 ########################################################################
@@ -637,7 +571,7 @@ N:85:& Hatchet~
 G:/:s
 I:25:1:0
 W:10:0:0:60:120
-A:10/2
+A:3/3
 P:0:1d6:0:0
 F:SHOW_MODS | TOWN
 
@@ -651,22 +585,6 @@ F:SHOW_MODS | RIDING | TOWN
 D:The basic polearm, with a double-edged knife mounted on a light shaft.
 D:This weapon can be thrown effectively.
 
-N:*:& Sickle~
-G:/:s
-I:22:3:0
-W:10:0:0:70:110
-A:10/3
-P:0:2d4:0:0
-F:SHOW_MODS | TOWN
-
-N:*:& Awl-Pike~
-G:/:s
-I:22:4:0
-W:10:0:0:160:340
-A:10/1
-P:0:1d10:0:0
-F:SHOW_MODS | TOWN
-
 N:*:& Trident~
 G:/:y
 I:22:5:0
@@ -676,14 +594,6 @@ P:0:1d10:0:0
 F:SHOW_MODS | RIDING | TOWN
 D:A three-pronged spear, originally for catching fish.
 
-N:*:& Fauchard~
-G:/:s
-I:22:6:0
-W:18:0:0:155:301
-A:18/2
-P:0:1d12:0:0
-F:SHOW_MODS | RIDING | TOWN
-
 N:*:& Broad Spear~
 G:/:w
 I:22:7:0
@@ -692,16 +602,7 @@ A:14/1
 P:0:1d11:0:0
 F:SHOW_MODS | RIDING | TOWN
 
-N:*:& Pike~
-G:/:s
-I:22:8:0
-W:15:0:0:160:358
-A:15/1
-P:0:2d6:0:0
-F:SHOW_MODS | TOWN
-D:A long, heavy spear with an iron head and reinforced shaft.
-
-N:*:& Naginata~
+N:*:& Poleaxe~
 G:/:s
 I:22:9:0
 W:25:0:0:150:408
@@ -711,21 +612,21 @@ F:SHOW_MODS | TOWN
 
 N:*:& Beaked Axe~
 G:/:s
-I:25:10:0
-W:15:0:0:120:408
-A:15/1
+I:25:11:0
+W:15:0:0:130:304
+A:10/1
 P:0:2d7:0:0
 F:SHOW_MODS | TOWN
 D:A narrow axe head opposed by a crow's beak, mounted on an oaken shaft.
 
 N:*:& Broad Axe~
 G:/:s
-I:25:11:0
-W:15:0:0:130:304
+I:25:10:0
+W:15:0:0:120:408
 A:15/1
 P:0:2d7:0:0
 F:SHOW_MODS | TOWN
-D:A simple, single-bladed war axe capable of chopping though limbs or armor.
+D:A large, single-bladed war axe capable of chopping though limbs or armor.
 
 N:*:& Lucerne Hammer~
 G:/:B
@@ -745,13 +646,14 @@ F:SHOW_MODS | RIDING | TOWN
 D:A reinforced wooden pole eight feet long, topped by a massive knife blade
 D:that can can be used to thrust or chop.
 
-N:*:& Lajatang~
+N:*:& Pike~
 G:/:s
 I:22:14:0
 W:25:0:0:175:330
 A:25/2
 P:0:2d8:0:0
 F:SHOW_MODS | TOWN
+D:A long, heavy spear with an iron head and reinforced shaft.
 
 N:*:& Halberd~
 G:/:s
@@ -763,7 +665,7 @@ F:SHOW_MODS | TOWN
 D:The most successful of the polearms, the halberd has a long haft mounted
 D:with a heavy axe blade and opposing spike, and topped by a thrusting spine.
 
-N:*:& Guisarme~
+N:*:& Sickle~
 G:/:s
 I:22:16:0
 W:21:0:0:165:320
@@ -869,6 +771,25 @@ W:70:0:0:350:10000
 P:0:10d10:30:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
+N:*:& Cleaver~
+G:/:s
+I:25:2:0
+W:13:0:0:110:175
+A:13/1
+P:0:2d5:0:0:0
+F:SHOW_MODS | TOWN
+D:A small axe with a heavy rectangular blade.
+
+N:*:& Slaughter Axe~
+G:/:G
+I:25:32:0
+W:70:0:0:300:6000
+A:70/8
+P:0:5d8:0:0
+F:SLAY_ANIMAL | VORPAL | SHOW_MODS
+D:A huge axe, the sort used for slaughtering animals, this weapon is unusually deadly against
+D:natural creatures.
+
 ########################################################################
 # Blunt Weapons (TV_HAFTED)
 ########################################################################
@@ -908,24 +829,6 @@ A:16/2
 P:0:2d4:0:0
 F:SHOW_MODS | TOWN
 
-N:*:& Mace~
-G:\:D
-I:21:5:0
-W:5:0:0:120:130
-A:5/1
-P:0:2d5:0:0
-F:SHOW_MODS | TOWN
-D:A war club with an iron head, usually flanged.
-
-N:*:& Ball-and-Chain~
-G:\:D
-I:21:6:0
-W:20:0:0:150:200
-A:20/1
-P:0:2d5:0:0
-F:SHOW_MODS | RIDING | TOWN
-D:A weighty iron ball, suspended by a chain from a sturdy oaken handle.
-
 N:*:& Jo Staff~
 G:\:U
 I:24:7:0
@@ -934,14 +837,15 @@ A:11/2
 P:0:1d8:0:0
 F:SHOW_MODS | TOWN
 
-N:*:& War Hammer~
+#Was war hammer
+N:*:& Mace~
 G:\:D
 I:21:8:0
 W:5:0:0:120:225
 A:5/1
 P:0:3d4:0:0
 F:SHOW_MODS | RIDING | TOWN
-D:A mallet with a tapered head and a long handle.
+D:A war club with an iron head, usually flanged.
 
 N:*:& Three Piece Rod~
 G:\:u
@@ -950,15 +854,6 @@ W:20:0:0:120:350
 A:20/3
 P:0:4d3:0:0
 F:SHOW_MODS | TOWN
-
-N:*:& Morning Star~
-G:\:D
-I:21:12:0
-W:10:0:0:150:396
-A:10/1
-P:0:2d7:0:0
-F:SHOW_MODS | TOWN
-D:A war club with an spiked iron ball on the head.
 
 N:*:& Flail~
 G:\:D
@@ -978,41 +873,35 @@ A:20/1
 P:0:1d12:0:0
 F:SHOW_MODS | TOWN
 
-N:*:& Lead-Filled Mace~
+#Was lead-filled mace
+N:*:& Ball-and-chain~
 G:\:D
 I:21:15:0
 W:15:0:0:180:502
 A:15/1
 P:0:3d5:0:0
 F:SHOW_MODS | TOWN
-D:A heavy war club topped with a mass of lead-filled steel, capable of
-D:landing crushing blows.
+D:A weighty iron ball, suspended by a chain from a sturdy oaken handle.
 
-N:*:& Tetsubo~
-G:\:u
-I:21:16:0
-W:25:0:0:190:570
-A:25/2
-P:0:2d8:0:0
-F:SHOW_MODS
-
-N:*:& Two-Handed Flail~
+#Was Two-Handed Flail
+N:*:& War Hammer~
 G:\:y
 I:21:18:0
 W:45:0:0:280:590
 A:45/1
 P:0:3d7:0:0
 F:SHOW_MODS | TOWN
-D:Two great bars of wood connected by a massive chain, needing two hands
-D:to properly wield.
+D:A mallet with a tapered head and a long handle.
 
-N:*:& Great Hammer~
+#Was Great Hammer
+N:*:& Morning Star~
 G:\:D
 I:21:19:0
 W:45:0:0:300:350
 A:45/3
 P:0:4d7:0:0
 F:SHOW_MODS | TOWN
+D:A war club with an spiked iron ball on the head.
 
 N:*:& Mace~ of Disruption
 G:\:v
@@ -1762,41 +1651,25 @@ F:TOWN
 P:2:0d0:0:0
 D:A practical garment of thick wool or velvet, draping from neck to heels.
 
-N:*:Paper Armor~
-G:(:w
-I:36:3:0
-W:5:0:0:30:50
-A:7/2
-P:4:1d1:0:0
-
-N:*:Soft Leather Armor~
-G:(:U
+N:*:Cloth Armor~
+G:(:y
 I:36:4:0
 W:3:0:0:80:18
 A:3/1
 F:TOWN
-P:4:0d0:0:0
-D:A cuirass of pliable leather with a thicker leather jack.
+P:4:0d0:0:0:0
+D:A cuirass of thick cotton padding with a thick cloth jacket.
 
-N:*:Soft Studded Leather~
-G:(:U
-I:36:5:0
-W:3:0:0:90:35
-A:3/1
-F:TOWN
-P:5:1d1:0:0
-D:A cuirass of pliable leather studded with metal rivets.
-
-N:*:Hard Leather Armor~
+N:*:Leather Armor~
 G:(:U
 I:36:6:0
 W:5:0:0:100:150
 A:5/1
 F:TOWN
 P:6:1d1:0:0
-D:A boiled leather cuirass and shoulder plates.
+D:A cuirass of pliable leather studded with metal rivets.
 
-N:*:Hard Studded Leather~
+N:*:Studded Leather Armor~
 G:(:U
 I:36:7:0
 W:10:0:0:110:200
@@ -1806,41 +1679,26 @@ P:7:1d2:0:0
 D:A strong leather breastplate and shoulder guards over a sleeved shirt
 D:of cured leather covered with iron studs.
 
-N:*:Rhino Hide Armor~
-G:(:s
-I:36:8:0
-W:15:0:0:110:400
-A:15/1
-P:8:1d1:0:0
-
-N:*:Cord Armor~
-G:(:y
+N:*:Salamander Scale Armor~
+G:(:o
 I:36:9:0
-W:5:0:0:80:200
-A:7/1
+W:5:0:0:80:250
+A:7/2
 P:6:1d1:0:0
-F:TOWN
+F:TOWN | IGNORE_FIRE
 
-N:*:Padded Armor~
-G:(:y
-I:36:10:0
-W:2:0:0:60:50
-A:5/1
-P:5:1d1:0:0
-F:TOWN
-
-N:*:Leather Scale Mail~
-G:(:U
+N:*:Mumak Hide Armor~
+G:(:s
 I:36:11:0
 W:15:0:0:140:450
 A:15/1
 F:TOWN
 P:11:1d1:0:0
 D:A tunic and skirt sewn with thick, overlapping scales of hardened
-D:leather.
+D:Mumak-hide leather.
 
-N:*:& Leather Jacket~
-G:(:U
+N:*:& Spider Hide Jacket~
+G:(:d
 I:36:12:0
 W:20:0:0:130:700
 A:20/3
@@ -1855,12 +1713,13 @@ A:40/4
 P:4:1d1:0:12
 F:STEALTH | IGNORE_FIRE | PLURAL
 
-N:*:Stone and Hide Armor~
-G:(:U
+N:*:Ambercloth Armor~
+G:(:R
 I:36:15:0
 W:35:0:0:200:1000
-A:35/7
+A:40/3
 P:15:1d1:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:*:Sexy Swimsuit~
 G:(:v
@@ -1870,6 +1729,7 @@ A:30/64
 P:0:0d0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | AGGRAVATE
 
+#Robe of the Twilight
 N:*:& Robe~
 G:(:D
 I:36:60:0
@@ -1887,16 +1747,7 @@ F:INSTA_ART
 #  Hard Armor (TV_HARD_ARMOR)
 ########################################################################
 
-N:270:Rusty Chain Mail~
-G:[:r
-I:37:1:0
-W:25:0:0:200:550
-A:25/1
-P:14:1d4:0:-8
-D:Each link of this suit is brittle with rust, and the corroded rings
-D:are stiff and weakened.
-
-N:*:Ring Mail~
+N:*:Breastplate
 G:[:s
 I:37:2:0
 W:20:0:0:200:500
@@ -1904,39 +1755,21 @@ A:20/1
 F:TOWN
 P:12:1d4:0:0
 
-N:*:Metal Scale Mail~
-G:[:s
-I:37:3:0
-W:25:0:0:250:550
-A:25/1
-F:TOWN
-P:13:1d4:0:0
-D:A heavy shirt of overlapping steel scales backed by leather, with
-D:matching skirt and sleeves.
-
 N:*:Chain Mail~
-G:[:s
-I:37:4:0
-W:25:0:0:220:750
-A:25/1
-F:TOWN
-P:14:1d4:0:0
-D:A sleeved hauberk of interlocking steel rings, well padded with leather.
-D:Chain mail takes skill to make, but offers good protection and relatively
-D:low weight.
-
-N:*:Double Ring Mail~
 G:[:s
 I:37:5:0
 W:25:0:0:230:700
 A:25/1
 F:TOWN
 P:15:1d4:0:0
+D:A sleeved hauberk of interlocking steel rings, well padded with leather.
+D:Chain mail takes skill to make, but offers good protection and relatively
+D:low weight.
 
 N:*:Augmented Chain Mail~
 G:[:s
-I:37:6:0
-W:30:0:0:270:900
+I:37:7:0
+W:30:0:0:250:1000
 A:30/1
 F:TOWN
 P:16:1d4:0:0
@@ -1944,31 +1777,7 @@ D:A hauberk, leggings, and sleeves of interlocking steel rings,
 D:strategically reinforced at vital locations with a second layer
 D:of chain, all over a layer of heavy padding.
 
-N:*:Double Chain Mail~
-G:[:s
-I:37:7:0
-W:30:0:0:250:1000
-A:30/1
-F:TOWN
-P:16:1d4:0:0
-
-N:*:Bar Chain Mail~
-G:[:s
-I:37:8:0
-W:35:0:0:280:1020
-A:35/1
-F:TOWN
-P:18:1d4:0:0
-
-N:*:Metal Brigandine Armor~
-G:[:s
-I:37:9:0
-W:35:0:0:290:1100
-A:35/1
-F:TOWN
-P:19:1d4:0:0
-
-N:*:Splint Mail~
+N:*:Brigandine Armor~
 G:[:D
 I:37:10:0
 W:35:0:0:250:1300
@@ -1976,7 +1785,7 @@ A:35/1
 F:TOWN
 P:19:1d4:0:0
 
-N:*:Do-maru~
+N:*:Samurai Armor~
 G:[:s
 I:37:11:0
 W:40:0:0:290:1250
@@ -1984,32 +1793,16 @@ A:40/2
 F:TOWN
 P:20:1d4:0:0
 
-N:*:Partial Plate Armor~
-G:[:W
-I:37:12:0
-W:45:0:0:260:1200
-A:45/1
-F:TOWN
-P:22:1d6:0:0
-D:A steel corselet and vambraces over a skirt and leggings of chain.
-
-N:*:Metal Lamellar Armor~
-G:[:W
-I:37:13:0
-W:45:0:0:340:1150
-A:45/1
-F:TOWN
-P:23:1d6:0:0
-
-N:*:Haramakido~
+N:*:Used Samurai Armor
 G:[:D
 I:37:14:0
-W:32:0:0:280:920
+W:32:0:0:290:800
 A:32/2
 F:TOWN
 P:17:1d4:0:0
+D: A suit of samurai armor, not in "like new" condition.
 
-N:*:Full Plate Armor~
+N:*:Steel Plate Armor~
 G:[:W
 I:37:15:0
 W:45:0:0:380:1350
@@ -2019,20 +1812,11 @@ P:25:2d4:0:0
 D:A full suit of carefully fitted plates, with hinged joints backed
 D:by chain, and light padding underneath.
 
-N:*:O-yoroi~
-G:[:D
-I:37:16:0
-W:45:0:0:320:1300
-A:45/2
-F:TOWN
-P:24:1d4:0:0
-
-N:*:Ribbed Plate Armor~
-G:[:W
+N:*:Knight Armor~
+G:[:r
 I:37:18:0
 W:50:0:0:380:1500
 A:50/1
-F:TOWN
 P:28:2d4:0:0
 
 N:*:Mithril Chain Mail~
@@ -2045,7 +1829,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:Rare and wondrous is chain mail made of true-silver, for it offers more
 D:protection for the weight than any other armor.
 
-N:*:Mithril Plate Mail~
+N:*:Mithril Plate Armor~
 G:[:B
 I:37:25:0
 W:60:0:0:300:15000
@@ -2055,7 +1839,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A shimmering suit of true-silver, forged long ago by dwarven smiths of
 D:legend.  It gleams with purest white as you gaze upon it.
 
-N:*:Adamantite Plate Mail~
+N:*:Adamantite Plate Armor~
 G:[:G
 I:37:30:0
 W:75:0:0:420:20000
@@ -2422,13 +2206,6 @@ I:70:17:0
 W:15:0:0:5:250
 A:15/1
 M:50:1d6
-
-#N:*:Enchant Weapon To-Dam:batuni blaame
-#G:?:w
-#I:70:18:0
-#W:15:0:0:5:250
-#A:15/1
-#M:50:1d6
 
 N:*:*Enchant Armor*:klimon bieder
 G:?:w
@@ -4471,6 +4248,14 @@ W:0:0:10:3:0
 A:0/1
 P:0:1d1:0:0
 M:100:1d5
+
+N:*:& Broken Sword~
+G:|:D
+I:3:9:0
+W:0:0:0:30:0
+A:0/1
+P:0:1d1:0:0
+D:Above the hilt, a foot of steel rises, ending in a jagged edge.
 
 N:*:& Capture Ball#
 G:~:B

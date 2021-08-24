@@ -83,7 +83,7 @@ static void _calc_innate_attacks(void)
 
     calc_innate_blows(&a, _head_count() * 100);
     
-    a.msg = "You bite.";
+    a.msg = "You bite";
     a.name = "Bite";
     p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
 }

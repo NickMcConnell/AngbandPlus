@@ -45,7 +45,7 @@ M:#............#.....##.....##b....##..#
 M:#............+.......................#
 M:#............#...........<...........#
 M:######################################
-R:OBJ(hard studded leather)
+R:OBJ(studded leather armor)
 
 ?:[EQU $CLASS Monk Mystic Force-Trainer Ninja Ninja-Lawyer Scout]
 R:OBJ(padded armor)
@@ -57,7 +57,7 @@ R:OBJ(set of studded leather gloves)
 R:OBJ(^ring$):EGO(protection)
 
 ?:[EQU $RACE Death-Sword]
-R:OBJ(broad sword)
+R:OBJ(long sword)
 
 ?:[EQU $RACE Hydra]
 R:OBJ(^cloak$)

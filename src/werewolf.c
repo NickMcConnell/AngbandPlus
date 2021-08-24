@@ -133,7 +133,7 @@ void _werewolf_calc_innate_attacks(void)
 
         a.weight = 100;
         calc_innate_blows(&a, 300);
-        a.msg = "You claw.";
+        a.msg = "You claw";
         a.name = "Claw";
 
         if (psion_combat()) psion_combat_innate_blows(&a);
@@ -153,7 +153,7 @@ void _werewolf_calc_innate_attacks(void)
         a.effect[0] = GF_MISSILE;
 
         calc_innate_blows(&a, 300);
-        a.msg = "You bite.";
+        a.msg = "You bite";
         a.name = "Bite";
         if (psion_combat()) psion_combat_innate_blows(&a);
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;

@@ -720,7 +720,7 @@ bool skills_obj_is_icky_weapon(object_type *o_ptr)
 static void _birth(void)
 {
     py_birth_obj_aux(TV_POTION, SV_POTION_HEROISM, randint1(5));
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_CLOTH_ARMOR, 1);
     py_birth_spellbooks();
 
     p_ptr->proficiency[PROF_BOW] = WEAPON_EXP_BEGINNER;

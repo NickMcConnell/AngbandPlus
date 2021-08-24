@@ -799,11 +799,11 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 ### Bows ###
 ############
 
-N:160:of Accuracy
+N:160:of Keen Eyes
 T:BOW
 W:0:40:1
-C:5:0:0
-F:AWARE
+C:3:0:4
+F:AWARE | INFRA
 
 N:161:of Velocity
 T:BOW

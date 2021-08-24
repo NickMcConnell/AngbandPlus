@@ -963,7 +963,7 @@ bool karrot_replace_art(object_type *o_ptr)
 static void _birth(void)
 {
     disciple_birth();
-    py_birth_obj_aux(TV_SWORD, SV_CUTLASS, 1);
+    py_birth_obj_aux(TV_SWORD, SV_MEDIUM_SWORD, 1);
     py_birth_obj_aux(TV_HARD_ARMOR, SV_CHAIN_MAIL, 1);
     _karrot_ini_quests();
 }
@@ -1187,7 +1187,7 @@ static void _dragon_calc_innate_attacks(void)
 
         a.weight = 100 + l;
         calc_innate_blows(&a, 400);
-        a.msg = "You claw.";
+        a.msg = "You claw";
         a.name = "Claw";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -1209,7 +1209,7 @@ static void _dragon_calc_innate_attacks(void)
             calc_innate_blows(&a, 150);
         else
             a.blows = 100;
-        a.msg = "You bite.";
+        a.msg = "You bite";
         a.name = "Bite";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;

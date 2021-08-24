@@ -133,10 +133,7 @@ void _identify_device_spell(int cmd, variant *res)
         var_set_string(res, "Identify a single magical device.");
         break;
     case SPELL_CAST:
-        if (p_ptr->lev >= 25)
-            var_set_bool(res, identify_fully(_is_device));
-        else
-            var_set_bool(res, ident_spell(_is_device));
+        var_set_bool(res, ident_spell(_is_device));
         break;
     default:
         default_spell(cmd, res);
@@ -442,7 +439,7 @@ static void _birth(void)
         py_birth_obj(&forge);
         break;
     }
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_CLOTH_ARMOR, 1);
     py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
     py_birth_obj_aux(TV_WAND, EFFECT_BOLT_MISSILE, 1);
 

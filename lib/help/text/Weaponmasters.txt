@@ -249,5 +249,5 @@ Diggers           Poor          Bad           Excellent     Bad
 
 
 
-Automatically generated for Oposband 0.2.2.
+Automatically generated for Oposband 0.3.0.
 

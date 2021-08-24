@@ -90,6 +90,6 @@ R:OBJ(short bow)
 R:OBJ(gauntlets)
 
 ?:[EQU $CLASS Mauler]
-R:OBJ(two-handed flail)
+R:OBJ(mace)
 
 # vim: filetype=q :

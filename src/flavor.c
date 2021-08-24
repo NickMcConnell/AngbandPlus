@@ -17,6 +17,8 @@
  */
 static bool object_easy_know(int i)
 {
+    if (no_id) return TRUE;
+
     object_kind *k_ptr = &k_info[i];
 
     /* Analyze the "tval" */
@@ -294,7 +296,7 @@ void flavor_init(void)
         if (!k_ptr->name) continue;
 
         /* No flavor yields aware */
-        if (!k_ptr->flavor) k_ptr->aware = TRUE;
+        if (!k_ptr->flavor || no_id) k_ptr->aware = TRUE;
 
         /* Check for "easily known" */
         k_ptr->easy_know = object_easy_know(i);
@@ -1017,7 +1019,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     int             power;
 
     bool            aware = FALSE;
-    bool            known = FALSE;
+    bool            known = no_id;
     bool            flavor = TRUE;
     bool            device = FALSE;
 

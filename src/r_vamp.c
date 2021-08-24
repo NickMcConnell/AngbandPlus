@@ -31,7 +31,7 @@ static void _birth(void)
     p_ptr->current_r_idx = MON_VAMPIRE;
     equip_on_change_race();
     
-    object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
+    object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_MUMAK_HIDE_ARMOR));
     py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_DAGGER, SV_DAGGER));
@@ -728,7 +728,7 @@ static void _bat_calc_innate_attacks(void)
     a.effect[0] = GF_OLD_DRAIN;
     calc_innate_blows(&a, 400);
 
-    a.msg = "You bite.";
+    a.msg = "You bite";
     a.name = "Bite";
 
     p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;

@@ -1010,8 +1010,7 @@ struct player_type
     byte psubrace;      /* e.g. Parentage on Demigods */
     s16b current_r_idx;
 
-
-    u16b expfact;
+    u16b expfact;       /* XP requirement multiplier -OR- with xp_penalty_to_score option it is score divisor */
 
     s32b au;            /* Current Gold */
     s16b fame;

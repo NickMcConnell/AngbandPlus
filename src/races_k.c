@@ -750,7 +750,7 @@ race_t *sprite_get_race(void)
  ****************************************************************/
 static power_info _tomte_powers[] =
 {
-    { A_INT, {1, 0, 20, probing_spell}},
+    { A_INT, {1, 0, 20, detect_monsters_spell}},
     { -1, {-1, -1, -1, NULL} }
 };
 static int _tomte_get_powers(spell_info* spells, int max)
@@ -811,7 +811,7 @@ race_t *tomte_get_race(void)
         me.desc = "Smaller and of lighter build than regular elves, Tomtes are nimble, intelligent, "
                   "extremely stealthy and at home with magical devices, but their size handicaps them "
                   "in physical combat. They greatly prefer light headwear, and cannot think clearly "
-                  "with a heavy helmet squeezing their brains. Tomtes have the ability to assess "
+                  "with a heavy helmet squeezing their brains. Tomtes have the ability to sense "
                   "monsters and items at a glance (they gain auto-identify at level 40); and being "
                   "accustomed to long winters, they are not much bothered by cold.";
 

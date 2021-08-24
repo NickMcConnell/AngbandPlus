@@ -187,7 +187,7 @@ static caster_info * _caster_info(void)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_AXE, SV_BROAD_AXE, 1);
+    py_birth_obj_aux(TV_AXE, SV_BEAKED_AXE, 1);
     py_birth_obj_aux(TV_HARD_ARMOR, SV_AUGMENTED_CHAIN_MAIL, 1);
     py_birth_obj_aux(TV_POTION, SV_POTION_HEALING, 1);
 

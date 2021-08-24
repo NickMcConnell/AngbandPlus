@@ -882,26 +882,33 @@ void power_throw_spell(int cmd, variant *res)
 }
 bool cast_power_throw(void) { return cast_spell(power_throw_spell); }
 
-void probing_spell(int cmd, variant *res)
+void word_of_power_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Probe Monster");
+        var_set_string(res, "Word of Power");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Determines the abilities, strengths and weaknesses of nearby monsters.");
+        var_set_string(res, "Attempts to stun and slow a monster (power level = 2x Player level.");
         break;
     case SPELL_CAST:
-        probing();
-        var_set_bool(res, TRUE);
+	{
+		int dir;
+		int power = spell_power(p_ptr->lev * 2);
+		if (get_fire_dir(&dir))
+		{
+			slow_monster(dir);
+			stun_monster(dir, 5 + p_ptr->lev / 5);
+		}
+	}
         break;
     default:
         default_spell(cmd, res);
         break;
     }
 }
-bool cast_probing(void) { return cast_spell(probing_spell); }
+bool cast_probing(void) { return cast_spell(word_of_power_spell); }
 
 void protection_from_evil_spell(int cmd, variant *res)
 {

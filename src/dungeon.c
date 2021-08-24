@@ -176,8 +176,8 @@ static void sense_inventory1(void)
 
     if (p_ptr->confused) return;
 
-	if (easy_id)
-        strong = TRUE;
+    if (no_id)
+        return;
 	else
     {
 		int flags = _get_pseudo_id_flags();
@@ -219,9 +219,9 @@ static void sense_inventory2(void)
 //    int  flags = _get_pseudo_id_flags();
 
     if (p_ptr->confused) return;
-	if (easy_id)
+	if (no_id)
 	{
-        strong = TRUE;
+        return;
     }
     else
     {
@@ -3147,7 +3147,7 @@ static bool enter_wizard_mode(void)
     if (!p_ptr->noscore)
     {
         /* Wizard mode is not permitted */
-        if (!allow_debug_opts || arg_wizard)
+        if (arg_wizard)
         {
             msg_print("Wizard mode is not permitted.");
             return FALSE;
@@ -3187,13 +3187,6 @@ static bool enter_debug_mode(void)
     /* Ask first time */
     if (!p_ptr->noscore)
     {
-        /* Debug mode is not permitted */
-        if (!allow_debug_opts)
-        {
-            msg_print("Use of debug command is not permitted.");
-            return FALSE;
-        }
-
         /* Mention effects */
         msg_print("The debug commands are for debugging and experimenting.");
         msg_print("The game will not be scored if you use debug commands.");

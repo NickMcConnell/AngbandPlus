@@ -141,7 +141,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
     },
     /* CL19: Good Utility */
     {
-        { A_INT, "like a Half Titan", {15, 10, 40, probing_spell}},
+        { A_INT, "like a Half Titan", {15, 10, 40, word_of_power_spell}},
         { A_STR, "like a Half Giant", {19, 10, 40, stone_to_mud_spell}},
         { A_CHR, "like a Sorcerer", {19, 20, 50, identify_spell}},
         { A_CHR, "like a Mage", {19, 10, 40, teleport_spell}},
@@ -203,7 +203,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
     /* CL33: Good Utility */
     {
         { A_INT, "like an Amberite", {30, 50, 50, shadow_shifting_spell}},
-        { A_INT, "like a Tourist", {25, 20, 30, identify_fully_spell}},
+        /*{ A_INT, "like a Tourist", {25, 20, 30, identify_fully_spell}},*/
         { A_CHR, "like an Earth Elemental", {30, 10, 40, earthquake_spell}},
         { A_CHR, "like a Wizard", {30, 20, 40, teleport_level_spell}},
         { A_WIS, "like a Priest", {30, 30, 50, healing_I_spell}},
@@ -623,8 +623,8 @@ static caster_info * _caster_info(void)
 
 static void _birth(void)
 {
-    py_birth_obj_aux(TV_SWORD, SV_SMALL_SWORD, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_SWORD, SV_SHORT_SWORD, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_CLOTH_ARMOR, 1);
     py_birth_obj_aux(TV_POTION, SV_POTION_SPEED, 1);
 
     p_ptr->proficiency[PROF_SWORD] = WEAPON_EXP_BEGINNER;

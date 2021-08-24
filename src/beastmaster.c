@@ -41,7 +41,7 @@ static caster_info * _caster_info(void)
 static void _birth(void)
 {
     py_birth_obj_aux(TV_POLEARM, SV_SPEAR, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_CLOTH_ARMOR, 1);
     py_birth_spellbooks();
 
     p_ptr->proficiency[PROF_POLEARM] = WEAPON_EXP_BEGINNER;

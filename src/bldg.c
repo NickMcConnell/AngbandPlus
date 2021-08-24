@@ -3850,7 +3850,7 @@ static void bldg_process_command(building_type *bldg, int i)
         /* Do nothing */
         break;
     case BACT_RESEARCH_ITEM:
-        paid = identify_fully(NULL);
+        paid = ident_spell(NULL);
         break;
     case BACT_TOWN_HISTORY:
         town_history();
