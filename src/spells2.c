@@ -1989,7 +1989,6 @@ bool dispel_demons(int dam)
     return (project_hack(GF_DISP_DEMON, dam));
 }
 
-
 /*
  * Wake up all monsters, and speed up "los" monsters.
  */

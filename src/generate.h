@@ -58,7 +58,7 @@ extern int dun_tun_jct;
  */
 #define DUN_AMT_ROOM    8    /* Amount of objects for rooms */
 #define DUN_AMT_ITEM    2    /* Amount of objects for rooms/corridors */
-#define DUN_AMT_GOLD    2    /* Amount of treasure for rooms/corridors */
+#define DUN_AMT_GOLD    5    /* Amount of treasure for rooms/corridors */
 #define DUN_AMT_INVIS   3    /* Amount of invisible walls for rooms/corridors */
 
 /*

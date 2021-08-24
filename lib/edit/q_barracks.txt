@@ -28,14 +28,15 @@ L:c:MON(lost soul)
 L:d:MON(ghast)
 L:e:MON(ghoul)
 L:f:MON(ghoulking)
+L:g:OBJ(GOLD)
 L:k:OBJ(SHIELD, DEPTH+5):EGO(elemental)
 L:l:OBJ(HARD_ARMOR, DEPTH+15)
 L:$:OBJ(*, DEPTH+15)
 M:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-M:X.................#..e....#l..b...kXXX
+M:X.................#g.e...g#l..b...kXXX
 M:X.#######+#########...d...#......S..XX
 M:X.#..M......a#....+...d...#..........X
-M:X.#....c.....#....#.M.....#...M...G..X
+M:X.#....c....g#....#gM....g#...M...G..X
 M:X.##+#########....##############+####X
 M:X.#..........#..d.#b......a..........X
 M:X.#...a..G...+....#....a.............X

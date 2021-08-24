@@ -17,14 +17,14 @@ are quick learners and gain maturity much more rapidly than the rest of
 their kind.
 
   Stats                   Skills
-  Strength      -1        Disarming   Very Good    
-  Intelligence  +3        Device      Superb       
-  Wisdom        +0        Save        Excellent    
-  Dexterity     -1        Stealth     Fair         
-  Constitution  -1        Searching   Good         
-  Charisma      +0        Perception  Good         
-  Life Rating  100%       Melee       Bad          
-  Experience    80%       Bows        Good         
+  Strength      -1        Disarming   Very Good (13
+  Intelligence  +3        Device      Superb (13)  
+  Wisdom        +0        Save        Excellent (7)
+  Dexterity     -1        Stealth     Fair (4)     
+  Constitution  -1        Searching   Good (5)     
+  Charisma      +0        Perception  Good (5)     
+  Life Rating  100%       Melee       Bad (2)      
+  Experience    80%       Bows        Good (10)    
   Attack       100%
   Breath       100%
   
@@ -38,14 +38,14 @@ they mature. This focus requires great fortitude to master and somewhat
 diminishes the dragon's defenses and melee.
 
   Stats                   Skills
-  Strength      +0        Disarming   Good         
-  Intelligence  -1        Device      Good         
-  Wisdom        -1        Save        Excellent    
-  Dexterity     +0        Stealth     Fair         
-  Constitution  +3        Searching   Bad          
-  Charisma      +1        Perception  Bad          
-  Life Rating  103%       Melee       Good         
-  Experience   105%       Bows        Good         
+  Strength      +0        Disarming   Good (10)    
+  Intelligence  -1        Device      Good (5)     
+  Wisdom        -1        Save        Excellent (8)
+  Dexterity     +0        Stealth     Fair (3)     
+  Constitution  +3        Searching   Bad (0)      
+  Charisma      +1        Perception  Bad (0)      
+  Life Rating  103%       Melee       Good (10)    
+  Experience   105%       Bows        Good (10)    
   Attack        90%
   Breath       115%
   
@@ -61,14 +61,14 @@ sight, one that is seldom witnessed (or perhaps seldom survived?). This
 focus values strength above all else.
 
   Stats                   Skills
-  Strength      +3        Disarming   Poor         
-  Intelligence  -2        Device      Bad          
-  Wisdom        -2        Save        Poor         
-  Dexterity     +1        Stealth     Fair         
-  Constitution  -1        Searching   Very Bad     
-  Charisma      +0        Perception  Very Bad     
-  Life Rating   97%       Melee       Superb       
-  Experience   105%       Bows        Good         
+  Strength      +3        Disarming   Poor (5)     
+  Intelligence  -2        Device      Bad (0)      
+  Wisdom        -2        Save        Poor (2)     
+  Dexterity     +1        Stealth     Fair (3)     
+  Constitution  -1        Searching   Very Bad (-2)
+  Charisma      +0        Perception  Very Bad (-2)
+  Life Rating   97%       Melee       Superb (25)  
+  Experience   105%       Bows        Good (10)    
   Attack       115%
   Breath        80%
   
@@ -81,14 +81,14 @@ prowess for magical understanding. This focus requires great wisdom to
 master.
 
   Stats                   Skills
-  Strength      -1        Disarming   Very Good    
-  Intelligence  -1        Device      Amber[7]     
-  Wisdom        +3        Save        Excellent    
-  Dexterity     -1        Stealth     Fair         
-  Constitution  -1        Searching   Bad          
-  Charisma      -1        Perception  Bad          
-  Life Rating  100%       Melee       Poor         
-  Experience    95%       Bows        Good         
+  Strength      -1        Disarming   Very Good (13
+  Intelligence  -1        Device      Amber (20)   
+  Wisdom        +3        Save        Excellent (8)
+  Dexterity     -1        Stealth     Fair (4)     
+  Constitution  -1        Searching   Bad (0)      
+  Charisma      -1        Perception  Bad (0)      
+  Life Rating  100%       Melee       Poor (5)     
+  Experience    95%       Bows        Good (10)    
   Attack       100%
   Breath       100%
   
@@ -103,14 +103,14 @@ are few in number but serve to offer temporary defensive augmentations.
 Unlike their kin, dragons of this order prize agility above all else.
 
   Stats                   Skills
-  Strength      -1        Disarming   Fair         
-  Intelligence  -1        Device      Poor         
-  Wisdom        -1        Save        Superb       
-  Dexterity     +3        Stealth     Good         
-  Constitution  +1        Searching   Bad          
-  Charisma      +1        Perception  Bad          
-  Life Rating  102%       Melee       Bad          
-  Experience   105%       Bows        Good         
+  Strength      -1        Disarming   Fair (8)     
+  Intelligence  -1        Device      Poor (2)     
+  Wisdom        -1        Save        Superb (12)  
+  Dexterity     +3        Stealth     Good (5)     
+  Constitution  +1        Searching   Bad (0)      
+  Charisma      +1        Perception  Bad (0)      
+  Life Rating  102%       Melee       Bad (0)      
+  Experience   105%       Bows        Good (10)    
   Attack        90%
   Breath        90%
   
@@ -128,14 +128,14 @@ Needless to say, dragons of this order value force of will above all
 else.
 
   Stats                   Skills
-  Strength      -1        Disarming   Fair         
-  Intelligence  -1        Device      Poor         
-  Wisdom        -1        Save        Fair         
-  Dexterity     -1        Stealth     Fair         
-  Constitution  -1        Searching   Bad          
-  Charisma      +3        Perception  Bad          
-  Life Rating   95%       Melee       Bad          
-  Experience   105%       Bows        Good         
+  Strength      -1        Disarming   Fair (8)     
+  Intelligence  -1        Device      Poor (2)     
+  Wisdom        -1        Save        Fair (3)     
+  Dexterity     -1        Stealth     Fair (4)     
+  Constitution  -1        Searching   Bad (0)      
+  Charisma      +3        Perception  Bad (0)      
+  Life Rating   95%       Melee       Bad (3)      
+  Experience   105%       Bows        Good (10)    
   Attack        95%
   Breath        90%
   
@@ -152,14 +152,14 @@ power, both in melee and in breath. Strong in personality, dragons of
 this order may summon like minded kin for the final battles.
 
   Stats                   Skills
-  Strength      +1        Disarming   Poor         
-  Intelligence  -1        Device      Good         
-  Wisdom        -1        Save        Fair         
-  Dexterity     +1        Stealth     Fair         
-  Constitution  -1        Searching   Very Bad     
-  Charisma      +2        Perception  Very Bad     
-  Life Rating   95%       Melee       Excellent    
-  Experience   107%       Bows        Good         
+  Strength      +1        Disarming   Poor (5)     
+  Intelligence  -1        Device      Good (5)     
+  Wisdom        -1        Save        Fair (3)     
+  Dexterity     +1        Stealth     Fair (4)     
+  Constitution  -1        Searching   Very Bad (-2)
+  Charisma      +2        Perception  Very Bad (-2)
+  Life Rating   95%       Melee       Excellent (17
+  Experience   107%       Bows        Good (10)    
   Attack        90%
   Breath        90%
   
@@ -173,14 +173,14 @@ strength above all else. This foul realm is only available to Shadow
 and Chaos dragons.
 
   Stats                   Skills
-  Strength      +2        Disarming   Poor         
-  Intelligence  -2        Device      Poor         
-  Wisdom        -2        Save        Poor         
-  Dexterity     +0        Stealth     Very Good    
-  Constitution  -2        Searching   Very Bad     
-  Charisma      +1        Perception  Very Bad     
-  Life Rating   95%       Melee       Excellent    
-  Experience   105%       Bows        Good         
+  Strength      +2        Disarming   Poor (5)     
+  Intelligence  -2        Device      Poor (2)     
+  Wisdom        -2        Save        Poor (2)     
+  Dexterity     +0        Stealth     Very Good (6)
+  Constitution  -2        Searching   Very Bad (-2)
+  Charisma      +1        Perception  Very Bad (-2)
+  Life Rating   95%       Melee       Excellent (15
+  Experience   105%       Bows        Good (10)    
   Attack        90%
   Breath        90%
   
@@ -200,27 +200,27 @@ Death           +2   -2   -2   +0   -2   +1   95%  105%    90%     90%
 Table 2 - Dragon Realm Skill Bonus Table I
 
                Disarming     Device        Save          Stealth      
-Lore           Very Good     Superb        Excellent     Fair         
-Breath         Good          Good          Excellent     Fair         
-Attack         Poor          Bad           Poor          Fair         
-Craft          Very Good     Amber[7]      Excellent     Fair         
-Armor          Fair          Poor          Superb        Good         
-Domination     Fair          Poor          Fair          Fair         
-Crusade        Poor          Good          Fair          Fair         
-Death          Poor          Poor          Poor          Very Good    
+Lore           Very Good (13 Superb (13)   Excellent (7) Fair (4)     
+Breath         Good (10)     Good (5)      Excellent (8) Fair (3)     
+Attack         Poor (5)      Bad (0)       Poor (2)      Fair (3)     
+Craft          Very Good (13 Amber (20)    Excellent (8) Fair (4)     
+Armor          Fair (8)      Poor (2)      Superb (12)   Good (5)     
+Domination     Fair (8)      Poor (2)      Fair (3)      Fair (4)     
+Crusade        Poor (5)      Good (5)      Fair (3)      Fair (4)     
+Death          Poor (5)      Poor (2)      Poor (2)      Very Good (6)
 
 
 Table 3 - Dragon Realm Skill Bonus Table II
 
                Searching     Perception    Melee         Bows         
-Lore           Good          Good          Bad           Good         
-Breath         Bad           Bad           Good          Good         
-Attack         Very Bad      Very Bad      Superb        Good         
-Craft          Bad           Bad           Poor          Good         
-Armor          Bad           Bad           Bad           Good         
-Domination     Bad           Bad           Bad           Good         
-Crusade        Very Bad      Very Bad      Excellent     Good         
-Death          Very Bad      Very Bad      Excellent     Good         
+Lore           Good (5)      Good (5)      Bad (2)       Good (10)    
+Breath         Bad (0)       Bad (0)       Good (10)     Good (10)    
+Attack         Very Bad (-2) Very Bad (-2) Superb (25)   Good (10)    
+Craft          Bad (0)       Bad (0)       Poor (5)      Good (10)    
+Armor          Bad (0)       Bad (0)       Bad (0)       Good (10)    
+Domination     Bad (0)       Bad (0)       Bad (3)       Good (10)    
+Crusade        Very Bad (-2) Very Bad (-2) Excellent (17 Good (10)    
+Death          Very Bad (-2) Very Bad (-2) Excellent (15 Good (10)    
 
 
 

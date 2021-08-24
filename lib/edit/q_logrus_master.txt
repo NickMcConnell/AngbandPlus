@@ -35,7 +35,7 @@ L:d:PATTERN_4
 L:A:PATTERN_START
 L:L:PATTERN_EXIT
 L:p:FLOOR(ICKY):MON(logrus master, NO_SLEEP)
-L:$:OBJ(DEVICE, DEPTH+5)
+L:$:OBJ(DEVICE)
 L:?:OBJ(logrus)
 M:#########################
 M:#?$+.................+$$#

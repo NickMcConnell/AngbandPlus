@@ -1,0 +1,46 @@
+?:[EQU $QUEST144 Taken InProgress]
+D:You tell the King that the Innkeeper has sent a case of his
+D:finest wine in gratitude for his help. King->My good man, you
+D:did all the work. Will you join the Queen and I at dinner this
+D:evening and help us sample this fine wine. You graciously
+D:accept. During dinner the Queen tells you about her and the
+D:Druids concerns over a band of Snagas that have been setting
+D:fires in the Southbank Woods. You offer to look into it in the
+D:morning. She thanks you with a warm smile.
+?:1
+
+?:[EQU $QUEST144 Completed]
+D:A reward for your good work awaits you outside.
+?:1
+
+?:[EQU $QUEST144 Failed]
+D:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Snaga
+F:a:1:8:96
+
+
+# Dungeon layout
+M:######################################
+M:#------T-T------.T-----T-----T-T---,-#
+M:#-T-,-T---......---T--T--TTT----T-aa-#
+M:#--aaT-T..-T-T-T-aa-T--aaa----*--,--T#
+M:#--TT-..T-T-T-,----T----aa--T----T---#
+M:#----.--T-aa-----T--,T-,--T---T-a-T--#
+M:#--T.---T-a--T-----*-----T-------T---#
+M:#<..---T-T----T-T-aa--T---aa--T-,----#
+M:#;;-T-T-----T-T---a-T--T----T-------T#
+M:#--,,--T-T--T---TT-----T,-T---T-aa---#
+M:#--,----aa-T-T----aa--T-,----*--T--T-#
+M:#--TT-T----T--T--TT--T---,-------T---#
+M:#---,T----T----T----T-----T-T--aaa---#
+M:#--,T--,--T--,,---aa---TT--a-T-,T-T--#
+M:#T-aa-T-,T---*-T--aa--,--T-a-T-T-----#
+M:#--aa--T---aa----T-T-T----,TT-----TT-#
+M:######################################
+
+# Starting position
+P:7:1
+

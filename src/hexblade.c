@@ -35,7 +35,7 @@ static void _birth(void)
 	py_birth_spellbooks();
 }
 
-class_t *hex_mage_get_class(void)
+class_t *hexblade_get_class(void)
 {
 	static class_t me = { 0 };
 	static bool init = FALSE;
@@ -45,20 +45,8 @@ class_t *hex_mage_get_class(void)
 		skills_t bs = { 30,  35,  36,   2,  18,  16,  50,  50 };
 		skills_t xs = { 7,  10,  10,   0,   0,   0,  15,  15 };
 
-		me.name = "Hex-Mage";
-		me.desc = "A Hex-Mage is precisely what the name suggests: a mage "
-			"between the warrior and mage classes. While their brothers, the "
-			"rangers, specialize in Nature magic and survival skills, true "
-			"Warrior-Mages attempt to reach the best of both worlds. As "
-			"warriors they are much superior to the usual Mage class. "
-			"Intelligence determines a Warrior-Mage's spell casting ability.\n \n"
-			"Warrior-mages begin the game with Arcane magic, and they can "
-			"freely select another realm of magic. Although they do not gain "
-			"new spells as fast as regular mages, they will eventually learn "
-			"every spell in both realms, thus making them a very competitive "
-			"choice for players who appreciate Arcane magic. They have two "
-			"class powers - 'Convert HP to SP' and 'Convert SP to HP' - which "
-			"allow them to heal HP using mana or gain mana using HP.";
+		me.name = "Hexblade";
+		me.desc = "A Hexblade is a warrior-mage using Hex magic ";
 
 		me.stats[A_STR] = 2;
 		me.stats[A_INT] = 2;

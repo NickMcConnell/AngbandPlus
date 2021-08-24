@@ -160,7 +160,7 @@ int _mut_prob_gain(int i)
     {
     case MUT_CHAOS_GIFT:
         /* TODO: Birth Chaos Warriors with this mutation */
-        if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
+        if (p_ptr->pclass == CLASS_CHAOS_WARRIOR || p_ptr->pclass == CLASS_CHAOS_MAGE)
             return 0;
         break;
 

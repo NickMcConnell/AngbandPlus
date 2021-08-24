@@ -184,6 +184,7 @@ static int _breath_effect(void)
         int effects[] = { GF_SOUND, GF_SHARDS, GF_CHAOS, GF_DISENCHANT, -1 };
         return _get_effect(effects);
     }
+	case DRAGON_SILVER: return GF_INERT;
     }
     return 0;
 }
@@ -208,6 +209,7 @@ static int _breath_amount(void)
     case DRAGON_CRYSTAL:
     case DRAGON_BRONZE:
     case DRAGON_GOLD:
+	case DRAGON_SILVER:
         amt = MIN(450, p_ptr->chp * (20 + l*l*l*30/125000) / 100);
         break;
 
@@ -259,6 +261,7 @@ static cptr _breath_desc(void)
     case DRAGON_ETHEREAL: return "light, dark or confusion";
     case DRAGON_CRYSTAL: return "shards";
     case DRAGON_BALANCE: return "sound, shards, chaos or disenchantment";
+	case DRAGON_SILVER: return "inertia";
     }
     return 0;
 }
@@ -331,6 +334,7 @@ static int _attack_level(void)
     case DRAGON_CRYSTAL:
     case DRAGON_BRONZE:
     case DRAGON_GOLD:
+	case DRAGON_SILVER:
         l = MAX(1, l * 90 / 100);
         break;
 
@@ -3112,6 +3116,109 @@ static race_t *_bronze_get_race_t(void)
 }
 
 /**********************************************************************
+* Silver: Young -> Mature -> Ancient
+**********************************************************************/
+static void _silver_calc_bonuses(void) {
+	int l = p_ptr->lev;
+	int to_a = py_prorata_level(75);
+	int ac = 15 + (l / 10) * 2;
+
+	p_ptr->ac += ac;
+	p_ptr->dis_ac += ac;
+
+	p_ptr->to_a += to_a;
+	p_ptr->dis_to_a += to_a;
+
+	p_ptr->free_act++;
+
+	if (p_ptr->lev >= 30)
+	{
+		p_ptr->pspeed += 3;
+		p_ptr->free_act++;
+	}
+	if (p_ptr->lev >= 40)
+	{
+		p_ptr->pspeed += 2;
+	}
+	_dragon_calc_bonuses();
+}
+static void _silver_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
+	add_flag(flgs, OF_FREE_ACT);
+	if (p_ptr->lev >= 30)
+	{
+		add_flag(flgs, OF_SPEED);
+	}
+	_dragon_get_flags(flgs);
+}
+static void _silver_birth(void) {
+	p_ptr->current_r_idx = MON_YOUNG_SILVER_DRAGON;
+	_dragon_birth();
+}
+static void _silver_gain_level(int new_level) {
+	if (p_ptr->current_r_idx == MON_YOUNG_SILVER_DRAGON && new_level >= 20)
+	{
+		p_ptr->current_r_idx = MON_MATURE_SILVER_DRAGON;
+		msg_print("You have evolved into a Mature Silver Dragon.");
+		p_ptr->redraw |= PR_MAP;
+	}
+	if (p_ptr->current_r_idx == MON_MATURE_SILVER_DRAGON && new_level >= 30)
+	{
+		p_ptr->current_r_idx = MON_ANCIENT_SILVER_DRAGON;
+		msg_print("You have evolved into an Ancient Silver Dragon.");
+		p_ptr->redraw |= PR_MAP;
+	}
+}
+static race_t *_silver_get_race_t(void)
+{
+	static race_t me = { 0 };
+	static bool   init = FALSE;
+	static cptr   titles[3] = { "Young Silver Dragon", "Mature Silver Dragon", "Ancient Silver Dragon" };
+	int           rank = 0;
+
+	if (p_ptr->lev >= 20) rank++;
+	if (p_ptr->lev >= 30) rank++;
+
+	if (!init)
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+		skills_t bs = { 28,  35,  38,   2,  25,  26,  55,  30 };
+		skills_t xs = { 8,   9,  11,   0,   0,   0,  20,   7 };
+
+		me.subdesc =
+			"Silver Dragons are wyrms of inertia. While they are not quite as strong as most other "
+			"dragons, they eventually slow monsters with their bite attack. Also, they become "
+			"more and more resistant to sslowing as they mature.";
+
+		me.skills = bs;
+		me.extra_skills = xs;
+
+		me.infra = 5;
+		me.exp = 250;
+
+		me.birth = _silver_birth;
+		me.get_powers = _dragon_get_powers;
+		me.calc_bonuses = _silver_calc_bonuses;
+		me.get_flags = _silver_get_flags;
+		me.gain_level = _silver_gain_level;
+		init = TRUE;
+	}
+
+	if (spoiler_hack || birth_hack)
+		me.subname = "Silver Dragon";
+	else
+		me.subname = titles[rank];
+
+	me.stats[A_STR] = 0 + 2 * rank;
+	me.stats[A_INT] = -1 + 2 * rank;
+	me.stats[A_WIS] = -2 + rank;
+	me.stats[A_DEX] = -2 + 2 * rank;
+	me.stats[A_CON] = -1 + 2 * rank;
+	me.stats[A_CHR] = -1 + 2 * rank;
+	me.life = 100 + 5 * rank;
+
+	return &me;
+}
+
+/**********************************************************************
  * Gold: Young -> Mature -> Ancient
  **********************************************************************/
 static void _gold_calc_bonuses(void) {
@@ -3371,6 +3478,9 @@ race_t *mon_dragon_get_race(int psubrace)
     case DRAGON_STEEL:
         result = _steel_get_race_t();
         break;
+	case DRAGON_SILVER:
+		result = _silver_get_race_t();
+		break;
     default: /* Birth Menus */
         result = _nether_get_race_t();
     }

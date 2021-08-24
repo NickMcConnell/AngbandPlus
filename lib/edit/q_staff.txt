@@ -36,17 +36,7 @@ L:H:MON(black wraith)
 L:^:TRAP(*, 25%)
 L:!:OBJ(pint of fine wine)
 L:':OBJ(piece of elvish waybread)
-?:[EQU [MOD $RANDOM76 5] 0]
-L:0:FLOOR(ICKY):ART(totila)
-?:[EQU [MOD $RANDOM76 5] 1]
-L:0:FLOOR(ICKY):ART(firestar)
-?:[EQU [MOD $RANDOM76 5] 2]
-L:0:FLOOR(ICKY):ART(taratol)
-?:[EQU [MOD $RANDOM76 5] 3]
 L:0:FLOOR(ICKY):ART(bloodspike)
-?:[EQU [MOD $RANDOM76 5] 4]
-L:0:FLOOR(ICKY):ART(turmil)
-
 L:1:FLOOR(ICKY):OBJ(RING, DEPTH+10)
 L:2:FLOOR(ICKY):OBJ(AMULET, DEPTH+10)
 L:3:FLOOR(ICKY):OBJ(potion of healing)

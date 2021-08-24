@@ -476,6 +476,7 @@ static flag_insc_table flag_insc_immune[] =
     { "El", OF_IM_ELEC, -1 },
     { "Fi", OF_IM_FIRE, -1 },
     { "Co", OF_IM_COLD, -1 },
+	{ "Po", OF_IM_POIS, -1 },
     { NULL, 0, -1 }
 };
 

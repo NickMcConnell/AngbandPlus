@@ -6,8 +6,8 @@ dreaded Serpent of Chaos.
 
 Overview
 
-Composband is a single player role playing game where you, the 
-brave adventurer, attempt to save the world by defeating evil monsters 
+Composband is a single player role playing game where you, the brave 
+adventurer, attempt to save the world by defeating evil monsters 
 including, eventually, the Serpent of Chaos. The road is long, and the 
 path is treacherous. Many have tried and failed, and the dungeons are 
 littered with the bones of would be heroes. Do you have what it takes 
@@ -1157,5 +1157,5 @@ Updated    : Zangband DevTeam
 Updated    : Hengband 1.0.11
 Updated    : PosChengband 1.0.0
 Updated    : PosChengband 4.0.0
-Updated    : Composband 7.1.0
+Updated    : FrogComposband 7.0.strawberry
 

@@ -1383,6 +1383,9 @@ static int _buy_price(shop_ptr shop, int price)
     else if (shop->type->id == SHOP_JEWELER)
         price = price / 2;
 
+	/* reducing player earnings from selling loot */
+	price = 2 * price / 5;
+
     if (price > shop->owner->purse)
         price = shop->owner->purse;
 

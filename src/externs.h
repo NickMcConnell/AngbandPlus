@@ -1015,6 +1015,7 @@ extern errr rd_savefile_new(void);
 extern bool load_floor(saved_floor_type *sf_ptr, u32b mode);
 extern void rd_item(savefile_ptr file, object_type *o_ptr);
 extern void wr_item(savefile_ptr file, object_type *o_ptr); /* save.c */
+extern void updatecharinfoS(void);
 
 /* melee1.c */
 extern int ac_melee_pct_aux(int ac, int max_reduce, int max_ac);
@@ -1265,7 +1266,7 @@ extern bool kind_is_weapon(int k_idx);
 extern bool kind_is_bow_ammo(int k_idx);
 extern bool kind_is_misc(int k_idx);
 extern void place_object(int y, int x, u32b mode);
-extern bool make_gold(object_type *j_ptr, bool do_boost);
+extern bool make_gold(object_type *j_ptr);
 extern void place_gold(int y, int x);
 extern s16b drop_near(object_type *o_ptr, int chance, int y, int x);
 extern void acquirement(int y1, int x1, int num, bool great, bool known);
@@ -1492,6 +1493,7 @@ extern bool mundane_spell(bool only_equip);
 extern bool identify_item(object_type *o_ptr);
 extern bool recharge_from_player(int power);
 extern bool recharge_from_device(int power);
+extern bool recharge_simple();
 extern bool bless_weapon(void);
 extern bool polish_shield(void);
 extern bool potion_smash_effect(int who, int y, int x, int k_idx);
@@ -1762,6 +1764,9 @@ extern void gain_exp(s32b amount);
 extern void lose_exp(s32b amount);
 extern int  drain_exp(s32b drain, s32b slip, int hold_life_prob);
 extern void do_poly_self(void);
+extern void do_energise(void);
+extern void do_poly_wounds(void);
+extern void change_race(int new_race, cptr effect_msg);
 extern bool set_ultimate_res(int v, bool do_dec);
 extern bool set_tim_res_nether(int v, bool do_dec);
 extern bool set_tim_res_time(int v, bool do_dec);
@@ -1868,8 +1873,6 @@ extern bool get_hack_dir(int *dp);
 extern int get_rep_dir(int *dp, bool under);
 extern bool get_rep_dir2(int *dp);
 extern bool tgt_pt (int *x, int *y, int rng);
-extern void do_poly_wounds(void);
-extern void change_race(int new_race, cptr effect_msg);
 extern int mon_damage_mod(monster_type *m_ptr, int dam, bool is_psy_spear);
 extern int mon_damage_mod_mon(monster_type *m_ptr, int dam, bool is_psy_spear);
 extern s16b gain_energy(void);
@@ -2412,12 +2415,7 @@ extern class_t *cavalry_get_class(void);
 extern void     rodeo_spell(int cmd, variant *res);
 
 extern class_t *chaos_warrior_get_class(void);
-extern void     chaos_choose_effect(int);
-extern void     chaos_warrior_punish(void);
-extern void     chaos_warrior_random(void);
-extern void     chaos_warrior_reward(void);
-extern void     chaos_warrior_event(int);
-extern cptr     chaos_patron_name(int);
+
 extern class_t *devicemaster_get_class(int psubclass);
 extern bool     devicemaster_desperation;
 extern cptr     devicemaster_speciality_name(int psubclass);
@@ -2548,6 +2546,11 @@ extern class_t *weaponsmith_get_class(void);
 
 extern class_t *yellow_mage_get_class(void);
 
+extern class_t *hexblade_get_class(void);
+
+extern class_t *chaos_mage_get_class(void);
+
+
 /* necromancer.c */
 extern bool     repose_of_the_dead;
 extern cptr     do_necromancy_spell(int spell, int mode);
@@ -2653,3 +2656,9 @@ extern void wild_reset_counters(void);
 extern void wild_dispel_player(void);
 extern bool wild_has_power(int power);
 extern void wild_reset_counter(int power);
+
+/* chaos_patron.c */
+
+extern void     chaos_choose_effect(int);
+extern bool		worships_chaos();
+extern cptr     chaos_patron_name(int);

@@ -9,6 +9,9 @@
  * bldg.c as written by Ivan Tkatchev
  *
  * Changed for ZAngband by Robert Ruehlmann
+ *
+ * Modified for Composband by Gwilim Owen
+ *
  */
 
 #include "angband.h"
@@ -3450,10 +3453,10 @@ static void bldg_process_command(building_type *bldg, int i)
         enchant_item(object_is_armour, bcost, 0, 0, 1, is_guild);
         break;
     case BACT_RECHARGE:
-        msg_print("My apologies, but that service is no longer available!");
+		paid = recharge_simple();
         break;
     case BACT_RECHARGE_ALL:
-        msg_print("My apologies, but that service is no longer available!");
+		paid = recharge_pack();
         break;
     case BACT_IDENTS: /* needs work */
         if (!get_check("Pay to have all your possessions identified? ")) break;
@@ -3468,13 +3471,15 @@ static void bldg_process_command(building_type *bldg, int i)
     case BACT_LEARN:
         do_cmd_study();
         break;
-    case BACT_HEALING: /* needs work */
+    case BACT_HEAL_UNCURSE: /* needs work */
         hp_player(200);
         set_poisoned(0, TRUE);
         set_blind(0, TRUE);
         set_confused(0, TRUE);
         set_cut(0, TRUE);
         set_stun(0, TRUE);
+
+		remove_curse();
 
         if (p_ptr->riding)
         {

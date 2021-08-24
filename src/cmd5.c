@@ -1182,7 +1182,7 @@ void do_cmd_cast(void)
     p_ptr->window |= (PW_SPELL);
 
 	/* patron hook */
-	if (p_ptr->pclass == CLASS_CHAOS_WARRIOR || mut_present(MUT_CHAOS_GIFT)) 
+	if (worships_chaos())
 	{
 		chaos_choose_effect(PATRON_CAST);
 	}

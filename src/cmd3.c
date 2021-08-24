@@ -1674,8 +1674,7 @@ static _obj_list_ptr _create_obj_list(void)
     _obj_list_ptr list = _obj_list_alloc();
     int i, y, x;
 
-    /* The object list now includes features, at least on the surface. This permits
-       easy town traveling to the various shops */
+    /* The object list now includes features */
     if (!dun_level && !p_ptr->wild_mode)
     {
         for (y = 0; y < cur_hgt - 1; y++)

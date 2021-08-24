@@ -18,12 +18,12 @@ Q:You have failed me, beware you do not do so again!
 T:QUEST:NORMAL
 L:#:PERMANENT
 L:<:UP_STAIR
-L:.:FLOOR
+L:.:FLOOR(GLOW)
 L:+:CLOSED_DOOR
-L:$:OBJ(*)
-L:&:MON(*, DEPTH+5)
-L:a:MON(mean looking mercenary)
-L:b:MON(singing)
+L:$:OBJ(*, DEPTH+1)
+L:&:MON(*, DEPTH+5 | NO_GROUP)
+L:a:MON(mean looking mercenary, NO_SLEEP)
+L:b:MON(singing, FRIENDLY)
 L:k:OBJ(elvish waybread)
 L:m:OBJ(potion of boldness)
 L:n:OBJ(potion of booze)

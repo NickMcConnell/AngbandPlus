@@ -3244,7 +3244,7 @@ void do_cmd_version(void)
 /*        if (VER_PATCH == 0) xtra = " (Alpha)"; */
         xtra = " (Beta)";
     }
-    msg_format("You are playing <color:B>Composband</color> <color:r>%d.%d.%s%s</color>.",
+    msg_format("You are playing <color:B>Composband</color> <color:r>%d.%d.%d%s</color>.",
         VER_MAJOR, VER_MINOR, VER_PATCH, xtra);
     if (1)
     {
@@ -4482,7 +4482,7 @@ static vec_ptr _prof_weapon_alloc(int tval)
     return v;
 }
  
-static cptr _prof_exp_str[5]   = {"[Un]", "[Be]", "[Sk]", "[Ex]", "[Ma]"};
+static cptr _prof_exp_str[5]   = {"Un", "Be", "Sk", "Ex", "Ma"};
 static char _prof_exp_color[5] = {'w',    'G',    'y',    'r',    'v'};
 static cptr _prof_weapon_heading(int tval)
 {
@@ -4511,11 +4511,12 @@ static void _prof_weapon_doc(doc_ptr doc, int tval)
         int          exp = skills_weapon_current(k_ptr->tval, k_ptr->sval);
         int          max = skills_weapon_max(k_ptr->tval, k_ptr->sval);
         int          exp_lvl = weapon_exp_level(exp);
+		int          max_lvl = weapon_exp_level(max);
         char         name[MAX_NLEN];
 
         strip_name(name, k_ptr->idx);
-        doc_printf(doc, "<color:%c>%-19s</color> ", equip_find_obj(k_ptr->tval, k_ptr->sval) ? 'B' : 'w', name);
-        doc_printf(doc, "%c<color:%c>%-4s</color>", exp >= max ? '!' : ' ', _prof_exp_color[exp_lvl], _prof_exp_str[exp_lvl]);
+        doc_printf(doc, "<color:%c>%-19s</color>", equip_find_obj(k_ptr->tval, k_ptr->sval) ? 'B' : 'w', name);
+        doc_printf(doc, "[<color:%c>%-2s</color>/<color:%c>%-2s</color>]", _prof_exp_color[exp_lvl], _prof_exp_str[exp_lvl], _prof_exp_color[max_lvl], _prof_exp_str[max_lvl]);
         doc_newline(doc);
     }
     doc_newline(doc);
@@ -4524,7 +4525,7 @@ static void _prof_weapon_doc(doc_ptr doc, int tval)
 
 static void _prof_skill_aux(doc_ptr doc, int skill)
 {
-    int  exp, max, exp_lvl;
+    int  exp, max, exp_lvl, max_lvl;
     cptr name;
     char color = 'w';
 
@@ -4535,12 +4536,14 @@ static void _prof_skill_aux(doc_ptr doc, int skill)
         exp = skills_martial_arts_current();
         max = skills_martial_arts_max();
         exp_lvl = weapon_exp_level(exp);
+		max_lvl = weapon_exp_level(max);
         break;
     case SKILL_DUAL_WIELDING:
         name = "Dual Wielding";
         exp = skills_dual_wielding_current();
         max = skills_dual_wielding_max();
         exp_lvl = weapon_exp_level(exp);
+		max_lvl = weapon_exp_level(max);
         break;
     case SKILL_RIDING:
     default: /* gcc warnings ... */
@@ -4548,10 +4551,11 @@ static void _prof_skill_aux(doc_ptr doc, int skill)
         exp = skills_riding_current();
         max = skills_riding_max();
         exp_lvl = riding_exp_level(exp);
+		max_lvl = weapon_exp_level(max);
         break;
     }
-    doc_printf(doc, "<color:%c>%-19s</color> ", color, name);
-    doc_printf(doc, "%c<color:%c>%-4s</color>", exp >= max ? '!' : ' ', _prof_exp_color[exp_lvl], _prof_exp_str[exp_lvl]);
+    doc_printf(doc, "<color:%c>%-19s</color>", color, name);
+    doc_printf(doc, "[<color:%c>%-2s</color>/<color:%c>%-2s</color>]", _prof_exp_color[exp_lvl], _prof_exp_str[exp_lvl], _prof_exp_color[max_lvl], _prof_exp_str[max_lvl]);
     doc_newline(doc);
 }
 
@@ -4567,12 +4571,13 @@ static void _prof_skill_doc(doc_ptr doc)
 
 static void do_cmd_knowledge_weapon_exp(void)
 {
-    doc_ptr doc = doc_alloc(80);
+    //this will have to do for now
+    doc_ptr doc = doc_alloc(81);
     doc_ptr cols[3] = {0};
-    int     i;
 
-    for (i = 0; i < 3; i++)
-        cols[i] = doc_alloc(26);
+    cols[0] = doc_alloc(27);
+    cols[1] = doc_alloc(27);
+    cols[2] = doc_alloc(27);
 
     _prof_weapon_doc(cols[0], TV_SWORD);
     _prof_weapon_doc(cols[1], TV_POLEARM);
@@ -4581,11 +4586,11 @@ static void do_cmd_knowledge_weapon_exp(void)
     _prof_weapon_doc(cols[2], TV_DIGGING);
     _prof_skill_doc(cols[2]);
 
-    doc_insert_cols(doc, cols, 3, 1);
+    doc_insert_cols(doc, cols, 3, 0);
     doc_display(doc, "Proficiency", 0);
 
     doc_free(doc);
-    for (i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
         doc_free(cols[i]);
 }
 

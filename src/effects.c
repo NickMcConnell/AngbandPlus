@@ -5636,6 +5636,34 @@ void do_poly_wounds(void)
     }
 }
 
+void do_energise(void)
+{
+	/* Dizzying rush of arcane power */
+	s16b sp_diff = (p_ptr->msp - p_ptr->csp);
+	s16b change = damroll(p_ptr->lev, 5);
+	bool Nasty_effect = one_in_(5);
+
+	if (!sp_diff) return;
+
+	msg_print("You feel a dizzying rush of power.");
+
+	sp_player(change);
+	if (Nasty_effect)
+	{
+		msg_print("You feel disoriented!");
+		switch (randint0(3)) {
+		case 0:
+			if (!res_save_default(RES_CONF))
+				set_confused(p_ptr->confused + randint0(3) + 3, FALSE);
+		case 1:
+			if (!res_save_default(RES_CHAOS))
+				set_image(p_ptr->image + randint0(8) + 8, FALSE);
+		case 2:
+			if (!res_save_default(RES_SOUND))
+				set_stun(p_ptr->stun + randint0(4) + 2, FALSE);
+		}
+	}
+}
 
 /*
  * Change player race
@@ -5655,7 +5683,7 @@ void change_race(int new_race, cptr effect_msg)
 
     _lock = TRUE;
 
-    if (old_race == RACE_HUMAN || old_race == RACE_DEMIGOD)
+    if (old_race == RACE_HUMAN || old_race == RACE_DEMIGOD || old_race == RACE_DUNADAN || old_race == RACE_BARBARIAN || old_race == RACE_HALF_ORC)
     {
         int i, idx;
         for (i = 0; i < MAX_DEMIGOD_POWERS; i++)
@@ -5707,7 +5735,7 @@ void change_race(int new_race, cptr effect_msg)
     /* The experience level may be modified */
     check_experience();
 
-    if (p_ptr->prace == RACE_HUMAN || p_ptr->prace == RACE_DEMIGOD || p_ptr->prace == RACE_DRACONIAN)
+    if (old_race == RACE_HUMAN || old_race == RACE_DEMIGOD || old_race == RACE_DUNADAN || old_race == RACE_BARBARIAN || old_race == RACE_HALF_ORC || old_race == RACE_DRACONIAN)
     {
         race_t *race_ptr = get_true_race();
         if (race_ptr != NULL && race_ptr->gain_level != NULL)
@@ -6030,7 +6058,7 @@ int take_hit(int damage_type, int damage, cptr hit_from)
     {
         virtue_add(VIRTUE_SACRIFICE, 1);
         virtue_add(VIRTUE_CHANCE, 2);
-		if (p_ptr->pclass == CLASS_CHAOS_WARRIOR || mut_present(MUT_CHAOS_GIFT))
+		if (worships_chaos())
 		{
 			chaos_choose_effect(PATRON_CHANCE);
 		}
@@ -6150,7 +6178,7 @@ int take_hit(int damage_type, int damage, cptr hit_from)
     }
 	else
 	{
-		if (p_ptr->pclass == CLASS_CHAOS_WARRIOR || mut_present(MUT_CHAOS_GIFT))
+		if (worships_chaos())
 		{
 			if (p_ptr->mhp/(old_chp-p_ptr->chp)<=5)
 				chaos_choose_effect(PATRON_TAKE_HIT);

@@ -77,7 +77,7 @@ bool teleport_away(int m_idx, int dis, u32b mode)
         (4+randint1(5) < ((p_ptr->chp * 10) / p_ptr->mhp)))
     {
 		virtue_add(VIRTUE_VALOUR, -1);
-		if (p_ptr->pclass == CLASS_CHAOS_WARRIOR || mut_present(MUT_CHAOS_GIFT))
+		if (worships_chaos())
 		{
 			chaos_choose_effect(PATRON_VILLIANY);
 		}
@@ -329,12 +329,17 @@ bool teleport_player_aux(int dis, u32b mode)
     int total_candidates, cur_candidates;
     int y = 0, x = 0, min, pick, i;
 
-    int left = MAX(1, px - dis);
-    int right = MIN(cur_wid - 2, px + dis);
-    int top = MAX(1, py - dis);
-    int bottom = MIN(cur_hgt - 2, py + dis);
+    int left;
+    int right;
+    int top;
+    int bottom;
 
 	dis = MAX(1, (2 * dis / 3) + randint0(dis / 3));
+
+	left = MAX(1, px - dis);
+	right = MIN(cur_wid - 2, px + dis);
+	top = MAX(1, py - dis);
+	bottom = MIN(cur_hgt - 2, py + dis);
 
     if (p_ptr->wild_mode) return FALSE;
 
@@ -2491,9 +2496,8 @@ static void _recharge_aux(object_type *o_ptr, int amt, int power)
     {
         /* Do nothing for now. My experience is that players get too conservative
          * using recharge in the dungeon if there is any chance of failure at all.
-         * Remember, you're lucky if you find just one wand of rockets all game long!
-         * I plan on removing the town recharging service to compensate for this
-         * generosity, though. */
+         * Remember, you're lucky if you find just one wand of rockets all game long! */
+
          msg_print("Failed!");
          return;
     }
@@ -2641,6 +2645,46 @@ bool recharge_from_device(int power)
     }
 
     return TRUE;
+}
+
+bool recharge_simple() {
+	obj_prompt_t prompt = { 0 };
+	int			 amt;
+	char         o_name[MAX_NLEN];
+
+	_obj_recharge_src_ptr = NULL;
+	prompt.prompt = "Recharge which item?";
+	prompt.error = "You have nothing to recharge.";
+	prompt.filter = _obj_recharge_dest;
+	prompt.where[0] = INV_PACK;
+
+	obj_prompt(&prompt);
+	if (!prompt.obj) return FALSE;
+
+	amt = device_max_sp(prompt.obj) - device_sp(prompt.obj);
+	device_increase_sp(prompt.obj, amt);
+	object_desc(o_name, prompt.obj, (OD_OMIT_PREFIX | OD_COLOR_CODED));
+	msg_format("Your %s glows.", o_name);
+
+	return TRUE;
+}
+
+bool recharge_pack() {
+	slot_t slot;
+	bool result=FALSE;
+	int amt;
+	for (slot = 1; slot <= pack_max(); slot++)
+	{
+		obj_ptr obj = pack_obj(slot);
+
+		if (!obj) continue;
+		if (!object_is_device(obj)) continue;
+
+		amt = device_max_sp(obj) - device_sp(obj);
+		device_increase_sp(obj, amt);
+		result = TRUE;
+	}
+	return result;
 }
 
 /*

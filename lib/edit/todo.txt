@@ -1,0 +1,26 @@
+/town travel
+
+frog UI things
+
+/monster island
+
+//wilderness vaults
+
+/outpost
+	/dragonflies quest
+	/poisoning of water quest
+
+/self-inserts
+	/glacier
+
+//water breathing/pathfinding/sonars
+
+//force_maxhp
+
+/ringwraiths
+
+/balrogs
+
+/Mankind in their arrogance have constructed a terrible machine of war around the bones of an elder dragon. Despite their attempts to control it, the vengeful spirit has broken free to unleash his terrible powers of destruction
+
+#Object flags pathfinding and water breathing. Pathfinding allows walking through trees without the speed penalty. Races and classes with this advantage now have innate pathfinding instead. Water breathing allows swimming in deep water while overburdened without drowning. Pathfinding can be found on boots of the woodsman, shooters of the hunter, and bows of lothlorien. Water breathing is found on helms of the dolphin.

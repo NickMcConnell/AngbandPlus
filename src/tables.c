@@ -1726,7 +1726,7 @@ s32b realm_choices1[MAX_CLASS] =
     (CH_LIFE | CH_SORCERY | CH_NATURE |
      CH_CHAOS | CH_DEATH | CH_TRUMP |
      CH_ARCANE | CH_ENCHANT | CH_DAEMON |
-     CH_CRUSADE | CH_HEX | CH_ARMAGEDDON | CH_LAW),  /* High-Mage */
+     CH_CRUSADE | CH_ARMAGEDDON | CH_LAW),  /* High-Mage */
     (CH_ARCANE),                            /* Tourist */
     (CH_NONE),                              /* Imitator */
     (CH_TRUMP),                             /* Beastmaster */
@@ -1773,6 +1773,8 @@ s32b realm_choices1[MAX_CLASS] =
     CH_NONE,                /* Skillmaster */
     CH_LAW,                 /* Lawyer */
     CH_LAW,                 /* Ninja-Lawyer */
+	CH_HEX,                 /* Hexblade */
+	(CH_CHAOS | CH_DAEMON), /* Chaos-Mage*/
 };
 
 
@@ -1844,6 +1846,11 @@ s32b realm_choices2[MAX_CLASS] =
     CH_NONE,                /* Skillmaster */
     CH_NONE,                /* Lawyer */
     CH_NONE,                /* Ninja-Lawyer */
+	CH_NONE,                 /* Hexblade */
+	(CH_SORCERY | CH_NATURE |
+	CH_CHAOS | CH_DEATH | CH_TRUMP |
+	CH_ARCANE | CH_ENCHANT | CH_DAEMON |
+	CH_ARMAGEDDON), /* Chaos-Mage*/
 };
 
 

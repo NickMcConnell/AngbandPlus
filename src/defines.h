@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 7
 #define VER_MINOR 1
-#define VER_PATCH 0
+#define VER_PATCH 1
 #define VER_EXTRA 0
 
 #define GAME_MODE_BEGINNER  0
@@ -661,7 +661,8 @@
 #define DRAGON_BRONZE   11
 #define DRAGON_GOLD     12
 #define DRAGON_STEEL    13
-#define DRAGON_MAX      14
+#define DRAGON_SILVER   14
+#define DRAGON_MAX      15
 
 #define DRACONIAN_RED      0
 #define DRACONIAN_WHITE    1
@@ -672,7 +673,8 @@
 #define DRACONIAN_CRYSTAL  6
 #define DRACONIAN_GOLD     7
 #define DRACONIAN_SHADOW   8
-#define DRACONIAN_MAX      9
+#define DRACONIAN_SILVER   9
+#define DRACONIAN_MAX      10
 
 #define GIANT_FIRE      0
 #define GIANT_FROST     1
@@ -794,10 +796,11 @@ enum _mimic_types {
 #define CLASS_SKILLMASTER       47
 #define CLASS_LAWYER            48
 #define CLASS_NINJA_LAWYER      49
-#define MAX_CLASS               50
+#define CLASS_HEXBLADE	        50
+#define CLASS_CHAOS_MAGE        51
+#define MAX_CLASS               52
 
 /*
-#define CLASS_LOGRUS_MASTER     47
 #define CLASS_TERRAMANCER       48
 #define CLASS_CANNIBAL          49 */
 
@@ -2146,6 +2149,7 @@ enum {
 #define PROJECT_WHO_GLASS_SHARDS -2
 #define PROJECT_WHO_TRAP         -3
 #define PROJECT_WHO_MIRROR       -4
+#define PROJECT_WHO_DEITY        -5
 
 #define SUMMON_WHO_BIRTHER -2
 #define SUMMON_WHO_PLAYER  -1
@@ -3839,7 +3843,7 @@ extern int PlayerUID;
 #define BACT_RECHARGE               25
 #define BACT_IDENTS                 26
 #define BACT_LEARN                  27
-#define BACT_HEALING                28
+#define BACT_HEAL_UNCURSE           28
 #define BACT_RESTORE                29
 #define BACT_ENCHANT_ARROWS         30
 #define BACT_ENCHANT_BOW            31
@@ -4577,6 +4581,9 @@ extern int PlayerUID;
 #define MON_AUDE				1148
 #define MON_HELGA				1149
 #define MON_GERTRUDE            1150
+#define MON_YOUNG_SILVER_DRAGON 1208
+#define MON_MATURE_SILVER_DRAGON	1209
+#define MON_ANCIENT_SILVER_DRAGON    1210
 #define MON_NIGHTMARE_DRAGON    1215
 #define MON_JUSTSHORN           1225
 #define MON_SHEEP               1226
@@ -4748,6 +4755,8 @@ extern int PlayerUID;
 #define MODE_THROWING        87
 
 #define PY_ATTACK_MANA       88
+
+#define DRACONIAN_STRIKE_INERT 89
 
 #define HISSATSU_IAI    100
 
@@ -5730,17 +5739,19 @@ enum effect_e
 #define LAWYER_HACK_FAILRATE 3
 
 /* patron interaction triggers */
-#define PATRON_HIT 1
-#define PATRON_KILL_WEAK 2
-#define PATRON_KILL 3
-#define PATRON_KILL_UNIQUE 4
-#define PATRON_KILL_FAMOUS 5
-#define PATRON_KILL_GOOD 6
-#define PATRON_KILL_DEMON 7
-#define PATRON_CAST 8
-#define PATRON_VILLIANY 9
-#define PATRON_CHANCE 10
-#define PATRON_TAKE_HIT 11
+#define PATRON_HIT 0
+#define PATRON_KILL_WEAK 1
+#define PATRON_KILL 2
+#define PATRON_KILL_UNIQUE 3
+#define PATRON_KILL_FAMOUS 4
+#define PATRON_KILL_GOOD 5
+#define PATRON_KILL_DEMON 6
+#define PATRON_CAST 7
+#define PATRON_VILLIANY 8
+#define PATRON_CHANCE 9
+#define PATRON_TAKE_HIT 10
+#define PATRON_LEVEL_UP 11
+#define PATRON_EFFECT_MAX 12
 
 /* patrons by name */
 #define PATRON_SLORTAR 0

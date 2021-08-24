@@ -16,14 +16,14 @@ Skin, they will gain a fiery aura as well. Should they choose the power
 of Dragon Strike, their blows will burn their enemies.
 
   Stats                   Skills
-  Strength      +3        Disarming   Bad          
-  Intelligence  +0        Device      Poor         
-  Wisdom        +0        Save        Fair         
-  Dexterity     +1        Stealth     Bad          
-  Constitution  +2        Searching   Bad          
-  Charisma      +2        Perception  Superb       
-  Life Rating  106%       Melee       Superb       
-  Base HP       22        Bows        Very Good    
+  Strength      +3        Disarming   Bad (3)      
+  Intelligence  +0        Device      Poor (5)     
+  Wisdom        +0        Save        Fair (7)     
+  Dexterity     +1        Stealth     Bad (1)      
+  Constitution  +2        Searching   Bad (1)      
+  Charisma      +2        Perception  Superb (10)  
+  Life Rating  106%       Melee       Superb (20)  
+  Base HP       22        Bows        Very Good (12
   Experience   190%       Infravision 20'
   
 White
@@ -35,14 +35,14 @@ they will gain an aura of cold as well. Should they choose the power of
 Dragon Strike, their blows will freeze their enemies.
 
   Stats                   Skills
-  Strength      +3        Disarming   Bad          
-  Intelligence  +0        Device      Poor         
-  Wisdom        +0        Save        Fair         
-  Dexterity     +1        Stealth     Bad          
-  Constitution  +2        Searching   Bad          
-  Charisma      +2        Perception  Superb       
-  Life Rating  106%       Melee       Superb       
-  Base HP       22        Bows        Very Good    
+  Strength      +3        Disarming   Bad (3)      
+  Intelligence  +0        Device      Poor (5)     
+  Wisdom        +0        Save        Fair (7)     
+  Dexterity     +1        Stealth     Bad (1)      
+  Constitution  +2        Searching   Bad (1)      
+  Charisma      +2        Perception  Superb (10)  
+  Life Rating  106%       Melee       Superb (19)  
+  Base HP       22        Bows        Very Good (12
   Experience   190%       Infravision 20'
   
 Blue
@@ -53,14 +53,14 @@ will gain a shocking aura as well. Should they choose the power of
 Dragon Strike, their blows will electrocute their enemies.
 
   Stats                   Skills
-  Strength      +2        Disarming   Bad          
-  Intelligence  +1        Device      Fair         
-  Wisdom        +1        Save        Fair         
-  Dexterity     +1        Stealth     Poor         
-  Constitution  +2        Searching   Bad          
-  Charisma      +2        Perception  Superb       
-  Life Rating  105%       Melee       Excellent    
-  Base HP       22        Bows        Very Good    
+  Strength      +2        Disarming   Bad (3)      
+  Intelligence  +1        Device      Fair (6)     
+  Wisdom        +1        Save        Fair (7)     
+  Dexterity     +1        Stealth     Poor (2)     
+  Constitution  +2        Searching   Bad (1)      
+  Charisma      +2        Perception  Superb (10)  
+  Life Rating  105%       Melee       Excellent (17
+  Base HP       22        Bows        Very Good (12
   Experience   190%       Infravision 20'
   
 Black
@@ -70,14 +70,14 @@ or stealth. With the power of Dragon Strike, their blows will corrode
 their enemies.
 
   Stats                   Skills
-  Strength      +2        Disarming   Bad          
-  Intelligence  +1        Device      Fair         
-  Wisdom        +1        Save        Fair         
-  Dexterity     +1        Stealth     Poor         
-  Constitution  +2        Searching   Bad          
-  Charisma      +2        Perception  Superb       
-  Life Rating  105%       Melee       Superb       
-  Base HP       22        Bows        Very Good    
+  Strength      +2        Disarming   Bad (3)      
+  Intelligence  +1        Device      Fair (6)     
+  Wisdom        +1        Save        Fair (7)     
+  Dexterity     +1        Stealth     Poor (2)     
+  Constitution  +2        Searching   Bad (1)      
+  Charisma      +2        Perception  Superb (10)  
+  Life Rating  105%       Melee       Superb (18)  
+  Base HP       22        Bows        Very Good (12
   Experience   190%       Infravision 20'
   
 Green
@@ -87,14 +87,14 @@ draconians. With the power of Dragon Strike, their blows will poison
 their enemies.
 
   Stats                   Skills
-  Strength      +1        Disarming   Bad          
-  Intelligence  +1        Device      Fair         
-  Wisdom        +1        Save        Fair         
-  Dexterity     +1        Stealth     Fair         
-  Constitution  +2        Searching   Bad          
-  Charisma      +2        Perception  Superb       
-  Life Rating  103%       Melee       Good         
-  Base HP       22        Bows        Very Good    
+  Strength      +1        Disarming   Bad (3)      
+  Intelligence  +1        Device      Fair (8)     
+  Wisdom        +1        Save        Fair (7)     
+  Dexterity     +1        Stealth     Fair (3)     
+  Constitution  +2        Searching   Bad (1)      
+  Charisma      +2        Perception  Superb (10)  
+  Life Rating  103%       Melee       Good (10)    
+  Base HP       22        Bows        Very Good (12
   Experience   205%       Infravision 20'
   
 Bronze
@@ -104,14 +104,14 @@ be said of their enemies. With the power of Dragon Strike, even the
 melee attacks of the Bronze Draconian will baffle their enemies.
 
   Stats                   Skills
-  Strength      +1        Disarming   Bad          
-  Intelligence  +2        Device      Very Good    
-  Wisdom        +1        Save        Fair         
-  Dexterity     +1        Stealth     Fair         
-  Constitution  +2        Searching   Bad          
-  Charisma      +2        Perception  Superb       
-  Life Rating  103%       Melee       Fair         
-  Base HP       22        Bows        Very Good    
+  Strength      +1        Disarming   Bad (3)      
+  Intelligence  +2        Device      Very Good (13
+  Wisdom        +1        Save        Fair (8)     
+  Dexterity     +1        Stealth     Fair (3)     
+  Constitution  +2        Searching   Bad (1)      
+  Charisma      +2        Perception  Superb (10)  
+  Life Rating  103%       Melee       Fair (8)     
+  Base HP       22        Bows        Very Good (12
   Experience   215%       Infravision 20'
   
 Crystal
@@ -123,14 +123,14 @@ power of Dragon Strike, even their melee attacks will shred their
 enemies.
 
   Stats                   Skills
-  Strength      +1        Disarming   Bad          
-  Intelligence  -1        Device      Poor         
-  Wisdom        +1        Save        Fair         
-  Dexterity     +0        Stealth     Poor         
-  Constitution  +3        Searching   Bad          
-  Charisma      +2        Perception  Superb       
-  Life Rating  105%       Melee       Excellent    
-  Base HP       22        Bows        Very Good    
+  Strength      +1        Disarming   Bad (3)      
+  Intelligence  -1        Device      Poor (5)     
+  Wisdom        +1        Save        Fair (7)     
+  Dexterity     +0        Stealth     Poor (2)     
+  Constitution  +3        Searching   Bad (1)      
+  Charisma      +2        Perception  Superb (10)  
+  Life Rating  105%       Melee       Excellent (17
+  Base HP       22        Bows        Very Good (12
   Experience   250%       Infravision 20'
   
 Gold
@@ -140,14 +140,14 @@ breathe at will, stunning their enemies. With the power of Dragon
 Strike, even their melee attacks will stun their enemies.
 
   Stats                   Skills
-  Strength      +1        Disarming   Bad          
-  Intelligence  +1        Device      Good         
-  Wisdom        +2        Save        Good         
-  Dexterity     +1        Stealth     Fair         
-  Constitution  +2        Searching   Bad          
-  Charisma      +2        Perception  Superb       
-  Life Rating  104%       Melee       Good         
-  Base HP       22        Bows        Very Good    
+  Strength      +1        Disarming   Bad (3)      
+  Intelligence  +1        Device      Good (11)    
+  Wisdom        +2        Save        Good (10)    
+  Dexterity     +1        Stealth     Fair (3)     
+  Constitution  +2        Searching   Bad (1)      
+  Charisma      +2        Perception  Superb (10)  
+  Life Rating  104%       Melee       Good (10)    
+  Base HP       22        Bows        Very Good (12
   Experience   220%       Infravision 20'
   
 Shadow
@@ -158,15 +158,31 @@ melee. But they are better than average with magic. With the power of
 Dragon Strike, they may steal life from their enemies in melee.
 
   Stats                   Skills
-  Strength      +0        Disarming   Bad          
-  Intelligence  +1        Device      Good         
-  Wisdom        +1        Save        Fair         
-  Dexterity     +3        Stealth     Very Good    
-  Constitution  +2        Searching   Bad          
-  Charisma      +2        Perception  Superb       
-  Life Rating  102%       Melee       Poor         
-  Base HP       22        Bows        Very Good    
+  Strength      +0        Disarming   Bad (3)      
+  Intelligence  +1        Device      Good (10)    
+  Wisdom        +1        Save        Fair (7)     
+  Dexterity     +3        Stealth     Very Good (6)
+  Constitution  +2        Searching   Bad (1)      
+  Charisma      +2        Perception  Superb (10)  
+  Life Rating  102%       Melee       Poor (5)     
+  Base HP       22        Bows        Very Good (12
   Experience   225%       Infravision 40'
+  
+Silver
+Silver Draconians have an affinity for inertia, which they both breathe 
+at will and resist. With the power of Dragon Strike, even their melee 
+attacks will slow their enemies.
+
+  Stats                   Skills
+  Strength      +1        Disarming   Bad (3)      
+  Intelligence  +1        Device      Fair (8)     
+  Wisdom        +1        Save        Fair (7)     
+  Dexterity     +1        Stealth     Fair (3)     
+  Constitution  +2        Searching   Bad (1)      
+  Charisma      +2        Perception  Superb (10)  
+  Life Rating  103%       Melee       Good (10)    
+  Base HP       22        Bows        Very Good (12
+  Experience   215%       Infravision 20'
   
 Table 1 - Draconian Statistic Bonus Table
 
@@ -180,34 +196,37 @@ Bronze          +1   +2   +1   +1   +2   +2  103%  215%  100%
 Crystal         +1   -1   +1   +0   +3   +2  105%  250%  105%
 Gold            +1   +1   +2   +1   +2   +2  104%  220%   95%
 Shadow          +0   +1   +1   +3   +2   +2  102%  225%  105%
+Silver          +1   +1   +1   +1   +2   +2  103%  215%  105%
 
 
 Table 2 - Draconian Skill Bonus Table I
 
              Disarming     Device        Save          Stealth      
-Red          Bad           Poor          Fair          Bad          
-White        Bad           Poor          Fair          Bad          
-Blue         Bad           Fair          Fair          Poor         
-Black        Bad           Fair          Fair          Poor         
-Green        Bad           Fair          Fair          Fair         
-Bronze       Bad           Very Good     Fair          Fair         
-Crystal      Bad           Poor          Fair          Poor         
-Gold         Bad           Good          Good          Fair         
-Shadow       Bad           Good          Fair          Very Good    
+Red          Bad (3)       Poor (5)      Fair (7)      Bad (1)      
+White        Bad (3)       Poor (5)      Fair (7)      Bad (1)      
+Blue         Bad (3)       Fair (6)      Fair (7)      Poor (2)     
+Black        Bad (3)       Fair (6)      Fair (7)      Poor (2)     
+Green        Bad (3)       Fair (8)      Fair (7)      Fair (3)     
+Bronze       Bad (3)       Very Good (13 Fair (8)      Fair (3)     
+Crystal      Bad (3)       Poor (5)      Fair (7)      Poor (2)     
+Gold         Bad (3)       Good (11)     Good (10)     Fair (3)     
+Shadow       Bad (3)       Good (10)     Fair (7)      Very Good (6)
+Silver       Bad (3)       Fair (8)      Fair (7)      Fair (3)     
 
 
 Table 3 - Draconian Skill Bonus Table II
 
              Searching     Perception    Melee         Bows          Infra
-Red          Bad           Superb        Superb        Very Good       20'
-White        Bad           Superb        Superb        Very Good       20'
-Blue         Bad           Superb        Excellent     Very Good       20'
-Black        Bad           Superb        Superb        Very Good       20'
-Green        Bad           Superb        Good          Very Good       20'
-Bronze       Bad           Superb        Fair          Very Good       20'
-Crystal      Bad           Superb        Excellent     Very Good       20'
-Gold         Bad           Superb        Good          Very Good       20'
-Shadow       Bad           Superb        Poor          Very Good       40'
+Red          Bad (1)       Superb (10)   Superb (20)   Very Good (12   20'
+White        Bad (1)       Superb (10)   Superb (19)   Very Good (12   20'
+Blue         Bad (1)       Superb (10)   Excellent (17 Very Good (12   20'
+Black        Bad (1)       Superb (10)   Superb (18)   Very Good (12   20'
+Green        Bad (1)       Superb (10)   Good (10)     Very Good (12   20'
+Bronze       Bad (1)       Superb (10)   Fair (8)      Very Good (12   20'
+Crystal      Bad (1)       Superb (10)   Excellent (17 Very Good (12   20'
+Gold         Bad (1)       Superb (10)   Good (10)     Very Good (12   20'
+Shadow       Bad (1)       Superb (10)   Poor (5)      Very Good (12   40'
+Silver       Bad (1)       Superb (10)   Good (10)     Very Good (12   20'
 
 
 Table 4 - Draconian Special Powers
@@ -238,11 +257,11 @@ to decide which power you will choose for your character.
   weapons)
 
   Regeneration
-  You will regenerate much more quickly.
+  You will regenerate much more quickly (1.5 Rg).
 
   Resistance
-  You will gain extra resistance of the appropriate type (e.g. Fire or 
-  Cold).
+  You will gain extra resistance of the appropriate type (Fire, Cold, 
+  etc.).
 
   Summon Kin
   You will be able to summon aid from dragons.

@@ -190,11 +190,11 @@ Pets and Riding
 In this game, pets are very useful. In other variants (such as 
 Zangband), your pets are often so eager to destroy your opponents that 
 they may forget all about you, and you get trampled under their feet as 
-they charge at your foe. In Composband, however, pets will never 
-attack you by mistake; you can walk around in safety even as your pet 
-Great Hell Wyrm breaths. Pets will also never be irritated with you; 
-their will is perfectly dominated by you, and all pets are permanently 
-your pets.
+they charge at your foe. In Composband, however, pets will never attack 
+you by mistake; you can walk around in safety even as your pet Great 
+Hell Wyrm breaths. Pets will also never be irritated with you; their 
+will is perfectly dominated by you, and all pets are permanently your 
+pets.
 
 One might think that they can make the game much easier. It is of 
 course highly satisfying to send your pet Great Hell Wyrm into a Troll 
@@ -303,8 +303,8 @@ can summon or otherwise produce more pets...
   
   Riding
   
-  In Composband, the player can ride on pet horses or dragons, etc. 
-  To control your mount, you must keep one hand free for holding the 
+  In Composband, the player can ride on pet horses or dragons, etc. To 
+  control your mount, you must keep one hand free for holding the 
   reins. But your pet will attack your target together with you, and 
   enemy's attack will be dispersed. As a result of these, player's 
   damage in combat will get reduced in total.

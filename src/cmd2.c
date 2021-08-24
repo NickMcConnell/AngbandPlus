@@ -367,7 +367,7 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
     for (i = 0; i < ct_gold; i++)
     {
         object_type forge = {0};
-        if (!make_gold(&forge, TRUE)) continue;
+        if (!make_gold(&forge)) continue;
         if (scatter) _chest_scatter(&forge);
         else drop_near(&forge, -1, y, x);
     }
@@ -2393,11 +2393,11 @@ static bool _travel_next_obj(int mode)
             int j = is_autopick(o_ptr);
 
             if (j < 0) continue;
-            if (!(autopick_list[j].action & (DO_AUTODESTROY | DO_AUTOPICK))) continue;
+            if (!(autopick_list[j].action & (DO_AUTODESTROY | DO_AUTO_ID | DO_AUTOPICK))) continue;
             if (o_ptr->loc.x == px && o_ptr->loc.y == py)
             {
-                /* Full pack aborts the travel sequence */
-                if (autopick_list[j].action & DO_AUTOPICK)
+                /* Full pack or no id aborts the travel sequence */
+                if (autopick_list[j].action & (DO_AUTOPICK | DO_AUTO_ID))
                     return FALSE;
                 continue; /* paranoia ... we should have destroyed this object */
             }
@@ -2430,17 +2430,13 @@ void do_cmd_get(void)
 }
 void do_cmd_autoget(void)
 {
-    /* Get any objects under foot first ... this is the old
-     * 'g' behavior sans interaction with features (e.g. re-
-     * enter a shop) */
-    if (cave[py][px].o_idx || p_ptr->wizard)
-    {
-        if (pack_get_floor())
-            energy_use = 100;
-        else /* Pack is full or the user canceled the easy_floor menu */
-            return;
-    }
-    /* Now, auto pickup nearby objects by iterating
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+	
+	/* Auto pickup nearby objects by iterating
      * the travel command */
     if (auto_get_objects)
         _travel_next_obj(TRAVEL_MODE_AUTOPICK);
@@ -2453,6 +2449,13 @@ void do_cmd_autoget(void)
             "auto_get_objects</color> options. With neither option set, "
             "<color:keypress>^G</color> behaves just like the normal "
             "<color:keypress>g</color>et command.");
+		if (cave[py][px].o_idx || p_ptr->wizard)
+		{
+			if (pack_get_floor())
+				energy_use = 100;
+			else /* Pack is full or the user canceled the easy_floor menu */
+				return;
+		}
     }
 }
 
@@ -4026,6 +4029,12 @@ void travel_begin(int mode, int x, int y)
         travel_cancel();
         return;
     }
+
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
 
     f_ptr = &f_info[cave[y][x].feat];
 

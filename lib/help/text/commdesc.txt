@@ -806,8 +806,8 @@ Message Commands
     Toggle Choice Window (^I)
     Toggles the display in the choice window (if available) between 
     your inventory and your equipment. This command only applies if you 
-    are running Composband under a windowing environment and the 
-    choice window is available. This also redraws the choice window.
+    are running Composband under a windowing environment and the choice 
+    window is available. This also redraws the choice window.
   
     Redraw Screen (^R)
     This command adapts to various changes in global options, and 

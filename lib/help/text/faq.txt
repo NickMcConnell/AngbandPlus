@@ -5,12 +5,12 @@ my character moves halfway across the screen. Help!
 
 A: You are somehow triggering the Run command instead of the Walk 
 command. In addition to normal running (with the '.' command), 
-Composband uses preference files to support shiftrunning (running 
-by using the Shift key), which is preferred by some players. This 
-mechanic sometimes leads to unwanted running, especially on the 
-angband.live online server which has some very odd default settings. If 
-you are playing there, see if toggling Num Lock helps you stop running, 
-or else request help in the server chat.
+Composband uses preference files to support shiftrunning (running by 
+using the Shift key), which is preferred by some players. This mechanic 
+sometimes leads to unwanted running, especially on the angband.live 
+online server which has some very odd default settings. If you are 
+playing there, see if toggling Num Lock helps you stop running, or else 
+request help in the server chat.
 
 
 Q: All right, I have a character up and walking. What should I do?
@@ -201,13 +201,13 @@ useful for a ninja.)
 Q: I'm at normal speed (+0). But normal speed monsters sometimes 
 double-move me!
 
-A: In Composband, the amount of energy needed for a move is 
-somewhat randomized (though less so than in its predecessor 
-PosChengband). This method of speed system is an important feature of 
-Composband and simulates real fighting. Usually a monster with the 
-same speed as you will only get one move in, but always prepare for the 
-possibility that they might get two moves! Don't fight when your HP is 
-low unless you have a death wish.
+A: In Composband, the amount of energy needed for a move is somewhat 
+randomized (though less so than in its predecessor PosChengband). This 
+method of speed system is an important feature of Composband and 
+simulates real fighting. Usually a monster with the same speed as you 
+will only get one move in, but always prepare for the possibility that 
+they might get two moves! Don't fight when your HP is low unless you 
+have a death wish.
 
 Also, monsters don't always move at their listed speed; watch out for 
 hasted monsters.
@@ -309,13 +309,13 @@ target will no longer run around aimlessly.
 
 Q: What is the genesis of Composband?
 
-A: Composband is a fork of ComPosband, a fork of PosChengband, 
-which was based on Chengband, which was based on Hengband, which was 
-based on Japanese ZAngband, which was based on regular ZAngband, a fork 
-of Angband, which was based on Moria and Umoria. (Whew!) In addition to 
-these direct ancestors, Composband and its "family" have been 
-strongly influenced by a number of other Angband variants, like 
-KAngband, Posband, ToME and OAngband.
+A: Composband is a fork of FrogComposband, a fork of Composband, a fork 
+of PosChengband, which was based on Chengband, which was based on 
+Hengband, which was based on Japanese ZAngband, which was based on 
+regular ZAngband, a fork of Angband, which was based on Moria and 
+Umoria. (Whew!) In addition to these direct ancestors, Composband and 
+its "family" have been strongly influenced by a number of other Angband 
+variants, like KAngband, Posband, ToME and OAngband.
    
 
 Q: Who wrote Hengband?
@@ -349,6 +349,6 @@ which offer more detailed advice.
 Original   : Hengband FAQ written by Mogami
 Updated    : Hengband 1.5.4
 Updated    : PosChengband 1.0.0
-Updated    : Composband 7.1.0
+Updated    : FrogComposband 7.0.strawberry
 
 

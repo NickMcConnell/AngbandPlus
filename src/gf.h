@@ -183,6 +183,7 @@ extern gf_info_ptr gf_lookup(int id);
  */
 #define GF_WHO_PLAYER      0  /* same as PROJECT_WHO_PLAYER */
 #define GF_WHO_TRAP       -3  /* same as PROJECT_WHO_TRAP */
+#define GF_WHO_DEITY      -5  /* same as PROJECT_WHO_DEITY */
 
 /* We also need information on whether the effect is spell/breath based,
  * or whether it is the result of melee contact. Mostly, this if for message

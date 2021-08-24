@@ -82,6 +82,9 @@ class_t *result = NULL;
     case CLASS_CAVALRY:
         result = cavalry_get_class();
         break;
+	case CLASS_CHAOS_MAGE:
+		result = chaos_mage_get_class();
+		break;
     case CLASS_CHAOS_WARRIOR:
         result = chaos_warrior_get_class();
         break;
@@ -97,6 +100,9 @@ class_t *result = NULL;
     case CLASS_GRAY_MAGE:
         result = gray_mage_get_class(psubclass);
         break;
+	case CLASS_HEXBLADE:
+		result = hexblade_get_class();
+		break;
     case CLASS_HIGH_MAGE:
         result = high_mage_get_class();
         break;

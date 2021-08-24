@@ -12,14 +12,14 @@ your axe is wielded with two hands. However, this speciality offers
 little in the way of utility. Kill quickly as your life depends on it!
 
   Stats                   Skills
-  Strength      +4        Disarming   Fair         
-  Intelligence  -3        Device      Bad          
-  Wisdom        -2        Save        Fair         
-  Dexterity     -1        Stealth     Fair         
-  Constitution  +2        Searching   Poor         
-  Charisma      +1        Perception  Bad          
-  Life Rating  109%       Melee       Superb       
-  Base HP       12        Bows        Bad          
+  Strength      +4        Disarming   Fair (30)    
+  Intelligence  -3        Device      Bad (8)      
+  Wisdom        -2        Save        Fair (16)    
+  Dexterity     -1        Stealth     Fair (3)     
+  Constitution  +2        Searching   Poor (14)    
+  Charisma      +1        Perception  Bad (2)      
+  Life Rating  109%       Melee       Superb (150) 
+  Base HP       12        Bows        Bad (20)     
   Experience   135%
   
 Bows
@@ -31,14 +31,14 @@ missile prowess will be quite formidable, though your melee will be
 somewhat lacking.
 
   Stats                   Skills
-  Strength      +1        Disarming   Fair         
-  Intelligence  -1        Device      Good         
-  Wisdom        -1        Save        Poor         
-  Dexterity     +3        Stealth     Very Good    
-  Constitution  +0        Searching   Fair         
-  Charisma      +1        Perception  Poor         
-  Life Rating  109%       Melee       Fair         
-  Base HP       12        Bows        Superb       
+  Strength      +1        Disarming   Fair (30)    
+  Intelligence  -1        Device      Good (30)    
+  Wisdom        -1        Save        Poor (14)    
+  Dexterity     +3        Stealth     Very Good (6)
+  Constitution  +0        Searching   Fair (23)    
+  Charisma      +1        Perception  Poor (13)    
+  Life Rating  109%       Melee       Fair (43)    
+  Base HP       12        Bows        Superb (152) 
   Experience   135%
   
 Clubs
@@ -49,14 +49,14 @@ high levels, your weapons will become more likely to score devastating,
 crushing blows against your hapless enemies.
 
   Stats                   Skills
-  Strength      +3        Disarming   Fair         
-  Intelligence  -2        Device      Fair         
-  Wisdom        -2        Save        Very Good    
-  Dexterity     -1        Stealth     Fair         
-  Constitution  +2        Searching   Poor         
-  Charisma      +1        Perception  Bad          
-  Life Rating  109%       Melee       Excellent    
-  Base HP       12        Bows        Fair         
+  Strength      +3        Disarming   Fair (30)    
+  Intelligence  -2        Device      Fair (25)    
+  Wisdom        -2        Save        Very Good (30
+  Dexterity     -1        Stealth     Fair (3)     
+  Constitution  +2        Searching   Poor (14)    
+  Charisma      +1        Perception  Bad (2)      
+  Life Rating  109%       Melee       Excellent (95
+  Base HP       12        Bows        Fair (45)    
   Experience   135%
   
 Crossbows
@@ -65,14 +65,14 @@ may explode powerfully damaging nearby monsters. Also, they may shoot
 so hard as to knock their opponents backwards!
 
   Stats                   Skills
-  Strength      +2        Disarming   Fair         
-  Intelligence  -2        Device      Fair         
-  Wisdom        -2        Save        Bad          
-  Dexterity     +2        Stealth     Good         
-  Constitution  +2        Searching   Fair         
-  Charisma      +1        Perception  Bad          
-  Life Rating  109%       Melee       Fair         
-  Base HP       12        Bows        Superb       
+  Strength      +2        Disarming   Fair (30)    
+  Intelligence  -2        Device      Fair (25)    
+  Wisdom        -2        Save        Bad (9)      
+  Dexterity     +2        Stealth     Good (5)     
+  Constitution  +2        Searching   Fair (18)    
+  Charisma      +1        Perception  Bad (10)     
+  Life Rating  109%       Melee       Fair (43)    
+  Base HP       12        Bows        Superb (152) 
   Experience   135%
   
 Daggers
@@ -86,14 +86,14 @@ strong short ranged teleport techniques that synergize well with their
 toss abilities.
 
   Stats                   Skills
-  Strength      +1        Disarming   Very Good    
-  Intelligence  +0        Device      Good         
-  Wisdom        -1        Save        Fair         
-  Dexterity     +4        Stealth     Excellent    
-  Constitution  +0        Searching   Good         
-  Charisma      +1        Perception  Fair         
-  Life Rating  109%       Melee       Very Good    
-  Base HP       12        Bows        Excellent    
+  Strength      +1        Disarming   Very Good (50
+  Intelligence  +0        Device      Good (32)    
+  Wisdom        -1        Save        Fair (16)    
+  Dexterity     +4        Stealth     Excellent (7)
+  Constitution  +0        Searching   Good (30)    
+  Charisma      +1        Perception  Fair (20)    
+  Life Rating  109%       Melee       Very Good (80
+  Base HP       12        Bows        Excellent (10
   Experience   135%
   
 Polearms
@@ -102,14 +102,14 @@ You will swing your weapon wide often affecting multiple surrounding
 opponents.
 
   Stats                   Skills
-  Strength      +3        Disarming   Fair         
-  Intelligence  -2        Device      Poor         
-  Wisdom        -2        Save        Fair         
-  Dexterity     +1        Stealth     Fair         
-  Constitution  +2        Searching   Poor         
-  Charisma      +1        Perception  Bad          
-  Life Rating  109%       Melee       Superb       
-  Base HP       12        Bows        Bad          
+  Strength      +3        Disarming   Fair (35)    
+  Intelligence  -2        Device      Poor (13)    
+  Wisdom        -2        Save        Fair (16)    
+  Dexterity     +1        Stealth     Fair (3)     
+  Constitution  +2        Searching   Poor (14)    
+  Charisma      +1        Perception  Bad (2)      
+  Life Rating  109%       Melee       Superb (138) 
+  Base HP       12        Bows        Bad (20)     
   Experience   135%
   
 Shields
@@ -120,14 +120,14 @@ form of combat is known as Shield Bashing and is unique to this
 speciality.
 
   Stats                   Skills
-  Strength      +3        Disarming   Fair         
-  Intelligence  -1        Device      Fair         
-  Wisdom        +0        Save        Excellent    
-  Dexterity     +1        Stealth     Fair         
-  Constitution  +3        Searching   Poor         
-  Charisma      +1        Perception  Bad          
-  Life Rating  109%       Melee       Excellent    
-  Base HP       12        Bows        Bad          
+  Strength      +3        Disarming   Fair (35)    
+  Intelligence  -1        Device      Fair (19)    
+  Wisdom        +0        Save        Excellent (35
+  Dexterity     +1        Stealth     Fair (3)     
+  Constitution  +3        Searching   Poor (12)    
+  Charisma      +1        Perception  Bad (2)      
+  Life Rating  109%       Melee       Excellent (10
+  Base HP       12        Bows        Bad (20)     
   Experience   135%
   
 Slings
@@ -137,14 +137,14 @@ multiple hits. As with other archery specializations, your ammo will
 break less often.
 
   Stats                   Skills
-  Strength      +0        Disarming   Fair         
-  Intelligence  +0        Device      Good         
-  Wisdom        +0        Save        Poor         
-  Dexterity     +4        Stealth     Very Good    
-  Constitution  +0        Searching   Fair         
-  Charisma      +1        Perception  Poor         
-  Life Rating  109%       Melee       Fair         
-  Base HP       12        Bows        Superb       
+  Strength      +0        Disarming   Fair (30)    
+  Intelligence  +0        Device      Good (30)    
+  Wisdom        +0        Save        Poor (14)    
+  Dexterity     +4        Stealth     Very Good (6)
+  Constitution  +0        Searching   Fair (23)    
+  Charisma      +1        Perception  Poor (13)    
+  Life Rating  109%       Melee       Fair (43)    
+  Base HP       12        Bows        Superb (152) 
   Experience   135%
   
 Staves
@@ -155,14 +155,14 @@ effects, attacking them with your boots! You may even eventually clone
 yourself at great cost.
 
   Stats                   Skills
-  Strength      +1        Disarming   Fair         
-  Intelligence  -1        Device      Fair         
-  Wisdom        -1        Save        Fair         
-  Dexterity     +3        Stealth     Fair         
-  Constitution  +2        Searching   Poor         
-  Charisma      +1        Perception  Bad          
-  Life Rating  109%       Melee       Superb       
-  Base HP       12        Bows        Bad          
+  Strength      +1        Disarming   Fair (35)    
+  Intelligence  -1        Device      Fair (20)    
+  Wisdom        -1        Save        Fair (16)    
+  Dexterity     +3        Stealth     Fair (4)     
+  Constitution  +2        Searching   Poor (14)    
+  Charisma      +1        Perception  Bad (4)      
+  Life Rating  109%       Melee       Superb (123) 
+  Base HP       12        Bows        Bad (20)     
   Experience   135%
   
 Swords
@@ -170,14 +170,14 @@ You will become a true swordmaster! Mastery of the blade will augment
 your weapon with elemental, vorpal or vampiric powers.
 
   Stats                   Skills
-  Strength      +2        Disarming   Good         
-  Intelligence  -2        Device      Fair         
-  Wisdom        -2        Save        Fair         
-  Dexterity     +2        Stealth     Fair         
-  Constitution  +2        Searching   Poor         
-  Charisma      +1        Perception  Bad          
-  Life Rating  109%       Melee       Superb       
-  Base HP       12        Bows        Bad          
+  Strength      +2        Disarming   Good (40)    
+  Intelligence  -2        Device      Fair (18)    
+  Wisdom        -2        Save        Fair (16)    
+  Dexterity     +2        Stealth     Fair (3)     
+  Constitution  +2        Searching   Poor (14)    
+  Charisma      +1        Perception  Bad (2)      
+  Life Rating  109%       Melee       Superb (145) 
+  Base HP       12        Bows        Bad (20)     
   Experience   135%
   
 Diggers
@@ -189,14 +189,14 @@ as increased strength, constitution, or even speed! So keep your eye
 open for those +8 diggers!
 
   Stats                   Skills
-  Strength      +3        Disarming   Fair         
-  Intelligence  -2        Device      Fair         
-  Wisdom        -2        Save        Fair         
-  Dexterity     +1        Stealth     Good         
-  Constitution  +2        Searching   Poor         
-  Charisma      +1        Perception  Bad          
-  Life Rating  109%       Melee       Superb       
-  Base HP       12        Bows        Bad          
+  Strength      +3        Disarming   Fair (30)    
+  Intelligence  -2        Device      Fair (20)    
+  Wisdom        -2        Save        Fair (23)    
+  Dexterity     +1        Stealth     Good (5)     
+  Constitution  +2        Searching   Poor (14)    
+  Charisma      +1        Perception  Bad (2)      
+  Life Rating  109%       Melee       Superb (120) 
+  Base HP       12        Bows        Bad (20)     
   Experience   135%
   
 Table 1 - Weaponmaster Statistic Bonus Table
@@ -218,33 +218,33 @@ Diggers            +3   -2   -2   +1   +2   +1  109%  +12  135%
 Table 2 - Weaponmaster Skill Bonus Table I
 
                   Disarming     Device        Save          Stealth      
-Axes              Fair          Bad           Fair          Fair         
-Bows              Fair          Good          Poor          Very Good    
-Clubs             Fair          Fair          Very Good     Fair         
-Crossbows         Fair          Fair          Bad           Good         
-Daggers           Very Good     Good          Fair          Excellent    
-Polearms          Fair          Poor          Fair          Fair         
-Shields           Fair          Fair          Excellent     Fair         
-Slings            Fair          Good          Poor          Very Good    
-Staves            Fair          Fair          Fair          Fair         
-Swords            Good          Fair          Fair          Fair         
-Diggers           Fair          Fair          Fair          Good         
+Axes              Fair (30)     Bad (8)       Fair (16)     Fair (3)     
+Bows              Fair (30)     Good (30)     Poor (14)     Very Good (6)
+Clubs             Fair (30)     Fair (25)     Very Good (30 Fair (3)     
+Crossbows         Fair (30)     Fair (25)     Bad (9)       Good (5)     
+Daggers           Very Good (50 Good (32)     Fair (16)     Excellent (7)
+Polearms          Fair (35)     Poor (13)     Fair (16)     Fair (3)     
+Shields           Fair (35)     Fair (19)     Excellent (35 Fair (3)     
+Slings            Fair (30)     Good (30)     Poor (14)     Very Good (6)
+Staves            Fair (35)     Fair (20)     Fair (16)     Fair (4)     
+Swords            Good (40)     Fair (18)     Fair (16)     Fair (3)     
+Diggers           Fair (30)     Fair (20)     Fair (23)     Good (5)     
 
 
 Table 3 - Weaponmaster Skill Bonus Table II
 
                   Searching     Perception    Melee         Bows         
-Axes              Poor          Bad           Superb        Bad          
-Bows              Fair          Poor          Fair          Superb       
-Clubs             Poor          Bad           Excellent     Fair         
-Crossbows         Fair          Bad           Fair          Superb       
-Daggers           Good          Fair          Very Good     Excellent    
-Polearms          Poor          Bad           Superb        Bad          
-Shields           Poor          Bad           Excellent     Bad          
-Slings            Fair          Poor          Fair          Superb       
-Staves            Poor          Bad           Superb        Bad          
-Swords            Poor          Bad           Superb        Bad          
-Diggers           Poor          Bad           Superb        Bad          
+Axes              Poor (14)     Bad (2)       Superb (150)  Bad (20)     
+Bows              Fair (23)     Poor (13)     Fair (43)     Superb (152) 
+Clubs             Poor (14)     Bad (2)       Excellent (95 Fair (45)    
+Crossbows         Fair (18)     Bad (10)      Fair (43)     Superb (152) 
+Daggers           Good (30)     Fair (20)     Very Good (80 Excellent (10
+Polearms          Poor (14)     Bad (2)       Superb (138)  Bad (20)     
+Shields           Poor (12)     Bad (2)       Excellent (10 Bad (20)     
+Slings            Fair (23)     Poor (13)     Fair (43)     Superb (152) 
+Staves            Poor (14)     Bad (4)       Superb (123)  Bad (20)     
+Swords            Poor (14)     Bad (2)       Superb (145)  Bad (20)     
+Diggers           Poor (14)     Bad (2)       Superb (120)  Bad (20)     
 
 
 

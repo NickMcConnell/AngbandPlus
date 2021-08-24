@@ -967,12 +967,12 @@ static _class_group_t _class_groups[_MAX_CLASS_GROUPS] = {
     { "Archery", {CLASS_ARCHER, CLASS_SNIPER, -1} },
     { "Martial Arts", {CLASS_FORCETRAINER, CLASS_MONK, CLASS_MYSTIC, -1} },
     { "Magic", {CLASS_BLOOD_MAGE, CLASS_GRAY_MAGE, CLASS_HIGH_MAGE, CLASS_MAGE,
-                    CLASS_NECROMANCER, CLASS_SORCERER, CLASS_YELLOW_MAGE, -1} },
+                    CLASS_NECROMANCER, CLASS_SORCERER, CLASS_YELLOW_MAGE, CLASS_CHAOS_MAGE, -1} },
     { "Devices", {CLASS_DEVICEMASTER, CLASS_MAGIC_EATER, -1} },
     { "Prayer", {CLASS_PRIEST, -1} },
     { "Stealth", {CLASS_NINJA, CLASS_ROGUE, CLASS_SCOUT, -1} },
     { "Hybrid", {CLASS_CHAOS_WARRIOR, CLASS_NINJA_LAWYER, CLASS_PALADIN, CLASS_RANGER,
-                    CLASS_RED_MAGE, CLASS_WARRIOR_MAGE, -1} },
+                    CLASS_RED_MAGE, CLASS_WARRIOR_MAGE, CLASS_HEXBLADE, -1} },
     { "Riding", {CLASS_BEASTMASTER, CLASS_CAVALRY, -1} },
     { "Mind", {CLASS_MINDCRAFTER, CLASS_MIRROR_MASTER, CLASS_PSION,
                     CLASS_TIME_LORD, CLASS_WARLOCK, -1} },
@@ -1144,7 +1144,7 @@ static int _subclass_ui(void)
             rc = _devicemaster_ui();
         else if (p_ptr->pclass == CLASS_GRAY_MAGE)
             rc = _gray_mage_ui();
-		else if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
+		else if (p_ptr->pclass == CLASS_CHAOS_WARRIOR || p_ptr->pclass == CLASS_CHAOS_MAGE)
 			rc = _chaos_patron_ui(); /* not really a subclass */
         else
         {
@@ -1349,7 +1349,7 @@ static int _gray_mage_ui(void)
 
 static int _chaos_patron_ui(void)
 {
-	assert(p_ptr->pclass == CLASS_CHAOS_WARRIOR);
+	assert(p_ptr->pclass == CLASS_CHAOS_WARRIOR || p_ptr->pclass == CLASS_CHAOS_MAGE);
 	for (;;)
 	{
 		int cmd, i;
@@ -1368,12 +1368,22 @@ static int _chaos_patron_ui(void)
 			);
 		}
 		doc_insert(_doc, "  <color:y>*</color>) Random\n");
+		doc_insert(_doc, "     Use SHIFT+choice to display help topic\n");
 
 		_sync_term(_doc);
 		cmd = _inkey();
 		if (cmd == ESCAPE) return UI_CANCEL;
 		else if (cmd == '\t') _inc_rcp_state();
 		else if (cmd == '=') _birth_options();
+		else if (cmd == '?') doc_display_help("Chaos_Patrons.txt", NULL);
+		else if (isupper(cmd))
+		{
+			i = A2I(tolower(cmd));
+			if (0 <= i && i < MAX_PATRON)
+			{
+				doc_display_help("Chaos_Patrons.txt", chaos_patrons[i]);
+			}
+		}
 		else
 		{
 			if (cmd == '*') i = randint0(MAX_PATRON);
@@ -2174,6 +2184,7 @@ static void _stats_init(void)
         case CLASS_MIRROR_MASTER:
         case CLASS_BLOOD_MAGE:
         case CLASS_NECROMANCER:
+		case CLASS_CHAOS_MAGE:
         {
             int stats[6] = { 16, 17, 9, 9, 16, 9 };
             _stats_init_aux(stats);
@@ -2206,6 +2217,7 @@ static void _stats_init(void)
         case CLASS_RED_MAGE:
         case CLASS_RUNE_KNIGHT:
         case CLASS_DEVICEMASTER:
+		case CLASS_HEXBLADE:
         {
             int stats[6] = { 16, 16, 9, 16, 14, 10 };
             _stats_init_aux(stats);
@@ -2841,7 +2853,7 @@ static void _birth_finalize(void)
 
     /* Everybody gets a chaos patron. The chaos warrior is obvious,
      * but anybody else can acquire MUT_CHAOS_GIFT during the game */
-	if (p_ptr->pclass!=CLASS_CHAOS_WARRIOR) p_ptr->chaos_patron = randint0(MAX_PATRON);
+	if (p_ptr->pclass!=CLASS_CHAOS_WARRIOR && p_ptr->pclass != CLASS_CHAOS_MAGE) p_ptr->chaos_patron = randint0(MAX_PATRON);
 
     get_max_stats();
     do_cmd_rerate_aux();

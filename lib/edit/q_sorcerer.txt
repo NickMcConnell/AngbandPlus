@@ -25,13 +25,13 @@ L:.:FLOOR
 L:<:UP_STAIR
 L:+:CLOSED_DOOR
 L:^:TRAP(*, 75%)
-L:a:MON(apprentice)
+L:a:MON(novice mage)
 L:b:MON(ogre mage)
 L:c:MON(enchantress)
 L:d:MON(demonologist)
 L:e:MON(spectator)
 L:f:MON(displacer beast)
-L:g:MON(silent watcher)
+L:g:MON(silent watcher, NO_SLEEP)
 L:s:MON(^sorcerer$)
 L:h:MON(dark elven warlock)
 L:p:MON(master lich)
@@ -43,7 +43,7 @@ L:\:OBJ(wizardstaff):EGO(6)
 L:[:OBJ(crown):EGO(magi)
 L:(:OBJ(cloak):EGO(aman)
 L:":OBJ(amulet):EGO(magi)
-L:=:OBJ(ring):EGO(wizardry)
+L:=:OBJ(^ring$):EGO(wizardry)
 !:SCRAMBLE(s,p,d,c)
 M:##########################################################################
 M:##########################################################################
@@ -73,6 +73,6 @@ M:####...#####...+.....^\###########....................+.......s....#######
 M:####.....p.....#.....^[###########....................+..a.........#######
 M:#######################################################............#######
 M:##########################################################################
-R:OBJ(robe, DEPTH+25):EGO(sorcerer)
+R:OBJ(robe):EGO(82)
 
 # vim: filetype=q :

@@ -926,6 +926,7 @@ static int _draconian_breath_amount(void)
     case DRACONIAN_CRYSTAL:
     case DRACONIAN_BRONZE:
     case DRACONIAN_GOLD:
+	case DRACONIAN_SILVER:
         amt = MIN(350, p_ptr->chp * (20 + l*l*l*30/125000) / 100);
         break;
     }
@@ -958,6 +959,7 @@ static cptr _draconian_breath_desc(void)
     case DRACONIAN_BRONZE: return "confusion";
     case DRACONIAN_GOLD: return "sound";
     case DRACONIAN_SHADOW: return "nether";
+	case DRACONIAN_SILVER: return "inertia";
     }
     return 0;
 }
@@ -975,6 +977,7 @@ static int _draconian_breath_effect(void)
     case DRACONIAN_GOLD: return GF_SOUND;
     case DRACONIAN_SHADOW: return GF_NETHER;
     case DRACONIAN_CRYSTAL: return GF_SHARDS;
+	case DRACONIAN_SILVER: return GF_INERT;
     }
     return 0;
 }
@@ -1121,6 +1124,10 @@ static void _draconian_get_flags(u32b flgs[OF_ARRAY_SIZE])
     case DRACONIAN_SHADOW:
         add_flag(flgs, OF_RES_NETHER);
         break;
+	case DRACONIAN_SILVER:
+		p_ptr->free_act++;
+		add_flag(flgs, OF_FREE_ACT);
+		break;
     }
 }
 /* cf design/dragons.ods */
@@ -1145,6 +1152,7 @@ static int _draconian_attack_level(void)
     case DRACONIAN_CRYSTAL:
     case DRACONIAN_BRONZE:
     case DRACONIAN_GOLD:
+	case DRACONIAN_SILVER:
         l = MAX(1, l * 90 / 100);
         break;
 
@@ -1494,6 +1502,12 @@ race_t *draconian_get_race(int psubrace)
             me.exp += 35;
             me.infra += 2;
             break;
+		case DRACONIAN_SILVER:
+			me.subname = "Silver";
+			me.subdesc = "Silver Draconians have an affinity for inertia, which they both breathe at will "
+						 "and resist. With the power of Dragon Strike, even their melee attacks will slow their enemies.";
+			me.exp += 25;
+			break;
         }
         subrace_init = psubrace;
     }

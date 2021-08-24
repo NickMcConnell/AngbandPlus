@@ -295,11 +295,15 @@ int gf_affect_p(int who, int type, int dam, int flags)
             strcpy(m_name, "shards of glass");
             break;
 
+		case GF_WHO_DEITY:
+			strcpy(m_name, chaos_patrons[p_ptr->chaos_patron]);
+			break;
+
         case GF_WHO_TRAP:
         default:
             strcpy(m_name, "a trap");
             break;
-        }
+		}
     }
 
     /* Analyze the damage */
@@ -1506,21 +1510,24 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         if (touch && seen_msg) msg_format("%^s is <color:D>drained</color>!", m_name);
         if (seen) obvious = TRUE;
         _BABBLE_HACK()
-        if (race->flagsr & RFR_RES_NETH)
+		if (race->flags3 & RF3_UNDEAD)
+		{
+			note = " is immune.";
+			dam = 0;
+			mon_lore_3(mon, RF3_UNDEAD);
+		}
+        else if (race->flagsr & RFR_RES_NETH)
         {
-            if (race->flags3 & RF3_UNDEAD)
-            {
-                note = " is immune.";
-                dam = 0;
-                mon_lore_3(mon, RF3_UNDEAD);
-            }
-            else
-            {
-                note = " resists.";
-                dam *= 3; dam /= randint1(6) + 6;
-            }
+            note = " resists.";
+            dam *= 3; dam /= randint1(6) + 6;
             mon_lore_r(mon, RFR_RES_NETH);
         }
+		else if ((race->flags3 & RF3_DEMON) && one_in_(3))
+		{
+			note = " resists somewhat.";
+			dam *= 3; dam /= randint1(6) + 6;
+			mon_lore_3(mon, RF3_DEMON);
+		}
         break;
     case GF_WATER:
     case GF_WATER2:

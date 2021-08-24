@@ -1920,8 +1920,7 @@ obj_ptr room_grid_make_obj(room_grid_ptr grid, int level)
     }
     else if ((grid->flags & ROOM_GRID_OBJ_TYPE) && grid->object == TV_GOLD)
     {
-        /* boost gold drops for "bank" rooms */
-        make_gold(&forge, TRUE);
+        make_gold(&forge);
     }
     else if (grid->object)
     {
@@ -2065,7 +2064,7 @@ static obj_ptr _make_obj_theme(room_grid_ptr grid, int level)
         mode |= AM_GOOD;
 
     if (_obj_kind_hack == TV_GOLD)
-        make_gold(&forge, FALSE);
+        make_gold(&forge);
     else
     {
         get_obj_num_hook = _obj_kind_hook;

@@ -254,8 +254,7 @@ void check_experience(void)
             if (class_ptr->gain_level != NULL)
                 (class_ptr->gain_level)(p_ptr->lev);
 
-            if (mut_present(MUT_CHAOS_GIFT))
-                chaos_warrior_reward();
+			if (worships_chaos()) chaos_choose_effect(PATRON_LEVEL_UP);
 
             /* N.B. The class hook or the Chaos Gift mutation may result in a race
                change (stupid Chaos-Warriors), so we better always requery the player's
@@ -603,7 +602,7 @@ bool get_monster_drop(int m_idx, object_type *o_ptr)
 
     if (do_gold && (!do_item || (randint0(100) < 20)))
     {
-        if (!make_gold(o_ptr, TRUE))
+        if (!make_gold(o_ptr))
         {
             obj_drop_theme = 0;
             return FALSE;
@@ -2013,7 +2012,7 @@ void monster_death(int m_idx, bool drop_item)
         for (i = 0; i < n; i++)
         {
             object_type gold = {0};
-            if (make_gold(&gold, TRUE))
+            if (make_gold(&gold))
                 drop_near(&gold, -1, y, x);
         }
         object_level = base_level;
@@ -2064,7 +2063,7 @@ void monster_death(int m_idx, bool drop_item)
         p_ptr->total_winner = TRUE;
 
         /* Redraw the "title" */
-        if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || mut_present(MUT_CHAOS_GIFT))
+        if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || (p_ptr->pclass == CLASS_CHAOS_MAGE) || mut_present(MUT_CHAOS_GIFT))
         {
             msg_format("The voice of %s booms out:", chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Thou art donst well, mortal!'");
@@ -2771,13 +2770,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
         monster_death(m_idx, TRUE);
 
 		/* Chaos patrons take interest */
-		if (p_ptr->pclass == CLASS_CHAOS_WARRIOR || mut_present(MUT_CHAOS_GIFT))
+		if (worships_chaos())
 		{
 			if (r_ptr->flags1 & RF1_UNIQUE && (r_ptr->level + randint1(r_ptr->level) > p_ptr->lev * 2))
 			{
 				chaos_choose_effect(PATRON_KILL_FAMOUS);
 			}
-			else if (r_ptr->flags1 & RF1_UNIQUE)
+			else if (r_ptr->flags1 & RF1_UNIQUE && (m_ptr->smart & (1U << SM_CLONED)) == 0 )
 			{
 				chaos_choose_effect(PATRON_KILL_UNIQUE);
 			}
@@ -4988,82 +4987,8 @@ bool get_rep_dir2(int *dp)
     return (TRUE);
 }
 
-
-
 /*
- * XAngband: determine if a given location is "interesting"
- * based on target_set_accept function.
- */
-static bool tgt_pt_accept(int y, int x)
-{
-    cave_type *c_ptr;
-
-    /* Bounds */
-    if (!(in_bounds(y, x))) return (FALSE);
-
-    /* Player grid is always interesting */
-    if ((y == py) && (x == px)) return (TRUE);
-
-    /* Handle hallucination */
-    if (p_ptr->image) return (FALSE);
-
-    /* Examine the grid */
-    c_ptr = &cave[y][x];
-
-    /* Interesting memorized features */
-    if (c_ptr->info & (CAVE_MARK))
-    {
-        /* Notice stairs */
-        if (cave_have_flag_grid(c_ptr, FF_LESS)) return (TRUE);
-        if (cave_have_flag_grid(c_ptr, FF_MORE)) return (TRUE);
-
-        /* Notice quest features */
-        if (cave_have_flag_grid(c_ptr, FF_QUEST_ENTER)) return (TRUE);
-    }
-
-    /* Nope */
-    return (FALSE);
-}
-
-
-/*
- * XAngband: Prepare the "temp" array for "tget_pt"
- * based on target_set_prepare funciton.
- */
-static void tgt_pt_prepare(void)
-{
-    int y, x;
-
-    /* Reset "temp" array */
-    temp_n = 0;
-
-    if (!expand_list) return;
-
-    /* Scan the current panel */
-    for (y = 1; y < cur_hgt; y++)
-    {
-        for (x = 1; x < cur_wid; x++)
-        {
-            /* Require "interesting" contents */
-            if (!tgt_pt_accept(y, x)) continue;
-
-            /* Save the location */
-            temp_x[temp_n] = x;
-            temp_y[temp_n] = y;
-            temp_n++;
-        }
-    }
-
-    /* Target the nearest monster for shooting */
-    ang_sort_comp = ang_sort_comp_distance;
-    ang_sort_swap = ang_sort_swap_distance;
-
-    /* Sort the positions */
-    ang_sort(temp_x, temp_y, temp_n);
-}
-
-/*
- * old -- from PsiAngband.
+ * old -- from PsiAngband. Watered down for composband
  */
 bool tgt_pt(int *x_ptr, int *y_ptr, int rng)
 {
@@ -5075,13 +5000,7 @@ bool tgt_pt(int *x_ptr, int *y_ptr, int rng)
     x = px;
     y = py;
 
-    if (expand_list)
-    {
-        tgt_pt_prepare();
-        n = 0;
-    }
-
-    msg_print("Select a point and press <color:y>space</color>. < and > cycle through stairs, * cycles through monsters");
+    msg_print("Select a point and press <color:y>space</color>.");
 
     while ((ch != ESCAPE) && !success)
     {
@@ -5104,70 +5023,6 @@ bool tgt_pt(int *x_ptr, int *y_ptr, int rng)
             /* okay place */
             else success = TRUE;
 
-            break;
-
-        /* XAngband: Move cursor to stairs */
-		/* Composband: Move cursor to monsters */
-        case '>':
-        case '<':
-            if (expand_list && temp_n)
-            {
-                int dx, dy;
-                int cx = map_rect.cy / 2;
-                int cy = map_rect.cx / 2;
-
-                n++;
-
-                while(n < temp_n)    /* Skip stairs which have different distance */
-                {
-                    cave_type *c_ptr = &cave[temp_y[n]][temp_x[n]];
-
-                    if (ch == '>')
-                    {
-                        if (cave_have_flag_grid(c_ptr, FF_LESS) ||
-                            cave_have_flag_grid(c_ptr, FF_QUEST_ENTER))
-                            n++;
-                        else
-                            break;
-                    }
-                    else if (ch == '<')
-                    {
-                        if (cave_have_flag_grid(c_ptr, FF_MORE))
-                            n++;
-                        else
-                            break;
-                    }
-                }
-
-                if (n == temp_n)    /* Loop out taget list */
-                {
-                    n = 0;
-                    y = py;
-                    x = px;
-                    viewport_verify();    /* Move cursor to player */
-
-                    /* Update stuff */
-                    p_ptr->update |= (PU_MONSTERS);
-
-                    /* Redraw map */
-                    p_ptr->redraw |= (PR_MAP);
-
-                    /* Window stuff */
-                    p_ptr->window |= (PW_OVERHEAD);
-
-                    /* Handle stuff */
-                    handle_stuff();
-                }
-                else    /* move cursor to next stair and change panel */
-                {
-                    y = temp_y[n];
-                    x = temp_x[n];
-
-                    dy = 2 * (y - cy) / map_rect.cy;
-                    dx = 2 * (x - cx) / map_rect.cx;
-                    if (dy || dx) viewport_scroll(dy, dx);
-                }
-            }
             break;
 
         default:

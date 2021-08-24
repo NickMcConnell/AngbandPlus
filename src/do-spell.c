@@ -320,7 +320,7 @@ void cast_wonder(int dir)
         hp_player(300);
     }
 
-	if (p_ptr->pclass == CLASS_CHAOS_WARRIOR || mut_present(MUT_CHAOS_GIFT))
+	if (worships_chaos())
 	{
 		chaos_choose_effect(PATRON_CHANCE);
 	}

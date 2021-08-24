@@ -15,9 +15,10 @@
 /*Exo's character information patch*/
 void updatecharinfoS(void)
 {
-	race_t         *race = get_true_race();
+	race_t         *race_ = get_true_race();
 	class_t        *class_ = get_class();
 	dragon_realm_ptr drealm = dragon_get_realm(p_ptr->dragon_realm);
+	bool           race_sub_class_hack = FALSE;
 
 	//File Output + Lookup Tables
 	char tmp_Path[1024];
@@ -25,11 +26,63 @@ void updatecharinfoS(void)
 	path_build(tmp_Path, sizeof(tmp_Path), ANGBAND_DIR_USER, "CharOutput.txt");
 	oFile = fopen(tmp_Path, "w");
 
+
 	fprintf(oFile, "{\n");
-	fprintf(oFile, "race: \"%s\",\n", race->name);
-	if (p_ptr->psubrace>0)fprintf(oFile, "subRace: \"%s\",\n", race->subname);
+	fprintf(oFile, "race: \"%s\",\n", race_->name);
+	if (race_->subname)
+	{
+		if ((prace_is_(RACE_MON_POSSESSOR)) || (prace_is_(RACE_MON_MIMIC)) || (prace_is_(RACE_MON_RING)))
+		{
+			race_sub_class_hack = TRUE;
+		}
+		else
+		{
+			fprintf(oFile, "subRace: \"%s\",\n", race_->subname);
+		}
+	}
 	fprintf(oFile, "class: \"%s\",\n", class_->name);
-	if (p_ptr->psubclass>0)fprintf(oFile, "subClass: \"%s\",\n", class_->subname);
+	if (race_sub_class_hack)
+	{
+		char nimi[17];
+		int paikka;
+		bool ok_name = FALSE;
+		if ((prace_is_(RACE_MON_MIMIC)) && (p_ptr->current_r_idx == MON_MIMIC)) strncpy(nimi, "nothing", sizeof(nimi));
+		else if (strpos("Mouth of Sauron", race_->subname)) strncpy(nimi, "Mouth of Sauron", sizeof(nimi));
+		else strncpy(nimi, race_->subname, sizeof(nimi));
+		if (strlen(nimi) < 16) ok_name = TRUE;
+		while (!ok_name)
+		{
+			paikka = strpos(",", nimi);
+			if (paikka)
+			{
+				nimi[paikka - 1] = '\0';
+				break;
+			}
+			paikka = strpos(" the", nimi);
+			if (paikka)
+			{
+				nimi[paikka - 1] = '\0';
+				break;
+			}
+			paikka = strpos(" of ", nimi);
+			if (paikka)
+			{
+				nimi[paikka - 1] = '\0';
+				break;
+			}
+			nimi[16] = '\0';
+			break;
+		}
+		fprintf(oFile, "subRace: \"%s\",\n", nimi);
+	};
+	fprintf(oFile, "class: \"%s\",\n", class_->name);
+	if (class_->subname) {
+		fprintf(oFile, "subClass: \"%s\",\n", class_->subname);
+	}
+	else if(!strcmp("Chaos-Mage", class_->name))
+	{
+		fprintf(oFile, "subClass: \"%s\",\n", chaos_patrons[p_ptr->chaos_patron]);
+	}
 	fprintf(oFile, "mapName: \"%s\",\n", map_name());
 	fprintf(oFile, "dLvl: \"%i\",\n", dun_level);
 	if (p_ptr->realm1 > 0)fprintf(oFile, "mRealm1: \"%s\",\n", realm_names[p_ptr->realm1]);

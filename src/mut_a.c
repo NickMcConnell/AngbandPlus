@@ -731,6 +731,9 @@ void draconian_resistance_mut(int cmd, variant *res)
         case DRACONIAN_SHADOW:
             var_set_string(res, "You gain extra nether resistance.");
             break;
+		case DRACONIAN_SILVER:
+			var_set_string(res, "You gain extra free action.");
+			break;
         }
         break;
     case SPELL_HELP_DESC:
@@ -766,6 +769,9 @@ void draconian_resistance_mut(int cmd, variant *res)
         case DRACONIAN_SHADOW:
             res_add(RES_NETHER);
             break;
+		case DRACONIAN_SILVER:
+			p_ptr->free_act++;
+			break;
         }
         break;
     default:
@@ -854,6 +860,7 @@ void draconian_strike_mut(int cmd, variant *res)
         case DRACONIAN_BRONZE: var_set_string(res, "Attack an adjacent opponent with a confusing blow."); break;
         case DRACONIAN_CRYSTAL: var_set_string(res, "Attack an adjacent opponent with a shredding blow."); break;
         case DRACONIAN_SHADOW: var_set_string(res, "Attack an adjacent opponent with a vampiric blow."); break;
+		case DRACONIAN_SILVER: var_set_string(res, "Attack an adjacent opponent with a retarding blow."); break;
         }
         break;
     case SPELL_MUT_DESC:
@@ -875,6 +882,7 @@ void draconian_strike_mut(int cmd, variant *res)
             case DRACONIAN_BRONZE: var_set_string(res, "You will be able to attack an adjacent opponent with a confusing blow."); break;
             case DRACONIAN_CRYSTAL: var_set_string(res, "You will be able to attack an adjacent opponent with a shredding blow."); break;
             case DRACONIAN_SHADOW: var_set_string(res, "You will be able to attack an adjacent opponent with a vampiric blow."); break;
+			case DRACONIAN_SILVER: var_set_string(res, "You will be able to attack an adjacent opponent with a retarding blow."); break;
             }
         }
         break;
@@ -890,6 +898,7 @@ void draconian_strike_mut(int cmd, variant *res)
         case DRACONIAN_GREEN: mode = DRACONIAN_STRIKE_POIS; break;
         case DRACONIAN_GOLD: mode = DRACONIAN_STRIKE_STUN; break;
         case DRACONIAN_BRONZE: mode = DRACONIAN_STRIKE_CONF; break;
+		case DRACONIAN_SILVER: mode = DRACONIAN_STRIKE_INERT; break;
         case DRACONIAN_CRYSTAL: mode = PY_ATTACK_VORPAL; break;
         case DRACONIAN_SHADOW: mode = PY_ATTACK_VAMP; break;
         }
@@ -908,6 +917,7 @@ void draconian_strike_mut(int cmd, variant *res)
             break;
         case DRACONIAN_GOLD:
         case DRACONIAN_BRONZE:
+		case DRACONIAN_SILVER:
             var_set_int(res, 20);
             break;
         case DRACONIAN_CRYSTAL:

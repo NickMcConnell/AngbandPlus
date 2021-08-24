@@ -18,14 +18,14 @@ Their spells are the most powerful of all demonkind and at very high
 levels they may even call forth fires directly from hell.
 
   Stats                   Skills
-  Strength      +4        Disarming   Good         
-  Intelligence  +1        Device      Very Good    
-  Wisdom       -10        Save        Superb       
-  Dexterity     +1        Stealth     Bad          
-  Constitution  +4        Searching   Bad          
-  Charisma      +2        Perception  Bad          
-  Life Rating  105%       Melee       Heroic       
-  Base HP       45        Bows        Bad          
+  Strength      +4        Disarming   Good (40)    
+  Intelligence  +1        Device      Very Good (40
+  Wisdom       -10        Save        Superb (50)  
+  Dexterity     +1        Stealth     Bad (0)      
+  Constitution  +4        Searching   Bad (10)     
+  Charisma      +2        Perception  Bad (7)      
+  Life Rating  105%       Melee       Heroic (180) 
+  Base HP       45        Bows        Bad (5)      
   Experience   300%       Infravision 50'
   
 Tanar'ri
@@ -36,14 +36,14 @@ Marilith, a female demon with three sets of arms and a serpent body
 capable of attacking with six melee weapons!
 
   Stats                   Skills
-  Strength      +3        Disarming   Good         
-  Intelligence  +1        Device      Very Good    
-  Wisdom        -5        Save        Fair         
-  Dexterity     +3        Stealth     Good         
-  Constitution  +3        Searching   Poor         
-  Charisma      +1        Perception  Bad          
-  Life Rating  101%       Melee       Excellent    
-  Base HP       30        Bows        Poor         
+  Strength      +0        Disarming   Good (40)    
+  Intelligence  +0        Device      Very Good (40
+  Wisdom        -5        Save        Fair (21)    
+  Dexterity     +0        Stealth     Good (5)     
+  Constitution  +0        Searching   Poor (16)    
+  Charisma      +0        Perception  Bad (10)     
+  Life Rating   95%       Melee       Excellent (86
+  Base HP       30        Bows        Poor (30)    
   Experience   250%       Infravision 50'
   
 Servant of Khorne
@@ -53,14 +53,14 @@ will of their master. As they gain experience, Khorne rewards his
 servants with new and more powerful forms.
 
   Stats                   Skills
-  Strength      +5        Disarming   Good         
-  Intelligence  -5        Device      Bad          
-  Wisdom        -5        Save        Good         
-  Dexterity     +0        Stealth     Bad          
-  Constitution  +4        Searching   Poor         
-  Charisma      +0        Perception  Bad          
-  Life Rating  110%       Melee       Superb       
-  Base HP       42        Bows        Bad          
+  Strength      +3        Disarming   Good (40)    
+  Intelligence  -5        Device      Bad (10)     
+  Wisdom        -5        Save        Good (25)    
+  Dexterity     +0        Stealth     Bad (1)      
+  Constitution  +2        Searching   Poor (13)    
+  Charisma      +0        Perception  Bad (7)      
+  Life Rating  100%       Melee       Superb (160) 
+  Base HP       42        Bows        Bad (5)      
   Experience   250%       Infravision 50'
   
 Cyberdemon
@@ -70,41 +70,41 @@ unsurpassable firepower more than make up for this. The walls of the
 dungeon reverberate with their heavy steps!
 
   Stats                   Skills
-  Strength      +8        Disarming   Good         
-  Intelligence -10        Device      Very Bad     
-  Wisdom       -10        Save        Poor         
-  Dexterity     -3        Stealth     Bad          
-  Constitution  +8        Searching   Poor         
-  Charisma      +0        Perception  Bad          
-  Life Rating  120%       Melee       Heroic       
-  Base HP       50        Bows        Bad          
+  Strength      +5        Disarming   Good (40)    
+  Intelligence -10        Device      Very Bad (-2)
+  Wisdom       -10        Save        Poor (11)    
+  Dexterity     -3        Stealth     Bad (1)      
+  Constitution  +5        Searching   Poor (13)    
+  Charisma      +0        Perception  Bad (7)      
+  Life Rating  120%       Melee       Heroic (180) 
+  Base HP       50        Bows        Bad (5)      
   Experience   275%       Infravision 50'
   
 Table 1 - Demon Statistic Bonus Table
 
                   STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp  Shop
 Balrog             +4   +1  -10   +1   +4   +2  105%  +45  300%  140%
-Tanar'ri           +3   +1   -5   +3   +3   +1  101%  +30  250%  140%
-Servant of Khorne  +5   -5   -5   +0   +4   +0  110%  +42  250%  140%
-Cyberdemon         +8  -10  -10   -3   +8   +0  120%  +50  275%  140%
+Tanar'ri           +0   +0   -5   +0   +0   +0   95%  +30  250%  140%
+Servant of Khorne  +3   -5   -5   +0   +2   +0  100%  +42  250%  140%
+Cyberdemon         +5  -10  -10   -3   +5   +0  120%  +50  275%  140%
 
 
 Table 2 - Demon Skill Bonus Table I
 
                   Disarming     Device        Save          Stealth      
-Balrog            Good          Very Good     Superb        Bad          
-Tanar'ri          Good          Very Good     Fair          Good         
-Servant of Khorne Good          Bad           Good          Bad          
-Cyberdemon        Good          Very Bad      Poor          Bad          
+Balrog            Good (40)     Very Good (40 Superb (50)   Bad (0)      
+Tanar'ri          Good (40)     Very Good (40 Fair (21)     Good (5)     
+Servant of Khorne Good (40)     Bad (10)      Good (25)     Bad (1)      
+Cyberdemon        Good (40)     Very Bad (-2) Poor (11)     Bad (1)      
 
 
 Table 3 - Demon Skill Bonus Table II
 
                   Searching     Perception    Melee         Bows          Infra
-Balrog            Bad           Bad           Heroic        Bad             50'
-Tanar'ri          Poor          Bad           Excellent     Poor            50'
-Servant of Khorne Poor          Bad           Superb        Bad             50'
-Cyberdemon        Poor          Bad           Heroic        Bad             50'
+Balrog            Bad (10)      Bad (7)       Heroic (180)  Bad (5)         50'
+Tanar'ri          Poor (16)     Bad (10)      Excellent (86 Poor (30)       50'
+Servant of Khorne Poor (13)     Bad (7)       Superb (160)  Bad (5)         50'
+Cyberdemon        Poor (13)     Bad (7)       Heroic (180)  Bad (5)         50'
 
 
 

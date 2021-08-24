@@ -33,14 +33,14 @@ Dragon matures, it becomes more and more resistant to fire, eventually
 gaining total immunity.
 
   Stats                   Skills
-  Strength      +4        Disarming   Fair         
-  Intelligence  +2        Device      Good         
-  Wisdom        +1        Save        Fair         
-  Dexterity     +1        Stealth     Fair         
-  Constitution  +3        Searching   Fair         
-  Charisma      +2        Perception  Fair         
-  Life Rating  115%       Melee       Excellent    
-  Base HP       40        Bows        Bad          
+  Strength      +1        Disarming   Fair (28)    
+  Intelligence  -1        Device      Good (30)    
+  Wisdom        -2        Save        Fair (23)    
+  Dexterity     -2        Stealth     Fair (4)     
+  Constitution  +0        Searching   Fair (25)    
+  Charisma      -1        Perception  Fair (26)    
+  Life Rating  100%       Melee       Excellent (10
+  Base HP       40        Bows        Bad (5)      
   Experience   250%       Infravision 50'
   
 White Dragon
@@ -51,14 +51,14 @@ possible among dragonkind and they too become more and more resistant
 to cold as they mature.
 
   Stats                   Skills
-  Strength      +4        Disarming   Fair         
-  Intelligence  +2        Device      Good         
-  Wisdom        +1        Save        Fair         
-  Dexterity     +1        Stealth     Fair         
-  Constitution  +3        Searching   Fair         
-  Charisma      +2        Perception  Fair         
-  Life Rating  115%       Melee       Excellent    
-  Base HP       40        Bows        Bad          
+  Strength      +1        Disarming   Fair (28)    
+  Intelligence  -1        Device      Good (30)    
+  Wisdom        -2        Save        Fair (23)    
+  Dexterity     -2        Stealth     Fair (4)     
+  Constitution  +0        Searching   Fair (25)    
+  Charisma      -1        Perception  Fair (26)    
+  Life Rating  100%       Melee       Excellent (10
+  Base HP       40        Bows        Bad (5)      
   Experience   250%       Infravision 50'
   
 Blue Dragon
@@ -69,14 +69,14 @@ eventually shock their foes. Blue Dragons become more and more
 resistant to lightning as they mature.
 
   Stats                   Skills
-  Strength      +4        Disarming   Fair         
-  Intelligence  +2        Device      Good         
-  Wisdom        +1        Save        Fair         
-  Dexterity     +1        Stealth     Fair         
-  Constitution  +3        Searching   Fair         
-  Charisma      +2        Perception  Fair         
-  Life Rating  115%       Melee       Excellent    
-  Base HP       40        Bows        Bad          
+  Strength      +1        Disarming   Fair (28)    
+  Intelligence  -1        Device      Good (30)    
+  Wisdom        -2        Save        Fair (23)    
+  Dexterity     -2        Stealth     Fair (4)     
+  Constitution  +0        Searching   Fair (25)    
+  Charisma      -1        Perception  Fair (26)    
+  Life Rating  100%       Melee       Excellent (10
+  Base HP       40        Bows        Bad (5)      
   Experience   250%       Infravision 50'
   
 Black Dragon
@@ -86,14 +86,14 @@ brethren. As they mature, their bites corrode their enemies and the
 Black Dragon also becomes more and more resistant to acid.
 
   Stats                   Skills
-  Strength      +4        Disarming   Fair         
-  Intelligence  +2        Device      Good         
-  Wisdom        +1        Save        Fair         
-  Dexterity     +1        Stealth     Fair         
-  Constitution  +3        Searching   Fair         
-  Charisma      +2        Perception  Fair         
-  Life Rating  115%       Melee       Excellent    
-  Base HP       40        Bows        Bad          
+  Strength      +1        Disarming   Fair (28)    
+  Intelligence  -1        Device      Good (30)    
+  Wisdom        -2        Save        Fair (23)    
+  Dexterity     -2        Stealth     Fair (4)     
+  Constitution  +0        Searching   Fair (25)    
+  Charisma      -1        Perception  Fair (26)    
+  Life Rating  100%       Melee       Excellent (10
+  Base HP       40        Bows        Bad (5)      
   Experience   250%       Infravision 50'
   
 Green Dragon
@@ -103,14 +103,14 @@ mature, their bites poison their enemies. Also, Green Dragons become
 more and more resistant to poison.
 
   Stats                   Skills
-  Strength      +4        Disarming   Fair         
-  Intelligence  +2        Device      Good         
-  Wisdom        +1        Save        Fair         
-  Dexterity     +1        Stealth     Fair         
-  Constitution  +3        Searching   Fair         
-  Charisma      +2        Perception  Fair         
-  Life Rating  115%       Melee       Excellent    
-  Base HP       40        Bows        Bad          
+  Strength      +1        Disarming   Fair (28)    
+  Intelligence  -1        Device      Good (30)    
+  Wisdom        -2        Save        Fair (23)    
+  Dexterity     -2        Stealth     Fair (4)     
+  Constitution  +0        Searching   Fair (25)    
+  Charisma      -1        Perception  Fair (26)    
+  Life Rating  100%       Melee       Excellent (10
+  Base HP       40        Bows        Bad (5)      
   Experience   250%       Infravision 50'
   
 Shadow Drake
@@ -122,14 +122,14 @@ dragons eventually gain the ability to pass through walls and also
 become more and more resistant to nether.
 
   Stats                   Skills
-  Strength      +2        Disarming   Fair         
-  Intelligence  +1        Device      Good         
-  Wisdom        -1        Save        Good         
-  Dexterity     -1        Stealth     Very Good    
-  Constitution  +0        Searching   Fair         
-  Charisma      +2        Perception  Fair         
-  Life Rating   95%       Melee       Fair         
-  Base HP       40        Bows        Bad          
+  Strength      +0        Disarming   Fair (28)    
+  Intelligence  -1        Device      Good (35)    
+  Wisdom        -2        Save        Good (28)    
+  Dexterity     -2        Stealth     Very Good (6)
+  Constitution  -1        Searching   Fair (25)    
+  Charisma      -1        Perception  Fair (26)    
+  Life Rating   90%       Melee       Fair (55)    
+  Base HP       40        Bows        Bad (5)      
   Experience   300%       Infravision 50'
   
 Law Drake
@@ -141,14 +141,14 @@ Their melee is among the weakest of all dragonkind but they still fight
 rather well ... What dragon doesn't?
 
   Stats                   Skills
-  Strength      +0        Disarming   Fair         
-  Intelligence  -1        Device      Excellent    
-  Wisdom        -2        Save        Very Good    
-  Dexterity     -2        Stealth     Fair         
-  Constitution  -1        Searching   Fair         
-  Charisma      -1        Perception  Fair         
-  Life Rating  100%       Melee       Good         
-  Base HP       40        Bows        Bad          
+  Strength      +0        Disarming   Fair (28)    
+  Intelligence  -1        Device      Excellent (45
+  Wisdom        -2        Save        Very Good (30
+  Dexterity     -2        Stealth     Fair (4)     
+  Constitution  -1        Searching   Fair (25)    
+  Charisma      -1        Perception  Fair (26)    
+  Life Rating  100%       Melee       Good (60)    
+  Base HP       40        Bows        Bad (5)      
   Experience   280%       Infravision 50'
   
 Chaos Drake
@@ -160,14 +160,14 @@ disenchantment. Their melee is among the weakest of all dragonkind but
 they still fight rather well ... What dragon doesn't?
 
   Stats                   Skills
-  Strength      +0        Disarming   Fair         
-  Intelligence  -1        Device      Excellent    
-  Wisdom        -2        Save        Very Good    
-  Dexterity     -2        Stealth     Fair         
-  Constitution  -1        Searching   Fair         
-  Charisma      -1        Perception  Fair         
-  Life Rating  100%       Melee       Good         
-  Base HP       40        Bows        Bad          
+  Strength      +0        Disarming   Fair (28)    
+  Intelligence  -1        Device      Excellent (45
+  Wisdom        -2        Save        Very Good (30
+  Dexterity     -2        Stealth     Fair (4)     
+  Constitution  -1        Searching   Fair (25)    
+  Charisma      -1        Perception  Fair (26)    
+  Life Rating  100%       Melee       Good (60)    
+  Base HP       40        Bows        Bad (5)      
   Experience   280%       Infravision 50'
   
 Balance Drake
@@ -178,14 +178,14 @@ breaths are much weaker than those of the elemental dragons and they
 are weaker than either of Chaos or Law Drakes, though not by much.
 
   Stats                   Skills
-  Strength      +0        Disarming   Fair         
-  Intelligence  -1        Device      Good         
-  Wisdom        -2        Save        Fair         
-  Dexterity     -2        Stealth     Fair         
-  Constitution  -1        Searching   Fair         
-  Charisma      -1        Perception  Fair         
-  Life Rating   95%       Melee       Fair         
-  Base HP       40        Bows        Bad          
+  Strength      +0        Disarming   Fair (28)    
+  Intelligence  -1        Device      Good (35)    
+  Wisdom        -2        Save        Fair (20)    
+  Dexterity     -2        Stealth     Fair (4)     
+  Constitution  -1        Searching   Fair (25)    
+  Charisma      -1        Perception  Fair (26)    
+  Life Rating   95%       Melee       Fair (55)    
+  Base HP       40        Bows        Bad (5)      
   Experience   300%       Infravision 50'
   
 Ethereal Drake
@@ -198,14 +198,14 @@ in all of dragonkind (except for Steel Dragons which cannot breathe at
 all).
 
   Stats                   Skills
-  Strength      +2        Disarming   Fair         
-  Intelligence  +1        Device      Good         
-  Wisdom        -1        Save        Good         
-  Dexterity     +0        Stealth     Very Good    
-  Constitution  +1        Searching   Fair         
-  Charisma      +1        Perception  Fair         
-  Life Rating  102%       Melee       Fair         
-  Base HP       40        Bows        Bad          
+  Strength      +0        Disarming   Fair (28)    
+  Intelligence  -1        Device      Good (35)    
+  Wisdom        -2        Save        Good (27)    
+  Dexterity     -2        Stealth     Very Good (6)
+  Constitution  -1        Searching   Fair (25)    
+  Charisma      -1        Perception  Fair (26)    
+  Life Rating   95%       Melee       Fair (57)    
+  Base HP       40        Bows        Bad (5)      
   Experience   250%       Infravision 50'
   
 Crystal Drake
@@ -214,14 +214,14 @@ shards and melee powerfully with razor sharp claws and teeth. At high
 levels, they gain the power of reflection.
 
   Stats                   Skills
-  Strength      +1        Disarming   Fair         
-  Intelligence  -1        Device      Fair         
-  Wisdom        -2        Save        Excellent    
-  Dexterity     +0        Stealth     Fair         
-  Constitution  +0        Searching   Fair         
-  Charisma      +0        Perception  Fair         
-  Life Rating  100%       Melee       Superb       
-  Base HP       40        Bows        Bad          
+  Strength      +1        Disarming   Fair (28)    
+  Intelligence  -1        Device      Fair (20)    
+  Wisdom        -2        Save        Excellent (35
+  Dexterity     +0        Stealth     Fair (3)     
+  Constitution  +0        Searching   Fair (25)    
+  Charisma      +0        Perception  Fair (26)    
+  Life Rating  100%       Melee       Superb (110) 
+  Base HP       40        Bows        Bad (5)      
   Experience   275%       Infravision 50'
   
 Bronze Dragon
@@ -231,14 +231,14 @@ their bite attack. Also, they become more and more resistant to
 confusion as they mature.
 
   Stats                   Skills
-  Strength      +4        Disarming   Fair         
-  Intelligence  +3        Device      Good         
-  Wisdom        +0        Save        Good         
-  Dexterity     +2        Stealth     Good         
-  Constitution  +3        Searching   Fair         
-  Charisma      +3        Perception  Fair         
-  Life Rating  110%       Melee       Good         
-  Base HP       40        Bows        Bad          
+  Strength      +0        Disarming   Fair (28)    
+  Intelligence  -1        Device      Good (35)    
+  Wisdom        -2        Save        Good (28)    
+  Dexterity     -2        Stealth     Good (5)     
+  Constitution  -1        Searching   Fair (25)    
+  Charisma      -1        Perception  Fair (26)    
+  Life Rating  100%       Melee       Good (60)    
+  Base HP       40        Bows        Bad (5)      
   Experience   250%       Infravision 50'
   
 Gold Dragon
@@ -248,14 +248,14 @@ their foes. Also, they become more and more resistant to sound as they
 mature.
 
   Stats                   Skills
-  Strength      +4        Disarming   Fair         
-  Intelligence  +3        Device      Good         
-  Wisdom        +0        Save        Good         
-  Dexterity     +2        Stealth     Fair         
-  Constitution  +3        Searching   Fair         
-  Charisma      +3        Perception  Fair         
-  Life Rating  110%       Melee       Excellent    
-  Base HP       40        Bows        Bad          
+  Strength      +0        Disarming   Fair (28)    
+  Intelligence  -1        Device      Good (30)    
+  Wisdom        -2        Save        Good (28)    
+  Dexterity     -2        Stealth     Fair (4)     
+  Constitution  -1        Searching   Fair (25)    
+  Charisma      -1        Perception  Fair (26)    
+  Life Rating  100%       Melee       Excellent (85
+  Base HP       40        Bows        Bad (5)      
   Experience   250%       Infravision 50'
   
 Steel Dragon
@@ -270,71 +270,91 @@ putting all the other dragons to complete and utter shame. They also
 have the most hitpoints of all dragons.
 
   Stats                   Skills
-  Strength      +8        Disarming   Fair         
-  Intelligence  -6        Device      Bad          
-  Wisdom        -6        Save        Superb       
-  Dexterity     -3        Stealth     Poor         
-  Constitution  +7        Searching   Bad          
-  Charisma      +3        Perception  Bad          
-  Life Rating  140%       Melee       Superb       
-  Base HP       40        Bows        Bad          
+  Strength      +5        Disarming   Fair (28)    
+  Intelligence  -6        Device      Bad (3)      
+  Wisdom        -6        Save        Superb (50)  
+  Dexterity     +0        Stealth     Poor (2)     
+  Constitution  +4        Searching   Bad (10)     
+  Charisma      +0        Perception  Bad (7)      
+  Life Rating  125%       Melee       Superb (155) 
+  Base HP       40        Bows        Bad (5)      
+  Experience   250%       Infravision 50'
+  
+Silver Dragon
+Silver Dragons are wyrms of inertia. While they are not quite as strong 
+as most other dragons, they eventually slow monsters with their bite 
+attack. Also, they become more and more resistant to sslowing as they 
+mature.
+
+  Stats                   Skills
+  Strength      +0        Disarming   Fair (28)    
+  Intelligence  -1        Device      Good (30)    
+  Wisdom        -2        Save        Good (28)    
+  Dexterity     -2        Stealth     Fair (4)     
+  Constitution  -1        Searching   Fair (25)    
+  Charisma      -1        Perception  Fair (26)    
+  Life Rating  100%       Melee       Excellent (85
+  Base HP       40        Bows        Bad (5)      
   Experience   250%       Infravision 50'
   
 Table 1 - Dragon Statistic Bonus Table
 
                   STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp  Shop
-Red Dragon         +4   +2   +1   +1   +3   +2  115%  +40  250%  130%
-White Dragon       +4   +2   +1   +1   +3   +2  115%  +40  250%  130%
-Blue Dragon        +4   +2   +1   +1   +3   +2  115%  +40  250%  130%
-Black Dragon       +4   +2   +1   +1   +3   +2  115%  +40  250%  130%
-Green Dragon       +4   +2   +1   +1   +3   +2  115%  +40  250%  130%
-Shadow Drake       +2   +1   -1   -1   +0   +2   95%  +40  300%  130%
+Red Dragon         +1   -1   -2   -2   +0   -1  100%  +40  250%  130%
+White Dragon       +1   -1   -2   -2   +0   -1  100%  +40  250%  130%
+Blue Dragon        +1   -1   -2   -2   +0   -1  100%  +40  250%  130%
+Black Dragon       +1   -1   -2   -2   +0   -1  100%  +40  250%  130%
+Green Dragon       +1   -1   -2   -2   +0   -1  100%  +40  250%  130%
+Shadow Drake       +0   -1   -2   -2   -1   -1   90%  +40  300%  130%
 Law Drake          +0   -1   -2   -2   -1   -1  100%  +40  280%  130%
 Chaos Drake        +0   -1   -2   -2   -1   -1  100%  +40  280%  130%
 Balance Drake      +0   -1   -2   -2   -1   -1   95%  +40  300%  130%
-Ethereal Drake     +2   +1   -1   +0   +1   +1  102%  +40  250%  130%
+Ethereal Drake     +0   -1   -2   -2   -1   -1   95%  +40  250%  130%
 Crystal Drake      +1   -1   -2   +0   +0   +0  100%  +40  275%  130%
-Bronze Dragon      +4   +3   +0   +2   +3   +3  110%  +40  250%  130%
-Gold Dragon        +4   +3   +0   +2   +3   +3  110%  +40  250%  130%
-Steel Dragon       +8   -6   -6   -3   +7   +3  140%  +40  250%  130%
+Bronze Dragon      +0   -1   -2   -2   -1   -1  100%  +40  250%  130%
+Gold Dragon        +0   -1   -2   -2   -1   -1  100%  +40  250%  130%
+Steel Dragon       +5   -6   -6   +0   +4   +0  125%  +40  250%  130%
+Silver Dragon      +0   -1   -2   -2   -1   -1  100%  +40  250%  130%
 
 
 Table 2 - Dragon Skill Bonus Table I
 
                   Disarming     Device        Save          Stealth      
-Red Dragon        Fair          Good          Fair          Fair         
-White Dragon      Fair          Good          Fair          Fair         
-Blue Dragon       Fair          Good          Fair          Fair         
-Black Dragon      Fair          Good          Fair          Fair         
-Green Dragon      Fair          Good          Fair          Fair         
-Shadow Drake      Fair          Good          Good          Very Good    
-Law Drake         Fair          Excellent     Very Good     Fair         
-Chaos Drake       Fair          Excellent     Very Good     Fair         
-Balance Drake     Fair          Good          Fair          Fair         
-Ethereal Drake    Fair          Good          Good          Very Good    
-Crystal Drake     Fair          Fair          Excellent     Fair         
-Bronze Dragon     Fair          Good          Good          Good         
-Gold Dragon       Fair          Good          Good          Fair         
-Steel Dragon      Fair          Bad           Superb        Poor         
+Red Dragon        Fair (28)     Good (30)     Fair (23)     Fair (4)     
+White Dragon      Fair (28)     Good (30)     Fair (23)     Fair (4)     
+Blue Dragon       Fair (28)     Good (30)     Fair (23)     Fair (4)     
+Black Dragon      Fair (28)     Good (30)     Fair (23)     Fair (4)     
+Green Dragon      Fair (28)     Good (30)     Fair (23)     Fair (4)     
+Shadow Drake      Fair (28)     Good (35)     Good (28)     Very Good (6)
+Law Drake         Fair (28)     Excellent (45 Very Good (30 Fair (4)     
+Chaos Drake       Fair (28)     Excellent (45 Very Good (30 Fair (4)     
+Balance Drake     Fair (28)     Good (35)     Fair (20)     Fair (4)     
+Ethereal Drake    Fair (28)     Good (35)     Good (27)     Very Good (6)
+Crystal Drake     Fair (28)     Fair (20)     Excellent (35 Fair (3)     
+Bronze Dragon     Fair (28)     Good (35)     Good (28)     Good (5)     
+Gold Dragon       Fair (28)     Good (30)     Good (28)     Fair (4)     
+Steel Dragon      Fair (28)     Bad (3)       Superb (50)   Poor (2)     
+Silver Dragon     Fair (28)     Good (30)     Good (28)     Fair (4)     
 
 
 Table 3 - Dragon Skill Bonus Table II
 
                   Searching     Perception    Melee         Bows          Infra
-Red Dragon        Fair          Fair          Excellent     Bad             50'
-White Dragon      Fair          Fair          Excellent     Bad             50'
-Blue Dragon       Fair          Fair          Excellent     Bad             50'
-Black Dragon      Fair          Fair          Excellent     Bad             50'
-Green Dragon      Fair          Fair          Excellent     Bad             50'
-Shadow Drake      Fair          Fair          Fair          Bad             50'
-Law Drake         Fair          Fair          Good          Bad             50'
-Chaos Drake       Fair          Fair          Good          Bad             50'
-Balance Drake     Fair          Fair          Fair          Bad             50'
-Ethereal Drake    Fair          Fair          Fair          Bad             50'
-Crystal Drake     Fair          Fair          Superb        Bad             50'
-Bronze Dragon     Fair          Fair          Good          Bad             50'
-Gold Dragon       Fair          Fair          Excellent     Bad             50'
-Steel Dragon      Bad           Bad           Superb        Bad             50'
+Red Dragon        Fair (25)     Fair (26)     Excellent (10 Bad (5)         50'
+White Dragon      Fair (25)     Fair (26)     Excellent (10 Bad (5)         50'
+Blue Dragon       Fair (25)     Fair (26)     Excellent (10 Bad (5)         50'
+Black Dragon      Fair (25)     Fair (26)     Excellent (10 Bad (5)         50'
+Green Dragon      Fair (25)     Fair (26)     Excellent (10 Bad (5)         50'
+Shadow Drake      Fair (25)     Fair (26)     Fair (55)     Bad (5)         50'
+Law Drake         Fair (25)     Fair (26)     Good (60)     Bad (5)         50'
+Chaos Drake       Fair (25)     Fair (26)     Good (60)     Bad (5)         50'
+Balance Drake     Fair (25)     Fair (26)     Fair (55)     Bad (5)         50'
+Ethereal Drake    Fair (25)     Fair (26)     Fair (57)     Bad (5)         50'
+Crystal Drake     Fair (25)     Fair (26)     Superb (110)  Bad (5)         50'
+Bronze Dragon     Fair (25)     Fair (26)     Good (60)     Bad (5)         50'
+Gold Dragon       Fair (25)     Fair (26)     Excellent (85 Bad (5)         50'
+Steel Dragon      Bad (10)      Bad (7)       Superb (155)  Bad (5)         50'
+Silver Dragon     Fair (25)     Fair (26)     Excellent (85 Bad (5)         50'
 
 
 
