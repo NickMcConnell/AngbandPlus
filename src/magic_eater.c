@@ -8,6 +8,7 @@
 static object_type _wands[_MAX_SLOTS];
 static object_type _staves[_MAX_SLOTS];
 static object_type _rods[_MAX_SLOTS];
+static unsigned char _labels[_MAX_SLOTS];
 
 static void _birth(void)
 {
@@ -53,6 +54,68 @@ static cptr _which_name(int tval)
     return NULL;
 }
 
+static int _magic_eater_label_slot(unsigned char label)
+{
+    int slot;
+    for (slot = 0; slot < _MAX_SLOTS; slot++)
+    {
+        if (_labels[slot] == label) return slot;
+    }
+    return -1;
+}
+
+static void _magic_eater_calculate_labels(object_type *list, bool allow_inscriptions)
+{
+    int slot;
+    
+    /* Initialize by ordinal */
+    for (slot = 0; slot < _MAX_SLOTS; slot++)
+    {
+        _labels[slot] = 'a' + slot;
+    }
+
+    if (!allow_inscriptions) return;
+
+    /* Override by inscription (e.g. @mf) */
+    for (slot = 0; slot < _MAX_SLOTS; slot++)
+    {
+        object_type *o_ptr = list + slot;
+        if (o_ptr)
+        {
+            unsigned char label = obj_label(o_ptr);
+            if (label == 'X' || label == 'W' || label == 'S' || label == 'R' || label == 'Z')
+            {
+                label = tolower(label);
+            }
+            if (label)
+            {
+                /* override this label if in use ... */
+                int slot2 = _magic_eater_label_slot(label);
+                if (slot2 > -1) _labels[slot2] = ' ';
+                _labels[slot] = label;
+            }
+        }
+    }
+
+    /* Add new labels to prevent unusable items */ 
+    for (slot = 0; slot < _MAX_SLOTS; slot++)
+    {
+        if (_labels[slot] == ' ')
+        {
+            int i;
+            unsigned char lowercase[27] = "abcdefghijklmnopqrstuvwxyz";
+            for (i = 0; i < 26; i++)
+            {
+                int slot2 = _magic_eater_label_slot(lowercase[i]);
+                if (slot2 > -1) continue;
+                _labels[slot] = lowercase[i];     
+                break;
+            }
+        }
+    }
+}
+
+
 static void _display(object_type *list, rect_t display)
 {
     char    buf[MAX_NLEN];
@@ -89,7 +152,7 @@ static void _display(object_type *list, rect_t display)
     {
         object_type *o_ptr = list + i;
 
-        doc_printf(doc, " %c) ", I2A(i));
+        doc_printf(doc, " %c) ", _labels[i]);
 
         if (o_ptr->k_idx)
         {
@@ -116,6 +179,7 @@ static void _display(object_type *list, rect_t display)
 #define _ALLOW_EMPTY    0x01 /* Absorb */
 #define _ALLOW_SWITCH   0x02 /* Browse/Use */
 #define _ALLOW_EXCHANGE 0x04
+#define _ALLOW_INSCRIBE 0x08
 static object_type *_choose(cptr verb, int tval, int options)
 {
     object_type *result = NULL;
@@ -126,6 +190,7 @@ static object_type *_choose(cptr verb, int tval, int options)
     string_ptr   prompt = NULL;
     bool         done = FALSE;
     bool         exchange = FALSE;
+    bool	      inscribe = FALSE;
     int          slot1 = _INVALID_SLOT, slot2 = _INVALID_SLOT;
 
     if ((options & _ALLOW_SWITCH) && REPEAT_PULL(&cmd))
@@ -163,7 +228,7 @@ static object_type *_choose(cptr verb, int tval, int options)
         }
         else
         {
-            string_printf(prompt, "%s which %s", verb, _which_name(which_tval));
+            string_printf(prompt, "%s which %s", inscribe ? "Inscribe" : verb, _which_name(which_tval));
             if (options & _ALLOW_SWITCH)
             {
                 switch (which_tval)
@@ -174,12 +239,15 @@ static object_type *_choose(cptr verb, int tval, int options)
                 }
                 if (options & _ALLOW_EXCHANGE)
                     string_append_s(prompt, ", 'X' to Exchange");
+                if (options & _ALLOW_INSCRIBE)
+                    string_append_s(prompt, ", 'Z' to Inscribe");
                 string_append_s(prompt, "]:");
             }
             else
                 string_append_c(prompt, ':');
         }
         prt(string_buffer(prompt), 0, 0);
+        _magic_eater_calculate_labels(_which_list(which_tval), ((strpos("Use", verb) == 1) && (!inscribe)));
         _display(_which_list(which_tval), display);
 
         cmd = inkey_special(FALSE);
@@ -206,9 +274,14 @@ static object_type *_choose(cptr verb, int tval, int options)
             }
         }
 
-        if ('a' <= cmd && cmd < 'a' + _MAX_SLOTS)
+        if (options & _ALLOW_INSCRIBE)
         {
-            slot = A2I(cmd);
+            if (!inscribe && (cmd == 'Z')) inscribe = TRUE;
+        }
+
+        if (_magic_eater_label_slot((unsigned char)cmd) > -1)
+        {
+            slot = _magic_eater_label_slot((unsigned char)cmd);
             if (exchange)
             {
                 if (slot1 == _INVALID_SLOT)
@@ -229,6 +302,23 @@ static object_type *_choose(cptr verb, int tval, int options)
                     slot1 = slot2 = _INVALID_SLOT;
                 }
             }
+            else if (inscribe)
+            {
+                object_type *o_ptr = _which_obj(which_tval, slot);
+                char    name[MAX_NLEN];
+                char    insc[80];
+
+                object_desc(name, o_ptr, OD_OMIT_INSCRIPTION | OD_COLOR_CODED);
+                if (o_ptr->inscription)
+                    strcpy(insc, quark_str(o_ptr->inscription));
+                else
+                    strcpy(insc, "");
+
+                prt("Inscription: ", 0, 0);
+                if (askfor(insc, 80))
+                    o_ptr->inscription = quark_add(insc);
+                inscribe = FALSE;
+            }
             else
             {
                 object_type *o_ptr = _which_obj(which_tval, slot);
@@ -239,10 +329,11 @@ static object_type *_choose(cptr verb, int tval, int options)
                 }
             }
         }
-        else if ('A' <= cmd && cmd < 'A' + _MAX_SLOTS)
+        else if ('A' <= cmd && cmd < 'Z' && cmd != 'R' && cmd != 'W' && cmd != 'S' && cmd != 'X' 
+                 && _magic_eater_label_slot(tolower((unsigned char)cmd)) > -1)
         {
             obj_ptr obj;
-            slot = A2I(tolower(cmd));
+            slot = _magic_eater_label_slot(tolower((unsigned char)cmd));
             obj = _which_obj(which_tval, slot);
             if (obj->k_idx)
             {
@@ -261,7 +352,7 @@ static object_type *_choose(cptr verb, int tval, int options)
         case TV_STAFF: REPEAT_PUSH('s'); break;
         case TV_ROD: REPEAT_PUSH('r'); break;
         }
-        REPEAT_PUSH(I2A(slot));
+        REPEAT_PUSH(_labels[slot]);
     }
 
     screen_load();
@@ -367,7 +458,7 @@ void magic_eater_cast(int tval)
     if (!tval)
         tval = TV_WAND;
 
-    o_ptr = _choose("Use", tval, _ALLOW_SWITCH);
+    o_ptr = _choose("Use", tval, _ALLOW_SWITCH | _ALLOW_INSCRIBE);
     if (o_ptr)
         _use_object(o_ptr);
 }
@@ -379,8 +470,8 @@ static bool gain_magic(void)
     object_type *dest_ptr;
     char o_name[MAX_NLEN];
 
-    prompt.prompt = "Gain power of which item?";
-    prompt.error = "You have nothing to gain power from.";
+    prompt.prompt = "Absorb which device?";
+    prompt.error = "You have nothing to absorb magic from.";
     prompt.filter = object_is_device;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_FLOOR;
@@ -396,13 +487,13 @@ static bool gain_magic(void)
     {
         char prompt[255];
         object_desc(o_name, dest_ptr, OD_COLOR_CODED);
-        sprintf(prompt, "Really replace %s? <color:y>[y/N]</color>", o_name);
+        sprintf(prompt, "Really replace %s? <color:y>[y/n]</color>", o_name);
         if (msg_prompt(prompt, "ny", PROMPT_DEFAULT) == 'n')
             return FALSE;
     }
 
     object_desc(o_name, prompt.obj, OD_COLOR_CODED);
-    msg_format("You absorb magic of %s.", o_name);
+    msg_format("You absorb the magic of %s.", o_name);
 
     *dest_ptr = *prompt.obj;
 

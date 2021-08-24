@@ -2809,9 +2809,10 @@ bool bless_weapon(void)
     obj_prompt_t prompt = {0};
     u32b         flgs[OF_ARRAY_SIZE];
     char         o_name[MAX_NLEN];
+    byte         success_chance = 1;
 
     prompt.prompt = "Bless which weapon?";
-    prompt.error = "You have weapon to bless.";
+    prompt.error = "You have no weapon to bless.";
     prompt.filter = object_is_weapon;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_EQUIP;
@@ -2854,12 +2855,7 @@ bool bless_weapon(void)
     }
 
     /*
-     * Next, we try to bless it. Artifacts have a 1/3 chance of
-     * being blessed, otherwise, the operation simply disenchants
-     * them, godly power negating the magic. Ok, the explanation
-     * is silly, but otherwise priests would always bless every
-     * artifact weapon they find. Ego weapons and normal weapons
-     * can be blessed automatically.
+     * Next, we try to bless it. This now always works (except in special cases)
      */
     if (have_flag(flgs, OF_BLESSED))
     {
@@ -2870,7 +2866,16 @@ bool bless_weapon(void)
         return TRUE;
     }
 
-    if (!(object_is_artifact(prompt.obj) || object_is_ego(prompt.obj)) || one_in_(3))
+    if (have_flag(flgs, OF_SLAY_GOOD)) success_chance = 3;
+    if (have_flag(flgs, OF_KILL_GOOD)) success_chance = 5;
+    if (success_chance > 1) /* some weapons slay both good and evil */
+    {
+        if (have_flag(flgs, OF_SLAY_EVIL)) success_chance = 1;
+        else if (have_flag(flgs, OF_KILL_EVIL)) success_chance = 1;
+    }
+    if (prompt.obj->name1 == ART_WINBLOWS || prompt.obj->name1 == ART_MICRODOLLAR) success_chance = 10;
+
+    if (one_in_(success_chance))
     {
         /* Describe */
         msg_format("%s %s shine%s!",
@@ -2885,8 +2890,7 @@ bool bless_weapon(void)
     {
         bool dis_happened = FALSE;
 
-        msg_print("The weapon resists your blessing!");
-
+        msg_print("The unholy powers of the weapon resist your blessing!");
 
         /* Disenchant tohit */
         if (prompt.obj->to_h > 0)
@@ -4416,5 +4420,5 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
     if (p_ptr->current_r_idx)
         summon_kin_type = r_info[p_ptr->current_r_idx].d_char;
 
-    return summon_specific((pet ? -1 : 0), y, x, level, SUMMON_KIN, mode);
+    return summon_specific(SUMMON_WHO_PLAYER, y, x, level, SUMMON_KIN, mode);
 }

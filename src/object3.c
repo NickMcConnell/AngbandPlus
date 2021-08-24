@@ -98,6 +98,7 @@ static s32b _stats_q(u32b flgs[OF_ARRAY_SIZE], int pval)
     count = 0;
 
     cost += _check_flag_and_score(flgs, OF_MAGIC_MASTERY,  1500*mult, &count);
+    cost += _check_flag_and_score(flgs, OF_MAGIC_RESISTANCE,  1500*mult, &count);
     cost += _check_flag_and_score(flgs, OF_STEALTH,  500*mult, &count);
     cost += _check_flag_and_score(flgs, OF_SPELL_CAP,  1000*mult, &count);
     cost += _check_flag_and_score(flgs, OF_SPELL_POWER,  2500*mult, &count);
@@ -479,6 +480,8 @@ s32b jewelry_cost(object_type *o_ptr, int options)
     else
         obj_flags_known(o_ptr, flgs);
 
+    remove_opposite_flags(flgs);        
+
     if ((options & COST_REAL) || object_is_known(o_ptr))
     {
         to_h = o_ptr->to_h;
@@ -708,6 +711,8 @@ s32b lite_cost(object_type *o_ptr, int options)
     else
         obj_flags_known(o_ptr, flgs);
 
+    remove_opposite_flags(flgs);        
+
     pval = o_ptr->pval;
 
     switch (o_ptr->sval)
@@ -840,6 +845,8 @@ s32b quiver_cost(object_type *o_ptr, int options)
     else
         obj_flags_known(o_ptr, flgs);
 
+    remove_opposite_flags(flgs);        
+
     pval = o_ptr->pval;
 
     j = MAX(0, o_ptr->xtra4 - 60);
@@ -964,6 +971,8 @@ s32b armor_cost(object_type *o_ptr, int options)
         obj_flags(o_ptr, flgs);
     else
         obj_flags_known(o_ptr, flgs);
+
+    remove_opposite_flags(flgs);        
 
     if ((options & COST_REAL) || object_is_known(o_ptr))
     {
@@ -1150,6 +1159,10 @@ s32b armor_cost(object_type *o_ptr, int options)
     }
 
     p = _finalize_p(p, flgs, o_ptr, options);
+
+    /* Sexy Swimsuits aren't worthless */
+    if (object_is_(o_ptr, TV_SOFT_ARMOR, SV_ABUNAI_MIZUGI)) p = MAX(1, p);
+
     return p;
 }
 
@@ -1181,6 +1194,8 @@ s32b weapon_cost(object_type *o_ptr, int options)
         obj_flags(o_ptr, flgs);
     else
         obj_flags_known(o_ptr, flgs);
+
+    remove_opposite_flags(flgs);        
 
     if ((options & COST_REAL) || object_is_known(o_ptr))
     {
@@ -1506,6 +1521,8 @@ s32b bow_cost(object_type *o_ptr, int options)
         obj_flags(o_ptr, flgs);
     else
         obj_flags_known(o_ptr, flgs);
+
+    remove_opposite_flags(flgs);
 
     if ((options & COST_REAL) || object_is_known(o_ptr))
     {

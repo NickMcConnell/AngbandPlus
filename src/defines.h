@@ -18,8 +18,8 @@
 
 #define VER_MAJOR 7
 #define VER_MINOR 0
-#define VER_PATCH "nougat"
-#define VER_EXTRA 0
+#define VER_PATCH "cloudberry"
+#define VER_EXTRA 3
 #define VERSION_IS_DEVELOPMENT (FALSE)
 
 #define GAME_MODE_BEGINNER  0
@@ -155,8 +155,8 @@
  * it's a bit tedious to figure current memory requirements. Why
  * not just malloc() string data and let the C library handle things?
  */
-#define FAKE_NAME_SIZE  20 * 1024   /* max is 18532 (r_info) */
-#define FAKE_TEXT_SIZE  144 * 1024  /* max is 116771 (r_info) */
+#define FAKE_NAME_SIZE  24 * 1024   /* max is 18532 (r_info) */
+#define FAKE_TEXT_SIZE  160 * 1024  /* max is 116771 (r_info) */
 #define FAKE_TAG_SIZE   3 * 1024    /* max is 2092 (f_info) */
 
 
@@ -288,7 +288,7 @@
 /*
  * Random energy
  */
-#define ENERGY_NEED() ((predictable_energy_hack) ? 100 : (randnor(100, 18)))
+#define ENERGY_NEED() ((predictable_energy_hack) ? 100 : energy_need_clipper())
 
 
 /*
@@ -1440,6 +1440,7 @@ enum {
 #define ART_NAMAKE_BOW          182
 #define ART_ROBIN_HOOD          221
 #define ART_HELLFIRE            222
+#define ART_TUBER               356
 
 /* Arrows */
 #define ART_BARD_ARROW          153
@@ -1650,6 +1651,7 @@ enum {
 #define SV_RAILGUN                      51
 #define SV_NAMAKE_BOW                   63
 #define SV_HARP                         70
+#define SV_RANGED_MAX_NORMAL            24
 
 /* The "sval" codes for TV_DIGGING */
 #define SV_SHOVEL                        1
@@ -2637,6 +2639,7 @@ enum summon_specific_e {
 #define OM_EFFECT_COUNTED  0x0400    /* Stats */
 #define OM_DELAYED_MSG     0x0800    /* Describe inventory slot *after* resorting */
 #define OM_BEING_SHUFFLED  0x1000
+#define OM_SLIPPING        0x2000    /* Object has slipped off */
 
 
 /*
@@ -2644,7 +2647,7 @@ enum summon_specific_e {
  */
 #define MFLAG_VIEW      0x01    /* Monster is in line of sight */
 #define MFLAG_TEMP      0x02    /* Monster is marked for project_hack() */
-#define MFLAG_XXX2      0x04    /* (unused) */
+#define MFLAG_PACKHACK  0x04    /* Pack loading hack */
 #define MFLAG_XXX3      0x08    /* (unused) */
 #define MFLAG_BORN      0x10    /* Monster is still being born */
 #define MFLAG_NICE      0x20    /* Monster is still being nice */
@@ -2670,6 +2673,8 @@ enum summon_specific_e {
 #define MFLAG2_HORROR           0x00020000   /* Monster has triggered Eldritch Horror */
 #define MFLAG2_COUNTED_KILLED   0x00040000   /* Monster has been counted as killed by quests_on_kill_mon() */
 #define MFLAG2_MON_HIT_OKAY     0x00080000
+#define MFLAG2_WASPET           0x00100000   /* Monster is or was a pet */
+#define MFLAG2_DIRECT_PY_SUMMON 0x00200000   /* Monster was summoned by the player */
 
 /*
  * Object Flags (OF_*)
@@ -4668,6 +4673,9 @@ extern int PlayerUID;
 #define MON_OSIRIS              1259
 #define MON_ISIS                1263
 #define MON_AMUN                1266
+#define MON_FISHROOSTER         1272
+#define MON_SEA_GIANT           1276
+#define MON_AEGIR               1277
 
 /* The Metal Babble guards the Arena dungeon, but this requires the guardian to be a unique
    monster or the dungeon never gets flagged as completed. Note, this messes up the needle
@@ -4856,7 +4864,7 @@ extern int PlayerUID;
 #define DF1_CAVE                0x00000400
 #define DF1_CAVERN              0x00000800
 #define DF1_RANDOM              0x00001000
-#define DF1_XXX13               0x00002000
+#define DF1_COFFEE              0x00002000
 #define DF1_XXX14               0x00004000
 #define DF1_XXX15               0x00008000
 #define DF1_FORGET              0x00010000
@@ -4965,6 +4973,7 @@ enum mon_save_fields_e {
     SAVE_MON_ANGER,
     SAVE_MON_MANA,
     SAVE_MON_MINISLOW,
+    SAVE_MON_HOLD_O_IDX,
 };
 
 /* Sub-alignment flags for neutral monsters */
@@ -5784,6 +5793,7 @@ enum effect_e
     EFFECT_SACRED_KNIGHTS,
     EFFECT_GONG,
     EFFECT_MURAMASA,
+    EFFECT_EXPERTSEXCHANGE,
 
     EFFECT_MAX
 };
@@ -5854,6 +5864,7 @@ enum {
     ORIGIN_KAWARIMI,            /* statue left behind by kawarimi */
     ORIGIN_STOLEN,              /* stolen by a pickpocket */
     ORIGIN_CAN_OF_TOYS,         /* found in a can of toys */
+    ORIGIN_BLOOD,               /* blood pool */
 
     ORIGIN_MAX
 };

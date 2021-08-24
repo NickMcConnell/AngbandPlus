@@ -185,6 +185,7 @@ extern s16b m_cnt;
 extern s16b hack_m_idx;
 extern s16b hack_m_idx_ii;
 extern s16b warning_hack_hp;
+extern s16b run_count;
 extern int hack_max_m_dam;
 extern int total_friends;
 extern s32b friend_align;
@@ -195,6 +196,8 @@ extern byte summon_pantheon_hack;
 extern bool quest_reward_drop_hack;
 extern bool very_nice_summon_hack;
 extern bool predictable_energy_hack;
+extern bool delay_autopick_hack;
+extern bool monsters_damaged_hack;
 
 /*
  * Software options (set via the '=' command).  See "tables.c"
@@ -204,6 +207,7 @@ extern bool predictable_energy_hack;
 
 extern bool rogue_like_commands;    /* Rogue-like commands */
 extern bool always_pickup;    /* Pick things up by default */
+extern bool online_macros;    /* Disable Run in macros */
 extern bool quick_messages;    /* Activate quick messages */
 extern bool command_menu;    /* Enable command selection menu */
 extern bool use_old_target;    /* Use old target by default */
@@ -253,6 +257,7 @@ extern bool display_path;    /* Display actual path before shooting */
 extern bool plain_descriptions;    /* Plain object descriptions */
 extern bool always_show_list;    /* Always show list when choosing items */
 extern bool depth_in_feet;    /* Show dungeon level in feet */
+extern bool effective_speed;  /* Use Ighalli's speed display */
 extern bool show_labels;    /* Show labels in object listings */
 extern bool show_weights;    /* Show weights in object listings */
 extern bool show_discounts;
@@ -283,6 +288,7 @@ extern bool stack_force_costs;    /* Merge discounts when stacking */
 extern bool expand_list;    /* Expand the power of the list commands */
 extern bool empty_levels;    /* Allow empty 'arena' levels */
 extern bool bound_walls_perm;    /* Boundary walls become 'permanent wall' */
+extern bool delay_autopick;  /* Always use delayed autopick */
 extern bool last_words;    /* Leave last words when your character dies */
 
 #ifdef WORLD_SCORE
@@ -321,6 +327,7 @@ extern bool alert_insc_gone;    /* Alert when inscribed item is destroyed or sto
 extern bool coffee_break;   /* Coffeebreak mode */
 extern bool easy_id;        /* Easy Identify */
 extern bool easy_lore;      /* Easy Monster Lore */
+extern bool empty_lore;     /* Always start with empty item lore */
 extern bool easy_damage;    /* Peek into damage and monster health */
 extern bool allow_spoilers;
 extern bool power_tele;     /* Use old-style, non-fuzzy telepathy */
@@ -348,6 +355,7 @@ extern bool easy_thalos;
 extern bool never_forget;
 extern bool no_chris;
 extern bool no_scrambling;
+extern bool comp_mode;
 extern bool reduce_uniques;
 extern byte reduce_uniques_pct;
 
@@ -630,6 +638,7 @@ extern bool birth_hack;
 extern void add_history_from_pref_line(cptr t);
 extern cptr birth_get_class_desc(int i);
 extern cptr birth_get_realm_desc(int i);
+extern void empty_lore_wipe(void);
 extern void player_birth(void);
 extern void get_max_stats(void);
 extern int calc_exp_factor(void);
@@ -927,6 +936,7 @@ extern void do_sneeze(void);
 /* dungeon.c */
 extern void extract_option_vars(void);
 extern void determine_today_mon(bool conv_old);
+extern s16b energy_need_clipper(void);
 extern void notice_lite_change(object_type *o_ptr);
 extern void play_game(bool new_game);
 extern bool psychometry(void);
@@ -997,6 +1007,7 @@ extern char tval_to_attr_char(int tval);
 extern char attr_to_attr_char(byte a);
 extern char *object_desc_kosuu(char *t, object_type *o_ptr);
 extern void object_desc(char *buf, object_type *o_ptr, u32b mode);
+extern int resist_opposite_flag(int i);
 
 /* floors.c */
 extern void init_saved_floors(bool force);
@@ -1184,13 +1195,13 @@ extern bool player_place(int y, int x);
 extern void monster_drop_carried_objects(monster_type *m_ptr);
 extern byte monster_pantheon(monster_race *r_ptr);
 
-/* mon_display.c */
+/* mon_info.c */
 extern void mon_display(monster_race *r_ptr);
 extern void mon_display_rect(monster_race *r_ptr, rect_t display);
 extern void mon_display_doc(monster_race *r_ptr, doc_ptr doc);
 extern void mon_display_possessor(monster_race *r_ptr, doc_ptr doc);
 
-/* obj_display.c */
+/* obj_info.c */
 extern void obj_display(object_type *o_ptr);
 extern void obj_display_rect(object_type *o_ptr, rect_t display);
 extern void obj_display_doc(object_type *o_ptr, doc_ptr doc);
@@ -1199,9 +1210,10 @@ extern void device_display_doc(object_type *o_ptr, doc_ptr doc);
 extern void ego_display(ego_type *e_ptr);
 extern void ego_display_rect(ego_type *e_ptr, rect_t display);
 extern void ego_display_doc(ego_type *e_ptr, doc_ptr doc);
+extern void remove_opposite_flags(u32b flgs[OF_ARRAY_SIZE]);
 extern bool display_origin(object_type *o_ptr, doc_ptr doc);
 
-/* py_display.c */
+/* py_info.c */
 extern void py_display(void);
 extern void py_display_birth(void);
 extern void py_display_spells(doc_ptr doc, spell_info *table, int ct);
@@ -1360,6 +1372,9 @@ extern s32b new_object_cost(object_type *o_ptr, int options);
 /* racial.c */
 extern bool can_do_cmd_cast(void);
 extern void stop_mouth(void);
+
+/* race_sword.c */
+extern void obj_essence_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE]);
 
 /* save.c */
 extern bool save_player(void);
@@ -1650,7 +1665,7 @@ extern void pause_line(int row);
 extern void pause_line_aux(cptr prompt, int row, int col);
 extern void request_command(int shopping);
 extern bool is_a_vowel(int ch);
-extern int get_keymap_dir(char ch);
+extern int get_keymap_dir(char ch, bool under);
 extern errr type_string(cptr str, uint len);
 extern void roff_to_buf(cptr str, int wlen, char *tbuf, size_t bufsize);
 
@@ -1671,6 +1686,7 @@ extern int my_stricmp(cptr a, cptr b);
 extern void str_tolower(char *str);
 extern int inkey_special(bool numpad_cursor);
 extern unsigned int strpos(const char *mika, const char *missa);
+extern bool clip_and_locate(char *poista, char *mista);
 
 /* xtra1.c */
 extern void cnv_stat(int val, char *out_val);
@@ -2383,6 +2399,9 @@ extern void    vampire_check_light_status(void);
 extern void    vampire_take_light_damage(int amt);
 extern void    vampire_take_dark_damage(int amt);
 
+extern int     water_flow_rate(void);
+extern void    water_mana_action(byte check_hurt_mode, int mana);
+
 /* Mimic Forms */
 extern race_t *bat_get_race(void);
 extern race_t *clay_golem_get_race(void);
@@ -2415,6 +2434,7 @@ extern void     alchemist_browse(void);
 extern class_t *alchemist_get_class(void);
 extern int      alchemist_infusion_energy_use(void);
 extern void     alchemist_super_potion_effect(int sval);
+extern void     alchemist_set_hero(bool *notice, int uus_arvo, bool normal_hero);
 
 /* duelist.c */
 extern cptr duelist_current_challenge(void);

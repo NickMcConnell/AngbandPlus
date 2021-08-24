@@ -280,6 +280,14 @@ bool player_obviously_poly_immune(void)
     return FALSE;
 }
 
+/* Currently, water elementals are the only players with non-drainable
+ * mana, but this could change in the future */
+bool player_mana_drainable(void)
+{
+    if (elemental_is_(ELEMENTAL_WATER)) return FALSE;
+    return TRUE;
+}
+
 int gf_affect_p(int who, int type, int dam, int flags)
 {
     int          result = 0;
@@ -910,7 +918,7 @@ int gf_affect_p(int who, int type, int dam, int flags)
         {
             if (!touch) msg_print("You keep your wits about you!");
         }
-        else if (p_ptr->csp)
+        else if ((p_ptr->csp) && (player_mana_drainable()))
         {
             if (who > 0) msg_format("%^s draws psychic energy from you!", m_name);
             else msg_print("Your psychic energy is drawn!");
@@ -954,13 +962,16 @@ int gf_affect_p(int who, int type, int dam, int flags)
             if (!res_save_default(RES_CHAOS) && one_in_(3))
                 set_image(p_ptr->image + randint0(25) + 15, FALSE);
 
-            p_ptr->csp -= touch ? 10 : 50;
-            if (p_ptr->csp < 0)
+            if (player_mana_drainable())
             {
-                p_ptr->csp = 0;
-                p_ptr->csp_frac = 0;
+                p_ptr->csp -= touch ? 10 : 50;
+                if (p_ptr->csp < 0)
+                {
+                    p_ptr->csp = 0;
+                    p_ptr->csp_frac = 0;
+                }
+                p_ptr->redraw |= PR_MANA;
             }
-            p_ptr->redraw |= PR_MANA;
         }
         result = take_hit(damage_type, dam, m_name);
         break;
@@ -980,7 +991,7 @@ int gf_affect_p(int who, int type, int dam, int flags)
             {
                 if (!touch) msg_print("You keep your wits about you!");
             }
-            else if (!CHECK_MULTISHADOW())
+            else if ((!CHECK_MULTISHADOW()) && (player_mana_drainable()))
             {
                 msg_print("Your mind is blasted by psionic energy.");
                 if (touch)
@@ -1345,13 +1356,13 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
     case GF_MANA_CLASH:
         if (seen) obvious = TRUE;
         _BABBLE_HACK()
-        if (!race->freq_spell)
+        if ((!race->spells) || (!race->spells->freq))
         {
             note = " is immune.";
             dam = 0;
         }
         else /* 900 max dam coming in ... ~600 max dam going out */
-            dam = dam * MIN(66, race->freq_spell) / 100;
+            dam = dam * MIN(66, race->spells->freq) / 100;
         break;
     case GF_ACID:
         if (touch && seen_msg) msg_format("%^s is <color:G>dissolved</color>!", m_name);
@@ -1719,6 +1730,13 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
             dam *= 3; dam /= randint1(6) + 6;
             mon_lore_3(mon, RF3_NO_CONF);
         }
+        else if (randint1(race->level) >= randint1(caster_lev))
+        {
+            do_conf = 0;
+            dam -= (dam / 10);
+            note = " resists the effects!";
+        }
+
         else do_conf = _gf_distance_mod(10 + randint1(15));
         break;
     case GF_DISENCHANT:
@@ -1868,7 +1886,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                     if (!unique)
                     {
                         note = " is suspended!";
-                        do_paralyzed = 3;
+                        do_paralyzed = 2;
                     }
                     else
                     {

@@ -51,10 +51,10 @@
 V:2.8.1
 
 N:1:of Galadriel
-I:39:4:1
+I:39:4:5
 W:30:1:10:10000
 P:0:1d1:0:0:0
-F:SEARCH | INSTA_ART
+F:SEARCH | INSTA_ART | RES_DARK
 E:LITE_AREA:10:15
 E:The phial wells with clear light...
 D:A small crystal phial, with the light of Earendil's Star contained inside.
@@ -1253,8 +1253,12 @@ F:STR | DEX | HIDE_TYPE |
 F:SLAY_TROLL | SLAY_ORC | SHOW_MODS
 E:HEAL:10:4:30
 E:Your battle axe radiates deep purple...
-D:A superbly crafted double-bladed axe that slays the creatures of earth and
-D:allows rapid recovery from their blows.
+D:A superbly crafted battle axe with spells to slay all creatures of earth
+D:and allow rapid recovery from their blows, renowned in legends of the North
+D:as a token of the lasting friendship between dwarves and men. Lord Gwilim
+D:once wielded it in battle, its twin blades singing in the night as he
+D:conquered the forest camp of the orcs of Morgul and single-handedly
+D:repelled their foul invasion.
 
 # The Lochaber Axe 'Mundwine' -> of the Dwarves
 
@@ -1903,6 +1907,8 @@ P:0:2d6:18:9:0
 F:CON | SEARCH | BLOWS |
 F:SLAY_EVIL | KILL_DRAGON | ESP_DRAGON |
 F:SHOW_MODS
+D:The sword of dragon-slayer Bellomarius, and later of Giles. Hidden within
+D:its unassuming blade are powerful spells to detect and slay wyrms.
 
 N:168:of Giles
 I:37:2:2
@@ -2833,7 +2839,7 @@ E:SUMMON_MONSTERS:40:25
 E:Your golden apple pulsates!
 D:The legendary Apple of Discord, created by Eris in revenge for
 D:not being invited to the wedding of Peleus and Thetis. On this
-D:apple is engrave "For the Fairest," and Athena, Hera, and Aphrodite
+D:apple is engraved "For the Fairest," and Athena, Hera, and Aphrodite
 D:all laid claim to it. When the Trojan Prince gave the apple to
 D:Aphrodite, he received Helen of Troy, which sparked the Trojan War.
 
@@ -3118,7 +3124,7 @@ W:80:40:30:125000
 P:0:1d1:0:0:12
 F:QUESTITEM | HIDE_TYPE
 F:INT | CHR | SPEED |
-F:RES_COLD | RES_FIRE | RES_ACID | RES_ELEC | RES_POIS | RES_NETHER | RES_DARK | RES_LITE
+F:RES_COLD | RES_ELEC | RES_POIS | RES_NETHER | RES_DARK | RES_LITE
 F:DEC_MANA | SPELL_CAP
 F:REGEN | XTRA_H_RES
 
@@ -3576,6 +3582,53 @@ D:Forged from stolen mithril for the evil king of Liweris, it is imbued
 D:with dark powers that make it a mortal enemy of all things good, and deadly
 D:to dragonkind. The city of Liweris was razed by dragons as soon as the word
 D:got out, and the king died in flames; but his spear survived.
+
+N:353:of Manychin
+I:22:3:3
+W:20:9:70:25000
+P:0:3d4:4:8:0
+F:STR | DEC_STEALTH | SLAY_HUMAN | SLAY_UNDEAD | ESP_HUMAN | ESP_UNDEAD |
+F:RES_FEAR | FREE_ACT | VORPAL |
+E:CHARM_MONSTER:40:25
+E:You proclaim your intention to liberate Angband!
+D:The lost sickle of the legendary hero Manychin, who renounced his
+D: comfortable life as a prince to lead oppressed serfs in revolt against the
+D: nobility.
+
+N:354:of Multi-Skills
+I:30:2:4
+W:40:76:20:100000
+P:2:1d1:3:2:3
+F:SPEED | STR | DEX | CON | RES_DISEN | REGEN | FREE_ACT | AGGRAVATE
+F:NO_ENCHANT
+E:EXPERTSEXCHANGE:80:100
+D:Wearing these state-of-the-art boots, you feel strong, agile, and
+D: healthy... and yet strangely unsure of yourself.
+
+N:355:of Dogram
+I:31:1:3
+W:40:15:5:30000
+P:1:0d0:9:1:12
+F:SPEED | DEX | STEALTH | FREE_ACT | RES_FEAR | SUST_DEX
+D:The gloves of Dogram the Terrible, master criminal and hybrid-burglar
+D:nonpareil.
+
+N:356:of Tuber
+I:19:13:3
+W:48:28:40:30000
+P:0:x3.50:39:16:0
+F:WIS | BRAND_COLD | RES_COLD | RES_FEAR | HIDE_TYPE | SHOW_MODS
+E:STASIS_MONSTERS:66:300:92
+D:The bow of sure-aimed Tuber, son of the hero Bubo, imbued with the powers
+D:of the frost spirits who once held him captive.
+
+N:357:of Ossian
+I:34:4:3
+W:40:20:60:30000
+P:6:1d2:0:0:22
+F:STR | CON | REGEN | REFLECT | RES_FEAR | SUST_STR | SUST_CON
+D:This magical shield once protected strong-armed Ossian, who never
+D:backed away from a struggle.
 
 # N: serial number : item name
 # I: tval : sval : pval

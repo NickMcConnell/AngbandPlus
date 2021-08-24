@@ -311,7 +311,7 @@ static int _attack_level(void)
     switch (p_ptr->psubrace)
     {
     case DRAGON_STEEL:
-        l = MAX(1, l * 130 / 100);
+        l = MAX(1, l * 115 / 100);
         break;
 
     case DRAGON_RED:
@@ -3221,7 +3221,7 @@ static race_t *_gold_get_race_t(void)
  **********************************************************************/
 static void _steel_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = py_prorata_level(150);
+    int to_a = py_prorata_level(144);
     int ac = 15 + (l/10)*2;
 
     p_ptr->skill_dig += 100;
@@ -3239,6 +3239,7 @@ static void _steel_calc_bonuses(void) {
     res_add(RES_ELEC);
     res_add(RES_POIS);
     p_ptr->no_cut = TRUE;
+    p_ptr->pspeed -= 1;
     
     if (p_ptr->lev >= 30)
     {
@@ -3247,7 +3248,6 @@ static void _steel_calc_bonuses(void) {
     if (p_ptr->lev >= 40)
     {
         res_add(RES_SHARDS);
-        p_ptr->pspeed += 2;
     }
     _dragon_calc_bonuses();
 }
@@ -3255,10 +3255,11 @@ static void _steel_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
     add_flag(flgs, OF_RES_FIRE);
     add_flag(flgs, OF_RES_ELEC);
     add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_SPEED);
+
     if (p_ptr->lev >= 40)
     {
         add_flag(flgs, OF_RES_SHARDS);
-        add_flag(flgs, OF_SPEED);
     }
     if (p_ptr->lev < 40)
         add_flag(flgs, OF_VULN_COLD);
@@ -3288,8 +3289,8 @@ static race_t *_steel_get_race_t(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 28,  18,  40,   0,  10,   7,  75,  30};
-    skills_t xs = {  8,   7,  15,   0,   0,   0,  30,   7};
+    skills_t bs = { 28,  18,  40,   0,  10,   7,  72,  30};
+    skills_t xs = {  8,   7,  15,   0,   0,   0,  27,   7};
 
         me.subdesc =
         "Steel Dragons are magical dragons formed from rock. As they mature, their form hardens "
@@ -3325,7 +3326,7 @@ static race_t *_steel_get_race_t(void)
     me.stats[A_DEX] =  0 - (p_ptr->lev / 10);
     me.stats[A_CON] =  4 + (p_ptr->lev / 10);
     me.stats[A_CHR] =  0 + (p_ptr->lev / 10);
-    me.life = 125 + 5*(p_ptr->lev / 10);
+    me.life = 120 + (p_ptr->lev / 2);
 
     return &me;
 }

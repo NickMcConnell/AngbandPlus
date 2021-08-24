@@ -53,17 +53,52 @@ static void _build_general1(doc_ptr doc)
 
     if (race_ptr->subname)
     {
+        char nimi[26];
+        int paikka;
+        bool ok_name = FALSE;
+        strncpy(nimi, get_race()->subname, sizeof(nimi));
+        if (strlen(get_race()->subname) < 25) ok_name = TRUE;
+        while (!ok_name)
+        {
+            paikka = strpos(",", nimi);
+            if (paikka) 
+            {
+                nimi[paikka - 1] = '\0';
+                break;
+            }
+            paikka = strpos(" the ", nimi);
+            if (paikka) 
+            {
+                nimi[paikka - 1] = '\0';
+                break;
+            }
+            paikka = strpos(" the", nimi);
+            if (paikka >= 20)
+            {
+                nimi[paikka - 1] = '\0';
+                break;
+            }
+            paikka = strpos(" of ", nimi);
+            if (paikka) 
+            {
+                nimi[paikka - 1] = '\0';
+                break;
+            }
+            nimi[25] = '\0';
+            break;
+        }
+
         if (p_ptr->prace == RACE_MON_RING)
-            doc_printf(doc, " Controlling: <color:B>%-26.26s</color>\n", race_ptr->subname);
+            doc_printf(doc, " Controlling: <color:B>%-26.26s</color>\n", nimi);
         else if (p_ptr->prace == RACE_MON_MIMIC)
         {
             if (p_ptr->current_r_idx == MON_MIMIC)
                 doc_printf(doc, " Mimicking  : <color:B>%-26.26s</color>\n", "Nothing");
             else
-                doc_printf(doc, " Mimicking  : <color:B>%-26.26s</color>\n", race_ptr->subname);
+                doc_printf(doc, " Mimicking  : <color:B>%-26.26s</color>\n", nimi);
         }
         else
-            doc_printf(doc, " Subrace    : <color:B>%-26.26s</color>\n", race_ptr->subname);
+            doc_printf(doc, " Subrace    : <color:B>%-26.26s</color>\n", nimi);
     }
     else
         doc_printf(doc, " Subrace    : <color:B>%-26.26s</color>\n", "None");
@@ -185,7 +220,10 @@ static void _build_general2(doc_ptr doc)
 
     string_clear(s);
     string_printf(s, "%d/%d", p_ptr->csp , p_ptr->msp);
-    doc_printf(doc, "<tab:9>SP   : <color:%c>%9.9s</color>\n",
+    if (elemental_is_(ELEMENTAL_WATER))
+        doc_printf(doc, "<tab:9>Flow : <color:G>%9.9s</color>\n", string_buffer(s));
+    else
+        doc_printf(doc, "<tab:9>SP   : <color:%c>%9.9s</color>\n",
                     p_ptr->csp >= p_ptr->msp ? 'G' :
                         p_ptr->csp > (p_ptr->msp * mana_warn) / 10 ? 'y' : 'r',
                     string_buffer(s));
@@ -610,6 +648,7 @@ static void _build_flags1(doc_ptr doc, _flagzilla_ptr flagzilla)
     _build_slays_imp(doc, "Pois Brand", OF_BRAND_POIS, OF_INVALID, flagzilla);
     _build_slays_imp(doc, "Mana Brand", OF_BRAND_MANA, OF_INVALID, flagzilla);
     _build_slays_imp(doc, "Sharpness", OF_VORPAL, OF_VORPAL2, flagzilla);
+    _build_slays_imp(doc, "Stunning", OF_STUN, OF_INVALID, flagzilla);
     _build_slays_imp(doc, "Quake", OF_IMPACT, OF_INVALID, flagzilla);
     _build_slays_imp(doc, "Vampiric", OF_BRAND_VAMP, OF_INVALID, flagzilla);
     _build_slays_imp(doc, "Chaotic", OF_BRAND_CHAOS, OF_INVALID, flagzilla);
@@ -665,6 +704,8 @@ static void _build_flags2(doc_ptr doc, _flagzilla_ptr flagzilla)
 
     _build_flags_imp(doc, "Hold Life", OF_HOLD_LIFE, OF_INVALID, flagzilla);
     _display_known_count(doc, p_ptr->hold_life, OF_HOLD_LIFE);
+
+    _build_flags(doc, "Life Rating", OF_LIFE, OF_DEC_LIFE, flagzilla);
 
     _build_flags(doc, "Dec Mana", OF_DEC_MANA, OF_INVALID, flagzilla);
     _build_flags(doc, "Easy Spell", OF_EASY_SPELL, OF_INVALID, flagzilla);
@@ -788,6 +829,7 @@ static void _build_stats(doc_ptr doc, _flagzilla_ptr flagzilla)
             if (o_ptr)
             {
                 int adj = 0;
+                bool slipping = (o_ptr->marked & OM_SLIPPING) ? TRUE : FALSE;
 
                 if (o_ptr->rune)
                 {
@@ -815,6 +857,16 @@ static void _build_stats(doc_ptr doc, _flagzilla_ptr flagzilla)
                         if (have_flag(flagzilla->obj_flgs[j], sust_flg))
                             a = TERM_GREEN;
                     }
+                    if (slipping)
+                    {
+                        switch (a)
+                        {
+                            case TERM_L_GREEN: a = TERM_L_BLUE; break;
+                            case TERM_GREEN: a = TERM_BLUE; break;
+                            case TERM_RED: a = TERM_L_RED; break;
+                            default: break;
+                        }
+                    }
                     doc_insert_char(doc, a, c);
                 }
                 else
@@ -829,7 +881,7 @@ static void _build_stats(doc_ptr doc, _flagzilla_ptr flagzilla)
                     }
                     doc_insert_char(doc, a, c);
                 }
-                e_adj += adj;
+                if (!slipping) e_adj += adj;
             }
             else
                 doc_insert_char(doc, TERM_L_DARK, '.');
@@ -2070,6 +2122,7 @@ static void _build_statistics(doc_ptr doc)
     _object_counts_imp(doc, TV_POTION, SV_POTION_CURE_CRITICAL);
     _object_counts_imp(doc, TV_POTION, SV_POTION_CURING);
     _object_counts_imp(doc, TV_POTION, SV_POTION_SPEED);
+    _object_counts_imp(doc, TV_POTION, SV_POTION_CLARITY);
     _object_counts_imp(doc, TV_POTION, SV_POTION_HEALING);
     _object_counts_imp(doc, TV_POTION, SV_POTION_STAR_HEALING);
     _object_counts_imp(doc, TV_POTION, SV_POTION_LIFE);
@@ -2086,6 +2139,7 @@ static void _build_statistics(doc_ptr doc)
     _group_counts_tval_imp(doc, TV_POTION, "Totals");
 
     doc_printf(doc, "\n  <color:G>Scrolls              Found Bought  Used  Dest</color>\n");
+    _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_PHASE_DOOR);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_WORD_OF_RECALL);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_IDENTIFY);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_STAR_IDENTIFY);
@@ -2436,6 +2490,9 @@ static void _build_options(doc_ptr doc)
 
     if (no_selling)
         doc_printf(doc, " No Selling:         On\n");
+
+    if (comp_mode)
+        doc_printf(doc, " Competition Mode:   On\n");
 
     if (p_ptr->noscore)
         doc_printf(doc, "\n <color:v>You have done something illegal.</color>\n");

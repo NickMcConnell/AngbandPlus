@@ -39,7 +39,7 @@ bool restore_mana(void)
         magic_eater_restore();
         result = TRUE;
     }
-    else if (p_ptr->csp < p_ptr->msp)
+    else if ((p_ptr->csp < p_ptr->msp) && (!elemental_is_(ELEMENTAL_WATER)))
     {
         if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
             p_ptr->csp += (p_ptr->msp - p_ptr->csp) / 3;
@@ -364,7 +364,10 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
     }
     else if (prace_is_(RACE_MON_JELLY))
     {
+        int luku = obj->number;
+        obj->number = 1;
         jelly_eat_object(obj);
+        obj->number = luku;
     }
     else if ( ( prace_is_(RACE_SKELETON)
              || prace_is_(RACE_GOLEM)
@@ -410,9 +413,9 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
         /* Drain vitality of humanoids */
         char o_name[MAX_NLEN];
 
-        object_desc(o_name, obj, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+        object_desc(o_name, obj, (OD_OMIT_PREFIX | OD_NAME_ONLY | OD_SINGULAR));
 
-        msg_format("%^s is burnt to ashes. You absorb its vitality!", o_name);
+        msg_format("<color:%c>The %^s</color> is burnt to ashes. You absorb its vitality!", tval_to_attr_char(obj->tval), o_name);
         set_food(PY_FOOD_MAX - 1);
     }
     else if (prace_is_(RACE_SKELETON))
@@ -597,6 +600,8 @@ static void do_cmd_quaff_potion_aux(obj_ptr obj)
         gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
         p_ptr->notice |= PN_OPTIMIZE_PACK;
     }
+
+    water_mana_action(FALSE, (obj->sval == SV_POTION_WATER) ? 20 : 10);
 
     /* Potions can feed the player */
     switch (p_ptr->mimic_form)
@@ -886,6 +891,8 @@ static void do_cmd_read_scroll_aux(obj_ptr o_ptr)
     if (!used_up)
         return;
 
+    water_mana_action(FALSE, 5);
+
     sound(SOUND_SCROLL);
     if (devicemaster_is_(DEVICEMASTER_SCROLLS) && !devicemaster_desperation && randint1(2*p_ptr->lev) > MAX(10, lev))
     {
@@ -975,6 +982,15 @@ static void do_cmd_device_aux(obj_ptr obj)
     if (have_flag(flgs, OF_SPEED))
         energy_use -= energy_use * obj->pval / 10;
 
+    if (device_sp(obj) < obj->activation.cost)
+    {
+        if (flush_failure) flush();
+        msg_print("The device has no charges left.");
+        if (prompt_on_failure) msg_print(NULL);
+        energy_use = 0;
+        return;
+    }
+
     if (p_ptr->tim_no_device)
     {
         msg_print("An evil power blocks your magic!");
@@ -1030,15 +1046,6 @@ static void do_cmd_device_aux(obj_ptr obj)
         return;
     }
 
-    if (device_sp(obj) < obj->activation.cost)
-    {
-        if (flush_failure) flush();
-        msg_print("The device has no charges left.");
-        if (prompt_on_failure) msg_print(NULL);
-        energy_use = 0;
-        return;
-    }
-
     if (is_devicemaster && devicemaster_desperation)
     {
         int i, amt = 50;
@@ -1080,6 +1087,7 @@ static void do_cmd_device_aux(obj_ptr obj)
     if (used)
     {
         stats_on_use(obj, charges);
+        water_mana_action(FALSE, 5);
 
         /* Devicemasters can power the device with their mana once in a while */
         if ( is_devicemaster

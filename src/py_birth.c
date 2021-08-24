@@ -218,8 +218,8 @@ static int _welcome_ui(void)
         );
 
         doc_insert(_doc,
-            "First, you must decide what type of game to play. <color:keyword>Beginner Mode</color> is "
-            "very quirky and not necessarily recommended even to beginners.\n\n"
+            "First, you must decide what type of game to play. <color:keyword>Beginner Mode</color> "
+            "limits the options available, simplifying things for new players.\n\n "
         );
 
         doc_insert(_doc, "<color:G>Choose the Type of Game to Play</color>\n");
@@ -2025,7 +2025,7 @@ static void _stats_init(void)
         case RACE_MON_SWORD:
         case RACE_MON_GOLEM:
         {
-            int stats[6] = { 17, 8, 8, 17, 15, 9 };
+            int stats[6] = { 17, 13, 8, 16, 15, 10 };
             _stats_init_aux(stats);
             break;
         }
@@ -2807,7 +2807,10 @@ static void _birth_finalize(void)
 
     /* Other Initialization */
     if (game_mode == GAME_MODE_BEGINNER)
+    {
         coffee_break = TRUE;
+        effective_speed = TRUE;
+    }
 
     if (coffee_break)
     {

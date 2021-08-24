@@ -656,7 +656,7 @@ void pack_choose_ai(int m_idx)
                 pack_ptr->ai = AI_SEEK;
                 break;
             case 4:
-                if (r_ptr->freq_spell)
+                if ((r_ptr->spells) && (r_ptr->spells->freq))
                     pack_ptr->ai = AI_SHOOT;
                 else
                     pack_ptr->ai = AI_LURE;
@@ -682,7 +682,7 @@ void pack_choose_ai(int m_idx)
                     pack_ptr->ai = AI_GUARD_MON;
                     pack_ptr->guard_idx = pack_ptr->leader_idx;
                 }
-                else if (r_ptr->freq_spell)
+                else if ((r_ptr->spells) && (r_ptr->spells->freq))
                 {
                     pack_ptr->ai = AI_GUARD_POS;
                     pack_ptr->guard_x = m_ptr->fx;
@@ -692,7 +692,7 @@ void pack_choose_ai(int m_idx)
                     pack_ptr->ai = AI_LURE;
                 break;
             case 10:
-                if (r_ptr->freq_spell)
+                if ((r_ptr->spells) && (r_ptr->spells->freq))
                     pack_ptr->ai = AI_SHOOT;
                 else
                     pack_ptr->ai = AI_SEEK;
@@ -728,7 +728,29 @@ void pack_on_slay_monster(int m_idx)
         pack_ptr->count--;
 
         if (m_ptr->smart & (1U << SM_GUARDIAN))
-            dungeon_flags[pack_ptr->guard_idx] |= DUNGEON_NO_GUARDIAN;
+        {
+            if (pack_ptr->guard_idx) dungeon_flags[pack_ptr->guard_idx] |= DUNGEON_NO_GUARDIAN;
+            else if (py_on_surface()) {
+                /* There used to be a number of bugs that could cause the pack's
+                 * guard index to be lost or misassigned. I hope I have fixed
+                 * them now, but just to be on the safe side, we try to detect
+                 * the symptoms of such bugs and fix them as well */
+                 int j;
+                 for (j = 1; j < max_d_idx; j++)
+                 {
+                     dungeon_info_type *d_ptr = &d_info[j];
+                     if ((!d_ptr->initial_guardian) || (dungeon_flags[j] & DUNGEON_NO_GUARDIAN)) continue;
+                     if (d_ptr->initial_guardian == m_ptr->r_idx)
+                     {
+                         dungeon_flags[j] |= DUNGEON_NO_GUARDIAN;
+                         msg_print("A <color:r>software bug</color> has been detected!");
+                         msg_print("This bug will likely have <color:G>no effects</color> on your game whatsoever, but please report it to the maintainer anyway. (Or, alternatively, yell at Gwarl.)");
+                         msg_print(NULL);
+                         break;
+                     }
+                 }
+            }
+        }
 
         if (pack_ptr->count <= 0)
             pack_info_push(m_ptr->pack_idx);
@@ -828,6 +850,8 @@ static bool summon_cloned_okay = FALSE;
 static bool summon_wall_scummer = FALSE;
 static bool summon_ring_bearer = FALSE;
 static bool summon_summoner_okay = FALSE;
+static bool summon_friendly_unique_okay = FALSE;
+static bool summon_check_alignment = FALSE;
 
 static bool summon_specific_aux(int r_idx)
 {
@@ -1670,6 +1694,11 @@ s16b get_mon_num_aux(int level, int min_level, u32b options)
                 if (r_info[MON_LUPART].cur_num > 0) continue;
             }
 
+            if (r_idx == MON_ZOMBI_SERPENT)
+            {
+                if (r_info[MON_SERPENT].max_num > 0) continue;
+            }
+
             /* No spamming summoning staves for tsuchinokos */
             if ((r_idx == MON_TSUCHINOKO) && (summon_specific_who == SUMMON_WHO_PLAYER)) continue;
         }
@@ -2231,6 +2260,9 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 
         if (!m_ptr->ml)
             return; /* Cannot see it for some reason */
+
+        if (m_ptr->mflag2 & MFLAG2_FUZZY)
+            return; /* paranoia */
 
         if (!(r_ptr->flags2 & RF2_ELDRITCH_HORROR))
             return; /* oops */
@@ -3187,7 +3219,7 @@ byte get_mspeed(monster_race *r_ptr)
     if (!(r_ptr->flags1 & RF1_UNIQUE) && !p_ptr->inside_arena)
     {
         /* Allow some small variation per monster */
-        int i = SPEED_TO_ENERGY(r_ptr->speed) / (one_in_(4) ? 3 : 10);
+        int i = SPEED_TO_ENERGY(r_ptr->speed) / (((one_in_(4)) && (!very_nice_summon_hack)) ? 3 : 10);
         if (i) mspeed += rand_spread(0, i);
     }
 
@@ -3397,7 +3429,7 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
         m_ptr->smart |= (1U << SM_SUMMONED);
 
     if (who == SUMMON_WHO_PLAYER)
-        m_ptr->mflag2 |= MFLAG2_PLAYER_SUMMONED;
+        m_ptr->mflag2 |= (MFLAG2_PLAYER_SUMMONED | MFLAG2_DIRECT_PY_SUMMON);
     else if ((who > 0) && ((is_pet_idx(who)) || (is_friendly_idx(who)) || (m_list[who].mflag2 & MFLAG2_PLAYER_SUMMONED)))
         m_ptr->mflag2 |= MFLAG2_PLAYER_SUMMONED;
 
@@ -3512,6 +3544,9 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
             set_friendly(m_ptr);
     }
 
+    if ((who > 0) && ((is_pet(m_ptr) || is_friendly(m_ptr))) && (m_ptr->mflag2 & MFLAG2_PLAYER_SUMMONED))
+        m_ptr->mflag2 |= MFLAG2_DIRECT_PY_SUMMON;
+
     /* Assume no sleeping */
     m_ptr->mtimed[MTIMED_CSLEEP] = 0;
 
@@ -3580,7 +3615,7 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
     }
 
     /* Force monster to wait for player, unless in Nightmare mode */
-    if ((r_ptr->flags1 & RF1_FORCE_SLEEP) && !ironman_nightmare)
+    if (((r_ptr->flags1 & RF1_FORCE_SLEEP) || (very_nice_summon_hack)) && (!ironman_nightmare))
     {
         /* Monster is still being nice */
         m_ptr->mflag |= (MFLAG_NICE);
@@ -4299,7 +4334,7 @@ static bool summon_specific_okay(int r_idx)
         if (monster_has_hostile_align(m_ptr, 0, 0, r_ptr)) return FALSE;
     }
     /* Use the player's alignment */
-    else if (summon_specific_who < 0)
+    else if ((summon_specific_who < 0) && (summon_check_alignment))
     {
         /* Do not summon enemies of the pets */
         if (monster_has_hostile_align(NULL, 10, -10, r_ptr))
@@ -4310,12 +4345,17 @@ static bool summon_specific_okay(int r_idx)
 
     if (!summon_summoner_okay && (mon_race_can_summon(r_ptr, -1))) return FALSE;
 
+    if (summon_friendly_unique_okay)
+    {
+        if (((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL)) && (!unique_is_friend(r_idx))) return FALSE;
+    }
+
     /* Hack -- no specific type specified */
     if (!summon_specific_type) return (TRUE);
 
     if (!summon_unique_okay && ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL))) return FALSE;
 
-    if ((summon_specific_who < 0) &&
+    if ((summon_specific_who < 0) && (summon_check_alignment) &&
         ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL)) &&
         monster_has_hostile_align(NULL, 10, -10, r_ptr))
         return FALSE;
@@ -4353,6 +4393,7 @@ static bool summon_specific_okay(int r_idx)
 bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
 {
     int x, y, r_idx;
+    int summon_level = dun_level;
     bool mon_summoned = FALSE;
 
     if (who > 0 && mon_spell_current() && mon_spell_current()->id.type == MST_SUMMON)
@@ -4381,7 +4422,7 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
 
     /* Save the "summon" type */
     summon_specific_type = type;
-    if ((type == SUMMON_BIZARRE1 || type == SUMMON_THIEF) && who == -1)
+    if ((type == SUMMON_BIZARRE1 || type == SUMMON_THIEF) && who == SUMMON_WHO_PLAYER)
         _ignore_depth_hack = TRUE;
 
     summon_unique_okay = (mode & PM_ALLOW_UNIQUE) ? TRUE : FALSE;
@@ -4389,6 +4430,10 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
     summon_wall_scummer = (mode & PM_WALL_SCUMMER) && one_in_(2) ? TRUE : FALSE;
     summon_ring_bearer = (mode & PM_RING_BEARER) ? TRUE : FALSE;
     summon_summoner_okay = (mode & PM_NO_SUMMONERS) ? FALSE : TRUE;
+    summon_friendly_unique_okay = FALSE;
+    if ((mode & PM_FORCE_PET) && ((p_ptr->pclass == CLASS_POLITICIAN) || (!one_in_(3))))
+        summon_friendly_unique_okay = TRUE;
+    summon_check_alignment = ((who < 0) && (mode & PM_FORCE_PET)) ? TRUE : FALSE;
 
     /* Prepare allocation table */
     get_mon_num_prep(summon_specific_okay, get_monster_hook2(y, x));
@@ -4402,19 +4447,22 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
     if (summon_specific_who != SUMMON_WHO_NOBODY)
         _ignore_depth_hack = TRUE;
 
+    /* Hack - preserve old level of summoning in the Vault */
+    if ((quest_id_current()) && (strpos("The Vault", quests_get_current()->name) == 1)) summon_level -= 5;
+
     /* Pick a monster, using the level calculation */
-    r_idx = get_mon_num((dun_level + lev) / 2 + 5);
+    r_idx = get_mon_num((summon_level + lev) / 2 + 5);
 
     /* No pass/kill wall monsters allowed? Well, just pick a normal one then ... */
     if (!r_idx && summon_wall_scummer)
     {
         summon_wall_scummer = FALSE;
-        r_idx = get_mon_num((dun_level + lev) / 2 + 5);
+        r_idx = get_mon_num((summon_level + lev) / 2 + 5);
     }
     if (!r_idx && summon_ring_bearer)
     {
         summon_ring_bearer = FALSE;
-        r_idx = get_mon_num((dun_level + lev) / 2 + 5);
+        r_idx = get_mon_num((summon_level + lev) / 2 + 5);
     }
 
     /* Hack: For summoning spells, try again ignoring any
@@ -4426,7 +4474,7 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
     if (!r_idx && summon_specific_who != SUMMON_WHO_NOBODY)
     {
         _ignore_depth_hack = TRUE;
-        r_idx = get_mon_num((dun_level + lev) / 2 + 5);
+        r_idx = get_mon_num((summon_level + lev) / 2 + 5);
     } XXX cf above for why this is commented out. */
 
     _ignore_depth_hack = FALSE;

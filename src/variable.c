@@ -176,6 +176,9 @@ bool reinit_wilderness = FALSE;
 bool quest_reward_drop_hack = FALSE;
 bool very_nice_summon_hack = FALSE;
 bool predictable_energy_hack = FALSE;
+bool delay_autopick_hack = FALSE;
+bool monsters_damaged_hack = FALSE;
+s16b run_count = 0;
 
 int current_flow_depth = 0;
 
@@ -187,6 +190,7 @@ int current_flow_depth = 0;
 
 bool rogue_like_commands;    /* Rogue-like commands */
 bool always_pickup;    /* Pick things up by default */
+bool online_macros;    /* Disable Run in macros */
 bool quick_messages;    /* Activate quick messages */
 bool command_menu;    /* Enable command selection menu */
 bool use_old_target;    /* Use old target by default */
@@ -237,6 +241,7 @@ bool display_path;    /* Display actual path before shooting */
 bool plain_descriptions;    /* Plain object descriptions */
 bool always_show_list;    /* Always show list when choosing items */
 bool depth_in_feet;    /* Show dungeon level in feet */
+bool effective_speed;  /* Use Ighalli's speed display */
 bool show_labels;    /* Show labels in object listings */
 bool show_weights;    /* Show weights in object listings */
 bool show_discounts;
@@ -267,6 +272,7 @@ bool stack_force_costs;    /* Merge discounts when stacking */
 bool expand_list;    /* Expand the power of the list commands */
 bool empty_levels;    /* Allow empty 'arena' levels */
 bool bound_walls_perm;    /* Boundary walls become 'permanent wall' */
+bool delay_autopick;  /* Always use delayed autopick */
 bool last_words;    /* Leave last words when your character dies */
 
 #ifdef WORLD_SCORE
@@ -304,6 +310,7 @@ bool alert_insc_gone;    /* Alert when inscribed item is destroyed or stolen */
 bool coffee_break;   /* Coffee-break mode */
 bool easy_id;        /* Easy Identify */
 bool easy_lore;      /* Easy Monster Lore */
+bool empty_lore;     /* Always start with empty item lore */
 bool easy_damage;    /* Access wizard info about damage and monster health */
 bool allow_spoilers;
 bool power_tele;     /* Use old-style, non-fuzzy telepathy */
@@ -331,6 +338,7 @@ bool easy_thalos;
 bool never_forget;
 bool no_chris;
 bool no_scrambling;
+bool comp_mode;
 bool reduce_uniques;
 byte reduce_uniques_pct = 100; /* This is the pct of uniques to face */
 

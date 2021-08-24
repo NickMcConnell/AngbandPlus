@@ -859,6 +859,19 @@ void power_throw_spell(int cmd, variant *res)
     case SPELL_MUT_DESC:
         var_set_string(res, "You can hurl objects with great force.");
         break;
+    case SPELL_CAST: /* This is a hack for wild-talent use only */
+    {
+        bool old_mt = p_ptr->mighty_throw;
+        if (p_ptr->pclass != CLASS_WILD_TALENT) break;
+        p_ptr->mighty_throw = TRUE;
+        if (!p_ptr->wild_mode)
+        {
+            py_throw_t context = {0};
+            py_throw(&context);
+        }
+        p_ptr->mighty_throw = old_mt;
+        var_set_bool(res, TRUE);
+    }
     case SPELL_CALC_BONUS:
         p_ptr->mighty_throw = TRUE;
         break;

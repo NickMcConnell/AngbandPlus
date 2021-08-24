@@ -2184,7 +2184,7 @@ static bool inn_comm(int cmd)
                 else
                 {
                     p_ptr->chp = p_ptr->mhp;
-                    if (p_ptr->pclass != CLASS_RUNE_KNIGHT)
+                    if ((p_ptr->pclass != CLASS_RUNE_KNIGHT) && (!elemental_is_(ELEMENTAL_WATER)))
                         p_ptr->csp = p_ptr->msp;
 
                     _recharge_player_items();
@@ -2892,7 +2892,7 @@ static bool _reforge_artifact(void)
                         * poisoning, but given the cost of reforging that's
                         * probably only fair... */
     p_ptr->chp = p_ptr->mhp;
-    if (p_ptr->pclass != CLASS_RUNE_KNIGHT)
+    if ((p_ptr->pclass != CLASS_RUNE_KNIGHT) && (!elemental_is_(ELEMENTAL_WATER)))
         p_ptr->csp = p_ptr->msp;
 
     /* Update discovery details to apply to the reforged item
@@ -3644,7 +3644,7 @@ static void bldg_process_command(building_type *bldg, int i)
         enchant_item(object_allow_enchant_melee_weapon, bcost, 1, 1, 0, is_guild);
         break;
     case BACT_ENCHANT_ARMOR:
-        enchant_item(object_is_armour, bcost, 0, 0, 1, is_guild);
+        enchant_item(object_allow_enchant_armour, bcost, 0, 0, 1, is_guild);
         break;
     case BACT_RECHARGE:
         msg_print("My apologies, but that service is no longer available!");

@@ -524,6 +524,10 @@ byte get_monster_drop_ct(monster_type *m_ptr)
 
     if (is_pet(m_ptr) || p_ptr->inside_battle || p_ptr->inside_arena)
         number = 0; /* Pets drop no stuff */
+    else if (m_ptr->mflag2 & MFLAG2_WASPET)
+    {
+        number /= 8;
+    }
 
     /* No more farming quartz veins for millions in gold */
     if (r_ptr->flags2 & RF2_MULTIPLY)
@@ -813,6 +817,7 @@ void monster_death(int m_idx, bool drop_item)
     u32b mo_mode = 0L;
 
     bool cloned = (m_ptr->smart & (1U << SM_CLONED)) ? TRUE : FALSE;
+    bool was_pet = (m_ptr->mflag2 & MFLAG2_WASPET) ? TRUE : FALSE;
     bool do_vampire_servant = FALSE;
     char m_name[MAX_NLEN];
     int corpse_chance = 3;
@@ -821,7 +826,7 @@ void monster_death(int m_idx, bool drop_item)
     object_type *q_ptr;
 
     bool drop_chosen_item = drop_item && !cloned && !p_ptr->inside_arena
-        && !p_ptr->inside_battle && !is_pet(m_ptr);
+        && !p_ptr->inside_battle && !is_pet(m_ptr) && !was_pet;
 
 
     monster_desc(m_name, m_ptr, MD_TRUE_NAME);
@@ -1116,6 +1121,23 @@ void monster_death(int m_idx, bool drop_item)
 
             object_origins(q_ptr, ORIGIN_DROP);
             q_ptr->origin_xtra = MON_OSIRIS;
+
+            /* Drop it in the dungeon */
+            (void)drop_near(q_ptr, -1, y, x);
+        }
+        break;
+
+    case MON_AEGIR:
+        if (drop_chosen_item)
+        {
+            /* Get local object */
+            q_ptr = &forge;
+
+            object_prep(q_ptr, lookup_kind(TV_POTION, SV_POTION_CONFUSION));
+
+            object_origins(q_ptr, ORIGIN_DROP);
+            q_ptr->origin_xtra = MON_AEGIR;
+            q_ptr->number = randint1(25);
 
             /* Drop it in the dungeon */
             (void)drop_near(q_ptr, -1, y, x);
@@ -1857,6 +1879,10 @@ void monster_death(int m_idx, bool drop_item)
             a_idx = ART_AMUN;
             chance = 100;
             break;
+        case MON_AEGIR:
+            a_idx = ART_AEGIR;
+            chance = 25;
+            break;
         case MON_CARCHAROTH:
             a_idx = ART_CARCHAROTH;
             chance = 5;
@@ -2027,7 +2053,9 @@ void monster_death(int m_idx, bool drop_item)
 
     if ( r_ptr->level && !p_ptr->inside_arena && !p_ptr->inside_battle
       && ( (r_ptr->flags1 & (RF1_DROP_GOOD | RF1_DROP_GREAT))
-        || (r_ptr->flags2 & RF2_THIEF) ) )
+        || (r_ptr->flags2 & RF2_THIEF) ) &&
+        ((!(r_ptr->flags2 & RF2_MULTIPLY)) ||
+        (r_ptr->r_akills < ((coffee_break || no_selling) ? 42 : 84))))
     {
         int r = (r_ptr->flags1 & RF1_DROP_GREAT) ? 7 : 3;
         int n = randint0(r);
@@ -2173,13 +2201,13 @@ static void _adjust_kill_exp(s32b *new_exp, u32b *new_exp_frac, int kills)
 /*
  * Calculate experience point to be get
  *
- * Even the 64 bit operation is not big enough to avoid overflaw
+ * Even the 64 bit operation is not big enough to avoid overflow
  * unless we carefully choose orders of multiplication and division.
  *
  * Get the coefficient first, and multiply (potentially huge) base
  * experience point of a monster later.
  */
-static void get_exp_from_mon(int dam, monster_type *m_ptr)
+static void get_exp_from_mon(int dam, monster_type *m_ptr, bool mon_dead)
 {
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
@@ -2189,7 +2217,7 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
     u32b div_l;
 
     if (!m_ptr->r_idx) return;
-    if (is_pet(m_ptr) || p_ptr->inside_battle) return;
+    if (is_pet(m_ptr) || p_ptr->inside_battle || (m_ptr->mflag2 & MFLAG2_WASPET)) return;
 
     /*
      * - Ratio of monster's level to player's level effects
@@ -2327,6 +2355,24 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
     s64b_mul(&new_exp, &new_exp_frac, 0, adj_exp_gain[p_ptr->stat_ind[A_INT]]);
     s64b_div(&new_exp, &new_exp_frac, 0, 100);
 
+    /* Farming summons for XP is not good either... */
+    if ((m_ptr->mflag2 & MFLAG2_PLAYER_SUMMONED) && (p_ptr->lev > 14) &&
+        (((r_ptr->level < 55) && (!(r_ptr->flags1 & RF1_UNIQUE))) ||
+         (m_ptr->r_idx == MON_CYBER)))
+    {
+        int exp_div = ironman_downward ? 220 : 110;
+        if ((mon_dead) && (p_ptr->py_summon_kills < 200) && (!(r_ptr->flags2 & RF2_MULTIPLY)) &&
+           (((long)(r_ptr->mexp * r_ptr->level / p_ptr->lev) > (p_ptr->max_exp / ((m_ptr->mflag2 & MFLAG2_DIRECT_PY_SUMMON) ? (1694L * (10 + r_ptr->level) / exp_div) : 1000))) || (one_in_(10))) &&
+           ((m_ptr->mflag2 & MFLAG2_DIRECT_PY_SUMMON) || (ironman_downward) || (one_in_(2)))) p_ptr->py_summon_kills++;
+        s64b_mul(&new_exp, &new_exp_frac, 0, 20);
+        s64b_div(&new_exp, &new_exp_frac, 0, 20 + p_ptr->py_summon_kills);
+        if (m_ptr->mflag2 & MFLAG2_DIRECT_PY_SUMMON)
+        {
+            s64b_mul(&new_exp, &new_exp_frac, 0, 10 + MIN(99, r_ptr->level));
+            s64b_div(&new_exp, &new_exp_frac, 0, exp_div);
+        }
+    }
+
     if ((coffee_break) && (py_in_dungeon())) /* Accelerated EXP gain */
     {
         int coffee_mult = 2;
@@ -2334,6 +2380,7 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
         {
            coffee_mult = 3;
            if (!(r_ptr->flags2 & RF2_MULTIPLY)) coffee_mult = (((p_ptr->lev / 10) == 1) || ((p_ptr->lev >= 38))) ? 7 : 8;
+           if (p_ptr->lev >= 42) coffee_mult = MIN(coffee_mult, 6);
         }
         s64b_mul(&new_exp, &new_exp_frac, 0, coffee_mult);
     }
@@ -2458,7 +2505,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
         expdam = (m_ptr->hp > dam) ? dam : m_ptr->hp;
         if (mon_race_has_healing(r_ptr)) expdam = (expdam+1) * 2 / 3;
 
-        get_exp_from_mon(expdam, m_ptr);
+        get_exp_from_mon(expdam, m_ptr, FALSE);
 
         /* Genocided by chaos patron */
         if (!m_ptr->r_idx) m_idx = 0;
@@ -2508,7 +2555,11 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
         pack_on_damage_monster(m_idx);
 
     /* Mark monster as hurt */
-    if (dam > 0) m_ptr->mflag2 |= MFLAG2_HURT;
+    if (dam > 0) 
+    {
+        m_ptr->mflag2 |= MFLAG2_HURT;
+        monsters_damaged_hack = TRUE;
+    }
 
     /* It is dead now */
     if (m_ptr->hp < 0)
@@ -2837,9 +2888,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
         /* Prevent bug of chaos patron's reward */
         if (r_ptr->flags7 & RF7_KILL_EXP)
-            get_exp_from_mon((long)exp_mon.max_maxhp*2, &exp_mon);
+            get_exp_from_mon((long)exp_mon.max_maxhp*2, &exp_mon, TRUE);
         else
-            get_exp_from_mon(((long)exp_mon.max_maxhp+1L) * 9L / 10L, &exp_mon);
+            get_exp_from_mon(((long)exp_mon.max_maxhp+1L) * 9L / 10L, &exp_mon, TRUE);
 
         /* Not afraid */
         (*fear) = FALSE;
@@ -4153,14 +4204,14 @@ bool target_set(int mode)
             if ( target_able(c_ptr->m_idx)
              || ((mode & (TARGET_MARK|TARGET_DISI|TARGET_XTRA)) && m_list[c_ptr->m_idx].ml))
             {
-                strcpy(info, "q,t,p,o,+,-,?,<dir>");
+                strcpy(info, "q,t,p,o,x,+,-,?,<dir>");
 
             }
 
             /* Dis-allow target */
             else
             {
-                strcpy(info, "q,p,o,+,-,?,<dir>");
+                strcpy(info, "q,p,o,x,+,-,?,<dir>");
 
             }
 
@@ -4273,7 +4324,7 @@ bool target_set(int mode)
                 default:
                 {
                     /* Extract the action (if any) */
-                    d = get_keymap_dir(query);
+                    d = get_keymap_dir(query, FALSE);
 
                     if (!d) bell();
                     break;
@@ -4396,9 +4447,9 @@ bool target_set(int mode)
             c_ptr = &cave[y][x];
 
             if ((mode & TARGET_MARK) && !m_list[c_ptr->m_idx].ml)
-                strcpy(info, "q,p,o,+,-,?,<dir>");
+                strcpy(info, "q,p,o,x,+,-,?,<dir>");
             else
-                strcpy(info, "q,t,p,m,+,-,?,<dir>");
+                strcpy(info, "q,t,p,m,x,+,-,?,<dir>");
 
 
             /* Describe and Prompt (enable "TARGET_LOOK") */
@@ -4512,7 +4563,7 @@ bool target_set(int mode)
                 default:
                 {
                     /* Extract the action (if any) */
-                    d = get_keymap_dir(query);
+                    d = get_keymap_dir(query, FALSE);
 
                     /* XTRA HACK MOVEFAST */
                     if (isupper(query)) move_fast = TRUE;
@@ -4736,7 +4787,7 @@ bool get_aim_dir_aux(int *dp, int target_mode)
             default:
             {
                 /* Extract the action (if any) */
-                dir = get_keymap_dir(command);
+                dir = get_keymap_dir(command, FALSE);
 
                 break;
             }
@@ -4838,7 +4889,7 @@ int get_rep_dir(int *dp, bool under)
 
 
         /* Look up the direction */
-        dir = get_keymap_dir(ch);
+        dir = get_keymap_dir(ch, under);
 
         /* Oops */
         if (!dir) bell();
@@ -4963,7 +5014,7 @@ bool get_rep_dir2(int *dp)
 
 
         /* Look up the direction */
-        dir = get_keymap_dir(ch);
+        dir = get_keymap_dir(ch, FALSE);
 
         /* Oops */
         if (!dir) bell();
@@ -5195,7 +5246,7 @@ bool tgt_pt(int *x_ptr, int *y_ptr, int rng)
 
         default:
             /* Look up the direction */
-            d = get_keymap_dir(ch);
+            d = get_keymap_dir(ch, FALSE);
 
             /* XTRA HACK MOVEFAST */
             if (isupper(ch)) move_fast = TRUE;
@@ -5350,7 +5401,7 @@ bool get_hack_dir(int *dp)
             default:
             {
                 /* Look up the direction */
-                dir = get_keymap_dir(command);
+                dir = get_keymap_dir(command, FALSE);
 
                 break;
             }

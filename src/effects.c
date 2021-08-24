@@ -209,6 +209,11 @@ void reset_tim_flags(void)
     world_player = FALSE;
 
     if (p_ptr->pclass == CLASS_BERSERKER) p_ptr->shero = 1;
+    else if (p_ptr->pclass == CLASS_ALCHEMIST)
+    {
+        alchemist_set_hero(NULL, 0, TRUE);
+        alchemist_set_hero(NULL, 0, FALSE);
+    }
 
     if (p_ptr->riding)
     {
@@ -2649,6 +2654,9 @@ bool set_hero(int v, bool do_dec)
         }
     }
 
+    /* Alchemist bookkeeping */
+    if ((p_ptr->pclass == CLASS_ALCHEMIST) && (v < p_ptr->hero)) alchemist_set_hero(&notice, v, TRUE);
+
     /* Use the value */
     p_ptr->hero = v;
 
@@ -2713,6 +2721,9 @@ bool set_shero(int v, bool do_dec)
             notice = TRUE;
         }
     }
+
+    /* Alchemist bookkeeping */
+    if ((p_ptr->pclass == CLASS_ALCHEMIST) && (v < p_ptr->shero)) alchemist_set_hero(&notice, v, FALSE);
 
     /* Use the value */
     p_ptr->shero = v;
@@ -5419,8 +5430,14 @@ bool lp_player(int num)
 
             msg_print("<color:v>Your life force is exhausted!</color>");
             change_race(which, "");
-            p_ptr->clp = 1000; /* full unlife */
-            assert(get_race()->flags & RACE_IS_NONLIVING); /* no more life drain */
+            if (!(get_race()->flags & RACE_IS_NONLIVING)) /* race change failed for whatever reason, so instead of being undead we are now dead */
+            {
+                take_hit(DAMAGE_NOESCAPE, p_ptr->chp + 10, "running out of life force");
+            }
+            else
+            {
+                p_ptr->clp = 1000; /* full unlife */
+            }
         }
         else
             p_ptr->clp = 0; /* monsters can't change their race ... */
@@ -5456,6 +5473,8 @@ bool sp_player(int num)
 {
     bool notice = FALSE;
     int old_csp = p_ptr->csp;
+
+    if (elemental_is_(ELEMENTAL_WATER)) return FALSE;
 
     p_ptr->csp += num;
     if (num > 0 && p_ptr->csp > p_ptr->msp) /* Mystics and Samurai super charge */
@@ -5734,6 +5753,7 @@ void change_race(int new_race, cptr effect_msg)
     if (old_race == RACE_ANDROID) return;
     if (player_obviously_poly_immune()) return;
     if (new_race == old_race) return;
+    if (comp_mode) return;
 
     _lock = TRUE;
 

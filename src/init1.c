@@ -826,7 +826,7 @@ static cptr d_info_flags1[] =
     "CAVE",
     "CAVERN",
     "RANDOM",
-    "XXX",
+    "COFFEE",
     "XXX",
     "XXX",
     "FORGET",
@@ -4954,6 +4954,22 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
                 if (streq(t, p)) v = "1";
             }
         }
+
+        /* Function: NEQ */
+        else if (streq(t, "NEQ"))
+        {
+            v = "1";
+            if (*s && (f != b2))
+            {
+                t = process_dungeon_file_expr(&s, &f);
+            }
+            while (*s && (f != b2))
+            {
+                p = process_dungeon_file_expr(&s, &f);
+                if (streq(t, p)) v = "0";
+            }
+        }
+
         /* Function: MOD */
         else if (streq(t, "MOD"))
         {

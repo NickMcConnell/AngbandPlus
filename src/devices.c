@@ -659,6 +659,15 @@ static cptr _do_potion(int sval, int mode)
         {
             int dur = _potion_power(25 + randint1(25));
             if (set_hero(p_ptr->hero + dur, FALSE)) device_noticed = TRUE;
+            if (p_ptr->pclass == CLASS_ALCHEMIST)
+            {
+                alchemist_set_hero(&device_noticed, p_ptr->hero + dur, TRUE);
+                if (device_noticed)
+                {
+                    p_ptr->update |= (PU_BONUS);
+                    handle_stuff();
+                }
+            }
         }
         break;
     case SV_POTION_BERSERK_STRENGTH:
@@ -669,6 +678,15 @@ static cptr _do_potion(int sval, int mode)
             int dur = _potion_power(25 + randint1(25));
             if (set_shero(p_ptr->shero + dur, FALSE)) device_noticed = TRUE;
             if (hp_player(30)) device_noticed = TRUE;
+            if (p_ptr->pclass == CLASS_ALCHEMIST)
+            {
+                alchemist_set_hero(&device_noticed, p_ptr->shero + dur, FALSE);
+                if (device_noticed)
+                {
+                    p_ptr->update |= (PU_BONUS);
+                    handle_stuff();
+                }
+            }
         }
         break;
     case SV_POTION_CURE_LIGHT:
@@ -778,7 +796,7 @@ static cptr _do_potion(int sval, int mode)
         }
         break;
     case SV_POTION_CLARITY:
-        if (desc) return "It clears your mind a bit when you quaff it and cures confusion.";
+        if (desc) return "It clears your mind when you quaff it, curing confusion and restoring some mana.";
         if (info) return format("3d%d + %d", _potion_power(6), _potion_power(3));
         if (cast)
         {
@@ -791,7 +809,7 @@ static cptr _do_potion(int sval, int mode)
                 msg_print("You feel your mind clear.");
                 device_noticed = TRUE;
             }
-			if (set_confused(0, TRUE)) device_noticed = TRUE;
+		if (set_confused(0, TRUE)) device_noticed = TRUE;
         }
         break;
     case SV_POTION_GREAT_CLARITY:
@@ -1201,7 +1219,7 @@ static cptr _do_scroll(int sval, int mode)
             int i;
             for (i = 0; i < randint1(3); i++)
             {
-                if (summon_specific(0, py, px, dun_level, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET)))
+                if (summon_specific(SUMMON_WHO_PLAYER, py, px, dun_level, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET)))
                     device_noticed = TRUE;
             }
         }
@@ -1213,7 +1231,7 @@ static cptr _do_scroll(int sval, int mode)
             int i;
             for (i = 0; i < randint1(3); i++)
             {
-                if (summon_specific(0, py, px, dun_level, SUMMON_UNDEAD, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET)))
+                if (summon_specific(SUMMON_WHO_PLAYER, py, px, dun_level, SUMMON_UNDEAD, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET)))
                     device_noticed = TRUE;
             }
         }
@@ -1232,7 +1250,7 @@ static cptr _do_scroll(int sval, int mode)
             if (p_ptr->prace == RACE_MON_RING)
                 type = SUMMON_RING_BEARER;
             if (p_ptr->inside_arena && !type && !prace_is_(RACE_MON_QUYLTHULG) && !_scroll_check_no_effect(sval)) return NULL;
-            if (summon_specific(-1, py, px, _scroll_power(dun_level), type, (PM_ALLOW_GROUP | PM_FORCE_PET)))
+            if (summon_specific(SUMMON_WHO_PLAYER, py, px, _scroll_power(dun_level), type, (PM_ALLOW_GROUP | PM_FORCE_PET)))
                 device_noticed = TRUE;
         }
         break;
@@ -2212,6 +2230,7 @@ static _effect_info_t _effect_info[] =
     {"SACRED_KNIGHTS",  EFFECT_SACRED_KNIGHTS,       0,   0,  0, 0},
     {"GONG",            EFFECT_GONG,                 0,   0,  0, 0},
     {"MURAMASA",        EFFECT_MURAMASA,             0,   0,  0, 0},
+    {"EXPERTSEXCHANGE", EFFECT_EXPERTSEXCHANGE,      0,   0,  0, 0},
 
     {0}
 };
@@ -4238,12 +4257,12 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             bool hostile = (one_in_(10)) ? TRUE : FALSE;
             for (i = 0; i < num; i++)
             {
-                if ((hostile) && (summon_specific(-1, py, px, dun_level + 5, 0, PM_NO_PET | PM_NO_KAGE | PM_ALLOW_GROUP)))
+                if ((hostile) && (summon_specific(SUMMON_WHO_PLAYER, py, px, dun_level + 5, 0, PM_NO_PET | PM_NO_KAGE | PM_ALLOW_GROUP)))
                 {
                     msg_print("You get the feeling that something's wrong...");
                     device_noticed = TRUE;
                 }
-                else if (summon_specific(-1, py, px, dun_level, 0, PM_FORCE_PET | PM_ALLOW_GROUP | PM_NO_SUMMONERS))
+                else if (summon_specific(SUMMON_WHO_PLAYER, py, px, dun_level, 0, PM_FORCE_PET | PM_ALLOW_GROUP | PM_NO_SUMMONERS))
                 {
                     device_noticed = TRUE;
                 }
@@ -4261,12 +4280,12 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             bool hostile = (one_in_(4)) ? TRUE : FALSE;
             for (i = 0; i < num; i++)
             {
-                if ((hostile) && (summon_specific(-1, py, px, dun_level + 5, SUMMON_HOUND, PM_NO_PET | PM_NO_KAGE | PM_ALLOW_GROUP)))
+                if ((hostile) && (summon_specific(SUMMON_WHO_PLAYER, py, px, dun_level + 5, SUMMON_HOUND, PM_NO_PET | PM_NO_KAGE | PM_ALLOW_GROUP)))
                 {
                     msg_print("You get the feeling that something's wrong...");
                     device_noticed = TRUE;
                 }
-                else if (summon_specific(-1, py, px, dun_level, SUMMON_HOUND, PM_FORCE_PET | PM_ALLOW_GROUP))
+                else if (summon_specific(SUMMON_WHO_PLAYER, py, px, dun_level, SUMMON_HOUND, PM_FORCE_PET | PM_ALLOW_GROUP))
                 {
                     device_noticed = TRUE;
                 }
@@ -4284,12 +4303,12 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             bool hostile = (one_in_(3)) ? TRUE : FALSE;
             for (i = 0; i < num; i++)
             {
-                if ((hostile) && (summon_specific(-1, py, px, dun_level + 5, SUMMON_ANT, PM_NO_PET | PM_NO_KAGE | PM_ALLOW_GROUP)))
+                if ((hostile) && (summon_specific(SUMMON_WHO_PLAYER, py, px, dun_level + 5, SUMMON_ANT, PM_NO_PET | PM_NO_KAGE | PM_ALLOW_GROUP)))
                 {
                     msg_print("You get the feeling that something's wrong...");
                     device_noticed = TRUE;
                 }
-                else if (summon_specific(-1, py, px, dun_level, SUMMON_ANT, PM_FORCE_PET | PM_ALLOW_GROUP))
+                else if (summon_specific(SUMMON_WHO_PLAYER, py, px, dun_level, SUMMON_ANT, PM_FORCE_PET | PM_ALLOW_GROUP))
                 {
                     device_noticed = TRUE;
                 }
@@ -4307,12 +4326,12 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             bool hostile = (one_in_(3)) ? TRUE : FALSE;
             for (i = 0; i < num; i++)
             {
-                if ((hostile) && (summon_specific(-1, py, px, dun_level + 5, SUMMON_REPTILE, PM_NO_PET | PM_NO_KAGE | PM_ALLOW_GROUP)))
+                if ((hostile) && (summon_specific(SUMMON_WHO_PLAYER, py, px, dun_level + 5, SUMMON_REPTILE, PM_NO_PET | PM_NO_KAGE | PM_ALLOW_GROUP)))
                 {
                     msg_print("You get the feeling that something's wrong...");
                     device_noticed = TRUE;
                 }
-                else if (summon_specific(-1, py, px, dun_level, SUMMON_HYDRA, PM_FORCE_PET | PM_ALLOW_GROUP))
+                else if (summon_specific(SUMMON_WHO_PLAYER, py, px, dun_level, SUMMON_HYDRA, PM_FORCE_PET | PM_ALLOW_GROUP))
                 {
                     device_noticed = TRUE;
                 }
@@ -4340,7 +4359,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (value) return format("%d", 2500);
         if (cast)
         {
-            if (summon_specific(-1, py, px, dun_level, SUMMON_DAWN, (PM_ALLOW_GROUP | PM_FORCE_PET)))
+            if (summon_specific(SUMMON_WHO_PLAYER, py, px, dun_level, SUMMON_DAWN, (PM_ALLOW_GROUP | PM_FORCE_PET)))
             {
                 msg_print("You summon the Legion of the Dawn.");
                 device_noticed = TRUE;
@@ -4353,7 +4372,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (value) return format("%d", 1000);
         if (cast)
         {
-            if (summon_specific(-1, py, px, dun_level, SUMMON_PHANTOM, (PM_ALLOW_GROUP | PM_FORCE_PET)))
+            if (summon_specific(SUMMON_WHO_PLAYER, py, px, dun_level, SUMMON_PHANTOM, (PM_ALLOW_GROUP | PM_FORCE_PET)))
             {
                 msg_print("You summon a phantasmal servant.");
                 device_noticed = TRUE;
@@ -4369,7 +4388,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             bool pet = one_in_(3);
             int  lvl = dun_level;
             u32b mode = pet ? PM_FORCE_PET : PM_NO_PET;
-            int  who = pet ? -1 : 0;
+            int  who = SUMMON_WHO_PLAYER;
 
             if (!pet || lvl >= 50)
                 mode |= PM_ALLOW_GROUP;
@@ -4391,7 +4410,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (value) return format("%d", 1500);
         if (cast)
         {
-            if (summon_specific(-1, py, px, dun_level, SUMMON_DRAGON, PM_FORCE_PET))
+            if (summon_specific(SUMMON_WHO_PLAYER, py, px, dun_level, SUMMON_DRAGON, PM_FORCE_PET))
                 device_noticed = TRUE;
         }
         break;
@@ -4406,7 +4425,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             int  lvl = dun_level;
             int  type = lvl > 75 ? SUMMON_HI_UNDEAD : SUMMON_UNDEAD;
             u32b mode = pet ? PM_FORCE_PET : PM_NO_PET;
-            int  who = pet ? -1 : 0;
+            int  who = SUMMON_WHO_PLAYER;
 
             if (!pet || lvl >= 50)
                 mode |= PM_ALLOW_GROUP;
@@ -4432,7 +4451,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             bool pet = one_in_(3);
             int  lvl = dun_level;
             u32b mode = pet ? PM_FORCE_PET : PM_NO_PET;
-            int  who = pet ? -1 : 0;
+            int  who = SUMMON_WHO_PLAYER;
 
             if (!pet || lvl >= 50)
                 mode |= PM_ALLOW_GROUP;
@@ -4455,7 +4474,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (color) return format("%d", TERM_VIOLET);
         if (cast)
         {
-            if (summon_specific(-1, py, px, dun_level, SUMMON_CYBER, PM_FORCE_PET))
+            if (summon_specific(SUMMON_WHO_PLAYER, py, px, dun_level, SUMMON_CYBER, PM_FORCE_PET))
                 device_noticed = TRUE;
         }
         break;
@@ -4466,7 +4485,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (color) return format("%d", TERM_YELLOW);
         if (cast)
         {
-            if (summon_specific(-1, py, px, dun_level, SUMMON_ANGEL, PM_FORCE_PET))
+            if (summon_specific(SUMMON_WHO_PLAYER, py, px, dun_level, SUMMON_ANGEL, PM_FORCE_PET))
                 device_noticed = TRUE;
         }
         break;
@@ -4483,7 +4502,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             fire_ball_hide(GF_WATER_FLOW, 0, 3, 3);
             device_noticed = TRUE;
             for (i = 0; i < num; i++)
-                ct += summon_specific(-1, py, px, dun_level, SUMMON_KRAKEN, PM_FORCE_PET);
+                ct += summon_specific(SUMMON_WHO_PLAYER, py, px, dun_level, SUMMON_KRAKEN, PM_FORCE_PET);
             if (!ct)
                 msg_print("No help arrives.");
         }
@@ -6857,7 +6876,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             int num = randint1(4);
             for (i = 0; i < num; i++)
             {
-                if (summon_specific(0, py, px, dun_level, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET)))
+                if (summon_specific(SUMMON_WHO_PLAYER, py, px, dun_level, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET)))
                     device_noticed = TRUE;
             }
         }
@@ -7112,6 +7131,51 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             }
         }
         break;
+    case EFFECT_EXPERTSEXCHANGE: /* adapted from Frogspawn */
+        if (name) return "Change Sex";
+        if (desc) return "It changes your biological gender.";
+        if (value) return format("%d", 100);
+        if (cast)
+        {
+            p_ptr->psex = (SEX_MALE + SEX_FEMALE) - p_ptr->psex;
+            if (p_ptr->psex == SEX_FEMALE)
+            {
+                mut_lose(MUT_IMPOTENCE);
+                take_hit(DAMAGE_NOESCAPE, 10, "sex reassignment");
+                msg_print("Congratulations! You are now a female!");
+                switch (randint0(7))
+                {
+                    case 0: msg_print("(Well, that was quick, and didn't hurt. Much.)"); break;
+                    case 1: msg_print("(Time to start kicking ass.)"); break;
+                    case 2: msg_print("(Already you hate those chauvinist male pigs.)"); break;
+                    case 3: msg_print("(Your remaining inner dirty male is already getting ideas...)"); break;
+                    case 4: msg_print("(At last you can think clearly, without all those weird hormones flowing through your body.)"); break;
+                    case 5: msg_print("(The unfair sex! You've looked forward to this!)"); break;
+                    default: msg_print("(You miss your old body a bit, but you've never been afraid to experiment.)"); break;
+                }
+            }
+            else
+            {
+                if ((one_in_(12)) && (p_ptr->prace != RACE_ENT))
+                {
+                    msg_print("Congratulations! You are now an Ent!");
+                    msg_print(NULL);
+                    msg_print("Nah, just kidding. You are now a male.");
+                    break;
+                }
+                else msg_print("Congratulations! You are now a male!");
+                switch (randint0(7))
+                {
+                    case 0: msg_print("(Well, that was quick. You'll make them suffer now.)"); break;
+                    case 1: msg_print("(You feel testosterone flowing through your body. Time to pillage!)"); break;
+                    case 2: msg_print("(Who are you going to boss around now?)"); break;
+                    case 3: msg_print("RAAAAAAAARRH!"); break;
+                    case 4: msg_print("You feel very strong! (Maybe that's just you, though? Either that, or your stats haven't updated properly.)"); break;
+                    case 5: msg_print("(You hope other males will stop pestering you now.)"); break;
+                    default: msg_print("(They'd better pay you a hundred gold pieces for every eighty you earn now.)"); break;
+                }
+            }
+        }
     default:
         if (name) return format("Invalid Effect: %d", effect->type);
     }

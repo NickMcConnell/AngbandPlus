@@ -289,7 +289,7 @@ static void _mirror_concentration_spell(int cmd, variant *res)
         }
         else
         {
-            msg_print("You need to on a mirror to use this spell!");
+            msg_print("You need to stand on a mirror to use this spell!");
         }
         break;
     default:
@@ -760,6 +760,16 @@ static int _get_powers(spell_info* spells, int max)
     return get_powers_aux(spells, max, _powers);
 }
 
+static void _character_dump(doc_ptr doc)
+{
+    spell_info spells[MAX_SPELLS];
+    int        ct = _get_spells(spells, MAX_SPELLS);
+
+    spellbook_character_dump(doc);
+    doc_insert(doc, "<color:r>Realm:</color> <color:B>Mirror Magic</color>\n");
+    py_display_spells_aux(doc, spells, ct);
+}
+
 static void _calc_bonuses(void)
 {
     if (equip_find_art(ART_YATA))
@@ -884,6 +894,7 @@ class_t *mirror_master_get_class(void)
         me.caster_info = _caster_info;
         me.get_spells = _get_spells;
         me.get_powers = _get_powers;
+        me.character_dump = _character_dump;
         init = TRUE;
     }
 

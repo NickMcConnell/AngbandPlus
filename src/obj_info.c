@@ -43,6 +43,7 @@ static void _ego_display_other_pval(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
 static void _ego_display_extra(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
 
 static int _calc_net_bonus(int amt, u32b flgs[OF_ARRAY_SIZE], int flg, int flg_dec);
+
 static void _print_list(vec_ptr v, doc_ptr doc, char sep, char term);
 static string_ptr _get_res_name(int res);
 
@@ -359,6 +360,14 @@ bool display_origin(object_type *o_ptr, doc_ptr doc)
             doc_printf(doc, "Found in a Can of Toys %s.", paikka_text);
             break;
         }
+        case ORIGIN_BLOOD:
+        {
+            if (object_is_(o_ptr, TV_POTION, SV_POTION_BLOOD))
+                doc_printf(doc, "Created from your own blood %s.", paikka_text);
+            else
+                doc_printf(doc, "Resulted from %s going sour %s.", object_plural(o_ptr) ? "Potions of Blood" : "a Potion of Blood", paikka_text);
+            break;
+        }
     }
     if ((show_discovery) && (o_ptr->mitze_type) && (o_ptr->mitze_turn) && (origin != ORIGIN_BIRTH))
     {
@@ -416,6 +425,53 @@ static _flag_info_t _stats_flags[] =
     { OF_TUNNEL,        OF_INVALID,             "Digging" },
     { OF_INVALID,       OF_INVALID,             NULL }
 };
+
+static int _opposite_flag(int i)
+{
+    static s16b loydetty[OF_COUNT - 1] = {0};
+    _flag_info_ptr table = _stats_flags;
+    if (i < 1) return OF_INVALID;
+    if (i >= OF_COUNT) return OF_INVALID;
+    if (loydetty[i - 1]) return loydetty[i - 1];
+    while (table->flg != OF_INVALID)
+    {
+        if (i == table->flg)
+        {
+            loydetty[i - 1] = table->flg_dec;
+            return table->flg_dec;
+        }
+        if (i == table->flg_dec)
+        {
+            loydetty[i - 1] = table->flg;
+            return table->flg;
+        }
+        table++;
+    }
+    if (i >= OF_RES_ACID)
+    {
+        int tulos = resist_opposite_flag(i);
+        loydetty[i - 1] = tulos;
+        return tulos;
+    }
+    loydetty[i - 1] = OF_INVALID;
+    return OF_INVALID;
+}
+
+void remove_opposite_flags(u32b flgs[OF_ARRAY_SIZE])
+{
+    int i;
+    for (i = 1; i < OF_COUNT; i++)
+    {
+        int j;
+        if (!have_flag(flgs, i)) continue;
+        j = _opposite_flag(i);
+        if ((j != OF_INVALID) && have_flag(flgs, j))
+        {
+            remove_flag(flgs, i);
+            remove_flag(flgs, j);
+        }
+    }
+}
 
 static void _build_bonus_list(int pval, u32b flgs[OF_ARRAY_SIZE], _flag_info_ptr table, vec_ptr v)
 {

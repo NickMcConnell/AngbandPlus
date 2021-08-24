@@ -75,6 +75,7 @@ enum _keyword_e {
     FLG_MORE_BONUS,
     FLG_MORE_LEVEL,
     FLG_MORE_WEIGHT,
+    FLG_MORE_CHARGES,
     FLG_MORE_VALUE,
 
 /* Nouns */
@@ -121,7 +122,7 @@ enum _keyword_e {
 #define FLG_QUALITY_BEGIN       FLG_AVERAGE
 #define FLG_QUALITY_END         FLG_NAMELESS
 #define FLG_SPECIAL_FORM_BEGIN  FLG_MORE_DICE
-#define FLG_SPECIAL_FORM_END    FLG_MORE_WEIGHT
+#define FLG_SPECIAL_FORM_END    FLG_MORE_VALUE
 #define FLG_NOUN_BEGIN          FLG_ITEMS
 #define FLG_NOUN_END            (FLG_MAX - 1)
 
@@ -166,6 +167,7 @@ static char KEY_MORE_DICE[] =  "more dice than";
 static char KEY_MORE_BONUS[] =  "more bonus than";
 static char KEY_MORE_LEVEL[] =  "more level than";
 static char KEY_MORE_WEIGHT[] =  "more weight than";
+static char KEY_MORE_CHARGES[] =  "more charges than";
 static char KEY_MORE_VALUE[] =  "more value than";
 
 static char KEY_ITEMS[] = "items";
@@ -479,6 +481,31 @@ static bool autopick_new_entry(autopick_type *entry, cptr str, bool allow_defaul
         {
             if (' ' == *ptr) ptr++;
             ADD_FLG(FLG_MORE_WEIGHT);
+        }
+        else
+            ptr = prev_ptr;
+    }
+
+    if (MATCH_KEY2(KEY_MORE_CHARGES))
+    {
+        int k = 0;
+        entry->charges = 0;
+
+        /* Drop leading spaces */
+        while (' ' == *ptr) ptr++;
+
+        /* Read number */
+        while ('0' <= *ptr && *ptr <= '9')
+        {
+            entry->charges = 10 * entry->charges + (*ptr - '0');
+            ptr++;
+            k++;
+        }
+
+        if (k > 0 && k <= 3)
+        {
+            if (' ' == *ptr) ptr++;
+            ADD_FLG(FLG_MORE_CHARGES);
         }
         else
             ptr = prev_ptr;
@@ -870,11 +897,12 @@ static void init_autopick(void)
 
 #define PT_DEFAULT 0
 #define PT_WITH_PNAME 1
+#define PT_WITH_OTHERNAME 2
 
 /*
  *  Get file name for autopick preference
  */
-static cptr pickpref_filename(int filename_mode)
+static cptr pickpref_filename(int filename_mode, char *other_base)
 {
     static const char namebase[] = "pickpref";
 
@@ -885,6 +913,13 @@ static cptr pickpref_filename(int filename_mode)
 
     case PT_WITH_PNAME:
         return format("%s-%s.prf", namebase, player_base);
+
+    case PT_WITH_OTHERNAME:
+    {
+        if (!other_base) return format("%s.prf", namebase);
+        if (streq(namebase, other_base)) return format("%s.prf", namebase);
+        return format("%s-%s.prf", namebase, other_base);
+    }
 
     default:
         return NULL;
@@ -904,7 +939,7 @@ void autopick_load_pref(bool disp_mes)
     init_autopick();
 
     /* Try a filename with player name */
-    my_strcpy(buf, pickpref_filename(PT_WITH_PNAME), sizeof(buf));
+    my_strcpy(buf, pickpref_filename(PT_WITH_PNAME, NULL), sizeof(buf));
 
     /* Load the file */
     err = process_autopick_file(buf);
@@ -919,7 +954,7 @@ void autopick_load_pref(bool disp_mes)
     if (0 > err)
     {
         /* Use default name */
-        my_strcpy(buf, pickpref_filename(PT_DEFAULT), sizeof(buf));
+        my_strcpy(buf, pickpref_filename(PT_DEFAULT, NULL), sizeof(buf));
 
         /* Load the file */
         err = process_autopick_file(buf);
@@ -1139,6 +1174,15 @@ string_ptr autopick_line_from_entry(autopick_type *entry, int options)
             string_append_s(s, "</color>");
     }
 
+    if (IS_FLG(FLG_MORE_CHARGES))
+    {
+        if (options & AUTOPICK_COLOR_CODED)
+            string_append_s(s, "<color:o>");
+        string_printf(s, " %s %d", KEY_MORE_CHARGES, entry->charges);
+        if (options & AUTOPICK_COLOR_CODED)
+            string_append_s(s, "</color>");
+    }
+
     if (IS_FLG(FLG_MORE_VALUE))
     {
         if (options & AUTOPICK_COLOR_CODED)
@@ -1263,6 +1307,12 @@ static bool _string_match(cptr source, cptr pattern)
     assert(!_string_match("wand of light", "^wand of lightning balls$"));
 */
 
+static bool _is_polymorphed_demon(void)
+{
+    if (!p_ptr->mimic_form) return FALSE;
+    else return (get_true_race()->flags & RACE_IS_DEMON);
+}
+
 static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_name)
 {
     int j;
@@ -1366,6 +1416,12 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
             return FALSE;
     }
 
+    if (IS_FLG(FLG_MORE_CHARGES))
+    {
+        if (!object_is_device(o_ptr)) return FALSE;
+        if ((device_max_sp(o_ptr) / o_ptr->activation.cost) <= entry->charges) return FALSE;
+    }
+
     if (IS_FLG(FLG_MORE_VALUE))
     {
         int value = obj_value(o_ptr);
@@ -1429,7 +1485,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
         bool is_special = FALSE;
         if ( (get_race()->flags & RACE_IS_DEMON)
           || p_ptr->realm1 == REALM_DAEMON
-          || p_ptr->realm2 == REALM_DAEMON )
+          || p_ptr->realm2 == REALM_DAEMON || _is_polymorphed_demon())
         {
             if (o_ptr->tval == TV_CORPSE &&
                 o_ptr->sval == SV_CORPSE &&
@@ -2296,6 +2352,13 @@ static void _get_obj(obj_ptr obj)
     /* Inscribe */
     auto_inscribe_item(obj, idx);
 
+    if (delay_autopick_hack)
+    {
+        auto_destroy_obj(obj, idx);
+        obj_release(obj, OBJ_RELEASE_QUIET);
+        return;
+    }
+
     /* Pickup */
     if (idx >= 0 &&
         (autopick_list[idx].action & (DO_AUTOPICK | DO_QUERY_AUTOPICK)))
@@ -2361,12 +2424,12 @@ static bool clear_auto_register(void)
     bool autoregister = FALSE;
     bool okay = TRUE;
 
-    path_build(pref_file, sizeof(pref_file), ANGBAND_DIR_USER, pickpref_filename(PT_WITH_PNAME));
+    path_build(pref_file, sizeof(pref_file), ANGBAND_DIR_USER, pickpref_filename(PT_WITH_PNAME, NULL));
     pref_fff = my_fopen(pref_file, "r");
 
     if (!pref_fff)
     {
-        path_build(pref_file, sizeof(pref_file), ANGBAND_DIR_USER, pickpref_filename(PT_DEFAULT));
+        path_build(pref_file, sizeof(pref_file), ANGBAND_DIR_USER, pickpref_filename(PT_DEFAULT, NULL));
         pref_fff = my_fopen(pref_file, "r");
     }
 
@@ -2524,13 +2587,13 @@ bool autopick_autoregister(object_type *o_ptr)
     }
 
     /* Try a filename with player name */
-    path_build(pref_file, sizeof(pref_file), ANGBAND_DIR_USER, pickpref_filename(PT_WITH_PNAME));
+    path_build(pref_file, sizeof(pref_file), ANGBAND_DIR_USER, pickpref_filename(PT_WITH_PNAME, NULL));
     pref_fff = my_fopen(pref_file, "r");
 
     if (!pref_fff)
     {
         /* Use default name */
-        path_build(pref_file, sizeof(pref_file), ANGBAND_DIR_USER, pickpref_filename(PT_DEFAULT));
+        path_build(pref_file, sizeof(pref_file), ANGBAND_DIR_USER, pickpref_filename(PT_DEFAULT, NULL));
         pref_fff = my_fopen(pref_file, "r");
         if (!pref_fff)
         {
@@ -2580,8 +2643,8 @@ bool autopick_autoregister(object_type *o_ptr)
         /* Add the header */
         fprintf(pref_fff, "%s\n", autoregister_header);
 
-        fprintf(pref_fff, "%s\n", "# *Waring!* The lines below will be deleated later.");
-        fprintf(pref_fff, "%s\n", "# Keep it by cut & paste if you need these lines for future characters.");
+        fprintf(pref_fff, "%s\n", "# *Warning!* The lines below will be deleted later.");
+        fprintf(pref_fff, "%s\n", "# Keep them by cut & paste if you need them for future characters.");
 
         /* Now auto register is in-use */
         p_ptr->autopick_autoregister = TRUE;
@@ -2845,6 +2908,12 @@ static void describe_autopick(char *buff, autopick_type *entry)
         sprintf(more_weight_desc_str, "weight is more than %d lbs", entry->weight);
         whose_str[whose_n++] = more_weight_desc_str;
     }
+    if (IS_FLG(FLG_MORE_CHARGES))
+    {
+        static char more_charges_desc_str[50];
+        sprintf(more_charges_desc_str, "number of charges is higher than %d", entry->charges);
+        whose_str[whose_n++] = more_charges_desc_str;
+    }
     if (IS_FLG(FLG_MORE_VALUE))
     {
         static char more_value_desc_str[50];
@@ -3104,7 +3173,7 @@ static cptr *read_text_lines(cptr filename)
     int lines = 0;
     char buf[1024];
 
-    path_build(buf, sizeof(buf), ANGBAND_DIR_USER, filename);
+    path_build(buf, sizeof(buf), (streq("pickpref.prf", filename) ? ANGBAND_DIR_PREF : ANGBAND_DIR_USER), filename);
 
     /* Open the file */
     fff = my_fopen(buf, "r");
@@ -3150,8 +3219,8 @@ static void prepare_default_pickpref(void)
     FILE *user_fp;
     int i;
 
-    sprintf(buf_src, "%s", pickpref_filename(PT_DEFAULT));
-    sprintf(buf_dest, "%s", pickpref_filename(PT_WITH_PNAME));
+    sprintf(buf_src, "%s", pickpref_filename(PT_DEFAULT, NULL));
+    sprintf(buf_dest, "%s", pickpref_filename(PT_WITH_PNAME, NULL));
 
     /* Display messages */
     for (i = 0; messages[i]; i++) msg_print(messages[i]);
@@ -3197,29 +3266,43 @@ static void prepare_default_pickpref(void)
  * Read an autopick prefence file to memory
  * Prepare default if no user file is found
  */
-static cptr *read_pickpref_text_lines(int *filename_mode_p)
+static cptr *read_pickpref_text_lines(int *filename_mode_p, char *other_base)
 {
     char buf[1024];
     cptr *lines_list;
 
+    if (((*filename_mode_p) == PT_WITH_OTHERNAME) && (other_base))
+    {
+        strcpy(buf, pickpref_filename(*filename_mode_p, other_base));
+        lines_list = read_text_lines(buf);
+        if (lines_list) return lines_list;
+    }
+
     /* Try a filename with player name */
     *filename_mode_p = PT_WITH_PNAME;
-    strcpy(buf, pickpref_filename(*filename_mode_p));
+    strcpy(buf, pickpref_filename(*filename_mode_p, NULL));
     lines_list = read_text_lines(buf);
 
     if (!lines_list)
     {
         /* Use default name */
         *filename_mode_p = PT_DEFAULT;
-        strcpy(buf, pickpref_filename(*filename_mode_p));
+        strcpy(buf, pickpref_filename(*filename_mode_p, NULL));
         lines_list = read_text_lines(buf);
+
+        if (lines_list)
+        {
+            *filename_mode_p = PT_WITH_PNAME;
+            prepare_default_pickpref();
+            return lines_list;
+        }
     }
 
     if (!lines_list)
     {
         /* There is no preference file in the user directory */
         *filename_mode_p = PT_WITH_PNAME;
-        strcpy(buf, pickpref_filename(*filename_mode_p));
+        strcpy(buf, pickpref_filename(*filename_mode_p, NULL));
 
         /* Copy the default autopick file to the user directory */
         prepare_default_pickpref();
@@ -4104,6 +4187,7 @@ enum {
     EC_QUIT = 1,
     EC_SAVEQUIT,
     EC_REVERT,
+    EC_LOAD,
     EC_HELP,
     EC_RETURN,
     EC_LEFT,
@@ -4152,6 +4236,7 @@ enum {
     EC_OK_MORE_BONUS,
     EC_OK_MORE_LEVEL,
     EC_OK_MORE_WEIGHT,
+    EC_OK_MORE_CHARGES,
     EC_OK_MORE_VALUE,
     EC_OK_WORTHLESS,
     EC_OK_ARTIFACT,
@@ -4206,6 +4291,7 @@ enum {
 static char MN_QUIT[] = "Quit without save";
 static char MN_SAVEQUIT[] = "Save & Quit";
 static char MN_REVERT[] = "Revert all changes";
+static char MN_LOAD[] = "Load preferences";
 static char MN_HELP[] = "Help";
 
 static char MN_MOVE[] =   "Move cursor";
@@ -4213,7 +4299,7 @@ static char MN_LEFT[] =   "Left     (Left Arrow key)";
 static char MN_DOWN[] =   "Down     (Down Arrow key)";
 static char MN_UP[] =     "Up       (Up Arrow key)";
 static char MN_RIGHT[] =  "Right    (Right Arrow key)";
-static char MN_BOL[] =    "Beggining of line";
+static char MN_BOL[] =    "Beginning of line";
 static char MN_EOL[] =    "End of line";
 static char MN_PGUP[] =   "Page up  (PageUp key)";
 static char MN_PGDOWN[] = "Page down(PageDown key)";
@@ -4264,6 +4350,7 @@ static char MN_MORE_BONUS[] = "more bonus than # (rings etc.)";
 static char MN_MORE_LEVEL[] = "more level than # (corpses)";
 static char MN_MORE_WEIGHT[] = "more weight than #";
 static char MN_MORE_VALUE[] = "more value than #";
+static char MN_MORE_CHARGES[] = "more charges than #";
 static char MN_WANTED[] = "wanted (corpse)";
 static char MN_UNIQUE[] = "unique (corpse)";
 static char MN_HUMAN[] = "human (corpse)";
@@ -4293,6 +4380,7 @@ command_menu_type menu_data[] =
     {MN_QUIT, 0, KTRL('q'), EC_QUIT},
     {MN_SAVEQUIT, 0, KTRL('w'), EC_SAVEQUIT},
     {MN_REVERT, 0, KTRL('z'), EC_REVERT},
+    {MN_LOAD, 0, KTRL('j'), EC_LOAD},
 
     {MN_EDIT, 0, -1, -1},
     {MN_CUT, 1, KTRL('x'), EC_CUT},
@@ -4302,7 +4390,6 @@ command_menu_type menu_data[] =
     {MN_KILL_LINE, 1, KTRL('k'), EC_KILL_LINE},
     {MN_DELETE_CHAR, 1, KTRL('d'), EC_DELETE_CHAR},
     {MN_BACKSPACE, 1, KTRL('h'), EC_BACKSPACE},
-    {MN_RETURN, 1, KTRL('j'), EC_RETURN},
     {MN_RETURN, 1, KTRL('m'), EC_RETURN},
 
     {MN_SEARCH, 0, -1, -1},
@@ -4357,6 +4444,7 @@ command_menu_type menu_data[] =
     {MN_MORE_BONUS, 1, -1, EC_OK_MORE_BONUS},
     {MN_MORE_LEVEL, 1, -1, EC_OK_MORE_LEVEL},
     {MN_MORE_WEIGHT, 1, -1, EC_OK_MORE_WEIGHT},
+    {MN_MORE_CHARGES, 1, -1, EC_OK_MORE_CHARGES},
     {MN_MORE_VALUE, 1, -1, EC_OK_MORE_VALUE},
     {MN_WANTED, 1, -1, EC_OK_WANTED},
     {MN_UNIQUE, 1, -1, EC_OK_UNIQUE},
@@ -5276,7 +5364,7 @@ static bool do_editor_command(text_body_type *tb, int com_id)
         if (!get_check("Discard all changes and revert to original file. Are you sure? ")) break;
 
         free_text_lines(tb->lines_list);
-        tb->lines_list = read_pickpref_text_lines(&tb->filename_mode);
+        tb->lines_list = read_pickpref_text_lines(&tb->filename_mode, NULL);
         tb->dirty_flags |= DIRTY_ALL | DIRTY_MODE | DIRTY_EXPRESSION;
         tb->cx = tb->cy = 0;
         tb->mark = 0;
@@ -5284,6 +5372,34 @@ static bool do_editor_command(text_body_type *tb, int com_id)
         /* Text is not changed */
         tb->changed = FALSE;
         break;
+
+    case EC_LOAD:
+        {
+            char lataa_minut[80];
+            int pituus;
+            strcpy(lataa_minut, player_base);
+            if (!get_string("Load: ", lataa_minut, 78)) break;
+            pituus = strlen(lataa_minut);
+
+            /* Identify format
+             * Acceptable formats include [charname], [charname.prf],
+             * [pickpref-charname] and [pickpref-charname.prf] */
+            if (pituus > 9)
+            {
+                if (clip_and_locate("pickpref-", lataa_minut)) pituus -= 9;
+            }
+            if (pituus > 4 && strcmp(lataa_minut + pituus - 4, ".prf") == 0) lataa_minut[pituus - 4] = '\0';
+
+            free_text_lines(tb->lines_list);
+            tb->filename_mode = PT_WITH_OTHERNAME;
+            tb->lines_list = read_pickpref_text_lines(&tb->filename_mode, lataa_minut);
+            tb->dirty_flags |= DIRTY_ALL | DIRTY_MODE | DIRTY_EXPRESSION;
+            tb->cx = tb->cy = 0;
+            tb->mark = 0;
+            tb->changed = TRUE;
+            tb->filename_mode = PT_WITH_PNAME;
+            break;
+        }
 
     case EC_HELP:
         /* Peruse the main help file */
@@ -6071,6 +6187,7 @@ static bool do_editor_command(text_body_type *tb, int com_id)
     case EC_OK_MORE_BONUS: toggle_keyword(tb, FLG_MORE_BONUS); break;
     case EC_OK_MORE_LEVEL: toggle_keyword(tb, FLG_MORE_LEVEL); break;
     case EC_OK_MORE_WEIGHT: toggle_keyword(tb, FLG_MORE_WEIGHT); break;
+    case EC_OK_MORE_CHARGES: toggle_keyword(tb, FLG_MORE_CHARGES); break;
     case EC_OK_MORE_VALUE: toggle_keyword(tb, FLG_MORE_VALUE); break;
     case EC_OK_WORTHLESS: toggle_keyword(tb, FLG_WORTHLESS); break;
     case EC_OK_ARTIFACT: toggle_keyword(tb, FLG_ARTIFACT); break;
@@ -6301,7 +6418,7 @@ void do_cmd_edit_autopick(void)
     }
 
     /* Read or initialize whole text */
-    tb->lines_list = read_pickpref_text_lines(&tb->filename_mode);
+    tb->lines_list = read_pickpref_text_lines(&tb->filename_mode, NULL);
 
     /* Reset cursor position if needed */
     for (i = 0; i < tb->cy; i++)
@@ -6407,7 +6524,7 @@ void do_cmd_edit_autopick(void)
     do_cmd_redraw();
 
     /* Get the filename of preference */
-    strcpy(buf, pickpref_filename(tb->filename_mode));
+    strcpy(buf, pickpref_filename(tb->filename_mode, NULL));
 
     if (quit == QUIT_AND_SAVE)
         write_text_lines(buf, tb->lines_list);

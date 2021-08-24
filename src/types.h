@@ -1147,6 +1147,7 @@ struct player_type
     bool maul_of_vice;
     bool uimapuku;
     bool upkeep_warning; /* Unsafe upkeep - pets may turn hostile */
+    bool upset_okay;
 
     counter_t wild_counters[MAX_WILD_COUNTERS];    /* Wild Weapons */
 
@@ -1237,6 +1238,7 @@ struct player_type
     byte coffee_lv_revisits;  /* Count 99/100 spam by coffee-breakers */
     byte minislow;
     u16b mini_energy;
+    byte py_summon_kills;
 
     s16b energy_need;      /* Energy needed for next move */
 
@@ -1775,6 +1777,7 @@ typedef struct {
     byte bonus;         /* Items which have more than 'bonus' magical bonus match */
     byte level;
     byte weight;
+    byte charges;
     int  value;
 } autopick_type;
 

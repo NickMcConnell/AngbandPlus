@@ -826,6 +826,7 @@ void _unwield_before(obj_ptr obj)
 
 void _unwield(obj_ptr obj, bool drop)
 {
+    obj->marked &= ~OM_SLIPPING;
     if (obj->loc.where == INV_QUIVER)
     {
         int amt = obj->number;
@@ -865,8 +866,6 @@ void _unwield(obj_ptr obj, bool drop)
 
 void _unwield_after(void)
 {
-    if (weaponmaster_is_(WEAPONMASTER_SHIELDS))
-        handle_stuff(); /* Explain! */
     android_calc_exp();
 }
 
@@ -1218,6 +1217,7 @@ void equip_calc_bonuses(void)
         int     bonus_to_h, bonus_to_d;
 
         if (!obj) continue;
+        if (obj->marked & OM_SLIPPING) continue;
 
         obj_flags(obj, flgs);
         obj_flags_known(obj, known_flgs);

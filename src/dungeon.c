@@ -267,7 +267,12 @@ static void sense_inventory2(void)
     equip_for_each_that(_sense_obj, obj_can_sense2);
 }
 
-
+/* Random energy */
+s16b energy_need_clipper(void)
+{
+    s16b tulos = randnor(100, 18);
+    return MIN(133, MAX(67, tulos));
+}
 
 /*
  * Go to any level (ripped off from wiz_jump)
@@ -619,6 +624,7 @@ static void regenmana(int percent)
     s32b old_csp = p_ptr->csp;
 
     if (p_ptr->pclass == CLASS_RUNE_KNIGHT || p_ptr->pclass == CLASS_RAGE_MAGE) return;
+    if (elemental_is_(ELEMENTAL_WATER)) return;
     if (mimic_no_regen())
     {
         if (p_ptr->csp > p_ptr->msp) /* Doppelganger Samurai/Mystics should still decay supercharged mana! */
@@ -1987,6 +1993,7 @@ static void process_world_aux_curse(void)
                 o_ptr = equip_obj(i);
 
                 if (!o_ptr) continue;
+                if (o_ptr->marked & OM_SLIPPING) continue;
                 obj_flags(o_ptr, flgs);
                 if (have_flag(flgs, OF_TELEPORT))
                 {
@@ -2687,7 +2694,7 @@ static void update_dungeon_feeling(void)
     p_ptr->redraw |= (PR_DEPTH);
 
     /* Disturb */
-    if ((disturb_minor) && ((feeling_was_special) || (p_ptr->feeling == 1))) disturb(0, 0);
+    if ((p_ptr->feeling == 1) || ((disturb_minor) && (feeling_was_special))) disturb(0, 0);
 }
 
 
@@ -3393,13 +3400,17 @@ static void _dispatch_command(int old_now_turn)
         /* Stay still (usually pick things up) */
         case ',':
         {
+            delay_autopick_hack = TRUE;
             do_cmd_stay(always_pickup);
+            delay_autopick_hack = FALSE;
             break;
         }
 
         case 'g':
         {
+            delay_autopick_hack = TRUE;
             do_cmd_get();
+            delay_autopick_hack = FALSE;
             break;
         }
 
@@ -4091,6 +4102,13 @@ static void _dispatch_command(int old_now_turn)
             break;
         }
 
+        case 'J':
+        {
+            if ((!p_ptr->wild_mode) && (travel.x) && (travel.y) && ((px != travel.x) || (py != travel.y)) && (in_bounds(travel.y, travel.x)) && (get_check("Resume travelling? ")))
+            travel_begin(TRAVEL_MODE_NORMAL, travel.x, travel.y);
+            break;
+        }
+
         /* Hack -- Unknown command */
         default:
         {
@@ -4233,6 +4251,7 @@ static void process_player(void)
               && ( p_ptr->csp >= p_ptr->msp
                 || p_ptr->pclass == CLASS_RUNE_KNIGHT
                 || p_ptr->pclass == CLASS_RAGE_MAGE
+                || elemental_is_(ELEMENTAL_WATER)
                 || mimic_no_regen() )
               && !magic_eater_can_regen() 
 			  && !samurai_can_concentrate())
@@ -4249,6 +4268,7 @@ static void process_player(void)
               && ( p_ptr->csp >= p_ptr->msp
                 || p_ptr->pclass == CLASS_RUNE_KNIGHT
                 || p_ptr->pclass == CLASS_RAGE_MAGE
+                || elemental_is_(ELEMENTAL_WATER)
                 || mimic_no_regen() )
               && !magic_eater_can_regen()
               && !samurai_can_concentrate()
@@ -4486,6 +4506,15 @@ static void process_player(void)
         }
 
         fear_recover_p();
+        if ((elemental_is_(ELEMENTAL_WATER)) && (p_ptr->csp))
+        {
+            int tiputus = MAX(5, p_ptr->csp / 20);
+            if (cave_have_flag_bold(py, px, FF_WATER)) tiputus -= (tiputus / 2);
+            p_ptr->csp -= tiputus;
+            p_ptr->csp = MAX(0, p_ptr->csp);
+            p_ptr->update |= (PU_BONUS);
+            p_ptr->redraw |= (PR_MANA | PR_STATS);
+        }
     }
 
     load = FALSE;
@@ -4497,6 +4526,7 @@ static void process_player(void)
     {
         p_ptr->sutemi = FALSE;
         p_ptr->counter = FALSE;
+        monsters_damaged_hack = FALSE;
 
         player_turn++;
 
@@ -4512,14 +4542,14 @@ static void process_player(void)
         /* Refresh (optional) */
         if (fresh_before) Term_fresh();
 
-
         /* Hack -- Pack Overflow */
         pack_overflow();
-
 
         /* Hack -- cancel "lurking browse mode" */
         if (!command_new) command_see = FALSE;
 
+        /* Check if pets may turn hostile this turn */
+        p_ptr->upset_okay = p_ptr->upkeep_warning;
 
         /* Assume free turn */
         energy_use = 0;
@@ -5385,6 +5415,9 @@ void play_game(bool new_game)
     /* Suppress extra pantheons */
     if (single_pantheon) _suppress_extra_pantheons();
 
+    /* Empty lore */
+    if ((new_game) && (empty_lore)) empty_lore_wipe();
+
     creating_savefile = FALSE;
 
     p_ptr->teleport_town = FALSE;
@@ -5474,7 +5507,6 @@ void play_game(bool new_game)
 
     /* Character is now "complete" */
     character_generated = TRUE;
-
 
     /* Hack -- Character is no longer "icky" */
     character_icky = FALSE;

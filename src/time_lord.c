@@ -587,7 +587,7 @@ static void _rewind_time_spell(int cmd, variant *res)
 
 static int  _breath_dam(void) {
     int l = (p_ptr->lev - 30);
-    return spell_power(9*p_ptr->lev/2 + l*l/4 + p_ptr->to_d_spell); /* 325 max damage ... */
+    return spell_power(11*p_ptr->lev/3 + l*l/4 + p_ptr->to_d_spell); /* 283 max damage ... */
 }
 static void _breath_spell(int cmd, variant *res)
 {
@@ -657,7 +657,7 @@ static void _stasis_spell(int cmd, variant *res)
         var_set_string(res, "Attempts to suspend all monsters in view.");
         break;
     case SPELL_CAST:
-        stasis_monsters(spell_power(4 * p_ptr->lev));
+        stasis_monsters(spell_power(7 * p_ptr->lev / 3));
         var_set_bool(res, TRUE);
         break;
     default:

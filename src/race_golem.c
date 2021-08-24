@@ -162,6 +162,7 @@ static void _calc_bonuses(void)
     p_ptr->dis_to_a += 5;
     p_ptr->free_act++;
     p_ptr->hold_life++;
+    p_ptr->pspeed -= 1;
     res_add(RES_POIS);
 
     /* Stone Golem */
@@ -209,9 +210,9 @@ static void _calc_bonuses(void)
     {
         res_add(RES_SOUND);
         res_add(RES_DISEN);
-        p_ptr->pspeed -= 3;
-        p_ptr->to_a += 35;
-        p_ptr->dis_to_a += 35;
+        p_ptr->pspeed -= 4;
+        p_ptr->to_a += 25;
+        p_ptr->dis_to_a += 25;
         p_ptr->magic_resistance += 5;
     }
 
@@ -220,8 +221,6 @@ static void _calc_bonuses(void)
         res_add(RES_COLD);
         res_add(RES_TIME);
         res_add(RES_LITE);
-        p_ptr->to_a += 10;
-        p_ptr->dis_to_a += 10;
         p_ptr->magic_resistance += 5;
     }
 
@@ -254,6 +253,7 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_FREE_ACT);
     add_flag(flgs, OF_HOLD_LIFE);
     add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_DEC_SPEED);
 
     /* Stone Golem */
     if (p_ptr->lev >= 10)
@@ -274,7 +274,6 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     /* Mithril Golem */
     if (p_ptr->lev >= 30)
     {
-        add_flag(flgs, OF_DEC_SPEED);
         add_flag(flgs, OF_RES_CONF);
         add_flag(flgs, OF_RES_SHARDS);
         add_flag(flgs, OF_REFLECT);
@@ -618,12 +617,12 @@ race_t *mon_golem_get_race(int psubrace)
     switch (psubrace)
     {
     case GOLEM_SKY:
-        me.life = 100 + 2*rank;
+        me.life = 100 + rank;
         me.exp = 250;
         break;
 
     case GOLEM_SPELLWARP:
-        me.life = 100 + 3*rank;
+        me.life = 100 + (rank * 3 / 2);
         me.exp = 350;
         break;
 
@@ -635,7 +634,7 @@ race_t *mon_golem_get_race(int psubrace)
             me.stats[A_DEX] -= 2;
             me.stats[A_CON] += 3;
         }
-        me.life = 100 + 5*rank;
+        me.life = 102 + (rank * ((rank < 4) ? 2 : 3));
         me.exp = 200;
         break;
     }
