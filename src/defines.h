@@ -18,8 +18,9 @@
 
 #define VER_MAJOR 7
 #define VER_MINOR 0
-#define VER_PATCH "mango"
-#define VER_EXTRA 2
+#define VER_PATCH "nougat"
+#define VER_EXTRA 0
+#define VERSION_IS_DEVELOPMENT (FALSE)
 
 #define GAME_MODE_BEGINNER  0
 #define GAME_MODE_NORMAL    1
@@ -151,11 +152,11 @@
  * by insisting on a single allocation size for all info files.
  * r_info requires 116771 bytes of text info, but k_info, a_info
  * and d_info only need about 11k, 27k and 1k respectively. Also,
- * its a bit tedious to figure current memory requirements. Why
+ * it's a bit tedious to figure current memory requirements. Why
  * not just malloc() string data and let the C library handle things?
  */
 #define FAKE_NAME_SIZE  20 * 1024   /* max is 18532 (r_info) */
-#define FAKE_TEXT_SIZE  128 * 1024  /* max is 116771 (r_info) */
+#define FAKE_TEXT_SIZE  144 * 1024  /* max is 116771 (r_info) */
 #define FAKE_TAG_SIZE   3 * 1024    /* max is 2092 (f_info) */
 
 
@@ -287,7 +288,7 @@
 /*
  * Random energy
  */
-#define ENERGY_NEED() (randnor(100, 18))
+#define ENERGY_NEED() ((predictable_energy_hack) ? 100 : (randnor(100, 18)))
 
 
 /*
@@ -625,7 +626,9 @@
 #define RACE_MON_CENTIPEDE      61
 #define RACE_MON_VORTEX         62
 #define RACE_HALF_ORC           63
-#define MAX_RACES               64
+#define RACE_EINHERI            64
+#define RACE_WEREWOLF           65
+#define MAX_RACES               66
 
 #define DEMIGOD_MINOR           0
 #define DEMIGOD_ZEUS            1
@@ -727,7 +730,7 @@
 
 #define DEPRECATED           0x80000000 /* race, class, personality (TODO) */
 
-/* Mimicry uses races too ... Its just that players
+/* Mimicry uses races too ... It's just that players
    cannot choose these races during birth. */
 #define MIMIC_NONE            -1                  /* RACE_HUMAN is 0 and Dopplegangers can mimic humans! */
 
@@ -1068,7 +1071,8 @@ enum {
 #define TELEPORT_PASSIVE       0x00000002
 #define TELEPORT_DEC_VALOUR    0x00000004
 #define TELEPORT_LINE_OF_SIGHT 0x00000008
-#define TELEPORT_DISENGAGE       0x00000010
+#define TELEPORT_DISENGAGE     0x00000010
+#define TELEPORT_RUSH_ATTACK   0x00000020
 
 
 /* Types of doors */
@@ -1185,6 +1189,7 @@ enum {
 #define ART_HELL                 218
 #define ART_CHARMED              219
 #define ART_GOGO                 220
+#define ART_KUNDRY               348
 
 /* Rings */
 #define ART_FRAKIR               8
@@ -1352,6 +1357,7 @@ enum {
 #define ART_ETERNAL_BLADE       294
 #define ART_MICRODOLLAR         334
 #define ART_SKYNAIL             341
+#define ART_AMUN                350
 
 /* Polearms */
 #define ART_THEODEN             93
@@ -1421,6 +1427,7 @@ enum {
 #define ART_DEFENDER_OF_THE_CROWN 252
 #define ART_MONKEY_KING            255
 #define ART_MAUL_OF_VICE        279
+#define ART_SILVER_HAMMER       335
 
 /* Bows */
 #define ART_BELTHRONDING        124
@@ -1849,7 +1856,7 @@ enum {
 #define SV_DRAGON_SHINING               10
 #define SV_DRAGON_LAW                   12
 #define SV_DRAGON_BRONZE                14
-#define SV_DRAGON_SILVER                14
+#define SV_DRAGON_SILVER                15
 #define SV_DRAGON_GOLD                  16
 #define SV_DRAGON_CHAOS                 18
 #define SV_DRAGON_BALANCE               20
@@ -1950,6 +1957,7 @@ enum {
 #define SV_SCROLL_CHAOS                 60
 #define SV_SCROLL_MANA                  61
 #define SV_SCROLL_BANISHMENT            62
+#define SV_SCROLL_INVEN_PROT            63
 
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_WATER                  0
@@ -1962,6 +1970,7 @@ enum {
 #define SV_POTION_BLINDNESS              7
 /* xxx */
 #define SV_POTION_CONFUSION              9
+#define SV_POTION_BOOZE                  9
 /* xxx */
 #define SV_POTION_SLEEP                 11
 /* xxx */
@@ -1983,7 +1992,7 @@ enum {
 #define SV_POTION_BOLDNESS              28
 #define SV_POTION_SPEED                 29
 #define SV_POTION_THERMAL               30
-#define SV_POTION_RESIST_ELEC           31
+#define SV_POTION_VIGOR                 31
 #define SV_POTION_HEROISM               32
 #define SV_POTION_BERSERK_STRENGTH      33
 #define SV_POTION_CURE_LIGHT            34
@@ -2481,7 +2490,7 @@ enum summon_specific_e {
     SUMMON_ARMAGE_GOOD,
     SUMMON_ARMAGE_EVIL,
     SUMMON_SOFTWARE_BUG,
-    SUMMON_OLYMPIAN,
+    SUMMON_PANTHEON,
     SUMMON_RAT,
     SUMMON_BAT,
     SUMMON_WOLF,
@@ -2627,6 +2636,7 @@ enum summon_specific_e {
 #define OM_ART_COUNTED     0x0200    /* Stats */
 #define OM_EFFECT_COUNTED  0x0400    /* Stats */
 #define OM_DELAYED_MSG     0x0800    /* Describe inventory slot *after* resorting */
+#define OM_BEING_SHUFFLED  0x1000
 
 
 /*
@@ -2657,6 +2667,9 @@ enum summon_specific_e {
 #define MFLAG2_QUESTOR          0x00004000   /* using monster_race.flags1 & RF1_QUESTOR is error prone */
 #define MFLAG2_FUZZY            0x00008000   /* fuzzy telepathy */
 #define MFLAG2_PLAYER_SUMMONED  0x00010000   /* Monster was summoned by player (or player-aligned mon) */
+#define MFLAG2_HORROR           0x00020000   /* Monster has triggered Eldritch Horror */
+#define MFLAG2_COUNTED_KILLED   0x00040000   /* Monster has been counted as killed by quests_on_kill_mon() */
+#define MFLAG2_MON_HIT_OKAY     0x00080000
 
 /*
  * Object Flags (OF_*)
@@ -2896,6 +2909,9 @@ enum obj_flags_e {
     OF_AGGRAVATE,
     OF_TY_CURSE,
 
+    /* Plural */
+    OF_PLURAL,
+
     /* A few places loop from 0 <= i < OF_COUNT ... (init1, race_sword and race_ring) */
     OF_COUNT,
 };
@@ -2988,7 +3004,6 @@ enum obj_flags_e {
 #define AM_STOCK_BM     0x00000400
 #define AM_QUEST        0x00000800
 #define AM_SHUFFLING    0x00001000
-
 
 /*** Monster blow constants ***/
 
@@ -3147,9 +3162,9 @@ enum {
 #define RF3_HURT_FIRE       0x00004000  /* Hurt badly by fire */
 #define RF3_HURT_COLD       0x00008000  /* Hurt badly by cold */
 #define RF3_OLYMPIAN        0x00010000
-#define RF3_XXX17           0x00020000
-#define RF3_XXX18           0x00040000
-#define RF3_XXX19           0x00080000
+#define RF3_EGYPTIAN        0x00020000
+#define RF3_EGYPTIAN2       0x00040000
+#define RF3_OLYMPIAN2       0x00080000
 #define RF3_XXX20           0x00100000
 #define RF3_XXX21           0x00200000
 #define RF3_XXX22           0x00400000
@@ -3189,6 +3204,7 @@ enum {
 #define RF7_CAN_CLIMB           0x00100000
 #define RF7_RANGED_MELEE        0x00200000  /* Monster has ranged melee */
 #define RF7_NASTY_GLYPH         0x00400000  /* Monster has nasty glyph */
+#define RF7_SILVER              0x00800000  /* Made of silver */
 
 /*
  * Monster race flags
@@ -3207,7 +3223,7 @@ enum {
 #define RF8_WILD_ALL            0x80000000
 
 /*
- * Monster Corspe Info, including a bunch of stuff for The Possessor
+ * Monster Corpse Info, including a bunch of stuff for The Possessor
  */
 #define RF9_DROP_CORPSE         0x00000001
 #define RF9_DROP_SKELETON       0x00000002
@@ -4238,6 +4254,7 @@ extern int PlayerUID;
 #define MON_WATER_HOUND         340
 #define MON_QUYLTHULG           342
 #define MON_SASQUATCH           343
+#define MON_WEREWOLF            347
 #define MON_D_ELF_LORD          348
 #define MON_CLOUD_GIANT         349
 #define MON_FIRE_VORTEX         354
@@ -4486,6 +4503,7 @@ extern int PlayerUID;
 #define MON_SURTUR              837
 #define MON_TARRASQUE           838
 #define MON_LUNGORTHIN          839
+#define MON_DRAUGLUIN           840
 #define MON_CYBER_KING          843
 #define MON_OREMORJ             843
 #define MON_WYRM_POWER          847
@@ -4635,15 +4653,21 @@ extern int PlayerUID;
 #define MON_MARILITH            1130
 #define MON_MIMIC               1131
 #define MON_MULTIHUED_CENTIPEDE 1132
-#define MON_AUDE				1148
-#define MON_HELGA				1149
+#define MON_AUDE		1148
+#define MON_HELGA		1149
 #define MON_GERTRUDE            1150
+#define MON_WIRUIN              1192
 #define MON_NIGHTMARE_DRAGON    1215
 #define MON_JUSTSHORN           1225
 #define MON_SHEEP               1226
 #define MON_ZOOPI               1229
 #define MON_FESTIVUS            1230
 #define MON_DUCK                1241
+#define MON_HORUS               1244
+#define MON_KUNDRY              1254
+#define MON_OSIRIS              1259
+#define MON_ISIS                1263
+#define MON_AMUN                1266
 
 /* The Metal Babble guards the Arena dungeon, but this requires the guardian to be a unique
    monster or the dungeon never gets flagged as completed. Note, this messes up the needle
@@ -4849,7 +4873,7 @@ extern int PlayerUID;
 #define DF1_NO_MELEE            0x08000000
 #define DF1_CHAMELEON           0x10000000
 #define DF1_DARKNESS            0x20000000
-#define DF1_XXX30               0x40000000
+#define DF1_ALL_SHAFTS          0x40000000
 #define DF1_XXX31               0x80000000
 
 #define DF1_LAKE_MASK (DF1_LAKE_WATER | DF1_LAKE_LAVA | DF1_LAKE_RUBBLE | DF1_LAKE_TREE)
@@ -4883,7 +4907,8 @@ extern int PlayerUID;
 #define DUNGEON_HIDEOUT  31
 #define DUNGEON_BATTLEFIELD  32
 #define DUNGEON_TIDAL_CAVE 33
-#define DUNGEON_MAX      DUNGEON_TIDAL_CAVE
+#define DUNGEON_MOUND    34
+#define DUNGEON_MAX      DUNGEON_MOUND
 
 #define DUNGEON_FEAT_PROB_NUM 3
 
@@ -4939,6 +4964,7 @@ enum mon_save_fields_e {
     SAVE_MON_PEXP,
     SAVE_MON_ANGER,
     SAVE_MON_MANA,
+    SAVE_MON_MINISLOW,
 };
 
 /* Sub-alignment flags for neutral monsters */
@@ -5488,6 +5514,8 @@ enum ego_type_e {
     EGO_QUIVER_PHASE,
 };
 
+#define EGO_DEVICE_START  EGO_DEVICE_RESISTANCE
+#define EGO_DEVICE_END    EGO_DEVICE_QUICKNESS
 
 enum effect_e
 {
@@ -5878,3 +5906,51 @@ enum ui_result_e
 
 /* Limit of upkeep acceptable to monsters */
 #define SAFE_UPKEEP_PCT 484
+
+/* Pantheons */
+enum
+{
+    PANTHEON_OLYMPIAN = 1,
+    PANTHEON_EGYPTIAN,
+    PANTHEON_MAX,
+};
+
+/* Maximum duration of unwellness */
+#define UNWELL_EFFECTIVE_MAX 55
+
+/* Melee slay and brand powers
+ * (note that ranged slays and brands use different code and values) */
+#define SLAY_MULT_BASIC 190
+#define SLAY_MULT_MID 240
+#define SLAY_MULT_HIGH 280
+#define KILL_MULT_BASIC 320
+#define KILL_MULT_MID 370
+#define KILL_MULT_HIGH 450
+#define SLAY_MULT_EVIL SLAY_MULT_BASIC
+#define SLAY_MULT_SENTIENT SLAY_MULT_BASIC
+#define SLAY_MULT_GOOD SLAY_MULT_BASIC
+#define SLAY_MULT_LIVING SLAY_MULT_BASIC
+#define SLAY_MULT_ANIMAL SLAY_MULT_MID
+#define SLAY_MULT_HUMAN SLAY_MULT_MID
+#define BRAND_MULT_ELEC SLAY_MULT_MID
+#define BRAND_MULT_ACID SLAY_MULT_MID
+#define BRAND_MULT_POIS SLAY_MULT_MID
+#define BRAND_MULT_FIRE SLAY_MULT_MID
+#define BRAND_MULT_COLD SLAY_MULT_MID
+#define SLAY_MULT_UNDEAD SLAY_MULT_HIGH
+#define SLAY_MULT_DEMON SLAY_MULT_HIGH
+#define SLAY_MULT_DRAGON SLAY_MULT_HIGH
+#define SLAY_MULT_ORC SLAY_MULT_HIGH
+#define SLAY_MULT_TROLL SLAY_MULT_HIGH
+#define SLAY_MULT_GIANT SLAY_MULT_HIGH
+#define KILL_MULT_EVIL KILL_MULT_BASIC
+#define KILL_MULT_GOOD KILL_MULT_BASIC
+#define KILL_MULT_LIVING KILL_MULT_BASIC
+#define KILL_MULT_ANIMAL KILL_MULT_MID
+#define KILL_MULT_HUMAN KILL_MULT_MID
+#define KILL_MULT_UNDEAD KILL_MULT_HIGH
+#define KILL_MULT_DEMON KILL_MULT_HIGH
+#define KILL_MULT_DRAGON KILL_MULT_HIGH
+#define KILL_MULT_ORC KILL_MULT_HIGH
+#define KILL_MULT_TROLL KILL_MULT_HIGH
+#define KILL_MULT_GIANT KILL_MULT_HIGH

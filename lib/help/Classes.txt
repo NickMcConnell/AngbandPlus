@@ -69,7 +69,7 @@ Wisdom       <color:w> -2</color>        Save        <color:y>Very Good    </col
 Dexterity    <color:w> -1</color>        Stealth     <color:R>Poor         </color>
 Constitution <color:w> +3</color>        Searching   <color:R>Poor         </color>
 Charisma     <color:w> +2</color>        Perception  <color:r>Bad          </color>
-Life Rating  111%       Melee       <color:g>Superb       </color>
+Life Rating  110%       Melee       <color:g>Superb       </color>
 Base HP       18        Bows        <color:D>Very Bad     </color>
 Experience   120%
 </style></indent>
@@ -144,7 +144,7 @@ Experience   135%
 <topic:Weaponsmith><color:o>Weaponsmith</color>
 A Weaponsmith can improve weapons and armors for him or herself. They are good at fighting, and they have potential ability to become even better than Warriors using improved equipment. They cannot cast spells, and are poor at skills such as stealth or magic defense.
  
-A Weaponsmith extracts the essences of special effects from weapons or armors which have various special abilities, and can add these essences to another weapon or armor. Normally, each equipment can be improved only once, but they can remove a previously added essence from improved equipment to improve it with another essence. To-hit, to-damage bonus, and AC can be improved freely up to a maximum value depending on level. Weaponsmiths now use class powers for Smithing commands.
+A Weaponsmith extracts the essences of special effects from weapons or armors which have various special abilities, and can add these essences to another weapon or armor. Normally, each equipment can be improved only once, but they can remove a previously added essence from improved equipment to improve it with another essence. To-hit, to-damage bonus, and AC can be improved freely up to a maximum value depending on level. Weaponsmiths use class powers for Smithing commands.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> +3</color>        Disarming   <color:y>Good         </color>
@@ -153,7 +153,7 @@ Wisdom       <color:w> -1</color>        Save        <color:R>Poor         </col
 Dexterity    <color:w> +1</color>        Stealth     <color:o>Fair         </color>
 Constitution <color:w> +0</color>        Searching   <color:o>Fair         </color>
 Charisma     <color:w> +0</color>        Perception  <color:r>Bad          </color>
-Life Rating  111%       Melee       <color:G>Excellent    </color>
+Life Rating  108%       Melee       <color:G>Excellent    </color>
 Base HP       12        Bows        <color:y>Good         </color>
 Experience   130%
 </style></indent>
@@ -635,7 +635,7 @@ Base HP        4        Bows        <color:r>Bad          </color>
 Experience   130%
 </style></indent>
 <topic:Psion><color:o>Psion</color>
-The Psion is like a Mindcrafter, and uses innate mental powers. Unlike the Mindcrafter, however, Psions have the freedom to learn powers that enforce their own styles. They learn very few powers, but they can scale their powers to determine the SP cost and the powers' potency. Psionic powers require great concentration, however, and psions do not have the mind to spare to care for others. The Psion gains powers a the following levels: 1, 10, 15, 20, 30, 35, 40 and 50. The Psion uses Intelligence, Wisdom or Charisma as their primary spell stat, which ever is currently highest. In this respect, Psions are truly unique!
+The Psion is like a Mindcrafter, and uses innate mental powers. Unlike the Mindcrafter, however, Psions have the freedom to learn powers that enforce their own styles. They learn very few powers, but they can scale their powers to determine the SP cost and the powers' potency. Psionic powers require great concentration, however, and psions do not have the mind to spare to care for others. The Psion gains powers at the following levels: 1, 10, 15, 20, 30, 35, 40 and 50. The Psion uses Intelligence, Wisdom or Charisma as their primary spell stat, which ever is currently highest. In this respect, Psions are truly unique!
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> -1</color>        Disarming   <color:R>Poor         </color>
@@ -644,7 +644,7 @@ Wisdom       <color:w> +2</color>        Save        <color:G>Excellent    </col
 Dexterity    <color:w> -1</color>        Stealth     <color:o>Fair         </color>
 Constitution <color:w> -1</color>        Searching   <color:R>Poor         </color>
 Charisma     <color:w> +2</color>        Perception  <color:r>Bad          </color>
-Life Rating  100%       Melee       <color:o>Fair         </color>
+Life Rating   96%       Melee       <color:o>Fair         </color>
 Base HP        4        Bows        <color:R>Poor         </color>
 Experience   150%
 </style></indent>
@@ -815,12 +815,12 @@ Experience   110%
 Berserker    <color:v>  +8 </color> -20  -20   +4   +4   +4  200%  +22  160%
 Blood-Knight   +2   -2   -2   +0 <color:v>  +3 </color>  +2  120%  +20  150%
 Duelist        +2   +1   -2 <color:v>  +2 </color>  -3   +2  100%   +4  150%
-Mauler       <color:v>  +5 </color>  -2   -2   -1   +3   +2  111%  +18  120%
+Mauler       <color:v>  +5 </color>  -2   -2   -1   +3   +2  110%  +18  120%
 Rune-Knight    +2 <color:v>  +1 </color>  -1   +1   +0   +1  102%   +6  150%
 Samurai        +3   -2 <color:v>  +1 </color>  +2   +1   +1  111%  +12  130%
 Warrior        +4   -2   -2   +2   +2   +1  115%  +18  100%
 Weaponmaster <color:v>  +4 </color>  -3   -2   -1   +2   +1  109%  +12  135%
-Weaponsmith    +3   -1   -1   +1   +0   +0  111%  +12  130%
+Weaponsmith    +3   -1   -1   +1   +0   +0  108%  +12  130%
 Archer         +2   -1   -1   +2   +1   +0  111%  +12  110%
 Sniper         +2   -1   -1 <color:v>  +2 </color>  +1   +0  100%   +4  110%
 Force-Trainer  +0   -1 <color:v>  +3 </color>  +2   +1   +0  100%   +4  135%
@@ -850,7 +850,7 @@ Beastmaster    +1   -1   -1   +1   +0 <color:v>  +2 </color> 103%   +6  120%
 Cavalry        +2   -2   -2   +2   +2   +1  111%  +10  120%
 Mindcrafter    -1   +0 <color:v>  +3 </color>  -1   -1   +2  100%   +4  125%
 Mirror-Master  -2 <color:v>  +3 </color>  +1   -1   -2   -2  100%   +4  130%
-Psion          -1   +2   +2   -1   -1   +2  100%   +4  150%
+Psion          -1   +2   +2   -1   -1   +2   96%   +4  150%
 Time-Lord      -1   +0 <color:v>  +3 </color>  -1   -1   +0   96%   +0  125%
 Warlock        -1   +2   -3   +0   +2 <color:v>  +4 </color> 107%  +15  135%
 Archaeologist  -1   +1 <color:v>  +2 </color>  +1   -1   +0  106%   +8  120%

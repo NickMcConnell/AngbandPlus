@@ -566,11 +566,17 @@ void teleport_player_to(int ny, int nx, u32b mode)
             return;
         }
 
+        /* Disallow squares with no los to target in rush attacks */
+        if ((mode & TELEPORT_RUSH_ATTACK) && (!los(y, x, ny, nx))) continue;
+
         /* Accept any grid when wizard mode */
         if (p_ptr->wizard && !(mode & TELEPORT_PASSIVE) && (!cave[y][x].m_idx || (cave[y][x].m_idx == p_ptr->riding))) break;
 
         /* Accept teleportable floor grids */
         if (cave_player_teleportable_bold(y, x, mode)) break;
+
+        /* Desperation */
+        if ((mode & TELEPORT_RUSH_ATTACK) && (dis > 1) && (distance(y, x, ny, nx) < dis) && (cave_player_teleportable_bold(y, x, ((mode) | (TELEPORT_PASSIVE))))) break;
 
         /* Occasionally advance the distance */
         if (++ctr > (4 * dis * dis + 4 * dis + 1))
@@ -650,6 +656,22 @@ void teleport_away_followable(int m_idx)
     }
 }
 
+/* Teleport the player one level up or down, but ask for confirmation if
+ * we are inside a dungeon quest that cannot be retaken */
+bool py_teleport_level(cptr prompt)
+{
+    bool kysyttiin = FALSE;
+    if ((py_in_dungeon()) && (!TELE_LEVEL_IS_INEFF(0)))
+    {
+        if (!quests_check_ini_leave("teleport out of", "teleport", &kysyttiin)) return FALSE;
+    }
+    if ((!kysyttiin) && (prompt) && (strlen(prompt)))
+    {
+        if (!get_check(prompt)) return FALSE;
+    }
+    teleport_level(0);
+    return TRUE;
+}
 
 /*
  * Teleport the player one level up or down (random when legal)
@@ -874,13 +896,15 @@ int choose_dungeon(cptr note, int y, int x)
 /*
  * Recall the player to town or dungeon
  */
-bool recall_player(int turns)
+bool recall_player(int turns, bool varmista)
 {
     if (!py_can_recall())
     {
         msg_print("Nothing happens.");
         return TRUE;
     }
+
+    if ((varmista) && (!p_ptr->word_recall) && (!quests_check_ini_leave("recall out of", "recall", NULL))) return FALSE;
 
     if ( py_in_dungeon()
       && !(d_info[dungeon_type].flags1 & DF1_RANDOM)
@@ -921,9 +945,9 @@ bool recall_player(int turns)
 }
 
 
-bool word_of_recall(void)
+bool word_of_recall(bool varmista)
 {
-    return(recall_player(randint0(21) + 15));
+    return(recall_player(randint0(21) + 15, varmista));
 }
 
 
@@ -2050,10 +2074,15 @@ void break_curse(object_type *o_ptr)
         msg_print("The curse is broken!");
 
         o_ptr->curse_flags = 0L;
+        o_ptr->known_curse_flags = 0L;
 
         o_ptr->ident |= (IDENT_SENSE);
 
         o_ptr->feeling = FEEL_NONE;
+
+        p_ptr->update |= PU_BONUS;
+        p_ptr->window |= (PW_INVEN | PW_EQUIP);
+        p_ptr->redraw |= PR_EFFECTS;
     }
 }
 
@@ -2210,11 +2239,12 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 
     prompt.prompt = "Enchant which item?";
     prompt.error = "You have nothing to enchant.";
-    prompt.filter = num_ac ? object_is_armour : object_allow_enchant_weapon;
+    prompt.filter = num_ac ? object_allow_enchant_armour : object_allow_enchant_weapon;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_EQUIP;
     prompt.where[2] = INV_QUIVER;
     prompt.where[3] = INV_FLOOR;
+    obj_prompt_add_special_packs(&prompt);
 
     obj_prompt(&prompt);
     if (!prompt.obj) return FALSE;
@@ -2425,6 +2455,7 @@ bool ident_spell(object_p p)
     prompt.where[1] = INV_EQUIP;
     prompt.where[2] = INV_QUIVER;
     prompt.where[3] = INV_FLOOR;
+    obj_prompt_add_special_packs(&prompt); 
 
     obj_prompt(&prompt);
     if (!prompt.obj) return FALSE;
@@ -2457,6 +2488,7 @@ bool mundane_spell(bool only_equip)
     prompt.where[1] = INV_EQUIP;
     prompt.where[2] = INV_QUIVER;
     prompt.where[3] = INV_FLOOR;
+    obj_prompt_add_special_packs(&prompt); 
 
     obj_prompt(&prompt);
     if (!prompt.obj) return FALSE;
@@ -2543,6 +2575,7 @@ bool identify_fully(object_p p)
     prompt.where[1] = INV_EQUIP;
     prompt.where[2] = INV_QUIVER;
     prompt.where[3] = INV_FLOOR;
+    obj_prompt_add_special_packs(&prompt); 
 
     obj_prompt(&prompt);
     if (!prompt.obj) return FALSE;
@@ -2996,7 +3029,7 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
         case SV_POTION_CURE_POISON:
         case SV_POTION_BOLDNESS:
         case SV_POTION_THERMAL:
-        case SV_POTION_RESIST_ELEC:
+        case SV_POTION_VIGOR:
         case SV_POTION_HEROISM:
         case SV_POTION_BERSERK_STRENGTH:
         case SV_POTION_RES_STR:
@@ -3785,11 +3818,12 @@ int set_cold_destroy(object_type *o_ptr)
  * Note that missiles are no longer necessarily all destroyed
  * Destruction taken from "melee.c" code for "stealing".
  * New-style wands and rods handled correctly. -LM-
- * Returns number of items destroyed.
+ * Returns TRUE if we must force a -more- prompt.
  */
-static void _damage_obj(obj_ptr obj, int p1, int p2, int which_res)
+static bool _damage_obj(obj_ptr obj, int p1, int p2, int which_res)
 {
     int i, amt = 0;
+    bool warn_player = FALSE;
 
     /* Test each and every object in the pile for destruction */
     for (i = 0; i < obj->number; i++)
@@ -3815,6 +3849,9 @@ static void _damage_obj(obj_ptr obj, int p1, int p2, int which_res)
         else
             msg_format("All of your %s were destroyed!", o_name);
 
+        if ((alert_device_gone) && (object_is_device(obj))) warn_player = TRUE;
+        if ((alert_insc_gone) && (obj_is_inscribed(obj))) warn_player = TRUE;
+
         if (object_is_potion(obj))
             potion_smash_effect(0, py, px, obj->k_idx);
 
@@ -3823,17 +3860,20 @@ static void _damage_obj(obj_ptr obj, int p1, int p2, int which_res)
         obj->number -= amt;
         obj_release(obj, OBJ_RELEASE_QUIET);
     }
+    return warn_player;
 }
 void inven_damage(inven_func typ, int p1, int which)
 {
     slot_t slot;
     int    p2 = 100;
+    bool   varoita = FALSE;
 
     if (CHECK_MULTISHADOW()) return;
     if (p_ptr->inside_arena) return;
 
     if (p_ptr->rune_elem_prot) p2 = 50;
     if (p_ptr->inven_prot) p2 = 50;
+    if (p_ptr->tim_inven_prot2 > 0) p2 = 0;
 
     /* Pack */
     for (slot = 1; slot <= pack_max(); slot++)
@@ -3844,7 +3884,7 @@ void inven_damage(inven_func typ, int p1, int which)
         if (object_is_artifact(obj)) continue;
         if (!typ(obj)) continue;
 
-        _damage_obj(obj, p1, p2, which);
+        if (_damage_obj(obj, p1, p2, which)) varoita = TRUE;
     }
 
     /* Quiver */
@@ -3862,10 +3902,13 @@ void inven_damage(inven_func typ, int p1, int which)
                 if (object_is_artifact(obj)) continue;
                 if (!typ(obj)) continue;
 
-                _damage_obj(obj, p1, p2, which);
+                (void)_damage_obj(obj, p1, p2, which);
             }
         }
     }
+
+    /* Alert the player */
+    if (varoita) msg_print(NULL);
 }
 
 
@@ -3996,7 +4039,7 @@ void blast_object(object_type *o_ptr)
 }
 
 /*
- * Curse the players armor
+ * Curse the player's armor
  */
 bool curse_armor(int slot)
 {
@@ -4027,7 +4070,7 @@ bool curse_armor(int slot)
 
 
 /*
- * Curse the players weapon
+ * Curse the player's weapon
  */
 bool curse_weapon(bool force, int slot)
 {
@@ -4264,6 +4307,7 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
             case RACE_BEASTMAN:
             case RACE_DUNADAN:
             case RACE_DEMIGOD:
+            case RACE_EINHERI:
                 summon_kin_type = 'p';
                 break;
             case RACE_TONBERRY:
@@ -4333,6 +4377,9 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
                 break;
             case RACE_ENT:
                 summon_kin_type = '#';
+                break;
+            case RACE_WEREWOLF:
+                summon_kin_type = 'C';
                 break;
             case RACE_ARCHON:
                 summon_kin_type = 'A';

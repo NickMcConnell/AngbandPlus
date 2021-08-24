@@ -2295,6 +2295,9 @@ option_type option_info[] =
     { &find_ignore_doors,           TRUE,  OPT_PAGE_DISTURBANCE, 0, 17,
     "find_ignore_doors",            "Run through open doors" },
 
+    { &find_ignore_veins,           TRUE,  OPT_PAGE_DISTURBANCE, 0, 19,
+    "find_ignore_veins",            "Run past buried treasure" },
+
     { &find_cut,                    FALSE, OPT_PAGE_DISTURBANCE, 0, 18,
     "find_cut",                     "Run past known corners" },
 
@@ -2342,6 +2345,12 @@ option_type option_info[] =
 
     { &alert_trap_detect,           FALSE, OPT_PAGE_DISTURBANCE, 0, 25,
     "alert_trap_detect",            "Alert when leaving trap detected area" },
+
+    { &alert_device_gone,           TRUE,  OPT_PAGE_DISTURBANCE, 0, 13,
+    "alert_device_gone",            "Alert when carried device is destroyed or stolen" },
+
+    { &alert_insc_gone,             TRUE,  OPT_PAGE_DISTURBANCE, 0, 2,
+    "alert_insc_gone",              "Alert when inscribed item is destroyed or stolen" },
 
     /*** Birth Options ***/
 
@@ -2423,6 +2432,9 @@ option_type option_info[] =
     { &reduce_uniques,              FALSE, OPT_PAGE_BIRTH, 6, 26,
     "reduce_uniques",               "Reduce the number of uniques (randomly)" },
 
+    { &single_pantheon,             FALSE, OPT_PAGE_BIRTH, 5, 9,
+    "single_pantheon",              "Play with only one pantheon" },
+
     { &no_chris,			FALSE, OPT_PAGE_BIRTH, 6, 12,
     "no_chris",				"Nexus attacks never teleport to another dungeon" },
 
@@ -2442,6 +2454,9 @@ option_type option_info[] =
 
     { &destroy_debug,               FALSE, OPT_PAGE_AUTODESTROY, 7, 10,
     "destroy_debug",                "List the rule used when applying the Mogaminator" },
+
+    { &no_mogaminator,              FALSE, OPT_PAGE_AUTODESTROY, 7, 11,
+    "no_mogaminator",               "Never apply the Mogaminator" },
 
     { &leave_worth,                 TRUE,  OPT_PAGE_AUTODESTROY, 7, 2,
     "leave_worth",                  "Auto-destroyer leaves known worthy items" },

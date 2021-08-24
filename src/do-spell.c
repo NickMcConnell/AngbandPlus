@@ -100,6 +100,14 @@ cptr info_heal(int dice, int sides, int base)
         base /= 2;
     }
 
+    if ( p_ptr->prace == RACE_EINHERI
+      || p_ptr->mimic_form == RACE_EINHERI )
+    {
+        if (dice % 2) sides /= 2;
+        else dice /= 2;
+        base /= 2;
+    }
+
     return info_string_dice("heal ", dice, sides, base);
 }
 
@@ -462,6 +470,26 @@ static void cast_invoke_spirits(int dir)
     }
 }
 
+void do_sneeze(void)
+{
+    int kiep_ct = randint1(3), y = 0, x = 0, yrk = 1000, i;
+    while (yrk--)
+    {
+        scatter(&y, &x, py, px, 4, 0);
+        if (!cave_have_flag_bold(y, x, FF_PROJECT)) continue;
+        if (!player_bold(y, x)) break;
+    }
+
+    for (i = 0; i < kiep_ct; i++)
+    {
+        disturb(0, 0);
+        msg_print("AAAAHHHHH-CHEEOO!");
+        msg_print(NULL);
+
+        project(0, 0, y, x, p_ptr->lev / 2, GF_COLD,
+            PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_KILL);
+    }
+}
 
 static void wild_magic(int spell)
 {
@@ -630,7 +658,7 @@ static void cast_shuffle(void)
     {
         msg_print("It's the picture of a strange monster.");
 
-        trump_summoning(1, FALSE, py, px, (dun_level * 3 / 2), (32 + randint1(6)), PM_ALLOW_GROUP | PM_ALLOW_UNIQUE);
+        trump_summoning(1, FALSE, py, px, (dun_level * 3 / 2), (SUMMON_BIZARRE1 + randint0(6)), PM_ALLOW_GROUP | PM_ALLOW_UNIQUE);
     }
     else if (die < 33)
     {
@@ -1314,7 +1342,7 @@ static cptr do_life_spell(int spell, int mode)
 
             if (cast)
             {
-                if (!word_of_recall()) return NULL;
+                if (!word_of_recall(TRUE)) return NULL;
             }
         }
         break;
@@ -1708,7 +1736,7 @@ static cptr do_sorcery_spell(int spell, int mode)
         }
 
         {
-            int power = spell_power(plev * 4);
+            int power = spell_power(plev * ((plev < 35) ? 10 : 7) / 3);
 
             if (info) return info_power(power);
 
@@ -1855,8 +1883,7 @@ static cptr do_sorcery_spell(int spell, int mode)
         {
             if (cast)
             {
-                if (!get_check("Are you sure? (Teleport Level)")) return NULL;
-                teleport_level(0);
+                if (!py_teleport_level("Are you sure? (Teleport Level) ")) return NULL;
             }
         }
         break;
@@ -1873,7 +1900,7 @@ static cptr do_sorcery_spell(int spell, int mode)
 
             if (cast)
             {
-                if (!word_of_recall()) return NULL;
+                if (!word_of_recall(TRUE)) return NULL;
             }
         }
         break;
@@ -3309,6 +3336,7 @@ static cptr do_chaos_spell(int spell, int mode)
                       && which != RACE_DEMIGOD
                       && which != RACE_DRACONIAN
                       && which != RACE_ANDROID
+                      && which != RACE_WEREWOLF
                       && which != RACE_DOPPELGANGER
                       && p_ptr->prace != which
                       && !(get_race_aux(which, 0)->flags & RACE_IS_MONSTER) )
@@ -4322,8 +4350,7 @@ static cptr do_trump_spell(int spell, int mode)
         {
             if (cast)
             {
-                if (!get_check("Are you sure? (Teleport Level)")) return NULL;
-                teleport_level(0);
+                if (!py_teleport_level("Are you sure? (Teleport Level) ")) return NULL;
             }
         }
         break;
@@ -4358,7 +4385,7 @@ static cptr do_trump_spell(int spell, int mode)
 
             if (cast)
             {
-                if (!word_of_recall()) return NULL;
+                if (!word_of_recall(TRUE)) return NULL;
             }
         }
         break;
@@ -5160,8 +5187,7 @@ static cptr do_arcane_spell(int spell, int mode)
         {
             if (cast)
             {
-                if (!get_check("Are you sure? (Teleport Level)")) return NULL;
-                teleport_level(0);
+                if (!py_teleport_level("Are you sure? (Teleport Level) ")) return NULL;
             }
         }
         break;
@@ -5234,7 +5260,7 @@ static cptr do_arcane_spell(int spell, int mode)
 
             if (cast)
             {
-                if (!word_of_recall()) return NULL;
+                if (!word_of_recall(TRUE)) return NULL;
             }
         }
         break;
@@ -5342,8 +5368,8 @@ bool craft_enchant(int max, int inc)
     else
     {
         virtue_add(VIRTUE_ENCHANTMENT, 1);
-        /* Minor Enchantment should not allow gold farming ... */
-        if (inc == 1 && object_is_nameless(prompt.obj))
+        /* Enchantment should not allow gold farming ... */
+        if (object_is_nameless(prompt.obj))
             prompt.obj->discount = 99;
         obj_release(prompt.obj, OBJ_RELEASE_ENCHANT);
     }
@@ -7571,7 +7597,7 @@ static cptr do_music_spell(int spell, int mode)
 
             if (!p_ptr->oppose_pois)
             {
-                msg_print("You feel less resistant to pois.");
+                msg_print("You feel less resistant to poison.");
             }
         }
 

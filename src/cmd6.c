@@ -74,7 +74,7 @@ bool restore_mana(void)
 static void do_cmd_eat_food_aux(obj_ptr obj)
 {
     int  lev = k_info[obj->k_idx].level;
-    bool ident = FALSE;
+    bool ident = FALSE, no_food = FALSE;
 
     if (music_singing_any()) bard_stop_singing();
     if (hex_spelling_any()) stop_hex_spell_all();
@@ -282,6 +282,17 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
 
             case SV_FOOD_WAYBREAD:
             {
+                if (mut_present(MUT_WAYBREAD_INTO))
+                {
+                    msg_print("The waybread makes you vomit!");
+                    set_food(PY_FOOD_STARVE - 1);
+                    set_paralyzed(randint1(4), FALSE);
+                    set_poisoned(0, TRUE);
+                    ident = TRUE;
+                    no_food = TRUE;
+                    break;
+                }
+
                 msg_print("That tastes good.");
                 set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
                 hp_player(damroll(4, 8));
@@ -330,7 +341,10 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
     }
 
     /* Food can feed the player */
-    if ( prace_is_(RACE_VAMPIRE)
+    if (no_food)
+    {
+    }
+    else if ( prace_is_(RACE_VAMPIRE)
       || prace_is_(RACE_MON_VAMPIRE)
       || p_ptr->mimic_form == MIMIC_VAMPIRE )
     {
@@ -339,6 +353,14 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
         msg_print("Mere victuals hold scant sustenance for a being such as yourself.");
         if (p_ptr->food < PY_FOOD_ALERT)   /* Hungry */
             msg_print("Your hunger can only be satisfied with fresh blood!");
+    }
+    else if (prace_is_(RACE_ANDROID))
+    {
+        if (obj->tval == TV_FLASK)
+        {
+            msg_print("You replenish yourself with the oil.");
+            set_food(p_ptr->food + 5000);
+        }
     }
     else if (prace_is_(RACE_MON_JELLY))
     {
@@ -409,7 +431,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
             msg_print("The food falls through your jaws and vanishes!");
         }
     }
-    else if ((get_race()->flags & RACE_IS_NONLIVING) || prace_is_(RACE_ENT))
+    else if (((get_race()->flags & RACE_IS_NONLIVING) && (!prace_is_(RACE_EINHERI))) || prace_is_(RACE_ENT))
     {
         msg_print("The food of mortals is poor sustenance for you.");
         set_food(p_ptr->food + obj->pval / 20);
@@ -469,6 +491,8 @@ static bool _can_eat(object_type *o_ptr)
             return TRUE;
     }
     else if (prace_is_(RACE_MON_JELLY))
+        return TRUE;
+    else if ((prace_is_(RACE_ANDROID)) && (o_ptr->tval == TV_FLASK))
         return TRUE;
 
     return FALSE;
@@ -794,7 +818,9 @@ static void do_cmd_read_scroll_aux(obj_ptr o_ptr)
             {
                  case SV_SCROLL_STAR_DESTRUCTION:
                  case SV_SCROLL_MASS_GENOCIDE:
+                 case SV_SCROLL_RUNE_OF_PROTECTION:
                  case SV_SCROLL_TELEPORT_LEVEL:
+                 case SV_SCROLL_WORD_OF_RECALL:
                  case SV_SCROLL_SUMMON_PET:
                  case SV_SCROLL_SUMMON_KIN:
                  case SV_SCROLL_CRAFTING:

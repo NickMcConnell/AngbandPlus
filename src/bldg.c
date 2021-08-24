@@ -18,6 +18,7 @@
 /* hack as in leave_store in store.c */
 static bool leave_bldg = FALSE;
 static bool paivita = FALSE;
+static bool paivitys_no_inkey_hack = FALSE;
 
 int get_bldg_member_code(cptr name)
 {
@@ -2165,6 +2166,7 @@ static bool inn_comm(int cmd)
                 prevent_turn_overflow();
 
                 p_ptr->chp = p_ptr->mhp;
+                reset_tim_flags();
 
                 if (ironman_nightmare)
                 {
@@ -2181,9 +2183,6 @@ static bool inn_comm(int cmd)
                 }
                 else
                 {
-                    set_blind(0, TRUE);
-                    set_confused(0, TRUE);
-                    p_ptr->stun = 0;
                     p_ptr->chp = p_ptr->mhp;
                     if (p_ptr->pclass != CLASS_RUNE_KNIGHT)
                         p_ptr->csp = p_ptr->msp;
@@ -2199,6 +2198,7 @@ static bool inn_comm(int cmd)
                 if (prev_hour >= 18) /* Proxy for date change */
                 {
                     determine_today_mon(FALSE);
+                    if (p_ptr->prace == RACE_WEREWOLF) werewolf_check_midnight();
                 }
             }
             break;
@@ -2454,7 +2454,7 @@ const _gamble_shop_t _gamble_shop_potions[] = {
     { TV_POTION, SV_POTION_RES_CHR, 50},
     { TV_POTION, SV_POTION_CLARITY, 50},
     { TV_POTION, SV_POTION_THERMAL, 50},
-    { TV_POTION, SV_POTION_RESIST_ELEC, 50},
+    { TV_POTION, SV_POTION_VIGOR, 50},
     { 0, 0, 0}
 };
 
@@ -2648,11 +2648,13 @@ static bool _gamble_shop_artifact(void)
 static obj_ptr _get_reforge_src(int max_power)
 {
     char buf[255];
+    char buf2[255];
     obj_prompt_t prompt = {0};
 
     sprintf(buf, "Use what artifact for reforging (Max Power = %d)? ", max_power);
+    sprintf(buf2, "You have no artifacts to reforge. (Max Power = %d) ", max_power);
     prompt.prompt = buf;
-    prompt.error = "You have no artifacts to reforge.";
+    prompt.error = buf2;
     prompt.filter = object_is_artifact;
     prompt.where[0] = INV_PACK;
     prompt.flags = INV_SHOW_VALUE;
@@ -2678,19 +2680,46 @@ static obj_ptr _get_reforge_dest(int max_power)
     return prompt.obj;
 }
 
+static int _calculate_reforge_cost(int value, int slot_weight)
+{
+    int cost = MAX(10000, MIN(value, 1125L * slot_weight)) * (coffee_break ? 7 : 8);
+    cost -= cost % 1000;
+    return cost;
+}
+
+static bool _reforge_artifact_exit(void)
+{
+    if (paivita) (void)inkey();
+    return FALSE;
+}
+
 static bool _reforge_artifact(void)
 {
-    int  cost;
+    int  cost, extra_cost = 0, value;
     char o_name[MAX_NLEN];
     object_type *src, *dest;
     int f = ((p_ptr->fame <= 128) || (p_ptr->fame >= 224)) ? p_ptr->fame : (((p_ptr->fame - 128) * 3) / 4) + 128;
     /* 90K max kind of removed - stronger objects are allowed but get scaled down */
     int src_max_power = f*150 + f*f*3/2;
     int dest_max_power = 0;
+    int src_weight = 80;
 
     if (coffee_break) /* Accelerated reforging */
     {
-        f += (p_ptr->lev * 3 / 2);
+        int i;
+        byte failed_quests = 0;
+        vec_ptr v = quests_get_random();
+        for (i = 0; i < vec_length(v); i++)
+        {
+            quest_ptr q = vec_get(v, i);
+            if (q->status == QS_FAILED || q->status == QS_FAILED_DONE)
+            {
+                failed_quests++;
+            }
+        }
+        vec_free(v);
+
+        if (failed_quests < 2) f += ((p_ptr->lev * 3 / 2) / (1 + failed_quests));
         src_max_power = f*150 + f*f*3/2;
     }
 
@@ -2714,25 +2743,26 @@ static bool _reforge_artifact(void)
         return FALSE;
     }
 
-    cost = obj_value_real(src);
+    value = obj_value_real(src);
+    src_weight = get_slot_weight(src);
     
-    dest_max_power = MIN(1125L * get_slot_weight(src) / 2, cost / 2);
+    dest_max_power = MIN(1125L * src_weight / 2, value / 2);
     if (dest_max_power < 1000) /* Reforging won't try to power match weak stuff ... */
         dest_max_power = 1000;
-    
-    cost *= 8;
-    cost -= cost % 1000;
 
-    if (cost < 80000)
-        cost = 80000;
-    if (cost > 9000L * get_slot_weight(src))
-        cost = 9000L * get_slot_weight(src);
+    cost = _calculate_reforge_cost(value, src_weight);
 
     msg_format("Reforging will cost you %d gold.", cost);
     if (p_ptr->au < cost)
     {
         msg_print("You do not have that much.");
         return FALSE;
+    }
+    else if ((dest_max_power < value / 2) && (src_weight < 80))
+    {
+        msg_print("(Additional costs may be incurred reforging this item into certain equipment slots.)");
+        paivita = TRUE; /* The long message wipes the storeminder's name, so we need to redraw it */
+        paivitys_no_inkey_hack = TRUE;
     }
 
     object_desc(o_name, src, OD_NAME_ONLY | OD_COLOR_CODED);
@@ -2745,49 +2775,69 @@ static bool _reforge_artifact(void)
     if (dest->number > 1)
     {
         msg_print("Don't be greedy! You may only reforge a single object.");
-        return FALSE;
+        return _reforge_artifact_exit();
     }
 
     if (object_is_artifact(dest))
     {
         msg_print("This item is already an artifact!");
-        return FALSE;
+        return _reforge_artifact_exit();
     }
 
     if (dest->tval == TV_QUIVER)
     {
         msg_print("I am unable to reforge quivers.");
-        return FALSE;
+        return _reforge_artifact_exit();
     }
 
     if (object_is_ammo(dest))
     {
         msg_print("I'm a weaponsmith not a fletcher. Perhaps you should check elsewhere?");
-        return FALSE;
+        return _reforge_artifact_exit();
     }
 
     if (have_flag(dest->flags, OF_NO_REMOVE))
     {
         msg_print("You cannot be reforged!");
-        return FALSE;
+        return _reforge_artifact_exit();
     }
 
     if (object_is_ego(dest))
     {
         msg_print("This item is already an ego item!");
-        return FALSE;
+        return _reforge_artifact_exit();
     }
 
     if (!equip_first_slot(dest))
     {
         msg_print("This item cannot be reforged.");
-        return FALSE;
+        return _reforge_artifact_exit();
     }
 
     if (obj_value_real(dest) > dest_max_power)
     {
         msg_print("This item is too powerful for the source artifact you have chosen.");
-        return FALSE;
+        return _reforge_artifact_exit();
+    }
+
+    /* Items like Vilya count for the full 90K when reforged into e.g.
+     * the armour slot, so the reforge should also cost accordingly */
+    if (dest_max_power < value / 2)
+    {
+        int dest_weight = get_dest_weight(dest);
+        if (dest_weight > src_weight)
+        {
+            extra_cost = _calculate_reforge_cost(value, dest_weight) - cost;
+            if (extra_cost > 0)
+            {
+                if (p_ptr->au < cost + extra_cost)
+                {
+                    msg_format("This reforge will cost an additional %d gold. You do not have that much.", extra_cost);
+                    return _reforge_artifact_exit();
+                }
+                if (!get_check(format("This reforge will cost an additional %d gold. Proceed?", extra_cost))) return FALSE;
+            }
+        }
     }
 
     if (p_ptr->wizard)
@@ -2813,8 +2863,8 @@ static bool _reforge_artifact(void)
             doc_printf(doc, "%d) <indent><style:indent>%s (%d%%)</style></indent>\n",
                 i + 1, buf, score * 100 / base);
         }
-        doc_printf(doc, "\n\n<color:B>Average Reforge: <color:R>%d%%</color></color>\n",
-            total * 100 / (base * ct));
+        doc_printf(doc, "\n\n<color:B>Average Reforge: <color:R>%d%%</color> (Score: <color:R>%d</color>)</color>\n",
+            total / base, total / ct);
         doc_display(doc, "Reforging", 0);
         doc_free(doc);
         return FALSE;
@@ -2822,13 +2872,14 @@ static bool _reforge_artifact(void)
     if (!reforge_artifact(src, dest, p_ptr->fame))
     {
         msg_print("The reforging failed!");
-        return FALSE;
+        return _reforge_artifact_exit();
     }
 
     src->number = 0;
     obj_release(src, OBJ_RELEASE_QUIET);
     src = NULL;
 
+    if (extra_cost > 0) cost += extra_cost;
     p_ptr->au -= cost;
     stats_on_gold_services(cost);
 
@@ -2837,15 +2888,12 @@ static bool _reforge_artifact(void)
 
     /* The items we carried recharged during those hours */
     _recharge_player_items();
-    if ((!p_ptr->poisoned) && (!p_ptr->cut))
-    {
-        set_blind(0, TRUE);
-        set_confused(0, TRUE);
-        p_ptr->stun = 0;
-        p_ptr->chp = p_ptr->mhp;
-        if (p_ptr->pclass != CLASS_RUNE_KNIGHT)
-            p_ptr->csp = p_ptr->msp;
-    }
+    reset_tim_flags(); /* this can miraculously cure the player of cuts or
+                        * poisoning, but given the cost of reforging that's
+                        * probably only fair... */
+    p_ptr->chp = p_ptr->mhp;
+    if (p_ptr->pclass != CLASS_RUNE_KNIGHT)
+        p_ptr->csp = p_ptr->msp;
 
     /* Update discovery details to apply to the reforged item
      * We do this after updating the turn to get the correct time */
@@ -3652,7 +3700,7 @@ static void bldg_process_command(building_type *bldg, int i)
         enchant_item(object_is_bow, bcost, 1, 1, 0, is_guild);
         break;
     case BACT_RECALL:
-        if (recall_player(1)) paid = TRUE;
+        if (recall_player(1, FALSE)) paid = TRUE;
         break;
     case BACT_TELEPORT_LEVEL:
     {
@@ -3990,7 +4038,12 @@ void do_cmd_bldg(void)
         if (paivita)
         {
             if (leave_bldg) paivita = FALSE;
-            else { inkey(); show_building(bldg); }
+            else
+            {
+                if (!paivitys_no_inkey_hack) inkey();
+                paivitys_no_inkey_hack = FALSE;
+                show_building(bldg);
+            }
         }
     }
 
@@ -4004,6 +4057,7 @@ void do_cmd_bldg(void)
     if (reinit_wilderness)
     {
         p_ptr->leaving = TRUE;
+        quest_reward_drop_hack = TRUE;
     }
 
     /* Hack -- Decrease "icky" depth */

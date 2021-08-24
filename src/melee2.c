@@ -1090,7 +1090,7 @@ static bool get_moves(int m_idx, int *mm)
     bool         can_pass_wall = ((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || p_ptr->pass_wall));
     bool         allow_long_melee = ((r_ptr->flags7 & RF7_RANGED_MELEE) && (!MON_CONFUSED(m_ptr)) && (!will_run));
     bool         use_long_melee = FALSE;
-    bool         is_clean_shot = ((allow_long_melee) && (m_ptr->cdis == 2) && (is_hostile(m_ptr)) && (very_clean_shot(m_ptr->fy, m_ptr->fx, py, px)));
+    bool         is_clean_shot = ((allow_long_melee) && ((m_ptr->cdis == 2) || ((m_ptr->cdis == 3) && (ABS(m_ptr->fy - py) == 2) && (ABS(m_ptr->fx - px) == 2))) && (is_hostile(m_ptr)) && (very_clean_shot(m_ptr->fy, m_ptr->fx, py, px)));
 
     if (pack_ptr)
     {
@@ -3846,7 +3846,7 @@ void process_monsters(void)
             if (ironman_nightmare) speed += 5;
 
             if (MON_FAST(m_ptr)) speed += 10;
-            if (MON_SLOW(m_ptr)) speed -= 10;
+            speed -= monster_slow(m_ptr);
             if (p_ptr->filibuster) speed -= SPEED_ADJ_FILIBUSTER;
         }
 
@@ -4284,6 +4284,10 @@ static void process_mon_mtimed(mon_ptr mon)
                 msg_format("%^s is no longer invulnerable.", m_name);
             }
         }
+    }
+    if ((mon->minislow) && (randint0(race->flags2 & RF2_REGENERATE ? 50 : 100) < mon->minislow))
+    {
+        (void)m_inc_minislow(mon, -1);
     }
 }
 

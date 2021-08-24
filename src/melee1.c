@@ -141,6 +141,9 @@ bool make_attack_normal(int m_idx)
     int opy = py;
     int opx = px;
 
+    /* Silver monsters have special effects on werewolves */
+    bool track_werewolf_dam = (((p_ptr->prace == RACE_WEREWOLF) || (p_ptr->current_r_idx == MON_WEREWOLF)) && (r_ptr->flags7 & RF7_SILVER)) ? TRUE : FALSE;
+
     /* Not allowed to attack */
     if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
 
@@ -242,6 +245,7 @@ bool make_attack_normal(int m_idx)
         if ( !blow->effects[0].effect  /* XXX B:BEG or B:INSULT */
           || _check_hit(skill, ac))
         {
+            int werewolf_hurt_max = 0;
             /* Always disturbing */
             disturb(1, 0);
 
@@ -418,6 +422,8 @@ bool make_attack_normal(int m_idx)
                     effect_dam -= effect_dam/3;
                 }
 
+                if (track_werewolf_dam) werewolf_hurt_max = MAX(werewolf_hurt_max, effect_dam / 2);
+
                 switch (effect->effect)
                 {
                 case RBE_HURT: {
@@ -509,8 +515,8 @@ bool make_attack_normal(int m_idx)
                     }
 
                     if ( !drained
-                      && !(get_race()->flags & RACE_IS_NONLIVING)
-                      && !prace_is_(RACE_MON_JELLY) )
+                      && (((!(get_race()->flags & RACE_IS_NONLIVING))
+                      && (!prace_is_(RACE_MON_JELLY)) ) || (prace_is_(RACE_EINHERI))))
                     {
                         msg_print("Food drains from your belly!");
                         set_food(MAX(0, MIN(p_ptr->food - 1000, p_ptr->food*2/3)));
@@ -592,6 +598,14 @@ bool make_attack_normal(int m_idx)
                     if (r_ptr->flags2 & RF2_THIEF)
                         mon_lore_2(m_ptr, RF2_THIEF);
 
+                    if (p_ptr->tim_inven_prot2)
+                    {
+                        msg_print("Your inventory is protected!");
+                        blinked = TRUE;
+                        obvious = TRUE;
+                        break;
+                    }
+
                     if (!p_ptr->paralyzed &&
                         (randint0(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
                                   p_ptr->lev)))
@@ -616,9 +630,9 @@ bool make_attack_normal(int m_idx)
 
                         object_desc(o_name, obj, OD_OMIT_PREFIX);
 
-                        msg_format("%sour %s was stolen!",
+                        msg_format("%sour %s %s stolen!",
                                ((obj->number > 1) ? "One of y" : "Y"),
-                               o_name);
+                               o_name, have_flag(obj->flags, OF_PLURAL) ? "were" : "was");
 
                         virtue_add(VIRTUE_SACRIFICE, 1);
 
@@ -637,9 +651,16 @@ bool make_attack_normal(int m_idx)
                             m_ptr->hold_o_idx = o_idx;
                         }
 
+                        if (((alert_device_gone) && (object_is_device(obj))) ||
+                           ((alert_insc_gone) && (obj_is_inscribed(obj))))
+                        {
+                            msg_print(NULL); /* -more- prompt */
+                        }
+
                         obj->number--;
                         obj_release(obj, OBJ_RELEASE_QUIET);
 
+        
                         obvious = TRUE;
                         blinked = TRUE;
                         break;
@@ -776,6 +797,12 @@ bool make_attack_normal(int m_idx)
                             msg_print("You feel strange sickness.");
                             obvious = TRUE;
                         }
+                    }
+                    else if ((one_in_(4)) && ((one_in_(4)) || (!res_save_default(RES_POIS))) 
+                       && (p_ptr->prace != RACE_ANDROID))
+                    {
+                        if (p_ptr->unwell > UNWELL_EFFECTIVE_MAX) set_unwell(MAX(UNWELL_EFFECTIVE_MAX + 1, p_ptr->unwell - 10), TRUE);
+                        else if (!p_ptr->unwell) set_unwell(75 + randint1(25), TRUE);
                     }
                     break;
                 case RBE_VAMP:
@@ -1173,6 +1200,12 @@ bool make_attack_normal(int m_idx)
                         mon_lore_r(m_ptr, RFR_RES_ALL | RFR_RES_DARK);
                     }
                 }
+            }
+
+            /* werewolf in contact with silver */
+            if (werewolf_hurt_max)
+            {
+                werewolf_silver_effect(werewolf_hurt_max, TRUE);
             }
         }
 

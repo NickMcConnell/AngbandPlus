@@ -24,6 +24,7 @@ static void _build_virtues(doc_ptr doc);
 static void _build_race_history(doc_ptr doc);
 static void _build_mutations(doc_ptr doc);
 static void _build_pets(doc_ptr doc);
+static void _build_allies(doc_ptr doc);
 static void _build_inventory(doc_ptr doc);
 static void _build_quiver(doc_ptr doc);
 static void _build_home(doc_ptr doc);
@@ -142,6 +143,14 @@ static void _display_skill(doc_ptr doc, cptr name, int amt, int div)
     doc_newline(doc);
 }
 
+static char _stat_color(int i, int mode)
+{
+    if ((!p_ptr->unwell) || ((i != A_DEX) && (i != A_CON)) || (!unwell_effect(p_ptr->unwell)))
+        return ((mode == 2) || ((p_ptr->stat_use[i] < p_ptr->stat_top[i]) && (mode != 1))) ? 'y' : 'G';
+    else
+        return ((mode == 2) || ((p_ptr->stat_use[i] < p_ptr->stat_top[i]) && (mode != 1))) ? 'B' : 'W';
+}
+
 static void _build_general2(doc_ptr doc)
 {
     string_ptr s = string_alloc();
@@ -162,7 +171,7 @@ static void _build_general2(doc_ptr doc)
             doc_insert(doc, "  : ");
 
         cnv_stat(p_ptr->stat_use[i], buf);
-        doc_printf(doc, "<color:%c>%9.9s</color>\n", p_ptr->stat_use[i] < p_ptr->stat_top[i] ? 'y' : 'G', buf);
+        doc_printf(doc, "<color:%c>%9.9s</color>\n", _stat_color(i, 0), buf);
     }
 
     doc_newline(doc);
@@ -217,13 +226,13 @@ static void _build_general2(doc_ptr doc)
         if (!p_ptr->riding)
         {
             if (IS_FAST()) tmp_speed += 10;
-            if (p_ptr->slow) tmp_speed -= 10;
+            tmp_speed -= player_slow();
             if (IS_LIGHT_SPEED()) tmp_speed = 99;
         }
         else
         {
             if (MON_FAST(&m_list[p_ptr->riding])) tmp_speed += 10;
-            if (MON_SLOW(&m_list[p_ptr->riding])) tmp_speed -= 10;
+            tmp_speed -= monster_slow(&m_list[p_ptr->riding]);
         }
 
         string_clear(s);
@@ -873,13 +882,13 @@ static void _build_stats(doc_ptr doc, _flagzilla_ptr flagzilla)
 
         /* Total */
         cnv_stat(p_ptr->stat_top[i], buf);
-        doc_printf(doc, " <color:G>%6.6s</color>", buf);
+        doc_printf(doc, " <color:%c>%6.6s</color>", _stat_color(i, 1), buf);
 
         /* Current */
         if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
         {
             cnv_stat(p_ptr->stat_use[i], buf);
-            doc_printf(doc, " <color:y>%6.6s</color>", buf);
+            doc_printf(doc, " <color:%c>%6.6s</color>", _stat_color(i, 2), buf);
         }
 
         doc_newline(doc);
@@ -995,7 +1004,7 @@ void py_display_powers(doc_ptr doc, spell_info *table, int ct)
     var_init(&vc);
     var_init(&vfm);
 
-    doc_printf(doc, "<topic:Powers>=================================== <color:keypress>P</color>owers ====================================\n\n");
+    doc_printf(doc, "<topic:Powers>==================================== <color:keypress>P</color>owers ===================================\n\n");
     doc_printf(doc, "<color:G>%-20.20s Lvl Cost Fail %-15.15s Cast Fail</color>\n", "", "Desc");
     for (i = 0; i < ct; i++)
     {
@@ -1114,8 +1123,9 @@ static void _build_race_history(doc_ptr doc)
     if (p_ptr->old_race1 || p_ptr->old_race2)
     {
         int i;
+        const char *slaji = get_race_aux(p_ptr->start_race, 0)->name;
 
-        doc_printf(doc, "\n You were born as %s.\n", get_race_aux(p_ptr->start_race, 0)->name);
+        doc_printf(doc, "\n You were born as %s %s.\n", is_a_vowel(slaji[0]) ? "an" : "a", slaji);
         for (i = 0; i < MAX_RACES; i++)
         {
             if (p_ptr->start_race == i) continue;
@@ -1127,7 +1137,10 @@ static void _build_race_history(doc_ptr doc)
             {
                 if (!(p_ptr->old_race2 & 1L << (i-32))) continue;
             }
-            doc_printf(doc, " You were a %s before.\n", get_race_aux(i, 0)->name);
+            {
+                const char *laji = get_race_aux(i, 0)->name;
+                doc_printf(doc, " You were %s %s before.\n", is_a_vowel(laji[0]) ? "an" : "a", laji);
+            }
         }
         doc_newline(doc);
     }
@@ -1332,6 +1345,102 @@ static void _build_pets(doc_ptr doc)
 
         doc_newline(doc);
     }
+}
+
+static void _build_allies(doc_ptr doc)
+{
+    int i;
+    int ally_counter = 0, guardian_counter = 0;
+    vec_ptr v = vec_alloc(NULL);
+
+    if (p_ptr->lev < 2)
+    {
+        vec_free(v);
+        return;
+    }
+
+    for (i = 0; i < max_r_idx; i++)
+    {
+        monster_race *r_ptr = &r_info[i];
+        if (!r_ptr->name) continue;
+        if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
+        if (!unique_is_friend(i)) continue;
+        vec_add(v, r_ptr);
+        ally_counter++; 
+        if (r_ptr->flags7 & RF7_GUARDIAN)
+        {
+            int j;
+            for (j = 1; j < max_d_idx; j++)
+            {
+                dungeon_info_type *d_ptr = &d_info[j];
+                if ((!d_ptr) || (!d_ptr->final_guardian)) continue;
+                if (r_ptr->name == r_info[d_ptr->final_guardian].name)
+                {
+                    guardian_counter++;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (ally_counter)
+    {
+        doc_printf(doc, "<topic:Allies>=================================== <color:keypress>A</color>llies ====================================\n\n");
+
+        if ((!guardian_counter) || (ally_counter == 1))
+        {
+            doc_printf(doc, "<color:w>%d unique%s allied with you:\n\n", ally_counter, (ally_counter == 1) ? "</color> is" : "s</color> are");
+        }
+        else
+        {
+            doc_printf(doc, "%d uniques, including <color:w>%d dungeon guardian%s</color> are allied with you:\n\n", ally_counter, guardian_counter, (guardian_counter == 1) ? "," : "s,");
+        }
+
+        doc_printf(doc, "  <color:G>Uniques%39s</color>\n", "Lvl");
+        vec_sort(v, (vec_cmp_f)_compare_monsters);
+
+        for (i = ally_counter - 1; i >= 0; i--)
+        {
+            monster_race *r_ptr = vec_get(v, i);
+            bool osuma = FALSE;
+            int j;
+
+            doc_printf(doc, "  %-42.42s %3d", (r_name + r_ptr->name), r_ptr->level);
+            if (r_ptr->flags7 & RF7_GUARDIAN)
+            {
+                for (j = 1; j < max_d_idx && !osuma; j++)
+                {
+                    dungeon_info_type *d_ptr = &d_info[j];
+                    if ((!d_ptr) || (!d_ptr->final_guardian)) continue;
+                    if (r_ptr->name == r_info[d_ptr->final_guardian].name)
+                    {
+                        doc_printf(doc, " (%s)", d_name + d_ptr->name);
+                        osuma = TRUE;
+                    }
+                }
+            }
+            if (!osuma)
+            {
+                vec_ptr qv = quests_get_random();
+                for (j = 0; j < vec_length(qv) && !osuma; j++)
+                {
+                    quest_ptr q_ptr = vec_get(qv, j);
+                    if ((!q_ptr) || (q_ptr->goal != QG_KILL_MON)) continue;
+                    if (r_ptr->name == r_info[q_ptr->goal_idx].name)
+                    {
+                        doc_printf(doc, " (Angband %d)", q_ptr->level);
+                        osuma = TRUE;
+                    }
+                }
+                vec_free(qv);
+            }
+            doc_newline(doc);
+        }
+
+        doc_newline(doc);
+
+    }
+    vec_free(v);
 }
 
 /****************************** Objects ************************************/
@@ -2012,6 +2121,7 @@ static void _build_statistics(doc_ptr doc)
     {
         _device_counts_imp(doc, TV_WAND, EFFECT_STONE_TO_MUD);
         _device_counts_imp(doc, TV_WAND, EFFECT_TELEPORT_AWAY);
+        _device_counts_imp(doc, TV_WAND, EFFECT_DRAIN_LIFE);
         _device_counts_imp(doc, TV_WAND, EFFECT_BREATHE_COLD);
         _device_counts_imp(doc, TV_WAND, EFFECT_BREATHE_FIRE);
 		_device_counts_imp(doc, TV_WAND, EFFECT_BREATHE_WATER);
@@ -2109,7 +2219,7 @@ static void _build_statistics(doc_ptr doc)
 
     doc_printf(doc, "\n  <color:G>Egos                 Found Bought  Dest</color>\n");
     _ego_counts_imp(doc, EGO_RING_SPEED, "Ring of Speed");
-    _ego_counts_imp(doc, EGO_JEWELRY_DEFENDER, "Ring/Amulet (Defender)");
+    _ego_counts_imp(doc, EGO_JEWELRY_DEFENDER, "Jewelry (Defender)");
     _ego_counts_imp(doc, EGO_BOOTS_ELVENKIND, "Boots of Elvenkind");
     _ego_counts_imp(doc, EGO_BOOTS_SPRITE, "Boots of the Sprite");
     _ego_counts_imp(doc, EGO_BOOTS_SPEED, "Boots of Speed");
@@ -2119,6 +2229,11 @@ static void _build_statistics(doc_ptr doc)
     _build_monster_stats(doc);
     if (0 || p_ptr->wizard)
         _build_monster_histogram(doc);
+
+    if ((p_ptr->is_dead) || (p_ptr->knowledge & KNOW_HPRATE))
+    {
+        doc_printf(doc, "  <color:G>Life Rating</color>:  %d%%\n\n", life_rating());
+    }
 }
 
 /****************************** Dungeons ************************************/
@@ -2305,6 +2420,9 @@ static void _build_options(doc_ptr doc)
     doc_printf(doc, " Arena Levels:       %s\n", ironman_empty_levels ? "*Always*" :
                                                     empty_levels ? "Sometimes" : "Never");
 
+    if ((single_pantheon) && (game_pantheon > 0) && (game_pantheon < PANTHEON_MAX))
+        doc_printf(doc, " Pantheon:           %s\n", pant_list[game_pantheon].name);
+
     if (no_artifacts)
         doc_printf(doc, " No Artifacts:       On\n");
     else if (random_artifacts)
@@ -2358,7 +2476,7 @@ static void _build_quests(doc_ptr doc)
         {
             doc_printf(doc, "  <color:G>Arena</color>: %2d Victor%s\n",
                 p_ptr->arena_number > MAX_ARENA_MONS ? MAX_ARENA_MONS : p_ptr->arena_number,
-                p_ptr->arena_number > 1 ? "ies" : "y");
+                p_ptr->arena_number != 1 ? "ies" : "y");
         }
     }
 }
@@ -2476,6 +2594,7 @@ void py_display_character_sheet(doc_ptr doc)
     _build_race_history(doc);
     _build_mutations(doc);
     _build_pets(doc);
+    _build_allies(doc);
     _build_inventory(doc);
     _build_quiver(doc);
     _build_home(doc);

@@ -116,6 +116,8 @@ void reset_tim_flags(void)
     p_ptr->fast = 0;            /* Timed -- Fast */
     p_ptr->lightspeed = 0;
     p_ptr->slow = 0;            /* Timed -- Slow */
+    p_ptr->minislow = 0;        /* Pseudo-timed */
+    p_ptr->mini_energy = 0;
     p_ptr->blind = 0;           /* Timed -- Blindness */
     p_ptr->paralyzed = 0;       /* Timed -- Paralysis */
     p_ptr->confused = 0;        /* Timed -- Confusion */
@@ -180,6 +182,7 @@ void reset_tim_flags(void)
     p_ptr->tim_transcendence = 0;
     p_ptr->tim_quick_walk = 0;
     p_ptr->tim_inven_prot = 0;
+    p_ptr->tim_inven_prot2 = 0;
     p_ptr->tim_device_power = 0;
     p_ptr->tim_sh_time = 0;
     p_ptr->tim_foresight = 0;
@@ -219,6 +222,83 @@ void reset_tim_flags(void)
         p_ptr->magic_num1[0] = 0;
         p_ptr->magic_num2[0] = 0;
     }
+}
+
+byte _slow_calc(bool is_slow, byte minislow)
+{
+    if (is_slow) return (10 + (minislow / 4));
+    return minislow;
+}
+
+byte player_slow(void)
+{
+    return _slow_calc(((p_ptr->slow > 0) ? TRUE : FALSE), p_ptr->minislow);
+}
+
+byte monster_slow(monster_type *m_ptr)
+{
+    return _slow_calc(((MON_SLOW(m_ptr) > 0) ? TRUE : FALSE), m_ptr->minislow);
+}
+
+byte _inc_minislow(int minislow, int lisays)
+{
+    minislow += lisays;
+    
+    /* Force good values */
+    if (minislow < 0) minislow = 0;
+    if (minislow > 10) minislow = 10;
+
+    return minislow;
+}
+
+/* Return TRUE if something happened, FALSE otherwise */
+bool p_inc_minislow(int lisays)
+{
+    byte vanha = p_ptr->minislow;
+    bool tulos;
+
+    if (p_ptr->is_dead) return FALSE; /* paranoia */
+
+    p_ptr->minislow = _inc_minislow(p_ptr->minislow, lisays);
+    tulos = (p_ptr->minislow != vanha);
+
+    if (!tulos) return FALSE;
+
+    if (!p_ptr->minislow)
+    {
+        msg_print("You no longer feel sluggish.");
+    }
+    else if (!vanha)
+    {
+        msg_print("You feel very sluggish!");
+    }
+
+    /* Disturb */
+    if ((disturb_state) && ((!p_ptr->minislow) || (lisays > 0))) disturb(0, 0);
+
+    /* Recalculate bonuses */
+    p_ptr->update |= PU_BONUS;
+
+    /* Handle stuff */
+    handle_stuff();
+
+    return TRUE;
+}
+
+bool m_inc_minislow(monster_type *m_ptr, int lisays)
+{
+    byte vanha = m_ptr->minislow;
+    bool tulos;
+    m_ptr->minislow = _inc_minislow(m_ptr->minislow, lisays);
+    tulos = (m_ptr->minislow != vanha);
+
+    if (!tulos) return FALSE;
+
+    /* Check if the player's mount was affected */
+    if ((p_ptr->riding == m_ptr->id) && (!p_ptr->leaving))
+        p_ptr->update |= PU_BONUS;
+
+    return TRUE;
 }
 
 /* TODO: Timed player effects needs a complete rework ... */
@@ -449,9 +529,10 @@ bool disenchant_player(void)
             }
             break;
         case 28:
-            if (p_ptr->tim_inven_prot)
+            if ((p_ptr->tim_inven_prot) || (p_ptr->tim_inven_prot2))
             {
                 (void)set_tim_inven_prot(0, TRUE);
+                (void)set_tim_inven_prot2(0, TRUE);
                 result = TRUE;
                 return result;
             }
@@ -593,6 +674,7 @@ void dispel_player(void)
     set_tim_transcendence(0, TRUE);
     set_tim_quick_walk(0, TRUE);
     set_tim_inven_prot(0, TRUE);
+    set_tim_inven_prot2(0, TRUE);
     set_tim_device_power(0, TRUE);
     set_tim_sh_time(0, TRUE);
     set_tim_foresight(0, TRUE);
@@ -656,6 +738,17 @@ bool set_mimic(int v, int p, bool do_dec)
     v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
     if (p_ptr->is_dead) return FALSE;
+
+    /* Werewolves get their own two forms - human and wolf - and that's it.
+     * In any case, horrible things might happen if werewolves could mimic,
+     * or if anyone else could mimic a werewolf, due to the mega-hacks
+     * involved in werewolf equipment handling */
+    if (prace_is_(RACE_WEREWOLF)) return FALSE;
+    if (p == RACE_WEREWOLF) /* please don't let this even happen */
+    {
+        v = 0;
+        p = MIMIC_NONE; /* paranoia */
+    }
 
     /* Open */
     if (v)
@@ -2190,6 +2283,86 @@ bool set_slow(int v, bool do_dec)
     return (TRUE);
 }
 
+/*
+ * Effect of unwellness
+ */
+byte unwell_effect(int uw)
+{
+   if ((!uw) || (uw > UNWELL_EFFECTIVE_MAX)) return 0;
+   if (uw > 30) return 4;
+   return ((uw + 9) / 10);
+}
+
+/*
+ * Set "p_ptr->unwell", notice observable changes
+ */
+bool set_unwell(int v, bool do_dec)
+{
+    bool notice = FALSE;
+    byte old_eff = 0, new_eff = 0;
+
+    /* Nonliving races don't get unwell */
+    if (get_race()->flags & RACE_IS_NONLIVING)
+    {
+        p_ptr->unwell = 0; /* paranoia */
+        return FALSE;
+    }
+
+    /* Hack -- Force good values */
+    v = (v > 100) ? 100 : (v < 0) ? 0 : v;
+
+    if (p_ptr->is_dead) return FALSE;
+
+    if ((p_ptr->unwell > 40) && (v >= p_ptr->unwell)) return FALSE;
+
+    /* Open */
+    if (v)
+    {
+        if (p_ptr->unwell && !do_dec)
+        {
+            if (p_ptr->unwell > v) return FALSE;
+        }
+    }
+
+    /* Shut */
+    else
+    {
+        if (p_ptr->unwell)
+        {
+            msg_print("You no longer feel unwell.");
+
+            notice = TRUE;
+        }
+    }
+    old_eff = unwell_effect(p_ptr->unwell);
+    new_eff = unwell_effect(v);
+
+    /* Notice changes in unwellness level */
+    if ((!notice) && (old_eff != new_eff)) notice = TRUE;
+    if ((new_eff) && (!old_eff))
+    {
+        msg_print("You suddenly feel unwell!");
+    }
+
+    /* Use the value */
+    p_ptr->unwell = v;
+
+    /* Nothing to notice */
+    if (!notice) return (FALSE);
+
+    /* Disturb */
+    if ((disturb_state) && ((!new_eff) || (!old_eff))) disturb(0, 0);
+
+    /* Recalculate bonuses */
+    p_ptr->update |= (PU_BONUS);
+    p_ptr->redraw |= (PR_STATUS);
+
+    /* Handle stuff */
+    handle_stuff();
+
+    /* Result */
+    return (TRUE);
+}
 
 /*
  * Set "p_ptr->shield", notice observable changes
@@ -5181,6 +5354,8 @@ bool hp_player_aux(int num)
         num += num/5;
     }
 
+    if ((p_ptr->prace == RACE_EINHERI) || (p_ptr->mimic_form == RACE_EINHERI)) num /= 2;
+
     /* Healing needed */
     if (p_ptr->chp < p_ptr->mhp)
     {
@@ -5233,12 +5408,13 @@ bool lp_player(int num)
         if (p_ptr->pclass != CLASS_MONSTER)
         {
             int which;
-            switch (randint1(4))
+            switch (randint1(5))
             {
             case 1: which = RACE_VAMPIRE; break;
             case 2: which = RACE_SKELETON; break;
             case 3: which = RACE_ZOMBIE; break;
             case 4: which = RACE_SPECTRE; break;
+            case 5: which = RACE_EINHERI; break;
             }
 
             msg_print("<color:v>Your life force is exhausted!</color>");
@@ -5556,7 +5732,7 @@ void change_race(int new_race, cptr effect_msg)
     if (get_race()->flags & RACE_IS_MONSTER) return;
     if (get_race_aux(new_race, 0)->flags & RACE_IS_MONSTER) return;
     if (old_race == RACE_ANDROID) return;
-    if (old_race == RACE_DOPPELGANGER) return;
+    if (player_obviously_poly_immune()) return;
     if (new_race == old_race) return;
 
     _lock = TRUE;
@@ -5645,7 +5821,7 @@ void do_poly_self(void)
 
     virtue_add(VIRTUE_CHANCE, 1);
 
-    if ((power > randint0(20)) && one_in_(3) && (p_ptr->prace != RACE_ANDROID))
+    if ((power > randint0(20)) && one_in_(3) && (p_ptr->prace != RACE_ANDROID) && (p_ptr->prace != RACE_WEREWOLF))
     {
         char effect_msg[80] = "";
         int new_race, expfact, goalexpfact;
@@ -5662,7 +5838,7 @@ void do_poly_self(void)
             {
                 p_ptr->psex = SEX_FEMALE;
                 sprintf(effect_msg, "female ");
-
+                mut_lose(MUT_IMPOTENCE);
             }
             else
             {
@@ -6187,7 +6363,7 @@ bool set_ultimate_res(int v, bool do_dec)
     {
         if (p_ptr->ult_res)
         {
-            msg_print("You feel less resistant");
+            msg_print("You feel less resistant.");
 
             notice = TRUE;
         }
@@ -7101,6 +7277,55 @@ bool set_tim_inven_prot(int v, bool do_dec)
     }
 
     p_ptr->tim_inven_prot = v;
+    if (!notice) return FALSE;
+    if (disturb_state) disturb(0, 0);
+    p_ptr->redraw |= PR_STATUS;
+    p_ptr->update |= PU_BONUS;
+    handle_stuff();
+    return TRUE;
+}
+
+bool set_tim_inven_prot2(int v, bool do_dec)
+{
+    bool notice = FALSE;
+
+    /* Hack -- Force good values */
+    v = (v > 50) ? 50 : (v < 0) ? 0 : v;
+
+    if (p_ptr->is_dead) return FALSE;
+
+    /* Open */
+    if (v)
+    {
+        if (p_ptr->tim_inven_prot2)
+        {
+            if (p_ptr->tim_inven_prot2 > v && !do_dec) return FALSE;
+        }
+        else
+        {
+            if (p_ptr->pclass == CLASS_ROGUE)
+                msg_print("You feel your loot is safe.");
+            else
+                msg_print("Your inventory seems safer now.");
+            notice = TRUE;
+        }
+    }
+    /* Shut */
+    else
+    {
+        if (p_ptr->tim_inven_prot2)
+        {
+            if (p_ptr->pclass == CLASS_ROGUE)
+                msg_print("Your loot is no longer completely safe.");
+            else if (p_ptr->tim_inven_prot)
+                msg_print("Your inventory is no longer completely safe.");
+            else
+                msg_print("Your inventory is no longer protected.");
+            notice = TRUE;
+        }
+    }
+
+    p_ptr->tim_inven_prot2 = v;
     if (!notice) return FALSE;
     if (disturb_state) disturb(0, 0);
     p_ptr->redraw |= PR_STATUS;

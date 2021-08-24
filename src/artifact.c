@@ -78,11 +78,26 @@ static int _trim(int start_val, int hi_val, int very_hi_val, int item_lv)
 
 static void _sanitise_flags(object_type *o_ptr)
 {
+    int i;
     if (have_flag(o_ptr->flags, OF_LITE) && have_flag(o_ptr->flags, OF_DARKNESS))
     {
         if (one_in_(2)) remove_flag(o_ptr->flags, OF_DARKNESS);
         else remove_flag(o_ptr->flags, OF_LITE);
     }
+    for (i = OF_STR; i <= OF_CHR; i++)
+    {
+        if (have_flag(o_ptr->flags, i) && have_flag(o_ptr->flags, i + OF_DEC_STR - OF_STR))
+        {
+            remove_flag(o_ptr->flags, i);
+            remove_flag(o_ptr->flags, i + OF_DEC_STR - OF_STR);
+        }
+    }
+
+    /* Check for weapons with VORPAL2 but no VORPAL
+     * They need VORPAL for consistent inscriptions, even though it has no
+     * effect on their performance */
+    if ((have_flag(o_ptr->flags, OF_VORPAL2)) && (!have_flag(o_ptr->flags, OF_VORPAL)))
+        add_flag(o_ptr->flags, OF_VORPAL);
 }
 
 /*
@@ -1917,7 +1932,7 @@ static _slot_weight_t _slot_weight_tbl[] = {
     {"Amulets", object_is_amulet, 40},
     {"Lights", object_is_lite, 36},
     {"Body Armor", object_is_body_armour, 80},
-    {"Cloaks", object_is_cloak, 45},
+    {"Cloaks", object_is_cloak, 43},
     {"Helmets", object_is_helmet, 50},
     {"Gloves", object_is_gloves, 45},
     {"Boots", object_is_boots, 50},
@@ -1934,6 +1949,25 @@ int get_slot_weight(obj_ptr obj)
     }
     return 80;
 }
+
+int get_dest_weight(obj_ptr dest)
+{
+    int dest_weight = get_slot_weight(dest);
+    /* Penalize reforging a powerful slot into a weak slot (e.g. weapons into lites)
+     * Also penalize moving power into ninja weapons */
+    if (object_is_melee_weapon(dest))
+    {
+        int dice = k_info[dest->k_idx].dd * k_info[dest->k_idx].ds;
+        if (dice == 2) /* hack for wizardstaves */
+        {
+            dest_weight = 55;
+        }
+        else if (dice < 12)
+            dest_weight = dest_weight * dice / 12;
+    }
+    return dest_weight;
+}
+
 /* This might also benefit the rand-art power channels in ego.c */
 int get_slot_power(obj_ptr obj)
 {
@@ -3242,28 +3276,16 @@ bool reforge_artifact(object_type *src, object_type *dest, int fame)
     int         min_power, max_power;
     int         old_level, i;
     int         src_weight = get_slot_weight(src);
-    int         dest_weight = get_slot_weight(dest);
+    int         dest_weight = get_dest_weight(dest);
 
     /* Score the Original */
     base_power = obj_value_real(src);
 
-    /* Penalize reforging a powerful slot into a weak slot (e.g. weapons into lites)
-     * Also penalize moving power into ninja weapons */
-    if (object_is_melee_weapon(dest))
-    {
-        int dice = k_info[dest->k_idx].dd * k_info[dest->k_idx].ds;
-        if (dice == 2) /* hack for wizardstaves */
-        {
-            dest_weight = 55;
-        }
-        else if (dice < 12)
-            dest_weight = dest_weight * dice / 12;
-    }
     if (src_weight > dest_weight)
         base_power = base_power * dest_weight / src_weight;
 
     /* Power sanity check */
-    base_power = MIN(base_power, 1125L * src_weight);
+    base_power = MIN(base_power, 1125L * dest_weight);
 
     /* Pay a Power Tax! */
     base_power = base_power*3/4 + randint1(base_power*MIN(255, fame)/1500);
@@ -3278,6 +3300,12 @@ bool reforge_artifact(object_type *src, object_type *dest, int fame)
     {
         min_power = 3 * base_power / 4;
         max_power = MAX(6000, 5 * base_power / 4);
+    }
+
+    if (mut_present(MUT_INSPIRED_SMITHING))
+    {
+        min_power += (min_power / 8);
+        max_power += (max_power / 12);
     }
 
     /* Better Fame means better results! */

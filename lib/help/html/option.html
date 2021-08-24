@@ -26,14 +26,24 @@ output to the screen).
 (press </font><font color="#ff8000">= </font><font color="#ffffff">while creating the character). There is no way to turn them 
 off after the creation is finished!
   
+  
+<a name="coffee_break"></a>  </font><font color="#c08040">Coffee-break mode (accelerated game) </font><font color="#707070">(coffee_break)
+  </font><font color="#ffffff">Coffee-break mode is a shorter and more compact version of the game. 
+  The player gains experience much faster and finds more and better 
+  objects in the dungeon, as well as more money; most forms of 
+  proficiency gain are also accelerated. </font><font color="#c08040">Coffee-break mode </font><font color="#ffffff">uses a 
+  single town with no wilderness; forced descent is turned on (but 
+  recalling back to the town is allowed), and all stairs in the dungeon 
+  are two-level shafts. Small levels generate more often in the early 
+  part of the game but become rarer (and less small) towards the 
+  endgame. Unlike ironman-downward mode (see <a href="option.html#ironman_downward"></font><font color="#00ff00">[b]</a></font><font color="#ffffff">), the player is 
+  allowed to skip dungeon quests by recalling, although doing so incurs 
+  a large fame penalty.
+  
 <a name="easy_id"></a>  </font><font color="#c08040">Easy Identify </font><font color="#707070">(easy_id)
-  </font><font color="#ffffff">This option will affect the early game pseudo-identification of 
-  objects. Normally, objects must be carried in your pack for some time 
-  before you become aware of their quality. The length of time is class 
-  dependent, as is the amount of information revealed through 
-  pseudo-identification (see <a href="objects.html#Pseudo-ID"></font><font color="#00ff00">[b]</a></font><font color="#ffffff">). With </font><font color="#ff0000">Easy Identify </font><font color="#ffffff">enabled, all 
-  players will get instantaneous and full pseudo-identification of 
-  objects, making this aspect of gameplay redundant.
+  </font><font color="#ffffff">With this option enabled, all objects are automatically fully 
+  identified on walkover, and items, spells and town services of 
+  Identify/*Identify* become unnecessary.
   
 <a name="easy_lore"></a>  </font><font color="#c08040">Easy Lore </font><font color="#707070">(easy_lore)
   </font><font color="#ffffff">With this option enabled, the player will be born with complete 
@@ -46,11 +56,48 @@ off after the creation is finished!
   them as you encounter them, and the town </font><font color="#ff0000">Beastmaster Lore </font><font color="#ffffff">service to 
   learn about monsters before you see them (for a price, of course).
   
+<a name="easy_damage"></a>  </font><font color="#c08040">Easy monster health and damage information </font><font color="#707070">(easy_damage)
+  </font><font color="#ffffff">Also known as "Fnord-mode", this option allows the player to see the 
+  exact damage delivered by each attack, and to receive additional 
+  information about monster health and debuffs through a percentage 
+  display. Player health bars are also converted to use percentages. 
+  This is a very powerful easy-mode, and using it gives a score 
+  penalty.
+  
+<a name="allow_spoilers"></a>  </font><font color="#c08040">Allow spoilers </font><font color="#707070">(allow_spoilers)
+  </font><font color="#ffffff">Enabling this option allows the player to view some spoiler files 
+  in-game using the ^Z command. (This option should never be used on 
+  the angband.live online server for technical reasons.)
+  
+<a name="power_tele"></a>  </font><font color="#c08040">Use enhanced telepathy </font><font color="#707070">(power_tele)
+  </font><font color="#ffffff">With this option enabled, the player can see the race of a 
+  telepathically detected monster (i.e. telepathically seen monsters 
+  are treated identically to monsters seen through any other means). 
+  With this option off ("fuzzy telepathy"), only the monster's 
+  "species" (default display character) is shown, but its color and 
+  race are hidden.
+  
+<a name="easy_thalos"></a>  </font><font color="#c08040">Allow easy teleportation to Thalos </font><font color="#707070">(easy_thalos)
+  </font><font color="#ffffff">If this option is on, inns will start offering teleportation to the 
+  town of </font><font color="#ff0000">Thalos </font><font color="#ffffff">as soon as at least one out of Anambar, Angwil, 
+  Morivant or Telmora has been visited by the player. Since Thalos is 
+  located on an island, travelling there by foot is very dangerous for 
+  a low-level character, especially at night. This option makes it 
+  possible to reach Thalos safely earlier in the game.
+  
+<a name="never_forget"></a>  </font><font color="#c08040">Easy Labyrinth and no amnesia </font><font color="#707070">(never_forget)
+  </font><font color="#ffffff">This option removes amnesia attacks from the game, and allows the 
+  player to map the normally unmappable </font><font color="#ff0000">Labyrinth </font><font color="#ffffff">dungeon in the same 
+  way as all other dungeons. (Turning this option on does not 
+  necessarily make the game easier, since monsters who might normally 
+  use the annoying but ultimately harmless Amnesia spell will instead 
+  select one of their other, more dangerous spell options.)
+  
 <a name="smart_learn"></a>  </font><font color="#c08040">Monsters learn from their mistakes </font><font color="#707070">(smart_learn)
   </font><font color="#ffffff">Allow monsters to learn what spell attacks you are resistant to, and 
   to use this information to choose the best attacks.
   
-<a name="smart_cheat"></a>  </font><font color="#c08040">Monsters exploit players weaknesses </font><font color="#707070">(smart_cheat)
+<a name="smart_cheat"></a>  </font><font color="#c08040">Monsters exploit player's weaknesses </font><font color="#707070">(smart_cheat)
   </font><font color="#ffffff">Allow monsters to know what spell attacks you are resistant to, and 
   to use this information to choose the best attacks. Combine this with 
   Easy Lore to regain lost honour.
@@ -59,8 +106,8 @@ off after the creation is finished!
   </font><font color="#ffffff">This option disables the wilderness, forcing you to play with a 
   single special town level. As a result, the only dungeon that will be 
   available is the </font><font color="#ff0000">Pits of Angband</font><font color="#ffffff">. However, the town is relatively 
-  well serviced and many, if not most, of the various fixed quests will 
-  be available for your pleasure (see <a href="town.html#NoWilderness"></font><font color="#00ff00">[c]</a></font><font color="#ffffff">).
+  well serviced and many of the various fixed quests will be available 
+  for your pleasure (see <a href="town.html#NoWilderness"></font><font color="#00ff00">[c]</a></font><font color="#ffffff">).
   
 <a name="ironman_shops"></a>  </font><font color="#c08040">Stores are permanently closed </font><font color="#707070">(ironman_shops)
   </font><font color="#ffffff">This option closes all shops. Try to survive in the deeps of the 
@@ -82,15 +129,68 @@ off after the creation is finished!
   various situations. Furthermore, at 12:00 every night, you will have 
   a real nightmare. You need to be crazy to turn this option on!
   
+<a name="enable_virtues"></a>  </font><font color="#c08040">Enable virtues </font><font color="#707070">(enable_virtues)
+  </font><font color="#ffffff">Turns on the virtue system. Virtues can help or hinder the player; 
+  among other things, they affect spell fail rates, the strength of 
+  many magical effects, and the friendliness of some monsters.
+  
 <a name="preserve_mode"></a>  </font><font color="#c08040">Preserve artifacts </font><font color="#707070">(preserve_mode)
   </font><font color="#ffffff">In non-preserve mode, once a fixed artifact is generated (either on 
   the dungeon floor or in a monster drop), it will never be generated 
   again during that game. This means that if you miss the artifact by 
   leaving the level before you pick it up it is gone forever. On the 
   other hand, in preserve mode this behavior is only exhibited once you 
-  have identified the artifact. It is therefor safer to leave a level 
-  before it is completely explored as any fixed artifact can be 
-  regenerated in subsequent levels.
+  have identified the artifact; it is therefore safer to leave a level 
+  before it is completely explored, as any undiscovered fixed artifact 
+  can be regenerated on a subsequent level.
+  
+<a name="quest_unique"></a>  </font><font color="#c08040">Random quests for unique monsters only </font><font color="#707070">(quest_unique)
+  </font><font color="#ffffff">With this option turned on, the ten </font><font color="#ff0000">random quests </font><font color="#ffffff">in the Pits of 
+  Angband will all require you to kill a unique monster. With the 
+  option off, some of them (especially the early ones) may feature 
+  groups of non-unique monsters instead, similarly to the fixed Warg 
+  Quest.
+  
+<a name="no_selling"></a>  </font><font color="#c08040">Disable selling but increase gold drops </font><font color="#707070">(no_selling)
+  </font><font color="#ffffff">With this option on, the player cannot sell items for money (only 
+  give them for free), and turning items into gold through Alchemy is 
+  less effective; but gold drops in quests and dungeons are increased 
+  to compensate. (Gold drops in the wilderness are not affected.)
+  
+<a name="reduce_uniques"></a>  </font><font color="#c08040">Reduce the number of uniques (randomly) </font><font color="#707070">(reduce_uniques)
+  </font><font color="#ffffff">This option removes some percentage of uniques from the game. A few 
+  uniques (mostly those who appear in either quests or the Thalos 
+  arena) are fixed and will never be removed.
+  
+<a name="single_pantheon"></a>  </font><font color="#c08040">Play with only one pantheon </font><font color="#707070">(single_pantheon)
+  </font><font color="#ffffff">This option removes one of the game's two main monster pantheons 
+  (Olympian or Egyptian) from the game, but also re-adds all members of 
+  the remaining pantheon if they have been removed by the 
+  reduce_uniques option. In wilderness mode, the dungeon associated 
+  with the removed pantheon is also removed from the game. Which 
+  pantheon remains can be either specified by the player or left to a 
+  random decision.
+  
+<a name="no_chris"></a>  </font><font color="#c08040">Nexus attacks never teleport to another dungeon </font><font color="#707070">(no_chris)
+  </font><font color="#ffffff">Turning on this option disables the "Chris effect" (a nexus attack 
+  effect that teleports the player to another dungeon, potentially one 
+  that's highly dangerous and was never previously visited by the 
+  player). As a substitute for the Chris effect, the player's stats 
+  will be scrambled; or if stat scrambling is also disabled, the Baby 
+  Foul Curse (a less deadly version of the infamous Ancient Foul Curse) 
+  will trigger. This option has no effect (or, rather, is effectively 
+  always on) in no-wilderness mode, since no-wilderness mode only has 
+  the one dungeon.
+  
+<a name="no_scrambling"></a>  </font><font color="#c08040">Disallow stat scrambling from monster attacks </font><font color="#707070">(no_scrambling)
+  </font><font color="#ffffff">Selecting this option disables </font><font color="#ff0000">stat scrambling</font><font color="#ffffff">, an effect that 
+  permanently switches two of the player's six stats (as well as their 
+  respective stat caps). Stat scrambling can potentially set the player 
+  back a long way if a high key stat is swapped with a low, less 
+  important stat. Attacks (and other effects) that would normally 
+  trigger a scramble will instead trigger the Baby Foul Curse, which is 
+  more dangerous in the short-term but doesn't have the same long-term 
+  effects.
   
   
 <a name="Input"></a></font><font color="#c00000">Input Options
@@ -103,7 +203,9 @@ off after the creation is finished!
   </font><font color="#ffffff">Tells the game that walking onto an item should attempt to pick it 
   up. Otherwise, you must use the </font><font color="#ff8000">g </font><font color="#ffffff">command, or the </font><font color="#ff8000">- </font><font color="#ffffff">command while 
   walking. Combined with </font><font color="#ff0000">carry_query_flag</font><font color="#ffffff">, allows you to selectively 
-  pick up all items which you step on.
+  pick up all items which you step on. This option disables the 
+  autodestroyer functions of the Mogaminator, so it's often used 
+  together with </font><font color="#ff0000">destroy_items </font><font color="#ffffff">for the easy auto-destroyer.
   
 <a name="quick_messages"></a>  </font><font color="#c08040">Activate quick messages </font><font color="#707070">(quick_messages)
   </font><font color="#ffffff">Allows the use of any keypress as a response to the </font><font color="#00ffff">-more- </font><font color="#ffffff">prompt 
@@ -453,6 +555,51 @@ off after the creation is finished!
   be represented by a Q. If the option is turned off the player will 
   always be @. 
   
+<a name="show_origins"></a>  </font><font color="#c08040">Show object origins on examination </font><font color="#707070">(show_origins)
+  </font><font color="#ffffff">With this option selected, the origins of an object (where you found 
+  it, and who or what you got it from) are displayed when the object is 
+  examined.
+  
+<a name="show_discovery"></a>  </font><font color="#c08040">Show time of discovery on examination </font><font color="#707070">(show_discovery)
+  </font><font color="#ffffff">With this option enabled, the date of object discovery and the 
+  player's character level at time of discovery are added to the 
+  object's origins. (Also, with this option off, if a pile of objects 
+  with different origins is formed, all information about the origins 
+  is lost. With this option on, the details of the first object to be 
+  discovered are applied to the whole pile instead.)
+  
+<a name="final_dump_origins"></a>  </font><font color="#c08040">Show origins in final character dumps </font><font color="#707070">(final_dump_origins)
+  </font><font color="#ffffff">If this option is on, the origins of the player's equipment are 
+  included in character dumps if the character is either dead or a 
+  winner, but omitted otherwise. (Whether discovery details are 
+  included with the origins depends on whether show_discovery is on or 
+  not.)
+  
+<a name="always_dump_origins"></a>  </font><font color="#c08040">Show origins in all character dumps </font><font color="#707070">(always_dump_origins)
+  </font><font color="#ffffff">If this option is on, the origins of the player's equipment are 
+  always included in character dumps.
+  
+<a name="easy_mimics"></a>  </font><font color="#c08040">Use 'x' for monsters that look like things </font><font color="#707070">(easy_mimics)
+  </font><font color="#ffffff">If this option is enabled, monsters that are easily mistaken for 
+  non-monsters (like mimics, cloakers, death swords and wall monsters) 
+  will be displayed with the 'x' glyph instead of their native glyph. 
+  (A few thing-like monsters do still retain their original glyphs; 
+  these include death scythes, mushrooms and creeping coins.)
+  
+<a name="list_stairs"></a>  </font><font color="#c08040">Display stairs in the object list </font><font color="#707070">(list_stairs)
+  </font><font color="#ffffff">If this option is enabled, the list of visible objects (accessible 
+  in-game by pressing O) will include stairs in its Interesting 
+  Features section. (The inclusion of stairs in the object list can be 
+  toggled in the list itself by pressing S, but this option determines 
+  whether stairs are shown by default.)
+  
+<a name="display_skill_num"></a>  </font><font color="#c08040">Display skills as numbers in the character sheet </font><font color="#707070">(display_skill_num)
+  </font><font color="#ffffff">If this option is on, the character sheet displays the player's 
+  skills numerically in addition to the usual verbal description; 
+  </font><font color="#008040">Superb </font><font color="#ffffff">may become </font><font color="#008040">Superb </font><font color="#ffffff">(82), for example. This format is familiar 
+  to players of Composband, where the numerical display is always on.
+  
+  
 <a name="GamePlay"></a></font><font color="#c00000">Game Play Options
   
 <a name="stack_force_notes"></a>  </font><font color="#c08040">Merge inscriptions when stacking </font><font color="#707070">(stack_force_notes)
@@ -528,6 +675,13 @@ off after the creation is finished!
   "directional" components with commands that can fail, since it will 
   prevent you from walking towards monsters when your spells fail.
   
+<a name="prompt_on_failure"></a>  </font><font color="#c08040">Give -more- prompts on device/spell failures </font><font color="#707070">(prompt_on_failure)
+  </font><font color="#ffffff">This option forces a </font><font color="#00ffff">-more- </font><font color="#ffffff">prompt whenever an attempt to use a 
+  device or cast a spell fails. This is useful if the player is in the 
+  habit of pressing keys (e.g. to target the device) on the assumption 
+  the device won't fail, which if unchecked can result in a potentially 
+  costly lost turn when the device does fail.
+  
 <a name="flush_disturb"></a>  </font><font color="#c08040">Flush input whenever disturbed </font><font color="#707070">(flush_disturb)
   </font><font color="#ffffff">This option forces the game to flush all pending input whenever the 
   character is "disturbed". This is useful if you use macros which take 
@@ -597,7 +751,8 @@ off after the creation is finished!
     is too complicated to use. However, you really should 
     only use one or the other. So if you are using the full 
     version, then you should not also enable the easy 
-    version.
+    version, unless you have turned on the </font><font color="#ff0000">always_pickup 
+    </font><font color="#00ff00">option.
   
 <a name="destroy_feeling"></a>  </font><font color="#c08040">Apply auto-destroy on sensing an item </font><font color="#707070">(destroy_feeling)
   </font><font color="#ffffff">If this option is turned on, both The Mogaminator and The Easy 
@@ -627,167 +782,182 @@ off after the creation is finished!
       </font><font color="#ff0000">Free Action</font><font color="#ffffff">; </font><font color="#00ffff">See Invisible</font><font color="#ffffff">; </font><font color="#00ffff">Levitation
       It cannot be harmed by the elements.
       </font><font color="#c00000">Autopick: </font><font color="#ffffff">~</font><font color="#00ff00">*identified* </font><font color="#ff0000">amulets </font><font color="#ff8000">more value than 10000
-    
+  
+<a name="no_mogaminator"></a>  </font><font color="#c08040">Never apply the Mogaminator </font><font color="#707070">(no_mogaminator)
+  </font><font color="#ffffff">This option deactivates the Mogaminator. (It is redundant if the 
+  Mogaminator was never activated in the first place.)
+  
 <a name="leave_worth"></a>  </font><font color="#c08040">Auto-destroyer leaves known worthy items </font><font color="#707070">(leave_worth)
-  </font><font color="#ffffff">This option protects known objects that can be sold in stores from auto-destr 
+  </font><font color="#ffffff">This option protects known objects that can be sold in stores from 
+  auto-destruction by The Easy Destroyer.
   
 <a name="leave_equip"></a>  </font><font color="#c08040">Auto-destroyer leaves weapons and armour </font><font color="#707070">(leave_equip)
-  </font><font color="#ffffff">This option protects all weapons and armour from auto-destruction by The EasyD
+  </font><font color="#ffffff">This option protects all weapons and armour from auto-destruction by 
+  The Easy Destroyer.
   
 <a name="leave_chest"></a>  </font><font color="#c08040">Auto-destroyer leaves closed chests </font><font color="#707070">(leave_chest)
-  </font><font color="#ffffff">This option protects all chests which are not yet opened from auto-destructio 
+  </font><font color="#ffffff">This option protects all chests which are not yet opened from 
+  auto-destruction by The Easy Destroyer.
   
 <a name="leave_wanted"></a>  </font><font color="#c08040">Auto-destroyer leaves wanted corpses </font><font color="#707070">(leave_wanted)
-  </font><font color="#ffffff">This option protects corpses of monsters wanted at the Hunter's office from a 
+  </font><font color="#ffffff">This option protects corpses of monsters wanted at the Hunter's 
+  office from auto-destruction by The Easy Destroyer.
   
 <a name="leave_corpse"></a>  </font><font color="#c08040">Auto-destroyer leaves corpses and skeletons </font><font color="#707070">(leave_corpse)
-  </font><font color="#ffffff">This option protects all corpses and skeletons from auto-destruction by The E 
+  </font><font color="#ffffff">This option protects all corpses and skeletons from auto-destruction 
+  by The Easy Destroyer.
   
 <a name="leave_junk"></a>  </font><font color="#c08040">Auto-destroyer leaves junk </font><font color="#707070">(leave_junk)
-  </font><font color="#ffffff">This option protects all 'junk', such as Shards of Pottery or Broken Stick, f 
+  </font><font color="#ffffff">This option protects all 'junk', such as Shards of Pottery or Broken 
+  Stick, from auto-destruction by The Easy Destroyer. This is 
+  especially helpful for Archers.
   
 <a name="leave_special"></a>  </font><font color="#c08040">Auto-destroyer leaves items your race/class needs </font><font color="#707070">(leave_special)
-  </font><font color="#ffffff">This option protects specific items which are normally worthless, but very im 
+  </font><font color="#ffffff">This option protects specific items which are normally worthless, but 
+  very important for specific classes or races. These include bones for 
+  Archers, ego light sources of darkness for Ninja, Wands of Heal 
+  Monster for BeastMaster and Cavalry, and humanoid corpses for 
+  Balrogs, etc...
   
-<a name="BaseDelay"></a>  </font><font color="#c00000">Base Delay Factor
+<a name="BaseDelay"></a></font><font color="#c00000">Base Delay Factor
+
+</font><font color="#ffffff">The </font><font color="#ff0000">delay_factor </font><font color="#ffffff">value, if non-zero, is used to slow down the game, 
+which is useful to allow you to observe the animations of bolt, beam, 
+and ball attacks. The actual delay is equal to delay_factor cubed, in 
+milliseconds.
+
+<a name="Hitpoint"></a></font><font color="#c00000">Hitpoint Warning
+
+</font><font color="#ffffff">The </font><font color="#ff0000">hitpoint_warn </font><font color="#ffffff">value, if non-zero, is the percentage of maximal 
+hitpoints at which the player is warned that he may die. It is also 
+used as the cut-off for using red to display both hitpoints and mana.
+
+<a name="Autosave"></a></font><font color="#c00000">Autosave Options
+
+</font><font color="#ffffff">Ideally, the game should be so stable that these options are not needed 
+at all. However, even if the game were 100% reliable (which it, to be 
+frank, probably is not), the user might forget to save and his hardware 
+could fail him. For all of these reasons, you may want to use these 
+options:
   
-  </font><font color="#ffffff">The </font><font color="#ff0000">delay_factor </font><font color="#ffffff">value, if non-zero, is used to slow down the game, 
-  which is useful to allow you to observe the animations of bolt, beam, 
-  and ball attacks. The actual delay is equal to delay_factor cubed, in 
-  milliseconds.
+<a name="autosave_l"></a>  </font><font color="#c08040">Autosave when entering new levels </font><font color="#707070">(autosave_l)
+  </font><font color="#ffffff">If this option is set, the program will attempt to save your 
+  character every time before creating a new dungeon level.
   
-<a name="Hitpoint"></a>  </font><font color="#c00000">Hitpoint Warning
+<a name="autosave_t"></a>  </font><font color="#c08040">Timed autosave </font><font color="#707070">(autosave_t)
+  </font><font color="#ffffff">If this option is set, the program will attempt to save your 
+  character every n game turns, where n is the "frequency". To set the 
+  frequency press </font><font color="#ff8000">F</font><font color="#ffffff">. It will increase the frequency to the next 
+  category (and from 25000 to 0), the categories being every 50, 100, 
+  250, 500, 1000, 2500, 5000, 10000 and 25000 turns. Note that the 
+  frequency must be higher than 0 and the "Timed autosave" set to "yes" 
+  for timed autosaves to take place.
   
-  </font><font color="#ffffff">The </font><font color="#ff0000">hitpoint_warn </font><font color="#ffffff">value, if non-zero, is the percentage of maximal 
-  hitpoints at which the player is warned that he may die. It is also 
-  used as the cut-off for using red to display both hitpoints and mana.
+<a name="Window"></a></font><font color="#c00000">Window Flags
+
+</font><font color="#ffffff">These options select what kind of information is displayed in which 
+window. Some platforms support "sub-windows", which are windows which 
+can be used to display useful information generally available through 
+other means. The best thing about these windows is that they are 
+updated automatically (usually) to reflect the current state of the 
+world. The "window options" can be used to specify what should be 
+displayed in each window. The possible choices should be pretty 
+obvious.
   
-<a name="Autosave"></a>  </font><font color="#c00000">Autosave Options
+  </font><font color="#c08040">Display inven/equip
+  </font><font color="#ffffff">Display the player inventory (and sometimes the equipment). Note that 
+  you can toggle between Inventory and Equipment by pressing </font><font color="#ff8000">^I</font><font color="#ffffff">.
   
-  </font><font color="#ffffff">Ideally, the game should be so stable that these options are not 
-  needed at all. However, even if the game were 100% reliable (which 
-  it, to be frank, probably is not), the user might forget to save and 
-  his hardware could fail him. For all of these reasons, you may want 
-  to use these options:
-    
-<a name="autosave_l"></a>    </font><font color="#c08040">Autosave when entering new levels </font><font color="#707070">(autosave_l)
-    </font><font color="#ffffff">If this option is set, the program will attempt to save your 
-    character every time before creating a new dungeon level.
-    
-<a name="autosave_t"></a>    </font><font color="#c08040">Timed autosave </font><font color="#707070">(autosave_t)
-    </font><font color="#ffffff">If this option is set, the program will attempt to save your 
-    character every n game turns, where n is the "frequency". To set 
-    the frequency press </font><font color="#ff8000">F</font><font color="#ffffff">. It will increase the frequency to the next 
-    category (and from 25000 to 0), the categories being every 50, 100, 
-    250, 500, 1000, 2500, 5000, 10000 and 25000 turns. Note that the 
-    frequency must be higher than 0 and the "Timed autosave" set to 
-    "yes" for timed autosaves to take place.
-    
-<a name="Window"></a>  </font><font color="#c00000">Window Flags
+  </font><font color="#c08040">Display equip/inven
+  </font><font color="#ffffff">Display the player equipment (and sometimes the inventory). Note that 
+  you can toggle between Inventory and Equipment by pressing </font><font color="#ff8000">^I</font><font color="#ffffff">.
   
-  </font><font color="#ffffff">These options select what kind of information is displayed in which 
-  window. Some platforms support "sub-windows", which are windows which 
-  can be used to display useful information generally available through 
-  other means. The best thing about these windows is that they are 
-  updated automatically (usually) to reflect the current state of the 
-  world. The "window options" can be used to specify what should be 
-  displayed in each window. The possible choices should be pretty 
-  obvious.
-    
-    </font><font color="#c08040">Display inven/equip
-    </font><font color="#ffffff">Display the player inventory (and sometimes the equipment). Note 
-    that you can toggle between Inventory and Equipment by pressing </font><font color="#ff8000">^I</font><font color="#ffffff">.
-    
-    </font><font color="#c08040">Display equip/inven
-    </font><font color="#ffffff">Display the player equipment (and sometimes the inventory). Note 
-    that you can toggle between Inventory and Equipment by pressing </font><font color="#ff8000">^I</font><font color="#ffffff">.
-    
-    </font><font color="#c08040">Display Object List
-    </font><font color="#ffffff">This option displays the results of the </font><font color="#ff0000">Object List </font><font color="#ffffff">command (</font><font color="#ff8000">]</font><font color="#ffffff">). 
-    For example:
-    
-      There is 1 wanted object:
-       </font><font color="#707070">! </font><font color="#00ffff">a Potion of Resistance               </font><font color="#ffffff">S 17 E 29
-    
-      There are 4 other objects:
-       </font><font color="#d0d0d0">| </font><font color="#ffffff">a Two-Handed Sword (3d6)             S 18 E 30
-       </font><font color="#707070">\ </font><font color="#ffffff">a Lead-Filled Mace (3d4)             S 18 E 28
-       </font><font color="#909090">] </font><font color="#c08040">a Pair of Metal Shod Boots [6]       </font><font color="#ffffff">S 18 E 29
-       </font><font color="#909090">/ </font><font color="#ffffff">an Awl-Pike (1d8)                    S 19 E 29
-    
-    </font><font color="#c08040">Display Monster List
-    </font><font color="#ffffff">This option displays the results of the </font><font color="#ff0000">Monster List </font><font color="#ffffff">command (</font><font color="#ff8000">[</font><font color="#ffffff">). 
-    For example:
-    
-      You are aware of 4 monsters, 4 are awake:
-       </font><font color="#ff8000">t </font><font color="#ffffff">Aimless looking merchant (2 awake)
-       </font><font color="#707070">t </font><font color="#ffffff">Agent of black market                N  9 W 54
-       </font><font color="#ffff00">t </font><font color="#ffffff">Singing, happy drunk                 S 22 E 72
-    
-    </font><font color="#c08040">Display messages
-    </font><font color="#ffffff">Display the most recently generated messages (cf The </font><font color="#ff8000">^P </font><font color="#ffffff">command).
-    
-    </font><font color="#c08040">Display overhead view
-    </font><font color="#ffffff">Display an overhead view of the entire dungeon. This is very slow 
-    and gives the same results as the </font><font color="#ff8000">M </font><font color="#ffffff">command.
-    
-    </font><font color="#c08040">Display monster recall
-    </font><font color="#ffffff">Display a description of the most monster which has been most 
-    recently attacked, targeted, or examined in some way.
-    
-    </font><font color="#c08040">Display object recall
-    </font><font color="#ffffff">Display a description of the most recently selected object. 
-    Currently this only affects spellbooks and prayerbooks. This window 
-    flag may be usefully combined with others, such as "monster 
-    recall".
-    
-    </font><font color="#c08040">Display dungeon view
-    </font><font color="#ffffff">Display a copy of dungeon map.
-    
-    </font><font color="#c08040">Display borg messages
-    </font><font color="#ffffff">This window flag is currently used only by the Borg which is not 
-    currently supported in this variant.
-    
-    </font><font color="#c08040">Display borg status
-    </font><font color="#ffffff">This window flag is currently used only by the Borg which is not 
-    currently supported in this variant.
-    
-<a name="Cheating"></a>  </font><font color="#c00000">Cheating Options
+  </font><font color="#c08040">Display Object List
+  </font><font color="#ffffff">This option displays the results of the </font><font color="#ff0000">Object List </font><font color="#ffffff">command (</font><font color="#ff8000">]</font><font color="#ffffff">). For 
+  example:
   
-  </font><font color="#ffffff">Using the cheating options marks your character as "Cheater" and you 
-  won't get into the high-score list. Turning off the cheating options 
-  later does NOT allow your character to get a highscore entry, so 
-  think twice before using any cheat.
-    
-<a name="cheat_peek"></a>    </font><font color="#c08040">Peek into object creation </font><font color="#707070">(cheat_peek)
-    </font><font color="#ffffff">Cheaters never win. But they can peek at object creation.
-    
-<a name="cheat_hear"></a>    </font><font color="#c08040">Peek into monster creation </font><font color="#707070">(cheat_hear)
-    </font><font color="#ffffff">Cheaters never win. But they can peek at monster creation.
-    
-<a name="cheat_room"></a>    </font><font color="#c08040">Peek into dungeon creation </font><font color="#707070">(cheat_room)
-    </font><font color="#ffffff">Cheaters never win. But they can peek at room creation.
-    
-<a name="cheat_xtra"></a>    </font><font color="#c08040">Peek into something else </font><font color="#707070">(cheat_xtra)
-    </font><font color="#ffffff">Cheaters never win. But they can see debugging messages.
-    
-<a name="cheat_know"></a>    </font><font color="#c08040">Know complete monster info </font><font color="#707070">(cheat_know)
-    </font><font color="#ffffff">Cheaters never win. But they can know all about monsters.
-    
-<a name="cheat_live"></a>    </font><font color="#c08040">Allow player to avoid death </font><font color="#707070">(cheat_live)
-    </font><font color="#ffffff">Cheaters never win. But they can cheat death.
-    
-<a name="cheat_save"></a>    </font><font color="#c08040">Ask for saving death </font><font color="#707070">(cheat_save)
-    </font><font color="#ffffff">Cheaters never win. But they can choose whether they save dead 
-    character data or not when they die.
-    
+    There is 1 wanted object:
+     </font><font color="#707070">! </font><font color="#00ffff">a Potion of Resistance               </font><font color="#ffffff">S 17 E 29
   
-  </font><font color="#707070">Original   : Ben Harrison
-  Updated    : Zangband 2.1.* by Topi Ylinen
-  Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
-  Updated    : Zangband DevTeam
-  Updated    : Hengband 1.5.2
-  Updated    : PosChengband 4.0.0
+    There are 4 other objects:
+     </font><font color="#d0d0d0">| </font><font color="#ffffff">a Two-Handed Sword (3d6)             S 18 E 30
+     </font><font color="#707070">\ </font><font color="#ffffff">a Lead-Filled Mace (3d4)             S 18 E 28
+     </font><font color="#909090">] </font><font color="#c08040">a Pair of Metal Shod Boots [6]       </font><font color="#ffffff">S 18 E 29
+     </font><font color="#909090">/ </font><font color="#ffffff">an Awl-Pike (1d8)                    S 19 E 29
   
+  </font><font color="#c08040">Display Monster List
+  </font><font color="#ffffff">This option displays the results of the </font><font color="#ff0000">Monster List </font><font color="#ffffff">command (</font><font color="#ff8000">[</font><font color="#ffffff">). For 
+  example:
   
+    You are aware of 4 monsters, 4 are awake:
+     </font><font color="#ff8000">t </font><font color="#ffffff">Aimless looking merchant (2 awake)
+     </font><font color="#707070">t </font><font color="#ffffff">Agent of black market                N  9 W 54
+     </font><font color="#ffff00">t </font><font color="#ffffff">Singing, happy drunk                 S 22 E 72
+  
+  </font><font color="#c08040">Display messages
+  </font><font color="#ffffff">Display the most recently generated messages (cf The </font><font color="#ff8000">^P </font><font color="#ffffff">command).
+  
+  </font><font color="#c08040">Display overhead view
+  </font><font color="#ffffff">Display an overhead view of the entire dungeon. This is very slow and 
+  gives the same results as the </font><font color="#ff8000">M </font><font color="#ffffff">command.
+  
+  </font><font color="#c08040">Display monster recall
+  </font><font color="#ffffff">Display a description of the most monster which has been most 
+  recently attacked, targeted, or examined in some way.
+  
+  </font><font color="#c08040">Display object recall
+  </font><font color="#ffffff">Display a description of the most recently selected object. Currently 
+  this only affects spellbooks and prayerbooks. This window flag may be 
+  usefully combined with others, such as "monster recall".
+  
+  </font><font color="#c08040">Display dungeon view
+  </font><font color="#ffffff">Display a copy of dungeon map.
+  
+  </font><font color="#c08040">Display borg messages
+  </font><font color="#ffffff">This window flag is currently used only by the Borg which is not 
+  currently supported in this variant.
+  
+  </font><font color="#c08040">Display borg status
+  </font><font color="#ffffff">This window flag is currently used only by the Borg which is not 
+  currently supported in this variant.
+  
+<a name="Cheating"></a></font><font color="#c00000">Cheating Options
+
+</font><font color="#ffffff">Using the cheating options marks your character as "Cheater" and you 
+won't get into the high-score list. Turning off the cheating options 
+later does NOT allow your character to get a highscore entry, so think 
+twice before using any cheat.
+  
+<a name="cheat_peek"></a>  </font><font color="#c08040">Peek into object creation </font><font color="#707070">(cheat_peek)
+  </font><font color="#ffffff">Cheaters never win. But they can peek at object creation.
+  
+<a name="cheat_hear"></a>  </font><font color="#c08040">Peek into monster creation </font><font color="#707070">(cheat_hear)
+  </font><font color="#ffffff">Cheaters never win. But they can peek at monster creation.
+  
+<a name="cheat_room"></a>  </font><font color="#c08040">Peek into dungeon creation </font><font color="#707070">(cheat_room)
+  </font><font color="#ffffff">Cheaters never win. But they can peek at room creation.
+  
+<a name="cheat_xtra"></a>  </font><font color="#c08040">Peek into something else </font><font color="#707070">(cheat_xtra)
+  </font><font color="#ffffff">Cheaters never win. But they can see debugging messages.
+  
+<a name="cheat_know"></a>  </font><font color="#c08040">Know complete monster info </font><font color="#707070">(cheat_know)
+  </font><font color="#ffffff">Cheaters never win. But they can know all about monsters.
+  
+<a name="cheat_live"></a>  </font><font color="#c08040">Allow player to avoid death </font><font color="#707070">(cheat_live)
+  </font><font color="#ffffff">Cheaters never win. But they can cheat death.
+  
+<a name="cheat_save"></a>  </font><font color="#c08040">Ask for saving death </font><font color="#707070">(cheat_save)
+  </font><font color="#ffffff">Cheaters never win. But they can choose whether they save dead 
+  character data or not when they die.
+  
+
+</font><font color="#707070">Original   : Ben Harrison
+Updated    : Zangband 2.1.* by Topi Ylinen
+Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
+Updated    : Zangband DevTeam
+Updated    : Hengband 1.5.2
+Updated    : PosChengband 4.0.0
+Updated    : FrogComposband 7.0.nougat
+
+
 </font></pre></body></html>

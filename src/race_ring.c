@@ -239,6 +239,10 @@ static bool _absorb(object_type *o_ptr)
     u32b flags[OF_ARRAY_SIZE];
     obj_flags(o_ptr, flags);
 
+    /* Check whether the item we are absorbing completes a quest 
+     * (for rings this currently never happens, but some day it might) */
+    quests_on_get_obj(o_ptr);
+
     if (o_ptr->curse_flags & OFC_AGGRAVATE)
         div++;
     if (o_ptr->curse_flags & (OFC_TY_CURSE | OFC_HEAVY_CURSE))
@@ -1281,7 +1285,7 @@ void ring_cast(void)
     {
         effect_t effect = _effect(&spell);
         device_known = TRUE; /* Hack */
-        if (!do_effect(&effect, SPELL_CAST, _boost(spell.effect)))
+        if (!effect_use(&effect, _boost(spell.effect)))
         {
             p_ptr->csp += spell.cost;
         }

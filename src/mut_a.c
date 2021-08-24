@@ -134,7 +134,7 @@ void ambidexterity_mut(int cmd, variant *res)
         var_set_string(res, "You are ambidextrous.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You will be able to dual wield more effectively.");
+        var_set_string(res, "Gives a bonus equivalent to 15 percentage points of dual-wielding skill.");
         break;
     default:
         default_spell(cmd, res);
@@ -159,7 +159,7 @@ void arcane_mastery_mut(int cmd, variant *res)
         var_set_string(res, "You have arcane mastery.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "Your spells will fail less often.");
+        var_set_string(res, "Reduces spell failure chances by 3 percentage points (maximum and minimum failure chances are still respected).");
         break;
     default:
         default_spell(cmd, res);
@@ -207,7 +207,7 @@ void astral_guide_mut(int cmd, variant *res)
         var_set_string(res, "You are an astral guide (Teleport costs less energy).");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "Teleportation costs less energy.");
+        var_set_string(res, "Reduces time needed for player-induced teleports by 67% to 70%.");
         break;
     default:
         default_spell(cmd, res);
@@ -347,7 +347,7 @@ void black_marketeer_mut(int cmd, variant *res)
         var_set_string(res, "You are an agent of the black market.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You will gain favorable pricing in the black market.");
+        var_set_string(res, "Gives you favorable pricing in the black market (all items half-price).");
         break;
     default:
         default_spell(cmd, res);
@@ -464,6 +464,30 @@ void berserk_rage_mut(int cmd, variant *res)
     }
 }
 
+void cerebral_pultitis_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Cerebral Pultitis");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your brain feels like porridge...");
+        mut_lose(MUT_HYPER_INT);
+        mut_lose(MUT_MORONIC);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your brain no longer feels like porridge.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You suffer from cerebral pultitis (-3 INT).");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 void chaos_deity_mut(int cmd, variant *res)
 {
     switch (cmd)
@@ -497,6 +521,7 @@ void cowardice_mut(int cmd, variant *res)
     case SPELL_GAIN_MUT:
         msg_print("You become an incredible coward!");
         mut_lose(MUT_FEARLESS);
+        mut_lose(MUT_NO_INHIBITIONS);
         break;
     case SPELL_LOSE_MUT:
         msg_print("You are no longer an incredible coward!");
@@ -535,7 +560,7 @@ void cult_of_personality_mut(int cmd, variant *res)
         var_set_string(res, "Summoned monsters are sometimes friendly.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "Summoned monsters may sometimes switch alliances.");
+        var_set_string(res, "Summoned hostile monsters have an up to 50% chance to become friendly or even pets, depending on their level and the player's charisma.");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->cult_of_personality = TRUE;
@@ -563,7 +588,7 @@ void demonic_grasp_mut(int cmd, variant *res)
         var_set_string(res, "You resist charge draining.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You resist charge draining.");
+        var_set_string(res, "Gives immunity to charge draining.");
         break;
     default:
         default_spell(cmd, res);
@@ -924,6 +949,28 @@ void draconian_strike_mut(int cmd, variant *res)
     }
 }
 
+void easy_tiring_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Easy Tiring");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You suddenly feel out of shape.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You no longer feel out of shape.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Physical combat exhausts you.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 void eat_light_mut(int cmd, variant *res)
 {
     switch (cmd)
@@ -984,6 +1031,7 @@ void einstein_mut(int cmd, variant *res)
     case SPELL_GAIN_MUT:
         msg_print("Your brain evolves into a living computer!");
         mut_lose(MUT_MORONIC);
+        mut_lose(MUT_PULTITIS);
         break;
     case SPELL_LOSE_MUT:
         msg_print("Your brain reverts to normal.");
@@ -1039,7 +1087,7 @@ void evasion_mut(int cmd, variant *res)
         var_set_string(res, "You can avoid being crushed by earthquakes and you dodge monster breath attacks.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You will dodge enemy breath attacks and have better odds for avoiding earthquakes.");
+        var_set_string(res, "Reduces damage from all enemy breath attacks, rockets and rocks by between 11% and 20%, and gives a 50% chance to avoid earthquakes.");
         break;
     default:
         default_spell(cmd, res);
@@ -1140,7 +1188,7 @@ void fantastic_frenzy_mut(int cmd, variant *res)
         var_set_string(res, "You have the power of Fantastic Frenzy.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You kill weak monsters more efficiently.");
+        var_set_string(res, "Saves the energy left over when a monster is killed in less than one turn, and also gives the power of Whirlwind Attack, which allows you to attack all adjacent monsters at a cost of 50 SP or HP.");
         break;
     default:
         massacre_spell(cmd, res);
@@ -1165,7 +1213,7 @@ void fast_learner_mut(int cmd, variant *res)
         var_set_string(res, "You are a fast learner.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You will gain a bonus to experience for each monster slain.");
+        var_set_string(res, "You gain 20% more experience for each monster slain.");
         break;
     default:
         default_spell(cmd, res);
@@ -1208,6 +1256,7 @@ void fearless_mut(int cmd, variant *res)
     case SPELL_GAIN_MUT:
         msg_print("You become completely fearless.");
         mut_lose(MUT_COWARDICE);
+        mut_lose(MUT_NO_INHIBITIONS);
         break;
     case SPELL_LOSE_MUT:
         msg_print("You begin to feel fear again.");
@@ -1241,10 +1290,10 @@ void fell_sorcery_mut(int cmd, variant *res)
         msg_print("You feel your magic return to normal.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "Your spells will grow more powerful.");
+        var_set_string(res, "Your spells will grow more powerful (+15% spellpower), at the cost of a slight penalty to your strength, dexterity and constitution.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->spell_power++;
+        p_ptr->spell_power += 2;
         break;
     default:
         default_spell(cmd, res);
@@ -1327,7 +1376,7 @@ void fleet_of_foot_mut(int cmd, variant *res)
         var_set_string(res, "You are fleet of foot (Movement costs less energy).");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "Movement costs less energy.");
+        var_set_string(res, "Walking costs 40% less energy.");
         break;
     default:
         default_spell(cmd, res);
@@ -1496,6 +1545,44 @@ void horns_mut(int cmd, variant *res)
     }
 }
 
+void hypochondria_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Acute Hypochondria");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You feel very worried about your health.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You no longer worry about your health.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are a hypochondriac.");
+        break;
+    case SPELL_PROCESS:
+        if (one_in_(1815))
+        {
+            if (one_in_(2))
+            {
+                disturb(0, 0);
+                msg_print("You feel incredibly worried!");
+                fear_add_p(FEAR_SCARED);
+            }
+            else
+            {
+                disturb(0, 0);
+                set_unwell(50, TRUE);
+            }
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 void illusion_normal_mut(int cmd, variant *res)
 {
     switch (cmd)
@@ -1511,6 +1598,28 @@ void illusion_normal_mut(int cmd, variant *res)
         break;
     case SPELL_MUT_DESC:
         var_set_string(res, "Your appearance is masked with illusion.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void impotence_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Impotence");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your magic device suddenly feels limp.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your magic device no longer feels limp.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are impotent.");
         break;
     default:
         default_spell(cmd, res);
@@ -1536,7 +1645,8 @@ void infernal_deal_mut(int cmd, variant *res)
         var_set_string(res, "You have made an infernal deal.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You will regain hp and sp whenever a nearby enemy monster is slain.");
+        if ((p_ptr->pclass == CLASS_RUNE_KNIGHT) || (p_ptr->pclass == CLASS_SAMURAI) || (p_ptr->pclass == CLASS_MYSTIC) || ((p_ptr->lev > 18) && (p_ptr->msp == 0))) var_set_string(res, "You will regain 15 HP whenever a nearby enemy monster is slain.");
+        else var_set_string(res, "You will regain 10 HP and 5 SP whenever a nearby enemy monster is slain.");
         break;
     default:
         default_spell(cmd, res);
@@ -1562,6 +1672,31 @@ void infravision_mut(int cmd, variant *res)
         break;
     case SPELL_CALC_BONUS:
         p_ptr->see_infra += 3;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void inspired_smithing_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Inspired Smithing");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You gain the ability to inspire smiths!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You can no longer inspire smiths.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your presence inspires smiths.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will receive better results from item reforging (10% average value improvement).");
         break;
     default:
         default_spell(cmd, res);
@@ -1641,7 +1776,7 @@ void loremaster_mut(int cmd, variant *res)
         var_set_string(res, "You are a Loremaster.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "Items will automatically identify as you pick them up.");
+        var_set_string(res, "Automatically identifies items as you pick them up.");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->auto_id = TRUE;
@@ -1712,6 +1847,7 @@ void moron_mut(int cmd, variant *res)
     case SPELL_GAIN_MUT:
         msg_print("Your brain withers away...");
         mut_lose(MUT_HYPER_INT);
+        mut_lose(MUT_PULTITIS);
         break;
     case SPELL_LOSE_MUT:
         msg_print("Your brain reverts to normal.");
@@ -1788,6 +1924,33 @@ void nausea_mut(int cmd, variant *res)
     }
 }
 
+void no_inhibitions_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "No Inhibitions");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You suddenly feel free to do anything.");
+        mut_lose(MUT_COWARDICE);
+        mut_lose(MUT_FEARLESS);
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You no longer feel incredibly free.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have no inhibitions.");
+        break;
+    case SPELL_CALC_BONUS:
+        res_add(RES_FEAR);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 void normality_mut(int cmd, variant *res)
 {
     switch (cmd)
@@ -1834,7 +1997,7 @@ void one_with_magic_mut(int cmd, variant *res)
         var_set_string(res, "You have a chance of resisting Dispel Magic and Antimagic.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You will have a chance of resisting Dispel Magic.");
+        var_set_string(res, "Gives a 77% chance to resist Antimagic and Dispel Magic (lower while polymorphed or in wraithform).");
         break;
     default:
         default_spell(cmd, res);
@@ -1887,7 +2050,7 @@ void peerless_tracker_mut(int cmd, variant *res)
         var_set_string(res, "Maps nearby area. Detects all monsters, traps, doors and stairs.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You will gain the ability to map your surroundings.");
+        var_set_string(res, "Gives the ability to map your surroundings and detect nearby monsters.");
         break;
     case SPELL_CAST:
     {
@@ -1950,7 +2113,7 @@ void potion_chugger_mut(int cmd, variant *res)
         var_set_string(res, "You chug potions faster than normal.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You will be able to chug potions much faster than normal.");
+        var_set_string(res, "Allows you to drink potions twice as fast.");
         break;
     default:
         default_spell(cmd, res);
@@ -2008,6 +2171,29 @@ void puny_mut(int cmd, variant *res)
         break;
     case SPELL_MUT_DESC:
         var_set_string(res, "You are puny (-4 STR).");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void purple_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Purple Patron");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("You attract the attention of a Purple!");
+        /* In case it isn't obvious, every character has a chaos deity assigned at birth. */
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You lose the attention of the Purples.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are the disciple of a Purple.");
         break;
     default:
         default_spell(cmd, res);
@@ -2202,7 +2388,7 @@ void sacred_vitality_mut(int cmd, variant *res)
         var_set_string(res, "You gain a bonus to all healing effects.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You will gain a bonus to all healing effects.");
+        var_set_string(res, "Gives a 20% bonus to all healing effects.");
         break;
     default:
         default_spell(cmd, res);
@@ -2266,6 +2452,32 @@ void scorpion_tail_mut(int cmd, variant *res)
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
         break;
     }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void sensitive_eyes_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Sensitive Eyes");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("Your eyes suddenly feel very sensitive.");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("Your eyes no longer feel sensitive.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Your eyes are very sensitive.");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->see_infra += 4;
+        res_add_vuln(RES_BLIND);
+        break;
     default:
         default_spell(cmd, res);
         break;
@@ -2372,13 +2584,19 @@ void speed_flux_mut(int cmd, variant *res)
                 if (p_ptr->fast > 0)
                     set_fast(0, TRUE);
                 else
-                    set_slow(randint1(30) + 10, FALSE);
+                {
+                    if ((!p_ptr->slow) && (one_in_(2))) set_slow(randint1(30) + 10, FALSE);
+                    else (void)p_inc_minislow(10);
+                }
             }
             else
             {
                 msg_print("You feel more energetic.");
-                if (p_ptr->slow > 0)
-                    set_slow(0, TRUE);
+                if ((p_ptr->slow > 0) || (p_ptr->minislow > 0))
+                {
+                    if (p_ptr->slow > 0) set_slow(0, TRUE);
+                    if (p_ptr->minislow > 0) (void)p_inc_minislow(-10);
+                }
                 else
                     set_fast(randint1(30) + 10, FALSE);
             }
@@ -2408,7 +2626,7 @@ void speed_reader_mut(int cmd, variant *res)
         var_set_string(res, "You read scrolls faster than normal.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You will be able to read scrolls much faster than normal.");
+        var_set_string(res, "Allows you to read scrolls twice as fast.");
         break;
     default:
         default_spell(cmd, res);
@@ -2546,7 +2764,7 @@ void tread_softly_mut(int cmd, variant *res)
         msg_print("You feel your stealth return to normal.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "Your stealth will increase.");
+        var_set_string(res, "Increases your stealth by 3.");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->skills.stl += 3;
@@ -2609,7 +2827,7 @@ void untouchable_mut(int cmd, variant *res)
         var_set_string(res, "You are untouchable and gain a bonus to AC.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You will gain a bonus to armor class.");
+        var_set_string(res, "Gives +20 to armor class.");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->to_a += 20;
@@ -2638,7 +2856,7 @@ void unyielding_mut(int cmd, variant *res)
         var_set_string(res, "You are unyielding and gain extra hp.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You will gain a bonus to hitpoints.");
+        var_set_string(res, "Gives a bonus to hit points (+1 HP per character level).");
         break;
     default:
         default_spell(cmd, res);
@@ -2819,6 +3037,31 @@ void wasting_mut(int cmd, variant *res)
     }
 }
 
+void waybread_into_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Waybread Intolerance");
+        break;
+    case SPELL_GAIN_MUT:
+        msg_print("The idea of lembas suddenly disgusts you!");
+        break;
+    case SPELL_LOSE_MUT:
+        msg_print("You are cured of your waybread intolerance.");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have a waybread intolerance.");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->levitation = TRUE;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 void weapon_skills_mut(int cmd, variant *res)
 {
     switch (cmd)
@@ -2836,7 +3079,7 @@ void weapon_skills_mut(int cmd, variant *res)
         var_set_string(res, "You may master any weapon.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You will be able to master any weapon.");
+        var_set_string(res, "Allows you to reach full proficiency with any weapon.");
         break;
     default:
         default_spell(cmd, res);
@@ -2898,7 +3141,7 @@ void weird_mind_mut(int cmd, variant *res)
         var_set_string(res, "Your weird mind is unaffected by the Eldritch Horror and Hallucination");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You resist the Eldritch Horror.");
+        var_set_string(res, "Protects your mind from hallucination and Eldritch Horrors.");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->no_eldritch = TRUE;

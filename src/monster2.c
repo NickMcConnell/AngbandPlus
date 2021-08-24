@@ -834,6 +834,17 @@ static bool summon_specific_aux(int r_idx)
     return mon_is_type(r_idx, summon_specific_type);
 }
 
+byte monster_pantheon(monster_race *r_ptr)
+{
+    int i;
+    if ((!r_ptr) || (!r_ptr->name)) return 0; /* paranoia */
+    for (i = 1; i < PANTHEON_MAX; i++)
+    {
+        if (r_ptr->flags3 & pant_list[i].flag) return i;
+    }
+    return 0;
+}
+
 bool mon_is_type(int r_idx, int type)
 {
     monster_race *r_ptr = &r_info[r_idx];
@@ -947,9 +958,17 @@ bool mon_is_type(int r_idx, int type)
     case SUMMON_AMBERITE:
         if (r_ptr->flags3 & (RF3_AMBERITE)) return TRUE;
         break;
-    case SUMMON_OLYMPIAN:
-        if (r_ptr->flags3 & (RF3_OLYMPIAN)) return TRUE;
+    case SUMMON_PANTHEON:
+    {
+        if ((!summon_pantheon_hack) || (summon_pantheon_hack >= PANTHEON_MAX))
+        { /* Paranoia - detect problem and summon uniques instead */
+            if (r_ptr->flags1 & RF1_UNIQUE) return TRUE;
+            break;
+        }
+        if (!(r_ptr->flags1 & RF1_UNIQUE)) return FALSE;
+        if (r_ptr->flags3 & (pant_list[summon_pantheon_hack].flag)) return TRUE;
         break;
+    }
     case SUMMON_HUMAN:
         if (r_ptr->flags2 & RF2_HUMAN) return TRUE;
         break;
@@ -1568,7 +1587,7 @@ s16b get_mon_num_aux(int level, int min_level, u32b options)
         if (table[i].level > level) break; /* Monsters are sorted by depth */
         table[i].prob3 = 0;
 
-        if (!_ignore_depth_hack && table[i].max_level < level) continue;
+        if (((!_ignore_depth_hack) || (table[i].max_level == 0)) && (table[i].max_level < level)) continue;
         if (table[i].level < min_level) continue;
 
         /* Hack: Sparing early unique monsters is no longer a viable end game strategy */
@@ -1596,10 +1615,18 @@ s16b get_mon_num_aux(int level, int min_level, u32b options)
         }
         else
         {
+            int mon_pant = 0;
             if ((r_ptr->flags2 & RF2_CAMELOT) && dungeon_type != DUNGEON_CAMELOT) continue;
             if ((r_ptr->flags2 & RF2_SOUTHERING) && dungeon_type != DUNGEON_HIDEOUT) continue;
-            if ((r_ptr->flags3 & RF3_OLYMPIAN) && dungeon_type != DUNGEON_OLYMPUS) continue;
-			if ((r_ptr->flags2 & RF2_FOREST) && dungeon_type != DUNGEON_WOOD) continue;
+            if ((r_ptr->flags2 & RF2_FOREST) && dungeon_type != DUNGEON_WOOD) continue;
+
+            /* Only generate Olympians in Mt. Olympus, etc. */
+            mon_pant = monster_pantheon(r_ptr);
+            if (mon_pant > 0)
+            {
+                if (!dungeon_type) continue;
+                if ((mon_pant != d_info[dungeon_type].pantheon) && ((d_info[dungeon_type].pantheon) || (!(r_ptr->flags3 & pant_list[mon_pant].flag2)))) continue; 
+            }
         }
 
         /* Hack: Some monsters are restricted from quests and summons */
@@ -1629,7 +1656,7 @@ s16b get_mon_num_aux(int level, int min_level, u32b options)
             }
 
             if ((options & GMN_NO_SUMMONERS) && (mon_race_can_summon(r_ptr, -1)) &&
-                (summon_specific_type != SUMMON_UNIQUE) && (summon_specific_type != SUMMON_KIN))
+                (summon_specific_type != SUMMON_UNIQUE) && (summon_specific_type != SUMMON_KIN)) continue;
 
             if ((r_ptr->flags7 & (RF7_UNIQUE2)) &&
                 (r_ptr->cur_num >= 1))
@@ -2208,12 +2235,19 @@ void sanity_blast(monster_type *m_ptr, bool necro)
         if (!(r_ptr->flags2 & RF2_ELDRITCH_HORROR))
             return; /* oops */
 
-
-
         if (is_pet(m_ptr))
             return; /* Pet eldritch horrors are safe most of the time */
 
+        if (is_friendly(m_ptr))
+            return; /* Ditto friendly eldritch horrors */
+
         if (randint1(100) > power) return;
+
+        if (m_ptr->mflag2 & MFLAG2_HORROR) 
+        {
+            /* Avoid having the same monster trigger Eldritch Horror too often */
+            if (!one_in_(5)) return;
+        }
 
         if (saving_throw(p_ptr->skills.sav - power))
         {
@@ -2252,6 +2286,7 @@ void sanity_blast(monster_type *m_ptr, bool necro)
         {
             if (saving_throw(25 + p_ptr->lev)) return;
         }
+        m_ptr->mflag2 |= MFLAG2_HORROR;
     }
     else
     {
@@ -3518,12 +3553,25 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
     m_ptr->ac_adj = 0;
     m_ptr->mpower = 1000;
 
+    /* Discourage level repetitions in coffee-break mode */
+    if ((coffee_break) && (m_ptr->r_idx == MON_SERPENT) && (p_ptr->coffee_lv_revisits))
+    {
+        m_ptr->mpower += MIN(600, p_ptr->coffee_lv_revisits * 15);
+        m_ptr->mspeed += MIN(30, p_ptr->coffee_lv_revisits / 2);
+    }
+
     if (mode & PM_HASTE) (void)set_monster_fast(c_ptr->m_idx, 100);
 
     /* Give a random starting energy */
     if (!ironman_nightmare)
     {
         m_ptr->energy_need = ENERGY_NEED() - (s16b)randint0(100);
+        if (who) m_ptr->energy_need = MAX(25, m_ptr->energy_need);
+        if (very_nice_summon_hack)
+        {
+            m_ptr->energy_need = MIN(184, MAX(88, p_ptr->energy_need + (m_ptr->mspeed * 8 / 7) + 123 - (MIN(144, p_ptr->pspeed)))); /* yes, really */
+            predictable_energy_hack = TRUE;
+        }
     }
     else
     {

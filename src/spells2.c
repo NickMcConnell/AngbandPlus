@@ -2012,13 +2012,14 @@ void aggravate_monsters(int who)
                 (void)set_monster_csleep(i, 0);
                 sleep = TRUE;
             }
-            if (!is_pet(m_ptr)) m_ptr->mflag2 |= MFLAG2_NOPET;
+            if ((is_hostile(m_ptr)) && ((who < 0) || (!p_ptr->uimapuku) ||
+                ((one_in_((r_info[m_ptr->r_idx].max_num == 1) ? 33 : 9))))) m_ptr->mflag2 |= MFLAG2_NOPET;
         }
 
         /* Speed up monsters in line of sight */
         if (player_has_los_bold(m_ptr->fy, m_ptr->fx))
         {
-            if (!is_pet(m_ptr))
+            if (is_hostile(m_ptr))
             {
                 (void)set_monster_fast(i, MON_FAST(m_ptr) + 100);
                 speed = TRUE;
@@ -2298,7 +2299,7 @@ bool destroy_area(int y1, int x1, int r, int power)
             c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
 
             /* Lose light and knowledge */
-            c_ptr->info &= ~(CAVE_MARK | CAVE_GLOW);
+            if (!cave_perma_grid(c_ptr)) c_ptr->info &= ~(CAVE_MARK | CAVE_GLOW);
 
             if (!in_generate) /* Normal */
             {
@@ -4688,7 +4689,7 @@ bool rush_attack(int rng, bool *mdeath)
         }
 
         /* Move player before updating the monster */
-        if (!player_bold(ty, tx)) teleport_player_to(ty, tx, TELEPORT_NONMAGICAL);
+        if (!player_bold(ty, tx)) teleport_player_to(ty, tx, TELEPORT_NONMAGICAL | TELEPORT_RUSH_ATTACK);
 
         /* Update the monster */
         update_mon(cave[ny][nx].m_idx, TRUE);
@@ -4710,14 +4711,14 @@ bool rush_attack(int rng, bool *mdeath)
             msg_format("You quickly jump in and attack %s!", m_name);
         }
 
-        if (!player_bold(ty, tx)) teleport_player_to(ty, tx, TELEPORT_NONMAGICAL);
+        if (!player_bold(ty, tx)) teleport_player_to(ty, tx, TELEPORT_NONMAGICAL | TELEPORT_RUSH_ATTACK);
         moved = TRUE;
         tmp_mdeath = py_attack(ny, nx, HISSATSU_NYUSIN);
 
         break;
     }
 
-    if (!moved && !player_bold(ty, tx)) teleport_player_to(ty, tx, TELEPORT_NONMAGICAL);
+    if (!moved && !player_bold(ty, tx)) teleport_player_to(ty, tx, TELEPORT_NONMAGICAL | TELEPORT_RUSH_ATTACK);
     if (!dun_level && !p_ptr->wild_mode && !p_ptr->inside_arena && !p_ptr->inside_battle)
     {
         wilderness_scroll_lock = FALSE;

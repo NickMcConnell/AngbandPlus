@@ -94,7 +94,7 @@ N:21:55:Doom Quest II (Angwil)
 T:TOWN | GENERATE
 F:q_doom2.txt
 
-N:22:18:The Orc Camp (Anambar)
+N:22:20:The Orc Camp (Anambar)
 T:TOWN | GENERATE
 F:q_orcs.txt
 
@@ -240,7 +240,8 @@ N:55:50:The Underground City (Morivant)
 T:TOWN | GENERATE
 F:q_underground.txt
 
-N:60:25:Clear the Tunnels (Anambar)
+# hardcoded as quest 60 in obj.c
+N:60:27:Clear the Tunnels (Anambar)
 T:TOWN | GENERATE
 F:q_tunnels.txt
 

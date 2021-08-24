@@ -198,6 +198,9 @@ static bool _stats_changed = FALSE;
 
 static int _welcome_ui(void)
 {
+    /* Mega-Hack */
+    werewolf_init();
+
     for (;;)
     {
         int cmd;
@@ -684,10 +687,10 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
         {RACE_CYCLOPS, RACE_HALF_GIANT, RACE_OGRE, RACE_HALF_ORC,
          RACE_HALF_TITAN, RACE_HALF_TROLL, RACE_KOBOLD, RACE_SNOTLING, -1} },
     { "Undead",
-        {RACE_SKELETON, RACE_SPECTRE, RACE_VAMPIRE, RACE_ZOMBIE, -1} },
+        {RACE_EINHERI, RACE_SKELETON, RACE_SPECTRE, RACE_VAMPIRE, RACE_ZOMBIE, -1} },
     { "Other",
         {RACE_ANDROID, RACE_BEASTMAN, RACE_CENTAUR, RACE_DRACONIAN, RACE_DOPPELGANGER, RACE_ENT,
-         RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_TONBERRY, RACE_YEEK,-1 } },
+         RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_TONBERRY, RACE_WEREWOLF, RACE_YEEK,-1 } },
 };
 
 static void _race_group_ui(void)
@@ -2034,9 +2037,14 @@ static void _stats_init(void)
         }
         case RACE_MON_LICH:
         case RACE_MON_BEHOLDER:
-        case RACE_MON_RING:
         {
             int stats[6] = { 16, 17, 9, 9, 16, 9 };
+            _stats_init_aux(stats);
+            break;
+        }
+        case RACE_MON_RING:
+        {
+            int stats[6] = { 11, 17, 10, 10, 16, 15 };
             _stats_init_aux(stats);
             break;
         }
@@ -2799,7 +2807,7 @@ static void _birth_finalize(void)
 
     /* Other Initialization */
     if (game_mode == GAME_MODE_BEGINNER)
-        no_wilderness = TRUE;
+        coffee_break = TRUE;
 
     if (coffee_break)
     {

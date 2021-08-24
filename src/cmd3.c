@@ -32,6 +32,7 @@ void do_cmd_drop(void)
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_EQUIP;
     prompt.where[2] = INV_QUIVER;
+    obj_prompt_add_special_packs(&prompt);
 
     obj_prompt(&prompt);
     if (!prompt.obj) return;
@@ -48,6 +49,9 @@ void do_cmd_drop(void)
         break;
     case INV_QUIVER:
         quiver_drop(prompt.obj);
+        break;
+    case INV_SPECIAL1:
+        special1_drop(prompt.obj);
         break;
     }
 }
@@ -106,6 +110,7 @@ static bool _lite_is_darkness(object_type *lite)
  */
 static void do_cmd_refill_lamp(object_type *lantern)
 {
+    bool check_id = FALSE;
     obj_prompt_t prompt = {0};
 
     prompt.prompt = "Refill with which flask?";
@@ -124,17 +129,26 @@ static void do_cmd_refill_lamp(object_type *lantern)
     {
         lantern->xtra4 = 0;
         msg_print("Your lamp has gone out!");
+        check_id = TRUE;
     }
     else if (_lite_is_darkness(prompt.obj) || _lite_is_darkness(lantern))
     {
         lantern->xtra4 = 0;
         msg_print("Curiously, your lamp doesn't light.");
+        check_id = TRUE;        
     }
     else if (lantern->xtra4 >= FUEL_LAMP)
     {
         lantern->xtra4 = FUEL_LAMP;
         msg_print("Your lamp is full.");
+        
+        /* If the lamp is average, we now know it */ 
+        check_id = TRUE;
     }
+
+    if ((check_id) && (!obj_is_identified(lantern)) && (lantern->ident & IDENT_SENSE)
+       && (lantern->feeling == FEEL_AVERAGE))
+    identify_item(lantern);
 
     prompt.obj->number--;
     obj_release(prompt.obj, 0);
@@ -1121,7 +1135,7 @@ static void _mon_display_probe(doc_ptr doc, int m_idx)
 
     speed = m_ptr->mspeed - 110;
     if (MON_FAST(m_ptr)) speed += 10;
-    if (MON_SLOW(m_ptr)) speed -= 10;
+    speed -= monster_slow(m_ptr);
     if (p_ptr->filibuster) speed -= SPEED_ADJ_FILIBUSTER;
     if (m_ptr->nickname)
         doc_printf(doc, "Name : <color:R>%13s</color>\n", quark_str(m_ptr->nickname));
@@ -1370,8 +1384,7 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
                 {
                     health_track(info_ptr->m_idx);
                     target_who = info_ptr->m_idx;
-                    target_row = m_list[info_ptr->m_idx].fy;
-                    target_col = m_list[info_ptr->m_idx].fx;
+                    target_grab(m_list[info_ptr->m_idx].fy, m_list[info_ptr->m_idx].fx);
                     p_ptr->redraw |= PR_HEALTH_BARS;
                     p_ptr->window |= PW_MONSTER_LIST;
                     done = TRUE; /* Building a better target command :) */
@@ -1769,6 +1782,11 @@ static _obj_list_ptr _create_obj_list(void)
         info->group = _GROUP_FEATURE;
         info->subgroup = _SUBGROUP_HEADER;
         info->count = list->ct_feature;
+        vec_add(list->list, info);
+
+        info = _obj_list_info_alloc();
+        info->group = _GROUP_FEATURE;
+        info->subgroup = _SUBGROUP_FOOTER;
         vec_add(list->list, info);
     }
     vec_sort(list->list, (vec_cmp_f)_obj_list_comp);

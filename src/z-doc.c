@@ -8,20 +8,6 @@
 
 #define _INVALID_COLOR 255
 
-struct doc_s
-{
-    doc_pos_t      cursor;
-    doc_region_t   selection;
-    int            width;
-    vec_ptr        pages;
-    str_map_ptr    styles;
-    vec_ptr        bookmarks;
-    int_map_ptr    links;
-    vec_ptr        style_stack;
-    string_ptr     name;
-    string_ptr     html_header;
-};
-
 doc_pos_t doc_pos_create(int x, int y)
 {
     doc_pos_t result;
@@ -760,6 +746,7 @@ static void _doc_process_var(doc_ptr doc, cptr name)
     {
         string_ptr s = string_alloc_format("%d.%d.%s", VER_MAJOR, VER_MINOR, VER_PATCH);
         if (coffee_break) string_append_s(s, "<color:U> (Coffee)</color>");
+        if (VERSION_IS_DEVELOPMENT) string_append_s(s, "<color:B> (Development)</color>");
         if ((VER_MINOR == 0) && (VER_MAJOR != 7)) string_append_s(s, "<color:r> (Beta)</color>");
         doc_insert(doc, string_buffer(s));
         string_free(s);

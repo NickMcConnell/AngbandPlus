@@ -151,6 +151,9 @@ static gf_info_t _gf_tbl[GF_COUNT] = {
     { GF_DRAINING_TOUCH, "Draining Touch", TERM_L_DARK, RES_INVALID, "DRAINING_TOUCH" },
     { GF_DEATH_TOUCH, "Touch of Death", TERM_L_DARK, RES_INVALID, "DEATH_TOUCH" },
     { GF_STEAL, "Steal", TERM_WHITE, RES_INVALID, "STEAL" },
+
+    /* New */
+    { GF_SLOW, "Slow", TERM_ORANGE, RES_INVALID, "SLOW" },
 };
 
 typedef struct {
@@ -167,7 +170,7 @@ static _alias_t _aliases[] = {
     { "PULVERISE", GF_TELEKINESIS },
     { "TERRIFY", GF_TURN_ALL },
     { "POLYMORPH", GF_OLD_POLY },
-    { "SLOW", GF_OLD_SLOW },
+    { "BIG_SLOW", GF_OLD_SLOW },
     { "SLEEP", GF_OLD_SLEEP },
     { 0 }
 };
@@ -266,6 +269,17 @@ static bool _failed_charm_nopet_chance(mon_ptr mon)
     if ((one_in_((p_ptr->spin > 0) ? 10 : 5)) && (!p_ptr->uimapuku) && (!is_friendly(mon))) return TRUE;
     return FALSE;
 }
+
+bool player_obviously_poly_immune(void)
+{
+    if (prace_is_(RACE_ANDROID)
+       || p_ptr->pclass == CLASS_MONSTER
+       || p_ptr->prace == RACE_DOPPELGANGER
+       || p_ptr->prace == RACE_WEREWOLF)
+       return TRUE;
+    return FALSE;
+}
+
 int gf_affect_p(int who, int type, int dam, int flags)
 {
     int          result = 0;
@@ -628,10 +642,22 @@ int gf_affect_p(int who, int type, int dam, int flags)
         update_smart_learn(who, RES_SHARDS);
         break;
     case GF_INERT:
-        if (!touch && fuzzy) msg_print("You are hit by something slow!");
+        if (touch) msg_print("You are <color:W>decelerated</color>!");
+        else if (fuzzy) msg_print("You are hit by something slow!");
         /*if (touch) ... */
-        if (!CHECK_MULTISHADOW() && !free_act_save_p(MAX(rlev, dam)))
-            set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
+        if (!CHECK_MULTISHADOW())
+        {
+            if (!free_act_save_p(MAX(rlev, dam)))
+                (void)p_inc_minislow(5);
+            else (void)p_inc_minislow(1);
+        }
+        result = take_hit(damage_type, dam, m_name);
+        break;
+    case GF_SLOW:
+        if (touch) msg_print("You are <color:W>slowed</color>!");
+        else if (fuzzy) msg_print("You are hit by something exhausting!");
+        if (!CHECK_MULTISHADOW())
+            (void)p_inc_minislow(1);
         result = take_hit(damage_type, dam, m_name);
         break;
     case GF_LITE:
@@ -747,7 +773,8 @@ int gf_affect_p(int who, int type, int dam, int flags)
         result = take_hit(damage_type, dam, m_name);
         break;
     case GF_GRAVITY:
-        if (!touch && fuzzy) msg_print("You are hit by something heavy!");
+        if (touch) msg_print("You are <color:W>warped</color>!");
+        else if (fuzzy) msg_print("You are hit by something heavy!");
         /*if (touch) ... */
         msg_print("Gravity warps around you.");
         if (!CHECK_MULTISHADOW())
@@ -1078,9 +1105,7 @@ int gf_affect_p(int who, int type, int dam, int flags)
         }
         break;
     case GF_OLD_POLY:
-        if ( prace_is_(RACE_ANDROID)
-          || p_ptr->pclass == CLASS_MONSTER
-          || p_ptr->prace == RACE_DOPPELGANGER
+        if ( player_obviously_poly_immune()
           || mut_present(MUT_DRACONIAN_METAMORPHOSIS) )
         {
             if (flags & GF_AFFECT_SPELL)
@@ -1122,6 +1147,7 @@ int gf_affect_p(int who, int type, int dam, int flags)
                       && which != RACE_DEMIGOD
                       && which != RACE_DRACONIAN
                       && which != RACE_ANDROID
+                      && which != RACE_WEREWOLF
                       && p_ptr->prace != which
                       && !(get_race_aux(which, 0)->flags & RACE_IS_MONSTER) )
                     {
@@ -1730,6 +1756,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
             do_stun = mon_stun_amount(dam);
         break;
     case GF_INERT:
+        if (touch && seen_msg) msg_format("%^s is <color:W>decelerated</color>!", m_name);
         if (seen) obvious = TRUE;
         _BABBLE_HACK()
         if (race->flagsr & RFR_RES_INER)
@@ -1748,9 +1775,28 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                 obvious = FALSE;
             }
             /* Normal monsters slow down */
-            else if (set_monster_slow(mon->id, MON_SLOW(mon) + 50))
+            else if (m_inc_minislow(mon, 5))
                 note = " starts moving slower.";
         }
+        break;
+    case GF_SLOW:
+        if (touch && seen_msg) msg_format("%^s is <color:W>slowed</color>!", m_name);
+        if (seen) obvious = TRUE;
+        _BABBLE_HACK()
+        if (race->flagsr & RFR_RES_INER)
+        {
+            note = " resists.";
+
+            dam *= 3; dam /= randint1(6) + 6;
+            mon_lore_r(mon, RFR_RES_INER);
+        }
+        else if ((race->flags1 & (RF1_UNIQUE)) || (race->flags7 & (RF7_NAZGUL)) ||
+                 (randint1(race->level) > randint1(MAX(62, dam))))
+        {
+            obvious = FALSE;
+        }
+        else if (m_inc_minislow(mon, 1))
+            note = " starts moving slower.";
         break;
     case GF_TIME:
         if (touch && seen_msg) msg_format("%^s is <color:B>chronosmashed</color>!", m_name);
@@ -1822,7 +1868,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                     if (!unique)
                     {
                         note = " is suspended!";
-                        do_paralyzed = 5;
+                        do_paralyzed = 3;
                     }
                     else
                     {
@@ -1866,6 +1912,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
     case GF_GRAVITY: {
         bool resist_tele = FALSE;
 
+        if (touch && seen_msg && type == GF_GRAVITY) msg_format("%^s is <color:W>warped</color>!", m_name);
         if (seen) obvious = TRUE;
         _BABBLE_HACK()
         if (race->flagsr & RFR_RES_TELE)
@@ -1973,7 +2020,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         {
             int mult = 1;
 
-            do_stun = mon_stun_amount(dam);
+            do_stun = mon_stun_amount(dam * 2 / 3);
             if (race->flags1 & RF1_UNIQUE)
                 mult++;
 
@@ -1988,12 +2035,14 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
             switch (randint1(3))
             {
                 case 1:
-                    do_conf = 3 + randint1(dam);
+                    do_conf = (race->flags3 & RF3_NO_CONF) ? 2 : 3 + randint1((dam + 9) / 10);
                     break;
                 case 2:
+                    if ((race->flags3 & RF3_NO_FEAR) && (one_in_(2))) break;
                     do_fear = 3 + randint1(dam);
                     break;
                 case 3:
+                    if ((race->flags3 & RF3_NO_SLEEP) && (one_in_(2))) break;
                     note = " falls asleep!";
                     do_sleep = 3 + randint1(dam);
                     break;
@@ -2582,7 +2631,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         else
         {
             note = " is suspended!";
-            do_paralyzed = 5;
+            do_paralyzed = 3;
         }
         dam = 0;
         break;
@@ -2612,7 +2661,8 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         else
         {
             note = " is suspended!";
-            do_paralyzed = 3;
+            do_paralyzed = 2;
+            if (one_in_(15)) do_paralyzed++;
         }
         dam = 0;
         break;
@@ -3540,7 +3590,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                 mon_lore_3(mon, RF3_NO_STUN);
             else
                 do_stun = 2*dam;
-            set_monster_slow(mon->id, MON_SLOW(mon) + 2*dam);
+            m_inc_minislow(mon, dam);
             dam = 0;
         }
         break;
@@ -3864,7 +3914,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
             {
                 /* Go to sleep (much) later */
                 note = " falls asleep!";
-                do_paralyzed = 5;
+                do_paralyzed = 3;
             }
         }
 

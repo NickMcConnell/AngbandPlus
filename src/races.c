@@ -109,6 +109,9 @@ race_t *get_race_aux(int prace, int psubrace)
     case RACE_DWARF:
         result = dwarf_get_race();
         break;
+    case RACE_EINHERI:
+        result = einheri_get_race();
+        break;
     case RACE_ENT:
         result = ent_get_race();
         break;
@@ -247,11 +250,14 @@ race_t *get_race_aux(int prace, int psubrace)
     case RACE_TONBERRY:
         result = tonberry_get_race();
         break;
-    case RACE_WOOD_ELF:
-        result = wood_elf_get_race();
-        break;
     case RACE_VAMPIRE:
         result = vampire_get_race();
+        break;
+    case RACE_WEREWOLF:
+        result = werewolf_get_race();
+        break;
+    case RACE_WOOD_ELF:
+        result = wood_elf_get_race();
         break;
     case RACE_YEEK:
         result = yeek_get_race();

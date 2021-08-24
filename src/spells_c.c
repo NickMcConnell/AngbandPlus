@@ -279,11 +279,11 @@ void confusing_lights_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         msg_print("You glare nearby monsters with a dazzling array of confusing lights!");
-        slow_monsters(p_ptr->lev * 4);
+        slow_monsters(p_ptr->lev * 3);
         stun_monsters(5 + p_ptr->lev/5);
-        confuse_monsters(p_ptr->lev * 4);
-        turn_monsters(p_ptr->lev * 4);
-        stasis_monsters(p_ptr->lev * 3 / 2);
+        confuse_monsters(p_ptr->lev * 3);
+        turn_monsters(p_ptr->lev * 3);
+        stasis_monsters(p_ptr->lev);
         var_set_bool(res, TRUE);
         break;
     default:

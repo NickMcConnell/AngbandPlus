@@ -17,6 +17,8 @@
 #define REWARD_CHANCE 10
 #define OLYMPIAN_CHANCE 20 /* Olympians are now a bit easier */
 
+static bool old_target_never_okay = FALSE;
+
  /* Experience required to advance from level to level + 1
     Note the table is off by 1, so we encapsulate that fact.
     (e.g. table[0] gives xp needed to go from L1 to L2!)
@@ -529,6 +531,8 @@ byte get_monster_drop_ct(monster_type *m_ptr)
         int cap = 600;
         if (r_ptr->flags1 & RF1_ONLY_GOLD)
             cap = 200; /* About 110k gp at DL21 */
+        if (no_selling) cap /= 2; /* Gold drops are bigger with no_selling */
+        if (coffee_break) cap /= 2; /* More drops in coffee_break mode */
         if (r_ptr->r_akills > cap)
             number = 0;
     }
@@ -547,6 +551,9 @@ byte get_monster_drop_ct(monster_type *m_ptr)
                 max_kills = 100;
             else if (pr_ptr->d_char == 'Q')
                 max_kills = 100;
+
+            if ((no_selling) && (r_ptr->flags1 & RF1_ONLY_GOLD)) max_kills /= 2;
+            if (coffee_break) max_kills /=2;
 
             if (pr_ptr->r_skills > max_kills)
                 number = 0;
@@ -736,13 +743,13 @@ static bool _kind_is_utility(int k_idx)
         case SV_SCROLL_TELEPORT:
         case SV_SCROLL_PHASE_DOOR:
         case SV_SCROLL_WORD_OF_RECALL:
-        case SV_SCROLL_IDENTIFY:
         case SV_SCROLL_REMOVE_CURSE:
         case SV_SCROLL_STAR_REMOVE_CURSE:
         case SV_SCROLL_MAPPING:
         /* case SV_SCROLL_PROTECTION_FROM_EVIL: XXX This was a bad idea! */
         case SV_SCROLL_DETECT_MONSTERS:
             return TRUE;
+        case SV_SCROLL_IDENTIFY:
         case SV_SCROLL_STAR_IDENTIFY:
 			return easy_id ? FALSE : TRUE;
         }
@@ -753,7 +760,7 @@ static bool _kind_is_utility(int k_idx)
         {
         case SV_POTION_SPEED:
         case SV_POTION_THERMAL:
-        case SV_POTION_RESIST_ELEC:
+        case SV_POTION_VIGOR:
         case SV_POTION_RESISTANCE:
         case SV_POTION_HEROISM:
         case SV_POTION_CURE_SERIOUS:
@@ -853,13 +860,16 @@ void monster_death(int m_idx, bool drop_item)
     {
         if (r_ptr->blows[i].method == RBM_EXPLODE)
         {
-            int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-            int typ = r_ptr->blows[i].effects[0].effect;
-            int d_dice = r_ptr->blows[i].effects[0].dd;
-            int d_side = r_ptr->blows[i].effects[0].ds;
-            int damage = damroll(d_dice, d_side);
+            for (j = 0; ((j < MAX_MON_BLOW_EFFECTS) && (r_ptr->blows[i].effects[j].effect)); j++)
+            {
+                int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+                int typ = r_ptr->blows[i].effects[j].effect;
+                int d_dice = r_ptr->blows[i].effects[j].dd;
+                int d_side = r_ptr->blows[i].effects[j].ds;
+                int damage = damroll(d_dice, d_side);
 
-            project(m_idx, 3, y, x, damage, typ, flg);
+                project(m_idx, 3, y, x, damage, typ, flg);
+            }
             break;
         }
     }
@@ -1090,6 +1100,22 @@ void monster_death(int m_idx, bool drop_item)
 
             object_origins(q_ptr, ORIGIN_DROP);
             q_ptr->origin_xtra = MON_BLOODLETTER;
+
+            /* Drop it in the dungeon */
+            (void)drop_near(q_ptr, -1, y, x);
+        }
+        break;
+
+    case MON_OSIRIS:
+        if (drop_chosen_item)
+        {
+            /* Get local object */
+            q_ptr = &forge;
+
+            object_prep(q_ptr, lookup_kind(TV_POTION, SV_POTION_NEW_LIFE));
+
+            object_origins(q_ptr, ORIGIN_DROP);
+            q_ptr->origin_xtra = MON_OSIRIS;
 
             /* Drop it in the dungeon */
             (void)drop_near(q_ptr, -1, y, x);
@@ -1823,6 +1849,14 @@ void monster_death(int m_idx, bool drop_item)
             else
                 chance = 5;
             break;
+        case MON_KUNDRY:
+            a_idx = ART_KUNDRY;
+            chance = 12;
+            break;
+        case MON_AMUN:
+            a_idx = ART_AMUN;
+            chance = 100;
+            break;
         case MON_CARCHAROTH:
             a_idx = ART_CARCHAROTH;
             chance = 5;
@@ -2124,6 +2158,17 @@ int mon_damage_mod_mon(monster_type *m_ptr, int dam, bool is_psy_spear)
     return (dam);
 }
 
+int divide_exp_by(int kills)
+{
+    if (coffee_break) kills *= 2;
+    return MAX(2, MIN(1000, (kills - 37) / 21));
+}
+
+static void _adjust_kill_exp(s32b *new_exp, u32b *new_exp_frac, int kills)
+{
+    s64b_mul(new_exp, new_exp_frac, 0, 2);
+    s64b_div(new_exp, new_exp_frac, 0, divide_exp_by(kills));
+}
 
 /*
  * Calculate experience point to be get
@@ -2169,10 +2214,14 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
     else
         s64b_mul(&div_h, &div_l, 0, r_ptr->hdice * (ironman_nightmare ? 2 : 1) * r_ptr->hside * 2);
 
-    /* Do division first to prevent overflaw */
+    /* Do division first to prevent overflow */
     s64b_div(&new_exp, &new_exp_frac, div_h, div_l);
 
-    /* Special penalty for mutiply-monster    */
+    /* Limit exp gain after the 99th kill */
+    if (r_ptr->r_akills > (coffee_break ? 49 : 99))
+    {
+        _adjust_kill_exp(&new_exp, &new_exp_frac, r_ptr->r_akills);
+    }
     if ((r_ptr->flags2 & RF2_MULTIPLY) || (m_ptr->r_idx == MON_DAWN))
     {
         int biff = r_ptr->r_akills / 400;
@@ -2284,7 +2333,7 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
         if (p_ptr->lev < 50)
         {
            coffee_mult = 3;
-           if (!(r_ptr->flags2 & RF2_MULTIPLY)) coffee_mult = (((p_ptr->lev / 10) == 1) || ((p_ptr->lev >= 38) && (p_ptr->max_max_exp < 2239530L))) ? 7 : 8;
+           if (!(r_ptr->flags2 & RF2_MULTIPLY)) coffee_mult = (((p_ptr->lev / 10) == 1) || ((p_ptr->lev >= 38))) ? 7 : 8;
         }
         s64b_mul(&new_exp, &new_exp_frac, 0, coffee_mult);
     }
@@ -2582,11 +2631,14 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
             curse_equipment(100, 50);
 
+            very_nice_summon_hack = TRUE;
+
             do
             {
                 stop_ty = activate_ty_curse(stop_ty, &count);
             }
             while (--curses);
+            very_nice_summon_hack = FALSE;
         }
 
         if (r_ptr->flags2 & RF2_CAN_SPEAK)
@@ -3217,7 +3269,22 @@ bool target_able_aux(int m_idx, int mode)
  *
  * We return TRUE if the target is "okay" and FALSE otherwise.
  */
-bool old_target_okay(void) { return (use_old_target && !p_ptr->confused && target_okay_aux(TARGET_KILL)); }
+bool old_target_okay_mode(int mode)
+{
+    if (!use_old_target) return FALSE;
+    if (p_ptr->confused) return FALSE;
+    if (old_target_never_okay) return FALSE;
+    if (!target_okay_aux(mode)) return FALSE;
+    return TRUE;
+}
+void target_grab(int y, int x)
+{
+    target_row = y;
+    target_col = x;
+    old_target_never_okay = FALSE;
+    if ((y == py) && (x == px) && (p_ptr->riding)) old_target_never_okay = TRUE;
+}
+bool old_target_okay(void) { return old_target_okay_mode(TARGET_KILL); }
 bool target_okay(void) { return target_okay_aux(TARGET_KILL); }
 bool target_okay_aux(int mode)
 {
@@ -3228,15 +3295,13 @@ bool target_okay_aux(int mode)
 
     /* Check moving targets */
     if (target_who > 0)
-    {
+    {        
         /* Accept reasonable targets */
         if (target_able_aux(target_who, mode))
         {
             monster_type *m_ptr = &m_list[target_who];
 
-            /* Acquire monster location */
-            target_row = m_ptr->fy;
-            target_col = m_ptr->fx;
+            target_grab(m_ptr->fy, m_ptr->fx);
 
             /* Good target */
             return (TRUE);
@@ -4138,8 +4203,7 @@ bool target_set(int mode)
                     {
                         health_track(c_ptr->m_idx);
                         target_who = c_ptr->m_idx;
-                        target_row = y;
-                        target_col = x;
+                        target_grab(y, x);
                         done = TRUE;
                     }
                     else
@@ -4377,8 +4441,7 @@ bool target_set(int mode)
                         target_who = c_ptr->m_idx;
                     else
                         target_who = -1;
-                    target_row = y;
-                    target_col = x;
+                    target_grab(y, x);
                     done = TRUE;
                 }
                 else
@@ -4555,7 +4618,7 @@ bool target_set(int mode)
 bool get_fire_dir(int *dp) { return get_fire_dir_aux(dp, TARGET_KILL); }
 bool get_fire_dir_aux(int *dp, int target_mode)
 {
-	if (use_old_target && !p_ptr->confused && target_okay_aux(target_mode)) {
+	if (old_target_okay_mode(target_mode)) {
 		*dp = 5;
 		p_ptr->redraw |= PR_HEALTH_BARS;
 		return TRUE;
@@ -4581,8 +4644,7 @@ bool get_fire_dir_aux(int *dp, int target_mode)
         if (best_m_idx)
         {
             target_who = best_m_idx;
-            target_row = m_list[best_m_idx].fy;
-            target_col = m_list[best_m_idx].fx;
+            target_grab(m_list[best_m_idx].fy, m_list[best_m_idx].fx);
             *dp = 5;
             p_ptr->redraw |= PR_HEALTH_BARS;
             return TRUE;
@@ -4616,7 +4678,7 @@ bool get_aim_dir_aux(int *dp, int target_mode)
         /* Confusion? */
 
         /* Verify */
-        if (!(*dp == 5 && !target_okay_aux(target_mode)))
+        if (!((*dp == 5) && ((!target_okay_aux(target_mode)) || (old_target_never_okay))))
         {
 /*            return (TRUE); */
             dir = *dp;
@@ -4681,7 +4743,7 @@ bool get_aim_dir_aux(int *dp, int target_mode)
         }
 
         /* Verify requested targets */
-        if ((dir == 5) && !target_okay_aux(target_mode)) dir = 0;
+        if ((dir == 5) && (!target_okay_aux(target_mode))) dir = 0;
 
         /* Error */
         if (!dir) bell();

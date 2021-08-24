@@ -173,6 +173,9 @@ int total_friends = 0;
 s32b friend_align = 0;
 
 bool reinit_wilderness = FALSE;
+bool quest_reward_drop_hack = FALSE;
+bool very_nice_summon_hack = FALSE;
+bool predictable_energy_hack = FALSE;
 
 int current_flow_depth = 0;
 
@@ -277,6 +280,7 @@ bool allow_debug_opts;    /* Allow use of debug/cheat options */
 
 bool find_ignore_stairs;    /* Run past stairs */
 bool find_ignore_doors;    /* Run through open doors */
+bool find_ignore_veins;  /* Run past gold veins */
 bool find_cut;    /* Run past known corners */
 bool check_abort;    /* Check for user abort while continuous command */
 bool flush_failure;    /* Flush input on various failures */
@@ -292,7 +296,8 @@ bool town_no_disturb;
 bool ring_bell;    /* Audible bell (on errors, etc) */
 bool disturb_trap_detect;    /* Disturb when leaving trap detected area */
 bool alert_trap_detect;    /* Alert when leaving trap detected area */
-
+bool alert_device_gone;  /* Alert when device is destroyed or stolen */
+bool alert_insc_gone;    /* Alert when inscribed item is destroyed or stolen */
 
 /*** Birth Options ***/
 
@@ -316,6 +321,8 @@ bool allow_pets; /* Allow pets: Note, this makes some classes unplayable. */
 bool quest_unique; /* Random quests for unique monsters only */
 bool random_artifacts;
 byte random_artifact_pct = 100;
+bool single_pantheon; /* Only use one pantheon */
+byte game_pantheon = 0;
 bool no_artifacts;
 bool no_egos;
 bool no_selling;
@@ -340,7 +347,7 @@ bool leave_wanted;    /* Auto-destroyer leaves wanted corpses */
 bool leave_corpse;    /* Auto-destroyer leaves corpses and skeletons */
 bool leave_junk;    /* Auto-destroyer leaves junk */
 bool leave_special;    /* Auto-destroyer leaves items your race/class needs */
-
+bool no_mogaminator;   /* Deactivate the Mogaminator */
 
 
 /* Cheating options */
@@ -1170,3 +1177,15 @@ travel_type travel;
 
 /* for snipers */
 bool reset_concent = FALSE;   /* Concentration reset flag */
+
+/* Initialize pantheons
+ * Note that pantheon flags should be RF3_something because code in
+ * several places compares them to r_ptr->rflags3 */
+pantheon_type pant_list[PANTHEON_MAX] =
+{
+    { 0, 0, 0, "BUGGY", "Bug", "Software Bugs"},
+    { PANTHEON_OLYMPIAN, RF3_OLYMPIAN, RF3_OLYMPIAN2, "Olympian", "Oly", "Olympians"},
+    { PANTHEON_EGYPTIAN, RF3_EGYPTIAN, RF3_EGYPTIAN2, "Egyptian", "Egy", "Egyptian gods"},
+};
+
+byte summon_pantheon_hack;

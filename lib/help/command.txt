@@ -29,7 +29,7 @@ Don't be overwhelmed by the sheer number of commands. Many are not often used or
    <color:y>l</color>  Look around                          L  Locate player on map
    <color:y>m</color>  Cast a spell / use mental power      <color:y>M</color>  Full dungeon map
    n  Repeat last command                  <color:D>N  (unused)</color>
-   <color:y>o</color>  Open a door or chest                 <color:D>O  (unused)</color>
+   <color:y>o</color>  Open a door or chest                 O  Display object list
    p  Command your pets                    <color:D>P  (unused)</color>
    <color:y>q</color>  Quaff a potion                       Q  Quit (commit suicide)
    <color:y>r</color>  Read a scroll                        <color:y>R</color>  Rest for a period
@@ -39,13 +39,13 @@ Don't be overwhelmed by the sheer number of commands. Many are not often used or
    v  Throw an item                        V  Version info
    <color:y>w</color>  Wear/wield equipment                 <color:D>W  (unused)</color>
    <color:D>x  (unused)</color>                             <color:D>X  (unused)</color>
-   <color:D>y  (unused)</color>                             <color:D>Y  (unused)</color>
-   <color:y>z</color>  Zap a rod                            <color:D>Z  (unused)</color>
+   <color:D>y  (unused)</color>                             Y  Display monster list
+   <color:y>z</color>  Zap a rod                            Z  Inscribe an object
    !  Enter a user pref command           ^A  (special - wizard command)
    @  Interact with macros                <color:D>^B  (unused)</color>
    <color:D>#  (unused)</color>                            ^C  (special - break)
    $  Reload Auto-picker pref             <color:D>^D  (unused)</color>
-   %  Interact with visuals               <color:D>^E  (unused)</color>
+   %  Interact with visuals               ^E  Interact with macros
    ^  (special - control key)             ^F  Repeat level feeling
    &  Interact with colors                ^G  Auto-Get nearby objects
    <color:y>*</color>  Target monster or location          <color:D>^H  (unused)</color>
@@ -55,7 +55,7 @@ Don't be overwhelmed by the sheer number of commands. Many are not often used or
    }  Uninscribe an object                <color:D>^L  (unused)</color>
    [  Display monster list                ^M  (special - return)
    ]  Display object list                 <color:D>^N  (unused)</color>
-   -  Walk (flip pickup)                  <color:D>^O  (unused)</color>
+   -  Walk (flip pickup)                  ^O  Display object list
    _  Edit auto-picker/destroyer pref     ^P  Show previous messages
    +  Alter grid                          ^Q  Display quest info
    =  Set options                         ^R  Redraw the screen
@@ -65,10 +65,10 @@ Don't be overwhelmed by the sheer number of commands. Many are not often used or
    "  Record Command                      ^V  Recenter Viewport
    ,  Stay still (with pickup)            ^W  (special - wizard mode)
    <color:y><</color>  Go up staircase (Enter global map)  <color:y>^X</color>  Save and quit
-   .  Run                                 <color:D>^Y  (unused)</color>
+   .  Run                                 ^Y  (special - wizard mode)
    <color:y>></color>  Go down staircase(Enter normal map) ^Z  (special - borg command)
    \  (special - bypass keymap)            <color:D>|  (unused)</color>
-   `  Tavel to Location (Beta)             ~  Knowledge Menu
+   `  Travel to Location (Beta)            ~  Knowledge Menu
    /  Identify symbol                      <color:y>?</color>  Help
 </style>
 

@@ -196,9 +196,7 @@ static void _close_in_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        bool dummy;
-        rush_attack(2, &dummy);
-        var_set_bool(res, TRUE);
+        var_set_bool(res, rush_attack(2, NULL));
         break;
     }
     default:
@@ -706,8 +704,8 @@ class_t *mauler_get_class(void)
     /* static info never changes */
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 25,  25,  35,   0,  14,   2,  70,  20 };
-    skills_t xs = { 12,   9,  12,   0,   0,   0,  30,   7 };
+    skills_t bs = { 25,  25,  35,   0,  14,   2,  70,  16 };
+    skills_t xs = { 12,   9,  12,   0,   0,   0,  30,   6 };
 
         me.name = "Mauler";
         me.desc = 
@@ -726,7 +724,7 @@ class_t *mauler_get_class(void)
         me.stats[A_CHR] =  2;
         me.base_skills = bs;
         me.extra_skills = xs;
-        me.life = 111;
+        me.life = 110;
         me.base_hp = 18;
         me.exp = 120;
         me.pets = 40;

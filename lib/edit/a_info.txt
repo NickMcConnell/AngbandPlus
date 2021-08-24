@@ -956,7 +956,7 @@ P:0:4d6:23:24:0
 F:SLAY_DRAGON | SLAY_EVIL | SLAY_UNDEAD | SLAY_TROLL | SLAY_GIANT |
 F:SLAY_HUMAN | SLAY_ORC | SEE_INVIS | SHOW_MODS | VORPAL | BRAND_POIS
 D:A giant's weapon, with a long blade tall and straight thrusting out from a
-D:massive double-pronged hint. On its blade are written doomspells against
+D:massive double-pronged hilt. On its blade are written doomspells against
 D:both the living and undead.
 
 # The Katana 'Aglarang'
@@ -965,7 +965,7 @@ N:81:'Aglarang'
 I:23:20:5
 W:50:40:50:150000
 P:0:8d5:0:0:0
-F:DEX | HIDE_TYPE | VORPAL2 |
+F:DEX | HIDE_TYPE | VORPAL2 | VORPAL |
 F:SUST_DEX | SHOW_MODS | SPEED | TUNNEL
 D:An utterly perfect, cleanly chiseled sword, with a edge that effortlessly
 D: slices rock and bone and spells to render the wearer lithe and nimble. It
@@ -1021,7 +1021,7 @@ N:85:'Chainsword'
 I:23:16:2
 W:50:50:130:66666
 P:0:9d6:-30:7:0
-F:DEC_DEX | DEC_CHR | HIDE_TYPE | AGGRAVATE | VORPAL2
+F:DEC_DEX | DEC_CHR | HIDE_TYPE | AGGRAVATE | VORPAL2 | VORPAL
 F:SLAY_HUMAN | SLAY_TROLL | SLAY_ORC | SEE_INVIS | SHOW_MODS |
 F:ESP_ORC | ESP_TROLL | ESP_HUMAN
 
@@ -1102,7 +1102,7 @@ N:92:'Vorpal Blade'
 I:23:17:2
 W:90:240:150:250000
 P:0:5d6:32:32:0
-F:VORPAL2 | SLAY_EVIL | HIDE_TYPE |
+F:VORPAL2 | SLAY_EVIL | HIDE_TYPE | VORPAL |
 F:FREE_ACT | LITE | SEE_INVIS | SLOW_DIGEST | REGEN | SPEED | STR | DEX | CHR
 D:"One, two! One, two! And through, and through, the vorpal blade
 D:went snicker-snack!"
@@ -1591,7 +1591,7 @@ D:The robe of the great wizard Gandalf, also known as Incanus in the
 D:lands of the South. It is proof against elements, for neither the
 D:heat of the South, nor the ice of the North, nor the acidic pits of Dol
 D:Guldur were able to hold back the defiant Maia in the pursuit of
-D:his mission
+D:his mission.
 
 N:132:of Numenor
 I:33:12:3
@@ -1710,7 +1710,7 @@ I:23:20:4
 W:66:200:200:1000000
 P:0:10d6:0:0:-20
 F:HIDE_TYPE | BLOWS | VORPAL2 | BRAND_VAMP | SLAY_HUMAN | SLAY_GOOD |
-F:SHOW_MODS | SPEED | RES_DISEN | NO_TELE |
+F:SHOW_MODS | SPEED | RES_DISEN | NO_TELE | VORPAL |
 F:DRAIN_EXP | AGGRAVATE | RES_DARK | RES_NETHER | TY_CURSE |
 E:MURAMASA:1
 E:The Muramasa pulsates...
@@ -1946,7 +1946,7 @@ D:Miyamoto Musashi, and wielded with his left hand in combat.
 N:173:'Iron ball'
 I:21:6:6
 W:66:40:666:66666
-P:0:25d5:-30:0:20
+P:0:22d5:-30:0:20
 F:DEC_SPEED | DEC_STEALTH | DEC_WIS | STR | IMPACT | SHOW_MODS | HIDE_TYPE |
 F:CURSED | HEAVY_CURSE
 
@@ -2402,9 +2402,8 @@ F:BRAND_VAMP | SLAY_ANIMAL | SLAY_DRAGON | SLAY_HUMAN |
 F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT |
 F:RES_POIS | RES_CONF | RES_CHAOS |
 E:RESTORING:40:750
-E:The bo staff glows a deep green...
-D:This is the staff of Aesculapius, who is a greek god of
-D:the medicine.
+E:'Asclepius! Ot-tiovno ok-lut!' The Bo Staff glows a deep green...
+D:This is the staff of Asclepius, Greek god of medicine.
 
 N:226:Spectral Dragon Scale Mail
 I:38:3:3
@@ -3506,6 +3505,77 @@ F:DEC_INT | LIFE | TELEPATHY | INSTA_ART | QUESTITEM
 D:It was carved out of a tree branch knocked down by a falling meteor.
 D:(You're not sure if that gives it any mystic superpowers, but you sure
 D:hope so.)
+
+N:346:of the Fell Rider
+I:32:2:3
+W:10:6:15:10000
+P:2:0d0:0:0:-2
+F:WIS | DEC_CHR | RES_FIRE | RES_LITE | SUST_INT | HIDE_TYPE |
+D:An old, timeworn leather cap, embroidered with the motto of Fell Livery
+D:Stable: 'FELL. The rider - it's you.'
+
+N:347:of the Vagabond
+I:21:12:4
+W:22:7:150:35000
+P:0:2d7:16:15:0
+F:CON | SUST_CON | RES_FEAR | REGEN | HOLD_LIFE | SLOW_DIGEST | HIDE_TYPE |
+F:BLESSED
+D:The lonely traveller's one true friend.
+
+N:348:of Kundry
+I:40:0:2
+W:70:40:2:50000
+P:0:0d0:0:0:0
+E:CLARITY:70:30:15
+F:QUESTITEM | HIDE_TYPE | MAGIC_MASTERY | MAGIC_RESISTANCE | RES_TIME
+F:SEARCH | HOLD_LIFE | SUST_INT | SUST_WIS | SUST_CHR
+D:A shining golden pendant with powerful magics stored within to keep its
+D: wearer's mind clear.
+
+N:349:of Tweutox
+I:22:2:2
+W:15:30:50:30000
+P:0:1d8:6:9:0
+F:SPEED | STR | RES_FEAR | DEC_STEALTH | BRAND_CHAOS | RIDING | HIDE_TYPE
+D:Tiotullo, the spear of Tweutox, carved from the wood of a Seepumis tree.
+D:It seems to pulsate with energy as you hold it.
+
+N:350:of Amun
+I:23:4:5
+W:60:120:12:100000
+P:0:3d5:24:17:0
+F:BRAND_FIRE | BRAND_POIS | IM_FIRE | RES_POIS | INT | SPEED | RES_LITE
+F:RES_ELEC | RES_SOUND | STEALTH | SEARCH | FREE_ACT | SEE_INVIS | HIDE_TYPE
+F:VORPAL | SLAY_TROLL | BLESSED
+E:TELEPATHY:60:100
+D:An ancient, well-balanced steel blade with beautiful decorations on its
+D:golden hilt, once held by Amun the everliving. Despite its age, the dagger
+D:remains shiny and razor-sharp.
+
+# The original Angrist was converted into Caine... so here's Angrist
+# (with the description from V)
+
+N:351:'Angrist'
+I:23:4:2
+W:25:40:12:100000
+P:0:2d5:16:14:6
+F:DEX | HIDE_TYPE | STEALTH | VORPAL | BLOWS
+F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | BRAND_POIS
+F:FREE_ACT | RES_FEAR | SUST_DEX | SEE_INVIS | HIDE_TYPE
+D:Forged by Telchar, greatest of the Dwarven smiths, and used by Beren to
+D:gouge a Silmaril out of Morgoth's crown, this long chopping dagger slices
+D:through ordinary metal as easily as its name, "Iron Cleaver", suggests.
+
+N:352:Mithril Spear of Liweris
+I:22:7:4
+W:55:55:100:80000
+P:0:3d11:13:23:0
+F:DEC_WIS | SLAY_GOOD | KILL_DRAGON | HIDE_TYPE | FULL_NAME | HEAVY_CURSE
+F:RIDING | RANDOM_CURSE0
+D:Forged from stolen mithril for the evil king of Liweris, it is imbued
+D:with dark powers that make it a mortal enemy of all things good, and deadly
+D:to dragonkind. The city of Liweris was razed by dragons as soon as the word
+D:got out, and the king died in flames; but his spear survived.
 
 # N: serial number : item name
 # I: tval : sval : pval

@@ -977,7 +977,7 @@ void do_cmd_open(void)
         {
             /* Message */
             msg_print("You see nothing there to open.");
-
+            if (p_ptr->confused) energy_use = 50;
         }
 
         /* Monster in the way */
@@ -1137,6 +1137,7 @@ void do_cmd_close(void)
         {
             /* Message */
             msg_print("You see nothing there to close.");
+            if (p_ptr->confused) energy_use = 50; /* prevent free turns until the right direction is picked */
         }
 
         /* Monster in the way */
@@ -2538,7 +2539,7 @@ void do_cmd_rest(void)
                 p_ptr->afraid ||
                 p_ptr->stun ||
                 p_ptr->cut ||
-                p_ptr->slow ||
+                player_slow() ||
                 p_ptr->paralyzed ||
                 p_ptr->image ||
                 p_ptr->word_recall ||
@@ -2570,7 +2571,7 @@ void do_cmd_rest(void)
         !p_ptr->blind && !p_ptr->confused &&
         !p_ptr->poisoned && !p_ptr->afraid &&
         !p_ptr->stun && !p_ptr->cut &&
-        !p_ptr->slow && !p_ptr->paralyzed &&
+        !player_slow() && !p_ptr->paralyzed &&
         !p_ptr->image && !p_ptr->word_recall &&
         !p_ptr->alter_reality &&
         !magic_eater_can_regen())

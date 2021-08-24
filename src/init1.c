@@ -361,9 +361,9 @@ static cptr r_info_flags3[] =
     "HURT_FIRE",
     "HURT_COLD",
     "OLYMPIAN",
-    "XXX",
-    "XXX",
-    "XXX",
+    "EGYPTIAN",
+    "EGYPTIAN2",
+    "OLYMPIAN2",
     "XXX",
     "XXX",
     "XXX",
@@ -406,7 +406,7 @@ static cptr r_info_flags7[] =
     "CAN_CLIMB",
     "RANGED_MELEE",
     "NASTY_GLYPH",
-    "XXX7X23",
+    "SILVER",
     "XXX7X24",
     "XXX7X25",
     "XXX7X26",
@@ -765,6 +765,9 @@ static cptr k_info_flags[OF_COUNT] =
     "TELEPORT",
     "AGGRAVATE",
     "TY_CURSE",
+
+    /* Plural */
+    "PLURAL",
 };
 
 
@@ -840,7 +843,7 @@ static cptr d_info_flags1[] =
     "NO_MELEE",
     "CHAMELEON",
     "DARKNESS",
-    "XXX",
+    "ALL_SHAFTS",
     "XXX"
 };
 
@@ -1180,7 +1183,7 @@ static parse_tbl_t _summon_type_tbl[] = {
     { SUMMON_ARMAGE_GOOD, "Holy Monsters", TERM_WHITE, "", "ARMAGE_GOOD", 40 },
     { SUMMON_ARMAGE_EVIL, "Foul Monsters", TERM_WHITE, "", "ARMAGE_EVIL", 40 },
     { SUMMON_SOFTWARE_BUG, "Software Bugs", TERM_WHITE, "", "SOFTWARE_BUG", 1 },
-    { SUMMON_OLYMPIAN, "Olympians", TERM_WHITE, "", "OLYMPIAN", 150 },
+    { SUMMON_PANTHEON, "Gods", TERM_WHITE, "", "PANTHEON", 150 },
     { SUMMON_RAT, "Rats", TERM_WHITE, "", "RAT", 2 },
     { SUMMON_BAT, "Bats", TERM_WHITE, "", "BAT", 5 },
     { SUMMON_WOLF, "Wolves", TERM_WHITE, "", "WOLF", 7 },
@@ -1496,6 +1499,26 @@ static int _lookup_ego_type(int object)
     }
 }
 
+static int _lookup_ego(cptr name, int type, int options)
+{
+    int i;
+    for (i = 1; i < max_e_idx; i++)
+    {
+        ego_type *e_ptr = &e_info[i];
+        char      buf[255];
+        if (!e_ptr->name) continue;
+        if (type && !(e_ptr->type & type)) continue;
+        _prep_name(buf, e_name + e_ptr->name);
+        if (strstr(buf, name))
+        {
+            if (trace_doc)
+                doc_printf(trace_doc, "Matching ego <color:B>%s</color> to <color:R>%s</color> (%d).\n", name, e_name + e_ptr->name, i);
+            return i;
+        }
+    }
+    return 0;
+}
+
 static int _lookup_kind(char *arg, int options)
 {
     int i;
@@ -1572,7 +1595,8 @@ static errr _parse_room_grid_object(char **args, int arg_ct, room_grid_ptr grid,
     {
         char *flags[10];
         int   flag_ct = z_string_split(args[1], flags, 10, "|");
-        int   i, n;
+        int   i, n, nn, nnn;
+        char tyyppi[80] = "";
 
         for (i = 0; i < flag_ct; i++)
         {
@@ -1580,6 +1604,51 @@ static errr _parse_room_grid_object(char **args, int arg_ct, room_grid_ptr grid,
             if (sscanf(flag, "DEPTH+%d", &n) == 1)
             {
                 grid->object_level = n;
+            }
+            else if (sscanf(flag, "NUMBER=%d+%dd%d", &n, &nn, &nnn) == 3)
+            {
+                if ((n < 1) || (nn < 1) || (nnn < 1))
+                {
+                    msg_format("Error: Invalid object pile size specifier %s.", flag);
+                    return PARSE_ERROR_GENERIC;
+                }
+                grid->extra2 = n + damroll(nn, nnn);
+            }
+            else if (sscanf(flag, "NUMBER=%dd%d", &n, &nn) == 2)
+            {
+                if ((n < 1) || (nn < 1))
+                {
+                    msg_format("Error: Invalid object pile size specifier %s.", flag);
+                    return PARSE_ERROR_GENERIC;
+                }
+                grid->extra2 = damroll(n, nn);
+            }
+            else if (sscanf(flag, "NUMBER=%d", &n) == 1)
+            {
+                grid->extra2 = n;
+            }
+            else if (sscanf(flag, "TYPE=%d", &n) == 1)
+            {
+                /* Number and Type can share the same extra parameter,
+                 * because Type is only used by devices (for ego generation),
+                 * and devices are never generated in piles */
+                grid->extra2 = n;
+//                grid->flags |= ROOM_GRID_EGO;
+            }
+            else if (streq(flag, "TYPE=*"))
+            {
+                grid->extra2 = -1;
+//                grid->flags |= ROOM_GRID_EGO_RANDOM;
+            }
+            else if (sscanf(flag, "TYPE=%s", tyyppi) == 1)
+            {
+                unsigned int j;
+                for (j = 0; j < strlen(tyyppi); j++)
+                {
+                    tyyppi[j] = tolower(tyyppi[j]);
+                }
+                grid->extra2 = _lookup_ego(tyyppi, 0, options);
+//                grid->flags |= ROOM_GRID_EGO;
             }
             else if (sscanf(flag, "%d%%", &n) == 1)
             {
@@ -1636,26 +1705,6 @@ static errr _parse_room_grid_object(char **args, int arg_ct, room_grid_ptr grid,
     default:
         msg_print("Error: Invalid OBJ() directive. Syntax: OBJ(<which> [,<flags>]).");
         return PARSE_ERROR_TOO_FEW_ARGUMENTS;
-    }
-    return 0;
-}
-
-static int _lookup_ego(cptr name, int type, int options)
-{
-    int i;
-    for (i = 1; i < max_e_idx; i++)
-    {
-        ego_type *e_ptr = &e_info[i];
-        char      buf[255];
-        if (!e_ptr->name) continue;
-        if (type && !(e_ptr->type & type)) continue;
-        _prep_name(buf, e_name + e_ptr->name);
-        if (strstr(buf, name))
-        {
-            if (trace_doc)
-                doc_printf(trace_doc, "Matching ego <color:B>%s</color> to <color:R>%s</color> (%d).\n", name, e_name + e_ptr->name, i);
-            return i;
-        }
     }
     return 0;
 }
@@ -4419,7 +4468,7 @@ errr parse_d_info(char *buf, header *head)
     /* Process 'F' for "Dungeon Flags" (multiple lines) */
     else if (buf[0] == 'F')
     {
-        int artif = 0, monst = 0, tval = 0, sval = 0;
+        int artif = 0, monst = 0, tval = 0, sval = 0, pant = 0;
 
         /* Parse every entry */
         for (s = buf + 2; *s; )
@@ -4464,10 +4513,10 @@ errr parse_d_info(char *buf, header *head)
                 continue;
             }
 
-            /* XXX XXX XXX Hack -- Read Artifact Guardian */
+            /* XXX XXX XXX Hack -- Read Final Guardian */
             if (1 == sscanf(s, "FINAL_GUARDIAN_%d", &monst))
             {
-                /* Extract a "Artifact Guardian" */
+                /* Extract final guardian */
                 d_ptr->final_guardian = monst;
 
                 /* Start at next entry */
@@ -4480,6 +4529,19 @@ errr parse_d_info(char *buf, header *head)
             {
                 d_ptr->initial_guardian = monst;
                 s = t;
+                continue;
+            }
+
+            /* XXX XXX XXX Hack -- Read Associated Pantheon */
+            if (1 == sscanf(s, "PANTHEON_%d", &pant))
+            {
+                /* Extract pantheon */
+                d_ptr->pantheon = pant;
+
+                /* Start at next entry */
+                s = t;
+
+                /* Continue */
                 continue;
             }
 

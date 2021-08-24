@@ -364,7 +364,7 @@ Orcs/Trolls/Giants
     Experience   155%       Infravision 10'
     
   Half-Giant
-  Half-Giants limited intelligence makes it difficult for them to 
+  Half-Giants' limited intelligence makes it difficult for them to 
   become full spellcasters, but with their huge strength they make 
   excellent warriors. Their thick skin makes them resistant to shards, 
   and like Half-Trolls, they have their strength sustained.
@@ -494,6 +494,28 @@ Orcs/Trolls/Giants
     
   
 The Undead
+  Einheri
+  Dead heroes returning to the mortal world for one last fight, 
+  Einherjar are highly skilled in hand-to-hand combat and start with 
+  the ability to enter a battle frenzy; however, they are also passably 
+  good at using devices, and do not necessarily make weak magic users. 
+  Already having one lifetime's adventures behind them, Einherjar are 
+  very strong at the beginning but learn new things slowly. Like other 
+  undead races, they are immune to life draining. Einherjar have one 
+  serious weakness: magical healing only has a partial effect on them, 
+  healing them half as much as it would any other race.
+  
+    Stats                   Skills
+    Strength      +2        Disarming   Good         
+    Intelligence  +0        Device      Fair         
+    Wisdom        +0        Save        Very Good    
+    Dexterity     +2        Stealth     Bad          
+    Constitution  +1        Searching   Excellent    
+    Charisma      +1        Perception  Superb       
+    Life Rating  113%       Melee       Superb       
+    Base HP       44        Bows        Excellent    
+    Experience   160%       Infravision 30'
+    
   Skeleton
   There are two types of skeletons: the ordinary, warrior-like 
   skeletons, and the spell-using skeletons, which are also called 
@@ -815,6 +837,28 @@ Other Races
     Base HP       26        Bows        Bad          
     Experience   175%       Infravision 20'
     
+  Werewolf
+  Werewolves are fearsome hunters who can assume either human or wolf 
+  shape. They are exceptionally durable in both forms, and have great 
+  powers of regeneration, though they are infamously vulnerable to fire 
+  and silver, and are not particularly good at using magical spells or 
+  devices in either shape. While in wolf form, werewolves wield no 
+  weapons; instead, they attack with their teeth and claws. As 
+  werewolves wear different equipment in human form and wolf form, they 
+  use one inventory slot for a special satchel in which they keep the 
+  items not needed in their current shape.
+  
+    Stats                   Skills
+    Strength      +1        Disarming   Poor         
+    Intelligence  +0        Device      Very Bad     
+    Wisdom        +0        Save        Fair         
+    Dexterity     +0        Stealth     Fair         
+    Constitution  +1        Searching   Good         
+    Charisma      +0        Perception  Superb       
+    Life Rating  103%       Melee       Fair         
+    Base HP       27        Bows        Fair         
+    Experience   140%       Infravision 50'
+    
   Yeek
   Yeeks are among the most pathetic creatures. Fortunately, their 
   horrible screams can scare away less confident foes, and their skin 
@@ -862,6 +906,7 @@ Half-Titan    +5   +1   +2   -2   +3   +3  110%  +28  200%   90%
 Half-Troll    +4   -4   -1   -3   +3   -2  107%  +25  150%  135%
 Kobold        +1   -1   +0   +1   +0   -2   98%  +19   90%  120%
 Snotling      -2   -2   -2   -2   -2   -5   85%  +10   45%  125%
+Einheri       +2   +0   +0   +2   +1   +1  113%  +44  160%  100%
 Skeleton      +0   +1   -2   +0   +1   +1  100%  +21  115%  125%
 Spectre       -5   +4   +2   +2   -2   -3   90%  +13  250%  135%
 Vampire       +3   +3   -1   -1   +1   +2  102%  +22  200%  130%
@@ -877,6 +922,7 @@ Klackon       +2   -1   -1   +1   +2   +1  105%  +23  170%  115%
 Kutar         +0   -1   -1   +1   +2   +2  102%  +21  175%   95%
 Mindflayer    -3   +4   +4   +0   -2   -1   97%  +18  150%  115%
 Tonberry      +4   +0   -2   -4   +5   +0  108%  +26  175%  115%
+Werewolf      +1   +0   +0   +0   +1   +0  103%  +27  140%  100%
 Yeek          -2   +1   -2   +1   -2   -4   92%  +14   70%  105%
 
 
@@ -908,6 +954,7 @@ Half-Titan   Bad           Fair          Fair          Bad
 Half-Troll   Bad           Very Bad      Bad           Bad          
 Kobold       Bad           Bad           Poor          Bad          
 Snotling     Bad           Bad           Bad           Fair         
+Einheri      Good          Fair          Very Good     Bad          
 Skeleton     Bad           Poor          Fair          Bad          
 Spectre      Excellent     Excellent     Excellent     Excellent    
 Vampire      Fair          Good          Good          Very Good    
@@ -923,6 +970,7 @@ Klackon      Excellent     Bad           Fair          Poor
 Kutar        Bad           Fair          Good          Excellent    
 Mindflayer   Excellent     Excellent     Excellent     Fair         
 Tonberry     Bad           Bad           Fair          Fair         
+Werewolf     Poor          Very Bad      Fair          Fair         
 Yeek         Fair          Fair          Good          Good         
 
 
@@ -954,6 +1002,7 @@ Half-Titan   Bad           Excellent     Heroic        Fair             0'
 Half-Troll   Very Bad      Good          Superb        Bad             30'
 Kobold       Bad           Excellent     Excellent     Very Good       30'
 Snotling     Bad           Excellent     Very Bad      Poor            20'
+Einheri      Excellent     Superb        Superb        Excellent       30'
 Skeleton     Very Bad      Excellent     Excellent     Fair            20'
 Spectre      Good          Heroic        Very Bad      Poor            50'
 Vampire      Bad           Excellent     Good          Fair            50'
@@ -969,10 +1018,11 @@ Klackon      Very Bad      Superb        Good          Very Good       20'
 Kutar        Very Bad      Very Good     Poor          Fair             0'
 Mindflayer   Good          Superb        Very Bad      Poor            40'
 Tonberry     Very Bad      Good          Superb        Bad             20'
+Werewolf     Good          Superb        Fair          Fair            50'
 Yeek         Good          Heroic        Bad           Fair            20'
 
 
 
 
-Automatically generated for FrogComposband 7.0.strawberry.
+Automatically generated for FrogComposband 7.0.mango.
 

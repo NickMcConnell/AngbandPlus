@@ -112,63 +112,63 @@ static _type_t _types[] =
          { 32, "Merulla the Humble",        1000, 107, RACE_DEMIGOD }}},
         
     { SHOP_ARMORY, "Armory", _armory_will_buy, _armory_create,
-        {{  1, "Kon-Dar the Ugly",          5000, 115, RACE_SNOTLING },
-         {  2, "Darg-Low the Grim",        10000, 111, RACE_HUMAN },
+        {{  1, "Kon-Dar the Ugly",         15000, 115, RACE_SNOTLING },
+         {  2, "Darg-Low the Grim",        20000, 111, RACE_HUMAN },
          {  3, "Decado the Handsome",      25000, 112, RACE_DUNADAN },
          {  4, "Wieland the Smith",        40000, 112, RACE_DWARF },
-         {  5, "Kon-Dar the Ugly",         10000, 115, RACE_SNOTLING },
-         {  6, "Darg-Low the Grim",        15000, 111, RACE_HUMAN },
-         {  7, "Decado the Handsome",      25000, 112, RACE_AMBERITE },
+         {  5, "Stumpy the Blockhead",     15000, 113, RACE_ENT },
+         {  6, "Zeppo the Blacksmith",     25000, 111, RACE_HUMAN },
+         {  7, "Beamy Break-Axe",          30000, 112, RACE_ENT },
          {  8, "Elo Dragonscale",          35000, 112, RACE_DEMIGOD },
-         {  9, "Delicatus",                10000, 115, RACE_SPRITE },
-         { 10, "Gruce the Huge",           15000, 111, RACE_HALF_GIANT },
+         {  9, "Delicatus",                20000, 115, RACE_SPRITE },
+         { 10, "Gruce the Huge",           20000, 111, RACE_HALF_GIANT },
          { 11, "Animus",                   25000, 112, RACE_GOLEM },
          { 12, "Malvus",                   30000, 112, RACE_HALF_TITAN },
-         { 13, "Selaxis",                  10000, 115, RACE_ZOMBIE },
-         { 14, "Deathchill",                5000, 111, RACE_SPECTRE },
+         { 13, "Selaxis",                  15000, 115, RACE_ZOMBIE },
+         { 14, "Deathchill",               20000, 111, RACE_SPECTRE },
          { 15, "Drios the Faint",          25000, 112, RACE_SPECTRE },
          { 16, "Bathric the Cold",         30000, 112, RACE_VAMPIRE },
-         { 17, "Vengella the Cruel",       10000, 115, RACE_HALF_TROLL },
-         { 18, "Wyrana the Mighty",        15000, 111, RACE_HUMAN },
+         { 17, "Vengella the Cruel",       15000, 115, RACE_HALF_TROLL },
+         { 18, "Wyrana the Mighty",        20000, 111, RACE_HUMAN },
          { 19, "Yojo II",                  25000, 112, RACE_DWARF },
          { 20, "Ranalar the Sweet",        30000, 112, RACE_AMBERITE },
-         { 21, "Horbag the Unclean",        5000, 115, RACE_SNOTLING },
-         { 22, "Elelen the Telepath",      15000, 111, RACE_DARK_ELF },
-         { 23, "Isedrelias",               25000, 112, RACE_SPRITE },
-         { 24, "Vegnar One-eye",            5000, 112, RACE_CYCLOPS },
-         { 25, "Rodish the Chaotic",       10000, 115, RACE_BEASTMAN },
-         { 26, "Hesin Swordmaster",        15000, 111, RACE_NIBELUNG },
-         { 27, "Elvererith the Cheat",     10000, 112, RACE_DARK_ELF },
+         { 21, "Horbag the Unclean",       15000, 115, RACE_SNOTLING },
+         { 22, "Elelen the Telepath",      25000, 111, RACE_DARK_ELF },
+         { 23, "Isedrelias",               30000, 112, RACE_SPRITE },
+         { 24, "Vegnar One-eye",           20000, 112, RACE_CYCLOPS },
+         { 25, "Rodish the Chaotic",       20000, 115, RACE_BEASTMAN },
+         { 26, "Hesin Swordmaster",        25000, 111, RACE_NIBELUNG },
+         { 27, "Elvererith the Cheat",     15000, 112, RACE_DARK_ELF },
          { 28, "Zzathath the Imp",         30000, 112, RACE_IMP },
          { 0 }}},
 
     { SHOP_WEAPON, "Weapon Smiths", _weapon_will_buy, _weapon_create,
-        {{  1, "Arnold the Beastly",        5000, 115, RACE_BARBARIAN },
-         {  2, "Arndal Beast-Slayer",      10000, 110, RACE_HUMAN },
+        {{  1, "Arnold the Beastly",       15000, 115, RACE_BARBARIAN },
+         {  2, "Arndal Beast-Slayer",      20000, 110, RACE_HUMAN },
          {  3, "Eddie Beast-Master",       25000, 115, RACE_SNOTLING },
          {  4, "Oglign Dragon-Slayer",     50000, 112, RACE_DWARF },
-         {  5, "Drew the Skilled",         10000, 115, RACE_HUMAN },
-         {  6, "Orrax Dragonson",          15000, 110, RACE_DRACONIAN },
+         {  5, "Drew the Skilled",         20000, 115, RACE_HUMAN },
+         {  6, "Orrax Dragonson",          20000, 110, RACE_DRACONIAN },
          {  7, "Anthrax Disease-Carrier",  25000, 115, RACE_BEASTMAN },
          {  8, "Arkhoth the Stout",        35000, 112, RACE_DWARF },
-         {  9, "Sarlyas the Rotten",        5000, 115, RACE_ZOMBIE },
-         { 10, "Tuethic Bare-Bones",       15000, 110, RACE_SKELETON },
+         {  9, "Sarlyas the Rotten",       15000, 115, RACE_ZOMBIE },
+         { 10, "Tuethic Bare-Bones",       20000, 110, RACE_SKELETON },
          { 11, "Bilious",                  25000, 115, RACE_BEASTMAN },
          { 12, "Fasgul",                   30000, 112, RACE_ZOMBIE },
-         { 13, "Ellefris the Paladin",     10000, 115, RACE_BARBARIAN },
-         { 14, "K'trrik'k",                15000, 110, RACE_KLACKON },
+         { 13, "Ellefris the Paladin",     15000, 115, RACE_BARBARIAN },
+         { 14, "K'trrik'k",                20000, 110, RACE_KLACKON },
          { 15, "Drocus Spiderfriend",      25000, 115, RACE_DARK_ELF },
          { 16, "Fungus Giant-Slayer",      40000, 112, RACE_DWARF },
-         { 17, "Delantha",                 10000, 115, RACE_DEMIGOD },
-         { 18, "Solvistani the Ranger",    15000, 110, RACE_WOOD_ELF },
-         { 19, "Xoril the Slow",           25000, 115, RACE_GOLEM },
-         { 20, "Aeon Flux",                20000, 112, RACE_TONBERRY },
-         { 21, "Nadoc the Strong",         10000, 115, RACE_HOBBIT },
-         { 22, "Eramog the Weak",          15000, 110, RACE_KOBOLD },
-         { 23, "Eowilith the Fair",        25000, 115, RACE_VAMPIRE },
+         { 17, "Delantha",                 20000, 115, RACE_DEMIGOD },
+         { 18, "Solvistani the Ranger",    25000, 110, RACE_WOOD_ELF },
+         { 19, "Xoril the Slow",           30000, 115, RACE_GOLEM },
+         { 20, "Aeon Flux",                25000, 112, RACE_TONBERRY },
+         { 21, "Nadoc the Strong",         20000, 115, RACE_HOBBIT },
+         { 22, "Eramog the Weak",          25000, 110, RACE_KOBOLD },
+         { 23, "Eowilith the Fair",        30000, 115, RACE_VAMPIRE },
          { 24, "Huimog Balrog-Slayer",     30000, 112, RACE_SNOTLING },
-         { 25, "Peadus the Cruel",          5000, 115, RACE_HUMAN },
-         { 26, "Vamog Slayer",             15000, 110, RACE_OGRE },
+         { 25, "Peadus the Cruel",         15000, 115, RACE_HUMAN },
+         { 26, "Vamog Slayer",             20000, 110, RACE_OGRE },
          { 27, "Hooshnak the Vicious",     25000, 115, RACE_BEASTMAN },
          { 28, "Balenn War-Dancer",        30000, 112, RACE_BARBARIAN },
          { 0 }}},
@@ -273,7 +273,7 @@ static _type_t _types[] =
          { 17, "Charity the Necromancer",  20000, 150, RACE_DARK_ELF },
          { 18, "Pugnacious the Pugilist",  20000, 150, RACE_SNOTLING },
          { 19, "Footsore the Lucky",       30000, 150, RACE_BEASTMAN },
-         { 20, "Sidria Lighfingered",      30000, 150, RACE_HUMAN },
+         { 20, "Sidria Lightfingered",     30000, 150, RACE_HUMAN },
          { 21, "Riatho the Juggler",       20000, 150, RACE_HOBBIT },
          { 22, "Janaaka the Shifty",       20000, 150, RACE_GNOME },
          { 23, "Cina the Rogue",           30000, 150, RACE_GNOME },
@@ -1621,7 +1621,7 @@ static void _display(_ui_context_ptr context)
         doc_pos_create(r.x, r.y));
 }
 
-static int _add_obj(shop_ptr shop, obj_ptr obj);
+static int _add_obj(shop_ptr shop, obj_ptr obj, bool is_restock);
 static bool _buy_aux(shop_ptr shop, obj_ptr obj)
 {
     char       name[MAX_NLEN];
@@ -1692,7 +1692,7 @@ static bool _buy_aux(shop_ptr shop, obj_ptr obj)
     }
 
     price = obj_value(obj); /* correctly handle unidentified items */
-    if (price > 0 && _add_obj(shop, obj))
+    if (price > 0 && _add_obj(shop, obj, FALSE))
         inv_sort(shop->inv);
     else
         obj->number = 0;
@@ -2116,7 +2116,7 @@ static int _cull(shop_ptr shop, int target)
     return ct;
 }
 
-static int _add_obj(shop_ptr shop, obj_ptr obj) /* return number of new slots used (0 or 1) */
+static int _add_obj(shop_ptr shop, obj_ptr obj, bool is_restock) /* return number of new slots used (0 or 1) */
 {
     slot_t slot, max = inv_last(shop->inv, obj_exists);
     for (slot = 1; slot <= max; slot++)
@@ -2125,6 +2125,7 @@ static int _add_obj(shop_ptr shop, obj_ptr obj) /* return number of new slots us
         if (!dest) continue;
         if (obj_can_combine(dest, obj, INV_SHOP))
         {
+            if ((is_restock) && (dest->marked & OM_RESERVED)) return 0;
             obj_combine(dest, obj, INV_SHOP);
             obj->number = 0; /* forget spillover */
             return 0;
@@ -2169,7 +2170,7 @@ static int _restock(shop_ptr shop, int target, bool is_shuffle)
         if (shop->type->create_f(&forge, mode))
         {
             assert(obj_value(&forge) > 0);
-            ct += _add_obj(shop, &forge);
+            ct += _add_obj(shop, &forge, TRUE);
         }
     }
     inv_sort(shop->inv);

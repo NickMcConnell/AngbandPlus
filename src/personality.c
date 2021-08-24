@@ -192,7 +192,7 @@ static personality_ptr _get_craven_personality(void)
         me.name = "Craven";
         me.desc = "A Craven person is a coward, preferring to avoid a fight at any "
                     "cost. Craven adventurers shoot and use devices well, their "
-                    "stealth is impressive, and they can move fast when not fighting;"
+                    "stealth is impressive, and they can move fast when not fighting; "
                     "but their stats and other skills are somewhat wanting.";
 
         me.stats[A_STR] = -1;

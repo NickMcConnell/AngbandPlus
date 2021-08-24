@@ -49,6 +49,7 @@ struct quest_s
 
     int  status;
     int  completed_lev;
+    u32b completed_turn;
 
     u32b seed;        /* For $RANDOM_ in quest files */
 };
@@ -98,9 +99,11 @@ extern void       quests_on_generate(int dungeon, int level); /* see if this lev
 extern bool       level_is_questlike(int dungeon, int level);
 extern void       quests_generate(int id); /* QF_GENERATE located on surface (QUEST_ENTER(id)) */
 extern void       quests_on_kill_mon(mon_ptr mon); /* check for completion */
+extern bool       mon_is_quest_target(int r_idx);
 extern void       quests_on_get_obj(obj_ptr obj); /* check for completion */
 extern bool       quest_allow_poly(mon_ptr mon); /* check for unwanted polymorph orevolution */
 extern bool       quests_check_leave(void); /* confirm if !OF_RETAKE and !QS_COMPLETED */
+extern bool       quests_check_ini_leave(cptr varoitus, cptr toimi, bool *kysyttiin); /* confirm initiation of quest leaving */
 extern void       quests_on_leave(void); /* quest_fail() if !QS_COMPLETED */
 extern bool       quests_allow_downstairs(void); /* check for cave_gen '>' */
 extern bool       quests_allow_downshaft(void);

@@ -322,7 +322,7 @@ static void pattern_teleport(void)
     }
     else if (((coffee_break) || (!ironman_downward)) && (get_check("Recall? ")))
     {
-        recall_player(1);
+        recall_player(1, FALSE);
         return;
     }
     else
@@ -356,7 +356,6 @@ static void pattern_teleport(void)
     /* Leaving */
     p_ptr->leaving = TRUE;
 }
-
 
 static void wreck_the_pattern(void)
 {
@@ -462,9 +461,77 @@ static bool pattern_effect(void)
     return TRUE;
 }
 
+static void _suppress_extra_pantheons(void)
+{
+    u32b pantheon_flag_mask = 0;
+    int i;
 
+    if ((!game_pantheon) || (!single_pantheon)) return; /* paranoia */
 
+    /* Initialize pantheon flag mask (with flags of all pantheons) */
+    for (i = 0; i < PANTHEON_MAX; i++)
+    {
+        pantheon_flag_mask |= pant_list[i].flag;
+    }
 
+    /* Pick a random pantheon if one hasn't been selected yet */
+    if (game_pantheon >= PANTHEON_MAX)
+    {
+        if (prace_is_(RACE_DEMIGOD))
+        {
+            switch (p_ptr->psubrace)
+            {
+                case DEMIGOD_APHRODITE:
+                case DEMIGOD_APOLLO:
+                case DEMIGOD_ARES:
+                case DEMIGOD_ARTEMIS:
+                case DEMIGOD_ATHENA:
+                case DEMIGOD_DEMETER:
+                case DEMIGOD_HADES:
+                case DEMIGOD_HEPHAESTUS:
+                case DEMIGOD_HERA:
+                case DEMIGOD_HERMES:
+                case DEMIGOD_POSEIDON:
+                case DEMIGOD_ZEUS:
+                    game_pantheon = PANTHEON_OLYMPIAN;
+                    break;
+                default:
+                    game_pantheon = randint1(PANTHEON_MAX - 1);
+                    break;
+            }            
+        }
+        else
+            game_pantheon = randint1(PANTHEON_MAX - 1);
+    }
+
+    /* Wipe dungeons associated with other pantheons */
+    for (i = 1; i < max_d_idx; i++)
+    {
+        dungeon_info_type *d_ptr = &d_info[i];
+        if ((d_ptr->pantheon) && (d_ptr->pantheon != game_pantheon))
+        { /* Wipe the dungeon */
+            WIPE(&d_info[i], dungeon_info_type);
+        }
+    }
+
+    /* Suppress monsters who belong to other pantheons, and unsuppress the active pantheon */
+    for (i = 1; i < max_r_idx; i++)
+    {
+        monster_race *r_ptr = &r_info[i];
+        u32b race_flag_match;
+
+        if ((!r_ptr) || (!r_ptr->name)) continue;
+        race_flag_match = (r_ptr->flags3 & pantheon_flag_mask);
+        if ((race_flag_match > 0) && (!(r_ptr->flags3 & pant_list[game_pantheon].flag)))
+        { /* Suppress member of rival pantheon */
+            r_ptr->flagsx |= RFX_SUPPRESS;
+        }
+        else if (race_flag_match) /* Unsuppress */
+        {
+            r_ptr->flagsx &= ~RFX_SUPPRESS;
+        }
+    }
+}
 
 /*
  * Regenerate hit points                -RAK-
@@ -733,6 +800,11 @@ void notice_lite_change(object_type *o_ptr)
         disturb(0, 0);
         msg_print("Your light has gone out!");
 
+        /* We now know how many turns of light it has - zero */
+        if ((!obj_is_identified(o_ptr)) && (o_ptr->ident & IDENT_SENSE)
+           && (o_ptr->feeling == FEEL_AVERAGE))
+        identify_item(o_ptr);
+
         /* Recalculate torch radius */
         p_ptr->update |= (PU_TORCH);
 
@@ -786,6 +858,10 @@ byte coffeebreak_recall_level(bool laskuri)
      * and taso == max_dlv, we are revisiting the depth */
     if ((laskuri) && (taso == (byte)max_dlv[DUNGEON_ANGBAND]) && (p_ptr->coffee_lv_revisits < 251) && (taso < 101))
     {
+        if (p_ptr->coffee_lv_revisits == 2) /* warn the player about J's increasing mpower */
+        {
+            msg_print("You have a brief vision of a red-faced, overweight humanoid with an unkempt beard, yelling <color:R>'Get to it already! The longer you bum around, the stronger the Serpent grows!'</color> You aren't sure who this strange apparition is, but given how tense and irritable he appears, you hope he's not the ultimate supreme deity.");
+        }
         p_ptr->coffee_lv_revisits++;
     }
     return taso;
@@ -1322,7 +1398,7 @@ static void process_world_aux_hp_and_sp(void)
     if ((resting < 0) && ((p_ptr->chp == p_ptr->mhp) || (mimic_no_regen()))
         && (upkeep_regen <= 0) && (!magic_eater_can_regen()) && (!samurai_can_concentrate())
         && (!p_ptr->blind) && (!p_ptr->confused) && (!p_ptr->poisoned) && (!p_ptr->afraid)
-        && (!p_ptr->stun) && (!p_ptr->cut) && (!p_ptr->slow) && (!p_ptr->paralyzed)
+        && (!p_ptr->stun) && (!p_ptr->cut) && (!player_slow()) && (!p_ptr->paralyzed)
         && (!p_ptr->image) && (!p_ptr->word_recall) && (!p_ptr->alter_reality))
     {
         set_action(ACTION_NONE);
@@ -1560,6 +1636,26 @@ static void process_world_aux_timeout(void)
             while (p_ptr->slow && free_act_save_p(dun_level*2));
     }
 
+    /* Unwellness recovery */
+    if (p_ptr->unwell)
+    {
+        (void)set_unwell(p_ptr->unwell - 1, TRUE);
+    }
+
+    /* Mini-slow recovery - regen helps */
+    if (p_ptr->minislow)
+    {
+        int myregen = MAX(0, p_ptr->regen / 100);        
+        if ((!myregen) && (one_in_(3))) myregen++;
+        p_ptr->mini_energy += myregen * ((p_ptr->minislow * 2) + 2) / 3;
+        if (p_ptr->mini_energy >= 100)
+        {
+            p_ptr->mini_energy -= 100;
+            p_inc_minislow(-1);
+        }
+    }
+    else p_ptr->mini_energy = 0;
+
     /* Protection from evil */
     if (p_ptr->protevil)
     {
@@ -1760,6 +1856,9 @@ static void process_world_aux_timeout(void)
 
     if (p_ptr->tim_inven_prot)
         set_tim_inven_prot(p_ptr->tim_inven_prot - 1, TRUE);
+
+    if (p_ptr->tim_inven_prot2)
+        set_tim_inven_prot2(p_ptr->tim_inven_prot2 - 1, TRUE);
 
     if (p_ptr->tim_device_power)
         set_tim_device_power(p_ptr->tim_device_power - 1, TRUE);
@@ -2548,6 +2647,7 @@ static byte get_dungeon_feeling(void)
  */
 static void update_dungeon_feeling(void)
 {
+    bool feeling_was_special = (p_ptr->feeling == 1);
     byte new_feeling;
     int delay;
 
@@ -2587,7 +2687,7 @@ static void update_dungeon_feeling(void)
     p_ptr->redraw |= (PR_DEPTH);
 
     /* Disturb */
-    if (disturb_minor) disturb(0, 0);
+    if ((disturb_minor) && ((feeling_was_special) || (p_ptr->feeling == 1))) disturb(0, 0);
 }
 
 
@@ -2866,6 +2966,7 @@ static void process_world(void)
         if (min != prev_min)
         {
             determine_today_mon(FALSE);
+            if (p_ptr->prace == RACE_WEREWOLF) werewolf_check_midnight();
         }
     }
 
@@ -3444,6 +3545,8 @@ static void _dispatch_command(int old_now_turn)
                 rage_mage_browse_spell();
             else if (p_ptr->pclass == CLASS_SKILLMASTER)
                 skillmaster_browse();
+            else if (p_ptr->pclass == CLASS_ALCHEMIST)
+                alchemist_browse();
             else if (p_ptr->pclass == CLASS_GRAY_MAGE)
                 gray_mage_browse_spell();
             else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
@@ -3464,7 +3567,6 @@ static void _dispatch_command(int old_now_turn)
                      p_ptr->pclass == CLASS_MAULER ||
                      p_ptr->pclass == CLASS_MYSTIC ||
                      p_ptr->pclass == CLASS_SNIPER ||
-                     p_ptr->pclass == CLASS_ALCHEMIST ||
                      p_ptr->pclass == CLASS_TIME_LORD )
             {
                 /* This is the preferred entry point ... I'm still working on
@@ -4156,7 +4258,7 @@ static void process_player(void)
               && !p_ptr->afraid
               && !p_ptr->stun
               && !p_ptr->cut
-              && !p_ptr->slow
+              && !player_slow()
               && !p_ptr->paralyzed
               && !p_ptr->image
               && !p_ptr->word_recall
@@ -4677,6 +4779,7 @@ static void process_player(void)
                 p_ptr->energy_need = ENERGY_NEED();
                 handle_stuff();
             }
+            predictable_energy_hack = FALSE;
         }
         else
             player_turn--;
@@ -5279,6 +5382,9 @@ void play_game(bool new_game)
         }
     }
 
+    /* Suppress extra pantheons */
+    if (single_pantheon) _suppress_extra_pantheons();
+
     creating_savefile = FALSE;
 
     p_ptr->teleport_town = FALSE;
@@ -5432,7 +5538,7 @@ void play_game(bool new_game)
             py_birth_food();
             py_birth_light();
         }
-        if ((coffee_break) && (p_ptr->pclass != CLASS_BERSERKER)) py_birth_obj_aux(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL, 1);
+        if ((coffee_break) && (p_ptr->pclass != CLASS_BERSERKER)) py_birth_obj_aux(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL, (game_mode == GAME_MODE_BEGINNER) ? 10 : 1);
 
         spell_stats_on_birth();
 
@@ -5637,6 +5743,7 @@ void play_game(bool new_game)
                     /* Leaving */
                     p_ptr->wild_mode = FALSE;
                     p_ptr->leaving = TRUE;
+                    quest_reward_drop_hack = FALSE;
 
                     /* Prepare next floor */
                     leave_floor();

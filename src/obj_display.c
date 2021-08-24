@@ -93,9 +93,16 @@ static string_ptr _get_res_name(int res)
 static void _display_name(object_type *o_ptr, doc_ptr doc)
 {
     char o_name[MAX_NLEN];
+    char o_name2[MAX_NLEN];
+    int leveys = MIN(72, doc->width);
 
     object_desc(o_name, o_ptr, OD_COLOR_CODED | OD_NAME_AND_ENCHANT | OD_NO_FLAVOR);
-    doc_printf(doc, "%s\n", o_name);
+    object_desc(o_name2, o_ptr, OD_NAME_AND_ENCHANT | OD_NO_FLAVOR);
+    if ((int)strlen(o_name2) > leveys - 10)
+    {
+        doc_printf(doc, "%s\n", o_name);
+    }
+    else doc_printf(doc, "%s%*c%2d.%d lbs\n", o_name, leveys - (strlen(o_name2) + 9), ' ', o_ptr->weight / 10, o_ptr->weight % 10);
 }
 
 static void _selita_paikka(char *paikka_text, byte paikka, byte taso, byte origin)
@@ -1081,6 +1088,8 @@ static void _display_curses(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_pt
         vec_add(v, string_copy_s("<color:o>Drains You</color>"));
     if (o_ptr->known_curse_flags & OFC_DRAIN_MANA)
         vec_add(v, string_copy_s("<color:B>Drains Mana</color>"));
+    if (object_is_unenchantable(o_ptr))
+        vec_add(v, string_copy_s("<color:r>Unenchantable</color>"));
 
     if (vec_length(v))
     {

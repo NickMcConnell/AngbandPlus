@@ -165,6 +165,9 @@ static void rd_monster(savefile_ptr file, monster_type *m_ptr)
         case SAVE_MON_MANA:
             m_ptr->mana = savefile_read_s16b(file);
             break;
+        case SAVE_MON_MINISLOW:
+            m_ptr->minislow = savefile_read_byte(file);
+            break;
         /* default:
             TODO: Report an error back to the load routine!!*/
         }
@@ -373,6 +376,8 @@ static void rd_extra(savefile_ptr file)
     rd_quick_start(file);
 
     game_mode = savefile_read_s32b(file);
+    if (savefile_is_older_than(file, 7,0,6,4)) game_pantheon = 0;
+    else game_pantheon = savefile_read_byte(file);
 
     p_ptr->prace = savefile_read_byte(file);
     p_ptr->pclass = savefile_read_byte(file);
@@ -470,6 +475,22 @@ static void rd_extra(savefile_ptr file)
     p_ptr->energy_need = savefile_read_s16b(file);
     p_ptr->fast = savefile_read_s16b(file);
     p_ptr->slow = savefile_read_s16b(file);
+    if (!savefile_is_older_than(file, 7,0,6,3))
+    {
+        p_ptr->minislow = savefile_read_byte(file);
+        p_ptr->mini_energy = savefile_read_u16b(file);
+    }
+    else /* paranoia */
+    {
+        p_ptr->minislow = 0;
+        p_ptr->mini_energy = 0;
+    } 
+    if (!savefile_is_older_than(file, 7,0,6,5))
+    {
+       p_ptr->unwell = savefile_read_byte(file);
+    }
+    else p_ptr->unwell = 0;
+
     p_ptr->afraid = savefile_read_s16b(file);
     p_ptr->cut = savefile_read_s16b(file);
     p_ptr->stun = savefile_read_s16b(file);
@@ -597,6 +618,8 @@ static void rd_extra(savefile_ptr file)
     p_ptr->tim_transcendence = savefile_read_s16b(file);
     p_ptr->tim_quick_walk = savefile_read_s16b(file);
     p_ptr->tim_inven_prot = savefile_read_s16b(file);
+    if (!savefile_is_older_than(file, 7,0,6,6)) p_ptr->tim_inven_prot2 = savefile_read_s16b(file);
+    else p_ptr->tim_inven_prot2 = 0;
     p_ptr->tim_device_power = savefile_read_s16b(file);
     p_ptr->tim_sh_time = savefile_read_s16b(file);
     p_ptr->free_turns = savefile_read_s16b(file);
@@ -838,7 +861,6 @@ static errr rd_saved_floor(savefile_ptr file, saved_floor_type *sf_ptr)
             c_ptr->o_idx = o_idx;
         }
     }
-
 
     /*** Monsters ***/
     limit = savefile_read_u16b(file);

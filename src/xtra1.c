@@ -394,14 +394,16 @@ static void prt_stat(int stat)
 {
     char tmp[32];
     rect_t r = ui_char_info_rect();
-
+    byte vari;
 
     /* Display "injured" stat */
     if (p_ptr->stat_cur[stat] < p_ptr->stat_max[stat])
     {
         put_str(stat_names_reduced[stat], r.y + ROW_STAT + stat, r.x + COL_STAT);
         cnv_stat(p_ptr->stat_use[stat], tmp);
-        c_put_str(TERM_YELLOW, tmp, r.y + ROW_STAT + stat, r.x + COL_STAT + 6);
+        vari = TERM_YELLOW;
+        if ((p_ptr->unwell) && (unwell_effect(p_ptr->unwell)) && (stat == A_DEX || stat == A_CON)) vari = TERM_L_BLUE;
+        c_put_str(vari, tmp, r.y + ROW_STAT + stat, r.x + COL_STAT + 6);
     }
 
     /* Display "healthy" stat */
@@ -409,7 +411,9 @@ static void prt_stat(int stat)
     {
         put_str(stat_names[stat], r.y + ROW_STAT + stat, r.x + COL_STAT);
         cnv_stat(p_ptr->stat_use[stat], tmp);
-        c_put_str(TERM_L_GREEN, tmp, r.y + ROW_STAT + stat, r.x + COL_STAT + 6);
+        vari = TERM_L_GREEN;
+        if ((p_ptr->unwell) && (unwell_effect(p_ptr->unwell)) && (stat == A_DEX || stat == A_CON)) vari = TERM_L_WHITE;
+        c_put_str(vari, tmp, r.y + ROW_STAT + stat, r.x + COL_STAT + 6);
     }
 
     /* Indicate natural maximum */
@@ -567,7 +571,7 @@ static void prt_stat(int stat)
 #define BAR_TUNNEL 140
 #define BAR_QUICK_WALK 141
 #define BAR_INVEN_PROT 142
-#define BAR_XXXX2 143
+#define BAR_INVEN_PROT2 143
 #define BAR_WEAPONMASTERY 144
 #define BAR_DEVICE_POWER 145
 #define BAR_SPLATTER 146
@@ -605,6 +609,7 @@ static void prt_stat(int stat)
 #define BAR_GLORY 178
 #define BAR_UPKEEP 179
 #define BAR_FILIBUSTER 180
+#define BAR_UNWELL 181
 
 static struct {
     byte attr;
@@ -756,7 +761,7 @@ static struct {
     {TERM_L_DARK, "Tn", "Tunnel"},
     {TERM_YELLOW, "QW", "Quickwalk"},
     {TERM_L_BLUE, "IP", "InvenProt"},
-    {TERM_YELLOW, "Sk", "Shrike"},
+    {TERM_VIOLET, "IP", "InvenProt"},
     {TERM_L_BLUE, "Wp", "Weapon"},
     {TERM_VIOLET, "Dv", "Device"},
     {TERM_RED, "*", "Splatter"},
@@ -794,6 +799,7 @@ static struct {
     {TERM_L_GREEN, "uXP", "Glory"},
     {TERM_L_RED, "Upk", "Upkeep"},
     {TERM_ORANGE, "Flb", "Filibuster"},
+    {TERM_L_WHITE, "Unw", "Unwell"},
     {0, NULL, NULL}
 };
 
@@ -977,6 +983,8 @@ static void prt_status(void)
 
     /* Dangerously high upkeep */
     if (p_ptr->upkeep_warning) ADD_FLG(BAR_UPKEEP);
+
+    if (unwell_effect(p_ptr->unwell)) ADD_FLG(BAR_UNWELL);
 
     if (p_ptr->tim_spurt) ADD_FLG(BAR_TIME_SPURT);
     if (p_ptr->tim_blood_shield) ADD_FLG(BAR_BLOOD_SHIELD);
@@ -1236,7 +1244,8 @@ static void prt_status(void)
     if (p_ptr->tim_hold_life) ADD_FLG(BAR_HOLD_LIFE);
     if (p_ptr->tim_transcendence) ADD_FLG(BAR_TRANSCENDENCE);
     if (p_ptr->tim_quick_walk) ADD_FLG(BAR_QUICK_WALK);
-    if (p_ptr->tim_inven_prot) ADD_FLG(BAR_INVEN_PROT);
+    if (p_ptr->tim_inven_prot2) ADD_FLG(BAR_INVEN_PROT2);
+    else if (p_ptr->tim_inven_prot) ADD_FLG(BAR_INVEN_PROT);
     if (p_ptr->tim_device_power) ADD_FLG(BAR_DEVICE_POWER);
     if (p_ptr->tim_sh_time) ADD_FLG(BAR_SH_TIME);
     if (p_ptr->free_turns) ADD_FLG(BAR_DBL_MOVE);
@@ -1760,6 +1769,7 @@ static bool prt_speed(int row, int col)
 {
     int i = p_ptr->pspeed;
     bool is_fast = IS_FAST();
+    byte hitaus = player_slow();
 
     byte attr = TERM_WHITE;
     char buf[32] = "";
@@ -1773,12 +1783,15 @@ static bool prt_speed(int row, int col)
         if (p_ptr->riding)
         {
             monster_type *m_ptr = &m_list[p_ptr->riding];
-            if (MON_FAST(m_ptr) && !MON_SLOW(m_ptr)) attr = TERM_L_BLUE;
-            else if (MON_SLOW(m_ptr) && !MON_FAST(m_ptr)) attr = TERM_VIOLET;
+            byte m_nopeus = (MON_FAST(m_ptr) ? 10 : 0);
+            byte m_hitaus = monster_slow(m_ptr);
+            if (m_nopeus > m_hitaus) attr = TERM_L_BLUE;
+            else if (m_hitaus > m_nopeus) attr = TERM_VIOLET;
             else attr = TERM_GREEN;
         }
-        else if ((is_fast && !p_ptr->slow) || IS_LIGHT_SPEED() || psion_speed()) attr = TERM_YELLOW;
-        else if (p_ptr->slow && !is_fast) attr = TERM_VIOLET;
+        else if ((is_fast && !hitaus) || IS_LIGHT_SPEED() || psion_speed()) attr = TERM_YELLOW;
+        else if (hitaus && !is_fast) attr = TERM_VIOLET;
+        else if ((is_fast) && (hitaus) && (hitaus != 10)) attr = ((hitaus > 10) ? TERM_VIOLET : TERM_YELLOW);
         else if (p_ptr->filibuster) attr = TERM_ORANGE;
         else attr = TERM_L_GREEN;
         sprintf(buf, "Fast (+%d)", (i - 110));
@@ -1791,12 +1804,15 @@ static bool prt_speed(int row, int col)
         if (p_ptr->riding)
         {
             monster_type *m_ptr = &m_list[p_ptr->riding];
-            if (MON_FAST(m_ptr) && !MON_SLOW(m_ptr)) attr = TERM_L_BLUE;
-            else if (MON_SLOW(m_ptr) && !MON_FAST(m_ptr)) attr = TERM_VIOLET;
+            byte m_nopeus = (MON_FAST(m_ptr) ? 10 : 0);
+            byte m_hitaus = monster_slow(m_ptr);
+            if (m_nopeus > m_hitaus) attr = TERM_L_BLUE;
+            else if (m_hitaus > m_nopeus) attr = TERM_VIOLET;
             else attr = TERM_RED;
         }
-        else if (is_fast && !p_ptr->slow) attr = TERM_YELLOW;
-        else if (p_ptr->slow && !is_fast) attr = TERM_VIOLET;
+        else if (is_fast && !hitaus) attr = TERM_YELLOW;
+        else if (hitaus && !is_fast) attr = TERM_VIOLET;
+        else if ((is_fast) && (hitaus) && (hitaus != 10)) attr = ((hitaus > 10) ? TERM_VIOLET : TERM_YELLOW);
         else if (p_ptr->filibuster) attr = TERM_ORANGE;
         else attr = TERM_L_UMBER;
         sprintf(buf, "Slow (-%d)", (110 - i));
@@ -1825,7 +1841,6 @@ static void prt_cut(int row, int col)
     if (cut.level != CUT_NONE)
         c_put_str(cut.attr, cut.desc, row, col);
 }
-
 
 static void prt_stun(int row, int col)
 {
@@ -1906,6 +1921,13 @@ static void prt_effects(void)
         race_t *race_ptr = get_race();
         sprintf(buf, "[%.10s]", race_ptr->name);
         c_put_str(TERM_RED, buf, row++, col);
+    }
+    else if (prace_is_(RACE_WEREWOLF))
+    {
+        char buf[MAX_NLEN];
+        if (werewolf_in_human_form()) sprintf(buf, "[Human]");
+        else sprintf(buf, "[Wolf]");
+        c_put_str(TERM_ORANGE, buf, row++, col);
     }
     if (monk_armour_aux)
         c_put_str(TERM_RED, "Heavy Armor", row++, col);
@@ -3479,10 +3501,17 @@ static void calc_torch(void)
 int py_total_weight(void)
 {
     int weight = 0;
+    race_t  *race_ptr = get_true_race();
+    class_t *class_ptr = get_class();
 
     weight += equip_weight(NULL);
     weight += pack_weight(NULL);
     weight += quiver_weight(NULL);
+
+    if (race_ptr->calc_extra_weight)
+        weight += race_ptr->calc_extra_weight(NULL);
+    if (class_ptr->calc_extra_weight)
+        weight += class_ptr->calc_extra_weight(NULL);
 
     return weight;
 }
@@ -3571,7 +3600,6 @@ void calc_bonuses(void)
 
     /* Clear the stat modifiers */
     for (i = 0; i < 6; i++) p_ptr->stat_add[i] = 0;
-
 
     /* Clear the Displayed/Real armor class */
     p_ptr->dis_ac = p_ptr->ac = 0;
@@ -3985,6 +4013,12 @@ void calc_bonuses(void)
         p_ptr->stat_add[i] += (race_ptr->stats[i] + class_ptr->stats[i] + pers_ptr->stats[i]);
     }
 
+    if (p_ptr->unwell)
+    {
+        p_ptr->stat_add[A_DEX] -= unwell_effect(p_ptr->unwell);
+        p_ptr->stat_add[A_CON] -= unwell_effect(p_ptr->unwell);
+    }
+
     mut_calc_bonuses();  /* Process before equip for MUT_FLESH_ROT */
     equip_calc_bonuses();
     pack_calc_bonuses();
@@ -4147,8 +4181,7 @@ void calc_bonuses(void)
     else if (p_ptr->tim_spurt)
         p_ptr->pspeed += 3;
 
-    if (p_ptr->slow)
-        p_ptr->pspeed -= 10;
+    p_ptr->pspeed -= player_slow();
 
     if (p_ptr->filibuster)
         p_ptr->pspeed -= SPEED_ADJ_FILIBUSTER;
@@ -4422,7 +4455,6 @@ void calc_bonuses(void)
         }
     }
 
-
     /* Extract the current weight (in tenth pounds) */
     j = py_total_weight();
 
@@ -4459,7 +4491,7 @@ void calc_bonuses(void)
             p_ptr->pspeed += (skills_riding_current() + p_ptr->lev *160)/3200;
         }
         if (MON_FAST(riding_m_ptr)) p_ptr->pspeed += 10;
-        if (MON_SLOW(riding_m_ptr)) p_ptr->pspeed -= 10;
+        p_ptr->pspeed -= monster_slow(riding_m_ptr);
 
         if (warlock_is_(WARLOCK_DRAGONS))
         {

@@ -77,6 +77,14 @@ byte lawyer_hack(magic_type *s_ptr, int tyyppi)
         }
         default:
         {
+            if (p_ptr->prace == RACE_WEREWOLF) /* increased fail rates */
+            {
+                int tulos;
+                if (werewolf_in_human_form()) tulos = s_ptr->sfail + ((kerroin < 101) ? 15 : 20);
+                else tulos = MAX(s_ptr->sfail + ((kerroin < 101) ? 25 : 30), (int)s_ptr->sfail * 2);
+                if (tulos > 255) tulos = 255;
+                return tulos;
+            }
             return ((kerroin < 101) ? s_ptr->sfail : s_ptr->sfail + 10);
         }
     }
@@ -359,8 +367,7 @@ cptr do_law_spell(int spell, int mode)
                 stair_creation(FALSE);
                 break;
             default:
-                if (get_check("Teleport Level? "))
-                    teleport_level(0);
+                (void)py_teleport_level("Teleport Level? ");
             }
         }
         break;
