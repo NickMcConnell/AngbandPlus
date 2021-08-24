@@ -575,7 +575,7 @@ void phase_door_spell(int cmd, variant *res)
         {
             var_set_int(res, 30);
             break;
-        }
+        } /* Fall through */
     default:
         default_spell(cmd, res);
         break;
@@ -871,6 +871,7 @@ void power_throw_spell(int cmd, variant *res)
         }
         p_ptr->mighty_throw = old_mt;
         var_set_bool(res, TRUE);
+        break;
     }
     case SPELL_CALC_BONUS:
         p_ptr->mighty_throw = TRUE;
@@ -1192,11 +1193,7 @@ void resistance_spell(int cmd, variant *res)
     {
         int base = spell_power(20);
 
-        set_oppose_acid(randint1(base) + base, FALSE);
-        set_oppose_elec(randint1(base) + base, FALSE);
-        set_oppose_fire(randint1(base) + base, FALSE);
-        set_oppose_cold(randint1(base) + base, FALSE);
-        set_oppose_pois(randint1(base) + base, FALSE);
+        set_oppose_base(randint1(base) + base, FALSE);
 
         var_set_bool(res, TRUE);
         break;

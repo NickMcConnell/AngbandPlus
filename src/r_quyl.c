@@ -59,7 +59,7 @@ static void _summon(int what, int num, bool fail)
     else
         num = spell_power(num);
 
-    if (!fail && old_target_okay() && los(py, px, target_row, target_col) && !one_in_(3))
+    if (!fail && p_ptr->lev >= 20 && !one_in_(3) && get_direct_target() && los(py, px, target_row, target_col))
     {
         y = target_row;
         x = target_col;
@@ -751,24 +751,24 @@ static spell_info _master_spells[] =
     { -1, -1, -1, NULL}
 };
 
-static int _get_spells(spell_info* spells, int max) 
+static spell_info *_get_spells(void) 
 {
     switch (p_ptr->current_r_idx)
     {
     case MON_ROTTING_QUYLTHULG:
     case MON_GREATER_ROTTING_QUYLTHULG:
-        return get_spells_aux(spells, max, _rotting_spells);
+        return _rotting_spells;
     case MON_DRACONIC_QUYLTHULG:
     case MON_GREATER_DRACONIC_QUYLTHULG:
-        return get_spells_aux(spells, max, _draconic_spells);
+        return _draconic_spells;
     case MON_DEMONIC_QUYLTHULG:
     case MON_GREATER_DEMONIC_QUYLTHULG:
-        return get_spells_aux(spells, max, _demonic_spells);
+        return _demonic_spells;
     case MON_MASTER_QUYLTHULG:
-        return get_spells_aux(spells, max, _master_spells);
+        return _master_spells;
     }
 
-    return get_spells_aux(spells, max, _baby_spells);
+    return _baby_spells;
 }
 
 static caster_info * _caster_info(void)
@@ -989,7 +989,7 @@ race_t *mon_quylthulg_get_race(void)
         me.base_hp = 0;
         me.shop_adjust = 120;
 
-        me.get_spells = _get_spells;
+        me.get_spells_fn = _get_spells;
         me.caster_info = _caster_info;
         me.calc_bonuses = _calc_bonuses;
         me.get_flags = _get_flags;

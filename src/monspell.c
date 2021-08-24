@@ -61,6 +61,7 @@ enum {
     ANNOY_TELE_TO,
     ANNOY_TRAPS,
     ANNOY_WORLD,
+    ANNOY_NO_AIR,
 };
 static _parse_t _annoy_tbl[] = {
     { "AMNESIA", { MST_ANNOY, ANNOY_AMNESIA },
@@ -72,7 +73,7 @@ static _parse_t _annoy_tbl[] = {
           "$CASTER casts a spell to revive the dead.",
           "$CASTER mumbles."}},
     { "BLIND", { MST_ANNOY, ANNOY_BLIND },
-        { "Blind", TERM_WHITE,
+        { "Blind", TERM_ORANGE,
           "$CASTER casts a spell, burning your eyes!",
           "$CASTER mumbles."}, MSF_TARGET | MSF_DIRECT},
     { "CONFUSE", { MST_ANNOY, ANNOY_CONFUSE },
@@ -90,7 +91,7 @@ static _parse_t _annoy_tbl[] = {
           "$CASTER casts a fearful illusion.",
           "$CASTER mumbles, and you hear scary noises."}, MSF_TARGET | MSF_DIRECT},
     { "SLOW", { MST_ANNOY, ANNOY_SLOW },
-        { "Slow", TERM_L_UMBER,
+        { "Slow", TERM_SLATE,
           "$CASTER drains power from your muscles!",
           "$CASTER drains power from your muscles!"}, MSF_TARGET | MSF_DIRECT},
     { "SHRIEK", { MST_ANNOY, ANNOY_SHRIEK },
@@ -112,6 +113,11 @@ static _parse_t _annoy_tbl[] = {
           "You create a trap." }},
     { "WORLD", { MST_ANNOY, ANNOY_WORLD },
         { "Stop Time", TERM_L_BLUE}},
+    { "NO_AIR", { MST_ANNOY, ANNOY_NO_AIR },
+        { "Remove Air", TERM_L_BLUE,
+          "$CASTER takes a deep breath.",
+          "$CASTER takes a deep breath.",
+          "You take a deep breath." }},
     {0}
 };
 
@@ -308,22 +314,22 @@ static _parse_t _beam_tbl[] = {
  * so we must omit the player casting messages. */
 static _parse_t _curse_tbl[] = {
     { "CAUSE_1", { MST_CURSE, GF_CAUSE_1 },
-        { "Cause Light Wounds", TERM_RED,
+        { "Wounding Curse", TERM_RED,
           "$CASTER points at you and curses.",
           "$CASTER curses.",
           "$CASTER points at $TARGET and curses." }, MSF_TARGET },
     { "CAUSE_2", { MST_CURSE, GF_CAUSE_2 },
-        { "Cause Serious Wounds", TERM_RED,
+        { "Evil Curse", TERM_RED,
           "$CASTER points at you and curses horribly.",
           "$CASTER curses horribly.",
           "$CASTER points at $TARGET and curses horribly." }, MSF_TARGET },
     { "CAUSE_3", { MST_CURSE, GF_CAUSE_3 },
-        { "Cause Critical Wounds", TERM_RED,
+        { "Mighty Curse", TERM_RED,
           "$CASTER points at you, incanting terribly!",
           "$CASTER incants terribly.",
           "$CASTER points at $TARGET, incanting terribly!" }, MSF_TARGET },
     { "CAUSE_4", { MST_CURSE, GF_CAUSE_4 },
-        { "Cause Mortal Wounds", TERM_RED,
+        { "Death Curse", TERM_RED,
           "$CASTER points at you, screaming the word DIE!",
           "$CASTER screams the word DIE!", 
           "$CASTER points at $TARGET, screaming the word DIE!" }, MSF_TARGET },
@@ -631,6 +637,7 @@ static mon_spell_parm_t _breath_parm(int which)
     case GF_PLASMA:
     case GF_HELL_FIRE:
     case GF_HOLY_FIRE:
+    case GF_AIR:
         parm.v.hp_pct = _hp_pct(17, 250);
         break;
     case GF_GRAVITY:
@@ -1594,6 +1601,7 @@ static void _breath(void)
     int max = _current.spell->parm.v.hp_pct.max;
     int flags = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
     int rad = _current.race->level >= 50 ? -3 : -2;
+    int typ = _current.spell->id.effect;
 
     assert(_current.spell->parm.tag == MSP_HP_PCT);
     if (_current.race->d_char == 'D') rad = -3;
@@ -1610,8 +1618,28 @@ static void _breath(void)
     }
     if (dam > max) dam = max;
 
+    if (p_ptr->no_air)
+    {
+        switch (typ)
+        {
+            case GF_SOUND:
+                if ((_current.flags & MSC_SRC_PLAYER) || (mon_show_msg(_current.mon))) msg_print("The lack of air only allows for a faint, embarrassing squeak.");
+                return;
+            case GF_AIR:
+                if ((no_air_monster) && (!(_current.flags & MSC_SRC_PLAYER)) && (_current.mon) && (_current.mon->id == no_air_monster))
+                dam += (dam * 4 / 5);
+                typ = GF_STORM;
+                set_no_air(0, TRUE);
+                msg_print("Winds pummel you from all sides!");
+                break;
+            case GF_STORM:
+                set_no_air(0, TRUE);
+                break;
+        }
+    }
+
     project(_who(), rad, _current.dest.y, _current.dest.x,
-        dam, _current.spell->id.effect, flags);
+        dam, typ, flags);
 }
 
 static int _roll(dice_t dice)
@@ -1682,12 +1710,20 @@ static void _bolt(void)
         flags |= PROJECT_PLAYER;
 
     assert(_current.spell->parm.tag == MSP_DICE);
-    if (_current.race->id == MON_ARTEMIS && _spell_is_(_current.spell, MST_BOLT, GF_ARROW))
+    if (((_current.race->id == MON_ARTEMIS) || (_current.race->id == MON_ULLUR)) && (_spell_is_(_current.spell, MST_BOLT, GF_ARROW)))
     {
         ct = 4;
         flags &= ~PROJECT_REFLECTABLE;
     }
-    else if (_current.race->id == MON_KUNDRY && _spell_is_(_current.spell, MST_BOLT, GF_TIME))
+    else if (_current.race->id == MON_SKADI && _spell_is_(_current.spell, MST_BOLT, GF_ARROW))
+    {
+        ct = 3;
+        flags &= ~PROJECT_REFLECTABLE;
+    }
+    else if (((_current.race->id == MON_KUNDRY) ||
+              (_current.race->id == MON_VISHNU) ||
+              (_current.race->id == MON_KRISHNA) ||
+              (_current.race->id == MON_SHIVA)) && (_spell_is_(_current.spell, MST_BOLT, GF_TIME)))
     {
         flags &= ~PROJECT_REFLECTABLE;
     }
@@ -1745,32 +1781,38 @@ static bool _curse_save(void)
     int odds = _curse_save_odds();
     return randint0(100) < odds;
 }
-static bool _m_resist_tele(mon_ptr mon, cptr name)
+bool mon_save_tele_to(mon_ptr mon, cptr name, bool assume_sight)
 {
     mon_race_ptr race = &r_info[mon->r_idx];
     if (race->flagsr & RFR_RES_TELE)
     {
         if ((race->flags1 & RF1_UNIQUE) || (race->flagsr & RFR_RES_ALL))
         {
-            if (mon_show_msg(mon))
+            if ((assume_sight) || (mon_show_msg(mon)))
             {
                 mon_lore_r(mon, RFR_RES_TELE);
-                msg_format("%s is unaffected!", name);
+                msg_format("%^s is unaffected!", name);
             }
             return TRUE;
         }
         else if (race->level > randint1(100))
         {
-            if (mon_show_msg(mon))
+            if ((assume_sight) || (mon_show_msg(mon)))
             {
                 mon_lore_r(mon, RFR_RES_TELE);
-                msg_format("%s resists!", name);
+                msg_format("%^s resists!", name);
             }
             return TRUE;
         }
     }
     return FALSE;
 }
+
+static bool _m_resist_tele(mon_ptr mon, cptr name)
+{
+    return mon_save_tele_to(mon, name, FALSE);
+}
+
 static void _annoy_m(void)
 {
     switch (_current.spell->id.effect)
@@ -1802,6 +1844,11 @@ static void _annoy_m(void)
         gf_affect_m(_who(), _current.mon2, GF_TURN_ALL, _current.race->level, GF_AFFECT_SPELL);
         break;
     case ANNOY_SHRIEK:
+        if ((p_ptr->no_air) && ((_current.flags & MSC_SRC_PLAYER) || (mon_show_msg(_current.mon))))
+        {
+            msg_print("The lack of air only allows for a faint, embarrassing squeak.");
+            break;
+        }
         aggravate_monsters(_who());
         break;
     case ANNOY_SLOW:
@@ -1853,6 +1900,10 @@ static void _annoy_m(void)
         if (_current.flags & MSC_SRC_PLAYER)
             cast_spell(stop_time_spell);
         break;
+    case ANNOY_NO_AIR:
+        if (_current.flags & MSC_SRC_PLAYER)
+            set_no_air(NO_AIR_MAX, FALSE);
+        break;
     }
 }
 static void _annoy_p(void)
@@ -1897,6 +1948,11 @@ static void _annoy_p(void)
         gf_affect_p(_current.mon->id, GF_TURN_ALL, 0, GF_AFFECT_SPELL);
         break;
     case ANNOY_SHRIEK:
+        if ((p_ptr->no_air) && ((_current.flags & MSC_SRC_PLAYER) || (mon_show_msg(_current.mon))))
+        {
+            msg_print("The lack of air only allows for a faint, embarrassing squeak.");
+            return;
+        }
         aggravate_monsters(_current.mon->id);
         break;
     case ANNOY_SLOW:
@@ -1932,10 +1988,15 @@ static void _annoy_p(void)
         break;
     case ANNOY_WORLD: {
         int who = 0;
+        /* Why are checking ID here?! */
         if (_current.mon->id == MON_DIO) who = 1; /* XXX Seriously?! */
         else if (_current.mon->id == MON_WONG) who = 3;
         process_the_world(randint1(2)+2, who, TRUE);
         break; }
+    case ANNOY_NO_AIR:
+        set_no_air(NO_AIR_MAX, FALSE);
+        no_air_monster = _current.mon->id;
+        break;
     }
     /* XXX this sort of stuff needs to be a class hook ... */
     if (p_ptr->tim_spell_reaction && !p_ptr->fast)
@@ -2291,7 +2352,6 @@ static void _summon_type(int type)
     if (type == SUMMON_PANTHEON)
     {
         summon_pantheon_hack = monster_pantheon(mon_race(_current.mon));
-        if ((!summon_pantheon_hack) && (single_pantheon)) summon_pantheon_hack = MIN(game_pantheon, PANTHEON_MAX - 1);
     }
     else if (type == SUMMON_DEAD_UNIQ)
     {
@@ -2516,7 +2576,7 @@ static void _summon_special(void)
         if (_current.flags & MSC_SRC_PLAYER)
             msg_print("You summon your family!");
         else
-            msg_format("%s summons his family!'", _current.name);
+            msg_format("%s summons his family!", _current.name);
         r_idx = MON_HORUS;
         r_idx2 = MON_ISIS;
         break;
@@ -2534,6 +2594,15 @@ static void _summon_special(void)
         else
             msg_format("%s summons his minions.", _current.name);
         r_idx = MON_DEATH_PUMPKIN;
+        break;
+    case MON_VARUNA:
+        fire_ball_hide(GF_WATER_FLOW, 0, 3, 8);
+        if (_current.flags & MSC_SRC_PLAYER)
+            msg_print("You summon your minions!");
+        else
+            msg_format("%s summons his minions!", _current.name);
+        r_idx = MON_MAKARA;
+        if (num < 3) num += 2;
         break;
     case MON_AEGIR:
         fire_ball_hide(GF_WATER_FLOW, 0, 3, 8);
@@ -2554,7 +2623,129 @@ static void _summon_special(void)
             r_idx = MON_LESSER_KRAKEN;
         }
         break;
-
+    case MON_VISHNU:
+        if ((one_in_(3)) && ((mon_available_num(&r_info[MON_RAMA]) == 1) || (mon_available_num(&r_info[MON_KRISHNA]) == 1)))
+        {
+            num = 1;
+            r_idx = MON_RAMA;
+            r_idx2 = MON_KRISHNA;
+            if (_current.flags & MSC_SRC_PLAYER)
+                msg_print("You summon your avatars!");
+            else if (one_in_(15))
+                msg_format("%s summons his avatars! (You consider this blatant sockpuppetry!)", _current.name);
+            else
+                msg_format("%s summons his avatars!", _current.name);
+        }
+        else if (one_in_(2) && mon_available_num(&r_info[MON_LAKSHMI]) == 1)
+        {
+            if (_current.flags & MSC_SRC_PLAYER)
+                msg_print("You summon your family!");
+            else
+                msg_format("%s summons his family!", _current.name);
+            num = 1;
+            r_idx = MON_LAKSHMI;
+        }
+        else
+        {
+            if (_current.flags & MSC_SRC_PLAYER)
+                msg_print("You summon your mount!");
+            else
+                msg_format("%s summons his mount!", _current.name);
+            num = 1;
+            r_idx = MON_SHESHA;
+        }
+        break;
+    case MON_SHIVA:
+        if ((!one_in_(3)) && ((mon_available_num(&r_info[MON_PARVATI]) == 1) || (mon_available_num(&r_info[MON_GANESHA]) == 1)
+            || (mon_available_num(&r_info[MON_KARTHIKEYA]) == 1)))
+        {
+            num = 1;
+            r_idx = MON_KARTHIKEYA;
+            r_idx2 = MON_GANESHA;
+            if (!mon_available_num(&r_info[MON_KARTHIKEYA])) r_idx = MON_PARVATI;
+            else if (!mon_available_num(&r_info[MON_GANESHA])) r_idx2 = MON_PARVATI;
+            else if ((mon_available_num(&r_info[MON_PARVATI]) == 1) && (!one_in_(3)))
+            {
+                if (one_in_(2)) r_idx = MON_PARVATI;
+                else r_idx2 = MON_PARVATI;
+            }
+            if (_current.flags & MSC_SRC_PLAYER)
+                msg_print("You summon your family!");
+            else if (one_in_(15))
+                msg_format("%s summons his family!");
+        }
+        else
+        {
+            if (_current.flags & MSC_SRC_PLAYER)
+                msg_print("You summon your pets!");
+            else
+                msg_format("%s summons his pets!", _current.name);
+            num = 1;
+            r_idx = MON_NANDI;
+            r_idx = MON_VASUKI;
+        }
+        break;
+    case MON_PARVATI:
+        {
+            num = 1;
+            r_idx = MON_KARTHIKEYA;
+            r_idx2 = MON_GANESHA;
+            if ((!mon_available_num(&r_info[MON_KARTHIKEYA])) && (one_in_(2))) r_idx = MON_SHIVA;
+            else if ((!mon_available_num(&r_info[MON_GANESHA])) && (one_in_(2))) r_idx2 = MON_SHIVA;
+            else if ((mon_available_num(&r_info[MON_SHIVA]) == 1) && (one_in_(4)))
+            {
+                if (one_in_(2)) r_idx = MON_SHIVA;
+                else r_idx2 = MON_SHIVA;
+            }
+            if (_current.flags & MSC_SRC_PLAYER)
+                msg_print("You summon your family!");
+            else if (one_in_(15))
+                msg_format("%s summons her family!");
+        }
+        break;
+    case MON_LAKSHMI:
+        num = 1;
+        if (_current.flags & MSC_SRC_PLAYER)
+            msg_print("You summon your family!");
+        else
+            msg_format("%s summons her family!", _current.name);
+        r_idx = MON_VISHNU;
+        break;
+    case MON_BRAHMA:
+        num = 1;
+        if (_current.flags & MSC_SRC_PLAYER)
+            msg_print("You summon your family!");
+        else
+            msg_format("%s summons his family!", _current.name);
+        r_idx = MON_SARASWATI;
+        break;
+    case MON_SARASWATI:
+        num = 1;
+        if (_current.flags & MSC_SRC_PLAYER)
+            msg_print("You summon your family!");
+        else
+            msg_format("%s summons her family!", _current.name);
+        r_idx = MON_BRAHMA;
+        break;
+    case MON_ODIN:
+        num = 1;
+        if (one_in_(2))
+        {
+            if (_current.flags & MSC_SRC_PLAYER)
+                msg_print("You summon the heroes of Valhalla!");
+            else
+                msg_format("%s summons the heroes of Valhalla!", _current.name);
+            r_idx = MON_EINHERI;
+        }
+        else
+        {
+            if (_current.flags & MSC_SRC_PLAYER)
+                msg_print("You summon Valkyries!");
+            else
+                msg_format("%s summons Valkyries!", _current.name);
+            r_idx = MON_VALKYRIE;
+        }
+        break;
     }
     for (i = 0; i < num; i++)
     {
@@ -2827,6 +3018,8 @@ static void _spell_cast_aux(void)
         if (_current.flags & MSC_DEST_PLAYER)
             disturb(1, 0);
         reset_target(_current.mon);
+        if ((p_ptr->no_air) && (_current.mon->id != no_air_monster) && (monster_living(_current.race)))
+            m_inc_minislow(_current.mon, 1);
         if (_spell_fail() || _spell_blocked()) return;
         /* Do lore now since Banor=Rupart may disappear ...
          * Note: We only lore projectable monster moves, so we
@@ -2855,7 +3048,7 @@ static void _spell_cast_aux(void)
     case MST_TACTIC:  _tactic();  break;
     case MST_WEIRD:   _weird();   break;
     case MST_POSSESSOR: _possessor(); break;
-    }    
+    }
 }
 
 /*************************************************************************
@@ -2919,6 +3112,11 @@ static _custom_msg_t _mon_msg_tbl[] = {
         "$CASTER quacks.",
         "$CASTER quacks.",
         "You quack." }, 
+   { MON_PLATYPUS, {MST_ANNOY, ANNOY_SHRIEK},
+        "$CASTER quacks.",
+        "$CASTER quacks.",
+        "$CASTER quacks.",
+        "You quack." },
    { MON_FISHROOSTER, {MST_SUMMON, SUMMON_MONSTER},
         "$CASTER spits out undigested monsters.",
         "$CASTER spits out undigested monsters.",
@@ -2939,6 +3137,16 @@ static _custom_msg_t _mon_msg_tbl[] = {
         "$CASTER commands you to spell his name.",
         "$CASTER commands $TARGET to spell his name.",
         "You organise an impromptu spelling bee."},
+    { MON_MANTA, {MST_BOLT, GF_ARROW},
+        "$CASTER fires a harpoon.",
+        "",
+        "$CASTER fires a harpoon at $TARGET.",
+        "You fire a harpoon." },
+   { MON_HEIMDALL, {MST_ANNOY, ANNOY_SHRIEK},
+        "$CASTER blows in Gjallarhorn!",
+        "$CASTER blows a horn!",
+        "$CASTER blows in Gjallarhorn!",
+        "You blow a horn." },
     {0}
 };
 static cptr _custom_msg(void)
@@ -3111,8 +3319,9 @@ static cptr _tactic_msg(void)
     {
         if (_current.flags & MSC_SRC_PLAYER)
             return "You jump away.";
-        else
+        else if (!(_current.flags & MSC_UNVIEW))
             return "$CASTER jumps away.";
+        else return "";
     }
     return NULL;
 }
@@ -3424,6 +3633,9 @@ static void _smart_remove_annoy(mon_spell_group_ptr group, u32b flags)
             break;
         case ANNOY_TELE_LEVEL:
             _smart_tweak_res_sav(spell, RES_NEXUS, flags);
+            break;
+        case ANNOY_NO_AIR:
+            if (get_race()->flags & RACE_IS_NONLIVING) spell->prob = 0;
             break;
         }
     }
@@ -3845,6 +4057,13 @@ static void _ai_think(mon_spell_cast_ptr cast)
     if (p_ptr->inside_arena || p_ptr->inside_battle)
         _remove_group(cast->race->spells->groups[MST_SUMMON], NULL);
 
+    /* Hack */
+    if ((cast->race->id == MON_HEIMDALL) && (!py_in_dungeon()))
+        _remove_spell(cast->race->spells, _id(MST_SUMMON, SUMMON_PANTHEON));
+
+    if (p_ptr->no_air)
+        _remove_spell(cast->race->spells, _id(MST_ANNOY, ANNOY_NO_AIR));
+
     if (cast->flags & MSC_DEST_PLAYER)
     {
         /* Being tele-leveled out of giant slayer is too annoying */
@@ -3852,7 +4071,7 @@ static void _ai_think(mon_spell_cast_ptr cast)
             _remove_spell(cast->race->spells, _id(MST_ANNOY, ANNOY_TELE_LEVEL));
 
         /* Don't try Poly Other if the player is known to resist */
-        if (player_obviously_poly_immune() || mut_present(MUT_DRACONIAN_METAMORPHOSIS))
+        if (player_obviously_poly_immune(TRUE))
             _remove_spell(cast->race->spells, _id(MST_BIFF, BIFF_POLYMORPH));
     }
 
@@ -4304,6 +4523,8 @@ int mon_spell_avg_dam(mon_spell_ptr spell, mon_race_ptr race, bool apply_resist)
     int tulos = _avg_spell_dam_aux(spell, _avg_hp(race), apply_resist);
     if ((tulos) && (apply_resist) && ((spell->id.effect == GF_POIS) || (spell->id.effect == GF_NUKE)))
         tulos = tulos * 7 / 4; /* Poison adjustment */
+    if (((p_ptr->no_air) || (apply_resist)) && (spell->id.effect == GF_AIR)) tulos = tulos * 9 / 5;
+    if ((apply_resist) && (spell->id.effect == GF_ACID) && (equip_find_first(object_is_armour))) tulos /= 2;
     return tulos;
 }
 int _avg_spell_dam(mon_ptr mon, mon_spell_ptr spell)
@@ -4725,6 +4946,7 @@ static int _annoy_cost(mon_spell_ptr spell)
     case ANNOY_TELE_TO: return 15;
     case ANNOY_TRAPS: return 10;
     case ANNOY_WORLD: return 150;
+    case ANNOY_NO_AIR: return 120;
     }
     return 0;
 }
@@ -5248,10 +5470,7 @@ static bool _prompt_plr(mon_spell_cast_ptr cast)
         int dir, m_idx;
         if (cast->spell->flags & MSF_DIRECT)
         {
-            if (old_target_okay())
-            {
-            }
-            else if (!target_set(TARGET_KILL)) return FALSE;
+            if (!get_direct_target()) return FALSE;
             m_idx = cave[target_row][target_col].m_idx;
             if (!m_idx)
             {

@@ -65,7 +65,7 @@ Archery slays and brands work in a slightly different way: they multiply both th
 
 A few classes, such as Samurai and Sword-speciality Weaponmasters, have access to special brands available only to them. These may be very strong (the special Samurai version of the <color:b>lightning brand</color> has a higher multiplier than any normal brand or slay), and sometimes combine with normal brands: also having a regular Lightning Brand makes the Samurai brand stronger still.
 
-Off-weapon slays and brands are never applied to innate attacks or unarmed combat.
+The slays and brands on a weapon only apply to the weapon itself; they have no effect on innate attacks or the attacks of another weapon. Off-weapon slays and brands are never applied to innate attacks or unarmed combat, except for six specific brands (Acid, Electricity, Fire, Cold, Poison and Mana) which are special-cased for martial arts.
 
 <topic:Choices><style:heading>Choosing the Right Weapon</style>
 
@@ -91,13 +91,13 @@ Note that attacking a friendly monster will turn it hostile.
 
 <topic:MonkAttacks><style:heading>Martial Arts</style>
 
-Monks, Mystics and Force-Trainers prefer to fight unarmed; they can only use a handful of weapons well, and even then are generally more effective barehanded. As these classes gain experience, they learn new and more powerful attacking techniques; high-level attacks may even stun or slow opponents.
+Monks, Mystics and Force-Trainers prefer to fight unarmed; they can only use a handful of weapons well, and even then are generally more effective barehanded. As these classes gain experience, they learn new and more powerful attacking techniques; high-level attacks may even stun or slow opponents. Most other classes cannot learn martial arts; the only exception is Skillmasters, who can invest skill points in unarmed combat.
 
 Martial arts characters can view their attack list and average damage per round in the usual ways: by typing <color:keypress>Cm</color> or <color:keypress>~W</color>.
 
 <topic:BothHands><style:heading>Two-Handed Wielding</style>
 
-Most characters wield a weapon in one hand and a shield in the other; but from a damage point of view, your best option is nearly always to do away with the shield and leave both hands for the weapon. Wielding a single weapon with both hands improves your damage and accuracy; and unless your blows per round were already maxed out anyway, you also receive more blows.
+Most characters wield a weapon in one hand and a shield in the other; but from a damage point of view, your best option is nearly always to do away with the shield and leave both hands for the weapon. Wielding a single weapon with both hands improves your damage and accuracy; and unless your blows per round were already maxed out anyway, you also receive more blows. (Gloves of the Giant amplify this bonus to blows.)
 
 The downside is that you effectively have one fewer equipment slot: you miss out on the AC, stat bonuses, resistances and other nice stuff that a shield (or a second weapon) in that slot would have given. Whether this is a good trade depends on your character; but a fairly typical approach is to wield a weapon two-handedly until you find a good ego shield, and then stop.
 
@@ -124,6 +124,26 @@ Using magic to get better at combat is nice; but using magic to make your oppone
 <color:keyword>Confusion</color> in particular is an incredibly powerful tool. A <color:g>Wand of Confuse Monster</color>, a <color:U>Staff of Confuse Monsters</color> or even splash damage from a thrown <color:B>Potion of Booze</color> can send monsters stumbling into random directions, unable to use their spells or breath attacks as they could not aim them reliably. Confused monsters can only hurt you in melee, and then only if they happen to find the right direction. Not all monsters can be confused, but many can, including quite a few uniques.
 
 <color:keyword>Slowness</color> is a bit less dramatic, but still very valuable. In the early game, <color:y>-10 to speed</color> tends to mean a monster's speed is reduced by half or more, which needless to say is an enormous advantage; for faster monsters the effects will be less dramatic, but you will still get a turn in more often and be at much less danger of a deadly double-move. All uniques are immune to slowness, but most non-uniques can be slowed.
+
+<topic:OffensiveDevices><style:heading>Attacking with Magic Devices</style>
+
+Many magical devices can be used to attack monsters directly. Nearly all characters (other than Berserkers) use offensive <color:keyword>wands</color> and <color:keyword>rods</color> to at least some extent, usually in a supporting role, but sometimes as their main source of offense.
+
+Each device produces a specific effect when used. For offensive devices, these tend to be either <color:keyword>bolts</color>, which hurt a single monster; <color:keyword>balls</color>, which hurt all monsters within a given radius of the ball's epicenter; <color:keyword>beams</color>, which hurt all monsters within the beam's path; or <color:keyword>breaths</color>, conical effects that explode into a ball. These bolts, beams, balls or breaths are <color:keyword>elemental</color>, meaning their damage relies on a specific damage type (such as acid, electricity, fire, cold or nexus) and monsters resistant to that element will not suffer full damage.
+
+Bolt devices are generally the least exciting, but they are also the most common in the early game and so likely to be your first offensive devices. An early <color:g>Wand of Frost Bolts</color> can really help a character with otherwise limited offense, and some characters accordingly buy one from the Magic Shop as soon as they can afford it.
+
+With some very rare exceptions, offensive magic devices are always aimed at a target or direction, and are accordingly best used from range. See <link:objects.txt#Devices> for more information about magic devices, and <link:attack.txt#DistanceAttack> above for more on attacking from a distance.
+
+<topic:OffensiveSpells><style:heading>Attacking with Spells</style>
+
+Spells and spell-like special powers are an important source of offense for many characters. Sorcerers, Mages and other mage-like classes often rely on them as their main offense, although this depends on build and (for book classes) the realms selected; some realms (like <color:keyword>Armageddon</color>) are full of attacking spells, while others (like <color:keyword>Sorcery</color>) offer great options for tactics and utility but nothing that would hurt a monster directly. While a Mage does not necessarily need offensive spells - they can use high-level wands and rods more effectively than most classes, and even their melee and archery can get the job done in a pinch - spell attacks are the most stereotypical and often also the strongest.
+
+The downside of relying on spells for offense is that they can deplete a caster's mana very rapidly. Accordingly, characters built for magical combat tend to invest disproportionately in their spellcasting stat, and greatly value items that increase their mana pool or reduce the mana cost of spells. Early attacking spells like <color:keyword>Magic Missile</color> sometimes stay relevant for a very long time, simply because they are so cheap; while the damage is relatively low, so is the mana cost.
+
+Offensive spells resemble offensive devices; most of them are also bolts, beams, balls or breaths of some element.
+
+See <link:magic.txt> for more on magic and spellcasting.
 
 <topic:MeleeTactics><style:heading>Basic Tactics</style>
 

@@ -206,6 +206,15 @@ static void _ui(_ui_context_ptr context)
                 if (context->top > context->page_size)
                     context->top -= context->page_size;
                 break;
+            case SKEY_BOTTOM: case '1':
+                 while (context->top + context->page_size - 1 < max)
+                 {
+                    context->top += context->page_size;
+                 }
+                 break;
+            case SKEY_TOP: case '7':
+                 context->top = 1;
+                 break;
             default:
                 if (cmd < 256 && isprint(cmd))
                 {
@@ -391,6 +400,7 @@ static void _drop(_ui_context_ptr context)
 {
     obj_prompt_t prompt = {0};
     int          amt = 1;
+    bool         new_id = FALSE;
 
     if (inv_loc(context->inv) == INV_MUSEUM)
     {
@@ -442,6 +452,7 @@ static void _drop(_ui_context_ptr context)
 
     if (inv_loc(context->inv) == INV_MUSEUM)
     {
+        if (!object_is_known(prompt.obj)) new_id = TRUE;
         /* *identify* here rather than in _drop_aux in case the user splits a pile. */
         no_karrot_hack = TRUE;
         obj_identify_fully(prompt.obj);
@@ -474,6 +485,7 @@ static void _drop(_ui_context_ptr context)
             }
         }
         _drop_aux(&copy, context);
+        if (new_id) autopick_alter_obj(prompt.obj, ((destroy_identify) && (obj_value(prompt.obj) < 1)));
     }
     else
         _drop_aux(prompt.obj, context);

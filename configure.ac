@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(FrogComposband, 7.1.liquorice, http://angband.oook.cz)
+AC_INIT(FrogComposband, 7.1.salmiak, http://angband.oook.cz)
 AC_CONFIG_SRCDIR(src)
 
 AC_CANONICAL_HOST
@@ -214,6 +214,13 @@ AC_ARG_ENABLE(sdl_mixer,
     [enable_sdl_mixer=$enable_sdl_mixer],
     [enable_sdl_mixer=$enable_sdl])
 
+dnl Multi-color support
+AC_ARG_ENABLE(xtra_colours,
+    [AS_HELP_STRING([--disable-xtra-colours],     [Limits colours to 16 (default: disabled)])],
+    [enable_xtra_colours=$enableval],
+    [enable_xtra_colours=yes])
+
+
 MAINFILES="\$(BASEMAINFILES)"
 
 dnl curses checking
@@ -357,6 +364,11 @@ if test "$enable_stats" = "yes"; then
     fi
 fi
 
+dnl Support more than 16 colours
+if test "x$enable_xtra_colours" != xno; then
+    AC_DEFINE(ALLOW_XTRA_COLOURS, 1, [Define to 1 if more than 16 colours are supported.])
+fi
+
 # We are careful not to sanitize the temp programs that configure creates,
 # since there is at least one case where configure generates a memory leak.
 # asan then changes the return value of the process from 0 to 1 causing 
@@ -459,4 +471,10 @@ if test "$enable_sdl_mixer" = "yes"; then
     fi
 else
     echo "- SDL sound                               Disabled"
+fi
+
+if test "x$enable_xtra_colours" = "xno"; then
+    echo "- Limit colours to 16                     Yes"
+else
+    echo "- Limit colours to 16                     No"
 fi

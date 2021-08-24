@@ -63,8 +63,10 @@ CONFIG = a_info.txt \
 	q_old_castle.txt \
 	q_old_man_willow.txt \
 	q_orcs.txt \
+	q_orcs2.txt \
 	q_pit2.txt \
 	q_removed.txt \
+	q_scary.txt \
 	q_serpent_of_chaos.txt \
 	q_sewer.txt \
 	q_shipwreck.txt \
@@ -83,7 +85,6 @@ CONFIG = a_info.txt \
 	q_tidy.txt \
 	q_troll2.txt \
 	q_trollslayer.txt \
-	q_tunnels.txt \
 	q_underground.txt \
 	q_vapor2.txt \
 	q_vapor.txt \
@@ -100,7 +101,7 @@ CONFIG = a_info.txt \
 	t_basic.txt \
 	t_info.txt \
 	t_lite.txt \
-	t_morivant.txt \
+	t_mori.txt \
 	t_outp.txt \
 	t_pref.txt \
 	t_telmo.txt \

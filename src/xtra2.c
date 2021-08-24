@@ -277,7 +277,7 @@ void check_experience(void)
                 chaos_warrior_reward();
 
             if (p_ptr->personality == PERS_SPLIT)
-                split_shuffle(FALSE);
+                split_shuffle(0);
 
             /* N.B. The class hook or the Chaos Gift mutation may result in a race
                change (stupid Chaos-Warriors), so we better always requery the player's
@@ -583,14 +583,12 @@ byte get_monster_drop_ct(monster_type *m_ptr)
     }
 
     /* No more farming summoners for drops (The Hoard, That Bat, Draconic Qs, etc) */
-    if (m_ptr->parent_m_idx && !(r_ptr->flags1 & RF1_UNIQUE))
+    if (m_ptr->parent_r_idx && !(r_ptr->flags1 & RF1_UNIQUE))
     {
-        monster_type *pm_ptr = &m_list[m_ptr->parent_m_idx];
-
-        if (pm_ptr->r_idx)
+        if ((m_ptr->parent_r_idx > 0) && (m_ptr->parent_r_idx < max_r_idx))
         {
             int max_kills = 250;
-            monster_race *pr_ptr = &r_info[pm_ptr->r_idx];
+            monster_race *pr_ptr = &r_info[m_ptr->parent_r_idx];
 
             if (pr_ptr->flags1 & RF1_UNIQUE)
                 max_kills = 100;
@@ -875,6 +873,7 @@ void monster_death(int m_idx, bool drop_item)
 
     /* The caster is dead? */
     if (world_monster && world_monster == m_idx) world_monster = 0;
+    if (no_air_monster && no_air_monster == m_idx) set_no_air(0, TRUE);
 
     /* Notice changes in view */
     if (r_ptr->flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
@@ -882,7 +881,7 @@ void monster_death(int m_idx, bool drop_item)
         p_ptr->update |= (PU_MON_LITE);
     }
 
-    if (mut_present(MUT_INFERNAL_DEAL) && los(py, px, m_ptr->fy, m_ptr->fx) && !is_pet(m_ptr))
+    if (mut_present(MUT_INFERNAL_DEAL) && los(py, px, m_ptr->fy, m_ptr->fx) && !is_pet(m_ptr) && !was_pet)
     {
         if ( p_ptr->msp > 0
           && p_ptr->pclass != CLASS_RUNE_KNIGHT
@@ -919,6 +918,11 @@ void monster_death(int m_idx, bool drop_item)
             }
             break;
         }
+    }
+
+    if ((m_ptr->r_idx == MON_TRAPDOOR_SPIDER) && (one_in_(2)))
+    {
+        project(0, 0, y, x, 0, GF_MAKE_TRAP, PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE);
     }
 
     if (m_ptr->mflag2 & MFLAG2_CHAMELEON)
@@ -1266,6 +1270,36 @@ void monster_death(int m_idx, bool drop_item)
         }
         break;
 
+    case MON_ODIN:
+        /*
+         * And now his son shows up...
+         */
+        if (!p_ptr->inside_arena && !p_ptr->inside_battle && mon_available_num(&r_info[MON_VIDARR]))
+        {
+            int wy = y, wx = x;
+            int attempts = 100;
+            bool pet = is_pet(m_ptr);
+
+            do
+            {
+                scatter(&wy, &wx, y, x, 20, 0);
+            }
+            while (!(in_bounds(wy, wx) && cave_empty_bold2(wy, wx)) && --attempts);
+
+            if (attempts > 0)
+            {
+                u32b mode = 0L;
+                if (pet) mode |= PM_FORCE_PET;
+
+                if (summon_named_creature(0, wy, wx, MON_VIDARR, mode))
+                {
+                    if (player_can_see_bold(wy, wx))
+                        cmsg_print(TERM_BLUE, "Vidarr steps forth to avenge his father!");
+                }
+            }
+        }
+        break;
+
     case MON_UNMAKER:
         /* One more ultra-hack: An Unmaker goes out with a big bang! */
         {
@@ -1357,6 +1391,24 @@ void monster_death(int m_idx, bool drop_item)
             apply_magic(q_ptr, object_level, AM_NO_FIXED_ART);
 
             object_origins(q_ptr, ORIGIN_NAGA);
+
+            /* Drop it in the dungeon */
+            (void)drop_near(q_ptr, -1, y, x);
+        }
+        break;
+
+    case MON_FRIGG:
+        {
+            /* Get local object */
+            q_ptr = &forge;
+
+            /* Prepare to make a large wooden chest */
+            object_prep(q_ptr, lookup_kind(TV_CHEST, SV_CHEST_MIN_LARGE + 1));
+
+            apply_magic(q_ptr, object_level, AM_NO_FIXED_ART);
+
+            object_origins(q_ptr, ORIGIN_DROP);
+            q_ptr->origin_xtra = m_ptr->r_idx;
 
             /* Drop it in the dungeon */
             (void)drop_near(q_ptr, -1, y, x);
@@ -1715,8 +1767,16 @@ void monster_death(int m_idx, bool drop_item)
             break;
 
         case MON_SARUMAN:
-            a_idx = ART_ELENDIL;
-            chance = 33;
+            if (one_in_(2))
+            {
+                a_idx = ART_ELENDIL;
+                chance = 66;
+            }
+            else
+            {
+                a_idx = ART_PALANTIR;
+                chance = 15;
+            }
             break;
 
         case MON_FIONA:
@@ -1739,10 +1799,13 @@ void monster_death(int m_idx, bool drop_item)
             chance = 10;
             break;
 
-        /*case MON_MASTER_TONBERRY:
-            a_idx = ART_MASTER_TONBERRY;
-            chance = 10;
-            break;*/
+        case MON_MASTER_TONBERRY:
+            if ((p_ptr->prace == RACE_TONBERRY) && (one_in_(14)))
+            {
+                a_idx = ART_MASTER_TONBERRY;
+                chance = 99;
+            }
+            break;
 
         case MON_ZEUS:
             a_idx = ART_ZEUS;
@@ -1985,6 +2048,10 @@ void monster_death(int m_idx, bool drop_item)
             a_idx = ART_KUNDRY;
             chance = 12;
             break;
+        case MON_MIDNIGHT_DRAGON:
+            a_idx = ART_MIDNIGHT;
+            chance = 10;
+            break;
         case MON_AMUN:
             a_idx = ART_AMUN;
             chance = 100;
@@ -2015,6 +2082,144 @@ void monster_death(int m_idx, bool drop_item)
             chance = 5;
             if (p_ptr->pclass == CLASS_MAULER || warlock_is_(WARLOCK_GIANTS))
                 chance = 50;
+            break;
+        case MON_FREYR:
+            if (one_in_(2))
+            {
+                a_idx = ART_FREYR;
+                chance = 20;
+            }
+            else
+            {
+                a_idx = ART_INGWE;
+                chance = 50;
+            }
+            break;
+        case MON_ODIN:
+            a_idx = ART_RUNESPEAR;
+            chance = 100;
+            break;
+        case MON_HEIMDALL:
+            a_idx = ART_GJALLARHORN;
+            chance = 40;
+            break;
+        case MON_THOR:
+            a_idx = ART_MJOLLNIR;
+            chance = 40;
+            break;
+        case MON_TYR:
+            a_idx = ART_TYR;
+            chance = 10;
+            break;
+        case MON_VIDARR:
+            a_idx = ART_VIDARR;
+            chance = 10;
+            break;
+        case MON_FREYJA:
+            if (one_in_(2))
+            {
+                a_idx = ART_FREYJA;
+                chance = 30;
+            }
+            else
+            {
+                a_idx = ART_BRISINGAMEN;
+                chance = 40;
+            }
+            break;
+        case MON_NJORD:
+            a_idx = ART_NJORD;
+            chance = 25;
+            break;
+        case MON_FRIGG:
+            a_idx = ART_FRIGG;
+            chance = 5;
+            break;
+        case MON_SKADI:
+            a_idx = ART_SKADI;
+            chance = 10;
+            break;
+        case MON_ULLUR:
+            a_idx = ART_ULLUR;
+            chance = 5;
+            break;
+        case MON_MAGNI:
+            a_idx = ART_MAGNI;
+            chance = 20;
+            break;
+        case MON_HANUMAN:
+            a_idx = ART_HANUMAN;
+            chance = 5;
+            break;
+        case MON_KARTHIKEYA:
+            a_idx = ART_MURUGAN;
+            chance = 20;
+            break;
+        case MON_RAMA:
+            a_idx = ART_RAMA;
+            chance = 10;
+            break;
+        case MON_KRISHNA:
+            a_idx = ART_KRISHNA;
+            chance = 25;
+            break;
+        case MON_VISHNU:
+            if (one_in_(2)) a_idx = ART_KAUMODAKI;
+            else a_idx = ART_KAUSTUBHA;
+            chance = 20;
+            break;
+        case MON_YAMA:
+            a_idx = ART_KALADANDA;
+            chance = 5;
+            break;
+        case MON_SHIVA:
+            if (one_in_(4))
+            {
+                a_idx = ART_SHIVA;
+                chance = 40;
+            }
+            else if (one_in_(4)) /* which makes it less likely than the trident! */
+            {
+                a_idx = ART_SHIVA_JACKET;
+                chance = 40;
+            }
+            else
+            {
+                a_idx = ART_SHIVA_BOOTS;
+                chance = 40;
+            }
+            break;
+        case MON_KALI:
+            a_idx = ART_KALI;
+            chance = 15;
+            break;
+        case MON_JAMBAVAN:
+            a_idx = ART_SYAMANTAKA;
+            chance = 10;
+            break;
+        case MON_BRAHMA:
+            a_idx = ART_BRAHMA;
+            chance = 3;
+            break;
+        case MON_SARASWATI:
+            a_idx = ART_SARASWATI;
+            chance = 20;
+            break;
+        case MON_LAKSHMI:
+            a_idx = ART_LAKSHMI;
+            chance = 20;
+            break;
+        case MON_VAYU:
+            a_idx = ART_VAYU;
+            chance = 10;
+            break;
+        case MON_INDRA:
+            if (one_in_(44))
+            {
+                a_idx = (one_in_(2)) ? ART_VORPAL_BLADE : ART_ETERNAL_BLADE;
+                chance = 100;
+                if (mut_present(MUT_BAD_LUCK)) chance = 66; /* i.e. really 50 due to penalty */
+            }
             break;
         case MON_TYPHOEUS:
             a_idx = ART_TYPHOEUS;
@@ -2377,13 +2582,11 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr, bool mon_dead)
 
     /* Farming Summoners for xp is now biffed! For example, farming
        The Queen Ant for infinite Giant Fire Ants and a quick CL50. */
-    if (m_ptr->parent_m_idx && !(r_ptr->flags1 & RF1_UNIQUE))
+    if (m_ptr->parent_r_idx && !(r_ptr->flags1 & RF1_UNIQUE))
     {
-        monster_type *pm_ptr = &m_list[m_ptr->parent_m_idx];
-
-        if (pm_ptr->r_idx)
+        if ((m_ptr->parent_r_idx > 0) && (m_ptr->parent_r_idx < max_r_idx))
         {
-            monster_race *pr_ptr = &r_info[pm_ptr->r_idx];
+            monster_race *pr_ptr = &r_info[m_ptr->parent_r_idx];
             int           biff;
 
             if (pr_ptr->flags1 & RF1_UNIQUE)
@@ -2821,15 +3024,11 @@ bool mon_take_hit(int m_idx, int dam, int type, bool *fear, cptr note)
         if (r_ptr->r_akills < MAX_SHORT) r_ptr->r_akills++;
 
         /* Count all summons killed */
-        if (m_ptr->parent_m_idx)
+        if ((m_ptr->parent_r_idx > 0) && (m_ptr->parent_r_idx < max_r_idx))
         {
-            monster_type *pm_ptr = &m_list[m_ptr->parent_m_idx];
-            if (pm_ptr->r_idx)
-            {
-                monster_race *pr_ptr = &r_info[pm_ptr->r_idx];
-                if (pr_ptr->r_skills < MAX_SHORT)
-                    pr_ptr->r_skills++;
-            }
+            monster_race *pr_ptr = &r_info[m_ptr->parent_r_idx];
+            if (pr_ptr->r_skills < MAX_SHORT)
+                pr_ptr->r_skills++;
         }
 
         /* Recall even invisible uniques or winners (or statistics gathering runs :) */
@@ -3544,6 +3743,8 @@ void target_grab(int y, int x)
     target_row = y;
     target_col = x;
     old_target_never_okay = FALSE;
+    /* Heal/haste will autotarget the mount anyway for
+       players with use_old_target and auto_target */
     if ((y == py) && (x == px) && (p_ptr->riding)) old_target_never_okay = TRUE;
 }
 bool old_target_okay(void) { return old_target_okay_mode(TARGET_KILL); }
@@ -3553,7 +3754,7 @@ bool target_okay_aux(int mode)
     /* Accept stationary targets ... but cf move_player_effect
      * in cmd1.c. We will dismiss a non-projectable positional
      * target the next time the player moves. */
-    if (target_who < 0) return TRUE;
+    if ((target_who < 0) && (!(mode & TARGET_MONS))) return TRUE;
 
     /* Check moving targets */
     if (target_who > 0)
@@ -3841,12 +4042,12 @@ static void target_set_prepare(int mode)
             c_ptr = &cave[cp.y][cp.x];
 
             /* Require target_able monsters for "TARGET_KILL" */
-            if ((mode & (TARGET_KILL)) && !target_able(c_ptr->m_idx)) continue;
+            if ((mode & (TARGET_KILL | TARGET_MONS)) && !target_able(c_ptr->m_idx)) continue;
 
             if ((mode & (TARGET_KILL | TARGET_MARK)) && !target_pet && is_pet(&m_list[c_ptr->m_idx])) continue;
 
             /* Duelist is attempting to mark a target ... only visible monsters, please! */
-            if ( ((mode & TARGET_MARK) || (mode & TARGET_DISI))
+            if ( ((mode & TARGET_MARK) || (mode & TARGET_DISI) || (mode & TARGET_MONS))
               && (!c_ptr->m_idx || !m_list[c_ptr->m_idx].ml) )
             {
                 continue;
@@ -3860,7 +4061,7 @@ static void target_set_prepare(int mode)
     }
 
     /* Set the sort hooks */
-    if ((mode & TARGET_KILL) || (mode & TARGET_MARK) || (mode & TARGET_DISI) || (mode & TARGET_XTRA))
+    if ((mode & TARGET_KILL) || (mode & (TARGET_MARK | TARGET_DISI | TARGET_MONS | TARGET_XTRA)))
     {
         /* Target the nearest monster for shooting */
         ang_sort_comp = ang_sort_comp_distance;
@@ -4008,13 +4209,39 @@ static int target_set_aux(int y, int x, int mode, cptr info)
                 /* Recall on screen */
                 mon_display_doc(ap_r_ptr, doc);
                 doc_sync_term(doc, doc_range_all(doc), doc_pos_create(0, 1));
-                doc_free(doc);
 
                 /* Hack -- Complete the prompt (again)
                 Term_addstr(-1, TERM_WHITE, format("  [r,%s%s]", x_info, info));*/
 
                 /* Command */
                 query = inkey();
+
+                if (((query == '2') || (query == '8') || (query == SKEY_DOWN) || (query == SKEY_UP))
+                    && (doc_cursor(doc).y > Term->hgt - 1))
+                {
+                     int top = 0;
+                     int page_size = Term->hgt - 1;
+                     do
+                     {
+                         switch (query)
+                         {
+                             case SKEY_DOWN:
+                             case '2':
+                                  top++;
+                                  if (top > doc->cursor.y - page_size) top = MAX(0, doc->cursor.y - page_size);
+                                  break;
+                             case SKEY_UP:
+                             case '8':          
+                                  top--;
+                                  if (top < 0) top = 0;
+                                  break;
+                         }
+                         doc_sync_term(doc, doc_region_create(0, top, doc->width, top + page_size - 1), doc_pos_create(0, 1));
+                         query = inkey();
+                     } while ((query == '2') || (query == '8'));
+                }
+
+                doc_free(doc);
 
                 /* Restore */
                 screen_load();
@@ -4936,6 +5163,12 @@ bool get_fire_dir_aux(int *dp, int target_mode)
             if (!m_ptr->ml) continue;
             if (!target_pet && is_pet(m_ptr)) continue;
             if (target_mode != TARGET_DISI && !projectable(py, px, m_ptr->fy, m_ptr->fx)) continue;
+            if ((p_ptr->riding) && (i == p_ptr->riding) && (m_ptr->cdis <= 1))
+            {
+                best_m_idx = i;
+                best_dis = 0;
+                break;
+            }
             if (m_ptr->cdis < best_dis)
             {
                 best_dis = m_ptr->cdis;
@@ -4948,6 +5181,7 @@ bool get_fire_dir_aux(int *dp, int target_mode)
             target_grab(m_list[best_m_idx].fy, m_list[best_m_idx].fx);
             *dp = 5;
             p_ptr->redraw |= PR_HEALTH_BARS;
+//            msg_format("Target grabbed: %s (%d) Distance: %d", r_name + r_info[m_list[best_m_idx].r_idx].name, target_who, best_dis);
             return TRUE;
         }
     }
@@ -4984,6 +5218,7 @@ bool get_aim_dir_aux(int *dp, int target_mode)
 /*            return (TRUE); */
             dir = *dp;
         }
+        if ((target_mode & (TARGET_MONS)) && (dir != 5)) dir = 0;
     }
 
 #endif /* ALLOW_REPEAT -- TNB */
@@ -4991,16 +5226,19 @@ bool get_aim_dir_aux(int *dp, int target_mode)
     /* Ask until satisfied */
     while (!dir)
     {
+        if (target_mode & (TARGET_MONS)) /* Skip directly to target_set() since directions are not accepted */
+        {
+            if (target_set(target_mode)) dir = 5;
+            break;
+        }
         /* Choose a prompt */
-        if (!target_okay_aux(target_mode))
+        else if (!target_okay_aux(target_mode))
         {
             p = "Direction ('*' to choose a target, Escape to cancel)? ";
-
         }
         else
         {
             p = "Direction ('5' for target, '*' to re-target, Escape to cancel)? ";
-
         }
 
         /* Get a command (or Cancel) */
@@ -5037,7 +5275,7 @@ bool get_aim_dir_aux(int *dp, int target_mode)
             default:
             {
                 /* Extract the action (if any) */
-                dir = get_keymap_dir(command, FALSE);
+                if (!(target_mode & TARGET_MONS)) dir = get_keymap_dir(command, FALSE);
 
                 break;
             }
@@ -5073,7 +5311,6 @@ bool get_aim_dir_aux(int *dp, int target_mode)
     {
         /* Warn the user */
         msg_print("You are confused.");
-
     }
 
     /* Save direction */
@@ -5090,7 +5327,17 @@ bool get_aim_dir_aux(int *dp, int target_mode)
     return (TRUE);
 }
 
-
+/* Directly target a monster. Do not accept directions.
+ * Intended mostly for use with radius-0 balls */
+bool get_direct_target(void)
+{
+    int dir = 0;
+    if (!get_fire_dir_aux(&dir, (TARGET_KILL | TARGET_MONS))) return FALSE;
+    if (dir != 5) return FALSE;
+    if (!in_bounds(target_row, target_col)) return FALSE;
+    if (!projectable(py, px, target_row, target_col)) return FALSE;
+    return TRUE;
+}
 
 /*
  * Request a "movement" direction (1,2,3,4,6,7,8,9) from the user,
@@ -5178,12 +5425,12 @@ int get_rep_dir(int *dp, bool under)
                 dir = ddd[randint0(8)];
             }
         }
-        else if ((r_ptr->flags1 & RF1_RAND_50) && (r_ptr->flags1 & RF1_RAND_25) && (randint0(100) < 50))
+        else if ((p_ptr->riding_ryoute) && (r_ptr->flags1 & RF1_RAND_50) && (r_ptr->flags1 & RF1_RAND_25) && (randint0(100) < 50))
         {
             /* Random direction */
             dir = ddd[randint0(8)];
         }
-        else if ((r_ptr->flags1 & RF1_RAND_50) && (randint0(100) < 25))
+        else if ((p_ptr->riding_ryoute) && (r_ptr->flags1 & RF1_RAND_50) && (randint0(100) < 25))
         {
             /* Random direction */
             dir = ddd[randint0(8)];
@@ -5744,6 +5991,7 @@ int bow_energy(int sval)
         case SV_CRIMSON:
         case SV_RAILGUN:
         case SV_HARP:
+        case SV_FLUTE:
         {
             energy = 10000;
             break;

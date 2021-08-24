@@ -119,6 +119,17 @@ int dun_tun_jct;
  */
 dun_data *dun;
 
+/* Check if grid is wall-like */
+static bool _is_wally(int y, int x, bool check_bold)
+{
+    if ((check_bold) && (!is_extra_bold(y, x))) return FALSE;
+    if ((!check_bold) || (atlantis_hack)) return (
+        ((cave_have_flag_bold(y, x, FF_WALL)) ||
+        ((dungeon_type) && (dungeon_type < max_d_idx) &&
+        (d_info[dungeon_type].outer_wall == cave[y][x].feat))) ? TRUE : FALSE);
+    return TRUE;
+}
+
 
 /*
  * Count the number of walls adjacent to the given grid.
@@ -127,14 +138,14 @@ dun_data *dun;
  *
  * We count only granite walls and permanent walls.
  */
-static int next_to_walls(int y, int x)
+static int next_to_walls(int y, int x, bool bold)
 {
     int k = 0;
 
-    if (in_bounds(y + 1, x) && is_extra_bold(y + 1, x)) k++;
-    if (in_bounds(y - 1, x) && is_extra_bold(y - 1, x)) k++;
-    if (in_bounds(y, x + 1) && is_extra_bold(y, x + 1)) k++;
-    if (in_bounds(y, x - 1) && is_extra_bold(y, x - 1)) k++;
+    if (in_bounds(y + 1, x) && _is_wally(y + 1, x, bold)) k++;
+    if (in_bounds(y - 1, x) && _is_wally(y - 1, x, bold)) k++;
+    if (in_bounds(y, x + 1) && _is_wally(y, x + 1, bold)) k++;
+    if (in_bounds(y, x - 1) && _is_wally(y, x - 1, bold)) k++;
 
     return (k);
 }
@@ -156,7 +167,7 @@ static bool alloc_stairs_aux(int y, int x, int walls)
     if (c_ptr->o_idx || c_ptr->m_idx) return FALSE;
 
     /* Require a certain number of adjacent walls */
-    if (next_to_walls(y, x) < walls) return FALSE;
+    if (next_to_walls(y, x, TRUE) < walls) return FALSE;
 
     return TRUE;
 }
@@ -171,6 +182,9 @@ static bool alloc_stairs(int feat, int num, int walls)
     int shaft_num = 0;
 
     feature_type *f_ptr = &f_info[feat];
+
+    /* Aussie hack - try to avoid billabongs becoming a stair magnet */
+    if (dungeon_type == DUNGEON_AUSSIE) walls = randint0(walls);
 
     if (have_flag(f_ptr->flags, FF_LESS))
     {
@@ -616,6 +630,7 @@ static void gen_caverns_and_lakes(void)
         if (d_info[dungeon_type].flags1 & DF1_LAKE_LAVA) count += 3;
         if (d_info[dungeon_type].flags1 & DF1_LAKE_RUBBLE) count += 3;
         if (d_info[dungeon_type].flags1 & DF1_LAKE_TREE) count += 3;
+        if (d_info[dungeon_type].flags1 & DF1_LAKE_NUKE) count += 3;
 
         if (d_info[dungeon_type].flags1 & DF1_LAKE_LAVA)
         {
@@ -650,6 +665,9 @@ static void gen_caverns_and_lakes(void)
             count--;
         }
 
+        /* Lake of nukage */
+        if ((dun_level > 5) && (d_info[dungeon_type].flags1 & DF1_LAKE_NUKE) && !dun->laketype) dun->laketype = LAKE_T_NUKE_VAULT;
+
         /* Lake of tree */
         if ((dun_level > 5) && (d_info[dungeon_type].flags1 & DF1_LAKE_TREE) && !dun->laketype) dun->laketype = LAKE_T_AIR_VAULT;
 
@@ -680,8 +698,6 @@ static void gen_caverns_and_lakes(void)
     if (quests_get_current()) dun->destroyed = FALSE;
 }
 
-
-
 /*
  * Generate a new dungeon level
  *
@@ -704,6 +720,14 @@ static int _depth_amt(void)
 {
     return MAX(2, MIN(10, dun_level/3));
 }
+/* static bool _oz_swimmer(int r_idx)
+{
+    monster_race *r_ptr = &r_info[r_idx];
+    if ((!r_ptr) || (!r_ptr->name)) return FALSE;
+    if (r_ptr->dungeon != DUNGEON_AUSSIE) return FALSE;
+    if ((r_ptr->flags7 & (RF7_AQUATIC | RF7_CAN_SWIM))) return TRUE;
+    return FALSE;
+} */
 static void _cave_gen_monsters(void)
 {
     if (dungeon_type != DUNGEON_ARENA)
@@ -818,7 +842,9 @@ static bool cave_gen(void)
     dun->cent_n = 0;
 
     /* Empty arena levels */
-    if (ironman_empty_levels || ((d_info[dungeon_type].flags1 & DF1_ARENA) && (empty_levels && one_in_(EMPTY_LEVEL))))
+    if ((generate_empty == EMPTY_ALWAYS) ||
+        ((d_info[dungeon_type].flags1 & DF1_ARENA) &&
+         (generate_empty == EMPTY_SOMETIMES) && (one_in_(EMPTY_LEVEL))))
     {
         dun->empty_level = TRUE;
         if (cheat_room)
@@ -849,6 +875,118 @@ static bool cave_gen(void)
             place_extra_bold(y, 0);
             place_extra_bold(y, cur_wid - 1);
         }
+    }
+    else if (atlantis_hack) /* Semi-open dungeon */
+    {
+        int yy, xx;
+        int ysize = 22, xsize = 22, ylim, xlim;
+        bool tayta[9][6] = {0};
+        bool perma = one_in_(50) ? TRUE : FALSE;
+        byte rounded_corner_prob = (!one_in_(3)) ? ((one_in_(2)) ? 50 : 100) : 0;
+
+        if ((cur_hgt < 50) && (one_in_(2))) ysize = 11;
+        if (cur_wid > 130)
+        {
+            xsize = 33;
+            if ((cur_wid > 190) && (one_in_(2))) xsize = 22;
+        }
+        ylim = cur_hgt / ysize;
+        xlim = cur_wid / xsize;
+        for (yy = 0; yy < ylim; yy++)
+        {
+            for (xx = 0; xx < xlim; xx++)
+            {
+                tayta[xx][yy] = one_in_(3);
+            }
+        }
+
+        /* Start with floors */
+        for (y = 0; y < cur_hgt; y++)
+        {
+            for (x = 0; x < cur_wid; x++)
+            {
+                place_floor_bold(y, x);
+            }
+        }
+
+        /* Fill in walls region by region */
+        for (yy = 0; yy < ylim; yy++)
+        {
+            for (xx = 0; xx < xlim; xx++)
+            {
+                if (!tayta[xx][yy]) continue;
+                else
+                {
+                    bool do_gold = ((!perma) && (one_in_(36)));
+                    bool round_c[2][2] = {0};
+                    int kx, ky, cx, cy;
+                    if (rounded_corner_prob)
+                    {
+                        ky = (yy * ysize) + (ysize / 2);
+                        kx = (xx * xsize) + (xsize / 2);
+                        round_c[0][0] = ((yy) && (xx) && (!tayta[xx][yy-1]) && (!tayta[xx-1][yy]) && (randint0(100) < rounded_corner_prob));
+                        round_c[0][1] = ((yy < ylim - 1) && (xx) && (!tayta[xx][yy+1]) && (!tayta[xx-1][yy]) && (randint0(100) < rounded_corner_prob));
+                        round_c[1][0] = ((yy) && (xx < xlim - 1) && (!tayta[xx][yy-1]) && (!tayta[xx+1][yy]) && (randint0(100) < rounded_corner_prob));
+                        round_c[1][1] = ((yy < ylim - 1) && (xx < xlim - 1) && (!tayta[xx][yy+1]) && (!tayta[xx+1][yy]) && (randint0(100) < rounded_corner_prob));
+                    }
+/*                    msg_format("Walled area at %d/%d - Rounding corners: %s, %s, %s, %s - Extent of area: %d/%d to %d/%d", xx, yy,
+                       round_c[0][0] ? "Yes" : "No",
+                       round_c[1][0] ? "Yes" : "No",
+                       round_c[0][1] ? "Yes" : "No",
+                       round_c[1][1] ? "Yes" : "No",
+                       xx * xsize, yy * ysize, (xx + 1) * xsize - 1, (yy + 1) * ysize - 1);*/
+                    for (y = yy * ysize; y < (yy + 1) * ysize; y++)
+                    {
+                        for (x = xx * xsize; x < (xx + 1) * xsize; x++)
+                        {
+                            if (rounded_corner_prob)
+                            {
+                                cy = (y > ky) ? 1 : 0;
+                                cx = (x > kx) ? 1 : 0;
+                                if (round_c[cx][cy])
+                                {
+                                    int ry = cy ? (yy + 1) * ysize - 1 : yy * ysize;
+                                    int rx = cx ? (xx + 1) * xsize - 1 : xx * xsize;
+                                    int yxsize = MIN(ysize, xsize) / 2;
+                                    int ky2 = cy ? ry - yxsize : ry + yxsize;
+                                    int kx2 = cx ? rx - yxsize : rx + yxsize;
+                                    int mdist = distance(ry, kx2, ky2, kx2);
+                                    int kx3 = cx ? MIN(kx2, x) : MAX(kx2, x);
+                                    int ky3 = cy ? MIN(ky2, y) : MAX(ky2, y);
+                                    mdist += (mdist / 7);
+                                    if (distance(y, x, ky3, kx3) > mdist)
+                                    {
+//                                        msg_format("Avoiding wall at %d/%d - exceeds Rng %d from %d/%d", x, y, mdist, kx2, ky2);
+                                        continue;
+                                    }
+                                }
+                            }
+                            if (perma)
+                            {
+                                place_extra_perm_bold(y, x);
+                                cave[y][x].mimic = 0;
+                            }
+                            else if (do_gold)
+                            {
+                                int _feat = (one_in_(4)) ? feat_magma_vein : feat_quartz_vein;
+                                place_extra_bold(y, x);
+                                set_cave_feat(y, x, _feat);
+                                if (!one_in_(3)) cave_alter_feat(y, x, FF_MAY_HAVE_GOLD);
+                            }
+                            else
+                            {
+                                int prob = randint0(100);
+                                int _feat = feat_granite;
+                                if (prob < 5) _feat = feat_magma_vein;
+                                else if (prob < 20) _feat = feat_quartz_vein;
+                                place_extra_bold(y, x);
+                                set_cave_feat(y, x, _feat);
+                            }
+                        }
+                    }
+                }
+            }
+        }        
     }
     else
     {
@@ -904,7 +1042,7 @@ static bool cave_gen(void)
         if (dun->destroyed) destroy_level();
 
         /* Hack -- Add some rivers */
-        if (one_in_(7) && (randint1(dun_level) > 5))
+        if (one_in_((dungeon_type == DUNGEON_AUSSIE) ? 3 : 7) && (randint1(dun_level) > 5))
         {
             int feat1 = 0, feat2 = 0;
 
@@ -916,10 +1054,15 @@ static bool cave_gen(void)
                 feat1 = feat_deep_water;
                 feat2 = feat_shallow_water;
             }
-            else if  (d_info[dungeon_type].flags1 & DF1_LAVA_RIVER)
+            else if (d_info[dungeon_type].flags1 & DF1_LAVA_RIVER)
             {
                 feat1 = feat_deep_lava;
                 feat2 = feat_shallow_lava;
+            }
+            else if (d_info[dungeon_type].flags1 & DF1_NUKE_RIVER)
+            {
+                feat1 = feat_deep_waste;
+                feat2 = feat_shallow_waste;
             }
             else feat1 = 0;
 
@@ -933,6 +1076,14 @@ static bool cave_gen(void)
                      !dun->laketype)
                 {
                     add_river(feat1, feat2);
+                    if (dungeon_type == DUNGEON_AUSSIE) /* Ensure some aquatic life */
+                    {
+                        int mon_ct0 = damroll(2, 3) - randint0(2);
+                        for (i = 0; i < mon_ct0; i++)
+                        {
+                            alloc_monster(2, (PM_ALLOW_SLEEP | PM_FORCE_AQUATIC));
+                        }
+                    }
                 }
             }
         }
@@ -1026,8 +1177,11 @@ static bool cave_gen(void)
                 /* Occasional doorway */
                 if ((randint0(100) < dun_tun_pen) && !(d_info[dungeon_type].flags1 & DF1_NO_DOORS))
                 {
+                    if (next_to_walls(y, x, FALSE) < 2)
+                    { /* Reject weird door location */
+                    }
                     /* Place a random door */
-                    place_random_door(y, x, TRUE);
+                    else place_random_door(y, x, TRUE);
                 }
             }
 
@@ -1369,6 +1523,7 @@ static bool level_gen(cptr *why)
     else if (one_in_(SMALL_LEVEL))
         small = TRUE;
     if ((dungeon_type == DUNGEON_ICKY) && (dun_level == 10)) small = TRUE;
+    if ((dungeon_type == DUNGEON_SNOW) && (level_is_questlike(DUNGEON_SNOW, dun_level))) small = FALSE;
     if (((coffee_break) || ((
         ((small_level_type == SMALL_LVL_DUNG_COFFEE) && (dungeon_type != DUNGEON_ARENA))
         || (d_info[dungeon_type].flags1 & DF1_COFFEE)) && (!ironman_downward))))
@@ -1536,7 +1691,7 @@ static bool level_gen(cptr *why)
             }
         }
 
-        if ((even_proportions) && (hgt == 1) && (wid != 1) && (!one_in_(wid)))
+        if (((even_proportions) || (dungeon_type == DUNGEON_AUSSIE)) && (hgt == 1) && (wid != 1) && (!one_in_(wid)))
         {
             hgt = wid;
             wid = 1;

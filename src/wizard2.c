@@ -150,6 +150,61 @@ int life_rating(void)
     return _life_rating_aux(PY_MAX_LEVEL);
 }
 
+cptr life_rating_desc(bool use_attr)
+{
+    int tulos = p_ptr->player_hp[PY_MAX_LEVEL - 1] / 10 - 223;
+    char buf[15];
+    byte attr;
+    if (!use_attr) return (percentage_life ? format("%d/100", life_rating()) : format("%d/76", tulos));
+    if (tulos >= 76) /* 76 is the max but let's be paranoid... */
+    {
+        strcpy(buf, "Optimal");
+        attr = TERM_VIOLET;
+    }
+    else if (tulos >= 66)
+    {
+        strcpy(buf, "Superb");
+        attr = TERM_GREEN; 
+    }
+    else if (tulos >= 57)
+    {
+        strcpy(buf, "Excellent");
+        attr = TERM_L_GREEN;
+    }
+    else if (tulos >= 48)
+    {
+        strcpy(buf, "Very Good");
+        attr = TERM_YELLOW;
+    }
+    else if (tulos >= 39)
+    {
+        strcpy(buf, "Good");
+        attr = TERM_YELLOW;
+    }
+    else if (tulos >= 29)
+    {
+        strcpy(buf, "Fair");
+        attr = TERM_ORANGE;
+    }
+    else if (tulos >= 19)
+    {
+        strcpy(buf, "Bad");
+        attr = TERM_L_RED;
+    }
+    else if (tulos >= 9)
+    {
+        strcpy(buf, "Very Bad");
+        attr = TERM_RED;
+    }
+    else
+    {
+        strcpy(buf, "Abysmal");
+        attr = TERM_L_DARK;
+    }
+    if (percentage_life) return format("<color:%c>%s</color> (%d%%)", attr_to_attr_char(attr), buf, life_rating());
+    else return format("<color:%c>%s</color> (%d/76)", attr_to_attr_char(attr), buf, tulos);
+}
+
 void do_cmd_rerate_aux(void)
 {
     for(;;)
@@ -160,7 +215,7 @@ void do_cmd_rerate_aux(void)
         for (i = 1; i < PY_MAX_LEVEL; i++)
             p_ptr->player_hp[i] = p_ptr->player_hp[i - 1] + randint1(100);
 
-        /* These extra early checks give a slight boost to average life ratings (~102%) */
+        /* These extra early checks give a slight boost to average life ratings (~39) */
         pct = _life_rating_aux(5);
         if (pct < 87) continue;
 
@@ -185,7 +240,7 @@ void do_cmd_rerate(bool display)
 
     if (display)
     {
-        msg_format("Your life rate is %d/100 now.", life_rating());
+        msg_format("Your life rating is now %s.", life_rating_desc(TRUE));
         p_ptr->knowledge |= KNOW_HPRATE;
     }
     else
@@ -775,7 +830,7 @@ static void do_cmd_wiz_jump(void)
         /* Extract request */
         command_arg = atoi(tmp_val);
 
-        dungeon_type = tmp_dungeon_type;
+        set_dungeon_type(tmp_dungeon_type);
     }
 
     /* Paranoia */
@@ -794,7 +849,7 @@ static void do_cmd_wiz_jump(void)
 
     prepare_change_floor_mode(CFM_RAND_PLACE);
 
-    if (!dun_level) dungeon_type = 0;
+    if (!dun_level) set_dungeon_type(0);
     p_ptr->inside_arena = FALSE;
     p_ptr->wild_mode = FALSE;
 
@@ -1475,7 +1530,7 @@ static void _wiz_stats_inspect(int level)
 static void _wiz_stats_gather(int which_dungeon, int level, int reps)
 {
     int i;
-    dungeon_type = which_dungeon;
+    set_dungeon_type(which_dungeon);
     for (i = 0; i < reps; i++)
     {
         quests_on_leave();
@@ -1623,18 +1678,20 @@ void do_cmd_debug(void)
     case 'h':
     {
         int i, r;
-        int tot = 0, min = 0, max = 0;
+        int tot = 0, min = 76, max = 0;
 
-        for (i = 0; i < 100; i++)
+        for (i = 0; i < 1000000; i++)
         {
             do_cmd_rerate_aux();
-            r = life_rating();
+/*            r = life_rating();*/
+            r = p_ptr->player_hp[PY_MAX_LEVEL - 1] / 10 - 223;
             tot += r;
-            if (!min) min = r;
-            else min = MIN(min, r);
+            min = MIN(min, r);
             max = MAX(max, r);
         }
-        msg_format("Life Ratings: %d%% (%d%%-%d%%)", tot/100, min, max);
+        /* The average is around 39.14 (aka 102.915%) */
+//        msg_format("Life Ratings: %d%% (%d%%-%d%%)", tot/1000, min, max);
+        msg_format("Life Ratings: %d.%02d (%d-%d%%)", tot/1000000, ((tot/10000) % 100), min, max);
 
     /*    do_cmd_rerate(TRUE); */
 
@@ -1710,8 +1767,8 @@ void do_cmd_debug(void)
             for (i = 0; i < 32; ++i)
                 mut_gain(i);
         }
-        else
-            mut_gain(n);
+        else if (!mut_present(n)) mut_gain(n);
+        else mut_lose(n);
         break;
     }
 
@@ -1856,6 +1913,7 @@ void do_cmd_debug(void)
             /* Update */
             check_experience();
             p_ptr->max_plv = p_ptr->lev;
+            p_ptr->max_max_exp = tmp_long;
             do_cmd_redraw();
         }
         break;

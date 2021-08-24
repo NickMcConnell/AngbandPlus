@@ -66,14 +66,23 @@ bool restore_mana(void)
     return result;
 }
 
+bool mortal_food_check(void)
+{
+    if (((get_race()->flags & RACE_IS_NONLIVING) &&
+        (!prace_is_(RACE_MON_PUMPKIN)) &&
+        (!prace_is_(RACE_MON_BEHOLDER)) &&
+        (!prace_is_(RACE_EINHERI))) ||
+        (prace_is_(RACE_ENT)) ||
+        (prace_is_(RACE_MON_ARMOR))) return FALSE;
+    return TRUE;
+}
+
 static void do_cmd_eat_food_aux(obj_ptr obj)
 {
     int  lev = k_info[obj->k_idx].level;
     bool ident = FALSE, no_food = FALSE;
 
-    if (music_singing_any()) bard_stop_singing();
-    if (hex_spelling_any()) stop_hex_spell_all();
-    warlock_stop_singing();
+    stop_mouth();
 
     if (object_is_mushroom(obj) && obj->art_name && obj->timeout)
     {
@@ -376,21 +385,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
         jelly_eat_object(obj);
         obj->number = luku;
     }
-    else if ( ( prace_is_(RACE_SKELETON)
-             || prace_is_(RACE_GOLEM)
-             || prace_is_(RACE_MON_GOLEM)
-             || prace_is_(RACE_MON_SWORD)
-             || prace_is_(RACE_MON_ARMOR)
-             || prace_is_(RACE_MON_RING)
-             || p_ptr->mimic_form == MIMIC_CLAY_GOLEM
-             || p_ptr->mimic_form == MIMIC_IRON_GOLEM
-             || p_ptr->mimic_form == MIMIC_MITHRIL_GOLEM
-             || p_ptr->mimic_form == MIMIC_COLOSSUS
-             || prace_is_(RACE_ZOMBIE)
-             || prace_is_(RACE_MON_LICH)
-             || prace_is_(RACE_SPECTRE)
-             || prace_is_(RACE_MON_VORTEX)
-             || elemental_is_(ELEMENTAL_AIR) )
+    else if ((get_race()->flags & RACE_EATS_DEVICES)
            && object_is_device(obj) )
     {
         int amt = obj->activation.cost;
@@ -442,7 +437,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
             msg_print("The food falls through your jaws and vanishes!");
         }
     }
-    else if (((get_race()->flags & RACE_IS_NONLIVING) && (!prace_is_(RACE_MON_PUMPKIN)) && (!prace_is_(RACE_MON_BEHOLDER)) && (!prace_is_(RACE_EINHERI))) || prace_is_(RACE_ENT) || prace_is_(RACE_MON_ARMOR))
+    else if (!mortal_food_check())
     {
         msg_print("The food of mortals is poor sustenance for you.");
         set_food(p_ptr->food + obj->pval / 20);
@@ -478,21 +473,7 @@ static bool _can_eat(object_type *o_ptr)
 {
     if (o_ptr->tval==TV_FOOD) return TRUE;
 
-    if (prace_is_(RACE_SKELETON) ||
-        prace_is_(RACE_GOLEM) ||
-        prace_is_(RACE_MON_GOLEM) ||
-        prace_is_(RACE_MON_SWORD) ||
-        prace_is_(RACE_MON_ARMOR) ||
-        prace_is_(RACE_MON_RING) ||
-        p_ptr->mimic_form == MIMIC_CLAY_GOLEM ||
-        p_ptr->mimic_form == MIMIC_IRON_GOLEM ||
-        p_ptr->mimic_form == MIMIC_MITHRIL_GOLEM ||
-        p_ptr->mimic_form == MIMIC_COLOSSUS ||
-        prace_is_(RACE_ZOMBIE) ||
-        prace_is_(RACE_MON_LICH) ||
-        prace_is_(RACE_MON_VORTEX) ||
-        prace_is_(RACE_SPECTRE) ||
-        elemental_is_(ELEMENTAL_AIR))
+    if (get_race()->flags & RACE_EATS_DEVICES)
     {
         if (object_is_device(o_ptr))
             return TRUE;
@@ -638,6 +619,7 @@ static void do_cmd_quaff_potion_aux(obj_ptr obj)
             case RACE_MON_SWORD:
             case RACE_MON_ARMOR:
             case RACE_MON_RING:
+            case RACE_MON_MUMMY:
                 set_food(p_ptr->food + obj->pval / 20);
                 break;
             case RACE_ANDROID:

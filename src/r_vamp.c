@@ -13,11 +13,50 @@ static const char * _desc =
     "from a nearby monster.\n \n"
     "Vampires gain access to various dark powers as they evolve. Of course, they gain a vampiric bite at a "
     "very early stage, as they must use this power to feed on the living. Killing humans with this "
-    "power is also a means of perpetuating the vampire species, and many are the servants of "
+    "power is also a means of perpetuating the vampire species, and many are the servants of a "
     "true prince of darkness! Vampires are rumored to have limited shapeshifting abilities "
     "and a powerful, hypnotic gaze.";
 
 bool vampiric_drain_hack = FALSE;
+
+bool get_adjacent_target(int *x, int *y, int *mon_idx)
+{
+    int dir = 0;
+    *x = 0;
+    *y = 0;
+    *mon_idx = 0;
+
+    if (old_target_okay())
+    {
+        *y = target_row;
+        *x = target_col;
+        *mon_idx = cave[*y][*x].m_idx;
+        if (*mon_idx)
+        {
+            if (m_list[*mon_idx].cdis > 1)
+                *mon_idx = 0;
+            else
+                dir = 5;
+        }
+    }
+
+    if (!(*mon_idx))
+    {
+        if (!get_rep_dir2(&dir)) return FALSE;
+        if (dir == 5) return FALSE;
+        *y = py + ddy[dir];
+        *x = px + ddx[dir];
+        *mon_idx = cave[*y][*x].m_idx;
+
+        if (!(*mon_idx))
+        {
+            msg_print("There is no monster there.");
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
 
 /******************************************************************************
  *                  25                35              45
@@ -88,7 +127,7 @@ static void _bite_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
-        if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
+        if ((d_info[dungeon_type].flags1 & DF1_NO_MELEE) || (no_melee_challenge))
         {
             msg_print("Something prevents you from attacking.");
             return;
@@ -96,36 +135,10 @@ static void _bite_spell(int cmd, variant *res)
         else
         {
             int x = 0, y = 0, amt, m_idx = 0;
-            int dir = 0;
-
-            if (old_target_okay())
+            if (!get_adjacent_target(&x, &y, &m_idx))
             {
-                y = target_row;
-                x = target_col;
-                m_idx = cave[y][x].m_idx;
-                if (m_idx)
-                {
-                    if (m_list[m_idx].cdis > 1)
-                        m_idx = 0;
-                    else
-                        dir = 5;
-                }
-            }
-
-            if (!m_idx)
-            {
-                if (!get_rep_dir2(&dir)) return;
-                if (dir == 5) return;
-                y = py + ddy[dir];
-                x = px + ddx[dir];
-                m_idx = cave[y][x].m_idx;
-
-                if (!m_idx)
-                {
-                    msg_print("There is no monster there.");
-                    if (p_ptr->blind > 0) var_set_bool(res, TRUE);
-                    return;
-                }
+                if (p_ptr->blind > 0) var_set_bool(res, TRUE);
+                return;
             }
 
             var_set_bool(res, TRUE);
@@ -201,7 +214,6 @@ void _grasp_spell(int cmd, variant *res)
         int           m_idx;
         bool          fear = FALSE;
         monster_type *m_ptr;
-        monster_race *r_ptr;
         char m_name[MAX_NLEN];
 
         var_set_bool(res, FALSE);
@@ -216,23 +228,8 @@ void _grasp_spell(int cmd, variant *res)
 
         m_idx = cave[target_row][target_col].m_idx;
         m_ptr = &m_list[m_idx];
-        r_ptr = &r_info[m_ptr->r_idx];
         monster_desc(m_name, m_ptr, 0);
-        if (r_ptr->flagsr & RFR_RES_TELE)
-        {
-            if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flagsr & RFR_RES_ALL))
-            {
-                mon_lore_r(m_ptr, RFR_RES_TELE);
-                msg_format("%s is unaffected!", m_name);
-                break;
-            }
-            else if (r_ptr->level > randint1(100))
-            {
-                mon_lore_r(m_ptr, RFR_RES_TELE);
-                msg_format("%s resists!", m_name);
-                break;
-            }
-        }
+        if (mon_save_tele_to(m_ptr, m_name, TRUE)) break;
         msg_format("You grasp %s.", m_name);
         teleport_monster_to(m_idx, py, px, 100, TELEPORT_PASSIVE);
         mon_take_hit(m_idx, damroll(10, 10), DAM_TYPE_MELEE, &fear, extract_note_dies(real_r_ptr(m_ptr)));
@@ -391,7 +388,7 @@ void _repose_of_the_dead_spell(int cmd, variant *res)
     }
 }
 
-static spell_info _spells[] = 
+static spell_info _get_spells[] =
 {
     {  2,  1, 30, _bite_spell },
     {  5,  3, 30, detect_life_spell },
@@ -408,11 +405,6 @@ static spell_info _spells[] =
     { 45, 50, 80, darkness_storm_II_spell }, /* Elder Vampire */
     { -1, -1, -1, NULL}
 };
-
-static int _get_spells(spell_info* spells, int max) 
-{
-    return get_spells_aux(spells, max, _spells);
-}
 
 static caster_info * _caster_info(void) 
 {
@@ -488,6 +480,7 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_RES_POIS);
     add_flag(flgs, OF_RES_DARK);
     add_flag(flgs, OF_HOLD_LIFE);
+    add_flag(flgs, OF_NIGHT_VISION);
     if (p_ptr->lev >= 35)
     {
         add_flag(flgs, OF_LEVITATION);
@@ -543,7 +536,7 @@ race_t *mon_vampire_get_race(void)
         me.calc_weapon_bonuses = _calc_weapon_bonuses;
         me.get_flags = _get_flags;
 
-        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
+        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER | RACE_NIGHT_START;
         me.pseudo_class_idx = CLASS_ROGUE;
 
         me.boss_r_idx = MON_VLAD;
@@ -702,16 +695,11 @@ void vampire_take_dark_damage(int amt)
  * only feed as a bat or as a vampire, so they will quickly grow
  * hungry for fresh blood!
  ****************************************************************/
-static spell_info _mimic_spells[] = 
+static spell_info _mimic_get_spells[] =
 {
     { 1,  0,  0, _polymorph_undo_spell }, 
     {-1, -1, -1, NULL }
 };
-
-static int _mimic_get_spells(spell_info* spells, int max) 
-{
-    return get_spells_aux(spells, max, _mimic_spells);
-}
 
 /****************************************************************
  * Bat
@@ -755,6 +743,7 @@ static void _bat_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_RES_COLD);
     add_flag(flgs, OF_RES_POIS);
     add_flag(flgs, OF_HOLD_LIFE);
+    add_flag(flgs, OF_NIGHT_VISION);
 }
 race_t *bat_get_race(void)
 {
@@ -791,7 +780,7 @@ race_t *bat_get_race(void)
         me.get_flags = _bat_get_flags;
         me.caster_info = _caster_info;
 
-        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
+        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER | RACE_NIGHT_START;
 
         me.equip_template = &b_info[r_info[MON_VAMPIRE_BAT].body.body_idx];
         init = TRUE;
@@ -829,6 +818,7 @@ static void _mist_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_RES_POIS);
     add_flag(flgs, OF_RES_ACID);
     add_flag(flgs, OF_RES_NETHER);
+    add_flag(flgs, OF_NIGHT_VISION);
 
     add_flag(flgs, OF_MAGIC_RESISTANCE);
 }
@@ -868,7 +858,7 @@ race_t *mist_get_race(void)
         me.get_flags = _mist_get_flags;
         me.caster_info = _caster_info;
 
-        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
+        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER | RACE_NIGHT_START;
 
         me.equip_template = &b_info[r_info[MON_VAMPIRIC_MIST].body.body_idx];
         init = TRUE;
@@ -880,7 +870,7 @@ race_t *mist_get_race(void)
 /****************************************************************
  * Wolf
  ****************************************************************/
-static power_info _wolf_powers[] = 
+static power_info _wolf_get_powers[] =
 {
     { A_DEX, {  1,  1, 30, hound_sniff_spell } },
     { A_DEX, { 10,  0,  0, hound_stalk_spell}},
@@ -889,10 +879,6 @@ static power_info _wolf_powers[] =
     {    -1, { -1, -1, -1, NULL}}
 };
 
-static int _wolf_get_powers(spell_info* spells, int max) 
-{
-    return get_powers_aux(spells, max, _wolf_powers);
-}
 static void _wolf_calc_bonuses(void)
 {
     p_ptr->see_nocto = TRUE;
@@ -901,6 +887,7 @@ static void _wolf_calc_bonuses(void)
 static void _wolf_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_SPEED);
+    add_flag(flgs, OF_NIGHT_VISION);
 }
 race_t *wolf_get_race(void)
 {
@@ -931,7 +918,7 @@ race_t *wolf_get_race(void)
         me.get_flags = _wolf_get_flags;
         me.caster_info = _caster_info;
 
-        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
+        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER | RACE_NIGHT_START;
 
         me.equip_template = &b_info[73];
         init = TRUE;

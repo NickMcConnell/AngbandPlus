@@ -466,24 +466,12 @@ void monk_posture_spell(int cmd, variant *res)
     }
 }
 
-static int _get_powers(spell_info* spells, int max)
+static power_info _get_powers[] =
 {
-    int ct = 0;
-
-    spell_info* spell = &spells[ct++];
-    spell->level = 25;
-    spell->cost = 0;
-    spell->fail = 0;
-    spell->fn = monk_posture_spell;
-
-    spell = &spells[ct++];
-    spell->level = 30;
-    spell->cost = 30;
-    spell->fail = calculate_fail_rate(spell->level, 80, p_ptr->stat_ind[A_STR]);
-    spell->fn = monk_double_attack_spell;
-
-    return ct;
-}
+    { A_NONE, { 25, 0, 0, monk_posture_spell}},
+    { A_STR, { 30, 30, 80, monk_double_attack_spell}},
+    { -1, {-1, -1, -1, NULL}}
+};
 
 static void _ac_bonus_imp(int slot)
 {
@@ -496,21 +484,21 @@ static void _ac_bonus_imp(int slot)
             p_ptr->dis_to_a += p_ptr->monk_lvl*3/2;
             break;
         case EQUIP_SLOT_CLOAK:
-            if (p_ptr->lev > 15)
+            if (p_ptr->monk_lvl > 15)
             {
                 p_ptr->to_a += (p_ptr->monk_lvl - 13)/3;
                 p_ptr->dis_to_a += (p_ptr->monk_lvl - 13)/3;
             }
             break;
         case EQUIP_SLOT_WEAPON_SHIELD: /* Oops: was INVEN_LARM only and "/3" ... */
-            if (p_ptr->lev > 10)
+            if (p_ptr->monk_lvl > 13)
             {
                 p_ptr->to_a += (p_ptr->monk_lvl - 8)/6;
                 p_ptr->dis_to_a += (p_ptr->monk_lvl - 8)/6;
             }
             break;
         case EQUIP_SLOT_HELMET:
-            if (p_ptr->lev >= 5)
+            if (p_ptr->monk_lvl >= 5)
             {
                 p_ptr->to_a += (p_ptr->monk_lvl - 2)/3;
                 p_ptr->dis_to_a += (p_ptr->monk_lvl - 2)/3;

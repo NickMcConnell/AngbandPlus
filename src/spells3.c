@@ -655,7 +655,7 @@ void teleport_away_followable(int m_idx)
                     }
                     teleport_player_to(m_ptr->fy, m_ptr->fx, 0L);
                 }
-                p_ptr->energy_need += ENERGY_NEED();
+                p_ptr->energy_need += PY_ENERGY_NEED();
             }
         }
     }
@@ -735,7 +735,7 @@ void teleport_level(int m_idx)
         {
             if (!dun_level)
             {
-                dungeon_type = p_ptr->recall_dungeon;
+                set_dungeon_type(p_ptr->recall_dungeon);
                 p_ptr->oldpy = py;
                 p_ptr->oldpx = px;
             }
@@ -748,7 +748,7 @@ void teleport_level(int m_idx)
                 if (coffee_break)
                 {
                     dun_level = coffeebreak_recall_level(TRUE);
-                    dungeon_type = DUNGEON_ANGBAND; /* paranoia */
+                    set_dungeon_type(DUNGEON_ANGBAND); /* paranoia */
                 }
                 prepare_change_floor_mode(CFM_RAND_PLACE);
             }
@@ -758,6 +758,7 @@ void teleport_level(int m_idx)
             }
 
             /* Leaving */
+            quests_on_leave();
             p_ptr->leaving = TRUE;
             p_ptr->leaving_method = LEAVING_TELEPORT_LEVEL;
         }
@@ -810,6 +811,7 @@ void teleport_level(int m_idx)
             prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 
             /* Leaving */
+            quests_on_leave();
             p_ptr->leaving = TRUE;
             p_ptr->leaving_method = LEAVING_TELEPORT_LEVEL;
         }
@@ -832,8 +834,9 @@ void teleport_level(int m_idx)
 int choose_dungeon(cptr note, int y, int x)
 {
     int select_dungeon;
-    int i, num = 0;
+    int i, paikka, num = 0, sivu = Term->hgt - y;
     s16b *dun;
+    char multicase[84] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&'()*+,-./:;<=>{|}";
 
     /* Hack -- No need to choose dungeon in some case */
     if (no_wilderness || ironman_downward)
@@ -851,17 +854,30 @@ int choose_dungeon(cptr note, int y, int x)
     C_MAKE(dun, max_d_idx, s16b);
 
     screen_save();
+    if (sivu < 5)
+    {
+        y = 1; /* paranoia */
+        sivu = Term->hgt - y;
+    }
     for(i = 1; i < max_d_idx; i++)
     {
         char buf[80];
         bool seiha = dungeon_conquered(i);
+        int xx = x, yy = y + num;
 
         if (!d_info[i].maxdepth) continue;
         if (d_info[i].flags1 & DF1_RANDOM) continue;
+        if (d_info[i].flags1 & DF1_SUPPRESSED) continue;
         if (!max_dlv[i]) continue;
 
-        sprintf(buf," %c) %c%-16s : Max level %d ", 'a'+num, seiha ? '!' : ' ', d_name + d_info[i].name, max_dlv[i]);
-        put_str(buf, y + num, x);
+        sprintf(buf," %c) %c%-16s : Max level %d ", multicase[num], seiha ? '!' : ' ', d_name + d_info[i].name, max_dlv[i]);
+        if (num >= sivu)
+        {
+            yy = y + (num % sivu);
+            xx += 37 * (num / sivu);
+            xx = MIN(xx, Term->wid - 20);
+        }
+        put_str(buf, yy, xx);
         dun[num++] = i;
     }
 
@@ -870,10 +886,11 @@ int choose_dungeon(cptr note, int y, int x)
         put_str(" No dungeon is available.", y, x);
     }
 
-    prt(format("Which dungeon do you %s?: ", note), 0, 0);
+    prt(format("%^s which dungeon?: ", note), 0, 0);
     while(1)
     {
         i = inkey();
+        paikka = chrpos(i, multicase);
         if ((i == ESCAPE) || !num)
         {
             /* Free the "dun" array */
@@ -882,9 +899,9 @@ int choose_dungeon(cptr note, int y, int x)
             screen_load();
             return 0;
         }
-        if (i >= 'a' && i <('a'+num))
+        else if ((paikka) && (paikka <= num))
         {
-            select_dungeon = dun[i-'a'];
+            select_dungeon = dun[paikka - 1];
             break;
         }
         else bell();
@@ -927,7 +944,7 @@ bool recall_player(int turns, bool varmista)
         if (!dun_level)
         {
             int select_dungeon;
-            select_dungeon = choose_dungeon("recall", 1, 1);
+            select_dungeon = choose_dungeon("recall to", 1, 1);
             if (!select_dungeon) return FALSE;
             p_ptr->recall_dungeon = select_dungeon;
         }
@@ -943,7 +960,7 @@ bool recall_player(int turns, bool varmista)
         p_ptr->word_recall = 0;
         cmsg_print(TERM_L_BLUE, "A tension leaves the air around you...");
 
-        p_ptr->leaving_method = LEAVING_UNKOWN;
+        p_ptr->leaving_method = LEAVING_UNKNOWN;
         p_ptr->redraw |= (PR_STATUS);
     }
     return TRUE;
@@ -1195,13 +1212,13 @@ static void _nexus_pick_dungeon(void)
         which = rand_range(2, max_d_idx);
         d_ptr = &d_info[which];
         if (!d_ptr->name) continue;
-        if (d_ptr->flags1 & (DF1_RANDOM | DF1_WINNER)) continue;
+        if (d_ptr->flags1 & (DF1_RANDOM | DF1_SUPPRESSED | DF1_WINNER)) continue;
         if (which == dungeon_type) continue;
         if (d_ptr->mindepth > max_lvl) continue;
         lvl = rand_range(d_ptr->mindepth, MIN(d_ptr->maxdepth, max_lvl));
         break;
     }
-    dungeon_type = which;
+    set_dungeon_type(which);
     dun_level = lvl;
 }
 static void _nexus_travel(void)
@@ -1771,7 +1788,7 @@ void alter_reality(void)
         p_ptr->alter_reality = 0;
         msg_print("The view around you got back...");
 
-        p_ptr->leaving_method = LEAVING_UNKOWN;
+        p_ptr->leaving_method = LEAVING_UNKNOWN;
         p_ptr->redraw |= (PR_STATUS);
     }
     return;
@@ -3116,6 +3133,7 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
             break;
         case SV_POTION_CONFUSION: /* Booze */
             dt = GF_OLD_CONF;
+            dam = damroll(4, 7);
             angry = TRUE;
             break;
         case SV_POTION_SLEEP:
@@ -3127,6 +3145,11 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
             dt = GF_SHARDS;
             dam = damroll(25, 25);
             angry = TRUE;
+            break;
+        case SV_POTION_LIQUID_LOGRUS:
+            dt = (one_in_(5) ? GF_OLD_HEAL : GF_CHAOS);
+            dam = damroll(11, 77);
+            angry = (dt != GF_OLD_HEAL);
             break;
         case SV_POTION_DEATH:
             dt = GF_DEATH_RAY;    /* !! */
@@ -3244,11 +3267,12 @@ int mod_need_mana(int need_mana, int spell, int realm)
 
 /*
  * Modify spell fail rate
- * Using p_ptr->to_m_chance, p_ptr->dec_mana, p_ptr->easy_spell and p_ptr->heavy_spell
+ * Using p_ptr->to_m_chance, p_ptr->easy_spell and p_ptr->heavy_spell
+ * No longer using p_ptr->dec_mana
  */
 int mod_spell_chance_1(int chance, int realm)
 {
-    bool dec_mana = p_ptr->dec_mana;
+    bool dec_mana = FALSE;
 
     if (realm && realm == p_ptr->easy_realm1)
         dec_mana = TRUE;
@@ -3263,9 +3287,8 @@ int mod_spell_chance_1(int chance, int realm)
         if (p_ptr->cumber_armor) chance += 100 * p_ptr->cumber_armor_amt / 600;
     }
 
-    if (dec_mana && p_ptr->easy_spell) chance -= 4;
-    else if (p_ptr->easy_spell) chance -= 3;
-    else if (dec_mana) chance -= 2;
+    if (p_ptr->easy_spell) chance -= 4;
+    if (dec_mana) chance -= 2;
 
     if (mut_present(MUT_ARCANE_MASTERY))
         chance -= 3;
@@ -3278,17 +3301,14 @@ int mod_spell_chance_1(int chance, int realm)
 
 /*
  * Modify spell fail rate (as "suffix" process)
- * Using p_ptr->dec_mana, p_ptr->easy_spell and p_ptr->heavy_spell
+ * Using p_ptr->easy_spell and p_ptr->heavy_spell
  * Note: variable "chance" cannot be negative.
  */
 int mod_spell_chance_2(int chance, int realm)
 {
-    bool dec_mana = p_ptr->dec_mana;
+    int min = (mut_present(MUT_HUMAN_CHR)) ? 1 : 0;
+    if ((realm) && (realm == p_ptr->easy_realm1)) chance--;
 
-    if (realm && realm == p_ptr->easy_realm1)
-        dec_mana = TRUE;
-
-    if (dec_mana) chance--;
     if (p_ptr->heavy_spell) chance += 5;
     if (p_ptr->pclass == CLASS_BLOOD_MAGE)
     {
@@ -3296,7 +3316,7 @@ int mod_spell_chance_2(int chance, int realm)
         if (p_ptr->cumber_armor) chance += 5;
     }
 
-    return MAX(chance, 0);
+    return MAX(chance, min);
 }
 
 
@@ -4239,7 +4259,7 @@ bool dimension_door_aux(int x, int y, int rng)
     int    plev = p_ptr->lev;
 
     if (!mut_present(MUT_ASTRAL_GUIDE))
-        p_ptr->energy_need += (s16b)((s32b)(60 - plev) * ENERGY_NEED() / 100L);
+        p_ptr->energy_need += (s16b)((s32b)(60 - plev) * PY_ENERGY_NEED() / 100L);
 
     if (p_ptr->wizard)
     {
@@ -4251,7 +4271,7 @@ bool dimension_door_aux(int x, int y, int rng)
            || !randint0(plev / 10 + 10) )
     {
         if (!mut_present(MUT_ASTRAL_GUIDE))
-            p_ptr->energy_need += (s16b)((s32b)(60 - plev) * ENERGY_NEED() / 100L);
+            p_ptr->energy_need += (s16b)((s32b)(60 - plev) * PY_ENERGY_NEED() / 100L);
         teleport_player((plev + 2) * 2, TELEPORT_PASSIVE);
         return FALSE;
     }
@@ -4473,7 +4493,7 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
     if (warlock_is_(WARLOCK_GIANTS))
         summon_kin_type = 'P';
 
-    if (p_ptr->current_r_idx)
+    if ((p_ptr->current_r_idx) && (p_ptr->pclass != CLASS_BLUE_MAGE))
         summon_kin_type = r_info[p_ptr->current_r_idx].d_char;
 
     return summon_specific(SUMMON_WHO_PLAYER, y, x, level, SUMMON_KIN, mode);

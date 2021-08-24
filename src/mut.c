@@ -161,6 +161,12 @@ static mutation_info _mutations[MAX_MUTATIONS] =
     {MUT_RATING_AWFUL,                   0,             0, 0, {0,  0,   0, easy_tiring_II_mut}},
     {MUT_RATING_BAD,                     0,             0, 4, {0,  0,   0, limp_mut}},
 
+    {MUT_RATING_BAD,                     0,             0, 0, {0,  0,   0, human_str_mut}},
+    {MUT_RATING_BAD,        MUT_TYPE_BONUS,             0, 0, {0,  0,   0, human_int_mut}},
+    {MUT_RATING_BAD,                     0,             0, 0, {0,  0,   0, human_wis_mut}},
+    {MUT_RATING_BAD,                     0,             0, 0, {0,  0,   0, human_dex_mut}},
+    {MUT_RATING_BAD,       MUT_TYPE_EFFECT,             0, 0, {0,  0,   0, human_con_mut}},
+    {MUT_RATING_BAD,        MUT_TYPE_BONUS,             0, 0, {0,  0,   0, human_chr_mut}},
 };
 
 int _mut_prob_gain(int i)
@@ -378,6 +384,9 @@ void mut_get_flags(u32b flgs[OF_ARRAY_SIZE])
     if (mut_present(MUT_MOTION))
         add_flag(flgs, OF_FREE_ACT);
 
+    if (mut_present(MUT_HUMAN_INT))
+        add_flag(flgs, OF_VULN_FEAR);
+
     if (mut_present(MUT_TREAD_SOFTLY))
         add_flag(flgs, OF_STEALTH);
 
@@ -410,6 +419,7 @@ void mut_get_flags(u32b flgs[OF_ARRAY_SIZE])
         add_flag(flgs, OF_VULN_FIRE);
         add_flag(flgs, OF_VULN_COLD);
     }
+    if (mutant_regenerate_mod < 100) add_flag(flgs, OF_SLOW_REGEN);
 }
 
 void mut_calc_stats(s16b stats[MAX_STATS])
@@ -658,7 +668,7 @@ bool mut_gain_random(mut_pred pred)
     return FALSE;
 }
 
-int mut_get_powers(spell_info* spells, int max)
+int mut_get_powers(power_info* spells, int max)
 {
     int i;
     int ct = 0;
@@ -669,17 +679,18 @@ int mut_get_powers(spell_info* spells, int max)
           && (_mutations[i].type & MUT_TYPE_ACTIVATION) )
         {
             spell_info *base = &_mutations[i].spell;
-            spell_info* current = NULL;
+            power_info* current = NULL;
             int stat_idx = p_ptr->stat_ind[_mutations[i].stat];
 
             if (ct >= max) break;
 
             current = &spells[ct];
-            current->fn = base->fn;
-            current->level = base->level;
-            current->cost = base->cost;
+            current->spell.fn = base->fn;
+            current->spell.level = base->level;
+            current->spell.cost = base->cost;
 
-            current->fail = calculate_fail_rate(base->level, base->fail, stat_idx);            
+            current->spell.fail = calculate_fail_rate(base->level, base->fail, stat_idx);
+            current->stat = _mutations[i].stat;
             ct++;
         }
     }
@@ -832,6 +843,7 @@ void mut_lock(int mut_idx)
     if (mut_idx < 0 || mut_idx >= MAX_MUTATIONS) return;
     if (mut_locked(mut_idx)) return;
     add_flag(p_ptr->muta_lock, mut_idx);
+    _mut_refresh();
 }
 
 bool mut_locked(int mut_idx)
@@ -1030,6 +1042,7 @@ void mut_unlock(int mut_idx)
     if (mut_idx < 0 || mut_idx >= MAX_MUTATIONS) return;
     if (!mut_locked(mut_idx)) return;
     remove_flag(p_ptr->muta_lock, mut_idx);
+    _mut_refresh();
 }
 
 bool mut_unlocked_pred(int mut_idx)

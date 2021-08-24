@@ -550,7 +550,7 @@ static void _unleash_elements_spell(int cmd, variant *res)
     }
 }
 
-static power_info _powers[] = {
+static power_info _get_powers[] = {
     { A_CON, {  1,  3, 30, _breathe_spell}},
     { A_DEX, {  5,  5, 30, _spin_away_spell}},
     { A_DEX, { 12,  7, 35, _whirlwind_spell}},
@@ -559,10 +559,6 @@ static power_info _powers[] = {
     { A_CON, { 50, 50, 65, _unleash_elements_spell}},
     {    -1, { -1, -1, -1, NULL}}
 };
-
-static int _get_powers(spell_info* spells, int max) {
-    return get_powers_aux(spells, max, _powers);
-}
 
 /**********************************************************************
  * Bonuses
@@ -680,6 +676,7 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_RES_CONF);
     add_flag(flgs, OF_HOLD_LIFE);
     add_flag(flgs, OF_LEVITATION);
+    add_flag(flgs, OF_NIGHT_VISION);
 
     switch (p_ptr->current_r_idx)
     {
@@ -792,8 +789,9 @@ race_t *mon_vortex_get_race(void)
                     "rotating essence, gaining bonuses and protection in the process. "
                     "The number of objects they may use increases with level, and there are no "
                     "restrictions on the types of equipment they may 'wield' in each slot. "
-                    "While they may equip weapons this way, they cannot attack with them; "
-                    "instead, the vortex may engulf nearby monsters with their elemental essence.\n \n"
+                    "While they may equip weapons this way, they cannot attack with them; instead, "
+                    "vortex melee relies on their innate ability to engulf nearby monsters in the "
+                    "whirling elements.\n \n"
                     "Vortices evolve randomly, though all seem to end up with the evolutionary "
                     "perfection of the Aether vortex. At level 50 they gain a special talent "
                     "to augment their power.";
@@ -811,7 +809,7 @@ race_t *mon_vortex_get_race(void)
         me.birth = _birth;
         me.boss_r_idx = MON_WIRUIN;
 
-        me.flags = RACE_IS_MONSTER | RACE_IS_NONLIVING;
+        me.flags = RACE_IS_MONSTER | RACE_IS_NONLIVING | RACE_EATS_DEVICES;
 
         me.pseudo_class_idx = CLASS_WARRIOR;
 

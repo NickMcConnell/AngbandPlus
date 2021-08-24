@@ -163,13 +163,29 @@ void quest_complete(quest_ptr q, point_t p)
     {
         int x = p.x;
         int y = p.y;
-        int nx,ny;
+        int dist = 1;
+        int yrk = 50, maxyrk = 50;
+        int nx = x, ny = y;
 
-        while (cave_perma_bold(y, x) || cave[y][x].o_idx || (cave[y][x].info & CAVE_OBJECT) )
+        while (cave_perma_bold(y, x) || cave[ny][nx].o_idx || (cave[ny][nx].info & CAVE_OBJECT) )
         {
-            scatter(&ny, &nx, y, x, 1, 0);
-            y = ny; x = nx;
+            scatter(&ny, &nx, y, x, dist, 0);
+            yrk--;
+            if ((yrk > (maxyrk / 2)) && (!projectable(py, px, ny, nx))) continue;
+            if (!yrk)
+            {
+                dist++;
+                maxyrk = MIN(120, 50 + (20 * dist));
+                yrk = maxyrk;
+                if (dist > 10) /* Screw this */
+                {
+                    ny = y;
+                    nx = x;
+                    break;
+                }
+            }
         }
+        y = ny; x = nx;
 
         cmsg_print(TERM_L_BLUE, "A magical staircase appears...");
         if ((!coffee_break) || (dun_level == 99))
@@ -1045,6 +1061,7 @@ void get_purple_questor(quest_ptr q)
         if (r_ptr->rarity > 100) continue;
         if (r_ptr->flags7 & RF7_FRIENDLY) continue;
         if (r_ptr->flags7 & RF7_AQUATIC) continue;
+        if (r_ptr->flags3 & RF3_COMPOST) continue;
         if (r_ptr->flags8 & RF8_WILD_ONLY) continue;
         if (r_ptr->flags7 & (RF7_UNIQUE2 | RF7_NAZGUL)) continue;
         if (r_ptr->flagsx & RFX_SUPPRESS) continue; /* paranoia */
@@ -1143,6 +1160,8 @@ static int _quest_dungeon(quest_ptr q)
     /* move wargs quest from 'Warrens' to 'Angband' */
     if (d && no_wilderness)
         d = DUNGEON_ANGBAND;
+    /* handle suppressed dungeons, make big honking assumption */
+    if ((d) && (d_info[d].flags1 & DF1_SUPPRESSED)) d = d_info[d].alt;
     return d;
 }
 
@@ -1308,6 +1327,12 @@ void _dungeon_boss_death(mon_ptr mon)
         {
             int tval = realm2tval(p_ptr->realm1);
             k_idx = lookup_kind(tval, 3);
+        }
+
+        if (dungeon_type == DUNGEON_MYSTERY)
+        {
+            acquirement(py, px, 1 + (dun_level / 30), TRUE, FALSE, ORIGIN_MYSTERY);
+            k_idx = 0;
         }
 
         if (k_idx)

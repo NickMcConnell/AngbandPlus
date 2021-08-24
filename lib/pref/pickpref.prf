@@ -5,6 +5,7 @@ mushroom of restoring#!E
 ~mushroom of hallucination
 
 ?:[EQU $RACE Snotling Doppelganger]
+~?unidentified items:mushroom
 ~mushroom
 ?:1
 
@@ -241,10 +242,13 @@ junk:^broken bone
 skeletons
 
 ?:[EQU $CLASS Ninja Ninja-Lawyer]
-(~ego lights:of darkness
+ego lights:of darkness
 feanorian
 Iron Spike#@vz
 ?:1
+
+~average items:feanorian lamp
+?unidentified items:feanorian lamp
 
 !potions:apple juice
 #!statue

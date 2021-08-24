@@ -159,7 +159,15 @@
 #define MUT_EASY_TIRING2      144
 #define MUT_LIMP              145
 
-#define MAX_MUTATIONS      146   /* see also MUT_FLAG_SIZE in defines.h */
+/* Human weaknesses */
+#define MUT_HUMAN_STR         146
+#define MUT_HUMAN_INT         147
+#define MUT_HUMAN_WIS         148
+#define MUT_HUMAN_DEX         149
+#define MUT_HUMAN_CON         150
+#define MUT_HUMAN_CHR         151
+
+#define MAX_MUTATIONS      152   /* see also MUT_FLAG_SIZE in defines.h */
 
 typedef enum {
     MUT_RATING_AWFUL = -2,
@@ -194,7 +202,7 @@ extern void mut_display(doc_ptr doc);
 extern bool mut_gain(int mut_idx);
 extern int mut_gain_choice(mut_pred pred);
 extern bool mut_gain_random(mut_pred pred);
-extern int  mut_get_powers(spell_info* spells, int max);
+extern int  mut_get_powers(power_info* spells, int max);
 extern void mut_lock(int mut_idx);
 extern bool mut_locked(int mut_idx);
 extern bool mut_lose(int mut_idx);
@@ -275,6 +283,14 @@ extern void loremaster_mut(int cmd, variant *res);
 extern void magic_resistance_mut(int cmd, variant *res);
 extern void merchants_friend_mut(int cmd, variant *res);
 extern void moron_mut(int cmd, variant *res);
+
+extern void human_chr_mut(int cmd, variant *res);
+extern void human_con_mut(int cmd, variant *res);
+extern void human_dex_mut(int cmd, variant *res);
+extern void human_int_mut(int cmd, variant *res);
+extern void human_str_mut(int cmd, variant *res);
+extern void human_wis_mut(int cmd, variant *res);
+
 extern void motion_mut(int cmd, variant *res);
 extern void nausea_mut(int cmd, variant *res);
 extern void no_inhibitions_mut(int cmd, variant *res);

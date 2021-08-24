@@ -363,9 +363,9 @@ void bump_numeral(char *nimi, int muutos)
         s32b arvo = find_arabic_numeral(nimi, &paikka);
         if (arvo < 1) return;
         if (paikka <= 0) return;
-        nimi[paikka] = '\0';
+        nimi[paikka - 1] = '\0';
         if ((arvo + muutos) < 1) return;
-        strcpy(luku, format("%d", arvo + muutos));
+        strcpy(luku, format(" %d", arvo + muutos));
         if (strlen(nimi) + strlen(luku) > PY_NAME_LEN) return;
         strcat(nimi, luku);
     }
@@ -998,13 +998,7 @@ static vec_ptr _pers_choices(bool split)
 static vec_ptr _get_races_aux(int ids[]);
 static bool _is_valid_race_class(int race_id, int class_id);
 
-#define _MAX_RACES_PER_GROUP 23
-#define _MAX_RACE_GROUPS      9
-typedef struct _race_group_s {
-    cptr name;
-    int ids[_MAX_RACES_PER_GROUP];
-} _race_group_t, *_race_group_ptr;
-static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
+b_race_group_t b_race_groups[B_MAX_RACE_GROUPS] = {
     { "Human",
         {RACE_AMBERITE, RACE_BARBARIAN, RACE_DEMIGOD, RACE_DUNADAN, RACE_HUMAN, RACE_IGOR, -1} },
     { "Elf",
@@ -1027,14 +1021,42 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
          RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_TONBERRY, RACE_YEEK,-1 } },
 };
 
+b_race_group_t b_mon_race_groups[B_MAX_MON_RACE_GROUPS] = {
+    { "Animal",
+        {/*RACE_MON_ANT, RACE_MON_BEETLE, RACE_MON_BIRD, RACE_MON_CAT,*/ RACE_MON_CENTIPEDE,
+            RACE_MON_HOUND, /*RACE_MON_HORSE, */ RACE_MON_HYDRA, RACE_MON_SPIDER, -1} },
+    { "Angel/Demon",
+        {RACE_MON_ANGEL, RACE_MON_DEMON, -1} },
+    { "Beholder",
+        {RACE_MON_BEHOLDER, -1} },
+    { "Dragon",
+        {RACE_MON_DRAGON, -1} },
+    { "Elemental/Vortex",
+        {RACE_MON_ELEMENTAL, RACE_MON_VORTEX, -1} },
+    { "Golem",
+        {RACE_MON_GOLEM, -1} },
+    { "Jelly",
+        {RACE_MON_JELLY, /*RACE_MON_MOLD,*/ RACE_MON_QUYLTHULG, -1} },
+    { "Leprechaun",
+        {RACE_MON_LEPRECHAUN, -1} },
+    { "Mimic/Possessor",
+        {RACE_MON_SWORD, RACE_MON_ARMOR, RACE_MON_MIMIC, RACE_MON_POSSESSOR, RACE_MON_RING, -1} },
+    { "Orc/Troll/Giant",
+        {RACE_MON_GIANT, /*RACE_MON_KOBOLD,*/ RACE_MON_ORC, RACE_MON_TROLL, -1} },
+    { "Undead",
+        {/*RACE_MON_GHOST,*/ RACE_MON_LICH, RACE_MON_MUMMY, RACE_MON_VAMPIRE, /*RACE_MON_WRAITH,*/ -1 } },
+    { "Other",
+        {RACE_MON_PUMPKIN, RACE_MON_XORN, -1} },
+};
+
 static void _race_group_ui(void)
 {
     vec_ptr groups = vec_alloc(NULL);
     int     i;
 
-    for (i = 0; i < _MAX_RACE_GROUPS; i++)
+    for (i = 0; i < B_MAX_RACE_GROUPS; i++)
     {
-        _race_group_ptr g_ptr = &_race_groups[i];
+        b_race_group_ptr g_ptr = &b_race_groups[i];
         vec_ptr         races = _get_races_aux(g_ptr->ids);
 
         if (vec_length(races))
@@ -1052,7 +1074,7 @@ static void _race_group_ui(void)
         doc_insert(_doc, "<color:G>Choose a Type of Race to Play</color>\n");
         for (i = 0; i < vec_length(groups); i++)
         {
-            _race_group_ptr g_ptr = vec_get(groups, i);
+            b_race_group_ptr g_ptr = vec_get(groups, i);
             doc_printf(_doc, "  <color:y>%c</color>) %s\n", I2A(i), g_ptr->name);
         }
         doc_insert(_doc, "  <color:y>*</color>) Random\n");
@@ -1071,7 +1093,7 @@ static void _race_group_ui(void)
             else i = A2I(cmd);
             if (0 <= i && i < vec_length(groups))
             {
-                _race_group_ptr g_ptr = vec_get(groups, i);
+                b_race_group_ptr g_ptr = vec_get(groups, i);
                 if (_race_ui(g_ptr->ids) == UI_OK) break;
             }
         }
@@ -1997,35 +2019,6 @@ static int _realm2_ui(void)
  * 2.2') Monster Race (Replaces 2.2.* path when in monster mode)
  ***********************************************************************/ 
 
-#define _MAX_MON_RACE_GROUPS      12
-static _race_group_t _mon_race_groups[_MAX_MON_RACE_GROUPS] = {
-    { "Animal",
-        {/*RACE_MON_ANT, RACE_MON_BEETLE, RACE_MON_BIRD, RACE_MON_CAT,*/ RACE_MON_CENTIPEDE,
-            RACE_MON_HOUND, /*RACE_MON_HORSE, */ RACE_MON_HYDRA, RACE_MON_SPIDER, -1} },
-    { "Angel/Demon",
-        {RACE_MON_ANGEL, RACE_MON_DEMON, -1} },
-    { "Beholder",
-        {RACE_MON_BEHOLDER, -1} },
-    { "Dragon",
-        {RACE_MON_DRAGON, -1} },
-    { "Elemental/Vortex",
-        {RACE_MON_ELEMENTAL, RACE_MON_VORTEX, -1} },
-    { "Golem",
-        {RACE_MON_GOLEM, -1} },
-    { "Jelly",
-        {RACE_MON_JELLY, /*RACE_MON_MOLD,*/ RACE_MON_QUYLTHULG, -1} },
-    { "Leprechaun",
-        {RACE_MON_LEPRECHAUN, -1} },
-    { "Mimic/Possessor",
-        {RACE_MON_SWORD, RACE_MON_ARMOR, RACE_MON_MIMIC, RACE_MON_POSSESSOR, RACE_MON_RING, -1} },
-    { "Orc/Troll/Giant",
-        {RACE_MON_GIANT, /*RACE_MON_KOBOLD,*/ RACE_MON_ORC, RACE_MON_TROLL, -1} },
-    { "Undead",
-        {/*RACE_MON_GHOST,*/ RACE_MON_LICH, RACE_MON_VAMPIRE, /*RACE_MON_WRAITH, RACE_MON_ZOMBIE,*/ -1 } },
-    { "Other",
-        {RACE_MON_PUMPKIN, RACE_MON_XORN, -1} },
-};
-
 static void _mon_race_group_ui(void)
 {
     for (;;)
@@ -2036,9 +2029,9 @@ static void _mon_race_group_ui(void)
         _race_class_top(_doc);
 
         doc_insert(_doc, "<color:G>Choose a Type of Monster to Play</color>\n");
-        for (i = 0; i < _MAX_MON_RACE_GROUPS; i++)
+        for (i = 0; i < B_MAX_MON_RACE_GROUPS; i++)
         {
-            _race_group_ptr g_ptr = &_mon_race_groups[i];
+            b_race_group_ptr g_ptr = &b_mon_race_groups[i];
             doc_printf( _doc, "  <color:y>%c</color>) %s\n", I2A(i), g_ptr->name);
         }
         doc_insert(_doc, "  <color:y>*</color>) Random\n");
@@ -2054,9 +2047,9 @@ static void _mon_race_group_ui(void)
         else if (isupper(cmd))
         {
             i = A2I(cmd);
-            if (0 <= i && i < _MAX_MON_RACE_GROUPS)
+            if (0 <= i && i < B_MAX_MON_RACE_GROUPS)
             {
-                _race_group_ptr g_ptr = &_mon_race_groups[i];
+                b_race_group_ptr g_ptr = &b_mon_race_groups[i];
                 if (_count(g_ptr->ids) == 1)
                 {
                     race_t *race_ptr = get_race_aux(p_ptr->prace, 0);
@@ -2068,11 +2061,11 @@ static void _mon_race_group_ui(void)
         }
         else
         {
-            if (cmd == '*') i = randint0(_MAX_MON_RACE_GROUPS);
+            if (cmd == '*') i = randint0(B_MAX_MON_RACE_GROUPS);
             else i = A2I(cmd);
-            if (0 <= i && i < _MAX_MON_RACE_GROUPS)
+            if (0 <= i && i < B_MAX_MON_RACE_GROUPS)
             {
-                _race_group_ptr g_ptr = &_mon_race_groups[i];
+                b_race_group_ptr g_ptr = &b_mon_race_groups[i];
                 if (_count(g_ptr->ids) == 1)
                 {
                     int old_id = p_ptr->prace, old_sub = p_ptr->psubrace;
@@ -2523,6 +2516,12 @@ static void _stats_init(void)
         case RACE_MON_PUMPKIN:
         {
             int stats[6] = { 17, 13, 8, 16, 15, 10 };
+            _stats_init_aux(stats);
+            break;
+        }
+        case RACE_MON_MUMMY:
+        {
+            int stats[6] = { 16, 12, 8, 16, 15, 15 };
             _stats_init_aux(stats);
             break;
         }
@@ -3374,16 +3373,26 @@ static void _birth_finalize(void)
      * but forget to turn no_wilderness and ironman_downward off) */
     if ((!coffee_break) && (ironman_downward))
     {
-        if (!get_check("Really play with ironman stairs? "))
+        if (thrall_mode) ironman_downward = FALSE; /* We start in R'lyeh... */
+        else if (!get_check("Really play with ironman stairs? "))
         {
             ironman_downward = FALSE;
         }
     }
     if ((!coffee_break) && (no_wilderness))
     {
-        if (!get_check("Really play with no wilderness? "))
+        if (!get_check("Really play with no wilderness? (This option and Normal game speed are not intended to be used together.) "))
         {
             no_wilderness = FALSE;
+        }
+        else
+        {
+            Term_clear();
+            if (msg_prompt("The No Wilderness option is intended for coffee-break mode <color:v>only</color><color:w>. Normal game speed is balanced entirely around the presence of a</color> <color:G>wilderness</color> <color:w>and the</color> <color:B>many towns</color> and <color:B>dungeons</color> that come with it, while the no-wilderness option is balanced around the</color> <color:U>coffee-break</color> <color:w>and</color> <color:U>instant-coffee</color> <color:w>modes. Trying to combine Normal speed with the lack of a wilderness will make the game very <color:r>tedious</color> and <color:r>repetitive</color>, and you will miss out on much of what should make FrogComposband unique, enjoyable and engaging.\n\n</color><color:v>REALLY</color> <color:w>play with no wilderness?</color> <color:y>[y/n]</color>", "ny", PROMPT_DEFAULT) != 'y')
+//        else if (!get_check("REALLY? (The no-wilderness option is intended for coffee-break mode only.)"))
+            {
+                no_wilderness = FALSE;
+            }
         }
     }
 

@@ -192,7 +192,7 @@ static _type_t _types[] =
          { 16, "Eridish",                  15000, 110, RACE_HALF_TROLL },
          { 17, "Vrudush the Shaman",       25000, 107, RACE_OGRE },
          { 18, "Haob the Berserker",       30000, 109, RACE_BARBARIAN },
-         { 19, "Proogdish the Youthfull",  10000, 109, RACE_OGRE },
+         { 19, "Proogdish the Youthful",   10000, 109, RACE_OGRE },
          { 20, "Lumwise the Mad",          15000, 110, RACE_YEEK },
          { 21, "Muirt the Virtuous",       25000, 107, RACE_KOBOLD },
          { 22, "Dardobard the Weak",       30000, 109, RACE_SPECTRE },
@@ -484,6 +484,7 @@ static bool _create(obj_ptr obj, int k_idx, int lvl, u32b mode)
     if (mode & AM_SHUFFLING) /* Prevent shuffling for a [Sm amulet */
     {
         if ((k_info[k_idx].tval == TV_AMULET) && (have_flag(obj->flags, OF_NO_SUMMON))) return FALSE;
+        if (have_flag(obj->flags, OF_REGEN_MANA)) return FALSE;
         if ((object_is_mushroom(obj)) && ((prace_is_(RACE_SNOTLING)) || (p_ptr->prace == RACE_SNOTLING) || (p_ptr->prace == RACE_DOPPELGANGER))) return FALSE;
     }
 
@@ -1523,6 +1524,15 @@ static void _loop(_ui_context_ptr context)
                 if (context->top > context->page_size)
                     context->top -= context->page_size;
                 break;
+            case SKEY_BOTTOM: case '1':
+                 while (context->top + context->page_size - 1 < max)
+                 {
+                    context->top += context->page_size;
+                 }
+                 break;
+            case SKEY_TOP: case '7':
+                 context->top = 1;
+                 break;
             default:
                 if (cmd < 256 && isprint(cmd))
                 {
@@ -1745,6 +1755,7 @@ static void _buy(_ui_context_ptr context)
     {
         obj_t copy = *prompt.obj;
         int vakuutettu = 0;
+        bool tunnettu = object_is_known(prompt.obj);
         if (prompt.obj->insured)
         {
             vakuutettu = MAX(0, (prompt.obj->insured % 100) - prompt.obj->number + amt);
@@ -1763,6 +1774,7 @@ static void _buy(_ui_context_ptr context)
                 p_ptr->notice |= PN_OPTIMIZE_QUIVER;
             else if (prompt.obj->loc.where == INV_PACK)
                 p_ptr->notice |= PN_OPTIMIZE_PACK;
+            if (!tunnettu) autopick_alter_obj(prompt.obj, ((destroy_identify) && (obj_value(prompt.obj) < 1)));
         }
     }
     else
@@ -1797,9 +1809,37 @@ static void _reserve_aux(shop_ptr shop, obj_ptr obj)
     string_ptr s;
     char       c;
     char       name[MAX_NLEN];
+    int        amt = 1, maks = -1;
 
-    object_desc(name, obj, OD_COLOR_CODED);
-    s = string_alloc_format("Reserve %s for <color:R>%d</color> gp? <color:y>[y/n]</color>", name, cost);
+    if (obj->number > 1)
+    {
+        maks = obj->number;
+        if ((limit_shop_prompts) && ((cost * maks) > p_ptr->au)) maks = p_ptr->au / cost;
+        if (maks > 1)
+        {
+            amt = maks;
+            if (!msg_input_num("Quantity", &amt, 1, maks)) return;
+        }
+    }
+
+    if (maks > 0)
+    {
+        int mode = (OD_OMIT_PREFIX | OD_COLOR_CODED);
+        if (amt == 1) mode |= OD_SINGULAR;
+        object_desc(name, obj, mode);
+        cost *= amt;
+        s = string_alloc_format("Reserve <color:%c>%d</color> %s for <color:R>%d</color> gp? <color:y>[y/n]</color>", tval_to_attr_char(obj->tval), amt, name, cost);
+    }
+    else if (maks < 0)
+    {
+        object_desc(name, obj, OD_COLOR_CODED);
+        s = string_alloc_format("Reserve %s for <color:R>%d</color> gp? <color:y>[y/n]</color>", name, cost);
+    }
+    else
+    {
+        msg_print("You don't have enough gold.");
+        return;
+    }
     c = msg_prompt(string_buffer(s), "ny", PROMPT_YES_NO);
     string_free(s);
     if (c == 'n') return;
@@ -1815,7 +1855,10 @@ static void _reserve_aux(shop_ptr shop, obj_ptr obj)
     if (prace_is_(RACE_MON_LEPRECHAUN))
         p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
+    obj->number = amt;
+    object_desc(name, obj, OD_COLOR_CODED);
     obj->marked |= OM_RESERVED;
+
     msg_format("Done! I'll hold on to %s for you. You may come back at any time to purchase it.", name);
 }
 
@@ -1928,9 +1971,21 @@ static void _sell(_ui_context_ptr context)
         obj = inv_obj(context->shop->inv, slot);
         if (!obj) continue;
 
-        if (obj->number > 1)
+//        if (obj->number > 1)
         {
-            if (!msg_input_num("Quantity", &amt, 1, obj->number)) continue;
+            int maks = obj->number;
+            if (limit_shop_prompts)
+            {
+                int price = obj_value(obj);
+                price = _sell_price(context->shop, price);
+                if ((price * maks) > p_ptr->au) maks = p_ptr->au / price;
+            }
+            if ((maks > 1) && (!msg_input_num("Quantity", &amt, 1, maks))) continue;
+            else if (maks < 1)
+            {
+                msg_print("You do not have enough gold.");
+                return;
+            }
         }
 
         if (amt < obj->number)
@@ -2202,6 +2257,9 @@ static int _restock(shop_ptr shop, int target, bool is_shuffle)
         mode |= AM_STOCK_BM;
 
     if (is_shuffle) mode |= AM_SHUFFLING;
+
+    if (target > _STOCK_HI) target = _STOCK_HI; /* paranoia */
+    if (ct > target) return ct; /* Too many reserved items... */
 
     assert(ct <= target);
     for (attempt = 1; ct < target && attempt < 100; attempt++)

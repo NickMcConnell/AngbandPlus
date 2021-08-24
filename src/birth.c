@@ -212,6 +212,7 @@ static void player_wipe(void)
         /* Hack -- Non-unique Nazguls are semi-unique */
         else if (r_ptr->flags7 & RF7_NAZGUL) r_ptr->max_num = MAX_NAZGUL_NUM;
         else if (i == MON_CAMELOT_KNIGHT) r_ptr->max_num = MAX_CAMELOT_KNIGHT_NUM;
+        else if (i == MON_BUSH) r_ptr->max_num = 250;
 
         /* Clear visible kills in this life */
         r_ptr->r_pkills = 0;
@@ -354,11 +355,7 @@ static void player_wipe(void)
  */
 static void init_turn(void)
 {
-    if ( p_ptr->prace == RACE_VAMPIRE
-      || p_ptr->prace == RACE_MON_VAMPIRE
-      || p_ptr->prace == RACE_SKELETON
-      || p_ptr->prace == RACE_ZOMBIE
-      || p_ptr->prace == RACE_SPECTRE )
+    if ( get_race()->flags & RACE_NIGHT_START)
     {
         /* Undead start just after midnight */
         game_turn = (TURNS_PER_TICK*3 * TOWN_DAWN) / 4 + 1;
@@ -370,6 +367,7 @@ static void init_turn(void)
         game_turn_limit = TURNS_PER_TICK * TOWN_DAWN * (MAX_DAYS - 1) + TURNS_PER_TICK * TOWN_DAWN * 3 / 4;
     }
 
+    image_turn = game_turn;
     dungeon_turn = 1;
     dungeon_turn_limit = TURNS_PER_TICK * TOWN_DAWN * (MAX_DAYS - 1) + TURNS_PER_TICK * TOWN_DAWN * 3 / 4;
 }
@@ -397,12 +395,12 @@ void birth_location(void)
 {
     if (no_wilderness)
     {
-        dungeon_type = 0;
+        set_dungeon_type(0);
         p_ptr->recall_dungeon = DUNGEON_ANGBAND;
     }
     else
     {
-        dungeon_type = 0;
+        set_dungeon_type(0);
         p_ptr->recall_dungeon = DUNGEON_WARREN;
     }
 
@@ -411,14 +409,14 @@ void birth_location(void)
         dun_level = 90;
         if (!no_wilderness)
         {
-            dungeon_type = DUNGEON_CTH;
+            set_dungeon_type(DUNGEON_CTH);
             p_ptr->recall_dungeon = DUNGEON_CTH;
             p_ptr->wilderness_y = d_info[dungeon_type].dy;
             p_ptr->wilderness_x = d_info[dungeon_type].dx;
         }
         else
         {
-            dungeon_type = DUNGEON_ANGBAND;
+            set_dungeon_type(DUNGEON_ANGBAND);
         }
         max_dlv[dungeon_type] = 90;
     }

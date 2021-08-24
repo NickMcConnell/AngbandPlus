@@ -599,7 +599,6 @@ cptr do_burglary_spell(int spell, int mode)
         if (cast)
         {
             monster_type *m_ptr;
-            monster_race *r_ptr;
             char m_name[80];
 
             if (!target_set(TARGET_KILL)) return NULL;
@@ -611,23 +610,8 @@ cptr do_burglary_spell(int spell, int mode)
             if (cave[target_row][target_col].m_idx == p_ptr->riding) return NULL;
 
             m_ptr = &m_list[cave[target_row][target_col].m_idx];
-            r_ptr = &r_info[m_ptr->r_idx];
             monster_desc(m_name, m_ptr, 0);
-            if (r_ptr->flagsr & RFR_RES_TELE)
-            {
-                if ((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->flagsr & RFR_RES_ALL))
-                {
-                    mon_lore_r(m_ptr, RFR_RES_TELE);
-                    msg_format("%s is unaffected!", m_name);
-                    break;
-                }
-                else if (r_ptr->level > randint1(100))
-                {
-                    mon_lore_r(m_ptr, RFR_RES_TELE);
-                    msg_format("%s resists!", m_name);
-                    break;
-                }
-            }
+            if (mon_save_tele_to(m_ptr, m_name, TRUE)) break;
             msg_format("You command %s to return.", m_name);
             teleport_monster_to(cave[target_row][target_col].m_idx, py, px, 100, TELEPORT_PASSIVE);
         }

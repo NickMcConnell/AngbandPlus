@@ -353,7 +353,7 @@ static void preserve_pet(void)
     /* Nothing follows if you Rewind Time, not even your mount! */
     if (p_ptr->leaving_method == LEAVING_REWIND_TIME)
     {
-        p_ptr->leaving_method = LEAVING_UNKOWN;
+        p_ptr->leaving_method = LEAVING_UNKNOWN;
         return;
     }
 
@@ -373,7 +373,7 @@ static void preserve_pet(void)
     if ( p_ptr->leaving_method == LEAVING_TELEPORT_LEVEL 
       || p_ptr->leaving_method == LEAVING_ALTER_REALITY )
     {
-        p_ptr->leaving_method = LEAVING_UNKOWN;
+        p_ptr->leaving_method = LEAVING_UNKNOWN;
         return;
     }
 
@@ -409,9 +409,8 @@ static void preserve_pet(void)
                 /* Hack: Hostile monsters follow, even if you recall! */
                 if (!is_pet(m_ptr))
                 {
-                    int rng = 3;
-                    if (dun_level == 0) continue;
-                    if (dun_level > 0) rng = 1;
+                    int rng = 1;
+                    if (dun_level < 1) continue;
                     if (dis > rng) continue;
                     if (r_info[m_ptr->r_idx].flags1 & RF1_UNIQUE) continue;
                     if (m_ptr->mflag2 & MFLAG2_QUESTOR) continue;
@@ -426,11 +425,11 @@ static void preserve_pet(void)
                          ((player_has_los_bold(m_ptr->fy, m_ptr->fx) && projectable(py, px, m_ptr->fy, m_ptr->fx)) ||
                          (los(m_ptr->fy, m_ptr->fx, py, px) && projectable(m_ptr->fy, m_ptr->fx, py, px))))
                 {
-                    if (dis > 3) continue;
+                    if (dis > 4) continue;
                 }
                 else
                 {
-                    if (dis > 1) continue;
+                    if (dis > 2) continue;
                 }
             }
 
@@ -478,7 +477,7 @@ static void preserve_pet(void)
        p_ptr->inside_arena = FALSE for most other circumstances!
     */
     inside_arena = p_ptr->inside_arena;
-    p_ptr->leaving_method = LEAVING_UNKOWN;
+    p_ptr->leaving_method = LEAVING_UNKNOWN;
 }
 
 
@@ -926,6 +925,12 @@ void leave_floor(void)
     /* New floor is not yet prepared */
     new_floor_id = 0;
 
+    /* Hack - fix bug with recalling and taking stairs at the same time */
+    if (recall_stairs_hack)
+    {
+        change_floor_mode = (dun_level ? CFM_FIRST_FLOOR : 0);
+    }
+
     /* Temporary get a floor_id (for Arena) */
     if (!p_ptr->floor_id &&
         (change_floor_mode & CFM_SAVE_FLOORS) &&
@@ -984,7 +989,7 @@ void leave_floor(void)
             move_num += SGN(move_num);
 
         /* Pyramidal Mound has 4-level shafts near the top */
-        if ((dungeon_type == DUNGEON_MOUND) && (dun_level < ((change_floor_mode & CFM_DOWN) ? 78 : 82)))
+        if (((dungeon_type == DUNGEON_MOUND) || (dungeon_type == DUNGEON_ASGARD)) && (dun_level < ((change_floor_mode & CFM_DOWN) ? 78 : 82)))
             move_num += SGN(move_num) * 2;
 
         /* Get out from or Enter the dungeon */
@@ -1032,10 +1037,28 @@ void leave_floor(void)
             }
             p_ptr->recall_dungeon = dungeon_type;
         }
-        dungeon_type = 0;
+        set_dungeon_type(0);
 
         /* Reach to the surface -- Clear all saved floors */
         change_floor_mode &= ~CFM_SAVE_FLOORS;
+    }
+
+    /* Hack */
+    if ((p_ptr->no_air) && (!dun_level) && (!(get_race()->flags & RACE_IS_NONLIVING)))
+    {
+        msg_print("You feel a welcome breeze as you return to the world of air!");
+        p_ptr->no_air = 0;
+        no_air_monster = 0;
+
+        /* Recalculate bonuses */
+        p_ptr->update |= (PU_BONUS);
+        p_ptr->redraw |= (PR_STATUS);
+    }
+
+    /* End temporary dimensional lock */
+    if ((prace_is_(RACE_MON_MUMMY)) && (mummy_get_toggle() == MUMMY_TOGGLE_ANTITELE))
+    {
+        mummy_cast_antitele();
     }
 
     /* Kill some old saved floors */
@@ -1296,6 +1319,10 @@ void change_floor(void)
                         delete_object_idx(i);
                     else
                         a_info[o_ptr->name3].generated = TRUE;
+                }
+                if ((o_ptr->insured) && (o_ptr->number > 0))
+                {
+                    cornucopia_mark_destroyed(cornucopia_item_policy(o_ptr), 0 - (o_ptr->insured % 100));
                 }
             }
 
