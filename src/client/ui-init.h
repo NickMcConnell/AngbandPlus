@@ -27,6 +27,7 @@ extern char stored_pass[NORMAL_WID];
 extern char real_name[NORMAL_WID];
 extern char server_name[NORMAL_WID];
 extern int server_port;
+extern u16b max_account_chars;
 extern u16b char_num;
 extern char **char_name;
 extern char *char_expiry;

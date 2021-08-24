@@ -50,7 +50,7 @@ extern void do_cmd_wield(struct player *p, int item, int slot);
 extern void do_cmd_drop(struct player *p, int item, int quantity);
 extern void do_cmd_destroy(struct player *p, int item, bool des);
 extern void do_cmd_study(struct player *p, int book_index, int spell_index);
-extern void do_cmd_cast(struct player *p, int book_index, int spell_index, int dir);
+extern bool do_cmd_cast(struct player *p, int book_index, int spell_index, int dir);
 extern bool execute_effect(struct player *p, struct object **obj_address, struct effect *effect,
     int dir, bool *ident, bool *used, bool *notice);
 extern void do_cmd_use_staff(struct player *p, int item);

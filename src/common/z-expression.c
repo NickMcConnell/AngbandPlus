@@ -3,7 +3,7 @@
  * Purpose: Creating, storing, and deserializing simple math expressions
  *
  * Copyright (c) 2013 Ben Semmler
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:

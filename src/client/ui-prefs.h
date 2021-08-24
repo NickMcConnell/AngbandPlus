@@ -22,6 +22,7 @@ extern int use_graphics;
 
 extern void dump_colors(ang_file *fff);
 extern void option_dump(ang_file *f);
+extern void dump_autoinscriptions(ang_file *f);
 extern void window_dump(ang_file *f);
 extern bool prefs_save(const char *path, void (*dump)(ang_file *), const char *title);
 extern errr process_pref_file_command(const char *s);

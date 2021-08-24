@@ -3,7 +3,7 @@
  * Purpose: Character creation
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -485,7 +485,7 @@ static void get_money(struct player *p, bool no_recall)
     p->au = z_info->start_gold;
 
     /* Give double starting gold to no_recall characters */
-    if ((cfg_diving_mode == 2) || no_recall) p->au *= 2;
+    if ((cfg_diving_mode == 3) || no_recall) p->au *= 2;
 }
 
 
@@ -554,7 +554,9 @@ static void player_outfit_aux(struct player *p, struct object_kind *k, byte numb
     obj->ignore_protect = 1;
 
     /* Deduct the cost of the item from starting cash */
-    p->au -= (s32b)object_value(p, obj, obj->number);
+    /* PWMAngband: food and light are free */
+    if (!tval_is_food_k(k) && !tval_is_light_k(k))
+        p->au -= (s32b)object_value(p, obj, obj->number);
 
     /* Carry the item */
     inven_carry(p, obj, true, false);
@@ -594,24 +596,55 @@ static void player_outfit(struct player *p, bool start_kit, bool no_recall)
     for (si = p->clazz->start_items; si; si = si->next)
     {
         int num = rand_range(si->min, si->max);
+        struct object_kind *kind = lookup_kind(si->tval, si->sval);
 
-        /* Without start_kit, only start with 1 food and 1 light */
-        if (!start_kit)
-        {
-            if (!tval_is_food_k(si->kind) && !tval_is_light_k(si->kind)) continue;
-            num = 1;
-        }
+        my_assert(kind);
+
+        /* Without start_kit, only start with food and light */
+        if (!start_kit && !tval_is_food_k(kind) && !tval_is_light_k(kind)) continue;
 
         /* Don't give unnecessary starting equipment to no_recall characters */
-        if (((cfg_diving_mode == 2) || no_recall) && !si->flag) continue;
+        if (((cfg_diving_mode == 3) || no_recall) && !si->flag) continue;
 
-        player_outfit_aux(p, si->kind, (byte)num);
+        player_outfit_aux(p, kind, (byte)num);
     }
 
     /* Sanity check */
     if (p->au < 0) p->au = 0;
 
-    if (cfg_diving_mode || no_recall || is_dm_p(p)) return;
+    /*
+     * Without start_kit, start at least with the amount of gold we would need for buying
+     * the items we don't get
+     */
+    if (!start_kit)
+    {
+      int value = 0;
+
+      for (si = p->clazz->start_items; si; si = si->next)
+      {
+          struct object *obj;
+          struct object_kind *kind = lookup_kind(si->tval, si->sval);
+
+          /* Skip food and light (we get them) */
+          if (tval_is_food_k(kind) || tval_is_light_k(kind)) continue;
+
+          /* Skip starting equipment no_recall characters don't get */
+          if (((cfg_diving_mode == 3) || no_recall) && !si->flag) continue;
+
+          /* Prepare the item */
+          obj = object_new();
+          object_prep(p, obj, kind, 0, MINIMISE);
+          obj->number = si->min;
+          object_notice_everything_aux(p, obj, false, false);
+
+          /* Add the value */
+          value += object_value(p, obj, obj->number);
+          object_delete(&obj);
+      }
+      if (p->au < value) p->au = value;
+    }
+
+    if ((cfg_diving_mode > 1) || no_recall || is_dm_p(p)) return;
 
     /* Give the player a deed of property */
     player_outfit_aux(p, lookup_kind_by_name(TV_DEED, "Deed of Property"), 1);
@@ -651,14 +684,12 @@ static void player_outfit_dm(struct player *p)
 #endif
 
     /* All books */
-    if (p->clazz->magic.spell_realm && p->clazz->magic.spell_realm->book_noun)
+    for (i = 0; i < p->clazz->magic.num_books; i++)
     {
-        for (i = 0; i < p->clazz->magic.num_books; i++)
-        {
-            struct class_book *book = &p->clazz->magic.books[i];
+        struct class_book *book = &p->clazz->magic.books[i];
 
+        if (book->realm->book_noun)
             player_outfit_aux(p, lookup_kind(book->tval, book->sval), 1);
-        }
     }
 
     /* Other useful stuff */
@@ -779,7 +810,7 @@ static void player_setup(struct player *p, int id, u32b account, bool no_recall)
         reposition = true;
 
         /* No-recall players are simply pushed up one level (should be safe) */
-        if ((cfg_diving_mode == 2) || no_recall) push_up = true;
+        if ((cfg_diving_mode == 3) || no_recall) push_up = true;
     }
 
     /*
@@ -839,7 +870,7 @@ static void player_setup(struct player *p, int id, u32b account, bool no_recall)
         if (push_up) p->wpos.depth = dungeon_get_next_level(p, p->wpos.depth, -1);
 
         /* Put us in base town */
-        else if (cfg_diving_mode || no_recall)
+        else if ((cfg_diving_mode > 1) || no_recall)
             memcpy(&p->wpos, base_wpos(), sizeof(struct worldpos));
 
         /* Put us in starting town */
@@ -1017,7 +1048,7 @@ static void player_admin(struct player *p)
     p->dm_flags |= (DM___MENU | DM_CAN_MUTATE_SELF);
 #endif
 
-    if (cfg_dungeon_master && !strcmp(p->name, cfg_dungeon_master))
+    if (cfg_dungeon_master && !my_stricmp(p->name, cfg_dungeon_master))
     {
         /* All DM powers! */
         p->dm_flags = 0xFFFFFFFF;
@@ -1355,5 +1386,9 @@ u16b connection_type_ok(u16b conntype)
 {
     if (conntype == CONNTYPE_PLAYER) return CONNTYPE_PLAYER;
     if (conntype == 8202 || conntype == 8205) return CONNTYPE_CONSOLE;
+
+    /* PuTTY via Telnet */
+    if (conntype == 65531) return CONNTYPE_CONSOLE;
+
     return CONNTYPE_ERROR;
 }

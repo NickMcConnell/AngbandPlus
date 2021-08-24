@@ -289,7 +289,8 @@ Ent
   35, undead at 40, all evil-minded creatures at 45, and even every minded
   creatures in a short range at level 50. At level 5 they learn to see
   invisible things. They accumulate experience very slowly. They make great
-  fighters, priests and paladins.
+  fighters, priests and paladins. Unfortunately, as they're made almost
+  exclusively of wood, they're also vulnerable to fire.
 
 .. _Thunderlord:
 

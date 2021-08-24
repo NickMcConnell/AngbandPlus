@@ -35,7 +35,7 @@ extern void dungeon_change_level(struct player *p, struct chunk *c, struct world
     byte new_level_method);
 extern bool take_hit(struct player *p, int damage, const char *kb_str, bool non_physical,
     const char *died_flavor);
-extern void player_regen_hp(struct player *p);
+extern void player_regen_hp(struct player *p, struct chunk *c);
 extern void player_regen_mana(struct player *p);
 extern void player_update_light(struct player *p);
 extern int player_check_terrain_damage(struct player *p, struct chunk *c, int y, int x);
@@ -66,6 +66,7 @@ extern int get_player_num(struct player *p);
 extern void redraw_picture(struct player *p, int old_num);
 extern void current_clear(struct player *p);
 extern bool check_st_anchor(struct worldpos *wpos, int y, int x);
+extern struct dragon_breed *get_dragon_form(struct monster_race *race);
 extern void poly_dragon(struct player *p, bool msg);
 extern void poly_bat(struct player *p, int chance, char *killer);
 extern void drain_mana(struct player *p, struct source *who, int drain, bool seen);

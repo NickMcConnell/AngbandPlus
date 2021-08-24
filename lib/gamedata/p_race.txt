@@ -280,11 +280,12 @@ skill-search:2
 skill-melee:15
 skill-shoot:5
 skill-dig:0
-info:14:300:5
+info:14:275:5
 history:94:255:70
 height:180:6:150:4
 weight:255:25:230:20
 obj-flags:SLOW_DIGEST
+values:RES_FIRE[-1]
 player-flags:GIANT
 
 name:Thunderlord

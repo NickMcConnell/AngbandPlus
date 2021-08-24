@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2007 David T. Blackston, Iain McFall, DarkGod, Jeff Greene,
  * David Vestal, Pete Mack, Andi Sidwell.
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -361,3 +361,77 @@ struct init_module ignore_module =
     init_ignore,
     cleanup_ignore
 };
+
+
+/*
+ * Return an object kind autoinscription
+ */
+const char *get_autoinscription(struct player *p, struct object_kind *kind)
+{
+    if (!kind) return NULL;
+    return quark_str(p->note_aware[kind->kidx]);
+}
+
+
+/*
+ * Put an autoinscription on an object
+ */
+int apply_autoinscription(struct player *p, struct object *obj)
+{
+    char o_name[NORMAL_WID];
+    const char *note = get_autoinscription(p, obj->kind);
+
+    /* No note - don't inscribe */
+    if (!note) return 0;
+
+    /* Don't re-inscribe if it's already inscribed */
+    if (obj->note) return 0;
+
+    /* Don't inscribe unless the player is carrying it */
+    if (!object_is_carried(p, obj)) return 0;
+
+    /* Don't inscribe if ignored */
+    if (ignore_item_ok(p, obj)) return 0;
+
+    /* PWMAngband: don't inscribe if not aware */
+    if (!p->obj_aware[obj->kind->kidx]) return 0;
+
+    /* Get an object description */
+    object_desc(p, o_name, sizeof(o_name), obj, ODESC_PREFIX | ODESC_FULL);
+
+    if (note[0] != 0) obj->note = quark_add(note);
+    else obj->note = 0;
+
+    msg(p, "You autoinscribe %s.", o_name);
+
+    return 1;
+}
+
+
+/*
+ * Deregister an object kind autoinscription
+ */
+int remove_autoinscription(struct player *p, s16b kind)
+{
+    struct object_kind *k = &k_info[kind];
+
+    if (!k) return 0;
+    if (!p->note_aware[kind]) return 0;
+
+    p->note_aware[kind] = 0;
+    return 1;
+}
+
+
+/*
+ * Register an object kind autoinscription
+ */
+int add_autoinscription(struct player *p, s16b kind, const char *inscription)
+{
+    struct object_kind *k = &k_info[kind];
+
+    if (!k) return 0;
+    if (!inscription || STRZERO(inscription)) return remove_autoinscription(p, kind);
+    p->note_aware[kind] = quark_add(inscription);
+    return 1;
+}

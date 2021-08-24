@@ -17,8 +17,14 @@ struct spell_info
     char desc[MSG_LEN];
 };
 
+struct book_info
+{
+    struct spell_info spell_info[MAX_SPELLS_PER_PAGE];
+    const struct magic_realm *realm;
+};
+
 /* Spell information array */
-extern struct spell_info spell_info[MAX_PAGES][MAX_SPELLS_PER_PAGE];
+extern struct book_info book_info[MAX_PAGES];
 
 extern void textui_book_browse(int book);
 extern int textui_get_spell(int book, const char *verb, bool (*spell_filter)(int, int));

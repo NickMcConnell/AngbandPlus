@@ -5,7 +5,7 @@
  * Copyright (c) 1997-2007 Robert A. Koeneke, James E. Wilson, Ben Harrison,
  * Eytan Zweig, Andrew Doull, Pete Mack.
  * Copyright (c) 2004 DarkGod (HTML dump code)
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -1772,7 +1772,7 @@ void do_cmd_steal(struct player *p, int dir)
     }
 
     /* Restricted by choice */
-    if (OPT(p, birth_no_stores))
+    if (cfg_no_stores || OPT(p, birth_no_stores))
     {
         msg(p, "You cannot steal from players.");
         return;
@@ -2443,9 +2443,9 @@ void do_cmd_check_players(struct player *p, int line)
 
         /* Challenge options */
         strnfmt(brave, sizeof(brave), "the%s%s%s",
-            OPT(q, birth_no_ghost)? " brave": "",
-            OPT(q, birth_no_recall)? " hardcore": "",
-            OPT(q, birth_force_descend)? " diving": "");
+            (OPT(q, birth_no_ghost) && !cfg_no_ghost)? " brave": "",
+            (OPT(q, birth_no_recall) && (cfg_diving_mode < 3))? " hardcore": "",
+            (OPT(q, birth_force_descend) && (cfg_limit_stairs < 3))? " diving": "");
 
         winner[0] = '\0';
         if (q->total_winner) strnfmt(winner, sizeof(winner), "%s, ", get_title(q));

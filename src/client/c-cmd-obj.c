@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2007-9 Andi Sidwell, Chris Carr, Ed Graham, Erik Osheim
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -55,7 +55,7 @@ static int spell_book_count_spells(const struct object *obj, bool (*tester)(int,
     if (book >= player->clazz->magic.num_books) return 0;
 
     /* Check for end of the book */
-    while (spell_info[book][i].info[0] != '\0')
+    while (book_info[book].spell_info[i].info[0] != '\0')
     {
         /* Spell is available */
         if (tester(book, i)) n_spells++;
@@ -96,7 +96,7 @@ bool obj_browse_pre(void)
             num = 0;
 
             /* Check for end of the book */
-            while (spell_info[page][i].info[0] != '\0')
+            while (book_info[page].spell_info[i].info[0] != '\0')
             {
                 /* Spell is available */
                 num++;
@@ -186,7 +186,7 @@ bool obj_cast_pre(void)
             num = 0;
 
             /* Check for end of the book */
-            while (spell_info[page][i].info[0] != '\0')
+            while (book_info[page].spell_info[i].info[0] != '\0')
             {
                 /* Spell is available */
                 num++;
@@ -235,7 +235,7 @@ bool obj_cast_pre(void)
     }
 
     /* Require spell ability */
-    if (!player->clazz->magic.spell_realm)
+    if (!player->clazz->magic.total_spells)
     {
         c_msg_print("You cannot pray or produce magics.");
         return false;

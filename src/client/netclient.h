@@ -35,7 +35,6 @@ extern int Send_destroy(struct object *obj, bool des);
 extern int Send_target_closest(int mode);
 extern int Send_cast(int book, int spell, int dir);
 extern int Send_open(struct command *cmd);
-extern int Send_pray(int book, int spell, int dir);
 extern int Send_quaff(struct command *cmd);
 extern int Send_read(struct command *cmd);
 extern int Send_take_off(struct command *cmd);
@@ -69,7 +68,6 @@ extern int Send_mimic(int page, int spell, int dir);
 extern int Send_clear(void);
 extern int Send_observe(struct command *cmd);
 extern int Send_store_examine(int item, bool describe);
-extern int Send_pass(const char *newpass);
 extern int Send_alter(struct command *cmd);
 extern int Send_fire_at_nearest(void);
 extern int Send_jump(struct command *cmd);
@@ -106,6 +104,7 @@ extern int Send_ignore(void);
 extern int Send_flush(void);
 extern int Send_chan(const char *channel);
 extern int Send_history(int line, const char *hist);
+extern int Send_autoinscriptions(void);
 
 /*** Commands ***/
 extern int textui_spell_browse(struct command *cmd);

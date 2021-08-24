@@ -3,7 +3,7 @@ make -f win32\Makefile.bor
 pause
 copy zlib.lib ..\PWMAngband\src\win
 pause
-cd ..\lpng1634
+cd ..\lpng1636
 make -f scripts\makefile.bc32
 pause
 copy libpng.lib ..\PWMAngband\src\win

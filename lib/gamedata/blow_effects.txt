@@ -257,6 +257,12 @@ lore-color-resist:Light Green
 effect-type:element
 resist:CHAOS
 
+name:BLACK_BREATH
+power:0
+eval:10
+desc:inflict Black Breath
+lore-color-base:Light Red
+
 name:FORGET
 power:60
 eval:10

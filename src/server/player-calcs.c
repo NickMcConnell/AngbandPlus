@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2014 Nick McConnell
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -851,13 +851,38 @@ static const int adj_mag_mana[] =
 
 
 /*
- * "Percentage" of player's spells they can learn per level
+ * Average of the player's spell stats across all the realms they can cast
+ * from, rounded up
+ *
+ * If the player can only cast from a single realm, this is simple the stat
+ * for that realm
  */
-static int level_spells(struct player *p)
+static int average_spell_stat(struct player *p, struct player_state *state)
 {
-    int stat = p->clazz->magic.spell_realm->stat;
+    int i, count = 0, sum = 0;
+    char realm[120];
+    struct class_book *book = &p->clazz->magic.books[0];
 
-    return adj_mag_study[p->state.stat_ind[stat]];
+    my_strcpy(realm, book->realm->name, sizeof(realm));
+
+    sum += state->stat_ind[book->realm->stat];
+    count++;
+
+    for (i = 1; i < p->clazz->magic.num_books; i++)
+    {
+        book = &p->clazz->magic.books[i];
+
+        if (!strstr(realm, book->realm->name))
+        {
+            my_strcat(realm, "/", sizeof(realm));
+            my_strcat(realm, book->realm->name, sizeof(realm));
+
+            sum += state->stat_ind[book->realm->stat];
+            count++;
+        }
+    }
+
+    return (sum + count - 1) / count;
 }
 
 
@@ -875,7 +900,6 @@ static void calc_spells(struct player *p)
     int percent_spells;
     const struct class_spell *spell;
     s16b old_spells;
-    const char *noun = p->clazz->magic.spell_realm->spell_noun;
 
     /* Hack -- must be literate */
     if (!p->clazz->magic.total_spells) return;
@@ -890,7 +914,7 @@ static void calc_spells(struct player *p)
     if (levels < 0) levels = 0;
 
     /* Number of 1/100 spells per level */
-    percent_spells = level_spells(p);
+    percent_spells = adj_mag_study[average_spell_stat(p, &p->state)];
 
     /* Extract total allowed spells (rounded up) */
     num_allowed = (((percent_spells * levels) + 50) / 100);
@@ -937,7 +961,7 @@ static void calc_spells(struct player *p)
             p->spell_flags[j] &= ~PY_SPELL_LEARNED;
 
             /* Message */
-            msg(p, "You have forgotten the %s of %s.", noun, spell->name);
+            msg(p, "You have forgotten the %s of %s.", spell->realm->spell_noun, spell->name);
 
             /* One more can be learned */
             p->upkeep->new_spells++;
@@ -974,7 +998,7 @@ static void calc_spells(struct player *p)
             p->spell_flags[j] &= ~PY_SPELL_LEARNED;
 
             /* Message */
-            msg(p, "You have forgotten the %s of %s.", noun, spell->name);
+            msg(p, "You have forgotten the %s of %s.", spell->realm->spell_noun, spell->name);
 
             /* One more can be learned */
             p->upkeep->new_spells++;
@@ -1014,7 +1038,7 @@ static void calc_spells(struct player *p)
             p->spell_flags[j] |= PY_SPELL_LEARNED;
 
             /* Message */
-            msg(p, "You have remembered the %s of %s.", noun, spell->name);
+            msg(p, "You have remembered the %s of %s.", spell->realm->spell_noun, spell->name);
 
             /* One less can be learned */
             p->upkeep->new_spells--;
@@ -1055,25 +1079,32 @@ static void calc_spells(struct player *p)
         /* Message if needed */
         if (p->upkeep->new_spells)
         {
+            char buf[120];
+            struct class_book *book = &p->clazz->magic.books[0];
+            int i;
+
+            my_strcpy(buf, book->realm->spell_noun, sizeof(buf));
+            if (p->upkeep->new_spells > 1) my_strcat(buf, "s", sizeof(buf));
+
+            for (i = 1; i < p->clazz->magic.num_books; i++)
+            {
+                book = &p->clazz->magic.books[i];
+
+                if (!strstr(buf, book->realm->spell_noun))
+                {
+                    my_strcat(buf, "/", sizeof(buf));
+                    my_strcat(buf, book->realm->spell_noun, sizeof(buf));
+                    if (p->upkeep->new_spells > 1) my_strcat(buf, "s", sizeof(buf));
+                }
+            }
+
             /* Message */
-            msg(p, "You can learn %d more %s%s.", p->upkeep->new_spells, noun,
-                PLURAL(p->upkeep->new_spells));
+            msg(p, "You can learn %d more %s.", p->upkeep->new_spells, buf);
         }
 
         /* Redraw Study Status */
         p->upkeep->redraw |= (PR_STUDY);
     }
-}
-
-
-/*
- * Get the player's max spell points per effective level
- */
-static int mana_per_level(struct player *p, struct player_state *state)
-{
-    int stat = p->clazz->magic.spell_realm->stat;
-
-    return adj_mag_mana[state->stat_ind[stat]];
 }
 
 
@@ -1098,8 +1129,8 @@ static void calc_mana(struct player *p, struct player_state *state, bool update)
         msp = 2 * p->lev;
     }
 
-    /* Hack -- must be literate */
-    else if (!p->clazz->magic.spell_realm)
+    /* Must be literate */
+    else if (!p->clazz->magic.total_spells)
     {
         p->msp = 0;
         p->csp = 0;
@@ -1114,7 +1145,7 @@ static void calc_mana(struct player *p, struct player_state *state, bool update)
         if (levels > 0)
         {
             msp = 1;
-            msp += mana_per_level(p, state) * levels / 100;
+            msp += adj_mag_mana[average_spell_stat(p, state)] * levels / 100;
         }
         else
         {
@@ -1889,6 +1920,7 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
     byte cumber_shield = 0;
     struct element_info el_info[ELEM_MAX];
     struct object *tool = equipped_item_by_slot_name(p, "tool");
+    int eq_to_a = 0;
 
     create_obj_flag_mask(f2, false, OFT_ESP, OFT_MAX);
 
@@ -1949,7 +1981,6 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
     /* Handle polymorphed players */
     if (p->poly_race)
     {
-        state->to_a += p->poly_race->ac / 2;
         state->to_d += getAvgDam(p->poly_race);
         state->speed += (p->poly_race->speed - 110) / 2;
 
@@ -2053,7 +2084,7 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
             s16b to_a;
 
             object_to_a(obj, &to_a);
-            state->to_a += to_a;
+            eq_to_a += to_a;
         }
 
         /* Do not apply weapon and bow bonuses until combat calculations */
@@ -2079,6 +2110,14 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
             }
         }
     }
+
+    /* Handle polymorphed players */
+    if (p->poly_race && (p->poly_race->ac > eq_to_a))
+    {
+        state->to_a += (p->poly_race->ac + eq_to_a) / 2;
+    }
+    else
+        state->to_a += eq_to_a;
 
     /* Apply the collected flags */
     of_union(state->flags, collect_f);
@@ -2491,6 +2530,10 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
     calc_torch(p, state, update);
     calc_mana(p, state, update);
     calc_hitpoints(p, state, update);
+
+    /* PWMAngband: display a message when a monk becomes encumbered */
+    if (player_has(p, PF_MARTIAL_ARTS) && !unencumbered_monk)
+        state->cumber_armor = true;
 }
 
 
@@ -2860,7 +2903,7 @@ void update_stuff(struct player *p, struct chunk *c)
     if (p->upkeep->update & PU_SPELLS)
     {
         p->upkeep->update &= ~(PU_SPELLS);
-        if (p->clazz->magic.spell_realm) calc_spells(p);
+        if (p->clazz->magic.total_spells > 0) calc_spells(p);
     }
 
     /* Character is not ready yet, no map updates */

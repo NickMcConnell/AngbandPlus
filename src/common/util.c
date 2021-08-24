@@ -3,7 +3,7 @@
  * Purpose: Utility functions
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -24,6 +24,7 @@
 struct object_kind *k_info;
 struct ego_item *e_info;
 struct player_race *races;
+struct dragon_breed *breeds;
 struct player_class *classes;
 struct magic_realm *realms;
 struct player_body *bodies;
@@ -345,6 +346,22 @@ int lookup_sval(int tval, const char *name)
 int lookup_sval_silent(int tval, const char *name)
 {
     return lookup_sval_aux(tval, name, true);
+}
+
+
+void object_short_name(char *buf, size_t max, const char *name)
+{
+    size_t j, k;
+    size_t len = strlen(name);
+
+    /* Copy across the name, stripping modifiers & and ~ */
+    for (j = 0, k = 0; ((j < len) && (k < max)); j++)
+    {
+        if ((j == 0) && (name[0] == '&') && (name[1] == ' ')) j += 2;
+        if (name[j] == '~') continue;
+        buf[k++] = name[j];
+    }
+    buf[k] = 0;
 }
 
 

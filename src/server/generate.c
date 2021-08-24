@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2013 Erik Osheim, Nick McConnell
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -918,8 +918,27 @@ static const struct cave_profile *choose_profile(struct worldpos *wpos)
     }
     else if (in_base_town(wpos))
         profile = find_cave_profile("town");
-    else if (in_start_town(wpos))
-        profile = find_cave_profile("mang_town");
+    else if (in_town(wpos))
+    {
+        /* Get town info */
+        struct location *town = get_town(wpos);
+
+        char town_file[20];
+        char path[MSG_LEN];
+
+        /* Get town file */
+        get_town_file(town_file, sizeof(town_file), town->name);
+        path_build(path, sizeof(path), ANGBAND_DIR_GAMEDATA, format("%s.txt", town_file));
+
+        /*
+         * If there's a town file, use the profile inside to create the town.
+         * Otherwise, create a default MAngband-style town.
+         */
+        if (file_exists(path))
+            profile = find_cave_profile("wilderness");
+        else
+            profile = find_cave_profile("mang_town");
+    }
     else
         profile = find_cave_profile("wilderness");
 
@@ -1076,7 +1095,7 @@ static struct chunk *cave_generate(struct player *p, struct worldpos *wpos, int 
             continue;
         }
 
-        /* Ensure quest monsters and fixed encounters (normal servers) */
+        /* Ensure quest monsters and fixed encounters (wilderness) */
         if (p)
         {
             int i;
@@ -1086,7 +1105,8 @@ static struct chunk *cave_generate(struct player *p, struct worldpos *wpos, int 
                 struct monster_race *race = &r_info[i];
                 bool quest_monster = (is_quest_active(p, chunk->wpos.depth) &&
                     rf_has(race->flags, RF_QUESTOR));
-                bool fixed_encounter = (rf_has(race->flags, RF_PWMANG_FIXED) && !cfg_diving_mode);
+                bool fixed_encounter = (rf_has(race->flags, RF_PWMANG_FIXED) &&
+                    (cfg_diving_mode < 2));
 
                 /* The monster must be an unseen quest monster/fixed encounter of this depth. */
                 if (race->lore.spawned) continue;

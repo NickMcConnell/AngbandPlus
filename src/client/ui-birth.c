@@ -3,7 +3,7 @@
  * Purpose: Text-based user interface for character creation
  *
  * Copyright (c) 1987 - 2015 Angband contributors
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -138,12 +138,20 @@ static void choose_name(void)
 }
 
 
+static void display_password(void)
+{
+    size_t i;
+
+    for (i = 0; i < strlen(pass); i++)
+        Term_putch(15 + i, 3, COLOUR_L_BLUE, 'x');
+}
+
+
 /*
  * Choose a password
  */
 static void enter_password(void)
 {
-    size_t c;
     char tmp[NORMAL_WID];
 
     /* Prompt and ask */
@@ -178,8 +186,7 @@ static void enter_password(void)
 
     /* Redraw the password (in light blue) */
     Term_erase(15, 3, 9);
-    for (c = 0; c < strlen(pass); c++)
-        Term_putch(15 + c, 3, COLOUR_L_BLUE, 'x');
+    display_password();
 
     /* Now hash that sucker! */
     my_strcpy(stored_pass, pass, sizeof(stored_pass));
@@ -344,6 +351,17 @@ static const char *get_resist_desc(int element)
 }
 
 
+static const char *get_elem_desc_other(int element)
+{
+    switch (element)
+    {
+        case ELEM_FIRE: return "Vulnerable to fire";
+
+        default: return "Undocumented element";
+    }
+}
+
+
 static const char *get_pflag_desc(bitflag flag)
 {
     switch (flag)
@@ -406,6 +424,14 @@ static void race_help(int i, void *db, const region *l)
         n_flags++;
     }
 
+    for (k = 0; k < ELEM_MAX; k++)
+    {
+        if (n_flags >= flag_space) break;
+        if ((r->el_info[k].res_level == 0) || (r->el_info[k].res_level == 1)) continue;
+        format_help(RACE_AUX_COL, j++, "%-30s", get_elem_desc_other(k));
+        n_flags++;
+    }
+
     for (k = 0; k < PF__MAX; k++)
     {
         const char *s;
@@ -461,11 +487,27 @@ static void class_help(int i, void *db, const region *l)
     skill_help(CLASS_AUX_COL, &j, r->r_skills, c->c_skills, r->r_mhp + c->c_mhp,
         r->r_exp + c->c_exp, -1);
 
-    if (c->magic.spell_realm)
+    if (c->magic.total_spells)
     {
         char adjective[24];
+        char realm[17];
+        struct class_book *book = &c->magic.books[0];
+        int i;
 
-        strnfmt(adjective, sizeof(adjective), "%s magic", c->magic.spell_realm->name);
+        my_strcpy(realm, book->realm->name, sizeof(realm));
+
+        for (i = 1; i < c->magic.num_books; i++)
+        {
+            book = &c->magic.books[i];
+
+            if (!strstr(realm, book->realm->name))
+            {
+                my_strcat(realm, "/", sizeof(realm));
+                my_strcat(realm, book->realm->name, sizeof(realm));
+            }
+        }
+
+        strnfmt(adjective, sizeof(adjective), "%s magic", realm);
         format_help(CLASS_AUX_COL, j++, "Learns %-23s", adjective);
     }
 
@@ -1317,7 +1359,7 @@ bool get_server_name(void)
     while (ptr - buf < bytes)
     {
         /* Check for no entry */
-        if (*ptr == '\0')
+        if ((*ptr == '\0') || ((*ptr == '\n') && mang_meta))
         {
             ptr++;
             continue;
@@ -1625,8 +1667,7 @@ void get_char_name(void)
     c_put_str(COLOUR_L_BLUE, nick, 2, 15);
 
     /* Redraw the password (in light blue) */
-    for (i = 0; i < strlen(pass); i++)
-        Term_putch(15 + i, 3, COLOUR_L_BLUE, 'x');
+    display_password();
 
     /* Display some helpful information */
     c_put_str(COLOUR_L_BLUE, "Please select your character from the list below:", 6, 1);
@@ -1658,7 +1699,7 @@ void get_char_name(void)
     }
 
     /* Check number of characters */
-    if (char_num == MAX_ACCOUNT_CHARS)
+    if (char_num >= max_account_chars)
     {
         c_put_str(COLOUR_YELLOW, "Your account is full.", 9 + char_num, 5);
         c_put_str(COLOUR_YELLOW, "You cannot create any new character with this account.",
@@ -1687,7 +1728,7 @@ void get_char_name(void)
         i = A2I(c.code);
 
         /* Check for legality */
-        if ((i > (size_t)char_num) || (i >= MAX_ACCOUNT_CHARS)) continue;
+        if ((i > (size_t)char_num) || (i >= (size_t)max_account_chars)) continue;
 
         /* Paranoia */
         if ((i == (size_t)char_num) || (char_expiry[i] > 0) || (char_expiry[i] == -1))
@@ -1715,8 +1756,8 @@ void get_char_name(void)
         /* Dump the player name */
         c_put_str(COLOUR_L_BLUE, nick, 2, 15);
 
-        /* Enter password */
-        enter_password();
+        /* Redraw the password (in light blue) */
+        display_password();
 
         /* Display actions */
         if (char_expiry[i] > 0)
@@ -1776,7 +1817,7 @@ void get_char_name(void)
         /* Choose a name */
         choose_name();
 
-        /* Enter password */
-        enter_password();
+        /* Redraw the password (in light blue) */
+        display_password();
     }
 }

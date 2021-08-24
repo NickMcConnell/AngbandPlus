@@ -3,7 +3,7 @@
  * Purpose: Spell UI handing
  *
  * Copyright (c) 2010 Andi Sidwell
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -24,7 +24,7 @@
 /*
  * Spell information and description
  */
-struct spell_info spell_info[MAX_PAGES][MAX_SPELLS_PER_PAGE];
+struct book_info book_info[MAX_PAGES];
 
 
 /* Hack -- last row of text on the screen */
@@ -66,7 +66,8 @@ static void spell_menu_display(struct menu *m, int oid, bool cursor, int row, in
     struct spell_menu_data *d = menu_priv(m);
 
     /* Dump the spell --(-- */
-    c_prt(spell_info[d->book][oid].flag.line_attr, spell_info[d->book][oid].info, row, col);
+    c_prt(book_info[d->book].spell_info[oid].flag.line_attr,
+        book_info[d->book].spell_info[oid].info, row, col);
 }
 
 
@@ -135,7 +136,7 @@ static void spell_menu_browser(int oid, void *data, const region *loc)
 
     /* Redirect output to the screen */
     Term_gotoxy(loc->col, loc->row + loc->page_rows);
-    strnfmt(desc, sizeof(desc), "\n%s\n", spell_info[d->book][oid].desc);
+    strnfmt(desc, sizeof(desc), "\n%s\n", book_info[d->book].spell_info[oid].desc);
     text_out_to_screen(COLOUR_WHITE, desc);
 
     spell_menu_erase();
@@ -160,7 +161,7 @@ static int spell_collect_from_book(int book)
     int i = 0, n_spells = 0;
 
     /* Check for end of the book */
-    while (spell_info[book][i].info[0] != '\0')
+    while (book_info[book].spell_info[i].info[0] != '\0')
     {
         /* Spell is available */
         n_spells++;
@@ -295,7 +296,7 @@ static void spell_menu_browse(struct menu *m, const char *noun)
  */
 static bool spell_okay_to_browse(int book, int spell_index)
 {
-    int attr = spell_info[book][spell_index].flag.line_attr;
+    int attr = book_info[book].spell_info[spell_index].flag.line_attr;
 
     return (attr != COLOUR_L_DARK);
 }
@@ -307,19 +308,11 @@ static bool spell_okay_to_browse(int book, int spell_index)
 void textui_book_browse(int book)
 {
     struct menu *m;
-    const struct player_class *c = player->clazz;
-    const struct magic_realm *realm;
-    const char *noun;
-
-    if (player->ghost && !player_can_undead(player)) c = player_id2class(CLASS_GHOST);
-
-    realm = c->magic.spell_realm;
-    noun = (realm? realm->spell_noun: "");
 
     m = spell_menu_new(book, spell_okay_to_browse);
     if (m)
     {
-        spell_menu_browse(m, noun);
+        spell_menu_browse(m, book_info[book].realm->spell_noun);
         spell_menu_destroy(m);
     }
     else
@@ -333,19 +326,11 @@ void textui_book_browse(int book)
 static int textui_get_spell_from_book(int book, const char *verb, bool (*spell_filter)(int, int))
 {
     struct menu *m;
-    const struct player_class *c = player->clazz;
-    const struct magic_realm *realm;
-    const char *noun;
-
-    if (player->ghost && !player_can_undead(player)) c = player_id2class(CLASS_GHOST);
-
-    realm = c->magic.spell_realm;
-    noun = (realm? realm->spell_noun: "");
 
     m = spell_menu_new(book, spell_filter);
     if (m)
     {
-        int spell_index = spell_menu_select(m, noun, verb);
+        int spell_index = spell_menu_select(m, book_info[book].realm->spell_noun, verb);
 
         spell_menu_destroy(m);
         return spell_index;
@@ -418,9 +403,8 @@ int textui_get_spell(int book, const char *verb, bool (*spell_filter)(int, int))
  */
 bool spell_okay_to_study(int book, int spell_index)
 {
-    int attr = spell_info[book][spell_index].flag.line_attr;
-    const struct magic_realm *realm = player->clazz->magic.spell_realm;
-    const char *name = (realm? realm->name: "");
+    int attr = book_info[book].spell_info[spell_index].flag.line_attr;
+    const char *name = book_info[book].realm->name;
 
     return ((attr == COLOUR_L_BLUE) || ((attr == COLOUR_WHITE) && streq(name, "elemental")));
 }
@@ -431,7 +415,7 @@ bool spell_okay_to_study(int book, int spell_index)
  */
 bool spell_okay_to_cast(int book, int spell)
 {
-    int attr = spell_info[book][spell].flag.line_attr;
+    int attr = book_info[book].spell_info[spell].flag.line_attr;
 
     return ((attr == COLOUR_WHITE) || (attr == COLOUR_L_GREEN));
 }
@@ -443,14 +427,9 @@ bool spell_okay_to_cast(int book, int spell)
 static int textui_obj_cast_aux(int book, bool project, int *dir)
 {
     const struct player_class *c = player->clazz;
-    const struct magic_realm *realm;
-    const char *verb;
     int spell;
 
     if (player->ghost && !player_can_undead(player)) c = player_id2class(CLASS_GHOST);
-
-    realm = c->magic.spell_realm;
-    verb = (realm? realm->verb: "");
 
     /* Cast a spell directly by using spell flag */
     if (book == -1)
@@ -469,19 +448,19 @@ static int textui_obj_cast_aux(int book, bool project, int *dir)
             num = 0;
 
             /* Check for end of the book */
-            while (spell_info[cur_page][i].info[0] != '\0')
+            while (book_info[cur_page].spell_info[i].info[0] != '\0')
             {
                 int cur_flag;
 
                 /* Spell is available */
                 num++;
-                flags[flag_count].flag = spell_info[cur_page][i].flag.flag;
-                flags[flag_count].dir_attr = spell_info[cur_page][i].flag.dir_attr;
-                flags[flag_count].proj_attr = spell_info[cur_page][i].flag.proj_attr;
+                flags[flag_count].flag = book_info[cur_page].spell_info[i].flag.flag;
+                flags[flag_count].dir_attr = book_info[cur_page].spell_info[i].flag.dir_attr;
+                flags[flag_count].proj_attr = book_info[cur_page].spell_info[i].flag.proj_attr;
                 flag_count++;
 
                 /* Note min and max flags */
-                cur_flag = spell_info[cur_page][i].flag.flag;
+                cur_flag = book_info[cur_page].spell_info[i].flag.flag;
                 if (cur_flag < min_flag) min_flag = cur_flag;
                 if (cur_flag > max_flag) max_flag = cur_flag;
 
@@ -524,11 +503,11 @@ static int textui_obj_cast_aux(int book, bool project, int *dir)
         spell_flags flag;
 
         /* Ask for a spell, allow cancel */
-        spell = get_spell(book, verb, spell_okay_to_cast);
+        spell = get_spell(book, book_info[book].realm->verb, spell_okay_to_cast);
         if (spell == -1) return -1;
 
         /* Projectable */
-        flag = spell_info[book][spell].flag;
+        flag = book_info[book].spell_info[spell].flag;
         if (project && flag.proj_attr) spell += c->magic.total_spells;
 
         /* Needs a direction */

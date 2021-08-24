@@ -3,7 +3,7 @@
  * Purpose: Deal with UI only command processing.
  *
  * Copyright (c) 1997-2014 Angband developers
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -392,11 +392,17 @@ bool cmd_target_interactive(int mode)
     /* Interact */
     while (!done)
     {
+        keycode_t code;
+
         /* Describe and Prompt */
         query = inkey();
         if (!query.code) continue;
 
-        Send_target_interactive(mode, query.code);
+        /* Hack -- roguelike keyset */
+        code = (keycode_t)target_dir(query);
+        if (code == 0) code = query.code;
+
+        Send_target_interactive(mode, code);
 
         switch (query.code)
         {

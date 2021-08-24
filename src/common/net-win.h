@@ -43,6 +43,7 @@ extern int  SocketAccept(int fd);
 extern int  SocketLinger(int);
 extern int  SetSocketNoDelay(int fd, int flag);
 extern int  SocketRead(int fd, char *buf, int size);
+extern const char *GetSocketErrorMessageAux(int error);
 extern const char *GetSocketErrorMessage(void);
 
 #endif /* _SOCKLIB_INCLUDED */

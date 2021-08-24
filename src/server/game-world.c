@@ -3,7 +3,7 @@
  * Purpose: Game core management of the game world
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -439,7 +439,7 @@ static void process_world(struct player *p, struct chunk *c)
 
     /* Check for creature generation */
     /* Hack -- increase respawn rate on no_recall servers */
-    if (one_in_((cfg_diving_mode == 2)? z_info->alloc_monster_chance / 4:
+    if (one_in_((cfg_diving_mode == 3)? z_info->alloc_monster_chance / 4:
         z_info->alloc_monster_chance))
     {
         if (in_wild(&p->wpos))
@@ -471,8 +471,8 @@ static void auto_retaliate(struct player *p, struct chunk *c)
     /* The dungeon master does not auto-retaliate */
     if (p->dm_flags & DM_MONSTER_FRIEND) return;
 
-    /* Not while confused */
-    if (p->timed[TMD_CONFUSED]) return;
+    /* Not while confused or afraid */
+    if (p->timed[TMD_CONFUSED] || player_of_has(p, OF_AFRAID)) return;
 
     /* Check preventive inscription '^O' */
     if (check_prevent_inscription(p, INSCRIPTION_RETALIATE)) return;
@@ -552,28 +552,6 @@ static void auto_retaliate(struct player *p, struct chunk *c)
 
     /* No current target */
     if (!found) return;
-
-    /* Handle player fear */
-    if (player_of_has(p, OF_AFRAID))
-    {
-        char target_name[NORMAL_WID];
-
-        if (who->monster)
-            monster_desc(p, target_name, sizeof(target_name), who->monster, MDESC_DEFAULT);
-        else
-            my_strcpy(target_name, who->player->name, sizeof(target_name));
-
-        /* Message (only once per player turn) */
-        if (!p->is_afraid)
-        {
-            equip_learn_flag(p, OF_AFRAID);
-            msgt(p, MSG_AFRAID, "You are too afraid to attack %s!", target_name);
-        }
-        p->is_afraid = true;
-
-        /* Done */
-        return;
-    }
 
     /* Attack the current target */
     py_attack(p, c, ty, tx);
@@ -789,6 +767,10 @@ static void process_player_world(struct player *p, struct chunk *c)
 
     /*** Damage over Time ***/
 
+    /* Take damage from permanent wraithform while inside walls */
+    if ((p->timed[TMD_WRAITHFORM] == -1) && !square_ispassable(c, p->py, p->px))
+        take_hit(p, 1, "hypoxia", false, "was entombed into solid terrain");
+
     /* Take damage from Undead Form */
     if (player_undead(p))
         take_hit(p, 1, "fading", false, "faded away");
@@ -815,6 +797,28 @@ static void process_player_world(struct player *p, struct chunk *c)
 
     /* Player can be damaged by terrain */
     player_take_terrain_damage(p, c, p->py, p->px);
+
+    /* Effects of Black Breath */
+    if (p->timed[TMD_BLACKBREATH])
+    {
+        if (one_in_(2))
+        {
+            msg(p, "The Black Breath sickens you.");
+            player_stat_dec(p, STAT_CON, false);
+        }
+        if (one_in_(2))
+        {
+            msg(p, "The Black Breath saps your strength.");
+            player_stat_dec(p, STAT_STR, false);
+        }
+        if (one_in_(2))
+        {
+            int drain = 100 + (p->exp / 100) * z_info->life_drain_percent;
+
+            msg(p, "The Black Breath dims your life force.");
+            player_exp_lose(p, drain, false);
+        }
+    }
 
     /*** Check the Food, and Regenerate ***/
 
@@ -850,7 +854,7 @@ static void process_player_world(struct player *p, struct chunk *c)
     }
 
     /* Regenerate Hit Points if needed */
-    if (p->chp < p->mhp) player_regen_hp(p);
+    if (p->chp < p->mhp) player_regen_hp(p, c);
 
     /* Regenerate mana if needed */
     if (p->csp < p->msp) player_regen_mana(p);
@@ -970,6 +974,21 @@ static void process_player_cleanup(struct player *p)
 {
     int timefactor, time;
     struct chunk *c = chunk_get(&p->wpos);
+    int i;
+    bool debug_mode = false;
+
+    for (i = 1; i <= NumPlayers; i++)
+    {
+        struct player *q = player_get(i);
+
+        if (q->upkeep->new_level_method)
+        {
+            debug_mode = true;
+            break;
+        }
+    }
+
+    if (debug_mode) plog_fmt("BEGIN process_player_cleanup(%s)", p->name);
 
     /* If we are in a slow time condition, give visual warning */
     timefactor = time_factor(p, c);
@@ -988,8 +1007,12 @@ static void process_player_cleanup(struct player *p)
     /* Determine basic frequency of regen in game turns, then scale by players local time bubble */
     time = move_energy(p->wpos.depth) / (10 * timefactor);
 
+    if (debug_mode) plog("Process the world of that player every ten scaled turns");
+
     /* Process the world of that player every ten "scaled" turns */
     if (!(turn.turn % time)) process_player_world(p, c);
+
+    if (debug_mode) plog("Flicker multi-hued players, party leaders and elementalists");
 
     /* Only when needed, every five game turns */
     if (!(turn.turn % 5))
@@ -1008,8 +1031,14 @@ static void process_player_cleanup(struct player *p)
             {
                 struct player *q = player_get(j);
 
+                /* Ignore the player that we're updating */
+                if (q == p) continue;
+
                 /* If he's not here, skip him */
                 if (!COORDS_EQUAL(&q->wpos, &p->wpos)) continue;
+
+                /* If he's not here YET, also skip him */
+                if (q->upkeep->new_level_method) continue;
 
                 /* Flicker multi-hued players */
                 if (p->poly_race && monster_shimmer(p->poly_race) && allow_shimmer(q))
@@ -1025,6 +1054,8 @@ static void process_player_cleanup(struct player *p)
             }
         }
     }
+
+    if (debug_mode) plog("Check monster recall");
 
     /* Check monster recall */
     if (p->upkeep->monster_race.race)
@@ -1081,6 +1112,8 @@ static void process_player_cleanup(struct player *p)
 
     /* Refresh stuff */
     refresh_stuff(p);
+
+    if (debug_mode) plog_fmt("END process_player_cleanup(%s)", p->name);
 }
 
 
@@ -1116,16 +1149,6 @@ static void on_new_level(void)
      * required to act at the current depth (energy per player turn) divided by
      * the energy given per game turn given the current player speed.
      */
-
-    /* Hack -- reset "afraid" status every player turn */
-    for (i = 1; i <= NumPlayers; i++)
-    {
-        struct player *p = player_get(i);
-        int player_turn = move_energy(p->wpos.depth) / frame_energy(p->state.speed);
-
-        /* Reset "afraid" status */
-        if (!(turn.turn % player_turn)) p->is_afraid = false;
-    }
 
     /* Hack -- reset projection indicator every player turn */
     for (i = 1; i <= NumPlayers; i++)
@@ -1457,9 +1480,12 @@ static void place_player(struct player *p, struct chunk *c, int starty, int star
 
 static void generate_new_level(struct player *p)
 {
-    int startx, starty, id = get_player_index(get_connection(p->conn));
+    int startx, starty, id;
     bool new_level = false;
-    struct chunk *c = chunk_get(&p->wpos);
+    struct chunk *c;
+
+    id = get_player_index(get_connection(p->conn));
+    c = chunk_get(&p->wpos);
 
     /* Paranoia */
     if (!chunk_has_players(&p->wpos)) return;
@@ -1494,8 +1520,8 @@ static void generate_new_level(struct player *p)
         /* Illuminate */
         cave_illuminate(p, c, is_daytime());
 
-        /* Ensure fixed encounters on special levels (normal servers) */
-        if (special_level(&c->wpos) && !cfg_diving_mode)
+        /* Ensure fixed encounters on special levels (wilderness) */
+        if (special_level(&c->wpos) && (cfg_diving_mode < 2))
         {
             int i, y, x;
 
@@ -1915,8 +1941,10 @@ static void post_turn_game_loop(void)
     {
         struct player *p = player_get(i);
         char buf[MSG_LEN];
+        connection_t *connp = get_connection(p->conn);
 
         if (!p->upkeep->funeral) continue;
+        if (connp->state == CONN_QUIT) continue;
 
         /* Format string */
         if (!p->alive)
@@ -1934,7 +1962,9 @@ static void post_turn_game_loop(void)
             strnfmt(buf, sizeof(buf), "Killed by %s", p->died_from);
 
         /* Get rid of him */
-        Destroy_connection(p->conn, buf);
+        /*Destroy_connection(p->conn, buf);*/
+        connp->quit_msg = string_make(buf);
+        Conn_set_state(connp, CONN_QUIT, 1);
     }
 
     /* Kick out starving players */

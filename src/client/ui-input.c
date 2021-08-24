@@ -3,7 +3,7 @@
  * Purpose: Some high-level UI functions, inkey()
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -124,9 +124,6 @@ struct keypress *inkey_next = NULL;
  * If we are waiting for a keypress, and no keypress is ready, then we will
  * refresh (once) the window which was active when this function was called.
  *
- * Note that "back-quote" is automatically converted into "escape" for
- * convenience on machines with no "escape" key.
- *
  * If "angband_term[0]" is not active, we will make it active during this
  * function, so that the various "main-xxx.c" files can assume that input
  * is only requested (via "Term_inkey()") when "angband_term[0]" is active.
@@ -205,9 +202,6 @@ ui_event inkey_ex(void)
 
         /* Error */
         if (ke.type == EVT_ERROR) quit(NULL);
-
-        /* Treat back-quote as escape */
-        if (ke.key.code == '`') ke.key.code = ESCAPE;
     }
 
     /* Hack -- restore the term */

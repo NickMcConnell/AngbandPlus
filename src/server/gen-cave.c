@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2013 Erik Osheim, Nick McConnell
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -2146,7 +2146,8 @@ static void town_gen_layout(struct player *p, struct chunk *c)
     int num_lava, num_rubble;
 
     /* Boundary */
-    int feat_outer = ((cfg_diving_mode || dynamic_town(&c->wpos))? FEAT_PERM: FEAT_PERM_CLEAR);
+    int feat_outer = (((cfg_diving_mode > 1) || dynamic_town(&c->wpos))? FEAT_PERM:
+        FEAT_PERM_CLEAR);
 
     /* Town dimensions (PWMAngband: make town twice as big as Angband) */
     int town_hgt = 44;
@@ -2305,8 +2306,8 @@ static void town_gen_layout(struct player *p, struct chunk *c)
             }
         }
 
-        /* Make some exits (normal servers) */
-        if (!cfg_diving_mode)
+        /* Make some exits (wilderness) */
+        if (cfg_diving_mode < 2)
         {
             /* Place a vertical opening in the south wall */
             pos = rand_spread(c->width / 2, town_wid / 3);

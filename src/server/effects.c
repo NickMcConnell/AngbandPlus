@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2007 Andi Sidwell
  * Copyright (c) 2016 Ben Semmler, Nick McConnell
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -918,14 +918,14 @@ static struct player *get_inscribed_player(struct player *p, quark_t note)
         return NULL;
     }
 
-    /* Scan the inscription for @P */
+    /* Scan the inscription for #P */
     while ((*inscription != '\0') && !q)
     {
-        if (*inscription == '@')
+        if (*inscription == '#')
         {
             inscription++;
 
-            /* A valid @P has been located */
+            /* A valid #P has been located */
             if (*inscription == 'P')
             {
                 inscription++;
@@ -1008,8 +1008,8 @@ static void set_descent(struct player *p)
 /*
  * Selects the recall depth.
  *
- * Inscribe @Rdepth to recall to a specific depth.
- * Inscribe @Rx,y to recall to a specific wilderness level (this assumes
+ * Inscribe #Rdepth to recall to a specific depth.
+ * Inscribe #Rx,y to recall to a specific wilderness level (this assumes
  * that the player has explored the respective wilderness level).
  */
 static void set_recall_depth(struct player *p, quark_t note)
@@ -1030,10 +1030,10 @@ static void set_recall_depth(struct player *p, quark_t note)
     /* Check for a valid inscription */
     if (inscription)
     {
-        /* Scan the inscription for @R */
+        /* Scan the inscription for #R */
         while (*inscription != '\0')
         {
-            if (*inscription == '@')
+            if (*inscription == '#')
             {
                 inscription++;
 
@@ -1042,7 +1042,7 @@ static void set_recall_depth(struct player *p, quark_t note)
                     int x, y;
                     char buf[NORMAL_WID];
 
-                    /* A valid @R has been located */
+                    /* A valid #R has been located */
                     inscription++;
 
                     /* Convert the inscription into wilderness coordinates */
@@ -1050,7 +1050,7 @@ static void set_recall_depth(struct player *p, quark_t note)
                         (2 == sscanf(inscription, "%d,%d", &x, &y)))
                     {
                         /* Forbid if no wilderness */
-                        if (cfg_diving_mode || OPT(p, birth_no_recall))
+                        if ((cfg_diving_mode > 1) || OPT(p, birth_no_recall))
                         {
                             /* Deactivate recall */
                             memcpy(&p->recall_wpos, &p->wpos, sizeof(struct worldpos));
@@ -1270,6 +1270,7 @@ static bool effect_handler_BALL(effect_handler_context_t *context)
         {
             ty = context->origin->player->py;
             tx = context->origin->player->px;
+            who->target = context->origin->player;
         }
     }
     else
@@ -1960,6 +1961,7 @@ static bool effect_handler_BREATH(effect_handler_context_t *context)
         {
             ty = context->origin->player->py;
             tx = context->origin->player->px;
+            who->target = context->origin->player;
         }
     }
     else
@@ -2663,24 +2665,27 @@ static bool effect_handler_DEEP_NIGHTS(effect_handler_context_t *context)
     for (i = 1; i <= NumPlayers; i++)
     {
         struct player *player = player_get(i);
-        struct object *obj;
 
         /* Only works for players on the level */
         if (!COORDS_EQUAL(&player->wpos, &context->origin->player->wpos)) continue;
 
-        /* Get the light source */
-        obj = equipped_item_by_slot_name(player, "light");
-
-        /* Bye bye light */
-        if (obj && (obj->timeout > 0) && !of_has(obj->flags, OF_NO_FUEL))
+        /* Only works on hostile players */
+        if (pvp_check(context->origin->player, player, PVP_CHECK_ONE, true, 0x00))
         {
-            msg(player, "Your light suddently empty.");
+            /* Get the light source */
+            struct object *obj = equipped_item_by_slot_name(player, "light");
 
-            /* No more light, it's Rogues day today :) */
-            obj->timeout = 0;
+            /* Bye bye light */
+            if (obj && (obj->timeout > 0) && !of_has(obj->flags, OF_NO_FUEL))
+            {
+                msg(player, "Your light suddenly empty.");
 
-            /* Redraw */
-            player->upkeep->redraw |= (PR_EQUIP);
+                /* No more light, it's Rogues day today :) */
+                obj->timeout = 0;
+
+                /* Redraw */
+                player->upkeep->redraw |= (PR_EQUIP);
+            }
         }
 
         /* Forget every grid */
@@ -4588,7 +4593,7 @@ static bool effect_handler_MAP_WILD(effect_handler_context_t *context)
     int max_radius = radius_wild - 1;
 
     /* Default to magic map if no wilderness */
-    if (cfg_diving_mode || OPT(context->origin->player, birth_no_recall))
+    if ((cfg_diving_mode > 1) || OPT(context->origin->player, birth_no_recall))
     {
         effect_handler_MAP_AREA(context);
         return true;
@@ -5059,7 +5064,7 @@ static bool effect_handler_RECALL(effect_handler_context_t *context)
     context->ident = true;
 
     /* No recall */
-    if (((cfg_diving_mode == 2) || OPT(context->origin->player, birth_no_recall)) &&
+    if (((cfg_diving_mode == 3) || OPT(context->origin->player, birth_no_recall)) &&
         !context->origin->player->total_winner)
     {
         msg(context->origin->player, "Nothing happens.");
@@ -5864,7 +5869,7 @@ static bool effect_handler_TELE_OBJECT(effect_handler_context_t *context)
     }
 
     /* Restricted by choice */
-    if (OPT(q, birth_no_stores))
+    if (cfg_no_stores || OPT(q, birth_no_stores))
     {
         msg(context->origin->player, "%s cannot be reached.", q->name);
         return false;

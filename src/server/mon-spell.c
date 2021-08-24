@@ -3,7 +3,7 @@
  * Purpose: Monster spell casting and selection
  *
  * Copyright (c) 2010-14 Chris Carr and Nick McConnell
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:

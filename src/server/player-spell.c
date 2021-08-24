@@ -3,7 +3,7 @@
  * Purpose: Spell and prayer casting/praying
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -205,9 +205,9 @@ const struct class_spell *spell_by_index(const struct class_magic *magic, int in
 /*
  * Spell failure adjustment by casting stat level
  */
-static int fail_adjust(struct player *p)
+static int fail_adjust(struct player *p, const struct class_spell *spell)
 {
-    int stat = p->clazz->magic.spell_realm->stat;
+    int stat = spell->realm->stat;
 
     return adj_mag_stat[p->state.stat_ind[stat]];
 }
@@ -216,9 +216,9 @@ static int fail_adjust(struct player *p)
 /*
  * Spell minimum failure by casting stat level
  */
-static int min_fail(struct player *p)
+static int min_fail(struct player *p, const struct class_spell *spell)
 {
-    int stat = p->clazz->magic.spell_realm->stat;
+    int stat = spell->realm->stat;
 
     return adj_mag_fail[p->state.stat_ind[stat]];
 }
@@ -233,7 +233,7 @@ s16b spell_chance(struct player *p, int spell_index)
     const struct class_spell *spell;
 
     /* Paranoia -- must be literate */
-    if (!p->clazz->magic.spell_realm) return (100);
+    if (!p->clazz->magic.total_spells) return (100);
 
     /* Get the spell */
     spell = spell_by_index(&p->clazz->magic, spell_index);
@@ -245,10 +245,10 @@ s16b spell_chance(struct player *p, int spell_index)
     chance -= 3 * (p->lev - spell->slevel);
 
     /* Reduce failure rate by realm adjustment */
-    chance -= fail_adjust(p);
+    chance -= fail_adjust(p, spell);
 
     /* Extract the minimum failure rate */
-    minfail = min_fail(p);
+    minfail = min_fail(p, spell);
 
     /* Non mage/priest characters never get better than 5 percent */
     if (!player_has(p, PF_ZERO_FAIL) && (minfail < 5)) minfail = 5;
@@ -310,8 +310,6 @@ static size_t append_random_value_string(char *buffer, size_t size, random_value
 static void spell_append_value_info(struct player *p, int spell_index, char *buf, size_t len)
 {
     const struct player_class *c = p->clazz;
-    const struct magic_realm *realm;
-    const char *name;
     const struct class_spell *spell;
     random_value rv;
     const char *type = NULL;
@@ -325,9 +323,6 @@ static void spell_append_value_info(struct player *p, int spell_index, char *buf
     source_player(data, 0, p);
 
     if (p->ghost && !player_can_undead(p)) c = player_id2class(CLASS_GHOST);
-
-    realm = c->magic.spell_realm;
-    name = (realm? realm->name: "");
 
     spell = spell_by_index(&c->magic, spell_index);
 
@@ -350,7 +345,7 @@ static void spell_append_value_info(struct player *p, int spell_index, char *buf
         if ((effect->index == EF_PROJECT_LOS_AWARE) && (effect->params[1] == 0)) return;
 
         /* Hack -- illumination ("damage" value is used for radius, so change the tip accordingly) */
-        if ((effect->index == EF_LIGHT_AREA) && streq(name, "elemental"))
+        if ((effect->index == EF_LIGHT_AREA) && streq(spell->realm->name, "elemental"))
             type = "range";
 
         /* Hack -- mana drain ("damage" value is used for healing, so change the tip accordingly) */
@@ -650,6 +645,8 @@ void show_ghost_spells(struct player *p)
 
     /* Wipe the spell array */
     Send_spell_info(p, 0, 0, "", &flags);
+
+    Send_book_info(p, 0, book->realm->name);
 
     /* Check each spell */
     for (i = 0; i < book->num_spells; i++)
@@ -995,6 +992,8 @@ void show_mimic_spells(struct player *p)
     /* Wipe the spell array */
     Send_spell_info(p, 0, 0, "", &flags);
 
+    Send_book_info(p, 0, book->realm->name);
+
     /* Check each spell */
     for (i = 0; i < book->num_spells; i++)
     {
@@ -1034,6 +1033,8 @@ void show_mimic_spells(struct player *p)
         {
             j = 0;
             k++;
+
+            Send_book_info(p, k, book->realm->name);
         }
     }
 }
@@ -1051,9 +1052,7 @@ bool cast_spell_proj(struct player *p, int cidx, int spell_index, bool silent)
 {
     const struct player_class *c = player_id2class(cidx);
     const struct class_spell *spell = spell_by_index(&c->magic, spell_index);
-    const struct magic_realm *realm = c->magic.spell_realm;
-    const char *name = (realm? realm->name: "");
-    bool pious = streq(name, "divine");
+    bool pious = streq(spell->realm->name, "divine");
     bool ident = false;
     struct source who_body;
     struct source *who = &who_body;
@@ -1122,8 +1121,6 @@ void fill_beam_info(struct player *p, int spell_index, struct beam_info *beam)
 {
     const struct player_class *c;
     const struct class_spell *spell;
-    const struct magic_realm *realm;
-    const char *name;
 
     /* Initialize */
     memset(beam, 0, sizeof(struct beam_info));
@@ -1142,11 +1139,8 @@ void fill_beam_info(struct player *p, int spell_index, struct beam_info *beam)
     if (p->ghost && !player_can_undead(p)) c = player_id2class(CLASS_GHOST);
     spell = spell_by_index(&c->magic, spell_index);
 
-    realm = c->magic.spell_realm;
-    name = (realm? realm->name: "");
-
     /* Hack -- elemental spells */
-    if (streq(name, "elemental"))
+    if (streq(spell->realm->name, "elemental"))
     {
         int i, j;
 

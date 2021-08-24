@@ -3,7 +3,7 @@
  * Purpose: Attacks (both throwing and melee) by the player
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -1539,7 +1539,7 @@ static const struct hit_types ranged_hit_types[] =
  * logic, while using the 'attack' parameter to do work particular to each
  * kind of attack.
  */
-static void ranged_helper(struct player *p, struct object *obj, int dir, int range, int shots,
+static bool ranged_helper(struct player *p, struct object *obj, int dir, int range, int shots,
     ranged_attack attack, const struct hit_types *hit_types, int num_types, bool magic, bool pierce,
     bool ranged_effect)
 {
@@ -1575,7 +1575,7 @@ static void ranged_helper(struct player *p, struct object *obj, int dir, int ran
         if (taim > range)
         {
             msg(p, "Target out of range by %d squares.", taim - range);
-            return;
+            return false;
         }
     }
 
@@ -1920,6 +1920,8 @@ static void ranged_helper(struct player *p, struct object *obj, int dir, int ran
         mem_free(effects);
         effects = current;
     }
+
+    return true;
 }
 
 
@@ -2035,7 +2037,7 @@ static struct attack_result make_ranged_throw(struct player *p, struct object *o
 /*
  * Fire an object from the quiver, pack or floor at a target.
  */
-void do_cmd_fire(struct player *p, int dir, int item)
+bool do_cmd_fire(struct player *p, int dir, int item)
 {
     int range = MIN(6 + 2 * p->state.ammo_mult, z_info->max_range);
     int shots = p->state.num_shots;
@@ -2044,68 +2046,68 @@ void do_cmd_fire(struct player *p, int dir, int item)
     bool magic, pierce;
 
     /* Paranoia: requires an item */
-    if (!obj) return;
+    if (!obj) return false;
 
     /* Restrict ghosts */
     if (p->ghost && !(p->dm_flags & DM_GHOST_HANDS))
     {
         msg(p, "You cannot fire missiles!");
-        return;
+        return false;
     }
 
     /* Check preventive inscription '^f' */
     if (check_prevent_inscription(p, INSCRIPTION_FIRE))
     {
         msg(p, "The item's inscription prevents it.");
-        return;
+        return false;
     }
 
     /* Make sure the player isn't firing wielded items */
     if (object_is_equipped(p->body, obj))
     {
         msg(p, "You cannot fire wielded items.");
-        return;
+        return false;
     }
 
     /* Restricted by choice */
     if (!object_is_carried(p, obj) && !is_owner(p, obj))
     {
         msg(p, "This item belongs to someone else!");
-        return;
+        return false;
     }
 
     /* Paranoia: requires a proper missile */
-    if (obj->tval != p->state.ammo_tval) return;
+    if (obj->tval != p->state.ammo_tval) return false;
 
     /* Check preventive inscription '!f' */
     if (object_prevent_inscription(p, obj, INSCRIPTION_FIRE, false))
     {
         msg(p, "The item's inscription prevents it.");
-        return;
+        return false;
     }
 
     /* Restrict artifacts */
     if (obj->artifact && newbies_cannot_drop(p))
     {
         msg(p, "You cannot fire that!");
-        return;
+        return false;
     }
 
     /* Never in wrong house */
     if (!check_store_drop(p, obj))
     {
         msg(p, "You cannot fire this here.");
-        return;
+        return false;
     }
 
     /* Ensure "dir" is in ddx/ddy array bounds */
-    if (!VALID_DIR(dir)) return;
+    if (!VALID_DIR(dir)) return false;
 
     /* Apply confusion */
     player_confuse_dir(p, &dir);
 
     /* Only fire in direction 5 if we have a target */
-    if ((dir == 5) && !target_okay(p)) return;
+    if ((dir == 5) && !target_okay(p)) return false;
 
     magic = of_has(obj->flags, OF_AMMO_MAGIC);
     pierce = has_bowbrand(p, PROJ_ARROW_X, false);
@@ -2116,7 +2118,7 @@ void do_cmd_fire(struct player *p, int dir, int item)
     /* Check if we have enough missiles */
     if (!magic && (shots > obj->number)) shots = obj->number;
 
-    ranged_helper(p, obj, dir, range, shots, attack, ranged_hit_types,
+    return ranged_helper(p, obj, dir, range, shots, attack, ranged_hit_types,
         (int)N_ELEMENTS(ranged_hit_types), magic, pierce, true);
 }
 
@@ -2209,18 +2211,27 @@ void do_cmd_throw(struct player *p, int dir, int item)
 /*
  * Fire at nearest target
  */
-void do_cmd_fire_at_nearest(struct player *p)
+bool do_cmd_fire_at_nearest(struct player *p)
 {
     /* The direction '5' means 'use the target' */
     int i, dir = 5;
     struct object *ammo = NULL;
     struct object *bow = equipped_item_by_slot_name(p, "shooting");
 
+    /* Cancel repeat */
+    if (!p->firing_request) return true;
+
+    /* Check energy */
+    if (!has_energy(p)) return false;
+
     /* Require a usable launcher */
     if (!bow && (p->state.ammo_tval != TV_ROCK))
     {
         msg(p, "You have nothing to fire with.");
-        return;
+
+        /* Cancel repeat */
+        disturb(p, 0);
+        return true;
     }
 
     /* Find first eligible ammo in the quiver */
@@ -2236,12 +2247,30 @@ void do_cmd_fire_at_nearest(struct player *p)
     if (!ammo)
     {
         msg(p, "You have no ammunition in the quiver to fire.");
-        return;
+
+        /* Cancel repeat */
+        disturb(p, 0);
+        return true;
     }
 
     /* Require foe */
-    if (!target_set_closest(p, TARGET_KILL | TARGET_QUIET)) return;
+    if (!target_set_closest(p, TARGET_KILL | TARGET_QUIET))
+    {
+        /* Cancel repeat */
+        disturb(p, 0);
+        return true;
+    }
 
     /* Fire! */
-    do_cmd_fire(p, dir, ammo->oidx);
+    if (!do_cmd_fire(p, dir, ammo->oidx))
+    {
+        /* Cancel repeat */
+        disturb(p, 0);
+        return true;
+    }
+
+    /* Repeat */
+    if (p->firing_request > 0) p->firing_request--;
+    if (p->firing_request > 0) cmd_fire_at_nearest(p);
+    return true;
 }

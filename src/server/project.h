@@ -79,8 +79,7 @@ extern int proj_name_to_idx(const char *name);
 extern const char *proj_idx_to_name(int type);
 extern int project_path(struct player *p, struct loc *gp, int range, struct chunk *c,
     int y1, int x1, int y2, int x2, int flg);
-extern bool projectable(struct chunk *c, int y1, int x1, int y2, int x2, int flg);
-extern bool projectable_wall(struct chunk *c, int y1, int x1, int y2, int x2);
+extern bool projectable(struct chunk *c, int y1, int x1, int y2, int x2, int flg, bool nowall);
 extern byte proj_color(int type);
 extern void origin_get_loc(struct loc *ploc, struct source *origin);
 extern bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int dam,

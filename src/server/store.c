@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Robert A. Koeneke, James E. Wilson, Ben Harrison
  * Copyright (c) 2007 Andi Sidwell
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -136,7 +136,7 @@ static enum parser_error parse_store(struct parser *p)
 
     if (idx >= MAX_STORES) return PARSE_ERROR_OUT_OF_BOUNDS;
 
-    s = store_new(parser_getuint(p, "index") - 1);
+    s = store_new(idx);
     s->name = string_make(parser_getstr(p, "name"));
     s->next = h;
     parser_setpriv(p, s);
@@ -174,6 +174,7 @@ static enum parser_error parse_normal(struct parser *p)
     struct object_kind *kind = lookup_kind(tval, sval);
 
     if (!kind) return PARSE_ERROR_UNRECOGNISED_SVAL;
+    if (store_black_market(s->sidx)) return PARSE_ERROR_INVALID_ENTRY;
 
     /* Expand if necessary */
     if (!s->normal_num)
@@ -187,7 +188,14 @@ static enum parser_error parse_normal(struct parser *p)
         s->normal_table = mem_realloc(s->normal_table, s->normal_size * sizeof(*s->normal_table));
     }
 
-    s->normal_table[s->normal_num++] = kind;
+    s->normal_table[s->normal_num].kind = kind;
+    s->normal_table[s->normal_num].rarity = 1;
+    if (parser_hasval(p, "rarity"))
+        s->normal_table[s->normal_num].rarity = parser_getint(p, "rarity");
+    s->normal_table[s->normal_num].factor = 100;
+    if (parser_hasval(p, "factor"))
+        s->normal_table[s->normal_num].factor = parser_getint(p, "factor");
+    s->normal_num++;
 
     return PARSE_ERROR_NONE;
 }
@@ -201,6 +209,7 @@ static enum parser_error parse_always(struct parser *p)
     struct object_kind *kind = lookup_kind(tval, sval);
 
     if (!kind) return PARSE_ERROR_UNRECOGNISED_SVAL;
+    if (store_black_market(s->sidx)) return PARSE_ERROR_INVALID_ENTRY;
 
     /* Expand if necessary */
     if (!s->always_num)
@@ -290,7 +299,7 @@ static struct parser *init_parse_stores(void)
     parser_reg(p, "owner uint purse str name", parse_owner);
     parser_reg(p, "slots uint min uint max", parse_slots);
     parser_reg(p, "turnover uint turnover", parse_turnover);
-    parser_reg(p, "normal sym tval sym sval", parse_normal);
+    parser_reg(p, "normal sym tval sym sval ?int rarity ?int factor", parse_normal);
     parser_reg(p, "always sym tval sym sval", parse_always);
     parser_reg(p, "buy str base", parse_buy);
     parser_reg(p, "buy-flag sym flag str base", parse_buy_flag);
@@ -417,7 +426,7 @@ static bool store_can_carry(struct store *s, struct object_kind *kind)
 
     for (i = 0; i < s->normal_num; i++)
     {
-        if (s->normal_table[i] == kind)
+        if (s->normal_table[i].kind == kind)
             return true;
     }
 
@@ -581,17 +590,19 @@ s32b price_item(struct player *p, struct object *obj, bool store_buying, int qty
 {
     int adjust = 100;
     double price;
-    struct owner *proprietor = store_at(p)->owner;
+    struct store *s = store_at(p);
+    struct owner *proprietor = s->owner;
     int factor;
+
+    /* Hack -- expensive BM factor */
+    if (cfg_diving_mode == 3) factor = 4;
+    else factor = 8;
 
     /* Player owned shops */
     if (p->store_num == STORE_PLAYER)
     {
         double maxprice, askprice;
         struct house_type *house = house_get(p->player_store_num);
-
-        /* Check for no_selling option */
-        if (store_buying && my_stristr(quark_str(obj->note), "*for sale")) return (0L);
 
         /* Disable selling true artifacts */
         if (true_artifact_p(obj)) return (0L);
@@ -609,11 +620,11 @@ s32b price_item(struct player *p, struct object *obj, bool store_buying, int qty
         if (askprice <= 0) return (0L);
 
         /* Never get too silly: 2x the expensive black market price is enough! */
-        maxprice = price * 20;
+        maxprice = price * 2 * factor;
 
         /* Black markets suck */
         if (house->color == PLAYER_STORE_BM) price = price * 2;
-        if (house->color == PLAYER_STORE_XBM) price = price * 10;
+        if (house->color == PLAYER_STORE_XBM) price = price * factor;
 
         /* Use sellers asking price as base price */
         if (askprice > price) price = askprice;
@@ -638,10 +649,6 @@ s32b price_item(struct player *p, struct object *obj, bool store_buying, int qty
     /* The black market is always a worse deal */
     if (store_black_market(p->store_num)) adjust = 150;
 
-    /* Hack -- expensive BM factor */
-    if (cfg_diving_mode == 2) factor = 5;
-    else factor = 10;
-
     /* Shop is buying */
     if (store_buying)
     {
@@ -656,15 +663,27 @@ s32b price_item(struct player *p, struct object *obj, bool store_buying, int qty
         if (p->store_num == STORE_XBM) price = floor(price / factor);
 
         /* Check for no_selling option */
-        if (OPT(p, birth_no_selling)) return (0L);
+        if (cfg_no_selling || OPT(p, birth_no_selling)) return (0L);
     }
 
     /* Shop is selling */
     else
     {
+        size_t i;
+
         /* Black markets suck */
         if (p->store_num == STORE_B_MARKET) price = price * 2;
         if (p->store_num == STORE_XBM) price = price * factor;
+
+        /* PWMAngband: apply price factor for normal items */
+        for (i = 0; i < s->normal_num; i++)
+        {
+            if (s->normal_table[i].kind == obj->kind)
+            {
+                price = price * s->normal_table[i].factor / 100;
+                break;
+            }
+        }
     }
 
     /* Compute the final price (with rounding) */
@@ -1187,12 +1206,21 @@ static bool black_market_ok(struct object *obj)
 
 
 /*
- * Get a choice from the store allocation table, in tables.c
+ * Get a choice from the store allocation table
  */
 static struct object_kind *store_get_choice(struct store *store)
 {
+    struct object_kind *kind = NULL;
+
     /* Choose a random entry from the store's table */
-    return store->normal_table[randint0(store->normal_num)];
+    while (!kind)
+    {
+        struct normal_entry entry = store->normal_table[randint0(store->normal_num)];
+
+        if (one_in_(entry.rarity)) kind = entry.kind;
+    }
+
+    return kind;
 }
 
 
@@ -1716,7 +1744,7 @@ static void display_entry(struct player *p, struct object *obj, bool home)
     s32b price = -1, amt = 0;
     char o_name[NORMAL_WID];
     byte attr;
-    s16b wgt;
+    s16b wgt, bidx;
     byte num;
 
     /* Describe the object - preserving inscriptions in the home */
@@ -1789,7 +1817,9 @@ static void display_entry(struct player *p, struct object *obj, bool home)
     num = find_inven(p, obj);
 
     /* Send the info */
-    Send_store(p, obj->oidx, attr, wgt, obj->number, num, price, obj->tval, (byte)amt, o_name);
+    dump_spells(p, obj);
+    bidx = (s16b)object_to_book_index(p, obj);
+    Send_store(p, obj->oidx, attr, wgt, obj->number, num, price, obj->tval, (byte)amt, bidx, o_name);
 }
 
 
@@ -1934,6 +1964,15 @@ static void display_store(struct player *p)
     char store_name[NORMAL_WID];
     char store_owner_name[NORMAL_WID];
     s32b purse;
+    spell_flags flags;
+
+    flags.line_attr = COLOUR_WHITE;
+    flags.flag = RSF_NONE;
+    flags.dir_attr = 0;
+    flags.proj_attr = 0;
+
+    /* Wipe the spell array (for browsing books in store) */
+    Send_spell_info(p, 0, 0, "", &flags);
 
     /* Send the inventory */
     if (p->store_num != STORE_PLAYER)
@@ -2658,7 +2697,7 @@ void store_confirm(struct player *p)
     object_desc(p, o_name, sizeof(o_name), sold_item, ODESC_PREFIX | ODESC_FULL);
 
     /* Describe the result (in message buffer) */
-    if (OPT(p, birth_no_selling))
+    if (cfg_no_selling || OPT(p, birth_no_selling))
         msg(p, "You had %s (%c).", o_name, label);
     else
     {
@@ -2883,7 +2922,8 @@ void do_cmd_store(struct player *p, int pstore)
         if (which == STORE_TAVERN) return;
 
         /* Check if we can enter the store */
-        if (OPT(p, birth_no_stores) || ((which == STORE_HOME) && (cfg_diving_mode != 1)))
+        if (cfg_no_stores || OPT(p, birth_no_stores) ||
+            ((which == STORE_HOME) && (cfg_diving_mode != 2)))
         {
             msg(p, "The doors are locked.");
             return;
@@ -2936,7 +2976,7 @@ void do_cmd_store(struct player *p, int pstore)
     else
     {
         /* Check if we can enter the store */
-        if (OPT(p, birth_no_stores))
+        if (cfg_no_stores || OPT(p, birth_no_stores))
         {
             msg(p, "The doors are locked.");
             return;

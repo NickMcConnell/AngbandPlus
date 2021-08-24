@@ -3,7 +3,7 @@
  * Purpose: Character auto-history creation and management
  *
  * Copyright (c) 2007 J.D. White
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:

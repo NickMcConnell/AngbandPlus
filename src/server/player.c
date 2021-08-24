@@ -3,7 +3,7 @@
  * Purpose: Player implementation
  *
  * Copyright (c) 2011 elly+angband@leptoquark.net. See COPYING.
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -507,6 +507,7 @@ void init_player(struct player *p, int conn, bool old_history, bool no_recall)
 {
     int i;
     char history[N_HIST_LINES][N_HIST_WRAP];
+    connection_t *connp = get_connection(conn);
 
     /* Free player structure */
     cleanup_player(p);
@@ -553,6 +554,7 @@ void init_player(struct player *p, int conn, bool old_history, bool no_recall)
 
     /* Allocate memory for dungeon flags array */
     p->obj_aware = mem_zalloc(z_info->k_max * sizeof(bool));
+    p->note_aware = mem_zalloc(z_info->k_max * sizeof(quark_t));
     p->obj_tried = mem_zalloc(z_info->k_max * sizeof(bool));
     p->kind_ignore = mem_zalloc(z_info->k_max * sizeof(byte));
     p->kind_everseen = mem_zalloc(z_info->k_max * sizeof(byte));
@@ -609,10 +611,15 @@ void init_player(struct player *p, int conn, bool old_history, bool no_recall)
     p->feeling = -1;
 
     /* Update the wilderness map */
-    if (cfg_diving_mode || no_recall)
+    if ((cfg_diving_mode > 1) || no_recall)
         wild_set_explored(p, base_wpos());
     else
+    {
         wild_set_explored(p, start_wpos());
+
+        /* On "fast" wilderness servers, we also know the location of the base town */
+        if (cfg_diving_mode == 1) wild_set_explored(p, base_wpos());
+    }
 
     /* Copy channels pointer */
     p->on_channel = Conn_get_console_channels(conn);
@@ -637,6 +644,9 @@ void init_player(struct player *p, int conn, bool old_history, bool no_recall)
 
     /* Initialize extra parameters */
     for (i = ITYPE_NONE; i < ITYPE_MAX; i++) p->opts.ignore_lvl[i] = IGNORE_BAD;
+
+    for (i = 0; i < z_info->k_max; i++)
+        add_autoinscription(p, i, connp->Client_setup.note_aware[i]);
 }
 
 
@@ -690,6 +700,7 @@ void cleanup_player(struct player *p)
     mem_free(p->randart_info);
     mem_free(p->randart_created);
     mem_free(p->obj_aware);
+    mem_free(p->note_aware);
     mem_free(p->obj_tried);
     mem_free(p->kind_ignore);
     mem_free(p->kind_everseen);

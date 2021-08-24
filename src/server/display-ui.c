@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2007 Antony Sidwell
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -189,7 +189,7 @@ static void prt_health(struct player *p)
     {
         /* Extract various states */
         is_unseen = !player_is_visible(p, health_who->idx);
-        is_dead = false;
+        is_dead = ((health_who->player->chp < 0)? true: false);
         is_afraid = (player_of_has(health_who->player, OF_AFRAID)? true: false);
         is_confused = (health_who->player->timed[TMD_CONFUSED]? true: false);
         is_stunned = (health_who->player->timed[TMD_PARALYZED]? true: false);
@@ -421,7 +421,7 @@ static void prt_floor_item(struct player *p)
 }
 
 
-static void dump_spells(struct player *p, struct object *obj)
+void dump_spells(struct player *p, struct object *obj)
 {
     int j;
     spell_flags flags;
@@ -431,8 +431,6 @@ static void dump_spells(struct player *p, struct object *obj)
     const char *comment = help;
     byte line_attr;
     char spell_name[31];
-    const struct magic_realm *realm = p->clazz->magic.spell_realm;
-    const char *name = (realm? realm->name: "");
 
     /* Get the book */
     int bidx = object_to_book_index(p, obj);
@@ -440,6 +438,8 @@ static void dump_spells(struct player *p, struct object *obj)
 
     /* Requires a spellbook */
     if (!book) return;
+
+    Send_book_info(p, bidx, book->realm->name);
 
     /* Dump the spells */
     for (j = 0; j < book->num_spells; j++)
@@ -503,7 +503,7 @@ static void dump_spells(struct player *p, struct object *obj)
         flags.proj_attr = spell->sproj;
 
         /* Dump the spell --(-- */
-        if (streq(name, "elemental"))
+        if (streq(spell->realm->name, "elemental"))
         {
             strnfmt(spell_name, sizeof(spell_name), "%s (%d)", spell->name,
                 p->spell_power[spell_index]);
@@ -758,6 +758,15 @@ static void player_mods(struct player *p, int mod, bool *res, bool *vul)
 }
 
 
+static bool is_dragon_immune(struct monster_race *race)
+{
+    struct dragon_breed *dn = get_dragon_form(race);
+
+    if (dn) return (dn->immune? true: false);
+    return false;
+}
+
+
 /*
  * Obtain the "elements" for the player as if he was an item
  */
@@ -803,31 +812,47 @@ void player_elements(struct player *p, struct element_info el_info[ELEM_MAX])
     /* Handle polymorphed players */
     if (p->poly_race)
     {
-        if (rf_has(p->poly_race->flags, RF_HURT_ROCK)) el_info[ELEM_SHARD].res_level = 1;
-        if (rf_has(p->poly_race->flags, RF_HURT_FIRE)) el_info[ELEM_FIRE].res_level = -1;
-        if (rf_has(p->poly_race->flags, RF_HURT_COLD)) el_info[ELEM_COLD].res_level = -1;
-        if (rf_has(p->poly_race->flags, RF_IM_ACID)) el_info[ELEM_ACID].res_level = 1;
-        if (rf_has(p->poly_race->flags, RF_IM_ELEC)) el_info[ELEM_ELEC].res_level = 1;
-        if (rf_has(p->poly_race->flags, RF_IM_FIRE)) el_info[ELEM_FIRE].res_level = 1;
-        if (rf_has(p->poly_race->flags, RF_IM_COLD)) el_info[ELEM_COLD].res_level = 1;
-        if (rf_has(p->poly_race->flags, RF_IM_POIS)) el_info[ELEM_POIS].res_level = 1;
-        if (rf_has(p->poly_race->flags, RF_IM_NETHER)) el_info[ELEM_NETHER].res_level = 1;
-        if (rf_has(p->poly_race->flags, RF_IM_NEXUS)) el_info[ELEM_NEXUS].res_level = 1;
-        if (rf_has(p->poly_race->flags, RF_IM_DISEN)) el_info[ELEM_DISEN].res_level = 1;
-        if (rsf_has(p->poly_race->spell_flags, RSF_BR_ACID)) el_info[ELEM_ACID].res_level = 1;
-        if (rsf_has(p->poly_race->spell_flags, RSF_BR_ELEC)) el_info[ELEM_ELEC].res_level = 1;
-        if (rsf_has(p->poly_race->spell_flags, RSF_BR_FIRE)) el_info[ELEM_FIRE].res_level = 1;
-        if (rsf_has(p->poly_race->spell_flags, RSF_BR_COLD)) el_info[ELEM_COLD].res_level = 1;
-        if (rsf_has(p->poly_race->spell_flags, RSF_BR_POIS)) el_info[ELEM_POIS].res_level = 1;
-        if (rsf_has(p->poly_race->spell_flags, RSF_BR_NETH)) el_info[ELEM_NETHER].res_level = 1;
+        bool dragon_immune = (player_has(p, PF_DRAGON) && is_dragon_immune(p->poly_race));
+
+        if (rf_has(p->poly_race->flags, RF_IM_ACID))
+            el_info[ELEM_ACID].res_level = (dragon_immune? 3: 1);
+        else if (rsf_has(p->poly_race->spell_flags, RSF_BR_ACID))
+            el_info[ELEM_ACID].res_level = 1;
+
+        if (rf_has(p->poly_race->flags, RF_IM_ELEC))
+            el_info[ELEM_ELEC].res_level = (dragon_immune? 3: 1);
+        else if (rsf_has(p->poly_race->spell_flags, RSF_BR_ELEC))
+            el_info[ELEM_ELEC].res_level = 1;
+
+        if (rf_has(p->poly_race->flags, RF_IM_FIRE))
+            el_info[ELEM_FIRE].res_level = (dragon_immune? 3: 1);
+        else if (rsf_has(p->poly_race->spell_flags, RSF_BR_FIRE))
+            el_info[ELEM_FIRE].res_level = 1;
+        else if (rf_has(p->poly_race->flags, RF_HURT_FIRE))
+            el_info[ELEM_FIRE].res_level = -1;
+
+        if (rf_has(p->poly_race->flags, RF_IM_COLD))
+            el_info[ELEM_COLD].res_level = (dragon_immune? 3: 1);
+        else if (rsf_has(p->poly_race->spell_flags, RSF_BR_COLD))
+            el_info[ELEM_COLD].res_level = 1;
+        else if (rf_has(p->poly_race->flags, RF_HURT_COLD))
+            el_info[ELEM_COLD].res_level = -1;
+
+        if (rf_has(p->poly_race->flags, RF_IM_POIS) || rsf_has(p->poly_race->spell_flags, RSF_BR_POIS))
+            el_info[ELEM_POIS].res_level = 1;
         if (rsf_has(p->poly_race->spell_flags, RSF_BR_LIGHT)) el_info[ELEM_LIGHT].res_level = 1;
         if (rsf_has(p->poly_race->spell_flags, RSF_BR_DARK)) el_info[ELEM_DARK].res_level = 1;
         if (rsf_has(p->poly_race->spell_flags, RSF_BR_SOUN)) el_info[ELEM_SOUND].res_level = 1;
+        if (rf_has(p->poly_race->flags, RF_HURT_ROCK) || rsf_has(p->poly_race->spell_flags, RSF_BR_SHAR))
+            el_info[ELEM_SHARD].res_level = 1;
+        if (rf_has(p->poly_race->flags, RF_IM_NEXUS) || rsf_has(p->poly_race->spell_flags, RSF_BR_NEXU))
+            el_info[ELEM_NEXUS].res_level = 1;
+        if (rf_has(p->poly_race->flags, RF_IM_NETHER) || rsf_has(p->poly_race->spell_flags, RSF_BR_NETH))
+            el_info[ELEM_NETHER].res_level = 1;
         if (rsf_has(p->poly_race->spell_flags, RSF_BR_CHAO)) el_info[ELEM_CHAOS].res_level = 1;
-        if (rsf_has(p->poly_race->spell_flags, RSF_BR_DISE)) el_info[ELEM_DISEN].res_level = 1;
-        if (rsf_has(p->poly_race->spell_flags, RSF_BR_NEXU)) el_info[ELEM_NEXUS].res_level = 1;
+        if (rf_has(p->poly_race->flags, RF_IM_DISEN) || rsf_has(p->poly_race->spell_flags, RSF_BR_DISE))
+            el_info[ELEM_DISEN].res_level = 1;
         if (rsf_has(p->poly_race->spell_flags, RSF_BR_TIME)) el_info[ELEM_TIME].res_level = 1;
-        if (rsf_has(p->poly_race->spell_flags, RSF_BR_SHAR)) el_info[ELEM_SHARD].res_level = 1;
         if (rsf_has(p->poly_race->spell_flags, RSF_BR_MANA)) el_info[ELEM_MANA].res_level = 1;
     }
 }
@@ -1577,7 +1602,7 @@ static int cmp_value(const void *a, const void *b)
 }
 
 
-static void player_strip(struct player *p)
+static void player_strip(struct player *p, bool perma_death)
 {
     size_t i, count = 0;
     struct object *obj;
@@ -1601,8 +1626,8 @@ static void player_strip(struct player *p)
     {
         obj = gear[i].obj;
 
-        /* If we killed the character, drop nothing */
-        if (!p->alive)
+        /* If we will permanently die, drop nothing */
+        if (perma_death)
         {
             gear_excise_object(p, obj);
 
@@ -1624,6 +1649,8 @@ static void player_strip(struct player *p)
     }
 
     mem_free(gear);
+
+    if (perma_death) return;
 
     /* Drop gold if player has any */
     if (p->alive && p->au)
@@ -1778,16 +1805,20 @@ void player_death(struct player *p)
     {
         char brave[40];
 
-        if (OPT(p, birth_no_ghost) || OPT(p, birth_no_recall) || OPT(p, birth_force_descend))
+        if ((OPT(p, birth_no_ghost) && !cfg_no_ghost) ||
+            (OPT(p, birth_no_recall) && (cfg_diving_mode < 3)) ||
+            (OPT(p, birth_force_descend) && (cfg_limit_stairs < 3)))
         {
-            strnfmt(brave, sizeof(brave), "The%s%s%s", OPT(p, birth_no_ghost)? " brave": "",
-                OPT(p, birth_no_recall)? " hardcore": "",
-                OPT(p, birth_force_descend)? " diving": "");
+            strnfmt(brave, sizeof(brave), "The%s%s%s",
+                (OPT(p, birth_no_ghost) && !cfg_no_ghost)? " brave": "",
+                (OPT(p, birth_no_recall) && (cfg_diving_mode < 3))? " hardcore": "",
+                (OPT(p, birth_force_descend) && (cfg_limit_stairs < 3))? " diving": "");
         }
         else
             my_strcpy(brave, "The unfortunate", sizeof(brave));
 
-        strnfmt(buf, sizeof(buf), "%s %s %s %s.", brave, prompt, p->name, p->died_flavor);
+        strnfmt(buf, sizeof(buf), "%s %s %s the level %i %s %s %s.", brave, prompt, p->name, p->lev,
+            p->race->name, p->clazz->name, p->died_flavor);
     }
     else if (!strcmp(p->died_from, "divine wrath"))
         strnfmt(buf, sizeof(buf), "%s was killed by divine wrath.", p->name);
@@ -1831,12 +1862,12 @@ void player_death(struct player *p)
         player_dump(p, p->alive);
 
     /*
-     * Drop every item (including gold) for:
-     * - all characters that will permanently die
-     * - all other characters except Necromancers that can turn into an undead being
-     * Note that items from suiciding characters never drop, they vanish instead...
+     * Handle every item (including gold):
+     * - delete them for all characters that will permanently die
+     * - keep them for Necromancers that can turn into an undead being
+     * - drop them on the floor for all other characters
      */
-    if (perma_death || !player_can_undead(p)) player_strip(p);
+    if (perma_death || !player_can_undead(p)) player_strip(p, perma_death);
 
     /* Tell him */
     if ((p->ghost != 1) && p->alive)
@@ -2369,7 +2400,7 @@ static void manual_design(struct player *p, struct chunk *c, bool new_level)
         if (!COORDS_EQUAL(&q->wpos, &p->wpos)) continue;
 
         /* No-recall players are simply pushed up one level (should be safe) */
-        if ((cfg_diving_mode == 2) || OPT(q, birth_no_recall))
+        if ((cfg_diving_mode == 3) || OPT(q, birth_no_recall))
         {
             struct worldpos wpos;
 
@@ -4703,13 +4734,13 @@ void describe_player(struct player *p, struct player *q)
     {
         char buf[N_HIST_WRAP], tmp[N_HIST_WRAP];
 
-        /* Replace "you" with "he/she/it" */
-        strrepall(buf, sizeof(buf), q->history[i], "You", pm);
-        strrepall(tmp, sizeof(tmp), buf, "you", pm2);
-
         /* Replace "your" with "his/her/its" */
-        strrepall(buf, sizeof(buf), tmp, "Your", poss);
+        strrepall(buf, sizeof(buf), q->history[i], "Your", poss);
         strrepall(tmp, sizeof(tmp), buf, "your", poss2);
+
+        /* Replace "you" with "he/she/it" */
+        strrepall(buf, sizeof(buf), tmp, "You", pm);
+        strrepall(tmp, sizeof(tmp), buf, "you", pm2);
 
         /* Replace "are/have" with "is/has" */
         strrepall(buf, sizeof(buf), tmp, "are", "is");

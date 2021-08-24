@@ -3,7 +3,7 @@
  * Purpose: Shape an initial or default display on windows systems.
  *
  * Copyright (c) 2012 Brett Reid
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:

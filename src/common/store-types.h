@@ -48,6 +48,13 @@ struct owner
     s32b max_cost;      /* Purse limit */
 };
 
+struct normal_entry
+{
+    struct object_kind *kind;
+    s16b rarity;
+    s16b factor;
+};
+
 /*
  * A store, with an owner, various state flags, a current stock
  * of items, and a table of items that are often purchased.
@@ -71,7 +78,7 @@ struct store
     /* Select a number of these items to stock */
     size_t normal_size;
     size_t normal_num;
-    struct object_kind **normal_table;
+    struct normal_entry *normal_table;
 
     /* Buy these items */
     struct object_buy *buy;

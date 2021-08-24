@@ -3,7 +3,7 @@
  * Purpose: Monster manipulation utilities.
  *
  * Copyright (c) 1997-2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -259,6 +259,8 @@ static void update_mon_aux(struct player *p, struct monster *mon, struct chunk *
     /* Basic telepathy */
     bool basic = false;
 
+    bool isDM = ((p->dm_flags & DM_SEE_MONSTERS)? true: false);
+
     my_assert(mon != NULL);
     source_monster(who, mon);
 
@@ -308,9 +310,8 @@ static void update_mon_aux(struct player *p, struct monster *mon, struct chunk *
         telepathy_ok = false;
 
     /* Nearby */
-    if ((d <= z_info->max_sight) || !cfg_limited_esp)
+    if ((d <= z_info->max_sight) || !cfg_limited_esp || isDM)
     {
-        bool isDM = ((p->dm_flags & DM_SEE_MONSTERS)? true: false);
         bool hasESP = is_detected_m(p, mon->race->flags, d_esp);
         bool isTL = (player_has(p, PF_THUNDERLORD) &&
             (d_esp <= (p->lev * z_info->max_sight / PY_MAX_LEVEL)));
@@ -473,7 +474,7 @@ static void update_mon_aux(struct player *p, struct monster *mon, struct chunk *
 
             /* Disturb on appearance (except townies, friendlies and hidden mimics) */
             if (OPT(p, disturb_near) && (mon->level > 0) && pvm_check(p, mon) &&
-                !monster_is_camouflaged(mon))
+                !monster_is_camouflaged(mon) && !p->firing_request)
             {
                 disturb(p, 1);
             }
@@ -1407,6 +1408,8 @@ static void update_player_aux(struct player *p, struct player *q, struct chunk *
     /* ESP permitted */
     bool telepathy_ok = true;
 
+    bool isDM = ((p->dm_flags & DM_SEE_PLAYERS)? true: false);
+
     py = q->py;
     px = q->px;
 
@@ -1428,9 +1431,8 @@ static void update_player_aux(struct player *p, struct player *q, struct chunk *
         telepathy_ok = false;
 
     /* Nearby */
-    if ((d <= z_info->max_sight) || !cfg_limited_esp)
+    if ((d <= z_info->max_sight) || !cfg_limited_esp || isDM)
     {
-        bool isDM = ((p->dm_flags & DM_SEE_PLAYERS)? true: false);
         bool hasESP = is_detected_p(p, q, d_esp);
         bool isTL = (player_has(p, PF_THUNDERLORD) &&
             (d_esp <= (p->lev * z_info->max_sight / PY_MAX_LEVEL)));
@@ -1497,7 +1499,7 @@ static void update_player_aux(struct player *p, struct player *q, struct chunk *
             if (square_isseen(p, py, px))
             {
                 /* Handle "invisible" players */
-                if ((q->poly_race && monster_is_invisible(q->poly_race)) || q->timed[TMD_INVIS])
+                if (q->timed[TMD_INVIS])
                 {
                     /* See invisible */
                     if (player_of_has(p, OF_SEE_INVIS))
@@ -1581,7 +1583,8 @@ static void update_player_aux(struct player *p, struct player *q, struct chunk *
             mflag_on(p->pflag[id], MFLAG_VIEW);
 
             /* Disturb on appearance (except friendlies and hidden mimics) */
-            if (OPT(p, disturb_near) && pvp_check(p, q, PVP_CHECK_ONE, true, 0x00) && !q->k_idx)
+            if (OPT(p, disturb_near) && pvp_check(p, q, PVP_CHECK_ONE, true, 0x00) && !q->k_idx &&
+                 !p->firing_request)
             {
                 /* Disturb */
                 disturb(p, 1);

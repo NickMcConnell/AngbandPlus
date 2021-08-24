@@ -3,7 +3,7 @@
  * Purpose: Handle the UI bits that happen after the character dies.
  *
  * Copyright (c) 1987 - 2007 Angband contributors
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:

@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2010 Chris Carr and Peter Denison
  * Copyright (c) 2014 Nick McConnell
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:

@@ -5,7 +5,7 @@
  * Copyright (c) 2003 Takeshi Mogami, Robert Ruehlmann
  * Copyright (c) 2007 Pete Mack
  * Copyright (c) 2010 Andi Sidwell
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -194,6 +194,33 @@ void option_dump(ang_file *f)
     file_putf(f, "# Base delay factor (0-255)\nO:delay_factor:%d\n\n", player->opts.delay_factor);
     file_putf(f, "# Movement delay factor (0-9)\nO:lazymove_delay:%d\n\n",
         player->opts.lazymove_delay);
+}
+
+
+/*
+ * Dump autoinscriptions
+ */
+void dump_autoinscriptions(ang_file *f)
+{
+    int i;
+
+    for (i = 0; i < z_info->k_max; i++)
+    {
+        struct object_kind *k = &k_info[i];
+        char name[120];
+        const char *note;
+
+        if (!k->name || !k->tval) continue;
+
+        note = Client_setup.note_aware[i];
+        if (note && !STRZERO(note))
+        {
+            object_short_name(name, sizeof(name), k->name);
+            file_putf(f, "inscribe:%s:%s:%s\n", tval_find_name(k->tval), name, note);
+        }
+    }
+
+    file_put(f, "\n");
 }
 
 
@@ -679,6 +706,26 @@ static enum parser_error parse_prefs_feat(struct parser *p)
 }
 
 
+static enum parser_error parse_prefs_glyph(struct parser *p)
+{
+    int idx, light_idx;
+    struct prefs_data *d = parser_priv(p);
+
+    assert(d != NULL);
+    if (d->bypass) return PARSE_ERROR_NONE;
+
+    idx = lookup_feat(parser_getsym(p, "idx"));
+
+    for (light_idx = 0; light_idx < LIGHTING_MAX; light_idx++)
+    {
+        Client_setup.f_attr[idx][light_idx] = 0xFF;
+        Client_setup.f_char[idx][light_idx] = (char)parser_getint(p, "char");
+    }
+
+    return PARSE_ERROR_NONE;
+}
+
+
 static void set_trap_graphic(int trap_idx, int light_idx, byte attr, char ch)
 {
     if (light_idx < LIGHTING_MAX)
@@ -890,6 +937,36 @@ static enum parser_error parse_prefs_flavor(struct parser *p)
 }
 
 
+static enum parser_error parse_prefs_inscribe(struct parser *p)
+{
+    int tvi, svi;
+    struct object_kind *kind;
+    const char *note;
+    struct prefs_data *d = parser_priv(p);
+
+    assert(d != NULL);
+    if (d->bypass) return PARSE_ERROR_NONE;
+
+    tvi = tval_find_idx(parser_getsym(p, "tval"));
+    if (tvi < 0) return PARSE_ERROR_UNRECOGNISED_TVAL;
+
+    svi = lookup_sval(tvi, parser_getsym(p, "sval"));
+    if (svi < 0) return PARSE_ERROR_UNRECOGNISED_SVAL;
+
+    kind = lookup_kind(tvi, svi);
+    if (!kind) return PARSE_ERROR_UNRECOGNISED_SVAL;
+
+    note = parser_getstr(p, "text");
+    if (strlen(note) != 3) return PARSE_ERROR_INVALID_AUTOINSCRIPTION;
+    if (note[0] != '@') return PARSE_ERROR_INVALID_AUTOINSCRIPTION;
+    if (!isalpha(note[1])) return PARSE_ERROR_INVALID_AUTOINSCRIPTION;
+    if (!isdigit(note[2])) return PARSE_ERROR_INVALID_AUTOINSCRIPTION;
+    my_strcpy(Client_setup.note_aware[kind->kidx], note, sizeof(Client_setup.note_aware[0]));
+
+    return PARSE_ERROR_NONE;
+}
+
+
 static enum parser_error parse_prefs_keymap_action(struct parser *p)
 {
     const char *act = "";
@@ -1090,9 +1167,11 @@ static struct parser *init_parse_prefs(bool user)
     parser_reg(p, "monster sym name int attr int char", parse_prefs_monster);
     parser_reg(p, "monster-base sym name int attr int char", parse_prefs_monster_base);
     parser_reg(p, "feat sym idx sym lighting int attr int char", parse_prefs_feat);
+    parser_reg(p, "glyph sym idx int char", parse_prefs_glyph);
     parser_reg(p, "trap sym idx sym lighting int attr int char", parse_prefs_trap);
     parser_reg(p, "GF sym type sym direction uint attr uint char", parse_prefs_gf);
     parser_reg(p, "flavor uint idx int attr int char", parse_prefs_flavor);
+    parser_reg(p, "inscribe sym tval sym sval str text", parse_prefs_inscribe);
     parser_reg(p, "keymap-act ?str act", parse_prefs_keymap_action);
     parser_reg(p, "keymap-input int mode str key", parse_prefs_keymap_input);
     parser_reg(p, "message sym type sym attr", parse_prefs_message);

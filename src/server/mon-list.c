@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997-2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2013 Ben Semmler
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -185,7 +185,7 @@ void monster_list_collect(struct player *p, monster_list_t *list)
             entry->attr = p->r_attr[mon->race->ridx];
 
 		/* Check for LOS using projectable() */
-		los = (projectable(c, p->py, p->px, mon->fy, mon->fx, PROJECT_NONE) &&
+		los = (projectable(c, p->py, p->px, mon->fy, mon->fx, PROJECT_NONE, true) &&
             monster_is_in_view(p, i));
 		field = (los? MONSTER_LIST_SECTION_LOS: MONSTER_LIST_SECTION_ESP);
 		entry->count[field]++;

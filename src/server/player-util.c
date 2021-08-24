@@ -3,7 +3,7 @@
  * Purpose: Player utility functions
  *
  * Copyright (c) 2011 The Angband Developers. See COPYING.
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -141,7 +141,7 @@ bool take_hit(struct player *p, int damage, const char *hit_from, bool non_physi
     if (p->k_idx) aware_player(p, p);
 
     /* Disturb */
-    if (strcmp(hit_from, "fading") && !nodisturb) disturb(p, 1);
+    if (strcmp(hit_from, "fading") && strcmp(hit_from, "hypoxia") && !nodisturb) disturb(p, 1);
 
     /* Hack -- apply "invulnerability" */
     if (p->timed[TMD_INVULN] == -1)
@@ -231,7 +231,7 @@ bool take_hit(struct player *p, int damage, const char *hit_from, bool non_physi
 /*
  * Regenerate hit points
  */
-void player_regen_hp(struct player *p)
+void player_regen_hp(struct player *p, struct chunk *c)
 {
     s32b new_chp, new_chp_frac;
     int old_chp, percent = 0;
@@ -260,6 +260,7 @@ void player_regen_hp(struct player *p)
     if (p->timed[TMD_STUN]) percent = 0;
     if (p->timed[TMD_CUT]) percent = 0;
     if (player_undead(p)) percent = 0;
+    if ((p->timed[TMD_WRAITHFORM] == -1) && !square_ispassable(c, p->py, p->px)) percent = 0;
 
     /* But Biofeedback always helps */
     if (p->timed[TMD_BIOFEEDBACK])
@@ -723,7 +724,7 @@ bool player_is_immune(struct player *p, int element)
  */
 bool player_can_cast(struct player *p, bool show_msg)
 {
-    if (!p->clazz->magic.spell_realm)
+    if (!p->clazz->magic.total_spells)
     {
         if (show_msg) msg(p, "You cannot pray or produce magics.");
         return false;
@@ -785,8 +786,6 @@ static int scan_items(struct player *p, struct object **item_list, size_t item_m
 static bool spell_okay_to_study(struct player *p, int spell_index)
 {
     const struct class_spell *spell = spell_by_index(&p->clazz->magic, spell_index);
-    const struct magic_realm *realm = p->clazz->magic.spell_realm;
-    const char *name = (realm? realm->name: "");
 
     /* Skip illegible spells */
     if (spell->slevel >= 99) return false;
@@ -795,7 +794,7 @@ static bool spell_okay_to_study(struct player *p, int spell_index)
     if (p->spell_flags[spell_index] & PY_SPELL_FORGOTTEN) return false;
     if (!(p->spell_flags[spell_index] & PY_SPELL_LEARNED)) return (spell->slevel <= p->lev);
     if (!(p->spell_flags[spell_index] & PY_SPELL_WORKED)) return false;
-    return (streq(name, "elemental"));
+    return (streq(spell->realm->name, "elemental"));
 }
 
 
@@ -882,6 +881,7 @@ void disturb(struct player *p, int stop_search)
 
     /* Cancel repeated commands */
     p->digging_request = 0;
+    p->firing_request = 0;
 
     /* Cancel Resting */
     if (player_is_resting(p))
@@ -1123,41 +1123,8 @@ static const char *dragon_format[6][2] =
 };
 
 
-struct dragon_name
+static void get_dragon_name(int lvl_idx, struct dragon_breed *dn, char *name, size_t len)
 {
-    const char *d_name;
-    byte d_fmt;
-    const char *w_name;
-    byte w_fmt;
-    byte commonness;
-};
-
-
-static struct dragon_name dragon_names[] =
-{
-    {"blue", 0, "storm", 0, 6},
-    {"white", 0, "ice", 0, 6},
-    {"green", 0, "swamp", 0, 6},
-    {"black", 0, "bile", 0, 5},
-    {"red", 0, "hell", 0, 5},
-    {"gold", 0, "Thunder", 1, 5},
-    {"silver", 0, "Radiance", 1, 5},
-    {"shadow", 1, "shadow", 0, 4},
-    {"crystal", 1, "crystal", 0, 4},
-    {"ethereal", 1, "ethereal", 0, 4},
-    {"water", 0, "the Deep", 1, 4},
-    {"chaos", 1, "Chaos", 1, 3},
-    {"law", 1, "Law", 1, 3},
-    {"multi-hued", 0, "Many Colours", 1, 2},
-    {"balance", 1, "Balance", 1, 2},
-    {"power", 0, "Power", 1, 1}
-};
-
-
-static void get_dragon_name(int lvl_idx, int form_idx, char *name, size_t len)
-{
-    struct dragon_name *dn = &dragon_names[form_idx];
-
     /* Dragon */
     if (lvl_idx < 4)
         strnfmt(name, len, dragon_format[lvl_idx][dn->d_fmt], dn->d_name);
@@ -1168,53 +1135,52 @@ static void get_dragon_name(int lvl_idx, int form_idx, char *name, size_t len)
 }
 
 
-static struct monster_race *get_dragon_race(int lvl_idx, int form_idx)
+static struct monster_race *get_dragon_race(int lvl_idx, struct dragon_breed *dn)
 {
     char name[NORMAL_WID];
 
     /* Name */
-    get_dragon_name(lvl_idx, form_idx, name, sizeof(name));
+    get_dragon_name(lvl_idx, dn, name, sizeof(name));
 
     return get_race(name);
 }
 
 
-static int get_dragon_form(struct monster_race *race)
+struct dragon_breed *get_dragon_form(struct monster_race *race)
 {
-    int lvl_idx, form_idx;
+    int lvl_idx;
     char name[NORMAL_WID];
+    struct dragon_breed *dn;
 
     for (lvl_idx = 0; lvl_idx < 6; lvl_idx++)
     {
-        for (form_idx = 0; form_idx < N_ELEMENTS(dragon_names); form_idx++)
+        for (dn = breeds; dn; dn = dn->next)
         {
             /* Name */
-            get_dragon_name(lvl_idx, form_idx, name, sizeof(name));
+            get_dragon_name(lvl_idx, dn, name, sizeof(name));
 
-            if (streq(race->name, name)) return form_idx;
+            if (streq(race->name, name)) return dn;
         }
     }
 
-    return -1;
+    return NULL;
 }
 
 
 static struct monster_race *get_dragon_random(void)
 {
-    int form_idx = 0, i, j;
-    int options = 0;
+    int i, options = 0;
+    struct dragon_breed *dn, *choice;
 
-    for (i = 0; i < N_ELEMENTS(dragon_names); i++)
+    for (dn = breeds; dn; dn = dn->next)
     {
-        struct dragon_name *dn = &dragon_names[i];
-
-        for (j = 0; j < dn->commonness; j++)
+        for (i = 0; i < dn->commonness; i++)
         {
-            if (one_in_(++options)) form_idx = i;
+            if (one_in_(++options)) choice = dn;
         }
     }
 
-    return get_dragon_race(0, form_idx);
+    return get_dragon_race(0, choice);
 }
 
 
@@ -1231,22 +1197,33 @@ void poly_dragon(struct player *p, bool msg)
 
     /* Random choice of race at level 5 */
     else if ((p->lev == 5) && (p->poly_race == race_newborn))
+    {
+        struct dragon_breed *dn;
+
         race = get_dragon_random();
+
+        /* Dragon breed */
+        dn = get_dragon_form(race);
+
+        /* Apply experience penalty */
+        p->expfact = p->expfact * dn->r_exp / 100;
+    }
 
     /* New form */
     else
     {
-        int lvl_idx, form_idx;
+        int lvl_idx;
+        struct dragon_breed *dn;
 
         /* Level index */
         if (p->lev == PY_MAX_LEVEL) lvl_idx = 5;
         else lvl_idx = (p->lev - 5) / 10;
 
-        /* Form index */
-        form_idx = get_dragon_form(p->poly_race);
+        /* Dragon breed */
+        dn = get_dragon_form(p->poly_race);
 
         /* New form */
-        race = get_dragon_race(lvl_idx, form_idx);
+        race = get_dragon_race(lvl_idx, dn);
     }
 
     /* Polymorph into that dragon */
@@ -1459,6 +1436,12 @@ int player_digest(struct player *p)
     /* Regeneration takes more food */
     if (player_of_has(p, OF_REGEN)) i += 30;
     if (p->timed[TMD_REGEN]) i += 30;
+
+    /* Invisibility consumes a lot of food */
+    if (p->timed[TMD_INVIS]) i += 30;
+
+    /* Wraithform consumes a lot of food */
+    if (p->timed[TMD_WRAITHFORM]) i += 30;
 
     /* Slow digestion takes less food */
     if (player_of_has(p, OF_SLOW_DIGEST)) i /= 5;

@@ -5,7 +5,7 @@
  * Copyright (c) 1997-2000 Robert A. Koeneke, James E. Wilson, Ben Harrison
  * Copyright (c) 2007 Pete Mack
  * Copyright (c) 2010 Andi Sidwell
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -476,7 +476,7 @@ static void ui_keymap_create(const char *title, int row)
 {
     bool done = false;
     size_t n = 0;
-    struct keypress c;
+    struct keypress c, esc;
     char tmp[MSG_LEN];
     int mode = (OPT(player, rogue_like_commands)? KEYMAP_MODE_ROGUE: KEYMAP_MODE_ORIG);
     int res;
@@ -503,6 +503,14 @@ static void ui_keymap_create(const char *title, int row)
         if (is_abort(ke)) Term_event_push(&ea);
         return;
     }
+
+    memset(keymap_buffer, 0, (KEYMAP_ACTION_MAX + 1) * sizeof(struct keypress));
+
+    /* PWMAngband: always start with ESCAPE */
+    esc.type = EVT_KBRD;
+    esc.code = ESCAPE;
+    esc.mods = 0;
+    keymap_buffer[n++] = esc;
 
     /* Get an encoded action, with a default response */
     while (!done)
@@ -561,7 +569,6 @@ static void ui_keymap_create(const char *title, int row)
             {
                 if (n == KEYMAP_ACTION_MAX) continue;
 
-                if (n == 0) memset(keymap_buffer, 0, (KEYMAP_ACTION_MAX + 1) * sizeof(struct keypress));
                 keymap_buffer[n++] = kp;
                 break;
             }
@@ -1128,6 +1135,15 @@ static void do_dump_options(const char *title, int row)
         c_msg_print("Failed to save subwindow preferences.");
 
     dump_pref_file(option_dump, "Dump options", 20);
+}
+
+
+/*
+ * Write autoinscriptions to a file.
+ */
+static void do_dump_autoinsc(const char *title, int row)
+{
+    dump_pref_file(dump_autoinscriptions, "Dump autoinscriptions", 20);
 }
 
 
@@ -2053,6 +2069,7 @@ static menu_action option_actions[] =
     {0, 0, NULL, NULL},
     {0, 'l', "Load a user pref file", options_load_pref_file},
     {0, 's', "Save options to pref file", do_dump_options},
+    {0, 't', "Save autoinscriptions to pref file", do_dump_autoinsc},
     {0, 0, NULL, NULL},
     {0, 'k', "Edit keymaps (advanced)", do_cmd_keymaps},
     {0, 'v', "Edit colours (advanced)", do_cmd_colors}

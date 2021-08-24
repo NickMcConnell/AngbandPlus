@@ -21,6 +21,7 @@ extern size_t obj_desc_name_format(char *buf, size_t max, size_t end, const char
 extern void object_kind_name(char *buf, size_t max, const struct object_kind *kind, bool aware);
 extern int lookup_sval(int tval, const char *name);
 extern int lookup_sval_silent(int tval, const char *name);
+extern void object_short_name(char *buf, size_t max, const char *name);
 extern struct object_kind *lookup_kind(int tval, int sval);
 extern struct object_kind *lookup_kind_silent(int tval, int sval);
 extern struct object_kind *lookup_kind_by_name(int tval, const char *name);

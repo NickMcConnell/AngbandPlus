@@ -3,7 +3,7 @@
  * Purpose: Message handling
  *
  * Copyright (c) 2007 Elly, Andi Sidwell
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:

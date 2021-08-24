@@ -36,7 +36,7 @@ Features that do not block line of sight
 '''   A broken door              '6'    Entrance to Magic Shop
 '<'   A staircase up             '7'    Entrance to the (Exp.) Black Market
 '>'   A staircase down           '8'    Entrance to the Tavern
-'#'   A pool of lava             '9'    Entrance to the House of Arcanes
+'#'   A pool of lava             '9'    Entrance to the Bookseller
 '~'   Water, mud                 '.'    Grass, packed dirt, lava stream
 '='   A drawbridge               '_'    A fountain
 '%'   Crops, loose dirt
@@ -208,9 +208,9 @@ The Tavern ('8')
   This is a place to stay safely. No monster will ever be able to enter
   the Tavern, and fights between players are prohibited in it.
 
-The House of Arcanes ('9')
-  The House of Arcanes deals in all types of magical books. At least the basic
-  ones...
+The Bookseller ('9')
+  The Bookseller holds supplies of the simpler books needed by magic users,
+  and will buy the more advanced books which can be found in the dungeon.
 
 Your Home ('0')
   This is your house where you can store objects that you cannot carry on

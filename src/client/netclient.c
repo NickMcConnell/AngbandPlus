@@ -2,7 +2,7 @@
  * File: netclient.c
  * Purpose: The client side of the networking stuff
  *
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -170,9 +170,9 @@ void check_term_resize(bool main_win, int *cols, int *rows)
     }
     else
     {
-        /* Minimum window size is 40x12 */
-        if (*cols < NORMAL_WID / 2) *cols = NORMAL_WID / 2;
-        if (*rows < NORMAL_HGT / 2) *rows = NORMAL_HGT / 2;
+        /* Minimum window size is 16x4 */
+        if (*cols < NORMAL_WID / 5) *cols = NORMAL_WID / 5;
+        if (*rows < NORMAL_HGT / 5) *rows = NORMAL_HGT / 5;
 
         /* Maximum window size is 80x24 */
         if (*cols > NORMAL_WID) *cols = NORMAL_WID;
@@ -347,6 +347,9 @@ static int Receive_struct_info(void)
             Client_setup.flvr_x_attr = mem_zalloc(flavor_max * sizeof(byte));
             Client_setup.flvr_x_char = mem_zalloc(flavor_max * sizeof(char));
 
+            /* Autoinscriptions */
+            Client_setup.note_aware = mem_zalloc(z_info->k_max * sizeof(char_note));
+
             /* Alloc */
             player->obj_aware = mem_zalloc(z_info->k_max * sizeof(bool));
             player->kind_ignore = mem_zalloc(z_info->k_max * sizeof(byte));
@@ -514,7 +517,7 @@ static int Receive_struct_info(void)
             s16b c_adj, c_skills, c_exp;
             byte cidx, c_mhp, total_spells, tval;
             char num_books;
-            char spell_realm[NORMAL_WID];
+            char realm[NORMAL_WID];
 
             classes = NULL;
 
@@ -597,8 +600,7 @@ static int Receive_struct_info(void)
 
                     c->pflags[j] = pflag;
                 }
-                if ((n = Packet_scanf(&rbuf, "%b%b%c%s", &total_spells, &tval, &num_books,
-                    spell_realm)) <= 0)
+                if ((n = Packet_scanf(&rbuf, "%b%b%c", &total_spells, &tval, &num_books)) <= 0)
                 {
                     /* Rollback the socket buffer */
                     Sockbuf_rollback(&rbuf, bytes_read);
@@ -608,16 +610,35 @@ static int Receive_struct_info(void)
                     mem_free(c);
                     return n;
                 }
-                bytes_read += 4 + strlen(spell_realm);
+                bytes_read += 3;
 
                 c->c_mhp = c_mhp;
                 c->c_exp = c_exp;
-                if (strlen(spell_realm)) c->magic.spell_realm = lookup_realm(spell_realm);
                 c->magic.total_spells = total_spells;
                 c->magic.num_books = num_books;
+                c->magic.books = mem_zalloc(num_books * sizeof(struct class_book));
 
                 /* Hack -- put the tval in the unused "spell_first" field */
                 c->magic.spell_first = tval;
+
+                for (j = 0; j < num_books; j++)
+                {
+                    struct class_book *book = &c->magic.books[j];
+
+                    if ((n = Packet_scanf(&rbuf, "%s", realm)) <= 0)
+                    {
+                        /* Rollback the socket buffer */
+                        Sockbuf_rollback(&rbuf, bytes_read);
+
+                        /* Packet isn't complete, graceful failure */
+                        string_free(c->name);
+                        mem_free(c);
+                        return n;
+                    }
+                    bytes_read += 1 + strlen(realm);
+
+                    if (strlen(realm)) book->realm = lookup_realm(realm);
+                }
 
                 c->next = classes;
                 classes = c;
@@ -2180,20 +2201,38 @@ static int Receive_spell_info(void)
 
     /* Hack -- wipe the arrays if blank */
     if (!strlen(buf))
-        memset(spell_info, 0, MAX_PAGES * MAX_SPELLS_PER_PAGE * sizeof(struct spell_info));
+        memset(book_info, 0, MAX_PAGES * sizeof(struct book_info));
 
     /* Save the info */
     else
     {
-        spell_info[book][line].flag.line_attr = line_attr;
-        spell_info[book][line].flag.flag = flag;
-        spell_info[book][line].flag.dir_attr = dir_attr;
-        spell_info[book][line].flag.proj_attr = proj_attr;
-        my_strcpy(spell_info[book][line].info, buf, NORMAL_WID);
+        book_info[book].spell_info[line].flag.line_attr = line_attr;
+        book_info[book].spell_info[line].flag.flag = flag;
+        book_info[book].spell_info[line].flag.dir_attr = dir_attr;
+        book_info[book].spell_info[line].flag.proj_attr = proj_attr;
+        my_strcpy(book_info[book].spell_info[line].info, buf, NORMAL_WID);
     }
 
     /* Redraw */
     player->upkeep->redraw |= PR_SPELL;
+
+    return 1;
+}
+
+
+static int Receive_book_info(void)
+{
+    byte ch;
+    int n;
+    s16b book;
+    char realm[NORMAL_WID];
+
+    if ((n = Packet_scanf(&rbuf, "%b%hd%s", &ch, &book, realm)) <= 0)
+    {
+        return n;
+    }
+
+    if (strlen(realm)) book_info[book].realm = lookup_realm(realm);
 
     return 1;
 }
@@ -2339,14 +2378,14 @@ static int Receive_store(void)
     int n;
     char name[MSG_LEN];
     byte attr;
-    s16b wgt;
+    s16b wgt, bidx;
     char pos;
     s32b price;
     byte num, owned, tval, max;
     byte ch;
 
-    if ((n = Packet_scanf(&rbuf, "%b%c%b%hd%b%b%ld%b%b%s", &ch, &pos, &attr, &wgt, &num, &owned,
-        &price, &tval, &max, name)) <= 0)
+    if ((n = Packet_scanf(&rbuf, "%b%c%b%hd%b%b%ld%b%b%hd%s", &ch, &pos, &attr, &wgt, &num, &owned,
+        &price, &tval, &max, &bidx, name)) <= 0)
     {
         return n;
     }
@@ -2361,6 +2400,7 @@ static int Receive_store(void)
     current_store.stock[pos].info_xtra.attr = attr;
     current_store.stock[pos].info_xtra.max = max;
     current_store.stock[pos].info_xtra.owned = owned;
+    current_store.stock[pos].info_xtra.bidx = bidx;
 
     my_strcpy(store_names[pos], name, sizeof(store_names[0]));
 
@@ -2759,7 +2799,7 @@ static int Receive_spell_desc(void)
         return n;
 
     /* Save the info */
-    my_strcpy(spell_info[book][line].desc, buf, MSG_LEN);
+    my_strcpy(book_info[book].spell_info[line].desc, buf, MSG_LEN);
 
     return 1;
 }
@@ -2913,7 +2953,8 @@ static int Receive_quit(void)
     char pkt;
     char reason[NORMAL_WID];
 
-    /* Redraw stuff before quitting to show the cause of death */
+    /* Redraw stuff before quitting to show the cause of death (and last messages) */
+    player->upkeep->redraw |= (PR_MESSAGE);
     redraw_stuff();
     Term_fresh();
 
@@ -3154,9 +3195,9 @@ static int Receive_char_dump(void)
         return n;
 
     /* Begin receiving */
-    if (streq(buf, "BEGIN") || streq(buf, "BEGIN_DUMP_ONLY"))
+    if (streq(buf, "BEGIN_NORMAL_DUMP") || streq(buf, "BEGIN_MANUAL_DUMP"))
     {
-        if (streq(buf, "BEGIN_DUMP_ONLY")) dump_only = true;
+        if (streq(buf, "BEGIN_MANUAL_DUMP")) dump_only = true;
 
         /* Open a temporary file */
         path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "@@tmp@@.txt");
@@ -3164,7 +3205,7 @@ static int Receive_char_dump(void)
     }
 
     /* End receiving */
-    else if (streq(buf, "END"))
+    else if (streq(buf, "END_NORMAL_DUMP") || streq(buf, "END_MANUAL_DUMP"))
     {
         char tmp[MSG_LEN];
         char fname[NORMAL_WID];
@@ -3876,6 +3917,22 @@ static int Receive_history(void)
 }
 
 
+static int Receive_autoinscriptions(void)
+{
+    int n;
+    byte ch;
+    u32b kidx;
+    char note_aware[4];
+
+    if ((n = Packet_scanf(&rbuf, "%b%lu%s", &ch, &kidx, note_aware)) <= 0)
+        return n;
+
+    my_strcpy(Client_setup.note_aware[kidx], note_aware, sizeof(Client_setup.note_aware[0]));
+
+    return 1;
+}
+
+
 /*** Sending ***/
 
 
@@ -4184,9 +4241,11 @@ int Send_target_closest(int mode)
 int Send_cast(int book, int spell, int dir)
 {
     int n;
+    byte starting = 1;
 
-    if ((n = Packet_printf(&wbuf, "%b%hd%hd%c", (unsigned)PKT_SPELL, book, spell, dir)) <= 0)
-        return n;
+    n = Packet_printf(&wbuf, "%b%hd%hd%c%b", (unsigned)PKT_SPELL, book, spell, dir,
+        (unsigned)starting);
+    if (n <= 0) return n;
 
     return 1;
 }
@@ -4201,17 +4260,6 @@ int Send_open(struct command *cmd)
         return 0;
 
     if ((n = Packet_printf(&wbuf, "%b%c", (unsigned)PKT_OPEN, dir)) <= 0)
-        return n;
-
-    return 1;
-}
-
-
-int Send_pray(int book, int spell, int dir)
-{
-    int n;
-
-    if ((n = Packet_printf(&wbuf, "%b%hd%hd%c", (unsigned)PKT_PRAY, book, spell, dir)) <= 0)
         return n;
 
     return 1;
@@ -4908,20 +4956,6 @@ int Send_store_examine(int item, bool describe)
 }
 
 
-int Send_pass(const char *newpass)
-{
-    int n;
-
-    if (newpass && strlen(newpass))
-    {
-        if ((n = Packet_printf(&wbuf, "%b%s", (unsigned)PKT_CHANGEPASS, newpass)) <= 0)
-            return n;
-    }
-
-    return 1;
-}
-
-
 int Send_alter(struct command *cmd)
 {
     int n;
@@ -4940,8 +4974,9 @@ int Send_alter(struct command *cmd)
 int Send_fire_at_nearest(void)
 {
     int n;
+    byte starting = 1;
 
-    if ((n = Packet_printf(&wbuf, "%b", (unsigned)PKT_FIRE_AT_NEAREST)) <= 0)
+    if ((n = Packet_printf(&wbuf, "%b%b", (unsigned)PKT_FIRE_AT_NEAREST, (unsigned)starting)) <= 0)
         return n;
 
     return 1;
@@ -5443,6 +5478,24 @@ int Send_history(int line, const char *hist)
 }
 
 
+int Send_autoinscriptions(void)
+{
+    int i, n;
+
+    if ((n = Packet_printf(&wbuf, "%b", (unsigned)PKT_AUTOINSCR)) <= 0)
+        return n;
+
+    for (i = 0; i < z_info->k_max; i++)
+    {
+        n = Packet_printf(&wbuf, "%s", Client_setup.note_aware[i]);
+        if (n <= 0)
+            return n;
+    }
+
+    return 1;
+}
+
+
 /*** Commands ***/
 
 
@@ -5495,16 +5548,7 @@ int cmd_cast(struct command *cmd)
     Send_track_object(book->oidx);
 
     spell = textui_obj_cast(book->info_xtra.bidx, &dir);
-    if (spell != -1)
-    {
-        const struct magic_realm *realm = player->clazz->magic.spell_realm;
-        const char *name = (realm? realm->name: "");
-
-        if (streq(name, "divine"))
-            Send_pray(book->oidx, spell, dir);
-        else
-            Send_cast(book->oidx, spell, dir);
-    }
+    if (spell != -1) Send_cast(book->oidx, spell, dir);
     return 1;
 }
 
@@ -5529,16 +5573,7 @@ int cmd_project(struct command *cmd)
     Send_track_object(book->oidx);
 
     spell = textui_obj_project(book->info_xtra.bidx, &dir);
-    if (spell != -1)
-    {
-        const struct magic_realm *realm = player->clazz->magic.spell_realm;
-        const char *name = (realm? realm->name: "");
-
-        if (streq(name, "divine"))
-            Send_pray(book->oidx, spell, dir);
-        else
-            Send_cast(book->oidx, spell, dir);
-    }
+    if (spell != -1) Send_cast(book->oidx, spell, dir);
     return 1;
 }
 

@@ -62,6 +62,7 @@ extern struct file_parser wild_info_parser;
 struct town_feat
 {
     char symbol;            /* Symbol */
+    char special;           /* Special symbol */
     int feat_idx;           /* Index of wilderness terrain feature */
     struct town_feat *next;
 };
@@ -241,6 +242,7 @@ extern void wild_add_monster(struct player *p, struct chunk *c);
 extern void wild_add_crop(struct chunk *c, int x, int y, int type);
 extern struct wild_type *get_neighbor(struct wild_type *origin, char dir);
 extern int world_index(struct worldpos *wpos);
+extern void get_town_file(char *buf, size_t len, const char *name);
 
 extern struct chunk *wilderness_gen(struct player *p, struct worldpos *wpos, int min_height,
     int min_width);

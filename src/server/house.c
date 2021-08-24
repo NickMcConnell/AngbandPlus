@@ -2,7 +2,7 @@
  * File: house.c
  * Purpose: House code.
  *
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -606,7 +606,7 @@ bool get_player_store_name(int num, char *name, int len)
         case PLAYER_STORE_TEMPLE: my_strcpy(name, "Ecclesial Shop", len); break;
         case PLAYER_STORE_ALCHEMIST: my_strcpy(name, "Alchemy Shop", len); break;
         case PLAYER_STORE_MAGIC: my_strcpy(name, "Magic Shop", len); break;
-        case PLAYER_STORE_LIBRARY: my_strcpy(name, "House of Arcanes", len); break;
+        case PLAYER_STORE_LIBRARY: my_strcpy(name, "Bookseller", len); break;
         case PLAYER_STORE_BM: my_strcpy(name, "Black Market", len); break;
         case PLAYER_STORE_XBM: my_strcpy(name, "Expensive Black Market", len); break;
         case PLAYER_STORE_TAVERN: my_strcpy(name, "Tavern", len); break;

@@ -3,7 +3,7 @@
  * Purpose: Monster creation / placement code.
  *
  * Copyright (c) 1997-2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -694,8 +694,8 @@ static bool allow_race(struct monster_race *race, struct worldpos *wpos)
     if (rf_has(race->flags, RF_FORCE_DEPTH) && (race->level > wpos->depth))
         return false;
 
-    /* Some monsters never appear out of their dungeon/town (normal servers) */
-    if (!cfg_diving_mode && race->wpos &&
+    /* Some monsters never appear out of their dungeon/town (wilderness) */
+    if ((cfg_diving_mode < 2) && race->wpos &&
         !((race->wpos->wy == wpos->wy) && (race->wpos->wx == wpos->wx)))
     {
         return false;
@@ -746,7 +746,7 @@ struct monster_race *get_mon_num(struct chunk *c, int level, bool summon)
     alloc_entry *table = alloc_race_table;
 
     /* No monsters in the base town (no_recall servers) */
-    if ((cfg_diving_mode == 2) && in_base_town(&c->wpos)) return (0);
+    if ((cfg_diving_mode == 3) && in_base_town(&c->wpos)) return (0);
 
     /* No monsters in dynamically generated towns */
     if (dynamic_town(&c->wpos)) return (0);
@@ -1066,41 +1066,53 @@ static bool mon_create_drop(struct player *p, struct chunk *c, struct monster *m
     for (drop = mon->race->drops; drop; drop = drop->next)
     {
         bool ok = false;
-        bool drop_nazgul = (tval_is_ring_k(drop->kind) &&
-            (drop->kind->sval == lookup_sval(TV_RING, "Black Ring of Power")));
         int num = randint0(drop->max - drop->min) + drop->min;
 
         if ((unsigned int)randint0(100) >= drop->percent_chance) continue;
 
-        /* Allocate by hand, prep, apply magic */
-        obj = object_new();
-        object_prep(p, obj, drop->kind, level, RANDOMISE);
-
-        /* Hack -- "Nine rings for mortal men doomed to die" */
-        if (drop_nazgul)
+        /* Specified by tval or by kind */
+        if (drop->kind)
         {
-            /* Only if allowed */
-            if (p && cfg_random_artifacts)
+            bool drop_nazgul = (tval_is_ring_k(drop->kind) &&
+                (drop->kind->sval == lookup_sval(TV_RING, "Black Ring of Power")));
+
+            /* Allocate by hand, prep, apply magic */
+            obj = object_new();
+            object_prep(p, obj, drop->kind, level, RANDOMISE);
+
+            /* Hack -- "Nine rings for mortal men doomed to die" */
+            if (drop_nazgul)
             {
-                int i;
-
-                /* Make it a randart */
-                for (i = z_info->a_max; i < z_info->a_max + 9; i++)
+                /* Only if allowed */
+                if (p && cfg_random_artifacts)
                 {
-                    /* Attempt to change the object into a random artifact */
-                    if (!create_randart_drop(p, c, &obj, i, false)) continue;
+                    int i;
 
-                    /* Success */
-                    ok = true;
-                    break;
+                    /* Make it a randart */
+                    for (i = z_info->a_max; i < z_info->a_max + 9; i++)
+                    {
+                        /* Attempt to change the object into a random artifact */
+                        if (!create_randart_drop(p, c, &obj, i, false)) continue;
+
+                        /* Success */
+                        ok = true;
+                        break;
+                    }
                 }
             }
-        }
 
-        /* Drop an object */
+            /* Drop an object */
+            else
+            {
+                apply_magic(p, c, obj, level, true, good, great, extra_roll);
+                ok = true;
+            }
+        }
         else
         {
-            apply_magic(p, c, obj, level, true, good, great, extra_roll);
+            /* Choose by set tval */
+            my_assert(drop->tval);
+            obj = make_object(p, c, level, good, great, extra_roll, NULL, drop->tval);
             ok = true;
         }
 

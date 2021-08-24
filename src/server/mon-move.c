@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke (attacking code)
  * Copyright (c) 1997 Ben Harrison, David Reeve Sward, Keldon Jones (AI routines).
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -56,7 +56,7 @@ static bool can_path_player(struct player *p, const struct monster *mon, struct 
     int m;
 
     /* If player is in LOS, there's no need to go around walls */
-    if (projectable_wall(c, y1, x1, y2, x2)) return true;
+    if (projectable(c, y1, x1, y2, x2, PROJECT_NONE, false)) return true;
 
     /* Analyze "dy" */
     if (y2 < y1)
@@ -859,7 +859,7 @@ static bool get_move_find_hiding(struct player *p, struct chunk *c, struct monst
             if (!square_isemptyfloor(c, y, x)) continue;
 
             /* Check for hidden, available grid */
-            if (!square_isview(p, y, x) && projectable(c, fy, fx, y, x, PROJECT_STOP))
+            if (!square_isview(p, y, x) && projectable(c, fy, fx, y, x, PROJECT_STOP, true))
             {
                 /* Calculate distance from player */
                 dis = distance(y, x, py, px);
@@ -1277,7 +1277,7 @@ static bool monster_turn_multiply(struct chunk *c, struct monster *mon)
 
     /* Multiply slower in crowded areas */
     /* Hack -- multiply even more slowly on no_recall servers */
-    if (cfg_diving_mode == 2)
+    if (cfg_diving_mode == 3)
         allow_breed = ((k < 4) && one_in_((k + 1) * z_info->repro_monster_rate * 2));
     else
         allow_breed = ((k < 4) && (!k || one_in_(k * z_info->repro_monster_rate)));
@@ -1872,7 +1872,8 @@ static void monster_turn_move(struct source *who, struct chunk *c, struct monste
 
         /* Possible disturb */
         if (!who->monster && monster_is_visible(who->player, mon->midx) &&
-            monster_is_in_view(who->player, mon->midx) && OPT(who->player, disturb_near))
+            monster_is_in_view(who->player, mon->midx) && OPT(who->player, disturb_near) &&
+            !who->player->firing_request)
         {
             /* Disturb (except townies, friendlies and hidden mimics) */
             if ((mon->level > 0) && pvm_check(who->player, mon) && !monster_is_camouflaged(mon))
@@ -2575,25 +2576,21 @@ static bool player_invis(struct player *p, struct monster *mon)
     if (monster_is_invisible(mon->race)) return false;
 
     mlv = (s16b)mon->level;
-    if (rf_has(mon->race->flags, RF_NO_SLEEP)) mlv += 5;
-    if (rf_has(mon->race->flags, RF_DRAGON)) mlv += 10;
-    if (rf_has(mon->race->flags, RF_UNDEAD)) mlv += 12;
-    if (rf_has(mon->race->flags, RF_DEMON)) mlv += 10;
-    if (rf_has(mon->race->flags, RF_ANIMAL)) mlv += 3;
+    if (rf_has(mon->race->flags, RF_NO_SLEEP)) mlv += 10;
+    if (rf_has(mon->race->flags, RF_DRAGON)) mlv += 20;
+    if (rf_has(mon->race->flags, RF_UNDEAD)) mlv += 15;
+    if (rf_has(mon->race->flags, RF_DEMON)) mlv += 15;
+    if (rf_has(mon->race->flags, RF_ANIMAL)) mlv += 15;
     if (rf_has(mon->race->flags, RF_ORC)) mlv -= 15;
     if (rf_has(mon->race->flags, RF_TROLL)) mlv -= 10;
     if (monster_is_stupid(mon->race)) mlv /= 2;
     if (monster_is_smart(mon->race)) mlv = (mlv * 5) / 4;
     if (monster_is_unique(mon->race)) mlv *= 2;
+    if ((p->timed[TMD_INVIS] == -1) && !p->ghost) mlv = (mlv * 7) / 10;
     if (mlv < 0) mlv = 0;
 
     /* High level monsters can't be fooled */
     if (mlv > p->lev) return false;
-
-    /* Monsters can sometimes see invisible players */
-    /* 1 every 100 game turns at max */
-    /* This will act like a super slow monster effect */
-    if (CHANCE(mlv, p->lev * 100)) return false;
 
     /* Player is invisible */
     return true;

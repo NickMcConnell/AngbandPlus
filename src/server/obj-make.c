@@ -3,7 +3,7 @@
  * Purpose: Object generation functions
  *
  * Copyright (c) 1987-2007 Angband contributors
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -925,7 +925,7 @@ static struct object *make_artifact_special(struct player *p, struct chunk *c, i
     struct object *new_obj = NULL;
 
     /* No artifacts, do nothing */
-    if (p && OPT(p, birth_no_artifacts)) return NULL;
+    if (p && (cfg_no_artifacts || OPT(p, birth_no_artifacts))) return NULL;
 
     /* No artifacts in the towns or on special levels */
     if (forbid_special(&c->wpos)) return NULL;
@@ -1137,7 +1137,7 @@ static bool make_artifact(struct player *p, struct chunk *c, struct object *obj)
     int i;
 
     /* Make sure birth no artifacts isn't set */
-    if (p && OPT(p, birth_no_artifacts)) return false;
+    if (p && (cfg_no_artifacts || OPT(p, birth_no_artifacts))) return false;
 
     /* No artifacts in the towns or on special levels */
     if (forbid_special(&c->wpos)) return false;
@@ -1394,8 +1394,8 @@ int apply_magic(struct player *p, struct chunk *c, struct object *obj, int lev,
     s16b power = 0;
 
     /* Chance of being `good` and `great` */
-    int good_chance = MIN(33 + lev, 100);
-    int great_chance = 30;
+    int good_chance = MIN(z_info->good_obj + lev, 100);
+    int great_chance = z_info->ego_obj;
 
     /* Normal magic ammo are always +0 +0 (not a "good" drop) */
     if (tval_is_ammo(obj) && of_has(obj->flags, OF_AMMO_MAGIC)) return ((good || great)? -1: 0);
@@ -1877,7 +1877,7 @@ struct object *make_gold(struct player *p, int lev, char *coin_type)
     object_prep(p, new_gold, money_kind(coin_type, value), lev, RANDOMISE);
 
     /* If we're playing with no_selling, increase the value */
-    if (p && OPT(p, birth_no_selling) && (p->wpos.depth > 0))
+    if (p && (cfg_no_selling || OPT(p, birth_no_selling)) && (p->wpos.depth > 0))
         value *= MIN(5, p->wpos.depth);
 
     /* Cap gold at max short (or alternatively make pvals s32b) */

@@ -7,7 +7,8 @@
 # owner: max purse : name (as many or few as you like >1)
 # turnover: turnover (how many items the store turns over)
 # slots: min : max (number of 'normal' slots to keep stocked)
-# normal: type name : item name (for the normal stocking list)
+# normal: type name : item name (for the normal stocking list) : rarity : price
+#         factor
 # always: type name : item name (for things to always stock)
 # buy: type name (base types the store will buy)
 # buy-flag: flag : type name (types to buy if the flag is present)
@@ -162,6 +163,7 @@ normal:potion:Heroism
 normal:potion:Neutralize Poison
 normal:potion:Cure Serious Wounds
 normal:potion:Cure Critical Wounds
+normal:potion:Healing:10:300
 buy:prayer book
 buy:scroll
 buy:potion
@@ -231,8 +233,8 @@ buy:rod
 buy:scroll
 buy:potion
 
-# House of Arcanes
-store:7:House of Arcanes
+# Bookseller
+store:7:Bookseller
 owner:15000:Yveen the Witch (Half-Elf)
 owner:20000:Narn the Short (Gnome)
 owner:25000:Lord X the Black (Human)
@@ -283,7 +285,7 @@ owner:15000:Eek the Yeek (Yeek)
 owner:20000:Zak the Kobold (Kobold)
 owner:25000:Fangorn the Treebeard (Ent)
 owner:30000:Lisa the Green (Thunderlord)
-slots:6:18
+slots:8:16
 turnover:9
 
 store:10:Tavern

@@ -3,7 +3,7 @@
  * Purpose: Savefile loading and saving main routines
  *
  * Copyright (c) 2009 Andi Sidwell <andi@takkaria.org>
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -66,7 +66,7 @@
 /*
  * Magic bits at beginning of savefile
  */
-static const byte savefile_magic[4] = {1, 1, 12, 3};
+static const byte savefile_magic[4] = {1, 2, 0, 1};
 static const byte savefile_name[4] = "PWMG";
 
 
@@ -1111,7 +1111,8 @@ static bool load_dungeon_special(void)
             struct wild_type *w_ptr = get_wt_info_at(y, x);
 
             /* Don't load special wilderness levels if no wilderness */
-            if (cfg_diving_mode && !((y == base_wpos()->wy) && (x == base_wpos()->wx))) continue;
+            if ((cfg_diving_mode > 1) && !((y == base_wpos()->wy) && (x == base_wpos()->wx)))
+                continue;
 
             for (i = 0; i < w_ptr->max_depth; i++)
             {
@@ -1124,7 +1125,7 @@ static bool load_dungeon_special(void)
                 if (is_quest(i)) continue;
 
                 /* Special static pre-designed towns are only used on no_recall or more_towns servers */
-                if ((cfg_diving_mode == 2) || cfg_more_towns)
+                if ((cfg_diving_mode == 3) || cfg_more_towns)
                 {
                     /* Build a file name */
                     strnfmt(levelname, sizeof(levelname), "server.town.%d.%d.%d", x, y, i);
@@ -1315,7 +1316,7 @@ bool random_level(struct worldpos *wpos)
 bool dynamic_town(struct worldpos *wpos)
 {
     /* Only on no_recall servers if there is no static pre-designed dungeon town loaded */
-    if (special_town(wpos) || (cfg_diving_mode < 2)) return false;
+    if (special_town(wpos) || (cfg_diving_mode < 3)) return false;
 
     /* Not in wilderness dungeons */
     if ((wpos->wy != base_wpos()->wy) || (wpos->wx != base_wpos()->wx)) return false;

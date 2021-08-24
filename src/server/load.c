@@ -3,7 +3,7 @@
  * Purpose: Savefile loading functions
  *
  * Copyright (c) 1997 Ben Harrison, and others
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -1061,7 +1061,8 @@ static int rd_stores_aux(rd_item_t rd_item_version)
     }
 
     /* Read the store orders */
-    for (i = 0; i < STORE_ORDERS; i++) rd_string(store_orders[i], NORMAL_WID);
+    rd_u16b(&tmp16u);
+    for (i = 0; i < tmp16u; i++) rd_string(store_orders[i], NORMAL_WID);
 
     /* Success */
     return 0;

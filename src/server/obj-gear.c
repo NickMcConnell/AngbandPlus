@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2014 Nick McConnell
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -453,7 +453,7 @@ bool inven_drop_okay(struct player *p, struct object *obj)
         (p->wpos.depth < obj->artifact->level) && !kf_has(obj->kind->kind_flags, KF_QUEST_ART))
     {
         /* Do not apply this rule to no_recall characters and DMs */
-        if ((cfg_diving_mode < 2) && !is_dm_p(p)) return false;
+        if ((cfg_diving_mode < 3) && !is_dm_p(p)) return false;
     }
 
     return true;
@@ -542,6 +542,7 @@ void inven_carry(struct player *p, struct object *obj, bool absorb, bool message
         my_assert(pack_slots_used(p) <= z_info->pack_size);
 
         gear_insert_end(p, obj);
+        apply_autoinscription(p, obj);
 
         /* Remove cave object details */
         obj->held_m_idx = 0;

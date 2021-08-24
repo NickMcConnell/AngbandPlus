@@ -8,7 +8,7 @@
 
 /*** Constants ***/
 
-#define STORE_ORDERS    6   /* Number of store orders allowed (should be equal to min XBM slots) */
+#define STORE_ORDERS    8   /* Number of store orders allowed (should be equal to min XBM slots) */
 
 enum
 {

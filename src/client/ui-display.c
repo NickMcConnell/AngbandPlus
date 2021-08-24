@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2007 Antony Sidwell
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -824,7 +824,7 @@ static void add_chat_message(char **msgs, const char *str, size_t *n, size_t *sz
  * a message is not truncated, it is split in multiple messages of length smaller than
  * NORMAL_WID - 5.
  */
-void display_chat_message(const char *msg, byte color, int h, int yoff, int *l, int *line)
+static void display_chat_message(const char *msg, byte color, int h, int yoff, int *l, int *line)
 {
     char words[MSG_LEN], *p;
     char buf[NORMAL_WID];
@@ -1197,17 +1197,17 @@ static int dump_spells(int book, int y, int col)
     Term_get_size(&w, &h);
 
     /* Check for end of the book */
-    while (spell_info[book][i].info[0] != '\0')
+    while (book_info[book].spell_info[i].info[0] != '\0')
     {
         /* End of terminal */
         if (y >= h) break;
 
         /* Dump the info */
-        line_attr = spell_info[book][i].flag.line_attr;
+        line_attr = book_info[book].spell_info[i].flag.line_attr;
         if ((line_attr == COLOUR_WHITE) || (line_attr == COLOUR_L_GREEN))
         {
             strnfmt(out_val, sizeof(out_val), "%c-%c) %s", I2A(book), I2A(i),
-                spell_info[book][i].info);
+                book_info[book].spell_info[i].info);
             c_prt(line_attr, out_val, y, col);
             y++;
         }

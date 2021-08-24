@@ -6,7 +6,7 @@
 #ifndef GAME_WORLD_H
 #define GAME_WORLD_H
 
-#define SERVER_SAVE     1       /* Minutes between server saves */
+#define SERVER_SAVE     10      /* Minutes between server saves */
 #define SERVER_PURGE    24      /* Hours between server purges */
 #define GROW_TREE       5000    /* How often to grow a new tree in the starting town */
 

@@ -2,7 +2,7 @@
  * File: party.c
  * Purpose: Support for the "party" system
  *
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -724,6 +724,9 @@ static bool remove_hostility(struct player *attacker, struct player *target, boo
  */
 bool pvp_check(struct player *attacker, struct player *target, int mode, bool silent, byte feat)
 {
+    /* Paranoia: we cannot be hostile toward self! */
+    if (attacker == target) return false;
+
     switch (mode)
     {
         case PVP_CHECK_ONE:

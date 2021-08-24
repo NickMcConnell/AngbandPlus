@@ -2,7 +2,7 @@
  * File: wilderness.c
  * Purpose: Wilderness generation
  *
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -302,10 +302,12 @@ static enum parser_error parse_town_feat_feat(struct parser *p)
     struct town_feat *h = parser_priv(p);
     struct town_feat *f = mem_zalloc(sizeof(*f));
     char sym = parser_getchar(p, "sym");
+    char spec = parser_getchar(p, "spec");
     int idx = lookup_feat(parser_getsym(p, "index"));
 
     f->next = h;
     f->symbol = sym;
+    f->special = spec;
     f->feat_idx = idx;
     parser_setpriv(p, f);
 
@@ -318,7 +320,7 @@ static struct parser *init_parse_town_feat(void)
     struct parser *p = parser_new();
 
     parser_setpriv(p, NULL);
-    parser_reg(p, "feat char sym sym index", parse_town_feat_feat);
+    parser_reg(p, "feat char sym char spec sym index", parse_town_feat_feat);
 
     return p;
 }
@@ -2954,7 +2956,8 @@ struct parse_town
 {
     int special_feat[2];    /* Special terrain features */
     int chance;             /* Chance of generating the second feature */
-    char *text;             /* Text */
+    char *map;              /* Symbols */
+    char *mask;             /* Special symbols */
 };
 
 
@@ -2971,21 +2974,35 @@ static enum parser_error parse_town_special(struct parser *p)
 }
 
 
-static enum parser_error parse_town_desc(struct parser *p)
+static enum parser_error parse_town_map(struct parser *p)
 {
     struct parse_town *t = parser_priv(p);
-    const char *desc;
+    const char *map;
 
     if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
-    desc = parser_getstr(p, "text");
-    if (strlen(desc) != (size_t)z_info->dungeon_wid) return PARSE_ERROR_INVALID_VALUE;
-    t->text = string_append(t->text, desc);
+    map = parser_getstr(p, "text");
+    if (strlen(map) != (size_t)z_info->dungeon_wid) return PARSE_ERROR_INVALID_VALUE;
+    t->map = string_append(t->map, map);
 
     return PARSE_ERROR_NONE;
 }
 
 
-static void get_town_file(char *buf, size_t len, const char *name)
+static enum parser_error parse_town_mask(struct parser *p)
+{
+    struct parse_town *t = parser_priv(p);
+    const char *mask;
+
+    if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    mask = parser_getstr(p, "text");
+    if (strlen(mask) != (size_t)z_info->dungeon_wid) return PARSE_ERROR_INVALID_VALUE;
+    t->mask = string_append(t->mask, mask);
+
+    return PARSE_ERROR_NONE;
+}
+
+
+void get_town_file(char *buf, size_t len, const char *name)
 {
     char *str;
 
@@ -3016,8 +3033,7 @@ static void wild_town_gen_layout(struct chunk *c)
     errr r;
     char town_file[20];
     struct parse_town *helper;
-    const char *data;
-    const char *t;
+    const char *sym, *spec;
     int i, x, y;
 
     u32b tmp_seed = Rand_value;
@@ -3025,7 +3041,8 @@ static void wild_town_gen_layout(struct chunk *c)
 
     parser_setpriv(p, NULL);
     parser_reg(p, "feat sym i1 sym i2 uint chance", parse_town_special);
-    parser_reg(p, "D str text", parse_town_desc);
+    parser_reg(p, "map str text", parse_town_map);
+    parser_reg(p, "mask str text", parse_town_mask);
     if (!p) quit_fmt("Cannot initialize town of %s.", town->name);
     get_town_file(town_file, sizeof(town_file), town->name);
     r = parse_file_quit_not_found(p, town_file);
@@ -3040,16 +3057,17 @@ static void wild_town_gen_layout(struct chunk *c)
     Rand_value = seed_wild + world_index(&c->wpos) * 600;
 
     /* Initialize */
-    data = helper->text;
-    for (t = data, y = 0; (y < z_info->dungeon_hgt) && *t; y++)
+    sym = helper->map;
+    spec = helper->mask;
+    for (y = 0; (y < z_info->dungeon_hgt) && *sym && *spec; y++)
     {
-        for (x = 0; (x < z_info->dungeon_wid) && *t; x++, t++)
+        for (x = 0; (x < z_info->dungeon_wid) && *sym && *spec; x++, sym++, spec++)
         {
             int feat = 0;
 
             for (i = 0; i < z_info->tf_max; i++)
             {
-                if (*t == tf_info[i].symbol)
+                if ((*sym == tf_info[i].symbol) && (*spec == tf_info[i].special))
                 {
                     feat = tf_info[i].feat_idx;
                     break;
@@ -3067,14 +3085,41 @@ static void wild_town_gen_layout(struct chunk *c)
                 }
             }
 
-            square_set_feat(c, y, x, feat);
+            /* Hack -- stairs */
+            if (feat == FEAT_MORE)
+            {
+                /* Place a staircase */
+                square_set_downstairs(c, y, x);
+
+                /* Hack -- the players start on the stairs while recalling */
+                square_set_join_rand(c, y, x);
+            }
+
+            /* Hack -- safe floor */
+            else if (feat == FEAT_FLOOR_SAFE)
+            {
+                /* Create the tavern, make it PvP-safe */
+                square_add_safe(c, y, x);
+
+                /* Declare this to be a room */
+                sqinfo_on(c->squares[y][x].info, SQUARE_GLOW);
+                sqinfo_on(c->squares[y][x].info, SQUARE_VAULT);
+                sqinfo_on(c->squares[y][x].info, SQUARE_ROOM);
+
+                /* Hack -- have everyone start in the tavern */
+                if (*sym == 'x') square_set_join_down(c, y, x);
+            }
+
+            else
+                square_set_feat(c, y, x, feat);
         }
     }
 
     /* Cleanup */
     if (helper)
     {
-        string_free(helper->text);
+        string_free(helper->map);
+        string_free(helper->mask);
         mem_free(helper);
     }
 

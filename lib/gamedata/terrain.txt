@@ -177,7 +177,7 @@ info:6:0
 desc:A shop for devices with magic trapped within, lined with shelves of
 desc: mystical tomes. 
 
-name:House of Arcanes
+name:Bookseller
 graphics:9:o
 priority:24
 flags:SHOP | PROJECT | PASSABLE | PERMANENT | INTERESTING | EASY
@@ -590,14 +590,14 @@ desc: safely apart from on your person. This is a closed door from such house.
 desc: Anything that can be sold in a Magic Shop can be dropped inside and
 desc: sold to other players.
 
-name:closed house door (House of Arcanes)
+name:closed house door (Bookseller)
 graphics:+:o
 priority:24
 flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
 info:7:0
 desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything that can be sold in a House of Arcanes can be dropped inside and
+desc: Anything that can be sold in a Bookseller's can be dropped inside and
 desc: sold to other players.
 
 name:closed house door (Black Market)

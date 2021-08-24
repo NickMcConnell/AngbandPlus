@@ -3,7 +3,7 @@
  * Purpose: Chest and door opening/closing, disarming, running, resting, ...
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -1440,9 +1440,9 @@ void move_player(struct player *p, struct chunk *c, int dir, bool disarm, bool c
         if (in_base_town(&p->wpos))
         {
             /* Forbid */
-            if (cfg_diving_mode || OPT(p, birth_no_recall))
+            if ((cfg_diving_mode > 1) || OPT(p, birth_no_recall))
             {
-                if (cfg_diving_mode)
+                if (cfg_diving_mode > 1)
                     msg(p, "There is a wall blocking your way.");
                 else
                     msg(p, ONE_OF(comment_ironman));
@@ -2332,7 +2332,7 @@ void do_cmd_purchase_house(struct player *p, int dir)
     }
 
     /* Restricted by choice */
-    if (OPT(p, birth_no_stores))
+    if (cfg_no_stores || OPT(p, birth_no_stores))
     {
         /* Message */
         msg(p, "You cannot buy a house.");
@@ -2831,7 +2831,7 @@ bool create_house(struct player *p)
     }
 
     /* Restricted by choice */
-    if (OPT(p, birth_no_stores))
+    if (cfg_no_stores || OPT(p, birth_no_stores))
     {
         msg(p, "You cannot create or extend houses.");
         return false;
@@ -3150,7 +3150,7 @@ bool build_house(struct player *p)
     }
 
     /* Restricted by choice */
-    if (OPT(p, birth_no_stores))
+    if (cfg_no_stores || OPT(p, birth_no_stores))
     {
         msg(p, "You cannot create or extend houses.");
         return false;

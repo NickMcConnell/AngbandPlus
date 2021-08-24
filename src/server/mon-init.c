@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison
  * Copyright (c) 2011 noz
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -1510,6 +1510,33 @@ static enum parser_error parse_monster_drop(struct parser *p)
 }
 
 
+static enum parser_error parse_monster_drop_base(struct parser *p)
+{
+    struct monster_race *r = parser_priv(p);
+    struct monster_drop *d;
+    int tval;
+
+    if (!r) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    tval = tval_find_idx(parser_getsym(p, "tval"));
+    if (tval < 0) return PARSE_ERROR_UNRECOGNISED_TVAL;
+
+    if ((parser_getuint(p, "min") > (unsigned int)kb_info[tval].max_stack) ||
+        (parser_getuint(p, "max") > (unsigned int)kb_info[tval].max_stack))
+    {
+        return PARSE_ERROR_INVALID_ITEM_NUMBER;
+    }
+
+    d = mem_zalloc(sizeof(*d));
+    d->tval = tval;
+    d->percent_chance = parser_getuint(p, "chance");
+    d->min = parser_getuint(p, "min");
+    d->max = parser_getuint(p, "max");
+    d->next = r->drops;
+    r->drops = d;
+    return PARSE_ERROR_NONE;
+}
+
+
 static enum parser_error parse_monster_friends(struct parser *p)
 {
     struct monster_race *r = parser_priv(p);
@@ -1634,6 +1661,7 @@ static struct parser *init_parse_monster(void)
     parser_reg(p, "spell-power uint power", parse_monster_spell_power);
     parser_reg(p, "spells str spells", parse_monster_spells);
     parser_reg(p, "drop sym tval sym sval uint chance uint min uint max", parse_monster_drop);
+    parser_reg(p, "drop-base sym tval uint chance uint min uint max", parse_monster_drop_base);
     parser_reg(p, "friends uint chance rand number str name", parse_monster_friends);
     parser_reg(p, "friends-base uint chance rand number str name", parse_monster_friends_base);
     parser_reg(p, "mimic sym tval sym sval", parse_monster_mimic);

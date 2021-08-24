@@ -2,7 +2,7 @@
  * File: control.c
  * Purpose: Support for the "remote console"
  *
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -53,7 +53,7 @@ static void console_help(int ind, char *name);
 
 static console_command_ops console_commands[] =
 {
-    {"help", console_help, 0, "[TOPIC]\nExplain a command or list all avaliable"},
+    {"help", console_help, 0, "[TOPIC]\nExplain a command or list all available"},
     {"listen", console_listen, 0, "[CHANNEL]\nAttach self to #public or specified"},
     {"who", console_who, 0, "\nList players"},
     {"shutdown", console_shutdown, 0, "\nKill server"},
@@ -316,9 +316,9 @@ static void console_who(int ind, char *dummy)
 
         /* Challenge options */
         strnfmt(brave, sizeof(brave), "a%s%s%s level",
-            OPT(p, birth_no_ghost)? " brave": "",
-            OPT(p, birth_no_recall)? " hardcore": "",
-            OPT(p, birth_force_descend)? " diving": "");
+            (OPT(p, birth_no_ghost) && !cfg_no_ghost)? " brave": "",
+            (OPT(p, birth_no_recall) && (cfg_diving_mode < 3))? " hardcore": "",
+            (OPT(p, birth_force_descend) && (cfg_limit_stairs < 3))? " diving": "");
 
         if (OPT(p, birth_fruit_bat)) batty = "(batty) ";
 
@@ -395,9 +395,9 @@ static void console_whois(int ind, char *name)
 
     /* Output player information */
     strnfmt(brave, sizeof(brave), "a%s%s%s level",
-        OPT(p, birth_no_ghost)? " brave": "",
-        OPT(p, birth_no_recall)? " hardcore": "",
-        OPT(p, birth_force_descend)? " diving": "");
+        (OPT(p, birth_no_ghost) && !cfg_no_ghost)? " brave": "",
+        (OPT(p, birth_no_recall) && (cfg_diving_mode < 3))? " hardcore": "",
+        (OPT(p, birth_force_descend) && (cfg_limit_stairs < 3))? " diving": "");
     if (OPT(p, birth_fruit_bat)) batty = "(batty) ";
 
     /* General character description */

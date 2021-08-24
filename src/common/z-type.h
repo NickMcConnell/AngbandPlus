@@ -111,6 +111,8 @@ enum grid_light_level
 typedef byte byte_lit[LIGHTING_MAX];
 typedef char char_lit[LIGHTING_MAX];
 
+typedef char char_note[4];
+
 /* The setup data that the client transmits to the server */
 typedef struct
 {
@@ -127,6 +129,7 @@ typedef struct
     char *r_char;
     byte proj_attr[PROJ_MAX][BOLT_MAX];
     char proj_char[PROJ_MAX][BOLT_MAX];
+    char (*note_aware)[4];
 } client_setup_t;
 
 extern client_setup_t Client_setup;
@@ -251,6 +254,8 @@ struct angband_constants
 
     /* Object creation constants, read from constants.txt */
     u16b max_obj_depth;         /* Maximum depth used in object allocation */
+    u16b good_obj;              /* Chance of object being "good" */
+    u16b ego_obj;               /* Chance of object being "great" */
     u16b great_obj;             /* 1/chance of inflating the requested object level */
     u16b great_ego;             /* 1/chance of inflating the requested ego item level */
     u16b fuel_torch;            /* Maximum amount of fuel in a torch */

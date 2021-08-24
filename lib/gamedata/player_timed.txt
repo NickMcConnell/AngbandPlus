@@ -326,6 +326,13 @@ on-decrease:You feel less safe from traps.
 near-begin: appears stealthy.
 near-end: appears less stealthy.
 
+name:BLACKBREATH
+#desc:black breath
+on-begin:You are overcome by the Black Breath!
+on-end:The Black Shadow lifts.
+near-begin: appears deathly sick.
+near-end: appears more healthy.
+
 # PWMAngband
 
 name:WRAITHFORM

@@ -246,6 +246,9 @@ wild_feat.txt
 wild_info.txt
   This file contains the layout for the metamap.
 
+dragon_breed.txt
+  This file contains information about dragon breeds.
+
 
 Larger changes
 ==============

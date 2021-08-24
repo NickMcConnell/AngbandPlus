@@ -5,7 +5,7 @@
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2009 Brian Bull
  * Copyright (c) 2016 Nick McConnell
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -1824,6 +1824,7 @@ static void object_flavor_aware_aux(struct player *p, struct object *obj, bool s
     /* Fully aware of the effects */
     p->obj_aware[obj->kind->kidx] = true;
     if (send) Send_aware(p, obj->kind->kidx);
+    apply_autoinscription(p, obj);
 
     /* A bunch of things are now known */
     obj->known->pval = 1;

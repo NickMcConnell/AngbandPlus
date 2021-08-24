@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, Skirmantas Kligys, Robert Ruehlmann,
  * and others
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -160,12 +160,6 @@
 static bool resizing;
 
 /*
- * Hack -- size of chat window
- */
-static uint chat_wid;
-static uint chat_hgt;
-
-/*
  * An array of term_data's
  */
 static term_data data[MAX_TERM_DATA];
@@ -180,7 +174,7 @@ static term_data *my_td;
  */
 static HWND editmsg;
 static HWND old_focus = NULL;
-static LONG FAR PASCAL SubClassFunc(HWND hWnd, WORD Message, WORD wParam, LONG lParam);
+static LRESULT APIENTRY SubClassFunc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 static WNDPROC lpfnOldWndProc;
 
 /*
@@ -426,7 +420,7 @@ static void check_window_size(term_data *td)
 }
 
 
-static void stretch_chat_ctrl(void)
+static void stretch_chat_ctrl_win(uint chat_wid, uint chat_hgt)
 {
     /* Resize the edit control */
     SetWindowPos(editmsg, 0, 2, chat_hgt - 21, chat_wid - 6, 20, SWP_NOZORDER);
@@ -518,12 +512,7 @@ static void term_getsize(term_data *td)
     window_size_wh(td, td->cols, td->rows, &wid, &hgt);
 
     /* Window sizes */
-    if (td == &data[PMSG_TERM])
-    {
-        chat_wid = wid;
-        chat_hgt = hgt;
-        stretch_chat_ctrl();
-    }
+    if (td == &data[PMSG_TERM]) stretch_chat_ctrl_win(wid, hgt);
 
     /* Client window size */
     rc.left = 0;
@@ -2321,6 +2310,7 @@ static void init_windows(void)
     MENUITEMINFO mii;
     HMENU hm;
     graphics_mode *mode;
+    uint wid, hgt;
 
     /* Main window */
     td = &data[0];
@@ -2421,19 +2411,17 @@ static void init_windows(void)
     }
 
     /* Chat window */
+    td = &data[PMSG_TERM];
+    window_size_wh(td, td->cols, td->rows, &wid, &hgt);
     editmsg = CreateWindowEx(WS_EX_STATICEDGE, "EDIT", NULL,
-        WS_CHILD | ES_AUTOHSCROLL | ES_OEMCONVERT | WS_VISIBLE, 2, chat_hgt - 24, chat_wid - 8, 20,
+        WS_CHILD | ES_AUTOHSCROLL | ES_OEMCONVERT | WS_VISIBLE, 2, hgt - 24, wid - 8, 20,
         data[PMSG_TERM].w, NULL, hInstance, NULL);
     editfont = CreateFont(16, 0, 0, 0, FW_NORMAL, false, false, false, ANSI_CHARSET,
         OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, DEFAULT_PITCH, "Arial");
     SendMessage(editmsg, WM_SETFONT, (int)editfont, (int)NULL);
-    stretch_chat_ctrl();
+    stretch_chat_ctrl_win(wid, hgt);
     SendMessage(editmsg, EM_LIMITTEXT, 590, 0L);
-#ifdef _WIN64
-    lpfnOldWndProc = (WNDPROC)SetWindowLongPtr(editmsg, GWLP_WNDPROC, SubClassFunc);
-#else
-    lpfnOldWndProc = (WNDPROC)SetWindowLongPtr(editmsg, GWLP_WNDPROC, (LONG)(SubClassFunc));
-#endif
+    lpfnOldWndProc = (WNDPROC)SetWindowLongPtr(editmsg, GWLP_WNDPROC, (DWORD)(SubClassFunc));
 
     /* Main window */
     td = &data[0];
@@ -3383,11 +3371,7 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LP
         /* XXX XXX XXX */
         case WM_NCCREATE:
         {
-#ifdef _WIN64
-            SetWindowLongPtr(hWnd, GWLP_USERDATA, my_td);
-#else
             SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG)(my_td));
-#endif
             break;
         }
 
@@ -3692,11 +3676,7 @@ static LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
         /* XXX XXX XXX */
         case WM_NCCREATE:
         {
-#ifdef _WIN64
-            SetWindowLongPtr(hWnd, GWLP_USERDATA, my_td);
-#else
             SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG)(my_td));
-#endif
             break;
         }
 
@@ -3739,9 +3719,9 @@ static LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
             lpmmi = (MINMAXINFO FAR *)lParam;
 
-            /* Minimum window size is 40x12 */
+            /* Minimum window size is 16x4 */
             rc.left = rc.top = 0;
-            window_size_wh(td, NORMAL_WID / 2, NORMAL_HGT / 2, &wid, &hgt);
+            window_size_wh(td, NORMAL_WID / 5, NORMAL_HGT / 5, &wid, &hgt);
             rc.right = rc.left + wid;
             rc.bottom = rc.top + hgt;
 
@@ -3819,6 +3799,14 @@ static LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
                 /* Redraw later */
                 InvalidateRect(td->w, NULL, true);
+
+                if (td == &data[PMSG_TERM])
+                {
+                    uint wid, hgt;
+
+                    window_size_wh(td, td->cols, td->rows, &wid, &hgt);
+                    stretch_chat_ctrl_win(wid, hgt);
+                }
 
                 /* Hack -- redraw all windows */
                 if (Setup.initialized) do_cmd_redraw();
@@ -4196,7 +4184,7 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 
 
 /* Hack -- edit control subclass */
-static LONG FAR PASCAL SubClassFunc(HWND hWnd, WORD Message, WORD wParam, LONG lParam)
+static LRESULT APIENTRY SubClassFunc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
     char pmsgbuf[1000]; /* overkill */
     char pmsg[60];

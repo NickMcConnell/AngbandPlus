@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2007 Leon Marrick
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -179,7 +179,7 @@ static bool auto_pickup_okay(struct player *p, struct object *obj)
         return false;
 
     /* Restricted by choice */
-    if (obj->artifact && OPT(p, birth_no_artifacts))
+    if (obj->artifact && (cfg_no_artifacts || OPT(p, birth_no_artifacts)))
         return false;
 
     /* It can't be carried */
@@ -270,7 +270,7 @@ static bool allow_pickup_object(struct player *p, struct object *obj)
         return false;
 
     /* Restricted by choice */
-    if (obj->artifact && OPT(p, birth_no_artifacts))
+    if (obj->artifact && (cfg_no_artifacts || OPT(p, birth_no_artifacts)))
         return false;
 
     /* Restricted by choice */
@@ -391,11 +391,8 @@ static bool floor_purchase(struct player *p, struct chunk *c, int pickup, struct
         /* Perform the transaction */
         p->au -= price;
         p->upkeep->redraw |= PR_GOLD;
-        if (!OPT(q, birth_no_selling))
-        {
-            q->au += price;
-            q->upkeep->redraw |= PR_GOLD;
-        }
+        q->au += price;
+        q->upkeep->redraw |= PR_GOLD;
 
         /* Know original object */
         object_notice_everything(p, obj);
@@ -409,8 +406,7 @@ static bool floor_purchase(struct player *p, struct chunk *c, int pickup, struct
 
         /* Message */
         msg(p, "You bought %s for %d gold.", o_name, price);
-        if (!OPT(q, birth_no_selling))
-            msg(q, "You sold %s for %d gold.", o_name, price);
+        msg(q, "You sold %s for %d gold.", o_name, price);
 
         /* Erase the inscription */
         obj->note = 0;
@@ -547,7 +543,7 @@ byte player_pickup_item(struct player *p, struct chunk *c, int pickup, struct ob
             }
 
             /* Restricted by choice */
-            if (obj->artifact && OPT(p, birth_no_artifacts))
+            if (obj->artifact && (cfg_no_artifacts || OPT(p, birth_no_artifacts)))
             {
                 msg(p, "You cannot pick up that item.");
                 mem_free(floor_list);

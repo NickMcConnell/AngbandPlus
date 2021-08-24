@@ -3,7 +3,7 @@
  * Purpose: The project() function and helpers
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -366,8 +366,11 @@ int project_path(struct player *p, struct loc *gp, int range, struct chunk *c, i
  *
  * This function is used to determine if the player can (easily) target
  * a given grid.
+ *
+ * If 'nowall' is false, we allow targets to be in walls, otherwise wraithed players/ghosts
+ * would be safe from monster spells!
  */
-bool projectable(struct chunk *c, int y1, int x1, int y2, int x2, int flg)
+bool projectable(struct chunk *c, int y1, int x1, int y2, int x2, int flg, bool nowall)
 {
     int y, x;
     int grid_n = 0;
@@ -384,42 +387,7 @@ bool projectable(struct chunk *c, int y1, int x1, int y2, int x2, int flg)
     x = grid_g[grid_n - 1].x;
 
     /* May not end in a wall grid */
-    if (!square_ispassable(c, y, x)) return false;
-
-    /* May not end in an unrequested grid */
-    if ((y != y2) || (x != x2)) return false;
-
-    /* Assume okay */
-    return true;
-}
-
-
-/*
- * Determine if a bolt spell cast from (y1,x1) to (y2,x2) will arrive
- * at the final destination, assuming that no monster gets in the way,
- * using the "project_path()" function to check the projection path.
- *
- * Note that no grid is ever "projectable()" from itself.
- *
- * This function is used to determine if a monster can target the player.
- * The target can be in a wall... otherwise wraithed players/ghosts would be safe
- * from monster spells!
- */
-bool projectable_wall(struct chunk *c, int y1, int x1, int y2, int x2)
-{
-    int y, x;
-    int grid_n = 0;
-    struct loc grid_g[512];
-
-    /* Check the projection path */
-    grid_n = project_path(NULL, grid_g, z_info->max_range, c, y1, x1, y2, x2, 0);
-
-    /* No grid is ever projectable from itself */
-    if (!grid_n) return false;
-
-    /* Final grid */
-    y = grid_g[grid_n - 1].y;
-    x = grid_g[grid_n - 1].x;
+    if (nowall && !square_ispassable(c, y, x)) return false;
 
     /* May not end in an unrequested grid */
     if ((y != y2) || (x != x2)) return false;
@@ -785,8 +753,12 @@ bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int
                 int m_idx;
                 bool collected = false;
 
+                /* PWMAngband: BALL attacks should also be applied to wraithed players */
+                bool proj_wall = (origin->target && (origin->target->py == ny) &&
+                    (origin->target->px == nx));
+
                 /* Hack -- balls explode before reaching walls */
-                if (!square_ispassable(cv, ny, nx) && (rad > 0)) break;
+                if (!square_ispassable(cv, ny, nx) && (rad > 0) && !proj_wall) break;
 
                 /* Advance */
                 y = ny;
@@ -898,6 +870,10 @@ bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int
         {
             for (x = centre.x - rad; x <= centre.x + rad; x++)
             {
+                /* PWMAngband: BREATH attacks should also be applied to wraithed players */
+                bool proj_wall = (origin->target && (origin->target->py == y) &&
+                    (origin->target->px == x));
+
                 /* Center grid has already been stored. */
                 if ((y == centre.y) && (x == centre.x)) continue;
 
@@ -914,7 +890,7 @@ bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int
                  * All explosions can affect one layer of terrain which is
                  * passable but not projectable.
                  */
-                if ((flg & PROJECT_THRU) || square_ispassable(cv, y, x))
+                if ((flg & PROJECT_THRU) || square_ispassable(cv, y, x) || proj_wall)
                 {
                     /* If this is a wall grid, ... */
                     if (!square_isprojectable(cv, y, x))

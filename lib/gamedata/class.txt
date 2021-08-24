@@ -25,9 +25,12 @@
 # equip:tval:sval:min:max:no_recall
 # flags:class flags
 # title:title
-# realm:realm
 # magic:spell_first:spell_weight:num_books
-# book:tval:sval:spells:realm
+# book:tval:quality:name:spells:realm
+# book-graphics:symbol:color
+# book-properties:depth:weight:cost
+# book-alloc:commonness:min to max
+# book-desc:description
 # spell:name:level:mana:fail:exp:sproj
 # effect:effect:parameter (if needed):parameter (if needed)
 # param:parameter:parameter (if needed)
@@ -75,17 +78,35 @@
 
 # 'title' is for class titles.
 
-# 'realm' (if it is present) is for magic realm
-
 # 'magic' is for general magic info - level of the first spell, weight that
 # hurts spells, number of books used.
 
-# 'book' defines one of these books - object base, object kind, number of
-# spells, book realm. 'spell:' lines always refer to spells in the previous
-# 'book:' line
+# 'book' defines one of these books - object base, whether a town or a dungeon
+# book, name, number of spells, book realm. A book needs to be defined for
+# each class which uses it, as otherwise it is not recognised as one of that
+# class's books.
+
+# 'book-graphics' is for symbol and color as used in object.txt.
+# 'book-graphics:' lines refer to the previous book line, and need not be
+# included if a book of the same name has been defined earlier.
+
+# 'book-properties' is for level, weight and cost.
+# weight is in tenth-pounds; cost is the item's base value.
+# 'book-properties:' lines refer to the previous book line, and need not be
+# included if a book of the same name has been defined earlier.
+
+# 'book-alloc' is for allocation - commonness, and minimum and maximum depths
+# of occurrence.
+# 'book-alloc:' lines refer to the previous book line, and need not be
+# included if a book of the same name has been defined earlier.
+
+# 'book-desc' is for description.
+# 'book-desc:' lines refer to the previous book line, and need not be
+# included if a book of the same name has been defined earlier.
 
 # 'spell' defines an individual spell - name, level, mana required,
-# fail-rate, experience for first casting. The lines below are all used in
+# fail-rate, experience for first casting. 'spell:' lines always refer to
+# spells in the previous 'book:' line. The lines below are all used in
 # reference to the previous 'spell:' line.
 # PWMAngband: the sproj tells if the spell is projectable on others
 
@@ -168,7 +189,6 @@ info:1:30
 attack:4:40:2
 equip:food:Ration of Food:1:3:1
 equip:light:Wooden Torch:1:3:1
-equip:magic book:[Magic for Beginners]:1:1:1
 equip:sword:Dagger:1:1:1
 equip:scroll:Word of Recall:1:1:0
 flags:CUMBER_GLOVE | ZERO_FAIL | BEAM | CHOOSE_SPELLS
@@ -183,10 +203,14 @@ title:Warlock
 title:Sorcerer
 title:Arch-Mage
 
-realm:arcane
 magic:1:300:9
 
-book:magic book:[Magic for Beginners]:6:1
+book:magic book:town:[Magic for Beginners]:6:arcane
+book-graphics:?:R
+book-properties:1:30:25
+book-alloc:40:1 to 100
+book-desc:A standard spellbook with a few spells.
+equip:magic book:[Magic for Beginners]:1:1:1
 
 spell:Magic Missile:1:1:22:4:0
 effect:BOLT_OR_BEAM:MISSILE:-10
@@ -237,7 +261,11 @@ expr:B:PLAYER_LEVEL:/ 2 + 10
 msg_other: fires a stinking cloud.
 desc:Shoots a radius-2 poison ball.
 
-book:magic book:[Conjurings and Tricks]:9:1
+book:magic book:town:[Conjurings and Tricks]:9:arcane
+book-graphics:?:R
+book-properties:5:30:100
+book-alloc:40:5 to 100
+book-desc:A standard spellbook with a few spells.
 
 spell:Confuse Monster:5:4:30:4:0
 effect:BOLT_AWARE:MON_CONF
@@ -299,7 +327,11 @@ dice:$B+1d100
 expr:B:PLAYER_LEVEL:/ 5
 desc:Invokes a random spell effect.
 
-book:magic book:[Incantations and Illusions]:9:1
+book:magic book:town:[Incantations and Illusions]:9:arcane
+book-graphics:?:R
+book-properties:10:30:400
+book-alloc:40:10 to 100
+book-desc:A standard spellbook with a few spells.
 
 spell:Satisfy Hunger:9:7:45:8:0
 effect:SET_NOURISH
@@ -369,7 +401,11 @@ dice:20
 msg_other: makes a lengthy gesture.
 desc:Attempts to slow down a single monster.
 
-book:magic book:[Sorcery and Evocations]:6:1
+book:magic book:town:[Sorcery and Evocations]:6:arcane
+book-graphics:?:R
+book-properties:20:30:800
+book-alloc:40:20 to 100
+book-desc:A standard spellbook with a few spells.
 
 spell:Frost Ball:19:6:55:8:0
 effect:BALL:COLD:2
@@ -410,7 +446,11 @@ effect:DETECT_TREASURES
 dice:22d40
 desc:Detects all treasure in the immediate area.
 
-book:magic book:[Resistances of Scarabtarices]:5:1
+book:magic book:dungeon:[Resistances of Scarabtarices]:5:arcane
+book-graphics:?:r
+book-properties:40:30:10000
+book-alloc:15:40 to 100
+book-desc:An advanced spellbook with a few spells.
 
 spell:Resist Cold:10:5:50:10:0
 effect:TIMED_INC:OPP_COLD
@@ -447,7 +487,11 @@ effect:TIMED_INC:SHIELD
 dice:30+1d20
 desc:Grants you +50 to AC for 30+1d20 turns.
 
-book:magic book:[Raal's Tome of Destruction]:7:1
+book:magic book:dungeon:[Raal's Tome of Destruction]:7:arcane
+book-graphics:?:r
+book-properties:50:30:20000
+book-alloc:15:50 to 100
+book-desc:An advanced spellbook with a few spells.
 
 spell:Shock Wave:16:5:40:6:0
 effect:BALL:SOUND:2
@@ -508,7 +552,11 @@ msg_other: fires a gravity beam.
 desc:Fires a gravity beam that hurts each monster in its path
 desc: and has a chance of teleporting it away.
 
-book:magic book:[Mordenkainen's Escapes]:5:1
+book:magic book:dungeon:[Mordenkainen's Escapes]:5:arcane
+book-graphics:?:r
+book-properties:60:30:30000
+book-alloc:15:60 to 100
+book-desc:An advanced spellbook with a few spells.
 
 spell:Door Creation:13:9:40:12:0
 effect:TOUCH:MAKE_DOOR
@@ -546,7 +594,11 @@ desc: Higher level monsters are more likely to break the glyph.
 desc: The glyph will remain where it is, until a monster succeeds in
 desc: breaking it or until you leave the level.
 
-book:magic book:[Tenser's Transformations]:3:1
+book:magic book:dungeon:[Tenser's Transformations]:3:arcane
+book-graphics:?:r
+book-properties:70:30:50000
+book-alloc:15:70 to 100
+book-desc:An advanced spellbook with a few spells.
 
 spell:Greater Recharging:30:30:95:100:0
 effect:RECHARGE
@@ -573,7 +625,11 @@ desc:Grants you resistance against non-physical attacks.
 desc: The shield absorbs a percentage of damage from such attacks
 desc: equal to your character level.
 
-book:magic book:[Kelek's Grimoire of Power]:8:1
+book:magic book:dungeon:[Kelek's Grimoire of Power]:8:arcane
+book-graphics:?:r
+book-properties:90:30:90000
+book-alloc:10:90 to 100
+book-desc:An advanced spellbook with a few spells.
 
 spell:Earthquake:20:18:60:20:0
 effect:EARTHQUAKE
@@ -661,7 +717,6 @@ info:2:20
 attack:4:35:3
 equip:food:Ration of Food:1:3:1
 equip:light:Wooden Torch:1:3:1
-equip:prayer book:[Beginners Handbook]:1:1:1
 equip:hafted:Mace:1:1:1
 equip:potion:Cure Serious Wounds:2:2:1
 equip:scroll:Word of Recall:1:1:0
@@ -677,10 +732,14 @@ title:Bishop
 title:Prophet
 title:Patriarch
 
-realm:divine
 magic:1:350:9
 
-book:prayer book:[Beginners Handbook]:6:2
+book:prayer book:town:[Beginners Handbook]:6:divine
+book-graphics:?:G
+book-properties:1:30:25
+book-alloc:40:1 to 100
+book-desc:A standard holy book with a few prayers.
+equip:prayer book:[Beginners Handbook]:1:1:1
 
 spell:Detect Evil:1:1:10:4:0
 effect:DETECT_EVIL
@@ -722,7 +781,11 @@ effect:TIMED_DEC:POISONED
 param:2
 desc:Halves the remaining duration of any current poisoning.
 
-book:prayer book:[Words of Wisdom]:8:2
+book:prayer book:town:[Words of Wisdom]:8:divine
+book-graphics:?:G
+book-properties:5:30:100
+book-alloc:40:5 to 100
+book-desc:A standard holy book with a few prayers.
 
 spell:Scare Monster:5:4:29:3:0
 effect:BOLT_AWARE:TURN_ALL
@@ -776,7 +839,11 @@ effect:TIMED_INC:OPP_FIRE
 dice:10+1d10
 desc:Gives you temporary resistance to cold and fire, for 10+1d10 turns each.
 
-book:prayer book:[Chants and Blessings]:9:2
+book:prayer book:town:[Chants and Blessings]:9:divine
+book-graphics:?:G
+book-properties:10:30:400
+book-alloc:40:10 to 100
+book-desc:A standard holy book with a few prayers.
 
 spell:Neutralize Poison:9:6:38:4:0
 effect:CURE:POISONED
@@ -853,7 +920,11 @@ msg_other: tries to turn undead.
 desc:Attempts to scare each undead monster within line of sight,
 desc: causing it to flee in terror for a level-dependent duration.
 
-book:prayer book:[Exorcism and Dispelling]:6:2
+book:prayer book:town:[Exorcism and Dispelling]:6:divine
+book-graphics:?:G
+book-properties:20:30:800
+book-alloc:40:20 to 100
+book-desc:A standard holy book with a few prayers.
 
 spell:Prayer:15:14:50:5:0
 effect:TIMED_INC:BLESSED
@@ -915,7 +986,11 @@ desc:Inflicts unresistable damage on each evil monster within line of sight,
 desc: cures 1000 points of damage, cures all stunning, heals all cut damage,
 desc: neutralizes poison, cures amnesia, and removes fear.
 
-book:prayer book:[Ethereal Openings]:6:2
+book:prayer book:dungeon:[Ethereal Openings]:6:divine
+book-graphics:?:g
+book-properties:40:30:10000
+book-alloc:15:40 to 100
+book-desc:An advanced holy book with a few prayers.
 
 spell:Blink:3:3:50:6:0
 effect:TELEPORT
@@ -959,7 +1034,11 @@ desc: same dungeon depth) will be generated. This has exactly the same
 desc: side effects as leaving and re-entering the level through a stair,
 desc: except that you won't start on a square with a stair.
 
-book:prayer book:[Godly Insights]:5:2
+book:prayer book:dungeon:[Godly Insights]:5:divine
+book-graphics:?:g
+book-properties:50:30:20000
+book-alloc:15:50 to 100
+book-desc:An advanced holy book with a few prayers.
 
 spell:Detect Monsters:3:3:50:2:0
 effect:DETECT_VISIBLE_MONSTERS
@@ -996,7 +1075,11 @@ effect:LIGHT_LEVEL
 desc:Lights up, maps out and senses all objects on the complete current
 desc: dungeon level.
 
-book:prayer book:[Purifications and Healing]:6:2
+book:prayer book:dungeon:[Purifications and Healing]:6:divine
+book-graphics:?:g
+book-properties:60:30:30000
+book-alloc:15:60 to 100
+book-desc:An advanced holy book with a few prayers.
 
 spell:Cure Serious Wounds:4:2:50:25:1
 effect:CURE:CONFUSED
@@ -1044,7 +1127,11 @@ spell:Resurrection:35:70:90:270:0
 effect:RESURRECT
 desc:Brings back to life a ghost character standing next to the caster.
 
-book:prayer book:[Holy Infusions]:6:2
+book:prayer book:dungeon:[Holy Infusions]:6:divine
+book-graphics:?:g
+book-properties:70:30:50000
+book-alloc:15:70 to 100
+book-desc:An advanced holy book with a few prayers.
 
 spell:Unbarring Ways:5:6:50:40:0
 effect:TIMED_INC:TRAPSAFE
@@ -1089,7 +1176,11 @@ desc: to-dam bonus of the same weapon.
 desc: The prayer has no effect if the weapon is an artifact, an ego item
 desc: or a worthless item.
 
-book:prayer book:[Wrath of God]:5:2
+book:prayer book:dungeon:[Wrath of God]:5:divine
+book-graphics:?:g
+book-properties:90:30:90000
+book-alloc:10:90 to 100
+book-desc:An advanced holy book with a few prayers.
 
 spell:Dispel Undead:15:7:70:25:0
 effect:PROJECT_LOS_AWARE:DISP_UNDEAD
@@ -1150,7 +1241,6 @@ info:6:25
 attack:5:30:4
 equip:food:Ration of Food:1:3:1
 equip:light:Wooden Torch:1:3:1
-equip:shadow book:[Robbers Handbook]:1:1:1
 equip:sword:Dagger:1:1:1
 equip:soft armour:Soft Leather Armour:1:1:0
 equip:scroll:Word of Recall:1:1:0
@@ -1167,10 +1257,14 @@ title:Rogue
 title:Thief
 title:Master Thief
 
-realm:shadow
 magic:5:350:6
 
-book:shadow book:[Robbers Handbook]:8:4
+book:shadow book:town:[Robbers Handbook]:8:shadow
+book-graphics:?:B
+book-properties:1:30:25
+book-alloc:40:1 to 100
+book-desc:A standard spellbook with a few spells.
+equip:shadow book:[Robbers Handbook]:1:1:1
 
 spell:Detect Monsters:5:1:50:1:0
 effect:DETECT_VISIBLE_MONSTERS
@@ -1220,7 +1314,11 @@ effect:TOUCH:KILL_DOOR
 msg_other: sways his hands.
 desc:Disables traps and destroys doors within a 1-square radius of you.
 
-book:shadow book:[Shadows and Illusions]:8:4
+book:shadow book:town:[Shadows and Illusions]:8:shadow
+book-graphics:?:B
+book-properties:10:30:250
+book-alloc:40:10 to 100
+book-desc:A standard spellbook with a few spells.
 
 spell:Cure Poison:16:9:90:1:0
 effect:CURE:POISONED
@@ -1272,7 +1370,11 @@ expr:B:FOOD_MAX:- 1
 desc:Magically renders you well-fed (but not satiated).
 desc: This will also cure a bloated stomach.
 
-book:shadow book:[Killing Made Easy]:8:4
+book:shadow book:town:[Killing Made Easy]:8:shadow
+book-graphics:?:B
+book-properties:20:30:800
+book-alloc:40:20 to 100
+book-desc:A standard spellbook with a few spells.
 
 spell:Mass Sleep:26:15:80:10:0
 effect:PROJECT_LOS_AWARE:MON_SLEEP
@@ -1322,7 +1424,11 @@ desc:Attempts to summon up to eight monsters generated at the current dungeon
 desc: level.
 desc: This spell has no effect when used in the town.
 
-book:shadow book:[Shadows Escapes]:8:4
+book:shadow book:dungeon:[Shadows Escapes]:8:shadow
+book-graphics:?:b
+book-properties:40:30:10000
+book-alloc:15:40 to 100
+book-desc:An advanced spellbook with a few spells.
 
 spell:Door Creation:17:7:30:15:0
 effect:TOUCH:MAKE_DOOR
@@ -1381,7 +1487,11 @@ desc: The recall effect is not immediate; it is delayed by a level-dependent
 desc: duration. During that delay, the effect can be canceled by invoking
 desc: the spell of recall again.
 
-book:shadow book:[Bilbo's Tome of Burglary]:6:4
+book:shadow book:dungeon:[Bilbo's Tome of Burglary]:6:shadow
+book-graphics:?:b
+book-properties:60:30:30000
+book-alloc:15:60 to 100
+book-desc:An advanced spellbook with a few spells.
 
 spell:Beam of Disarming:24:17:60:30:0
 effect:ALTER:KILL_TRAP
@@ -1425,7 +1535,11 @@ desc: the to-hit bonus and the to-dam bonus of the same ammunition.
 desc: The spell has no effect if the ammunition is an artifact, an ego item
 desc: or a worthless item.
 
-book:shadow book:[Great Shadows]:6:4
+book:shadow book:dungeon:[Great Shadows]:6:shadow
+book-graphics:?:b
+book-properties:90:30:90000
+book-alloc:10:90 to 100
+book-desc:An advanced spellbook with a few spells.
 
 spell:Cloudkill:25:20:60:15:0
 effect:BALL:POIS:3
@@ -1503,7 +1617,6 @@ info:5:30
 attack:5:35:4
 equip:food:Ration of Food:1:3:1
 equip:light:Wooden Torch:1:3:1
-equip:magic book:[Magic for Beginners]:1:1:1
 equip:sword:Dagger:1:1:1
 equip:bow:Short Bow:1:1:0
 equip:arrow:Arrow:15:20:0
@@ -1520,10 +1633,10 @@ title:Pathfinder
 title:Ranger
 title:Ranger Lord
 
-realm:arcane
 magic:3:400:9
 
-book:magic book:[Magic for Beginners]:7:1
+book:magic book:town:[Magic for Beginners]:7:arcane
+equip:magic book:[Magic for Beginners]:1:1:1
 
 spell:Magic Missile:3:1:30:1:0
 effect:BOLT_OR_BEAM:MISSILE:-10
@@ -1580,7 +1693,7 @@ expr:B:PLAYER_LEVEL:/ 2 + 10
 msg_other: fires a stinking cloud.
 desc:Shoots a radius-2 poison ball.
 
-book:magic book:[Conjurings and Tricks]:9:1
+book:magic book:town:[Conjurings and Tricks]:9:arcane
 
 spell:Confuse Monster:7:6:40:2:0
 effect:BOLT_AWARE:MON_CONF
@@ -1642,7 +1755,7 @@ dice:$B+1d100
 expr:B:PLAYER_LEVEL:/ 5
 desc:Invokes a random spell effect.
 
-book:magic book:[Incantations and Illusions]:9:1
+book:magic book:town:[Incantations and Illusions]:9:arcane
 
 spell:Satisfy Hunger:17:17:55:3:0
 effect:SET_NOURISH
@@ -1712,7 +1825,7 @@ dice:20
 msg_other: makes a lengthy gesture.
 desc:Attempts to slow down a single monster.
 
-book:magic book:[Sorcery and Evocations]:6:1
+book:magic book:town:[Sorcery and Evocations]:6:arcane
 
 spell:Frost Ball:27:21:65:6:0
 effect:BALL:COLD:2
@@ -1753,7 +1866,7 @@ effect:DETECT_TREASURES
 dice:22d40
 desc:Detects all treasure in the immediate area.
 
-book:magic book:[Resistances of Scarabtarices]:5:1
+book:magic book:dungeon:[Resistances of Scarabtarices]:5:arcane
 
 spell:Resist Cold:8:15:50:30:0
 effect:TIMED_INC:OPP_COLD
@@ -1790,7 +1903,7 @@ effect:TIMED_INC:SHIELD
 dice:30+1d20
 desc:Grants you +50 to AC for 30+1d20 turns.
 
-book:magic book:[Raal's Tome of Destruction]:4:1
+book:magic book:dungeon:[Raal's Tome of Destruction]:4:arcane
 
 spell:Cloudkill:22:19:60:6:0
 effect:BALL:POIS:3
@@ -1827,7 +1940,7 @@ desc: damage to each monster in its area of effect.
 desc: If this kills the monster that blocked the path to the target
 desc: location, the next meteor may continue to find another target.
 
-book:magic book:[Mordenkainen's Escapes]:5:1
+book:magic book:dungeon:[Mordenkainen's Escapes]:5:arcane
 
 spell:Door Creation:20:17:20:25:0
 effect:TOUCH:MAKE_DOOR
@@ -1865,7 +1978,7 @@ desc: Higher level monsters are more likely to break the glyph.
 desc: The glyph will remain where it is, until a monster succeeds in
 desc: breaking it or until you leave the level.
 
-book:magic book:[Tenser's Transformations]:6:1
+book:magic book:dungeon:[Tenser's Transformations]:6:arcane
 
 spell:Heroism:18:15:30:40:0
 effect:TIMED_INC:BOLD
@@ -1922,7 +2035,7 @@ desc: the to-hit bonus and the to-dam bonus of the same ammunition.
 desc: The spell has no effect if the ammunition is an artifact, an ego item
 desc: or a worthless item.
 
-book:magic book:[Kelek's Grimoire of Power]:3:1
+book:magic book:dungeon:[Kelek's Grimoire of Power]:3:arcane
 
 spell:Earthquake:30:28:60:16:0
 effect:EARTHQUAKE
@@ -1969,7 +2082,6 @@ info:7:35
 attack:5:30:5
 equip:food:Ration of Food:1:3:1
 equip:light:Wooden Torch:1:3:1
-equip:prayer book:[Beginners Handbook]:1:1:1
 equip:sword:Dagger:1:1:1
 equip:scroll:Protection from Evil:1:1:0
 equip:scroll:Word of Recall:1:1:0
@@ -1984,10 +2096,10 @@ title:Chevalier
 title:Paladin
 title:Paladin Lord
 
-realm:divine
 magic:1:400:9
 
-book:prayer book:[Beginners Handbook]:6:2
+book:prayer book:town:[Beginners Handbook]:6:divine
+equip:prayer book:[Beginners Handbook]:1:1:1
 
 spell:Detect Evil:1:1:30:4:0
 effect:DETECT_EVIL
@@ -2029,7 +2141,7 @@ effect:TIMED_DEC:POISONED
 param:2
 desc:Halves the remaining duration of any current poisoning.
 
-book:prayer book:[Words of Wisdom]:8:2
+book:prayer book:town:[Words of Wisdom]:8:divine
 
 spell:Scare Monster:9:7:40:3:0
 effect:BOLT_AWARE:TURN_ALL
@@ -2083,7 +2195,7 @@ effect:TIMED_INC:OPP_FIRE
 dice:10+1d10
 desc:Gives you temporary resistance to cold and fire, for 10+1d10 turns each.
 
-book:prayer book:[Chants and Blessings]:9:2
+book:prayer book:town:[Chants and Blessings]:9:divine
 
 spell:Neutralize Poison:15:15:50:4:0
 effect:CURE:POISONED
@@ -2160,7 +2272,7 @@ msg_other: tries to turn undead.
 desc:Attempts to scare each undead monster within line of sight,
 desc: causing it to flee in terror for a level-dependent duration.
 
-book:prayer book:[Exorcism and Dispelling]:4:2
+book:prayer book:town:[Exorcism and Dispelling]:4:divine
 
 spell:Prayer:29:22:50:3:0
 effect:TIMED_INC:BLESSED
@@ -2195,7 +2307,7 @@ expr:S:PLAYER_LEVEL:* 3
 msg_other: dispels evil.
 desc:Inflicts unresistable damage on each evil monster within line of sight.
 
-book:prayer book:[Ethereal Openings]:5:2
+book:prayer book:dungeon:[Ethereal Openings]:5:divine
 
 spell:Blink:7:7:50:2:0
 effect:TELEPORT
@@ -2232,7 +2344,7 @@ desc: The recall effect is not immediate; it is delayed by 14+1d20 turns.
 desc: During that delay, the effect can be canceled by invoking the prayer
 desc: of recall again.
 
-book:prayer book:[Godly Insights]:4:2
+book:prayer book:dungeon:[Godly Insights]:4:divine
 
 spell:Detect Monsters:5:5:50:1:0
 effect:DETECT_VISIBLE_MONSTERS
@@ -2257,7 +2369,7 @@ desc:Probes each monster within line of sight, giving information on the
 desc: current hit points of the monster and many of its characteristics
 desc: and abilities.
 
-book:prayer book:[Purifications and Healing]:3:2
+book:prayer book:dungeon:[Purifications and Healing]:3:divine
 
 spell:Cure Serious Wounds:9:5:50:25:1
 effect:CURE:CONFUSED
@@ -2287,7 +2399,7 @@ effect:RESTORE_STAT:INT
 effect:RESTORE_STAT:STR
 desc:Restores to maximum all stats that are currently below maximum.
 
-book:prayer book:[Holy Infusions]:5:2
+book:prayer book:dungeon:[Holy Infusions]:5:divine
 
 spell:Unbarring Ways:10:16:50:20:0
 effect:TIMED_INC:TRAPSAFE
@@ -2326,7 +2438,7 @@ desc: to-dam bonus of the same weapon.
 desc: The prayer has no effect if the weapon is an artifact, an ego item
 desc: or a worthless item.
 
-book:prayer book:[Wrath of God]:3:2
+book:prayer book:dungeon:[Wrath of God]:3:divine
 
 spell:Dispel Undead:20:13:70:20:0
 effect:PROJECT_LOS_AWARE:DISP_UNDEAD
@@ -2372,7 +2484,6 @@ info:0:35
 attack:1:40:2
 equip:food:Ration of Food:1:3:1
 equip:light:Wooden Torch:1:3:1
-equip:sorcery book:[Apprentice Handbook]:1:1:1
 equip:sword:Dagger:1:1:1
 equip:scroll:Word of Recall:1:1:0
 flags:CUMBER_GLOVE | ZERO_FAIL | BEAM | CHOOSE_SPELLS
@@ -2388,10 +2499,14 @@ title:Warlock
 title:Sorcerer
 title:Arch-Mage
 
-realm:sorcery
 magic:1:300:8
 
-book:sorcery book:[Apprentice Handbook]:8:3
+book:sorcery book:town:[Apprentice Handbook]:8:sorcery
+book-graphics:?:u
+book-properties:1:30:25
+book-alloc:40:1 to 100
+book-desc:A standard spellbook with a few spells.
+equip:sorcery book:[Apprentice Handbook]:1:1:1
 
 spell:Magic Missile:1:1:12:4:0
 effect:BOLT_OR_BEAM:MISSILE:-10
@@ -2454,7 +2569,11 @@ dice:5+1d5
 msg_other: makes a complicated gesture.
 desc:Attempts to confuse a single monster.
 
-book:sorcery book:[Mystical Words]:8:3
+book:sorcery book:town:[Mystical Words]:8:sorcery
+book-graphics:?:u
+book-properties:5:30:100
+book-alloc:40:5 to 100
+book-desc:A standard spellbook with a few spells.
 
 spell:Lightning Bolt:5:4:20:4:0
 effect:BEAM:ELEC
@@ -2515,7 +2634,11 @@ desc:Produces a beam that destroys the first section of wall it hits,
 desc: unless it is a permanent wall. Each monster caught in the beam that
 desc: is susceptible to rock remover takes 20+1d30 points of damage.
 
-book:sorcery book:[Arcane Chants]:8:3
+book:sorcery book:town:[Arcane Chants]:8:sorcery
+book-graphics:?:u
+book-properties:10:30:400
+book-alloc:40:10 to 100
+book-desc:A standard spellbook with a few spells.
 
 spell:Fire Bolt:10:3:35:7:0
 effect:BOLT_OR_BEAM:FIRE
@@ -2586,7 +2709,11 @@ effect:TIMED_INC:MEDITATE
 dice:20+1d20
 desc:Helps increasing your mana capacity at the cost of hit points.
 
-book:sorcery book:[Locus of Force]:6:3
+book:sorcery book:town:[Locus of Force]:6:sorcery
+book-graphics:?:u
+book-properties:20:30:800
+book-alloc:40:20 to 100
+book-desc:A standard spellbook with a few spells.
 
 spell:Teleport Other:23:12:50:15:0
 effect:BOLT_STATUS:AWAY_ALL
@@ -2638,7 +2765,11 @@ desc: Higher level monsters are more likely to break the glyphs.
 desc: The glyphs will remain where they are, until a monster succeeds in
 desc: breaking them or until you leave the level.
 
-book:sorcery book:[Powerful Sigils]:5:3
+book:sorcery book:dungeon:[Powerful Sigils]:5:sorcery
+book-graphics:?:o
+book-properties:40:30:10000
+book-alloc:15:40 to 100
+book-desc:An advanced spellbook with a few spells.
 
 spell:Stone Prison:20:15:44:30:0
 effect:CREATE_WALLS
@@ -2681,7 +2812,11 @@ effect:TIMED_INC:SHIELD
 dice:30+1d20
 desc:Grants you +50 to AC for 30+1d20 turns.
 
-book:sorcery book:[Disruptive Forces]:5:3
+book:sorcery book:dungeon:[Disruptive Forces]:5:sorcery
+book-graphics:?:o
+book-properties:55:30:25000
+book-alloc:15:55 to 100
+book-desc:An advanced spellbook with a few spells.
 
 spell:Chaos Blast:28:18:55:60:0
 effect:BLAST:CHAOS:3
@@ -2717,7 +2852,11 @@ expr:B:PLAYER_LEVEL:* 2 + 350
 msg_other: emits a mana blast.
 desc:Creates a radius-3 mana ball around you.
 
-book:sorcery book:[Forces of the Mind]:4:3
+book:sorcery book:dungeon:[Forces of the Mind]:4:sorcery
+book-graphics:?:o
+book-properties:65:30:40000
+book-alloc:15:65 to 100
+book-desc:An advanced spellbook with a few spells.
 
 spell:Mind Vision:15:16:30:20:0
 effect:MIND_VISION
@@ -2740,7 +2879,11 @@ effect:LIGHT_LEVEL
 desc:Lights up, maps out and senses all objects on the complete current
 desc: dungeon level.
 
-book:sorcery book:[Power of Ancient Sorcerors]:8:3
+book:sorcery book:dungeon:[Power of Ancient Sorcerors]:8:sorcery
+book-graphics:?:o
+book-properties:90:30:90000
+book-alloc:10:90 to 100
+book-desc:An advanced spellbook with a few spells.
 
 spell:Earthquake:20:18:50:30:0
 effect:EARTHQUAKE
@@ -2861,7 +3004,6 @@ info:4:30
 attack:2:35:3
 equip:food:Ration of Food:1:3:1
 equip:light:Wooden Torch:1:3:1
-equip:hunt book:[Hunting and Tracking]:1:1:1
 equip:sword:Dagger:1:1:1
 equip:bow:Short Bow:1:1:0
 equip:arrow:Arrow:30:40:0
@@ -2879,10 +3021,14 @@ title:Grand Archer
 title:Master Archer
 title:Elite Archer
 
-realm:hunting
 magic:5:400:3
 
-book:hunt book:[Hunting and Tracking]:6:5
+book:hunt book:town:[Hunting and Tracking]:6:hunting
+book-graphics:?:W
+book-properties:1:30:25
+book-alloc:40:1 to 100
+book-desc:A standard spellbook with a few spells.
+equip:hunt book:[Hunting and Tracking]:1:1:1
 
 spell:Lightning Shots:5:1:10:4:0
 effect:BOW_BRAND_SHOT:ELEC
@@ -2923,7 +3069,11 @@ expr:M:PLAYER_LEVEL:- 7 / 10
 desc:Increases your shooting range, infravision and chance to-hit for a
 desc: level-dependent duration.
 
-book:hunt book:[Killing from Afar]:6:5
+book:hunt book:dungeon:[Killing from Afar]:6:hunting
+book-graphics:?:s
+book-properties:40:30:10000
+book-alloc:15:40 to 100
+book-desc:An advanced spellbook with a few spells.
 
 spell:Acid Shots:20:7:34:30:0
 effect:BOW_BRAND_SHOT:ACID
@@ -2955,7 +3105,11 @@ param:1
 dice:10
 desc:Turns your missiles into explosive shots.
 
-book:hunt book:[Arrows of the Master Archers]:5:5
+book:hunt book:dungeon:[Arrows of the Master Archers]:5:hunting
+book-graphics:?:s
+book-properties:90:30:90000
+book-alloc:10:90 to 100
+book-desc:An advanced spellbook with a few spells.
 
 spell:Ice Shots:35:14:58:60:0
 effect:BOW_BRAND:COLD
@@ -3039,7 +3193,6 @@ info:3:20
 attack:4:35:3
 equip:food:Ration of Food:1:3:1
 equip:light:Wooden Torch:1:3:1
-equip:psi book:of Telepathy:1:1:1
 equip:sword:Dagger:1:1:1
 equip:scroll:Word of Recall:1:1:0
 flags:BEAM | CHOOSE_SPELLS
@@ -3054,10 +3207,14 @@ title:Telepath
 title:Meta
 title:Pegasus Rider
 
-realm:psi
 magic:1:400:6
 
-book:psi book:of Telepathy:6:6
+book:psi book:town:of Telepathy:6:psi
+book-graphics:?:U
+book-properties:1:30:25
+book-alloc:40:1 to 100
+book-desc:A glowing stone, engraved with runes of power.
+equip:psi book:of Telepathy:1:1:1
 
 spell:Mind Blast:1:1:12:4:0
 effect:BOLT_OR_BEAM:PSI
@@ -3105,7 +3262,11 @@ dice:5+1d5
 msg_other: hurls a confusing blast.
 desc:Attempts to confuse a single monster.
 
-book:psi book:of Mind Support:6:6
+book:psi book:town:of Mind Support:6:psi
+book-graphics:?:U
+book-properties:10:30:250
+book-alloc:40:10 to 100
+book-desc:A glowing stone, engraved with runes of power.
 
 spell:Cell Adjustment:7:6:24:7:0
 effect:TIMED_DEC:CONFUSED
@@ -3147,7 +3308,11 @@ effect:MAP_AREA
 dice:22d40
 desc:Maps out a portion of the level around you.
 
-book:psi book:of Mindcraft:6:6
+book:psi book:town:of Mindcraft:6:psi
+book-graphics:?:U
+book-properties:20:30:800
+book-alloc:40:20 to 100
+book-desc:A glowing stone, engraved with runes of power.
 
 spell:Psychometry:14:12:37:14:0
 effect:IDENTIFY
@@ -3191,7 +3356,11 @@ expr:B:PLAYER_LEVEL:* 3 / 2
 msg_other: radiates a powerful mind wave.
 desc:Creates a radius-5 to radius-7 mental wave around you.
 
-book:psi book:of Telekinesis:6:6
+book:psi book:dungeon:of Telekinesis:6:psi
+book-graphics:?:y
+book-properties:40:30:10000
+book-alloc:15:40 to 100
+book-desc:A stone glowing brightly, engraved with runes of power.
 
 spell:Precognition:20:17:46:20:0
 effect:DETECT_MONSTERS
@@ -3246,7 +3415,11 @@ expr:B:PLAYER_LEVEL:* 3 / 2
 msg_other: radiates a powerful sonic wave.
 desc:Creates a radius-5 to radius-7 sonic wave around you.
 
-book:psi book:of Psychoportation:6:6
+book:psi book:dungeon:of Psychoportation:6:psi
+book-graphics:?:y
+book-properties:60:30:30000
+book-alloc:15:60 to 100
+book-desc:A stone glowing brightly, engraved with runes of power.
 
 spell:Recall:30:25:61:35:0
 effect:RECALL
@@ -3298,7 +3471,11 @@ desc: Sometimes a beam is fired instead that hurts each monster
 desc: in its path.
 desc: The chance to get a beam goes up with your character level.
 
-book:psi book:of Empathy:6:6
+book:psi book:dungeon:of Empathy:6:psi
+book-graphics:?:y
+book-properties:90:30:90000
+book-alloc:10:90 to 100
+book-desc:A stone glowing brightly, engraved with runes of power.
 
 spell:Biofeedback:35:30:68:45:0
 effect:TIMED_INC:BIOFEEDBACK
@@ -3376,7 +3553,6 @@ info:1:30
 attack:3:40:2
 equip:food:Ration of Food:1:3:1
 equip:light:Wooden Torch:1:3:1
-equip:elemental book:[Fire]:1:1:1
 equip:sword:Dagger:1:1:1
 equip:scroll:Word of Recall:1:1:0
 flags:CUMBER_GLOVE | ZERO_FAIL | BEAM | CHOOSE_SPELLS
@@ -3392,10 +3568,13 @@ title:Warlock
 title:Sorcerer
 title:Arch-Mage
 
-realm:elemental
 magic:1:300:5
 
-book:elemental book:[Air]:8:8
+book:elemental book:town:[Air]:8:elemental
+book-graphics:?:x
+book-properties:5:30:100
+book-alloc:25:5 to 100
+book-desc:A standard spellbook with a few spells.
 
 spell:Shocking Grasp:3:2:21:4:0
 effect:TIMED_INC:SGRASP
@@ -3462,7 +3641,12 @@ msg_other: invokes a thunderstorm!
 desc:Creates a sonic blast around you that shoots lightning beams in each of
 desc: the eight directions starting from your character.
 
-book:elemental book:[Fire]:8:8
+book:elemental book:town:[Fire]:8:elemental
+book-graphics:?:x
+book-properties:5:30:100
+book-alloc:25:5 to 100
+book-desc:A standard spellbook with a few spells.
+equip:elemental book:[Fire]:1:1:1
 
 spell:Burning Hands:1:1:17:4:0
 effect:BOLT_MELEE:FIRE
@@ -3534,7 +3718,11 @@ msg_other: invokes a hellish storm.
 desc:Creates a plasma blast around you that shoots fire beams in each of
 desc: the eight directions starting from your character.
 
-book:elemental book:[Earth]:8:8
+book:elemental book:town:[Earth]:8:elemental
+book-graphics:?:x
+book-properties:5:30:100
+book-alloc:25:5 to 100
+book-desc:A standard spellbook with a few spells.
 
 spell:Stone to Mud:4:2:23:4:0
 effect:LINE:KILL_WALL
@@ -3597,7 +3785,11 @@ expr:B:BLAST_ELEMENT:+ 200
 msg_other: fires a force ball.
 desc:Shoots a force ball.
 
-book:elemental book:[Water]:8:8
+book:elemental book:town:[Water]:8:elemental
+book-graphics:?:x
+book-properties:5:30:100
+book-alloc:25:5 to 100
+book-desc:A standard spellbook with a few spells.
 
 spell:Freezing Aura:2:1:19:4:0
 effect:TIMED_INC:ICY_AURA
@@ -3676,7 +3868,11 @@ msg_other: invokes a maelstrom!
 desc:Creates a water blast around you that shoots frost beams in each of
 desc: the eight directions starting from your character.
 
-book:elemental book:[Elemental]:8:8
+book:elemental book:town:[Elemental]:8:elemental
+book-graphics:?:x
+book-properties:10:30:400
+book-alloc:10:10 to 100
+book-desc:A standard spellbook with a few spells.
 
 spell:Elemental Power:5:3:25:4:0
 effect:TIMED_INC:EPOWER
@@ -3837,7 +4033,6 @@ info:0:25
 attack:1:40:2
 equip:food:Ration of Food:1:3:1
 equip:light:Wooden Torch:1:3:1
-equip:summoning book:[Survival]:1:1:1
 equip:hafted:Quarterstaff:1:1:1
 equip:scroll:Summon Monster:10:10:1
 equip:scroll:Word of Recall:1:1:0
@@ -3854,10 +4049,14 @@ title:Controller
 title:Master
 title:Summoner Lord
 
-realm:summon
 magic:1:300:4
 
-book:summoning book:[Survival]:6:9
+book:summoning book:town:[Survival]:6:summon
+book-graphics:?:T
+book-properties:1:30:25
+book-alloc:40:1 to 100
+book-desc:A standard spellbook with a few spells.
+equip:summoning book:[Survival]:1:1:1
 
 spell:Summon Monster:1:1:22:4:0
 effect:SUMMON:MONSTER
@@ -3905,7 +4104,11 @@ effect:TOUCH:KILL_DOOR
 msg_other: sways his hands.
 desc:Disables traps and destroys doors within a 1-square radius of you.
 
-book:summoning book:[Nature]:7:9
+book:summoning book:town:[Nature]:7:summon
+book-graphics:?:T
+book-properties:10:30:400
+book-alloc:40:10 to 100
+book-desc:A standard spellbook with a few spells.
 
 spell:Farsight:10:7:35:5:0
 effect:TIMED_INC:ZFARSIGHT
@@ -3965,7 +4168,11 @@ desc: At a fourth stage, grants you resistance to acid, cold, fire, lightning
 desc: and poison.
 desc: At a fifth and last stage, hastes you (+10 to speed).
 
-book:summoning book:[Summoning]:6:9
+book:summoning book:dungeon:[Summoning]:6:summon
+book-graphics:?:t
+book-properties:40:30:10000
+book-alloc:15:40 to 100
+book-desc:An advanced spellbook with a few spells.
 
 spell:Summon Jelly:20:6:56:20:0
 effect:SUMMON:JELLY
@@ -4010,7 +4217,11 @@ spell:Resilience:40:40:76:40:0
 effect:RESILIENCE
 desc:Increases the lifespan of all controlled monsters.
 
-book:summoning book:[Anti-Summoning]:5:9
+book:summoning book:dungeon:[Anti-Summoning]:5:summon
+book-graphics:?:t
+book-properties:90:30:90000
+book-alloc:10:90 to 100
+book-desc:An advanced spellbook with a few spells.
 
 spell:Thunderstorm:25:10:65:50:0
 effect:STAR:LIGHT
@@ -4074,7 +4285,6 @@ info:1:30
 attack:4:40:2
 equip:food:Ration of Food:1:3:1
 equip:light:Wooden Torch:1:3:1
-equip:death book:[Necromancy for Beginners]:1:1:1
 equip:sword:Dagger:1:1:1
 equip:scroll:Word of Recall:1:1:0
 flags:CUMBER_GLOVE | ZERO_FAIL | BEAM | CHOOSE_SPELLS
@@ -4090,10 +4300,14 @@ title:Warlock
 title:Sorcerer
 title:Arch-Mage
 
-realm:death
 magic:1:300:6
 
-book:death book:[Necromancy for Beginners]:8:7
+book:death book:town:[Necromancy for Beginners]:8:death
+book-graphics:?:v
+book-properties:1:30:25
+book-alloc:40:1 to 100
+book-desc:A standard spellbook with a few spells.
+equip:death book:[Necromancy for Beginners]:1:1:1
 
 spell:Horrify:1:2:26:2:0
 effect:BOLT_AWARE:TURN_ALL
@@ -4157,7 +4371,11 @@ desc: Sometimes a beam is fired instead that hurts each monster
 desc: in its path.
 desc: The chance to get a beam goes up with your character level.
 
-book:death book:[Dark Conjurings]:8:7
+book:death book:town:[Dark Conjurings]:8:death
+book-graphics:?:v
+book-properties:10:30:250
+book-alloc:40:10 to 100
+book-desc:A standard spellbook with a few spells.
 
 spell:Disable Traps, Destroy Doors:7:6:37:4:0
 effect:TOUCH:KILL_TRAP
@@ -4212,7 +4430,11 @@ spell:Identify Rune:17:16:57:4:0
 effect:IDENTIFY
 desc:Reveals an unknown rune on an object.
 
-book:death book:[Necromantic Incantations]:8:7
+book:death book:town:[Necromantic Incantations]:8:death
+book-graphics:?:v
+book-properties:20:30:800
+book-alloc:40:20 to 100
+book-desc:A standard spellbook with a few spells.
 
 spell:Frost Ball:19:6:50:8:0
 effect:BALL:COLD:2
@@ -4281,7 +4503,11 @@ desc: Sometimes a beam is fired instead that hurts each monster
 desc: in its path.
 desc: The chance to get a beam goes up with your character level.
 
-book:death book:[Dark Evocations]:7:7
+book:death book:dungeon:[Dark Evocations]:7:death
+book-graphics:?:D
+book-properties:40:30:10000
+book-alloc:15:40 to 100
+book-desc:An advanced spellbook with a few spells.
 
 spell:Follow:26:18:63:6:0
 effect:BOLT_AWARE:FOLLOW
@@ -4340,7 +4566,11 @@ spell:Teleport Level:31:22:62:17:0
 effect:TELEPORT_LEVEL
 desc:Teleports you 1 level up or 1 level down (chosen at random).
 
-book:death book:[Advanced Necromancy]:7:7
+book:death book:dungeon:[Advanced Necromancy]:7:death
+book-graphics:?:D
+book-properties:60:30:30000
+book-alloc:15:60 to 100
+book-desc:An advanced spellbook with a few spells.
 
 spell:Cold Brand:31:60:95:150:0
 effect:BRAND_WEAPON
@@ -4399,7 +4629,11 @@ msg_other: creates visions of terror!
 desc:Calls upon the dark forces and opens a channel into the mind of a
 desc: group of monsters, stunning and scaring them.
 
-book:death book:[Darkest Magic]:7:7
+book:death book:dungeon:[Darkest Magic]:7:death
+book-graphics:?:D
+book-properties:90:30:90000
+book-alloc:10:90 to 100
+book-desc:An advanced spellbook with a few spells.
 
 spell:Rune of Protection:38:67:75:60:0
 effect:RUNE
@@ -4492,12 +4726,11 @@ title:Mast. Changer
 title:Gdm. Changer
 title:Ult. Changer
 
-realm:mimic
 magic:0:400:1
 
 # Hack -- mimic realm spells
 # Spells are all put in one book, and they use RSF_XXX flags as effect flag
-book:mimic realm:xxx:65:11
+book:mimic realm:xxx:xxx:65:mimic
 
 spell:Shriek:0:1:1:0:0
 effect:PROJECT_LOS:MON_SPEED
@@ -5043,10 +5276,9 @@ desc: This spell has no effect when used in the town (#%d).
 # Hack -- not a real class, used for ghost realm spells
 name:Ghost
 
-realm:ghost
 magic:0:0:1
 
-book:ghost realm:xxx:8:10
+book:ghost realm:xxx:xxx:8:ghost
 
 spell:Blink:1:1:0:0:0
 effect:TELEPORT

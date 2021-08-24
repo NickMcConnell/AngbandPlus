@@ -1,0 +1,87 @@
+# File: dragon_breed.txt
+
+
+# This file is used to initialize the "dragon breed" information for PWMAngband.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# === Understanding dragon_breed.txt ===
+
+# dragon:dragon name:dragon name format
+# wyrm:wyrm name:wyrm name format
+# info:commonness:experience factor:immune
+
+# 'dragon' is for dragon name - name of breed as dragon and its format
+# ("dragon" or "drake").
+
+# 'wyrm' is for wyrm name - name of breed as wyrm and its format
+# ("xxx wyrm" or "wyrm of xxx").
+
+# 'info' is for gameplay info - commonness and experience factor of the breed,
+# and flag that tells whether the breed is immune to its element or not.
+
+
+dragon:white:0
+wyrm:ice:0
+info:15:100:1
+
+dragon:blue:0
+wyrm:storm:0
+info:14:100:1
+
+dragon:green:0
+wyrm:swamp:0
+info:13:100:0
+
+dragon:red:0
+wyrm:hell:0
+info:12:120:1
+
+dragon:black:0
+wyrm:bile:0
+info:11:120:1
+
+dragon:silver:0
+wyrm:Radiance:1
+info:10:120:0
+
+dragon:gold:0
+wyrm:Thunder:1
+info:9:120:0
+
+dragon:shadow:1
+wyrm:shadow:0
+info:8:140:0
+
+dragon:water:0
+wyrm:the Deep:1
+info:7:140:0
+
+dragon:crystal:1
+wyrm:crystal:0
+info:6:140:0
+
+dragon:ethereal:1
+wyrm:ethereal:0
+info:1:140:0
+
+dragon:chaos:1
+wyrm:Chaos:1
+info:5:160:0
+
+dragon:law:1
+wyrm:Law:1
+info:4:160:0
+
+dragon:balance:1
+wyrm:Balance:1
+info:3:180:0
+
+dragon:multi-hued:0
+wyrm:Many Colours:1
+info:2:180:0
+
+dragon:power:0
+wyrm:Power:1
+info:1:200:0

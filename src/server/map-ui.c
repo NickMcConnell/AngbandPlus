@@ -3,7 +3,7 @@
  * Purpose: Writing level map info to the screen
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -24,7 +24,7 @@
 /*
  * Hack -- hallucinatory monster
  */
-static void hallucinatory_monster(struct player *p, u16b *a, char *c)
+static void hallucinatory_monster(struct player *p, bool server, u16b *a, char *c)
 {
     while (1)
     {
@@ -36,8 +36,16 @@ static void hallucinatory_monster(struct player *p, u16b *a, char *c)
         if (!race->name) continue;
 
         /* Retrieve attr/char */
-        *a = p->r_attr[i];
-        *c = p->r_char[i];
+        if (server)
+        {
+            *a = monster_x_attr[i];
+            *c = monster_x_char[i];
+        }
+        else
+        {
+            *a = p->r_attr[i];
+            *c = p->r_char[i];
+        }
 
         return;
     }
@@ -47,7 +55,7 @@ static void hallucinatory_monster(struct player *p, u16b *a, char *c)
 /*
  * Hack -- hallucinatory object
  */
-static void hallucinatory_object(struct player *p, u16b *a, char *c)
+static void hallucinatory_object(struct player *p, bool server, u16b *a, char *c)
 {
     while (1)
     {
@@ -59,8 +67,16 @@ static void hallucinatory_object(struct player *p, u16b *a, char *c)
         if (!kind->name) continue;
 
         /* Retrieve attr/char (without flavors) */
-        *a = p->k_attr[i];
-        *c = p->k_char[i];
+        if (server)
+        {
+            *a = kind_x_attr[i];
+            *c = kind_x_char[i];
+        }
+        else
+        {
+            *a = p->k_attr[i];
+            *c = p->k_char[i];
+        }
 
         /* Hack -- skip empty entries */
         if ((*a == 0) || (*c == 0)) continue;
@@ -255,7 +271,7 @@ static byte get_flicker(byte a)
 /*
  * Return the correct attr/char pair for any player
  */
-static void player_pict(struct player *p, struct chunk *cv, struct player *q, u16b *a,
+static void player_pict(struct player *p, struct chunk *cv, struct player *q, bool server, u16b *a,
     char *c)
 {
     int life, timefactor;
@@ -266,13 +282,14 @@ static void player_pict(struct player *p, struct chunk *cv, struct player *q, u1
     if (q == p)
     {
         /* Handle himself */
-        *a = p->r_attr[0];
+        if (server) *a = monster_x_attr[0];
+        else *a = p->r_attr[0];
     }
     else
     {
         /* Handle other */
         *a = player_color(q);
-        if (p->use_graphics)
+        if (p->use_graphics && !server)
             *a = player_presets[mode][q->clazz->cidx][q->race->ridx][q->psex].a;
 
         /* Hack -- elementalists */
@@ -300,13 +317,15 @@ static void player_pict(struct player *p, struct chunk *cv, struct player *q, u1
     if (q == p)
     {
         /* Handle himself */
-        *c = p->r_char[0];
+        if (server) *c = monster_x_char[0];
+        else *c = p->r_char[0];
     }
     else
     {
         /* Handle other */
-        *c = p->r_char[0];
-        if (p->use_graphics)
+        if (server) *c = monster_x_char[0];
+        else *c = p->r_char[0];
+        if (p->use_graphics && !server)
             *c = player_presets[mode][q->clazz->cidx][q->race->ridx][q->psex].c;
     }
 
@@ -315,18 +334,28 @@ static void player_pict(struct player *p, struct chunk *cv, struct player *q, u1
     {
         struct monster_race *race = get_race("ghost");
 
-        *a = p->r_attr[race->ridx];
-        *c = p->r_char[race->ridx];
+        if (server)
+        {
+            *a = monster_x_attr[race->ridx];
+            *c = monster_x_char[race->ridx];
+        }
+        else
+        {
+            *a = p->r_attr[race->ridx];
+            *c = p->r_char[race->ridx];
+        }
     }
 
     /* Handle polymorphed players: use monster attr/char */
     if (q->poly_race)
     {
         /* Desired attr */
-        *a = p->r_attr[q->poly_race->ridx];
+        if (server) *a = monster_x_attr[q->poly_race->ridx];
+        else *a = p->r_attr[q->poly_race->ridx];
 
         /* Desired char */
-        *c = p->r_char[q->poly_race->ridx];
+        if (server) *c = monster_x_char[q->poly_race->ridx];
+        else *c = p->r_char[q->poly_race->ridx];
 
         /* Multi-hued monster */
         if (!p->use_graphics && monster_shimmer(q->poly_race) && allow_shimmer(p))
@@ -344,8 +373,16 @@ static void player_pict(struct player *p, struct chunk *cv, struct player *q, u1
         struct object_kind *kind = &k_info[q->k_idx];
 
         /* Normal attr and char */
-        *a = object_kind_attr(p, kind);
-        *c = object_kind_char(p, kind);
+        if (server)
+        {
+            *a = kind_x_attr[kind->kidx];
+            *c = kind_x_char[kind->kidx];
+        }
+        else
+        {
+            *a = object_kind_attr(p, kind);
+            *c = object_kind_char(p, kind);
+        }
 
         /* Set default attr */
         if (!p->use_graphics && (*a == COLOUR_MULTI)) *a = COLOUR_VIOLET;
@@ -403,8 +440,7 @@ static void player_pict(struct player *p, struct chunk *cv, struct player *q, u1
     /* Hack -- highlight party leader! */
     else
     {
-        if (!p->use_graphics && is_party_owner(p, q) &&
-            OPT(p, highlight_leader) && magik(50))
+        if (!p->use_graphics && is_party_owner(p, q) && OPT(p, highlight_leader) && magik(50))
         {
             if (*a == COLOUR_YELLOW) *a = COLOUR_L_DARK;
             else *a = COLOUR_YELLOW;
@@ -432,7 +468,7 @@ static void player_pict(struct player *p, struct chunk *cv, struct player *q, u1
             *c = I2D(life);
 
             /* Use presets in gfx mode */
-            if (p->use_graphics)
+            if (p->use_graphics && !server)
             {
                 *a = player_numbers[mode][life].a;
                 *c = player_numbers[mode][life].c;
@@ -553,28 +589,21 @@ static bool get_trap_graphics(struct player *p, struct chunk *c, bool server,
     struct grid_data *g, u16b *a, char *ch)
 {
     struct trap *trap = g->trap;
-    char (*t_char_ptr)[LIGHTING_MAX];
-    byte (*t_attr_ptr)[LIGHTING_MAX];
 
-    /* Should we override the clients attr/char settings? */
-    if (server)
-    {
-        /* We have initialised a global array of server char/attr elsewhere for speed */
-        t_attr_ptr = trap_x_attr;
-        t_char_ptr = trap_x_char;
-    }
-    else
-    {
-        t_attr_ptr = p->t_attr;
-        t_char_ptr = p->t_char;
-    }
-    
     /* Trap is visible */
     if (trf_has(trap->flags, TRF_VISIBLE) || trf_has(trap->flags, TRF_RUNE))
     {
 		/* Get the graphics */
-        *a = t_attr_ptr[trap->kind->tidx][g->lighting];
-        *ch = t_char_ptr[trap->kind->tidx][g->lighting];
+        if (server)
+        {
+            *a = trap_x_attr[trap->kind->tidx][g->lighting];
+            *ch = trap_x_char[trap->kind->tidx][g->lighting];
+        }
+        else
+        {
+            *a = p->t_attr[trap->kind->tidx][g->lighting];
+            *ch = p->t_char[trap->kind->tidx][g->lighting];
+        }
 	
 		/* We found a trap */
 		return true;
@@ -623,32 +652,19 @@ void grid_data_as_text(struct player *p, struct chunk *cv, bool server, struct g
 {
     u16b a;
     char c;
-    char (*f_char_ptr)[LIGHTING_MAX];
-    byte (*f_attr_ptr)[LIGHTING_MAX];
-    char *r_char_ptr;
-    byte *r_attr_ptr;
     bool use_graphics;
 
-    /* Should we override the clients attr/char settings? */
+    /* Normal attr and char */
     if (server)
     {
-        /* We have initialised a global array of server char/attr elsewhere for speed */
-        f_attr_ptr = feat_x_attr;
-        f_char_ptr = feat_x_char;
-        r_attr_ptr = monster_x_attr;
-        r_char_ptr = monster_x_char;
+        a = feat_x_attr[g->f_idx][g->lighting];
+        c = feat_x_char[g->f_idx][g->lighting];
     }
     else
     {
-        f_attr_ptr = p->f_attr;
-        f_char_ptr = p->f_char;
-        r_attr_ptr = p->r_attr;
-        r_char_ptr = p->r_char;
+        a = p->f_attr[g->f_idx][g->lighting];
+        c = p->f_char[g->f_idx][g->lighting];
     }
-
-    /* Normal attr and char */
-    a = f_attr_ptr[g->f_idx][g->lighting];
-    c = f_char_ptr[g->f_idx][g->lighting];
 
     /* Hack -- use basic lighting for unmapped tiles */
     use_graphics = (p->use_graphics && (a & 0x80));
@@ -671,33 +687,65 @@ void grid_data_as_text(struct player *p, struct chunk *cv, bool server, struct g
     if (g->unseen_money)
     {
         /* $$$ gets an orange star */
-        a = object_kind_attr(p, unknown_gold_kind);
-        c = object_kind_char(p, unknown_gold_kind);
+        if (server)
+        {
+            a = kind_x_attr[unknown_gold_kind->kidx];
+            c = kind_x_char[unknown_gold_kind->kidx];
+        }
+        else
+        {
+            a = object_kind_attr(p, unknown_gold_kind);
+            c = object_kind_char(p, unknown_gold_kind);
+        }
     }
     if (g->unseen_object)
     {
         /* Everything else gets a red star */
-        a = object_kind_attr(p, unknown_item_kind);
-        c = object_kind_char(p, unknown_item_kind);
+        if (server)
+        {
+            a = kind_x_attr[unknown_item_kind->kidx];
+            c = kind_x_char[unknown_item_kind->kidx];
+        }
+        else
+        {
+            a = object_kind_attr(p, unknown_item_kind);
+            c = object_kind_char(p, unknown_item_kind);
+        }
     }
     else if (g->first_obj)
     {
         if (g->hallucinate)
         {
             /* Just pick a random object to display. */
-            hallucinatory_object(p, &a, &c);
+            hallucinatory_object(p, server, &a, &c);
         }
         else if (g->multiple_objects)
         {
             /* Get the "pile" feature instead */
-            a = object_kind_attr(p, pile_kind);
-            c = object_kind_char(p, pile_kind);
+            if (server)
+            {
+                a = kind_x_attr[pile_kind->kidx];
+                c = kind_x_char[pile_kind->kidx];
+            }
+            else
+            {
+                a = object_kind_attr(p, pile_kind);
+                c = object_kind_char(p, pile_kind);
+            }
         }
         else
         {
             /* Normal attr and char */
-            a = object_attr(p, g->first_obj);
-            c = object_char(p, g->first_obj);
+            if (server)
+            {
+                a = kind_x_attr[g->first_obj->kind->kidx];
+                c = kind_x_char[g->first_obj->kind->kidx];
+            }
+            else
+            {
+                a = object_attr(p, g->first_obj);
+                c = object_char(p, g->first_obj);
+            }
 
             /* Multi-hued object */
             if (object_shimmer(g->first_obj))
@@ -728,7 +776,7 @@ void grid_data_as_text(struct player *p, struct chunk *cv, bool server, struct g
         if (g->hallucinate)
         {
             /* Just pick a random monster to display. */
-            hallucinatory_monster(p, &a, &c);
+            hallucinatory_monster(p, server, &a, &c);
         }
         else if (!monster_is_camouflaged(mon))
         {
@@ -736,8 +784,16 @@ void grid_data_as_text(struct player *p, struct chunk *cv, bool server, struct g
             char dc;
 
             /* Desired attr & char */
-            da = r_attr_ptr[mon->race->ridx];
-            dc = r_char_ptr[mon->race->ridx];
+            if (server)
+            {
+                da = monster_x_attr[mon->race->ridx];
+                dc = monster_x_char[mon->race->ridx];
+            }
+            else
+            {
+                da = p->r_attr[mon->race->ridx];
+                dc = p->r_char[mon->race->ridx];
+            }
 
             /* Special handling of attrs and/or chars */
             if (da & 0x80)
@@ -797,8 +853,16 @@ void grid_data_as_text(struct player *p, struct chunk *cv, bool server, struct g
             /* Hack -- random mimics */
             if (mon->mimicked_k_idx)
             {
-                c = p->k_char[mon->mimicked_k_idx];
-                if (p->use_graphics) a = p->k_attr[mon->mimicked_k_idx];
+                if (server)
+                {
+                    if (p->use_graphics) a = kind_x_attr[mon->mimicked_k_idx];
+                    c = kind_x_char[mon->mimicked_k_idx];
+                }
+                else
+                {
+                    if (p->use_graphics) a = p->k_attr[mon->mimicked_k_idx];
+                    c = p->k_char[mon->mimicked_k_idx];
+                }
             }
 
             /* Store the drawing attr so we can use it elsewhere */
@@ -807,7 +871,7 @@ void grid_data_as_text(struct player *p, struct chunk *cv, bool server, struct g
     }
     else if (g->is_player)
     {
-        player_pict(p, cv, p, &a, &c);
+        player_pict(p, cv, p, server, &a, &c);
         Send_player_pos(p);
     }
     else if (g->m_idx < 0)
@@ -818,18 +882,18 @@ void grid_data_as_text(struct player *p, struct chunk *cv, bool server, struct g
 
             /* Player mimics an object -- just pick a random object to display. */
             if (k_idx > 0)
-                hallucinatory_object(p, &a, &c);
+                hallucinatory_object(p, server, &a, &c);
 
             /* Player mimics a feature -- display him normally. */
             else if (k_idx < 0)
-                player_pict(p, cv, player_get(0 - g->m_idx), &a, &c);
+                player_pict(p, cv, player_get(0 - g->m_idx), server, &a, &c);
 
             /* Just pick a random monster to display. */
             else
-                hallucinatory_monster(p, &a, &c);
+                hallucinatory_monster(p, server, &a, &c);
         }
         else
-            player_pict(p, cv, player_get(0 - g->m_idx), &a, &c);
+            player_pict(p, cv, player_get(0 - g->m_idx), server, &a, &c);
     }
 
     /* Result */
@@ -1014,7 +1078,7 @@ void display_map(struct player *p, bool subwindow)
         row = (py * map_hgt / cv->height);
         col = (px * map_wid / cv->width);
 
-        player_pict(p, cv, p, &ta, &tc);
+        player_pict(p, cv, p, false, &ta, &tc);
 
         /* Set the "player" attr */
         ma[row][col] = ta;
@@ -1173,7 +1237,7 @@ static void wild_display_map(struct player *p)
 
             /* Put the player in the center */
             if ((y == map_hgt / 2) && (x == map_wid / 2))
-                player_pict(p, cv, p, &ta, &tc);
+                player_pict(p, cv, p, false, &ta, &tc);
 
             /* Save the char */
             mc[y][x] = tc;

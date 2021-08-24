@@ -3,7 +3,7 @@
  * Purpose: UI for targeting code
  *
  * Copyright (c) 1997-2014 Angband contributors
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -816,7 +816,9 @@ static int target_dir(u32b ch)
     int d = 0;
 
     /* Already a direction? */
-    if (isdigit((unsigned char)ch))
+    if (ch <= 9)
+        d = ch;
+    else if (isdigit((unsigned char)ch))
         d = D2I(ch);
     else if (isarrow(ch))
     {

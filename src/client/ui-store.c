@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Robert A. Koeneke, James E. Wilson, Ben Harrison
  * Copyright (c) 1998-2014 Angband developers
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -608,16 +608,16 @@ static void store_menu_set_selections(struct menu *menu)
     if (OPT(player, rogue_like_commands))
     {
         /* These two can't intersect! */
-        menu->cmd_keys = "degiopsxD?|&";
-        menu->selections = "abcfhlmnqrtuvwyzABCEFGHI";
+        menu->cmd_keys = "degiopsxDP?|&";
+        menu->selections = "abcfhjklmnqrtuvwyzABCEFG";
     }
 
     /* Original */
     else
     {
         /* These two can't intersect! */
-        menu->cmd_keys = "degilopsD?|&";
-        menu->selections = "abcfhjkmnqrtuvwxyzABCEFG";
+        menu->cmd_keys = "bdegilopsD?|&";
+        menu->selections = "acfhjkmnqrtuvwxyzABCEFGH";
     }
 }
 
@@ -845,6 +845,30 @@ static bool store_menu_handle(struct menu *m, const ui_event *event, int oid)
                     store_order();
                 else
                     c_msg_print("You cannot order from this store.");
+                break;
+            }
+
+            case 'P':
+            case 'b':
+            {
+                /* Paranoia: nothing to describe */
+                if (store->stock_num > 0)
+                {
+                    /* Use the old way of examining items */
+                    prt("Browse which item? (ESC to cancel, Enter to select)", 0, 0);
+                    oid = store_get_stock(m, oid);
+                    prt("", 0, 0);
+                    if (oid >= 0)
+                    {
+                        struct object *obj = &ctx->list[oid];
+
+                        if (obj_can_browse(player, obj))
+                        {
+                            Send_track_object(obj->oidx);
+                            textui_book_browse(obj->info_xtra.bidx);
+                        }
+                    }
+                }
                 break;
             }
 

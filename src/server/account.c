@@ -2,7 +2,7 @@
  * File: account.c
  * Purpose: Account management
  *
- * Copyright (c) 2018 PWMAngband Developers
+ * Copyright (c) 2019 PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:

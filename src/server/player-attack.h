@@ -42,8 +42,8 @@ struct hit_types
 typedef struct attack_result (*ranged_attack) (struct player *p, struct object *obj, int y,
     int x);
 
-extern void do_cmd_fire(struct player *p, int dir, int item);
-extern void do_cmd_fire_at_nearest(struct player *p);
+extern bool do_cmd_fire(struct player *p, int dir, int item);
+extern bool do_cmd_fire_at_nearest(struct player *p);
 extern void do_cmd_throw(struct player *p, int dir, int item);
 extern void py_attack(struct player *p, struct chunk *c, int y, int x);
 extern int py_attack_hit_chance(struct player *p, const struct object *weapon);

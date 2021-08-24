@@ -9,37 +9,41 @@
 
 # === Understanding town_feat.txt ===
 
-# feat : symbol : terrain type
+# feat : symbol : special symbol : terrain type
 
 # 'feat' lines describe the type of terrain. 'Symbol' is the symbol used 
 # on the metamap (see town_XXX.txt files). 'Terrain type' is the feature
-# used to represent the terrain (see terrain.txt).
+# used to represent the terrain (see terrain.txt). 'Special symbol' is used
+# to distinguish different terrain types that are using the same symbol.
 
 
 # fake blank feature
 
-feat: :unknown grid
+feat: : :unknown grid
 
 # terrain types
 
-feat:.:open floor
-feat:1:General Store
-feat:2:Armoury
-feat:3:Weapon Smiths
-feat:4:Temple
-feat:5:Alchemy Shop
-feat:6:Magic Shop
-feat:9:House of Arcanes
-feat:7:Black Market
-feat:B:Expensive Black Market
-feat:8:Tavern
-feat:#:permanent wall
-feat:V:water
-feat:@:mud
-feat:C:loose dirt
-feat:,:packed dirt
-feat:~:safe floor
-feat:O:street
-feat:-:grass
-feat:T:tree
-feat:^:mountain
+feat:.:.:open floor
+feat:1:1:General Store
+feat:2:2:Armoury
+feat:3:3:Weapon Smiths
+feat:4:4:Temple
+feat:5:5:Alchemy Shop
+feat:6:6:Magic Shop
+feat:9:9:Bookseller
+feat:7:7:Black Market
+feat:B:B:Expensive Black Market
+feat:8:8:Tavern
+feat:#:#:permanent wall
+feat:V:V:water
+feat:@:@:mud
+feat:C:C:loose dirt
+feat:,:,:packed dirt
+feat:~:~:safe floor
+feat:O:O:street
+feat:-:-:grass
+feat:T:T:tree
+feat:^:^:mountain
+feat:>:>:down staircase
+feat:x:x:safe floor
+feat:T:D:dark tree

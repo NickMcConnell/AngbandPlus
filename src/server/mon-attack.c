@@ -3,7 +3,7 @@
  * Purpose: Monster attacks
  *
  * Copyright (c) 1997 Ben Harrison
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -210,7 +210,7 @@ static int get_thrown_spell(struct player *p, struct player *who, struct chunk *
         if (target_m_dis > z_info->max_range) return -1;
 
         /* Check path (destination could be standing on a wall) */
-        if (!projectable_wall(c, mon->fy, mon->fx, py, px)) return -1;
+        if (!projectable(c, mon->fy, mon->fx, py, px, PROJECT_NONE, false)) return -1;
     }
 
     /* Extract the monster level */
@@ -233,7 +233,7 @@ static int get_thrown_spell(struct player *p, struct player *who, struct chunk *
     if (!monster_is_stupid(mon->race))
     {
         /* Check for a clean bolt shot */
-        if (test_spells(f, RST_BOLT) && !projectable(c, mon->fy, mon->fx, py, px, PROJECT_STOP))
+        if (test_spells(f, RST_BOLT) && !projectable(c, mon->fy, mon->fx, py, px, PROJECT_STOP, false))
         {
             /* Remove spells that will only hurt friends */
             ignore_spells(f, RST_BOLT);

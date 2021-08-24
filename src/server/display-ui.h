@@ -38,6 +38,7 @@ struct message
     int type;
 };
 
+extern void dump_spells(struct player *p, struct object *obj);
 extern void player_elements(struct player *p, struct element_info el_info[ELEM_MAX]);
 extern void redraw_stuff(struct player *p);
 extern void restore_hp(struct player *p);

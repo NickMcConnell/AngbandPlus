@@ -3,7 +3,7 @@
  * Purpose: Wrapper functions for tvals.
  *
  * Copyright (c) 2014 Ben Semmler
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:

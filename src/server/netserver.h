@@ -58,6 +58,7 @@ typedef struct
     bool            console_listen;
     byte            console_channels[MAX_CHANNELS];
     u32b            account;
+    char            *quit_msg;
 } connection_t;
 
 /*** Player connection/index wrappers ***/
@@ -67,9 +68,10 @@ extern void set_player_index(connection_t *connp, long idx);
 
 /*** General utilities ***/
 extern int Setup_net_server(void);
+extern void Conn_set_state(connection_t *connp, int state, long timeout);
 extern void setup_contact_socket(void);
 extern bool Report_to_meta(int flag);
-extern bool Destroy_connection(int ind, char *reason);
+extern void Destroy_connection(int ind, char *reason);
 extern void Stop_net_server(void);
 extern void* console_buffer(int ind, bool read);
 extern bool Conn_is_alive(int ind);
@@ -109,6 +111,7 @@ extern int Send_various(struct player *p, int height, int weight, int age);
 extern int Send_stat(struct player *p, int stat, int stat_top, int stat_use, int stat_max,
     int stat_add, int stat_cur);
 extern int Send_history(struct player *p, int line, const char *hist);
+extern int Send_autoinscription(struct player *p, struct object_kind *kind);
 extern int Send_index(struct player *p, int i, int index, byte type);
 extern int Send_item_request(struct player *p, byte tester_hook, char *dice_string);
 extern int Send_title(struct player *p, const char *title);
@@ -127,11 +130,12 @@ extern int Send_show_floor(struct player *p, byte mode);
 extern int Send_char(struct player *p, int x, int y, u16b a, char c, u16b ta, char tc);
 extern int Send_spell_info(struct player *p, int book, int i, const char *out_val,
     spell_flags *flags);
+extern int Send_book_info(struct player *p, int book, const char *name);
 extern int Send_floor(struct player *p, byte num, const struct object *obj,
     struct object_xtra *info_xtra);
 extern int Send_special_other(struct player *p, char *header, byte peruse, bool protect);
 extern int Send_store(struct player *p, char pos, byte attr, s16b wgt, byte number,
-    byte owned, s32b price, byte tval, byte max, const char *name);
+    byte owned, s32b price, byte tval, byte max, s16b bidx, const char *name);
 extern int Send_store_info(struct player *p, int num, char *name, char *owner, int items,
     s32b purse);
 extern int Send_target_info(struct player *p, int x, int y, bool dble, const char *buf);
@@ -154,7 +158,7 @@ extern int Send_text_screen(int ind, int type, s32b offset);
 extern int Send_char_info_conn(int ind);
 extern int Send_char_info(struct player *p, byte ridx, byte cidx, byte psex);
 extern int Send_birth_options(int ind, struct birth_options *options);
-extern bool Send_dump_character(connection_t *connp, const char *dumpname, bool dump_only);
+extern bool Send_dump_character(connection_t *connp, const char *dumpname, int mode);
 extern int Send_message(struct player *p, const char *msg, u16b typ);
 extern int Send_item(struct player *p, const struct object *obj, int wgt, s32b price,
     struct object_xtra *info_xtra);
@@ -174,6 +178,8 @@ extern int cmd_ignore_drop(struct player *p);
 extern int cmd_run(struct player *p, int dir);
 extern int cmd_rest(struct player *p, s16b resting);
 extern int cmd_tunnel(struct player *p);
+extern int cmd_fire_at_nearest(struct player *p);
+extern int cmd_cast(struct player *p, s16b book, s16b spell, int dir);
 
 /*** General network functions ***/
 extern bool process_pending_commands(int ind);

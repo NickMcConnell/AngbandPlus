@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2007-9 Andi Sidwell, Chris Carr, Ed Graham, Erik Osheim
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -251,6 +251,13 @@ void do_cmd_uninscribe(struct player *p, int item)
     obj->note = 0;
     msg(p, "Inscription removed.");
 
+    /* PWMAngband: remove autoinscription if aware */
+    if (p->obj_aware[obj->kind->kidx])
+    {
+        remove_autoinscription(p, obj->kind->kidx);
+        Send_autoinscription(p, obj->kind);
+    }
+
     /* Update global "preventive inscriptions" */
     update_prevent_inscriptions(p);
 
@@ -344,10 +351,15 @@ void do_cmd_inscribe(struct player *p, int item, const char *inscription)
     message_flush(p);
 
     /* Save the inscription */
-    if (OPT(p, birth_no_selling))
-        obj->note = quark_add(format("*%s", inscription));
-    else
-        obj->note = quark_add(inscription);
+    obj->note = quark_add(inscription);
+
+    /* PWMAngband: add autoinscription if aware and inscription has the right format (@xn) */
+    if (p->obj_aware[obj->kind->kidx] && (strlen(inscription) == 3) && (inscription[0] == '@') &&
+        isalpha(inscription[1]) && isdigit(inscription[2]))
+    {
+        add_autoinscription(p, obj->kind->kidx, inscription);
+        Send_autoinscription(p, obj->kind);
+    }
 
     /* Update global "preventive inscriptions" */
     update_prevent_inscriptions(p);
@@ -480,7 +492,7 @@ void do_cmd_wield(struct player *p, int item, int slot)
         }
 
         /* Restricted by choice */
-        if (obj->artifact && OPT(p, birth_no_artifacts))
+        if (obj->artifact && (cfg_no_artifacts || OPT(p, birth_no_artifacts)))
         {
             msg(p, "You cannot wield that item.");
             return;
@@ -845,10 +857,6 @@ void do_cmd_study(struct player *p, int book_index, int spell_index)
     int sidx = -1;
     const struct class_spell *spell;
     int i, k = 0;
-    const struct magic_realm *realm;
-    const char *noun;
-    const char *name;
-    const char *prompt;
     struct object *obj = object_from_index(p, book_index, true, true);
 
     /* Paranoia: requires an item */
@@ -864,10 +872,6 @@ void do_cmd_study(struct player *p, int book_index, int spell_index)
     }
 
     if (!player_can_cast(p, true)) return;
-
-    realm = p->clazz->magic.spell_realm;
-    noun = (realm? realm->spell_noun: "");
-    prompt = format("You cannot learn that %s!", noun);
 
     /* Check preventive inscription '^G' */
     if (check_prevent_inscription(p, INSCRIPTION_STUDY))
@@ -890,8 +894,7 @@ void do_cmd_study(struct player *p, int book_index, int spell_index)
     if (!book) return;
 
     /* Elementalists can increase the power of their spells */
-    name = (realm? realm->name: "");
-    if (streq(name, "elemental"))
+    if (streq(book->realm->name, "elemental"))
     {
         /* Check if spell is learned */
         sidx = get_spell(p, obj, spell_index, NULL, true);
@@ -943,13 +946,15 @@ void do_cmd_study(struct player *p, int book_index, int spell_index)
 
     if (!p->upkeep->new_spells)
     {
-        msg(p, "You cannot learn any new %ss!", noun);
+        msg(p, "You cannot learn any new %ss!", book->realm->spell_noun);
         return;
     }
 
     /* Spellcaster -- learn a selected spell */
     if (player_has(p, PF_CHOOSE_SPELLS))
     {
+        const char *prompt = format("You cannot learn that %s!", book->realm->spell_noun);
+
         /* Ask for a spell */
         sidx = get_spell(p, obj, spell_index, prompt, false);
 
@@ -984,7 +989,7 @@ void do_cmd_study(struct player *p, int book_index, int spell_index)
     if (sidx < 0)
     {
         /* Message */
-        msg(p, "You cannot learn any %ss in that book.", noun);
+        msg(p, "You cannot learn any %ss in that book.", book->realm->spell_noun);
 
         /* Abort */
         return;
@@ -1008,7 +1013,7 @@ void do_cmd_study(struct player *p, int book_index, int spell_index)
     p->spell_order[i++] = sidx;
 
     /* Mention the result */
-    msgt(p, MSG_STUDY, "You have learned the %s of %s.", noun, spell->name);
+    msgt(p, MSG_STUDY, "You have learned the %s of %s.", spell->realm->spell_noun, spell->name);
 
     /* One less spell available */
     p->upkeep->new_spells--;
@@ -1017,7 +1022,7 @@ void do_cmd_study(struct player *p, int book_index, int spell_index)
     if (p->upkeep->new_spells)
     {
         /* Message */
-        msg(p, "You can learn %d more %s%s.", p->upkeep->new_spells, noun,
+        msg(p, "You can learn %d more %s%s.", p->upkeep->new_spells, book->realm->spell_noun,
             PLURAL(p->upkeep->new_spells));
     }
 
@@ -1031,9 +1036,6 @@ static bool spell_cast(struct player *p, int spell_index, int dir, quark_t note,
 {
     int chance;
     int old_num = get_player_num(p);
-    const struct magic_realm *realm = p->clazz->magic.spell_realm;
-    const char *name = (realm? realm->name: "");
-    bool pious = streq(name, "divine");
 
     /* Spell failure chance */
     chance = spell_chance(p, spell_index);
@@ -1045,6 +1047,8 @@ static bool spell_cast(struct player *p, int spell_index, int dir, quark_t note,
     {
         struct source who_body;
         struct source *who = &who_body;
+        const struct class_spell *spell = spell_by_index(&p->clazz->magic, spell_index);
+        bool pious = streq(spell->realm->name, "divine");
 
         /* Set current spell */
         p->current_spell = spell_index;
@@ -1067,7 +1071,6 @@ static bool spell_cast(struct player *p, int spell_index, int dir, quark_t note,
         /* Cast the spell */
         else
         {
-            const struct class_spell *spell = spell_by_index(&p->clazz->magic, spell_index);
             bool ident = false;
             struct beam_info beam;
 
@@ -1137,69 +1140,101 @@ static bool spell_identify_unknown_available(struct player *p)
 /*
  * Cast a spell from a book
  */
-void do_cmd_cast(struct player *p, int book_index, int spell_index, int dir)
+bool do_cmd_cast(struct player *p, int book_index, int spell_index, int dir)
 {
-    const struct magic_realm *realm;
-    const char *name;
-    const char *verb, *noun, *prompt;
+    const char *prompt;
     const struct class_spell *spell;
     struct object *obj = object_from_index(p, book_index, true, true);
     const struct class_book *book;
     int sidx;
 
+    /* Cancel repeat */
+    if (!p->firing_request) return true;
+
+    /* Check energy */
+    if (!has_energy(p)) return false;
+
     /* Paranoia: requires an item */
-    if (!obj) return;
+    if (!obj)
+    {
+        /* Cancel repeat */
+        disturb(p, 0);
+        return true;
+    }
 
     /* Clear current */
     current_clear(p);
 
     /* Check the player can cast spells at all */
-    if (!player_can_cast(p, true)) return;
-
-    realm = p->clazz->magic.spell_realm;
-    verb = (realm? realm->verb: "");
-    noun = (realm? realm->spell_noun: "");
-
-    /* Restrict ghosts */
-    /* One exception: players in undead form can cast spells (from pack only) */
-    if (p->ghost && !(p->dm_flags & DM_GHOST_HANDS) &&
-        !(player_undead(p) && object_is_carried(p, obj)))
+    if (!player_can_cast(p, true))
     {
-        msg(p, "You cannot %s that %s.", verb, noun);
-        return;
+        /* Cancel repeat */
+        disturb(p, 0);
+        return true;
     }
 
     /* Check preventive inscription '^m' */
     if (check_prevent_inscription(p, INSCRIPTION_CAST))
     {
         msg(p, "The item's inscription prevents it.");
-        return;
+
+        /* Cancel repeat */
+        disturb(p, 0);
+        return true;
     }
 
     /* Restricted by choice */
     if (!object_is_carried(p, obj) && !is_owner(p, obj))
     {
         msg(p, "This item belongs to someone else!");
-        return;
+
+        /* Cancel repeat */
+        disturb(p, 0);
+        return true;
     }
 
     /* Get the book */
     book = object_to_book(p, obj);
 
     /* Requires a spellbook */
-    if (!book) return;
+    if (!book)
+    {
+        /* Cancel repeat */
+        disturb(p, 0);
+        return true;
+    }
 
     /* Check preventive inscription '!m' */
     if (object_prevent_inscription(p, obj, INSCRIPTION_CAST, false))
     {
         msg(p, "The item's inscription prevents it.");
-        return;
+
+        /* Cancel repeat */
+        disturb(p, 0);
+        return true;
+    }
+
+    /* Restrict ghosts */
+    /* One exception: players in undead form can cast spells (from pack only) */
+    if (p->ghost && !(p->dm_flags & DM_GHOST_HANDS) &&
+        !(player_undead(p) && object_is_carried(p, obj)))
+    {
+        msg(p, "You cannot %s that %s.", book->realm->verb, book->realm->spell_noun);
+
+        /* Cancel repeat */
+        disturb(p, 0);
+        return true;
     }
 
     /* Ask for a spell */
-    prompt = format("You cannot %s that %s.", verb, noun);
+    prompt = format("You cannot %s that %s.", book->realm->verb, book->realm->spell_noun);
     sidx = get_spell(p, obj, spell_index, prompt, true);
-    if (sidx == -1) return;
+    if (sidx == -1)
+    {
+        /* Cancel repeat */
+        disturb(p, 0);
+        return true;
+    }
 
     /* Get the spell */
     spell = spell_by_index(&p->clazz->magic, sidx);
@@ -1208,34 +1243,52 @@ void do_cmd_cast(struct player *p, int book_index, int spell_index, int dir)
     if (spell_is_identify(p, sidx) && !spell_identify_unknown_available(p))
     {
         msg(p, "You have nothing to identify.");
-        return;
+
+        /* Cancel repeat */
+        disturb(p, 0);
+        return true;
     }
 
     /* Check mana */
     if (spell->smana > p->csp)
     {
         /* Warning */
-        msg(p, "You do not have enough mana to %s this %s.", verb, noun);
-        return;
+        msg(p, "You do not have enough mana to %s this %s.", spell->realm->verb,
+            spell->realm->spell_noun);
+
+        /* Cancel repeat */
+        disturb(p, 0);
+        return true;
     }
 
     /* Antimagic field (no effect on psi powers which are not "magical") */
-    name = (realm? realm->name: "");
-    if (strcmp(name, "psi") && check_antimagic(p, chunk_get(&p->wpos), NULL))
+    if (strcmp(book->realm->name, "psi") && check_antimagic(p, chunk_get(&p->wpos), NULL))
     {
         use_energy(p);
-        return;
+
+        /* Cancel repeat */
+        disturb(p, 0);
+        return true;
     }
 
     /* Spell cost */
     p->spell_cost = spell->smana;
 
     /* Cast a spell */
-    if (spell_cast(p, sidx, dir, obj->note,
+    if (!spell_cast(p, sidx, dir, obj->note,
         (spell_index >= p->clazz->magic.total_spells)? true: false))
     {
-        use_energy(p);
+        /* Cancel repeat */
+        disturb(p, 0);
+        return true;
     }
+
+    use_energy(p);
+
+    /* Repeat */
+    if (p->firing_request > 0) p->firing_request--;
+    if (p->firing_request > 0) cmd_cast(p, book_index, spell_index, dir);
+    return true;
 }
 
 

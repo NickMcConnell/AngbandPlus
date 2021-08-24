@@ -3,7 +3,7 @@
  * Purpose: Various game initialisation routines
  *
  * Copyright (c) 1997 Ben Harrison
- * Copyright (c) 2018 MAngband and PWMAngband Developers
+ * Copyright (c) 2019 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -42,14 +42,12 @@ char *cfg_report_address = NULL;
 char *cfg_console_password = NULL;
 char *cfg_dungeon_master = NULL;
 bool cfg_secret_dungeon_master = true;
+u32b cfg_max_account_chars = 12;
 bool cfg_no_steal = true;
 bool cfg_newbies_cannot_drop = true;
 s32b cfg_level_unstatic_chance = 60;
 bool cfg_random_artifacts = false;
 s32b cfg_retire_timer = -1;
-s16b cfg_limit_stairs = 0;
-bool cfg_diving_mode = 0;
-bool cfg_no_ghost = false;
 bool cfg_more_towns = false;
 bool cfg_artifact_drop_shallow = true;
 bool cfg_limit_player_connections = true;
@@ -69,6 +67,12 @@ s16b cfg_party_sharelevel = -1;
 bool cfg_turn_based = false;
 bool cfg_limited_esp = false;
 bool cfg_double_purse = false;
+s16b cfg_limit_stairs = 0;
+s16b cfg_diving_mode = 0;
+bool cfg_no_artifacts = false;
+bool cfg_no_selling = true;
+bool cfg_no_stores = false;
+bool cfg_no_ghost = false;
 bool cfg_ai_learn = false;
 
 
@@ -158,6 +162,74 @@ errr grab_effect_data(struct parser *p, struct effect *effect)
 
     if (parser_hasval(p, "xtra"))
         effect->params[1] = parser_getint(p, "xtra");
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error write_book_kind(struct class_book *book, const char *name)
+{
+    struct object_kind *temp, *kind;
+    int i;
+
+    /* Check we haven't already made this book */
+    for (i = 0; i < z_info->k_max; i++)
+    {
+        if (k_info[i].name && streq(name, k_info[i].name))
+        {
+            book->sval = k_info[i].sval;
+            return PARSE_ERROR_NONE;
+        }
+    }
+
+    /* Extend by 1 and realloc */
+    z_info->k_max++;
+    temp = mem_realloc(k_info, z_info->k_max * sizeof(*temp));
+
+    /* Copy if no errors */
+    if (!temp) return PARSE_ERROR_INTERNAL;
+    k_info = temp;
+
+    /* Add this entry at the end */
+    kind = &k_info[z_info->k_max - 1];
+    memset(kind, 0, sizeof(*kind));
+
+    /* Copy the tval and base */
+    kind->tval = book->tval;
+    kind->base = &kb_info[kind->tval];
+
+    /* Make the name and index */
+    kind->name = string_make(name);
+    kind->kidx = z_info->k_max - 1;
+
+    /* Increase the sval count for this tval, set the new one to the max */
+    for (i = 0; i < TV_MAX; i++)
+    {
+        if (kb_info[i].tval == kind->tval)
+        {
+            kb_info[i].num_svals++;
+            kind->sval = kb_info[i].num_svals;
+            break;
+        }
+    }
+    if (i == TV_MAX) return PARSE_ERROR_INTERNAL;
+
+    /* Copy the sval */
+    book->sval = kind->sval;
+
+    /* Set object defaults (graphics should be overwritten) */
+    kind->d_char = '*';
+    kind->d_attr = COLOUR_RED;
+    kind->dd = 1;
+    kind->ds = 1;
+
+    /* Dungeon books get extra properties */
+    if (book->dungeon)
+    {
+        for (i = ELEM_BASE_MIN; i < ELEM_BASE_MAX; i++)
+            kind->el_info[i].flags |= EL_INFO_IGNORE;
+        kf_on(kind->kind_flags, KF_GOOD);
+    }
 
     return PARSE_ERROR_NONE;
 }
@@ -492,6 +564,10 @@ static enum parser_error parse_constants_obj_make(struct parser *p)
 
     if (streq(label, "max-depth"))
         z->max_obj_depth = value;
+    else if (streq(label, "good-obj"))
+        z->good_obj = value;
+    else if (streq(label, "ego-obj"))
+        z->ego_obj = value;
     else if (streq(label, "great-obj"))
         z->great_obj = value;
     else if (streq(label, "great-ego"))
@@ -2069,6 +2145,104 @@ static struct file_parser p_race_parser =
 
 
 /*
+ * Initialize dragon breeds
+ */
+
+
+static enum parser_error parse_dragon_breed_dragon(struct parser *p)
+{
+    struct dragon_breed *h = parser_priv(p);
+    struct dragon_breed *r = mem_zalloc(sizeof(*r));
+
+    r->next = h;
+    r->d_name = string_make(parser_getsym(p, "name"));
+    r->d_fmt = (byte)parser_getuint(p, "format");
+
+    parser_setpriv(p, r);
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_dragon_breed_wyrm(struct parser *p)
+{
+    struct dragon_breed *r = parser_priv(p);
+
+    if (!r) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    r->w_name = string_make(parser_getsym(p, "name"));
+    r->w_fmt = (byte)parser_getuint(p, "format");
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_dragon_breed_info(struct parser *p)
+{
+    struct dragon_breed *r = parser_priv(p);
+
+    if (!r) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    r->commonness = (byte)parser_getuint(p, "commonness");
+    r->r_exp = (s16b)parser_getint(p, "r_exp");
+    r->immune = (byte)parser_getuint(p, "immune");
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static struct parser *init_parse_dragon_breed(void)
+{
+    struct parser *p = parser_new();
+
+    parser_setpriv(p, NULL);
+    parser_reg(p, "dragon sym name uint format", parse_dragon_breed_dragon);
+    parser_reg(p, "wyrm sym name uint format", parse_dragon_breed_wyrm);
+    parser_reg(p, "info uint commonness int r_exp uint immune", parse_dragon_breed_info);
+
+    return p;
+}
+
+
+static errr run_parse_dragon_breed(struct parser *p)
+{
+    return parse_file_quit_not_found(p, "dragon_breed");
+}
+
+
+static errr finish_parse_dragon_breed(struct parser *p)
+{
+    breeds = parser_priv(p);
+    parser_destroy(p);
+    return 0;
+}
+
+
+static void cleanup_dragon_breed(void)
+{
+    struct dragon_breed *p = breeds;
+    struct dragon_breed *next;
+
+    while (p)
+    {
+        next = p->next;
+        string_free(p->d_name);
+        string_free(p->w_name);
+        mem_free(p);
+        p = next;
+    }
+}
+
+
+static struct file_parser dragon_breed_parser =
+{
+    "dragon_breed",
+    init_parse_dragon_breed,
+    run_parse_dragon_breed,
+    finish_parse_dragon_breed,
+    cleanup_dragon_breed
+};
+
+
+/*
  * Initialize player magic realms
  */
 
@@ -2383,6 +2557,7 @@ static enum parser_error parse_class_equip(struct parser *p)
     struct player_class *c = parser_priv(p);
     struct start_item *si;
     int tval, sval;
+    struct object_kind *kind;
 
     if (!c) return PARSE_ERROR_MISSING_RECORD_HEADER;
 
@@ -2393,12 +2568,14 @@ static enum parser_error parse_class_equip(struct parser *p)
     if (sval < 0) return PARSE_ERROR_UNRECOGNISED_SVAL;
 
     si = mem_zalloc(sizeof(*si));
-    si->kind = lookup_kind(tval, sval);
+    si->tval = tval;
+    si->sval = sval;
     si->min = parser_getuint(p, "min");
     si->max = parser_getuint(p, "max");
     si->flag = parser_getuint(p, "flag");
 
-    if ((si->min > si->kind->base->max_stack) || (si->max > si->kind->base->max_stack))
+    kind = lookup_kind(si->tval, si->sval);
+    if ((si->min > kind->base->max_stack) || (si->max > kind->base->max_stack))
     {
         mem_free(si);
         return PARSE_ERROR_INVALID_ITEM_NUMBER;
@@ -2432,24 +2609,12 @@ static enum parser_error parse_class_flags(struct parser *p)
 }
 
 
-static enum parser_error parse_class_realm(struct parser *p)
-{
-    struct player_class *c = parser_priv(p);
-
-    if (!c) return PARSE_ERROR_MISSING_RECORD_HEADER;
-    c->magic.spell_realm = lookup_realm(parser_getstr(p, "realm"));
-
-    return PARSE_ERROR_NONE;
-}
-
-
 static enum parser_error parse_class_magic(struct parser *p)
 {
     struct player_class *c = parser_priv(p);
     int num_books;
 
     if (!c) return PARSE_ERROR_MISSING_RECORD_HEADER;
-    if (!c->magic.spell_realm) return PARSE_ERROR_NONE;
     c->magic.spell_first = parser_getuint(p, "first");
     c->magic.spell_weight = parser_getint(p, "weight");
     num_books = parser_getint(p, "books");
@@ -2462,25 +2627,92 @@ static enum parser_error parse_class_magic(struct parser *p)
 static enum parser_error parse_class_book(struct parser *p)
 {
     struct player_class *c = parser_priv(p);
-    int tval, sval = 0, spells;
+    int tval, spells;
+    const char *name, *quality;
 
     if (!c) return PARSE_ERROR_MISSING_RECORD_HEADER;
 
     tval = tval_find_idx(parser_getsym(p, "tval"));
     if (tval < 0) return PARSE_ERROR_UNRECOGNISED_TVAL;
+    c->magic.books[c->magic.num_books].tval = tval;
+
+    quality = parser_getsym(p, "quality");
+    if (streq(quality, "dungeon")) c->magic.books[c->magic.num_books].dungeon = true;
+    name = parser_getsym(p, "name");
 
     /* Hack -- ghost/mimic spells have no sval */
     if ((tval != TV_GHOST_REALM) && (tval != TV_MIMIC_REALM))
-    {
-        sval = lookup_sval(tval, parser_getsym(p, "sval"));
-        if (sval < 0) return PARSE_ERROR_UNRECOGNISED_SVAL;
-    }
+        write_book_kind(&c->magic.books[c->magic.num_books], name);
 
-    c->magic.books[c->magic.num_books].tval = tval;
-    c->magic.books[c->magic.num_books].sval = sval;
     spells = parser_getuint(p, "spells");
     c->magic.books[c->magic.num_books].spells = mem_zalloc(spells * sizeof(struct class_spell));
-    c->magic.books[c->magic.num_books++].realm = parser_getuint(p, "realm");
+    c->magic.books[c->magic.num_books++].realm = lookup_realm(parser_getstr(p, "realm"));
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_class_book_graphics(struct parser *p)
+{
+    struct player_class *c = parser_priv(p);
+    struct class_book *book = &c->magic.books[c->magic.num_books - 1];
+    struct object_kind *k = lookup_kind(book->tval, book->sval);
+    char glyph = parser_getchar(p, "glyph");
+    const char *color = parser_getsym(p, "color");
+
+    my_assert(k);
+    k->d_char = glyph;
+    if (strlen(color) > 1)
+        k->d_attr = color_text_to_attr(color);
+    else
+        k->d_attr = color_char_to_attr(color[0]);
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_class_book_properties(struct parser *p)
+{
+    struct player_class *c = parser_priv(p);
+    struct class_book *book = &c->magic.books[c->magic.num_books - 1];
+    struct object_kind *k = lookup_kind(book->tval, book->sval);
+
+    my_assert(k);
+    k->level = parser_getint(p, "level");
+    k->weight = parser_getint(p, "weight");
+    k->cost = parser_getint(p, "cost");
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_class_book_alloc(struct parser *p)
+{
+    struct player_class *c = parser_priv(p);
+    struct class_book *book = &c->magic.books[c->magic.num_books - 1];
+    struct object_kind *k = lookup_kind(book->tval, book->sval);
+    const char *tmp = parser_getstr(p, "minmax");
+    int amin, amax;
+
+    my_assert(k);
+    k->alloc_prob = parser_getint(p, "common");
+    if (sscanf(tmp, "%d to %d", &amin, &amax) != 2) return PARSE_ERROR_INVALID_ALLOCATION;
+
+    k->alloc_min = amin;
+    k->alloc_max = amax;
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_class_book_desc(struct parser *p)
+{
+    struct player_class *c = parser_priv(p);
+    struct class_book *book = &c->magic.books[c->magic.num_books - 1];
+    struct object_kind *k = lookup_kind(book->tval, book->sval);
+
+    my_assert(k);
+    k->text = string_append(k->text, parser_getstr(p, "text"));
 
     return PARSE_ERROR_NONE;
 }
@@ -2493,6 +2725,7 @@ static enum parser_error parse_class_spell(struct parser *p)
 
     if (!c) return PARSE_ERROR_MISSING_RECORD_HEADER;
 
+    book->spells[book->num_spells].realm = book->realm;
     book->spells[book->num_spells].name = string_make(parser_getsym(p, "name"));
     book->spells[book->num_spells].sidx = c->magic.total_spells;
     c->magic.total_spells++;
@@ -2713,9 +2946,12 @@ static struct parser *init_parse_class(void)
     parser_reg(p, "equip sym tval sym sval uint min uint max uint flag", parse_class_equip);
     parser_reg(p, "flags ?str flags", parse_class_flags);
     parser_reg(p, "title str title", parse_class_title);
-    parser_reg(p, "realm str realm", parse_class_realm);
     parser_reg(p, "magic uint first int weight int books", parse_class_magic);
-    parser_reg(p, "book sym tval sym sval uint spells uint realm", parse_class_book);
+    parser_reg(p, "book sym tval sym quality sym name uint spells str realm", parse_class_book);
+    parser_reg(p, "book-graphics char glyph sym color", parse_class_book_graphics);
+    parser_reg(p, "book-properties int level int weight int cost", parse_class_book_properties);
+    parser_reg(p, "book-alloc int common str minmax", parse_class_book_alloc);
+    parser_reg(p, "book-desc str text", parse_class_book_desc);
     parser_reg(p, "spell sym name int level int mana int fail int exp uint sproj",
         parse_class_spell);
     parser_reg(p, "effect sym eff ?sym type ?int xtra", parse_class_effect);
@@ -3085,6 +3321,12 @@ static struct
     {"activations", &act_parser},
     {"objects", &object_parser},
     {"ego-items", &ego_parser},
+    {"history charts", &history_parser},
+    {"bodies", &body_parser},
+    {"player races", &p_race_parser},
+    {"dragon breeds", &dragon_breed_parser},
+    {"magic realms", &realm_parser},
+    {"player classes", &class_parser},
     {"artifacts", &artifact_parser},
     {"object properties", &object_property_parser},
     {"object power calculations", &object_power_parser},
@@ -3095,11 +3337,6 @@ static struct
     {"monster pits", &pit_parser},
     {"traps", &trap_parser},
     {"quests", &quests_parser},
-    {"history charts", &history_parser},
-    {"bodies", &body_parser},
-    {"player races", &p_race_parser},
-    {"magic realms", &realm_parser},
-    {"player classes", &class_parser},
     {"flavours", &flavor_parser},
     {"socials", &soc_parser},
     {"hints", &hints_parser},
@@ -3368,6 +3605,12 @@ static void set_server_option(char *option, char *value)
         /* Hack -- reinstall the timer handler to match the new FPS */
         install_timer_tick(run_game_loop, cfg_fps);
     }
+    else if (!strcmp(option, "MAX_ACCOUNT_CHARS"))
+    {
+        cfg_max_account_chars = atoi(value);
+        if ((cfg_max_account_chars < 1) || (cfg_max_account_chars > 12))
+            cfg_max_account_chars = 12;
+    }
     else if (!strcmp(option, "NO_STEAL"))
         cfg_no_steal = str_to_boolean(value);
     else if (!strcmp(option, "NEWBIES_CANNOT_DROP"))
@@ -3378,24 +3621,6 @@ static void set_server_option(char *option, char *value)
         cfg_retire_timer = atoi(value);
     else if (!strcmp(option, "ALLOW_RANDOM_ARTIFACTS"))
         cfg_random_artifacts = str_to_boolean(value);
-    else if (!strcmp(option, "LIMIT_STAIRS"))
-    {
-        cfg_limit_stairs = atoi(value);
-
-        /* Sanity checks */
-        if (cfg_limit_stairs < 0) cfg_limit_stairs = 0;
-        if (cfg_limit_stairs > 3) cfg_limit_stairs = 3;
-    }
-    else if (!strcmp(option, "DIVING_MODE"))
-    {
-        cfg_diving_mode = atoi(value);
-
-        /* Sanity checks */
-        if (cfg_diving_mode < 0) cfg_diving_mode = 0;
-        if (cfg_diving_mode > 2) cfg_diving_mode = 2;
-    }
-    else if (!strcmp(option, "NO_GHOST"))
-        cfg_no_ghost = str_to_boolean(value);
     else if (!strcmp(option, "MORE_TOWNS"))
         cfg_more_towns = str_to_boolean(value);
     else if (!strcmp(option, "ARTIFACT_DROP_SHALLOW"))
@@ -3457,6 +3682,30 @@ static void set_server_option(char *option, char *value)
         cfg_limited_esp = str_to_boolean(value);
     else if (!strcmp(option, "DOUBLE_PURSE"))
         cfg_double_purse = str_to_boolean(value);
+    else if (!strcmp(option, "LIMIT_STAIRS"))
+    {
+        cfg_limit_stairs = atoi(value);
+
+        /* Sanity checks */
+        if (cfg_limit_stairs < 0) cfg_limit_stairs = 0;
+        if (cfg_limit_stairs > 3) cfg_limit_stairs = 3;
+    }
+    else if (!strcmp(option, "DIVING_MODE"))
+    {
+        cfg_diving_mode = atoi(value);
+
+        /* Sanity checks */
+        if (cfg_diving_mode < 0) cfg_diving_mode = 0;
+        if (cfg_diving_mode > 3) cfg_diving_mode = 3;
+    }
+    else if (!strcmp(option, "NO_ARTIFACTS"))
+        cfg_no_artifacts = str_to_boolean(value);
+    else if (!strcmp(option, "NO_SELLING"))
+        cfg_no_selling = str_to_boolean(value);
+    else if (!strcmp(option, "NO_STORES"))
+        cfg_no_stores = str_to_boolean(value);
+    else if (!strcmp(option, "NO_GHOST"))
+        cfg_no_ghost = str_to_boolean(value);
     else if (!strcmp(option, "AI_LEARN"))
         cfg_ai_learn = str_to_boolean(value);
     else plog_fmt("Error : unrecognized mangband.cfg option %s", option);

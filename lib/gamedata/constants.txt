@@ -173,6 +173,13 @@ store:magic-level:5
 # Maximum depth used in object allocation
 obj-make:max-depth:100
 
+# Chance of object being "good"
+# The actual chance is MIN(good-obj + object level, 100)
+obj-make:good-obj:33
+
+# Chance of object being "great"
+obj-make:ego-obj:30
+
 # 1/chance of inflating the requested object level
 obj-make:great-obj:20
 
