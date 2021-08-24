@@ -10,9 +10,9 @@ extern void obj_display_doc(object_type *o_ptr, doc_ptr doc);
 extern void obj_display_smith(object_type *o_ptr, doc_ptr doc);
 extern void device_display_doc(object_type *o_ptr, doc_ptr doc);
 extern void device_display_smith(object_type *o_ptr, doc_ptr doc);
+extern bool display_origin(object_type *o_ptr, doc_ptr doc);
 
 static void _display_name(object_type *o_ptr, doc_ptr doc);
-static bool _display_origin(object_type *o_ptr, doc_ptr doc);
 static void _display_desc(object_type *o_ptr, doc_ptr doc);
 static void _display_stats(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
 static void _display_sustains(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
@@ -25,7 +25,7 @@ static void _display_auras(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
 static void _display_extra(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
 static void _display_curses(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
 static void _display_activation(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
-static void _display_activation_aux(effect_t *effect, bool full_info, doc_ptr doc);
+static void _display_activation_aux(effect_t *effect, bool full_info, doc_ptr doc, bool cb_hack);
 static void _display_ignore(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
 static void _display_autopick(object_type *o_ptr, doc_ptr doc);
 static void _display_score(object_type *o_ptr, doc_ptr doc);
@@ -167,7 +167,7 @@ static void _selita_paikka(char *paikka_text, byte paikka, byte taso, byte origi
     }
 }
 
-static bool _display_origin(object_type *o_ptr, doc_ptr doc)
+bool display_origin(object_type *o_ptr, doc_ptr doc)
 {
     byte origin = o_ptr->origin_type;
     byte paikka = o_ptr->origin_place / ORIGIN_MODULO;
@@ -254,7 +254,7 @@ static bool _display_origin(object_type *o_ptr, doc_ptr doc)
         }
         case ORIGIN_BIRTH:
         {
-            if (o_ptr->number == 1) doc_printf(doc, "You can't remember ever not having it.");
+            if (!object_plural(o_ptr)) doc_printf(doc, "You can't remember ever not having it.");
             else doc_printf(doc, "You can't remember ever not having them.");
             break;
         }
@@ -357,14 +357,16 @@ static bool _display_origin(object_type *o_ptr, doc_ptr doc)
     {
         int day = 0, hour = 0, min = 0;
         doc_printf(doc, "\n");
-        if (o_ptr->mitze_type & MITZE_ID) doc_printf(doc, "Identified: ");
+        if (origin == ORIGIN_STORE) doc_printf(doc, "Purchased: ");
+        else if (origin == ORIGIN_PHOTO) doc_printf(doc, "Snapped: ");
+        else if (o_ptr->mitze_type & MITZE_REFORGE) doc_printf(doc, "Received: ");
+        else if (o_ptr->mitze_type & MITZE_ID) doc_printf(doc, "Identified: ");
         else if (o_ptr->mitze_type & MITZE_PICKUP) doc_printf(doc, "Picked up: ");
         extract_day_hour_min_imp(o_ptr->mitze_turn, &day, &hour, &min);
         doc_printf(doc, "Day %d, %d:%02d, at CL %d.", day, hour, min, o_ptr->mitze_level);
         if (o_ptr->mitze_type & MITZE_MIXED) doc_printf(doc, "\n(Details may apply to the first item in a pile of similar items.)");
     }
 
-    doc_printf(doc, "\n\n");
     return TRUE;
 }
 
@@ -991,7 +993,10 @@ static void _display_extra(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr
         doc_insert(doc, "It will transform into a pet when thrown.\n");
 
     if (o_ptr->name3)
-        doc_printf(doc, "It reminds you of the artifact <color:R>%s</color>.\n", a_name + a_info[o_ptr->name3].name);
+    {
+        cptr nimi = a_name + a_info[o_ptr->name3].name;
+        doc_printf(doc, "It reminds you of the artifact <color:R>%s</color>.\n", ((nimi[0] == '&') && (strlen(nimi) > 2)) ? nimi + 2 : nimi);
+    }
 }
 
 static void _ego_display_extra(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
@@ -1086,9 +1091,9 @@ static void _display_curses(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_pt
     vec_free(v);
 }
 
-static void _display_activation_aux(effect_t *effect, bool full_info, doc_ptr doc)
+static void _display_activation_aux(effect_t *effect, bool full_info, doc_ptr doc, bool cb_hack)
 {
-    cptr res = do_effect(effect, SPELL_NAME, 0);
+    cptr res = cb_hack ? "Release Pet" : do_effect(effect, SPELL_NAME, 0);
 
     doc_newline(doc);
     doc_printf(doc, "<color:U>Activation:</color><tab:12><color:B>%s</color>\n", res);
@@ -1114,7 +1119,8 @@ static void _display_activation(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], do
         if (have_flag(flgs, OF_ACTIVATE))
         {
             effect_t e = obj_get_effect(o_ptr);
-            _display_activation_aux(&e, obj_is_identified_fully(o_ptr), doc);
+            bool capture_ball_hack = ((o_ptr->tval == TV_CAPTURE) && (o_ptr->pval > 0));
+            _display_activation_aux(&e, obj_is_identified_fully(o_ptr), doc, capture_ball_hack);
             doc_newline(doc);
         }
         else
@@ -1331,7 +1337,8 @@ void obj_display_doc(object_type *o_ptr, doc_ptr doc)
     doc_insert(doc, "  <indent>");
     if (show_origins || show_discovery)
     {
-        (void)_display_origin(o_ptr, doc);
+        if (display_origin(o_ptr, doc)) doc_printf(doc, "\n\n");
+
     }
     _display_desc(o_ptr, doc);
     doc_insert(doc, "<style:indent>"); /* Indent a bit when word wrapping long lines */
@@ -1447,7 +1454,8 @@ void device_display_doc(object_type *o_ptr, doc_ptr doc)
     doc_insert(doc, "  <indent>");
     if (show_origins || show_discovery)
     {
-        (void)_display_origin(o_ptr, doc);
+        if (display_origin(o_ptr, doc)) doc_printf(doc, "\n\n");
+
     }
     _display_desc(o_ptr, doc);
 
@@ -1807,7 +1815,7 @@ void ego_display_doc(ego_type *e_ptr, doc_ptr doc)
         _display_auras(flgs, doc);
         _ego_display_extra(flgs, doc);
         if (have_flag(flgs, OF_ACTIVATE))
-            _display_activation_aux(&e_ptr->activation, FALSE, doc);
+            _display_activation_aux(&e_ptr->activation, FALSE, doc, FALSE); /* no ego capture balls */
         _display_ignore(flgs, doc);
         doc_insert(doc, "</style></indent>\n");
     }

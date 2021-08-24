@@ -112,7 +112,8 @@ skill_desc_t skills_describe(int amt, int div)
         default:
         {
             int k = (n - 17) * 5 / 2;
-            result.desc = format("Amber[%d]", k); /*Legendary is too long for tables */
+            if ((p_ptr->wizard) || (display_skill_num)) result.desc = "Amber";
+            else result.desc = format("Amber[%d]", k); /*Legendary is too long for tables */
             result.color = TERM_VIOLET;
             break;
         }
@@ -338,10 +339,12 @@ int skills_weapon_calc_bonus(int tval, int sval)
 
 static int _weapon_gain_amt(int skill)
 {
-    static point_t tbl[9] = {
-        {0, 1280}, {1000, 640}, {2000, 320}, {3000, 160}, {4000, 80},
+    static point_t tbl2[9] =
+    { {0, 4480}, {1000, 2880}, {2000, 1600}, {3000, 800}, {4000, 480},
+        {5000, 280}, {6000, 180}, {7000, 120}, {8000, 12} }, tbl[9] =
+    { {0, 1280}, {1000, 640}, {2000, 320}, {3000, 160}, {4000, 80},
         {5000, 40}, {6000, 20}, {7000, 10}, {8000, 1} };
-    return interpolate(skill, tbl, 9);
+    return interpolate(skill, coffee_break ? tbl2 : tbl, 9);
 }
 static int _weapon_max_skill(int rlvl)
 {
@@ -534,6 +537,7 @@ cptr skills_shield_describe_current(int sval)
 void skills_martial_arts_gain(void)
 {
     int current, max;
+    int mult = coffee_break ? 4 : 1;
 
     if (p_ptr->pclass == CLASS_SKILLMASTER) return;
 
@@ -543,12 +547,12 @@ void skills_martial_arts_gain(void)
     if (current < max)
     {
         if (current < WEAPON_EXP_BEGINNER)
-            current += 40;
+            current += (40 * mult);
         else if (current < WEAPON_EXP_SKILLED)
-            current += 5;
+            current += (5 * mult);
         else if (current < WEAPON_EXP_EXPERT && p_ptr->lev > 19)
-            current += 1;
-        else if (p_ptr->lev > 34 && one_in_(3))
+            current += mult;
+        else if ((p_ptr->lev > 34) && (one_in_(3) || coffee_break))
             current += 1;
 
         p_ptr->skill_exp[SKILL_MARTIAL_ARTS] = MIN(current, max);
@@ -578,6 +582,7 @@ int skills_martial_arts_max(void)
 void skills_dual_wielding_gain(monster_race *r_ptr)
 {
     int current, max;
+    int mult = coffee_break ? 4 : 1;
 
     if (p_ptr->pclass == CLASS_SKILLMASTER) return;
 
@@ -587,12 +592,12 @@ void skills_dual_wielding_gain(monster_race *r_ptr)
     if (current < max && (current - 1000) / 200 < r_ptr->level)
     {
         if (current < WEAPON_EXP_BEGINNER)
-            current += 80;
+            current += 80 * mult;
         else if (current < WEAPON_EXP_SKILLED)
-            current += 4;
+            current += 4 * mult;
         else if (current < WEAPON_EXP_EXPERT)
-            current += 1;
-        else if (current < WEAPON_EXP_MASTER && one_in_(3))
+            current += mult;
+        else if ((current < WEAPON_EXP_MASTER) && (one_in_(3) || coffee_break))
             current += 1;
 
         p_ptr->skill_exp[SKILL_DUAL_WIELDING] = MIN(current, max);
@@ -624,6 +629,8 @@ static void _skills_riding_gain(int inc)
     int current, max, update;
 
     if (p_ptr->pclass == CLASS_SKILLMASTER) return;
+
+    if (coffee_break) inc *= 3;
 
     current = p_ptr->skill_exp[SKILL_RIDING];
     max = skills_riding_max();
@@ -1005,6 +1012,7 @@ void skills_on_birth(void)
                 p_ptr->weapon_exp[i][j] = WEAPON_EXP_BEGINNER;
             else
                 p_ptr->weapon_exp[i][j] = s_info[class_idx].w_start[i][j];
+            if (p_ptr->weapon_exp[i][j] == 0) p_ptr->weapon_exp[i][j] = MIN(WEAPON_EXP_BEGINNER / 2, s_info[class_idx].w_max[i][j]);
         }
     }
     if (p_ptr->personality == PERS_SEXY)

@@ -1326,6 +1326,7 @@ void possessor_set_current_r_idx(int r_idx)
         p_ptr->magic_num1[0] = 0; /* Blinking Death ... */
         p_ptr->current_r_idx = r_idx;
         lore_do_probe(r_idx);
+        if (!r_info[r_idx].r_sights) r_info[r_idx].r_sights = 1;
 
         if (p_ptr->exp > possessor_max_exp())
         {

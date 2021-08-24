@@ -126,7 +126,7 @@ static _parse_t _biff_tbl[] = {
         { "Anti-Magic", TERM_L_BLUE,
           "$CASTER invokes <color:B>Anti-Magic</color>.",
           "$CASTER mumbles powerfully.",
-          ""
+          "",
           "You invoke <color:B>Anti-Magic</color>." }, MSF_TARGET | MSF_DIRECT},
     { "DISPEL_MAGIC", { MST_BIFF, BIFF_DISPEL_MAGIC },
         { "Dispel Magic", TERM_L_BLUE,
@@ -216,8 +216,8 @@ static _parse_t _ball_tbl[] = {
           "You gaze deeply." }, MSF_BALL0 | MSF_TARGET },
     { "DRAIN_MANA", { MST_BALL, GF_DRAIN_MANA },
         { "Drain Mana", TERM_L_BLUE,
-          "$CASTER drains psychic energy from you.",
-          "$CASTER drains psychic energy from you.",
+          "$CASTER attempts to drain psychic energy from you.",
+          "$CASTER attempts to drain psychic energy from you.",
           "$CASTER drains psychic energy from $TARGET."}, MSF_BALL0 | MSF_TARGET },
     { "MIND_BLAST", { MST_BALL, GF_MIND_BLAST },
         { "Mind Blast", TERM_L_BLUE,
@@ -1977,8 +1977,11 @@ static void _escape(void)
     switch (_current.spell->id.effect)
     {
     case ESCAPE_TELE_SELF:
-        if (_current.flags & MSC_SRC_PLAYER)
+        if ((_current.flags & MSC_SRC_PLAYER) || (_current.mon->id == p_ptr->riding))
+        {
+            if ((_current.mon) && (_current.mon->id == p_ptr->riding)) msg_format("%s teleports away.", _current.name);
             teleport_player(10 + 2*_current.race->level, 0);
+        }
         else if (teleport_barrier(_current.mon->id))
             msg_format("Magic barrier obstructs teleporting of %s.", _current.name);
         else
@@ -2040,7 +2043,9 @@ static void _m_tactic(void)
         {
             if (!p_ptr->blind && _current.mon->ml)
                 msg_format("%s blinks away.", _current.name);
-            teleport_away(_current.mon->id, 10, 0);
+            if (_current.mon->id == p_ptr->riding)
+                teleport_player(10, 0);
+            else teleport_away(_current.mon->id, 10, 0);
             p_ptr->update |= PU_MONSTERS;
         }
         break;
@@ -2073,7 +2078,9 @@ static void _m_tactic(void)
             _roll(_current.spell->parm.v.dice)*5/4, /* XXX */
             _current.spell->id.effect,
             PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAYER);
-        teleport_away(_current.mon->id, 10, 0); 
+        if (_current.mon->id == p_ptr->riding)
+            teleport_player(10, 0);
+        else teleport_away(_current.mon->id, 10, 0);
         p_ptr->update |= PU_MONSTERS;
     }
 }
@@ -2254,7 +2261,7 @@ static void _summon_special(void)
             msg_print("You summon friends!");
         else
             msg_format("%s summons friends!", _current.name);
-        if (one_in_(3) && r_info[MON_ZEUS].max_num == 1)
+        if (one_in_(3) && mon_available_num(&r_info[MON_ZEUS]) == 1)
         {
             num = 1;
             r_idx = MON_ZEUS;
@@ -2279,7 +2286,7 @@ static void _summon_special(void)
             msg_print("You summon help!");
         else
             msg_format("%s summons help!", _current.name);
-        if (one_in_(3) && r_info[MON_ARTEMIS].max_num == 1)
+        if (one_in_(3) && mon_available_num(&r_info[MON_ARTEMIS]) == 1)
         {
             num = 1;
             r_idx = MON_ARTEMIS;
@@ -2300,12 +2307,12 @@ static void _summon_special(void)
             msg_print("You summon friends!");
         else
             msg_format("%s summons friends!", _current.name);
-        if (one_in_(3) && r_info[MON_ZEUS].max_num == 1)
+        if (one_in_(3) && mon_available_num(&r_info[MON_ZEUS]) == 1)
         {
             num = 1;
             r_idx = MON_ZEUS;
         }
-        else if (one_in_(3) && r_info[MON_HERA].max_num == 1)
+        else if (one_in_(3) && mon_available_num(&r_info[MON_HERA]) == 1)
         {
             num = 1;
             r_idx = MON_HERA;
@@ -2326,12 +2333,12 @@ static void _summon_special(void)
             msg_print("You summon aid!");
         else
             msg_format("%s summons aid!", _current.name);
-        if (one_in_(3) && r_info[MON_ARES].max_num == 1)
+        if (one_in_(3) && mon_available_num(&r_info[MON_ARES]) == 1)
         {
             num = 1;
             r_idx = MON_ARES;
         }
-        else if (one_in_(3) && r_info[MON_HEPHAESTUS].max_num == 1)
+        else if (one_in_(3) && mon_available_num(&r_info[MON_HEPHAESTUS]) == 1)
         {
             num = 1;
             r_idx = MON_HEPHAESTUS;
@@ -2404,9 +2411,49 @@ static void _summon_special(void)
         if (r_idx2) _summon_r_idx(r_idx2);
     }
 }
+typedef bool (*_path_p)(point_t src, point_t dest);
+static bool _pt_is_valid(point_t pt);
+static point_t _choose_point_near(point_t src, point_t dest, _path_p filter)
+{
+    point_t pt = {0};
+    int yritys, etaisyys = 1, dx, dy, kokeilu = 0;
+
+    for (yritys = randint1(8); yritys < 4000; yritys++)
+    {
+        point_t uuspt = {0};
+        dx = ((yritys % 8) < 4) ? randint0(etaisyys + 1) : etaisyys;
+        dy = ((yritys % 8) < 4) ? etaisyys : randint0(etaisyys + 1);
+        uuspt.x = (yritys % 2) ? dest.x + dx : dest.x - dx;
+        uuspt.y = ((yritys % 4) < 2) ? dest.y + dy : dest.y - dy;
+        kokeilu++;
+        if (kokeilu >= ((etaisyys * etaisyys) + 5))
+        {
+            etaisyys++;
+            kokeilu = 0;
+        }
+        if (!in_bounds(uuspt.y, uuspt.x)) continue;
+        if (!filter(src, uuspt)) continue;
+        pt.x = uuspt.x;
+        pt.y = uuspt.y;
+        break;
+    }
+    return pt;
+}
+
 static void _summon(void)
 {
     int ct, i;
+    if (!_projectable(_current.src, _current.dest))
+    {
+        point_t new_dest = {0};
+        new_dest = _choose_point_near(_current.src, _current.dest, _projectable);
+        if (!_pt_is_valid(new_dest)) /* If the mon can't summon near the player, it will summon near itself */
+        {
+            new_dest = _current.src;
+        }
+        _current.dest = new_dest;
+    }
+
     if (_current.spell->id.effect == SUMMON_SPECIAL)
     {
         _summon_special();
@@ -3025,7 +3072,6 @@ static bool _distance(point_t src, point_t dest)
     return distance(src.y, src.x, dest.y, dest.x);
 }
 
-typedef bool (*_path_p)(point_t src, point_t dest);
 typedef bool (*_spell_p)(mon_spell_ptr spell);
 
 static bool _ball0_p(mon_spell_ptr spell)
@@ -3144,6 +3190,7 @@ static void _smart_tweak_res_sav(mon_spell_ptr spell, int res, u32b flags)
     if (res == RES_INVALID) return;
     if (!_have_smart_flag(flags, res)) return;
     pct = res_pct(res);
+    if ((res == RES_TELEPORT) && (p_ptr->anti_tele)) pct = 100;
     if (!pct) return;
     need = res_is_high(res) ? 33 : 55;
     if (pct >= need) tweak = 0;
@@ -3188,6 +3235,22 @@ static void _smart_remove_annoy(mon_spell_group_ptr group, u32b flags)
         }
     }
 }
+static void _smart_remove_escape(mon_spell_group_ptr group, u32b flags)
+{
+    int i;
+    if (!group) return;
+    for (i = 0; i < group->count; i++)
+    {
+        mon_spell_ptr spell = &group->spells[i];
+        switch (spell->id.effect)
+        {
+        case ESCAPE_TELE_OTHER:
+            _smart_tweak_res_sav(spell, RES_TELEPORT, flags);
+            break;
+        default: break;
+        }
+    }
+}
 static void _smart_remove_aux(mon_spell_group_ptr group, u32b flags)
 {
     int i;
@@ -3221,12 +3284,13 @@ static void _smart_remove(mon_spell_cast_ptr cast)
     else
         _smart_remove_aux(spells->groups[MST_BOLT], flags);
     _smart_remove_aux(spells->groups[MST_BEAM], flags);
-    _smart_remove_annoy(spells->groups[MST_ANNOY], flags);
+    _smart_remove_annoy(spells->groups[MST_ANNOY], flags);    
+    _smart_remove_escape(spells->groups[MST_ESCAPE], flags);    
 }
 
-static bool _clean_shot(point_t src, point_t dest)
+static bool _clean_shot(point_t src, point_t dest, bool friend)
 {
-    return clean_shot(src.y, src.x, dest.y, dest.x, FALSE);
+    return clean_shot(src.y, src.x, dest.y, dest.x, friend);
 }
 static bool _summon_possible(point_t where)
 {
@@ -3321,6 +3385,9 @@ static void _ai_direct(mon_spell_cast_ptr cast)
         spell = mon_spells_find(spells, _id(MST_BIFF, BIFF_ANTI_MAGIC));
         if (spell)
             spell->prob = anti_magic_check();
+        spell = mon_spells_find(spells, _id(MST_BEAM, GF_PSY_SPEAR));
+        if ((spell) && (IS_WRAITH()))
+            spell->prob = 45;
     }
     spell = mon_spells_find(spells, _id(MST_ANNOY, ANNOY_TELE_TO));
     if (spell && spell->prob) /* XXX _smart_remove may notice RES_TELEPORT! */
@@ -3382,7 +3449,7 @@ static void _ai_direct(mon_spell_cast_ptr cast)
         _remove_spell(spells, _id(MST_ANNOY, ANNOY_AMNESIA));
 
     /* require a direct shot to player for bolts */
-    if (!_clean_shot(cast->src, cast->dest))
+    if (!_clean_shot(cast->src, cast->dest, (is_pet(cast->mon) || is_friendly(cast->mon))))
     {
         _remove_group(spells->groups[MST_BOLT], NULL);
         _remove_spell(spells, _id(MST_BALL, GF_ROCKET));
@@ -3409,7 +3476,7 @@ static void _ai_direct(mon_spell_cast_ptr cast)
         _remove_group(spells->groups[MST_CURSE], NULL);
         spell = mon_spells_find(spells, _id(MST_BEAM, GF_PSY_SPEAR));
         if (spell)
-            spell->prob = 30;
+            spell->prob = (smart ? 45 : 30);
     }
 }
 static bool _gf_can_uncover(int which) /* FF_TREE *and* FF_WEB */
@@ -3479,10 +3546,13 @@ static void _ai_indirect(mon_spell_cast_ptr cast)
     mon_spell_ptr  spell;
     point_t        new_dest = {0};
     int            prob = 0;
+    bool           hurt = (cast->mon->mflag2 & (MFLAG2_HURT)) ? TRUE : FALSE;
 
-    if (smart) prob = 75;
-    else if (cast->race->d_char == 'Z') prob = 33;
+    if (hurt) prob = 100;
+    else if (smart) prob = 75;
     else prob = 50;
+
+    if (cast->race->d_char == 'Z') prob = (prob * 2 / 3);
 
     if (!stupid && randint0(100) < prob)
     {
@@ -3515,7 +3585,7 @@ static void _ai_indirect(mon_spell_cast_ptr cast)
             _adjust_group_uncover(spells->groups[MST_BREATH]);
             _adjust_group_uncover(spells->groups[MST_BALL]);
             _remove_group(spells->groups[MST_SUMMON], NULL);
-            _remove_group(spells->groups[MST_HEAL], NULL);
+            if (!hurt) _remove_group(spells->groups[MST_HEAL], NULL);
             _remove_group(spells->groups[MST_ESCAPE], NULL);
             _remove_group(spells->groups[MST_TACTIC], NULL);
         }
@@ -3534,10 +3604,16 @@ static void _ai_indirect(mon_spell_cast_ptr cast)
     {
         _remove_group(spells->groups[MST_BREATH], NULL);
         _remove_group(spells->groups[MST_BALL], NULL);
-        _remove_group(spells->groups[MST_SUMMON], NULL);
-        _remove_group(spells->groups[MST_HEAL], NULL);
-        _remove_group(spells->groups[MST_ESCAPE], NULL);
-        _remove_group(spells->groups[MST_TACTIC], NULL);
+        if (!hurt) _remove_group(spells->groups[MST_SUMMON], NULL);
+        if (!hurt) _remove_group(spells->groups[MST_HEAL], NULL);
+        if (!hurt) 
+             _remove_group(spells->groups[MST_ESCAPE], NULL);
+        else
+             _remove_spell(spells, _id(MST_ESCAPE, ESCAPE_TELE_OTHER));
+        if (!hurt)
+             _remove_group(spells->groups[MST_TACTIC], NULL);
+        else
+             _remove_spell(spells, _id(MST_TACTIC, TACTIC_BLINK_OTHER));
         spell = mon_spells_find(spells, _id(MST_BREATH, GF_DISINTEGRATE));
         if ( spell
           && cast->mon->cdis < MAX_RANGE / 2
@@ -3690,49 +3766,22 @@ static point_t _project_pt(point_t start, point_t stop, int flags)
     get_project_point(start.y, start.x, &pt.y, &pt.x, flags);
     return pt;
 }
-static bool _small_ball_p(mon_spell_ptr spell)
+static bool _big_ball_p(mon_spell_ptr spell)
 {
     if (spell->id.type != MST_BALL) return FALSE;
-    if (spell->flags & MSF_BALL4) return FALSE;
+    if (spell->flags & MSF_BALL4) return TRUE;
+    return FALSE;
+}
+static bool _real_ball_p(mon_spell_ptr spell)
+{
+    if (spell->id.type != MST_BALL) return FALSE;
+    if (spell->flags & MSF_BALL0) return FALSE;
     return TRUE;
 }
-static void _ai_think_pet(mon_spell_cast_ptr cast)
+static void _avoid_hurting_player(mon_spell_cast_ptr cast)
 {
     mon_spells_ptr spells = cast->race->spells;
     mon_spell_ptr  spell;
-
-    assert(is_pet(cast->mon));
-
-    _remove_spell(spells, _id(MST_ANNOY, ANNOY_SHRIEK));
-    _remove_spell(spells, _id(MST_ANNOY, ANNOY_DARKNESS));
-    _remove_spell(spells, _id(MST_ANNOY, ANNOY_TRAPS));
-
-    if (!(p_ptr->pet_extra_flags & PF_TELEPORT))
-    {
-        _remove_group(spells->groups[MST_TACTIC], NULL);
-        _remove_group(spells->groups[MST_ESCAPE], NULL);
-        _remove_spell(spells, _id(MST_ANNOY, ANNOY_TELE_TO));
-        _remove_spell(spells, _id(MST_ANNOY, ANNOY_TELE_LEVEL));
-    }
-
-    if (!(p_ptr->pet_extra_flags & PF_ATTACK_SPELL))
-    {
-        _remove_group(spells->groups[MST_BREATH], NULL);
-        _remove_group(spells->groups[MST_BALL], NULL);
-        _remove_group(spells->groups[MST_BOLT], NULL);
-        _remove_group(spells->groups[MST_BEAM], NULL);
-        _remove_group(spells->groups[MST_CURSE], NULL);
-    }
-
-    if (!(p_ptr->pet_extra_flags & PF_SUMMON_SPELL))
-    {
-        _remove_group(spells->groups[MST_SUMMON], NULL);
-    }
-
-    /* Prevent collateral damage XXX PF_BALL_SPELL is a horrible misnomer XXX
-     * All the logic here is from the old mspells2.c code, which we still call
-     * (e.g. breath_direct) */
-    if (!(p_ptr->pet_extra_flags & PF_BALL_SPELL) && (cast->mon->id != p_ptr->riding))
     {
         if (spells->groups[MST_BALL])
         {
@@ -3741,9 +3790,14 @@ static void _ai_think_pet(mon_spell_cast_ptr cast)
 
             if (_projectable(player, explode))
             {
-                if (_distance(player, explode) <= 2)
-                    _remove_group(spells->groups[MST_BALL], _small_ball_p);
-                else
+                if (_distance(player, explode) > 4)
+                { /* No need to do anything - the ball will not hurt the player */
+                }
+                else if (_distance(player, explode) > 2) /* Allow small balls */
+                    _remove_group(spells->groups[MST_BALL], _big_ball_p);
+                else if (_distance(player, explode) > 0) /* Allow "balls" with no radius */
+                    _remove_group(spells->groups[MST_BALL], _real_ball_p);
+                else /* Paranoia */
                     _remove_group(spells->groups[MST_BALL], NULL);
             }
             else /* Glass walls and such have LOS but not PROJECT */
@@ -3786,6 +3840,51 @@ static void _ai_think_pet(mon_spell_cast_ptr cast)
                     spell->prob = 0;
             }
         }
+        if (spells->groups[MST_TACTIC])
+        {
+            point_t pelaaja = point(px, py);
+            if ((_distance(cast->src, pelaaja) <= 5) && (_projectable(cast->src, pelaaja)))
+                _remove_group(spells->groups[MST_TACTIC], _jump_p);
+        }
+    }
+}
+static void _ai_think_pet(mon_spell_cast_ptr cast)
+{
+    mon_spells_ptr spells = cast->race->spells;
+    mon_spell_ptr  spell;
+
+    assert(is_pet(cast->mon));
+
+    _remove_spell(spells, _id(MST_ANNOY, ANNOY_SHRIEK));
+    _remove_spell(spells, _id(MST_ANNOY, ANNOY_DARKNESS));
+    _remove_spell(spells, _id(MST_ANNOY, ANNOY_TRAPS));
+
+    if (!(p_ptr->pet_extra_flags & PF_TELEPORT))
+    {
+        _remove_group(spells->groups[MST_TACTIC], NULL);
+        _remove_group(spells->groups[MST_ESCAPE], NULL);
+        _remove_spell(spells, _id(MST_ANNOY, ANNOY_TELE_TO));
+        _remove_spell(spells, _id(MST_ANNOY, ANNOY_TELE_LEVEL));
+    }
+
+    if (!(p_ptr->pet_extra_flags & PF_ATTACK_SPELL))
+    {
+        _remove_group(spells->groups[MST_BREATH], NULL);
+        _remove_group(spells->groups[MST_BALL], NULL);
+        _remove_group(spells->groups[MST_BOLT], NULL);
+        _remove_group(spells->groups[MST_BEAM], NULL);
+        _remove_group(spells->groups[MST_CURSE], NULL);
+    }
+
+    if (!(p_ptr->pet_extra_flags & PF_SUMMON_SPELL))
+    {
+        _remove_group(spells->groups[MST_SUMMON], NULL);
+    }
+
+    /* Prevent collateral damage XXX PF_BALL_SPELL is a horrible misnomer XXX */
+    if (!(p_ptr->pet_extra_flags & PF_BALL_SPELL) && (cast->mon->id != p_ptr->riding))
+    {
+        _avoid_hurting_player(cast);
     }
 
     /* Special moves restriction */
@@ -3798,6 +3897,24 @@ static void _ai_think_pet(mon_spell_cast_ptr cast)
                 spell->prob = 0;
         }
         else spell->prob = 0;
+    }
+}
+
+static void _ai_think_friend(mon_spell_cast_ptr cast)
+{
+    mon_spells_ptr spells = cast->race->spells;
+
+    assert(is_friendly(cast->mon));
+
+    if (cast->race->flags2 & RF2_STUPID) return; /* Your friend is stupid. What did you expect? */
+
+    _remove_spell(spells, _id(MST_ANNOY, ANNOY_SHRIEK));
+    _remove_spell(spells, _id(MST_ANNOY, ANNOY_TRAPS));
+
+    /* Prevent collateral damage XXX PF_BALL_SPELL is a horrible misnomer XXX */
+    if (!(p_ptr->pet_extra_flags & PF_BALL_SPELL))
+    {
+        _avoid_hurting_player(cast);
     }
 }
 
@@ -3825,6 +3942,9 @@ static void _ai_think_mon(mon_spell_cast_ptr cast)
 
     if (is_pet(cast->mon))
         _ai_think_pet(cast);
+
+    else if (is_friendly(cast->mon))
+        _ai_think_friend(cast);
 
     /* Stupid monsters are done! */
     if (cast->race->flags2 & RF2_STUPID)
@@ -3862,7 +3982,7 @@ static void _ai_think_mon(mon_spell_cast_ptr cast)
         spell->prob = 0;
 
     /* require a direct shot for bolts */
-    if (!_clean_shot(cast->src, cast->dest))
+    if (!_clean_shot(cast->src, cast->dest, (is_pet(cast->mon) || is_friendly(cast->mon))))
     {
         _remove_group(spells->groups[MST_BOLT], NULL);
         _remove_spell(spells, _id(MST_BALL, GF_ROCKET));
@@ -3968,7 +4088,10 @@ static int _avg_spell_dam_aux(mon_spell_ptr spell, int hp, bool apply_resist)
 }
 int mon_spell_avg_dam(mon_spell_ptr spell, mon_race_ptr race, bool apply_resist)
 {
-    return _avg_spell_dam_aux(spell, _avg_hp(race), apply_resist);
+    int tulos = _avg_spell_dam_aux(spell, _avg_hp(race), apply_resist);
+    if ((tulos) && (apply_resist) && ((spell->id.effect == GF_POIS) || (spell->id.effect == GF_NUKE)))
+        tulos = tulos * 7 / 4; /* Poison adjustment */
+    return tulos;
 }
 int _avg_spell_dam(mon_ptr mon, mon_spell_ptr spell)
 {
@@ -4206,6 +4329,7 @@ bool mon_race_can_summon(mon_race_ptr race, int summon_type)
     if (!race->spells) return FALSE;
     group = race->spells->groups[MST_SUMMON];
     if (!group) return FALSE;
+    if (summon_type < 0) return TRUE;
     for (i = 0; i < group->count; i++)
     {
         mon_spell_ptr spell = &group->spells[i];
@@ -4730,7 +4854,7 @@ static bool _prompt_plr(mon_spell_cast_ptr cast)
         int dir, m_idx;
         if (cast->spell->flags & MSF_DIRECT)
         {
-            if (use_old_target && target_okay_aux(TARGET_KILL))
+            if (old_target_okay())
             {
             }
             else if (!target_set(TARGET_KILL)) return FALSE;

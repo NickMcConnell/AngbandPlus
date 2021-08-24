@@ -737,7 +737,7 @@ static void _bless_song(int cmd, variant *res)
         var_set_string(res, "Adagio. When sung, both you and your steed will gain enhanced melee skill.");
         break;
     default:
-        _dragon_song(WARLOCK_DRAGON_TOGGLE_BLESS, "of heoic deeds", cmd, res);
+        _dragon_song(WARLOCK_DRAGON_TOGGLE_BLESS, "of heroic deeds", cmd, res);
         break;
     }
 }
@@ -859,7 +859,7 @@ static void _mount_attack_spell(int cmd, variant *res)
             return;
         }
 
-        if (use_old_target && target_okay())
+        if (old_target_okay())
         {
             y = target_row;
             x = target_col;

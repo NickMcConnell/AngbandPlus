@@ -213,6 +213,8 @@ void check_experience(void)
     /* Hack -- maintain "max max" experience */
     if (p_ptr->max_exp > p_ptr->max_max_exp) p_ptr->max_max_exp = p_ptr->max_exp;
 
+    if (p_ptr->pclass == CLASS_POLITICIAN) politician_check_experience(FALSE);
+
     /* Redraw experience */
     p_ptr->redraw |= (PR_EXP);
 
@@ -510,6 +512,12 @@ byte get_monster_drop_ct(monster_type *m_ptr)
       && !(r_ptr->flags1 & RF1_UNIQUE) )
     {
         number = 2 + (number - 2) / 2;
+    }
+
+    if ((number) && (coffee_break) && (py_in_dungeon()))
+    {
+        number *= 2;
+        if (number > 7) number -= (number / 7);
     }
 
     if (is_pet(m_ptr) || p_ptr->inside_battle || p_ptr->inside_arena)
@@ -1152,6 +1160,50 @@ void monster_death(int m_idx, bool drop_item)
         {
             int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
             (void)project(m_idx, 6, y, x, 100, GF_CHAOS, flg);
+        }
+        break;
+
+    case MON_UNICORN_ORD:
+    case MON_MORGOTH:
+    case MON_ONE_RING:
+        /* Reward for "lazy" player */
+        if (p_ptr->personality == PERS_LAZY)
+        {
+            int a_idx = 0, yritys = 0;
+            artifact_type *a_ptr = NULL;
+
+            if (!drop_chosen_item) break;
+
+            do
+            {
+                switch (randint0(3))
+                {
+                case 0:
+                    a_idx = ART_NAMAKE_HAMMER;
+                    break;
+                case 1:
+                    a_idx = ART_NAMAKE_BOW;
+                    break;
+                case 2:
+                    a_idx = ART_NAMAKE_ARMOR;
+                    break;
+                }
+
+                a_ptr = &a_info[a_idx];
+                yritys++;
+            }
+            while ((yritys < 100) && (a_ptr->generated));
+
+            if (yritys > 99) break; 
+
+            /* Create the artifact */
+            if (create_named_art(a_idx, y, x, ORIGIN_DROP, m_ptr->r_idx))
+            {
+                a_ptr->generated = TRUE;
+
+                /* Hack -- Memorize location of artifact in saved floors */
+                if (character_dungeon) a_ptr->floor_id = p_ptr->floor_id;
+            }
         }
         break;
 
@@ -1895,6 +1947,8 @@ void monster_death(int m_idx, bool drop_item)
             msg_add_tiny_screenshot(50, 24);
         }
 
+        if ((chance > 0) && (chance < 100) && (mut_present(MUT_BAD_LUCK))) chance -= (chance / 4);
+
         if (a_idx > 0 && randint0(100) < chance)
         {
             artifact_type *a_ptr = &a_info[a_idx];
@@ -1912,113 +1966,6 @@ void monster_death(int m_idx, bool drop_item)
                 else if (!preserve_mode)
                     a_ptr->generated = TRUE;
             }
-        }
-
-        if ((r_ptr->flags7 & RF7_GUARDIAN) && (d_info[dungeon_type].final_guardian == m_ptr->r_idx))
-        {
-            int k_idx = d_info[dungeon_type].final_object ? d_info[dungeon_type].final_object
-                : lookup_kind(TV_SCROLL, SV_SCROLL_ACQUIREMENT);
-
-            gain_chosen_stat();
-            p_ptr->fame += randint1(3);
-
-            if (d_info[dungeon_type].final_artifact)
-            {
-                int a_idx = d_info[dungeon_type].final_artifact;
-                artifact_type *a_ptr = &a_info[a_idx];
-
-                if (!a_ptr->generated)
-                {
-                    /* Create the artifact */
-                    if (create_named_art(a_idx, y, x, ORIGIN_DROP, m_ptr->r_idx))
-                    {
-                        a_ptr->generated = TRUE;
-
-                        /* Hack -- Memorize location of artifact in saved floors */
-                        if (character_dungeon) a_ptr->floor_id = p_ptr->floor_id;
-                    }
-                    else if (!preserve_mode)
-                        a_ptr->generated = TRUE;
-
-                    /* Prevent rewarding both artifact and "default" object */
-                    if (!d_info[dungeon_type].final_object) k_idx = 0;
-                }
-                else
-                {
-                    object_type forge;
-                    create_replacement_art(a_idx, &forge, ORIGIN_DROP);
-                    forge.origin_xtra = m_ptr->r_idx;
-                    drop_here(&forge, y, x);
-                    if (!d_info[dungeon_type].final_object) k_idx = 0;
-                }
-            }
-
-            /* Hack: Witch Wood grants first realm's spellbook.
-               I tried to do this in d_info.txt using ?:[EQU $REALM1 ...] but
-               d_info.txt is processed before the save file is even loaded. */
-            if (k_idx == lookup_kind(TV_LIFE_BOOK, 2) && p_ptr->realm1)
-            {
-                int tval = realm2tval(p_ptr->realm1);
-                k_idx = lookup_kind(tval, 2);
-            }
-
-            if (k_idx == lookup_kind(TV_LIFE_BOOK, 3) && p_ptr->realm1)
-            {
-                int tval = realm2tval(p_ptr->realm1);
-                k_idx = lookup_kind(tval, 3);
-            }
-
-            if (k_idx)
-            {
-                int ego_index = d_info[dungeon_type].final_ego;
-
-                /* Get local object */
-                q_ptr = &forge;
-
-                /* Prepare to make a reward */
-                object_prep(q_ptr, k_idx);
-
-                if (ego_index)
-                {
-                    if (object_is_device(q_ptr))
-                    {
-                        /* Hack: There is only a single k_idx for each class of devices, so
-                         * we use the ego index to pick an effect. This means there is no way
-                         * to actually grant an ego device ...*/
-                        if (!device_init_fixed(q_ptr, ego_index))
-                        {
-                            if (ego_index)
-                            {
-                                char     name[255];
-                                effect_t e = {0};
-                                e.type = ego_index;
-                                sprintf(name, "%s", do_effect(&e, SPELL_NAME, 0));
-                                msg_format("Software Bug: %s is not a valid effect for this device.", name);
-                                msg_print("Generating a random device instead.");
-                            }
-                            device_init(q_ptr, object_level, 0);
-                        }
-                    }
-                    else
-                    {
-                        apply_magic_ego = ego_index;
-                        apply_magic(q_ptr, object_level, AM_NO_FIXED_ART | AM_GOOD | AM_FORCE_EGO);
-                    }
-                }
-                else
-                {
-                    apply_magic(q_ptr, object_level, AM_NO_FIXED_ART | AM_GOOD | AM_QUEST);
-                }
-                object_origins(q_ptr, ORIGIN_DROP);
-                q_ptr->origin_xtra = m_ptr->r_idx;
-
-
-                /* Drop it in the dungeon */
-                (void)drop_near(q_ptr, -1, y, x);
-            }
-            cmsg_format(TERM_L_GREEN, "You have conquered %s!",d_name+d_info[dungeon_type].name);
-            virtue_add(VIRTUE_VALOUR, 5);
-            msg_add_tiny_screenshot(50, 24);
         }
     }
 
@@ -2044,7 +1991,7 @@ void monster_death(int m_idx, bool drop_item)
         }
     }
 
-    if ( r_ptr->level
+    if ( r_ptr->level && !p_ptr->inside_arena && !p_ptr->inside_battle
       && ( (r_ptr->flags1 & (RF1_DROP_GOOD | RF1_DROP_GREAT))
         || (r_ptr->flags2 & RF2_THIEF) ) )
     {
@@ -2092,32 +2039,6 @@ void monster_death(int m_idx, bool drop_item)
             r_idx = MON_ELDER_VAMPIRE;
 
         summon_named_creature(0, y, x, r_idx, mode);
-    }
-
-    /* Only process "Quest Monsters" */
-    if (!(m_ptr->mflag2 & MFLAG2_QUESTOR)) return;
-    if (p_ptr->inside_battle) return;
-
-    /* Winner? */
-    if ((m_ptr->r_idx == MON_SERPENT) && !cloned)
-    {
-        p_ptr->fame += 50;
-
-        /* Total winner */
-        p_ptr->total_winner = TRUE;
-
-        /* Redraw the "title" */
-        if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || mut_present(MUT_CHAOS_GIFT))
-        {
-            msg_format("The voice of %s booms out:", chaos_patrons[p_ptr->chaos_patron]);
-            msg_print("'Thou art donst well, mortal!'");
-        }
-
-        /* Congratulations */
-        msg_print("*** CONGRATULATIONS ***");
-        msg_print("You have won the game!");
-        msg_print("You may retire (commit suicide) when you are ready.");
-        /*cf quest_complete: msg_add_tiny_screenshot(50, 24);*/
     }
 }
 
@@ -2340,9 +2261,33 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
         s64b_div(&new_exp, &new_exp_frac, 0, 5);
     }
 
+    if (quest_id_current() > 64) /* Players get too much XP from some early quests */
+    {
+        quest_ptr q_ptr = quests_get_current();
+        if (q_ptr)
+        {
+             if ((strpos("Shadow Fair", q_ptr->name)) || (strpos("Tidy ", q_ptr->name)))
+             {
+                 s64b_mul(&new_exp, &new_exp_frac, 0, 2);
+                 s64b_div(&new_exp, &new_exp_frac, 0, 3);
+             }
+        }
+    }
+
     /* Intelligence affects learning! */
     s64b_mul(&new_exp, &new_exp_frac, 0, adj_exp_gain[p_ptr->stat_ind[A_INT]]);
     s64b_div(&new_exp, &new_exp_frac, 0, 100);
+
+    if ((coffee_break) && (py_in_dungeon())) /* Accelerated EXP gain */
+    {
+        int coffee_mult = 2;
+        if (p_ptr->lev < 50)
+        {
+           coffee_mult = 3;
+           if (!(r_ptr->flags2 & RF2_MULTIPLY)) coffee_mult = (((p_ptr->lev / 10) == 1) || ((p_ptr->lev >= 38) && (p_ptr->max_max_exp < 2239530L))) ? 7 : 8;
+        }
+        s64b_mul(&new_exp, &new_exp_frac, 0, coffee_mult);
+    }
 
     /* Gain experience */
     gain_exp_64(new_exp, new_exp_frac);
@@ -2486,7 +2431,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
     /* Genocided by chaos patron */
     if (!m_idx) return TRUE;
 
-    if (dam > 0 && (p_ptr->wizard || cheat_xtra))
+    if (dam > 0 && (p_ptr->wizard || cheat_xtra || easy_damage))
         msg_format("You do %d damage.", dam);
 
     if ( p_ptr->melt_armor
@@ -2498,7 +2443,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
         monster_desc(m_name, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE);
         msg_format("%^s armor melts.", m_name);
         m_ptr->ac_adj -= randint1(2);
-        if (p_ptr->wizard || cheat_xtra)
+        if (p_ptr->wizard || cheat_xtra || easy_damage)
             msg_format("Melt Armor: AC is now %d", mon_ac(m_ptr));
     }
 
@@ -2512,6 +2457,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
     m_ptr->hp -= dam;
     if (m_ptr->hp >= 0)
         pack_on_damage_monster(m_idx);
+
+    /* Mark monster as hurt */
+    if (dam > 0) m_ptr->mflag2 |= MFLAG2_HURT;
 
     /* It is dead now */
     if (m_ptr->hp < 0)
@@ -3269,6 +3217,7 @@ bool target_able_aux(int m_idx, int mode)
  *
  * We return TRUE if the target is "okay" and FALSE otherwise.
  */
+bool old_target_okay(void) { return (use_old_target && !p_ptr->confused && target_okay_aux(TARGET_KILL)); }
 bool target_okay(void) { return target_okay_aux(TARGET_KILL); }
 bool target_okay_aux(int mode)
 {
@@ -4606,7 +4555,7 @@ bool target_set(int mode)
 bool get_fire_dir(int *dp) { return get_fire_dir_aux(dp, TARGET_KILL); }
 bool get_fire_dir_aux(int *dp, int target_mode)
 {
-	if (use_old_target && target_okay_aux(target_mode)) {
+	if (use_old_target && !p_ptr->confused && target_okay_aux(target_mode)) {
 		*dp = 5;
 		p_ptr->redraw |= PR_HEALTH_BARS;
 		return TRUE;

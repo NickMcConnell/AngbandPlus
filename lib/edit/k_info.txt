@@ -1364,7 +1364,7 @@ A:30/4
 P:4:0d0:0:0:4
 F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC
 F:STEALTH | SEARCH
-D:A mantle made of curious silken material by the Galadrim that wondrously
+D:A mantle made of curious silken material by the Galadhrim that wondrously
 D:takes on the hues and shapes of its surroundings.
 
 N:*:& Fur Cloak~
@@ -1852,7 +1852,7 @@ W:35:0:0:200:1000
 A:35/7
 P:15:1d1:-1:0:0
 
-N:*:Sexy Swimsuit
+N:*:Sexy Swimsuit~
 G:(:v
 I:36:50:0
 W:30:0:0:2:78000
@@ -1867,8 +1867,8 @@ W:1:0:0:20:4
 A:1/255
 P:0:0d0:0:0:0
 
-N:*:Clothes~
-G:(:y
+N:*:Costume~
+G:(:R
 I:36:63:0
 W:1:0:0:10:1000000
 F:INSTA_ART
@@ -2762,7 +2762,7 @@ M:100:2d3
 N:*:Salt Water:Orange Speckled
 G:!:o
 I:75:5:0
-W:0:0:20:4:0
+W:0:0:20:4:1
 A:0/1
 P:0:1d1:0:0:0
 M:100:2d3
@@ -3176,6 +3176,7 @@ I:75:59:0
 W:65:0:0:4:25000
 A:65/1
 P:0:1d1:0:0:0
+F:NO_SHUFFLE
 M:5:1d2
 
 N:*:Resistance:Yellow

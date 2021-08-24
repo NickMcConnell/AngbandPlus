@@ -39,6 +39,7 @@ static void _build_general1(doc_ptr doc)
     race_t          *race_ptr = get_race();
     class_t         *class_ptr = get_class();
     personality_ptr  pers_ptr = get_personality();
+    bool             patron_listed = FALSE;
 
     doc_printf(doc, " Name       : <color:B>%s</color>\n", player_name);
     doc_printf(doc, " Sex        : <color:B>%s</color>\n", sex_info[p_ptr->psex].title);
@@ -83,10 +84,15 @@ static void _build_general1(doc_ptr doc)
         else
             doc_printf(doc, " Realm      : <color:B>%s</color>\n", realm_names[p_ptr->realm1]);
     }
+    else if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || mut_present(MUT_CHAOS_GIFT))
+    {
+        doc_printf(doc, " Patron     : <color:B>%s</color>\n", chaos_patrons[p_ptr->chaos_patron]);
+        patron_listed = TRUE;
+    }
     else
         doc_newline(doc);
 
-    if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || mut_present(MUT_CHAOS_GIFT))
+    if (((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || mut_present(MUT_CHAOS_GIFT)) && (!patron_listed))
         doc_printf(doc, " Patron     : <color:B>%s</color>\n", chaos_patrons[p_ptr->chaos_patron]);
     else
         doc_newline(doc);
@@ -131,7 +137,7 @@ static void _display_skill(doc_ptr doc, cptr name, int amt, int div)
 {
     skill_desc_t desc = skills_describe(amt, div);
     doc_printf(doc, "   %-11.11s: <color:%c>%s</color>", name, attr_to_attr_char(desc.color), desc.desc);
-    if (p_ptr->wizard || 0)
+    if (p_ptr->wizard || display_skill_num || 0)
         doc_printf(doc, " (%d)", amt);
     doc_newline(doc);
 }
@@ -906,6 +912,13 @@ static void _build_equipment(doc_ptr doc)
 
             object_desc(o_name, o_ptr, OD_COLOR_CODED);
             doc_printf(doc, " %c) <indent><style:indent>%s</style></indent>\n", slot - 1 + 'a', o_name);
+            if (((always_dump_origins) || ((final_dump_origins) && ((p_ptr->total_winner) || (p_ptr->is_dead))))
+              && (o_ptr->origin_type != ORIGIN_NONE) && (o_ptr->origin_type != ORIGIN_MIXED))
+            {
+                doc_printf(doc, "    <indent><style:indent><color:W>");
+                (void)display_origin(o_ptr, doc);
+                doc_printf(doc, "</color></style></indent>\n");
+            }
         }
         doc_newline(doc);
 
@@ -1314,7 +1327,7 @@ static void _build_pets(doc_ptr doc)
         doc_printf(doc, "  Allow cast attack spell:            %s\n", (p_ptr->pet_extra_flags & PF_ATTACK_SPELL) ? "ON" : "OFF");
         doc_printf(doc, "  Allow cast summon spell:            %s\n", (p_ptr->pet_extra_flags & PF_SUMMON_SPELL) ? "ON" : "OFF");
         doc_printf(doc, "  Allow involve player in area spell: %s\n", (p_ptr->pet_extra_flags & PF_BALL_SPELL) ? "ON" : "OFF");
-        if (p_ptr->wizard)
+        if (p_ptr->wizard || easy_damage)
             doc_printf(doc, "  Riding Skill:                       %d\n", skills_riding_current());
 
         doc_newline(doc);
@@ -1417,6 +1430,7 @@ static void _device_counts_imp(doc_ptr doc, int tval, int effect)
         effect.power = entry->level;
         effect.difficulty = entry->level;
         effect.type = entry->type;
+        effect.extra = 0;
 
         doc_printf(
             doc,
@@ -1878,7 +1892,10 @@ static void _build_statistics(doc_ptr doc)
     /* Gold */
     doc_insert(doc, "             <color:y>    Gold</color>\n");
     doc_printf(doc, "  Found    : <color:w>%8d</color>\n", stats_gold_counts.found);
-    doc_printf(doc, "  Selling  : <color:w>%8d</color>\n", stats_gold_counts.selling);
+    if (!no_selling)
+        doc_printf(doc, "  Selling  : <color:w>%8d</color>\n", stats_gold_counts.selling);
+    else
+        doc_printf(doc, "  Alchemy  : <color:w>%8d</color>\n", stats_gold_counts.selling);
     doc_printf(doc, "  Winnings : <color:w>%8d</color> <color:w>%8d</color>\n",
         stats_gold_counts.winnings,
         stats_gold_counts.found + stats_gold_counts.selling + stats_gold_counts.winnings);
@@ -1965,6 +1982,8 @@ static void _build_statistics(doc_ptr doc)
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_STAR_IDENTIFY);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_REMOVE_CURSE);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE);
+    if (class_uses_spell_scrolls(p_ptr->pclass))
+        _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_SPELL);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_TELEPORT);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_TELEPORT_LEVEL);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_STAR_DESTRUCTION);
@@ -1972,6 +1991,7 @@ static void _build_statistics(doc_ptr doc)
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_MASS_GENOCIDE);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_FOREST_CREATION);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_BANISHMENT);
+    _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_CRAFTING);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_ACQUIREMENT);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_STAR_ACQUIREMENT);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_ARTIFACT);
@@ -2028,6 +2048,7 @@ static void _build_statistics(doc_ptr doc)
         _device_counts_imp(doc, TV_STAFF, EFFECT_DESTRUCTION);
         _device_counts_imp(doc, TV_STAFF, EFFECT_HEAL_CURING);
         _device_counts_imp(doc, TV_STAFF, EFFECT_GENOCIDE);
+        _device_counts_imp(doc, TV_STAFF, EFFECT_CONFUSING_LITE);
         _device_counts_imp(doc, TV_STAFF, EFFECT_MANA_STORM);
         _device_counts_imp(doc, TV_STAFF, EFFECT_STARBURST);
         _device_counts_imp(doc, TV_STAFF, EFFECT_DARKNESS_STORM);
@@ -2124,13 +2145,10 @@ void py_display_dungeons(doc_ptr doc)
     vec_sort(v, (vec_cmp_f)_cmp_d_lvl);
     for (i = 0; i < vec_length(v); i++)
     {
-        bool    conquered = FALSE;
+        bool    conquered;
         dun_ptr d_ptr = vec_get(v, i);
-        if (d_ptr->final_guardian)
-        {
-            if (!r_info[d_ptr->final_guardian].max_num) conquered = TRUE;
-        }
-        else if (max_dlv[d_ptr->id] == d_ptr->maxdepth) conquered = TRUE;
+
+        conquered = dungeon_conquered(d_ptr->id);
 
         if (conquered)
             doc_printf(doc, "!<color:G>%-16s</color>: level %3d\n", d_name+d_ptr->name, max_dlv[d_ptr->id]);
@@ -2247,8 +2265,24 @@ static void _build_options(doc_ptr doc)
     if (game_mode != GAME_MODE_NORMAL)
         doc_printf(doc, " Game Mode:          %s\n", _game_mode_text[game_mode]);
 
+    if (coffee_break)
+        doc_printf(doc, " Coffeebreak Mode:   On\n");
+
+    if ((p_ptr->coffee_lv_revisits) || (coffee_break && p_ptr->total_winner))
+    {
+        if (!p_ptr->coffee_lv_revisits)
+            doc_printf(doc, " Depth Revisits:     None\n");
+        else if (p_ptr->coffee_lv_revisits > 250)
+            doc_printf(doc, " Depth Revisits:     250+\n");
+        else
+            doc_printf(doc, " Depth Revisits:     %d\n", p_ptr->coffee_lv_revisits);
+    }
+
     doc_printf(doc, " Preserve Mode:      %s\n", preserve_mode ? "On" : "Off");
 
+
+    if (easy_damage)
+		doc_printf(doc, " Easy Damage Info:   On\n");
 
 	if (easy_id)
 		doc_printf(doc, " Easy Identify:      On\n");
@@ -2262,7 +2296,7 @@ static void _build_options(doc_ptr doc)
     if (ironman_shops)
         doc_printf(doc, " No Shops:           On\n");
 
-    if (ironman_downward)
+    if ((ironman_downward) && (!coffee_break))
         doc_printf(doc, " Diving Only:        On\n");
 
     if (ironman_nightmare)
@@ -2296,7 +2330,7 @@ static void _build_quests(doc_ptr doc)
 {
     doc_printf(doc, "<topic:uQuests>==================================== Q<color:keypress>u</color>ests ===================================\n\n");
     quests_doc(doc);
-    if (!no_wilderness)
+    if (!no_wilderness || !ironman_downward || coffee_break)
     {
         doc_newline(doc);
         if (p_ptr->arena_number < 0)
@@ -2352,6 +2386,19 @@ static bool _is_retired(void)
     return FALSE;
 }
 
+int oook_score(void)
+{
+    int tulos = p_ptr->max_max_exp;
+    if ((easy_damage) && ((p_ptr->total_winner) || (tulos > 6500000L))) tulos = (p_ptr->total_winner ? (tulos / 2) : ((tulos - 6500000L) / 2)) + 6500000L;
+    return tulos;
+}
+
+char *version_modifier(void)
+{
+    if (coffee_break) return " (coffee)";
+    return "";
+}
+
 static void _add_html_header(doc_ptr doc)
 {
     string_ptr s = string_alloc_format("%s.html", player_base);
@@ -2362,15 +2409,15 @@ static void _add_html_header(doc_ptr doc)
     string_append_s(header, "<head>\n");
     string_append_s(header, " <meta name='filetype' value='character dump'>\n");
     string_printf(header,  " <meta name='variant' value='%s'>\n", VERSION_NAME);
-    string_printf(header,  " <meta name='variant_version' value='%d.%d.%s'>\n", VER_MAJOR, VER_MINOR, VER_PATCH);
-    string_printf(header,  " <meta name='character_name' value='%s'>\n", player_name);
+    string_printf(header,  " <meta name='variant_version' value='%d.%d.%s%s'>\n", VER_MAJOR, VER_MINOR, VER_PATCH, version_modifier());
+    string_printf(header,  " <meta name=\"character_name\" value=\"%s\">\n", player_name);
     string_printf(header,  " <meta name='race' value='%s'>\n", get_true_race()->name);
     string_printf(header,  " <meta name='class' value='%s'>\n", get_class()->name);
-    string_printf(header,  " <meta name='level' value='%d'>\n", p_ptr->lev);
-    string_printf(header,  " <meta name='experience' value='%d'>\n", p_ptr->max_exp);
+    string_printf(header,  " <meta name='level' value='%d'>\n", p_ptr->max_plv);
+    string_printf(header,  " <meta name='experience' value='%d'>\n", oook_score());
     string_printf(header,  " <meta name='turncount' value='%d'>\n", game_turn);
     string_printf(header,  " <meta name='max_depth' value='%d'>\n", _max_depth());
-    string_printf(header,  " <meta name='score' value='%d'>\n", p_ptr->max_exp); /* ?? Does oook need this? */
+    string_printf(header,  " <meta name='score' value='%d'>\n", oook_score()); /* ?? Does oook need this? */
     string_printf(header,  " <meta name='fame' value='%d'>\n", p_ptr->fame);
 
     /* For angband.oook.cz ... I'm not sure what is best for proper display of html dumps so I'll need to ask pav

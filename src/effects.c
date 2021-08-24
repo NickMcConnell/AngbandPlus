@@ -610,6 +610,7 @@ void dispel_player(void)
     psion_dispel_player();
     mimic_dispel_player();
 
+    set_filibuster(FALSE);
 
     /* Cancel glowing hands */
     if (p_ptr->special_attack & ATTACK_CONFUSE)
@@ -2656,8 +2657,8 @@ bool set_wraith_form(int v, bool do_dec)
             /* Redraw map */
             p_ptr->redraw |= (PR_MAP);
 
-            /* Update monsters */
-            p_ptr->update |= (PU_MONSTERS);
+            /* Update monsters and HP*/
+            p_ptr->update |= (PU_MONSTERS | PU_HP);
 
             /* Window stuff */
             p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
@@ -2677,7 +2678,7 @@ bool set_wraith_form(int v, bool do_dec)
             p_ptr->redraw |= (PR_MAP);
 
             /* Update monsters */
-            p_ptr->update |= (PU_MONSTERS);
+            p_ptr->update |= (PU_MONSTERS | PU_HP);
 
             /* Window stuff */
             p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
@@ -4718,7 +4719,7 @@ bool set_food(int v)
     v = (v > 20000) ? 20000 : (v < 0) ? 0 : v;
 
     /* CTK: I added a "food bar" to track hunger ... */
-    if (display_percentages)
+    if (easy_damage || p_ptr->wizard)
     {
         old_pct = p_ptr->food * 100 / PY_FOOD_FULL;
         new_pct = v * 100 / PY_FOOD_FULL;
@@ -5560,7 +5561,7 @@ void change_race(int new_race, cptr effect_msg)
 
     _lock = TRUE;
 
-    if (old_race == RACE_HUMAN || old_race == RACE_DEMIGOD)
+    if (old_race == RACE_HUMAN || old_race == RACE_DEMIGOD || mut_present(p_ptr->demigod_power[0]))
     {
         int i, idx;
         for (i = 0; i < MAX_DEMIGOD_POWERS; i++)
@@ -5612,7 +5613,8 @@ void change_race(int new_race, cptr effect_msg)
     /* The experience level may be modified */
     check_experience();
 
-    if (p_ptr->prace == RACE_HUMAN || p_ptr->prace == RACE_DEMIGOD || p_ptr->prace == RACE_DRACONIAN)
+    if (p_ptr->prace == RACE_HUMAN || p_ptr->prace == RACE_DEMIGOD || p_ptr->prace == RACE_DRACONIAN ||
+        p_ptr->prace == RACE_BARBARIAN || p_ptr->prace == RACE_DUNADAN || p_ptr->prace == RACE_HALF_ORC)
     {
         race_t *race_ptr = get_true_race();
         if (race_ptr != NULL && race_ptr->gain_level != NULL)
@@ -5776,10 +5778,13 @@ void do_poly_self(void)
         do_poly_wounds();
     }
 
+    if (no_scrambling && one_in_(2)) return;
+
     /* Note: earlier deductions may have left power < 0 already. */
     while (power > 0)
     {
         mutate_player();
+        if (no_scrambling) break;
         power--;
     }
 }
@@ -5903,7 +5908,7 @@ int take_hit(int damage_type, int damage, cptr hit_from)
     }
 
     
-    if (p_ptr->wizard && damage > 0)
+    if ((p_ptr->wizard || easy_damage) && (damage > 0))
         msg_format("You take %d damage.", damage);
 
     p_ptr->chp -= damage;
@@ -6032,19 +6037,26 @@ int take_hit(int damage_type, int damage, cptr hit_from)
     /* Hitpoint warning */
     if (p_ptr->chp < warning && !world_monster)
     {
-        sound(SOUND_WARN);
-
-        /* Hack -- stop the player on first crossing the threshold */
-        if (old_chp >= warning) 
+        if ((warning_hack_hp) && (warning_hack_hp < p_ptr->chp))
         {
-            msg_prompt("<color:v>*** LOW HITPOINT WARNING! ***</color> Press <color:y>Space</color> to continue.", " ", PROMPT_FORCE_CHOICE);
         }
         else
         {
-            cmsg_print(TERM_VIOLET, "*Ouch!*");
-            flush();
+            sound(SOUND_WARN);
+
+            /* Hack -- stop the player on first crossing the threshold */
+            if (old_chp >= warning) 
+            {
+                msg_prompt("<color:v>*** LOW HITPOINT WARNING! ***</color> Press <color:y>Space</color> to continue.", " ", PROMPT_FORCE_CHOICE);
+            }
+            else
+            {
+                cmsg_print(TERM_VIOLET, "*Ouch!*");
+                flush();
+            }
         }
     }
+    warning_hack_hp = 0;
     if (p_ptr->wild_mode && !p_ptr->leaving && (p_ptr->chp < MAX(warning, p_ptr->mhp/5)))
     {
         change_wild_mode();

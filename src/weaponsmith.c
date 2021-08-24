@@ -43,6 +43,7 @@ enum {                  /* stored in object.xtra1 when object.xtra3 = _ESSENCE_S
     _SPECIAL_PROTECTION,
 	_SPECIAL_VITALITY,
     _SPECIAL_AURA_ELEMENTS,
+    /* next flag should be 11 instead of 10, unless it's actually used for deaggravation, which is 10 */
 };
 
 /* Essences are grouped by type for display to the user */
@@ -534,12 +535,34 @@ static void _remove(object_type *o_ptr)
     {
         if (o_ptr->xtra1 == _SPECIAL_SLAYING )
         {
+            int kind_h = k_info[o_ptr->k_idx].to_h;
+            int kind_d = k_info[o_ptr->k_idx].to_d;
             o_ptr->to_h -= (o_ptr->xtra4>>8);
             o_ptr->to_d -= (o_ptr->xtra4 & 0x000f);
             o_ptr->xtra4 = 0;
-            /* Disenchanted after smithing? */
-            if (o_ptr->to_h < 0 && o_ptr->name2 != EGO_GLOVES_BERSERKER) o_ptr->to_h = 0;
-            if (o_ptr->to_d < 0) o_ptr->to_d = 0;
+            /* Disenchanted after smithing? As opposed to a Cloak of the Bat, etc. 
+             * This isn't perfect since some egos have random to-hit/to-dam bonuses
+             * that screw this up */
+            if (o_ptr->to_h < MAX(0, kind_h))
+            {
+                if (!o_ptr->name2) o_ptr->to_h = MAX(o_ptr->to_h, kind_h);
+                else {
+                    ego_type *e_ptr = &e_info[o_ptr->name2];
+                    int ego_h = e_ptr->max_to_h;
+                    if (kind_h + ego_h >= 0) o_ptr->to_h = MAX(o_ptr->to_h, (ego_h == 0) ? kind_h : 0);
+                    else if (ego_h == 0) o_ptr->to_h = MAX(o_ptr->to_h, kind_h);
+                }
+            }
+            if (o_ptr->to_d < MAX(0, kind_d))
+            {
+                if (!o_ptr->name2) o_ptr->to_d = MAX(o_ptr->to_d, kind_d);
+                else {
+                    ego_type *e_ptr = &e_info[o_ptr->name2];
+                    int ego_d = e_ptr->max_to_d;
+                    if (kind_d + ego_d >= 0) o_ptr->to_d = MAX(o_ptr->to_d, (ego_d == 0) ? kind_d : 0);
+                    else if (ego_d == 0) o_ptr->to_d = MAX(o_ptr->to_d, kind_d);
+                }
+            }
         }
         o_ptr->xtra1 = 0;
     }
@@ -900,7 +923,7 @@ static int _smith_enchant_armor(object_type *o_ptr)
         else color = 'R';
         doc_printf(_doc, "[%d,<color:%c>%+d</color>]\n", o_ptr->ac, color, to_a);
 
-        doc_insert(_doc, "      Use a/A to adust the amount of armor class to add.\n");
+        doc_insert(_doc, "      Use a/A to adjust the amount of armor class to add.\n");
 
         if (cost_a > avail_a) color = 'r';
         else color = 'G';
@@ -1051,8 +1074,8 @@ static int _smith_enchant_weapon(object_type *o_ptr)
         else color = 'R';
         doc_printf(_doc, ",<color:%c>%+d</color>)\n", color, to_d);
 
-        doc_insert(_doc, "      Use h/H to adust the amount of accuracy to add.\n");
-        doc_insert(_doc, "      Use d/D to adust the amount of damage to add.\n");
+        doc_insert(_doc, "      Use h/H to adjust the amount of accuracy to add.\n");
+        doc_insert(_doc, "      Use d/D to adjust the amount of damage to add.\n");
 
         if (cost_h > avail_h) color = 'r';
         else color = 'G';
@@ -1181,8 +1204,8 @@ static int _smith_add_slaying(object_type *o_ptr)
         else color = 'R';
         doc_printf(_doc, ",<color:%c>%+d</color>)\n", color, to_d);
 
-        doc_insert(_doc, "      Use h/H to adust the amount of accuracy to add.\n");
-        doc_insert(_doc, "      Use d/D to adust the amount of damage to add.\n");
+        doc_insert(_doc, "      Use h/H to adjust the amount of accuracy to add.\n");
+        doc_insert(_doc, "      Use d/D to adjust the amount of damage to add.\n");
 
         if (cost_h > avail_h) color = 'r';
         else color = 'G';

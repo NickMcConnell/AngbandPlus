@@ -180,16 +180,51 @@ static s32b _abilities_q(u32b flgs[OF_ARRAY_SIZE])
 
 }
 
+static u32b _check_brand_and_score(u32b flgs[OF_ARRAY_SIZE], u32b flg, u32b score, int *count)
+{
+    u32b result = 0;
+    if (have_flag(flgs, flg))
+    {
+        (*count)++;
+        result = (score * 3) / (((*count) * 2) + 1);
+    }
+    return result;
+}
+
+/* Score off-weapon brands and slays */
 static s32b _brands_q(u32b flgs[OF_ARRAY_SIZE])
 {
-    double cost = 0.0;
+    u32b cost = 0;
     int count = 0;
 
-    /* These are what I would expect to pay */
-    cost += _check_flag_and_score(flgs, OF_BRAND_FIRE, 8000, &count);
-    cost += _check_flag_and_score(flgs, OF_BRAND_COLD, 8000, &count);
-    cost += _check_flag_and_score(flgs, OF_BRAND_ACID, 12000, &count);
-    cost += _check_flag_and_score(flgs, OF_BRAND_ELEC, 15000, &count);
+    /* Redone for 7.0.mango */
+    cost += _check_brand_and_score(flgs, OF_KILL_EVIL, 22000, &count);
+    cost += _check_brand_and_score(flgs, OF_KILL_LIVING, 15000, &count);
+    cost += _check_brand_and_score(flgs, OF_KILL_DEMON, 14000, &count);
+    cost += _check_brand_and_score(flgs, OF_KILL_UNDEAD, 14000, &count);
+    cost += _check_brand_and_score(flgs, OF_KILL_HUMAN, 14000, &count);
+    cost += _check_brand_and_score(flgs, OF_KILL_DRAGON, 12500, &count);
+    cost += _check_brand_and_score(flgs, OF_KILL_GOOD, 10000, &count);
+    cost += _check_brand_and_score(flgs, OF_SLAY_EVIL, 10000, &count);
+    cost += _check_brand_and_score(flgs, OF_BRAND_POIS, 8500, &count);
+    cost += _check_brand_and_score(flgs, OF_SLAY_LIVING, 8500, &count);
+    cost += _check_brand_and_score(flgs, OF_BRAND_ELEC, 7500, &count);
+    cost += _check_brand_and_score(flgs, OF_SLAY_DEMON, 7500, &count);
+    cost += _check_brand_and_score(flgs, OF_SLAY_UNDEAD, 7500, &count);
+    cost += _check_brand_and_score(flgs, OF_SLAY_HUMAN, 7500, &count);
+    cost += _check_brand_and_score(flgs, OF_BRAND_ACID, 7000, &count);
+    cost += _check_brand_and_score(flgs, OF_KILL_ANIMAL, 6500, &count);
+    cost += _check_brand_and_score(flgs, OF_SLAY_DRAGON, 6500, &count);
+    cost += _check_brand_and_score(flgs, OF_BRAND_FIRE, 6000, &count);
+    cost += _check_brand_and_score(flgs, OF_BRAND_COLD, 6000, &count);
+    cost += _check_brand_and_score(flgs, OF_KILL_GIANT, 5500, &count);
+    cost += _check_brand_and_score(flgs, OF_SLAY_GOOD, 5000, &count);
+    cost += _check_brand_and_score(flgs, OF_KILL_TROLL, 4000, &count);
+    cost += _check_brand_and_score(flgs, OF_KILL_ORC, 4000, &count);
+    cost += _check_brand_and_score(flgs, OF_SLAY_ANIMAL, 3250, &count);
+    cost += _check_brand_and_score(flgs, OF_SLAY_GIANT, 2750, &count);
+    cost += _check_brand_and_score(flgs, OF_SLAY_TROLL, 2000, &count);
+    cost += _check_brand_and_score(flgs, OF_SLAY_ORC, 2000, &count);
 
     return (u32b) cost;
 }
@@ -197,7 +232,7 @@ static s32b _brands_q(u32b flgs[OF_ARRAY_SIZE])
 static s32b _resistances_q(u32b flgs[OF_ARRAY_SIZE])
 {
     double cost = 0.0;
-    int count = 0;
+    int count = 0, bigcount = 0;
 
     /* Low Resists */
     count = 0;
@@ -205,31 +240,37 @@ static s32b _resistances_q(u32b flgs[OF_ARRAY_SIZE])
     cost += _check_flag_and_score(flgs, OF_RES_ELEC, 3000, &count);
     cost += _check_flag_and_score(flgs, OF_RES_FIRE, 3000, &count);
     cost += _check_flag_and_score(flgs, OF_RES_COLD, 3000, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_POIS, 5000, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_POIS, 4000, &count);
+    bigcount = count;
 
     /* High Resists */
     count = 0;
-    cost += _check_flag_and_score(flgs, OF_RES_LITE, 3000, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_DARK, 3000, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_CONF, 3000, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_NETHER, 4500, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_NEXUS, 4500, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_LITE, 2500, &count);
+    bigcount = ((bigcount + count) >= 5) ? (2 - count) : ((bigcount + count) >= 2) ? (1 - count) : (0 - count);
+    cost += _check_flag_and_score(flgs, OF_RES_DARK, 3500, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_CONF, 3500, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_NETHER, 5000, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_NEXUS, 4000, &count);
     cost += _check_flag_and_score(flgs, OF_RES_CHAOS, 6000, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_SOUND, 6000, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_SOUND, 5000, &count);
     cost += _check_flag_and_score(flgs, OF_RES_SHARDS, 7000, &count);
     cost += _check_flag_and_score(flgs, OF_RES_DISEN, 6000, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_TIME, 10000, &count);
+    cost += _check_flag_and_score(flgs, OF_RES_TIME, 9001, &count);
+    bigcount += count;
 
     /* Other Resists */
     count = 0;
     cost += _check_flag_and_score(flgs, OF_RES_BLIND, 1000, &count);
-    cost += _check_flag_and_score(flgs, OF_RES_FEAR, 1000, &count);
+    bigcount -= count;
+    cost += _check_flag_and_score(flgs, OF_RES_FEAR, 2500, &count);
+    bigcount += count;
 
     count = 0; /* Otherwise, immunities *and* lots of resists are absurd :) */
     cost += _check_flag_and_score(flgs, OF_IM_ACID,  12000, &count);
     cost += _check_flag_and_score(flgs, OF_IM_ELEC,  15000, &count);
-    cost += _check_flag_and_score(flgs, OF_IM_FIRE,  13000, &count);
+    cost += _check_flag_and_score(flgs, OF_IM_FIRE,  15000, &count);
     cost += _check_flag_and_score(flgs, OF_IM_COLD,  14000, &count);
+    bigcount += count;
 
     count = 0;
     cost -= _check_flag_and_score(flgs, OF_VULN_ACID, 5000, &count);
@@ -247,6 +288,21 @@ static s32b _resistances_q(u32b flgs[OF_ARRAY_SIZE])
     cost -= _check_flag_and_score(flgs, OF_VULN_SOUND, 5000, &count);
     cost -= _check_flag_and_score(flgs, OF_VULN_SHARDS, 5000, &count);
     cost -= _check_flag_and_score(flgs, OF_VULN_DISEN, 5000, &count);
+    bigcount -= ((count + 1) / 2);
+
+    if (have_flag(flgs, OF_SPEED)) bigcount++; /* Honorary high resist */
+    if (have_flag(flgs, OF_REFLECT)) bigcount++; /* Honorary high resist */
+
+    /* Extra cost for items with many high resists
+     * (_check_flag_and_score() already does this, that's why it needs a
+     * count, but items with heaps of resists still seem undervalued) */
+    if (bigcount >= 3)
+    {
+        int ylim = bigcount - 2;
+        int kerroin = 300 + (300 * ylim);
+        cost += (kerroin * ylim);
+    }
+     
     if (cost < 0) cost = 0;
 
     return (u32b) cost;

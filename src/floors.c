@@ -425,7 +425,7 @@ static void preserve_pet(void)
                     if (r_info[m_ptr->r_idx].flags1 & RF1_UNIQUE) continue;
                     if (m_ptr->mflag2 & MFLAG2_QUESTOR) continue;
                     if (!los(m_ptr->fy, m_ptr->fx, py, px)) continue;
-                    m_ptr->energy_need += ENERGY_NEED();
+                    m_ptr->mflag |= MFLAG_NICE;
                 }
                 else if (m_ptr->parent_m_idx)
                 {
@@ -941,6 +941,8 @@ void leave_floor(void)
             {
                 if (d_info[dungeon_type].flags1 & DF1_RANDOM)
                     move_num = rand_range(d_info[dungeon_type].mindepth, d_info[dungeon_type].maxdepth);
+                else if ((coffee_break) && (dungeon_type == DUNGEON_ANGBAND))
+                    move_num = coffeebreak_recall_level(TRUE);
                 else
                     move_num = d_info[dungeon_type].mindepth;
             }
@@ -1363,6 +1365,13 @@ void change_floor(void)
 
     /* Remember when this level was "created" */
     old_turn = game_turn;
+
+    /* Politicians have level-based resource pools */
+    if (p_ptr->pclass == CLASS_POLITICIAN)
+    {
+        politician_check_experience(TRUE);
+        politician_check_au(TRUE);
+    }
 
     /* No dungeon feeling yet */
     p_ptr->feeling_turn = old_turn;

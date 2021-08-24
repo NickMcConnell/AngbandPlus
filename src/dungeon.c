@@ -62,6 +62,8 @@ byte value_check_aux1(object_type *o_ptr)
     /* Good "armor" bonus */
     if (o_ptr->to_a > 0) return FEEL_GOOD;
 
+    if (o_ptr->tval == TV_GLOVES || o_ptr->tval == TV_BOOTS) return FEEL_AVERAGE;
+
     /* Good "weapon" bonus */
     if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD;
 
@@ -126,7 +128,7 @@ static void _sense_obj(obj_ptr obj)
     {
         msg_format("You feel the %s (%c) you are wearing %s %s...",
                name, slot_label(obj->loc.slot),
-               obj->number == 1 ? "is" : "are",
+               !object_plural(obj) ? "is" : "are",
                    game_inscriptions[feel]);
     }
     else
@@ -134,7 +136,7 @@ static void _sense_obj(obj_ptr obj)
         msg_format("You feel the %s (%c) in your %s %s %s...",
                name, slot_label(obj->loc.slot),
                obj->loc.where == INV_QUIVER ? "quiver" : "pack", 
-               obj->number == 1 ? "is" : "are",
+               !object_plural(obj) ? "is" : "are",
                    game_inscriptions[feel]);
     }
 
@@ -318,7 +320,7 @@ static void pattern_teleport(void)
         teleport_player(200, 0L);
         return;
     }
-    else if (!ironman_downward && get_check("Recall? "))
+    else if (((coffee_break) || (!ironman_downward)) && (get_check("Recall? ")))
     {
         recall_player(1);
         return;
@@ -478,6 +480,7 @@ static void regenhp(int percent)
     if (p_ptr->action == ACTION_STALK) return;
     if (mimic_no_regen()) return;
     if (weaponmaster_get_toggle() == TOGGLE_SHADOW_STANCE) return;
+    if (p_ptr->filibuster) return;
 
     /* Save the old hitpoints */
     old_chp = p_ptr->chp;
@@ -593,6 +596,12 @@ static void regenmana(int percent)
         s32b reduce_mana = 0;
         u32b reduce_mana_frac = (p_ptr->msp * PY_REGEN_NORMAL + PY_REGEN_MNBASE);
 
+        if (percent < -47674L) /* Lose mana faster */
+        {
+            reduce_mana_frac *= ((0L - percent) / 4334);
+            reduce_mana_frac /= 11;
+        }
+
         /* Convert the unit (1/2^16) to (1/2^32) */
         s64b_LSHIFT(reduce_mana, reduce_mana_frac, 16);
 
@@ -682,6 +691,10 @@ static bool _is_captured_mon(obj_ptr obj) { return obj->tval == TV_CAPTURE && ob
 static void _regen_captured_mon(obj_ptr obj)
 {
     monster_race *r_ptr = &r_info[obj->pval];
+
+    /* Uniques and Nazguls regenerate very slowly in capture balls */ 
+    if ((r_ptr->ball_num) && ((game_turn % (TURNS_PER_TICK*60)))) return;
+
     if (obj->xtra4 < obj->xtra5)
     {
         int amt = obj->xtra5 / 100;
@@ -757,6 +770,28 @@ void fame_on_failure(void)
     p_ptr->fame -= dec;
 }
 
+byte coffeebreak_recall_level(bool laskuri)
+{
+    byte taso = (byte)max_dlv[DUNGEON_ANGBAND];
+    if (taso < 99)
+    {
+        taso++;
+        if (!level_is_questlike(DUNGEON_ANGBAND, taso)) taso++;
+    }
+    else if ((taso == 99) && (!level_is_questlike(DUNGEON_ANGBAND, taso))) taso++;
+    if ((p_ptr->total_winner) && (taso < d_info[DUNGEON_ANGBAND].maxdepth)) taso++;
+    /* Mega-hack
+     * coffeebreak_recall_level() is actually called every time a dungeon
+     * level is entered in coffee-break mode. This means that if it's called,
+     * and taso == max_dlv, we are revisiting the depth */
+    if ((laskuri) && (taso == (byte)max_dlv[DUNGEON_ANGBAND]) && (p_ptr->coffee_lv_revisits < 251) && (taso < 101))
+    {
+        p_ptr->coffee_lv_revisits++;
+    }
+    return taso;
+}
+
+
 /*
  * Forcibly pseudo-identify an object in the inventory
  * (or on the floor)
@@ -809,7 +844,7 @@ bool psychometry(void)
     }
 
     msg_format("You feel that the %s %s %s...",
-               o_name, ((prompt.obj->number == 1) ? "is" : "are"),
+               o_name, ((!object_plural(prompt.obj)) ? "is" : "are"),
                game_inscriptions[feel]);
 
 
@@ -926,7 +961,7 @@ void do_alter_reality(void)
 
 
     /* Determine the level */
-    if ((!dungeon_type) && (quests_get_current()))
+    if ((ironman_downward) || ((!dungeon_type) && (quests_get_current())))
     {
         msg_print("The world seems to change for a moment!");
         p_ptr->alter_reality = 0;
@@ -1266,18 +1301,32 @@ static void process_world_aux_hp_and_sp(void)
         p_ptr->action == ACTION_QUICK_WALK ||
         p_ptr->action == ACTION_STALK ||
         (p_ptr->special_defense & KATA_KOUKIJIN) ||
+        p_ptr->filibuster ||
         weaponmaster_get_toggle() == TOGGLE_SHADOW_STANCE)
     {
         upkeep_factor += 100;
     }
 
-    /* Regenerate the mana */
-    upkeep_regen = (100 - upkeep_factor) * regen_amount;
+    /* Regenerate the mana
+     * Use PY_REGEN_NORMAL as multiplier for negative regen to avoid a
+     * situation where "regen-improving" things make mana loss even worse
+     * and regen-worsening things make it better */
+    upkeep_regen = (100 - upkeep_factor) * ((upkeep_factor > 100) ? PY_REGEN_NORMAL : regen_amount);
 
-    if (_fast_mana_regen())
+    if ((_fast_mana_regen()) && (upkeep_regen > 0))
         upkeep_regen = upkeep_regen * 2;
 
     regenmana(upkeep_regen);
+
+    /* Mega-hack - interrupt resting if we're only resting for mana and our mana isn't regenerating */
+    if ((resting < 0) && ((p_ptr->chp == p_ptr->mhp) || (mimic_no_regen()))
+        && (upkeep_regen <= 0) && (!magic_eater_can_regen()) && (!samurai_can_concentrate())
+        && (!p_ptr->blind) && (!p_ptr->confused) && (!p_ptr->poisoned) && (!p_ptr->afraid)
+        && (!p_ptr->stun) && (!p_ptr->cut) && (!p_ptr->slow) && (!p_ptr->paralyzed)
+        && (!p_ptr->image) && (!p_ptr->word_recall) && (!p_ptr->alter_reality))
+    {
+        set_action(ACTION_NONE);
+    }
 
     if (magic_eater_regen(regen_amount))
         wild_regen = 20;
@@ -1954,7 +2003,7 @@ static void process_world_aux_curse(void)
                 object_type *o_ptr = choose_cursed_obj_name(OFC_CALL_ANIMAL);
 
                 object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-                msg_format("Your %s have attracted an animal!", o_name);
+                msg_format("Your %s %s attracted an animal!", o_name, object_plural(o_ptr) ? "have" : "has");
 
                 disturb(0, 0);
                 obj_learn_curse(o_ptr, OFC_CALL_ANIMAL);
@@ -1969,7 +2018,7 @@ static void process_world_aux_curse(void)
                 object_type *o_ptr = choose_cursed_obj_name(OFC_CALL_DEMON);
 
                 object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-                msg_format("Your %s have attracted a demon!", o_name);
+                msg_format("Your %s %s attracted a demon!", o_name, object_plural(o_ptr) ? "have" : "has");
 
                 disturb(0, 0);
                 obj_learn_curse(o_ptr, OFC_CALL_DEMON);
@@ -1985,7 +2034,7 @@ static void process_world_aux_curse(void)
                 object_type *o_ptr = choose_cursed_obj_name(OFC_CALL_DRAGON);
 
                 object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-                msg_format("Your %s have attracted a dragon!", o_name);
+                msg_format("Your %s %s attracted a dragon!", o_name, object_plural(o_ptr) ? "have" : "has");
 
                 disturb(0, 0);
                 obj_learn_curse(o_ptr, OFC_CALL_DRAGON);
@@ -2248,6 +2297,8 @@ void process_world_aux_movement(void)
                 dungeon_type = p_ptr->recall_dungeon;
                 dun_level = max_dlv[dungeon_type];
                 if (dun_level < 1) dun_level = 1;
+
+                if (coffee_break) dun_level = coffeebreak_recall_level(TRUE);
 
                 /* Nightmare mode makes recall more dangerous */
                 if (ironman_nightmare && !randint0(666) && (dungeon_type == DUNGEON_ANGBAND))
@@ -3413,6 +3464,7 @@ static void _dispatch_command(int old_now_turn)
                      p_ptr->pclass == CLASS_MAULER ||
                      p_ptr->pclass == CLASS_MYSTIC ||
                      p_ptr->pclass == CLASS_SNIPER ||
+                     p_ptr->pclass == CLASS_ALCHEMIST ||
                      p_ptr->pclass == CLASS_TIME_LORD )
             {
                 /* This is the preferred entry point ... I'm still working on
@@ -3440,12 +3492,14 @@ static void _dispatch_command(int old_now_turn)
             {
                 msg_print("You are too scared!");
                 energy_use = 100;
+                if (p_ptr->pclass == CLASS_ALCHEMIST) energy_use = alchemist_infusion_energy_use();
             }
             else if ( dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC)
                    && p_ptr->pclass != CLASS_BERSERKER
                    && p_ptr->pclass != CLASS_BLOOD_KNIGHT
                    && p_ptr->pclass != CLASS_WEAPONMASTER
                    && p_ptr->pclass != CLASS_MAULER
+                   && p_ptr->pclass != CLASS_ALCHEMIST
                    && p_ptr->prace  != RACE_MON_POSSESSOR
                    && p_ptr->prace  != RACE_MON_MIMIC)
             {
@@ -3457,6 +3511,7 @@ static void _dispatch_command(int old_now_turn)
                    && p_ptr->pclass != CLASS_BLOOD_KNIGHT
                    && p_ptr->pclass != CLASS_WEAPONMASTER
                    && p_ptr->pclass != CLASS_MAULER
+                   && p_ptr->pclass != CLASS_ALCHEMIST
                    && p_ptr->prace  != RACE_MON_POSSESSOR
                    && p_ptr->prace  != RACE_MON_MIMIC)
             {
@@ -3480,7 +3535,8 @@ static void _dispatch_command(int old_now_turn)
                 equip_learn_flag(OF_NO_MAGIC);
                 energy_use = 0;
             }
-            else if (IS_SHERO() && p_ptr->pclass != CLASS_BERSERKER && p_ptr->pclass != CLASS_BLOOD_KNIGHT && p_ptr->pclass != CLASS_RAGE_MAGE)
+            else if (IS_SHERO() && p_ptr->pclass != CLASS_BERSERKER && p_ptr->pclass != CLASS_BLOOD_KNIGHT && p_ptr->pclass != CLASS_RAGE_MAGE
+             && p_ptr->pclass != CLASS_ALCHEMIST)
             {
                 msg_format("You cannot think clearly!");
                 energy_use = 0;
@@ -3499,6 +3555,8 @@ static void _dispatch_command(int old_now_turn)
                     do_cmd_hissatsu();
                 else if (p_ptr->pclass == CLASS_GRAY_MAGE)
                     gray_mage_cast_spell();
+                else if (p_ptr->pclass == CLASS_ALCHEMIST)
+                    alchemist_cast(0);
                 else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
                             p_ptr->pclass == CLASS_BERSERKER ||
                             p_ptr->pclass == CLASS_DUELIST ||
@@ -3641,7 +3699,7 @@ static void _dispatch_command(int old_now_turn)
         {
             if (!p_ptr->wild_mode)
             {
-                if (p_ptr->inside_arena && !devicemaster_is_(DEVICEMASTER_POTIONS))
+                if (p_ptr->inside_arena && !devicemaster_is_(DEVICEMASTER_POTIONS) && p_ptr->pclass != CLASS_ALCHEMIST)
                 {
                     msg_print("The arena absorbs all attempted magic!");
                     msg_print(NULL);
@@ -3741,6 +3799,7 @@ static void _dispatch_command(int old_now_turn)
             break;
 
         case KTRL('O'):
+        case 'O':
         case ']':
             if (!p_ptr->image)
                 do_cmd_list_objects();
@@ -4090,7 +4149,7 @@ static void process_player(void)
                 || p_ptr->pclass == CLASS_RAGE_MAGE
                 || mimic_no_regen() )
               && !magic_eater_can_regen()
-			  && !samurai_can_concentrate()
+              && !samurai_can_concentrate()
               && !p_ptr->blind
               && !p_ptr->confused
               && !p_ptr->poisoned
@@ -4778,7 +4837,7 @@ static void dungeon(bool load_game)
     /* Print quest message if appropriate */
     if ((dun_level == d_info[dungeon_type].maxdepth) && d_info[dungeon_type].final_guardian)
     {
-        if (r_info[d_info[dungeon_type].final_guardian].max_num)
+        if (mon_available_num(&r_info[d_info[dungeon_type].final_guardian]))
         {
             cmsg_format(
                 TERM_YELLOW, "%^s lives in this level as the keeper of %s.",
@@ -5115,7 +5174,7 @@ void play_game(bool new_game)
     }
 
     /* Extract the options */
-    extract_option_vars();
+    if (!character_loaded) extract_option_vars();
 
     creating_savefile = new_game;
 
@@ -5373,6 +5432,7 @@ void play_game(bool new_game)
             py_birth_food();
             py_birth_light();
         }
+        if ((coffee_break) && (p_ptr->pclass != CLASS_BERSERKER)) py_birth_obj_aux(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL, 1);
 
         spell_stats_on_birth();
 

@@ -83,6 +83,7 @@ extern quest_ptr  quests_get_current(void);
 extern int        quest_id_current(void);
 extern quest_ptr  quests_get(int id);
 extern cptr       quests_get_name(int id);
+extern int        quests_get_level(int id);
 extern vec_ptr    quests_get_all(void);
 extern vec_ptr    quests_get_active(void);
 extern vec_ptr    quests_get_finished(void);
@@ -94,6 +95,7 @@ extern vec_ptr    quests_get_random(void);
 extern void       quests_on_birth(void); /* assign random quests */
 extern void       quests_on_restore_floor(int dungeon, int level); /* player re-entered a saved floor (persistent levels) */
 extern void       quests_on_generate(int dungeon, int level); /* see if this level is a quest level */
+extern bool       level_is_questlike(int dungeon, int level);
 extern void       quests_generate(int id); /* QF_GENERATE located on surface (QUEST_ENTER(id)) */
 extern void       quests_on_kill_mon(mon_ptr mon); /* check for completion */
 extern void       quests_on_get_obj(obj_ptr obj); /* check for completion */

@@ -193,6 +193,17 @@ int chaos_rewards[MAX_PATRON][20] =
     }
 };
 
+/* Bad things, but not ty_curse bad (or at least not ty_curse insta-deadly) */
+void _nonlethal_ty_substitute(void)
+{
+    bool old_nos = no_scrambling;
+    no_scrambling = TRUE;
+    mutate_player();
+    no_scrambling = old_nos;
+    dec_stat(randint0(MAX_STATS), 12 + randint1(6), TRUE);
+}
+
+
 void chaos_warrior_reward(void)
 {
     if (one_in_(6))
@@ -226,6 +237,16 @@ void chaos_warrior_reward(void)
         sprintf(wrath_reason, "the Wrath of %s",
             chaos_patrons[p_ptr->chaos_patron]);
 
+        /* Extra chance to avoid the worst stuff */
+        if ((type < 5) && (p_ptr->lev % 13))
+        {
+            while (type < 5) 
+            {
+                if (!one_in_(type + ((p_ptr->lev < 13) ? 1 : 2))) break;
+                type++;
+            }
+        }
+
         effect = chaos_rewards[p_ptr->chaos_patron][type];
         switch (effect)
         {
@@ -241,7 +262,7 @@ void chaos_warrior_reward(void)
                 chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Well done, mortal! Lead on!'");
             if (p_ptr->prace == RACE_ANDROID)
-                msg_print("But, nothing happen.");
+                msg_print("But, nothing happens.");
             else if (p_ptr->exp < PY_MAX_EXP)
             {
                 s32b ee = (p_ptr->exp / 2) + 10;
@@ -400,7 +421,8 @@ void chaos_warrior_reward(void)
                 chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Thou art growing arrogant, mortal.'");
 
-            activate_ty_curse(FALSE, &count);
+            if (p_ptr->lev < 35) _nonlethal_ty_substitute();
+            else activate_ty_curse(FALSE, &count);
             break;
         case REW_SUMMON_M:
             msg_format("The voice of %s booms out:",
@@ -464,8 +486,8 @@ void chaos_warrior_reward(void)
             msg_format("The voice of %s booms out:",
                 chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Suffer, pathetic fool!'");
-            fire_ball(GF_DISINTEGRATE, 0, p_ptr->lev * 4, 4);
-            take_hit(DAMAGE_NOESCAPE, p_ptr->lev * 4, wrath_reason);
+            fire_ball(GF_DISINTEGRATE, 0, MIN(p_ptr->lev * 4, p_ptr->mhp * 2 / 5), 4);
+            take_hit(DAMAGE_NOESCAPE, MIN(p_ptr->lev * 4, p_ptr->mhp * 2 / 5), wrath_reason);
             break;
        case REW_HEAL_FUL:
             msg_format("The voice of %s booms out:",
@@ -513,7 +535,8 @@ void chaos_warrior_reward(void)
             switch (randint1(4))
             {
                 case 1:
-                    activate_ty_curse(FALSE, &count);
+                    if ((p_ptr->lev < 39) || (one_in_(2))) _nonlethal_ty_substitute();
+                    else activate_ty_curse(FALSE, &count);
                     break;
                 case 2:
                     activate_hi_summon(py, px, FALSE);
@@ -542,11 +565,13 @@ void chaos_warrior_reward(void)
             msg_format("The voice of %s thunders:", chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Die, mortal!'");
 
-            take_hit(DAMAGE_LOSELIFE, p_ptr->lev * 4, wrath_reason);
+            take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->mhp * 2 / 3, p_ptr->lev * 4), wrath_reason);
+            if (p_ptr->chp < 0) break; /* We've probably done enough */
             for (dummy = 0; dummy < 6; dummy++)
                 dec_stat(dummy, 10 + randint1(15), FALSE);
             activate_hi_summon(py, px, FALSE);
-            activate_ty_curse(FALSE, &count);
+            if ((p_ptr->lev < 39) || (!one_in_(8))) _nonlethal_ty_substitute();
+            else activate_ty_curse(FALSE, &count);
             if (one_in_(2))
             {
                 int slot = equip_random_slot(object_is_melee_weapon);
@@ -641,7 +666,7 @@ static int _get_powers(spell_info* spells, int max)
 
 static void _gain_level(int new_level)
 {
-    if (new_level > 1)
+    if ((new_level > 1) && (p_ptr->personality != PERS_CHAOTIC)) /* avoid double reward */
         chaos_warrior_reward();
 }
 

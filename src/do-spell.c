@@ -1825,7 +1825,7 @@ static cptr do_sorcery_spell(int spell, int mode)
         break;
 
     case 19:
-        if (name) return "Teleport to town";
+        if (name) return "Teleport to Town";
         if (desc) return "Teleport to a town which you choose in a moment. Can only be used outdoors.";
 
         {
@@ -4011,10 +4011,10 @@ static cptr do_death_spell(int spell, int mode)
 
     case 30:
         if (name) return "Nether Storm";
-        if (desc) return "Generate a huge ball of nether.";
+        if (desc) return "Generates a huge ball of nether.";
 
         {
-            int dam = spell_power(plev * 15 + p_ptr->to_d_spell);
+            int dam = spell_power(plev * 12 + p_ptr->to_d_spell + 5);
             int rad = spell_power(plev / 5);
 
             if (info) return info_damage(0, 0, dam);
@@ -4030,7 +4030,7 @@ static cptr do_death_spell(int spell, int mode)
 
     case 31:
         if (name) return "Wraithform";
-        if (desc) return "Becomes wraith form which gives ability to pass walls and makes all damages half.";
+        if (desc) return "Gives the ability to pass walls and reduces most damages by half.";
 
         {
             int base = spell_power(plev / 2);
@@ -4063,7 +4063,7 @@ static cptr do_trump_spell(int spell, int mode)
     int x = px;
     int y = py;
 
-    if (!fail && use_old_target && target_okay() && los(py, px, target_row, target_col) && !one_in_(3))
+    if (!fail && old_target_okay() && los(py, px, target_row, target_col) && !one_in_(3))
     {
         y = target_row;
         x = target_col;
@@ -4096,7 +4096,7 @@ static cptr do_trump_spell(int spell, int mode)
         {
             if (cast || fail)
             {
-                msg_print("You concentrate on the trump of an spider...");
+                msg_print("You concentrate on the trump of a spider...");
 
                 if (trump_summoning(1, !fail, y, x, 0, SUMMON_SPIDER, PM_ALLOW_GROUP))
                 {
@@ -4381,7 +4381,7 @@ static cptr do_trump_spell(int spell, int mode)
 
     case 16:
         if (name) return "Swap Position";
-        if (desc) return "Swap positions of you and a monster.";
+        if (desc) return "Swaps positions with a monster.";
 
         {
             if (cast)
@@ -8191,7 +8191,7 @@ static cptr do_hex_spell(int spell, int mode)
                     project(0, rad, py, px, power, GF_HELL_FIRE,
                         (PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
                 }
-                if (p_ptr->wizard)
+                if (p_ptr->wizard || easy_damage)
                 {
                     msg_format("You return %d damages.", power);
                 }
@@ -8742,7 +8742,7 @@ static cptr do_hex_spell(int spell, int mode)
 
                     fire_ball(GF_HELL_FIRE, dir, power, 1);
 
-                    if (p_ptr->wizard)
+                    if (p_ptr->wizard || easy_damage)
                     {
                         msg_format("You return %d damages.", power);
                     }

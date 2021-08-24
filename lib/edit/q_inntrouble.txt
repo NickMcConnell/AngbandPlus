@@ -21,7 +21,7 @@ L:<:UP_STAIR
 L:.:FLOOR
 L:+:CLOSED_DOOR
 L:$:OBJ(*)
-L:&:MON(*, DEPTH+5)
+L:&:MON(*, DEPTH+5 | NO_GROUP | NO_UNIQUE)
 L:a:MON(mean looking mercenary)
 L:b:MON(singing)
 L:k:OBJ(elvish waybread)
@@ -46,6 +46,9 @@ M:#............+.......................#
 M:#............#...........<...........#
 M:######################################
 R:OBJ(hard studded leather)
+
+?:[EQU $CLASS Monk Mystic Force-Trainer Ninja Ninja-Lawyer Scout]
+R:OBJ(padded armour)
 
 ?:[EQU $RACE Beholder Spider Ring Dragon]
 R:OBJ(^ring$):EGO(protection)

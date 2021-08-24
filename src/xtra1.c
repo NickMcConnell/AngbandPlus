@@ -22,8 +22,6 @@
 
 /*
  * Some screen locations for various display routines
- * Currently, row 8 and 15 are the only "blank" rows.
- * That leaves a "border" around the "stat" values.
  */
 
 #define ROW_LEVEL               0
@@ -52,14 +50,17 @@
 #define ROW_CURSP               12
 #define COL_CURSP               0       /* "Cur SP xxxxx" */
 
-#define ROW_STATE               13
+#define ROW_POOL               (p_ptr->pclass == CLASS_POLITICIAN ? 13 : 12)
+#define COL_POOL                0
+
+#define ROW_STATE              (p_ptr->pclass == CLASS_POLITICIAN ? 14 : 13)
 #define COL_STATE               7
 
-#define ROW_HEALTH_BARS         14
+#define ROW_HEALTH_BARS        (p_ptr->pclass == CLASS_POLITICIAN ? 15 : 14)
 #define COL_HEALTH_BARS         0
-#define COUNT_HEALTH_BARS       6       /* HP, SP, Food, Riding, Monster Track, Target */
+#define COUNT_HEALTH_BARS       6 /* HP, SP, Food, Riding, Monster Track, Target */
 
-#define ROW_EFFECTS            20
+#define ROW_EFFECTS            (p_ptr->pclass == CLASS_POLITICIAN ? 21 : 20)
 #define COL_EFFECTS             0
 #define COUNT_EFFECTS          11       /* Could be off screen ... */
 
@@ -599,6 +600,11 @@ static void prt_stat(int stat)
 #define BAR_HOARDING 173
 #define BAR_CAREFUL_AIM 174
 #define BAR_SPIN 175
+#define BAR_GRIT 176
+#define BAR_GREASE 177
+#define BAR_GLORY 178
+#define BAR_UPKEEP 179
+#define BAR_FILIBUSTER 180
 
 static struct {
     byte attr;
@@ -783,6 +789,11 @@ static struct {
     {TERM_YELLOW, "$$", "Hoarding"},
     {TERM_L_BLUE, "Aim", "Aim"},
     {TERM_GREEN, "Spn", "Spin"},
+    {TERM_SLATE, "uHP", "Grit"},
+    {TERM_YELLOW, "uAU", "Grease"},
+    {TERM_L_GREEN, "uXP", "Glory"},
+    {TERM_L_RED, "Upk", "Upkeep"},
+    {TERM_ORANGE, "Flb", "Filibuster"},
     {0, NULL, NULL}
 };
 
@@ -964,6 +975,9 @@ static void prt_status(void)
     /* An Eye for an Eye */
     if (IS_REVENGE()) ADD_FLG(BAR_EYEEYE);
 
+    /* Dangerously high upkeep */
+    if (p_ptr->upkeep_warning) ADD_FLG(BAR_UPKEEP);
+
     if (p_ptr->tim_spurt) ADD_FLG(BAR_TIME_SPURT);
     if (p_ptr->tim_blood_shield) ADD_FLG(BAR_BLOOD_SHIELD);
     if (p_ptr->tim_blood_seek) ADD_FLG(BAR_BLOOD_SEEK);
@@ -973,6 +987,7 @@ static void prt_status(void)
     if (p_ptr->tim_no_spells) ADD_FLG(BAR_NO_SPELLS);
     if (p_ptr->tim_blood_revenge) ADD_FLG(BAR_BLOOD_REVENGE);
     if (p_ptr->tim_force) ADD_FLG(BAR_FORCE);
+    if (p_ptr->filibuster) ADD_FLG(BAR_FILIBUSTER);
     if (p_ptr->pclass == CLASS_WEAPONMASTER)
     {
         switch (weaponmaster_get_toggle())
@@ -1136,6 +1151,22 @@ static void prt_status(void)
             break;
         case MAULER_TOGGLE_TUNNEL:
             ADD_FLG(BAR_TUNNEL);
+            break;
+        }
+    }
+
+    if (p_ptr->pclass == CLASS_POLITICIAN)
+    {
+        switch (politician_get_toggle())
+        {
+        case POLLY_TOGGLE_HPCAST:
+            ADD_FLG(BAR_GRIT);
+            break;
+        case POLLY_TOGGLE_AUCAST:
+            ADD_FLG(BAR_GREASE);
+            break;
+        case POLLY_TOGGLE_XPCAST:
+            ADD_FLG(BAR_GLORY);
             break;
         }
     }
@@ -1399,6 +1430,26 @@ static void prt_ac(void)
 }
 
 /*
+ * Prints current resource pool (politicians only)
+ */
+static void prt_pool(void)
+{
+    char out_val[32];
+    rect_t r = ui_char_info_rect();
+    s32b pool = politician_max_cost();
+    char tmp[10];
+    if (politician_get_toggle() == POLLY_TOGGLE_HPCAST)
+    {
+        Term_erase(r.x + COL_POOL, r.y + ROW_POOL, r.cx);
+        return;
+    }
+    big_num_display(pool, tmp);
+    sprintf(out_val, "%7.7s", tmp);
+    put_str("Pool ", r.y + ROW_POOL, r.x + COL_POOL);
+    c_put_str(TERM_L_GREEN, out_val, r.y + ROW_POOL, r.x + COL_POOL + 5);
+}
+
+/*
  * Prints Cur/Max hit points
  */
 static void prt_hp(void)
@@ -1440,7 +1491,7 @@ static void prt_sp(void)
 
     if (p_ptr->msp == 0)
     {
-        Term_erase(r.y + COL_CURSP, r.x + ROW_CURSP, r.cx);
+        Term_erase(r.x + COL_CURSP, r.y + ROW_CURSP, r.cx);
         return;
     }
 
@@ -1728,6 +1779,7 @@ static bool prt_speed(int row, int col)
         }
         else if ((is_fast && !p_ptr->slow) || IS_LIGHT_SPEED() || psion_speed()) attr = TERM_YELLOW;
         else if (p_ptr->slow && !is_fast) attr = TERM_VIOLET;
+        else if (p_ptr->filibuster) attr = TERM_ORANGE;
         else attr = TERM_L_GREEN;
         sprintf(buf, "Fast (+%d)", (i - 110));
 
@@ -1745,6 +1797,7 @@ static bool prt_speed(int row, int col)
         }
         else if (is_fast && !p_ptr->slow) attr = TERM_YELLOW;
         else if (p_ptr->slow && !is_fast) attr = TERM_VIOLET;
+        else if (p_ptr->filibuster) attr = TERM_ORANGE;
         else attr = TERM_L_UMBER;
         sprintf(buf, "Slow (-%d)", (110 - i));
     }
@@ -1954,7 +2007,7 @@ static void prt_hp_bar(int row, int col)
     else if (pct > hitpoint_warn*10) a = TERM_YELLOW;
     else a = TERM_RED;
 
-    if (display_percentages)
+    if (easy_damage || p_ptr->wizard)
     {
         char buf[20];
         sprintf(buf, "%3d%%", pct);
@@ -1987,7 +2040,7 @@ static void prt_sp_bar(int row, int col)
     else if (pct > mana_warn*10) a = TERM_YELLOW;
     else a = TERM_RED;
 
-    if (display_percentages)
+    if (easy_damage || p_ptr->wizard)
     {
         char buf[20];
         sprintf(buf, "%3d%%", pct);
@@ -2020,7 +2073,7 @@ static void prt_food_bar(int row, int col)
     else if (pct >= 10) attr = TERM_L_RED;
     else attr = TERM_VIOLET;
 
-    if (display_percentages)
+    if (easy_damage || p_ptr->wizard)
     {
         char buf[20];
         sprintf(buf, "%3d%%", pct);
@@ -2050,7 +2103,10 @@ static void prt_mon_health_bar(int m_idx, int row, int col)
     if (!m_ptr->ml)
     {
         const monster_race *r_ptr = mon_apparent_race(m_ptr);
-        Term_queue_bigchar(col, row, r_ptr->x_attr, r_ptr->x_char, 0, 0);
+        if (power_tele)
+            Term_queue_bigchar(col, row, r_ptr->x_attr, r_ptr->x_char, 0, 0);
+        else
+            Term_queue_bigchar(col, row, TERM_WHITE, (easy_mimics ? r_ptr->x_char : r_ptr->d_char), 0, 0);
 
         /* Indicate that the monster health is "unknown" */
         Term_putstr(col + 1, row, 11, base_attr, "[---------]");
@@ -2086,7 +2142,7 @@ static void prt_mon_health_bar(int m_idx, int row, int col)
         const monster_race *r_ptr = mon_apparent_race(m_ptr);
 
         if (m_ptr->mflag2 & MFLAG2_FUZZY)
-            Term_queue_bigchar(col, row, TERM_WHITE, r_ptr->d_char, 0, 0);
+            Term_queue_bigchar(col, row, TERM_WHITE, (easy_mimics ? r_ptr->x_char : r_ptr->d_char), 0, 0);
         else
             Term_queue_bigchar(col, row, r_ptr->x_attr, r_ptr->x_char, 0, 0);
 
@@ -2095,7 +2151,7 @@ static void prt_mon_health_bar(int m_idx, int row, int col)
         else if (pct >= 25) attr = TERM_ORANGE;
         else if (pct >= 10) attr = TERM_L_RED;
 
-        if (display_percentages)
+        if (easy_damage || p_ptr->wizard)
         {
             char buf[20];
             sprintf(buf, "%3d%%", pct);
@@ -2194,7 +2250,7 @@ static void prt_health_bars(void)
 }
 
 /*
- * Display basic info (mostly left of map)
+ * Display basic info (mostly right of map)
  */
 static void prt_frame_basic(void)
 {
@@ -2221,6 +2277,9 @@ static void prt_frame_basic(void)
 
     /* Current depth */
     prt_depth();
+
+    /* Pool */
+    if (p_ptr->pclass == CLASS_POLITICIAN) prt_pool();
 }
 
 
@@ -3104,7 +3163,9 @@ static void calc_mana(void)
             msp += (msp * adj / 20);
         }
 
+        if (msp && (p_ptr->personality == PERS_MUNCHKIN)) msp += msp / 2;
         if (msp && (get_class_idx() == CLASS_SORCERER)) msp += msp*(25+p_ptr->lev)/100;
+        if (msp && (get_class_idx() == CLASS_POLITICIAN)) msp -= msp / 4;
     }
 
     _calc_encumbrance();
@@ -3216,6 +3277,7 @@ static int _calc_xtra_hp(int amt)
     case CLASS_MONK:
     case CLASS_NINJA:
     case CLASS_RUNE_KNIGHT:
+    case CLASS_ALCHEMIST:
         w1 = 1; w2 = 1; w3 = 0;
         break;
 
@@ -3225,6 +3287,7 @@ static int _calc_xtra_hp(int amt)
     case CLASS_TIME_LORD:
     case CLASS_BLOOD_MAGE:
     case CLASS_NECROMANCER:
+    case CLASS_POLITICIAN:
         w1 = 0; w2 = 1; w3 = 1;
         break;
 
@@ -3281,7 +3344,7 @@ static void calc_hitpoints(void)
     mmhp = p_ptr->player_hp[p_ptr->lev - 1] * 10 / 100; /* 255 hp total */
     mmhp += _calc_xtra_hp(300);
 
-    mmhp = mmhp * race_ptr->life / 100;
+    mmhp = mmhp * (IS_WRAITH() ? MIN(race_ptr->life, 90) : race_ptr->life) / 100;
     mmhp = mmhp * class_ptr->life / 100;
     mmhp = mmhp * pers_ptr->life / 100;
     mmhp = mmhp * p_ptr->life / 100;
@@ -3293,7 +3356,7 @@ static void calc_hitpoints(void)
     }
 
     mmhp += class_ptr->base_hp;
-    mmhp += race_ptr->base_hp;
+    mmhp += (IS_WRAITH() ? MIN(race_ptr->base_hp, 13) : race_ptr->base_hp);
 
     if (mmhp < 1)
         mmhp = 1;
@@ -3678,6 +3741,7 @@ void calc_bonuses(void)
     p_ptr->painted_target = FALSE;
     p_ptr->enhanced_crit = FALSE;
     p_ptr->cleave = FALSE;
+    p_ptr->uimapuku = FALSE;
     p_ptr->constant_hero = FALSE;
     p_ptr->vorpal = FALSE;
     p_ptr->whirlwind = FALSE;
@@ -3698,7 +3762,7 @@ void calc_bonuses(void)
 
     if (easy_id)
         p_ptr->auto_id = TRUE;
-    else if (p_ptr->lev >= 20)
+    else if ((p_ptr->lev >= 20) || (coffee_break))
         p_ptr->auto_pseudo_id = TRUE;
 
     if (p_ptr->tim_sustain_str) p_ptr->sustain_str = TRUE;
@@ -4086,6 +4150,9 @@ void calc_bonuses(void)
     if (p_ptr->slow)
         p_ptr->pspeed -= 10;
 
+    if (p_ptr->filibuster)
+        p_ptr->pspeed -= SPEED_ADJ_FILIBUSTER;
+
     if (IS_TIM_ESP())
         p_ptr->telepathy = TRUE;
 
@@ -4148,6 +4215,9 @@ void calc_bonuses(void)
 
     if (race_ptr->calc_bonuses)
         race_ptr->calc_bonuses();
+
+    /* This should override racial SUST_CON */
+    if (politician_is_magic) p_ptr->sustain_con = FALSE;
 
     /* Temporary "Hero" ... moved after class processing for the Swordmaster */
     if (IS_HERO() || warlock_get_toggle() == WARLOCK_DRAGON_TOGGLE_HEROIC_CHARGE)
@@ -5307,6 +5377,12 @@ void redraw_stuff(void)
     {
         p_ptr->redraw &= ~(PR_EXP);
         prt_exp();
+    }
+
+    if (p_ptr->redraw & (PR_POOL))
+    {
+        p_ptr->redraw &= ~(PR_POOL);
+        prt_pool();
     }
 
     if (p_ptr->redraw & (PR_STATS))

@@ -339,7 +339,7 @@ struct object_type
     s16b name2;            /* Ego-Item type, if any */
     s16b name3;         /* Random replacement for a fixed art */
 
-    byte xtra1;            /* Extra info: Weaponsmith */
+    byte xtra1;            /* Extra info: Weaponsmith/Politician */
     byte xtra2;            /* Extra info index */
     byte xtra3;            /* Extra info: Chests and Weaponsmith. Device Power. */
     s16b xtra4;            /* Extra info: Lights, Capture, Quiver Capacity, Device MaxSP. */
@@ -391,6 +391,7 @@ struct object_type
     int  scratch;
 };
 #define object_is_(O, T, S) ((O)->tval == (T) && (O)->sval == (S))
+#define object_plural(O) (((O)->number != 1) || (object_is_((O), TV_SOFT_ARMOR, SV_BLACK_CLOTHES)))
 
 /* Monster blows ... Redone. Note that changing any
  * of the following values will break savefiles (or
@@ -541,6 +542,7 @@ struct monster_race
 
     byte max_num;             /* Maximum population allowed per level */
     byte cur_num;             /* Monster population on current level */
+    byte ball_num;            /* Monster population in capture balls */
     s16b floor_id;            /* Location of unique monster */
 
 
@@ -665,7 +667,7 @@ struct coord
 
 typedef struct monster_type monster_type;
 enum {
-    SM_REFLECTION = RES_MAX,
+    SM_REFLECTION = RES_MAX, /* 18 */
     SM_FREE_ACTION,
     SM_GUARDIAN,
     SM_CLONED,
@@ -1141,6 +1143,8 @@ struct player_type
     s16b tim_killing_spree;
     s16b tim_slay_sentient;
     bool maul_of_vice;
+    bool uimapuku;
+    bool upkeep_warning; /* Unsafe upkeep - pets may turn hostile */
 
     counter_t wild_counters[MAX_WILD_COUNTERS];    /* Wild Weapons */
 
@@ -1179,6 +1183,7 @@ struct player_type
     bool entrenched;
     bool inven_prot;
     bool quick_walk;
+    bool filibuster;
 
     s16b tim_no_spells;     /* Blocking spell usage is a side effect of Empowered Blast, but will become an evil monster ability */
     s16b tim_no_device;        /* For a more powerful twist, this will block devices as well!  But that is really an evil death sentence :) */
@@ -1226,6 +1231,7 @@ struct player_type
     s16b word_recall;      /* Word of recall counter */
     s16b alter_reality;      /* Alter reality counter */
     byte recall_dungeon;      /* Dungeon set to be recalled */
+    byte coffee_lv_revisits;  /* Count 99/100 spam by coffee-breakers */
 
     s16b energy_need;      /* Energy needed for next move */
 
@@ -1233,7 +1239,7 @@ struct player_type
 
     u32b special_attack;      /* Special attack capacity -LM- */
     u32b special_defense;      /* Special block capacity -LM- */
-    byte action;          /* Currently action */
+    byte action;          /* Current action */
 
     u32b spell_learned1;      /* bit mask of spells learned */
     u32b spell_learned2;      /* bit mask of spells learned */

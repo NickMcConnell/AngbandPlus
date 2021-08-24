@@ -25,8 +25,8 @@ char *_timestamp(void)
 }
 char *_version(void)
 {
-    char buf[20];
-    sprintf(buf, "%d.%d.%s", VER_MAJOR, VER_MINOR, VER_PATCH);
+    char buf[32];
+    sprintf(buf, "%d.%d.%s%s", VER_MAJOR, VER_MINOR, VER_PATCH, version_modifier());
     return _str_copy(buf);
 }
 static char *_status(void)
@@ -92,13 +92,13 @@ score_ptr score_current(void)
 
     score->gold = p_ptr->au;
     score->turns = player_turn;
-    score->clvl = p_ptr->lev;
+    score->clvl = p_ptr->max_plv;
     score->dlvl = dun_level;
     score->dungeon = _str_copy(map_name());
     score->killer = _killer();
     score->status = _status();
 
-    score->exp = p_ptr->max_exp;
+    score->exp = oook_score();
     score->max_depth = _max_depth();
     score->fame = p_ptr->fame;
 
@@ -433,7 +433,7 @@ static void _add_html_header(score_ptr score, doc_ptr doc)
     string_append_s(header, " <meta name='filetype' value='character dump'>\n");
     string_printf(header,  " <meta name='variant' value='%s'>\n", VERSION_NAME); /* never changes */
     string_printf(header,  " <meta name='variant_version' value='%s'>\n", score->version);
-    string_printf(header,  " <meta name='character_name' value='%s'>\n", score->name);
+    string_printf(header,  " <meta name=\"character_name\" value=\"%s\">\n", score->name);
     string_printf(header,  " <meta name='race' value='%s'>\n", score->race);
     string_printf(header,  " <meta name='class' value='%s'>\n", score->class_);
     string_printf(header,  " <meta name='level' value='%d'>\n", score->clvl);

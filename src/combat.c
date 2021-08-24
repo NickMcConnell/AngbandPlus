@@ -14,6 +14,7 @@ int hit_chance_innate(int to_h, int ac)
         ac = ac * (100 - p_ptr->lev) / 100;
 
     odds = 95*(chance - ac*3/4)*1000/(chance*100);
+    if (p_ptr->personality == PERS_LAZY) odds = (19 * odds + 10) / 20;
     if (odds < 50) odds = 50;
     return (odds+5)/10;
 }
@@ -30,6 +31,7 @@ int hit_chance(int hand, int to_h, int ac)
     if (chance <= 0) return 0;
 
     odds = 95*(chance - ac*3/4)*1000/(chance*100);
+    if (p_ptr->personality == PERS_LAZY) odds = (19 * odds + 10) / 20;
     if (odds < 50) odds = 50;
     return (odds+5)/10;
 }
@@ -44,6 +46,7 @@ int throw_hit_chance(int to_h, int ac, int range)
     if (chance <= 0) return 0;
 
     odds = 95*(chance - ac*3/4)*1000/(chance*100);
+    if (p_ptr->personality == PERS_LAZY) odds = (19 * odds + 10) / 20;
     if (odds < 50) odds = 50;
     return (odds+5)/10;
 }
@@ -64,6 +67,7 @@ int bow_hit_chance(int to_h, int ac)
     }
 
     odds = 95*(chance - ac*3/4)*1000/(chance*100);
+    if (p_ptr->personality == PERS_LAZY) odds = (19 * odds + 10) / 20;
     if (odds < 50) odds = 50;
     return (odds+5)/10;
 }
@@ -75,6 +79,8 @@ int class_melee_mult(void)
     {
         case CLASS_NINJA_LAWYER: return 80;
         case CLASS_LAWYER: return 95;
+        case CLASS_ALCHEMIST: return 88;
+        case CLASS_POLITICIAN: return 86;
         default: return 100;
     }
 }
@@ -246,6 +252,9 @@ void init_blows_calc(object_type *o_ptr, weapon_info_t *info_ptr)
     case CLASS_LAWYER:
         info_ptr->blows_calc.max = 450; info_ptr->blows_calc.wgt = 70; info_ptr->blows_calc.mult = 30; break;
 
+    case CLASS_POLITICIAN:
+        info_ptr->blows_calc.max = 475; info_ptr->blows_calc.wgt = 70; info_ptr->blows_calc.mult = 25; break;
+
     case CLASS_BEASTMASTER:
         info_ptr->blows_calc.max = 500; info_ptr->blows_calc.wgt = 70; info_ptr->blows_calc.mult = 35; break;
 
@@ -274,6 +283,9 @@ void init_blows_calc(object_type *o_ptr, weapon_info_t *info_ptr)
     case CLASS_NINJA:
     case CLASS_NINJA_LAWYER:
         info_ptr->blows_calc.max = 425; info_ptr->blows_calc.wgt = 20; info_ptr->blows_calc.mult = 10; break;
+
+    case CLASS_ALCHEMIST:
+        info_ptr->blows_calc.max = 525; info_ptr->blows_calc.wgt = 100; info_ptr->blows_calc.mult = 25; break;
 
     case CLASS_MONSTER:
         info_ptr->blows_calc.max = 500; info_ptr->blows_calc.wgt = 70; info_ptr->blows_calc.mult = 50;

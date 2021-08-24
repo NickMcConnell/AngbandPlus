@@ -188,7 +188,7 @@ bool _init_context(py_throw_ptr context)
     /* target */
     if (!(context->type & THROW_DISPLAY))
     {
-        if (!_get_target(context)) return FALSE;
+        if (!_get_target(context)) { energy_use = 0; return FALSE; }
     }
 
     /* boomerang? */

@@ -903,11 +903,345 @@ static void plasma_recursive(int x1, int y1, int x2, int y2,
  */
 static s16b terrain_table[MAX_WILDERNESS][MAX_FEAT_IN_TERRAIN];
 
-static void generate_wilderness_area(int terrain, u32b seed)
+/*
+ * Encroachiness index of terrains (mountains are the most encroachy terrain)
+ */
+static int _terrain_power[MAX_WILDERNESS] =
+   { 0, /* TERRAIN_EDGE */
+     0, /* TERRAIN_TOWN */
+     25, /* TERRAIN_DEEP_WATER */
+     50, /* TERRAIN_SHALLOW_WATER */
+     15, /* TERRAIN_SWAMP */
+     5, /* TERRAIN_DIRT */
+     8, /* TERRAIN_GRASS */
+     12, /* TERRAIN_TREES */
+     3, /* TERRAIN_DESERT */
+     60, /* TERRAIN_SHALLOW_LAVA */
+     40, /* TERRAIN_DEEP_LAVA */
+     100 /* TERRAIN_MOUNTAIN */
+   };
+
+/* Let's make terrain borders smooth and undulating
+ * (nothing hurts the player's eyes like a square ocean) */
+static int _encroach(int terrain, int wild_y, int wild_x, int cave_y, int cave_x, u32b seed, bool *init)
+{
+    int alue_dx = 0, alue_dy = 0, i, j;
+    static int _comp_terrain[3][3] = {0};
+    static byte push_at_border[4][3] = {0}; /* Pushiness of each border terrain at 3 points (edge, middle, edge), clockwise */
+    static byte _actual_border[4][MAX_WID] = {0};
+    static int _base_pow = 0;
+    int _border2dir[4] = {4, 8, 6, 2};
+    int _nextlook[4] = {7, 9, 3, 1};
+    if (terrain == TERRAIN_EDGE) return terrain; /* Nothing encroaches on the edge */
+    if (wilderness[wild_y][wild_x].town) return terrain; /* Assume town designers are responsible for borders */
+    if (terrain == TERRAIN_MOUNTAIN) return terrain; /* Top encroachiness, so nothing can encroach on it */
+    if (no_wilderness) return terrain;
+    if (cave_x >= MAX_WID) return terrain; /* Paranoia */
+    if (cave_y >= MAX_HGT) return terrain;
+    if (cave_x < 12) alue_dx = -1;
+    if (cave_y < 12) alue_dy = -1;
+    if (cave_x >= MAX_WID - 12) alue_dx = 1;
+    if (cave_y >= MAX_HGT - 12) alue_dy = 1;
+    if ((!alue_dx) && (!alue_dy)) return terrain;
+    if (*init)
+    {
+        *init = FALSE;
+        _base_pow = _terrain_power[terrain];
+        Rand_value = seed;
+        for (i = 0; i < 3; i++)
+        {
+            for (j = 0; j < 3; j++)
+            {
+                int comp_x = wild_x + i - 1;
+                int comp_y = wild_y + j - 1;
+                /* we assume this is a valid wilderness square since
+                 * we already returned if terrain equaled TERRAIN_EDGE */
+                _comp_terrain[i][j] = wilderness[comp_y][comp_x].terrain;
+            }
+        }
+        for (i = 0; i < 4; i++)
+        {
+            int _comp_t2, _comp_t1 = _comp_terrain[1+ddx[_border2dir[i]]][1+ddy[_border2dir[i]]];
+            int _comp_pow = _terrain_power[_comp_t1];
+            int border_pit, lahto, maali, korkeus, paikka = 0, dx = 0, old_dx = 0;
+            if (_comp_pow <= _base_pow)
+            {
+                push_at_border[i][0] = 0;
+                push_at_border[i][1] = 0;
+                push_at_border[i][2] = 0;
+                continue;
+            }
+            /* Determine encroachiness at point 0 (near a corner)
+             * There are two things we need to determine: whether the
+             * encroaching terrain doesn't continue any further in that
+             * direction (encroachiness zero), and whether it gets
+             * out-encroached by another encroaching terrain (also zero)
+             * However, if it's a "corner" of two similar encroaching
+             * terrains, we set encroachiness to 12 (the maximum)
+             * [we know such a corner can't get out-encroached by another
+             * corner, e.g XD
+             *             DX, because either X or D has to be the
+             * base terrain (original "int terrain") and we only do this
+             * check for the terrain that isn't the base terrain]
+             * Otherwise set encroachiness to 6 */
+            _comp_t2 = _comp_terrain[1+ddx[_border2dir[(i + 3) % 4]]][1+ddy[_border2dir[(i + 3) % 4]]];
+//            msg_format("Comparing terrains %d and %d", _comp_t1, _comp_t2);
+            if (wilderness[wild_y+ddy[_border2dir[(i + 3) % 4]]][wild_x+ddx[_border2dir[(i + 3) % 4]]].town)
+            {
+                push_at_border[i][0] = 0;
+            }
+            else if (_comp_t2 == _comp_t1)
+            {
+                push_at_border[i][0] = 12;
+            }
+            else if (_comp_terrain[1+ddx[_nextlook[(i + 3) % 4]]][1+ddy[_nextlook[(i + 3) % 4]]] != _comp_t1)
+            {
+                push_at_border[i][0] = 0;
+            }
+            else
+            {
+                if (_terrain_power[_comp_t2] >= _comp_pow) push_at_border[i][0] = 0;
+                else push_at_border[i][0] = 6;
+            }
+            /* Determine encroachiness at point 2 (the other corner) */
+            _comp_t2 = _comp_terrain[1+ddx[_border2dir[(i + 1) % 4]]][1+ddy[_border2dir[(i + 1) % 4]]];
+//            msg_format("Comparing terrains %d and %d", _comp_t1, _comp_t2);
+            if (wilderness[wild_y+ddy[_border2dir[(i + 1) % 4]]][wild_x+ddx[_border2dir[(i + 1) % 4]]].town)
+            {
+                push_at_border[i][0] = 0;
+            }
+            else if (_comp_t2 == _comp_t1)
+            {
+                push_at_border[i][2] = 12;
+            }
+            else if (_comp_terrain[1+ddx[_nextlook[i]]][1+ddy[_nextlook[i]]] != _comp_t1)
+            {
+                push_at_border[i][2] = 0;
+            }
+            else
+            {
+                if (_terrain_power[_comp_t2] >= _comp_pow) push_at_border[i][2] = 0;
+                else push_at_border[i][2] = 6;
+            }
+            if (!push_at_border[i][0] || !push_at_border[i][2]) push_at_border[i][1] = 10;
+            else push_at_border[i][1] = (seed % 13);
+
+            border_pit = (i % 2) ? MAX_WID : MAX_HGT;
+            lahto = push_at_border[i][((i + 3) % 4) < 2 ? 0 : 2];
+//            msg_format("Border: %d Start: %d Push: %d/%d/%d Encroaching terrain: %d", i, lahto, push_at_border[i][0], push_at_border[i][1], push_at_border[i][2], _comp_t1);
+            maali = lahto;
+            korkeus = lahto;
+            /* Now generate the border */
+            for (j = 0; j < border_pit; j++)
+            {
+                if ((j < 12) && (push_at_border[i][((i + 3) % 4) < 2 ? 0 : 2]) == 12)
+                {
+                    _actual_border[i][j] = 12;
+                    continue;
+                }
+                if ((j > border_pit - 13) && (push_at_border[i][((i + 3) % 4) < 2 ? 2 : 0] == 12))
+                {
+                    _actual_border[i][j] = 12;
+                    continue;
+                }
+
+                if (j >= paikka)
+                {
+                    bool okei = FALSE;
+//                    msg_format("Generation data... Paikka: %d Maali: %d Reuna: %d Korkeus: %d", paikka, maali, i, korkeus);
+                    if (j == paikka)
+                    {
+                        _actual_border[i][j] = maali;
+                        lahto = maali;
+                        dx = maali - korkeus;
+                        korkeus = maali;
+                    }
+                    else /* j > paikka - happens at corners with push 12, shouldn't happen otherwise */
+                    {
+                        lahto = ((seed & 8) || (korkeus != 12)) ? korkeus : korkeus - 1;
+                        _actual_border[i][j] = lahto;
+                        dx = lahto - korkeus;
+                        korkeus = lahto;
+                        lahto = korkeus - dx;
+                    }
+                    if (paikka == ((border_pit / 2) - 1))
+                    {
+                        /* There isn't an exact middle point, so we fuzz the middle out over 2 squares */
+                        paikka++;
+                        continue;
+                    }
+                    while (paikka <= j) { paikka += 11; if (paikka == ((border_pit / 2) + 11)) paikka--; }
+                    if (paikka == (border_pit / 2))
+                    {
+                        paikka--;
+                        maali = push_at_border[i][1];
+                        continue;
+                    }
+                    if (paikka >= border_pit - 1)
+                    {
+                        paikka = border_pit - 1;
+                        maali = push_at_border[i][((i + 3) % 4) < 2 ? 2 : 0];
+                        continue;
+                    }
+
+                    /* Ensure a moderate maali near corners with zero push */
+                    if ((paikka == 11) && (!lahto))
+                    {
+                        maali = 5 + randint0(3);
+                        continue;
+                    }
+                    if ((paikka >= border_pit - 12) && (!push_at_border[i][((i + 3) % 4) < 2 ? 2 : 0]))
+                    {
+                        maali = 5 + randint0(3);
+                        continue;
+                    }
+
+                    /* Ensure maali == 12 approaching corner with max push
+                     * (the push is from two directions!) */
+                    if ((paikka >= border_pit - 12) && (push_at_border[i][((i + 3) % 4) < 2 ? 2 : 0] == 12))
+                    {
+                        maali = 12;
+                        continue;
+                    }
+
+                    /* Pick a new maali */
+                    while (!okei)
+                    {
+                        maali = lahto - 7 + randint0(15);
+                        if (maali < 0) continue;
+                        if (maali > 12) continue;
+                        if ((paikka < border_pit / 2) && (paikka > (border_pit / 2) - 15))
+                        {
+                            if (maali < push_at_border[i][1] - 6) continue;
+                            if (maali > push_at_border[i][1] + 6) continue;
+                        }
+
+                        /* Assume okei */
+                        okei = TRUE;
+                    }
+                    continue;
+                }
+                else /* j < paikka. Extrapolate from korkeus and maali */
+                {
+                    bool okei = FALSE;
+                    int slope = (((maali - korkeus) * 100) / (paikka + 1 - j)), yrkka = 0;
+                    old_dx = dx;
+                    while (!okei)
+                    {
+                        int uuskorkeus, eff_slope = slope;
+                        yrkka++;
+                        dx = 0;
+                        if (slope >= 100)
+                        {
+                            dx = 1;
+                            eff_slope -= 100;
+                        }
+                        if (slope <= -100)
+                        {
+                            dx = -1;
+                            eff_slope += 100;
+                        }
+                        if (randint0(100) < ABS(eff_slope))
+                        {
+                            dx = (slope > 0) ? dx + 1 : dx - 1;
+                        }
+                        if (yrkka >= 120)
+                        {
+                            if (yrkka >= 200)
+                            {
+                                dx = 0; break; /* desperation */
+                            }
+                            if ((korkeus + dx) < 0) continue;
+                            if ((korkeus + dx) > 12) continue;
+                            break; /* Paranoia */
+                        }
+                        //if (one_in_(slope ? 5 : 3)) /* Randomness */
+                        if ((!((seed + j) % (slope ? 5 : 3))) && (yrkka % 20))
+                        {
+                            dx = ((seed + j) % 2) ? dx + 1 : dx - 1;
+                        }
+                        if ((korkeus == 0) && (dx == 0) && (old_dx == 0) && (maali == 0) && (paikka - j > 3) && (!((seed + j + yrkka) % 4))) dx = 1;
+                        if (((ABS(dx - old_dx)) > 1) && (yrkka < 100)) continue; /* Smooth borders */
+                        uuskorkeus = korkeus + dx;
+                        if (uuskorkeus < 0) continue;
+                        if (uuskorkeus > 12) continue;
+                        eff_slope = (((maali - uuskorkeus) * 100) / (paikka - j));
+                        if ((ABS(dx) > 1) && ((paikka - j) < 4) && ((!eff_slope) || (eff_slope * dx < 0))) continue;
+                        if (((paikka - j) == 1) && ((eff_slope * dx) < 0)) continue;
+                        if (ABS(eff_slope) > 150) /* Avoid leaving us too much work */
+                        {
+                            if ((yrkka < 50) || ((paikka - j) > 1)) continue;
+                        }
+                        okei = TRUE;
+                    }
+                    korkeus = korkeus + dx;
+//                    msg_format("J: %d Kork: %d Dx: %d Old-dx: %d Yrk: %d Slope: %d", j, korkeus, dx, old_dx, yrkka, slope);
+
+                    _actual_border[i][j] = korkeus;
+                }
+            } /* End for design single border */
+        } /* End for 4 borders */
+    } /* End for init */
+    if ((alue_dx == -1) && ((push_at_border[0][0]) || (push_at_border[0][1]) || (push_at_border[0][2])) && (cave_x < _actual_border[0][cave_y])) return _comp_terrain[0][1];
+    if ((alue_dy == -1) && ((push_at_border[1][0]) || (push_at_border[1][1]) || (push_at_border[1][2])) && (cave_y < _actual_border[1][cave_x])) return _comp_terrain[1][0];
+    if ((alue_dx == 1) && ((push_at_border[2][0]) || (push_at_border[2][1]) || (push_at_border[2][2])) && ((MAX_WID - cave_x) <= _actual_border[2][cave_y])) return _comp_terrain[2][1];
+    if ((alue_dy == 1) && ((push_at_border[3][0]) || (push_at_border[3][1]) || (push_at_border[3][2])) && ((MAX_HGT - cave_y) <= _actual_border[3][cave_x])) return _comp_terrain[1][2];
+    return terrain;
+}
+
+/* Sharp borders can be created not just by change of terrain, but by
+ * unusual cave values on one side. So we need to smooth out those as well */
+static int _border_sanitize(int arvo, int o_terrain, int u_terrain, int y, int x, int wild_y, int wild_x, int seed)
+{
+   int y2, x2, z, c_terrain, arvo2, paino = 1, paino2 = 1;
+   if (no_wilderness) return arvo;
+   if (u_terrain == TERRAIN_EDGE) return arvo;
+   y2 = MIN(y, MAX_HGT - y - 1);
+   x2 = MIN(x, MAX_WID - x - 1);
+   z = MIN(y2, x2);
+   if (z > 10) return arvo;
+   c_terrain = o_terrain;
+   if (o_terrain == u_terrain) /* Quick guess at whether we are encroaching on another terrain */
+   {
+       if (y2 < 11)
+       {
+           int y3, y_terrain;
+           if (y < 15) y3 = wild_y - 1;
+           else y3 = wild_y + 1;
+           y_terrain = wilderness[y3][wild_x].terrain;
+           if (_terrain_power[y_terrain] < _terrain_power[c_terrain]) c_terrain = y_terrain;
+       }
+       if ((x2 < 11) && (c_terrain == o_terrain))
+       {
+           int x3, x_terrain;
+           if (x < 15) x3 = wild_x - 1;
+           else x3 = wild_x + 1;
+           x_terrain = wilderness[wild_y][x3].terrain;
+           if (_terrain_power[x_terrain] < _terrain_power[c_terrain]) c_terrain = x_terrain;
+       }
+       if ((c_terrain == o_terrain) && (z > 2)) return arvo;
+   }
+   if (one_in_(12 - z)) return arvo;
+   if (one_in_((15 + z) / 2)) return (MAX_FEAT_IN_TERRAIN / 2);
+   if (o_terrain == u_terrain)
+   {
+       if (o_terrain != c_terrain) paino = 2;
+       else if (seed & (1 << ((y + x - z) % 20))) paino2 = MAX(2, 4 - z);
+   }
+   else if (((seed + y2 + x2 - z) % 20) < 2) return arvo;
+   if (one_in_(16 - z)) paino += 2;
+   arvo2 = MAX_FEAT_IN_TERRAIN / 2;
+   if ((paino > 1) && (one_in_(2 + z))) paino--;
+   if (one_in_(8 + z)) paino--;
+   return (((arvo * paino) + (arvo2 * paino2)) / (paino + paino2));
+}
+
+static void generate_wilderness_area(int terrain, u32b seed, int y, int x)
 {
     int x1, y1;
     int table_size = sizeof(terrain_table[0]) / sizeof(s16b);
     int roughness = 1; /* The roughness of the level. */
+    bool init = TRUE;
 
     /* The outer wall is easy */
     if (terrain == TERRAIN_EDGE)
@@ -948,7 +1282,8 @@ static void generate_wilderness_area(int terrain, u32b seed)
     {
         for (x1 = 0; x1 < MAX_WID; x1++)
         {
-            _cave[y1][x1] = terrain_table[terrain][_cave[y1][x1]];
+            int u_terrain = _encroach(terrain, y, x, y1, x1, seed, &init);
+            _cave[y1][x1] = terrain_table[u_terrain][_border_sanitize(_cave[y1][x1], terrain, u_terrain, y1, x1, y, x, seed)];
         }
     }
 
@@ -968,8 +1303,8 @@ static void _generate_entrance(int x, int y, int dx, int dy)
     /* Hack -- Induce consistant town layout */
     Rand_value = wilderness[y][x].seed;
 
-    y2 = rand_range(6, cur_hgt - 6) + dy;
-    x2 = rand_range(6, cur_wid - 6) + dx;
+    y2 = rand_range(13, cur_hgt - 13) + dy;
+    x2 = rand_range(13, cur_wid - 13) + dx;
 
     if (in_bounds(y2, x2))
     {
@@ -1061,7 +1396,7 @@ static void _generate_area(int x, int y, int dx, int dy, rect_t exclude)
         int dun_idx = wilderness[y][x].entrance;
         u32b seed = wilderness[y][x].seed;
 
-        generate_wilderness_area(terrain, seed);
+        generate_wilderness_area(terrain, seed, y, x);
 
         if (wilderness[y][x].road && !wilderness[y][x].town)
         {
@@ -1556,9 +1891,10 @@ void init_wilderness_terrains(void)
     init_terrain_table(TERRAIN_TOWN, feat_town, "a",
         feat_floor, MAX_FEAT_IN_TERRAIN);
 
-    init_terrain_table(TERRAIN_DEEP_WATER, feat_deep_water, "ab",
+    init_terrain_table(TERRAIN_DEEP_WATER, feat_deep_water, "abc",
+        feat_shallow_water, 3,
         feat_deep_water, 12,
-        feat_shallow_water, MAX_FEAT_IN_TERRAIN - 12);
+        feat_shallow_water, MAX_FEAT_IN_TERRAIN - 15);
 
     init_terrain_table(TERRAIN_SHALLOW_WATER, feat_shallow_water, "abcde",
         feat_deep_water, 3,
@@ -1740,7 +2076,7 @@ bool py_in_dungeon(void)
 
 bool py_can_recall(void)
 {
-    if (p_ptr->inside_arena || ironman_downward)
+    if ((p_ptr->inside_arena) || ((ironman_downward) && (!coffee_break)))
         return FALSE;
 
     return TRUE;

@@ -1346,6 +1346,15 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
                         o_ptr->pval = _jewelry_pval(3, level);
                     }
                 }
+                else if (one_in_(2))
+                {
+                    o_ptr->to_a += 1 + m_bonus(4, level);
+                }
+                else
+                {
+                    add_flag(o_ptr->flags, OF_DEC_INT);
+                    if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(4, level);
+                }
                 break;
             case 4:
                 if (abs(power) >= 2 && one_in_(10) && level >= 70)
@@ -2159,6 +2168,17 @@ static void _ego_create_weapon(object_type *o_ptr, int level)
         case EGO_WEAPON_WESTERNESSE:
             if (one_in_(3))
                 add_flag(o_ptr->flags, OF_RES_FEAR);
+            break;
+        case EGO_WEAPON_GONDOLIN:
+            if (one_in_(44))
+            {
+                remove_flag(o_ptr->flags, OF_SLAY_DEMON);
+                add_flag(o_ptr->flags, OF_KILL_DEMON);
+            }
+            else if (one_in_(12))
+                add_flag(o_ptr->flags, OF_RES_FEAR);
+            if (randint1(60 + (level / 10)) > 56)
+                add_flag(o_ptr->flags, OF_SLAY_EVIL);
             break;
         case EGO_WEAPON_PATTERN:
             if (one_in_(3))

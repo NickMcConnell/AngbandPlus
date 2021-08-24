@@ -2262,7 +2262,8 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
     /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
       {  25,  23,  31,   1,  14,   2, 70, 25},
       {   9,   7,  10,   0,   0,   0, 30, 11},
-      { { TV_POLEARM, SV_BATTLE_AXE },
+      { { TV_POLEARM, SV_HATCHET },
+        { TV_POLEARM, SV_BATTLE_AXE },
         { TV_POLEARM, SV_BEAKED_AXE },
         { TV_POLEARM, SV_BROAD_AXE },
         { TV_POLEARM, SV_LOCHABER_AXE },
@@ -3378,7 +3379,8 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 
     if (p_ptr->psubclass == WEAPONMASTER_AXES)
     {
-        if (spec1 && p_ptr->speciality_equip)
+        if (spec1 && p_ptr->speciality_equip && (o_ptr->sval != SV_HATCHET))
+        /* Axemasters can use hatchets at a pinch, but prefer large axes */
         {
             info_ptr->to_d += 5;
             info_ptr->dis_to_d += 5;

@@ -10,7 +10,7 @@ D:I need you to take this foul invader out.
 ?:1
 
 ?:[EQU $QUEST3 Completed]
-D:You saved us from deep trouble again. Please accept this modest gift.
+D:You saved us from deep trouble. Please accept this modest gift.
 ?:1
 
 ?:[EQU $QUEST3 Failed]
@@ -36,6 +36,12 @@ M:#<............#
 M:###############
 R:OBJ(long bow):EGO(accuracy)
 
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Crossbows] ]
+R:OBJ(cloak):EGO(electricity)
+
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Slings] ]
+R:OBJ(sling):EGO(accuracy)
+
 ?:[EQU $RACE Beholder Spider Ring Dragon]
 R:OBJ(^ring$):EGO(combat)
 
@@ -47,5 +53,8 @@ R:OBJ(^cloak$):EGO(elemental protection)
 
 ?:[EQU $RACE Centipede]
 R:OBJ(hard leather boots):EGO(dwarven)
+
+?:[EQU $RACE Demon Xorn Jelly Hound Vortex]
+R:OBJ(STAFF_CONFUSE_MONSTERS)
 
 # vim: filetype=q :

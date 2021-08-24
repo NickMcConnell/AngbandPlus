@@ -862,12 +862,12 @@ static _spell_info_ptr _get_spell(int realm, int idx, int pts)
 
     spell->realm = realm;
     spell->idx = idx;
-    spell->level = MAX(1, info.slevel * skill.lvl_mult / 100);
-    spell->cost = MAX(1, info.smana * skill.cost_mult / 100);
+    spell->level = MAX(1, lawyer_hack(&info, LAWYER_HACK_LEVEL) * skill.lvl_mult / 100);
+    spell->cost = MAX(1, lawyer_hack(&info, LAWYER_HACK_MANA) * skill.cost_mult / 100);
     if (realm == REALM_HISSATSU)
         spell->fail = 0;
     else
-        spell->fail = MIN(95, MAX(5, info.sfail + skill.fail_adj));
+        spell->fail = MIN(95, MAX(5, lawyer_hack(&info, LAWYER_HACK_FAILRATE) + skill.fail_adj));
 
     return spell;
 }

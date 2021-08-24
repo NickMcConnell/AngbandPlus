@@ -2229,6 +2229,8 @@ static void do_cmd_walk_aux(int dir, bool pickup)
     if (p_ptr->quick_walk)
         energy_use = energy_use * 60 / 100;
 
+    if (p_ptr->personality == PERS_CRAVEN) energy_use = energy_use * 21 / 25;
+
     if (prace_is_(RACE_MON_GOLEM))
         energy_use *= 2;
 
@@ -2552,6 +2554,8 @@ void do_cmd_rest(void)
     }
 
     if (p_ptr->special_defense & NINJA_S_STEALTH) set_superstealth(FALSE);
+
+    if (p_ptr->filibuster) set_filibuster(FALSE);
 
     /* Take a turn XXX XXX XXX (?) */
     energy_use = 100;
@@ -3639,14 +3643,14 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                                         }
                                         else if (!is_friendly(m_ptr))
                                         {
-                                            set_friendly(m_ptr);
+                                            set_friendly_ingame(m_ptr);
                                             msg_format("%^s suddenly becomes friendly.", m_name);
                                             stick_to = FALSE;
                                         }
                                     }
                                     else if (!is_pet(m_ptr) && !is_friendly(m_ptr))
                                     {
-                                        set_friendly(m_ptr);
+                                        set_friendly_ingame(m_ptr);
                                         msg_format("%^s suddenly becomes friendly.", m_name);
                                         stick_to = FALSE;
                                     }

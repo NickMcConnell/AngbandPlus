@@ -249,6 +249,7 @@ static void wr_r_info(savefile_ptr file)
 
         savefile_write_byte(file, header);
         savefile_write_byte(file, race->max_num);
+        savefile_write_byte(file, race->ball_num);
         savefile_write_s16b(file, race->floor_id);
         savefile_write_byte(file, race->stolen_ct);
 
@@ -710,6 +711,7 @@ static void wr_extra(savefile_ptr file)
     savefile_write_byte(file, p_ptr->wait_report_score);
     savefile_write_u32b(file, seed_flavor);
     savefile_write_u32b(file, seed_town);
+    if (p_ptr->personality == PERS_CHAOTIC) savefile_write_u32b(file, chaotic_py_seed);
     savefile_write_u16b(file, p_ptr->panic_save);
     savefile_write_u16b(file, p_ptr->total_winner);
     savefile_write_u16b(file, p_ptr->noscore);
@@ -727,6 +729,8 @@ static void wr_extra(savefile_ptr file)
     savefile_write_s16b(file, p_ptr->floor_id);
     savefile_write_u32b(file, playtime);
     savefile_write_u32b(file, p_ptr->count);
+    savefile_write_byte(file, p_ptr->coffee_lv_revisits);
+    savefile_write_byte(file, p_ptr->filibuster);
     for (i = 0; i < 16; i++)
         savefile_write_s32b(file, 0); /* Future use */
 
