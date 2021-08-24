@@ -11,102 +11,311 @@
 # Format: 
 # H:Hint text.
 
-H:Cure Critical Wounds potions will cure blindness and confusion; carry lots.
-H:Staves can be used even when confused and blinded.
-H:Potions of Heroism or Berserk Strength will protect you from being scared. 
-H:Monsters that breathe fire, acid, electricity, or cold can deal big damage.
-H:Resistances cut damage to 1/3rd for the four basic elements.
-H:The more hitpoints a monster has, the more damage its breath will do.
-H:You can combine equipment of Resist Fire and a potion of the same name.
-H:You can combine equipment of Resist Cold and a potion of the same name.
-H:You can combine equipment of Resist Poison and a potion of the same name.
+H:+10 speed means you move twice as fast as normal.
+H:A bigger weapon isn't always better - check your damage using 'C'/'I'nspect.
+H:A creature made of stone can be killed by an effect that turns stone to mud.
+H:A good item will not corrode.
+H:A greedy banishment can be a fatal mistake, especially if you are low on hits.
+H:A restore pill will not restore your drained life experience.
+H:A wounded enemy's spells are as strong as a healthy one's.
+H:Acid can destroy your stuff - fight acid users at a distance if possible.
+H:Acid can destroy your stuff - watch out for water hounds and water vortices.
+H:Acid damage can destroy items in your inventory.
+H:Acquisition cards produce better items if you run them deeper down.
+H:Afraid of your money getting stolen? Invest it!
+H:Afraid of your valuables getting stolen? Carry more junk!
+H:Always carry around an escape that you can use while blind and confused.
+H:Always look out for trapdoors when you're feeling special.
+H:Always stay well fed; hunger has killed many adventurers.
+H:Always watch your back!
+H:An umber hulk can be a confusing sight.
+H:Another loss? Curse your inertia at having let the situation slide for so long.
+H:Anti-teleportation supports your choice of battleground.
+H:Antitoxin and combi-healing pills cure blindness and confusion; carry lots.
+H:Any means of digging are crucial for designing the battleground as *you* like!
+H:Appearance is only the frosting, not the cake!
+H:Are you ready to vanish discreetly when those packs are after you?
+H:Are you really suffering withdrawal symptoms and want something crushable?
+H:Are you sure to surpass your predecessors, being more than a mere brawler?
+H:At an early stage you will be quite happy to find trap-detection items.
+H:Banishment can save you, but not at the last moment - it hurts you too!
+H:Bashing a creature may sometimes stun it.
+H:Be as resistant as you can, especially fire, cold, electricity, acid, poison.
+H:Be careful hallucinating, you might be fighting something entirely different...
+H:Be sure to set your hitpoint warning in the options menu ('=').
+H:Below 2500m you'll need a reliable means of large heal-self.
+H:Beware the Jabberwock, my son! The jaws that bite, the claws that catch...
+H:Blind? Eat a carrot!
+H:Blink and you're dead.
+H:Blink can be a good escape, but only if the terrain is appropriate.
+H:Bought items come *identified*, knowledge secure from blank mind attacks.
+H:Breath aside, a wounded enemy's attacks are as strong as a healthy one's.
+H:Buy at least one antitoxin and one healing pill before you leave town.
+H:Buy at least one blink card before you leave town.
+H:Can't keep track of all the information on the screen? Add extra windows.
+H:Carry around extra copies of town spellbooks in case one gets burned.
+H:Cave dwellers are accustomed to darkness and rarely enjoy bright light.
+H:Close eXamination of splendid shop-wares will provide precious insights.
+H:Close the door!  You're letting the heat out!
+H:Cold damage can destroy potions in your inventory.
+H:Collect resistances for your own sake.
+H:Confident - Cocky - Lazy - Dead. The Old Man's mantra, and a serious good one.
+H:Confused monsters cannot cast spells reliably and may misstep.
+H:Containers may contain very useful things - and some nasty traps.
+H:Cool guys can resist fire.
+H:Curing pills can reduce or eliminate cuts, stunning and poison.
+H:Deep waters are a nice separation against some poisonous animals.
+H:Deep waters may contain poisonous animals.
+H:Descent will send you further down.
+H:Destruction will cause a 15x15 area to change completely, but you undamaged.
+H:Don't believe every rumor you find. Many of them are just plain wrong.
+H:Don't believe everything *they* say.
+H:Don't eat too much: you might start hiccoughing!
+H:Don't let yourself get surrounded.
+H:Don't worry about money. The best artifacts are free.
+H:Don't worry about using up your pills, cards, etc. to stay alive.
+H:Drain charge attacks remove charges from your items and heal the monster!
+H:Electrical damage can destroy valuable items in your inventory.
+H:Even among the same type, some enemies will be faster or slower than others.
+H:Even the most powerful characters can be made useless by blindness.
+H:Even the most powerful characters can be made useless by confusion.
+H:Ever tried using a card while confused?
+H:Finding a way to resist blindness and confusion is critical to survival.
+H:Fire damage can destroy ammo, cards and pills in your inventory.
+H:Fireproof items still aren't indestructible.
+H:Flaming weapons will light your way.
+H:Flasks of oil make a good throwing weapon early on.
+H:Flee while you can. Any decent adventurer has to honour the priorities.
+H:For any remedy there is a misery.
+H:Foraging for dessert in the desert is more useful than it first appears.
+H:Forget your childlike lore: mushrooms are not tasty but awholotta challenge!
+H:Frequent fliers should beware of getting clubbed: keep your eyes on the clock!
+H:Guaranteed heal self - scenario: o'@, type c4c4c4c4
+H:Ha, treasures! Like all vaults it was full of depths and dangers.
+H:Half the treasures of a vault could be crushed by an earthquake.
+H:Having troubles with summoners? Door creation is your friend!
+H:He who fights and runs away lives to fight another day.
+H:Healing monsters is useful! Hint: fireball, @....moo(o)ooo
+H:Held monsters will take no action until it wears off or they take damage.
+H:Hold life will not block all experience drain, just most of it.
+H:I smell a maze of twisty little passages.
+H:I'd prefer ball or breath attacks to mass banishment for good reason.
+H:Identical resistances on different pieces of equipment do not stack.
+H:Identifying pills by swallowing them isn't safe, but the risk may be worth it.
+H:If a pill or card is cheaper than an identify card, buy it to ID it.
+H:If acid hits your armor, you take less damage from it.
+H:If an item is useful against foes, it will be priced at shops.
+H:If it can't see you, it can't hurt you!
+H:If items don't stack it's caused by different additionals.
+H:If stores will not buy your items, check your birth options.
+H:If you can blind or confuse a monster, it won't be able to do much.
+H:If you can fall like a feather, you need not care about gravity.
+H:If you can't beat it, leave it alone!
+H:If you can't find your house, you may need to ask around.
+H:If you can't see it, you might still be able to hurt it...
 H:If you don't know what a monster can do, use a rod of probing on it.
-H:Never underestimate the value of constitution. Hitpoints keep you alive. 
-H:Inscribe items with the '{' command.
-H:Inscribe an item with "!s" to get confirmation before selling it.
+H:If you have more than 99 items in your quiver, it will take up more slots.
+H:If you have more than 99 items of ammo, it will take up more slots.
+H:If you hear heavy steps - watch out!
+H:If you hear something smash into splinters, you had better watch out.
+H:If you teleport away a tough monster, beware of teleporting afterwards!
+H:If you're in a bad situation, take a breather and "I"nspect all your gear.
+H:If you're in extreme need of food, curing potions might do you good.
+H:Immunity to an element prevents inventory destruction from that element.
+H:In a vault, any form of teleportation will always teleport you outside.
+H:In deep waters any treasures will be lost! Lure them coastwards.
+H:In open rooms blinking may well keep you in the line of fire.
+H:In the land of eternal darkness, light must come from within.
+H:In truly desperate times, use teleport level or destruction to escape.
+H:Inscribe an item with "!*" to get confirmation before doing anything to it.
 H:Inscribe an item with "!d" to get confirmation before dropping it.
 H:Inscribe an item with "!k" to get confirmation before destroying it.
+H:Inscribe an item with "!s" to get confirmation before selling it.
 H:Inscribe an item with "!v" to get confirmation before throwing it.
-H:Inscribe an item with "!*" to get confirmation before doing anything to it.
-H:You can use the 'I' command to inspect items and get details on them.
-H:Use '=' to check out the options and customize your game.
-H:Be sure to set your hitpoint warning in the options menu ('=').
-H:Flasks of oil make a good throwing weapon early on.
-H:Word of Recall will send you to and from the dungeon.
-H:You can never teleport into a vault, even if you're already standing in it. 
-H:The only way to protect your inventory from damage is through immunities.
-H:+10 speed means you move twice as fast as normal. 
-H:Too much stunning will knock you out! This is to be avoided if possible.
-H:The stores change their stock every so often.
-H:If acid hits your armor, you take less damage from it.
-H:Nexus attacks can swap your stats. Smart, weak warriors don't do well.
-H:Regeneration improves your recovery of both hitpoints and mana.
+H:Inscribe items with the '{' command.
+H:Inspect your racial and class abilities with the S command.
+H:Invisible monsters will often expose themselves if you drop items around you.
+H:Invulnerability is not absolutely impenetrable.
+H:It is often a good idea to throw items that you don't want to eat or drink.
+H:It seems not smart to have your high bonus ammo destroyed by breathers.
+H:It's a happy moment when sufficient DEX makes you "grab hold of your backpack".
+H:It's your own fault if you don't use all non-cheating means of awareness.
+H:Levels are generated randomly, and you can never go back. Usually.
+H:MAKE MONEY FAST! Find a Treasure Pit!
+H:Many items are bad, but few are faulty to the point of needing a repair device.
+H:Many items are bad, but few are force-locked and unable to be removed.
+H:Melee attacks, damage, and some effects will wake sleeping monsters.
+H:Monsters that breathe fire, acid, electricity, or cold can deal big damage.
+H:Monsters' breath weapons grow less dangerous as they lose hitpoints.
+H:Mutations may not increase your beauty, but surely your repertoire!
 H:Never be too afraid to run away.
-H:He who fights and runs away lives to fight another day.
 H:Never go exploring without an escape option.
+H:Never underestimate monsters you haven't fought before.
+H:Never underestimate the value of constitution. Hitpoints keep you alive.
+H:Nexus attacks can swap your stats. Smart, weak warriors don't do well.
+H:Nexus attacks can teleport to, teleport away, teleport level, or swap stats.
+H:No animal is interested in sex if it is mortally scared.
+H:Not all rumors are true!
+H:Not satisfied with the artifacts you find? Then create your own!
+H:Once no recall is left the way up will seem never ending to you.
+H:Overeating can be bad for your health if there are others nearby.
 H:Pay attention to how your enemies move - some are erratic, some can blink.
+H:Blinking is a good escape if the terrain is appropriate.
+H:Poison will kill you slowly.
 H:Even among the same type, some enemies will be faster or slower than others.
 H:Monsters' breath weapons grow less dangerous as they lose hitpoints.
 H:A wounded enemy's spells are as strong as a healthy one's.
-H:Don't worry about using up your potions, wands, and staves to stay alive.
+H:Don't worry about using up your consumables to stay alive.
 H:If you're in a bad situation, take a breather and "I"nspect all your gear.
 H:When a character dies, memories of monsters she has fought are passed on.
 H:Even the most powerful characters can be made useless by blindness.
 H:Even the most powerful characters can be made useless by confusion.
-H:Finding a way to resist blindness and confusion are critical to survival.
+H:Finding a way to resist blindness and confusion is critical to survival.
+H:Pills are available which can will protect you from being scared.
 H:Probing an enemy to learn its abilities is always useful.
-H:Buy at least one scroll of phase door before you enter the dungeon.
-H:Buy at least one potion of cure light wounds before you enter the dungeon.
-H:Acid can destroy your stuff - watch out for water hounds and water vortices.
-H:Never underestimate monsters you haven't fought before.
 H:Quivers can hold different types of ammo in one inventory slot (max. 40).
-H:If you have more than 40 items in your quiver, it will take up more slots.
-H:Try inscribing thrown weapons, "@v0" for example.
-H:Many items are bad, but few are cursed to the point of needing magic.
-H:A bigger weapon isn't always better - check your damage using 'I'nspect
-H:Can't keep track of all the information on the screen? Add extra windows.
-H:You can use subwindows to display messages, monsters, items and more.
-H:If you teleport away a tough monster, beware of teleporting afterwards!
-H:Resistance to higher elements protects you from 33% to 50% of the damage.
-H:Hold life will not block all experience drain, just most of it.
-H:Fire damage can destroy scrolls, books, and staves in your inventory.
-H:Cold damage can destroy potions in your inventory.
-H:Electrical damage can destroy wands, rods and rings in your inventory.
-H:Immunity to an element prevents inventory destruction from that element.
-H:Phase door is a good escape if the terrain is appropriate.
-H:In open rooms Phase Door may well keep you in the line of fire.
-H:In a vault, any form of teleportation will always teleport you outside.
-H:Identical resistances on different pieces of equipment do not stack.
-H:Curing potions and spells can reduce or eliminate cuts, stunning and poison.
-H:Nexus attacks can teleport to, teleport away, teleport level, or swap stats.
-H:Time attacks are not mitigated by sustains.
-H:Drain charge attacks remove charges from your items and heal the monster!
-H:You cannot cast spells or fire missiles at monsters in walls, but they can.
-H:You can attack a monster in a wall with your melee weapon.
-H:Acquirement scrolls produce better items if you read them deeper down.
-H:In truly desperate times, use Teleport Level or Destruction to escape.
-H:You always get the first move when entering a level. 
+H:Recall will send you to and from the depths.
+H:Regeneration improves your recovery of hitpoints.
 H:Regeneration makes you hungry more quickly.
-H:If you're in extreme need of food, curing potions might do you good.
-H:Under great weights of loot, you'll be less quick of foot.
-H:You're never invincible. Never forget that.
-H:Always carry around an escape that you can use while blind and confused.
+H:Resistance to higher elements protects you from 33% to 50% of the damage.
+H:Resistances cut damage to 1/3rd for the four basic elements.
+H:Resistances to higher elements are somewhat random, so be careful.
+H:Run over the facts in your head before confronting special tough guys.
+H:Scared monsters suffer penalties and may freeze in terror if cornered!
+H:Selling unidentified pills might be safer than taking them.
+H:Since confrontation is inevitable: give yourself a crash course of the code.
+H:Sing Beck: "I'm a loser, baby dragon, so why don't you kill me?" Suicide, ha!
+H:Sing CCR: "Before you kill me take a look at yourself." Reflection-shields!
+H:Sing Crowded House: "Always take your weather with you!" Yeah, have a breath.
+H:Sing Fury: "This is not the time to wonder, this is not the time to cry!"
+H:Sing Garbage: "The trick is keep on breathing." Wear dragon scale mail!
+H:Sing Morisette: "Life has a funny way, helping you out." So innovate!
+H:Sing Pythons: "Always look on the bright side of death." Only a breath away!
+H:Some pills (combat, heroism and boldness) will protect you from being scared.
+H:Someone's been spiking the pits!
+H:Stairway creation may be slower than level teleportation, but it's safer...
+H:Devices can be used even when confused and blinded.
 H:Staying on a level too long can cause awake random monsters to spawn.
-H:Wands and staves sell for a good price even with 0 charges.
-H:Walking around with lots of heavy weapons is not necessarily a good idea.
-H:Carry around extra copies of town spellbooks in case one gets burned.
-H:You don't have to cover every resist all the time - carry swap items.
+H:Stealth is very helpful against sleeping monsters but not against alert ones.
+H:Strength always matters, not just for fighters. You can only carry so much!
+H:Stumble on a death mold: another unsettling occurrence in an unsettling world.
+H:Stunned monsters deal less damage in melee and sometimes miss a turn.
+H:Synthesis cards produce better items and worse monsters when used deeper down.
+H:The best way to fill a gear gap is by creating your own artifact.
 H:The better fed you are, the faster you recover hitpoints.
+H:The deep water's dangerous even for the one who can swim.
+H:The deeper you dive the more grateful you'll be about sustaining equipment.
+H:The depths are about as unreliable as a dish of over-ripe figs.
+H:The faster you run the more food you will burn.
 H:The food indicator at the bottom of the screen shows how well fed you are.
 H:The light meter at the bottom of the screen shows your light radius.
-H:If stores will not buy your items, check your birth options.
-H:Blackguards can use Rings of Open Wounds without slowing their recovery.
-H:Stunned monsters deal less damage in melee and sometimes miss a turn.
-H:Confused monsters cannot cast spells reliably and may misstep.
-H:Scared monsters suffer penalties and may freeze in terror if cornered!
-H:Held monsters will take no action until it wears off or they take damage.
-H:Melee attacks, damage, and some effects will wake sleeping monsters.
+H:The more hitpoints a monster has, the more damage its breath will do.
+H:The only way to protect your inventory from damage is through immunities.
+H:The richer the victim the happier the thief.
+H:The shrewd ones are never fooled. The weak mimic the habits of the strong.
+H:The stores change their stock every so often.
+H:The strong rely on strength. The not-so-strong must mint means of shrewdness.
+H:The thrum of serious risk-taking heightens the suspense. Hitchcock them!
+H:The worse the name the worse the monster.
+H:There *is* a good use for some pills that you wouldn't want to eat.
+H:There are no guarantees in life, but it's smarter to take fewer chances.
+H:There is a way to turn boots of speed (-20) into boots of speed (+20).
+H:There is more than one way to deal with a locked door.
+H:They say a lot of things that aren't so.
+H:They say that a blank card is like a blank check.
+H:They say that a day is not quite a day.
+H:They say that a desperate shopper might pay any price in a shop.
+H:They say that a fortune only has one line, but you can read between it.
+H:They say that a visit to 3250m can be quite an experience.
+H:They say that a visit to 3250m will only get you killed.
+H:They say that alcohol is bad for your health.
+H:They say that an empty stomach is one's worst enemy.
+H:They say that bananas can be bad for your health.
+H:They say that careful cave explorers don't bring just one lamp.
+H:They say that carrots may improve your vision.
+H:They say that creatures made of rock don't like being turned into mud.
+H:They say that death incarnate wears heavy metal boots...
+H:They say that entering a vault can be deadly.
+H:They say that entering a vault can be lucrative.
+H:They say that experienced adventurers bring multiple means of teleportation.
+H:They say that free action lets you act freely.
+H:They say that greater vaults are hiding places for artifacts.
+H:They say that guns are for show, knives are for a pro.
+H:They say that if you live by the sword, you'll die by the sword.
+H:They say that immunization is good for your health.
+H:They say that in the big picture money is only small change.
+H:They say that lemmings are fearless.
+H:They say that mold can be bad for your health.
+H:They say that once a truly special item is lost, it is lost for ever.
+H:They say that if you think you are playing Pacman, you might be confused.
+H:They say that if you think you are playing Pacman, you should run away.
+H:They say that if you think you are playing Pacman, you should chill out.
+H:They say that if you think you are playing Pacman, you must be blind.
+H:They say that peppers are hot stuff.
+H:They say that playing Worms might be helpful.
+H:They say that radiation isn't always bad for your health.
+H:They say that shopkeepers sometimes try to cheat the customer.
+H:They say that smart guys hang around at 1500m.
+H:They say that spam is not entirely useless.
+H:They say that speed kills.
+H:They say that sticky situations are back, but with patience can be discharged.
+H:They say that the key to killing tougher monsters is called "hit&run".
+H:They say that the thing about banishment is that it works both ways.
+H:They say that there is a speed limit.
+H:They say that tough guys hang around at 1500m.
+H:They say that you can blow yourself up with your own grenade.
+H:They say that you can't trust rumors.
+H:They say that you don't want to get blasted.
+H:They say that you should always bring a first-aid kit.
+H:They say that you should always bring a way to run away.
+H:They say that you should fight fire with fire, but the fire brigade use water.
+H:They say that you should listen to your feelings.
+H:They say that you should not slow down in your final fight.
+H:They say that you should watch out for heavy breathers.
+H:They say that you shouldn't avoid the black market.
+H:They say that you shouldn't bring a knife to a gun fight.
+H:They say that you won't grow big unless you eat your greens.
+H:They say that you will need to be cool and still warm - basically, insulated.
+H:Those who seek knowledge of the sources must be experienced hunters of hints.
+H:Time attacks are not mitigated by sustains.
+H:Time heals all wounds?? But surely time wounds all heels!
+H:Time is a weird attack - not even sustained stats will save you.
 H:Time spent within sight or hearing range will eventually wake sleepers.
-H:Stealth is very helpful against sleeping monsters but not against alert ones.
-H:Inspect your racial and class abilities with the S command.
+H:To a full belly all food is bad.
+H:To attack a monster in a wall with your weapon, use the 'T'unnel command.
+H:Tolkien said: "The dread of the Ringwraith cannot be shaken off." Fearless!
+H:Too much stunning will knock you out! This is to be avoided if possible.
+H:Try inscribing thrown weapons, "@v0" for example.
+H:Two wrongs don't make a right, but three lefts do.
+H:Under great weights of loot, you'll be less quick of foot.
+H:Unique opponents will recover their health faster than other creatures.
+H:Uniques remain mostly impervious to your attempts to confuse them.
+H:Use '=' to check out the options and customize your game.
+H:Walking around with lots of heavy weapons is not necessarily a good idea.
+H:Wands and devices sell for a good price even with 0 charges.
+H:Weak dangers? You may be overwhelmed by sheer numbers.
+H:Wear armor, going naked seems to offend public decency in here.
+H:When a character dies, memories of monsters she has fought are passed on.
+H:When all else fails, read the instructions.
+H:When running from a nasty monster, go back the way you came.
 H:When shapechanged inspect items with I. Resume your shape with m or p.
+H:Why doesn't monster detection show invisible monsters? 'Cos you can't see 'em!
+H:Wield your ammo to have it take fewer inventory slots.
+H:Without information life is quite short.
+H:Word of Recall will send you to and from the dungeon.
+H:You always get the first move when entering a level. 
+H:You can attack a monster in a wall with your melee weapon.
+H:You can combine equipment that resists cold and a pill with the same effect.
+H:You can combine equipment that resists fire and a pill with the same effect.
+H:You can combine equipment that resists poison and a pill with the same effect.
+H:You can hold different types of ammo in one inventory slot (max. 99).
+H:You can never teleport into a vault, even if you're already standing in it. 
+H:You can use subwindows to display messages, monsters, items and more.
+H:You can use the 'I' command to inspect items and get details on them.
+H:You cannot fire at monsters in walls, but they can fire at you!
+H:You don't always have to kill everything you meet!
+H:You don't have to cover every resist all the time - carry swap items.
+H:You'll love reflection when you encounter groups of snipers.
+H:You're never invincible. Never forget that.
+H:Z. says: The full-scale, all-or-nothing reaction may be ok if you always win.
+H:Zelazny said: "A headlong rush may also result in a broken neck."

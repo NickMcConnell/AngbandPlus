@@ -39,6 +39,7 @@
 #include "obj-slays.h"
 #include "obj-tval.h"
 #include "obj-util.h"
+#include "player-ability.h"
 #include "player-attack.h"
 #include "player-calcs.h"
 #include "player-timed.h"
@@ -59,7 +60,7 @@
  * object hits its target this chance is used.
  *
  * When an object misses it also has a chance to break. This is determined by
- * squaring the normaly breakage probability. So an item that breaks 100% of
+ * squaring the normal breakage probability. So an item that breaks 100% of
  * the time on hit will also break 100% of the time on a miss, whereas a 50%
  * hit-breakage chance gives a 25% miss-breakage chance, and a 10% hit breakage
  * chance gives a 1% miss-breakage chance.
@@ -78,7 +79,7 @@ int breakage_chance(const struct object *obj, bool hit_target) {
 }
 
 /**
- * Return the player's chance to hit with a particular weapon.
+ * Return the player's chance to hit with a particular weapon (or none).
  */
 int chance_of_melee_hit(const struct player *p, const struct object *weapon)
 {
@@ -115,7 +116,7 @@ static int chance_of_missile_hit(const struct player *p,
 		}
 	} else {
 		bonus += p->state.to_h + launcher->to_h;
-		chance = p->state.skills[SKILL_TO_HIT_BOW] + bonus * BTH_PLUS_ADJ;
+		chance = p->state.skills[SKILL_TO_HIT_GUN] + bonus * BTH_PLUS_ADJ;
 	}
 
 	return chance - distance(p->grid, grid);
@@ -233,8 +234,8 @@ static int critical_shot(const struct player *p,
 		int dam, u32b *msg_type)
 {
 	int debuff_to_hit = is_debuffed(monster) ? DEBUFF_CRITICAL_HIT : 0;
-	int chance = weight + (p->state.to_h + plus + debuff_to_hit) * 4 + p->lev * 2;
-	int power = weight + randint1(500);
+	int chance = (weight / 20) + (p->state.to_h + plus + debuff_to_hit) * 4 + p->lev * 2;
+	int power = (weight / 20) + randint1(500);
 	int new_dam = dam;
 
 	if (randint1(5000) > chance) {
@@ -305,8 +306,8 @@ static int critical_melee(const struct player *p,
 		int dam, u32b *msg_type)
 {
 	int debuff_to_hit = is_debuffed(monster) ? DEBUFF_CRITICAL_HIT : 0;
-	int power = weight + randint1(650);
-	int chance = weight + (p->state.to_h + plus + debuff_to_hit) * 5
+	int power = (weight / 30) + randint1(650);
+	int chance = (weight / 30) + (p->state.to_h + plus + debuff_to_hit) * 5
 		+ (p->state.skills[SKILL_TO_HIT_MELEE] - 60);
 	int new_dam = dam;
 
@@ -469,7 +470,7 @@ static int ranged_damage(struct player *p, const struct monster *mon,
 		/* Adjust damage for throwing weapons.
 		 * This is not the prettiest equation, but it does at least try to
 		 * keep throwing weapons competitive. */
-		dmg *= 2 + missile->weight / 12;
+		dmg *= 2 + missile->weight / 540;
 	}
 	dmg *= mult;
 
@@ -535,7 +536,7 @@ static int o_ranged_damage(struct player *p, const struct monster *mon,
 		/* Multiply the number of damage dice by the throwing weapon
 		 * multiplier.  This is not the prettiest equation,
 		 * but it does at least try to keep throwing weapons competitive. */
-		dice *= 2 + missile->weight / 12;
+		dice *= 2 + missile->weight / 540;
 	}
 
 	/* Roll out the damage. */
@@ -607,24 +608,97 @@ static const struct hit_types melee_hit_types[] = {
 	{ MSG_HIT_HI_SUPERB, "It was a *SUPERB* hit!" },
 };
 
+bool py_attack_hit(struct player *p, struct loc grid, struct monster *mon, int dmg, char *verb, u32b msg_type, int splash, bool do_quake, bool *fear)
+{
+	int drain = 0;
+	bool stop = false;
+	char m_name[80];
+
+	/* Extract monster name (or "it") */
+	monster_desc(m_name, sizeof(m_name), mon, MDESC_TARG);
+
+	/* Apply the player damage bonuses */
+	if (!OPT(p, birth_percent_damage)) {
+		dmg += player_damage_bonus(&p->state);
+	}
+
+	/* Substitute shape-specific blows for shapechanged players */
+	if (player_is_shapechanged(p)) {
+		int choice = randint0(p->shape->num_blows);
+		struct player_blow *blow = p->shape->blows;
+		while (choice--) {
+			blow = blow->next;
+		}
+		my_strcpy(verb, blow->name, sizeof(verb));
+	}
+
+	/* No negative damage; change verb if no damage done */
+	if (dmg <= 0) {
+		dmg = 0;
+		msg_type = MSG_MISS;
+		my_strcpy(verb, "fail to harm", sizeof(verb));
+	}
+
+	for (int i = 0; i < (int)N_ELEMENTS(melee_hit_types); i++) {
+		const char *dmg_text = "";
+
+		if (msg_type != melee_hit_types[i].msg_type)
+			continue;
+
+		if (OPT(p, show_damage))
+			dmg_text = format(" (%d)", dmg);
+
+		if (melee_hit_types[i].text)
+			msgt(msg_type, "You %s %s%s. %s", verb, m_name, dmg_text,
+					melee_hit_types[i].text);
+		else
+			msgt(msg_type, "You %s %s%s.", verb, m_name, dmg_text);
+	}
+
+	/* Pre-damage side effects */
+	blow_side_effects(p, mon);
+
+	/* Damage, check for hp drain, fear and death */
+	drain = MIN(mon->hp, dmg);
+	stop = mon_take_hit(mon, dmg, fear, NULL);
+
+	/* Small chance of bloodlust side-effects */
+	if (p->timed[TMD_BLOODLUST] && one_in_(50)) {
+		msg("You feel something give way!");
+		player_over_exert(p, PY_EXERT_CON, 20, 0);
+	}
+
+	if (!stop) {
+		if (p->timed[TMD_ATT_VAMP] && monster_is_living(mon)) {
+			effect_simple(EF_HEAL_HP, source_player(), format("%d", drain),
+						  0, 0, 0, 0, 0, NULL);
+		}
+	}
+
+	if (stop && fear)
+		(*fear) = false;
+
+	/* Post-damage effects */
+	if (blow_after_effects(grid, dmg, splash, fear, do_quake))
+		stop = true;
+
+	return stop;
+}
+
 /**
  * Attack the monster at the given location with a single blow.
  */
 bool py_attack_real(struct player *p, struct loc grid, bool *fear)
 {
-	size_t i;
-
 	/* Information about the target of the attack */
 	struct monster *mon = square_monster(cave, grid);
 	char m_name[80];
-	bool stop = false;
 
 	/* The weapon used */
 	struct object *obj = equipped_item_by_slot_name(p, "weapon");
 
 	/* Information about the attack */
 	int chance = chance_of_melee_hit(p, obj);
-	int drain = 0;
 	int splash = 0;
 	bool do_quake = false;
 	bool success = false;
@@ -711,72 +785,7 @@ bool py_attack_real(struct player *p, struct loc grid, bool *fear)
 	/* Learn by use */
 	equip_learn_on_melee_attack(p);
 
-	/* Apply the player damage bonuses */
-	if (!OPT(p, birth_percent_damage)) {
-		dmg += player_damage_bonus(&p->state);
-	}
-
-	/* Substitute shape-specific blows for shapechanged players */
-	if (player_is_shapechanged(p)) {
-		int choice = randint0(p->shape->num_blows);
-		struct player_blow *blow = p->shape->blows;
-		while (choice--) {
-			blow = blow->next;
-		}
-		my_strcpy(verb, blow->name, sizeof(verb));
-	}
-
-	/* No negative damage; change verb if no damage done */
-	if (dmg <= 0) {
-		dmg = 0;
-		msg_type = MSG_MISS;
-		my_strcpy(verb, "fail to harm", sizeof(verb));
-	}
-
-	for (i = 0; i < N_ELEMENTS(melee_hit_types); i++) {
-		const char *dmg_text = "";
-
-		if (msg_type != melee_hit_types[i].msg_type)
-			continue;
-
-		if (OPT(p, show_damage))
-			dmg_text = format(" (%d)", dmg);
-
-		if (melee_hit_types[i].text)
-			msgt(msg_type, "You %s %s%s. %s", verb, m_name, dmg_text,
-					melee_hit_types[i].text);
-		else
-			msgt(msg_type, "You %s %s%s.", verb, m_name, dmg_text);
-	}
-
-	/* Pre-damage side effects */
-	blow_side_effects(p, mon);
-
-	/* Damage, check for hp drain, fear and death */
-	drain = MIN(mon->hp, dmg);
-	stop = mon_take_hit(mon, dmg, fear, NULL);
-
-	/* Small chance of bloodlust side-effects */
-	if (p->timed[TMD_BLOODLUST] && one_in_(50)) {
-		msg("You feel something give way!");
-		player_over_exert(p, PY_EXERT_CON, 20, 0);
-	}
-
-	if (!stop) {
-		if (p->timed[TMD_ATT_VAMP] && monster_is_living(mon)) {
-			effect_simple(EF_HEAL_HP, source_player(), format("%d", drain),
-						  0, 0, 0, 0, 0, NULL);
-		}
-	}
-
-	if (stop)
-		(*fear) = false;
-
-	/* Post-damage effects */
-	if (blow_after_effects(grid, dmg, splash, fear, do_quake))
-		stop = true;
-
-	return stop;
+	return py_attack_hit(p, grid, mon, dmg, verb, msg_type, splash, do_quake, fear);
 }
 
 
@@ -815,8 +824,8 @@ bool attempt_shield_bash(struct player *p, struct monster *mon, bool *fear)
 	}
 
 	/* Calculate attack quality, a mix of momentum and accuracy. */
-	bash_quality = p->state.skills[SKILL_TO_HIT_MELEE] / 4 + p->wt / 8 +
-		p->upkeep->total_weight / 80 + shield->weight / 2;
+	bash_quality = p->state.skills[SKILL_TO_HIT_MELEE] / 4 + p->wt / 360 +
+		p->upkeep->total_weight / 3600 + shield->weight / 90;
 
 	/* Calculate damage.  Big shields are deadly. */
 	bash_dam = damroll(shield->dd, shield->ds);
@@ -866,6 +875,82 @@ bool attempt_shield_bash(struct player *p, struct monster *mon, bool *fear)
 }
 
 /**
+ * Returns (in a buffer 'list' passed in by the caller of 'length' entries)
+ * a list of all extra attacks available as pointers to struct attacks. The
+ * number of entries is returned, and the list is terminated by a NULL pointer.
+ */
+int get_extra_attacks(struct attack **list, int length)
+{
+	int attacks = 0;
+
+	for(int i=0; i<PF_MAX; i++) {
+		if ((ability[i]) && (player_has(player, i))) {
+			for(int j=0; j<ability[i]->nattacks; j++) {
+				if (attacks < length-1)
+					list[attacks++] = &(ability[i]->attacks[j]);
+			}
+		}
+	}
+
+	list[attacks] = NULL;
+	return attacks;
+}
+
+/**
+ * Attempt a 'extra' attack against the specified monster. Return true if the
+ * attack killed the target.
+ */
+bool py_attack_extra(struct player *p, struct loc grid, struct monster *mon, struct attack *att)
+{
+	char m_name[80];
+
+	int chance = chance_of_melee_hit(p, NULL);
+	int dmg = randcalc(att->damage, 0, RANDOMISE);
+
+	/* See if the player hit */
+	bool success = test_hit(chance, mon->race->ac, monster_is_visible(mon));
+
+	/* Extract monster name (or "it") */
+	monster_desc(m_name, sizeof(m_name), mon, MDESC_TARG);
+
+	/* If a miss, skip this hit */
+	if (!success) {
+		msgt(MSG_MISS, "You miss %s.", m_name);
+		return false;
+	}
+
+	/* You hit.
+	 * Extra attacks are not influenced by equipment slays, brands etc.
+	 * They do however have an element.
+	 **/
+	if (att->element >= 0) {
+		#define RF_0 0
+		static const int immune[] = {
+		#define ELEM(a, b, ...)  RF_##b,
+		#include "list-elements.h"
+		#undef ELEM
+			RF_IM_ACID
+		};
+		static const int vulnerable[] = {
+		#define ELEM(a, b, c)  RF_##c,
+		#include "list-elements.h"
+		#undef ELEM
+			RF_IM_ACID
+		};
+		#undef RF_0
+		int imm = immune[att->element];
+		if (imm)
+			if (rf_has(mon->race->flags, imm))
+				dmg /= 6 + randint0(6);
+		int vuln = vulnerable[att->element];
+		if (vuln)
+			if (rf_has(mon->race->flags, vuln))
+				dmg = (dmg * rand_range(200, 500)) / 100;
+	} 
+	return py_attack_hit(p, grid, mon, dmg, att->msg, MSG_HIT, 0, false, NULL);
+}
+
+/**
  * Attack the monster at the given location
  *
  * We get blows until energy drops below that required for another blow, or
@@ -885,13 +970,13 @@ void py_attack(struct player *p, struct loc grid)
 
 	/* Initialize the energy used */
 	p->upkeep->energy_use = 0;
-
+#ifdef undef
 	/* Reward BGs with 5% of max SPs, min 1/2 point */
 	if (player_has(p, PF_COMBAT_REGEN)) {
 		s32b sp_gain = (s32b)(MAX(p->msp, 10) << 16) / 20;
 		player_adjust_mana_precise(p, sp_gain);
 	}
-
+#endif
 	/* Player attempts a shield bash if they can, and if monster is visible
 	 * and not too pathetic */
 	if (player_has(p, PF_SHIELD_BASH) && monster_is_visible(mon)) {
@@ -905,6 +990,18 @@ void py_attack(struct player *p, struct loc grid)
 	while (avail_energy - p->upkeep->energy_use >= blow_energy && !slain) {
 		slain = py_attack_real(p, grid, &fear);
 		p->upkeep->energy_use += blow_energy;
+	}
+
+	/* Extra attacks, from mutations, equipment etc.
+	 * These are 'free' (take no energy).
+	 * Still should skip if the target's dead.
+	 */
+	struct attack *att[256];
+	int attacks = get_extra_attacks(att, 256);
+	for(int i=0; i<attacks; i++) {
+		if (slain)
+			break;
+		slain = py_attack_extra(p, grid, mon, att[i]);
 	}
 
 	/* Hack - delay fear messages */
@@ -952,6 +1049,7 @@ static void ranged_helper(struct player *p,	struct object *obj, int dir,
 
 	bool hit_target = false;
 	bool none_left = false;
+	bool breaks = false;
 
 	struct object *missile;
 	int pierce = 1;
@@ -1016,6 +1114,7 @@ static void ranged_helper(struct player *p,	struct object *obj, int dir,
 				" is destroyed." : " dies.";
 
 			struct attack_result result = attack(p, obj, grid);
+			breaks = result.breaks;
 			int dmg = result.dmg;
 			u32b msg_type = result.msg_type;
 			char hit_verb[20];
@@ -1102,7 +1201,9 @@ static void ranged_helper(struct player *p,	struct object *obj, int dir,
 	}
 
 	/* Drop (or break) near that location */
-	drop_near(cave, &missile, breakage_chance(missile, hit_target), grid, true, false);
+	int breakage = breakage_chance(missile, hit_target);
+	if (breaks) breakage = 100;
+	drop_near(cave, &missile, breakage, grid, true, false);
 }
 
 
@@ -1113,10 +1214,10 @@ static struct attack_result make_ranged_shot(struct player *p,
 		struct object *ammo, struct loc grid)
 {
 	char *hit_verb = mem_alloc(20 * sizeof(char));
-	struct attack_result result = {false, 0, 0, hit_verb};
-	struct object *bow = equipped_item_by_slot_name(p, "shooting");
+	struct attack_result result = {false, true, 0, 0, hit_verb};
+	struct object *gun = equipped_item_by_slot_name(p, "shooting");
 	struct monster *mon = square_monster(cave, grid);
-	int chance = chance_of_missile_hit(p, ammo, bow, grid);
+	int chance = chance_of_missile_hit(p, ammo, gun, grid);
 	int b = 0, s = 0;
 
 	my_strcpy(hit_verb, "hits", 20);
@@ -1128,17 +1229,17 @@ static struct attack_result make_ranged_shot(struct player *p,
 	result.success = true;
 
 	improve_attack_modifier(ammo, mon, &b, &s, result.hit_verb, true);
-	improve_attack_modifier(bow, mon, &b, &s, result.hit_verb, true);
+	improve_attack_modifier(gun, mon, &b, &s, result.hit_verb, true);
 
 	if (!OPT(p, birth_percent_damage)) {
-		result.dmg = ranged_damage(p, mon, ammo, bow, b, s);
+		result.dmg = ranged_damage(p, mon, ammo, gun, b, s);
 		result.dmg = critical_shot(p, mon, ammo->weight, ammo->to_h,
 								   result.dmg, &result.msg_type);
 	} else {
-		result.dmg = o_ranged_damage(p, mon, ammo, bow, b, s, &result.msg_type);
+		result.dmg = o_ranged_damage(p, mon, ammo, gun, b, s, &result.msg_type);
 	}
 
-	missile_learn_on_ranged_attack(p, bow);
+	missile_learn_on_ranged_attack(p, gun);
 
 	return result;
 }
@@ -1151,7 +1252,7 @@ static struct attack_result make_ranged_throw(struct player *p,
 	struct object *obj, struct loc grid)
 {
 	char *hit_verb = mem_alloc(20 * sizeof(char));
-	struct attack_result result = {false, 0, 0, hit_verb};
+	struct attack_result result = {false, false, 0, 0, hit_verb};
 	struct monster *mon = square_monster(cave, grid);
 	int chance = chance_of_missile_hit(p, obj, NULL, grid);
 	int b = 0, s = 0;
@@ -1192,7 +1293,7 @@ void do_cmd_fire(struct command *cmd) {
 
 	ranged_attack attack = make_ranged_shot;
 
-	struct object *bow = equipped_item_by_slot_name(player, "shooting");
+	struct object *gun = equipped_item_by_slot_name(player, "shooting");
 	struct object *obj;
 
 	if (player_is_shapechanged(player)) {
@@ -1219,7 +1320,7 @@ void do_cmd_fire(struct command *cmd) {
 		return;
 
 	/* Require a usable launcher */
-	if (!bow || !player->state.ammo_tval) {
+	if (!gun || !player->state.ammo_tval) {
 		msg("You have nothing to fire with.");
 		return;
 	}
@@ -1278,8 +1379,8 @@ void do_cmd_throw(struct command *cmd) {
 		return;
 
 
-	weight = MAX(obj->weight, 10);
-	range = MIN(((str + 20) * 10) / weight, 10);
+	weight = MAX(obj->weight, 450);
+	range = MIN(((str + 20) * 450) / weight, 10);
 
 	/* Make sure the player isn't throwing wielded items */
 	if (object_is_equipped(player->body, obj)) {
@@ -1297,10 +1398,10 @@ void do_cmd_throw(struct command *cmd) {
 void do_cmd_fire_at_nearest(void) {
 	int i, dir = DIR_TARGET;
 	struct object *ammo = NULL;
-	struct object *bow = equipped_item_by_slot_name(player, "shooting");
+	struct object *gun = equipped_item_by_slot_name(player, "shooting");
 
 	/* Require a usable launcher */
-	if (!bow || !player->state.ammo_tval) {
+	if (!gun || !player->state.ammo_tval) {
 		msg("You have nothing to fire with.");
 		return;
 	}
@@ -1317,7 +1418,7 @@ void do_cmd_fire_at_nearest(void) {
 
 	/* Require usable ammo */
 	if (!ammo) {
-		msg("You have no ammunition in the quiver to fire.");
+		msg("You have no ammunition ready to fire.");
 		return;
 	}
 

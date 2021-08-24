@@ -44,8 +44,10 @@
 #include "obj-util.h"
 #include "object.h"
 #include "player-history.h"
+#include "player-quest.h"
 #include "player-util.h"
 #include "trap.h"
+#include "world.h"
 #include "z-queue.h"
 #include "z-type.h"
 
@@ -713,7 +715,7 @@ static int calc_mon_feeling(struct chunk *c)
 	if (c->depth == 0) return 0;
 
 	/* Check the monster power adjusted for depth */
-	x = c->mon_rating / c->depth;
+	x = c->mon_rating / danger_depth(player);
 
 	if (x > 7000) return 1;
 	if (x > 4500) return 2;
@@ -730,7 +732,7 @@ static int calc_mon_feeling(struct chunk *c)
  * Find a cave_profile by name
  * \param name is the name of the cave_profile being looked for
  */
-const struct cave_profile *find_cave_profile(char *name)
+const struct cave_profile *find_cave_profile(const char *name)
 {
 	int i;
 
@@ -934,7 +936,8 @@ static void cave_store(struct chunk *c, bool known, bool keep_all)
 	if (stored->name) {
 		string_free(stored->name);
 	}
-	stored->name = string_make(level_by_depth(c->depth)->name);
+	assert(c->name);
+	stored->name = string_make(c->name);
 	if (known) {
 		stored->name = string_append(stored->name, " known");
 	}
@@ -963,7 +966,7 @@ static void cave_clear(struct chunk *c, struct player *p)
  * \param p is the current player struct, in practice the global player
  * \return a pointer to the new level
  */
-static struct chunk *cave_generate(struct player *p, int height, int width)
+struct chunk *cave_generate(struct player *p, int height, int width)
 {
 	const char *error = "no generation";
 	int i, tries = 0;
@@ -1014,7 +1017,13 @@ static struct chunk *cave_generate(struct player *p, int height, int width)
 		}
 
 		/* Choose a profile and build the level */
-		dun->profile = choose_profile(p);
+		if (p->active_quest >= 0) {
+			dun->profile = find_cave_profile("quest");
+		} else {
+			dun->profile = choose_profile(p);
+		}
+		assert(dun->profile);
+
 		chunk = dun->profile->builder(p, height, width);
 		if (!chunk) {
 			error = "Failed to find builder";
@@ -1227,8 +1236,15 @@ void prepare_next_level(struct chunk **c, struct player *p)
 			}
 		} else {
 			/* Save the town */
-			if (!((*c)->depth) && !chunk_find_name("Town")) {
+			if (!((*c)->depth) && !chunk_find_name(player->town->name)) {
+				assert(player->town->name);
+				char *oldname = player->upkeep->last_level;
+				if (!oldname) {
+					oldname = player->upkeep->last_level = player->town->name;
+				}
+				(*c)->name = string_make(oldname);
 				cave_store(*c, false, false);
+				player->upkeep->last_level  = player->town->name;
 			}
 
 			/* Forget knowledge of old level */
@@ -1394,11 +1410,13 @@ void prepare_next_level(struct chunk **c, struct player *p)
 		if (persist) {
 			cave_illuminate(*c, is_daytime());
 		}
-
 	}
 
 	/* The dungeon is ready */
 	character_dungeon = true;
+
+	/* Quest specials - after changing level */
+	quest_changed_level();
 }
 
 /**

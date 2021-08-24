@@ -42,7 +42,7 @@ static void print_error(struct file_parser *fp, struct parser *p) {
 	msg("Parse error in %s line %d column %d: %s: %s", fp->name,
 	           s.line, s.col, s.msg, parser_error_str[s.error]);
 	event_signal(EVENT_MESSAGE_FLUSH);
-	quit_fmt("Parse error in %s line %d column %d.", fp->name, s.line, s.col);
+	quit_fmt("Parse error in %s line %d column %d: %s: %s.", fp->name, s.line, s.col, s.msg, parser_error_str[s.error]);
 }
 
 errr run_parser(struct file_parser *fp) {
@@ -210,6 +210,36 @@ errr grab_rand_value(random_value *value, const char **value_type,
 	}
 
 	dice_free(dice);
+
+	return value_type[i] ? PARSE_ERROR_NONE : PARSE_ERROR_INTERNAL;
+}
+
+/**
+ * Get the s16b argument from a value expression and put it into the
+ * appropriate place in an array
+ * \param value the target array of integers
+ * \param value_type the possible value strings
+ * \param name_and_value the value expression being matched
+ * \return 0 if successful, otherwise an error value
+ */
+errr grab_short_value(s16b *value, const char **value_type,
+					const char *name_and_value)
+{
+	int val, i = 0;
+	char value_name[80];
+
+	/* Get a rewritable string */
+	my_strcpy(value_name, name_and_value, strlen(name_and_value));
+
+	/* Parse the value expression */
+	if (!find_value_arg(value_name, NULL, &val))
+		return PARSE_ERROR_INVALID_VALUE;
+
+	while (value_type[i] && !streq(value_type[i], value_name))
+		i++;
+
+	if (value_type[i])
+		value[i] = val;
 
 	return value_type[i] ? PARSE_ERROR_NONE : PARSE_ERROR_INTERNAL;
 }
@@ -454,7 +484,7 @@ void write_elements(ang_file *fff, const struct element_info *el_info)
 	int pointer = 0;
 
 	static const char *element_names[] = {
-		#define ELEM(a) #a,
+		#define ELEM(a, ...) #a,
 		#include "list-elements.h"
 		#undef ELEM
 		NULL
@@ -493,7 +523,7 @@ void write_elements(ang_file *fff, const struct element_info *el_info)
 /**
  * Archive a data file from ANGBAND_DIR_USER into ANGBAND_DIR_ARCHIVE
  */
-void file_archive(char *fname, char *append)
+void file_archive(const char *fname, char *append)
 {
 	char arch[1024];
 	char old[1024];

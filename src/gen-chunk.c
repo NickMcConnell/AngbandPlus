@@ -54,6 +54,7 @@ struct chunk *chunk_write(struct chunk *c)
 		for (x = 0; x < new->width; x++) {
 			/* Terrain */
 			new->squares[y][x].feat = square(c, loc(x, y))->feat;
+			new->squares[y][x].tag = square(c, loc(x, y))->tag;
 			sqinfo_copy(square(new, loc(x, y))->info, square(c, loc(x, y))->info);
 		}
 	}
@@ -68,6 +69,7 @@ struct chunk *chunk_write(struct chunk *c)
  */
 void chunk_list_add(struct chunk *c)
 {
+	assert(c->name);
 	int newsize = (chunk_list_max + CHUNK_LIST_INCR) *	sizeof(struct chunk *);
 
 	/* Lengthen the list if necessary */
@@ -114,6 +116,8 @@ bool chunk_list_remove(char *name)
 struct chunk *chunk_find_name(char *name)
 {
 	int i;
+
+	assert(name);
 
 	for (i = 0; i < chunk_list_max; i++)
 		if (!strcmp(name, chunk_list[i]->name))
@@ -227,6 +231,9 @@ bool chunk_copy(struct chunk *dest, struct chunk *source, int y0, int x0,
 			/* Terrain */
 			dest->squares[dest_grid.y][dest_grid.x].feat =
 				square(source, grid)->feat;
+			dest->squares[dest_grid.y][dest_grid.x].tag =
+				square(source, grid)->tag;
+
 			sqinfo_copy(square(dest, dest_grid)->info,
 						square(source, grid)->info);
 

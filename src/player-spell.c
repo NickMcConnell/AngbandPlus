@@ -26,6 +26,7 @@
 #include "obj-tval.h"
 #include "obj-util.h"
 #include "object.h"
+#include "player-ability.h"
 #include "player-calcs.h"
 #include "player-spell.h"
 #include "player-timed.h"
@@ -128,7 +129,7 @@ static const int adj_mag_stat[STAT_RANGE] =
  */
 void player_spells_init(struct player *p)
 {
-	int i, num_spells = p->class->magic.total_spells;
+	int i, num_spells = total_spells;
 
 	/* None */
 	if (!num_spells) return;
@@ -151,156 +152,136 @@ void player_spells_free(struct player *p)
 	mem_free(p->spell_order);
 }
 
+
 /**
- * Make a list of the spell realms the player's class has books from
+ * Collect spells from a book into the spells[] array (if spells is non-null).
+ * If spells is null, it just counts how many are needed.
  */
-struct magic_realm *class_magic_realms(const struct player_class *c, int *count)
+void combine_book(const struct class_book *src, int *count, int *spells, int *maxidx, struct class_spell **spellps)
 {
-	int i;
-	struct magic_realm *r = mem_zalloc(sizeof(struct magic_realm));
+	int index = *count;
+	for (int i = 0; i < src->num_spells; i++) {
 
-	*count = 0;
-
-	if (!c->magic.total_spells) {
-		mem_free(r);
-		return NULL;
-	}
-
-	for (i = 0; i < c->magic.num_books; i++) {
-		struct magic_realm *r_test = r;
-		struct class_book *book = &c->magic.books[i];
-		bool found = false;
-
-		/* Test for first realm */
-		if (r->name == NULL) {
-			memcpy(r, book->realm, sizeof(struct magic_realm));
-			r->next = NULL;
-			(*count)++;
+		/* Ignore out of level spells */
+		if (src->spells[i].slevel > player->lev)
 			continue;
-		}
 
-		/* Test for already recorded */
-		while (r_test) {
-			if (streq(r_test->name, book->realm->name)) {
-				found = true;
+		/* Spell is OK to add */
+		if (spells) {
+			/* Second pass, fill in the spells array */
+			spells[index] = src->spells[i].sidx;
+		}
+		if (spellps) {
+			spellps[src->spells[i].sidx] = &src->spells[i];
+		}
+		if (maxidx)
+			if ((src->spells[i].sidx + 1) > *maxidx)
+				*maxidx = src->spells[i].sidx + 1;
+		index++;
+	}
+	*count = index;
+}
+
+/**
+ * Collect spells from all books of a class-magic into the spells[] array.
+ */
+void combine_class_books(struct class_magic *cmagic, int *count, int *spells, int *maxidx, struct class_spell **spellps)
+{
+	for(int i=0;i<cmagic->num_books;i++)
+		combine_book(&cmagic->books[i], count, spells, maxidx, spellps);
+}
+
+/**
+ * Collect spells from all books into the spells[] array.
+ * This looks at class, race, shapechange, abilities, and equipment.
+ * It currently assumes that shapechange prevents everything not derived from the change.
+ */
+void combine_books(int *count, int *spells, int *maxidx, struct class_spell **spellps)
+{
+	if (player_is_shapechanged(player)) {
+		combine_class_books(&player->shape->magic, count, spells, maxidx, spellps);
+	} else {
+		combine_class_books(&player->class->magic, count, spells, maxidx, spellps);
+		combine_class_books(&player->race->magic, count, spells, maxidx, spellps);
+		
+		for(int i=0;i<PF_MAX;i++) {
+			if (ability[i] && player_has(player, i)) {
+				combine_class_books(&ability[i]->magic, count, spells, maxidx, spellps);
 			}
-			r_test = r_test->next;
 		}
-		if (found) continue;
+		for (struct object *obj = player->gear; obj; obj = obj->next) {
+			if (object_is_equipped(player->body, obj)) {
+				combine_class_books(&obj->kind->magic, count, spells, maxidx, spellps);
+				if (obj->ego)
+					combine_class_books(&obj->ego->magic, count, spells, maxidx, spellps);
+				if (obj->artifact)
+					combine_class_books(&obj->artifact->magic, count, spells, maxidx, spellps);
+			}
+		}
+	}
+}
 
-		/* Add it */
-		r_test = mem_zalloc(sizeof(struct magic_realm));
-		r_test->next = r;
-		r = r_test;
-		(*count)++;
+static int collect_from_book(int **spells, struct class_spell ***spellps, int *n_i)
+{
+	int n_spells = 0;
+
+	if (n_i)
+		*n_i = 0;
+
+	/* Count the spells */
+	combine_books(&n_spells, NULL, n_i, NULL);
+	/* Exit early if there are none */
+	if (!n_spells) {
+		if (spells)
+			*spells = NULL;
+		if (spellps)
+			*spellps = NULL;
+		return 0;
 	}
 
-	return r;
+	/* Allocate the array(s) */
+	if (spells)
+		*spells = mem_zalloc(n_spells * sizeof(*spells));
+	if (spellps && n_i)
+		*spellps = mem_zalloc((*n_i + 100) * sizeof(*spellps));
+
+	/* Write the spells */
+	n_spells = 0;
+	if (n_i)
+		*n_i = 0;
+	combine_books(&n_spells, spells ? *spells : NULL, n_i, spellps ? *spellps : NULL);
+
+	return n_spells;
 }
 
-
-/**
- * Get the spellbook structure from any object which is a book
- */
-const struct class_book *object_kind_to_book(const struct object_kind *kind)
-{
-	struct player_class *class = classes;
-	while (class) {
-		int i;
-
-		for (i = 0; i < class->magic.num_books; i++)
-		if ((kind->tval == class->magic.books[i].tval) &&
-			(kind->sval == class->magic.books[i].sval)) {
-			return &class->magic.books[i];
-		}
-		class = class->next;
-	}
-
-	return NULL;
-}
-
-/**
- * Get the spellbook structure from an object which is a book the player can
- * cast from
- */
-const struct class_book *player_object_to_book(struct player *p,
-											   const struct object *obj)
-{
-	int i;
-
-	for (i = 0; i < p->class->magic.num_books; i++)
-		if ((obj->tval == p->class->magic.books[i].tval) &&
-			(obj->sval == p->class->magic.books[i].sval))
-			return &p->class->magic.books[i];
-
-	return NULL;
-}
 
 const struct class_spell *spell_by_index(int index)
 {
-	int book = 0, count = 0;
-	const struct class_magic *magic = &player->class->magic;
+	struct class_spell **spellps = NULL;
+	int maxidx = 0;
+	collect_from_book(NULL, &spellps, &maxidx);
 
 	/* Check index validity */
-	if (index < 0 || index >= magic->total_spells)
+	if (index < 0 || index >= maxidx) {
+		mem_free(spellps);
 		return NULL;
-
-	/* Find the book, count the spells in previous books */
-	while (count + magic->books[book].num_spells - 1 < index)
-		count += magic->books[book++].num_spells;
+	}
 
 	/* Find the spell */
-	return &magic->books[book].spells[index - count];
+	struct class_spell *ret = spellps[index];
+	mem_free(spellps);
+	return ret;
 }
 
 /**
  * Collect spells from a book into the spells[] array, allocating
- * appropriate memory.
+ * appropriate memory (by calling combine_books twice, first to
+ * get the size then again to fill the newly allocated array).
  */
-int spell_collect_from_book(const struct object *obj, int **spells)
+int spell_collect_from_book(int **spells)
 {
-	const struct class_book *book = player_object_to_book(player, obj);
-	int i, n_spells = 0;
-
-	if (!book) {
-		return n_spells;
-	}
-
-	/* Count the spells */
-	for (i = 0; i < book->num_spells; i++)
-		n_spells++;
-
-	/* Allocate the array */
-	*spells = mem_zalloc(n_spells * sizeof(*spells));
-
-	/* Write the spells */
-	for (i = 0; i < book->num_spells; i++)
-		(*spells)[i] = book->spells[i].sidx;
-
-	return n_spells;
+	return collect_from_book(spells, NULL, NULL);
 }
-
-
-/**
- * Return the number of castable spells in the spellbook 'obj'.
- */
-int spell_book_count_spells(const struct object *obj,
-		bool (*tester)(int spell))
-{
-	const struct class_book *book = player_object_to_book(player, obj);
-	int i, n_spells = 0;
-
-	if (!book) {
-		return n_spells;
-	}
-
-	for (i = 0; i < book->num_spells; i++)
-		if (tester(book->spells[i].sidx))
-			n_spells++;
-
-	return n_spells;
-}
-
 
 /**
  * True if at least one spell in spells[] is OK according to spell_test.
@@ -310,6 +291,9 @@ bool spell_okay_list(bool (*spell_test)(int spell),
 {
 	int i;
 	bool okay = false;
+
+	if (!spell_test)
+		return true;
 
 	for (i = 0; i < n_spells; i++)
 		if (spell_test(spells[i]))
@@ -327,17 +311,6 @@ bool spell_okay_to_cast(int spell)
 }
 
 /**
- * True if the spell can be studied.
- */
-bool spell_okay_to_study(int spell_index)
-{
-	const struct class_spell *spell = spell_by_index(spell_index);
-	if (!spell) return false;
-	return (spell->slevel <= player->lev) &&
-			!(player->spell_flags[spell_index] & PY_SPELL_LEARNED);
-}
-
-/**
  * True if the spell is browsable.
  */
 bool spell_okay_to_browse(int spell_index)
@@ -352,7 +325,7 @@ bool spell_okay_to_browse(int spell_index)
  */
 static int fail_adjust(struct player *p, const struct class_spell *spell)
 {
-	int stat = spell->realm->stat;
+	int stat = spell->stat;
 	return adj_mag_stat[p->state.stat_ind[stat]];
 }
 
@@ -361,7 +334,7 @@ static int fail_adjust(struct player *p, const struct class_spell *spell)
  */
 static int min_fail(struct player *p, const struct class_spell *spell)
 {
-	int stat = spell->realm->stat;
+	int stat = spell->stat;
 	return adj_mag_fail[p->state.stat_ind[stat]];
 }
 
@@ -373,9 +346,6 @@ s16b spell_chance(int spell_index)
 	int chance = 100, minfail;
 
 	const struct class_spell *spell;
-
-	/* Paranoia -- must be literate */
-	if (!player->class->magic.total_spells) return chance;
 
 	/* Get the spell */
 	spell = spell_by_index(spell_index);
@@ -389,10 +359,6 @@ s16b spell_chance(int spell_index)
 
 	/* Reduce failure rate by casting stat level adjustment */
 	chance -= fail_adjust(player, spell);
-
-	/* Not enough mana to cast */
-	if (spell->smana > player->csp)
-		chance += 5 * (spell->smana - player->csp);
 
 	/* Get the minimum failure rate for the casting stat level */
 	minfail = min_fail(player, spell);
@@ -437,41 +403,6 @@ s16b spell_chance(int spell_index)
 	return (chance);
 }
 
-
-/**
- * Learn the specified spell.
- */
-void spell_learn(int spell_index)
-{
-	int i;
-	const struct class_spell *spell = spell_by_index(spell_index);
-
-	/* Learn the spell */
-	player->spell_flags[spell_index] |= PY_SPELL_LEARNED;
-
-	/* Find the next open entry in "spell_order[]" */
-	for (i = 0; i < player->class->magic.total_spells; i++)
-		if (player->spell_order[i] == 99) break;
-
-	/* Add the spell to the known list */
-	player->spell_order[i] = spell_index;
-
-	/* Mention the result */
-	msgt(MSG_STUDY, "You have learned the %s of %s.", spell->realm->spell_noun,
-		 spell->name);
-
-	/* One less spell available */
-	player->upkeep->new_spells--;
-
-	/* Message if needed */
-	if (player->upkeep->new_spells)
-		msg("You can learn %d more %s%s.", player->upkeep->new_spells,
-			spell->realm->spell_noun, PLURAL(player->upkeep->new_spells));
-
-	/* Redraw Study Status */
-	player->upkeep->redraw |= (PR_STUDY | PR_OBJECT);
-}
-
 static int beam_chance(void)
 {
 	int plev = player->lev;
@@ -505,14 +436,18 @@ bool spell_cast(int spell_index, int dir, struct command *cmd)
 			return false;
 		}
 
-		/* Reward COMBAT_REGEN with small HP recovery */
-		if (player_has(player, PF_COMBAT_REGEN)) {
-			convert_mana_to_hp(player, spell->smana << 16);
+		/* The cost - HP, cooldown */
+		if (randcalc(spell->hp, 0, AVERAGE) != 0) {
+			take_hit(player, randcalc(spell->hp, 0, RANDOMISE), "overexertion");
+		}
+		if (randcalc(spell->turns, 0, AVERAGE) != 0) {
+			player->cooldown[spell_index] += randcalc(spell->turns, 0, RANDOMISE);
 		}
 
 		/* A spell was cast */
 		sound(MSG_SPELL);
 
+		/* for the first time */
 		if (!(player->spell_flags[spell_index] & PY_SPELL_WORKED)) {
 			int e = spell->sexp;
 
@@ -527,25 +462,6 @@ bool spell_cast(int spell_index, int dir, struct command *cmd)
 		}
 	}
 
-	/* Sufficient mana? */
-	if (spell->smana <= player->csp) {
-		/* Use some mana */
-		player->csp -= spell->smana;
-	} else {
-		int oops = spell->smana - player->csp;
-
-		/* No mana left */
-		player->csp = 0;
-		player->csp_frac = 0;
-
-		/* Over-exert the player */
-		player_over_exert(player, PY_EXERT_FAINT, 100, 5 * oops + 1);
-		player_over_exert(player, PY_EXERT_CON, 50, 0);
-	}
-
-	/* Redraw mana */
-	player->upkeep->redraw |= (PR_MANA);
-
 	mem_free(ident);
 	return true;
 }
@@ -558,8 +474,7 @@ bool spell_needs_aim(int spell_index)
 	return effect_aim(spell->effect);
 }
 
-static size_t append_random_value_string(char *buffer, size_t size,
-										 random_value *rv)
+size_t append_random_value_string(char *buffer, size_t size, const random_value *rv)
 {
 	size_t offset = 0;
 

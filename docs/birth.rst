@@ -167,7 +167,7 @@ Gnome
   disarming, perception, and stealth. They have lower strength than humans
   so they are not very good at fighting with hand weapons. Gnomes have good
   infravision.  Gnomes are intrinsically protected against paralysis and 
-  some slowing effects. Gnomes are excellent at using wands and staves
+  some slowing effects. Gnomes are excellent at using wands and devices
   and can identify them when found.
 
 .. _Dwarf:
@@ -477,11 +477,11 @@ Disarming
   physical traps, and intelligence modifies disarming of magical traps.
   Both these abilities increase with the level of the character.
  
-Magical Devices
-  Using a magical device such as a wand or staff requires experience and
-  knowledge. Spell users such as mages and priests are therefore much
-  better at using a magical device than say a warrior. This skill is
-  modified by intelligence, and increases with the level of the character.
+Devices
+  Using a device (gadget, gun) requires experience and knowledge. Device
+  users such as engineers are therefore much better at using a device than
+  say a soldier. This skill is modified by intelligence, and increases
+  with the level of the character.
 
 Searching (Perception)
   Perception is the ability to notice traps without actively seeking them

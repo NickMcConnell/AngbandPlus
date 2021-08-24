@@ -30,12 +30,16 @@ extern struct file_parser projection_parser;
 extern struct file_parser object_base_parser;
 extern struct file_parser slay_parser;
 extern struct file_parser brand_parser;
-extern struct file_parser curse_parser;
+extern struct file_parser fault_parser;
 extern struct file_parser object_parser;
 extern struct file_parser act_parser;
 extern struct file_parser ego_parser;
 extern struct file_parser artifact_parser;
 extern struct file_parser randart_parser;
 extern struct file_parser object_property_parser;
+
+extern const char *obj_mods[];
+
+enum parser_error parse_getweight(struct parser *p, const char *field, int *grams) ;
 
 #endif /* OBJECT_INIT_H_ */

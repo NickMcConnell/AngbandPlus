@@ -579,7 +579,7 @@ object:scroll:Trap Creation:0x87:0xE1
 
 # Graphics are sourced from flavor entries in flvr-shb.prf
 
-##### Staves #####
+##### Devices #####
 
 # Graphics are sourced from flavor entries in flvr-shb.prf
 
@@ -899,7 +899,7 @@ monster:drúadan mage:0x8D:0x84
 monster:Black mamba:0x90:0x99
 monster:White wolf:0x8F:0xD4
 monster:Grape jelly:0x8F:0x8B
-monster:Nether worm mass:0x91:0x96
+monster:Radiation worm mass:0x91:0x96
 monster:Golfimbul, the Hill Orc Chief:0x9D:0x83
 monster:Master yeek:0x8F:0xBB
 monster:Priest:0x84:0x8F
@@ -1158,7 +1158,7 @@ monster:Emperor wight:0x9F:0xF3
 monster:Vargo, Tyrant of Fire:0x9D:0xD6
 monster:Black wraith:0x94:0x93
 monster:fury:0x9F:0x8C
-monster:Nether wraith:0x9D:0xC1
+monster:Radiation wraith:0x9D:0xC1
 monster:mountain troll:0x9F:0xDF
 monster:etten:0x9D:0xC0
 monster:Waldern, King of Water:0x9D:0xD7
@@ -1223,7 +1223,7 @@ monster:Glaurung, Father of the Dragons:0x9F:0xB1
 monster:Master mystic:0x84:0xA2
 monster:The Balrog of Moria:0x9F:0xA3
 monster:Nightwing:0x9D:0xEE
-monster:Nether hound:0x90:0xC3
+monster:Radiation hound:0x90:0xC3
 monster:Time hound:0x90:0xCC
 monster:Plasma hound:0x90:0xC6
 monster:Demonic quylthulg:0x93:0x83
@@ -1430,11 +1430,11 @@ GF:SHARD | FORCE:45:0x81:0x9E
 GF:SHARD | FORCE:90:0x81:0x9D
 GF:SHARD | FORCE:135:0x81:0x9F
 
-GF:MANA | NETHER | MISSILE:static:0x81:0xC3
-GF:MANA | NETHER | MISSILE:0:0x81:0xA0
-GF:MANA | NETHER | MISSILE:45:0x81:0xA2
-GF:MANA | NETHER | MISSILE:90:0x81:0xA1
-GF:MANA | NETHER | MISSILE:135:0x81:0xA3
+GF:MANA | RADIATION | MISSILE:static:0x81:0xC3
+GF:MANA | RADIATION | MISSILE:0:0x81:0xA0
+GF:MANA | RADIATION | MISSILE:45:0x81:0xA2
+GF:MANA | RADIATION | MISSILE:90:0x81:0xA1
+GF:MANA | RADIATION | MISSILE:135:0x81:0xA3
 
 GF:ELEC | TIME:static:0x81:0xC2
 GF:ELEC | TIME:0:0x81:0xA4

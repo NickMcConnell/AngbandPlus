@@ -29,6 +29,7 @@
 #include "obj-tval.h"
 #include "obj-util.h"
 #include "player-calcs.h"
+#include "player-quest.h"
 #include "player-util.h"
 
 static const struct slot_info {
@@ -248,12 +249,13 @@ int wield_slot(const struct object *obj)
 	/* Slot for equipment */
 	switch (obj->tval)
 	{
-		case TV_BOW: return slot_by_type(player, EQUIP_BOW, false);
+		case TV_GUN: return slot_by_type(player, EQUIP_GUN, false);
 		case TV_AMULET: return slot_by_type(player, EQUIP_AMULET, false);
 		case TV_CLOAK: return slot_by_type(player, EQUIP_CLOAK, false);
 		case TV_SHIELD: return slot_by_type(player, EQUIP_SHIELD, false);
 		case TV_GLOVES: return slot_by_type(player, EQUIP_GLOVES, false);
 		case TV_BOOTS: return slot_by_type(player, EQUIP_BOOTS, false);
+		case TV_BELT: return slot_by_type(player, EQUIP_BELT, false);
 	}
 
 	if (tval_is_melee_weapon(obj))
@@ -290,7 +292,7 @@ bool minus_ac(struct player *p)
 	for (i = 0; i < player->body.count; i++) {
 		/* Ignore non-armor */
 		if (slot_type_is(i, EQUIP_WEAPON)) continue;
-		if (slot_type_is(i, EQUIP_BOW)) continue;
+		if (slot_type_is(i, EQUIP_GUN)) continue;
 		if (slot_type_is(i, EQUIP_RING)) continue;
 		if (slot_type_is(i, EQUIP_AMULET)) continue;
 		if (slot_type_is(i, EQUIP_LIGHT)) continue;
@@ -303,7 +305,7 @@ bool minus_ac(struct player *p)
 	for (i = player->body.count - 1; i >= 0; i--) {
 		/* Ignore non-armor */
 		if (slot_type_is(i, EQUIP_WEAPON)) continue;
-		if (slot_type_is(i, EQUIP_BOW)) continue;
+		if (slot_type_is(i, EQUIP_GUN)) continue;
 		if (slot_type_is(i, EQUIP_RING)) continue;
 		if (slot_type_is(i, EQUIP_AMULET)) continue;
 		if (slot_type_is(i, EQUIP_LIGHT)) continue;
@@ -552,6 +554,15 @@ static int quiver_absorb_num(const struct object *obj)
  */
 int inven_carry_num(const struct object *obj, bool stack)
 {
+	/* Reduce the number we can absorb if too heavy */
+	int items = obj->number;
+	int maxweight = weight_limit(&player->state) * BURDEN_LIMIT;
+	while (player->upkeep->total_weight + (items * obj->weight) > maxweight) {
+		items--;
+		if (items == 0)
+			return 0;
+	}
+
 	/* Check for similarity */
 	if (stack) {
 		struct object *gear_obj;
@@ -571,12 +582,12 @@ int inven_carry_num(const struct object *obj, bool stack)
 
 	/* Free inventory slots, so there is definitely room */
 	if (pack_slots_used(player) < z_info->pack_size) {
-		return obj->number;
+		return items;
 	} else {
 		int i;
 
 		/* Absorb as many as we can in the quiver */
-		int num_left = obj->number - quiver_absorb_num(obj);
+		int num_left = items - quiver_absorb_num(obj);
 
 		/* See if we can add to a part full inventory slot */
 		for (i = 0; i < z_info->pack_size; i++) {
@@ -586,8 +597,7 @@ int inven_carry_num(const struct object *obj, bool stack)
 			}
 		}
 
-		/* Return the number we can absorb */
-		return obj->number - MAX(num_left, 0);
+		return items - MAX(num_left, 0);
 	}
 }
 
@@ -605,7 +615,7 @@ bool inven_carry_okay(const struct object *obj)
  */
 void inven_item_charges(struct object *obj)
 {
-	/* Require staff/wand */
+	/* Require device/wand */
 	if (tval_can_have_charges(obj) && object_flavor_is_aware(obj)) {
 		msg("You have %d charge%s remaining.",
 				obj->pval,
@@ -684,7 +694,7 @@ void inven_carry(struct player *p, struct object *obj, bool absorb,
 		p->upkeep->total_weight += (obj->number * obj->weight);
 		p->upkeep->notice |= (PN_COMBINE);
 
-		/* Hobbits ID mushrooms on pickup, gnomes ID wands and staffs on pickup */
+		/* Hobbits ID mushrooms on pickup, gnomes ID wands and devices on pickup */
 		if (!object_flavor_is_aware(obj)) {
 			if (player_has(player, PF_KNOW_MUSHROOM) && tval_is_mushroom(obj)) {
 				object_flavor_aware(obj);
@@ -706,13 +716,16 @@ void inven_carry(struct player *p, struct object *obj, bool absorb,
 
 	if (object_is_in_quiver(p, obj))
 		sound(MSG_QUIVER);
+
+	/* Handle quests for objects */
+	quest_item_check(obj);
 }
 
 
 /**
  * Wield or wear a single item from the pack or floor
  */
-void inven_wield(struct object *obj, int slot)
+void do_inven_wield(struct object *obj, int slot, bool verbose, bool overflow)
 {
 	struct object *wielded, *old = player->body.slots[slot].obj;
 
@@ -762,9 +775,9 @@ void inven_wield(struct object *obj, int slot)
 
 	/* Where is the item now */
 	if (tval_is_melee_weapon(wielded))
-		fmt = "You are wielding %s (%c).";
-	else if (wielded->tval == TV_BOW)
-		fmt = "You are shooting with %s (%c).";
+		fmt = "You are holding %s (%c).";
+	else if (wielded->tval == TV_GUN)
+		fmt = "You are firing %s (%c).";
 	else if (tval_is_light(wielded))
 		fmt = "Your light source is %s (%c).";
 	else
@@ -774,32 +787,48 @@ void inven_wield(struct object *obj, int slot)
 	object_desc(o_name, sizeof(o_name), wielded, ODESC_PREFIX | ODESC_FULL);
 
 	/* Message */
-	msgt(MSG_WIELD, fmt, o_name, I2A(slot));
+	if (verbose)
+		msgt(MSG_WIELD, fmt, o_name, I2A(slot));
 
-	/* Sticky flag geats a special mention */
-	if (of_has(wielded->flags, OF_STICKY)) {
+	/* Sticky flag gets a special mention */
+	if (!obj_can_takeoff(obj)) {
 		/* Warn the player */
-		msgt(MSG_CURSED, "Oops! It feels deathly cold!");
+		msgt(MSG_FAULTY, "Oops! It sticks to you like a magnet!");
+	}
+
+	/* Lights which cannot be recharged: reduce by 1
+	 * to start the count
+	 **/
+	if (tval_is_light(wielded)) {
+		if (of_has(wielded->flags, OF_BURNS_OUT)) {
+			if (wielded->timeout == randcalc(wielded->kind->pval, 0, AVERAGE)) {
+				wielded->timeout--;
+			}
+		}
 	}
 
 	/* See if we have to overflow the pack */
 	combine_pack();
-	pack_overflow(old);
+	if (overflow)
+		pack_overflow(old);
 
 	/* Recalculate bonuses, torch, mana, gear */
 	player->upkeep->notice |= (PN_IGNORE);
 	player->upkeep->update |= (PU_BONUS | PU_INVEN | PU_UPDATE_VIEW);
 	player->upkeep->redraw |= (PR_INVEN | PR_EQUIP | PR_ARMOR);
-	player->upkeep->redraw |= (PR_STATS | PR_HP | PR_MANA | PR_SPEED);
+	player->upkeep->redraw |= (PR_STATS | PR_HP | PR_SPEED);
 	update_stuff(player);
 
 	/* Disable repeats */
 	cmd_disable_repeat();
 }
 
+void inven_wield(struct object *obj, int slot) {
+	do_inven_wield(obj, slot, true, true);
+}
 
 /**
- * Take off a non-cursed equipment item
+ * Take off a non-faulty equipment item
  *
  * Note that taking off an item when "full" may cause that item
  * to fall to the ground.
@@ -807,7 +836,7 @@ void inven_wield(struct object *obj, int slot)
  * Note also that this function does not try to combine the taken off item
  * with other inventory items - that must be done by the calling function.
  */
-void inven_takeoff(struct object *obj)
+void do_inven_takeoff(struct object *obj, bool verbose, bool overflow)
 {
 	int slot = equipped_item_slot(player->body, obj);
 	const char *act;
@@ -822,7 +851,7 @@ void inven_takeoff(struct object *obj)
 	/* Describe removal by slot */
 	if (slot_type_is(slot, EQUIP_WEAPON))
 		act = "You were wielding";
-	else if (slot_type_is(slot, EQUIP_BOW))
+	else if (slot_type_is(slot, EQUIP_GUN))
 		act = "You were holding";
 	else if (slot_type_is(slot, EQUIP_LIGHT))
 		act = "You were holding";
@@ -838,14 +867,19 @@ void inven_takeoff(struct object *obj)
 	update_stuff(player);
 
 	/* Message */
-	msgt(MSG_WIELD, "%s %s (%c).", act, o_name, gear_to_label(obj));
+	if (verbose)
+		msgt(MSG_WIELD, "%s %s (%c).", act, o_name, gear_to_label(obj));
 
 	return;
 }
 
+void inven_takeoff(struct object *obj)
+{
+	do_inven_takeoff(obj, true, true);
+}
 
 /**
- * Drop (some of) a non-cursed inventory/equipment item "near" the current
+ * Drop (some of) a non-faulty inventory/equipment item "near" the current
  * location
  *
  * There are two cases here - a single object or entire stack is being dropped,

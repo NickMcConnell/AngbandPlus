@@ -522,6 +522,22 @@ void my_strcap(char *buf)
 		buf[0] = toupper((unsigned char) buf[0]);
 }
 
+/**
+ * Capitalise the first letter of string 'str', lower case the rest.
+ */
+void titlecase(char *buf)
+{
+	if (buf) {
+		buf[0] = toupper((unsigned char) buf[0]);
+		if (buf[0]) {
+			do {
+				buf++;
+				*buf = tolower(*buf);
+			} while (*buf);
+		}
+	}
+}
+
 
 /**
  * Determine if string "a" is equal to string "b"

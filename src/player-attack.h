@@ -25,6 +25,7 @@ struct player;
 
 struct attack_result {
     bool success;
+    bool breaks;
     int dmg;
     u32b msg_type;
     char *hit_verb;

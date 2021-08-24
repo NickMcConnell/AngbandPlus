@@ -489,55 +489,153 @@ int count_chests(struct loc *grid, enum chest_query check_type)
 	return count;
 }
 
+/* Theme functions: create an object. Can return NULL, in which case it will be retried. */
+
+/* Lights theme: mostly lights, some batteries. Maybe other light related items */
+static struct object *theme_lights(int depth, bool good, bool great)
+{
+	return make_object(cave, depth, good, great, false, NULL, 0); //FIXME
+}
+
+/* Generic theme - random selection */
+static struct object *theme_generic(int depth, bool good, bool great)
+{
+	return make_object(cave, depth, good, great, false, NULL, 0);
+}
+
+struct chest_theme {
+	struct object *(* fn)(int, bool, bool);
+	int rarity;
+	int level;
+	int minlevel;
+	int maxlevel;
+	int change;
+};
+
+/* Move some of this to an ext file? */
+static const struct chest_theme chest_theme[] = {
+	{ theme_lights,		5,	10,	0,	40,		0 },
+	{ theme_generic,	3,	1,	0,	100,	30 },
+};
+
+/* Repeatedly select an entry at random, check rarity/level/min and max level */
+const struct chest_theme *select_theme(int level)
+{
+	const struct chest_theme *theme = NULL;
+
+	/* This should prevent chances dropping to 0, so ensuring the loop exits */
+	if (level < 1)
+		level = 1;
+	if (level > 99)
+		level = 99;
+
+	do {
+		theme = chest_theme + randint0(sizeof(chest_theme) / sizeof(*chest_theme));
+		/* Check min, max levels and rarity */
+		if (theme->minlevel > level)
+			continue;
+		if (theme->maxlevel < level)
+			continue;
+		if ((theme->rarity > 1) && (!one_in_(theme->rarity)))
+			continue;
+		/* Check level.
+		 * This check will always pass on its native level, and fall off towards min and max
+		 * level, linearly.
+		 */
+		if ((theme->level > level) && (rand_range(theme->minlevel, theme->level) > level))
+			continue;
+		if ((theme->level < level) && (rand_range(theme->level, theme->maxlevel) < level))
+			continue;
+	} while (!theme);
+	return theme;
+}
 
 /**
  * Allocate objects upon opening a chest
  *
  * Disperse treasures from the given chest, centered at (x,y).
  *
- * Wooden chests contain 1 item, Iron chests contain 2 items,
- * and Steel chests contain 3 items.  Small chests now contain good items,
- * large chests great items, out of depth for the level on which the chest
- * is generated.
- *
- * Judgment of size and construction of chests is currently made from the name.
+ * Whether the items are good and/or great is dependent on the level the container
+ * was generated at. The depth at which the items are generated depends on the
+ * level generated at, the container type and whether the chest is good or great.
+ * The number of items created also depends (with wide randomization) on this item
+ * generation depth.
  */
 static void chest_death(struct loc grid, struct object *chest)
 {
-	int number, level;
-	bool large = strstr(chest->kind->name, "Large") ? true : false;;
-
 	/* Zero pval means empty chest */
 	if (!chest->pval)
 		return;
 
+	/* Maximum weight of contents */
+	int weight = (chest->kind->weight * 2) / 3;
+
+	/* Select good/great:
+	 * 1/4 are good at level 0, all at level 15+
+	 * None are great until level 10. All are by level 60.
+	 * All chests - but especially good and great ones - at lower levels get a bonus to depth
+	 * to decrease the chances of getting junk.
+	 **/
+	bool good = (randint0(20) < chest->origin_depth + 5);
+	bool great = (good && (randint0(70) < chest->origin_depth - 10));
+	int depth = (chest->origin_depth + MAX(chest->origin_depth, chest->kind->level)) / 2;
+	if (great && depth < 40)
+		depth += (40-depth) / 5;
+	else if (good && depth < 25)
+		depth += (25-depth) / 5;
+	else if (depth < 15)
+		depth += (15-depth) / 5;
+
 	/* Determine how much to drop (see above) */
-	if (strstr(chest->kind->name, "wooden")) {
-		number = 1;
-	} else if (strstr(chest->kind->name, "iron")) {
-		number = 2;
-	} else if (strstr(chest->kind->name, "steel")) {
-		number = 3;
-	} else {
-		number = randint1(3);
-	}
+	int number = Rand_normal(depth + 20, depth * 2) / 20;
+	if (number < 1)
+		number = 1 - number;
+	while (one_in_(number+1))
+		number++;
+
+	/* Select the first theme. */
+	const struct chest_theme *theme = select_theme(depth);
 
 	/* Drop some valuable objects (non-chests) */
-	level = chest->origin_depth + 5;
+	int totalweight = 0;
 	while (number > 0) {
+		int reps = 1e5; /* Paranoia - shouldn't be needed unless the theme fn is ridiculously fussy */
 		struct object *treasure;
-		treasure = make_object(cave, level, true, large, false, NULL, 0);
+		do {
+			treasure = theme->fn(depth, good, great);
+			reps--;
+		} while ((!treasure) && (reps > 0));
+
+		/* Just in case the theme fn can't find an item: make a random object */
+		if (!treasure)
+			treasure = make_object(cave, depth, good, great, false, NULL, 0);
+
 		if (!treasure)
 			continue;
+
 		if (tval_is_chest(treasure)) {
 			object_delete(&treasure);
 			continue;
 		}
 
+		/* Ensure total weight of treasure is some way below the weight of the treasure plus container.
+		 * This is only for realism - it shouldn't be expected to limit contents, given that there are
+		 * some useful 1-gram objects.
+		 **/
+		if (treasure->weight + totalweight > weight) {
+			object_delete(&treasure);
+			continue;
+		}
+
+		totalweight += treasure->weight;
 		treasure->origin = ORIGIN_CHEST;
 		treasure->origin_depth = chest->origin_depth;
 		drop_near(cave, &treasure, 0, grid, true, false);
 		number--;
+		
+		/* Now select another theme, sometimes */
+		if (randint0(100) < theme->change)
+			theme = select_theme(depth);
 	}
 
 	/* Chest is now empty */

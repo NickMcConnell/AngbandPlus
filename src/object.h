@@ -5,11 +5,11 @@
 #ifndef INCLUDED_OBJECT_H
 #define INCLUDED_OBJECT_H
 
+#include "obj-properties.h"
 #include "z-type.h"
 #include "z-quark.h"
 #include "z-bitflag.h"
 #include "z-dice.h"
-#include "obj-properties.h"
 
 
 /*** Game constants ***/
@@ -19,7 +19,7 @@
  */
 enum
 {
-	#define ELEM(a) ELEM_##a,
+	#define ELEM(a, ...) ELEM_##a,
 	#include "list-elements.h"
 	#undef ELEM
 
@@ -45,6 +45,17 @@ enum {
 
 
 /*** Structures ***/
+
+/**
+ * Information about class magic knowledge
+ */
+struct class_magic {
+	struct class_book *books;	/**< Details of spellbooks */
+	int spell_first;			/**< Level of first spell */
+	int spell_weight;			/**< Max armor weight to avoid mana penalties */
+	int num_books;				/**< Number of spellbooks */
+	int total_spells;			/**< Number of spells for this class */
+};
 
 /**
  * Effect
@@ -109,10 +120,10 @@ struct slay {
 };
 
 /**
- * Curse type
+ * Fault type
  */
-struct curse {
-	struct curse *next;
+struct fault {
+	struct fault *next;
 	char *name;
 	bool *poss;
 	struct object *obj;
@@ -172,6 +183,17 @@ struct object_base {
 };
 
 extern struct object_base *kb_info;
+#define MATERIAL(T, N, D, C) MAT_##T,
+enum {
+#include "list-materials.h"
+};
+#undef MATERIAL
+
+struct object_material {
+	char *name;
+	int density;
+	int cost;
+};
 
 /**
  * Information about object kinds, including player knowledge.
@@ -200,7 +222,7 @@ struct object_kind {
 
 	int dd;					/**< Damage dice */
 	int ds;					/**< Damage sides */
-	int weight;				/**< Weight, in 1/10lbs */
+	s32b weight;				/**< Weight, in grams */
 
 	int cost;					/**< Object base cost */
 
@@ -212,7 +234,7 @@ struct object_kind {
 
 	bool *brands;
 	bool *slays;
-	int *curses;			/**< Array of curse powers */
+	int *faults;			/**< Array of fault powers */
 
 	byte d_attr;			/**< Default object attribute */
 	wchar_t d_char;			/**< Default object character */
@@ -228,12 +250,14 @@ struct object_kind {
 	char *effect_msg;
 	char *vis_msg;
 	random_value time;		/**< Recharge time (rods/activation) */
-	random_value charge;	/**< Number of charges (staves/wands) */
+	random_value charge;	/**< Number of charges (devices/wands) */
 
 	int gen_mult_prob;		/**< Probability of generating more than one */
 	random_value stack_size;/**< Number to generate */
 
 	struct flavor *flavor;	/**< Special object flavor (or zero) */
+
+	struct class_magic magic;		/**< Intrinsic abilities */
 
 	/** Also saved in savefile **/
 
@@ -245,13 +269,14 @@ struct object_kind {
 
 	byte ignore;  	/**< Ignore settings */
 	bool everseen; 	/**< Kind has been seen (to despoilify ignore menus) */
+	byte material;	/** Material */
 };
 
 extern struct object_kind *k_info;
 extern struct object_kind *unknown_item_kind;
 extern struct object_kind *unknown_gold_kind;
 extern struct object_kind *pile_kind;
-extern struct object_kind *curse_object_kind;
+extern struct object_kind *fault_object_kind;
 
 /**
  * Information about artifacts.
@@ -280,7 +305,7 @@ struct artifact {
 	int dd;		/**< Base damage dice */
 	int ds;		/**< Base damage sides */
 
-	int weight;	/**< Weight in 1/10lbs */
+	s32b weight;	/**< Weight in grams */
 
 	int cost;		/**< Artifact (pseudo-)worth */
 
@@ -291,7 +316,7 @@ struct artifact {
 
 	bool *brands;
 	bool *slays;
-	int *curses;		/**< Array of curse powers */
+	int *faults;		/**< Array of fault powers */
 
 	int level;			/** Difficulty level for activation */
 
@@ -305,6 +330,8 @@ struct artifact {
 
 	struct activation *activation;	/**< Artifact activation */
 	char *alt_msg;
+
+	struct class_magic magic;	/**< Intrinsic abilities */
 
 	random_value time;	/**< Recharge time (if appropriate) */
 };
@@ -334,7 +361,7 @@ struct ego_item {
 
 	u32b eidx;
 
-	int cost;						/* Ego-item "cost" */
+	int cost;						/**< Ego-item "cost" */
 
 	bitflag flags[OF_SIZE];			/**< Flags */
 	bitflag flags_off[OF_SIZE];		/**< Flags to remove */
@@ -346,9 +373,9 @@ struct ego_item {
 
 	bool *brands;
 	bool *slays;
-	int *curses;			/**< Array of curse powers */
+	int *faults;			/**< Array of fault powers */
 
-	int rating;			/* Level rating boost */
+	int rating;				/**< Level rating boost */
 	int alloc_prob; 		/** Chance of being generated (i.e. rarity) */
 	int alloc_min;			/** Minimum depth (can appear earlier) */
 	int alloc_max;			/** Maximum depth (will NEVER appear deeper) */
@@ -358,6 +385,8 @@ struct ego_item {
 	random_value to_h;		/* Extra to-hit bonus */
 	random_value to_d;		/* Extra to-dam bonus */
 	random_value to_a;		/* Extra to-ac bonus */
+	random_value pval;		/* Replacement pval */
+	random_value weight;	/* % multiplier to weight */
 
 	int min_to_h;			/* Minimum to-hit value */
 	int min_to_d;			/* Minimum to-dam value */
@@ -366,6 +395,8 @@ struct ego_item {
 	struct effect *effect;	/**< Effect this item produces (effects.c) */
 	char *effect_msg;
 	random_value time;		/**< Recharge time (rods/activation) */
+
+	struct class_magic magic;	/**< Intrinsic abilities */
 
 	bool everseen;			/* Do not spoil ignore menus */
 };
@@ -385,7 +416,7 @@ enum {
 	OBJ_NOTICE_IMAGINED = 0x08,
 };
 
-struct curse_data {
+struct fault_data {
 	int power;
 	int timeout;
 };
@@ -425,30 +456,33 @@ struct object {
 	struct object *next;	/**< Next object in a pile */
 	struct object *known;	/**< Known version of this object */
 
-	u16b oidx;				/**< Item list index, if any */
-
 	struct loc grid;		/**< position on map, or (0, 0) */
-
+	
+	u16b oidx;				/**< Item list index, if any */
 	byte tval;				/**< Item type (from kind) */
 	byte sval;				/**< Item sub-type (from kind) */
 
+	s32b weight;			/**< Item weight, grams */
+
 	s16b pval;				/**< Item extra-parameter */
-
-	s16b weight;			/**< Item weight */
-
 	byte dd;				/**< Number of damage dice */
 	byte ds;				/**< Number of sides on each damage die */
+	
 	s16b ac;				/**< Normal AC */
 	s16b to_a;				/**< Plusses to AC */
+	
 	s16b to_h;				/**< Plusses to hit */
 	s16b to_d;				/**< Plusses to damage */
+
+	s16b held_m_idx;		/**< Monster holding us (if any) */
+	s16b mimicking_m_idx;	/**< Monster mimicking us (if any) */
 
 	bitflag flags[OF_SIZE];	/**< Object flags */
 	s16b modifiers[OBJ_MOD_MAX];	/**< Object modifiers*/
 	struct element_info el_info[ELEM_MAX];	/**< Object element info */
 	bool *brands;			/**< Array of brand structures */
 	bool *slays;			/**< Array of slay structures */
-	struct curse_data *curses;	/**< Array of curse powers and timeouts */
+	struct fault_data *faults;	/**< Array of fault powers and timeouts */
 
 	struct effect *effect;	/**< Effect this item produces (effects.c) */
 	char *effect_msg;		/**< Message on use */
@@ -458,9 +492,6 @@ struct object {
 
 	byte number;			/**< Number of items */
 	bitflag notice;			/**< Attention paid to the object */
-
-	s16b held_m_idx;		/**< Monster holding us (if any) */
-	s16b mimicking_m_idx;	/**< Monster mimicking us (if any) */
 
 	byte origin;			/**< How this item was found */
 	byte origin_depth;		/**< What depth the item was found at */
@@ -496,7 +527,7 @@ static struct object const OBJECT_NULL = {
 	.el_info = { { 0, 0 } },
 	.brands = NULL,
 	.slays = NULL,
-	.curses = NULL,
+	.faults = NULL,
 	.effect = NULL,
 	.effect_msg = NULL,
 	.activation = NULL,

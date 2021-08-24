@@ -20,6 +20,7 @@
 #define GAME_WORLD_H
 
 #include "cave.h"
+#include "z-rand.h"
 
 struct level {
 	int depth;
@@ -27,6 +28,13 @@ struct level {
 	char *up;
 	char *down;
 	struct level *next;
+};
+
+struct dungeon {
+	random_value min;
+	random_value max;
+	char *name;
+	struct dungeon *next;
 };
 
 extern u16b daycount;
@@ -39,6 +47,7 @@ extern const byte extract_energy[200];
 extern struct level *world;
 
 struct level *level_by_name(char *name);
+void increase_danger_level(void);
 struct level *level_by_depth(int depth);
 bool is_daytime(void);
 int turn_energy(int speed);
@@ -47,5 +56,7 @@ void process_world(struct chunk *c);
 void on_new_level(void);
 void process_player(void);
 void run_game_loop(void);
+char *format_time(int turns);
+char *format_duration(int turns);
 
 #endif /* !GAME_WORLD_H */

@@ -110,16 +110,16 @@ info:0:5
 confused-msg:bangs into a door
 desc:Doors may be locked; getting through them may not be easy.  Your 
 desc:disarming skill makes all the difference to your ability to handle locks, 
-desc:but you can also take a pickaxe to them, or blast them open 
-desc:with magic.  Monsters are also slowed down by doors; you can earn yourself 
-desc:valuable time by locking them.
+desc:but you can also take a pickaxe to them, or blast them open.
+desc:Monsters are also slowed down by doors; you can earn yourself valuable
+desc:time by locking them.
 
 name:open door
 graphics:':U
 priority:15
 flags:LOS | PROJECT | PASSABLE | DOOR_ANY | INTERESTING | CLOSABLE | EASY
 look-in-preposition:in
-desc:A door that is already open.  Player, monster, spell and missile can pass 
+desc:A door that is already open.  Player, monsters, and missiles can pass 
 desc:through as long as it stays open.
 
 name:broken door
@@ -143,6 +143,20 @@ flags:LOS | PROJECT | PASSABLE | PERMANENT | INTERESTING | STAIR | DOWNSTAIR
 flags:EASY | TORCH
 desc:A staircase down to a deeper part of the dungeon.
 
+name:upward exit
+graphics:<:i
+priority:25
+flags:LOS | PROJECT | PASSABLE | PERMANENT | INTERESTING | STAIR | UPSTAIR
+flags:EASY | TORCH
+desc:A path up, back to the town.
+
+name:downward entry
+graphics:>:i
+priority:25
+flags:LOS | PROJECT | PASSABLE | PERMANENT | INTERESTING | STAIR | DOWNSTAIR
+flags:EASY | TORCH
+desc:A way down into the darkness.
+
 name:General Store
 graphics:1:U
 priority:20
@@ -150,7 +164,8 @@ flags:SHOP | PROJECT | PASSABLE | PERMANENT | INTERESTING | EASY
 info:1:0
 look-prefix:the entrance to the
 look-in-preposition:at
-desc:The General Store sells food, ammunition and lighting supplies.
+desc:The General Store sells food, ammunition, lights, digging tools and
+desc:other basic supplies.
 
 name:Armoury
 graphics:2:s
@@ -172,24 +187,24 @@ look-in-preposition:at
 desc:Weapons for hitting and shooting your enemies are forged in the hot, acrid 
 desc:backroom of this enticing shop.
 
-name:Bookseller
+name:Electronics
 graphics:4:g
 priority:20
 flags:SHOP | PROJECT | PASSABLE | PERMANENT | INTERESTING | EASY
 info:4:0
 look-prefix:the entrance to the
 look-in-preposition:at
-desc:A quiet, reflective place of refuge, lined with shelves of 
-desc:mystical tomes.
+desc:A store mostly selling software on cards, although bulkier items do 
+desc:sometimes show up.
 
-name:Alchemy Shop
+name:Pharmacy
 graphics:5:b
 priority:20
 flags:SHOP | PROJECT | PASSABLE | PERMANENT | INTERESTING | EASY
 info:5:0
 look-prefix:the entrance to the
 look-in-preposition:at
-desc:A dim, scented room where potions and scrolls are traded.
+desc:A brightly lit white room with a display of medicines.
 
 name:Magic Shop
 graphics:6:r
@@ -217,8 +232,25 @@ flags:SHOP | PROJECT | PASSABLE | PERMANENT | INTERESTING | EASY
 info:8:0
 look-prefix:the entrance to the
 look-in-preposition:at
-desc:Your safe piece of Middle Earth, and the only place you can store goods 
-desc:apart from on your person.
+desc:The only place you can store goods apart from on your person.
+
+name:Field HQ
+graphics:9:g
+priority:20
+flags:SHOP | PROJECT | PASSABLE | PERMANENT | INTERESTING | EASY
+info:9:0
+look-prefix:the entrance to the
+look-in-preposition:at
+desc:Your base for the assault on Xygos.
+
+name:Airport
+graphics:*:B
+priority:20
+flags:SHOP | PROJECT | PASSABLE | PERMANENT | INTERESTING | EASY
+info:10:0
+look-prefix:the entrance to the
+look-in-preposition:at
+desc:A ticket office from which you can fly daily to other cities.
 
 name:secret door
 graphics:#:w
@@ -283,7 +315,7 @@ priority:10
 flags:WALL | ROCK | GRANITE | NO_SCENT | NO_FLOW | TORCH
 info:0:4
 confused-msg:bashes into a wall
-desc:A seam of hard rock.  It can be removed by digging or magic, and passed 
+desc:A seam of hard rock.  It can be removed by digging through it, and passed 
 desc:through by immaterial monsters.  It stops any spells, missiles or line of 
 desc:sight. 
 
@@ -297,6 +329,18 @@ desc:surrounded by these kinds of walls and some special rooms are made of them.
 
 ## New terrain
 
+name:fallout
+graphics:#:b
+priority:10
+flags:PROJECT | RADIOACTIVE | PASSABLE | BRIGHT
+look-prefix:some
+desc:Bare rock which glows an ominous blue, a signal of intense radioactivity.
+walk-msg:Really step on the radioactive ground?
+run-msg:Radioactive fallout blocks your path.  Step into it?
+hurt-msg:The radiation burns you!
+die-msg:radioactive fallout
+resist-flag:IM_RADIATION
+
 name:lava
 graphics:#:r
 priority:10
@@ -304,10 +348,22 @@ flags:PROJECT | FIERY | PASSABLE | NO_SCENT | BRIGHT
 look-prefix:some
 desc:A fiery pool of glowing lava.  Step in it at your peril!
 walk-msg:The lava will scald you!  Really step in? 
-run-msg:Lava blocks your path.  Step into it? 
+run-msg:Lava blocks your path. Step into it? 
 hurt-msg:The lava burns you!
 die-msg:burning to a cinder in lava
 resist-flag:IM_FIRE
+
+name:water
+graphics:~:Z
+priority:10
+flags:PROJECT | PASSABLE | NO_SCENT | WATER
+look-prefix:some
+desc:Water, too murky to easily tell how deep it is.
+walk-msg:You are too heavily loaded to swim easily. Really step in?
+run-msg:Water blocks your path. Swim across?
+hurt-msg:You are drowning!
+die-msg:drowning
+resist-flag:IM_WATER
 
 name:pile of passable rubble
 graphics:::u

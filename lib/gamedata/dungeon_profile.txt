@@ -132,6 +132,7 @@ room:room template:2:11:33:10:0:1:99
 room:room template:3:11:33:30:0:1:100
 
 # Normal rooms (rarity = 0)
+room:Shaped room:0:66:66:1:0:0:50
 room:simple room:0:11:33:1:0:0:100
 
 # Staircase rooms - rarity 99 to prevent random occurrence
@@ -155,7 +156,8 @@ room:monster pit:0:11:33:5:1:2:12
 room:monster nest:0:11:33:5:1:2:20
 room:Medium vault:0:22:33:30:0:2:40
 room:Lesser vault:0:22:33:20:0:2:60
-room:Interesting room:0:44:55:0:0:2:100
+room:Shaped room:0:66:66:1:0:2:66
+room:Interesting room:0:44:55:1:0:2:100
 
 # Normal moria-style rooms (rarity = 0)
 room:moria room:0:11:33:1:0:0:100
@@ -181,7 +183,8 @@ room:Lesser vault:0:22:33:20:0:2:60
 
 # Unusual rooms (rarity = 1)
 room:Interesting room:0:44:55:0:0:1:10
-room:large room:0:11:33:3:0:1:25
+room:Shaped room:0:66:66:1:0:1:20
+room:large room:0:11:33:3:0:1:30
 room:crossed room:0:11:33:3:0:1:40
 room:circular room:0:22:22:1:0:1:55
 room:overlap room:0:11:33:1:0:1:70
@@ -203,3 +206,9 @@ name:hard centre
 params:1:0:200:0
 min-level:50
 alloc:1
+
+## Quest
+name:quest
+params:1:1:1:2
+min-level:1
+alloc:-1

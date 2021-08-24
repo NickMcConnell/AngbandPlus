@@ -25,18 +25,23 @@
 #include "mon-make.h"
 #include "mon-move.h"
 #include "mon-util.h"
-#include "obj-curse.h"
+#include "obj-fault.h"
 #include "obj-desc.h"
 #include "obj-gear.h"
 #include "obj-knowledge.h"
+#include "obj-make.h"
+#include "obj-pile.h"
 #include "obj-tval.h"
 #include "obj-util.h"
+#include "player-ability.h"
 #include "player-calcs.h"
 #include "player-timed.h"
 #include "player-util.h"
 #include "source.h"
+#include "store.h"
 #include "target.h"
 #include "trap.h"
+#include "world.h"
 #include "z-queue.h"
 
 u16b daycount = 0;
@@ -106,13 +111,19 @@ struct level *level_by_name(char *name)
 
 /**
  * Find a level by its depth
+ * If it is the surface, or it matches your current town
  */
 struct level *level_by_depth(int depth)
 {
+	assert(player);
+	assert(player->town);
 	struct level *lev = world;
 	while (lev) {
 		if (lev->depth == depth) {
-			break;
+			if (lev->depth == 0)
+				break;
+			if ((player->town->downto) && (!streq(player->town->downto, lev->name)))
+				break;
 		}
 		lev = lev->next;
 	}
@@ -128,6 +139,45 @@ bool is_daytime(void)
 		return true;
 
 	return false;
+}
+
+/**
+ * Return, in a static buffer, a time (turns) given as HH:MM, 24-hour clock.
+ */
+static char *do_format_time(int turns, const char *fmt)
+{
+	static char buf[8];
+	int hh, mm;
+	/* There are 24*60 minutes, and 10L * z_info->day_length turns, in a day
+	 * and the first half of a day is daytime.
+	 */
+	turns %= (10L * z_info->day_length);
+	turns *= (24 * 60);
+	turns /= (10L * z_info->day_length);
+
+	/* Convert minutes to hours and minutes */
+	mm = turns % 60;
+	hh = turns / 60;
+	sprintf(buf, "%02d:%02d", hh, mm);
+	return buf;
+}
+
+/**
+ * Return, in a static buffer, the time of day (turns) given as HH:MM, 24-hour clock.
+ * The offset is so that the sun rises at 6am, not midnight.
+ */
+char *format_time(int turns)
+{
+	return do_format_time(turns + ((10L * z_info->day_length) / 4), "%02d:%02d");
+}
+
+/**
+ * Return, in a static buffer, a duration (turns) given as HH:MM, 24-hour clock.
+ * Unlike times of day, there is no offset and leading zeroes are suppressed.
+ */
+char *format_duration(int turns)
+{
+	return do_format_time(turns, "%d:%02d");
 }
 
 /**
@@ -219,8 +269,8 @@ static void recharge_objects(void)
 			/* Recharge the inventory */
 			discharged_stack =
 				(number_charging(obj) == obj->number) ? true : false;
+			/* Recharge items, and update if any items are recharged */
 
-			/* Recharge rods, and update if any rods are recharged */
 			if (tval_can_have_timeout(obj) && recharge_timeout(obj)) {
 				/* Entire stack is recharged */
 				if (obj->timeout == 0)
@@ -275,7 +325,7 @@ void play_ambient_sound(void)
 }
 
 /**
- * Helper for process_world -- decrement player->timed[] and curse effect fields
+ * Helper for process_world -- decrement player->timed[], fault effect and technique cooldown fields
  */
 static void decrease_timeouts(void)
 {
@@ -287,6 +337,11 @@ static void decrease_timeouts(void)
 		int decr = 1;
 		if (!player->timed[i])
 			continue;
+
+		/* If an unwanted effect and below 0, skip */
+		if (player->chp < 0)
+			if (timed_effects[TMD_MAX].flag_general & PG_NASTY)
+				continue;
 
 		/* Special cases */
 		switch (i) {
@@ -339,27 +394,43 @@ static void decrease_timeouts(void)
 		player_dec_timed(player, i, decr, false);
 	}
 
-	/* Curse effects always decrement by 1 */
+	/* Fault effects always decrement by 1 */
 	for (i = 0; i < player->body.count; i++) {
-		struct curse_data *curse = NULL;
+		struct fault_data *fault = NULL;
 		if (player->body.slots[i].obj == NULL) {
 			continue;
 		}
-		curse = player->body.slots[i].obj->curses;
-		if (curse) {
+		fault = player->body.slots[i].obj->faults;
+		if (fault) {
 			int j;
-			for (j = 0; j < z_info->curse_max; j++) {
-				if (curse[j].power) {
-					curse[j].timeout--;
-					if (!curse[j].timeout) {
-						struct curse *c = &curses[j];
-						if (do_curse_effect(j, player->body.slots[i].obj)) {
-							player_learn_curse(player, c);
+			for (j = 0; j < z_info->fault_max; j++) {
+				if (fault[j].power) {
+					fault[j].timeout--;
+					if (!fault[j].timeout) {
+						struct fault *c = &faults[j];
+						if (do_fault_effect(j, player->body.slots[i].obj)) {
+							player_learn_fault(player, c);
 						}
-						curse[j].timeout = randcalc(c->obj->time, 0, RANDOMISE);
+						fault[j].timeout = randcalc(c->obj->time, 0, RANDOMISE);
 					}
 				}
 			}
+		}
+	}
+
+	/* Check for abilities with random activation */
+	for(int i=0;i<PF_MAX;i++) {
+		if (ability[i] && player_has(player, i) && ability[i]->effect_randomly && one_in_(ability[i]->effect_randomly)) {
+			bool ident;
+			effect_do(ability[i]->effect, source_player(), NULL, &ident, true, 0, 0, 0, NULL);
+		}
+	}
+
+	/* Technique cooldowns */
+	if (player->cooldown) {
+		for(int i=0;i<total_spells;i++) {
+			if (player->cooldown[i] > 0)
+				player->cooldown[i]--;
 		}
 	}
 
@@ -536,6 +607,7 @@ static void update_scent(void)
  */
 void process_world(struct chunk *c)
 {
+	struct player *p = player;
 	int i, y, x;
 
 	/* Compact the monster list if we're approaching the limit */
@@ -554,7 +626,7 @@ void process_world(struct chunk *c)
 
 	/* Handle stores and sunshine */
 	if (!player->depth) {
-		/* Daybreak/Nighfall in town */
+		/* Daybreak/Nightfall in town */
 		if (!(turn % ((10L * z_info->day_length) / 2))) {
 			/* Check for dawn */
 			bool dawn = (!(turn % (10L * z_info->day_length)));
@@ -587,11 +659,97 @@ void process_world(struct chunk *c)
 		(void)pick_and_place_distant_monster(c, player, z_info->max_sight + 5,
 											 true, player->depth);
 
+	/*** Abilities and mutations */
+
+	/* Occasionally puke. CON helps reduce the chance, and it won't happen if you are paralyzed to ensure it doesn't
+	 * ever result in more than one turn of paralysis. It also won't happen if you are already weak with hunger.
+	 */
+	if (player_has(p, PF_PUKING) && one_in_((p->state.stat_ind[STAT_CON] + 3) * 100) &&
+		(p->timed[TMD_PARALYZED] == 0) && (p->timed[TMD_FOOD] > PY_FOOD_HUNGRY)) {
+		msg("You throw up!");
+		p->timed[TMD_PARALYZED] = 2;	// as it will be reduced by 1 later in process_world
+		p->timed[TMD_FOOD] = PY_FOOD_WEAK;
+	}
 	/*** Damage (or healing) over Time ***/
+
+	/* Take damage from radiation */
+	if (player->timed[TMD_RAD]) {
+		take_hit(player, 1, "radiation");
+		if (randint0(5000 + p->timed[TMD_RAD]) < p->timed[TMD_RAD]) {
+			int reduce = 0;
+			int maxreduce = 0;
+			/* So is this message, FIXME */
+			msg("Your radiation sickness is causing trouble...");
+
+			/* Do nasty things */
+			switch(randint0(10)) {
+				case 9:
+				/* Mutate */
+				if (mutate()) {
+					reduce = 5;
+					maxreduce = 400;
+					break;
+				}
+				/* fall through */
+				case 0:
+				case 1:
+				case 2:
+				/* Scramble stats */
+				player_inc_timed(p, TMD_SCRAMBLE, rand_range(10, 10+(p->timed[TMD_RAD] / 4)), true, true);
+				reduce = 2;
+				maxreduce = 50;
+				break;
+				case 3:
+				/* If it's powerful, drain CON or STR permanently */
+				player_stat_dec(p, randint0(2) ? STAT_CON : STAT_STR, (randint0(1000 + p->timed[TMD_RAD]) < (p->timed[TMD_RAD] - 200)));
+				reduce = 4;
+				maxreduce = 250;
+				/* fall through */
+				case 4:
+				case 5:
+				/* Drain a stat or two */
+				player_stat_dec(p, randint0(STAT_MAX), false);
+				reduce = 3;
+				maxreduce = 125;
+				break;
+				case 6:
+				/* Rarely drain exp permanently */
+				if (randint0(p->timed[TMD_RAD]) > 500) {
+					player_exp_lose(p, ((double)p->max_exp * (double)(randint1(MIN(100, (p->timed[TMD_RAD] / 10))))) / 10000.0, true);
+					reduce = 5;
+					maxreduce = 400;
+					break;
+				}
+				/* fall through */
+				case 7:
+				case 8:
+				/* Drain exp */
+				player_exp_lose(p, ((double)p->max_exp * (double)(randint1(MIN(100, (p->timed[TMD_RAD] / 10))))) / 1000.0, false);
+				reduce = 3;
+				maxreduce = 125;
+				break;
+			}
+
+			/* Be kind, rewind your radiation sickness to limit the amount of nasty you
+			 * get from one episode. Don't reduce it below 1, and do proportionally more
+			 * for milder cases (where the divisor has more effect than the subtraction)
+			 */
+			if (reduce) {
+				int newrad1 = (p->timed[TMD_RAD] / reduce) + 1;
+				int newrad2 = p->timed[TMD_RAD] - maxreduce;
+				p->timed[TMD_RAD] = MAX(newrad1, newrad2);
+			}
+		}
+	}
 
 	/* Take damage from poison */
 	if (player->timed[TMD_POISONED])
 		take_hit(player, 1, "poison");
+
+	/* Damage from being below 0 HP */
+	if (player->chp < 0) {
+		take_hit(player, 1, NULL);
+	}
 
 	/* Take damage from cuts, worse from serious cuts */
 	if (player->timed[TMD_CUT]) {
@@ -619,9 +777,11 @@ void process_world(struct chunk *c)
 	}
 
 	/* Timed healing */
-	if (player->timed[TMD_HEAL]) {
-		bool ident = false;
-		effect_simple(EF_HEAL_HP, source_player(), "30", 0, 0, 0, 0, 0, &ident);
+	if (player->chp >= 0) {
+		if (player->timed[TMD_HEAL]) {
+			bool ident = false;
+			effect_simple(EF_HEAL_HP, source_player(), "30", 0, 0, 0, 0, 0, &ident);
+		}
 	}
 
 	/* Effects of Black Breath */
@@ -660,6 +820,52 @@ void process_world(struct chunk *c)
 			/* Slow digestion takes less food */
 			if (player_of_has(player, OF_SLOW_DIGEST)) i /= 2;
 
+			/* Foraging helps if you are hungry - and if you are moving, occasionally you find food. */
+			if (player_has(player, PF_FORAGING)) {
+				if ((player->timed[TMD_FOOD] < PY_FOOD_HUNGRY)) {
+					i /= 2;
+					if (!player_is_resting(player)) {
+						int chance = player->timed[TMD_FOOD];
+						if (chance < PY_FOOD_FAINT)
+							chance = PY_FOOD_FAINT;
+						chance *= 300;
+						chance /= z_info->food_value;
+						if (one_in_(chance)) {
+							/* No mushrooms growing in lava, water */
+							if (square_isprojectable(cave, player->grid) &&
+								(!square_isfiery(cave, player->grid)) &&
+								(!square_iswater(cave, player->grid))) {
+								/* Food item or mushie, sometimes high level.
+								 * You are more likely to get food items rather than shrooms - and more likely
+								 * to get low level ones - when very low food
+								 **/
+								bool shroom = (randint0(PY_FOOD_HUNGRY * 3) < player->timed[TMD_FOOD]);
+								if (square_isradioactive(cave, player->grid))
+									shroom = true;
+								bool hilevel = (randint0(PY_FOOD_HUNGRY * 2) < player->timed[TMD_FOOD]);
+								int level = player->depth;
+								if (hilevel) {
+									level += player->lev + 25;
+								}
+								if (level > 100)
+									level = 100;
+								const char *fmsg;
+								
+								struct object *food = make_object(cave, level, false, false, false, NULL, shroom? TV_MUSHROOM : TV_FOOD);
+								if (food) {
+									if (shroom)
+										fmsg = "You spot a mushroom growing near your feet.";
+									else
+										fmsg = "You notice a cache of food hidden under a rock.";
+									msg(fmsg);
+									drop_near(cave, &food, 0, player->grid, false, true);
+								}
+							}
+						}
+					}
+				}
+			}
+
 			/* Minimal digestion */
 			if (i < 1) i = 1;
 
@@ -684,13 +890,21 @@ void process_world(struct chunk *c)
 	if (player_timed_grade_eq(player, TMD_FOOD, "Faint")) {
 		/* Faint occasionally */
 		if (!player->timed[TMD_PARALYZED] && one_in_(10)) {
-			/* Message */
-			msg("You faint from the lack of food.");
-			disturb(player);
+			if (player_has(player, PF_FORAGING)) {
+				/* Foraging helps you ignore it, but you should still get a warning.
+				 * Not too often though as it gets annoying.
+				 **/
+				if (one_in_(10))
+					msg("You momentarily feel faint from the lack of food.");
+			} else {
+				/* Message */
+				msg("You faint from the lack of food.");
+				disturb(player);
 
-			/* Faint (bypass free action) */
-			(void)player_inc_timed(player, TMD_PARALYZED, 1 + randint0(5),
-								   true, false);
+				/* Faint (bypass free action) */
+				(void)player_inc_timed(player, TMD_PARALYZED, 1 + randint0(5),
+									   true, false);
+			}
 		}
 	} else if (player_timed_grade_eq(player, TMD_FOOD, "Starving")) {
 		/* Calculate damage */
@@ -701,11 +915,8 @@ void process_world(struct chunk *c)
 	}
 
 	/* Regenerate Hit Points if needed */
-	if (player->chp < player->mhp)
+	if ((player->chp < player->mhp) && (player->chp >= 0))
 		player_regen_hp(player);
-
-	/* Regenerate or lose mana */
-	player_regen_mana(player);
 
 	/* Timeout various things */
 	decrease_timeouts();
@@ -951,11 +1162,44 @@ void process_player(void)
 	notice_stuff(player);
 }
 
+/** Handle timed danger.
+ * If the timie limit is active and sufficient time has passed,
+ * increase the danger level and mark stores for destruction.
+ **/
+void increase_danger_level(void)
+{
+	if (OPT(player,birth_time_limit)) {
+		int danger = 0;
+		int pturn = turn / 10;
+		if (pturn >= z_info->town_easy_turns) {
+			danger = 1 + ((pturn - z_info->town_easy_turns) / z_info->town_levelup_turns);
+		}
+		if (danger >= z_info->max_depth) {
+			danger = z_info->max_depth-1;
+		}
+		/* This assumes that player->danger can't be decreased */
+		if (danger != player->danger) {
+			assert(player->danger < danger);
+			while (player->danger < danger) {
+				player->danger++;
+				/* Effects of timed danger - destroy a store? */
+				for(int i=0;i<MAX_STORES;i++) {
+					if (player->danger == stores[i].max_danger)
+						stores[i].destroy = true;
+				}
+			}
+		}
+	}
+}
+
 /**
  * Housekeeping on arriving on a new level
  */
 void on_new_level(void)
 {
+	/* Handle timed danger */
+	increase_danger_level();
+
 	/* Arena levels are not really a level change */
 	if (!player->upkeep->arena_level) {
 		/* Play ambient sound on change of level. */
@@ -976,8 +1220,9 @@ void on_new_level(void)
 		player->max_lev = player->lev;
 
 	/* Track maximum dungeon level */
-	if (player->max_depth < player->depth)
-		player->max_depth = player->recall_depth = player->depth;
+	if (player->active_quest < 0)
+		if (player->max_depth < player->depth)
+			player->max_depth = player->recall_depth = player->depth;
 
 	/* Flush messages */
 	event_signal(EVENT_MESSAGE_FLUSH);
@@ -1000,7 +1245,7 @@ void on_new_level(void)
 	}
 
 	/* Announce (or repeat) the feeling */
-	if (player->depth)
+	if ((player->depth) && (player->active_quest < 0))
 		display_feeling(false);
 
 	/* Check the surroundings */

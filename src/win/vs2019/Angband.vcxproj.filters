@@ -1836,7 +1836,7 @@
     <Media Include="lib\sounds\plm_spell3.mp3">
       <Filter>Resource Files\sounds</Filter>
     </Media>
-    <Media Include="lib\sounds\plm_use_staff.mp3">
+    <Media Include="lib\sounds\plm_use_device.mp3">
       <Filter>Resource Files\sounds</Filter>
     </Media>
     <Media Include="lib\sounds\plm_wood_thud.mp3">

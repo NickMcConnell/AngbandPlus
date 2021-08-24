@@ -3,42 +3,59 @@
 # Syntax for this file:
 
 # store: store number : store name
-# owner: max purse : name			- as many or few as you like >1
-# turnover: turnover				- how many items the store turns over
-# slots: min : max					- number of 'normal' slots to keep stocked
-# normal: type name : item name		- for the normal stocking list
-# always: type name : ?item name	- for things to always stock
-# buy: type name					- base types the store will buy
-# buy-flag: flag : type name		- types to buy if the flag is present
+# owner: max purse : name					- as many or few as you like >1
+# turnover: turnover						- how many items the store turns over
+# slots: min : max							- number of 'normal' slots to keep stocked
+# size: max									- initial maximum number of items (defaults to store_inven_max constant)
+# normal: type name : item name : ?rarity	- for the normal stocking list
+# closed									- initially closed (stores are open by default)
+# always: type name : item name : ?rarity	- for things to always stock
+# buy: type name							- base types the store will buy
+# buy-flag: flag : type name				- types to buy if the flag is present
+# danger: min : max							- danger level at which the store is destroyed
+#
+# The rarities are random values (base + XdY + level-dependent), producing a chance in 10000 of the item
+# being present. A leading - applies only to the base, not the entire value, unlike typical random values.
+# (For example, an item with -1000+M2000 would give -1000 at level 0, 0 at level 63 and 1000 at level 127.
+# So it would not appear until you had reach a maximum dungeon level of 63 and then would increase, to a
+# maximum of 10% of the time at dungeon level 127.
 
 
-# General store
+# General ('convenience'?) store
 store:1:General Store
-owner:5000:Bilbo the Friendly (Hobbit)
-owner:10000:Rincewind the Chicken (Human)
-owner:20000:Snafu the Midget (Gnome)
-owner:30000:Lyar-el the Comely (Elf)
+owner:8:5000:Bilbo the Friendly (Hobbit)
+owner:10:10000:Rincewind the Chicken (Human)
+owner:12:20000:Snafu the Midget (Gnome)
+owner:15:30000:Lyar-el the Comely (Elf)
+owner:15:30000:Lyar-el the Comely (Elf)
+owner:15:30000:Lyar-el the Comely (Elf)
+owner:15:30000:Lyar-el the Comely (Elf)
+owner:0:0:-
 slots:0:4
 turnover:2
+danger:65:80
 always:cloak:Cloak
-always:food:Ration of Food
-always:light:Wooden Torch
-always:flask:Flask of Oil
-always:digger:Shovel
-always:digger:Pick
-always:shot:Iron Shot
-always:arrow:Arrow
-always:bolt:Bolt
+#always:food:Apple
+#always:digger:Shovel
+#always:digger:Pick
+normal:6mm ammo:6mm bullet
+#normal:9mm ammo:9mm bullet
+#normal:12mm ammo:12mm bullet
+#normal:light:disposable flashlight
+normal:boots:pair of high heels
+normal:boots:pair of flip flops
+normal:boots:pair of trainers
+normal:light:keyfob light
+normal:battery:alkaline battery
 normal:food:Pint of Fine Wine
 normal:food:Slime Mold
 normal:food:Flask of Whisky
-normal:food:Hard Biscuit
 normal:mushroom:Stoneskin
 normal:mushroom:Purging
 buy:light
 buy:food
 buy:mushroom
-buy:flask
+buy:battery
 buy:digger
 buy:cloak
 buy:shot
@@ -47,15 +64,21 @@ buy:arrow
 
 # Armoury
 store:2:Armoury
-owner:5000:Kon-Dar the Ugly (Half-Orc)
-owner:10000:Darg-Low the Grim (Human)
-owner:25000:Decado the Handsome (Dunadan)
-owner:30000:Mauglin the Grumpy (Dwarf)
+owner:8:5000:Kon-Dar the Ugly (Half-Orc)
+owner:10:10000:Darg-Low the Grim (Human)
+owner:12:25000:Decado the Handsome (Dunadan)
+owner:14:30000:Mauglin the Grumpy (Dwarf)
+owner:14:30000:Mauglin the Grumpy (Dwarf)
+owner:14:30000:Mauglin the Grumpy (Dwarf)
+owner:14:30000:Mauglin the Grumpy (Dwarf)
+owner:14:30000:Mauglin the Grumpy (Dwarf)
+owner:0:0:-
 slots:6:18
 turnover:9
-normal:boots:Pair of Leather Sandals
-normal:boots:Pair of Leather Boots
-normal:boots:Pair of Iron Shod Boots
+danger:72:90
+normal:boots:pair of combat boots
+normal:boots:pair of work boots
+normal:boots:pair of armored boots
 normal:helm:Hard Leather Cap
 normal:helm:Metal Cap
 normal:helm:Iron Helm
@@ -83,15 +106,23 @@ buy:dragon armor
 
 # Weaponsmith
 store:3:Weapon Smiths
-owner:5000:Ithyl-Mak the Beastly (Half-Troll)
-owner:10000:Arndal Beast-Slayer (Half-Elf)
-owner:25000:Tarl Beast-Master (Hobbit)
-owner:30000:Oglign Dragon-Slayer (Dwarf)
+owner:8:5000:Ithyl-Mak the Beastly (Half-Troll)
+owner:10:10000:Arndal Beast-Slayer (Half-Elf)
+owner:12:25000:Tarl Beast-Master (Hobbit)
+owner:14:30000:Oglign Dragon-Slayer (Dwarf)
+owner:14:30000:Oglign Dragon-Slayer (Dwarf)
+owner:14:30000:Oglign Dragon-Slayer (Dwarf)
+owner:14:30000:Oglign Dragon-Slayer (Dwarf)
+owner:14:30000:Oglign Dragon-Slayer (Dwarf)
+owner:14:30000:Oglign Dragon-Slayer (Dwarf)
+owner:14:30000:Oglign Dragon-Slayer (Dwarf)
+owner:0:0:-
 slots:3:14
 turnover:9
-normal:shot:Iron Shot
-normal:arrow:Arrow
-normal:bolt:Bolt
+danger:72:90
+normal:6mm ammo:6mm bullet
+normal:9mm ammo:9mm bullet
+normal:12mm ammo:12mm bullet
 normal:sword:Dagger
 normal:sword:Main Gauche
 normal:sword:Rapier
@@ -113,110 +144,177 @@ normal:polearm:Battle Axe
 normal:polearm:Lance
 normal:polearm:Lucerne Hammer
 normal:hafted:Whip
-normal:bow:Sling
-normal:bow:Short Bow
-normal:bow:Long Bow
-normal:bow:Light Crossbow
-buy:shot
-buy:bolt
-buy:arrow
-buy:bow
+normal:gun:6mm handgun
+normal:gun:6mm rifle
+normal:gun:9mm handgun
+normal:gun:9mm rifle
+normal:gun:12mm handgun
+normal:gun:12mm rifle
+buy:ammo_6
+buy:ammo_9
+buy:ammo_12
+buy:gun
 buy:digger
 buy:sword
 buy:polearm
 buy:hafted
 
 
-# Bookseller
-store:4:Bookseller
-owner:15000:Ludwig the Humble (Human)
-owner:20000:Gunnar the Paladin (Human)
-owner:25000:Delilah the Pure (Elf)
-owner:30000:Bosk the Wise (Dwarf)
+# Electronics Outlet
+store:4:Electronics
+owner:8:15000:Ludwig the Humble (Human)
+owner:10:20000:Gunnar the Paladin (Human)
+owner:12:25000:Delilah the Pure (Elf)
+owner:14:30000:Bosk the Wise (Dwarf)
+owner:14:30000:Bosk the Wise (Dwarf)
+owner:14:30000:Bosk the Wise (Dwarf)
+owner:14:30000:Bosk the Wise (Dwarf)
+owner:14:30000:Bosk the Wise (Dwarf)
+owner:14:30000:Bosk the Wise (Dwarf)
+owner:14:30000:Bosk the Wise (Dwarf)
+owner:0:0:-
 slots:0:2
-turnover:0
-always:prayer book
-always:magic book
-always:nature book
-always:shadow book
-buy:magic book
-buy:prayer book
-buy:nature book
-buy:shadow book
-
-# Alchemist
-store:5:Alchemy Shop
-owner:10000:Mauser the Chemist (Half-Elf)
-owner:10000:Wizzle the Chaotic (Hobbit)
-owner:15000:Ga-nat the Greedy (Gnome)
-owner:15000:Vella the Slender (Human)
-slots:6:10
 turnover:9
-always:scroll:Word of Recall
-always:scroll:Phase Door
-always:scroll:Remove Curse
-always:potion:Cure Light Wounds
-normal:scroll:Monster Confusion
-normal:scroll:Magic Mapping
-normal:scroll:Detect Invisible
-normal:scroll:Recharging
-normal:scroll:Remove Hunger
-normal:scroll:Blessing
-normal:scroll:Holy Chant
-normal:potion:Boldness
-normal:potion:Berserk Strength
-normal:potion:Resist Heat
-normal:potion:Resist Cold
-normal:potion:Restore Life Levels
-normal:potion:Neutralize Poison
-normal:potion:Cure Serious Wounds
-normal:potion:Cure Critical Wounds
-buy:scroll
-buy:potion
+danger:60:75
+always:card:Word of Recall
+always:card:blinking
+always:card:repair
+normal:card:Monster Confusion
+normal:card:Magic Mapping
+normal:card:Detect Invisible
+normal:card:Recharging
+normal:card:Blessing
+normal:card:Holy Chant
+buy:card
+buy:printer
+buy:block
+
+# Pharmacy
+store:5:Pharmacy
+owner:8:10000:Mauser the Chemist (Half-Elf)
+owner:10:10000:Wizzle the Chaotic (Hobbit)
+owner:12:15000:Ga-nat the Greedy (Gnome)
+owner:14:15000:Vella the Slender (Human)
+owner:14:15000:Vella the Slender (Human)
+owner:14:15000:Vella the Slender (Human)
+owner:14:15000:Vella the Slender (Human)
+owner:14:15000:Vella the Slender (Human)
+owner:14:15000:Vella the Slender (Human)
+owner:0:0:-
+slots:4:6
+turnover:2
+danger:70:90
+always:pill:curing
+normal:pill:Boldness
+normal:pill:Berserk Strength
+normal:pill:fireproofing
+normal:pill:polarizing
+normal:pill:Restore Life Levels
+normal:pill:Neutralize Poison
+normal:pill:extra-curing
+normal:pill:critical curing
+normal:pill:Resist Poison:200+M2500
+normal:pill:healing:M2000
+normal:pill:nutria:1500
+normal:pill:mega-healing:-500+M1000
+normal:pill:life:-900+M1000
+normal:wand:healing ray
+buy:pill
 
 # Magic-user's
 store:6:Magic Shop
-owner:15000:Ariel the Sorceress (Half-Elf)
-owner:20000:Buggerby the Great (Gnome)
-owner:25000:Inglorian the Mage (Human)
-owner:30000:Luthien Starshine (High-Elf)
+owner:8:15000:Ariel the Sorceress (Half-Elf)
+owner:10:20000:Buggerby the Great (Gnome)
+owner:12:25000:Inglorian the Mage (Human)
+owner:14:30000:Luthien Starshine (High-Elf)
+owner:14:30000:Luthien Starshine (High-Elf)
+owner:14:30000:Luthien Starshine (High-Elf)
+owner:14:30000:Luthien Starshine (High-Elf)
+owner:14:30000:Luthien Starshine (High-Elf)
+owner:14:30000:Luthien Starshine (High-Elf)
+owner:14:30000:Luthien Starshine (High-Elf)
+owner:0:0:-
 slots:4:14
 turnover:9
+danger:70:90
 normal:ring:Searching
 normal:ring:Feather Falling
 normal:ring:Protection
 normal:ring:Open Wounds
 normal:amulet:Slow Digestion
 normal:amulet:Resist Acid
-normal:wand:Light
-normal:wand:Slow Monster
-normal:wand:Confuse Monster
-normal:wand:Magic Missile
-normal:wand:Stinking Cloud
-normal:wand:Stone to Mud
-normal:staff:Teleportation
-normal:staff:Light
-normal:staff:Mapping
-normal:staff:Detect Invisible
-normal:staff:Detect Evil
-buy:magic book
+normal:wand:beamlight
+normal:wand:molasso ray
+normal:wand:pixilator
+normal:wand:mini-missile launcher
+normal:wand:cloudmaker
+normal:wand:mining rig
+normal:device:teleporter
+normal:device:Light
+normal:device:mapping
+normal:device:anti-stealth radar
+normal:device:Detect Evil
 buy:amulet
 buy:ring
-buy:staff
+buy:device
 buy:wand
 buy:rod
 
 # Black Market - no stock given but we still need slot/turnover info
 store:7:Black Market
-owner:15000:Lo-Hak the Awful (Half-Troll)
-owner:20000:Histor the Goblin (Kobold)
-owner:25000:Durwin the Shifty (Half-Orc)
-owner:30000:Drago the Fair (Elf)
+owner:8:15000:Lo-Hak the Awful (Half-Troll)
+owner:10:20000:Histor the Goblin (Kobold)
+owner:12:25000:Durwin the Shifty (Half-Orc)
+owner:14:30000:Drago the Fair (Elf)
+owner:12:25000:Durwin the Shifty (Half-Orc)
+owner:14:30000:Drago the Fair (Elf)
+owner:12:25000:Durwin the Shifty (Half-Orc)
+owner:14:30000:Drago the Fair (Elf)
+owner:12:25000:Durwin the Shifty (Half-Orc)
+owner:14:30000:Drago the Fair (Elf)
+owner:0:0:-
 slots:6:18
 turnover:9
+danger:85:95
 
 store:8:Home
-owner:0:Your home
-owner:0:Your home
-owner:0:Your home
-owner:0:Your home
+owner:0:0:Your home
+owner:0:0:Your home
+owner:0:0:Your home
+owner:0:0:Your home
+owner:0:0:Your home
+owner:0:0:Your home
+owner:0:0:Your home
+owner:0:0:Your home
+size:23
+danger:90:98
+
+store:9:Field HQ
+closed
+owner:0:0:Space Marines Field HQ
+owner:0:0:Space Marines Field HQ
+owner:0:0:Space Marines Field HQ
+owner:0:0:Space Marines Field HQ
+owner:0:0:Space Marines Field HQ
+owner:0:0:Space Marines Field HQ
+owner:0:0:Space Marines Field HQ
+owner:0:0:Space Marines Field HQ
+slots:6:18
+turnover:9
+danger:96:98
+
+store:10:Airport
+# Should not be longer   -V-    than this
+owner:0:0:ApocalAir
+owner:0:0:InterVault
+owner:0:0:Atomic Airlines
+owner:0:0:Titanium Dragon
+owner:0:0:Plannit
+owner:0:0:Travelator
+owner:0:0:Kerbalair
+owner:0:0:Orbit Express
+owner:0:0:Litefast
+owner:0:0:Mercury Rising
+owner:0:0:Starhopper
+owner:0:0:Bounce Air
+danger:99:99

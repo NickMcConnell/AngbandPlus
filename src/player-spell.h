@@ -18,26 +18,19 @@
 
 void player_spells_init(struct player *p);
 void player_spells_free(struct player *p);
-struct magic_realm *class_magic_realms(const struct player_class *c,
-									   int *count);
-const struct class_book *object_kind_to_book(const struct object_kind *kind);
-const struct class_book *player_object_to_book(struct player *p,
-											   const struct object *obj);
 const struct class_spell *spell_by_index(int index);
-int spell_collect_from_book(const struct object *obj, int **spells);
-int spell_book_count_spells(const struct object *obj,
-							bool (*tester)(int spell_index));
+int spell_book_count_spells(bool (*tester)(int spell_index));
 bool spell_okay_list(bool (*spell_test)(int spell_index), const int spells[],
 					 int n_spells);
 bool spell_okay_to_cast(int spell_index);
-bool spell_okay_to_study(int spell_index);
 bool spell_okay_to_browse(int spell_index);
 s16b spell_chance(int spell_index);
-void spell_learn(int spell_index);
 bool spell_cast(int spell_index, int dir, struct command *cmd);
+void combine_books(int *count, int *spells, int *maxidx, struct class_spell **spellps);
 
 extern void get_spell_info(int index, char *buf, size_t len);
 extern bool cast_spell(int tval, int index, int dir);
 extern bool spell_needs_aim(int spell_index);
 extern expression_base_value_f spell_value_base_by_name(const char *name);
-
+extern int spell_collect_from_book(int **spells);
+size_t append_random_value_string(char *buffer, size_t size, const random_value *rv);

@@ -48,6 +48,9 @@ enum
 	PF_MAX
 };
 
+#define player_hookz(X)			if (player->class->X) { player->class->X(); } if (player->race->X) { player->race->X(); } if (player->extension->X) { player->extension->X(); }
+#define player_hook(X, ...)		if (player->class->X) { player->class->X(__VA_ARGS__); } if (player->race->X) player->race->X(__VA_ARGS__); if (player->extension->X) player->extension->X(__VA_ARGS__);
+
 #define PF_SIZE                FLAG_SIZE(PF_MAX)
 
 #define pf_has(f, flag)        flag_has_dbg(f, PF_SIZE, flag, #f, #flag)
@@ -77,7 +80,7 @@ enum
  * Player constants
  */
 #define PY_MAX_EXP		99999999L	/* Maximum exp */
-#define PY_KNOW_LEVEL	30			/* Level to know all runes */
+#define PY_KNOW_LEVEL	30			/* Level to know all icons */
 #define PY_MAX_LEVEL	50			/* Maximum level */
 
 /**
@@ -120,11 +123,19 @@ enum {
 	SKILL_SEARCH,			/* Searching ability */
 	SKILL_STEALTH,			/* Stealth factor */
 	SKILL_TO_HIT_MELEE,		/* To hit (normal) */
-	SKILL_TO_HIT_BOW,		/* To hit (shooting) */
+	SKILL_TO_HIT_GUN,		/* To hit (shooting) */
 	SKILL_TO_HIT_THROW,		/* To hit (throwing) */
 	SKILL_DIGGING,			/* Digging */
 
 	SKILL_MAX
+};
+
+struct quest_location
+{
+	s32b town;					/* Town the quest is given from; can be none (-1) */
+	s32b store;					/* Store the quest is given from; can be STORE_NONE (-1) */
+	char *location;				/* Town or quest name */
+	char *storename;			/* In this town */
 };
 
 /**
@@ -133,12 +144,42 @@ enum {
 struct quest
 {
 	struct quest *next;
-	byte index;
 	char *name;
-	byte level;					/* Dungeon level */
 	struct monster_race *race;	/* Monster race */
-	int cur_num;				/* Number killed (unused) */
-	int max_num;				/* Number required (unused) */
+	byte index;
+	byte level;					/* Dungeon level */
+	u16b x;						/* Position of the entrance */
+	u16b y;
+	s16b entry_min;				/* Minimum questgiver-to-entrance distance */
+	s16b entry_max;				/* Maximum questgiver-to-entrance distance */
+	s16b entry_feature;			/* Nearby feature to the entrance */
+	u16b min_found;				/* The minimum number of items found to complete the quest */
+	u16b max_remaining;			/* The maximum number of items remaining to complete the quest */
+	s32b cur_num;				/* Number killed (unused) */
+	s32b max_num;				/* Number required (unused) */
+	s32b town;					/* Town the quest is given from; can be none (-1) */
+	s32b store;					/* Store the quest is given from; can be STORE_NONE (-1) */
+	struct quest_location *loc;	/* List of locations to start a quest from */
+	s32b quests;				/* Number of quests */
+	u32b flags;
+	char *target_item;			/* Item (or item class) considered a target of the quest */
+	char *intro;				/* Description given when you choose whether to take it */
+	char *desc;					/* Description given in a list of known quests */
+	char *succeed;				/* Message given on success */
+	char *failure;				/* Message given on failure */
+	char *unlock;				/* The name of a quest unlocked on success */
+};
+
+/**
+ * Quest flags
+ */
+enum {
+	QF_ACTIVE = 		0x01,
+	QF_SUCCEEDED = 		0x02,
+	QF_FAILED = 		0x04,
+	QF_UNREWARDED = 	0x08,
+	QF_ESSENTIAL =		0x10,
+	QF_LOCKED =			0x20
 };
 
 /**
@@ -163,29 +204,37 @@ struct player_body {
 	struct equip_slot *slots;
 };
 
+struct player_state;
+
 /**
  * Player race info
  */
 struct player_race {
 	struct player_race *next;
 	const char *name;
+	const char *desc;			/**< Description */
+
+	const char *exts;			/**< Extensions */
 
 	unsigned int ridx;
 
-	int r_mhp;		/**< Hit-dice modifier */
-	int r_exp;		/**< Experience factor */
+	int r_mhp;					/**< Hit-dice modifier */
+	int r_exp;					/**< Experience factor */
 
-	int b_age;		/**< Base age */
-	int m_age;		/**< Mod age */
+	int tp_base;				/** Talent points at birth */
+	int tp_max;					/** Talent points gained by max level */
 
-	int base_hgt;	/**< Base height */
-	int mod_hgt;	/**< Mod height */
-	int base_wgt;	/**< Base weight */
-	int mod_wgt;	/**< Mod weight */
+	int b_age;					/**< Base age */
+	int m_age;					/**< Mod age */
 
-	int infra;		/**< Infra-vision range */
+	int base_hgt;				/**< Base height */
+	int mod_hgt;				/**< Mod height */
+	int base_wgt;				/**< Base weight */
+	int mod_wgt;				/**< Mod weight */
 
-	int body;		/**< Race body */
+	int infra;					/**< Infra-vision range */
+
+	int body;					/**< Race body */
 
 	int r_adj[STAT_MAX];		/**< Stat bonuses */
 
@@ -194,9 +243,24 @@ struct player_race {
 	bitflag flags[OF_SIZE];		/**< Racial (object) flags */
 	bitflag pflags[PF_SIZE];	/**< Racial (player) flags */
 
+	bool extension;
+
 	struct history_chart *history;
 
+	struct start_item *start_items; /**< Starting inventory */
+
 	struct element_info el_info[ELEM_MAX]; /**< Resists */
+
+	struct class_magic magic;	/**< Intrinsic abilities */
+
+	void *state;				/**< Saved state */
+	void (*init)(void);			/**< Late-init hook */
+	void (*free)(void);			/**< Finish with character hook */
+	void (*levelup)(int, int);	/**< Levelup hook */
+	void (*building)(int, bool, bool *);/**< Building hook */
+	void (*loadsave)(bool);		/**< Load/save hook */
+	void (*calc)(struct player_state *);		/**< Bonus calc hook */
+	void (*death)(bool *);		/**< Death hook */
 };
 
 /**
@@ -228,6 +292,8 @@ struct player_shape {
 
 	struct effect *effect;	/**< Effect on taking this shape (effects.c) */
 
+	struct class_magic magic;	/**< Intrinsic abilities */
+
 	struct player_blow *blows;
 	int num_blows;
 };
@@ -241,21 +307,8 @@ struct start_item {
 	int sval;	/**< Object sub-type  */
 	int min;	/**< Minimum starting amount */
 	int max;	/**< Maximum starting amount */
-
+	struct ego_item *ego;		/** Ego to apply, or NULL */
 	struct start_item *next;
-};
-
-/**
- * Structure for magic realms
- */
-struct magic_realm {
-	struct magic_realm *next;
-	char *code;
-	char *name;
-	int stat;
-	char *verb;
-	char *spell_noun;
-	char *book_noun;
 };
 
 /**
@@ -266,37 +319,24 @@ struct class_spell {
 	char *text;
 
 	struct effect *effect;	/**< The spell's effect */
-	const struct magic_realm *realm;	/**< The magic realm of this spell */
 
 	int sidx;				/**< The index of this spell for this class */
 	int bidx;				/**< The index into the player's books array */
-	int slevel;				/**< Required level (to learn) */
-	int smana;				/**< Required mana (to cast) */
+	int slevel;				/**< Required level (to use) */
+	random_value hp;		/**< Required HP (to use) */
+	random_value turns;		/**< Cooldown */
 	int sfail;				/**< Base chance of failure */
 	int sexp;				/**< Encoded experience bonus */
+	int stat;				/**< Controlling stat */
 };
 
 /**
  * A structure to hold class-dependent information on spell books.
  */
 struct class_book {
-	int tval;							/**< Item type of the book */
-	int sval;							/**< Item sub-type for book */
-	bool dungeon;						/**< Whether this is a dungeon book */
-	int num_spells;						/**< Number of spells in this book */
-	const struct magic_realm *realm;	/**< The magic realm of this book */
+	char *name;					/**< Name of this book */
 	struct class_spell *spells;			/**< Spells in the book*/
-};
-
-/**
- * Information about class magic knowledge
- */
-struct class_magic {
-	int spell_first;			/**< Level of first spell */
-	int spell_weight;			/**< Max armor weight to avoid mana penalties */
-	int num_books;				/**< Number of spellbooks */
-	struct class_book *books;	/**< Details of spellbooks */
-	int total_spells;			/**< Number of spells for this class */
+	int num_spells;						/**< Number of spells in this book */
 };
 
 /**
@@ -305,9 +345,11 @@ struct class_magic {
 struct player_class {
 	struct player_class *next;
 	const char *name;
+	const char *desc;			/**< Description */
 	unsigned int cidx;
 
-	const char *title[10];		/**< Titles */
+	const char **title;			/**< Titles */
+	unsigned int titles;
 
 	int c_adj[STAT_MAX];		/**< Stat modifier */
 
@@ -316,6 +358,9 @@ struct player_class {
 
 	int c_mhp;					/**< Hit-dice adjustment */
 	int c_exp;					/**< Experience factor */
+
+	int tp_base;				/** Talent points at birth */
+	int tp_max;					/** Talent points gained by max level */
 
 	bitflag flags[OF_SIZE];		/**< (Object) flags */
 	bitflag pflags[PF_SIZE];	/**< (Player) flags */
@@ -326,7 +371,16 @@ struct player_class {
 
 	struct start_item *start_items; /**< Starting inventory */
 
-	struct class_magic magic;	/**< Magic spells */
+	struct class_magic magic;	/**< Intrinsic abilities */
+
+	void *state;				/**< Saved state */
+	void (*init)(void);			/**< Late-init hook */
+	void (*free)(void);			/**< Finish with character hook */
+	void (*levelup)(int, int);	/**< Levelup hook */
+	void (*building)(int, bool, bool *);/**< Building hook */
+	void (*loadsave)(bool);		/**< Load/save hook */
+	void (*calc)(struct player_state *);		/**< Bonus calc hook */
+	void (*death)(bool *);		/**< Death hook */
 };
 
 /**
@@ -334,12 +388,12 @@ struct player_class {
  */
 struct player_ability {
 	struct player_ability *next;
-	u16b index;			/* PF_*, OF_* or element index */
-	char *type;			/* Ability type */
-	char *name;			/* Ability name */
-	char *desc;			/* Ability description */
-	int group;			/* Ability group (set locally when viewing) */
-	int value;			/* Resistance value for elements */
+	u16b index;					/**< PF_*, OF_* or element index */
+	char *type;					/**< Ability type */
+	char *name;					/**< Ability name */
+	char *desc;					/**< Ability description */
+	int group;					/**< Ability group (set locally when viewing) */
+	int value;					/**< Resistance value for elements */
 };
 
 /**
@@ -430,8 +484,8 @@ struct player_state {
 	bool cumber_armor;	/**< Mana draining armor */
 
 	bitflag flags[OF_SIZE];					/**< Status flags from race and items */
-	bitflag pflags[PF_SIZE];				/**< Player intrinsic flags */
 	struct element_info el_info[ELEM_MAX];	/**< Resists from race and items */
+	bitflag pflags[PF_SIZE];				/**< Player intrinsic flags */
 };
 
 #define player_has(p, flag)       (pf_has(p->state.pflags, (flag)))
@@ -447,6 +501,8 @@ struct player_upkeep {
 	bool generate_level;	/* True if level needs regenerating */
 	bool only_partial;		/* True if only partial updates are needed */
 	bool dropping;			/* True if auto-drop is in progress */
+	bool flight_level;		/* True if reached this level through the airport */
+	char *last_level;		/* Last level name */
 
 	int energy_use;			/* Energy use this turn */
 	int new_spells;			/* Number of spells available */
@@ -501,23 +557,26 @@ struct player_upkeep {
  * which can be recomputed as needed.
  */
 struct player {
-	const struct player_race *race;
-	const struct player_class *class;
+	struct player_race *race;
+	struct player_race *extension;
+	struct player_class *class;
 
 	struct loc grid;/* Player location */
 
-	byte hitdie;	/* Hit dice (sides) */
+	u32b hitdie;	/* Hit dice (sides) */
 	byte expfact;	/* Experience factor */
 
 	s16b age;		/* Characters age */
 	s16b ht;		/* Height */
-	s16b wt;		/* Weight */
+	s32b wt;		/* Weight */
 
 	s32b au;		/* Current Gold */
 
+	struct town *town;	/* Current town */
 	s16b max_depth;	/* Max depth */
 	s16b recall_depth;	/* Recall depth */
 	s16b depth;		/* Cur depth */
+	s16b danger;	/* Additional danger level */
 
 	s16b max_lev;	/* Max level */
 	s16b lev;		/* Cur level */
@@ -530,9 +589,8 @@ struct player {
 	s16b chp;		/* Cur hit pts */
 	u16b chp_frac;	/* Cur hit frac (times 2^16) */
 
-	s16b msp;		/* Max mana pts */
-	s16b csp;		/* Cur mana pts */
-	u16b csp_frac;	/* Cur mana frac (times 2^16) */
+	u16b talent_points;			/* Current talent points */
+	byte talent_gain[PY_MAX_LEVEL];	/* TP to gain per level */
 
 	s16b stat_max[STAT_MAX];	/* Current "maximal" stat values */
 	s16b stat_cur[STAT_MAX];	/* Current "natural" stat values */
@@ -558,7 +616,10 @@ struct player {
 	char died_from[80];					/* Cause of death */
 	char *history;						/* Player history */
 	struct quest *quests;				/* Quest history */
+	s32b active_quest;					/* Currently active quest */
 	u16b total_winner;					/* Total winner */
+	s32b bm_faction;					/* Faction with the black market */
+	s32b town_faction;					/* and with the rest of town */
 
 	u16b noscore;				/* Cheating flags */
 
@@ -572,7 +633,11 @@ struct player {
 	s32b au_birth;						/* Birth gold when option birth_money is false */
 	s16b stat_birth[STAT_MAX];			/* Birth "natural" stat values */
 	s16b ht_birth;						/* Birth Height */
-	s16b wt_birth;						/* Birth Weight */
+	s32b wt_birth;						/* Birth Weight */
+
+	byte ability_pflags[PF_MAX];		/* Player flags from abilities */
+
+	s32b *cooldown;						/* Cooldowns, by spell index */
 
 	struct player_options opts;			/* Player options */
 	struct player_history hist;			/* Player history (see player-history.c) */
@@ -583,7 +648,7 @@ struct player {
 	struct object *gear;				/* Real gear */
 	struct object *gear_k;				/* Known gear */
 
-	struct object *obj_k;				/* Object knowledge ("runes") */
+	struct object *obj_k;				/* Object knowledge ("icons") */
 	struct chunk *cave;					/* Known version of current level */
 
 	struct player_state state;			/* Calculatable state */
@@ -599,34 +664,40 @@ struct player {
 
 extern struct player_body *bodies;
 extern struct player_race *races;
+extern struct player_race *extensions;
 extern struct player_shape *shapes;
 extern struct player_class *classes;
 extern struct player_ability *player_abilities;
-extern struct magic_realm *realms;
 
 extern const s32b player_exp[PY_MAX_LEVEL];
 extern struct player *player;
 
 /* player-class.c */
 struct player_class *player_id2class(guid id);
+struct player_class *get_class_by_name(const char *name);
 
 /* player.c */
 int stat_name_to_idx(const char *name);
 const char *stat_idx_to_name(int type);
-const struct magic_realm *lookup_realm(const char *code);
 bool player_stat_inc(struct player *p, int stat);
 bool player_stat_dec(struct player *p, int stat, bool permanent);
+s32b player_exp_scale(s32b amount);
 void player_exp_gain(struct player *p, s32b amount);
+void player_exp_gain_scaled(struct player *p, s32b amount);
 void player_exp_lose(struct player *p, s32b amount, bool permanent);
 void player_flags(struct player *p, bitflag f[OF_SIZE]);
 void player_flags_timed(struct player *p, bitflag f[OF_SIZE]);
 byte player_hp_attr(struct player *p);
 byte player_sp_attr(struct player *p);
-bool player_restore_mana(struct player *p, int amt);
 void player_safe_name(char *safe, size_t safelen, const char *name, bool strip_suffix);
 void player_cleanup_members(struct player *p);
 
 /* player-race.c */
 struct player_race *player_id2race(guid id);
+struct player_race *player_id2ext(guid id);
+struct player_race *get_race_by_name(const char *name);
+
+/* r_timelord.c */
+void timelord_force_regen(void);
 
 #endif /* !PLAYER_H */

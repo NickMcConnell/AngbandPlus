@@ -31,7 +31,7 @@ bool save_charoutput(void)
 		if (! file_put(fo, "{\n")) written = false;
 		if (! file_putf(fo, "race: \"%s\",\n", player->race->name)) written = false;
 		if (! file_putf(fo, "class: \"%s\",\n", player->class->name)) written = false;
-		if (! file_put(fo, "mapName: \"Angband\",\n")) written = false;
+		if (! file_put(fo, "mapName: \"Xygos\",\n")) written = false;
 		if (! file_putf(fo, "dLvl: \"%i\",\n", player->depth)) written = false;
 		if (! file_putf(fo, "cLvl: \"%i\",\n", player->lev)) written = false;
 		if (! file_putf(fo, "isDead: \"%i\",\n", (player->is_dead) ? 1 : 0)) written = false;

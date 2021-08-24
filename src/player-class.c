@@ -18,12 +18,22 @@
 
 
 #include "player.h"
+#include "z-util.h"
 
 struct player_class *player_id2class(guid id)
 {
-	struct player_class *c;
+	struct player_class *c = NULL;
 	for (c = classes; c; c = c->next)
 		if (guid_eq(c->cidx, id))
 			break;
 	return c;
+}
+
+struct player_class *get_class_by_name(const char *name)
+{
+	struct player_class *c;
+	for (c = classes; c; c = c->next)
+		if (streq(c->name, name))
+			return c;
+	return NULL;
 }

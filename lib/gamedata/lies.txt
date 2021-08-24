@@ -1,0 +1,674 @@
+# File: lies.txt
+
+# This file is used to initialize the false rumours for the game.
+
+# Do not modify this file unless you know exactly what you are doing
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# That said, it isn't difficult. Just keep each rumor on one line, less than 80
+# characters, and start each line with R:
+
+# Format: 
+# R:Hint text.
+
+R:" " -- Charlie Chaplin.  " " -- Harpo Marx.  " " -- Marcel Marceau.
+R:"I'm not stupid, I'm not expendable, and I'M NOT GOING!"
+R:"Quit" is a four letter word.
+R:"So when I die, the first thing I will see in heaven is a score list?"
+R:"So when I die, the first thing I will see is a dessert?"
+R:'Ere, 'oo are you?
+R:'glingleglingleglingle...'
+R:*** LOW HITPOINT WARNING! ***
+R:+++Out of Cheese error+++
+R:...It bit off his head like a gingerbread man!
+R:...as recorded in ancient prophecy.
+R:...the spice must flow...
+R:...which contains several artifacts.
+R:404 - Rumor Not Found
+R:5, 4, 3, 2, 1... Oh no!
+R:A Dibbler product is a reliable product.
+R:A Elbereth! Gilthoniel!
+R:A Eruchin, u-dano i faelas a hyn an uben tanatha le faelas!
+R:A death ray is of little use against foes that are dead already.
+R:A death ray is of little use against monsters that are tougher than you.
+R:A feeling of Death flows through your body.
+R:A gerbil is a man's best friend.
+R:A jagged tentacle of the constantly shifting kind is moving toward your leg...
+R:A monstrous mind is a toy forever.
+R:A new arrival such as yours should perhaps be cautioned. Kiss off!
+R:A new arrival such as yours should perhaps be cautioned. No mercy to weaklings.
+R:A screaming willingness to the flash and bang of damnation, freed of suspense.
+R:A successful philosopher is always well grounded.
+R:A super-bat can pick you up and drop you in a slime pit.
+R:A trip to the mallrog will drain your pocket book.
+R:A visit to the Wilderness is educational: you meet many strange animals.
+R:A visit to the Zoo is educational: you meet many strange animals.
+R:A winner never quits. A quitter never wins.
+R:A wise man always speaks too soon...
+R:A wumpus can only be hunted with crooked (or broken!) arrows.
+R:AAAAAAAAAAARRRRRRRRGGGGHHHHHHH!
+R:ALSOME.
+R:Accidents? What accidents? Mighty were your fallen ancestors.
+R:Ack! Pfft!
+R:Aiya Earendil Elenion Ancalima!
+R:All constants are variables.
+R:All generalisations are dangerous, including this one.
+R:All hail the supreme grand master!
+R:All hail thee that shalt be king hereafter!
+R:All mimes have won a boat. Contact the Patrician to claim your prize.
+R:All syllogisms have three parts, therefore this is not a syllogism.
+R:All that is shall come to an end - a dark day dawns for the gods.
+R:All the world detests a spammer.
+R:An inertia hound is gorgeous dinner: giving pleasure and sleepy satisfaction.
+R:An iocaine pill is like a cyanide pill.
+R:An octiron armor will not rust.
+R:And if you feel excited, there's a large nest on the level.
+R:And now, Groo does what Groo does best!
+R:And what about your due contribution to All-Fool's Day celebration? None?
+R:Andelu i ven.
+R:Ando Eldarinwa a lasta quettanya, Fenda Casarinwa!
+R:Any dungeons offer mazes. But don't they lack the Xygos sense of humor?
+R:Any small object that is accidentally dropped will hide under a larger object.
+R:Apollonian and Dionysiac, light and dark, Order and Chaos need one another.
+R:Appearance is the frosting, not the cake! It's the best part of the cake though.
+R:April Fools.
+R:Are you not the refined sensitive type you're disguised as?
+R:Are you prepared to thrill us with a traditional heroic display?
+R:Artifacts are tiring to use, so throw them away.
+R:As far as X is concerned, I know it when I see it.
+R:As the old song goes, the Master has a butt - and it's a big butt!
+R:At an early stage you will be quite happy to find crap-detection items.
+R:Bad luck and misfortune will infest your pathetic soul for all eternity.
+R:Barbarian invaders tokens aren't worth the mithril they are made from.
+R:Barliman Butterbur's beer is the best I have ever had.
+R:Barney MUST die!!!
+R:Barney can make you look utterly stupid. Barney MUST die!!!
+R:Be constantly on guard, joker, don't take anything at face value.
+R:Be not like the others. Proceed carefully, cover yourself at all times.
+R:Be yourself and have fun!
+R:Beetlejuice Beetlejuice Beetlejuice.
+R:Being infuriated by tricky foes will make your timing less immaculate.
+R:Best to move those feet when the Eater of Socks is near.
+R:Beware Quaker, Master of Oats!
+R:Beware of death rays!
+R:Beware of pits that fill the whole level!
+R:Beware of sanity blasting!
+R:Beware the 1 headed hydra.
+R:Beware the breath of the pukeman.
+R:Bill Stickers is innocent!
+R:Bite me doughboy!
+R:Bite my shiny metal ass!
+R:Bloody Mary! Bloody Mary! Bloody Mary!
+R:Bodychecks, bodycounts itching all my ways but the awful software bugs...
+R:Boots of speed (+50) are no myth!
+R:Boots of speed? Phooey! Try looking for boots of *speed*!
+R:Buy Lancre Bridge Today! Contact: C.M.O.T Dibbler & Co.
+R:Buy a home in the dungeon, any depth you want! Contact: McDuck & Co.
+R:By combining our minds with motion we can tune for the shadow we desire.
+R:Bye bye!  Bye bye! 
+R:Concise confusion: dive, dare, dice, derp, die.
+R:Connection closed by foreign host.
+R:Connection confused.
+R:DON'T OPEN IT
+R:DON'T PANIC
+R:Damn! Those alien bastards are gonna pay for shooting up my ride!
+R:Death is just life's way of telling you you've been fired.
+R:Didn't you forget to pay?
+R:Didn't your blood-brother end his career with an enforced suicide?
+R:Didn't your mother tell you not to eat food off the floor?
+R:Die or Deliver! Just assent with a head movement.
+R:Digdug was a chimpanzee in Malaysia.
+R:Direct a direct hit on your direct opponent, directing in the right direction.
+R:Do NOT cross the beams!
+R:Do not go in. It is a trap! Do you not see? It is a trap!
+R:Do not go! You will surely die!
+R:Do not pour vinegar into your own mental wounds of pride.
+R:Do not taunt Happy Fun Ball.
+R:Does your boss know what you're doing right now?
+R:Dogs! Do you want to live forever?
+R:Don't bug them unless you've done enough to keep them happy.
+R:Don't kiss Lillith on the lips today.
+R:Don't panic. Always know where your towel is.
+R:Don't pause if you see a monster! Checking your inventory will consume a turn!
+R:Don't pick up the phone box!
+R:Don't play drunk... unless you play better drunk, then don't play sober.
+R:Don't press the space bar!!!
+R:Don't tell a soul you found a secret door, otherwise it isn't a secret anymore.
+R:Don't turn your back.  Don't look away.  And don't blink...  Good luck.
+R:Drain resistance prevents you from falling through an open manhole.
+R:Drain you of your sanity: Face the Thing That Should Not Be!
+R:Drain you of your sanity: in front do the thing that does not have to be.
+R:Drifting bits of memory are drawn together, assembled into an entire fabric.
+R:Duas tantum res anxius optat, panem et circenses.
+R:Each shall itch to possess the Ring, but none in it shall find pleasure!
+R:Error: All messages dispensed.
+R:Even a man who prays by night will become a gerbil when the moon is bright!
+R:Ever read Ambrose Bierce, From the devil's dictionary? No, didn't steal there.
+R:Ever tried inscribing your armor {erodeproof}?
+R:Exterminate. Exterminate. Exterminate!
+R:FRODO LIVES!!!
+R:Faeg i-varv din na lanc a nu ranc!
+R:Faster! Faster, potato heads!
+R:Forth Eorlingas!
+R:Fortune has betrayed you but for the momentum. Confidence!
+R:Flying to another city isn't the cheapest way to heal, but it is the fastest.
+R:From the standpoints of reason, business, caution you are probably wrong?
+R:From the standpoints of reason, business, caution you are wrong? Who cares!
+R:Full version coming soon - call 555-XYGOS for details!
+R:GHOST said: "I would not wish to add to your probable present paranoia."
+R:GWAR are nothing if not loud.
+R:Go away!
+R:Go bake some brownies.
+R:Go on Goon! But there will be not sufficient time to flee any farther.
+R:Go outside and get some fresh air.
+R:Go read a goddamn book!
+R:Go Team Ant!
+R:Gone insane from the pain that sure they know: for who the flange sound?
+R:Gu kibum kelkum-ishi, burzum-ishi. Akha - gum-ishi ashi gurum.
+R:Hackers do it with bugs.
+R:Haggling is the only way to get the best prices.
+R:Has anyone been even as decided to use even go want to do look more like?
+R:Hastur Hastur Hastur. Huh. What's that mean?
+R:Have you been a nasty little boy? I think you have...
+R:Having trouble? Just read The Complete Idiot's Guide to Xygos.
+R:Having trouble? Just read Xygos for Dummies.
+R:Havo dad and pass the damn Lembas.
+R:He looks honest. This probably means he is a complete crook. Oh, I'm mocking.
+R:He's been lurking. Now it's time to post!
+R:Hell is paved with people that had good intentions.
+R:Help me! I'm being held captive in a vault at 2850m!
+R:He who fights and runs away... is a chicken. Cluck cluck cluck cluck cluck!
+R:He who fights and runs away... doesn't really live at all.
+R:Here's to life and it's many deaths!
+R:Hey what kind of chat room is this?
+R:Hey you guys wanna see a dead body?
+R:Hey young magic coder adept, you still owe some contributions.
+R:Hitting is the lingua franca in these regions.
+R:How dare you! I will not buy that!
+R:I AM ERROR
+R:I AM MISSINGNO
+R:I Aear can ven na mar.
+R:I am invincible!
+R:I amar prestar aen han mathon ne nen han mathon ne chae a han noston ned wilith.
+R:I can feel it in the earth, I can smell it in the air.
+R:I could go for some fish and chips right now...
+R:I do not take drugs -- I am drugs.
+R:I have a cunning plan!
+R:I have seen boots of speed (+50) in the black market!
+R:I hid the ultimate weapon in a vault at 4700m. To find it, you need to:
+R:I know nothing. I am from Barcelona.
+R:I know what you did last summer...
+R:I know whatever was; whatever is, whatever shall be.
+R:I love you, you love me, we are a happy family!
+R:I see you have accustomed to plenty of local shopping snobberies.
+R:I smell a maze of twisty little passages, all alike.
+R:I smell a maze of twisty little passages, all different.
+R:I smell a wumpus!
+R:I think you need a hobby.
+R:I thought I had strayed into a dream.
+R:I told you once, I told you twice...
+R:I'd rather trust a man than a crystal pyramid.
+R:I'll have another scotch and cola please, mother!
+R:I'll tell you the truth, son: your soul's gonna burn in a lake of fire!
+R:I'm a song from the sixties.
+R:IF THE BLACK BLADE IS WAKENED IT MUST TAKE ITS BLACK FIEF
+R:If the lava looks blue, you're playing too fast.
+R:If you are dipped in the River Stynx then you will become intolerable.
+R:If you aren't sure what resists you have, look it up by Ctrl-C.
+R:If you can't see it, it can't hurt you!
+R:If you put salt and butter on banged grains, they taste like salty butter.
+R:If you start seeing red monsters, you have probably gained infravision.
+R:Ignore the previous rumour.
+R:Increase your pace to catch up with your thoughtlessness?
+R:Information age has not just begun! Hermes, Loki, Prometheus are tradition.
+R:Invulnerability is impenetrable.
+R:Invulnerability may be penetrated by evil creatures.
+R:Iorhael, lasto beth nin, tolo dan nan galad!
+R:Isn't your very head an especially prized one?
+R:It can't be bad to give knowledge to the people, even if by means of rumors.
+R:It can't be bad to give knowledge to the people, even if it's a load of...
+R:It explodes!
+R:It looked harmless.
+R:It's a blocker, Master!
+R:Just assent with a head movement!
+R:Laugh to scorn the power of man, for none of woman born shall harm thee!
+R:Le aphadar aen.
+R:Lemmings. Why did it have to be lemmings?
+R:Let us not dwell on possible bad fortunes!
+R:Let your mind drift over the perversely plotted events of the past levels.
+R:Let's face it: this time you're not going to win.
+R:Liar! I have not the gold!
+R:Life is like a box of goddamn chocolates.
+R:Lightsabers don't kill people. People kill people.
+R:Living trump you are? Your equilibrium is becoming impaired...
+R:Locked boxes may contain hidden compartments which need the correct key.
+R:Look behind you!
+R:Look out! Monkeys!
+R:Lost+Found: One Precious. Reward. We promises we won't eatses you. See Gollum.
+R:Lost: one philosopher's stone. If found please contact H. Potter, Hogwarts.
+R:Lost: one plain gold ring: please contact Smeagol, Misty Mts, Middle Earth.
+R:Lost: one ringworld. If found please contact L. Niven, Earth, 20th century.
+R:Lost: one torso. If found please contact D. Maul, capital city, Naboo.
+R:M/25/nyc here...
+R:MADE: Mindcrafters Against Drunken Explorers
+R:Massage the sour muscles in your leg and rise to your feet!
+R:Meet me at 1900m if you are a man.
+R:Millenium hand and shrimp.
+R:Mindtheedgewhatedgesplat.
+R:Mindthefirewhatfiresizzle.
+R:Mindthetrapwhattrapargh.
+R:Mindthewolfwhatwolfcrunch.
+R:Money is the root of all evil.
+R:Money lost, little lost; honor lost, much lost; pluck lost, all lost.
+R:Monsters sleep because you are boring, not because they ever get tired.
+R:Most monsters prefer minced meat. That's why they are hitting you!
+R:Most rumors are just as misleading as this one.
+R:My cat's breath smells like cat food.
+R:My eyes! The goggles do nothing!
+R:NO CARRIER.
+R:Nadath na i moe cerich.
+R:Nai tiruvantel ar varyuvantel i Valar tielyanna nu vilya.
+R:Nauthannen i ned ol reniannen.
+R:Nedin dagor hen ú-'erir ortheri. Natha daged dhaer!
+R:Need a loan? Contact $crooge McDuck, 1300m.
+R:Never carry explosives if there is a fire trap nearby!
+R:Never cyber with the cyberdemon. Whatever cyber is.
+R:Never forget - you are a murder hobo and you must CLEAR LEVELS DAMMIT!
+R:Next time, watch out for slime!
+R:Nin o Chithaeglir lasto beth daer; rimmo nin Bruinen dan in Ulaer!
+R:No more woodchucks.
+R:No part of this rumor may be reproduced, stored in a retrieval system, ...
+R:No poison is immediately deadly, except in large quantities.
+R:No poison is immediately deadly.
+R:Noro lim, Asfaloth, noro lim!
+R:Not all rumors are as misleading as this one.
+R:Not to be never, never not to see, so as to dub the thee unforgiven.
+R:Nothing is so good that somebody, somewhere, will not hate it.
+R:Nothing is true, everything is permitted.
+R:Number nine...number nine...number nine...
+R:OMGLOLWTFBBQ!
+R:Old programmers never die, they just branch to a new address.
+R:One ill turn deserves another.
+R:One level further down somebody is getting killed, right now.
+R:One pill, two pill, red pill, blue pill. 
+R:Operation OVERKILL has started now.
+R:Oremor nhoj em llik tsum uoy emag siht niw ot.
+R:Other kind of bike will come into the market. It is the small bike.
+R:PLEASE ignore the previous rumor.
+R:PLEASE ignore the previous rumor. It breathes poison. You die...
+R:Pick up the phone box - and die!
+R:Playing AD&D may be helpful.
+R:Plop plop fizz fizz oh what a relief it is.
+R:Poison will kill you slowly.
+R:Quidquid latine dictum sit, altum viditur.
+R:Reach out and grep someone.
+R:Red is grey, yellow white but we decide which is right and which is an illusion.
+R:Regain your mental footing - and detect the sounds of pursuit.
+R:Regularly the god of the merchants is the same as that of the thieves.
+R:Reliable rumor has it that rumors can be relied on to be reliably unreliable.
+R:Remember that? Irony is a sophisticated art of talk by saying some opposite.
+R:Right On, Commander!
+R:SPOON!!!
+R:SQUEAK.
+R:Screw up your courage!  You've screwed up everything else.
+R:Segmentation fault (core dumped).
+R:Show them no mercy, for you shall receive none.
+R:Since by curse it came to me, accursed be this Ring!
+R:Slab: Jus' say AarrghaarrghpleeassennononoUGH.
+R:Snakes on a Plane II - Lemmings on a Train - coming soon.
+R:Snakes speak with a forked tongue.
+R:Snape killed Dumbledore.
+R:Snape killed Luke Skywalker.
+R:So i herd you lieks mudkips?
+R:Some action figures are quite collectible but all pogs are worthless.
+R:Some black humored remarks (rumors) on common morals are not easily outwitted.
+R:Someone set us up the bomb.
+R:Something evil this way comes!
+R:Speak softly and carry a +6 two-handed sword.
+R:Spirit, hatch that painted spirit of the lamb sparrow.
+R:Ssoorrrryy,, dduupplleexx sswwiittcchh oonn..
+R:Steal this rumor!
+R:Suddenly you transform into a frog!
+R:Survival challenges use up superabundant energies, burn off the gland-juices.
+R:THE BLACK SWORD IS THE CHAMPION'S SWORD
+R:THE BLADE OF THE SWORD HAS THE BLOOD OF THE SUN
+R:THE DEATH OF THE SWORD IS THE DEATH OF ALL LIFE
+R:THE HILT OF THE SWORD AND THE HAND ARE AS ONE
+R:THE NAME OF THE SWORD IS THE SAME AS THE SCYTHE
+R:THE RUNES ON THE SWORD ARE THE WORMS THAT ARE WISE
+R:THE WORD OF THE SWORD IS THE CHAMPION'S LAW
+R:Telepathy works like a two-way door.
+R:That wasn't beef.
+R:The Child of Light and Child of Dark shall meet once again!
+R:The Computer made me do it.
+R:The Kouko u kokoko wears a parka and drinks strong beer.
+R:The answer is 42.
+R:The butler did it.
+R:The butler is innocent.
+R:The caves of Xygos are dark and deep, and I have levels to go before I sleep.
+R:The cyberdemon hits! *** LOW HITPOINT WARNING *** This rumor is true.
+R:The dreaded Bearbear has the body of a bear and the head of another bear.
+R:The droolem is a slippery character.
+R:The egg golem can be detected by its nasty smell.
+R:The eternal death of eons of the foreigner of the lie can die not absolutely.
+R:The gerbils! The horrible gerbils!
+R:The gods love us, they even created birds to throw presents down.
+R:The king will return, know him because he carries the Sword of Albion.
+R:The magic word is "XYZZY".
+R:The moving finger writes, and having writ... gestures.
+R:The opinion you had were salt expresses.
+R:The thrum of serious risk-taking heightens the suspense. Hitchcock it up!
+R:There are black market stores hidden on deep levels, with COOL stuff!
+R:There are no worms in the Linux version.
+R:There are often stairways in graveyards: bad people are carried to hell...
+R:There are other worlds than these.
+R:There is a horrible, ghastly fate awaiting you... at 2700m!
+R:There is a powerful artifact hidden somewhere on this level.
+R:There is a searing blast of light!
+R:There is a trap on this level!
+R:There is much yet you have to do - and little time in which to do it!
+R:There is much yet you have to do.
+R:There is no way to turn boots of speed (-20) into boots of speed (+20).
+R:There is so much!
+R:There's a bomb in the lasagna!
+R:There's a helpful bear on the 28th floor.
+R:There's something bad about what you are carrying in your backpack...
+R:They say RNG hath made that which was weakest the greatest of all.
+R:They say fortunes must be followed by the incantation 'in bed' to work.
+R:They say if you eat a live toad each morning, nothing worse can happen all day.
+R:They say neutral people burn in the hottest fires.
+R:They say that "pog mo thoin" means "ten thousand welcomes".
+R:They say that 19 grey mushroom patches have stolen my sword.
+R:They say that 43% of statistics are made up on the spot.
+R:They say that 5 green molds have captured a Princess.
+R:They say that Elf shot the food.
+R:They say that Evil Iggy is more evil than the Balrog.
+R:They say that Elf shot the a.out.
+R:They say that Koffing is just a huge bag of farts.
+R:They say that Leeroy Jenkins is like Forrest Gump.
+R:They say that Magikarp is Magikrap.
+R:They say that Raxxla is like Erewhon.
+R:They say that ReadyoActive Brek gives you a healthy glow.
+R:They say that Soylent Green is people. People!
+R:They say that Triax has stolen your Destinator and you can't leave without it.
+R:They say that Wizard is about to die.
+R:They say that Xygos has a nude patch.
+R:They say that a banana is like a gobstopper, sometimes.
+R:They say that a black sheep has 3 bags full of wool.
+R:They say that a diamond dog is everybody's best friend.
+R:They say that a mind is a terrible thing to waste.
+R:They say that a mine is a terrible thing to waste.
+R:They say that a mint is a terrible thing to waste.
+R:They say that a pineapple is like a hand grenade.
+R:They say that a red # is an altar of courage - a quick way to fast level ups.
+R:They say that a waist is a terrible thing to mind.
+R:They say that a waste is a terrible thing to mind.
+R:They say that all property is theft, except mine.
+R:They say that an eye of newt and a wing of bat are double the trouble.
+R:They say that ancient battlefields are often haunted.
+R:They say that black paint is an excellent stain remover.
+R:They say that blast armor cards will create bomb-proof armor.
+R:They say that blast weapon cards can create powerful but dangerous artifacts.
+R:They say that blue stones are radioactive, beware.
+R:They say that chocolate is delicious.
+R:They say that cryptologists creep around crypts, copping out and talking crap.
+R:They say that dealing with the black market is dangerous.
+R:They say that gazpacho soup should be served cold.
+R:They say that handsome guys are hard to find these days.
+R:They say that hindsight is always 20-20.
+R:They say that hindsight is always 20%.
+R:They say that if you defeat me I shall return, more powerful than ever.
+R:They say that if you go down to the woods today, you're sure of a big surprise.
+R:They say that if you leave Galaxy 7 from Rainza, you will end up in Oresrati.
+R:They say that if you resist cold but not poison, you can correct it with Tippex.
+R:They say that if you start at the bottom the only place to go is up.
+R:They say that if you step on a crack you could break your mother's back.
+R:They say that if you step on a square you'll marry a bear.
+R:They say that if you once enter a shop in a loud shirt, you'll always be CHR 3.
+R:They say that it's all a fake - wake up, sheeple!
+R:They say that it's all done with magnets.
+R:They say that it's all smoke and mirrors.
+R:They say that melons are as deadly as bananas.
+R:They say that monsters chase you, but spirits follow the left-hand wall.
+R:They say that no item is entirely useless.
+R:They say that nobody can defeat his own ghost.
+R:They say that nobody knows if an explorer can live forever.  Do you?
+R:They say that only one man would dare give me the raspberry. Lone Starr!
+R:They say that only one sword can score *CRITICAL* hits.
+R:They say that pants are optional.
+R:They say that poison is poisonous.
+R:They say that quests are noble and just.
+R:They say that radiation gives you a healthy glow.
+R:They say that real life is not so much a strategy as a melee.
+R:They say that repeated slogans will fulfil the five-year plan.
+R:They say that revenge is a dish best served cold, and so is ice-cream.
+R:They say that snake oil is a worthless waste of your money.
+R:They say that snake oil is the most powerful cure-all in existence.
+R:They say that something mysterious will happen if you hit the reset button.
+R:They say that spice is the plural of spouse.
+R:They say that stupid is as stupid does.
+R:They say that swimming is healthy exercise.
+R:They say that the Computer is Your Friend.
+R:They say that the Dark Wheel doesn't really exist.
+R:They say that the Lost Triangle of Zinthar is the key to the Ultimate Ending.
+R:They say that the best time to save your game is now before it's too late.
+R:They say that the cake is a lie.
+R:They say that the cake is a pie.
+R:They say that the dungeon has a bottom - and it's a big bottom!
+R:They say that the dungeon has no bottom.
+R:They say that the dungeon is deeper than Dis.
+R:They say that the dungeon is deeper than a deep thing.
+R:They say that the dungeon is deeper than the Abyss.
+R:They say that the gods get angry if you pray too much.
+R:They say that the mint-flavored juice distilled from morgia root is delicious.
+R:They say that the most deadly enemy is the sado-random number generator.
+R:They say that the princess is in another castle.
+R:They say that the random number generator hates you.
+R:They say that the random number generator isn't.
+R:They say that the military laser is the key to the game.
+R:They say that the turtle moves.
+R:They say that the word "gullible" is wrtten on your ceiling, right now.
+R:They say that the worms are the source of all spice...
+R:They say that the worms crawl in and the worms crawl out.
+R:They say that the writing's on the wall.
+R:They say that that these are only some of the benefits of an all-cheese diet.
+R:They say that there are many ways to die, and just as many ways to win.
+R:They say that there are ninnies, simpletons. And they never come back.
+R:They say that there is a trap on this level!
+R:They say that there is no lumber cabal.
+R:They say that there is no such thing as free advice.
+R:They say that there was once a barbarian named Cohen.
+R:They say that there was once a soldier named Toasty.
+R:They say that there was once a Dark Jedi named Darth-Darth Binks.
+R:They say that there was once a wizard named Billy.
+R:They say that there was once a wizard named Tricky.
+R:They say that there's a rat under your desk, right now.
+R:They say that there's a spider on your arm, right now.
+R:They say that there's lots more ways to die than win.
+R:They say that there's slime all over the walls.
+R:They say that there's work to be done, and no rest this side of Heaven.
+R:They say that they came from beyond the stars.
+R:They say that the customer is always right.
+R:They say that this is a scorched earth scenario.
+R:They say that this is a Forbidden Planet.
+R:They say that to win the game, you must kill me, John Romero.
+R:They say that true berserkers fight naked.
+R:They say that we aren't in Kansas any more.
+R:They say that when you're hungry you can get a pizza in 30 moves or it's free.
+R:They say that you already lost your chance to see the Ultra ending.
+R:They say that you are fated to die on level nivelo.
+R:They say that you can always trust rumors.
+R:They say that you can find Genetic Engineering in ancient scrolls of wisdom.
+R:They say that you can gain Charisma by dipping your T-shirt in a fountain.
+R:They say that you don't win friends with salad.
+R:They say you can get a potion of cure dianthroritis in 30 turns, or it's free.
+R:They say that you can stand on an explosive barrel and fire a rocket down.
+R:They say that you got the quad damage!
+R:They say that you have nothing to fear but fear itself - that, and being shot.
+R:They say that you have precisely 9137 turns left to live.
+R:They say that you might die if you stepped in a heap of shit.
+R:They say that you must collect 20 bear asses.
+R:They say that you must drop twelve *treasures* here to complete the game.
+R:They say that you must follow the Way of the Exploding Fist.
+R:They say that you need to have tea, and no tea.
+R:They say that you should always be prepared for a final challenge.
+R:They say that you should avoid the fool's mate.
+R:They say that you should beware of fake Amulets of Yendor.
+R:They say that you should beware the undead.
+R:They say that you should be yourself and enjoy!
+R:They sat that you should buy a hotel on Mayfair and Park Lane.
+R:They say that you should call your armor `rustproof'.
+R:They say that you should eat crap - billions of flies can't all be wrong.
+R:They say that you should fear fire and fire fear.
+R:They say that you should fear the MISSINGNO.
+R:They say that you should fight fire with fire.
+R:They say that you should fill your vial with dew, and farm flies.
+R:They say that you should lay off the doughnuts, fatass.
+R:They say that you should name your weapon after your first monster kill.
+R:They say that you should never be self-defecating.
+R:They say that you should put a brick in your petrol tank, for cheaper refills.
+R:They say that you should water down your petrol to make it last longer.
+R:They say that you will need a bell, book, and candle. 
+R:They say that you will need a black rod with a rusty star on the end.
+R:They say that you will need a card named NTSC SECAM.
+R:They say that you will never defeat Morgoth, Lord of Darkness.
+R:They say that you will never defeat the Serpent of Chaos.
+R:They say that your mission, should you choose to accept it, is awesome.
+R:They say that your mission is whatever you choose to accept.
+R:They say that your own weaponry can never hurt you, however close the range.
+R:They say that your path will be strewn with cowpats from the Devil's own herd.
+R:They say things about you.
+R:They say you cannot shoot yourself, no matter how hard you try.
+R:They sure can!
+R:They sure don't dislike them.
+R:They tend to lose their masters.
+R:Thieves are more likely to appear if you are carrying a lot of money.
+R:Thinking is dangerous.  It leads to ideas.
+R:THIS.
+R:This fortress is owned and operated by Frobozz Ltd.
+R:This game was NOT made on drugs.
+R:This is a joke.
+R:This is a rumor.
+R:Code 3 of 20. Collect them all to reach the Ultra Ending!
+R:This is not a rumor.
+R:This is only true if you're in bed at the time.
+R:This is the first turn of the rest of your game.
+R:This rumor is as true as the previous rumor.
+R:This rumor is copy protected.
+R:This rumor is not true.
+R:This rumor is property of Rumors, Inc.
+R:This space has been intentionally left blank.
+R:Thisss cccity isss guilty... the crime isss life... the ssentence isss DEATH!
+R:Thou shalt not pass!
+R:Throw caution to the wind and boldly piss straight into it!
+R:To achieve the next higher rating, you need 3 more points.
+R:To say it blunt: you *cannot* afford another mistake. - What you say, really?
+R:Troll the World!
+R:Trololololololololololololololololol
+R:True.
+R:Try inscribing the name of the first monster killed by it in the weapon!
+R:Try using a food-scan card while hallucinating.
+R:Uh oh.
+R:Ulch!  That meat was painted!
+R:Use the Force!
+R:Using a morningstar in the evening has no effect.
+R:Violence is no solution.
+R:Violence is the only solution.
+R:WARNING: Objects on screen may be closer than they appear.
+R:Want to invest some money? Contact $crooge McDuck, 1300m.
+R:Wanted: Weapon forging assistants. Contact Lord Hong.
+R:Warning: end of file 'fortunes' reached.
+R:Watch your step!
+R:Welcome back to reality.
+R:What a pity, you cannot read it!
+R:What if you DON'T give a name to the artifact you create..?
+R:What would Brian Boitano do?
+R:When fleeing a nasty monster, always run for the nearest unexplored corridor.
+R:When fleeing a nasty, don't go back the way you came. More may be waiting.
+R:When in trouble, when in doubt; run in circles, scream and shout.
+R:When the day of Ragnarok comes, Surtur will set the world afire...
+R:When you dial a wrong number you never get a busy signal.
+R:Where'd that police box come from?
+R:Who's "they", and why do they say so much?
+R:Why are you wasting time reading rumors?
+R:With time the child dissipates within, this blinking boy made badly.
+R:Wizard expects every monster to do its duty.
+R:Wizard mode on. This is a debug mode and as such this game will not be scored.
+R:Wow, that sounds impressive. I wonder what it means.
+R:Yes, but not too often.
+R:Yes, they can.
+R:Yes, timing is definitely against you today. Never mind.
+R:You an me an the devil make three.
+R:You and me and a frog make three.
+R:You are being followed.
+R:You are destined to be misled by a rumor.
+R:You are fated to die on level 1.
+R:You are fated to die should you ever enter... the rest is illegible.
+R:You are fated to ever die by the hand of a mortal being.
+R:You are fated to find a machete on level 5.
+R:You are fated to find something not at all special on level 3.
+R:You are fated to find something special on Level 99.
+R:You are fated to never die by the hand of a mortal being.
+R:You are fated to win this game.
+R:You are going to have some new clothes.
+R:You are heading for head-stone for sure.
+R:You are not illiterate.
+R:You are probably going to die down here.
+R:You are so hosed! Quit now and call it a draw!
+R:You are starting to lose your temper? So what? Gnaw your pistachios!
+R:You are the very model of a modern major general!
+R:You are totally going to win this time!
+R:You are what you eat.
+R:You can beat the game by doing the following:
+R:You can protect yourself from heavy breathers by doing the following:
+R:You cruelly stab the helpless, sleeping software bug!
+R:You drop the ultimate power frame armor [90] {special}. It disappears.
+R:You feel a change coming over you.
+R:You feel like someone's pulling your leg!
+R:You feel that you (u) are a special snowflake...
+R:You feel the 9mm handgun (t) you are carrying in your backpack is special...
+R:You feel the Windows (8) on your hard disk is broken...
+R:You feel the lightsaber (v) you are carrying in your backpack is special...
+R:You feel your luck is turning...
+R:You find kitten! Way to go, robot!
+R:You find pirate! Way to go, ninja!
+R:You have 11,437 unread messages.
+R:You have way too many unread messages.
+R:You have 99 Hi-Potions!
+R:You have an error in objdes()
+R:You have an error in object_desc()!
+R:You have mail.
+R:You have no more cyanide pills.
+R:You look like ingratitude at its most extreme!
+R:You may be a ***WINNER*** if you recall within 1000 turns!
+R:You must be three times as resistant to {illegible} than other elements.
+R:You must eat a great dessert, you must eat it all alone...
+R:You seem inoffensive, a mere joker, a light-weight. But your eyes ..?
+R:You undergo a freakish metamorphosis!
+R:You walk like you're dead!
+R:You will die in 1289 turns.
+R:You will encounter a dark, tall stranger...
+R:You will encounter a tall, dark, and gruesome creature...
+R:You will find a bushel of money.
+R:You will need a Raygun in the end, but not to shoot the Vorticon...
+R:You will obtain your death if you keep diving.
+R:You will obtain your goal if you keep diving.
+R:You! You are a very secretive person, even in that incarnation.
+R:You'll ne'er be vanquish'd 'til Birnam wood comes to Dunsinane.
+R:You're going into the morgue at midnight?
+R:Young Heroes-to-be are always kept on diet, to increase their aggressiveness.
+R:Your goal.
+R:Your knife has certainly hacked some bad meats. It's stained.
+R:Your mother wears army boots!
+R:Your pantheon.
+R:Your termination is long due.
+R:Z. says: Couldn't we just sit down and talk about it over a couple of beers?
+R:Z. says: Somewhere there must be a gap in the icy blue logic that surrounds us.
+R:Za dashu snaku Zigur, Durbgu nazgshu, Durbgu dashshu!
+R:Zelazny said: "A headlong rush may also result in a broken neck."
+R:Zelazny said: "Sometimes it's damned hard to tell the dancer from the dance."
+R:Zelazny said: "Whenever anything outrageous happens, there's a reason for it."
+R:Zelazny said: "You are a living example of the absurdity of things."
+R:i like pie
+R:nom nom nom
+R:tellme.

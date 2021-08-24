@@ -25,6 +25,11 @@
 #include "h-basic.h"
 
 /**
+ * Simple RNG, implemented with a linear congruent algorithm.
+ */
+#define LCRNG(X) ((X) * 1103515245 + 12345)
+
+/**
  * Assumed maximum dungeon level.  This value is used for various 
  * calculations involving object and monster creation.  It must be at least 
  * 100. Setting it below 128 may prevent the creation of some objects.
@@ -108,6 +113,26 @@ extern u32b z0;
 extern u32b z1;
 extern u32b z2;
 
+/**
+ * A structure holding stored state from the complex RNG
+ */
+typedef struct rng_state {
+	u32b state[RAND_DEG];
+	u32b z0;
+	u32b z1;
+	u32b z2;
+	u32b state_i;
+} rng_state;
+
+/**
+ * Keep a copy of the RNG's state
+ */
+void Rand_extract_state(rng_state *state);
+
+/**
+ * Restore RNG's state from an external copy
+ */
+void Rand_restore_state(rng_state *state);
 
 /**
  * Initialise the RNG state with the given seed.
@@ -120,6 +145,11 @@ void Rand_state_init(u32b seed);
 void Rand_init(void);
 
 /**
+ * Generates a random unsigned 32-bit integer X, 0 <= X < 2^32
+ */
+u32b Rand_u32b(void);
+
+/**
  * Generates a random unsigned long integer X where "0 <= X < M" holds.
  *
  * The integer X falls along a uniform distribution.
@@ -127,10 +157,17 @@ void Rand_init(void);
 u32b Rand_div(u32b m);
 
 /**
+ * Generates a random double X where "0 <= X < M" holds.
+ *
+ * The value X falls along a uniform distribution.
+ */
+double Rand_double(double m);
+
+/**
  * Generate a signed random integer within `stand` standard deviations of
  * `mean`, following a normal distribution.
  */
-s16b Rand_normal(int mean, int stand);
+s32b Rand_normal(int mean, int stand);
 
 /**
  * Generate a signed random integer following a normal distribution, where

@@ -614,7 +614,7 @@ static void melee_effect_handler_DRAIN_CHARGES(melee_effect_handler_context_t *c
 		/* Skip non-objects */
 		if (obj == NULL) continue;
 
-		/* Drain charged wands/staves */
+		/* Drain charged wands/devices */
 		if (tval_can_have_charges(obj)) {
 			/* Charged? */
 			if (obj->pval) {
@@ -676,7 +676,7 @@ static void melee_effect_handler_EAT_GOLD(melee_effect_handler_context_t *contex
         (randint0(100) < (adj_dex_safe[current_player->state.stat_ind[STAT_DEX]]
 						  + current_player->lev))) {
         /* Saving throw message */
-        msg("You quickly protect your money pouch!");
+        msg("You quickly protect your wallet!");
 
         /* Occasional blink anyway */
         if (randint0(3)) context->blinked = true;
@@ -686,17 +686,17 @@ static void melee_effect_handler_EAT_GOLD(melee_effect_handler_context_t *contex
         if (gold > 5000) gold = (current_player->au / 20) + randint1(3000);
         if (gold > current_player->au) gold = current_player->au;
         current_player->au -= gold;
-        if (gold <= 0) {
+        if (gold <= 1) {
             msg("Nothing was stolen.");
             return;
         }
 
         /* Let the player know they were robbed */
-        msg("Your purse feels lighter.");
+        msg("Your wallet feels lighter.");
         if (current_player->au)
-            msg("%d coins were stolen!", gold);
+            msg("$%d was stolen!", gold);
         else
-            msg("All of your coins were stolen!");
+            msg("All your cash was stolen!");
 
         /* While we have gold, put it in objects */
         while (gold > 0) {
@@ -704,10 +704,17 @@ static void melee_effect_handler_EAT_GOLD(melee_effect_handler_context_t *contex
 
             /* Create a new temporary object */
             struct object *obj = object_new();
-            object_prep(obj, money_kind("gold", gold), 0, MINIMISE);
-
             /* Amount of gold to put in this object */
-            amt = gold > MAX_PVAL ? MAX_PVAL : gold;
+            if (gold > MAX_PVAL) {
+				amt = rand_range(rand_range(100, MAX_PVAL), MAX_PVAL);
+			} else {
+				amt = rand_range(rand_range(1, gold), gold) + randint1(100);
+				if (amt > gold)
+					amt = gold;
+			}
+            
+            object_prep(obj, money_kind(NULL, gold), 0, MINIMISE);
+
             obj->pval = amt;
             gold -= amt;
 
@@ -949,6 +956,22 @@ static void melee_effect_handler_LOSE_CON(melee_effect_handler_context_t *contex
 }
 
 /**
+ * Melee effect handler: Drain the player's charisma.
+ */
+static void melee_effect_handler_LOSE_CHR(melee_effect_handler_context_t *context)
+{
+	melee_effect_stat(context, STAT_CHR);
+}
+
+/**
+ * Melee effect handler: Drain the player's speed.
+ */
+static void melee_effect_handler_LOSE_SPD(melee_effect_handler_context_t *context)
+{
+	melee_effect_stat(context, STAT_SPD);
+}
+
+/**
  * Melee effect handler: Drain all of the player's stats.
  */
 static void melee_effect_handler_LOSE_ALL(melee_effect_handler_context_t *context)
@@ -957,11 +980,8 @@ static void melee_effect_handler_LOSE_ALL(melee_effect_handler_context_t *contex
 	if (monster_damage_target(context, true)) return;
 
 	/* Damage (stats) */
-	effect_simple(EF_DRAIN_STAT, source_monster(context->mon->midx), "0", STAT_STR, 0, 0, 0, 0, &context->obvious);
-	effect_simple(EF_DRAIN_STAT, source_monster(context->mon->midx), "0", STAT_DEX, 0, 0, 0, 0, &context->obvious);
-	effect_simple(EF_DRAIN_STAT, source_monster(context->mon->midx), "0", STAT_CON, 0, 0, 0, 0, &context->obvious);
-	effect_simple(EF_DRAIN_STAT, source_monster(context->mon->midx), "0", STAT_INT, 0, 0, 0, 0, &context->obvious);
-	effect_simple(EF_DRAIN_STAT, source_monster(context->mon->midx), "0", STAT_WIS, 0, 0, 0, 0, &context->obvious);
+	for(int i=0;i<STAT_MAX;i++)
+		effect_simple(EF_DRAIN_STAT, source_monster(context->mon->midx), "0", i, 0, 0, 0, 0, &context->obvious);
 }
 
 /**
@@ -1099,6 +1119,8 @@ melee_effect_handler_f melee_handler_for_blow_effect(const char *name)
 		{ "LOSE_WIS", melee_effect_handler_LOSE_WIS },
 		{ "LOSE_DEX", melee_effect_handler_LOSE_DEX },
 		{ "LOSE_CON", melee_effect_handler_LOSE_CON },
+		{ "LOSE_CHR", melee_effect_handler_LOSE_CHR },
+		{ "LOSE_SPD", melee_effect_handler_LOSE_SPD },
 		{ "LOSE_ALL", melee_effect_handler_LOSE_ALL },
 		{ "SHATTER", melee_effect_handler_SHATTER },
 		{ "EXP_10", melee_effect_handler_EXP_10 },

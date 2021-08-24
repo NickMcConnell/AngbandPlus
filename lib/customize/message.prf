@@ -332,8 +332,8 @@ message:BR_LIGHT:w
 # MSG_BR_DARK
 message:BR_DARK:w
 
-# MSG_BR_NETHER
-message:BR_NETHER:w
+# MSG_BR_RADIATION
+message:BR_RADIATION:w
 
 # MSG_BR_NEXUS
 message:BR_NEXUS:w
@@ -401,8 +401,8 @@ message:WIELD:w
 # MSG_CURSED
 message:CURSED:w
 
-# MSG_RUNE
-message:RUNE:w
+# MSG_ICON
+message:ICON:w
 
 # MSG_HUNGRY
 message:HUNGRY:w

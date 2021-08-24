@@ -398,12 +398,20 @@ static void project_feature_handler_NEXUS(project_feature_handler_context_t *con
 	}
 }
 
-static void project_feature_handler_NETHER(project_feature_handler_context_t *context)
+static void project_feature_handler_RADIATION(project_feature_handler_context_t *context)
 {
 	/* Grid is in line of sight and player is not blind */
 	if (square_isview(cave, context->grid) && !player->timed[TMD_BLIND]) {
 		/* Observe */
 		context->obvious = true;
+	}
+
+	/* Can create fallout if sufficiently powerful. */
+	if ((context->dam > randint1(500) + 50) &&
+		square_isfloor(cave, context->grid)) {
+		/* Forget the floor, make fallout. */
+		square_unmark(cave, context->grid);
+		square_set_feat(cave, context->grid, FEAT_FALLOUT);
 	}
 }
 
@@ -656,7 +664,7 @@ static void project_feature_handler_MON_CRUSH(project_feature_handler_context_t 
 }
 
 static const project_feature_handler_f feature_handlers[] = {
-	#define ELEM(a) project_feature_handler_##a,
+	#define ELEM(a, ...) project_feature_handler_##a,
 	#include "list-elements.h"
 	#undef ELEM
 	#define PROJ(a) project_feature_handler_##a,

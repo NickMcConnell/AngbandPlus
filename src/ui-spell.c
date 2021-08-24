@@ -25,6 +25,7 @@
 #include "object.h"
 #include "player-calcs.h"
 #include "player-spell.h"
+#include "ui-display.h"
 #include "ui-menu.h"
 #include "ui-output.h"
 
@@ -52,7 +53,7 @@ static int spell_menu_valid(struct menu *m, int oid)
 	struct spell_menu_data *d = menu_priv(m);
 	int *spells = d->spells;
 
-	return d->is_valid(spells[oid]);
+	return d->is_valid ? d->is_valid(spells[oid]) : true;
 }
 
 /**
@@ -74,40 +75,54 @@ static void spell_menu_display(struct menu *m, int oid, bool cursor,
 
 	if (!spell) return;
 
-	if (spell->slevel >= 99) {
-		illegible = "(illegible)";
-		attr = COLOUR_L_DARK;
-	} else if (player->spell_flags[spell_index] & PY_SPELL_FORGOTTEN) {
-		comment = " forgotten";
-		attr = COLOUR_YELLOW;
-	} else if (player->spell_flags[spell_index] & PY_SPELL_LEARNED) {
-		if (player->spell_flags[spell_index] & PY_SPELL_WORKED) {
-			/* Get extra info */
-			get_spell_info(spell_index, help, sizeof(help));
-			comment = help;
-			attr = COLOUR_WHITE;
-		} else {
-			comment = " untried";
-			attr = COLOUR_L_GREEN;
-		}
-	} else if (spell->slevel <= player->lev) {
-		comment = " unknown";
-		attr = COLOUR_L_BLUE;
+	if (player->spell_flags[spell_index] & PY_SPELL_WORKED) {
+		/* Get extra info */
+		get_spell_info(spell_index, help, sizeof(help));
+		comment = help;
+		attr = COLOUR_WHITE;
 	} else {
-		comment = " difficult";
-		attr = COLOUR_RED;
+		comment = " untried";
+		attr = COLOUR_L_GREEN;
 	}
 
-	/* Dump the spell --(-- */
-	strnfmt(out, sizeof(out), "%-30s%2d %4d %3d%%%s", spell->name,
-			spell->slevel, spell->smana, spell_chance(spell_index), comment);
+	/* Dump the spell --(-- 
+	 * 'Cost' - what was once 'Mana' - may be:
+	 * 	- (No cost)
+	 *  X HP (HP cost, where X may be a fixed number, dice, or normal ("~50") and may change with level)
+	 *  X t (Cooldown - X is as above. If the spell can't be cast because cooldown, change the colour and
+	 * 			display the number of turns remaining.)
+	 * If it has both display the HP (as more urgent) if it is available, the turns remainng otherwise
+	 **/
+	char randval[30];
+	*randval = 0;
+	const char *tag = "";
+	/* Cooldown in progress? */
+	if (player->cooldown[spell_index] > 0) {
+		attr = COLOUR_RED;
+		snprintf(randval, sizeof(randval), "%d", player->cooldown[spell_index]);
+	} else {
+		if (randcalc(spell->hp, 0, AVERAGE) == 0) {
+			/* Display cooldown */
+			append_random_value_string(randval, sizeof(randval), &spell->turns);
+		} else if (randcalc(spell->turns, 0, AVERAGE) == 0) {
+			tag = "-";
+		} else {
+			/* Display HP */
+			append_random_value_string(randval, sizeof(randval), &spell->hp);
+			tag = " HP";
+		}
+	}
+	strcat(randval, tag);
+
+	strnfmt(out, sizeof(out), "%-26s%s %2d %8s %3d%%%s", spell->name,
+			stat_names[spell->stat], spell->slevel, randval, spell_chance(spell_index), comment);
 	c_prt(attr, illegible ? illegible : out, row, col);
 }
 
 /**
  * Handle an event on a menu row.
  */
-static bool spell_menu_handler(struct menu *m, const ui_event *e, int oid)
+static bool spell_menu_handler(struct menu *m, const ui_event *e, int oid, bool *exit)
 {
 	struct spell_menu_data *d = menu_priv(m);
 
@@ -159,8 +174,7 @@ static const menu_iter spell_menu_iter = {
 /**
  * Create and initialise a spell menu, given an object and a validity hook
  */
-static struct menu *spell_menu_new(const struct object *obj,
-								   bool (*is_valid)(int spell_index))
+static struct menu *spell_menu_new(bool (*is_valid)(int spell_index))
 {
 	struct menu *m = menu_new(MN_SKIN_SCROLL, &spell_menu_iter);
 	struct spell_menu_data *d = mem_alloc(sizeof *d);
@@ -169,7 +183,7 @@ static struct menu *spell_menu_new(const struct object *obj,
 	region loc = { 0 - width, 1, width, -99 };
 
 	/* collect spells from object */
-	d->n_spells = spell_collect_from_book(obj, &d->spells);
+	d->n_spells = spell_collect_from_book(&d->spells);
 	if (d->n_spells == 0 || !spell_okay_list(is_valid, d->spells, d->n_spells)){
 		mem_free(m);
 		mem_free(d->spells);
@@ -186,7 +200,7 @@ static struct menu *spell_menu_new(const struct object *obj,
 	menu_setpriv(m, d->n_spells, d);
 
 	/* Set flags */
-	m->header = "Name                             Lv Mana Fail Info";
+	m->header = "Name                         Stat Lv    Cost Fail Info";
 	m->flags = MN_CASELESS_TAGS;
 	m->selections = lower_case;
 	m->browse_hook = spell_menu_browser;
@@ -252,56 +266,34 @@ static void spell_menu_browse(struct menu *m, const char *noun)
 }
 
 /**
- * Browse a given book.
+ * Browse techniques
  */
-void textui_book_browse(const struct object *obj)
+void textui_spell_browse(void)
 {
 	struct menu *m;
-	const char *noun = player_object_to_book(player, obj)->realm->spell_noun;
 
-	m = spell_menu_new(obj, spell_okay_to_browse);
+	m = spell_menu_new(spell_okay_to_browse);
 	if (m) {
-		spell_menu_browse(m, noun);
+		spell_menu_browse(m, "technique");
 		spell_menu_destroy(m);
 	} else {
-		msg("You cannot browse that.");
+		msg("You know no techniques.");
 	}
 }
 
 /**
- * Browse the given book.
+ * Get a technique from specified book.
  */
-void textui_spell_browse(void)
-{
-	struct object *obj;
-
-	if (!get_item(&obj, "Browse which book? ",
-				  "You have no books that you can read.",
-				  CMD_BROWSE_SPELL, obj_can_browse,
-				  (USE_INVEN | USE_FLOOR | IS_HARMLESS)))
-		return;
-
-	/* Track the object kind */
-	track_object(player->upkeep, obj);
-	handle_stuff(player);
-
-	textui_book_browse(obj);
-}
-
-/**
- * Get a spell from specified book.
- */
-int textui_get_spell_from_book(const char *verb, struct object *book,
+int textui_get_spell_from_book(const char *verb,
 							   const char *error,
 							   bool (*spell_filter)(int spell_index))
 {
-	const char *noun = player_object_to_book(player, book)->realm->spell_noun;
+	const char *noun = "technique";
 	struct menu *m;
 
-	track_object(player->upkeep, book);
 	handle_stuff(player);
 
-	m = spell_menu_new(book, spell_filter);
+	m = spell_menu_new(spell_filter);
 	if (m) {
 		int spell_index = spell_menu_select(m, noun, verb);
 		spell_menu_destroy(m);
@@ -312,22 +304,11 @@ int textui_get_spell_from_book(const char *verb, struct object *book,
 }
 
 /**
- * Get a spell from the player.
+ * Get a technique from the player.
  */
-int textui_get_spell(const char *verb, item_tester book_filter,
+int textui_get_spell(const char *verb,
 					 cmd_code cmd, const char *error,
 					 bool (*spell_filter)(int spell_index))
 {
-	char prompt[1024];
-	struct object *book;
-
-	/* Create prompt */
-	strnfmt(prompt, sizeof prompt, "%s which book?", verb);
-	my_strcap(prompt);
-
-	if (!get_item(&book, prompt, error,
-				  cmd, book_filter, (USE_INVEN | USE_FLOOR)))
-		return -1;
-
-	return textui_get_spell_from_book(verb, book, error, spell_filter);
+	return textui_get_spell_from_book(verb, error, spell_filter);
 }

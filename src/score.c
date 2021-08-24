@@ -198,7 +198,7 @@ static void highscore_write(const struct high_score scores[], size_t sz)
 
 
 void build_score(struct high_score *entry, const char *died_from,
-				 time_t *death_time)
+				 time_t *death_time, bool alive)
 {
 	memset(entry, 0, sizeof(struct high_score));
 
@@ -235,8 +235,18 @@ void build_score(struct high_score *entry, const char *died_from,
 	strnfmt(entry->max_lev, sizeof(entry->max_lev), "%3d", player->max_lev);
 	strnfmt(entry->max_dun, sizeof(entry->max_dun), "%3d", player->max_depth);
 
-	/* No cause of death */
-	my_strcpy(entry->how, died_from, sizeof(entry->how));
+	/* Save the dungeon */
+	if (player->active_quest >= 0) {
+		strnfmt(entry->dungeon, sizeof(entry->dungeon), "in the '%s' task", player->quests[player->active_quest].name);
+	} else {
+		strnfmt(entry->dungeon, sizeof(entry->dungeon), "on level %d of the fortress", player->depth);
+	}
+
+	/* Cause of death */
+	if (alive)
+		my_strcpy(entry->how, "Still alive", sizeof(entry->how));
+	else
+		strnfmt(entry->how, sizeof(entry->how), "Killed by %s", died_from);
 }
 
 
@@ -277,7 +287,7 @@ void enter_score(time_t *death_time)
 		struct high_score entry;
 		struct high_score scores[MAX_HISCORES];
 
-		build_score(&entry, player->died_from, death_time);
+		build_score(&entry, player->died_from, death_time, false);
 
 		highscore_read(scores, N_ELEMENTS(scores));
 		highscore_add(&entry, scores, N_ELEMENTS(scores));

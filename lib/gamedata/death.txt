@@ -1,0 +1,149 @@
+# File: death.txt
+
+# This file is used to initialize the death messages for the game.
+
+# Do not modify this file unless you know exactly what you are doing
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# That said, it isn't difficult. Just keep each message on one line,
+# less than 80 characters, and start each line with D:
+
+# Format: 
+# D:Death message.
+
+D:Just hold down the arrow key, it's faster.
+D:Maybe I shouldn't try all the conducts at once.
+D:You see that there? That's you, that is.
+D:I have got you back now, na-na-na-na-na-naaaa!
+D:You can't fool me, it's all done with mirrors.
+D:'What do you seek most in life, my son?' 'Experience!'
+D:They couldn't hit an elephant at this distance!
+D:Never retreat! Never surrender!
+D:Retreat now? In our moment of triumph?
+D:What about my Resist Death?
+D:Can't I use a Hero Point?
+D:And I'm all out of orange smoke.
+D:You mean the monsters get to use critical hits as well?
+D:But nothing can kill you if you have over 600 hit points!
+D:I thought I had Half Physical Damage?
+D:Oooh, isn't this fun?
+D:See ya... wouldn't want to be ya!
+D:Life's a die, and then you bitch.
+D:Somehow, I have a bad feeling about this...
+D:You mean, you can be blown up by your *own* fireball?
+D:Strangely, all of a sudden I don't feel so good.
+D:Oh well, you can't always win.
+D:I'm too young to die!
+D:I'll be back!
+D:Look out below!
+D:Ouch! That smarts!
+D:Who knocked?
+D:Game over, man.  Game over.
+D:Can I take that roll again?
+D:Did anybody get the number of that truck..?
+D:This guy's a little crazy...
+D:Ok, ok, I get it: No more pals.
+D:No more Mr. Nice Guy!
+D:Who turned off the light..?
+D:Join the army, see the world, they said...
+D:Mom told me there'd be days like this...
+D:Live and let live, right..?
+D:I'll be revenged on the whole pack of you!
+D:You're just a pack of ringleaders!
+D:You will *pay* for this!
+D:They say blood will have blood...
+D:Violence is no solution!
+D:One direct hit can ruin your whole day.
+D:Oh no, not again.
+D:Another one bites the dust.
+D:The fat lady sang.
+D:Why does everything happen to me?
+D:No... a Bud light!
+D:I let you hit me!
+D:Sucker shot!
+D:The bigger they come, the harder they hit.
+D:It seems that you have a low tolerance for being shot.
+D:You should have warned me that you were allergic to lead.
+D:It wasn't just a job it was an adventure!
+D:It wasn't just a job it was an indenture!
+D:I didn't like violence anyway!
+D:I thought you liked me?
+D:Such senseless violence! I don't understand it.
+D:I didn't want to live anyway.
+D:Somehow I don't feel like killing anymore.
+D:Hah! I'm not dead yet.  I still have five hit points.
+D:Hah! Just because your hitpoints are negative, doesn't mean you are dead.
+D:I don't wanna die, I'm a god, why can't I live on?
+D:The higher you walk, the farther you fall.
+D:It *looked* like a gas spore...
+D:I'm not afraid of death. I just don't want to be there when it happens.
+D:What do you mean, how many hit points do I have?
+D:What do you mean, what's your marching order?
+D:Yeah, I knew it was dangerous, but I was thinking about the experience points.
+D:I hate the RNG...
+D:I have this dungeon at home, I know where everything is!
+D:This HAS to be an illusion. I attempt to disbelieve it.
+D:And I just wanted that fancy suit of armour you were wearing...
+D:I'm sure reinforcements will get here on time. They promised.
+D:Funny, didn't *look* like a cyberpsycho....
+D:If you cut me down, I will only become more powerful.
+D:But what about my Parry Skill? Tumbling?
+D:Don't worry - I have Pilot-7.
+D:Don't worry. I've got a plan.
+D:It didn't look so tough.
+D:Well, I didn't much like this character, anyway...
+D:Best of three?
+D:Can't you take a joke?
+D:Dammit, this thing won't die!
+D:He hit me for HOW MUCH?????
+D:Look, behind you!!!
+D:Trust me, I know what I'm doing...
+D:Die, mortal!
+D:Hey! Killin' ain't cool.
+D:The rest is silence.
+D:It's game over, man!
+D:You've run out of life.
+D:Life's like a box of chocolates... and you just took the last one!
+D:Rest in Pieces.
+D:The monsters rejoice, the hero has been defeated.
+D:Game Over. Insert Coin.
+D:BOOM! HEADSHOT!
+D:Mo-Mo-Mo-MONSTER KILL!
+D:Ciao. It's been a slice.
+D:It slices! It dices! And it's yours for only 24.95!
+D:Splat! Yeaaah!
+D:Nom nom nom.
+D:Hey dude! You're food!
+D:Aaaaaaaaaah!
+D:Onward to the next adventure!
+D:CONNECT 1983 - NO CARRIER 2021
+D:'Tis but a scratch!
+D:All right, we'll call it a draw!
+D:Someone set us up the bomb!
+D:'Tis just a flesh wound...
+D:Bulk deals on gravestones - Die today!
+D:Burninated.
+D:This was all part of my evil plan!
+D:I said hit HIM with the fireball, not me!
+D:I didn't mean it when I said 'Bite me'
+D:I wonder what deleting 'system32' does?
+D:I'll bring all of you ants to justi-
+D:Kai su, teknon?
+D:4.5 / 5 stars, would live again
+D:Relax.  Nothing ever happens on the first level.
+D:And they said it couldn't be done!
+D:So this is what it feels like to be buried alive.
+D:Sting the bee and rewarded will be thee!
+D:Wonder what this mushroom does...?
+D:Y'all watch this!
+D:Am I having fun yet?
+D:You call that a punch? I'll show you a punch--
+D:Apparently, you *can't* kill huge green fierce dragons with your bare hands.
+D:Snakes. Why did it have to be snakes?
+D:That is not dead which can eternal lie. You, on the other hand...
+D:Sic Transit Gloria Tuesdi
+D:I'm taking a year dead for tax reasons.
+D:The cake is a lie!
+D:Anything that kills you makes you ... well, dead
+D:The keys were right next to each other...
+D:Why, oh why didn't I take the BLUE pill?

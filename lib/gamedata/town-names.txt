@@ -1,0 +1,205 @@
+# File: town-names.txt
+
+# This file is used to initialize the town names for the game.
+
+# Do not modify this file unless you know exactly what you are doing
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# They are not required by the game to be in any order, but are kept
+# alphabetically for convenience.
+
+# Format:
+# S:Single word town name. This must be no more than 12 characters (not counting the S:)
+# F:Front of a town name
+# B:Back of a town name
+
+S:Amity
+S:Bad Smell
+S:Beacon
+S:Bean Hill
+S:Big Smoke
+S:Bit Me
+S:Blackwater
+S:Blandford
+S:Blasted
+S:Bottlecaps
+S:Brilliance
+S:Brimstone
+S:Caution
+S:Cloudmaker
+S:Collapsed
+S:Concrete
+S:Corpselight
+S:Cowpats
+S:Crossroads
+S:Dead Cow
+S:Decoy
+S:Derrick
+S:Drywall
+S:Doornail
+S:Duck Soup
+S:Fallout
+S:Fallover
+S:Fenceline
+S:Firetop
+S:Fiveroads
+S:Friendly
+S:Green Slime
+S:Greywater
+S:Gunpoint
+S:Haystacks
+S:Highway
+S:Itch Scratch
+S:Landfill
+S:Leadmine
+S:Marshlight
+S:Millstones
+S:Milton Mill
+S:Moonpond
+S:Mouldering
+S:New Sun
+S:No Name
+S:Old Geyser
+S:Ominous
+S:Pothole
+S:Poundcake
+S:Power Cable
+S:Pumpkins
+S:Scorching
+S:Sentinel
+S:Skid Mark
+S:Silograd
+S:Spring Green
+S:Sodium
+S:Stonewall
+S:Swamplands
+S:Tapwater
+S:Threeroads
+S:Tinplate
+S:Tombstone
+S:Treaclemine
+S:Twoshacks
+S:Upsy Daisy
+S:Vapour Trail
+S:Whizz
+S:Wirefence
+S:Williewaw
+S:Witchford
+S:Witt's End
+S:Yuck
+S:Zippy
+
+F:Atomic
+F:Bat
+F:Beacon
+F:Bricks
+F:Bridge
+F:Bright
+F:Broken
+F:Boggy
+F:Bone
+F:Boulder
+F:Bubble
+F:Bug
+F:Burning
+F:Coffee
+F:Crater
+F:Crazy
+F:Crud
+F:Dirty
+F:Donkey
+F:Double
+F:False
+F:Filthy
+F:Flaming
+F:Flint
+F:Foggy
+F:Fool's
+F:Foul
+F:Frog
+F:Garbage
+F:Ghost
+F:Glass
+F:Glowing
+F:Gravel
+F:Hot
+F:Icky
+F:Jet
+F:Jewel
+F:Klaxon
+F:Lemming
+F:Lightning
+F:Little
+F:Mouse
+F:Midge
+F:Mucky
+F:Muddy
+F:No Man's
+F:Oil
+F:Pepper
+F:Poison
+F:Quicksand
+F:Rainbow
+F:Rainy
+F:Rat
+F:Rhinestone
+F:Rocket
+F:Rotten
+F:Rubble
+F:Rusty
+F:Salt
+F:Sandy
+F:Scary
+F:Sewage
+F:Smokey
+F:Snail
+F:Sooty
+F:Spider
+F:Steamy
+F:Slab
+F:Slimy
+F:Split
+F:Stinking
+F:Sulfur
+F:Thunder
+F:Triple
+F:Toad
+F:Toadstool
+F:Turtle
+F:Whiskey
+F:Wobble
+
+B:Canal
+B:Caves
+B:Cliff
+B:Cracks
+B:Crag
+B:Creek
+B:Culvert
+B:Dam
+B:Falls
+B:Fen
+B:Field
+B:Fountain
+B:Gully
+B:Hill
+B:Lake
+B:Locks
+B:Marsh
+B:Mesa
+B:Point
+B:Pool
+B:Pond
+B:Pump
+B:Rapids
+B:River
+B:Rock
+B:Spray
+B:Springs
+B:Stream
+B:Swamp
+B:Tracks
+B:Trail
+B:Wash
+B:Water
+B:Well

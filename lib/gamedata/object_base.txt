@@ -13,37 +13,48 @@
 # flags: default flags
 
 default:break-chance:10
-default:max-stack:40
+default:max-stack:99
 
-name:chest:Chest~
+name:chest:chest~
 graphics:slate
 # max-stack:1
 flags:HATES_ACID | HATES_FIRE
 
-name:shot:Shot~
+name:block:block~
+graphics:slate
+break:0
+# max-stack:1
+
+name:printer:printer~
+graphics:slate
+break:0
+# max-stack:1
+
+name:6mm ammo:6mm ammo
 graphics:light umber
 break:25
 # max-stack:40
+flags:HATES_ACID | HATES_FIRE
 flags:SHOW_DICE
 
-name:arrow:Arrow~
+name:9mm ammo:9mm ammo
 graphics:light umber
 break:35
 # max-stack:40
 flags:HATES_ACID | HATES_FIRE
 flags:SHOW_DICE
 
-name:bolt:Bolt~
+name:12mm ammo:12mm ammo
 graphics:light umber
 break:25
 # max-stack:40
-flags:HATES_ACID
+flags:HATES_ACID | HATES_FIRE
 flags:SHOW_DICE
 
-name:bow:Bow~
+name:gun:gun~
 graphics:umber
 # max-stack:1
-flags:HATES_ACID | HATES_FIRE
+flags:HATES_ACID
 flags:SHOW_MULT
 
 name:digger:Digger~
@@ -89,6 +100,11 @@ graphics:light umber
 # max-stack:1
 flags:HATES_ACID
 
+name:belt:Belt~
+graphics:light green
+# max-stack:1
+flags:HATES_ELEC | HATES_FIRE
+
 name:shield:Shield~
 graphics:light umber
 # max-stack:1
@@ -128,7 +144,7 @@ graphics:red
 # max-stack:5
 flags:HATES_ELEC
 
-name:staff:Staff~
+name:device:Device~
 graphics:light umber
 # max-stack:5
 flags:HATES_ACID | HATES_FIRE | EASY_KNOW
@@ -143,23 +159,23 @@ graphics:light purple
 # max-stack:5
 flags:HATES_ELEC | EASY_KNOW
 
-name:scroll:Scroll~
-graphics:white
+name:card:card~
+graphics:deep light blue
 # max-stack:20
-flags:HATES_ACID | HATES_FIRE | EASY_KNOW
+flags:HATES_ACID | HATES_FIRE | HATES_ELEC | EASY_KNOW
 
-name:potion:Potion~
-graphics:light blue
-break:100
+name:pill:Pill~
+graphics:magenta-pink
+break:10
 # max-stack:20
-flags:HATES_COLD | HATES_SOUND | HATES_SHARD | HATES_ICE | HATES_FORCE
+flags:HATES_ACID | HATES_FIRE
 flags:EASY_KNOW
 
-name:flask:Flask~
-graphics:yellow
-break:100
+name:battery:battery~
+graphics:orange
+break:80
 # max-stack:20
-flags:HATES_COLD | HATES_SOUND | HATES_SHARD | HATES_ICE | HATES_FORCE
+flags:HATES_ACID | HATES_FIRE | HATES_ELEC
 flags:EASY_KNOW
 
 name:food:Food
@@ -174,25 +190,5 @@ break:100
 # max-stack:10
 flags:EASY_KNOW
 
-name:magic book:Magic Book~
-graphics:light red
-# max-stack:5
-flags:HATES_FIRE | EASY_KNOW
-
-name:prayer book:Prayer Book~
-graphics:light green
-# max-stack:5
-flags:HATES_FIRE | EASY_KNOW
-
-name:nature book:Nature Book~
-graphics:yellow
-# max-stack:5
-flags:HATES_FIRE | EASY_KNOW
-
-name:shadow book:Shadow Book~
-graphics:light purple
-# max-stack:5
-flags:HATES_FIRE | EASY_KNOW
-
-name:gold
+name:cash
 graphics:light yellow

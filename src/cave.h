@@ -161,12 +161,13 @@ struct grid_data {
 };
 
 struct square {
-	byte feat;
+	struct object *obj;
+	struct trap *trap;
 	bitflag *info;
 	int light;
 	s16b mon;
-	struct object *obj;
-	struct trap *trap;
+	byte feat;
+	byte tag;
 };
 
 struct heatmap {
@@ -227,6 +228,8 @@ extern int FEAT_OPEN;
 extern int FEAT_BROKEN;
 extern int FEAT_LESS;
 extern int FEAT_MORE;
+extern int FEAT_EXIT;
+extern int FEAT_ENTRY;
 
 /* Secret door */
 extern int FEAT_SECRET;
@@ -244,8 +247,14 @@ extern int FEAT_QUARTZ_K;
 /* Walls */
 extern int FEAT_GRANITE;
 extern int FEAT_PERM;
-extern int FEAT_LAVA;
 
+/* Hostile terrain */
+extern int FEAT_LAVA;
+extern int FEAT_FALLOUT;
+extern int FEAT_WATER;
+
+/* Stores */
+extern int FEAT_AIRPORT;
 
 /* Current level */
 extern struct chunk *cave;
@@ -293,6 +302,8 @@ bool feat_is_projectable(int feat);
 bool feat_is_torch(int feat);
 bool feat_is_bright(int feat);
 bool feat_is_fiery(int feat);
+bool feat_is_radioactive(int feat);
+bool feat_is_water(int feat);
 bool feat_is_no_flow(int feat);
 bool feat_is_no_scent(int feat);
 bool feat_is_smooth(int feat);
@@ -359,6 +370,8 @@ bool square_iswall(struct chunk *c, struct loc grid);
 bool square_isstrongwall(struct chunk *c, struct loc grid);
 bool square_isbright(struct chunk *c, struct loc grid);
 bool square_isfiery(struct chunk *c, struct loc grid);
+bool square_isradioactive(struct chunk *c, struct loc grid);
+bool square_iswater(struct chunk *c, struct loc grid);
 bool square_islit(struct chunk *c, struct loc grid);
 bool square_islitwall(struct chunk *c, struct loc grid);
 bool square_isdamaging(struct chunk *c, struct loc grid);
@@ -386,6 +399,7 @@ bool square_suits_stairs_ok(struct chunk *c, struct loc grid);
 
 const struct square *square(struct chunk *c, struct loc grid);
 struct feature *square_feat(struct chunk *c, struct loc grid);
+byte square_tag(struct chunk *c, struct loc grid);
 int square_light(struct chunk *c, struct loc grid);
 struct monster *square_monster(struct chunk *c, struct loc grid);
 struct object *square_object(struct chunk *c, struct loc grid);
@@ -410,6 +424,7 @@ void square_add_glyph(struct chunk *c, struct loc grid, int type);
 void square_add_web(struct chunk *c, struct loc grid);
 void square_add_stairs(struct chunk *c, struct loc grid, int depth);
 void square_add_door(struct chunk *c, struct loc grid, bool closed);
+void square_set_tag(struct chunk *c, struct loc grid, byte tag);
 
 /* Feature modifiers */
 void square_open_door(struct chunk *c, struct loc grid);
@@ -462,7 +477,6 @@ int count_feats(struct loc *grid,
 				bool (*test)(struct chunk *c, struct loc grid), bool under);
 struct loc cave_find_decoy(struct chunk *c);
 void prepare_next_level(struct chunk **c, struct player *p);
-bool is_quest(int level);
 
 void cave_known(struct player *p);
 

@@ -51,5 +51,6 @@ struct object *get_random_monster_object(struct monster *mon);
 void steal_monster_item(struct monster *mon, int midx);
 bool monster_change_shape(struct monster *mon);
 bool monster_revert_shape(struct monster *mon);
+double mon_exp_value(const struct monster_race *race);
 
 #endif /* MONSTER_UTILITIES_H */

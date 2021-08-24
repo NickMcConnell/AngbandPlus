@@ -319,7 +319,7 @@ static int monster_spell_failrate(struct monster *mon)
 		if (mon->m_timed[MON_TMD_FEAR])
 			failrate += 20;
 
-		/* Confusion and diesnchantment add 50% */
+		/* Confusion and disenchantment add 50% */
 		if (mon->m_timed[MON_TMD_CONF] || mon->m_timed[MON_TMD_DISEN])
 			failrate += 50;
 	}
@@ -426,7 +426,7 @@ bool make_ranged_attack(struct monster *mon)
 	/* Check for spell failure (innate attacks never fail) */
 	failrate = monster_spell_failrate(mon);
 	if (!mon_spell_is_innate(thrown_spell) && (randint0(100) < failrate)) {
-		msg("%s tries to cast a spell, but fails.", m_name);
+		msg("%s tries to attack you, but fails.", m_name);
 		return true;
 	}
 

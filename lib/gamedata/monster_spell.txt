@@ -42,6 +42,14 @@ lore-color-base:Orange
 message-vis:{name} makes a high-pitched shriek.
 message-invis:Something makes a high-pitched shriek.
 
+name:EXPLODE
+msgt:BR_FIRE
+hit:100
+effect:SPOT:SHARD:2
+dice:3d6
+message-vis:{name} explodes!
+message-invis:You hear a loud blast.
+
 name:WHIP
 hit:100
 effect:LASH:MISSILE:2
@@ -187,14 +195,14 @@ lore-color-resist:Light Green
 message-vis:{name} breathes poison.
 message-invis:You hear a sickening roar.
 
-name:BR_NETH
-msgt:BR_NETHER
+name:BR_RADI
+msgt:BR_RADIATION
 hit:100
-effect:BREATH:NETHER:0:30
-lore:nether
+effect:BREATH:RADIATION:0:30
+lore:radiation
 lore-color-base:Orange
 lore-color-resist:Light Green
-message-vis:{name} breathes nether.
+message-vis:{name} breathes radiation.
 message-invis:You hear an eerie roar.
 
 name:BR_LIGHT
@@ -440,21 +448,21 @@ lore-color-resist:Light Green
 message-vis:{name} invokes a storm of knives!
 message-invis:Something chants powerfully.
 
-name:BA_NETH
+name:BA_RADI
 hit:100
-effect:BALL:NETHER:2
+effect:BALL:RADIATION:2
 dice:$B+10d10
 expr:B:SPELL_POWER:* 4
-lore:produce nether balls
+lore:produce radiation balls
 lore-color-base:Orange
 lore-color-resist:Light Green
-message-vis:{name} casts a ball of nether.
+message-vis:{name} casts a ball of radiation.
 message-invis:Something whispers nastily.
 power-cutoff:80
-lore:produce nether storms
+lore:produce radiation storms
 lore-color-base:Orange
 lore-color-resist:Light Green
-message-vis:{name} creates a storm of nether magics.
+message-vis:{name} creates a storm of radiation magics.
 message-invis:Something intones with deadly menace.
 
 name:BA_WATE
@@ -544,16 +552,6 @@ lore-color-base:Light Red
 lore-color-resist:Orange
 message-vis:{name} creates a tempest of wind and water.
 message-invis:Something chants fluidly.
-
-name:DRAIN_MANA
-hit:100
-effect:DRAIN_MANA
-dice:d$S
-expr:S:SPELL_POWER:/ 2 + 1
-lore:drain mana
-lore-color-base:Yellow
-message-vis:{name} drains your mana away.
-message-invis:Something moans.
 
 name:MIND_BLAST
 hit:100
@@ -691,15 +689,15 @@ lore-color-resist:Light Green
 message-vis:{name} spews a stream of poison.
 message-invis:Something retches.
 
-name:BO_NETH
+name:BO_RADI
 hit:100
-effect:BOLT:NETHER
+effect:BOLT:RADIATION
 dice:$B+5d5
 expr:B:SPELL_POWER:* 3 / 2 + 30
-lore:produce nether bolts
+lore:produce radiation bolts
 lore-color-base:Orange
 lore-color-resist:Light Green
-message-vis:{name} casts a bolt of nether.
+message-vis:{name} casts a bolt of radiation.
 message-invis:Something mumbles.
 
 name:BO_WATE
@@ -766,15 +764,15 @@ lore-color-resist:Light Green
 message-vis:{name} shoots a spark of lightning at {target}.
 message-invis:You feel a crackling in the air.
 
-name:BE_NETH
+name:BE_RADI
 hit:100
-effect:SHORT_BEAM:NETHER:10
+effect:SHORT_BEAM:RADIATION:10
 dice:$B+5d5
 expr:B:SPELL_POWER:* 2 + 30
-lore:hurl lances of nether
+lore:hurl lances of radiation
 lore-color-base:Orange
 lore-color-resist:Light Green
-message-vis:{name} hurls a lance of nether.
+message-vis:{name} hurls a lance of radiation.
 message-invis:Something murmurs a deadly word.
 power-cutoff:80
 lore:shoot rays of death

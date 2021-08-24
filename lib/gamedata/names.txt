@@ -52,10 +52,10 @@
 # If you put in a big list of English boys' names, it would come up with 
 # random names that sound like they could be English boys' names. If you 
 # put in Latin words, it would come up with words that sound Latin (as 
-# it does when choosing the text for scrolls).
+# it does when choosing the text for cards).
 
 # Format:
-# section: section type (1 for Tolkienish names, 2 for scroll names)
+# section: section type (1 for Tolkienish names, 2 for card names)
 # word: data
 
 # Tolkien names
@@ -662,7 +662,7 @@ word:wethrin
 word:wilwarin
 word:yavanna
 
-# Scroll names
+# Card names
 section:2
 word:abracadabra
 word:piffpaffpouf

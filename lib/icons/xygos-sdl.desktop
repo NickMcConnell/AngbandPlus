@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Xygos (SDL)
+Type=Application
+Comment=A sci-fi themed roguelike dungeon exploration game based on Angband
+Exec=xygos -msdl
+TryExec=xygos
+Icon=/usr/share/xygos/xtra/icon/att-32.png
+Categories=Game;RolePlaying;

@@ -18,6 +18,8 @@
  */
 
 #include "angband.h"
+#include "player-ability.h"
+#include "player-calcs.h"
 #include "ui-input.h"
 #include "ui-menu.h"
 
@@ -140,48 +142,60 @@ static void view_ability_menu_browser(int oid, void *data, const region *loc)
 	text_out_wrap = 0;
 }
 
+static bool view_ability_flip;
+
 /**
- * Display list available specialties.
+ * Display a list of available specialties.
  */
-void view_ability_menu(void)
+bool view_ability_menu(void)
 {
 	struct menu menu;
 	menu_iter menu_f = { view_ability_tag, 0, view_ability_display, 0, 0 };
 	region loc = { 0, 0, 70, -99 };
 	char buf[80];
-
-	/* Save the screen and clear it */
-	screen_save();
+	view_ability_flip = false;
 
 	/* Prompt choices */
 	sprintf(buf,
-			"Race and class abilities (%c-%c, ESC=exit): ",
+			"Race and class abilities (%c-%c, T-show talents/mutations, ESC=exit): ",
 			I2A(0), I2A(num_abilities - 1));
 
 	/* Set up the menu */
-	menu_init(&menu, MN_SKIN_SCROLL, &menu_f);
-	menu.header = buf;
-	menu_setpriv(&menu, num_abilities, ability_list);
-	loc.page_rows = num_abilities + 1;
-	menu.flags = MN_DBL_TAP;
-	menu.browse_hook = view_ability_menu_browser;
-	region_erase_bordered(&loc);
-	menu_layout(&menu, &loc);
+	if (num_abilities) {
+		menu_init(&menu, MN_SKIN_SCROLL, &menu_f);
+		menu.header = buf;
+		menu_setpriv(&menu, num_abilities, ability_list);
+		loc.page_rows = num_abilities + 1;
+		menu.flags = MN_DBL_TAP;
+		menu.browse_hook = view_ability_menu_browser;
+		region_erase_bordered(&loc);
+		menu_layout(&menu, &loc);
+	} else {
+		return true;
+	}
 
-	menu_select(&menu, 0, false);
+	do {
+		ui_event ev = menu_select(&menu, EVT_KBRD, false);
+		if (ev.type == EVT_ESCAPE)
+			break;
+		if (ev.type == EVT_KBRD) {
+			if ((ev.key.code == 'T') || (ev.key.code == 't')) {
+				view_ability_flip = true;
+			}
+		}
+	} while (!view_ability_flip);
 
-	/* Load screen */
-	screen_load();
 
-	return;
+	return view_ability_flip;
 }
 
 /**
  * Browse known abilities -BR-
  */
-static void view_abilities(void)
+static bool view_abilities(void)
 {
 	struct player_ability *ability;
+	bool flip = false;
 
 	/* Count the number of class powers we have */
 	for (ability = player_abilities; ability; ability = ability->next) {
@@ -201,22 +215,52 @@ static void view_abilities(void)
 		}
 	}
 
+	/* Count the number of ext powers we have */
+	for (ability = player_abilities; ability; ability = ability->next) {
+		if (race_has_ability(player->extension, ability)) {
+			memcpy(&ability_list[num_abilities], ability,
+				   sizeof(struct player_ability));
+			ability_list[num_abilities++].group = PLAYER_FLAG_RACE;
+		}
+	}
+
 	/* View choices until user exits */
-	view_ability_menu();
+	flip = view_ability_menu();
 
 	/* Exit */
 	num_abilities = 0;
-	return;
+	return flip;
 }
 
 
 /**
- * Interact with abilities -BR-
+ * Interact with abilities or talents -BR-
  */
 void do_cmd_abilities(void)
 {
-	/* View existing abilities */
-	view_abilities();
+	static bool show_talents = false;
+	bool flip;
 
+	/* Save the screen and clear it */
+	screen_save();
+
+	do {
+		flip = false;
+		if (show_talents) {
+			cmd_abilities(player, false, 0, &flip);
+		}
+		else {
+			/* View existing abilities */
+			flip = view_abilities();
+		}
+		if (flip)
+			show_talents = !show_talents;
+	} while (flip);
+
+	/* Redraw eveything */
+	player->upkeep->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
+
+	/* Load screen */
+	screen_load();
 	return;
 }

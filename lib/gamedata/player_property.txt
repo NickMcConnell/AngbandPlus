@@ -63,7 +63,7 @@ type:player
 code:FAST_SHOT
 bindui:shots_ui_compact_0:0:special
 name:Extra Shots
-desc:Your shooting speed improves with tension bows every 10 levels.
+desc:Your shooting speed improves every 10 levels.
 
 type:player
 code:BRAVERY_30
@@ -119,9 +119,9 @@ desc:You can bash monsters with a shield in melee.
 
 type:player
 code:EVIL
-bindui:resist_ui_compact_0<NETHER>:0:1
+bindui:resist_ui_compact_0<RADIATION>:0:1
 name:Evil
-desc:You resist nether, but are hurt by holy attacks.
+desc:You resist radiation, but are hurt by holy attacks.
 
 type:player
 code:COMBAT_REGEN
@@ -134,6 +134,18 @@ desc: you lose SP at half the rate other classes gain them.
 desc: When you spend SP by casting a spell you regain some health, and
 desc: fading SP replenish your health more efficiently. The more damaged
 desc: you are, the bigger these health gains will be.
+
+## Race player flags
+
+type:player
+code:NO_FOOD
+name:No Food
+desc:You can't eat food (including mushrooms).
+
+type:player
+code:EAT_BATTERIES
+name:Eat Batteries
+desc:You can eat batteries.
 
 
 # Object flags
@@ -167,6 +179,18 @@ code:SUST_CON
 bindui:stat_mod_ui_compact_0<CON>:1:1
 name:Sustain Constitution
 desc:Your constitution is sustained.
+
+type:object
+code:SUST_CHR
+bindui:stat_mod_ui_compact_0<CHR>:1:1
+name:Sustain Charisma
+desc:Your charisma is sustained.
+
+type:object
+code:SUST_SPD
+bindui:stat_mod_ui_compact_0<SPD>:1:1
+name:Sustain Speed
+desc:Your speed is sustained.
 
 type:object
 code:PROT_FEAR

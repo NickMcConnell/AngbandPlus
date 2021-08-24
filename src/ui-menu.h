@@ -131,7 +131,7 @@ typedef struct
 
 	/* Handle 'positive' events (selections or cmd_keys) */
 	/* XXX split out into a select handler and a cmd_key handler */
-	bool (*row_handler)(struct menu *menu, const ui_event *event, int oid);
+	bool (*row_handler)(struct menu *menu, const ui_event *event, int oid, bool *exit);
 
 	/* Called when the screen resizes */
 	void (*resize)(struct menu *m);

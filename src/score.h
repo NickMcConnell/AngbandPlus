@@ -26,7 +26,7 @@
 
 
 /**
- * Semi-Portable High Score List Entry (128 bytes)
+ * Semi-Portable High Score List Entry (256 bytes)
  *
  * All fields listed below are null terminated ascii strings.
  *
@@ -49,7 +49,9 @@ struct high_score {
 	char cur_dun[4];	/* Current Dungeon Level (number) */
 	char max_lev[4];	/* Max Player Level (number) */
 	char max_dun[4];	/* Max Dungeon Level (number) */
-	char how[32];		/* Method of death (string) */
+	char dungeon[64];	/* In which dungeon (town, quest, etc.) */
+	char how[48];		/* Method of death (string) */
+	char pad[48];		/* For future compatibility */
 };
 
 
@@ -60,7 +62,7 @@ size_t highscore_where(const struct high_score *entry,
 size_t highscore_add(const struct high_score *entry, struct high_score scores[],
 					 size_t sz);
 void build_score(struct high_score *entry, const char *died_from,
-				 time_t *death_time);
+				 time_t *death_time, bool alive);
 void enter_score(time_t *death_time);
 
 #endif /* INCLUDED_SCORE_H */

@@ -23,6 +23,11 @@
 #include "player.h"
 
 /**
+ * Bit flags for the "flag_general" timed effects member
+ */
+#define PG_NASTY		0x00000001L		/* Timed ffect is nasty (unwanted) */
+
+/**
  * Bit flags for the "player->upkeep->notice" variable
  */
 #define PN_COMBINE      0x00000001L    /* Combine the pack */
@@ -36,7 +41,6 @@
 #define PU_BONUS		0x00000001L	/* Calculate bonuses */
 #define PU_TORCH		0x00000002L	/* Calculate torch radius */
 #define PU_HP			0x00000004L	/* Calculate chp and mhp */
-#define PU_MANA			0x00000008L	/* Calculate csp and msp */
 #define PU_SPELLS		0x00000010L	/* Calculate spells */
 #define PU_UPDATE_VIEW	0x00000020L	/* Update field of view */
 #define PU_MONSTERS		0x00000040L	/* Update monsters */
@@ -55,7 +59,6 @@
 #define PR_STATS		0x00000010L	/* Display Stats */
 #define PR_ARMOR		0x00000020L	/* Display Armor */
 #define PR_HP			0x00000040L	/* Display Hitpoints */
-#define PR_MANA			0x00000080L	/* Display Mana */
 #define PR_GOLD			0x00000100L	/* Display Gold */
 #define PR_HEALTH		0x00000200L	/* Display Health Bar */
 #define PR_SPEED		0x00000400L	/* Display Extra (Speed) */
@@ -81,7 +84,7 @@
 #define PR_BASIC \
 	(PR_MISC | PR_TITLE | PR_STATS | PR_LEV |\
 	 PR_EXP | PR_GOLD | PR_ARMOR | PR_HP |\
-	 PR_MANA | PR_DEPTH | PR_HEALTH | PR_SPEED)
+	 PR_DEPTH | PR_HEALTH | PR_SPEED)
 
 /**
  * Display Extra Info
@@ -95,6 +98,14 @@
 #define PR_SUBWINDOW \
 	(PR_MONSTER | PR_OBJECT | PR_MONLIST | PR_ITEMLIST)
 
+/** Weight to Speed
+*/
+
+/* Number of entries between 1x and 2x */
+#define BURDEN_RANGE	100
+
+/* Maximum burden */
+#define BURDEN_LIMIT	4
 
 extern const int adj_dex_th[STAT_RANGE];
 extern const int adj_str_td[STAT_RANGE];
@@ -103,6 +114,7 @@ extern const int adj_dex_safe[STAT_RANGE];
 extern const int adj_con_fix[STAT_RANGE];
 extern const int adj_str_hold[STAT_RANGE];
 
+int weight_limit(struct player_state *state);
 bool earlier_object(struct object *orig, struct object *new, bool store);
 int equipped_item_slot(struct player_body body, struct object *obj);
 void calc_inventory(struct player_upkeep *upkeep, struct object *gear,

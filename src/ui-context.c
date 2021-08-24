@@ -226,10 +226,12 @@ static void context_menu_player_display_floor(void)
 	screen_save();
 
 	/* Prompt for a command */
-	prt(format("(Inventory) Burden %d.%d lb (%d.%d lb %s). Item for command: ",
-			   player->upkeep->total_weight / 10,
-			   player->upkeep->total_weight % 10,
-			   abs(diff) / 10, abs(diff) % 10,
+	char burden[128];
+	char diffb[128];
+	fmt_weight(player->upkeep->total_weight, burden);
+	fmt_weight(abs(diff), diffb);
+	prt(format("(Inventory) Burden %s (%s %s). Item for command: ",
+			   burden, diffb,
 			   (diff < 0 ? "overweight" : "remaining")), 0, 0);
 
 
@@ -458,13 +460,13 @@ int context_menu_cave(struct chunk *c, int y, int x, int adjacent, int mx,
 		if (obj && !ignore_item_ok(obj)) {
 			if (obj->known->pval) {
 				if (is_locked_chest(obj)) {
-					ADD_LABEL("Disarm Chest", CMD_DISARM, MN_ROW_VALID);
-					ADD_LABEL("Open Chest", CMD_OPEN, MN_ROW_VALID);
+					ADD_LABEL("Disarm Container", CMD_DISARM, MN_ROW_VALID);
+					ADD_LABEL("Open Container", CMD_OPEN, MN_ROW_VALID);
 				} else {
-					ADD_LABEL("Open Disarmed Chest", CMD_OPEN, MN_ROW_VALID);
+					ADD_LABEL("Open Disarmed Container", CMD_OPEN, MN_ROW_VALID);
 				}
 			} else {
-				ADD_LABEL("Open Chest", CMD_OPEN, MN_ROW_VALID);
+				ADD_LABEL("Open Container", CMD_OPEN, MN_ROW_VALID);
 			}
 		}
 
@@ -671,16 +673,7 @@ int context_menu_object(struct object *obj)
 	/* 'I' is used for inspect in both keymaps. */
 	menu_dynamic_add_label(m, "Inspect", 'I', MENU_VALUE_INSPECT, labels);
 
-	if (obj_can_browse(obj)) {
-		if (obj_can_cast_from(obj) && player_can_cast(player, false))
-			ADD_LABEL("Cast", CMD_CAST, MN_ROW_VALID);
-
-		if (obj_can_study(obj) && player_can_study(player, false))
-			ADD_LABEL("Study", CMD_STUDY, MN_ROW_VALID);
-
-		if (player_can_read(player, false))
-			ADD_LABEL("Browse", CMD_BROWSE_SPELL, MN_ROW_VALID);
-	} else if (obj_is_useable(obj)) {
+	if (obj_is_useable(obj)) {
 		if (tval_is_wand(obj)) {
 			menu_row_validity_t valid = (obj_has_charges(obj)) ?
 				MN_ROW_VALID : MN_ROW_INVALID;
@@ -689,15 +682,15 @@ int context_menu_object(struct object *obj)
 			menu_row_validity_t valid = (obj_can_zap(obj)) ?
 				MN_ROW_VALID : MN_ROW_INVALID;
 			ADD_LABEL("Zap", CMD_USE_ROD, valid);
-		} else if (tval_is_staff(obj)) {
+		} else if (tval_is_device(obj)) {
 			menu_row_validity_t valid = (obj_has_charges(obj)) ?
 				MN_ROW_VALID : MN_ROW_INVALID;
-			ADD_LABEL("Use", CMD_USE_STAFF, valid);
-		} else if (tval_is_scroll(obj)) {
-			menu_row_validity_t valid = (player_can_read(player, false)) ?
+			ADD_LABEL("Use", CMD_USE_DEVICE, valid);
+		} else if (tval_is_card(obj)) {
+			menu_row_validity_t valid = (player_can_run(player, false)) ?
 				MN_ROW_VALID : MN_ROW_INVALID;
-			ADD_LABEL("Read", CMD_READ_SCROLL, valid);
-		} else if (tval_is_potion(obj)) {
+			ADD_LABEL("Run", CMD_RUN_CARD, valid);
+		} else if (tval_is_pill(obj)) {
 			ADD_LABEL("Quaff", CMD_QUAFF, MN_ROW_VALID);
 		} else if (tval_is_edible(obj)) {
 			ADD_LABEL("Eat", CMD_EAT, MN_ROW_VALID);
@@ -818,7 +811,6 @@ int context_menu_object(struct object *obj)
 			return 1;
 
 		case CMD_BROWSE_SPELL:
-		case CMD_STUDY:
 		case CMD_CAST:
 		case CMD_IGNORE:
 		case CMD_WIELD:
@@ -831,8 +823,8 @@ int context_menu_object(struct object *obj)
 		case CMD_THROW:
 		case CMD_USE_WAND:
 		case CMD_USE_ROD:
-		case CMD_USE_STAFF:
-		case CMD_READ_SCROLL:
+		case CMD_USE_DEVICE:
+		case CMD_RUN_CARD:
 		case CMD_QUAFF:
 		case CMD_EAT:
 		case CMD_ACTIVATE:
@@ -855,19 +847,6 @@ int context_menu_object(struct object *obj)
 	if (selected == CMD_IGNORE) {
 		/* ignore or unignore the item */
 		textui_cmd_ignore_menu(obj);
-	} else if (selected == CMD_BROWSE_SPELL) {
-		/* browse a spellbook */
-		/* copied from textui_spell_browse */
-		textui_book_browse(obj);
-		return 2;
-	} else if (selected == CMD_STUDY) {
-		cmdq_push(CMD_STUDY);
-		cmd_set_arg_item(cmdq_peek(), "item", obj);
-	} else if (selected == CMD_CAST) {
-		if (obj_can_cast_from(obj)) {
-			cmdq_push(CMD_CAST);
-			cmd_set_arg_item(cmdq_peek(), "book", obj);
-		}
 	} else {
 		cmdq_push(selected);
 		cmd_set_arg_item(cmdq_peek(), "item", obj);
@@ -1170,7 +1149,7 @@ static bool cmd_menu(struct command_list *list, void *selection_p)
 
 
 
-static bool cmd_list_action(struct menu *m, const ui_event *event, int oid)
+static bool cmd_list_action(struct menu *m, const ui_event *event, int oid, bool *exit)
 {
 	if (event->type == EVT_SELECT)
 		return cmd_menu(&cmds_all[oid], menu_priv(m));

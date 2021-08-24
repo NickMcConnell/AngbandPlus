@@ -86,7 +86,7 @@ extern bool **ego_ignore_types;
 
 /* obj-ignore.c */
 void ignore_birth_init(void);
-void rune_autoinscribe(int i);
+void icon_autoinscribe(int i);
 const char *get_autoinscription(struct object_kind *kind, bool aware);
 int apply_autoinscription(struct object *obj);
 int remove_autoinscription(s16b kind);

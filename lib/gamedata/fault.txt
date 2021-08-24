@@ -1,4 +1,4 @@
-# File: curse.txt
+# File: fault.txt
 
 # name: effect name
 # type: valid object base
@@ -37,7 +37,7 @@ conflict-flags:NO_TELEPORT
 name:dullness
 type:helm
 type:crown
-values:INT[-5] | WIS[-5]
+values:INT[-5] | WIS[-5] | CHR[-5]
 desc:makes you mentally slow
 
 name:sickliness
@@ -67,19 +67,30 @@ type:gloves
 values:DEX[-10]
 desc:gives you butterfingers
 
+name:ugliness
+type:gloves
+values:CHR[-10]
+desc:makes you appear ugly
+
 name:slowness
 type:boots
-values:SPEED[-5]
+values:SPD[-5]
 desc:drags at your feet
 
 name:annoyance
 type:boots
-values:SPEED[-10] | STEALTH[-10]
+values:SPD[-10] | STEALTH[-10] | CHR[-10]
 flags:AGGRAVATE
 desc:wakes up and annoys nearby monsters, and delays your escape
 
-name:poison
-type:bow
+name:magnetic
+# ... or high level?
+type:light
+flags:STICKY
+desc:clamps itself to you for as long as it has power
+
+name:poisoned
+type:gun
 type:digger
 type:hafted
 type:polearm
@@ -102,7 +113,7 @@ time:1d500
 desc:poisons you from time to time
 
 name:siren
-type:bow
+type:gun
 type:digger
 type:hafted
 type:polearm
@@ -125,7 +136,7 @@ msg:A horn blares out!
 desc:occasionally makes a loud noise
 
 name:hallucination
-type:bow
+type:gun
 type:digger
 type:hafted
 type:polearm
@@ -148,7 +159,7 @@ time:1d500
 desc:makes you hallucinate sometimes
 
 name:paralysis
-type:bow
+type:gun
 type:digger
 type:hafted
 type:polearm
@@ -201,14 +212,7 @@ time:1d500
 msg:Your weapon calls beyond the grave!
 desc:occasionally summons an undead
 
-name:impair mana recovery
-type:helm
-type:crown
-flags:IMPAIR_MANA
-conflict-flags:IMPAIR_MANA
-desc:makes you slow to recover mana
-
-name:impair hitpoint recovery
+name:impair recovery
 type:boots
 type:gloves
 type:shield
@@ -248,7 +252,7 @@ desc:prevents you from teleporting
 conflict:teleportation
 conflict-flags:NO_TELEPORT
 
-name:treacherous weapon
+name:treacherous
 type:digger
 type:hafted
 type:polearm
@@ -260,7 +264,7 @@ time:1d200
 msg:Your weapon turns on you!
 desc:makes your weapon attack you
 
-name:burning up
+name:burning
 type:boots
 type:gloves
 type:helm
@@ -272,9 +276,9 @@ type:hard armor
 type:dragon armor
 values:RES_FIRE[-1] | RES_COLD[1]
 desc:makes you vulnerable to fire attacks, but resistant to cold
-conflict:chilled to the bone
+conflict:chilling
 
-name:chilled to the bone
+name:chilling
 type:boots
 type:gloves
 type:helm
@@ -286,7 +290,7 @@ type:hard armor
 type:dragon armor
 values:RES_FIRE[1] | RES_COLD[-1]
 desc:makes you vulnerable to cold attacks, but resistant to fire
-conflict:burning up
+conflict:burning
 
 name:steelskin
 type:digger

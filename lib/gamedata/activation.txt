@@ -39,15 +39,12 @@ desc:cures confusion
 
 name:CURE_MIND
 aim:0
-power:8
-effect:RESTORE_MANA
-dice:20
 effect:CURE:CONFUSED
 effect:CURE:AFRAID
 effect:CURE:IMAGE
 effect:TIMED_INC:OPP_CONF
 dice:12+6d10
-desc:restores 10SP, cures confusion and hallucination, removes fear and grants you temporary resistance to confusion
+desc:cures confusion and hallucination, removes fear and grants you temporary resistance to confusion
 
 name:CURE_BODY
 aim:0
@@ -186,14 +183,6 @@ aim:0
 power:8
 effect:RESTORE_EXP
 desc:restores your experience
-
-
-name:RESTORE_MANA
-aim:0
-power:20
-effect:RESTORE_MANA
-desc:restores your mana points to maximum
-
 
 name:BRAWN
 aim:0
@@ -475,19 +464,19 @@ effect:ENCHANT:TOAC
 dice:2+1d3
 desc:attempts to magically enhance a piece of armour with high chance of success
 
-name:REMOVE_CURSE
+name:REMOVE_FAULT
 aim:0
 power:8
-effect:REMOVE_CURSE
+effect:REMOVE_FAULT
 dice:20+d20
-desc:attempts to remove a curse from an item
+desc:attempts to repair a faulty item
 
-name:REMOVE_CURSE2
+name:REMOVE_FAULT2
 aim:0
 power:20
-effect:REMOVE_CURSE
+effect:REMOVE_FAULT
 dice:50+d50
-desc:Makes a strong attempt to remove a curse from an item
+desc:makes a strong attempt to repair a faulty item
 
 name:LIGHT
 aim:0
@@ -555,7 +544,7 @@ power:11
 msg:Your {kind} glow{s} bright yellow...
 effect:RECHARGE
 dice:10
-desc:tries to recharge a wand or staff, destroying the wand or staff on failure
+desc:tries to recharge a wand or device, destroying the wand or device on failure
 
 name:BANISHMENT
 aim:0
@@ -1151,14 +1140,7 @@ effect:BREATH:POIS:0:30
 dice:160
 desc:shoots a large cone of one of the base elements for 120-200 damage
 
-name:STAFF_MAGI
-aim:0
-power:20
-effect:RESTORE_STAT:INT
-effect:RESTORE_MANA
-desc:restores both intelligence and manapoints to maximum
-
-name:STAFF_HOLY
+name:DEVICE_HOLY
 aim:0
 power:12
 effect:PROJECT_LOS:DISP_EVIL:0:1
@@ -1230,13 +1212,11 @@ desc:turns your skin to stone briefly, which grants an extra 40AC but slows you 
 
 name:SHROOM_DEBILITY
 aim:0
-power:5
-effect:RESTORE_MANA
 effect:RANDOM
 dice:2
 effect:DRAIN_STAT:STR
 effect:DRAIN_STAT:CON
-desc:restores some mana but also drains either your strength or constitution
+desc:drains either your strength or constitution
 
 name:SHROOM_SPRINTING
 aim:0

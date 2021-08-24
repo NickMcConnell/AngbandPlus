@@ -182,6 +182,16 @@ pain:1
 flags:OPEN_DOOR | BASH_DOOR | SPIRIT | CLEAR_WEB
 desc:Hobbit/Elf/Dwarf
 
+# Can pass wall, but is usually visible and has physical attacks.
+# Weak to light, resists most other things
+name:hologram
+glyph:H
+pain:1
+flags:PASS_WALL | HURT_LIGHT
+flags:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
+flags:NO_CONF | NO_SLEEP
+flags:NONLIVING
+
 # Weird legendary stuff, mostly without spells, sometimes with breath
 name:hybrid
 glyph:H
@@ -409,9 +419,18 @@ pain:4
 flags:SPIRIT | CLEAR_WEB
 desc:Townsfolk
 
+# Lemmings - essentially humanoid rodents.
+# They are fearless and ignore hostile terrain.
+name:lemming
+glyph:l
+pain:4
+flags:ANIMAL | CLEAR_WEB | OPEN_DOOR | BASH_DOOR | SPIRIT
+flags:NO_FEAR | ALL_TERRAIN
+desc:Lemming
+
 # High hitpoints and armor class
 name:tree
-glyph:l
+glyph:#
 pain:9
 flags:CLEAR_WEB | COLD_BLOOD | REGENERATE
 flags:NO_FEAR | NO_CONF | HURT_FIRE | IM_WATER

@@ -23,6 +23,7 @@
 #include "mon-util.h"
 #include "obj-knowledge.h"
 #include "player-attack.h"
+#include "player-quest.h"
 #include "player-timed.h"
 #include "player-util.h"
 #include "trap.h"

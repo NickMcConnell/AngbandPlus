@@ -66,8 +66,8 @@ int adjust_dam(struct player *p, int type, int dam, aspect dam_aspect,
 	if (type == PROJ_ACID && p && minus_ac(p))
 		dam = (dam + 1) / 2;
 
-	if (resist == -1) /* vulnerable */
-		return (dam * 4 / 3);
+	if (resist < 0) /* vulnerable */
+		return dam * ((3 - resist) / 3);
 
 	/* Variable resists vary the denominator, so we need to invert the logic
 	 * of dam_aspect. (m_bonus is unused) */
@@ -368,36 +368,35 @@ static int project_player_handler_NEXUS(project_player_handler_context_t *contex
 	return 0;
 }
 
-static int project_player_handler_NETHER(project_player_handler_context_t *context)
+static int project_player_handler_RADIATION(project_player_handler_context_t *context)
 {
-	int drain = 200 + (player->exp / 100) * z_info->life_drain_percent;
+	int power = context->power;
 
-	if (player_resists(player, ELEM_NETHER) ||
-		player_of_has(player, OF_HOLD_LIFE)) {
-		msg("You resist the effect!");
-		equip_learn_flag(player, OF_HOLD_LIFE);
-		return 0;
+	/* Radiation is difficult to be resistant to */
+	switch (player->state.el_info[ELEM_RADIATION].res_level) {
+		case 0:
+			break;
+		case 1:
+			msg("You partially resist the effects.");
+			power /= 2;
+			break;
+		case 2:
+			msg("You resist the effects.");
+			power /= 4;
+			break;
+		default:
+			
+			msg("You resist the effects very well.");
+			power /= 8;
+			break;
 	}
 
-	/* Life draining */
-	msg("You feel your life force draining away!");
-	player_exp_lose(player, drain, false);
+	if (power < 1)
+		power = 1;
 
-	/* Powerful nether attacks have further side-effects */
-	if (context->power >= 80) {
-		/* Mana loss */
-		if ((randint0(context->dam) > 100) && player->msp) {
-			msg("Your mind is dulled.");
-			player->csp -= MIN(player->csp, context->dam / 10);
-			player->upkeep->redraw |= PR_MANA;
-		}
+	/* Radiation attacks cause a status increase */
+	(void)player_inc_timed(player, TMD_RAD, rand_range((power / 4) + 1, power), true, true);
 
-		/* Loss of energy */
-		if (randint0(context->dam) > 200) {
-			msg("Your energy is sapped!");
-			player->energy = 0;
-		}
-	}
 	return 0;
 }
 
@@ -735,7 +734,7 @@ static int project_player_handler_MON_CRUSH(project_player_handler_context_t *co
 }
 
 static const project_player_handler_f player_handlers[] = {
-	#define ELEM(a) project_player_handler_##a,
+	#define ELEM(a, ...) project_player_handler_##a,
 	#include "list-elements.h"
 	#undef ELEM
 	#define PROJ(a) project_player_handler_##a,
@@ -864,7 +863,7 @@ bool project_p(struct source origin, int r, struct loc grid, int dam, int typ,
 							 true);
 	if (context.dam) {
 		/* Self-inflicted damage is scaled down */
-		if (self) {
+		if (self && (origin.what != SRC_OBJECT)) {
 			context.dam /= 10;
 		}
 		take_hit(player, context.dam, killer);

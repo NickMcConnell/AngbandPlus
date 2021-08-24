@@ -27,7 +27,7 @@
 #include "init.h"
 #include "mon-make.h"
 #include "monster.h"
-#include "obj-curse.h"
+#include "obj-fault.h"
 #include "obj-desc.h"
 #include "obj-gear.h"
 #include "obj-ignore.h"
@@ -50,9 +50,20 @@ struct ego_item *e_info;
 struct flavor *flavors;
 
 /**
- * Hold the titles of scrolls, 6 to 14 characters each, plus quotes.
+ * Hold the titles of cards, up to 31 characters each.
+ * Longest "Simple" prefix is 6
+ * Longest "Creator" suffix is 7
+ * Longest "-" infix is 1
+ * Longest " XX 1.2.3" version is 9
  */
-static char scroll_adj[MAX_TITLES][18];
+static char **card_adj;
+static int n_card_adj;
+
+/**
+ * Hold the titles of pills, 6 to 28 characters each, plus quotes.
+ */
+static char **pill_adj;
+static int n_pill_adj;
 
 static void flavor_assign_fixed(void)
 {
@@ -85,7 +96,7 @@ static void flavor_assign_random(byte tval)
 			flavor_count++;
 
 	for (i = 0; i < z_info->k_max; i++) {
-		if (k_info[i].tval != tval || k_info[i].flavor)
+		if (k_info[i].tval != tval || k_info[i].flavor || (tval == TV_LIGHT && kf_has(k_info[i].kind_flags, KF_EASY_KNOW)))
 			continue;
 
 		if (!flavor_count)
@@ -100,8 +111,10 @@ static void flavor_assign_random(byte tval)
 			if (choice == 0) {
 				k_info[i].flavor = f;
 				f->sval = k_info[i].sval;
-				if (tval == TV_SCROLL)
-					f->text = scroll_adj[k_info[i].sval];
+				if (tval == TV_PILL)
+					f->text = pill_adj[k_info[i].sval];
+				if (tval == TV_CARD)
+					f->text = card_adj[k_info[i].sval];
 				flavor_count--;
 				break;
 			}
@@ -129,6 +142,28 @@ void flavor_reset_fixed(void)
 	}
 }
 
+static void clean_strings(char ***array, int *length)
+{
+	for(int i=0;i<*length;i++)
+		string_free((*array)[i]);
+	mem_free(*array);
+	*array = NULL;
+	*length = 0;
+}
+
+static void insert_string(char *buf, int i, char ***array, int *length)
+{
+	if (i >= *length) {
+		int old = *length;
+		*length = i+1;
+		*array = mem_realloc(*array, sizeof(*array) * *length);
+		for(int j=old; j<*length; j++) {
+			(*array)[j] = NULL;
+		}
+	}
+	(*array)[i] = string_make(buf);
+}
+
 /**
  * Prepare the "variable" part of the "k_info" array.
  *
@@ -136,14 +171,7 @@ void flavor_reset_fixed(void)
  * For the most part, flavors are assigned randomly each game.
  *
  * Initialize descriptions for the "colored" objects, including:
- * Rings, Amulets, Staffs, Wands, Rods, Mushrooms, Potions, Scrolls.
- *
- * Scroll titles are always between 6 and 14 letters long.  This is
- * ensured because every title is composed of whole words, where every
- * word is from 2 to 8 letters long, and that no scroll is finished
- * until it attempts to grow beyond 15 letters.  The first time this
- * can happen is when the current title has 6 letters and the new word
- * has 8 letters, which would result in a 6 letter scroll title.
+ * Rings, Amulets, Devices, Wands, Rods, Mushrooms, Pills, Cards.
  *
  * Hack -- make sure everything stays the same for each saved game
  * This is accomplished by the use of a saved "random seed", as in
@@ -152,7 +180,7 @@ void flavor_reset_fixed(void)
  */
 void flavor_init(void)
 {
-	int i, j;
+	int i;
 
 	/* Hack -- Use the "simple" RNG */
 	Rand_quick = true;
@@ -177,51 +205,177 @@ void flavor_init(void)
 	if (OPT(player, birth_randarts))
 		flavor_reset_fixed();
 
+	clean_strings(&pill_adj, &n_pill_adj);
+	clean_strings(&card_adj, &n_card_adj);
+
 	flavor_assign_fixed();
 
+	flavor_assign_random(TV_LIGHT);
 	flavor_assign_random(TV_RING);
 	flavor_assign_random(TV_AMULET);
-	flavor_assign_random(TV_STAFF);
+	flavor_assign_random(TV_DEVICE);
 	flavor_assign_random(TV_WAND);
 	flavor_assign_random(TV_ROD);
 	flavor_assign_random(TV_MUSHROOM);
-	flavor_assign_random(TV_POTION);
 
-	/* Scrolls (random titles, always white) */
-	for (i = 0; i < MAX_TITLES; i++) {
-		char buf[26];
-		char *end = buf + 1;
-		int titlelen = 0;
-		int wordlen;
-		bool okay = true;
-
-		my_strcpy(buf, "\"", 2);
-		wordlen = randname_make(RANDNAME_SCROLL, 2, 8, end, 24, name_sections);
-		while (titlelen + wordlen < (int)(sizeof(scroll_adj[0]) - 3)) {
-			end[wordlen] = ' ';
-			titlelen += wordlen + 1;
-			end += wordlen + 1;
-			wordlen = randname_make(RANDNAME_SCROLL, 2, 8, end, 24 - titlelen,
-									name_sections);
+	/* Pills (random titles, always magenta)
+	 * The pills will be randomized again by flavor_assign_random.
+	 * So this doesn't have to change the base names ("yadar" of "yadarine"), only the suffix.
+	 * It also doesn't matter (much) whether all suffixes are used or some used more than once.
+	 * so:
+	 * For each output name:
+	 * 		Copy from a sequential input basename
+	 * 		+ a randomly chosen input suffix.
+	 */
+	char **suff = NULL;
+	int n_suff = 0;
+	
+	/* Pull out suffixes into an array */
+	int pills = 0;
+	for (struct flavor *f = flavors; f; f = f->next) {
+		if (f->tval == TV_PILL && f->sval == SV_UNKNOWN) {
+			char *suffix = strchr(f->text, '|');
+			assert(suffix);
+			suffix++;
+			char buf[16];
+			strncpy(buf, suffix, sizeof(buf));
+			buf[sizeof(buf)-1] = 0;
+			insert_string(buf, pills, &suff, &n_suff);
+			pills++;
 		}
-		buf[titlelen] = '"';
-		buf[titlelen+1] = '\0';
-
-		/* Check the scroll name hasn't already been generated */
-		for (j = 0; j < i; j++) {
-			if (streq(buf, scroll_adj[j])) {
-				okay = false;
-				break;
-			}
-		}
-
-		if (okay)
-			my_strcpy(scroll_adj[i], buf, sizeof(scroll_adj[0]));
-		else
-			/* Have another go at making a name */
-			i--;
 	}
-	flavor_assign_random(TV_SCROLL);
+
+	/* And combine them */
+	i = 0;
+	for (struct flavor *f = flavors; f; f = f->next) {
+		if (f->tval == TV_PILL && f->sval == SV_UNKNOWN) {
+			char base[11];
+			strncpy(base, f->text, sizeof(base));
+			base[sizeof(base)-1] = 0;
+			char *suffix = strchr(base, '|');
+			assert(suffix);
+			*suffix = 0;
+			char buf[64];
+			snprintf(buf, sizeof(buf), "%s%s", base, suff[randint0(pills)]);
+			buf[sizeof(buf)-1] = 0;
+			insert_string(buf, i, &pill_adj, &n_pill_adj);
+			i++;
+		}
+	}
+	flavor_assign_random(TV_PILL);
+
+	clean_strings(&suff, &n_suff);
+
+	/* Cards (random titles, always blue) */
+	int cards = 0;
+	for (struct flavor *f = flavors; f; f = f->next) {
+		if (f->tval == TV_CARD && f->sval == SV_UNKNOWN) {
+			char *suffix = strchr(f->text, '|');
+			assert(suffix);
+			suffix++;
+			char buf[16];
+			strncpy(buf, suffix, sizeof(buf));
+			buf[sizeof(buf)-1] = 0;
+			insert_string(buf, cards, &suff, &n_suff);
+			cards++;
+		}
+	}
+
+	/* And combine them */
+	i = 0;
+	for (struct flavor *f = flavors; f; f = f->next) {
+		if (f->tval == TV_CARD && f->sval == SV_UNKNOWN) {
+			char base[11];
+			char ext[11];
+			strncpy(base, f->text, sizeof(base));
+			base[sizeof(base)-1] = 0;
+			char *suffix = strchr(base, '|');
+			assert(suffix);
+			*suffix = 0;
+			strncpy(ext, suff[randint0(cards)], sizeof(ext));
+			/* Determine capitalization */
+			titlecase(base);
+			titlecase(ext);
+			/* Determine separator */
+			char *sep = "";
+			switch(randint0(20)) {
+				case 0:
+					sep = ".";
+					break;
+				case 1:
+					sep = "/";
+					break;
+				case 2:
+					sep = ":";
+					break;
+				case 3:
+					sep = ".";
+					break;
+				case 4:
+				case 5:
+				case 6:
+					sep = "-";
+					break;
+				case 7:
+				case 8:
+				case 9:
+					sep = " ";
+					break;
+			}
+			/* Determine suffix */
+			char suff[8];
+			strcpy(suff, "");
+			int rn1 = randint1(9);
+			int rn2 = randint0(randint0(9));
+			int rn3 = randint0(randint0(randint0(9)));
+			switch(randint0(12)) {
+				case 0:
+					switch(randint0(7)) {
+						default:
+							strcpy(suff, " X");
+							break;
+						case 1:
+							strcpy(suff, " Z");
+							break;
+						case 2:
+							strcpy(suff, " ZX");
+							break;
+						case 3:
+							strcpy(suff, " Q");
+							break;
+						case 4:
+							strcpy(suff, " XX");
+							break;
+						case 5:
+							strcpy(suff, " II");
+							break;
+					}
+					if (!one_in_(3))
+						break;
+					// fall through
+				case 5:
+					sprintf(suff + strlen(suff), " %d", rn1);
+					break;
+				case 1:
+				case 2:
+				case 3:
+					sprintf(suff, " %d.%d", rn1, rn2);
+					break;
+				case 4:
+					sprintf(suff, " %d%d", rn1, rn2);
+					break;
+				case 6:
+					sprintf(suff, " %d.%d.%d", rn1, rn2, rn3);
+					break;
+			}
+			char buf[64];
+			snprintf(buf, sizeof(buf), "%s%s%s%s", base, sep, ext, suff);
+			buf[sizeof(buf)-1] = 0;
+			insert_string(buf, i, &card_adj, &n_card_adj);
+			i++;
+		}
+	}
+	flavor_assign_random(TV_CARD);
 
 	/* Hack -- Use the "complex" RNG */
 	Rand_quick = false;
@@ -484,14 +638,25 @@ struct ego_item *lookup_ego_item(const char *name, int tval, int sval)
 
 /**
  * Return the numeric sval of the object kind with the given `tval` and
- * name `name`.
+ * name `name`, and an ego item if that is also specified. Will find partial
+ * matches ("combat boots" matching "pair of combat boots"), but only if no
+ * exact match is found. If neither is found then it will look for a reverse
+ * partial match ("hard hat (lamp)" matching "hard hat") - in that case it
+ * will try to find an ego item ("hard hat (lamp)" matching "(lamp)").
+ * The ego item pointer may be NULL, but if specified the resulting ego item
+ * pointer (or NULL) will always be returned through it.
  */
-int lookup_sval(int tval, const char *name)
+int lookup_sval_ego(int tval, const char *name, const struct ego_item **ego)
 {
-	int k;
+	int k, e;
 	unsigned int r;
+	int length = 0;
 
-	if (sscanf(name, "%u", &r) == 1)
+	/* By default, no ego */
+	if (ego)
+		*ego = NULL;
+
+	if ((sscanf(name, "%u%n", &r, &length) == 1) && (length == (int)strlen(name)))
 		return r;
 
 	/* Look for it */
@@ -505,11 +670,64 @@ int lookup_sval(int tval, const char *name)
 							 false);
 
 		/* Found a match */
-		if (kind->tval == tval && !my_stricmp(cmp_name, name))
+		if (kind->tval == tval && !my_stricmp(cmp_name, name)) {
 			return kind->sval;
+		}
+	}
+
+	/* Try for a partial match */
+	for (k = 0; k < z_info->k_max; k++) {
+		struct object_kind *kind = &k_info[k];
+		char cmp_name[1024];
+
+		if (!kind || !kind->name) continue;
+
+		obj_desc_name_format(cmp_name, sizeof cmp_name, 0, kind->name, 0,
+							 false);
+
+		/* Found a partial match */
+		if (kind->tval == tval && my_stristr(cmp_name, name)) {
+			return kind->sval;
+		}
+	}
+
+	/* Try for a reverse partial match */
+	for (k = 0; k < z_info->k_max; k++) {
+		struct object_kind *kind = &k_info[k];
+		char cmp_name[1024];
+
+		if (!kind || !kind->name) continue;
+
+		obj_desc_name_format(cmp_name, sizeof cmp_name, 0, kind->name, 0,
+							 false);
+
+		/* Found a reverse partial match */
+		if (kind->tval == tval && my_stristr(name, cmp_name)) {
+			if (ego) {
+				/* Search for an ego item */
+				for (e = 0; e < z_info->e_max; e++) {
+					struct ego_item *eitem = &e_info[e];
+					if (my_stristr(name, eitem->name)) {
+						*ego = eitem;
+						break;
+					}
+				}
+			}
+			return kind->sval;
+		}
 	}
 
 	return -1;
+}
+
+/**
+ * Return the numeric sval of the object kind with the given `tval` and
+ * name `name`. Will find partial matches ("combat boots" matching "pair
+ * of combat boots"), but only if no exact match is found.
+ */
+int lookup_sval(int tval, const char *name)
+{
+	return lookup_sval_ego(tval, name, NULL);
 }
 
 void object_short_name(char *buf, size_t max, const char *name)
@@ -599,9 +817,32 @@ bool obj_has_charges(const struct object *obj)
 bool obj_can_zap(const struct object *obj)
 {
 	/* Any rods not charging? */
-	if (tval_can_have_timeout(obj) && number_charging(obj) < obj->number)
+	if (tval_can_have_timeout(obj) && (!tval_is_light(obj)) && number_charging(obj) < obj->number)
 		return true;
 
+	return false;
+}
+
+/**
+ * Determine if an object is activatable from inventory.
+ * Most activatable items aren't, but printers (and any future unequippable activatable tools) must be.
+ * Lights are less clunky if they can be activated in the pack.
+ */
+bool obj_is_pack_activatable(const struct object *obj)
+{
+	if ((tval_is_light(obj)) && (kf_has(obj->kind->kind_flags, KF_MIMIC_KNOW)))
+		return true;
+
+	if (obj_is_activatable(obj)) {
+		/* Object has an activation */
+		if (object_is_equipped(player->body, obj)) {
+			/* If so, and you are wearing it, it's activatable */
+			return true;
+		} else {
+			/* If not, it might still be activatable if it's the right tval */
+			if (tval_is_printer(obj)) return true;
+		}
+	}
 	return false;
 }
 
@@ -610,8 +851,7 @@ bool obj_can_zap(const struct object *obj)
  */
 bool obj_is_activatable(const struct object *obj)
 {
-	if (!tval_is_wearable(obj)) return false;
-	return object_effect(obj) ? true : false;
+	return (object_effect(obj) && (!of_has(obj->flags, OF_NO_ACTIVATION))) ? true : false;
 }
 
 /**
@@ -619,6 +859,11 @@ bool obj_is_activatable(const struct object *obj)
  */
 bool obj_can_activate(const struct object *obj)
 {
+	/* Candle type light sources can always be activated - it's equivalent to equipping and unequipping it.
+	 * And not equivalent to running the effect (which happens on timeout).
+	 */
+	if ((tval_is_light(obj)) && (kf_has(obj->kind->kind_flags, KF_MIMIC_KNOW)))
+		return true;
 	if (obj_is_activatable(obj)) {
 		/* Check the recharge */
 		if (!obj->timeout) return true;
@@ -637,53 +882,23 @@ bool obj_can_refill(const struct object *obj)
 	/* Need fuel? */
 	if (of_has(obj->flags, OF_NO_FUEL)) return false;
 
-	/* A lantern can be refueled from a flask or another lantern */
+	/* A lamp can be refueled from a battery */
 	if (light && of_has(light->flags, OF_TAKES_FUEL)) {
 		if (tval_is_fuel(obj))
 			return true;
-		else if (tval_is_light(obj) && of_has(obj->flags, OF_TAKES_FUEL) &&
-				 obj->timeout > 0) 
-			return true;
 	}
 
 	return false;
 }
 
-bool obj_kind_can_browse(const struct object_kind *kind)
-{
-	int i;
-
-	for (i = 0; i < player->class->magic.num_books; i++) {
-		struct class_book book = player->class->magic.books[i];
-		if (kind == lookup_kind(book.tval, book.sval))
-			return true;
-	}
-
-	return false;
-}
-
-bool obj_can_browse(const struct object *obj)
-{
-	return obj_kind_can_browse(obj->kind);
-}
-
-bool obj_can_cast_from(const struct object *obj)
-{
-	return obj_can_browse(obj) &&
-			spell_book_count_spells(obj, spell_okay_to_cast) > 0;
-}
-
-bool obj_can_study(const struct object *obj)
-{
-	return obj_can_browse(obj) &&
-		spell_book_count_spells(obj, spell_okay_to_study) > 0;
-}
-
-
-/* Can only take off non-cursed items */
+/* Can only take off non-sticky (or for the special case of lamps, uncharged) items */
 bool obj_can_takeoff(const struct object *obj)
 {
-	return !obj_has_flag(obj, OF_STICKY);
+	if (!obj_has_flag(obj, OF_STICKY))
+		return true;
+	if (tval_is_light(obj) && (obj->timeout == 0))
+		return true;
+	return false;
 }
 
 /* Can only put on wieldable items */
@@ -725,18 +940,18 @@ bool obj_has_inscrip(const struct object *obj)
 
 bool obj_has_flag(const struct object *obj, int flag)
 {
-	struct curse_data *c = obj->curses;
+	struct fault_data *c = obj->faults;
 
 	/* Check the object's own flags */
 	if (of_has(obj->flags, flag)) {
 		return true;
 	}
 
-	/* Check any curse object flags */
+	/* Check any fault object flags */
 	if (c) {
 		int i;
-		for (i = 1; i < z_info->curse_max; i++) {
-			if (c[i].power && of_has(curses[i].obj->flags, flag)) {
+		for (i = 1; i < z_info->fault_max; i++) {
+			if (c[i].power && of_has(faults[i].obj->flags, flag)) {
 				return true;
 			}
 		}
@@ -814,6 +1029,16 @@ int get_use_device_chance(const struct object *obj)
 	int diff_min  = 1;
 	int diff_max  = 100;
 
+	/* Depends on what kind of object in it */
+	if (tval_is_printer(obj) || tval_is_battery(obj)) {
+		/* Printers are limited by chunk supplies and fail after using chunks,
+		 * so don't need any further limiting. Batteries are supposed to be
+		 * obvious... and all batteries that will get here (that is, reusable
+		 * ones like the atomic cell) are limited by the cooldown.
+		 */
+		return 0;
+	}
+
 	/* Extract the item level, which is the difficulty rating */
 	if (obj->artifact)
 		lev = obj->artifact->level;
@@ -838,7 +1063,7 @@ int get_use_device_chance(const struct object *obj)
 
 
 /**
- * Distribute charges of rods, staves, or wands.
+ * Distribute charges of rods, devices, or wands.
  *
  * \param source is the source item
  * \param dest is the target item, must be of the same type as source
@@ -849,7 +1074,7 @@ void distribute_charges(struct object *source, struct object *dest, int amt)
 	int charge_time = randcalc(source->time, 0, AVERAGE), max_time;
 
 	/*
-	 * Hack -- If rods, staves, or wands are dropped, the total maximum
+	 * Hack -- If rods, devices, or wands are dropped, the total maximum
 	 * timeout or charges need to be allocated between the two stacks.
 	 * If all the items are being dropped, it makes for a neater message
 	 * to leave the original stack's pval alone. -LM-
@@ -867,7 +1092,7 @@ void distribute_charges(struct object *source, struct object *dest, int amt)
 	 * The dropped stack will accept all time remaining to charge up to
 	 * its maximum.
 	 */
-	if (tval_can_have_timeout(source)) {
+	if (tval_can_have_timeout(source) && (!tval_is_light(source))) {
 		max_time = charge_time * amt;
 
 		if (source->timeout > max_time)
@@ -914,17 +1139,25 @@ bool recharge_timeout(struct object *obj)
 	int charging_before, charging_after;
 
 	/* Find the number of charging items */
-	charging_before = number_charging(obj);
+	charging_before = charging_after = number_charging(obj);
 
 	/* Nothing to charge */	
 	if (charging_before == 0)
 		return false;
 
 	/* Decrease the timeout */
-	obj->timeout -= MIN(charging_before, obj->timeout);
-
-	/* Find the new number of charging items */
-	charging_after = number_charging(obj);
+	if ((!tval_is_light(obj)) || (obj->timeout < randcalc(obj->kind->pval, 0, AVERAGE))) {
+		if (obj->timeout > 0) {
+			obj->timeout -= MIN(charging_before, obj->timeout);
+			charging_after = number_charging(obj);
+			if (obj->timeout <= 0) {
+				obj->timeout = 0;
+				if (tval_is_light(obj))
+					light_timeout(obj);
+				/* The object may no longer exist */
+			}
+		}
+	}
 
 	/* Return true if at least 1 item obtained a charge */
 	if (charging_after < charging_before)
@@ -959,6 +1192,7 @@ typedef enum {
 	MSG_TAG_NONE,
 	MSG_TAG_NAME,
 	MSG_TAG_KIND,
+	MSG_TAG_FLAVOR,
 	MSG_TAG_VERB,
 	MSG_TAG_VERB_IS
 } msg_tag_t;
@@ -969,6 +1203,8 @@ static msg_tag_t msg_tag_lookup(const char *tag)
 		return MSG_TAG_NAME;
 	} else if (strncmp(tag, "kind", 4) == 0) {
 		return MSG_TAG_KIND;
+	} else if (strncmp(tag, "flavor", 6) == 0) {
+		return MSG_TAG_FLAVOR;
 	} else if (strncmp(tag, "s", 1) == 0) {
 		return MSG_TAG_VERB;
 	} else if (strncmp(tag, "is", 2) == 0) {
@@ -1015,6 +1251,13 @@ void print_custom_message(struct object *obj, const char *string, int msg_type)
 					strnfcat(buf, 1024, &end, "hands");
 				}
 				break;
+			case MSG_TAG_FLAVOR:
+				if (obj && (obj->kind->flavor) && (obj->kind->flavor->text) && (!object_flavor_is_aware(obj))) {
+					obj_desc_name_format(&buf[end], sizeof(buf) - end, 0, obj->kind->flavor->text, NULL, false);
+					end += strlen(&buf[end]);
+					break;
+				}
+				/* FALL THROUGH */
 			case MSG_TAG_KIND:
 				if (obj) {
 					object_kind_name(&buf[end], 1024 - end, obj->kind, true);

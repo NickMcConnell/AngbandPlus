@@ -52,54 +52,54 @@
  * #!/bin/csh
  *
  * # Describe attempt
- * echo "Launching angband..."
+ * echo "Launching xygos..."
  * sleep 2
  *
  * # Main window
- * setenv ANGBAND_X11_FONT_0 10x20
- * setenv ANGBAND_X11_AT_X_0 5
- * setenv ANGBAND_X11_AT_Y_0 510
+ * setenv XYGOS_X11_FONT_0 10x20
+ * setenv XYGOS_X11_AT_X_0 5
+ * setenv XYGOS_X11_AT_Y_0 510
  *
  * # Message window
- * setenv ANGBAND_X11_FONT_1 8x13
- * setenv ANGBAND_X11_AT_X_1 5
- * setenv ANGBAND_X11_AT_Y_1 22
- * setenv ANGBAND_X11_ROWS_1 35
+ * setenv XYGOS_X11_FONT_1 8x13
+ * setenv XYGOS_X11_AT_X_1 5
+ * setenv XYGOS_X11_AT_Y_1 22
+ * setenv XYGOS_X11_ROWS_1 35
  *
  * # Inventory window
- * setenv ANGBAND_X11_FONT_2 8x13
- * setenv ANGBAND_X11_AT_X_2 635
- * setenv ANGBAND_X11_AT_Y_2 182
- * setenv ANGBAND_X11_ROWS_2 23
+ * setenv XYGOS_X11_FONT_2 8x13
+ * setenv XYGOS_X11_AT_X_2 635
+ * setenv XYGOS_X11_AT_Y_2 182
+ * setenv XYGOS_X11_ROWS_2 23
  *
  * # Equipment window
- * setenv ANGBAND_X11_FONT_3 8x13
- * setenv ANGBAND_X11_AT_X_3 635
- * setenv ANGBAND_X11_AT_Y_3 22
- * setenv ANGBAND_X11_ROWS_3 12
+ * setenv XYGOS_X11_FONT_3 8x13
+ * setenv XYGOS_X11_AT_X_3 635
+ * setenv XYGOS_X11_AT_Y_3 22
+ * setenv XYGOS_X11_ROWS_3 12
  *
  * # Monster recall window
- * setenv ANGBAND_X11_FONT_4 6x13
- * setenv ANGBAND_X11_AT_X_4 817
- * setenv ANGBAND_X11_AT_Y_4 847
- * setenv ANGBAND_X11_COLS_4 76
- * setenv ANGBAND_X11_ROWS_4 11
+ * setenv XYGOS_X11_FONT_4 6x13
+ * setenv XYGOS_X11_AT_X_4 817
+ * setenv XYGOS_X11_AT_Y_4 847
+ * setenv XYGOS_X11_COLS_4 76
+ * setenv XYGOS_X11_ROWS_4 11
  *
  * # Object recall window
- * setenv ANGBAND_X11_FONT_5 6x13
- * setenv ANGBAND_X11_AT_X_5 817
- * setenv ANGBAND_X11_AT_Y_5 520
- * setenv ANGBAND_X11_COLS_5 76
- * setenv ANGBAND_X11_ROWS_5 24
+ * setenv XYGOS_X11_FONT_5 6x13
+ * setenv XYGOS_X11_AT_X_5 817
+ * setenv XYGOS_X11_AT_Y_5 520
+ * setenv XYGOS_X11_COLS_5 76
+ * setenv XYGOS_X11_ROWS_5 24
  *
  * # The build directory
- * cd ~/Angband
+ * cd ~/Xygos
  *
  * # Gamma correction
- * setenv ANGBAND_X11_GAMMA 142
+ * setenv XYGOS_X11_GAMMA 142
  *
  * # Launch Angband
- * ./src/angband -mx11 -- -n6 &
+ * ./src/xygos -mx11 -- -n6 &
  *
  */
 
@@ -501,7 +501,7 @@ static u32b create_pixel(Display *dpy, byte red, byte green, byte blue)
 	XColor xcolour;
 
 	if (!gamma_table_ready) {
-		const char *str = getenv("ANGBAND_X11_GAMMA");
+		const char *str = getenv("XYGOS_X11_GAMMA");
 		if (str != NULL) gamma_val = atoi(str);
 
 		gamma_table_ready = true;
@@ -543,14 +543,14 @@ static const char *get_default_font(int term_num)
 	char buf[80];
 
 	/* Window specific font name */
-	strnfmt(buf, sizeof(buf), "ANGBAND_X11_FONT_%d", term_num);
+	strnfmt(buf, sizeof(buf), "XYGOS_X11_FONT_%d", term_num);
 
 	/* Check environment for that font */
 	font = getenv(buf);
 	if (font) return font;
 
 	/* Check environment for "base" font */
-	font = getenv("ANGBAND_X11_FONT");
+	font = getenv("XYGOS_X11_FONT");
 	if (font) return font;
 
 	switch (term_num)
@@ -2333,43 +2333,43 @@ static errr term_data_init(term_data *td, int i)
 	 */
 
 	/* Window specific location (x) */
-	strnfmt(buf, sizeof(buf), "ANGBAND_X11_AT_X_%d", i);
+	strnfmt(buf, sizeof(buf), "XYGOS_X11_AT_X_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) x = val;
 
 	/* Window specific location (y) */
-	strnfmt(buf, sizeof(buf), "ANGBAND_X11_AT_Y_%d", i);
+	strnfmt(buf, sizeof(buf), "XYGOS_X11_AT_Y_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) y = val;
 
 	/* Window specific cols */
-	strnfmt(buf, sizeof(buf), "ANGBAND_X11_COLS_%d", i);
+	strnfmt(buf, sizeof(buf), "XYGOS_X11_COLS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) cols = val;
 
 	/* Window specific rows */
-	strnfmt(buf, sizeof(buf), "ANGBAND_X11_ROWS_%d", i);
+	strnfmt(buf, sizeof(buf), "XYGOS_X11_ROWS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) rows = val;
 
 	/* Window specific inner border offset (ox) */
-	strnfmt(buf, sizeof(buf), "ANGBAND_X11_IBOX_%d", i);
+	strnfmt(buf, sizeof(buf), "XYGOS_X11_IBOX_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) ox = val;
 
 	/* Window specific inner border offset (oy) */
-	strnfmt(buf, sizeof(buf), "ANGBAND_X11_IBOY_%d", i);
+	strnfmt(buf, sizeof(buf), "XYGOS_X11_IBOY_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) oy = val;
 
 	/* Window specific font name */
-	strnfmt(buf, sizeof(buf), "ANGBAND_X11_FONT_%d", i);
+	strnfmt(buf, sizeof(buf), "XYGOS_X11_FONT_%d", i);
 	str = getenv(buf);
 	if (str) font = str;
 
@@ -2424,7 +2424,7 @@ static errr term_data_init(term_data *td, int i)
 	res_name[0] = tolower((unsigned char)res_name[0]);
 	ch->res_name = res_name;
 
-	my_strcpy(res_class, "Angband", sizeof(res_class));
+	my_strcpy(res_class, "Xygos", sizeof(res_class));
 	ch->res_class = res_class;
 
 	XSetClassHint(Metadpy->dpy, Infowin->win, ch);

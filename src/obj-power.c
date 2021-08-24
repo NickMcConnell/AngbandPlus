@@ -17,9 +17,10 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 #include "angband.h"
-#include "obj-curse.h"
+#include "obj-fault.h"
 #include "obj-gear.h"
 #include "obj-knowledge.h"
+#include "obj-info.h"
 #include "obj-power.h"
 #include "obj-slays.h"
 #include "obj-tval.h"
@@ -40,7 +41,7 @@
  * - the assumed bonus on launchers (for rating ego ammo)
  * - twice the assumed multiplier (for rating any ammo)
  * N.B. Ammo tvals are assumed to be consecutive! We access this array using
- * (obj->tval - TV_SHOT) for ammo, and
+ * (obj->tval - TV_AMMO_6) for ammo, and
  * (obj->sval / 10) for launchers
  */
 static struct archery {
@@ -49,9 +50,9 @@ static struct archery {
 	int launch_dam;
 	int launch_mult;
 } archery[] = {
-	{TV_SHOT, 10, 9, 4},
-	{TV_ARROW, 12, 9, 5},
-	{TV_BOLT, 14, 9, 7}
+	{TV_AMMO_6, 10, 9, 4},
+	{TV_AMMO_9, 12, 9, 5},
+	{TV_AMMO_12, 14, 9, 7}
 };
 
 /**
@@ -117,7 +118,7 @@ static struct element_powers {
 	{ "sound",			T_HRES,	0,	0,	14,	0 },
 	{ "shards",			T_HRES,	0,	0,	8,	0 },
 	{ "nexus",			T_HRES,	0,	0,	15,	0 },
-	{ "nether",			T_HRES,	0,	0,	20,	0 },
+	{ "radiation",		T_HRES,	0,	0,	20,	0 },
 	{ "chaos",			T_HRES,	0,	0,	20,	0 },
 	{ "disenchantment",	T_HRES,	0,	0,	20,	0 }
 };
@@ -149,13 +150,13 @@ void log_obj(char *message)
  * ------------------------------------------------------------------------ */
 
 /**
- * Calculate the multiplier we'll get with a given bow type.
+ * Calculate the multiplier we'll get with a given gun type.
  */
-static int bow_multiplier(const struct object *obj)
+static int gun_multiplier(const struct object *obj)
 {
 	int mult = 1;
 
-	if (obj->tval != TV_BOW)
+	if (obj->tval != TV_GUN)
 		return mult;
 	else
 		mult = obj->pval;
@@ -220,11 +221,11 @@ static int ammo_damage_power(const struct object *obj, int p)
 	int launcher = -1;
 
 	if (wield_slot(obj) == slot_by_name(player, "shooting")) {
-		if (kf_has(obj->kind->kind_flags, KF_SHOOTS_SHOTS))
+		if (kf_has(obj->kind->kind_flags, KF_SHOOTS_6MM))
 			launcher = 0;
-		else if (kf_has(obj->kind->kind_flags, KF_SHOOTS_ARROWS))
+		else if (kf_has(obj->kind->kind_flags, KF_SHOOTS_9MM))
 			launcher = 1; 
-		else if (kf_has(obj->kind->kind_flags, KF_SHOOTS_BOLTS))
+		else if (kf_has(obj->kind->kind_flags, KF_SHOOTS_12MM))
 			launcher = 2;
 
 		if (launcher != -1) {
@@ -244,8 +245,8 @@ static int launcher_ammo_damage_power(const struct object *obj, int p)
 	int ammo_type = 0;
 
 	if (tval_is_ammo(obj)) {
-		if (obj->tval == TV_ARROW) ammo_type = 1;
-		if (obj->tval == TV_BOLT) ammo_type = 2;
+		if (obj->tval == TV_AMMO_9) ammo_type = 1;
+		if (obj->tval == TV_AMMO_12) ammo_type = 2;
 		if (obj->ego)
 			p += (archery[ammo_type].launch_dam * DAMAGE_POWER / 2);
 		p = p * archery[ammo_type].launch_mult / (2 * MAX_BLOWS);
@@ -428,11 +429,11 @@ static s32b slay_power(const struct object *obj, int p, int verbose,
  * Melee weapons assume MAX_BLOWS per turn, so we must divide by MAX_BLOWS
  * to get equal ratings for launchers.
  */
-static int rescale_bow_power(const struct object *obj, int p)
+static int rescale_gun_power(const struct object *obj, int p)
 {
 	if (wield_slot(obj) == slot_by_name(player, "shooting")) {
 		p /= MAX_BLOWS;
-		log_obj(format("Rescaling bow power, total is %d\n", p));
+		log_obj(format("Rescaling gun power, total is %d\n", p));
 	}
 	return p;
 }
@@ -456,22 +457,20 @@ static int ac_power(const struct object *obj, int p)
 {
 	int q = 0;
 
-	if (obj->ac) {
+	if ((obj->ac) || (obj->ac + obj->to_a)) {
 		p += BASE_ARMOUR_POWER;
-		q += (obj->ac * BASE_AC_POWER / 2);
+		q += ((obj->ac + obj->to_a) * BASE_AC_POWER / 2);
 		log_obj(format("Adding %d power for base AC value\n", q));
 
 		/* Add power for AC per unit weight */
 		if (obj->weight > 0) {
-			int i = 750 * (obj->ac + obj->to_a) / obj->weight;
+			int i = (55000 * (obj->ac + obj->to_a)) / obj->weight;
 
-			/* Avoid overpricing Elven Cloaks */
+			log_obj(format("Weight %dg, AC %d, multiplier %d%%\n", obj->weight, obj->ac + obj->to_a, i));
+			/* Avoid overpricing very light items */
 			if (i > 450) i = 450;
 
-			q *= i;
-			q /= 100;
-
-			/* Weightless (ethereal) armour items get fixed boost */
+			/* Weightless armour items get fixed boost */
 		} else
 			q *= 5;
 		p += q;
@@ -714,31 +713,31 @@ static int effects_power(const struct object *obj, int p)
 }
 
 /**
- * Add power for curses
+ * Add power for faults
  */
-static int curse_power(const struct object *obj, int p, int verbose,
+static int fault_power(const struct object *obj, int p, int verbose,
 					   ang_file *log_file)
 {
 	int i, q = 0;
 
-	if (obj->curses) {
-		/* Get the curse object power */
-		for (i = 1; i < z_info->curse_max; i++) {
-			if (obj->curses[i].power) {
-				int curse_power;
-				log_obj(format("Calculating %s curse power...\n",
-							   curses[i].name));
-				curse_power = object_power(curses[i].obj, verbose, log_file);
-				curse_power -= obj->curses[i].power / 10;
-				log_obj(format("Adjust for strength of curse, %d for %s curse power\n", curse_power, curses[i].name));
-				q += curse_power;
+	if (obj->faults) {
+		/* Get the fault object power */
+		for (i = 1; i < z_info->fault_max; i++) {
+			if (obj->faults[i].power) {
+				int fault_power;
+				log_obj(format("Calculating %s fault power...\n",
+							   faults[i].name));
+				fault_power = object_power(faults[i].obj, verbose, log_file);
+				fault_power -= obj->faults[i].power / 10;
+				log_obj(format("Adjust for strength of fault, %d for %s fault power\n", fault_power, faults[i].name));
+				q += fault_power;
 			}
 		}
 	}
 
 	if (q != 0) {
 		p += q;
-		log_obj(format("Total of %d power added for curses, total is %d\n",
+		log_obj(format("Total of %d power added for faults, total is %d\n",
 					   q, p));
 	}
 	return p;
@@ -762,7 +761,7 @@ s32b object_power(const struct object* obj, bool verbose, ang_file *log_file)
 	p += dice_pwr;
 	if (dice_pwr) log_obj(format("total is %d\n", p));
 	p += ammo_damage_power(obj, p);
-	mult = bow_multiplier(obj);
+	mult = gun_multiplier(obj);
 	p = launcher_ammo_damage_power(obj, p);
 	p = extra_blows_power(obj, p);
 	if (p > INHIBIT_POWER) return p;
@@ -771,7 +770,7 @@ s32b object_power(const struct object* obj, bool verbose, ang_file *log_file)
 	p = extra_might_power(obj, p, mult);
 	if (p > INHIBIT_POWER) return p;
 	p = slay_power(obj, p, verbose, dice_pwr);
-	p = rescale_bow_power(obj, p);
+	p = rescale_gun_power(obj, p);
 	p = to_hit_power(obj, p);
 
 	/* Armour class power */
@@ -786,7 +785,7 @@ s32b object_power(const struct object* obj, bool verbose, ang_file *log_file)
 	p = flags_power(obj, p, verbose, object_log);
 	p = element_power(obj, p);
 	p = effects_power(obj, p);
-	p = curse_power(obj, p, verbose, object_log);
+	p = fault_power(obj, p, verbose, object_log);
 
 	log_obj(format("FINAL POWER IS %d\n", p));
 
@@ -814,15 +813,15 @@ static int object_value_base(const struct object *obj)
 		case TV_FOOD:
 		case TV_MUSHROOM:
 			return 5;
-		case TV_POTION:
-		case TV_SCROLL:
+		case TV_PILL:
+		case TV_CARD:
 			return 20;
 		case TV_RING:
 		case TV_AMULET:
 			return 45;
 		case TV_WAND:
 			return 50;
-		case TV_STAFF:
+		case TV_DEVICE:
 			return 70;
 		case TV_ROD:
 			return 90;
@@ -835,7 +834,7 @@ static int object_value_base(const struct object *obj)
 /**
  * Return the real price of a known (or partly known) item.
  *
- * Wand and staffs get cost for each charge.
+ * Wand and devices get cost for each charge.
  *
  * Wearable items (weapons, launchers, jewelry, lights, armour) and ammo
  * are priced according to their power rating. All ammo, and normal (non-ego)
@@ -899,12 +898,18 @@ int object_value_real(const struct object *obj, int qty)
 		total_value = value * qty;
 		if (total_value < 0) total_value = 0;
 	} else {
+		struct object_kind *kind = obj->kind;
+
+		/* Mimic items */
+		if (kf_has(obj->kind->kind_flags, KF_MIMIC_KNOW) && (!obj->kind->aware)) {
+			kind = obj_mimic_kind(obj);
+		}
 
 		/* Worthless items */
-		if (!obj->kind->cost) return (0L);
+		if (!kind->cost) return (0L);
 
 		/* Base cost */
-		value = obj->kind->cost;
+		value = kind->cost;
 
 		/* Analyze the item type and quantity */
 		if (tval_can_have_charges(obj)) {
@@ -937,7 +942,7 @@ int object_value_real(const struct object *obj, int qty)
  *
  * This function returns the "value" of the given item (qty one).
  *
- * Never notice unknown bonuses or properties, including curses,
+ * Never notice unknown bonuses or properties, including faults,
  * since that would give the player information they did not have.
  */
 int object_value(const struct object *obj, int qty)

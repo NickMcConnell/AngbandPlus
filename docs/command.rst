@@ -334,17 +334,16 @@ Aim a wand (``a``) or Zap a wand (``z``)
   traveling any farther. This command requires a direction and can use a
   target. This command takes some energy.
 
-Use a staff (``u``) or Zap a staff (``Z``)
-  This command will use a staff. A staff is normally very similar to a
-  scroll, in that they normally either have an area effect or affect a
-  specific object. Staves are magical devices, and there is a chance you
-  will not be able to figure out how to use them. This command takes some
-  energy.
+Use a device (``u``) or Zap a device (``Z``)
+  This command will use a device. A device is normally very similar to a
+  card, in that they normally either have an area effect or affect a
+  specific object. There is a chance you will not be able to figure out
+  how to use them. This command takes some energy.
  
 Zap a rod (``z``) or Activate a rod (``a``)
   Rods are extremely powerful magical items, which cannot be burnt or
-  shattered, and which can have either staff-like or wand-like effects, but
-  unlike staves and wands, they don't have charges. Instead, they draw on
+  shattered, and which can have either device-like or wand-like effects, but
+  unlike devices and wands, they don't have charges. Instead, they draw on
   the ambient magical energy to recharge themselves, and therefore can only
   be activated once every few turns. The recharging time varies depending
   on the type of rod. This command may require a direction (depending on

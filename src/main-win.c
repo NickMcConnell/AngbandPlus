@@ -366,7 +366,7 @@ static int alphablend = 0;
 static BLENDFUNCTION blendfn;
 
 /**
- * Full path to ANGBAND.INI
+ * Full path to XYGOS.INI
  */
 static char *ini_file = NULL;
 
@@ -378,7 +378,7 @@ static const char *AppName = VERSION_NAME;
 /**
  * Name of sub-window type
  */
-static const char *AngList = "AngList";
+static const char *AngList = "XygList";
 
 /**
  * The "complex" color values
@@ -727,19 +727,19 @@ static void save_prefs(void)
 
 	/* Save the "arg_graphics" flag */
 	sprintf(buf, "%d", arg_graphics);
-	WritePrivateProfileString("Angband", "Graphics", buf, ini_file);
+	WritePrivateProfileString("Xygos", "Graphics", buf, ini_file);
 
         /* Save the "use_graphics_nice" flag */
         strcpy(buf, arg_graphics_nice ? "1" : "0");
-        WritePrivateProfileString("Angband", "Graphics_Nice", buf, ini_file);
+        WritePrivateProfileString("Xygos", "Graphics_Nice", buf, ini_file);
 
         /* Save the tile width */
         wsprintf(buf, "%d", tile_width);
-        WritePrivateProfileString("Angband", "TileWidth", buf, ini_file);
+        WritePrivateProfileString("Xygos", "TileWidth", buf, ini_file);
 
         /* Save the tile height */
         wsprintf(buf, "%d", tile_height);
-        WritePrivateProfileString("Angband", "TileHeight", buf, ini_file);
+        WritePrivateProfileString("Xygos", "TileHeight", buf, ini_file);
 
 	/* Save window prefs */
 	for (i = 0; i < MAX_TERM_DATA; i++) {
@@ -812,25 +812,25 @@ static void load_prefs(void)
 	}
 
 	/* Extract the "arg_graphics" flag */
-	arg_graphics = GetPrivateProfileInt("Angband", "Graphics", GRAPHICS_NONE,
+	arg_graphics = GetPrivateProfileInt("Xygos", "Graphics", GRAPHICS_NONE,
 										ini_file);
 
 	/* Extract the "arg_graphics_nice" flag */
-	arg_graphics_nice = GetPrivateProfileInt("Angband", "Graphics_Nice", true,
+	arg_graphics_nice = GetPrivateProfileInt("Xygos", "Graphics_Nice", true,
 											 ini_file);
 
 	/* Extract the tile width */
-	tile_width = GetPrivateProfileInt("Angband", "TileWidth", false, ini_file);
+	tile_width = GetPrivateProfileInt("Xygos", "TileWidth", false, ini_file);
 
 	/* Extract the tile height */
-	tile_height = GetPrivateProfileInt("Angband", "TileHeight", false,
+	tile_height = GetPrivateProfileInt("Xygos", "TileHeight", false,
 									   ini_file);
 
 	/* Extract the "arg_wizard" flag */
-	arg_wizard = (GetPrivateProfileInt("Angband", "Wizard", 0, ini_file) != 0);
+	arg_wizard = (GetPrivateProfileInt("Xygos", "Wizard", 0, ini_file) != 0);
 
 	/* Extract the gamma correction */
-	gamma_correction = GetPrivateProfileInt("Angband", "Gamma", 0, ini_file);
+	gamma_correction = GetPrivateProfileInt("Xygos", "Gamma", 0, ini_file);
 
 
 	/* Load window prefs */
@@ -1448,7 +1448,7 @@ static void term_change_font(term_data *td)
 	memset(&ofn, 0, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = data[0].w;
-	ofn.lpstrFilter = "Angband Font Files (*.fon)\0*.fon\0";
+	ofn.lpstrFilter = "Xygos Font Files (*.fon)\0*.fon\0";
 	ofn.nFilterIndex = 1;
 	ofn.lpstrFile = tmp;
 	ofn.nMaxFile = 128;
@@ -3812,7 +3812,7 @@ static void process_menus(WORD wCmd)
 				/* Create a screen saver window */
 				hwndSaver = CreateWindowEx(WS_EX_TOPMOST,
 										   "WindowsScreenSaverClass",
-				                           "Angband Screensaver",
+				                           "Xygos Screensaver",
 				                           WS_POPUP | WS_MAXIMIZE | WS_VISIBLE,
 				                           0, 0, GetSystemMetrics(SM_CXSCREEN),
 				                           GetSystemMetrics(SM_CYSCREEN),
@@ -4929,16 +4929,16 @@ static void init_stuff(void)
 
 #ifdef USE_SAVER
 
-	/* Try to get the path to the Angband folder */
+	/* Try to get the path to the Xygos folder */
 	if (screensaver) {
 		/* Extract the filename of the savefile for the screensaver */
-		GetPrivateProfileString("Angband", "SaverFile", "", saverfilename,
+		GetPrivateProfileString("Xygos", "SaverFile", "", saverfilename,
 								sizeof(saverfilename), path);
 
-		GetPrivateProfileString("Angband", "AngbandPath", "", tmp,
+		GetPrivateProfileString("Xygos", "XygosPath", "", tmp,
 								sizeof(tmp), path);
 
-		sprintf(path, "%sangband.ini", tmp);
+		sprintf(path, "%sxygos.ini", tmp);
 	}
 
 #endif /* USE_SAVER */
@@ -5025,7 +5025,7 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 
 				/* Only run one screensaver at the time */
 				screensaverSemaphore = CreateSemaphore(NULL, 0, 1,
-													   "AngbandSaverSemaphore");
+													   "XygosSaverSemaphore");
 
 				if (!screensaverSemaphore) exit(0);
 
@@ -5062,10 +5062,10 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 		wc.cbClsExtra    = 0;
 		wc.cbWndExtra    = 4; /* one long pointer to term_data */
 		wc.hInstance     = hInst;
-		wc.hIcon         = hIcon = LoadIcon(hInst, "ANGBAND");
+		wc.hIcon         = hIcon = LoadIcon(hInst, "XYGOS");
 		wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
 		wc.hbrBackground = GetStockObject(BLACK_BRUSH);
-		wc.lpszMenuName  = "ANGBAND";
+		wc.lpszMenuName  = "XYGOS";
 		wc.lpszClassName = AppName;
 
 		if (!RegisterClass(&wc)) exit(1);

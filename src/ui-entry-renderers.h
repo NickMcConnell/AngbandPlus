@@ -36,10 +36,10 @@ struct ui_entry_details {
 	 */
 	bool alternate_color_first;
 	/*
-	 * If true, the rune associated with the values is known to the
+	 * If true, the icon associated with the values is known to the
 	 * player.
 	 */
-	bool known_rune;
+	bool known_icon;
 	/* If true, the combined value will be shown. */
 	bool show_combined;
 };

@@ -33,7 +33,7 @@
 #include "mon-util.h"
 #include "mon-timed.h"
 #include "obj-chest.h"
-#include "obj-curse.h"
+#include "obj-fault.h"
 #include "obj-desc.h"
 #include "obj-gear.h"
 #include "obj-ignore.h"
@@ -43,8 +43,10 @@
 #include "obj-power.h"
 #include "obj-tval.h"
 #include "obj-util.h"
+#include "player-ability.h"
 #include "player-calcs.h"
 #include "player-history.h"
+#include "player-quest.h"
 #include "player-spell.h"
 #include "player-timed.h"
 #include "player-util.h"
@@ -52,7 +54,13 @@
 #include "source.h"
 #include "target.h"
 #include "trap.h"
+#include "ui-display.h"
+#include "ui-input.h"
+#include "ui-output.h"
+#include "ui-store.h"
+#include "z-textblock.h"
 
+#include <math.h>
 
 /**
  * ------------------------------------------------------------------------
@@ -73,6 +81,10 @@ typedef struct effect_handler_context_s {
 	struct command *cmd;
 } effect_handler_context_t;
 
+#define EFFECT(x, a, b, c, d, e)	bool effect_handler_##x(effect_handler_context_t *context);
+#include "list-effects.h"
+#undef EFFECT
+
 typedef bool (*effect_handler_f)(effect_handler_context_t *);
 
 /**
@@ -85,6 +97,8 @@ struct effect_kind {
 	effect_handler_f handler;    /* Function to perform the effect */
 	const char *desc;    /* Effect description */
 };
+
+bool effect_handler_BREATH(effect_handler_context_t *context);
 
 
 /**
@@ -222,14 +236,14 @@ static bool project_touch(int dam, int rad, int typ, bool aware,
 }
 
 /**
- * Selects items that have at least one removable curse.
+ * Selects items that have at least one removable fault.
  */
 static bool item_tester_uncursable(const struct object *obj)
 {
-	struct curse_data *c = obj->known->curses;
+	struct fault_data *c = obj->known->faults;
 	if (c) {
 		size_t i;
-		for (i = 1; i < z_info->curse_max; i++) {
+		for (i = 1; i < z_info->fault_max; i++) {
 			if (c[i].power < 100) {
 				return true;
 			}
@@ -239,13 +253,13 @@ static bool item_tester_uncursable(const struct object *obj)
 }
 
 /**
- * Removes an individual curse from an object.
+ * Removes an individual fault from an object.
  */
-static void remove_object_curse(struct object *obj, int index, bool message)
+static void remove_object_fault(struct object *obj, int index, bool message)
 {
-	struct curse_data *c = &obj->curses[index];
-	char *name = curses[index].name;
-	char *removed = format("The %s curse is removed!", name);
+	struct fault_data *c = &obj->faults[index];
+	char *name = faults[index].name;
+	char *removed = format("The %s fault is repaired!", name);
 	int i;
 
 	c->power = 0;
@@ -255,38 +269,38 @@ static void remove_object_curse(struct object *obj, int index, bool message)
 	}
 
 	/* Check to see if that was the last one */
-	for (i = 1; i < z_info->curse_max; i++) {
-		if (obj->curses[i].power) {
+	for (i = 1; i < z_info->fault_max; i++) {
+		if (obj->faults[i].power) {
 			return;
 		}
 	}
 
-	mem_free(obj->curses);
-	obj->curses = NULL;
+	mem_free(obj->faults);
+	obj->faults = NULL;
 }
 
 /**
- * Attempts to remove a curse from an object.
+ * Attempts to remove a fault from an object.
  */
-static bool uncurse_object(struct object *obj, int strength, char *dice_string)
+static bool unfault_object(struct object *obj, int strength, char *dice_string)
 {
 	int index = 0;
 
-	if (get_curse(&index, obj, dice_string)) {
-		struct curse_data curse = obj->curses[index];
+	if (get_fault(&index, obj, dice_string)) {
+		struct fault_data fault = obj->faults[index];
 		char o_name[80];
 
-		if (curse.power >= 100) {
-			/* Curse is permanent */
+		if (fault.power >= 100) {
+			/* Fault is permanent */
 			return false;
-		} else if (strength >= curse.power) {
-			/* Successfully removed this curse */
-			remove_object_curse(obj->known, index, false);
-			remove_object_curse(obj, index, true);
+		} else if (strength >= fault.power) {
+			/* Successfully removed this fault */
+			remove_object_fault(obj->known, index, false);
+			remove_object_fault(obj, index, true);
 		} else if (!of_has(obj->flags, OF_FRAGILE)) {
 			/* Failure to remove, object is now fragile */
 			object_desc(o_name, sizeof(o_name), obj, ODESC_FULL);
-			msgt(MSG_CURSED, "The spell fails; your %s is now fragile.", o_name);
+			msgt(MSG_FAULTY, "The attempt fails; your %s is now fragile.", o_name);
 			of_on(obj->flags, OF_FRAGILE);
 			player_learn_flag(player, OF_FRAGILE);
 		} else if (one_in_(4)) {
@@ -294,7 +308,7 @@ static bool uncurse_object(struct object *obj, int strength, char *dice_string)
 			struct object *destroyed;
 			bool none_left = false;
 			msg("There is a bang and a flash!");
-			take_hit(player, damroll(5, 5), "Failed uncursing");
+			take_hit(player, damroll(5, 5), "Failed repairing");
 			if (object_is_carried(player, obj)) {
 				destroyed = gear_object_for_use(obj, 1, false, &none_left);
 				if (destroyed->artifact) {
@@ -308,7 +322,7 @@ static bool uncurse_object(struct object *obj, int strength, char *dice_string)
 			}
 		} else {
 			/* Non-destructive failure */
-			msg("The removal fails.");
+			msg("The repair fails.");
 		}
 	} else {
 		return false;
@@ -320,11 +334,11 @@ static bool uncurse_object(struct object *obj, int strength, char *dice_string)
 }
 
 /**
- * Selects items that have at least one unknown rune.
+ * Selects items that have at least one unknown icon.
  */
 static bool item_tester_unknown(const struct object *obj)
 {
-    return object_runes_known(obj) ? false : true;
+    return object_icons_known(obj) ? false : true;
 }
 
 /**
@@ -408,7 +422,7 @@ static bool enchant2(struct object *obj, s16b *score)
  * Revamped!  Now takes item pointer, number of times to try enchanting, and a
  * flag of what to try enchanting.  Artifacts resist enchantment some of the
  * time. Also, any enchantment attempt (even unsuccessful) kicks off a parallel
- * attempt to uncurse a cursed item.
+ * attempt to repair a faulty item.
  *
  * Note that an item can technically be enchanted all the way to +15 if you
  * wait a very, very, long time.  Going from +9 to +10 only works about 5% of
@@ -590,18 +604,18 @@ void brand_object(struct object *obj, const char *name)
  */
 static bool item_tester_hook_recharge(const struct object *obj)
 {
-	/* Recharge staves and wands */
+	/* Recharge devices and wands */
 	if (tval_can_have_charges(obj)) return true;
 
 	return false;
 }
 
 /**
- * Hook to specify a staff
+ * Hook to specify a device
  */
-static bool item_tester_hook_staff(const struct object *obj)
+static bool item_tester_hook_device(const struct object *obj)
 {
-	return obj->tval == TV_STAFF;
+	return obj->tval == TV_DEVICE;
 }
 
 /**
@@ -617,7 +631,7 @@ static bool item_tester_hook_ammo(const struct object *obj)
  */
 static bool item_tester_hook_bolt(const struct object *obj)
 {
-	return obj->tval == TV_BOLT;
+	return obj->tval == TV_AMMO_12;
 }
 
 /**
@@ -680,7 +694,7 @@ bool effect_handler_DAMAGE(effect_handler_context_t *context)
 		}
 
 		case SRC_OBJECT: {
-			/* Must be a cursed weapon */
+			/* Must be a faulty weapon */
 			struct object *obj = context->origin.which.object;
 			object_desc(killer, sizeof(killer), obj, ODESC_PREFIX | ODESC_BASE);
 			break;
@@ -740,6 +754,15 @@ bool effect_handler_HEAL_HP(effect_handler_context_t *context)
 
 	/* Enforce minimum */
 	if (num < context->value.base) num = context->value.base;
+
+	/* Reduce if below 0 */
+	if (player->chp < 0) {
+		if (num > -player->chp) {
+			num += player->chp;
+			num /= 5;
+			num -= player->chp;
+		}
+	}
 
 	/* Gain hitpoints */
 	player->chp += num;
@@ -905,6 +928,53 @@ bool effect_handler_NOURISH(effect_handler_context_t *context)
 		}
 	} else {
 		return false;
+	}
+	context->ident = true;
+	return true;
+}
+
+bool target_set_interactive(int mode, int x, int y);
+/* Check WIS, and if it passes you swallowed it.
+ * In that case, feed you (same as a normal pepper) and if you pass a CON check and are not already opposing cold,
+ * do so. If you pass a more difficult check, also breathe fire.
+ */
+bool effect_handler_HABANERO(effect_handler_context_t *context)
+{
+	if (stat_check(STAT_WIS, 15)) {
+		msg("It's seriously HOT! But you manage to swallow the fiery pepper.");
+		player_inc_timed(player, TMD_FOOD, 8 * z_info->food_value, false, false);
+		if ((player->timed[TMD_OPP_COLD] == 0) && stat_check(STAT_CON, 12)) {
+			player_inc_timed(player, TMD_OPP_COLD, damroll(3, 6), false, false);
+			if (stat_check(STAT_CON, 18)) {
+				msg("You burp fire!");
+				event_signal(EVENT_MESSAGE_FLUSH);
+				struct loc target = player->grid;
+					target_set_interactive(TARGET_KILL, -1, -1);
+					target_get(&target);
+				project(context->origin, 20, target, 5 + damroll(1, 10) + player->lev, ELEM_FIRE,  PROJECT_ARC | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, 40, 10, context->obj);
+			}
+		}
+	} else  {
+		/* No effect */
+		msg("It's seriously HOT, and you spit it out.");
+	}
+	context->ident = true;
+	return true;
+}
+
+/* Check WIS, and if it passes you swallowed it.
+ * In that case, feed you (to max, including slowing) and transform into a giant!
+ */
+static void shapechange(const char *shapename, bool verbose);
+bool effect_handler_SNOZZCUMBER(effect_handler_context_t *context)
+{
+	if (stat_check(STAT_WIS, 17)) {
+		msg("It's extremely bitter, but you manage to swallow the disgusting vegetable.");
+		player_set_timed(player, TMD_FOOD, 99 * z_info->food_value, false);
+		shapechange("giant", true);
+	} else  {
+		/* No effect */
+		msg("It's extremely bitter and you spit it out in disgust.");
 	}
 	context->ident = true;
 	return true;
@@ -1273,7 +1343,7 @@ bool effect_handler_GAIN_EXP(effect_handler_context_t *context)
 	int amount = effect_calculate_value(context, false);
 	if (player->exp < PY_MAX_EXP) {
 		msg("You feel more experienced.");
-		player_exp_gain(player, amount / 2);
+		player_exp_gain_scaled(player, amount / 2);
 	}
 	context->ident = true;
 
@@ -1309,107 +1379,12 @@ bool effect_handler_DRAIN_LIGHT(effect_handler_context_t *context)
 }
 
 /**
- * Drain mana from the player, healing the caster.
+ * Attempt to unfault an object
  */
-bool effect_handler_DRAIN_MANA(effect_handler_context_t *context)
+bool effect_handler_REMOVE_FAULT(effect_handler_context_t *context)
 {
-	int drain = effect_calculate_value(context, false);
-	bool monster = context->origin.what != SRC_TRAP;
-	char m_name[80];
-	struct monster *mon = NULL;
-	struct monster *t_mon = monster_target_monster(context);
-	struct loc decoy = cave_find_decoy(cave);
-
-	context->ident = true;
-
-	if (monster) {
-		assert(context->origin.what == SRC_MONSTER);
-
-		mon = cave_monster(cave, context->origin.which.monster);
-
-		/* Get the monster name (or "it") */
-		monster_desc(m_name, sizeof(m_name), mon, MDESC_STANDARD);
-	}
-
-	/* Target is another monster - disenchant it */
-	if (t_mon) {
-		mon_inc_timed(t_mon, MON_TMD_DISEN, MAX(drain, 0), 0);
-		return true;
-	}
-
-	/* Target was a decoy - destroy it */
-	if (decoy.y && decoy.x) {
-		square_destroy_decoy(cave, decoy);
-		return true;
-	}
-
-	/* The player has no mana */
-	if (!player->csp) {
-		msg("The draining fails.");
-		if (monster) {
-			update_smart_learn(mon, player, 0, PF_NO_MANA, -1);
-		}
-		return true;
-	}
-
-	/* Drain the given amount if the player has that much, or all of it */
-	if (drain >= player->csp) {
-		drain = player->csp;
-		player->csp = 0;
-		player->csp_frac = 0;
-	} else {
-		player->csp -= drain;
-	}
-
-	/* Heal the monster */
-	if (monster) {
-		if (mon->hp < mon->maxhp) {
-			mon->hp += (6 * drain);
-			if (mon->hp > mon->maxhp)
-				mon->hp = mon->maxhp;
-
-			/* Redraw (later) if needed */
-			if (player->upkeep->health_who == mon)
-				player->upkeep->redraw |= (PR_HEALTH);
-
-			/* Special message */
-			if (monster_is_visible(mon))
-				msg("%s appears healthier.", m_name);
-		}
-	}
-
-	/* Redraw mana */
-	player->upkeep->redraw |= PR_MANA;
-
-	return true;
-}
-
-bool effect_handler_RESTORE_MANA(effect_handler_context_t *context)
-{
-	int amount = effect_calculate_value(context, false);
-	if (!amount) amount = player->msp;
-	if (player->csp < player->msp) {
-		player->csp += amount;
-		if (player->csp > player->msp) {
-			player->csp = player->msp;
-			player->csp_frac = 0;
-			msg("You feel your head clear.");
-		} else
-			msg("You feel your head clear somewhat.");
-		player->upkeep->redraw |= (PR_MANA);
-	}
-	context->ident = true;
-
-	return true;
-}
-
-/**
- * Attempt to uncurse an object
- */
-bool effect_handler_REMOVE_CURSE(effect_handler_context_t *context)
-{
-	const char *prompt = "Uncurse which item? ";
-	const char *rejmsg = "You have no curses to remove.";
+	const char *prompt = "Unfault which item? ";
+	const char *rejmsg = "You have no faults to remove.";
 	int itemmode = (USE_EQUIP | USE_INVEN | USE_QUIVER | USE_FLOOR);
 	int strength = effect_calculate_value(context, false);
 	struct object *obj = NULL;
@@ -1442,7 +1417,7 @@ bool effect_handler_REMOVE_CURSE(effect_handler_context_t *context)
 		strnfmt(dice_string, sizeof(dice_string), "%d", context->value.base);
 	}
 
-	return uncurse_object(obj, strength, dice_string);
+	return unfault_object(obj, strength, dice_string);
 }
 
 /**
@@ -1483,18 +1458,20 @@ bool effect_handler_RECALL(effect_handler_context_t *context)
 	/* Activate recall */
 	if (!player->word_recall) {
 		/* Reset recall depth */
-		if (player->depth > 0) {
-			if (player->depth != player->max_depth) {
-				if (get_check("Set recall depth to current depth? ")) {
-					player->recall_depth = player->max_depth = player->depth;
+		if (player->active_quest < 0) {
+			if (player->depth > 0) {
+				if (player->depth != player->max_depth) {
+					if (get_check("Set recall depth to current depth? ")) {
+						player->recall_depth = player->max_depth = player->depth;
+					}
+				} else {
+					player->recall_depth = player->max_depth;
 				}
 			} else {
-				player->recall_depth = player->max_depth;
-			}
-		} else {
-			if (OPT(player, birth_levels_persist)) {
-				/* Persistent levels players get to choose */
-				if (!player_get_recall_depth(player)) return false;
+				if (OPT(player, birth_levels_persist)) {
+					/* Persistent levels players get to choose */
+					if (!player_get_recall_depth(player)) return false;
+				}
 			}
 		}
 
@@ -1539,7 +1516,7 @@ bool effect_handler_DEEP_DESCENT(effect_handler_context_t *context)
 		player->upkeep->redraw |= PR_STATUS;
 		handle_stuff(player);
 	} else {
-		msgt(MSG_TPLEVEL, "You sense a malevolent presence blocking passage to the levels below.");
+		msgt(MSG_TPLEVEL, "The air swirls briefly, then settles. Something's blocking your descent.");
 	}
 	context->ident = true;
 	return true;
@@ -1548,7 +1525,7 @@ bool effect_handler_DEEP_DESCENT(effect_handler_context_t *context)
 bool effect_handler_ALTER_REALITY(effect_handler_context_t *context)
 {
 	msg("The world changes!");
-	dungeon_change_level(player, player->depth);
+	dungeon_change_level(player, (player->active_quest >= 0) ? 0 : player->depth);
 	context->ident = true;
 	return true;
 }
@@ -2241,7 +2218,7 @@ bool effect_handler_DETECT_SOUL(effect_handler_context_t *context)
 }
 
 /**
- * Identify an unknown rune of an item.
+ * Identify an unknown icon of an item.
  */
 bool effect_handler_IDENTIFY(effect_handler_context_t *context)
 {
@@ -2264,7 +2241,7 @@ bool effect_handler_IDENTIFY(effect_handler_context_t *context)
 		return used;
 
 	/* Identify the object */
-	object_learn_unknown_rune(player, obj);
+	object_learn_unknown_icon(player, obj);
 
 	return true;
 }
@@ -2354,7 +2331,7 @@ bool effect_handler_DISENCHANT(effect_handler_context_t *context)
 	}
 
 	/* Apply disenchantment, depending on which kind of equipment */
-	if (slot_type_is(i, EQUIP_WEAPON) || slot_type_is(i, EQUIP_BOW)) {
+	if (slot_type_is(i, EQUIP_WEAPON) || slot_type_is(i, EQUIP_GUN)) {
 		/* Disenchant to-hit */
 		if (obj->to_h > 0) obj->to_h--;
 		if ((obj->to_h > 5) && (randint0(100) < 20)) obj->to_h--;
@@ -2420,7 +2397,7 @@ bool effect_handler_ENCHANT(effect_handler_context_t *context)
  * Returns N which is the 1 in N chance for recharging to fail.
  */
 int recharge_failure_chance(const struct object *obj, int strength) {
-	/* Ease of recharge ranges from 9 down to 4 (wands) or 3 (staffs) */
+	/* Ease of recharge ranges from 9 down to 4 (wands) or 3 (devices) */
 	int ease_of_recharge = (100 - obj->kind->level) / 10;
 	int raw_chance = strength + ease_of_recharge
 		- 2 * (obj->pval / obj->number);
@@ -2428,7 +2405,7 @@ int recharge_failure_chance(const struct object *obj, int strength) {
 }
 
 /**
- * Recharge a wand or staff from the pack or on the floor.  Recharge strength
+ * Recharge a wand or device from the pack or on the floor.  Recharge strength
  * is context->value.base.
  *
  * It is harder to recharge high level, and highly charged wands.
@@ -2574,6 +2551,42 @@ bool effect_handler_ACQUIRE(effect_handler_context_t *context)
 {
 	int num = effect_calculate_value(context, false);
 	acquirement(player->grid, player->depth, num, true);
+	context->ident = true;
+	return true;
+}
+
+bool effect_handler_LOCAL_ACQUIRE(effect_handler_context_t *context)
+{
+	struct object *best = NULL;
+	struct object *obj;
+	int bestprice = -1;
+	 
+	/* All objects on the ground */
+	for (int y = 1; y < cave->height; y++) {
+		for (int x = 1; x < cave->width; x++) {
+			struct loc grid = loc(x, y);
+			for (obj = square_object(cave, grid); obj; obj = obj->next) {
+				int val = object_value_real(obj, obj->number);
+				if (val > bestprice) {
+					best = obj;
+					bestprice = val;
+				}
+			}
+		}
+	}
+
+	if (!best) {
+		/* Almost impossible, but could happen if there were no objects on the level */
+		return effect_handler_ACQUIRE(context);
+	}
+
+	/* Remove it */
+	bool dummy;
+	struct object *removed = floor_object_for_use(best, best->number, false, &dummy);
+
+	/* And replace it */
+	drop_near(cave, &removed, 0, player->grid, true, true);
+
 	context->ident = true;
 	return true;
 }
@@ -2846,6 +2859,106 @@ bool effect_handler_PROBE(effect_handler_context_t *context)
 	return true;
 }
 
+/** Teleport player to the nearest portal in the level, if
+ * there is one. If there isn't behaves as TELEPORT.
+ */
+bool effect_handler_PORTAL(effect_handler_context_t *context)
+{
+	struct loc start = loc(context->x, context->y);
+	struct monster *t_mon = monster_target_monster(context);
+	bool is_player = (context->origin.what != SRC_MONSTER || context->subtype);
+	int dis = context->value.base;
+
+	/* No teleporting in arena levels */
+	if (player->upkeep->arena_level) return true;
+
+	/* Establish the coordinates to teleport from, if we don't know already */
+	if (!loc_is_zero(start)) {
+		/* We're good */
+	} else if (t_mon) {
+		/* Monster targeting another monster */
+		start = t_mon->grid;
+	} else if (is_player) {
+		/* Decoys get destroyed */
+		struct loc decoy = cave_find_decoy(cave);
+		if (!loc_is_zero(decoy) && context->subtype) {
+			square_destroy_decoy(cave, decoy);
+			return true;
+		}
+
+		start = player->grid;
+
+		/* Check for a no teleport grid */
+		if (square_isno_teleport(cave, start) &&
+			((dis > 10) || (dis == 0))) {
+			msg("Teleportation forbidden!");
+			return true;
+		}
+
+		/* Check for a no teleport fault */
+		if (player_of_has(player, OF_NO_TELEPORT)) {
+			equip_learn_flag(player, OF_NO_TELEPORT);
+			msg("Teleportation forbidden!");
+			return true;
+		}
+	} else {
+		assert(context->origin.what == SRC_MONSTER);
+		struct monster *mon = cave_monster(cave, context->origin.which.monster);
+		start = mon->grid;
+	}
+
+	/* Find the closest portal */
+	struct loc target;
+	struct loc grid;
+	int best = -1;
+	struct trap_kind *portal = lookup_trap("portal");
+	bool found = false;
+	for (grid.y = 1; grid.y < cave->height - 1; grid.y++) {
+		for (grid.x = 1; grid.x < cave->width - 1; grid.x++) {
+			/* Not this portal */
+			if ((grid.x == start.x) && (grid.y == start.y))
+				continue;
+			/* Not a portal */
+			if (!square_trap_specific(cave, grid, portal->tidx))
+				continue;
+			int d = distance(grid, start);
+			if (!found) {
+				found = true;
+				best = d;
+				target = grid;
+			} else {
+				if (d < best) {
+					best = d;
+					target = grid;
+				}
+			}
+		}
+	}
+
+	/* If there is none, teleport instead */
+	if (!found) {
+		return effect_handler_TELEPORT(context);
+	} else {
+		/* Sound */
+		sound(is_player ? MSG_TELEPORT : MSG_TPOTHER);
+
+		/* Move player */
+		monster_swap(start, target);
+
+		/* Clear any projection marker to prevent double processing */
+		sqinfo_off(square(cave, target)->info, SQUARE_PROJECT);
+
+		/* Clear monster target if it's no longer visible */
+		if (!target_able(target_get_monster())) {
+			target_set_monster(NULL);
+		}
+
+		/* Lots of updates after monster_swap */
+		handle_stuff(player);
+	}
+	return true;
+}
+
 /**
  * Teleport player or monster up to context->value.base grids away.
  *
@@ -2902,7 +3015,7 @@ bool effect_handler_TELEPORT(effect_handler_context_t *context)
 			return true;
 		}
 
-		/* Check for a no teleport curse */
+		/* Check for a no teleport fault */
 		if (player_of_has(player, OF_NO_TELEPORT)) {
 			equip_learn_flag(player, OF_NO_TELEPORT);
 			msg("Teleportation forbidden!");
@@ -3074,7 +3187,7 @@ bool effect_handler_TELEPORT_TO(effect_handler_context_t *context)
 			return true;
 		}
 
-		/* Check for a no teleport curse */
+		/* Check for a no teleport fault */
 		if (player_of_has(player, OF_NO_TELEPORT)) {
 			equip_learn_flag(player, OF_NO_TELEPORT);
 			msg("Teleportation forbidden!");
@@ -3180,7 +3293,7 @@ bool effect_handler_TELEPORT_LEVEL(effect_handler_context_t *context)
 		return true;
 	}
 
-	/* Check for a no teleport curse */
+	/* Check for a no teleport fault */
 	if (player_of_has(player, OF_NO_TELEPORT)) {
 		equip_learn_flag(player, OF_NO_TELEPORT);
 		msg("Teleportation forbidden!");
@@ -3816,6 +3929,29 @@ bool effect_handler_SPOT(effect_handler_context_t *context)
 	/* Handle increasing radius with player level */
 	if (context->other && context->origin.what == SRC_PLAYER) {
 		rad += player->lev / context->other;
+	}
+
+	/* If the origin is an object, use the object's grid (and don't display a ray from the player to the object) */
+	if (context->origin.what == SRC_OBJECT) {
+		if ((context->origin.which.object->grid.x != 0) || (context->origin.which.object->grid.y != 0)) {
+			/* There's an XY, so it's on the level - use it */
+			pgrid = context->origin.which.object->grid;
+		} else {
+			/* Held by either a monster or the player.
+			 * If held by a monster, grid is (0,0) and held_m_idx is nonzero.
+			 * If by the player, grid is (0,0) and held_m_idx is 0 - so don't change the XY.
+			 */
+			if (context->origin.which.object->held_m_idx) {
+				pgrid = cave_monster(cave, context->origin.which.object->held_m_idx)->grid;
+			}
+		}
+		flg |= PROJECT_JUMP;
+	} else if (context->origin.what == SRC_MONSTER) {
+		int midx = context->origin.which.monster;
+		struct monster *mon = midx > 0 ? cave_monster(cave, midx) : NULL;
+		if (mon) {
+			pgrid = mon->grid;
+		}
 	}
 
 	/* Aim at the target, explode */
@@ -4514,18 +4650,18 @@ bool effect_handler_TOUCH_AWARE(effect_handler_context_t *context)
 }
 
 /**
- * Curse the player's armor
+ * Fault the player's armor
  */
-bool effect_handler_CURSE_ARMOR(effect_handler_context_t *context)
+bool effect_handler_BLAST_ARMOR(effect_handler_context_t *context)
 {
 	struct object *obj;
 
 	char o_name[80];
 
-	/* Curse the body armor */
+	/* Fault the body armor */
 	obj = equipped_item_by_slot_name(player, "body");
 
-	/* Nothing to curse */
+	/* Nothing to fault */
 	if (!obj) return (true);
 
 	/* Describe */
@@ -4533,33 +4669,29 @@ bool effect_handler_CURSE_ARMOR(effect_handler_context_t *context)
 
 	/* Attempt a saving throw for artifacts */
 	if (obj->artifact && (randint0(100) < 50)) {
-		msg("A %s tries to %s, but your %s resists the effects!",
-				   "terrible black aura", "surround your armor", o_name);
+		msg("A fountain of sparks fly from your %s, but it is unaffected!", o_name);
 	} else {
 		int num = randint1(3);
 		int max_tries = 20;
-		msg("A terrible black aura blasts your %s!", o_name);
+		msg("A fountain of sparks flies from your %s!", o_name);
 
 		/* Take down bonus a wee bit */
 		obj->to_a -= randint1(3);
 
-		/* Try to find enough appropriate curses */
+		/* Try to find enough appropriate faults */
 		while (num && max_tries) {
-			int pick = randint1(z_info->curse_max - 1);
+			int pick = randint1(z_info->fault_max - 1);
 			int power = 10 * m_bonus(9, player->depth);
-			if (!curses[pick].poss[obj->tval]) {
+			if (!faults[pick].poss[obj->tval]) {
 				max_tries--;
 				continue;
 			}
-			append_object_curse(obj, pick, power);
+			append_object_fault(obj, pick, power);
 			num--;
 		}
 
 		/* Recalculate bonuses */
 		player->upkeep->update |= (PU_BONUS);
-
-		/* Recalculate mana */
-		player->upkeep->update |= (PU_MANA);
 
 		/* Window stuff */
 		player->upkeep->redraw |= (PR_INVEN | PR_EQUIP);
@@ -4572,18 +4704,18 @@ bool effect_handler_CURSE_ARMOR(effect_handler_context_t *context)
 
 
 /**
- * Curse the player's weapon
+ * Damage the player's weapon
  */
-bool effect_handler_CURSE_WEAPON(effect_handler_context_t *context)
+bool effect_handler_BLAST_WEAPON(effect_handler_context_t *context)
 {
 	struct object *obj;
 
 	char o_name[80];
 
-	/* Curse the weapon */
+	/* Fault the weapon */
 	obj = equipped_item_by_slot_name(player, "weapon");
 
-	/* Nothing to curse */
+	/* Nothing to fault */
 	if (!obj) return (true);
 
 	/* Describe */
@@ -4591,34 +4723,30 @@ bool effect_handler_CURSE_WEAPON(effect_handler_context_t *context)
 
 	/* Attempt a saving throw */
 	if (obj->artifact && (randint0(100) < 50)) {
-		msg("A %s tries to %s, but your %s resists the effects!",
-				   "terrible black aura", "surround your weapon", o_name);
+		msg("A fountain of sparks fly from your %s, but it is unaffected!", o_name);
 	} else {
 		int num = randint1(3);
 		int max_tries = 20;
-		msg("A terrible black aura blasts your %s!", o_name);
+		msg("A fountain of sparks flies from your %s!", o_name);
 
 		/* Hurt it a bit */
 		obj->to_h = 0 - randint1(3);
 		obj->to_d = 0 - randint1(3);
 
-		/* Curse it */
+		/* Damage it */
 		while (num) {
-			int pick = randint1(z_info->curse_max - 1);
+			int pick = randint1(z_info->fault_max - 1);
 			int power = 10 * m_bonus(9, player->depth);
-			if (!curses[pick].poss[obj->tval]) {
+			if (!faults[pick].poss[obj->tval]) {
 				max_tries--;
 				continue;
 			}
-			append_object_curse(obj, pick, power);
+			append_object_fault(obj, pick, power);
 			num--;
 		}
 
 		/* Recalculate bonuses */
 		player->upkeep->update |= (PU_BONUS);
-
-		/* Recalculate mana */
-		player->upkeep->update |= (PU_MANA);
 
 		/* Window stuff */
 		player->upkeep->redraw |= (PR_INVEN | PR_EQUIP);
@@ -4714,26 +4842,26 @@ bool effect_handler_BRAND_BOLTS(effect_handler_context_t *context)
 
 
 /**
- * Turn a staff into arrows
+ * Turn a device into arrows
  */
 bool effect_handler_CREATE_ARROWS(effect_handler_context_t *context)
 {
 	int lev;
-	struct object *obj, *staff, *arrows;
+	struct object *obj, *device, *arrows;
 	const char *q, *s;
 	int itemmode = (USE_INVEN | USE_FLOOR);
 	bool good = false, great = false;
 	bool none_left = false;
 
 	/* Get an item */
-	q = "Make arrows from which staff? ";
-	s = "You have no staff to use.";
+	q = "Make arrows from which device? ";
+	s = "You have no device to use.";
 	if (context->cmd) {
 		if (cmd_get_item(context->cmd, "tgtitem", &obj, q, s,
-				item_tester_hook_staff, itemmode)) {
+				item_tester_hook_device, itemmode)) {
 			return false;
 		}
-	} else if (!get_item(&obj, q, s, 0, item_tester_hook_staff,
+	} else if (!get_item(&obj, q, s, 0, item_tester_hook_device,
 				  itemmode)) {
 		return false;
 	}
@@ -4750,143 +4878,41 @@ bool effect_handler_CREATE_ARROWS(effect_handler_context_t *context)
 		}
 	}
 
-	/* Destroy the staff */
+	/* Destroy the device */
 	if (object_is_carried(player, obj)) {
-		staff = gear_object_for_use(obj, 1, true, &none_left);
+		device = gear_object_for_use(obj, 1, true, &none_left);
 	} else {
-		staff = floor_object_for_use(obj, 1, true, &none_left);
+		device = floor_object_for_use(obj, 1, true, &none_left);
 	}
 
-	if (staff->known) {
-		object_delete(&staff->known);
+	if (device->known) {
+		object_delete(&device->known);
 	}
-	object_delete(&staff);
+	object_delete(&device);
 
 	/* Make some arrows */
-	arrows = make_object(cave, player->lev, good, great, false, NULL, TV_ARROW);
+	arrows = make_object(cave, player->lev, good, great, false, NULL, TV_AMMO_9);
 	drop_near(cave, &arrows, 0, player->grid, true, true);
 
 	return true;
 }
 
-/**
- * Draw energy from a magical device
- */
-bool effect_handler_TAP_DEVICE(effect_handler_context_t *context)
+/* Change player shape */
+static void shapechange(const char *shapename, bool verbose)
 {
-	int lev;
-	int energy = 0;
-	struct object *obj;
-	bool used = false;
-	int itemmode = (USE_INVEN | USE_FLOOR);
-	const char *q, *s;
-	char *item = "";
 
-	/* Get an item */
-	q = "Drain charges from which item? ";
-	s = "You have nothing to drain charges from.";
-	if (context->cmd) {
-		if (cmd_get_item(context->cmd, "tgtitem", &obj, q, s,
-				item_tester_hook_recharge, itemmode)) {
-			return used;
-		}
-	} else if (!get_item(&obj, q, s, 0, item_tester_hook_recharge,
-				  itemmode)) {
-		return (used);
+	/* Change shape */
+	player->shape = lookup_player_shape(shapename);
+	if (verbose) {
+		msg("You assume the shape of a %s!", shapename);
+		msg("Your gear merges into your body.");
 	}
 
-	/* Extract the object "level" */
-	lev = obj->kind->level;
-
-	/* Extract the object's energy and get its generic name. */
-	if (tval_is_staff(obj)) {
-		energy = (5 + lev) * 3 * obj->pval / 2;
-		item = "staff";
-	} else if (tval_is_wand(obj)) {
-		energy = (5 + lev) * 3 * obj->pval / 2;
-		item = "wand";
-	}
-
-	/* Turn energy into mana. */
-	if (energy < 36) {
-		/* Require a resonable amount of energy */
-		msg("That %s had no useable energy", item);
-	} else {
-		/* If mana below maximum, increase mana and drain object. */
-		if (player->csp < player->msp) {
-			/* Drain the object. */
-			obj->pval = 0;
-
-
-			/* Combine / Reorder the pack (later) */
-			player->upkeep->notice |= (PN_COMBINE);
-
-			/* Redraw stuff */
-			player->upkeep->redraw |= (PR_INVEN);
-
-			/* Increase mana. */
-			player->csp += energy / 6;
-			player->csp_frac = 0;
-			if (player->csp > player->msp) {
-				(player->csp = player->msp);
-			}
-
-			msg("You feel your head clear.");
-			used = true;
-
-			player->upkeep->redraw |= (PR_MANA);
-		} else {
-			char *cap = string_make(item);
-			my_strcap(cap);
-			msg("Your mana was already at its maximum.  %s not drained.", cap);
-			string_free(cap);
-		}
-	}
-
-	return (used);
-}
-
-/**
- * Draw energy from a nearby undead
- */
-bool effect_handler_TAP_UNLIFE(effect_handler_context_t *context)
-{
-	int amount = effect_calculate_value(context, false);
-	struct loc target;
-	struct monster *mon = NULL;
-	char m_name[80];
-	int drain = 0;
-	bool fear = false;
-	bool dead = false;
-
-	context->ident = true;
-
-	/* Closest living monster */
-	if (!target_set_closest(TARGET_KILL, monster_is_undead)) {
-		return false;
-	}
-	target_get(&target);
-	mon = target_get_monster();
-
-	/* Hurt the monster */
-	monster_desc(m_name, sizeof(m_name), mon, MDESC_TARG);
-	msg("You draw power from the %s.", m_name);
-	drain = MIN(mon->hp, amount) / 4;
-	dead = mon_take_hit(mon, amount, &fear, " is destroyed!");
-
-	/* Gain mana */
-	effect_simple(EF_RESTORE_MANA, context->origin, format("%d", drain), 0, 0,
-				  0, 0, 0, NULL);
-
-	/* Handle fear for surviving monsters */
-	if (!dead && monster_is_visible(mon)) {
-		message_pain(mon, amount);
-		if (fear) {
-			add_monster_message(mon, MON_MSG_FLEE_IN_TERROR, true);
-		}
-	}
-
-	return true;
+	/* Update */
+	shape_learn_on_assume(player, shapename);
+	player->upkeep->update |= (PU_BONUS);
+	player->upkeep->redraw |= (PR_TITLE | PR_MISC);
+	handle_stuff(player);
 }
 
 /**
@@ -4894,27 +4920,16 @@ bool effect_handler_TAP_UNLIFE(effect_handler_context_t *context)
  */
 bool effect_handler_SHAPECHANGE(effect_handler_context_t *context)
 {
-	struct player_shape *shape = player_shape_by_idx(context->subtype);
 	bool ident = false;
-
+	struct player_shape *shape = player_shape_by_idx(context->subtype);
 	assert(shape);
-
-	/* Change shape */
-	player->shape = lookup_player_shape(shape->name);
-	msg("You assume the shape of a %s!", shape->name);
-	msg("Your gear merges into your body.");
+	shapechange(shape->name, true);
 
 	/* Do effect */
 	if (shape->effect) {
 		(void) effect_do(shape->effect, source_player(), NULL, &ident, true,
 						 0, 0, 0, NULL);
 	}
-
-	/* Update */
-	shape_learn_on_assume(player, shape->name);
-	player->upkeep->update |= (PU_BONUS);
-	player->upkeep->redraw |= (PR_TITLE | PR_MISC);
-	handle_stuff(player);
 
 	return true;
 }
@@ -5270,11 +5285,8 @@ bool effect_handler_BIZARRE(effect_handler_context_t *context)
 			msg("You are surrounded by a malignant aura.");
 
 			/* Decrease all stats (permanently) */
-			player_stat_dec(player, STAT_STR, true);
-			player_stat_dec(player, STAT_INT, true);
-			player_stat_dec(player, STAT_WIS, true);
-			player_stat_dec(player, STAT_DEX, true);
-			player_stat_dec(player, STAT_CON, true);
+			for(int i=0;i<STAT_MAX;i++)
+				player_stat_dec(player, i, true);
 
 			/* Lose some experience (permanently) */
 			player_exp_lose(player, player->exp / 4, true);
@@ -5333,6 +5345,570 @@ bool effect_handler_BIZARRE(effect_handler_context_t *context)
 	}
 
 	return false;
+}
+
+struct printkind {
+	const struct object_kind *kind;
+	int difficulty;
+	int colour;
+	int chunks;
+	int chunk_idx;
+	char name[80];
+};
+
+static int printkind_compar(const void *a, const void *b)
+{
+	return ((struct printkind *)a)->difficulty - ((struct printkind *)b)->difficulty;
+}
+
+/* Convert a difficulty (per 10K) to a colour index: red -> green */
+static int difficulty_colour(int diff)
+{
+	if (diff < 1000)
+		return COLOUR_GREEN;
+	else if (diff < 2000)
+		return COLOUR_L_GREEN;
+	else if (diff < 3500)
+		return COLOUR_YELLOW;
+	else if (diff < 5500)
+		return COLOUR_ORANGE;
+	else if (diff < 7500)
+		return COLOUR_RED;
+	return COLOUR_PURPLE;
+}
+
+/* Return true if it is possible (in any circumstances) to print an item.
+ * (This does not have to check the material)
+ * Unprintable items include blocks, special artifacts, etc. There should probably be a flag for
+ * more granular control.
+ */ 
+static bool kind_is_printable(const struct object_kind *k)
+{
+	if (k->tval == TV_BLOCK)
+		return false;
+	if (k->tval == TV_CHEST)
+		return false;
+	return true;
+}
+
+/** The effect of a printer
+ * Requires INT and device skill for success
+ * Higher level printers help, higher level items hurt.
+ * If you want extras, that hurts.
+ * 
+ * If it fails, it may use all or some of the chunks.
+ * 
+ * It takes two paramters - the first is the max number of chunks needed.
+ * The second is the class:
+ * 	0 = plastic, and possibly wax, wood. 
+ * 	1 = " + light alloy: aluminium
+ *  2 = ", hard metals: steel, titanium
+ *  3 = ", unobtainium, exotics
+ * 
+ * (May want to allow 1 step up, but at risk to the printer)
+ * 
+ * Use item knowledge screen?
+ * First step is to select an item - limited by it having a material that the printer can use & having chunks for it
+ */
+bool effect_handler_PRINT(effect_handler_context_t *context)
+{
+	int skill = player->state.skills[SKILL_DEVICE];
+	struct object *printer = (struct object *)context->obj;
+	int maxchunks = context->subtype;
+	int maxmetal = context->radius;
+	struct object **chunk = NULL;
+	struct printkind *item = NULL;
+	int nchunks = 0;
+	/* This is a divisor modifying the weight needed to make an item: perfect efficiency would be 1000 */
+	int efficiency = context->obj->pval;
+	const char *nogo = NULL;
+	int longestname = 0;
+	const char **chunkname = NULL;
+
+	/* First clear the screen and print the help */
+	screen_save();
+	Term_clear();
+	struct textblock *tb = textblock_new();
+	textblock_append_c(tb, COLOUR_WHITE, "Select an item to attempt to create one from blocks.");
+	textblock_append_c(tb, COLOUR_SLATE, " Higher level materials (especially when it's more than the printer is really meant for), higher level items, items requiring more blocks, rare or expensive items are all likely to push the difficulty up. Large format or high level printers will help, as will your level and device skill. The items displayed are sorted from easiest to most difficult and coloured based on your chance of success, which is also displayed numerically for the currently selected item. Use the ");
+	textblock_append_c(tb, COLOUR_WHITE, "cursor keys");
+	textblock_append_c(tb, COLOUR_SLATE, " to select an item, ");
+	textblock_append_c(tb, COLOUR_WHITE, "Return ");
+	textblock_append_c(tb, COLOUR_SLATE, "to print it, ");
+	textblock_append_c(tb, COLOUR_WHITE, "Page Up/Down ");
+	textblock_append_c(tb, COLOUR_SLATE, "to move between pages or ");
+	textblock_append_c(tb, COLOUR_WHITE, "Space ");
+	textblock_append_c(tb, COLOUR_SLATE, "to exit.");
+	size_t *line_starts = NULL;
+	size_t *line_lengths = NULL;
+	int w, h;
+	Term_get_size(&w, &h);
+	int top = textblock_calculate_lines(tb, &line_starts, &line_lengths, w) + 1;
+	textui_textblock_place(tb, SCREEN_REGION, NULL);
+	textblock_free(tb);
+
+	/* Redraw */
+	Term_redraw();
+
+	/* Chunks' pval is the printer class. Count up the available chunks */
+	struct object *obj;
+	for(obj=player->gear; obj; obj=obj->next)
+		if (obj->tval == TV_BLOCK)
+			nchunks++;
+	chunk = mem_alloc(sizeof(*chunk) * nchunks);
+	chunkname = mem_alloc(sizeof(*chunkname) * nchunks);
+	int i = 0;
+	for(obj=player->gear; obj; obj=obj->next)
+		if (obj->tval == TV_BLOCK)
+			chunk[i++] = obj;
+
+	/* Come up with a short name for each chunk */
+	for(int i=0;i<nchunks;i++) {
+		const char *name = "?????";
+		const char *cname = chunk[i]->kind->name;
+		if (my_stristr(cname, "alum"))
+			name = "Alumi";
+		else if (my_stristr(cname, "plas"))
+			name = "Plast";
+		else if (my_stristr(cname, "steel"))
+			name = "Steel";
+		else if (my_stristr(cname, "titan"))
+			name = "Titan";
+		else if (my_stristr(cname, "gold"))
+			name = "Gold ";
+		else if (my_stristr(cname, "unob"))
+			name = "Unobt";
+		chunkname[i] = name;
+	}
+
+	/* There is now an array of all chunks carried in chunk, length nchunks.
+	 * Get out early if you have none (but distinguish from 'none usable')
+	 */
+	if (nchunks == 0)
+		nogo = "You can't print anything as you have no raw materials (blocks).";
+	else {
+		/* Skip high level chunks. */
+		for(i=0; i<nchunks; i++) {
+			if ((chunk[i]->pval - maxmetal) > 1) {
+				nchunks--;
+				chunk[i] = chunk[nchunks];
+				i--;
+				break;
+			}
+		}
+		if (nchunks == 0)
+			nogo = "You can't print anything as you only have blocks that your printer can't use.";
+	}
+
+	/* Easymod or Maximod printers are easier to use */
+	bool easymode = (printer->ego && (my_stristr(printer->ego->name, "Easy") || my_stristr(printer->ego->name, "Maxi")));
+
+	/* Scan item kinds.
+	 * Get a list of printable items.
+	 **/
+	item = mem_zalloc(z_info->k_max * sizeof(*item));
+	int nprintable = 0;
+	if (nchunks) {
+		for(i=0;i<z_info->k_max; i++) {
+			const struct object_kind *k = k_info + i;
+			bool ok = false;
+			int material = 0;
+
+			/* Check if it's a printable item */
+			if (kind_is_printable(k)) {
+				/* Check if it's a usable material */
+				for(int j=0;j<nchunks;j++) {
+					if (chunk[j]->kind->material == k->material) {
+						ok = true;
+						material = j;
+						break;
+					}
+				}
+			}
+
+			/* If so, check the weight is not more than you have, or more than
+			 * the printer can do.
+			 **/
+			int chunks = 0;
+			if (ok) {
+				if (k->weight < 2000000) {
+					chunks = (k->weight + 1000) / efficiency;
+					if (chunks <= 0)
+						chunks = 1;
+					if (chunks > chunk[material]->number)
+						ok = false;
+					if (chunks > maxchunks)
+						ok = false;
+				}
+			}
+
+			/* The printer and materials can do it. You may not be able to, though.
+			 * Compute a difficulty (chance of failure), and if it's near 100%
+			 * don't even list it.
+			 */
+			int difficulty = -1;
+			if (ok) {
+				/* Higher level materials = more difficult */
+				difficulty = chunk[material]->pval * 20;
+
+				/* Higher level item = more difficult */
+				difficulty += k->level;
+	
+				/* Higher cost item = more difficult */
+				difficulty += sqrt(k->cost);
+
+				/* Higher rarity item = more difficult */
+				difficulty += 100 / (k->alloc_prob + 1);
+
+				/* Larger prints are more difficult */
+				difficulty += chunks;
+
+				/* Printer is pushed to beyond its normal use */
+				if (chunk[material]->pval > maxmetal)
+					difficulty += 10 + (difficulty / 2);
+
+				/* Higher level printer = less difficult */
+				difficulty -= maxmetal * 5;
+				if (maxchunks <= 5)
+					difficulty += 2;
+
+				/* Higher level characters are better */
+				difficulty -= player->lev * 2;
+
+				/* Device skill (scaled 0 to ~140) helps */
+				difficulty -= (skill * 2) / 3;
+
+				/* Easymod/Maximod printers help */
+				if (easymode)
+					difficulty -= 20;
+
+				/* 
+				 * There should be no perfect chance (but at -100 you will be 5% or so,
+				 * maybe 10% at -50, 20% at -25, 50% at 0, 80% at 25, 90% at 50 and cut off
+				 * about 50-70.
+				 * 
+				 * The table below maps difficulty to chance-per-10K.
+				 */
+				 static const u16b difftab[] = {
+					 /* -100 */
+					 500,	505,	510,	515,	520,	525,	530,	535,	540,	545,
+					 /* -90 */
+					 550,	555,	561,	567,	573,	580,	587,	594,	602,	610,
+					 /* -80 */
+					 618,	627,	637,	647,	658,	668,	680,	692,	705,	718,
+					 /* -70 */
+					 721,	735,	750,	785,	800,	815,	830,	845,	860,	875,	
+					 /* -60 */
+					 890,	905,	921,	937,	956,	974,	983,	992,	1011,	1030,
+					 /* -50 */
+					 1050,	1070,	1090,	1110,	1130,	1150,	1175,	1200,	1225,	1250,
+					 /* -40 */
+					 1275,	1300,	1330,	1360,	1390,	1420,	1455,	1490,	1550,	1610,
+					 /* -30 */
+					 1680,	1720,	1790,	1860,	1930,	2010,	2090,	2190,	2280,	2380,
+					 /* -20 */
+					 2480,	2580,	2690,	2800,	2830,	2970,	3000,	3130,	3260,	3400,
+					 /* -10 */
+					 3550,	3700,	3850,	4000,	4150,	4300,	4450,	4600,	4800,	5000,
+					 /* 0 */
+					 5200,	5400,	5600,	5800,	6000,	6200,	6400,	6550,	6700,	6900,
+					 /* 10 */
+					 7050,	7200,	7325,	7450,	7575,	7800,	7900,	8000,	8100,	8200,
+					 /* 20 */
+					 8280,	8360,	8430,	8530,	8590,	8640,	8690,	8730,	8770,	8800,
+					 /* 30 */
+					 8825,	8850,	8875,	8900,	8920,	8940,	8960,	8980,	9000,	9020,
+					 /* 40 */
+					 9040,	9060,	9080,	9100,	9120,	9140,	9160,	9180,	9200,	9220,
+					 /* 50 */
+					 9240,	9260,	9280,	9300,	9320,	9340,	9360,	9380,	9400,	9420,
+					 /* 60 */
+					 9440,	9460,	9480,	9500
+				 };
+
+				/* Scale to the table */
+				difficulty /= 2;
+				difficulty += 100;
+
+				 /* Easy end: difficulty easier than -100 is all the same */
+				 if (difficulty < 0) 
+					difficulty = 0;
+
+				/* Difficult end: off the end = no chance, stop */
+				if (difficulty > (int)(sizeof(difftab)/sizeof(*difftab))) {
+					ok = false;
+					difficulty = -1;
+				} else {
+					difficulty = difftab[difficulty];
+				}
+			}
+			if (ok) {
+				/* List an item: store kind and difficulty, and produce a name.
+				 * Track the longest name.
+				 * Add a colour, and the chunks required
+				 **/
+				item[nprintable].difficulty = difficulty;
+				item[nprintable].colour = difficulty_colour(difficulty);
+				item[nprintable].chunks = chunks;
+				item[nprintable].chunk_idx = material;
+				item[nprintable].kind = k;
+				
+				obj_desc_name_format(item[nprintable].name, sizeof item[nprintable].name, 0, k->name, 0, false);
+				int length = strlen(item[nprintable].name);
+				if (length > longestname)
+					longestname = length;
+				
+				
+				nprintable++;
+			}
+		}
+
+		if (nprintable == 0) {
+			nogo = "You can't print anything as you don't have the skill yet.";
+		} else {
+
+			/* There are now one or more printable items, total 'nprintable',
+			 * indexed as kinds in item[] and difficulties in itemdiff[].
+			 * Sort by difficulty
+			 */
+			qsort(item, nprintable, sizeof(*item), printkind_compar);
+		}
+	}
+
+	/* Display - a how-to across the top, followed by either a no-go message or
+	 * a grid of items to select. There may be a lot of items, so it must be pageable.
+	 * While item names may be long, to make best use of a large terminal it should
+	 * still allow multicolumn layouts, adapting to the size of the names and the
+	 * display. To help this, there should be a minimum of tourist information - the
+	 * items are listed by difficulty and coloured by difficulty, so precise difficulty
+	 * (and the # of chunks) can be moved out, displayed only for the item at the
+	 * cursor. The selection should also be done without adding columns - e.g. display
+	 * the selected item in white (or pastels, or inverse?) using the colour for the
+	 * current-item info).
+	 */
+	bool leaving = false;
+	int selected = 0;
+	int columns = w / (longestname + 1);
+	int rows = h - (top + 2);
+	int toprow = 0;
+	do 
+	{
+		/* Print a no-go line or the selected item (Move to two lines?) */
+		if (nogo)
+			c_prt(COLOUR_ORANGE, nogo, top, 0);
+		else {
+			char buf[80];
+			strnfmt(buf, sizeof(buf), "%d%% fail: %d/%d %s (%d%% efficient): %s", (item[selected].difficulty + 50) / 100, item[selected].chunks, chunk[item[selected].chunk_idx]->number, chunkname[item[selected].chunk_idx], (efficiency + 5) / 10, item[selected].name);
+			c_prt(item[selected].colour, buf, top, 0);
+		}
+
+		/* Print a grid of items - left to right, top to bottom */
+		if (!nogo) {
+			for(int y=0;y<rows;y++) {
+				for(int x=0;x<columns;x++) {
+					int idx = x + (y * columns) + (toprow * rows * columns);
+					c_prt(idx == selected ? COLOUR_L_WHITE : item[idx].colour, item[idx].name, top + 2 + y, x * (longestname + 1));
+				}
+			}
+		}
+		Term_redraw();
+
+		/* Key loop : read a key */
+		struct keypress ch = inkey();
+		switch(ch.code) {
+			/* Navigate around the grid */
+			case '2':
+			case ARROW_DOWN:
+			selected += columns;
+			if (selected >= nprintable)
+				selected %= columns;
+			break;
+			case '4':
+			case ARROW_LEFT:
+			selected--;
+			if (selected < 0)
+				selected = nprintable - 1;
+			break;
+			case '6':
+			case ARROW_RIGHT:
+			selected++;
+			if (selected >= nprintable)
+				selected = 0;
+			break;
+			case '8':
+			case ARROW_UP:
+			selected -= columns;
+			if (selected < 0)
+				selected += nprintable;
+			break;
+			case KC_PGDOWN:
+			selected += columns * rows;
+			if (selected >= nprintable)
+				selected %= (columns * rows);
+			break;
+			case KC_PGUP:
+			selected -= columns * rows;
+			if (selected < 0)
+				selected += nprintable;
+			break;
+
+			/* Select */
+			case KC_ENTER:
+			/* Prompt to confirm. If not confirmed continue, otherwise exit this loop with a selected item.
+			 */
+			c_prt(COLOUR_ORANGE, format("Really build %s? [yn]", item[selected].name), 0, 0);
+			ch = inkey();
+			if (strchr("Yy", ch.code)) {
+				// Accept
+				leaving = true;
+			}
+			break;
+
+			/* Leave */
+			case ESCAPE:
+			case 'Q':
+			case ' ':
+			selected = -1;	/* do not create an item */
+			leaving = true;
+			break;
+		}
+	} while (!leaving);
+
+	/* Do we have an item? If so, try to build one */
+	if (selected >= 0) {
+		struct printkind *pk = &item[selected];
+		int rmblocks = pk->chunks;
+		bool quiet = false;
+
+		/* Difficulty check */
+		if (randint0(10000) > pk->difficulty) {
+			msg("The printer whirs, blurs and something bounces out...");
+			struct object_kind *kind = (struct object_kind *)pk->kind;
+
+			/* Create an object - select level, good/great? */
+			struct object *result = object_new();
+
+			/* Level is taken from skill and player level (in roughly equal proportion, scaled 0 to ~100).
+			 * Items are 'good' or 'great' if this level exceeds the item's level.
+			 * Artifacts can't be created, and the "extra_roll" flag only affects the chance of creating
+			 * an artifact so this is always false.
+			 */
+			int lev = ((skill * 3) + player->lev) / 2;
+			int itemlev = kind->level;
+			bool good = false;
+			bool great = false;
+			if (lev < itemlev) {
+				/* 'Difficult' - sometimes good */
+				if (randint0(itemlev) < lev)
+					good = true;
+			} else {
+				/* 'Easy' - always good, sometimes great */
+				good = true;
+				if (randint0(lev) > itemlev)
+					great = true;
+			}
+			/* ... but low skill / level players will not always see that bonus */
+			if (randint0(20) < lev)
+				good = great = false;
+			if (randint0(40) < lev)
+				great = false;
+
+			/* Create */
+			object_prep(result, kind, lev, RANDOMISE);
+			apply_magic(result, lev, false, good, great, false);
+
+			result->origin = ORIGIN_PRINTER;
+			result->origin_depth = player->depth;
+		
+			drop_near(cave, &result, 0, player->grid, true, false);
+			quiet = true;
+		} else {
+			/* Failed - no item.
+			 * Test for a critical failure.
+			 */
+			int diff = pk->difficulty;
+			if (chunk[pk->chunk_idx]->pval <= maxmetal) {
+				/* Usually be kind */
+				diff -= 500;
+				diff /= 10;
+			}
+			if (randint0(10000) < diff) {
+				/* Printer tries to destroy itself.
+				 * If it has the "duramod" then it will survive at least one such event (setting the FRAGILE flag) and possibly
+				 * more, depending on a high-difficulty roll.
+				 */
+				bool save = false;
+				if (printer->ego && (my_stristr(printer->ego->name, "Dura") || my_stristr(printer->ego->name, "Maxi")))
+					save = (!of_has(printer->flags, OF_FRAGILE));
+				if (save) {
+					msg("The printer smokes, chokes and nearly tears itself apart!");
+					if (randint0(10000) < 3000 + diff) {
+						msg("It barely remains intact, but looks much more fragile now.");
+						of_on(printer->flags, OF_FRAGILE);
+						player_learn_flag(player, OF_FRAGILE);
+					} else {
+						msg("Luckily it remains undamaged, although the workpiece is ruined.");
+					}
+					quiet = true;
+				} else {
+
+					/* Oops */
+					msg("The printer smokes, chokes and tears itself apart!");
+					rmblocks = 0;
+
+					/* Destroy printer! */
+					struct object *destroyed;
+					bool none_left = false;
+					destroyed = gear_object_for_use(printer, 1, false, &none_left);
+					if (destroyed->known)
+						object_delete(&destroyed->known);
+					object_delete(&destroyed);
+				}
+			} else {
+				/* Sometimes use less, but no credit for using the right material */
+				if (randint0(10000) < pk->difficulty) {
+					rmblocks = randint1(rmblocks);
+				}
+			}
+		}
+
+		/* Destroy blocks */
+		if (rmblocks) {
+			char o_name[80];
+			struct object *destroyed;
+			bool none_left = false;
+
+			/* Display the number destroyed (but not if an item was created) */
+			if (!quiet) {
+				int number = chunk[pk->chunk_idx]->number;
+				chunk[pk->chunk_idx]->number = rmblocks;
+				object_desc(o_name, sizeof(o_name), chunk[pk->chunk_idx], ODESC_BASE | ODESC_PREFIX);
+				chunk[pk->chunk_idx]->number = number;
+				msg("The printer shakes, quakes and turns %s into useless swarf.", o_name);
+			}
+
+			if (rmblocks == chunk[pk->chunk_idx]->number) {
+				/* Destroy the whole stack */
+				destroyed = gear_object_for_use(chunk[pk->chunk_idx], rmblocks, false, &none_left);
+				if (destroyed->known)
+					object_delete(&destroyed->known);
+				object_delete(&destroyed);
+			} else {
+				/* Reduce the number */
+				destroyed = gear_object_for_use(chunk[pk->chunk_idx], rmblocks, false, &none_left);
+			}
+		}
+	}
+
+	/* Clean up */
+	mem_free(item);
+	mem_free(chunk);
+	mem_free(chunkname);
+
+	/* Weight, etc. */
+	player->upkeep->update |= (PU_BONUS | PU_PANEL | PU_TORCH | PU_HP);
+	screen_load();
+	return true;
 }
 
 /**
@@ -5486,6 +6062,123 @@ bool effect_handler_WONDER(effect_handler_context_t *context)
 	}
 }
 
+/**
+ * Mutate
+ */
+bool effect_handler_MUTATE(effect_handler_context_t *context)
+{
+	if (mutate()) {
+		/* Something noticeable happened - so ID it */
+		context->ident = true;
+	} else {
+		/* Nothing happened, print a message */
+		msg("Nothing obvious happens.");
+	}
+	/* Done */
+	return (true);
+}
+
+/**
+ * How much danger would you be in if nearby monsters were aggravated?
+ */
+int stealth_danger(void)
+{
+	int monsters = 0;
+	int losmonsters = 0;
+	int level = 0;
+
+	/* Check everyone nearby */
+	for (int i = 1; i < cave_monster_max(cave); i++) {
+		struct monster *mon = cave_monster(cave, i);
+		if (mon->race) {
+			int radius = z_info->max_sight * 2;
+			int dist = distance(player->grid, mon->grid);
+
+			/* Skip monsters too far away */
+			if ((dist < radius) && mon->m_timed[MON_TMD_SLEEP]) {
+				// Count, get the highest level
+				monsters++;
+				int mlevel = mon->race->level;
+				// Much less threatening if not in LOS
+				if (!los(cave, player->grid, mon->grid)) {
+					mlevel -= dist;
+					mlevel /= 2;
+				} else {
+					mlevel -= dist / 2;
+					losmonsters++;
+				}
+
+				if (mlevel > level)
+					level = mlevel;
+			}
+		}
+	}
+
+	/* Danger factor = monster 'total level' (highest level, + a bit for more monsters)
+	 * 				vs player 'safe level' derived from HP (not actual level).
+	 */
+
+	int monlevel = MIN(200, MAX(1, level + MIN(losmonsters, level / 2) + MIN(monsters / 2, level / 4)));
+	int ulevel = MAX(1, player->chp);
+
+	int danger = (monlevel * monlevel * 10000) / (ulevel * ulevel);
+	return MIN(danger, MIN(1000, player->depth * 20));
+}
+
+/**
+ * Hoooonk
+ */
+bool effect_handler_HORNS(effect_handler_context_t *context)
+{
+	int danger = stealth_danger();
+	if (randint0(danger + 50) < danger) {
+		/* Honk message */
+		static const char *honk[] =		{ "honk", "blare", "blast", "hoot", "call", "sing", "trumpet", "bray" };
+		static const char *music[] =	{ "musically", "tunefully", "mournfully", "a fanfare",
+										"a loud trill", "two notes", "a long note", "three notes",
+										"a challenge", "loudly", "unexpectedly", " a flourish", "shrilly", "reveille" };
+		msg("Your horns %s out %s!", honk[randint0(sizeof(honk)/sizeof(*honk))], music[randint0(sizeof(music)/sizeof(*music))]);
+
+		/* Aggro */
+		effect_handler_WAKE(context);
+	}
+	/* Done */
+	return (true);
+}
+
+/**
+ * Time Lord regeneration
+ **/
+bool effect_handler_FORCE_REGEN(effect_handler_context_t *context)
+{
+	timelord_force_regen();
+	return (true);
+}
+
+/**
+ * Rumor. 
+ * This is true X% of the time (taken from the value) 
+ */
+bool effect_handler_RUMOR(effect_handler_context_t *context)
+{
+	int die = effect_calculate_value(context, false);
+	msg(random_rumor(die));
+	return (true);
+}
+
+/**
+ * Climbing
+ */
+bool effect_handler_CLIMBING(effect_handler_context_t *context)
+{
+	int fail = effect_calculate_value(context, false);
+	if (fail > 0) {
+		msg("Failed");
+	} else {
+		msg("Success");
+	}
+	return (true);
+}
 
 /**
  * ------------------------------------------------------------------------

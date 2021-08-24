@@ -70,6 +70,11 @@
  */
 
 /**
+ * Global "currently saving, not loading"
+ */
+bool saving;
+
+/**
  * Global "we've just saved" variable
  */
 bool character_saved;
@@ -77,8 +82,8 @@ bool character_saved;
 /**
  * Magic bits at beginning of savefile
  */
-static const byte savefile_magic[4] = { 83, 97, 118, 101 };
-static const byte savefile_name[4] = "VNLA";
+static const byte savefile_magic[4] = { 83, 97, 118, 101 };	/* 'Save' */
+static const byte savefile_name[4] = "XyGs";
 
 /* Some useful types */
 typedef int (*loader_t)(void);
@@ -109,6 +114,7 @@ static const struct {
 	{ "messages", wr_messages, 1 },
 	{ "monster memory", wr_monster_memory, 1 },
 	{ "object memory", wr_object_memory, 1 },
+	{ "world", wr_world, 1 },
 	{ "quests", wr_quests, 1 },
 	{ "player", wr_player, 1 },
 	{ "ignore", wr_ignore, 1 },
@@ -137,6 +143,7 @@ static const struct blockinfo loaders[] = {
 	{ "monster memory", rd_monster_memory, 1 },
 	{ "object memory", rd_object_memory, 1 },
 	{ "quests", rd_quests, 1 },
+	{ "world", rd_world, 1 },
 	{ "player", rd_player, 1 },
 	{ "ignore", rd_ignore, 1 },
 	{ "misc", rd_misc, 1 },
@@ -219,6 +226,11 @@ static byte sf_get(void)
  * Accessor functions
  * ------------------------------------------------------------------------ */
 
+void wr_bool(bool v)
+{
+	sf_put(v);
+}
+
 void wr_byte(byte v)
 {
 	sf_put(v);
@@ -258,6 +270,10 @@ void wr_string(const char *str)
 	wr_byte(*str);
 }
 
+void rd_bool(bool *ip)
+{
+	*ip = sf_get();
+}
 
 void rd_byte(byte *ip)
 {
@@ -314,6 +330,65 @@ void pad_bytes(int n)
 	while (n--) wr_byte(0);
 }
 
+void rdwr_bool(bool *v)
+{
+	if (saving)
+		wr_bool(*v);
+	else
+		rd_bool(v);
+}
+
+void rdwr_byte(byte *v)
+{
+	if (saving)
+		wr_byte(*v);
+	else
+		rd_byte(v);
+}
+
+void rdwr_u16b(u16b *v)
+{
+	if (saving)
+		wr_u16b(*v);
+	else
+		rd_u16b(v);
+}
+
+void rdwr_s16b(s16b *v)
+{
+	if (saving)
+		wr_s16b(*v);
+	else
+		rd_s16b(v);
+}
+
+void rdwr_u32b(u32b *v)
+{
+	if (saving)
+		wr_u32b(*v);
+	else
+		rd_u32b(v);
+}
+
+void rdwr_s32b(s32b *v)
+{
+	if (saving)
+		wr_s32b(*v);
+	else
+		rd_s32b(v);
+}
+
+void rdwr_string(char **str)
+{
+	char buf[4096];
+	if (saving)
+		wr_string(*str);
+	else {
+		rd_string(buf, sizeof(buf));
+		buf[sizeof(buf)-1] = 0;
+		*str = string_make(buf);
+	}
+}
 
 /**
  * ------------------------------------------------------------------------
@@ -378,6 +453,9 @@ bool savefile_save(const char *path)
 	char new_savefile[1024];
 	char old_savefile[1024];
 
+	/* Now saving */
+	saving = true;
+
 	/* Generate a CharOutput.txt, mainly for angband.live, when saving. */
 	(void) save_charoutput();
 
@@ -406,6 +484,7 @@ bool savefile_save(const char *path)
 		file_write(file, (char *) &savefile_name, 4);
 
 		character_saved = try_save(file);
+		player_hook(loadsave, true);
 		file_close(file);
 	}
 
@@ -451,7 +530,7 @@ bool savefile_save(const char *path)
  * ------------------------------------------------------------------------ */
 
 /**
- * Check the savefile header file clearly inicates that it's a savefile
+ * Check the savefile header file clearly indicates that it's a savefile
  */
 static bool check_header(ang_file *f) {
 	byte head[8];
@@ -552,6 +631,9 @@ static bool try_load(ang_file *f, const struct blockinfo *local_loaders)
 	struct blockheader b;
 	errr err;
 
+	/* Now loading */
+	saving = false;
+
 	if (!check_header(f)) {
 		note("Savefile is corrupted -- incorrect file header.");
 		return false;
@@ -631,11 +713,8 @@ bool savefile_load(const char *path, bool cheat_death)
 	}
 
 	ok = try_load(f, loaders);
+	player_hook(loadsave, true);
 	file_close(f);
-
-	if (player->chp < 0) {
-		player->is_dead = true;
-	}
 
 	if (player->is_dead && cheat_death) {
 			player->is_dead = false;

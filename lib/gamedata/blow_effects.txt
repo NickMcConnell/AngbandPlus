@@ -240,7 +240,7 @@ lore-color-base:Orange
 lore-color-resist:Yellow
 effect-type:flag
 resist:HOLD_LIFE
-lash-type:NETHER
+lash-type:RADIATION
 
 name:EXP_20
 power:20
@@ -250,7 +250,7 @@ lore-color-base:Orange
 lore-color-resist:Yellow
 effect-type:flag
 resist:HOLD_LIFE
-lash-type:NETHER
+lash-type:RADIATION
 
 name:EXP_40
 power:20
@@ -260,7 +260,7 @@ lore-color-base:Orange
 lore-color-resist:Yellow
 effect-type:flag
 resist:HOLD_LIFE
-lash-type:NETHER
+lash-type:RADIATION
 
 name:EXP_80
 power:20
@@ -270,7 +270,7 @@ lore-color-base:Orange
 lore-color-resist:Yellow
 effect-type:flag
 resist:HOLD_LIFE
-lash-type:NETHER
+lash-type:RADIATION
 
 name:HALLU
 power:0

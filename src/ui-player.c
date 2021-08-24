@@ -19,13 +19,14 @@
 #include "buildid.h"
 #include "game-world.h"
 #include "init.h"
-#include "obj-curse.h"
+#include "obj-fault.h"
 #include "obj-desc.h"
 #include "obj-gear.h"
 #include "obj-info.h"
 #include "obj-knowledge.h"
 #include "obj-util.h"
 #include "player.h"
+#include "player-ability.h"
 #include "player-calcs.h"
 #include "player-timed.h"
 #include "player-util.h"
@@ -394,7 +395,7 @@ static void display_resistance_panel(int ipart, struct char_sheet_config *config
 	/* Equippy */
 	display_player_equippy(row++, col + config->res_nlabel);
 
-	Term_putstr(col, row++, config->res_cols, COLOUR_WHITE, "      abcdefghijkl@");
+	Term_putstr(col, row++, config->res_cols, COLOUR_WHITE, "      abcdefghijklm@");
 	render_details.label_position.x = col;
 	render_details.value_position.x = col + config->res_nlabel;
 	render_details.position_step = loc(1, 0);
@@ -412,7 +413,7 @@ static void display_resistance_panel(int ipart, struct char_sheet_config *config
 
 		render_details.label_position.y = row;
 		render_details.value_position.y = row;
-		render_details.known_rune = is_ui_entry_for_known_rune(entry, player);
+		render_details.known_icon = is_ui_entry_for_known_icon(entry, player);
 		ui_entry_renderer_apply(get_ui_entry_renderer_index(entry), config->resists_by_region[ipart][i].label, config->res_nlabel, vals, auxs, player->body.count + 1, &render_details);
 	}
 
@@ -442,7 +443,7 @@ static void display_player_flag_info(void)
 /**
  * Special display, part 2b
  */
-void display_player_stat_info(void)
+void display_player_stat_info(bool generating)
 {
 	int i, row, col;
 
@@ -453,53 +454,83 @@ void display_player_stat_info(void)
 	row = 2;
 
 	/* Column */
-	col = 42;
+	col = 39;
+	if (!generating) {
+		col += 4;
+	}
 
 	/* Print out the labels for the columns */
-	c_put_str(COLOUR_WHITE, "  Self", row-1, col+5);
-	c_put_str(COLOUR_WHITE, " RB", row-1, col+12);
-	c_put_str(COLOUR_WHITE, " CB", row-1, col+16);
-	c_put_str(COLOUR_WHITE, " EB", row-1, col+20);
-	c_put_str(COLOUR_WHITE, "  Best", row-1, col+24);
+	c_put_str(COLOUR_WHITE, "  Self", row-1, col+1);
+	c_put_str(COLOUR_WHITE, " RB", row-1, col+7);
+	c_put_str(COLOUR_WHITE, " XB", row-1, col+11);
+	c_put_str(COLOUR_WHITE, " AB", row-1, col+15);
+	c_put_str(COLOUR_WHITE, " CB", row-1, col+19);
+	c_put_str(COLOUR_WHITE, " EB", row-1, col+23);
+	c_put_str(COLOUR_WHITE, "  Best", row-1, col+27);
 
 	/* Display the stats */
 	for (i = 0; i < STAT_MAX; i++) {
 		/* Reduced or normal */
+		int statcol = col;
+		if (generating)
+			statcol -= 1;
+		else
+			statcol -= 5;
+
 		if (player->stat_cur[i] < player->stat_max[i])
 			/* Use lowercase stat name */
-			put_str(stat_names_reduced[i], row+i, col);
+			put_str(stat_names_reduced[i], row+i, statcol);
 		else
 			/* Assume uppercase stat name */
-			put_str(stat_names[i], row+i, col);
+			put_str(stat_names[i], row+i, statcol);
 
 		/* Indicate natural maximum */
 		if (player->stat_max[i] == 18+100)
-			put_str("!", row+i, col+3);
+			put_str("!", row+i, statcol+3);
+		else
+			put_str(":", row+i, statcol+3);
 
-		/* Internal "natural" maximum value */
-		cnv_stat(player->stat_max[i], buf, sizeof(buf));
-		c_put_str(COLOUR_L_GREEN, buf, row+i, col+5);
+		/* Internal "natural" maximum value
+		 * When doing character generation it is possible to
+		 * assume that this will be 10..18 to save the space
+		 * that would be used to display 18/xxx by cnv_stat()
+		 **/
+		if (generating) {
+			strnfmt(buf, sizeof(buf), " %2d", player->stat_max[i]);
+			c_put_str(COLOUR_L_GREEN, buf, row+i, col+3) ;
+		} else {
+			cnv_stat(player->stat_max[i], buf, sizeof(buf));
+			c_put_str(COLOUR_L_GREEN, buf, row+i, col);
+		}
 
 		/* Race Bonus */
 		strnfmt(buf, sizeof(buf), "%+3d", player->race->r_adj[i]);
-		c_put_str(COLOUR_L_BLUE, buf, row+i, col+12);
+		c_put_str(COLOUR_L_BLUE, buf, row+i, col+7);
+
+		/* Extension Bonus */
+		strnfmt(buf, sizeof(buf), "%+3d", player->extension->r_adj[i]);
+		c_put_str(COLOUR_L_BLUE, buf, row+i, col+11);
+
+		/* Ability Bonus */
+		strnfmt(buf, sizeof(buf), "%+3d", ability_to_stat(i));
+		c_put_str(COLOUR_L_BLUE, buf, row+i, col+15);
 
 		/* Class Bonus */
 		strnfmt(buf, sizeof(buf), "%+3d", player->class->c_adj[i]);
-		c_put_str(COLOUR_L_BLUE, buf, row+i, col+16);
+		c_put_str(COLOUR_L_BLUE, buf, row+i, col+19);
 
 		/* Equipment Bonus */
 		strnfmt(buf, sizeof(buf), "%+3d", player->state.stat_add[i]);
-		c_put_str(COLOUR_L_BLUE, buf, row+i, col+20);
+		c_put_str(COLOUR_L_BLUE, buf, row+i, col+23);
 
 		/* Resulting "modified" maximum value */
 		cnv_stat(player->state.stat_top[i], buf, sizeof(buf));
-		c_put_str(COLOUR_L_GREEN, buf, row+i, col+24);
+		c_put_str(COLOUR_L_GREEN, buf, row+i, col+27);
 
 		/* Only display stat_use if there has been draining */
 		if (player->stat_cur[i] < player->stat_max[i]) {
 			cnv_stat(player->state.stat_use[i], buf, sizeof(buf));
-			c_put_str(COLOUR_YELLOW, buf, row+i, col+31);
+			c_put_str(COLOUR_YELLOW, buf, row+i, col+35);
 		}
 	}
 }
@@ -545,7 +576,7 @@ static void display_player_sust_info(struct char_sheet_config *config)
 	render_details.combined_position = loc(0, 0);
 	render_details.vertical_label = false;
 	render_details.alternate_color_first = false;
-	render_details.known_rune = true;
+	render_details.known_icon = true;
 	render_details.show_combined = false;
 	for (i = 0; i < config->n_stat_mod_entries; i++) {
 		const struct ui_entry *entry = config->stat_mod_entries[i];
@@ -626,7 +657,7 @@ static const char *show_title(void)
 	else if (player->total_winner || player->lev > PY_MAX_LEVEL)
 		return "***WINNER***";
 	else
-		return player->class->title[(player->lev - 1) / 5];
+		return player_title();
 }
 
 static const char *show_adv_exp(void)
@@ -648,7 +679,7 @@ static const char *show_depth(void)
 
 	if (player->max_depth == 0) return "Town";
 
-	strnfmt(buffer, sizeof(buffer), "%d' (L%d)",
+	strnfmt(buffer, sizeof(buffer), "%dm (L%d)",
 	        player->max_depth * 50, player->max_depth);
 	return buffer;
 }
@@ -690,11 +721,12 @@ static struct panel *get_panel_topleft(void) {
 	struct panel *p = panel_allocate(6);
 
 	panel_line(p, COLOUR_L_BLUE, "Name", "%s", player->full_name);
+	if (!streq(player->extension->name, "None"))
+		panel_line(p, COLOUR_L_BLUE, "Extend",	"%s", player->extension->name);
 	panel_line(p, COLOUR_L_BLUE, "Race",	"%s", player->race->name);
 	panel_line(p, COLOUR_L_BLUE, "Class", "%s", player->class->name);
 	panel_line(p, COLOUR_L_BLUE, "Title", "%s", show_title());
 	panel_line(p, COLOUR_L_BLUE, "HP", "%d/%d", player->chp, player->mhp);
-	panel_line(p, COLOUR_L_BLUE, "SP", "%d/%d", player->csp, player->msp);
 
 	return p;
 }
@@ -712,9 +744,8 @@ static struct panel *get_panel_midleft(void) {
 	panel_line(p, COLOUR_L_GREEN, "Adv Exp", "%s", show_adv_exp());
 	panel_space(p);
 	panel_line(p, COLOUR_L_GREEN, "Gold", "%d", player->au);
-	panel_line(p, attr, "Burden", "%.1f lb",
-			   player->upkeep->total_weight / 10.0F);
-	panel_line(p, attr, "Overweight", "%d.%d lb", -diff / 10, abs(diff) % 10);
+	panel_line(p, attr, "Burden", fmt_weight(player->upkeep->total_weight, NULL));
+	panel_line(p, attr, "Overweight", fmt_weight(-diff, NULL));
 	panel_line(p, COLOUR_L_GREEN, "Max Depth", "%s", show_depth());
 
 	return p;
@@ -750,7 +781,7 @@ static struct panel *get_panel_combat(void) {
 
 	/* Ranged */
 	obj = equipped_item_by_slot_name(player, "shooting");
-	bth = (player->state.skills[SKILL_TO_HIT_BOW] * 10) / BTH_PLUS_ADJ;
+	bth = (player->state.skills[SKILL_TO_HIT_GUN] * 10) / BTH_PLUS_ADJ;
 	hit = player->known_state.to_h + (obj ? obj->known->to_h : 0);
 	dam = obj ? obj->known->to_d : 0;
 
@@ -789,9 +820,9 @@ static struct panel *get_panel_skills(void) {
 	skill = BOUND(player->state.skills[SKILL_DISARM_MAGIC] - depth / 5, 2, 100);
 	panel_line(p, colour_table[skill / 10], "Disarm - magic", "%d%%", skill);
 
-	/* Magic devices */
+	/* Devices */
 	skill = player->state.skills[SKILL_DEVICE];
-	panel_line(p, colour_table[skill / 13], "Magic Devices", "%d", skill);
+	panel_line(p, colour_table[skill / 13], "Devices", "%d", skill);
 
 	/* Searching ability */
 	skill = BOUND(player->state.skills[SKILL_SEARCH], 0, 100);
@@ -817,11 +848,11 @@ static struct panel *get_panel_misc(void) {
 
 	panel_line(p, attr, "Age", "%d", player->age);
 	panel_line(p, attr, "Height", "%d'%d\"", player->ht / 12, player->ht % 12);
-	panel_line(p, attr, "Weight", "%dst %dlb", player->wt / 14, player->wt % 14);
+	panel_line(p, attr, "Weight", fmt_weight(player->wt, NULL));
 	panel_line(p, attr, "Turns used:", "");
 	panel_line(p, attr, "Game", "%d", turn);
-	panel_line(p, attr, "Standard", "%d", player->total_energy / 100);
-	panel_line(p, attr, "Resting", "%d", player->resting_turn);
+	panel_line(p, attr, "Active", "%d", player->total_energy / 100);
+	panel_line(p, attr, "Rest", "%d", player->resting_turn);
 
 	return p;
 }
@@ -837,7 +868,7 @@ static const struct {
 {
 	/*   x  y wid rows */
 	{ {  1, 1, 40, 7 }, true,  get_panel_topleft },	/* Name, Class, ... */
-	{ { 21, 1, 18, 3 }, false, get_panel_misc },	/* Age, ht, wt, ... */
+	{ { 21, 1, 16, 3 }, false, get_panel_misc },	/* Age, ht, wt, ... */
 	{ {  1, 9, 24, 9 }, false, get_panel_midleft },	/* Cur Exp, Max Exp, ... */
 	{ { 29, 9, 19, 9 }, false, get_panel_combat },
 	{ { 52, 9, 20, 8 }, false, get_panel_skills },
@@ -887,9 +918,6 @@ void display_player(int mode)
 	/* When not playing, do not display in subwindows */
 	if (Term != angband_term[0] && !player->upkeep->playing) return;
 
-	/* Stat info */
-	display_player_stat_info();
-
 	if (mode) {
 		struct panel *p = panels[0].panel();
 		display_panel(p, panels[0].align_left, &panels[0].bounds);
@@ -904,6 +932,9 @@ void display_player(int mode)
 		/* Extra info */
 		display_player_xtra_info();
 	}
+
+	/* Stat info */
+	display_player_stat_info(false);
 }
 
 
@@ -1086,7 +1117,7 @@ void write_character_dump(ang_file *fff)
 	file_putf(fff, "\n\n");
 
 	/* Dump the quiver */
-	file_putf(fff, "\n\n  [Character Quiver]\n\n");
+	file_putf(fff, "\n\n  [Character Ammo]\n\n");
 	for (i = 0; i < z_info->quiver_size; i++) {
 		struct object *obj = player->upkeep->quiver[i];
 		if (!obj) continue;

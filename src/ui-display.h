@@ -35,5 +35,6 @@ void idle_update(void);
 void toggle_inven_equip(void);
 void subwindows_set_flags(u32b *new_flags, size_t n_subwindows);
 void init_display(void);
+int title_idx(int level);
 
 #endif /* INCLUDED_UI_DISPLAY_H */

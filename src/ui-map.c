@@ -239,6 +239,7 @@ void grid_data_as_text(struct grid_data *g, int *ap, wchar_t *cp, int *tap,
 			/* Desired attr & char */
 			da = monster_x_attr[mon->race->ridx];
 			dc = monster_x_char[mon->race->ridx];
+			//if (mon->race->ridx == 1) abort();
 
 			/* Special handling of attrs and/or chars */
 			if (da & 0x80) {

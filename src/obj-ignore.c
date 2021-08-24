@@ -49,12 +49,12 @@ static quality_ignore_struct quality_mapping[] =
 	{ ITYPE_SHARP,					TV_SWORD,		"" },
 	{ ITYPE_SHARP,					TV_POLEARM,		"" },
 	{ ITYPE_BLUNT,					TV_HAFTED,		"" },
-	{ ITYPE_SLING,					TV_BOW,			"Sling" },
-	{ ITYPE_BOW,					TV_BOW,			"Bow" },
-	{ ITYPE_CROSSBOW,				TV_BOW,			"Crossbow" },
-	{ ITYPE_SHOT,					TV_SHOT,		"" },
-	{ ITYPE_ARROW,					TV_ARROW,		"" },
-	{ ITYPE_BOLT,					TV_BOLT,		"" },
+	{ ITYPE_6MM,					TV_GUN,			"6mm" },
+	{ ITYPE_9MM,					TV_GUN,			"9mm" },
+	{ ITYPE_12MM,					TV_GUN,			"12mm" },
+	{ ITYPE_AMMO_6,					TV_AMMO_6,		"" },
+	{ ITYPE_AMMO_9,					TV_AMMO_9,		"" },
+	{ ITYPE_AMMO_12,				TV_AMMO_12,		"" },
 	{ ITYPE_ROBE,					TV_SOFT_ARMOR,	"Robe" },
 	{ ITYPE_BASIC_DRAGON_ARMOR,		TV_DRAG_ARMOR,	"Black" },
 	{ ITYPE_BASIC_DRAGON_ARMOR,		TV_DRAG_ARMOR,	"Blue" },
@@ -72,6 +72,7 @@ static quality_ignore_struct quality_mapping[] =
 	{ ITYPE_BODY_ARMOR,				TV_SOFT_ARMOR,	"" },
 	{ ITYPE_ELVEN_CLOAK,			TV_CLOAK,		"Elven" },
 	{ ITYPE_CLOAK,					TV_CLOAK,		"" },
+	{ ITYPE_BELT,					TV_BELT,		"" },
 	{ ITYPE_SHIELD,					TV_SHIELD,		"" },
 	{ ITYPE_HEADGEAR,				TV_HELM,		"" },
 	{ ITYPE_HEADGEAR,				TV_CROWN,		"" },
@@ -167,60 +168,60 @@ void ignore_birth_init(void)
 
 
 /**
- * Make or extend a rune autoinscription
+ * Make or extend a icon autoinscription
  */
-static void rune_add_autoinscription(struct object *obj, int i)
+static void icon_add_autoinscription(struct object *obj, int i)
 {
 	char current_note[80] = "";
 
 	/* No autoinscription, or already there, don't bother */
-	if (!rune_note(i)) return;
-	if (obj->note && strstr(quark_str(obj->note), quark_str(rune_note(i))))
+	if (!icon_note(i)) return;
+	if (obj->note && strstr(quark_str(obj->note), quark_str(icon_note(i))))
 		return;
 
 	/* Extend any current note */
 	if (obj->note)
 		my_strcpy(current_note, quark_str(obj->note), sizeof(current_note));
-	my_strcat(current_note, quark_str(rune_note(i)), sizeof(current_note));
+	my_strcat(current_note, quark_str(icon_note(i)), sizeof(current_note));
 
 	/* Add the inscription */
 	obj->note = quark_add(current_note);
 }
 
 /**
- * Put a rune autoinscription on all available objects
+ * Put a icon autoinscription on all available objects
  */
-void rune_autoinscribe(int i)
+void icon_autoinscribe(int i)
 {
 	struct object *obj;
 
-	/* Check the player knows the rune */
-	if (!player_knows_rune(player, i)) {
+	/* Check the player knows the icon */
+	if (!player_knows_icon(player, i)) {
 		return;
 	}
 
 	/* Autoinscribe each object on the ground */
 	if (cave)
 		for (obj = square_object(cave, player->grid); obj; obj = obj->next)
-			if (object_has_rune(obj, i))
-				rune_add_autoinscription(obj, i);
+			if (object_has_icon(obj, i))
+				icon_add_autoinscription(obj, i);
 
 	/* Autoinscribe each object in the inventory */
 	for (obj = player->gear; obj; obj = obj->next)
-		if (object_has_rune(obj, i))
-			rune_add_autoinscription(obj, i);
+		if (object_has_icon(obj, i))
+			icon_add_autoinscription(obj, i);
 }
 
 /**
- * Put all appropriate rune autoinscriptions on an object
+ * Put all appropriate icon autoinscriptions on an object
  */
-static void runes_autoinscribe(struct object *obj)
+static void icons_autoinscribe(struct object *obj)
 {
-	int i, rune_max = max_runes();
+	int i, icon_max = max_icons();
 
-	for (i = 0; i < rune_max; i++)
-		if (object_has_rune(obj, i) && player_knows_rune(player, i))
-			rune_add_autoinscription(obj, i);
+	for (i = 0; i < icon_max; i++)
+		if (object_has_icon(obj, i) && player_knows_icon(player, i))
+			icon_add_autoinscription(obj, i);
 }
 
 /**
@@ -250,8 +251,8 @@ int apply_autoinscription(struct object *obj)
 		streq(quark_str(obj->note), quark_str(obj->kind->note_unaware)))
 		obj->note = 0;
 
-	/* Make rune autoinscription go first, for now */
-	runes_autoinscribe(obj);
+	/* Make icon autoinscription go first, for now */
+	icons_autoinscribe(obj);
 
 	/* No note - don't inscribe */
 	if (!note)
@@ -592,7 +593,7 @@ bool object_is_ignored(const struct object *obj)
 		return true;
 
 	/* Ignore ego items if known */
-	if (obj->known->ego && ego_is_ignored(obj->ego->eidx, ignore_type_of(obj)))
+	if (obj->known->ego && obj->ego && ego_is_ignored(obj->ego->eidx, ignore_type_of(obj)))
 		return true;
 
 	type = ignore_type_of(obj);

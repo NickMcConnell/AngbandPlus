@@ -23,6 +23,7 @@
 #include "monster.h"
 #include "player-calcs.h"
 #include "player-timed.h"
+#include "player-util.h"
 #include "trap.h"
 
 /**
@@ -656,10 +657,12 @@ static void update_one(struct chunk *c, struct loc grid, int blind)
 			c->feeling_squares++;
 			sqinfo_off(square(c, grid)->info, SQUARE_FEEL);
 			/* Don't display feeling if it will display for the new level */
-			if ((c->feeling_squares == z_info->feeling_need) &&
+			if ((c->feeling_squares == feeling_need(player)) &&
 				!player->upkeep->only_partial) {
-				display_feeling(true);
-				player->upkeep->redraw |= PR_FEELING;
+				if (player->active_quest < 0) {
+					display_feeling(true);
+					player->upkeep->redraw |= PR_FEELING;
+				}
 			}
 		}
 

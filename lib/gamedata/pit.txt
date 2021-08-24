@@ -294,7 +294,7 @@ obj-rarity:10
 mon-base:skeleton
 mon-base:zombie
 mon-base:wraith
-spell-ban:BO_NETH
+spell-ban:BO_RADI
 spell-ban:TELE_AWAY
 
 name:Wizards

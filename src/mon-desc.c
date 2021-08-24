@@ -128,9 +128,9 @@ void monster_desc(char *desc, size_t max, const struct monster *mon, int mode)
 
 		/* Extract the gender (if applicable) */
 		if (use_pronoun) {
-			if (rf_has(mon->race->flags, RF_FEMALE)) {
+			if (mflag_has(mon->mflag, MFLAG_FEMALE)) {
 				msex = 0x20;
-			} else if (rf_has(mon->race->flags, RF_MALE)) {
+			} else if (mflag_has(mon->mflag, MFLAG_MALE)) {
 				msex = 0x10;
 			}
 		}
@@ -171,9 +171,9 @@ void monster_desc(char *desc, size_t max, const struct monster *mon, int mode)
 		my_strcpy(desc, choice, max);
 	} else if ((mode & MDESC_POSS) && (mode & MDESC_OBJE)) {
 		/* The monster is visible, so use its gender */
-		if (rf_has(mon->race->flags, RF_FEMALE))
+		if (mflag_has(mon->mflag, MFLAG_FEMALE))
 			my_strcpy(desc, "herself", max);
-		else if (rf_has(mon->race->flags, RF_MALE))
+		else if (mflag_has(mon->mflag, MFLAG_MALE))
 			my_strcpy(desc, "himself", max);
 		else
 			my_strcpy(desc, "itself", max);

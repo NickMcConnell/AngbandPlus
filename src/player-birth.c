@@ -24,7 +24,7 @@
 #include "init.h"
 #include "mon-lore.h"
 #include "monster.h"
-#include "obj-curse.h"
+#include "obj-fault.h"
 #include "obj-gear.h"
 #include "obj-ignore.h"
 #include "obj-init.h"
@@ -37,6 +37,7 @@
 #include "obj-tval.h"
 #include "obj-util.h"
 #include "object.h"
+#include "player-ability.h"
 #include "player-birth.h"
 #include "player-calcs.h"
 #include "player-history.h"
@@ -46,6 +47,7 @@
 #include "player-util.h"
 #include "savefile.h"
 #include "store.h"
+#include "world.h"
 
 /**
  * Overview
@@ -92,8 +94,9 @@ typedef struct birther /*lovely*/ birther; /*sometimes we think she's a dream*/
  */
 struct birther
 {
-	const struct player_race *race;
-	const struct player_class *class;
+	struct player_race *race;
+	struct player_race *ext;
+	struct player_class *class;
 
 	s16b age;
 	s16b wt;
@@ -148,6 +151,7 @@ static void save_roller_data(birther *tosave)
 
 	/* Save the data */
 	tosave->race = player->race;
+	tosave->ext = player->extension;
 	tosave->class = player->class;
 	tosave->age = player->age;
 	tosave->wt = player->wt_birth;
@@ -191,6 +195,7 @@ static void load_roller_data(birther *saved, birther *prev_player)
 
 	/* Load previous data */
 	player->race     = saved->race;
+	player->extension = saved->ext;
 	player->class    = saved->class;
 	player->age      = saved->age;
 	player->wt       = player->wt_birth = player->wt;
@@ -259,7 +264,7 @@ static void get_stats(int stat_use[STAT_MAX])
 		player->stat_max[i] = j;
 
 		/* Obtain a "bonus" for "race" and "class" */
-		bonus = player->race->r_adj[i] + player->class->c_adj[i];
+		bonus = player->race->r_adj[i] + player->extension->r_adj[i] + player->class->c_adj[i];
 
 		/* Start fully healed */
 		player->stat_cur[i] = player->stat_max[i];
@@ -274,36 +279,107 @@ static void get_stats(int stat_use[STAT_MAX])
 	}
 }
 
-
-static void roll_hp(void)
+/* Worst (= most negative) negative deviation, as a proportion of the expected value
+ * in 10000ths
+ */
+int hp_roll_worst(int *level)
 {
-	int i, j, min_value, max_value;
-
-	/* Minimum hitpoints at highest level */
-	min_value = (PY_MAX_LEVEL * (player->hitdie - 1) * 3) / 8;
-	min_value += PY_MAX_LEVEL;
-
-	/* Maximum hitpoints at highest level */
-	max_value = (PY_MAX_LEVEL * (player->hitdie - 1) * 5) / 8;
-	max_value += PY_MAX_LEVEL;
-
-	/* Roll out the hitpoints */
-	while (true) {
-		/* Roll the hitpoint values */
-		for (i = 1; i < PY_MAX_LEVEL; i++) {
-			j = randint1(player->hitdie);
-			player->player_hp[i] = player->player_hp[i-1] + j;
+	int worst = 0;
+	int rdev = 0;
+	for(int i=1; i<PY_MAX_LEVEL-10; i++) {
+		int mean = (i / 2) + ((player->hitdie * i) / (PY_MAX_LEVEL - 1)); 
+		rdev += level[i];
+		if (i >= 5) {
+			int dev = rdev - mean;
+			dev *= 10000;
+			dev /= mean;
+			if (dev < worst)
+				worst = dev;
 		}
-
-		/* XXX Could also require acceptable "mid-level" hitpoints */
-
-		/* Require "valid" hitpoints at highest level */
-		if (player->player_hp[PY_MAX_LEVEL-1] < min_value) continue;
-		if (player->player_hp[PY_MAX_LEVEL-1] > max_value) continue;
-
-		/* Acceptable */
-		break;
 	}
+	return worst;
+}
+
+/* Sum of squares of of negative deviations */
+int hp_roll_score(int *level)
+{
+	int sum = 0;
+	int rdev = 0;
+	for(int i=1; i<PY_MAX_LEVEL; i++) {
+		int mean = (i / 2) + ((player->hitdie * i) / (PY_MAX_LEVEL - 1)); 
+		rdev += level[i];
+		int dev = rdev - mean;
+		if (dev < 0)
+			sum += (dev * dev);
+	}
+	return sum;
+}
+
+/* Produce hitpoints which are random at all levels except the first
+ * which always gets max hit points, but which at maximum level always
+ * has the same value (the average value of 49 hitdie rolls, + 1 max).
+ * It should also not deviate too far from the average at any other
+ * level.
+ */
+void roll_hp(void)
+{
+	/* Average expected HP - ignoring the first level */
+	int target = player->hitdie;
+
+	/* Roll all hitpoints */
+	int level[PY_MAX_LEVEL];
+	int sum = 0;
+	for(int i=1;i<PY_MAX_LEVEL;i++) {
+		level[i] = 1+(randint0(target * 2) / (PY_MAX_LEVEL - 1));
+		sum += level[i];
+	}
+
+	/* Reroll a level at random and take the maximum or minimum,
+	 * until the sum is right.
+	 */
+	assert(target >= PY_MAX_LEVEL - 1);
+	while (sum != target) {
+		int l = randint1(PY_MAX_LEVEL-1);
+		int prev = level[l];
+		int reroll = 1+(randint0(target * 2) / (PY_MAX_LEVEL - 1));
+		int best;
+		if (sum < target)
+			best = MAX(prev, reroll);
+		else
+			best = MIN(prev, reroll);
+		sum -= level[l];
+		level[l] = best;
+		sum += best;
+	}
+
+	/* Reduce deviation at midlevels without affecting the sum by
+	 * swapping pairs of rolls.
+	 * Select a pair at random, and determine a score with and
+	 * without the change - keep the swap if the score has improved.
+	 * The score is the geometric mean of all negative deviations, and
+	 * the process finishes when the worst-case -ve deviation between
+	 * levels 5 and 40 has been reduced below 5%.
+	 */
+	do {
+		int before = hp_roll_score(level);
+		int from = randint1(PY_MAX_LEVEL-1);
+		int to = randint1(PY_MAX_LEVEL-1);
+		int tmp = level[from];
+		level[from] = level[to];
+		level[to] = tmp;
+		int after = hp_roll_score(level);
+		if (before < after) {
+			// revert it - this has increased the deviation
+			tmp = level[from];
+			level[from] = level[to];
+			level[to] = tmp;
+		}
+	} while (hp_roll_worst(level) < -500); // 5%
+
+	/* Copy into the player's hitpoints */
+	player->player_hp[0] = (2 * player->hitdie) / PY_MAX_LEVEL;
+	for (int i = 1; i < PY_MAX_LEVEL; i++)
+		player->player_hp[i] = player->player_hp[i-1] + level[i];
 }
 
 
@@ -317,14 +393,11 @@ static void get_bonuses(void)
 
 	/* Fully healed */
 	player->chp = player->mhp;
-
-	/* Fully rested */
-	player->csp = player->msp;
 }
 
 
 /**
- * Get the racial history, and social class, using the "history charts".
+ * Get the racial history using the "history charts".
  */
 char *get_history(struct history_chart *chart)
 {
@@ -345,6 +418,15 @@ char *get_history(struct history_chart *chart)
 	return res;
 }
 
+/**
+ * Computes character's height, and weight
+ */
+void get_height_weight(struct player *p)
+{
+	/* Calculate the height/weight */
+	p->ht = p->ht_birth = Rand_normal(p->race->base_hgt + p->extension->base_hgt, p->race->mod_hgt + p->extension->mod_hgt);
+	p->wt = p->wt_birth = Rand_normal(p->race->base_wgt + p->extension->base_wgt, p->race->mod_wgt + p->extension->mod_wgt);
+}
 
 /**
  * Computes character's age, height, and weight
@@ -352,11 +434,8 @@ char *get_history(struct history_chart *chart)
 static void get_ahw(struct player *p)
 {
 	/* Calculate the age */
-	p->age = p->race->b_age + randint1(p->race->m_age);
-
-	/* Calculate the height/weight */
-	p->ht = p->ht_birth = Rand_normal(p->race->base_hgt, p->race->mod_hgt);
-	p->wt = p->wt_birth = Rand_normal(p->race->base_wgt, p->race->mod_wgt);
+	p->age = p->race->b_age + p->extension->b_age + randint1(p->race->m_age + p->extension->m_age);
+	get_height_weight(p);
 }
 
 
@@ -437,8 +516,8 @@ void player_init(struct player *p)
 	p->obj_k = mem_zalloc(sizeof(struct object));
 	p->obj_k->brands = mem_zalloc(z_info->brand_max * sizeof(bool));
 	p->obj_k->slays = mem_zalloc(z_info->slay_max * sizeof(bool));
-	p->obj_k->curses = mem_zalloc(z_info->curse_max *
-								  sizeof(struct curse_data));
+	p->obj_k->faults = mem_zalloc(z_info->fault_max *
+								  sizeof(struct fault_data));
 
 	/* Options should persist */
 	p->opts = opts_save;
@@ -450,6 +529,7 @@ void player_init(struct player *p)
 
 	/* Default to the first race/class in the edit file */
 	p->race = races;
+	p->extension = extensions;
 	p->class = classes;
 
 	/* Player starts unshapechanged */
@@ -506,6 +586,58 @@ void wield_all(struct player *p)
 	return;
 }
 
+void add_start_items(struct player *p, const struct start_item *si, bool skip, bool pay, int origin)
+{
+	struct object *obj, *known_obj;
+	for (; si; si = si->next) {
+		int num = rand_range(si->min, si->max);
+		struct object_kind *kind;
+		if (si->sval)
+			kind = lookup_kind(si->tval, si->sval);
+		else
+			kind = get_obj_num(0, false, si->tval);
+		assert(kind);
+
+		/* Without start_kit, only start with 1 food and 1 light */
+		if (skip) {
+			if (!tval_is_food_k(kind) && !tval_is_light_k(kind))
+				continue;
+
+			num = 1;
+		}
+
+		/* If you can't eat food, don't start with it */
+		if (tval_is_food_k(kind))
+			if (player_has(p, PF_NO_FOOD))
+				continue;
+
+		/* Prepare a new item */
+		obj = object_new();
+		object_prep(obj, kind, 0, MINIMISE);
+		if (si->ego) {
+			obj->ego = si->ego;
+			ego_apply_magic(obj, 0);
+		}
+		obj->number = num;
+		obj->origin = origin;
+
+		known_obj = object_new();
+		obj->known = known_obj;
+		object_set_base_known(obj);
+		object_flavor_aware(obj);
+		obj->known->pval = obj->pval;
+		obj->known->effect = obj->effect;
+		obj->known->notice |= OBJ_NOTICE_ASSESSED;
+
+		/* Deduct the cost of the item from starting cash */
+		if (pay)
+			p->au -= object_value_real(obj, obj->number);
+
+		/* Carry the item */
+		inven_carry(p, obj, true, false);
+		kind->everseen = true;
+	}
+}
 
 /**
  * Init players with some belongings
@@ -515,8 +647,6 @@ void wield_all(struct player *p)
 static void player_outfit(struct player *p)
 {
 	int i;
-	const struct start_item *si;
-	struct object *obj, *known_obj;
 
 	/* Currently carrying nothing */
 	p->upkeep->total_weight = 0;
@@ -533,40 +663,9 @@ static void player_outfit(struct player *p)
 	}
 
 	/* Give the player starting equipment */
-	for (si = p->class->start_items; si; si = si->next) {
-		int num = rand_range(si->min, si->max);
-		struct object_kind *kind = lookup_kind(si->tval, si->sval);
-		assert(kind);
-
-		/* Without start_kit, only start with 1 food and 1 light */
-		if (!OPT(p, birth_start_kit)) {
-			if (!tval_is_food_k(kind) && !tval_is_light_k(kind))
-				continue;
-
-			num = 1;
-		}
-
-		/* Prepare a new item */
-		obj = object_new();
-		object_prep(obj, kind, 0, MINIMISE);
-		obj->number = num;
-		obj->origin = ORIGIN_BIRTH;
-
-		known_obj = object_new();
-		obj->known = known_obj;
-		object_set_base_known(obj);
-		object_flavor_aware(obj);
-		obj->known->pval = obj->pval;
-		obj->known->effect = obj->effect;
-		obj->known->notice |= OBJ_NOTICE_ASSESSED;
-
-		/* Deduct the cost of the item from starting cash */
-		p->au -= object_value_real(obj, obj->number);
-
-		/* Carry the item */
-		inven_carry(p, obj, true, false);
-		kind->everseen = true;
-	}
+	add_start_items(p, p->class->start_items, (!OPT(p, birth_start_kit)), true, ORIGIN_BIRTH);
+	add_start_items(p, p->race->start_items, (!OPT(p, birth_start_kit)), true, ORIGIN_BIRTH);
+	add_start_items(p, p->extension->start_items, (!OPT(p, birth_start_kit)), true, ORIGIN_BIRTH);
 
 	/* Sanity check */
 	if (p->au < 0)
@@ -583,10 +682,18 @@ static void player_outfit(struct player *p)
 /**
  * Cost of each "point" of a stat.
  */
-static const int birth_stat_costs[18 + 1] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 4 };
+static const unsigned char birth_stat_costs[STAT_MAX][18 + 1] = {
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 4, 5, 6, 7,10,15,20 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 4, 5, 6, 7,10,15,20 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 4, 5, 6, 7,10,15,20 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 4, 5, 6, 7,10,15,20 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 4, 5, 6, 7,10,15,20 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,10,15,25,40,60,100,100,100 },
+};
 
 /* It was feasible to get base 17 in 3 stats with the autoroller */
-#define MAX_BIRTH_POINTS 20 /* 3 * (1+1+1+1+1+1+2) */
+#define MAX_BIRTH_POINTS 150 /* major stats are 50 for 17 */
 
 static void recalculate_stats(int *stats_local_local, int points_left_local)
 {
@@ -643,7 +750,7 @@ static bool buy_stat(int choice, int stats_local[STAT_MAX],
 	if (!(choice >= STAT_MAX || choice < 0) &&	(stats_local[choice] < 18)) {
 		/* Get the cost of buying the extra point (beyond what
 		   it has already cost to get this far). */
-		int stat_cost = birth_stat_costs[stats_local[choice] + 1];
+		int stat_cost = birth_stat_costs[choice][stats_local[choice] + 1];
 
 		if (stat_cost <= *points_left_local) {
 			stats_local[choice]++;
@@ -673,7 +780,7 @@ static bool sell_stat(int choice, int stats_local[STAT_MAX], int points_spent_lo
 {
 	/* Must be a valid stat, and we can't "sell" stats below the base of 10. */
 	if (!(choice >= STAT_MAX || choice < 0) && (stats_local[choice] > 10)) {
-		int stat_cost = birth_stat_costs[stats_local[choice]];
+		int stat_cost = birth_stat_costs[choice][stats_local[choice]];
 
 		stats_local[choice]--;
 		points_spent_local[choice] -= stat_cost;
@@ -698,11 +805,12 @@ static bool sell_stat(int choice, int stats_local[STAT_MAX], int points_spent_lo
 
 /**
  * This picks some reasonable starting values for stats based on the
- * current race/class combo, etc. using the discussion from
- * http://angband.oook.cz/forum/showthread.php?t=1691:
+ * current race/class combo, etc.  For now I'm disregarding concerns
+ * about role-playing, etc, and using the simple outline from
+ * http://angband.oook.cz/forum/showpost.php?p=17588&postcount=6:
  *
  * 0. buy base STR 17
- * 1. buy base DEX of up to 17, stopping at the last breakpoint for blows
+ * 1. if possible buy adj DEX of 18/10
  * 2. spend up to half remaining points on each of spell-stat and con, 
  *    but only up to max base of 16 unless a pure class 
  *    [mage or priest or warrior]
@@ -714,13 +822,13 @@ static void generate_stats(int stats[STAT_MAX], int points_spent[STAT_MAX],
 {
 	int step = 0;
 	bool maxed[STAT_MAX] = { 0 };
-	/* Hack - for now, just use stat of first book - NRM */
-	int spell_stat = player->class->magic.total_spells ?
-		player->class->magic.books[0].realm->stat : 0;
+	/* The assumption here is that techniques are distributed across all stats so there is no
+	 * reason to prefer one, but devices do require INT and they are more important that any
+	 * users of WIS. And more important to a weaker "caster" type than to a melee type.
+	 **/
+	int spell_stat = STAT_INT;
 	bool caster = player->class->max_attacks < 5 ? true : false;
 	bool warrior = player->class->max_attacks > 5 ? true : false;
-	int blows = 10;
-	int dex_break = 10;
 
 	while (*points_left && step >= 0) {
 	
@@ -737,7 +845,7 @@ static void generate_stats(int stats[STAT_MAX], int points_spent[STAT_MAX],
 					step++;
 					
 					/* If pure caster skip to step 3 */
-					if (caster) {
+					if (caster){
 						step = 3;
 					}
 				}
@@ -745,17 +853,13 @@ static void generate_stats(int stats[STAT_MAX], int points_spent[STAT_MAX],
 				break;
 			}
 
-			/* Buy base DEX of 17, record best breakpoint */
+			/* Try and buy adj DEX of 18/10 */
 			case 1: {
-				if (!maxed[STAT_DEX] && stats[STAT_DEX]	< 17) {
+				if (!maxed[STAT_DEX] && player->state.stat_top[STAT_DEX]
+					< 18+10) {
 					if (!buy_stat(STAT_DEX, stats, points_spent,
-								  points_left, true)) {
+								  points_left, false))
 						maxed[STAT_DEX] = true;
-					}
-					if (player->state.num_blows / 10 > blows) {
-						blows = player->state.num_blows / 10;
-						dex_break = stats[STAT_DEX];
-					}
 				} else {
 					step++;
 				}
@@ -763,11 +867,12 @@ static void generate_stats(int stats[STAT_MAX], int points_spent[STAT_MAX],
 				break;
 			}
 
-			/* Sell back DEX that isn't getting us an extra blow. */
+			/* If we can't get 18/10 dex, sell it back. */
 			case 2: {
-				while (stats[STAT_DEX] > dex_break) {
-					sell_stat(STAT_DEX, stats, points_spent, points_left,
-							  false);
+				if (player->state.stat_top[STAT_DEX] < 18+10) {
+					while (stats[STAT_DEX] > 10)
+						sell_stat(STAT_DEX, stats, points_spent,
+								  points_left, false);
 					maxed[STAT_DEX] = false;
 				}
 				step++;
@@ -777,7 +882,7 @@ static void generate_stats(int stats[STAT_MAX], int points_spent[STAT_MAX],
 			/* 
 			 * Spend up to half remaining points on each of spell-stat and 
 			 * con, but only up to max base of 16 unless a pure class 
-			 * [caster or warrior]
+			 * [mage or priest or warrior]
 			 */
 			case 3: 
 			{
@@ -804,6 +909,8 @@ static void generate_stats(int stats[STAT_MAX], int points_spent[STAT_MAX],
 					}
 				}
 
+				/* Skip CON for casters because DEX is more important early
+				 * and is handled in 4 */
 				while (!maxed[STAT_CON] &&
 					   stats[STAT_CON] < 16 &&
 					   points_spent[STAT_CON] < points_trigger) {
@@ -826,18 +933,22 @@ static void generate_stats(int stats[STAT_MAX], int points_spent[STAT_MAX],
 
 			/* 
 			 * If there are any points left, spend as much as possible in 
-			 * order on DEX, and the non-spell-stat. 
+			 * order on speed, DEX, and the non-spell-stat. 
 			 */
 			case 4:{
 			
 				int next_stat;
 
-				if (!maxed[STAT_DEX]) {
+				if (!maxed[STAT_SPD]) {
+					next_stat = STAT_SPD;
+				} else if (!maxed[STAT_DEX]) {
 					next_stat = STAT_DEX;
 				} else if (!maxed[STAT_INT] && spell_stat != STAT_INT) {
 					next_stat = STAT_INT;
 				} else if (!maxed[STAT_WIS] && spell_stat != STAT_WIS) {
 					next_stat = STAT_WIS;
+				} else if (!maxed[STAT_CHR]) {
+					next_stat = STAT_CHR;
 				} else {
 					step++;
 					break;
@@ -870,8 +981,8 @@ static void generate_stats(int stats[STAT_MAX], int points_spent[STAT_MAX],
  * This fleshes out a full player based on the choices currently made,
  * and so is called whenever things like race or class are chosen.
  */
-void player_generate(struct player *p, const struct player_race *r,
-					 const struct player_class *c, bool old_history)
+void player_generate(struct player *p, struct player_race *r, struct player_race *e,
+					 struct player_class *c, bool old_history)
 {
 	int i;
 
@@ -879,21 +990,24 @@ void player_generate(struct player *p, const struct player_race *r,
 		c = p->class;
 	if (!r)
 		r = p->race;
+	if (!e)
+		e = p->extension;
 
 	p->class = c;
 	p->race = r;
+	p->extension = e;
 
 	/* Level 1 */
 	p->max_lev = p->lev = 1;
 
 	/* Experience factor */
-	p->expfact = p->race->r_exp + p->class->c_exp;
+	p->expfact = p->race->r_exp + p->extension->r_exp + p->class->c_exp;
 
 	/* Hitdice */
-	p->hitdie = p->race->r_mhp + p->class->c_mhp;
+	p->hitdie = p->race->r_mhp + p->extension->r_mhp + p->class->c_mhp;
 
 	/* Pre-calculate level 1 hitdice */
-	p->player_hp[0] = p->hitdie;
+	p->player_hp[0] = (p->hitdie * 2) / PY_MAX_LEVEL;
 
 	/*
 	 * Fill in overestimates of hitpoints for additional levels.  Do not
@@ -901,7 +1015,7 @@ void player_generate(struct player *p, const struct player_race *r,
 	 * to get a desirable set of initial rolls.
 	 */
 	for (i = 1; i < p->lev; i++) {
-		p->player_hp[i] = p->player_hp[i - 1] + p->hitdie;
+		p->player_hp[i] = p->player_hp[i - 1] + (p->hitdie / PY_MAX_LEVEL);
 	}
 
 	/* Initial hitpoints */
@@ -932,7 +1046,7 @@ static void do_birth_reset(bool use_quickstart, birther *quickstart_prev_local)
 	if (use_quickstart && quickstart_prev_local)
 		load_roller_data(quickstart_prev_local, NULL);
 
-	player_generate(player, NULL, NULL, use_quickstart && quickstart_prev_local);
+	player_generate(player, NULL, NULL, NULL, use_quickstart && quickstart_prev_local);
 
 	player->depth = 0;
 
@@ -969,7 +1083,7 @@ void do_cmd_birth_init(struct command *cmd)
 		save_roller_data(&quickstart_prev);
 		quickstart_allowed = true;
 	} else {
-		player_generate(player, player_id2race(0), player_id2class(0), false);
+		player_generate(player, player_id2race(0), player_id2ext(0), player_id2class(0), false);
 		quickstart_allowed = false;
 	}
 
@@ -989,7 +1103,18 @@ void do_cmd_choose_race(struct command *cmd)
 {
 	int choice;
 	cmd_get_arg_choice(cmd, "choice", &choice);
-	player_generate(player, player_id2race(choice), NULL, false);
+	player_generate(player, player_id2race(choice), NULL, NULL, false);
+
+	reset_stats(stats, points_spent, &points_left, false);
+	generate_stats(stats, points_spent, &points_left);
+	rolled_stats = false;
+}
+
+void do_cmd_choose_ext(struct command *cmd)
+{
+	int choice;
+	cmd_get_arg_choice(cmd, "choice", &choice);
+	player_generate(player, NULL, player_id2ext(choice), NULL, false);
 
 	reset_stats(stats, points_spent, &points_left, false);
 	generate_stats(stats, points_spent, &points_left);
@@ -1000,7 +1125,7 @@ void do_cmd_choose_class(struct command *cmd)
 {
 	int choice;
 	cmd_get_arg_choice(cmd, "choice", &choice);
-	player_generate(player, NULL, player_id2class(choice), false);
+	player_generate(player, NULL, NULL, player_id2class(choice), false);
 
 	reset_stats(stats, points_spent, &points_left, false);
 	generate_stats(stats, points_spent, &points_left);
@@ -1120,13 +1245,24 @@ void do_cmd_accept_character(struct command *cmd)
 {
 	options_init_cheat();
 
+	/* Reseed the RNG - this avoids world_init_towns() using the same distances */
+	Rand_init();
+
 	roll_hp();
+
+	/* Prompt for birth talents and roll out per-level talent points */
+	int level_tp = setup_talents();
+	cmd_abilities(player, true, player->talent_points, NULL);
+	init_talent(level_tp);
+
+	/* Make a world: towns */
+	world_init_towns();
 
 	ignore_birth_init();
 
 	/* Clear old messages, add new starting message */
 	history_clear(player);
-	history_add(player, "Began the quest to destroy Morgoth.", HIST_PLAYER_BIRTH);
+	history_add(player, "Began the mission to save the galaxy.", HIST_PLAYER_BIRTH);
 
 	/* Note player birth in the message recall */
 	message_add(" ", MSG_GENERIC);
@@ -1144,11 +1280,11 @@ void do_cmd_accept_character(struct command *cmd)
 	/* Initialise the spells */
 	player_spells_init(player);
 
-	/* Know all runes for ID on walkover */
-	if (OPT(player, birth_know_runes))
-		player_learn_all_runes(player);
+	/* Know all icons for ID on walkover */
+	if (OPT(player, birth_know_icons))
+		player_learn_all_icons(player);
 
-	/* Hack - player knows all combat runes.  Maybe make them not runes? NRM */
+	/* Hack - player knows all combat icons.  Maybe make them not icons? NRM */
 	player->obj_k->to_a = 1;
 	player->obj_k->to_h = 1;
 	player->obj_k->to_d = 1;
@@ -1157,7 +1293,7 @@ void do_cmd_accept_character(struct command *cmd)
 	store_reset();
 	chunk_list_max = 0;
 
-	/* Player learns innate runes */
+	/* Player learns innate icons */
 	player_learn_innate(player);
 
 	/* Restore the standard artifacts (randarts may have been loaded) */
@@ -1182,6 +1318,17 @@ void do_cmd_accept_character(struct command *cmd)
 
 	/* Outfit the player, if they can sell the stuff */
 	player_outfit(player);
+
+	/* No quest in progress */
+	player->active_quest = -1;
+
+	/* Cooldowns at zero */
+	if (!player->cooldown)
+		player->cooldown = mem_alloc(sizeof(*player->cooldown) * total_spells);
+	memset(player->cooldown, 0, sizeof(*player->cooldown) * total_spells);
+
+	/* Class specific initialization */
+	player_hookz(init);
 
 	/* Stop the player being quite so dead */
 	player->is_dead = false;

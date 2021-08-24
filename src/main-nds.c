@@ -77,7 +77,7 @@ s16 nds_buttons_to_btnid(u16 kd, u16 kh) {
 
 #define DEF_TILE_WIDTH		8
 #define DEF_TILE_HEIGHT		8
-#define DEF_TILE_FILE		"/angband/lib/xtra/graf/8x8.bmp"
+#define DEF_TILE_FILE		"/xygos/lib/xtra/graf/8x8.bmp"
 #define DEF_TILES_PER_ROW       32
 
 /* don't change these */
@@ -1197,13 +1197,13 @@ static void init_stuff(void)
 	char path[1024];
 
 	/* Prepare the path */
-	strcpy(path, "/angband/lib/");
+	strcpy(path, "/xygos/lib/");
 
 	/* Prepare the filepaths */
 	init_file_paths(path, path, path);
 
 	/* Hack */
-	//strcpy(savefile, "/angband/lib/save/PLAYER");
+	//strcpy(savefile, "/xygos/lib/save/PLAYER");
 }
 
 void nds_init_fonts() {
@@ -1623,7 +1623,7 @@ int main(int argc, char *argv[])
   swiWaitForVBlank();
   swiWaitForVBlank();
   
-  chdir("/angband");
+  chdir("/xygos");
   if (!nds_load_kbd()) 
     {
       nds_fatal_err("\nError loading keyboard graphics.\nCannot continue.\n");
@@ -1639,7 +1639,7 @@ int main(int argc, char *argv[])
     {	/* it's a DS lite */
       swap_font(false);
     } 
-  else if (access("/angband/swapfont",04) != -1) 
+  else if (access("/xygos/swapfont",04) != -1) 
     {
       swap_font(false);
     }

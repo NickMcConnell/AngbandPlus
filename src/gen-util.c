@@ -33,6 +33,7 @@
 #include "obj-pile.h"
 #include "obj-tval.h"
 #include "obj-util.h"
+#include "player-quest.h"
 #include "player-util.h"
 #include "trap.h"
 #include "z-queue.h"
@@ -131,7 +132,7 @@ void i_to_grid(int i, int w, struct loc *grid)
 }
 
 /**
- * Shuffle an array using Knuth's shuffle.
+ * Shuffle an array of ints using Knuth's shuffle.
  * \param arr array
  * \param n number of shuffle moves
  */
@@ -146,6 +147,23 @@ void shuffle(int *arr, int n)
     }
 }
 
+/**
+ * Shuffle an array of any type using Knuth's shuffle.
+ * \param arr array
+ * \param n number of shuffle moves (elements in the array)
+ * \param size size of each element, bytes
+ */
+void shuffle_sized(void *arr, int n, int size)
+{
+    int i, j;
+    void *k = alloca(size);
+    for (i = 0; i < n; i++) {
+		j = randint0(n - i) + i;
+		memcpy(k, (char *)arr + (j * size), size);
+		memcpy((char *)arr + (j * size), (char *)arr + (i * size), size);
+		memcpy((char *)arr + (i * size), k, size);
+    }
+}
 
 /**
  * Locate a square in a rectangle which satisfies the given predicate.
@@ -315,7 +333,7 @@ static bool find_start(struct chunk *c, struct loc *grid)
 				if (!cave_find_in_range(c, grid, loc(1, 1),
 								   loc(c->width - 2, c->height - 2),
 								   square_isempty)) continue;
-				if (square_isvault(c, *grid) || square_isno_stairs(c, *grid)) {
+				if ((square_isvault(c, *grid) && (player->active_quest < 0)) || square_isno_stairs(c, *grid)) {
 					continue;
 				}
 				total_walls = square_num_walls_adjacent(c, *grid) +
@@ -353,12 +371,19 @@ void new_player_spot(struct chunk *c, struct player *p)
 	}
 
     /* Create stairs the player came down if allowed and necessary */
-    if (!OPT(p, birth_connect_stairs))
-		;
-	else if (p->upkeep->create_down_stair)
-		square_set_feat(c, grid, FEAT_MORE);
-	else if (p->upkeep->create_up_stair)
-		square_set_feat(c, grid, FEAT_LESS);
+    if (player->active_quest >= 0) {
+		if (p->upkeep->create_down_stair)
+			square_set_feat(c, grid, FEAT_ENTRY);
+		else if (p->upkeep->create_up_stair)
+			square_set_feat(c, grid, FEAT_EXIT);
+	} else {
+		if (!OPT(p, birth_connect_stairs))
+			;
+		else if (p->upkeep->create_down_stair)
+			square_set_feat(c, grid, FEAT_MORE);
+		else if (p->upkeep->create_up_stair)
+			square_set_feat(c, grid, FEAT_LESS);
+	}
 
     player_place(c, p, grid);
 }

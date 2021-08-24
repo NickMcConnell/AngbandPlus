@@ -52,8 +52,6 @@ bool flag_has_dbg(const bitflag *flags, const size_t size, const int flag,
 		         fi, fl, flag, (unsigned int) size, (unsigned int) flag_offset, flag_binary);
 	}
 
-	assert(flag_offset < size);
-
 	if (flags[flag_offset] & flag_binary) return true;
 
 	return false;
@@ -556,7 +554,7 @@ void flags_init(bitflag *flags, const size_t size, ...)
 /**
  * Computes the intersection of a bitfield and multiple bitflags.
  *
- * The flags not specified in `...` are cleared in `flags`. The bitfeild size
+ * The flags not specified in `...` are cleared in `flags`. The bitfield size
  * is supplied in `size`. true is returned when changes were made, false
  * otherwise.
  *

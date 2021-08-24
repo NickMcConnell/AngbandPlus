@@ -5,10 +5,10 @@
 # across a range of different makefiles, to cut down on maintenance.
 #
 
-NAME = Angband
-VERSION = 4.2.2
-COPYRIGHT = (c) 1995-2021 Angband contributors
-PROGNAME = angband
+NAME = Xygos
+VERSION = 0.0.1
+COPYRIGHT = (c) 1995-2021 Xygos / Angband contributors
+PROGNAME = xygos
 
 HEADERS = \
 	angband.h \
@@ -81,6 +81,8 @@ WINMAINFILES = \
 X11MAINFILES = main-x11.o
 
 ANGFILES = \
+	c_soldier.o \
+	c_tourist.o \
 	cave.o \
 	cave-map.o \
 	cave-square.o \
@@ -124,7 +126,7 @@ ANGFILES = \
 	mon-timed.o \
 	mon-util.o \
 	obj-chest.o \
-	obj-curse.o \
+	obj-fault.o \
 	obj-desc.o \
 	obj-gear.o \
 	obj-ignore.o \
@@ -142,7 +144,11 @@ ANGFILES = \
 	obj-util.o \
 	option.o \
 	parser.o \
+	r_android.o \
+	r_mutant.o \
+	r_timelord.o \
 	randname.o \
+	player-ability.o \
 	player-attack.o \
 	player-birth.o \
 	player-calcs.o \
@@ -173,7 +179,7 @@ ANGFILES = \
 	ui-birth.o \
 	ui-command.o \
 	ui-context.o \
-	ui-curse.o \
+	ui-fault.o \
 	ui-death.o \
 	ui-display.o \
 	ui-entry.o \
@@ -208,6 +214,7 @@ ANGFILES = \
 	wiz-debug.o \
 	wiz-spoil.o \
 	wiz-stats.o \
+	world.o \
 
 STATSMAINFILES = main-stats.o \
         stats/db.o

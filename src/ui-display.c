@@ -44,6 +44,7 @@
 #include "trap.h"
 #include "ui-birth.h"
 #include "ui-display.h"
+#include "ui-entry.h"
 #include "ui-game.h"
 #include "ui-input.h"
 #include "ui-map.h"
@@ -58,6 +59,7 @@
 #include "ui-term.h"
 #include "ui-visuals.h"
 #include "wizard.h"
+#include "world.h"
 
 /**
  * There are a few functions installed to be triggered by several 
@@ -94,19 +96,11 @@ static game_event_type statusline_events[] =
 };
 
 /**
- * Abbreviations of healthy stats
- */
-const char *stat_names[STAT_MAX] =
-{
-	"STR: ", "INT: ", "WIS: ", "DEX: ", "CON: "
-};
-
-/**
  * Abbreviations of damaged stats
  */
 const char *stat_names_reduced[STAT_MAX] =
 {
-	"Str: ", "Int: ", "Wis: ", "Dex: ", "Con: "
+	"Str: ", "Int: ", "Wis: ", "Dex: ", "Con: ", "Chr: ", "Spd: "
 };
 
 /**
@@ -170,6 +164,16 @@ static void prt_stat(int stat, int row, int col)
 		put_str("!", row, col + 3);
 }
 
+int title_idx(int level)
+{
+	return (level - 1) * player->class->titles / PY_MAX_LEVEL;
+}
+
+const char *player_title(void)
+{
+	return player->class->title[title_idx(player->lev)];
+}
+
 static int fmt_title(char buf[], int max, bool short_mode)
 {
 	buf[0] = 0;
@@ -183,7 +187,7 @@ static int fmt_title(char buf[], int max, bool short_mode)
 		my_strcpy(buf, player->shape->name, max);
 		my_strcap(buf);		
 	} else if (!short_mode) {
-		my_strcpy(buf, player->class->title[(player->lev - 1) / 5], max);
+		my_strcpy(buf, player_title(), max);
 	}
 
 	return strlen(buf);
@@ -257,7 +261,7 @@ static void prt_gold(int row, int col)
 {
 	char tmp[32];
 
-	put_str("AU ", row, col);
+	put_str("$ ", row, col);
 	strnfmt(tmp, sizeof(tmp), "%9d", player->au);
 	c_put_str(COLOUR_L_GREEN, tmp, row, col + 3);
 }
@@ -326,30 +330,6 @@ static void prt_hp(int row, int col)
 	c_put_str(color, cur_hp, row, col + 3);
 	c_put_str(COLOUR_WHITE, "/", row, col + 7);
 	c_put_str(COLOUR_L_GREEN, max_hp, row, col + 8);
-}
-
-/**
- * Prints players max/cur spell points
- */
-static void prt_sp(int row, int col)
-{
-	char cur_sp[32], max_sp[32];
-	byte color = player_sp_attr(player);
-
-	/* Do not show mana unless we should have some */
-	if (player_has(player, PF_NO_MANA) || 
-		(player->lev < player->class->magic.spell_first))
-		return;
-
-	put_str("SP ", row, col);
-
-	strnfmt(max_sp, sizeof(max_sp), "%4d", player->msp);
-	strnfmt(cur_sp, sizeof(cur_sp), "%4d", player->csp);
-
-	/* Show mana */
-	c_put_str(color, cur_sp, row, col + 3);
-	c_put_str(COLOUR_WHITE, "/", row, col + 7);
-	c_put_str(COLOUR_L_GREEN, max_sp, row, col + 8);
 }
 
 /**
@@ -511,11 +491,16 @@ static void prt_speed(int row, int col)
 
 static int fmt_depth(char buf[], int max)
 {
-	if (!player->depth)
-		my_strcpy(buf, "Town", max);
+	if (!player->depth) {
+		if (danger_depth(player) > 0) {
+			strnfmt(buf, max, "(L%d)", danger_depth(player));
+		} else {
+			my_strcpy(buf, player->town ? player->town->name : "Town", max);
+		}
+	}
 	else
-		strnfmt(buf, max, "%d' (L%d)",
-		        player->depth * 50, player->depth);
+		strnfmt(buf, max, "%dm (L%d)",
+		        player->depth * 50, danger_depth(player));
 	return strlen(buf);
 }
 
@@ -532,7 +517,23 @@ static void prt_depth(int row, int col)
 	put_str(format("%-13s", depths), row, col);
 }
 
-
+/**
+ * Prints dungeon in stat area
+ */
+static void prt_dungeon(int row, int col)
+{
+	char dungeon[80];
+	if (player->depth && player->town && player->town->downto) {
+		my_strcpy(dungeon, player->town->downto, sizeof(dungeon));
+		char *s = strchr(dungeon, ' ');
+		if (s)
+			*s = 0;
+		/* Right-Adjust the "name", and clear old values */
+		put_str(format("%-13s", dungeon), row, col);
+	} else if (danger_depth(player) > 0) {
+		put_str(format("%-13s", player->town ? player->town->name : "Town"), row, col);
+	}
+}
 
 
 /**
@@ -543,11 +544,20 @@ static void prt_dex(int row, int col) { prt_stat(STAT_DEX, row, col); }
 static void prt_wis(int row, int col) { prt_stat(STAT_WIS, row, col); }
 static void prt_int(int row, int col) { prt_stat(STAT_INT, row, col); }
 static void prt_con(int row, int col) { prt_stat(STAT_CON, row, col); }
+static void prt_chr(int row, int col) { prt_stat(STAT_CHR, row, col); }
+static void prt_spd(int row, int col) { prt_stat(STAT_SPD, row, col); }
 static void prt_race(int row, int col) {
 	if (player_is_shapechanged(player)) {
 		prt_field("", row, col);
 	} else {
 		prt_field(player->race->name, row, col);
+	}
+}
+static void prt_ext(int row, int col) {
+	if (player_is_shapechanged(player) || (streq(player->extension->name, "None"))) {
+		prt_field("", row, col);
+	} else {
+		prt_field(player->extension->name, row, col);
 	}
 }
 static void prt_class(int row, int col) {
@@ -671,31 +681,6 @@ static int prt_hp_short(int row, int col)
 	return 5+strlen(cur_hp)+strlen(max_hp);
 }
 
-static int prt_sp_short(int row, int col)
-{
-	char cur_sp[32], max_sp[32];
-	byte color = player_sp_attr(player);
-
-	/* Do not show mana unless we should have some */
-	if (player_has(player, PF_NO_MANA) || 
-		(player->lev < player->class->magic.spell_first))
-		return 0;
-
-	put_str("SP:", row, col);
-	col += 3;
-
-	strnfmt(max_sp, sizeof(max_sp), "%d", player->msp);
-	strnfmt(cur_sp, sizeof(cur_sp), "%d", player->csp);
-
-	/* Show mana */
-	c_put_str(color, cur_sp, row, col);
-	col += strlen(cur_sp);
-	c_put_str(COLOUR_WHITE, "/", row, col);
-	col += 1;
-	c_put_str(COLOUR_L_GREEN, max_sp, row, col);
-	return 5+strlen(cur_sp)+strlen(max_sp);
-}
-
 static int prt_health_short(int row, int col)
 {
 	int len = prt_health_aux(row, col);
@@ -749,12 +734,9 @@ static void update_topbar(game_event_type type, game_event_data *data,
 	col += prt_level_short(row, col);
 
 	col += prt_exp_short(row, col);
-	
-	col += prt_stat_short(STAT_STR, row, col);
-	col += prt_stat_short(STAT_INT, row, col);
-	col += prt_stat_short(STAT_WIS, row, col);
-	col += prt_stat_short(STAT_DEX, row, col);
-	col += prt_stat_short(STAT_CON, row, col);
+
+	for(int i=0;i<STAT_MAX;i++)
+		col += prt_stat_short(STAT_SPD, row, col);
 
 	col += prt_ac_short(row, col);
 
@@ -766,7 +748,6 @@ static void update_topbar(game_event_type type, game_event_data *data,
 	prt("", row, col);
 
 	col += prt_hp_short(row, col);
-	col += prt_sp_short(row, col);
 	col += prt_health_short(row, col);	
 	col += prt_speed_short(row, col);
 	col += prt_depth_short(row, col);
@@ -783,28 +764,31 @@ static const struct side_handler_t
 	int priority;		 /* 1 is most important (always displayed) */
 	game_event_type type;	 /* PR_* flag this corresponds to */
 } side_handlers[] = {
-	{ prt_race,    19, EVENT_RACE_CLASS },
-	{ prt_title,   18, EVENT_PLAYERTITLE },
-	{ prt_class,   22, EVENT_RACE_CLASS },
-	{ prt_level,   10, EVENT_PLAYERLEVEL },
-	{ prt_exp,     16, EVENT_EXPERIENCE },
+	{ prt_ext,     21, EVENT_RACE_CLASS },
+	{ prt_race,    20, EVENT_RACE_CLASS },
+	{ prt_title,   16, EVENT_PLAYERTITLE },
+	{ prt_class,   19, EVENT_RACE_CLASS },
+	{ prt_level,   12, EVENT_PLAYERLEVEL },
+	{ prt_exp,     10, EVENT_EXPERIENCE },
 	{ prt_gold,    11, EVENT_GOLD },
-	{ prt_equippy, 17, EVENT_EQUIPMENT },
-	{ prt_str,      6, EVENT_STATS },
-	{ prt_int,      5, EVENT_STATS },
-	{ prt_wis,      4, EVENT_STATS },
+	{ prt_equippy, 18, EVENT_EQUIPMENT },
+	{ NULL,        23, 0 },
+	{ prt_str,      4, EVENT_STATS },
+	{ prt_int,      6, EVENT_STATS },
+	{ prt_wis,      5, EVENT_STATS },
 	{ prt_dex,      3, EVENT_STATS },
 	{ prt_con,      2, EVENT_STATS },
-	{ NULL,        15, 0 },
-	{ prt_ac,       7, EVENT_AC },
-	{ prt_hp,       8, EVENT_HP },
-	{ prt_sp,       9, EVENT_MANA },
-	{ NULL,        21, 0 },
-	{ prt_health,  12, EVENT_MONSTERHEALTH },
-	{ NULL,        20, 0 },
+	{ prt_chr,      7, EVENT_STATS },
+	{ prt_spd,      1, EVENT_STATS },
 	{ NULL,        22, 0 },
-	{ prt_speed,   13, EVENT_PLAYERSPEED }, /* Slow (-NN) / Fast (+NN) */
-	{ prt_depth,   14, EVENT_DUNGEONLEVEL }, /* Lev NNN / NNNN ft */
+	{ prt_ac,       9, EVENT_AC },
+	{ prt_hp,       8, EVENT_HP },
+	{ NULL,        25, 0 },
+	{ prt_health,  17, EVENT_MONSTERHEALTH },
+	{ NULL,        24, 0 },
+	{ prt_speed,   15, EVENT_PLAYERSPEED }, /* Slow (-NN) / Fast (+NN) */
+	{ prt_dungeon, 14, EVENT_DUNGEONLEVEL }, /* Fortress */
+	{ prt_depth,   13, EVENT_DUNGEONLEVEL }, /* Lev NNN / NNNN ft */
 };
 
 
@@ -815,6 +799,10 @@ static const struct side_handler_t
  * Each row is given a priority; the least important higher numbers and the most
  * important lower numbers.  As the screen gets smaller, the rows start to
  * disappear in the order of lowest to highest importance.
+ *
+ * For this to behave as expected, lines in the structure above must be numbered
+ * incrementally - 1 as the lowest and each additional line 1 more, with no gaps
+ * (numbers with no matching line) or duplicates (numbers with more than one line).
  */
 static void update_sidebar(game_event_type type, game_event_data *data,
 						   void *user)
@@ -1037,8 +1025,8 @@ static size_t prt_level_feeling(int row, int col)
 	/* Don't show feelings for cold-hearted characters */
 	if (!OPT(player, birth_feelings)) return 0;
 
-	/* No useful feeling in town */
-	if (!player->depth) return 0;
+	/* No useful feeling in town or on a quest */
+	if ((!player->depth) || (player->active_quest >= 0)) return 0;
 
 	/* Get feelings */
 	obj_feeling = cave->feeling / 10;
@@ -1059,7 +1047,7 @@ static size_t prt_level_feeling(int row, int col)
 	 *   But before that check if the player has explored enough
 	 * to get a feeling. If not display as ?
 	 */
-	if (cave->feeling_squares < z_info->feeling_need) {
+	if (cave->feeling_squares < feeling_need(player)) {
 		my_strcpy(obj_feeling_str, "?", sizeof(obj_feeling_str));
 		obj_feeling_color_print = COLOUR_WHITE;
 	} else {
@@ -1077,7 +1065,7 @@ static size_t prt_level_feeling(int row, int col)
 	 * for a human.
 	 *   0 -> ? . Monster feeling should never be 0, but we check
 	 * it just in case.
-	 *   1 to 9 are feelings from omens of death to quiet, paceful.
+	 *   1 to 9 are feelings from omens of death to quiet, peaceful.
 	 * We also reverse this so that what we show is a danger feeling.
 	 */
 	if (mon_feeling == 0)
@@ -1195,31 +1183,6 @@ static size_t prt_dtrap(int row, int col)
 }
 
 /**
- * Print how many spells the player can study.
- */
-static size_t prt_study(int row, int col)
-{
-	char *text;
-	int attr = COLOUR_WHITE;
-
-	/* Can the player learn new spells? */
-	if (player->upkeep->new_spells) {
-		/* If the player does not carry a book with spells they can study,
-		   the message is displayed in a darker colour */
-		if (!player_book_has_unlearned_spells(player))
-			attr = COLOUR_L_DARK;
-
-		/* Print study message */
-		text = format("Study (%d)", player->upkeep->new_spells);
-		c_put_str(attr, text, row, col);
-		return strlen(text) + 1;
-	}
-
-	return 0;
-}
-
-
-/**
  * Print all timed effects.
  */
 static size_t prt_tmd(int row, int col)
@@ -1269,7 +1232,7 @@ typedef size_t status_f(int row, int col);
 
 static status_f *status_handlers[] =
 { prt_level_feeling, prt_light, prt_moves, prt_unignore, prt_recall,
-  prt_descent, prt_state, prt_study, prt_tmd, prt_dtrap, prt_terrain };
+  prt_descent, prt_state, prt_tmd, prt_dtrap, prt_terrain };
 
 
 /**
@@ -2012,6 +1975,7 @@ static void update_player_compact_subwindow(game_event_type type,
 	Term_activate(inv_term);
 
 	/* Race and Class */
+	prt_field(player->extension->name, row++, col);
 	prt_field(player->race->name, row++, col);
 	prt_field(player->class->name, row++, col);
 
@@ -2039,9 +2003,6 @@ static void update_player_compact_subwindow(game_event_type type,
 
 	/* Hitpoints */
 	prt_hp(row++, col);
-
-	/* Spellpoints */
-	prt_sp(row++, col);
 
 	/* Monster health */
 	prt_health(row, col);

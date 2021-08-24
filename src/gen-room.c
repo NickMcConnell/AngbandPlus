@@ -39,6 +39,7 @@
 #include "mon-make.h"
 #include "mon-spell.h"
 #include "obj-tval.h"
+#include "player-quest.h"
 #include "trap.h"
 #include "z-queue.h"
 #include "z-type.h"
@@ -69,7 +70,7 @@ struct room_template *random_room_template(int typ, int rating)
 
 /**
  * Chooses a vault of a particular kind at random.
- * \param depth the current depth, for vault boun checking
+ * \param depth the current depth, for vault bound checking
  * \param typ vault type
  * \return a pointer to the vault template
  */
@@ -89,6 +90,23 @@ struct vault *random_vault(int depth, const char *typ)
 	return r;
 }
 
+/**
+ * Find a vault by name.
+ * \param typ vault type (optional)
+ * \param name vault name
+ * \return a pointer to the vault template
+ */
+struct vault *named_vault(const char *name, const char *typ)
+{
+	struct vault *v = vaults;
+	do {
+		if (typ && streq(v->typ, typ))
+			if (streq(v->name, name))
+				return v;
+		v = v->next;
+	} while(v);
+	return NULL;
+}
 
 
 /**
@@ -1219,8 +1237,12 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v)
 			}
 				/* Stairs */
 			case '<': {
-				if (OPT(player, birth_levels_persist)) break;
-				square_set_feat(c, grid, FEAT_LESS); break;
+				if (player->active_quest >= 0) {
+					 square_set_feat(c, grid, FEAT_EXIT); break;
+				} else {
+					if (OPT(player, birth_levels_persist)) break;
+					square_set_feat(c, grid, FEAT_LESS); break;
+				}
 			}
 			case '>': {
 				if (OPT(player, birth_levels_persist)) break;
@@ -1233,8 +1255,8 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v)
 			}
 				/* Lava */
 			case '`': square_set_feat(c, grid, FEAT_LAVA); break;
+			case '/': square_set_feat(c, grid, FEAT_WATER); break;
 				/* Included to allow simple inclusion of FA vaults */
-			case '/': /*square_set_feat(c, grid, FEAT_WATER)*/; break;
 			case ';': /*square_set_feat(c, grid, FEAT_TREE)*/; break;
 			}
 
@@ -1306,18 +1328,6 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v)
 					/* Very out of depth object. */
 				case '7': place_object(c, grid, c->depth + 15, false, false,
 									   ORIGIN_VAULT, 0); break;
-					/* Very out of depth monster. */
-				case '0': pick_and_place_monster(c, grid, c->depth + 20, true,
-												 true, ORIGIN_DROP_VAULT);
-					break;
-					/* Meaner monster, plus treasure */
-				case '9': {
-					pick_and_place_monster(c, grid, c->depth + 9, true, true,
-										   ORIGIN_DROP_VAULT);
-					place_object(c, grid, c->depth + 7, true, false,
-								 ORIGIN_VAULT, 0);
-					break;
-				}
 					/* Nasty monster and treasure */
 				case '8': {
 					pick_and_place_monster(c, grid, c->depth + 40, true, true,
@@ -1326,6 +1336,28 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v)
 								 ORIGIN_VAULT, 0);
 					break;
 				}
+					/* Meaner monster, plus treasure */
+				case '9': {
+					pick_and_place_monster(c, grid, c->depth + 9, true, true,
+										   ORIGIN_DROP_VAULT);
+					place_object(c, grid, c->depth + 7, true, false,
+								 ORIGIN_VAULT, 0);
+					break;
+				}
+					/* Very out of depth monster. */
+				case '0': pick_and_place_monster(c, grid, c->depth + 20, true,
+												 true, ORIGIN_DROP_VAULT);
+					break;
+					/* Quest monster */
+				case '\\':
+					if (player->active_quest >= 0) {
+						struct monster_group_info info = { 0, 0 };
+						place_new_monster(c, grid, player->quests[player->active_quest].race,
+							true, false, info, ORIGIN_DROP_VAULT);
+					} else {
+						msg("Quest monster symbol, without an active quest?");
+					}
+					break;
 					/* A chest. */
 				case '~': place_object(c, grid, c->depth + 5, false, false,
 									   ORIGIN_VAULT, TV_CHEST); break;
@@ -1333,7 +1365,7 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v)
 				case '$': place_gold(c, grid, c->depth, ORIGIN_VAULT);break;
 					/* Armour. */
 				case ']': {
-					int	tval = 0, temp = one_in_(3) ? randint1(9) : randint1(8);
+					int	tval = 0, temp = one_in_(3) ? randint1(10) : randint1(8);
 					switch (temp) {
 					case 1: tval = TV_BOOTS; break;
 					case 2: tval = TV_GLOVES; break;
@@ -1344,6 +1376,7 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v)
 					case 7: tval = TV_SOFT_ARMOR; break;
 					case 8: tval = TV_HARD_ARMOR; break;
 					case 9: tval = TV_DRAG_ARMOR; break;
+					case 10: tval = TV_BELT; break;
 					}
 					place_object(c, grid, c->depth + 3, true, false,
 								 ORIGIN_VAULT, tval);
@@ -1356,7 +1389,7 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v)
 					case 1: tval = TV_SWORD; break;
 					case 2: tval = TV_POLEARM; break;
 					case 3: tval = TV_HAFTED; break;
-					case 4: tval = TV_BOW; break;
+					case 4: tval = TV_GUN; break;
 					}
 					place_object(c, grid, c->depth + 3, true, false,
 								 ORIGIN_VAULT, tval);
@@ -1368,15 +1401,15 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v)
 					/* Amulet. */
 				case '"': place_object(c, grid, c->depth + 3, one_in_(4), false,
 									   ORIGIN_VAULT, TV_AMULET); break;
-					/* Potion. */
+					/* Pill. */
 				case '!': place_object(c, grid, c->depth + 3, one_in_(4), false,
-									   ORIGIN_VAULT, TV_POTION); break;
-					/* Scroll. */
+									   ORIGIN_VAULT, TV_PILL); break;
+					/* Card. */
 				case '?': place_object(c, grid, c->depth + 3, one_in_(4), false,
-									   ORIGIN_VAULT, TV_SCROLL); break;
-					/* Staff. */
+									   ORIGIN_VAULT, TV_CARD); break;
+					/* Device. */
 				case '_': place_object(c, grid, c->depth + 3, one_in_(4), false,
-									   ORIGIN_VAULT, TV_STAFF); break;
+									   ORIGIN_VAULT, TV_DEVICE); break;
 					/* Wand or rod. */
 				case '-': place_object(c, grid, c->depth + 3, one_in_(4), false,
 									   ORIGIN_VAULT,
@@ -2535,6 +2568,17 @@ bool build_template(struct chunk *c, struct loc centre, int rating)
 
 
 
+/**
+ * Build a shaped room.
+ * \param c the chunk the room is being built in
+ *\ param centre the room centre; out of chunk centre invokes find_space()
+ * \return success
+ */
+bool build_shaped(struct chunk *c, struct loc centre, int rating)
+{
+	return build_vault_type(c, centre, "Shaped room");
+}
+
 
 /**
  * Build an interesting room.
@@ -2630,6 +2674,13 @@ bool build_greater_vault(struct chunk *c, struct loc centre, int rating)
 	return build_vault_type(c, centre, "Greater vault");
 }
 
+/**
+ * Build a quest vault - no checks.
+ */
+bool build_quest_vault(struct chunk *c, struct loc centre, int rating)
+{
+	return build_vault_type(c, centre, "Quest");
+}
 
 /**
  * Moria room (from Oangband).  Uses the "starburst room" code.

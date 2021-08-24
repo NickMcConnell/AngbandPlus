@@ -1,0 +1,92 @@
+BUGS
+====
+
+BUG: Lights are using wrong descriptions?
+	- New game. Create with debug option a stick of dynamite. It appears unIDed (e.g. striped) but has the description of a known flare and behaves like one too.
+	- "wax candle" gives something with no description 
+	- "firecracker" (the next) has the description of a wax candle
+	- It's off by 1, is this just the debug mode & is it just lights?
+		- A bike helmet generates OK, and so do rings, cards etc.
+		- And is the item being known another bug?
+	- Note that other flavored items don't have any description besides "It can be drunk" when created by debug option. This is how lights should be.
+	- Could it be the object.txt or flavor.txt?
+	** May be a dup or related to the following three issues **
+
+BUG: got am item with {??} generated in a store
+		- Light, with the rune being "use energy" or "light"?
+			- Is this a problem? It's IDed on buying it. Other stuff doesn't behave like that, though...
+	e.g. "a tactical flashlight (RTG Mod) (charging) {??}" in the store
+		- The same thing can be made up with play-with-object, and it behaves the same way.
+		- Also rune-ID fails silently on these objects
+		- May only happen on wiz-command generated items
+
+BUG: Tourists' starting sun hat (resLight) isn't rune-IDed
+	- That might be reasonable. But the battery the tourist started with is also unIDed. It becomes IDed mysteriously later.
+	- Similar symptoms if they start with a wax candle.
+		- which is {??}. Wielding doesn't change it. Using an ID card on it produces no message but removes the ??.
+	- Is there something about start items (and wiz-command created?), like having no known object, that is different from normal creation?
+
+BUG: Buying a pair of shoes (retro rocket) {??} from a store was locked up in the store.c "Learn flavor, any effect and all the runes" loop.
+
+------------
+
+BUG: "angband: gen-cave.c:2009: town_gen: Assertion `grid.x > 0' failed." (= the x,y are 0, 0.)
+	- Can be triggered by Time Lord regeneration putting you in town, but has also been seen entering the town normally by <. 
+	** related to the following? **
+
+BUG: Saw climbing the stair into town put me in the middle of the level (not on a store, or the <)
+
+-------------
+
+BUG:"You are too heavily loaded to swim" even when not overloaded.
+	(well, more accurately you can never swim - you always drown. You should be able to if not loaded, at least for most races.)
+
+BUG: Plurals: knifes vs knives, "13 alkaline battery" not ies.
+
+BUG: After gaining an ability (Sprinting) modifying stats, char-screen and left-panel weren't updated until later (e.g. when changing level)
+
+BUG: Printers all seem to generate with {ignore}
+	- can't easily reproduce this
+
+BUG "These two can't intersect"
+
+BUG: m-techniques top label is wonky (move the level 1 to the right, and the cost-label 2 to the left?)
+
+BUG: "When activated, it feeds you for X turns" (on a battery. This isn't really even true for Androids - the 'activated' part)
+	- is there an existing way to hide activation descriptions?
+
+BUG: (default) Black Market stocking level should be reduced, because faction can increase it? (I have seen as many as 16 items at init)
+
+BUG: Resists screen is >80 wide (Also, the per-slot stats only label only displays a to l)
+	Remove ':' lines?
+	Currently the second screen retains the Name..HP and sum-stats blocks. Would removing them help? (A third screen is another option)
+	Would want to retain the stat labels if this is done (or move them to the left of the slot-stats)
+	This might result in a 3, not 4 column display. Giving 26 not 19 chars (plus the intermediate blanks), enough for a few more in both description and slots.
+	But will there end up with more, or less slots? Rings and amulets will disappear. OTOH, a form with more slots might appear...
+	Adapting to large terminals is also a possibility, but can't be the only way to play.
+	So best to leave alone for now?
+	
+BUG: tval_is_sharp_missile
+
+BUG: Stone/steel skin timed should be blocked by the mutation (or combined with it in some way)
+
+BUG: At dungeon l127 and l0, able to generate a Massive Iron Crown with acquisition (with INSTA_ART | QUEST_ART)
+	- Unable to reproduce (by checking in make_object_named), and artifact probabilities for it are zero.
+	- With no generation line (alloc 0) they shouldn't appear... could this have been the old "special artifacts" bug?
+	- If so, it's now gone.
+
+BUG?? - In quests, multiplying monsters are handled OK.
+	But not newly spawned monsters that happen to be of the same type, or monsters removed through genocide or kill-body - and at least some of that could occur
+	and could be fixed, although probably not in any quest currently in use.
+
+BUG? After the success/failure message from a quest, ESC is the only way to get back out.
+
+BUG: When in Giant Form (from a snozzcumber) you can't eat. Or quaff. Quaffing prompts to to change back. (Reasonably for some forms, not really for this - is there a flag? If not, one could be added)
+	Eating just says that you don't have any food (wrong!)
+	- Base this on OPEN_DOOR/BASH_DOOR flags?
+	- There seems to be nothing preventing you staying in giant form. But you do need to eat.
+	- There should be a timeout anyway - fast hunger? (Androids can't do this anyway, at least for as long as the only way to take giant form is by eating something)
+	- You also can't use shops ("scream"), which is generally OK but it should be possible to use ones you own, or the home! Well, maybe - it depends on the form, and the message is still out.
+	- Turn back when below 50% health? And/or a CON check.
+	- Or just treat being transformed as another timed counter?
+	

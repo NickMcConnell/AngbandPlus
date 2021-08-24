@@ -84,14 +84,14 @@ struct cmd_info cmd_item[] =
 	{ "Take off/unwield an item", { 't', 'T'}, CMD_TAKEOFF, NULL, NULL },
 	{ "Examine an item", { 'I' }, CMD_NULL, textui_obj_examine, NULL },
 	{ "Drop an item", { 'd' }, CMD_DROP, NULL, NULL },
-	{ "Fire your missile weapon", { 'f', 't' }, CMD_FIRE, NULL, player_can_fire_prereq },
-	{ "Use a staff", { 'u', 'Z' }, CMD_USE_STAFF, NULL, NULL },
+	{ "Fire your gun", { 'f', 't' }, CMD_FIRE, NULL, player_can_fire_prereq },
+	{ "Use a device", { 'u', 'Z' }, CMD_USE_DEVICE, NULL, NULL },
 	{ "Aim a wand", {'a', 'z'}, CMD_USE_WAND, NULL, NULL },
 	{ "Zap a rod", {'z', 'a'}, CMD_USE_ROD, NULL, NULL },
 	{ "Activate an object", {'A' }, CMD_ACTIVATE, NULL, NULL },
 	{ "Eat some food", { 'E' }, CMD_EAT, NULL, NULL },
-	{ "Quaff a potion", { 'q' }, CMD_QUAFF, NULL, NULL },
-	{ "Read a scroll", { 'r' }, CMD_READ_SCROLL, NULL, player_can_read_prereq },
+	{ "Quaff a pill", { 'q' }, CMD_QUAFF, NULL, NULL },
+	{ "Run a card", { 'r' }, CMD_RUN_CARD, NULL, player_can_run_prereq },
 	{ "Fuel your light source", { 'F' }, CMD_REFILL, NULL, player_can_refuel_prereq },
 	{ "Use an item", { 'U', 'X' }, CMD_USE, NULL, NULL }
 };
@@ -101,7 +101,7 @@ struct cmd_info cmd_item[] =
  */
 struct cmd_info cmd_action[] =
 {
-	{ "Disarm a trap or chest", { 'D' }, CMD_DISARM, NULL, NULL },
+	{ "Disarm a trap or container", { 'D' }, CMD_DISARM, NULL, NULL },
 	{ "Rest for a while", { 'R' }, CMD_NULL, textui_cmd_rest, NULL },
 	{ "Look around", { 'l', 'x' }, CMD_NULL, do_cmd_look, NULL },
 	{ "Target monster or location", { '*' }, CMD_NULL, textui_target, NULL },
@@ -109,7 +109,7 @@ struct cmd_info cmd_action[] =
 	{ "Dig a tunnel", { 'T', KTRL('T') }, CMD_TUNNEL, NULL, NULL },
 	{ "Go up staircase", {'<' }, CMD_GO_UP, NULL, NULL },
 	{ "Go down staircase", { '>' }, CMD_GO_DOWN, NULL, NULL },
-	{ "Open a door or a chest", { 'o' }, CMD_OPEN, NULL, NULL },
+	{ "Open a door or container", { 'o' }, CMD_OPEN, NULL, NULL },
 	{ "Close a door", { 'c' }, CMD_CLOSE, NULL, NULL },
 	{ "Fire at nearest target", { 'h', KC_TAB }, CMD_NULL, do_cmd_fire_at_nearest, NULL },
 	{ "Throw an item", { 'v' }, CMD_THROW, NULL, NULL },
@@ -123,7 +123,7 @@ struct cmd_info cmd_item_manage[] =
 {
 	{ "Display equipment listing", { 'e' }, CMD_NULL, do_cmd_equip, NULL },
 	{ "Display inventory listing", { 'i' }, CMD_NULL, do_cmd_inven, NULL },
-	{ "Display quiver listing", { '|' }, CMD_NULL, do_cmd_quiver, NULL },
+	{ "Display ammo listing", { '|' }, CMD_NULL, do_cmd_quiver, NULL },
 	{ "Pick up objects", { 'g' }, CMD_PICKUP, NULL, NULL },
 	{ "Ignore an item", { 'k', KTRL('D') }, CMD_IGNORE, textui_cmd_ignore, NULL },
 };
@@ -133,11 +133,10 @@ struct cmd_info cmd_item_manage[] =
  */
 struct cmd_info cmd_info[] =
 {
-	{ "Browse a book", { 'b', 'P' }, CMD_BROWSE_SPELL, textui_spell_browse, NULL },
-	{ "Gain new spells", { 'G' }, CMD_STUDY, NULL, player_can_study_prereq },
-	{ "View abilities", { 'S' }, CMD_NULL, do_cmd_abilities, NULL },
-	{ "Cast a spell", { 'm' }, CMD_CAST, NULL, player_can_cast_prereq },
-	{ "Cast a spell", { 'p' }, CMD_CAST, NULL, player_can_cast_prereq },
+	{ "Browse techniques", { 'b', 'P' }, CMD_BROWSE_SPELL, textui_spell_browse, NULL },
+	{ "Interact with abilities", { 'S' }, CMD_NULL, do_cmd_abilities, NULL },
+	{ "Use a technique", { 'm' }, CMD_CAST, NULL, player_can_cast_prereq },
+	{ "Use q technique", { 'p' }, CMD_CAST, NULL, player_can_cast_prereq },
 	{ "Full dungeon map", { 'M' }, CMD_NULL, do_cmd_view_map, NULL },
 	{ "Toggle ignoring of items", { 'K', 'O' }, CMD_NULL, textui_cmd_toggle_ignore, NULL },
 	{ "Display visible item list", { ']' }, CMD_NULL, do_cmd_itemlist, NULL },
@@ -409,7 +408,7 @@ static void start_game(bool new_game)
 		textui_do_birth();
 	} else {
 		/*
-		 * Bring the stock curse objects up-to-date with what the
+		 * Bring the stock fault objects up-to-date with what the
 		 * player knows.
 		 */
 		update_player_object_knowledge(player);
@@ -588,6 +587,15 @@ void close_game(void)
 
 	/* Handle death or life */
 	if (player->is_dead) {
+
+		/* Finalize class */
+		if (player->class->free)
+			player->class->free();
+		if (player->class->state) {
+			mem_free(player->class->state);
+			player->class->state = NULL;
+		}
+
 		death_knowledge(player);
 		death_screen();
 

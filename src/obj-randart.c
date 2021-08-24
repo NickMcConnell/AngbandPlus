@@ -23,7 +23,7 @@
 #include "datafile.h"
 #include "effects.h"
 #include "init.h"
-#include "obj-curse.h"
+#include "obj-fault.h"
 #include "obj-desc.h"
 #include "obj-make.h"
 #include "obj-pile.h"
@@ -48,11 +48,11 @@ struct activation *activations;
  * ------------------------------------------------------------------------
  * Arrays of indices by item type, used in frequency generation
  * ------------------------------------------------------------------------ */
-static s16b art_idx_bow[] = {
-	ART_IDX_BOW_SHOTS,
-	ART_IDX_BOW_MIGHT,
-	ART_IDX_BOW_BRAND,
-	ART_IDX_BOW_SLAY
+static s16b art_idx_gun[] = {
+	ART_IDX_GUN_SHOTS,
+	ART_IDX_GUN_MIGHT,
+	ART_IDX_GUN_BRAND,
+	ART_IDX_GUN_SLAY
 };
 static s16b art_idx_weapon[] = {
 	ART_IDX_WEAPON_HIT,
@@ -113,6 +113,10 @@ static s16b art_idx_cloak[] = {
 	ART_IDX_CLOAK_AC,
 	ART_IDX_CLOAK_STEALTH
 };
+static s16b art_idx_belt[] = {
+	ART_IDX_BELT_AC,
+	ART_IDX_BELT_STEALTH
+};
 static s16b art_idx_armor[] = {
 	ART_IDX_ARMOR_AC,
 	ART_IDX_ARMOR_STEALTH,
@@ -147,7 +151,7 @@ static s16b art_idx_gen[] = {
 	ART_IDX_GEN_RSOUND,
 	ART_IDX_GEN_RSHARD,
 	ART_IDX_GEN_RNEXUS,
-	ART_IDX_GEN_RNETHER,
+	ART_IDX_GEN_RRADIATION,
 	ART_IDX_GEN_RCHAOS,
 	ART_IDX_GEN_RDISEN,
 	ART_IDX_GEN_AC,
@@ -168,7 +172,7 @@ static s16b art_idx_high_resist[] =	{
 	ART_IDX_GEN_RSOUND,
 	ART_IDX_GEN_RSHARD,
 	ART_IDX_GEN_RNEXUS,
-	ART_IDX_GEN_RNETHER,
+	ART_IDX_GEN_RRADIATION,
 	ART_IDX_GEN_RCHAOS,
 	ART_IDX_GEN_RDISEN,
 	ART_IDX_GEN_PSTUN
@@ -238,7 +242,7 @@ static void store_base_power(struct artifact_set_data *data)
 	for (i = 0; i < z_info->a_max; i++, num++) {
 		data->base_power[i] = artifact_power(i, "for original power", true);
 
-		/* Capture power stats, ignoring cursed and uber arts */
+		/* Capture power stats, ignoring faulty and uber arts */
 		if (data->base_power[i] > data->max_power &&
 			data->base_power[i] < INHIBIT_POWER)
 			data->max_power = data->base_power[i];
@@ -298,8 +302,8 @@ static void store_base_power(struct artifact_set_data *data)
 		case TV_POLEARM:
 		case TV_HAFTED:
 			data->melee_total++; break;
-		case TV_BOW:
-			data->bow_total++; break;
+		case TV_GUN:
+			data->gun_total++; break;
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
@@ -315,6 +319,8 @@ static void store_base_power(struct artifact_set_data *data)
 			data->glove_total++; break;
 		case TV_BOOTS:
 			data->boot_total++; break;
+		case TV_BELT:
+			data->belt_total++; break;
 		case TV_NULL:
 			break;
 		default:
@@ -433,9 +439,9 @@ void count_weapon_abilities(const struct artifact *art,
 }
 
 /**
- * Count combat abilities on bows
+ * Count combat abilities on guns
  */
-void count_bow_abilities(const struct artifact *art,
+void count_GUN_abilities(const struct artifact *art,
 						 struct artifact_set_data *data)
 {
 	int bonus;
@@ -476,30 +482,30 @@ void count_bow_abilities(const struct artifact *art,
 	/* Do we have more than 1 extra shot? (Unlikely) */
 	if (art->modifiers[OBJ_MOD_SHOTS] > 10) {
 		file_putf(log_file, "Adding 1 for supercharged shots (more than 1!)\n");
-		(data->art_probs[ART_IDX_BOW_SHOTS_SUPER])++;
+		(data->art_probs[ART_IDX_GUN_SHOTS_SUPER])++;
 	} else if (art->modifiers[OBJ_MOD_SHOTS] > 0) {
 		file_putf(log_file, "Adding 1 for extra shots\n");
-		(data->art_probs[ART_IDX_BOW_SHOTS])++;
+		(data->art_probs[ART_IDX_GUN_SHOTS])++;
 	}
 
 	/* Do we have 3 or more extra might? (Unlikely) */
 	if (art->modifiers[OBJ_MOD_MIGHT] > 2) {
 		file_putf(log_file, "Adding 1 for supercharged might (3 or more!)\n");
-		(data->art_probs[ART_IDX_BOW_MIGHT_SUPER])++;
+		(data->art_probs[ART_IDX_GUN_MIGHT_SUPER])++;
 	} else if (art->modifiers[OBJ_MOD_MIGHT] > 0) {
 		file_putf(log_file, "Adding 1 for extra might\n");
-		(data->art_probs[ART_IDX_BOW_MIGHT])++;
+		(data->art_probs[ART_IDX_GUN_MIGHT])++;
 	}
 
 	/* Count brands and slays */
 	if (art->slays) {
 		int bonus = slay_count(art->slays);
-		data->art_probs[ART_IDX_BOW_SLAY] += bonus;
+		data->art_probs[ART_IDX_GUN_SLAY] += bonus;
 		file_putf(log_file, "Adding %d for slays\n", bonus);
 	}
 	if (art->brands) {
 		int bonus = brand_count(art->brands);
-		data->art_probs[ART_IDX_BOW_BRAND] += bonus;
+		data->art_probs[ART_IDX_GUN_BRAND] += bonus;
 		file_putf(log_file, "Adding %d for brands\n", bonus);
 	}
 }
@@ -536,6 +542,9 @@ void count_nonweapon_abilities(const struct artifact *art,
 			(data->art_probs[ART_IDX_SHIELD_AC]) += bonus;
 		} else if (art->tval == TV_CLOAK) {
 			file_putf(log_file, "Adding %d for AC bonus - cloak\n", bonus);
+			(data->art_probs[ART_IDX_CLOAK_AC]) += bonus;
+		} else if (art->tval == TV_BELT) {
+			file_putf(log_file, "Adding %d for AC bonus - belt\n", bonus);
 			(data->art_probs[ART_IDX_CLOAK_AC]) += bonus;
 		} else if (art->tval == TV_SOFT_ARMOR ||
 				   art->tval == TV_HARD_ARMOR ||
@@ -631,6 +640,31 @@ void count_modifiers(const struct artifact *art, struct artifact_set_data *data)
 	if (art->modifiers[OBJ_MOD_WIS] > 0) num++;
 	if (art->modifiers[OBJ_MOD_DEX] > 0) num++;
 	if (art->modifiers[OBJ_MOD_CON] > 0) num++;
+	if (art->modifiers[OBJ_MOD_CHR] > 0) num++;
+
+	/* Speed - boots handled separately.
+	 * This is something of a special case in that we use the same
+	 * frequency for the supercharged value and the normal value.
+	 * We get away with this by using a somewhat lower average value
+	 * for the supercharged ability than in the basic set (around
+	 * +7 or +8 - c.f. Ringil and the others at +10 and upwards).
+	 * This then allows us to add an equal number of
+	 * small bonuses around +3 or so without unbalancing things.
+	 */
+	if (art->modifiers[OBJ_MOD_SPD] > 0) {
+		if (art->modifiers[OBJ_MOD_SPD] > 7) {
+			/* Supercharge case */
+			file_putf(log_file, "Adding 1 for supercharged speed bonus!\n");
+			(data->art_probs[ART_IDX_GEN_SPEED_SUPER])++;
+		} else if (art->tval == TV_BOOTS) {
+			/* Handle boots separately */
+			file_putf(log_file, "Adding 1 for normal speed bonus on boots.\n");
+			(data->art_probs[ART_IDX_BOOT_SPEED])++;
+		} else {
+			file_putf(log_file, "Adding 1 for normal speed bonus - general.\n");
+			(data->art_probs[ART_IDX_GEN_SPEED])++;
+		}
+	}
 
 	/* Handle a few special cases separately. */
 	if ((art->tval == TV_HELM || art->tval == TV_CROWN) &&
@@ -681,6 +715,9 @@ void count_modifiers(const struct artifact *art, struct artifact_set_data *data)
 		} else if (art->tval == TV_CLOAK) {
 			file_putf(log_file, "Adding 1 for stealth bonus on cloak.\n");
 			(data->art_probs[ART_IDX_CLOAK_STEALTH])++;
+		} else if (art->tval == TV_BELT) {
+			file_putf(log_file, "Adding 1 for stealth bonus on cloak.\n");
+			(data->art_probs[ART_IDX_BELT_STEALTH])++;
 		} else if (art->tval == TV_SOFT_ARMOR || art->tval == TV_HARD_ARMOR ||
 				   art->tval == TV_DRAG_ARMOR) {
 			file_putf(log_file, "Adding 1 for stealth bonus on armor.\n");
@@ -718,30 +755,6 @@ void count_modifiers(const struct artifact *art, struct artifact_set_data *data)
 		} else {
 			file_putf(log_file, "Adding 1 for moves bonus - general.\n");
 			(data->art_probs[ART_IDX_GEN_MOVES])++;
-		}
-	}
-
-	/* Speed - boots handled separately.
-	 * This is something of a special case in that we use the same
-	 * frequency for the supercharged value and the normal value.
-	 * We get away with this by using a somewhat lower average value
-	 * for the supercharged ability than in the basic set (around
-	 * +7 or +8 - c.f. Ringil and the others at +10 and upwards).
-	 * This then allows us to add an equal number of
-	 * small bonuses around +3 or so without unbalancing things.
-	 */
-	if (art->modifiers[OBJ_MOD_SPEED] > 0) {
-		if (art->modifiers[OBJ_MOD_SPEED] > 7) {
-			/* Supercharge case */
-			file_putf(log_file, "Adding 1 for supercharged speed bonus!\n");
-			(data->art_probs[ART_IDX_GEN_SPEED_SUPER])++;
-		} else if (art->tval == TV_BOOTS) {
-			/* Handle boots separately */
-			file_putf(log_file, "Adding 1 for normal speed bonus on boots.\n");
-			(data->art_probs[ART_IDX_BOOT_SPEED])++;
-		} else {
-			file_putf(log_file, "Adding 1 for normal speed bonus - general.\n");
-			(data->art_probs[ART_IDX_GEN_SPEED])++;
 		}
 	}
 
@@ -828,7 +841,7 @@ void count_high_resists(const struct artifact *art,
 		if (art->el_info[ELEM_SOUND].res_level == 1) num++;
 		if (art->el_info[ELEM_SHARD].res_level == 1) num++;
 		if (art->el_info[ELEM_NEXUS].res_level == 1) num++;
-		if (art->el_info[ELEM_NETHER].res_level == 1) num++;
+		if (art->el_info[ELEM_RADIATION].res_level == 1) num++;
 		if (art->el_info[ELEM_CHAOS].res_level == 1) num++;
 		if (art->el_info[ELEM_DISEN].res_level == 1) num++;
 		if (of_has(art->flags, OF_PROT_STUN)) num++;
@@ -899,10 +912,10 @@ void count_high_resists(const struct artifact *art,
 		(data->art_probs[ART_IDX_GEN_RNEXUS])++;
 	}
 
-	if (art->el_info[ELEM_NETHER].res_level == 1) {
-		/* Resist nether ability */
-		file_putf(log_file, "Adding 1 for resist nether - general.\n");
-		(data->art_probs[ART_IDX_GEN_RNETHER])++;
+	if (art->el_info[ELEM_RADIATION].res_level == 1) {
+		/* Resist radiation ability */
+		file_putf(log_file, "Adding 1 for resist radiation - general.\n");
+		(data->art_probs[ART_IDX_GEN_RRADIATION])++;
 	}
 
 	if (art->el_info[ELEM_CHAOS].res_level == 1) {
@@ -1061,7 +1074,7 @@ static void collect_artifact_data(struct artifact_set_data *data)
 
 		file_putf(log_file, "Current artifact index is %d\n", i);
 
-		/* Don't parse cursed or null items */
+		/* Don't parse faulty or null items */
 		if (data->base_power[i] < 0 || art->tval == 0) continue;
 
 		/* Get a pointer to the base item for this artifact */
@@ -1080,8 +1093,8 @@ static void collect_artifact_data(struct artifact_set_data *data)
 		if (art->tval == TV_DIGGING || art->tval == TV_HAFTED ||
 			art->tval == TV_POLEARM || art->tval == TV_SWORD) {
 			count_weapon_abilities(art, data);
-		} else if (art->tval == TV_BOW) {
-			count_bow_abilities(art, data);
+		} else if (art->tval == TV_GUN) {
+			count_GUN_abilities(art, data);
 		} else {
 			count_nonweapon_abilities(art, data);
 		}
@@ -1098,9 +1111,9 @@ static void collect_artifact_data(struct artifact_set_data *data)
  * Rescale the abilities so that dependent / independent abilities are
  * comparable.  We do this by rescaling the frequencies for item-dependent
  * abilities as though the entire set was made up of that item type.  For
- * example, if one bow out of three has extra might, and there are 120
+ * example, if one gun out of three has extra might, and there are 120
  * artifacts in the full set, we rescale the frequency for extra might to
- * 40 (if we had 120 randart bows, about 40 would have extra might).
+ * 40 (if we had 120 randart guns, about 40 would have extra might).
  *
  * This will allow us to compare the frequencies of all ability types,
  * no matter what the dependency.  We assume that generic abilities (like
@@ -1118,20 +1131,20 @@ static void rescale_freqs(struct artifact_set_data *data)
 	size_t i;
 	s32b temp;
 
-	/* Bow-only abilities */
-	for (i = 0; i < N_ELEMENTS(art_idx_bow); i++)
-		data->art_probs[art_idx_bow[i]] =
-			(data->art_probs[art_idx_bow[i]] * data->total)
-			/ data->bow_total;
+	/* Gun-only abilities */
+	for (i = 0; i < N_ELEMENTS(art_idx_gun); i++)
+		data->art_probs[art_idx_gun[i]] =
+			(data->art_probs[art_idx_gun[i]] * data->total)
+			/ (data->gun_total);
 
 	/* All weapon abilities */
 	for (i = 0; i < N_ELEMENTS(art_idx_weapon); i++)
 		data->art_probs[art_idx_weapon[i]] =
 			(data->art_probs[art_idx_weapon[i]] * data->total)
-			/ (data->bow_total + data->melee_total);
+			/ (data->gun_total + data->melee_total);
 
 	/* Corresponding non-weapon abilities */
-	temp = data->total - data->melee_total - data->bow_total;
+	temp = data->total - data->melee_total - data->gun_total;
 	for (i = 0; i < N_ELEMENTS(art_idx_nonweapon); i++)
 		data->art_probs[art_idx_nonweapon[i]] =
 			(data->art_probs[art_idx_nonweapon[i]] * data->total)
@@ -1145,7 +1158,7 @@ static void rescale_freqs(struct artifact_set_data *data)
 
 	/* All general armor abilities */
 	temp = data->armor_total + data->boot_total + data->shield_total +
-		data->headgear_total + data->cloak_total + data->glove_total;
+		data->headgear_total + data->cloak_total + data->belt_total + data->glove_total;
 	for (i = 0; i < N_ELEMENTS(art_idx_allarmor); i++)
 		data->art_probs[art_idx_allarmor[i]] =
 			(data->art_probs[art_idx_allarmor[i]] *	data->total)
@@ -1181,6 +1194,12 @@ static void rescale_freqs(struct artifact_set_data *data)
 			(data->art_probs[art_idx_cloak[i]] * data->total)
 			/ data->cloak_total;
 
+	/* Belts */
+	for (i = 0; i < N_ELEMENTS(art_idx_cloak); i++)
+		data->art_probs[art_idx_belt[i]] =
+			(data->art_probs[art_idx_belt[i]] * data->total)
+			/ data->belt_total;
+
 	/* Body armor */
 	for (i = 0; i < N_ELEMENTS(art_idx_armor); i++)
 		data->art_probs[art_idx_armor[i]] =
@@ -1210,7 +1229,7 @@ static void adjust_freqs(struct artifact_set_data *data)
 	 * be missing in the standard set, especially supercharged ones.
 	 * Numbers here represent the average number of times this ability
 	 * would appear if the entire randart set was eligible to receive
-	 * it (so in the case of a bow ability: if the set was all bows).
+	 * it (so in the case of a gun ability: if the set was all guns).
 	 *
 	 * Note that low numbers here for very specialized abilities could
 	 * mean that there's a good chance this ability will not appear in
@@ -1220,10 +1239,10 @@ static void adjust_freqs(struct artifact_set_data *data)
 		data->art_probs[ART_IDX_GEN_RFEAR] = 5;
 	if (data->art_probs[ART_IDX_MELEE_DICE_SUPER] < 5)
 		data->art_probs[ART_IDX_MELEE_DICE_SUPER] = 5;
-	if (data->art_probs[ART_IDX_BOW_SHOTS_SUPER] < 5)
-		data->art_probs[ART_IDX_BOW_SHOTS_SUPER] = 5;
-	if (data->art_probs[ART_IDX_BOW_MIGHT_SUPER] < 5)
-		data->art_probs[ART_IDX_BOW_MIGHT_SUPER] = 5;
+	if (data->art_probs[ART_IDX_GUN_SHOTS_SUPER] < 5)
+		data->art_probs[ART_IDX_GUN_SHOTS_SUPER] = 5;
+	if (data->art_probs[ART_IDX_GUN_MIGHT_SUPER] < 5)
+		data->art_probs[ART_IDX_GUN_MIGHT_SUPER] = 5;
 	if (data->art_probs[ART_IDX_MELEE_BLOWS_SUPER] < 5)
 		data->art_probs[ART_IDX_MELEE_BLOWS_SUPER] = 5;
 	if (data->art_probs[ART_IDX_GEN_SPEED_SUPER] < 5)
@@ -1236,10 +1255,10 @@ static void adjust_freqs(struct artifact_set_data *data)
 		data->art_probs[ART_IDX_NONWEAPON_BRAND] = 2;
 	if (data->art_probs[ART_IDX_NONWEAPON_SLAY] < 1)
 		data->art_probs[ART_IDX_NONWEAPON_SLAY] = 1;
-	if (data->art_probs[ART_IDX_BOW_BRAND] < 2)
-		data->art_probs[ART_IDX_BOW_BRAND] = 2;
-	if (data->art_probs[ART_IDX_BOW_SLAY] < 2)
-		data->art_probs[ART_IDX_BOW_SLAY] = 2;
+	if (data->art_probs[ART_IDX_GUN_BRAND] < 2)
+		data->art_probs[ART_IDX_GUN_BRAND] = 2;
+	if (data->art_probs[ART_IDX_GUN_SLAY] < 2)
+		data->art_probs[ART_IDX_GUN_SLAY] = 2;
 	if (data->art_probs[ART_IDX_NONWEAPON_BLOWS] < 1)
 		data->art_probs[ART_IDX_NONWEAPON_BLOWS] = 1;
 	if (data->art_probs[ART_IDX_NONWEAPON_SHOTS] < 1)
@@ -1406,7 +1425,7 @@ void artifact_prep(struct artifact *art, const struct object_kind *kind,
 
 	/* Assign basic stats to the artifact based on its artifact level */
 	switch (kind->tval) {
-		case TV_BOW:
+		case TV_GUN:
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_SWORD:
@@ -1425,6 +1444,7 @@ void artifact_prep(struct artifact *art, const struct object_kind *kind,
 		case TV_CROWN:
 		case TV_SHIELD:
 		case TV_CLOAK:
+		case TV_BELT:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
@@ -1476,15 +1496,15 @@ static void build_freq_table(struct artifact *art, int *freq,
 	}
 
 	/* Now copy over appropriate frequencies for applicable abilities */
-	/* Bow abilities */
-	if (art->tval == TV_BOW) {
-		size_t n = N_ELEMENTS(art_idx_bow);
+	/* Gun abilities */
+	if (art->tval == TV_GUN) {
+		size_t n = N_ELEMENTS(art_idx_gun);
 		for (j = 0; j < n; j++)
-			f_temp[art_idx_bow[j]] = data->art_probs[art_idx_bow[j]];
+			f_temp[art_idx_gun[j]] = data->art_probs[art_idx_gun[j]];
 		}
 
 	/* General weapon abilities */
-	if (art->tval == TV_BOW || art->tval == TV_DIGGING ||
+	if (art->tval == TV_GUN || art->tval == TV_DIGGING ||
 		art->tval == TV_HAFTED || art->tval == TV_POLEARM ||
 		art->tval == TV_SWORD) {
 		size_t n = N_ELEMENTS(art_idx_weapon);
@@ -1510,7 +1530,7 @@ static void build_freq_table(struct artifact *art, int *freq,
 	/* General armor abilities */
 	if (art->tval == TV_BOOTS || art->tval == TV_GLOVES ||
 		art->tval == TV_HELM || art->tval == TV_CROWN ||
-		art->tval == TV_SHIELD || art->tval == TV_CLOAK ||
+		art->tval == TV_SHIELD || art->tval == TV_CLOAK || art->tval == TV_BELT ||
 		art->tval == TV_SOFT_ARMOR || art->tval == TV_HARD_ARMOR ||
 		art->tval == TV_DRAG_ARMOR) {
 		size_t n = N_ELEMENTS(art_idx_allarmor);
@@ -1605,15 +1625,15 @@ static void try_supercharge(struct artifact *art, s32b target_power,
 		}
 	}
 
-	/* Bows - max might or shots */
-	if (art->tval == TV_BOW) {
+	/* Guns - max might or shots */
+	if (art->tval == TV_GUN) {
 		if (randint0(z_info->a_max)
-			< data->art_probs[ART_IDX_BOW_SHOTS_SUPER]) {
+			< data->art_probs[ART_IDX_GUN_SHOTS_SUPER]) {
 			art->modifiers[OBJ_MOD_SHOTS] = INHIBIT_SHOTS - 1;
 			file_putf(log_file, "Supercharging shots! (%+d extra shots)\n",
 				INHIBIT_SHOTS - 1);
 		} else if (randint0(z_info->a_max) <
-				   data->art_probs[ART_IDX_BOW_MIGHT_SUPER]) {
+				   data->art_probs[ART_IDX_GUN_MIGHT_SUPER]) {
 			art->modifiers[OBJ_MOD_MIGHT] = INHIBIT_MIGHT - 1;
 			file_putf(log_file, "Supercharging might! (%+d extra might)\n",
 					  INHIBIT_MIGHT - 1);
@@ -1624,12 +1644,12 @@ static void try_supercharge(struct artifact *art, s32b target_power,
 	if (randint0(z_info->a_max) < data->art_probs[ART_IDX_GEN_SPEED_SUPER] ||
 		(art->tval == TV_BOOTS && randint0(z_info->a_max) <
 		data->art_probs[ART_IDX_BOOT_SPEED])) {
-		art->modifiers[OBJ_MOD_SPEED] = 5 + randint0(6);
+		art->modifiers[OBJ_MOD_SPD] = 5 + randint0(6);
 		if (INHIBIT_WEAK)
-			art->modifiers[OBJ_MOD_SPEED] += randint1(3);
+			art->modifiers[OBJ_MOD_SPD] += randint1(3);
 		if (INHIBIT_STRONG)
-			art->modifiers[OBJ_MOD_SPEED] += 1 + randint1(6);
-		file_putf(log_file, "Supercharging speed for this item!  (New speed bonus is %d)\n", art->modifiers[OBJ_MOD_SPEED]);
+			art->modifiers[OBJ_MOD_SPD] += 1 + randint1(6);
+		file_putf(log_file, "Supercharging speed for this item!  (New speed bonus is %d)\n", art->modifiers[OBJ_MOD_SPD]);
 	}
 
 	/* Big AC bonus */
@@ -1644,7 +1664,7 @@ static void try_supercharge(struct artifact *art, s32b target_power,
 			file_putf(log_file, "Supercharging AC! New AC bonus is %d\n",
 					  art->to_a);
 		}
-	} else if ((art->tval != TV_BOW) &&
+	} else if ((art->tval != TV_GUN) &&
 			   (randint0(z_info->a_max) <
 				data->art_probs[ART_IDX_GEN_AC_SUPER])) {
 		art->to_a += 19 + randint1(11);
@@ -1657,7 +1677,7 @@ static void try_supercharge(struct artifact *art, s32b target_power,
 	}
 
 	/* Aggravation */
-	if (art->tval == TV_BOW || art->tval == TV_DIGGING ||
+	if (art->tval == TV_GUN || art->tval == TV_DIGGING ||
 		art->tval == TV_HAFTED || art->tval == TV_POLEARM ||
 		art->tval == TV_SWORD) {
 		if ((randint0(z_info->a_max) < data->art_probs[ART_IDX_WEAPON_AGGR]) &&
@@ -1751,7 +1771,7 @@ static bool add_mod(struct artifact *art, int mod)
 		}
 	} else {
 		/* Hard cap of 6 on non-speed mods */
-		if ((mod != OBJ_MOD_SPEED) && (art->modifiers[mod] >= 6)) {
+		if ((mod != OBJ_MOD_SPD) && (art->modifiers[mod] >= 6)) {
 			return false;
 		}
 
@@ -1769,7 +1789,7 @@ static bool add_mod(struct artifact *art, int mod)
 		}
 
 		/* Enforce cap */
-		if ((mod != OBJ_MOD_SPEED) && (art->modifiers[mod] >= 6)) {
+		if ((mod != OBJ_MOD_SPD) && (art->modifiers[mod] >= 6)) {
 			art->modifiers[mod] = 6;
 		}
 	}
@@ -1799,12 +1819,8 @@ static void add_sustain(struct artifact *art)
 			return;
 
 	while (!success) {
-		r = randint0(5);
-		if (r == 0) success = add_flag(art, OF_SUST_STR);
-		else if (r == 1) success = add_flag(art, OF_SUST_INT);
-		else if (r == 2) success = add_flag(art, OF_SUST_WIS);
-		else if (r == 3) success = add_flag(art, OF_SUST_DEX);
-		else if (r == 4) success = add_flag(art, OF_SUST_CON);
+		r = randint0(STAT_MAX);
+		success = add_flag(art, OF_SUST_STR + r);
 	}
 }
 
@@ -1873,7 +1889,7 @@ static void add_high_resist(struct artifact *art,
 		else if (i == 6) success = add_resist(art, ELEM_SOUND);
 		else if (i == 7) success = add_resist(art, ELEM_SHARD);
 		else if (i == 8) success = add_resist(art, ELEM_NEXUS);
-		else if (i == 9) success = add_resist(art, ELEM_NETHER);
+		else if (i == 9) success = add_resist(art, ELEM_RADIATION);
 		else if (i == 10) success = add_resist(art, ELEM_CHAOS);
 		else if (i == 11) success = add_resist(art, ELEM_DISEN);
 		else if (i == 12) success = add_flag(art, OF_PROT_STUN);
@@ -2107,12 +2123,12 @@ static void add_ability_aux(struct artifact *art, int r, s32b target_power,
 
 	switch(r)
 	{
-		case ART_IDX_BOW_SHOTS:
+		case ART_IDX_GUN_SHOTS:
 		case ART_IDX_NONWEAPON_SHOTS:
 			add_mod(art, OBJ_MOD_SHOTS);
 			break;
 
-		case ART_IDX_BOW_MIGHT:
+		case ART_IDX_GUN_MIGHT:
 			add_mod(art, OBJ_MOD_MIGHT);
 			break;
 
@@ -2144,13 +2160,13 @@ static void add_ability_aux(struct artifact *art, int r, s32b target_power,
 			add_flag(art, OF_BLESSED);
 			break;
 
-		case ART_IDX_BOW_BRAND:
+		case ART_IDX_GUN_BRAND:
 		case ART_IDX_MELEE_BRAND:
 		case ART_IDX_NONWEAPON_BRAND:
 			add_brand(art);
 			break;
 
-		case ART_IDX_BOW_SLAY:
+		case ART_IDX_GUN_SLAY:
 		case ART_IDX_MELEE_SLAY:
 		case ART_IDX_NONWEAPON_SLAY:
 			add_slay(art);
@@ -2206,7 +2222,7 @@ static void add_ability_aux(struct artifact *art, int r, s32b target_power,
 
 		case ART_IDX_BOOT_SPEED:
 		case ART_IDX_GEN_SPEED:
-			add_mod(art, OBJ_MOD_SPEED);
+			add_mod(art, OBJ_MOD_SPD);
 			break;
 
 		case ART_IDX_GLOVE_FA:
@@ -2328,8 +2344,8 @@ static void add_ability_aux(struct artifact *art, int r, s32b target_power,
 			add_resist(art, ELEM_NEXUS);
 			break;
 
-		case ART_IDX_GEN_RNETHER:
-			add_resist(art, ELEM_NETHER);
+		case ART_IDX_GEN_RRADIATION:
+			add_resist(art, ELEM_RADIATION);
 			break;
 
 		case ART_IDX_GEN_RCHAOS:
@@ -2373,29 +2389,23 @@ static void remove_contradictory(struct artifact *art)
 	if (of_has(art->flags, OF_AGGRAVATE))
 		art->modifiers[OBJ_MOD_STEALTH] = 0;
 
-	if (art->modifiers[OBJ_MOD_STR] < 0)
-		of_off(art->flags, OF_SUST_STR);
-	if (art->modifiers[OBJ_MOD_INT] < 0)
-		of_off(art->flags, OF_SUST_INT);
-	if (art->modifiers[OBJ_MOD_WIS] < 0)
-		of_off(art->flags, OF_SUST_WIS);
-	if (art->modifiers[OBJ_MOD_DEX] < 0)
-		of_off(art->flags, OF_SUST_DEX);
-	if (art->modifiers[OBJ_MOD_CON] < 0)
-		of_off(art->flags, OF_SUST_CON);
+	for(int i=0;i<STAT_MAX;i++) {
+		if (art->modifiers[OBJ_MOD_STR + i] < 0)
+			of_off(art->flags, OF_SUST_STR + i);
+	}
 
 	if (of_has(art->flags, OF_DRAIN_EXP))
 		of_off(art->flags, OF_HOLD_LIFE);
 
-	/* Remove any conflicting curses */
-	if (art->curses) {
+	/* Remove any conflicting faults */
+	if (art->faults) {
 		int i;
-		for (i = 1; i < z_info->curse_max; i++) {
-			if (artifact_curse_conflicts(art, i)) {
-				art->curses[i] = 0;
-				check_artifact_curses(art);
+		for (i = 1; i < z_info->fault_max; i++) {
+			if (artifact_fault_conflicts(art, i)) {
+				art->faults[i] = 0;
+				check_artifact_faults(art);
 			}
-			if (!art->curses) break;
+			if (!art->faults) break;
 		}
 	}
 }
@@ -2425,22 +2435,22 @@ static void add_ability(struct artifact *art, s32b target_power, int *freq,
 
 
 /**
- * Randomly select a curse and added it to the artifact in question.
+ * Randomly select a fault and added it to the artifact in question.
  */
-static void add_curse(struct artifact *art, int level)
+static void add_fault(struct artifact *art, int level)
 {
 	int max_tries = 5;
 
 	if (of_has(art->flags, OF_BLESSED)) return;
 
 	while (max_tries) {
-		int pick = randint1(z_info->curse_max - 1);
+		int pick = randint1(z_info->fault_max - 1);
 		int power = randint1(9) + 10 * m_bonus(9, level);
-		if (!curses[pick].poss[art->tval]) {
+		if (!faults[pick].poss[art->tval]) {
 			max_tries--;
 			continue;
 		}
-		append_artifact_curse(art, pick, power);
+		append_artifact_fault(art, pick, power);
 		return;
 	}
 }
@@ -2474,7 +2484,7 @@ static void make_bad(struct artifact *art, int level)
 		art->to_d = -art->to_d;
 
 	while (num) {
-		add_curse(art, level);
+		add_fault(art, level);
 		num--;
 	}
 }
@@ -2487,7 +2497,7 @@ static void copy_artifact(struct artifact *a_src, struct artifact *a_dst)
 {
 	mem_free(a_dst->slays);
 	mem_free(a_dst->brands);
-	mem_free(a_dst->curses);
+	mem_free(a_dst->faults);
 
 	/* Copy the structure */
 	memcpy(a_dst, a_src, sizeof(struct artifact));
@@ -2495,7 +2505,7 @@ static void copy_artifact(struct artifact *a_src, struct artifact *a_dst)
 	a_dst->next = NULL;
 	a_dst->slays = NULL;
 	a_dst->brands = NULL;
-	a_dst->curses = NULL;
+	a_dst->faults = NULL;
 	a_dst->activation = NULL;
 	a_dst->alt_msg = NULL;
 
@@ -2507,9 +2517,9 @@ static void copy_artifact(struct artifact *a_src, struct artifact *a_dst)
 		a_dst->brands = mem_zalloc(z_info->brand_max * sizeof(bool));
 		memcpy(a_dst->brands, a_src->brands, z_info->brand_max * sizeof(bool));
 	}
-	if (a_src->curses) {
-		a_dst->curses = mem_zalloc(z_info->curse_max * sizeof(int));
-		memcpy(a_dst->curses, a_src->curses, z_info->curse_max * sizeof(int));
+	if (a_src->faults) {
+		a_dst->faults = mem_zalloc(z_info->fault_max * sizeof(int));
+		memcpy(a_dst->faults, a_src->faults, z_info->fault_max * sizeof(int));
 	}
 }
 
@@ -2654,7 +2664,7 @@ static void design_artifact(struct artifact_set_data *data, int tv, int *aidx)
 		file_putf(log_file, "--- Supercharge is too powerful! Rolling back.\n");
 	}
 
-	/* Give this artifact a chance to be cursed - note it retains its power */
+	/* Give this artifact a chance to be faulty - note it retains its power */
 	if (one_in_(z_info->a_max / MAX(2, data->neg_power_total))) {
 		hurt_me = true;
 	}
@@ -2675,7 +2685,7 @@ static void design_artifact(struct artifact_set_data *data, int tv, int *aidx)
 			break;
 		}
 
-		/* Curse the designated artifacts */
+		/* Damage the designated artifacts */
 		if (hurt_me) {
 			make_bad(art, art_level);
 			if (one_in_(3)) {
@@ -2702,7 +2712,7 @@ static void design_artifact(struct artifact_set_data *data, int tv, int *aidx)
 	/* Cleanup a_old */
 	mem_free(a_old->slays);
 	mem_free(a_old->brands);
-	mem_free(a_old->curses);
+	mem_free(a_old->faults);
 	mem_free(a_old);
 
 	/* Set rarity based on power */
@@ -2913,12 +2923,12 @@ void write_randart_entry(ang_file *fff, struct artifact *art)
 		}
 	}
 
-	/* Output curses */
-	if (art->curses) {
-		for (j = 1; j < z_info->curse_max; j++) {
-			if (art->curses[j] != 0) {
-				file_putf(fff, "curse:%s:%d\n", curses[j].name,
-						  art->curses[j]);
+	/* Output faults */
+	if (art->faults) {
+		for (j = 1; j < z_info->fault_max; j++) {
+			if (art->faults[j] != 0) {
+				file_putf(fff, "fault:%s:%d\n", faults[j].name,
+						  art->faults[j]);
 			}
 		}
 	}

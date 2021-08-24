@@ -33,6 +33,7 @@
 #include "ui-object.h"
 #include "ui-output.h"
 #include "ui-term.h"
+#include "world.h"
 #include "z-color.h"
 #include "z-file.h"
 #include "z-textblock.h"
@@ -2283,11 +2284,13 @@ static int initialize_summary(struct player *p,
 	visitor.selfunc = select_wearable;
 	visitor.selfunc_closure = NULL;
 	apply_visitor_to_pile(stores[STORE_HOME].stock, &visitor);
-	for (i = 0; i < MAX_STORES; ++i) {
-		if (i == STORE_HOME) {
-			continue;
+	for (int t=0; t<z_info->town_max; t++) {
+		for (i = 0; i < MAX_STORES; ++i) {
+			if (i == STORE_HOME) {
+				continue;
+			}
+			apply_visitor_to_pile(t_info[t].stores[i].stock, &visitor);
 		}
-		apply_visitor_to_pile(stores[i].stock, &visitor);
 	}
 
 	/* Allocate storage and add the available items. */
@@ -2483,7 +2486,7 @@ static int display_page(struct equippable_summary *s, const struct player *p,
 					label_color,
 					s->propcats[i].labels[joff][k]);
 			}
-			rdetails.known_rune = is_ui_entry_for_known_rune(
+			rdetails.known_icon = is_ui_entry_for_known_icon(
 				s->propcats[i].entries[joff], p);
 			ui_entry_renderer_apply(get_ui_entry_renderer_index(
 				s->propcats[i].entries[joff]), NULL, 0,

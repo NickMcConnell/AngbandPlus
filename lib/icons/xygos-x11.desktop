@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Xygos (X11)
+Type=Application
+Comment=A sci-fi themed roguelike dungeon exploration game based on Angband
+Exec=xygos -mx11
+TryExec=xygos
+Icon=/usr/share/xygos/xtra/icon/att-32.png
+Categories=Game;RolePlaying;

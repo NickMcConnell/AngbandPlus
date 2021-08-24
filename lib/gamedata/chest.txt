@@ -1,0 +1,37 @@
+# File: chest.txt
+
+# This file contains chest definitions
+
+### Understanding chest.txt ###
+
+# When a chest is opened, a % is rolled and compared to all themes' "from" for
+# that chest's name. If it matches, that theme is selected - if none do then the
+# 'good' theme (random good items) is used?
+
+# The theme then generates random items from the list of tval or items (if these
+# do not sum to 100, the reset are random items). Containers can never be produced,
+# or anything too heavy, or more than a limited number.
+
+
+# name: name (of a theme)
+# switch:<chance>:	Chance of this theme causing a switch to another theme rather than another item from this one
+# item:<chance>:<tval OR object name>: chance / 100, possible tval for this theme
+# from:<chance>:<container name>:	This container has this % chance of generating this theme.
+# rarity:<multiplier> Decreasae the change by this factor of being generated
+# level:<level>	Compared to the level it was genrated at, increase or reduce generation
+# maxlevel:<level> Never generate below this
+# minlevel:<level> or above this
+
+# Cash, etc. Gold block? Anything over a value-by-level?
+#name:valuables 
+
+name:lighting
+switch:0
+#good:?
+item:80:LIGHT
+item:20:BATTERY
+#from:100:flight case
+rarity:5
+level:10
+maxlevel:40
+weight:150

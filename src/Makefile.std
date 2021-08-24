@@ -67,7 +67,7 @@ LIBS = -lm
 
 # Extract CFLAGS and LIBS from the system definitions
 MODULES = $(SYS_x11) $(SYS_gcu) $(SYS_sdl) $(SOUND_sdl) $(SYS_stats)
-CFLAGS += $(patsubst -l%,,$(MODULES)) $(INCLUDES) -DPRIVATE_USER_PATH="~/.angband"
+CFLAGS += $(patsubst -l%,,$(MODULES)) $(INCLUDES) -DPRIVATE_USER_PATH="~/.xygos"
 LIBS += $(patsubst -D%,,$(patsubst -I%,, $(MODULES)))
 
 
@@ -95,7 +95,7 @@ EXE = $(PROGNAME)
 # Targets
 #
 
-# Build the "Angband" program
+# Build the "Xygos" program
 $(EXE): $(OBJS)
 	@printf "%10s %-20s\n" LINK $@
 	@$(CC) $(CFLAGS) $(LDFLAGS) -o $(EXE) $(OBJS) $(LIBS)

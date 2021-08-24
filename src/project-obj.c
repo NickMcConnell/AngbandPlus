@@ -131,22 +131,28 @@ int inven_damage(struct player *p, int type, int cperc)
 
 				/* Get a description */
 				object_desc(o_name, sizeof(o_name), obj, ODESC_BASE);
+				char buf[1024];
+				strnfmt(buf, sizeof(buf), "%sour %s (%c) %s %s!",
+							   ((obj->number > 1) ?
+								((amt == obj->number) ? "All of y" :
+								 (amt > 1 ? "Some of y" : "One of y")) : "Y"),
+							   o_name, gear_to_label(obj),
+							   ((amt > 1) ? "were" : "was"),
+						   (damage ? "damaged" : "destroyed"));
 
 				/* Message */
-				msgt(MSG_DESTROY, "%sour %s (%c) %s %s!",
-				           ((obj->number > 1) ?
-				            ((amt == obj->number) ? "All of y" :
-				             (amt > 1 ? "Some of y" : "One of y")) : "Y"),
-				           o_name, gear_to_label(obj),
-				           ((amt > 1) ? "were" : "was"),
-					   (damage ? "damaged" : "destroyed"));
+				if (damage) {
+					msgt(MSG_DESTROY, buf);
 
-				/* Damage already done? */
-				if (damage)
+					/* Damage already done? */
 					continue;
+				}
 
 				/* Destroy "amt" items */
 				destroyed = gear_object_for_use(obj, amt, false, &none_left);
+				if (!object_destroyed(obj, player->grid)) {
+					msgt(MSG_DESTROY, buf);
+				}
 				if (destroyed->known)
 					object_delete(&destroyed->known);
 				object_delete(&destroyed);
@@ -223,7 +229,7 @@ static void project_object_handler_FIRE(project_object_handler_context_t *contex
 	project_object_elemental(context, ELEM_FIRE, "burns up", "burn up");
 }
 
-/* Cold -- potions and flasks */
+/* Cold -- pills and flasks */
 static void project_object_handler_COLD(project_object_handler_context_t *context)
 {
 	project_object_elemental(context, ELEM_COLD, "shatters", "shatter");
@@ -241,13 +247,13 @@ static void project_object_handler_DARK(project_object_handler_context_t *contex
 {
 }
 
-/* Sound -- potions and flasks */
+/* Sound -- pills and flasks */
 static void project_object_handler_SOUND(project_object_handler_context_t *context)
 {
 	project_object_elemental(context, ELEM_SOUND, "shatters", "shatter");
 }
 
-/* Shards -- potions and flasks */
+/* Shards -- pills and flasks */
 static void project_object_handler_SHARD(project_object_handler_context_t *context)
 {
 	project_object_elemental(context, ELEM_SHARD, "shatters", "shatter");
@@ -257,7 +263,7 @@ static void project_object_handler_NEXUS(project_object_handler_context_t *conte
 {
 }
 
-static void project_object_handler_NETHER(project_object_handler_context_t *context)
+static void project_object_handler_RADIATION(project_object_handler_context_t *context)
 {
 }
 
@@ -273,7 +279,7 @@ static void project_object_handler_WATER(project_object_handler_context_t *conte
 {
 }
 
-/* Ice -- potions and flasks */
+/* Ice -- pills and flasks */
 static void project_object_handler_ICE(project_object_handler_context_t *context)
 {
 	project_object_elemental(context, ELEM_ICE, "shatters", "shatter");
@@ -287,7 +293,7 @@ static void project_object_handler_INERTIA(project_object_handler_context_t *con
 {
 }
 
-/* Force -- potions and flasks */
+/* Force -- pills and flasks */
 static void project_object_handler_FORCE(project_object_handler_context_t *context)
 {
 	project_object_elemental(context, ELEM_FORCE, "shatters", "shatter");
@@ -322,7 +328,7 @@ static void project_object_handler_MANA(project_object_handler_context_t *contex
 	context->note_kill = VERB_AGREEMENT(context->obj->number, "is destroyed", "are destroyed");
 }
 
-/* Holy Orb -- destroys cursed non-artifacts */
+/* Holy Orb -- destroys faulty non-artifacts */
 static void project_object_handler_HOLY_ORB(project_object_handler_context_t *context)
 {
 }
@@ -469,7 +475,7 @@ static void project_object_handler_MON_CRUSH(project_object_handler_context_t *c
 }
 
 static const project_object_handler_f object_handlers[] = {
-	#define ELEM(a) project_object_handler_##a,
+	#define ELEM(a, ...) project_object_handler_##a,
 	#include "list-elements.h"
 	#undef ELEM
 	#define PROJ(a) project_object_handler_##a,
@@ -557,8 +563,10 @@ bool project_o(struct source origin, int r, struct loc grid, int dam, int typ,
 					become_aware(cave_monster(cave, obj->mimicking_m_idx));
 			} else {
 				/* Describe if needed */
-				if (obvious && obj->known && note_kill && !ignore_item_ok(obj))
-					msgt(MSG_DESTROY, "The %s %s!", o_name, note_kill);
+				if (obvious && obj->known && note_kill && !ignore_item_ok(obj)) {
+					if (!object_destroyed(obj, grid))
+						msgt(MSG_DESTROY, "The %s %s!", o_name, note_kill);
+				}
 
 				/* Delete the object */
 				square_delete_object(cave, grid, obj, true, true);

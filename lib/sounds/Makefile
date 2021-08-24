@@ -19,7 +19,7 @@ DATA = sound.cfg \
 	amb_pulse_low.mp3		plc_hit_anvil.mp3		plm_spell1.mp3 \
 	amb_thunder_rain.mp3		plc_hit_anvil2.mp3		plm_spell2.mp3 \
 	amb_thunder_roll.mp3		plc_hit_arrow.mp3		plm_spell3.mp3 \
-	id_bad_aww.mp3			plc_hit_body.mp3		plm_use_staff.mp3 \
+	id_bad_aww.mp3			plc_hit_body.mp3		plm_use_device.mp3 \
 	id_bad_dang.mp3			plc_hit_groan.mp3		plm_wood_thud.mp3 \
 	id_bad_hmm.mp3			plc_hit_grunt.mp3		plm_zap_rod.mp3 \
 	id_bad_hmph.mp3			plc_hit_grunt2.mp3		pls_bell_bowl.mp3 \

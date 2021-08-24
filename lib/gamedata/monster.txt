@@ -211,21 +211,399 @@
 # TODO: Explain the other monster and spell flags. But maybe in another file.
 
 
-
 ##### Non-race (contains the "player" picture) #####
 
 name:<player>
 base:player
 color:w
 
+##### Special case: the randomizable race #####
+
+name:Randy, the Random With A Longer Name Than Anyone
+base:townsfolk
+color:p
+speed:110
+hit-points:100
+hearing:50
+armor-class:20
+sleepiness:0
+depth:20
+rarity:1
+experience:0
+blow:HIT:HURT:2d8
+flags:UNIQUE
+flags:DROP_1 | DROP_GOOD | DROP_GREAT | ONLY_ITEM
+flags:MOVE_BODY | TAKE_ITEM | OPEN_DOOR | SMART | SPIRIT
+flags:NO_CONF | NO_SLEEP | NO_FEAR | NO_HOLD | NO_SLOW | NO_STUN
+flags:FORCE_SLEEP | SPECIAL_GEN
+spell-freq:12
+spell-power:5
+desc:Owner of a store above an Evil Pit Of Monsters, and highly capable at defending 
+desc:it against burglars such as yourself.
 
 ##### Monster races proper #####
+
+##### HOLOGRAMS #####
+
+name:Inky
+base:hologram
+color:Blue
+speed:110
+hit-points:200
+hearing:2
+smell:2
+armor-class:30
+sleepiness:0
+depth:20
+rarity:1
+experience:200
+blow:TOUCH:BLIND:3d10
+blow:TOUCH:HURT:2d10
+spell-freq:8
+spells:DARKNESS
+desc:A dark shape hangs in the air, with little detail discernible besides the pair of huge white eyes. It reaches out a tendril of darkness towards you...
+flags:UNIQUE | SPECIAL_GEN
+
+name:Blinky
+base:hologram
+color:Green
+speed:110
+hit-points:200
+hearing:2
+smell:2
+armor-class:30
+sleepiness:0
+depth:20
+rarity:1
+experience:200
+blow:TOUCH:CONFUSE:3d10
+blow:TOUCH:HURT:2d10
+spell-freq:5
+spells:BLINK | CONF
+desc:A vague green shape that twists and twirls strangely. It's continually fading in and out of visibility, with the white pop-eyes always being the last to disappear.
+flags:UNIQUE | SPECIAL_GEN
+
+name:Pinky
+base:hologram
+color:Magenta-Pink
+speed:110
+hit-points:200
+hearing:2
+smell:2
+armor-class:30
+sleepiness:0
+depth:20
+rarity:1
+experience:200
+blow:TOUCH:TERRIFY
+blow:TOUCH:HURT:2d10
+desc:A bright pink balloon-like shape, fading into translucency below and behind and with a pair of big white eyes. It looks more like a cartoon ghost than anything, but if it's really so harmless why do you suddenly feel so apprehensive?
+spell-freq:8
+spells:SCARE
+flags:UNIQUE | SPECIAL_GEN
+
+name:Clyde
+base:hologram
+color:Red
+speed:110
+hit-points:200
+hearing:2
+smell:2
+armor-class:30
+sleepiness:0
+depth:20
+rarity:1
+experience:200
+spell-freq:5
+spells:TELE_TO
+blow:TOUCH:FIRE:2d10
+blow:TOUCH:FIRE:2d10
+desc:A glowing fiery red flame-shape in the air, with a trail of smoke and sparks - you can hear it crackling and feel the heat radiating off it from some way off. Wide white eyes stare at you as if you were a fuel.
+spell-freq:5
+spells:BR_FIRE | BO_FIRE
+flags:UNIQUE | SPECIAL_GEN
+
+##### HUMANS #####
+
+name:Nijel, the Rat
+base:person
+color:Gray50
+speed:110
+hit-points:180
+hearing:200
+smell:200
+armor-class:5
+sleepiness:200
+depth:9
+rarity:1
+experience:90
+blow:HIT:HURT:1d10
+blow:HIT:HURT:1d10
+desc:The Grey Rat - a tall, skinny young man wearing a silly leather outfit that would look better on someone with more muscles and less goosepimples. He kept giant rats in a cellar under the general store, until someone snuck in and killed them - he's now searching for the attacker.
+flags:UNIQUE
+flags:DROP_1 | DROP_60 | DROP_40 | DROP_20
+flags:OPEN_DOOR | SMART | SPIRIT
+flags:MALE
+flags:FORCE_SLEEP | SPECIAL_GEN
+
+# friends? ranged?
+name:Ky, the Pie Spy
+base:person
+color:b
+speed:110
+hit-points:70
+hearing:20
+armor-class:5
+sleepiness:5
+depth:9
+rarity:1
+experience:90
+drop:card:blinking:70:2:6
+drop:card:security:100:1:1
+blow:HIT:HURT:2d4
+blow:TOUCH:EAT_ITEM
+blow:TOUCH:EAT_GOLD
+desc:She looks like just one more of the Black Market's agents - in other words, a grab-and-blink thief. But she matches the description you were given, so hopefully she's still carrying the stolen recipe.
+flags:UNIQUE | EVIL
+flags:DROP_60 | DROP_40 | DROP_20
+flags:OPEN_DOOR | SMART | SPIRIT | TAKE_ITEM
+flags:FEMALE | SPECIAL_GEN | QUESTOR
+
+
+##### LEMMINGS #####
+
+name:green lemming
+base:lemming
+color:Green
+speed:110
+hit-points:2
+hearing:4
+smell:4
+armor-class:1
+sleepiness:80
+depth:1
+rarity:4
+experience:1
+blow:BITE:HURT:1d2
+flags:MALE | FEMALE | COLD_BLOOD | WEIRD_MIND
+flags:RAND_25
+flags:NO_FEAR
+desc:It looks something like an oversized hamster, white with bouncing green hair.
+
+name:blue lemming
+base:lemming
+color:Blue
+speed:110
+hit-points:4
+hearing:4
+smell:4
+armor-class:1
+sleepiness:80
+depth:2
+rarity:4
+experience:2
+blow:BITE:HURT:1d4
+flags:MALE | FEMALE | COLD_BLOOD | WEIRD_MIND
+flags:RAND_50
+flags:NO_FEAR
+desc:It looks something like an oversized hamster, white with bouncing blue hair.
+
+name:gully lemming
+base:lemming
+color:Gray25
+speed:110
+hit-points:6
+hearing:4
+smell:4
+armor-class:10
+sleepiness:1
+depth:3
+rarity:4
+experience:4
+blow:HIT:HURT:1d2
+blow:TOUCH:EAT_GOLD:1d10
+flags:MALE | FEMALE | COLD_BLOOD | WEIRD_MIND
+flags:RAND_25
+flags:NO_FEAR
+desc:The small, secretive shadow-grey gully lemming is shunned by lemmingdom for wearing armour. These nimble creatures easily blend into dark corners and are said to be able to steal the boots from your feet as you pass by. 
+
+name:plains lemming
+base:lemming
+color:Orange
+speed:110
+hit-points:8
+hearing:4
+smell:4
+armor-class:1
+sleepiness:1
+depth:5
+rarity:5
+experience:10
+deathspells:EXPLODE
+blow:HIT:HURT:1d3
+flags:MALE | FEMALE | COLD_BLOOD | WEIRD_MIND
+flags:NO_FEAR
+desc:The desperate lemmings of the cliffless plains must make their own pits.
+
+name:lemming shaman
+base:lemming
+color:Goldenrod
+speed:110
+hit-points:5
+hearing:4
+smell:4
+armor-class:1
+sleepiness:80
+depth:6
+rarity:6
+experience:13
+blow:BITE:HURT:1d2
+flags:MALE | FEMALE | COLD_BLOOD | SMART
+flags:RAND_25 | RAND_50
+flags:NO_SLEEP | NO_CONF | NO_FEAR
+spell-freq:3
+spell-power:0
+spells:S_KIN
+desc:A lemming painted in gaudy designs, waving a carved device. Where it leads hordes follow.
+
+name:bungee lemming
+base:lemming
+color:LightSlateGray
+speed:115
+hit-points:10
+hearing:4
+smell:4
+armor-class:25
+sleepiness:40
+depth:7
+rarity:9
+experience:18
+blow:BITE:HURT:1d9
+flags:MALE | FEMALE | COLD_BLOOD | WEIRD_MIND
+flags:RAND_25 | RAND_50
+flags:NO_FEAR
+desc:A fat round lemming, hairless and shiny grey, bouncing like a rubber ball. 
+
+name:horde lemming
+base:lemming
+color:Teal
+speed:110
+hit-points:5
+hearing:4
+smell:4
+armor-class:6
+sleepiness:40
+depth:9
+rarity:6
+experience:30
+blow:BITE:HURT:1d8
+flags:MALE | FEMALE | COLD_BLOOD | WEIRD_MIND
+flags:NO_FEAR
+desc:A blue-green furry critter that might even be cute, if there weren't so many of them that you can't even see the ground. 
+
+name:highland lemming
+base:lemming
+color:BurntUmber
+speed:110
+hit-points:16
+hearing:4
+smell:4
+armor-class:40
+sleepiness:1
+depth:10
+rarity:5
+experience:38
+blow:BITE:HURT:2d9
+flags:MALE | FEMALE | COLD_BLOOD | WEIRD_MIND
+flags:RAND_50
+flags:NO_FEAR
+desc:It shrieks 'There can be only one!' as it hurls itself over cliffs in its endless pursuit.
+
+name:lemming aviator
+base:lemming
+color:CadetBlue
+speed:120
+hit-points:16
+hearing:40
+smell:40
+armor-class:40
+sleepiness:1
+depth:11
+rarity:5
+experience:46
+blow:BITE:HURT:1d8
+flags:MALE | FEMALE | COLD_BLOOD | EMPTY_MIND
+flags:FLYING
+flags:NO_FEAR
+desc:A lemming that has learned to miss the ground, and now falls forever.
+
+name:shadow lemming
+base:lemming
+color:Gray25
+speed:110
+hit-points:20
+hearing:10
+smell:10
+armor-class:20
+sleepiness:40
+depth:12
+rarity:5
+experience:57
+blow:BITE:HURT:1d9
+blow:CLAW:HURT:1d4
+blow:CLAW:HURT:1d4
+flags:MALE | FEMALE | COLD_BLOOD | SMART
+flags:NO_FEAR | HURT_LIGHT
+spell-freq:2
+spell-power:10
+spells:BOULDER
+desc:A shadowy black lemming that seeks the deepest pits to ambush you from.
+
+name:pit lemming
+base:lemming
+color:Beige
+speed:110
+hit-points:25
+hearing:4
+smell:4
+armor-class:30
+sleepiness:40
+depth:13
+rarity:3
+experience:68
+blow:BITE:HURT:1d9
+blow:CLAW:HURT:1d11
+blow:CLAW:HURT:1d11
+flags:MALE | FEMALE | COLD_BLOOD | WEIRD_MIND
+flags:RAND_25
+flags:NO_FEAR
+desc:A golden-brown rodent famous for plummeting into holes, the deeper the better.
+
+name:aquatic lemming
+base:lemming
+color:RoyalBlue
+speed:115
+hit-points:35
+hearing:4
+smell:4
+armor-class:50
+sleepiness:20
+depth:14
+rarity:3
+experience:81
+blow:BITE:HURT:2d7
+blow:CLAW:HURT:2d9
+blow:CLAW:HURT:2d9
+flags:MALE | FEMALE | COLD_BLOOD | WEIRD_MIND
+flags:RAND_25
+flags:NO_FEAR
+desc:Lemmings hung with weights for their dive from the cliff tops.
 
 ### Dungeon level 0 ###
 
 name:filthy street urchin
 base:townsfolk
-color:D
+color:Brass
 speed:110
 hit-points:3
 hearing:4
@@ -864,7 +1242,7 @@ blow:TOUCH:EAT_GOLD
 flags:MALE | EVIL
 flags:DROP_40
 flags:OPEN_DOOR | TAKE_ITEM
-drop:scroll:Phase Door:35:1:3
+drop:card:blinking:35:1:3
 friends-base:20:1d3:person
 friends-base:40:1d3:person
 friends-base:80:1d3:person
@@ -890,7 +1268,6 @@ flags:OPEN_DOOR
 flags:FORCE_SLEEP
 spell-freq:12
 spells:HEAL | SCARE
-drop-base:prayer book:5:1:1
 friends-base:20:1d3:person
 friends-base:40:1d3:person
 friends-base:80:1d3:person
@@ -916,7 +1293,6 @@ flags:OPEN_DOOR
 flags:FORCE_SLEEP
 spell-freq:12
 spells:BLIND | BLINK | CONF | MISSILE
-drop-base:magic book:5:1:1
 friends-base:20:1d3:person
 friends-base:40:1d3:person
 friends-base:80:1d3:person
@@ -1445,8 +1821,6 @@ blow:HIT:HURT:1d8
 flags:DROP_40
 spell-freq:5
 spells:WOUND | CONF | HEAL | MISSILE
-drop-base:magic book:5:1:1
-drop-base:prayer book:5:1:1
 friends-base:30:1d2:kobold
 friends-base:70:1d2:kobold
 desc:It is a kobold dressed in skins and gesturing wildly.
@@ -1490,7 +1864,6 @@ innate-freq:3
 spell-freq:10
 spells:HASTE
 spells:ARROW
-drop-base:nature book:3:1:1
 friends-base:20:1d3:person
 friends-base:40:1d3:person
 friends-base:80:1d3:person
@@ -1517,7 +1890,6 @@ flags:OPEN_DOOR
 flags:FORCE_SLEEP
 spell-freq:9
 spells:HEAL
-drop-base:prayer book:3:1:1
 friends-base:20:1d3:person
 friends-base:40:1d3:person
 friends-base:80:1d3:person
@@ -1542,7 +1914,6 @@ flags:OPEN_DOOR
 flags:FORCE_SLEEP
 spell-freq:8
 spells:HASTE | SLOW | CONF
-drop-base:nature book:5:1:1
 friends-base:20:1d3:person
 friends-base:40:1d3:person
 friends-base:80:1d3:person
@@ -1582,7 +1953,7 @@ experience:9
 blow:HIT:HURT:1d4
 blow:TOUCH:POISON:2d4
 desc:It appears to be a pile of copper coins.
-mimic:gold:copper
+mimic:cash:small change
 
 name:giant white rat
 base:rodent
@@ -1971,8 +2342,8 @@ blow:BITE:HURT:1d3
 flags:RAND_50
 desc:It screeches as it attacks.
 
-name:creeping silver coins
-plural:piles of creeping silver coins
+name:creeping silver
+plural:piles of creeping silver
 base:creeping coins
 color:s
 speed:100
@@ -1985,8 +2356,8 @@ rarity:3
 experience:18
 blow:HIT:HURT:1d6
 blow:TOUCH:POISON:2d6
-desc:It appears to be a pile of silver coins.
-mimic:gold:silver
+desc:It appears to be a pile of silver nuggets.
+mimic:cash:silver nuggets
 
 name:snaga
 base:orc
@@ -2593,121 +2964,9 @@ blow:HIT:HURT:1d6
 flags:DROP_60
 flags:HURT_LIGHT
 flags:FORCE_SLEEP
-drop-base:magic book:5:1:1
-drop-base:prayer book:5:1:1
 spell-freq:8
 spells:BLINK | WOUND | MISSILE
 desc:An orc dressed in skins who gestures wildly.
-
-name:baby blue dragon
-base:dragon
-color:b
-speed:110
-hit-points:88
-hearing:20
-armor-class:36
-sleepiness:70
-depth:9
-rarity:2
-experience:35
-blow:CLAW:HURT:1d3
-blow:CLAW:HURT:1d3
-blow:BITE:HURT:1d5
-flags:DROP_40 | DROP_1 | ONLY_GOLD
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_ELEC
-innate-freq:12
-spells:BR_ELEC
-desc:This hatchling dragon is still soft, its eyes unaccustomed to light and its
-desc: scales a pale blue.
-
-name:baby white dragon
-base:dragon
-color:w
-speed:110
-hit-points:88
-hearing:20
-armor-class:36
-sleepiness:70
-depth:9
-rarity:2
-experience:35
-blow:CLAW:HURT:1d3
-blow:CLAW:HURT:1d3
-blow:BITE:HURT:1d5
-flags:DROP_40 | DROP_1 | ONLY_GOLD
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_COLD
-innate-freq:12
-spells:BR_COLD
-desc:This hatchling dragon is still soft, its eyes unaccustomed to light and its
-desc: scales a pale white.
-
-name:baby green dragon
-base:dragon
-color:g
-speed:110
-hit-points:88
-hearing:20
-armor-class:36
-sleepiness:70
-depth:9
-rarity:2
-experience:35
-blow:CLAW:HURT:1d3
-blow:CLAW:HURT:1d3
-blow:BITE:HURT:1d5
-flags:DROP_40 | DROP_1 | ONLY_GOLD
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_POIS
-innate-freq:12
-spells:BR_POIS
-desc:This hatchling dragon is still soft, its eyes unaccustomed to light and its
-desc: scales a sickly green.
-
-name:baby black dragon
-base:dragon
-color:s
-speed:110
-hit-points:88
-hearing:20
-armor-class:36
-sleepiness:70
-depth:9
-rarity:2
-experience:35
-blow:CLAW:HURT:1d3
-blow:CLAW:HURT:1d3
-blow:BITE:HURT:1d5
-flags:DROP_40 | DROP_1 | ONLY_GOLD
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_ACID
-innate-freq:12
-spells:BR_ACID
-desc:This hatchling dragon is still soft, its eyes unaccustomed to light and its
-desc: scales a dull black.
-
-name:baby red dragon
-base:dragon
-color:r
-speed:110
-hit-points:88
-hearing:20
-armor-class:36
-sleepiness:70
-depth:9
-rarity:2
-experience:35
-blow:CLAW:HURT:1d3
-blow:CLAW:HURT:1d3
-blow:BITE:HURT:1d5
-flags:DROP_40 | DROP_1 | ONLY_GOLD
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_FIRE
-innate-freq:12
-spells:BR_FIRE
-desc:This hatchling dragon is still soft, its eyes unaccustomed to light and its
-desc: scales a pale red.
 
 name:giant red ant
 base:ant
@@ -2764,27 +3023,6 @@ flags:IM_POIS
 innate-freq:4
 spells:SPIT
 desc:It is a large snake with a hooded face.
-
-name:baby gold dragon
-base:dragon
-color:y
-speed:110
-hit-points:88
-hearing:20
-armor-class:36
-sleepiness:70
-depth:9
-rarity:2
-experience:35
-blow:CLAW:HURT:1d3
-blow:CLAW:HURT:1d3
-blow:BITE:HURT:1d5
-flags:DROP_40 | DROP_1 | ONLY_GOLD
-flags:OPEN_DOOR | BASH_DOOR | NO_STUN
-innate-freq:12
-spells:BR_SOUN
-desc:This hatchling dragon is still soft, its eyes unaccustomed to light and its
-desc: scales a pale gold.
 
 name:cave bear
 base:quadruped
@@ -2854,8 +3092,6 @@ flags:FORCE_SLEEP
 spell-freq:5
 spells:BLIND | CONF | DARKNESS | MISSILE
 spells:BA_POIS
-drop-base:magic book:10:1:1
-drop-base:magic book:10:1:1
 desc:A corrupted dwarf from the east, dressed in black mail, hurling spells
 desc: at you.
 
@@ -2996,29 +3232,6 @@ spell-freq:11
 spells:DRAIN_MANA
 desc:It is a strange glowing growth on the dungeon floor.
 
-name:pseudo-dragon
-base:dragon
-color:o
-speed:110
-hit-points:176
-light:2
-hearing:20
-armor-class:36
-sleepiness:70
-depth:10
-rarity:2
-experience:150
-blow:CLAW:HURT:1d3
-blow:CLAW:HURT:1d3
-blow:BITE:HURT:1d5
-flags:DROP_40
-flags:BASH_DOOR
-innate-freq:15
-spell-freq:20
-spells:CONF | SCARE
-spells:BR_DARK | BR_LIGHT
-desc:A small relative of the dragon that inhabits dark caves.
-
 name:tengu
 plural:tengu
 base:minor demon
@@ -3056,7 +3269,7 @@ blow:TOUCH:POISON:3d5
 flags:IM_ACID
 desc:It appears to be a pile of gold coins, until it starts crawling towards
 desc: you on tiny legs.
-mimic:gold:gold
+mimic:cash:rare coins
 
 name:wolf
 plural:wolves
@@ -3130,7 +3343,6 @@ innate-freq:5
 spell-freq:8
 spells:WHIP
 spells:WOUND | SCARE | DARKNESS
-drop-base:shadow book:5:1:1
 friends:50:1d2:Illusionist
 friends:50:1d2:Priest
 friends:50:1d2:warrior
@@ -3138,29 +3350,6 @@ friends:50:1d2:Same
 desc:She is dressed in black and smells of decay.
 
 ### Dungeon level 11 ###
-
-name:baby multi-hued dragon
-base:dragon
-color:v
-speed:110
-hit-points:114
-hearing:20
-armor-class:36
-sleepiness:70
-depth:11
-rarity:2
-experience:45
-blow:CLAW:HURT:1d4
-blow:CLAW:HURT:1d4
-blow:BITE:HURT:1d6
-flags:DROP_40 | DROP_1 | ONLY_GOLD
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_ACID | IM_COLD | IM_ELEC | IM_FIRE | IM_POIS
-flags:ATTR_MULTI
-innate-freq:12
-spells:BR_ACID | BR_COLD | BR_ELEC | BR_FIRE | BR_POIS
-desc:This hatchling dragon is still soft, its eyes unaccustomed to light and its
-desc: scales shimmering with hints of many different colours.
 
 name:hippogriff
 base:hybrid
@@ -3217,8 +3406,6 @@ spell-freq:4
 spells:BLINK | DARKNESS
 spells:BO_COLD
 spells:S_MONSTER
-drop-base:magic book:5:1:1
-drop-base:magic book:5:1:1
 friends:100:4d4:Same
 desc:A mage of short stature with stumpy legs and a wispy beard.
 
@@ -3302,7 +3489,7 @@ spell-freq:11
 spells:DRAIN_MANA
 desc:Yum!  It looks quite tasty.  It is a pulsing mound of glowing flesh.
 
-name:nether worm mass
+name:radiation worm mass
 base:worm
 color:D
 speed:100
@@ -3316,7 +3503,7 @@ experience:6
 blow:TOUCH:EXP_10
 flags:WEIRD_MIND | MULTIPLY | STUPID
 flags:RAND_25 | RAND_50 | BASH_DOOR
-flags:HURT_LIGHT | NO_FEAR | IM_NETHER
+flags:HURT_LIGHT | NO_FEAR | IM_RADIATION
 desc:It is a disgusting mass of dark worms, eating each other, the floor, the
 desc: air, you....
 
@@ -3366,8 +3553,6 @@ spell-freq:4
 spells:BLIND | BLINK | SLOW | TPORT
 spells:BA_POIS
 spells:S_MONSTER
-drop-base:magic book:5:1:1
-drop-base:magic book:5:1:1
 desc:A small humanoid that radiates some power.
 
 name:priest
@@ -3393,8 +3578,6 @@ spell-power:6
 spells:HEAL | SCARE | HEAL_KIN
 spells:BA_LIGHT | BA_HOLY
 spells:S_KIN
-drop-base:prayer book:8:1:1
-drop-base:prayer book:8:1:1
 friends:50:1d2:Brigand
 friends:50:1d2:Illusionist
 friends:50:1d2:warrior
@@ -3419,8 +3602,6 @@ flags:DROP_1 | ONLY_ITEM
 flags:FORCE_SLEEP
 spell-freq:5
 spells:BLIND | WOUND | CONF | DARKNESS | HEAL
-drop-base:shadow book:8:1:1
-drop-base:shadow book:8:1:1
 desc:A dwarf of the east, dressed all in black, chanting words of dark sorcery.
 
 name:air spirit
@@ -3657,8 +3838,8 @@ friends-base:100:2d4:orc
 friends:100:2d4:Same
 desc:A hideous, smallish giant that is often found near or with orcs.
 
-name:creeping mithril coins
-plural:piles of creeping mithril coins
+name:creeping platinum
+plural:piles of creeping platinum
 base:creeping coins
 color:B
 speed:110
@@ -3672,9 +3853,9 @@ experience:45
 blow:HIT:HURT:2d5
 blow:TOUCH:POISON:3d5
 flags:IM_ACID
-desc:It appears to be a pile of sentient mithril coins that doesn't like being
+desc:It appears to be a pile of sentient platinum bars that doesn't like being
 desc: picked up.
-mimic:gold:mithril
+mimic:cash:platinum bars
 
 name:illusionist
 base:person
@@ -3696,8 +3877,6 @@ flags:FORCE_SLEEP
 spell-freq:3
 spells:BLIND | BLINK | CONF | DARKNESS | HASTE | HOLD
 spells:SLOW | TPORT
-drop-base:magic book:8:1:1
-drop-base:magic book:8:1:1
 friends:50:1d2:Brigand
 friends:50:1d2:Priest
 friends:50:1d2:warrior
@@ -3726,8 +3905,6 @@ spell-freq:3
 spells:BLIND | HASTE | HOLD | SLOW | CONF
 spells:BO_POIS | BO_FIRE | SHAPECHANGE
 spells:S_ANIMAL
-drop-base:nature book:8:1:1
-drop-base:nature book:8:1:1
 desc:A priest devoted to Nature.
 
 name:orc archer
@@ -4226,7 +4403,7 @@ flags:DROP_1
 flags:OPEN_DOOR | TAKE_ITEM
 innate-freq:8
 spells:SHOT
-drop:scroll:Phase Door:70:2:6
+drop:card:blinking:70:2:6
 friends:50:1d2:Illusionist
 friends:50:1d2:Priest
 friends:50:1d2:warrior
@@ -4554,8 +4731,6 @@ innate-freq:6
 spell-freq:12
 spells:DARKNESS | SCARE
 spells:BOLT
-drop-base:shadow book:8:1:1
-drop-base:shadow book:8:1:1
 friends:50:1d1:rogue
 friends:50:1d1:ranger
 friends:50:1d1:paladin
@@ -4653,34 +4828,6 @@ spells:BR_ELEC
 friends:100:2d7:Same
 desc:Saint Elmo's Fire forms a ghostly halo around this hound, and sparks sting
 desc: your fingers as energy builds up in the air around you.
-
-name:potion mimic
-base:mimic
-glyph:!
-color:w
-speed:110
-hit-points:55
-hearing:25
-armor-class:36
-sleepiness:0
-depth:18
-rarity:3
-experience:60
-blow:HIT:POISON:3d4
-blow:HIT:HURT:2d3
-blow:HIT:HURT:2d3
-flags:HURT_COLD
-spell-freq:6
-spells:BO_COLD
-spells:BLIND | WOUND | CONF | SCARE
-desc:A strange creature that disguises itself as a discarded potion bottle to
-desc: lure unsuspecting adventurers within reach of its venomous claws.
-mimic:potion:Healing
-mimic:potion:*Healing*
-mimic:potion:Life
-mimic:potion:Experience
-mimic:potion:Augmentation
-mimic:potion:Speed
 
 name:blink dog
 base:canine
@@ -5147,8 +5294,6 @@ flags:FORCE_SLEEP
 spell-freq:5
 spells:BLIND | CONF | DARKNESS | HASTE
 spells:BO_COLD | BO_FIRE
-drop-base:magic book:5:1:1
-drop-base:magic book:5:1:1
 friends:80:1d3:eastern dwarf:servant
 friends:70:1d2:stonefoot warrior:servant
 friends:50:1d1:blacklock mage:servant
@@ -5178,8 +5323,6 @@ spell-freq:5
 spells:ARROW | BLINK | HASTE
 spells:BO_COLD
 spells:S_ANIMAL
-drop-base:nature book:5:1:1
-drop-base:nature book:5:1:1
 friends:50:1d1:Easterling champion
 friends:50:1d1:rogue
 friends:50:1d2:Illusionist
@@ -5207,8 +5350,6 @@ flags:DROP_1
 flags:OPEN_DOOR | TAKE_ITEM
 spell-freq:4
 spells:HEAL | SLOW
-drop-base:prayer book:5:1:1
-drop-base:prayer book:5:1:1
 friends:50:1d1:Easterling champion
 friends:50:1d1:rogue
 friends:50:1d2:Illusionist
@@ -5263,7 +5404,7 @@ innate-freq:4
 spells:BR_ELEC
 desc:It is a glowing blue bat with a sharp tail.
 
-name:scroll mimic
+name:card mimic
 base:mimic
 glyph:?
 color:w
@@ -5284,14 +5425,14 @@ spell-freq:5
 spells:BO_FIRE
 spells:S_MONSTER
 spells:BLIND | WOUND | CONF | SCARE
-desc:A strange creature that disguises itself as a discarded scroll to lure
+desc:A strange creature that disguises itself as a discarded card to lure
 desc: unsuspecting adventurers within reach of its venomous claws.
-mimic:scroll:Banishment
-mimic:scroll:Mass Banishment
-mimic:scroll:Teleport Level
-mimic:scroll:Acquirement
-mimic:scroll:*Acquirement*
-mimic:scroll:*Destruction*
+mimic:card:Banishment
+mimic:card:Mass Banishment
+mimic:card:Teleport Level
+mimic:card:acquisition
+mimic:card:mass acquisition
+mimic:card:*Destruction*
 
 name:fire vortex
 plural:fire vortices
@@ -5467,27 +5608,6 @@ blow:STING:POISON:2d5
 flags:ANIMAL | WEIRD_MIND
 flags:IM_POIS
 desc:It is a giant scorpion with a sharp stinger.
-
-name:wyvern
-base:dragon
-color:g
-speed:120
-hit-points:203
-hearing:20
-armor-class:79
-sleepiness:60
-depth:22
-rarity:2
-experience:250
-blow:BITE:HURT:2d6
-blow:BITE:HURT:2d6
-blow:STING:POISON:2d6
-flags:ANIMAL
-flags:DROP_2 | ONLY_GOLD
-flags:OPEN_DOOR | BASH_DOOR | MOVE_BODY
-flags:IM_POIS
-desc:A fast-moving and deadly draconian animal.  Beware its poisonous sting!
-
 
 
 ### Dungeon level 23 ###
@@ -5924,10 +6044,8 @@ flags:OPEN_DOOR
 flags:FORCE_SLEEP
 spell-freq:5
 spells:BLIND | WOUND | DARKNESS | SCARE
-spells:BO_NETH
+spells:BO_RADI
 spells:S_UNDEAD
-drop-base:shadow book:8:1:1
-drop-base:shadow book:8:1:1
 friends-base:80:1d3:skeleton
 desc:A gaunt figure, clothed in black robes.
 
@@ -6288,8 +6406,8 @@ innate-freq:5
 spells:SPIT
 desc:It is a giant beetle wreathed in flames.
 
-name:creeping adamantite coins
-plural:piles of creeping adamantite coins
+name:creeping unobtainium wafers
+plural:piles of creeping unobtainium
 base:creeping coins
 color:G
 speed:120
@@ -6305,9 +6423,9 @@ blow:TOUCH:POISON:3d5
 blow:HIT:HURT:1d12
 blow:HIT:HURT:1d12
 flags:IM_ACID
-desc:It appears to be a pile of coins made of precious adamant, slithering
+desc:It appears to be a pile of unobtainium wafers, slithering
 desc: toward you on lots of tiny legs.
-mimic:gold:adamantite
+mimic:cash:unobtainium wafers
 
 name:troll scavenger
 base:troll
@@ -6449,8 +6567,6 @@ spell-freq:5
 spells:WOUND | HOLD | SCARE | TPORT | TRAPS
 spells:BO_FIRE
 spells:S_MONSTER
-drop-base:prayer book:5:1:1
-drop-base:prayer book:5:1:1
 desc:It is an ogre wrapped in furs and covered in grotesque body paints.
 
 name:shimmering mold
@@ -6518,8 +6634,6 @@ flags:NO_CONF | NO_SLEEP | IM_POIS
 flags:FORCE_SLEEP
 spell-freq:4
 spells:BLIND | DARKNESS | HEAL | MIND_BLAST
-drop-base:prayer book:8:1:1
-drop-base:prayer book:5:1:1
 desc:A wraithly snake-like form with the torso of a beautiful woman.
 
 name:5-headed hydra
@@ -6565,8 +6679,6 @@ flags:OPEN_DOOR
 flags:FORCE_SLEEP
 spell-freq:8
 spells:BLIND | WOUND | DARKNESS | SCARE
-drop-base:shadow book:8:1:1
-drop-base:shadow book:8:1:1
 friends:50:1d1:rogue
 friends:50:1d1:Ranger
 friends:50:1d1:Paladin
@@ -6622,8 +6734,6 @@ spell-freq:3
 spells:BLIND | CONF | TPORT | TELE_AWAY
 spells:BO_COLD | BO_ELEC | BO_FIRE
 spells:S_MONSTER
-drop-base:magic book:10:1:1
-drop-base:magic book:7:1:1
 friends-base:100:1d1:golem
 desc:A mage of some power - you can tell by the size of his hat.
 
@@ -6848,8 +6958,6 @@ innate-freq:3
 spell-freq:12
 spells:CONF | HEAL | BLINK
 spells:ARROW
-drop-base:nature book:8:1:1
-drop-base:nature book:8:1:1
 desc:An elf of the Land of the Seven Rivers, whose woodcraft was such that a
 desc: stranger might pass through their land from end to end and see none of
 desc: them.
@@ -6945,77 +7053,6 @@ mimic:ring:Resist Poison
 mimic:ring:Free Action
 mimic:ring:See Invisible
 
-name:young blue dragon
-base:dragon
-color:b
-speed:110
-hit-points:237
-hearing:20
-armor-class:60
-sleepiness:70
-depth:29
-rarity:1
-experience:500
-blow:CLAW:HURT:2d4
-blow:CLAW:HURT:2d4
-blow:BITE:HURT:2d6
-flags:DROP_2
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_ELEC
-innate-freq:15
-spell-freq:20
-spells:SCARE
-spells:BR_ELEC
-desc:It has a form that legends are made of.  Its still-tender scales are a deep
-desc: blue in hue.  Sparks crackle along its length.
-
-name:young white dragon
-base:dragon
-color:w
-speed:110
-hit-points:237
-hearing:20
-armor-class:60
-sleepiness:70
-depth:29
-rarity:1
-experience:500
-blow:CLAW:HURT:2d4
-blow:CLAW:HURT:2d4
-blow:BITE:HURT:2d6
-flags:DROP_2
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_COLD
-innate-freq:15
-spell-freq:20
-spells:SCARE
-spells:BR_COLD
-desc:It has a form that legends are made of.  Its still-tender scales are a
-desc: frosty white in hue.  Icy blasts of cold air come from it as it breathes.
-
-name:young green dragon
-base:dragon
-color:g
-speed:110
-hit-points:237
-hearing:20
-armor-class:60
-sleepiness:70
-depth:29
-rarity:1
-experience:500
-blow:CLAW:HURT:2d4
-blow:CLAW:HURT:2d4
-blow:BITE:HURT:2d6
-flags:DROP_2
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_POIS
-innate-freq:15
-spell-freq:20
-spells:SCARE
-spells:BR_POIS
-desc:It has a form that legends are made of.  Its still-tender scales are a deep
-desc: green in hue.  Foul gas seeps through its scales.
 
 name:energy vortex
 plural:energy vortices
@@ -7380,78 +7417,6 @@ blow:BITE:HURT:5d6
 blow:WAIL:TERRIFY:5d6
 desc:It is a giant beetle that produces a chilling sound.
 
-name:young black dragon
-base:dragon
-color:s
-speed:110
-hit-points:264
-hearing:20
-armor-class:72
-sleepiness:70
-depth:31
-rarity:1
-experience:700
-blow:CLAW:HURT:2d6
-blow:CLAW:HURT:2d6
-blow:BITE:HURT:2d8
-flags:DROP_3
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_ACID
-innate-freq:15
-spell-freq:20
-spells:SCARE
-spells:BR_ACID
-desc:It has a form that legends are made of.  Its still-tender scales are a
-desc: darkest black hue.  Acid drips from its body.
-
-name:young gold dragon
-base:dragon
-color:y
-speed:110
-hit-points:264
-hearing:20
-armor-class:72
-sleepiness:70
-depth:31
-rarity:1
-experience:700
-blow:CLAW:HURT:2d6
-blow:CLAW:HURT:2d6
-blow:BITE:HURT:2d8
-flags:DROP_3
-flags:OPEN_DOOR | BASH_DOOR | NO_STUN
-innate-freq:15
-spell-freq:20
-spells:SCARE
-spells:BR_SOUN
-desc:It has a form that legends are made of.  Its still-tender scales are a
-desc: tarnished gold hue, and light is reflected from its form.
-
-name:young red dragon
-base:dragon
-color:r
-speed:110
-hit-points:264
-light:2
-hearing:20
-armor-class:72
-sleepiness:70
-depth:31
-rarity:1
-experience:700
-blow:CLAW:HURT:2d6
-blow:CLAW:HURT:2d6
-blow:BITE:HURT:2d8
-flags:DROP_3
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_FIRE
-innate-freq:15
-spell-freq:20
-spells:SCARE
-spells:BR_FIRE
-desc:It has a form that legends are made of.  Its still-tender scales are a
-desc: deepest red hue.  Heat radiates from its form.
-
 name:huorn
 base:tree
 color:G
@@ -7522,8 +7487,6 @@ spell-freq:4
 spells:HEAL | HOLD | TRAPS
 spells:BA_COLD
 spells:S_MONSTER
-drop-base:magic book:5:1:1
-drop-base:magic book:5:1:1
 desc:A hideous ogre wrapped in black sorcerous robes.
 
 name:nexus quylthulg
@@ -7585,30 +7548,6 @@ spells:FORGET
 desc:A mass of green vegetation.  You don't remember seeing anything like it
 desc: before.
 
-name:young multi-hued dragon
-base:dragon
-color:v
-speed:110
-hit-points:281
-hearing:20
-armor-class:72
-sleepiness:70
-depth:32
-rarity:1
-experience:900
-blow:CLAW:HURT:2d6
-blow:CLAW:HURT:2d6
-blow:BITE:HURT:3d8
-flags:DROP_3
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_ACID | IM_COLD | IM_ELEC | IM_FIRE | IM_POIS
-flags:ATTR_MULTI
-innate-freq:8
-spell-freq:50
-spells:SCARE
-spells:BR_ACID | BR_COLD | BR_ELEC | BR_FIRE | BR_POIS
-desc:It has a form that legends are made of.  Beautiful scales of shimmering and
-desc: magical colours cover it.
 
 name:doombat
 base:bat
@@ -7656,8 +7595,6 @@ spell-freq:3
 spells:HASTE | CONF | DARKNESS | HEAL
 spells:SHAPECHANGE
 spells:S_ANIMAL | S_MONSTER | S_SPIDER
-drop-base:nature book:8:1:1
-drop-base:nature book:8:1:1
 desc:A short, stocky man with an uncanny connection with nature.
 
 name:stone giant
@@ -7680,33 +7617,6 @@ spells:BOULDER
 friends:60:1d7:Earth hound
 friends:80:1d3:Same
 desc:It is eighteen feet tall and looking at you.
-
-name:shadow drake
-base:dragon
-color:G
-speed:110
-hit-points:264
-light:-2
-hearing:20
-armor-class:84
-sleepiness:70
-depth:33
-rarity:3
-experience:1100
-blow:CLAW:HURT:2d4
-blow:CLAW:HURT:2d4
-blow:BITE:EXP_10:3d6
-flags:INVISIBLE
-flags:DROP_3 | ONLY_ITEM
-flags:OPEN_DOOR | BASH_DOOR | PASS_WALL
-flags:NO_CONF | NO_SLEEP | IM_NETHER
-innate-freq:25
-spell-freq:10
-spells:CONF | DARKNESS | SCARE | SLOW
-spells:BR_NETH
-desc:It is a dragon-like form wrapped in shadow.  Glowing red eyes shine out in
-desc: the dark, and it is surrounded by an aura of unearthly cold that chills
-desc: the soul rather than the body.
 
 name:cave troll
 base:troll
@@ -7755,8 +7665,6 @@ flags:FORCE_SLEEP
 spell-freq:6
 spells:HEAL
 spells:S_ANIMAL | S_SPIDER
-drop-base:nature book:10:1:1
-drop-base:nature book:5:1:1
 friends-base:50:2d4:spider
 desc:An adept at unarmed combat, the mystic strikes with stunning power.  He can
 desc: summon help from nature and is able to focus his power to ease any pain.
@@ -7802,104 +7710,6 @@ flags:TROLL | EMPTY_MIND | REGENERATE
 flags:OPEN_DOOR | BASH_DOOR
 desc:It is the animated form of a massive two-headed troll.
 
-name:chaos drake
-base:dragon
-color:v
-speed:110
-hit-points:440
-hearing:20
-armor-class:84
-sleepiness:70
-depth:33
-rarity:3
-experience:1400
-blow:CLAW:HURT:2d4
-blow:CLAW:HURT:2d4
-blow:BITE:HURT:3d6
-flags:DROP_3 | ONLY_ITEM
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_FIRE | IM_DISEN | NO_CONF | NO_SLEEP
-flags:ATTR_MULTI
-innate-freq:12
-spell-freq:13
-spells:CONF | SCARE | SLOW
-spells:BR_CHAO | BR_DISE
-desc:A dragon twisted by the forces of chaos.  It seems first ugly, then fair,
-desc: as its form shimmers and changes in front of your eyes.
-
-name:law drake
-base:dragon
-color:B
-speed:110
-hit-points:440
-hearing:20
-armor-class:84
-sleepiness:70
-depth:33
-rarity:3
-experience:1400
-blow:CLAW:HURT:2d4
-blow:CLAW:HURT:2d4
-blow:BITE:HURT:3d6
-flags:DROP_3 | ONLY_ITEM
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_COLD | NO_CONF | NO_SLEEP | NO_STUN
-innate-freq:12
-spell-freq:13
-spells:CONF | SCARE | SLOW
-spells:BR_SHAR | BR_SOUN
-desc:This dragon is clever and cunning.  It laughs at your puny efforts to
-desc: disturb it.
-
-name:balance drake
-base:dragon
-color:P
-speed:110
-hit-points:528
-hearing:20
-armor-class:84
-sleepiness:70
-depth:33
-rarity:3
-experience:1600
-blow:CLAW:HURT:2d4
-blow:CLAW:HURT:2d4
-blow:BITE:HURT:3d6
-flags:DROP_3 | ONLY_ITEM
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_COLD | IM_FIRE | IM_DISEN | NO_CONF | NO_SLEEP | NO_STUN
-innate-freq:9
-spell-freq:12
-spells:CONF | SCARE | SLOW
-spells:BR_CHAO | BR_DISE | BR_SHAR | BR_SOUN
-desc:A mighty dragon, the balance drake seeks to maintain the Cosmic Balance,
-desc: and despises your feeble efforts to destroy evil.
-
-name:ethereal drake
-base:dragon
-color:o
-speed:110
-hit-points:352
-hearing:20
-armor-class:84
-sleepiness:70
-depth:33
-rarity:3
-experience:1200
-blow:CLAW:HURT:2d4
-blow:CLAW:HURT:2d4
-blow:BITE:HURT:3d6
-flags:INVISIBLE
-flags:DROP_3 | ONLY_ITEM
-flags:PASS_WALL
-flags:NO_CONF | NO_SLEEP
-innate-freq:12
-spell-freq:13
-spells:CONF | SCARE | SLOW
-spells:BR_DARK | BR_LIGHT
-desc:A dragon of great power, with control over light and dark, the ethereal
-desc: drake's eyes glare with white hatred from the shadows.
-
 name:fire elemental
 base:elemental
 color:r
@@ -7943,31 +7753,6 @@ spell-freq:6
 spells:BO_COLD
 desc:It is a towering tempest of water.
 
-name:crystal drake
-base:dragon
-color:u
-speed:110
-hit-points:396
-light:1
-hearing:20
-armor-class:84
-sleepiness:70
-depth:33
-rarity:3
-experience:1350
-blow:CLAW:HURT:2d4
-blow:CLAW:HURT:2d4
-blow:BITE:HURT:3d6
-flags:DROP_3 | ONLY_ITEM
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_COLD | NO_CONF | NO_SLEEP
-innate-freq:20
-spell-freq:8
-spells:CONF | SCARE | SLOW
-spells:BR_SHAR
-desc:A dragon of strange crystalline form.  Light shines through it, dazzling
-desc: your eyes with spectra of colour.
-
 ### Dungeon level 34 ###
 
 name:troll priest
@@ -7992,8 +7777,6 @@ flags:HURT_LIGHT | NO_CONF | NO_SLEEP
 flags:FORCE_SLEEP
 spell-freq:5
 spells:BLINK | WOUND | DARKNESS | SCARE
-drop-base:prayer book:5:1:1
-drop-base:prayer book:5:1:1
 desc:A troll who is so bright he knows how to read.
 
 name:Maia
@@ -8425,38 +8208,39 @@ spells:SPIT
 friends:100:4d4:Same
 desc:A giant ant covered in shaggy fur.  Its powerful jaws glow with heat.
 
-name:chest mimic
-base:mimic
-glyph:~
-color:s
-speed:110
-hit-points:308
-hearing:30
-armor-class:48
-sleepiness:0
-depth:35
-rarity:4
-experience:250
-blow:BITE:POISON:4d4
-blow:BITE:POISON:4d4
-blow:BUTT:CONFUSE:4d4
-blow:SPIT:BLIND:4d4
-flags:DROP_2
-spell-freq:5
-spells:BA_POIS
-spells:S_MONSTER
-spells:BLIND | WOUND | CONF | SCARE
-desc:A strange creature that disguises itself as a chest to lure unsuspecting
-desc: adventurers within reach of its venomous claws.  The first that most
-desc: adventurers realise of the deception is when the seemingly invitingly open
-desc: lid of the chest suddenly grows teeth and then slams shut on the
-desc: adventurer's hand...
-mimic:chest:Small wooden chest
-mimic:chest:Large wooden chest
-mimic:chest:Small iron chest
-mimic:chest:Large iron chest
-mimic:chest:Small steel chest
-mimic:chest:Large steel chest
+# Luggage?
+#name:chest mimic
+#base:mimic
+#glyph:~
+#color:s
+#speed:110
+#hit-points:308
+#hearing:30
+#armor-class:48
+#sleepiness:0
+#depth:35
+#rarity:4
+#experience:250
+#blow:BITE:POISON:4d4
+#blow:BITE:POISON:4d4
+#blow:BUTT:CONFUSE:4d4
+#blow:SPIT:BLIND:4d4
+#flags:DROP_2
+#spell-freq:5
+#spells:BA_POIS
+#spells:S_MONSTER
+#spells:BLIND | WOUND | CONF | SCARE
+#desc:A strange creature that disguises itself as a chest to lure unsuspecting
+#desc: adventurers within reach of its venomous claws.  The first that most
+#desc: adventurers realise of the deception is when the seemingly invitingly open
+#desc: lid of the chest suddenly grows teeth and then slams shut on the
+#desc: adventurer's hand...
+#mimic:chest:Small wooden chest
+#mimic:chest:Large wooden chest
+#mimic:chest:Small iron chest
+#mimic:chest:Large iron chest
+#mimic:chest:Small steel chest
+#mimic:chest:Large steel chest
 
 name:silent watcher
 base:golem
@@ -8572,7 +8356,7 @@ flags:DROP_4
 spell-freq:6
 spells:WOUND | CONF | DARKNESS | MIND_BLAST
 spells:TELE_TO
-spells:BO_NETH
+spells:BO_RADI
 spells:HOLD | SCARE
 desc:It is a humanoid form dressed in robes.  Power emanates from its chilling
 desc: frame.
@@ -8727,10 +8511,8 @@ flags:FORCE_SLEEP
 spell-freq:3
 spells:BLIND | WOUND | DARKNESS | HOLD | SCARE
 spells:TPORT
-spells:BO_NETH
+spells:BO_RADI
 spells:S_UNDEAD
-drop-base:shadow book:8:1:1
-drop-base:shadow book:8:1:1
 friends-base:80:1d3:skeleton
 desc:A necromancer recruited to the evil realm of Angmar during the decline of
 desc: the North Kingdom.
@@ -8788,8 +8570,6 @@ spell-freq:2
 spells:HOLD | TPORT
 spells:BO_FIRE
 spells:S_DEMON
-drop-base:magic book:8:1:1
-drop-base:magic book:8:1:1
 friends-base:50:1d3:minor demon:servant
 friends:100:1d1:Quasit:servant
 desc:A figure twisted by evil standing in robes of deepest crimson.
@@ -9028,7 +8808,7 @@ flags:OPEN_DOOR | BASH_DOOR
 flags:FORCE_SLEEP
 spell-freq:6
 spells:WOUND | HOLD | SCARE
-spells:BO_NETH
+spells:BO_RADI
 friends-base:50:1d3:wraith
 desc:Your life force is torn from your body as this powerful unearthly being
 desc: approaches.
@@ -9061,7 +8841,7 @@ spells:SHRIEK
 spells:BLIND | WOUND | DARKNESS | DRAIN_MANA | FORGET | HASTE
 spells:HEAL | MIND_BLAST | SCARE
 spells:BA_COLD | BA_POIS
-spells:BO_NETH
+spells:BO_RADI
 spells:S_UNDEAD
 friends:100:2d3:Mummified orc:servant
 friends:100:2d3:Mummified human:servant
@@ -9116,10 +8896,8 @@ flags:IM_COLD
 flags:FORCE_SLEEP
 spell-freq:5
 spells:BLIND | WOUND | SCARE
-spells:BO_NETH
+spells:BO_RADI
 spells:S_MONSTERS
-drop-base:shadow book:8:1:1
-drop-base:shadow book:8:1:1
 friends:50:1d1:Imp
 desc:It is a humanoid figure dressed in armour of an ancient form.  From beneath
 desc: its helmet, eyes glow a baleful red and seem to pierce you like lances of
@@ -9288,81 +9066,6 @@ spells:ARROW
 friends:80:1d4:southron assassin
 desc:A man of Harad clad in black and red and carrying a longbow.  His quiver is
 desc: full of red feathered arrows, and carries an insignia of a black serpent.
-
-name:mature white dragon
-base:dragon
-color:w
-speed:115
-hit-points:700
-hearing:20
-armor-class:84
-sleepiness:70
-depth:39
-rarity:1
-experience:1400
-blow:CLAW:HURT:3d8
-blow:CLAW:HURT:3d8
-blow:BITE:HURT:4d8
-flags:DROP_4
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_COLD | NO_CONF | NO_SLEEP
-innate-freq:12
-spell-freq:20
-spells:SCARE
-spells:BR_COLD
-friends:50:1d4:Baby white dragon
-friends:50:1d2:Young white dragon
-desc:A large dragon, scales gleaming bright white.
-
-name:mature blue dragon
-base:dragon
-color:b
-speed:115
-hit-points:700
-hearing:20
-armor-class:84
-sleepiness:70
-depth:39
-rarity:1
-experience:1400
-blow:CLAW:HURT:3d8
-blow:CLAW:HURT:3d8
-blow:BITE:HURT:4d8
-flags:DROP_4
-flags:BASH_DOOR
-flags:IM_ELEC | NO_CONF | NO_SLEEP
-innate-freq:12
-spell-freq:20
-spells:SCARE
-spells:BR_ELEC
-friends:50:1d4:Baby blue dragon
-friends:50:1d2:Young blue dragon
-desc:A large dragon, scales tinted deep blue.
-
-name:mature green dragon
-base:dragon
-color:g
-speed:115
-hit-points:700
-hearing:20
-armor-class:84
-sleepiness:70
-depth:39
-rarity:1
-experience:1400
-blow:CLAW:HURT:3d8
-blow:CLAW:HURT:3d8
-blow:BITE:HURT:4d8
-flags:DROP_4
-flags:BASH_DOOR
-flags:IM_POIS | NO_CONF | NO_SLEEP
-innate-freq:12
-spell-freq:20
-spells:SCARE
-spells:BR_POIS
-friends:50:1d4:Baby green dragon
-friends:50:1d2:Young green dragon
-desc:A large dragon, scales tinted deep green.
 
 name:6-headed hydra
 base:hydra
@@ -9536,37 +9239,6 @@ spells:SCARE
 spells:BR_POIS | BR_FIRE
 desc:A 6-headed hydra with an extra head that waves mesmerisingly at you.
 
-name:enchantress
-base:person
-color:R
-speed:130
-hit-points:457
-light:2
-hearing:20
-armor-class:72
-sleepiness:10
-depth:40
-rarity:4
-experience:2100
-blow:HIT:HURT:2d6
-blow:HIT:HURT:2d6
-blow:HIT:HURT:2d8
-flags:FEMALE | EVIL
-flags:DROP_2 | ONLY_ITEM
-flags:OPEN_DOOR
-flags:NO_CONF | NO_SLEEP | NO_HOLD
-flags:FORCE_SLEEP
-spell-freq:2
-spells:BLIND
-spells:SHAPECHANGE | S_DRAGON
-drop-base:magic book:8:1:1
-drop-base:magic book:8:1:1
-friends-base:30:1d1:dragon:servant
-friends-base:60:1d1:dragon:servant
-shape:ancient dragon
-desc:This elusive female spellcaster has a special affinity for dragons, whom
-desc: she rarely fights without.
-
 name:sorcerer
 base:person
 color:R
@@ -9592,8 +9264,6 @@ spells:BLIND | BLINK | WOUND | CONF | TELE_TO | TRAPS
 spells:BA_COLD | BA_FIRE
 spells:BO_ACID
 spells:S_DRAGON | S_MONSTER | S_UNDEAD
-drop-base:magic book:5:1:1
-drop-base:magic book:10:1:1
 friends:30:1d1:Master thief
 friends:30:1d1:Ranger chieftain
 friends:30:1d1:Patriarch
@@ -9731,8 +9401,6 @@ spell-freq:2
 spells:BLIND | HEAL | HEAL_KIN | MIND_BLAST
 spells:BA_LIGHT | BA_ELEC | BA_HOLY
 spells:S_KIN
-drop-base:prayer book:5:1:1
-drop-base:prayer book:10:1:1
 friends:30:1d1:Master thief
 friends:30:1d1:Ranger chieftain
 friends:30:1d1:Sorcerer
@@ -9771,82 +9439,6 @@ desc: its tribe.  It fears nothing.
 
 ### Dungeon level 41 ###
 
-name:mature red dragon
-base:dragon
-color:r
-speed:115
-hit-points:740
-light:2
-hearing:20
-armor-class:96
-sleepiness:70
-depth:41
-rarity:1
-experience:1600
-blow:CLAW:HURT:3d10
-blow:CLAW:HURT:3d10
-blow:BITE:HURT:4d10
-flags:DROP_4
-flags:BASH_DOOR
-flags:IM_FIRE | NO_CONF | NO_SLEEP
-innate-freq:12
-spell-freq:20
-spells:CONF | SCARE
-spells:BR_FIRE
-friends:50:1d4:Baby red dragon
-friends:50:1d2:Young red dragon
-desc:A large dragon, scales tinted deep red.
-
-name:mature gold dragon
-base:dragon
-color:y
-speed:115
-hit-points:740
-hearing:20
-armor-class:96
-sleepiness:70
-depth:41
-rarity:1
-experience:1600
-blow:CLAW:HURT:3d10
-blow:CLAW:HURT:3d10
-blow:BITE:HURT:4d10
-flags:DROP_4
-flags:BASH_DOOR
-flags:NO_CONF | NO_SLEEP | NO_STUN
-innate-freq:12
-spell-freq:20
-spells:CONF | SCARE
-spells:BR_SOUN
-friends:50:1d4:Baby gold dragon
-friends:50:1d2:Young gold dragon
-desc:A large dragon with scales of gleaming gold.
-
-name:mature black dragon
-base:dragon
-color:s
-speed:115
-hit-points:740
-hearing:20
-armor-class:96
-sleepiness:70
-depth:41
-rarity:1
-experience:1600
-blow:CLAW:HURT:3d10
-blow:CLAW:HURT:3d10
-blow:BITE:HURT:4d10
-flags:DROP_4
-flags:BASH_DOOR
-flags:IM_ACID | NO_CONF | NO_SLEEP
-innate-freq:12
-spell-freq:20
-spells:SCARE
-spells:BR_ACID
-friends:50:1d4:Baby black dragon
-friends:50:1d2:Young black dragon
-desc:A large dragon, with scales of deepest black.
-
 name:stiffbeard sorcerer
 base:humanoid
 color:R
@@ -9871,8 +9463,6 @@ spells:TELE_TO
 spells:BA_COLD | BA_FIRE
 spells:BO_ACID
 spells:S_DEMON | S_MONSTER | S_UNDEAD
-drop-base:magic book:8:1:1
-drop-base:shadow book:8:1:1
 desc:A dwarf with plaited beard and painted face, dressed in deepest black.
 desc:  Power seems to crackle from his stocky frame.
 
@@ -9955,8 +9545,6 @@ spell-freq:5
 spells:ARROW | BLINK | HASTE | HEAL
 spells:BA_COLD
 spells:S_ANIMAL
-drop-base:nature book:8:1:1
-drop-base:nature book:8:1:1
 friends:30:1d1:Master thief
 friends:30:1d1:Sorcerer
 friends:30:1d1:Patriarch
@@ -9965,32 +9553,6 @@ desc:A chieftain among the Rangers.  His understanding of nature gives him
 desc: powerful elemental spells to use against you, in addition to his skills
 desc: as an archer and a warrior.  Furthermore, he is a master of camouflage,
 desc: so you will need magically enhanced seeing to spot him.
-
-name:Kavlax the Many-Headed
-base:dragon
-color:D
-speed:120
-hit-points:1300
-hearing:20
-armor-class:102
-sleepiness:30
-depth:41
-rarity:3
-experience:3000
-blow:BITE:HURT:2d12
-blow:BITE:HURT:2d12
-blow:BITE:HURT:2d12
-blow:BITE:HURT:2d12
-flags:UNIQUE | MALE | POWERFUL
-flags:DROP_4 | DROP_GOOD | ONLY_ITEM
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_ACID | IM_COLD | IM_ELEC | IM_FIRE | IM_NEXUS | NO_CONF
-flags:NO_SLEEP | NO_STUN | NO_HOLD
-innate-freq:4
-spells:BR_ACID | BR_COLD | BR_CHAO | BR_ELEC | BR_FIRE | BR_GRAV
-spells:BR_NEXU | BR_SHAR | BR_SOUN
-desc:A large dragon with a selection of heads, all shouting and arguing as they
-desc: look for prey, but each with its own deadly breath weapon.
 
 ### Dungeon level 42 ###
 
@@ -10158,33 +9720,6 @@ spells:SHAPECHANGE
 shape:will o' the wisp
 shape:time vortex
 desc:A servant of Mandos, the summoner of the spirits of the slain.
-
-name:mature multi-hued dragon
-base:dragon
-color:v
-speed:115
-hit-points:1000
-hearing:20
-armor-class:96
-sleepiness:70
-depth:43
-rarity:1
-experience:1950
-blow:CLAW:HURT:3d12
-blow:CLAW:HURT:3d12
-blow:BITE:HURT:4d12
-flags:DROP_4
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_ACID | IM_COLD | IM_ELEC | IM_FIRE | IM_POIS | NO_CONF
-flags:NO_SLEEP
-flags:ATTR_MULTI
-innate-freq:10
-spell-freq:15
-spells:BLIND | CONF | SCARE
-spells:BR_ACID | BR_COLD | BR_ELEC | BR_FIRE | BR_POIS
-friends:50:1d4:Baby multi-hued dragon
-friends:50:1d2:Young multi-hued dragon
-desc:A large dragon, scales shimmering many colours.
 
 name:Vargo, Tyrant of Fire
 base:elemental
@@ -10381,7 +9916,7 @@ flags:RAND_25 | TAKE_ITEM
 flags:FORCE_SLEEP
 spell-freq:15
 spells:BLIND | CONF | DRAIN_MANA | HOLD
-spells:BO_NETH
+spells:BO_RADI
 friends:100:2d5:Same
 desc:It is a form that screams its presence against the eye.  Death incarnate,
 desc: its hideous black body seems to struggle against reality as the universe
@@ -10475,9 +10010,9 @@ spell-freq:2
 spells:BRAIN_SMASH | WOUND | CONF | DRAIN_MANA | FORGET | MIND_BLAST
 spells:SLOW
 spells:BA_COLD | BA_FIRE
-spells:BO_ACID | BO_MANA | BO_NETH
+spells:BO_ACID | BO_MANA | BO_RADI
 spells:S_UNDEAD
-desc:A beholder which has cheated death.  Black nether storms rage around the
+desc:A beholder which has cheated death.  Black radiation storms rage around the
 desc: bloodshot pupil of its central giant eye, and light seems to bend as it
 desc: sucks its power from the very air around it.  Your soul chills as it
 desc: drains your vitality for its evil enchantments.
@@ -10641,8 +10176,6 @@ flags:FORCE_SLEEP
 spell-freq:2
 spells:BLIND | WOUND | HEAL | HOLD
 spells:S_MONSTER | S_UNDEAD
-drop-base:shadow book:5:1:1
-drop-base:shadow book:10:1:1
 friends:30:1d1:Master thief
 friends:30:1d1:Ranger chieftain
 friends:30:1d1:Sorcerer
@@ -10670,7 +10203,7 @@ blow:BITE:EXP_80:4d6
 flags:DROP_4
 spell-freq:7
 spells:BLIND | BRAIN_SMASH | WOUND | DARKNESS | DRAIN_MANA
-spells:BO_NETH
+spells:BO_RADI
 spells:HOLD | SCARE
 friends:40:1d4:Vampire:servant
 desc:A foul wind chills your bones as this ghastly figure approaches.
@@ -10767,9 +10300,9 @@ blow:CLAW:HURT:3d8
 blow:CLAW:HURT:3d8
 blow:BITE:EXP_40:4d6
 blow:BITE:EXP_40:4d6
-flags:IM_COLD | IM_POIS | IM_NETHER
+flags:IM_COLD | IM_POIS | IM_RADIATION
 innate-freq:6
-spells:BR_DARK | BR_NETH | BR_POIS
+spells:BR_DARK | BR_RADI | BR_POIS
 desc:A terrifying sight: a winged creature greater than any bird you have ever
 desc: seen, and with no feathers on its horrid black leathery wings.  Descended
 desc: from a creature of an older world perhaps, bred by Sauron to be a winged
@@ -10881,7 +10414,7 @@ flags:OPEN_DOOR | BASH_DOOR
 flags:FORCE_SLEEP
 spell-freq:7
 spells:BLIND | WOUND | HOLD | SCARE
-spells:BO_NETH
+spells:BO_RADI
 desc:A figure that seems made of void, its strangely human shape is cloaked in
 desc: shadow.  It reaches out at you.
 
@@ -10906,7 +10439,7 @@ flags:FORCE_SLEEP
 spell-freq:2
 spells:BLIND | BLINK | WOUND | CONF | DARKNESS | HEAL
 spells:TELE_TO
-spells:BA_ACID | BA_COLD | BA_ELEC | BA_FIRE | BA_NETH
+spells:BA_ACID | BA_COLD | BA_ELEC | BA_FIRE | BA_RADI
 spells:BO_MANA
 spells:S_DEMON | S_DRAGON | S_MONSTERS | S_UNDEAD
 desc:A lord of the Teleri, Eöl is a mighty metalsmith, the only one to ever
@@ -10920,151 +10453,6 @@ desc: Gondolin.
 
 
 ### Dungeon level 50 ###
-
-name:ancient blue dragon
-base:ancient dragon
-color:b
-speed:120
-hit-points:1500
-hearing:20
-armor-class:108
-sleepiness:80
-depth:50
-rarity:1
-experience:2500
-blow:CLAW:HURT:6d8
-blow:CLAW:HURT:6d8
-blow:BITE:ELEC:7d8
-flags:BASH_DOOR
-flags:IM_ELEC
-innate-freq:12
-spell-freq:8
-spells:BLIND | CONF | SCARE
-spells:BR_ELEC
-desc:A huge draconic form.  Lightning crackles along its length.
-
-name:ancient white dragon
-base:ancient dragon
-color:w
-speed:120
-hit-points:1500
-hearing:20
-armor-class:108
-sleepiness:80
-depth:50
-rarity:1
-experience:2500
-blow:CLAW:HURT:6d8
-blow:CLAW:HURT:6d8
-blow:BITE:COLD:7d8
-flags:BASH_DOOR
-flags:IM_COLD
-innate-freq:12
-spell-freq:8
-spells:BLIND | CONF | SCARE
-spells:BR_COLD
-desc:A huge draconic form.  Frost covers it from head to tail.
-
-name:ancient green dragon
-base:ancient dragon
-color:g
-speed:120
-hit-points:1500
-hearing:20
-armor-class:108
-sleepiness:80
-depth:50
-rarity:1
-experience:2500
-blow:CLAW:HURT:6d8
-blow:CLAW:HURT:6d8
-blow:BITE:POISON:7d8
-flags:BASH_DOOR
-flags:IM_POIS
-innate-freq:12
-spell-freq:8
-spells:BLIND | CONF | SCARE
-spells:BR_POIS
-desc:A huge draconic form enveloped in clouds of poisonous vapour.
-
-name:death drake
-base:ancient dragon
-color:G
-speed:120
-hit-points:1950
-light:-2
-hearing:25
-armor-class:120
-sleepiness:80
-depth:50
-rarity:2
-experience:11000
-blow:CLAW:HURT:6d10
-blow:CLAW:HURT:6d10
-blow:BITE:EXP_80:7d10
-flags:INVISIBLE
-flags:ONLY_ITEM
-flags:PASS_WALL | TAKE_ITEM
-flags:IM_COLD | IM_NETHER
-innate-freq:12
-spell-freq:6
-spells:CONF | DARKNESS | SCARE | SLOW
-spells:BR_NETH
-desc:It is a dragon-like form wrapped in darkness.  You cannot make out its true
-desc: form but you sense its evil.
-
-name:great crystal drake
-base:ancient dragon
-color:u
-speed:120
-hit-points:1950
-light:1
-hearing:25
-armor-class:120
-sleepiness:80
-depth:50
-rarity:2
-experience:11000
-blow:CLAW:HURT:6d10
-blow:CLAW:HURT:6d10
-blow:BITE:HURT:7d10
-flags:ATTR_FLICKER
-flags:ONLY_ITEM
-flags:BASH_DOOR
-flags:IM_COLD
-innate-freq:12
-spell-freq:6
-spells:CONF | SCARE | SLOW
-spells:BR_SHAR
-color-cycle:fancy:crystal
-desc:A huge crystalline dragon.  Its claws could cut you to shreds and its teeth
-desc: are razor sharp.  Strange colours ripple through it as it moves in the
-desc: light.
-
-name:ethereal dragon
-base:ancient dragon
-color:o
-speed:120
-hit-points:1950
-light:-2
-hearing:25
-armor-class:120
-sleepiness:80
-depth:50
-rarity:2
-experience:11000
-blow:CLAW:HURT:6d10
-blow:CLAW:HURT:6d10
-blow:BITE:CONFUSE:7d10
-flags:INVISIBLE
-flags:ONLY_ITEM
-flags:PASS_WALL
-innate-freq:9
-spell-freq:10
-spells:BLIND | CONF
-spells:BR_DARK | BR_LIGHT
-desc:This terrible dragon is a master of light and dark.  Its form disappears
-desc: from sight as it cloaks itself in unearthly shadows.
 
 name:master mystic
 base:person
@@ -11090,8 +10478,6 @@ flags:FORCE_SLEEP
 spell-freq:3
 spells:HEAL
 spells:S_ANIMAL
-drop-base:nature book:8:1:1
-drop-base:nature book:8:1:1
 friends-base:50:2d4:spider
 desc:A lord of all that is natural, skilled in the mystic ways.  He is a master
 desc: of martial arts and is at one with nature, able to summon help from the
@@ -11117,7 +10503,7 @@ flags:DROP_1 | ONLY_ITEM
 flags:FORCE_SLEEP
 spell-freq:8
 spells:SLOW | TELE_TO
-spells:BO_NETH
+spells:BO_RADI
 desc:A mighty spirit of darkness of vaguely humanoid form.  Razor-edged claws
 desc: reach out to end your life as it glides towards you, seeking to suck the
 desc: energy from your soul to feed its power.
@@ -11155,75 +10541,7 @@ desc: his fury blisters your skin and melts your flesh!
 
 ### Dungeon level 51 ###
 
-name:ancient black dragon
-base:ancient dragon
-color:s
-speed:120
-hit-points:1560
-hearing:20
-armor-class:108
-sleepiness:80
-depth:51
-rarity:1
-experience:2800
-blow:CLAW:HURT:6d9
-blow:CLAW:HURT:6d9
-blow:BITE:ACID:7d9
-flags:BASH_DOOR
-flags:IM_ACID
-innate-freq:12
-spell-freq:8
-spells:BLIND | CONF | SCARE
-spells:BR_ACID
-desc:A huge draconic form.  Pools of acid melt the floor around it.
-
-name:ancient red dragon
-base:ancient dragon
-color:r
-speed:120
-hit-points:1560
-light:2
-hearing:20
-armor-class:108
-sleepiness:80
-depth:51
-rarity:1
-experience:2800
-blow:CLAW:HURT:6d9
-blow:CLAW:HURT:6d9
-blow:BITE:FIRE:7d9
-flags:BASH_DOOR
-flags:IM_FIRE
-innate-freq:12
-spell-freq:8
-spells:BLIND | CONF | SCARE
-spells:BR_FIRE
-desc:A huge draconic form.  Wisps of smoke steam from its nostrils and the
-desc: extreme heat surrounding it makes you gasp for breath.
-
-name:ancient gold dragon
-base:ancient dragon
-color:y
-speed:120
-hit-points:1560
-hearing:20
-armor-class:108
-sleepiness:80
-depth:51
-rarity:1
-experience:2800
-blow:CLAW:HURT:6d9
-blow:CLAW:HURT:6d9
-blow:BITE:HURT:7d9
-flags:BASH_DOOR | NO_STUN
-innate-freq:12
-spell-freq:8
-spells:BLIND | CONF | SCARE
-spells:BR_SOUN
-desc:A huge draconic form wreathed in a nimbus of light.  Its roar stuns and
-desc: deafens you.
-
-name:nether hound
+name:radiation hound
 base:zephyr hound
 color:G
 speed:120
@@ -11240,10 +10558,10 @@ blow:CLAW:HURT:2d12
 blow:BITE:HURT:2d12
 blow:BITE:HURT:2d12
 flags:OPEN_DOOR | BASH_DOOR
-flags:NO_CONF | NO_SLEEP | IM_NETHER
+flags:NO_CONF | NO_SLEEP | IM_RADIATION
 flags:FORCE_SLEEP
 innate-freq:5
-spells:BR_NETH
+spells:BR_RADI
 friends:100:2d7:Same
 desc:You feel a soul-tearing chill upon viewing this beast, a ghostly form of
 desc: darkness in the shape of a large dog.
@@ -11382,33 +10700,6 @@ desc:Ents are not altogether on anybody's side, because nobody is altogether on
 desc: their side.  This one seems quite roused, and does not seem to be on
 desc: your side.
 
-name:Itangast the Fire Drake
-base:ancient dragon
-color:R
-speed:120
-hit-points:2200
-light:2
-hearing:30
-armor-class:144
-sleepiness:70
-depth:52
-rarity:2
-experience:20000
-blow:CLAW:HURT:4d11
-blow:CLAW:HURT:4d11
-blow:BITE:FIRE:4d15
-blow:BITE:FIRE:4d15
-flags:UNIQUE | MALE
-flags:DROP_GOOD | ONLY_ITEM
-flags:BASH_DOOR
-flags:IM_FIRE
-innate-freq:8
-spell-freq:8
-spells:WOUND | CONF
-spells:BR_FIRE
-desc:A mighty ancient dragon, Itangast's form scorches your flesh.  Wisps of
-desc: smoke curl up from his nostrils as he regards you with disdain.
-
 ### Dungeon level 53 ###
 
 name:hezrou
@@ -11436,31 +10727,6 @@ desc:A sluggish demon of lizard form, firing powerful missiles.  From the
 desc: terribly oversized jaws to the stumpy lashing tail, pools of burning
 desc: acid froth and sizzle.
 
-name:ancient multi-hued dragon
-base:ancient dragon
-color:v
-speed:120
-hit-points:2400
-hearing:25
-armor-class:120
-sleepiness:80
-depth:53
-rarity:1
-experience:14000
-blow:CLAW:HURT:6d10
-blow:CLAW:HURT:6d10
-blow:BITE:HURT:7d10
-flags:ONLY_ITEM
-flags:BASH_DOOR
-flags:IM_ACID | IM_COLD | IM_ELEC | IM_FIRE | IM_POIS
-flags:ATTR_MULTI
-innate-freq:6
-spell-freq:13
-spells:BLIND | CONF | SCARE
-spells:BR_ACID | BR_COLD | BR_ELEC | BR_FIRE | BR_POIS
-desc:A huge draconic form.  Many colours ripple down its massive frame.  Few
-desc: live to see another.
-
 name:chaos vortex
 plural:chaos vortices
 base:vortex
@@ -11482,33 +10748,6 @@ flags:ATTR_MULTI
 innate-freq:4
 spells:BR_CHAO
 desc:Void, nothingness, spinning destructively.
-
-name:Scatha the Worm
-base:ancient dragon
-color:W
-speed:120
-hit-points:2500
-hearing:30
-armor-class:156
-sleepiness:70
-depth:53
-rarity:2
-experience:18000
-blow:CLAW:HURT:4d11
-blow:CLAW:HURT:4d11
-blow:CLAW:COLD:4d15
-blow:BITE:COLD:4d15
-flags:UNIQUE | MALE
-flags:DROP_GOOD | ONLY_ITEM
-flags:BASH_DOOR
-flags:IM_COLD
-innate-freq:8
-spell-freq:8
-spells:WOUND | CONF
-spells:BR_COLD
-desc:An ancient and wise Dragon.  Scatha has grown clever over the long years.
-desc:  His scales are covered with frost, and his breath sends a shower of ice
-desc: into the air.
 
 ### Dungeon level 54 ###
 
@@ -11542,33 +10781,6 @@ spells:BR_FIRE | BR_LIGHT | BR_PLAS
 spells:S_KIN
 desc:A massive glowing eagle bathed in flames.  The searing heat chars your skin
 desc: and melts your armour.
-
-name:drolem
-base:golem
-color:g
-speed:120
-hit-points:2200
-hearing:25
-armor-class:195
-sleepiness:80
-depth:54
-rarity:3
-experience:12000
-blow:CLAW:HURT:3d10
-blow:CLAW:HURT:3d10
-blow:BITE:POISON:5d10
-blow:BITE:POISON:5d10
-flags:DRAGON | COLD_BLOOD
-flags:OPEN_DOOR | BASH_DOOR
-flags:IM_COLD | IM_FIRE | IM_POIS
-flags:FORCE_SLEEP
-innate-freq:8
-spell-freq:8
-spells:ARROW | BLIND | CONF | SLOW
-spells:BR_POIS
-desc:A constructed dragon, the drolem has massive strength.  Powerful spells
-desc: weaved during its creation make it a fearsome adversary.  Its eyes show
-desc: little intelligence, but it has been instructed to destroy all it meets.
 
 name:demilich
 plural:demiliches
@@ -11615,13 +10827,13 @@ flags:RAND_25 | TAKE_ITEM
 flags:FORCE_SLEEP
 spell-freq:9
 spells:BLIND | WOUND | CONF | DRAIN_MANA | HOLD | TELE_LEVEL
-spells:BO_NETH
+spells:BO_RADI
 spells:S_UNDEAD
 desc:It is an unlife of power almost unequaled.  An affront to existence, its
 desc: very touch abuses and disrupts the flow of life, and its unearthly limbs,
 desc: of purest black, crush rock and flesh with ease.
 
-name:nether wraith
+name:radiation wraith
 base:wraith
 color:G
 speed:120
@@ -11642,7 +10854,7 @@ flags:PASS_WALL
 flags:FORCE_SLEEP
 spell-freq:6
 spells:BLIND | WOUND | DARKNESS | MIND_BLAST | SCARE
-spells:BO_NETH | BE_NETH
+spells:BO_RADI | BE_RADI
 desc:A form that hurts the eye, death permeates the air around it.  As it nears
 desc: you, a coldness saps your soul.
 
@@ -11680,59 +10892,6 @@ desc:Shelob is an enormous bloated spider, the last daughter of Ungoliant the
 desc: Unlight.  Her poison is legendary, as is her ego.  She normally guards the
 desc: pass through Cirith Ungol, but occasionally goes out foraging for food to
 desc: feed her voracious appetite.
-
-name:dracolich
-plural:dracoliches
-base:ancient dragon
-color:G
-speed:120
-hit-points:3080
-hearing:25
-armor-class:144
-sleepiness:80
-depth:55
-rarity:2
-experience:18000
-blow:CLAW:HURT:6d12
-blow:CLAW:HURT:6d12
-blow:BITE:EXP_80:7d14
-flags:UNDEAD | COLD_BLOOD
-flags:ONLY_ITEM
-flags:BASH_DOOR | TAKE_ITEM
-flags:IM_COLD | IM_POIS | NO_STUN | IM_NETHER
-innate-freq:10
-spell-freq:12
-spells:CONF | SCARE
-spells:BR_COLD | BR_NETH
-desc:The skeletal form of a once-great dragon, enchanted by magic most
-desc: perilous.   Its animated form strikes with speed and drains life from its
-desc: prey to satisfy its hunger.
-
-name:dracolisk
-base:ancient dragon
-color:i
-speed:120
-hit-points:3080
-hearing:25
-armor-class:144
-sleepiness:80
-depth:55
-rarity:2
-experience:18000
-blow:BITE:HURT:6d12
-blow:BITE:HURT:6d12
-blow:BITE:FIRE:7d14
-blow:GAZE:PARALYZE
-flags:ANIMAL
-flags:ONLY_ITEM
-flags:BASH_DOOR
-flags:IM_ACID | IM_FIRE | IM_NEXUS
-innate-freq:10
-spell-freq:12
-spells:HOLD | SCARE
-spells:BR_FIRE | BR_NEXU
-desc:A mixture of dragon and basilisk, the dracolisk stares at you with deep
-desc: piercing eyes, its evil breath burning the ground where it stands.
 
 name:Ar-Pharazôn the Golden
 base:person
@@ -11842,8 +11001,6 @@ flags:FORCE_SLEEP
 spell-freq:3
 spells:HEAL | MIND_BLAST
 spells:S_ANIMAL | S_HOUND | S_SPIDER
-drop-base:nature book:5:1:1
-drop-base:nature book:15:1:1
 friends-base:80:3d5:spider
 desc:He is one of the few true masters of the art, being extremely skillful in
 desc: all forms of unarmed combat and controlling the world's natural creatures
@@ -11898,7 +11055,7 @@ flags:IM_FIRE | IM_POIS | IM_ACID | NO_CONF | NO_SLEEP | NO_HOLD
 innate-freq:4
 spell-freq:9
 spells:SCARE
-spells:BR_FIRE | BR_POIS | BR_ACID | BR_NETH
+spells:BR_FIRE | BR_POIS | BR_ACID | BR_RADI
 spells:S_HYDRA | S_KIN
 desc:A massive legendary hydra, like an 8-headed hydra, but with a massive
 desc: extra head that opens its mighty jaws at you.  Its many eyes
@@ -11960,7 +11117,7 @@ flags:DROP_4
 flags:PASS_WALL
 spell-freq:5
 spells:BRAIN_SMASH | WOUND | DARKNESS | DRAIN_MANA
-spells:BO_NETH
+spells:BO_RADI
 spells:S_UNDEAD
 spells:HOLD | SCARE
 friends-base:30:1d3:ghost
@@ -12127,12 +11284,12 @@ blow:ENGULF:FIRE:5d5
 blow:ENGULF:ACID:5d5
 blow:ENGULF:COLD:5d5
 flags:RAND_25
-flags:IM_ACID | IM_COLD | IM_ELEC | IM_FIRE | IM_NEXUS | IM_NETHER
+flags:IM_ACID | IM_COLD | IM_ELEC | IM_FIRE | IM_NEXUS | IM_RADIATION
 flags:IM_PLASMA | NO_SLOW | NO_STUN
 flags:ATTR_MULTI
 innate-freq:4
 spells:BR_ACID | BR_CHAO | BR_COLD | BR_DARK | BR_ELEC
-spells:BR_FIRE | BR_GRAV | BR_INER | BR_LIGHT | BR_NETH | BR_NEXU
+spells:BR_FIRE | BR_GRAV | BR_INER | BR_LIGHT | BR_RADI | BR_NEXU
 spells:BR_PLAS | BR_POIS | BR_SHAR | BR_SOUN | BR_TIME | BR_WALL
 desc:An awesome vortex of pure magic, power radiates from its frame.
 
@@ -12191,8 +11348,8 @@ flags:OPEN_DOOR | BASH_DOOR
 flags:FORCE_SLEEP
 spell-freq:4
 spells:BLIND | BRAIN_SMASH | WOUND | SCARE
-spells:BA_NETH
-spells:BO_MANA | BO_NETH
+spells:BA_RADI
+spells:BO_MANA | BO_RADI
 spells:S_UNDEAD
 desc:Everywhere colours seem paler and the air chillier.  At the centre of the
 desc: cold stands a mighty figure.  Its wings envelop you in the chill of death
@@ -12251,42 +11408,13 @@ flags:FORCE_SLEEP
 spell-freq:4
 spells:BLIND | BLINK | BRAIN_SMASH | CONF | DRAIN_MANA | HOLD
 spells:TELE_TO | TPORT
-spells:BA_NETH
+spells:BA_RADI
 spells:S_UNDEAD
 friends:50:2d3:Dread:servant
 desc:It is a massive form of animated death, its colour deeper than black.  It
 desc: drinks in light, and space around it is twisted and torn by the weight of
 desc: its evil.  It is unlife and it knows nothing but the stealing of souls
 desc: and the stench of death.  Flee its hunger!
-
-name:Smaug the Golden
-base:ancient dragon
-color:R
-speed:120
-hit-points:4200
-light:2
-hearing:30
-armor-class:195
-sleepiness:120
-depth:62
-rarity:2
-experience:30000
-blow:CLAW:HURT:6d12
-blow:CLAW:HURT:6d12
-blow:BITE:FIRE:7d14
-blow:BITE:FIRE:7d14
-flags:UNIQUE | MALE
-flags:DROP_GOOD | ONLY_ITEM
-flags:BASH_DOOR
-flags:IM_FIRE
-innate-freq:5
-spell-freq:8
-spells:WOUND | CONF
-spells:BR_FIRE
-desc:Smaug is one of the Urulóki that still survive, a fire-drake of immense
-desc: cunning and intelligence.  His speed through air is matched by few other
-desc: dragons and his dragonfire is what legends are made of; he is believed to
-desc: be the greatest dragon still surviving into the Third Age.
 
 ### Dungeon level 63 ###
 
@@ -12308,11 +11436,11 @@ blow:CLAW:POISON:4d10
 blow:CLAW:POISON:4d10
 flags:FORCE_SLEEP | SMART | EVIL
 flags:OPEN_DOOR | BASH_DOOR | MOVE_BODY
-flags:IM_POIS | IM_COLD | IM_FIRE | IM_NETHER
+flags:IM_POIS | IM_COLD | IM_FIRE | IM_RADIATION
 flags:NO_FEAR | NO_CONF | NO_SLEEP
 innate-freq:6
 spell-freq:7
-spells:BR_NETH | BR_DARK
+spells:BR_RADI | BR_DARK
 spells:S_HOUND
 friends:50:2d4:warg:servant
 friends:50:2d3:hellhound:servant
@@ -12400,7 +11528,7 @@ flags:PASS_WALL
 spell-freq:3
 spells:BLINK | WOUND | DRAIN_MANA | FORGET | HEAL | BRAIN_SMASH
 spells:HOLD | SCARE | TELE_TO | TPORT
-spells:BA_NETH
+spells:BA_RADI
 spells:S_DEMON | S_HI_UNDEAD
 desc:A lich who has reached its ultimate evolutionary stage: a completely
 desc: immaterial state.
@@ -12483,7 +11611,7 @@ flags:IM_COLD | IM_ELEC | IM_FIRE | NO_CONF | NO_SLEEP | NO_HOLD
 flags:FORCE_SLEEP
 spell-freq:2
 spells:WOUND | HOLD | TELE_TO | TRAPS
-spells:BA_DARK | BA_FIRE | BA_MANA | BA_NETH | BA_WATE
+spells:BA_DARK | BA_FIRE | BA_MANA | BA_RADI | BA_WATE
 spells:BO_PLAS
 spells:S_HI_DEMON | S_HI_UNDEAD
 desc:The Mouth of Sauron is a mighty spell caster.  So old that even he cannot
@@ -12562,8 +11690,8 @@ flags:IM_FIRE
 flags:FORCE_SLEEP
 spell-freq:1
 spells:BRAIN_SMASH
-spells:BA_NETH
-spells:BO_MANA | BO_NETH
+spells:BA_RADI
+spells:BO_MANA | BO_RADI
 spells:S_UNDEAD
 desc:A bloodshot eyeball floating in the air, you'd be forgiven for assuming it
 desc: harmless.
@@ -12649,7 +11777,7 @@ flags:DROP_4 | DROP_GOOD | ONLY_ITEM
 flags-off:HURT_FIRE
 spell-freq:3
 spells:BLIND | BRAIN_SMASH | WOUND | DRAIN_MANA
-spells:BA_NETH
+spells:BA_RADI
 spells:S_HI_UNDEAD | S_KIN
 spells:HOLD | SCARE
 desc:Chief messenger between Sauron and Morgoth, she is surely the most deadly
@@ -12678,7 +11806,7 @@ flags:FORCE_SLEEP
 spell-freq:2
 spells:BLIND | BRAIN_SMASH | CONF | DRAIN_MANA | FORGET | SCARE
 spells:BA_ACID | BA_COLD | BA_DARK | BA_FIRE
-spells:BO_MANA | BO_NETH
+spells:BO_MANA | BO_RADI
 spells:S_KIN
 desc:A hive mother of the race of beholders, she can summon her brood to her aid
 desc: whenever she wishes.
@@ -12732,7 +11860,7 @@ flags:DROP_4 | DROP_GOOD | ONLY_ITEM
 flags:FORCE_SLEEP
 spell-freq:3
 spells:BLIND | CONF | HOLD
-spells:BA_DARK | BA_NETH
+spells:BA_DARK | BA_RADI
 spells:S_HI_UNDEAD | S_KIN
 desc:This huge affront to existence twists and tears at the fabric of space.  A
 desc: master of mighty magic, Tselakus hungers for your tender flesh.  Darkness
@@ -12762,7 +11890,7 @@ flags:IM_COLD | IM_FIRE | IM_POIS | NO_STUN
 flags:FORCE_SLEEP
 spell-freq:8
 spells:BRAIN_SMASH | WOUND | DRAIN_MANA | TELE_TO
-spells:BA_NETH
+spells:BA_RADI
 spells:S_UNDEAD
 desc:A skeletal form, black as night, constructed from the bones of its previous
 desc: victims.
@@ -12788,10 +11916,10 @@ blow:BITE:HURT:2d12
 blow:BITE:HURT:2d12
 flags:INVISIBLE
 flags:PASS_WALL
-flags:NO_CONF | NO_SLEEP | NO_HOLD | IM_NETHER
+flags:NO_CONF | NO_SLEEP | NO_HOLD | IM_RADIATION
 flags:FORCE_SLEEP
 innate-freq:5
-spells:BR_NETH | BR_DISE | BR_TIME
+spells:BR_RADI | BR_DISE | BR_TIME
 friends:100:2d7:Same
 desc:Bodies of death, receptacles of all foulness, they emerge like smoke from
 desc: the angles of time, ravenous and snarling and unsatisfied.
@@ -12845,15 +11973,15 @@ flags:DROP_2 | ONLY_ITEM
 flags:OPEN_DOOR
 flags:UNDEAD | EVIL | COLD_BLOOD | SPIRIT
 flags:HURT_LIGHT| NO_CONF | NO_SLEEP | NO_STUN | NO_HOLD
-flags:IM_FIRE | IM_COLD | IM_POIS | IM_NETHER
+flags:IM_FIRE | IM_COLD | IM_POIS | IM_RADIATION
 flags:FORCE_SLEEP
 flags-off:HURT_COLD
 innate-freq:25
 spell-freq:4
 spells:BLIND | BRAIN_SMASH | SCARE
-spells:BA_NETH
-spells:BO_MANA | BO_NETH
-spells:BR_NETH
+spells:BA_RADI
+spells:BO_MANA | BO_RADI
+spells:BR_RADI
 spells:S_UNDEAD
 desc:This intensely evil creature bears the form of a gargantuan black worm.
 desc:  Its gaping maw is a void of blackness, acid drips from its steely hide.
@@ -12896,91 +12024,6 @@ desc: spikes.
 
 
 ### Dungeon level 70 ###
-
-name:great storm wyrm
-base:ancient dragon
-color:b
-speed:120
-hit-points:4200
-light:1
-hearing:30
-armor-class:225
-sleepiness:30
-depth:70
-rarity:2
-experience:25000
-blow:CLAW:HURT:6d12
-blow:CLAW:HURT:6d12
-blow:BITE:ELEC:6d14
-blow:BITE:ELEC:6d14
-flags:ATTR_FLICKER
-flags:ONLY_ITEM
-flags:BASH_DOOR
-flags:IM_ELEC
-innate-freq:8
-spell-freq:5
-spells:BLIND | CONF | SCARE
-spells:BR_ELEC
-color-cycle:fancy:storm
-desc:A vast dragon of power.  Storms and lightning crash around its titanic
-desc: form.  Deep blue scales reflect the flashes and highlight the creature's
-desc: great muscles.  It regards you with contempt.
-
-name:great ice wyrm
-base:ancient dragon
-color:w
-speed:120
-hit-points:4200
-hearing:30
-armor-class:225
-sleepiness:30
-depth:70
-rarity:2
-experience:25000
-blow:CLAW:HURT:6d12
-blow:CLAW:HURT:6d12
-blow:BITE:COLD:6d14
-blow:BITE:COLD:6d14
-flags:ATTR_FLICKER
-flags:ONLY_ITEM
-flags:BASH_DOOR
-flags:IM_COLD
-innate-freq:8
-spell-freq:5
-spells:BLIND | CONF | SCARE
-spells:BR_COLD
-color-cycle:fancy:ice
-desc:An immense dragon capable of awesome destruction.  You have never felt such
-desc: extreme cold, or witnessed such an icy stare.  Begone quickly or feel its
-desc: wrath!
-
-name:great swamp wyrm
-base:ancient dragon
-color:g
-speed:120
-hit-points:4200
-hearing:30
-armor-class:225
-sleepiness:30
-depth:70
-rarity:2
-experience:20000
-blow:CLAW:HURT:6d12
-blow:CLAW:HURT:6d12
-blow:BITE:POISON:6d14
-blow:BITE:POISON:6d14
-flags:ATTR_FLICKER
-flags:ONLY_ITEM
-flags:BASH_DOOR
-flags:IM_POIS
-innate-freq:8
-spell-freq:5
-spells:BLIND | CONF | SCARE
-spells:BR_POIS
-color-cycle:fancy:swamp
-desc:A truly enormous dragon with great powers.  The foul gases issuing from the
-desc: beast nearly make you vomit; and while you may try to hold your breath as
-desc: you fight it, it sees no reason to do likewise.
 
 ### Dungeon level 71 ###
 
@@ -13160,92 +12203,6 @@ desc: squelching step of his approach.
 
 ### Dungeon level 73 ###
 
-name:great hell wyrm
-base:ancient dragon
-color:r
-speed:120
-hit-points:4500
-light:2
-hearing:30
-armor-class:225
-sleepiness:30
-depth:73
-rarity:2
-experience:25000
-blow:CLAW:HURT:6d12
-blow:CLAW:HURT:6d12
-blow:BITE:FIRE:6d14
-blow:BITE:FIRE:6d14
-flags:ATTR_FLICKER
-flags:ONLY_ITEM
-flags:BASH_DOOR
-flags:IM_FIRE
-innate-freq:8
-spell-freq:5
-spells:BLIND | CONF | SCARE
-spells:BR_FIRE
-color-cycle:fancy:hell
-desc:A vast dragon of immense power.  Fire leaps continuously from its huge
-desc: form. The air around it scalds you.  Its slightest glance burns you, and
-desc: you truly realize how insignificant you are.
-
-name:great bile wyrm
-base:ancient dragon
-color:s
-speed:120
-hit-points:4500
-hearing:30
-armor-class:225
-sleepiness:30
-depth:73
-rarity:2
-experience:23000
-blow:CLAW:HURT:6d12
-blow:CLAW:HURT:6d12
-blow:BITE:ACID:6d14
-blow:BITE:ACID:6d14
-flags:ATTR_FLICKER
-flags:ONLY_ITEM
-flags:BASH_DOOR
-flags:IM_ACID
-innate-freq:8
-spell-freq:5
-spells:BLIND | CONF | SCARE
-spells:BR_ACID
-color-cycle:fancy:bile
-desc:A huge and very powerful dragon.  Great steaming pools of acid drip from
-desc: its form onto the ground.  You shudder when you see the acid eating away
-desc: the very stones of the dungeon - what could it do to you?
-
-name:great wyrm of thunder
-plural:great wyrms of thunder
-base:ancient dragon
-color:y
-speed:120
-hit-points:4500
-hearing:30
-armor-class:225
-sleepiness:30
-depth:73
-rarity:2
-experience:23000
-blow:CLAW:HURT:6d12
-blow:CLAW:HURT:6d12
-blow:BITE:HURT:6d14
-blow:BITE:HURT:6d14
-flags:ATTR_FLICKER
-flags:ONLY_ITEM
-flags:BASH_DOOR
-flags:NO_STUN
-innate-freq:8
-spell-freq:5
-spells:BLIND | CONF | SCARE
-spells:BR_SOUN
-color-cycle:fancy:thunder
-desc:A dragon of gigantic proportions, with destructive abilities to match.  The
-desc: sheer loudness of its roar leaves you stunned and unable to think clearly
-desc: enough to defend yourself adequately.
-
 name:nightwalker
 base:wraith
 color:v
@@ -13268,8 +12225,8 @@ flags:IM_ELEC | IM_FIRE
 flags:FORCE_SLEEP
 spell-freq:4
 spells:BLIND | BRAIN_SMASH | SCARE
-spells:BA_NETH
-spells:BO_MANA | BO_NETH
+spells:BA_RADI
+spells:BO_MANA | BO_RADI
 spells:S_UNDEAD
 desc:A huge giant garbed in black, it breaks your armour from your back,
 desc: leaving you defenseless against its evil wrath.  It can smell your fear,
@@ -13297,7 +12254,7 @@ flags:IM_ACID | IM_COLD | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP | NO_HOLD
 flags:FORCE_SLEEP
 spell-freq:2
 spells:BLIND | BRAIN_SMASH | CONF | DRAIN_MANA | FORGET | SCARE
-spells:BA_ACID | BA_COLD | BA_DARK | BA_FIRE | BA_NETH
+spells:BA_ACID | BA_COLD | BA_DARK | BA_FIRE | BA_RADI
 spells:BO_MANA
 spells:S_KIN
 desc:A beholder of great size and age, floating in the air.  His gaze seems to
@@ -13324,7 +12281,7 @@ flags:FORCE_SLEEP
 spell-freq:1
 spells:BRAIN_SMASH | WOUND | TRAPS
 spells:BA_WATE
-spells:BO_NETH | BO_PLAS
+spells:BO_RADI | BO_PLAS
 spells:S_UNDEAD
 desc:A glowing skull possessed by sorcerous power.  It need not move, but merely
 desc: blast you with mighty magic as it speaks the words of power.
@@ -13350,7 +12307,7 @@ flags:KILL_WALL
 spell-freq:3
 spells:BLIND | WOUND | CONF | DRAIN_MANA | BRAIN_SMASH
 spells:HOLD | TELE_TO
-spells:BA_MANA | BA_NETH
+spells:BA_MANA | BA_RADI
 spells:S_UNDEAD
 desc:A humanoid form, black as night, advancing steadily and unstoppably, even
 desc: the very rock of the dungeon cannot prevent it reaching you.
@@ -13372,12 +12329,12 @@ blow:CLAW:HURT:3d12
 blow:BITE:HURT:3d12
 blow:BITE:HURT:3d12
 flags:BASH_DOOR
-flags:IM_ACID | IM_COLD | IM_ELEC | IM_FIRE | IM_POIS | IM_DISEN | IM_NETHER
+flags:IM_ACID | IM_COLD | IM_ELEC | IM_FIRE | IM_POIS | IM_DISEN | IM_RADIATION
 flags:IM_NEXUS | IM_PLASMA | NO_CONF | NO_SLEEP | NO_HOLD | NO_SLOW | NO_STUN
 flags:ATTR_MULTI | FORCE_SLEEP
 innate-freq:5
 spells:BR_ACID | BR_CHAO | BR_COLD | BR_DARK | BR_DISE
-spells:BR_ELEC | BR_FIRE | BR_GRAV | BR_INER | BR_LIGHT | BR_NETH
+spells:BR_ELEC | BR_FIRE | BR_GRAV | BR_INER | BR_LIGHT | BR_RADI
 spells:BR_NEXU | BR_PLAS | BR_POIS | BR_SHAR | BR_SOUN | BR_TIME
 spells:BR_WALL
 friends:100:2d7:Same
@@ -13386,66 +12343,6 @@ desc: shapes, though the dominant form is that of a huge dog.  You feel very
 desc: uncertain all of a sudden.
 
 ### Dungeon level 75 ###
-
-name:great wyrm of chaos
-plural:great wyrms of chaos
-base:ancient dragon
-color:v
-speed:120
-hit-points:3960
-hearing:40
-armor-class:255
-sleepiness:20
-depth:75
-rarity:2
-experience:29000
-blow:CLAW:HURT:5d12
-blow:CLAW:HURT:5d12
-blow:BITE:HURT:7d14
-blow:BITE:HURT:7d14
-flags:ONLY_ITEM
-flags:BASH_DOOR
-flags:IM_FIRE | IM_DISEN
-flags:ATTR_MULTI
-innate-freq:5
-spell-freq:5
-spells:BLIND | CONF | SCARE
-spells:BR_CHAO | BR_DISE
-spells:S_DRAGON | S_HI_DRAGON
-desc:A massive dragon of changing form.  As you watch, it appears first fair a$
-desc: then foul.  Its body is twisted by chaotic forces as it strives to stay
-desc: real.  Its very existence distorts the universe around it.
-
-name:great wyrm of law
-plural:great wyrms of law
-base:ancient dragon
-color:B
-speed:120
-hit-points:3960
-hearing:40
-armor-class:255
-sleepiness:20
-depth:75
-rarity:2
-experience:29000
-blow:CLAW:HURT:5d12
-blow:CLAW:HURT:5d12
-blow:BITE:HURT:7d14
-blow:BITE:HURT:7d14
-flags:ATTR_FLICKER
-flags:ONLY_ITEM
-flags:BASH_DOOR
-flags:IM_COLD | NO_STUN
-innate-freq:5
-spell-freq:5
-spells:BLIND | CONF | SCARE
-spells:BR_SHAR | BR_SOUN
-spells:S_DRAGON | S_HI_DRAGON
-color-cycle:fancy:law
-desc:A massive dragon of powerful intellect.  It seeks to dominate the universe
-desc: and despises all other life.  It sees all who do not obey it as mere
-desc: insects to be crushed underfoot.
-
 
 name:Ungoliant, the Unlight
 base:spider
@@ -13508,36 +12405,6 @@ spells:BR_FIRE
 spells:S_DEMON
 desc:A gigantic four-armed animated bronze statue of demonic shape, glowing with
 desc: great heat.
-
-name:Glaurung, Father of the Dragons
-base:ancient dragon
-color:v
-speed:130
-hit-points:7500
-light:2
-hearing:30
-armor-class:210
-sleepiness:20
-depth:75
-rarity:3
-experience:55000
-blow:CLAW:HURT:6d12
-blow:CLAW:HURT:6d12
-blow:BITE:POISON:8d14
-blow:BITE:FIRE:8d14
-flags:UNIQUE | MALE
-flags:DROP_GOOD | DROP_GREAT | ONLY_ITEM
-flags:BASH_DOOR
-flags:IM_FIRE | IM_POIS
-innate-freq:5
-spell-freq:3
-spells:BRAIN_SMASH | FORGET | SCARE
-spells:BR_FIRE | BR_POIS
-spells:S_HI_DRAGON
-desc:Glaurung is the father of all dragons, and was for a long time the most
-desc: powerful.  Though this is no longer so, he still has full command over his
-desc: brood and can command them to appear whenever he so wishes.  He is the
-desc: definition of dragonfire.
 
 ### Dungeon level 76 ###
 
@@ -13604,7 +12471,7 @@ flags:DROP_4 | DROP_GOOD | DROP_GREAT | ONLY_ITEM
 spell-freq:2
 spells:BLIND | BLINK | WOUND | HOLD | SCARE | BRAIN_SMASH
 spells:TELE_TO | TRAPS
-spells:BA_MANA | BA_NETH
+spells:BA_MANA | BA_RADI
 spells:BO_MANA
 spells:S_KIN | S_MONSTERS | S_UNDEAD
 friends:100:2d4:Dread:servant
@@ -13667,7 +12534,7 @@ flags:DROP_2 | DROP_GOOD | ONLY_ITEM
 flags:OPEN_DOOR | BASH_DOOR | MOVE_BODY
 spell-freq:3
 spells:BLIND | WOUND | FORGET | HOLD | SCARE
-spells:BO_COLD | BO_NETH
+spells:BO_COLD | BO_RADI
 spells:S_MONSTER | S_WRAITH
 desc:A tall black cloaked Ringwraith, he is a master of horsemanship.  He longs
 desc: to taste your blood.
@@ -13719,7 +12586,7 @@ flags:OPEN_DOOR | BASH_DOOR | MOVE_BODY
 flags:FORCE_SLEEP
 spell-freq:3
 spells:BLIND | WOUND | FORGET | HOLD | SCARE
-spells:BO_ACID | BO_COLD | BO_FIRE | BO_NETH
+spells:BO_ACID | BO_COLD | BO_FIRE | BO_RADI
 spells:S_MONSTER | S_WRAITH
 desc:A sorceress in life, Adunaphel quickly fell under Sauron's sway and the
 desc: power of the rings.
@@ -13769,7 +12636,7 @@ flags:OPEN_DOOR | BASH_DOOR | MOVE_BODY
 flags:FORCE_SLEEP
 spell-freq:3
 spells:BLIND | WOUND | DARKNESS | HOLD | SCARE
-spells:BO_COLD | BO_FIRE | BO_NETH
+spells:BO_COLD | BO_FIRE | BO_RADI
 spells:S_MONSTERS | S_WRAITH
 desc:A mighty sorcerer King, Akhorahil was blind in life.  With powerful
 desc: enchantments, he created jewelled eyes that enabled him to see better than
@@ -13805,63 +12672,6 @@ spells:WOUND | SCARE | BRAIN_SMASH
 spells:BLINK | TELE_SELF_TO
 spells:S_HI_DEMON
 desc:A female embodiment of rage, intent on tearing your mind and body apart.
-
-name:great wyrm of annihilation
-plural:great wyrms of annihilation
-base:ancient dragon
-color:v
-speed:120
-hit-points:5000
-hearing:40
-armor-class:255
-sleepiness:20
-depth:80
-rarity:2
-experience:31000
-blow:CLAW:HURT:6d12
-blow:CLAW:HURT:6d12
-blow:BITE:HURT:7d14
-blow:BITE:HURT:7d14
-flags:ONLY_ITEM
-flags:BASH_DOOR
-flags:IM_FIRE
-flags:ATTR_MULTI
-innate-freq:5
-spell-freq:5
-spells:BLIND | CONF | SCARE
-spells:BR_POIS | BR_DARK | BR_NETH | BR_CHAO | BR_TIME
-spells:S_DRAGON | S_HI_DRAGON
-desc:A massive dragon of hideous form.  From its shadowy aura comes the stench
-desc: of the underworld.  Its body is twisted by chaotic forces as it strives
-desc: to stay real.  Its very existence distorts the universe around it.
-
-name:sky dragon
-base:ancient dragon
-color:B
-speed:120
-hit-points:5000
-hearing:40
-armor-class:255
-sleepiness:20
-depth:80
-rarity:2
-experience:31000
-blow:CLAW:HURT:6d12
-blow:CLAW:HURT:6d12
-blow:BITE:HURT:7d14
-blow:BITE:HURT:7d14
-flags:ATTR_FLICKER
-flags:ONLY_ITEM
-flags:BASH_DOOR
-flags:IM_COLD | NO_STUN
-innate-freq:5
-spell-freq:5
-spells:BLIND | CONF | SCARE
-spells:BR_ELEC | BR_LIGHT | BR_GRAV | BR_PLAS | BR_WALL
-spells:S_DRAGON | S_HI_DRAGON
-desc:A wrathful dragon, of a breed that even legends do not mention,
-desc: rushing towards you like a thunderbolt.  Few ever face the wyrms
-desc: of the exotic airs; fewer live to tell the tale.
 
 name:Wiruin, the Maelstrom
 base:vortex
@@ -13912,7 +12722,7 @@ flags:FORCE_SLEEP
 spell-freq:3
 spells:BLIND | WOUND | HOLD | SCARE
 spells:BA_FIRE
-spells:BO_FIRE | BO_NETH
+spells:BO_FIRE | BO_RADI
 spells:S_MONSTER | S_WRAITH
 desc:Ren was an insane eastern king who believed himself to be the son of a
 desc: volcano god.  At an early age his sanity was destroyed by a plague that
@@ -13970,70 +12780,12 @@ flags:IM_FIRE
 flags:FORCE_SLEEP
 spell-freq:3
 spells:BLIND | WOUND | HOLD | SCARE
-spells:BA_ACID | BA_COLD | BA_ELEC | BA_FIRE | BA_NETH
+spells:BA_ACID | BA_COLD | BA_ELEC | BA_FIRE | BA_RADI
 spells:S_UNDEAD | S_WRAITH
 desc:This Ringwraith was a weak-minded sorcerer-king who fell easily under
 desc: Sauron's power.
 
 ### Dungeon level 82 ###
-
-name:great wyrm of balance
-plural:great wyrms of balance
-base:ancient dragon
-color:P
-speed:120
-hit-points:5200
-hearing:40
-armor-class:255
-sleepiness:20
-depth:82
-rarity:2
-experience:33000
-blow:CLAW:HURT:6d12
-blow:CLAW:HURT:6d12
-blow:BITE:HURT:7d14
-blow:BITE:HURT:7d14
-flags:ATTR_FLICKER
-flags:ONLY_ITEM
-flags:BASH_DOOR
-flags:IM_COLD | IM_FIRE | IM_DISEN | NO_STUN
-innate-freq:5
-spell-freq:5
-spells:BLIND | CONF | SCARE
-spells:BR_CHAO | BR_DISE | BR_SHAR | BR_SOUN
-spells:S_DRAGON | S_HI_DRAGON
-color-cycle:fancy:balance
-desc:A massive dragon, one of the mightiest of dragonkind.  It is thousands of
-desc: years old and seeks to maintain the Cosmic Balance.  It sees you as an
-desc: upstart troublemaker without the wisdom to control your actions.  It will
-desc: destroy you.
-
-name:great wyrm of many colours
-plural:great wyrms of many colours
-base:ancient dragon
-color:v
-speed:120
-hit-points:5200
-hearing:40
-armor-class:255
-sleepiness:20
-depth:82
-rarity:2
-experience:33000
-blow:CLAW:HURT:6d12
-blow:CLAW:HURT:6d12
-blow:BITE:HURT:7d14
-blow:BITE:HURT:7d14
-flags:ONLY_ITEM
-flags:BASH_DOOR
-flags:IM_ACID | IM_COLD | IM_ELEC | IM_FIRE | IM_POIS
-flags:ATTR_MULTI
-innate-freq:5
-spell-freq:5
-spells:BLIND | CONF | SCARE
-spells:BR_ACID | BR_COLD | BR_ELEC | BR_FIRE | BR_POIS
-spells:S_DRAGON | S_HI_DRAGON
-desc:A gigantic dragon whose scales shimmer in myriad hues.
 
 name:Pazuzu, Lord of Air
 base:major demon
@@ -14084,7 +12836,7 @@ flags:OPEN_DOOR | BASH_DOOR | MOVE_BODY
 flags:FORCE_SLEEP
 spell-freq:3
 spells:BLIND | WOUND | HOLD | SCARE
-spells:BA_FIRE | BA_NETH
+spells:BA_FIRE | BA_RADI
 spells:S_HOUND | S_UNDEAD | S_WRAITH
 desc:Dwar had a special affinity for dogs in life, and can still command them at
 desc: will.  He howls maniacally as he reaches out to destroy you.
@@ -14113,8 +12865,8 @@ flags:OPEN_DOOR | BASH_DOOR | MOVE_BODY
 flags:FORCE_SLEEP
 spell-freq:3
 spells:BLIND | WOUND | HOLD | MIND_BLAST | SCARE
-spells:BA_COLD | BA_NETH
-spells:BE_NETH
+spells:BA_COLD | BA_RADI
+spells:BE_RADI
 spells:S_UNDEAD | S_WRAITH
 desc:A Ringwraith powerful in fell sorcery, he yearns for the life he has lost
 desc: for an unlife of everlasting torment.
@@ -14173,7 +12925,7 @@ flags:IM_ACID | IM_FIRE
 flags:FORCE_SLEEP
 spell-freq:2
 spells:BLIND | WOUND | HOLD | SCARE | TELE_LEVEL
-spells:BA_COLD | BA_FIRE | BA_NETH
+spells:BA_COLD | BA_FIRE | BA_RADI
 spells:BO_MANA
 spells:S_HI_UNDEAD | S_WRAITH
 desc:A warrior-king of the East.  Khamûl is a powerful opponent, his skill in
@@ -14202,7 +12954,7 @@ flags:FORCE_SLEEP
 spell-freq:2
 spell-power:110
 spells:BRAIN_SMASH | WOUND | SCARE | TELE_TO
-spells:BA_NETH | BA_WATE
+spells:BA_RADI | BA_WATE
 spells:BO_ICE | BO_MANA
 spells:S_HI_UNDEAD
 desc:A legion of evil undead druj animating the skeleton of a once mighty
@@ -14263,7 +13015,7 @@ flags:OPEN_DOOR | BASH_DOOR | MOVE_BODY
 flags:FORCE_SLEEP
 spell-freq:2
 spells:BLIND | BRAIN_SMASH | WOUND | HOLD | SCARE | TELE_AWAY
-spells:BA_NETH
+spells:BA_RADI
 spells:BO_MANA
 spells:S_HI_DEMON | S_HI_DRAGON | S_HI_UNDEAD | S_KIN | S_MONSTERS | S_WRAITH
 friends:50:1d1:Winged Horror
@@ -14272,37 +13024,6 @@ desc: Ringwraith, Lord of the Nazgûl, a spear of terror in the hand of Sauron,
 desc: shadow of despair.  His spells are lethal and his combat blows crushingly
 desc: hard.  He moves at speed, and commands legions of evil to do his bidding.
 desc:  It is said that he is fated never to die by the hand of mortal man.
-
-name:Ancalagon the Black
-base:ancient dragon
-color:D
-speed:130
-hit-points:10000
-hearing:40
-armor-class:255
-sleepiness:20
-depth:85
-rarity:3
-experience:45000
-blow:CLAW:HURT:8d12
-blow:CLAW:HURT:8d12
-blow:BITE:HURT:10d14
-blow:BITE:HURT:10d14
-flags:UNIQUE | MALE
-flags:DROP_GOOD | DROP_GREAT | ONLY_ITEM
-flags:BASH_DOOR
-flags:IM_ACID | IM_COLD | IM_ELEC | IM_FIRE | IM_POIS
-innate-freq:4
-spell-freq:10
-spells:BR_ACID | BR_COLD | BR_ELEC | BR_FIRE | BR_POIS
-spells:S_HI_DRAGON | S_KIN
-friends:100:1d1:Kavlax the Many-Headed
-friends:100:1d1:Scatha the Worm
-friends:100:1d1:Itangast the Fire Drake
-friends:100:1d1:Smaug the Golden
-friends:100:1d1:Glaurung, Father of the Dragons
-desc:"Rushing Jaws" is his name, and death is his game; the greatest and most
-desc: terrible of all dragonkind, his power dismayed even the Valar for a time.
 
 ### Dungeon level 86 ###
 
@@ -14459,11 +13180,11 @@ blow:BITE:FIRE:9d12
 flags:UNIQUE | MALE | EVIL | SMART | ATTR_FLICKER
 flags:DROP_4 | DROP_GOOD | ONLY_ITEM
 flags:OPEN_DOOR | BASH_DOOR | MOVE_BODY
-flags:IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP | NO_HOLD | IM_NETHER
+flags:IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP | NO_HOLD | IM_RADIATION
 flags:FORCE_SLEEP
 innate-freq:3
 spell-freq:15
-spells:BR_DARK | BR_FIRE | BR_NETH | BR_POIS
+spells:BR_DARK | BR_FIRE | BR_RADI | BR_POIS
 spells:S_HOUND
 desc:The first guard of Angband, Carcharoth, also known as 'The Red Maw', is the
 desc: greatest wolf to ever walk the earth.  He is highly intelligent and a
@@ -14491,7 +13212,7 @@ flags:DROP_4 | DROP_GOOD | DROP_GREAT | ONLY_ITEM
 flags:IM_ELEC | IM_FIRE
 spell-freq:2
 spells:BLIND | WOUND | SCARE | TPORT | BRAIN_SMASH
-spells:BA_FIRE | BA_MANA | BA_NETH
+spells:BA_FIRE | BA_MANA | BA_RADI
 spells:BO_MANA
 spells:S_HI_DEMON | S_HI_UNDEAD | S_KIN | S_MONSTERS
 friends:50:1d3:mummified chieftain:servant
@@ -14595,7 +13316,7 @@ flags:FORCE_DEPTH
 spell-freq:2
 spell-power:130
 spells:BRAIN_SMASH | WOUND | TELE_LEVEL | TPORT
-spells:BA_DARK | BA_FIRE | BA_NETH
+spells:BA_DARK | BA_FIRE | BA_RADI
 spells:BO_ICE | BO_MANA | BO_PLAS
 spells:SHAPECHANGE
 spells:S_HI_DEMON | S_HI_DRAGON | S_HI_UNDEAD | S_UNIQUE | S_WRAITH
@@ -14633,7 +13354,7 @@ spell-freq:3
 spell-power:105
 spells:BLINK | TPORT | TELE_LEVEL | TELE_SELF_TO
 spells:BLIND | CONF | SCARE | WOUND
-spells:BR_FIRE | BR_NETH | BA_DARK
+spells:BR_FIRE | BR_RADI | BA_DARK
 spells:S_HOUND | S_DRAGON | S_HI_DEMON | S_HI_UNDEAD
 desc:Sauron's form as the mightiest wolf to walk the world.
 
@@ -14687,8 +13408,8 @@ spell-freq:2
 spell-power:130
 spells:BLINK | TPORT | TELE_LEVEL | BLIND | CONF
 spells:BRAIN_SMASH | FORGET
-spells:BO_ICE | BO_PLAS | BE_NETH
-spells:BA_NETH | STORM | BA_DARK | BA_POIS | BA_ACID
+spells:BO_ICE | BO_PLAS | BE_RADI
+spells:BA_RADI | STORM | BA_DARK | BA_POIS | BA_ACID
 spells:S_DRAGON | S_HI_DEMON | S_HI_UNDEAD
 desc:Sauron's form as a vampire, great as a dark cloud across the moon.
 
@@ -14717,7 +13438,7 @@ flags:NO_CONF | NO_SLEEP | NO_HOLD
 flags:FORCE_DEPTH | FORCE_SLEEP
 spell-freq:3
 spells:BRAIN_SMASH
-spells:BA_MANA | BA_NETH
+spells:BA_MANA | BA_RADI
 spells:BO_MANA
 spells:S_HI_DEMON | S_HI_DRAGON | S_HI_UNDEAD | S_MONSTERS | S_UNIQUE
 desc:He is the Master of the Pits of Angband.  His figure is like a black

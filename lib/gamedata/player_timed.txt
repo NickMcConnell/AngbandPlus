@@ -112,6 +112,14 @@ on-end:You are no longer stunned.
 msgt:STUN
 fail:1:PROT_STUN
 
+name:RAD
+desc:radiation
+grade:B:50:Rad:You have radiation sickness.
+grade:b:500:RAD:You have severe radiation sickness.
+grade:v:10000:*RAD*:You have lethal radiation sickness.
+on-end:You no longer have radiation sickness.
+msgt:2:RADI
+
 # Note food grades are in percantages here, and are translated on parsing
 name:FOOD
 desc:nourishment

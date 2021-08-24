@@ -21,6 +21,7 @@
 #include "cmds.h"
 #include "effects.h"
 #include "game-input.h"
+#include "game-world.h"
 #include "generate.h"
 #include "grafmode.h"
 #include "init.h"
@@ -28,7 +29,7 @@
 #include "mon-make.h"
 #include "mon-util.h"
 #include "monster.h"
-#include "obj-curse.h"
+#include "obj-fault.h"
 #include "obj-desc.h"
 #include "obj-gear.h"
 #include "obj-knowledge.h"
@@ -39,6 +40,7 @@
 #include "obj-tval.h"
 #include "obj-util.h"
 #include "object.h"
+#include "player-birth.h"
 #include "player-calcs.h"
 #include "player-timed.h"
 #include "player-util.h"
@@ -362,7 +364,7 @@ static void do_cmd_wiz_change_aux(void)
 	strnfmt(tmp_val, sizeof(tmp_val), "%ld", (long)(player->au));
 
 	/* Query */
-	if (!get_string("Gold: ", tmp_val, 10)) return;
+	if (!get_string("Cash: ", tmp_val, 10)) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -390,6 +392,21 @@ static void do_cmd_wiz_change_aux(void)
 		player_exp_gain(player, tmp_long - player->exp);
 	else
 		player_exp_lose(player, player->exp - tmp_long, false);
+
+	/* Default */
+	strnfmt(tmp_val, sizeof(tmp_val), "%ld", (long)(turn));
+
+	/* Query */
+	if (!get_string("Turn: ", tmp_val, 10)) return;
+
+	/* Extract */
+	tmp_long = atol(tmp_val);
+
+	/* Verify */
+	if (tmp_long < 0) tmp_long = 0L;
+
+	/* Save */
+	turn = tmp_long;
 }
 
 
@@ -430,7 +447,7 @@ static void do_cmd_wiz_change(void)
  *     We create a lot of fake items and see if they are of the
  *     same type (tval and sval), then we compare pval and +AC.
  *     If the fake-item is better or equal it is counted.
- *     Note that cursed items that are better or equal (absolute values)
+ *     Note that faulty items that are better or equal (absolute values)
  *     are counted, too.
  *     HINT: This is *very* useful for balancing the game!
  * - wiz_quantity_item()
@@ -445,7 +462,7 @@ static void do_cmd_wiz_change(void)
  * Note -- You do not have to specify "pval" and other item-properties
  * directly. Just apply magic until you are satisfied with the item.
  *
- * Note -- For some items (such as wands, staffs, some rings, etc), you
+ * Note -- For some items (such as wands, devices, some rings, etc), you
  * must apply magic, or you will get "broken" or "uncharged" objects.
  *
  * Note -- Redefining artifacts via "do_cmd_wiz_play()" may destroy
@@ -699,7 +716,7 @@ static void wiz_create_item_subdisplay(struct menu *m, int oid, bool cursor,
 	c_prt(curs_attrs[CURS_KNOWN][0 != cursor], buf, row, col);
 }
 
-static bool wiz_create_item_subaction(struct menu *m, const ui_event *e, int oid)
+static bool wiz_create_item_subaction(struct menu *m, const ui_event *e, int oid, bool *exit)
 {
 	int *choices = menu_priv(m);
 	int selected = choices[oid];
@@ -771,7 +788,7 @@ static void wiz_create_item_display(struct menu *m, int oid, bool cursor,
 	c_prt(curs_attrs[CURS_KNOWN][0 != cursor], buf, row, col);
 }
 
-static bool wiz_create_item_action(struct menu *m, const ui_event *e, int oid)
+static bool wiz_create_item_action(struct menu *m, const ui_event *e, int oid, bool *exit)
 {
 	ui_event ret;
 	struct menu *menu;
@@ -1029,6 +1046,8 @@ static void wiz_reroll_item(struct object *obj)
 	new->slays = NULL;
 	mem_free(new->brands);
 	new->brands = NULL;
+	mem_free(new->faults);
+	new->faults = NULL;
 
 	/* Main loop. Ask for magification and artifactification */
 	while (true) {
@@ -1078,8 +1097,8 @@ static void wiz_reroll_item(struct object *obj)
 		obj->slays = NULL;
 		mem_free(obj->brands);
 		obj->brands = NULL;
-		mem_free(obj->curses);
-		obj->curses = NULL;
+		mem_free(obj->faults);
+		obj->faults = NULL;
 
 		/* Copy over - slays and brands OK, pile info needs restoring */
 		object_copy(obj, new);
@@ -1306,7 +1325,7 @@ static void wiz_quantity_item(struct object *obj, bool carried)
 		if (tval_can_have_charges(obj))
 			obj->pval = obj->pval * tmp_int / obj->number;
 
-		if (tval_can_have_timeout(obj))
+		if (tval_can_have_timeout(obj) && (!tval_is_light(obj)))
 			obj->timeout = obj->timeout * tmp_int / obj->number;
 
 		/* Accept modifications */
@@ -1316,32 +1335,32 @@ static void wiz_quantity_item(struct object *obj, bool carried)
 
 
 /**
- * Tweak the cursed status of an object.
+ * Tweak the faulty status of an object.
  *
- * \param obj is the object to curse or decurse
+ * \param obj is the object to damage or repair
  */
-static void wiz_tweak_curse(struct object *obj)
+static void wiz_tweak_fault(struct object *obj)
 {
 	const char *p;
 	char tmp_val[80];
 	int val, pval;
 
-	/* Get curse name */
-	p = "Enter curse name or index: ";
+	/* Get fault name */
+	p = "Enter fault name or index: ";
 	strnfmt(tmp_val, sizeof(tmp_val), "0");
 	if (! get_string(p, tmp_val, sizeof(tmp_val))) return;
 
 	/* Accept index or name */
 	val = get_idx_from_name(tmp_val);
 	if (! val) {
-		val = lookup_curse(tmp_val);
+		val = lookup_fault(tmp_val);
 	}
-	if (val <= 0 || val >= z_info->curse_max) {
+	if (val <= 0 || val >= z_info->fault_max) {
 		return;
 	}
 
 	/* Get power */
-	p = "Enter curse power (0 removes): ";
+	p = "Enter fault power (0 removes): ";
 	strnfmt(tmp_val, sizeof(tmp_val), "0");
 	if (! get_string(p, tmp_val, 30)) return;
 	pval = get_idx_from_name(tmp_val);
@@ -1351,20 +1370,20 @@ static void wiz_tweak_curse(struct object *obj)
 
 	/* Apply */
 	if (pval) {
-		append_object_curse(obj, val, pval);
-	} else if (obj->curses) {
-		obj->curses[val].power = 0;
+		append_object_fault(obj, val, pval);
+	} else if (obj->faults) {
+		obj->faults[val].power = 0;
 
-		/* Duplicates logic from non-public check_object_curses(). */
+		/* Duplicates logic from non-public check_object_faults(). */
 		int i;
 
-		for (i = 0; i < z_info->curse_max; i++) {
-			if (obj->curses[i].power) {
+		for (i = 0; i < z_info->fault_max; i++) {
+			if (obj->faults[i].power) {
 				return;
 			}
 		}
-		mem_free(obj->curses);
-		obj->curses = NULL;
+		mem_free(obj->faults);
+		obj->faults = NULL;
 	}
 }
 
@@ -1404,14 +1423,14 @@ static void do_cmd_wiz_play(void)
 		wiz_display_item(obj, all);
 
 		/* Get choice */
-		if (!get_com("[a]ccept [s]tatistics [r]eroll [t]weak [c]urse [q]uantity [k]nown? ", &ch))
+		if (!get_com("[a]ccept [s]tatistics [r]eroll [t]weak [f]ault [q]uantity [k]nown? ", &ch))
 			break;
 
 		if (ch == 'A' || ch == 'a') {
 			changed = true;
 			break;
-		} else if (ch == 'c' || ch == 'C')
-			wiz_tweak_curse(obj);
+		} else if (ch == 'f' || ch == 'F')
+			wiz_tweak_fault(obj);
 		else if (ch == 's' || ch == 'S')
 			wiz_statistics(obj, player->depth);
 		else if (ch == 'r' || ch == 'R')
@@ -1446,6 +1465,29 @@ static void do_cmd_wiz_play(void)
 		msg("Changes ignored.");
 }
 
+static void cure_all()
+{
+	/* Restore hit & spell points */
+	player->chp = player->mhp;
+	player->chp_frac = 0;
+
+	/* Healing */
+	(void)player_clear_timed(player, TMD_BLIND, true);
+	(void)player_clear_timed(player, TMD_CONFUSED, true);
+	(void)player_clear_timed(player, TMD_POISONED, true);
+	(void)player_clear_timed(player, TMD_AFRAID, true);
+	(void)player_clear_timed(player, TMD_PARALYZED, true);
+	(void)player_clear_timed(player, TMD_IMAGE, true);
+	(void)player_clear_timed(player, TMD_STUN, true);
+	(void)player_clear_timed(player, TMD_CUT, true);
+	(void)player_clear_timed(player, TMD_SLOW, true);
+	(void)player_clear_timed(player, TMD_AMNESIA, true);
+	(void)player_clear_timed(player, TMD_RAD, true);
+
+	/* No longer hungry */
+	player_set_timed(player, TMD_FOOD, PY_FOOD_FULL - 1, false);
+}
+
 /**
  * What happens when you cheat death.  Tsk, tsk.
  */
@@ -1457,24 +1499,7 @@ void wiz_cheat_death(void)
 
 	player->is_dead = false;
 
-	/* Restore hit & spell points */
-	player->chp = player->mhp;
-	player->chp_frac = 0;
-	player->csp = player->msp;
-	player->csp_frac = 0;
-
-	/* Healing */
-	(void)player_clear_timed(player, TMD_BLIND, true);
-	(void)player_clear_timed(player, TMD_CONFUSED, true);
-	(void)player_clear_timed(player, TMD_POISONED, true);
-	(void)player_clear_timed(player, TMD_AFRAID, true);
-	(void)player_clear_timed(player, TMD_PARALYZED, true);
-	(void)player_clear_timed(player, TMD_IMAGE, true);
-	(void)player_clear_timed(player, TMD_STUN, true);
-	(void)player_clear_timed(player, TMD_CUT, true);
-
-	/* Prevent starvation */
-	player_set_timed(player, TMD_FOOD, PY_FOOD_MAX - 1, false);
+	cure_all();
 
 	/* Cancel recall */
 	if (player->word_recall)
@@ -1512,46 +1537,23 @@ static void do_cmd_wiz_cure_all(void)
 {
 	int i;
 
-	/* Remove curses */
+	/* Remove faults */
 	for (i = 0; i < player->body.count; i++) {
-		if (player->body.slots[i].obj && player->body.slots[i].obj->curses) {
-			mem_free(player->body.slots[i].obj->curses);
-			player->body.slots[i].obj->curses = NULL;
+		if (player->body.slots[i].obj && player->body.slots[i].obj->faults) {
+			mem_free(player->body.slots[i].obj->faults);
+			player->body.slots[i].obj->faults = NULL;
 		}
 	}
 
 	/* Restore stats */
-	effect_simple(EF_RESTORE_STAT, source_player(), "0", STAT_STR, 0, 0, 0, 0, NULL);
-	effect_simple(EF_RESTORE_STAT, source_player(), "0", STAT_INT, 0, 0, 0, 0, NULL);
-	effect_simple(EF_RESTORE_STAT, source_player(), "0", STAT_WIS, 0, 0, 0, 0, NULL);
-	effect_simple(EF_RESTORE_STAT, source_player(), "0", STAT_DEX, 0, 0, 0, 0, NULL);
-	effect_simple(EF_RESTORE_STAT, source_player(), "0", STAT_CON, 0, 0, 0, 0, NULL);
+	for(int i=0;i<STAT_MAX;i++)
+		effect_simple(EF_RESTORE_STAT, source_player(), "0", STAT_STR+i, 0, 0, 0, 0, NULL);
 
 	/* Restore the level */
 	effect_simple(EF_RESTORE_EXP, source_none(), "0", 0, 0, 0, 0, 0, NULL);
 
-	/* Heal the player */
-	player->chp = player->mhp;
-	player->chp_frac = 0;
-
-	/* Restore mana */
-	player->csp = player->msp;
-	player->csp_frac = 0;
-
 	/* Cure stuff */
-	(void)player_clear_timed(player, TMD_BLIND, true);
-	(void)player_clear_timed(player, TMD_CONFUSED, true);
-	(void)player_clear_timed(player, TMD_POISONED, true);
-	(void)player_clear_timed(player, TMD_AFRAID, true);
-	(void)player_clear_timed(player, TMD_PARALYZED, true);
-	(void)player_clear_timed(player, TMD_IMAGE, true);
-	(void)player_clear_timed(player, TMD_STUN, true);
-	(void)player_clear_timed(player, TMD_CUT, true);
-	(void)player_clear_timed(player, TMD_SLOW, true);
-	(void)player_clear_timed(player, TMD_AMNESIA, true);
-
-	/* No longer hungry */
-	player_set_timed(player, TMD_FOOD, PY_FOOD_FULL - 1, false);
+	cure_all();
 
 	/* Redraw everything */
 	do_cmd_redraw();
@@ -1584,7 +1586,7 @@ static void do_cmd_wiz_jump(void)
 	depth = atoi(tmp_val);
 
 	/* Paranoia */
-	if (depth < 0) depth = 0;
+	if (depth < 0) depth = 0; 
 
 	/* Paranoia */
 	if (depth > z_info->max_depth - 1)
@@ -1635,33 +1637,7 @@ static void do_cmd_wiz_learn(int lev)
  */
 static void do_cmd_rerate(void)
 {
-	int min_value, max_value, i, percent;
-
-	min_value = (PY_MAX_LEVEL * 3 * (player->hitdie - 1)) / 8;
-	min_value += PY_MAX_LEVEL;
-
-	max_value = (PY_MAX_LEVEL * 5 * (player->hitdie - 1)) / 8;
-	max_value += PY_MAX_LEVEL;
-
-	player->player_hp[0] = player->hitdie;
-
-	/* Rerate */
-	while (1)
-	{
-		/* Collect values */
-		for (i = 1; i < PY_MAX_LEVEL; i++)
-		{
-			player->player_hp[i] = randint1(player->hitdie);
-			player->player_hp[i] += player->player_hp[i - 1];
-		}
-
-		/* Legal values */
-		if ((player->player_hp[PY_MAX_LEVEL - 1] >= min_value) &&
-		    (player->player_hp[PY_MAX_LEVEL - 1] <= max_value)) break;
-	}
-
-	percent = (int)(((long)player->player_hp[PY_MAX_LEVEL - 1] * 200L) /
-	                (player->hitdie + ((PY_MAX_LEVEL - 1) * player->hitdie)));
+	roll_hp();
 
 	/* Update and redraw hitpoints */
 	player->upkeep->update |= (PU_HP);
@@ -1669,9 +1645,6 @@ static void do_cmd_rerate(void)
 
 	/* Handle stuff */
 	handle_stuff(player);
-
-	/* Message */
-	msg("Current Life Rating is %d/100.", percent);
 }
 
 
@@ -1997,10 +1970,6 @@ static void do_cmd_wiz_advance(void)
 	/* Heal the player */
 	player->chp = player->mhp;
 	player->chp_frac = 0;
-
-	/* Restore mana */
-	player->csp = player->msp;
-	player->csp_frac = 0;
 
 	/* Get some awesome equipment */
 	/* Artifacts: 3, 5, 12, ...*/

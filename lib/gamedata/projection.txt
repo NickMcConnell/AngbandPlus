@@ -217,21 +217,21 @@ obvious:1
 wake:1
 color:Light Red
 
-code:NETHER
-name:nether
+code:RADIATION
+name:radiation
 type:element
-desc:nether
-player-desc:nether
-blind-desc:something cold
-lash-desc:withering
+desc:radiation
+player-desc:radiation
+blind-desc:something burning
+lash-desc:burning
 numerator:6
 denominator:8+1d4
 divisor:6
 damage-cap:600
-msgt:BR_NETHER
+msgt:BR_RADIATION
 obvious:1
 wake:1
-color:Light Green
+color:Light Blue
 
 code:CHAOS
 name:chaos

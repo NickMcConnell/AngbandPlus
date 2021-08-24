@@ -52,6 +52,7 @@ struct object *object_new(void);
 void object_free(struct object *obj);
 void object_delete(struct object **obj_address);
 void object_pile_free(struct object *obj);
+bool object_destroyed(struct object *obj, struct loc loc);
 
 void pile_insert(struct object **pile, struct object *obj);
 void pile_insert_end(struct object **pile, struct object *obj);

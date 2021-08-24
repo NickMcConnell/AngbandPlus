@@ -76,11 +76,6 @@ static u32b WELLRNG1024a (void){
 }
 /* end WELL RNG */
 
-/**
- * Simple RNG, implemented with a linear congruent algorithm.
- */
-#define LCRNG(X) ((X) * 1103515245 + 12345)
-
 
 /**
  * Whether to use the simple RNG or not.
@@ -96,11 +91,38 @@ static bool rand_fixed = false;
 static u32b rand_fixval = 0;
 
 /**
+ * Keep a copy of the RNG's state
+ */
+void Rand_extract_state(rng_state *state)
+{
+	memcpy(state->state, STATE, sizeof(STATE));
+	state->z0 = z0;
+	state->z1 = z1;
+	state->z2 = z2;
+	state->state_i = state_i;
+}
+
+/**
+ * Restore RNG's state from an external copy
+ */
+void Rand_restore_state(rng_state *state)
+{
+	memcpy(STATE, state->state, sizeof(STATE));
+	z0 = state->z0;
+	z1 = state->z1;
+	z2 = state->z2;
+	state_i = state->state_i;
+}
+
+/**
  * Initialize the complex RNG using a new seed.
  */
 void Rand_state_init(u32b seed)
 {
 	int i, j;
+
+	/* Reset */
+	z0 = z1 = z2 = state_i = 0;
 
 	/* Seed the table */
 	STATE[0] = seed;
@@ -131,6 +153,19 @@ void Rand_init(void)
 	if (Rand_quick) {
 		u32b seed;
 
+#if _POSIX_C_SOURCE >= 199309L
+
+		/* Read the high resolution timer */
+		struct timespec ts;
+		clock_gettime(CLOCK_MONOTONIC, &ts);
+		long lseed = ts.tv_nsec;
+		lseed ^= ts.tv_sec;
+		lseed ^= (lseed >> 30);
+		lseed |= 1;
+		seed = lseed;
+
+#else
+
 		/* Basic seed */
 		seed = (u32b)(time(NULL));
 
@@ -139,6 +174,7 @@ void Rand_init(void)
 		/* Mutate the seed on Unix machines */
 		seed = ((seed >> 3) * (getpid() << 1));
 
+#endif
 #endif
 
 		/* Use the complex RNG */
@@ -149,6 +185,27 @@ void Rand_init(void)
 	}
 }
 
+/* Random 32-bit unsigned */
+u32b Rand_u32b(void)
+{
+	return WELLRNG1024a();
+}
+
+/** Random double.
+ * Produce two 32-bit integers, scale by r*2^-32 and r*2^-64 and add
+ * to give a uniform variate between 0 (inc.) and r (exc.)
+ */
+#define M_RAN_INVM32    2.32830643653869628906e-010
+double Rand_double(double r)
+{
+	u32b low = WELLRNG1024a();
+	u32b high = WELLRNG1024a();
+	double dh = high;
+	dh *= (M_RAN_INVM32 * r);
+	double dl = low;
+	dl *= ((M_RAN_INVM32 * M_RAN_INVM32) * r);
+	return dh + dl;
+}
 
 /**
  * Extract a "random" number from 0 to m - 1, via division.
@@ -280,9 +337,10 @@ static s16b Rand_normal_table[RANDNOR_NUM] = {
  *
  * Note that the binary search takes up to 16 quick iterations.
  */
-s16b Rand_normal(int mean, int stand)
+s32b Rand_normal(int mean, int stand)
 {
-	s16b tmp, offset;
+	s16b tmp;
+	s32b offset;
 
 	s16b low = 0;
 	s16b high = RANDNOR_NUM;
@@ -306,7 +364,7 @@ s16b Rand_normal(int mean, int stand)
 	}
 
 	/* Convert the index into an offset */
-	offset = (s16b)((long)stand * (long)low / RANDNOR_STD);
+	offset = (s32b)((long)stand * (long)low / RANDNOR_STD);
 
 	/* One half should be negative */
 	if (one_in_(2)) return (mean - offset);

@@ -668,6 +668,7 @@ struct visuals_parse_context {
 
 	struct visuals_color_cycle **group_cycles; /**< References to cycles in the group. */
 	size_t max_group_cycles;
+	size_t entry;
 };
 
 /**
@@ -715,6 +716,7 @@ static struct visuals_parse_context *visuals_parse_context_new(void)
 	context->cycle_step_index = 0;
 	context->flicker_color_index = 0;
 	context->flicker_cycle_index = 0;
+	context->entry = BASIC_COLORS;
 	return context;
 }
 
@@ -817,6 +819,85 @@ static struct visuals_cycler *visuals_parse_context_convert(struct visuals_parse
 	}
 
 	return cycler;
+}
+
+/**
+ * Handle a "rgb" row.
+ *
+ * \param parser The visuals parser.
+ * \return A parser error code.
+ */
+static enum parser_error visuals_parse_rgb(struct parser *parser)
+{
+	struct visuals_parse_context *context = parser_priv(parser);
+
+	if (context == NULL) {
+		return PARSE_ERROR_INTERNAL;
+	}
+
+	u32b r = parser_getint(parser, "red");
+	u32b g = parser_getint(parser, "green");
+	u32b b = parser_getint(parser, "blue");
+
+	const char *name = parser_getsym(parser, "name");
+	if (name == NULL) {
+		return PARSE_ERROR_INVALID_COLOR;
+	}
+
+	const char *color_code = NULL;
+	
+	color_code = parser_getsym(parser, "color");
+
+	int attr = color_char_to_attr(color_code[0]);
+
+	if (attr < 0) {
+		return PARSE_ERROR_INVALID_COLOR;
+	}
+	
+	/* Add a new entry to the angband_color_table */
+	u32b entry = context->entry;
+	
+	/* MAX_COLORS may be >128 but 0x80 is magic (used in the map display) */
+	if (entry == 128) {
+		quit_fmt("Too many colors (%s)\n", name);
+		}
+	angband_color_table[entry][1] = r;
+	angband_color_table[entry][2] = g;
+	angband_color_table[entry][3] = b;
+
+	/* Add a new entry to color_table.
+	 * This contains:
+	 * Index character - skip, as extended colors don't have an index character
+	 * Name from the entry
+	 * Colour translations:
+	 *  full			unchanged index
+	 * mono		1 if not black
+	 * vga			closest from the first 16
+	 * blind			COLOUR_L_WHITE/WHITE/SLATE/L_DARK/DARK
+	 * lighter		torchlit: e.g. greeen to L_GREEN
+	 * darker		e.g. L_RED to red, green to slate
+	 * highlight	- this is pretty random. 
+	 * metallic	- so is this
+	 * misc 			- and this - so find the nearest base colour (using the index) and copy that?
+	 */
+	 color_type *base = NULL;
+	 for(int i=0;i<BASIC_COLORS;i++) {
+		 if (color_table[i].index_char == color_code[0]) {
+			 base = color_table+i;
+		 }
+	 }
+	 if (!base) {
+		 quit_fmt("Unable to find a colour table entry for '%c'\n", color_code[0]);
+	 }
+	color_table[entry].index_char = 0;
+	strcpy(color_table[entry].name, name);
+	memcpy(color_table[entry].color_translate, base->color_translate, sizeof(color_table[entry].color_translate));
+	
+	color_table[entry].color_translate[ATTR_FULL] = entry;
+	
+	context->entry++;
+	
+	return PARSE_ERROR_NONE;
 }
 
 /**
@@ -1045,6 +1126,7 @@ static struct parser *visuals_file_parser_init(void)
 	}
 
 	parser_setpriv(parser, context);
+	parser_reg(parser, "rgb int red int green int blue sym name sym color", visuals_parse_rgb);
 	parser_reg(parser, "flicker sym color str name", visuals_parse_flicker);
 	parser_reg(parser, "flicker-color sym color", visuals_parse_flicker_color);
 	parser_reg(parser, "cycle sym group sym name", visuals_parse_cycle);

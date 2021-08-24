@@ -43,8 +43,11 @@ void do_cmd_sleep(struct command *cmd);
 void display_feeling(bool obj_only);
 void do_cmd_feeling(void);
 void do_cmd_mon_command(struct command *cmd);
+void do_cmd_alter_aux(int dir);
+void do_cmd_steal_aux(int dir);
 
 /* cmd-misc.c */
+void do_cmd_abilities(void);
 void do_cmd_wizard(void);
 void do_cmd_suicide(struct command *cmd);
 void do_cmd_note(void);
@@ -56,19 +59,17 @@ void do_cmd_autoinscribe(struct command *cmd);
 void do_cmd_takeoff(struct command *cmd);
 void do_cmd_wield(struct command *cmd);
 void do_cmd_drop(struct command *cmd);
-void do_cmd_read_scroll(struct command *cmd);
-void do_cmd_use_staff(struct command *cmd);
+void do_cmd_run_card(struct command *cmd);
+void do_cmd_use_device(struct command *cmd);
 void do_cmd_aim_wand(struct command *cmd);
 void do_cmd_zap_rod(struct command *cmd);
 void do_cmd_activate(struct command *cmd);
 void do_cmd_eat_food(struct command *cmd);
-void do_cmd_quaff_potion(struct command *cmd);
+void do_cmd_quaff_pill(struct command *cmd);
 void do_cmd_use(struct command *cmd);
 void do_cmd_refill(struct command *cmd);
 void do_cmd_cast(struct command *cmd);
-void do_cmd_study_spell(struct command *cmd);
-void do_cmd_study_book(struct command *cmd);
-void do_cmd_study(struct command *cmd);
+void do_cmd_use_printer(struct command *cmd);
 
 /* cmd-pickup.c */
 int do_autopickup(struct player *p);

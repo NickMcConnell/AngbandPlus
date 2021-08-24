@@ -43,6 +43,7 @@
 #include "player-calcs.h"
 #include "player-path.h"
 #include "player-timed.h"
+#include "player-quest.h"
 #include "player-util.h"
 #include "project.h"
 #include "store.h"
@@ -54,10 +55,15 @@
 void do_cmd_go_up(struct command *cmd)
 {
 	int ascend_to;
+	bool exit = (square(cave, player->grid)->feat == FEAT_EXIT);
+	const char *maze = "You enter a maze of up staircases.";
+	struct quest *quest = NULL;
+	if (player->active_quest >= 0)
+		quest = &player->quests[player->active_quest];
 
 	/* Verify stairs */
 	if (!square_isupstairs(cave, player->grid)) {
-		msg("I see no up staircase here.");
+		msg("I see no way up here.");
 		return;
 	}
 
@@ -66,19 +72,36 @@ void do_cmd_go_up(struct command *cmd)
 		msg("Nothing happens!");
 		return;
 	}
-	
+
 	ascend_to = dungeon_get_next_level(player->depth, -1);
-	
-	if (ascend_to == player->depth) {
-		msg("You can't go up from here!");
-		return;
+
+	/* Exit a quest */
+	if (exit) {
+		/* Paranoia */
+		if (!quest) {
+			msg("OOPS - Can't find quest for this exit");
+		} else {
+			/* If the quest is not complete, verify that the player really intends
+			 * to fail the quest
+			 */
+			if (!(quest->flags & QF_SUCCEEDED))
+				if (!get_check("Leaving now will fail your task. Sure? "))
+					return;
+
+			ascend_to = 0;
+		}
+	} else {
+		if (ascend_to == player->depth) {
+			msg("You can't go up from here!");
+			return;
+		}
 	}
 
 	/* Take a turn */
 	player->upkeep->energy_use = z_info->move_energy;
 
 	/* Success */
-	msgt(MSG_STAIRS_UP, "You enter a maze of up staircases.");
+	msgt(MSG_STAIRS_UP, maze);
 
 	/* Create a way back */
 	player->upkeep->create_up_stair = false;
@@ -95,16 +118,19 @@ void do_cmd_go_up(struct command *cmd)
 void do_cmd_go_down(struct command *cmd)
 {
 	int descend_to = dungeon_get_next_level(player->depth, 1);
+	bool entry = (square(cave, player->grid)->feat == FEAT_ENTRY);
+	struct quest *quest = NULL;
+	const char *maze = "You enter a maze of down staircases.";
 
 	/* Verify stairs */
 	if (!square_isdownstairs(cave, player->grid)) {
-		msg("I see no down staircase here.");
+		msg("I see no way down here.");
 		return;
 	}
 
 	/* Paranoia, no descent from z_info->max_depth - 1 */
 	if (player->depth == z_info->max_depth - 1) {
-		msg("The dungeon does not appear to extend deeper");
+		msg("The fortress does not appear to extend deeper");
 		return;
 	}
 
@@ -116,11 +142,34 @@ void do_cmd_go_down(struct command *cmd)
 			return;
 	}
 
+	/* Enter The Quest! */
+	if (entry) {
+		quest = get_quest_by_grid(player->grid);
+		/* Paranoia */
+		if (!quest) {
+			msg("OOPS - Can't find quest for this entry");
+			return;
+		}
+	}
+
+	/* Check you really meant to enter the quest */
+	if (quest) {
+		char buf[128];
+		snprintf(buf, sizeof(buf), "Are you sure you want to enter the level %d '%s' task? ",
+			quest->level, quest->name);
+		buf[sizeof(buf)-1] = 0;
+		if (!get_check(buf))
+			return;
+		maze = "You descend into the darkness.";
+		descend_to = quest->level;
+		player->active_quest = quest - player->quests;
+	}
+
 	/* Hack -- take a turn */
 	player->upkeep->energy_use = z_info->move_energy;
 
 	/* Success */
-	msgt(MSG_STAIRS_DOWN, "You enter a maze of down staircases.");
+	msgt(MSG_STAIRS_DOWN, maze);
 
 	/* Create a way back */
 	player->upkeep->create_up_stair = true;
@@ -1051,15 +1100,19 @@ void move_player(int dir, bool disarm)
 		struct feature *feat = square_feat(cave, grid);
 		int dam_taken = player_check_terrain_damage(player, grid);
 
-		/* Check if running, or going to cost more than a third of hp */
-		if (player->upkeep->running && dam_taken) {
-			if (!get_check(feat->run_msg)) {
-				player->upkeep->running = 0;
-				step = false;
-			}
-		} else {
-			if (dam_taken > player->chp / 3) {
-				step = get_check(feat->walk_msg);
+		/* Check if running, or going to cost more than a third of hp.
+		 * Confused players go woopsie daisy
+		 **/
+		if (!player->timed[TMD_CONFUSED]) {
+			if (player->upkeep->running && dam_taken) {
+				if (!get_check(feat->run_msg)) {
+					player->upkeep->running = 0;
+					step = false;
+				}
+			} else {
+				if (dam_taken > player->chp / 3) {
+					step = get_check(feat->walk_msg);
+				}
 			}
 		}
 
@@ -1447,7 +1500,7 @@ void do_cmd_sleep(struct command *cmd)
 static const char *obj_feeling_text[] =
 {
 	"Looks like any other level.",
-	"you sense an item of wondrous power!",
+	"you sense an item of unique power!",
 	"there are superb treasures here.",
 	"there are excellent treasures here.",
 	"there are very good treasures here.",
@@ -1456,7 +1509,7 @@ static const char *obj_feeling_text[] =
 	"there may not be much interesting here.",
 	"there aren't many treasures here.",
 	"there are only scraps of junk here.",
-	"there is naught but cobwebs here."
+	"there is nothing but cobwebs here."
 };
 
 /**
@@ -1501,6 +1554,12 @@ void display_feeling(bool obj_only)
 		return;
 	}
 
+	/* Or in a quest */
+	if (player->active_quest >= 0) {
+		msg("You have no intuition about what there might be in this place.");
+		return;
+	}
+
 	/* Display only the object feeling when it's first discovered. */
 	if (obj_only) {
 		disturb(player);
@@ -1509,7 +1568,7 @@ void display_feeling(bool obj_only)
 	}
 
 	/* Players automatically get a monster feeling. */
-	if (cave->feeling_squares < z_info->feeling_need) {
+	if (cave->feeling_squares < feeling_need(player)) {
 		msg("%s.", mon_feeling_text[mon_feeling]);
 		return;
 	}
@@ -1559,7 +1618,7 @@ void do_cmd_mon_command(struct command *cmd)
 	monster_desc(m_name, sizeof(m_name), mon, MDESC_CAPITAL | MDESC_IND_HID);
 
 	switch (cmd->code) {
-		case CMD_READ_SCROLL: {
+		case CMD_RUN_CARD: {
 			/* Actually 'r'elease monster */
 			mon_clear_timed(mon, MON_TMD_COMMAND, MON_TMD_FLG_NOTIFY);
 			player_clear_timed(player, TMD_COMMAND, true);

@@ -2,6 +2,10 @@
 Version Information
 ===================
 
+Xygos is a variant of Angband. The current version is 0.0.1.
+It was forked from Angband part way through 4.2.1; most of the contributions
+to 4.2.2 have also been merged in.
+
 Angband has been maintained and developed by a succession of volunteers since
 it was written in the early 1990s. The current maintainer is Nick McConnell.
 

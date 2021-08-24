@@ -936,7 +936,8 @@ struct monster *choose_nearby_injured_kin(struct chunk *c,
  * Checks for "Quest" completion when a quest monster is killed.
  *
  * Note that only the player can induce "monster_death()" on Uniques.
- * Thus (for now) all Quest monsters should be Uniques.
+ * Thus (for now) all Quest monsters should either be Uniques, or quest completion
+ * should not care whether the monster was killed by (and so next to) the player.
  *
  * If `stats` is true, then we skip updating the monster memory. This is
  * used by stats-generation code, for efficiency.
@@ -1000,8 +1001,67 @@ void monster_death(struct monster *mon, bool stats)
 	if (mon->race->light != 0)
 		player->upkeep->update |= PU_UPDATE_VIEW;
 
+	/* Remove it from the level */
+	square_set_mon(cave, mon->grid, 0);
+
+	/* Fire off any death-spells */
+	for(int i=FLAG_START;i<RSF_MAX;i++) {
+		if (rsf_has(mon->race->death_spell_flags, i)) {
+			do_mon_spell(i, mon, visible);
+		}
+	}
+
 	/* Check if we finished a quest */
 	quest_check(mon);
+}
+
+/** Experience gained by killing a monster
+ * This is modified based on the monster's level vs. yours
+ */
+double mon_exp_value(const struct monster_race *race)
+{
+	/* Experience to gain at equal level */
+	double gain = race->mexp;
+
+	/* Player level */
+	double div = player->lev;
+
+	/* Monster level */
+	double mul = race->level;
+
+	/* Calculate and return value of experience */
+	return (gain * mul) / div;
+}
+
+/**
+ * Gain experience related to a monster.
+ * This is modified based on the monster's level vs. yours
+ */
+static void gain_mon_exp(const struct monster *mon)
+{
+	/* Experience to gain */
+	double new_exp = mon_exp_value(mon->race);
+
+	/* Convert back to integer and fractional components */
+	s32b int_exp = new_exp;
+	assert(int_exp >= 0);
+	double rem_exp = new_exp;
+	rem_exp -= int_exp;
+	rem_exp *= 65536.0;
+	assert(rem_exp < 65536.0);
+	u32b frac_exp = rem_exp;
+
+	/* Gain experience (fractional) */
+	u32b old_exp_frac = player->exp_frac;
+	u32b new_exp_frac = frac_exp + old_exp_frac;
+	if (new_exp_frac >= 0x10000L) {
+		int_exp++;
+		new_exp_frac -= 0x10000L;
+	}
+	player->exp_frac = new_exp_frac;
+
+	/* Gain experience (integer) */
+	player_exp_gain_scaled(player, int_exp);
 }
 
 /**
@@ -1009,7 +1069,6 @@ void monster_death(struct monster *mon, bool stats)
  */
 static void player_kill_monster(struct monster *mon, const char *note)
 {
-	s32b div, new_exp, new_exp_frac;
 	struct monster_lore *lore = get_lore(mon->race);
 	char m_name[80];
 	char buf[80];
@@ -1064,23 +1123,8 @@ static void player_kill_monster(struct monster *mon, const char *note)
 			msgt(soundfx, "You have slain %s.", m_name);
 	}
 
-	/* Player level */
-	div = player->lev;
-
 	/* Give some experience for the kill */
-	new_exp = ((long)mon->race->mexp * mon->race->level) / div;
-
-	/* Handle fractional experience */
-	new_exp_frac = ((((long)mon->race->mexp * mon->race->level) % div)
-					* 0x10000L / div) + player->exp_frac;
-
-	/* Keep track of experience */
-	if (new_exp_frac >= 0x10000L) {
-		new_exp++;
-		player->exp_frac = (u16b)(new_exp_frac - 0x10000L);
-	} else {
-		player->exp_frac = (u16b)new_exp_frac;
-	}
+	gain_mon_exp(mon);
 
 	/* When the player kills a Unique, it stays dead */
 	if (rf_has(mon->race->flags, RF_UNIQUE)) {
@@ -1099,9 +1143,6 @@ static void player_kill_monster(struct monster *mon, const char *note)
 		strnfmt(buf, sizeof(buf), "Killed %s", unique_name);
 		history_add(player, buf, HIST_SLAY_UNIQUE);
 	}
-
-	/* Gain experience */
-	player_exp_gain(player, new_exp);
 
 	/* Generate treasure */
 	monster_death(mon, false);
@@ -1255,6 +1296,10 @@ bool mon_take_nonplayer_hit(int dam, struct monster *t_mon,
  **/
 bool mon_take_hit(struct monster *mon, int dam, bool *fear, const char *note)
 {
+	bool dummy;
+	if (!fear)
+		fear = &dummy;
+
 	/* Redraw (later) if needed */
 	if (player->upkeep->health_who == mon)
 		player->upkeep->redraw |= (PR_HEALTH);
@@ -1308,6 +1353,13 @@ void kill_arena_monster(struct monster *mon)
 	update_mon(old_mon, cave, true);
 	old_mon->hp = -1;
 	player_kill_monster(old_mon, " is defeated!");
+	if (!((cave)->depth)) {
+		delete_monster(old_mon->grid);
+	} else {
+		update_mon(old_mon, cave, true);
+		old_mon->hp = -1;
+		player_kill_monster(old_mon, " is defeated!");
+	}
 }
 
 /**
@@ -1326,6 +1378,28 @@ void monster_take_terrain_damage(struct monster *mon)
 
 		if (fear && monster_is_visible(mon)) {
 			add_monster_message(mon, MON_MSG_FLEE_IN_TERROR, true);
+		}
+	}
+
+	/* Damage the monster */
+	if (square_isradioactive(cave, mon->grid)) {
+		bool fear = false;
+
+		if (!rf_has(mon->race->flags, RF_IM_RADIATION)) {
+			mon_take_nonplayer_hit(20 + randint1(40), mon, MON_MSG_LOOKS_SICK,
+								   MON_MSG_COLLAPSES);
+		}
+
+		if (fear && monster_is_visible(mon)) {
+			add_monster_message(mon, MON_MSG_FLEE_IN_TERROR, true);
+		}
+	}
+
+	/* Damage the monster */
+	if (square_iswater(cave, mon->grid)) {
+		if (!rf_has(mon->race->flags, RF_IM_WATER)) {
+			mon_take_nonplayer_hit(10 + randint1(20), mon, MON_MSG_STRUGGLES,
+								   MON_MSG_DROWNS);
 		}
 	}	
 }
@@ -1456,7 +1530,7 @@ void steal_monster_item(struct monster *mon, int midx)
 
 		/* Monster base reaction, plus allowance for item weight */
 		monster_reaction = guard / 2 + randint1(MAX(guard, 1));
-		monster_reaction += obj->weight / 20;
+		monster_reaction += obj->weight / 900;
 
 		/* Try and steal */
 		if (monster_reaction < steal_skill) {
@@ -1466,7 +1540,7 @@ void steal_monster_item(struct monster *mon, int midx)
 			obj->held_m_idx = 0;
 			pile_excise(&mon->held_obj, obj);
 			if (tval_is_money(obj)) {
-				msg("You steal %d gold pieces worth of treasure.", obj->pval);
+				msg("You steal $%d worth of valuables.", obj->pval);
 				player->au += obj->pval;
 				delist_object(cave, obj);
 				object_delete(&obj);

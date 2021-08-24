@@ -37,6 +37,10 @@ typedef enum
 
 /*** Functions ***/
 
+bool enchant(struct object *obj, int n, int eflag);
+bool enchant_spell(int num_hit, int num_dam, int num_ac, struct command *cmd);
+void brand_object(struct object *obj, const char *name);
+
 void free_effect(struct effect *source);
 bool effect_valid(const struct effect *effect);
 bool effect_aim(const struct effect *effect);

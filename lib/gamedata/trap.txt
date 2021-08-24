@@ -218,14 +218,26 @@ visibility:0
 
 # rune -- teleport
 
-name:strange rune:teleport rune
+name:strange markings:portal
+graphics:^:r
+appear:1:1:0
+visibility:30+d30
+flags:TRAP | FLOOR | MAGICAL
+effect:PORTAL
+dice:M80
+desc:A hidden device which teleports you to another portal.
+msg:You stepped through a portal!
+
+# rune -- teleport
+
+name:strange markings:teleport trap
 graphics:^:o
 appear:1:1:0
 visibility:30+d30
 flags:TRAP | FLOOR | MAGICAL
 effect:TELEPORT
 dice:M80
-desc:A magical rune which teleports you to a random location.
+desc:A hidden device which teleports you to a random location.
 msg:You hit a teleport trap!
 
 # spot -- fire
@@ -240,6 +252,19 @@ dice:4d$S
 expr:S:DUNGEON_LEVEL:/ 2
 desc:A strange coloured spot on the ground - beware its fiery attack.
 msg:You are enveloped in flames!
+
+# spot -- radiation -- wide, so there is some chance of fallout
+
+name:discolored spot:radiation trap
+graphics:^:b
+appear:1:2:0
+visibility:20
+flags:TRAP | FLOOR | MAGICAL
+effect:SPOT:RADIATION:5
+dice:4d$S
+expr:S:DUNGEON_LEVEL:/ 2
+desc:A strange coloured spot on the ground - beware its radioactive attack.
+msg:Glowing dust fountains up, settling on and around you.
 
 # spot -- acid
 
@@ -540,19 +565,6 @@ effect:DRAIN_LIGHT
 dice:100+1d100
 desc:A trap that envelops you in darkness.
 msg:Everything starts to fade...
-
-# mana drain
-
-name:trap:mana drain trap
-graphics:^:light purple
-appear:1:5:0
-visibility:50+d10
-flags:TRAP | FLOOR | MAGICAL
-effect:DRAIN_MANA
-dice:1d$D
-expr:D:DUNGEON_LEVEL:/ 2 + 1
-msg:You feel your energies sap away.
-desc:A trap that drains your mana.
 
 # whirling knives
 # XXX ideally this would have an effect that wasn't cured in one turn

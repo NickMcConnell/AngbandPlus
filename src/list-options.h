@@ -85,13 +85,13 @@ OP(birth_lose_arts,       "Lose artifacts when leaving level",
 BIRTH, false)
 OP(birth_feelings,        "Show level feelings",
 BIRTH, true)
-OP(birth_no_selling,      "Increase gold drops but disable selling",
-BIRTH, true)
+OP(birth_no_selling,      "Increase cash drops but disable selling",
+BIRTH, false)
 OP(birth_start_kit,       "Start with a kit of useful gear",
 BIRTH, true)
 OP(birth_ai_learn,        "Monsters learn from their mistakes",
 BIRTH, true)
-OP(birth_know_runes,      "Know all runes on birth",
+OP(birth_know_icons,      "Know all icons on birth",
 BIRTH, false)
 OP(birth_know_flavors,    "Know all flavors on birth",
 BIRTH, false)
@@ -99,4 +99,6 @@ OP(birth_levels_persist,  "Persistent levels (experimental)",
 BIRTH, false)
 OP(birth_percent_damage,  "To-damage is a percentage of dice (experimental)",
 BIRTH, false)
+OP(birth_time_limit,      "Difficulty increases over time",
+BIRTH, true)
 

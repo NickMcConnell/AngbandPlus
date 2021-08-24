@@ -41,7 +41,7 @@ void object_base_name(char *buf, size_t max, int tval, bool plural)
 /**
  * Puts a very stripped-down version of an object's name into buf.
  * If easy_know is true, then the IDed names are used, otherwise
- * flavours, scroll names, etc will be used.
+ * flavours, card names, etc will be used.
  *
  * Just truncates if the buffer isn't big enough.
  */
@@ -59,17 +59,12 @@ void object_kind_name(char *buf, size_t max, const struct object_kind *kind,
 
 
 /**
- * A modifier string, put where '#' goes in the basename below.  The weird
- * games played with book names are to allow the non-essential part of the
- * name to be abbreviated when there is not much room to display.
+ * A modifier string, put where '#' goes in the basename below.
  */
 static const char *obj_desc_get_modstr(const struct object_kind *kind)
 {
 	if (tval_can_have_flavor_k(kind))
 		return kind->flavor ? kind->flavor->text : "";
-
-	if (tval_is_book_k(kind))
-		return kind->name;
 
 	return "";
 }
@@ -96,27 +91,7 @@ static const char *obj_desc_get_basename(const struct object *obj, bool aware,
 	/* Analyze the object */
 	switch (obj->tval)
 	{
-		case TV_FLASK:
-		case TV_CHEST:
-		case TV_SHOT:
-		case TV_BOLT:
-		case TV_ARROW:
-		case TV_BOW:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_DIGGING:
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_CLOAK:
-		case TV_CROWN:
-		case TV_HELM:
-		case TV_SHIELD:
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
-		case TV_LIGHT:
-		case TV_FOOD:
+		default:
 			return obj->kind->name;
 
 		case TV_AMULET:
@@ -125,50 +100,20 @@ static const char *obj_desc_get_basename(const struct object *obj, bool aware,
 		case TV_RING:
 			return (show_flavor ? "& # Ring~" : "& Ring~");
 
-		case TV_STAFF:
-			return (show_flavor ? "& # Sta|ff|ves|" : "& Sta|ff|ves|");
+		case TV_DEVICE:
+			return (show_flavor ? "& # device~" : "&~");
 
 		case TV_WAND:
-			return (show_flavor ? "& # Wand~" : "& Wand~");
+			return (show_flavor ? "& # gun~" : "&~");
 
 		case TV_ROD:
-			return (show_flavor ? "& # Rod~" : "& Rod~");
+			return (show_flavor ? "& # gadget~" : "&~");
 
-		case TV_POTION:
-			return (show_flavor ? "& # Potion~" : "& Potion~");
+		case TV_PILL:
+			return (show_flavor ? "& # pill~" : "& pill~");
 
-		case TV_SCROLL:
-			return (show_flavor ? "& Scroll~ titled #" : "& Scroll~");
-
-		case TV_MAGIC_BOOK:
-			if (terse)
-				return "& Book~ #";
-			else
-				return "& Book~ of Magic Spells #";
-
-		case TV_PRAYER_BOOK:
-			if (terse)
-				return "& Book~ #";
-			else
-				return "& Holy Book~ of Prayers #";
-
-		case TV_NATURE_BOOK:
-			if (terse)
-				return "& Book~ #";
-			else
-				return "& Book~ of Nature Magics #";
-
-		case TV_SHADOW_BOOK:
-			if (terse)
-				return "& Tome~ #";
-			else
-				return "& Necromantic Tome~ #";
-
-		case TV_OTHER_BOOK:
-			if (terse)
-				return "& Book~ #";
-			else
-				return "& Book of Mysteries~ #";
+		case TV_CARD:
+			return (show_flavor ? "& card~ titled #" : "& card~");
 
 		case TV_MUSHROOM:
 			return (show_flavor ? "& # Mushroom~" : "& Mushroom~");
@@ -302,6 +247,8 @@ static size_t obj_desc_name(char *buf, size_t max, size_t end,
 	
 	/* Actual name for flavoured objects if aware, or in store, or spoiled */
 	bool aware = object_flavor_is_aware(obj) || store || spoil;
+	bool mimic = (obj->kind->flavor && kf_has(obj->kind->kind_flags, KF_MIMIC_KNOW) );
+
 	/* Pluralize if (not forced singular) and
 	 * (not a known/visible artifact) and
 	 * (not one in stack or forced plural) */
@@ -309,27 +256,46 @@ static size_t obj_desc_name(char *buf, size_t max, size_t end,
 		!obj->artifact &&
 		(obj->number != 1 || (mode & ODESC_PLURAL));
 	const char *basename = obj_desc_get_basename(obj, aware, terse, mode);
+	if (mimic && !aware)
+		basename = obj->kind->flavor->text;
 	const char *modstr = obj_desc_get_modstr(obj->kind);
 
 	/* Quantity prefix */
 	if (prefix)
-		end = obj_desc_name_prefix(buf, max, end, obj, basename, modstr, terse);
+		end = obj_desc_name_prefix(buf, max , end, obj, basename, modstr, terse);
+
+	if (aware && obj->kind->flavor && obj->tval != TV_FOOD && obj->tval != TV_LIGHT) {
+		const char *space = " ";
+
+		/* Contract "foo- pill" into "foo-pill", and don't put a space between an item name
+		 * and suffix when it doesn't take a class name
+		 **/
+		const char *spacename = obj->kind->name;
+		if ((obj->tval == TV_WAND) || (obj->tval == TV_DEVICE) || (obj->tval == TV_ROD) ||
+			(!isalpha(spacename[strlen(spacename)-1])))
+				space = "";
+
+		strnfcat(buf, max, &end, "%s%s", obj->kind->name, space);
+	}
 
 	/* Base name */
 	end = obj_desc_name_format(buf, max, end, basename, modstr, plural);
 
 	/* Append extra names of various kinds */
+	
 	if (object_is_known_artifact(obj))
 		strnfcat(buf, max, &end, " %s", obj->artifact->name);
-	else if ((obj->known->ego && !(mode & ODESC_NOEGO)) || (obj->ego && store))
+	else if ((obj->known->ego && obj->ego && !(mode & ODESC_NOEGO)) || (obj->ego && store))
 		strnfcat(buf, max, &end, " %s", obj->ego->name);
-	else if (aware && !obj->artifact &&
-			 (obj->kind->flavor || obj->kind->tval == TV_SCROLL)) {
-		if (terse)
-			strnfcat(buf, max, &end, " '%s'", obj->kind->name);
-		else
-			strnfcat(buf, max, &end, " of %s", obj->kind->name);
-	}
+	/*else if (aware && !obj->artifact &&
+			 (obj->kind->flavor || obj->kind->tval == TV_CARD)) {
+		if (!mimic) {
+			if (terse)
+				strnfcat(buf, max, &end, " '%s'", obj->kind->name);
+			else
+				strnfcat(buf, max, &end, " of %s", obj->kind->name);
+		}
+	}*/
 
 	return end;
 }
@@ -386,7 +352,7 @@ static size_t obj_desc_combat(const struct object *obj, char *buf, size_t max,
 	/* Show weapon bonuses if we know of any */
 	if (player->obj_k->to_h && player->obj_k->to_d &&
 		(tval_is_weapon(obj) || obj->to_d ||
-		 (obj->to_h && !tval_is_body_armor(obj)) ||
+		 (obj->to_h && !tval_is_body_armor(obj) && !(obj->tval == TV_BOOTS)) ||
 		 (!object_has_standard_to_h(obj) && !obj->artifact && !obj->ego))) {
 		/* In general show full combat bonuses */
 		strnfcat(buf, max, &end, " (%+d,%+d)", obj->to_h, obj->to_d);
@@ -394,10 +360,10 @@ static size_t obj_desc_combat(const struct object *obj, char *buf, size_t max,
 		/* Special treatment for body armor with only a to-hit penalty */
 		strnfcat(buf, max, &end, " (%+d)", obj->to_h);
 	} else if (obj->to_d != 0 && player->obj_k->to_d) {
-		/* To-dam rune known only */
+		/* To-dam icon known only */
 		strnfcat(buf, max, &end, " (%+d)", obj->to_d);
 	} else if (obj->to_h != 0 && player->obj_k->to_h) {
-		/* To-hit rune known only */
+		/* To-hit icon known only */
 		strnfcat(buf, max, &end, " (%+d)", obj->to_h);
 	}
 
@@ -420,8 +386,10 @@ static size_t obj_desc_combat(const struct object *obj, char *buf, size_t max,
 static size_t obj_desc_light(const struct object *obj, char *buf, size_t max,
 							 size_t end)
 {
-	/* Fuelled light sources get number of remaining turns appended */
-	if (tval_is_light(obj) && !of_has(obj->flags, OF_NO_FUEL))
+	/* Fuelled light sources get number of remaining turns appended. Lights that don't require fuel or
+	 * which should be indistinguishable from other lights when unIDed don't.
+	 **/
+	if (tval_is_light(obj) && !of_has(obj->flags, OF_NO_FUEL) && kf_has(obj->kind->kind_flags, KF_EASY_KNOW))
 		strnfcat(buf, max, &end, " (%d turns)", obj->timeout);
 
 	return end;
@@ -478,16 +446,33 @@ static size_t obj_desc_charges(const struct object *obj, char *buf, size_t max,
 {
 	bool aware = object_flavor_is_aware(obj) || (mode & ODESC_STORE);
 
-	/* Wands and staffs have charges, others may be charging */
+	/* Wands and devices have charges, others may be charging */
 	if (aware && tval_can_have_charges(obj)) {
 		strnfcat(buf, max, &end, " (%d charge%s)", obj->pval,
 				 PLURAL(obj->pval));
 	} else if (obj->timeout > 0) {
-		if (tval_is_rod(obj) && obj->number > 1)
-			strnfcat(buf, max, &end, " (%d charging)", number_charging(obj));
-		else if (tval_is_rod(obj) || obj->activation || obj->effect)
-			/* Artifacts, single rods */
-			strnfcat(buf, max, &end, " (charging)");
+		if (tval_can_have_timeout(obj)) {
+			/* Lights are 'lit' if they have less than max timeout.
+			 * Lights must also be allowed to be 'charging', because they may have activations.
+			 * This assumes that nothing with fuel will also have an activation.
+			 */
+			const char *charging = "charging";
+			if (tval_is_light(obj)) {
+				if ((obj->timeout < randcalc(obj->kind->pval, 0, AVERAGE)) && (of_has(obj->flags, OF_BURNS_OUT)))
+					charging = "lit";
+				else if (!(of_has(obj->flags, OF_NO_FUEL)))
+					return end;
+				if ((of_has(obj->flags, OF_NO_FUEL))) {
+					if (obj->timeout == randcalc(obj->kind->pval, 0, AVERAGE))
+						return end;
+				}
+			}
+			if (obj->number > 1)
+				strnfcat(buf, max, &end, " (%d %s)", number_charging(obj), charging);
+			else if (tval_can_have_timeout(obj) || obj->activation || obj->effect)
+				/* Artifacts, single rods */
+				strnfcat(buf, max, &end, " (%s)", charging);
+		}
 	}
 
 	return end;
@@ -514,16 +499,20 @@ static size_t obj_desc_inscrip(const struct object *obj, char *buf,
 			u[n++] = "tried";
 	}
 
-	/* Note curses */
-	if (obj->known->curses)
-		u[n++] = "cursed";
+	/* Note faults */
+	if (obj->known->faults)
+		u[n++] = "faulty";
 
 	/* Note ignore */
 	if (ignore_item_ok(obj))
 		u[n++] = "ignore";
 
+	/* Note quest */
+	if (of_has(obj->flags, OF_QUEST_SPECIAL))
+		u[n++] = "special";
+
 	/* Note unknown properties */
-	if (!object_runes_known(obj) && (obj->known->notice & OBJ_NOTICE_ASSESSED))
+	if (!object_icons_known(obj) && (obj->known->notice & OBJ_NOTICE_ASSESSED))
 		u[n++] = "??";
 
 	if (n) {
@@ -552,10 +541,10 @@ static size_t obj_desc_aware(const struct object *obj, char *buf, size_t max,
 {
 	if (!object_flavor_is_aware(obj)) {
 		strnfcat(buf, max, &end, " {unseen}");
-	} else if (!object_runes_known(obj)) {
+	} else if (!object_icons_known(obj)) {
 		strnfcat(buf, max, &end, " {??}");
-	} else if (obj->known->curses) {
-		strnfcat(buf, max, &end, " {cursed}");
+	} else if (obj->known->faults) {
+		strnfcat(buf, max, &end, " {faulty}");
 	}
 
 	return end;
@@ -590,7 +579,7 @@ size_t object_desc(char *buf, size_t max, const struct object *obj, int mode)
 	if (!obj || !obj->known)
 		return strnfmt(buf, max, "(nothing)");
 
-	/* Unknown itema and cash get straightforward descriptions */
+	/* Unknown items and cash get straightforward descriptions */
 	if (obj->known && obj->kind != obj->known->kind) {
 		if (prefix)
 			return strnfmt(buf, max, "an unknown item");
@@ -598,12 +587,12 @@ size_t object_desc(char *buf, size_t max, const struct object *obj, int mode)
 	}
 
 	if (tval_is_money(obj))
-		return strnfmt(buf, max, "%d gold pieces worth of %s%s",
+		return strnfmt(buf, max, "$%d worth of %s%s",
 				obj->pval, obj->kind->name,
 				ignore_item_ok(obj) ? " {ignore}" : "");
 
 	/* Egos and kinds whose name we know are seen */
-	if (obj->known->ego && !spoil)
+	if (obj->known->ego && obj->ego && !spoil)
 		obj->ego->everseen = true;
 
 	if (object_flavor_is_aware(obj) && !spoil)

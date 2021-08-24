@@ -41,6 +41,7 @@
 #include "player-timed.h"
 #include "trap.h"
 #include "ui-term.h"
+#include "world.h"
 
 
 /**
@@ -96,7 +97,7 @@ static void wr_item(const struct object *obj)
 	wr_s16b(obj->pval);
 
 	wr_byte(obj->number);
-	wr_s16b(obj->weight);
+	wr_s32b(obj->weight);
 
 	if (obj->artifact) {
 		wr_string(obj->artifact->name);
@@ -160,12 +161,12 @@ static void wr_item(const struct object *obj)
 		wr_byte(0);
 	}
 
-	/* Write curses if any */
-	if (obj->curses) {
+	/* Write faults if any */
+	if (obj->faults) {
 		wr_byte(1);
-		for (i = 0; i < z_info->curse_max; i++) {
-			wr_byte(obj->curses[i].power);
-			wr_u16b(obj->curses[i].timeout);
+		for (i = 0; i < z_info->fault_max; i++) {
+			wr_byte(obj->faults[i].power);
+			wr_u16b(obj->faults[i].timeout);
 		}
 	} else {
 		wr_byte(0);
@@ -384,7 +385,7 @@ void wr_object_memory(void)
 	wr_byte(ELEM_MAX);
 	wr_byte(z_info->brand_max);
 	wr_byte(z_info->slay_max);
-	wr_byte(z_info->curse_max);
+	wr_byte(z_info->fault_max);
 
 	/* Kind knowledge */
 	for (k_idx = 0; k_idx < z_info->k_max; k_idx++) {
@@ -401,19 +402,51 @@ void wr_object_memory(void)
 	}
 }
 
-
-void wr_quests(void)
+void rdwr_quests(void)
 {
-	int i;
-
 	/* Dump the quests */
-	wr_u16b(z_info->quest_max);
-	for (i = 0; i < z_info->quest_max; i++) {
-		wr_byte(player->quests[i].level);
-		wr_u16b(player->quests[i].cur_num);
+	for (int i = 0; i < z_info->quest_max; i++) {
+		rdwr_byte(&player->quests[i].level);
+		rdwr_s32b(&player->quests[i].cur_num);
+		rdwr_s32b(&player->quests[i].max_num);
+		rdwr_u32b(&player->quests[i].flags);
+		rdwr_u16b(&player->quests[i].x);
+		rdwr_u16b(&player->quests[i].y);
+		rdwr_s32b(&player->quests[i].town);
+		rdwr_s32b(&player->quests[i].store);
 	}
 }
 
+void rdwr_world(void)
+{
+	rdwr_u32b(&world_town_seed);
+	for(int i=0;i<z_info->town_max;i++) {
+		rdwr_u32b(&t_info[i].connections);
+		rdwr_string(&t_info[i].name);
+		rdwr_string(&t_info[i].geography);
+		rdwr_string(&t_info[i].underground);
+		rdwr_bool(&t_info[i].lake);
+		rdwr_byte(&t_info[i].lava_num);
+		if ((!(t_info[i].connect)) && (t_info[i].connections))
+			t_info[i].connect = mem_zalloc(sizeof(t_info[i].connect[0]) * t_info[i].connections);
+		for(int j=0; j<(int)t_info[i].connections; j++) {
+			RDWR_PTR(&t_info[i].connect[j], t_info);
+		}
+	}
+}
+
+void wr_quests(void)
+{
+	/* Dump the quests */
+	rdwr_u16b(&z_info->quest_max);
+	rdwr_quests();
+}
+
+void wr_world(void)
+{
+	wr_u16b(z_info->town_max);
+	rdwr_world();
+}
 
 void wr_player(void)
 {
@@ -427,16 +460,17 @@ void wr_player(void)
 
 	/* Race/Class/Gender/Spells */
 	wr_string(player->race->name);
+	wr_string(player->extension->name);
 	wr_string(player->shape->name);
 	wr_string(player->class->name);
 	wr_byte(player->opts.name_suffix);
 
-	wr_byte(player->hitdie);
+	wr_u32b(player->hitdie);
 	wr_byte(player->expfact);
 
 	wr_s16b(player->age);
 	wr_s16b(player->ht);
-	wr_s16b(player->wt);
+	wr_s32b(player->wt);
 
 	/* Dump the stats (maximum and current and birth and swap-mapping) */
 	wr_byte(STAT_MAX);
@@ -446,8 +480,7 @@ void wr_player(void)
 	for (i = 0; i < STAT_MAX; ++i) wr_s16b(player->stat_birth[i]);
 
 	wr_s16b(player->ht_birth);
-	wr_s16b(player->wt_birth);
-	wr_s16b(0);
+	wr_s32b(player->wt_birth);
 	wr_u32b(player->au_birth);
 
 	/* Player body */
@@ -473,14 +506,15 @@ void wr_player(void)
 	wr_s16b(player->chp);
 	wr_u16b(player->chp_frac);
 
-	wr_s16b(player->msp);
-	wr_s16b(player->csp);
-	wr_u16b(player->csp_frac);
+	wr_u16b(player->talent_points);
 
 	/* Max Player and Dungeon Levels */
 	wr_s16b(player->max_lev);
 	wr_s16b(player->max_depth);
 	wr_s16b(player->recall_depth);
+	wr_s16b(player->danger);
+
+	RDWR_PTR(&(player->town), t_info);
 
 	/* More info */
 	wr_s16b(0);	/* oops */
@@ -493,6 +527,9 @@ void wr_player(void)
 	wr_s16b(player->energy);
 	wr_s16b(player->word_recall);
 
+	for (i = 0; i < total_spells; i++)
+		wr_s32b(player->cooldown[i]);
+
 	/* Find the number of timed effects */
 	wr_byte(TMD_MAX);
 
@@ -504,6 +541,20 @@ void wr_player(void)
 	wr_u32b(player->total_energy);
 	/* # of turns spent resting */
 	wr_u32b(player->resting_turn);
+
+	/* Quest currently active */
+	wr_s32b(player->active_quest);
+
+	/* Factions */
+	wr_s32b(player->bm_faction);
+	wr_s32b(player->town_faction);
+
+	/* Player flags */
+	for(i=0; i < (int)PF_SIZE; i++)
+		wr_byte(player->ability_pflags[i]);
+
+	/* Class specific */
+	player_hook(loadsave, false);
 
 	/* Future use */
 	for (i = 0; i < 8; i++) wr_u32b(0L);
@@ -580,20 +631,20 @@ void wr_ignore(void)
 		}
 	}
 
-	/* Write the current number of rune auto-inscriptions */
+	/* Write the current number of icon auto-inscriptions */
 	j = 0;
-	n = max_runes();
+	n = max_icons();
 	for (i = 0; i < n; i++)
-		if (rune_note(i))
+		if (icon_note(i))
 			j++;
 
 	wr_u16b(j);
 
-	/* Write the rune autoinscriptions array */
+	/* Write the icon autoinscriptions array */
 	for (i = 0; i < n; i++) {
-		if (rune_note(i)) {
+		if (icon_note(i)) {
 			wr_s16b(i);
-			wr_string(quark_str(rune_note(i)));
+			wr_string(quark_str(icon_note(i)));
 		}
 	}
 
@@ -650,9 +701,9 @@ void wr_misc(void)
 		wr_byte(player->obj_k->slays[i] ? 1 : 0);
 	}
 
-	/* Curses */
-	for (i = 0; i < z_info->curse_max; i++) {
-		wr_byte(player->obj_k->curses[i].power ? 1 : 0);
+	/* Faults */
+	for (i = 0; i < z_info->fault_max; i++) {
+		wr_byte(player->obj_k->faults[i].power ? 1 : 0);
 	}
 
 	/* Combat data */
@@ -740,20 +791,40 @@ void wr_stores(void)
 	int i;
 
 	wr_u16b(MAX_STORES);
-	for (i = 0; i < MAX_STORES; i++) {
-		const struct store *store = &stores[i];
-		struct object *obj;
+	for(int t=0; t<z_info->town_max; t++) {
+		for (i = 0; i < MAX_STORES; i++) {
+			const struct store *store = &t_info[t].stores[i];
+			struct object *obj;
 
-		/* Save the current owner */
-		wr_byte(store->owner->oidx);
+			/* Save the current owner */
+			wr_byte(store->owner->oidx);
 
-		/* Save the stock size */
-		wr_byte(store->stock_num);
+			/* Save the current and maximum stock size */
+			wr_u16b(store->stock_num);
+			wr_s16b(store->stock_size);
 
-		/* Save the stock */
-		for (obj = store->stock; obj; obj = obj->next) {
-			wr_item(obj->known);
-			wr_item(obj);
+			/* Save the stock */
+			for (obj = store->stock; obj; obj = obj->next) {
+				wr_item(obj->known);
+				wr_item(obj);
+			}
+
+			/* Save the entrance position */
+			wr_u16b(store->x);
+			wr_u16b(store->y);
+
+			/* Save the ban days and reason */
+			wr_u32b(store->bandays);
+			wr_string(store->banreason ? store->banreason : "");
+
+			/* Save the layaway index and day */
+			wr_s32b(store->layaway_idx);
+			wr_s32b(store->layaway_day);
+
+			/* Destroyed flag and danger */
+			wr_bool(store->destroy);
+			wr_bool(store->open);
+			wr_s32b(store->max_danger);
 		}
 	}
 }

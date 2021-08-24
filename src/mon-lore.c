@@ -43,6 +43,7 @@ enum monster_sex {
 	MON_SEX_NEUTER = 0,
 	MON_SEX_MALE,
 	MON_SEX_FEMALE,
+	MON_SEX_EITHER,
 	MON_SEX_MAX,
 };
 
@@ -681,7 +682,9 @@ void lore_multiplier_speed(textblock *tb, const struct monster_race *race)
  */
 static monster_sex_t lore_monster_sex(const struct monster_race *race)
 {
-	if (rf_has(race->flags, RF_FEMALE))
+	if (rf_has(race->flags, RF_FEMALE) && rf_has(race->flags, RF_MALE))
+		return MON_SEX_EITHER;
+	else if (rf_has(race->flags, RF_FEMALE))
 		return MON_SEX_FEMALE;
 	else if (rf_has(race->flags, RF_MALE))
 		return MON_SEX_MALE;
@@ -705,6 +708,7 @@ static const char *lore_pronoun_nominative(monster_sex_t sex, bool title_case)
 		{"it", "It"},
 		{"he", "He"},
 		{"she", "She"},
+		{"they", "They"},
 	};
 
 	int pronoun_index = MON_SEX_NEUTER, case_index = 0;
@@ -734,6 +738,7 @@ static const char *lore_pronoun_possessive(monster_sex_t sex, bool title_case)
 		{"its", "Its"},
 		{"his", "His"},
 		{"her", "Her"},
+		{"their", "Their"},
 	};
 
 	int pronoun_index = MON_SEX_NEUTER, case_index = 0;
@@ -1109,7 +1114,6 @@ void lore_append_exp(textblock *tb, const struct monster_race *race,
 {
 	const char *ordinal, *article;
 	char buf[20] = "";
-	long exp_integer, exp_fraction;
 	s16b level;
 
 	/* Check legality and that this is a placeable monster */
@@ -1124,22 +1128,21 @@ void lore_append_exp(textblock *tb, const struct monster_race *race,
 
 	textblock_append(tb, " this creature");
 
-	/* calculate the integer exp part */
-	exp_integer = (long)race->mexp * race->level / player->lev;
-
-	/* calculate the fractional exp part scaled by 100, must use long
-	 * arithmetic to avoid overflow */
-	exp_fraction = ((((long)race->mexp * race->level % player->lev) *
-					 (long)1000 / player->lev + 5) / 10);
+	double exp_value = mon_exp_value(race);
+	long exp_int = exp_value;
+	s32b exp_scaled = player_exp_scale(exp_int);
 
 	/* Calculate textual representation */
-	strnfmt(buf, sizeof(buf), "%d", exp_integer);
-	if (exp_fraction)
-		my_strcat(buf, format(".%02d", exp_fraction), sizeof(buf));
+	if (exp_scaled != exp_int)
+		strnfmt(buf, sizeof(buf), "%d", exp_scaled);
+	if (exp_int == exp_value)
+		strnfmt(buf, sizeof(buf), "%d", exp_int);
+	else
+		strnfmt(buf, sizeof(buf), "%.2lf", exp_value);
 
 	/* Mention the experience */
 	textblock_append(tb, " is worth ");
-	textblock_append_c(tb, COLOUR_BLUE, format("%s point%s", buf, PLURAL((exp_integer == 1) && (exp_fraction == 0))));
+	textblock_append_c(tb, COLOUR_BLUE, format("%s point%s", buf, PLURAL(exp_value == 1.0)));
 
 	/* Take account of annoying English */
 	ordinal = "th";
@@ -1351,7 +1354,7 @@ void lore_append_abilities(textblock *tb, const struct monster_race *race,
 
 	/* Special case for undead */
 	if (rf_has(known_flags, RF_UNDEAD)) {
-		rf_off(current_flags, RF_IM_NETHER);
+		rf_off(current_flags, RF_IM_RADIATION);
 	}
 
 	lore_append_clause(tb, current_flags, COLOUR_L_UMBER, start, "or", "");

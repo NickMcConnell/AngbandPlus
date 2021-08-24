@@ -27,7 +27,7 @@
  */
 enum
 {
-	#define TMD(a, b, c) TMD_##a,
+	#define TMD(a, b, c, d) TMD_##a,
 	#include "list-player-timed.h"
 	#undef TMD
 	TMD_MAX
@@ -60,6 +60,7 @@ struct timed_effect_data {
 	const char *name;
 	u32b flag_redraw;
 	u32b flag_update;
+	u32b flag_general;
 
 	int index;
 	char *desc;

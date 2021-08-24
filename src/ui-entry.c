@@ -16,11 +16,12 @@
 
 #include "init.h"
 #include "object.h"
-#include "obj-curse.h"
+#include "obj-fault.h"
 #include "obj-gear.h"
 #include "obj-knowledge.h"
 #include "obj-util.h"
 #include "player.h"
+#include "player-ability.h"
 #include "player-timed.h"
 #include "ui-entry.h"
 #include "ui-entry-combiner.h"
@@ -486,9 +487,9 @@ int get_ui_entry_renderer_index(const struct ui_entry *entry)
 
 /**
  * Returns true if the properties/abilities bound to a user interface entry
- * correspond to a known rune.  Otherwise, returns false.
+ * correspond to a known icon.  Otherwise, returns false.
  */
-bool is_ui_entry_for_known_rune(const struct ui_entry *entry,
+bool is_ui_entry_for_known_icon(const struct ui_entry *entry,
 	const struct player *p)
 {
 	bool result = true;
@@ -534,7 +535,7 @@ bool is_ui_entry_for_known_rune(const struct ui_entry *entry,
 
 		if (streq(entry->p_abilities[i].ability->type, "player")) {
 			/*
-			 * Not so easy to associate with a rune so don't let
+			 * Not so easy to associate with a icon so don't let
 			 * it change the result.
 			 */
 			continue;
@@ -562,10 +563,10 @@ void compute_ui_entry_values_for_object(const struct ui_entry *entry,
 {
 	struct ui_entry_combiner_state cst = { 0, 0, 0 };
 	struct ui_entry_combiner_funcs combiner;
-	const struct curse_data *curse;
+	const struct fault_data *fault;
 	struct cached_object_data *cache2;
 	bool first, all_unknown, all_aux_unknown, any_aux, all_aux;
-	int curse_ind;
+	int fault_ind;
 
 	if (!obj || !entry->n_obj_prop) {
 		*val = UI_ENTRY_VALUE_NOT_PRESENT;
@@ -586,8 +587,8 @@ void compute_ui_entry_values_for_object(const struct ui_entry *entry,
 		assert(0);
 	}
 	cache2 = *cache;
-	curse = obj->curses;
-	curse_ind = 0;
+	fault = obj->faults;
+	fault_ind = 0;
 	while (obj) {
 		int i;
 
@@ -718,28 +719,28 @@ void compute_ui_entry_values_for_object(const struct ui_entry *entry,
 			}
 		}
 
-		if (curse) {
+		if (fault) {
 			/*
-			 * Proceed to the next unprocessed curse object.
+			 * Proceed to the next unprocessed fault object.
 			 * Don't overwrite the cached data for the base.
 			 */
 			obj = NULL;
-			if (curse_ind == 0) {
+			if (fault_ind == 0) {
 				cache2 = mem_alloc(sizeof(*cache2));
 			}
-			++curse_ind;
+			++fault_ind;
 			while (1) {
-				if (curse_ind >= z_info->curse_max) {
+				if (fault_ind >= z_info->fault_max) {
 					mem_free(cache2);
 					break;
 				}
-				if (curse[curse_ind].power) {
-					obj = curses[curse_ind].obj;
+				if (fault[fault_ind].power) {
+					obj = faults[fault_ind].obj;
 					of_wipe(cache2->f);
 					object_flags_known(obj, cache2->f);
 					break;
 				}
-				++curse_ind;
+				++fault_ind;
 			}
 		} else {
 			obj = NULL;
@@ -831,8 +832,7 @@ void compute_ui_entry_values_for_player(const struct ui_entry *entry,
 				case PF_FAST_SHOT:
 					launcher = equipped_item_by_slot_name(
 						p, "shooting");
-					if (launcher && kf_has(launcher->kind->kind_flags,
-						KF_SHOOTS_ARROWS)) {
+					if (launcher) {
 						v = p->lev / 3;
 						a = 0;
 					} else {
@@ -914,7 +914,7 @@ void compute_ui_entry_values_for_player(const struct ui_entry *entry,
 			}
 		} else if (streq(entry->p_abilities[i].ability->type,
 			"element")) {
-			int v = p->race->el_info[ind].res_level;
+			int v = MAX(p->race->el_info[ind].res_level, p->extension->el_info[ind].res_level);
 			int a;
 
 			if (entry->flags & ENTRY_FLAG_TIMED_AUX) {
@@ -944,6 +944,15 @@ void compute_ui_entry_values_for_player(const struct ui_entry *entry,
 					a = t;
 				}
 				(*combiner.accum_func)(v, a, &cst);
+			}
+			for(int i=0; i<PF_MAX; i++) {
+				if ((ability[i]) && (player_has(p, i))) {
+					if (ability[i]->el_info[ind].res_level) {
+						v = ability[i]->el_info[ind].res_level;
+						a = 0;
+						(*combiner.accum_func)(v, a, &cst);
+					}
+				}
 			}
 		}
 	}
@@ -1006,7 +1015,7 @@ void compute_ui_entry_values_for_player(const struct ui_entry *entry,
 			 * separately.
 			 */
 			if (ind == OBJ_MOD_INFRA) {
-				v = p->race->infra;
+				v = p->race->infra + p->extension->infra;
 				a = 0;
 				if (entry->obj_props[i].isaux) {
 					int t = v;
@@ -1249,7 +1258,7 @@ static int get_timed_modifier_effect(const struct player *p, int ind)
 		result = (p->timed[TMD_SINFRA]) ? 5 : 0;
 		break;
 
-	case OBJ_MOD_SPEED:
+	case OBJ_MOD_SPD:
 		result = (p->timed[TMD_FAST] || p->timed[TMD_SPRINT]) ? 10 : 0;
 		if (p->timed[TMD_STONESKIN]) {
 			result -= 5;
@@ -1481,7 +1490,7 @@ static const char *get_dummy_param_name(int i)
 
 /* These are for handling of entries parameterized by the element name. */
 static const char *element_names[] = {
-	#define ELEM(x) #x,
+	#define ELEM(x, ...) #x,
 	#include "list-elements.h"
 	#undef ELEM
 };
@@ -1501,7 +1510,7 @@ static const char *get_element_name(int i)
 
 
 /* These are for handling of entries parameterized by the stat name. */
-static const char *stat_names[] = {
+const char *stat_names[STAT_MAX] = {
 	#define STAT(x) #x,
 	#include "list-stats.h"
 	#undef STAT

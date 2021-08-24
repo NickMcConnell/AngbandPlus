@@ -129,7 +129,7 @@ Inscribing an item with ``@``, followed by a command letter, followed by 0-9:
 	If you have multiple items inscribed with the same thing, the game will
 	use the first one.
 
-	For example, if you inscribe a staff of Cure Light Wounds with '@u1',
+	For example, if you inscribe a device of Cure Light Wounds with '@u1',
 	you can refer to it by pressing 1 when ``u``\sing it.  You could also
 	inscribe a wand of Wonder with '@a1', and when using ``a``\, 1 would select
 	that wand.

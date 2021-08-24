@@ -19,7 +19,7 @@
 #include "angband.h"
 #include "cave.h"
 #include "init.h"
-#include "obj-curse.h"
+#include "obj-fault.h"
 #include "obj-desc.h"
 #include "obj-gear.h"
 #include "obj-ignore.h"
@@ -35,15 +35,16 @@
 #include "player-util.h"
 #include "project.h"
 #include "store.h"
+#include "world.h"
 
 /**
  * Overview
  * ========
- * This file deals with the new "rune-based ID" system.  This system operates
+ * This file deals with the new "icon-based ID" system.  This system operates
  * as follows:
  * - struct player has an object struct attached to it (obj_k) which contains
- *   the player's knowledge of object properties (runes)
- * - whenever the player learns a rune, 
+ *   the player's knowledge of object properties (icons)
+ * - whenever the player learns a icon,
  *   - if it's an object flag, that flag is set in obj_k
  *   - if it's an integer value, that value in obj_k is set to 1
  *   - if it's element info, the res_level value is set to 1
@@ -51,7 +52,7 @@
  *   - if it's a slay, a slay is added to obj_k with the right race flag or name
  * - every object has a known version which is filled in with details as the
  *   player learns them
- * - whenever the player learns a rune, that knowledge is applied to the known
+ * - whenever the player learns a icon, that knowledge is applied to the known
  *   version of every object that the player has picked up or walked over
  *   or seen in a shop
  */
@@ -59,25 +60,25 @@
 /**
  * ------------------------------------------------------------------------
  * Object knowledge data
- * This section covers initialisation, access and cleanup of rune data
+ * This section covers initialisation, access and cleanup of icon data
  * ------------------------------------------------------------------------ */
-static size_t rune_max;
-static struct rune *rune_list;
-static char *c_rune[] = {
+static size_t icon_max;
+static struct icon *icon_list;
+static char *c_icon[] = {
 	"enchantment to armor",
 	"enchantment to hit",
 	"enchantment to damage"
 };
 
 /**
- * Initialise the rune module
+ * Initialise the icon module
  */
-static void init_rune(void)
+static void init_icon(void)
 {
 	int i, j, count;
 
-	/* Count runes (combat runes are fixed) */
-	count = COMBAT_RUNE_MAX;
+	/* Count icons (combat icons are fixed) */
+	count = COMBAT_ICON_MAX;
 	for (i = 1; i < OF_MAX; i++) {
 		struct obj_property *prop = lookup_obj_property(OBJ_PROPERTY_FLAG, i);
 		if (prop->subtype == OFT_NONE) continue;
@@ -92,7 +93,7 @@ static void init_rune(void)
 	for (i = 0; i < ELEM_HIGH_MAX; i++) {
 		count++;
 	}
-	/* Note brand runes cover all brands with the same name */
+	/* Note brand icons cover all brands with the same name */
 	for (i = 1; i < z_info->brand_max; i++) {
 		bool counted = false;
 		if (brands[i].name) {
@@ -106,7 +107,7 @@ static void init_rune(void)
 			}
 		}
 	}
-	/* Note slay runes cover all slays with the same flag/base */
+	/* Note slay icons cover all slays with the same flag/base */
 	for (i = 1; i < z_info->slay_max; i++) {
 		bool counted = false;
 		if (slays[i].name) {
@@ -120,25 +121,25 @@ static void init_rune(void)
 			}
 		}
 	}
-	for (i = 1; i < z_info->curse_max; i++) {
-		if (curses[i].name) {
+	for (i = 1; i < z_info->fault_max; i++) {
+		if (faults[i].name) {
 			count++;
 		}
 	}
 
-	/* Now allocate and fill the rune list */
-	rune_max = count;
-	rune_list = mem_zalloc(rune_max * sizeof(struct rune));
+	/* Now allocate and fill the icon list */
+	icon_max = count;
+	icon_list = mem_zalloc(icon_max * sizeof(struct icon));
 	count = 0;
-	for (i = 0; i < COMBAT_RUNE_MAX; i++) {
-		rune_list[count++] = (struct rune) { RUNE_VAR_COMBAT, i, 0, c_rune[i] };
+	for (i = 0; i < COMBAT_ICON_MAX; i++) {
+		icon_list[count++] = (struct icon) { ICON_VAR_COMBAT, i, 0, c_icon[i] };
 	}
 	for (i = 0; i < OBJ_MOD_MAX; i++) {
 		struct obj_property *prop = lookup_obj_property(OBJ_PROPERTY_MOD, i);
-		rune_list[count++] = (struct rune) { RUNE_VAR_MOD, i, 0, prop->name };
+		icon_list[count++] = (struct icon) { ICON_VAR_MOD, i, 0, prop->name };
 	}
 	for (i = 0; i < ELEM_HIGH_MAX; i++) {
-		rune_list[count++] = (struct rune) { RUNE_VAR_RESIST, i, 0, projections[i].name };
+		icon_list[count++] = (struct icon) { ICON_VAR_RESIST, i, 0, projections[i].name };
 	}
 	for (i = 1; i < z_info->brand_max; i++) {
 		bool counted = false;
@@ -149,8 +150,8 @@ static void init_rune(void)
 				}
 			}
 			if (!counted) {
-				rune_list[count++] =
-					(struct rune) { RUNE_VAR_BRAND, i, 0, brands[i].name };
+				icon_list[count++] =
+					(struct icon) { ICON_VAR_BRAND, i, 0, brands[i].name };
 			}
 		}
 	}
@@ -163,15 +164,15 @@ static void init_rune(void)
 				}
 			}
 			if (!counted) {
-				rune_list[count++] =
-					(struct rune) { RUNE_VAR_SLAY, i, 0, slays[i].name };
+				icon_list[count++] =
+					(struct icon) { ICON_VAR_SLAY, i, 0, slays[i].name };
 			}
 		}
 	}
-	for (i = 1; i < z_info->curse_max; i++) {
-		if (curses[i].name) {
-			rune_list[count++] =
-				(struct rune) { RUNE_VAR_CURSE, i, 0, curses[i].name };
+	for (i = 1; i < z_info->fault_max; i++) {
+		if (faults[i].name) {
+			icon_list[count++] =
+				(struct icon) { ICON_VAR_FAULT, i, 0, faults[i].name };
 		}
 	}
 	for (i = 1; i < OF_MAX; i++) {
@@ -181,21 +182,21 @@ static void init_rune(void)
 		if (prop->subtype == OFT_DIG) continue;
 		if (prop->subtype == OFT_THROW) continue;
 
-		rune_list[count++] = (struct rune)
-			{ RUNE_VAR_FLAG, i, 0, prop->name };
+		icon_list[count++] = (struct icon)
+			{ ICON_VAR_FLAG, i, 0, prop->name };
 	}
 }
 
 /**
- * Get a rune by variety and index
+ * Get a icon by variety and index
  */
-static int rune_index(size_t variety, int index)
+static int icon_index(size_t variety, int index)
 {
 	size_t i;
 
-	/* Look for the rune */
-	for (i = 0; i < rune_max; i++)
-		if ((rune_list[i].variety == variety) && (rune_list[i].index == index))
+	/* Look for the icon */
+	for (i = 0; i < icon_max; i++)
+		if ((icon_list[i].variety == variety) && (icon_list[i].index == index))
 			return i;
 
 	/* Can't find it */
@@ -203,104 +204,104 @@ static int rune_index(size_t variety, int index)
 }
 
 /**
- * Cleanup the rune module
+ * Cleanup the icon module
  */
-static void cleanup_rune(void)
+static void cleanup_icon(void)
 {
-	mem_free(rune_list);
+	mem_free(icon_list);
 }
 
-struct init_module rune_module = {
-	.name = "rune",
-	.init = init_rune,
-	.cleanup = cleanup_rune
+struct init_module icon_module = {
+	.name = "icon",
+	.init = init_icon,
+	.cleanup = cleanup_icon
 };
 
 /**
  * ------------------------------------------------------------------------
- * Rune knowledge functions
- * These functions provide details about the rune list for use in 
+ * Icon knowledge functions
+ * These functions provide details about the icon list for use in
  * player knowledge screens
  * ------------------------------------------------------------------------ */
 /**
- * The number of runes
+ * The number of icons
  */
-int max_runes(void)
+int max_icons(void)
 {
-	return rune_max;
+	return icon_max;
 }
 
 /**
- * The variety of a rune
+ * The variety of a icon
  */
-enum rune_variety rune_variety(size_t i)
+enum icon_variety icon_variety(size_t i)
 {
-	return rune_list[i].variety;
+	return icon_list[i].variety;
 }
 
 /**
- * Reports if the player knows a given rune
+ * Reports if the player knows a given icon
  *
  * \param p is the player
- * \param i is the rune's number in the rune list
+ * \param i is the icon's number in the icon list
  */
-bool player_knows_rune(struct player *p, size_t i)
+bool player_knows_icon(struct player *p, size_t i)
 {
-	struct rune *r = &rune_list[i];
+	struct icon *r = &icon_list[i];
 
 	switch (r->variety) {
-		/* Combat runes */
-		case RUNE_VAR_COMBAT: {
-			if (r->index == COMBAT_RUNE_TO_A) {
+		/* Combat icons */
+		case ICON_VAR_COMBAT: {
+			if (r->index == COMBAT_ICON_TO_A) {
 				if (p->obj_k->to_a)
 					return true;
-			} else if (r->index == COMBAT_RUNE_TO_H) {
+			} else if (r->index == COMBAT_ICON_TO_H) {
 				if (p->obj_k->to_h)
 					return true;
-			} else if (r->index == COMBAT_RUNE_TO_D) {
+			} else if (r->index == COMBAT_ICON_TO_D) {
 				if (p->obj_k->to_d)
 					return true;
 			}
 			break;
 		}
-		/* Mod runes */
-		case RUNE_VAR_MOD: {
+		/* Mod icons */
+		case ICON_VAR_MOD: {
 			if (p->obj_k->modifiers[r->index])
 				return true;
 			break;
 		}
-		/* Element runes */
-		case RUNE_VAR_RESIST: {
+		/* Element icons */
+		case ICON_VAR_RESIST: {
 			if (p->obj_k->el_info[r->index].res_level)
 				return true;
 			break;
 		}
-		/* Brand runes */
-		case RUNE_VAR_BRAND: {
+		/* Brand icons */
+		case ICON_VAR_BRAND: {
 			assert(r->index < z_info->brand_max);
 			if (p->obj_k->brands[r->index]) {
 				return true;
 			}
 			break;
 		}
-		/* Slay runes */
-		case RUNE_VAR_SLAY: {
+		/* Slay icons */
+		case ICON_VAR_SLAY: {
 			assert(r->index < z_info->slay_max);
 			if (p->obj_k->slays[r->index]) {
 				return true;
 			}
 			break;
 		}
-		/* Curse runes */
-		case RUNE_VAR_CURSE: {
-			assert(r->index < z_info->curse_max);
-			if (p->obj_k->curses[r->index].power) {
+		/* Fault icons */
+		case ICON_VAR_FAULT: {
+			assert(r->index < z_info->fault_max);
+			if (p->obj_k->faults[r->index].power) {
 				return true;
 			}
 			break;
 		}
-		/* Flag runes */
-		case RUNE_VAR_FLAG: {
+		/* Flag icons */
+		case ICON_VAR_FLAG: {
 			if (of_has(p->obj_k->flags, r->index))
 				return true;
 			break;
@@ -314,19 +315,19 @@ bool player_knows_rune(struct player *p, size_t i)
 }
 
 /**
- * The name of a rune
+ * The name of an icon
  */
-char *rune_name(size_t i)
+char *icon_name(size_t i)
 {
-	struct rune *r = &rune_list[i];
+	struct icon *r = &icon_list[i];
 
-	if (r->variety == RUNE_VAR_BRAND)
+	if (r->variety == ICON_VAR_BRAND)
 		return format("%s brand", r->name);
-	else if (r->variety == RUNE_VAR_SLAY)
+	else if (r->variety == ICON_VAR_SLAY)
 		return format("slay %s", r->name);
-	else if (r->variety == RUNE_VAR_CURSE)
-		return format("%s curse", r->name);
-	else if (r->variety == RUNE_VAR_RESIST)
+	else if (r->variety == ICON_VAR_FAULT)
+		return format("faulty (%s)", r->name);
+	else if (r->variety == ICON_VAR_RESIST)
 		return format("resist %s", r->name);
 	else
 		return format("%s", r->name);
@@ -335,53 +336,53 @@ char *rune_name(size_t i)
 }
 
 /**
- * The description of a rune
+ * The description of an icon
  */
-char *rune_desc(size_t i)
+char *icon_desc(size_t i)
 {
-	struct rune *r = &rune_list[i];
+	struct icon *r = &icon_list[i];
 
 	switch (r->variety) {
-		/* Combat runes */
-		case RUNE_VAR_COMBAT: {
-			if (r->index == COMBAT_RUNE_TO_A)
-				return "Object magically increases the player's armor class";
-			else if (r->index == COMBAT_RUNE_TO_H)
-				return "Object magically increases the player's chance to hit";
-			else if (r->index == COMBAT_RUNE_TO_D)
-				return "Object magically increases the player's damage";
+		/* Combat icons */
+		case ICON_VAR_COMBAT: {
+			if (r->index == COMBAT_ICON_TO_A)
+				return "Object increases the player's armor class";
+			else if (r->index == COMBAT_ICON_TO_H)
+				return "Object increases the player's chance to hit";
+			else if (r->index == COMBAT_ICON_TO_D)
+				return "Object increases the player's damage";
 			break;
 		}
-		/* Mod runes */
-		case RUNE_VAR_MOD: {
-			return format("Object gives the player a magical bonus to %s.",
+		/* Mod icons */
+		case ICON_VAR_MOD: {
+			return format("Object gives the player a bonus to %s.",
 						  r->name);
 			break;
 		}
-		/* Element runes */
-		case RUNE_VAR_RESIST: {
+		/* Element icons */
+		case ICON_VAR_RESIST: {
 			return format("Object affects the player's resistance to %s.",
 						  r->name);
 			break;
 		}
-		/* Brand runes */
-		case RUNE_VAR_BRAND: {
+		/* Brand icons */
+		case ICON_VAR_BRAND: {
 			return format("Object brands the player's attacks with %s.",
 						  r->name);
 			break;
 		}
-		/* Slay runes */
-		case RUNE_VAR_SLAY: {
+		/* Slay icons */
+		case ICON_VAR_SLAY: {
 			return format("Object makes the player's attacks against %s more powerful.", r->name);
 			break;
 		}
-		/* Curse runes */
-		case RUNE_VAR_CURSE: {
-			return format("Object %s.", curses[r->index].desc);
+		/* Fault icons */
+		case ICON_VAR_FAULT: {
+			return format("Object %s.", faults[r->index].desc);
 			break;
 		}
-		/* Flag runes */
-		case RUNE_VAR_FLAG: {
+		/* Flag icons */
+		case ICON_VAR_FLAG: {
 			return format("Object gives the player the property of %s.",
 						  r->name);
 			break;
@@ -395,19 +396,19 @@ char *rune_desc(size_t i)
 }
 
 /**
- * The autoinscription index (if any) of a rune
+ * The autoinscription index (if any) of a icon
  */
-quark_t rune_note(size_t i)
+quark_t icon_note(size_t i)
 {
-	return rune_list[i].note;
+	return icon_list[i].note;
 }
 
 /**
- * Set an autoinscription on a rune
+ * Set an autoinscription on a icon
  */
-void rune_set_note(size_t i, const char *inscription)
+void icon_set_note(size_t i, const char *inscription)
 {
-	struct rune *r = &rune_list[i];
+	struct icon *r = &icon_list[i];
 
 	if (!inscription)
 		r->note = 0;
@@ -444,14 +445,14 @@ bool player_knows_slay(struct player *p, int i)
 }
 
 /**
- * Check if a curse is known to the player
+ * Check if a fault is known to the player
  *
  * \param p is the player
- * \param c is the curse
+ * \param c is the fault
  */
-bool player_knows_curse(struct player *p, int index)
+bool player_knows_fault(struct player *p, int index)
 {
-	return p->obj_k->curses[index].power == 1;
+	return p->obj_k->faults[index].power == 1;
 }
 
 /**
@@ -516,9 +517,9 @@ bool player_knows_ego(struct player *p, struct ego_item *ego,
 		}
 	}
 
-	/* All curses known */
-	for (i = 1; i < z_info->curse_max; i++) {
-		if (ego->curses && ego->curses[i] && !player_knows_curse(p, i)) {
+	/* All faults known */
+	for (i = 1; i < z_info->fault_max; i++) {
+		if (ego->faults && ego->faults[i] && !player_knows_fault(p, i)) {
 			return false;
 		}
 	}
@@ -560,11 +561,13 @@ bool object_is_in_store(const struct object *obj)
 	struct object *obj1;
 
 	/* Check all the store objects */
-	for (i = 0; i < MAX_STORES; i++) {
-		struct store *s = &stores[i];
-		if (s->sidx == STORE_HOME) continue;
-		for (obj1 = s->stock; obj1; obj1 = obj1->next)
-			if (obj1 == obj) return true;
+	for (int t=0; t<z_info->town_max; t++) {
+		for (i = 0; i < MAX_STORES; i++) {
+			struct store *s = &t_info[t].stores[i];
+			if (s->sidx == STORE_HOME) continue;
+			for (obj1 = s->stock; obj1; obj1 = obj1->next)
+				if (obj1 == obj) return true;
+		}
 	}
 
 	return false;
@@ -577,7 +580,7 @@ bool object_is_in_store(const struct object *obj)
  */
 bool object_has_standard_to_h(const struct object *obj)
 {
-	/* Hack for curse object structures */
+	/* Hack for fault object structures */
 	if (!obj->kind) {
 		return true;
 	}
@@ -589,41 +592,41 @@ bool object_has_standard_to_h(const struct object *obj)
 }
 
 /**
- * Check if an object has a rune
+ * Check if an object has a icon
  *
  * \param obj is the object
- * \param rune_no is the rune's number in the rune list
+ * \param icon_no is the icon's number in the icon list
  */
-bool object_has_rune(const struct object *obj, int rune_no)
+bool object_has_icon(const struct object *obj, int icon_no)
 {
-	struct rune *r = &rune_list[rune_no];
+	struct icon *r = &icon_list[icon_no];
 
 	switch (r->variety) {
-		/* Combat runes - just check them all */
-		case RUNE_VAR_COMBAT: {
-			if ((r->index == COMBAT_RUNE_TO_A) && (obj->to_a))
+		/* Combat icons - just check them all */
+		case ICON_VAR_COMBAT: {
+			if ((r->index == COMBAT_ICON_TO_A) && (obj->to_a))
 				return true;
-			else if ((r->index == COMBAT_RUNE_TO_H) &&
+			else if ((r->index == COMBAT_ICON_TO_H) &&
 					 !object_has_standard_to_h(obj))
 				return true;
-			else if ((r->index == COMBAT_RUNE_TO_D) && (obj->to_d))
+			else if ((r->index == COMBAT_ICON_TO_D) && (obj->to_d))
 				return true;
 			break;
 		}
-		/* Mod runes */
-		case RUNE_VAR_MOD: {
+		/* Mod icons */
+		case ICON_VAR_MOD: {
 			if (obj->modifiers[r->index] != 0)
 				return true;
 			break;
 		}
-		/* Element runes */
-		case RUNE_VAR_RESIST: {
+		/* Element icons */
+		case ICON_VAR_RESIST: {
 			if (obj->el_info[r->index].res_level != 0)
 				return true;
 			break;
 		}
-		/* Brand runes */
-		case RUNE_VAR_BRAND: {
+		/* Brand icons */
+		case ICON_VAR_BRAND: {
 			if (obj->brands) {
 				int i;
 				for (i = 0; i < z_info->brand_max; i++) {
@@ -634,8 +637,8 @@ bool object_has_rune(const struct object *obj, int rune_no)
 			}
 			break;
 		}
-		/* Slay runes */
-		case RUNE_VAR_SLAY: {
+		/* Slay icons */
+		case ICON_VAR_SLAY: {
 			if (obj->slays) {
 				int i;
 				for (i = 0; i < z_info->slay_max; i++) {
@@ -646,14 +649,14 @@ bool object_has_rune(const struct object *obj, int rune_no)
 			}
 			break;
 		}
-		/* Curse runes */
-		case RUNE_VAR_CURSE: {
-			if (obj->curses && obj->curses[r->index].power)
+		/* Fault icons */
+		case ICON_VAR_FAULT: {
+			if (obj->faults && obj->faults[r->index].power)
 				return true;
 			break;
 		}
-		/* Flag runes */
-		case RUNE_VAR_FLAG: {
+		/* Flag icons */
+		case ICON_VAR_FLAG: {
 			if (of_has(obj->flags, r->index))
 				return true;
 			break;
@@ -665,11 +668,11 @@ bool object_has_rune(const struct object *obj, int rune_no)
 }
 
 /**
- * Check if all non-curse runes on an object are known to the player
+ * Check if all non-fault icons on an object are known to the player
  *
  * \param obj is the object
  */
-static bool object_non_curse_runes_known(const struct object *obj)
+static bool object_non_fault_icons_known(const struct object *obj)
 {
 	int i;
 
@@ -721,22 +724,22 @@ static bool object_non_curse_runes_known(const struct object *obj)
 }
 
 /**
- * Check if all the runes on an object are known to the player
+ * Check if all the icons on an object are known to the player
  *
  * \param obj is the object
  */
-bool object_runes_known(const struct object *obj)
+bool object_icons_known(const struct object *obj)
 {
 	/* No known object */
 	if (!obj->known) return false;
 
-	/* Not all curses known */
-	if (!curses_are_equal(obj, obj->known)) {
+	/* Not all faults known */
+	if (!faults_are_equal(obj, obj->known)) {
 		return false;
 	}
 
-	/* Answer is now the same as for non-curse runes */
-	return object_non_curse_runes_known(obj);
+	/* Answer is now the same as for non-fault icons */
+	return object_non_fault_icons_known(obj);
 }
 
 
@@ -747,8 +750,8 @@ bool object_runes_known(const struct object *obj)
  */
 bool object_fully_known(const struct object *obj)
 {
-	/* Not all runes known */
-	if (!object_runes_known(obj)) return false;
+	/* Not all icons known */
+	if (!object_icons_known(obj)) return false;
 
 	/* Effect not known */
 	if (!object_effect_is_known(obj)) return false;
@@ -1057,7 +1060,7 @@ void player_know_object(struct player *p, struct object *obj)
 			of_on(obj->known->flags, flag);
 	}
 
-	/* Curse object structures are finished now */
+	/* Fault object structures are finished now */
 	if (!obj->kind) {
 		return;
 	}
@@ -1088,28 +1091,28 @@ void player_know_object(struct player *p, struct object *obj)
 		}
 	}
 
-	/* Set curses - be very careful to keep knowledge aligned */
-	if (obj->curses) {
-		bool known_cursed = false;
-		for (i = 1; i < z_info->curse_max; i++) {
-			if (p->obj_k->curses[i].power && obj->curses[i].power) {
-				if (!obj->known->curses) {
-					obj->known->curses = mem_zalloc(z_info->curse_max *
-													sizeof(struct curse_data));
+	/* Set faults - be very careful to keep knowledge aligned */
+	if (obj->faults) {
+		bool known_faulty = false;
+		for (i = 1; i < z_info->fault_max; i++) {
+			if (p->obj_k->faults[i].power && obj->faults[i].power) {
+				if (!obj->known->faults) {
+					obj->known->faults = mem_zalloc(z_info->fault_max *
+													sizeof(struct fault_data));
 				}
-				obj->known->curses[i].power = obj->curses[i].power;
-				known_cursed = true;
-			} else if (obj->known->curses) {
-				obj->known->curses[i].power = 0;
+				obj->known->faults[i].power = obj->faults[i].power;
+				known_faulty = true;
+			} else if (obj->known->faults) {
+				obj->known->faults[i].power = 0;
 			}
 		}
-		if (!known_cursed) {
-			mem_free(obj->known->curses);
-			obj->known->curses = NULL;
+		if (!known_faulty) {
+			mem_free(obj->known->faults);
+			obj->known->faults = NULL;
 		}
-	} else if (obj->known->curses) {
-		mem_free(obj->known->curses);
-		obj->known->curses = NULL;
+	} else if (obj->known->faults) {
+		mem_free(obj->known->faults);
+		obj->known->faults = NULL;
 	}
 
 	/* Set ego type, jewellery type if known */
@@ -1118,7 +1121,7 @@ void player_know_object(struct player *p, struct object *obj)
 		obj->known->ego = obj->ego;
 	}
 
-	if (object_non_curse_runes_known(obj) && tval_is_jewelry(obj)) {
+	if (object_non_fault_icons_known(obj) && tval_is_jewelry(obj)) {
 		seen = obj->kind->everseen;
 		object_flavor_aware(obj);
 	}
@@ -1177,15 +1180,17 @@ void update_player_object_knowledge(struct player *p)
 		player_know_object(p, obj);
 
 	/* Store objects */
-	for (i = 0; i < MAX_STORES; i++) {
-		struct store *s = &stores[i];
-		for (obj = s->stock; obj; obj = obj->next)
-			player_know_object(p, obj);
+	for (int t=0; t<z_info->town_max; t++) {
+		for (i = 0; i < MAX_STORES; i++) {
+			struct store *s = &t_info[t].stores[i];
+			for (obj = s->stock; obj; obj = obj->next)
+				player_know_object(p, obj);
+		}
 	}
 
-	/* Curse objects */
-	for (i = 1; i < z_info->curse_max; i++) {
-		player_know_object(player, curses[i].obj);
+	/* Fault objects */
+	for (i = 1; i < z_info->fault_max; i++) {
+		player_know_object(player, faults[i].obj);
 	}
 
 	/* Update */
@@ -1202,31 +1207,31 @@ void update_player_object_knowledge(struct player *p)
  * These functions are for increasing player knowledge of object properties
  * ------------------------------------------------------------------------ */
 /**
- * Learn a given rune
+ * Learn a given icon
  *
  * \param p is the player
- * \param i is the rune index
+ * \param i is the icon index
  * \param message is whether or not to print a message
  */
-static void player_learn_rune(struct player *p, size_t i, bool message)
+void player_learn_icon(struct player *p, size_t i, bool message)
 {
-	struct rune *r = &rune_list[i];
+	struct icon *r = &icon_list[i];
 	bool learned = false;
 
 	switch (r->variety) {
-		/* Combat runes */
-		case RUNE_VAR_COMBAT: {
-			if (r->index == COMBAT_RUNE_TO_A) {
+		/* Combat icons */
+		case ICON_VAR_COMBAT: {
+			if (r->index == COMBAT_ICON_TO_A) {
 				if (!p->obj_k->to_a) {
 					p->obj_k->to_a = 1;
 					learned = true;
 				}
-			} else if (r->index == COMBAT_RUNE_TO_H) {
+			} else if (r->index == COMBAT_ICON_TO_H) {
 				if (!p->obj_k->to_h) {
 					p->obj_k->to_h = 1;
 					learned = true;
 				}
-			} else if (r->index == COMBAT_RUNE_TO_D) {
+			} else if (r->index == COMBAT_ICON_TO_D) {
 				if (!p->obj_k->to_d) {
 					p->obj_k->to_d = 1;
 					learned = true;
@@ -1234,24 +1239,24 @@ static void player_learn_rune(struct player *p, size_t i, bool message)
 			}
 			break;
 		}
-		/* Mod runes */
-		case RUNE_VAR_MOD: {
+		/* Mod icons */
+		case ICON_VAR_MOD: {
 			if (!p->obj_k->modifiers[r->index]) {
 				p->obj_k->modifiers[r->index] = 1;
 				learned = true;
 			}
 			break;
 		}
-		/* Element runes */
-		case RUNE_VAR_RESIST: {
+		/* Element icons */
+		case ICON_VAR_RESIST: {
 			if (!p->obj_k->el_info[r->index].res_level) {
 				p->obj_k->el_info[r->index].res_level = 1;
 				learned = true;
 			}
 			break;
 		}
-		/* Brand runes */
-		case RUNE_VAR_BRAND: {
+		/* Brand icons */
+		case ICON_VAR_BRAND: {
 			assert(r->index < z_info->brand_max);
 
 			/* If the brand was unknown, add it to known brands */
@@ -1267,8 +1272,8 @@ static void player_learn_rune(struct player *p, size_t i, bool message)
 			}
 			break;
 		}
-		/* Slay runes */
-		case RUNE_VAR_SLAY: {
+		/* Slay icons */
+		case ICON_VAR_SLAY: {
 			assert(r->index < z_info->slay_max);
 
 			/* If the slay was unknown, add it to known slays */
@@ -1285,20 +1290,20 @@ static void player_learn_rune(struct player *p, size_t i, bool message)
 			break;
 		}
 
-		/* Curse runes */
-		case RUNE_VAR_CURSE: {
+		/* Fault icons */
+		case ICON_VAR_FAULT: {
 			int i = r->index;
-			assert(i < z_info->curse_max);
+			assert(i < z_info->fault_max);
 
-			/* If the curse was unknown, add it to known curses */
-			if (!player_knows_curse(p, i)) {
-				p->obj_k->curses[i].power = 1;
+			/* If the fault was unknown, add it to known faults */
+			if (!player_knows_fault(p, i)) {
+				p->obj_k->faults[i].power = 1;
 				learned = true;
 			}
 			break;
 		}
-		/* Flag runes */
-		case RUNE_VAR_FLAG: {
+		/* Flag icons */
+		case ICON_VAR_FLAG: {
 			if (of_on(p->obj_k->flags, r->index))
 				learned = true;
 			break;
@@ -1314,7 +1319,7 @@ static void player_learn_rune(struct player *p, size_t i, bool message)
 
 	/* Give a message */
 	if (message)
-		msgt(MSG_RUNE, "You have learned the rune of %s.", rune_name(i));
+		msgt(MSG_ICON, "You have learned the icon of %s.", icon_name(i));
 
 	/* Update knowledge */
 	update_player_object_knowledge(p);
@@ -1325,24 +1330,24 @@ static void player_learn_rune(struct player *p, size_t i, bool message)
  */
 void player_learn_flag(struct player *p, int flag)
 {
-	player_learn_rune(p, rune_index(RUNE_VAR_FLAG, flag), true);
+	player_learn_icon(p, icon_index(ICON_VAR_FLAG, flag), true);
 	update_player_object_knowledge(p);
 }
 
 /**
- * Learn a curse
+ * Learn a fault
  */
-void player_learn_curse(struct player *p, struct curse *curse)
+void player_learn_fault(struct player *p, struct fault *fault)
 {
-	int index = rune_index(RUNE_VAR_CURSE, lookup_curse(curse->name));
+	int index = icon_index(ICON_VAR_FAULT, lookup_fault(fault->name));
 	if (index >= 0) {
-		player_learn_rune(p, index, true);
+		player_learn_icon(p, index, true);
 	}
 	update_player_object_knowledge(p);
 }
 
 /**
- * Learn all innate runes
+ * Learn all innate icons
  *
  * \param p is the player
  */
@@ -1353,14 +1358,14 @@ void player_learn_innate(struct player *p)
 	/* Elements */
 	for (element = 0; element < ELEM_MAX; element++) {
 		if (p->race->el_info[element].res_level != 0) {
-			player_learn_rune(p, rune_index(RUNE_VAR_RESIST, element), false);
+			player_learn_icon(p, icon_index(ICON_VAR_RESIST, element), false);
 		}
 	}
 
 	/* Flags */
 	for (flag = of_next(p->race->flags, FLAG_START); flag != FLAG_END;
 		 flag = of_next(p->race->flags, flag + 1)) {
-		player_learn_rune(p, rune_index(RUNE_VAR_FLAG, flag), false);
+		player_learn_icon(p, icon_index(ICON_VAR_FLAG, flag), false);
 	}
 
 	update_player_object_knowledge(p);
@@ -1371,12 +1376,12 @@ void player_learn_innate(struct player *p)
  *
  * \param p is the player
  */
-void player_learn_all_runes(struct player *p)
+void player_learn_all_icons(struct player *p)
 {
 	size_t i;
 
-	for (i = 0; i < rune_max; i++)
-		player_learn_rune(p, i, false);
+	for (i = 0; i < icon_max; i++)
+		player_learn_icon(p, i, false);
 }
 
 /**
@@ -1423,17 +1428,23 @@ void mod_message(struct object *obj, int mod)
 			else if (obj->modifiers[OBJ_MOD_CON] < 0)
 				msg("You feel sicklier!");
 			break;
+		case OBJ_MOD_CHR:
+			if (obj->modifiers[OBJ_MOD_CHR] > 0)
+				msg("You feel more confident!");
+			else if (obj->modifiers[OBJ_MOD_CHR] < 0)
+				msg("You feel less confident.");
+			break;
+		case OBJ_MOD_SPD:
+			if (obj->modifiers[OBJ_MOD_SPD] > 0)
+				msg("You feel strangely quick.");
+			else if (obj->modifiers[OBJ_MOD_SPD] < 0)
+				msg("You feel strangely sluggish.");
+			break;
 		case OBJ_MOD_STEALTH:
 			if (obj->modifiers[OBJ_MOD_STEALTH] > 0)
 				msg("You feel stealthier.");
 			else if (obj->modifiers[OBJ_MOD_STEALTH] < 0)
 				msg("You feel noisier.");
-			break;
-		case OBJ_MOD_SPEED:
-			if (obj->modifiers[OBJ_MOD_SPEED] > 0)
-				msg("You feel strangely quick.");
-			else if (obj->modifiers[OBJ_MOD_SPEED] < 0)
-				msg("You feel strangely sluggish.");
 			break;
 		case OBJ_MOD_BLOWS:
 			if (obj->modifiers[OBJ_MOD_BLOWS] > 0)
@@ -1443,9 +1454,9 @@ void mod_message(struct object *obj, int mod)
 			break;
 		case OBJ_MOD_SHOTS:
 			if (obj->modifiers[OBJ_MOD_SHOTS] > 0)
-				msg("Your missile weapon tingles in your hands.");
+				msg("Your gun tingles in your hands.");
 			else if (obj->modifiers[OBJ_MOD_SHOTS] < 0)
-				msg("Your missile weapon aches in your hands.");
+				msg("Your gun aches in your hands.");
 			break;
 		case OBJ_MOD_INFRA:
 			msg("Your eyes tingle.");
@@ -1458,69 +1469,69 @@ void mod_message(struct object *obj, int mod)
 	}
 }
 
-void object_curses_find_to_a(struct player *p, struct object *obj)
+void object_faults_find_to_a(struct player *p, struct object *obj)
 {
-	int index = rune_index(RUNE_VAR_COMBAT, COMBAT_RUNE_TO_A);
-	if (obj->curses) {
+	int index = icon_index(ICON_VAR_COMBAT, COMBAT_ICON_TO_A);
+	if (obj->faults) {
 		int i;
 
-		for (i = 1; i < z_info->curse_max; i++) {
-			if (!obj->curses[i].power || !curses[i].obj)
+		for (i = 1; i < z_info->fault_max; i++) {
+			if (!obj->faults[i].power || !faults[i].obj)
 				continue;
 
-			if (curses[i].obj->to_a != 0) {
-				player_learn_rune(p, index, true);
+			if (faults[i].obj->to_a != 0) {
+				player_learn_icon(p, index, true);
 
-				/* Learn the curse */
-				index = rune_index(RUNE_VAR_CURSE, i);
+				/* Learn the fault */
+				index = icon_index(ICON_VAR_FAULT, i);
 				if (index >= 0) {
-					player_learn_rune(p, index, true);
+					player_learn_icon(p, index, true);
 				}
 			}
 		}
 	}
 }
 
-void object_curses_find_to_h(struct player *p, struct object *obj)
+void object_faults_find_to_h(struct player *p, struct object *obj)
 {
-	int index = rune_index(RUNE_VAR_COMBAT, COMBAT_RUNE_TO_H);
-	if (obj->curses) {
+	int index = icon_index(ICON_VAR_COMBAT, COMBAT_ICON_TO_H);
+	if (obj->faults) {
 		int i;
 
-		for (i = 1; i < z_info->curse_max; i++) {
-			if (!obj->curses[i].power || !curses[i].obj)
+		for (i = 1; i < z_info->fault_max; i++) {
+			if (!obj->faults[i].power || !faults[i].obj)
 				continue;
 
-			if (curses[i].obj->to_h != 0) {
-				player_learn_rune(p, index, true);
+			if (faults[i].obj->to_h != 0) {
+				player_learn_icon(p, index, true);
 
-				/* Learn the curse */
-				index = rune_index(RUNE_VAR_CURSE, i);
+				/* Learn the fault */
+				index = icon_index(ICON_VAR_FAULT, i);
 				if (index >= 0) {
-					player_learn_rune(p, index, true);
+					player_learn_icon(p, index, true);
 				}
 			}
 		}
 	}
 }
 
-void object_curses_find_to_d(struct player *p, struct object *obj)
+void object_faults_find_to_d(struct player *p, struct object *obj)
 {
-	int index = rune_index(RUNE_VAR_COMBAT, COMBAT_RUNE_TO_D);
-	if (obj->curses) {
+	int index = icon_index(ICON_VAR_COMBAT, COMBAT_ICON_TO_D);
+	if (obj->faults) {
 		int i;
 
-		for (i = 1; i < z_info->curse_max; i++) {
-			if (!obj->curses[i].power || !curses[i].obj)
+		for (i = 1; i < z_info->fault_max; i++) {
+			if (!obj->faults[i].power || !faults[i].obj)
 				continue;
 
-			if (curses[i].obj->to_d != 0) {
-				player_learn_rune(p, index, true);
+			if (faults[i].obj->to_d != 0) {
+				player_learn_icon(p, index, true);
 
-				/* Learn the curse */
-				index = rune_index(RUNE_VAR_CURSE, i);
+				/* Learn the fault */
+				index = icon_index(ICON_VAR_FAULT, i);
 				if (index >= 0) {
-					player_learn_rune(p, index, true);
+					player_learn_icon(p, index, true);
 				}
 			}
 		}
@@ -1528,48 +1539,48 @@ void object_curses_find_to_d(struct player *p, struct object *obj)
 }
 
 /**
- * Find flags caused by curses
+ * Find flags caused by faults
  *
  * \param p is the player
  * \param obj is the object
  * \param test_flags is the set of flags to check for
  * \return whether a flag was found
  */
-bool object_curses_find_flags(struct player *p, struct object *obj,
+bool object_faults_find_flags(struct player *p, struct object *obj,
 							  bitflag *test_flags)
 {
 	char o_name[80];
 	bool new = false;
 
 	object_desc(o_name, sizeof(o_name), obj, ODESC_BASE);
-	if (obj->curses) {
+	if (obj->faults) {
 		int i;
 		int index;
 		bitflag f[OF_SIZE];
 		int flag;
 
-		for (i = 1; i < z_info->curse_max; i++) {
-			if (!obj->curses[i].power || !curses[i].obj)
+		for (i = 1; i < z_info->fault_max; i++) {
+			if (!obj->faults[i].power || !faults[i].obj)
 				continue;
 
 			/* Get all the relevant flags */
-			object_flags(curses[i].obj, f);
+			object_flags(faults[i].obj, f);
 			of_inter(f, test_flags);
 			for (flag = of_next(f, FLAG_START); flag != FLAG_END;
 				 flag = of_next(f, flag + 1)) {
 				/* Learn any new flags */
 				if (!of_has(p->obj_k->flags, flag)) {
 					new = true;
-					player_learn_rune(p, rune_index(RUNE_VAR_FLAG, flag), true);
+					player_learn_icon(p, icon_index(ICON_VAR_FLAG, flag), true);
 					if (p->upkeep->playing) {
 						flag_message(flag, o_name);
 					}
 				}
 
-				/* Learn the curse */
-				index = rune_index(RUNE_VAR_CURSE, i);
+				/* Learn the fault */
+				index = icon_index(ICON_VAR_FAULT, i);
 				if (index >= 0) {
-					player_learn_rune(p, index, true);
+					player_learn_icon(p, index, true);
 				}
 			}
 		}
@@ -1579,36 +1590,36 @@ bool object_curses_find_flags(struct player *p, struct object *obj,
 }
 
 /**
- * Find a modifiers caused by curses
+ * Find a modifiers caused by faults
  *
  * \param p is the player
  * \param obj is the object
  */
-void object_curses_find_modifiers(struct player *p, struct object *obj)
+void object_faults_find_modifiers(struct player *p, struct object *obj)
 {
 	int i;
 
-	if (obj->curses) {
-		for (i = 1; i < z_info->curse_max; i++) {
-			int index = rune_index(RUNE_VAR_CURSE, i);
+	if (obj->faults) {
+		for (i = 1; i < z_info->fault_max; i++) {
+			int index = icon_index(ICON_VAR_FAULT, i);
 			int j;
 
-			if (!obj->curses[i].power || !curses[i].obj)
+			if (!obj->faults[i].power || !faults[i].obj)
 				continue;
 
 			/* Learn all modifiers */
 			for (j = 0; j < OBJ_MOD_MAX; j++) {
-				if (curses[i].obj->modifiers[j]) {
+				if (faults[i].obj->modifiers[j]) {
 					if (!p->obj_k->modifiers[j]) {
-						player_learn_rune(p, rune_index(RUNE_VAR_MOD, j), true);
+						player_learn_icon(p, icon_index(ICON_VAR_MOD, j), true);
 						if (p->upkeep->playing) {
 							mod_message(obj, j);
 						}
 					}
 
-					/* Learn the curse */
+					/* Learn the fault */
 					if (index >= 0) {
-						player_learn_rune(p, index, true);
+						player_learn_icon(p, index, true);
 					}
 				}
 			}
@@ -1617,41 +1628,41 @@ void object_curses_find_modifiers(struct player *p, struct object *obj)
 }
 
 /**
- * Find an elemental property caused by curses
+ * Find an elemental property caused by faults
  *
  * \param p is the player
  * \param obj is the object
  * \param elem the element
- * \return whether the element appeared in a curse
+ * \return whether the element appeared in a fault
  */
-bool object_curses_find_element(struct player *p, struct object *obj, int elem)
+bool object_faults_find_element(struct player *p, struct object *obj, int elem)
 {
 	char o_name[80];
 	bool new = false;
 
 	object_desc(o_name, sizeof(o_name), obj, ODESC_BASE);
-	if (obj->curses) {
+	if (obj->faults) {
 		int i;
 
-		for (i = 1; i < z_info->curse_max; i++) {
-			int index = rune_index(RUNE_VAR_CURSE, i);
+		for (i = 1; i < z_info->fault_max; i++) {
+			int index = icon_index(ICON_VAR_FAULT, i);
 
-			if (!obj->curses[i].power || !curses[i].obj)
+			if (!obj->faults[i].power || !faults[i].obj)
 				continue;
 
 			/* Does the object affect the player's resistance to the element? */
-			if (curses[i].obj->el_info[elem].res_level != 0) {
+			if (faults[i].obj->el_info[elem].res_level != 0) {
 				/* Learn the element properties if we don't know yet */
 				if (!p->obj_k->el_info[elem].res_level) {
 					msg("Your %s glows.", o_name);
 
-					player_learn_rune(p, rune_index(RUNE_VAR_RESIST, elem),
+					player_learn_icon(p, icon_index(ICON_VAR_RESIST, elem),
 									  true);
 				}
 
-				/* Learn the curse */
+				/* Learn the fault */
 				if (index >= 0) {
-					player_learn_rune(p, index, true);
+					player_learn_icon(p, index, true);
 				}
 				new = true;
 			}
@@ -1661,50 +1672,52 @@ bool object_curses_find_element(struct player *p, struct object *obj, int elem)
 }
 
 /**
- * Get a random unknown rune from an object
+ * Get a random unknown icon from an object
  *
  * \param p is the player
  * \param obj is the object
- * \return the index into the rune list, or -1 for no unknown runes
+ * \return the index into the icon list, or -1 for no unknown icons
  */
-int object_find_unknown_rune(struct player *p, struct object *obj)
+int object_find_unknown_icon(struct player *p, struct object *obj)
 {
 	size_t i, num = 0;
-	int *poss_runes;
+	int *poss_icons;
 	int chosen = -1;
 
-	if (object_runes_known(obj)) return -1;
+	if (object_icons_known(obj)) return -1;
 
-	poss_runes = mem_zalloc(rune_max * sizeof(int));
-	for (i = 0; i < rune_max; i++)
-		if (object_has_rune(obj, i) && !player_knows_rune(p, i))
-			poss_runes[num++] = i;
-
-	/* Grab a random rune from among the unknowns  */
-	if (num) {
-		chosen = poss_runes[randint0(num)];
+	poss_icons = mem_zalloc(icon_max * sizeof(int));
+	for (i = 0; i < icon_max; i++) {
+		if (object_has_icon(obj, i) && !player_knows_icon(p, i)) {
+			poss_icons[num++] = i;
+		}
 	}
 
-	mem_free(poss_runes);
+	/* Grab a random icon from among the unknowns  */
+	if (num) {
+		chosen = poss_icons[randint0(num)];
+	}
+
+	mem_free(poss_icons);
 	return chosen;
 }
 
 /**
- * Learn a random unknown rune from an object
+ * Learn a random unknown icon from an object
  *
  * \param p is the player
  * \param obj is the object
  */
-void object_learn_unknown_rune(struct player *p, struct object *obj)
+void object_learn_unknown_icon(struct player *p, struct object *obj)
 {
-	/* Get a random unknown rune from the object */
-	int i = object_find_unknown_rune(p, obj);
+	/* Get a random unknown icon from the object */
+	int i = object_find_unknown_icon(p, obj);
 
-	/* No unknown runes */
+	/* No unknown icons */
 	if (i < 0) return;
 
-	/* Learn the rune */
-	player_learn_rune(p, i, true);
+	/* Learn the icon */
+	player_learn_icon(p, i, true);
 }
 
 /**
@@ -1749,7 +1762,7 @@ void object_learn_on_wield(struct player *p, struct object *obj)
 	for (flag = of_next(f, FLAG_START); flag != FLAG_END;
 		 flag = of_next(f, flag + 1)) {
 		if (!of_has(p->obj_k->flags, flag)) {
-			player_learn_rune(p, rune_index(RUNE_VAR_FLAG, flag), true);
+			player_learn_icon(p, icon_index(ICON_VAR_FLAG, flag), true);
 			if (p->upkeep->playing) {
 				flag_message(flag, o_name);
 			}
@@ -1759,22 +1772,22 @@ void object_learn_on_wield(struct player *p, struct object *obj)
 	/* Learn all modifiers */
 	for (i = 0; i < OBJ_MOD_MAX; i++) {
 		if (obj->modifiers[i] && !p->obj_k->modifiers[i]) {
-			player_learn_rune(p, rune_index(RUNE_VAR_MOD, i), true);
+			player_learn_icon(p, icon_index(ICON_VAR_MOD, i), true);
 			if (p->upkeep->playing) {
 				mod_message(obj, i);
 			}
 		}
 	}
 
-	/* Learn curses */
-	object_curses_find_to_a(p, obj);
-	object_curses_find_to_h(p, obj);
-	object_curses_find_to_d(p, obj);
-	object_curses_find_flags(p, obj, obvious_mask);
-	object_curses_find_modifiers(p, obj);
+	/* Learn faults */
+	object_faults_find_to_a(p, obj);
+	object_faults_find_to_h(p, obj);
+	object_faults_find_to_d(p, obj);
+	object_faults_find_flags(p, obj, obvious_mask);
+	object_faults_find_modifiers(p, obj);
 	for (i = 0; i < ELEM_MAX; i++) {
 		if (p->obj_k->el_info[i].res_level) {
-			(void) object_curses_find_element(p, obj, i);
+			(void) object_faults_find_element(p, obj, i);
 		}
 	}
 }
@@ -1843,7 +1856,7 @@ void object_learn_slay(struct player *p, struct object *obj, int index)
 	if (!player_knows_slay(p, index)) {
 		int i;
 
-		/* Find the rune index */
+		/* Find the icon index */
 		for (i = 1; i < z_info->slay_max; i++) {
 			if (same_monsters_slain(i, index)) {
 				break;
@@ -1851,8 +1864,8 @@ void object_learn_slay(struct player *p, struct object *obj, int index)
 		}
 		assert(i < z_info->slay_max);
 
-		/* Learn the rune */
-		player_learn_rune(p, rune_index(RUNE_VAR_SLAY, i), true);
+		/* Learn the icon */
+		player_learn_icon(p, icon_index(ICON_VAR_SLAY, i), true);
 		update_player_object_knowledge(p);
 	}
 }
@@ -1869,7 +1882,7 @@ void object_learn_brand(struct player *p, struct object *obj, int index)
 	if (!player_knows_brand(p, index)) {
 		int i;
 
-		/* Find the rune index */
+		/* Find the icon index */
 		for (i = 1; i < z_info->brand_max; i++) {
 			if (streq(brands[i].name, brands[index].name)) {
 				break;
@@ -1877,8 +1890,8 @@ void object_learn_brand(struct player *p, struct object *obj, int index)
 		}
 		assert(i < z_info->brand_max);
 
-		/* Learn the rune */
-		player_learn_rune(p, rune_index(RUNE_VAR_BRAND, i), true);
+		/* Learn the icon */
+		player_learn_icon(p, icon_index(ICON_VAR_BRAND, i), true);
 		update_player_object_knowledge(p);
 	}
 }
@@ -1898,15 +1911,15 @@ void missile_learn_on_ranged_attack(struct player *p, struct object *obj)
 
 	assert(obj->known);
 	if (!object_has_standard_to_h(obj)) {
-		int index = rune_index(RUNE_VAR_COMBAT, COMBAT_RUNE_TO_H);
-		player_learn_rune(p, index, true);
+		int index = icon_index(ICON_VAR_COMBAT, COMBAT_ICON_TO_H);
+		player_learn_icon(p, index, true);
 	}
 	if (obj->to_d) {
-		int index = rune_index(RUNE_VAR_COMBAT, COMBAT_RUNE_TO_D);
-		player_learn_rune(p, index, true);
+		int index = icon_index(ICON_VAR_COMBAT, COMBAT_ICON_TO_D);
+		player_learn_icon(p, index, true);
 	}
-	object_curses_find_to_h(p, obj);
-	object_curses_find_to_d(p, obj);
+	object_faults_find_to_h(p, obj);
+	object_faults_find_to_d(p, obj);
 }
 
 /**
@@ -1931,25 +1944,25 @@ void equip_learn_on_defend(struct player *p)
 		if (obj) {
 			assert(obj->known);
 			if (obj->to_a) {
-				int index = rune_index(RUNE_VAR_COMBAT, COMBAT_RUNE_TO_A);
-				player_learn_rune(p, index, true);
+				int index = icon_index(ICON_VAR_COMBAT, COMBAT_ICON_TO_A);
+				player_learn_icon(p, index, true);
 			}
-			object_curses_find_to_a(p, obj);
+			object_faults_find_to_a(p, obj);
 			if (p->obj_k->to_a) return;
 		}
 	}
 	if (p->shape) {
 		struct player_shape *shape = lookup_player_shape(p->shape->name);
 		if (shape->to_a != 0) {
-			int index = rune_index(RUNE_VAR_COMBAT, COMBAT_RUNE_TO_A);
-			player_learn_rune(p, index, true);
+			int index = icon_index(ICON_VAR_COMBAT, COMBAT_ICON_TO_A);
+			player_learn_icon(p, index, true);
 		}
 	}
 }
 
 /**
  * Learn to-hit bonus on making a ranged attack.
- * Does not apply to weapon or bow
+ * Does not apply to melee weapon or gun
  *
  * \param p is the player
  */
@@ -1966,18 +1979,18 @@ void equip_learn_on_ranged_attack(struct player *p)
 		if (obj) {
 			assert(obj->known);
 			if (!object_has_standard_to_h(obj)) {
-				int index = rune_index(RUNE_VAR_COMBAT, COMBAT_RUNE_TO_H);
-				player_learn_rune(p, index, true);
+				int index = icon_index(ICON_VAR_COMBAT, COMBAT_ICON_TO_H);
+				player_learn_icon(p, index, true);
 			}
-			object_curses_find_to_h(p, obj);
+			object_faults_find_to_h(p, obj);
 			if (p->obj_k->to_h) return;
 		}
 	}
 	if (p->shape) {
 		struct player_shape *shape = lookup_player_shape(p->shape->name);
 		if (shape->to_h != 0) {
-			int index = rune_index(RUNE_VAR_COMBAT, COMBAT_RUNE_TO_H);
-			player_learn_rune(p, index, true);
+			int index = icon_index(ICON_VAR_COMBAT, COMBAT_ICON_TO_H);
+			player_learn_icon(p, index, true);
 		}
 	}
 }
@@ -1985,7 +1998,7 @@ void equip_learn_on_ranged_attack(struct player *p)
 
 /**
  * Learn things which happen on making a melee attack.
- * Does not apply to bow
+ * Does not apply to gun
  *
  * \param p is the player
  */
@@ -2002,27 +2015,27 @@ void equip_learn_on_melee_attack(struct player *p)
 		if (obj) {
 			assert(obj->known);
 			if (!object_has_standard_to_h(obj)) {
-				int index = rune_index(RUNE_VAR_COMBAT, COMBAT_RUNE_TO_H);
-				player_learn_rune(p, index, true);
+				int index = icon_index(ICON_VAR_COMBAT, COMBAT_ICON_TO_H);
+				player_learn_icon(p, index, true);
 			}
 			if (obj->to_d) {
-				int index = rune_index(RUNE_VAR_COMBAT, COMBAT_RUNE_TO_D);
-				player_learn_rune(p, index, true);
+				int index = icon_index(ICON_VAR_COMBAT, COMBAT_ICON_TO_D);
+				player_learn_icon(p, index, true);
 			}
-			object_curses_find_to_h(p, obj);
-			object_curses_find_to_d(p, obj);
+			object_faults_find_to_h(p, obj);
+			object_faults_find_to_d(p, obj);
 			if (p->obj_k->to_h && p->obj_k->to_d) return;
 		}
 	}
 	if (p->shape) {
 		struct player_shape *shape = lookup_player_shape(p->shape->name);
 		if (shape->to_h != 0) {
-			int index = rune_index(RUNE_VAR_COMBAT, COMBAT_RUNE_TO_H);
-			player_learn_rune(p, index, true);
+			int index = icon_index(ICON_VAR_COMBAT, COMBAT_ICON_TO_H);
+			player_learn_icon(p, index, true);
 		}
 		if (shape->to_d != 0) {
-			int index = rune_index(RUNE_VAR_COMBAT, COMBAT_RUNE_TO_D);
-			player_learn_rune(p, index, true);
+			int index = icon_index(ICON_VAR_COMBAT, COMBAT_ICON_TO_D);
+			player_learn_icon(p, index, true);
 		}
 	}
 }
@@ -2056,7 +2069,7 @@ void equip_learn_flag(struct player *p, int flag)
 				char o_name[80];
 				object_desc(o_name, sizeof(o_name), obj, ODESC_BASE);
 				flag_message(flag, o_name);
-				player_learn_rune(p, rune_index(RUNE_VAR_FLAG, flag), true);
+				player_learn_icon(p, icon_index(ICON_VAR_FLAG, flag), true);
 			}
 		} else if (!object_fully_known(obj)) {
 			/* Objects not fully known yet get marked as having had a chance
@@ -2064,8 +2077,8 @@ void equip_learn_flag(struct player *p, int flag)
 			of_on(obj->known->flags, flag);
 		}
 
-		/* Flag may be on a curse */
-		object_curses_find_flags(p, obj, f);
+		/* Flag may be on a fault */
+		object_faults_find_flags(p, obj, f);
 	}
 }
 
@@ -2098,7 +2111,7 @@ void equip_learn_element(struct player *p, int element)
 			msg("Your %s glows.", o_name);
 
 			/* Learn the element properties */
-			player_learn_rune(p, rune_index(RUNE_VAR_RESIST, element), true);
+			player_learn_icon(p, icon_index(ICON_VAR_RESIST, element), true);
 		} else if (!object_fully_known(obj)) {
 			/* Objects not fully known yet get marked as having had a chance
 			 * to display the element */
@@ -2106,8 +2119,8 @@ void equip_learn_element(struct player *p, int element)
 			obj->known->el_info[element].flags = obj->el_info[element].flags;
 		}
 
-		/* Element may be on a curse */
-		object_curses_find_element(p, obj, element);
+		/* Element may be on a fault */
+		object_faults_find_element(p, obj, element);
 	}
 }
 
@@ -2149,11 +2162,11 @@ void equip_learn_after_time(struct player *p)
 			if (!of_has(p->obj_k->flags, flag)) {
 				flag_message(flag, o_name);
 			}
-			player_learn_rune(p, rune_index(RUNE_VAR_FLAG, flag), true);
+			player_learn_icon(p, icon_index(ICON_VAR_FLAG, flag), true);
 		}
 
-		/* Learn curses */
-		object_curses_find_flags(p, obj, timed_mask);
+		/* Learn faults */
+		object_faults_find_flags(p, obj, timed_mask);
 
 		if (!object_fully_known(obj)) {
 			/* Objects not fully known yet get marked as having had a chance
@@ -2230,10 +2243,12 @@ void object_flavor_aware(struct object *obj)
 		object_set_base_known(obj1);
 
 	/* Store objects */
-	for (i = 0; i < MAX_STORES; i++) {
-		struct store *s = &stores[i];
-		for (obj1 = s->stock; obj1; obj1 = obj1->next)
-			object_set_base_known(obj1);
+	for (int t=0; t<z_info->town_max; t++) {
+		for (i = 0; i < MAX_STORES; i++) {
+			struct store *s = &t_info[t].stores[i];
+			for (obj1 = s->stock; obj1; obj1 = obj1->next)
+				object_set_base_known(obj1);
+		}
 	}
 
 	/* Quit if no dungeon yet */

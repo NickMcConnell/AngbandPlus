@@ -255,11 +255,11 @@ that, without the appropriate gear, will kill your character in a single move.
 Use that stuff
 ``````````````
 
-Angband has potions, spell books, wands, staffs, rods, activate-able items,
+Angband has potions, spell books, wands, devices, rods, activate-able items,
 melee weapons, ranged weapons, and whatnot. They're meant to be used, for
 crying out loud! It can take a while to get used to using all the different
 types of items, but they work best when used in concert. For those able to use
-magic devices, rods wands and staves can be very useful when your mana is
+magic devices, rods wands and devices can be very useful when your mana is
 running low, and allow you access to spells that may not normally be available
 to your class. They are also very useful for dealing with monsters that
 
@@ -291,7 +291,7 @@ spellbooks that you know you can't afford to lose during a fight.
 An item you don't use is useless
 ````````````````````````````````
 
-Common fallacy: you find an incredibly powerful Staff of Mighty BOOM! (3
+Common fallacy: you find an incredibly powerful Device of Mighty BOOM! (3
 charges), or a single Potion of become Chuck Norris, and then you keep
 carrying it around and never actually use it. It could be a life insurance,
 but you might still reconsider your strategy: maybe you've become too careful
@@ -306,13 +306,13 @@ used in combat, and can be removed if found to be of poor quality. Some
 characters learn to cast spells to identify the runes on wearable items that
 define their properties. 
 
-Staves, rods and wands can often be identified by being used against monsters,
+Devices, rods and wands can often be identified by being used against monsters,
 but be aware that some of these magical items can have negative effects. Only
 use this approach when facing easily defeated monsters. Consuming unidentified
 potions and mushrooms can be risky, so the risk-averse player may prefer to
 sell them in the town. Ammunition can normally be identified by being thrown
 or fired at a monster, and typically the worst thing that can happen is that
-the attack does little damage to the monster. As with staves, wands and rods,
+the attack does little damage to the monster. As with devices, wands and rods,
 do this when facing a monster than can be easily defeated.
 
 Scrolls can normally be identified by being read, but some scrolls have

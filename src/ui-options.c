@@ -123,7 +123,7 @@ static void option_toggle_display(struct menu *m, int oid, bool cursor,
  * Handle keypresses for an option entry.
  */
 static bool option_toggle_handle(struct menu *m, const ui_event *event,
-		int oid)
+		int oid, bool *exit)
 {
 	bool next = false;
 
@@ -1239,7 +1239,7 @@ static void ego_display(struct menu * menu, int oid, bool cursor, int row,
 /**
  * Deal with events on the sval menu
  */
-static bool ego_action(struct menu * menu, const ui_event * event, int oid)
+static bool ego_action(struct menu * menu, const ui_event * event, int oid, bool *exit)
 {
 	struct ego_desc *choice = menu->menu_data;
 
@@ -1423,7 +1423,7 @@ static void quality_subdisplay(struct menu *menu, int oid, bool cursor, int row,
 /**
  * Handle keypresses.
  */
-static bool quality_action(struct menu *m, const ui_event *event, int oid)
+static bool quality_action(struct menu *m, const ui_event *event, int oid, bool *exit)
 {
 	struct menu menu;
 	menu_iter menu_f = { NULL, NULL, quality_subdisplay, NULL, NULL };
@@ -1515,22 +1515,17 @@ typedef struct
  */
 static tval_desc sval_dependent[] =
 {
-	{ TV_STAFF,			"Staffs" },
+	{ TV_DEVICE,			"Devices" },
 	{ TV_WAND,			"Wands" },
 	{ TV_ROD,			"Rods" },
-	{ TV_SCROLL,		"Scrolls" },
-	{ TV_POTION,		"Potions" },
+	{ TV_CARD,			"Cards" },
+	{ TV_PILL,			"Pills" },
 	{ TV_RING,			"Rings" },
 	{ TV_AMULET,		"Amulets" },
 	{ TV_FOOD,			"Food" },
 	{ TV_MUSHROOM,		"Mushrooms" },
-	{ TV_MAGIC_BOOK,	"Magic books" },
-	{ TV_PRAYER_BOOK,	"Prayer books" },
-	{ TV_NATURE_BOOK,	"Nature books" },
-	{ TV_SHADOW_BOOK,	"Shadow books" },
-	{ TV_OTHER_BOOK,	"Mystery books" },
 	{ TV_LIGHT,			"Lights" },
-	{ TV_FLASK,			"Flasks of oil" },
+	{ TV_BATTERY,		"Batteries" },
 	{ TV_GOLD,			"Money" },
 };
 
@@ -1582,7 +1577,7 @@ static void ignore_sval_menu_display(struct menu *menu, int oid, bool cursor,
  * Deal with events on the sval menu
  */
 static bool ignore_sval_menu_action(struct menu *m, const ui_event *event,
-									int oid)
+									int oid, bool *exit)
 {
 	const ignore_choice *choice = menu_priv(m);
 
@@ -1677,11 +1672,6 @@ static bool sval_menu(int tval, const char *desc)
 	switch (tval)
 	{
 		case TV_LIGHT:
-		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
-		case TV_NATURE_BOOK:
-		case TV_SHADOW_BOOK:
-		case TV_OTHER_BOOK:
 		case TV_DRAG_ARMOR:
 		case TV_GOLD:
 			/* leave sorted by sval */
@@ -1815,7 +1805,7 @@ static void display_options_item(struct menu *menu, int oid, bool cursor,
 }
 
 static bool handle_options_item(struct menu *menu, const ui_event *event,
-								int oid)
+								int oid, bool *exit)
 {
 	if (event->type == EVT_SELECT) {
 		if ((size_t) oid < N_ELEMENTS(sval_dependent))

@@ -136,13 +136,18 @@ extern size_t my_strcpy(char *buf, const char *src, size_t bufsize);
 extern size_t my_strcat(char *buf, const char *src, size_t bufsize);
 
 /**
- * Capitalise string 'buf'
+ * Capitalise string 'buf''s first char
  */
 void my_strcap(char *buf);
+/**
+ * Capitalise string 'buf''s first char, lower case the rest
+ */
+void titlecase(char *buf);
 
 /**
  * Test equality, prefix, suffix
  */
+
 extern bool streq(const char *s, const char *t);
 extern bool prefix(const char *s, const char *t);
 extern bool prefix_i(const char *s, const char *t);

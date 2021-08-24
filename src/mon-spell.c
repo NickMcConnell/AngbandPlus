@@ -198,9 +198,9 @@ const struct monster_spell *monster_spell_by_index(int index)
 
 /**
  * Check if a spell effect which has been saved against would also have
- * been prevented by an object property, and learn the appropriate rune
+ * been prevented by an object property, and learn the appropriate icon
  */
-static void spell_check_for_fail_rune(const struct monster_spell *spell)
+static void spell_check_for_fail_icon(const struct monster_spell *spell)
 {
 	struct effect *effect = spell->effect;
 	while (effect) {
@@ -268,7 +268,7 @@ void do_mon_spell(int index, struct monster *mon, bool seen)
 		if (level->save_message && (target_mon <= 0) &&
 				randint0(100) < player->state.skills[SKILL_SAVE]) {
 			msg("%s", level->save_message);
-			spell_check_for_fail_rune(spell);
+			spell_check_for_fail_icon(spell);
 		} else {
 			effect_do(spell->effect, source_monster(mon->midx), NULL, &ident, true, 0, 0, 0, NULL);
 		}
@@ -386,12 +386,6 @@ void unset_spells(bitflag *spells, bitflag *flags, bitflag *pflags,
 				if ((smart || !one_in_(3)) &&
 						effect->index == EF_TIMED_INC &&
 						of_has(flags, timed_effects[effect->subtype].fail))
-					break;
-
-				/* Mana drain */
-				if ((smart || one_in_(2)) &&
-						effect->index == EF_DRAIN_MANA &&
-						pf_has(pflags, PF_NO_MANA))
 					break;
 
 				effect = effect->next;

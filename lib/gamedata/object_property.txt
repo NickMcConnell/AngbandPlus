@@ -6,7 +6,7 @@
 # subtype: subtype of object property, currently only used by flags
 # id-type: how a property is identified, currently only used by flags
 # code: a code for the object property, which is used to associate it with its
-#       index among the other properties of that type
+#       index among the other properties of that ty pe
 # power: the value given to the property in object power calculations
 # mult: relative value of properties, used in power calculations
 # type-mult: extra multiplier used in power for particular properties on
@@ -78,6 +78,24 @@ adjective:healthy
 neg-adjective:sickly
 bindui:stat_mod_ui_compact_0<CON>:0
 
+name:charisma
+type:stat
+code:CHR
+power:1
+mult:5
+adjective:confident
+neg-adjective:ugly
+bindui:stat_mod_ui_compact_0<CHR>:0
+
+name:speed
+type:stat
+code:SPD
+power:20
+mult:20
+adjective:quick
+neg-adjective:sluggish
+bindui:stat_mod_ui_compact_0<SPD>:0
+
 name:stealth
 type:mod
 code:STEALTH
@@ -106,13 +124,6 @@ power:3
 mult:8
 bindui:tunneling_ui_compact_0:0
 
-name:speed
-type:mod
-code:SPEED
-power:20
-mult:6
-bindui:speed_ui_compact_0:0
-
 name:damage reduction
 type:mod
 code:DAM_RED
@@ -125,7 +136,7 @@ type:mod
 code:BLOWS
 power:0
 mult:50
-type-mult:bow:0
+type-mult:gun:0
 type-mult:ring:3
 type-mult:amulet:3
 type-mult:light:3
@@ -217,6 +228,13 @@ mult:6
 type-mult:light:3
 bindui:light_ui_compact_0:0
 
+name:use energy
+type:mod
+code:USE_ENERGY
+power:0
+mult:1
+bindui:light_ui_compact_0:0
+
 name:sustain strength
 type:flag
 subtype:sustain
@@ -261,6 +279,24 @@ code:SUST_CON
 power:8
 msg:Your {name} glows.
 bindui:stat_mod_ui_compact_0<CON>:1
+
+name:sustain charisma
+type:flag
+subtype:sustain
+id-type:on effect
+code:SUST_CHR
+power:8
+msg:Your {name} glows.
+bindui:stat_mod_ui_compact_0<CHR>:1
+
+name:sustain speed
+type:flag
+subtype:sustain
+id-type:on effect
+code:SUST_SPD
+power:8
+msg:Your {name} glows.
+bindui:stat_mod_ui_compact_0<SPD>:1
 
 name:protection from fear
 type:flag
@@ -436,7 +472,7 @@ subtype:melee
 id-type:on effect
 code:IMPACT
 power:10
-type-mult:bow:0
+type-mult:gun:0
 type-mult:ring:0
 type-mult:amulet:0
 type-mult:light:0
@@ -458,7 +494,7 @@ subtype:melee
 id-type:on wield
 code:BLESSED
 power:1
-type-mult:bow:0
+type-mult:gun:0
 type-mult:ring:0
 type-mult:amulet:0
 type-mult:light:0
@@ -484,7 +520,7 @@ type-mult:sword:0
 type-mult:polearm:0
 type-mult:hafted:0
 type-mult:digger:0
-type-mult:bow:0
+type-mult:gun:0
 type-mult:ring:0
 type-mult:amulet:0
 type-mult:soft armor:0
@@ -507,7 +543,7 @@ type-mult:sword:0
 type-mult:polearm:0
 type-mult:hafted:0
 type-mult:digger:0
-type-mult:bow:0
+type-mult:gun:0
 type-mult:ring:0
 type-mult:amulet:0
 type-mult:soft armor:0
@@ -530,7 +566,7 @@ type-mult:sword:0
 type-mult:polearm:0
 type-mult:hafted:0
 type-mult:digger:0
-type-mult:bow:0
+type-mult:gun:0
 type-mult:ring:0
 type-mult:amulet:0
 type-mult:soft armor:0
@@ -542,6 +578,14 @@ type-mult:helm:0
 type-mult:crown:0
 type-mult:gloves:0
 type-mult:boots:0
+
+name:stolen
+type:flag
+subtype:bad
+id-type:on effect
+code:STOLEN
+power:-1
+desc:Stolen from a store
 
 name:impaired hitpoint recovery
 type:flag
@@ -618,7 +662,7 @@ id-type:on wield
 code:FRAGILE
 power:-1
 bindui:fragile_ui_compact_0:0
-desc:Can be destroyed if you attempt to remove its curses
+desc:Easily destroyed by failure to use or repair it
 
 name:intensity 2 light
 type:flag
@@ -630,7 +674,7 @@ type-mult:sword:0
 type-mult:polearm:0
 type-mult:hafted:0
 type-mult:digger:0
-type-mult:bow:0
+type-mult:gun:0
 type-mult:ring:0
 type-mult:amulet:0
 type-mult:soft armor:0
@@ -653,7 +697,53 @@ type-mult:sword:0
 type-mult:polearm:0
 type-mult:hafted:0
 type-mult:digger:0
-type-mult:bow:0
+type-mult:gun:0
+type-mult:ring:0
+type-mult:amulet:0
+type-mult:soft armor:0
+type-mult:hard armor:0
+type-mult:dragon armor:0
+type-mult:cloak:0
+type-mult:shield:0
+type-mult:helm:0
+type-mult:crown:0
+type-mult:gloves:0
+type-mult:boots:0
+
+name:intensity 4 light
+type:flag
+subtype:light
+id-type:on wield
+code:LIGHT_4
+power:27
+type-mult:sword:0
+type-mult:polearm:0
+type-mult:hafted:0
+type-mult:digger:0
+type-mult:gun:0
+type-mult:ring:0
+type-mult:amulet:0
+type-mult:soft armor:0
+type-mult:hard armor:0
+type-mult:dragon armor:0
+type-mult:cloak:0
+type-mult:shield:0
+type-mult:helm:0
+type-mult:crown:0
+type-mult:gloves:0
+type-mult:boots:0
+
+name:intensity 5 light
+type:flag
+subtype:light
+id-type:on wield
+code:LIGHT_5
+power:36
+type-mult:sword:0
+type-mult:polearm:0
+type-mult:hafted:0
+type-mult:digger:0
+type-mult:gun:0
 type-mult:ring:0
 type-mult:amulet:0
 type-mult:soft armor:0
@@ -700,7 +790,7 @@ type-mult:sword:0
 type-mult:polearm:0
 type-mult:hafted:0
 type-mult:digger:0
-type-mult:bow:0
+type-mult:gun:0
 type-mult:ring:0
 type-mult:amulet:0
 type-mult:soft armor:0
@@ -741,6 +831,12 @@ subtype:throw
 id-type:on wield
 code:THROWING
 power:4
+
+name:no-activate
+type:flag
+subtype:throw
+code:NO_ACTIVATION
+power:0
 
 name:ignore acid
 type:ignore
@@ -822,11 +918,11 @@ code:NEXUS
 power:15
 bindui:resist_ui_compact_0<NEXUS>:0
 
-name:nether resistance
+name:radiation resistance
 type:resistance
-code:NETHER
+code:RADIATION
 power:20
-bindui:resist_ui_compact_0<NETHER>:0
+bindui:resist_ui_compact_0<RADIATION>:0
 
 name:chaos resistance
 type:resistance
@@ -888,3 +984,7 @@ code:COLD
 power:43
 bindui:resist_ui_compact_0<COLD>:0
 
+name:task special
+type:flag
+code:QUEST_SPECIAL
+power:1

@@ -25,7 +25,7 @@
 #include "init.h"
 #include "monster.h"
 #include "mon-util.h"
-#include "obj-curse.h"
+#include "obj-fault.h"
 #include "obj-gear.h"
 #include "obj-info.h"
 #include "obj-knowledge.h"
@@ -87,6 +87,26 @@ static void info_out_list(textblock *tb, const char *list[], size_t count)
 	textblock_append(tb, ".\n");
 }
 
+/**
+ * Given an array of strings, as so:
+ *  { "Intelligence", "fish", "Lens", "prime", "NuMbEr" },
+ *
+ * ... output a list like "intelligence, fish, lens, prime, nuMbEr.\n".
+ */
+static void info_out_list_tolower(textblock *tb, const char *list[], size_t count)
+{
+	size_t i;
+	char buf[120];
+
+	for (i = 0; i < count; i++) {
+		my_strcpy(buf, list[i], sizeof(buf));
+		buf[0] = tolower(buf[0]);
+		textblock_append(tb, "%s", buf);
+		if (i != (count - 1)) textblock_append(tb, ", ");
+	}
+
+	textblock_append(tb, ".\n");
+}
 
 /**
  * Fills recepticle with all the elements that correspond to the given `list`.
@@ -111,22 +131,22 @@ static size_t element_info_collect(const bool list[], const char *recepticle[])
  * ------------------------------------------------------------------------ */
 
 /**
- * Describe an item's curses.
+ * Describe an item's faults.
  */
-static bool describe_curses(textblock *tb, const struct object *obj,
+static bool describe_faults(textblock *tb, const struct object *obj,
 		const bitflag flags[OF_SIZE])
 {
 	int i;
-	struct curse_data *c = obj->known->curses;
+	struct fault_data *c = obj->known->faults;
 
 	if (!c)
 		return false;
-	for (i = 1; i < z_info->curse_max; i++) {
+	for (i = 1; i < z_info->fault_max; i++) {
 		if (c[i].power) {
 			textblock_append(tb, "It ");
-			textblock_append_c(tb, COLOUR_L_RED, "%s", curses[i].desc);
+			textblock_append_c(tb, COLOUR_L_RED, "%s", faults[i].desc);
 			if (c[i].power == 100) {
-				textblock_append(tb, "; this curse cannot be removed");
+				textblock_append(tb, "; this is beyond repair");
 			}
 			textblock_append(tb, ".\n");
 		}
@@ -204,7 +224,7 @@ static bool describe_elements(textblock *tb,
 	count = element_info_collect(list, i_descs);
 	if (count) {
 		textblock_append(tb, "Provides immunity to ");
-		info_out_list(tb, i_descs, count);
+		info_out_list_tolower(tb, i_descs, count);
 		prev = true;
 	}
 
@@ -214,7 +234,7 @@ static bool describe_elements(textblock *tb,
 	count = element_info_collect(list, r_descs);
 	if (count) {
 		textblock_append(tb, "Provides resistance to ");
-		info_out_list(tb, r_descs, count);
+		info_out_list_tolower(tb, r_descs, count);
 		prev = true;
 	}
 
@@ -224,7 +244,7 @@ static bool describe_elements(textblock *tb,
 	count = element_info_collect(list, v_descs);
 	if (count) {
 		textblock_append(tb, "Makes you vulnerable to ");
-		info_out_list(tb, v_descs, count);
+		info_out_list_tolower(tb, v_descs, count);
 		prev = true;
 	}
 
@@ -253,7 +273,7 @@ static bool describe_protects(textblock *tb, const bitflag flags[OF_SIZE])
 		return false;
 
 	textblock_append(tb, "Provides protection from ");
-	info_out_list(tb, p_descs, count);
+	info_out_list_tolower(tb, p_descs, count);
 
 	return  true;
 }
@@ -275,7 +295,7 @@ static bool describe_ignores(textblock *tb, const struct element_info el_info[])
 		return false;
 
 	textblock_append(tb, "Cannot be harmed by ");
-	info_out_list(tb, descs, count);
+	info_out_list_tolower(tb, descs, count);
 
 	return true;
 }
@@ -297,7 +317,7 @@ static bool describe_hates(textblock *tb, const struct element_info el_info[])
 		return false;
 
 	textblock_append(tb, "Can be destroyed by ");
-	info_out_list(tb, descs, count);
+	info_out_list_tolower(tb, descs, count);
 
 	return true;
 }
@@ -445,6 +465,7 @@ static bool describe_brands(textblock *tb, const struct object *obj)
 static void calculate_melee_crits(struct player_state *state, int weight,
 		int plus, int *mult, int *add, int *div)
 {
+	weight = (weight * 10) / 454;
 	int k, to_crit = weight + 5 * (state->to_h + plus) +
 		3 * state->skills[SKILL_TO_HIT_MELEE] - 60;
 	to_crit = MIN(5000, MAX(0, to_crit));
@@ -489,6 +510,7 @@ static int o_calculate_melee_crits(struct player_state state,
 static void calculate_missile_crits(struct player_state *state, int weight,
 		int plus, int *mult, int *add, int *div)
 {
+	weight = (weight * 10) / 454;
 	int k, to_crit = weight + 4 * (state->to_h + plus) + 2 * player->lev;
 	to_crit = MIN(5000, MAX(0, to_crit));
 
@@ -517,7 +539,7 @@ static int o_calculate_missile_crits(struct player_state state,
 		+ (launcher ? launcher->known->to_h : 0);
 	int chance = BTH_PLUS_ADJ * bonus;
 	if (launcher) {
-		chance += state.skills[SKILL_TO_HIT_BOW];
+		chance += state.skills[SKILL_TO_HIT_GUN];
 	} else {
 		chance += state.skills[SKILL_TO_HIT_THROW];
 		chance *= 3 / 2;
@@ -759,9 +781,9 @@ static bool obj_known_damage(const struct object *obj, int *normal_damage,
 	bool *total_slays;
 	bool has_brands_or_slays = false;
 
-	struct object *bow = equipped_item_by_slot_name(player, "shooting");
+	struct object *gun = equipped_item_by_slot_name(player, "shooting");
 	bool weapon = tval_is_melee_weapon(obj) && !throw;
-	bool ammo   = (player->state.ammo_tval == obj->tval) && (bow) && !throw;
+	bool ammo   = (player->state.ammo_tval == obj->tval) && (gun) && !throw;
 	int melee_adj_mult = ammo ? 0 : 1;
 	int multiplier = 1;
 
@@ -806,7 +828,7 @@ static bool obj_known_damage(const struct object *obj, int *normal_damage,
 								&crit_add, &crit_div);
 
 		dam += (obj->known->to_d * 10);
-		dam += (bow->known->to_d * 10);
+		dam += (gun->known->to_d * 10);
 	} else {
 		plus += obj->known->to_h;
 
@@ -814,7 +836,7 @@ static bool obj_known_damage(const struct object *obj, int *normal_damage,
 								&crit_add, &crit_div);
 
 		dam += (obj->known->to_d * 10);
-		dam *= 2 + obj->weight / 12;
+		dam *= 2 + obj->weight / 540;
 	}
 
 	if (ammo) multiplier = player->state.ammo_mult;
@@ -822,14 +844,14 @@ static bool obj_known_damage(const struct object *obj, int *normal_damage,
 	/* Get the brands */
 	total_brands = mem_zalloc(z_info->brand_max * sizeof(bool));
 	copy_brands(&total_brands, obj->known->brands);
-	if (ammo && bow->known)
-		copy_brands(&total_brands, bow->known->brands);
+	if (ammo && gun->known)
+		copy_brands(&total_brands, gun->known->brands);
 
 	/* Get the slays */
 	total_slays = mem_zalloc(z_info->slay_max * sizeof(bool));
 	copy_slays(&total_slays, obj->known->slays);
-	if (ammo && bow->known)
-		copy_slays(&total_slays, bow->known->slays);
+	if (ammo && gun->known)
+		copy_slays(&total_slays, gun->known->slays);
 
 	/* Melee weapons may get slays and brands from other items */
 	*nonweap_slay = false;
@@ -950,9 +972,9 @@ static bool o_obj_known_damage(const struct object *obj, int *normal_damage,
 	bool *total_slays;
 	bool has_brands_or_slays = false;
 
-	struct object *bow = equipped_item_by_slot_name(player, "shooting");
+	struct object *gun = equipped_item_by_slot_name(player, "shooting");
 	bool weapon = tval_is_melee_weapon(obj) && !throw;
-	bool ammo   = (player->state.ammo_tval == obj->tval) && (bow) && !throw;
+	bool ammo   = (player->state.ammo_tval == obj->tval) && (gun) && !throw;
 	int multiplier = 1;
 
 	struct player_state state;
@@ -982,10 +1004,10 @@ static bool o_obj_known_damage(const struct object *obj, int *normal_damage,
 		dice += o_calculate_melee_crits(state, obj);
 		old_blows = state.num_blows;
 	} else if (ammo) {
-		dice += o_calculate_missile_crits(player->state, obj, bow);
+		dice += o_calculate_missile_crits(player->state, obj, gun);
 	} else {
 		dice += o_calculate_missile_crits(player->state, obj, NULL);
-		dice *= 2 + obj->weight / 12;
+		dice *= 2 + obj->weight / 540;
 	}
 
 	if (ammo) multiplier = player->state.ammo_mult;
@@ -998,7 +1020,7 @@ static bool o_obj_known_damage(const struct object *obj, int *normal_damage,
 
 	/* Apply deadliness to average. (100x inflation) */
 	if (ammo) {
-		deadliness = obj->known->to_d + bow->known->to_d + state.to_d;
+		deadliness = obj->known->to_d + gun->known->to_d + state.to_d;
 	} else {
 		deadliness = obj->known->to_d + state.to_d;
 	}
@@ -1007,14 +1029,14 @@ static bool o_obj_known_damage(const struct object *obj, int *normal_damage,
 	/* Get the brands */
 	total_brands = mem_zalloc(z_info->brand_max * sizeof(bool));
 	copy_brands(&total_brands, obj->known->brands);
-	if (ammo && bow->known)
-		copy_brands(&total_brands, bow->known->brands);
+	if (ammo && gun->known)
+		copy_brands(&total_brands, gun->known->brands);
 
 	/* Get the slays */
 	total_slays = mem_zalloc(z_info->slay_max * sizeof(bool));
 	copy_slays(&total_slays, obj->known->slays);
-	if (ammo && bow->known)
-		copy_slays(&total_slays, bow->known->slays);
+	if (ammo && gun->known)
+		copy_slays(&total_slays, gun->known->slays);
 
 	/* Melee weapons may get slays and brands from other items */
 	*nonweap_slay = false;
@@ -1305,16 +1327,16 @@ static bool describe_damage(textblock *tb, const struct object *obj, bool throw)
 static void obj_known_misc_combat(const struct object *obj, bool *thrown_effect,
 								  int *range, int *break_chance, bool *heavy)
 {
-	struct object *bow = equipped_item_by_slot_name(player, "shooting");
+	struct object *gun = equipped_item_by_slot_name(player, "shooting");
 	bool weapon = tval_is_melee_weapon(obj);
-	bool ammo   = (player->state.ammo_tval == obj->tval) && (bow);
+	bool ammo   = (player->state.ammo_tval == obj->tval) && (gun);
 
 	*thrown_effect = *heavy = false;
 	*range = *break_chance = 0;
 
 	if (!weapon && !ammo) {
-		/* Potions can have special text */
-		if (tval_is_potion(obj) && obj->dd != 0 && obj->ds != 0 &&
+		/* Pills can have special text */
+		if (tval_is_pill(obj) && obj->dd != 0 && obj->ds != 0 &&
 			object_flavor_is_aware(obj))
 			*thrown_effect = true;
 	}
@@ -1354,9 +1376,9 @@ static void obj_known_misc_combat(const struct object *obj, bool *thrown_effect,
  */
 static bool describe_combat(textblock *tb, const struct object *obj)
 {
-	struct object *bow = equipped_item_by_slot_name(player, "shooting");
+	struct object *gun = equipped_item_by_slot_name(player, "shooting");
 	bool weapon = tval_is_melee_weapon(obj);
-	bool ammo   = (player->state.ammo_tval == obj->tval) && (bow);
+	bool ammo   = (player->state.ammo_tval == obj->tval) && (gun);
 	bool throwing_weapon = weapon && of_has(obj->flags, OF_THROWING);
 	bool rock = tval_is_ammo(obj) && of_has(obj->flags, OF_THROWING);
 
@@ -1391,11 +1413,6 @@ static bool describe_combat(textblock *tb, const struct object *obj)
 	}
 	if (throwing_weapon || rock) {
 		describe_damage(tb, obj, true);
-	}
-
-	if (ammo) {
-		textblock_append_c(tb, COLOUR_L_GREEN, "%d%%", break_chance);
-		textblock_append(tb, " chance of breaking upon contact.\n");
 	}
 
 	/* Something has been said */
@@ -1513,10 +1530,12 @@ static bool describe_digger(textblock *tb, const struct object *obj)
  * includes it not actually being a light source).
  */
 static bool obj_known_light(const struct object *obj, oinfo_detail_t mode,
-							int *intensity, bool *uses_fuel, int *refuel_turns)
+							int *intensity, bool *uses_fuel, bool *recharge)
 {
 	bool no_fuel;
 	bool is_light = tval_is_light(obj);
+
+	*recharge = false;
 
 	if (!is_light && (obj->modifiers[OBJ_MOD_LIGHT] <= 0))
 		return false;
@@ -1526,6 +1545,10 @@ static bool obj_known_light(const struct object *obj, oinfo_detail_t mode,
 		*intensity = 2;
 	else if (of_has(obj->flags, OF_LIGHT_3))
 		*intensity = 3;
+	else if (of_has(obj->flags, OF_LIGHT_4))
+		*intensity = 4;
+	else if (of_has(obj->flags, OF_LIGHT_5))
+		*intensity = 5;
 	*intensity += obj->known->modifiers[OBJ_MOD_LIGHT];
 
 	/* Prevent unidentified objects (especially artifact lights) from showing
@@ -1539,12 +1562,7 @@ static bool obj_known_light(const struct object *obj, oinfo_detail_t mode,
 		*uses_fuel = false;
 	} else {
 		*uses_fuel = true;
-	}
-
-	if (is_light && of_has(obj->known->flags, OF_TAKES_FUEL)) {
-		*refuel_turns = z_info->fuel_lamp;
-	} else {
-		*refuel_turns = 0;
+		*recharge = !(of_has(obj->flags, OF_BURNS_OUT));
 	}
 
 	return true;
@@ -1558,10 +1576,11 @@ static bool describe_light(textblock *tb, const struct object *obj,
 {
 	int intensity = 0;
 	bool uses_fuel = false;
-	int refuel_turns = 0;
+	bool recharge = false;
 	bool terse = mode & OINFO_TERSE ? true : false;
+	
 
-	if (!obj_known_light(obj, mode, &intensity, &uses_fuel, &refuel_turns))
+	if (!obj_known_light(obj, mode, &intensity, &uses_fuel, &recharge))
 		return false;
 
 	if (tval_is_light(obj)) {
@@ -1570,34 +1589,19 @@ static bool describe_light(textblock *tb, const struct object *obj,
 		textblock_append(tb, " light.");
 
 		if (!obj->artifact && !uses_fuel)
-			textblock_append(tb, "  No fuel required.");
+			textblock_append(tb, "  No charging required.");
 
 		if (!terse) {
-			if (refuel_turns)
-				textblock_append(tb, "  Refills other lanterns up to %d turns of fuel.", refuel_turns);
+			if (recharge)
+				textblock_append(tb, "  Can be recharged.");
 			else
-				textblock_append(tb, "  Cannot be refueled.");
+				textblock_append(tb, "  Cannot be recharged.");
 		}
 		textblock_append(tb, "\n");
 	}
 
 	return true;
 }
-
-
-/**
- * Describe readable books.
- */
-static bool describe_book(textblock *tb, const struct object *obj,
-						   oinfo_detail_t mode)
-{
-	if (!obj_can_browse(obj)) return false;
-
-	textblock_append(tb, "\nYou can read this book.\n");
-
-	return true;
-}
-
 
 /**
  * Gives the known effects of using the given item.
@@ -1646,7 +1650,7 @@ static bool obj_known_effect(const struct object *obj, struct effect **effect,
 		*max_recharge = randcalc(timeout, 0, MAXIMISE);
 	}
 
-	if (tval_is_edible(obj) || tval_is_potion(obj) || tval_is_scroll(obj)) {
+	if (tval_is_edible(obj) || tval_is_pill(obj) || tval_is_card(obj)) {
 		*failure_chance = 0;
 	} else {
 		*failure_chance = get_use_device_chance(obj);
@@ -1675,14 +1679,18 @@ static bool describe_effect(textblock *tb, const struct object *obj,
 		return false;
 	}
 
+		if (kf_has(obj->kind->kind_flags, KF_MIMIC_KNOW) && (!obj->kind->aware)) {
+			effect = obj_mimic_kind(obj)->effect;
+		}
+
 	/* Effect not known, mouth platitudes */
 	if (!effect && object_effect(obj)) {
 		if (tval_is_edible(obj)) {
 			textblock_append(tb, "It can be eaten.\n");
-		} else if (tval_is_potion(obj)) {
+		} else if (tval_is_pill(obj)) {
 			textblock_append(tb, "It can be drunk.\n");
-		} else if (tval_is_scroll(obj)) {
-			textblock_append(tb, "It can be read.\n");
+		} else if (tval_is_card(obj)) {
+			textblock_append(tb, "It can be run.\n");
 		} else if (aimed) {
 			textblock_append(tb, "It can be aimed.\n");
 		} else {
@@ -1707,10 +1715,10 @@ static bool describe_effect(textblock *tb, const struct object *obj,
 			prefix = "When aimed, it ";
 		else if (tval_is_edible(obj))
 			prefix = "When eaten, it ";
-		else if (tval_is_potion(obj))
+		else if (tval_is_pill(obj))
 			prefix = "When quaffed, it ";
-		else if (tval_is_scroll(obj))
-			prefix = "When read, it ";
+		else if (tval_is_card(obj))
+			prefix = "When run, it ";
 		else
 			prefix = "When activated, it ";
 
@@ -1820,6 +1828,14 @@ static bool describe_origin(textblock *tb, const struct object *obj, bool terse)
 	return true;
 }
 
+/* Returns the kind used by a MIMIC_KNOW object when unknown.
+ * (This is a huge HACK - fix!)
+ */
+struct object_kind *obj_mimic_kind(const struct object *obj)
+{
+	return (obj->kind-1);
+}
+
 /**
  * Print an item's flavour text.
  *
@@ -1836,16 +1852,19 @@ static void describe_flavor_text(textblock *tb, const struct object *obj,
 		obj->known->artifact && obj->artifact->text) {
 		textblock_append(tb, "%s\n\n", obj->artifact->text);
 
-	} else if (object_flavor_is_aware(obj) || ego) {
+	} else if (object_flavor_is_aware(obj) || ego || kf_has(obj->kind->kind_flags, KF_MIMIC_KNOW)) {
 		bool did_desc = false;
-
 		if (!ego && obj->kind->text) {
-			textblock_append(tb, "%s", obj->kind->text);
+			const char *text = obj->kind->text;
+			if (kf_has(obj->kind->kind_flags, KF_MIMIC_KNOW) && (!obj->kind->aware)) {
+				text = obj_mimic_kind(obj)->text;
+			}
+			textblock_append(tb, "%s", text);
 			did_desc = true;
 		}
 
 		/* Display an additional ego-item description */
-		if ((ego || (obj->known->ego != NULL)) && obj->ego->text) {
+		if ((ego || (obj->known->ego != NULL)) && obj->ego && obj->ego->text) {
 			if (did_desc) textblock_append(tb, "  ");
 			textblock_append(tb, "%s\n\n", obj->ego->text);
 		} else if (did_desc) {
@@ -1910,11 +1929,11 @@ static textblock *object_info_out(const struct object *obj, int mode)
 	if (!terse) describe_flavor_text(tb, obj, ego);
 
 	if (!object_fully_known(obj) &&	(obj->known->notice & OBJ_NOTICE_ASSESSED) && !tval_is_useable(obj)) {
-		textblock_append(tb, "You do not know the full extent of this item's powers.\n");
+		textblock_append(tb, "You do not know the full extent of this item's capabilities.\n");
 		something = true;
 	}
 
-	if (describe_curses(tb, obj, flags)) something = true;
+	if (describe_faults(tb, obj, flags)) something = true;
 	if (describe_stats(tb, obj, mode)) something = true;
 	if (describe_slays(tb, obj)) something = true;
 	if (describe_brands(tb, obj)) something = true;
@@ -1925,7 +1944,6 @@ static textblock *object_info_out(const struct object *obj, int mode)
 	if (describe_sustains(tb, flags)) something = true;
 	if (describe_misc_magic(tb, flags)) something = true;
 	if (describe_light(tb, obj, mode)) something = true;
-	if (describe_book(tb, obj, mode)) something = true;
 	if (ego && describe_ego(tb, obj->ego)) something = true;
 	if (something) textblock_append(tb, "\n");
 

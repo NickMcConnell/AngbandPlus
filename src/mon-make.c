@@ -33,6 +33,7 @@
 #include "obj-util.h"
 #include "player-calcs.h"
 #include "player-timed.h"
+#include "player-quest.h"
 #include "target.h"
 
 /**
@@ -158,7 +159,6 @@ void get_mon_num_prep(bool (*get_mon_num_hook)(struct monster_race *race))
 		if (!get_mon_num_hook || (*get_mon_num_hook)(&r_info[entry->index])) {
 			/* Accept this monster */
 			entry->prob2 = entry->prob1;
-
 		} else {
 			/* Do not use this monster */
 			entry->prob2 = 0;
@@ -189,6 +189,30 @@ static struct monster_race *get_mon_race_aux(long total,
 	}
 
 	return &r_info[table[i].index];
+}
+
+/* Returns true if it is acceptable to generate a SPECIAL_GEN monster.
+ * These may be never randomly generated (the default case of returning
+ * false), or have additional restrictions.
+ */
+bool special_can_gen(struct monster_race *r)
+{
+	/* Generate Nijel only when the Rats quest has been successfully completed */
+	if (streq(r->name, "Nijel, the Rat")) {
+		struct quest *q = get_quest_by_name("Rats");
+		if (!q)
+			msg("Wot, no rats?");
+		else
+			return (q->flags & QF_SUCCEEDED);
+	} else if (streq(r->name, "Ky, the Pie Spy")) {
+		/* Generate Ky only when the Pie quest has been taken */
+		struct quest *q = get_quest_by_name("Soldier, Sailor, Chef, Pie");
+		if (!q)
+			msg("Wot, no pies?");
+		else
+			return (q->flags & QF_ACTIVE);
+	}
+	return false;
 }
 
 /**
@@ -253,6 +277,10 @@ struct monster_race *get_mon_num(int level)
 
 		/* Some monsters never appear out of depth */
 		if (rf_has(race->flags, RF_FORCE_DEPTH) && race->level > player->depth)
+			continue;
+
+		/* Some monsters have special limitations on generation */
+		if (rf_has(race->flags, RF_SPECIAL_GEN) && !special_can_gen(race))
 			continue;
 
 		/* Accept */
@@ -1007,6 +1035,20 @@ s16b place_monster(struct chunk *c, struct loc grid, struct monster *mon,
 	if (origin && new_mon->race->mimic_kinds) {
 		mon_create_mimicked_object(c, new_mon, m_idx);
 	}
+
+	/* Select male/female */
+	bool male = rf_has(new_mon->race->flags, RF_MALE);
+	bool female = rf_has(new_mon->race->flags, RF_FEMALE);
+	if (male && female) {
+		if (one_in_(2))
+			male = false;
+		else
+			female = false;
+	}
+	if (male)
+		mflag_on(mon->mflag, MFLAG_MALE);
+	else if (female)
+		mflag_on(mon->mflag, MFLAG_FEMALE);
 
 	/* Result */
 	return m_idx;

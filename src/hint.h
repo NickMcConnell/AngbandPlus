@@ -11,4 +11,6 @@ struct hint {
 
 extern struct hint *hints; /* store.c */
 
+extern struct hint *lies; /* store.c */
+
 #endif /* HINT_H */

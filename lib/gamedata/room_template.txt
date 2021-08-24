@@ -8902,7 +8902,7 @@ rating:3
 rows:7
 columns:11
 doors:3
-tval:arrow
+tval:9mm ammo
 D:###########
 D:#..1[[[2..#
 D:#..##3##..#
@@ -8917,7 +8917,7 @@ rating:3
 rows:7
 columns:11
 doors:3
-tval:bolt
+tval:12mm ammo
 D:###########
 D:#..1[[[2..#
 D:#..##3##..#
@@ -8932,7 +8932,7 @@ rating:3
 rows:7
 columns:11
 doors:3
-tval:shot
+tval:6mm ammo
 D:###########
 D:#..1[[[2..#
 D:#..##3##..#
@@ -8947,7 +8947,7 @@ rating:3
 rows:7
 columns:11
 doors:1
-tval:scroll
+tval:card
 D:%%%%%%%%%%%
 D:%.........%
 D:#^###^###^#
@@ -8962,7 +8962,7 @@ rating:3
 rows:9
 columns:11
 doors:1
-tval:potion
+tval:pill
 D:###########
 D:##[[.#.[[##
 D:####+#+####
@@ -8998,11 +8998,10 @@ rating:3
 rows:7
 columns:12
 doors:1
-tval:magic book
 D:#####%%#####
 D:#...^..^...#
 D:%..x####x..%
-D:%..([##[(..%
+D:%..(3##3(..%
 D:%..x####x..%
 D:#...^.9^...#
 D:#####%%#####
@@ -9013,12 +9012,11 @@ rating:3
 rows:7
 columns:12
 doors:1
-tval:prayer book
 D:#%##########
 D:%.#.#.#..^.#
-D:%.#.#.#..#[#
+D:%.#.#.#..#3#
 D:%.^...(.##8#
-D:%.#.#.#..#[#
+D:%.#.#.#..#3#
 D:%.#.#.#..^.#
 D:#%##########
 
@@ -9039,13 +9037,13 @@ D:##.x^^#^^x.##
 D: ###..+..### 
 D:   #%%#%%#   
 
-name:Scroll shelves
+name:Card shelves
 type:1
 rating:3
 rows:11
 columns:13
 doors:1
-tval:scroll
+tval:card
 D:#%##%%#%%##%#
 D:%.##..(..##.%
 D:%.....x.....%
@@ -9130,13 +9128,13 @@ D:%....x..x..%%%..%%
 D:%%%.x%%..%%% %%%% 
 D:  %%%%%%%%        
 
-name:Potion cupboard
+name:pill cupboard
 type:1
 rating:3
 rows:11
 columns:19
 doors:4
-tval:potion
+tval:pill
 D:    #%%%%%%%%%#    
 D:  ###.........###  
 D: ##...#######...## 
@@ -9149,13 +9147,13 @@ D: ##...#######...##
 D:  ###.........###  
 D:    #%%%%%%%%%#    
 
-name:Staff chamber
+name:Device chamber
 type:1
 rating:3
 rows:9
 columns:23
 doors:2
-tval:staff
+tval:device
 D:%%%%%#############%%%%%
 D:%....#....+.+....#....%
 D:%....#....#^#....#....%

@@ -37,7 +37,7 @@ Features that do not block line of sight
 ``.``   A floor space              ``1``    Entrance to General Store
 ``.``   A trap (hidden)            ``2``    Entrance to Armoury
 ``^``   A trap (known)             ``3``    Entrance to Weapon Smith
-``;``   A glyph of warding         ``4``    Entrance to Bookseller
+``;``   A glyph of warding         ``4``    Entrance to Electronics
 ``'``   An open door               ``5``    Entrance to Alchemy Shop
 ``'``   A broken door              ``6``    Entrance to Magic Shop
 ``<``   A staircase up             ``7``    Entrance to the Black Market
@@ -63,7 +63,7 @@ Objects
 ``?``    A scroll (or book)             ``|``    An edged weapon
 ``,``    A mushroom (or food)           ``\``    A hafted weapon
 ``-``    A wand or rod                  ``}``    A sling, bow, or x-bow
-``_``    A staff                        ``{``    A shot, arrow, or bolt
+``_``    A device                        ``{``    A shot, arrow, or bolt
 ``=``    A ring                         ``(``    Soft armour
 ``"``    An amulet                      ``[``    Hard armour
 ``$``    Gold or gems                   ``]``    Misc. armour
@@ -189,16 +189,17 @@ The Weaponsmith's Shop (``3``)
   bolts, and shots. As with the armoury, not all weapon types will be
   stocked here, unless they are sold to the shop by the player first.
 
-The Bookseller (``4``)
-  The Bookseller holds supplies of the simpler books needed by magic users,
-  and will buy the more advanced books which can be found in the dungeon.
+The Electronics Outlet (``4``)
+  The Electronics Outlet holds supplies of software cards, and sometimes
+  more bulky items. They will buy most cards and also 3D printers and
+  the blocks for them.
 
-The Alchemy shop (``5``)
-  The Alchemy Shop deals in all types of potions and scrolls.
+The Pharmacy (``5``)
+  The Pharmacy deals in all types of pills, and a few related devices.
 
 The Magic User's Shop (``6``)
   The Magic User's Shop deals in all sorts of rings, wands, amulets, and
-  staves.
+  devices.
 
 The Black Market (``7``)
   The Black Market will sell and buy anything at extortionate prices.
@@ -285,7 +286,7 @@ if you do not mind being slow. Your weight "limit" is determined by your
 strength.
 
 Many objects found within the dungeon have special commands for their use.
-Wands must be Aimed, staves must be Used, scrolls must be Read, and potions
+Wands must be Aimed, devices must be Used, scrolls must be Read, and potions
 must be Quaffed. You may, in general, not only use items in your pack, but
 also items on the ground, if you are standing on top of them. At the
 beginning of the game all items are assigned a random 'flavor'. For example
@@ -322,7 +323,7 @@ inscriptions containing any text of the form '@#' or '@x#' or '!x' or
 
 The game provides some "fake" inscriptions to help you keep track of your 
 possessions. Weapons, armor and jewellery which have properties you don't
-know about yet will get a '{??}' label.  Wands, staves and rods can get a 
+know about yet will get a '{??}' label.  Wands, devices and rods can get a 
 '{tried}' label after use, particularly if they have an effect on a monster
 and were tested in the absence of monsters.
 
@@ -370,9 +371,9 @@ simply kill monsters and discover items in the dungeon to sell, than to
 walk around digging for treasure. But, early on, mineral veins can be a
 wonderful source of easy treasure.
 
-If the character has a scroll, staff, or spell of treasure location, they can
-immediately locate all strikes of treasure within a vein shown on the
-screen. This makes mining much easier and more profitable.
+If the character has a card, device, or other means of treasure location,
+they can immediately locate all strikes of treasure within a vein shown
+on the screen. This makes mining much easier and more profitable.
 
 Note that a character with high strength and/or a heavy weapon does not
 need a shovel/pick to dig, but even the strongest character will benefit

@@ -30,8 +30,9 @@
 #include "monster.h"
 #include "obj-desc.h"
 #include "obj-ignore.h"
-#include "obj-knowledge.h"
+#include "obj-gear.h"
 #include "obj-info.h"
+#include "obj-knowledge.h"
 #include "obj-make.h"
 #include "obj-pile.h"
 #include "obj-tval.h"
@@ -39,6 +40,7 @@
 #include "object.h"
 #include "player-calcs.h"
 #include "player-history.h"
+#include "player-quest.h"
 #include "player-util.h"
 #include "project.h"
 #include "store.h"
@@ -46,6 +48,7 @@
 #include "trap.h"
 #include "ui-context.h"
 #include "ui-equip-cmp.h"
+#include "ui-knowledge.h"
 #include "ui-history.h"
 #include "ui-menu.h"
 #include "ui-mon-list.h"
@@ -59,6 +62,8 @@
 #include "ui-store.h"
 #include "ui-target.h"
 #include "wizard.h"
+#include "world.h"
+#include "z-textblock.h"
 
 /**
  * The first part of this file contains the knowledge menus.  Generic display
@@ -99,7 +104,6 @@ typedef struct {
 	/* Displays lore for an oid */
 	void (*lore)(int oid);
 
-
 	/* Required only for objects with modifiable display attributes
 	 * Unknown 'flavors' return flavor attributes */
 
@@ -117,6 +121,9 @@ typedef struct {
 
 	/* Does this kind have visual editing? */
 	bool is_visual;
+
+	/* Handles optional extra actions that replace built-in ones */
+	bool (*filter_act)(ui_event *ke, struct menu *active_menu, int *obj_list, int o_count, int oid);
 
 } member_funcs;
 
@@ -962,35 +969,45 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 		}
 
 		ke = inkey_ex();
-		if (!tile_picker && !glyph_picker) {
-			ui_event ke0 = EVENT_EMPTY;
+		bool handled = false;
 
-			if (ke.type == EVT_MOUSE)
-				menu_handle_mouse(active_menu, &ke, &ke0);
-			else if (ke.type == EVT_KBRD)
-				menu_handle_keypress(active_menu, &ke, &ke0);
-
-			if (ke0.type != EVT_NONE)
-				ke = ke0;
+		if (ke.type == EVT_KBRD) {
+			if (o_funcs.filter_act) {
+				handled = o_funcs.filter_act(&ke, active_menu, obj_list, o_count, oid);
+			}
 		}
 
-		/* XXX Do visual mode command if needed */
-		if (o_funcs.xattr && o_funcs.xchar) {
-			if (tiles) {
-				if (tile_picker_command(ke, &tile_picker, 
-										browser_rows - 1,
-										wid - (g_name_len + 3),
-										&attr_top, &char_left,
-										o_funcs.xattr(oid),
-										(byte *) o_funcs.xchar(oid), 
-										g_name_len + 3, 7, &delay))
-					continue;
-			} else {
-				if (glyph_command(ke, &glyph_picker, 
-								  browser_rows - 1, wid - (g_name_len + 3), 
-								  o_funcs.xattr(oid), o_funcs.xchar(oid), 
-								  g_name_len + 3, 7))
-					continue;
+		if (!handled) {
+			if (!tile_picker && !glyph_picker) {
+				ui_event ke0 = EVENT_EMPTY;
+
+				if (ke.type == EVT_MOUSE)
+					menu_handle_mouse(active_menu, &ke, &ke0);
+				else if (ke.type == EVT_KBRD)
+					menu_handle_keypress(active_menu, &ke, &ke0);
+
+				if (ke0.type != EVT_NONE)
+					ke = ke0;
+			}
+
+			/* XXX Do visual mode command if needed */
+			if (o_funcs.xattr && o_funcs.xchar) {
+				if (tiles) {
+					if (tile_picker_command(ke, &tile_picker,
+											browser_rows - 1,
+											wid - (g_name_len + 3),
+											&attr_top, &char_left,
+											o_funcs.xattr(oid),
+											(byte *) o_funcs.xchar(oid),
+											g_name_len + 3, 7, &delay))
+						continue;
+				} else {
+					if (glyph_command(ke, &glyph_picker,
+									  browser_rows - 1, wid - (g_name_len + 3),
+									  o_funcs.xattr(oid), o_funcs.xchar(oid),
+									  g_name_len + 3, 7))
+						continue;
+				}
 			}
 		}
 
@@ -1051,7 +1068,7 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 
 		/* Recall on screen */
 		if (recall) {
-			if (oid >= 0)
+			if ((oid >= 0) && (o_funcs.lore))
 				o_funcs.lore(oid);
 
 			redraw = true;
@@ -1372,33 +1389,29 @@ static const grouper object_text_order[] =
 {
 	{TV_RING,			"Ring"			},
 	{TV_AMULET,			"Amulet"		},
-	{TV_POTION,			"Potion"		},
-	{TV_SCROLL,			"Scroll"		},
+	{TV_PILL,			"Pill"			},
+	{TV_CARD,			"Card"			},
 	{TV_WAND,			"Wand"			},
-	{TV_STAFF,			"Staff"			},
+	{TV_DEVICE,			"Device"			},
 	{TV_ROD,			"Rod"			},
  	{TV_FOOD,			"Food"			},
  	{TV_MUSHROOM,		"Mushroom"		},
-	{TV_PRAYER_BOOK,	"Priest Book"	},
-	{TV_MAGIC_BOOK,		"Magic Book"	},
-	{TV_NATURE_BOOK,	"Nature Book"	},
-	{TV_SHADOW_BOOK,	"Shadow Book"	},
-	{TV_OTHER_BOOK,		"Mystery Book"	},
 	{TV_LIGHT,			"Light"			},
-	{TV_FLASK,			"Flask"			},
+	{TV_BATTERY,		"Battery"		},
 	{TV_SWORD,			"Sword"			},
 	{TV_POLEARM,		"Polearm"		},
 	{TV_HAFTED,			"Hafted Weapon" },
-	{TV_BOW,			"Bow"			},
-	{TV_ARROW,			"Ammunition"	},
-	{TV_BOLT,			NULL			},
-	{TV_SHOT,			NULL			},
+	{TV_GUN,			"9mm"			},
+	{TV_AMMO_9,			"Ammunition"	},
+	{TV_AMMO_12,		NULL			},
+	{TV_AMMO_6,			NULL			},
 	{TV_SHIELD,			"Shield"		},
 	{TV_CROWN,			"Crown"			},
 	{TV_HELM,			"Helm"			},
 	{TV_GLOVES,			"Gloves"		},
 	{TV_BOOTS,			"Boots"			},
 	{TV_CLOAK,			"Cloak"			},
+	{TV_BELT,			"Belt"			},
 	{TV_DRAG_ARMOR,		"Dragon Scale Mail" },
 	{TV_HARD_ARMOR,		"Hard Armor"	},
 	{TV_SOFT_ARMOR,		"Soft Armor"	},
@@ -1436,27 +1449,49 @@ static void display_artifact(int col, int row, bool cursor, int oid)
 	c_prt(attr, o_name, row, col);
 }
 
-/**
- * Look for an artifact
- */
-static struct object *find_artifact(struct artifact *artifact)
+static struct object *object_is_artifact(struct object *obj, void *av)
 {
-	int y, x, i;
+	struct artifact *artifact = (struct artifact *)av;
+	return (obj->artifact == artifact) ? obj : NULL;
+}
+
+static void do_remove_object(struct object **obj)
+{
+	if ((*obj)->known)
+		object_delete(&((*obj)->known));
+	object_delete(obj);
+}
+
+/**
+ * Remove an object from anywhere, return true if found
+ */
+bool remove_object(struct object *target)
+{
+	bool dummy;
+	struct object *rm = NULL;
 	struct object *obj;
+	int x, y, i;
 
 	/* Ground objects */
 	for (y = 1; y < cave->height; y++) {
 		for (x = 1; x < cave->width; x++) {
 			struct loc grid = loc(x, y);
 			for (obj = square_object(cave, grid); obj; obj = obj->next) {
-				if (obj->artifact == artifact) return obj;
+				if (obj == target) {
+					square_delete_object(cave, grid, obj, true, true);
+					return true;
+				}
 			}
 		}
 	}
 
 	/* Player objects */
 	for (obj = player->gear; obj; obj = obj->next) {
-		if (obj->artifact == artifact) return obj;
+		if (obj == target) {
+			rm = gear_object_for_use(obj, obj->number, false, &dummy);
+			do_remove_object(&rm);
+			return true;
+		}
 	}
 
 	/* Monster objects */
@@ -1465,16 +1500,26 @@ static struct object *find_artifact(struct artifact *artifact)
 		obj = mon ? mon->held_obj : NULL;
 
 		while (obj) {
-			if (obj->artifact == artifact) return obj;
+			if (obj == target) {
+				obj->held_m_idx = 0;
+				pile_excise(&mon->held_obj, obj);
+				do_remove_object(&obj);
+				return true;
+			}
 			obj = obj->next;
 		}
 	}
 
 	/* Store objects */
-	for (i = 0; i < MAX_STORES; i++) {
-		struct store *s = &stores[i];
-		for (obj = s->stock; obj; obj = obj->next) {
-			if (obj->artifact == artifact) return obj;
+	for (int t=0; t<z_info->town_max; t++) {
+		for (i = 0; i < MAX_STORES; i++) {
+			struct store *s = &t_info[t].stores[i];
+			for (obj = s->stock; obj; obj = obj->next) {
+				if (obj == target) {
+					store_delete(s, obj, obj->number);
+					return true;
+				}
+			}
 		}
 	}
 
@@ -1489,7 +1534,10 @@ static struct object *find_artifact(struct artifact *artifact)
 			for (x = 1; x < c->width; x++) {
 				struct loc grid = loc(x, y);
 				for (obj = square_object(c, grid); obj; obj = obj->next) {
-					if (obj->artifact == artifact) return obj;
+					if (obj == target) {
+						square_delete_object(c, grid, obj, true, true);
+						return true;
+					}
 				}
 			}
 		}
@@ -1500,13 +1548,173 @@ static struct object *find_artifact(struct artifact *artifact)
 			obj = mon ? mon->held_obj : NULL;
 
 			while (obj) {
-				if (obj->artifact == artifact) return obj;
+				if (obj == target) {
+					obj->held_m_idx = 0;
+					pile_excise(&mon->held_obj, obj);
+					do_remove_object(&obj);
+					return true;
+				}
 				obj = obj->next;
 			}
 		}
-	}	
+	}
+	return false;
+}
+
+/* Locate an object (see below), but ignore the location return value */
+struct object *find_object(struct object * (*fn )(struct object *, void *), void *data)
+{
+	struct location dummy;
+	return locate_object(fn, data, &dummy);
+}
+
+static struct location *alloc_location(struct location *locs, struct location *src, int *length)
+{
+	*length = *length + 1;
+	locs = mem_realloc(locs, sizeof(struct location) * *length);
+	memcpy(locs + (*length - 1), src, sizeof(*src));
+	return locs;
+}
+
+/**
+ * Look for an object.
+ * It searches the level, player gear, monsters' items, store stock, and stored chunks' ground and monster held items,
+ * in that order.
+ * Each item calls a predicate to filter the objects, and on success fills in a location structure and returns the object.
+ *
+ * TODO: it would be more useful if it took (an extended form of) location as an input parameter, where to restart.
+ */
+struct object *locate_object(struct object * (*fn )(struct object *, void *), void *data, struct location *location)
+{
+	int y, x, i;
+	struct object *obj;
+	struct object *result = NULL;
+	static struct location *locs = NULL;
+	static int length = 0;
+
+	/* Do we already have an array built? If so, remove one */
+	/* Otherwise build an array */
+	if (!length) {
+
+		/* But the first time return the terminator */
+		if (locs) {
+			mem_free(locs);
+			locs = NULL;
+			location->obj = NULL;
+			return NULL;
+		}
+
+		/* Ground objects */
+		for (y = 1; y < cave->height; y++) {
+			for (x = 1; x < cave->width; x++) {
+				struct loc grid = loc(x, y);
+				for (obj = square_object(cave, grid); obj; obj = obj->next) {
+					if ((result = fn(obj, data))) {
+						location->obj = obj;
+						location->type = LOCATION_GROUND;
+						location->loc = grid;
+						locs = alloc_location(locs, location, &length);
+					}
+				}
+			}
+		}
+
+		/* Player objects */
+		for (obj = player->gear; obj; obj = obj->next) {
+			if ((result = fn(obj, data))) {
+				location->obj = obj;
+				location->type = LOCATION_PLAYER;
+				location->loc = player->grid;
+				locs = alloc_location(locs, location, &length);
+			}
+		}
+
+		/* Monster objects */
+		for (i = cave_monster_max(cave) - 1; i >= 1; i--) {
+			struct monster *mon = cave_monster(cave, i);
+			obj = mon ? mon->held_obj : NULL;
+
+			while (obj) {
+				if ((result = fn(obj, data))) {
+					location->obj = obj;
+					location->type = LOCATION_MONSTER;
+					location->loc = mon->grid;
+					locs = alloc_location(locs, location, &length);
+				}
+				obj = obj->next;
+			}
+		}
+
+		/* Store objects */
+		for (int t=0; t<z_info->town_max; t++) {
+			for (i = 0; i < MAX_STORES; i++) {
+				struct store *s = &t_info[t].stores[i];
+				for (obj = s->stock; obj; obj = obj->next) {
+					if ((result = fn(obj, data))) {
+						location->obj = obj;
+						location->type = LOCATION_STORE;
+						location->loc = loc(0, 0);
+						locs = alloc_location(locs, location, &length);
+					}
+				}
+			}
+		}
+
+		/* Stored chunk objects */
+		for (i = 0; i < chunk_list_max; i++) {
+			struct chunk *c = chunk_list[i];
+			int j;
+			if (strstr(c->name, "known")) continue;
+
+			/* Ground objects */
+			for (y = 1; y < c->height; y++) {
+				for (x = 1; x < c->width; x++) {
+					struct loc grid = loc(x, y);
+					for (obj = square_object(c, grid); obj; obj = obj->next) {
+						if ((result = fn(obj, data))) {
+							location->obj = obj;
+							location->type = LOCATION_CHUNK_GROUND;
+							location->loc = grid;
+							locs = alloc_location(locs, location, &length);
+						}
+					}
+				}
+			}
+
+			/* Monster objects */
+			for (j = cave_monster_max(c) - 1; j >= 1; j--) {
+				struct monster *mon = cave_monster(c, j);
+				obj = mon ? mon->held_obj : NULL;
+
+				while (obj) {
+					if ((result = fn(obj, data))) {
+						location->obj = obj;
+						location->type = LOCATION_CHUNK_MONSTER;
+						location->loc = mon->grid;
+						locs = alloc_location(locs, location, &length);
+					}
+					obj = obj->next;
+				}
+			}
+		}
+	}
+
+	/* and return the first element, if there is one */
+	if (length) {
+		length -= 1;
+		memcpy(location, &locs[length], sizeof(struct location));
+		return location->obj;
+	}
 
 	return NULL;
+}
+
+/**
+ * Look for an artifact
+ */
+static struct object *find_artifact(struct artifact *artifact)
+{
+	return find_object(object_is_artifact, artifact);
 }
 
 /**
@@ -1895,11 +2103,6 @@ static int o_cmp_tval(const void *a, const void *b)
 	switch (k_a->tval)
 	{
 		case TV_LIGHT:
-		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
-		case TV_NATURE_BOOK:
-		case TV_SHADOW_BOOK:
-		case TV_OTHER_BOOK:
 		case TV_DRAG_ARMOR:
 			/* leave sorted by sval */
 			break;
@@ -2063,33 +2266,33 @@ void textui_browse_object_knowledge(const char *name, int row)
 
 /**
  * ------------------------------------------------------------------------
- * OBJECT RUNES
+ * OBJECT ICONS
  * ------------------------------------------------------------------------ */
 
 /**
- * Description of each rune group.
+ * Description of each icon group.
  */
-static const char *rune_group_text[] =
+static const char *icon_group_text[] =
 {
 	"Combat",
 	"Modifiers",
 	"Resists",
 	"Brands",
 	"Slays",
-	"Curses",
+	"Faults",
 	"Other",
 	NULL
 };
 
 /**
- * Display the runes in a group.
+ * Display the icons in a group.
  */
-static void display_rune(int col, int row, bool cursor, int oid )
+static void display_icon(int col, int row, bool cursor, int oid )
 {
 	byte attr = curs_attrs[CURS_KNOWN][(int)cursor];
-	const char *inscrip = quark_str(rune_note(oid));
+	const char *inscrip = quark_str(icon_note(oid));
 
-	c_prt(attr, rune_name(oid), row, col);
+	c_prt(attr, icon_name(oid), row, col);
 
 	/* Show autoinscription if around */
 	if (inscrip)
@@ -2097,25 +2300,25 @@ static void display_rune(int col, int row, bool cursor, int oid )
 }
 
 
-static const char *rune_var_name(int gid)
+static const char *icon_var_name(int gid)
 {
-	return rune_group_text[gid];
+	return icon_group_text[gid];
 }
 
-static int rune_var(int oid)
+static int icon_var(int oid)
 {
-	return (int) rune_variety(oid);
+	return (int) icon_variety(oid);
 }
 
-static void rune_lore(int oid)
+static void icon_lore(int oid)
 {
 	textblock *tb = textblock_new();
-	char *title = string_make(rune_name(oid));
+	char *title = string_make(icon_name(oid));
 
 	my_strcap(title);
 	textblock_append_c(tb, COLOUR_L_BLUE, "%s", title);
 	textblock_append(tb, "\n");
-	textblock_append(tb, "%s", rune_desc(oid));
+	textblock_append(tb, "%s", icon_desc(oid));
 	textblock_append(tb, "\n");
 	textui_textblock_show(tb, SCREEN_REGION, NULL);
 	textblock_free(tb);
@@ -2124,25 +2327,25 @@ static void rune_lore(int oid)
 }
 
 /**
- * Display special prompt for rune inscription.
+ * Display special prompt for icon inscription.
  */
-static const char *rune_xtra_prompt(int oid)
+static const char *icon_xtra_prompt(int oid)
 {
 	const char *no_insc = ", 'r'ecall, '{'";
 	const char *with_insc = ", 'r'ecall, '{', '}'";
 
 	/* Appropriate prompt */
-	return rune_note(oid) ? with_insc : no_insc;
+	return icon_note(oid) ? with_insc : no_insc;
 }
 
 /**
- * Special key actions for rune inscription.
+ * Special key actions for icon inscription.
  */
-static void rune_xtra_act(struct keypress ch, int oid)
+static void icon_xtra_act(struct keypress ch, int oid)
 {
 	/* Uninscribe */
 	if (ch.code == '}') {
-		rune_set_note(oid, NULL);
+		icon_set_note(oid, NULL);
 	} else if (ch.code == '{') {
 		/* Inscribe */
 		char note_text[80] = "";
@@ -2154,19 +2357,19 @@ static void rune_xtra_act(struct keypress ch, int oid)
 		prt("Inscribe with: ", 0, 0);
 
 		/* Default note */
-		if (rune_note(oid))
+		if (icon_note(oid))
 			strnfmt(note_text, sizeof(note_text), "%s",
-					quark_str(rune_note(oid)));
+					quark_str(icon_note(oid)));
 
 		/* Get an inscription */
 		if (askfor_aux(note_text, sizeof(note_text), NULL)) {
 			/* Remove old inscription if existent */
-			if (rune_note(oid))
-				rune_set_note(oid, NULL);
+			if (icon_note(oid))
+				icon_set_note(oid, NULL);
 
 			/* Add the autoinscription */
-			rune_set_note(oid, note_text);
-			rune_autoinscribe(oid);
+			icon_set_note(oid, note_text);
+			icon_autoinscribe(oid);
 
 			/* Redraw gear */
 			player->upkeep->redraw |= (PR_INVEN | PR_EQUIP);
@@ -2177,39 +2380,290 @@ static void rune_xtra_act(struct keypress ch, int oid)
 	}
 }
 
+enum {
+	QV_FAILED = 0,
+	QV_SUCCEEDED = 1,
+	QV_UNREWARDED = 2,
+	QV_ACTIVE = 3,
+};
 
+static const char *quest_name(int gid) { 
+	static const char *name[] = {
+		"Failed    ",
+		"Succeeded ",
+		"Unrewarded",
+		"Active    ",
+	};
+	return name[gid];
+}
+
+static int quest_var(int oid) {
+	oid = oid & 0xffff;
+	struct quest *q = &player->quests[oid];
+	if (q->flags & QF_UNREWARDED)
+		return QV_UNREWARDED;
+	if (q->flags & QF_SUCCEEDED)
+		return QV_SUCCEEDED;
+	if (q->flags & QF_FAILED)
+		return QV_FAILED;
+	return QV_ACTIVE;
+}
+
+static bool quest_is_aware(int oid) {
+	oid = oid & 0xffff;
+	return (player->quests[oid].flags & (QF_SUCCEEDED|QF_FAILED|QF_ACTIVE));
+}
 
 /**
- * Display rune knowledge.
+ * Special key actions for quest menu
  */
-static void do_cmd_knowledge_runes(const char *name, int row)
+static bool quest_filter_act(ui_event *ke, struct menu *active_menu, int *obj_list, int o_count, int oid)
 {
-	group_funcs rune_var_f = {rune_var_name, NULL, rune_var, 0,
-							  N_ELEMENTS(rune_group_text), false};
+	oid = oid & 0xffff;
+	bool group = (active_menu->boundary.width > 0);
 
-	member_funcs rune_f = {display_rune, rune_lore, NULL, NULL,
-						   rune_xtra_prompt, rune_xtra_act, 0};
+	if (!group) {
+		int lines = 0;
+		for (int i=0; i<o_count;i++)
+			if ((obj_list[i] & 0xffff) == oid) lines++;
 
-	int *runes;
-	int rune_max = max_runes();
+		ui_event ke0 = EVENT_EMPTY;
+
+		for(int i=0;i<lines;i++)
+			menu_handle_keypress(active_menu, ke, &ke0);
+
+		if (ke0.type != EVT_NONE)
+			*ke = ke0;
+	}
+
+	return false;
+}
+
+static textblock *display_quest_name_tb(int oid)
+{
+	static textblock *tb;
+	char buf[64];
+	oid = oid & 0xffff;
+
+	if (tb)
+		textblock_free(tb);
+
+	/* Format the name */
+	snprintf(buf, sizeof(buf), "%s (%d)", quests[oid].name, quests[oid].level);
+	buf[sizeof(buf)-1] = 0;
+
+	/* Add one line of the name */
+	tb = textblock_new();
+	textblock_append_c(tb, COLOUR_YELLOW, buf);
+
+	return tb;
+}
+
+static textblock *display_quest_descr_tb(int oid)
+{
+	static textblock *tb;
+	char buf[64];
+	oid = oid & 0xffff;
+
+	if (tb)
+		textblock_free(tb);
+
+	/* Format the description */
+	char *descr = quests[oid].desc;
+	*buf = 0;
+	int descr_col = COLOUR_GREEN;
+	if (player->active_quest == oid) {
+		descr_col = COLOUR_RED;
+		if (player->quests[oid].max_num) {
+			snprintf(buf, sizeof(buf), "%s: %d/%d killed",
+				player->quests[oid].race->name,
+				player->quests[oid].cur_num,
+				player->quests[oid].max_num);
+		}
+	}
+
+	/* Add one line of the description */
+	tb = textblock_new();
+	textblock_append_c(tb, descr_col, descr);
+	textblock_append_c(tb, descr_col, buf);
+
+	return tb;
+}
+
+static void display_quest(int col, int row, bool cursor, int oid )
+{
+	////static int lastoid;
+	//static int line;
+
+	/* Count lines */
+	/*if (oid == lastoid) {
+		line++;
+	} else {
+		line = 0;
+	}*/
+	/* Extract line */
+	int line = oid >> 16;
+	oid = oid & 0xffff;
+
+	/* Display one line of the name */
+	const region name_region = { 13, row, 17, 127 };
+	textui_textblock_line(display_quest_name_tb(oid), line, name_region);
+
+	/* Display one line of the description */
+	int x, y;
+	Term_get_size(&x, &y);
+	const region descr_region = { 30, row, x - 30, y };
+	textui_textblock_line(display_quest_descr_tb(oid), line, descr_region);
+
+	/* Keep this OID to count lines */
+	//lastoid = oid;
+}
+
+static void quest_lore(int oid)
+{
+	oid = oid & 0xffff;
+	struct quest *q = &player->quests[oid];
+	bool active = (oid == player->active_quest);
+
+	textblock *tb = textblock_new();
+
+	textblock_append_c(tb, COLOUR_L_BLUE, "%s", q->name);
+	textblock_append(tb, "\n");
+	textblock_append_c(tb, COLOUR_GREEN, "A level %d task: %s.\n", q->level, q->desc);
+
+	// From a store
+	if ((q->store >= 0) && (q->town >= 0)) {
+		char short_name[80];
+		const char *owner_name = t_info[q->town].stores[q->store].owner->name;
+
+		/* Get the full name of the store owner (stop before the first bracket) */
+		int j;
+		for (j = 0; owner_name[j] && owner_name[j] != '('; j++)
+			short_name[j] = owner_name[j];
+
+		/* Truncate the name */
+		short_name[j] = '\0';
+		if ((j) && (short_name[j-1] == ' '))
+			short_name[j-1] = '\0';
+
+		textblock_append_c(tb, COLOUR_SLATE, "You were asked: \"%s\" by %s in the %s in %s. ", q->intro,
+			short_name, t_info[q->town].stores[q->store].name, t_info[q->town].name);
+	} else if (q->intro) {
+		/* Non-store quests may still have a description */
+		textblock_append_c(tb, COLOUR_SLATE, "%s\n", q->intro);
+	}
+
+	int qv = quest_var(oid);
+	switch (qv) {
+		case QV_FAILED:
+			if (active)
+				textblock_append_c(tb, COLOUR_RED, "You are currently still within this task, but have failed. ");
+			else
+				textblock_append_c(tb, COLOUR_RED, "You have failed this task. ");
+			break;
+		case QV_SUCCEEDED:
+			if (active)
+				textblock_append_c(tb, COLOUR_L_GREEN, "You are still within this task, but have succeeded in it. ");
+			else
+				textblock_append_c(tb, COLOUR_L_GREEN, "You have succeeded in this task. ");
+			break;
+		case QV_UNREWARDED:
+			if (active)
+				textblock_append_c(tb, COLOUR_YELLOW, "You are still within this task, but have succeeded in it and may be able to collect a reward. ");
+			else
+				textblock_append_c(tb, COLOUR_YELLOW, "You have succeeded in this task. You may be able to collect a reward.");
+			break;
+		case QV_ACTIVE:
+			if (!active)
+				textblock_append_c(tb, COLOUR_WHITE, "This task remains available for you to attempt. ");
+			break;
+	}
+	textblock_append(tb, "\n");
+	textui_textblock_show(tb, SCREEN_REGION, NULL);
+	textblock_free(tb);
+}
+
+/**
+ * Display quests knowledge.
+ */
+static void do_cmd_knowledge_quests(const char *name, int row)
+{
+	group_funcs task_var_f = {quest_name, NULL, quest_var, 0, 0, false};
+
+	member_funcs task_f = {display_quest, quest_lore, NULL, NULL,
+						   NULL, NULL, 0, quest_filter_act};
+
+	int *tasks;
+	int task_max = z_info->quest_max;
+	int count = 0;
+	int i;
+
+	tasks = mem_zalloc(task_max * sizeof(int));
+
+	for (i = 0; i < task_max; i++) {
+		/* Ignore inactive quests */
+		if (!quest_is_aware(i))
+			continue;
+
+		size_t n_lines, d_lines;
+
+		/* Count lines, and add one entry per line */
+		{
+			size_t *line_starts = NULL, *line_lengths = NULL;
+			n_lines = textblock_calculate_lines(display_quest_name_tb(i), &line_starts, &line_lengths, 17);
+			mem_free(line_starts);
+			mem_free(line_lengths);
+		}
+
+		/* Display one line of the description */
+		int x, y;
+		Term_get_size(&x, &y);
+		{
+			size_t *line_starts = NULL, *line_lengths = NULL;
+			d_lines = textblock_calculate_lines(display_quest_descr_tb(i), &line_starts, &line_lengths, x - 30);
+			mem_free(line_starts);
+			mem_free(line_lengths);
+		}
+
+		for(int j=0; j<(int)(MAX(n_lines, d_lines)); j++)
+			tasks[count++] = i + (j << 16);
+	}
+
+	display_knowledge("Tasks", tasks, count, task_var_f, task_f, "Description");
+	mem_free(tasks);
+}
+
+/**
+ * Display icon knowledge.
+ */
+static void do_cmd_knowledge_icons(const char *name, int row)
+{
+	group_funcs icon_var_f = {icon_var_name, NULL, icon_var, 0,
+							  N_ELEMENTS(icon_group_text), false};
+
+	member_funcs icon_f = {display_icon, icon_lore, NULL, NULL,
+						   icon_xtra_prompt, icon_xtra_act, 0};
+
+	int *icons;
+	int icon_max = max_icons();
 	int count = 0;
 	int i;
 	char buf[30];
 
-	runes = mem_zalloc(rune_max * sizeof(int));
+	icons = mem_zalloc(icon_max * sizeof(int));
 
-	for (i = 0; i < rune_max; i++) {
-		/* Ignore unknown runes */
-		if (!player_knows_rune(player, i))
+	for (i = 0; i < icon_max; i++) {
+		/* Ignore unknown icons */
+		if (!player_knows_icon(player, i))
 			continue;
 
-		runes[count++] = i;
+		icons[count++] = i;
 	}
 
-	my_strcpy(buf, format("runes (%d unknown)", rune_max - count), sizeof(buf));
+	my_strcpy(buf, format("icons (%d unknown)", icon_max - count), sizeof(buf));
 
-	display_knowledge(buf, runes, count, rune_var_f, rune_f, "Inscribed");
-	mem_free(runes);
+	display_knowledge(buf, icons, count, icon_var_f, icon_f, "Inscribed");
+	mem_free(icons);
 }
 
 /**
@@ -2389,7 +2843,7 @@ static void do_cmd_knowledge_features(const char *name, int row)
  */
 static const char *trap_group_text[] =
 {
-	"Runes",
+	"Icons",
 	"Locks",
 	"Traps",
 	"Other",
@@ -2641,7 +3095,7 @@ static const char *skill_index_to_name(int i)
 		name = "melee to hit";
 		break;
 
-	case SKILL_TO_HIT_BOW:
+	case SKILL_TO_HIT_GUN:
 		name = "shooting to hit";
 		break;
 
@@ -2950,56 +3404,6 @@ static void shape_lore_append_change_effects(textblock *tb,
 }
 
 
-static void shape_lore_append_triggering_spells(textblock *tb,
-	const struct player_shape *s)
-{
-	int n = 0;
-	struct player_class *c;
-
-	for (c = classes; c; c = c->next) {
-		int ibook;
-
-		for (ibook = 0; ibook < c->magic.num_books; ++ibook) {
-			const struct class_book *book = c->magic.books + ibook;
-			const struct object_kind *kind =
-				lookup_kind(book->tval, book->sval);
-			int ispell;
-
-			if (!kind || !kind->name) {
-				continue;
-			}
-			for (ispell = 0; ispell < book->num_spells; ++ispell) {
-				const struct class_spell *spell =
-					book->spells + ispell;
-				const struct effect *effect;
-
-				for (effect = spell->effect;
-					effect;
-					effect = effect->next) {
-					if (effect->index == EF_SHAPECHANGE &&
-						effect->subtype == s->sidx) {
-						if (n == 0) {
-							textblock_append(tb, "\n");
-						}
-						textblock_append(tb,
-							"The %s spell, %s, from %s triggers the shapechange.",
-							c->name,
-							spell->name,
-							kind->name
-						);
-						++n;
-					}
-				}
-			}
-		}
-	}
-
-	if (n > 0) {
-		textblock_append(tb, "\n");
-	}
-}
-
-
 /**
  * Display information about a shape change.
  */
@@ -3020,7 +3424,6 @@ static void shape_lore(const struct player_shape *s)
 	shape_lore_append_sustains(tb, s);
 	shape_lore_append_misc_flags(tb, s);
 	shape_lore_append_change_effects(tb, s);
-	shape_lore_append_triggering_spells(tb, s);
 
 	textui_textblock_show(tb, SCREEN_REGION, NULL);
 	textblock_free(tb);
@@ -3222,7 +3625,7 @@ static bool handle_store_shortcuts(struct menu *m, const ui_event *ev, int oid)
 static menu_action knowledge_actions[] =
 {
 { 0, 0, "Display object knowledge",   	   textui_browse_object_knowledge },
-{ 0, 0, "Display rune knowledge",   	   do_cmd_knowledge_runes },
+{ 0, 0, "Display icon knowledge",   	   do_cmd_knowledge_icons },
 { 0, 0, "Display artifact knowledge", 	   do_cmd_knowledge_artifacts },
 { 0, 0, "Display ego item knowledge", 	   do_cmd_knowledge_ego_items },
 { 0, 0, "Display monster knowledge",  	   do_cmd_knowledge_monsters  },
@@ -3239,7 +3642,8 @@ static menu_action knowledge_actions[] =
 { 0, 0, "Display contents of home (8)",          do_cmd_knowledge_store },
 { 0, 0, "Display hall of fame",       	   do_cmd_knowledge_scores    },
 { 0, 0, "Display character history",  	   do_cmd_knowledge_history   },
-{ 0, 0, "Display equippable comparison",   do_cmd_knowledge_equip_cmp },
+{ 0, 0, "Display equippable comparison",    do_cmd_knowledge_equip_cmp },
+{ 0, 0, "Display active tasks",    do_cmd_knowledge_quests },
 };
 
 static struct menu knowledge_menu;
@@ -3292,13 +3696,13 @@ void textui_knowledge_init(void)
  */
 void textui_browse_knowledge(void)
 {
-	int i, rune_max = max_runes();
+	int i, icon_max = max_icons();
 	region knowledge_region = { 0, 0, -1, 2 + (int)N_ELEMENTS(knowledge_actions) };
 
-	/* Runes */
+	/* Icons */
 	knowledge_actions[1].flags = MN_ACT_GRAYED;
-	for (i = 0; i < rune_max; i++) {
-		if (player_knows_rune(player, i) || OPT(player, cheat_xtra)) {
+	for (i = 0; i < icon_max; i++) {
+		if (player_knows_icon(player, i) || OPT(player, cheat_xtra)) {
 			knowledge_actions[1].flags = 0;
 		    break;
 		}
@@ -3646,7 +4050,7 @@ void do_cmd_quiver(void)
 	int ret = 3;
 
 	if (player->upkeep->quiver_cnt == 0) {
-		msg("You have nothing in your quiver.");
+		msg("You have no ammunition.");
 		return;
 	}
 

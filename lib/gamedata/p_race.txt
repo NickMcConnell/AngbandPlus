@@ -10,7 +10,9 @@
 
 # Format:
 # name:race name
-# stats:str:int:wis:dex:con
+#	(OR ext: extension name)
+# stats:str:int:wis:dex:con:chr:spd
+# talents:base:max
 # skill-disarm:base
 # skill-device:base
 # skill-save:base
@@ -20,6 +22,7 @@
 # skill-shoot:base
 # skill-throw:base
 # skill-dig:base
+# equip:tval:sval:min:max
 # hitdie:hitdie
 # exp:expbase
 # infravision:infra
@@ -30,17 +33,24 @@
 # obj-flags:object flags
 # player-flags:player flags
 # values:values
+# desc:desc
 
 # 'name' indicates the beginning of an entry.
 
 # 'stats' is for the stat modifiers - strength, intelligence, wisdom,
 # dexterity, constitution.
 
+# 'talents' is for the base number of talent points (at birth), and the
+# number of points added by max level. This defaults to 0:0.
+
 # 'skill-<skill name>' is for skills that get added at birth - physical
 # and magical disarming, magic devices, saving throws, stealth,
 # to hit (normal), to hit (bows), to hit (throwing), digging.
 
-# 'hitdie' is for max. hitpoints gained per level.
+# 'equip' is for starting equipment - tval of the item, sval of the item,
+# minimum amount, maximum amount.
+
+# 'hitdie' is for average hitpoints gained at maximum level.
 
 # 'exp' is for percent of "standard" experience needed to gain a level.
 
@@ -63,9 +73,22 @@
 # 'values' is for object modifiers which take a value that races possess
 # innately.
 
+# 'desc' is for the description shown on the character creation screen
+
+ext:None
+desc:A typical member of your race with nothing added or taken away - not a mutant, cyborg or other exotic variation.
+ 
+ext:Mutant
+stats:-1:-1:0:-1:-1:-3:0
+hitdie:-15
+exp:10
+player-flags:REROLL_MUTATIONS
+desc:You will begin with one or more mutations - which although they may have disadvantages are not purely negative. You'll gain at least one more mutation as you advance, and you'll gain the ability to exchange unwanted mutations for one that may be preferable - and eventually, to withstand radiation innately.
 
 name:Human
-stats:0:0:0:0:0
+exts:Mutant,None
+stats:0:0:0:0:0:0:0
+talents:3:5
 skill-disarm-phys:0
 skill-disarm-magic:0
 skill-device:0
@@ -76,225 +99,76 @@ skill-melee:0
 skill-shoot:0
 skill-throw:0
 skill-dig:0
-hitdie:10
+hitdie:275
 exp:100
 infravision:0
 history:1
 age:14:6
-height:69:10
-weight:165:35
+height:69:4
+weight:1650
+weightmod:350
+desc:The race with average abilities, from a human perspective at least. While you won't have bulletproof skin or [bla], there's a reason that is has primarily been humans who have colonized the galaxy - in a word, adaptability. That shows in the lowest experience requirement and the most specialization through talents.
 
-name:Half-Elf
-stats:0:1:-1:1:-1
-skill-disarm-phys:2
-skill-disarm-magic:2
-skill-device:3
-skill-save:3
-skill-stealth:1
-skill-search:3
-skill-melee:-1
-skill-shoot:5
-skill-throw:5
-skill-dig:0
-hitdie:10
-exp:120
-infravision:2
-history:4
-age:24:16
-height:71:8
-weight:115:25
-obj-flags:SUST_DEX
-
-name:Elf
-stats:-1:2:-1:1:-1
-skill-disarm-phys:5
+name:Android
+exts:None
+stats:3:-2:-4:2:2:-3:2
+talents:0:0
+skill-disarm-phys:0
 skill-disarm-magic:5
-skill-device:6
-skill-save:6
-skill-stealth:2
-skill-search:6
-skill-melee:-5
-skill-shoot:15
-skill-throw:15
-skill-dig:0
-hitdie:9
-exp:120
-infravision:3
-history:5
-age:75:75
-height:73:7
-weight:90:10
-obj-flags:SUST_DEX
-values:RES_LIGHT[1]
-
-name:Hobbit
-stats:-2:2:1:3:2
-skill-disarm-phys:15
-skill-disarm-magic:15
-skill-device:18
-skill-save:18
-skill-stealth:4
-skill-search:6
-skill-melee:-10
-skill-shoot:20
-skill-throw:20
-skill-dig:0
-hitdie:7
-exp:120
-infravision:4
-history:10
-age:21:12
-height:34:4
-weight:55:5
-obj-flags:HOLD_LIFE
-player-flags:KNOW_MUSHROOM
-
-name:Gnome
-stats:-1:2:0:2:1
-skill-disarm-phys:10
-skill-disarm-magic:10
-skill-device:22
-skill-save:12
-skill-stealth:3
-skill-search:4
-skill-melee:-8
-skill-shoot:12
-skill-throw:12
-skill-dig:0
-hitdie:8
-exp:120
-infravision:4
-history:13
-age:50:40
-height:40:5
-weight:80:5
-obj-flags:FREE_ACT
-player-flags:KNOW_ZAPPER
-
-name:Dwarf
-stats:2:-3:2:-2:2
-skill-disarm-phys:2
-skill-disarm-magic:2
-skill-device:9
-skill-save:9
-skill-stealth:-1
-skill-search:2
-skill-melee:15
-skill-shoot:0
-skill-throw:0
-skill-dig:40
-hitdie:11
-exp:120
-infravision:5
-history:16
-age:35:15
-height:47:4
-weight:135:20
-obj-flags:PROT_BLIND
-player-flags:SEE_ORE
-
-name:Half-Orc
-stats:2:-1:0:0:1
-skill-disarm-phys:-3
-skill-disarm-magic:-3
-skill-device:-3
-skill-save:-3
-skill-stealth:-1
-skill-search:-3
-skill-melee:12
-skill-shoot:-5
-skill-throw:-5
-skill-dig:0
-hitdie:10
-exp:120
-infravision:3
-history:19
-age:11:4
-height:64:2
-weight:135:15
-values:RES_DARK[1]
-
-name:Half-Troll
-stats:4:-4:-2:-4:3
-skill-disarm-phys:-5
-skill-disarm-magic:-5
-skill-device:-8
+skill-device:0
 skill-save:-8
-skill-stealth:-2
-skill-search:-9
+skill-stealth:-10
+skill-search:5
 skill-melee:20
-skill-shoot:-10
-skill-throw:-10
-skill-dig:0
-hitdie:12
-exp:120
-infravision:3
-history:21
-age:20:10
-height:90:16
-weight:240:60
-obj-flags:SUST_STR | REGEN
-
-name:Dunadan
-stats:1:2:2:2:3
-skill-disarm-phys:4
-skill-disarm-magic:4
-skill-device:5
-skill-save:5
-skill-stealth:1
-skill-search:3
-skill-melee:15
 skill-shoot:10
 skill-throw:10
 skill-dig:0
-hitdie:10
+equip:battery:alkaline battery:5:8
+hitdie:325
 exp:120
-infravision:0
-history:1
-age:50:20
-height:80:6
-weight:190:20
-obj-flags:SUST_CON
+infravision:6
+history:27
+age:10:2
+height:69:10
+weight:2400
+weightmod:600
+obj-flags:REGEN
+player-flags:NO_MUTATIONS
+player-flags:NO_FOOD | EAT_BATTERIES
+values:RES_ELEC[-1]
+desc:Sentient robots have been constructed for a variety of purposes and while artificial intelligence still isn't as good as the real thing, they have many advantages: a tough, fast metal body, precise aiming, rapid regeneration and IR vision. However, you can't easily gain talents, can't eat normal food and must avoid electric shocks.
 
-name:High-Elf
-stats:1:3:-1:3:1
-skill-disarm-phys:4
-skill-disarm-magic:4
-skill-device:20
-skill-save:20
-skill-stealth:2
-skill-search:10
-skill-melee:10
-skill-shoot:25
-skill-throw:25
-skill-dig:0
-hitdie:10
-exp:145
-infravision:4
-history:7
-age:100:30
-height:77:6
-weight:190:20
-obj-flags:SEE_INVIS
-values:RES_LIGHT[1]
-
-name:Kobold
-stats:-1:-1:0:2:2
+name:Time-Lord
+exts:Mutant,None
+stats:0:2:2:0:3:2:0
+talents:0:3
 skill-disarm-phys:10
 skill-disarm-magic:10
-skill-device:5
-skill-save:0
-skill-stealth:3
-skill-search:10
-skill-melee:-5
-skill-shoot:10
+skill-device:15
+skill-save:15
+skill-stealth:0
+skill-search:0
+skill-melee:0
+skill-shoot:4
 skill-throw:10
 skill-dig:0
-hitdie:8
-exp:120
-infravision:5
-history:23
-age:15:10
-height:37:4
-weight:65:5
-values:RES_POIS[1]
+hitdie:290
+exp:150
+infravision:0
+history:37
+age:50:20
+height:70:2
+weight:1900
+weightmod:200
+obj-flags:SUST_CON | REGEN
+desc:Time Lords take a human form, which changes when they regenerate. They can regenerate as many as 12 times, but it is always chancy - especially for the less experienced, and experience is not so easily gained (they have seen it all before). But spacetime is yours to command, with more tricks available as you advance, and that's the way to avoid needing to take that chance.
+
+book:[Time-Lord]
+# spell:name:level:fail:exp:stat:hp:cooldown
+spell:Force Regeneration:25:22:40:2:2d4:1
+seffect:FORCE_REGEN
+sdesc:Forces your body into regeneration by an effort of will. This is just as chancy as regeneration at death is, though and failure means losing a regeneration as well as some brief but nasty side-effects.
+
+# Blink ('warp'), a tp+speed, tp level, gain energy, movement speed, alter-reality?
+
+

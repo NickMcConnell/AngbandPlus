@@ -28,7 +28,7 @@
 #include "mon-spell.h"
 #include "mon-util.h"
 #include "monster.h"
-#include "obj-curse.h"
+#include "obj-fault.h"
 #include "obj-gear.h"
 #include "obj-ignore.h"
 #include "obj-init.h"
@@ -50,6 +50,7 @@
 #include "store.h"
 #include "trap.h"
 #include "ui-term.h"
+#include "world.h"
 
 /**
  * Setting this to 1 and recompiling gives a chance to recover a savefile 
@@ -76,7 +77,7 @@ static byte of_size = 0;
 static byte elem_max = 0;
 static byte brand_max;
 static byte slay_max;
-static byte curse_max;
+static byte fault_max;
 
 /**
  * Monster constants
@@ -132,7 +133,7 @@ static struct object *rd_item(void)
 	rd_s16b(&obj->pval);
 
 	rd_byte(&obj->number);
-	rd_s16b(&obj->weight);
+	rd_s32b(&obj->weight);
 
 	rd_string(buf, sizeof(buf));
 	if (buf[0]) {
@@ -198,15 +199,15 @@ static struct object *rd_item(void)
 		}
 	}
 
-	/* Read curses */
+	/* Read faults */
 	rd_byte(&tmp8u);
 	if (tmp8u) {
-		obj->curses = mem_zalloc(z_info->curse_max * sizeof(struct curse_data));
-		for (i = 0; i < curse_max; i++) {
+		obj->faults = mem_zalloc(z_info->fault_max * sizeof(struct fault_data));
+		for (i = 0; i < fault_max; i++) {
 			rd_byte(&tmp8u);
-			obj->curses[i].power = tmp8u;
+			obj->faults[i].power = tmp8u;
 			rd_u16b(&tmp16u);
-			obj->curses[i].timeout = tmp16u;
+			obj->faults[i].timeout = tmp16u;
 		}
 	}
 
@@ -596,10 +597,10 @@ int rd_object_memory(void)
 		return (-1);
 	}
 
-	/* Curses */
-	rd_byte(&curse_max);
-	if (curse_max > z_info->curse_max) {
-	        note(format("Too many (%u) curses allowed!", curse_max));
+	/* Faults */
+	rd_byte(&fault_max);
+	if (fault_max > z_info->fault_max) {
+	        note(format("Too many (%u) faults allowed!", fault_max));
 		return (-1);
 	}
 
@@ -625,7 +626,6 @@ int rd_object_memory(void)
 
 int rd_quests(void)
 {
-	int i;
 	u16b tmp16u;
 
 	/* Load the Quests */
@@ -637,16 +637,20 @@ int rd_quests(void)
 
 	/* Load the Quests */
 	player_quests_reset(player);
-	for (i = 0; i < tmp16u; i++) {
-		u16b cur_num;
-		rd_byte(&player->quests[i].level);
-		rd_u16b(&cur_num);
-		player->quests[i].cur_num = cur_num;
-	}
+	rdwr_quests();
 
 	return 0;
 }
 
+int rd_world(void)
+{
+	world_cleanup_towns();
+	rd_u16b(&z_info->town_max);
+	t_info = mem_zalloc(sizeof(*t_info) * z_info->town_max);
+	rdwr_world();
+	world_build_distances();
+	return 0;
+}
 
 /**
  * Read the player information
@@ -678,6 +682,21 @@ int rd_player(void)
 	/* Verify player race */
 	if (!player->race) {
 		note(format("Invalid player race (%s).", buf));
+		return -1;
+	}
+
+	/* Player ext */
+	rd_string(buf, sizeof(buf));
+	for (r = extensions; r; r = r->next) {
+		if (streq(r->name, buf)) {
+			player->extension = r;
+			break;
+		}
+	}
+
+	/* Verify player race */
+	if (!player->extension) {
+		note(format("Invalid player extension (%s).", buf));
 		return -1;
 	}
 
@@ -714,13 +733,13 @@ int rd_player(void)
 	rd_byte(&player->opts.name_suffix);
 
 	/* Special Race/Class info */
-	rd_byte(&player->hitdie);
+	rd_u32b(&player->hitdie);
 	rd_byte(&player->expfact);
 
 	/* Age/Height/Weight */
 	rd_s16b(&player->age);
 	rd_s16b(&player->ht);
-	rd_s16b(&player->wt);
+	rd_s32b(&player->wt);
 
 	/* Read the stat info */
 	rd_byte(&stat_max);
@@ -735,8 +754,7 @@ int rd_player(void)
 	for (i = 0; i < stat_max; i++) rd_s16b(&player->stat_birth[i]);
 
 	rd_s16b(&player->ht_birth);
-	rd_s16b(&player->wt_birth);
-	strip_bytes(2);
+	rd_s32b(&player->wt_birth);
 	rd_s32b(&player->au_birth);
 
 	/* Player body */
@@ -776,13 +794,15 @@ int rd_player(void)
 	rd_s16b(&player->chp);
 	rd_u16b(&player->chp_frac);
 
-	rd_s16b(&player->msp);
-	rd_s16b(&player->csp);
-	rd_u16b(&player->csp_frac);
-
+	rd_u16b(&player->talent_points);
 	rd_s16b(&player->max_lev);
 	rd_s16b(&player->max_depth);
 	rd_s16b(&player->recall_depth);
+	rd_s16b(&player->danger);
+
+	/* Player town */
+	RDWR_PTR(&player->town, t_info);
+	world_change_town(player->town);
 
 	/* Hack -- Repair maximum player level */
 	if (player->max_lev < player->lev) player->max_lev = player->lev;
@@ -804,6 +824,11 @@ int rd_player(void)
 	/* Read the flags */
 	rd_s16b(&player->energy);
 	rd_s16b(&player->word_recall);
+
+	if (!player->cooldown)
+		player->cooldown = mem_zalloc(sizeof(*player->cooldown) * total_spells);
+	for (i = 0; i < total_spells; i++)
+		rd_s32b(&player->cooldown[i]);
 
 	/* Find the number of timed effects */
 	rd_byte(&num);
@@ -830,6 +855,20 @@ int rd_player(void)
 	rd_u32b(&player->total_energy);
 	/* # of turns spent resting */
 	rd_u32b(&player->resting_turn);
+
+	/* Quest currently active */
+	rd_s32b(&player->active_quest);
+
+	/* Factions */
+	rd_s32b(&player->bm_faction);
+	rd_s32b(&player->town_faction);
+
+	/* Player flags */
+	for(i=0; i < (int)PF_SIZE; i++)
+		rd_byte(&player->ability_pflags[i]);
+
+	/* Class/race specific */
+	player_hook(loadsave, false);
 
 	/* Future use */
 	strip_bytes(32);
@@ -929,17 +968,17 @@ int rd_ignore(void)
 		k->note_unaware = quark_add(tmp);
 	}
 
-	/* Read the current number of rune auto-inscriptions */
+	/* Read the current number of icon auto-inscriptions */
 	rd_u16b(&inscriptions);
 
-	/* Read the rune autoinscriptions array */
+	/* Read the icon autoinscriptions array */
 	for (i = 0; i < inscriptions; i++) {
 		char tmp[80];
-		s16b runeid;
+		s16b iconid;
 
-		rd_s16b(&runeid);
+		rd_s16b(&iconid);
 		rd_string(tmp, sizeof(tmp));
-		rune_set_note(runeid, tmp);
+		icon_set_note(iconid, tmp);
 	}
 
 	return 0;
@@ -1009,10 +1048,10 @@ int rd_misc(void)
 		player->obj_k->slays[i] = tmp8u ? true : false;
 	}
 
-	/* Read curses */
-	for (i = 0; i < curse_max; i++) {
+	/* Read faults */
+	for (i = 0; i < fault_max; i++) {
 		rd_byte(&tmp8u);
-		player->obj_k->curses[i].power = tmp8u;
+		player->obj_k->faults[i].power = tmp8u;
 	}
 
 	/* Combat data */
@@ -1192,42 +1231,78 @@ static int rd_stores_aux(rd_item_t rd_item_version)
 
 	/* Read the stores */
 	rd_u16b(&tmp16u);
-	for (i = 0; i < tmp16u; i++) {
-		struct store *store = &stores[i];
+	assert(z_info->town_max);
+	for(int t=0; t<z_info->town_max; t++) {
+		if (t_info[t].stores)
+			mem_free(t_info[t].stores);
+		t_info[t].stores = mem_zalloc(MAX_STORES * sizeof(*t_info[t].stores));
+		memcpy(t_info[t].stores, stores_init, MAX_STORES * sizeof(*t_info[t].stores));
+	}
 
-		byte own, num;
+	stores = player->town->stores;
+	stores_copy(stores_init);
 
-		/* Read the basic info */
-		rd_byte(&own);
-		rd_byte(&num);
+	for(int t=0; t<z_info->town_max; t++) {
+		for (i = 0; i < tmp16u; i++) {
+			struct store *store = &t_info[t].stores[i];
 
-		/* XXX: refactor into store.c */
-		store->owner = store_ownerbyidx(store, own);
+			byte own;
+			u16b num;
 
-		/* Read the items */
-		for (; num; num--) {
-			/* Read the known item */
-			struct object *obj, *known_obj = (*rd_item_version)();
-			if (!known_obj) {
-				note("Error reading known item");
-				return (-1);
+			/* Read the basic info */
+			rd_byte(&own);
+			rd_u16b(&num);
+			rd_s16b(&store->stock_size);
+
+			/* XXX: refactor into store.c */
+			store->owner = store_ownerbyidx(store, own);
+
+			/* Read the items */
+			for (; num; num--) {
+				/* Read the known item */
+				struct object *obj, *known_obj = (*rd_item_version)();
+				if (!known_obj) {
+					note("Error reading known item");
+					return (-1);
+				}
+
+				/* Read the item */
+				obj = (*rd_item_version)();
+				if (!obj) {
+					note("Error reading item");
+					return (-1);
+				}
+				obj->known = known_obj;
+
+				/* Accept any valid items */
+				if (store->stock_num < z_info->store_inven_max && obj->kind) {
+					if (store->sidx == STORE_HOME)
+						home_carry(obj);
+					else
+						store_carry(store, obj);
+				}
 			}
 
-			/* Read the item */
-			obj = (*rd_item_version)();
-			if (!obj) {
-				note("Error reading item");
-				return (-1);
-			}
-			obj->known = known_obj;
+			/* Read the entrance position */
+			rd_u16b(&store->x);
+			rd_u16b(&store->y);
 
-			/* Accept any valid items */
-			if (store->stock_num < z_info->store_inven_max && obj->kind) {
-				if (store->sidx == STORE_HOME)
-					home_carry(obj);
-				else
-					store_carry(store, obj);
+			/* Read the ban days and reason */
+			rd_u32b(&store->bandays);
+			{
+				char buf[128];
+				rd_string(buf, sizeof(buf));
+				store->banreason = buf[0] ? strdup(buf) : NULL;
 			}
+
+			/* Read the layaway index and day */
+			rd_s32b(&store->layaway_idx);
+			rd_s32b(&store->layaway_day);
+
+			/* Destroyed flag and danger */
+			rd_bool(&store->destroy);
+			rd_bool(&store->open);
+			rd_s32b(&store->max_danger);
 		}
 	}
 

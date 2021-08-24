@@ -37,7 +37,7 @@ struct angband_constants
 	u16b s_max;			/**< Maximum number of magic spells */
 	u16b pit_max;		/**< Maximum number of monster pit types */
 	u16b act_max;		/**< Maximum number of activations for randarts */
-	u16b curse_max;		/**< Maximum number of curses */
+	u16b fault_max;		/**< Maximum number of faults */
 	u16b slay_max;		/**< Maximum number of slays */
 	u16b brand_max;		/**< Maximum number of brands */
 	u16b mon_blows_max;	/**< Maximum number of monster blows */
@@ -65,7 +65,13 @@ struct angband_constants
 	u16b ood_monster_amount;	/**< Max number of levels OoD */
 	u16b monster_group_max;		/**< Maximum size of a group */
 	u16b monster_group_dist;	/**< Max dist of a group from a related group */
-
+	u16b town_easy_turns;		/**< Number of turns before difficulty increases */
+	u16b town_levelup_turns;	/**< Number of turns between difficulty increases */
+	u16b town_allmons_level;	/**< Level when level-1 non-p/h can show in the town */
+	u16b town_equalmons_level;	/**< Level when all in-level mons can show in the town */
+	u16b town_delfirst_level;	/**< Level when the first shop disappears */
+	u16b town_delall_level;		/**< Level when all shops disappear */
+	
 	/* Monster gameplay constants, read from constants.txt */
 	u16b glyph_hardness;		/**< How hard for a monster to break a glyph */
 	u16b repro_monster_rate;	/**< Monster reproduction rate-slower */
@@ -84,16 +90,17 @@ struct angband_constants
 	u16b level_pit_max;		/**< Maximum number of pits on a level */
 
 	/* World shape constants, read from constants.txt */
-	u16b max_depth;		/* Maximum dungeon level */
-	u16b day_length;	/* Number of turns from dawn to dawn */
+	u16b max_depth;		/**< Maximum dungeon level */
+	u16b day_length;	/**< Number of turns from dawn to dawn */
 	u16b dungeon_hgt;	/**< Maximum number of vertical grids on a level */
 	u16b dungeon_wid;	/**< Maximum number of horizontical grids on a level */
-	u16b town_hgt;	/**< Maximum number of vertical grids in the town */
-	u16b town_wid;	/**< Maximum number of horizontical grids in the town */
-	u16b feeling_total;	/* Total number of feeling squares per level */
-	u16b feeling_need;	/* Squares needed to see to get first feeling */
-    u16b stair_skip;    /* Number of levels to skip for each down stair */
-	u16b move_energy;	/* Energy the player or monster needs to move */
+	u16b town_hgt;		/**< Maximum number of vertical grids in the town */
+	u16b town_wid;		/**< Maximum number of horizontical grids in the town */
+	u16b feeling_total;	/**< Total number of feeling squares per level */
+	u16b feeling_need;	/**< Squares needed to see to get first feeling */
+    u16b stair_skip;    /**< Number of levels to skip for each down stair */
+	u16b move_energy;	/**< Energy the player or monster needs to move */
+	u16b town_max;		/**< Total number of towns in t_info[], set by world_init_towns */
 
 	/* Carrying capacity constants, read from constants.txt */
 	u16b pack_size;		/**< Maximum number of pack slots */
@@ -167,11 +174,17 @@ extern struct parser *init_parse_constants(void);
 extern struct parser *init_parse_flavor(void);
 extern struct parser *init_parse_names(void);
 extern struct parser *init_parse_hints(void);
+extern struct parser *init_parse_lies(void);
 extern struct parser *init_parse_trap(void);
 extern struct parser *init_parse_chest_trap(void);
 extern struct parser *init_parse_quest(void);
 
 extern struct file_parser flavor_parser;
+
+extern const char *player_info_flags[];
+
+extern struct class_magic *parsing_magic;
+extern int total_spells;
 
 errr grab_effect_data(struct parser *p, struct effect *effect);
 extern void init_file_paths(const char *config, const char *lib, const char *data);
@@ -180,5 +193,8 @@ extern void init_arrays(void);
 extern void create_needed_dirs(void);
 extern bool init_angband(void);
 extern void cleanup_angband(void);
+extern void init_parse_magic(struct parser *p);
+extern void cleanup_magic(struct class_magic *magic);
+
 
 #endif /* INCLUDED_INIT_H */

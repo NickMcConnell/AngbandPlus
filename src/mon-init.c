@@ -1123,6 +1123,7 @@ static enum parser_error parse_monster_color(struct parser *p) {
 		attr = color_text_to_attr(color);
 	else
 		attr = color_char_to_attr(color[0]);
+
 	if (attr < 0)
 		return PARSE_ERROR_INVALID_COLOR;
 	r->d_attr = attr;
@@ -1273,7 +1274,7 @@ static enum parser_error parse_monster_flags(struct parser *p) {
 	while (s) {
 		if (grab_flag(r->flags, RF_SIZE, r_info_flags, s)) {
 			mem_free(flags);
-			quit_fmt("bad f2-flag: %s", s);
+			quit_fmt("bad f2-flag: %s", parser_getstr(p, "flags"));
 			return PARSE_ERROR_INVALID_FLAG;
 		}
 		s = strtok(NULL, " |");
@@ -1351,25 +1352,41 @@ static enum parser_error parse_monster_spell_power(struct parser *p) {
 	return PARSE_ERROR_NONE;
 }
 
-static enum parser_error parse_monster_spells(struct parser *p) {
-	struct monster_race *r = parser_priv(p);
-	char *flags;
-	char *s;
+static errr parse_get_spells(struct parser *p, bitflag *spell_flags)
+{
 	int ret = PARSE_ERROR_NONE;
-	bitflag current_flags[RSF_SIZE], test_flags[RSF_SIZE];
-
-	if (!r)
-		return PARSE_ERROR_MISSING_RECORD_HEADER;
-	flags = string_make(parser_getstr(p, "spells"));
-	s = strtok(flags, " |");
+	char *flags = string_make(parser_getstr(p, "spells"));
+	char *s = strtok(flags, " |");
 	while (s) {
-		if (grab_flag(r->spell_flags, RSF_SIZE, r_info_spell_flags, s)) {
+		if (grab_flag(spell_flags, RSF_SIZE, r_info_spell_flags, s)) {
 			quit_fmt("bad spell flag: %s", s);
 			ret = PARSE_ERROR_INVALID_FLAG;
 			break;
 		}
 		s = strtok(NULL, " |");
 	}
+	mem_free(flags);
+	return ret;
+}
+
+static enum parser_error parse_monster_deathspells(struct parser *p) {
+	struct monster_race *r = parser_priv(p);
+	int ret = PARSE_ERROR_NONE;
+
+	if (!r)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+
+	ret = parse_get_spells(p, r->death_spell_flags);
+
+	return ret;
+}
+
+static enum parser_error parse_monster_spells(struct parser *p) {
+	struct monster_race *r = parser_priv(p);
+	int ret = PARSE_ERROR_NONE;
+	bitflag current_flags[RSF_SIZE], test_flags[RSF_SIZE];
+
+	ret = parse_get_spells(p, r->spell_flags);
 
 	/* Add the "base monster" flags to the monster */
 	if (r->base)
@@ -1392,7 +1409,6 @@ static enum parser_error parse_monster_spells(struct parser *p) {
 		r->freq_spell = 4;
 	}
 
-	mem_free(flags);
 	return ret;
 }
 
@@ -1623,6 +1639,7 @@ struct parser *init_parse_monster(void) {
 	parser_reg(p, "spell-freq int freq", parse_monster_spell_freq);
 	parser_reg(p, "spell-power uint power", parse_monster_spell_power);
 	parser_reg(p, "spells str spells", parse_monster_spells);
+	parser_reg(p, "deathspells str spells", parse_monster_deathspells);
 	parser_reg(p, "drop sym tval sym sval uint chance uint min uint max", parse_monster_drop);
 	parser_reg(p, "drop-base sym tval uint chance uint min uint max", parse_monster_drop_base);
 	parser_reg(p, "friends uint chance rand number sym name ?sym role", parse_monster_friends);

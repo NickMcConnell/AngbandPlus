@@ -55,7 +55,7 @@
 # has a corresponding color (from the first 14 colors) and alternate color
 # (from the second 14 colors).  The alternate color is used for every other
 # resist.  A palette of 13 colors is used for the label.  They are:
-# unknown rune
+# unknown icon
 # no net permanent resistance or immunity and no net timed effects
 # net permanent resistance and no net timed effects
 # net permanent vulnerability and either timed vulnerability or no net timed
@@ -78,7 +78,7 @@
 # effect is known and is off.  Each of five symbols has a corresponding color
 # (from the first five colors) and alternate color (from the second five
 # colors).  The alternate color is used for every other flag.  A palette of
-# four colors is used for the label.  They are unknown rune, no flags are
+# four colors is used for the label.  They are unknown icon, no flags are
 # known to be on and there is no timed effect, at least one flag is on, and no
 # flags are known to be on but there is at least one timed effect.
 
@@ -91,7 +91,7 @@
 # used for each flag.  Each of the symbols has a corresponding color (from the
 # first eleven colors) and alternate color (from the second eleven colors).
 # The alternate color is used for every other flag.  A palette of seven colors
-# is used for the label.  They are unknown rune, the combined effect is off with
+# is used for the label.  They are unknown icon, the combined effect is off with
 # at least one permanent cancel, the combined effect is off with at least one
 # timed cancel and no permanent on flags, the combined effect is off with at
 # least one permanent on flag and one timed cancel, the combined effect is off
@@ -109,7 +109,7 @@
 # and alternate color (from the second seven colors).  The alternate color is
 # used for every other modifier.  A palette of six colors is used for the
 # label.  They are:
-# unknown rune
+# unknown icon
 # the sum of the known effects is zero and the sum of the timed effects is zero
 # the sum of the known effects is positive
 # the sum of the known effects is negative
@@ -141,7 +141,7 @@
 # permanent effect is zero and the timed effect is negative but too large to
 # display with the given number of digits.  A palette of six colors is used
 # for the label.  They are:
-# unknown rune
+# unknown icon
 # the sum of the known effects is zero and the sum of the timed effects is zero
 # the sum of the known effects is positive
 # the sum of the known effects is negative
@@ -177,7 +177,7 @@
 # used in place of digits when the value is negative and too large to display
 # with the given number of digits.  A palette of seven colors is used for the
 # label.  They are:
-# unknown rune
+# unknown icon
 # the sum of the known values is zero and none of the auxiliary flags are on
 # the sum of the known values is zero and at least one auxiliary flag is on
 # the sum of the known values is positive and none of the auxiliary flags is on

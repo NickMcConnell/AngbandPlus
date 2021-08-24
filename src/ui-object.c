@@ -82,11 +82,11 @@ static int ex_offset;
 /**
  * Determine if the attr and char should consider the item's flavor
  *
- * Identified scrolls should use their own tile.
+ * Identified cards should use their own tile.
  */
 static bool use_flavor_glyph(const struct object_kind *kind)
 {
-	return kind->flavor && !(kind->tval == TV_SCROLL && kind->aware);
+	return kind->flavor && !(kind->tval == TV_CARD && kind->aware);
 }
 
 /**
@@ -129,6 +129,32 @@ byte object_attr(const struct object *obj)
 wchar_t object_char(const struct object *obj)
 {
 	return object_kind_char(obj->kind);
+}
+
+/**
+ * Print weight into a given (or if NULL, static) buffer, which is returned
+ * Format is rounded down and suffixed with g, kg as needed.
+ * May be negative (used on the character sheet)
+ * Maximum length (if positive) "x.yz kg" - 7 ch (vs. 8 ch of "xyz.q lb")
+ */
+char *fmt_weight(int grams, char *buf)
+{
+	char *minus = "";
+	static char sbuf[32];
+	if (!buf) buf = sbuf;
+	if (grams < 0) {
+		minus = "-";
+		grams = -grams;
+	}
+	if (grams < 1000)
+		sprintf(buf, "%s%d g", minus, grams);
+	else if (grams < 10000)
+		sprintf(buf, "%s%d.%02d kg", minus, grams / 1000, (grams % 1000) / 10);
+	else if (grams < 100000)
+		sprintf(buf, "%s%d.%d kg", minus, grams / 1000, (grams % 1000) / 100);
+	else
+		sprintf(buf, "%s%d kg", minus, grams / 1000);
+	return buf;
 }
 
 /**
@@ -175,17 +201,10 @@ static void show_obj(int obj_num, int row, int col, bool cursor,
 	}
 
 	/* Item kind determines the color of the output */
-	if (obj) {
+	if (obj)
 		attr = obj->kind->base->attr;
-
-		/* Unreadable books are a special case */
-		if (tval_is_book_k(obj->kind) &&
-			(player_object_to_book(player, obj) == NULL)) {
-			attr = COLOUR_SLATE;
-		}
-	} else {
+	else
 		attr = COLOUR_SLATE;
-	}
 
 	/* Object name */
 	c_put_str(attr, items[obj_num].o_name, row + obj_num,
@@ -234,7 +253,7 @@ static void show_obj(int obj_num, int row, int col, bool cursor,
 	/* Weight */
 	if (mode & OLIST_WEIGHT) {
 		int weight = obj->weight * obj->number;
-		strnfmt(buf, sizeof(buf), "%4d.%1d lb", weight / 10, weight % 10);
+		fmt_weight(weight, buf);
 		put_str(buf, row + obj_num, col + ex_offset_ctr);
 	}
 }
@@ -335,7 +354,7 @@ static void set_obj_names(bool terse)
 
 		/* Null objects are used to skip lines, or display only a label */		
 		if (!obj) {
-			if ((i < num_head) || !strcmp(items[i].label, "In quiver"))
+			if ((i < num_head) || !strcmp(items[i].label, "Ammo"))
 				strnfmt(items[i].o_name, sizeof(items[i].o_name), "");
 			else
 				strnfmt(items[i].o_name, sizeof(items[i].o_name), "(nothing)");
@@ -417,7 +436,7 @@ static void show_obj_list(olist_detail_t mode)
 
 		/* Quiver may take multiple lines */
 		for (j = 0; j < quiver_slots; j++, i++) {
-			const char *fmt = "in Quiver: %d missile%s";
+			const char *fmt = "ammo: %d round%s";
 			char letter = I2A(in_term ? i - 1 : i);
 
 			/* Number of missiles in this "slot" */
@@ -539,7 +558,7 @@ void show_equip(int mode, item_tester tester)
 		int last_slot = -1;
 
 		strnfmt(items[num_obj].label, sizeof(items[num_obj].label),
-				"In quiver");
+				"Ammo");
 		items[num_obj].object = NULL;
 		num_obj++;
 
@@ -772,7 +791,7 @@ static void menu_header(void)
 
 		/* Indicate legality of quiver */
 		if (use_quiver)
-			my_strcat(out_val, " | for Quiver,", sizeof(out_val));
+			my_strcat(out_val, " | for Ammo,", sizeof(out_val));
 
 		/* Indicate legality of the "floor" */
 		if (allow_floor)
@@ -799,7 +818,7 @@ static void menu_header(void)
 
 		/* Indicate legality of quiver */
 		if (use_quiver)
-			my_strcat(out_val, " | for Quiver,", sizeof(out_val));
+			my_strcat(out_val, " | for Ammo,", sizeof(out_val));
 
 		/* Indicate legality of the "floor" */
 		if (allow_floor)
@@ -809,7 +828,7 @@ static void menu_header(void)
 	/* Viewing quiver */
 	else if (player->upkeep->command_wrk == USE_QUIVER) {
 		/* Begin the header */
-		strnfmt(out_val, sizeof(out_val), "Quiver:");
+		strnfmt(out_val, sizeof(out_val), "Ammo:");
 
 		/* List choices */
 		if (q1 <= q2) {
@@ -851,7 +870,7 @@ static void menu_header(void)
 
 		/* Indicate legality of quiver */
 		if (use_quiver)
-			my_strcat(out_val, " | for Quiver,", sizeof(out_val));
+			my_strcat(out_val, " | for Ammo,", sizeof(out_val));
 
 		/* Indicate legality of the "floor" */
 		if (allow_floor)
@@ -880,7 +899,7 @@ static void menu_header(void)
 
 		/* Indicate legality of quiver */
 		if (use_quiver)
-			my_strcat(out_val, " | for Quiver,", sizeof(out_val));
+			my_strcat(out_val, " | for Ammo,", sizeof(out_val));
 	}
 
 	/* Finish the header */
@@ -924,7 +943,7 @@ void get_item_display(struct menu *menu, int oid, bool cursor, int row,
 /**
  * Deal with events on the get_item menu
  */
-bool get_item_action(struct menu *menu, const ui_event *event, int oid)
+bool get_item_action(struct menu *menu, const ui_event *event, int oid, bool *item)
 {
 	struct object_menu_data *choice = menu_priv(menu);
 	char key = event->key.code;
@@ -956,7 +975,7 @@ bool get_item_action(struct menu *menu, const ui_event *event, int oid)
 		else if (key == '|') {
 			/* No toggle allowed */
 			if ((q1 > q2) && !allow_all){
-				bell("Cannot select quiver!");
+				bell("Cannot select ammo!");
 			} else {
 				/* Toggle to quiver */
 				player->upkeep->command_wrk = (USE_QUIVER);
@@ -1001,7 +1020,7 @@ static void item_menu_browser(int oid, void *data, const region *local_area)
 	if (olist_mode & OLIST_QUIVER && player->upkeep->command_wrk == USE_INVEN) {
 		/* Quiver may take multiple lines */
 		for (j = 0; j < quiver_slots; j++, i++) {
-			const char *fmt = "in Quiver: %d missile%s\n";
+			const char *fmt = "in Ammo: %d round%s\n";
 			char letter = I2A(i);
 
 			/* Number of missiles in this "slot" */
@@ -1038,7 +1057,7 @@ static void item_menu_browser(int oid, void *data, const region *local_area)
 /**
  * Display list items to choose from
  */
-struct object *item_menu(cmd_code cmd, int prompt_size, int mode)
+struct object *item_menu(cmd_code cmd, int prompt_size, int mode, bool *item)
 {
 	menu_iter menu_f = { get_item_tag, get_item_validity, get_item_display,
 						 get_item_action, 0 };
@@ -1465,7 +1484,7 @@ bool textui_get_item(struct object **choice, const char *pmt, const char *str,
 			newmenu = false;
 
 			/* Get an item choice */
-			*choice = item_menu(cmd, MAX(pmt ? strlen(pmt) : 0, 15), mode);
+			*choice = item_menu(cmd, MAX(pmt ? strlen(pmt) : 0, 15), mode, NULL);
 
 			/* Fix the screen */
 			screen_load();
@@ -1507,7 +1526,7 @@ bool textui_get_item(struct object **choice, const char *pmt, const char *str,
 
 /**
  * This draws the Object Recall subwindow when displaying a particular object
- * (e.g. a helmet in the backpack, or a scroll on the ground)
+ * (e.g. a helmet in the backpack, or a card on the ground)
  */
 void display_object_recall(struct object *obj)
 {

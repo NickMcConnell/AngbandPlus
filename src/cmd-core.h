@@ -41,6 +41,7 @@ typedef enum cmd_code {
 	CMD_BIRTH_INIT,
 	CMD_BIRTH_RESET,
 	CMD_CHOOSE_RACE,
+	CMD_CHOOSE_EXT,
 	CMD_CHOOSE_CLASS,
 	CMD_BUY_STAT,
 	CMD_SELL_STAT,
@@ -69,13 +70,13 @@ typedef enum cmd_code {
 	CMD_BROWSE_SPELL,
 	CMD_STUDY,
 	CMD_CAST, /* Casting a spell /or/ praying. */
-	CMD_USE_STAFF,
+	CMD_USE_DEVICE,
 	CMD_USE_WAND,
 	CMD_USE_ROD,
 	CMD_ACTIVATE,
 	CMD_EAT,
 	CMD_QUAFF,
-	CMD_READ_SCROLL,
+	CMD_RUN_CARD,
 	CMD_REFILL,
 	CMD_USE,
 	CMD_FIRE,
@@ -329,7 +330,7 @@ int cmd_get_quantity(struct command *cmd, const char *arg, int *amt, int max);
 int cmd_get_string(struct command *cmd, const char *arg, const char **str,
 				   const char *initial, const char *title, const char *prompt);
 int cmd_get_spell(struct command *cmd, const char *arg, int *spell,
-				  const char *verb, item_tester book_filter, const char *error,
-				  bool (*spell_filter)(int spell));
+				  const char *verb, const char *error, bool (*spell_filter)(int spell));
 
+void process_command(cmd_context ctx, struct command *cmd);
 #endif

@@ -35,6 +35,7 @@
 #include "ui-knowledge.h"
 #include "ui-menu.h"
 #include "ui-mon-lore.h"
+#include "ui-player.h"
 #include "wizard.h"
 #include "z-file.h"
 
@@ -85,50 +86,45 @@ static void spoiler_underline(const char *str, char c)
  */
 static const grouper group_item[] =
 {
-	{ TV_SHOT,		"Ammo" },
-	{ TV_ARROW,		  NULL },
-	{ TV_BOLT,		  NULL },
+	{ TV_AMMO_6,		"Ammo" },
+	{ TV_AMMO_9,		NULL },
+	{ TV_AMMO_12,		NULL },
 
-	{ TV_BOW,		"Bows" },
+	{ TV_GUN,			"Guns" },
 
-	{ TV_SWORD,		"Weapons" },
-	{ TV_POLEARM,	  NULL },
-	{ TV_HAFTED,	  NULL },
-	{ TV_DIGGING,	  NULL },
+	{ TV_SWORD,			"Weapons" },
+	{ TV_POLEARM,		NULL },
+	{ TV_HAFTED,		NULL },
+	{ TV_DIGGING,		NULL },
 
 	{ TV_SOFT_ARMOR,	"Armour (Body)" },
-	{ TV_HARD_ARMOR,	  NULL },
-	{ TV_DRAG_ARMOR,	  NULL },
+	{ TV_HARD_ARMOR,	NULL },
+	{ TV_DRAG_ARMOR,	NULL },
 
-	{ TV_CLOAK,		"Armour (Misc)" },
-	{ TV_SHIELD,	  NULL },
-	{ TV_HELM,		  NULL },
-	{ TV_CROWN,		  NULL },
-	{ TV_GLOVES,	  NULL },
-	{ TV_BOOTS,		  NULL },
+	{ TV_CLOAK,			"Armour (Misc)" },
+	{ TV_BELT,			NULL },
+	{ TV_SHIELD,		NULL },
+	{ TV_HELM,			NULL },
+	{ TV_CROWN,			NULL },
+	{ TV_GLOVES,		NULL },
+	{ TV_BOOTS,			NULL },
 
-	{ TV_AMULET,	"Amulets" },
-	{ TV_RING,		"Rings" },
+	{ TV_AMULET,		"Amulets" },
+	{ TV_RING,			"Rings" },
 
-	{ TV_SCROLL,	"Scrolls" },
-	{ TV_POTION,	"Potions" },
-	{ TV_FOOD,		"Food" },
-	{ TV_MUSHROOM,	"Mushrooms" },
+	{ TV_CARD,			"Cards" },
+	{ TV_PILL,			"Pills" },
+	{ TV_FOOD,			"Food" },
+	{ TV_MUSHROOM,		"Mushrooms" },
 
-	{ TV_ROD,		"Rods" },
-	{ TV_WAND,		"Wands" },
-	{ TV_STAFF,		"Staffs" },
+	{ TV_ROD,			"Rods" },
+	{ TV_WAND,			"Wands" },
+	{ TV_DEVICE,			"Devices" },
 
-	{ TV_MAGIC_BOOK,	"Magic Books" },
-	{ TV_PRAYER_BOOK,	"Holy Books" },
-	{ TV_NATURE_BOOK,	"Nature Books" },
-	{ TV_SHADOW_BOOK,	"Shadow Books" },
-	{ TV_OTHER_BOOK,	"Mystery Books" },
+	{ TV_CHEST,			"Containers" },
 
-	{ TV_CHEST,		"Chests" },
-
-	{ TV_LIGHT,		  "Lights and fuel" },
-	{ TV_FLASK,		  NULL },
+	{ TV_LIGHT,			"Lights" },
+	{ TV_BATTERY,		"Batteries" },
 
 	{ 0, "" }
 };
@@ -173,7 +169,7 @@ static void kind_info(char *buf, size_t buf_len, char *dam, size_t dam_len,
 
 	/* Weight */
 	if (wgt)
-		strnfmt(wgt, wgt_len, "%3d.%d", obj->weight / 10, obj->weight % 10);
+		strnfmt(wgt, wgt_len, fmt_weight(obj->weight, NULL));
 
 	/* Hack */
 	if (!dam) {
@@ -206,7 +202,7 @@ static void spoil_obj_desc(const char *fname)
 	char buf[1024];
 	char wgt[80];
 	char dam[80];
-	const char *format = "%-51s  %7s%6s%4s%9s\n";
+	const char *format = "%-51s  %7s%9s%4s%9s\n";
 
 	/* Open the file */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
@@ -225,9 +221,9 @@ static void spoil_obj_desc(const char *fname)
 	file_putf(fh, "Spoiler File -- Basic Items (%s)\n\n\n", buildid);
 
 	/* More Header */
-	file_putf(fh, format, "Description", "Dam/AC", "Wgt", "Lev", "Cost");
+	file_putf(fh, format, "Description", "Dam/AC", "Weight", "Lev", "Cost");
 	file_putf(fh, format, "----------------------------------------",
-	        "------", "---", "---", "----");
+	        "------", "------", "---", "----");
 
 	/* List the groups */
 	for (i = 0; true; i++) {
@@ -287,7 +283,7 @@ static void spoil_obj_desc(const char *fname)
 				} else {
 					file_putf(fh, "  %s", buf);
 				}
-				file_putf(fh, "%7s%6s%4d%9ld\n", dam, wgt, e,
+				file_putf(fh, "%7s%9s%4d%9ld\n", dam, wgt, e,
 						  (long)(v));
 			}
 
@@ -347,7 +343,7 @@ static const grouper group_artifact[] =
 	{ TV_SWORD,         "Edged Weapons" },
 	{ TV_POLEARM,       "Polearms" },
 	{ TV_HAFTED,        "Hafted Weapons" },
-	{ TV_BOW,           "Bows" },
+	{ TV_GUN,           "Guns" },
 	{ TV_DIGGING,       "Diggers" },
 
 	{ TV_SOFT_ARMOR,    "Body Armor" },
@@ -355,6 +351,7 @@ static const grouper group_artifact[] =
 	{ TV_DRAG_ARMOR,    NULL },
 
 	{ TV_CLOAK,         "Cloaks" },
+	{ TV_BELT,          "Belts" },
 	{ TV_SHIELD,        "Shields" },
 	{ TV_HELM,          "Helms/Crowns" },
 	{ TV_CROWN,         NULL },
@@ -451,10 +448,10 @@ static void spoil_artifact(const char *fname)
 			 * artifact can appear, its rarity, its weight, and
 			 * its power rating.
 			 */
-			text_out("\nMin Level %u, Max Level %u, Generation chance %u, Power %d, %d.%d lbs\n",
+			text_out("\nMin Level %u, Max Level %u, Generation chance %u, Power %d, %s\n",
 					 art->alloc_min, art->alloc_max, art->alloc_prob,
 					 object_power(obj, false, NULL), (art->weight / 10),
-					 (art->weight % 10));
+					fmt_weight(art->weight, NULL));
 
 			if (OPT(player, birth_randarts)) text_out("%s.\n", art->text);
 

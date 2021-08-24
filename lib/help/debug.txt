@@ -1,0 +1,44 @@
+Debug commands (Ctrl-A followed by these keys)
+
+": Generate spoilers
+?: Display this help
+a: Cure all maladies
+A: Make the player powerful
+b: Teleport to target
+c: Create any specified object
+C: Create an artifact
+d: Detect everything
+D: Test for disconnected dungeon
+e: Edit character
+E: Perform an effect.
+f: Collect stats
+F: Features
+g: Create good objects
+G: GF demo
+h: Hitpoint rerating
+H: Hit all monsters in LOS for 10K
+j: Jump up or down in the dungeon
+l: Learn about objects
+L: Log (Work out what the player is typing)
+m: Mapping
+M: Dump a map of the current level as HTML.
+n: Summon named monster
+o: Object mods (quantity, etc)
+p: Phase door (aka blinking)
+P: Monster pit stats
+q: Query the dungeon
+r: Get full recall for a monster
+s: Summon random monster(s)
+S: Collect stats
+t: Teleport
+T: Create a trap
+u: Un-hide all monsters
+v: Create very good objects
+V: Create all items of a tval
+w: Wizard light the level
+W: Wipe recall for a monster
+x: Increase experience
+X: Quit the game, don't save
+z: Zap monsters (like banishment)
+_: All-purpose hack
+>: Perform push_object() on a selected grid.

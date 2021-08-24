@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.5 FATAL_ERROR)
-PROJECT(Angband VERSION 4.2.1 LANGUAGES C)
+PROJECT(Xygos VERSION 0.0.1 LANGUAGES C)
 
 IF (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     MESSAGE(FATAL_ERROR "Not support to CMake in Windows")
@@ -20,8 +20,10 @@ IF (NOT SUPPORT_SDL_FRONTEND)
     SET(SUPPORT_SDL_SOUND OFF)
 ENDIF()
 
-ADD_EXECUTABLE(Angband
+ADD_EXECUTABLE(Xygos
         src/buildid.c
+        src/c_soldier.c
+        src/c_tourist.c
         src/cave-map.c
         src/cave-square.c
         src/cave-view.c
@@ -76,7 +78,7 @@ ADD_EXECUTABLE(Angband
         src/mon-timed.c
         src/mon-util.c
         src/obj-chest.c
-        src/obj-curse.c
+        src/obj-fault.c
         src/obj-desc.c
         src/obj-gear.c
         src/obj-ignore.c
@@ -94,6 +96,7 @@ ADD_EXECUTABLE(Angband
         src/obj-util.c
         src/option.c
         src/parser.c
+        src/player-ability.c
         src/player-attack.c
         src/player-birth.c
         src/player-calcs.c
@@ -112,6 +115,9 @@ ADD_EXECUTABLE(Angband
         src/project-obj.c
         src/project-player.c
         src/project.c
+        src/r_android.c
+        src/r_mutant.c
+        src/r_timelord.c
         src/randname.c
         src/save.c
         src/save-charoutput.c
@@ -128,7 +134,7 @@ ADD_EXECUTABLE(Angband
         src/ui-birth.c
         src/ui-command.c
         src/ui-context.c
-        src/ui-curse.c
+        src/ui-fault.c
         src/ui-death.c
         src/ui-display.c
         src/ui-entry-combiner.c
@@ -163,6 +169,7 @@ ADD_EXECUTABLE(Angband
         src/wiz-debug.c
         src/wiz-spoil.c
         src/wiz-stats.c
+        src/world.c
         src/z-bitflag.c
         src/z-color.c
         src/z-dice.c
@@ -179,27 +186,27 @@ ADD_EXECUTABLE(Angband
         src/z-virt.c
 )
 
-SET_TARGET_PROPERTIES(Angband PROPERTIES C_STANDARD 99)
+SET_TARGET_PROPERTIES(Xygos PROPERTIES C_STANDARD 99)
 
 IF (SUPPORT_X11_FRONTEND)
 
     INCLUDE(src/cmake/macros/X11_Frontend.cmake)
-    CONFIGURE_X11_FRONTEND(Angband)
+    CONFIGURE_X11_FRONTEND(Xygos)
 
 ELSEIF(SUPPORT_NCURSES_FRONTEND)
 
     INCLUDE(src/cmake/macros/CURSES_Frontend.cmake)
-    CONFIGURE_CURSES_FRONTEND(Angband)
+    CONFIGURE_CURSES_FRONTEND(Xygos)
 
 ELSEIF(SUPPORT_SDL_FRONTEND)
 
     INCLUDE(src/cmake/macros/SDL_Frontend.cmake)
-    CONFIGURE_SDL_FRONTEND(Angband)
+    CONFIGURE_SDL_FRONTEND(Xygos)
 
     IF (SUPPORT_SDL_SOUND)
 
         INCLUDE(src/cmake/macros/SDL_Sound.cmake)
-        CONFIGURE_SDL_SOUND(Angband)
+        CONFIGURE_SDL_SOUND(Xygos)
 
     ENDIF()
 
@@ -218,7 +225,7 @@ must be given the directive -lm.
 
 Ref: https://en.wikipedia.org/wiki/C_mathematical_functions#libm
 ]]
-TARGET_LINK_LIBRARIES(Angband PRIVATE $<$<PLATFORM_ID:Linux>:m>)
+TARGET_LINK_LIBRARIES(Xygos PRIVATE $<$<PLATFORM_ID:Linux>:m>)
 
 MESSAGE(STATUS "Moving files needed")
 

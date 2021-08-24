@@ -25,6 +25,7 @@
 #include "obj-pile.h"
 #include "obj-util.h"
 #include "object.h"
+#include "player-quest.h"
 #include "player-timed.h"
 #include "trap.h"
 
@@ -150,11 +151,27 @@ bool feat_is_bright(int feat)
 }
 
 /**
- * True if the feature is internally lit.
+ * True if the feature is fire-based.
  */
 bool feat_is_fiery(int feat)
 {
 	return tf_has(f_info[feat].flags, TF_FIERY);
+}
+
+/**
+ * True if the feature is radioactive.
+ */
+bool feat_is_radioactive(int feat)
+{
+	return tf_has(f_info[feat].flags, TF_RADIOACTIVE);
+}
+
+/**
+ * True if the feature is water-based.
+ */
+bool feat_is_water(int feat)
+{
+	return tf_has(f_info[feat].flags, TF_WATER);
 }
 
 /**
@@ -706,6 +723,22 @@ bool square_isfiery(struct chunk *c, struct loc grid) {
 }
 
 /**
+ * True if the cave square is radioactive.
+ */
+bool square_isradioactive(struct chunk *c, struct loc grid) {
+	assert(square_in_bounds(c, grid));
+	return feat_is_radioactive(square(c, grid)->feat);
+}
+
+/**
+ * True if the cave square is water.
+ */
+bool square_iswater(struct chunk *c, struct loc grid) {
+	assert(square_in_bounds(c, grid));
+	return feat_is_water(square(c, grid)->feat);
+}
+
+/**
  * True if the cave square is lit.
  */
 bool square_islit(struct chunk *c, struct loc grid) {
@@ -733,11 +766,11 @@ bool square_islitwall(struct chunk *c, struct loc grid) {
 }
 
 /**
- * True if the cave square can damage the inhabitant - only lava so far
+ * True if the cave square can damage the inhabitant - lava, fallout, water...
  */
 bool square_isdamaging(struct chunk *c, struct loc grid) {
 	assert(square_in_bounds(c, grid));
-	return feat_is_fiery(square(c, grid)->feat);
+	return (feat_is_fiery(square(c, grid)->feat) || feat_is_radioactive(square(c, grid)->feat) || feat_is_water(square(c, grid)->feat));
 }
 
 /**
@@ -943,6 +976,12 @@ const struct square *square(struct chunk *c, struct loc grid)
 {
 	assert(square_in_bounds(c, grid));
 	return &c->squares[grid.y][grid.x];
+}
+
+byte square_tag(struct chunk *c, struct loc grid)
+{
+	assert(square_in_bounds(c, grid));
+	return square(c, grid)->tag;
 }
 
 struct feature *square_feat(struct chunk *c, struct loc grid)
@@ -1192,6 +1231,14 @@ static void square_set_known_feat(struct chunk *c, struct loc grid, int feat)
 void square_set_mon(struct chunk *c, struct loc grid, int midx)
 {
 	c->squares[grid.y][grid.x].mon = midx;
+}
+
+/**
+ * Set the tag square.
+ */
+void square_set_tag(struct chunk *c, struct loc grid, byte tag)
+{
+	c->squares[grid.y][grid.x].tag = tag;
 }
 
 /**

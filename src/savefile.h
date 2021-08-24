@@ -47,6 +47,7 @@ bool savefile_load(const char *path, bool cheat_death);
  */
 const char *savefile_get_description(const char *path);
 
+extern bool saving;
 
 /**
  * ------------------------------------------------------------------------
@@ -57,7 +58,21 @@ const char *savefile_get_description(const char *path);
 /* Utility */
 void note(const char *msg);
 
+/* Read/Writing bits */
+void rdwr_bool(bool *v);
+void rdwr_byte(byte *v);
+void rdwr_u16b(u16b *v);
+void rdwr_s16b(s16b *v);
+void rdwr_u32b(u32b *v);
+void rdwr_s32b(s32b *v);
+void rdwr_string(char **str);
+
+/* Read/Write pointer. Give a pointer to pointer, and the base of the array (it converts it to an offset to this base) */
+#define RDWR_PTR(P, B) if (saving) { wr_u32b((*(P)) - ((B))); } else { u32b offset; rd_u32b(&offset); *(P) = ((B)) + offset; }
+
+
 /* Writing bits */
+void wr_bool(bool v);
 void wr_byte(byte v);
 void wr_u16b(u16b v);
 void wr_s16b(s16b v);
@@ -67,6 +82,7 @@ void wr_string(const char *str);
 void pad_bytes(int n);
 
 /* Reading bits */
+void rd_bool(bool *ip);
 void rd_byte(byte *ip);
 void rd_u16b(u16b *ip);
 void rd_s16b(s16b *ip);
@@ -86,6 +102,7 @@ int rd_object_memory(void);
 int rd_quests(void);
 int rd_artifacts(void);
 int rd_player(void);
+int rd_world(void);
 int rd_ignore(void);
 int rd_misc(void);
 int rd_player_hp(void);
@@ -108,7 +125,10 @@ void wr_options(void);
 void wr_messages(void);
 void wr_monster_memory(void);
 void wr_object_memory(void);
+void rdwr_quests(void);
 void wr_quests(void);
+void rdwr_world(void);
+void wr_world(void);
 void wr_artifacts(void);
 void wr_player(void);
 void wr_ignore(void);

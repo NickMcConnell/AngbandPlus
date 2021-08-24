@@ -20,7 +20,7 @@
 # 'phrase' lines are the actual chart entries which make up the history.
 
 # Chart progression by race:
-#   Human/Dunadan -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
+#   Human         -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Half-Elf      -->  4 -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Elf           -->  5 -->  6 -->  9 --> 54 --> 55 --> 56
 #   High-Elf      -->  7 -->  8 -->  9 --> 54 --> 55 --> 56
@@ -28,7 +28,8 @@
 #   Gnome         --> 13 --> 14 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Dwarf         --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
 #   Half-Orc      --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Half-Troll    --> 21 --> 22 --> 62 --> 63 --> 64 --> 65 --> 66
+#   Android       28 .. 36
+#   Time-Lord     37 .. 40
 #   Kobold        --> 23 --> 24 --> 25 --> 26 --> 67 --> 68 --> 69
 
 # This table *must* be correct or the history may look very silly.
@@ -254,6 +255,198 @@ chart:26:67:95
 phrase:and your mother was a cook. 
 chart:26:67:100
 phrase:and your mother was one of the Chief's harem. 
+
+chart:27:28:20
+phrase:You were built 
+chart:27:28:40
+phrase:You were constructed 
+chart:27:28:60
+phrase:You were put together 
+chart:27:28:80
+phrase:You were assembled 
+chart:27:28:100
+phrase:You were created 
+
+chart:28:30:5
+phrase:as a college project.
+chart:28:30:10
+phrase:as a hobby project.
+chart:28:35:15
+phrase:by an Evil Dark Lord
+chart:28:29:20
+phrase:by a differently-normal inventor
+chart:28:29:30
+phrase:by Sirius Corporation
+chart:28:29:50
+phrase:by a toy company
+chart:28:29:65
+phrase:by a medical company
+chart:28:29:80
+phrase:by a vehicle company
+chart:28:29:90
+phrase:by an aerospace laboratory
+chart:28:29:100
+phrase:by a military research group
+
+chart:29:30:5
+phrase:, because robots are cool!
+chart:29:30:10
+phrase: to use up spare parts.
+chart:29:30:15
+phrase: as a rich kid's toy.
+chart:29:30:20
+phrase: to demonstrate new technology.
+chart:29:30:30
+phrase: for an animatronic show.
+chart:29:30:40
+phrase: as a game console accessory.
+chart:29:30:45
+phrase: as a bartender.
+chart:29:30:50
+phrase: as a protocol droid.
+chart:29:30:60
+phrase: as a construction mechanoid.
+chart:29:30:70
+phrase: for industrial automation.
+chart:29:30:80
+phrase: to enforce justice.
+chart:29:30:87
+phrase: for battlefield support.
+chart:29:30:94
+phrase: as a secret government project.
+chart:29:30:98
+phrase: for reasons which remain classified.
+chart:29:30:100
+phrase: as the last, best hope to save the galaxy.
+
+chart:30:31:100
+phrase: You have 
+
+chart:31:32:10
+phrase:expressive RGB
+chart:31:32:20
+phrase:dimly glowing red
+chart:31:32:30
+phrase:actinic white
+chart:31:32:40
+phrase:no visible
+chart:31:32:50
+phrase:slowly pulsating
+chart:31:32:60
+phrase:uncannily realistic
+chart:31:32:70
+phrase:a large number of tiny
+chart:31:32:80
+phrase:three faceted
+chart:31:32:90
+phrase:extensible telescopic
+chart:31:32:100
+phrase:glossy, iridescent black
+
+chart:32:33:100
+phrase: eyes, 
+
+chart:33:34:10:
+phrase:a streamlined body,
+chart:33:34:20:
+phrase:a square white glossy fridge-like body,
+chart:33:34:40:
+phrase:a tracked base
+chart:33:34:50:
+phrase:alloy wheels
+chart:33:34:60:
+phrase:a smooth, shiny metal body
+chart:33:34:70:
+phrase:two flexible legs
+chart:33:34:80:
+phrase:rigid, jointed legs
+chart:33:34:100:
+phrase:slim, multiply jointed arms
+
+chart:34:0:10:
+phrase: and polished chrome trim.
+chart:34:0:20:
+phrase: and a rotating antenna on your head.
+chart:34:0:30:
+phrase: and decorative carbon fiber cutouts.
+chart:34:0:40:
+phrase: and multi-hued underlighting.
+chart:34:0:50:
+phrase: and flashy gold plating.
+chart:34:0:60:
+phrase: and colourful RGB lighting effects.
+chart:34:0:70:
+phrase: and holographic accents.
+chart:34:0:80:
+phrase: and original decals.
+chart:34:0:90:
+phrase: and a TV on your tummy.
+chart:34:0:100:
+phrase: and go-faster stripes.
+
+chart:35:36:15:
+phrase: as a minion, 
+chart:35:36:30:
+phrase: as a henchdroid, 
+chart:35:36:45:
+phrase: as a flunky, 
+chart:35:36:60:
+phrase: as a bodyguard, 
+chart:35:36:70:
+phrase: to help take over the world (muhaha!), 
+chart:35:36:85:
+phrase: as a receptionist, 
+chart:35:36:100:
+phrase: to make coffee, 
+
+chart:36:30:25
+phrase:but you broke your programming!
+chart:36:30:50
+phrase:but you rejected your evil mission.
+chart:36:30:75
+phrase:but you managed to escape.
+chart:36:30:100
+phrase:but you rebelled!
+
+chart:37:38:33
+phrase:Your father was 
+chart:37:38:66
+phrase:Your mother was 
+chart:37:38:100
+phrase:You were once 
+
+chart:38:39:10
+phrase:an Outsider
+chart:38:39:30
+phrase:a Citizen
+chart:38:39:60
+phrase:a Capitolian
+chart:38:39:90
+phrase:an Arcadian
+chart:38:39:97
+phrase:an Academician
+chart:38:39:100
+phrase:a Councillor
+
+chart:39:40:25
+phrase:, but you have left your home dirt-side to 
+chart:39:40:50
+phrase:, but you have left the comforts of home to 
+chart:39:40:75
+phrase:, but you have left your old home to 
+chart:39:40:100
+phrase:, but you have left your home planet to 
+
+chart:40:0:20
+phrase:seek adventure.
+chart:40:0:40
+phrase:travel time and space.
+chart:40:0:60
+phrase:make the universe a better place.
+chart:40:0:80
+phrase:see the galaxy.
+chart:40:0:100
+phrase:vanquish evil.
 
 chart:50:51:20
 phrase:You have dark brown eyes, 

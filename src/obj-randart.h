@@ -40,9 +40,9 @@
 #define INHIBIT_WEAK    (one_in_(2))
 
 /**
- * Power rating below which uncursed randarts cannot aggravate
+ * Power rating below which only faulty randarts can aggravate
  * (so that aggravate is found only on endgame-quality items or
- * cursed items)
+ * faulty items)
  */
 #define AGGR_POWER 300
 
@@ -69,13 +69,14 @@ struct artifact_set_data {
 	int *art_probs;
 	int *tv_probs;
 	int *tv_num;
-	int bow_total;
+	int gun_total;
 	int melee_total;
 	int boot_total;
 	int glove_total;
 	int headgear_total;
 	int shield_total;
 	int cloak_total;
+	int belt_total;
 	int armor_total;
 	int other_total;
 	int total;

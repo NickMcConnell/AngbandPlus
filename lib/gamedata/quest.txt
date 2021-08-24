@@ -7,12 +7,92 @@
 # to this file).  It would also only require fairly small game code changes to
 # allow other quests to be added as a result of game events.
 
+# name: 				Name of quest
+# level: 				Level of the quest (displayed in knowledge, so use as a recommended level before entering)
+# race:<monster>		Create this many of this monster
+# number:<monsters>
+# store:<store name>	Get the quest from this store
+# entrymin:<min>		Place the quest entry between min and max (both optional) grids from the store giving it
+# entrymax:<max>		Both min and max are optional.
+# entryfeature:<feat>	The entry will be on open ground adjacent to this feature. Optional.
+# intro:<text>			Print this as a question [yn] before taking the quest.
+# desc:<text>			Brief one line description to display in knowledge
+# succeed:<text>		Message to get when you successfully complete a quest.
+# failure:<text>		Message when you @£$! it up
+# unlock:<quest name>	Another quest unlocked by this.
+# object:<object name>	The object which is the object of the quest. It might be an object name (as known, e.g.
+# 						"whizz pill" not "fubazine pill") or a substring (e.g. "pill" will match *pill*).
+# flags:				Some combination of the following flags:
+#						active		Active from the start of the game
+#						locked		Not available until unlocked
+#						essential	Needed to win the game
+#
+
+name:Rats
+level:6
+race:giant grey rat
+number:12
+store:Sewer:General Store
+store:Fortress:General Store
+entrymin:2
+entrymax:5
+entryfeature:permanent wall
+intro:There's a cellar out back. It's full of rats. Are you up for cleaning them out?
+desc:Deal with the rats in the cellar
+succeed:So you've cleaned them out? Great. Maybe some day Nijel - who is not exactly a little kid any more after all - will learn to muck out his own pets. But as you clearly care about animals I hope you will appreciate some rat treats along with the $200 cash.
+failure:So you were defeated by a mouse? How heroic! Brave Sir Robin would be proud.
+unlock:Whiskey Cave
+
+name:Whiskey Cave
+level:15
+#race:giant grey rat
+#number:12
+store:Rats
+entrymin:2
+entrymax:12
+entryfeature:lava
+intro:Well, I guess I can trust you now. I thought I was being clever, using a small cave that I thought nobody knew about to store my stash of valuable rare spirits safely. It's by the volcanic vent. Unfortunately the roof collapsed. Could you dig your way in and retrieve it for me? You'll be rewarded, and not just with a few bottle caps this time. I would take digging equipment of some kind - I don't know how far back the collapse went.
+desc:Retrieve the rare booze from the volcanic cave
+succeed:Well done. A reward? Isn't the thrill of exploration its own reward? No? Well, OK.
+failure:It was all lost? That's a shame.
+flags:locked
+
+name:Msing Pills
+level:15
+object:pill
+store:Fortress:Pharmacy
+entrymin:20
+# You must pick up every pill you can see (max-remaining 0) and return a reasonable number (of the ~200) but if there is some accidental destruction that's OK.
+min-found:120
+max-remaining:0
+intro:Most of my stock has been stolen. I don't know who did it, or where they have been taken - I couldn't get a straight answer from the witness. He just babbled on about a glowing maze filled with ghosts - he must have popped a few pills himself! But you will be well rewarded if you can bring it all back.
+desc:Find the pills and return them to the pharmacy
+succeed:Well done - you are going to like these, I'm sure.
+failure:Oh well - I realise that I didn't give you much to go on.
+
+name:Soldier, Sailor, Chef, Pie
+level:11
+object:card
+store:Mine:General Store
+store:Caverns:General Store
+min-found:1
+max-remaining:0
+intro:My baking is famous across dozens of vaults, and it's all down to my secret recipe. Nobody's managed to reproduce it, and believe me they have tried! But those snakes at the Black Market don't want to even attempt that - instead their agent deceived my young assistant, switching our one master copy of the recipe with junk. The agent slipped away underground, and is probably some way down by now. If you could get the recipe back for me before she breaks cover and takes it to the Black Market, I would be very grateful!
+desc:Find the Black Market's agent, return the recipe
+succeed:Here's the last batch and - if you can keep it quiet - the secret ingredients!
+failure:So why did I trust you again?
+
 name:Sauron
 level:99
 race:Sauron, the Sorcerer
+desc:Get rid of the big bad p
+intro:Foo
 number:1
+flags:active | essential
 
 name:Morgoth
 level:100
 race:Morgoth, Lord of Darkness
+desc:Get rid of the big bad P
 number:1
+flags:active | essential

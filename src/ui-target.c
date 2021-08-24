@@ -462,8 +462,8 @@ static ui_event target_set_interactive_aux(int y, int x, int mode)
 				}
 
 				/* Take account of gender */
-				if (rf_has(mon->race->flags, RF_FEMALE)) s1 = "She is ";
-				else if (rf_has(mon->race->flags, RF_MALE)) s1 = "He is ";
+				if (mflag_has(mon->mflag, MFLAG_FEMALE)) s1 = "She is ";
+				else if (mflag_has(mon->mflag, MFLAG_MALE)) s1 = "He is ";
 				else s1 = "It is ";
 
 				/* Describe carried objects (wizards only) */

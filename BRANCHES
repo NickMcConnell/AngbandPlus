@@ -1,0 +1,7 @@
+master
+sliding		active, experimental	Sliding (mixed) classes
+champions	active, experimental	Champions (ghosts)
+world		inactive, merged		Multi-town world
+ego			inactive, merged		New ego item allocation method
+stores		inactive, merged		New store options
+timelimit	inactive, merged		Danger level increasing with time

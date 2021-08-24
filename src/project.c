@@ -47,7 +47,7 @@ wchar_t proj_to_char[PROJ_MAX][BOLT_MAX];
  * ------------------------------------------------------------------------ */
 static const char *proj_name_list[] =
 {
-	#define ELEM(a) #a,
+	#define ELEM(a, ...) #a,
 	#include "list-elements.h"
 	#undef ELEM
 	#define PROJ(a) #a,
@@ -417,7 +417,7 @@ struct loc origin_get_loc(struct source origin)
 		}
 
 		case SRC_PLAYER:
-		case SRC_OBJECT:	/* Currently only worn cursed objects use this */
+		case SRC_OBJECT:	/* Currently only worn faulty objects use this */
 		case SRC_CHEST_TRAP:
 			return player->grid;
 
@@ -985,7 +985,7 @@ bool project(struct source origin, int rad, struct loc finish,
 	/* Look for the player, affect them when found */
 	if (flg & (PROJECT_PLAY)) {
 		/* Set power */
-		int power = 0;
+		int power = dam;
 		if (origin.what == SRC_MONSTER) {
 			struct monster *mon = cave_monster(cave, origin.which.monster);
 			power = mon->race->spell_power;

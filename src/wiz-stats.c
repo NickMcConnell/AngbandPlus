@@ -25,6 +25,7 @@
 #include "mon-make.h"
 #include "monster.h"
 #include "obj-init.h"
+#include "obj-make.h"
 #include "obj-pile.h"
 #include "obj-randart.h"
 #include "obj-tval.h"
@@ -57,6 +58,8 @@
  * connectivity.
 */
 
+double *wiz_stats_prob;
+
 #ifdef USE_STATS
 
 /*** Statsgen ***/
@@ -83,8 +86,9 @@ bool clearing = false;
 bool regen = false;
 
 /*** These are items to track for each iteration ***/
-/* total number of artifacts found */
+/* total number of artifacts, egos found */
 static int art_it[TRIES_SIZE];
+static int ego_it[TRIES_SIZE];
 
 /*** handle gold separately ***/
 /* gold */
@@ -114,7 +118,7 @@ typedef enum stat_code
 	ST_WIS_ARMOR,
 	ST_DEX_ARMOR,
 	ST_CON_ARMOR,
-	ST_CURSED_ARMOR,
+	ST_FAULTY_ARMOR,
 	ST_WEAPONS,
 	ST_BAD_WEAPONS,
 	ST_AVERAGE_WEAPONS,
@@ -132,34 +136,33 @@ typedef enum stat_code
 	ST_HUGE_WEAPONS,
 	ST_ENDGAME_WEAPONS,
 	ST_MORGUL_WEAPONS,
-	ST_BOWS,
-	ST_BAD_BOWS,
-	ST_AVERAGE_BOWS,
-	ST_GOOD_BOWS,
-	ST_VERYGOOD_BOWS,
-	ST_XTRAMIGHT_BOWS,
-	ST_XTRASHOTS_BOWS,
-	ST_BUCKLAND_BOWS,
-	ST_TELEP_BOWS,
-	ST_CURSED_BOWS,
-	ST_POTIONS,
-	ST_GAINSTAT_POTIONS,
-	ST_HEALING_POTIONS,
-	ST_BIGHEAL_POTIONS,
-	ST_RESTOREMANA_POTIONS,
-	ST_SCROLLS,
-	ST_ENDGAME_SCROLLS,
-	ST_ACQUIRE_SCROLLS,
+	ST_GUNS,
+	ST_BAD_GUNS,
+	ST_AVERAGE_GUNS,
+	ST_GOOD_GUNS,
+	ST_VERYGOOD_GUNS,
+	ST_XTRAMIGHT_GUNS,
+	ST_XTRASHOTS_GUNS,
+	ST_BUCKLAND_GUNS,
+	ST_TELEP_GUNS,
+	ST_FAULTY_GUNS,
+	ST_PILLS,
+	ST_GAINSTAT_PILLS,
+	ST_HEALING_PILLS,
+	ST_BIGHEAL_PILLS,
+	ST_CARDS,
+	ST_ENDGAME_CARDS,
+	ST_ACQUIRE_CARDS,
 	ST_RODS,
 	ST_UTILITY_RODS,
 	ST_TELEPOTHER_RODS,
 	ST_DETECTALL_RODS,
 	ST_ENDGAME_RODS,
-	ST_STAVES,
-	ST_SPEED_STAVES,
-	ST_DESTRUCTION_STAVES,
-	ST_KILL_STAVES,
-	ST_ENDGAME_STAVES,
+	ST_DEVICES,
+	ST_SPEED_DEVICES,
+	ST_DESTRUCTION_DEVICES,
+	ST_KILL_DEVICES,
+	ST_ENDGAME_DEVICES,
 	ST_WANDS,
 	ST_TELEPOTHER_WANDS,
 	ST_RINGS,
@@ -171,12 +174,12 @@ typedef enum stat_code
 	ST_BRAND_RINGS,
 	ST_ELVEN_RINGS,
 	ST_ONE_RINGS,
-	ST_CURSED_RINGS,
+	ST_FAULTY_RINGS,
 	ST_AMULETS,
 	ST_WIS_AMULETS,
 	ST_TELEP_AMULETS,
 	ST_ENDGAME_AMULETS,
-	ST_CURSED_AMULETS,
+	ST_FAULTY_AMULETS,
 	ST_AMMO,
 	ST_BAD_AMMO,
 	ST_AVERAGE_AMMO,
@@ -186,16 +189,6 @@ typedef enum stat_code
 	ST_AWESOME_AMMO,
 	ST_SLAYEVIL_AMMO,
 	ST_HOLY_AMMO,
-	ST_BOOKS,
-	ST_1ST_BOOKS,
-	ST_2ND_BOOKS,
-	ST_3RD_BOOKS,
-	ST_4TH_BOOKS,
-	ST_5TH_BOOKS,
-	ST_6TH_BOOKS,
-	ST_7TH_BOOKS,
-	ST_8TH_BOOKS,
-	ST_9TH_BOOKS,
 	ST_END
 }	
 stat_code;
@@ -230,7 +223,7 @@ static const struct stat_data stat_message[] =
 	{ST_WIS_ARMOR, " +Wisdom     "},
 	{ST_DEX_ARMOR, " +Dexterity  "},
 	{ST_CON_ARMOR, " +Const.     "},
-	{ST_CURSED_ARMOR, " Cursed       "},
+	{ST_FAULTY_ARMOR, " Faulty       "},
 	{ST_WEAPONS, "\n ***WEAPONS***   \n All:       "},
 	{ST_BAD_WEAPONS, " Bad         "},
 	{ST_AVERAGE_WEAPONS, " Average     "},
@@ -248,34 +241,33 @@ static const struct stat_data stat_message[] =
 	{ST_HUGE_WEAPONS, " Huge        "},//MoD, SoS and BoC
 	{ST_ENDGAME_WEAPONS, " Endgame     "},//MoD, SoS and BoC with slay evil or x2B
 	{ST_MORGUL_WEAPONS, " Morgul      "},
-	{ST_BOWS, "\n ***LAUNCHERS*** \n All:        "},
-	{ST_BAD_BOWS, " Bad         "},
-	{ST_AVERAGE_BOWS, " Average     "},
-	{ST_GOOD_BOWS, " Good        "},
-	{ST_VERYGOOD_BOWS, " Very Good   "},//Power > 15
-	{ST_XTRAMIGHT_BOWS, " Extra might "},
-	{ST_XTRASHOTS_BOWS, " Extra shots "},
-	{ST_BUCKLAND_BOWS, " Buckland    "},
-	{ST_TELEP_BOWS, " Telepathy   "},
-	{ST_CURSED_BOWS, " Cursed      "},
-	{ST_POTIONS, "\n ***POTIONS***   \n All:        "},
-	{ST_GAINSTAT_POTIONS, " Gain stat   "},//includes *enlight*
-	{ST_HEALING_POTIONS, " Healing     "},
-	{ST_BIGHEAL_POTIONS, " Big heal    "},//*heal* and life
-	{ST_RESTOREMANA_POTIONS, " Rest. Mana  "},
-	{ST_SCROLLS, "\n ***SCROLLS***   \n All:        "},
-	{ST_ENDGAME_SCROLLS, " Endgame     "},// destruction, banish, mass banish, rune
-	{ST_ACQUIRE_SCROLLS, " Acquire.    "},
+	{ST_GUNS, "\n ***LAUNCHERS*** \n All:        "},
+	{ST_BAD_GUNS, " Bad         "},
+	{ST_AVERAGE_GUNS, " Average     "},
+	{ST_GOOD_GUNS, " Good        "},
+	{ST_VERYGOOD_GUNS, " Very Good   "},//Power > 15
+	{ST_XTRAMIGHT_GUNS, " Extra might "},
+	{ST_XTRASHOTS_GUNS, " Extra shots "},
+	{ST_BUCKLAND_GUNS, " Buckland    "},
+	{ST_TELEP_GUNS, " Telepathy   "},
+	{ST_FAULTY_GUNS, " Faulty      "},
+	{ST_PILLS, "\n ***PILLS***   \n All:        "},
+	{ST_GAINSTAT_PILLS, " Gain stat   "},//includes *enlight*
+	{ST_HEALING_PILLS, " Healing     "},
+	{ST_BIGHEAL_PILLS, " Big heal    "},//*heal* and life
+	{ST_CARDS, "\n ***CARDS***   \n All:        "},
+	{ST_ENDGAME_CARDS, " Endgame     "},// destruction, banish, mass banish, rune
+	{ST_ACQUIRE_CARDS, " Acquire.    "},
 	{ST_RODS, "\n ***RODS***      \n All:        "},
 	{ST_UTILITY_RODS, " Utility     "},//dtrap, dstairs, dobj, light, illum
 	{ST_TELEPOTHER_RODS, " Tele Other  "},
 	{ST_DETECTALL_RODS, " Detect all  "},
 	{ST_ENDGAME_RODS, " Endgame     "},//speed, healing
-	{ST_STAVES, "\n ***STAVES***    \n All:        "},
-	{ST_SPEED_STAVES, " Speed       "},
-	{ST_DESTRUCTION_STAVES, " Destruction "},
-	{ST_KILL_STAVES, " Kill        "},//dispel evil, power, holiness
-	{ST_ENDGAME_STAVES, " Endgame     "},//healing, magi, banishment
+	{ST_DEVICES, "\n ***DEVICES***    \n All:        "},
+	{ST_SPEED_DEVICES, " Speed       "},
+	{ST_DESTRUCTION_DEVICES, " Destruction "},
+	{ST_KILL_DEVICES, " Kill        "},//dispel evil, power, holiness
+	{ST_ENDGAME_DEVICES, " Endgame     "},//healing, magi, banishment
 	{ST_WANDS, "\n ***WANDS***     \n All:        "},
 	{ST_TELEPOTHER_WANDS, " Tele Other  "},
 	{ST_RINGS, "\n ***RINGS***     \n All:        "},
@@ -287,12 +279,12 @@ static const struct stat_data stat_message[] =
 	{ST_BRAND_RINGS, " Brand       "},
 	{ST_ELVEN_RINGS, " Elven       "},
 	{ST_ONE_RINGS, " The One     "},
-	{ST_CURSED_RINGS, " Cursed      "},
+	{ST_FAULTY_RINGS, " Faulty      "},
 	{ST_RINGS, "\n ***AMULETS***   \n All:        "},
 	{ST_WIS_AMULETS, " Wisdom      "},
 	{ST_TELEP_AMULETS, " Telepathy   "},
 	{ST_ENDGAME_AMULETS, " Endgame     "},//Trickery, weaponmastery, magi
-	{ST_CURSED_AMULETS, " Cursed      "},
+	{ST_FAULTY_AMULETS, " Faulty      "},
 	{ST_AMMO, "\n ***AMMO***      \n All:        "},
 	{ST_BAD_AMMO, " Bad         "},
 	{ST_AVERAGE_AMMO, " Average     "},
@@ -302,16 +294,6 @@ static const struct stat_data stat_message[] =
 	{ST_AWESOME_AMMO, " Awesome     "},//seeker, mithril + brand
 	{ST_SLAYEVIL_AMMO, " Slay evil   "},
 	{ST_HOLY_AMMO, " Holy might  "},
-	{ST_BOOKS, "\n ***BOOKS***     \n All:        "},
-	{ST_1ST_BOOKS, " Book 1      "},
-	{ST_2ND_BOOKS, " Book 2      "},
-	{ST_3RD_BOOKS, " Book 3      "},
-	{ST_4TH_BOOKS, " Book 4      "},
-	{ST_5TH_BOOKS, " Book 5      "},
-	{ST_6TH_BOOKS, " Book 6      "},
-	{ST_7TH_BOOKS, " Book 7      "},
-	{ST_8TH_BOOKS, " Book 8      "},
-	{ST_9TH_BOOKS, " Book 9      "},	
 };	
 
 double stat_all[ST_END][3][MAX_LVL];
@@ -328,15 +310,6 @@ typedef enum stat_first_find
 	ST_FF_RCONF,
 	ST_FF_RBLIND,
 	ST_FF_TELEP,
-	ST_FF_BOOK1,
-	ST_FF_BOOK2,
-	ST_FF_BOOK3,
-	ST_FF_BOOK4,
-	ST_FF_BOOK5,
-	ST_FF_BOOK6,
-	ST_FF_BOOK7,
-	ST_FF_BOOK8,
-	ST_FF_BOOK9,
 	ST_FF_END
 }	
 stat_first_find;
@@ -358,15 +331,6 @@ static const struct stat_ff_data stat_ff_message[] =
 	{ST_FF_RCONF,	ST_RCONF_EQUIPMENT,	"Rconf  \t"},
 	{ST_FF_RBLIND,	ST_RBLIND_EQUIPMENT,	"Rblind \t"},
 	{ST_FF_TELEP,	ST_TELEP_EQUIPMENT,	"Telep  \t"},
-	{ST_FF_BOOK1,	ST_1ST_BOOKS,	"Book1  \t"},
-	{ST_FF_BOOK2,	ST_2ND_BOOKS, 	"Book2  \t"},
-	{ST_FF_BOOK3,	ST_3RD_BOOKS,	"Book3  \t"},
-	{ST_FF_BOOK4,	ST_4TH_BOOKS,	"Book4  \t"},
-	{ST_FF_BOOK5,	ST_5TH_BOOKS,	"Book5  \t"},
-	{ST_FF_BOOK6,	ST_6TH_BOOKS,	"Book6  \t"},
-	{ST_FF_BOOK7,	ST_7TH_BOOKS,	"Book7  \t"},
-	{ST_FF_BOOK8,	ST_8TH_BOOKS,	"Book8	\t"},
-	{ST_FF_BOOK9,	ST_9TH_BOOKS,	"Book9  \t"},
 };
 
 int stat_ff_all[ST_FF_END][TRIES_SIZE];
@@ -382,6 +346,16 @@ static double art_shal[MAX_LVL], art_ave[MAX_LVL], art_ood[MAX_LVL];
 /* where normal artifacts come from */
 static double art_mon[MAX_LVL], art_uniq[MAX_LVL], art_floor[MAX_LVL], art_vault[MAX_LVL], art_mon_vault[MAX_LVL];
 
+
+
+/* basic ego info */
+static double ego_total[MAX_LVL];
+
+/* ego level info */
+static double ego_shal[MAX_LVL], ego_ave[MAX_LVL], ego_ood[MAX_LVL];
+
+/* where egos come from */
+static double ego_mon[MAX_LVL], ego_uniq[MAX_LVL], ego_floor[MAX_LVL], ego_vault[MAX_LVL], ego_mon_vault[MAX_LVL];
 
 
 /* monster info */
@@ -428,7 +402,7 @@ static bool first_find(stat_first_find st)
 }
 
 /*
- * Add the number of drops for a specifci stat
+ * Add the number of drops for a specific stat
  */
 static void add_stats(stat_code st, bool vault, bool mon, int number)
 {
@@ -540,7 +514,7 @@ static void get_obj_data(const struct object *obj, int y, int x, bool mon,
 	}
 
 	/* has speed */
-	if (obj->modifiers[OBJ_MOD_SPEED] != 0)
+	if (obj->modifiers[OBJ_MOD_SPD] != 0)
 		add_stats(ST_SPEED_EQUIPMENT, vault, mon, number);
 
 	/* has telepathy */
@@ -559,6 +533,7 @@ static void get_obj_data(const struct object *obj, int y, int x, bool mon,
 		case TV_CROWN:
 		case TV_SHIELD:
 		case TV_CLOAK:
+		case TV_BELT:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:{
@@ -595,8 +570,8 @@ static void get_obj_data(const struct object *obj, int y, int x, bool mon,
 			if (obj->modifiers[OBJ_MOD_CON] != 0)
 				add_stats(ST_CON_ARMOR, vault, mon, number);
 
-			if (obj->curses)
-				add_stats(ST_CURSED_ARMOR, vault, mon, number);
+			if (obj->faults)
+				add_stats(ST_FAULTY_ARMOR, vault, mon, number);
 
 			break;
 		}
@@ -686,56 +661,51 @@ static void get_obj_data(const struct object *obj, int y, int x, bool mon,
 		}
 
 		/* launchers */
-		case TV_BOW:{
+		case TV_GUN:{
 
 			/* do not include artifacts */
 			if (obj->artifact) break;
 
 			/* add to launcher total */
-			add_stats(ST_BOWS, vault, mon, number);
+			add_stats(ST_GUNS, vault, mon, number);
 
 			/* check if bad, average, good, or very good */
 			if ((obj->to_h < 0) && (obj->to_d < 0))
-				add_stats(ST_BAD_BOWS, vault, mon, number);
+				add_stats(ST_BAD_GUNS, vault, mon, number);
 			if ((obj->to_h == 0) && (obj->to_d == 0))
-				add_stats(ST_AVERAGE_BOWS, vault, mon, number);
+				add_stats(ST_AVERAGE_GUNS, vault, mon, number);
 			if ((obj->to_h > 0) && (obj->to_d > 0))
-				add_stats(ST_GOOD_BOWS, vault, mon, number);
+				add_stats(ST_GOOD_GUNS, vault, mon, number);
 			if ((obj->to_h > 15) || (obj->to_d > 15))
-				add_stats(ST_VERYGOOD_BOWS, vault, mon, number);
+				add_stats(ST_VERYGOOD_GUNS, vault, mon, number);
 
-			/* check long bows and xbows for xtra might and/or shots */
-			if (obj->pval > 2)
-			{
-				if (obj->modifiers[OBJ_MOD_SHOTS] > 0)
-					add_stats(ST_XTRASHOTS_BOWS, vault, mon, number);
+			/* check for xtra might and/or shots */
+			if (obj->modifiers[OBJ_MOD_SHOTS] > 0)
+				add_stats(ST_XTRASHOTS_GUNS, vault, mon, number);
 
-				if (obj->modifiers[OBJ_MOD_MIGHT] > 0)
-					add_stats(ST_XTRAMIGHT_BOWS, vault, mon, number);
-			}
+			if (obj->modifiers[OBJ_MOD_MIGHT] > 0)
+				add_stats(ST_XTRAMIGHT_GUNS, vault, mon, number);
 
 			/* check for buckland */
-			if ((obj->pval == 2) &&
-				kf_has(obj->kind->kind_flags, KF_SHOOTS_SHOTS) &&
-				(obj->modifiers[OBJ_MOD_MIGHT] > 0) &&
+			if ((obj->modifiers[OBJ_MOD_MIGHT] > 0) &&
 				(obj->modifiers[OBJ_MOD_SHOTS] > 0))
-					add_stats(ST_BUCKLAND_BOWS, vault, mon, number);
+					add_stats(ST_BUCKLAND_GUNS, vault, mon, number);
 
 			/* has telep */
 			if (of_has(obj->flags, OF_TELEPATHY))
-				add_stats(ST_TELEP_BOWS, vault, mon, number);
+				add_stats(ST_TELEP_GUNS, vault, mon, number);
 
-			/* is cursed */
-			if (obj->curses)
-				add_stats(ST_CURSED_BOWS, vault, mon, number);
+			/* is faulty */
+			if (obj->faults)
+				add_stats(ST_FAULTY_GUNS, vault, mon, number);
 			break;
 		}
 
-		/* potion */
-		case TV_POTION:{
+		/* pill */
+		case TV_PILL:{
 
 			/* Add total amounts */
-			add_stats(ST_POTIONS, vault, mon, number);
+			add_stats(ST_PILLS, vault, mon, number);
 
 			/* Stat gain */
 			if (strstr(obj->kind->name, "Strength") ||
@@ -743,40 +713,38 @@ static void get_obj_data(const struct object *obj, int y, int x, bool mon,
 				strstr(obj->kind->name, "Wisdom") ||
 				strstr(obj->kind->name, "Dexterity") ||
 				strstr(obj->kind->name, "Constitution")) {
-				add_stats(ST_GAINSTAT_POTIONS, vault, mon, number);
+				add_stats(ST_GAINSTAT_PILLS, vault, mon, number);
 			} else if (strstr(obj->kind->name, "Augmentation")) {
 				/* Augmentation counts as 5 stat gain pots */
-				add_stats(ST_GAINSTAT_POTIONS, vault, mon, number * 5);
+				add_stats(ST_GAINSTAT_PILLS, vault, mon, number * 5);
 			} else if (strstr(obj->kind->name, "*Enlightenment*")) {
 				/* *Enlight* counts as 2 stat pots */
-				add_stats(ST_GAINSTAT_POTIONS, vault, mon, number * 2);
-			} else if (strstr(obj->kind->name, "Restore Mana")) {
-				add_stats(ST_RESTOREMANA_POTIONS, vault, mon, number);
+				add_stats(ST_GAINSTAT_PILLS, vault, mon, number * 2);
 			} else if ((strstr(obj->kind->name, "Life")) ||
 					   (strstr(obj->kind->name, "*Healing*"))) {
-				add_stats(ST_ELVEN_RINGS, vault, mon, number);
+				add_stats(ST_BIGHEAL_PILLS, vault, mon, number);
 			} else if (strstr(obj->kind->name, "Healing")) {
-				add_stats(ST_HEALING_POTIONS, vault, mon, number);
+				add_stats(ST_HEALING_PILLS, vault, mon, number);
 			}
 			break;
 		}
 
-		/* scrolls */
-		case TV_SCROLL:{
+		/* cards */
+		case TV_CARD:{
 
 			/* add total amounts */
-			add_stats(ST_SCROLLS, vault, mon, number);
+			add_stats(ST_CARDS, vault, mon, number);
 
 			if (strstr(obj->kind->name, "Banishment") ||
 				strstr(obj->kind->name, "Mass Banishment") ||
 				strstr(obj->kind->name, "Rune of Protection") ||
 				strstr(obj->kind->name, "*Destruction*")) {
-				add_stats(ST_ENDGAME_SCROLLS, vault, mon, number);
+				add_stats(ST_ENDGAME_CARDS, vault, mon, number);
 			} else if (strstr(obj->kind->name, "Acquirement")) {
-				add_stats(ST_ACQUIRE_SCROLLS, vault, mon, number);
+				add_stats(ST_ACQUIRE_CARDS, vault, mon, number);
 			} else if (strstr(obj->kind->name, "*Acquirement*")) {
 				/* do the effect of 2 acquires */
-				add_stats(ST_ACQUIRE_SCROLLS, vault, mon, number * 2);
+				add_stats(ST_ACQUIRE_CARDS, vault, mon, number * 2);
 			}
 			break;
 		}
@@ -804,23 +772,23 @@ static void get_obj_data(const struct object *obj, int y, int x, bool mon,
 			break;
 		}
 
-		/* staves */
-		case TV_STAFF:{
+		/* devices */
+		case TV_DEVICE:{
 
-			add_stats(ST_STAVES, vault, mon, number);
+			add_stats(ST_DEVICES, vault, mon, number);
 
 			if (strstr(obj->kind->name, "Speed")) {
-				add_stats(ST_SPEED_STAVES, vault, mon, number);
+				add_stats(ST_SPEED_DEVICES, vault, mon, number);
 			} else if (strstr(obj->kind->name, "*Destruction*")) {
-				add_stats(ST_DESTRUCTION_STAVES, vault, mon, number);
+				add_stats(ST_DESTRUCTION_DEVICES, vault, mon, number);
 			} else if (strstr(obj->kind->name, "Dispel Evil") ||
 					   strstr(obj->kind->name, "Power") ||
 					   strstr(obj->kind->name, "Holiness")) {
-				add_stats(ST_KILL_STAVES, vault, mon, number);
+				add_stats(ST_KILL_DEVICES, vault, mon, number);
 			} else if (strstr(obj->kind->name, "Healing") ||
 					   strstr(obj->kind->name, "Banishment") ||
 					   strstr(obj->kind->name, "the Magi")) {
-				add_stats(ST_ENDGAME_STAVES, vault, mon, number);
+				add_stats(ST_ENDGAME_DEVICES, vault, mon, number);
 			}
 			break;
 		}
@@ -838,9 +806,9 @@ static void get_obj_data(const struct object *obj, int y, int x, bool mon,
 
 			add_stats(ST_RINGS, vault, mon, number);
 
-			/* is it cursed */
-			if (obj->curses)
-				add_stats(ST_CURSED_RINGS, vault, mon, number);
+			/* is it faulty */
+			if (obj->faults)
+				add_stats(ST_FAULTY_RINGS, vault, mon, number);
 
 			if (strstr(obj->kind->name, "Speed")) {
 				add_stats(ST_SPEEDS_RINGS, vault, mon, number);
@@ -886,16 +854,16 @@ static void get_obj_data(const struct object *obj, int y, int x, bool mon,
 				add_stats(ST_TELEP_AMULETS, vault, mon, number);
 			}
 
-			/* is cursed */
-			if (obj->curses)
-				add_stats(ST_CURSED_AMULETS, vault, mon, number);
+			/* is faulty */
+			if (obj->faults)
+				add_stats(ST_FAULTY_AMULETS, vault, mon, number);
 
 			break;
 		}
 
-		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:{
+		case TV_AMMO_6:
+		case TV_AMMO_9:
+		case TV_AMMO_12:{
 
 			add_stats(ST_AMMO, vault, mon, number);
 
@@ -929,81 +897,46 @@ static void get_obj_data(const struct object *obj, int y, int x, bool mon,
 			}
 			break;
 		}
+	}
+	/* check to see if we have an ego */
+	if (obj->ego){
 
-		/* books have the same probability, only track one realm of them */
-		case TV_MAGIC_BOOK:{
+		/* add to ego level total */
+		ego_total[lvl] += addval;
 
-			switch(obj->sval){
+		/* add to the ego iteration total */
+		if (iter < TRIES_SIZE) ego_it[iter]++;
 
-				/* svals begin at 0 and end at 8 */
-				case 0:{
+		/* Obtain the ego info */
+		struct ego_item *ego = obj->ego;
 
-					add_stats(ST_1ST_BOOKS, vault, mon, number);
-					first_find(ST_FF_BOOK1);
-					break;
-				}
+		/* ego is shallow */
+		if (ego->alloc_min < (player->depth / 2)) ego_shal[lvl] += addval;
 
-				case 1:{
+		/* artifact is close to the player depth */
+		if ((ego->alloc_min >= player->depth / 2) &&
+			(ego->alloc_min <= player->depth )) ego_ave[lvl] += addval;
 
-					add_stats(ST_2ND_BOOKS, vault, mon, number);
-					first_find(ST_FF_BOOK2);
-					break;
-				}
+		/* artifact is out of depth */
+		if (ego->alloc_min > (player->depth)) ego_ood[lvl] += addval;
 
-				case 2:{
+		/* did it come from a monster? */
+		if (mon) ego_mon[lvl] += addval;
 
-					add_stats(ST_3RD_BOOKS, vault, mon, number);
-					first_find(ST_FF_BOOK3);
-					break;
-				}
+		/* did it come from a unique? */
+		if (uniq) ego_uniq[lvl] += addval;
 
-				case 3:{
-
-					add_stats(ST_4TH_BOOKS, vault, mon, number);
-					first_find(ST_FF_BOOK4);
-					break;
-				}
-
-				case 4:{
-
-					add_stats(ST_5TH_BOOKS, vault, mon, number);
-					first_find(ST_FF_BOOK5);
-					break;
-				}
-
-				case 5:{
-
-					add_stats(ST_6TH_BOOKS, vault, mon, number);
-					first_find(ST_FF_BOOK6);
-					break;
-				}
-
-				case 6:{
-
-					add_stats(ST_7TH_BOOKS, vault, mon, number);
-					first_find(ST_FF_BOOK7);
-					break;
-				}
-
-				case 7:{
-
-					add_stats(ST_8TH_BOOKS, vault, mon, number);
-					first_find(ST_FF_BOOK8);
-					break;
-				}
-
-				case 8:{
-
-					add_stats(ST_9TH_BOOKS, vault, mon, number);
-					first_find(ST_FF_BOOK9);
-					break;
-				}
-
-
-			}
-			break;
+		/* was it in a vault? */
+		if (vault){
+			/* did a monster drop it ?*/
+			if ((mon) || (uniq)) ego_mon_vault[lvl] += addval;
+			else ego_vault[lvl] += addval;
+		} else {
+			/* was it just lyin' on the floor? */
+			if ((!uniq) && (!mon)) ego_floor[lvl] += addval;
 		}
 	}
+
 	/* check to see if we have an artifact */
 	if (obj->artifact){
 
@@ -1078,7 +1011,7 @@ static void get_obj_data(const struct object *obj, int y, int x, bool mon,
 
 /* 
  * A rewrite of monster death that gets rid of some features
- * That we don't want to deal with.  Namely, no notifying the
+ * that we don't want to deal with.  Namely, no notifying the
  * player and no generation of Morgoth artifacts
  * 
  * It also replaces drop near with a new function that drops all 
@@ -1196,6 +1129,7 @@ static void print_heading(void)
 	file_putf(stats_log,"            10 levels deep \n");
 	file_putf(stats_log," Artifacts: info on artifact location (vault, floor, etc) \n");
 	file_putf(stats_log,"		     do not include special artifacts, only weapons and armor \n");
+	file_putf(stats_log," Ego items: info on ego location (vault, floor, etc) \n");
 	file_putf(stats_log," Weapons  : Big dice weapons are either BoC, SoS, or Mod.  Uber \n");
 	file_putf(stats_log,"            weapons, are one of the above with xblows or slay evil\n");
 	file_putf(stats_log," Launchers: xtra shots and xtra might are only logged for x3 or\n");
@@ -1203,15 +1137,14 @@ static void print_heading(void)
 	file_putf(stats_log," Amulets:   Endgame amulets are trickery, weaponmaster and magi\n");
 	file_putf(stats_log," Armor:     Low resist armor may have more than one basic resist (acid, \n");
 	file_putf(stats_log,"		     elec, fire, cold) but not all. \n");
-	file_putf(stats_log," Books:     Prayer and Magic books have the same probability. \n");
-	file_putf(stats_log," Potions:   Aug counts as 5 potions, *enlight* as 2.  Healing potions are \n");
+	file_putf(stats_log," Pills:   Aug counts as 5 pills, *enlight* as 2.  Healing pills are \n");
 	file_putf(stats_log,"			 only *Healing* and Life\n");
-	file_putf(stats_log," Scrolls:   Endgame scrolls include *Dest*, Rune, MBan and Ban \n");
-	file_putf(stats_log,"    		 *Acq* counts as two Acq scrolls");
+	file_putf(stats_log," Cards:   Endgame cards include *Dest*, Rune, MBan and Ban \n");
+	file_putf(stats_log,"    		 *Acq* counts as two Acq cards");
 	file_putf(stats_log," Rods: 	 Utility rods: d-obj, d-stairs, d-traps, light, illum \n");
 	file_putf(stats_log,"    		 Endgame rods: Speed, Healing \n");
-	file_putf(stats_log," Staves: 	 Kill staves: dispel evil, power, holiness. \n");
-	file_putf(stats_log,"    		 Power staves: healing, magi, banishment \n");
+	file_putf(stats_log," Devices: 	 Kill devices: dispel evil, power, holiness. \n");
+	file_putf(stats_log,"    		 Power devices: healing, magi, banishment \n");
 }
 
 /**
@@ -1238,7 +1171,18 @@ static void print_stats(int lvl)
 				uniq_total[lvl], uniq_ood[lvl], uniq_deadly[lvl]);
 	/* print artifact heading */
 
-	
+	file_putf(stats_log,"\n EGO-ITEM INFO \n");
+
+	/* basic ego info */
+	file_putf(stats_log,"Total egos: %f  Shallow: %f  Average: %f  Ood: %f \n",
+		ego_total[lvl], ego_shal[lvl],ego_ave[lvl],ego_ood[lvl]);
+
+	/* more advanced info */
+	file_putf(stats_log,"From vaults: %f  From floor (no vault): %f \n",
+		ego_vault[lvl],ego_floor[lvl]);
+	file_putf(stats_log,"Uniques: %f  Monsters: %f  Vault denizens: %f \n",
+		ego_uniq[lvl], ego_mon[lvl], ego_mon_vault[lvl]);
+
 
 	file_putf(stats_log,"\n ARTIFACT INFO \n");
 
@@ -1383,13 +1327,6 @@ static void post_process_stats(void)
 	mean_and_stdv(art_it);
 
 	/* Temporary stuff goes here */
-	/* Dungeon book totals for Eddie
-	file_putf(stats_log,"mb5: %f\n",total(b5_total));
-	file_putf(stats_log,"mb6: %f\n",total(b6_total));
-	file_putf(stats_log,"mb7: %f\n",total(b7_total));
-	file_putf(stats_log,"mb8: %f\n",total(b8_total));
-	file_putf(stats_log,"mb9: %f\n",total(b9_total));
-	*/
 }
 
 
@@ -1484,6 +1421,190 @@ static void revive_uniques(void)
 		/* Revive the unique monster */
 		if (rf_has(race->flags, RF_UNIQUE)) race->max_num = 1;
 	}
+}
+
+/* Generate non-special artifacts at each level 1-100 (by steps).
+ * Record the number of each generated.
+ */
+static void artifact_stats(void)
+{
+	static const byte levels[] = {
+		1, 2, 3, 4, 5, 6,
+		8, 10, 12, 14, 16, 18, 20,
+		25, 30, 35, 40, 45, 50,
+		60, 70, 80, 90, 98, 127
+	};
+	double *prob[sizeof(levels)];
+	struct object *obj;
+	int *count = mem_zalloc(sizeof(int) * z_info->a_max * sizeof(levels));
+	int *artifacts = mem_zalloc(sizeof(int) * sizeof(levels));
+	int *objects = mem_zalloc(sizeof(int) * sizeof(levels));
+	int depth = player->depth;
+	for(size_t i=0;i<sizeof(levels);i++) {
+		int lev = levels[i];
+		player->depth = lev;
+		msg("Level %d...", lev);
+		/* Show the level to check on status */
+		do_cmd_redraw();
+		int *levcount = count + (z_info->a_max * i);
+		do {
+			objects[i]++;
+			/* Make a non-artifact object */
+			obj = make_artifact(lev, 0);
+			bool ok = (obj != NULL);
+			if (ok) {
+				obj->artifact->created = false;
+				artifacts[i]++;
+				int a_idx = obj->artifact - a_info;
+				levcount[a_idx]++;
+				object_delete(&obj);
+			}
+		} while (artifacts[i] < tries);
+		prob[i] = mem_alloc(sizeof(double) * z_info->a_max);
+		memcpy(prob[i], wiz_stats_prob, sizeof(double) * z_info->a_max);
+		double sum = 0.0;
+		/* Normalize */
+		for(int j=0;j<z_info->a_max;j++)
+			sum += prob[i][j];
+		for(int j=0;j<z_info->a_max;j++)
+			prob[i][j] = (prob[i][j] * 100.0) / sum;
+		fprintf(stderr,"Level %d, %d arts, %d objs\n", lev, artifacts[i], objects[i]);
+	}
+	char buf[1024];
+	char num[32];
+	strcpy(buf, "            Artifact Name            ");
+	for(size_t l=0;l<sizeof(levels);l++) {
+		strcat(buf+31,"Level ");
+		sprintf(num, "%d%s  ", levels[l], levels[l] < 10 ? " " : "" );
+		strcat(buf, num);
+	}
+	strcat(buf, "\n");
+	file_putf(stats_log, buf);
+	for(size_t a=1;a<z_info->a_max;a++) {
+		memset(buf, ' ', 32);
+		strcpy(buf + (30 - strlen(a_info[a].name)), a_info[a].name);
+		for(int i=0;i<30;i++)
+			buf[i] = ((buf[i] >= ' ') && (buf[i] <= 'z')) ? buf[i] : '-';
+		for(size_t l=0;l<sizeof(levels);l++) {
+			int *levcount = count + (z_info->a_max * l);
+			strnfmt(num, sizeof(num), "%9d ", levcount[a]);
+			strcat(buf+30, num);
+		}
+		strcat(buf, "\n");
+		file_putf(stats_log, buf);
+
+		memset(buf, ' ', 32);
+		buf[32] = 0;
+		for(size_t l=0;l<sizeof(levels);l++) {
+			strnfmt(num, sizeof(num), (prob[l][a] < 10.0) ? "%.07lf " : "%.06lf ", prob[l][a]);
+			strcat(buf+30, num);
+		}
+		strcat(buf, "\n");
+		file_putf(stats_log, buf);
+
+	}
+	player->depth = depth;
+}
+
+/* Generate ego items at each level 1-100 (by steps).
+ * Record the number of each generated.
+ */
+static void ego_stats(void)
+{
+	static const byte levels[] = {
+		1, 2, 3, 4, 5, 6,
+		8, 10, 12, 14, 16, 18, 20,
+		25, 30, 35, 40, 45, 50,
+		60, 70, 80, 90, 98, 127
+	};
+	/*static const byte levels[] = {
+		1, 2, 3, 4, 5, 6,
+		7, 8, 9, 10, 11, 12,
+		14, 16, 18, 20, 22, 24,
+		26, 28, 30, 32, 34, 36,
+		38, 40, 42, 45, 50, 55,
+		60, 65, 70, 75, 80, 85,
+		90, 95, 98, 100, 110, 127
+	};*/
+	double *prob[sizeof(levels)];
+	struct object *obj;
+	int *count = mem_zalloc(sizeof(int) * z_info->e_max * sizeof(levels));
+	int *egos = mem_zalloc(sizeof(int) * sizeof(levels));
+	int *objects = mem_zalloc(sizeof(int) * sizeof(levels));
+	int depth = player->depth;
+	for(size_t i=0;i<sizeof(levels);i++) {
+		int lev = levels[i];
+		player->depth = lev;
+		msg("Level %d...", lev);
+		/* Show the level to check on status */
+		do_cmd_redraw();
+		int *levcount = count + (z_info->e_max * i);
+		do {
+			s32b value;
+			objects[i]++;
+			/* Make a (normal) object */
+			obj = make_object(cave, lev, false, false, false, &value, 0);
+			bool ok = (obj && obj->ego);
+			if (ok) {
+				egos[i]++;
+				int e_idx = obj->ego - e_info;
+				levcount[e_idx]++;
+			}
+			if (obj)
+				object_delete(&obj);
+		} while (egos[i] < tries);
+		prob[i] = mem_alloc(sizeof(double) * z_info->e_max);
+		
+		// no theoreticals - yet
+		//memcpy(prob[i], wiz_stats_prob, sizeof(double) * z_info->e_max);
+		
+		// so just convert to %
+		for(int j=0;j<z_info->e_max;j++) {
+			prob[i][j] = levcount[j];
+		}
+		
+		double sum = 0.0;
+		/* Normalize */
+		for(int j=0;j<z_info->e_max;j++)
+			sum += prob[i][j];
+		for(int j=0;j<z_info->e_max;j++)
+			prob[i][j] = (prob[i][j] * 100.0) / sum;
+		fprintf(stderr,"Level %d, %d egos, %d objs\n", lev, egos[i], objects[i]);
+	}
+	char buf[1024];
+	char num[32];
+	strcpy(buf, "                 Ego Name       ");
+	for(size_t l=0;l<sizeof(levels);l++) {
+		strcat(buf+31,"Level ");
+		sprintf(num, "%d%s  ", levels[l], levels[l] < 10 ? " " : "" );
+		strcat(buf, num);
+	}
+	strcat(buf, "\n");
+	file_putf(stats_log, buf);
+	for(size_t a=1;a<(size_t)(z_info->e_max - 1);a++) {
+		memset(buf, ' ', 32);
+		strcpy(buf + (30 - strlen(e_info[a].name)), e_info[a].name);
+		for(int i=0;i<30;i++)
+			buf[i] = ((buf[i] >= ' ') && (buf[i] <= 'z')) ? buf[i] : '-';
+		for(size_t l=0;l<sizeof(levels);l++) {
+			int *levcount = count + (z_info->e_max * l);
+			strnfmt(num, sizeof(num), "%9d ", levcount[a]);
+			strcat(buf+30, num);
+		}
+		strcat(buf, "\n");
+		file_putf(stats_log, buf);
+
+		memset(buf, ' ', 32);
+		buf[32] = 0;
+		for(size_t l=0;l<sizeof(levels);l++) {
+			strnfmt(num, sizeof(num), (prob[l][a] < 10.0) ? "%.07lf " : "%.06lf ", prob[l][a]);
+			strcat(buf+30, num);
+		}
+		strcat(buf, "\n");
+		file_putf(stats_log, buf);
+
+	}
+	player->depth = depth;
 }
 
 /**
@@ -1589,7 +1710,7 @@ static int stats_prompt(void)
 {
 	static int temp,simtype = 1;
 	static char tmp_val[100];
-	static char prompt[50];
+	static char prompt[80];
 
 	/* This is the prompt for no. of tries*/
 	strnfmt(prompt, sizeof(prompt), "Num of simulations: ");
@@ -1613,7 +1734,7 @@ static int stats_prompt(void)
 	addval = 1.0 / tries;
 
 	/* Get info on what type of run to do */
-	strnfmt(prompt, sizeof(prompt), "Type of Sim: Diving (1) or Clearing (2) ");
+	strnfmt(prompt, sizeof(prompt), "Type of Sim: Diving (1), Clearing (2), Artifacts (3), Egos (4) ");
 
 	/* Set default */
 	strnfmt(tmp_val, sizeof(tmp_val), "%d", simtype);
@@ -1624,7 +1745,7 @@ static int stats_prompt(void)
 	temp = atoi(tmp_val);
 
 	/* Make sure that the type is good */
-	if ((temp == 1) || (temp == 2))
+	if ((temp >= 1) && (temp <= 4))
 		simtype = temp;
 	else
 		return 0;
@@ -1647,20 +1768,32 @@ void stats_collect(void)
 {
 	static int simtype;
 	static bool auto_flag;
+	bool artifacts = false;
+	bool egos = false;
 	char buf[1024];
 
 	/* Prompt the user for sim params */
 	simtype = stats_prompt();
 
 	/* Make sure the results are good! */
-	if (!((simtype == 1) || (simtype == 2)))
+	if (!((simtype >= 1) && (simtype <= 4)))
 		return; 
 
 	/* Are we in diving or clearing mode */
-	if (simtype == 2)
-		clearing = true;
-	else
-		clearing = false;
+	switch(simtype) {
+		case 1:
+			clearing = false;
+			break;
+		case 2:
+			clearing = true;
+			break;
+		case 3:
+			artifacts = true;
+			break;
+		case 4:
+			egos = true;
+			break;
+	}
 
 	/* Open log file */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "stats.log");
@@ -1694,11 +1827,17 @@ void stats_collect(void)
 	/* Make sure all stats are 0 */
 	init_stat_vals();
 
-	/* Select diving option */
-	if (!clearing) diving_stats();
+	if (artifacts) {
+		artifact_stats();
+	} else if (egos) {
+		ego_stats();
+	} else {
+		/* Select diving option */
+		if (!clearing) diving_stats();
 
-	/* Select clearing option */
-	if (clearing) clearing_stats();
+		/* Select clearing option */
+		if (clearing) clearing_stats();
+	}
 
 	/* Turn auto-more back off */
 	if (auto_flag) option_set(option_name(OPT_auto_more), false);

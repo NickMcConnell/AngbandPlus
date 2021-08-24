@@ -80,13 +80,16 @@ static void display_score_page(const struct high_score scores[], int start,
 		c_put_str(attr, out_val, n * 4 + 2, 0);
 
 
-		/* Died where? */
+		/* Died where?
+		 * score->dungeon includes the level, as quests etc shouldn't show this.
+		 * (and other special locations may treat it differently)
+		 **/
 		if (!cdun)
-			strnfmt(out_val, sizeof(out_val), "Killed by %s in the town",
+			strnfmt(out_val, sizeof(out_val), "%s in the town",
 					score->how);
 		else
 			strnfmt(out_val, sizeof(out_val),
-					"Killed by %s on dungeon level %d", score->how, cdun);
+					"%s %s", score->how, score->dungeon);
 
 		/* Append a "maximum level" */
 		if (mdun > cdun)
@@ -105,7 +108,7 @@ static void display_score_page(const struct high_score scores[], int start,
 
 		/* And still another line of info */
 		strnfmt(out_val, sizeof(out_val),
-				"(User %s, Date %s, Gold %s, Turn %s).",
+				"(User %s, Date %s, Cash %s, Turn %s).",
 				user, when, gold, aged);
 		c_put_str(attr, out_val, n * 4 + 4, 15);
 	}
@@ -190,7 +193,7 @@ void predict_score(bool allow_scrolling)
 
 	/* Read scores, place current score */
 	highscore_read(scores, N_ELEMENTS(scores));
-	build_score(&the_score, "nobody (yet!)", NULL);
+	build_score(&the_score, "nobody (yet!)", NULL, true);
 
 	if (player->is_dead)
 		j = highscore_where(&the_score, scores, N_ELEMENTS(scores));

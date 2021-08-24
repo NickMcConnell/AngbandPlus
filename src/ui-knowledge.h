@@ -19,6 +19,23 @@
 #ifndef UI_KNOWLEDGE_H
 #define UI_KNOWLEDGE_H
 
+enum location_t {
+	LOCATION_GROUND = 0,
+	LOCATION_PLAYER,
+	LOCATION_MONSTER,
+	LOCATION_STORE,
+	LOCATION_CHUNK_GROUND,
+	LOCATION_CHUNK_MONSTER,
+	MAX_LOCATION
+};
+
+struct location {
+	struct object *obj;
+	struct loc loc;
+	int type;
+};
+
+struct object *locate_object(struct object * (*fn )(struct object *, void *), void *data, struct location *location);
 void textui_browse_object_knowledge(const char *name, int row);
 void textui_knowledge_init(void);
 void textui_browse_knowledge(void);
@@ -34,5 +51,7 @@ void do_cmd_query_symbol(void);
 void do_cmd_center_map(void);
 void do_cmd_monlist(void);
 void do_cmd_itemlist(void);
+struct object *find_object(struct object * (*fn )(struct object *, void *), void *data);
+bool remove_object(struct object *obj);
 
 #endif /* UI_KNOWLEDGE_H */

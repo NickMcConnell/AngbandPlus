@@ -106,7 +106,7 @@ Original Keyset Command Summary
  ``r``  Read a scroll                 ``R``  Rest for a period
  ``s``  Steal (rogues only)           ``S``  (unused)
  ``t``  Take off equipment            ``T``  Dig a tunnel
- ``u``  Use a staff                   ``U``  Use an item
+ ``u``  Use a device                   ``U``  Use an item
  ``v``  Throw an item                 ``V``  Version info
  ``w``  Wear/wield equipment          ``W``  Walk into a trap
  ``x``  (unused)                      ``X``  (unused)
@@ -173,7 +173,7 @@ Roguelike Keyset Command Summary
   w    Wear/wield equipment            W    Locate player on map (Where)
   x    Look around                     X    Use an item
   y    (walk - north west)             Y    (run - north west)
-  z    Aim a wand (Zap)                Z    Use a staff (Zap)
+  z    Aim a wand (Zap)                Z    Use a device (Zap)
   !    (unused)                        ^A   (special - debug command)
   @    Center map                      ^B   (alter - south west)
   #    (unused)                        ^C   (special - break)

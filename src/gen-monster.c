@@ -31,6 +31,7 @@
 #include "monster.h"
 #include "mon-make.h"
 #include "mon-spell.h"
+#include "player-util.h"
 
 /**
  * Restrictions on monsters, used in pits, vaults, and chambers.
@@ -139,8 +140,8 @@ bool mon_restrict(const char *monster_type, int depth, bool unique_ok)
 			if (i < 200) {
 				if ((!rf_has(r_info[j].flags, RF_UNIQUE))
 					&& (r_info[j].level != 0) && (r_info[j].level <= depth)
-					&& (ABS(r_info[j].level - player->depth) <
-						1 + (player->depth / 4)))
+					&& (ABS(r_info[j].level - danger_depth(player)) <
+						1 + (danger_depth(player) / 4)))
 					break;
 			} else {
 				if ((!rf_has(r_info[j].flags, RF_UNIQUE))
@@ -164,7 +165,6 @@ bool mon_restrict(const char *monster_type, int depth, bool unique_ok)
     } else {
 		/* Use a pit profile */
 		struct pit_profile *profile = lookup_pit_profile(monster_type);
-
 		/* Accept the profile or leave area empty if none found */
 		if (profile)
 			dun->pit_type = profile;

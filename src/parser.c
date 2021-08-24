@@ -520,7 +520,7 @@ static struct parser_value *parser_getval(struct parser *p, const char *name) {
 			return v;
 		}
 	}
-	quit_fmt("parser_getval error: name is %s\n", name);
+	quit_fmt("parser_getval error: name is %s, line %d, col %d\n", name, p->lineno, p->colno);
 	return 0; /* Needed to avoid Windows compiler warning */
 }
 

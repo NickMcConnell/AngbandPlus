@@ -10,7 +10,7 @@
 
 # Quick reference colour chart of flavour tiles:
 #
-#   | Standard    | Amulets     | Staves      |
+#   | Standard    | Amulets     | Devices     |
 # --|-------------|-------------|-------------|
 # 0 | white       | white       | white       |
 # 1 | light grey  | light grey  | light grey  |
@@ -255,111 +255,111 @@ flavor:67:0x84:0x9B
 
 
 
-### Staves ###
+### Devices ###
 
-# Aspen staff
+# Aspen device
 flavor:68:0x86:0x9B
 
-# Balsa staff
+# Balsa device
 flavor:69:0x86:0x99
 
-# Banyan staff
+# Banyan device
 flavor:70:0x86:0x96
 
-# Birch staff
+# Birch device
 flavor:71:0x86:0x98
 
-# Cedar staff
+# Cedar device
 flavor:72:0x86:0x92
 
-# Cottonwood staff
+# Cottonwood device
 flavor:73:0x86:0x96
 
-# Cypress staff
+# Cypress device
 flavor:74:0x86:0x96
 
-# Dogwood staff
+# Dogwood device
 flavor:75:0x86:0x96
 
-# Elm staff
+# Elm device
 flavor:76:0x86:0x99
 
-# Eucalyptus staff
+# Eucalyptus device
 flavor:77:0x86:0x99
 
-# Hemlock staff
+# Hemlock device
 flavor:78:0x86:0x96
 
-# Hickory staff
+# Hickory device
 flavor:79:0x86:0x96
 
-# Ironwood staff
+# Ironwood device
 flavor:80:0x86:0x95
 
-# Locust staff
+# Locust device
 flavor:81:0x86:0x99
 
-# Mahogany staff
+# Mahogany device
 flavor:82:0x86:0x95
 
-# Maple staff
+# Maple device
 flavor:83:0x86:0x95
 
-# Mulberry staff
+# Mulberry device
 flavor:84:0x86:0x95
 
-# Oak staff
+# Oak device
 flavor:85:0x86:0x96
 
-# Pine staff
+# Pine device
 flavor:86:0x86:0x99
 
-# Redwood staff
+# Redwood device
 flavor:87:0x86:0x93
 
-# Rosewood staff
+# Rosewood device
 flavor:88:0x86:0x93
 
-# Spruce staff
+# Spruce device
 flavor:89:0x86:0x99
 
-# Sycamore staff
+# Sycamore device
 flavor:90:0x86:0x99
 
-# Teak staff
+# Teak device
 flavor:91:0x86:0x96
 
-# Walnut staff
+# Walnut device
 flavor:92:0x86:0x96
 
-# Mistletoe staff
+# Mistletoe device
 flavor:93:0x86:0x94
 
-# Hawthorn staff
+# Hawthorn device
 flavor:94:0x86:0x95
 
-# Bamboo staff
+# Bamboo device
 flavor:95:0x86:0x9B
 
-# Silver birch staff
+# Silver birch device
 flavor:96:0x86:0x91
 
-# Hazel staff
+# Hazel device
 flavor:97:0x86:0x98
 
-# Golden staff
+# Golden device
 flavor:98:0x86:0x9A
 
-# Blackthorn staff
+# Blackthorn device
 flavor:99:0x86:0x97
 
-# Gnarled staff
+# Gnarled device
 flavor:100:0x86:0x95
 
-# Ivory staff
+# Ivory device
 flavor:101:0x86:0x90
 
-# Willow staff
+# Willow device
 flavor:102:0x86:0x99
 
 

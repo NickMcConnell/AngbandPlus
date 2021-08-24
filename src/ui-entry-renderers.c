@@ -501,7 +501,7 @@ static void show_combined_generic(const struct renderer_info *info,
 	combined_details.combined_position = loc(0, 0);
 	combined_details.vertical_label = false;
 	combined_details.alternate_color_first = false;
-	combined_details.known_rune = details->known_rune;
+	combined_details.known_icon = details->known_icon;
 	combined_details.show_combined = false;
 	ui_entry_renderer_apply(info->combined_renderer_index, NULL,
 		0, &vcombined, &acombined, 1, &combined_details);
@@ -613,7 +613,7 @@ static void renderer_COMPACT_RESIST_RENDERER_WITH_COMBINED_AUX(
 		};
 		int palette_index;
 
-		if (details->known_rune) {
+		if (details->known_icon) {
 			int untimed_effect = convert_vanilla_res_level(vc);
 			int timed_effect = convert_vanilla_res_level(ac);
 
@@ -706,7 +706,7 @@ static void renderer_COMPACT_FLAG_RENDERER_WITH_COMBINED_AUX(
 	if (nlabel > 0) {
 		int palette_index = 1;
 
-		if (! details->known_rune) {
+		if (! details->known_icon) {
 			palette_index = 0;
 		} else if (vc && vc != UI_ENTRY_UNKNOWN_VALUE &&
 			vc != UI_ENTRY_VALUE_NOT_PRESENT) {
@@ -818,7 +818,7 @@ static void renderer_COMPACT_FLAG_WITH_CANCEL_RENDERER_WITH_COMBINED_AUX(
 	if (nlabel > 0) {
 		int palette_index;
 
-		if (! details->known_rune) {
+		if (! details->known_icon) {
 			palette_index = 0;
 		} else if (vc == UI_ENTRY_VALUE_NOT_PRESENT ||
 			vc == UI_ENTRY_UNKNOWN_VALUE || vc == 0) {
@@ -930,7 +930,7 @@ static void renderer_NUMERIC_AS_SIGN_RENDERER_WITH_COMBINED_AUX(
 	if (nlabel > 0) {
 		int palette_index;
 
-		if (! details->known_rune) {
+		if (! details->known_icon) {
 			palette_index = 0;
 		} else if (vc == UI_ENTRY_UNKNOWN_VALUE ||
 			vc == UI_ENTRY_VALUE_NOT_PRESENT || vc == 0) {
@@ -1089,7 +1089,7 @@ static void renderer_NUMERIC_RENDERER_WITH_COMBINED_AUX(
 	if (nlabel > 0) {
 		int palette_index;
 
-		if (! details->known_rune) {
+		if (! details->known_icon) {
 			palette_index = 0;
 		} else if (vc == 0 || vc == UI_ENTRY_UNKNOWN_VALUE ||
 			vc == UI_ENTRY_VALUE_NOT_PRESENT) {
@@ -1248,7 +1248,7 @@ static void renderer_NUMERIC_RENDERER_WITH_BOOL_AUX(
 			ac != UI_ENTRY_VALUE_NOT_PRESENT;
 		int palette_index;
 
-		if (! details->known_rune) {
+		if (! details->known_icon) {
 			palette_index = 0;
 		} else if (vc == 0 || vc == UI_ENTRY_UNKNOWN_VALUE ||
 			vc == UI_ENTRY_VALUE_NOT_PRESENT) {

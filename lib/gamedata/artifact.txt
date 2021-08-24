@@ -324,7 +324,7 @@ alloc:6:20 to 100
 attack:1d7:7:8
 armor:0:0
 flags:PROT_FEAR | FREE_ACT | SEE_INVIS
-values:SPEED[3] | BLOWS[2] | STR[1] | DEX[1] | CON[1] | LIGHT[1] | RES_LIGHT[1]
+values:SPD[3] | BLOWS[2] | STR[1] | DEX[1] | CON[1] | LIGHT[1] | RES_LIGHT[1]
 slay:EVIL_2
 slay:UNDEAD_3
 slay:ORC_3
@@ -389,7 +389,7 @@ alloc:1:20 to 127
 attack:4d5:22:25
 armor:0:0
 flags:PROT_FEAR | BLESSED | FREE_ACT | SEE_INVIS | SLOW_DIGEST | REGEN
-values:SPEED[10] | LIGHT[1] | RES_COLD[1] | RES_LIGHT[1]
+values:SPD[10] | LIGHT[1] | RES_COLD[1] | RES_LIGHT[1]
 brand:COLD_3
 slay:EVIL_2
 slay:UNDEAD_3
@@ -432,7 +432,7 @@ alloc:3:20 to 127
 attack:2d5:10:12
 armor:0:0
 flags:AGGRAVATE | FREE_ACT | SEE_INVIS
-values:SPEED[3] | STR[2] | CON[2] | BLOWS[1] | LIGHT[1] | 
+values:SPD[3] | STR[2] | CON[2] | BLOWS[1] | LIGHT[1] | 
 values:RES_ELEC[1] | RES_LIGHT[1] | RES_DARK[1]
 brand:POIS_3
 slay:EVIL_2
@@ -541,7 +541,7 @@ slay:DRAGON_5
 slay:EVIL_2
 slay:DEMON_3
 slay:TROLL_3
-curse:air swing:30
+fault:air swing:30
 desc:This sword has runes of power incused on its ornate hilt, and a single
 desc: blood channel that gleams coldly blue as you grasp this mighty weapon of
 desc: peril.
@@ -555,7 +555,7 @@ alloc:3:30 to 127
 attack:4d4:12:16
 armor:0:0
 flags:PROT_FEAR
-values:STR[4] | STEALTH[2] | RES_NETHER[1] | RES_DARK[1] | RES_COLD[1]
+values:STR[4] | STEALTH[2] | RES_RADIATION[1] | RES_DARK[1] | RES_COLD[1]
 slay:EVIL_2
 slay:UNDEAD_5
 slay:GIANT_3
@@ -573,7 +573,7 @@ alloc:4:30 to 100
 attack:6d6:10:10
 armor:0:0
 flags:SUST_DEX
-values:SPEED[5] | DEX[5] | BLOWS[1]
+values:SPD[5] | DEX[5] | BLOWS[1]
 desc:An utterly perfect, cleanly chiseled sword, with an edge that effortlessly
 desc: slices rock and bone, and spells to render the wearer lithe and nimble.
 desc:  It is combat incarnate.
@@ -629,7 +629,7 @@ attack:3d6:-15:-15
 armor:0:-10
 # F:DRAIN_HP | DRAIN_MANA | 
 flags: SEE_INVIS | HOLD_LIFE | AGGRAVATE | DRAIN_EXP
-values:SPEED[-10]
+values:SPD[-10]
 brand:POIS_3
 slay:DRAGON_5
 slay:UNDEAD_3
@@ -711,7 +711,7 @@ alloc:2:65 to 127
 attack:4d4:13:17
 armor:0:10
 flags:HOLD_LIFE
-values:STR[4] | WIS[4] | LIGHT[1] | RES_FIRE[1] | RES_ELEC[1] | RES_NETHER[1]
+values:STR[4] | WIS[4] | LIGHT[1] | RES_FIRE[1] | RES_ELEC[1] | RES_RADIATION[1]
 slay:EVIL_2
 slay:UNDEAD_3
 act:DISPEL_EVIL
@@ -762,7 +762,7 @@ armor:0:0
 flags:PROT_CONF
 act:CONFUSE2
 time:15
-values:STEALTH[2] | SPEED[2] | RES_FIRE[1]
+values:STEALTH[2] | SPD[2] | RES_FIRE[1]
 brand:FIRE_3
 slay:EVIL_2
 desc:A flail whose head befuddles those who stare as you whirl it round and
@@ -831,7 +831,7 @@ values:INT[4] | WIS[4] | LIGHT[1] | RES_LIGHT[1]
 slay:EVIL_2
 act:DETECT_OBJECTS
 time:50+d50
-desc:The radiant golden staff of an Istar of legend, this wizard's companion
+desc:The radiant golden device of an Istar of legend, this wizard's companion
 desc: grants keen sight and clear knowledge of many hidden things.
 
 name:of Olórin
@@ -843,7 +843,7 @@ alloc:1:30 to 100
 attack:2d9:10:13
 armor:0:0
 flags:HOLD_LIFE | SEE_INVIS
-values:INT[4] | WIS[4] | RES_FIRE[1] | RES_NETHER[1]
+values:INT[4] | WIS[4] | RES_FIRE[1] | RES_RADIATION[1]
 brand:FIRE_3
 slay:DEMON_5
 slay:EVIL_2
@@ -851,7 +851,7 @@ slay:TROLL_3
 slay:ORC_3
 act:PROBING
 time:20
-desc:A staff tall and sturdy, borne of old by Gandalf.  Rough-hewn runes that
+desc:A device tall and sturdy, borne of old by Gandalf.  Rough-hewn runes that
 desc: invoke the element of Earth stand bold upon its gnarled surface, and no
 desc: creature who lives in the shadow of mountains can withstand the blows it
 desc: deals.
@@ -933,7 +933,7 @@ attack:4d6:15:15
 armor:0:0
 # F:DRAIN_MANA | 
 flags:FEATHER | SEE_INVIS | BLESSED | 
-values:INT[4] | SPEED[4] | INFRA[4] | LIGHT[1] | RES_FIRE[1] | RES_LIGHT[1]
+values:INT[4] | SPD[4] | INFRA[4] | LIGHT[1] | RES_FIRE[1] | RES_LIGHT[1]
 brand:FIRE_3
 slay:GIANT_3
 slay:ANIMAL_2
@@ -951,7 +951,7 @@ alloc:8:15 to 65
 attack:1d7:11:13
 armor:0:0
 flags:BLESSED | SEE_INVIS
-values:STEALTH[3] | SPEED[3] | RES_COLD[1]
+values:STEALTH[3] | SPD[3] | RES_COLD[1]
 brand:COLD_3
 slay:UNDEAD_3
 desc:A thin spike of thrice-forged steel caps a straight silvan shaft cut from
@@ -969,7 +969,7 @@ attack:4d6:-12:20
 armor:0:0 
 # F:DRAIN_MANA | DRAIN_HP | 
 flags:DRAIN_EXP | AGGRAVATE | PROT_BLIND
-values:STEALTH[-4] | WIS[-4] | RES_DARK[1] | RES_LIGHT[1] | RES_NETHER[1]
+values:STEALTH[-4] | WIS[-4] | RES_DARK[1] | RES_LIGHT[1] | RES_RADIATION[1]
 brand:POIS_3
 desc:A mighty, heavy black spear, once wielded by the Lord of Darkness
 desc: himself as he came to Valinor in wrath.  Its envenomed bite pierced
@@ -1001,7 +1001,7 @@ alloc:1:30 to 127
 attack:4d10:15:19
 armor:0:0
 flags:FREE_ACT | HOLD_LIFE | SEE_INVIS | SLOW_DIGEST | REGEN | BLESSED
-values:DEX[4] | RES_ACID[3] | RES_NETHER[1]
+values:DEX[4] | RES_ACID[3] | RES_RADIATION[1]
 slay:DRAGON_3
 slay:ANIMAL_2
 act:TELE_OTHER
@@ -1035,7 +1035,7 @@ alloc:7:20 to 80
 attack:1d15:10:12
 armor:0:10
 flags:SUST_INT | SLOW_DIGEST
-values:STR[3] | INT[3] | SPEED[2] | RES_FIRE[1] | RES_COLD[1]
+values:STR[3] | INT[3] | SPD[2] | RES_FIRE[1] | RES_COLD[1]
 brand:FIRE_3
 brand:COLD_3
 slay:DEMON_3
@@ -1202,7 +1202,7 @@ armor:0:30
 flags:FREE_ACT | SEE_INVIS
 act:RECALL
 time:200
-values:DEX[3] | SPEED[3] | LIGHT[1] | RES_FIRE[1] | RES_COLD[1] | RES_LIGHT[1]
+values:DEX[3] | SPD[3] | LIGHT[1] | RES_FIRE[1] | RES_COLD[1] | RES_LIGHT[1]
 brand:FIRE_3
 brand:COLD_3
 desc:Holding elemental powers whose struggles turn this weapon red and purest
@@ -1230,7 +1230,7 @@ alloc:4:20 to 100
 attack:2d17:3:21
 armor:0:0
 flags:PROT_FEAR | SEE_INVIS
-values:STR[2] | DEX[2] | SPEED[2]
+values:STR[2] | DEX[2] | SPD[2]
 slay:EVIL_2
 slay:TROLL_3
 slay:ORC_3
@@ -1259,86 +1259,86 @@ desc: physical blows.
 
 ### Missile Weapons ###
 
-name:of Amrod
-base-object:bow:Short Bow
-level:25
-weight:30
-cost:9000
-alloc:10:30 to 100
-attack:0d0:12:15
-armor:0:0
-flags:REGEN
-values:STR[2] | CON[2] | MIGHT[2] | RES_FIRE[1] | RES_ELEC[1] | RES_COLD[1]
-desc:One of a pair of hunting bows once belonging to Fëanor's two youngest
-desc: sons.  The bows are like and yet unlike, much as the twin brothers were.
+#name:of Amrod
+#base-object:bow:Short Bow
+#level:25
+#weight:30
+#cost:9000
+#alloc:10:30 to 100
+#attack:0d0:12:15
+#armor:0:0
+#flags:REGEN
+#values:STR[2] | CON[2] | MIGHT[2] | RES_FIRE[1] | RES_ELEC[1] | RES_COLD[1]
+#desc:One of a pair of hunting bows once belonging to Fëanor's two youngest
+#desc: sons.  The bows are like and yet unlike, much as the twin brothers were.
 
-name:of Amras
-base-object:bow:Short Bow
-level:25
-weight:30
-cost:9000
-alloc:10:30 to 80
-attack:0d0:12:15
-armor:0:0
-flags:SLOW_DIGEST
-values:INT[2] | WIS[2] | DEX[2] | SHOTS[5] | MIGHT[1] | SPEED[1]
-values:RES_FIRE[1] | RES_ELEC[1] | RES_COLD[1]
-desc:One of a pair of hunting bows once belonging to Fëanor's two youngest
-desc: sons.  The bows are like and yet unlike, much as the twin brothers were.
+#name:of Amras
+#base-object:bow:Short Bow
+#level:25
+#weight:30
+#cost:9000
+#alloc:10:30 to 80
+#attack:0d0:12:15
+#armor:0:0
+#flags:SLOW_DIGEST
+#values:INT[2] | WIS[2] | DEX[2] | SHOTS[5] | MIGHT[1] | SPD[1]
+#values:RES_FIRE[1] | RES_ELEC[1] | RES_COLD[1]
+#desc:One of a pair of hunting bows once belonging to Fëanor's two youngest
+#desc: sons.  The bows are like and yet unlike, much as the twin brothers were.
 
-name:'Belthronding'
-base-object:bow:Long Bow
-level:40
-weight:40
-cost:35000
-alloc:5:40 to 127
-attack:0d0:20:22
-armor:0:0
-values:DEX[3] | SPEED[1] | STEALTH[1] | SHOTS[10] | RES_DISEN[1]
-desc:The great bow of Beleg Cúthalion, the most famous archer of the Elves. 
-desc: Its backbone of black yew holds strings of bear sinew, and of old, only
-desc: Beleg himself could draw them.
+#name:'Belthronding'
+#base-object:bow:Long Bow
+#level:40
+#weight:40
+#cost:35000
+#alloc:5:40 to 127
+#attack:0d0:20:22
+#armor:0:0
+#values:DEX[3] | SPD[1] | STEALTH[1] | SHOTS[10] | RES_DISEN[1]
+#desc:The great bow of Beleg Cúthalion, the most famous archer of the Elves. 
+#desc: Its backbone of black yew holds strings of bear sinew, and of old, only
+#desc: Beleg himself could draw them.
 
-name:of Bard
-base-object:bow:Long Bow
-level:30
-weight:40
-cost:20000
-alloc:5:40 to 127
-attack:0d0:17:19
-armor:0:0
-flags:FREE_ACT | 
-values:MIGHT[2] | DEX[1] | SPEED[1]
-desc:The great yew bow of grim-faced Bard, who shot the mightiest arrow that
-desc: songs record.
+#name:of Bard
+#base-object:bow:Long Bow
+#level:30
+#weight:40
+#cost:20000
+#alloc:5:40 to 127
+#attack:0d0:17:19
+#armor:0:0
+#flags:FREE_ACT | 
+#values:MIGHT[2] | DEX[1] | SPD[1]
+#desc:The great yew bow of grim-faced Bard, who shot the mightiest arrow that
+#desc: songs record.
 
-name:'Cubragol'
-base-object:bow:Light Crossbow
-level:50
-weight:110
-cost:50000
-alloc:4:50 to 127
-attack:0d0:10:14
-armor:0:0
-values:SPEED[10] | RES_FIRE[1]
-brand:FIRE_3
-desc:A crossbow that grants fiery speed to its finder, and imbues its bolts
-desc: with flame unquenchable.
+#name:'Cubragol'
+#base-object:bow:Light Crossbow
+#level:50
+#weight:110
+#cost:50000
+#alloc:4:50 to 127
+#attack:0d0:10:14
+#armor:0:0
+#values:SPD[10] | RES_FIRE[1]
+#brand:FIRE_3
+#desc:A crossbow that grants fiery speed to its finder, and imbues its bolts
+#desc: with flame unquenchable.
 
-name:of Umbar
-base-object:bow:Heavy Crossbow
-level:60
-weight:200
-cost:35000
-alloc:5:60 to 127
-attack:4d1:18:18
-armor:0:0
-flags:AGGRAVATE | PROT_BLIND
-act:ARROW
-time:20+d20
-values:MIGHT[2] | STR[1] | CON[1] | RES_LIGHT[1] | RES_DARK[1] | RES_ELEC[1]
-desc:A great brazen arbalest with arms of gleaming steel.  It shoots quarrels
-desc: with mighty power for those brave enough to risk betrayal.
+#name:of Umbar
+#base-object:bow:Heavy Crossbow
+#level:60
+#weight:200
+#cost:35000
+#alloc:5:60 to 127
+#attack:4d1:18:18
+#armor:0:0
+#flags:AGGRAVATE | PROT_BLIND
+#act:ARROW
+#time:20+d20
+#values:MIGHT[2] | STR[1] | CON[1] | RES_LIGHT[1] | RES_DARK[1] | RES_ELEC[1]
+#desc:A great brazen arbalest with arms of gleaming steel.  It shoots quarrels
+#desc: with mighty power for those brave enough to risk betrayal.
 
 
 ### Digging Tools ###
@@ -1392,7 +1392,7 @@ cost:300000
 alloc:1:40 to 127
 attack:1d1:0:0
 armor:2:20
-values:SPEED[15] | RES_NEXUS[1]
+values:SPD[15] | RES_NEXUS[1]
 act:HASTE1
 time:200
 desc:This wondrous pair of leather boots once sped Fëanor, creator of the
@@ -1411,7 +1411,7 @@ attack:1d1:0:0
 armor:2:15
 flags:FREE_ACT
 flags:PROT_CONF | SUST_CON
-values:DEX[5] | SPEED[5] | RES_NETHER[1]
+values:DEX[5] | SPD[5] | RES_RADIATION[1]
 act:REM_FEAR_POIS
 time:5
 desc:A pair of high-laced shoes, bestowing extraordinary agility and proof
@@ -1455,7 +1455,7 @@ alloc:5:30 to 100
 attack:1d1:0:0
 armor:7:20
 flags:PROT_FEAR
-values:STR[3] | CON[3] | SPEED[3] | STEALTH[-1]
+values:STR[3] | CON[3] | SPD[3] | STEALTH[-1]
 desc:Sturdy footwear of leather and steel as enduring as the long-suffering
 desc: Dwarven king-in-exile who wore them.
 
@@ -1467,7 +1467,7 @@ cost:40000
 alloc:3:60 to 127
 attack:1d1:0:0
 armor:8:24
-values:SPEED[6] | RES_ELEC[3] | RES_SOUND[1]
+values:SPD[6] | RES_ELEC[3] | RES_SOUND[1]
 act:BERSERKER
 time:100
 desc:And they hewed off Gelmir's hands and feet, and his head last, within
@@ -1640,7 +1640,7 @@ cost:45000
 alloc:20:20 to 80
 attack:0d0:0:0
 armor:10:20
-values:STEALTH[3] | RES_DARK[1] | RES_NETHER[1]
+values:STEALTH[3] | RES_DARK[1] | RES_RADIATION[1]
 values:RES_ACID[1] | RES_ELEC[1] | RES_FIRE[1] | RES_COLD[1]
 desc:Familiar with the secret ways hidden in darkness, this leather cuirass is
 desc: truly more than it appears.
@@ -1653,7 +1653,7 @@ cost:35000
 alloc:20:25 to 90
 attack:0d0:0:0
 armor:20:15
-values:RES_CHAOS[1] | RES_NETHER[1] | RES_POIS[1]
+values:RES_CHAOS[1] | RES_RADIATION[1] | RES_POIS[1]
 act:PROTEVIL
 time:100+d100
 desc:In this studded cuirass of pliable leather lives the memory of
@@ -1669,7 +1669,7 @@ alloc:20:30 to 100
 attack:1d1:-1:0
 armor:20:25
 flags:FREE_ACT
-values:DEX[3] | SPEED[3] | RES_ACID[1] | RES_SHARD[1]
+values:DEX[3] | SPD[3] | RES_ACID[1] | RES_SHARD[1]
 desc:An amazingly light tunic and skirt sewn with thick, overlapping scales of
 desc: hardened leather.  Those who wear it move with agility and assurance.
 
@@ -1779,7 +1779,7 @@ alloc:11:75 to 127
 attack:2d4:-4:0
 armor:90:20
 flags:HOLD_LIFE | SUST_CON | PROT_FEAR
-values:CON[2] | RES_ACID[1] | RES_COLD[1] | RES_DARK[1] | RES_NETHER[1]
+values:CON[2] | RES_ACID[1] | RES_COLD[1] | RES_DARK[1] | RES_RADIATION[1]
 values:RES_NEXUS[1] | RES_CHAOS[1]
 act:HEAL2
 time:444
@@ -1856,7 +1856,7 @@ cost:20000
 alloc:5:5 to 100
 attack:0d0:0:0
 armor:1:15
-values:STEALTH[2] | SPEED[2] | RES_NEXUS[1]
+values:STEALTH[2] | SPD[2] | RES_NEXUS[1]
 act:TELE_LONG
 time:45
 desc:A crystal-blue cape of fine silk worn by a silent messenger of the forces
@@ -1870,7 +1870,7 @@ cost:45000
 alloc:2:40 to 127
 attack:0d0:0:0
 armor:6:20
-values:INT[4] | WIS[4] | STEALTH[3] | SPEED[2]
+values:INT[4] | WIS[4] | STEALTH[3] | SPD[2]
 values:RES_ACID[1] | RES_FIRE[1] | RES_COLD[1]
 act:RESTORE_LIFE
 time:250
@@ -2105,7 +2105,7 @@ cost:90000
 alloc:6:65 to 127
 attack:1d6:0:0
 armor:10:15
-values:RES_DARK[1] | RES_NETHER[1] | RES_ELEC[1] | RES_FIRE[1] | LIGHT[1]
+values:RES_DARK[1] | RES_RADIATION[1] | RES_ELEC[1] | RES_FIRE[1] | LIGHT[1]
 flags:PROT_BLIND
 act:CURE_TEMP
 time:100
@@ -2172,7 +2172,7 @@ flags:SUST_STR | SUST_CON | PROT_FEAR
 act:PROTEVIL
 time:200+4d50
 msg:{name} glows deep red...
-values:STR[1] | INT[1] | WIS[1] | DEX[1] | CON[1] | SPEED[5] | RES_FIRE[3]
+values:STR[1] | INT[1] | WIS[1] | DEX[1] | CON[1] | SPD[5] | RES_FIRE[3]
 desc:The Ring of Fire, made of gold and set with a ruby that glows like flame.
 desc:  Narya is one of the three Rings of Power created by Celebrimbor and
 desc: hidden by the Elves from Sauron.
@@ -2193,7 +2193,7 @@ flags:PROT_BLIND | TELEPATHY |
 act:RESTORE_LIFE
 time:200+2d50
 msg:{name} glows bright white...
-values:STR[2] | INT[2] | WIS[2] | DEX[2] | CON[2] | SPEED[5] | RES_COLD[3]
+values:STR[2] | INT[2] | WIS[2] | DEX[2] | CON[2] | SPD[5] | RES_COLD[3]
 desc:The Ring of Adamant, made of mithril with a pure white stone as
 desc: centerpiece.  Nenya is one of the three Rings of Power created by
 desc: Celebrimbor and hidden by the Elves from Sauron.
@@ -2213,7 +2213,7 @@ flags:SUST_DEX | SUST_INT | SUST_CON
 act:HEAL2
 time:200+2d50
 msg:{name} glows deep blue...
-values:STR[3] | INT[3] | WIS[3] | DEX[3] | CON[3] | SPEED[5]
+values:STR[3] | INT[3] | WIS[3] | DEX[3] | CON[3] | SPD[5]
 values:RES_ELEC[3] | RES_POIS[1] | RES_DARK[1]
 desc:The Ring of Sapphire, made of gold with a brilliant blue gem that shines
 desc: like stars.  It glitters untouchable despite all that Morgoth ever
@@ -2232,9 +2232,9 @@ armor:0:0
 # F: DRAIN_MANA | DRAIN_HP | 
 flags:AGGRAVATE | DRAIN_EXP | SEE_INVIS | REGEN | TELEPATHY | STICKY
 flags:SUST_STR | SUST_DEX | SUST_CON | SUST_INT | SUST_WIS
-values:STR[5] | INT[5] | WIS[5] | DEX[5] | CON[5] | SPEED[5]
+values:STR[5] | INT[5] | WIS[5] | DEX[5] | CON[5] | SPD[5]
 values:RES_FIRE[3] | RES_COLD[3] | RES_ELEC[3] | RES_ACID[3] | RES_DARK[1]
-values:RES_DISEN[1] | RES_POIS[1] | RES_NETHER[1]
+values:RES_DISEN[1] | RES_POIS[1] | RES_RADIATION[1]
 act:BIZARRE
 time:200+9d50
 desc:"One Ring to rule them all, One Ring to find them, One Ring to bring
@@ -2297,7 +2297,7 @@ alloc:2:60 to 127
 attack:0d0:0:0
 armor:0:10
 flags:PROT_FEAR
-values:STR[2] | WIS[2] | SPEED[2] | RES_FIRE[1] | RES_POIS[1]
+values:STR[2] | WIS[2] | SPD[2] | RES_FIRE[1] | RES_POIS[1]
 act:HEAL1
 time:200
 desc:A green stone, imbued with the power of Elvendom and the light of the Sun.
@@ -2312,7 +2312,7 @@ weight:3
 cost:25000
 alloc:2:30 to 70
 flags:HOLD_LIFE | SUST_CON | SUST_WIS | REGEN
-values:WIS[2] | RES_DARK[1] | RES_COLD[1] | RES_NETHER[1]
+values:WIS[2] | RES_DARK[1] | RES_COLD[1] | RES_RADIATION[1]
 act:RESTORE_LIFE
 time:150
 desc:A plain white jewel, given by Queen Arwen to Frodo Baggins before his
@@ -2325,7 +2325,7 @@ desc: return to the Shire.
 #cost:90000
 #alloc:3:60 to 127
 #flags:PROT_FEAR | PROT_BLIND | PROT_STUN | PROT_CONF
-#values:SEARCH[4] | SPEED[2] | RES_ELEC[1] | RES_COLD[1]
+#values:SEARCH[4] | SPD[2] | RES_ELEC[1] | RES_COLD[1]
 #desc:The pendant of Amandil, the last Lord of Andúnië, and mighty
 #desc: ship-captain of Númenor. First among Númenóreans to see
 #desc: Sauron for what he was.
@@ -2375,7 +2375,7 @@ attack:2d4:-8:0
 armor:80:35
 flags:HOLD_LIFE | REGEN | PROT_FEAR | PROT_BLIND | PROT_CONF 
 values:RES_ACID[1] | RES_ELEC[1] | RES_FIRE[1] | RES_COLD[1] | RES_POIS[1]
-values:RES_LIGHT[1] | RES_DARK[1] | RES_SOUND[1] | RES_SHARD[1] | RES_NETHER[1]
+values:RES_LIGHT[1] | RES_DARK[1] | RES_SOUND[1] | RES_SHARD[1] | RES_RADIATION[1]
 values:RES_NEXUS[1] | RES_CHAOS[1] | RES_DISEN[1]
 act:RAGE_BLESS_RESIST
 time:50
@@ -2416,7 +2416,7 @@ flags:PROT_CONF | SEE_INVIS | TELEPATHY | PROT_FEAR | STICKY
 values:STR[50] | INT[50] | WIS[50] | DEX[50] | CON[50] | INFRA[50]
 values:LIGHT[1]
 values:RES_ACID[1] | RES_ELEC[1] | RES_FIRE[1] | RES_COLD[1] | RES_POIS[1]
-values:RES_LIGHT[1] | RES_DARK[1] | RES_NEXUS[1] | RES_NETHER[1]
+values:RES_LIGHT[1] | RES_DARK[1] | RES_NEXUS[1] | RES_RADIATION[1]
 desc:Containing much of the power of he who once was mightiest among the Ainur,
 desc: this plain iron crown has mounted upon it the two remaining Silmarils,
 desc: greatest treasures of Middle-Earth.

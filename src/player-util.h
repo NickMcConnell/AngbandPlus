@@ -59,19 +59,31 @@ enum
  */
 #define REST_REQUIRED_FOR_REGEN 5
 
+bool stat_check(int stat, int mid);
 int dungeon_get_next_level(int dlev, int added);
 void player_set_recall_depth(struct player *p);
 bool player_get_recall_depth(struct player *p);
+int danger_depth(struct player *p);
 void dungeon_change_level(struct player *p, int dlev);
 void take_hit(struct player *p, int dam, const char *kb_str);
 void death_knowledge(struct player *p);
+
+/*
+ * A death message
+ */
+struct death_msg {
+	char *death_msg;
+	struct death_msg *next;
+};
+
+extern struct death_msg *death; /* player-util.c */
+
+int feeling_need(struct player *p);
 int energy_per_move(struct player *p);
 s16b modify_stat_value(int value, int amount);
+void light_timeout(struct object *obj);
 void player_regen_hp(struct player *p);
-void player_regen_mana(struct player *p);
 void player_adjust_hp_precise(struct player *p, s32b hp_gain);
-s32b player_adjust_mana_precise(struct player *p, s32b sp_gain);
-void convert_mana_to_hp(struct player *p, s32b sp);
 void player_update_light(struct player *p);
 void player_over_exert(struct player *p, int flag, int chance, int amount);
 struct object *player_best_digger(struct player *p, bool forbid_stack);
@@ -85,16 +97,13 @@ void player_resume_normal_shape(struct player *p);
 bool player_is_shapechanged(struct player *p);
 bool player_is_trapsafe(struct player *p);
 bool player_can_cast(struct player *p, bool show_msg);
-bool player_can_study(struct player *p, bool show_msg);
-bool player_can_read(struct player *p, bool show_msg);
+bool player_can_run(struct player *p, bool show_msg);
 bool player_can_fire(struct player *p, bool show_msg);
 bool player_can_refuel(struct player *p, bool show_msg);
 bool player_can_cast_prereq(void);
-bool player_can_study_prereq(void);
-bool player_can_read_prereq(void);
+bool player_can_run_prereq(void);
 bool player_can_fire_prereq(void);
 bool player_can_refuel_prereq(void);
-bool player_book_has_unlearned_spells(struct player *p);
 bool player_confuse_dir(struct player *p, int *dir, bool too);
 bool player_resting_is_special(s16b count);
 bool player_is_resting(struct player *p);

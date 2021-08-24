@@ -17,12 +17,33 @@
  */
 
 #include "player.h"
+#include "z-util.h"
+
+struct player_race *extensions;
 
 struct player_race *player_id2race(guid id)
 {
 	struct player_race *r;
-	for (r = races; r; r = r->next)
+	for (r = races; !r->extension; r = r->next)
 		if (guid_eq(r->ridx, id))
 			break;
+	return r;
+}
+
+struct player_race *player_id2ext(guid id)
+{
+	struct player_race *r;
+	for (r = extensions; r; r = r->next)
+		if (guid_eq(r->ridx, id))
+			break;
+	return r;
+}
+
+struct player_race *get_race_by_name(const char *name)
+{
+	struct player_race *r;
+	for (r = races; r; r = r->next)
+		if (streq(r->name, name))
+			return r;
 	return r;
 }

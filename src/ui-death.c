@@ -56,7 +56,6 @@ static void put_str_centred(int y, int x1, int x2, const char *fmt, ...)
 	put_str(tmp, y, x);
 }
 
-
 /**
  * Display the tombstone
  */
@@ -89,7 +88,7 @@ static void print_tomb(void)
 	if (player->total_winner)
 		put_str_centred(line++, 8, 8+31, "Magnificent");
 	else
-		put_str_centred(line++, 8, 8+31, "%s", player->class->title[(player->lev - 1) / 5]);
+		put_str_centred(line++, 8, 8+31, "%s", player_title());
 
 	line++;
 
@@ -97,7 +96,12 @@ static void print_tomb(void)
 	put_str_centred(line++, 8, 8+31, "Level: %d", (int)player->lev);
 	put_str_centred(line++, 8, 8+31, "Exp: %d", (int)player->exp);
 	put_str_centred(line++, 8, 8+31, "AU: %d", (int)player->au);
-	put_str_centred(line++, 8, 8+31, "Killed on Level %d", player->depth);
+	if (player->active_quest >= 0) {
+		struct quest *q = &player->quests[player->active_quest];
+		put_str_centred(line++, 8, 8+31, "Killed in '%s'", q->name);
+	}
+	else
+		put_str_centred(line++, 8, 8+31, "Killed on Level %d", player->depth);
 	put_str_centred(line++, 8, 8+31, "by %s.", player->died_from);
 
 	line++;

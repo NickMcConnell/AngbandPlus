@@ -20,11 +20,13 @@
 #include "cave.h"
 #include "cmd-core.h"
 #include "cmds.h"
+#include "effects.h"
 #include "game-input.h"
 #include "game-world.h"
 #include "generate.h"
 #include "init.h"
 #include "obj-chest.h"
+#include "obj-desc.h"
 #include "obj-gear.h"
 #include "obj-knowledge.h"
 #include "obj-pile.h"
@@ -32,6 +34,7 @@
 #include "obj-util.h"
 #include "player-calcs.h"
 #include "player-history.h"
+#include "player-quest.h"
 #include "player-spell.h"
 #include "player-timed.h"
 #include "player-util.h"
@@ -40,6 +43,37 @@
 #include "store.h"
 #include "target.h"
 #include "trap.h"
+
+/* List of death messages */
+struct death_msg *death;
+
+/** Return an effective depth for difficulty of monster generation, etc.
+ * based on physical depth and additional difficulty over time.
+ */
+int danger_depth(struct player *p)
+{
+	return MIN(z_info->max_depth - 1, p->depth + p->danger);
+}
+
+/** Return the number of 'feeling squares' needed to get an object feeling
+ */
+int feeling_need(struct player *p)
+{
+	if (player_has(p, PF_EMOTIONAL_INTELLIGENCE))
+		return 1;
+	return z_info->feeling_need;
+}
+
+/** Return a random message from the death message list */
+static const char *random_death_msg(void)
+{
+	struct death_msg *v, *r = NULL;
+	int n;
+	for (v = death, n = 1; v; v = v->next, n++)
+		if (one_in_(n))
+			r = v;
+	return r->death_msg;
+}
 
 /**
  * Increment to the next or decrement to the preceeding level
@@ -50,6 +84,10 @@
 int dungeon_get_next_level(int dlev, int added)
 {
 	int target_level, i;
+
+	/* Don't allow any movement from an active quest */
+	if (player->active_quest >= 0)
+		return dlev;
 
 	/* Get target level */
 	target_level = dlev + added * z_info->stair_skip;
@@ -139,6 +177,69 @@ void dungeon_change_level(struct player *p, int dlev)
 
 	/* Save the game when we arrive on the new level. */
 	p->upkeep->autosave = true;
+
+	/* Quest specials - before changing level */
+	quest_changing_level();
+}
+
+/* You are below 0 HP, either after taking damage or after a turn has passed
+ * while below 0.
+ * You may die, in which case this function will return true.
+ * Otherwise (if the CON check succeeded) you will probably suffer - drained stats, etc.
+ */
+static bool death_check(struct player *p, const char *kb_str)
+{
+	/* At HP < x, death is guaranteed
+	 * At HP = x/2, there is a 50% chance
+	 * Intermediate points follow a normal distribution
+	 * x is a function of CON and max HP
+	 */
+	int x = ((player->state.stat_ind[STAT_CON] + 5) * (player->mhp)) / 100;
+	
+	// Generate a random value
+	int check = Rand_normal(x, x / 2);
+	
+	/* Note cause of death */
+	if (kb_str)
+		my_strcpy(p->died_from, kb_str, sizeof(p->died_from));
+
+	// Return true if it's at least equal to mid
+	if (check <= -p->chp) {
+		/* e.g. Time Lords may be able to regenerate */
+		bool saved = false;
+		player_hook(death, &saved);
+		if (saved)
+			return false;
+
+		/* too bad, so sad */
+		/* Hack -- Note death */
+		msgt(MSG_DEATH, "You die.");
+		event_signal(EVENT_MESSAGE_FLUSH);
+		msgt(MSG_DEATH, random_death_msg());
+		event_signal(EVENT_MESSAGE_FLUSH);
+
+		/* No longer a winner */
+		p->total_winner = false;
+
+		/* Note death */
+		p->is_dead = true;
+		return true;
+	} else {
+		/* Mess up your stats */
+		for(int stat=0;stat<STAT_MAX;stat++) {
+			/* The first time is temporary, though */
+			if (Rand_normal(x, x / 2) <= -player->chp) {
+				player_stat_dec(p, stat, (p->stat_cur[stat] != p->stat_max[stat]));
+			}
+		}
+		/* and exp similarly */
+		if (Rand_normal(x, x / 2) <= -p->chp) {
+			player_exp_lose(p, (p->exp + 19) / 20, (p->exp != p->max_exp));
+		}
+		msgt(MSG_HITPOINT_WARN, "*** FATAL HITPOINT WARNING! ***");
+	}
+
+	return false;
 }
 
 
@@ -174,17 +275,6 @@ void take_hit(struct player *p, int dam, const char *kb_str)
 	/* Hurt the player */
 	p->chp -= dam;
 
-	/* Reward COMBAT_REGEN characters with mana for their lost hitpoints
-	 * Unenviable task of separating what should and should not cause rage
-	 * If we eliminate the most exploitable cases it should be fine.
-	 * All traps and lava currently give mana, which could be exploited  */
-	if (player_has(p, PF_COMBAT_REGEN)  && strcmp(kb_str, "poison")
-		&& strcmp(kb_str, "a fatal wound") && strcmp(kb_str, "starvation")) {
-		/* lose X% of hitpoints get X% of spell points */
-		s32b sp_gain = (MAX((s32b)p->msp, 10) << 16) / (s32b)p->mhp * dam;
-		player_adjust_mana_precise(p, sp_gain);
-	}
-
 	/* Display the hitpoints */
 	p->upkeep->redraw |= (PR_HP);
 
@@ -193,30 +283,13 @@ void take_hit(struct player *p, int dam, const char *kb_str)
 		/* From hell's heart I stab at thee */
 		if (p->timed[TMD_BLOODLUST]
 			&& (p->chp + p->timed[TMD_BLOODLUST] + p->lev >= 0)) {
-			if (randint0(10)) {
-				msg("Your lust for blood keeps you alive!");
-			} else {
-				msg("So great was his prowess and skill in warfare, the Elves said: ");
-				msg("'The Mormegil cannot be slain, save by mischance.'");
-			}
+			msg("Your lust for blood keeps you alive!");
 		} else if ((p->wizard || OPT(p, cheat_live)) && !get_check("Die? ")) {
 			event_signal(EVENT_CHEAT_DEATH);
 		} else {
-			/* Hack -- Note death */
-			msgt(MSG_DEATH, "You die.");
-			event_signal(EVENT_MESSAGE_FLUSH);
-
-			/* Note cause of death */
-			my_strcpy(p->died_from, kb_str, sizeof(p->died_from));
-
-			/* No longer a winner */
-			p->total_winner = false;
-
-			/* Note death */
-			p->is_dead = true;
-
-			/* Dead */
-			return;
+			if (death_check(p, kb_str))
+				/* Dead */
+				return;
 		}
 	}
 
@@ -227,7 +300,8 @@ void take_hit(struct player *p, int dam, const char *kb_str)
 			bell("Low hitpoint warning!");
 
 		/* Message */
-		msgt(MSG_HITPOINT_WARN, "*** LOW HITPOINT WARNING! ***");
+		if (p->chp >= 0)
+			msgt(MSG_HITPOINT_WARN, "*** LOW HITPOINT WARNING! ***");
 		event_signal(EVENT_MESSAGE_FLUSH);
 	}
 }
@@ -250,7 +324,7 @@ void death_knowledge(struct player *p)
 		p->au += 10000000L;
 	}
 
-	player_learn_all_runes(p);
+	player_learn_all_icons(p);
 	for (obj = p->gear; obj; obj = obj->next) {
 		object_flavor_aware(obj);
 		obj->known->effect = obj->effect;
@@ -282,6 +356,30 @@ int energy_per_move(struct player *p)
 	int num = p->state.num_moves;
 	int energy = z_info->move_energy;
 	return (energy * (1 + ABS(num) - num)) / (1 + ABS(num));
+}
+
+/** Randomly return true or false. When the given stat is at the value give, the chance is 50%, when it is higher the chance gets higher
+ * following a normal distribution.
+ */
+bool stat_check(int stat, int mid)
+{
+	// Get the 'internal' value (3..18, then 18/10 = 18+10 etc.)
+	int val = player->stat_cur[stat];
+	
+	// Translate it to a linear form
+	if (val < 18) val = ((val - 18) * 10) + 18;
+	
+	// Translate the midpoint
+	if (mid < 18) mid = ((mid - 18) * 10) + 18;
+	
+	// Generate a random value
+	int check = Rand_normal(val, val / 2);
+	
+	// Return true if it's at least equal to mid
+	if (check >= mid)
+		return true;
+	else
+		return false;
 }
 
 /**
@@ -334,17 +432,27 @@ void player_regen_hp(struct player *p)
 	int percent = 0;/* max 32k -> 50% of mhp; more accurately "pertwobytes" */
 	int fed_pct, old_chp = p->chp;
 
-	/* Default regeneration */
-	if (p->timed[TMD_FOOD] >= PY_FOOD_WEAK) {
-		percent = PY_REGEN_NORMAL;
-	} else if (p->timed[TMD_FOOD] >= PY_FOOD_FAINT) {
-		percent = PY_REGEN_WEAK;
-	} else if (p->timed[TMD_FOOD] >= PY_FOOD_STARVE) {
-		percent = PY_REGEN_FAINT;
+	if (player_has(p, PF_FORAGING)) {
+		/* Foraging = always regenerate as if full */
+		if (p->timed[TMD_FOOD] >= PY_FOOD_STARVE)
+			percent = PY_REGEN_NORMAL;
+
+		fed_pct = PY_FOOD_MAX;
+	} else {
+		/* Default regeneration */
+		if (p->timed[TMD_FOOD] >= PY_FOOD_WEAK) {
+			percent = PY_REGEN_NORMAL;
+		} else if (p->timed[TMD_FOOD] >= PY_FOOD_FAINT) {
+			percent = PY_REGEN_WEAK;
+		} else if (p->timed[TMD_FOOD] >= PY_FOOD_STARVE) {
+			percent = PY_REGEN_FAINT;
+		}
+
+		fed_pct = p->timed[TMD_FOOD];
 	}
 
 	/* Food bonus - better fed players regenerate up to 1/3 faster */
-	fed_pct = p->timed[TMD_FOOD] / z_info->food_value;
+	fed_pct /= z_info->food_value;
 	percent *= 100 + fed_pct / 3;
 	percent /= 100;
 
@@ -362,6 +470,7 @@ void player_regen_hp(struct player *p)
 	if (p->timed[TMD_PARALYZED]) percent = 0;
 	if (p->timed[TMD_POISONED]) percent = 0;
 	if (p->timed[TMD_STUN]) percent = 0;
+	if (p->timed[TMD_RAD]) percent = 0;
 	if (p->timed[TMD_CUT]) percent = 0;
 
 	/* Extract the new hitpoints */
@@ -375,54 +484,6 @@ void player_regen_hp(struct player *p)
 	}
 }
 
-
-/**
- * Regenerate one turn's worth of mana
- */
-void player_regen_mana(struct player *p)
-{
-	s32b sp_gain;
-	int percent, old_csp = p->csp;
-
-	/* Save the old spell points */
-	old_csp = p->csp;
-
-	/* Default regeneration */
-	percent = PY_REGEN_NORMAL;
-
-	/* Various things speed up regeneration, but shouldn't punish healthy BGs */
-	if (!(player_has(p, PF_COMBAT_REGEN) && p->chp  > p->mhp / 2)) {
-		if (player_of_has(p, OF_REGEN))
-			percent *= 2;
-		if (player_resting_can_regenerate(p))
-			percent *= 2;
-	}
-
-	/* Some things slow it down */
-	if (player_has(p, PF_COMBAT_REGEN)) {
-		percent /= -2;
-	} else if (player_of_has(p, OF_IMPAIR_MANA)) {
-		percent /= 2;
-	}
-
-	/* Regenerate mana */
-	sp_gain = (s32b)(p->msp * percent);
-	if (percent >= 0)
-		sp_gain += PY_REGEN_MNBASE;
-	sp_gain = player_adjust_mana_precise(p, sp_gain);
-
-	/* SP degen heals BGs at double efficiency vs casting */
-	if (sp_gain < 0  && player_has(p, PF_COMBAT_REGEN)) {
-		convert_mana_to_hp(p, -sp_gain << 2);
-	}
-
-	/* Notice changes */
-	if (old_csp != p->csp) {
-		p->upkeep->redraw |= (PR_MANA);
-		equip_learn_flag(p, OF_REGEN);
-		equip_learn_flag(p, OF_IMPAIR_MANA);
-	}
-}
 
 void player_adjust_hp_precise(struct player *p, s32b hp_gain)
 {
@@ -459,84 +520,48 @@ void player_adjust_hp_precise(struct player *p, s32b hp_gain)
 	p->upkeep->redraw |= (PR_HP);
 }
 
-
-/**
- * Accept a 4 byte signed int, divide it by 65k, and add
- * to current spell points. p->csp and csp_frac are 2 bytes each.
- */
-s32b player_adjust_mana_precise(struct player *p, s32b sp_gain)
+void light_timeout(struct object *obj)
 {
-	s32b old_csp_long, new_csp_long;
-	int old_csp_short = p->csp;
+	/* The light is now out */
+	disturb(player);
 
-	if (sp_gain == 0) return 0;
+	/* Special handling for some 'lights' */
+	if (object_effect(obj) && (of_has(obj->flags, OF_NO_ACTIVATION))) {
+		bool ident = false;
+		bool was_aware = object_flavor_is_aware(obj);
+		int dir = randint1(8);
+		if (obj->kind->effect_msg)
+			print_custom_message(obj, obj->kind->effect_msg, MSG_GENERIC);
+		object_flavor_aware(obj);
+		if ((!was_aware) && (object_is_carried(player, obj)))
+			print_custom_message(obj, "You realize you were carrying a {kind}!", MSG_GENERIC);
+		struct effect effect;
+		memcpy(&effect, obj->effect, sizeof(effect));
+		effect.x = obj->grid.x;
+		effect.y = obj->grid.y;
+		effect_do(&effect, source_object(obj), NULL, &ident, was_aware, dir, 0, 0, NULL);
 
-	/* Load it all into 4 byte format*/
-	old_csp_long = (s32b)((p->csp << 16) + p->csp_frac);
-	new_csp_long = old_csp_long + sp_gain;
-
-	/* Check for overflow */
-
-	/* new_csp = LONG_MAX LONG_MIN;} DAVIDTODO produces warning*/
-	if ((new_csp_long < 0) && (old_csp_long > 0) && (sp_gain > 0)) {
-		new_csp_long = INT32_MAX;
-		sp_gain = 0;
-	} else if ((new_csp_long > 0) && (old_csp_long < 0) && (sp_gain < 0)) {
-		new_csp_long = INT32_MIN;
-		sp_gain = 0;
+	} else {
+		/* Default burning out message */
+		if (object_is_carried(player, obj))
+			msg("Your light has gone out!");
 	}
 
-	/* Break it back down*/
-	p->csp = (s16b)(new_csp_long >> 16);   /* div 65536 */
-	p->csp_frac = (u16b)(new_csp_long & 0xFFFF);    /* mod 65536 */
-
-	/* Max/min SP */
-	if (p->csp >= p->msp) {
-		p->csp = p->msp;
-		p->csp_frac = 0;
-		sp_gain = 0;
-	} else if (p->csp < 0) {
-		p->csp = 0;
-		p->csp_frac = 0;
-		sp_gain = 0;
+	/* If it's a torch, now is the time to delete it */
+	if (of_has(obj->flags, OF_BURNS_OUT)) {
+		bool dummy;
+		struct object *burnt;
+		if (object_is_carried(player, obj))
+			burnt = gear_object_for_use(obj, 1, true, &dummy);
+		else
+			burnt = floor_object_for_use(obj, 1, true, &dummy);
+		if (burnt->known)
+			object_delete(&burnt->known);
+		object_delete(&burnt);
+	} else if (obj_has_flag(obj, OF_STICKY) && object_is_carried(player, obj)) {
+		/* Remind you that you can take it off now */
+		msg("It shifts about, and you realise that it is no longer attached to you.");
 	}
-
-	/* Notice changes */
-	if (old_csp_short != p->csp) {
-		p->upkeep->redraw |= (PR_MANA);
-	}
-
-	if (sp_gain == 0) {
-		/* Recalculate */
-		new_csp_long = (s32b)((p->csp << 16) + p->csp_frac);
-		sp_gain = new_csp_long - old_csp_long;
-	}
-
-	return sp_gain;
-}
-
-void convert_mana_to_hp(struct player *p, s32b sp_long) {
-	s32b hp_gain, sp_ratio;
-
-	if (sp_long <= 0 || p->msp == 0 || p->mhp == p->chp) return;
-
-	/* Total HP from max */
-	hp_gain = (s32b)((p->mhp - p->chp) << 16);
-	hp_gain -= (s32b)p->chp_frac;
-
-	/* Spend X% of SP get X/2% of lost HP. E.g., at 50% HP get X/4% */
-	/* Gain stays low at msp<10 because MP gains are generous at msp<10 */
-	/* sp_ratio is max sp to spent sp, doubled to suit target rate. */
-	sp_ratio = (MAX(10, (s32b)p->msp) << 16) * 2 / sp_long;
-
-	/* Limit max healing to 25% of damage; ergo spending > 50% msp
-	 * is inefficient */
-	if (sp_ratio < 4) {sp_ratio = 4;}
-	hp_gain /= sp_ratio;
-
-	/* DAVIDTODO Flavorful comments on large gains would be fun and informative */
-
-	player_adjust_hp_precise(p, hp_gain);
 }
 
 /**
@@ -552,42 +577,35 @@ void player_update_light(struct player *p)
 		bool burn_fuel = true;
 
 		/* Turn off the wanton burning of light during the day in the town */
-		if (!p->depth && is_daytime())
+		if (!p->depth && is_daytime() && (!of_has(obj->flags, OF_BURNS_OUT)))
 			burn_fuel = false;
 
 		/* If the light has the NO_FUEL flag, well... */
 		if (of_has(obj->flags, OF_NO_FUEL))
 		    burn_fuel = false;
-
 		/* Use some fuel (except on artifacts, or during the day) */
-		if (burn_fuel && obj->timeout > 0) {
+		if (burn_fuel && ((obj->timeout > 0) || (of_has(obj->flags, OF_BURNS_OUT)))) {
+			int burnable = obj->modifiers[OBJ_MOD_USE_ENERGY];
+			int burnstep = burnable;
+			if (burnable > obj->timeout)
+				burnable = obj->timeout;
+
 			/* Decrease life-span */
-			obj->timeout--;
+			int prev = obj->timeout;
+			obj->timeout -= burnable;
 
 			/* Hack -- notice interesting fuel steps */
-			if ((obj->timeout < 100) || (!(obj->timeout % 100)))
+			if ((obj->timeout < 100) || ((obj->timeout / 100) != (prev / 100)))
 				/* Redraw stuff */
 				p->upkeep->redraw |= (PR_EQUIP);
 
 			/* Hack -- Special treatment when blind */
 			if (p->timed[TMD_BLIND]) {
 				/* Hack -- save some light for later */
-				if (obj->timeout == 0) obj->timeout++;
+				if (obj->timeout == 0) obj->timeout = prev;
 			} else if (obj->timeout == 0) {
-				/* The light is now out */
-				disturb(p);
-				msg("Your light has gone out!");
-
-				/* If it's a torch, now is the time to delete it */
-				if (of_has(obj->flags, OF_BURNS_OUT)) {
-					bool dummy;
-					struct object *burnt = gear_object_for_use(obj, 1, false,
-															   &dummy);
-					if (burnt->known)
-						object_delete(&burnt->known);
-					object_delete(&burnt);
-				}
-			} else if ((obj->timeout < 50) && (!(obj->timeout % 20))) {
+				light_timeout(obj);
+			} else if ((obj->timeout < 50 * burnstep) && (!(obj->timeout % (20 * burnstep)))) {
 				/* The light is getting dim */
 				disturb(p);
 				msg("Your light is growing faint.");
@@ -639,6 +657,13 @@ struct object *player_best_digger(struct player *p, bool forbid_stack)
 			player->body.slots[weapon_slot].obj = current_weapon;
 		}
 
+		score += obj->modifiers[OBJ_MOD_TUNNEL]
+			* p->obj_k->modifiers[OBJ_MOD_TUNNEL];
+		/* Convert tunnel modifier to digging skill as in player-calcs.c */
+		score *= 20;
+		/* Add in weapon weight (does not account for heavy wield) */
+		score += obj->weight / 454;
+
 		if (score > best_score) {
 			best = obj;
 			best_score = score;
@@ -683,7 +708,7 @@ void player_over_exert(struct player *p, int flag, int chance, int amount)
 	/* CON damage */
 	if (flag & PY_EXERT_CON) {
 		if (randint0(100) < chance) {
-			/* Hack - only permanent with high chance (no-mana casting) */
+			/* Hack - only permanent with high chance */
 			bool perm = (randint0(100) < chance / 2) && (chance >= 50);
 			msg("You have damaged your health!");
 			player_stat_dec(p, STAT_CON, perm);
@@ -771,6 +796,23 @@ int player_check_terrain_damage(struct player *p, struct loc grid)
 		if (player_of_has(p, OF_FEATHER)) {
 			dam_taken /= 2;
 		}
+	} else if (square_isradioactive(cave, grid)) {
+		int base_dam = 20 + randint1(40);
+		int res = p->state.el_info[ELEM_RADIATION].res_level;
+
+		/* Radiation damage */
+		dam_taken = adjust_dam(p, ELEM_RADIATION, base_dam, RANDOMISE, res, false);
+	} else if (square_iswater(cave, grid)) {
+		int base_dam = 20 + randint1(40);
+		int res = p->state.el_info[ELEM_WATER].res_level;
+
+		/* Feather fall = water wings. */
+		if (player_of_has(p, OF_FEATHER)) {
+			dam_taken -= 20;
+		}
+
+		/* Water damage */
+		dam_taken = adjust_dam(p, ELEM_WATER, base_dam, RANDOMISE, res, false);
 	}
 
 	return dam_taken;
@@ -792,6 +834,13 @@ void player_take_terrain_damage(struct player *p, struct loc grid)
 	if (square_isfiery(cave, grid)) {
 		msg(square_feat(cave, grid)->hurt_msg);
 		inven_damage(player, PROJ_FIRE, dam_taken);
+	} else if (square_isradioactive(cave, grid)) {
+		msg(square_feat(cave, grid)->hurt_msg);
+		inven_damage(player, PROJ_RADIATION, dam_taken);
+		player_inc_timed(player, TMD_RAD, dam_taken, false, false);
+	} else if (square_iswater(cave, grid)) {
+		msg(square_feat(cave, grid)->hurt_msg);
+		inven_damage(player, PROJ_WATER, dam_taken);
 	}
 }
 
@@ -876,7 +925,7 @@ bool player_is_trapsafe(struct player *p)
 }
 
 /**
- * Return true if the player can cast a spell.
+ * Return true if the player can use an intrinsic ability.
  *
  * \param p is the player
  * \param show_msg should be set to true if a failure message should be
@@ -884,20 +933,6 @@ bool player_is_trapsafe(struct player *p)
  */
 bool player_can_cast(struct player *p, bool show_msg)
 {
-	if (!p->class->magic.total_spells) {
-		if (show_msg) {
-			msg("You cannot pray or produce magics.");
-		}
-		return false;
-	}
-
-	if (p->timed[TMD_BLIND] || no_light()) {
-		if (show_msg) {
-			msg("You cannot see!");
-		}
-		return false;
-	}
-
 	if (p->timed[TMD_CONFUSED]) {
 		if (show_msg) {
 			msg("You are too confused!");
@@ -909,59 +944,13 @@ bool player_can_cast(struct player *p, bool show_msg)
 }
 
 /**
- * Return true if the player can study a spell.
+ * Return true if the player can run cards.
  *
  * \param p is the player
  * \param show_msg should be set to true if a failure message should be
  * displayed.
  */
-bool player_can_study(struct player *p, bool show_msg)
-{
-	if (!player_can_cast(p, show_msg))
-		return false;
-
-	if (!p->upkeep->new_spells) {
-		if (show_msg) {
-			int count;
-			struct magic_realm *r = class_magic_realms(p->class, &count), *r1;
-			char buf[120];
-
-			my_strcpy(buf, r->spell_noun, sizeof(buf));
-			my_strcat(buf, "s", sizeof(buf));
-			r1 = r->next;
-			mem_free(r);
-			r = r1;
-			if (count > 1) {
-				while (r) {
-					count--;
-					if (count) {
-						my_strcat(buf, ", ", sizeof(buf));
-					} else {
-						my_strcat(buf, " or ", sizeof(buf));
-					}
-					my_strcat(buf, r->spell_noun, sizeof(buf));
-					my_strcat(buf, "s", sizeof(buf));
-					r1 = r->next;
-					mem_free(r);
-					r = r1;
-				}
-			}
-			msg("You cannot learn any new %s!", buf);
-		}
-		return false;
-	}
-
-	return true;
-}
-
-/**
- * Return true if the player can read scrolls or books.
- *
- * \param p is the player
- * \param show_msg should be set to true if a failure message should be
- * displayed.
- */
-bool player_can_read(struct player *p, bool show_msg)
+bool player_can_run(struct player *p, bool show_msg)
 {
 	if (p->timed[TMD_BLIND]) {
 		if (show_msg)
@@ -970,23 +959,16 @@ bool player_can_read(struct player *p, bool show_msg)
 		return false;
 	}
 
-	if (no_light()) {
-		if (show_msg)
-			msg("You have no light to read by.");
-
-		return false;
-	}
-
 	if (p->timed[TMD_CONFUSED]) {
 		if (show_msg)
-			msg("You are too confused to read!");
+			msg("You are too confused!");
 
 		return false;
 	}
 
 	if (p->timed[TMD_AMNESIA]) {
 		if (show_msg)
-			msg("You can't remember how to read!");
+			msg("You can't remember how!");
 
 		return false;
 	}
@@ -1048,17 +1030,9 @@ bool player_can_cast_prereq(void)
 /**
  * Prerequiste function for command. See struct cmd_info in cmd-process.c.
  */
-bool player_can_study_prereq(void)
+bool player_can_run_prereq(void)
 {
-	return player_can_study(player, true);
-}
-
-/**
- * Prerequiste function for command. See struct cmd_info in cmd-process.c.
- */
-bool player_can_read_prereq(void)
-{
-	return player_can_read(player, true);
+	return player_can_run(player, true);
 }
 
 /**
@@ -1075,44 +1049,6 @@ bool player_can_fire_prereq(void)
 bool player_can_refuel_prereq(void)
 {
 	return player_can_refuel(player, true);
-}
-
-/**
- * Return true if the player has access to a book that has unlearned spells.
- *
- * \param p is the player
- */
-bool player_book_has_unlearned_spells(struct player *p)
-{
-	int i, j;
-	int item_max = z_info->pack_size + z_info->floor_size;
-	struct object **item_list = mem_zalloc(item_max * sizeof(struct object *));
-	int item_num;
-
-	/* Check if the player can learn new spells */
-	if (!p->upkeep->new_spells) {
-		mem_free(item_list);
-		return false;
-	}
-
-	/* Check through all available books */
-	item_num = scan_items(item_list, item_max, USE_INVEN | USE_FLOOR,
-						  obj_can_study);
-	for (i = 0; i < item_num; i++) {
-		const struct class_book *book = player_object_to_book(p, item_list[i]);
-		if (!book) continue;
-
-		/* Extract spells */
-		for (j = 0; j < book->num_spells; j++)
-			if (spell_okay_to_study(book->spells[j].sidx)) {
-				/* There is a spell the player can study */
-				mem_free(item_list);
-				return true;
-			}
-	}
-
-	mem_free(item_list);
-	return false;
 }
 
 /**
@@ -1267,12 +1203,12 @@ void player_resting_complete_special(struct player *p)
 	if (!player_resting_is_special(p->upkeep->resting)) return;
 
 	if (p->upkeep->resting == REST_ALL_POINTS) {
-		if ((p->chp == p->mhp) && (p->csp == p->msp))
+		if (p->chp == p->mhp)
 			/* Stop resting */
 			disturb(p);
 	} else if (p->upkeep->resting == REST_COMPLETE) {
 		if ((p->chp == p->mhp) &&
-			(p->csp == p->msp || player_has(p, PF_COMBAT_REGEN)) &&
+			(player_has(p, PF_COMBAT_REGEN)) &&
 			!p->timed[TMD_BLIND] && !p->timed[TMD_CONFUSED] &&
 			!p->timed[TMD_POISONED] && !p->timed[TMD_AFRAID] &&
 			!p->timed[TMD_TERROR] && !p->timed[TMD_STUN] &&
@@ -1282,7 +1218,7 @@ void player_resting_complete_special(struct player *p)
 			/* Stop resting */
 			disturb(p);
 	} else if (p->upkeep->resting == REST_SOME_POINTS) {
-		if ((p->chp == p->mhp) || (p->csp == p->msp))
+		if (p->chp == p->mhp)
 			/* Stop resting */
 			disturb(p);
 	}
@@ -1402,6 +1338,7 @@ void disturb(struct player *p)
 void search(struct player *p)
 {
 	struct loc grid;
+	char o_name[80];
 
 	/* Various conditions mean no searching */
 	if (p->timed[TMD_BLIND] || no_light() ||
@@ -1426,7 +1363,9 @@ void search(struct player *p)
 					continue;
 
 				if (obj->known->pval != obj->pval) {
-					msg("You have discovered a trap on the chest!");
+					/* Describe the object */
+					object_desc(o_name, sizeof(o_name), obj, ODESC_BASE);
+					msg("You have discovered a trap on the %s!", &o_name);
 					obj->known->pval = obj->pval;
 					disturb(p);
 				}

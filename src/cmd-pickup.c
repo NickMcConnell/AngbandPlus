@@ -94,14 +94,14 @@ static void player_pickup_gold(struct player *p)
 
 		/* Build a message */
 		(void)strnfmt(buf, sizeof(buf),
-					  "You have found %d gold pieces worth of ", total_gold);
+					  "You have found $%d worth of ", total_gold);
 
 		/* One treasure type.. */
 		if (at_most_one)
 			my_strcat(buf, name, sizeof(buf));
 		/* ... or more */
 		else
-			my_strcat(buf, "treasures", sizeof(buf));
+			my_strcat(buf, "valuables", sizeof(buf));
 		my_strcat(buf, ".", sizeof(buf));
 
 		/* Determine which sound to play */
@@ -249,6 +249,18 @@ static void player_pickup_aux(struct player *p, struct object *obj,
 	if (auto_max && max > auto_max) {
 		max = auto_max;
 	}
+
+	/* Reduce if too heavy */
+	/*int items =  obj->number - MAX(num_left, 0);
+	int maxweight = weight_limit(&player->state) * BURDEN_LIMIT;
+	fprintf(stderr,"%d items, %d max weight\n", items, maxweight);
+	while (player->upkeep->total_weight + (items * obj->weight) > maxweight) {
+		fprintf(stderr,"too heavy (%d + %dx%d)\n", player->upkeep->total_weight, items ,
+			obj->weight);
+		items--;
+		if (items == 0)
+			break;
+	}*/
 
 	/* Carry the object, prompting for number if necessary */
 	if (max == obj->number) {

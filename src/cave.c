@@ -43,6 +43,8 @@ int FEAT_OPEN;
 int FEAT_BROKEN;
 int FEAT_LESS;
 int FEAT_MORE;
+int FEAT_EXIT;
+int FEAT_ENTRY;
 int FEAT_SECRET;
 int FEAT_RUBBLE;
 int FEAT_PASS_RUBBLE;
@@ -53,6 +55,9 @@ int FEAT_QUARTZ_K;
 int FEAT_GRANITE;
 int FEAT_PERM;
 int FEAT_LAVA;
+int FEAT_WATER;
+int FEAT_FALLOUT;
+int FEAT_AIRPORT;
 
 /**
  * Global array for looping through the "keypad directions".
@@ -332,6 +337,8 @@ void set_terrain(void)
 	FEAT_BROKEN = lookup_feat("broken door");
 	FEAT_LESS = lookup_feat("up staircase");
 	FEAT_MORE = lookup_feat("down staircase");
+	FEAT_EXIT = lookup_feat("upward exit");
+	FEAT_ENTRY = lookup_feat("downward entry");
 	FEAT_SECRET = lookup_feat("secret door");
 	FEAT_RUBBLE = lookup_feat("pile of rubble");
 	FEAT_PASS_RUBBLE = lookup_feat("pile of passable rubble");
@@ -342,6 +349,9 @@ void set_terrain(void)
 	FEAT_GRANITE = lookup_feat("granite wall");
 	FEAT_PERM = lookup_feat("permanent wall");
 	FEAT_LAVA = lookup_feat("lava");
+	FEAT_WATER = lookup_feat("water");
+	FEAT_FALLOUT = lookup_feat("fallout");
+	FEAT_AIRPORT = lookup_feat("Airport");
 }
 
 /**

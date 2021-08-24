@@ -41,6 +41,24 @@ mon-gen:group-max:25
 # Maximum distance of a group of monsters from a related group
 mon-gen:group-dist:5
 
+# Time before town gets dungeon p, and the dungeon gets first level deeper
+mon-gen:turns-easy:20000
+
+# Time after "turns-easy" per additional level of difficulty
+mon-gen:turns-level:5000
+
+# Town level of difficulty at which non-p start appearing at level 1
+mon-gen:town-all-mons:10
+
+# Town level of difficulty at which non-p start appearing at the same level as p
+mon-gen:town-equal-mons:30
+
+# Town level of difficulty at which stores start to disappear
+mon-gen:town-destroy-first:60
+
+# Town level of difficulty at which all stores (home last) are gone
+mon-gen:town-destroy-all:95
+
 #---------------------------------------------------------------------
 # Monster Gameplay
 #---------------------------------------------------------------------
@@ -135,7 +153,7 @@ carry-cap:pack-size:23
 carry-cap:quiver-size:10
 
 # Max number of missiles per quiver slot
-carry-cap:quiver-slot-size:40
+carry-cap:quiver-slot-size:99
 
 # Maximum number of objects allowed in a single dungeon grid.
 #
@@ -149,7 +167,7 @@ carry-cap:floor-size:23
 #---------------------------------------------------------------------
 
 # Maximum number of discrete objects in store inventory
-store:inven-max:24
+store:inven-max:480
 
 # Number of turns between turnovers
 store:turns:1000

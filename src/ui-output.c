@@ -121,6 +121,29 @@ static void display_area(const wchar_t *text, const byte *attrs,
 }
 
 /**
+ * Print one line of a textblock on the screen at a given row/column
+ */
+void textui_textblock_line(textblock *tb, int line, region orig_area)
+{
+	/* xxx on resize this should be recalculated */
+	region area = region_calculate(orig_area);
+
+	size_t *line_starts = NULL, *line_lengths = NULL;
+	size_t n_lines;
+
+	n_lines = textblock_calculate_lines(tb,
+			&line_starts, &line_lengths, area.width);
+
+	if (line < (int)n_lines) {
+		display_area(textblock_text(tb), textblock_attrs(tb), line_starts + line,
+	             line_lengths + line, 1, area, 0);
+	}
+
+	mem_free(line_starts);
+	mem_free(line_lengths);
+}
+
+/**
  * Plonk a textblock on the screen in a certain bounding box.
  */
 void textui_textblock_place(textblock *tb, region orig_area, const char *header)

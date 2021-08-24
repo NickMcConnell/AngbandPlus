@@ -1,0 +1,455 @@
+# ability.txt
+
+# This file contains the abilities - talents, mutations, etc.
+
+### - description - ###
+# name:<name>			-	A name which must match a player flag in list-player-flags.h, e.g. "Thick_Brain".
+#								Case is ignored (it would match the THICK_BRAIN flag). Underscores are printed as spaces
+#								("Thick Brain").
+# gain:<text>			-	gain message, e.g. "You grow a thick brain!"
+# lose:<text>			-	loss message, e.g. "Your thick brain shrivels away!"
+# brief:<text>			-	brief one-line description, e.g. "You have a thick brain."
+# desc:<text>			-	full description (may be multiple lines), e.g. "You have a thick brain, and it
+# 								makes you thick."
+# desc_future:<text>	- 	optional (if not present, desc is used) used in choosing a talent which you do
+# 								not yet have, e.g. "you would have a thick brain, and it would make you thick."
+
+
+### - for talents - ###
+# cost:<value>			-	If present, the ability is a talent, it has a cost (in talent points) and it can be bought.
+# minlevel:<level>		-	If present, the minimum level needed to gain the talent.
+# maxlevel:<level>		-	If present, the maximum level needed - 0 for both is the default and means "any level".
+#								Talents gained during character creation respect the minimum level (if it's above 1 you can't
+#								take it), but also see the "birth" flag.
+# class:<class>			-	If present, this talent cam only be gained by this class (multiple classes can be given, as one line
+#								e.g. class:Marksman,Soldier
+
+### - interactions - ###
+# forbid:<talent>		-	This forbids another ability from being gained if this ability is already present. This may be
+#							given any number of times. Usually this is wanted in both directions (set forbid:A on B, and
+#							forbid:B on A), although this is not required.
+# require:<talent>		-	This prevents this ability from being gained unless this ability is already present. This may be
+#							given any number of times.
+
+### - misc - ###
+# flag:<flag>			- Set any one (but only one per line) of the following flags:
+#						-	birth		- If set, the ability can only be gained at character creation.
+#						-	mutation	- If set, the ability can be gained as a mutation.
+#						-	talent		- If set, the ability may be gained as a talent.
+#						-	nasty		- This talent may be considered harmful (for at least some characters)
+# stats:<7 stats>		- List of stats bonuses
+# ac:<bonus to ac>
+# tohit:<bonus to hit>
+# todam:<bonus to dmg>
+# blow:<verb>:<damage>:[<element>]	- Add a melee blow, using this verb instead of "hit", the random value for damage (e.g. 3d6)
+#									  and an optional element.
+
+### - flags - ###
+# obj-flags:object flags	- add one or more object flags
+# obj-flags-off:object flags	- prevent one or more object flags
+# player-flags:player flags	- add one or more player flags
+# values:					values is for object modifiers which take a value
+
+######### Marksman Skill Abilities ###########
+# These are available only to the Marksman class
+#
+
+name:Handgun_Specialist
+gain:You now train primarily with handguns.
+lose:You no longer consider yourself a handgun specialist.
+brief:You are a handgun specialist.
+desc:You have specialised in the use of handguns, making you shoot faster and more accurately (it's more noticeable at high level).
+desc_future:you would specialise in the use of handguns, making you shoot faster and more accurately (it's more noticeable at high level).
+flag:talent
+minlevel:5
+class:Marksman
+forbid:Rifle_Specialist
+cost:0
+
+name:6mm_Handgun_Specialist
+gain:You now train primarily with 6mm handguns.
+lose:You no longer consider yourself a 6mm specialist.
+brief:You are a 6mm handgun specialist.
+desc:You have specialised in the use of 6mm handguns, making you shoot faster and more accurately (it's more noticeable at high level).
+desc_future:you would specialise in the use of 6mm handguns, making you shoot faster and more accurately (it's more noticeable at high level).
+flag:talent
+minlevel:15
+require:Handgun_Specialist
+forbid:9mm_Handgun_Specialist
+forbid:12mm_Handgun_Specialist
+class:Marksman
+cost:0
+
+name:9mm_Handgun_Specialist
+gain:You now train primarily with 9mm handguns.
+lose:You no longer consider yourself a 9mm specialist.
+brief:You are a 9mm handgun specialist.
+desc:You have specialised in the use of 9mm handguns, making you shoot faster and more accurately (it's more noticeable at high level).
+desc_future:you would specialise in the use of 9mm handguns, making you shoot faster and more accurately (it's more noticeable at high level).
+flag:talent
+minlevel:15
+require:Handgun_Specialist
+forbid:6mm_Handgun_Specialist
+forbid:12mm_Handgun_Specialist
+class:Marksman
+cost:0
+
+name:12mm_Handgun_Specialist
+gain:You now train primarily with 12mm handguns.
+lose:You no longer consider yourself a 12mm specialist.
+brief:You are a 9mm handgun specialist.
+desc:You have specialised in the use of 12mm handguns, making you shoot faster and more accurately (it's more noticeable at high level).
+desc_future:you would specialise in the use of 12mm handguns, making you shoot faster and more accurately (it's more noticeable at high level).
+flag:talent
+minlevel:15
+require:Handgun_Specialist
+forbid:6mm_Handgun_Specialist
+forbid:9mm_Handgun_Specialist
+class:Marksman
+cost:0
+
+name:Rifle_Specialist
+gain:You now train primarily with rifles.
+lose:You no longer consider yourself a rifle specialist.
+brief:You are a rifle specialist.
+desc:You have specialised in the use of rifles, making you shoot faster and more accurately (it's more noticeable at high level).
+desc_future:you would specialise in the use of rifles, making you shoot faster and more accurately (it's more noticeable at high level).
+flag:talent
+minlevel:5
+class:Marksman
+forbid:Handgun_Specialist
+cost:0
+
+name:6mm_Rifle_Specialist
+gain:You now train primarily with 6mm rifles.
+lose:You no longer consider yourself a 6mm specialist.
+brief:You are a 6mm rifle specialist.
+desc:You have specialised in the use of 6mm rifles, making you shoot faster and more accurately (it's more noticeable at high level).
+desc_future:you would specialise in the use of 6mm rifles, making you shoot faster and more accurately (it's more noticeable at high level).
+flag:talent
+minlevel:15
+require:Rifle_Specialist
+forbid:9mm_Rifle_Specialist
+forbid:12mm_Rifle_Specialist
+class:Marksman
+cost:0
+
+name:9mm_Rifle_Specialist
+gain:You now train primarily with 9mm rifles.
+lose:You no longer consider yourself a 9mm specialist.
+brief:You are a 9mm rifle specialist.
+desc:You have specialised in the use of 9mm rifles, making you shoot faster and more accurately (it's more noticeable at high level).
+desc_future:you would specialise in the use of 9mm rifles, making you shoot faster and more accurately (it's more noticeable at high level).
+flag:talent
+minlevel:15
+require:Rifle_Specialist
+forbid:6mm_Rifle_Specialist
+forbid:12mm_Rifle_Specialist
+class:Marksman
+cost:0
+
+name:12mm_Rifle_Specialist
+gain:You now train primarily with 12mm rifles.
+lose:You no longer consider yourself a 12mm specialist.
+brief:You are a 9mm rifle specialist.
+desc:You have specialised in the use of 12mm rifles, making you shoot faster and more accurately (it's more noticeable at high level).
+desc_future:you would specialise in the use of 12mm rifles, making you shoot faster and more accurately (it's more noticeable at high level).
+flag:talent
+minlevel:15
+require:Rifle_Specialist
+forbid:6mm_Rifle_Specialist
+forbid:9mm_Rifle_Specialist
+class:Marksman
+cost:0
+
+
+######## Generally available talents ##########
+
+name:Emotional_Intelligence
+# this gain msg is naff
+gain:You feel in touch with the Universal Oneness.
+lose:You feel empty.
+brief:You have extraordinary intuition.
+desc:You have extraordinary awareness and intuition, giving you the ability to get a feeling about the likely contents of a level very quickly.
+desc_future:you would have extraordinary awareness and intuition, giving you the ability to get a feeling about the likely contents of a level very quickly.
+flag:talent
+stats:0:0:0:0:0:5:0
+cost:1
+
+name:Foraging
+gain:You wonder for a moment what a spider tastes like.
+lose:You feel disgusted.
+brief:You have unusual foraging skills.
+desc:You have the skill to find food in the most unlikely places, and can get by with less food. Being used to going hungry, you won't easily heal more slowly, feel weak or faint from lack of food.
+desc_future:you would have the skill to find food in the most unlikely places, to get by with less food, and to not easily heal more slowly, feel weak or faint from lack of food.
+flag:talent
+cost:1
+
+name:Patience
+gain:You shuffle a deck of cards and deal a hand of Solitaire.
+lose:You put away your playing cards.
+brief:You will gain talents only at high level.
+desc:you give up all your immediate talents, and will gain no talents until half way through the game. You will then start to gain talents again - rapidly enough that you will end up with more than you would have had without.
+flag:birth
+flag:talent
+forbid:Precocity
+forbid:Unknown_Talents
+cost:-1
+
+# Hoarding [as in TP] might be a better name (or at least gain/lose message: "You feel the need to hoard TP.")
+name:Precocity
+gain:You feel the need to hoard TP.
+lose:You no longer feel the need to hoard TP.
+brief:You will gain no more talents.
+desc:you get all your talent points available from the start. But that is all you will ever get, and by maximum level you will end up with less than you would without.
+flag:birth
+flag:talent
+forbid:Patience
+forbid:Unknown_Talents
+cost:-1
+
+name:Unknown_Talents
+gain:You are sure that you must have hidden talents, but no idea what they might be.
+lose:You are no longer so sure that you have hidden depths.
+brief:You will gain talents randomly.
+desc:your hidden talents will become apparent at unknown points throughout the game. You have no choice, but they will include nothing harmful and in the end you will have more talents than you would otherwise.
+flag:birth
+flag:talent
+forbid:Patience
+forbid:Precocity
+# so that you can take it even if you start with 0 
+cost:-1
+
+
+######### Mutations #################
+
+name:Puking
+gain:You don't feel very well.
+lose:You feel less queasy.
+brief:You will randomly puke.
+desc:At unpredictable times you will puke - preventing you from doing anything else that turn, and leaving you weak with hunger. Try to keep some food with you at all times!
+flag:mutation
+flag:nasty
+
+## Activations ##
+
+name:Spit_Acid
+gain:Your saliva becomes caustic.
+lose:Your mouth feels normal again.
+brief:You are able to spit acid.
+desc:You are able to spit acid.
+flag:mutation
+flag:birth
+
+book:[Spit]
+spell:Spit Acid:1:22:4:4:1:3d4
+seffect:BOLT_OR_BEAM:ACID:0:-10
+sdice:$Dd4
+sexpr:D:PLAYER_LEVEL:- 1 / 5 + 3
+sdesc:Spits a highly acidic loogie.
+sdesc: Sometimes you will be able to manage a continuous spray instead that hurts each monster
+sdesc: in its path - the chance to get a spray goes up with your character level.
+
+# venom fangs?
+
+## Head mutations (some are compatible) ##
+
+# Add a melee blow (and random activation)
+# Hats don't fit?
+name:Horns
+gain:You grow a pair of evil-looking sharp black horns on your head.
+lose:Your horns shrivel away.
+# keep the random effect a surprise, though!
+desc:You have a pair of evil-looking sharp black horns on your head, and some extra nut attacks in melee.
+stats:0:0:0:0:0:-1:0
+blow:butt:3d6
+flag:mutation
+flag:nasty
+flag:birth
+random-effect:10
+effect:HORNS
+
+name:Knob_Head
+gain:You grow a knob from your forehead.
+lose:Your knob shrivels away... leaving your forehead looking normal again.
+desc:There is a smooth, ovoid projection attached to your forehead - it looks like a door-knob, but it is in fact a powerful sensory organ. Capable of detecting minds at a distance, unfortunately it also makes them aware of you.
+stats:0:0:0:0:0:-1:0
+flag:mutation
+flag:nasty
+flag:birth
+obj-flags:TELEPATHY
+obj-flags:AGGRAVATE
+
+## General physique mutations ##
+
+name:Thick_Muscles
+gain:You grow thick, ropy muscles.
+lose:Your muscles smooth down to normal.
+desc:You have huge thick ropy stiff muscles. You are considerably stronger but also slower and less dextrous.
+stats:5:0:0:-2:0:0:-1
+flag:mutation
+flag:nasty
+flag:birth
+forbid:Lean_and_Fragile
+forbid:Sprinter
+
+name:Lean_and_Fragile
+gain:You become very thin, wiry and agile - but weak and flimsy.
+lose:Your physique returns to normal.
+desc:You have become very thin and wiry. This makes you quick and agile, but weak and flimsy - you'll be more capable of landing hits in melee, but less damaging.
+stats:-1:0:0:4:-1:0:1
+tohit:6
+todam:-2
+flag:mutation
+flag:nasty
+flag:birth
+forbid:Thick_Muscles
+forbid:Sprinter
+
+name:Sprinter
+gain:You feel your muscles massage themselves.
+lose:You feel your muscles return to their usual configuration.
+desc:You are a natural sprinter - capable of brief bursts of impressive speed, but much less capable of sustained endurance.
+stats:1:0:0:1:-1:0:-3
+flag:mutation
+flag:nasty
+flag:birth
+forbid:Thick_Muscles
+forbid:Lean_and_Fragile
+
+book:[Sprint]
+spell:Sprint:1:12:4:4:1:3d30
+seffect:TIMED_INC:FAST:0:5
+sdice:$D+2d5
+sexpr:D:PLAYER_LEVEL:/ 5 + 3
+sdesc:Sprints - rapid movement for a few moments. It's never for that long, but it will be longer as you advance.
+
+
+
+## Eyes mutations ##
+
+name:Compound_Eyes
+gain:Your eys transform into faceted black insectile compound eyes.
+lose:Your eyes return to normal.
+brief:You have faceted black compound eyes.
+desc:You have faceted black insectile compound eyes. This protects you from blindness, and the wider field of view makes you more perceptive. But it can be difficult to make sense of what you see, and so you are vulnerable to confusion.
+flag:mutation
+flag:nasty
+flag:birth
+stats:0:0:0:0:0:-2:0
+values:SEARCH[4]
+obj-flags:PROT_BLIND
+obj-flags-off:PROT_CONF
+forbid:Wide_Eyes
+forbid:Cat_Eyes
+
+name:Wide_Eyes
+gain:Your eys expand into wide, staring, lidless pools.
+lose:Your eyes return to normal.
+brief:You have wide lidless eyes.
+desc:You have wide lidless eyes. They are sensitive, seeing in the infra-red and further into the darkness - but you are also more easily hurt by bright light.
+flag:mutation
+flag:nasty
+flag:birth
+stats:0:0:0:0:0:-1:0
+values:LIGHT[1]
+values:INFRA[3]
+values:RES_LIGHT[-1]
+forbid:Compound_Eyes
+forbid:Cat_Eyes
+
+name:Cat_Eyes
+gain:You blink, and then blink again.
+lose:You blink, and your eyes return to normal.
+brief:You have reflective, slitted, cat-like eyes.
+desc:You have reflective, slitted, cat-like eyes. They grant improved depth perception and as a result, combat proficiency. They stand out in the darkness though, making you a more noticeable target.
+flag:mutation
+flag:nasty
+flag:birth
+stats:0:0:0:0:0:-1:0
+tohit:8
+values:STEALTH[-1]
+forbid:Compound_Eyes
+forbid:Wide_Eyes
+
+# pin = light res, blind res, -1 light, -3 infra?
+# third eye (telpathy)?
+# blank eyes
+# dazzling?
+# wis/int shift 'left log'?
+
+## Mental mutations ##
+
+name:Thick_Brain
+gain:You grow a thick, ropey brain.
+lose:Your brain returns to normal.
+brief:You have a thick, ropey brain.
+desc:You have a thick, ropey brain. You aren't any good at anything requiring heavy thinking, but you are unimaginative enough that you withstand confusion.
+# and hallucination, if that were possible
+flag:mutation
+flag:nasty
+stats:0:-4:-3:0:0:-1:0
+obj-flags:PROT_CONF
+
+# cold/strange ('broken mirror') mind?
+
+## Skin mutations ##
+
+name:Elephant_Hide
+gain:You grow a thick grey wrinkled elephant-like hide.
+lose:Your skin returns to normal.
+brief:Your skin is a thick grey wrinkled elephant-like hide.
+desc:You have thick grey wrinkled skin, like an elephant. This is very protective, but also makes you clumsy.
+flag:mutation
+flag:nasty
+flag:birth
+stats:0:0:0:-3:0:-2:0
+ac:40
+forbid:Steel_Skin
+forbid:Scaly_Skin
+forbid:Crystal_Skin
+
+name:Crystal_Skin
+gain:Hundreds of sparkling crystals grow from your skin.
+lose:Your crystalline skin returns to normal.
+brief:Your skin is covered with hundreds of sparkling crystals.
+desc:You are covered with hundreds of sparkling crystals. This offers some additional protection, but a living diamond is hard to miss and you are not so stealthy.
+flag:mutation
+flag:nasty
+flag:birth
+ac:30
+values:STEALTH[-3]
+forbid:Steel_Skin
+forbid:Scaly_Skin
+forbid:Elephant_Hide
+
+name:Scaly_Skin
+gain:You grow scaly, reptilian skin.
+lose:Your crocodile skin returns to normal.
+brief:You have reptilian skin - dull green and covered with thin, overlapping scales.
+desc:You have reptilian skin - dull green and covered with thin, overlapping scales. This adds a little protection, but makes you susceptible to cold.
+flag:mutation
+flag:nasty
+flag:birth
+stats:0:0:0:-1:0:-2:0
+ac:20
+values:RES_COLD[-1]
+forbid:Steel_Skin
+forbid:Crystal_Skin
+forbid:Elephant_Hide
+
+name:Steel_Skin
+gain:Your skin turns to shiny metal.
+lose:Your skin no longer looks metallic.
+brief:You have shiny metallic skin. This is very protective in general and especially effective against shards, but clumsy and vulnerable to electric shocks.
+flag:mutation
+flag:nasty
+flag:birth
+stats:0:0:0:-2:0:-1:0
+ac:50
+values:RES_SHARD[1]
+values:RES_ELEC[-1]
+forbid:Scaly_Skin
+forbid:Crystal_Skin
+forbid:Elephant_Hide
+

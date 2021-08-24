@@ -44,17 +44,14 @@ extern bool (*get_check_hook)(const char *prompt);
 extern bool (*get_com_hook)(const char *prompt, char *command);
 extern bool (*get_rep_dir_hook)(int *dir, bool allow_none);
 extern bool (*get_aim_dir_hook)(int *dir);
-extern int (*get_spell_from_book_hook)(const char *verb, struct object *book,
-									   const char *error,
-									   bool (*spell_filter)(int spell));
-extern int (*get_spell_hook)(const char *verb, item_tester book_filter,
+extern int (*get_spell_hook)(const char *verb,
 							 cmd_code cmd,
 							 const char *error,
 							 bool (*spell_filter)(int spell));
 extern bool (*get_item_hook)(struct object **choice, const char *pmt,
 							 const char *str, cmd_code cmd, item_tester tester,
 							 int mode);
-extern bool (*get_curse_hook)(int *choice, struct object *obj,
+extern bool (*get_fault_hook)(int *choice, struct object *obj,
 							  char *dice_string);
 extern void (*get_panel_hook)(int *min_y, int *min_x, int *max_y, int *max_x);
 extern bool (*panel_contains_hook)(unsigned int y, unsigned int x);
@@ -66,13 +63,11 @@ bool get_check(const char *prompt);
 bool get_com(const char *prompt, char *command);
 bool get_rep_dir(int *dir, bool allow_none);
 bool get_aim_dir(int *dir);
-int get_spell_from_book(const char *verb, struct object *book,
-						const char *error, bool (*spell_filter)(int spell));
-int get_spell(const char *verb, item_tester book_filter, cmd_code cmd,
+int get_spell(const char *verb, cmd_code cmd,
 			  const char *error, bool (*spell_filter)(int spell));
 bool get_item(struct object **choice, const char *pmt, const char *str,
 			  cmd_code cmd, item_tester tester, int mode);
-bool get_curse(int *choice, struct object *obj, char *dice_string);
+bool get_fault(int *choice, struct object *obj, char *dice_string);
 void get_panel(int *min_y, int *min_x, int *max_y, int *max_x);
 bool panel_contains(unsigned int y, unsigned int x);
 bool map_is_visible(void);

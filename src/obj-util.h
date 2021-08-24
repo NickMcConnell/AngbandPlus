@@ -19,8 +19,7 @@
 #ifndef OBJECT_UTIL_H
 #define OBJECT_UTIL_H
 
-/* Maximum number of scroll titles generated */
-#define MAX_TITLES	 50
+#include "obj-ignore.h"
 
 /* An item's pval (for charges, amount of gold, etc) is limited to s16b */
 #define MAX_PVAL  32767
@@ -39,6 +38,7 @@ struct object_kind *objkind_byid(int kidx);
 struct artifact *lookup_artifact_name(const char *name);
 struct ego_item *lookup_ego_item(const char *name, int tval, int sval);
 int lookup_sval(int tval, const char *name);
+int lookup_sval_ego(int tval, const char *name, const struct ego_item **ego);
 void object_short_name(char *buf, size_t max, const char *name);
 int compare_items(const struct object *o1, const struct object *o2);
 bool obj_has_charges(const struct object *obj);
@@ -46,10 +46,6 @@ bool obj_can_zap(const struct object *obj);
 bool obj_is_activatable(const struct object *obj);
 bool obj_can_activate(const struct object *obj);
 bool obj_can_refill(const struct object *obj);
-bool obj_kind_can_browse(const struct object_kind *kind);
-bool obj_can_browse(const struct object *obj);
-bool obj_can_cast_from(const struct object *obj);
-bool obj_can_study(const struct object *obj);
 bool obj_can_takeoff(const struct object *obj);
 bool obj_can_wear(const struct object *obj);
 bool obj_can_fire(const struct object *obj);
@@ -63,6 +59,7 @@ bool obj_needs_aim(struct object *obj);
 bool obj_can_fail(const struct object *o);
 
 int get_use_device_chance(const struct object *obj);
+bool obj_is_pack_activatable(const struct object *obj);
 void distribute_charges(struct object *source, struct object *dest, int amt);
 int number_charging(const struct object *obj);
 bool recharge_timeout(struct object *obj);

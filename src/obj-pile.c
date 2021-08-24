@@ -27,7 +27,7 @@
 #include "mon-make.h"
 #include "mon-util.h"
 #include "monster.h"
-#include "obj-curse.h"
+#include "obj-fault.h"
 #include "obj-desc.h"
 #include "obj-gear.h"
 #include "obj-ignore.h"
@@ -42,6 +42,7 @@
 #include "player-history.h"
 #include "player-spell.h"
 #include "player-util.h"
+#include "project.h"
 #include "randname.h"
 #include "trap.h"
 #include "z-queue.h"
@@ -294,7 +295,7 @@ void object_free(struct object *obj)
 {
 	mem_free(obj->slays);
 	mem_free(obj->brands);
-	mem_free(obj->curses);
+	mem_free(obj->faults);
 	mem_free(obj);
 }
 
@@ -375,7 +376,7 @@ void object_pile_free(struct object *obj)
  * Missiles will combine if both stacks have the same "known" status.
  * This is done to make unidentified stacks of missiles useful.
  *
- * Food, potions, scrolls, and "easy know" items always stack.
+ * Food, pills, cards, and "easy know" items always stack.
  *
  * Chests, and activatable items, except rods, never stack (for various
  * reasons).
@@ -421,13 +422,13 @@ bool object_stackable(const struct object *obj1, const struct object *obj2,
 		/* Chests never stack */
 		return false;
 	}
-	else if (tval_is_edible(obj1) || tval_is_potion(obj1) ||
-		tval_is_scroll(obj1) || tval_is_rod(obj1)) {
-		/* Food, potions, scrolls and rods all stack nicely,
+	else if (tval_is_edible(obj1) || tval_is_pill(obj1) ||
+		tval_is_card(obj1) || tval_is_rod(obj1)) {
+		/* Food, pills, cards and rods all stack nicely,
 		   since the kinds are identical, either both will be
 		   aware or both will be unaware */
 	} else if (tval_can_have_charges(obj1) || tval_is_money(obj1)) {
-		/* Gold, staves and wands stack most of the time */
+		/* Gold, devices and wands stack most of the time */
 		/* Too much gold or too many charges */
 		if (obj1->pval + obj2->pval > MAX_PVAL)
 			return false;
@@ -456,8 +457,8 @@ bool object_stackable(const struct object *obj1, const struct object *obj2,
 		/* Require identical ego-item types */
 		if (obj1->ego != obj2->ego) return false;
 
-		/* Require identical curses */
-		if (!curses_are_equal(obj1, obj2)) return false;
+		/* Require identical faults */
+		if (!faults_are_equal(obj1, obj2)) return false;
 
 		/* Hack - Never stack recharging wearables ... */
 		if ((obj1->timeout || obj2->timeout) &&
@@ -566,11 +567,11 @@ static void object_absorb_merge(struct object *obj1, const struct object *obj2)
 	if (obj2->note)
 		obj1->note = obj2->note;
 
-	/* Combine timeouts for rod stacking */
-	if (tval_can_have_timeout(obj1))
+	/* Combine timeouts for cooldown stacking */
+	if (tval_can_have_timeout(obj1) && (!tval_is_light(obj1)))
 		obj1->timeout += obj2->timeout;
 
-	/* Combine pvals for wands and staves */
+	/* Combine pvals for wands and devices */
 	if (tval_can_have_charges(obj1) || tval_is_money(obj1)) {
 		total = obj1->pval + obj2->pval;
 		obj1->pval = total >= MAX_PVAL ? MAX_PVAL : total;
@@ -624,7 +625,7 @@ void object_wipe(struct object *obj)
 	/* Free slays and brands */
 	mem_free(obj->slays);
 	mem_free(obj->brands);
-	mem_free(obj->curses);
+	mem_free(obj->faults);
 
 	/* Wipe the structure */
 	memset(obj, 0, sizeof(*obj));
@@ -647,10 +648,10 @@ void object_copy(struct object *dest, const struct object *src)
 		dest->brands = mem_zalloc(z_info->brand_max * sizeof(bool));
 		memcpy(dest->brands, src->brands, z_info->brand_max * sizeof(bool));
 	}
-	if (src->curses) {
-		size_t array_size = z_info->curse_max * sizeof(struct curse_data);
-		dest->curses = mem_zalloc(array_size);
-		memcpy(dest->curses, src->curses, array_size);
+	if (src->faults) {
+		size_t array_size = z_info->fault_max * sizeof(struct fault_data);
+		dest->faults = mem_zalloc(array_size);
+		memcpy(dest->faults, src->faults, array_size);
 	}
 
 	/* Detach from any pile */
@@ -682,7 +683,7 @@ void object_copy_amt(struct object *dest, struct object *src, int amt)
 	if (tval_can_have_charges(src))
 		dest->pval = src->pval * amt / src->number;
 
-	if (tval_can_have_timeout(src)) {
+	if ((tval_can_have_timeout(src)) && (!tval_is_light(src))) {
 		max_time = charge_time * amt;
 
 		if (src->timeout > max_time)
@@ -721,7 +722,7 @@ struct object *object_split(struct object *src, int amt)
 	/* Check legality */
 	assert(src->number > amt);
 
-	/* Distribute charges of wands, staves, or rods */
+	/* Distribute charges of wands, devices, or rods */
 	distribute_charges(src, dest, amt);
 	if (src->known)
 		distribute_charges(src->known, dest->known, amt);
@@ -910,11 +911,33 @@ bool floor_carry(struct chunk *c, struct loc grid, struct object *drop,
 	return true;
 }
 
+/* Return true if something interesting has happended (and a message printed) */
+bool object_destroyed(struct object *obj, struct loc loc)
+{
+	static bool first = true;
+	static int atomic;
+	if (first) {
+		atomic = lookup_sval(TV_BATTERY, "atomic cell");
+	}
+
+	int sv = obj->kind->sval;
+	switch(obj->kind->tval) {
+		case TV_BATTERY: {
+			if (sv == atomic) {
+				msg("The atomic cell breaks open!");
+				project(source_object(obj), 6, loc, 150 + damroll(1, 20), ELEM_RADIATION,  PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_PLAY, 0, 20, obj);
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 /**
  * Delete an object when the floor fails to carry it, and attempt to remove
  * it from the object list
  */
-static void floor_carry_fail(struct object *drop, bool broke)
+static void floor_carry_fail(struct object *drop, bool broke, bool always)
 {
 	struct object *known = drop->known;
 
@@ -924,7 +947,11 @@ static void floor_carry_fail(struct object *drop, bool broke)
 		char *verb = broke ? VERB_AGREEMENT(drop->number, "breaks", "break")
 			: VERB_AGREEMENT(drop->number, "disappears", "disappear");
 		object_desc(o_name, sizeof(o_name), drop, ODESC_BASE);
-		msg("The %s %s.", o_name, verb);
+		/* For items (such as bullets) that are never recoverable, avoid the
+		 * silly "breaks" message.
+		 */
+		if (!always)
+			msg("The %s %s.", o_name, verb);
 		if (!loc_is_zero(known->grid))
 			square_excise_object(player->cave, known->grid, known);
 		delist_object(player->cave, known);
@@ -1060,7 +1087,7 @@ void drop_near(struct chunk *c, struct object **dropped, int chance,
 
 	/* Handle normal breakage */
 	if (!((*dropped)->artifact) && (randint0(100) < chance)) {
-		floor_carry_fail(*dropped, true);
+		floor_carry_fail(*dropped, true, object_destroyed(*dropped, grid) || (chance == 100));
 		return;
 	}
 
@@ -1072,7 +1099,7 @@ void drop_near(struct chunk *c, struct object **dropped, int chance,
 			msg("You feel something roll beneath your feet.");
 		}
 	} else {
-		floor_carry_fail(*dropped, false);
+		floor_carry_fail(*dropped, false, false);
 	}
 }
 
@@ -1201,7 +1228,7 @@ void push_object(struct loc grid)
  */
 void floor_item_charges(struct object *obj)
 {
-	/* Require staff/wand */
+	/* Require device/wand */
 	if (!tval_can_have_charges(obj)) return;
 
 	/* Require known item */
