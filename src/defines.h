@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 0
 #define VER_MINOR 2
-#define VER_PATCH 1
+#define VER_PATCH 2
 #define VER_EXTRA 0
 #define VERSION_IS_DEVELOPMENT (FALSE)
 

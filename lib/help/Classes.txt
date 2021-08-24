@@ -1064,4 +1064,4 @@ Wild-Talent   <color:o>Fair         </color> <color:R>Poor         </color> <col
 </style>
 
 
-<color:s>Automatically generated for Oposband 0.2.1.</color>
+<color:s>Automatically generated for Oposband 0.2.2.</color>

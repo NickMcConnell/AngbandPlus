@@ -128,7 +128,7 @@ int skills_bow_current(int sval)
         int prof = tsvals_to_proficiency(TV_BOW, sval);
 
         int max = p_ptr->proficiency_cap[prof];
-        int cur = p_ptr->proficiency_cap[prof];
+        int cur = p_ptr->proficiency[prof];
 
         if (cur > max)
             cur = max;
