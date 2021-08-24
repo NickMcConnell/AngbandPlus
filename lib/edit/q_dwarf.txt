@@ -45,7 +45,7 @@ L:[:FLOOR(ICKY):OBJ(mithril shod boots):EGO(dwarven)
 #?:[EQU [MOD $RANDOM53 3] 0]
 L:]:FLOOR(ICKY):OBJ(mithril shield):EGO(dwarven)
 ?:[EQU [MOD $RANDOM53 3] 1]
-L:]:FLOOR(ICKY):OBJ(mithril plate mail):EGO(dwarven)
+L:]:FLOOR(ICKY):OBJ(mithril plate armor):EGO(dwarven)
 ?:[EQU [MOD $RANDOM53 3] 2]
 L:]:FLOOR(ICKY):OBJ(mithril gauntlets, DEPTH+15)
 ?:1

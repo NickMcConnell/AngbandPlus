@@ -883,7 +883,7 @@ static void do_cmd_wiz_zap(void)
         if (m_ptr->cdis <= MAX_SIGHT)
         {
             bool fear = FALSE;
-            mon_take_hit(i, m_ptr->hp + 1, &fear, NULL);
+            mon_take_hit(i, m_ptr->hp + 1, &fear, NULL, FALSE);
             /*delete_monster_idx(i);*/
         }
     }
@@ -1179,7 +1179,7 @@ static void _wiz_stats_kill(int level)
 
         r_ptr->r_sights++;
         _stats_note_monster_level(level, r_ptr->level);
-        mon_take_hit(i, m_ptr->hp + 1, &fear, NULL);
+        mon_take_hit(i, m_ptr->hp + 1, &fear, NULL, FALSE);
         if (slot) rune_sword_kill(equip_obj(slot), r_ptr);
     }
 }

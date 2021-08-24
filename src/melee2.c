@@ -1820,6 +1820,7 @@ bool mon_attack_mon(int m_idx, int t_idx)
                 case RBE_LOSE_CHR:
                 case RBE_LOSE_ALL:
                 case RBE_DRAIN_EXP:
+				case RBE_HALLUCINATE:
                     pt = 0;
                     break;
 

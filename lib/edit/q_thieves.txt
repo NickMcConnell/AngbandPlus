@@ -97,10 +97,10 @@ R:OBJ(katana)
 R:OBJ(potion of cure critical wounds)
 
 ?:[EQU $CLASS Priest]
-R:OBJ(war hammer)
+R:OBJ(mace)
 
 ?:[EQU $RACE Angel]
-R:OBJ(war hammer)
+R:OBJ(mace)
 
 ?:[EQU $CLASS Weaponsmith]
 R:OBJ(broad axe)
@@ -109,7 +109,7 @@ R:OBJ(broad axe)
 R:OBJ(broad axe)
 
 ?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Clubs] ]
-R:OBJ(war hammer)
+R:OBJ(mace)
 
 ?:[EQU $CLASS Ninja Ninja-Lawyer]
 R:OBJ(^dagger$)

@@ -25,14 +25,14 @@ D:I've sent out someone else to do the job. Now leave me alone!
 
 T:QUEST:NORMAL
 L:h:MON(maulotaur)
-L:i:MON(hell knight)
-L:j:MON(baron of hell)
+L:i:MON(void knight)
+L:j:MON(baron of chaos)
 L:k:MON(revenant)
 !:SCRAMBLE(h,i,j,k)
 
 L:d:MON(arch-vile)
 L:e:MON(revenant)
-L:f:MON(baron of hell)
+L:f:MON(baron of chaos)
 L:g:MON(iron lich)
 L:S:MON(arachnotron, NO_GROUP)
 

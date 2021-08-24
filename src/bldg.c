@@ -3374,7 +3374,7 @@ static bool enchant_item(obj_p filter, int cost, int to_hit, int to_dam, int to_
 /* Get to Thalos easier */
 static bool thalos_ferry(void)
 {
-	int i, x, y;
+	int x, y;
 
 	screen_save();
 	clear_bldg(4, 10);

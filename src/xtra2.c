@@ -1097,6 +1097,86 @@ void monster_death(int m_idx, bool drop_item)
         }
         break;
 
+	/* This was actually a wererat! */
+	case MON_WERERAT1:
+	{
+		bool notice = FALSE;
+		int wy = y, wx = x;
+		bool pet = is_pet(m_ptr);
+		u32b mode = 0L;
+
+		if (pet) mode |= PM_FORCE_PET;
+
+		if (summon_specific((pet ? -1 : m_idx), wy, wx, 15, SUMMON_WERERAT, mode))
+		{
+			if (player_can_see_bold(wy, wx))
+				notice = TRUE;
+		}
+
+		if (notice) msg_print("The Scruffy-looking hobbit transforms into a Wererat!");
+	}
+		break;
+
+	/* This was actually a werewolf! */
+	case MON_WEREWOLF1:
+	{
+		bool notice = FALSE;
+		int wy = y, wx = x;
+		bool pet = is_pet(m_ptr);
+		u32b mode = 0L;
+
+		if (pet) mode |= PM_FORCE_PET;
+
+		if (summon_specific((pet ? -1 : m_idx), wy, wx, 20, SUMMON_WEREWOLF, mode))
+		{
+			if (player_can_see_bold(wy, wx))
+				notice = TRUE;
+		}
+
+		if (notice) msg_print("The Swordsman transforms into a Werewolf!");
+	}
+		break;
+
+	/* This was actually a wereworm! */
+	case MON_WEREWORM1:
+	{
+		bool notice = FALSE;
+		int wy = y, wx = x;
+		bool pet = is_pet(m_ptr);
+		u32b mode = 0L;
+
+		if (pet) mode |= PM_FORCE_PET;
+
+		if (summon_specific((pet ? -1 : m_idx), wy, wx, 25, SUMMON_WEREWORM, mode))
+		{
+			if (player_can_see_bold(wy, wx))
+				notice = TRUE;
+		}
+
+		if (notice) msg_print("The Hardened warrior transforms into a Wereworm!");
+	}
+		break;
+
+	/* This was actually a werebear! */
+	case MON_WEREBEAR1:
+	{
+		bool notice = FALSE;
+		int wy = y, wx = x;
+		bool pet = is_pet(m_ptr);
+		u32b mode = 0L;
+
+		if (pet) mode |= PM_FORCE_PET;
+
+		if (summon_specific((pet ? -1 : m_idx), wy, wx, 25, SUMMON_WEREBEAR, mode))
+		{
+			if (player_can_see_bold(wy, wx))
+				notice = TRUE;
+		}
+
+		if (notice) msg_print("The Druid transforms into a Werebear!");
+	}
+		break;
+
     case MON_VARIANT_MAINTAINER:
     {
         bool notice = FALSE;
@@ -2530,8 +2610,9 @@ void mon_check_kill_unique(int m_idx)
  * instead of simply "(m_exp * m_lev) / (p_lev)", to make the first
  * monster worth more than subsequent monsters. This would also need
  * to induce changes in the monster recall code.
+ * "aoe" marker was added for message modification.
  */
-bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
+bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool sentence)
 {
     monster_type    *m_ptr = &m_list[m_idx];
     monster_race    *r_ptr = &r_info[m_ptr->r_idx];
@@ -2589,8 +2670,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
     /* Genocided by chaos patron */
     if (!m_idx) return TRUE;
 
-    if (show_damage && dam > 0)
-        msg_format("for <color:y>%d</color>.", dam);
+	if (show_damage && dam > 0)
+	{
+		if (sentence)
+			msg_format("for <color:y>%d</color>.", dam); 
+		else
+			msg_format("(<color:y>%d</color>)", dam);
+	}
 
     if ( p_ptr->melt_armor
       && note == NULL /* Hack: Trying to just get melee and shooting */

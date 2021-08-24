@@ -330,21 +330,22 @@ bool _hit_mon(py_throw_ptr context, int m_idx)
         if (tdam < 0) tdam = 0;
         tdam = mon_damage_mod(m_ptr, tdam, FALSE);
         context->dam = tdam;
-        if (mon_take_hit(m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
+
+		/* Moved stuff around so that vampirism works even if you kill the monster */
+		char m_name[80];
+		monster_desc(m_name, m_ptr, MD_PRON_VISIBLE | MD_OBJECTIVE);
+
+		bool slain = mon_take_hit(m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr)), TRUE);
+		if (have_flag(context->flags, OF_BRAND_VAMP))
+		{
+			int  heal = MIN(30, damroll(3, tdam / 8));
+			msg_format("Your weapon drains life from %s!", m_name);
+			hp_player_aux(heal);
+			obj_learn_slay(context->obj, OF_BRAND_VAMP, "is <color:D>Vampiric</color>");
+		}
+        
+        if (!slain)
         {
-            /* Dead monster */
-        }
-        else
-        {
-            if (have_flag(context->flags, OF_BRAND_VAMP))
-            {
-                char m_name[80];
-                int  heal = MIN(30, damroll(3, tdam / 8));
-                monster_desc(m_name, m_ptr, MD_PRON_VISIBLE | MD_OBJECTIVE);
-                msg_format("Your weapon drains life from %s!", m_name);
-                hp_player_aux(heal);
-                obj_learn_slay(context->obj, OF_BRAND_VAMP, "is <color:D>Vampiric</color>");
-            }
             message_pain(m_idx, tdam);
             if (tdam > 0)
                 anger_monster(m_ptr);

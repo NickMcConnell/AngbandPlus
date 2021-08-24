@@ -283,6 +283,7 @@ bool empty_levels;    /* Allow empty 'arena' levels */
 bool bound_walls_perm;    /* Boundary walls become 'permanent wall' */
 bool delay_autopick;  /* Always use delayed autopick */
 bool last_words;    /* Leave last words when your character dies */
+bool unified_use;	/* Use the 'a' Activate command for all items */
 
 #ifdef WORLD_SCORE
 bool send_score;    /* Send score dump to the world score server */

@@ -213,5 +213,5 @@ Giants            Poor          Bad           Superb        Poor
 
 
 
-Automatically generated for Oposband 0.3.0.
+Automatically generated for Oposband 0.3.1.
 

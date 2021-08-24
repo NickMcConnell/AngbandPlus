@@ -355,7 +355,7 @@ static bool _skip_effect(int which)
     switch (which)
     {
     case RBE_CUT:
-    case RBE_DRAIN_EXP:
+	case RBE_DRAIN_EXP: case RBE_HALLUCINATE:
     case RBE_LOSE_STR: case RBE_LOSE_INT: case RBE_LOSE_WIS:
     case RBE_LOSE_DEX: case RBE_LOSE_CON: case RBE_LOSE_CHR:
     case RBE_LOSE_ALL:
@@ -470,7 +470,7 @@ void possessor_attack(point_t where, bool *fear, bool *mdeath, int mode)
                     dam = mon_damage_mod(foe, dam, FALSE);
                     if (dam > 0)
                         anger_monster(foe);
-                    *mdeath = mon_take_hit(foe->id, dam, fear, NULL);
+                    *mdeath = mon_take_hit(foe->id, dam, fear, NULL, TRUE);
                     break;
                 case RBE_EAT_GOLD:
                 case RBE_EAT_ITEM:

@@ -376,5 +376,5 @@ Noble        Poor          Poor          Fair          Bad
 
 
 
-Automatically generated for Oposband 0.3.0.
+Automatically generated for Oposband 0.3.2.
 

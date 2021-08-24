@@ -201,7 +201,7 @@ static void _background_check_spell(int cmd, variant *res)
 		{
 			int dir;
 			int power = spell_power(2 * p_ptr->lev);
-			if (!get_fire_dir(&dir)) return NULL;
+			if (!get_fire_dir(&dir)) break;
 
 			fear_monster(dir, power);
 			stun_monster(dir, 5 + p_ptr->lev / 5);

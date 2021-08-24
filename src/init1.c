@@ -122,6 +122,7 @@ static int _get_r_blow_effect(cptr which)
         {"DRAIN_EXP", RBE_DRAIN_EXP},
         {"VAMP", RBE_VAMP},
         {"CUT", RBE_CUT},
+		{"HALLU", RBE_HALLUCINATE},
         {0}};
     for (i = 0;; i++)
     {
@@ -1232,6 +1233,10 @@ static parse_tbl_t _summon_type_tbl[] = {
     { SUMMON_SPECIAL, "Special", TERM_WHITE, "", "SPECIAL", 30 },
     { SUMMON_REPTILE, "Reptiles", TERM_WHITE, "", "REPTILE", 30 },
     { SUMMON_DEAD_UNIQ, "Dead Uniques", TERM_WHITE, "", "DEAD_UNIQ", 150 },
+	{ SUMMON_WERERAT, "Wererat", TERM_WHITE, "", "WERERAT", 5},
+	{ SUMMON_WEREWOLF, "Werewolf", TERM_WHITE, "", "WEREWOLF", 5},
+	{ SUMMON_WEREWORM, "Wereworm", TERM_WHITE, "", "WEREWORM", 5},
+	{ SUMMON_WEREBEAR, "Werebear", TERM_WHITE, "", "WEREBEAR", 5},
     { 0 }
 };
 

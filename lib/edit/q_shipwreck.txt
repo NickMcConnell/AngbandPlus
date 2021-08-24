@@ -28,13 +28,13 @@ L:d:DEEP_WATER:MON(lesser kraken)
 L:e:DEEP_WATER:MON(aquatic naga)
 L:f:DEEP_WATER:MON(serpent man, NO_SLEEP)
 L:g:DEEP_WATER:MON(portuguese)
-L:h:DEEP_WATER:MON(vampiric ixitxachitl)
-L:i:DEEP_WATER:MON(ixitxachitl priest)
+L:h:DEEP_WATER:MON(vampiric devil ray)
+L:i:DEEP_WATER:MON(devil ray priest)
 L:j:DEEP_WATER:MON(globefish)
 L:k:OBJ(large steel chest)
 L:l:OBJ(skeleton)
 L:m:OBJ(RING):ART(*)
-L:n:OBJ(Curved Sword, DEPTH+10):ART(*)
+L:n:OBJ(curved sword, DEPTH+10):ART(*)
 
 # Dungeon layout
 M:#################################################################

@@ -1322,7 +1322,7 @@ arena_type arena_info[MAX_ARENA_MONS + 2] =
     { MON_TIGER,         0,         0                             },
     { MON_DRUID,         0,         0                             },
     { MON_HILL_GIANT,    TV_POTION, SV_POTION_SPEED               },
-    { MON_WERERAT,       0,         0                             },
+    { MON_WERERAT1,      0,         0                             },
     { MON_ORC_CAPTAIN,   0,         0                             },
     { MON_BERSERKER,     TV_ROD,    EFFECT_DETECT_TRAPS           },
     { MON_STONE_GIANT,   0,         0                             },
@@ -2211,230 +2211,233 @@ cptr window_flag_desc[32] =
  */
 option_type option_info[] =
 {
-    /*** Input Options ***/
+	/*** Input Options ***/
 
-    { &rogue_like_commands,         FALSE, OPT_PAGE_INPUT, 0, 0,
-    "rogue_like_commands",          "Rogue-like commands" },
+	{ &rogue_like_commands,         FALSE, OPT_PAGE_INPUT, 0, 0,
+	"rogue_like_commands",          "Rogue-like commands" },
 
-    { &always_pickup,               FALSE, OPT_PAGE_INPUT, 0, 5,
-    "always_pickup",                "Pick things up by default" },
+	{ &always_pickup,               FALSE, OPT_PAGE_INPUT, 0, 5,
+	"always_pickup",                "Pick things up by default" },
 
-    { &online_macros,               FALSE, OPT_PAGE_INPUT, 1, 11,
-    "online_macros",                "Substitute Walk for Run in macros" },
+	{ &online_macros,               FALSE, OPT_PAGE_INPUT, 1, 11,
+	"online_macros",                "Substitute Walk for Run in macros" },
 
-    { &quick_messages,              TRUE,  OPT_PAGE_INPUT, 0, 1,
-    "quick_messages",               "Activate quick messages" },
+	{ &quick_messages,              TRUE,  OPT_PAGE_INPUT, 0, 1,
+	"quick_messages",               "Activate quick messages" },
 
-    { &command_menu,                TRUE,  OPT_PAGE_INPUT, 2, 7,
-    "command_menu",                 "Enable command selection menu" },
+	{ &command_menu,                TRUE,  OPT_PAGE_INPUT, 2, 7,
+	"command_menu",                 "Enable command selection menu" },
 
-    { &use_old_target,              FALSE, OPT_PAGE_INPUT, 0, 4,
-    "use_old_target",               "Use old target by default" },
+	{ &use_old_target,              FALSE, OPT_PAGE_INPUT, 0, 4,
+	"use_old_target",               "Use old target by default" },
 
-    { &auto_target,                 FALSE, OPT_PAGE_INPUT, 0, 15,
-    "auto_target",                  "Automatically target nearest monster" },
+	{ &auto_target,                 FALSE, OPT_PAGE_INPUT, 0, 15,
+	"auto_target",                  "Automatically target nearest monster" },
 
-    { &always_repeat,               TRUE,  OPT_PAGE_INPUT, 0, 6,
-    "always_repeat",                "Repeat obvious commands" },
+	{ &always_repeat,               TRUE,  OPT_PAGE_INPUT, 0, 6,
+	"always_repeat",                "Repeat obvious commands" },
 
-    { &confirm_destroy,             FALSE, OPT_PAGE_INPUT, 5, 3,
-    "confirm_destroy",              "Prompt for destruction of known worthless items" },
+	{ &confirm_destroy,             FALSE, OPT_PAGE_INPUT, 5, 3,
+	"confirm_destroy",              "Prompt for destruction of known worthless items" },
 
-    { &confirm_wear,                TRUE,  OPT_PAGE_INPUT, 5, 4,
-    "confirm_wear",                 "Confirm to wear/wield known cursed items" },
+	{ &confirm_wear,                TRUE,  OPT_PAGE_INPUT, 5, 4,
+	"confirm_wear",                 "Confirm to wear/wield known cursed items" },
 
-    { &target_pet,                  FALSE, OPT_PAGE_INPUT, 2, 5,
-    "target_pet",                   "Allow targetting pets" },
+	{ &target_pet,                  FALSE, OPT_PAGE_INPUT, 2, 5,
+	"target_pet",                   "Allow targetting pets" },
 
 #ifdef ALLOW_EASY_OPEN
-    { &easy_open,                   TRUE,  OPT_PAGE_INPUT, 5, 7,
-    "easy_open",                    "Automatically open doors" },
+	{ &easy_open,                   TRUE,  OPT_PAGE_INPUT, 5, 7,
+	"easy_open",                    "Automatically open doors" },
 #endif /* ALLOW_EASY_OPEN */
 
 #ifdef ALLOW_EASY_DISARM
-    { &easy_disarm,                 TRUE,  OPT_PAGE_INPUT, 5, 8,
-    "easy_disarm",                  "Automatically disarm traps" },
+	{ &easy_disarm,                 TRUE,  OPT_PAGE_INPUT, 5, 8,
+	"easy_disarm",                  "Automatically disarm traps" },
 #endif /* ALLOW_EASY_DISARM */
 
-    { &auto_get_ammo,               FALSE, OPT_PAGE_INPUT, 6, 5,
-    "auto_get_ammo",                "Automatically get nearby ammo with get cmd" },
+	{ &auto_get_ammo,               FALSE, OPT_PAGE_INPUT, 6, 5,
+	"auto_get_ammo",                "Automatically get nearby ammo with get cmd" },
 
-    { &auto_get_objects,            FALSE, OPT_PAGE_INPUT, 6, 7,
-    "auto_get_objects",             "Automatically get autopick objects with get cmd" },
+	{ &auto_get_objects,            FALSE, OPT_PAGE_INPUT, 6, 7,
+	"auto_get_objects",             "Automatically get autopick objects with get cmd" },
 
-    { &auto_detect_traps,           FALSE, OPT_PAGE_INPUT, 6, 9,
-    "auto_detect_traps",            "Automatically detect traps while running" },
+	{ &auto_detect_traps,           FALSE, OPT_PAGE_INPUT, 6, 9,
+	"auto_detect_traps",            "Automatically detect traps while running" },
 
-    { &auto_map_area,               FALSE, OPT_PAGE_INPUT, 6, 10,
-    "auto_map_area",                "Automatically map area while running" },
+	{ &auto_map_area,               FALSE, OPT_PAGE_INPUT, 6, 10,
+	"auto_map_area",                "Automatically map area while running" },
 
-    { &numpad_as_cursorkey,         TRUE, OPT_PAGE_INPUT, 2, 31,
-    "numpad_as_cursorkey",          "Use numpad keys as cursor keys in editor mode" },
+	{ &numpad_as_cursorkey,         TRUE, OPT_PAGE_INPUT, 2, 31,
+	"numpad_as_cursorkey",          "Use numpad keys as cursor keys in editor mode" },
 
-    { &use_pack_slots,              TRUE,  OPT_PAGE_INPUT, 0, 3,
-    "use_pack_slots",               "Use/Display slots in your inventory" },
-    /*** Map Screen Options ***/
+	{ &use_pack_slots,              TRUE,  OPT_PAGE_INPUT, 0, 3,
+	"use_pack_slots",               "Use/Display slots in your inventory" },
+	/*** Map Screen Options ***/
 
-    { &center_player,               FALSE, OPT_PAGE_MAPSCREEN, 5, 11,
-    "center_player",                "Center map while walking (*slow*)" },
+	{ &center_player,               FALSE, OPT_PAGE_MAPSCREEN, 5, 11,
+	"center_player",                "Center map while walking (*slow*)" },
 
-    { &center_running,              TRUE,  OPT_PAGE_MAPSCREEN, 5, 12,
-    "center_running",               "Centering even while running" },
+	{ &center_running,              TRUE,  OPT_PAGE_MAPSCREEN, 5, 12,
+	"center_running",               "Centering even while running" },
 
-    { &view_yellow_lite,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 28,
-    "view_yellow_lite",             "Use special colors for torch-lit grids" },
+	{ &view_yellow_lite,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 28,
+	"view_yellow_lite",             "Use special colors for torch-lit grids" },
 
-    { &view_bright_lite,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 29,
-    "view_bright_lite",             "Use special colors for 'viewable' grids" },
+	{ &view_bright_lite,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 29,
+	"view_bright_lite",             "Use special colors for 'viewable' grids" },
 
-    { &view_granite_lite,           TRUE,  OPT_PAGE_MAPSCREEN, 1, 30,
-    "view_granite_lite",            "Use special colors for wall grids (slow)" },
+	{ &view_granite_lite,           TRUE,  OPT_PAGE_MAPSCREEN, 1, 30,
+	"view_granite_lite",            "Use special colors for wall grids (slow)" },
 
-    { &view_special_lite,           TRUE,  OPT_PAGE_MAPSCREEN, 1, 31,
-    "view_special_lite",            "Use special colors for floor grids (slow)" },
+	{ &view_special_lite,           TRUE,  OPT_PAGE_MAPSCREEN, 1, 31,
+	"view_special_lite",            "Use special colors for floor grids (slow)" },
 
-    { &view_perma_grids,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 6,
-    "view_perma_grids",             "Map remembers all perma-lit grids" },
+	{ &view_perma_grids,            TRUE,  OPT_PAGE_MAPSCREEN, 1, 6,
+	"view_perma_grids",             "Map remembers all perma-lit grids" },
 
-    { &view_torch_grids,            FALSE, OPT_PAGE_MAPSCREEN, 1, 7,
-    "view_torch_grids",             "Map remembers all torch-lit grids" },
+	{ &view_torch_grids,            FALSE, OPT_PAGE_MAPSCREEN, 1, 7,
+	"view_torch_grids",             "Map remembers all torch-lit grids" },
 
-    { &view_unsafe_grids,           FALSE, OPT_PAGE_MAPSCREEN, 1, 8,
-    "view_unsafe_grids",            "Map marked by detect traps" },
+	{ &view_unsafe_grids,           FALSE, OPT_PAGE_MAPSCREEN, 1, 8,
+	"view_unsafe_grids",            "Map marked by detect traps" },
 
-    { &fresh_before,                TRUE,  OPT_PAGE_MAPSCREEN, 1, 23,
-    "fresh_before",                 "Flush output while continuous command" },
+	{ &fresh_before,                TRUE,  OPT_PAGE_MAPSCREEN, 1, 23,
+	"fresh_before",                 "Flush output while continuous command" },
 
-    { &fresh_after,                 FALSE, OPT_PAGE_MAPSCREEN, 1, 24,
-    "fresh_after",                  "Flush output after monster's move" },
+	{ &fresh_after,                 FALSE, OPT_PAGE_MAPSCREEN, 1, 24,
+	"fresh_after",                  "Flush output after monster's move" },
 
-    { &fresh_message,               FALSE, OPT_PAGE_MAPSCREEN, 1, 25,
-    "fresh_message",                "Flush output after every message" },
+	{ &fresh_message,               FALSE, OPT_PAGE_MAPSCREEN, 1, 25,
+	"fresh_message",                "Flush output after every message" },
 
-    { &hilite_player,               FALSE, OPT_PAGE_MAPSCREEN, 1, 27,
-    "hilite_player",                "Hilite the player with the cursor" },
+	{ &hilite_player,               FALSE, OPT_PAGE_MAPSCREEN, 1, 27,
+	"hilite_player",                "Hilite the player with the cursor" },
 
-    { &display_path,                FALSE, OPT_PAGE_MAPSCREEN, 2, 8,
-    "display_path",                 "Display actual path before shooting" },
+	{ &display_path,                FALSE, OPT_PAGE_MAPSCREEN, 2, 8,
+	"display_path",                 "Display actual path before shooting" },
 
-    { &square_delays,               FALSE, OPT_PAGE_MAPSCREEN, 5, 23,
-    "square_delays",                "Use square-based delay factors" },
+	{ &square_delays,               FALSE, OPT_PAGE_MAPSCREEN, 5, 23,
+	"square_delays",                "Use square-based delay factors" },
 
-    /*** Text Display Options ***/
+	/*** Text Display Options ***/
 
-    { &plain_descriptions,          TRUE,  OPT_PAGE_TEXT, 5, 1,
-    "plain_descriptions",           "Plain object descriptions" },
+	{ &plain_descriptions,          TRUE,  OPT_PAGE_TEXT, 5, 1,
+	"plain_descriptions",           "Plain object descriptions" },
 
-    { &always_show_list,            TRUE,  OPT_PAGE_TEXT, 4, 0,
-    "always_show_list",             "Always show list when choosing items" },
+	{ &always_show_list,            TRUE,  OPT_PAGE_TEXT, 4, 0,
+	"always_show_list",             "Always show list when choosing items" },
 
-    { &depth_in_feet,               FALSE, OPT_PAGE_TEXT, 0, 7,
-    "depth_in_feet",                "Show dungeon level in feet" },
+	{ &depth_in_feet,               FALSE, OPT_PAGE_TEXT, 0, 7,
+	"depth_in_feet",                "Show dungeon level in feet" },
 
-    { &effective_speed,             FALSE, OPT_PAGE_TEXT, 0, 29,
-    "effective_speed",              "Show speeds as energy multipliers" },
+	{ &effective_speed,             FALSE, OPT_PAGE_TEXT, 0, 29,
+	"effective_speed",              "Show speeds as energy multipliers" },
 
-    { &show_labels,                 TRUE,  OPT_PAGE_TEXT, 0, 10,
-    "show_labels",                  "Show labels in object listings" },
+	{ &show_labels,                 TRUE,  OPT_PAGE_TEXT, 0, 10,
+	"show_labels",                  "Show labels in object listings" },
 
-    { &show_weights,                TRUE,  OPT_PAGE_TEXT, 0, 11,
-    "show_weights",                 "Show weights in object listings" },
+	{ &show_weights,                TRUE,  OPT_PAGE_TEXT, 0, 11,
+	"show_weights",                 "Show weights in object listings" },
 
-    { &show_discounts,              TRUE,  OPT_PAGE_TEXT, 0, 12,
-    "show_discounts",               "Show discounts in object listings" },
+	{ &show_discounts,              TRUE,  OPT_PAGE_TEXT, 0, 12,
+	"show_discounts",               "Show discounts in object listings" },
 
-    { &show_power,                  FALSE, OPT_PAGE_TEXT, 2, 14,
-    "show_power",                   "Show device power in object listings (if known)" },
+	{ &show_power,                  FALSE, OPT_PAGE_TEXT, 2, 14,
+	"show_power",                   "Show device power in object listings (if known)" },
 
-    { &show_item_graph,             TRUE,  OPT_PAGE_TEXT, 2, 0,
-    "show_item_graph",              "Show item graphics in object listings" },
+	{ &show_item_graph,             TRUE,  OPT_PAGE_TEXT, 2, 0,
+	"show_item_graph",              "Show item graphics in object listings" },
 
-    { &equippy_chars,               TRUE,  OPT_PAGE_TEXT, 1, 12,
-    "equippy_chars",                "Display 'equippy' chars" },
+	{ &equippy_chars,               TRUE,  OPT_PAGE_TEXT, 1, 12,
+	"equippy_chars",                "Display 'equippy' chars" },
 
-    { &display_hp_bar,              FALSE,  OPT_PAGE_TEXT, 1, 1,
-    "display_hp_bar",               "Display player hp bar" },
+	{ &display_hp_bar,              FALSE,  OPT_PAGE_TEXT, 1, 1,
+	"display_hp_bar",               "Display player hp bar" },
 
-    { &display_sp_bar,              FALSE,  OPT_PAGE_TEXT, 1, 2,
-    "display_sp_bar",               "Display player sp bar" },
+	{ &display_sp_bar,              FALSE,  OPT_PAGE_TEXT, 1, 2,
+	"display_sp_bar",               "Display player sp bar" },
 
-    { &display_food_bar,            FALSE,  OPT_PAGE_TEXT, 1, 13,
-    "display_food_bar",             "Display detailed food status" },
+	{ &display_food_bar,            FALSE,  OPT_PAGE_TEXT, 1, 13,
+	"display_food_bar",             "Display detailed food status" },
 
-//    { &display_percentages,         FALSE,  OPT_PAGE_TEXT, 1, 10,
-//    "display_percentages",          "Display percentages rather than status bars" },
+	//    { &display_percentages,         FALSE,  OPT_PAGE_TEXT, 1, 10,
+	//    "display_percentages",          "Display percentages rather than status bars" },
 
-    { &compress_savefile,           FALSE, OPT_PAGE_TEXT, 1, 26,
-    "compress_savefile",            "Compress messages in savefiles" },
+		{ &compress_savefile,           FALSE, OPT_PAGE_TEXT, 1, 26,
+		"compress_savefile",            "Compress messages in savefiles" },
 
-    { &abbrev_extra,                FALSE, OPT_PAGE_TEXT, 2, 10,
-    "abbrev_extra",                 "Describe obj's extra resistances by abbreviation" },
+		{ &abbrev_extra,                FALSE, OPT_PAGE_TEXT, 2, 10,
+		"abbrev_extra",                 "Describe obj's extra resistances by abbreviation" },
 
-    { &abbrev_all,                  FALSE, OPT_PAGE_TEXT, 2, 11,
-    "abbrev_all",                   "Describe obj's all resistances by abbreviation" },
+		{ &abbrev_all,                  FALSE, OPT_PAGE_TEXT, 2, 11,
+		"abbrev_all",                   "Describe obj's all resistances by abbreviation" },
 
-    { &exp_need,                    FALSE, OPT_PAGE_TEXT, 2, 12,
-    "exp_need",                     "Show the experience needed for next level" },
+		{ &exp_need,                    FALSE, OPT_PAGE_TEXT, 2, 12,
+		"exp_need",                     "Show the experience needed for next level" },
 
-    { &ignore_unview,               FALSE, OPT_PAGE_TEXT, 2, 13,
-    "ignore_unview",                "Ignore actions of out of sight monsters" },
+		{ &ignore_unview,               FALSE, OPT_PAGE_TEXT, 2, 13,
+		"ignore_unview",                "Ignore actions of out of sight monsters" },
 
-    { &display_distance,            FALSE,  OPT_PAGE_TEXT, 1, 4,
-    "display_distance",             "Display distance in monster list" },
+		{ &display_distance,            FALSE,  OPT_PAGE_TEXT, 1, 4,
+		"display_distance",             "Display distance in monster list" },
 
-    { &display_race,		        TRUE, OPT_PAGE_TEXT, 2, 29,
-    "display_race",                 "Player character depends on race" },
+		{ &display_race,		        TRUE, OPT_PAGE_TEXT, 2, 29,
+		"display_race",                 "Player character depends on race" },
 
-    { &show_origins,		        TRUE, OPT_PAGE_TEXT, 2, 28,
-    "show_origins",                 "Show object origins on examination" },
+		{ &show_origins,		        TRUE, OPT_PAGE_TEXT, 2, 28,
+		"show_origins",                 "Show object origins on examination" },
 
-    { &show_discovery,		        FALSE, OPT_PAGE_TEXT, 2, 26,
-    "show_discovery",                 "Show time of discovery on examination" },
+		{ &show_discovery,		        FALSE, OPT_PAGE_TEXT, 2, 26,
+		"show_discovery",                 "Show time of discovery on examination" },
 
-    { &final_dump_origins,		TRUE, OPT_PAGE_TEXT, 2, 18,
-    "final_dump_origins",             "Show origins in final character dumps" },
+		{ &final_dump_origins,		TRUE, OPT_PAGE_TEXT, 2, 18,
+		"final_dump_origins",             "Show origins in final character dumps" },
 
-    { &always_dump_origins,		FALSE, OPT_PAGE_TEXT, 2, 19,
-    "always_dump_origins",             "Show origins in all character dumps" },
+		{ &always_dump_origins,		FALSE, OPT_PAGE_TEXT, 2, 19,
+		"always_dump_origins",             "Show origins in all character dumps" },
 
-    { &easy_mimics,		        FALSE, OPT_PAGE_TEXT, 2, 27,
-    "easy_mimics",                  "Use 'x' for monsters that look like things" },
+		{ &easy_mimics,		        FALSE, OPT_PAGE_TEXT, 2, 27,
+		"easy_mimics",                  "Use 'x' for monsters that look like things" },
 
-    { &list_stairs,                  FALSE,  OPT_PAGE_TEXT, 1, 10,
-    "list_stairs",                  "Display stairs in the object list" },
+		{ &list_stairs,                  FALSE,  OPT_PAGE_TEXT, 1, 10,
+		"list_stairs",                  "Display stairs in the object list" },
 
-    { &display_skill_num,            FALSE,  OPT_PAGE_TEXT, 2, 22,
-    "display_skill_num",            "Display skills as numbers in character sheet" },
+		{ &display_skill_num,            FALSE,  OPT_PAGE_TEXT, 2, 22,
+		"display_skill_num",            "Display skills as numbers in character sheet" },
 
-    { &reforge_details,              TRUE,  OPT_PAGE_TEXT, 2, 16,
-    "reforge_details",              "Show statistics before proceeding with a reforge" },
+		{ &reforge_details,              TRUE,  OPT_PAGE_TEXT, 2, 16,
+		"reforge_details",              "Show statistics before proceeding with a reforge" },
 
-    { &auto_sticky_labels,           TRUE,  OPT_PAGE_TEXT, 2, 17,
-    "auto_sticky_labels",           "Automatically make all power labels sticky" },
+		{ &auto_sticky_labels,           TRUE,  OPT_PAGE_TEXT, 2, 17,
+		"auto_sticky_labels",           "Automatically make all power labels sticky" },
 
-	{ &show_damage,                  TRUE, OPT_PAGE_TEXT, 2, 12,
-	"show_damage",					"Show damage amounts in messages" },
+		{ &show_damage,                  TRUE, OPT_PAGE_TEXT, 2, 12,
+		"show_damage",					"Show damage amounts in messages" },
 
 
-    /*** Game-Play ***/
+		/*** Game-Play ***/
 
-    { &stack_force_notes,           TRUE,  OPT_PAGE_GAMEPLAY, 0, 8,
-    "stack_force_notes",            "Merge inscriptions when stacking" },
+		{ &stack_force_notes,           TRUE,  OPT_PAGE_GAMEPLAY, 0, 8,
+		"stack_force_notes",            "Merge inscriptions when stacking" },
 
-    { &stack_force_costs,           TRUE, OPT_PAGE_GAMEPLAY, 0, 9,
-    "stack_force_costs",            "Merge discounts when stacking" },
+		{ &stack_force_costs,           TRUE, OPT_PAGE_GAMEPLAY, 0, 9,
+		"stack_force_costs",            "Merge discounts when stacking" },
 
-    { &expand_list,                 TRUE,  OPT_PAGE_GAMEPLAY, 1, 5,
-    "expand_list",                  "Expand the power of the list commands" },
+		{ &expand_list,                 TRUE,  OPT_PAGE_GAMEPLAY, 1, 5,
+		"expand_list",                  "Expand the power of the list commands" },
 
-    { &empty_levels,                TRUE,  OPT_PAGE_GAMEPLAY, 0, 31,
-    "empty_levels",                 "Allow empty 'arena' levels" },
+		{ &empty_levels,                TRUE,  OPT_PAGE_GAMEPLAY, 0, 31,
+		"empty_levels",                 "Allow empty 'arena' levels" },
 
-    { &bound_walls_perm,            FALSE, OPT_PAGE_GAMEPLAY, 2, 1,
-    "bound_walls_perm",             "Boundary walls become 'permanent wall'" },
+		{ &bound_walls_perm,            FALSE, OPT_PAGE_GAMEPLAY, 2, 1,
+		"bound_walls_perm",             "Boundary walls become 'permanent wall'" },
 
-    { &last_words,                  TRUE,  OPT_PAGE_GAMEPLAY, 0, 28,
-    "last_words",                   "Leave last words when your character dies" },
+		{ &last_words,                  TRUE,  OPT_PAGE_GAMEPLAY, 0, 28,
+		"last_words",                   "Leave last words when your character dies" },
+
+		{ &unified_use,					FALSE, OPT_PAGE_GAMEPLAY, 0, 19,
+		"unified_use_command",			"Use 'a' for using any item type" },
 
     /*** Disturbance ***/
 

@@ -28,7 +28,7 @@ L:<:UP_STAIR
 L:^:TRAP(*, 25%)
 L:a:MON(mithril golem):OBJ(mithril shod boots)
 L:b:MON(mithril golem):OBJ(mithril shield)
-L:c:MON(mithril golem):OBJ(mithril plate)
+L:c:MON(mithril golem):OBJ(mithril plate armor)
 L:d:MON(mithril golem):OBJ(mithril helm)
 L:e:MON(mithril golem):OBJ(mithril gauntlets)
 L:f:MON(colossus)

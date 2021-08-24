@@ -2057,7 +2057,7 @@ static void _ego_create_weapon(object_type *o_ptr, int level)
             break;
 
         case EGO_WEAPON_ARCANE:
-            if (o_ptr->tval != TV_HAFTED || o_ptr->sval != SV_WIZSTAFF)
+            if (o_ptr->tval != TV_STAVES || o_ptr->sval != SV_WIZSTAFF)
                 done = FALSE;
             else
             {

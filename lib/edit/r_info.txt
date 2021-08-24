@@ -2435,7 +2435,7 @@ D:enough to bore through solid rock.
 N:162:Orc shaman
 G:o:b
 I:110:9d8:20:15:20:130
-W:9:1:40:30:0:0
+W:9:1:40:30:600:1189
 B:HIT:HURT(1d7)
 B:HIT:HURT(1d7)
 F:MALE |
@@ -2490,7 +2490,7 @@ I:110:10d10:20:30:70:150
 W:9:2:40:35:700:461
 B:CLAW:HURT(1d4)
 B:CLAW:HURT(1d4)
-B:BITE:HURT(1d5):POISON(1d3)
+B:BITE:HURT(1d5):POISON(2d4)
 F:FORCE_MAXHP | FORCE_SLEEP |
 F:ONLY_GOLD | DROP_60 | DROP_1D2 |
 F:OPEN_DOOR | BASH_DOOR | CAN_FLY |
@@ -2659,7 +2659,7 @@ N:176:Giant white tick
 G:S:w
 I:100:12d8:12:40:20:100
 W:10:2:40:27:500:411
-B:BITE:HURT(1d6):POISON(2d6)
+B:BITE:HURT(1d6):POISON(2d7)
 F:WEIRD_MIND | BASH_DOOR | CAN_FLY |
 F:ANIMAL | RES_POIS
 F:DROP_CORPSE | POS_GAIN_AC
@@ -2866,12 +2866,13 @@ D:An ugly screaming little demon servant of Tzeentch.
 
 N:190:Hairy mold
 G:m:U
-I:110:15d8:2:15:70:30
+I:100:15d8:2:15:70:30
 W:10:2:40:32:80:192
-B:HIT:HURT(1d3):POISON(1d3)
+B:HIT:HURT(1d4):POISON(2d3)
+S:MULTIPLY
 F:NEVER_MOVE | CAN_SWIM |
 F:STUPID | EMPTY_MIND |
-F:RES_POIS |
+F:RES_POIS | MULTIPLY
 F:NO_CONF | NO_SLEEP | NO_FEAR
 F:POS_GAIN_AC
 P:Copy:Human:Tourist
@@ -3330,12 +3331,12 @@ P:Copy:Human:Archer
 O:DROP_WARRIOR_SHOOT
 D:A warrior trained in melee as well as missile weapons.
 
-N:220:Ixitxachitl
+N:220:Devil ray
 G:l:s
 I:110:12d8:20:30:20:50
 W:12:1:50:40:600:406
-B:STING:POISON(2d5)
-B:STING:POISON(2d5)
+B:STING:POISON(2d6)
+B:STING:POISON(2d6)
 F:ANIMAL | EVIL | AQUATIC | RES_POIS | RES_WATE | WILD_ALL
 F:POS_GAIN_AC
 P:Copy:Snotling:Warrior
@@ -3439,7 +3440,7 @@ S:1_IN_5 |
 S:HEAL | BLIND | CONFUSE | CAUSE_2 | DARKNESS | MISSILE | DETECT_EVIL | BLESS
 O:DROP_PRIEST_EVIL
 D:A dark elven figure, dressed all in black, chanting curses and waiting to
-D:deliver your soul to hell.
+D:deliver your soul to his gods.
 
 N:227:Air spirit
 G:E:B
@@ -4086,7 +4087,7 @@ D:A giant snake-like figure with a woman's torso.
 N:270:Wererat
 G:r:D
 I:110:20d8:10:10:10:30
-W:15:2:50:55:0:0
+W:15:10:50:55:0:0
 B:CLAW:HURT(1d8)
 B:CLAW:HURT(1d8)
 B:BITE:HURT(2d6)
@@ -4175,9 +4176,9 @@ N:275:Giant tarantula
 G:S:G
 I:120:10d15:8:32:80:70
 W:15:3:60:70:0:0
-B:BITE:HURT(1d3):POISON(1d3)
-B:BITE:HURT(1d3):POISON(1d3)
-B:BITE:HURT(1d3):POISON(1d3)
+B:BITE:HURT(1d3):POISON(1d4)
+B:BITE:HURT(1d3):POISON(1d4)
+B:BITE:HURT(1d3):POISON(1d4)
 F:WEIRD_MIND | BASH_DOOR | WILD_ALL |
 F:ANIMAL | RES_POIS |
 F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC
@@ -4205,8 +4206,8 @@ G:S:u
 I:120:9d8:15:25:80:60
 W:15:2:50:25:0:0
 B:BITE:HURT(1d8)
-B:BITE:HURT(1d3):POISON(1d3)
-B:BITE:HURT(1d3):POISON(1d3)
+B:BITE:HURT(1d3):POISON(1d4)
+B:BITE:HURT(1d3):POISON(1d4)
 F:FRIENDS(3d3) | WILD_WOOD |
 F:WEIRD_MIND | BASH_DOOR | HURT_LITE |
 F:ANIMAL | EVIL | RES_POIS | RES_DARK |
@@ -4336,7 +4337,7 @@ D:its forehead. It looks hungry.
 N:285:Orc captain
 G:o:U
 I:110:20d10:20:59:20:190
-W:16:3:50:40:0:0
+W:16:3:50:40:100:1190
 B:HIT:HURT(3d4):STUN(1d4,10%)
 B:HIT:HURT(3d4)
 B:HIT:HURT(3d4)
@@ -5021,12 +5022,12 @@ D:A repulsive being which leaps on long hind legs like a kangaroo.
 D:Its face is curiously human despite the absence of a nose, a
 D:forehead, and "other important particulars".
 
-N:328:Ixitxachitl priest
+N:328:Devil ray priest
 G:l:s
 I:110:10d10:20:40:20:100
 W:19:1:80:80:0:0
-B:STING:POISON(2d7)
-B:STING:POISON(2d7)
+B:STING:POISON(2d8)
+B:STING:POISON(2d8)
 F:ANIMAL | EVIL | AQUATIC | RES_POIS | RES_WATE | WILD_ALL |
 F:POS_GAIN_AC
 P:Copy:Kobold:Priest
@@ -5078,8 +5079,8 @@ G:S:B
 I:120:6d8:15:25:80:50
 W:20:2:999:60:0:0
 B:BITE:HURT(1d8)
-B:BITE:HURT(1d5):POISON(1d3)
-B:BITE:HURT(1d5):POISON(1d3)
+B:BITE:HURT(1d5):POISON(1d4)
+B:BITE:HURT(1d5):POISON(1d4)
 F:FRIENDS(3d3) | WILD_WOOD | WEIRD_MIND | BASH_DOOR | CAN_SWIM |
 F:ANIMAL | RES_POIS | RES_TELE
 F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC
@@ -5123,7 +5124,7 @@ W:20:2:999:360:0:0
 B:BITE:HURT(2d6)
 B:BITE:HURT(2d6)
 B:BITE:HURT(2d6)
-B:STING:POISON(1d6)
+B:STING:POISON(2d6)
 F:FORCE_SLEEP |
 F:ONLY_GOLD | DROP_60 | DROP_90 | RES_POIS | CAN_FLY |
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | DRAGON |
@@ -5341,7 +5342,7 @@ D:Better watch out!
 N:347:Werewolf
 G:C:D
 I:110:20d22:15:30:70:150
-W:20:2:60:150:0:0
+W:20:10:60:150:0:0
 B:BITE:HURT(1d6)
 B:BITE:HURT(1d6)
 B:BITE:HURT(1d10)
@@ -5561,8 +5562,8 @@ N:360:Globefish
 G:l:w
 I:110:20d10:20:30:30:20
 W:21:1:60:200:0:0
-B:BITE:HURT(3d5):POISON(2d5)
-B:BITE:HURT(3d5):POISON(2d5)
+B:BITE:HURT(3d5):POISON(2d7)
+B:BITE:HURT(3d5):POISON(2d7)
 F:EMPTY_MIND | BASH_DOOR | AQUATIC |
 F:RES_POIS | RES_WATE | WILD_ALL | FORCE_MAXHP
 F:POS_GAIN_AC
@@ -5700,7 +5701,7 @@ G:S:y
 I:110:12d8:12:38:20:120
 W:22:1:60:60:700:524
 B:BITE:HURT(1d8)
-B:STING:POISON(2d5)
+B:STING:POISON(2d6)
 F:WEIRD_MIND | BASH_DOOR | WILD_ALL | ANIMAL |
 F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC |
 P:Copy:Hobbit:Warrior
@@ -6166,6 +6167,7 @@ W:25:5:70:590:0:0
 B:GAZE:TERRIFY
 B:GAZE:PARALYZE(85%)
 B:GAZE:LOSE_CHR(50%)
+B:GAZE:HALLU(2d5)
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | NONLIVING | NEVER_MOVE |
 F:RES_FIRE | RES_COLD | RES_ELEC | IM_POIS | EVIL |
 F:HURT_ROCK | HURT_LITE |
@@ -6287,7 +6289,7 @@ D:A troll who is so bright he knows how to read.
 N:404:Wereworm
 G:w:u
 I:110:100d11:15:70:20:100
-W:25:3:60:300:0:0
+W:25:15:60:300:0:0
 B:GAZE:DRAIN_EXP(20d6)
 B:CRAWL:ACID(2d4)
 B:BITE:HURT(1d10)
@@ -6313,11 +6315,11 @@ P:Copy:Kobold:Warrior
 P:Body:Beetle
 D:A giant beetle with poisonous mandibles.
 
-N:406:Vampiric ixitxachitl
+N:406:Vampiric devil ray
 G:l:D
 I:110:22d22:20:50:20:60
 W:26:1:70:120:0:0
-B:STING:POISON(2d8)
+B:STING:POISON(2d10)
 B:STING:HURT(1d8):VAMP(1d8)
 F:ANIMAL | EVIL | AQUATIC | RES_NETH | RES_POIS | RES_WATE | WILD_ALL
 F:POS_GAIN_AC
@@ -6485,7 +6487,7 @@ S:1_IN_8 |
 S:SCARE | CAUSE_2 | DARKNESS
 D:It is a tangible but ghostly form made of white fog.
 
-N:417:Angel
+N:417:Lesser celestiel
 G:A:b
 I:110:30d10:30:60:255:170
 W:26:4:999:220:2000:456
@@ -6498,11 +6500,11 @@ F:ONLY_ITEM | DROP_2D2 | GOOD | CAN_FLY |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:RES_ACID | RES_POIS | NO_CONF | NO_SLEEP
 F:POS_HOLD_LIFE | POS_GAIN_AC
-P:Copy:Archon:Paladin
+P:Copy:Celestial:Paladin
 S:1_IN_3 |
 S:BLIND | CONFUSE | SCARE | AMNESIA | DETECT_EVIL | BLESS
 O:DROP_PALADIN
-D:A lesser angel wearing little more than a loincloth - its steely skin
+D:A lesser celestial wearing little more than a loincloth - its steely skin
 D:provides all the protection it needs.
 
 N:418:Ghoul
@@ -6603,8 +6605,8 @@ N:424:Algroth
 G:T:s
 I:110:21d12:20:60:40:250
 W:27:1:80:150:1200:454
-B:CLAW:HURT(1d6):POISON(1d6)
-B:CLAW:HURT(1d6):POISON(1d6)
+B:CLAW:HURT(1d6):POISON(1d9)
+B:CLAW:HURT(1d6):POISON(1d9)
 B:BITE:HURT(2d2):POISON(1d12)
 F:FRIENDS(3d3) | DROP_60 | WILD_WOOD | WILD_MOUNTAIN | WILD_SWAMP
 F:OPEN_DOOR | BASH_DOOR | REGENERATE |
@@ -6877,7 +6879,7 @@ P:Body:Spider
 D:Slaanesh's pet, a large scorpion-like creature with a human face and
 D:reptile skin.
 
-N:439:Stairway to hell
+N:439:Oblivion gate
 G:>:W
 I:120:15d8:90:40:20:300
 W:28:5:999:125:0:0
@@ -7104,8 +7106,8 @@ N:452:Deep one
 G:u:g
 I:120:35d12:20:50:20:80
 W:28:5:70:150:0:0
-B:CLAW:HURT(1d4):POISON(1d4)
-B:CLAW:HURT(1d4):POISON(1d4)
+B:CLAW:HURT(1d4):POISON(1d5)
+B:CLAW:HURT(1d4):POISON(1d5)
 B:BITE:HURT(4d4):LOSE_CHR(50%)
 F:FRIENDS(1d5) | WILD_SHORE | DROP_CORPSE
 F:RAND_25 |
@@ -7175,7 +7177,7 @@ D:A gigantic worm dripping with acid. "...even as he looked, one
 D:reared up several hundred feet and leveled a bleached, viscous end
 D:at him."
 
-N:456:Archangel
+N:456:Celestial
 G:A:B
 I:110:40d10:30:68:255:190
 W:29:4:999:400:2500:511
@@ -7188,11 +7190,11 @@ F:ONLY_ITEM | DROP_2D2 | CAN_FLY | SELF_LITE_1 |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:RES_FIRE | RES_COLD | RES_POIS | NO_CONF | NO_SLEEP | RES_TELE
 F:POS_HOLD_LIFE | POS_GAIN_AC
-P:Copy:Archon:Paladin
+P:Copy:Celestial:Paladin
 S:1_IN_3 |
 S:HEAL | HASTE | BLIND | CONFUSE | SCARE | DETECT_EVIL | BLESS
 O:DROP_PALADIN
-D:A lesser angel protected by an aura of holiness. Its muscular form looks
+D:A lesser celestial protected by an aura of holiness. Its muscular form looks
 D:extremely powerful next to your own frail body.
 
 N:457:Ring mimic
@@ -7272,7 +7274,7 @@ I:112:27d10:20:60:70:200
 W:29:1:999:320:4000:561
 B:CLAW:HURT(1d4)
 B:CLAW:HURT(1d4)
-B:BITE:HURT(1d6):POISON(1d4)
+B:BITE:HURT(1d6):POISON(2d4)
 F:FORCE_SLEEP | FORCE_MAXHP | WILD_MOUNTAIN | WILD_SWAMP |
 F:DROP_60 | DROP_90 | DROP_1D2 |
 F:OPEN_DOOR | BASH_DOOR | CAN_FLY |
@@ -7308,7 +7310,7 @@ I:110:30d9:14:64:25:250
 W:29:4:80:300:1500:491
 B:CLAW:HURT(1d6)
 B:CLAW:HURT(1d6)
-B:BITE:HURT(1d10):POISON(1d10)
+B:BITE:HURT(1d10):POISON(1d12)
 B:CRUSH:HURT(2d9):STUN(1d4,10%)
 F:TROLL | EVIL | FRIENDS(3d3) | OPEN_DOOR | BASH_DOOR |
 F:RES_POIS | RES_ACID | REGENERATE |
@@ -7497,7 +7499,7 @@ I:110:30d20:12:88:20:300
 W:31:2:70:275:0:0
 B:BUTT:HURT(3d9)
 B:BUTT:HURT(3d9)
-B:BITE:HURT(1d7):POISON(1d3)
+B:BITE:HURT(1d7):POISON(1d6)
 B:KICK:HURT(2d4)
 F:FORCE_SLEEP | ANIMAL | MOVE_BODY | WILD_WOOD |
 F:BASH_DOOR | RES_POIS | RES_ACID | EVIL | RIDING |
@@ -7599,9 +7601,9 @@ G:S:D
 I:110:12d100:8:80:80:350
 W:32:3:999:1500:0:0
 B:BITE:HURT(2d10)
-B:STING:POISON(2d5)
+B:STING:POISON(2d6)
 B:STING:HURT(1d4):LOSE_STR
-B:STING:POISON(2d5)
+B:STING:POISON(2d6)
 F:UNIQUE | FEMALE |
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:ESCORT
@@ -8138,7 +8140,7 @@ S:1_IN_6 |
 S:BO_FIRE
 D:It is a towering inferno of flames.
 
-N:511:Cherub
+N:511:Astral Celestial
 G:A:W
 I:120:45d10:30:68:255:170
 W:33:4:999:400:5000:605
@@ -8152,12 +8154,12 @@ F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS |
 F:NO_CONF | NO_SLEEP | SELF_LITE_2 |
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
-P:Copy:Archon:Paladin
+P:Copy:Celestial:Paladin
 S:1_IN_3 |
 S:HEAL | HASTE | BLIND | SCARE | MIND_BLAST | BO_FIRE(18d8+22) |
 S:S_MONSTER | DETECT_EVIL | BLESS
 O:DROP_PALADIN
-D:It is an angel moving very quickly, wielding a holy war hammer and casting
+D:It is a celestial moving very quickly, wielding a holy war hammer and casting
 D:a volley of powerful spells in your direction.
 
 N:512:Water elemental
@@ -8384,7 +8386,7 @@ G:S:s
 I:120:18d20:12:50:40:200
 W:34:4:80:275:0:0
 B:BITE:HURT(1d6)
-B:STING:POISON(1d4)
+B:STING:POISON(1d7)
 F:WEIRD_MIND | BASH_DOOR | WILD_ALL | ANIMAL
 F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC |
 P:Copy:Kutar:Warrior
@@ -8507,10 +8509,10 @@ N:532:Dagashi
 G:p:y
 I:120:13d25:20:70:10:150
 W:35:4:80:500:0:0
-B:HIT:HURT(2d4):POISON(1d4)
+B:HIT:HURT(2d4):POISON(2d4)
 B:HIT:HURT(3d4):LOSE_STR(50%)
 B:HIT:HURT(3d4):LOSE_STR(50%)
-B:HIT:HURT(2d4):POISON(1d4)
+B:HIT:HURT(2d4):POISON(2d4)
 F:MALE |
 F:DROP_1D2 |
 F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
@@ -9035,7 +9037,7 @@ I:115:40d10:20:70:70:250
 W:36:1:999:1300:10000:618
 B:CLAW:HURT(1d8)
 B:CLAW:HURT(1d8)
-B:BITE:HURT(2d10):POISON(2d5)
+B:BITE:HURT(2d10):POISON(2d7)
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
 F:DROP_60 | DROP_90 | DROP_2D2 |
 F:BASH_DOOR | WILD_MOUNTAIN | WILD_WOOD |
@@ -9294,7 +9296,7 @@ P:Copy:Zombie:Warrior
 D:It is a massive figure clothed in wrappings. You are wary of its massive
 D:fists.
 
-N:576:Draconic Assassin
+N:576:Yellow dragon
 G:d:y
 I:120:50d10:10:100:25:170
 W:37:3:70:1500:0:0
@@ -9410,7 +9412,7 @@ W:37:4:70:500:0:0
 B:HIT:HURT(1d9)
 B:HIT:HURT(1d9)
 B:HIT:HURT(1d9)
-B:HIT:HURT(1d9)
+B:GAZE:HALLU(2d9)
 F:FORCE_SLEEP | FORCE_MAXHP | RAND_50 | SELF_LITE_1 |
 F:SMART | EMPTY_MIND | INVISIBLE |
 F:PASS_WALL | CAN_FLY | WILD_SWAMP |
@@ -9827,7 +9829,7 @@ S:PARALYZE | SCARE | CAUSE_3 | BO_NETHER
 D:Your life force is torn from your body as this powerful unearthly being
 D:approaches.
 
-N:605:Seraph
+N:605:Planar Celestial
 G:A:w
 I:120:50d10:30:68:255:160
 W:38:4:999:1800:8000:661
@@ -9841,12 +9843,12 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS |
 F:NO_CONF | NO_SLEEP | SELF_LITE_2 |
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
-P:Copy:Archon:Paladin
+P:Copy:Celestial:Paladin
 S:1_IN_11 |
 S:HEAL | HASTE | TELE_OTHER | CONFUSE | BO_MANA | BO_PLASMA |
 S:S_MONSTER | DETECT_EVIL | BLESS | HEROISM | MAPPING
 O:DROP_PALADIN
-D:It is an angel, fast and strong. You are stunned by its extreme holiness
+D:It is a celestial, fast and strong. You are stunned by its extreme holiness
 D:and try to resist all desires to obey it.
 
 N:606:Loge, Spirit of Fire
@@ -9912,7 +9914,7 @@ D:of all, they never spoke or laughed, and never smiled because they
 D:had no faces at all to smile with, but only to a suggestive
 D:blankness where a face ought to be."
 
-N:609:Baron of hell
+N:609:Baron of chaos
 G:U:U
 I:110:150d12:10:130:40:200
 W:38:3:90:3000:0:0
@@ -10011,9 +10013,9 @@ N:614:7-headed hydra
 G:M:G
 I:120:100d10:20:90:20:400
 W:39:2:999:2000:9000:635
-B:BITE:HURT(2d9):POISON(1d9)
-B:BITE:HURT(2d9):POISON(1d9)
-B:BITE:HURT(2d9):POISON(1d9)
+B:BITE:HURT(2d9):POISON(1d10)
+B:BITE:HURT(2d9):POISON(1d10)
+B:BITE:HURT(2d9):POISON(1d10)
 B:SPIT:DAM(1d2):BLIND
 F:FORCE_SLEEP | WILD_SHORE | WILD_SWAMP |
 F:ONLY_GOLD | DROP_2D2 | DROP_4D2 | CAN_SWIM |
@@ -10104,7 +10106,7 @@ I:120:72d10:20:85:80:500
 W:39:1:999:2400:100000:890
 B:CLAW:HURT(4d8)
 B:CLAW:HURT(4d8)
-B:BITE:HURT(5d10):POISON(2d10):CUT(5d10, 10%)
+B:BITE:HURT(5d10):POISON(3d10):CUT(5d10, 10%)
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:DROP_3D2 | DROP_4D2 | CAN_FLY | WILD_WASTE | WILD_MOUNTAIN |
 F:SMART | BASH_DOOR | MOVE_BODY |
@@ -10263,7 +10265,7 @@ P:Body:Jelly6
 S:MULTIPLY
 D:Weird, jelly like creatures. No two look the same.
 
-N:627:Hammer of hell
+N:627:Hammer of the Underworld
 G:\:v
 I:100:50d10:30:40:0:150
 W:24:5:70:400:0:0
@@ -10725,7 +10727,7 @@ D:growing out of its forehead. Nude, its flesh was a uniform ash-gray
 D:in color. It appeared to be sexless, and it had gray, leathery wings
 D:extending far out behind it'.
 
-N:652:Fallen angel
+N:652:Corrupted celestial
 G:A:D
 I:130:100d35:30:140:255:190
 W:41:5:999:8000:0:0
@@ -10739,12 +10741,11 @@ F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY | RES_DARK |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_TELE | RES_NETH |
 F:CAN_FLY | SELF_LITE_2 |
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
-P:Copy:Archon:Paladin
+P:Copy:Celestial:Paladin
 S:1_IN_3 | TELE_TO | BLIND | SCARE | CAUSE_2 | CAUSE_4 | BO_MANA |
 S:S_DEMON | BO_NETHER(5d5+111) | INVULN | DETECT_MONSTERS | BLESS |
 S:HEROISM | MAPPING
-D:An angelic being who was mighty once but dared defy the Omnipotent
-D:to arms.
+D:An celestial being who was has betrayed order and joined forces with Chaos.
 
 N:653:Giant headless
 G:H:u
@@ -10908,7 +10909,7 @@ D:The madman's son is a Logrus Master, almost as great a
 D:menace as his father.
 P:Copy:Amberite:Beastmaster
 
-N:661:Archon
+N:661:Solar Celestial
 G:A:v
 I:130:100d35:30:140:255:170
 W:41:5:999:8000:50000:942
@@ -10921,13 +10922,13 @@ F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_GOOD | GOOD | REFLECTING |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY | RES_LITE |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_TELE | CAN_FLY
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
-P:Copy:Archon:Paladin
+P:Copy:Celestial:Paladin
 S:1_IN_3 | TELE_TO | BLIND | SCARE | CAUSE_2 | CAUSE_4 | BO_MANA |
 S:S_MONSTER | INVULN | DETECT_MONSTERS | BLESS | HEROISM | MAPPING
 O:DROP_PALADIN
-D:Never a more heavenly being have you seen. The very holiness of its
+D:Never a more glorious being have you seen. The very holiness of its
 D:presence makes you deeply respect it. Few creatures can match the powers
-D:of an Archon; fewer still live to tell the tale after attacking one.
+D:of a solar celestial; fewer still live to tell the tale after attacking one.
 
 N:662:Formless spawn of Tsathoggua
 G:U:D
@@ -12150,7 +12151,7 @@ S:1_IN_4 |
 S:BLIND | CONFUSE | BRAIN_SMASH | SCARE | ANIM_DEAD
 S:BA_NETHER(10d10+150) | AMNESIA | S_UNDEAD | DRAIN_MANA |
 S:S_DEMON | CAUSE_4 | BA_COLD(1d150+20)
-D:It is a demonic creature from the lowest hell, vaguely resembling a
+D:It is a demonic creature from the courts of chaos, vaguely resembling a
 D:large black he-goat.
 
 N:722:Nightwing
@@ -12347,7 +12348,7 @@ S:1_IN_6 | SLOW | SHOOT(12d13) | BO_MANA | BO_PLASMA | BA_ELEC | BR_FORCE | BERS
 D:A fearsome bull-headed demon, Baphomet swings a mighty axe as he curses
 D:all that defy him.
 
-N:731:Hell knight
+N:731:Void knight
 G:p:s
 I:120:15d100:20:110:10:170
 W:52:1:999:7000:0:0
@@ -13097,7 +13098,7 @@ F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:RES_ACID | IM_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_LITE | RES_TELE |
 F:NO_CONF | NO_SLEEP | SELF_LITE_2 |
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
-P:Copy:Archon:Paladin
+P:Copy:Celestial:Paladin
 P:Stats:1:0:3:1:1:3
 S:FREQ_40 | TELE_TO | BLIND | BO_MANA | BA_FIRE(1d511+20) | BR_FIRE | BR_MANA
 S:INVULN | BO_PLASMA | BR_PLASMA | S_ANGEL | PSY_SPEAR | HEAL | BA_LITE
@@ -13123,7 +13124,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_DARK | RES_TELE
 F:NO_CONF | NO_SLEEP |
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
-P:Copy:Archon:Paladin
+P:Copy:Celestial:Paladin
 P:Stats:1:0:3:1:1:3
 S:FREQ_40 | TELE_TO | BLIND | BO_MANA | BA_NETHER(10d10+210) | BR_NETHER
 S:PSY_SPEAR | S_MONSTER | HEAL | S_ANGEL | BR_MANA | BR_COLD | S_DRAGON
@@ -13227,7 +13228,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:RES_ACID | RES_FIRE | RES_COLD | IM_ELEC | IM_POIS | RES_LITE |
 F:NO_CONF | NO_SLEEP | AURA_FEAR
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC |
-P:Copy:Archon:Paladin
+P:Copy:Celestial:Paladin
 P:Stats:2:2:5:2:2:5
 P:Speed:+10
 S:FREQ_40 | BR_HOLY_FIRE
@@ -13237,7 +13238,7 @@ S:BR_MANA | BR_LITE | BR_ELEC | MANA_STORM | HAND_DOOM | S_HI_DRAGON |
 S:BRAIN_SMASH | S_MONSTER | HEAL | BR_DISENCHANT | BA_LITE
 S:DETECT_MONSTERS | BLESS | HEROISM | MAPPING
 O:DROP_PALADIN
-D:Commanding a legion of angels, Raphael will destroy you for your sins. He
+D:Commanding a legion of celestials, Raphael will destroy you for your sins. He
 D:will crush you like the pitiful insignificant being he sees you to be.
 D:Your very soul will be taken into judgement by his supreme authority as he
 D:cleanses the world of evil.
@@ -13503,7 +13504,7 @@ S:BRAIN_SMASH | BA_NETHER | S_KIN | DARKNESS | BA_DARK
 S:DETECT_MONSTERS | MAPPING | IDENTIFY
 D:The most feared of all vampires, the Prince of Darkness himself.
 
-N:781:Ultimate beholder
+N:781:Beholder hive-mother
 G:e:o
 I:120:40d100:30:80:10:100
 W:66:4:999:18000:0:0
@@ -13519,8 +13520,7 @@ S:DISPEL_MAGIC | ANTI_MAGIC | BA_DARK
 P:Copy:High-Elf:Warrior-Mage
 P:Body:Eye8
 D:A disembodied eye, surrounded by twelve smaller eyes on stalks.
-D:This is a beholder hive-mother, far more powerful than normal
-D:beholders.
+D:This is the ultimate beholder, far more powerful than normal ones
 
 N:782:Leviathan
 G:D:b
@@ -14043,22 +14043,19 @@ D:This ancient shadow of death wilts any living thing it passes.
 N:805:Omarax the Eye Tyrant
 G:e:y
 I:130:65d100:30:80:10:100
-W:73:4:999:16000:0:0
-B:GAZE:DAM(2d6):DRAIN_EXP(40d6)
-B:GAZE:DAM(2d6):DRAIN_CHARGES
-B:GAZE:DAM(2d6):LOSE_INT
-B:GAZE:DRAIN_MANA(7d10)
+W:73:4:999:29282:0:0
+B:GAZE:BRAIN_SMASH(7d6):DRAIN_MANA(9d9):CONFUSE:DRAIN_EXP(40d6)
+B:GAZE:BRAIN_SMASH(7d6):TERRIFY:PARALYZE:CONFUSE
+B:GAZE:BRAIN_SMASH(7d6):DRAIN_CHARGES:AMNESIA(25%):LOSE_INT
+B:GAZE:DAM(6d9):DISENCHANT:STUN(2d3):LOSE_WIS(50%)
 F:UNIQUE | MALE | CAN_SPEAK | RES_TELE
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
 F:SMART | BASH_DOOR |
-F:EVIL | RES_POIS |
-F:NO_CONF | NO_SLEEP
+F:EVIL | RES_POIS | NO_CONF | NO_SLEEP
 F:POS_TELEPATHY | POS_GAIN_AC
 P:Copy:High-Elf:Warrior-Mage
 P:Body:Eye8
-S:1_IN_2 |
-S:BLIND | SLOW | CONFUSE | SCARE | DRAIN_MANA | MIND_BLAST | AMNESIA |
-S:DARKNESS | BA_DARK | BO_ACID | BO_FIRE | BO_COLD | S_KIN
+S:FREQ_40 | GAZE | BRAIN_SMASH(150) | S_KIN | BO_MANA | BA_DARK | DISPEL_MAGIC
 D:A disembodied eye, floating in the air. His gaze seems to shred your
 D:soul and his spells crush your will. He is ancient, his history steeped
 D:in forgotten evils, his atrocities numerous and sickening.
@@ -14273,8 +14270,8 @@ N:814:Yig, Father of Serpents
 G:R:g
 I:130:222d30:100:123:15:900
 W:76:1:999:37500:0:0
-B:CLAW:HURT(5d10):POISON(3d10)
-B:CLAW:HURT(5d10):POISON(3d10)
+B:CLAW:HURT(5d10):POISON(4d10)
+B:CLAW:HURT(5d10):POISON(4d10)
 B:CRUSH:HURT(8d15)
 B:BITE:HURT(100d1):CUT(3d8, 50%)
 F:UNIQUE | MALE | CAN_SPEAK | SMART | RES_TELE | ANIMAL |
@@ -14686,7 +14683,7 @@ D:A legion of evil undead druj animating the skeleton of a once mighty
 D:sorcerer. His power is devastating and his speed unmatched in the
 D:underworld. Flee his wrath!
 
-N:831:Mephistopheles, Lord of Hell
+N:831:Mephistopheles, Duke of Chaos
 G:U:r
 I:140:30d222:20:150:50:1000
 W:84:2:999:42500:0:0
@@ -14707,14 +14704,14 @@ S:1_IN_3 |
 S:TELE_TO | SCARE | PARALYZE | BRAIN_SMASH |
 S:S_HI_DEMON | S_HI_UNDEAD | S_UNDEAD |
 S:BR_FIRE | BR_NETHER | S_CYBER | HAND_DOOM | ANIM_DEAD
-D:A duke of hell, in the flesh.
+D:A duke of chaos, in the flesh.
 
 N:832:Godzilla
 G:R:g
 I:130:100d100:50:215:20:5000
 W:84:2:999:50000:0:0
-B:CLAW:HURT(3d10):POISON(2d10)
-B:CLAW:HURT(3d10):POISON(2d10)
+B:CLAW:HURT(3d10):POISON(3d10)
+B:CLAW:HURT(3d10):POISON(3d10)
 B:BITE:HURT(20d10):CUT(5d10)
 B:CRUSH:DISENCHANT(5d12)
 F:UNIQUE | CAN_SWIM | RIDING |
@@ -15250,7 +15247,7 @@ I:130:121d100:100:160:0:3000
 W:75:1:999:30000:0:0
 B:CRUSH:HURT(20d10):HURT(20d10, 20%)
 B:CRUSH:HURT(20d10):HURT(20d10, 20%)
-B:BITE:HURT(5d50):POISON(8d11)
+B:BITE:HURT(5d50):POISON(10d10)
 F:UNIQUE | FORCE_MAXHP | FORCE_SLEEP | CAN_SWIM | WILD_OCEAN |
 F:MOVE_BODY | KILL_WALL | RES_FIRE | RES_POIS | RES_ACID | RES_COLD | EVIL |
 F:RES_WATE | RES_PLAS | RES_NEXU | REGENERATE | RANGED_MELEE |
@@ -15396,7 +15393,7 @@ F:REGENERATE | NONLIVING | CAN_FLY |
 F:GOOD | RES_ACID | RES_FIRE | IM_COLD | IM_ELEC | RES_POIS |
 F:NO_CONF | NO_SLEEP | RES_TELE | RIDING | AURA_FEAR
 F:POS_GAIN_AC | POS_SEE_INVIS | POS_TELEPATHY
-P:Copy:Archon:Paladin
+P:Copy:Celestial:Paladin
 P:Stats:1:0:3:1:0:3
 P:Body:Unicorn
 S:1_IN_3 |
@@ -15683,7 +15680,7 @@ P:Speed:+7
 
 N:871:Metal Babble
 G:j:s
-I:100:3d2:200:10000:0:2
+I:120:3d2:200:10000:0:2
 W:80:30:999:400000:0:0
 B:HIT:DISENCHANT(1d10)
 B:HIT:DISENCHANT(1d10)
@@ -16052,7 +16049,7 @@ W:55:2:999:16000:0:0
 B:CLAW:HURT(4d12)
 B:CLAW:HURT(4d12)
 B:CLAW:HURT(4d12)
-B:BITE:HURT(7d14):POISON(2d14):CUT(7d14, 10%)
+B:BITE:HURT(7d14):POISON(3d14):CUT(7d14, 10%)
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_GOOD |
 F:BASH_DOOR | MOVE_BODY | CAN_FLY |
@@ -16252,7 +16249,7 @@ G:l:g
 I:110:20d10:60:50:80:300
 W:25:1:999:500:70000:740
 B:ENGULF:HURT(5d6)
-B:ENGULF:HURT(3d6):POISON(2d6)
+B:ENGULF:HURT(3d6):POISON(3d6)
 F:AQUATIC | SMART | WEIRD_MIND | RES_POIS | RES_WATE | ANIMAL | NO_CONF
 F:NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC
@@ -16902,7 +16899,7 @@ P:Copy:Barbarian:Beastmaster
 P:Body:Dragon
 D:An undead dragon skeleton.
 
-N:942:Planetar
+N:942:Galactic Celestial
 G:A:r
 I:130:22d100:30:150:255:180
 W:50:6:999:10000:100000:943
@@ -16916,15 +16913,15 @@ F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_LITE |
 F:NO_CONF | NO_SLEEP | CAN_FLY |
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
-P:Copy:Archon:Paladin
+P:Copy:Celestial:Paladin
 S:1_IN_4 | HEAL | HASTE | TELE_OTHER | BO_MANA | BO_PLASMA(8d7+85) | CAUSE_4 |
 S:S_MONSTER | S_ANGEL | INVULN | PSY_SPEAR(1d100+150) | S_DRAGON | DISPEL_MAGIC |
 S:ANTI_MAGIC | DETECT_MONSTERS | BLESS | HEROISM | MAPPING
 O:DROP_PALADIN
-D:It is an angel, fast and strong. You are stunned by its extreme holiness
+D:It is a celestial, fast and strong. You are stunned by its extreme holiness
 D:and try to resist all desires to obey it.
 
-N:943:Solar
+N:943:Cosmic Celestial
 G:A:y
 I:130:100d30:30:160:255:180
 W:64:6:999:22000:0:0
@@ -16939,15 +16936,15 @@ F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_LITE |
 F:NO_CONF | NO_SLEEP | CAN_FLY |
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC |
-P:Copy:Archon:Paladin
+P:Copy:Celestial:Paladin
 S:1_IN_3 |
 S:TELE_TO | BLIND | SCARE | CAUSE_4 | BO_MANA | PSY_SPEAR(1d128+150) | INVULN
 S:S_ANGEL | S_DRAGON | BA_LITE | HEAL | DISPEL_MAGIC | ANTI_MAGIC
 S:DETECT_MONSTERS | BLESS | HEROISM | MAPPING
 O:DROP_PALADIN
-D:Never a more heavenly being have you seen. The very holiness of its
+D:Never a more glorious being have you seen. The very holiness of its
 D:presence makes you deeply respect it. Few creatures can match the powers
-D:of a Solar; fewer still live to tell the tale after attacking one.
+D:of a Cosmic Celestial; fewer still live to tell the tale after attacking one.
 
 N:944:Deep puddle
 G:~:b
@@ -17686,7 +17683,7 @@ F:RES_ACID | IM_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_TELE |
 F:RES_DISE | RES_NEXU | RES_NETH | RES_PLAS | RES_LITE | RES_SOUN |
 F:NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_GAIN_AC | POS_SEE_INVIS | POS_TELEPATHY
-P:Copy:Archon:Priest
+P:Copy:Celestial:Priest
 P:Body:Giant Bird
 S:FREQ_25 |
 S:SCARE | BRAIN_SMASH | DRAIN_MANA |
@@ -17706,7 +17703,7 @@ F:RES_ACID | RES_FIRE | RES_COLD | IM_ELEC | RES_POIS | RES_TELE |
 F:RES_DISE | RES_NETH | RES_PLAS |
 F:NO_CONF | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_GAIN_AC | POS_SEE_INVIS | POS_TELEPATHY
-P:Copy:Archon:Paladin
+P:Copy:Celestial:Paladin
 P:Body:Unicorn
 S:1_IN_6 |
 S:BLIND | SHRIEK | DISPEL_MAGIC | ANTI_MAGIC | INVULN | S_ANGEL | HEAL
@@ -17757,6 +17754,9 @@ F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Barbarian:Warrior
 P:Life:115
 P:Body:Hound
+D:The wolfhound of the Valar, Huan has served many masters in his time; but
+D:now he runs wild and acknowledges no master save himself, as he hunts
+D:alone for his nemesis Carcharoth.
 
 N:993:Dao
 G:P:o
@@ -17893,8 +17893,7 @@ S:BLIND | CONFUSE | SCARE | S_HI_DRAGON | DETECT_OBJECTS
 D:Bahamut the Platinum Dragon has been described both as the King of All Good Dragons,
 D:and more accurately, as a glorious and resplendent deity in his own right. He is ever
 D:watchful for the cause of lawful good and sits unsleepingly in his palace on Mount
-D:Celestia, the Seven Heavens. Bahamut is the protector of all good dragons and a
-D:fierce opponent of evil.
+D:Celestia. Bahamut is the protector of all good dragons and a fierce opponent of evil.
 
 N:1001:Suke-san, the Mitsukuni's Warder
 G:p:s
@@ -17935,7 +17934,7 @@ F:RAND_50 | RAND_25 |
 F:FORCE_MAXHP | CAN_SPEAK |
 F:ONLY_ITEM | DROP_90 | DROP_GOOD |
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | RES_NETH
-F:UNDEAD | NO_SLEEP
+F:UNDEAD | NO_SLEEP | NO_QUEST
 F:POS_SEE_INVIS | POS_HOLD_LIFE
 P:Copy:Hobbit:Warrior
 D:He has only three hair. He is careless, but kind, and always a bit hungry.
@@ -18054,7 +18053,7 @@ F:CAN_FLY | UNIQUE2 |
 F:TAKE_ITEM | OPEN_DOOR |
 F:RES_FIRE | RES_COLD | RES_ELEC | RES_ACID | RES_POIS | NO_CONF | NO_SLEEP
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
-P:Copy:Archon:Rogue
+P:Copy:Celestial:Rogue
 P:Speed:+15
 S:1_IN_3 |
 S:TELE_SELF | HASTE | TELE_OTHER | TELE_LEVEL | BLINK
@@ -18071,7 +18070,7 @@ F:CAN_FLY | UNIQUE2 |
 F:TAKE_ITEM | OPEN_DOOR | SILVER |
 F:RES_FIRE | RES_COLD | RES_ELEC | RES_ACID | RES_POIS | NO_CONF | NO_SLEEP
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
-P:Copy:Archon:Rogue
+P:Copy:Celestial:Rogue
 P:Speed:+10
 S:1_IN_3 |
 S:TELE_SELF | HASTE | TELE_OTHER | TELE_LEVEL | BLINK
@@ -18753,7 +18752,7 @@ P:Copy:Half-Titan:Mauler
 S:FREQ_20 | BR_FIRE | BR_COLD | BR_SHARDS | BR_SOUND | THROW
 S:S_MONSTER | S_KIN | TELE_TO | HEAL
 D:The lord of the Titans, he has broken loose from his confinement in
-D:the nether hells to seek revenge on the world.
+D:the void to seek revenge on the world.
 
 N:1052:Dimensional shambler
 G:h:B
@@ -19238,7 +19237,7 @@ F:SMART | REGENERATE |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_POIS | RES_COLD | NO_CONF | NO_SLEEP |
 F:RES_LITE | RES_DARK | RES_NETH | RES_CHAO | RES_NEXU |
 F:DROP_CORPSE | POS_GAIN_AC | POS_SEE_INVIS | POS_TELEPATHY
-P:Copy:Archon:Paladin
+P:Copy:Celestial:Paladin
 P:Body:Unicorn
 P:Speed:+15
 S:1_IN_3 |
@@ -19512,9 +19511,9 @@ G:H:R
 I:110:60d10:20:80:0:170
 W:127:255:999:500:0:0
 B:HIT:HURT(1d1)
-F:MALE | FORCE_MAXHP | HAS_LITE_2 | HUMAN |
+F:FORCE_MAXHP | HAS_LITE_2 | HUMAN |
 F:OPEN_DOOR | BASH_DOOR | NO_FEAR | UNIQUE2
-D:He looks just like you!
+D:It looks just like you!
 
 N:1096:Zeus, King of the Olympians
 G:P:v
@@ -20215,7 +20214,7 @@ N:1129:Soul
 G:G:B
 I:110:1d1:4:1:40:60
 W:50:0:0:0:0:0
-F:PASS_WALL | INVISIBLE | COLD_BLOOD
+F:PASS_WALL | INVISIBLE | COLD_BLOOD | CAN_FLY
 D:A naked spirit of a great sage, who had left his own body forever
 D: to seek and dominate the bodies of others. It looks like a small
 D: cloud of glowing white mist. In this form it is harmless, but
@@ -20412,7 +20411,7 @@ S:BA_ELEC | BA_POIS | BA_NETHER | BA_DARK |
 S:S_UNDEAD | S_HI_UNDEAD | S_SPIDER
 P:Copy:Amberite:Chaos-Warrior
 D:She was a beautiful spirit before, but she is a terrible spirit of
-D:the hell now. Fear its anger!
+D:chaos now. Fear her anger!
 
 N:1139:Izanagi, the Spirit
 G:p:w
@@ -20508,7 +20507,7 @@ S:CAUSE_4 | BO_MANA | BO_PLASMA | BA_FIRE | BA_LITE |
 S:HEAL | S_MONSTER | S_ANGEL | S_HI_DRAGON
 P:Copy:Amberite:Chaos-Warrior
 D:She is the spirit of the sun that lords Takamagahara that is the country
-D:of heaven. Her brightness lights up the world.
+D:of aether. Her brightness lights up the world.
 D:She and her children plot to conquest of countries of the ground.
 
 # Forest critters (blame Gwarl for these)
@@ -20680,7 +20679,7 @@ D:her mottled cheeks and her gnarled skin testify to her long suffering and
 D:an intense abhorrence for all beauty and youth.
 
 # Demons from Vanilla
-N:1151:Osyluth
+N:1151:Bone fiend
 G:U:W
 I:130:40d100:20:145:40:100
 W:65:3:999:13000:0:0
@@ -20698,9 +20697,9 @@ S:1_IN_6 |
 S:BA_ELEC | BA_COLD | BO_ICE | SCARE | S_DEMON | S_KIN |
 D:It is a demon made almost entirely out of bones. It is humanoid, but with
 D:a large tail similar to that of a giant scorpion, and emits a foul smell
-D:of decay and rot. They are despised even in the hells.
+D:of decay and rot. They are despised even in the courts.
 
-N:1152:Gelugon
+N:1152:Frost grue
 G:U:w
 I:130:45d100:20:120:40:250
 W:69:3:999:14000:0:0
@@ -20722,7 +20721,7 @@ D:great claws on its hands and pincers on its mouth, and its head bulges
 D:with great multi-faceted eyes. Its tail is covered with razor-sharp
 D:spikes.
 
-N:1153:Hezrou
+N:1153:Grue
 G:U:g
 I:110:45d20:20:60:70:250
 W:41:3:125:1936:0:0
@@ -20758,7 +20757,7 @@ D:and massive fangs dripping a foul green liquid, the Pit Fiend is a
 D:dreadful enemy from the lowest depths of the hells. They are often the
 D:commanders of vast demon armies.
 
-N:1155:Glabrezu
+N:1155:Demon crab
 G:U:U
 I:110:60d20:20:60:70:250
 W:43:2:125:3000:0:0
@@ -20773,7 +20772,7 @@ S:S_DEMON
 P:Copy:Imp:Chaos-Warrior
 D:It is demon with arms and pincers, its form a true mockery of life.
 
-N:1156:Nalfeshnee
+N:1156:Butcher demon
 G:U:r
 I:110:80d20:20:60:80:250
 W:45:2:125:5000:0:0
@@ -20790,9 +20789,9 @@ S:BR_FIRE
 S:S_DEMON
 P:Copy:Imp:Chaos-Warrior
 D:It is a large demon with the head of a giant boar.  Flames run up and down
-D: its length.
+D: its length and it wields a huge cleaver.
 
-N:1157:Barbazu
+N:1157:Barbed mauler
 G:U:G
 I:120:70d20:25:90:70:250
 W:55:4:999:3000:0:0
@@ -20844,7 +20843,7 @@ P:Body:Giant Reptile
 S:1_IN_4
 S:BR_DARK
 D:A large reptile in black scales, burning the earth with
-D:the touch of hell where it steps.
+D:the touch of the underworld where it steps.
 
 # New things
 N:1160:Nebiros, the Marquis
@@ -20867,8 +20866,8 @@ P:Body:Giant Bird
 S:1_IN_3 |
 S:BR_DARK | BR_NETHER | SCARE | BO_NETHER | BA_DARK |
 S:S_HI_UNDEAD | S_UNDEAD | S_DEMON | ANIM_DEAD |
-D:Nebiros, the General of Hell keeps watch over all demons. One of the
-D:greatest necromancers in Hell, he appears in the form of a raven.
+D:Nebiros, the Marquis of Chaos keeps watch over all demons. One of the
+D:greatest necromancers in the Courts, he appears in the form of a raven.
 
 N:1161:Atropos, the Sister of Fate
 G:p:G
@@ -21160,7 +21159,7 @@ S:1_IN_5 | JMP_NETHER | DETECT_MONSTERS
 D:Rotting, putrescent, and shrouded in darkness, this bloated
 D:abomination is back from the nether world to hunt the living.
 
-N:1177:Hell spider
+N:1177:Chaos spider
 G:S:R
 I:125:60d20:15:50:0:150
 W:80:6:999:1500:0:0
@@ -21173,7 +21172,7 @@ F:POS_GAIN_AC
 P:Copy:Hobbit:Rogue
 P:Body:Spider
 S:1_IN_5 | JMP_HELL_FIRE(66) | DETECT_MONSTERS
-D:A giant spider from the planes of hell sent to rend your soul in
+D:A giant spider from the courts of chaos sent to rend your soul in
 D:eternal damnation.
 
 # Tomenet
@@ -21190,7 +21189,7 @@ F:SMART | KILL_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_LITE | AURA_FEAR
 F:NO_CONF | NO_SLEEP | CAN_FLY | KILL_WALL | NO_FEAR | REFLECTING | RES_TELE | NO_STUN |
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
-P:Copy:Archon:Paladin
+P:Copy:Celestial:Paladin
 S:1_IN_3 |
 S:TELE_TO | BR_MANA | BR_DISENCHANT | S_ANGEL
 D:An undeviable presence, designated to watch the stars and the void and maintain
@@ -21198,7 +21197,7 @@ D:their balance. Its aura is pure beyond expression, its eyes reflect supreme
 D:laws beyond comprehension, daring to look at it will drive you insane,
 D:let alone fighting it!
 
-N:1179:Michael, the Guardian Overlord
+N:1179:Zuriel, the Guardian Overlord
 G:A:U
 I:130:69d199:100:175:255:255
 W:98:3:999:77777:0:0
@@ -21212,7 +21211,7 @@ F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_LITE | AURA_FEAR
 F:AURA_ELEC | ESCORT | UNIQUE | REGENERATE | NO_STUN | MALE
 F:NO_CONF | NO_SLEEP | CAN_FLY | KILL_WALL | NO_FEAR | REFLECTING | RES_TELE
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC |
-P:Copy:Archon:Paladin
+P:Copy:Celestial:Paladin
 P:Stats:2:2:5:2:2:5
 P:Speed:+10
 S:1_IN_3 |
@@ -21220,9 +21219,9 @@ S:TELE_TO | BR_MANA | BR_DISENCHANT | BR_CONF | S_ANGEL | S_MONSTER
 S:BA_LITE | BO_MANA | BO_WATER | BRAIN_SMASH |
 S:HASTE | HEAL | ANTI_MAGIC | DRAIN_MANA
 D:Through many succeeding cycles of time, as ray after ray provided the pathway
-D:for the descent of new spirits, lord Michael has remained as the guardian
-D:overlord of the angelic host, the elemental kingdom and humanity. He shall
-D:not fold his cosmic wings about him to return home until the final angelic
+D:for the descent of new spirits, lord Zuriel has remained as the guardian
+D:overlord of the celestial host, the elemental kingdom and humanity. He shall
+D:not fold his cosmic wings about him to return home until the final celestial
 D:being is freed, the last man is redeemed and the last elemental returned to
 D:its perfect state.
 
@@ -21547,13 +21546,15 @@ F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | SMART | IM_FIRE |
 F:AURA_COLD | AURA_FIRE | EVIL | RES_TELE | NO_STUN |
 F:IM_COLD | RES_POIS | NO_CONF | NO_SLEEP | RES_TIME | RES_CHAO |
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC | POS_TELEPATHY
-P:Copy:Archon:Paladin
+P:Copy:Celestial:Paladin
 S:FREQ_30 |
 S:BR_COLD | BR_NETHER | BR_SHARDS | PSY_SPEAR(1d200+150) | S_ANGEL | BA_LITE
 S:S_HI_DEMON
 D:The heart and soul of the courts of chaos, Surgol is the embodiment of 
 D:chaos and madness; he twists reality around him and appears
-D: cloaked in both ice and flames.
+D:cloaked in both ice and flames. He looks remarkably like a Celestial,
+D:normally the antithesis of Chaos. How could a being of order be the
+D:ruler of chaos? 
 
 N:1196:The Lurking Horror
 G:H:D
@@ -22224,7 +22225,7 @@ G:g:D
 I:135:110d77:80:190:0:500
 W:91:3:999:85184:0:0
 B:BITE:HURT(15d8):CUT(4d8):DAM(1d75, 50%)
-B:BITE:HURT(15d8):POISON(12d3)
+B:BITE:HURT(15d8):POISON(14d4)
 B:CLAW:HURT(7d13):CUT(8d14)
 B:CLAW:HURT(7d13):POISON(6d6)
 F:FORCE_SLEEP | FORCE_MAXHP | RES_TELE | UNIQUE | SELF_DARK_1 | PASS_WALL |
@@ -22330,7 +22331,7 @@ I:121:22d11:20:65:20:300
 W:21:2:55:240:0:0
 B:GAZE:PARALYZE
 B:GAZE:PARALYZE
-B:STING:POISON(1d6)
+B:STING:POISON(1d8)
 B:TOUCH:EAT_GOLD
 F:FORCE_SLEEP | ONLY_GOLD | DROP_2D2 | RES_POIS | CAN_FLY | CAN_SWIM
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | DRAGON | WILD_WOOD | WILD_MOUNTAIN |
@@ -22393,7 +22394,7 @@ B:BITE:ACID(13d13):VAMP(7d7):UNLIFE(4d4, 40%)
 F:FORCE_SLEEP | SMART | KILL_WALL | CAN_SWIM | BASH_DOOR | FORCE_MAXHP
 F:ONLY_ITEM | DROP_3D2 | DROP_2D2 | DROP_GOOD | COLD_BLOOD | OPEN_DOOR |
 F:EVIL | UNDEAD | RES_FIRE | RES_COLD | IM_POIS | RES_DARK | RES_TELE |
-F:HURT_LITE | RES_NETH | NO_CONF | NO_SLEEP | UNIQUE | NO_FEAR
+F:HURT_LITE | RES_NETH | NO_CONF | NO_SLEEP | UNIQUE | NO_FEAR | RES_ACID
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Half-Titan:Mauler
 P:Body:Giant Worm
@@ -22618,7 +22619,7 @@ F:POS_GAIN_AC | POS_HOLD_LIFE
 P:Copy:Human:Rage-Mage
 D:An icy whirlwind of cold air.
 
-N:1250N:1250:Polyphemus, the Blind Cyclops
+N:1250:Polyphemus, the Blind Cyclops
 G:P:g
 I:134:42d242:40:200:20:1000
 W:80:3:999:58080:0:0
@@ -22673,7 +22674,7 @@ P:Copy:Human:Warrior
 P:Body:Fish
 D:It always grows louder when it's about to feed.
 
-N:1253:Metatron, the Living Pattern
+N:1253:Metatron, Lord of Infinity
 G:A:G
 I:136:108d148:100:192:2:250
 W:100:1:999:80586:0:0
@@ -22689,17 +22690,17 @@ F:RES_ACID | IM_FIRE | IM_COLD | RES_ELEC | RES_POIS | RES_LITE | RES_DARK |
 F:AURA_FEAR | ESCORT | UNIQUE | REGENERATE | NO_STUN | MALE | RES_NEXU
 F:NO_CONF | NO_SLEEP | CAN_FLY | KILL_WALL | NO_FEAR | REFLECTING | RES_TELE
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC |
-P:Copy:Archon:Paladin
+P:Copy:Celestial:Paladin
 P:Stats:2:2:2:2:2:6
 P:Speed:+10
 S:FREQ_36 |
 S:TELE_TO | INVULN | BR_FIRE | BR_DISENCHANT | BR_MANA | S_ANGEL
 S:BA_LITE | BO_MANA | BRAIN_SMASH | HASTE | HEAL | ANTI_MAGIC | BR_GRAVITY
 S:BLINK | BR_NEXUS | MANA_STORM | BA_DARK | S_HI_DRAGON | PSY_SPEAR(1d200+150)
-D:You assume that, as the leading angel in Amber, he must be officially good;
+D:You assume that, as the leading celestial, he must be officially good;
 D:but you sense in him a ruthless scheming manipulator, one who has remained
-D:home and ruled in absolute comfort as Michael and Raphael have led the
-D:heavenly legions to the world outside in their fight against evil.
+D:home and ruled in absolute comfort as Zuriel and Raphiel have led the
+D:celestial legions to the world outside in their fight against evil.
 D:Surrounded by light and darkness, master of contradictions and opposites,
 D:Metatron is an imposing and immensely powerful figure... but it is his low
 D:cunning you truly fear.
@@ -22849,7 +22850,7 @@ P:Stats:0:0:0:0:3:2
 P:Life:105
 S:1_IN_3 |
 S:HEAL | BR_NETHER | BA_NETHER(10d10+230) | S_HI_UNDEAD | BO_MANA | BA_DARK |
-S:BA_MANA | HAND_DOOM | S_SPECIAL | S_MONSTER | BR_FORCE | BR_NEXUS |
+S:MANA_STORM | HAND_DOOM | S_SPECIAL | S_MONSTER | BR_FORCE | BR_NEXUS |
 S:BA_NEXUS(10d10+138) | HASTE | ANIM_DEAD | PSY_SPEAR(1d184+160) | CAUSE_4 |
 D:The divine king of Egypt, Osiris was murdered and usurped by his brother
 D:Seth, and resurrected by his wife Isis and posthumous son Horus. He is now
@@ -23095,9 +23096,10 @@ B:BUTT:HURT(8d14):STUN(6d6)
 B:BUTT:HURT(4d7):STUN(3d3)
 F:BASH_DOOR | ANIMAL | RES_WALL | REFLECTING | RIDING |
 F:RES_POIS | RES_CHAO | DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | IM_ELEC |
-F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_STUN | RES_FIRE | RES_ELEC |
+F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_STUN | RES_FIRE
 F:EVIL | MOVE_BODY | RES_ACID | RES_DARK | RES_NETH | EGYPTIAN | EGYPTIAN2
 P:Copy:Half-Titan:Warrior-Mage
+P:Body:Hound
 S:1_IN_8 |
 S:DRAIN_MANA | BR_FORCE
 D:A large, lean, bizarre creature associated with the god Seth, it seems
@@ -23139,6 +23141,7 @@ F:NO_CONF | NO_SLEEP | NO_STUN | RES_SOUN | IM_POIS | REFLECTING | DROP_4D2
 F:RES_WATE | RES_LITE | RES_DARK | RES_PLAS | RES_SHAR | BASH_DOOR | CAN_FLY
 F:POS_GAIN_AC
 P:Copy:Golem:Warrior
+P:Body:Fishrooster
 S:FREQ_27 | BR_SOUND | BR_STORM | SHRIEK | S_MONSTER
 D:A bizarre, majestic, awe-inspiring monstrosity, large enough to swallow
 D:dozens of people at once. You have never seen anything else like it, and
@@ -23417,7 +23420,7 @@ P:Copy:Human:Sorcerer
 P:Stats:0:0:0:0:0:8
 P:Body:Quylthulg
 D:A massive pile of pulsing flesh, glowing with a bright holy fire. (Is there
-D:nothing that Heaven will not try to pervert?)
+D:nothing that isn't created by Quylthulgs?)
 
 N:1288:Iku-Turso
 G:H:B
@@ -23434,6 +23437,9 @@ F:RES_ELEC | RES_FIRE | RES_COLD | RES_TIME | IM_ACID | NO_CONF | NO_SLEEP
 F:EVIL | DROP_CORPSE | POS_GAIN_AC
 S:1_IN_2 |
 S:TELE_TO | BA_WATER(1d124+62) | BR_ACID | BR_ELEC | BR_NEXUS
+P:Copy:Dunadan:Chaos-Warrior
+P:Body:Octopus
+P:Speed:+12
 D:Since the dawn of time has Iku-Turso lurked in the oceans: the gigantic
 D:terror of the open seas, umpteen-headed, umpteen-horned, his slimy tentacles
 D:reaching out to catch his prey; as if every other sea monster had been
@@ -23471,6 +23477,7 @@ F:DEMON | NONLIVING | FORCE_SLEEP | RES_PLAS | EVIL | ONLY_ITEM | STUPID |
 F:DROP_60 | DROP_CORPSE | POS_SEE_INVIS | FRIENDS(1d3, 25%) | NO_CONF
 F:RES_NETH | IM_POIS |
 P:Copy:Dunadan:Paladin
+P:Body:Spider
 S:FREQ_95 |
 S:BO_PLASMA(4d4+32)
 D:This monstrous demonic spider-golem seems to be all legs and oversized
@@ -23516,7 +23523,7 @@ N:1293:Plague monk
 G:r:g
 I:112:9d10:10:20:12:90
 W:14:2:50:65:0:0
-B:CLAW:HURT(1d4):POISON(1d4):DISEASE(20%)
+B:CLAW:HURT(1d4):POISON(1d6):DISEASE(20%)
 B:BITE:HURT(1d6):LOSE_CON(20%)
 A:POISON(1d2)
 F:DROP_60 | DROP_90 | COMPOST
@@ -23581,7 +23588,7 @@ N:1297:Swamp rat
 G:r:g
 I:115:5d10:12:20:12:20
 W:10:2:40:70:0:0
-B:BITE:HURT(2d3):POIS(1d3)
+B:BITE:HURT(2d3):POIS(2d3)
 B:BITE:HURT(3d2):ACID(1d3, 5%)
 F:EVIL | ANIMAL | RES_POIS | COMPOST
 F:DROP_CORPSE | POS_GAIN_AC | FRIENDS(2d3)
@@ -23619,9 +23626,10 @@ S:1_IN_5 |
 S:HEAL | BLINK | SHRIEK | DARKNESS | MISSILE | CONFUSE
 P:Copy:Yeek:Mage
 P:Speed:+7
+P:Body:Puppy
 D:A great purple rat with sharp teeth and sorcerous powers.
 
-N:1300:Death pumpkin
+N:1300:Death pumpkin 
 G:#:o
 I:120:66d44:30:75:15:500
 W:45:4:999:2178:0:0
@@ -23688,7 +23696,7 @@ W:100:2:999:121000:0:0
 A:ELEC(8d8)
 F:FORCE_SLEEP | FORCE_MAXHP | FIXED_UNIQUE | RES_TELE | NEVER_BLOW |
 F:KILL_WALL | UNIQUE | COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR |
-F:RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_ACID | IM_POIS |
+F:RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_ACID | IM_POIS | STUPID
 F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING | RES_LITE | RES_DARK | RES_NETH |
 F:RES_SHAR | RES_SOUN | RES_CHAO | RES_DISE | RES_TIME |
 F:DROP_3D2 | DROP_4D2 | DROP_GREAT |
@@ -23697,7 +23705,7 @@ F:DROP_CORPSE |
 P:Copy:Golem:Sorcerer
 S:1_IN_1 |
 S:S_DEAD_UNIQ
-D:The ultimate secret weapon of the hosts of Heaven, this machine stores
+D:The ultimate secret weapon of the hosts of Amber, this machine stores
 D:the memory of hundreds of bodies and is capable of reproducing them
 D:perfectly, down to the last molecule on the flaming sword. You wonder
 D:what mad scientist designed this contraption, and whether he was also
@@ -23792,7 +23800,7 @@ D:A giant bat which feeds on raw magical energy.
 N:1310:Werebear
 G:q:D
 I:110:13d25:20:75:40:300
-W:24:2:75:200:0:0
+W:30:10:75:200:0:0
 B:CLAW:HURT(1d10)
 B:CLAW:HURT(1d10)
 B:BITE:HURT(2d8)
@@ -24139,7 +24147,7 @@ D:except approach it in horrified fascination.
 N:1329:Kobold shaman
 G:k:r
 I:110:5d5:20:16:10:120
-W:5:1:35:5:14:102
+W:5:2:35:5:14:102
 B:HIT:HURT(1d8)
 B:HIT:HURT(1d8)
 F:DROP_60 | WILD_ALL |
@@ -24332,6 +24340,127 @@ D:A flickering purple outline of a sphere, with eerie yellow-purple
 D:mist circling rapidly around it, Tik'srvzllat threatens your sanity 
 D:with its appearance alone. 
 
+#1339-1342 are the first forms of werecreatures, which can now appear as humans (hobbit for wererat)
+
+#Turns into 270 wererat
+N:1339:Scruffy looking hobbit
+G:h:s
+I:110:3d5:16:8:10:100
+W:15:2:30:5:5000:539
+B:HIT:HURT(1d7)
+B:TOUCH:EAT_GOLD
+F:MALE | HAS_LITE_1 |
+F:THIEF | OPEN_DOOR | BASH_DOOR |
+F:EVIL
+P:Copy:Hobbit:Tourist
+D:A short little guy, in bedraggled clothes. He appears to be looking
+D:for a good tavern as he mutters something about missing second breakfast.
+
+#Turns into 347 Werewolf
+N:1340:Swordsman
+G:p:U
+I:110:12d8:20:34:20:170
+W:20:2:1:50:40:400:372
+B:HIT:HURT(3d6)
+B:HIT:HURT(3d6)
+F:MALE | HUMAN | WILD_ALL | HAS_LITE_2 |
+F:OPEN_DOOR | BASH_DOOR
+F:EVIL
+D:A warrior of considerable skill.
+P:Copy:Barbarian:Warrior
+P:Life:90
+
+#Turns into 404 wereworm
+N:1341:Hardened warrior
+G:p:u
+I:110:15d11:20:40:40:170
+W:25:3:50:60:2500:532
+B:HIT:HURT(3d5)
+B:HIT:HURT(3d5):HURT(3d5, 20%)
+F:MALE | HAS_LITE_2 | HUMAN |
+F:OPEN_DOOR | BASH_DOOR
+F:EVIL
+P:Copy:Dunadan:Warrior
+D:A scarred warrior who moves with confidence.
+
+#Turns into 1310 werebear
+N:1342:Druid
+G:p:g
+I:110:12d12:20:10:10:140
+W:30:2:50:50:700:370
+B:HIT:HURT(2d4)
+B:HIT:HURT(2d4)
+F:MALE | WILD_WOOD | HAS_LITE_2 | HUMAN |
+F:FORCE_SLEEP
+F:SMART | OPEN_DOOR | BASH_DOOR
+F:EVIL
+S:1_IN_3 |
+S:HASTE | BLINK | BLIND | PARALYZE | SLOW | BO_FIRE | BO_ELEC | DETECT_MONSTERS | MAPPING
+P:Copy:Human:Priest
+D:A mystic at one with nature. Om.
+
+#Opos: I: speed : hit points : vision : armor class : alertness : weight (lbs)
+#tome: # I: speed : hit points : vision : armor class : alertness
+
+#Opos: W: depth : rarity : max_depth : exp : next_exp : next_mon
+#tome: W: depth : rarity : corpse weight : experience for kill
+
+
+#Evil spiders from TOME
+N:1343:Aranea
+G:S:r
+I:120:20d10:20:45:50:110
+W:30:2:0:250:50:1344
+B:CLAW:POISON(2d8)
+B:CLAW:POISON(2d8)
+B:BITE:POISON(2d6)
+B:BITE:POISON(2d6)
+F:DROP_SKELETON | FORCE_MAXHP | FRIENDS |
+F:OPEN_DOOR | BASH_DOOR | HURT_LITE |
+F:ANIMAL | EVIL | IM_POIS
+S:1_IN_4
+S:BO_FIRE | SLOW | PARALYZE | CAUSE_3 | MISSILE
+D:A red arachnid with legs weaving spells in the air. 
+
+N:1344:Elder aranea
+G:S:v
+I:120:30d20:20:65:50:120
+W:40:3:0:2500:0:0
+B:CLAW:POISON(5d8)
+B:CLAW:POISON(5d8)
+B:BITE:HALLU(5d6)
+B:BITE:HALLU(5d6)
+F:DROP_SKELETON | FORCE_MAXHP |
+F:OPEN_DOOR | BASH_DOOR | HURT_LITE | SMART |
+F:ANIMAL | EVIL | IM_FIRE | IM_POIS
+S:1_IN_6
+S:SLOW | PARALYZE | DRAIN_MANA | MIND_BLAST | HEAL | 
+S:BA_FIRE | BO_FIRE | CAUSE_3 | S_SPIDER
+D:A vast, bloated arachnid, master of its brood: among the more terrible of 
+D:Ungoliant's descendants, this is a monster such as those who haunted the dread 
+D:valley of Nan Dungortheb long ago. 
+
+N:1345:The Ultimate Beholder
+G:e:U
+I:130:65d100:30:80:10:100
+W:73:4:999:16000:0:0
+B:GAZE:DAM(2d6):DRAIN_EXP(40d6)
+B:GAZE:DAM(2d6):DRAIN_CHARGES
+B:GAZE:DAM(2d6):LOSE_INT
+B:GAZE:DRAIN_MANA(7d10)
+F:UNIQUE | MALE | CAN_SPEAK | RES_TELE
+F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
+F:SMART | BASH_DOOR |
+F:EVIL | RES_POIS | NO_CONF | NO_SLEEP
+F:POS_TELEPATHY | POS_GAIN_AC
+P:Copy:High-Elf:Warrior-Mage
+P:Body:Eye8
+S:1_IN_2 |
+S:BLIND | SLOW | CONFUSE | SCARE | DRAIN_MANA | MIND_BLAST | AMNESIA |
+S:DARKNESS | BA_DARK | BO_ACID | BO_FIRE | BO_COLD | S_KIN | ROCKET(400)
+D:An ancient undead beholder, it appears to have been mechanically 
+D:augmented similar to what was done to the cyberdemons...
+
 # New monsters for Oposband 0.3
 #Gnome trickster (shoot, traps, blink, otherwise annoy)
 #Gnome worm mage (summon worms)
@@ -24343,7 +24472,6 @@ D:with its appearance alone.
 #From TOME:
 #Golgarach, the Living Rock
 #Glass golem
-#Tik'srvzllat
 #Sandworm
 #The Sandworm Queen
 #Thiazi the storm giant
@@ -24367,9 +24495,6 @@ D:with its appearance alone.
 #Giant turtle
 #Elder stargazer
 #stargazer
-#(water elf)aquatic elf shaman
-#(water elf name)aquatic elf warrior
-#(Water elf name) aquatic elf
 #aquatic golem (diver golem)
 #drowned soul
 #murk dweller
@@ -24394,4 +24519,3 @@ D:with its appearance alone.
 # R - Light Red  G - Light Green  B - Light Blue  U - Light Brown
 #
 # vim: filetype=ri :
-

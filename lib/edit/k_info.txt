@@ -366,7 +366,7 @@ A:15/3
 P:0:2d5:0:0
 F:SHOW_MODS | TOWN
 
-N:*:& Thrusting Sword~
+N:*:& Fencer Sword~
 G:|:W
 I:23:7:0
 W:5:0:0:40:42
@@ -1362,8 +1362,8 @@ F:TOWN
 P:3:1d1:0:0
 D:A pot-helm of steel that protects the skull.
 
-N:*:& Jingasa~
-G:]:s
+N:*:& Skull Helm~
+G:]:W
 I:32:4:0
 W:16:0:0:30:60
 A:16/2

@@ -70,5 +70,5 @@ Orc shaman        Fair          Poor          Fair          Fair            30'
 
 
 
-Automatically generated for Oposband 0.3.0.
+Automatically generated for Oposband 0.3.2.
 

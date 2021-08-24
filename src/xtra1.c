@@ -1401,8 +1401,7 @@ static void prt_gold(void)
     big_num_display(p_ptr->au, tmp);
     sprintf(out_val, "%8.8s", tmp);
 
-
-    put_str("AU ", r.y + ROW_GOLD, r.x + COL_GOLD);
+    put_str("GOLD", r.y + ROW_GOLD, r.x + COL_GOLD);
     c_put_str(TERM_L_GREEN, out_val, r.y + ROW_GOLD, r.x + COL_GOLD + 4);
 }
 

@@ -66,6 +66,7 @@ extern bool obj_is_readable_book(obj_ptr obj);
 extern bool obj_is_rod(obj_ptr obj);
 extern bool obj_is_staff(obj_ptr obj);
 extern bool obj_is_wand(obj_ptr obj);
+extern bool obj_is_usable(obj_ptr obj);
 
 extern bool obj_is_shooter(obj_ptr obj);
 extern bool obj_is_bow(obj_ptr obj);

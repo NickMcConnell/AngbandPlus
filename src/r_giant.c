@@ -259,7 +259,7 @@ static void _monster_toss_imp(_monster_toss_info *info)
     chance *= 2;
 
     monster_desc(m_name, m_ptr, 0);
-    msg_format("You toss %s.", m_name);
+    msg_format("You toss %s", m_name);
 
     cave[m_ptr->fy][m_ptr->fx].m_idx = 0;
     lite_spot(m_ptr->fy, m_ptr->fx);
@@ -327,10 +327,10 @@ static void _monster_toss_imp(_monster_toss_info *info)
                 critical_t crit;
 
                 if (!visible)
-                    msg_format("%^s finds a mark.", m_name);
+                    msg_format("%^s finds a mark", m_name);
                 else
                 {
-                    msg_format("%^s hits %s.", m_name, m_name2);
+                    msg_format("%^s hits %s", m_name, m_name2);
                     if (visible)
                     {
                         if (!p_ptr->image) mon_track(m_ptr2);
@@ -350,7 +350,7 @@ static void _monster_toss_imp(_monster_toss_info *info)
                 if (dam < 0) dam = 0;
                 dam = mon_damage_mod(m_ptr, dam, FALSE);
 
-                if (mon_take_hit(c_ptr->m_idx, dam, &fear, extract_note_dies(real_r_ptr(m_ptr2))))
+                if (mon_take_hit(c_ptr->m_idx, dam, &fear, extract_note_dies(real_r_ptr(m_ptr2)), TRUE))
                 {
                     /* Dead monster */
                     x = nx;
@@ -408,7 +408,8 @@ static void _monster_toss_imp(_monster_toss_info *info)
     if (dam)
     {
         bool fear = FALSE;
-        if (mon_take_hit(info->m_idx, dam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
+		msg_format("%s is thrown", m_name);
+        if (mon_take_hit(info->m_idx, dam, &fear, extract_note_dies(real_r_ptr(m_ptr)), TRUE))
         {
             /* Dead monster */
         }

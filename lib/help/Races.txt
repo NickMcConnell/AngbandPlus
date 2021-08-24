@@ -826,4 +826,4 @@ Yeek         <color:o>Fair         </color> <color:b>Heroic       </color> <colo
 </style>
 
 
-<color:s>Automatically generated for Oposband 0.3.0.</color>
+<color:s>Automatically generated for Oposband 0.3.1.</color>

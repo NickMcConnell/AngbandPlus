@@ -342,7 +342,7 @@ static cptr _do_potion(int sval, int mode)
 			{
 				//Dispel curses
 				msg_print("You annoint yourself with the holy water, purging curses and closing wounds.");
-				remove_all_curse(FALSE);
+				remove_all_curse();
 				set_cut(0, TRUE);
 				set_hero(25, FALSE);
 			}

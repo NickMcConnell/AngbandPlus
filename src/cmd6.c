@@ -1182,7 +1182,6 @@ void do_cmd_use_staff(void)
     do_cmd_device_aux(prompt.obj);
 }
 
-
 void do_cmd_aim_wand(void)
 {
     obj_prompt_t prompt = {0};
@@ -1611,3 +1610,48 @@ void do_cmd_activate(void)
     do_cmd_activate_aux(prompt.obj);
 }
 
+/* Unified use command */
+void do_cmd_unified_use(void)
+{
+	obj_prompt_t prompt = { 0 };
+
+	if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
+		set_action(ACTION_NONE);
+
+	if (p_ptr->pclass == CLASS_MAGIC_EATER && !pack_find_obj(TV_STAFF, SV_ANY))
+	{
+		magic_eater_cast(TV_STAFF);
+		return;
+	}
+
+	prompt.prompt = "Apply which item?";
+	prompt.error = "You have no items to use.";
+	prompt.filter = obj_is_usable;
+	prompt.where[0] = INV_PACK;
+	prompt.where[1] = INV_EQUIP;
+	prompt.where[2] = INV_FLOOR;
+	prompt.flags = INV_SHOW_FAIL_RATES;
+
+	obj_prompt(&prompt);
+	if (!prompt.obj) return;
+
+	switch (prompt.obj->tval)
+	{
+	case TV_POTION:
+		do_cmd_quaff_potion_aux(prompt.obj);
+		break;
+	case TV_SCROLL:
+		do_cmd_read_scroll_aux(prompt.obj);
+		break;
+	case TV_WAND:
+	case TV_STAFF:
+	case TV_ROD:
+		do_cmd_device_aux(prompt.obj);
+		break;
+	case TV_FOOD:
+		do_cmd_eat_food_aux(prompt.obj);
+		break;
+	default:
+		do_cmd_activate_aux(prompt.obj);
+	}
+}

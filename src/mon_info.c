@@ -524,6 +524,7 @@ static string_ptr _effect_desc(mon_race_ptr race, mon_effect_ptr effect)
     case RBE_LOSE_CON:    s = string_copy_s("Reduce Constitution"); break;
     case RBE_LOSE_CHR:    s = string_copy_s("Reduce Charisma"); break;
     case RBE_LOSE_ALL:    s = string_copy_s("Reduce All Stats"); break;
+	case RBE_HALLUCINATE: s = string_copy_s("Cause Hallucination"); break;
     case RBE_SHATTER:     s = string_copy_s("Shatter"); break;
     case RBE_DRAIN_EXP:   s = string_copy_s("<color:D>Lower Experience</color>"); break;
     case RBE_DISEASE:     s = string_copy_s("Disease"); break;

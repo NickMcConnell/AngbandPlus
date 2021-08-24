@@ -1234,7 +1234,8 @@ static _mon_dam_info_ptr _mon_dam_info_alloc(mon_race_ptr r)
             if (!effect->effect) continue;
             /* skip non-damaging effects */
             if (effect->effect == RBE_CUT) continue;
-            if (effect->effect == RBE_DRAIN_EXP) continue;
+			if (effect->effect == RBE_DRAIN_EXP) continue;
+			if (effect->effect == RBE_HALLUCINATE) continue;
             if (effect->effect == GF_TURN_ALL) continue;
             if (effect->effect == GF_STUN) continue;
             if (effect->effect == GF_PARALYSIS) continue;

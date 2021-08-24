@@ -358,8 +358,14 @@ bool obj_is_rod(obj_ptr obj)     { return obj->tval == TV_ROD; }
 bool obj_is_staff(obj_ptr obj)   { return obj->tval == TV_STAFF; }
 bool obj_is_unknown(obj_ptr obj) { return !obj_is_known(obj); }
 bool obj_is_wand(obj_ptr obj)    { return obj->tval == TV_WAND; }
-
 bool obj_is_shooter(obj_ptr obj) { return obj->tval == TV_BOW; }
+
+bool obj_is_usable(obj_ptr obj)
+{
+	/* If object is a consumable, a device or has an activation  */
+	return (obj->tval == TV_FOOD || obj->tval == TV_POTION || obj->tval == TV_SCROLL || obj_is_device(obj) || obj_has_effect(obj));
+}
+
 bool obj_is_bow(obj_ptr obj)
 {
     if (!obj_is_shooter(obj)) return FALSE;
@@ -936,7 +942,7 @@ void gear_ui(int which)
 
     s = string_alloc_format(
         "<color:w>Carrying %d.%d pounds (<color:%c>%d%%</color> capacity).</color>\n\n"
-        "Examine which item <color:w>(<color:keypress>Esc</color> to exit)</color>?",
+        "Examine which item <color:w>(<color:keypress>Esc</color> to exit)</color>?\n",
          wgt / 10, wgt % 10, pct > 100 ? 'r' : 'G', pct);
     prompt.prompt = string_buffer(s);
     prompt.where[0] = INV_PACK;

@@ -2331,7 +2331,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
     bool            weak = FALSE;
     const int       max_drain_amt = _max_vampiric_drain();
     bool            backstab = FALSE, fuiuchi = FALSE, stab_fleeing = FALSE, sleep_hit = FALSE;
-    bool            do_werewolf_effect = (((p_ptr->prace == RACE_WEREWOLF) || (p_ptr->current_r_idx == MON_WEREWOLF)) && (r_ptr->flags7 & RF7_SILVER)) ? TRUE : FALSE;
+    bool            do_werewolf_effect = (((p_ptr->prace == RACE_WEREWOLF) || (p_ptr->current_r_idx == MON_WEREWOLF1) || (p_ptr->current_r_idx == MON_WEREWOLF2)) && (r_ptr->flags7 & RF7_SILVER)) ? TRUE : FALSE;
 
     if ((MON_CSLEEP(m_ptr)) && (m_ptr->ml)) sleep_hit = TRUE;
     set_monster_csleep(m_idx, 0);
@@ -2687,10 +2687,10 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                     switch (e)
                     {
                     case GF_MISSILE:
-                        *mdeath = mon_take_hit(m_idx, dam, fear, NULL);
+                        *mdeath = mon_take_hit(m_idx, dam, fear, NULL, TRUE);
                         break;
                     case GF_DISENCHANT:
-                        *mdeath = mon_take_hit(m_idx, dam, fear, NULL);
+                        *mdeath = mon_take_hit(m_idx, dam, fear, NULL, TRUE);
                         if (!(*mdeath) && one_in_(7))
                             dispel_monster_status(m_idx);
                         break;
@@ -3506,7 +3506,13 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     }
                 }
 
-                if ((((have_flag(flgs, OF_STUN)) || (p_ptr->tim_field)) && randint1(100) < k) || ((o_ptr->name1 == ART_SILVER_HAMMER) && ((r_ptr->id == MON_WEREWOLF) || (r_ptr->id == MON_DRAUGLUIN) || (r_ptr->id == MON_CARCHAROTH))))
+                if (
+					(((have_flag(flgs, OF_STUN)) || (p_ptr->tim_field)) && randint1(100) < k) || 
+						((o_ptr->name1 == ART_SILVER_HAMMER) && 
+							((r_ptr->id == MON_WEREWOLF1) || (r_ptr->id == MON_WEREWOLF2) || (r_ptr->id == MON_DRAUGLUIN) || (r_ptr->id == MON_CARCHAROTH) ||
+							(r_ptr->id == MON_WERERAT1) || (r_ptr->id == MON_WERERAT2) || (r_ptr->id == MON_WEREWORM1) || (r_ptr->id == MON_WEREWORM2) ||
+							(r_ptr->id == MON_WEREBEAR1) || (r_ptr->id == MON_WEREBEAR2)))
+					)
                 {
                     if ( (r_ptr->flagsr & RFR_RES_ALL)
                       || (r_ptr->flags3 & RF3_NO_STUN) )
@@ -3627,7 +3633,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 k,
                 (o_ptr && o_ptr->tval == TV_POLEARM && o_ptr->sval == SV_DEATH_SCYTHE)
              || (p_ptr->pclass == CLASS_BERSERKER && one_in_(2))
-             || mode == WEAPONMASTER_CRUSADERS_STRIKE
+             || mode == WEAPONMASTER_VITALITY_STRIKE
             );
 
             if (duelist_attack)
@@ -3874,7 +3880,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 }
             }
 
-            if (mode == WEAPONMASTER_CRUSADERS_STRIKE)
+            if (mode == WEAPONMASTER_VITALITY_STRIKE)
                 k = k * 3 / 2;
 
             if ((p_ptr->stun) && (!insta_kill))
@@ -3894,7 +3900,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 k *= 1 + (num_blow + 2)/3;
 
                 /* First hit the chosen target */
-                if (mon_take_hit(c_ptr->m_idx, k, fear, NULL))
+                if (mon_take_hit(c_ptr->m_idx, k, fear, NULL, TRUE))
                 {
                     *mdeath = TRUE;
                     ct += 20;
@@ -3918,7 +3924,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
                     if (c_ptr2->m_idx && (m_ptr2->ml || cave_have_flag_bold(y2, x2, FF_PROJECT)))
                     {
-                        if (mon_take_hit(c_ptr2->m_idx, k, &fear2, NULL))
+                        if (mon_take_hit(c_ptr2->m_idx, k, &fear2, NULL, FALSE))
                             ct += 10;
                     }
                 }
@@ -3930,7 +3936,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     msg_print("****END REAPING****");
             }
             /* Damage, check for fear and death */
-            else if (mon_take_hit(c_ptr->m_idx, k, fear, NULL))
+            else if (mon_take_hit(c_ptr->m_idx, k, fear, NULL, TRUE))
             {
                 *mdeath = TRUE;
 
@@ -4054,8 +4060,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                                 {
                                     dam = 25;
                                 }
-                                msg_format("%^s is wounded.", m_name_subject);
-                                mon_take_hit(m_idx, dam * (max - ct), fear, NULL);
+                                msg_format("%^s is wounded", m_name_subject);
+                                mon_take_hit(m_idx, dam * (max - ct), fear, NULL, TRUE);
                                 break;
                             }
                             else
@@ -4086,9 +4092,9 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     }
                 }
 
-                if (mode == WEAPONMASTER_CRUSADERS_STRIKE)
+                if (mode == WEAPONMASTER_VITALITY_STRIKE)
                 {
-                    msg_format("Your Crusader's Strike drains life from %s!", m_name_object);
+                    msg_format("Your Vitality Strike drains life from %s!", m_name_object);
                     hp_player(MIN(k, 150));
                 }
 
@@ -4423,7 +4429,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
         }
 
         if (mode == WEAPONMASTER_RETALIATION) break;
-        if (mode == WEAPONMASTER_CRUSADERS_STRIKE) break;
+        if (mode == WEAPONMASTER_VITALITY_STRIKE) break;
         if (mode == WEAPONMASTER_MANY_STRIKE) break;
         if (mode == WEAPONMASTER_PIERCING_STRIKE && num > p_ptr->lev/25) break;
         if (mode == WEAPONMASTER_PROXIMITY_ALERT && num > p_ptr->lev/25) break;
@@ -4975,7 +4981,7 @@ bool py_attack(int y, int x, int mode)
             if (p_ptr->weapon_ct == 0) /* Kenshirou Possessor can retaliate with innate attacks! */
                 break;
         case WEAPONMASTER_PROXIMITY_ALERT:
-        case WEAPONMASTER_CRUSADERS_STRIKE:
+        case WEAPONMASTER_VITALITY_STRIKE:
         case WEAPONMASTER_MANY_STRIKE:
         case WEAPONMASTER_PIERCING_STRIKE:
         case WEAPONMASTER_WHIRLWIND:

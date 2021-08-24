@@ -57,7 +57,7 @@ L:,:FLOOR(ICKY)
 L:f:MON(basement cat)
 L:&:LOCKED_DOOR_7
 L:+:CLOSED_DOOR
-L:A:FLOOR(ICKY):MON(archangel)
+L:A:FLOOR(ICKY):MON(celestial)
 L:C:MON(clairvoyant)
 L:n:MON(black knight)
 L:t:MON(master thief)

@@ -302,7 +302,7 @@ static void _crusaders_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with a single blow. You regain hp.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, _do_blow(WEAPONMASTER_CRUSADERS_STRIKE));
+        var_set_bool(res, _do_blow(WEAPONMASTER_VITALITY_STRIKE));
         break;
     default:
         default_spell(cmd, res);
@@ -1856,31 +1856,35 @@ void _circle_kick(void)
 
             if (test_hit_norm(chance, mon_ac(m_ptr), m_ptr->ml))
             {
-                int dam = damroll(dd, ds) + p_ptr->to_d_m;
-
-                sound(SOUND_HIT);
-                msg_format("You kick %s.", m_name);
-
-                if (!(r_ptr->flags3 & RF3_NO_STUN))
-                {
-                    if (mon_stun(m_ptr, mon_stun_amount(dam)))
-                        msg_format("%s is dazed.", m_name);
-                    else
-                        msg_format("%s is more dazed.", m_name);
-                }
-                else
-                    msg_format("%s is not affected.", m_name);
-
-
+				int dam = damroll(dd, ds) + p_ptr->to_d_m;
+				int stun_dam = dam;
                 dam = mon_damage_mod(m_ptr, dam, FALSE);
 
-                if (dam > 0)
-                {
-                    bool fear;
-                    mon_take_hit(c_ptr->m_idx, dam, &fear, NULL);
+				sound(SOUND_HIT);
+				msg_format("You kick %s", m_name);
 
-                    anger_monster(m_ptr);
-                }
+				bool dead = FALSE;
+				if (dam > 0)
+				{
+					bool fear;
+					dead = mon_take_hit(c_ptr->m_idx, dam, &fear, NULL, TRUE);
+
+					anger_monster(m_ptr);
+				}
+					
+				if (!dead)
+				{
+					if (!(r_ptr->flags3 & RF3_NO_STUN))
+					{
+						if (mon_stun(m_ptr, mon_stun_amount(stun_dam)))
+							msg_format("%s is dazed.", m_name);
+						else
+							msg_format("%s is more dazed.", m_name);
+					}
+					else
+						msg_format("%s is not affected.", m_name);
+				}
+                
                 retaliation_count = 0; /* AURA_REVENGE */
                 touch_zap_player(c_ptr->m_idx);
             }

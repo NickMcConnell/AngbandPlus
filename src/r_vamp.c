@@ -235,7 +235,7 @@ void _grasp_spell(int cmd, variant *res)
         }
         msg_format("You grasp %s.", m_name);
         teleport_monster_to(m_idx, py, px, 100, TELEPORT_PASSIVE);
-        mon_take_hit(m_idx, damroll(10, 10), &fear, extract_note_dies(real_r_ptr(m_ptr)));
+        mon_take_hit(m_idx, damroll(10, 10), &fear, extract_note_dies(real_r_ptr(m_ptr)), TRUE);
         break;
     }
     default:

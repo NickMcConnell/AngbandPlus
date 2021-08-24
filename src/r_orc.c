@@ -44,6 +44,9 @@ static void _fighter_birth(void)
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_MUMAK_HIDE_ARMOR));
     py_birth_obj(&forge);
+	
+	object_prep(&forge, lookup_kind(TV_HELM, SV_SKULL_HELM));
+    py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SHIELD, SV_SMALL_LEATHER_SHIELD));
     forge.name2 = EGO_SHIELD_ORCISH;

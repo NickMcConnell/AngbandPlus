@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 0
 #define VER_MINOR 3
-#define VER_PATCH 1
+#define VER_PATCH 2
 #define VER_EXTRA 0
 #define VERSION_IS_DEVELOPMENT (FALSE)
 
@@ -1806,7 +1806,7 @@ enum {
 #define SV_KNIT_CAP                      1
 #define SV_HARD_LEATHER_CAP              2
 #define SV_METAL_CAP                     3
-#define SV_JINGASA                       4  /* 4 */
+#define SV_SKULL_HELM                    4  /* 4 */
 #define SV_IRON_HELM                     5
 #define SV_STEEL_HELM                    6
 #define SV_DRAGON_HELM                   8
@@ -2557,6 +2557,10 @@ enum summon_specific_e {
     SUMMON_SPECIAL, /* mon->id specific code */
     SUMMON_REPTILE,
     SUMMON_DEAD_UNIQ,
+	SUMMON_WERERAT,
+	SUMMON_WEREWOLF,
+	SUMMON_WEREWORM,
+	SUMMON_WEREBEAR,
 };
 
 #define DAMAGE_FORCE    1
@@ -3105,6 +3109,7 @@ enum {
     RBE_DRAIN_CHARGES,
     RBE_DRAIN_EXP,
     RBE_CUT,
+	RBE_HALLUCINATE,
 };
 
 /*** Monster flag values (hard-coded) ***/
@@ -4276,7 +4281,7 @@ extern int PlayerUID;
 #define MON_HILL_GIANT          255
 #define MON_CLAY_GOLEM          261
 #define MON_MAGIC_MUSHROOM      267
-#define MON_WERERAT             270
+#define MON_WERERAT2            270
 #define MON_LIGHT_HOUND         271
 #define MON_SHADOW_HOUND        272
 #define MON_FROST_GIANT         278
@@ -4303,10 +4308,10 @@ extern int PlayerUID;
 #define MON_PHASE_SPIDER        331
 #define MON_EARTH_HOUND         337
 #define MON_AIR_HOUND           338
-#define MON_WATER_HOUND         340
+#define MON_ACID_HOUND			340
 #define MON_QUYLTHULG           342
 #define MON_SASQUATCH           343
-#define MON_WEREWOLF            347
+#define MON_WEREWOLF2           347
 #define MON_D_ELF_LORD          348
 #define MON_CLOUD_GIANT         349
 #define MON_FIRE_VORTEX         354
@@ -4330,6 +4335,7 @@ extern int PlayerUID;
 #define MON_D_ELF_DRUID         400
 #define MON_STONE_TROLL         401
 #define MON_TROLL_PRIEST        403
+#define MON_WEREWORM2			404
 #define MON_GWAIHIR             410
 #define MON_ANGEL               417
 #define MON_ALBERICH            419
@@ -4746,6 +4752,45 @@ extern int PlayerUID;
 #define MON_DEATH_PUMPKIN       1300
 #define MON_JACK_LANTERN        1302
 #define MON_R_MACHINE           1303
+#define MON_SPOOKY_TREE			1304
+#define MON_HASTY_ENT			1305
+#define MON_BLACK_HEARTED_HUORN	1306
+#define MON_GRAY_MUSHROOM_PATCH	1307
+#define MON_CAVE_BEAR			1308
+#define MON_DISENCHANTER_BAT	1309
+#define MON_WEREBEAR2			1310
+#define MON_BLOOD_FALCON		1311
+#define MON_GIANT_ROC			1312
+#define MON_BLACK_SCORPION		1313
+#define MON_GIANT_FIREFLY		1314
+#define MON_NEEKERBREEKER		1315
+#define MON_STEGOCENTIPEDE		1316
+#define MON_HORNED_REAPER		1317
+#define MON_BABY_GOLD_DRAGON	1318
+#define MON_EARTH_ELEMENTAL_2	1319
+#define MON_FIRE_ELEMENTAL_2	1320
+#define MON_WATER_ELEMENTAL_2	1321
+#define MON_AIR_ELEMENTAL_2		1322
+#define MON_BABY_BRONZE_DRAGON	1323
+#define MON_BABY_SILVER_DRAGON	1324
+#define MON_ELDRITCH_WYRM		1325
+#define MON_VOID_DRAGON			1326
+#define MON_ELDER_VOID_DRAGON	1327
+#define MON_EVIL_EYE			1328
+#define MON_KOBOLD_SHAMAN		1329
+#define MON_NECROMANCER			1330
+#define MON_GREAT_WYRM_SILVER	1331
+#define MON_GREAT_WYRM_BRONZE	1332
+#define MON_GREAT_WYRM_GOLD		1333
+#define MON_WATER_HOUND			1334
+#define MON_TOMTE				1335
+#define MON_TOMTE_WARRIOR		1336
+#define MON_TOMTE_SHAMAN		1337
+#define MON_TIKSRVZLLAT			1338
+#define MON_WERERAT1			1339
+#define MON_WEREWOLF1			1340
+#define MON_WEREWORM1			1341
+#define MON_WEREBEAR1			1342
 
 /* The Metal Babble guards the Arena dungeon, but this requires the guardian to be a unique
    monster or the dungeon never gets flagged as completed. Note, this messes up the needle
@@ -4846,7 +4891,7 @@ extern int PlayerUID;
 
 #define WEAPONMASTER_FRENZY 31
 #define WEAPONMASTER_RETALIATION 32
-#define WEAPONMASTER_CRUSADERS_STRIKE 33
+#define WEAPONMASTER_VITALITY_STRIKE 33
 #define WEAPONMASTER_VICIOUS_STRIKE 35
 #define WEAPONMASTER_MANY_STRIKE 36
 #define WEAPONMASTER_WHIRLWIND 37

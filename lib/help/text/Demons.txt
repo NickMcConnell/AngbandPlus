@@ -109,5 +109,5 @@ Cyberdemon        Poor          Bad           Heroic        Bad             50'
 
 
 
-Automatically generated for Oposband 0.3.0.
+Automatically generated for Oposband 0.3.2.
 

@@ -4436,7 +4436,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                     The problem here is that many attacks, like Slow Monster, do no physical damage, but
                     rely on mon_take_hit to do other things, like wake up sleeping monsters (or reveal
                     player ring mimics). This code needs refactoring ...*/
-        if (/*dam &&*/ mon_take_hit(mon->id, dam, &fear, note_dies))
+        if (/*dam &&*/ mon_take_hit(mon->id, dam, &fear, note_dies, FALSE))
         {
             /* Dead monster */
         }
