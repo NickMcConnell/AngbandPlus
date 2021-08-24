@@ -21,7 +21,7 @@ PF(ZERO_FAIL,        "may obtain a perfect success rate with magic",            
 PF(BEAM,             "frequently turn bolt spells into beams",                    NULL)
 PF(CHOOSE_SPELLS,    "may choose their own spells to study",                      NULL)
 PF(KNOW_MUSHROOM,    "easily recognize mushrooms",                                "Identifies mushrooms")
-PF(KNOW_ZAPPER,      "easily recognize magic devices",                            "Identifies magic devices")
+PF(KNOW_ZAPPER,      "easily recognize magic devices",                            "Device Specialist")
 PF(SEE_ORE,          "can sense ore in the walls",                                "Senses ore/minerals")
 PF(NO_MANA,          "cannot cast spells",                                        NULL)
 PF(CHARM,            "is extra persuasive to monsters",                           "Charms monsters")

@@ -1,3 +1,17 @@
+# Jackalband
+
+### v 0.1.0
+
+Rework Blows
+
+Change Weapon Weights
+
+### v 0.1.1
+
+Adjustments to stat/class/race bonuses
+
+-- Michael Courtney
+
 # Angband 4.2.0
 
 
