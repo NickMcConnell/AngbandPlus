@@ -163,13 +163,15 @@ struct cave_profile
     struct streamer_profile str;        /* Used to build mineral streamers*/
     struct room_profile *room_profiles; /* Used to build rooms */
     int cutoff;                         /* Used to see if we should try this dungeon */
+    random_value up;
+    random_value down;
 };
 
 /*
  * room_builder is a function pointer which builds rooms in the cave given
  * anchor coordinates.
  */
-typedef bool (*room_builder) (struct player *p, struct chunk *c, int y0, int x0, int rating);
+typedef bool (*room_builder) (struct player *p, struct chunk *c, struct loc *centre, int rating);
 
 /*
  * This tracks information needed to generate the room, including the room's
@@ -225,8 +227,6 @@ extern struct dun_data *dun;
 extern struct vault *vaults;
 extern struct room_template *room_templates;
 
-extern byte trees_in_town;
-
 /* gen-cave.c */
 extern struct chunk *classic_gen(struct player *p, struct worldpos *wpos, int min_height,
     int min_width);
@@ -270,56 +270,56 @@ extern void get_chamber_monsters(struct player *p, struct chunk *c, int y1, int 
 extern void fill_rectangle(struct chunk *c, int y1, int x1, int y2, int x2, int feat, int flag);
 extern void generate_mark(struct chunk *c, int y1, int x1, int y2, int x2, int flag);
 extern void draw_rectangle(struct chunk *c, int y1, int x1, int y2, int x2, int feat, int flag);
-extern void set_marked_granite(struct chunk *c, int y, int x, int flag);
+extern void set_marked_granite(struct chunk *c, struct loc *grid, int flag);
 extern bool generate_starburst_room(struct chunk *c, int y1, int x1, int y2, int x2, bool light,
     int feat, bool special_ok);
 extern bool mon_pit_hook(struct monster_race *race);
 extern void set_pit_type(int depth, int type);
-extern bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault *v,
+extern bool build_vault(struct player *p, struct chunk *c, struct loc *centre, struct vault *v,
     bool find);
-extern bool build_circular(struct player *p, struct chunk *c, int y0, int x0, int rating);
-extern bool build_simple(struct player *p, struct chunk *c, int y0, int x0, int rating);
-extern bool build_overlap(struct player *p, struct chunk *c, int y0, int x0, int rating);
-extern bool build_crossed(struct player *p, struct chunk *c, int y0, int x0, int rating);
-extern bool build_large(struct player *p, struct chunk *c, int y0, int x0, int rating);
-extern bool build_nest(struct player *p, struct chunk *c, int y0, int x0, int rating);
-extern bool build_pit(struct player *p, struct chunk *c, int y0, int x0, int rating);
-extern bool build_template(struct player *p, struct chunk *c, int y0, int x0, int rating);
-extern bool build_interesting(struct player *p, struct chunk *c, int y0, int x0, int rating);
-extern bool build_lesser_vault(struct player *p, struct chunk *c, int y0, int x0, int rating);
-extern bool build_medium_vault(struct player *p, struct chunk *c, int y0, int x0, int rating);
-extern bool build_greater_vault(struct player *p, struct chunk *c, int y0, int x0, int rating);
-extern bool build_moria(struct player *p, struct chunk *c, int y0, int x0, int rating);
-extern bool build_room_of_chambers(struct player *p, struct chunk *c, int y0, int x0, int rating);
-extern bool build_huge(struct player *p, struct chunk *c, int y0, int x0, int rating);
+extern bool build_circular(struct player *p, struct chunk *c, struct loc *centre, int rating);
+extern bool build_simple(struct player *p, struct chunk *c, struct loc *centre, int rating);
+extern bool build_overlap(struct player *p, struct chunk *c, struct loc *centre, int rating);
+extern bool build_crossed(struct player *p, struct chunk *c, struct loc *centre, int rating);
+extern bool build_large(struct player *p, struct chunk *c, struct loc *centre, int rating);
+extern bool build_nest(struct player *p, struct chunk *c, struct loc *centre, int rating);
+extern bool build_pit(struct player *p, struct chunk *c, struct loc *centre, int rating);
+extern bool build_template(struct player *p, struct chunk *c, struct loc *centre, int rating);
+extern bool build_interesting(struct player *p, struct chunk *c, struct loc *centre, int rating);
+extern bool build_lesser_vault(struct player *p, struct chunk *c, struct loc *centre, int rating);
+extern bool build_medium_vault(struct player *p, struct chunk *c, struct loc *centre, int rating);
+extern bool build_greater_vault(struct player *p, struct chunk *c, struct loc *centre, int rating);
+extern bool build_moria(struct player *p, struct chunk *c, struct loc *centre, int rating);
+extern bool build_room_of_chambers(struct player *p, struct chunk *c, struct loc *centre, int rating);
+extern bool build_huge(struct player *p, struct chunk *c, struct loc *centre, int rating);
 extern bool room_build(struct player *p, struct chunk *c, int by0, int bx0,
     struct room_profile profile, bool finds_own_space);
 
 /* gen-util.c */
 extern byte get_angle_to_grid[41][41];
 
-extern int yx_to_i(int y, int x, int w);
-extern void i_to_yx(int i, int w, int *y, int *x);
+extern int grid_to_i(struct loc *grid, int w);
+extern void i_to_grid(int i, int w, struct loc *grid);
 extern void shuffle(int *arr, int n);
-extern bool square_find_in_range(struct chunk *c, int *y, int y1, int y2, int *x, int x1, int x2,
-    square_predicate pred);
-extern bool find_empty(struct chunk *c, int *y, int *x);
-extern bool find_nearby_grid(struct chunk *c, int *y, int y0, int yd, int *x, int x0, int xd);
-extern void correct_dir(int *rdir, int *cdir, int y1, int x1, int y2, int x2);
-extern void rand_dir(int *rdir, int *cdir);
+extern bool cave_find_in_range(struct chunk *c, struct loc *grid, struct loc *top_left,
+    struct loc *bottom_right, square_predicate pred);
+extern bool find_empty(struct chunk *c, struct loc *grid);
+extern bool find_nearby_grid(struct chunk *c, struct loc *grid, struct loc *centre, int yd, int xd);
+extern void correct_dir(struct loc *offset, struct loc *grid1, struct loc *grid2);
+extern void rand_dir(struct loc *offset);
 extern void add_down_stairs(struct chunk *c);
 extern void new_player_spot(struct chunk *c, struct player *p);
-extern void place_object(struct player *p, struct chunk *c, int y, int x, int level,
+extern void place_random_stairs(struct chunk *c, struct loc *grid);
+extern void place_object(struct player *p, struct chunk *c, struct loc *grid, int level,
     bool good, bool great, byte origin, int tval);
-extern void place_gold(struct player *p, struct chunk *c, int y, int x, int level, byte origin);
-extern void place_secret_door(struct chunk *c, int y, int x);
-extern void place_closed_door(struct chunk *c, int y, int x);
-extern void place_random_door(struct chunk *c, int y, int x);
-extern void place_random_stairs(struct chunk *c, int y, int x);
+extern void place_gold(struct player *p, struct chunk *c, struct loc *grid, int level, byte origin);
+extern void place_secret_door(struct chunk *c, struct loc *grid);
+extern void place_closed_door(struct chunk *c, struct loc *grid);
+extern void place_random_door(struct chunk *c, struct loc *grid);
 extern void alloc_stairs(struct chunk *c, int feat, int num);
-extern void vault_objects(struct player *p, struct chunk *c, int y, int x, int num);
-extern void vault_traps(struct chunk *c, int y, int x, int yd, int xd, int num);
-extern void vault_monsters(struct player *p, struct chunk *c, int y1, int x1, int depth,
+extern void vault_objects(struct player *p, struct chunk *c, struct loc *grid, int num);
+extern void vault_traps(struct chunk *c, struct loc *grid, int yd, int xd, int num);
+extern void vault_monsters(struct player *p, struct chunk *c, struct loc *grid, int depth,
     int num);
 
 extern void alloc_objects(struct player *p, struct chunk *c, int set, int typ, int num,

@@ -122,7 +122,7 @@ static void cleanup_race_allocs(void)
 static bool clear_vis(struct player *p, struct worldpos *wpos, int m)
 {
     /* If he's not here, skip him */
-    if (!COORDS_EQUAL(&p->wpos, wpos)) return false;
+    if (!wpos_eq(&p->wpos, wpos)) return false;
 
     /* Clear some fields */
     mflag_wipe(p->mflag[m]);
@@ -139,11 +139,12 @@ static bool clear_vis(struct player *p, struct worldpos *wpos, int m)
  */
 void delete_monster_idx(struct chunk *c, int m_idx)
 {
-    int x, y, i;
+    int i;
     struct object *obj, *next;
     struct monster *mon;
     struct source who_body;
     struct source *who = &who_body;
+    struct loc grid;
 
     my_assert(m_idx > 0);
 
@@ -151,9 +152,7 @@ void delete_monster_idx(struct chunk *c, int m_idx)
     source_monster(who, mon);
 
     /* Monster location */
-    y = mon->fy;
-    x = mon->fx;
-    my_assert(square_in_bounds(c, y, x));
+    my_assert(square_in_bounds(c, &mon->grid));
 
     /* Unique is dead */
     mon->race->lore.spawned = 0;
@@ -181,7 +180,7 @@ void delete_monster_idx(struct chunk *c, int m_idx)
     }
 
     /* Monster is gone */
-    c->squares[y][x].mon = 0;
+    square_set_mon(c, &mon->grid, 0);
 
     /* Delete objects */
     obj = mon->held_obj;
@@ -201,13 +200,15 @@ void delete_monster_idx(struct chunk *c, int m_idx)
     obj = mon->mimicked_obj;
     if (obj)
     {
-        square_excise_object(c, y, x, obj);
+        square_excise_object(c, &mon->grid, obj);
         object_delete(&obj);
     }
 
     /* Delete mimicked features */
     if (mon->race->base == lookup_monster_base("feature mimic"))
-        square_set_feat(c, y, x, mon->feat);
+        square_set_feat(c, &mon->grid, mon->feat);
+
+    loc_copy(&grid, &mon->grid);
 
     /* Wipe the Monster */
     mem_free(mon->blow);
@@ -217,23 +218,23 @@ void delete_monster_idx(struct chunk *c, int m_idx)
     c->mon_cnt--;
 
     /* Visual update */
-    square_light_spot(c, y, x);
+    square_light_spot(c, &grid);
 }
 
 
 /*
  * Deletes the monster, if any, at the given location.
  */
-void delete_monster(struct chunk *c, int y, int x)
+void delete_monster(struct chunk *c, struct loc *grid)
 {
     /* Paranoia */
     if (!c) return;
 
-    my_assert(square_in_bounds(c, y, x));
+    my_assert(square_in_bounds(c, grid));
 
     /* Delete the monster (if any) */
-    if (c->squares[y][x].mon > 0)
-        delete_monster_idx(c, c->squares[y][x].mon);
+    if (square(c, grid)->mon > 0)
+        delete_monster_idx(c, square(c, grid)->mon);
 }
 
 
@@ -242,7 +243,7 @@ void delete_monster(struct chunk *c, int y, int x)
  */
 static void compact_monsters_aux(struct chunk *c, int i1, int i2)
 {
-    int y, x, i;
+    int i;
     struct monster *mon, *newmon;
     struct object *obj;
     struct source mon1_body;
@@ -257,15 +258,13 @@ static void compact_monsters_aux(struct chunk *c, int i1, int i2)
     /* Old monster */
     mon = cave_monster(c, i1);
     source_monster(mon1, mon);
-    y = mon->fy;
-    x = mon->fx;
 
     /* New monster */
     newmon = cave_monster(c, i2);
     source_monster(mon2, newmon);
 
     /* Update the cave */
-    c->squares[y][x].mon = i2;
+    square_set_mon(c, &mon->grid, i2);
 
     /* Update midx */
     mon->midx = i2;
@@ -285,7 +284,7 @@ static void compact_monsters_aux(struct chunk *c, int i1, int i2)
         struct source *health_who = &p->upkeep->health_who;
 
         /* If he's not here, skip him */
-        if (!COORDS_EQUAL(&p->wpos, &c->wpos)) continue;
+        if (!wpos_eq(&p->wpos, &c->wpos)) continue;
 
         mflag_copy(p->mflag[i2], p->mflag[i1]);
         p->mon_det[i2] = p->mon_det[i1];
@@ -445,8 +444,8 @@ void wipe_mon_list(struct chunk *c)
             if (p->id == mon->master) p->slaves--;
         }
 
-        /* Monster is gone */
-        c->squares[mon->fy][mon->fx].mon = 0;
+        /* Monster is gone from square */
+        square_set_mon(c, &mon->grid, 0);
 
         /* Wipe the Monster */
         mem_free(mon->blow);
@@ -467,7 +466,7 @@ void wipe_mon_list(struct chunk *c)
         struct player *p = player_get(i);
 
         /* If he's not here, skip him */
-        if (!COORDS_EQUAL(&p->wpos, &c->wpos)) continue;
+        if (!wpos_eq(&p->wpos, &c->wpos)) continue;
 
         /* Hack -- no more target */
         target_set_monster(p, NULL);
@@ -614,7 +613,7 @@ static bool allow_unique_level(struct monster_race *race, struct worldpos *wpos)
         struct monster_lore *lore = get_lore(p, race);
 
         /* Is the player on the level and did he kill the unique already ? */
-        if ((is_dm_p(p) || !lore->pkills) && COORDS_EQUAL(&p->wpos, wpos))
+        if ((is_dm_p(p) || !lore->pkills) && wpos_eq(&p->wpos, wpos))
         {
             /* One is enough */
             return true;
@@ -660,7 +659,7 @@ static int restrict_monster_to_dungeon(struct monster_race *race, struct worldpo
     int i, percents = 0;
 
     /* Get the dungeon */
-    COORDS_SET(&dpos, wpos->wy, wpos->wx, 0);
+    wpos_init(&dpos, &wpos->grid, 0);
     dungeon = get_dungeon(&dpos);
 
     /* No dungeon here, allow everything */
@@ -695,11 +694,8 @@ static bool allow_race(struct monster_race *race, struct worldpos *wpos)
         return false;
 
     /* Some monsters never appear out of their dungeon/town (wilderness) */
-    if ((cfg_diving_mode < 2) && race->wpos &&
-        !((race->wpos->wy == wpos->wy) && (race->wpos->wx == wpos->wx)))
-    {
+    if ((cfg_diving_mode < 2) && race->wpos && !loc_eq(&race->wpos->grid, &wpos->grid))
         return false;
-    }
 
     /* Some monsters only appear in the wilderness */
     if (rf_has(race->flags, RF_WILD_ONLY) && !in_wild(wpos))
@@ -714,6 +710,19 @@ static bool allow_race(struct monster_race *race, struct worldpos *wpos)
         return false;
 
     return true;
+}
+
+
+static bool limit_townies(struct chunk *c)
+{
+    int max_townies;
+
+    if (!in_town(&c->wpos)) return false;
+
+    max_townies = get_town(&c->wpos)->max_townies;
+    if (max_townies == -1) return false;
+
+    return (cave_monster_count(c) >= max_townies);
 }
 
 
@@ -755,8 +764,7 @@ struct monster_race *get_mon_num(struct chunk *c, int level, bool summon)
     if (special_town(&c->wpos)) return (0);
 
     /* Limit the total number of townies */
-    if (in_town(&c->wpos) && (cfg_max_townies != -1) && (cave_monster_count(c) >= cfg_max_townies))
-        return (0);
+    if (limit_townies(c)) return (0);
 
     /* Occasionally produce a nastier monster in the dungeon */
     if ((c->wpos.depth > 0) && one_in_(z_info->ood_monster_chance))
@@ -1116,6 +1124,9 @@ static bool mon_create_drop(struct player *p, struct chunk *c, struct monster *m
             ok = true;
         }
 
+        /* Abort if no good object is found */
+        if (!obj) continue;
+
         if (mon_drop_carry(p, &obj, mon, origin, num, quark, ok)) any = true;
     }
 
@@ -1225,7 +1236,7 @@ void mon_create_mimicked_object(struct player *p, struct chunk *c, struct monste
     mon->mimicked_obj = obj;
 
     /* Put the object on the floor if it goes, otherwise no mimicry */
-    if (!floor_carry(p, c, mon->fy, mon->fx, obj, &dummy))
+    if (!floor_carry(p, c, &mon->grid, obj, &dummy))
     {
         /* Clear the mimicry */
         obj->mimicking_m_idx = 0;
@@ -1259,14 +1270,12 @@ s16b place_monster(struct player *p, struct chunk *c, struct monster *mon, byte 
 {
     s16b m_idx;
     struct monster *new_mon;
-    int y = mon->fy;
-    int x = mon->fx;
 
     /* Paranoia: cave can be NULL (wilderness) */
     if (!c) return 0;
 
-    my_assert(square_in_bounds(c, y, x));
-    my_assert(!square_monster(c, y, x));
+    my_assert(square_in_bounds(c, &mon->grid));
+    my_assert(!square_monster(c, &mon->grid));
 
     /* Get a new record */
     m_idx = mon_pop(c);
@@ -1282,8 +1291,8 @@ s16b place_monster(struct player *p, struct chunk *c, struct monster *mon, byte 
     new_mon->midx = m_idx;
 
     /* Set the location */
-    c->squares[y][x].mon = new_mon->midx;
-    my_assert(square_monster(c, y, x) == new_mon);
+    square_set_mon(c, &mon->grid, new_mon->midx);
+    my_assert(square_monster(c, &mon->grid) == new_mon);
 
     /* Hack -- increase the number of clones */
     if (new_mon->race->ridx && new_mon->clone) c->num_clones++;
@@ -1306,7 +1315,7 @@ s16b place_monster(struct player *p, struct chunk *c, struct monster *mon, byte 
     if (new_mon->race->base == lookup_monster_base("feature mimic"))
     {
         /* Save original feature */
-        new_mon->feat = c->squares[y][x].feat;
+        new_mon->feat = square(c, &mon->grid)->feat;
 
         /* Place corresponding feature under the monster */
         switch (new_mon->race->d_char)
@@ -1315,10 +1324,10 @@ s16b place_monster(struct player *p, struct chunk *c, struct monster *mon, byte 
             case '+':
             {
                 /* Push objects off the grid */
-                if (square_object(c, y, x)) push_object(p, c, y, x);
+                if (square_object(c, &mon->grid)) push_object(p, c, &mon->grid);
 
                 /* Create a door */
-                square_close_door(c, y, x);
+                square_close_door(c, &mon->grid);
 
                 break;
             }
@@ -1327,10 +1336,10 @@ s16b place_monster(struct player *p, struct chunk *c, struct monster *mon, byte 
             case '<':
             {
                 /* Push objects off the grid */
-                if (square_object(c, y, x)) push_object(p, c, y, x);
+                if (square_object(c, &mon->grid)) push_object(p, c, &mon->grid);
 
                 /* Create a staircase */
-                square_add_stairs(c, y, x, FEAT_LESS);
+                square_add_stairs(c, &mon->grid, FEAT_LESS);
 
                 break;
             }
@@ -1339,10 +1348,10 @@ s16b place_monster(struct player *p, struct chunk *c, struct monster *mon, byte 
             case '>':
             {
                 /* Push objects off the grid */
-                if (square_object(c, y, x)) push_object(p, c, y, x);
+                if (square_object(c, &mon->grid)) push_object(p, c, &mon->grid);
 
                 /* Create a staircase */
-                square_add_stairs(c, y, x, FEAT_MORE);
+                square_add_stairs(c, &mon->grid, FEAT_MORE);
 
                 break;
             }
@@ -1415,7 +1424,7 @@ int sleep_value(const struct monster_race *race)
  *
  * mon_flag = (MON_ASLEEP, MON_CLONE)
  */
-static bool place_new_monster_one(struct player *p, struct chunk *c, int y, int x,
+static bool place_new_monster_one(struct player *p, struct chunk *c, struct loc *grid,
     struct monster_race *race, byte mon_flag, byte origin)
 {
     int i, mlvl;
@@ -1423,23 +1432,23 @@ static bool place_new_monster_one(struct player *p, struct chunk *c, int y, int 
     struct monster monster_body;
     byte mspeed;
 
-    my_assert(square_in_bounds(c, y, x));
+    my_assert(square_in_bounds(c, grid));
     my_assert(race && race->name);
 
     /* Not where monsters already are */
-    if (square_monster(c, y, x)) return false;
+    if (square_monster(c, grid)) return false;
 
     /* Not where players already are */
-    if (square_isplayer(c, y, x)) return false;
+    if (square_isplayer(c, grid)) return false;
 
     /* Prevent monsters from being placed where they cannot walk, but allow other feature types */
-    if (!square_is_monster_walkable(c, y, x)) return false;
+    if (!square_is_monster_walkable(c, grid)) return false;
 
-    /* No creation on glyph of warding */
-    if (square_iswarded(c, y, x)) return false;
+    /* No creation on glyphs */
+    if (square_trap_flag(c, grid, TRF_GLYPH)) return false;
 
     /* Hack -- no creation inside houses */
-    if (town_area(&c->wpos) && square_isvault(c, y, x)) return false;
+    if (town_area(&c->wpos) && square_isvault(c, grid)) return false;
 
     /* Hack -- check if monster race can be generated at that location */
     if (!allow_race(race, &c->wpos)) return false;
@@ -1541,8 +1550,8 @@ static bool place_new_monster_one(struct player *p, struct chunk *c, int y, int 
     if (mon_flag & MON_CLONE) mon->clone = 1;
 
     /* Place the monster in the dungeon */
-    mon->old_fy = mon->fy = y;
-    mon->old_fx = mon->fx = x;
+    loc_copy(&mon->old_grid, grid);
+    loc_copy(&mon->grid, grid);
     memcpy(&mon->wpos, &c->wpos, sizeof(struct worldpos));
     if (!place_monster(p, c, mon, origin)) return false;
 
@@ -1558,10 +1567,10 @@ static bool place_new_monster_one(struct player *p, struct chunk *c, int y, int 
     }
 
     for (i = 1; i <= NumPlayers; i++)
-        clear_vis(player_get(i), &c->wpos, c->squares[y][x].mon);
+        clear_vis(player_get(i), &c->wpos, square(c, &mon->grid)->mon);
 
     /* Update the monster */
-    update_mon(square_monster(c, y, x), c, true);
+    update_mon(square_monster(c, grid), c, true);
 
     /* Success */
     return true;
@@ -1586,46 +1595,40 @@ static bool place_new_monster_one(struct player *p, struct chunk *c, int y, int 
  *
  * mon_flag = (MON_ASLEEP)
  */
-static bool place_new_monster_group(struct player *p, struct chunk *c, int y, int x,
+static bool place_new_monster_group(struct player *p, struct chunk *c, struct loc *grid,
     struct monster_race *race, byte mon_flag, int total, byte origin)
 {
     int n, i;
-    int hack_n;
+    int loc_num;
 
-    /* x and y coordinates of the placed monsters */
-    byte hack_y[GROUP_MAX];
-    byte hack_x[GROUP_MAX];
+    /* Locations of the placed monsters */
+    struct loc loc_list[GROUP_MAX];
 
     my_assert(race);
 
     /* Start on the monster */
-    hack_n = 1;
-    hack_x[0] = x;
-    hack_y[0] = y;
+    loc_num = 1;
+    loc_copy(&loc_list[0], grid);
 
     /* Puddle monsters, breadth first, up to total */
-    for (n = 0; (n < hack_n) && (hack_n < total); n++)
+    for (n = 0; (n < loc_num) && (loc_num < total); n++)
     {
-        /* Grab the location */
-        int hx = hack_x[n];
-        int hy = hack_y[n];
-
         /* Check each direction, up to total */
-        for (i = 0; (i < 8) && (hack_n < total); i++)
+        for (i = 0; (i < 8) && (loc_num < total); i++)
         {
-            int mx = hx + ddx_ddd[i];
-            int my = hy + ddy_ddd[i];
+            struct loc loc_try;
+
+            loc_sum(&loc_try, &loc_list[n], &ddgrid_ddd[i]);
 
             /* Walls and Monsters block flow */
-            if (!square_isemptyfloor(c, my, mx)) continue;
+            if (!square_isemptyfloor(c, &loc_try)) continue;
 
             /* Attempt to place another monster */
-            if (place_new_monster_one(p, c, my, mx, race, mon_flag, origin))
+            if (place_new_monster_one(p, c, &loc_try, race, mon_flag, origin))
             {
                 /* Add it to the "hack" set */
-                hack_y[hack_n] = my;
-                hack_x[hack_n] = mx;
-                hack_n++;
+                loc_copy(&loc_list[loc_num], &loc_try);
+                loc_num++;
             }
         }
     }
@@ -1665,7 +1668,7 @@ static bool place_monster_base_okay(struct monster_race *race)
 /*
  * Helper function to place monsters that appear as friends or escorts
  */
-static bool place_friends(struct player *p, struct chunk *c, int y, int x,
+static bool place_friends(struct player *p, struct chunk *c, struct loc *grid,
     struct monster_race *race, struct monster_race *friends_race, int total, byte mon_flag,
     byte origin)
 {
@@ -1700,24 +1703,26 @@ static bool place_friends(struct player *p, struct chunk *c, int y, int x,
     /* No monsters in this group */
     if (total > 0)
     {
-        int j, nx = 0, ny = 0;
+        int j;
         bool success;
 
         /* Handle friends same as original monster */
         if (race->ridx == friends_race->ridx)
-            return place_new_monster_group(p, c, y, x, race, mon_flag, total, origin);
+            return place_new_monster_group(p, c, grid, race, mon_flag, total, origin);
 
         /* Find a nearby place to put the other groups */
         for (j = 0; j < 50; j++)
         {
-            if (!scatter(c, &ny, &nx, y, x, GROUP_DISTANCE, false)) continue;
-            if (!square_isopen(c, ny, nx)) continue;
+            struct loc new_grid;
+
+            if (!scatter(c, &new_grid, grid, GROUP_DISTANCE, false)) continue;
+            if (!square_isopen(c, &new_grid)) continue;
 
             /* Place the monsters */
-            success = place_new_monster_one(p, c, ny, nx, friends_race, mon_flag, origin);
+            success = place_new_monster_one(p, c, &new_grid, friends_race, mon_flag, origin);
             if (total > 1)
             {
-                success = place_new_monster_group(p, c, ny, nx, friends_race, mon_flag, total,
+                success = place_new_monster_group(p, c, &new_grid, friends_race, mon_flag, total,
                     origin);
             }
 
@@ -1744,7 +1749,7 @@ static bool place_friends(struct player *p, struct chunk *c, int y, int x,
  *
  * mon_flag = (MON_ASLEEP, MON_GROUP, MON_CLONE)
  */
-bool place_new_monster(struct player *p, struct chunk *c, int y, int x,
+bool place_new_monster(struct player *p, struct chunk *c, struct loc *grid,
     struct monster_race *race, byte mon_flag, byte origin)
 {
     struct monster_friends *friends;
@@ -1755,7 +1760,7 @@ bool place_new_monster(struct player *p, struct chunk *c, int y, int x,
     my_assert(race);
 
     /* Place one monster, or fail */
-    if (!place_new_monster_one(p, c, y, x, race, mon_flag & ~(MON_GROUP), origin))
+    if (!place_new_monster_one(p, c, grid, race, mon_flag & ~(MON_GROUP), origin))
         return false;
 
     /* We're done unless the group flag is set */
@@ -1771,7 +1776,7 @@ bool place_new_monster(struct player *p, struct chunk *c, int y, int x,
         /* Calculate the base number of monsters to place */
         total = damroll(friends->number_dice, friends->number_side);
 
-        place_friends(p, c, y, x, race, friends->race, total, mon_flag, origin);
+        place_friends(p, c, grid, race, friends->race, total, mon_flag, origin);
     }
 
     /* Go through the friends_base flags */
@@ -1800,7 +1805,7 @@ bool place_new_monster(struct player *p, struct chunk *c, int y, int x,
         /* Handle failure */
         if (!friends_race) break;
 
-        place_friends(p, c, y, x, race, friends_race, total, mon_flag, origin);
+        place_friends(p, c, grid, race, friends_race, total, mon_flag, origin);
     }
 
     /* Success */
@@ -1826,13 +1831,13 @@ bool place_new_monster(struct player *p, struct chunk *c, int y, int x,
  *
  * mon_flag = (MON_ASLEEP, MON_GROUP)
  */
-bool pick_and_place_monster(struct player *p, struct chunk *c, int y, int x, int depth,
+bool pick_and_place_monster(struct player *p, struct chunk *c, struct loc *grid, int depth,
     byte mon_flag, byte origin)
 {
     /* Pick a monster race */
     struct monster_race *race = get_mon_num(c, depth, false);
 
-    if (race) return place_new_monster(p, c, y, x, race, mon_flag, origin);
+    if (race) return place_new_monster(p, c, grid, race, mon_flag, origin);
     return false;
 }
 
@@ -1851,7 +1856,7 @@ bool pick_and_place_monster(struct player *p, struct chunk *c, int y, int x, int
  */
 bool pick_and_place_distant_monster(struct player *p, struct chunk *c, int dis, byte mon_flag)
 {
-    int y = 0, x = 0;
+    struct loc grid;
     int attempts_left = 10000;
 
     my_assert(c);
@@ -1862,14 +1867,13 @@ bool pick_and_place_distant_monster(struct player *p, struct chunk *c, int dis, 
         int i, d, min_dis = 999;
 
         /* Pick a location */
-        y = randint0(c->height);
-        x = randint0(c->width);
+        loc_init(&grid, randint0(c->width), randint0(c->height));
 
         /* Require "naked" floor grid */
-        if (!square_isempty(c, y, x)) continue;
+        if (!square_isempty(c, &grid)) continue;
 
         /* Do not put random monsters in marked rooms. */
-        if (square_ismon_restrict(c, y, x)) continue;
+        if (square_ismon_restrict(c, &grid)) continue;
 
         /* Get min distance from all players on the level */
         for (i = 1; i <= NumPlayers; i++)
@@ -1877,9 +1881,9 @@ bool pick_and_place_distant_monster(struct player *p, struct chunk *c, int dis, 
             struct player *player = player_get(i);
 
             /* Skip him if he's not on this level */
-            if (!COORDS_EQUAL(&player->wpos, &c->wpos)) continue;
+            if (!wpos_eq(&player->wpos, &c->wpos)) continue;
 
-            d = distance(y, x, player->py, player->px);
+            d = distance(&grid, &player->grid);
             if (d < min_dis) min_dis = d;
         }
 
@@ -1891,7 +1895,7 @@ bool pick_and_place_distant_monster(struct player *p, struct chunk *c, int dis, 
     if (!attempts_left) return false;
 
     /* Attempt to place the monster, allow groups */
-    if (pick_and_place_monster(p, c, y, x, monster_level(&c->wpos), mon_flag | MON_GROUP,
+    if (pick_and_place_monster(p, c, &grid, monster_level(&c->wpos), mon_flag | MON_GROUP,
         ORIGIN_DROP))
     {
         return true;
@@ -2042,7 +2046,7 @@ void monster_drop_carried(struct player *p, struct chunk *c, struct monster *mon
             }
         }
 
-        drop_near(p, c, &obj, 0, mon->fy, mon->fx, true, DROP_FADE);
+        drop_near(p, c, &obj, 0, &mon->grid, true, DROP_FADE);
         obj = next;
     }
 
@@ -2056,12 +2060,6 @@ void monster_drop_carried(struct player *p, struct chunk *c, struct monster *mon
  */
 void monster_drop_corpse(struct player *p, struct chunk *c, struct monster *mon)
 {
-    int y, x;
-
-    /* Get the location */
-    y = mon->fy;
-    x = mon->fx;
-
     /* Sometimes, a dead monster leaves a corpse */
     if (rf_has(mon->race->flags, RF_DROP_CORPSE) && one_in_(20))
     {
@@ -2095,7 +2093,7 @@ void monster_drop_corpse(struct player *p, struct chunk *c, struct monster *mon)
         set_origin(corpse, ORIGIN_DROP, mon->wpos.depth, mon->race);
 
         /* Drop it in the dungeon */
-        drop_near(p, c, &corpse, 0, y, x, true, DROP_FADE);
+        drop_near(p, c, &corpse, 0, &mon->grid, true, DROP_FADE);
     }
 
     /* Sometimes, a dead monster leaves a skeleton */
@@ -2138,7 +2136,7 @@ void monster_drop_corpse(struct player *p, struct chunk *c, struct monster *mon)
         set_origin(skeleton, ORIGIN_DROP, mon->wpos.depth, mon->race);
 
         /* Drop it in the dungeon */
-        drop_near(p, c, &skeleton, 0, y, x, true, DROP_FADE);
+        drop_near(p, c, &skeleton, 0, &mon->grid, true, DROP_FADE);
     }
 }
 

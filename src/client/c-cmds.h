@@ -18,6 +18,7 @@ extern void do_cmd_wild_map(void);
 extern void do_cmd_help(void);
 extern void do_cmd_change_name(void);
 extern void do_cmd_message(void);
+extern void send_msg_chunks(char *pmsgbuf, int msglen);
 extern void do_cmd_chat(void);
 extern void do_cmd_party(void);
 extern void do_cmd_describe(void);

@@ -113,17 +113,19 @@ static struct vault *random_vault(int depth, const char *typ)
  */
 static void generate_room(struct chunk *c, int y1, int x1, int y2, int x2, int light)
 {
-    int y, x;
+    struct loc begin, end;
+    struct loc_iterator iter;
 
-    for (y = y1; y <= y2; y++)
+    loc_init(&begin, x1, y1);
+    loc_init(&end, x2, y2);
+    loc_iterator_first(&iter, &begin, &end);
+
+    do
     {
-        for (x = x1; x <= x2; x++)
-        {
-            sqinfo_on(c->squares[y][x].info, SQUARE_ROOM);
-            if (light)
-                sqinfo_on(c->squares[y][x].info, SQUARE_GLOW);
-        }
+        sqinfo_on(square(c, &iter.cur)->info, SQUARE_ROOM);
+        if (light) sqinfo_on(square(c, &iter.cur)->info, SQUARE_GLOW);
     }
+    while (loc_iterator_next(&iter));
 }
 
 
@@ -136,11 +138,18 @@ static void generate_room(struct chunk *c, int y1, int x1, int y2, int x2, int l
  */
 void generate_mark(struct chunk *c, int y1, int x1, int y2, int x2, int flag)
 {
-    int y, x;
+    struct loc begin, end;
+    struct loc_iterator iter;
 
-    for (y = y1; y <= y2; y++)
-        for (x = x1; x <= x2; x++)
-            sqinfo_on(c->squares[y][x].info, flag);
+    loc_init(&begin, x1, y1);
+    loc_init(&end, x2, y2);
+    loc_iterator_first(&iter, &begin, &end);
+
+    do
+    {
+        sqinfo_on(square(c, &iter.cur)->info, flag);
+    }
+    while (loc_iterator_next(&iter));
 }
 
 
@@ -154,11 +163,19 @@ void generate_mark(struct chunk *c, int y1, int x1, int y2, int x2, int flag)
  */
 void fill_rectangle(struct chunk *c, int y1, int x1, int y2, int x2, int feat, int flag)
 {
-    int y, x;
+    struct loc begin, end;
+    struct loc_iterator iter;
 
-    for (y = y1; y <= y2; y++)
-        for (x = x1; x <= x2; x++)
-            square_set_feat(c, y, x, feat);
+    loc_init(&begin, x1, y1);
+    loc_init(&end, x2, y2);
+    loc_iterator_first(&iter, &begin, &end);
+
+    do
+    {
+        square_set_feat(c, &iter.cur, feat);
+    }
+    while (loc_iterator_next(&iter));
+
     if (flag) generate_mark(c, y1, x1, y2, x2, flag);
 }
 
@@ -174,11 +191,14 @@ void fill_rectangle(struct chunk *c, int y1, int x1, int y2, int x2, int feat, i
 void draw_rectangle(struct chunk *c, int y1, int x1, int y2, int x2, int feat, int flag)
 {
     int y, x;
+    struct loc grid;
 
     for (y = y1; y <= y2; y++)
     {
-        square_set_feat(c, y, x1, feat);
-        square_set_feat(c, y, x2, feat);
+        loc_init(&grid, x1, y);
+        square_set_feat(c, &grid, feat);
+        loc_init(&grid, x2, y);
+        square_set_feat(c, &grid, feat);
     }
     if (flag)
     {
@@ -188,8 +208,10 @@ void draw_rectangle(struct chunk *c, int y1, int x1, int y2, int x2, int feat, i
 
     for (x = x1; x <= x2; x++)
     {
-        square_set_feat(c, y1, x, feat);
-        square_set_feat(c, y2, x, feat);
+        loc_init(&grid, x, y1);
+        square_set_feat(c, &grid, feat);
+        loc_init(&grid, x, y2);
+        square_set_feat(c, &grid, feat);
     }
     if (flag)
     {
@@ -214,11 +236,13 @@ static void fill_xrange(struct chunk *c, int y, int x1, int x2, int feat, int fl
 
     for (x = x1; x <= x2; x++)
     {
-        square_set_feat(c, y, x, feat);
-        sqinfo_on(c->squares[y][x].info, SQUARE_ROOM);
-        if (flag) sqinfo_on(c->squares[y][x].info, flag);
-        if (light)
-            sqinfo_on(c->squares[y][x].info, SQUARE_GLOW);
+        struct loc grid;
+
+        loc_init(&grid, x, y);
+        square_set_feat(c, &grid, feat);
+        sqinfo_on(square(c, &grid)->info, SQUARE_ROOM);
+        if (flag) sqinfo_on(square(c, &grid)->info, flag);
+        if (light) sqinfo_on(square(c, &grid)->info, SQUARE_GLOW);
     }
 }
 
@@ -238,11 +262,13 @@ static void fill_yrange(struct chunk *c, int x, int y1, int y2, int feat, int fl
 
     for (y = y1; y <= y2; y++)
     {
-        square_set_feat(c, y, x, feat);
-        sqinfo_on(c->squares[y][x].info, SQUARE_ROOM);
-        if (flag) sqinfo_on(c->squares[y][x].info, flag);
-        if (light)
-            sqinfo_on(c->squares[y][x].info, SQUARE_GLOW);
+        struct loc grid;
+
+        loc_init(&grid, x, y);
+        square_set_feat(c, &grid, feat);
+        sqinfo_on(square(c, &grid)->info, SQUARE_ROOM);
+        if (flag) sqinfo_on(square(c, &grid)->info, flag);
+        if (light) sqinfo_on(square(c, &grid)->info, SQUARE_GLOW);
     }
 }
 
@@ -298,6 +324,7 @@ static void fill_circle(struct chunk *c, int y0, int x0, int radius, int border,
 static void generate_plus(struct chunk *c, int y1, int x1, int y2, int x2, int feat, int flag)
 {
     int y, x;
+    struct loc grid;
 
     /* Find the center */
     int y0 = (y1 + y2) / 2;
@@ -305,9 +332,17 @@ static void generate_plus(struct chunk *c, int y1, int x1, int y2, int x2, int f
 
     my_assert(c);
 
-    for (y = y1; y <= y2; y++) square_set_feat(c, y, x0, feat);
+    for (y = y1; y <= y2; y++)
+    {
+        loc_init(&grid, x0, y);
+        square_set_feat(c, &grid, feat);
+    }
     if (flag) generate_mark(c, y1, x0, y2, x0, flag);
-    for (x = x1; x <= x2; x++) square_set_feat(c, y0, x, feat);
+    for (x = x1; x <= x2; x++)
+    {
+        loc_init(&grid, x, y0);
+        square_set_feat(c, &grid, feat);
+    }
     if (flag) generate_mark(c, y0, x1, y0, x2, flag);
 }
 
@@ -322,16 +357,21 @@ static void generate_plus(struct chunk *c, int y1, int x1, int y2, int x2, int f
 static void generate_open(struct chunk *c, int y1, int x1, int y2, int x2, int feat)
 {
     int y0, x0;
+    struct loc grid;
 
     /* Center */
     y0 = (y1 + y2) / 2;
     x0 = (x1 + x2) / 2;
 
     /* Open all sides */
-    square_set_feat(c, y1, x0, feat);
-    square_set_feat(c, y0, x1, feat);
-    square_set_feat(c, y2, x0, feat);
-    square_set_feat(c, y0, x2, feat);
+    loc_init(&grid, x0, y1);
+    square_set_feat(c, &grid, feat);
+    loc_init(&grid, x1, y0);
+    square_set_feat(c, &grid, feat);
+    loc_init(&grid, x0, y2);
+    square_set_feat(c, &grid, feat);
+    loc_init(&grid, x2, y0);
+    square_set_feat(c, &grid, feat);
 }
 
 
@@ -348,15 +388,17 @@ static void generate_hole(struct chunk *c, int y1, int x1, int y2, int x2, int f
     int y0 = (y1 + y2) / 2;
     int x0 = (x1 + x2) / 2;
 
+    struct loc grid;
+
     my_assert(c);
 
     /* Open random side */
     switch (randint0(4))
     {
-        case 0: square_set_feat(c, y1, x0, feat); break;
-        case 1: square_set_feat(c, y0, x1, feat); break;
-        case 2: square_set_feat(c, y2, x0, feat); break;
-        case 3: square_set_feat(c, y0, x2, feat); break;
+        case 0: loc_init(&grid, x0, y1); square_set_feat(c, &grid, feat); break;
+        case 1: loc_init(&grid, x1, y0); square_set_feat(c, &grid, feat); break;
+        case 2: loc_init(&grid, x0, y2); square_set_feat(c, &grid, feat); break;
+        case 3: loc_init(&grid, x2, y0); square_set_feat(c, &grid, feat); break;
     }
 }
 
@@ -368,10 +410,10 @@ static void generate_hole(struct chunk *c, int y1, int x1, int y2, int x2, int f
  * y, x the square co-ordinates
  * flag the SQUARE_* flag we are marking with
  */
-void set_marked_granite(struct chunk *c, int y, int x, int flag)
+void set_marked_granite(struct chunk *c, struct loc *grid, int flag)
 {
-    square_set_feat(c, y, x, FEAT_GRANITE);
-    if (flag) generate_mark(c, y, x, y, x, flag);
+    square_set_feat(c, grid, FEAT_GRANITE);
+    if (flag) generate_mark(c, grid->y, grid->x, grid->y, grid->x, flag);
 }
 
 
@@ -413,7 +455,7 @@ void set_marked_granite(struct chunk *c, int y, int x, int flag)
 bool generate_starburst_room(struct chunk *c, int y1, int x1, int y2, int x2, bool light, int feat,
     bool special_ok)
 {
-    int y0, x0, y, x, ny, nx;
+    int ny, nx;
     int i, d;
     int dist, max_dist, dist_conv, dist_check;
     int height, width;
@@ -428,8 +470,14 @@ bool generate_starburst_room(struct chunk *c, int y1, int x1, int y2, int x2, bo
     /* Number (max 45) of arcs. */
     int arc_num;
 
+    struct loc begin, end, grid0;
+    struct loc_iterator iter;
+
+    loc_init(&begin, x1, y1);
+    loc_init(&end, x2, y2);
+
     /* Make certain the room does not cross the dungeon edge. */
-    if (!square_in_bounds(c, y1, x1) || !square_in_bounds(c, y2, x2))
+    if (!square_in_bounds(c, &begin) || !square_in_bounds(c, &end))
         return false;
 
     /* Robustness -- test sanity of input coordinates. */
@@ -473,9 +521,15 @@ bool generate_starburst_room(struct chunk *c, int y1, int x1, int y2, int x2, bo
          */
         if (feat_is_floor(feat))
         {
-            for (y = (y1 + tmp_ay) / 2; y <= (tmp_by + y2) / 2; y++)
-                for (x = (x1 + tmp_ax) / 2; x <= (tmp_bx + x2) / 2; x++)
-                    square_set_feat(c, y, x, feat);
+            loc_init(&begin, (x1 + tmp_ax) / 2, (y1 + tmp_ay) / 2);
+            loc_init(&end, (tmp_bx + x2) / 2, (tmp_by + y2) / 2);
+            loc_iterator_first(&iter, &begin, &end);
+
+            do
+            {
+                square_set_feat(c, &iter.cur, feat);
+            }
+            while (loc_iterator_next(&iter));
         }
 
         /*
@@ -542,8 +596,7 @@ bool generate_starburst_room(struct chunk *c, int y1, int x1, int y2, int x2, bo
     }
 
     /* Get the center of the starburst. */
-    y0 = y1 + height / 2;
-    x0 = x1 + width / 2;
+    loc_init(&grid0, x1 + width / 2, y1 + height / 2);
 
     /* Start out at zero degrees. */
     degree_first = 0;
@@ -622,97 +675,96 @@ bool generate_starburst_room(struct chunk *c, int y1, int x1, int y2, int x2, bo
     /* Precalculate check distance. */
     dist_check = 21 * dist_conv / 10;
 
+    loc_init(&begin, x1 + 1, y1 + 1);
+    loc_init(&end, x2, y2);
+    loc_iterator_first(&iter, &begin, &end);
+
     /* Change grids between (and not including) the edges. */
-    for (y = y1 + 1; y < y2; y++)
+    do
     {
-        for (x = x1 + 1; x < x2; x++)
+        /* Do not touch vault grids. */
+        if (square_isvault(c, &iter.cur)) continue;
+
+        /* Do not touch occupied grids. */
+        if (square_monster(c, &iter.cur)) continue;
+        if (square_object(c, &iter.cur)) continue;
+
+        /* Get distance to grid. */
+        dist = distance(&grid0, &iter.cur);
+
+        /* Reject grid if outside check distance. */
+        if (dist >= dist_check)
+            continue;
+
+        /* Convert and reorient grid for table access. */
+        ny = 20 + 10 * (iter.cur.y - grid0.y) / dist_conv;
+        nx = 20 + 10 * (iter.cur.x - grid0.x) / dist_conv;
+
+        /* Illegal table access is bad. */
+        if ((ny < 0) || (ny > 40) || (nx < 0) || (nx > 40))
+            continue;
+
+        /* Get angle to current grid. */
+        degree = get_angle_to_grid[ny][nx];
+
+        /* Scan arcs to find the one that applies here. */
+        for (i = arc_num - 1; i >= 0; i--)
         {
-            /* Do not touch vault grids. */
-            if (square_isvault(c, y, x))
-                continue;
-
-            /* Do not touch occupied grids. */
-            if (square_monster(c, y, x))
-                continue;
-            if (square_object(c, y, x))
-                continue;
-
-            /* Get distance to grid. */
-            dist = distance(y0, x0, y, x);
-
-            /* Reject grid if outside check distance. */
-            if (dist >= dist_check)
-                continue;
-
-            /* Convert and reorient grid for table access. */
-            ny = 20 + 10 * (y - y0) / dist_conv;
-            nx = 20 + 10 * (x - x0) / dist_conv;
-
-            /* Illegal table access is bad. */
-            if ((ny < 0) || (ny > 40) || (nx < 0) || (nx > 40))
-                continue;
-
-            /* Get angle to current grid. */
-            degree = get_angle_to_grid[ny][nx];
-
-            /* Scan arcs to find the one that applies here. */
-            for (i = arc_num - 1; i >= 0; i--)
+            if (arc[i][0] <= degree)
             {
-                if (arc[i][0] <= degree)
+                max_dist = arc[i][1];
+
+                /* Must be within effect range. */
+                if (max_dist >= dist)
                 {
-                    max_dist = arc[i][1];
-
-                    /* Must be within effect range. */
-                    if (max_dist >= dist)
+                    /* If new feature is not passable, or floor, always place it. */
+                    if (feat_is_floor(feat) || !feat_is_passable(feat))
                     {
-                        /* If new feature is not passable, or floor, always place it. */
-                        if (feat_is_floor(feat) || !feat_is_passable(feat))
+                        square_set_feat(c, &iter.cur, feat);
+
+                        if (feat_is_floor(feat))
                         {
-                            square_set_feat(c, y, x, feat);
-
-                            if (feat_is_floor(feat))
-                            {
-                                sqinfo_on(c->squares[y][x].info, SQUARE_ROOM);
-                                sqinfo_on(c->squares[y][x].info, SQUARE_NO_STAIRS);
-                            }
-                            else
-                                sqinfo_off(c->squares[y][x].info, SQUARE_ROOM);
-
-                            if (light)
-                                sqinfo_on(c->squares[y][x].info, SQUARE_GLOW);
-                            else
-                                square_unglow(c, y, x);
+                            sqinfo_on(square(c, &iter.cur)->info, SQUARE_ROOM);
+                            sqinfo_on(square(c, &iter.cur)->info, SQUARE_NO_STAIRS);
                         }
-
-                        /* If new feature is non-floor passable terrain, place it only over floor. */
                         else
-                        {
-                            /* Replace old feature entirely in some cases. */
-                            if (feat_is_smooth(feat))
-                            {
-                                if (square_isfloor(c, y, x))
-                                    square_set_feat(c, y, x, feat);
-                            }
+                            sqinfo_off(square(c, &iter.cur)->info, SQUARE_ROOM);
 
-                            /* Make denser in the middle. */
-                            else
-                            {
-                                if (square_isfloor(c, y, x) && (randint1(max_dist + 5) >= dist + 5))
-                                    square_set_feat(c, y, x, feat);
-                            }
-
-                            /* Light grid. */
-                            if (light)
-                                sqinfo_on(c->squares[y][x].info, SQUARE_GLOW);
-                        }
+                        if (light)
+                            sqinfo_on(square(c, &iter.cur)->info, SQUARE_GLOW);
+                        else
+                            square_unglow(c, &iter.cur);
                     }
 
-                    /* Arc found. End search */
-                    break;
+                    /* If new feature is non-floor passable terrain, place it only over floor. */
+                    else
+                    {
+                        /* Replace old feature entirely in some cases. */
+                        if (feat_is_smooth(feat))
+                        {
+                            if (square_isfloor(c, &iter.cur))
+                                square_set_feat(c, &iter.cur, feat);
+                        }
+
+                        /* Make denser in the middle. */
+                        else
+                        {
+                            if (square_isfloor(c, &iter.cur) && (randint1(max_dist + 5) >= dist + 5))
+                                square_set_feat(c, &iter.cur, feat);
+                        }
+
+                        /* Light grid. */
+                        if (light)
+                            sqinfo_on(square(c, &iter.cur)->info, SQUARE_GLOW);
+                    }
                 }
+
+                /* Arc found. End search */
+                break;
             }
         }
     }
+    while (loc_iterator_next_strict(&iter));
 
     /*
     * If we placed floors or dungeon granite, all dungeon granite next
@@ -720,37 +772,40 @@ bool generate_starburst_room(struct chunk *c, int y1, int x1, int y2, int x2, bo
     */
     if (feat_is_floor(feat) || (feat == FEAT_GRANITE))
     {
-        for (y = y1 + 1; y < y2; y++)
+        loc_init(&begin, x1 + 1, y1 + 1);
+        loc_init(&end, x2, y2);
+        loc_iterator_first(&iter, &begin, &end);
+
+        do
         {
-            for (x = x1 + 1; x < x2; x++)
+            /* Floor grids only */
+            if (square_isfloor(c, &iter.cur))
             {
-                /* Floor grids only */
-                if (square_isfloor(c, y, x))
+                /* Look in all directions. */
+                for (d = 0; d < 8; d++)
                 {
-                    /* Look in all directions. */
-                    for (d = 0; d < 8; d++)
+                    struct loc adjacent;
+
+                    /* Extract adjacent location */
+                    loc_sum(&adjacent, &iter.cur, &ddgrid_ddd[d]);
+
+                    /* Join to room, forbid stairs */
+                    sqinfo_on(square(c, &adjacent)->info, SQUARE_ROOM);
+                    sqinfo_on(square(c, &adjacent)->info, SQUARE_NO_STAIRS);
+
+                    /* Illuminate if requested. */
+                    if (light) sqinfo_on(square(c, &adjacent)->info, SQUARE_GLOW);
+
+                    /* Look for dungeon granite. */
+                    if (square(c, &adjacent)->feat == FEAT_GRANITE)
                     {
-                        /* Extract adjacent location */
-                        int yy = y + ddy_ddd[d];
-                        int xx = x + ddx_ddd[d];
-
-                        /* Join to room, forbid stairs */
-                        sqinfo_on(c->squares[yy][xx].info, SQUARE_ROOM);
-                        sqinfo_on(c->squares[yy][xx].info, SQUARE_NO_STAIRS);
-
-                        /* Illuminate if requested. */
-                        if (light) sqinfo_on(c->squares[yy][xx].info, SQUARE_GLOW);
-
-                        /* Look for dungeon granite. */
-                        if (c->squares[yy][xx].feat == FEAT_GRANITE)
-                        {
-                            /* Mark as outer wall. */
-                            set_marked_granite(c, yy, xx, SQUARE_WALL_OUTER);
-                        }
+                        /* Mark as outer wall. */
+                        set_marked_granite(c, &adjacent, SQUARE_WALL_OUTER);
                     }
                 }
             }
         }
+        while (loc_iterator_next_strict(&iter));
     }
 
     /* Success */
@@ -877,7 +932,7 @@ void set_pit_type(int depth, int type)
 /*
  * Find a good spot for the next room.
  *
- * y, x centre of the room
+ * "centre" centre of the room
  * height, width dimensions of the room
  *
  * Find and allocate a free space in the dungeon large enough to hold
@@ -890,7 +945,7 @@ void set_pit_type(int depth, int type)
  * Return true and values for the center of the room if all went well.
  * Otherwise, return false.
  */
-static bool find_space(int *y, int *x, int height, int width)
+static bool find_space(struct loc *centre, int height, int width)
 {
     int i;
     int by, bx, by1, bx1, by2, bx2;
@@ -931,14 +986,13 @@ static bool find_space(int *y, int *x, int height, int width)
         if (filled) continue;
 
         /* Get the location of the room */
-        *y = ((by1 + by2 + 1) * dun->block_hgt) / 2;
-        *x = ((bx1 + bx2 + 1) * dun->block_wid) / 2;
+        centre->y = ((by1 + by2 + 1) * dun->block_hgt) / 2;
+        centre->x = ((bx1 + bx2 + 1) * dun->block_wid) / 2;
 
         /* Save the room location */
         if (dun->cent_n < z_info->level_room_max)
         {
-            dun->cent[dun->cent_n].y = *y;
-            dun->cent[dun->cent_n].x = *x;
+            loc_copy(&dun->cent[dun->cent_n], centre);
             dun->cent_n++;
         }
 
@@ -961,7 +1015,7 @@ static bool find_space(int *y, int *x, int height, int width)
  *
  * p the player
  * c the chunk the room is being built in
- * y0, x0 co-ordinates of the centre; out of chunk bounds invoke find_space()
+ * centre the room centre; out of chunk centre invoke find_space()
  * ymax, xmax the room dimensions
  * doors the door position
  * data the room template text description
@@ -969,10 +1023,10 @@ static bool find_space(int *y, int *x, int height, int width)
  *
  * Returns success.
  */
-static bool build_room_template(struct player *p, struct chunk *c, int y0, int x0, int ymax,
+static bool build_room_template(struct player *p, struct chunk *c, struct loc *centre, int ymax,
     int xmax, int doors, const char *data, int tval)
 {
-    int dx, dy, x, y, rnddoors, doorpos;
+    int dx, dy, rnddoors, doorpos;
     const char *t;
     bool rndwalls, light;
 
@@ -991,9 +1045,9 @@ static bool build_room_template(struct player *p, struct chunk *c, int y0, int x
     rndwalls = one_in_(2);
 
     /* Find and reserve some space in the dungeon. Get center of room. */
-    if ((y0 >= c->height) || (x0 >= c->width))
+    if ((centre->y >= c->height) || (centre->x >= c->width))
     {
-        if (!find_space(&y0, &x0, ymax + 2, xmax + 2))
+        if (!find_space(centre, ymax + 2, xmax + 2))
             return false;
     }
 
@@ -1002,78 +1056,87 @@ static bool build_room_template(struct player *p, struct chunk *c, int y0, int x
     {
         for (dx = 0; (dx < xmax) && *t; dx++, t++)
         {
+            struct loc grid;
+
             /* Extract the location */
-            x = x0 - (xmax / 2) + dx;
-            y = y0 - (ymax / 2) + dy;
+            loc_init(&grid, centre->x - (xmax / 2) + dx, centre->y - (ymax / 2) + dy);
 
             /* Skip non-grids */
             if (*t == ' ') continue;
 
             /* Lay down a floor */
-            square_set_feat(c, y, x, FEAT_FLOOR);
+            square_set_feat(c, &grid, FEAT_FLOOR);
 
             /* Debugging assertion */
-            my_assert(square_isempty(c, y, x));
+            my_assert(square_isempty(c, &grid));
 
             /* Analyze the grid */
             switch (*t)
             {
-                case '%': set_marked_granite(c, y, x, SQUARE_WALL_OUTER); break;
-                case '#': set_marked_granite(c, y, x, SQUARE_WALL_INNER); break;
-                case '+': place_closed_door(c, y, x); break;
-                case '^': if (one_in_(4)) place_trap(c, y, x, -1, c->wpos.depth); break;
+                case '%': set_marked_granite(c, &grid, SQUARE_WALL_OUTER); break;
+                case '#': set_marked_granite(c, &grid, SQUARE_WALL_INNER); break;
+                case '+': place_closed_door(c, &grid); break;
+                case '^': if (one_in_(4)) place_trap(c, &grid, -1, c->wpos.depth); break;
                 case 'x':
                 {
                     /* If optional walls are generated, put a wall in this square */
-                    if (rndwalls) set_marked_granite(c, y, x, SQUARE_WALL_INNER);
+                    if (rndwalls) set_marked_granite(c, &grid, SQUARE_WALL_INNER);
                     break;
                 }
                 case '(':
                 {
                     /* If optional walls are generated, put a door in this square */
-                    if (rndwalls) place_secret_door(c, y, x);
+                    if (rndwalls) place_secret_door(c, &grid);
                     break;
                 }
                 case ')':
                 {
                     /* If no optional walls are generated, put a door in this square */
                     if (!rndwalls)
-                        place_secret_door(c, y, x);
+                        place_secret_door(c, &grid);
                     else
-                        set_marked_granite(c, y, x, SQUARE_WALL_INNER);
+                        set_marked_granite(c, &grid, SQUARE_WALL_INNER);
                     break;
                 }
                 case '8':
                 {
                     /* Put something nice in this square: Object (80%) or Stairs (20%) */
                     if (magik(80))
-                        place_object(p, c, y, x, c->wpos.depth, false, false, ORIGIN_SPECIAL, 0);
+                        place_object(p, c, &grid, c->wpos.depth, false, false, ORIGIN_SPECIAL, 0);
                     else
-                        place_random_stairs(c, y, x);
+                        place_random_stairs(c, &grid);
 
                     /* Some monsters to guard it */
-                    vault_monsters(p, c, y, x, c->wpos.depth + 2, randint0(2) + 3);
+                    vault_monsters(p, c, &grid, c->wpos.depth + 2, randint0(2) + 3);
 
                     break;
                 }
                 case '9':
                 {
+                    struct loc off2, off3, vgrid;
+
                     /* Create some interesting stuff nearby */
+                    loc_init(&off2, 2, -2);
+                    loc_init(&off3, 3, 3);
 
                     /* A few monsters */
-                    vault_monsters(p, c, y - 3, x - 3, c->wpos.depth + randint0(2), randint1(2));
-                    vault_monsters(p, c, y + 3, x + 3, c->wpos.depth + randint0(2), randint1(2));
+                    loc_diff(&vgrid, &grid, &off3);
+                    vault_monsters(p, c, &vgrid, c->wpos.depth + randint0(2), randint1(2));
+                    loc_sum(&vgrid, &grid, &off3);
+                    vault_monsters(p, c, &vgrid, c->wpos.depth + randint0(2), randint1(2));
 
                     /* And maybe a bit of treasure */
-                    if (one_in_(2)) vault_objects(p, c, y - 2, x + 2, 1 + randint0(2));
-                    if (one_in_(2)) vault_objects(p, c, y + 2, x - 2, 1 + randint0(2));
+                    loc_sum(&vgrid, &grid, &off2);
+                    if (one_in_(2)) vault_objects(p, c, &vgrid, 1 + randint0(2));
+                    loc_diff(&vgrid, &grid, &off2);
+                    if (one_in_(2)) vault_objects(p, c, &vgrid, 1 + randint0(2));
 
                     break;
                 }
-                case '*':
+                case '[':
                 {
                     /* Place an object of the template's specified tval */
-                    place_object(p, c, y, x, c->wpos.depth, false, false, ORIGIN_SPECIAL, tval);
+                    place_object(p, c, &grid, c->wpos.depth, false, false, ORIGIN_SPECIAL, tval);
                     break;
                 }
                 case '1':
@@ -1087,18 +1150,17 @@ static bool build_room_template(struct player *p, struct chunk *c, int y0, int x
                     doorpos = (int)(*t - '0');
 
                     if (doorpos == rnddoors)
-                        place_secret_door(c, y, x);
+                        place_secret_door(c, &grid);
                     else
-                        set_marked_granite(c, y, x, SQUARE_WALL_INNER);
+                        set_marked_granite(c, &grid, SQUARE_WALL_INNER);
 
                     break;
                 }
             }
 
             /* Part of a room */
-            sqinfo_on(c->squares[y][x].info, SQUARE_ROOM);
-            if (light)
-                sqinfo_on(c->squares[y][x].info, SQUARE_GLOW);
+            sqinfo_on(square(c, &grid)->info, SQUARE_ROOM);
+            if (light) sqinfo_on(square(c, &grid)->info, SQUARE_GLOW);
         }
     }
 
@@ -1111,12 +1173,12 @@ static bool build_room_template(struct player *p, struct chunk *c, int y0, int x
  *
  * p the player
  * c the chunk the room is being built in
- * y0, x0 co-ordinates of the centre; out of chunk bounds invoke find_space()
+ * centre the room centre; out of chunk centre invokes find_space()
  * typ the room template type (currently unused)
  *
  * Returns success.
  */
-static bool build_room_template_type(struct player *p, struct chunk *c, int y0, int x0, int typ,
+static bool build_room_template_type(struct player *p, struct chunk *c, struct loc *centre, int typ,
     int rating)
 {
     struct room_template *room = random_room_template(typ, rating);
@@ -1124,7 +1186,7 @@ static bool build_room_template_type(struct player *p, struct chunk *c, int y0, 
     if (room == NULL) return false;
 
     /* Build the room */
-    if (!build_room_template(p, c, y0, x0, room->hgt, room->wid, room->dor, room->text, room->tval))
+    if (!build_room_template(p, c, centre, room->hgt, room->wid, room->dor, room->text, room->tval))
         return false;
 
     return true;
@@ -1136,71 +1198,75 @@ static bool build_room_template_type(struct player *p, struct chunk *c, int y0, 
  *
  * p the player
  * c the chunk the room is being built in
- * y0, x0 co-ordinates of the centre; out of chunk bounds invoke find_space()
+ * centre the room centre; out of chunk centre invokes find_space()
  * v pointer to the vault template
  *
  * Returns success.
  */
-bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault *v, bool find)
+bool build_vault(struct player *p, struct chunk *c, struct loc *centre, struct vault *v, bool find)
 {
     const char *data = v->text;
     int y1, x1, y2, x2;
-    int x, y, races_local = 0;
+    int races_local = 0;
     const char *t;
     char racial_symbol[30] = "";
     bool icky;
     struct wild_type *w_ptr;
+    struct loc begin, end, grid;
+    struct loc_iterator iter;
 
     my_assert(c);
 
     /* Find and reserve some space in the dungeon. Get center of room. */
-    if (((y0 >= c->height) || (x0 >= c->width)) && find)
+    if (((centre->y >= c->height) || (centre->x >= c->width)) && find)
     {
-        if (!find_space(&y0, &x0, v->hgt + 2, v->wid + 2))
+        if (!find_space(centre, v->hgt + 2, v->wid + 2))
             return false;
     }
 
-    w_ptr = get_wt_info_at(c->wpos.wy, c->wpos.wx);
+    w_ptr = get_wt_info_at(&c->wpos.grid);
 
     /* Get the room corners */
-    y1 = y0 - (v->hgt / 2);
-    x1 = x0 - (v->wid / 2);
+    y1 = centre->y - (v->hgt / 2);
+    x1 = centre->x - (v->wid / 2);
     y2 = y1 + v->hgt - 1;
     x2 = x1 + v->wid - 1;
 
+    loc_init(&begin, x1, y1);
+    loc_init(&end, x2, y2);
+    loc_iterator_first(&iter, &begin, &end);
+
     /* Hack -- don't generate if we go out of bounds or if there is already something there */
-    for (y = y1; y <= y2; y++)
+    do
     {
-        for (x = x1; x <= x2; x++)
-        {
-            /* Be sure we are "in bounds" */
-            if (!square_in_bounds_fully(c, y, x)) return false;
+        /* Be sure we are "in bounds" */
+        if (!square_in_bounds_fully(c, &iter.cur)) return false;
 
-            /* No object */
-            if (c->squares[y][x].obj) return false;
+        /* No object */
+        if (square(c, &iter.cur)->obj) return false;
 
-            /* Skip the DM */
-            if ((c->squares[y][x].mon < 0) && is_dm_p(player_get(0 - c->squares[y][x].mon)))
-                continue;
+        /* Skip the DM */
+        if ((square(c, &iter.cur)->mon < 0) && is_dm_p(player_get(0 - square(c, &iter.cur)->mon)))
+            continue;
 
-            /* No monster/player */
-            if (c->squares[y][x].mon) return false;
-        }
+        /* No monster/player */
+        if (square(c, &iter.cur)->mon) return false;
     }
+    while (loc_iterator_next(&iter));
 
     /* No random monsters in vaults. */
     generate_mark(c, y1, x1, y2, x2, SQUARE_MON_RESTRICT);
 
     /* Place dungeon features and objects */
-    for (t = data, y = y1; (y <= y2) && *t; y++)
+    for (t = data, grid.y = y1; (grid.y <= y2) && *t; grid.y++)
     {
-        for (x = x1; (x <= x2) && *t; x++, t++)
+        for (grid.x = x1; (grid.x <= x2) && *t; grid.x++, t++)
         {
             /* Skip non-grids */
             if (*t == ' ') continue;
 
             /* Lay down a floor */
-            square_set_feat(c, y, x, FEAT_FLOOR);
+            square_set_feat(c, &grid, FEAT_FLOOR);
 
             /* By default vault squares are marked icky */
             icky = true;
@@ -1216,58 +1282,58 @@ bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault
                      * vault. We don't mark it icky so that the tunneling
                      * code knows its allowed to remove this wall.
                      */
-                    set_marked_granite(c, y, x, SQUARE_WALL_OUTER);
+                    set_marked_granite(c, &grid, SQUARE_WALL_OUTER);
                     icky = false;
                     break;
                 }
 
                 /* Inner granite wall */
-                case '#': set_marked_granite(c, y, x, SQUARE_WALL_INNER); break;
+                case '#': set_marked_granite(c, &grid, SQUARE_WALL_INNER); break;
 
                 /* Permanent wall */
                 case '@':
                 {
-                    square_set_feat(c, y, x, FEAT_PERM);
+                    square_set_feat(c, &grid, FEAT_PERM);
 
                     /* PWMAngband: mark the wall as an "inner" wall */
-                    sqinfo_on(c->squares[y][x].info, SQUARE_WALL_INNER);
+                    sqinfo_on(square(c, &grid)->info, SQUARE_WALL_INNER);
                     break;
                 }
 
                 /* Gold seam */
                 case '*':
                 {
-                    square_set_feat(c, y, x, (one_in_(2)? FEAT_MAGMA_K: FEAT_QUARTZ_K));
+                    square_set_feat(c, &grid, (one_in_(2)? FEAT_MAGMA_K: FEAT_QUARTZ_K));
                     break;
                 }
 
                 /* Rubble */
                 case ':':
                 {
-                    square_set_feat(c, y, x, (one_in_(2)? FEAT_PASS_RUBBLE: FEAT_RUBBLE));
+                    square_set_feat(c, &grid, (one_in_(2)? FEAT_PASS_RUBBLE: FEAT_RUBBLE));
                     break;
                 }
 
                 /* Secret door */
-                case '+': place_secret_door(c, y, x); break;
+                case '+': place_secret_door(c, &grid); break;
 
                 /* Trap */
-                case '^': if (one_in_(4)) square_add_trap(c, y, x); break;
+                case '^': if (one_in_(4)) square_add_trap(c, &grid); break;
 
                 /* Treasure or a trap */
                 case '&':
                 {
                     if (magik(75))
-                        place_object(p, c, y, x, c->wpos.depth, false, false, ORIGIN_VAULT, 0);
+                        place_object(p, c, &grid, c->wpos.depth, false, false, ORIGIN_VAULT, 0);
                     else if (one_in_(4))
-                        square_add_trap(c, y, x);
+                        square_add_trap(c, &grid);
                     break;
                 }
 
                 /* Stairs */
                 case '<':
                 {
-                    if (cfg_limit_stairs < 2) square_set_feat(c, y, x, FEAT_LESS);
+                    if (cfg_limit_stairs < 2) square_set_feat(c, &grid, FEAT_LESS);
                     break;
                 }
                 case '>':
@@ -1275,27 +1341,27 @@ bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault
                     /* No down stairs at bottom */
                     if (c->wpos.depth == w_ptr->max_depth - 1)
                     {
-                        if (cfg_limit_stairs < 2) square_set_feat(c, y, x, FEAT_LESS);
+                        if (cfg_limit_stairs < 2) square_set_feat(c, &grid, FEAT_LESS);
                     }
                     else
-                        square_set_feat(c, y, x, FEAT_MORE);
+                        square_set_feat(c, &grid, FEAT_MORE);
                     break;
                 }
 
                 /* Lava */
-                case '`': square_set_feat(c, y, x, FEAT_LAVA); break;
+                case '`': square_set_feat(c, &grid, FEAT_LAVA); break;
             }
 
             /* Part of a vault */
-            sqinfo_on(c->squares[y][x].info, SQUARE_ROOM);
-            if (icky) sqinfo_on(c->squares[y][x].info, SQUARE_VAULT);
+            sqinfo_on(square(c, &grid)->info, SQUARE_ROOM);
+            if (icky) sqinfo_on(square(c, &grid)->info, SQUARE_VAULT);
         }
     }
 
     /* Place regular dungeon monsters and objects */
-    for (t = data, y = y1; (y <= y2) && *t; y++)
+    for (t = data, grid.y = y1; (grid.y <= y2) && *t; grid.y++)
     {
-        for (x = x1; (x <= x2) && *t; x++, t++)
+        for (grid.x = x1; (grid.x <= x2) && *t; grid.x++, t++)
         {
             /* Skip non-grids */
             if (*t == ' ') continue;
@@ -1319,22 +1385,20 @@ bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault
                 {
                     if (one_in_(2))
                     {
-                        pick_and_place_monster(p, c, y, x, c->wpos.depth, MON_ASLEEP | MON_GROUP,
+                        pick_and_place_monster(p, c, &grid, c->wpos.depth, MON_ASLEEP | MON_GROUP,
                             ORIGIN_DROP_VAULT);
                     }
                     else if (one_in_(2))
-                    {
-                        place_object(p, c, y, x, c->wpos.depth, one_in_(8), false, ORIGIN_VAULT, 0);
-                    }
+                        place_object(p, c, &grid, c->wpos.depth, one_in_(8), false, ORIGIN_VAULT, 0);
                     else if (one_in_(4))
-                        square_add_trap(c, y, x);
+                        square_add_trap(c, &grid);
                     break;
                 }
 
                 /* Slightly out of depth monster. */
                 case '2':
                 {
-                    pick_and_place_monster(p, c, y, x, c->wpos.depth + 5, MON_ASLEEP | MON_GROUP,
+                    pick_and_place_monster(p, c, &grid, c->wpos.depth + 5, MON_ASLEEP | MON_GROUP,
                         ORIGIN_DROP_VAULT);
                     break;
                 }
@@ -1342,7 +1406,7 @@ bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault
                 /* Slightly out of depth object. */
                 case '3':
                 {
-                    place_object(p, c, y, x, c->wpos.depth + 3, false, false, ORIGIN_VAULT, 0);
+                    place_object(p, c, &grid, c->wpos.depth + 3, false, false, ORIGIN_VAULT, 0);
                     break;
                 }
 
@@ -1351,25 +1415,25 @@ bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault
                 {
                     if (one_in_(2))
                     {
-                        pick_and_place_monster(p, c, y, x, c->wpos.depth + 3,
+                        pick_and_place_monster(p, c, &grid, c->wpos.depth + 3,
                             MON_ASLEEP | MON_GROUP, ORIGIN_DROP_VAULT);
                     }
                     if (one_in_(2))
-                        place_object(p, c, y, x, c->wpos.depth + 7, false, false, ORIGIN_VAULT, 0);
+                        place_object(p, c, &grid, c->wpos.depth + 7, false, false, ORIGIN_VAULT, 0);
                     break;
                 }
 
                 /* Out of depth object. */
                 case '5':
                 {
-                    place_object(p, c, y, x, c->wpos.depth + 7, false, false, ORIGIN_VAULT, 0);
+                    place_object(p, c, &grid, c->wpos.depth + 7, false, false, ORIGIN_VAULT, 0);
                     break;
                 }
 
                 /* Out of depth monster. */
                 case '6':
                 {
-                    pick_and_place_monster(p, c, y, x, c->wpos.depth + 11, MON_ASLEEP | MON_GROUP,
+                    pick_and_place_monster(p, c, &grid, c->wpos.depth + 11, MON_ASLEEP | MON_GROUP,
                         ORIGIN_DROP_VAULT);
                     break;
                 }
@@ -1377,14 +1441,14 @@ bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault
                 /* Very out of depth object. */
                 case '7':
                 {
-                    place_object(p, c, y, x, c->wpos.depth + 15, false, false, ORIGIN_VAULT, 0);
+                    place_object(p, c, &grid, c->wpos.depth + 15, false, false, ORIGIN_VAULT, 0);
                     break;
                 }
 
                 /* Very out of depth monster. */
                 case '0':
                 {
-                    pick_and_place_monster(p, c, y, x, c->wpos.depth + 20, MON_ASLEEP | MON_GROUP,
+                    pick_and_place_monster(p, c, &grid, c->wpos.depth + 20, MON_ASLEEP | MON_GROUP,
                         ORIGIN_DROP_VAULT);
                     break;
                 }
@@ -1392,25 +1456,25 @@ bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault
                 /* Meaner monster, plus treasure */
                 case '9':
                 {
-                    pick_and_place_monster(p, c, y, x, c->wpos.depth + 9, MON_ASLEEP | MON_GROUP,
+                    pick_and_place_monster(p, c, &grid, c->wpos.depth + 9, MON_ASLEEP | MON_GROUP,
                         ORIGIN_DROP_VAULT);
-                    place_object(p, c, y, x, c->wpos.depth + 7, true, false, ORIGIN_VAULT, 0);
+                    place_object(p, c, &grid, c->wpos.depth + 7, true, false, ORIGIN_VAULT, 0);
                     break;
                 }
 
                 /* Nasty monster and treasure */
                 case '8':
                 {
-                    pick_and_place_monster(p, c, y, x, c->wpos.depth + 40, MON_ASLEEP | MON_GROUP,
+                    pick_and_place_monster(p, c, &grid, c->wpos.depth + 40, MON_ASLEEP | MON_GROUP,
                         ORIGIN_DROP_VAULT);
-                    place_object(p, c, y, x, c->wpos.depth + 20, true, true, ORIGIN_VAULT, 0);
+                    place_object(p, c, &grid, c->wpos.depth + 20, true, true, ORIGIN_VAULT, 0);
                     break;
                 }
 
                 /* A chest. */
                 case '~':
                 {
-                    place_object(p, c, y, x, c->wpos.depth + 5, false, false, ORIGIN_VAULT,
+                    place_object(p, c, &grid, c->wpos.depth + 5, false, false, ORIGIN_VAULT,
                         TV_CHEST);
                     break;
                 }
@@ -1418,7 +1482,7 @@ bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault
                 /* Treasure. */
                 case '$':
                 {
-                    place_gold(p, c, y, x, c->wpos.depth, ORIGIN_VAULT);
+                    place_gold(p, c, &grid, c->wpos.depth, ORIGIN_VAULT);
                     break;
                 }
 
@@ -1427,7 +1491,7 @@ bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault
                 {
                     int temp = (one_in_(3)? randint0(9): randint0(8));
 
-                    place_object(p, c, y, x, c->wpos.depth + 3, true, false, ORIGIN_VAULT,
+                    place_object(p, c, &grid, c->wpos.depth + 3, true, false, ORIGIN_VAULT,
                         TV_BOOTS + temp);
                     break;
                 }
@@ -1437,7 +1501,7 @@ bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault
                 {
                     int temp = randint0(6);
 
-                    place_object(p, c, y, x, c->wpos.depth + 3, true, false, ORIGIN_VAULT,
+                    place_object(p, c, &grid, c->wpos.depth + 3, true, false, ORIGIN_VAULT,
                         TV_BOW + temp);
                     break;
                 }
@@ -1445,7 +1509,7 @@ bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault
                 /* Ring. */
                 case '=':
                 {
-                    place_object(p, c, y, x, c->wpos.depth + 3, one_in_(4), false, ORIGIN_VAULT,
+                    place_object(p, c, &grid, c->wpos.depth + 3, one_in_(4), false, ORIGIN_VAULT,
                         TV_RING);
                     break;
                 }
@@ -1453,7 +1517,7 @@ bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault
                 /* Amulet. */
                 case '"':
                 {
-                    place_object(p, c, y, x, c->wpos.depth + 3, one_in_(4), false, ORIGIN_VAULT,
+                    place_object(p, c, &grid, c->wpos.depth + 3, one_in_(4), false, ORIGIN_VAULT,
                         TV_AMULET);
                     break;
                 }
@@ -1461,7 +1525,7 @@ bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault
                 /* Potion. */
                 case '!':
                 {
-                    place_object(p, c, y, x, c->wpos.depth + 3, one_in_(4), false, ORIGIN_VAULT,
+                    place_object(p, c, &grid, c->wpos.depth + 3, one_in_(4), false, ORIGIN_VAULT,
                         TV_POTION);
                     break;
                 }
@@ -1469,7 +1533,7 @@ bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault
                 /* Scroll. */
                 case '?':
                 {
-                    place_object(p, c, y, x, c->wpos.depth + 3, one_in_(4), false, ORIGIN_VAULT,
+                    place_object(p, c, &grid, c->wpos.depth + 3, one_in_(4), false, ORIGIN_VAULT,
                         TV_SCROLL);
                     break;
                 }
@@ -1477,7 +1541,7 @@ bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault
                 /* Staff. */
                 case '_':
                 {
-                    place_object(p, c, y, x, c->wpos.depth + 3, one_in_(4), false, ORIGIN_VAULT,
+                    place_object(p, c, &grid, c->wpos.depth + 3, one_in_(4), false, ORIGIN_VAULT,
                         TV_STAFF);
                     break;
                 }
@@ -1485,7 +1549,7 @@ bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault
                 /* Wand or rod. */
                 case '-':
                 {
-                    place_object(p, c, y, x, c->wpos.depth + 3, one_in_(4), false, ORIGIN_VAULT,
+                    place_object(p, c, &grid, c->wpos.depth + 3, one_in_(4), false, ORIGIN_VAULT,
                         (one_in_(2)? TV_WAND: TV_ROD));
                     break;
                 }
@@ -1493,7 +1557,7 @@ bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault
                 /* Food. */
                 case ',':
                 {
-                    place_object(p, c, y, x, c->wpos.depth + 3, one_in_(4), false, ORIGIN_VAULT,
+                    place_object(p, c, &grid, c->wpos.depth + 3, one_in_(4), false, ORIGIN_VAULT,
                         TV_FOOD);
                     break;
                 }
@@ -1514,12 +1578,12 @@ bool build_vault(struct player *p, struct chunk *c, int y0, int x0, struct vault
  *
  * p the player
  * c the chunk the room is being built in
- * y0, x0 co-ordinates of the centre; out of chunk bounds invoke find_space()
+ * centre the room centre; out of chunk centre invokes find_space()
  * typ the vault type
  *
  * Returns success.
  */
-static bool build_vault_type(struct player *p, struct chunk *c, int y0, int x0, const char *typ)
+static bool build_vault_type(struct player *p, struct chunk *c, struct loc *centre, const char *typ)
 {
     struct vault *v = random_vault(c->wpos.depth, typ);
 
@@ -1529,7 +1593,7 @@ static bool build_vault_type(struct player *p, struct chunk *c, int y0, int x0, 
     if (streq(v->typ, "Medium vault") && !one_in_(v->rat / 10)) return false;
 
     /* Build the vault */
-    if (!build_vault(p, c, y0, x0, v, true))
+    if (!build_vault(p, c, centre, v, true))
         return false;
 
     /* Boost the rating */
@@ -1545,13 +1609,13 @@ static bool build_vault_type(struct player *p, struct chunk *c, int y0, int x0, 
  * c the chunk the room is being built in
  * y, x co-ordinates
  */
-static void make_inner_chamber_wall(struct chunk *c, int y, int x)
+static void make_inner_chamber_wall(struct chunk *c, struct loc *grid)
 {
-    if ((c->squares[y][x].feat != FEAT_GRANITE) && (c->squares[y][x].feat != FEAT_MAGMA))
+    if ((square(c, grid)->feat != FEAT_GRANITE) && (square(c, grid)->feat != FEAT_MAGMA))
         return;
-    if (square_iswall_outer(c, y, x)) return;
-    if (square_iswall_solid(c, y, x)) return;
-    set_marked_granite(c, y, x, SQUARE_WALL_INNER);
+    if (square_iswall_outer(c, grid)) return;
+    if (square_iswall_solid(c, grid)) return;
+    set_marked_granite(c, grid, SQUARE_WALL_INNER);
 }
 
 
@@ -1566,29 +1630,34 @@ static void make_inner_chamber_wall(struct chunk *c, int y, int x)
  */
 static void make_chamber(struct chunk *c, int y1, int x1, int y2, int x2)
 {
-    int i, d, y, x;
+    int i, d;
     int count;
+    struct loc grid;
 
     /* Fill with soft granite (will later be replaced with floor). */
     fill_rectangle(c, y1 + 1, x1 + 1, y2 - 1, x2 - 1, FEAT_MAGMA, SQUARE_NONE);
 
     /* Generate inner walls over dungeon granite and magma. */
-    for (y = y1; y <= y2; y++)
+    for (grid.y = y1; grid.y <= y2; grid.y++)
     {
         /* Left wall */
-        make_inner_chamber_wall(c, y, x1);
+        grid.x = x1;
+        make_inner_chamber_wall(c, &grid);
 
         /* Right wall */
-        make_inner_chamber_wall(c, y, x2);
+        grid.x = x2;
+        make_inner_chamber_wall(c, &grid);
     }
 
-    for (x = x1; x <= x2; x++)
+    for (grid.x = x1; grid.x <= x2; grid.x++)
     {
         /* Top wall */
-        make_inner_chamber_wall(c, y1, x);
+        grid.y = y1;
+        make_inner_chamber_wall(c, &grid);
 
         /* Bottom wall */
-        make_inner_chamber_wall(c, y2, x);
+        grid.y = y2;
+        make_inner_chamber_wall(c, &grid);
     }
 
     /* Try a few times to place a door. */
@@ -1598,21 +1667,21 @@ static void make_chamber(struct chunk *c, int y1, int x1, int y2, int x2)
         if (one_in_(2))
         {
             /* Somewhere along the (interior) side walls. */
-            x = (one_in_(2)? x1: x2);
-            y = y1 + randint0(1 + ABS(y2 - y1));
+            grid.x = (one_in_(2)? x1: x2);
+            grid.y = y1 + randint0(1 + ABS(y2 - y1));
         }
         else
         {
             /* Somewhere along the (interior) top and bottom walls. */
-            y = (one_in_(2)? y1: y2);
-            x = x1 + randint0(1 + ABS(x2 - x1));
+            grid.y = (one_in_(2)? y1: y2);
+            grid.x = x1 + randint0(1 + ABS(x2 - x1));
         }
 
         /* If not an inner wall square, try again. */
-        if (!square_iswall_inner(c, y, x)) continue;
+        if (!square_iswall_inner(c, &grid)) continue;
 
         /* Paranoia */
-        if (!square_in_bounds_fully(c, y, x)) continue;
+        if (!square_in_bounds_fully(c, &grid)) continue;
 
         /* Reset wall count */
         count = 0;
@@ -1620,15 +1689,16 @@ static void make_chamber(struct chunk *c, int y1, int x1, int y2, int x2)
         /* If square has not more than two adjacent walls, and no adjacent doors, place door. */
         for (d = 0; d < 9; d++)
         {
+            struct loc adjacent;
+
             /* Extract adjacent (legal) location */
-            int yy = y + ddy_ddd[d];
-            int xx = x + ddx_ddd[d];
+            loc_sum(&adjacent, &grid, &ddgrid_ddd[d]);
 
             /* No doors beside doors. */
-            if (c->squares[yy][xx].feat == FEAT_OPEN) break;
+            if (square(c, &adjacent)->feat == FEAT_OPEN) break;
 
             /* Count the inner walls. */
-            if (square_iswall_inner(c, yy, xx)) count++;
+            if (square_iswall_inner(c, &adjacent)) count++;
 
             /* No more than two walls adjacent (plus the one we're on). */
             if (count > 3) break;
@@ -1637,7 +1707,7 @@ static void make_chamber(struct chunk *c, int y1, int x1, int y2, int x2)
             if (d == 8)
             {
                 /* Place an open door. */
-                square_set_feat(c, y, x, FEAT_OPEN);
+                square_set_feat(c, &grid, FEAT_OPEN);
 
                 /* Success. */
                 return;
@@ -1652,34 +1722,35 @@ static void make_chamber(struct chunk *c, int y1, int x1, int y2, int x2)
  * Stop only when the magma and the open doors totally run out.
  *
  * c the chunk the room is being built in
- * y, x co-ordinates to start hollowing
+ * grid location to start hollowing
  */
-static void hollow_out_room(struct chunk *c, int y, int x)
+static void hollow_out_room(struct chunk *c, struct loc *grid)
 {
-    int d, yy, xx;
+    int d;
 
     for (d = 0; d < 9; d++)
     {
+        struct loc adjacent;
+
         /* Extract adjacent location */
-        yy = y + ddy_ddd[d];
-        xx = x + ddx_ddd[d];
+        loc_sum(&adjacent, grid, &ddgrid_ddd[d]);
 
         /* Change magma to floor. */
-        if (c->squares[yy][xx].feat == FEAT_MAGMA)
+        if (square(c, &adjacent)->feat == FEAT_MAGMA)
         {
-            square_set_feat(c, yy, xx, FEAT_FLOOR);
+            square_set_feat(c, &adjacent, FEAT_FLOOR);
 
             /* Hollow out the room. */
-            hollow_out_room(c, yy, xx);
+            hollow_out_room(c, &adjacent);
         }
 
         /* Change open door to broken door. */
-        else if (c->squares[yy][xx].feat == FEAT_OPEN)
+        else if (square(c, &adjacent)->feat == FEAT_OPEN)
         {
-            square_set_feat(c, yy, xx, FEAT_BROKEN);
+            square_set_feat(c, &adjacent, FEAT_BROKEN);
 
             /* Hollow out the (new) room. */
-            hollow_out_room(c, yy, xx);
+            hollow_out_room(c, &adjacent);
         }
     }
 }
@@ -1695,11 +1766,11 @@ static void hollow_out_room(struct chunk *c, int y, int x)
  *
  * p the player
  * c the chunk the room is being built in
- * y0, x0 co-ordinates of the centre; out of chunk bounds invoke find_space()
+ * centre the room centre; out of chunk centre invokes find_space()
  *
  * Returns success
  */
-bool build_circular(struct player *p, struct chunk *c, int y0, int x0, int rating)
+bool build_circular(struct player *p, struct chunk *c, struct loc *centre, int rating)
 {
     int radius;
     bool light;
@@ -1707,14 +1778,14 @@ bool build_circular(struct player *p, struct chunk *c, int y0, int x0, int ratin
     struct location *dungeon;
 
     /* Get the dungeon */
-    COORDS_SET(&dpos, c->wpos.wy, c->wpos.wx, 0);
+    wpos_init(&dpos, &c->wpos.grid, 0);
     dungeon = get_dungeon(&dpos);
 
     /* Some dungeons have circular and simple rooms swapped */
     if (dungeon && c->wpos.depth && df_has(dungeon->flags, DF_CIRCULAR_ROOMS) && !c->gen_hack)
     {
         c->gen_hack = true;
-        return build_simple(p, c, y0, x0, rating);
+        return build_simple(p, c, centre, rating);
     }
     c->gen_hack = false;
 
@@ -1725,33 +1796,35 @@ bool build_circular(struct player *p, struct chunk *c, int y0, int x0, int ratin
     light = ((c->wpos.depth <= randint1(25))? true: false);
 
     /* Find and reserve lots of space in the dungeon. Get center of room. */
-    if ((y0 >= c->height) || (x0 >= c->width))
+    if ((centre->y >= c->height) || (centre->x >= c->width))
     {
-        if (!find_space(&y0, &x0, 2 * radius + 10, 2 * radius + 10))
+        if (!find_space(centre, 2 * radius + 10, 2 * radius + 10))
             return false;
     }
 
     /* Generate outer walls and inner floors */
-    fill_circle(c, y0, x0, radius + 1, 1, FEAT_GRANITE, SQUARE_WALL_OUTER, light);
-    fill_circle(c, y0, x0, radius, 0, FEAT_FLOOR, SQUARE_NONE, light);
+    fill_circle(c, centre->y, centre->x, radius + 1, 1, FEAT_GRANITE, SQUARE_WALL_OUTER, light);
+    fill_circle(c, centre->y, centre->x, radius, 0, FEAT_FLOOR, SQUARE_NONE, light);
 
     /* Especially large circular rooms will have a middle chamber */
     if ((radius - 4 > 0) && (randint0(4) < radius - 4))
     {
         /* Choose a random direction */
-        int cd, rd;
+        struct loc offset, grid;
 
-        rand_dir(&rd, &cd);
+        rand_dir(&offset);
 
         /* Draw a room with a closed door on a random side */
-        draw_rectangle(c, y0 - 2, x0 - 2, y0 + 2, x0 + 2, FEAT_GRANITE, SQUARE_WALL_INNER);
-        place_closed_door(c, y0 + cd * 2, x0 + rd * 2);
+        draw_rectangle(c, centre->y - 2, centre->x - 2, centre->y + 2, centre->x + 2, FEAT_GRANITE,
+            SQUARE_WALL_INNER);
+        loc_init(&grid, centre->x + offset.x * 2, centre->y + offset.y * 2);
+        place_closed_door(c, &grid);
 
         /* Place a treasure in the vault */
-        vault_objects(p, c, y0, x0, randint0(2));
+        vault_objects(p, c, centre, randint0(2));
 
         /* Create some monsters */
-        vault_monsters(p, c, y0, x0, c->wpos.depth + 1, randint0(3));
+        vault_monsters(p, c, centre, c->wpos.depth + 1, randint0(3));
     }
 
     return true;
@@ -1763,13 +1836,13 @@ bool build_circular(struct player *p, struct chunk *c, int y0, int x0, int ratin
  *
  * p the player
  * c the chunk the room is being built in
- * y0, x0 co-ordinates of the centre; out of chunk bounds invoke find_space()
+ * centre the room centre; out of chunk centre invokes find_space()
  *
  * Returns success
  */
-bool build_simple(struct player *p, struct chunk *c, int y0, int x0, int rating)
+bool build_simple(struct player *p, struct chunk *c, struct loc *centre, int rating)
 {
-    int y, x, y1, x1, y2, x2;
+    int y1, x1, y2, x2;
     int light = false;
     int height;
     int width;
@@ -1777,14 +1850,14 @@ bool build_simple(struct player *p, struct chunk *c, int y0, int x0, int rating)
     struct location *dungeon;
 
     /* Get the dungeon */
-    COORDS_SET(&dpos, c->wpos.wy, c->wpos.wx, 0);
+    wpos_init(&dpos, &c->wpos.grid, 0);
     dungeon = get_dungeon(&dpos);
 
     /* Some dungeons have circular and simple rooms swapped */
     if (dungeon && c->wpos.depth && df_has(dungeon->flags, DF_CIRCULAR_ROOMS) && !c->gen_hack)
     {
         c->gen_hack = true;
-        return build_circular(p, c, y0, x0, rating);
+        return build_circular(p, c, centre, rating);
     }
     c->gen_hack = false;
 
@@ -1793,15 +1866,15 @@ bool build_simple(struct player *p, struct chunk *c, int y0, int x0, int rating)
     width = 1 + randint1(11) + randint1(11);
 
     /* Find and reserve some space in the dungeon. Get center of room. */
-    if ((y0 >= c->height) || (x0 >= c->width))
+    if ((centre->y >= c->height) || (centre->x >= c->width))
     {
-        if (!find_space(&y0, &x0, height + 2, width + 2))
+        if (!find_space(centre, height + 2, width + 2))
             return false;
     }
 
     /* Pick a room size */
-    y1 = y0 - height / 2;
-    x1 = x0 - width / 2;
+    y1 = centre->y - height / 2;
+    x1 = centre->x - width / 2;
     y2 = y1 + height - 1;
     x2 = x1 + width - 1;
 
@@ -1818,23 +1891,31 @@ bool build_simple(struct player *p, struct chunk *c, int y0, int x0, int rating)
     /* Sometimes make a pillar room */
     if (one_in_(20))
     {
-        for (y = y1; y <= y2; y += 2)
-            for (x = x1; x <= x2; x += 2)
-                set_marked_granite(c, y, x, SQUARE_WALL_INNER);
+        struct loc grid;
+
+        for (grid.y = y1; grid.y <= y2; grid.y += 2)
+            for (grid.x = x1; grid.x <= x2; grid.x += 2)
+                set_marked_granite(c, &grid, SQUARE_WALL_INNER);
     }
 
     /* Sometimes make a ragged-edge room */
     else if (one_in_(50))
     {
-        for (y = y1 + 2; y <= y2 - 2; y += 2)
+        struct loc grid;
+
+        for (grid.y = y1 + 2; grid.y <= y2 - 2; grid.y += 2)
         {
-            set_marked_granite(c, y, x1, SQUARE_WALL_INNER);
-            set_marked_granite(c, y, x2, SQUARE_WALL_INNER);
+            grid.x = x1;
+            set_marked_granite(c, &grid, SQUARE_WALL_INNER);
+            grid.x = x2;
+            set_marked_granite(c, &grid, SQUARE_WALL_INNER);
         }
-        for (x = x1 + 2; x <= x2 - 2; x += 2)
+        for (grid.x = x1 + 2; grid.x <= x2 - 2; grid.x += 2)
         {
-            set_marked_granite(c, y1, x, SQUARE_WALL_INNER);
-            set_marked_granite(c, y2, x, SQUARE_WALL_INNER);
+            grid.y = y1;
+            set_marked_granite(c, &grid, SQUARE_WALL_INNER);
+            grid.y = y2;
+            set_marked_granite(c, &grid, SQUARE_WALL_INNER);
         }
     }
 
@@ -1847,11 +1928,11 @@ bool build_simple(struct player *p, struct chunk *c, int y0, int x0, int rating)
  *
  * p the player
  * c the chunk the room is being built in
- * y0, x0 co-ordinates of the centre; out of chunk bounds invoke find_space()
+ * centre the room centre; out of chunk centre invokes find_space()
  *
  * Returns success
  */
-bool build_overlap(struct player *p, struct chunk *c, int y0, int x0, int rating)
+bool build_overlap(struct player *p, struct chunk *c, struct loc *centre, int rating)
 {
     int y1a, x1a, y2a, x2a;
     int y1b, x1b, y2b, x2b;
@@ -1878,23 +1959,23 @@ bool build_overlap(struct player *p, struct chunk *c, int y0, int x0, int rating
     width = 2 * MAX(MAX(x1a, x2a), MAX(x1b, x2b)) + 1;
 
     /* Find and reserve some space in the dungeon. Get center of room. */
-    if ((y0 >= c->height) || (x0 >= c->width))
+    if ((centre->y >= c->height) || (centre->x >= c->width))
     {
-        if (!find_space(&y0, &x0, height + 2, width + 2))
+        if (!find_space(centre, height + 2, width + 2))
             return false;
     }
 
     /* locate room (a) */
-    y1a = y0 - y1a;
-    x1a = x0 - x1a;
-    y2a = y0 + y2a;
-    x2a = x0 + x2a;
+    y1a = centre->y - y1a;
+    x1a = centre->x - x1a;
+    y2a = centre->y + y2a;
+    x2a = centre->x + x2a;
 
     /* locate room (b) */
-    y1b = y0 - y1b;
-    x1b = x0 - x1b;
-    y2b = y0 + y2b;
-    x2b = x0 + x2b;
+    y1b = centre->y - y1b;
+    x1b = centre->x - x1b;
+    y2b = centre->y + y2b;
+    x2b = centre->x + x2b;
 
     /* Generate new room (a) */
     generate_room(c, y1a - 1, x1a - 1, y2a + 1, x2a + 1, light);
@@ -1923,7 +2004,7 @@ bool build_overlap(struct player *p, struct chunk *c, int y0, int x0, int rating
  *
  * p the player
  * c the chunk the room is being built in
- * y0, x0 co-ordinates of the centre; out of chunk bounds invoke find_space()
+ * centre the room centre; out of chunk centre invokes find_space()
  *
  * Returns success
  *
@@ -1934,7 +2015,7 @@ bool build_overlap(struct player *p, struct chunk *c, int y0, int x0, int rating
  * below will work for 5x5 (and perhaps even for unsymetric values like 4x3 or
  * 5x3 or 3x4 or 3x5).
  */
-bool build_crossed(struct player *p, struct chunk *c, int y0, int x0, int rating)
+bool build_crossed(struct player *p, struct chunk *c, struct loc *centre, int rating)
 {
     int y, x;
     int height, width;
@@ -1971,23 +2052,23 @@ bool build_crossed(struct player *p, struct chunk *c, int y0, int x0, int rating
     width = MAX(x1a + x2a + 1, x1b + x2b + 1);
 
     /* Find and reserve some space in the dungeon. Get center of room. */
-    if ((y0 >= c->height) || (x0 >= c->width))
+    if ((centre->y >= c->height) || (centre->x >= c->width))
     {
-        if (!find_space(&y0, &x0, height + 2, width + 2))
+        if (!find_space(centre, height + 2, width + 2))
             return false;
     }
 
     /* locate room (a) */
-    y1a = y0 - dy;
-    x1a = x0 - wx;
-    y2a = y0 + dy;
-    x2a = x0 + wx;
+    y1a = centre->y - dy;
+    x1a = centre->x - wx;
+    y2a = centre->y + dy;
+    x2a = centre->x + wx;
 
     /* locate room (b) */
-    y1b = y0 - wy;
-    x1b = x0 - dx;
-    y2b = y0 + wy;
-    x2b = x0 + dx;
+    y1b = centre->y - wy;
+    x1b = centre->x - dx;
+    y2b = centre->y + wy;
+    x2b = centre->x + dx;
     
     /* Generate new room (a) */
     generate_room(c, y1a - 1, x1a - 1, y2a + 1, x2a + 1, light);
@@ -2032,13 +2113,13 @@ bool build_crossed(struct player *p, struct chunk *c, int y0, int x0, int rating
             generate_hole(c, y1b, x1a, y2b, x2a, FEAT_SECRET);
 
             /* Place a treasure in the vault */
-            place_object(p, c, y0, x0, c->wpos.depth, false, false, ORIGIN_SPECIAL, 0);
+            place_object(p, c, centre, c->wpos.depth, false, false, ORIGIN_SPECIAL, 0);
 
             /* Let's guard the treasure well */
-            vault_monsters(p, c, y0, x0, c->wpos.depth + 2, randint0(2) + 3);
+            vault_monsters(p, c, centre, c->wpos.depth + 2, randint0(2) + 3);
 
             /* Traps naturally */
-            vault_traps(c, y0, x0, 4, 4, randint0(3) + 2);
+            vault_traps(c, centre, 4, 4, randint0(3) + 2);
 
             break;
         }
@@ -2052,17 +2133,25 @@ bool build_crossed(struct player *p, struct chunk *c, int y0, int x0, int rating
                 /* Pinch the east/west sides */
                 for (y = y1b; y <= y2b; y++)
                 {
-                    if (y == y0) continue;
-                    set_marked_granite(c, y, x1a - 1, SQUARE_WALL_INNER);
-                    set_marked_granite(c, y, x2a + 1, SQUARE_WALL_INNER);
+                    struct loc grid;
+
+                    if (y == centre->y) continue;
+                    loc_init(&grid, x1a - 1, y);
+                    set_marked_granite(c, &grid, SQUARE_WALL_INNER);
+                    loc_init(&grid, x2a + 1, y);
+                    set_marked_granite(c, &grid, SQUARE_WALL_INNER);
                 }
 
                 /* Pinch the north/south sides */
                 for (x = x1a; x <= x2a; x++)
                 {
-                    if (x == x0) continue;
-                    set_marked_granite(c, y1b - 1, x, SQUARE_WALL_INNER);
-                    set_marked_granite(c, y2b + 1, x, SQUARE_WALL_INNER);
+                    struct loc grid;
+
+                    if (x == centre->x) continue;
+                    loc_init(&grid, x, y1b - 1);
+                    set_marked_granite(c, &grid, SQUARE_WALL_INNER);
+                    loc_init(&grid, x, y2b + 1);
+                    set_marked_granite(c, &grid, SQUARE_WALL_INNER);
                 }
 
                 /* Open sides with doors */
@@ -2076,7 +2165,7 @@ bool build_crossed(struct player *p, struct chunk *c, int y0, int x0, int rating
 
             /* Occasionally put a "pillar" in the center */
             else if (one_in_(3))
-                set_marked_granite(c, y0, x0, SQUARE_WALL_INNER);
+                set_marked_granite(c, centre, SQUARE_WALL_INNER);
 
             break;
         }
@@ -2091,7 +2180,7 @@ bool build_crossed(struct player *p, struct chunk *c, int y0, int x0, int rating
  *
  * p the player
  * c the chunk the room is being built in
- * y0, x0 co-ordinates of the centre; out of chunk bounds invoke find_space()
+ * centre the room centre; out of chunk centre invokes find_space()
  *
  * Returns success.
  *
@@ -2102,9 +2191,9 @@ bool build_crossed(struct player *p, struct chunk *c, int y0, int x0, int rating
  *  4 - An inner room with a checkerboard
  *  5 - An inner room with four compartments
  */
-bool build_large(struct player *p, struct chunk *c, int y0, int x0, int rating)
+bool build_large(struct player *p, struct chunk *c, struct loc *centre, int rating)
 {
-    int y, x, y1, x1, y2, x2;
+    int y1, x1, y2, x2;
     int height = 9;
     int width = 23;
     int light = false;
@@ -2113,17 +2202,17 @@ bool build_large(struct player *p, struct chunk *c, int y0, int x0, int rating)
     if (c->wpos.depth <= randint1(25)) light = true;
 
     /* Find and reserve some space in the dungeon. Get center of room. */
-    if ((y0 >= c->height) || (x0 >= c->width))
+    if ((centre->y >= c->height) || (centre->x >= c->width))
     {
-        if (!find_space(&y0, &x0, height + 2, width + 2))
+        if (!find_space(centre, height + 2, width + 2))
             return false;
     }
 
     /* Large room */
-    y1 = y0 - height / 2;
-    y2 = y0 + height / 2;
-    x1 = x0 - width / 2;
-    x2 = x0 + width / 2;
+    y1 = centre->y - height / 2;
+    y2 = centre->y + height / 2;
+    x1 = centre->x - width / 2;
+    x2 = centre->x + width / 2;
 
     /* Generate new room */
     generate_room(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, light);
@@ -2151,7 +2240,7 @@ bool build_large(struct player *p, struct chunk *c, int y0, int x0, int rating)
         {
             /* Open the inner room with a door and place a monster */
             generate_hole(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_CLOSED);
-            vault_monsters(p, c, y0, x0, c->wpos.depth + 2, 1);
+            vault_monsters(p, c, centre, c->wpos.depth + 2, 1);
 
             break;
         }
@@ -2159,34 +2248,40 @@ bool build_large(struct player *p, struct chunk *c, int y0, int x0, int rating)
         /* An inner room with a small inner room */
         case 2:
         {
+            struct loc begin, end;
+            struct loc_iterator iter;
+
             /* Open the inner room with a door */
             generate_hole(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_CLOSED);
 
             /* Place another inner room */
-            draw_rectangle(c, y0 - 1, x0 - 1, y0 + 1, x0 + 1, FEAT_GRANITE, SQUARE_WALL_INNER);
+            draw_rectangle(c, centre->y - 1, centre->x - 1, centre->y + 1, centre->x + 1,
+                FEAT_GRANITE, SQUARE_WALL_INNER);
+
+            loc_init(&begin, centre->x - 1, centre->y - 1);
+            loc_init(&end, centre->x + 1, centre->y + 1);
+            loc_iterator_first(&iter, &begin, &end);
 
             /* Open the inner room with a locked door */
-            generate_hole(c, y0 - 1, x0 - 1, y0 + 1, x0 + 1, FEAT_CLOSED);
-            for (y = y0 - 1; y <= y0 + 1; y++)
+            generate_hole(c, centre->y - 1, centre->x - 1, centre->y + 1, centre->x + 1, FEAT_CLOSED);
+            do
             {
-                for (x = x0 - 1; x <= x0 + 1; x++)
-                {
-                    if (square_iscloseddoor(c, y, x))
-                        square_set_door_lock(c, y, x, randint1(7));
-                }
+                if (square_iscloseddoor(c, &iter.cur))
+                    square_set_door_lock(c, &iter.cur, randint1(7));
             }
+            while (loc_iterator_next(&iter));
 
             /* Monsters to guard the treasure */
-            vault_monsters(p, c, y0, x0, c->wpos.depth + 2, randint1(3) + 2);
+            vault_monsters(p, c, centre, c->wpos.depth + 2, randint1(3) + 2);
 
             /* Object (80%) or Stairs (20%) */
             if (magik(80))
-                place_object(p, c, y0, x0, c->wpos.depth, false, false, ORIGIN_SPECIAL, 0);
+                place_object(p, c, centre, c->wpos.depth, false, false, ORIGIN_SPECIAL, 0);
             else
-                place_random_stairs(c, y0, x0);
+                place_random_stairs(c, centre);
 
             /* Traps to protect the treasure */
-            vault_traps(c, y0, x0, 4, 10, 2 + randint1(3));
+            vault_traps(c, centre, 4, 10, 2 + randint1(3));
 
             break;
         }
@@ -2198,42 +2293,56 @@ bool build_large(struct player *p, struct chunk *c, int y0, int x0, int rating)
             generate_hole(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_CLOSED);
 
             /* Inner pillar */
-            fill_rectangle(c, y0 - 1, x0 - 1, y0 + 1, x0 + 1, FEAT_GRANITE, SQUARE_WALL_INNER);
+            fill_rectangle(c, centre->y - 1, centre->x - 1, centre->y + 1, centre->x + 1,
+                FEAT_GRANITE, SQUARE_WALL_INNER);
 
             /* Occasionally, two more Large Inner Pillars */
             if (one_in_(2))
             {
                 if (one_in_(2))
                 {
-                    fill_rectangle(c, y0 - 1, x0 - 7, y0 + 1, x0 - 5, FEAT_GRANITE, SQUARE_WALL_INNER);
-                    fill_rectangle(c, y0 - 1, x0 + 5, y0 + 1, x0 + 7, FEAT_GRANITE, SQUARE_WALL_INNER);
+                    fill_rectangle(c, centre->y - 1, centre->x - 7, centre->y + 1, centre->x - 5,
+                        FEAT_GRANITE, SQUARE_WALL_INNER);
+                    fill_rectangle(c, centre->y - 1, centre->x + 5, centre->y + 1, centre->x + 7,
+                        FEAT_GRANITE, SQUARE_WALL_INNER);
                 }
                 else
                 {
-                    fill_rectangle(c, y0 - 1, x0 - 6, y0 + 1, x0 - 4, FEAT_GRANITE, SQUARE_WALL_INNER);
-                    fill_rectangle(c, y0 - 1, x0 + 4, y0 + 1, x0 + 6, FEAT_GRANITE, SQUARE_WALL_INNER);
+                    fill_rectangle(c, centre->y - 1, centre->x - 6, centre->y + 1, centre->x - 4,
+                        FEAT_GRANITE, SQUARE_WALL_INNER);
+                    fill_rectangle(c, centre->y - 1, centre->x + 4, centre->y + 1, centre->x + 6,
+                        FEAT_GRANITE, SQUARE_WALL_INNER);
                 }
             }
 
             /* Occasionally, some Inner rooms */
             if (one_in_(3))
             {
+                struct loc grid;
+
                 /* Inner rectangle */
-                draw_rectangle(c, y0 - 1, x0 - 5, y0 + 1, x0 + 5, FEAT_GRANITE, SQUARE_WALL_INNER);
+                draw_rectangle(c, centre->y - 1, centre->x - 5, centre->y + 1, centre->x + 5,
+                    FEAT_GRANITE, SQUARE_WALL_INNER);
 
                 /* Secret doors (random top/bottom) */
-                place_secret_door(c, y0 - 3 + (randint1(2) * 2), x0 - 3);
-                place_secret_door(c, y0 - 3 + (randint1(2) * 2), x0 + 3);
+                loc_init(&grid, centre->x - 3, centre->y - 3 + (randint1(2) * 2));
+                place_secret_door(c, &grid);
+                loc_init(&grid, centre->x + 3, centre->y - 3 + (randint1(2) * 2));
+                place_secret_door(c, &grid);
 
                 /* Monsters */
-                vault_monsters(p, c, y0, x0 - 2, c->wpos.depth + 2, randint1(2));
-                vault_monsters(p, c, y0, x0 + 2, c->wpos.depth + 2, randint1(2));
+                loc_init(&grid, centre->x - 2, centre->y);
+                vault_monsters(p, c, &grid, c->wpos.depth + 2, randint1(2));
+                loc_init(&grid, centre->x + 2, centre->y);
+                vault_monsters(p, c, &grid, c->wpos.depth + 2, randint1(2));
 
                 /* Objects */
+                loc_init(&grid, centre->x - 2, centre->y);
                 if (one_in_(3))
-                    place_object(p, c, y0, x0 - 2, c->wpos.depth, false, false, ORIGIN_SPECIAL, 0);
+                    place_object(p, c, &grid, c->wpos.depth, false, false, ORIGIN_SPECIAL, 0);
+                loc_init(&grid, centre->x + 2, centre->y);
                 if (one_in_(3))
-                    place_object(p, c, y0, x0 + 2, c->wpos.depth, false, false, ORIGIN_SPECIAL, 0);
+                    place_object(p, c, &grid, c->wpos.depth, false, false, ORIGIN_SPECIAL, 0);
             }
 
             break;
@@ -2242,29 +2351,39 @@ bool build_large(struct player *p, struct chunk *c, int y0, int x0, int rating)
         /* An inner room with a checkerboard */
         case 4:
         {
+            struct loc grid;
+            struct loc begin, end;
+            struct loc_iterator iter;
+
             /* Open the inner room with a door */
             generate_hole(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_CLOSED);
 
+            loc_init(&begin, x1, y1);
+            loc_init(&end, x2, y2);
+            loc_iterator_first(&iter, &begin, &end);
+
             /* Checkerboard */
-            for (y = y1; y <= y2; y++)
+            do
             {
-                for (x = x1; x <= x2; x++)
-                {
-                    if ((x + y) & 0x01)
-                        set_marked_granite(c, y, x, SQUARE_WALL_INNER);
-                }
+                if ((iter.cur.x + iter.cur.y) & 0x01)
+                    set_marked_granite(c, &iter.cur, SQUARE_WALL_INNER);
             }
+            while (loc_iterator_next(&iter));
 
             /* Monsters just love mazes. */
-            vault_monsters(p, c, y0, x0 - 5, c->wpos.depth + 2, randint1(3));
-            vault_monsters(p, c, y0, x0 + 5, c->wpos.depth + 2, randint1(3));
+            loc_init(&grid, centre->x - 5, centre->y);
+            vault_monsters(p, c, &grid, c->wpos.depth + 2, randint1(3));
+            loc_init(&grid, centre->x + 5, centre->y);
+            vault_monsters(p, c, &grid, c->wpos.depth + 2, randint1(3));
 
             /* Traps make them entertaining. */
-            vault_traps(c, y0, x0 - 3, 2, 8, randint1(3));
-            vault_traps(c, y0, x0 + 3, 2, 8, randint1(3));
+            loc_init(&grid, centre->x - 3, centre->y);
+            vault_traps(c, &grid, 2, 8, randint1(3));
+            loc_init(&grid, centre->x + 3, centre->y);
+            vault_traps(c, &grid, 2, 8, randint1(3));
 
             /* Mazes should have some treasure too. */
-            vault_objects(p, c, y0, x0, 3);
+            vault_objects(p, c, centre, 3);
 
             break;
         }
@@ -2272,6 +2391,8 @@ bool build_large(struct player *p, struct chunk *c, int y0, int x0, int rating)
         /* Four small rooms. */
         case 5:
         {
+            struct loc grid;
+
             /* Inner "cross" */
             generate_plus(c, y1, x1, y2, x2, FEAT_GRANITE, SQUARE_WALL_INNER);
 
@@ -2280,29 +2401,41 @@ bool build_large(struct player *p, struct chunk *c, int y0, int x0, int rating)
             {
                 int i = randint1(10);
 
-                place_closed_door(c, y1 - 1, x0 - i);
-                place_closed_door(c, y1 - 1, x0 + i);
-                place_closed_door(c, y2 + 1, x0 - i);
-                place_closed_door(c, y2 + 1, x0 + i);
+                loc_init(&grid, centre->x - i, y1 - 1);
+                place_closed_door(c, &grid);
+                loc_init(&grid, centre->x + i, y1 - 1);
+                place_closed_door(c, &grid);
+                loc_init(&grid, centre->x - i, y2 + 1);
+                place_closed_door(c, &grid);
+                loc_init(&grid, centre->x + i, y2 + 1);
+                place_closed_door(c, &grid);
             }
             else
             {
                 int i = randint1(3);
 
-                place_closed_door(c, y0 + i, x1 - 1);
-                place_closed_door(c, y0 - i, x1 - 1);
-                place_closed_door(c, y0 + i, x2 + 1);
-                place_closed_door(c, y0 - i, x2 + 1);
+                loc_init(&grid, x1 - 1, centre->y + i);
+                place_closed_door(c, &grid);
+                loc_init(&grid, x1 - 1, centre->y - i);
+                place_closed_door(c, &grid);
+                loc_init(&grid, x2 + 1, centre->y + i);
+                place_closed_door(c, &grid);
+                loc_init(&grid, x2 + 1, centre->y - i);
+                place_closed_door(c, &grid);
             }
 
             /* Treasure, centered at the center of the cross */
-            vault_objects(p, c, y0, x0, 2 + randint1(2));
+            vault_objects(p, c, centre, 2 + randint1(2));
 
             /* Gotta have some monsters */
-            vault_monsters(p, c, y0 + 1, x0 - 4, c->wpos.depth + 2, randint1(4));
-            vault_monsters(p, c, y0 + 1, x0 + 4, c->wpos.depth + 2, randint1(4));
-            vault_monsters(p, c, y0 - 1, x0 - 4, c->wpos.depth + 2, randint1(4));
-            vault_monsters(p, c, y0 - 1, x0 + 4, c->wpos.depth + 2, randint1(4));
+            loc_init(&grid, centre->x - 4, centre->y + 1);
+            vault_monsters(p, c, &grid, c->wpos.depth + 2, randint1(4));
+            loc_init(&grid, centre->x + 4, centre->y + 1);
+            vault_monsters(p, c, &grid, c->wpos.depth + 2, randint1(4));
+            loc_init(&grid, centre->x - 4, centre->y - 1);
+            vault_monsters(p, c, &grid, c->wpos.depth + 2, randint1(4));
+            loc_init(&grid, centre->x + 4, centre->y - 1);
+            vault_monsters(p, c, &grid, c->wpos.depth + 2, randint1(4));
 
             break;
         }
@@ -2317,7 +2450,7 @@ bool build_large(struct player *p, struct chunk *c, int y0, int x0, int rating)
  *
  * p the player
  * c the chunk the room is being built in
- * y0, x0 co-ordinates of the centre; out of chunk bounds invoke find_space()
+ * centre the room centre; out of chunk centre invokes find_space()
  *
  * Returns success.
  *
@@ -2338,9 +2471,9 @@ bool build_large(struct player *p, struct chunk *c, int y0, int x0, int rating)
  *
  * Monster nests will never contain unique monsters.
  */
-bool build_nest(struct player *p, struct chunk *c, int y0, int x0, int rating)
+bool build_nest(struct player *p, struct chunk *c, struct loc *centre, int rating)
 {
-    int y, x, y1, x1, y2, x2;
+    int y1, x1, y2, x2;
     int i;
     int alloc_obj;
     struct monster_race *what[64];
@@ -2349,19 +2482,21 @@ bool build_nest(struct player *p, struct chunk *c, int y0, int x0, int rating)
     int size_vary = randint0(4);
     int height = 9;
     int width = 11 + 2 * size_vary;
+    struct loc begin, end;
+    struct loc_iterator iter;
 
     /* Find and reserve some space in the dungeon. Get center of room. */
-    if ((y0 >= c->height) || (x0 >= c->width))
+    if ((centre->y >= c->height) || (centre->x >= c->width))
     {
-        if (!find_space(&y0, &x0, height + 2, width + 2))
+        if (!find_space(centre, height + 2, width + 2))
             return false;
     }
 
     /* Large room */
-    y1 = y0 - height / 2;
-    y2 = y0 + height / 2;
-    x1 = x0 - width / 2;
-    x2 = x0 + width / 2;
+    y1 = centre->y - height / 2;
+    y2 = centre->y + height / 2;
+    x1 = centre->x - width / 2;
+    x2 = centre->x + width / 2;
     
     /* Generate new room */
     generate_room(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, light);
@@ -2388,15 +2523,17 @@ bool build_nest(struct player *p, struct chunk *c, int y0, int x0, int rating)
     /* Open the inner room with a door */
     generate_hole(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_CLOSED);
 
+    loc_init(&begin, x1, y1);
+    loc_init(&end, x2, y2);
+    loc_iterator_first(&iter, &begin, &end);
+
     /* PWMAngband -- make it "icky" and "NO_TELEPORT" to prevent teleportation */
-    for (y = y1; y <= y2; y++)
+    do
     {
-        for (x = x1; x <= x2; x++)
-        {
-            sqinfo_on(c->squares[y][x].info, SQUARE_VAULT);
-            sqinfo_on(c->squares[y][x].info, SQUARE_NO_TELEPORT);
-        }
+        sqinfo_on(square(c, &iter.cur)->info, SQUARE_VAULT);
+        sqinfo_on(square(c, &iter.cur)->info, SQUARE_NO_TELEPORT);
     }
+    while (loc_iterator_next(&iter));
 
     /* Decide on the pit type */
     set_pit_type(c->wpos.depth, 2);
@@ -2426,21 +2563,23 @@ bool build_nest(struct player *p, struct chunk *c, int y0, int x0, int rating)
     /* Increase the level rating */
     c->mon_rating += (size_vary + dun->pit_type->ave / 20);
 
+    loc_init(&begin, x1, y1);
+    loc_init(&end, x2, y2);
+    loc_iterator_first(&iter, &begin, &end);
+
     /* Place some monsters */
-    for (y = y1; y <= y2; y++)
+    do
     {
-        for (x = x1; x <= x2; x++)
-        {
-            /* Figure out what monster is being used, and place that monster */
-            struct monster_race *race = what[randint0(64)];
+        /* Figure out what monster is being used, and place that monster */
+        struct monster_race *race = what[randint0(64)];
 
-            place_new_monster(p, c, y, x, race, 0, ORIGIN_DROP_PIT);
+        place_new_monster(p, c, &iter.cur, race, 0, ORIGIN_DROP_PIT);
 
-            /* Occasionally place an item, making it good 1/3 of the time */
-            if (magik(alloc_obj))
-                place_object(p, c, y, x, c->wpos.depth + 10, one_in_(3), false, ORIGIN_PIT, 0);
-        }
+        /* Occasionally place an item, making it good 1/3 of the time */
+        if (magik(alloc_obj))
+            place_object(p, c, &iter.cur, c->wpos.depth + 10, one_in_(3), false, ORIGIN_PIT, 0);
     }
+    while (loc_iterator_next(&iter));
 
     return true;
 }
@@ -2451,7 +2590,7 @@ bool build_nest(struct player *p, struct chunk *c, int y0, int x0, int rating)
  *
  * p the player
  * c the chunk the room is being built in
- * y0, x0 co-ordinates of the centre; out of chunk bounds invoke find_space()
+ * centre the room centre; out of chunk centre invokes find_space()
  *
  * Returns success.
  *
@@ -2483,7 +2622,7 @@ bool build_nest(struct player *p, struct chunk *c, int y0, int x0, int rating)
  *
  * Like monster nests, monster pits will never contain unique monsters.
  */
-bool build_pit(struct player *p, struct chunk *c, int y0, int x0, int rating)
+bool build_pit(struct player *p, struct chunk *c, struct loc *centre, int rating)
 {
     struct monster_race *what[16];
     int i, j, y, x, y1, x1, y2, x2;
@@ -2492,19 +2631,21 @@ bool build_pit(struct player *p, struct chunk *c, int y0, int x0, int rating)
     int alloc_obj;
     int height = 9;
     int width = 15;
+    struct loc begin, end, grid;
+    struct loc_iterator iter;
 
     /* Find and reserve some space in the dungeon. Get center of room. */
-    if ((y0 >= c->height) || (x0 >= c->width))
+    if ((centre->y >= c->height) || (centre->x >= c->width))
     {
-        if (!find_space(&y0, &x0, height + 2, width + 2))
+        if (!find_space(centre, height + 2, width + 2))
             return false;
     }
 
     /* Large room */
-    y1 = y0 - height / 2;
-    y2 = y0 + height / 2;
-    x1 = x0 - width / 2;
-    x2 = x0 + width / 2;
+    y1 = centre->y - height / 2;
+    y2 = centre->y + height / 2;
+    x1 = centre->x - width / 2;
+    x2 = centre->x + width / 2;
 
     /* Generate new room, outer walls and inner floor */
     generate_room(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, light);
@@ -2525,15 +2666,17 @@ bool build_pit(struct player *p, struct chunk *c, int y0, int x0, int rating)
     draw_rectangle(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_PERM_FAKE, SQUARE_NONE);
     generate_hole(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_CLOSED);
 
+    loc_init(&begin, x1, y1);
+    loc_init(&end, x2, y2);
+    loc_iterator_first(&iter, &begin, &end);
+
     /* PWMAngband -- make it "icky" and "NO_TELEPORT" to prevent teleportation */
-    for (y = y1; y <= y2; y++)
+    do
     {
-        for (x = x1; x <= x2; x++)
-        {
-            sqinfo_on(c->squares[y][x].info, SQUARE_VAULT);
-            sqinfo_on(c->squares[y][x].info, SQUARE_NO_TELEPORT);
-        }
+        sqinfo_on(square(c, &iter.cur)->info, SQUARE_VAULT);
+        sqinfo_on(square(c, &iter.cur)->info, SQUARE_NO_TELEPORT);
     }
+    while (loc_iterator_next(&iter));
 
     /* Decide on the pit type */
     set_pit_type(c->wpos.depth, 1);
@@ -2588,66 +2731,88 @@ bool build_pit(struct player *p, struct chunk *c, int y0, int x0, int rating)
     c->mon_rating += (3 + dun->pit_type->ave / 20);
 
     /* Top and bottom rows (middle) */
-    for (x = x0 - 3; x <= x0 + 3; x++)
+    for (x = centre->x - 3; x <= centre->x + 3; x++)
     {
-        place_new_monster(p, c, y0 - 2, x, what[0], 0, ORIGIN_DROP_PIT);
-        place_new_monster(p, c, y0 + 2, x, what[0], 0, ORIGIN_DROP_PIT);
+        loc_init(&grid, x, centre->y - 2);
+        place_new_monster(p, c, &grid, what[0], 0, ORIGIN_DROP_PIT);
+        loc_init(&grid, x, centre->y + 2);
+        place_new_monster(p, c, &grid, what[0], 0, ORIGIN_DROP_PIT);
     }
 
     /* Corners */
-    for (x = x0 - 5; x <= x0 - 4; x++)
+    for (x = centre->x - 5; x <= centre->x - 4; x++)
     {
-        place_new_monster(p, c, y0 - 2, x, what[1], 0, ORIGIN_DROP_PIT);
-        place_new_monster(p, c, y0 + 2, x, what[1], 0, ORIGIN_DROP_PIT);
+        loc_init(&grid, x, centre->y - 2);
+        place_new_monster(p, c, &grid, what[1], 0, ORIGIN_DROP_PIT);
+        loc_init(&grid, x, centre->y + 2);
+        place_new_monster(p, c, &grid, what[1], 0, ORIGIN_DROP_PIT);
     }
 
-    for (x = x0 + 4; x <= x0 + 5; x++)
+    for (x = centre->x + 4; x <= centre->x + 5; x++)
     {
-        place_new_monster(p, c, y0 - 2, x, what[1], 0, ORIGIN_DROP_PIT);
-        place_new_monster(p, c, y0 + 2, x, what[1], 0, ORIGIN_DROP_PIT);
+        loc_init(&grid, x, centre->y - 2);
+        place_new_monster(p, c, &grid, what[1], 0, ORIGIN_DROP_PIT);
+        loc_init(&grid, x, centre->y + 2);
+        place_new_monster(p, c, &grid, what[1], 0, ORIGIN_DROP_PIT);
     }
 
     /* Middle columns */
-    for (y = y0 - 1; y <= y0 + 1; y++)
+    for (y = centre->y - 1; y <= centre->y + 1; y++)
     {
-        place_new_monster(p, c, y, x0 - 5, what[0], 0, ORIGIN_DROP_PIT);
-        place_new_monster(p, c, y, x0 + 5, what[0], 0, ORIGIN_DROP_PIT);
+        loc_init(&grid, centre->x - 5, y);
+        place_new_monster(p, c, &grid, what[0], 0, ORIGIN_DROP_PIT);
+        loc_init(&grid, centre->x + 5, y);
+        place_new_monster(p, c, &grid, what[0], 0, ORIGIN_DROP_PIT);
 
-        place_new_monster(p, c, y, x0 - 4, what[1], 0, ORIGIN_DROP_PIT);
-        place_new_monster(p, c, y, x0 + 4, what[1], 0, ORIGIN_DROP_PIT);
+        loc_init(&grid, centre->x - 4, y);
+        place_new_monster(p, c, &grid, what[1], 0, ORIGIN_DROP_PIT);
+        loc_init(&grid, centre->x + 4, y);
+        place_new_monster(p, c, &grid, what[1], 0, ORIGIN_DROP_PIT);
 
-        place_new_monster(p, c, y, x0 - 3, what[2], 0, ORIGIN_DROP_PIT);
-        place_new_monster(p, c, y, x0 + 3, what[2], 0, ORIGIN_DROP_PIT);
+        loc_init(&grid, centre->x - 3, y);
+        place_new_monster(p, c, &grid, what[2], 0, ORIGIN_DROP_PIT);
+        loc_init(&grid, centre->x + 3, y);
+        place_new_monster(p, c, &grid, what[2], 0, ORIGIN_DROP_PIT);
 
-        place_new_monster(p, c, y, x0 - 2, what[3], 0, ORIGIN_DROP_PIT);
-        place_new_monster(p, c, y, x0 + 2, what[3], 0, ORIGIN_DROP_PIT);
+        loc_init(&grid, centre->x - 2, y);
+        place_new_monster(p, c, &grid, what[3], 0, ORIGIN_DROP_PIT);
+        loc_init(&grid, centre->x + 2, y);
+        place_new_monster(p, c, &grid, what[3], 0, ORIGIN_DROP_PIT);
     }
 
     /* Corners around the middle monster */
-    place_new_monster(p, c, y0 - 1, x0 - 1, what[4], 0, ORIGIN_DROP_PIT);
-    place_new_monster(p, c, y0 - 1, x0 + 1, what[4], 0, ORIGIN_DROP_PIT);
-    place_new_monster(p, c, y0 + 1, x0 - 1, what[4], 0, ORIGIN_DROP_PIT);
-    place_new_monster(p, c, y0 + 1, x0 + 1, what[4], 0, ORIGIN_DROP_PIT);
+    loc_init(&grid, centre->x - 1, centre->y - 1);
+    place_new_monster(p, c, &grid, what[4], 0, ORIGIN_DROP_PIT);
+    loc_init(&grid, centre->x + 1, centre->y - 1);
+    place_new_monster(p, c, &grid, what[4], 0, ORIGIN_DROP_PIT);
+    loc_init(&grid, centre->x - 1, centre->y + 1);
+    place_new_monster(p, c, &grid, what[4], 0, ORIGIN_DROP_PIT);
+    loc_init(&grid, centre->x + 1, centre->y + 1);
+    place_new_monster(p, c, &grid, what[4], 0, ORIGIN_DROP_PIT);
 
     /* Above/Below the center monster */
-    place_new_monster(p, c, y0 + 1, x0, what[5], 0, ORIGIN_DROP_PIT);
-    place_new_monster(p, c, y0 - 1, x0, what[5], 0, ORIGIN_DROP_PIT);
+    loc_init(&grid, centre->x, centre->y + 1);
+    place_new_monster(p, c, &grid, what[5], 0, ORIGIN_DROP_PIT);
+    loc_init(&grid, centre->x, centre->y - 1);
+    place_new_monster(p, c, &grid, what[5], 0, ORIGIN_DROP_PIT);
 
     /* Next to the center monster */
-    place_new_monster(p, c, y0, x0 + 1, what[6], 0, ORIGIN_DROP_PIT);
-    place_new_monster(p, c, y0, x0 - 1, what[6], 0, ORIGIN_DROP_PIT);
+    loc_init(&grid, centre->x + 1, centre->y);
+    place_new_monster(p, c, &grid, what[6], 0, ORIGIN_DROP_PIT);
+    loc_init(&grid, centre->x - 1, centre->y);
+    place_new_monster(p, c, &grid, what[6], 0, ORIGIN_DROP_PIT);
 
     /* Center monster */
-    place_new_monster(p, c, y0, x0, what[7], 0, ORIGIN_DROP_PIT);
+    place_new_monster(p, c, centre, what[7], 0, ORIGIN_DROP_PIT);
 
     /* Place some objects */
-    for (y = y0 - 2; y <= y0 + 2; y++)
+    for (grid.y = centre->y - 2; grid.y <= centre->y + 2; grid.y++)
     {
-        for (x = x0 - 9; x <= x0 + 9; x++)
+        for (grid.x = centre->x - 9; grid.x <= centre->x + 9; grid.x++)
         {
             /* Occasionally place an item, making it good 1/3 of the time */
             if (magik(alloc_obj))
-                place_object(p, c, y, x, c->wpos.depth + 10, one_in_(3), false, ORIGIN_PIT, 0);
+                place_object(p, c, &grid, c->wpos.depth + 10, one_in_(3), false, ORIGIN_PIT, 0);
         }
     }
 
@@ -2660,14 +2825,14 @@ bool build_pit(struct player *p, struct chunk *c, int y0, int x0, int rating)
  *
  * p the player
  * c the chunk the room is being built in
- * y0, x0 co-ordinates of the centre; out of chunk bounds invoke find_space()
+ * centre the room centre; out of chunk centre invokes find_space()
  *
  * Returns success.
  */
-bool build_template(struct player *p, struct chunk *c, int y0, int x0, int rating)
+bool build_template(struct player *p, struct chunk *c, struct loc *centre, int rating)
 {
     /* All room templates currently have type 1 */
-    return build_room_template_type(p, c, y0, x0, 1, rating);
+    return build_room_template_type(p, c, centre, 1, rating);
 }
 
 
@@ -2676,13 +2841,13 @@ bool build_template(struct player *p, struct chunk *c, int y0, int x0, int ratin
  *
  * p the player
  * c the chunk the room is being built in
- * y0, x0 co-ordinates of the centre; out of chunk bounds invoke find_space()
+ * centre the room centre; out of chunk centre invokes find_space()
  *
  * Returns success.
  */
-bool build_interesting(struct player *p, struct chunk *c, int y0, int x0, int rating)
+bool build_interesting(struct player *p, struct chunk *c, struct loc *centre, int rating)
 {
-    return build_vault_type(p, c, y0, x0, "Interesting room");
+    return build_vault_type(p, c, centre, "Interesting room");
 }
 
 
@@ -2691,15 +2856,15 @@ bool build_interesting(struct player *p, struct chunk *c, int y0, int x0, int ra
  *
  * p the player
  * c the chunk the room is being built in
- * y0, x0 co-ordinates of the centre; out of chunk bounds invoke find_space()
+ * centre the room centre; out of chunk centre invokes find_space()
  *
  * Returns success.
  */
-bool build_lesser_vault(struct player *p, struct chunk *c, int y0, int x0, int rating)
+bool build_lesser_vault(struct player *p, struct chunk *c, struct loc *centre, int rating)
 {
     if (!streq(dun->profile->name, "classic") && one_in_(2))
-        return build_vault_type(p, c, y0, x0, "Lesser vault (new)");
-    return build_vault_type(p, c, y0, x0, "Lesser vault");
+        return build_vault_type(p, c, centre, "Lesser vault (new)");
+    return build_vault_type(p, c, centre, "Lesser vault");
 }
 
 
@@ -2708,15 +2873,15 @@ bool build_lesser_vault(struct player *p, struct chunk *c, int y0, int x0, int r
  *
  * p the player
  * c the chunk the room is being built in
- * y0, x0 co-ordinates of the centre; out of chunk bounds invoke find_space()
+ * centre the room centre; out of chunk centre invokes find_space()
  *
  * Returns success.
  */
-bool build_medium_vault(struct player *p, struct chunk *c, int y0, int x0, int rating)
+bool build_medium_vault(struct player *p, struct chunk *c, struct loc *centre, int rating)
 {
     if (!streq(dun->profile->name, "classic") && one_in_(2))
-        return build_vault_type(p, c, y0, x0, "Medium vault (new)");
-    return build_vault_type(p, c, y0, x0, "Medium vault");
+        return build_vault_type(p, c, centre, "Medium vault (new)");
+    return build_vault_type(p, c, centre, "Medium vault");
 }
 
 
@@ -2725,7 +2890,7 @@ bool build_medium_vault(struct player *p, struct chunk *c, int y0, int x0, int r
  *
  * p the player
  * c the chunk the room is being built in
- * y0, x0 co-ordinates of the centre; out of chunk bounds invoke find_space()
+ * centre the room centre; out of chunk centre invokes find_space()
  *
  * Returns success.
  *
@@ -2752,7 +2917,7 @@ bool build_medium_vault(struct player *p, struct chunk *c, int y0, int x0, int r
  *  0-49   0.0 -  1.0%
  *
  */
-bool build_greater_vault(struct player *p, struct chunk *c, int y0, int x0, int rating)
+bool build_greater_vault(struct player *p, struct chunk *c, struct loc *centre, int rating)
 {
     int i;
     int numerator = 1;
@@ -2775,8 +2940,8 @@ bool build_greater_vault(struct player *p, struct chunk *c, int y0, int x0, int 
     if (!streq(dun->profile->name, "classic") && !one_in_(3)) return false;
 
     if (!streq(dun->profile->name, "classic") && one_in_(2))
-        return build_vault_type(p, c, y0, x0, "Greater vault (new)");
-    return build_vault_type(p, c, y0, x0, "Greater vault");
+        return build_vault_type(p, c, centre, "Greater vault (new)");
+    return build_vault_type(p, c, centre, "Greater vault");
 }
 
 
@@ -2785,11 +2950,11 @@ bool build_greater_vault(struct player *p, struct chunk *c, int y0, int x0, int 
  *
  * p the player
  * c the chunk the room is being built in
- * y0, x0 co-ordinates of the centre; out of chunk bounds invoke find_space()
+ * centre the room centre; out of chunk centre invokes find_space()
  *
  * Returns success.
  */
-bool build_moria(struct player *p, struct chunk *c, int y0, int x0, int rating)
+bool build_moria(struct player *p, struct chunk *c, struct loc *centre, int rating)
 {
     int y1, x1, y2, x2;
     int i;
@@ -2820,9 +2985,9 @@ bool build_moria(struct player *p, struct chunk *c, int y0, int x0, int rating)
         }
 
         /* Find and reserve some space in the dungeon. Get center of room. */
-        if ((y0 >= c->height) || (x0 >= c->width))
+        if ((centre->y >= c->height) || (centre->x >= c->width))
         {
-            if (!find_space(&y0, &x0, height, width))
+            if (!find_space(centre, height, width))
             {
                 if (i == 0) continue; /* Failed first attempt */
                 if (i == 1) return false; /* Failed second attempt */
@@ -2833,8 +2998,8 @@ bool build_moria(struct player *p, struct chunk *c, int y0, int x0, int rating)
     }
 
     /* Locate the room */
-    y1 = y0 - height / 2;
-    x1 = x0 - width / 2;
+    y1 = centre->y - height / 2;
+    x1 = centre->x - width / 2;
     y2 = y1 + height - 1;
     x2 = x1 + width - 1;
 
@@ -2859,7 +3024,7 @@ bool build_moria(struct player *p, struct chunk *c, int y0, int x0, int rating)
  *
  * p the player
  * c the chunk the room is being built in
- * y0, x0 co-ordinates of the centre; out of chunk bounds invoke find_space()
+ * centre the room centre; out of chunk centre invokes find_space()
  *
  * Returns success.
  *
@@ -2882,35 +3047,40 @@ bool build_moria(struct player *p, struct chunk *c, int y0, int x0, int rating)
  * similar to monster pits, except that we choose among a wider range of
  * monsters.
  */
-bool build_room_of_chambers(struct player *p, struct chunk *c, int y0, int x0, int rating)
+bool build_room_of_chambers(struct player *p, struct chunk *c, struct loc *centre, int rating)
 {
     int i, d;
     int area, num_chambers;
-    int y, x = 0, y1, x1, y2, x2;
+    int y1, x1, y2, x2;
     int height, width, count;
     char name[40];
 
     /* Deeper in the dungeon, chambers are less likely to be lit. */
     bool light = ((randint0(45) > c->wpos.depth)? true: false);
 
+    struct loc begin, end, grid;
+    struct loc_iterator iter;
+
     /* Calculate a level-dependent room size. */
     height = 20 + m_bonus(20, c->wpos.depth);
     width = 20 + randint1(20) + m_bonus(20, c->wpos.depth);
 
     /* Find and reserve some space in the dungeon. Get center of room. */
-    if ((y0 >= c->height) || (x0 >= c->width))
+    if ((centre->y >= c->height) || (centre->x >= c->width))
     {
-        if (!find_space(&y0, &x0, height, width)) return false;
+        if (!find_space(centre, height, width)) return false;
     }
 
     /* Calculate the borders of the room. */
-    y1 = y0 - (height / 2);
-    x1 = x0 - (width / 2);
-    y2 = y0 + (height - 1) / 2;
-    x2 = x0 + (width - 1) / 2;
+    y1 = centre->y - (height / 2);
+    x1 = centre->x - (width / 2);
+    y2 = centre->y + (height - 1) / 2;
+    x2 = centre->x + (width - 1) / 2;
+    loc_init(&begin, x1, y1);
+    loc_init(&end, x2, y2);
 
     /* Make certain the room does not cross the dungeon edge. */
-    if (!square_in_bounds(c, y1, x1) || !square_in_bounds(c, y2, x2)) return false;
+    if (!square_in_bounds(c, &begin) || !square_in_bounds(c, &end)) return false;
 
     /* Determine how much space we have. */
     area = ABS(y2 - y1) * ABS(x2 - x1);
@@ -2944,52 +3114,53 @@ bool build_room_of_chambers(struct player *p, struct chunk *c, int y0, int x0, i
         make_chamber(c, c_y1, c_x1, c_y2, c_x2);
     }
 
+    loc_iterator_first(&iter, &begin, &end);
+
     /* Remove useless doors, fill in tiny, narrow rooms. */
-    for (y = y1; y <= y2; y++)
+    do
     {
-        for (x = x1; x <= x2; x++)
+        count = 0;
+
+        /* Stay legal. */
+        if (!square_in_bounds_fully(c, &iter.cur)) continue;
+
+        /* Check all adjacent grids. */
+        for (d = 0; d < 8; d++)
         {
-            count = 0;
+            struct loc adjacent;
 
-            /* Stay legal. */
-            if (!square_in_bounds_fully(c, y, x)) continue;
+            /* Extract adjacent location */
+            loc_sum(&adjacent, &iter.cur, &ddgrid_ddd[d]);
 
-            /* Check all adjacent grids. */
-            for (d = 0; d < 8; d++)
+            /* Count the walls and dungeon granite. */
+            if ((square(c, &adjacent)->feat == FEAT_GRANITE) &&
+                !square_iswall_outer(c, &adjacent) && !square_iswall_solid(c, &adjacent))
             {
-                /* Extract adjacent location */
-                int yy = y + ddy_ddd[d];
-                int xx = x + ddx_ddd[d];
-
-                /* Count the walls and dungeon granite. */
-                if ((c->squares[yy][xx].feat == FEAT_GRANITE) && !square_iswall_outer(c, yy, xx) &&
-                    !square_iswall_solid(c, yy, xx))
-                {
-                    count++;
-                }
+                count++;
             }
-
-            /* Five adjacent walls: Change non-chamber to wall. */
-            if ((count == 5) && (c->squares[y][x].feat != FEAT_MAGMA))
-                set_marked_granite(c, y, x, SQUARE_WALL_INNER);
-
-            /* More than five adjacent walls: Change anything to wall. */
-            else if (count > 5)
-                set_marked_granite(c, y, x, SQUARE_WALL_INNER);
         }
+
+        /* Five adjacent walls: Change non-chamber to wall. */
+        if ((count == 5) && (square(c, &iter.cur)->feat != FEAT_MAGMA))
+            set_marked_granite(c, &iter.cur, SQUARE_WALL_INNER);
+
+        /* More than five adjacent walls: Change anything to wall. */
+        else if (count > 5)
+            set_marked_granite(c, &iter.cur, SQUARE_WALL_INNER);
     }
+    while (loc_iterator_next(&iter));
 
     /* Pick a random magma spot near the center of the room. */
     for (i = 0; i < 50; i++)
     {
-        y = y1 + ABS(y2 - y1) / 4 + randint0(ABS(y2 - y1) / 2);
-        x = x1 + ABS(x2 - x1) / 4 + randint0(ABS(x2 - x1) / 2);
-        if (c->squares[y][x].feat == FEAT_MAGMA) break;
+        grid.y = y1 + ABS(y2 - y1) / 4 + randint0(ABS(y2 - y1) / 2);
+        grid.x = x1 + ABS(x2 - x1) / 4 + randint0(ABS(x2 - x1) / 2);
+        if (square(c, &grid)->feat == FEAT_MAGMA) break;
     }
 
     /* Hollow out the first room. */
-    square_set_feat(c, y, x, FEAT_FLOOR);
-    hollow_out_room(c, y, x);
+    square_set_feat(c, &grid, FEAT_FLOOR);
+    hollow_out_room(c, &grid);
 
     /* Attempt to change every in-room magma grid to open floor. */
     for (i = 0; i < 100; i++)
@@ -2997,171 +3168,176 @@ bool build_room_of_chambers(struct player *p, struct chunk *c, int y0, int x0, i
         /* Assume this run will do no useful work. */
         bool joy = false;
 
+        loc_iterator_first(&iter, &begin, &end);
+
         /* Make new doors and tunnels between magma and open floor. */
-        for (y = y1; y < y2; y++)
+        do
         {
-            for (x = x1; x < x2; x++)
+            /* Stay legal. */
+            if (!square_in_bounds_fully(c, &iter.cur)) continue;
+
+            /* Current grid must be magma. */
+            if (square(c, &iter.cur)->feat != FEAT_MAGMA) continue;
+
+            /* Check only horizontal and vertical directions. */
+            for (d = 0; d < 4; d++)
             {
-                /* Current grid must be magma. */
-                if (c->squares[y][x].feat != FEAT_MAGMA) continue;
+                struct loc adjacent1, adjacent2, adjacent3;
 
-                /* Stay legal. */
-                if (!square_in_bounds_fully(c, y, x)) continue;
+                /* Extract adjacent location */
+                loc_sum(&adjacent1, &iter.cur, &ddgrid_ddd[d]);
 
-                /* Check only horizontal and vertical directions. */
-                for (d = 0; d < 4; d++)
+                /* Need inner wall. */
+                if (!square_iswall_inner(c, &adjacent1)) continue;
+
+                /* Keep going in the same direction, if in bounds. */
+                loc_sum(&adjacent2, &adjacent1, &ddgrid_ddd[d]);
+                if (!square_in_bounds(c, &adjacent2)) continue;
+
+                /* If we find open floor, place a door. */
+                if (square(c, &adjacent2)->feat == FEAT_FLOOR)
                 {
-                    int yy1, xx1, yy2, xx2, yy3, xx3;
+                    joy = true;
 
-                    /* Extract adjacent location */
-                    yy1 = y + ddy_ddd[d];
-                    xx1 = x + ddx_ddd[d];
+                    /* Make a broken door in the wall grid. */
+                    square_set_feat(c, &adjacent1, FEAT_BROKEN);
 
-                    /* Need inner wall. */
-                    if (!square_iswall_inner(c, yy1, xx1)) continue;
+                    /* Hollow out the new room. */
+                    square_set_feat(c, &iter.cur, FEAT_FLOOR);
+                    hollow_out_room(c, &iter.cur);
 
-                    /* Keep going in the same direction, if in bounds. */
-                    yy2 = yy1 + ddy_ddd[d];
-                    xx2 = xx1 + ddx_ddd[d];
-                    if (!square_in_bounds(c, yy2, xx2)) continue;
+                    break;
+                }
 
-                    /* If we find open floor, place a door. */
-                    if (c->squares[yy2][xx2].feat == FEAT_FLOOR)
+                /* If we find more inner wall... */
+                if (square_iswall_inner(c, &adjacent2))
+                {
+                    /* ...Keep going in the same direction. */
+                    loc_sum(&adjacent3, &adjacent2, &ddgrid_ddd[d]);
+                    if (!square_in_bounds(c, &adjacent3)) continue;
+
+                    /* If we /now/ find floor, make a tunnel. */
+                    if (square(c, &adjacent3)->feat == FEAT_FLOOR)
                     {
                         joy = true;
 
-                        /* Make a broken door in the wall grid. */
-                        square_set_feat(c, yy1, xx1, FEAT_BROKEN);
+                        /* Turn both wall grids into floor. */
+                        square_set_feat(c, &adjacent1, FEAT_FLOOR);
+                        square_set_feat(c, &adjacent2, FEAT_FLOOR);
 
                         /* Hollow out the new room. */
-                        square_set_feat(c, y, x, FEAT_FLOOR);
-                        hollow_out_room(c, y, x);
+                        square_set_feat(c, &iter.cur, FEAT_FLOOR);
+                        hollow_out_room(c, &iter.cur);
 
                         break;
-                    }
-
-                    /* If we find more inner wall... */
-                    if (square_iswall_inner(c, yy2, xx2))
-                    {
-                        /* ...Keep going in the same direction. */
-                        yy3 = yy2 + ddy_ddd[d];
-                        xx3 = xx2 + ddx_ddd[d];
-                        if (!square_in_bounds(c, yy3, xx3)) continue;
-
-                        /* If we /now/ find floor, make a tunnel. */
-                        if (c->squares[yy3][xx3].feat == FEAT_FLOOR)
-                        {
-                            joy = true;
-
-                            /* Turn both wall grids into floor. */
-                            square_set_feat(c, yy1, xx1, FEAT_FLOOR);
-                            square_set_feat(c, yy2, xx2, FEAT_FLOOR);
-
-                            /* Hollow out the new room. */
-                            square_set_feat(c, y, x, FEAT_FLOOR);
-                            hollow_out_room(c, y, x);
-
-                            break;
-                        }
                     }
                 }
             }
         }
+        while (loc_iterator_next_strict(&iter));
 
         /* If we could find no work to do, stop. */
         if (!joy) break;
     }
 
+    loc_iterator_first(&iter, &begin, &end);
+
     /* Turn broken doors into a random kind of door, remove open doors. */
-    for (y = y1; y <= y2; y++)
+    do
     {
-        for (x = x1; x <= x2; x++)
-        {
-            if (c->squares[y][x].feat == FEAT_OPEN)
-                set_marked_granite(c, y, x, SQUARE_WALL_INNER);
-            else if (c->squares[y][x].feat == FEAT_BROKEN)
-                place_random_door(c, y, x);
-        }
+        if (square(c, &iter.cur)->feat == FEAT_OPEN)
+            set_marked_granite(c, &iter.cur, SQUARE_WALL_INNER);
+        else if (square(c, &iter.cur)->feat == FEAT_BROKEN)
+            place_random_door(c, &iter.cur);
     }
+    while (loc_iterator_next(&iter));
+
+    loc_init(&begin, (x1 - 1 > 0 ? x1 - 1 : 0), (y1 - 1 > 0 ? y1 - 1 : 0));
+    loc_init(&end, (x2 + 2 < c->width ? x2 + 2 : c->width), (y2 + 2 < c->height ? y2 + 2 : c->height));
+    loc_iterator_first(&iter, &begin, &end);
 
     /* Turn all walls and magma not adjacent to floor into dungeon granite. */
     /* Turn all floors and adjacent grids into rooms, sometimes lighting them */
-    for (y = (y1 - 1 > 0 ? y1 - 1 : 0); y < (y2 + 2 < c->height ? y2 + 2 : c->height); y++)
+    do
     {
-        for (x = (x1 - 1 > 0 ? x1 - 1 : 0); x < (x2 + 2 < c->width ? x2 + 2 : c->width); x++)
+        if (square_iswall_inner(c, &iter.cur) || (square(c, &iter.cur)->feat == FEAT_MAGMA))
         {
-            if (square_iswall_inner(c, y, x) || (c->squares[y][x].feat == FEAT_MAGMA))
+            for (d = 0; d < 9; d++)
             {
-                for (d = 0; d < 9; d++)
-                {
-                    /* Extract adjacent location */
-                    int yy = y + ddy_ddd[d];
-                    int xx = x + ddx_ddd[d];
+                struct loc adjacent;
 
-                    /* Stay legal */
-                    if (!square_in_bounds(c, yy, xx)) continue;
+                /* Extract adjacent location */
+                loc_sum(&adjacent, &iter.cur, &ddgrid_ddd[d]);
 
-                    /* No floors allowed */
-                    if (c->squares[yy][xx].feat == FEAT_FLOOR) break;
+                /* Stay legal */
+                if (!square_in_bounds(c, &adjacent)) continue;
 
-                    /* Turn me into dungeon granite. */
-                    if (d == 8) set_marked_granite(c, y, x, SQUARE_NONE);
-                }
+                /* No floors allowed */
+                if (square(c, &adjacent)->feat == FEAT_FLOOR) break;
+
+                /* Turn me into dungeon granite. */
+                if (d == 8) set_marked_granite(c, &iter.cur, SQUARE_NONE);
             }
+        }
 
-            if (square_isfloor(c, y, x))
+        if (square_isfloor(c, &iter.cur))
+        {
+            for (d = 0; d < 9; d++)
             {
-                for (d = 0; d < 9; d++)
-                {
-                    /* Extract adjacent location */
-                    int yy = y + ddy_ddd[d];
-                    int xx = x + ddx_ddd[d];
+                struct loc adjacent;
 
-                    /* Stay legal */
-                    if (!square_in_bounds(c, yy, xx)) continue;
+                /* Extract adjacent location */
+                loc_sum(&adjacent, &iter.cur, &ddgrid_ddd[d]);
 
-                    /* Turn into room, forbid stairs. */
-                    sqinfo_on(c->squares[yy][xx].info, SQUARE_ROOM);
-                    sqinfo_on(c->squares[yy][xx].info, SQUARE_NO_STAIRS);
+                /* Stay legal */
+                if (!square_in_bounds(c, &adjacent)) continue;
 
-                    /* Illuminate if requested. */
-                    if (light) sqinfo_on(c->squares[yy][xx].info, SQUARE_GLOW);
-                }
+                /* Turn into room, forbid stairs. */
+                sqinfo_on(square(c, &adjacent)->info, SQUARE_ROOM);
+                sqinfo_on(square(c, &adjacent)->info, SQUARE_NO_STAIRS);
+
+                /* Illuminate if requested. */
+                if (light) sqinfo_on(square(c, &adjacent)->info, SQUARE_GLOW);
             }
         }
     }
+    while (loc_iterator_next_strict(&iter));
+
+    loc_init(&begin, (x1 - 1 > 0 ? x1 - 1 : 0), (y1 - 1 > 0 ? y1 - 1 : 0));
+    loc_init(&end, (x2 + 2 < c->width ? x2 + 2 : c->width), (y2 + 2 < c->height ? y2 + 2 : c->height));
+    loc_iterator_first(&iter, &begin, &end);
 
     /* Turn all inner wall grids adjacent to dungeon granite into outer walls */
-    for (y = (y1 - 1 > 0 ? y1 - 1 : 0); y < (y2 + 2 < c->height ? y2 + 2 : c->height); y++)
+    do
     {
-        for (x = (x1 - 1 > 0 ? x1 - 1 : 0); x < (x2 + 2 < c->width ? x2 + 2 : c->width); x++)
+        /* Stay legal. */
+        if (!square_in_bounds_fully(c, &iter.cur)) continue;
+
+        if (square_iswall_inner(c, &iter.cur))
         {
-            /* Stay legal. */
-            if (!square_in_bounds_fully(c, y, x)) continue;
-
-            if (square_iswall_inner(c, y, x))
+            for (d = 0; d < 9; d++)
             {
-                for (d = 0; d < 9; d++)
+                struct loc adjacent;
+
+                /* Extract adjacent location */
+                loc_sum(&adjacent, &iter.cur, &ddgrid_ddd[d]);
+
+                /* Look for dungeon granite */
+                if ((square(c, &adjacent)->feat == FEAT_GRANITE) &&
+                    !square_iswall_inner(c, &adjacent) &&
+                    !square_iswall_outer(c, &adjacent) &&
+                    !square_iswall_solid(c, &adjacent))
                 {
-                    /* Extract adjacent location */
-                    int yy = y + ddy_ddd[d];
-                    int xx = x + ddx_ddd[d];
+                    /* Turn me into outer wall. */
+                    set_marked_granite(c, &iter.cur, SQUARE_WALL_OUTER);
 
-                    /* Look for dungeon granite */
-                    if ((c->squares[yy][xx].feat == FEAT_GRANITE) &&
-                        !square_iswall_inner(c, yy, xx) && !square_iswall_outer(c, yy, xx) &&
-                        !square_iswall_solid(c, yy, xx))
-                    {
-                        /* Turn me into outer wall. */
-                        set_marked_granite(c, y, x, SQUARE_WALL_OUTER);
-
-                        /* Done */
-                        break;
-                    }
+                    /* Done */
+                    break;
                 }
             }
         }
     }
+    while (loc_iterator_next_strict(&iter));
 
     /*** Now we get to place the monsters. ***/
     get_chamber_monsters(p, c, y1, x1, y2, x2, name, height * width);
@@ -3181,7 +3357,7 @@ bool build_room_of_chambers(struct player *p, struct chunk *c, int y0, int x0, i
  *
  * p the player
  * c the chunk the room is being built in
- * y0, x0 co-ordinates of the centre; out of chunk bounds invoke find_space()
+ * centre the room centre; out of chunk centre invokes find_space()
  *
  * Returns success.
  *
@@ -3189,7 +3365,7 @@ bool build_room_of_chambers(struct player *p, struct chunk *c, int y0, int x0, i
  * priority rooms in the dungeon. They should be rare, so as not to
  * interfere with greater vaults.
  */
-bool build_huge(struct player *p, struct chunk *c, int y0, int x0, int rating)
+bool build_huge(struct player *p, struct chunk *c, struct loc *centre, int rating)
 {
     bool light;
     int i, count;
@@ -3210,14 +3386,14 @@ bool build_huge(struct player *p, struct chunk *c, int y0, int x0, int rating)
     light = !one_in_(3);
 
     /* Find and reserve some space. Get center of room. */
-    if ((y0 >= c->height) || (x0 >= c->width))
+    if ((centre->y >= c->height) || (centre->x >= c->width))
     {
-        if (!find_space(&y0, &x0, height, width)) return false;
+        if (!find_space(centre, height, width)) return false;
     }
 
     /* Locate the room */
-    y1 = y0 - height / 2;
-    x1 = x0 - width / 2;
+    y1 = centre->y - height / 2;
+    x1 = centre->x - width / 2;
     y2 = y1 + height - 1;
     x2 = x1 + width - 1;
 
@@ -3281,7 +3457,7 @@ bool room_build(struct player *p, struct chunk *c, int by0, int bx0, struct room
     int by2 = by0 + profile.height / dun->block_hgt;
     int bx2 = bx0 + profile.width / dun->block_wid;
 
-    int y, x;
+    struct loc centre;
     int by, bx;
 
     /* Enforce the room profile's minimum depth */
@@ -3298,7 +3474,8 @@ bool room_build(struct player *p, struct chunk *c, int by0, int bx0, struct room
     if (finds_own_space)
     {
         /* Try to build a room, pass silly place so room finds its own */
-        if (!profile.builder(p, c, c->height, c->width, profile.rating)) return false;
+        loc_init(&centre, c->width, c->height);
+        if (!profile.builder(p, c, &centre, profile.rating)) return false;
     }
     else
     {
@@ -3317,17 +3494,16 @@ bool room_build(struct player *p, struct chunk *c, int by0, int bx0, struct room
         }
 
         /* Get the location of the room */
-        y = ((by1 + by2 + 1) * dun->block_hgt) / 2;
-        x = ((bx1 + bx2 + 1) * dun->block_wid) / 2;
+        centre.y = ((by1 + by2 + 1) * dun->block_hgt) / 2;
+        centre.x = ((bx1 + bx2 + 1) * dun->block_wid) / 2;
 
         /* Try to build a room */
-        if (!profile.builder(p, c, y, x, profile.rating)) return false;
+        if (!profile.builder(p, c, &centre, profile.rating)) return false;
 
         /* Save the room location */
         if (dun->cent_n < z_info->level_room_max)
         {
-            dun->cent[dun->cent_n].y = y;
-            dun->cent[dun->cent_n].x = x;
+            loc_copy(&dun->cent[dun->cent_n], &centre);
             dun->cent_n++;
         }
 

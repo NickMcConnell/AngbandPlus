@@ -38,7 +38,7 @@
 name:ancient dragon
 glyph:D
 pain:1
-flags:DRAGON | EVIL | POWERFUL | SMART
+flags:DRAGON | EVIL | POWERFUL | SMART | SPIRIT
 flags:DROP_4
 flags:MOVE_BODY
 flags:NO_CONF | NO_SLEEP | NO_HOLD
@@ -48,7 +48,7 @@ desc:Ancient Dragon/Wyrm
 name:ainu
 glyph:A
 pain:1
-flags:POWERFUL | LEVITATE
+flags:POWERFUL | SPIRIT | LEVITATE
 flags:ONLY_ITEM
 flags:OPEN_DOOR | BASH_DOOR | TAKE_ITEM
 flags:IM_POIS | NO_CONF | NO_SLEEP | NO_HOLD
@@ -101,7 +101,7 @@ desc:Creeping Coins
 name:dragon
 glyph:d
 pain:1
-flags:DRAGON | EVIL | LEVITATE
+flags:DRAGON | EVIL | SPIRIT | LEVITATE
 flags:FORCE_SLEEP
 desc:Dragon
 
@@ -137,7 +137,7 @@ desc:Feline (Cat)
 name:ghost
 glyph:G
 pain:1
-flags:UNDEAD | EVIL | INVISIBLE | COLD_BLOOD
+flags:UNDEAD | EVIL | INVISIBLE | COLD_BLOOD | SPIRIT
 flags:PASS_WALL
 flags:IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | NO_STUN | NO_HOLD
 desc:Ghost
@@ -145,7 +145,7 @@ desc:Ghost
 name:giant
 glyph:P
 pain:1
-flags:GIANT | EVIL
+flags:GIANT | EVIL | SPIRIT
 flags:BASH_DOOR
 flags:HUMANOID
 desc:Giant Humanoid
@@ -161,7 +161,7 @@ desc:Golem
 name:humanoid
 glyph:h
 pain:1
-flags:OPEN_DOOR | BASH_DOOR
+flags:OPEN_DOOR | BASH_DOOR | SPIRIT
 flags:HUMANOID
 desc:Hobbit/Elf/Dwarf
 
@@ -213,7 +213,7 @@ name:kobold
 glyph:k
 pain:1
 flags:EVIL
-flags:OPEN_DOOR | BASH_DOOR
+flags:OPEN_DOOR | BASH_DOOR | SPIRIT
 flags:IM_POIS
 flags:HUMANOID
 desc:Kobold
@@ -221,7 +221,7 @@ desc:Kobold
 name:lich
 glyph:L
 pain:1
-flags:UNDEAD | EVIL | COLD_BLOOD | SMART
+flags:UNDEAD | EVIL | COLD_BLOOD | SMART | SPIRIT
 flags:OPEN_DOOR | BASH_DOOR
 flags:IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | NO_STUN | NO_HOLD
 flags:FORCE_SLEEP
@@ -246,7 +246,7 @@ desc:Lurker
 name:major demon
 glyph:U
 pain:1
-flags:DEMON | EVIL
+flags:DEMON | EVIL | SPIRIT
 flags:ONLY_ITEM
 flags:OPEN_DOOR | BASH_DOOR
 flags:NO_CONF | NO_SLEEP | NO_HOLD
@@ -265,7 +265,7 @@ desc:Mimic
 name:minor demon
 glyph:u
 pain:1
-flags:DEMON | EVIL
+flags:DEMON | EVIL | SPIRIT
 flags:IM_FIRE
 flags:HAS_LEGS
 desc:Minor Demon
@@ -287,7 +287,7 @@ desc:Mushroom
 name:naga
 glyph:n
 pain:1
-flags:FEMALE | EVIL | HURT_COLD
+flags:FEMALE | EVIL | HURT_COLD | SPIRIT
 flags:BASH_DOOR
 flags:HAS_LEGS
 desc:Naga
@@ -295,7 +295,7 @@ desc:Naga
 name:ogre
 glyph:O
 pain:1
-flags:GIANT | EVIL
+flags:GIANT | EVIL | SPIRIT
 flags:OPEN_DOOR | BASH_DOOR
 flags:HUMANOID
 desc:Ogre
@@ -303,7 +303,7 @@ desc:Ogre
 name:orc
 glyph:o
 pain:1
-flags:MALE | ORC | EVIL
+flags:MALE | ORC | EVIL | SPIRIT
 flags:OPEN_DOOR | BASH_DOOR
 flags:HUMANOID
 desc:Orc
@@ -311,7 +311,7 @@ desc:Orc
 name:person
 glyph:p
 pain:1
-flags:BASH_DOOR
+flags:BASH_DOOR | SPIRIT
 flags:HUMANOID
 desc:Person/Human
 
@@ -368,13 +368,13 @@ desc:Spider/Scorpion/Tick
 name:townsfolk
 glyph:t
 pain:4
-flags:HUMANOID
+flags:HUMANOID | SPIRIT
 desc:Townsfolk
 
 name:troll
 glyph:T
 pain:1
-flags:TROLL | EVIL
+flags:TROLL | EVIL | SPIRIT
 flags:OPEN_DOOR | BASH_DOOR
 flags:HUMANOID
 desc:Troll
@@ -382,7 +382,7 @@ desc:Troll
 name:vampire
 glyph:V
 pain:1
-flags:UNDEAD | EVIL | COLD_BLOOD | REGENERATE | LEVITATE
+flags:UNDEAD | EVIL | COLD_BLOOD | REGENERATE | SPIRIT | LEVITATE
 flags:OPEN_DOOR | BASH_DOOR
 flags:HURT_LIGHT | HURT_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | NO_STUN
 flags:FORCE_SLEEP
@@ -407,7 +407,7 @@ desc:Worm/Worm Mass
 name:wraith
 glyph:W
 pain:1
-flags:UNDEAD | EVIL | COLD_BLOOD
+flags:UNDEAD | EVIL | COLD_BLOOD | SPIRIT
 flags:HURT_LIGHT | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | NO_STUN | NO_HOLD
 desc:Wight/Wraith
 
@@ -421,7 +421,7 @@ desc:Xorn/Xaren
 name:yeek
 glyph:y
 pain:1
-flags:ANIMAL | LEVITATE
+flags:ANIMAL | SPIRIT | LEVITATE
 flags:OPEN_DOOR | BASH_DOOR
 flags:IM_ACID
 flags:HUMANOID
@@ -529,7 +529,7 @@ desc:Object Mimic
 name:phantom warrior
 glyph:G
 pain:1
-flags:UNDEAD | EVIL | COLD_BLOOD
+flags:UNDEAD | EVIL | COLD_BLOOD | SPIRIT
 flags:PASS_WALL
 flags:NO_CONF | NO_SLEEP | IM_POIS | NO_STUN
 desc:Phantom Warrior

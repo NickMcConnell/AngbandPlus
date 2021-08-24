@@ -96,7 +96,6 @@ static enum parser_error parse_graf_extra(struct parser *p)
     mode->alphablend = parser_getuint(p, "alpha");
     mode->overdrawRow = parser_getuint(p, "row");
     mode->overdrawMax = parser_getuint(p, "max");
-    mode->distorted = parser_getuint(p, "distorted");
 
     return PARSE_ERROR_NONE;
 }
@@ -111,7 +110,7 @@ static struct parser *init_parse_grafmode(void)
     parser_reg(p, "directory sym dirname", parse_graf_directory);
     parser_reg(p, "size uint wid uint hgt str filename", parse_graf_size);
     parser_reg(p, "pref str prefname", parse_graf_pref);
-    parser_reg(p, "extra uint alpha uint row uint max uint distorted", parse_graf_extra);
+    parser_reg(p, "extra uint alpha uint row uint max", parse_graf_extra);
 
     return p;
 }
@@ -180,16 +179,6 @@ static errr finish_parse_grafmode(struct parser *p)
 }
 
 
-static void print_error(const char *name, struct parser *p)
-{
-    struct parser_state s;
-
-    parser_getstate(p, &s);
-    plog_fmt("Parse error in %s line %d column %d: %s: %s", name, s.line, s.col, s.msg,
-        parser_error_str[s.error]);
-}
-
-
 bool init_graphics_modes(void)
 {
     char buf[MSG_LEN];
@@ -219,7 +208,7 @@ bool init_graphics_modes(void)
             e = parser_parse(p, line);
             if (e != PARSE_ERROR_NONE)
             {
-                print_error(buf, p);
+                print_error_simple(buf, p);
                 break;
             }
         }
@@ -274,7 +263,6 @@ bool is_current_graphics_mode(byte id)
 
 bool is_tile_distorted(byte id, byte width, byte height)
 {
-    if (get_graphics_mode(id, true)->distorted) return true;
     return (width * height > 1);
 }
 

@@ -808,7 +808,7 @@ static enum parser_error parse_prefs_trap(struct parser *p)
  */
 static const char *proj_name_list[] =
 {
-    #define ELEM(a) #a,
+    #define ELEM(a, b, c, d) #a,
     #include "../common/list-elements.h"
     #undef ELEM
     #define PROJ(a) #a,
@@ -1226,16 +1226,6 @@ errr process_pref_file_command(const char *s)
 }
 
 
-static void print_error(const char *name, struct parser *p)
-{
-    struct parser_state s;
-
-    parser_getstate(p, &s);
-    plog_fmt("Parse error in %s line %d column %d: %s: %s", name,
-        s.line, s.col, s.msg, parser_error_str[s.error]);
-}
-
-
 /*
  * Process the user pref file with a given path.
  *
@@ -1268,7 +1258,7 @@ static bool process_pref_file_named(const char *path, bool quiet, bool user)
             e = parser_parse(p, line);
             if (e != PARSE_ERROR_NONE)
             {
-                print_error(path, p);
+                print_error_simple(path, p);
                 break;
             }
         }

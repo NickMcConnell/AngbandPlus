@@ -255,7 +255,7 @@ static const int adj_dex_ta[STAT_RANGE] =
 /*
  * Stat Table (STR) -- bonus to dam
  */
-static const int adj_str_td[STAT_RANGE] =
+const int adj_str_td[STAT_RANGE] =
 {
     -2  /* 3 */,
     -2  /* 4 */,
@@ -301,7 +301,7 @@ static const int adj_str_td[STAT_RANGE] =
 /*
  * Stat Table (DEX) -- bonus to hit
  */
-static const int adj_dex_th[STAT_RANGE] =
+const int adj_dex_th[STAT_RANGE] =
 {
     -3  /* 3 */,
     -2  /* 4 */,
@@ -1116,10 +1116,9 @@ static void calc_spells(struct player *p)
  */
 static void calc_mana(struct player *p, struct player_state *state, bool update)
 {
-    int i, msp, levels, cur_wgt, max_wgt;
+    int i, msp, levels, cur_wgt, max_wgt, adj;
     struct object *obj;
     int exmsp = 0;
-    bitflag flags[OF_SIZE];
     s32b modifiers[OBJ_MOD_MAX];
 
     /* Shapechangers get arbitrary mana */
@@ -1151,32 +1150,6 @@ static void calc_mana(struct player *p, struct player_state *state, bool update)
         {
             levels = 0;
             msp = 0;
-        }
-    }
-
-    /* Get the gloves */
-    obj = equipped_item_by_slot_name(p, "hands");
-
-    object_flags(obj, flags);
-    object_modifiers(obj, modifiers);
-
-    /* Process gloves for those disturbed by them */
-    if (player_has(p, PF_CUMBER_GLOVE))
-    {
-        /* Assume player is not encumbered by gloves */
-        state->cumber_glove = false;
-
-        /* Normal gloves hurt mage-type spells */
-        /* PWMAngband: gloves with +MANA should NEVER hinder spellcasting */
-        if (obj && !of_has(flags, OF_FREE_ACT) &&
-            !kf_has(obj->kind->kind_flags, KF_SPELLS_OK) &&
-            (modifiers[OBJ_MOD_MANA] <= 0) && (modifiers[OBJ_MOD_DEX] <= 0))
-        {
-            /* Encumbered */
-            state->cumber_glove = true;
-
-            /* Reduce mana */
-            msp = (3 * msp) / 4;
         }
     }
 
@@ -1214,8 +1187,10 @@ static void calc_mana(struct player *p, struct player_state *state, bool update)
         msp -= ((cur_wgt - max_wgt) / 10);
     }
 
-    /* Sorcerors and elementalists get extra mana */
-    if (player_has(p, PF_EXTRA_MANA)) msp = (5 * msp) / 4;
+    /* Get the gloves */
+    obj = equipped_item_by_slot_name(p, "hands");
+
+    object_modifiers(obj, modifiers);
 
     /* Extra mana capacity from gloves */
     exmsp += modifiers[OBJ_MOD_MANA];
@@ -1227,6 +1202,14 @@ static void calc_mana(struct player *p, struct player_state *state, bool update)
 
     /* Extra mana capacity from weapon */
     exmsp += modifiers[OBJ_MOD_MANA];
+
+    /* Polymorphed players only get half adjustment from race */
+    adj = race_modifier(p->race, OBJ_MOD_MANA, p->lev, p->poly_race? true: false);
+
+    adj += class_modifier(p->clazz, OBJ_MOD_MANA, p->lev);
+
+    /* Extra mana capacity from race/class bonuses */
+    exmsp += adj;
 
     /* 1 point = 10% more mana */
     msp = ((10 + exmsp) * msp) / 10;
@@ -1327,7 +1310,7 @@ static void calc_hitpoints(struct player *p, struct player_state *state, bool up
  */
 static void calc_torch(struct player *p, struct player_state *state, bool update)
 {
-    int i;
+    int i, adj;
 
     /* Assume no light */
     state->cur_light = 0;
@@ -1368,6 +1351,14 @@ static void calc_torch(struct player *p, struct player_state *state, bool update
         state->cur_light += amt;
     }
 
+    /* Polymorphed players only get half adjustment from race */
+    adj = race_modifier(p->race, OBJ_MOD_LIGHT, p->lev, p->poly_race? true: false);
+
+    adj += class_modifier(p->clazz, OBJ_MOD_LIGHT, p->lev);
+
+    /* Extra light from race/class bonuses */
+    state->cur_light += adj;
+
     /* Limit light */
     state->cur_light = MIN(state->cur_light, 5);
     state->cur_light = MAX(state->cur_light, 0);
@@ -1407,18 +1398,21 @@ void calc_digging_chances(struct player *p, struct player_state *state, int chan
  *
  *   Warrior     --> num = 6; mul = 5; div = MAX(30, weapon_weight);
  *   Mage        --> num = 4; mul = 2; div = MAX(40, weapon_weight);
+ *   Druid       --> num = 4; mul = 3; div = MAX(35, weapon_weight);
  *   Priest      --> num = 4; mul = 3; div = MAX(35, weapon_weight);
- *   Rogue       --> num = 5; mul = 4; div = MAX(30, weapon_weight);
- *   Ranger      --> num = 5; mul = 4; div = MAX(35, weapon_weight);
+ *   Necromancer --> num = 4; mul = 3; div = MAX(35, weapon_weight);
  *   Paladin     --> num = 5; mul = 5; div = MAX(30, weapon_weight);
+ *   Rogue       --> num = 5; mul = 4; div = MAX(20, weapon_weight);
+ *   Ranger      --> num = 5; mul = 4; div = MAX(35, weapon_weight);
+ *   Blackguard  --> num = 5; mul = 5; div = MAX(100, weapon_weight);
  *   Sorceror    --> num = 1; mul = 2; div = MAX(40, weapon_weight);
  *   Unbeliever  --> num = 6; mul = 5; div = MAX(30, weapon_weight);
  *   Archer      --> num = 2; mul = 3; div = MAX(35, weapon_weight);
  *   Monk        --> irrelevant (barehanded damage)
  *   Telepath    --> num = 4; mul = 3; div = MAX(35, weapon_weight);
- *   Necromancer --> num = 4; mul = 2; div = MAX(40, weapon_weight);
- *   Shapechangr --> num = 5; mul = 4; div = MAX(35, weapon_weight);
  *   Elemntalist --> num = 3; mul = 2; div = MAX(40, weapon_weight);
+ *   Summoner    --> num = 1; mul = 2; div = MAX(40, weapon_weight);
+ *   Shapechangr --> num = 5; mul = 4; div = MAX(35, weapon_weight);
  *
  * To get "P", we look up the relevant "adj_str_blow[]" (see above),
  * multiply it by "mul", and then divide it by "div", rounding down.
@@ -1472,21 +1466,27 @@ static const int blows_table[12][12] =
 };
 
 
-bool obj_can_browse(struct player *p, const struct object *obj)
+bool obj_kind_can_browse(struct player *p, const struct object_kind *kind)
 {
     int i;
 
-    if (!p) return false;
+    if (!p) return true;
 
     for (i = 0; i < p->clazz->magic.num_books; i++)
     {
         struct class_book *book = &p->clazz->magic.books[i];
 
-        if (obj->kind == lookup_kind_silent(book->tval, book->sval))
+        if (kind == lookup_kind_silent(book->tval, book->sval))
             return true;
     }
 
     return false;
+}
+
+
+bool obj_can_browse(struct player *p, const struct object *obj)
+{
+    return obj_kind_can_browse(p, obj->kind);
 }
 
 
@@ -1731,11 +1731,13 @@ void calc_inventory(struct player *p)
  * extra_blows is the number of +blows available from this object and this state
  *
  * Note: state->num_blows is now 100x the number of blows
+ *
+ * PWMAngband: extra_blows is now 10x the number of extra blows to allow +0.1bpr per level for monks
  */
 static int calc_blows(struct player *p, const struct object *obj, struct player_state *state,
     int extra_blows)
 {
-    int blows;
+    int blows = 100;
     int str_index, dex_index;
     int div;
     int blow_energy;
@@ -1743,13 +1745,7 @@ static int calc_blows(struct player *p, const struct object *obj, struct player_
     int min_weight = p->clazz->min_weight;
 
     /* Monks get special barehanded attacks */
-    if (player_has(p, PF_MARTIAL_ARTS))
-    {
-        /* Up to 5 extra blows */
-        /* Encumbered monks only get half the extra blows */
-        blows = 100 + p->lev * (monk_armor_ok(p)? 10: 5);
-    }
-    else
+    if (!player_has(p, PF_MARTIAL_ARTS))
     {
         /* Enforce a minimum "weight" (tenth pounds) */
         div = ((weight < min_weight)? min_weight: weight);
@@ -1770,7 +1766,7 @@ static int calc_blows(struct player *p, const struct object *obj, struct player_
     }
 
     /* Require at least one blow */
-    return MAX(blows + 100 * extra_blows, 100);
+    return MAX(blows + 10 * extra_blows, 100);
 }
 
 
@@ -1917,6 +1913,7 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
     bitflag collect_f[OF_SIZE];
     bool vuln[ELEM_MAX];
     bool unencumbered_monk = monk_armor_ok(p);
+    bool restrict = (player_has(p, PF_MARTIAL_ARTS) && !unencumbered_monk);
     byte cumber_shield = 0;
     struct element_info el_info[ELEM_MAX];
     struct object *tool = equipped_item_by_slot_name(p, "tool");
@@ -1927,12 +1924,11 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
     /* Set various defaults */
     state->speed = 110;
     state->num_blows = 100;
-    state->num_shots = 1;
+    state->num_shots = 10;
     state->ammo_tval = TV_ROCK;
     state->ammo_mult = 1;
 
     /* Extract race/class info */
-    state->see_infra = p->race->infra;
     for (i = 0; i < SKILL_MAX; i++)
         state->skills[i] = p->race->r_skills[i] + p->clazz->c_skills[i];
     player_elements(p, el_info);
@@ -1952,31 +1948,10 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
     player_flags(p, collect_f);
 
     /* Add player specific pflags */
-    if (!p->csp)
-        pf_on(state->pflags, PF_NO_MANA);
-
-    /* Ent: penalty to speed (polymorphed Ents get only half penalty) */
-    if (player_has(p, PF_GIANT))
-    {
-        if (p->poly_race)
-            state->speed -= 1;
-        else
-            state->speed -= 2;
-    }
-
-    /* Unencumbered monks get nice abilities */
-    if (unencumbered_monk)
-    {
-        /* Faster every 10 levels */
-        state->speed += (p->lev) / 10;
-    }
+    if (!p->msp) pf_on(state->pflags, PF_NO_MANA);
 
     /* Ghost */
     if (p->ghost) state->see_infra += 3;
-
-    /* Rogues get speed bonus */
-    if (player_has(p, PF_SPEED_BONUS) && (p->lev >= 5))
-        state->speed += (((p->lev - 5) / 15) + 1);
 
     /* Handle polymorphed players */
     if (p->poly_race)
@@ -2048,7 +2023,7 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         state->speed += modifiers[OBJ_MOD_SPEED];
 
         /* Affect blows */
-        extra_blows += modifiers[OBJ_MOD_BLOWS];
+        extra_blows += (modifiers[OBJ_MOD_BLOWS] * 10);
 
         /* Affect shots */
         extra_shots += modifiers[OBJ_MOD_SHOTS];
@@ -2154,6 +2129,16 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         state->stat_add[STAT_CON] += fx;
     }
 
+    /* Extra growth */
+    if (p->timed[TMD_GROWTH])
+    {
+        state->stat_add[STAT_STR] += 3;
+        state->stat_add[STAT_INT] += 3;
+        state->stat_add[STAT_WIS] += 3;
+        state->stat_add[STAT_DEX] += 3;
+        state->stat_add[STAT_CON] += 3;
+    }
+
     /* Calculate the various stat values */
     for (i = 0; i < STAT_MAX; i++)
     {
@@ -2162,14 +2147,9 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         add = state->stat_add[i];
 
         /* Polymorphed players only get half adjustment from race */
-        r_adj = p->race->r_adj[i];
-        if (p->poly_race)
-        {
-            if (r_adj > 0) r_adj = (r_adj + 1) / 2;
-            else if (r_adj < 0) r_adj = (r_adj - 1) / 2;
-        }
+        r_adj = race_modifier(p->race, i, p->lev, p->poly_race? true: false);
 
-        add += (r_adj + p->clazz->c_adj[i]);
+        add += (r_adj + class_modifier(p->clazz, i, p->lev));
         state->stat_top[i] = modify_stat_value(p->stat_max[i], add);
         use = modify_stat_value(p->stat_cur[i], add);
 
@@ -2191,6 +2171,53 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 
         /* Save the new index */
         state->stat_ind[i] = ind;
+    }
+
+    /* Apply race/class modifiers */
+    for (i = STAT_MAX; i < OBJ_MOD_MAX; i++)
+    {
+        int r_adj, c_adj;
+
+        /* Polymorphed players only get half adjustment from race */
+        r_adj = race_modifier(p->race, i, p->lev, p->poly_race? true: false);
+
+        c_adj = class_modifier(p->clazz, i, p->lev);
+
+        /* Affect stealth */
+        if (i == OBJ_MOD_STEALTH) state->skills[SKILL_STEALTH] += (r_adj + c_adj);
+
+        /* Affect searching ability (factor of five) */
+        if (i == OBJ_MOD_SEARCH) state->skills[SKILL_SEARCH] += ((r_adj + c_adj) * 5);
+
+        /* Affect infravision */
+        if (i == OBJ_MOD_INFRA) state->see_infra += (r_adj + c_adj);
+
+        /* Affect digging (factor of 20) */
+        if (i == OBJ_MOD_TUNNEL) state->skills[SKILL_DIGGING] += ((r_adj + c_adj) * 20);
+
+        /* Affect speed */
+        if (i == OBJ_MOD_SPEED)
+        {
+            /* Unencumbered monks get speed bonus */
+            if (restrict) c_adj = 0;
+
+            state->speed += (r_adj + c_adj);
+        }
+
+        /* Affect blows */
+        if (i == OBJ_MOD_BLOWS)
+        {
+            /* Encumbered monks only get half the extra blows */
+            if (restrict) c_adj /= 2;
+
+            extra_blows += (r_adj + c_adj);
+        }
+
+        /* Affect shots */
+        if (i == OBJ_MOD_SHOTS) extra_shots += (r_adj + c_adj);
+
+        /* Affect Might */
+        if (i == OBJ_MOD_MIGHT) extra_might += (r_adj + c_adj);
     }
 
     /* Unencumbered monks get extra ac for wearing very light or no armour at all */
@@ -2261,7 +2288,7 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         s16b fx = (p->timed[TMD_ADRENALINE] - 1) / 20;
 
         if (fx >= 2) state->to_d += 8;
-        if (fx >= 3) extra_blows++;
+        if (fx >= 3) extra_blows += 10;
     }
     if (p->timed[TMD_INVULN])
         state->to_a += 100;
@@ -2279,6 +2306,8 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         state->speed -= 5;
     }
     if (p->timed[TMD_BOLD]) of_on(state->flags, OF_PROT_FEAR);
+    if (p->timed[TMD_HOLD_LIFE]) of_on(state->flags, OF_HOLD_LIFE);
+    if (p->timed[TMD_FLIGHT]) of_on(state->flags, OF_FEATHER);
     if (p->timed[TMD_HERO])
     {
         state->to_h += 12;
@@ -2291,6 +2320,7 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 9 / 10;
     }
     if (p->timed[TMD_FAST] || p->timed[TMD_SPRINT]) state->speed += 10;
+    if (p->timed[TMD_FLIGHT]) state->speed += 5;
     if (p->timed[TMD_SLOW]) state->speed -= 10;
     if (p->timed[TMD_SINFRA]) state->see_infra += 5;
     if (p->timed[TMD_ESP]) of_on(state->flags, OF_ESP_ALL);
@@ -2341,6 +2371,11 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 95 / 100;
     if (p->timed[TMD_IMAGE])
         state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 8 / 10;
+    if (p->timed[TMD_BLOODLUST])
+    {
+        state->to_d += p->timed[TMD_BLOODLUST] / 2;
+        extra_blows += p->timed[TMD_BLOODLUST] / 2;
+    }
 
     /* Analyze flags - check for fear */
     if (of_has(state->flags, OF_AFRAID))
@@ -2378,10 +2413,9 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
     state->skills[SKILL_DISARM_MAGIC] += adj_int_dis[state->stat_ind[STAT_INT]];
     state->skills[SKILL_DEVICE] += adj_int_dev[state->stat_ind[STAT_INT]];
     state->skills[SKILL_SAVE] += adj_wis_sav[state->stat_ind[STAT_WIS]];
+    if (p->timed[TMD_SAFE]) state->skills[SKILL_SAVE] = 100;
     state->skills[SKILL_DIGGING] += adj_str_dig[state->stat_ind[STAT_STR]];
     if (p->poly_race && rf_has(p->poly_race->flags, RF_KILL_WALL))
-        state->skills[SKILL_DIGGING] = 2000;
-    if (player_has(p, PF_ELEMENTAL_SPELLS) && (p->lev == 50))
         state->skills[SKILL_DIGGING] = 2000;
     for (i = 0; i < SKILL_MAX; i++)
         state->skills[i] += (p->clazz->x_skills[i] * p->lev / 10);
@@ -2431,23 +2465,15 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
             state->num_shots += extra_shots;
             state->ammo_mult += extra_might;
 
-            /* Rangers with bows and archers are good at shooting */
-            if ((player_has(p, PF_EXTRA_SHOT) && (state->ammo_tval == TV_ARROW)) ||
-                player_has(p, PF_EXTRA_SHOTS))
-            {
-                if (p->lev >= 20) state->num_shots++;
-                if (p->lev >= 40) state->num_shots++;
-            }
+            /* Rangers with bows are good at shooting */
+            if (player_has(p, PF_FAST_SHOT) && (state->ammo_tval == TV_ARROW))
+                state->num_shots += p->lev / 3;
         }
     }
 
     /* Monks and archers are good at throwing */
-    if ((player_has(p, PF_MARTIAL_ARTS) || player_has(p, PF_EXTRA_SHOTS)) &&
-        (state->ammo_tval == TV_ROCK))
-    {
-        /* Extra shot at levels 15, 30 and 45 */
-        state->num_shots += p->lev / 15;
-    }
+    if (player_has(p, PF_FAST_THROW) && (state->ammo_tval == TV_ROCK))
+        state->num_shots += p->lev / 2;
 
     /* Handle polymorphed players */
     if (p->poly_race && (rsf_has(p->poly_race->spell_flags, RSF_ARROW_X) ||
@@ -2456,8 +2482,11 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         rsf_has(p->poly_race->spell_flags, RSF_ARROW_3) ||
         rsf_has(p->poly_race->spell_flags, RSF_ARROW_4)))
     {
-        state->num_shots++;
+        state->num_shots += 5;
     }
+
+    /* Require at least one shot */
+    if (state->num_shots < 10) state->num_shots = 10;
 
     /* Temporary "Farsight" */
     if (p->timed[TMD_FARSIGHT])
@@ -2472,7 +2501,7 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 
     /* Analyze weapon */
     state->heavy_wield = false;
-    state->icky_wield = false;
+    state->bless_wield = false;
     if (weapon)
     {
         /* It is hard to hold a heavy weapon */
@@ -2490,15 +2519,12 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
                 state->skills[SKILL_DIGGING] += (weapon->weight / 10);
         }
 
-        /* Priest weapon penalty for non-blessed edged weapons */
-        if (player_has(p, PF_BLESS_WEAPON) && !of_has(state->flags, OF_BLESSED) &&
-            tval_is_pointy(weapon))
+        /* Divine weapon bonus for blessed weapons */
+        if (player_has(p, PF_BLESS_WEAPON) && of_has(state->flags, OF_BLESSED))
         {
-            if (state->to_h > 0) state->to_h = 3 * state->to_h / 5;
-            state->to_h -= 2;
-            if (state->to_d > 0) state->to_d = 3 * state->to_d / 5;
-            state->to_d -= 2;
-            state->icky_wield = true;
+            state->to_h += 2;
+            state->to_d += 2;
+            state->bless_wield = true;
         }
     }
     else
@@ -2671,16 +2697,14 @@ static void update_bonuses(struct player *p)
                 msg(p, "You feel relieved to put down your heavy weapon.");
         }
 
-        /* Take note when "illegal weapon" changes */
-        if (p->state.icky_wield != state.icky_wield)
+        /* Take note when "blessed weapon" changes */
+        if (p->state.bless_wield != state.bless_wield)
         {
             /* Message */
-            if (state.icky_wield)
-                msg(p, "You do not feel comfortable with your weapon.");
+            if (state.bless_wield)
+                msg(p, "You feel attuned to your weapon.");
             else if (equipped_item_by_slot_name(p, "weapon"))
-                msg(p, "You feel comfortable with your weapon.");
-            else
-                msg(p, "You feel more comfortable after removing your weapon.");
+                msg(p, "You feel less attuned to your weapon.");
         }
 
         /* Take note when "shield encumberance" changes */
@@ -2693,16 +2717,6 @@ static void update_bonuses(struct player *p)
                 msg(p, "You have no trouble wielding your weapon.");
             else
                 msg(p, "You feel more comfortable after removing your weapon.");
-        }
-
-        /* Take note when "glove state" changes */
-        if (p->state.cumber_glove != state.cumber_glove)
-        {
-            /* Message */
-            if (state.cumber_glove)
-                msg(p, "Your covered hands feel unsuitable for spellcasting.");
-            else
-                msg(p, "Your hands feel more suitable for spellcasting.");
         }
 
         /* Take note when "armor state" changes */
@@ -2731,12 +2745,10 @@ static void update_bonuses(struct player *p)
             msg(p, "You have trouble wielding such a heavy bow.");
         if (p->state.heavy_wield)
             msg(p, "You have trouble wielding such a heavy weapon.");
-        if (p->state.icky_wield)
-            msg(p, "You do not feel comfortable with your weapon.");
+        if (p->state.bless_wield)
+            msg(p, "You feel attuned to your weapon.");
         if (p->state.cumber_shield)
             msg(p, "You have trouble wielding your weapon with a shield.");
-        if (p->state.cumber_glove)
-            msg(p, "Your covered hands feel unsuitable for spellcasting.");
         if (p->state.cumber_armor)
             msg(p, "The weight of your armor encumbers your movement.");
     }

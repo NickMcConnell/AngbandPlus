@@ -18,18 +18,15 @@ struct bolt
 {
     int proj_type;
     bool beam;
-    int oy;
-    int ox;
-    int y;
-    int x;
+    struct loc ogrid;
+    struct loc grid;
 };
 
 struct missile
 {
     byte mattr;
     char mchar;
-    int y;
-    int x;
+    struct loc grid;
 };
 
 struct message
@@ -46,19 +43,20 @@ extern void restore_sp(struct player *p);
 extern void death_knowledge(struct player *p);
 extern void player_death(struct player *p);
 extern void resurrect_player(struct player *p, struct chunk *c);
-extern bool modify_panel(struct player *p, int wy, int wx);
+extern bool modify_panel(struct player *p, struct loc *grid);
 extern bool change_panel(struct player *p, int dir);
 extern void verify_panel(struct player *p);
 extern void center_panel(struct player *p);
 extern int move_energy(int depth);
 extern int time_factor(struct player *p, struct chunk *c);
-extern int pick_arena(struct worldpos *wpos, int y, int x);
-extern void access_arena(struct player *p, int y, int x);
+extern int pick_arena(struct worldpos *wpos, struct loc *grid);
+extern void access_arena(struct player *p, struct loc *grid);
 extern void describe_player(struct player *p, struct player *q);
 extern void describe_trap(struct player *p, struct trap *trap);
 extern void describe_feat(struct player *p, struct feature *feat);
 extern void player_dump(struct player *p, bool server);
-extern void bolt_pict(struct player *p, int y, int x, int ny, int nx, int typ, byte *a, char *c);
+extern void bolt_pict(struct player *p, struct loc *start, struct loc *end, int typ, byte *a,
+    char *c);
 extern void display_explosion(struct chunk *cv, struct explosion *data, const bool *drawing,
     bool arc);
 extern void display_bolt(struct chunk *cv, struct bolt *data, bool *drawing);

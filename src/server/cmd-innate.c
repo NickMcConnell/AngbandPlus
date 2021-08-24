@@ -25,7 +25,7 @@
  */
 void do_cmd_ghost(struct player *p, int ability, int dir)
 {
-    struct player_class *c = player_id2class(CLASS_GHOST);
+    struct player_class *c = lookup_player_class("Ghost");
     const struct class_book *book = &c->magic.books[0];
     int spell_index;
     struct class_spell *spell;
@@ -78,7 +78,7 @@ void do_cmd_ghost(struct player *p, int ability, int dir)
     p->current_item = 0;
 
     /* Only fire in direction 5 if we have a target */
-    if ((dir == 5) && !target_okay(p)) return;
+    if ((dir == DIR_TARGET) && !target_okay(p)) return;
 
     source_player(who, get_player_index(get_connection(p->conn)), p);
 
@@ -170,8 +170,8 @@ void do_cmd_breath(struct player *p, int dir)
     /* Make the breath attack an effect */
     effect = mem_zalloc(sizeof(struct effect));
     effect->index = EF_BREATH;
-    effect->params[0] = typ;
-    effect->params[1] = 20;
+    effect->subtype = typ;
+    effect->radius = 20;
 
     /* Cast the breath attack */
     source_player(who, get_player_index(get_connection(p->conn)), p);
@@ -189,7 +189,6 @@ void do_cmd_mimic(struct player *p, int page, int spell_index, int dir)
     int i, j = 0, k = 0, chance;
     struct class_spell *spell;
     bool projected = false;
-    int old_num = get_player_num(p);
 
     /* Restrict ghosts */
     if (p->ghost && !is_dm_p(p))
@@ -268,7 +267,7 @@ void do_cmd_mimic(struct player *p, int page, int spell_index, int dir)
     if (i == p->clazz->magic.books[0].num_spells) return;
 
     /* Check mana */
-    if (spell->smana > p->csp)
+    if ((spell->smana > p->csp) && !OPT(p, risky_casting))
     {
         msg(p, "You do not have enough mana.");
         return;
@@ -302,7 +301,7 @@ void do_cmd_mimic(struct player *p, int page, int spell_index, int dir)
         p->current_item = 0;
 
         /* Only fire in direction 5 if we have a target */
-        if ((dir == 5) && !target_okay(p)) return;
+        if ((dir == DIR_TARGET) && !target_okay(p)) return;
 
         /* Unaware players casting spells reveal themselves */
         if (p->k_idx) aware_player(p, p);
@@ -351,11 +350,5 @@ void do_cmd_mimic(struct player *p, int page, int spell_index, int dir)
     use_energy(p);
 
     /* Use some mana */
-    p->csp -= p->spell_cost;
-
-    /* Hack -- redraw picture */
-    redraw_picture(p, old_num);
-
-    /* Redraw mana */
-    p->upkeep->redraw |= (PR_MANA);
+    use_mana(p);
 }

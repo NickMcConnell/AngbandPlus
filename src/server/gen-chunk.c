@@ -45,7 +45,7 @@ static int chunk_index(struct wild_type *w_ptr, int depth)
  */
 void chunk_list_add(struct chunk *c)
 {
-    struct wild_type *w_ptr = get_wt_info_at(c->wpos.wy, c->wpos.wx);
+    struct wild_type *w_ptr = get_wt_info_at(&c->wpos.grid);
 
     w_ptr->chunk_list[chunk_index(w_ptr, c->wpos.depth)] = c;
 }
@@ -58,7 +58,7 @@ void chunk_list_add(struct chunk *c)
  */
 void chunk_list_remove(struct chunk *c)
 {
-    struct wild_type *w_ptr = get_wt_info_at(c->wpos.wy, c->wpos.wx);
+    struct wild_type *w_ptr = get_wt_info_at(&c->wpos.grid);
 
     w_ptr->chunk_list[chunk_index(w_ptr, c->wpos.depth)] = NULL;
 }
@@ -72,25 +72,28 @@ void chunk_list_remove(struct chunk *c)
  */
 void chunk_validate_objects(struct chunk *c)
 {
-    int x, y;
+    struct loc begin, end;
+    struct loc_iterator iter;
     struct object *obj;
 
-    for (y = 0; y < c->height; y++)
-    {
-        for (x = 0; x < c->width; x++)
-        {
-            for (obj = square_object(c, y, x); obj; obj = obj->next) {my_assert(obj->tval != 0);}
-            if (c->squares[y][x].mon > 0)
-            {
-                struct monster *mon = square_monster(c, y, x);
+    loc_init(&begin, 0, 0);
+    loc_init(&end, c->width, c->height);
+    loc_iterator_first(&iter, &begin, &end);
 
-                if (mon->held_obj)
-                {
-                    for (obj = mon->held_obj; obj; obj = obj->next) {my_assert(obj->tval != 0);}
-                }
+    do
+    {
+        for (obj = square_object(c, &iter.cur); obj; obj = obj->next) {my_assert(obj->tval != 0);}
+        if (square(c, &iter.cur)->mon > 0)
+        {
+            struct monster *mon = square_monster(c, &iter.cur);
+
+            if (mon->held_obj)
+            {
+                for (obj = mon->held_obj; obj; obj = obj->next) {my_assert(obj->tval != 0);}
             }
         }
     }
+    while (loc_iterator_next_strict(&iter));
 }
 
 
@@ -99,7 +102,7 @@ void chunk_validate_objects(struct chunk *c)
  */
 struct chunk *chunk_get(struct worldpos *wpos)
 {
-    struct wild_type *w_ptr = get_wt_info_at(wpos->wy, wpos->wx);
+    struct wild_type *w_ptr = get_wt_info_at(&wpos->grid);
 
     return w_ptr->chunk_list[chunk_index(w_ptr, wpos->depth)];
 }
@@ -124,7 +127,7 @@ static int players_on_depth_index(struct wild_type *w_ptr, int depth)
 
 bool chunk_inhibit_players(struct worldpos *wpos)
 {
-    struct wild_type *w_ptr = get_wt_info_at(wpos->wy, wpos->wx);
+    struct wild_type *w_ptr = get_wt_info_at(&wpos->grid);
 
     return (w_ptr->players_on_depth[players_on_depth_index(w_ptr, wpos->depth)] == INHIBIT_DEPTH);
 }
@@ -132,7 +135,7 @@ bool chunk_inhibit_players(struct worldpos *wpos)
 
 void chunk_decrease_player_count(struct worldpos *wpos)
 {
-    struct wild_type *w_ptr = get_wt_info_at(wpos->wy, wpos->wx);
+    struct wild_type *w_ptr = get_wt_info_at(&wpos->grid);
     int index = players_on_depth_index(w_ptr, wpos->depth);
 
     if (w_ptr->players_on_depth[index]) w_ptr->players_on_depth[index]--;
@@ -141,7 +144,7 @@ void chunk_decrease_player_count(struct worldpos *wpos)
 
 void chunk_set_player_count(struct worldpos *wpos, s16b value)
 {
-    struct wild_type *w_ptr = get_wt_info_at(wpos->wy, wpos->wx);
+    struct wild_type *w_ptr = get_wt_info_at(&wpos->grid);
 
     w_ptr->players_on_depth[players_on_depth_index(w_ptr, wpos->depth)] = value;
 }
@@ -149,7 +152,7 @@ void chunk_set_player_count(struct worldpos *wpos, s16b value)
 
 void chunk_increase_player_count(struct worldpos *wpos)
 {
-    struct wild_type *w_ptr = get_wt_info_at(wpos->wy, wpos->wx);
+    struct wild_type *w_ptr = get_wt_info_at(&wpos->grid);
 
     w_ptr->players_on_depth[players_on_depth_index(w_ptr, wpos->depth)]++;
 }
@@ -157,7 +160,7 @@ void chunk_increase_player_count(struct worldpos *wpos)
 
 bool chunk_has_players(struct worldpos *wpos)
 {
-    struct wild_type *w_ptr = get_wt_info_at(wpos->wy, wpos->wx);
+    struct wild_type *w_ptr = get_wt_info_at(&wpos->grid);
 
     /* Note that there is actually 1 player on the level (the DM) when INHIBIT_DEPTH is set */
     return (w_ptr->players_on_depth[players_on_depth_index(w_ptr, wpos->depth)] != 0);
@@ -166,7 +169,7 @@ bool chunk_has_players(struct worldpos *wpos)
 
 s16b chunk_get_player_count(struct worldpos *wpos)
 {
-    struct wild_type *w_ptr = get_wt_info_at(wpos->wy, wpos->wx);
+    struct wild_type *w_ptr = get_wt_info_at(&wpos->grid);
 
     return w_ptr->players_on_depth[players_on_depth_index(w_ptr, wpos->depth)];
 }

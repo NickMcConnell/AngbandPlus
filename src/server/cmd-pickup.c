@@ -29,9 +29,9 @@ static void player_pickup_gold(struct player *p, struct chunk *c)
 {
     s32b total_gold = 0L;
     char name[30] = "";
-    struct object *obj = square_object(c, p->py, p->px), *next;
     int sound_msg;
     bool at_most_one = true;
+    struct object *obj = square_object(c, &p->grid), *next;
 
     /* Pick up all the ordinary gold objects */
     while (obj)
@@ -78,7 +78,7 @@ static void player_pickup_gold(struct player *p, struct chunk *c)
         object_own(p, obj);
 
         /* Delete the gold */
-        square_excise_object(c, p->py, p->px, obj);
+        square_excise_object(c, &p->grid, obj);
         object_delete(&obj);
         obj = next;
     }
@@ -92,7 +92,8 @@ static void player_pickup_gold(struct player *p, struct chunk *c)
         disturb(p, 0);
 
         /* Build a message */
-        strnfmt(buf, sizeof(buf), "You have found %d gold pieces worth of ", total_gold);
+        strnfmt(buf, sizeof(buf), "You have found %d gold piece%s worth of ", total_gold,
+            PLURAL(total_gold));
 
         /* One treasure type.. */
         if (at_most_one) my_strcat(buf, name, sizeof(buf));
@@ -191,6 +192,9 @@ static bool auto_pickup_okay(struct player *p, struct object *obj)
     /* Restricted by choice */
     if (!is_owner(p, obj)) return false;
 
+    /* Must meet level requirement */
+    if (!has_level_req(p, obj)) return false;
+
     /* Ignore ignored items */
     if (ignore_item_ok(p, obj)) return false;
 
@@ -245,7 +249,7 @@ static void player_pickup_aux(struct player *p, struct chunk *c, struct object *
     /* Carry the object, prompting for number if necessary */
     if (max == obj->number)
     {
-        square_excise_object(c, p->py, p->px, obj);
+        square_excise_object(c, &p->grid, obj);
         inven_carry(p, obj, true, domsg);
     }
     else
@@ -275,6 +279,9 @@ static bool allow_pickup_object(struct player *p, struct object *obj)
 
     /* Restricted by choice */
     if (!is_owner(p, obj)) return false;
+
+    /* Must meet level requirement */
+    if (!has_level_req(p, obj)) return false;
 
     return true;
 }
@@ -473,7 +480,7 @@ byte player_pickup_item(struct player *p, struct chunk *c, int pickup, struct ob
     byte objs_picked_up = 0;
 
     /* Nothing else to pick up -- return */
-    if (!square_object(c, p->py, p->px))
+    if (!square_object(c, &p->grid))
     {
         mem_free(floor_list);
         return 0;
@@ -557,6 +564,14 @@ byte player_pickup_item(struct player *p, struct chunk *c, int pickup, struct ob
                 mem_free(floor_list);
                 return objs_picked_up;
             }
+
+            /* Must meet level requirement */
+            if (!has_level_req(p, obj))
+            {
+                msg(p, "You don't have the required level!");
+                mem_free(floor_list);
+                return objs_picked_up;
+            }
         }
 
         /* Use current */
@@ -631,7 +646,7 @@ byte do_autopickup(struct player *p, struct chunk *c, int pickup)
     byte objs_picked_up = 0;
 
     /* Nothing to pick up -- return */
-    if (!square_object(c, p->py, p->px)) return 0;
+    if (!square_object(c, &p->grid)) return 0;
 
     /* Normal ghosts cannot pick things up */
     if (p->ghost && !(p->dm_flags & DM_GHOST_BODY)) return 0;
@@ -641,7 +656,7 @@ byte do_autopickup(struct player *p, struct chunk *c, int pickup)
     if (!(p->ghost && (pickup < 2))) player_pickup_gold(p, c);
 
     /* Scan the remaining objects */
-    obj = square_object(c, p->py, p->px);
+    obj = square_object(c, &p->grid);
     while (obj)
     {
         next = obj->next;
@@ -684,7 +699,7 @@ void do_cmd_pickup(struct player *p, int item)
     struct object *obj;
 
     /* Check item (on the floor) */
-    for (obj = square_object(c, p->py, p->px); obj; obj = obj->next)
+    for (obj = square_object(c, &p->grid); obj; obj = obj->next)
     {
         if (obj->oidx == item) break;
     }

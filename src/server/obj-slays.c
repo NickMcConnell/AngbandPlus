@@ -173,11 +173,18 @@ bool copy_brands(bool **dest, bool *source)
  *
  * current the list of brands the object already has
  */
-bool append_random_brand(bool **current, struct brand **brand)
+bool append_random_brand(bool **current, struct brand **brand, bool is_ammo)
 {
-    int pick = randint0(z_info->brand_max);
+    int pick;
 
-    *brand = &brands[pick];
+    /* No life leech brand on ammo */
+    do
+    {
+        pick = randint0(z_info->brand_max);
+        *brand = &brands[pick];
+    }
+    while (is_ammo && streq((*brand)->name, "life leech"));
+
     return append_brand(current, pick);
 }
 
@@ -352,7 +359,7 @@ static void improve_attack_modifier_brand(struct player *p, struct object *obj, 
     }
 
     /* Is the monster vulnerable? */
-    if (!rf_has(race->flags, b->resist_flag))
+    if (!b->resist_flag || !rf_has(race->flags, b->resist_flag))
     {
         bool random_effect = false;
 
@@ -365,11 +372,12 @@ static void improve_attack_modifier_brand(struct player *p, struct object *obj, 
 
         /* Hack -- status effect */
         if (*best_mult < multiplier) effects->count = 0;
-        if (streq(b->name, "poison") || streq(b->name, "stunning") || streq(b->name, "cutting"))
+        if (streq(b->name, "poison") || streq(b->name, "stunning") || streq(b->name, "cutting") ||
+            streq(b->name, "life leech"))
         {
             if (*best_mult <= multiplier) effects->count++;
 
-            /* Choose randomly when poison, stunning and cutting are available */
+            /* Choose randomly when poison, stunning, cutting or life leech are available */
             if (*best_mult == multiplier) random_effect = one_in_(effects->count);
         }
 
@@ -395,17 +403,18 @@ static void improve_attack_modifier_brand(struct player *p, struct object *obj, 
             effects->do_poison = streq(b->name, "poison");
             effects->do_stun = (streq(b->name, "stunning")? 1: 0);
             effects->do_cut = (streq(b->name, "cutting")? 1: 0);
+            effects->do_leech = (streq(b->name, "life leech")? 1: 0);
         }
 
         /* Learn about the brand */
         if (obj) object_notice_brand(p, obj, i);
 
         /* Learn about the monster */
-        if (ml) rf_on(lore->flags, b->resist_flag);
+        if (b->resist_flag && ml) rf_on(lore->flags, b->resist_flag);
     }
 
     /* Learn about resistant monsters */
-    else if (player_knows_brand(p, i) && ml)
+    else if (b->resist_flag && player_knows_brand(p, i) && ml)
         rf_on(lore->flags, b->resist_flag);
 }
 
@@ -464,7 +473,7 @@ static void improve_attack_modifier_slay(struct player *p, struct object *obj, s
         }
 
         /* Learn about the slay */
-        object_notice_slay(p, obj, i);
+        if (obj) object_notice_slay(p, obj, i);
 
         /* Learn about the monster */
         if (ml) rf_on(lore->flags, s->race_flag);
@@ -483,6 +492,31 @@ static void equip_notice_flags(struct player *p, int index)
     if (streq(brands[index].name, "fire")) equip_learn_element(p, ELEM_FIRE);
     if (streq(brands[index].name, "acid")) equip_learn_element(p, ELEM_ACID);
     if (streq(brands[index].name, "poison")) equip_learn_element(p, ELEM_POIS);
+}
+
+
+/*
+ * Player has a temporary brand
+ */
+bool player_has_temporary_brand(struct player *p, int idx)
+{
+    if (p->timed[TMD_ATT_ACID] && streq(brands[idx].code, "ACID_3")) return true;
+    if (p->timed[TMD_ATT_ELEC] && streq(brands[idx].code, "ELEC_3")) return true;
+    if (p->timed[TMD_ATT_FIRE] && streq(brands[idx].code, "FIRE_3")) return true;
+    if (p->timed[TMD_ATT_COLD] && streq(brands[idx].code, "COLD_3")) return true;
+    if (p->timed[TMD_ATT_POIS] && streq(brands[idx].code, "POIS_3")) return true;
+    return false;
+}
+
+
+/*
+ * Player has a temporary slay
+ */
+bool player_has_temporary_slay(struct player *p, int idx)
+{
+    if (p->timed[TMD_ATT_EVIL] && streq(slays[idx].code, "EVIL_2")) return true;
+    if (p->timed[TMD_ATT_DEMON] && streq(slays[idx].code, "DEMON_5")) return true;
+    return false;
 }
 
 
@@ -523,8 +557,56 @@ void improve_attack_modifier(struct player *p, struct object *obj, struct source
 
     if (obj) return;
 
+    /* Temporary branding (ranged) */
+    if (range)
+    {
+        if (p->timed[TMD_BOWBRAND])
+        {
+            int index = get_bow_brand(&p->brand);
+
+            if (index != -1)
+            {
+                /* Notice flags for players */
+                if (who->player) equip_notice_flags(who->player, index);
+
+                improve_attack_modifier_brand(p, NULL, who, index, best_mult, effects, verb, len,
+                    range);
+            }
+        }
+
+        return;
+    }
+
+    /* Handle racial/class slays */
+    for (i = 0; i < z_info->slay_max; i++)
+    {
+        if (p->race->slays && p->race->slays[i].slay && (p->lev >= p->race->slays[i].lvl))
+            improve_attack_modifier_slay(p, NULL, who, i, best_mult, verb, len, range);
+        if (p->clazz->slays && p->clazz->slays[i].slay && (p->lev >= p->clazz->slays[i].lvl))
+            improve_attack_modifier_slay(p, NULL, who, i, best_mult, verb, len, range);
+    }
+
+    /* Handle racial/class brands */
+    for (i = 0; i < z_info->brand_max; i++)
+    {
+        if (p->race->brands && p->race->brands[i].brand && (p->lev >= p->race->brands[i].lvl))
+        {
+            /* Notice flags for players */
+            if (who->player) equip_notice_flags(who->player, i);
+
+            improve_attack_modifier_brand(p, NULL, who, i, best_mult, effects, verb, len, range);
+        }
+        if (p->clazz->brands && p->clazz->brands[i].brand && (p->lev >= p->clazz->brands[i].lvl))
+        {
+            /* Notice flags for players */
+            if (who->player) equip_notice_flags(who->player, i);
+
+            improve_attack_modifier_brand(p, NULL, who, i, best_mult, effects, verb, len, range);
+        }
+    }
+
     /* Handle polymorphed players */
-    if (!range && p->poly_race)
+    if (p->poly_race)
     {
         int index = get_poly_brand(p->poly_race, randint0(z_info->mon_blows_max));
 
@@ -538,30 +620,22 @@ void improve_attack_modifier(struct player *p, struct object *obj, struct source
         }
     }
 
-    /* Hack -- extract temp branding */
-    else if (range && p->timed[TMD_BOWBRAND])
+    /* Temporary slays */
+    for (i = 0; i < z_info->slay_max; i++)
     {
-        int index = get_bow_brand(&p->brand);
-
-        if (index != -1)
-        {
-            /* Notice flags for players */
-            if (who->player) equip_notice_flags(who->player, index);
-
-            improve_attack_modifier_brand(p, NULL, who, index, best_mult, effects, verb, len,
-                range);
-        }
+        if (!player_has_temporary_slay(p, i)) continue;
+        improve_attack_modifier_slay(p, NULL, who, i, best_mult, verb, len, range);
     }
 
-    /* Hack -- extract temp branding */
-    else if (!range && p->timed[TMD_SGRASP])
+    /* Temporary brands */
+    for (i = 0; i < z_info->brand_max; i++)
     {
-        int index = get_brand("lightning", 3);
+        if (!player_has_temporary_brand(p, i)) continue;
 
         /* Notice flags for players */
-        if (who->player) equip_notice_flags(who->player, index);
+        if (who->player) equip_notice_flags(who->player, i);
 
-        improve_attack_modifier_brand(p, NULL, who, index, best_mult, effects, verb, len, range);
+        improve_attack_modifier_brand(p, NULL, who, i, best_mult, effects, verb, len, range);
     }
 }
 

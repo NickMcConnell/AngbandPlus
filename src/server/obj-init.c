@@ -21,18 +21,6 @@
 #include "s-angband.h"
 
 
-static const char *obj_mods[] =
-{
-    #define STAT(a) #a,
-    #include "../common/list-stats.h"
-    #undef STAT
-    #define OBJ_MOD(a) #a,
-    #include "../common/list-object-modifiers.h"
-    #undef OBJ_MOD
-    NULL
-};
-
-
 static const char *kind_flags[] =
 {
     #define KF(a, b) #a,
@@ -1258,7 +1246,7 @@ static enum parser_error parse_curse_effect(struct parser *p)
 }
 
 
-static enum parser_error parse_curse_param(struct parser *p)
+static enum parser_error parse_curse_effect_yx(struct parser *p)
 {
     struct curse *curse = parser_priv(p);
 
@@ -1267,10 +1255,8 @@ static enum parser_error parse_curse_param(struct parser *p)
     /* If there is no effect, assume that this is human and not parser error. */
     if (curse->obj->effect == NULL) return PARSE_ERROR_NONE;
 
-    curse->obj->effect->params[1] = parser_getint(p, "p2");
-
-    if (parser_hasval(p, "p3"))
-        curse->obj->effect->params[2] = parser_getint(p, "p3");
+    curse->obj->effect->y = parser_getint(p, "y");
+    curse->obj->effect->x = parser_getint(p, "x");
 
     return PARSE_ERROR_NONE;
 }
@@ -1425,8 +1411,8 @@ static struct parser *init_parse_curse(void)
     parser_reg(p, "name str name", parse_curse_name);
     parser_reg(p, "type sym tval", parse_curse_type);
     parser_reg(p, "combat int to-h int to-d int to-a", parse_curse_combat);
-    parser_reg(p, "effect sym eff ?sym type ?int xtra", parse_curse_effect);
-    parser_reg(p, "param int p2 ?int p3", parse_curse_param);
+    parser_reg(p, "effect sym eff ?sym type ?int radius ?int other", parse_curse_effect);
+    parser_reg(p, "effect-yx int y int x", parse_curse_effect_yx);
     parser_reg(p, "dice str dice", parse_curse_dice);
     parser_reg(p, "expr sym name sym base str expr", parse_curse_expr);
     parser_reg(p, "msg str text", parse_curse_msg);
@@ -1569,7 +1555,7 @@ static enum parser_error parse_act_effect(struct parser *p)
 }
 
 
-static enum parser_error parse_act_param(struct parser *p)
+static enum parser_error parse_act_effect_yx(struct parser *p)
 {
     struct activation *act = parser_priv(p);
 
@@ -1578,10 +1564,8 @@ static enum parser_error parse_act_param(struct parser *p)
     /* If there is no effect, assume that this is human and not parser error. */
     if (act->effect == NULL) return PARSE_ERROR_NONE;
 
-    act->effect->params[1] = parser_getint(p, "p2");
-
-    if (parser_hasval(p, "p3"))
-        act->effect->params[2] = parser_getint(p, "p3");
+    act->effect->y = parser_getint(p, "y");
+    act->effect->x = parser_getint(p, "x");
 
     return PARSE_ERROR_NONE;
 }
@@ -1716,8 +1700,8 @@ static struct parser *init_parse_act(void)
     parser_reg(p, "name str name", parse_act_name);
     parser_reg(p, "aim uint aim", parse_act_aim);
     parser_reg(p, "power uint power", parse_act_power);
-    parser_reg(p, "effect sym eff ?sym type ?int xtra", parse_act_effect);
-    parser_reg(p, "param int p2 ?int p3", parse_act_param);
+    parser_reg(p, "effect sym eff ?sym type ?int radius ?int other", parse_act_effect);
+    parser_reg(p, "effect-yx int y int x", parse_act_effect_yx);
     parser_reg(p, "dice str dice", parse_act_dice);
     parser_reg(p, "expr sym name sym base str expr", parse_act_expr);
     parser_reg(p, "msg_self str msg_self", parse_act_msg_self);
@@ -1969,7 +1953,7 @@ static enum parser_error parse_object_effect(struct parser *p)
 }
 
 
-static enum parser_error parse_object_param(struct parser *p)
+static enum parser_error parse_object_effect_yx(struct parser *p)
 {
     struct object_kind *k = parser_priv(p);
 
@@ -1978,10 +1962,8 @@ static enum parser_error parse_object_param(struct parser *p)
     /* If there is no effect, assume that this is human and not parser error. */
     if (k->effect == NULL) return PARSE_ERROR_NONE;
 
-    k->effect->params[1] = parser_getint(p, "p2");
-
-    if (parser_hasval(p, "p3"))
-        k->effect->params[2] = parser_getint(p, "p3");
+    k->effect->y = parser_getint(p, "y");
+    k->effect->x = parser_getint(p, "x");
 
     return PARSE_ERROR_NONE;
 }
@@ -2240,8 +2222,8 @@ static struct parser *init_parse_object(void)
     parser_reg(p, "charges rand charges", parse_object_charges);
     parser_reg(p, "pile int prob rand stack", parse_object_pile);
     parser_reg(p, "flags str flags", parse_object_flags);
-    parser_reg(p, "effect sym eff ?sym type ?int xtra", parse_object_effect);
-    parser_reg(p, "param int p2 ?int p3", parse_object_param);
+    parser_reg(p, "effect sym eff ?sym type ?int radius ?int other", parse_object_effect);
+    parser_reg(p, "effect-yx int y int x", parse_object_effect_yx);
     parser_reg(p, "dice str dice", parse_object_dice);
     parser_reg(p, "expr sym name sym base str expr", parse_object_expr);
     parser_reg(p, "msg_self str msg_self", parse_object_msg_self);

@@ -156,8 +156,8 @@ static void server_log(const char *str)
 
 static void show_version(void)
 {
-    printf("PWMAngband Server %s\n", version_build(VB_BASE | VB_BUILD));
-    puts("Copyright (c) 2007-2016 MAngband and PWMAngband Project Team");
+    printf("PWMAngband Server %s\n", version_build(NULL, true));
+    puts("Copyright (c) 2007-2019 MAngband and PWMAngband Project Team");
 
     /* Actually abort the process */
     quit(NULL);

@@ -11,7 +11,7 @@
  */
 enum
 {
-    #define ELEM(a) PROJ_##a,
+    #define ELEM(a, b, c, d) PROJ_##a,
     #include "list-elements.h"
     #undef ELEM
     #define PROJ(a) PROJ_##a,

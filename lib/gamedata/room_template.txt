@@ -45,7 +45,7 @@
 #        otherwise rock)
 #    8 - a treasure or stairs, with guardian monsters
 #    9 - place some monsters and treasures nearby
-#	[ - a treasure of the specified tval
+#    [ - a treasure of the specified tval
 
 # Use this to measure columns      
 #          1         2         3   

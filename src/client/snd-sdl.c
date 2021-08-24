@@ -21,8 +21,10 @@
 
 #include "c-angband.h"
 
-#include "..\SDL\SDL.h"
-#include "..\SDL\SDL_mixer.h"
+#ifdef USE_SDL
+# include "..\SDL\SDL.h"
+# include "..\SDL\SDL_mixer.h"
+#endif /* USE_SDL */
 
 
 /* Supported file types */

@@ -57,7 +57,6 @@ typedef struct melee_effect_handler_context_s
     bool do_para;
     int do_stun;
 	int blinked;
-    bool do_break;
 	int damage;
     byte note_dies;
     byte style;

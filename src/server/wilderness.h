@@ -114,9 +114,12 @@ struct dun_feature
 struct location
 {
     char *name;                 /* Name */
+    char *shortname;            /* Short name */
     struct worldpos wpos;       /* Position on the world map */
     int min_depth;              /* Min depth */
     int max_depth;              /* Max depth */
+    int max_level;              /* Max character level allowed */
+    int max_townies;            /* Max townies */
     bitflag flags[DF_SIZE];     /* Flags */
     struct dun_feature *floors; /* Unusual dungeon floors */
     struct dun_feature *walls;  /* Unusual dungeon walls */
@@ -144,10 +147,8 @@ extern u32b seed_wild;
  */
 struct arena_type
 {
-    byte x_1;
-    byte y_1;
-    byte x_2;
-    byte y_2;
+    struct loc grid_1;
+    struct loc grid_2;
     struct worldpos wpos;
     int player1;
     int player2;
@@ -216,7 +217,7 @@ struct wild_type
     enum wild_gen generated;    /* Level is generated */
 };
 
-extern struct wild_type *get_wt_info_at(int world_y, int world_x);
+extern struct wild_type *get_wt_info_at(struct loc *grid);
 extern int monster_level(struct worldpos *wpos);
 extern int object_level(struct worldpos *wpos);
 extern bool surface_of_dungeon(struct worldpos *wpos);
@@ -239,7 +240,7 @@ extern bool wild_is_explored(struct player *p, struct worldpos *wpos);
 extern void wild_set_explored(struct player *p, struct worldpos *wpos);
 extern void wild_deserted_message(struct player *p);
 extern void wild_add_monster(struct player *p, struct chunk *c);
-extern void wild_add_crop(struct chunk *c, int x, int y, int type);
+extern void wild_add_crop(struct chunk *c, struct loc *grid, int type);
 extern struct wild_type *get_neighbor(struct wild_type *origin, char dir);
 extern int world_index(struct worldpos *wpos);
 extern void get_town_file(char *buf, size_t len, const char *name);

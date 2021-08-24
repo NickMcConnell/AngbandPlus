@@ -238,12 +238,6 @@ static void copy_file_info(struct player *p, const char *name, int line, int col
             continue;
         }
 
-        /* Skip '|' characters */
-        if (strchr(buf, '|') && !strstr(buf, "'|'")) strskip(buf, '|', '\\');
-
-        /* Escape backslashes */
-        strescape(buf, '\\');
-
         /* Count the "real" lines */
         next++;
 
@@ -322,7 +316,7 @@ void common_file_peruse(struct player *p, u32b query)
     /* Use default file */
     if (!p->interactive_file)
     {
-        p->interactive_file = string_make("help.hlp");
+        p->interactive_file = string_make("index.txt");
 
         /* Hack -- enforce update */
         p->interactive_next = -1;

@@ -10,7 +10,9 @@
 # === Understanding town.txt ===
 
 # name : town name
+# short : short town name (for file and display)
 # wpos : x coordinate : y coordinate
+# max-townies : max number of townies in town (-1 for no max)
 
 # Starting town should ALWAYS be the first entry in the list.
 # Base town should ALWAYS be the second entry in the list.
@@ -18,28 +20,48 @@
 
 # Starting town for non-ironman level 1 characters
 name:Hobbiton
+short:Hobbiton
 wpos:-21:20
+max-townies:100
 
 # Base town containing the main Angband dungeon
 name:Carn Dûm
+short:Carn Dûm
 wpos:-9:37
+max-townies:100
 
 # Bree
 name:Bree
+short:Bree
 wpos:-15:20
+max-townies:100
 
 # Lothlorien
 name:Lothlorien
+short:Lothlorien
 wpos:0:8
+max-townies:100
 
 # Minas Anor
 name:Minas Anor
+short:Minas Anor
 wpos:10:-16
+max-townies:100
 
 # Umbar
 name:Umbar
+short:Umbar
 wpos:2:-42
+max-townies:100
 
 # Gondolin
 name:Gondolin
+short:Gondolin
 wpos:-31:37
+max-townies:100
+
+# The Brandywine Bridge
+name:The Brandywine Bridge
+short:Brandywine
+wpos:-19:21
+max-townies:10

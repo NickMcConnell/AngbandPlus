@@ -3,19 +3,51 @@
 
 # === Understanding store.txt ===
 
-# store: store number : store name
+# store: store name
+# type: store type
 # owner: max purse : name (as many or few as you like >1)
 # turnover: turnover (how many items the store turns over)
 # slots: min : max (number of 'normal' slots to keep stocked)
 # normal: type name : item name (for the normal stocking list) : rarity : price
 #         factor
-# always: type name : item name (for things to always stock)
+# always: type name : ?item name (for things to always stock)
 # buy: type name (base types the store will buy)
 # buy-flag: flag : type name (types to buy if the flag is present)
+#
+# Store types must match the following values:
+#  1 = STORE_GENERAL
+#  2 = STORE_TEMPLE
+#  3 = STORE_B_MARKET
+#  4 = STORE_XBM
+#  5 = STORE_TAVERN
+#  6 = STORE_HOME
+#  7 = STORE_PLAYER
+#
+# There must be one and only one store with each of the types above. Other
+# stores and custom stores must have no type defined (0 = STORE_OTHER).
+#
+# Custom stores MUST be placed at the proper location (between regular stores
+# and black market), otherwise towns may not be generated properly.
+#
+# Don't forget to update terrain.txt (and the prf files) if you add custom
+# stores to this file.
+
+
+# Default welcome messages
+welcome:0:nods to you.
+welcome:1:says hello.
+welcome:2:"See anything you like, adventurer?"
+welcome:3:"How may I help you, %s?"
+welcome:4:"Welcome back, %s."
+welcome:5:"A pleasure to see you again, %s."
+welcome:6:"How may I be of assistance, %s?"
+welcome:7:"You do honour to my humble store, %s."
+welcome:8:"I and my family are entirely at your service, %s."
 
 
 # General store
-store:1:General Store
+store:General Store
+type:1
 owner:5000:Bilbo the Friendly (Hobbit)
 owner:10000:Rincewind the Chicken (Human)
 owner:20000:Snafu the Midget (Gnome)
@@ -38,6 +70,7 @@ normal:food:Flask of Whisky
 normal:food:Hard Biscuit
 normal:food:Pint of Fine Ale
 normal:mushroom:Stoneskin
+normal:fortune cookie:Fortune Cookie
 normal:light:Lantern
 normal:stone:House Foundation Stone
 normal:scroll:House Creation
@@ -50,7 +83,7 @@ buy:crop
 buy:horn
 
 # Armoury
-store:2:Armoury
+store:Armoury
 owner:5000:Kon-Dar the Ugly (Half-Orc)
 owner:10000:Darg-Low the Grim (Human)
 owner:25000:Decado the Handsome (Dunadan)
@@ -86,7 +119,7 @@ buy:hard armour
 buy:dragon armour
 
 # Weaponsmith
-store:3:Weapon Smiths
+store:Weapon Smiths
 owner:5000:Ithyl-Mak the Beastly (Half-Troll)
 owner:10000:Arndal Beast-Slayer (Half-Elf)
 owner:25000:Tarl Beast-Master (Hobbit)
@@ -133,17 +166,15 @@ buy:rock
 buy:mage staff
 
 # Temple
-store:4:Temple
+store:Temple
+type:2
 owner:15000:Ludwig the Humble (Human)
 owner:20000:Gunnar the Paladin (Human)
 owner:25000:Delilah the Pure (Elf)
 owner:30000:Keldon the Wise (Dwarf)
 slots:6:14
 turnover:9
-always:prayer book:[Beginners Handbook]
-always:prayer book:[Words of Wisdom]
-always:prayer book:[Chants and Blessings]
-always:prayer book:[Exorcism and Dispelling]
+always:prayer book
 always:potion:Cure Light Wounds
 always:scroll:Remove Curse
 always:scroll:Life
@@ -172,7 +203,7 @@ buy-flag:BLESSED:sword
 buy-flag:BLESSED:polearm
 
 # Alchemist
-store:5:Alchemy Shop
+store:Alchemy Shop
 owner:10000:Mauser the Chemist (Half-Elf)
 owner:10000:Wizzle the Chaotic (Hobbit)
 owner:15000:Ga-nat the Greedy (Gnome)
@@ -196,29 +227,25 @@ buy:scroll
 buy:potion
 
 # Magic-user's
-store:6:Magic Shop
+store:Magic Shop
 owner:15000:Ariel the Sorceress (Half-Elf)
 owner:20000:Buggerby the Great (Gnome)
 owner:25000:Inglorian the Mage (Human)
 owner:30000:Luthien Starshine (High-Elf)
 slots:4:14
 turnover:9
-always:magic book:[Magic for Beginners]
-always:magic book:[Conjurings and Tricks]
-always:magic book:[Incantations and Illusions]
-always:magic book:[Sorcery and Evocations]
+always:magic book
 normal:ring:Searching
 normal:ring:Levitation
 normal:ring:Protection
 normal:amulet:Slow Digestion
 normal:amulet:Resist Acid
+normal:wand:Light
 normal:wand:Slow Monster
 normal:wand:Confuse Monster
-normal:wand:Hold Monster
-normal:wand:Stun Monster
 normal:wand:Magic Missile
 normal:wand:Stinking Cloud
-normal:wand:Wonder
+normal:wand:Stone to Mud
 normal:staff:Teleportation
 normal:staff:Light
 normal:staff:Magic Mapping
@@ -234,44 +261,27 @@ buy:scroll
 buy:potion
 
 # Bookseller
-store:7:Bookseller
+store:Bookseller
 owner:15000:Yveen the Witch (Half-Elf)
 owner:20000:Narn the Short (Gnome)
-owner:25000:Lord X the Black (Human)
+owner:25000:Lord-X the Black (Human)
 owner:30000:Senya the Beautiful (High-Elf)
-slots:6:18
-turnover:9
-normal:sorcery book:[Apprentice Handbook]
-normal:sorcery book:[Mystical Words]
-normal:sorcery book:[Arcane Chants]
-normal:sorcery book:[Locus of Force]
-normal:shadow book:[Robbers Handbook]
-normal:shadow book:[Shadows and Illusions]
-normal:shadow book:[Killing Made Easy]
-normal:hunt book:[Hunting and Tracking]
-normal:psi book:of Telepathy
-normal:psi book:of Mind Support
-normal:psi book:of Mindcraft
-normal:death book:[Necromancy for Beginners]
-normal:death book:[Dark Conjurings]
-normal:death book:[Necromantic Incantations]
-normal:elemental book:[Air]
-normal:elemental book:[Fire]
-normal:elemental book:[Earth]
-normal:elemental book:[Water]
-normal:elemental book:[Elemental]
-normal:summoning book:[Survival]
-normal:summoning book:[Nature]
-buy:sorcery book
+slots:0:2
+turnover:0
+always:nature book
+always:shadow book
+always:psi book
+always:elemental book
+buy:nature book
 buy:shadow book
-buy:hunt book
 buy:psi book
-buy:death book
 buy:elemental book
-buy:summoning book
+
+# Place custom stores here
 
 # Black Market - no stock given but we still need slot/turnover info
-store:8:Black Market
+store:Black Market
+type:3
 owner:15000:Lo-Hak the Awful (Half-Troll)
 owner:20000:Histor the Goblin (Kobold)
 owner:25000:Durwin the Shifty (Half-Orc)
@@ -280,27 +290,40 @@ slots:6:18
 turnover:9
 
 # Expensive Black Market - no stock given but we still need slot/turnover info
-store:9:Expensive Black Market
+store:Expensive Black Market
+type:4
 owner:15000:Eek the Yeek (Yeek)
 owner:20000:Zak the Kobold (Kobold)
-owner:25000:Fangorn the Treebeard (Ent)
-owner:30000:Lisa the Green (Thunderlord)
+owner:25000:Fat-Pig the Snaga (Half-Orc)
+owner:30000:Lenny the Half-Witted (Human)
 slots:8:16
 turnover:9
+welcome:0:spits on the floor.
+welcome:1:curses.
+welcome:2:grunts.
+welcome:3:eyes you suspiciously.
+welcome:4:"Buy something or leave!"
+welcome:5:"Don't make me waste my time!"
+welcome:6:"Tell me if you see any thieves!"
+welcome:7:"Welcome back, %s."
+welcome:8:"A pleasure to do business with you, %s."
 
-store:10:Tavern
+store:Tavern
+type:5
 owner:0:Tavern
 owner:0:Tavern
 owner:0:Tavern
 owner:0:Tavern
 
-store:11:Home
+store:Home
+type:6
 owner:0:Your home
 owner:0:Your home
 owner:0:Your home
 owner:0:Your home
 
-store:12:Player shop
+store:Player shop
+type:7
 owner:0:Player shop
 owner:0:Player shop
 owner:0:Player shop

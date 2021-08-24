@@ -193,8 +193,7 @@ typedef struct project_object_handler_context_s
     struct source *origin;
     int r;
     struct chunk *cave;
-    int y;
-    int x;
+    struct loc grid;
     int dam;
     int type;
     struct object *obj;
@@ -419,7 +418,7 @@ static void project_object_handler_RAISE(project_object_handler_context_t *conte
 {
     struct monster_race *race = NULL;
     struct chunk *c = context->cave;
-    int y, x;
+    struct loc grid;
 
     /* Raise dead prohibited in towns and special levels */
     if (forbid_special(&c->wpos)) return;
@@ -503,17 +502,17 @@ static void project_object_handler_RAISE(project_object_handler_context_t *conte
     if (!valid_race(context, race)) return;
 
     /* Raising dead costs mana */
-    if (context->origin->player &&
+    if (context->origin->player && !OPT(context->origin->player, risky_casting) &&
         (race->level > (context->origin->player->csp - context->origin->player->spell_cost)))
     {
         return;
     }
 
     /* Look for a location */
-    if (!summon_location(c, &y, &x, context->y, context->x, 60)) return;
+    if (!summon_location(c, &grid, &context->grid, 60)) return;
 
     /* Place a new monster */
-    if (place_new_monster(context->origin->player, c, y, x, race, 0, ORIGIN_DROP_SUMMON))
+    if (place_new_monster(context->origin->player, c, &grid, race, 0, ORIGIN_DROP_SUMMON))
     {
         context->do_kill = true;
 
@@ -525,7 +524,7 @@ static void project_object_handler_RAISE(project_object_handler_context_t *conte
             msg(context->origin->player, "A monster rises from the grave!");
 
             /* Hack -- get new monster */
-            mon = square_monster(c, y, x);
+            mon = square_monster(c, &grid);
 
             /* Raised monsters are mostly neutral */
             if (magik(80)) monster_set_master(mon, context->origin->player, MSTATUS_GUARD);
@@ -538,30 +537,33 @@ static void project_object_handler_RAISE(project_object_handler_context_t *conte
 
 
 static void project_object_handler_AWAY_EVIL(project_object_handler_context_t *context) {}
+static void project_object_handler_AWAY_SPIRIT(project_object_handler_context_t *context) {}
 static void project_object_handler_AWAY_ALL(project_object_handler_context_t *context) {}
 static void project_object_handler_TURN_UNDEAD(project_object_handler_context_t *context) {}
+static void project_object_handler_TURN_LIVING(project_object_handler_context_t *context) {}
 static void project_object_handler_TURN_ALL(project_object_handler_context_t *context) {}
 static void project_object_handler_DISP_UNDEAD(project_object_handler_context_t *context) {}
 static void project_object_handler_DISP_EVIL(project_object_handler_context_t *context) {}
 static void project_object_handler_DISP_ALL(project_object_handler_context_t *context) {}
+static void project_object_handler_SLEEP_UNDEAD(project_object_handler_context_t *context) {}
+static void project_object_handler_SLEEP_EVIL(project_object_handler_context_t *context) {}
+static void project_object_handler_SLEEP_ALL(project_object_handler_context_t *context) {}
 static void project_object_handler_MON_CLONE(project_object_handler_context_t *context) {}
 static void project_object_handler_MON_POLY(project_object_handler_context_t *context) {}
 static void project_object_handler_MON_HEAL(project_object_handler_context_t *context) {}
 static void project_object_handler_MON_SPEED(project_object_handler_context_t *context) {}
 static void project_object_handler_MON_SLOW(project_object_handler_context_t *context) {}
 static void project_object_handler_MON_CONF(project_object_handler_context_t *context) {}
-static void project_object_handler_MON_SLEEP(project_object_handler_context_t *context) {}
 static void project_object_handler_MON_HOLD(project_object_handler_context_t *context) {}
 static void project_object_handler_MON_STUN(project_object_handler_context_t *context) {}
 static void project_object_handler_MON_DRAIN(project_object_handler_context_t *context) {}
+static void project_object_handler_MON_CRUSH(project_object_handler_context_t *context) {}
 static void project_object_handler_PSI(project_object_handler_context_t *context) {}
-static void project_object_handler_DEATH(project_object_handler_context_t *context) {}
 static void project_object_handler_PSI_DRAIN(project_object_handler_context_t *context) {}
 static void project_object_handler_CURSE(project_object_handler_context_t *context) {}
 static void project_object_handler_CURSE2(project_object_handler_context_t *context) {}
 static void project_object_handler_DRAIN(project_object_handler_context_t *context) {}
-static void project_object_handler_GUARD(project_object_handler_context_t *context) {}
-static void project_object_handler_FOLLOW(project_object_handler_context_t *context) {}
+static void project_object_handler_COMMAND(project_object_handler_context_t *context) {}
 static void project_object_handler_TELE_TO(project_object_handler_context_t *context) {}
 static void project_object_handler_TELE_LEVEL(project_object_handler_context_t *context) {}
 static void project_object_handler_MON_BLIND(project_object_handler_context_t *context) {}
@@ -569,14 +571,15 @@ static void project_object_handler_DRAIN_MANA(project_object_handler_context_t *
 static void project_object_handler_FORGET(project_object_handler_context_t *context) {}
 static void project_object_handler_BLAST(project_object_handler_context_t *context) {}
 static void project_object_handler_SMASH(project_object_handler_context_t *context) {}
-static void project_object_handler_ATTACK(project_object_handler_context_t *context) {}
 static void project_object_handler_CONTROL(project_object_handler_context_t *context) {}
 static void project_object_handler_PROJECT(project_object_handler_context_t *context) {}
+static void project_object_handler_TREES(project_object_handler_context_t *context) {}
+static void project_object_handler_AWAY_ANIMAL(project_object_handler_context_t *context) {}
 
 
 static const project_object_handler_f object_handlers[] =
 {
-    #define ELEM(a) project_object_handler_##a,
+    #define ELEM(a, b, c, d) project_object_handler_##a,
     #include "../common/list-elements.h"
     #undef ELEM
     #define PROJ(a) project_object_handler_##a,
@@ -604,9 +607,9 @@ static const project_object_handler_f object_handlers[] =
  * Note that this function determines if the player can see anything that
  * happens by taking into account: blindness, line-of-sight, and illumination.
  */
-bool project_o(struct source *origin, int r, struct chunk *c, int y, int x, int dam, int typ)
+bool project_o(struct source *origin, int r, struct chunk *c, struct loc *grid, int dam, int typ)
 {
-    struct object *obj = square_object(c, y, x), *next;
+    struct object *obj = square_object(c, grid), *next;
     bool obvious = false;
 
     /* Scan all objects in the grid */
@@ -623,7 +626,7 @@ bool project_o(struct source *origin, int r, struct chunk *c, int y, int x, int 
         next = obj->next;
 
         if (origin->player)
-            observed = (square_isseen(origin->player, y, x) && !ignore_item_ok(origin->player, obj));
+            observed = (square_isseen(origin->player, grid) && !ignore_item_ok(origin->player, obj));
 
         /* Check for artifact */
         if (obj->artifact) is_art = true;
@@ -631,8 +634,7 @@ bool project_o(struct source *origin, int r, struct chunk *c, int y, int x, int 
         context.origin = origin;
         context.r = r;
         context.cave = c;
-        context.y = y;
-        context.x = x;
+        loc_copy(&context.grid, grid);
         context.dam = dam;
         context.type = typ;
         context.obj = obj;
@@ -687,12 +689,12 @@ bool project_o(struct source *origin, int r, struct chunk *c, int y, int x, int 
                     msgt(origin->player, MSG_DESTROY, "The %s %s!", o_name, note_kill);
 
                 /* Delete the object */
-                square_excise_object(c, y, x, obj);
+                square_excise_object(c, grid, obj);
                 object_delete(&obj);
 
                 /* Redraw */
-                square_note_spot(c, y, x);
-                square_light_spot(c, y, x);
+                square_note_spot(c, grid);
+                square_light_spot(c, grid);
             }
         }
 

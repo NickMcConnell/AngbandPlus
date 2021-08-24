@@ -43,7 +43,7 @@ enum
     RST_BOLT        = 0x0001,
     RST_BALL        = 0x0002,
     RST_BREATH      = 0x0004,
-    RST_ATTACK      = 0x0008,   /* Direct (non-projectable) attacks */
+    RST_DIRECT      = 0x0008,   /* Direct (non-projectable) attacks */
     RST_ANNOY       = 0x0010,   /* Irritant spells, usually non-fatal */
     RST_HASTE       = 0x0020,   /* Relative speed advantage */
     RST_HEAL        = 0x0040,
@@ -54,6 +54,8 @@ enum
     RST_INNATE      = 0x0800,
     RST_MISSILE     = 0x1000
 };
+
+#define RST_DAMAGE (RST_BOLT | RST_BALL | RST_BREATH | RST_DIRECT)
 
 typedef enum
 {
@@ -242,10 +244,15 @@ struct monster_race
     struct worldpos *wpos;                  /* Restrict to this location */
 };
 
+struct target
+{
+    struct loc grid;
+    struct source target_who;
+    bool target_set;
+};
+
 /*
  * Monster information, for a specific monster.
- *
- * Note: fy, fx constrain dungeon size to 256x256
  *
  * The "held_obj" field points to the first object of a stack
  * of objects (if any) being carried by the monster (see above).
@@ -254,8 +261,7 @@ struct monster
 {
     struct monster_race *race;
     int midx;
-    byte fy;                            /* Y location on map */
-    byte fx;                            /* X location on map */
+    struct loc grid;                    /* Location on map */
     s32b hp;                            /* Current Hit points */
     s32b maxhp;                         /* Max Hit points */
     s16b m_timed[MON_TMD_MAX];          /* Timed monster status effects */
@@ -268,8 +274,7 @@ struct monster
     struct object *held_obj;            /* Object being held (if any) */
     byte attr;                          /* "attr" last used for drawing monster */
     struct player_state known_pstate;   /* Known player state */
-    byte ty;                            /* Monster target (transient) */
-    byte tx;
+    struct target target;               /* Monster target (transient) */
     byte min_range;                     /* Minimum combat range (transient) */
     byte best_range;                    /* How close we want to be (transient) */
 
@@ -288,9 +293,8 @@ struct monster
     byte clone;                         /* Monster is a clone */
     s16b mimicked_k_idx;                /* Object kind this monster is mimicking (random mimics) */
     byte origin;                        /* How this monster was created */
-    byte feat;                          /* Terrain under monster (for feature mimics) */
-    byte old_fy;                        /* Previous monster location */
-    byte old_fx;
+    u16b feat;                          /* Terrain under monster (for feature mimics) */
+    struct loc old_grid;                /* Previous monster location */
 };
 
 /*

@@ -1,0 +1,173 @@
+# File: class.prf
+
+#
+# This file defines the class descriptions on character creation screen.
+#
+# Descriptions should be limited to 20 lines.
+#
+
+
+class:Warrior
+help:A Warrior is a hack-and-slash character, who solves most problems
+help: by cutting them to pieces, but will occasionally fall back on the help of
+help: a magical device. Their prime stats are strength, constitution, and
+help: dexterity, and they will strike more blows with melee weapons than any
+help: other class. A Warrior will be excellent at fighting, shooting and
+help: throwing, but bad at most other skills. A warrior has bad stealth and
+help: cannot learn any spells.
+
+class:Mage
+help:A Mage must live by their wits. They cannot hope to simply hack their way
+help: through the dungeon, and so must therefore use his magic to defeat,
+help: deceive, confuse, and escape. A mage is not really complete without an
+help: assortment of magical devices to use in addition to his spells. They can
+help: master the higher level magical devices far easier than anyone else, and
+help: has the excellent saving throws to resist effects of spells cast at him.
+help: However, they are incredibly weak, getting few hit dice and suffering strong
+help: penalties to strength and constitution. Intelligence is their primary stat
+help: and at high levels they can cast many spells without a chance of failure.
+help: There is no rule that says a mage cannot become a good fighter, but spells
+help: are their true realm and they will get fewer blows with melee weapons than
+help: other classes.
+
+class:Druid
+help:A Druid is a lover of nature, and at one with the natural world. Druids
+help: have control of their environment and direct power over creatures, leading
+help: even to the ability to take their forms. Druid skills are moderate, and
+help: they have some fighting ability, especially when transformed. A druid will
+help: usually seek to shape the flow of events to their purpose rather than
+help: using devices or missiles, but at high levels they do gain access to
+help: potent nature-based magic. Druids rely on their wisdom, and have good
+help: saving throws.
+
+class:Priest
+help:A Priest is a character of holy devotion. They explore the dungeon only
+help: to destroy the evil that lurks within, and if treasure just happens to
+help: fall into their packs, well, so much more to the glory of their temple!
+help: Priests receive their spells from a deity, and therefore do not choose
+help: which spells they will learn. They are familiar with magical devices,
+help: preferring to call them "instruments of God", but are not as good as a
+help: mage in their use. Priests have great saving throws, and make passable
+help: fighters, better if they can find a blessed weapon. Wisdom is the priest's
+help: primary stat and at high enough levels they can cast many prayers without
+help: a chance of failure. Priests have poor stealth.
+
+class:Necromancer
+help:A Necromancer seeks to master the spirits of sentient creatures, creating
+help: servants of their own will. They have chosen a dark and wicked path, and
+help: run a continual risk of harm to their own body and mind. Necromancers love
+help: shadows and hate light, automatically shrouding themselves in darkness.
+help: Their spells require high intelligence, and frequently harm the caster or
+help: place them in danger. In return they achieve awesome power at high levels.
+help: The ultimate aim of the necromancer is to supplant the Dark Enemy and set
+help: up a tyranny in his place.
+
+class:Paladin
+help:A Paladin is a warrior/priest. Paladins are very good fighters, second
+help: only to the warrior class, but not very good at missile weapons. They
+help: receive prayers at a slower pace than the priest, but can use all but the
+help: most powerful prayers. A paladin lacks much in the way of abilities.
+help: Paladins have poor stealth, perception, searching, and magical device use.
+help: They have a decent saving throw due to their divine alliance. Their
+help: primary stats are strength and wisdom.
+
+class:Rogue
+help:A Rogue is a character that prefers to live by their cunning, but is
+help: capable of fighting their way out of a tight spot. The master of traps and
+help: locks, to the experienced rogue no device is impossible to overcome. A rogue
+help: has a high stealth enabling sneaking around many creatures without
+help: having to fight, or sneaking up and get the first blow. They can steal items
+help: from monsters, but need to be wary of being caught in the act. Rogues'
+help: perception is higher than any other class, and many times they will notice
+help: a trap or secret door before having to search. A rogue is better than
+help: the more fighting oriented classes with magical devices, but still cannot
+help: rely on their performance. Rogues can also learn a few spells, but not the
+help: powerful offensive spells mages can use, and there will always be a chance
+help: of failure even with the simplest spells. A rogue's primary stats are
+help: dexterity and intelligence.
+
+class:Ranger
+help:A Ranger is at home in nature, and good at turning the environment to
+help: good use. Rangers are good fighters, and one of the best of all the classes
+help: with missile weapons, especially bows. The ranger learns chiefly spells of
+help: survival and forest craft. A ranger has good stealth, good perception,
+help: good searching, a good saving throw, and is good with magical devices.
+help: Their primary stats are strength, wisdom and dexterity.
+
+class:Blackguard
+help:A Blackguard is a brawler of no principle, who lives for the joy of maiming
+help: and killing. Blackguards prefer heavy weapons and shields, and learn a few
+help: spells for the purpose of wreaking more destruction. Their lust for blood
+help: is legendary, with a blackguard in full cry nigh on impossible to kill.
+help: Blackguards scorn skills apart from slaughter, and require strength and
+help: intelligence (or rat-cunning) to thrive in the dungeon.
+
+class:Sorceror
+help:Sorcerors use intelligence primarily, determining how much mana they have to
+help: cast spells and how low their failure rate is. They are the all-around best
+help: magicians, having the most powerful spells. A high-level Sorceror can be very
+help: powerful, but getting there can be a difficult journey. On the downside, they
+help: are the worst fighters, being unable to use any weapon but a Mage Staff
+help: comfortably, and still unable to be anything even remotely approaching
+help: effective with it. A Sorceror has very few hit points compared to other
+help: classes, making survival difficult in the beginning. That's why this class is
+help: not recommended for beginners. Intelligence is the sorceror's primary stat.
+
+class:Unbeliever
+help:The full opposite of Sorcerors, Unbelievers so strongly despise magic that
+help: not only do they refuse to use magic spells, they refuse all training in the
+help: use of magic items, which leaves them almost totally incompetent when trying
+help: to use a magic item, although they can still quaff potions and read scrolls.
+help: Because they are so unattuned to magic, Unbelievers can prevent magical gates
+help: from opening around them, eventually extending to a complete suppression of
+help: teleportation abilities and all magic in the area around them.
+
+class:Archer
+help:Archers aren't good at fighting, but can deliever extremely high damage with
+help: their ranged weapons. They can die quickly too, however. Archers are to bows
+help: what warriors are to melee. They are the best class around with any
+help: bow/xbow/sling. An Archer is very bad at melee, being only better than the
+help: Sorceror. Wisdom and Dexterity are the archer's primary stats.
+
+class:Monk
+help:Monks are warriors who decide to fight barehanded. As they advance in levels,
+help: they gain some new martial arts techniques to hit their opponents more
+help: effectively. With levels, they also gain interesting abilities: at level 10,
+help: they learn to fall like a feather; at level 15, they become resistant to
+help: fear; at level 20, they become resistant to confusion; finally, at level 25,
+help: they learn to resist paralysis effects. They can't wield weapons, but get
+help: extra damage, defense and attacks per round as they advance in levels.
+help: However, they must wear light armor to stay unencumbered and fully benefit
+help: from their class bonuses.
+
+class:Telepath
+help:Telepaths are mindcrafters who use the powers of their mind to weaken or even
+help: kill creatures. They are weak in melee, although they can use weapons just
+help: like mages or priests. Wisdom is their primary stat.
+
+class:Elementalist
+help:Elementalists are spellcasters specialized in offensive spells. They share
+help: the same stats as mages, but get almost no support spells at all. They rely
+help: on the powers of the four elements (Air, Fire, Earth, Water) and can combine
+help: them to cast powerful Elemental spells. Elementalists have the innate ability
+help: to increase the power of their spells by studying them again each time they
+help: level. As masters of the elements, they gain intrinsic basic resistances as
+help: they level, fire at 10, cold at 15, acid at 20 and lightning at 25.
+
+class:Summoner
+help:A Summoner is the weakest of all classes you may choose. They have pathetic
+help: stats, no fighting abilities, and little spells to kill enemies with magic.
+help: However, all these weaknesses don't trouble them much, because they can
+help: summon creatures to help them in battle, and still gain some experience from
+help: their kills. Summoners use wisdom to cast spells and summon allies, and to
+help: determine how many of them they can control and how effectively they can
+help: control them.
+
+class:Shapechanger
+help:Shapechangers are fighters that get abilities from the forms they can mimic.
+help: Basically, Shapechangers will melee a lot with the benefits from their
+help: current form (resists, melee brands, defense, speed and damage boosts...).
+help: Some of those forms will provide innate spells and even breath attacks.
+help: Shapechangers get basic mana points to cast those spells (note that breath
+help: attacks, like for the Dragon race, don't cost mana, but hit points
+help: instead...).

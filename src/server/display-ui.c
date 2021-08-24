@@ -144,7 +144,7 @@ static void prt_hp(struct player *p)
 {
     /* Hack -- redraw player, since the player's color now indicates approximate health. */
     if (OPT(p, hp_changes_color) && !p->use_graphics)
-        square_light_spot(chunk_get(&p->wpos), p->py, p->px);
+        square_light_spot(chunk_get(&p->wpos), &p->grid);
 
     Send_hp(p, p->mhp, p->chp);
 }
@@ -172,7 +172,7 @@ static void prt_sp(struct player *p)
 static void prt_health(struct player *p)
 {
     bool is_unseen, is_dead, is_afraid, is_confused, is_stunned, is_asleep, is_held;
-    bool is_poisoned, is_bleeding, is_blind;
+    bool is_poisoned, is_bleeding, is_blind, is_disenchanted;
     int pct;
     struct source *health_who = &p->upkeep->health_who;
 
@@ -191,6 +191,7 @@ static void prt_health(struct player *p)
         is_unseen = !player_is_visible(p, health_who->idx);
         is_dead = ((health_who->player->chp < 0)? true: false);
         is_afraid = (player_of_has(health_who->player, OF_AFRAID)? true: false);
+        is_disenchanted = false;
         is_confused = (health_who->player->timed[TMD_CONFUSED]? true: false);
         is_stunned = (health_who->player->timed[TMD_PARALYZED]? true: false);
         is_asleep = (health_who->player->timed[TMD_PARALYZED]? true: false);
@@ -210,6 +211,7 @@ static void prt_health(struct player *p)
         is_unseen = !monster_is_visible(p, health_who->idx);
         is_dead = ((health_who->monster->hp < 0)? true: false);
         is_afraid = (health_who->monster->m_timed[MON_TMD_FEAR]? true: false);
+        is_disenchanted = (health_who->monster->m_timed[MON_TMD_DISEN]? true: false);
         is_confused = (health_who->monster->m_timed[MON_TMD_CONF]? true: false);
         is_stunned = (health_who->monster->m_timed[MON_TMD_STUN]? true: false);
         is_asleep = (health_who->monster->m_timed[MON_TMD_SLEEP]? true: false);
@@ -251,6 +253,9 @@ static void prt_health(struct player *p)
 
         /* Afraid */
         if (is_afraid) attr = COLOUR_VIOLET;
+
+        /* Disenchanted */
+        if (is_disenchanted) attr = COLOUR_L_UMBER;
 
         /* Poisoned */
         if (is_poisoned) attr = COLOUR_GREEN;
@@ -306,9 +311,9 @@ static void prt_depth(struct player *p)
         struct location *town = get_town(&p->wpos);
 
         if (town)
-            my_strcpy(p->depths, town->name, sizeof(p->depths));
+            my_strcpy(p->depths, town->shortname, sizeof(p->depths));
         else
-            strnfmt(p->depths, sizeof(p->depths), "W (%d, %d)", p->wpos.wx, p->wpos.wy);
+            strnfmt(p->depths, sizeof(p->depths), "W (%d, %d)", p->wpos.grid.x, p->wpos.grid.y);
     }
 
     Send_depth(p, p->wpos.depth, p->max_depth, p->depths);
@@ -434,7 +439,7 @@ void dump_spells(struct player *p, struct object *obj)
 
     /* Get the book */
     int bidx = object_to_book_index(p, obj);
-    const struct class_book *book = object_to_book(p, obj);
+    const struct class_book *book = player_object_to_book(p, obj);
 
     /* Requires a spellbook */
     if (!book) return;
@@ -495,6 +500,11 @@ void dump_spells(struct player *p, struct object *obj)
         {
             comment = " untried";
             line_attr = COLOUR_L_GREEN;
+        }
+        else if (p->spell_cooldown[spell_index])
+        {
+            comment = " cooldown";
+            line_attr = COLOUR_SLATE;
         }
 
         flags.line_attr = line_attr;
@@ -691,70 +701,46 @@ static void fix_objlist(struct player *p)
  */
 static void player_mods(struct player *p, int mod, bool *res, bool *vul)
 {
-    switch (mod)
+    int adj;
+
+    /* Unencumbered monks get speed bonus */
+    bool restrict = (player_has(p, PF_MARTIAL_ARTS) && !monk_armor_ok(p));
+
+    /* Add racial modifiers */
+    adj = race_modifier(p->race, mod, p->lev, false);
+    if (adj > 0) *res = true;
+    else if (adj < 0) *vul = true;
+
+    /* Add class modifiers */
+    adj = class_modifier(p->clazz, mod, p->lev);
+    if ((mod == OBJ_MOD_SPEED) && restrict) adj = 0;
+    if (adj > 0) *res = true;
+    else if (adj < 0) *vul = true;
+
+    /* Handle polymorphed players */
+    if (p->poly_race)
     {
-        case OBJ_MOD_STEALTH:
+        if (mod == OBJ_MOD_STEALTH)
         {
-            /* Handle polymorphed players */
-            if (p->poly_race)
-            {
-                if ((p->poly_race->weight > 0) && (p->poly_race->weight <= 100)) *res = true;
-                else if (p->poly_race->weight > 150) *vul = true;
-            }
-
-            /* Monks get stealth bonus */
-            if (player_has(p, PF_MARTIAL_ARTS) && !player_of_has(p, OF_AGGRAVATE))
-                *res = true;
-
-            break;
+            if ((p->poly_race->weight > 0) && (p->poly_race->weight <= 100)) *res = true;
+            else if (p->poly_race->weight > 150) *vul = true;
         }
-
-        case OBJ_MOD_INFRA:
+        if (mod == OBJ_MOD_TUNNEL)
         {
-            /* Ghost */
-            if (p->ghost) *res = true;
-
-            /* If the race has innate infravision, set the corresponding flag */
-            if (p->race->infra > 0) *res = true;
-
-            break;
+            if (rf_has(p->poly_race->flags, RF_KILL_WALL)) *res = true;
         }
-
-        case OBJ_MOD_TUNNEL:
+        if (mod == OBJ_MOD_SPEED)
         {
-            /* Handle polymorphed players */
-            if (p->poly_race && rf_has(p->poly_race->flags, RF_KILL_WALL)) *res = true;
-
-            /* Elementalists get instant tunnel at level 50 */
-            if (player_has(p, PF_ELEMENTAL_SPELLS) && (p->lev == 50)) *res = true;
-
-            /* If the race has innate digging, set the corresponding flag */
-            if (p->race->r_skills[SKILL_DIGGING] > 0) *res = true;
-
-            break;
-        }
-
-        case OBJ_MOD_SPEED:
-        {
-            /* Ent: penalty to speed */
-            if (player_has(p, PF_GIANT)) *vul = true;
-
-            /* Unencumbered monks get speed bonus */
-            if (monk_armor_ok(p) && (p->lev >= 10)) *res = true;
-
-            /* Rogues get speed bonus */
-            if (player_has(p, PF_SPEED_BONUS) && (p->lev >= 5)) *res = true;
-
-            /* Handle polymorphed players */
-            if (p->poly_race)
-            {
-                if (((p->poly_race->speed - 110) / 2) > 0) *res = true;
-                else if (((p->poly_race->speed - 110) / 2) < 0) *vul = true;
-            }
-
-            break;
+            if (((p->poly_race->speed - 110) / 2) > 0) *res = true;
+            else if (((p->poly_race->speed - 110) / 2) < 0) *vul = true;
         }
     }
+
+    /* Ghost */
+    if (p->ghost && (mod == OBJ_MOD_INFRA)) *res = true;
+
+    /* If the race has innate digging, set the corresponding flag */
+    if ((p->race->r_skills[SKILL_DIGGING] > 0) && (mod == OBJ_MOD_TUNNEL)) *res = true;
 }
 
 
@@ -772,28 +758,35 @@ static bool is_dragon_immune(struct monster_race *race)
  */
 void player_elements(struct player *p, struct element_info el_info[ELEM_MAX])
 {
+    int i;
+    bool vuln[ELEM_MAX];
+
     /* Clear */
     memset(el_info, 0, ELEM_MAX * sizeof(struct element_info));
 
     /* Add racial flags */
-    memcpy(el_info, p->race->el_info, ELEM_MAX * sizeof(struct element_info));
-
-    /* Thunderlord */
-    if (player_has(p, PF_THUNDERLORD))
+    for (i = 0; i < ELEM_MAX; i++)
     {
-        if (p->lev >= 10) el_info[ELEM_FIRE].res_level = 1;
-        if (p->lev >= 15) el_info[ELEM_COLD].res_level = 1;
-        if (p->lev >= 20) el_info[ELEM_ACID].res_level = 1;
-        if (p->lev >= 25) el_info[ELEM_ELEC].res_level = 1;
+        vuln[i] = false;
+        if (p->lev >= p->race->el_info[i].lvl)
+        {
+            if (p->race->el_info[i].res_level == -1)
+                vuln[i] = true;
+            else
+                el_info[i].res_level = p->race->el_info[i].res_level;
+        }
     }
 
-    /* Elementalist */
-    if (player_has(p, PF_ELEMENTAL_SPELLS))
+    /* Add class flags */
+    for (i = 0; i < ELEM_MAX; i++)
     {
-        if (p->lev >= 10) el_info[ELEM_FIRE].res_level = 1;
-        if (p->lev >= 15) el_info[ELEM_COLD].res_level = 1;
-        if (p->lev >= 20) el_info[ELEM_ACID].res_level = 1;
-        if (p->lev >= 25) el_info[ELEM_ELEC].res_level = 1;
+        if (p->lev >= p->clazz->el_info[i].lvl)
+        {
+            if (p->clazz->el_info[i].res_level == -1)
+                vuln[i] = true;
+            if (p->clazz->el_info[i].res_level > el_info[i].res_level)
+                el_info[i].res_level = p->clazz->el_info[i].res_level;
+        }
     }
 
     /* Ghost */
@@ -804,7 +797,8 @@ void player_elements(struct player *p, struct element_info el_info[ELEM_MAX])
         /* PWMAngband */
         el_info[ELEM_DARK].res_level = 1;
         el_info[ELEM_POIS].res_level = 1;
-        el_info[ELEM_COLD].res_level = 1;
+        if (el_info[ELEM_COLD].res_level < 1)
+            el_info[ELEM_COLD].res_level = 1;
         el_info[ELEM_SHARD].res_level = 1;
         el_info[ELEM_TIME].res_level = 1;
     }
@@ -813,30 +807,43 @@ void player_elements(struct player *p, struct element_info el_info[ELEM_MAX])
     if (p->poly_race)
     {
         bool dragon_immune = (player_has(p, PF_DRAGON) && is_dragon_immune(p->poly_race));
+        int res_level;
 
+        res_level = 0;
         if (rf_has(p->poly_race->flags, RF_IM_ACID))
-            el_info[ELEM_ACID].res_level = (dragon_immune? 3: 1);
+            res_level = (dragon_immune? 3: 1);
         else if (rsf_has(p->poly_race->spell_flags, RSF_BR_ACID))
-            el_info[ELEM_ACID].res_level = 1;
+            res_level = 1;
+        if (el_info[ELEM_ACID].res_level < res_level)
+            el_info[ELEM_ACID].res_level = res_level;
 
+        res_level = 0;
         if (rf_has(p->poly_race->flags, RF_IM_ELEC))
-            el_info[ELEM_ELEC].res_level = (dragon_immune? 3: 1);
+            res_level = (dragon_immune? 3: 1);
         else if (rsf_has(p->poly_race->spell_flags, RSF_BR_ELEC))
-            el_info[ELEM_ELEC].res_level = 1;
+            res_level = 1;
+        if (el_info[ELEM_ELEC].res_level < res_level)
+            el_info[ELEM_ELEC].res_level = res_level;
 
+        res_level = 0;
         if (rf_has(p->poly_race->flags, RF_IM_FIRE))
-            el_info[ELEM_FIRE].res_level = (dragon_immune? 3: 1);
+            res_level = (dragon_immune? 3: 1);
         else if (rsf_has(p->poly_race->spell_flags, RSF_BR_FIRE))
-            el_info[ELEM_FIRE].res_level = 1;
+            res_level = 1;
         else if (rf_has(p->poly_race->flags, RF_HURT_FIRE))
-            el_info[ELEM_FIRE].res_level = -1;
+            vuln[ELEM_FIRE] = true;
+        if (el_info[ELEM_FIRE].res_level < res_level)
+            el_info[ELEM_FIRE].res_level = res_level;
 
+        res_level = 0;
         if (rf_has(p->poly_race->flags, RF_IM_COLD))
-            el_info[ELEM_COLD].res_level = (dragon_immune? 3: 1);
+            res_level = (dragon_immune? 3: 1);
         else if (rsf_has(p->poly_race->spell_flags, RSF_BR_COLD))
-            el_info[ELEM_COLD].res_level = 1;
+            res_level = 1;
         else if (rf_has(p->poly_race->flags, RF_HURT_COLD))
-            el_info[ELEM_COLD].res_level = -1;
+            vuln[ELEM_COLD] = true;
+        if (el_info[ELEM_COLD].res_level < res_level)
+            el_info[ELEM_COLD].res_level = res_level;
 
         if (rf_has(p->poly_race->flags, RF_IM_POIS) || rsf_has(p->poly_race->spell_flags, RSF_BR_POIS))
             el_info[ELEM_POIS].res_level = 1;
@@ -855,6 +862,12 @@ void player_elements(struct player *p, struct element_info el_info[ELEM_MAX])
         if (rsf_has(p->poly_race->spell_flags, RSF_BR_TIME)) el_info[ELEM_TIME].res_level = 1;
         if (rsf_has(p->poly_race->spell_flags, RSF_BR_MANA)) el_info[ELEM_MANA].res_level = 1;
     }
+
+    for (i = 0; i < ELEM_MAX; i++)
+    {
+        if (vuln[i] && (el_info[i].res_level < 3))
+            el_info[i].res_level--;
+    }
 }
 
 
@@ -870,7 +883,7 @@ void player_elements(struct player *p, struct element_info el_info[ELEM_MAX])
 static void cursor_redraw(struct player *p)
 {
     bool is_unseen, is_dead;
-    int x, y;
+    struct loc grid;
     struct source *cursor_who = &p->cursor_who;
     struct chunk *c = chunk_get(&p->wpos);
 
@@ -892,8 +905,7 @@ static void cursor_redraw(struct player *p)
         /* Extract various states */
         is_unseen = !player_is_visible(p, cursor_who->idx);
         is_dead = false;
-        x = cursor_who->player->px;
-        y = cursor_who->player->py;
+        loc_copy(&grid, &cursor_who->player->grid);
     }
 
     /* Tracking a monster */
@@ -902,8 +914,7 @@ static void cursor_redraw(struct player *p)
         /* Extract various states */
         is_unseen = !monster_is_visible(p, cursor_who->idx);
         is_dead = ((cursor_who->monster->hp < 0)? true: false);
-        x = cursor_who->monster->fx;
-        y = cursor_who->monster->fy;
+        loc_copy(&grid, &cursor_who->monster->grid);
     }
 
     /* Tracking an unseen or dead monster (or player) */
@@ -923,12 +934,15 @@ static void cursor_redraw(struct player *p)
     else
     {
         char vis = 1;
+        struct loc above;
+
+        loc_init(&above, grid.x, grid.y - 1);
 
         /* Hack -- is there something targetable above our position? */
-        if (square_in_bounds_fully(c, y - 1, x) && target_accept(p, y - 1, x))
+        if (square_in_bounds_fully(c, &above) && target_accept(p, &above))
             vis = 2;
 
-        Send_cursor(p, vis, x - p->offset_x, y - p->offset_y + 1);
+        Send_cursor(p, vis, grid.x - p->offset_grid.x, grid.y - p->offset_grid.y + 1);
 
         /* Redraw targeting path */
         if (p->path_drawn)
@@ -937,9 +951,9 @@ static void cursor_redraw(struct player *p)
             load_path(p, p->path_n, p->path_g);
 
             /* Redraw new targeting path */
-            p->path_n = project_path(NULL, p->path_g, z_info->max_range, c, p->py, p->px,
-                y, x, PROJECT_THRU);
-            p->path_drawn = draw_path(p, p->path_n, p->path_g, p->py, p->px);
+            p->path_n = project_path(NULL, p->path_g, z_info->max_range, c, &p->grid, &grid,
+                PROJECT_THRU);
+            p->path_drawn = draw_path(p, p->path_n, p->path_g, &p->grid);
         }
     }
 }
@@ -1124,7 +1138,7 @@ static const struct player_flag_record player_flag_table[(RES_PANELS + 1) * RES_
     {-1, -1, ELEM_NETHER, -1},
     {-1, -1, ELEM_CHAOS, -1},
     {-1, -1, ELEM_DISEN, -1},
-    {-1, OF_FEATHER, -1, -1},
+    {-1, OF_FEATHER, -1, TMD_FLIGHT},
     {-1, OF_PROT_FEAR, -1, TMD_BOLD},
     {-1, OF_PROT_BLIND, -1, -1},
     {-1, OF_PROT_CONF, -1, TMD_OPP_CONF},
@@ -1135,7 +1149,7 @@ static const struct player_flag_record player_flag_table[(RES_PANELS + 1) * RES_
     {-1, OF_ESP_ALL, -1, TMD_ESP},
     {-1, OF_SEE_INVIS, -1, TMD_SINVIS},
     {-1, OF_FREE_ACT, -1, -1},
-    {-1, OF_HOLD_LIFE, -1, -1},
+    {-1, OF_HOLD_LIFE, -1, TMD_HOLD_LIFE},
     {OBJ_MOD_STEALTH, -1, -1, -1},
     {OBJ_MOD_SEARCH, -1, -1, -1},
     {OBJ_MOD_INFRA, -1, -1, TMD_SINFRA},
@@ -1567,10 +1581,10 @@ static void evacuate_arena(struct player *p)
     /* Teleport */
     p->arena_num = -1;
     source_player(who, get_player_index(get_connection(p->conn)), p);
-    effect_simple(EF_TELEPORT, who, "1", 0, 0, 0, NULL);
+    effect_simple(EF_TELEPORT, who, "1", 0, 0, 0, 0, 0, NULL);
     q->arena_num = -1;
     source_player(who, get_player_index(get_connection(q->conn)), q);
-    effect_simple(EF_TELEPORT, who, "1", 0, 0, 0, NULL);
+    effect_simple(EF_TELEPORT, who, "1", 0, 0, 0, 0, 0, NULL);
 
     /* Messages */
     msg(p, "You recover outside the arena.");
@@ -1645,7 +1659,7 @@ static void player_strip(struct player *p, bool perma_death)
 
         /* Excise the object and drop it */
         gear_excise_object(p, obj);
-        drop_near(p, c, &obj, 0, p->py, p->px, false, DROP_FADE);
+        drop_near(p, c, &obj, 0, &p->grid, false, DROP_FADE);
     }
 
     mem_free(gear);
@@ -1666,7 +1680,7 @@ static void player_strip(struct player *p, bool perma_death)
         p->au = 0;
 
         /* Drop it */
-        drop_near(p, c, &obj, 0, p->py, p->px, false, DROP_FADE);
+        drop_near(p, c, &obj, 0, &p->grid, false, DROP_FADE);
     }
 }
 
@@ -1897,7 +1911,7 @@ void player_death(struct player *p)
 
     /* Teleport him */
     source_player(who, get_player_index(get_connection(p->conn)), p);
-    effect_simple(EF_TELEPORT, who, "200", 0, 0, 0, NULL);
+    effect_simple(EF_TELEPORT, who, "200", 0, 0, 0, 0, 0, NULL);
 
     /* Feed him (maybe he died from starvation) */
     player_set_food(p, PY_FOOD_MAX - 1);
@@ -1934,7 +1948,7 @@ void resurrect_player(struct player *p, struct chunk *c)
 
         /* Redraw */
         p->upkeep->redraw |= (PR_TITLE);
-        square_light_spot(c, p->py, p->px);
+        square_light_spot(c, &p->grid);
 
         return;
     }
@@ -1967,7 +1981,7 @@ void resurrect_player(struct player *p, struct chunk *c)
 
     /* Redraw */
     p->upkeep->redraw |= (PR_BASIC | PR_SPELL);
-    square_light_spot(c, p->py, p->px);
+    square_light_spot(c, &p->grid);
 
     /* Update */
     p->upkeep->update |= (PU_BONUS);
@@ -1977,7 +1991,7 @@ void resurrect_player(struct player *p, struct chunk *c)
 }
 
 
-static bool panel_should_modify(struct player *p, int *wy, int *wx)
+static bool panel_should_modify(struct player *p, struct loc *grid)
 {
     int screen_hgt, screen_wid;
 
@@ -1985,15 +1999,15 @@ static bool panel_should_modify(struct player *p, int *wy, int *wx)
     screen_wid = p->screen_cols / p->tile_wid;
 
     /* Verify wy, adjust if needed */
-    if (*wy > z_info->dungeon_hgt - screen_hgt) *wy = z_info->dungeon_hgt - screen_hgt;
-    if (*wy < 0) *wy = 0;
+    if (grid->y > z_info->dungeon_hgt - screen_hgt) grid->y = z_info->dungeon_hgt - screen_hgt;
+    if (grid->y < 0) grid->y = 0;
 
     /* Verify wx, adjust if needed */
-    if (*wx > z_info->dungeon_wid - screen_wid) *wx = z_info->dungeon_wid - screen_wid;
-    if (*wx < 0) *wx = 0;
+    if (grid->x > z_info->dungeon_wid - screen_wid) grid->x = z_info->dungeon_wid - screen_wid;
+    if (grid->x < 0) grid->x = 0;
 
     /* Needs changes? */
-    return ((p->offset_y != *wy) || (p->offset_x != *wx));
+    return !loc_eq(&p->offset_grid, grid);
 }
 
 
@@ -2006,14 +2020,13 @@ static bool panel_should_modify(struct player *p, int *wy, int *wx)
  * As a total hack, whenever the current panel changes, we assume that
  * the "overhead view" window should be updated.
  */
-bool modify_panel(struct player *p, int wy, int wx)
+bool modify_panel(struct player *p, struct loc *grid)
 {
     /* React to changes */
-    if (panel_should_modify(p, &wy, &wx))
+    if (panel_should_modify(p, grid))
     {
         /* Save wy, wx */
-        p->offset_y = wy;
-        p->offset_x = wx;
+        loc_copy(&p->offset_grid, grid);
 
         /* Update stuff */
         p->upkeep->update |= (PU_MONSTERS);
@@ -2040,8 +2053,7 @@ bool modify_panel(struct player *p, int wy, int wx)
  */
 bool change_panel(struct player *p, int dir)
 {
-    bool changed = false;
-    int wx, wy;
+    struct loc grid;
     int screen_hgt, screen_wid;
 
     /* Ensure "dir" is in ddx/ddy array bounds */
@@ -2051,13 +2063,11 @@ bool change_panel(struct player *p, int dir)
     screen_wid = p->screen_cols / p->tile_wid;
 
     /* Shift by half a panel */
-    wy = p->offset_y + ddy[dir] * screen_hgt / 2;
-    wx = p->offset_x + ddx[dir] * screen_wid / 2;
+    loc_init(&grid, p->offset_grid.x + ddx[dir] * screen_wid / 2,
+        p->offset_grid.y + ddy[dir] * screen_hgt / 2);
 
     /* Use "modify_panel" */
-    if (modify_panel(p, wy, wx)) changed = true;
-
-    return (changed);
+    return modify_panel(p, &grid);
 }
 
 
@@ -2074,39 +2084,36 @@ bool change_panel(struct player *p, int dir)
  */
 static void verify_panel_int(struct player *p, bool centered)
 {
-    int wy, wx;
+    struct loc grid;
     int panel_wid, panel_hgt;
-    int py = p->py;
-    int px = p->px;
     int screen_hgt, screen_wid;
 
     screen_hgt = p->screen_rows / p->tile_hgt;
     screen_wid = p->screen_cols / p->tile_wid;
 
-    wy = p->offset_y;
-    wx = p->offset_x;
+    loc_copy(&grid, &p->offset_grid);
 
     panel_wid = screen_wid / 2;
     panel_hgt = screen_hgt / 2;
 
     /* Scroll screen vertically when off-center */
-    if (centered && !p->upkeep->running && (py != wy + panel_hgt))
-        wy = py - panel_hgt;
+    if (centered && !p->upkeep->running && (p->grid.y != grid.y + panel_hgt))
+        grid.y = p->grid.y - panel_hgt;
 
     /* Scroll screen vertically when 3 grids from top/bottom edge */
-    else if ((py < wy + 3) || (py >= wy + screen_hgt - 3))
-        wy = py - panel_hgt;
+    else if ((p->grid.y < grid.y + 3) || (p->grid.y >= grid.y + screen_hgt - 3))
+        grid.y = p->grid.y - panel_hgt;
 
     /* Scroll screen horizontally when off-center */
-    if (centered && !p->upkeep->running && (px != wx + panel_wid))
-        wx = px - panel_wid;
+    if (centered && !p->upkeep->running && (p->grid.x != grid.x + panel_wid))
+        grid.x = p->grid.x - panel_wid;
 
     /* Scroll screen horizontally when 3 grids from left/right edge */
-    else if ((px < wx + 3) || (px >= wx + screen_wid - 3))
-        wx = px - panel_wid;
+    else if ((p->grid.x < grid.x + 3) || (p->grid.x >= grid.x + screen_wid - 3))
+        grid.x = p->grid.x - panel_wid;
 
     /* Scroll if needed */
-    modify_panel(p, wy, wx);
+    modify_panel(p, &grid);
 }
 
 
@@ -2191,7 +2198,7 @@ static int base_time_factor(struct player *p, struct chunk *c, int slowest)
     {
         struct player *q = player_get(i);
 
-        if (!COORDS_EQUAL(&q->wpos, &p->wpos)) continue;
+        if (!wpos_eq(&q->wpos, &p->wpos)) continue;
         q->bubble_checked = false;
     }
 
@@ -2206,7 +2213,12 @@ static int base_time_factor(struct player *p, struct chunk *c, int slowest)
 
     /* Scale depending on health if HP are low enough */
     if (health <= p->opts.hitpoint_warn * 10)
-        timefactor = timefactor * health / 100;
+    {
+        if (cfg_constant_time_factor > 0)
+            timefactor = timefactor / cfg_constant_time_factor;
+        else
+            timefactor = timefactor * health / 100;
+    }
 
     /* Resting speeds up time disregarding health time scaling */
     if (player_is_resting(p)) timefactor = MAX_TIME_SCALE;
@@ -2249,13 +2261,13 @@ static int base_time_factor(struct player *p, struct chunk *c, int slowest)
         int dist;
 
         /* Skip him if he's on a different dungeon level */
-        if (!COORDS_EQUAL(&q->wpos, &p->wpos)) continue;
+        if (!wpos_eq(&q->wpos, &p->wpos)) continue;
 
         /* Only check them if they haven't already been checked */
         if (q->bubble_checked) continue;
 
         /* How far away is he? */
-        dist = distance(p->py, p->px, q->py, q->px);
+        dist = distance(&p->grid, &q->grid);
 
         /* Skip him if he's too far away */
         if (dist > z_info->max_sight) continue;
@@ -2288,7 +2300,7 @@ static int base_time_factor_simple(struct player *p, int slowest)
     {
         struct player *q = player_get(i);
 
-        if (!COORDS_EQUAL(&q->wpos, &p->wpos)) continue;
+        if (!wpos_eq(&q->wpos, &p->wpos)) continue;
         q->bubble_checked = false;
     }
 
@@ -2314,13 +2326,13 @@ static int base_time_factor_simple(struct player *p, int slowest)
         int dist;
 
         /* Skip him if he's on a different dungeon level */
-        if (!COORDS_EQUAL(&q->wpos, &p->wpos)) continue;
+        if (!wpos_eq(&q->wpos, &p->wpos)) continue;
 
         /* Only check them if they haven't already been checked */
         if (q->bubble_checked) continue;
 
         /* How far away is he? */
-        dist = distance(p->py, p->px, q->py, q->px);
+        dist = distance(&p->grid, &q->grid);
 
         /* Skip him if he's too far away */
         if (dist > z_info->max_sight) continue;
@@ -2364,7 +2376,7 @@ static void unstatic_level(struct player *p)
     /* Figure out how many players are currently on the level */
     for (i = 1; i <= NumPlayers; i++)
     {
-        if (COORDS_EQUAL(&player_get(i)->wpos, &p->wpos)) num_on_depth++;
+        if (wpos_eq(&player_get(i)->wpos, &p->wpos)) num_on_depth++;
     }
 
     /*
@@ -2397,14 +2409,14 @@ static void manual_design(struct player *p, struct chunk *c, bool new_level)
         struct player *q = player_get(i);
 
         if (q == p) continue;
-        if (!COORDS_EQUAL(&q->wpos, &p->wpos)) continue;
+        if (!wpos_eq(&q->wpos, &p->wpos)) continue;
 
         /* No-recall players are simply pushed up one level (should be safe) */
         if ((cfg_diving_mode == 3) || OPT(q, birth_no_recall))
         {
             struct worldpos wpos;
 
-            COORDS_SET(&wpos, q->wpos.wy, q->wpos.wx, dungeon_get_next_level(q, q->wpos.depth, -1));
+            wpos_init(&wpos, &q->wpos.grid, dungeon_get_next_level(q, q->wpos.depth, -1));
             msg(p, "You are pulled upwards.");
             dungeon_change_level(q, chunk_get(&q->wpos), &wpos, LEVEL_GHOST);
             continue;
@@ -2462,13 +2474,13 @@ static void manual_design(struct player *p, struct chunk *c, bool new_level)
         chunk_list_add(c);
         ht_copy(&c->generated, &turn);
 
-        c->squares[p->py][p->px].mon = 0 - get_player_index(get_connection(p->conn));
+        square_set_mon(c, &p->grid, 0 - get_player_index(get_connection(p->conn)));
 
-        square_set_join_up(c, 0, 0);
-        square_set_join_down(c, 0, 0);
+        square_init_join_up(c);
+        square_init_join_down(c);
     }
 
-    square_set_join_rand(c, 0, 0);
+    square_init_join_rand(c);
 }
 
 
@@ -2480,7 +2492,7 @@ static void exit_design(struct player *p, struct chunk *c, bool town)
     /* Dungeon */
     if (p->wpos.depth > 0)
     {
-        int yy, xx;
+        struct loc grid;
         int tries = 10000;
 
         /* Check level_up and level_down */
@@ -2501,11 +2513,10 @@ static void exit_design(struct player *p, struct chunk *c, bool town)
             tries--;
 
             /* Pick a legal spot */
-            yy = rand_range(1, c->height - 2);
-            xx = rand_range(1, c->width - 2);
+            loc_init(&grid, rand_range(1, c->width - 2), rand_range(1, c->height - 2));
 
             /* Must be a "naked" floor grid */
-            if (square_isempty(c, yy, xx)) break;
+            if (square_isempty(c, &grid)) break;
         }
         if (!tries)
         {
@@ -2513,7 +2524,7 @@ static void exit_design(struct player *p, struct chunk *c, bool town)
             return;
         }
 
-        square_set_join_rand(c, yy, xx);
+        square_set_join_rand(c, &grid);
     }
 
     msg(p, "Exiting manual design mode...");
@@ -2585,7 +2596,6 @@ static void master_level(struct player *p, char *parms)
             exit_design(p, c, false);
             break;
         }
-
     }
 }
 
@@ -2759,7 +2769,7 @@ static void master_summon(struct player *p, char *parms)
                     struct source *who = &who_body;
 
                     source_player(who, get_player_index(get_connection(p->conn)), p);
-                    effect_simple(EF_MASS_BANISH, who, "0", 0, 0, 0, NULL);
+                    effect_simple(EF_MASS_BANISH, who, "0", 0, 0, 0, 0, 0, NULL);
                     break;
                 }
 
@@ -2767,7 +2777,7 @@ static void master_summon(struct player *p, char *parms)
                 race = master_summon_aux_monster_type(c, monster_type, monster_parms);
 
                 /* Summon the monster, if we have a valid one */
-                if (race) summon_specific_race(p, c, p->py, p->px, race, 1);
+                if (race) summon_specific_race(p, c, &p->grid, race, 1);
             }
             break;
         }
@@ -2796,7 +2806,7 @@ static void master_summon(struct player *p, char *parms)
             race = master_summon_aux_monster_type(c, monster_type, monster_parms);
 
             /* Summon the group here */
-            if (race) summon_specific_race(p, c, p->py, p->px, race, size);
+            if (race) summon_specific_race(p, c, &p->grid, race, size);
 
             break;
         }
@@ -2823,7 +2833,7 @@ static void master_summon(struct player *p, char *parms)
             race = master_summon_aux_monster_type(c, monster_type, monster_parms);
 
             /* Summon the monster, if we have a valid one */
-            if (race) summon_specific_race_aux(p, c, p->py, p->px, race, 1, true);
+            if (race) summon_specific_race_aux(p, c, &p->grid, race, 1, true);
 
             break;
         }
@@ -2899,8 +2909,12 @@ static struct object_kind *item_kind(struct object_kind *k, int method)
     {
         struct object_kind *kind = &k_info[i];
 
-        /* Only allocated items */
-        if (kind->alloc_prob > 0) return kind;
+        /* Only allowed items */
+        if (kind->name && kind->tval && (kind->tval != TV_GOLD) &&
+            !kf_has(kind->kind_flags, KF_QUEST_ART) && !kf_has(kind->kind_flags, KF_INSTA_ART))
+        {
+            return kind;
+        }
 
         if (method == GE_IDX) break;
         if (method == GE_NEXT) i++;
@@ -3787,7 +3801,7 @@ static void master_generate(struct player *p, char *parms)
                     object_copy(drop, obj);
                     if (object_has_standard_to_h(drop)) drop->known->to_h = 1;
                     if (object_flavor_is_aware(p, drop)) object_id_set_aware(drop);
-                    drop_near(p, c, &drop, 0, p->py, p->px, true, DROP_FADE);
+                    drop_near(p, c, &drop, 0, &p->grid, true, DROP_FADE);
 
                     /* Reinitialize some stuff */
                     undo_fixed_powers(obj, power, resist);
@@ -3860,8 +3874,14 @@ static void master_generate(struct player *p, char *parms)
             else if (is_quest(p->wpos.depth)) msg(p, "You cannot generate a vault here");
 
             /* Build a vault with the DM at the top left corner */
-            else if (!build_vault(p, c, p->py + v->hgt / 2, p->px + v->wid / 2, v, false))
-                msg(p, "Vault cannot be generated at this location.");
+            else
+            {
+                struct loc grid;
+
+                loc_init(&grid, p->grid.x + v->wid / 2, p->grid.y + v->hgt / 2);
+                if (!build_vault(p, c, &grid, v, false))
+                    msg(p, "Vault cannot be generated at this location.");
+            }
 
             break;
         }
@@ -3927,7 +3947,7 @@ static void master_generate(struct player *p, char *parms)
             if (object_flavor_is_aware(p, obj)) object_id_set_aware(obj);
 
             /* Drop the object from heaven */
-            drop_near(p, c, &obj, 0, p->py, p->px, true, DROP_FADE);
+            drop_near(p, c, &obj, 0, &p->grid, true, DROP_FADE);
 
             break;
         }
@@ -4068,6 +4088,7 @@ static void master_player(struct player *p, char *parms)
         {
             if (!check_permissions(p, dm_ptr, true)) return;
 
+            if (dm_ptr->poly_race && !dm_ptr->ghost) do_cmd_poly(dm_ptr, NULL, false, true);
             set_ghost_flag(dm_ptr, (dm_ptr->ghost? 0: 1), true);
             dm_ptr->upkeep->redraw |= (PR_BASIC | PR_SPELL);
             dm_ptr->upkeep->update |= (PU_BONUS);
@@ -4232,7 +4253,7 @@ static void master_debug(struct player *p, char *parms)
             char *t;
             int index = EF_MAX;
             char dice[NORMAL_WID];
-            int p1 = 0, p2 = 0, p3 = 0;
+            int subtype = 0, radius = 0, other = 0, y = 0, x = 0;
             bool ident = false;
             static bool used = true;
             struct source who_body;
@@ -4249,7 +4270,7 @@ static void master_debug(struct player *p, char *parms)
                 if ((index <= EF_NONE) || (index >= EF_MAX))
                     index = effect_lookup(t);
             }
-            if (index == EF_MAX)
+            if ((index <= EF_NONE) || (index >= EF_MAX))
             {
                 msg(p, "No effect found.");
                 break;
@@ -4264,20 +4285,24 @@ static void master_debug(struct player *p, char *parms)
             t = strtok(NULL, "|");
             if (t)
             {
-                p1 = get_idx_from_name(t);
+                subtype = get_idx_from_name(t);
 
                 /* See if an effect parameter was entered */
-                if (p1 == 0) p1 = effect_param(index, t);
-                if (p1 == -1) p1 = 0;
+                if (subtype == 0) subtype = effect_subtype(index, t);
+                if (subtype == -1) subtype = 0;
             }
             t = strtok(NULL, "|");
-            if (t) p2 = get_idx_from_name(t);
+            if (t) radius = get_idx_from_name(t);
             t = strtok(NULL, "|");
-            if (t) p3 = get_idx_from_name(t);
+            if (t) other = get_idx_from_name(t);
+            t = strtok(NULL, "|");
+            if (t) y = get_idx_from_name(t);
+            t = strtok(NULL, "|");
+            if (t) x = get_idx_from_name(t);
 
             if (used) current_clear(p);
             source_player(who, get_player_index(get_connection(p->conn)), p);
-            used = effect_simple(index, who, dice, p1, p2, p3, &ident);
+            used = effect_simple(index, who, dice, subtype, radius, other, y, x, &ident);
             if (ident) msg(p, "Identified!");
             break;
         }
@@ -4288,15 +4313,45 @@ static void master_debug(struct player *p, char *parms)
             struct chunk *c = chunk_get(&p->wpos);
             struct trap_kind *trap;
 
-            if (!random_level(&p->wpos) || !square_isfloor(c, p->py, p->px))
+            if (!random_level(&p->wpos) || !square_isfloor(c, &p->grid))
             {
                 msg(p, "You can't place a trap there!");
                 break;
             }
 
             trap = lookup_trap(&parms[1]);
-            if (trap) place_trap(c, p->py, p->px, trap->tidx, 0);
+            if (trap) place_trap(c, &p->grid, trap->tidx, 0);
             else msg(p, "Trap not found.");
+
+            break;
+        }
+
+        /* Advance time */
+        case 'H':
+        {
+            int nbhours = atoi(&parms[1]);
+
+            if ((nbhours >= 1) && (nbhours <= 12))
+            {
+                bool daytime = is_daytime();
+                int i, nbturns = (5 * z_info->day_length * nbhours) / 12;
+
+                ht_add(&turn, nbturns);
+
+                for (i = 1; i <= NumPlayers; i++)
+                {
+                    struct player *player = player_get(i);
+
+                    ht_copy(&get_connection(player->conn)->start, &turn);
+                    ht_add(&player->game_turn, nbturns);
+                    msg(player, "Time advanced by %d hour%s.", nbhours, PLURAL(nbhours));
+                    Send_turn(player, ht_div(&player->game_turn, cfg_fps),
+                        ht_div(&player->player_turn, 1), ht_div(&player->active_turn, 1));
+
+                    if ((player->wpos.depth == 0) && (is_daytime() != daytime))
+                        dusk_or_dawn(player, chunk_get(&player->wpos), is_daytime());
+                }
+            }
 
             break;
         }
@@ -4367,15 +4422,15 @@ void do_cmd_master(struct player *p, s16b command, char *buf)
 
 
 /* Find arena by those coordinates */
-int pick_arena(struct worldpos *wpos, int y, int x)
+int pick_arena(struct worldpos *wpos, struct loc *grid)
 {
     int i;
 
     for (i = 0; i < num_arenas; i++)
     {
-        if (!COORDS_EQUAL(&arenas[i].wpos, wpos)) continue;
-        if (x < arenas[i].x_1 || x > arenas[i].x_2) continue;
-        if (y < arenas[i].y_1 || y > arenas[i].y_2) continue;
+        if (!wpos_eq(&arenas[i].wpos, wpos)) continue;
+        if (grid->x < arenas[i].grid_1.x || grid->x > arenas[i].grid_2.x) continue;
+        if (grid->y < arenas[i].grid_1.y || grid->y > arenas[i].grid_2.y) continue;
 
         /* Found */
         return i;
@@ -4408,7 +4463,7 @@ static int count_arena_opponents(int a)
 /*
  * Access Arena (Player touches its wall in py,px)
  */
-void access_arena(struct player *p, int py, int px)
+void access_arena(struct player *p, struct loc *grid)
 {
     struct player *q;
     int tmp_count, a;
@@ -4449,7 +4504,7 @@ void access_arena(struct player *p, int py, int px)
             msg(p, "You leave the arena.");
             p->arena_num = -1;
             source_player(who, get_player_index(get_connection(p->conn)), p);
-            effect_simple(EF_TELEPORT, who, "1", 0, 0, 0, NULL);
+            effect_simple(EF_TELEPORT, who, "1", 0, 0, 0, 0, 0, NULL);
         }
         else
             msg(p, "There is a wall blocking your way.");
@@ -4458,7 +4513,7 @@ void access_arena(struct player *p, int py, int px)
     /* Player tries to enter the arena */
     else
     {
-        a = pick_arena(&p->wpos, py, px);
+        a = pick_arena(&p->wpos, grid);
 
         /* Count players in this arena */
         tmp_count = count_arena_opponents(a);
@@ -4471,9 +4526,9 @@ void access_arena(struct player *p, int py, int px)
 
             msg(p, "You enter an ancient fighting pit.");
             source_player(who, get_player_index(get_connection(p->conn)), p);
-            effect_simple(EF_TELEPORT_TO, who, "0",
-                arenas[a].y_1 + 1 + randint1(arenas[a].y_2 - arenas[a].y_1 - 2),
-                arenas[a].x_1 + 1 + randint1(arenas[a].x_2 - arenas[a].x_1 - 2), 1, NULL);
+            effect_simple(EF_TELEPORT_TO, who, "0", 0, 0, 1,
+                arenas[a].grid_1.y + 1 + randint1(arenas[a].grid_2.y - arenas[a].grid_1.y - 2),
+                arenas[a].grid_1.x + 1 + randint1(arenas[a].grid_2.x - arenas[a].grid_1.x - 2), NULL);
             p->arena_num = a;
 
             /* Both players are ready! */
@@ -4620,37 +4675,36 @@ void do_cmd_social(struct player *p, const char *buf, int dir)
     if (s->target && dir && VALID_DIR(dir))
     {
         int flg = PROJECT_STOP;
-        int ty, tx;
         int path_n = 0;
         struct loc path_g[512];
+        struct loc grid;
 
         /* Only fire in direction 5 if we have a target */
-        if ((dir == 5) && !target_okay(p)) return;
+        if ((dir == DIR_TARGET) && !target_okay(p)) return;
 
         /* Use the given direction */
-        tx = p->px + 99 * ddx[dir];
-        ty = p->py + 99 * ddy[dir];
+        grid.x = p->grid.x + 99 * ddx[dir];
+        grid.y = p->grid.y + 99 * ddy[dir];
 
         /* Hack -- use an actual "target" */
-        if (dir == 5)
+        if (dir == DIR_TARGET)
         {
             flg &= ~PROJECT_STOP;
-            target_get(p, &tx, &ty);
+            target_get(p, &grid);
         }
 
         /* Calculate the path */
-        path_n = project_path(NULL, path_g, (s->max_dist? s->max_dist: z_info->max_range), c, p->py,
-            p->px, ty, tx, flg);
+        path_n = project_path(NULL, path_g, (s->max_dist? s->max_dist: z_info->max_range), c,
+            &p->grid, &grid, flg);
         if (!path_n) return;
 
         /* Get target grid */
-        tx = path_g[path_n - 1].x;
-        ty = path_g[path_n - 1].y;
+        loc_copy(&grid, &path_g[path_n - 1]);
 
         /* Target found at a reasonable distance */
-        if (c->squares[ty][tx].mon)
+        if (square(c, &grid)->mon)
         {
-            square_actor(c, ty, tx, who);
+            square_actor(c, &grid, who);
 
             /* Get social */
             my_strcpy(text, s->text, sizeof(text));
@@ -4830,24 +4884,24 @@ void describe_feat(struct player *p, struct feature *feat)
 /*
  * Find the attr/char pair to use for a spell effect
  *
- * It is moving (or has moved) from (x, y) to (nx, ny); if the distance is not
+ * It is moving (or has moved) from start to end; if the distance is not
  * "one", we (may) return "*".
  */
-void bolt_pict(struct player *p, int y, int x, int ny, int nx, int typ, byte *a, char *c)
+void bolt_pict(struct player *p, struct loc *start, struct loc *end, int typ, byte *a, char *c)
 {
     int motion;
 
     /* Convert co-ordinates into motion */
-    if ((ny == y) && (nx == x))
+    if (loc_eq(end, start))
         motion = BOLT_NO_MOTION;
-    else if (nx == x)
-        motion = ((ny < y)? BOLT_0: BOLT_180);
-    else if ((ny - y) == (x - nx))
-        motion = ((ny < y)? BOLT_45: BOLT_225);
-    else if (ny == y)
-        motion = ((nx > x)? BOLT_90: BOLT_270);
-    else if ((ny - y) == (nx - x))
-        motion = ((nx > x)? BOLT_135: BOLT_315);
+    else if (end->x == start->x)
+        motion = ((end->y < start->y)? BOLT_0: BOLT_180);
+    else if ((end->y - start->y) == (start->x - end->x))
+        motion = ((end->y < start->y)? BOLT_45: BOLT_225);
+    else if (end->y == start->y)
+        motion = ((end->x > start->x)? BOLT_90: BOLT_270);
+    else if ((end->y - start->y) == (end->x - start->x))
+        motion = ((end->x > start->x)? BOLT_135: BOLT_315);
     else
         motion = BOLT_NO_MOTION;
 
@@ -4875,11 +4929,11 @@ void display_explosion(struct chunk *cv, struct explosion *data, const bool *dra
 {
     bool new_radius = false;
     bool drawn[MAX_PLAYERS];
-    int i, y, x, j;
+    int i, j;
     int proj_type = data->proj_type;
     int num_grids = data->num_grids;
     const int *distance_to_grid = data->distance_to_grid;
-    const struct loc *blast_grid = data->blast_grid;
+    struct loc *blast_grid = (struct loc *)data->blast_grid;
 
     /* Assume the player has seen no blast grids */
     for (i = 0; i < MAX_PLAYERS; ++i) drawn[i] = false;
@@ -4890,23 +4944,19 @@ void display_explosion(struct chunk *cv, struct explosion *data, const bool *dra
         /* Hack -- don't draw over breather */
         if (arc && !distance_to_grid[i]) continue;
 
-        /* Extract the location */
-        y = blast_grid[i].y;
-        x = blast_grid[i].x;
-
         /* Do visuals for all players that can see the blast */
         for (j = 1; j <= NumPlayers; j++)
         {
             struct player *p = player_get(j);
 
             /* Skip irrelevant players */
-            if (!COORDS_EQUAL(&p->wpos, &cv->wpos)) continue;
+            if (!wpos_eq(&p->wpos, &cv->wpos)) continue;
             if (p->timed[TMD_BLIND]) continue;
-            if (!panel_contains(p, y, x)) continue;
+            if (!panel_contains(p, &blast_grid[i])) continue;
             if (p->did_visuals) continue;
 
             /* Only do visuals if the player can see the blast */
-            if (square_isview(p, y, x))
+            if (square_isview(p, &blast_grid[i]))
             {
                 byte a;
                 char c;
@@ -4914,10 +4964,10 @@ void display_explosion(struct chunk *cv, struct explosion *data, const bool *dra
                 drawn[j] = true;
 
                 /* Obtain the explosion pict */
-                bolt_pict(p, y, x, y, x, proj_type, &a, &c);
+                bolt_pict(p, &blast_grid[i], &blast_grid[i], proj_type, &a, &c);
 
                 /* Just display the pict, ignoring what was under it */
-                draw_path_grid(p, y, x, a, c);
+                draw_path_grid(p, &blast_grid[i], a, c);
             }
         }
 
@@ -4936,7 +4986,7 @@ void display_explosion(struct chunk *cv, struct explosion *data, const bool *dra
                 struct player *p = player_get(j);
 
                 /* Skip irrelevant players */
-                if (!COORDS_EQUAL(&p->wpos, &cv->wpos)) continue;
+                if (!wpos_eq(&p->wpos, &cv->wpos)) continue;
                 if (p->timed[TMD_BLIND]) continue;
 
                 /* Delay to show this radius appearing */
@@ -4956,7 +5006,7 @@ void display_explosion(struct chunk *cv, struct explosion *data, const bool *dra
         struct player *p = player_get(j);
 
         /* Skip irrelevant players */
-        if (!COORDS_EQUAL(&p->wpos, &cv->wpos)) continue;
+        if (!wpos_eq(&p->wpos, &cv->wpos)) continue;
         if (p->timed[TMD_BLIND]) continue;
 
         /* Erase and flush */
@@ -4968,16 +5018,12 @@ void display_explosion(struct chunk *cv, struct explosion *data, const bool *dra
                 /* Hack -- don't draw over breather */
                 if (arc && !distance_to_grid[i]) continue;
 
-                /* Extract the location */
-                y = blast_grid[i].y;
-                x = blast_grid[i].x;
-
                 /* Skip irrelevant players */
-                if (!panel_contains(p, y, x)) continue;
+                if (!panel_contains(p, &blast_grid[i])) continue;
 
                 /* Erase visible, valid grids */
-                if (square_isview(p, y, x))
-                    square_light_spot_aux(p, cv, y, x);
+                if (square_isview(p, &blast_grid[i]))
+                    square_light_spot_aux(p, cv, &blast_grid[i]);
             }
 
             /* Flush the explosion */
@@ -4991,7 +5037,7 @@ void display_explosion(struct chunk *cv, struct explosion *data, const bool *dra
         struct player *p = player_get(j);
 
         /* Skip irrelevant players */
-        if (!COORDS_EQUAL(&p->wpos, &cv->wpos)) continue;
+        if (!wpos_eq(&p->wpos, &cv->wpos)) continue;
         if (p->timed[TMD_BLIND]) continue;
 
         /* Add one to the count */
@@ -5005,12 +5051,6 @@ void display_explosion(struct chunk *cv, struct explosion *data, const bool *dra
  */
 void display_bolt(struct chunk *cv, struct bolt *data, bool *drawing)
 {
-    int proj_type = data->proj_type;
-    bool beam = data->beam;
-    int oy = data->oy;
-    int ox = data->ox;
-    int y = data->y;
-    int x = data->x;
     int j;
 
     /* Do visuals for all players that can "see" the bolt */
@@ -5019,31 +5059,31 @@ void display_bolt(struct chunk *cv, struct bolt *data, bool *drawing)
         struct player *p = player_get(j);
 
         /* Skip irrelevant players */
-        if (!COORDS_EQUAL(&p->wpos, &cv->wpos)) continue;
+        if (!wpos_eq(&p->wpos, &cv->wpos)) continue;
         if (p->timed[TMD_BLIND]) continue;
-        if (!panel_contains(p, y, x)) continue;
+        if (!panel_contains(p, &data->grid)) continue;
         if (p->did_visuals) continue;
 
         /* Only do visuals if the player can "see" the bolt */
-        if (square_isview(p, y, x))
+        if (square_isview(p, &data->grid))
         {
             byte a;
             char c;
 
             /* Obtain the bolt pict */
-            bolt_pict(p, oy, ox, y, x, proj_type, &a, &c);
+            bolt_pict(p, &data->ogrid, &data->grid, data->proj_type, &a, &c);
 
             /* Visual effects */
-            flush_path_grid(p, cv, y, x, a, c);
+            flush_path_grid(p, cv, &data->grid, a, c);
 
             /* Display "beam" grids */
-            if (beam)
+            if (data->beam)
             {
                 /* Obtain the explosion pict */
-                bolt_pict(p, y, x, y, x, proj_type, &a, &c);
+                bolt_pict(p, &data->grid, &data->grid, data->proj_type, &a, &c);
 
                 /* Visual effects */
-                draw_path_grid(p, y, x, a, c);
+                draw_path_grid(p, &data->grid, a, c);
             }
 
             /* Activate delay */
@@ -5062,10 +5102,6 @@ void display_bolt(struct chunk *cv, struct bolt *data, bool *drawing)
  */
 void display_missile(struct chunk *cv, struct missile *data)
 {
-    byte mattr = data->mattr;
-    char mchar = data->mchar;
-    int y = data->y;
-    int x = data->x;
     int k;
 
     /* Display the missile for each player */
@@ -5074,14 +5110,14 @@ void display_missile(struct chunk *cv, struct missile *data)
         struct player *p = player_get(k);
 
         /* Skip irrelevant players */
-        if (!COORDS_EQUAL(&p->wpos, &cv->wpos)) continue;
-        if (!panel_contains(p, y, x)) continue;
+        if (!wpos_eq(&p->wpos, &cv->wpos)) continue;
+        if (!panel_contains(p, &data->grid)) continue;
 
         /* Only do visuals if the player can "see" the missile */
-        if (square_isseen(p, y, x))
+        if (square_isseen(p, &data->grid))
         {
             /* Draw, Highlight, Fresh, Pause, Erase */
-            flush_path_grid(p, cv, y, x, mattr, mchar);
+            flush_path_grid(p, cv, &data->grid, data->mattr, data->mchar);
         }
         else
         {

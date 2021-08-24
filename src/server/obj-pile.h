@@ -54,16 +54,16 @@ extern void object_copy_amt(struct object *dest, struct object *src, int amt);
 extern struct object *object_split(struct object *src, int amt);
 extern struct object *floor_object_for_use(struct player *p, struct chunk *c,
     struct object *obj, int num, bool message, bool *none_left);
-extern bool floor_carry(struct player *p, struct chunk *c, int y, int x, struct object *drop,
+extern bool floor_carry(struct player *p, struct chunk *c, struct loc *grid, struct object *drop,
     bool *note);
-extern bool floor_add(struct chunk *c, int y, int x, struct object *drop);
+extern bool floor_add(struct chunk *c, struct loc *grid, struct object *drop);
 extern void drop_near(struct player *p, struct chunk *c, struct object **dropped, int chance,
-    int y, int x, bool verbose, int mode);
-extern void push_object(struct player *p, struct chunk *c, int y, int x);
+    struct loc *grid, bool verbose, int mode);
+extern void push_object(struct player *p, struct chunk *c, struct loc *grid);
 extern int scan_floor(struct player *p, struct chunk *c, struct object **items, int max_size,
     object_floor_t mode, item_tester tester);
 extern int scan_distant_floor(struct player *p, struct chunk *c, struct object **items,
-    int max_size, int y, int x);
+    int max_size, struct loc *grid);
 extern void player_know_floor(struct player *p, struct chunk *c);
 
 #endif /* OBJECT_PILE_H */

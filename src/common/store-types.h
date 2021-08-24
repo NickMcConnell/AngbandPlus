@@ -8,24 +8,20 @@
 
 /*** Constants ***/
 
-/* List of store indexes */
+/* Number of welcome messages (1 for every 5 clvl starting at clvl 6) */
+#define N_WELCOME   9
+
+/* List of store types */
 enum
 {
-    STORE_NONE = -1,
-    STORE_GENERAL = 0,
-    STORE_ARMOR = 1,
-    STORE_WEAPON = 2,
-    STORE_TEMPLE = 3,
-    STORE_ALCHEMY = 4,
-    STORE_MAGIC = 5,
-    STORE_LIBRARY = 6,
-    STORE_B_MARKET = 7,
-    STORE_XBM = 8,
-    STORE_TAVERN = 9,
-    STORE_HOME = 10,
-    STORE_PLAYER = 11,
-
-    MAX_STORES = 12
+    STORE_OTHER = 0,
+    STORE_GENERAL,
+    STORE_TEMPLE,
+    STORE_B_MARKET,
+    STORE_XBM,
+    STORE_TAVERN,
+    STORE_HOME,
+    STORE_PLAYER
 };
 
 /*** Types ***/
@@ -63,7 +59,8 @@ struct store
 {
     struct owner *owners;       /* Owners */
     struct owner *owner;        /* Current owner */
-    unsigned int sidx;          /* Index */
+    int sidx;                   /* Index */
+    int type;                   /* Type */
     char *name;
     struct store *next;
     s16b stock_num;             /* Stock -- number of entries */
@@ -88,6 +85,8 @@ struct store
     int normal_stock_max;
 
     s16b max_depth;             /* Max level of last customer */
+
+    char comment_welcome[N_WELCOME][NORMAL_WID];
 };
 
 #endif /* INCLUDED_STORE_TYPES_H */

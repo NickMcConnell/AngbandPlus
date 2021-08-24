@@ -189,7 +189,7 @@ void monster_desc(struct player *p, char *desc, size_t max, const struct monster
     /* Unique, indefinite or definite */
     else
     {
-        bool offscreen = (p? !panel_contains(p, mon->fy, mon->fx): false);
+        bool offscreen = (p? !panel_contains(p, &((struct monster *)mon)->grid): false);
 
         if (monster_is_unique(mon->race))
         {

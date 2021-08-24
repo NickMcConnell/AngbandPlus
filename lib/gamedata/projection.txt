@@ -482,6 +482,13 @@ obvious:0
 color:White
 threat:never
 
+code:AWAY_SPIRIT
+type:monster
+desc:teleports monsters with a spirit away
+obvious:0
+color:White
+threat:never
+
 code:AWAY_ALL
 type:monster
 desc:teleports up to {100} squares away
@@ -493,6 +500,14 @@ threat:never
 code:TURN_UNDEAD
 type:monster
 desc:turns undead
+obvious:0
+color:White
+pvp-flags:SAVE
+threat:never
+
+code:TURN_LIVING
+type:monster
+desc:scares living monsters
 obvious:0
 color:White
 pvp-flags:SAVE
@@ -532,6 +547,33 @@ obvious:1
 color:White
 pvp-flags:DAMAGE | NON_PHYS
 threat:always
+
+code:SLEEP_UNDEAD
+type:monster
+desc:attempts to put undead to sleep
+blind-desc:hear strange mumbling
+obvious:0
+color:White
+pvp-flags:SAVE
+threat:never
+
+code:SLEEP_EVIL
+type:monster
+desc:attempts to put evil monsters to sleep
+blind-desc:hear strange mumbling
+obvious:0
+color:White
+pvp-flags:SAVE
+threat:never
+
+code:SLEEP_ALL
+type:monster
+desc:attempts to put to sleep all monsters
+blind-desc:hear strange mumbling
+obvious:0
+color:White
+pvp-flags:SAVE
+threat:never
 
 code:MON_CLONE
 type:monster
@@ -580,15 +622,6 @@ color:White
 pvp-flags:SAVE
 threat:never
 
-code:MON_SLEEP
-type:monster
-desc:attempts to put to sleep all monsters
-blind-desc:hear strange mumbling
-obvious:0
-color:White
-pvp-flags:SAVE
-threat:never
-
 code:MON_HOLD
 type:monster
 desc:attempts to hold for %s turns all monsters
@@ -615,6 +648,14 @@ color:White
 pvp-flags:DAMAGE | NON_PHYS
 threat:living
 
+code:MON_CRUSH
+type:monster
+desc:kills monsters below a hitpoint threshold
+obvious:1
+color:White
+pvp-flags:DAMAGE | NON_PHYS
+threat:always
+
 code:PSI
 type:monster
 blind-desc:are hit by psionic energy
@@ -623,14 +664,6 @@ color:White
 pvp-flags:SAVE | DAMAGE
 threat:immune
 threat-flag:EMPTY_MIND
-
-code:DEATH
-type:monster
-obvious:1
-color:Light Dark
-pvp-flags:SAVE | DAMAGE | NON_PHYS
-threat:immune
-threat-flag:UNIQUE
 
 code:PSI_DRAIN
 type:monster
@@ -661,13 +694,7 @@ obvious:1
 color:White
 threat:living
 
-code:GUARD
-type:monster
-obvious:0
-color:White
-threat:never
-
-code:FOLLOW
+code:COMMAND
 type:monster
 obvious:0
 color:White
@@ -729,12 +756,6 @@ pvp-flags:SAVE | DAMAGE
 threat:immune
 threat-flag:EMPTY_MIND
 
-code:ATTACK
-type:monster
-obvious:0
-color:White
-threat:never
-
 code:CONTROL
 type:monster
 obvious:1
@@ -747,4 +768,18 @@ blind-desc:are hit by something
 obvious:0
 color:White
 pvp-flags:RAW
+threat:never
+
+code:TREES
+type:environs
+desc:creates trees
+obvious:0
+color:White
+threat:never
+
+code:AWAY_ANIMAL
+type:monster
+desc:teleports animals away
+obvious:0
+color:White
 threat:never

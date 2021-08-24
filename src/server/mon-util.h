@@ -29,7 +29,7 @@ extern void player_desc(struct player *p, char *desc, size_t max, struct player 
 extern void update_mon(struct monster *mon, struct chunk *c, bool full);
 extern void update_monsters(struct chunk *c, bool full);
 extern bool monster_carry(struct monster *mon, struct object *obj, bool force);
-extern void monster_swap(struct chunk *c, int y1, int x1, int y2, int x2);
+extern void monster_swap(struct chunk *c, struct loc *grid1, struct loc *grid2);
 extern void aware_player(struct player *p, struct player *q);
 extern void become_aware(struct player *p, struct chunk *c, struct monster *mon);
 extern void update_smart_learn(struct monster *mon, struct player *p, int flag, int pflag,

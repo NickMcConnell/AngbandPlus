@@ -429,7 +429,7 @@ static int textui_obj_cast_aux(int book, bool project, int *dir)
     const struct player_class *c = player->clazz;
     int spell;
 
-    if (player->ghost && !player_can_undead(player)) c = player_id2class(CLASS_GHOST);
+    if (player->ghost && !player_can_undead(player)) c = lookup_player_class("Ghost");
 
     /* Cast a spell directly by using spell flag */
     if (book == -1)

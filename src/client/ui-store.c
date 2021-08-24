@@ -22,26 +22,6 @@
 #include "c-angband.h"
 
 
-/*
- * Shopkeeper welcome messages.
- *
- * The shopkeeper's name must come first, then the character's name.
- */
-static const char *comment_welcome[] =
-{
-    "",
-    "%s nods to you.",
-    "%s says hello.",
-    "%s: \"See anything you like, adventurer?\"",
-    "%s: \"How may I help you, %s?\"",
-    "%s: \"Welcome back, %s.\"",
-    "%s: \"A pleasure to see you again, %s.\"",
-    "%s: \"How may I be of assistance, good %s?\"",
-    "%s: \"You do honour to my humble store, noble %s.\"",
-    "%s: \"I and my family are entirely at your service, %s.\""
-};
-
-
 /* State flags */
 #define STORE_GOLD_CHANGE      0x01
 #define STORE_FRAME_CHANGE     0x02
@@ -69,10 +49,6 @@ static bool store_command_wait = false;
 static bool leave_store;
 
 
-/* The hints array */
-struct hint *hints;
-
-
 /* The general info about the current store */
 struct store current_store;
 
@@ -81,75 +57,8 @@ struct store current_store;
 store_name *store_names;
 
 
-/* Return a random hint from the global hints list */
-static char *random_hint(void)
-{
-    struct hint *v, *r = NULL;
-    int n;
-
-    for (v = hints, n = 1; v; v = v->next, n++)
-    {
-        if (one_in_(n)) r = v;
-    }
-
-    return r->hint;
-}
-
-
-/*
- * The greeting a shopkeeper gives the character says a lot about his
- * general attitude.
- *
- * Taken and modified from Sangband 1.0.
- *
- * Note that each comment_hint should have exactly one %s
- */
-static void prt_welcome(const struct owner *proprietor)
-{
-    char short_name[20];
-    const char *owner_name = proprietor->name;
-    int j;
-
-    if (one_in_(2)) return;
-
-    /* Get the first name of the store owner (stop before the first space) */
-    for (j = 0; owner_name[j] && owner_name[j] != ' '; j++)
-        short_name[j] = owner_name[j];
-
-    /* Truncate the name */
-    short_name[j] = '\0';
-
-    if (one_in_(3))
-        prt(format("\"%s\"", random_hint()), 0, 0);
-    else if (player->lev > 5)
-    {
-        const char *player_name;
-
-        /* We go from level 1 - 50  */
-        size_t i = (player->lev - 1) / 5;
-
-        i = MIN(i, N_ELEMENTS(comment_welcome) - 1);
-
-        /* Get a title for the character */
-        if ((i % 2) && randint0(2)) player_name = title;
-        else if (randint0(2)) player_name = player->name;
-        else
-        {
-            switch (player->psex)
-            {
-                case SEX_MALE: player_name = "sir"; break;
-                case SEX_FEMALE: player_name = "lady"; break;
-                default: player_name = "ser"; break;
-            }
-        }
-
-        /* Balthazar says "Welcome" */
-        if (i >= 4)
-            prt(format(comment_welcome[i], short_name, player_name), 0, 0);
-        else
-            prt(format(comment_welcome[i], short_name), 0, 0);
-    }
-}
+/* Welcome message */
+char welcome[NORMAL_WID];
 
 
 /*** Display code ***/
@@ -200,7 +109,7 @@ static void store_display_recalc(struct store_context *ctx)
     ctx->scr_places_x[LOC_WEIGHT] = wid - 14;
 
     /* Add space for prices */
-    if (store->sidx != STORE_HOME) ctx->scr_places_x[LOC_WEIGHT] -= 10;
+    if (store->type != STORE_HOME) ctx->scr_places_x[LOC_WEIGHT] -= 10;
 
     /* Then Y */
     ctx->scr_places_y[LOC_OWNER] = 1;
@@ -260,7 +169,7 @@ static void store_display_entry(struct menu *menu, int oid, bool cursor, int row
     c_put_str(colour, out_val, row, ctx->scr_places_x[LOC_WEIGHT]);
 
     /* Describe an object (fully) in a store */
-    if (store->sidx != STORE_HOME)
+    if (store->type != STORE_HOME)
     {
         /* Extract the "minimum" price */
         x = obj->askprice;
@@ -299,7 +208,7 @@ static void store_display_frame(struct store_context *ctx)
         Term_erase(0, y, 255);
 
     /* The "Home" is special */
-    if (store->sidx == STORE_HOME)
+    if (store->type == STORE_HOME)
     {
         /* Put the owner name */
         put_str("Your Home", ctx->scr_places_y[LOC_OWNER], 1);
@@ -313,7 +222,7 @@ static void store_display_frame(struct store_context *ctx)
     else
     {
         /* A player owned store */
-        if (store->sidx == STORE_PLAYER)
+        if (store->type == STORE_PLAYER)
         {
             /* Put the owner name */
             strnfmt(buf, sizeof(buf), "%s's %s", proprietor->name, store->name);
@@ -382,7 +291,7 @@ static void text_end(int *py, int* px)
 static void store_display_help(struct store_context *ctx)
 {
     struct store *store = ctx->store;
-    bool is_home = ((store->sidx == STORE_HOME)? true: false);
+    bool is_home = ((store->type == STORE_HOME)? true: false);
     int help_loc_y = ctx->scr_places_y[LOC_HELP_PROMPT];
     int help_loc_x = 1;
     unsigned int y;
@@ -402,7 +311,7 @@ static void store_display_help(struct store_context *ctx)
         text_out(" picks up the selected item.", help_loc_y, &help_loc_x);
     else
         text_out(" purchases the selected item.", help_loc_y, &help_loc_x);
-    if (store->sidx == STORE_XBM)
+    if (store->type == STORE_XBM)
     {
         text_out(" ", help_loc_y, &help_loc_x);
         text_out_c(COLOUR_L_GREEN, "o", help_loc_y, &help_loc_x);
@@ -483,7 +392,7 @@ static bool store_sell(struct store_context *ctx)
     ui_event ea = EVENT_ABORT;
     struct store *store = ctx->store;
 
-    if (store->sidx == STORE_HOME)
+    if (store->type == STORE_HOME)
         prompt = "Drop which item? ";
     else
     {
@@ -533,7 +442,7 @@ static bool store_purchase(struct store_context *ctx, int item)
     /* Clear all current messages */
     prt("", 0, 0);
 
-    if (store->sidx != STORE_HOME)
+    if (store->type != STORE_HOME)
     {
         /* Price of one */
         s32b price = obj->askprice;
@@ -569,7 +478,7 @@ static bool store_purchase(struct store_context *ctx, int item)
     /* Find the number of this item in the inventory */
     num = obj->info_xtra.owned;
     strnfmt(o_name, sizeof(o_name), "%s how many%s? (max %d) ",
-        ((store->sidx == STORE_HOME)? "Take": "Buy"),
+        ((store->type == STORE_HOME)? "Take": "Buy"),
         (num? format(" (you have %d)", num): ""), amt);
 
     /* Get a quantity */
@@ -755,7 +664,7 @@ static bool store_menu_handle(struct menu *m, const ui_event *event, int oid)
             case 'd':
             {
                 /* Paranoia: nothing to sell */
-                if (store->sidx == STORE_PLAYER)
+                if (store->type == STORE_PLAYER)
                     c_msg_print("That command does not work in this store.");
                 else
                     storechange = store_sell(ctx);
@@ -768,7 +677,7 @@ static bool store_menu_handle(struct menu *m, const ui_event *event, int oid)
                 /* Paranoia: nothing to purchase */
                 if (store->stock_num <= 0)
                 {
-                    switch (store->sidx)
+                    switch (store->type)
                     {
                         case STORE_HOME: c_msg_print("Your home is empty."); break;
                         case STORE_PLAYER: c_msg_print("This player shop is empty."); break;
@@ -778,7 +687,7 @@ static bool store_menu_handle(struct menu *m, const ui_event *event, int oid)
                 else
                 {
                     /* Use the old way of purchasing items */
-                    if (store->sidx != STORE_HOME)
+                    if (store->type != STORE_HOME)
                         prt("Purchase which item? (ESC to cancel, Enter to select)", 0, 0);
                     else
                         prt("Get which item? (ESC to cancel, Enter to select)", 0, 0);
@@ -841,7 +750,7 @@ static bool store_menu_handle(struct menu *m, const ui_event *event, int oid)
             case 'o':
             {
                 /* Order an item */
-                if (store->sidx == STORE_XBM)
+                if (store->type == STORE_XBM)
                     store_order();
                 else
                     c_msg_print("You cannot order from this store.");
@@ -962,8 +871,7 @@ void store_enter(void)
     store_menu_init(&ctx, store);
 
     /* Say a friendly hello. */
-    if ((store->sidx != STORE_HOME) && (store->sidx != STORE_PLAYER))
-        prt_welcome(store->owner);
+    if (!STRZERO(welcome)) prt(welcome, 0, 0);
 
     menu_select(&ctx.menu, 0, false);
 

@@ -73,7 +73,7 @@ static bool mon_select(struct monster_race *race)
     }
 
     /* No invisible undead until deep. */
-    if ((base_depth < 40) && rf_has(race->flags, RF_UNDEAD) && monster_is_invisible(race))
+    if ((base_depth < 40) && rf_has(race->flags, RF_UNDEAD) && race_is_invisible(race))
         return false;
 
     /* Usually decline unique monsters. */
@@ -209,8 +209,10 @@ void spread_monsters(struct player *p, struct chunk *c, const char *type, int de
 {
     int i, j;           /* Limits on loops */
     int count;
-    int y = y0, x = x0;
     int start_mon_num = c->mon_max;
+    struct loc grid;
+
+    loc_init(&grid, x0, y0);
 
     /* Restrict monsters. Allow uniques. Leave area empty if none found. */
     if (!mon_restrict(p, type, depth, true)) return;
@@ -228,9 +230,8 @@ void spread_monsters(struct player *p, struct chunk *c, const char *type, int de
         /* Get a location */
         if ((dy == 0) && (dx == 0))
         {
-            y = y0;
-            x = x0;
-            if (!square_in_bounds(c, y, x))
+            loc_init(&grid, x0, y0);
+            if (!square_in_bounds(c, &grid))
             {
                 mon_restrict(p, NULL, depth, false);
                 return;
@@ -240,9 +241,8 @@ void spread_monsters(struct player *p, struct chunk *c, const char *type, int de
         {
             for (j = 0; j < 10; j++)
             {
-                y = rand_spread(y0, dy);
-                x = rand_spread(x0, dx);
-                if (!square_in_bounds(c, y, x))
+                loc_init(&grid, rand_spread(x0, dx), rand_spread(y0, dy));
+                if (!square_in_bounds(c, &grid))
                 {
                     if (j < 9)
                         continue;
@@ -257,10 +257,10 @@ void spread_monsters(struct player *p, struct chunk *c, const char *type, int de
         }
 
         /* Require "empty" floor grids */
-        if (!square_isempty(c, y, x)) continue;
+        if (!square_isempty(c, &grid)) continue;
 
         /* Place the monster (sleeping, allow groups) */
-        pick_and_place_monster(p, c, y, x, depth, MON_ASLEEP | MON_GROUP, origin);
+        pick_and_place_monster(p, c, &grid, depth, MON_ASLEEP | MON_GROUP, origin);
 
         /* Rein in monster groups and escorts a little. */
         if (c->mon_max - start_mon_num > num * 2) break;
@@ -291,8 +291,9 @@ void spread_monsters(struct player *p, struct chunk *c, const char *type, int de
 void get_vault_monsters(struct player *p, struct chunk *c, char racial_symbol[], char *vault_type,
     const char *data, int y1, int y2, int x1, int x2)
 {
-    int i, y, x, depth;
+    int i, depth;
     const char *t;
+    struct loc grid;
 
     for (i = 0; racial_symbol[i] != '\0'; i++)
     {
@@ -318,14 +319,14 @@ void get_vault_monsters(struct player *p, struct chunk *c, char racial_symbol[],
         if (!get_mon_num(c, depth, false)) continue;
 
         /* Place the monsters */
-        for (t = data, y = y1; y <= y2; y++)
+        for (t = data, grid.y = y1; grid.y <= y2; grid.y++)
         {
-            for (x = x1; x <= x2; x++, t++)
+            for (grid.x = x1; grid.x <= x2; grid.x++, t++)
             {
                 if (*t == racial_symbol[i])
                 {
                     /* Place a monster */
-                    pick_and_place_monster(p, c, y, x, depth, 0, ORIGIN_DROP_SPECIAL);
+                    pick_and_place_monster(p, c, &grid, depth, 0, ORIGIN_DROP_SPECIAL);
                 }
             }
         }
@@ -350,7 +351,7 @@ void get_vault_monsters(struct player *p, struct chunk *c, char racial_symbol[],
 void get_chamber_monsters(struct player *p, struct chunk *c, int y1, int x1, int y2, int x2,
     char *name, int area)
 {
-    int i, y, x;
+    int i;
     s16b monsters_left, depth;
     bool random = one_in_(20);
 
@@ -402,18 +403,19 @@ void get_chamber_monsters(struct player *p, struct chunk *c, int y1, int x1, int
     /* Place the monsters. */
     for (i = 0; i < 300; i++)
     {
+        struct loc grid;
+
         /* Check for early completion. */
         if (!monsters_left) break;
 
         /* Pick a random in-room square. */
-        y = y1 + randint0(1 + ABS(y2 - y1));
-        x = x1 + randint0(1 + ABS(x2 - x1));
+        loc_init(&grid, x1 + randint0(1 + ABS(x2 - x1)), y1 + randint0(1 + ABS(y2 - y1)));
 
         /* Require a passable square with no monster in it already. */
-        if (!square_isempty(c, y, x)) continue;
+        if (!square_isempty(c, &grid)) continue;
 
         /* Place a single monster. Sleeping 2/3rds of the time. */
-        pick_and_place_monster(p, c, y, x, c->wpos.depth, ((randint0(3) != 0)? MON_ASLEEP: 0),
+        pick_and_place_monster(p, c, &grid, c->wpos.depth, ((randint0(3) != 0)? MON_ASLEEP: 0),
             ORIGIN_DROP_SPECIAL);
 
         /* One less monster to place. */

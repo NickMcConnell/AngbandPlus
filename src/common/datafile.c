@@ -35,6 +35,16 @@ const char *parser_error_str[PARSE_ERROR_MAX + 1] =
  */
 
 
+void print_error_simple(const char *name, struct parser *p)
+{
+    struct parser_state s;
+
+    parser_getstate(p, &s);
+    plog_fmt("Parse error in %s line %d column %d: %s: %s", name, s.line, s.col, s.msg,
+        parser_error_str[s.error]);
+}
+
+
 /*
  * More angband-specific bits of the parser
  * These require hooks into other parts of the code, and are a candidate for
@@ -215,6 +225,53 @@ errr grab_rand_value(random_value *value, const char **value_type, const char *n
         }
         dice_random_value(dice, NULL, &value[i]);
         dice_free(dice);
+    }
+
+    return (value_type[i]? PARSE_ERROR_NONE: PARSE_ERROR_INTERNAL);
+}
+
+
+/*
+ * Get the random value argument from a value expression and the index in the
+ * value_type array of the suffix used to build the value string
+ *
+ * value the random_value
+ * index the information on where to put it (eg array index)
+ * value_type the possible value strings
+ * name_and_value the value expression being matched
+ *
+ * Returns 0 if successful, otherwise an error value
+ */
+errr grab_index_and_rand(random_value *value, int *index, const char **value_type,
+    const char *name_and_value)
+{
+    int i = 0;
+    char value_name[NORMAL_WID];
+    char dice_string[40];
+
+    /* Get a rewritable string */
+    my_strcpy(value_name, name_and_value, strlen(name_and_value));
+
+    /* Parse the value expression */
+    if (!find_value_arg(value_name, dice_string, NULL))
+        return PARSE_ERROR_INVALID_VALUE;
+
+    while (value_type[i] && !streq(value_type[i], value_name))
+        i++;
+
+    if (value_type[i])
+    {
+        dice_t *dice = dice_new();
+
+        if (!dice_parse_string(dice, dice_string))
+        {
+            dice_free(dice);
+            return PARSE_ERROR_NOT_RANDOM;
+        }
+        dice_random_value(dice, NULL, value);
+        dice_free(dice);
+
+        *index = i;
     }
 
     return (value_type[i]? PARSE_ERROR_NONE: PARSE_ERROR_INTERNAL);

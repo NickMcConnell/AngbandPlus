@@ -49,15 +49,12 @@ void msg_broadcast(struct player *p, const char *msg, u16b type)
     for (i = 1; i <= NumPlayers; i++)
     {
         struct player *player = player_get(i);
-        struct message data;
 
         /* Skip the specified player */
         if (player == p) continue;
 
         /* Tell this one */
-        data.msg = msg;
-        data.type = type;
-        display_message(player, &data);
+        msg_print(player, msg, type);
     }
 
     /* Send to console */
@@ -73,12 +70,9 @@ void msg_all(struct player *p, const char *msg, u16b type)
     for (i = 1; i <= NumPlayers; i++)
     {
         struct player *player = player_get(i);
-        struct message data;
 
         /* Tell this one */
-        data.msg = msg;
-        data.type = type;
-        display_message(player, &data);
+        msg_print(player, msg, type);
     }
 }
 
@@ -90,7 +84,6 @@ void msg(struct player *p, const char *fmt, ...)
 {
     va_list vp;
     char buf[MSG_LEN];
-    struct message data;
 
     /* Begin the Varargs Stuff */
     va_start(vp, fmt);
@@ -102,9 +95,7 @@ void msg(struct player *p, const char *fmt, ...)
     va_end(vp);
 
     /* Display */
-    data.msg = buf;
-    data.type = MSG_GENERIC;
-    display_message(p, &data);
+    msg_print(p, buf, MSG_GENERIC);
 }
 
 
@@ -117,11 +108,7 @@ void msg(struct player *p, const char *fmt, ...)
  */
 void msg_print_complex_near(struct player *p, struct player *q, u16b type, const char *msg)
 {
-    int y, x, i;
-
-    /* Extract player's location */
-    y = p->py;
-    x = p->px;
+    int i;
 
     /* Check each player */
     for (i = 1; i <= NumPlayers; i++)
@@ -136,17 +123,13 @@ void msg_print_complex_near(struct player *p, struct player *q, u16b type, const
         if (q == player) continue;
 
         /* Make sure this player is on this level */
-        if (!COORDS_EQUAL(&player->wpos, &p->wpos)) continue;
+        if (!wpos_eq(&player->wpos, &p->wpos)) continue;
 
         /* Can he see this player? */
-        if (square_isview(player, y, x))
+        if (square_isview(player, &p->grid))
         {
-            struct message data;
-
             /* Send the message */
-            data.msg = msg;
-            data.type = type;
-            display_message(player, &data);
+            msg_print(player, msg, type);
         }
     }
 }
@@ -175,6 +158,64 @@ void msg_format_complex_near(struct player *p, u16b type, const char *fmt, ...)
 
 
 /*
+ * Display a message to everyone who is on the same dungeon level.
+ *
+ * This serves two functions: a dungeon level-wide chat, and a way
+ * to attract attention of other nearby players.
+ */
+void msg_format_complex_far(struct player *p, u16b type, const char *fmt, const char *sender, ...)
+{
+    va_list vp;
+    int i;
+    char buf[MSG_LEN];
+    char buf_vis[MSG_LEN];
+    char buf_invis[MSG_LEN];
+
+    /* Begin the Varargs Stuff */
+    va_start(vp, sender);
+
+    /* Format the args, save the length */
+    vstrnfmt(buf, MSG_LEN, fmt, vp);
+    strnfmt(buf_vis, MSG_LEN, "%s %s", sender, buf);
+    strnfmt(buf_invis, MSG_LEN, "%s %s", "Someone", buf);
+
+    /* End the Varargs Stuff */
+    va_end(vp);
+
+    /* Check each player */
+    for (i = 1; i <= NumPlayers; i++)
+    {
+        /* Check this player */
+        struct player *player = player_get(i);
+
+        /* Don't send the message to the player who caused it */
+        if (p == player) continue;
+
+        /* Don't send the message to the second ignoree */
+        /*if (q == player) continue;*/
+
+        /* Make sure this player is on this level */
+        if (!wpos_eq(&player->wpos, &p->wpos)) continue;
+
+        /* Can he see this player? */
+        if (square_isview(player, &p->grid))
+        {
+            /* Send the message */
+            msg_print(player, buf_vis, type);
+
+            /* Disturb player */
+            disturb(player, 0);
+        }
+        else
+        {
+            /* Send "invisible" message (e.g. "Someone yells") */
+            msg_print(player, buf_invis, type);
+        }
+    }
+}
+
+
+/*
  * Display a message to everyone who is in sight of another player.
  *
  * The content of the message will depend on whether or not the player is visible.
@@ -183,11 +224,7 @@ void msg_format_complex_near(struct player *p, u16b type, const char *fmt, ...)
 void msg_print_near(struct player *p, u16b type, const char *msg)
 {
     char p_name[NORMAL_WID], buf[NORMAL_WID];
-    int y, x, i;
-
-    /* Extract player's location */
-    y = p->py;
-    x = p->px;
+    int i;
 
     /* Check each player */
     for (i = 1; i <= NumPlayers; i++)
@@ -199,20 +236,16 @@ void msg_print_near(struct player *p, u16b type, const char *msg)
         if (p == q) continue;
 
         /* Make sure this player is at this depth */
-        if (!COORDS_EQUAL(&q->wpos, &p->wpos)) continue;
+        if (!wpos_eq(&q->wpos, &p->wpos)) continue;
 
         /* Can he see this player? */
-        if (square_isview(q, y, x))
+        if (square_isview(q, &p->grid))
         {
-            struct message data;
-
             player_desc(q, p_name, sizeof(p_name), p, true);
             strnfmt(buf, sizeof(buf), "%s%s", p_name, msg);
 
             /* Send the message */
-            data.msg = buf;
-            data.type = type;
-            display_message(q, &data);
+            msg_print(q, buf, type);
         }
     }
 }
@@ -248,7 +281,6 @@ void msgt(struct player *p, unsigned int type, const char *fmt, ...)
 {
     va_list vp;
     char buf[MSG_LEN];
-    struct message data;
 
     /* Begin the Varargs Stuff */
     va_start(vp, fmt);
@@ -261,9 +293,7 @@ void msgt(struct player *p, unsigned int type, const char *fmt, ...)
 
     /* Display */
     sound(p, type);
-    data.msg = buf;
-    data.type = type;
-    display_message(p, &data);
+    msg_print(p, buf, type);
 }
 
 

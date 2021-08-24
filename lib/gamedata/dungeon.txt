@@ -13,6 +13,7 @@
 # wpos : x coordinate : y coordinate
 # min-depth : minimum dungeon depth
 # max-depth : maximum dungeon depth
+# max-level : maximum character level allowed to enter
 # flags : dungeon flags
 # floor : floor feature : chance of getting the feature
 # wall : wall feature : chance of getting the feature
@@ -30,6 +31,10 @@
 # in monster.txt to create the "final level dungeon boss".
 # Leaving max-depth unset means "maximum depth allowed" (defined in
 # constants.txt). This should always be the case for the Main Angband dungeon.
+
+# Set max-level to restrict entrance to characters below a certain level.
+# Never set for "mandatory" dungeons, otherwise it could prevent everyone from
+# finishing the game.
 
 # 'flags' are dungeon flags (see list-dungeon-flags.h)
 
@@ -52,6 +57,7 @@ name:The Training Cave
 wpos:-21:20
 min-depth:1
 max-depth:2
+max-level:10
 flags:EMPTY
 rule:100:1
 
@@ -60,6 +66,7 @@ name:The Orc Cave
 wpos:-14:28
 min-depth:10
 max-depth:23
+max-level:30
 flags:CAVERN
 floor:packed dirt:10
 wall:mountain:10
@@ -75,6 +82,7 @@ name:The Old Forest
 wpos:-18:19
 min-depth:13
 max-depth:25
+max-level:30
 flags:NO_DOORS | WATER_RIVER
 floor:packed dirt:8
 floor:water:2
@@ -91,6 +99,7 @@ name:The Sandworm Lair
 wpos:40:-40
 min-depth:22
 max-depth:30
+max-level:35
 flags:NO_DOORS | SAND_VEIN
 floor:sand:10
 wall:sandwall:10
@@ -104,6 +113,7 @@ name:The Land Of Rhûn
 wpos:32:12
 min-depth:20
 max-depth:34
+max-level:40
 floor:grass:10
 wall:tree:3
 wall:water:3
@@ -118,6 +128,7 @@ name:The Barrow-downs
 wpos:-16:19
 min-depth:1
 max-depth:35
+max-level:40
 floor:packed dirt:8
 floor:grass:2
 wall:tree:3
@@ -131,6 +142,7 @@ name:The Maze
 wpos:-12:18
 min-depth:25
 max-depth:40
+max-level:40
 flags:MAZE
 rule:20:0
 rule-symbols:p
@@ -141,6 +153,7 @@ name:The Heart of the Earth
 wpos:21:29
 min-depth:25
 max-depth:45
+max-level:45
 rule:40:0
 rule-symbols:#XgE
 rule:30:0
@@ -152,6 +165,7 @@ name:The Small Water Cave
 wpos:-5:10
 min-depth:32
 max-depth:45
+max-level:45
 floor:water:10
 wall:mountain:10
 rule:40:0
@@ -167,6 +181,7 @@ name:The Helcaraxe
 wpos:-14:42
 min-depth:20
 max-depth:50
+max-level:45
 flags:CAVERN | WATER_RIVER
 floor:ice:10
 wall:ice wall:10
@@ -178,6 +193,7 @@ name:The Mines of Moria
 wpos:-4:11
 min-depth:30
 max-depth:50
+max-level:45
 flags:WATER_RIVER
 floor:packed dirt:10
 wall:mountain:10
@@ -194,6 +210,7 @@ name:The Illusory Castle
 wpos:-7:2
 min-depth:35
 max-depth:52
+max-level:45
 wall:glass wall:5
 wall:illusion wall:5
 rule:70:0
@@ -207,6 +224,7 @@ name:Cirith Ungol
 wpos:13:-16
 min-depth:25
 max-depth:55
+max-level:45
 flags:CIRCULAR_ROOMS
 floor:packed dirt:7
 floor:web:3
@@ -224,6 +242,7 @@ name:Númenor
 wpos:-39:-17
 min-depth:35
 max-depth:55
+max-level:45
 floor:water:10
 wall:water:9
 rule:80:0

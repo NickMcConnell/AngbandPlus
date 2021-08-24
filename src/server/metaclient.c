@@ -164,9 +164,9 @@ static void meta_write(int flag)
 
         /* Append the version number */
         if (cfg_mang_meta)
-            strnfmt(temp, sizeof(temp), "Version: %s ", version_build(VB_BASE | VB_BUILD));
+            strnfmt(temp, sizeof(temp), "Version: %s ", version_build(NULL, true));
         else
-            strnfmt(temp, sizeof(temp), "<version>%s</version></server>", version_build(VB_BASE));
+            strnfmt(temp, sizeof(temp), "<version>%s</version></server>", version_build(NULL, false));
         my_strcat(buf_meta, temp, sizeof(buf_meta));
     }
 

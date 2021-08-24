@@ -41,3 +41,5 @@ s16b stat_roll[STAT_MAX + 1];
 
 /* Party mode */
 bool party_mode;
+
+struct timed_grade *timed_grades[TMD_MAX];

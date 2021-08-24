@@ -49,19 +49,10 @@ const char *r_info_spell_flags[] =
 
 static const char *obj_flags[] =
 {
-    #define OF(a) #a,
+    #define OF(a, b) #a,
     #include "../common/list-object-flags.h"
     #undef OF
     ""
-};
-
-
-static const char *effect_list[] = {
-    NULL,
-    #define EFFECT(x, a, b, c, d, e) #x,
-    #include "list-effects.h"
-    #undef EFFECT
-    NULL
 };
 
 
@@ -821,29 +812,13 @@ static enum parser_error parse_mon_spell_effect(struct parser *p)
 {
     struct monster_spell *s = parser_priv(p);
     struct effect *new_effect = mem_zalloc(sizeof(*new_effect));
-    const char *type;
-    int val;
+    errr ret;
 
     if (!s) return PARSE_ERROR_MISSING_RECORD_HEADER;
 
-    if (grab_name("effect", parser_getsym(p, "eff"), effect_list, N_ELEMENTS(effect_list), &val))
-        return PARSE_ERROR_INVALID_EFFECT;
-    new_effect->index = val;
-
-    if (parser_hasval(p, "type"))
-    {
-        type = parser_getsym(p, "type");
-
-        if (type == NULL) return PARSE_ERROR_UNRECOGNISED_PARAMETER;
-
-        /* Check for a value */
-        val = effect_param(new_effect->index, type);
-        if (val < 0) return PARSE_ERROR_INVALID_VALUE;
-        new_effect->params[0] = val;
-    }
-
-    if (parser_hasval(p, "xtra"))
-        new_effect->params[1] = parser_getint(p, "xtra");
+    /* Fill in the detail */
+    ret = grab_effect_data(p, new_effect);
+    if (ret) return ret;
 
     new_effect->next = s->effect;
     s->effect = new_effect;
@@ -852,7 +827,7 @@ static enum parser_error parse_mon_spell_effect(struct parser *p)
 }
 
 
-static enum parser_error parse_mon_spell_param(struct parser *p)
+static enum parser_error parse_mon_spell_effect_yx(struct parser *p)
 {
     struct monster_spell *s = parser_priv(p);
 
@@ -861,10 +836,8 @@ static enum parser_error parse_mon_spell_param(struct parser *p)
     /* If there is no effect, assume that this is human and not parser error. */
     if (s->effect == NULL) return PARSE_ERROR_NONE;
 
-    s->effect->params[1] = parser_getint(p, "p2");
-
-    if (parser_hasval(p, "p3"))
-        s->effect->params[2] = parser_getint(p, "p3");
+    s->effect->y = parser_getint(p, "y");
+    s->effect->x = parser_getint(p, "x");
 
     return PARSE_ERROR_NONE;
 }
@@ -958,8 +931,8 @@ static struct parser *init_parse_mon_spell(void)
     parser_reg(p, "lore-color-resist sym color", parse_mon_spell_lore_color_resist);
     parser_reg(p, "lore-color-immune sym color", parse_mon_spell_lore_color_immune);
     parser_reg(p, "hit uint hit", parse_mon_spell_hit);
-    parser_reg(p, "effect sym eff ?sym type ?int xtra", parse_mon_spell_effect);
-    parser_reg(p, "param int p2 ?int p3", parse_mon_spell_param);
+    parser_reg(p, "effect sym eff ?sym type ?int radius ?int other", parse_mon_spell_effect);
+    parser_reg(p, "effect-yx int y int x", parse_mon_spell_effect_yx);
     parser_reg(p, "dice str dice", parse_mon_spell_dice);
     parser_reg(p, "expr sym name sym base str expr", parse_mon_spell_expr);
     return p;
@@ -2153,3 +2126,4 @@ struct file_parser pit_parser =
     finish_parse_pit,
     cleanup_pits
 };
+

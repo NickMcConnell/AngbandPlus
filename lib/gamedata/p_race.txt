@@ -9,7 +9,6 @@
 # === Understanding p_race.txt ===
 
 # name:race name
-# stats:str:int:wis:dex:con
 # skill-disarm-phys:base
 # skill-disarm-magic:base
 # skill-device:base
@@ -19,25 +18,24 @@
 # skill-melee:base
 # skill-shoot:base
 # skill-dig:base
-# info:hitdie:expbase:infra
+# info:hitdie:expbase
 # history:history:agebase:agemod
 # height:hgtmale:modhgtmale:hgtfemale:modhgtfemale
 # weight:wgtmale:modwgtmale:wgtfemale:modwgtfemale
-# obj-flags:object flags
-# values:object modifiers
+# obj-flag:level of application:object flag
+# value:level of application:object modifier
+# brand:level of application:brand code
+# slay:level of application:slay code
 # player-flags:racial flags
 
 # 'name' indicates the beginning of an entry.
-
-# 'stats' is for the stat modifiers - strength, intelligence, wisdom,
-# dexterity, constitution.
 
 # 'skill-<skill name>' is for skills that get added at birth - physical
 # and magical disarming, magic devices, saving throws, stealth,
 # to hit (normal), to hit (bows), digging bonus.
 
 # 'info' is for gameplay info - max. hitpoints gained per level, experience
-# factor in percent, range of infravision in 10 feet.
+# factor in percent.
 
 # 'history' is for background info - starting point of the player history,
 # base age, random age modifier.
@@ -48,18 +46,21 @@
 # 'weight' is weight info - base weight (males), mod weight (males),
 # base weight (females), mod weight (females).
 
-# 'obj-flags' is for object flags (as in src/list-obj-flags.h) that
-# races possess innately.
+# 'obj-flag' is for object flags (as in list-object-flags.h) that
+# races possess innately at a certain level.
 
-# 'values' is for object modifiers which take a value that races possess
-# innately.
+# 'value' is for object modifiers which take a value that races possess
+# innately at a certain level.
 
-# 'player-flags' is for player flags (as in src/list-player-flags.h) that
+# 'brand' is for brands that races possess innately at a certain level.
+
+# 'slay' is for slays that races possess innately at a certain level.
+
+# 'player-flags' is for player flags (as in list-player-flags.h) that
 # races possess innately.
 
 
 name:Human
-stats:0:0:0:0:0
 skill-disarm-phys:0
 skill-disarm-magic:0
 skill-device:0
@@ -69,13 +70,12 @@ skill-search:0
 skill-melee:0
 skill-shoot:0
 skill-dig:0
-info:10:100:0
+info:10:100
 history:1:14:6
 height:72:6:66:4
 weight:180:25:150:20
 
 name:Half-Elf
-stats:0:1:-1:1:-1
 skill-disarm-phys:2
 skill-disarm-magic:2
 skill-device:3
@@ -85,14 +85,18 @@ skill-search:3
 skill-melee:-1
 skill-shoot:5
 skill-dig:0
-info:10:110:2
+info:10:110
 history:4:24:16
 height:66:6:62:6
 weight:130:15:100:10
-obj-flags:SUST_DEX
+obj-flag:1:SUST_DEX
+value:1:INT[1]
+value:1:WIS[-1]
+value:1:DEX[1]
+value:1:CON[-1]
+value:1:INFRA[2]
 
 name:Elf
-stats:-1:2:-1:1:-1
 skill-disarm-phys:5
 skill-disarm-magic:5
 skill-device:6
@@ -102,15 +106,20 @@ skill-search:6
 skill-melee:-5
 skill-shoot:15
 skill-dig:0
-info:9:120:3
+info:9:120
 history:5:75:75
 height:60:4:54:4
 weight:100:6:80:6
-obj-flags:SUST_DEX
-values:RES_LIGHT[1]
+obj-flag:1:SUST_DEX
+value:1:STR[-1]
+value:1:INT[2]
+value:1:WIS[-1]
+value:1:DEX[1]
+value:1:CON[-1]
+value:1:INFRA[3]
+value:1:RES_LIGHT[1]
 
 name:Hobbit
-stats:-2:2:1:3:2
 skill-disarm-phys:15
 skill-disarm-magic:15
 skill-device:18
@@ -120,15 +129,20 @@ skill-search:6
 skill-melee:-10
 skill-shoot:20
 skill-dig:0
-info:7:110:4
+info:7:110
 history:10:21:12
 height:36:3:33:3
 weight:60:3:50:3
-obj-flags:HOLD_LIFE
+obj-flag:1:HOLD_LIFE
+value:1:STR[-2]
+value:1:INT[2]
+value:1:WIS[1]
+value:1:DEX[3]
+value:1:CON[2]
+value:1:INFRA[4]
 player-flags:KNOW_MUSHROOM
 
 name:Gnome
-stats:-1:2:0:2:1
 skill-disarm-phys:10
 skill-disarm-magic:10
 skill-device:22
@@ -138,15 +152,19 @@ skill-search:4
 skill-melee:-8
 skill-shoot:12
 skill-dig:0
-info:8:125:4
+info:8:125
 history:13:50:40
 height:42:3:39:3
 weight:90:6:75:3
-obj-flags:FREE_ACT
+obj-flag:1:FREE_ACT
+value:1:STR[-1]
+value:1:INT[2]
+value:1:DEX[2]
+value:1:CON[1]
+value:1:INFRA[4]
 player-flags:KNOW_ZAPPER
 
 name:Dwarf
-stats:2:-3:2:-2:2
 skill-disarm-phys:2
 skill-disarm-magic:2
 skill-device:9
@@ -156,15 +174,20 @@ skill-search:2
 skill-melee:15
 skill-shoot:0
 skill-dig:40
-info:11:120:5
+info:11:120
 history:16:35:15
 height:48:3:46:3
 weight:150:10:120:10
-obj-flags:PROT_BLIND
+obj-flag:1:PROT_BLIND
+value:1:STR[2]
+value:1:INT[-3]
+value:1:WIS[2]
+value:1:DEX[-2]
+value:1:CON[2]
+value:1:INFRA[5]
 player-flags:SEE_ORE
 
 name:Half-Orc
-stats:2:-1:0:0:1
 skill-disarm-phys:-3
 skill-disarm-magic:-3
 skill-device:-3
@@ -174,15 +197,18 @@ skill-search:-3
 skill-melee:12
 skill-shoot:-5
 skill-dig:0
-info:10:110:3
+info:10:110
 history:19:11:4
 height:66:1:62:1
 weight:150:5:120:5
-values:RES_DARK[1]
+value:1:STR[2]
+value:1:INT[-1]
+value:1:CON[1]
+value:1:INFRA[3]
+value:1:RES_DARK[1]
 player-flags:ORC
 
 name:Half-Troll
-stats:4:-4:-2:-4:3
 skill-disarm-phys:-5
 skill-disarm-magic:-5
 skill-device:-8
@@ -192,15 +218,21 @@ skill-search:-9
 skill-melee:20
 skill-shoot:-10
 skill-dig:0
-info:12:120:3
+info:12:120
 history:21:20:10
 height:96:10:84:8
 weight:250:50:225:40
-obj-flags:SUST_STR | REGEN
+obj-flag:1:SUST_STR
+obj-flag:1:REGEN
+value:1:STR[4]
+value:1:INT[-4]
+value:1:WIS[-2]
+value:1:DEX[-4]
+value:1:CON[3]
+value:1:INFRA[3]
 player-flags:TROLL
 
 name:Dunadan
-stats:1:2:2:2:3
 skill-disarm-phys:4
 skill-disarm-magic:4
 skill-device:5
@@ -210,14 +242,18 @@ skill-search:3
 skill-melee:15
 skill-shoot:10
 skill-dig:0
-info:10:180:0
+info:10:180
 history:1:50:20
 height:82:5:78:6
 weight:190:20:180:15
-obj-flags:SUST_CON
+obj-flag:1:SUST_CON
+value:1:STR[1]
+value:1:INT[2]
+value:1:WIS[2]
+value:1:DEX[2]
+value:1:CON[3]
 
 name:High-Elf
-stats:1:3:-1:3:1
 skill-disarm-phys:4
 skill-disarm-magic:4
 skill-device:20
@@ -227,15 +263,20 @@ skill-search:10
 skill-melee:10
 skill-shoot:25
 skill-dig:0
-info:10:200:4
+info:10:200
 history:7:100:30
 height:90:10:82:10
 weight:190:20:180:15
-obj-flags:SEE_INVIS
-values:RES_LIGHT[1]
+obj-flag:1:SEE_INVIS
+value:1:STR[1]
+value:1:INT[3]
+value:1:WIS[-1]
+value:1:DEX[3]
+value:1:CON[1]
+value:1:INFRA[4]
+value:1:RES_LIGHT[1]
 
 name:Kobold
-stats:-1:-1:0:2:2
 skill-disarm-phys:10
 skill-disarm-magic:10
 skill-device:5
@@ -245,14 +286,18 @@ skill-search:10
 skill-melee:-5
 skill-shoot:10
 skill-dig:0
-info:8:115:5
+info:8:115
 history:23:15:10
 height:38:4:36:3
 weight:70:5:60:4
-values:RES_POIS[1]
+value:1:STR[-1]
+value:1:INT[-1]
+value:1:DEX[2]
+value:1:CON[2]
+value:1:INFRA[5]
+value:1:RES_POIS[1]
 
 name:Yeek
-stats:-5:-5:-5:-5:-5
 skill-disarm-phys:0
 skill-disarm-magic:0
 skill-device:0
@@ -266,11 +311,15 @@ info:6:50:0
 history:1:14:6
 height:24:2:22:2
 weight:40:2:32:2
-obj-flags:FEATHER
+obj-flag:1:FEATHER
+value:1:STR[-5]
+value:1:INT[-5]
+value:1:WIS[-5]
+value:1:DEX[-5]
+value:1:CON[-5]
 player-flags:ANIMAL
 
 name:Ent
-stats:8:-4:2:-4:8
 skill-disarm-phys:5
 skill-disarm-magic:5
 skill-device:0
@@ -280,16 +329,32 @@ skill-search:2
 skill-melee:15
 skill-shoot:5
 skill-dig:0
-info:14:275:5
+info:14:275
 history:94:255:70
 height:180:6:150:4
 weight:255:25:230:20
-obj-flags:SLOW_DIGEST
-values:RES_FIRE[-1]
+obj-flag:1:SLOW_DIGEST
+obj-flag:5:SEE_INVIS
+obj-flag:10:ESP_ANIMAL
+obj-flag:15:ESP_ORC
+obj-flag:20:ESP_TROLL
+obj-flag:25:ESP_GIANT
+obj-flag:30:ESP_DRAGON
+obj-flag:35:ESP_DEMON
+obj-flag:40:ESP_UNDEAD
+obj-flag:45:ESP_EVIL
+obj-flag:50:ESP_RADIUS
+value:1:STR[8]
+value:1:INT[-4]
+value:1:WIS[2]
+value:1:DEX[-4]
+value:1:CON[8]
+value:1:INFRA[5]
+value:1:RES_FIRE[-1]
+value:1:SPEED[-2]
 player-flags:GIANT
 
 name:Thunderlord
-stats:6:2:1:1:3
 skill-disarm-phys:6
 skill-disarm-magic:6
 skill-device:0
@@ -299,15 +364,24 @@ skill-search:10
 skill-melee:15
 skill-shoot:5
 skill-dig:0
-info:12:350:0
+info:12:350
 history:89:14:6
 height:180:6:150:4
 weight:255:25:230:20
-obj-flags:FEATHER
+obj-flag:1:FEATHER
+obj-flag:5:ESP_DRAGON
+value:1:STR[6]
+value:1:INT[2]
+value:1:WIS[1]
+value:1:DEX[1]
+value:1:CON[3]
+value:10:RES_FIRE[1]
+value:15:RES_COLD[1]
+value:20:RES_ACID[1]
+value:25:RES_ELEC[1]
 player-flags:THUNDERLORD
 
 name:Dragon
-stats:0:0:0:0:0
 skill-disarm-phys:6
 skill-disarm-magic:6
 skill-device:0
@@ -317,10 +391,11 @@ skill-search:10
 skill-melee:15
 skill-shoot:5
 skill-dig:0
-info:13:450:1
+info:13:450
 history:98:255:70
 height:180:6:150:4
 weight:255:25:230:20
-obj-flags:FEATHER
-values:RES_NEXUS[1]
+obj-flag:1:FEATHER
+value:1:INFRA[1]
+value:1:RES_NEXUS[1]
 player-flags:DRAGON

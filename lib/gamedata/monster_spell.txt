@@ -95,7 +95,7 @@ message-miss:{name} fires a missile, but misses.
 name:BR_ACID
 msgt:BR_ACID
 hit:100
-effect:BREATH:ACID:30
+effect:BREATH:ACID:0:30
 lore:acid
 lore-color-base:Orange
 lore-color-resist:Yellow
@@ -106,7 +106,7 @@ message-invis:You hear an acrid roar.
 name:BR_ELEC
 msgt:BR_ELEC
 hit:100
-effect:BREATH:ELEC:30
+effect:BREATH:ELEC:0:30
 lore:lightning
 lore-color-base:Orange
 lore-color-resist:Yellow
@@ -117,7 +117,7 @@ message-invis:You hear a crackling roar.
 name:BR_FIRE
 msgt:BR_FIRE
 hit:100
-effect:BREATH:FIRE:30
+effect:BREATH:FIRE:0:30
 lore:fire
 lore-color-base:Orange
 lore-color-resist:Yellow
@@ -128,7 +128,7 @@ message-invis:You hear a scorching roar.
 name:BR_COLD
 msgt:BR_FROST
 hit:100
-effect:BREATH:COLD:30
+effect:BREATH:COLD:0:30
 lore:frost
 lore-color-base:Orange
 lore-color-resist:Yellow
@@ -139,7 +139,7 @@ message-invis:You hear a whooshing roar.
 name:BR_POIS
 msgt:BR_GAS
 hit:100
-effect:BREATH:POIS:30
+effect:BREATH:POIS:0:30
 lore:poison
 lore-color-base:Orange
 lore-color-resist:Light Green
@@ -149,7 +149,7 @@ message-invis:You hear a sickening roar.
 name:BR_NETH
 msgt:BR_NETHER
 hit:100
-effect:BREATH:NETHER:30
+effect:BREATH:NETHER:0:30
 lore:nether
 lore-color-base:Orange
 lore-color-resist:Light Green
@@ -159,7 +159,7 @@ message-invis:You hear an eerie roar.
 name:BR_LIGHT
 msgt:BR_LIGHT
 hit:100
-effect:BREATH:LIGHT:30
+effect:BREATH:LIGHT:0:30
 lore:light
 lore-color-base:Orange
 lore-color-resist:Light Green
@@ -169,7 +169,7 @@ message-invis:You hear a humming roar.
 name:BR_DARK
 msgt:BR_DARK
 hit:100
-effect:BREATH:DARK:30
+effect:BREATH:DARK:0:30
 lore:darkness
 lore-color-base:Orange
 lore-color-resist:Light Green
@@ -179,7 +179,7 @@ message-invis:You hear a hushing roar.
 name:BR_SOUN
 msgt:BR_SOUND
 hit:100
-effect:BREATH:SOUND:30
+effect:BREATH:SOUND:0:30
 lore:sound
 lore-color-base:Orange
 lore-color-resist:Yellow
@@ -190,7 +190,7 @@ message-invis:You hear an echoing roar.
 name:BR_CHAO
 msgt:BR_CHAOS
 hit:100
-effect:BREATH:CHAOS:30
+effect:BREATH:CHAOS:0:30
 lore:chaos
 lore-color-base:Orange
 lore-color-resist:Light Green
@@ -200,7 +200,7 @@ message-invis:You hear a cacophonous roar.
 name:BR_DISE
 msgt:BR_DISEN
 hit:100
-effect:BREATH:DISEN:30
+effect:BREATH:DISEN:0:30
 lore:disenchantment
 lore-color-base:Light Red
 lore-color-resist:Light Green
@@ -210,7 +210,7 @@ message-invis:You hear a dissipating roar.
 name:BR_NEXU
 msgt:BR_NEXUS
 hit:100
-effect:BREATH:NEXUS:30
+effect:BREATH:NEXUS:0:30
 lore:nexus
 lore-color-base:Light Red
 lore-color-resist:Yellow
@@ -221,7 +221,7 @@ message-invis:You hear a tearing roar.
 name:BR_TIME
 msgt:BR_TIME
 hit:100
-effect:BREATH:TIME:30
+effect:BREATH:TIME:0:30
 lore:time
 lore-color-base:Light Red
 lore-color-resist:Orange
@@ -231,7 +231,7 @@ message-invis:You remember hearing a roar.
 name:BR_INER
 msgt:BR_INERTIA
 hit:100
-effect:BREATH:INERTIA:30
+effect:BREATH:INERTIA:0:30
 lore:inertia
 lore-color-base:Orange
 message-vis:{name} breathes inertia.
@@ -240,7 +240,7 @@ message-invis:You hear a thrumming roar.
 name:BR_GRAV
 msgt:BR_GRAVITY
 hit:100
-effect:BREATH:GRAVITY:30
+effect:BREATH:GRAVITY:0:30
 lore:gravity
 lore-color-base:Light Red
 lore-color-resist:Orange
@@ -250,7 +250,7 @@ message-invis:You hear a heavy roar.
 name:BR_SHAR
 msgt:BR_SHARDS
 hit:100
-effect:BREATH:SHARD:30
+effect:BREATH:SHARD:0:30
 lore:shards
 lore-color-base:Orange
 lore-color-resist:Light Green
@@ -260,7 +260,7 @@ message-invis:You hear a shattering roar.
 name:BR_PLAS
 msgt:BR_PLASMA
 hit:100
-effect:BREATH:PLASMA:30
+effect:BREATH:PLASMA:0:30
 lore:plasma
 lore-color-base:Orange
 lore-color-resist:Yellow
@@ -270,7 +270,7 @@ message-invis:You hear a hissing roar.
 name:BR_WALL
 msgt:BR_FORCE
 hit:100
-effect:BREATH:FORCE:30
+effect:BREATH:FORCE:0:30
 lore:force
 lore-color-base:Orange
 lore-color-resist:Yellow
@@ -279,7 +279,7 @@ message-invis:You hear a staccato roar.
 
 name:BR_MANA
 hit:100
-effect:BREATH:MANA:30
+effect:BREATH:MANA:0:30
 lore:mana
 lore-color-base:Light Red
 lore-color-resist:Orange
@@ -289,7 +289,7 @@ message-invis:You hear a scintillating roar.
 name:BR_WATE
 msgt:BR_WATE
 hit:100
-effect:BREATH:WATER:30
+effect:BREATH:WATER:0:30
 lore:water
 lore-color-base:Light Red
 lore-color-resist:Orange
@@ -434,7 +434,7 @@ lore:cause mind blasting
 lore-color-base:Orange
 lore-color-resist:Yellow
 lore-color-immune:Light Green
-message-vis:{name} gazes at you with psionic energy.
+message-vis:{name} gazes at {target} with psionic energy.
 message-invis:Something focuses on your mind.
 message-save:You shake off a pounding headache.
 
@@ -454,7 +454,7 @@ lore:cause brain smashing
 lore-color-base:Light Red
 lore-color-resist:Orange
 lore-color-immune:Light Green
-message-vis:{name} smashes you with psionic energy.
+message-vis:{name} smashes {target} with psionic energy.
 message-invis:Something focuses on your mind.
 message-save:You shake off a splitting migraine.
 
@@ -465,7 +465,7 @@ dice:3d8
 lore:cause light wounds
 lore-color-base:Yellow
 lore-color-resist:Light Green
-message-vis:{name} points at you and curses!
+message-vis:{name} points at {target} and curses!
 message-invis:Something curses!
 message-save:Your body tingles briefly.
 
@@ -476,7 +476,7 @@ dice:8d8
 lore:cause serious wounds
 lore-color-base:Yellow
 lore-color-resist:Light Green
-message-vis:{name} points at you and curses horribly!
+message-vis:{name} points at {target} and curses horribly!
 message-invis:Something curses horribly!
 message-save:Your body pulsates briefly.
 
@@ -487,7 +487,7 @@ dice:10d15
 lore:cause critical wounds
 lore-color-base:Orange
 lore-color-resist:Light Green
-message-vis:{name} points at you and incants terribly!
+message-vis:{name} points at {target} and incants terribly!
 message-invis:Something incants terribly!
 message-save:Your body shakes briefly.
 
@@ -500,7 +500,7 @@ dice:15d15
 lore:cause mortal wounds
 lore-color-base:Light Red
 lore-color-resist:Light Green
-message-vis:{name} points at you and screams the word 'DIE!'
+message-vis:{name} points at {target} and screams the word 'DIE!'
 message-invis:Something screams the word 'DIE!'
 message-save:Your body spasms briefly.
 
@@ -671,7 +671,7 @@ lore:slow
 lore-color-base:Orange
 lore-color-resist:Light Green
 lore-color-immune:Light Green
-message-vis:{name} tries to make you move slowly.
+message-vis:{name} tries to make {target} move slowly.
 message-invis:Something mumbles.
 message-save:You fight off a sense of sluggishness.
 
@@ -679,12 +679,12 @@ name:HOLD
 hit:100
 effect:TIMED_INC:PARALYZED
 dice:3+1d4
-effect:PROJECT:MON_SLEEP
+effect:PROJECT:SLEEP_ALL
 lore:paralyze
 lore-color-base:Light Red
 lore-color-resist:Light Green
 lore-color-immune:Light Green
-message-vis:{name} tries to make you stop moving.
+message-vis:{name} tries to make {target} stop moving.
 message-invis:Something mumbles.
 message-save:You fight off a sense of torpidity.
 
@@ -742,18 +742,17 @@ hit:100
 effect:TELEPORT_TO
 lore:teleport to
 lore-color-base:Yellow
-message-vis:{name} commands you to come hither.
+message-vis:{name} commands {target} to come hither.
 message-invis:Something commands you to come hither.
 
 name:TELE_AWAY
 msgt:TELEPORT
 hit:100
 effect:TELEPORT:AWAY_ALL
-param:1
 dice:100
 lore:teleport away
 lore-color-base:Yellow
-message-vis:{name} commands you to go away.
+message-vis:{name} commands {target} to go away.
 message-invis:Something commands you to go away.
 
 name:TELE_LEVEL
@@ -763,24 +762,24 @@ effect:TELEPORT_LEVEL:TELE_LEVEL
 lore:teleport level
 lore-color-base:Yellow
 lore-color-resist:Light Green
-message-vis:{name} commands you to go far away.
+message-vis:{name} commands {target} to go far away.
 message-invis:Something commands you to go far away.
 message-save:You feel unstable for a second, but it passes.
 
 name:DARKNESS
 hit:100
 effect:DARKEN_AREA
-param:3
+effect:BALL:DARK_WEAK:3
+dice:10
 lore:create darkness
 lore-color-base:Light Green
-message-vis:{name} surrounds you in darkness.
+message-vis:{name} surrounds {target} in darkness.
 message-invis:Something mumbles.
 
 name:TRAPS
 msgt:CREATE_TRAP
 hit:100
-effect:TOUCH:MAKE_TRAP
-param:3:1
+effect:TOUCH:MAKE_TRAP:3:1
 lore:create traps
 lore-color-base:Yellow
 message-vis:{name} cackles evilly about traps.
@@ -796,14 +795,13 @@ lore:cause amnesia
 lore-color-base:Yellow
 lore-color-resist:Light Green
 lore-color-immune:Light Green
-message-vis:{name} tries to make you forget things.
+message-vis:{name} tries to make {target} forget things.
 message-invis:Something messes with your mind.
 message-save:You retain your presence of mind.
 
 name:ANIM_DEAD
 hit:100
-effect:BLAST_OBVIOUS:RAISE
-param:1:10
+effect:BLAST_OBVIOUS:RAISE:1:10
 lore:animate the dead
 lore-color-base:Orange
 message-vis:{name} raises the dead.

@@ -64,7 +64,7 @@ struct player_options
     byte hitpoint_warn;             /* Hitpoint warning (0 to 9) */
     byte lazymove_delay;            /* Delay in cs before moving to allow another keypress */
     byte delay_factor;              /* Delay factor (0 to 255) */
-    byte ignore_lvl[ITYPE_MAX];     /* Auto-ignore level (0 to 6) */
+    byte ignore_lvl[ITYPE_MAX];     /* Auto-ignore level (0 to 4) */
 };
 
 extern int option_page[OP_MAX][OPT_PAGE_PER];

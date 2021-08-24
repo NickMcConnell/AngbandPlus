@@ -40,8 +40,8 @@
 
 extern bool mon_spell_is_innate(int index);
 extern const struct monster_spell *monster_spell_by_index(int index);
-extern void do_mon_spell(struct player *p, struct chunk *c, int index, struct monster *mon,
-    bool seen);
+extern void do_mon_spell(struct player *p, struct chunk *c, struct monster *target_mon, int index,
+    struct monster *mon, bool seen);
 extern bool test_spells(bitflag *f, int types);
 extern void set_breath(bitflag *f);
 extern void ignore_spells(bitflag *f, int types);
@@ -52,8 +52,6 @@ extern void create_mon_spell_mask(bitflag *f, ...);
 extern const char *mon_spell_lore_description(int index, const struct monster_race *race);
 extern int mon_spell_lore_damage(int index, const struct monster_race *race, bool know_hp);
 extern void init_spells(bitflag *f);
-extern void do_mon_spell_MvM(struct player *p, struct chunk *c, struct monster *target_m_ptr,
-    int index, struct monster *mon, bool seen);
 extern bool is_spell_summon(int index);
 extern int spell_effect(int index);
 extern int breath_effect(struct player *p, bitflag mon_breath[RSF_SIZE]);

@@ -46,6 +46,7 @@ enum birth_stage
     BIRTH_RACE_CHOICE,
     BIRTH_CLASS_CHOICE,
     BIRTH_ROLLER_CHOICE,
+    BIRTH_POINTBASED,
     BIRTH_ROLLER,
     BIRTH_FINAL_CONFIRM,
     BIRTH_COMPLETE,
@@ -198,6 +199,59 @@ static void enter_password(void)
 
 
 /*
+ * This function handles quick creation based on the previous character.
+ */
+static bool player_birth_quick(void)
+{
+    struct keypress ch;
+
+    /* Starting over */
+    if (!quick_start) return false;
+
+    /* Clear screen */
+    Term_clear();
+
+    /* Prompt for it */
+    put_str("Quick-start character based on previous one (y/n)? ", 2, 2);
+
+    while (true)
+    {
+        /* Get key */
+        ch = inkey();
+
+        /* Start over */
+        if (ch.code == KTRL('X')) quit(NULL);
+
+        /* Done */
+        else if ((ch.code == ESCAPE) || strchr("YyNn\r\n", ch.code)) break;
+    }
+
+    /* Quick generation */
+    if ((ch.code == 'y') || (ch.code == 'Y'))
+    {
+        /* Prompt for it */
+        prt("['Ctrl-X' to quit, 'ESC' to start over, or any other key to continue]", 23, 5);
+
+        /* Get a key */
+        ch = inkey();
+
+        /* Quit */
+        if (ch.code == KTRL('X')) quit(NULL);
+
+        /* Start over */
+        if (ch.code == ESCAPE) return false;
+
+        /* Accept */
+        stat_roll[STAT_MAX] = quick_start;
+        return true;
+    }
+
+    /* Start over */
+    return false;
+}
+
+
+/*
  * The various "menu" bits of the birth process - namely choice of sex,
  * race, class, and roller type.
  */
@@ -224,8 +278,8 @@ static struct menu sex_menu, race_menu, class_menu, roller_menu;
 
 /* Upper left column and row, width, and lower column */
 static region gender_region = {SEX_COL, TABLE_ROW, 12, MENU_ROWS};
-static region race_region = {RACE_COL, TABLE_ROW, 15, MENU_ROWS};
-static region class_region = {CLASS_COL, TABLE_ROW, 16, MENU_ROWS};
+static region race_region = {RACE_COL, TABLE_ROW, 15, 0};
+static region class_region = {CLASS_COL, TABLE_ROW, 16, 0};
 static region roller_region = {ROLLER_COL, TABLE_ROW, 30, MENU_ROWS};
 
 
@@ -321,16 +375,9 @@ static const char *get_flag_desc(bitflag flag)
 {
     switch (flag)
     {
-        case OF_SUST_STR: return "Sustains strength";
-        case OF_SUST_DEX: return "Sustains dexterity";
-        case OF_SUST_CON: return "Sustains constitution";
-        case OF_PROT_BLIND: return "Resists blindness";
-        case OF_HOLD_LIFE: return "Sustains experience";
-        case OF_FREE_ACT: return "Resists paralysis";
-        case OF_REGEN: return "Regenerates quickly";
-        case OF_SEE_INVIS: return "Sees invisible creatures";
-        case OF_FEATHER: return "Floats just above the floor";
-        case OF_SLOW_DIGEST: return "Digests food slowly";
+        #define OF(a, b) case OF_##a: return b;
+        #include "../common/list-object-flags.h"
+        #undef OF
 
         default: return "Undocumented flag";
     }
@@ -341,21 +388,35 @@ static const char *get_resist_desc(int element)
 {
     switch (element)
     {
-        case ELEM_POIS: return "Resists poison";
-        case ELEM_LIGHT: return "Resists light damage";
-        case ELEM_DARK: return "Resists darkness damage";
-        case ELEM_NEXUS: return "Resists nexus";
+        #define ELEM(a, b, c, d) case ELEM_##a: return b;
+        #include "../common/list-elements.h"
+        #undef ELEM
 
         default: return "Undocumented element";
     }
 }
 
 
-static const char *get_elem_desc_other(int element)
+static const char *get_immune_desc(int element)
 {
     switch (element)
     {
-        case ELEM_FIRE: return "Vulnerable to fire";
+        #define ELEM(a, b, c, d) case ELEM_##a: return c;
+        #include "../common/list-elements.h"
+        #undef ELEM
+
+        default: return "Undocumented element";
+    }
+}
+
+
+static const char *get_vuln_desc(int element)
+{
+    switch (element)
+    {
+        #define ELEM(a, b, c, d) case ELEM_##a: return d;
+        #include "../common/list-elements.h"
+        #undef ELEM
 
         default: return "Undocumented element";
     }
@@ -393,12 +454,12 @@ static void race_help(int i, void *db, const region *l)
     for (j = 0; j < len; j++)
     {
         const char *name = stat_names_reduced[j];
-        int adj = r->r_adj[j];
+        int adj = race_modifier(r, j, 1, false);
 
         if (j * 2 + 1 < STAT_MAX)
         {
             const char *name2 = stat_names_reduced[j + len];
-            int adj2 = r->r_adj[j + len];
+            int adj2 = race_modifier(r, j + len, 1, false);
 
             format_help(RACE_AUX_COL, j, "%s%+3d  %s%+3d", name, adj, name2, adj2);
         }
@@ -406,29 +467,58 @@ static void race_help(int i, void *db, const region *l)
             format_help(RACE_AUX_COL, j, "%s%+3d", name, adj);
     }
 
-    skill_help(RACE_AUX_COL, &j, r->r_skills, NULL, r->r_mhp, r->r_exp, r->infra);
+    skill_help(RACE_AUX_COL, &j, r->r_skills, NULL, r->r_mhp, r->r_exp,
+        race_modifier(r, OBJ_MOD_INFRA, 1, false));
 
     for (k = 1; k < OF_MAX; k++)
     {
+        const char *s;
+
         if (n_flags >= flag_space) break;
         if (!of_has(r->flags, k)) continue;
-        format_help(RACE_AUX_COL, j++, "%-30s", get_flag_desc(k));
+        s = get_flag_desc(k);
+        if (!s) continue;
+        if (r->flvl[k] > 1) continue;
+        format_help(RACE_AUX_COL, j++, "%-30s", s);
         n_flags++;
     }
 
     for (k = 0; k < ELEM_MAX; k++)
     {
+        const char *s;
+
         if (n_flags >= flag_space) break;
         if (r->el_info[k].res_level != 1) continue;
-        format_help(RACE_AUX_COL, j++, "%-30s", get_resist_desc(k));
+        s = get_resist_desc(k);
+        if (!s) continue;
+        if (r->el_info[k].lvl > 1) continue;
+        format_help(RACE_AUX_COL, j++, "%-30s", s);
         n_flags++;
     }
 
     for (k = 0; k < ELEM_MAX; k++)
     {
+        const char *s;
+
         if (n_flags >= flag_space) break;
-        if ((r->el_info[k].res_level == 0) || (r->el_info[k].res_level == 1)) continue;
-        format_help(RACE_AUX_COL, j++, "%-30s", get_elem_desc_other(k));
+        if (r->el_info[k].res_level != 3) continue;
+        s = get_immune_desc(k);
+        if (!s) continue;
+        if (r->el_info[k].lvl > 1) continue;
+        format_help(RACE_AUX_COL, j++, "%-30s", s);
+        n_flags++;
+    }
+
+    for (k = 0; k < ELEM_MAX; k++)
+    {
+        const char *s;
+
+        if (n_flags >= flag_space) break;
+        if (r->el_info[k].res_level != -1) continue;
+        s = get_vuln_desc(k);
+        if (!s) continue;
+        if (r->el_info[k].lvl > 1) continue;
+        format_help(RACE_AUX_COL, j++, "%-30s", s);
         n_flags++;
     }
 
@@ -459,7 +549,7 @@ static void class_help(int i, void *db, const region *l)
 {
     int j;
     size_t k;
-    struct player_class *c = player_id2class(i);
+    const struct player_class *c = player_id2class(i);
     const struct player_race *r = player->race;
     int len = (STAT_MAX + 1) / 2;
     int n_flags = 0;
@@ -471,12 +561,12 @@ static void class_help(int i, void *db, const region *l)
     for (j = 0; j < len; j++)
     {
         const char *name = stat_names_reduced[j];
-        int adj = c->c_adj[j] + r->r_adj[j];
+        int adj = class_modifier(c, j, 1) + race_modifier(r, j, 1, false);
 
         if (j * 2 + 1 < STAT_MAX)
         {
             const char *name2 = stat_names_reduced[j + len];
-            int adj2 = c->c_adj[j + len] + r->r_adj[j + len];
+            int adj2 = class_modifier(c, j + len, 1) + race_modifier(r, j + len, 1, false);
 
             format_help(CLASS_AUX_COL, j, "%s%+3d  %s%+3d", name, adj, name2, adj2);
         }
@@ -484,8 +574,7 @@ static void class_help(int i, void *db, const region *l)
             format_help(CLASS_AUX_COL, j, "%s%+3d", name, adj);
     }
 
-    skill_help(CLASS_AUX_COL, &j, r->r_skills, c->c_skills, r->r_mhp + c->c_mhp,
-        r->r_exp + c->c_exp, -1);
+    skill_help(CLASS_AUX_COL, &j, r->r_skills, c->c_skills, r->r_mhp + c->c_mhp, r->r_exp, -1);
 
     if (c->magic.total_spells)
     {
@@ -511,6 +600,58 @@ static void class_help(int i, void *db, const region *l)
         format_help(CLASS_AUX_COL, j++, "Learns %-23s", adjective);
     }
 
+    for (k = 1; k < OF_MAX; k++)
+    {
+        const char *s;
+
+        if (n_flags >= flag_space) break;
+        if (!of_has(c->flags, k)) continue;
+        s = get_flag_desc(k);
+        if (!s) continue;
+        if (c->flvl[k] > 1) continue;
+        format_help(CLASS_AUX_COL, j++, "%-33s", s);
+        n_flags++;
+    }
+
+    for (k = 0; k < ELEM_MAX; k++)
+    {
+        const char *s;
+
+        if (n_flags >= flag_space) break;
+        if (c->el_info[k].res_level != 1) continue;
+        s = get_resist_desc(k);
+        if (!s) continue;
+        if (c->el_info[k].lvl > 1) continue;
+        format_help(CLASS_AUX_COL, j++, "%-33s", s);
+        n_flags++;
+    }
+
+    for (k = 0; k < ELEM_MAX; k++)
+    {
+        const char *s;
+
+        if (n_flags >= flag_space) break;
+        if (c->el_info[k].res_level != 3) continue;
+        s = get_immune_desc(k);
+        if (!s) continue;
+        if (c->el_info[k].lvl > 1) continue;
+        format_help(CLASS_AUX_COL, j++, "%-33s", s);
+        n_flags++;
+    }
+
+    for (k = 0; k < ELEM_MAX; k++)
+    {
+        const char *s;
+
+        if (n_flags >= flag_space) break;
+        if (c->el_info[k].res_level != -1) continue;
+        s = get_vuln_desc(k);
+        if (!s) continue;
+        if (c->el_info[k].lvl > 1) continue;
+        format_help(CLASS_AUX_COL, j++, "%-33s", s);
+        n_flags++;
+    }
+
     for (k = 0; k < PF__MAX; k++)
     {
         const char *s;
@@ -519,7 +660,7 @@ static void class_help(int i, void *db, const region *l)
         if (!pf_has(c->pflags, k)) continue;
         s = get_pflag_desc(k);
         if (!s) continue;
-        format_help(CLASS_AUX_COL, j++, "%-30s", s);
+        format_help(CLASS_AUX_COL, j++, "%-33s", s);
         n_flags++;
     }
 
@@ -544,10 +685,10 @@ static void init_birth_menu(struct menu *menu, int n_choices, int initial_choice
     menu_init(menu, MN_SKIN_SCROLL, &birth_iter);
 
     /*
-     * A couple of behavioural flags - we want selections letters in
-     * lower case and a double tap to act as a selection.
+     * A couple of behavioural flags - we want all selection letters (in case we have more than 26
+     * races or classes) and a double tap to act as a selection.
      */
-    menu->selections = lower_case;
+    menu->selections = all_letters;
     menu->flags = MN_DBL_TAP;
 
     /* Copy across the game's suggested initial selection, etc. */
@@ -571,6 +712,58 @@ static void init_birth_menu(struct menu *menu, int n_choices, int initial_choice
 }
 
 
+static void setup_menus(void)
+{
+    int i, n;
+    struct player_class *c;
+    struct player_race *r;
+    const char *roller_choices[MAX_BIRTH_ROLLERS] =
+    {
+        "Point-based",
+        "Standard roller"
+    };
+    struct birthmenu_data *mdata;
+
+    /* Sex menu fairly straightforward */
+    init_birth_menu(&sex_menu, MAX_SEXES, player->psex, &gender_region, true, NULL);
+    mdata = sex_menu.menu_data;
+    for (i = 0; i < MAX_SEXES; i++) mdata->items[i] = sex_info[i].title;
+    mdata->hint = "Sex does not have any significant gameplay effects.";
+
+    /* Count the races */
+    n = player_rmax();
+
+    /* Race menu. */
+    init_birth_menu(&race_menu, n, (player->race? player->race->ridx: 0), &race_region, true,
+        race_help);
+    mdata = race_menu.menu_data;
+    for (r = races; r; r = r->next) mdata->items[r->ridx] = r->name;
+    mdata->hint = "Race affects stats and skills, and may confer resistances and abilities.";
+
+    /* Count the classes */
+    n = player_cmax();
+
+    /* Hack -- remove the fake "ghost" class */
+    n--;
+
+    /* Class menu similar to race. */
+    init_birth_menu(&class_menu, n, (player->clazz? player->clazz->cidx: 0), &class_region,
+        true, class_help);
+    mdata = class_menu.menu_data;
+    for (c = classes; c; c = c->next)
+    {
+        if (c->cidx < (unsigned int)n) mdata->items[c->cidx] = c->name;
+    }
+    mdata->hint = "Class affects stats, skills, and other character traits.";
+
+    /* Roller menu straightforward */
+    init_birth_menu(&roller_menu, MAX_BIRTH_ROLLERS, roller_type, &roller_region, false, NULL);
+    mdata = roller_menu.menu_data;
+    for (i = 0; i < MAX_BIRTH_ROLLERS; i++) mdata->items[i] = roller_choices[i];
+    mdata->hint = "Choose how to generate your intrinsic stats. Point-based is recommended.";
+}
+
+
 /* Cleans up our stored menu info when we've finished with it. */
 static void free_birth_menu(struct menu *menu)
 {
@@ -578,6 +771,16 @@ static void free_birth_menu(struct menu *menu)
 
     mem_free(data->items);
     mem_free(data);
+}
+
+
+static void free_birth_menus(void)
+{
+    /* We don't need these any more. */
+    free_birth_menu(&sex_menu);
+    free_birth_menu(&race_menu);
+    free_birth_menu(&class_menu);
+    free_birth_menu(&roller_menu);
 }
 
 
@@ -606,7 +809,7 @@ static void clear_question(void)
     "item, '{light green}*{/}' for a random menu item, '{light green}ESC{/}' to step back through the birth"
 
 #define BIRTH_MENU_HELPLINE5 \
-    "process, '{light green}={/}' for the birth options, or '{light green}Ctrl-X{/}' to quit."
+    "process, '{light green}={/}' for the birth options, '{light green}?{/}' for help, or '{light green}Ctrl-X{/}' to quit."
 
 /* Show the birth instructions on an otherwise blank screen */
 static void print_menu_instructions(void)
@@ -622,9 +825,161 @@ static void print_menu_instructions(void)
 }
 
 
+struct parse_help
+{
+    byte state;
+    const char *name;
+    char *text;
+};
+
+
+static enum parser_error parse_help_race(struct parser *p)
+{
+    struct parse_help *h = parser_priv(p);
+    const char *race = parser_getstr(p, "race");
+
+    if (!h) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    switch (h->state)
+    {
+        case 0: if (streq(h->name, race)) h->state = 1; break;
+        case 1: if (strcmp(h->name, race)) h->state = 2; break;
+        default: break;
+    }
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_help_class(struct parser *p)
+{
+    struct parse_help *h = parser_priv(p);
+    const char *clazz = parser_getstr(p, "class");
+
+    if (!h) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    switch (h->state)
+    {
+        case 0: if (streq(h->name, clazz)) h->state = 1; break;
+        case 1: if (strcmp(h->name, clazz)) h->state = 2; break;
+        default: break;
+    }
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_help_help(struct parser *p)
+{
+    struct parse_help *h = parser_priv(p);
+
+    if (!h) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    if (h->state == 0) return PARSE_ERROR_NONE;
+    if (h->state == 2) return PARSE_ERROR_NONE;
+
+    h->text = string_append(h->text, parser_getstr(p, "help"));
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static void menu_help(enum birth_stage current, int cursor)
+{
+    char path[MSG_LEN];
+    char buf[MSG_LEN];
+    ang_file *f;
+    errr e = 0;
+    struct parser *p;
+    struct parse_help *helper;
+
+    if ((current != BIRTH_RACE_CHOICE) && (current != BIRTH_CLASS_CHOICE)) return;
+
+    if (current == BIRTH_RACE_CHOICE)
+        path_build(path, sizeof(path), ANGBAND_DIR_CUSTOMIZE, "race.prf");
+    else
+        path_build(path, sizeof(path), ANGBAND_DIR_CUSTOMIZE, "class.prf");
+    if (!file_exists(path)) return;
+
+    f = file_open(path, MODE_READ, FTYPE_TEXT);
+    if (!f) return;
+
+    p = parser_new();
+    helper = mem_zalloc(sizeof(*helper));
+    if (current == BIRTH_RACE_CHOICE) helper->name = player_id2race(cursor)->name;
+    else helper->name = player_id2class(cursor)->name;
+    parser_setpriv(p, helper);
+    if (current == BIRTH_RACE_CHOICE) parser_reg(p, "race str race", parse_help_race);
+    else parser_reg(p, "class str class", parse_help_class);
+    parser_reg(p, "help str help", parse_help_help);
+
+    while (file_getl(f, buf, sizeof(buf)))
+    {
+        e = parser_parse(p, buf);
+        if (e != PARSE_ERROR_NONE)
+        {
+            print_error_simple(path, p);
+            break;
+        }
+    }
+    file_close(f);
+    parser_destroy(p);
+
+    if ((e == PARSE_ERROR_NONE) && (helper->text != NULL) && !STRZERO(helper->text))
+    {
+        int lines = 2;
+        char *s, *t;
+
+        screen_save();
+        clear_from(0);
+
+        c_prt(COLOUR_YELLOW, helper->name, 0, 0);
+
+        /* Split description in paragraphs */
+        s = string_make(helper->text);
+        t = strtok(s, "|");
+        while (t)
+        {
+            char out_val[2000];
+            int j, k, l;
+
+            /* Make a rewritable string */
+        memset(out_val, 0, sizeof(out_val));
+            my_strcpy(out_val, t, sizeof(out_val));
+
+            /* Print every paragraph with word wrap */
+        j = strlen(out_val);
+        k = 0;
+        while (j)
+        {
+            l = strlen(&out_val[k]);
+            if (j > 75)
+            {
+                l = 75;
+                while (out_val[k + l] != ' ') l--;
+                out_val[k + l] = '\0';
+            }
+                if (lines == 23) break;
+            prt(out_val + k, lines++, 2);
+            k += (l + 1);
+            j = strlen(&out_val[k]);
+        }
+
+            if (lines == 23) break;
+            prt("", lines++, 2);
+            t = strtok(NULL, "|");
+        }
+        string_free(s);
+
+        inkey();
+        screen_load(false);
+    }
+
+    string_free(helper->text);
+    mem_free(helper);
+}
+
+
 /*
  * Allow the user to select from the current menu, and return the
- * corresponding command to the game.  Some actions are handled entirely
+ * corresponding command to the game. Some actions are handled entirely
  * by the UI (displaying help text, for instance).
  */
 static enum birth_stage menu_question(enum birth_stage current, struct menu *current_menu)
@@ -637,7 +992,7 @@ static enum birth_stage menu_question(enum birth_stage current, struct menu *cur
     clear_question();
     Term_putstr(QUESTION_COL, QUESTION_ROW, -1, COLOUR_YELLOW, menu_data->hint);
 
-    current_menu->cmd_keys = "=*Q";
+    current_menu->cmd_keys = "?=*Q";
 
     while (next == BIRTH_RESET)
     {
@@ -647,7 +1002,7 @@ static enum birth_stage menu_question(enum birth_stage current, struct menu *cur
         /*
          * As all the menus are displayed in "hierarchical" style, we allow
          * use of "back" (left arrow key or equivalent) to step back in
-         * the proces as well as "escape".
+         * the process as well as "escape".
          */
         if (cx.type == EVT_ESCAPE)
             next = BIRTH_BACK;
@@ -655,16 +1010,27 @@ static enum birth_stage menu_question(enum birth_stage current, struct menu *cur
         {
             switch (current)
             {
-                case BIRTH_SEX_CHOICE: player->psex = current_menu->cursor; break;
+                case BIRTH_SEX_CHOICE:
+                    player->psex = current_menu->cursor;
+                    next = current + 1;
+                    break;
                 case BIRTH_RACE_CHOICE:
                     player->race = player_id2race(current_menu->cursor);
+                    next = current + 1;
                     break;
                 case BIRTH_CLASS_CHOICE:
                     player->clazz = player_id2class(current_menu->cursor);
+                    next = current + 1;
                     break;
-                case BIRTH_ROLLER_CHOICE: roller_type = current_menu->cursor; break;
+                case BIRTH_ROLLER_CHOICE:
+                    roller_type = current_menu->cursor;
+                    if (current_menu->cursor) next = current + 2;
+                    else next = current + 1;
+                    break;
+                default:
+                    next = current + 1;
+                    break;
             }
-            next = current + 1;
         }
         else if (cx.type == EVT_KBRD)
         {
@@ -694,6 +1060,11 @@ static enum birth_stage menu_question(enum birth_stage current, struct menu *cur
             }
             else if (cx.key.code == KTRL('X'))
                 next = BIRTH_QUIT;
+            else if (cx.key.code == '?')
+            {
+                menu_help(current, current_menu->cursor);
+                next = current;
+            }
         }
     }
     
@@ -701,100 +1072,105 @@ static enum birth_stage menu_question(enum birth_stage current, struct menu *cur
 }
 
 
-static const char *roller_choices[MAX_BIRTH_ROLLERS] =
-{
-    "Point-based",
-    "Standard roller"
-};
-
-
 /*
- * This function allows the player to select a sex, race, and class, and
- * a method for stat rolling.
+ * The rolling bit of the roller.
  */
-static enum birth_stage roller_command(enum birth_stage current_stage)
+static enum birth_stage roller_command(void)
 {
-    int i;
-    struct birthmenu_data *mdata;
-    struct menu *menu = &sex_menu;
-    enum birth_stage next;
+    int i, j, k, avail[STAT_MAX];
+    struct keypress c;
+    char out_val[160], stats[STAT_MAX][4];
 
-    /* Sex menu fairly straightforward */
-    init_birth_menu(menu, MAX_SEXES, player->psex, &gender_region, true, NULL);
-    mdata = menu_priv(menu);
-    for (i = 0; i < MAX_SEXES; i++) mdata->items[i] = sex_info[i].title;
-    mdata->hint = "Sex does not have any significant gameplay effects.";
-
+    /* Clear screen */
     Term_clear();
-    print_menu_instructions();
 
-    if (current_stage > BIRTH_SEX_CHOICE)
+    /* Title everything */
+    put_str("Name        :", 2, 1);
+    c_put_str(COLOUR_L_BLUE, nick, 2, 15);
+    put_str("Sex         :", 4, 1);
+    c_put_str(COLOUR_L_BLUE, sex_info[player->psex].title, 4, 15);
+    put_str("Race        :", 5, 1);
+    c_put_str(COLOUR_L_BLUE, player->race->name, 5, 15);
+    put_str("Class       :", 6, 1);
+    c_put_str(COLOUR_L_BLUE, player->clazz->name, 6, 15);
+    put_str("Stat roll   :", 8, 1);
+
+    put_str("[Press 'ESC' at any time to restart this step, or 'Ctrl-X' to quit]", 23, 1);
+
+    /* Extra info */
+    Term_putstr(5, 15, -1, COLOUR_WHITE,
+        "The standard roller will automatically ignore characters which do");
+    Term_putstr(5, 16, -1, COLOUR_WHITE,
+        "not meet the minimum values of 17 for the first stat, 16 for the");
+    Term_putstr(5, 17, -1, COLOUR_WHITE,
+        "second stat and 15 for the third stat specified below.");
+    Term_putstr(5, 18, -1, COLOUR_WHITE,
+        "Stats will be rolled randomly according to the specified order.");
+
+    put_str("Choose your stat order: ", 20, 2);
+
+    /* All stats are initially available */
+    for (i = 0; i < STAT_MAX; i++)
     {
-        int n;
-        struct player_race *r;
-
-        menu_refresh(menu, false);
-        menu = &race_menu;
-
-        n = player_rmax();
-
-        /* Race menu more complicated. */
-        init_birth_menu(menu, n, (player->race? player->race->ridx: 0), &race_region, true, race_help);
-        mdata = menu_priv(menu);
-        for (r = races; r; r = r->next) mdata->items[r->ridx] = r->name;
-        mdata->hint = "Race affects stats and skills, and may confer resistances and abilities.";
+        my_strcpy(stats[i], stat_names[i], sizeof(stats[0]));
+        avail[i] = 1;
     }
 
-    if (current_stage > BIRTH_RACE_CHOICE)
+    /* Find the ordering of all stats */
+    for (i = 0; i < STAT_MAX; i++)
     {
-        int n;
-        struct player_class *c;
+        /* Clear line */
+        prt("", 21, 0);
 
-        menu_refresh(menu, false);
-        menu = &class_menu;
-
-        n = player_cmax();
-
-        /* Hack -- remove the fake "ghost" class */
-        n--;
-
-        /* Restrict choices for Dragon race */
-        if (pf_has(player->race->pflags, PF_DRAGON)) n -= 2;
-
-        /* Class menu similar to race. */
-        init_birth_menu(menu, n, (player->clazz? player->clazz->cidx: 0), &class_region,
-            true, class_help);
-        mdata = menu_priv(menu);
-        for (c = classes; c; c = c->next)
+        /* Print available stats at bottom */
+        for (k = 0; k < STAT_MAX; k++)
         {
-            if (c->cidx < (unsigned int)n) mdata->items[c->cidx] = c->name;
+            /* Check for availability */
+            if (avail[k])
+            {
+                strnfmt(out_val, sizeof(out_val), "%c) %s", I2A(k), stats[k]);
+                put_str(out_val, 21, k * 9);
+            }
         }
-        mdata->hint = "Class affects stats, skills, and other character traits.";
+
+        /* Get a stat */
+        while (1)
+        {
+            /* Get a key */
+            c = inkey();
+
+            /* Start over */
+            if (c.code == KTRL('X')) return BIRTH_QUIT;
+
+            /* Handle ESC */
+            if (c.code == ESCAPE)
+            {
+                /* Back a step */
+                if (i == 0) return BIRTH_BACK;
+
+                /* Repeat this step */
+                return BIRTH_ROLLER;
+            }
+
+            /* Break on valid input */
+            j = (islower(c.code) ? A2I(c.code) : -1);
+            if ((j < STAT_MAX) && (j >= 0) && avail[j])
+            {
+                stat_roll[i] = j;
+                c_put_str(COLOUR_L_BLUE, stats[j], 8 + i, 15);
+                avail[j] = 0;
+                break;
+            }
+        }
     }
 
-    if (current_stage > BIRTH_CLASS_CHOICE)
-    {
-        menu_refresh(menu, false);
-        menu = &roller_menu;
+    /* Clear bottom of screen */
+    clear_from(20);
 
-        /* Roller menu straightforward again */
-        init_birth_menu(menu, MAX_BIRTH_ROLLERS, roller_type, &roller_region, false, NULL);
-        mdata = menu_priv(menu);
-        for (i = 0; i < MAX_BIRTH_ROLLERS; i++) mdata->items[i] = roller_choices[i];
-        mdata->hint = "Choose how to generate your intrinsic stats. Point-based is recommended.";
-    }
+    stat_roll[STAT_MAX] = roller_type;
 
-    next = menu_question(current_stage, menu);
-
-    if (next == BIRTH_BACK) next = current_stage - 1;
-
-    /* We don't need these any more. */
-    free_birth_menu(&sex_menu);
-    if (current_stage > BIRTH_SEX_CHOICE) free_birth_menu(&race_menu);
-    if (current_stage > BIRTH_RACE_CHOICE) free_birth_menu(&class_menu);
-    if (current_stage > BIRTH_CLASS_CHOICE) free_birth_menu(&roller_menu);
-
-    return next;
+    /* Done - move on a stage */
+    return BIRTH_FINAL_CONFIRM;
 }
 
 
@@ -906,7 +1282,7 @@ static enum birth_stage point_based_command(void)
             c_put_str(COLOUR_L_GREEN, buf, 16 + i, 10);
 
             /* Race/Class bonus */
-            j = player->race->r_adj[i] + player->clazz->c_adj[i];
+            j = race_modifier(player->race, i, 1, false) + class_modifier(player->clazz, i, 1);
 
             /* Obtain the "maximal" stat */
             m = modify_stat_value(stat_roll[i], j);
@@ -953,7 +1329,7 @@ static enum birth_stage point_based_command(void)
             if (first_time) return BIRTH_BACK;
 
             /* Repeat this step */
-            return BIRTH_ROLLER;
+            return BIRTH_POINTBASED;
         }
 
         first_time = false;
@@ -990,161 +1366,6 @@ static enum birth_stage point_based_command(void)
 
 
 /*
- * This function handles "standard" character creation.
- */
-static enum birth_stage standard_command(void)
-{
-    int i, j, k, avail[STAT_MAX];
-    struct keypress c;
-    char out_val[160], stats[STAT_MAX][4];
-
-    /* Clear screen */
-    Term_clear();
-
-    /* Title everything */
-    put_str("Name        :", 2, 1);
-    c_put_str(COLOUR_L_BLUE, nick, 2, 15);
-    put_str("Sex         :", 4, 1);
-    c_put_str(COLOUR_L_BLUE, sex_info[player->psex].title, 4, 15);
-    put_str("Race        :", 5, 1);
-    c_put_str(COLOUR_L_BLUE, player->race->name, 5, 15);
-    put_str("Class       :", 6, 1);
-    c_put_str(COLOUR_L_BLUE, player->clazz->name, 6, 15);
-    put_str("Stat roll   :", 8, 1);
-
-    put_str("[Press 'ESC' at any time to restart this step, or 'Ctrl-X' to quit]", 23, 1);
-
-    /* Extra info */
-    Term_putstr(5, 15, -1, COLOUR_WHITE,
-        "The standard roller will automatically ignore characters which do");
-    Term_putstr(5, 16, -1, COLOUR_WHITE,
-        "not meet the minimum values of 17 for the first stat, 16 for the");
-    Term_putstr(5, 17, -1, COLOUR_WHITE,
-        "second stat and 15 for the third stat specified below.");
-    Term_putstr(5, 18, -1, COLOUR_WHITE,
-        "Stats will be rolled randomly according to the specified order.");
-
-    put_str("Choose your stat order: ", 20, 2);
-
-    /* All stats are initially available */
-    for (i = 0; i < STAT_MAX; i++)
-    {
-        my_strcpy(stats[i], stat_names[i], sizeof(stats[0]));
-        avail[i] = 1;
-    }
-
-    /* Find the ordering of all stats */
-    for (i = 0; i < STAT_MAX; i++)
-    {
-        /* Clear line */
-        prt("", 21, 0);
-
-        /* Print available stats at bottom */
-        for (k = 0; k < STAT_MAX; k++)
-        {
-            /* Check for availability */
-            if (avail[k])
-            {
-                strnfmt(out_val, sizeof(out_val), "%c) %s", I2A(k), stats[k]);
-                put_str(out_val, 21, k * 9);
-            }
-        }
-
-        /* Get a stat */
-        while (1)
-        {
-            /* Get a key */
-            c = inkey();
-
-            /* Start over */
-            if (c.code == KTRL('X')) return BIRTH_QUIT;
-
-            /* Handle ESC */
-            if (c.code == ESCAPE)
-            {
-                /* Back a step */
-                if (i == 0) return BIRTH_BACK;
-
-                /* Repeat this step */
-                return BIRTH_ROLLER;
-            }
-
-            /* Break on valid input */
-            j = (islower(c.code) ? A2I(c.code) : -1);
-            if ((j < STAT_MAX) && (j >= 0) && avail[j])
-            {
-                stat_roll[i] = j;
-                c_put_str(COLOUR_L_BLUE, stats[j], 8 + i, 15);
-                avail[j] = 0;
-                break;
-            }
-        }
-    }
-
-    /* Clear bottom of screen */
-    clear_from(20);
-
-    stat_roll[STAT_MAX] = roller_type;
-
-    /* Done - move on a stage */
-    return BIRTH_FINAL_CONFIRM;
-}
-
-
-/*
- * This function handles quick creation based on the previous character.
- */
-static bool player_birth_quick(void)
-{
-    struct keypress ch;
-
-    /* Starting over */
-    if (!quick_start) return false;
-
-    /* Clear screen */
-    Term_clear();
-
-    /* Prompt for it */
-    put_str("Quick-start character based on previous one (y/n)? ", 2, 2);
-
-    while (true)
-    {
-        /* Get key */
-        ch = inkey();
-
-        /* Start over */
-        if (ch.code == KTRL('X')) quit(NULL);
-
-        /* Done */
-        else if ((ch.code == ESCAPE) || strchr("YyNn\r\n", ch.code)) break;
-    }
-
-    /* Quick generation */
-    if ((ch.code == 'y') || (ch.code == 'Y'))
-    {
-        /* Prompt for it */
-        prt("['Ctrl-X' to quit, 'ESC' to start over, or any other key to continue]", 23, 5);
-
-        /* Get a key */
-        ch = inkey();
-
-        /* Quit */
-        if (ch.code == KTRL('X')) quit(NULL);
-
-        /* Start over */
-        if (ch.code == ESCAPE) return false;
-
-        /* Accept */
-        stat_roll[STAT_MAX] = quick_start;
-        return true;
-    }
-
-    /* Start over */
-    return false;
-}
-
-
-/*
  * Final confirmation of character.
  */
 static enum birth_stage get_confirm_command(void)
@@ -1177,16 +1398,26 @@ static enum birth_stage get_confirm_command(void)
 
 /*
  * Create a new character.
+ *
+ * The birth process continues until we send a final character confirmation
+ * command (or quit), so this is effectively called in a loop by the main
+ * game.
+ *
+ * We're imposing a step-based system onto the main game here, so we need
+ * to keep track of where we're up to, where each step moves on to, etc.
  */
 void textui_do_birth(void)
 {
-    static enum birth_stage current_stage = BIRTH_RESET;
+    enum birth_stage current_stage = BIRTH_RESET;
     enum birth_stage next = current_stage;
+    bool done = false;
 
     /* Offer to do a quick creation based on the previous character */
     if (player_birth_quick()) return;
 
-    while (1)
+    setup_menus();
+
+    while (!done)
     {
         switch (current_stage)
         {
@@ -1202,24 +1433,50 @@ void textui_do_birth(void)
             case BIRTH_CLASS_CHOICE:
             case BIRTH_ROLLER_CHOICE:
             {
-                /* Race, class, etc. choices */
-                next = roller_command(current_stage);
+                struct menu *menu = &sex_menu;
+
+                Term_clear();
+                print_menu_instructions();
+
+                if (current_stage > BIRTH_SEX_CHOICE)
+                {
+                    menu_refresh(&sex_menu, false);
+                    menu = &race_menu;
+                }
+
+                if (current_stage > BIRTH_RACE_CHOICE)
+                {
+                    menu_refresh(&race_menu, false);
+                    menu = &class_menu;
+                }
+
+                if (current_stage > BIRTH_CLASS_CHOICE)
+                {
+                    menu_refresh(&class_menu, false);
+                    menu = &roller_menu;
+                }
+
+                next = menu_question(current_stage, menu);
+
+                if (next == BIRTH_BACK) next = current_stage - 1;
+
+                break;
+            }
+
+            case BIRTH_POINTBASED:
+            {
+                /* Fill stats using point-based methods */
+                next = point_based_command();
+
+                if (next == BIRTH_BACK) next = BIRTH_ROLLER_CHOICE;
 
                 break;
             }
 
             case BIRTH_ROLLER:
             {
-                if (roller_type == BR_POINTBASED)
-                {
-                    /* Fill stats using point-based methods */
-                    next = point_based_command();
-                }
-                else
-                {
-                    /* Fills stats using the standard roller */
-                    next = standard_command();
-                }
+                /* Fills stats using the standard roller */
+                next = roller_command();
 
                 if (next == BIRTH_BACK) next = BIRTH_ROLLER_CHOICE;
 
@@ -1235,13 +1492,19 @@ void textui_do_birth(void)
                 break;
             }
 
-            case BIRTH_COMPLETE: return;
+            case BIRTH_COMPLETE:
+                done = true;
+                break;
 
-            case BIRTH_QUIT: quit(NULL);
+            case BIRTH_QUIT:
+                free_birth_menus();
+                quit(NULL);
         }
 
         current_stage = next;
     }
+
+    free_birth_menus();
 }
 
 
@@ -1522,7 +1785,7 @@ bool get_server_name(void)
                 {
                     l = 75;
                     while (out_val[k + l] != ' ') l--;
-                    out_val[l] = '\0';
+                    out_val[k + l] = '\0';
                 }
                 prt(out_val + k, lines++, (k? 4: 1));
                 k += (l + 1);

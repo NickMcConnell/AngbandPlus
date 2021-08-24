@@ -546,7 +546,7 @@ void inven_carry(struct player *p, struct object *obj, bool absorb, bool message
 
         /* Remove cave object details */
         obj->held_m_idx = 0;
-        obj->iy = obj->ix = 0;
+        loc_init(&obj->grid, 0, 0);
         memset(&obj->wpos, 0, sizeof(struct worldpos));
 
         /* Update the inventory */
@@ -588,7 +588,7 @@ static void know_everything(struct player *p, struct chunk *c)
     struct object *obj;
 
     /* Know all objects under the player */
-    for (obj = square_object(c, p->py, p->px); obj; obj = obj->next)
+    for (obj = square_object(c, &p->grid); obj; obj = obj->next)
     {
         if (object_is_known(p, obj)) continue;
         object_know_everything(p, obj);
@@ -760,8 +760,6 @@ void inven_takeoff(struct player *p, struct object *obj)
  */
 bool inven_drop(struct player *p, struct object *obj, int amt, bool bypass_inscr)
 {
-    int py = p->py;
-    int px = p->px;
     struct object *dropped;
     bool none_left = false;
     bool quiver = false;
@@ -809,7 +807,7 @@ bool inven_drop(struct player *p, struct object *obj, int amt, bool bypass_inscr
     }
 
     /* Never drop items in wrong house */
-    if (!check_store_drop(p, obj))
+    if (!check_store_drop(p))
     {
         if (!bypass_inscr) msg(p, "You cannot drop this here.");
         return false;
@@ -843,7 +841,7 @@ bool inven_drop(struct player *p, struct object *obj, int amt, bool bypass_inscr
     msg(p, "You have %s (%c).", name, label);
 
     /* Drop it (carefully) near the player */
-    drop_near(p, chunk_get(&p->wpos), &dropped, 0, py, px, false,
+    drop_near(p, chunk_get(&p->wpos), &dropped, 0, &p->grid, false,
         (bypass_inscr? DROP_SILENT: DROP_FORBID));
 
     /* Sound for quiver objects */
@@ -966,7 +964,7 @@ void pack_overflow(struct player *p, struct chunk *c, struct object *obj)
 
     /* Excise the object and drop it (carefully) near the player */
     gear_excise_object(p, obj);
-    drop_near(p, c, &obj, 0, p->py, p->px, false, DROP_FADE);
+    drop_near(p, c, &obj, 0, &p->grid, false, DROP_FADE);
 
     /* Describe */
     msg(p, "You no longer have %s.", o_name);

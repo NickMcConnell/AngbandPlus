@@ -131,8 +131,8 @@ static struct activation *rd_activation(void)
 static struct object *rd_item(void)
 {
     struct object *obj = object_new();
-    byte tmp8u;
-    s16b tmp16s;
+    byte tmp8u, tmp8x, tmp8y;
+    s16b tmp16s, tmp16x, tmp16y;
     byte effect;
     size_t i;
     char buf[128];
@@ -141,10 +141,12 @@ static struct object *rd_item(void)
     strip_bytes(1);
 
     /* Location */
-    rd_byte(&obj->iy);
-    rd_byte(&obj->ix);
-    rd_s16b(&obj->wpos.wy);
-    rd_s16b(&obj->wpos.wx);
+    rd_byte(&tmp8y);
+    rd_byte(&tmp8x);
+    loc_init(&obj->grid, tmp8x, tmp8y);
+    rd_s16b(&tmp16y);
+    rd_s16b(&tmp16x);
+    loc_init(&obj->wpos.grid, tmp16x, tmp16y);
     rd_s16b(&obj->wpos.depth);
 
     /* Type/Subtype */
@@ -267,6 +269,7 @@ static struct object *rd_item(void)
     /* PWMAngband */
     rd_s32b(&obj->creator);
     rd_s32b(&obj->owner);
+    rd_byte(&obj->level_req);
     rd_byte(&obj->ignore_protect);
     rd_byte(&obj->ordered);
     rd_s16b(&obj->decay);
@@ -515,7 +518,7 @@ int rd_player(struct player *p)
 {
     int i;
     byte num;
-    s16b tmp16s;
+    s16b tmp16s, tmp16x, tmp16y;
 
     rd_s32b(&p->id);
 
@@ -532,8 +535,9 @@ int rd_player(struct player *p)
     rd_s32b(&p->death_info.exp);
     rd_s32b(&p->death_info.au);
     rd_s16b(&p->death_info.max_depth);
-    rd_s16b(&p->death_info.wpos.wy);
-    rd_s16b(&p->death_info.wpos.wx);
+    rd_s16b(&tmp16y);
+    rd_s16b(&tmp16x);
+    loc_init(&p->death_info.wpos.grid, tmp16x, tmp16y);
     rd_s16b(&p->death_info.wpos.depth);
     rd_string(p->death_info.died_from, NORMAL_WID);
     rd_s32b((s32b*)&p->death_info.time);
@@ -592,7 +596,7 @@ int rd_player(struct player *p)
     /* Hack -- repair maximum dungeon level */
     if (p->max_depth < 0) p->max_depth = 0;
 
-    COORDS_SET(&p->recall_wpos, p->wpos.wy, p->wpos.wx, p->max_depth);
+    wpos_init(&p->recall_wpos, &p->wpos.grid, p->max_depth);
 
     /* More info */
     rd_byte(&p->unignoring);
@@ -602,7 +606,6 @@ int rd_player(struct player *p)
     rd_s16b(&p->food);
     rd_s32b(&p->energy);
     rd_s16b(&p->word_recall);
-    rd_byte(&p->confusing);
     rd_byte(&p->stealthy);
 
     /* Find the number of timed effects */
@@ -917,6 +920,9 @@ int rd_player_spells(struct player *p)
     /* Read spell power */
     for (i = 0; i < tmp16u; i++) rd_byte(&p->spell_power[i]);
 
+    /* Read spell cooldown */
+    for (i = 0; i < tmp16u; i++) rd_byte(&p->spell_cooldown[i]);
+
     /* Success */
     return (0);
 }
@@ -1080,20 +1086,25 @@ int rd_stores(struct player *unused) {return rd_stores_aux(rd_item);}
  */
 int rd_player_dungeon(struct player *p)
 {
-    int i, n, y, x;
+    int i, n;
     u16b height, width;
     byte count;
     byte tmp8u;
+    u16b tmp16u;
+    struct loc grid;
+    s16b tmp16x, tmp16y;
 
     /* Only if the player's alive */
     if (p->is_dead) return 0;
 
     /* Header info */
-    rd_s16b(&p->wpos.wy);
-    rd_s16b(&p->wpos.wx);
+    rd_s16b(&tmp16y);
+    rd_s16b(&tmp16x);
+    loc_init(&p->wpos.grid, tmp16x, tmp16y);
     rd_s16b(&p->wpos.depth);
-    rd_s16b(&p->py);
-    rd_s16b(&p->px);
+    rd_s16b(&tmp16y);
+    rd_s16b(&tmp16x);
+    loc_init(&p->grid, tmp16x, tmp16y);
     rd_u16b(&height);
     rd_u16b(&width);
 
@@ -1101,26 +1112,26 @@ int rd_player_dungeon(struct player *p)
     player_cave_new(p, height, width);
 
     /* Run length decoding of cave->squares[y][x].feat */
-    for (x = y = 0; y < height; )
+    for (grid.x = grid.y = 0; grid.y < height; )
     {
         /* Grab RLE info */
         rd_byte(&count);
-        rd_byte(&tmp8u);
+        rd_u16b(&tmp16u);
 
         /* Apply the RLE info */
         for (i = count; i > 0; i--)
         {
             /* Extract "feat" */
-            p->cave->squares[y][x].feat = tmp8u;
+            square_p(p, &grid)->feat = tmp16u;
 
             /* Advance/Wrap */
-            if (++x >= width)
+            if (++grid.x >= width)
             {
                 /* Wrap */
-                x = 0;
+                grid.x = 0;
 
                 /* Advance/Wrap */
-                if (++y >= height) break;
+                if (++grid.y >= height) break;
             }
         }
     }
@@ -1128,7 +1139,7 @@ int rd_player_dungeon(struct player *p)
     /* Run length decoding of cave->squares[y][x].info */
     for (n = 0; n < square_size; n++)
     {
-        for (x = y = 0; y < height; )
+        for (grid.x = grid.y = 0; grid.y < height; )
         {
             /* Grab RLE info */
             rd_byte(&count);
@@ -1138,16 +1149,16 @@ int rd_player_dungeon(struct player *p)
             for (i = count; i > 0; i--)
             {
                 /* Extract "info" */
-                p->cave->squares[y][x].info[n] = tmp8u;
+                square_p(p, &grid)->info[n] = tmp8u;
 
                 /* Advance/Wrap */
-                if (++x >= width)
+                if (++grid.x >= width)
                 {
                     /* Wrap */
-                    x = 0;
+                    grid.x = 0;
 
                     /* Advance/Wrap */
-                    if (++y >= height) break;
+                    if (++grid.y >= height) break;
                 }
             }
         }
@@ -1162,18 +1173,21 @@ int rd_player_dungeon(struct player *p)
  */
 int rd_level(struct player *unused)
 {
-    int i, n, y, x;
-    s16b tmp16s;
+    int i, n;
+    s16b tmp16s, tmp16x, tmp16y;
     u16b height, width;
     byte count;
     byte tmp8u;
+    u16b tmp16u;
     hturn generated;
     struct worldpos wpos;
     struct chunk *c;
+    struct loc grid;
 
     /* Header info */
-    rd_s16b(&wpos.wy);
-    rd_s16b(&wpos.wx);
+    rd_s16b(&tmp16y);
+    rd_s16b(&tmp16x);
+    loc_init(&wpos.grid, tmp16x, tmp16y);
     rd_s16b(&wpos.depth);
     rd_u16b(&height);
     rd_u16b(&width);
@@ -1206,26 +1220,26 @@ int rd_level(struct player *unused)
     rd_loc(&c->join->rand);
 
     /* Run length decoding of cave->squares[y][x].feat */
-    for (x = y = 0; y < c->height; )
+    for (grid.x = grid.y = 0; grid.y < c->height; )
     {
         /* Grab RLE info */
         rd_byte(&count);
-        rd_byte(&tmp8u);
+        rd_u16b(&tmp16u);
 
         /* Apply the RLE info */
         for (i = count; i > 0; i--)
         {
             /* Extract "feat" */
-            c->squares[y][x].feat = tmp8u;
+            square(c, &grid)->feat = tmp16u;
 
             /* Advance/Wrap */
-            if (++x >= c->width)
+            if (++grid.x >= c->width)
             {
                 /* Wrap */
-                x = 0;
+                grid.x = 0;
 
                 /* Advance/Wrap */
-                if (++y >= c->height) break;
+                if (++grid.y >= c->height) break;
             }
         }
     }
@@ -1233,7 +1247,7 @@ int rd_level(struct player *unused)
     /* Run length decoding of cave->squares[y][x].info */
     for (n = 0; n < square_size; n++)
     {
-        for (x = y = 0; y < c->height; )
+        for (grid.x = grid.y = 0; grid.y < c->height; )
         {
             /* Grab RLE info */
             rd_byte(&count);
@@ -1243,16 +1257,16 @@ int rd_level(struct player *unused)
             for (i = count; i > 0; i--)
             {
                 /* Extract "info" */
-                c->squares[y][x].info[n] = tmp8u;
+                square(c, &grid)->info[n] = tmp8u;
 
                 /* Advance/Wrap */
-                if (++x >= c->width)
+                if (++grid.x >= c->width)
                 {
                     /* Wrap */
-                    x = 0;
+                    grid.x = 0;
 
                     /* Advance/Wrap */
-                    if (++y >= c->height) break;
+                    if (++grid.y >= c->height) break;
                 }
             }
         }
@@ -1321,10 +1335,10 @@ static int rd_objects_aux(rd_item_t rd_item_version, struct chunk *c)
         /* The dungeon is ready: place object in dungeon */
         if (c && !ht_zero(&c->generated))
         {
-            if (!floor_add(c, obj->iy, obj->ix, obj))
+            if (!floor_add(c, &obj->grid, obj))
             {
                 object_delete(&obj);
-                plog_fmt("Cannot place object at row %d, column %d!", obj->iy, obj->ix);
+                plog_fmt("Cannot place object at row %d, column %d!", obj->grid.y, obj->grid.x);
                 return -1;
             }
         }
@@ -1352,8 +1366,8 @@ static int rd_player_objects_aux(struct player *p, rd_item_t rd_item_version)
         obj->known = (*rd_item_version)();
 
         /* Place object in player object list */
-        if (player_square_in_bounds_fully(p, obj->iy, obj->ix))
-            pile_insert_end(&p->cave->squares[obj->iy][obj->ix].obj, obj);
+        if (player_square_in_bounds_fully(p, &obj->grid))
+            pile_insert_end(&square_p(p, &obj->grid)->obj, obj);
     }
 
     return 0;
@@ -1379,6 +1393,7 @@ int rd_objects(struct player *unused)
 {
     u32b num, tmp32u;
     struct worldpos wpos;
+    s16b tmp16x, tmp16y;
 
     /* Read the number of levels to be loaded */
     rd_u32b(&tmp32u);
@@ -1387,8 +1402,9 @@ int rd_objects(struct player *unused)
     for (num = 0; num < tmp32u; num++)
     {
         /* Read the coordinates */
-        rd_s16b(&wpos.wy);
-        rd_s16b(&wpos.wx);
+        rd_s16b(&tmp16y);
+        rd_s16b(&tmp16x);
+        loc_init(&wpos.grid, tmp16x, tmp16y);
         rd_s16b(&wpos.depth);
 
         if (rd_objects_aux(rd_item, chunk_get(&wpos))) return (-1);
@@ -1407,6 +1423,7 @@ static bool rd_monster_aux(struct chunk *c, struct monster *mon, rd_item_t rd_it
     byte tmp8u;
     u16b tmp16u;
     size_t j;
+    s16b tmp16x, tmp16y;
 
     /* Read the monster race */
     mon->race = rd_race();
@@ -1417,10 +1434,13 @@ static bool rd_monster_aux(struct chunk *c, struct monster *mon, rd_item_t rd_it
     }
 
     /* Read the other information */
-    rd_byte(&mon->fy);
-    rd_byte(&mon->fx);
-    rd_s16b(&mon->wpos.wy);
-    rd_s16b(&mon->wpos.wx);
+    rd_byte(&tmp8u);
+    mon->grid.y = tmp8u;
+    rd_byte(&tmp8u);
+    mon->grid.x = tmp8u;
+    rd_s16b(&tmp16y);
+    rd_s16b(&tmp16x);
+    loc_init(&mon->wpos.grid, tmp16x, tmp16y);
     rd_s16b(&mon->wpos.depth);
     rd_s32b(&mon->hp);
     rd_s32b(&mon->maxhp);
@@ -1428,8 +1448,7 @@ static bool rd_monster_aux(struct chunk *c, struct monster *mon, rd_item_t rd_it
     rd_s32b(&mon->energy);
 
     /* Hack -- save previous monster location */
-    mon->old_fy = mon->fy;
-    mon->old_fx = mon->fx;
+    loc_copy(&mon->old_grid, &mon->grid);
 
     rd_byte(&tmp8u);
     for (j = 0; j < (size_t)tmp8u; j++)
@@ -1444,7 +1463,7 @@ static bool rd_monster_aux(struct chunk *c, struct monster *mon, rd_item_t rd_it
     /* Mimic stuff */
     rd_bool(&mon->camouflage);
     rd_s16b(&mon->mimicked_k_idx);
-    rd_byte(&mon->feat);
+    rd_u16b(&mon->feat);
 
     rd_s16b(&mon->ac);
     mon->blow = mem_zalloc(z_info->mon_blows_max * sizeof(struct monster_blow));
@@ -1476,7 +1495,7 @@ static bool rd_monster_aux(struct chunk *c, struct monster *mon, rd_item_t rd_it
     if (tmp16u && c && !ht_zero(&c->generated))
     {
         /* Find and set the mimicked object */
-        struct object *square_obj = square_object(c, mon->fy, mon->fx);
+        struct object *square_obj = square_object(c, &mon->grid);
 
         /* Try and find the mimicked object; if we fail, create a new one */
         while (square_obj)
@@ -1573,6 +1592,7 @@ int rd_monsters(struct player *unused)
 {
     u32b num, tmp32u;
     struct worldpos wpos;
+    s16b tmp16x, tmp16y;
 
     /* Read the number of levels to be loaded */
     rd_u32b(&tmp32u);
@@ -1581,8 +1601,9 @@ int rd_monsters(struct player *unused)
     for (num = 0; num < tmp32u; num++)
     {
         /* Read the coordinates */
-        rd_s16b(&wpos.wy);
-        rd_s16b(&wpos.wx);
+        rd_s16b(&tmp16y);
+        rd_s16b(&tmp16x);
+        loc_init(&wpos.grid, tmp16x, tmp16y);
         rd_s16b(&wpos.depth);
 
         if (rd_monsters_aux(chunk_get(&wpos))) return (-1);
@@ -1617,10 +1638,12 @@ static struct trap_kind *rd_trap_kind(void)
 static void rd_trap(struct trap *trap)
 {
     int i;
+    byte tmp8x, tmp8y;
 
     trap->kind = rd_trap_kind();
-    rd_byte(&trap->fy);
-    rd_byte(&trap->fx);
+    rd_byte(&tmp8y);
+    rd_byte(&tmp8x);
+    loc_init(&trap->grid, tmp8x, tmp8y);
     rd_byte(&trap->power);
     rd_byte(&trap->timeout);
 
@@ -1631,7 +1654,6 @@ static void rd_trap(struct trap *trap)
 
 int rd_player_traps(struct player *p)
 {
-    int y, x;
     struct trap *trap;
 
     /* Only if the player's alive */
@@ -1642,13 +1664,11 @@ int rd_player_traps(struct player *p)
     {
         trap = mem_zalloc(sizeof(*trap));
         rd_trap(trap);
-        y = trap->fy;
-        x = trap->fx;
-        if ((y == 0) && (x == 0)) break;
+        if (loc_is_zero(&trap->grid)) break;
 
         /* Put the trap at the front of the grid trap list */
-        trap->next = p->cave->squares[y][x].trap;
-        p->cave->squares[y][x].trap = trap;
+        trap->next = square_p(p, &trap->grid)->trap;
+        square_p(p, &trap->grid)->trap = trap;
     }
 
     mem_free(trap);
@@ -1658,14 +1678,15 @@ int rd_player_traps(struct player *p)
 
 static int rd_level_traps(void)
 {
-    int y, x;
     struct trap *trap;
     struct worldpos wpos;
     struct chunk *c;
+    s16b tmp16x, tmp16y;
 
     /* Read the coordinates */
-    rd_s16b(&wpos.wy);
-    rd_s16b(&wpos.wx);
+    rd_s16b(&tmp16y);
+    rd_s16b(&tmp16x);
+    loc_init(&wpos.grid, tmp16x, tmp16y);
     rd_s16b(&wpos.depth);
 
     c = chunk_get(&wpos);
@@ -1682,13 +1703,14 @@ static int rd_level_traps(void)
     {
         trap = mem_zalloc(sizeof(*trap));
         rd_trap(trap);
-        y = trap->fy;
-        x = trap->fx;
-        if ((y == 0) && (x == 0)) break;
+        if (loc_is_zero(&trap->grid)) break;
 
         /* Put the trap at the front of the grid trap list */
-        trap->next = c->squares[y][x].trap;
-        c->squares[y][x].trap = trap;
+        trap->next = square(c, &trap->grid)->trap;
+        square_set_trap(c, &trap->grid, trap);
+
+        /* Set decoy if appropriate */
+        if (trap->kind == lookup_trap("decoy")) loc_copy(&c->decoy, &trap->grid);
     }
 
     mem_free(trap);
@@ -1889,16 +1911,24 @@ static int rd_house(void)
 {
     int house;
     struct house_type h_local;
+    byte tmpx, tmpy;
+    s16b tmp16x, tmp16y;
+
+    memset(&h_local, 0, sizeof(struct house_type));
 
     /* Read house info */
-    rd_byte(&h_local.x_1);
-    rd_byte(&h_local.y_1);
-    rd_byte(&h_local.x_2);
-    rd_byte(&h_local.y_2);
-    rd_byte(&h_local.door_y);
-    rd_byte(&h_local.door_x);
-    rd_s16b(&h_local.wpos.wy);
-    rd_s16b(&h_local.wpos.wx);
+    rd_byte(&tmpx);
+    rd_byte(&tmpy);
+    loc_init(&h_local.grid_1, tmpx, tmpy);
+    rd_byte(&tmpx);
+    rd_byte(&tmpy);
+    loc_init(&h_local.grid_2, tmpx, tmpy);
+    rd_byte(&tmpy);
+    rd_byte(&tmpx);
+    loc_init(&h_local.door, tmpx, tmpy);
+    rd_s16b(&tmp16y);
+    rd_s16b(&tmp16x);
+    loc_init(&h_local.wpos.grid, tmp16x, tmp16y);
     rd_s32b(&h_local.price);
     rd_s32b(&h_local.ownerid);
     rd_string(h_local.ownername, NORMAL_WID);
@@ -1946,13 +1976,18 @@ int rd_houses(struct player *unused)
 static void rd_arena(int n)
 {
     struct arena_type *arena_ptr = &arenas[n];
+    byte tmpx, tmpy;
+    s16b tmp16x, tmp16y;
 
-    rd_byte(&arena_ptr->x_1);
-    rd_byte(&arena_ptr->y_1);
-    rd_byte(&arena_ptr->x_2);
-    rd_byte(&arena_ptr->y_2);
-    rd_s16b(&arena_ptr->wpos.wy);
-    rd_s16b(&arena_ptr->wpos.wx);
+    rd_byte(&tmpx);
+    rd_byte(&tmpy);
+    loc_init(&arena_ptr->grid_1, tmpx, tmpy);
+    rd_byte(&tmpx);
+    rd_byte(&tmpy);
+    loc_init(&arena_ptr->grid_2, tmpx, tmpy);
+    rd_s16b(&tmp16y);
+    rd_s16b(&tmp16x);
+    loc_init(&arena_ptr->wpos.grid, tmp16x, tmp16y);
     rd_s16b(&arena_ptr->wpos.depth);
 }
 
@@ -1979,7 +2014,7 @@ int rd_arenas(struct player *unused)
 
 int rd_wilderness(struct player *unused)
 {
-    int x, y;
+    struct loc grid;
     u16b tmp16u;
 
     /* Read wilderness info */
@@ -1991,12 +2026,12 @@ int rd_wilderness(struct player *unused)
     }
 
     /* Read the available records */
-    for (y = radius_wild; y >= 0 - radius_wild; y--)
+    for (grid.y = radius_wild; grid.y >= 0 - radius_wild; grid.y--)
     {
-        for (x = 0 - radius_wild; x <= radius_wild; x++)
+        for (grid.x = 0 - radius_wild; grid.x <= radius_wild; grid.x++)
         {
-            struct wild_type *w_ptr = get_wt_info_at(y, x);
             byte tmp;
+            struct wild_type *w_ptr = get_wt_info_at(&grid);
 
             /* Read wilderness info */
             rd_byte(&tmp);

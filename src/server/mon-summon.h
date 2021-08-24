@@ -38,16 +38,16 @@ extern int summon_name_to_idx(const char *name);
 extern int summon_message_type(int summon_type);
 extern int summon_fallback_type(int summon_type);
 extern const char *summon_desc(int type);
-extern int summon_specific(struct player *p, struct chunk *c, int y1, int x1, int lev, int type,
+extern int summon_specific(struct player *p, struct chunk *c, struct loc *grid, int lev, int type,
     bool delay, bool call, int chance);
-extern bool summon_specific_race_aux(struct player *p, struct chunk *c, int y1, int x1,
+extern bool summon_specific_race_aux(struct player *p, struct chunk *c, struct loc *grid,
     struct monster_race *race, unsigned char size, bool pet);
-extern bool summon_specific_race(struct player *p, struct chunk *c, int y1, int x1,
+extern bool summon_specific_race(struct player *p, struct chunk *c, struct loc *grid,
     struct monster_race *race, unsigned char size);
 extern bool summon_specific_race_somewhere(struct player *p, struct chunk *c,
     struct monster_race *race, unsigned char size);
-extern int summon_monster_aux(struct player *p, struct chunk *c, int y, int x, int flag, int rlev,
-    int max, int chance);
-extern bool summon_location(struct chunk *c, int *yp, int *xp, int y1, int x1, int tries);
+extern int summon_monster_aux(struct player *p, struct chunk *c, struct loc *grid, int flag,
+    int rlev, int max, int chance);
+extern bool summon_location(struct chunk *c, struct loc *place, struct loc *grid, int tries);
 
 #endif /* MONSTER_SUMMON_H */

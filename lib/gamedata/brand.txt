@@ -148,3 +148,11 @@ resist-flag:NO_CUT
 active-verb:glows
 active-verb-plural:glow
 desc-adjective:strong
+
+code:VAMPIRIC
+name:life leech
+verb:drain
+multiplier:1
+power:110
+active-verb:glows
+active-verb-plural:glow

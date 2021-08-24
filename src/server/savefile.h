@@ -25,7 +25,7 @@ extern void wr_s16b(s16b v);
 extern void wr_u32b(u32b v);
 extern void wr_s32b(s32b v);
 extern void wr_hturn(hturn* pv);
-extern void wr_loc(struct loc l);
+extern void wr_loc(struct loc *l);
 extern void wr_string(const char *str);
 
 /* Reading bits */

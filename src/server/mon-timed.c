@@ -75,9 +75,11 @@ int mon_timed_name_to_idx(const char *name)
 /*
  * Roll the saving throw for monsters resisting a timed effect.
  */
-static bool saving_throw(const struct monster *mon, int timer, int flag)
+static bool saving_throw(struct player *p, const struct monster *mon, int timer, int flag)
 {
     int resist_chance = MIN(90, mon->race->level + MAX(0, 25 - timer / 2));
+
+    if (p && p->timed[TMD_DESPAIR]) resist_chance /= 2;
 
     /* Uniques are doubly hard to affect */
     if (monster_is_unique(mon->race) && magik(resist_chance)) return true;
@@ -115,7 +117,7 @@ static bool does_resist(struct player *p, const struct monster *mon, int effect_
     }
 
     /* Some effects get a saving throw; others don't */
-    if (effect->gets_save) return saving_throw(mon, timer, flag);
+    if (effect->gets_save) return saving_throw(p, mon, timer, flag);
     return false;
 }
 
@@ -245,6 +247,8 @@ bool mon_inc_timed(struct player *p, struct monster *mon, int effect_type, int t
     /* For negative amounts, we use mon_dec_timed instead */
     my_assert(timer > 0);
 
+    if (p && p->timed[TMD_DESPAIR] && (effect_type == MON_TMD_FEAR)) timer *= 2;
+
     /* Make it last for a mimimum # of turns if it is a new effect */
     if (!mon->m_timed[effect_type] && (timer < MON_INC_MIN_TURNS)) timer = MON_INC_MIN_TURNS;
 
@@ -322,4 +326,33 @@ bool mon_clear_timed(struct player *p, struct monster *mon, int effect_type, int
     flag |= MON_TMD_FLG_NOFAIL;
 
     return mon_set_timed(p, mon, effect_type, 0, flag);
+}
+
+
+/*
+ * The level at which an effect is affecting a monster.
+ * Levels range from 0 (unaffected) to 5 (maximum effect).
+ */
+int monster_effect_level(struct monster *mon, int effect_type)
+{
+    struct mon_timed_effect *effect = &effects[effect_type];
+    int divisor = MAX(effect->max_timer / 5, 1);
+
+    return MIN((mon->m_timed[effect_type] + divisor - 1) / divisor, 5);
+}
+
+
+int monster_effect_accuracy(struct monster *mon, int effect_type, int chance)
+{
+    int conf_level = monster_effect_level(mon, MON_TMD_CONF);
+    int accuracy = 100;
+
+    while (conf_level)
+    {
+        accuracy *= (100 - chance);
+        accuracy /= 100;
+        conf_level--;
+    }
+
+    return accuracy;
 }

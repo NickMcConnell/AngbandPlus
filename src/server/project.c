@@ -38,7 +38,7 @@ char proj_to_char[PROJ_MAX][BOLT_MAX];
  */
 static const char *proj_name_list[] =
 {
-    #define ELEM(a) #a,
+    #define ELEM(a, b, c, d) #a,
     #include "../common/list-elements.h"
     #undef ELEM
     #define PROJ(a) #a,
@@ -78,9 +78,9 @@ const char *proj_idx_to_name(int type)
 /*
  * Determine the path taken by a projection.
  *
- * The projection will always start from the grid (y1,x1), and will travel
- * towards the grid (y2,x2), touching one grid per unit of distance along
- * the major axis, and stopping when it enters the destination grid or a
+ * The projection will always start from grid1, and will travel
+ * towards grid2, touching one grid per unit of distance along
+ * the major axis, and stopping when it enters the finish grid or a
  * wall grid, or has travelled the maximum legal distance of "range".
  *
  * Note that "distance" in this function (as in the "update_view()" code)
@@ -92,7 +92,7 @@ const char *proj_idx_to_name(int type)
  * due to the way in which distance is calculated, this function normally
  * uses fewer than "range" grids for the projection path, so the result
  * of this function should never be compared directly to "range".  Note
- * that the initial grid (y1,x1) is never saved into the grid array, not
+ * that the initial grid is never saved into the grid array, not
  * even if the initial grid is also the final grid.  XXX XXX XXX
  *
  * The "flg" flags can be used to modify the behavior of this function.
@@ -100,7 +100,7 @@ const char *proj_idx_to_name(int type)
  * In particular, the "PROJECT_STOP" and "PROJECT_THRU" flags have the same
  * semantics as they do for the "project" function, namely, that the path
  * will stop as soon as it hits a monster, or that the path will continue
- * through the destination grid, respectively.
+ * through the finish grid, respectively.
  *
  * The "PROJECT_JUMP" flag, which for the "project()" function means to
  * start at a special grid (which makes no sense in this function), means
@@ -108,13 +108,13 @@ const char *proj_idx_to_name(int type)
  * grids, allowing the player to "target" any grid which is in "view".
  *
  * This function returns the number of grids (if any) in the path.  This
- * function will return zero if and only if (y1,x1) and (y2,x2) are equal.
+ * function will return zero if and only if grid1 and grid2 are equal.
  *
  * This algorithm is similar to, but slightly different from, the one used
  * by "update_view_los()", and very different from the one used by "los()".
  */
-int project_path(struct player *p, struct loc *gp, int range, struct chunk *c, int y1, int x1,
-    int y2, int x2, int flg)
+int project_path(struct player *p, struct loc *gp, int range, struct chunk *c, struct loc *grid1,
+    struct loc *grid2, int flg)
 {
     int y, x;
     int n = 0;
@@ -136,29 +136,29 @@ int project_path(struct player *p, struct loc *gp, int range, struct chunk *c, i
     int m;
 
     /* No path necessary (or allowed) */
-    if ((x1 == x2) && (y1 == y2)) return (0);
+    if (loc_eq(grid1, grid2)) return (0);
 
     /* Analyze "dy" */
-    if (y2 < y1)
+    if (grid2->y < grid1->y)
     {
-        ay = (y1 - y2);
+        ay = (grid1->y - grid2->y);
         sy = -1;
     }
     else
     {
-        ay = (y2 - y1);
+        ay = (grid2->y - grid1->y);
         sy = 1;
     }
 
     /* Analyze "dx" */
-    if (x2 < x1)
+    if (grid2->x < grid1->x)
     {
-        ax = (x1 - x2);
+        ax = (grid1->x - grid2->x);
         sx = -1;
     }
     else
     {
-        ax = (x2 - x1);
+        ax = (grid2->x - grid1->x);
         sx = 1;
     }
 
@@ -178,38 +178,37 @@ int project_path(struct player *p, struct loc *gp, int range, struct chunk *c, i
         m = frac << 1;
 
         /* Start */
-        y = y1 + sy;
-        x = x1;
+        y = grid1->y + sy;
+        x = grid1->x;
 
         /* Create the projection path */
         while (1)
         {
             /* Save grid */
-            gp[n].y = y;
-            gp[n].x = x;
+            loc_init(&gp[n], x, y);
             n++;
 
             /* Hack -- check maximum range */
             if ((n + (k >> 1)) >= range) break;
 
-            /* Sometimes stop at destination grid */
+            /* Sometimes stop at finish grid */
             if (!(flg & (PROJECT_THRU)))
             {
-                if ((x == x2) && (y == y2)) break;
+                if (loc_eq(&gp[n - 1], grid2)) break;
             }
 
             /* Stop at non-initial wall grids, except where that would leak info during targeting */
             if (!(flg & (PROJECT_INFO)))
             {
-                if ((n > 0) && !square_isprojectable(c, y, x)) break;
+                if ((n > 0) && !square_isprojectable(c, &gp[n - 1])) break;
             }
             else
-                if ((n > 0) && square_isbelievedwall(p, c, y, x)) break;
+                if ((n > 0) && square_isbelievedwall(p, c, &gp[n - 1])) break;
 
             /* Sometimes stop at non-initial targets */
             if (flg & (PROJECT_STOP))
             {
-                if ((n > 0) && c->squares[y][x].mon) break;
+                if ((n > 0) && square(c, &gp[n - 1])->mon) break;
             }
 
             /* Slant */
@@ -247,38 +246,37 @@ int project_path(struct player *p, struct loc *gp, int range, struct chunk *c, i
         m = frac << 1;
 
         /* Start */
-        y = y1;
-        x = x1 + sx;
+        y = grid1->y;
+        x = grid1->x + sx;
 
         /* Create the projection path */
         while (1)
         {
             /* Save grid */
-            gp[n].y = y;
-            gp[n].x = x;
+            loc_init(&gp[n], x, y);
             n++;
 
             /* Hack -- check maximum range */
             if ((n + (k >> 1)) >= range) break;
 
-            /* Sometimes stop at destination grid */
+            /* Sometimes stop at finish grid */
             if (!(flg & (PROJECT_THRU)))
             {
-                if ((x == x2) && (y == y2)) break;
+                if (loc_eq(&gp[n - 1], grid2)) break;
             }
 
             /* Stop at non-initial wall grids, except where that would leak info during targeting */
             if (!(flg & (PROJECT_INFO)))
             {
-                if ((n > 0) && !square_isprojectable(c, y, x)) break;
+                if ((n > 0) && !square_isprojectable(c, &gp[n - 1])) break;
             }
             else
-                if ((n > 0) && square_isbelievedwall(p, c, y, x)) break;
+                if ((n > 0) && square_isbelievedwall(p, c, &gp[n - 1])) break;
 
             /* Sometimes stop at non-initial targets */
             if (flg & (PROJECT_STOP))
             {
-                if ((n > 0) && c->squares[y][x].mon) break;
+                if ((n > 0) && square(c, &gp[n - 1])->mon) break;
             }
 
             /* Slant */
@@ -310,38 +308,37 @@ int project_path(struct player *p, struct loc *gp, int range, struct chunk *c, i
     else
     {
         /* Start */
-        y = y1 + sy;
-        x = x1 + sx;
+        y = grid1->y + sy;
+        x = grid1->x + sx;
 
         /* Create the projection path */
         while (1)
         {
             /* Save grid */
-            gp[n].y = y;
-            gp[n].x = x;
+            loc_init(&gp[n], x, y);
             n++;
 
             /* Hack -- check maximum range */
             if ((n + (n >> 1)) >= range) break;
 
-            /* Sometimes stop at destination grid */
+            /* Sometimes stop at finish grid */
             if (!(flg & (PROJECT_THRU)))
             {
-                if ((x == x2) && (y == y2)) break;
+                if (loc_eq(&gp[n - 1], grid2)) break;
             }
 
             /* Stop at non-initial wall grids, except where that would leak info during targeting */
             if (!(flg & (PROJECT_INFO)))
             {
-                if ((n > 0) && !square_isprojectable(c, y, x)) break;
+                if ((n > 0) && !square_isprojectable(c, &gp[n - 1])) break;
             }
             else
-                if ((n > 0) && square_isbelievedwall(p, c, y, x)) break;
+                if ((n > 0) && square_isbelievedwall(p, c, &gp[n - 1])) break;
 
             /* Sometimes stop at non-initial targets */
             if (flg & (PROJECT_STOP))
             {
-                if ((n > 0) && c->squares[y][x].mon) break;
+                if ((n > 0) && square(c, &gp[n - 1])->mon) break;
             }
 
             /* Advance (Y) */
@@ -358,7 +355,7 @@ int project_path(struct player *p, struct loc *gp, int range, struct chunk *c, i
 
 
 /*
- * Determine if a bolt spell cast from (y1,x1) to (y2,x2) will arrive
+ * Determine if a bolt spell cast from grid1 to grid2 will arrive
  * at the final destination, assuming that no monster gets in the way,
  * using the "project_path()" function to check the projection path.
  *
@@ -370,27 +367,22 @@ int project_path(struct player *p, struct loc *gp, int range, struct chunk *c, i
  * If 'nowall' is false, we allow targets to be in walls, otherwise wraithed players/ghosts
  * would be safe from monster spells!
  */
-bool projectable(struct chunk *c, int y1, int x1, int y2, int x2, int flg, bool nowall)
+bool projectable(struct chunk *c, struct loc *grid1, struct loc *grid2, int flg, bool nowall)
 {
-    int y, x;
-    int grid_n = 0;
     struct loc grid_g[512];
+    int grid_n = 0;
 
     /* Check the projection path */
-    grid_n = project_path(NULL, grid_g, z_info->max_range, c, y1, x1, y2, x2, flg);
+    grid_n = project_path(NULL, grid_g, z_info->max_range, c, grid1, grid2, flg);
 
     /* No grid is ever projectable from itself */
     if (!grid_n) return false;
 
-    /* Final grid */
-    y = grid_g[grid_n - 1].y;
-    x = grid_g[grid_n - 1].x;
-
     /* May not end in a wall grid */
-    if (nowall && !square_ispassable(c, y, x)) return false;
+    if (nowall && !square_ispassable(c, &grid_g[grid_n - 1])) return false;
 
     /* May not end in an unrequested grid */
-    if ((y != y2) || (x != x2)) return false;
+    if (!loc_eq(&grid_g[grid_n - 1], grid2)) return false;
 
     /* Assume okay */
     return true;
@@ -436,16 +428,17 @@ byte proj_color(int type)
  */
 
 
-static void init_loc(struct loc *ploc, int x, int y)
-{
-    ploc->x = x;
-    ploc->y = y;
-}
-
-
-static bool stop_project(struct source *who, int m_idx, struct chunk *cv, int typ)
+static bool stop_project(struct source *who, struct loc *grid, struct chunk *cv, int typ)
 {
     s16b p1_id, p2_id;
+    int m_idx;
+
+    /* Possible decoy */
+    struct loc *decoy = cave_find_decoy(cv);
+
+    if (who->monster && loc_eq(decoy, grid)) return true;
+    m_idx = square(cv, grid)->mon;
+    if (m_idx == 0) return false;
 
     /* Get caster info */
     if (who->player) p1_id = who->player->id;
@@ -470,7 +463,7 @@ static bool stop_project(struct source *who, int m_idx, struct chunk *cv, int ty
         return true;
 
     /* Stop if an order hits a friendly monster */
-    if (((typ == PROJ_GUARD) || (typ == PROJ_FOLLOW) || (typ == PROJ_ATTACK)) && (m_idx > 0))
+    if ((typ == PROJ_COMMAND) && (m_idx > 0))
         return true;
 
     /* Let everything else pass through */
@@ -485,10 +478,10 @@ static bool stop_project(struct source *who, int m_idx, struct chunk *cv, int ty
  */
 void origin_get_loc(struct loc *ploc, struct source *origin)
 {
-    if (origin->monster) init_loc(ploc, origin->monster->fx, origin->monster->fy);
-    else if (origin->trap) init_loc(ploc, origin->trap->fx, origin->trap->fy);
-    else if (origin->player) init_loc(ploc, origin->player->px, origin->player->py);
-    else init_loc(ploc, -1, -1);
+    if (origin->monster) loc_copy(ploc, &origin->monster->grid);
+    else if (origin->trap) loc_copy(ploc, &origin->trap->grid);
+    else if (origin->player) loc_copy(ploc, &origin->player->grid);
+    else loc_init(ploc, -1, -1);
 }
 
 
@@ -499,7 +492,7 @@ void origin_get_loc(struct loc *ploc, struct source *origin)
  * rad: Radius of explosion (0 = beam/bolt, 1 to 20 = ball), or maximum
  *      length of arc from the source.
  * cv: Current cave
- * (y, x): Target location (or location to travel towards)
+ * finish: Target location (or location to travel towards)
  * dam: Base damage to apply to monsters, terrain, objects, or players
  * typ: Type of projection (fire, frost, dispel demons etc.)
  * flg: Extra bit flags that control projection behavior
@@ -634,14 +627,13 @@ void origin_get_loc(struct loc *ploc, struct source *origin)
  * in the blast radius, in case the illumination of the grid was changed,
  * and "update_view()" and "update_monsters()" need to be called.
  */
-bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int dam, int typ,
+bool project(struct source *origin, int rad, struct chunk *cv, struct loc *finish, int dam, int typ,
     int flg, int degrees_of_arc, byte diameter_of_source, const char *what)
 {
     int i, j, k, dist_from_centre;
     u32b dam_temp;
     struct loc centre;
-    struct loc source;
-    struct loc destination;
+    struct loc start;
     int n1y = 0;
     int n1x = 0;
 
@@ -675,25 +667,22 @@ bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int
     /* No projection path - jump to target */
     if (flg & PROJECT_JUMP)
     {
-        init_loc(&source, x, y);
+        loc_copy(&start, finish);
 
         /* Clear the flag */
         flg &= ~(PROJECT_JUMP);
     }
     else
     {
-        origin_get_loc(&source, origin);
+        origin_get_loc(&start, origin);
 
-        /* Default to destination grid */
-        if ((source.y == -1) && (source.x == -1))
-            init_loc(&source, x, y);
+        /* Default to finish grid */
+        if ((start.y == -1) && (start.x == -1))
+            loc_copy(&start, finish);
     }
 
-    /* Default "destination" */
-    init_loc(&destination, x, y);
-
     /* Default center of explosion (if any) */
-    init_loc(&centre, source.x, source.y);
+    loc_copy(&centre, &start);
 
     /*
      * An arc spell with no width and a non-zero radius is actually a
@@ -710,28 +699,29 @@ bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int
     }
 
     /*
-     * If a single grid is both source and destination (for example
+     * If a single grid is both start and finish (for example
      * if PROJECT_JUMP is set), store it; otherwise, travel along the
      * projection path.
      */
-    if ((source.x == destination.x) && (source.y == destination.y))
+    if (loc_eq(&start, finish))
     {
-        blast_grid[num_grids].y = y;
-        blast_grid[num_grids].x = x;
+        loc_copy(&blast_grid[num_grids], finish);
+        loc_copy(&centre, finish);
         distance_to_grid[num_grids] = 0;
-        sqinfo_on(cv->squares[y][x].info, SQUARE_PROJECT);
+        sqinfo_on(square(cv, finish)->info, SQUARE_PROJECT);
         num_grids++;
     }
     else
     {
-        /* Calculate the projection path */
-        /* Hack -- remove PROJECT_STOP flag to handle friendly targets separately */
-        num_path_grids = project_path(NULL, path_grid, z_info->max_range, cv, source.y, source.x,
-            destination.y, destination.x, (flg & ~PROJECT_STOP));
+        struct loc grid;
 
         /* Start from caster */
-        y = source.y;
-        x = source.x;
+        loc_copy(&grid, &start);
+
+        /* Calculate the projection path */
+        /* Hack -- remove PROJECT_STOP flag to handle friendly targets separately */
+        num_path_grids = project_path(NULL, path_grid, z_info->max_range, cv, &start, finish,
+            (flg & ~PROJECT_STOP));
 
         /* Some beams have limited length. */
         if (flg & PROJECT_BEAM)
@@ -746,23 +736,18 @@ bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int
         {
             for (i = 0; i < num_path_grids; ++i)
             {
-                int oy = y;
-                int ox = x;
-                int ny = path_grid[i].y;
-                int nx = path_grid[i].x;
-                int m_idx;
                 bool collected = false;
+                struct loc ogrid;
 
                 /* PWMAngband: BALL attacks should also be applied to wraithed players */
-                bool proj_wall = (origin->target && (origin->target->py == ny) &&
-                    (origin->target->px == nx));
+                bool proj_wall = (origin->target && loc_eq(&origin->target->grid, &path_grid[i]));
 
                 /* Hack -- balls explode before reaching walls */
-                if (!square_ispassable(cv, ny, nx) && (rad > 0) && !proj_wall) break;
+                if (!square_ispassable(cv, &path_grid[i]) && (rad > 0) && !proj_wall) break;
 
                 /* Advance */
-                y = ny;
-                x = nx;
+                loc_copy(&ogrid, &grid);
+                loc_copy(&grid, &path_grid[i]);
 
                 /*
                  * Beams collect all grids in the path, all other methods
@@ -770,19 +755,17 @@ bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int
                  */
                 if (flg & PROJECT_BEAM)
                 {
-                    blast_grid[num_grids].y = y;
-                    blast_grid[num_grids].x = x;
+                    loc_copy(&blast_grid[num_grids], &grid);
                     distance_to_grid[num_grids] = 0;
-                    sqinfo_on(cv->squares[y][x].info, SQUARE_PROJECT);
+                    sqinfo_on(square(cv, &grid)->info, SQUARE_PROJECT);
                     num_grids++;
                     collected = true;
                 }
                 else if (i == num_path_grids - 1)
                 {
-                    blast_grid[num_grids].y = y;
-                    blast_grid[num_grids].x = x;
+                    loc_copy(&blast_grid[num_grids], &grid);
                     distance_to_grid[num_grids] = 0;
-                    sqinfo_on(cv->squares[y][x].info, SQUARE_PROJECT);
+                    sqinfo_on(square(cv, &grid)->info, SQUARE_PROJECT);
                     num_grids++;
                     collected = true;
                 }
@@ -794,26 +777,22 @@ bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int
 
                     data.proj_type = typ;
                     data.beam = ((flg & PROJECT_BEAM)? true: false);
-                    data.oy = oy;
-                    data.ox = ox;
-                    data.y = y;
-                    data.x = x;
+                    loc_copy(&data.ogrid, &ogrid);
+                    loc_copy(&data.grid, &grid);
 
                     /* Tell the UI to display the bolt */
                     display_bolt(cv, &data, drawing);
                 }
 
                 /* Sometimes stop at non-initial monsters/players */
-                m_idx = cv->squares[y][x].mon;
-                if ((m_idx != 0) && (flg & PROJECT_STOP) && stop_project(origin, m_idx, cv, typ))
+                if ((flg & PROJECT_STOP) && stop_project(origin, &grid, cv, typ))
                 {
                     /* Store the grid if necessary */
                     if (!collected)
                     {
-                        blast_grid[num_grids].y = y;
-                        blast_grid[num_grids].x = x;
+                        loc_copy(&blast_grid[num_grids], &grid);
                         distance_to_grid[num_grids] = 0;
-                        sqinfo_on(cv->squares[y][x].info, SQUARE_PROJECT);
+                        sqinfo_on(square(cv, &grid)->info, SQUARE_PROJECT);
                         num_grids++;
                     }
 
@@ -821,11 +800,10 @@ bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int
                 }
             }
         }
-    }
 
-    /* Save the "blast epicenter" */
-    centre.y = y;
-    centre.x = x;
+        /* Save the "blast epicenter" */
+        loc_copy(&centre, &grid);
+    }
 
     /*
      * Now check for explosions. Beams have already stored all the grids they
@@ -834,12 +812,14 @@ bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int
      */
     if ((rad > 0) && !(flg & PROJECT_BEAM))
     {
+        struct loc begin, end;
+        struct loc_iterator iter;
+
         /* Pre-calculate some things for arcs. */
         if ((flg & PROJECT_ARC) && (num_path_grids != 0))
         {
             /* Explosion centers on the caster. */
-            centre.y = source.y;
-            centre.x = source.x;
+            loc_copy(&centre, &start);
 
             /* The radius of arcs cannot be more than 20 */
             if (rad > 20) rad = 20;
@@ -858,115 +838,113 @@ bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int
         /* If the center of the explosion hasn't been saved already, save it now. */
         if (num_grids == 0)
         {
-            blast_grid[num_grids].y = centre.y;
-            blast_grid[num_grids].x = centre.x;
+            loc_copy(&blast_grid[num_grids], &centre);
             distance_to_grid[num_grids] = 0;
-            sqinfo_on(cv->squares[centre.y][centre.x].info, SQUARE_PROJECT);
+            sqinfo_on(square(cv, &centre)->info, SQUARE_PROJECT);
             num_grids++;
         }
 
+        loc_init(&begin, centre.x - rad, centre.y - rad);
+        loc_init(&end, centre.x + rad, centre.y + rad);
+        loc_iterator_first(&iter, &begin, &end);
+
         /* Scan every grid that might possibly be in the blast radius. */
-        for (y = centre.y - rad; y <= centre.y + rad; y++)
+        do
         {
-            for (x = centre.x - rad; x <= centre.x + rad; x++)
+            /* PWMAngband: BREATH attacks should also be applied to wraithed players */
+            bool proj_wall = (origin->target && loc_eq(&origin->target->grid, &iter.cur));
+
+            /* Center grid has already been stored. */
+            if (loc_eq(&iter.cur, &centre)) continue;
+
+            /* Precaution: Stay within area limit. */
+            if (num_grids >= 255) break;
+
+            /* Ignore "illegal" locations */
+            if (!square_in_bounds(cv, &iter.cur)) continue;
+
+            /*
+             * Most explosions are immediately stopped by walls. If
+             * PROJECT_THRU is set, walls can be affected if adjacent to
+             * a grid visible from the explosion centre.
+             * All explosions can affect one layer of terrain which is
+             * passable but not projectable.
+             */
+            if ((flg & PROJECT_THRU) || square_ispassable(cv, &iter.cur) || proj_wall)
             {
-                /* PWMAngband: BREATH attacks should also be applied to wraithed players */
-                bool proj_wall = (origin->target && (origin->target->py == y) &&
-                    (origin->target->px == x));
-
-                /* Center grid has already been stored. */
-                if ((y == centre.y) && (x == centre.x)) continue;
-
-                /* Precaution: Stay within area limit. */
-                if (num_grids >= 255) break;
-
-                /* Ignore "illegal" locations */
-                if (!square_in_bounds(cv, y, x)) continue;
-
-                /*
-                 * Most explosions are immediately stopped by walls. If
-                 * PROJECT_THRU is set, walls can be affected if adjacent to
-                 * a grid visible from the explosion centre.
-                 * All explosions can affect one layer of terrain which is
-                 * passable but not projectable.
-                 */
-                if ((flg & PROJECT_THRU) || square_ispassable(cv, y, x) || proj_wall)
+                /* If this is a wall grid, ... */
+                if (!square_isprojectable(cv, &iter.cur))
                 {
-                    /* If this is a wall grid, ... */
-                    if (!square_isprojectable(cv, y, x))
+                    /* Check neighbors */
+                    for (i = 0, k = 0; i < 8; i++)
                     {
-                        /* Check neighbors */
-                        for (i = 0, k = 0; i < 8; i++)
+                        struct loc ngrid;
+
+                        loc_sum(&ngrid, &iter.cur, &ddgrid_ddd[i]);
+                        if (los(cv, &centre, &ngrid))
                         {
-                            int yy = y + ddy_ddd[i];
-                            int xx = x + ddx_ddd[i];
-
-                            if (los(cv, centre.y, centre.x, yy, xx))
-                            {
-                                k++;
-                                break;
-                            }
-                        }
-
-                        /* Require at least one adjacent grid in LOS. */
-                        if (!k) continue;
-                    }
-                }
-                else if (!square_isprojectable(cv, y, x))
-                    continue;
-                /*if (!los(cv, centre.y, centre.x, y, x)) continue;*/
-
-                /* Must be within maximum distance. */
-                dist_from_centre = distance(centre.y, centre.x, y, x);
-                if (dist_from_centre > rad) continue;
-
-                /* Do we need to consider a restricted angle? */
-                if (flg & PROJECT_ARC)
-                {
-                    /* Use angle comparison to delineate an arc. */
-                    int n2y, n2x, tmp, rotate, diff;
-
-                    /* Reorient current grid for table access. */
-                    n2y = y - source.y + 20;
-                    n2x = x - source.x + 20;
-
-                    /*
-                     * Find the angular difference (/2) between
-                     * the lines to the end of the arc's center-
-                     * line and to the current grid.
-                     */
-                    rotate = 90 - get_angle_to_grid[n1y][n1x];
-                    tmp = ABS(get_angle_to_grid[n2y][n2x] + rotate) % 180;
-                    diff = ABS(90 - tmp);
-
-                    /*
-                     * If difference is not greater then that
-                     * allowed, and the grid is in LOS, accept it.
-                     */
-                    if (diff < (degrees_of_arc + 6) / 4)
-                    {
-                        if (los(cv, centre.y, centre.x, y, x))
-                        {
-                            blast_grid[num_grids].y = y;
-                            blast_grid[num_grids].x = x;
-                            distance_to_grid[num_grids] = dist_from_centre;
-                            sqinfo_on(cv->squares[y][x].info, SQUARE_PROJECT);
-                            num_grids++;
+                            k++;
+                            break;
                         }
                     }
-                }
 
-                /* Accept all grids in LOS */
-                else if (los(cv, centre.y, centre.x, y, x))
-                {
-                    blast_grid[num_grids].y = y;
-                    blast_grid[num_grids].x = x;
-                    distance_to_grid[num_grids] = dist_from_centre;
-                    sqinfo_on(cv->squares[y][x].info, SQUARE_PROJECT);
-                    num_grids++;
+                    /* Require at least one adjacent grid in LOS. */
+                    if (!k) continue;
                 }
             }
+            else if (!square_isprojectable(cv, &iter.cur))
+                continue;
+            /*if (!los(cv, &centre, &iter.cur)) continue;*/
+
+            /* Must be within maximum distance. */
+            dist_from_centre = distance(&centre, &iter.cur);
+            if (dist_from_centre > rad) continue;
+
+            /* Do we need to consider a restricted angle? */
+            if (flg & PROJECT_ARC)
+            {
+                /* Use angle comparison to delineate an arc. */
+                int n2y, n2x, tmp, rotate, diff;
+
+                /* Reorient current grid for table access. */
+                n2y = iter.cur.y - start.y + 20;
+                n2x = iter.cur.x - start.x + 20;
+
+                /*
+                 * Find the angular difference (/2) between
+                 * the lines to the end of the arc's center-
+                 * line and to the current grid.
+                 */
+                rotate = 90 - get_angle_to_grid[n1y][n1x];
+                tmp = ABS(get_angle_to_grid[n2y][n2x] + rotate) % 180;
+                diff = ABS(90 - tmp);
+
+                /*
+                 * If difference is not greater then that
+                 * allowed, and the grid is in LOS, accept it.
+                 */
+                if (diff < (degrees_of_arc + 6) / 4)
+                {
+                    if (los(cv, &centre, &iter.cur))
+                    {
+                        loc_copy(&blast_grid[num_grids], &iter.cur);
+                        distance_to_grid[num_grids] = dist_from_centre;
+                        sqinfo_on(square(cv, &iter.cur)->info, SQUARE_PROJECT);
+                        num_grids++;
+                    }
+                }
+            }
+
+            /* Accept all grids in LOS */
+            else if (los(cv, &centre, &iter.cur))
+            {
+                loc_copy(&blast_grid[num_grids], &iter.cur);
+                distance_to_grid[num_grids] = dist_from_centre;
+                sqinfo_on(square(cv, &iter.cur)->info, SQUARE_PROJECT);
+                num_grids++;
+            }
         }
+        while (loc_iterator_next(&iter));
     }
 
     /* Calculate and store the actual damage at each distance. */
@@ -975,6 +953,10 @@ bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int
         /* No damage outside the radius. */
         if (i > rad)
             dam_temp = 0;
+
+        /* Effect is constant */
+        else if (flg & PROJECT_CONST)
+            dam_temp = dam;
 
         /* Standard damage calc. for 10' source diameters, or at origin. */
         else if (!diameter_of_source || (i == 0))
@@ -994,26 +976,24 @@ bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int
         dam_at_dist[i] = dam_temp;
     }
 
-    /* Sort the blast grids by distance, starting at the origin. */
+    /* Sort the blast grids by distance from the centre. */
     for (i = 0, k = 0; i <= rad; i++)
     {
-        int tmp_y, tmp_x, tmp_d;
-
         /* Collect all the grids of a given distance together. */
         for (j = k; j < num_grids; j++)
         {
             if (distance_to_grid[j] == i)
             {
-                tmp_y = blast_grid[k].y;
-                tmp_x = blast_grid[k].x;
+                struct loc tmp;
+                int tmp_d;
+
+                loc_copy(&tmp, &blast_grid[k]);
                 tmp_d = distance_to_grid[k];
 
-                blast_grid[k].y = blast_grid[j].y;
-                blast_grid[k].x = blast_grid[j].x;
+                loc_copy(&blast_grid[k], &blast_grid[j]);
                 distance_to_grid[k] = distance_to_grid[j];
 
-                blast_grid[j].y = tmp_y;
-                blast_grid[j].x = tmp_x;
+                loc_copy(&blast_grid[j], &tmp);
                 distance_to_grid[j] = tmp_d;
 
                 /* Write to next slot */
@@ -1042,26 +1022,23 @@ bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int
         struct player *p = player_get(j);
 
         /* Skip irrelevant players */
-        if (!COORDS_EQUAL(&p->wpos, &cv->wpos)) continue;
+        if (!wpos_eq(&p->wpos, &cv->wpos)) continue;
         if (p->timed[TMD_BLIND]) continue;
 
         /* Add one to the count */
         if (drawing[j]) p->did_visuals = true;
     }
 
-    /* Check objects */
+    /* Affect objects on every relevant grid */
     if (flg & PROJECT_ITEM)
     {
-        /* Scan for objects */
         for (i = 0; i < num_grids; i++)
         {
-            /* Get the grid location */
-            y = blast_grid[i].y;
-            x = blast_grid[i].x;
-
-            /* Affect the object */
-            if (project_o(origin, distance_to_grid[i], cv, y, x, dam_at_dist[distance_to_grid[i]], typ))
+            if (project_o(origin, distance_to_grid[i], cv, &blast_grid[i],
+                dam_at_dist[distance_to_grid[i]], typ))
+            {
                 notice = true;
+            }
         }
     }
 
@@ -1071,47 +1048,38 @@ bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int
         bool was_obvious = false;
         bool did_hit = false;
         int num_hit = 0;
-        int last_hit_x = 0;
-        int last_hit_y = 0;
+        struct loc last_hit;
+
+        loc_init(&last_hit, 0, 0);
 
         /* Scan for monsters */
         for (i = 0; i < num_grids; i++)
         {
-            int newy;
-            int newx;
-
-            /* Get the grid location */
-            y = blast_grid[i].y;
-            x = blast_grid[i].x;
+            struct loc grid;
 
             /* Check this monster hasn't been processed already */
-            if (!square_isproject(cv, y, x)) continue;
+            if (!square_isproject(cv, &blast_grid[i])) continue;
 
             /* Affect the monster in the grid */
-            project_m(origin, distance_to_grid[i], cv, y, x, dam_at_dist[distance_to_grid[i]], typ,
-                flg, &did_hit, &was_obvious, &newy, &newx);
+            project_m(origin, distance_to_grid[i], cv, &blast_grid[i],
+                dam_at_dist[distance_to_grid[i]], typ, flg, &did_hit, &was_obvious, &grid.y, &grid.x);
             if (was_obvious) notice = true;
             if (did_hit)
             {
                 num_hit++;
 
                 /* Monster location may have been updated by project_m() */
-                last_hit_x = newx;
-                last_hit_y = newy;
+                loc_copy(&last_hit, &grid);
             }
         }
 
         /* Player affected one monster (without "jumping") */
         if (origin->player && (num_hit == 1) && !(flg & (PROJECT_JUMP)))
         {
-            int m_idx;
-
             /* Location */
-            x = last_hit_x;
-            y = last_hit_y;
+            int m_idx = square(cv, &last_hit)->mon;
 
             /* Track if possible */
-            m_idx = cv->squares[y][x].mon;
             if (m_idx > 0)
             {
                 struct source mon_body;
@@ -1129,53 +1097,43 @@ bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int
         }
     }
 
-    /* Check players */
+    /* Look for players, affect them when found */
     if (flg & PROJECT_PLAY)
     {
         bool was_obvious = false;
         bool did_hit = false;
         int num_hit = 0;
-        int last_hit_x = 0;
-        int last_hit_y = 0;
+        struct loc last_hit;
 
-        /* Scan for players */
+        loc_init(&last_hit, 0, 0);
+
         for (i = 0; i < num_grids; i++)
         {
-            int newy;
-            int newx;
-
-            /* Get the grid location */
-            y = blast_grid[i].y;
-            x = blast_grid[i].x;
+            struct loc grid;
 
             /* Check this player hasn't been processed already */
-            if (!square_isproject(cv, y, x)) continue;
+            if (!square_isproject(cv, &blast_grid[i])) continue;
 
             /* Affect the player in the grid */
-            project_p(origin, distance_to_grid[i], cv, y, x, dam_at_dist[distance_to_grid[i]], typ,
-                what, &did_hit, &was_obvious, &newy, &newx);
+            project_p(origin, distance_to_grid[i], cv, &blast_grid[i],
+                dam_at_dist[distance_to_grid[i]], typ, what, &did_hit, &was_obvious, &grid.y, &grid.x);
             if (was_obvious) notice = true;
             if (did_hit)
             {
                 num_hit++;
 
                 /* Player location may have been updated by project_p() */
-                last_hit_x = newx;
-                last_hit_y = newy;
+                loc_copy(&last_hit, &grid);
             }
         }
 
         /* Player affected one player (without "jumping") */
         if (origin->player && (num_hit == 1) && !(flg & (PROJECT_JUMP)))
         {
-            int m_idx;
-
             /* Location */
-            x = last_hit_x;
-            y = last_hit_y;
+            int m_idx = square(cv, &last_hit)->mon;
 
             /* Track if possible */
-            m_idx = cv->squares[y][x].mon;
             if (m_idx < 0)
             {
                 struct source act_body;
@@ -1190,31 +1148,24 @@ bool project(struct source *origin, int rad, struct chunk *cv, int y, int x, int
         }
     }
 
-    /* Check features */
+    /* Affect features in every relevant grid */
     if (flg & PROJECT_GRID)
     {
-        /* Scan for features */
         for (i = 0; i < num_grids; i++)
         {
-            /* Get the grid location */
-            y = blast_grid[i].y;
-            x = blast_grid[i].x;
-
-            /* Affect the feature in that grid */
-            if (project_f(origin, distance_to_grid[i], cv, y, x, dam_at_dist[distance_to_grid[i]], typ))
+            if (project_f(origin, distance_to_grid[i], cv, &blast_grid[i],
+                dam_at_dist[distance_to_grid[i]], typ))
+            {
                 notice = true;
+            }
         }
     }
 
     /* Clear all the processing marks. */
     for (i = 0; i < num_grids; i++)
     {
-        /* Get the grid location */
-        y = blast_grid[i].y;
-        x = blast_grid[i].x;
-
         /* Clear the mark */
-        sqinfo_off(cv->squares[y][x].info, SQUARE_PROJECT);
+        sqinfo_off(square(cv, &blast_grid[i])->info, SQUARE_PROJECT);
     }
 
     free(dam_at_dist);

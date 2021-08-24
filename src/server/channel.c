@@ -26,7 +26,7 @@ int chan_debug;
 int chan_cheat;
 
 
-static const char *virt_channels[VIRTUAL_CHANNELS] = {NULL, "&say", NULL};
+static const char *virt_channels[VIRTUAL_CHANNELS] = {NULL, "&say", "&yell", NULL};
 
 
 static int find_chat_target(const char *search, char *error, size_t maxlen)
@@ -508,6 +508,33 @@ static void player_talk_aux(struct player *p, const char *message)
                     if (p)
                     {
                         msg_format_complex_near(p, MSG_TALK, "%s %ss, \"%s\"%c", sender, verb,
+                            mssg, punct);
+                    }
+
+                    break;
+                }
+                case 2: /* "&yell" */
+                {
+                    verb = "yell";
+                    punct = '!';
+                    for (i = strlen(mssg) - 1; i > 0; i--)
+                    {
+                        switch (mssg[i])
+                        {
+                            case ' ': continue;
+                            case '?':
+                            case '!':
+                            case '.': mssg[i] = '\0';
+                            default: break;
+                        }
+                        break;
+                    }
+
+                    /* Send somewhere */
+                    msg_format_type(p, MSG_YELL, "You %s, \"%s\"%c", verb, mssg, punct);
+                    if (p)
+                    {
+                        msg_format_complex_far(p, MSG_YELL, "%ss, \"%s\"%c", sender, verb,
                             mssg, punct);
                     }
 

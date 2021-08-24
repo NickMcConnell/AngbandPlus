@@ -765,6 +765,9 @@ void get_object_info(struct player *p, struct object *obj, byte equipped,
     /* Get the "known" flag */
     info_xtra->known = object_runes_known(obj);
 
+    /* Get the "known_effect" flag */
+    info_xtra->known_effect = object_effect_is_known(obj, object_flavor_is_aware(p, obj));
+
     /* Get the "slot" flag */
     if (equipped) info_xtra->slot = equipped_item_slot(p->body, obj);
     else info_xtra->slot = wield_slot(p, obj);
@@ -856,35 +859,38 @@ void set_origin(struct object *obj, byte origin, s16b origin_depth, struct monst
  */
 void shimmer_objects(struct player *p, struct chunk *c)
 {
-    int y, x;
+    struct loc begin, end;
+    struct loc_iterator iter;
+
+    loc_init(&begin, 1, 1);
+    loc_init(&end, c->width, c->height);
+    loc_iterator_first(&iter, &begin, &end);
 
     /* Shimmer multi-hued objects */
-    for (y = 1; y < c->height; y++)
+    do
     {
-        for (x = 1; x < c->width; x++)
-        {
-            struct object *obj, *first_obj = NULL;
+        struct object *obj, *first_obj = NULL;
 
-            /* Need to be the first object on the pile that is not ignored */
-            for (obj = square_known_pile(p, c, y, x); obj; obj = obj->next)
+        /* Need to be the first object on the pile that is not ignored */
+        for (obj = square_known_pile(p, c, &iter.cur); obj; obj = obj->next)
+        {
+            if (!ignore_item_ok(p, obj))
             {
-                if (!ignore_item_ok(p, obj))
+                if (!first_obj)
+                    first_obj = obj;
+                else
                 {
-                    if (!first_obj)
-                        first_obj = obj;
-                    else
-                    {
-                        first_obj = NULL;
-                        break;
-                    }
+                    first_obj = NULL;
+                    break;
                 }
             }
-
-            /* Light that spot */
-            if (first_obj && object_shimmer(first_obj))
-                square_light_spot_aux(p, c, y, x);
         }
+
+        /* Light that spot */
+        if (first_obj && object_shimmer(first_obj))
+            square_light_spot_aux(p, c, &iter.cur);
     }
+    while (loc_iterator_next_strict(&iter));
 }
 
 
@@ -893,7 +899,9 @@ void shimmer_objects(struct player *p, struct chunk *c)
  */
 void process_objects(struct chunk *c)
 {
-    int i, y, x;
+    int i;
+    struct loc begin, end;
+    struct loc_iterator iter;
 
     /* Every 10 game turns */
     if ((turn.turn % 10) != 5) return;
@@ -904,7 +912,7 @@ void process_objects(struct chunk *c)
         struct player *p = player_get(i);
 
         /* Skip irrelevant players */
-        if (!COORDS_EQUAL(&p->wpos, &c->wpos)) continue;
+        if (!wpos_eq(&p->wpos, &c->wpos)) continue;
         if (p->upkeep->new_level_method || p->upkeep->funeral) continue;
         if (!allow_shimmer(p)) continue;
 
@@ -912,45 +920,49 @@ void process_objects(struct chunk *c)
         shimmer_objects(p, c);
     }
 
+    loc_init(&begin, 1, 1);
+    loc_init(&end, c->width, c->height);
+    loc_iterator_first(&iter, &begin, &end);
+
     /* Recharge other level objects */
-    for (y = 1; y < c->height; y++)
+    do
     {
-        for (x = 1; x < c->width; x++)
+        struct object *obj, *next;
+        bool redraw = false;
+
+        obj = square_object(c, &iter.cur);
+
+        while (obj)
         {
-            struct object *obj = square_object(c, y, x), *next;
-            bool redraw = false;
+            next = obj->next;
 
-            while (obj)
+            /* Recharge rods */
+            if (tval_can_have_timeout(obj) && recharge_timeout(obj))
+                redraw = true;
+
+            /* Corpses slowly decompose */
+            if (tval_is_corpse(obj))
             {
-                next = obj->next;
+                obj->decay--;
 
-                /* Recharge rods */
-                if (tval_can_have_timeout(obj) && recharge_timeout(obj))
+                /* Notice changes */
+                if (obj->decay == obj->timeout / 5)
                     redraw = true;
 
-                /* Corpses slowly decompose */
-                if (tval_is_corpse(obj))
+                /* No more corpse... */
+                else if (!obj->decay)
                 {
-                    obj->decay--;
-
-                    /* Notice changes */
-                    if (obj->decay == obj->timeout / 5)
-                        redraw = true;
-
-                    /* No more corpse... */
-                    else if (!obj->decay)
-                    {
-                        square_excise_object(c, y, x, obj);
-                        object_delete(&obj);
-                    }
+                    square_excise_object(c, &iter.cur, obj);
+                    object_delete(&obj);
                 }
-
-                obj = next;
             }
 
-            if (redraw) redraw_floor(&c->wpos, y, x);
+            obj = next;
         }
+
+        if (redraw) redraw_floor(&c->wpos, &iter.cur);
     }
+    while (loc_iterator_next_strict(&iter));
 }
 
 
@@ -967,12 +979,25 @@ bool is_owner(struct player *p, struct object *obj)
 }
 
 
-void object_own(struct player *p, struct object *obj)
+bool has_level_req(struct player *p, struct object *obj)
+{
+    /* Free or owned object */
+    if (!obj->owner || (obj->owner == p->id)) return true;
+
+    /* No restriction */
+    if (!cfg_level_req) return true;
+
+    /* Must meet level requirement */
+    return (p->lev >= obj->level_req);
+}
+
+
+void object_audit(struct player *p, struct object *obj)
 {
     obj->askprice = 0;
 
-    /* Check ownership */
-    if (obj->owner && (p->id != obj->owner))
+    /* Check ownership (unless we bought something from a shop) */
+    if (obj->owner && (obj->owner != -1) && (p->id != obj->owner))
     {
         char o_name[NORMAL_WID];
         char buf[512];
@@ -996,6 +1021,21 @@ void object_own(struct player *p, struct object *obj)
 
         /* Hack -- potion of experience */
         if (effect && (effect->index == EF_GAIN_EXP)) obj->askprice = 1;
+    }
+}
+
+
+void object_own(struct player *p, struct object *obj)
+{
+    /* Log ownership change */
+    object_audit(p, obj);
+
+    /* Set level requirement on free objects */
+    if (!obj->owner)
+    {
+        int depth = max(min(p->wpos.depth / 2, 50), 1);
+
+        obj->level_req = min(depth, p->lev);
     }
 
     /* Set ownership */
@@ -1092,7 +1132,7 @@ bool use_object(struct player *p, struct object *obj, int amount, bool describe)
  * Note: this is similar to square_note_spot(), but we don't memorize the grid -- we redraw
  * the floor instead.
  */
-void redraw_floor(struct worldpos *wpos, int y, int x)
+void redraw_floor(struct worldpos *wpos, struct loc *grid)
 {
     int i;
 
@@ -1103,18 +1143,18 @@ void redraw_floor(struct worldpos *wpos, int y, int x)
 
         /* Require "seen" flag and the current level */
         /* PWMAngband: consider player spot as "seen" */
-        if (!COORDS_EQUAL(&p->wpos, wpos)) continue;
+        if (!wpos_eq(&p->wpos, wpos)) continue;
         if (p->upkeep->new_level_method || p->upkeep->funeral) continue;
-        if (!square_isseen(p, y, x) && !player_is_at(p, y, x)) continue;
+        if (!square_isseen(p, grid) && !player_is_at(p, grid)) continue;
 
         /* Make the player know precisely what is on this grid */
-        square_know_pile(p, chunk_get(wpos), y, x);
+        square_know_pile(p, chunk_get(wpos), grid);
 
         /* Redraw */
         p->upkeep->redraw |= PR_ITEMLIST;
 
         /* Under a player */
-        if (!player_is_at(p, y, x)) continue;
+        if (!player_is_at(p, grid)) continue;
 
         /* Redraw */
         p->upkeep->redraw |= PR_FLOOR;
@@ -1156,7 +1196,7 @@ struct object *object_from_index(struct player *p, int item, bool prompt, bool c
     }
 
     /* Get the item (on the floor) */
-    for (obj = square_object(c, p->py, p->px); obj; obj = obj->next)
+    for (obj = square_object(c, &p->grid); obj; obj = obj->next)
     {
         /* Ignore all non-objects */
         if (!obj->kind) continue;
@@ -1232,4 +1272,132 @@ struct artifact *lookup_artifact_name(const char *name)
 
     /* Return our best match */
     return match;
+}
+
+
+typedef enum
+{
+    MSG_TAG_NONE,
+    MSG_TAG_NAME,
+    MSG_TAG_KIND,
+    MSG_TAG_VERB,
+    MSG_TAG_VERB_IS
+} msg_tag_t;
+
+
+static msg_tag_t msg_tag_lookup(const char *tag)
+{
+    if (strncmp(tag, "name", 4) == 0) return MSG_TAG_NAME;
+    if (strncmp(tag, "kind", 4) == 0) return MSG_TAG_KIND;
+    if (strncmp(tag, "s", 1) == 0) return MSG_TAG_VERB;
+    if (strncmp(tag, "is", 2) == 0) return MSG_TAG_VERB_IS;
+    return MSG_TAG_NONE;
+}
+
+
+/*
+ * Puts a very stripped-down version of an object's name into buf.
+ * If aware is true, then the IDed names are used, otherwise
+ * flavours, scroll names, etc will be used.
+ *
+ * Just truncates if the buffer isn't big enough.
+ */
+static void object_kind_name_activation(struct player *p, char *buf, size_t max, struct object *obj)
+{
+    /* Flavored non-artifact items get a base description */
+    if (obj->kind->flavor && !obj->artifact)
+        object_desc(p, buf, max, obj, ODESC_BASE | ODESC_SINGULAR);
+
+    /* If not aware, the plain flavour (e.g. Copper) will do. */
+    else if (!p->obj_aware[obj->kind->kidx] && obj->kind->flavor)
+        my_strcpy(buf, obj->kind->flavor->text, max);
+
+    /* Use proper name (Healing, or whatever) */
+    else
+        obj_desc_name_format(buf, max, 0, obj->kind->name, NULL, false);
+}
+
+
+/*
+ * Print a message from a string, customised to include details about an object
+ */
+void print_custom_message(struct player *p, struct object *obj, const char *string, int msg_type)
+{
+    char buf[MSG_LEN] = "\0";
+    const char *next;
+    const char *s;
+    const char *tag;
+    size_t end = 0;
+
+    /* Not always a string */
+    if (!string) return;
+
+    next = strchr(string, '{');
+    while (next)
+    {
+        /* Copy the text leading up to this { */
+        strnfcat(buf, MSG_LEN, &end, "%.*s", next - string, string);
+
+        s = next + 1;
+        while (*s && isalpha((unsigned char)*s)) s++;
+
+        /* Valid tag */
+        if (*s == '}')
+        {
+            /* Start the tag after the { */
+            tag = next + 1;
+            string = s + 1;
+
+            switch (msg_tag_lookup(tag))
+            {
+                case MSG_TAG_NAME:
+                    /* Flavored non-artifact items get a base description */
+                    if (obj)
+                    {
+                      if (obj->kind->flavor && !obj->artifact)
+                      {
+                          strnfcat(buf, MSG_LEN, &end, "Your ");
+                          object_desc(p, &buf[end], MSG_LEN - end, obj, ODESC_BASE);
+                          end += strlen(&buf[end]);
+                      }
+                      else
+                          end += object_desc(p, buf, MSG_LEN, obj, ODESC_PREFIX | ODESC_BASE);
+                    }
+                    else
+                        strnfcat(buf, MSG_LEN, &end, "hands");
+                    break;
+                case MSG_TAG_KIND:
+                    if (obj)
+                    {
+                        object_kind_name_activation(p, &buf[end], MSG_LEN - end, obj);
+                        end += strlen(&buf[end]);
+                    }
+                    else
+                        strnfcat(buf, MSG_LEN, &end, "hands");
+                    break;
+                case MSG_TAG_VERB:
+                    if (obj && (obj->number == 1)) strnfcat(buf, MSG_LEN, &end, "s");
+                    break;
+                case MSG_TAG_VERB_IS:
+                    if (!obj || (obj->number > 1))
+                        strnfcat(buf, MSG_LEN, &end, "are");
+                    else
+                        strnfcat(buf, MSG_LEN, &end, "is");
+                default:
+                    break;
+            }
+        }
+
+        /* An invalid tag, skip it */
+        else
+            string = next + 1;
+
+        next = strchr(string, '{');
+    }
+    strnfcat(buf, MSG_LEN, &end, string);
+
+    /* Capitalize (in case we start with the {name} tag) */
+    my_strcap(buf);
+
+    msgt(p, msg_type, buf);
 }

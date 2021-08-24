@@ -25,36 +25,6 @@
 
 
 /*
- * Given a "source" and "target" location, extract a "direction",
- * which will move one step from the "source" towards the "target".
- *
- * Note that we use "diagonal" motion whenever possible.
- *
- * We return "5" if no motion is needed.
- */
-int motion_dir(int y1, int x1, int y2, int x2)
-{
-    /* No movement required */
-    if ((y1 == y2) && (x1 == x2)) return (5);
-
-    /* South or North */
-    if (x1 == x2) return ((y1 < y2) ? 2 : 8);
-
-    /* East or West */
-    if (y1 == y2) return ((x1 < x2) ? 6 : 4);
-
-    /* South-east or South-west */
-    if (y1 < y2) return ((x1 < x2) ? 3 : 1);
-
-    /* North-east or North-west */
-    if (y1 > y2) return ((x1 < x2) ? 9 : 7);
-
-    /* Paranoia */
-    return (5);
-}
-
-
-/*
  * Health description (unhurt, wounded, etc)
  */
 static const char *look_health_desc(bool living, int chp, int mhp)
@@ -107,6 +77,7 @@ void look_mon_desc(struct monster *mon, char *buf, size_t max)
     /* Effect status */
     if (mon->m_timed[MON_TMD_SLEEP]) my_strcat(buf, ", asleep", max);
     if (mon->m_timed[MON_TMD_HOLD]) my_strcat(buf, ", held", max);
+    if (mon->m_timed[MON_TMD_DISEN]) my_strcat(buf, ", disenchanted", max);
     if (mon->m_timed[MON_TMD_CONF]) my_strcat(buf, ", confused", max);
     if (mon->m_timed[MON_TMD_FEAR]) my_strcat(buf, ", afraid", max);
     if (mon->m_timed[MON_TMD_STUN]) my_strcat(buf, ", stunned", max);
@@ -176,14 +147,13 @@ bool target_able(struct player *p, struct source *who)
     /* Target is a player */
     if (who->player)
     {
-        return (COORDS_EQUAL(&p->wpos, &who->player->wpos) && player_is_visible(p, who->idx) &&
-            !who->player->k_idx &&
-            projectable(c, p->py, p->px, who->player->py, who->player->px, PROJECT_NONE, true) &&
+        return (wpos_eq(&p->wpos, &who->player->wpos) && player_is_visible(p, who->idx) &&
+            !who->player->k_idx && projectable(c, &p->grid, &who->player->grid, PROJECT_NONE, true) &&
             !p->timed[TMD_IMAGE]);
     }
 
     return (who->monster->race && monster_is_obvious(p, who->idx, who->monster) &&
-        projectable(c, p->py, p->px, who->monster->fy, who->monster->fx, PROJECT_NONE, true) &&
+        projectable(c, &p->grid, &who->monster->grid, PROJECT_NONE, true) &&
         !p->timed[TMD_IMAGE]);
 }
 
@@ -195,15 +165,15 @@ bool target_able(struct player *p, struct source *who)
  */
 bool target_okay(struct player *p)
 {
-    struct source *target_who = &p->target_who;
+    struct source *target_who = &p->target.target_who;
 
     /* No target */
-    if (!p->target_set) return false;
+    if (!p->target.target_set) return false;
 
     /* Allow a direction without a monster */
     if (source_null(target_who))
     {
-        if (p->target_x || p->target_y) return true;
+        if (p->target.grid.x || p->target.grid.y) return true;
         return false;
     }
 
@@ -214,8 +184,7 @@ bool target_okay(struct player *p)
         if (target_able(p, target_who))
         {
             /* Get the monster location */
-            p->target_y = target_who->monster->fy;
-            p->target_x = target_who->monster->fx;
+            loc_copy(&p->target.grid, &target_who->monster->grid);
 
             /* Good target */
             return true;
@@ -229,8 +198,7 @@ bool target_okay(struct player *p)
         if (target_able(p, target_who))
         {
             /* Get the player location */
-            p->target_y = target_who->player->py;
-            p->target_x = target_who->player->px;
+            loc_copy(&p->target.grid, &target_who->player->grid);
 
             /* Good target */
             return true;
@@ -251,27 +219,18 @@ bool target_set_monster(struct player *p, struct source *who)
     if (target_able(p, who))
     {
         /* Save target info */
-        p->target_set = true;
-        memcpy(&p->target_who, who, sizeof(struct source));
+        p->target.target_set = true;
+        memcpy(&p->target.target_who, who, sizeof(struct source));
         if (who->monster)
-        {
-            p->target_y = who->monster->fy;
-            p->target_x = who->monster->fx;
-        }
+            loc_copy(&p->target.grid, &who->monster->grid);
         else
-        {
-            p->target_y = who->player->py;
-            p->target_x = who->player->px;
-        }
+            loc_copy(&p->target.grid, &who->player->grid);
 
         return true;
     }
 
     /* Reset target info */
-    p->target_set = false;
-    memset(&p->target_who, 0, sizeof(p->target_who));
-    p->target_y = 0;
-    p->target_x = 0;
+    memset(&p->target, 0, sizeof(p->target));
 
     return false;
 }
@@ -280,34 +239,30 @@ bool target_set_monster(struct player *p, struct source *who)
 /*
  * Set the target to a location
  */
-void target_set_location(struct player *p, int y, int x)
+void target_set_location(struct player *p, struct loc *grid)
 {
     struct chunk *c = chunk_get(&p->wpos);
 
     /* Legal target */
-    if (square_in_bounds_fully(c, y, x))
+    if (square_in_bounds_fully(c, grid))
     {
         struct source who_body;
         struct source *who = &who_body;
 
-        square_actor(c, y, x, who);
+        square_actor(c, grid, who);
 
         /* Save target info */
-        p->target_set = true;
-        memset(&p->target_who, 0, sizeof(p->target_who));
+        p->target.target_set = true;
+        memset(&p->target.target_who, 0, sizeof(struct source));
         if (target_able(p, who))
-            memcpy(&p->target_who, who, sizeof(struct source));
-        p->target_y = y;
-        p->target_x = x;
+            memcpy(&p->target.target_who, who, sizeof(struct source));
+        loc_copy(&p->target.grid, grid);
 
         return;
     }
 
     /* Reset target info */
-    p->target_set = false;
-    memset(&p->target_who, 0, sizeof(p->target_who));
-    p->target_y = 0;
-    p->target_x = 0;
+    memset(&p->target, 0, sizeof(p->target));
 }
 
 
@@ -323,15 +278,15 @@ int cmp_distance(const void *a, const void *b)
     struct player *pb_ptr = pb->data;
 
     /* Absolute distance components */
-    kx = pa->x; kx -= pa_ptr->px; kx = ABS(kx);
-    ky = pa->y; ky -= pa_ptr->py; ky = ABS(ky);
+    kx = pa->grid.x; kx -= pa_ptr->grid.x; kx = ABS(kx);
+    ky = pa->grid.y; ky -= pa_ptr->grid.y; ky = ABS(ky);
 
     /* Approximate Double Distance to the first point */
     da = ((kx > ky)? (kx + kx + ky): (ky + ky + kx));
 
     /* Absolute distance components */
-    kx = pb->x; kx -= pb_ptr->px; kx = ABS(kx);
-    ky = pb->y; ky -= pb_ptr->py; ky = ABS(ky);
+    kx = pb->grid.x; kx -= pb_ptr->grid.x; kx = ABS(kx);
+    ky = pb->grid.y; ky -= pb_ptr->grid.y; ky = ABS(ky);
 
     /* Approximate Double Distance to the first point */
     db = ((kx > ky)? (kx + kx + ky): (ky + ky + kx));
@@ -357,8 +312,8 @@ s16b target_pick(int y1, int x1, int dy, int dx, struct point_set *targets)
     for (i = 0; i < point_set_size(targets); i++)
     {
         /* Point 2 */
-        x2 = targets->pts[i].x;
-        y2 = targets->pts[i].y;
+        x2 = targets->pts[i].grid.x;
+        y2 = targets->pts[i].grid.y;
 
         /* Directed distance */
         x3 = (x2 - x1);
@@ -394,14 +349,14 @@ s16b target_pick(int y1, int x1, int dy, int dx, struct point_set *targets)
 /*
  * Determine if a given location is "interesting"
  */
-bool target_accept(struct player *p, int y, int x)
+bool target_accept(struct player *p, struct loc *grid)
 {
     struct object *obj;
     struct chunk *c = chunk_get(&p->wpos);
     struct source who_body;
     struct source *who = &who_body;
 
-    square_actor(c, y, x, who);
+    square_actor(c, grid, who);
 
     /* Player grids are always interesting */
     if (who->player && (p == who->player)) return true;
@@ -418,18 +373,18 @@ bool target_accept(struct player *p, int y, int x)
         return true;
 
     /* Traps */
-    if (square_known_trap(p, c, y, x))
+    if (square_known_trap(p, c, grid))
         return true;
 
     /* Scan all objects in the grid */
-    for (obj = square_known_pile(p, c, y, x); obj; obj = obj->next)
+    for (obj = square_known_pile(p, c, grid); obj; obj = obj->next)
     {
         /* Memorized object */
         if (!ignore_item_ok(p, obj)) return true;
     }
 
     /* Interesting memorized features */
-    if (square_isknown(p, y, x) && square_isinteresting(c, y, x))
+    if (square_isknown(p, grid) && square_isinteresting(c, grid))
         return true;
 
     /* Nope */
@@ -441,30 +396,28 @@ bool target_accept(struct player *p, int y, int x)
  * Describe a location relative to the player position.
  * e.g. "12 S, 35 W" or "0 N, 33 E" or "0 N, 0 E"
  */
-void coords_desc(struct player *p, char *buf, int size, int y, int x)
+void grid_desc(struct player *p, char *buf, int size, struct loc *grid)
 {
     const char *east_or_west;
     const char *north_or_south;
-    int py = p->py;
-    int px = p->px;
 
-    if (y > py) north_or_south = "S";
+    if (grid->y > p->grid.y) north_or_south = "S";
     else north_or_south = "N";
 
-    if (x < px) east_or_west = "W";
+    if (grid->x < p->grid.x) east_or_west = "W";
     else east_or_west = "E";
 
-    strnfmt(buf, size, "%d %s, %d %s", ABS(y - py), north_or_south, ABS(x - px), east_or_west);
+    strnfmt(buf, size, "%d %s, %d %s", ABS(grid->y - p->grid.y), north_or_south,
+        ABS(grid->x - p->grid.x), east_or_west);
 }
 
 
 /*
  * Obtains the location the player currently targets.
  */
-void target_get(struct player *p, int *x, int *y)
+void target_get(struct player *p, struct loc *grid)
 {
-    *x = p->target_x;
-    *y = p->target_y;
+    loc_copy(grid, &p->target.grid);
 }
 
 
@@ -473,40 +426,38 @@ void target_get(struct player *p, int *x, int *y)
  */
 bool target_equals(struct player *p, struct source *who)
 {
-    struct source *target_who = &p->target_who;
+    struct source *target_who = &p->target.target_who;
 
     return source_equal(target_who, who);
 }
 
 
-void draw_path_grid(struct player *p, int y, int x, byte a, char c)
+void draw_path_grid(struct player *p, struct loc *grid, byte a, char c)
 {
-    int dispy, dispx;
+    struct loc disp;
 
     /* Draw, Highlight, Fresh, Pause, Erase */
-    dispx = x - p->offset_x;
-    dispy = y - p->offset_y + 1;
+    loc_init(&disp, grid->x - p->offset_grid.x, grid->y - p->offset_grid.y + 1);
 
     /* Remember the projectile */
-    p->scr_info[dispy][dispx].c = c;
-    p->scr_info[dispy][dispx].a = a;
+    p->scr_info[disp.y][disp.x].c = c;
+    p->scr_info[disp.y][disp.x].a = a;
 
     /* Tell the client */
-    Send_char(p, dispx, dispy, a, c, p->trn_info[dispy][dispx].a,
-        p->trn_info[dispy][dispx].c);
+    Send_char(p, &disp, a, c, p->trn_info[disp.y][disp.x].a, p->trn_info[disp.y][disp.x].c);
 }
 
 
-void flush_path_grid(struct player *p, struct chunk *cv, int y, int x, byte a, char c)
+void flush_path_grid(struct player *p, struct chunk *cv, struct loc *grid, byte a, char c)
 {
     /* Draw, Highlight, Fresh, Pause, Erase */
-    draw_path_grid(p, y, x, a, c);
+    draw_path_grid(p, grid, a, c);
 
     /* Flush and wait */
     Send_flush(p, true, true);
 
     /* Restore */
-    square_light_spot_aux(p, cv, y, x);
+    square_light_spot_aux(p, cv, grid);
 
     Send_flush(p, true, false);
 }
@@ -520,12 +471,12 @@ static int player_wounded(struct player *p)
 
 static int cmp_wounded(const void *a, const void *b)
 {
-    const struct cmp_loc *pa = a;
-    const struct cmp_loc *pb = b;
+    struct cmp_loc *pa = (struct cmp_loc *)a;
+    struct cmp_loc *pb = (struct cmp_loc *)b;
     struct player *pa_ptr = pa->data;
     struct player *pb_ptr = pb->data;
-    int idx1 = 0 - chunk_get(&pa_ptr->wpos)->squares[pa->y][pa->x].mon;
-    int idx2 = 0 - chunk_get(&pb_ptr->wpos)->squares[pb->y][pb->x].mon;
+    int idx1 = 0 - square(chunk_get(&pa_ptr->wpos), &pa->grid)->mon;
+    int idx2 = 0 - square(chunk_get(&pb_ptr->wpos), &pb->grid)->mon;
     int w1 = player_wounded(player_get(idx1));
     int w2 = player_wounded(player_get(idx2));
 
@@ -546,20 +497,20 @@ static void get_panel(struct player *p, int *min_y, int *min_x, int *max_y, int 
     int screen_hgt = p->screen_rows / p->tile_hgt;
     int screen_wid = p->screen_cols / p->tile_wid;
 
-    *min_y = p->offset_y;
-    *min_x = p->offset_x;
-    *max_y = p->offset_y + screen_hgt;
-    *max_x = p->offset_x + screen_wid;
+    *min_y = p->offset_grid.y;
+    *min_x = p->offset_grid.x;
+    *max_y = p->offset_grid.y + screen_hgt;
+    *max_x = p->offset_grid.x + screen_wid;
 }
 
 
 /*
  * Check to see if a map grid is in the panel
  */
-bool panel_contains(struct player *p, int y, int x)
+bool panel_contains(struct player *p, struct loc *grid)
 {
-    return (((unsigned)(y - p->offset_y) < (unsigned)(p->screen_rows / p->tile_hgt)) &&
-        ((unsigned)(x - p->offset_x) < (unsigned)(p->screen_cols / p->tile_wid)));
+    return (((unsigned)(grid->y - p->offset_grid.y) < (unsigned)(p->screen_rows / p->tile_hgt)) &&
+        ((unsigned)(grid->x - p->offset_grid.x) < (unsigned)(p->screen_cols / p->tile_wid)));
 }
 
 
@@ -568,7 +519,8 @@ bool panel_contains(struct player *p, int y, int x)
  */
 struct point_set *target_get_monsters(struct player *p, int mode)
 {
-    int y, x;
+    struct loc begin, end;
+    struct loc_iterator iter;
     int min_y, min_x, max_y, max_x;
     struct point_set *targets = point_set_new(TS_INITIAL_SIZE);
     struct chunk *c = chunk_get(&p->wpos);
@@ -576,62 +528,64 @@ struct point_set *target_get_monsters(struct player *p, int mode)
     /* Get the current panel */
     get_panel(p, &min_y, &min_x, &max_y, &max_x);
 
+    loc_init(&begin, min_x, min_y);
+    loc_init(&end, max_x, max_y);
+    loc_iterator_first(&iter, &begin, &end);
+
     /* Scan the current panel */
-    for (y = min_y; y < max_y; y++)
+    do
     {
-        for (x = min_x; x < max_x; x++)
+        int feat;
+        struct source who_body;
+        struct source *who = &who_body;
+
+        /* Check bounds */
+        if (!square_in_bounds_fully(c, &iter.cur)) continue;
+
+        /* Require line of sight */
+        if (!square_isview(p, &iter.cur)) continue;
+
+        /* Require "interesting" contents */
+        if (!target_accept(p, &iter.cur)) continue;
+
+        feat = square(c, &iter.cur)->feat;
+        square_actor(c, &iter.cur, who);
+
+        /* Special modes */
+        if (mode & (TARGET_KILL))
         {
-            int feat;
-            struct source who_body;
-            struct source *who = &who_body;
+            /* Must be a targetable monster (or player) */
+            if (!target_able(p, who)) continue;
 
-            /* Check bounds */
-            if (!square_in_bounds_fully(c, y, x)) continue;
+            /* Skip non hostile monsters */
+            if (who->monster && !pvm_check(p, who->monster)) continue;
 
-            /* Require line of sight */
-            if (!square_isview(p, y, x)) continue;
+            /* Don't target yourself */
+            if (who->player && (who->player == p)) continue;
 
-            /* Require "interesting" contents */
-            if (!target_accept(p, y, x)) continue;
-
-            feat = c->squares[y][x].feat;
-            square_actor(c, y, x, who);
-
-            /* Special modes */
-            if (mode & (TARGET_KILL))
-            {
-                /* Must be a targetable monster (or player) */
-                if (!target_able(p, who)) continue;
-
-                /* Skip non hostile monsters */
-                if (who->monster && !pvm_check(p, who->monster)) continue;
-
-                /* Don't target yourself */
-                if (who->player && (who->player == p)) continue;
-
-                /* Ignore players we aren't hostile to */
-                if (who->player && !pvp_check(p, who->player, PVP_CHECK_BOTH, true, feat))
-                    continue;
-            }
-            else if (mode & (TARGET_HELP))
-            {
-                /* Must contain a player */
-                if (!who->player) continue;
-
-                /* Must be a targetable player */
-                if (!target_able(p, who)) continue;
-
-                /* Don't target yourself */
-                if (who->player == p) continue;
-
-                /* Ignore players we aren't friends with */
-                if (pvp_check(p, who->player, PVP_CHECK_BOTH, true, 0x00)) continue;
-            }
-
-            /* Save the location */
-            add_to_point_set(targets, p, y, x);
+            /* Ignore players we aren't hostile to */
+            if (who->player && !pvp_check(p, who->player, PVP_CHECK_BOTH, true, feat))
+                continue;
         }
+        else if (mode & (TARGET_HELP))
+        {
+            /* Must contain a player */
+            if (!who->player) continue;
+
+            /* Must be a targetable player */
+            if (!target_able(p, who)) continue;
+
+            /* Don't target yourself */
+            if (who->player == p) continue;
+
+            /* Ignore players we aren't friends with */
+            if (pvp_check(p, who->player, PVP_CHECK_BOTH, true, 0x00)) continue;
+        }
+
+        /* Save the location */
+        add_to_point_set(targets, p, &iter.cur);
     }
+    while (loc_iterator_next_strict(&iter));
 
     /* Sort the positions */
     sort(targets->pts, point_set_size(targets), sizeof(*(targets->pts)),
@@ -646,7 +600,6 @@ struct point_set *target_get_monsters(struct player *p, int mode)
  */
 bool target_set_closest(struct player *p, int mode)
 {
-    int y, x;
     char m_name[NORMAL_WID];
     struct point_set *targets;
     struct source who_body;
@@ -671,9 +624,7 @@ bool target_set_closest(struct player *p, int mode)
     }
 
     /* Find the first monster in the queue */
-    y = targets->pts[0].y;
-    x = targets->pts[0].x;
-    square_actor(c, y, x, who);
+    square_actor(c, &targets->pts[0].grid, who);
 
     /* Target the monster, if possible */
     if (!target_able(p, who))

@@ -126,7 +126,7 @@ name:shooting speed
 type:mod
 code:SHOTS
 power:0
-mult:50
+mult:5
 type-mult:horn:3
 type-mult:digger:3
 type-mult:hafted:0

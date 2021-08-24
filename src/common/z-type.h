@@ -22,12 +22,41 @@ struct loc
     int y;
 };
 
+struct loc_iterator
+{
+    struct loc begin;
+    struct loc end;
+    struct loc cur;
+};
+
+extern bool loc_is_zero(struct loc *grid);
+extern void loc_init(struct loc *grid, int x, int y);
+extern void loc_copy(struct loc *dest, struct loc *src);
+extern bool loc_eq(struct loc *grid1, struct loc *grid2);
+extern void loc_sum(struct loc *sum, struct loc *grid1, struct loc *grid2);
+extern void loc_diff(struct loc *sum, struct loc *grid1, struct loc *grid2);
+extern void rand_loc(struct loc *rand, struct loc *grid, int x_spread, int y_spread);
+extern void loc_iterator_first(struct loc_iterator *iter, struct loc *begin, struct loc *end);
+extern bool loc_iterator_next(struct loc_iterator *iter);
+extern bool loc_iterator_next_strict(struct loc_iterator *iter);
+extern bool loc_between(struct loc *grid, struct loc *grid1, struct loc *grid2);
+
 struct cmp_loc
 {
-    int x;
-    int y;
+    struct loc grid;
     void *data;
 };
+
+/* Coordinates on the world map */
+struct worldpos
+{
+    struct loc grid;    /* The wilderness coordinates */
+    s16b depth;         /* Cur depth */
+};
+
+extern bool wpos_null(struct worldpos *wpos);
+extern void wpos_init(struct worldpos *wpos, struct loc *grid, int depth);
+extern bool wpos_eq(struct worldpos *wpos1, struct worldpos *wpos2);
 
 /*
  * Defines a (value, name) pairing. Variable names used are historical.
@@ -50,9 +79,9 @@ struct point_set
 
 extern struct point_set *point_set_new(int initial_size);
 extern void point_set_dispose(struct point_set *ps);
-extern void add_to_point_set(struct point_set *ps, void *data, int y, int x);
+extern void add_to_point_set(struct point_set *ps, void *data, struct loc *grid);
 extern int point_set_size(struct point_set *ps);
-extern int point_set_contains(struct point_set *ps, int y, int x);
+extern int point_set_contains(struct point_set *ps, struct loc *grid);
 
 /**** MAngband specific ****/
 

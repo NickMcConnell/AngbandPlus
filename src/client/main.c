@@ -101,7 +101,7 @@ static void read_credentials(void)
 /*
  * Simple "main" function for multiple platforms.
  */
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
     bool done = false;
     WSADATA wsadata;

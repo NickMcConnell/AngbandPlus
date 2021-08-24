@@ -128,7 +128,7 @@ static bool object_list_should_ignore_object(struct player *p, struct chunk *c,
     const struct object *obj)
 {
 	/* Make sure it's on the same dungeon level */
-    if (!COORDS_EQUAL(&p->wpos, &obj->wpos)) return true;
+    if (!wpos_eq(&p->wpos, &((struct object *)obj)->wpos)) return true;
 
 	if (!is_unknown(obj) && ignore_item_ok(p, obj)) return true;
 
@@ -143,74 +143,79 @@ static bool object_list_should_ignore_object(struct player *p, struct chunk *c,
  */
 void object_list_collect(struct player *p, object_list_t *list)
 {
-	int i, y, x;
-    int py = p->py;
-    int px = p->px;
+	int i;
     struct chunk *c = chunk_get(&p->wpos);
+    struct loc begin, end;
+    struct loc_iterator iter;
 
 	if (!object_list_can_update(list)) return;
 
+    loc_init(&begin, 1, 1);
+    loc_init(&end, c->width, c->height);
+    loc_iterator_first(&iter, &begin, &end);
+
 	/* Scan each object in the dungeon. */
-	for (y = 1; y < c->height; y++)
+    do
     {
-        for (x = 1; x < c->width; x++)
+        object_list_entry_t *entry;
+        int entry_index;
+        int field;
+        bool los = false;
+        struct object *obj;
+
+        obj = square_known_pile(p, c, &iter.cur);
+
+        /* Skip unfilled entries, unknown objects and monster-held objects */
+        if (!obj) continue;
+
+        /* Determine which section of the list the object entry is in */
+        los = (projectable(c, &p->grid, &iter.cur, PROJECT_NONE, true) ||
+            loc_eq(&iter.cur, &p->grid));
+        field = (los? OBJECT_LIST_SECTION_LOS: OBJECT_LIST_SECTION_NO_LOS);
+
+        for ( ; obj; obj = obj->next)
         {
-            object_list_entry_t *entry;
-            int entry_index;
-            int field;
-            bool los = false;
-            struct object *obj = square_known_pile(p, c, y, x);
+            if (object_list_should_ignore_object(p, c, obj)) continue;
 
-            /* Skip unfilled entries, unknown objects and monster-held objects */
-            if (!obj) continue;
-
-            /* Determine which section of the list the object entry is in */
-            los = (projectable(c, py, px, y, x, PROJECT_NONE, true) || ((y == py) && (x == px)));
-            field = (los? OBJECT_LIST_SECTION_LOS: OBJECT_LIST_SECTION_NO_LOS);
-
-            for ( ; obj; obj = obj->next)
+            /* Find or add a list entry. */
+            entry = NULL;
+            for (entry_index = 0; entry_index < (int)list->entries_size; entry_index++)
             {
-                if (object_list_should_ignore_object(p, c, obj)) continue;
+                int j;
 
-                /* Find or add a list entry. */
-                entry = NULL;
-                for (entry_index = 0; entry_index < (int)list->entries_size; entry_index++)
+                /* We found an empty slot, so add this object here. */
+                if (list->entries[entry_index].object == NULL)
                 {
-                    int j;
-
-                    /* We found an empty slot, so add this object here. */
-                    if (list->entries[entry_index].object == NULL)
-                    {
-                        list->entries[entry_index].object = obj;
-                        for (j = 0; j < OBJECT_LIST_SECTION_MAX; j++)
-                            list->entries[entry_index].count[j] = 0;
-                        list->entries[entry_index].dy = y - py;
-                        list->entries[entry_index].dx = x - px;
-                        list->entries[entry_index].player = p;
-                        entry = &list->entries[entry_index];
-                        break;
-                    }
-
-                    /* Use a matching object if we find one. */
-                    if (!is_unknown(obj) &&
-                        object_similar(p, obj, list->entries[entry_index].object, OSTACK_LIST))
-                    {
-                        /* We found a matching object and we'll use that. */
-                        entry = &list->entries[entry_index];
-                        break;
-                    }
+                    list->entries[entry_index].object = obj;
+                    for (j = 0; j < OBJECT_LIST_SECTION_MAX; j++)
+                        list->entries[entry_index].count[j] = 0;
+                    list->entries[entry_index].dy = iter.cur.y - p->grid.y;
+                    list->entries[entry_index].dx = iter.cur.x - p->grid.x;
+                    list->entries[entry_index].player = p;
+                    entry = &list->entries[entry_index];
+                    break;
                 }
 
-                if (entry == NULL) return;
-
-                /* We only know the number of objects we've actually seen */
-                if (!is_unknown(obj))
-                    entry->count[field] += obj->number;
-                else
-                    entry->count[field] = 1;
+                /* Use a matching object if we find one. */
+                if (!is_unknown(obj) &&
+                    object_similar(p, obj, list->entries[entry_index].object, OSTACK_LIST))
+                {
+                    /* We found a matching object and we'll use that. */
+                    entry = &list->entries[entry_index];
+                    break;
+                }
             }
+
+            if (entry == NULL) return;
+
+            /* We only know the number of objects we've actually seen */
+            if (!is_unknown(obj))
+                entry->count[field] += obj->number;
+            else
+                entry->count[field] = 1;
         }
-	}
+    }
+    while (loc_iterator_next_strict(&iter));
 
 	/* Collect totals for easier calculations of the list. */
 	for (i = 0; i < (int)list->entries_size; i++)
@@ -352,18 +357,12 @@ void object_list_format_name(struct player *p, const object_list_entry_t *entry,
     bool los = false;
     int field;
     byte old_number;
-    int py = p->py;
-    int px = p->px;
-    int iy;
-    int ix;
     bool object_is_recognized_artifact;
     struct chunk *c = chunk_get(&p->wpos);
 
     if ((entry == NULL) || (entry->object == NULL) || (entry->object->kind == NULL))
         return;
 
-    iy = entry->object->iy;
-    ix = entry->object->ix;
     object_is_recognized_artifact = (entry->object->artifact &&
         (entry->object->known->artifact || object_is_known(p, entry->object)));
 
@@ -384,7 +383,8 @@ void object_list_format_name(struct player *p, const object_list_entry_t *entry,
         has_singular_prefix = true;
 
     /* Work out if the object is in view */
-    los = (projectable(c, py, px, iy, ix, PROJECT_NONE, true) || ((iy == py) && (ix == px)));
+    los = (projectable(c, &p->grid, &entry->object->grid, PROJECT_NONE, true) ||
+        loc_eq(&entry->object->grid, &p->grid));
     field = (los? OBJECT_LIST_SECTION_LOS: OBJECT_LIST_SECTION_NO_LOS);
 
     /* Hack -- we need to set object number to total count */

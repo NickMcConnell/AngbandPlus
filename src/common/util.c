@@ -38,11 +38,22 @@ void cleanup_p_race(void)
 {
     struct player_race *p = races;
     struct player_race *next;
+    struct player_shape *shape, *shape_next;
 
     while (p)
     {
         next = p->next;
         string_free(p->name);
+        mem_free(p->brands);
+        mem_free(p->slays);
+        shape = p->shapes;
+        while (shape)
+        {
+            shape_next = shape->next;
+            string_free(shape->name);
+            mem_free(shape);
+            shape = shape_next;
+        }
         mem_free(p);
         p = next;
     }
@@ -95,12 +106,15 @@ void cleanup_class(void)
     struct start_item *item, *item_next;
     struct class_spell *spell;
     struct class_book *book;
+    struct player_shape *shape, *shape_next;
     int i, j;
 
     while (c)
     {
         next = c->next;
         string_free(c->name);
+        mem_free(c->brands);
+        mem_free(c->slays);
         for (i = 0; i < PY_MAX_LEVEL / 5; i++) string_free(c->title[i]);
         item = c->start_items;
         while (item)
@@ -122,6 +136,14 @@ void cleanup_class(void)
             mem_free(book->spells);
         }
         mem_free(c->magic.books);
+        shape = c->shapes;
+        while (shape)
+        {
+            shape_next = shape->next;
+            string_free(shape->name);
+            mem_free(shape);
+            shape = shape_next;
+        }
         mem_free(c);
         c = next;
     }
@@ -824,6 +846,19 @@ struct player_class *player_id2class(guid id)
 }
 
 
+struct player_class *lookup_player_class(const char *name)
+{
+    struct player_class *c;
+
+    for (c = classes; c; c = c->next)
+    {
+        if (streq(c->name, name)) break;
+    }
+
+    return c;
+}
+
+
 int player_cmax(void)
 {
     int n = 0;
@@ -1167,4 +1202,68 @@ struct trap_kind *lookup_trap(const char *desc)
 
     /* Return our best match */
     return closest;
+}
+
+
+/*
+ * Returns N which is the 1 in N chance for recharging to fail.
+ */
+int recharge_failure_chance(const struct object *obj, int strength)
+{
+    int raw_chance = (strength + 100 - obj->kind->level - (10 * (obj->pval / obj->number))) / 15;
+
+    return ((raw_chance > 1)? raw_chance: 1);
+}
+
+
+int race_modifier(const struct player_race *race, int mod, int lvl, bool poly)
+{
+    if (lvl >= race->modifiers[mod].lvl)
+    {
+        int adj = race->modifiers[mod].value.base;
+        int xadj = race->modifiers[mod].value.sides;
+
+        if (xadj)
+        {
+            int cap = lvl;
+
+            if (race->modifiers[mod].value.m_bonus && (lvl > race->modifiers[mod].value.m_bonus))
+                cap = race->modifiers[mod].value.m_bonus;
+            adj += race->modifiers[mod].value.dice * (cap - race->modifiers[mod].lvl) / xadj;
+        }
+
+        /* Polymorphed players only get half adjustment from race */
+        if (poly)
+        {
+            if (adj > 0) return (adj + 1) / 2;
+            if (adj < 0) return (adj - 1) / 2;
+        }
+
+        return adj;
+    }
+
+    return 0;
+}
+
+
+int class_modifier(const struct player_class *clazz, int mod, int lvl)
+{
+    if (lvl >= clazz->modifiers[mod].lvl)
+    {
+        int adj = clazz->modifiers[mod].value.base;
+        int xadj = clazz->modifiers[mod].value.sides;
+
+        if (xadj)
+        {
+            int cap = lvl;
+
+            if (clazz->modifiers[mod].value.m_bonus && (lvl > clazz->modifiers[mod].value.m_bonus))
+                cap = clazz->modifiers[mod].value.m_bonus;
+            adj += clazz->modifiers[mod].value.dice * (cap - clazz->modifiers[mod].lvl) / xadj;
+        }
+
+        return adj;
+    }
+
+    return 0;
 }

@@ -86,7 +86,7 @@ extern void party_msg_format(int party_id, const char *fmt, ...);
 extern bool party_share_with(struct player *p, int party_id, struct player *q);
 extern void party_exp_gain(struct player *p, int party_id, s32b amount);
 extern bool pvp_check(struct player *attacker, struct player *target, int mode, bool silent,
-    byte feat);
+    u16b feat);
 extern bool pvm_check(struct player *p, struct monster *mon);
 extern void party_msg_near(struct player *p, const char *msg);
 extern void add_player_name(int id, u32b account, const char *name, hturn *death_turn);

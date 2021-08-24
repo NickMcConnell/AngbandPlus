@@ -27,7 +27,6 @@ typedef struct _graphics_mode
     char pref[32];      /* Name of prf file */
     char file[32];      /* Name of png file (if any) */
     char menuname[32];  /* Name of the tileset in menu */
-    byte distorted;     /* Whether or not the tileset has distorted tiles */
 } graphics_mode;
 
 extern graphics_mode *graphics_modes;

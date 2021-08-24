@@ -37,14 +37,34 @@
  *
  * Actually learn what the player resists, and use that information
  * to remove attacks or spells before using them.
- *
- * This has the added advantage that attacks and spells are related.
- * The "smart_learn" option means that the monster "learns" the flags
- * that should be set, and "smart_cheat" means that he "knows" them.
- * So "smart_cheat" means that the "smart" field is always up to date,
- * while "smart_learn" means that the "smart" field is slowly learned.
- * Both of them have the same effect on the "choose spell" routine.
  */
+
+
+/*
+ * Check if a monster has a chance of casting a spell this turn
+ */
+static bool monster_can_cast(struct chunk *c, struct monster *mon, int target_m_dis,
+    struct loc *grid)
+{
+    int chance = mon->race->freq_spell;
+
+    /* Cannot cast spells when blind */
+    if (mon->m_timed[MON_TMD_BLIND]) return false;
+
+    /* Not allowed to cast spells */
+    if (!chance) return false;
+
+    /* Only do spells occasionally */
+    if (!magik(chance)) return false;
+
+    /* Check range */
+    if (target_m_dis > z_info->max_range) return false;
+
+    /* Check path (destination could be standing on a wall) */
+    if (!projectable(c, &mon->grid, grid, PROJECT_NONE, false)) return false;
+
+    return true;
+}
 
 
 /*
@@ -52,15 +72,10 @@
  */
 static void remove_bad_spells(struct player *p, struct monster *mon, bitflag f[RSF_SIZE])
 {
-    bitflag f2[RSF_SIZE], ai_flags[OF_SIZE], ai_pflags[PF_SIZE];
-    struct element_info el[ELEM_MAX];
-    bool know_something = false;
+    bitflag f2[RSF_SIZE];
 
     /* Hack -- MvM */
     if (!p) return;
-
-    /* Stupid monsters act randomly */
-    if (monster_is_stupid(mon->race)) return;
 
     /* Take working copy of spell flags */
     rsf_copy(f2, f);
@@ -79,12 +94,12 @@ static void remove_bad_spells(struct player *p, struct monster *mon, bitflag f[R
     if (mon->cdis == 1) rsf_off(f2, RSF_TELE_TO);
 
     /* Update acquired knowledge */
-    of_wipe(ai_flags);
-    pf_wipe(ai_pflags);
-    memset(el, 0, ELEM_MAX * sizeof(struct element_info));
     if (cfg_ai_learn)
     {
         size_t i;
+        bitflag ai_flags[OF_SIZE], ai_pflags[PF_SIZE];
+        struct element_info el[ELEM_MAX];
+        bool know_something = false;
 
         /* Occasionally forget player status */
         if (one_in_(100))
@@ -96,19 +111,22 @@ static void remove_bad_spells(struct player *p, struct monster *mon, bitflag f[R
         }
 
         /* Use the memorized info */
+        of_wipe(ai_flags);
+        pf_wipe(ai_pflags);
         of_copy(ai_flags, mon->known_pstate.flags);
         pf_copy(ai_pflags, mon->known_pstate.pflags);
         if (!of_is_empty(ai_flags) || !pf_is_empty(ai_pflags)) know_something = true;
 
+        memset(el, 0, ELEM_MAX * sizeof(struct element_info));
         for (i = 0; i < ELEM_MAX; i++)
         {
             el[i].res_level = mon->known_pstate.el_info[i].res_level;
             if (el[i].res_level != 0) know_something = true;
         }
-    }
 
-    /* Cancel out certain flags based on knowledge */
-    if (know_something) unset_spells(p, f2, ai_flags, ai_pflags, el, mon->race);
+        /* Cancel out certain flags based on knowledge */
+        if (know_something) unset_spells(p, f2, ai_flags, ai_pflags, el, mon->race);
+    }
 
     /* Use working copy of spell flags */
     rsf_copy(f, f2);
@@ -119,29 +137,32 @@ static void remove_bad_spells(struct player *p, struct monster *mon, bitflag f[R
  * Determine if there is a space near the selected spot in which
  * a summoned creature can appear
  */
-static bool summon_possible(struct chunk *c, int y1, int x1)
+static bool summon_possible(struct chunk *c, struct loc *grid)
 {
-    int y, x;
+    struct loc begin, end;
+    struct loc_iterator iter;
+
+    loc_init(&begin, grid->x - 2, grid->y - 2);
+    loc_init(&end, grid->x + 2, grid->y + 2);
+    loc_iterator_first(&iter, &begin, &end);
 
     /* Start at the location, and check 2 grids in each dir */
-    for (y = y1 - 2; y <= y1 + 2; y++)
+    do
     {
-        for (x = x1 - 2; x <= x1 + 2; x++)
-        {
-            /* Ignore illegal locations */
-            if (!square_in_bounds(c, y, x)) continue;
+        /* Ignore illegal locations */
+        if (!square_in_bounds(c, &iter.cur)) continue;
 
-            /* Only check a circular area */
-            if (distance(y1, x1, y, x) > 2) continue;
+        /* Only check a circular area */
+        if (distance(grid, &iter.cur) > 2) continue;
 
-            /* No summon on glyph of warding */
-            if (square_iswarded(c, y, x)) continue;
+        /* No summon on glyph of warding */
+        if (square_iswarded(c, &iter.cur)) continue;
 
-            /* If it's empty floor grid in line of sight, we're good */
-            if (square_isemptyfloor(c, y, x) && los(c, y1, x1, y, x))
-                return true;
-        }
+        /* If it's empty floor grid in line of sight, we're good */
+        if (square_isemptyfloor(c, &iter.cur) && los(c, grid, &iter.cur))
+            return true;
     }
+    while (loc_iterator_next(&iter));
 
     return false;
 }
@@ -159,7 +180,7 @@ static bool summon_possible(struct chunk *c, int y1, int x1)
  *
  * This function could be an efficiency bottleneck.
  */
-static int choose_attack_spell(struct monster *mon, int y, int x, bitflag f[RSF_SIZE])
+static int choose_attack_spell(bitflag *f)
 {
     int num = 0;
     byte spells[RSF_MAX];
@@ -180,97 +201,80 @@ static int choose_attack_spell(struct monster *mon, int y, int x, bitflag f[RSF_
 
 
 /*
+ * Failure rate of a monster's spell, based on spell power and current status
+ */
+static int monster_spell_failrate(struct monster *mon, int thrown_spell)
+{
+    int power = MIN(mon->race->spell_power, 1);
+    int failrate = 0;
+
+    /* Stupid monsters will never fail (for jellies and such) */
+    if (!monster_is_stupid(mon->race))
+    {
+        /* Base failrate */
+        failrate = 25 - (power + 3) / 4;
+
+        /* Fear adds 20% */
+        if (mon->m_timed[MON_TMD_FEAR]) failrate += 20;
+
+        /* Confusion and disenchantment add 50% */
+        if (mon->m_timed[MON_TMD_CONF] || mon->m_timed[MON_TMD_DISEN]) failrate += 50;
+    }
+
+    if (failrate < 0) failrate = 0;
+
+    /* Hack -- pets/slaves will be unlikely to summon */
+    if (mon->master && is_spell_summon(thrown_spell)) failrate = 95;
+
+    return failrate;
+}
+
+
+/*
  * Have a monster choose a spell to cast (remove all "useless" spells).
  */
 static int get_thrown_spell(struct player *p, struct player *who, struct chunk *c,
-    struct monster *mon, int target_m_dis, int py, int px)
+    struct monster *mon, int target_m_dis, struct loc *grid)
 {
-    int chance, thrown_spell, rlev, failrate;
+    int thrown_spell, failrate;
     bitflag f[RSF_SIZE];
 
-    /* Assume "normal" target */
-    bool normal = true;
-
-    /* Cannot cast spells when blind */
-    if (mon->m_timed[MON_TMD_BLIND]) return -1;
-
-    /* Hack -- extract the spell probability */
-    chance = mon->race->freq_spell;
-
-    /* Not allowed to cast spells */
-    if (!chance) return -1;
-
-    /* Only do spells occasionally */
-    if (!magik(chance)) return -1;
-
-    /* Hack -- require projectable player */
-    if (normal)
-    {
-        /* Check range */
-        if (target_m_dis > z_info->max_range) return -1;
-
-        /* Check path (destination could be standing on a wall) */
-        if (!projectable(c, mon->fy, mon->fx, py, px, PROJECT_NONE, false)) return -1;
-    }
-
-    /* Extract the monster level */
-    rlev = ((mon->level >= 1)? mon->level: 1);
+    /* Check prerequisites */
+    if (!monster_can_cast(c, mon, target_m_dis, grid)) return -1;
 
     /* Extract the racial spell flags */
     rsf_copy(f, mon->race->spell_flags);
 
-    /* Allow "desperate" spells */
+    /* Smart monsters can use "desperate" spells */
     if (monster_is_smart(mon->race) && (mon->hp < mon->maxhp / 10) && magik(50))
-    {
-        /* Require intelligent spells */
-        ignore_spells(f, RST_BOLT | RST_BALL | RST_BREATH | RST_ATTACK | RST_INNATE | RST_MISSILE);
-    }
+        ignore_spells(f, RST_DAMAGE | RST_INNATE | RST_MISSILE);
 
-    /* Remove the "ineffective" spells */
-    remove_bad_spells(who, mon, f);
-
-    /* Check whether summons and bolts are worth it. */
+    /* Non-stupid monsters do some filtering */
     if (!monster_is_stupid(mon->race))
     {
+        /* Remove the "ineffective" spells */
+        remove_bad_spells(who, mon, f);
+
         /* Check for a clean bolt shot */
-        if (test_spells(f, RST_BOLT) && !projectable(c, mon->fy, mon->fx, py, px, PROJECT_STOP, false))
-        {
-            /* Remove spells that will only hurt friends */
+        if (test_spells(f, RST_BOLT) && !projectable(c, &mon->grid, grid, PROJECT_STOP, false))
             ignore_spells(f, RST_BOLT);
-        }
 
         /* Check for a possible summon */
-        if (!summon_possible(c, mon->fy, mon->fx))
-        {
-            /* Remove summoning spells */
+        if (!summon_possible(c, &mon->grid))
             ignore_spells(f, RST_SUMMON);
-        }
     }
 
     /* No spells left */
     if (rsf_is_empty(f)) return -1;
 
     /* Choose a spell to cast */
-    thrown_spell = choose_attack_spell(mon, py, px, f);
+    thrown_spell = choose_attack_spell(f);
 
     /* Abort if no spell was chosen */
     if (!thrown_spell) return -1;
 
-    /* Calculate spell failure rate */
-    failrate = 25 - (rlev + 3) / 4;
-    if (mon->m_timed[MON_TMD_FEAR]) failrate += 20;
-    if (failrate < 0) failrate = 0;
-
-    /* Stupid monsters will never fail (for jellies and such) */
-    if (monster_is_stupid(mon->race)) failrate = 0;
-
-    /* Confusion adds 50% to fail rate */
-    if (mon->m_timed[MON_TMD_CONF]) failrate += 50;
-
-    /* Hack -- pets/slaves will be unlikely to summon */
-    if (mon->master && is_spell_summon(thrown_spell)) failrate = 95;
-
     /* Check for spell failure (innate attacks never fail) */
+    failrate = monster_spell_failrate(mon, thrown_spell);
     if (!mon_spell_is_innate(thrown_spell) && magik(failrate))
     {
         char m_name[NORMAL_WID];
@@ -293,19 +297,8 @@ static int get_thrown_spell(struct player *p, struct player *who, struct chunk *
  *
  * Returns "true" if a spell (or whatever) was (successfully) cast.
  *
- * XXX XXX XXX This function could use some work, but remember to
- * keep it as optimized as possible, while retaining generic code.
- *
- * Verify the various "blind-ness" checks in the code.
- *
- * XXX XXX XXX Note that several effects should really not be "seen"
- * if the player is blind.
- *
  * Perhaps monsters should breathe at locations *near* the player,
  * since this would allow them to inflict "partial" damage.
- *
- * Perhaps smart monsters should decline to use "bolt" spells if
- * there is a monster in the way, unless they wish to kill it.
  *
  * It will not be possible to "correctly" handle the case in which a
  * monster attempts to attack a location which is thought to contain
@@ -327,18 +320,9 @@ static int get_thrown_spell(struct player *p, struct player *who, struct chunk *
  */
 bool make_attack_spell(struct source *who, struct chunk *c, struct monster *mon, int target_m_dis)
 {
-    int thrown_spell;
     struct monster_lore *lore = get_lore(who->player, mon->race);
-
-    /* Target position */
-    int px = (who->monster? who->monster->fx: who->player->px);
-    int py = (who->monster? who->monster->fy: who->player->py);
-
-    /* Extract the blind-ness */
-    bool blind = (who->player->timed[TMD_BLIND]? true: false);
-
-    /* Extract the "see-able-ness" */
-    bool seen = (!blind && monster_is_visible(who->player, mon->midx));
+    int thrown_spell;
+    bool seen = ((who->player->timed[TMD_BLIND] == 0) && monster_is_visible(who->player, mon->midx));
 
     /* Stop if player is dead or gone */
     if (!who->player->alive || who->player->is_dead || who->player->upkeep->new_level_method)
@@ -346,7 +330,7 @@ bool make_attack_spell(struct source *who, struct chunk *c, struct monster *mon,
 
     /* Choose a spell to cast */
     thrown_spell = get_thrown_spell(who->player, (who->monster? NULL: who->player), c, mon,
-        target_m_dis, py, px);
+        target_m_dis, (who->monster? &who->monster->grid: &who->player->grid));
 
     /* Abort if no spell was chosen */
     if (thrown_spell < 0) return ((thrown_spell == -1)? false: true);
@@ -356,12 +340,9 @@ bool make_attack_spell(struct source *who, struct chunk *c, struct monster *mon,
 
     /* Cast the spell. */
     disturb(who->player, 1);
-    if (who->monster)
-        do_mon_spell_MvM(who->player, c, who->monster, thrown_spell, mon, seen);
-    else
-        do_mon_spell(who->player, c, thrown_spell, mon, seen);
+    do_mon_spell(who->player, c, who->monster, thrown_spell, mon, seen);
 
-    /* Remember what the monster did to us */
+    /* Remember what the monster did */
     if (seen)
     {
         rsf_on(lore->spell_flags, thrown_spell);
@@ -433,7 +414,7 @@ static int monster_critical(random_value dice, int dam)
  * Always miss 5% of the time, always hit 12% of the time.
  * Otherwise, match monster power against player armor.
  */
-bool check_hit(struct source *who, int power, int level, int debuff)
+bool check_hit(struct source *who, int power, int level, int accuracy)
 {
     int chance, ac;
 
@@ -451,8 +432,9 @@ bool check_hit(struct source *who, int power, int level, int debuff)
         equip_learn_on_defend(who->player);
     }
 
-    /* Apply debuff penalty */
-    if (debuff) chance = (chance * (100 - debuff)) / 100;
+    /* Apply accuracy */
+    chance *= accuracy;
+    chance /= 100;
 
     /* Check if the target was hit */
     return test_hit(chance, ac, true);
@@ -476,12 +458,12 @@ bool make_attack_normal(struct monster *mon, struct source *who)
 {
     struct monster_lore *lore = get_lore(who->player, mon->race);
     struct monster_lore *target_l_ptr = (who->monster? get_lore(who->player, who->monster->race): NULL);
+    int rlev = ((mon->level >= 1)? mon->level: 1);
     int ap_cnt;
-    int ac, rlev;
     char m_name[NORMAL_WID];
     char target_m_name[NORMAL_WID];
     char ddesc[NORMAL_WID];
-    int blinked;
+    int blinked = 0;
 
     /* Assume a default death */
     byte note_dies = MON_MSG_DIE;
@@ -499,15 +481,6 @@ bool make_attack_normal(struct monster *mon, struct source *who)
     /* Not allowed to attack */
     if (rf_has(mon->race->flags, RF_NEVER_BLOW)) return false;
 
-    /* Total armor */
-    if (who->monster)
-        ac = who->monster->ac;
-    else
-        ac = who->player->state.ac + who->player->state.to_a;
-
-    /* Extract the effective monster level */
-    rlev = ((mon->level >= 1)? mon->level: 1);
-
     /* Get the monster name (or "it") */
     monster_desc(who->player, m_name, sizeof(m_name), mon, MDESC_STANDARD);
     if (who->monster)
@@ -518,15 +491,13 @@ bool make_attack_normal(struct monster *mon, struct source *who)
     /* Get the "died from" information (i.e. "a kobold") */
     monster_desc(who->player, ddesc, sizeof(ddesc), mon, MDESC_DIED_FROM);
 
-    /* Assume no blink */
-    blinked = 0;
-
     /* Scan through all blows */
     for (ap_cnt = 0; ap_cnt < z_info->mon_blows_max; ap_cnt++)
     {
-        bool visible = false;
+        struct loc grid;
+        bool visible = (monster_is_visible(who->player, mon->midx) ||
+            rf_has(mon->race->flags, RF_HAS_LIGHT));
         bool obvious = false;
-        bool do_break = false;
         int damage = 0;
         int do_cut = 0;
         int do_stun = 0;
@@ -534,34 +505,25 @@ bool make_attack_normal(struct monster *mon, struct source *who)
         const char *act = NULL;
         bool do_conf = false, do_fear = false, do_blind = false, do_para = false;
         bool dead = false;
-        bool stunned;
-        int debuff;
+        int accuracy = 100 - (mon->m_timed[MON_TMD_STUN]? STUN_HIT_REDUCTION: 0);
 
         /* Extract the attack infomation */
         struct blow_effect *effect = mon->blow[ap_cnt].effect;
         struct blow_method *method = mon->blow[ap_cnt].method;
         random_value dice = mon->blow[ap_cnt].dice;
 
-        /* Hack -- no more attacks */
+        loc_copy(&grid, &who->player->grid);
+
+        /* No more attacks */
         if (!method) break;
-        my_assert(effect);
 
         /* Stop if player is dead or gone */
         if (!who->player->alive || who->player->is_dead || who->player->upkeep->new_level_method)
             break;
 
-        /* Extract visibility (before blink) */
-        if (monster_is_visible(who->player, mon->midx)) visible = true;
-
-        /* Extract visibility from carrying light */
-        if (rf_has(mon->race->flags, RF_HAS_LIGHT)) visible = true;
-
-        /* Is the monster stunned? */
-        stunned = (mon->m_timed[MON_TMD_STUN]? true: false);
-        debuff = (stunned? STUN_HIT_REDUCTION: 0);
-
         /* Monster hits target */
-        if (streq(effect->name, "NONE") || check_hit(who, effect->power, rlev, debuff))
+        my_assert(effect);
+        if (streq(effect->name, "NONE") || check_hit(who, effect->power, rlev, accuracy))
         {
             melee_effect_handler_f effect_handler;
             const char* flav = NULL;
@@ -575,7 +537,7 @@ bool make_attack_normal(struct monster *mon, struct source *who)
                 /* Learn about the evil flag */
                 if (visible) rf_on(lore->flags, RF_EVIL);
 
-                if (monster_is_evil(mon->race) && (who->player->lev >= rlev) &&
+                if (monster_is_evil(mon) && (who->player->lev >= rlev) &&
                     !magik(PY_MAX_LEVEL - who->player->lev))
                 {
                     /* Message */
@@ -601,7 +563,7 @@ bool make_attack_normal(struct monster *mon, struct source *who)
             damage = randcalc(dice, 0, RANDOMISE);
 
             /* Reduce damage when stunned */
-            if (stunned) damage = (damage * (100 - STUN_DAM_REDUCTION)) / 100;
+            if (mon->m_timed[MON_TMD_STUN]) damage = (damage * (100 - STUN_DAM_REDUCTION)) / 100;
 
             /* Message */
             if (act)
@@ -641,7 +603,8 @@ bool make_attack_normal(struct monster *mon, struct source *who)
                 context.target_l_ptr = target_l_ptr;
                 context.rlev = rlev;
                 context.method = method;
-                context.ac = ac;
+                context.ac = (who->monster? who->monster->ac:
+                    (who->player->state.ac + who->player->state.to_a));
                 context.ddesc = ddesc;
                 context.obvious = obvious;
                 context.visible = visible;
@@ -652,7 +615,6 @@ bool make_attack_normal(struct monster *mon, struct source *who)
                 context.do_fear = do_fear;
                 strnfmt(context.flav, sizeof(context.flav), "was %s by %s", flav, ddesc);
                 context.blinked = blinked;
-                context.do_break = do_break;
                 context.damage = damage;
                 context.note_dies = note_dies;
                 context.style = (who->monster? TYPE_MVM: TYPE_MVP);
@@ -670,7 +632,6 @@ bool make_attack_normal(struct monster *mon, struct source *who)
                 do_conf = context.do_conf;
                 do_fear = context.do_fear;
                 blinked = context.blinked;
-                do_break = context.do_break;
                 damage = context.damage;
             }
             else
@@ -787,39 +748,41 @@ bool make_attack_normal(struct monster *mon, struct source *who)
             if (mon->hp < 0) break;
         }
 
-        /* Skip the other blows if necessary */
-        if (dead || do_break) break;
+        /* Skip the other blows if the player has moved */
+        if (dead || !loc_eq(&grid, &who->player->grid)) break;
     }
 
     /* Blink away */
     if (blinked == 2)
     {
         char dice[5];
-        int fy = mon->fy;
-        int fx = mon->fx;
+        struct loc grid;
         struct source origin_body;
         struct source *origin = &origin_body;
+
+        loc_copy(&grid, &mon->grid);
 
         source_player(origin, get_player_index(get_connection(who->player->conn)), who->player);
         origin->monster = mon;
 
         strnfmt(dice, sizeof(dice), "%d", z_info->max_sight * 2 + 5);
-        effect_simple(EF_TELEPORT, origin, dice, 0, 0, 0, NULL);
-        if ((mon->fy != fy) || (mon->fx != fx))
+        effect_simple(EF_TELEPORT, origin, dice, 0, 0, 0, 0, 0, NULL);
+        if (!loc_eq(&grid, &mon->grid))
             msg(who->player, "There is a puff of smoke!");
     }
     else if (blinked == 1)
     {
-        int fy = mon->fy;
-        int fx = mon->fx;
+        struct loc grid;
         struct source origin_body;
         struct source *origin = &origin_body;
+
+        loc_copy(&grid, &mon->grid);
 
         source_player(origin, get_player_index(get_connection(who->player->conn)), who->player);
         origin->monster = mon;
 
-        effect_simple(EF_TELEPORT, origin, "10", 0, 0, 0, NULL);
-        if ((mon->fy != fy) || (mon->fx != fx))
+        effect_simple(EF_TELEPORT, origin, "10", 0, 0, 0, 0, 0, NULL);
+        if (!loc_eq(&grid, &mon->grid))
             msg(who->player, "%s blinks away.", m_name);
     }
 
@@ -839,47 +802,43 @@ bool make_attack_normal(struct monster *mon, struct source *who)
 
 int get_cut(random_value dice, int d_dam)
 {
-    int k = 0;
-
     /* Critical hit (zero if non-critical) */
-    int tmp = monster_critical(dice, d_dam);
+    int amt, tmp = monster_critical(dice, d_dam);
 
     /* Roll for damage */
     switch (tmp)
     {
-        case 0: k = 0; break;
-        case 1: k = randint1(5); break;
-        case 2: k = randint1(5) + 5; break;
-        case 3: k = randint1(20) + 20; break;
-        case 4: k = randint1(50) + 50; break;
-        case 5: k = randint1(100) + 100; break;
-        case 6: k = 300; break;
-        default: k = 500; break;
+        case 0: amt = 0; break;
+        case 1: amt = randint1(5); break;
+        case 2: amt = randint1(5) + 5; break;
+        case 3: amt = randint1(20) + 20; break;
+        case 4: amt = randint1(50) + 50; break;
+        case 5: amt = randint1(100) + 100; break;
+        case 6: amt = 300; break;
+        default: amt = 500; break;
     }
 
-    return k;
+    return amt;
 }
 
 
 int get_stun(random_value dice, int d_dam)
 {
-    int k = 0;
-
     /* Critical hit (zero if non-critical) */
-    int tmp = monster_critical(dice, d_dam);
+    int amt, tmp = monster_critical(dice, d_dam);
 
     /* Roll for damage */
     switch (tmp)
     {
-        case 0: k = 0; break;
-        case 1: k = randint1(5); break;
-        case 2: k = randint1(10) + 10; break;
-        case 3: k = randint1(20) + 20; break;
-        case 4: k = randint1(30) + 30; break;
-        case 5: k = randint1(40) + 40; break;
-        case 6: k = 100; break;
-        default: k = 200; break;
+        case 0: amt = 0; break;
+        case 1: amt = randint1(5); break;
+        case 2: amt = randint1(10) + 10; break;
+        case 3: amt = randint1(20) + 20; break;
+        case 4: amt = randint1(30) + 30; break;
+        case 5: amt = randint1(40) + 40; break;
+        case 6: amt = 100; break;
+        default: amt = 200; break;
     }
 
-    return k;
+    return amt;
 }

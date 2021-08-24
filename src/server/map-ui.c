@@ -91,8 +91,8 @@ static void hallucinatory_object(struct player *p, bool server, u16b *a, char *c
  */
 static byte player_color(struct player *p)
 {
-    /* Ghosts are black */
-    if (p->ghost) return COLOUR_L_DARK;
+    /* Ghosts */
+    if (p->ghost) return COLOUR_L_WHITE;
 
     /* Cloaked rogues */
     if (p->timed[TMD_MIMIC]) return player_id2class(p->tim_mimic_what)->attr;
@@ -290,7 +290,7 @@ static void player_pict(struct player *p, struct chunk *cv, struct player *q, bo
         /* Handle other */
         *a = player_color(q);
         if (p->use_graphics && !server)
-            *a = player_presets[mode][q->clazz->cidx][q->race->ridx][q->psex].a;
+            *a = presets[mode].player_presets[q->psex][q->clazz->cidx][q->race->ridx].a;
 
         /* Hack -- elementalists */
         if (!p->use_graphics && (*a == COLOUR_MULTI))
@@ -326,7 +326,7 @@ static void player_pict(struct player *p, struct chunk *cv, struct player *q, bo
         if (server) *c = monster_x_char[0];
         else *c = p->r_char[0];
         if (p->use_graphics && !server)
-            *c = player_presets[mode][q->clazz->cidx][q->race->ridx][q->psex].c;
+            *c = presets[mode].player_presets[q->psex][q->clazz->cidx][q->race->ridx].c;
     }
 
     /* Handle ghosts in graphical mode */
@@ -388,6 +388,14 @@ static void player_pict(struct player *p, struct chunk *cv, struct player *q, bo
         if (!p->use_graphics && (*a == COLOUR_MULTI)) *a = COLOUR_VIOLET;
     }
 
+    /* Hack -- highlight party leader! */
+    if (!p->use_graphics && (q != p) && is_party_owner(p, q) && OPT(p, highlight_leader) &&
+        magik(50))
+    {
+        if (*a == COLOUR_YELLOW) *a = COLOUR_L_DARK;
+        else *a = COLOUR_YELLOW;
+    }
+
     /* Give interesting visual effects in non-graphical mode for the player */
     if (!p->use_graphics && (q == p))
     {
@@ -406,44 +414,56 @@ static void player_pict(struct player *p, struct chunk *cv, struct player *q, bo
             if (life < 3) *a = COLOUR_RED;
             show_as_number = false;
         }
+    }
 
-        /* If we are in a slow time bubble, give a visual warning */
+    /* If we are in a slow time bubble, give a visual warning */
+    if (q == p)
+    {
         timefactor = time_factor(p, cv);
         if (timefactor < NORMAL_TIME)
         {
-            u32b diff = (u32b)(10 + (NORMAL_TIME - timefactor));
-
-            /* Initialize bubble color */
-            if (p->bubble_colour == COLOUR_DARK) p->bubble_colour = (byte)*a;
-
-            /* Switch between normal and bubble color every (10 + slowdown) turns */
-            if (ht_diff(&turn, &p->bubble_change) > diff)
+            /* Initialize bubble info */
+            if (p->bubble_speed >= NORMAL_TIME)
             {
-                /* Normal -> bubble color */
-                if (p->bubble_colour == *a)
-                {
-                    if (*a == COLOUR_WHITE) *a = COLOUR_VIOLET;
-                    else *a = COLOUR_WHITE;
-                }
-
-                /* Set bubble turn/color values */
-                /* This also handles the case bubble -> normal color */
+                /* Reset bubble turn */
                 ht_copy(&p->bubble_change, &turn);
-                p->bubble_colour = (byte)*a;
+
+                /* Normal -> bubble color */
+                p->bubble_colour = true;
+
+                /* Delay next blink */
+                p->blink_speed = (u32b)cfg_fps * 2;
             }
 
-            /* Use bubble color */
-            *a = p->bubble_colour;
-        }
-    }
+            /* Switch between normal and bubble color */
+            if (ht_diff(&turn, &p->bubble_change) > p->blink_speed)
+            {
+                /* Reset bubble turn */
+                ht_copy(&p->bubble_change, &turn);
 
-    /* Hack -- highlight party leader! */
-    else
-    {
-        if (!p->use_graphics && is_party_owner(p, q) && OPT(p, highlight_leader) && magik(50))
+                /* Switch bubble color */
+                p->bubble_colour = !p->bubble_colour;
+
+                /* Remove first time delay */
+                if (p->blink_speed > (u32b)cfg_fps) p->blink_speed = (u32b)cfg_fps;
+            }
+        }
+        else
         {
-            if (*a == COLOUR_YELLOW) *a = COLOUR_L_DARK;
-            else *a = COLOUR_YELLOW;
+            /* Reset bubble color */
+            p->bubble_colour = false;
+
+            /* Reset blink speed */
+            p->blink_speed = (u32b)cfg_fps;
+        }
+
+        p->bubble_speed = timefactor;
+
+        /* Use bubble color */
+        if (p->bubble_colour && !p->use_graphics)
+        {
+            if (*a == COLOUR_WHITE) *a = COLOUR_VIOLET;
+            else *a = COLOUR_WHITE;
         }
     }
 
@@ -470,8 +490,15 @@ static void player_pict(struct player *p, struct chunk *cv, struct player *q, bo
             /* Use presets in gfx mode */
             if (p->use_graphics && !server)
             {
-                *a = player_numbers[mode][life].a;
-                *c = player_numbers[mode][life].c;
+                *a = presets[mode].player_numbers[life].a;
+                *c = presets[mode].player_numbers[life].c;
+
+                /* Use bubble presets */
+                if (p->bubble_colour)
+                {
+                    *a = presets[mode].player_bubbles[life].a;
+                    *c = presets[mode].player_bubbles[life].c;
+                }
             }
         }
     }
@@ -551,7 +578,7 @@ static void grid_get_attr(struct player *p, struct grid_data *g, u16b *a)
             else if ((g->lighting == LIGHTING_DARK) || (g->lighting == LIGHTING_LIT))
             {
                 /* Hack -- don't apply lighting effect for the Weapon Smith */
-                if (!(feat_is_shop(g->f_idx) && (f_info[g->f_idx].shopnum == STORE_WEAPON + 1)))
+                if (!feat_is_shop(g->f_idx))
                     *a = COLOUR_L_DARK;
             }
         }
@@ -591,7 +618,7 @@ static bool get_trap_graphics(struct player *p, struct chunk *c, bool server,
     struct trap *trap = g->trap;
 
     /* Trap is visible */
-    if (trf_has(trap->flags, TRF_VISIBLE) || trf_has(trap->flags, TRF_RUNE))
+    if (trf_has(trap->flags, TRF_VISIBLE) || trf_has(trap->flags, TRF_GLYPH))
     {
 		/* Get the graphics */
         if (server)
@@ -912,7 +939,7 @@ void prt_map(struct player *p)
     u16b a, ta;
     char c, tc;
     struct grid_data g;
-    int y, x;
+    struct loc grid;
     int vy, vx;
     int ty, tx;
     int screen_hgt, screen_wid;
@@ -922,29 +949,29 @@ void prt_map(struct player *p)
     screen_wid = p->screen_cols / p->tile_wid;
 
     /* Assume screen */
-    ty = p->offset_y + screen_hgt;
-    tx = p->offset_x + screen_wid;
+    ty = p->offset_grid.y + screen_hgt;
+    tx = p->offset_grid.x + screen_wid;
 
     /* Dump the map */
-    for (y = p->offset_y, vy = 1; y < ty; vy++, y++)
+    for (grid.y = p->offset_grid.y, vy = 1; grid.y < ty; vy++, grid.y++)
     {
         /* First clear the old stuff */
-        for (x = 0; x < z_info->dungeon_wid; x++)
+        for (grid.x = 0; grid.x < z_info->dungeon_wid; grid.x++)
         {
-            p->scr_info[vy][x].c = 0;
-            p->scr_info[vy][x].a = 0;
-            p->trn_info[vy][x].c = 0;
-            p->trn_info[vy][x].a = 0;
+            p->scr_info[vy][grid.x].c = 0;
+            p->scr_info[vy][grid.x].a = 0;
+            p->trn_info[vy][grid.x].c = 0;
+            p->trn_info[vy][grid.x].a = 0;
         }
 
         /* Scan the columns of row "y" */
-        for (x = p->offset_x, vx = 0; x < tx; vx++, x++)
+        for (grid.x = p->offset_grid.x, vx = 0; grid.x < tx; vx++, grid.x++)
         {
             /* Check bounds */
-            if (!square_in_bounds(cv, y, x)) continue;
+            if (!square_in_bounds(cv, &grid)) continue;
 
             /* Determine what is there */
-            map_info(p, cv, y, x, &g);
+            map_info(p, cv, &grid, &g);
             grid_data_as_text(p, cv, false, &g, &a, &c, &ta, &tc);
 
             p->scr_info[vy][vx].c = c;
@@ -971,8 +998,6 @@ void prt_map(struct player *p)
  */
 void display_map(struct player *p, bool subwindow)
 {
-    int py = p->py;
-    int px = p->px;
     int map_hgt, map_wid;
     int row, col;
     int x, y;
@@ -981,6 +1006,8 @@ void display_map(struct player *p, bool subwindow)
     char c, tc;
     byte tp;
     struct chunk *cv = chunk_get(&p->wpos);
+    struct loc begin, end;
+    struct loc_iterator iter;
 
     /* Priority array */
     byte **mp;
@@ -1027,56 +1054,58 @@ void display_map(struct player *p, bool subwindow)
         }
     }
 
-    /* Analyze the actual map */
-    for (y = 0; y < cv->height; y++)
-    {
-        for (x = 0; x < cv->width; x++)
-        {
-            row = (y * map_hgt / cv->height);
-            col = (x * map_wid / cv->width);
+    loc_init(&begin, 0, 0);
+    loc_init(&end, cv->width, cv->height);
+    loc_iterator_first(&iter, &begin, &end);
 
-            /* Get the attr/char at that map location */
-            map_info(p, cv, y, x, &g);
+    /* Analyze the actual map */
+    do
+    {
+        row = (iter.cur.y * map_hgt / cv->height);
+        col = (iter.cur.x * map_wid / cv->width);
+
+        /* Get the attr/char at that map location */
+        map_info(p, cv, &iter.cur, &g);
+        grid_data_as_text(p, cv, false, &g, &a, &c, &ta, &tc);
+
+        /* Get the priority of that attr/char */
+        tp = f_info[g.f_idx].priority;
+
+        /* Stuff on top of terrain gets higher priority */
+        if ((a != ta) || (c != tc)) tp = 22;
+
+        /* Save "best" */
+        if (mp[row][col] < tp)
+        {
+            /* Hack -- make every grid on the map lit */
+            g.lighting = LIGHTING_LIT;
             grid_data_as_text(p, cv, false, &g, &a, &c, &ta, &tc);
 
-            /* Get the priority of that attr/char */
-            tp = f_info[g.f_idx].priority;
-
-            /* Stuff on top of terrain gets higher priority */
-            if ((a != ta) || (c != tc)) tp = 22;
-
-            /* Save "best" */
-            if (mp[row][col] < tp)
+            /* Display stuff on top of terrain if it exists */
+            if ((a != ta) || (c != tc))
             {
-                /* Hack -- make every grid on the map lit */
-                g.lighting = LIGHTING_LIT;
-                grid_data_as_text(p, cv, false, &g, &a, &c, &ta, &tc);
-
-                /* Display stuff on top of terrain if it exists */
-                if ((a != ta) || (c != tc))
-                {
-                    ta = a;
-                    tc = c;
-                }
-
-                /* Save the char */
-                mc[row][col] = tc;
-
-                /* Save the attr */
-                ma[row][col] = ta;
-
-                /* Save priority */
-                mp[row][col] = tp;
+                ta = a;
+                tc = c;
             }
+
+            /* Save the char */
+            mc[row][col] = tc;
+
+            /* Save the attr */
+            ma[row][col] = ta;
+
+            /* Save priority */
+            mp[row][col] = tp;
         }
     }
+    while (loc_iterator_next_strict(&iter));
 
     /* Make sure the player is visible in main window */
     if (!subwindow)
     {
         /* Player location */
-        row = (py * map_hgt / cv->height);
-        col = (px * map_wid / cv->width);
+        row = (p->grid.y * map_hgt / cv->height);
+        col = (p->grid.x * map_wid / cv->width);
 
         player_pict(p, cv, p, false, &ta, &tc);
 
@@ -1135,9 +1164,9 @@ void display_map(struct player *p, bool subwindow)
 }
 
 
-static int get_wilderness_type(struct player *p, int wy, int wx)
+static int get_wilderness_type(struct player *p, struct loc *grid)
 {
-    struct wild_type *w_ptr = get_wt_info_at(wy, wx);
+    struct wild_type *w_ptr = get_wt_info_at(grid);
 
     /* If off the map, set to unknown type */
     if (!w_ptr) return -1;
@@ -1198,14 +1227,14 @@ static void wild_display_map(struct player *p)
     {
         for (x = 0; x < map_wid; x++)
         {
-            int wy, wx, type;
+            int type;
+            struct loc grid;
 
             /* Location */
-            wy = p->wpos.wy + map_hgt / 2 - y;
-            wx = p->wpos.wx - map_wid / 2 + x;
+            loc_init(&grid, p->wpos.grid.x - map_wid / 2 + x, p->wpos.grid.y + map_hgt / 2 - y);
 
             /* Get wilderness type */
-            type = get_wilderness_type(p, wy, wx);
+            type = get_wilderness_type(p, &grid);
 
             /* Initialize our grid_data structure */
             memset(&g, 0, sizeof(g));
@@ -1220,7 +1249,7 @@ static void wild_display_map(struct player *p)
                 g.f_idx = wf_info[type].feat_idx;
 
                 /* Show a down staircase if the location contains a dungeon (outside of towns) */
-                COORDS_SET(&wpos, wy, wx, 0);
+                wpos_init(&wpos, &grid, 0);
                 if ((get_dungeon(&wpos) != NULL) && !in_town(&wpos))
                     g.f_idx = FEAT_MORE;
             }
@@ -1254,7 +1283,7 @@ static void wild_display_map(struct player *p)
     {
         struct worldpos wpos;
 
-        COORDS_SET(&wpos, p->wpos.wy, p->wpos.wx, 0);
+        wpos_init(&wpos, &p->wpos.grid, 0);
         my_strcat(buf, get_dungeon(&wpos)->name, sizeof(buf));
     }
     else

@@ -158,7 +158,7 @@ static bool object_curse_conflicts(struct object *obj, int pick)
     /* Reject curses with effects foiled by an existing object property */
     if (c->obj->effect && (c->obj->effect->index == effect_lookup("TIMED_INC")))
     {
-        int idx = c->obj->effect->params[0];
+        int idx = c->obj->effect->subtype;
         struct timed_effect_data *status;
 
         my_assert(idx >= 0);
@@ -297,7 +297,7 @@ static bool artifact_curse_conflicts(struct artifact *art, int pick)
     /* Reject curses with effects foiled by an existing object property */
     if (c->obj->effect && c->obj->effect->index == effect_lookup("TIMED_INC"))
     {
-        int idx = c->obj->effect->params[0];
+        int idx = c->obj->effect->subtype;
         struct timed_effect_data *status;
 
         my_assert(idx >= 0);
@@ -421,10 +421,13 @@ bool do_curse_effect(struct player *p, int i)
     int dir = randint1(8);
     struct source who_body;
     struct source *who = &who_body;
+    int slot = slot_by_name(p, "weapon");
+    struct object *obj = p->body.slots[slot].obj;
 
     if (dir > 4) dir++;
     if (effect->self_msg) msgt(p, MSG_GENERIC, effect->self_msg);
-    source_player(who, get_player_index(get_connection(p->conn)), p);
+    source_obj(who, obj);
+    who->player = p;
     effect_do(effect, who, &ident, was_aware, dir, NULL, 0, 0, NULL);
     return !was_aware && ident;
 }

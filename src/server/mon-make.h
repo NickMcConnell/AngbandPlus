@@ -16,7 +16,7 @@
 #define MON_CLONE   0x04    /* Generate as clone */
 
 extern void delete_monster_idx(struct chunk *c, int m_idx);
-extern void delete_monster(struct chunk *c, int y, int x);
+extern void delete_monster(struct chunk *c, struct loc *grid);
 extern void compact_monsters(struct chunk *c, int num_to_compact);
 extern void wipe_mon_list(struct chunk *c);
 extern void get_mon_num_prep(bool (*get_mon_num_hook)(struct monster_race *race));
@@ -29,9 +29,9 @@ extern void mon_create_mimicked_object(struct player *p, struct chunk *c, struct
 extern s16b place_monster(struct player *p, struct chunk *c, struct monster *mon, byte origin);
 extern int mon_hp(const struct monster_race *race, aspect hp_aspect);
 extern int sleep_value(const struct monster_race *race);
-extern bool place_new_monster(struct player *p, struct chunk *c, int y, int x,
+extern bool place_new_monster(struct player *p, struct chunk *c, struct loc *grid,
     struct monster_race *race, byte mon_flag, byte origin);
-extern bool pick_and_place_monster(struct player *p, struct chunk *c, int y, int x, int depth,
+extern bool pick_and_place_monster(struct player *p, struct chunk *c, struct loc *grid, int depth,
     byte mon_flag, byte origin);
 extern bool pick_and_place_distant_monster(struct player *p, struct chunk *c, int dis,
     byte mon_flag);

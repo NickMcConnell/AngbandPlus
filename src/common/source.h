@@ -15,12 +15,14 @@ struct source
     struct player *player;
     struct monster *monster;
     struct trap *trap;
+    struct object *obj;
     struct player *target;  /* Hack -- wraithed player as target */
 };
 
 /*
  * Generate different forms of the source for projection and effect functions
  */
+extern void source_obj(struct source *source, struct object *obj);
 extern void source_trap(struct source *source, struct trap *trap);
 extern void source_monster(struct source *source, struct monster *monster);
 extern void source_player(struct source *source, int idx, struct player *player);

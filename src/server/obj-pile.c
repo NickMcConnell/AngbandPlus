@@ -349,7 +349,8 @@ bool object_stackable(struct player *p, const struct object *obj1, const struct 
     if ((mode & OSTACK_LIST) && object_marked_aware(p, obj2)) return false;
 
     /* Hack -- requires same location (object list) */
-    if ((mode & OSTACK_LIST) && ((obj1->iy != obj2->iy) || (obj1->ix != obj2->ix))) return false;
+    if ((mode & OSTACK_LIST) && !loc_eq(&((struct object *)obj1)->grid, &((struct object *)obj2)->grid))
+        return false;
 
     /* Hack -- identical items cannot be stacked */
     if (obj1 == obj2) return false;
@@ -451,10 +452,23 @@ bool object_stackable(struct player *p, const struct object *obj1, const struct 
 bool object_similar(struct player *p, const struct object *obj1, const struct object *obj2,
     object_stack_t mode)
 {
-    int total = obj1->number + obj2->number;
+    int total;
 
-    /* Check against stacking limit - except in stores which absorb anyway */
-    if (!(mode & OSTACK_STORE) && (total > obj1->kind->base->max_stack)) return false;
+    /* Hack -- gold */
+    if (tval_is_money(obj1))
+    {
+        total = obj1->pval + obj2->pval;
+
+        /* Check against stacking limit */
+        if (total > PY_MAX_GOLD) return false;
+    }
+    else
+    {
+        total = obj1->number + obj2->number;
+
+        /* Check against stacking limit - except in stores which absorb anyway */
+        if (!(mode & OSTACK_STORE) && (total > obj1->kind->base->max_stack)) return false;
+    }
 
     return object_stackable(p, obj1, obj2, mode);
 }
@@ -593,10 +607,23 @@ void object_absorb_partial(struct object *obj1, struct object *obj2)
  */
 void object_absorb(struct object *obj1, struct object *obj2)
 {
-    int total = obj1->number + obj2->number;
+    int total;
 
-    /* Add together the item counts */
-    obj1->number = MIN(total, obj1->kind->base->max_stack);
+    /* Hack -- gold */
+    if (tval_is_money(obj1))
+    {
+        total = obj1->pval + obj2->pval;
+
+        /* Combine the pvals */
+        obj1->pval = MIN(total, PY_MAX_GOLD);
+    }
+    else
+    {
+        total = obj1->number + obj2->number;
+
+        /* Add together the item counts */
+        obj1->number = MIN(total, obj1->kind->base->max_stack);
+    }
 
     object_absorb_merge(obj1, obj2);
     object_delete(&obj2);
@@ -734,11 +761,10 @@ struct object *floor_object_for_use(struct player *p, struct chunk *c, struct ob
 {
     struct object *usable;
     char name[NORMAL_WID];
-    int y, x;
+    struct loc grid;
 
     /* Save object info (if we use the entire stack) */
-    y = obj->iy;
-    x = obj->ix;
+    loc_copy(&grid, &obj->grid);
 
     /* Bounds check */
     num = MIN(num, obj->number);
@@ -766,7 +792,7 @@ struct object *floor_object_for_use(struct player *p, struct chunk *c, struct ob
 
         /* We're using the entire stack */
         usable = obj;
-        square_excise_object(c, usable->iy, usable->ix, usable);
+        square_excise_object(c, &usable->grid, usable);
         *none_left = true;
 
         /* Stop tracking item */
@@ -777,7 +803,7 @@ struct object *floor_object_for_use(struct player *p, struct chunk *c, struct ob
     p->upkeep->update |= (PU_BONUS | PU_INVEN);
     p->upkeep->notice |= (PN_COMBINE);
     p->upkeep->redraw |= (PR_INVEN | PR_EQUIP);
-    redraw_floor(&p->wpos, y, x);
+    redraw_floor(&p->wpos, &grid);
 
     /* Print a message if desired */
     if (message)
@@ -790,11 +816,11 @@ struct object *floor_object_for_use(struct player *p, struct chunk *c, struct ob
 /*
  * Find and return the oldest object on the given grid marked as "ignore".
  */
-static struct object *floor_get_oldest_ignored(struct player *p, struct chunk *c, int y, int x)
+static struct object *floor_get_oldest_ignored(struct player *p, struct chunk *c, struct loc *grid)
 {
     struct object *obj, *ignore = NULL;
 
-    for (obj = square_object(c, y, x); obj; obj = obj->next)
+    for (obj = square_object(c, grid); obj; obj = obj->next)
     {
         if (p && ignore_item_ok(p, obj)) ignore = obj;
     }
@@ -803,13 +829,29 @@ static struct object *floor_get_oldest_ignored(struct player *p, struct chunk *c
 }
 
 
+static int grid_to_index(struct chunk *c, struct loc *grid, struct object *obj)
+{
+    int oidx = obj->oidx;
+
+    square_excise_object(c, grid, obj);
+    object_delete(&obj);
+
+    /* Use this index */
+    c->o_gen[0 - (oidx + 1)] = true;
+
+    return oidx;
+}
+
+
 /*
  * Hack -- obtain an index for a floor object
  */
 static int floor_to_index(struct chunk *c)
 {
-    int i, y, x;
+    int i;
     struct object *obj;
+    struct loc begin, end;
+    struct loc_iterator iter;
 
     /* Scan the list of generated indices */
     for (i = 0; i < MAX_OBJECTS; i++)
@@ -825,64 +867,42 @@ static int floor_to_index(struct chunk *c)
 
     /* List is full, try nuking something to make room */
 
-    /* First do crops and junk */
-    for (y = 0; y < c->height; y++)
-    {
-        for (x = 0; x < c->width; x++)
-        {
-            for (obj = square_object(c, y, x); obj; obj = obj->next)
-            {
-                /* Nuke crops */
-                if (tval_is_crop(obj)) break;
+    loc_init(&begin, 0, 0);
+    loc_init(&end, c->width, c->height);
+    loc_iterator_first(&iter, &begin, &end);
 
-                /* Nuke junk */
-                if (tval_is_skeleton(obj) || tval_is_corpse(obj) || tval_is_bottle(obj)) break;
-            }
+    /* First do crops and junk */
+    do
+    {
+        for (obj = square_object(c, &iter.cur); obj; obj = obj->next)
+        {
+            /* Nuke crops */
+            if (tval_is_crop(obj)) return grid_to_index(c, &iter.cur, obj);
+
+            /* Nuke junk */
+            if (tval_is_skeleton(obj) || tval_is_corpse(obj) || tval_is_bottle(obj))
+                return grid_to_index(c, &iter.cur, obj);
         }
     }
-    if (obj)
-    {
-        int oidx = obj->oidx;
+    while (loc_iterator_next_strict(&iter));
 
-        square_excise_object(c, y, x, obj);
-        object_delete(&obj);
-
-        /* Use this index */
-        c->o_gen[0 - (oidx + 1)] = true;
-
-        return oidx;
-    }
+    loc_init(&begin, 0, 0);
+    loc_init(&end, c->width, c->height);
+    loc_iterator_first(&iter, &begin, &end);
 
     /* Then do gold */
-    for (y = 0; y < c->height; y++)
+    do
     {
-        for (x = 0; x < c->width; x++)
-        {
-            for (obj = square_object(c, y, x); obj; obj = obj->next)
-            {
-                /* Nuke gold */
-                if (tval_is_money(obj))
-                {
-                    /* Hack -- skip gold in houses */
-                    if ((c->wpos.depth == 0) && square_isvault(c, obj->iy, obj->ix)) continue;
+        /* Hack -- skip gold in houses */
+        if ((c->wpos.depth == 0) && square_isvault(c, &iter.cur)) continue;
 
-                    break;
-                }
-            }
+        for (obj = square_object(c, &iter.cur); obj; obj = obj->next)
+        {
+            /* Nuke gold */
+            if (tval_is_money(obj)) return grid_to_index(c, &iter.cur, obj);
         }
     }
-    if (obj)
-    {
-        int oidx = obj->oidx;
-
-        square_excise_object(c, y, x, obj);
-        object_delete(&obj);
-
-        /* Use this index */
-        c->o_gen[0 - (oidx + 1)] = true;
-
-        return oidx;
-    }
+    while (loc_iterator_next_strict(&iter));
 
     return 0;
 }
@@ -894,16 +914,17 @@ static int floor_to_index(struct chunk *c)
  *
  * Optionally put the object at the top or bottom of the pile
  */
-bool floor_carry(struct player *p, struct chunk *c, int y, int x, struct object *drop, bool *note)
+bool floor_carry(struct player *p, struct chunk *c, struct loc *grid, struct object *drop,
+    bool *note)
 {
     int n = 0;
-    struct object *obj, *ignore = floor_get_oldest_ignored(p, c, y, x);
+    struct object *obj, *ignore = floor_get_oldest_ignored(p, c, grid);
 
     /* Fail if the square can't hold objects */
-    if (!square_isobjectholding(c, y, x)) return false;
+    if (!square_isobjectholding(c, grid)) return false;
 
     /* Scan objects in that grid for combination */
-    for (obj = square_object(c, y, x); obj; obj = obj->next)
+    for (obj = square_object(c, grid); obj; obj = obj->next)
     {
         /* Check for combination */
         if (object_similar(p, obj, drop, OSTACK_FLOOR))
@@ -928,7 +949,7 @@ bool floor_carry(struct player *p, struct chunk *c, int y, int x, struct object 
         /* Delete the oldest ignored object */
         if (ignore)
         {
-            square_excise_object(c, y, x, ignore);
+            square_excise_object(c, grid, ignore);
             object_delete(&ignore);
         }
         else
@@ -940,19 +961,18 @@ bool floor_carry(struct player *p, struct chunk *c, int y, int x, struct object 
     if (!drop->oidx) return false;
 
     /* Location */
-    drop->iy = y;
-    drop->ix = x;
+    loc_copy(&drop->grid, grid);
     memcpy(&drop->wpos, &c->wpos, sizeof(struct worldpos));
 
     /* Forget monster */
     drop->held_m_idx = 0;
 
     /* Link to the first object in the pile */
-    pile_insert(&c->squares[y][x].obj, drop);
+    pile_insert(&square(c, grid)->obj, drop);
 
     /* Redraw */
-    square_note_spot(c, y, x);
-    square_light_spot(c, y, x);
+    square_note_spot(c, grid);
+    square_light_spot(c, grid);
 
     /* Don't mention if ignored */
     if (p && ignore_item_ok(p, drop)) *note = false;
@@ -967,26 +987,25 @@ bool floor_carry(struct player *p, struct chunk *c, int y, int x, struct object 
  *
  * This is a simplified version of floor_carry().
  */
-bool floor_add(struct chunk *c, int y, int x, struct object *drop)
+bool floor_add(struct chunk *c, struct loc *grid, struct object *drop)
 {
     /* Fail if the square can't hold objects */
-    if (!square_in_bounds_fully(c, y, x)) return false;
-    if (!square_isobjectholding(c, y, x)) return false;
+    if (!square_in_bounds_fully(c, grid)) return false;
+    if (!square_isobjectholding(c, grid)) return false;
 
     /* Hack -- set index */
     drop->oidx = floor_to_index(c);
     if (!drop->oidx) return false;
 
     /* Location */
-    drop->iy = y;
-    drop->ix = x;
+    loc_copy(&drop->grid, grid);
     memcpy(&drop->wpos, &c->wpos, sizeof(struct worldpos));
 
     /* Forget monster */
     drop->held_m_idx = 0;
 
     /* Link to the last object in the pile */
-    pile_insert_end(&c->squares[y][x].obj, drop);
+    pile_insert_end(&square(c, grid)->obj, drop);
 
     /* Result */
     return true;
@@ -1031,13 +1050,14 @@ static void floor_carry_fail(struct player *p, struct object *drop, bool broke, 
  *
  * If no appropriate grid is found, the given grid is unchanged
  */
-static bool drop_find_grid(struct player *p, struct chunk *c, struct object *drop, int *y, int *x)
+static bool drop_find_grid(struct player *p, struct chunk *c, struct object *drop, struct loc *grid)
 {
     int best_score = -1;
-    int best_y = *y;
-    int best_x = *x;
+    struct loc best;
     int i, dy, dx;
     struct object *obj;
+
+    loc_copy(&best, grid);
 
     /* Scan local grids */
     for (dy = -3; dy <= 3; dy++)
@@ -1046,22 +1066,23 @@ static bool drop_find_grid(struct player *p, struct chunk *c, struct object *dro
         {
             bool combine = false;
             int dist = (dy * dy) + (dx * dx);
-            int ty = *y + dy;
-            int tx = *x + dx;
+            struct loc loc_try;
             int num_shown = 0;
             int num_ignored = 0;
             int score;
 
+            loc_init(&loc_try, grid->x + dx, grid->y + dy);
+
             /* Ignore */
-            if ((dist > 10) || !square_in_bounds_fully(c, ty, tx) || !los(c, *y, *x, ty, tx) ||
-                !square_isanyfloor(c, ty, tx) || square_isplayertrap(c, ty, tx) ||
-                square_iswarded(c, ty, tx))
+            if ((dist > 10) || !square_in_bounds_fully(c, &loc_try) || !los(c, grid, &loc_try) ||
+                !square_isanyfloor(c, &loc_try) || square_isplayertrap(c, &loc_try) ||
+                square_trap_flag(c, &loc_try, TRF_GLYPH))
             {
                 continue;
             }
 
             /* Analyse the grid for carrying the new object */
-            for (obj = square_object(c, ty, tx); obj; obj = obj->next)
+            for (obj = square_object(c, &loc_try); obj; obj = obj->next)
             {
                 /* Check for possible combination */
                 if (object_similar(p, obj, drop, OSTACK_FLOOR)) combine = true;
@@ -1074,7 +1095,7 @@ static bool drop_find_grid(struct player *p, struct chunk *c, struct object *dro
 
             /* Disallow if the stack size is too big */
             if (((num_shown + num_ignored) > z_info->floor_size) &&
-                !floor_get_oldest_ignored(p, c, ty, tx))
+                !floor_get_oldest_ignored(p, c, &loc_try))
             {
                 continue;
             }
@@ -1085,16 +1106,14 @@ static bool drop_find_grid(struct player *p, struct chunk *c, struct object *dro
             if ((score < best_score) || ((score == best_score) && one_in_(2))) continue;
 
             best_score = score;
-            best_y = ty;
-            best_x = tx;
+            loc_copy(&best, &loc_try);
         }
     }
 
     /* Return if we have a score, otherwise fail or try harder for artifacts */
     if (best_score >= 0)
     {
-        *y = best_y;
-        *x = best_x;
+        loc_copy(grid, &best);
         return true;
     }
     if (!drop->artifact)
@@ -1107,21 +1126,20 @@ static bool drop_find_grid(struct player *p, struct chunk *c, struct object *dro
         /* Start bouncing from grid to grid, stopping if we find an empty one */
         if (i < 1000)
         {
-            best_y = rand_spread(best_y, 1);
-            best_x = rand_spread(best_x, 1);
+            best.y = rand_spread(best.y, 1);
+            best.x = rand_spread(best.x, 1);
         }
 
         /* Now go to purely random locations */
         else
         {
-            best_y = randint0(c->height);
-            best_x = randint0(c->width);
+            best.y = randint0(c->height);
+            best.x = randint0(c->width);
         }
 
-        if (square_canputitem(c, best_y, best_x))
+        if (square_canputitem(c, &best))
         {
-            *y = best_y;
-            *x = best_x;
+            loc_copy(grid, &best);
             return true;
         }
     }
@@ -1143,15 +1161,16 @@ static bool drop_find_grid(struct player *p, struct chunk *c, struct object *dro
  * This function will produce a description of a drop event under the player
  * when "verbose" is true.
  */
-void drop_near(struct player *p, struct chunk *c, struct object **dropped, int chance, int y,
-    int x, bool verbose, int mode)
+void drop_near(struct player *p, struct chunk *c, struct object **dropped, int chance,
+    struct loc *grid, bool verbose, int mode)
 {
     char o_name[NORMAL_WID];
-    int best_y = y;
-    int best_x = x;
+    struct loc best;
     bool in_house = false, no_drop = false;
     struct player *q = NULL;
     bool dont_ignore = false;
+
+    loc_copy(&best, grid);
 
     /* Describe object */
     if (p) object_desc(p, o_name, sizeof(o_name), *dropped, ODESC_BASE);
@@ -1164,11 +1183,11 @@ void drop_near(struct player *p, struct chunk *c, struct object **dropped, int c
     }
 
     /* Find the best grid and drop the item, destroying if there's no space */
-    if (!drop_find_grid(p, c, *dropped, &best_y, &best_x)) return;
+    if (!drop_find_grid(p, c, *dropped, &best)) return;
 
     /* Check houses */
     if (true_artifact_p(*dropped) || tval_can_have_timeout(*dropped) || tval_is_light(*dropped))
-        in_house = location_in_house(&c->wpos, best_y, best_x);
+        in_house = location_in_house(&c->wpos, &best);
 
     /* Process true artifacts */
     if (true_artifact_p(*dropped))
@@ -1230,15 +1249,15 @@ void drop_near(struct player *p, struct chunk *c, struct object **dropped, int c
     /* Refuel lights dropped in houses to the standard amount */
     if (tval_is_light(*dropped) && in_house) fuel_default(*dropped);
 
-    if (c->squares[best_y][best_x].mon < 0)
+    if (square(c, &best)->mon < 0)
     {
-        q = player_get(0 - c->squares[best_y][best_x].mon);
+        q = player_get(0 - square(c, &best)->mon);
 
         /* Check the item still exists and isn't ignored */
         dont_ignore = (verbose && !ignore_item_ok(q, *dropped));
     }
 
-    if (floor_carry(p, c, best_y, best_x, *dropped, &dont_ignore))
+    if (floor_carry(p, c, &best, *dropped, &dont_ignore))
     {
         /* Sound */
         if (p) sound(p, MSG_DROP);
@@ -1261,14 +1280,15 @@ void drop_near(struct player *p, struct chunk *c, struct object **dropped, int c
  * the previous square with a type that does not allow for objects. Drop the
  * objects. Last, put the square back to its original type.
  */
-void push_object(struct player *p, struct chunk *c, int y, int x)
+void push_object(struct player *p, struct chunk *c, struct loc *grid)
 {
-    /* Save the original terrain feature */
-    int feat_old = c->squares[y][x].feat;
-
-    struct object *obj = square_object(c, y, x);
+    int feat_old;
+    struct object *obj = square_object(c, grid);
     struct queue *queue = q_new(z_info->floor_size);
-    bool glyph = square_iswarded(c, y, x);
+    bool rune = square_iswarded(c, grid), glyph = square_isdecoyed(c, grid);
+
+    /* Save the original terrain feature */
+    feat_old = square(c, grid)->feat;
 
     /* Push all objects on the square, stripped of pile info, into the queue */
     while (obj)
@@ -1278,14 +1298,14 @@ void push_object(struct player *p, struct chunk *c, int y, int x)
         q_push_ptr(queue, obj);
 
         /* Orphan the object */
-        square_excise_object(c, y, x, obj);
+        square_excise_object(c, grid, obj);
 
         /* Next object */
         obj = next;
     }
 
     /* Set feature to an open door */
-    square_open_door(c, y, x);
+    square_open_door(c, grid);
 
     /* Drop objects back onto the floor */
     while (q_len(queue) > 0)
@@ -1294,12 +1314,13 @@ void push_object(struct player *p, struct chunk *c, int y, int x)
         obj = q_pop_ptr(queue);
 
         /* Drop the object */
-        drop_near(p, c, &obj, 0, y, x, false, DROP_FADE);
+        drop_near(p, c, &obj, 0, grid, false, DROP_FADE);
     }
 
-    /* Reset cave feature and rune if needed */
-    square_set_feat(c, y, x, feat_old);
-    if (glyph) square_add_ward(c, y, x);
+    /* Reset cave feature and glyph if needed */
+    square_set_feat(c, grid, feat_old);
+    if (rune) square_add_glyph(c, grid, GLYPH_WARDING);
+    else if (glyph) square_add_glyph(c, grid, GLYPH_DECOY);
 
     q_free(queue);
 }
@@ -1314,22 +1335,20 @@ int scan_floor(struct player *p, struct chunk *c, struct object **items, int max
     object_floor_t mode, item_tester tester)
 {
     struct object *obj;
-    int py = p->py;
-    int px = p->px;
     int num = 0;
     bool unknown;
 
     /* Sanity */
-    if (!square_in_bounds(c, py, px)) return 0;
+    if (!square_in_bounds(c, &p->grid)) return 0;
 
     /* Sensed or known */
-    if (mode & OFLOOR_SENSE) obj = square_known_pile(p, c, py, px);
-    else obj = square_object(c, py, px);
+    if (mode & OFLOOR_SENSE) obj = square_known_pile(p, c, &p->grid);
+    else obj = square_object(c, &p->grid);
 
     /* Skip empty squares */
     if (!obj) return 0;
 
-    unknown = is_unknown(square_known_pile(p, c, py, px));
+    unknown = is_unknown(square_known_pile(p, c, &p->grid));
 
     /* Scan all objects in the grid */
     for ( ; obj; obj = obj->next)
@@ -1360,16 +1379,16 @@ int scan_floor(struct player *p, struct chunk *c, struct object **items, int max
  * Return the number of objects acquired.
  */
 int scan_distant_floor(struct player *p, struct chunk *c, struct object **items, int max_size,
-    int y, int x)
+    struct loc *grid)
 {
     struct object *obj;
     int num = 0;
 
     /* Sanity */
-    if (!square_in_bounds(c, y, x)) return 0;
+    if (!square_in_bounds(c, grid)) return 0;
 
     /* Scan all objects in the grid */
-    for (obj = square_known_pile(p, c, y, x); obj; obj = obj->next)
+    for (obj = square_known_pile(p, c, grid); obj; obj = obj->next)
     {
         /* Enforce limit */
         if (num >= max_size) break;
@@ -1390,19 +1409,19 @@ int scan_distant_floor(struct player *p, struct chunk *c, struct object **items,
  */
 void player_know_floor(struct player *p, struct chunk *c)
 {
-    if (c->squares[p->py][p->px].obj)
+    if (square(c, &p->grid)->obj)
     {
         struct object *obj;
 
-        square_know_pile(p, c, p->py, p->px);
+        square_know_pile(p, c, &p->grid);
 
         /* Know every object, recognise artifacts */
-        for (obj = square_object(c, p->py, p->px); obj; obj = obj->next)
+        for (obj = square_object(c, &p->grid); obj; obj = obj->next)
         {
             if (!ignore_item_ok(p, obj)) assess_object(p, obj);
         }
 
-        redraw_floor(&p->wpos, p->py, p->px);
+        redraw_floor(&p->wpos, &p->grid);
     }
 }
 

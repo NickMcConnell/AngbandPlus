@@ -5,8 +5,6 @@
 #
 # This file includes, if appropriate, various "sub-files".
 #
-# See "lib/help/command.txt" for more information.
-#
 # Format:
 # message:<message-type>:<color>
 
@@ -581,6 +579,9 @@ message:VERSION:v
 # MSG_TALK
 message:TALK:w
 
+# MSG_YELL
+message:YELL:w
+
 # MSG_SOCIAL
 message:SOCIAL:w
 
@@ -592,6 +593,8 @@ message:PY_PRAYER:w
 
 # MSG_PY_MISC
 message:PY_MISC:w
+
+# Client-side and system messages
 
 # MSG_LOCAL
 message:LOCAL:w

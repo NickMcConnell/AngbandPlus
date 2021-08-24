@@ -69,7 +69,7 @@ static int num_fonts = 0;
 typedef struct sdl_Font sdl_Font;
 struct sdl_Font
 {
-    int width;          /* The dimensions of this font (in pixels)*/
+    int width;          /* The dimensions of this font (in pixels) */
     int height;
     char name[32];      /* The name of this font */
     Uint16 pitch;       /* Pitch of the surface this font is made for */
@@ -93,7 +93,6 @@ struct term_window
     term term_data;
     SDL_Surface *surface;   /* The surface for this window */
     SDL_Surface *tiles;     /* The appropriately sized tiles for this window */
-    SDL_Surface *ttrans;    /* Translucent tiles (pseudo-3D) */
     byte Term_idx;          /* Index of term that relates to this */
     int top;                /* Window Coordinates on the main screen */
     int left;
@@ -104,7 +103,7 @@ struct term_window
     int cols;
     int border;             /* Border width */
     int title_height;       /* Height of title bar */
-    int width;              /* Dimension in pixels == tile_wid * cols + 2 x border*/
+    int width;              /* Dimension in pixels == tile_wid * cols + 2 x border */
     int height;
     int tile_wid;           /* Size in pixels of a char */
     int tile_hgt;
@@ -248,7 +247,6 @@ static bool Sizingshow = false; /* Is the resize thingy displayed? */
 static SDL_Rect SizingRect;     /* Rect to describe the current resize window */
 
 static SDL_Surface *GfxSurface = NULL;  /* A surface for the graphics */
-static SDL_Surface *mmSurface = NULL;   /* Minimap surface (pseudo-3D) */
 
 static int MoreWidthPlus;   /* Increase tile width */
 static int MoreWidthMinus;  /* Decrease tile width */
@@ -838,11 +836,6 @@ static void term_windowFree(term_window* win)
             SDL_FreeSurface(win->tiles);
             win->tiles = NULL;
         }
-        if (win->ttrans)
-        {
-            SDL_FreeSurface(win->ttrans);
-            win->ttrans = NULL;
-        }
 
         term_nuke(&win->term_data);
     }
@@ -886,7 +879,6 @@ static void hook_quit(const char *str)
 
     /* Free the graphics surfaces */
     if (GfxSurface) SDL_FreeSurface(GfxSurface);
-    if (mmSurface) SDL_FreeSurface(mmSurface);
 
     /* Free the 'System font' */
     sdl_FontFree(&SystemFont);
@@ -1188,7 +1180,7 @@ static void AboutDraw(sdl_Window *win)
         SDL_BlitSurface(mratt, NULL, win->surface, &icon);
     }
     sdl_WindowText(win, colour, 20, 150,
-        format("You are playing %s", version_build(VB_NAME | VB_BUILD)));
+        format("You are playing %s", version_build(VERSION_NAME, true)));
     sdl_WindowText(win, colour, 20, 160, "See http://www.mangband.org");
 }
 
@@ -1309,11 +1301,6 @@ static void SelectFont(sdl_Button *sender)
     {
         SDL_FreeSurface(window->tiles);
         window->tiles = NULL;
-    }
-    if (window->ttrans)
-    {
-        SDL_FreeSurface(window->ttrans);
-        window->ttrans = NULL;
     }
     
     ResizeWin(window, (w * window->cols) + (2 * window->border),
@@ -1454,11 +1441,6 @@ static void AcceptChanges(sdl_Button *sender)
                 {
                     SDL_FreeSurface(win->tiles);
                     win->tiles = NULL;
-                }
-                if (win->ttrans)
-                {
-                    SDL_FreeSurface(win->ttrans);
-                    win->ttrans = NULL;
                 }
             }
         }
@@ -1820,10 +1802,6 @@ static void check_bounds_resize(term_window *win, int *cols, int *rows, int *max
     /* Get the amount of columns & rows */
     *cols = dummy = (*width - (win->border * 2)) / win->tile_wid;
     *rows = *max_rows = (*height - win->border - win->title_height) / win->tile_hgt;
-
-    /* Do something to display more lines in pseudo-3D mode */
-    if ((win->Term_idx == 0) && get_graphics_mode(use_graphics, true)->distorted)
-        *rows = (*rows - ROW_MAP - 1) * 2 - 3 + ROW_MAP + 1;
 
     check_term_resize((win->Term_idx == 0), cols, rows);
     check_term_resize((win->Term_idx == 0), &dummy, max_rows);
@@ -2794,40 +2772,6 @@ static errr Term_xtra_sdl_delay(int v)
 }
 
 
-/*
- * Returns true if pseudo-3D tiles are allowed
- */
-static bool pseudo_allowed(term_window *win)
-{
-    if (!Setup.initialized) return false;
-    if (!get_graphics_mode(use_graphics, true)->distorted) return false;
-    if (win->minimap_active) return false;
-    return true;
-}
-
-
-/*
- * Moves a pseudo-3D tile to its display position
- */
-static bool pseudo_translate(term_window *win, SDL_Rect *prc)
-{
-    /* Display rectangle */
-    int x0 = COL_MAP * win->tile_wid;
-    int y0 = ROW_MAP * win->tile_hgt;
-    int xmax = win->cols * win->tile_wid;
-    int ymax = win->rows * win->tile_hgt;
-
-    if (!pseudo_allowed(win)) return true;
-
-    /* Inscribe the tile in the display rectangle */
-    prc->x = x0 + 2 * (prc->x - x0) / 3 + (ymax - prc->y) / 4;
-    prc->y = y0 + (prc->y - y0) / 2;
-
-    if (prc->x + prc->w > xmax) return false;
-    return true;
-}
-
-
 static errr get_sdl_rect(term_window *win, int col, int row, bool translate, SDL_Rect *prc)
 {
     /* Make the destination rectangle */
@@ -2839,9 +2783,6 @@ static errr get_sdl_rect(term_window *win, int col, int row, bool translate, SDL
 	    prc->w *= tile_width;
 	    prc->h *= tile_height;
     }
-
-    /* Translate it (pseudo-3D) */
-    if (translate && !pseudo_translate(win, prc)) return (1);
 
     /* Translate it */
     prc->x += win->border;
@@ -3104,14 +3045,6 @@ static errr sdl_BuildTileset(term_window *win)
     info = get_graphics_mode(use_graphics, true);
     if (!(info && info->grafID)) return (1);
 
-    /* Hack -- use 32x32 tiles in pseudo-3D mode for minimap */
-    if (info->distorted && Term->minimap_active)
-    {
-        info = get_graphics_mode_by_name("graf-dvg.prf");
-        if (!(info && info->grafID)) return (1);
-        surface = mmSurface;
-    }
-
     if (!surface) return (1);
 
     if (Term->minimap_active)
@@ -3141,22 +3074,6 @@ static errr sdl_BuildTileset(term_window *win)
     /* Bugger */
     if (!win->tiles) return (1);
 
-    /* Pseudo-3D: blit using the colour key AND the per-surface alpha value */
-    if (info->distorted)
-    {
-        /* Normal tiles */
-        SDL_SetColorKey(win->tiles, SDL_SRCCOLORKEY, back_pixel_colour);
-        SDL_SetAlpha(win->tiles, SDL_SRCALPHA, 255);
-
-        /* Translucent tiles */
-        win->ttrans = SDL_CreateRGBSurface(SDL_SWSURFACE, x, y, surface->format->BitsPerPixel,
-            surface->format->Rmask, surface->format->Gmask, surface->format->Bmask,
-            surface->format->Amask);
-        if (!win->ttrans) return (1);
-        SDL_SetColorKey(win->ttrans, SDL_SRCCOLORKEY, back_pixel_colour);
-        SDL_SetAlpha(win->ttrans, SDL_SRCALPHA, 128);
-    }
-
     /* For every tile... */
     for (xx = 0; xx < ta; xx++)
     {
@@ -3173,7 +3090,6 @@ static errr sdl_BuildTileset(term_window *win)
 
             /* Do the stretch thing */
             sdl_StretchBlit(surface, &src, win->tiles, &dest);
-            if (win->ttrans) sdl_StretchBlit(surface, &src, win->ttrans, &dest);
         }
     }
 
@@ -3239,15 +3155,10 @@ static void sdl_DrawTile(term_window *win, int col, int row, SDL_Rect rc, SDL_Re
         }
         rc.h -= abs(dy);
         src.h = rc.h;
-        if (win->ttrans && background)
-            SDL_BlitSurface(win->ttrans, &src, win->surface, &rc);
-        else
-            SDL_BlitSurface(win->tiles, &src, win->surface, &rc);
+        SDL_BlitSurface(win->tiles, &src, win->surface, &rc);
     }
 
     /* Draw the tile */
-    else if (win->ttrans && background)
-        SDL_BlitSurface(win->ttrans, &src, win->surface, &rc);
     else
         SDL_BlitSurface(win->tiles, &src, win->surface, &rc);
 }
@@ -3274,58 +3185,6 @@ static void sdl_DrawTiles(term_window *win, int col, int row, SDL_Rect rc, SDL_R
 
 
 /*
- * To redraw pseudo-3D tiles correctly, we need to memorize the 6 closest neighbors
- */
-static const POINT pointsBef[3] = {{-1, -1}, {0, -1}, {-1, 0}};
-static const POINT pointsAft[3] = {{1, 0}, {0, 1}, {1, 1}};
-
-
-/*
- * Draw foreground and background tiles for the closest neighbors, given their position and
- * dimensions.
- *
- * If "prc" is not null, only draw the portion of the tiles inside that rectangle. We suppose here
- * that the two rectangles "rc" and "prc" are overlapping.
- */
-static void sdl_DrawNeighbors(term_window *win, int col, int row, SDL_Rect *prc,
-    const POINT points[3])
-{
-    int j;
-    u16b a, ta;
-    char c, tc;
-    SDL_Rect rc;
-    int tile_wid = 1, tile_hgt = 1;
-
-    /* Large tile mode */
-    if (!map_active && !Term->minimap_active)
-    {
-        tile_wid = tile_width;
-        tile_hgt = tile_height;
-    }
-
-    /* Redraw overlapping tiles */
-    for (j = 0; j < 3; j++)
-    {
-        int jcol = col + points[j].x * tile_wid;
-        int jrow = row + points[j].y * tile_hgt;
-
-        /* Check bounds */
-        if ((jcol < COL_MAP) || (jcol >= win->cols) || (jrow < ROW_MAP) || (jrow >= win->rows))
-            continue;
-
-        /* Get tile info */
-        if (Term_info(jcol, jrow, &a, &c, &ta, &tc)) continue;
-
-        /* Make the destination rectangle */
-        if (get_sdl_rect(win, jcol, jrow, true, &rc)) continue;
-
-        /* Only redraw overlapping parts */
-        sdl_DrawTiles(win, jcol, jrow, rc, prc, a, c, ta, tc);
-    }
-}
-
-
-/*
  * Draw some text to a window
  */
 static errr Term_text_sdl_aux(int col, int row, int n, u16b a, const char *s)
@@ -3339,22 +3198,6 @@ static errr Term_text_sdl_aux(int col, int row, int n, u16b a, const char *s)
 
     /* Paranoia */
     if (n > win->cols) return (-1);
-
-    /* Do something to display more lines in pseudo-3D mode */
-    if ((win->Term_idx == 0) && get_graphics_mode(use_graphics, true)->distorted)
-    {
-        int sizey = (win->height - win->border - win->title_height) / win->tile_hgt;
-
-        /* Draw the status line properly */
-        if (row == win->rows - 1)
-        {
-            row = sizey - 1;
-            y = row * win->tile_hgt;
-        }
-
-        /* Don't draw other extra lines */
-        if (row >= sizey) return (-1);
-    }
 
     /* Translate */
     x += win->border;
@@ -3481,11 +3324,6 @@ static errr Term_pict_sdl(int col, int row, int n, const u16b *ap, const char *c
             SDL_FreeSurface(win->tiles);
             win->tiles = NULL;
         }
-        if (win->ttrans)
-        {
-            SDL_FreeSurface(win->ttrans);
-            win->ttrans = NULL;
-        }
     }
 
     /* First time a pict is requested we load the tileset in */
@@ -3509,12 +3347,8 @@ static errr Term_pict_sdl(int col, int row, int n, const u16b *ap, const char *c
         /* Clear the way */
         SDL_FillRect(win->surface, &rc, back_pixel_colour);
 
-        /* Redraw the neighbor tiles (part 1 -- west and north) */
-        if (pseudo_allowed(win))
-            sdl_DrawNeighbors(win, col + i * tile_wid, row, &rc, pointsBef);
-
         /* Redraw the top tile */
-        else if (overdraw && !Term_info(col + i * tile_wid, row - tile_hgt, &a, &c, &ta, &tc))
+        if (overdraw && !Term_info(col + i * tile_wid, row - tile_hgt, &a, &c, &ta, &tc))
         {
             if (a & 0x80)
             {
@@ -3540,12 +3374,8 @@ static errr Term_pict_sdl(int col, int row, int n, const u16b *ap, const char *c
         /* Draw the terrain and foreground tiles */
         sdl_DrawTiles(win, col + i * tile_wid, row, rc, NULL, ap[i], cp[i], tap[i], tcp[i]);
 
-        /* Redraw the neighbor tiles (part 2 -- east and south) */
-        if (pseudo_allowed(win))
-            sdl_DrawNeighbors(win, col + i * tile_wid, row, &rc, pointsAft);
-
         /* Redraw the bottom tile (recursively) */
-        else while (j)
+        while (j)
         {
             if (overdraw && (row + j * tile_hgt > 2) &&
                 !Term_info(col + i * tile_wid, row + j * tile_hgt, &a, &c, &ta, &tc))
@@ -3638,7 +3468,7 @@ static void init_morewindows(void)
     StatusBar.draw_extra = draw_statusbar;
 
     /* Don't overlap the buttons */
-    if (AppWin->w >= 720) my_strcpy(buf, version_build(VB_NAME | VB_BUILD), sizeof(buf));
+    if (AppWin->w >= 720) my_strcpy(buf, version_build(VERSION_NAME, true), sizeof(buf));
     else my_strcpy(buf, "About...", sizeof(buf));
 
     AboutSelect = sdl_ButtonBankNew(&StatusBar.buttons);
@@ -3733,11 +3563,6 @@ static errr load_gfx(void)
         SDL_FreeSurface(GfxSurface);
         GfxSurface = NULL;
     }
-    if (mmSurface)
-    {
-        SDL_FreeSurface(mmSurface);
-        mmSurface = NULL;
-    }
 
     /* This may be called when GRAPHICS_NONE is set */
     if (!filename) return (0);
@@ -3748,22 +3573,7 @@ static errr load_gfx(void)
     if (!temp) return (1);
 
     /* Change the surface type to the current video surface format */
-    if (mode->distorted)
-        GfxSurface = SDL_DisplayFormat(temp);
-    else
-        GfxSurface = SDL_DisplayFormatAlpha(temp);
-
-    /* Minimap surface (pseudo-3D) */
-    if (mode->distorted)
-    {
-        graphics_mode *info = get_graphics_mode_by_name("graf-dvg.prf");
-
-        if (!(info && info->grafID)) return (1);
-        path_build(buf, sizeof(buf), info->path, info->file);
-        temp = IMG_Load(buf);
-        if (!temp) return (1);
-        mmSurface = SDL_DisplayFormatAlpha(temp);
-    }
+    GfxSurface = SDL_DisplayFormatAlpha(temp);
 
     overdraw = mode->overdrawRow;
     overdraw_max = mode->overdrawMax;
@@ -3854,11 +3664,6 @@ static void init_windows(void)
                 SDL_FreeSurface(win->tiles);
                 win->tiles = NULL;
             }
-            if (win->ttrans)
-            {
-                SDL_FreeSurface(win->ttrans);
-                win->ttrans = NULL;
-            }
 
             /* This will set up the window correctly */
             ResizeWin(win, win->width, win->height);
@@ -3893,7 +3698,7 @@ static void init_sdl_local(void)
 
     /* Require at least 256 colors */
     if (VideoInfo->vfmt->BitsPerPixel < 8)
-        quit_fmt("This %s port requires lots of colors.", version_build(VB_NAME | VB_BUILD));
+        quit_fmt("This %s port requires lots of colors.", version_build(VERSION_NAME, true));
 
     full_w = VideoInfo->current_w;
     full_h = VideoInfo->current_h;
@@ -3918,7 +3723,7 @@ static void init_sdl_local(void)
     }
 
     /* Set the window caption */
-    SDL_WM_SetCaption(version_build(VB_NAME | VB_BUILD), NULL);
+    SDL_WM_SetCaption(version_build(VERSION_NAME, true), NULL);
 
     /* Enable key repeating; use defaults */
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);

@@ -61,6 +61,27 @@ static int ex_offset;
 
 
 /*
+ * Get the spellbook structure from an object which is a book the player can
+ * cast from
+ */
+static const struct class_book *player_object_to_book(const struct object *obj)
+{
+    int i;
+
+    for (i = 0; i < player->clazz->magic.num_books; i++)
+    {
+        if ((obj->tval == player->clazz->magic.books[i].tval) &&
+            (obj->sval == player->clazz->magic.books[i].sval))
+        {
+            return &player->clazz->magic.books[i];
+        }
+    }
+
+    return NULL;
+}
+
+
+/*
  * Display an object. Each object may be prefixed with a label.
  * Used by show_inven(), show_equip(), show_quiver() and show_floor().
  * Mode flags are documented in object.h
@@ -103,7 +124,13 @@ static void show_obj(int obj_num, int row, int col, bool cursor, int mode)
 
     /* Item kind determines the color of the output */
     if (obj)
+    {
         attr = obj->info_xtra.attr;
+
+        /* Unreadable books are a special case */
+        if (tval_is_book(obj) && (player_object_to_book(obj) == NULL))
+            attr = COLOUR_SLATE;
+    }
     else
         attr = COLOUR_SLATE;
 
@@ -140,6 +167,19 @@ static void show_obj(int obj_num, int row, int col, bool cursor, int mode)
             put_str(buf, row + obj_num, col + ex_offset_ctr);
             ex_offset_ctr += 10;
         }
+    }
+
+    /* Failure chances for recharging an item */
+    if (mode & OLIST_RECHARGE)
+    {
+        int fail = 1000 / recharge_failure_chance(obj, player->upkeep->recharge_pow);
+
+        if (obj->info_xtra.known_effect)
+            strnfmt(buf, sizeof(buf), "%2d.%1d%% fail", fail / 10, fail % 10);
+        else
+            my_strcpy(buf, "    ? fail", sizeof(buf));
+        put_str(buf, row + obj_num, col + ex_offset_ctr);
+        ex_offset_ctr += 10;
     }
 
     /* Weight */
@@ -1210,6 +1250,7 @@ bool textui_get_item(struct object **choice, const char *pmt, const char *str, c
     if (mode & SHOW_EMPTY) olist_mode |= OLIST_SEMPTY;
     if (mode & SHOW_QUIVER) olist_mode |= OLIST_QUIVER;
     if (mode & BOOK_TAGS) olist_mode |= OLIST_BOOK_TAGS;
+    if (mode & SHOW_RECHARGE) olist_mode |= OLIST_RECHARGE;
 
     /* No window updates needed */
     equip_up = inven_up = false;

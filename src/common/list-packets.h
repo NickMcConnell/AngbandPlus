@@ -137,6 +137,7 @@ PKT(TRACK_OBJECT, undefined, track_object, undefined, undefined)
 /* Packets sent from either the client or server */
 PKT(PLAY, play, play, play, undefined)
 PKT(QUIT, quit, quit, quit, quit)
+PKT(FEATURES, features, undefined, features, undefined)
 PKT(TEXT_SCREEN, text_screen, undefined, text_screen, undefined)
 PKT(KEEPALIVE, keepalive, keepalive, keepalive, keepalive)
 PKT(CHAR_INFO, char_info, undefined, char_info_conn, char_info)

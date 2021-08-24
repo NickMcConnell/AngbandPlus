@@ -1,0 +1,9 @@
+How to build the HTML manual from the help files:
+
+- Download and install the 32-bit version of Python 2.7.16 in the same root
+  directory as your \PWMAngband folder:
+  https://www.python.org/downloads/release
+- Add Python directories to the PATH variable (\Python27 + \Python27\Scripts)
+- Install docutils by opening a Windows console and typing the following command:
+  "pip install docutils"
+- Run \PWMAngband\docs\make.bat

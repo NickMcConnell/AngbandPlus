@@ -28,7 +28,7 @@
 #include "../win/win-term.h"
 #include <wingdi.h>
 
-#define HELP_GENERAL "angband.hlp"
+#define HELP_GENERAL "index.txt"
 #define HELP_SPOILERS "spoilers.hlp"
 
 #ifndef GetWindowLongPtr
@@ -2174,7 +2174,7 @@ static void windows_map_aux(void)
     }
 
     /* Highlight the player */
-    Term_curs_win(player->px - min_x, player->py - min_y);
+    Term_curs_win(player->grid.x - min_x, player->grid.y - min_y);
 }
 
 
@@ -2315,7 +2315,7 @@ static void init_windows(void)
     /* Main window */
     td = &data[0];
     memset(td, 0, sizeof(term_data));
-    td->s = version_build(VB_NAME | VB_BUILD);
+    td->s = version_build(VERSION_NAME, true);
     td->keys = MSG_LEN;
     td->rows = NORMAL_HGT;
     td->cols = NORMAL_WID;
@@ -2673,9 +2673,7 @@ static void setup_menus(void)
         mode = graphics_modes;
         while (mode)
         {
-            /* Disable pseudo-3D tiles */
-            if (!mode->distorted)
-                EnableMenuItem(hm, mode->grafID + IDM_OPTIONS_GRAPHICS_NONE, MF_ENABLED);
+            EnableMenuItem(hm, mode->grafID + IDM_OPTIONS_GRAPHICS_NONE, MF_ENABLED);
             mode = mode->pNext;
         }
 
@@ -4187,8 +4185,6 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 static LRESULT APIENTRY SubClassFunc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
     char pmsgbuf[1000]; /* overkill */
-    char pmsg[60];
-    char nickbuf[30];
 
     /* Allow ESCAPE to return focus to main window. */
     if ((Message == WM_KEYDOWN) && (wParam == VK_ESCAPE))
@@ -4203,73 +4199,16 @@ static LRESULT APIENTRY SubClassFunc(HWND hWnd, UINT Message, WPARAM wParam, LPA
         if (wParam == 13 || wParam == 10000)
         {
             int msglen = 0;
-            memset(nickbuf, 0, sizeof(nickbuf));
 
             /* Get the controls text and send it */
             msglen = GetWindowText(editmsg, pmsgbuf, 999);
-
-            /* Send the text in chunks of 58 characters, or nearest break before 58 chars */
             if (msglen == 0)
             {
                 unset_chat_focus();
                 return 0;
             }
 
-            if (msglen < 58)
-                Send_msg(pmsgbuf);
-            else
-            {
-                int offset = 0, breakpoint, nicklen;
-                char *startmsg;
-
-                /* See if this was a privmsg, if so, pull off the nick */
-                for (startmsg = pmsgbuf; *startmsg; startmsg++)
-                {
-                    if (*startmsg == ':') break;
-                }
-                if (*startmsg && (startmsg - pmsgbuf < 29))
-                {
-                    my_strcpy(nickbuf, pmsgbuf, (startmsg - pmsgbuf) + 2);
-                    nicklen = strlen(nickbuf);
-                    startmsg += 2;
-                }
-                else
-                {
-                    startmsg = pmsgbuf;
-                    nicklen = 0;
-                }
-
-                /* Now deal with what's left */
-                while (msglen > 0)
-                {
-                    memset(pmsg, 0, sizeof(pmsg));
-
-                    if (msglen < (58 - nicklen))
-                        breakpoint = msglen;
-                    else
-                    {
-                        /* Try to find a breaking char */
-                        for (breakpoint = 58 - nicklen; breakpoint > 0; breakpoint--)
-                        {
-                            if (startmsg[offset + breakpoint] == ' ') break;
-                            if (startmsg[offset + breakpoint] == ',') break;
-                            if (startmsg[offset + breakpoint] == '.') break;
-                            if (startmsg[offset + breakpoint] == ';') break;
-                        }
-                        if (!breakpoint) breakpoint = 58 - nicklen; /* nope */
-                    }
-
-                    /* If we pulled off a nick above, prepend it. */
-                    if (nicklen) my_strcpy(pmsg, nickbuf, nicklen + 1);
-
-                    /* Stash in this part of the msg */
-                    strncat(pmsg, startmsg + offset, breakpoint);
-                    msglen -= breakpoint;
-                    offset += breakpoint;
-                    Send_msg(pmsg);
-                    Net_flush();
-                }
-            }
+            send_msg_chunks(pmsgbuf, msglen);
 
             /* Clear the message box */
             pmsgbuf[0] = 0;

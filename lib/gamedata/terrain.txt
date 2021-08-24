@@ -21,6 +21,8 @@
 # died-flavor: flavored death message
 # die-msg: death message
 # resist-flag: monster race flag for resist
+# short-desc: short description -- overrides "name" when describing a feature
+# desc: long description
 
 # 'name' indicates the beginning of an entry.
 
@@ -91,7 +93,7 @@ priority:1
 name:open floor
 graphics:.:w
 priority:16
-flags:LOS | PROJECT | PASSABLE | FLOOR | OBJECT | EASY | TRAP | RUNE | TORCH
+flags:LOS | PROJECT | PASSABLE | FLOOR | OBJECT | EASY | TRAP | TORCH
 desc:An open floor or bare ground. Can be walked across by anything, and can
 desc: hold traps or items. Does not break line of sight.
 
@@ -291,6 +293,7 @@ name:lava
 graphics:#:r
 priority:25
 flags:PROJECT | FIERY | PASSABLE | NO_SCENT | BRIGHT
+short-desc:fiery pool of glowing lava
 desc:A fiery pool of glowing lava. Step in it at your peril!
 hurt-msg:The lava burns you!
 died-flavor:burned to a cinder in lava
@@ -339,7 +342,8 @@ desc:This is a section of wall from an arena.
 name:water
 graphics:~:B
 priority:5
-flags:LOS | PROJECT | PASSABLE | WATER | FLOOR_BORING | EASY | NOTICEABLE | NO_SCENT
+flags:LOS | PROJECT | PASSABLE | WATER | BORING | EASY | NOTICEABLE | NO_SCENT
+short-desc:pool of water
 desc:A pool of water.
 hurt-msg:You are drowning!
 died-flavor:drowned
@@ -349,51 +353,54 @@ resist-flag:IM_WATER
 name:mud
 graphics:~:u
 priority:8
-flags:LOS | PROJECT | PASSABLE | FLOOR_BORING | EASY | NOTICEABLE
+flags:LOS | PROJECT | PASSABLE | BORING | EASY | NOTICEABLE
+short-desc:section of slippery mud
 desc:A section of slippery mud.
 
 name:drawbridge
 graphics:=:u
 priority:10
-flags:LOS | PROJECT | PASSABLE | FLOOR_BORING | EASY
+flags:LOS | PROJECT | PASSABLE | BORING | EASY
 desc:This is a section of a bridge.
 
 name:fountain
 graphics:_:w
 priority:22
-flags:LOS | PROJECT | PASSABLE | FOUNTAIN | FLOOR_BORING | EASY | INTERESTING | TORCH
+flags:LOS | PROJECT | PASSABLE | FOUNTAIN | BORING | EASY | INTERESTING | TORCH
 desc:An ornate basin filled with water.
 
 name:fountain (dried out)
 graphics:_:s
 priority:22
-flags:LOS | PROJECT | PASSABLE | FOUNTAIN | DRIED | FLOOR_BORING | EASY | INTERESTING
+flags:LOS | PROJECT | PASSABLE | FOUNTAIN | DRIED | BORING | EASY | INTERESTING
 desc:An empty ornate basin.
 
 name:loose dirt
 graphics:%:u
 priority:10
-flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | PLOT | FLOOR_BORING | OBJECT | EASY | NOTICEABLE
+flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | PLOT | BORING | OBJECT | EASY | NOTICEABLE
+short-desc:section of loose dirt
 desc:A section of loose dirt.
 
 name:packed dirt
 graphics:.:u
 priority:3
-flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | DIRT | FLOOR_BORING | OBJECT | EASY
+flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | DIRT | BORING | OBJECT | EASY
+short-desc:section of packed dirt
 desc:A section of packed dirt.
 
 name:safe floor
 graphics:.:w
 mimic:open floor
 priority:16
-flags:LOS | PROJECT | PASSABLE | FLOOR_SAFE | FLOOR_BORING | OBJECT | EASY | TORCH
+flags:LOS | PROJECT | PASSABLE | FLOOR_SAFE | BORING | OBJECT | EASY | BRIGHT
 desc:An open floor or bare ground that prevents any hostile action from
 desc: monsters or other players.
 
 name:lava stream
 graphics:.:r
 priority:7
-flags:LOS | PROJECT | PASSABLE | LAVA | FLOOR_BORING | EASY | NOTICEABLE | NO_SCENT
+flags:LOS | PROJECT | PASSABLE | LAVA | BORING | EASY | NOTICEABLE | NO_SCENT
 desc:A stream of glowing lava.
 hurt-msg:You are hit by fire!
 died-flavor:took a bath in molten lava
@@ -403,25 +410,26 @@ resist-flag:IM_FIRE
 name:street
 graphics:.:w
 priority:16
-flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | FLOOR_BORING | OBJECT | EASY | TORCH
+flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | BORING | OBJECT | EASY | TORCH
 desc:A section of street.
 
 name:pit floor
 graphics:.:D
 priority:16
-flags:LOS | PROJECT | PASSABLE | FLOOR | PIT | OBJECT | EASY | TRAP | RUNE
+flags:LOS | PROJECT | PASSABLE | FLOOR | PIT | OBJECT | EASY | TRAP
 desc:An open floor or bare ground that prevents any form of teleportation.
 
 name:grass
 graphics:.:g
 priority:2
-flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | GRASS | FLOOR_BORING | OBJECT | EASY | TORCH
+flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | GRASS | BORING | OBJECT | EASY | TORCH
+short-desc:patch of grass
 desc:A patch of grass.
 
 name:crops
 graphics:%:g
 priority:10
-flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | PLOT | CROP | FLOOR_BORING | OBJECT | EASY | NOTICEABLE
+flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | PLOT | CROP | BORING | OBJECT | EASY | NOTICEABLE
 desc:A piece of land used for growing any kind of vegetables.
 
 name:tree
@@ -453,7 +461,8 @@ desc:A section of wall from a public building. It is made of wood.
 name:sand
 graphics:.:y
 priority:2
-flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | FLOOR_BORING | OBJECT | EASY | TORCH
+flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | BORING | OBJECT | EASY | TORCH
+short-desc:section of sand
 desc:A section of sand.
 
 name:sandwall
@@ -468,7 +477,8 @@ desc: sight.
 name:ice
 graphics:.:W
 priority:2
-flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | FLOOR_BORING | OBJECT | EASY | TORCH
+flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | BORING | OBJECT | EASY | TORCH
+short-desc:section of ice
 desc:A section of ice.
 
 name:ice wall
@@ -496,6 +506,7 @@ name:deep water
 graphics:~:b
 priority:10
 flags:METAMAP
+short-desc:section of deep water
 desc:A section of deep water.
 
 name:hill
@@ -530,126 +541,238 @@ flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
 desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is a closed door from such house.
 
-name:closed house door (General Store)
-graphics:+:u
-priority:24
-flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
-info:1:0
-desc:A safe piece of Middle Earth, and the only place you can store goods
-desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything that can be sold in a General Store can be dropped inside and
-desc: sold to other players.
+# PWMAngband-specific colorized house doors
 
-name:closed house door (Armoury)
-graphics:+:s
-priority:24
-flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
-info:2:0
-desc:A safe piece of Middle Earth, and the only place you can store goods
-desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything that can be sold in an Armoury can be dropped inside and
-desc: sold to other players.
-
-name:closed house door (Weapon Smiths)
+name:closed house door (white)
 graphics:+:w
 priority:24
 flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
-info:3:0
 desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything that can be sold in a Weapon Smiths can be dropped inside and
-desc: sold to other players.
+desc: Objects dropped inside can be sold to other players.
 
-name:closed house door (Temple)
-graphics:+:g
+name:closed house door (slate)
+graphics:+:s
 priority:24
 flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
-info:4:0
 desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything that can be sold in a Temple can be dropped inside and
-desc: sold to other players.
+desc: Objects dropped inside can be sold to other players.
 
-name:closed house door (Alchemy Shop)
-graphics:+:b
-priority:24
-flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
-info:5:0
-desc:A safe piece of Middle Earth, and the only place you can store goods
-desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything that can be sold in an Alchemy Shop can be dropped inside and
-desc: sold to other players.
-
-name:closed house door (Magic Shop)
-graphics:+:r
-priority:24
-flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
-info:6:0
-desc:A safe piece of Middle Earth, and the only place you can store goods
-desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything that can be sold in a Magic Shop can be dropped inside and
-desc: sold to other players.
-
-name:closed house door (Bookseller)
+name:closed house door (orange)
 graphics:+:o
 priority:24
 flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
-info:7:0
 desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything that can be sold in a Bookseller's can be dropped inside and
-desc: sold to other players.
+desc: Objects dropped inside can be sold to other players.
 
-name:closed house door (Black Market)
+name:closed house door (red)
+graphics:+:r
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+name:closed house door (green)
+graphics:+:g
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+name:closed house door (blue)
+graphics:+:b
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+name:closed house door (umber)
+graphics:+:u
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+name:closed house door (light dark)
 graphics:+:D
 priority:24
 flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
-info:8:0
 desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything that can be sold in a Black Market can be dropped inside and
-desc: sold to other players.
+desc: Objects dropped inside can be sold to other players.
 
-name:closed house door (Expensive Black Market)
-graphics:+:v
+name:closed house door (light white)
+graphics:+:W
 priority:24
 flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
-info:9:0
 desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything that can be sold in a Black Market can be dropped inside and
-desc: sold to other players.
+desc: Objects dropped inside can be sold to other players.
 
-name:closed house door (Tavern)
+name:closed house door (light purple)
+graphics:+:P
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+name:closed house door (yellow)
 graphics:+:y
 priority:24
 flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
-info:10:0
 desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything can be dropped inside and sold to other players.
+desc: Objects dropped inside can be sold to other players.
 
-name:closed house door (Home)
+name:closed house door (light red)
+graphics:+:R
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+name:closed house door (light green)
+graphics:+:G
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+name:closed house door (light blue)
 graphics:+:B
 priority:24
 flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
-info:11:0
 desc:A safe piece of Middle Earth, and the only place you can store goods
 desc: safely apart from on your person. This is a closed door from such house.
-desc: Anything can be dropped inside and sold to other players.
+desc: Objects dropped inside can be sold to other players.
 
-# New PWMAngband terrain (at the end of file to avoid breaking custom levels)
+name:closed house door (light umber)
+graphics:+:U
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+name:closed house door (purple)
+graphics:+:p
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+name:closed house door (violet)
+graphics:+:v
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+name:closed house door (teal)
+graphics:+:t
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+name:closed house door (mud)
+graphics:+:m
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+name:closed house door (light yellow)
+graphics:+:Y
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+name:closed house door (magenta)
+graphics:+:i
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+name:closed house door (light teal)
+graphics:+:T
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+name:closed house door (light violet)
+graphics:+:V
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+name:closed house door (light pink)
+graphics:+:I
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+name:closed house door (mustard)
+graphics:+:M
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+name:closed house door (blue slate)
+graphics:+:z
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+name:closed house door (deep light blue)
+graphics:+:Z
+priority:24
+flags:DOOR_HOME | DOOR_CLOSED | INTERESTING
+desc:A safe piece of Middle Earth, and the only place you can store goods
+desc: safely apart from on your person. This is a closed door from such house.
+desc: Objects dropped inside can be sold to other players.
+
+# PWMAngband-specific terrain elements
 
 name:ash
 graphics:.:s
 priority:3
-flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | FLOOR_BORING | OBJECT | EASY
+flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | BORING | OBJECT | EASY
+short-desc:section of ash
 desc:A section of ash.
 
 name:nether mist
 graphics:.:G
 priority:5
-flags:LOS | PROJECT | PASSABLE | FLOOR_BORING | EASY | NOTICEABLE | NETHER | NO_SCENT
+flags:LOS | PROJECT | PASSABLE | BORING | EASY | NOTICEABLE | NETHER | NO_SCENT
+short-desc:patch of nether mist
 desc:Some nether mist.
 hurt-msg:The mist saps your health!
 died-flavor:was sucked dry by nether mist
@@ -677,7 +800,8 @@ desc: through by the player and monsters.
 name:void
 graphics:.:d
 priority:3
-flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | FLOOR_BORING | OBJECT | EASY
+flags:LOS | PROJECT | PASSABLE | FLOOR_OTHER | BORING | OBJECT | EASY
+short-desc:section of nothingness
 desc:A section of nothingness.
 
 name:glass wall
@@ -689,5 +813,5 @@ desc:A glass wall blocking your way.
 name:illusion wall
 graphics:#:w
 priority:10
-flags:LOS | PROJECT | PASSABLE | FLOOR_BORING | EASY
+flags:LOS | PROJECT | PASSABLE | BORING | EASY
 desc:Looks like this wall is not so real.

@@ -107,7 +107,7 @@ static void dump_buffer(ang_file *fff, int y1, int y2, int length, bool skip_emp
 static void write_character_dump(ang_file *fff, void *data)
 {
     struct player *p = (struct player *)data;
-    int i, x, y;
+    int i;
     u16b a;
     char c;
     struct store *home = p->home;
@@ -122,6 +122,7 @@ static void write_character_dump(ang_file *fff, void *data)
     bool victory = streq(p->death_info.died_from, "winner");
     bool final = (p->is_dead || !p->alive || victory);
     struct chunk *cv = chunk_get(&p->wpos);
+    struct loc grid;
 
     switch (p->psex)
     {
@@ -141,14 +142,14 @@ static void write_character_dump(ang_file *fff, void *data)
             "# %u|%u|%-.8s|%-.25s|%c|%2d|%2d|%3d|%3d|%3d|%3d|%-.31s|%s\n",
             total_points(p, p->max_exp, p->max_depth), p->au, today,
             p->name, sx, p->race->ridx, p->clazz->cidx, p->lev, p->wpos.depth,
-            p->max_lev, p->max_depth, p->death_info.died_from, version_build(VB_BASE));
+            p->max_lev, p->max_depth, p->death_info.died_from, version_build(NULL, false));
 
         /* Leave it at that for characters lower than level 20 */
         if (p->lev < 20) return;
     }
 
     /* Begin dump */
-    file_putf(fff, "  [%s Character Dump]\n\n", version_build(VB_NAME));
+    file_putf(fff, "  [%s Character Dump]\n\n", version_build(cfg_chardump_label, false));
 
     /* Display player */
     display_player_file(p, 0);
@@ -309,10 +310,10 @@ static void write_character_dump(ang_file *fff, void *data)
         else file_put(fff, "\n  [Scene of Death]\n\n");
 
         /* Get an in bounds area */
-        x1 = p->px - 39;
-        x2 = p->px + 39;
-        y1 = p->py - 10;
-        y2 = p->py + 10;
+        x1 = p->grid.x - 39;
+        x2 = p->grid.x + 39;
+        y1 = p->grid.y - 10;
+        y2 = p->grid.y + 10;
         if (y1 < 0)
         {
             y2 = y2 - y1;
@@ -335,16 +336,16 @@ static void write_character_dump(ang_file *fff, void *data)
         }
 
         /* Describe each row */
-        for (y = y1; y <= y2; y++)
+        for (grid.y = y1; grid.y <= y2; grid.y++)
         {
-            for (x = x1; x <= x2; x++)
+            for (grid.x = x1; grid.x <= x2; grid.x++)
             {
                 /* Get the features */
-                map_info(p, cv, y, x, &g);
+                map_info(p, cv, &grid, &g);
                 grid_data_as_text(p, cv, true, &g, &a, &c, &a, &c);
 
                 /* Hack for the player who is already dead and gone */
-                if (player_is_at(p, y, x))
+                if (player_is_at(p, &grid))
                 {
                     c = (victory? '@': '†');
                     a = COLOUR_WHITE;

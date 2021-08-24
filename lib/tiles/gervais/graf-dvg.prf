@@ -7,8 +7,6 @@
 # Converted by Mogami from the dg32-assign of AngbandTK
 # Additional work by Ivan Jekic (the.edge@Net.yu)
 #
-# See "lib/help/command.txt" and "src/files.c" for more information.
-#
 
 
 ##### Spell effect types #####
@@ -26,11 +24,11 @@ GF:METEOR:45:0x81:0x86
 GF:METEOR:90:0x81:0x85
 GF:METEOR:135:0x81:0x87
 
-GF:DARK_WEAK | DARK | DEATH | ACID:static:0x81:0xC7
-GF:DARK_WEAK | DARK | DEATH | ACID:0:0x81:0x88
-GF:DARK_WEAK | DARK | DEATH | ACID:45:0x81:0x8A
-GF:DARK_WEAK | DARK | DEATH | ACID:90:0x81:0x89
-GF:DARK_WEAK | DARK | DEATH | ACID:135:0x81:0x8B
+GF:DARK_WEAK | DARK | ACID:static:0x81:0xC7
+GF:DARK_WEAK | DARK | ACID:0:0x81:0x88
+GF:DARK_WEAK | DARK | ACID:45:0x81:0x8A
+GF:DARK_WEAK | DARK | ACID:90:0x81:0x89
+GF:DARK_WEAK | DARK | ACID:135:0x81:0x8B
 
 GF:FIRE:static:0x81:0xBC
 GF:FIRE:0:0x81:0x8C
@@ -433,17 +431,33 @@ feat:open house door:*:0x96:0x84
 
 # closed door
 feat:closed house door:*:0x96:0x83
-feat:closed house door (General Store):*:0x99:0x83
-feat:closed house door (Armoury):*:0x99:0x84
-feat:closed house door (Weapon Smiths):*:0x99:0x85
-feat:closed house door (Temple):*:0x99:0x86
-feat:closed house door (Alchemy Shop):*:0x99:0x87
-feat:closed house door (Magic Shop):*:0x99:0x88
-feat:closed house door (Bookseller):*:0x9A:0x98
-feat:closed house door (Black Market):*:0x99:0x9B
-feat:closed house door (Expensive Black Market):*:0x9A:0x90
-feat:closed house door (Tavern):*:0x9A:0x8C
-feat:closed house door (Home):*:0x99:0x97
+feat:closed house door (white):*:0x9B:0x83
+feat:closed house door (slate):*:0x9B:0x84
+feat:closed house door (orange):*:0x9B:0x85
+feat:closed house door (red):*:0x9B:0x86
+feat:closed house door (green):*:0x9B:0x87
+feat:closed house door (blue):*:0x9B:0x88
+feat:closed house door (umber):*:0x9B:0x89
+feat:closed house door (light dark):*:0x9B:0x8A
+feat:closed house door (light white):*:0x9B:0x8B
+feat:closed house door (light purple):*:0x9B:0x8C
+feat:closed house door (yellow):*:0x9B:0x8D
+feat:closed house door (light red):*:0x9B:0x8E
+feat:closed house door (light green):*:0x9B:0x8F
+feat:closed house door (light blue):*:0x9B:0x90
+feat:closed house door (light umber):*:0x9B:0x9E
+feat:closed house door (purple):*:0x9B:0x91
+feat:closed house door (violet):*:0x9B:0x92
+feat:closed house door (teal):*:0x9B:0x93
+feat:closed house door (mud):*:0x9B:0x94
+feat:closed house door (light yellow):*:0x9B:0x95
+feat:closed house door (magenta):*:0x9B:0x96
+feat:closed house door (light teal):*:0x9B:0x97
+feat:closed house door (light violet):*:0x9B:0x98
+feat:closed house door (light pink):*:0x9B:0x99
+feat:closed house door (mustard):*:0x9B:0x9A
+feat:closed house door (blue slate):*:0x9B:0x9B
+feat:closed house door (deep light blue):*:0x9B:0x9F
 
 # ash
 feat:ash:torch:0x99:0xFB
@@ -486,6 +500,7 @@ feat:illusion wall:dark:0x96:0x82
 
 # glyph of warding
 trap:glyph of warding:*:0x95:0xF2
+trap:decoy:*:0x95:0xF2
 
 # trap door
 trap:trap door:*:0x95:0xEC
@@ -821,29 +836,37 @@ object:scroll:Trap Creation:0x87:0xE1
 
 # Graphics are sourced from flavor entries in flvr-dvg.prf
 
-##### Basic Books #####
+##### Arcane Books #####
 
 object:magic book:[Magic for Beginners]:0x86:0x80
 object:magic book:[Conjurings and Tricks]:0x86:0x81
-object:magic book:[Incantations and Illusions]:0x86:0x82
-object:magic book:[Sorcery and Evocations]:0x86:0x83
+object:magic book:[Incantations and Illusions]:0x86:0x83
+object:magic book:[Sorcery and Evocations]:0x86:0x84
+object:magic book:[Wizard's Tome of Power]:0x86:0x88
+
+##### Divine Books #####
+
 object:prayer book:[Beginners Handbook]:0x86:0x89
 object:prayer book:[Words of Wisdom]:0x86:0x8A
-object:prayer book:[Chants and Blessings]:0x86:0x8B
-object:prayer book:[Exorcism and Dispelling]:0x86:0x8C
+object:prayer book:[Chants and Blessings]:0x86:0x8C
+object:prayer book:[Exorcism and Dispelling]:0x86:0x8D
+object:prayer book:[Wrath of the Valar]:0x86:0x91
 
-##### Special Books (note resistances) #####
+##### Nature Books #####
 
-object:magic book:[Resistances of Scarabtarices]:0x86:0x84
-object:magic book:[Raal's Tome of Destruction]:0x86:0x85
-object:magic book:[Mordenkainen's Escapes]:0x86:0x86
-object:magic book:[Tenser's Transformations]:0x86:0x87
-object:magic book:[Kelek's Grimoire of Power]:0x86:0x88
-object:prayer book:[Ethereal Openings]:0x86:0x8D
-object:prayer book:[Godly Insights]:0x86:0x8E
-object:prayer book:[Purifications and Healing]:0x86:0x8F
-object:prayer book:[Holy Infusions]:0x86:0x90
-object:prayer book:[Wrath of God]:0x86:0x91
+object:nature book:[Lesser Charms]:0x86:0xA4
+object:nature book:[Gifts of Nature]:0x86:0xA5
+object:nature book:[Creature Dominion]:0x86:0xA7
+object:nature book:[Nature Craft]:0x86:0xA8
+object:nature book:[Wild Forces]:0x86:0xAC
+
+##### Shadow Books #####
+
+object:shadow book:[Shadows for Beginners]:0x86:0xBF
+object:shadow book:[Dark Conjurings]:0x86:0xC0
+object:shadow book:[Shadows and Illusions]:0x86:0xC1
+object:shadow book:[Dark Evocations]:0x86:0xC3
+object:shadow book:[Great Shadows]:0x86:0xC7
 
 ##### Chests #####
 
@@ -977,35 +1000,11 @@ object:rock:Boomerang:0x8A:0xF0
 #object:ring:Black Ring of Power:0x85:0x95
 
 object:scroll:*Teleport Level*:0x87:0xCC
-object:sorcery book:[Apprentice Handbook]:0x86:0xA4
-object:sorcery book:[Mystical Words]:0x86:0xA5
-object:sorcery book:[Arcane Chants]:0x86:0xA6
-object:sorcery book:[Locus of Force]:0x86:0xA7
-object:shadow book:[Robbers Handbook]:0x86:0x92
-object:shadow book:[Shadows and Illusions]:0x86:0x93
-object:shadow book:[Killing Made Easy]:0x86:0x94
-object:hunt book:[Hunting and Tracking]:0x86:0x9B
 object:psi book:of Telepathy:0x86:0xAD
 object:psi book:of Mind Support:0x86:0xAE
 object:psi book:of Mindcraft:0x86:0xAF
-object:death book:[Necromancy for Beginners]:0x86:0xBF
-object:death book:[Dark Conjurings]:0x86:0xC0
-object:death book:[Necromantic Incantations]:0x86:0xC1
-object:sorcery book:[Powerful Sigils]:0x86:0xA8
-object:sorcery book:[Disruptive Forces]:0x86:0xAA
-object:sorcery book:[Forces of the Mind]:0x86:0xAB
-object:sorcery book:[Power of Ancient Sorcerors]:0x86:0xAC
-object:shadow book:[Shadows Escapes]:0x86:0x96
-object:shadow book:[Bilbo's Tome of Burglary]:0x86:0x98
-object:shadow book:[Great Shadows]:0x86:0x9A
-object:hunt book:[Killing from Afar]:0x86:0x9F
-object:hunt book:[Arrows of the Master Archers]:0x86:0xA3
 object:psi book:of Telekinesis:0x86:0xB1
-object:psi book:of Psychoportation:0x86:0xB3
 object:psi book:of Empathy:0x86:0xB5
-object:death book:[Dark Evocations]:0x86:0xC3
-object:death book:[Advanced Necromancy]:0x86:0xC5
-object:death book:[Darkest Magic]:0x86:0xC7
 object:skeleton:Kobold Skeleton:0x87:0xB2
 object:skeleton:Orc Skeleton:0x87:0xAE
 object:skeleton:Skull:0x87:0xAB
@@ -1026,10 +1025,6 @@ object:elemental book:[Earth]:0x86:0xB8
 object:elemental book:[Water]:0x86:0xB9
 object:elemental book:[Elemental]:0x86:0xBA
 object:dragon armour:Water Dragon Scale Mail:0x80:0xB9
-object:summoning book:[Survival]:0x86:0x9C
-object:summoning book:[Nature]:0x86:0x9D
-object:summoning book:[Summoning]:0x86:0xA1
-object:summoning book:[Anti-Summoning]:0x86:0xA2
 
 # The Blue Stone 'Toris Mejistos'
 #object:amulet:Blue Stone:0x85:0xAA
@@ -1059,6 +1054,7 @@ monster:Aimless-looking merchant:0x8B:0x89
 monster:Mean-looking mercenary:0x8B:0x8A
 monster:Battle-scarred veteran:0x8B:0x8B
 monster:Sparrow:0x93:0xA8
+monster:Horse:0x93:0xB2
 monster:Otho Sackville-Baggins:0x8B:0x8C
 monster:Lobelia Sackville-Baggins:0x8B:0x8C
 monster:Grey mold:0x8E:0xC2

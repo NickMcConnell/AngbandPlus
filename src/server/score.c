@@ -198,7 +198,7 @@ void build_score(struct player *p, high_score *entry, const char *died_from, tim
     }
 
     /* Save the version */
-    strnfmt(entry->what, sizeof(entry->what), "%s", version_build(VB_BASE));
+    strnfmt(entry->what, sizeof(entry->what), "%s", version_build(NULL, false));
 
     /* Calculate and save the points */
     strnfmt(entry->pts, sizeof(entry->pts), "%9u",

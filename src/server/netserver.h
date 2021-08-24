@@ -89,13 +89,13 @@ extern int Send_body_struct_info(int ind);
 extern int Send_socials_struct_info(int ind);
 extern int Send_kind_struct_info(int ind);
 extern int Send_ego_struct_info(int ind);
-extern int Send_hints_struct_info(int ind);
 extern int Send_rinfo_struct_info(int ind);
 extern int Send_rbinfo_struct_info(int ind);
 extern int Send_curse_struct_info(int ind);
 extern int Send_realm_struct_info(int ind);
 extern int Send_feat_struct_info(int ind);
 extern int Send_trap_struct_info(int ind);
+extern int Send_timed_struct_info(int ind);
 extern int Send_death_cause(struct player *p);
 extern int Send_winner(struct player *p);
 extern int Send_lvl(struct player *p, int lev, int mlev);
@@ -127,7 +127,7 @@ extern int Send_speed(struct player *p, int speed, int mult);
 extern int Send_study(struct player *p, int study, bool can_study_book);
 extern int Send_count(struct player *p, byte type, s16b count);
 extern int Send_show_floor(struct player *p, byte mode);
-extern int Send_char(struct player *p, int x, int y, u16b a, char c, u16b ta, char tc);
+extern int Send_char(struct player *p, struct loc *grid, u16b a, char c, u16b ta, char tc);
 extern int Send_spell_info(struct player *p, int book, int i, const char *out_val,
     spell_flags *flags);
 extern int Send_book_info(struct player *p, int book, const char *name);
@@ -136,8 +136,8 @@ extern int Send_floor(struct player *p, byte num, const struct object *obj,
 extern int Send_special_other(struct player *p, char *header, byte peruse, bool protect);
 extern int Send_store(struct player *p, char pos, byte attr, s16b wgt, byte number,
     byte owned, s32b price, byte tval, byte max, s16b bidx, const char *name);
-extern int Send_store_info(struct player *p, int num, char *name, char *owner, int items,
-    s32b purse);
+extern int Send_store_info(struct player *p, int num, char *name, char *owner, char *welcome,
+    int items, s32b purse);
 extern int Send_target_info(struct player *p, int x, int y, bool dble, const char *buf);
 extern int Send_sound(struct player *p, int sound);
 extern int Send_mini_map(struct player *p, int y, s16b w);
@@ -154,6 +154,7 @@ extern int Send_dtrap(struct player *p, byte dtrap);
 extern int Send_term_info(struct player *p, int mode, u16b arg);
 extern int Send_player_pos(struct player *p);
 extern int Send_play(int ind);
+extern int Send_features(int ind, int lighting, int off);
 extern int Send_text_screen(int ind, int type, s32b offset);
 extern int Send_char_info_conn(int ind);
 extern int Send_char_info(struct player *p, byte ridx, byte cidx, byte psex);

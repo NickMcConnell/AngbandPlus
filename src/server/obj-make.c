@@ -1736,10 +1736,20 @@ struct object *make_object(struct player *p, struct chunk *c, int lev, bool good
     for (i = 1; i <= tries; i++)
     {
         s16b res;
+        int reroll = 3;
 
         /* Try to choose an object kind */
         kind = get_obj_num(base, good || great, tval);
         if (!kind) return NULL;
+
+        /* Reject most books the player can't read */
+        while (tval_is_book_k(kind) && !obj_kind_can_browse(p, kind) && reroll)
+        {
+            if (one_in_(5)) break;
+            reroll--;
+            kind = get_obj_num(base, good || great, tval);
+            if (!kind) return NULL;
+        }
 
         /* Make the object, prep it and apply magic */
         new_obj = object_new();
@@ -1815,7 +1825,7 @@ void acquirement(struct player *p, struct chunk *c, int num, quark_t quark)
         if (quark > 0) nice_obj->note = quark;
 
         /* Drop the object */
-        drop_near(p, c, &nice_obj, 0, p->py, p->px, true, DROP_FADE);
+        drop_near(p, c, &nice_obj, 0, &p->grid, true, DROP_FADE);
     }
 }
 
@@ -1943,7 +1953,7 @@ void create_randart(struct player *p, struct chunk *c)
     }
 
     /* Use the first object on the floor */
-    obj = square_object(c, p->py, p->px);
+    obj = square_object(c, &p->grid);
     if (!obj)
     {
         msg(p, "There is nothing on the floor.");
@@ -1997,7 +2007,7 @@ void reroll_randart(struct player *p, struct chunk *c)
     }
 
     /* Use the first object on the floor */
-    obj = square_object(c, p->py, p->px);
+    obj = square_object(c, &p->grid);
     if (!obj)
     {
         msg(p, "There is nothing on the floor.");
@@ -2028,7 +2038,7 @@ void reroll_randart(struct player *p, struct chunk *c)
     origin_race = obj->origin_race;
 
     /* We need to start from a clean object, so we delete the old one */
-    square_excise_object(c, p->py, p->px, obj);
+    square_excise_object(c, &p->grid, obj);
     object_delete(&obj);
 
     /* Assign the template */
@@ -2053,7 +2063,7 @@ void reroll_randart(struct player *p, struct chunk *c)
     if (object_has_standard_to_h(obj)) obj->known->to_h = 1;
     if (object_flavor_is_aware(p, obj)) object_id_set_aware(obj);
 
-    drop_near(p, c, &obj, 0, p->py, p->px, false, DROP_FADE);
+    drop_near(p, c, &obj, 0, &p->grid, false, DROP_FADE);
 }
 
 

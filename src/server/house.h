@@ -17,12 +17,9 @@ enum
 /* Information about a "house" */
 struct house_type
 {
-    byte x_1;                   /* Location of house */
-    byte y_1;
-    byte x_2;
-    byte y_2;
-    byte door_y;                /* Location of door */
-    byte door_x;
+    struct loc grid_1;          /* Location of house */
+    struct loc grid_2;
+    struct loc door;            /* Location of door */
     struct worldpos wpos;       /* Position on the world map */
     s32b price;                 /* Cost of buying */
     s32b ownerid;               /* Owner ID */
@@ -51,10 +48,10 @@ extern bool house_owned_by(struct player *p, int house);
 extern int houses_owned(struct player *p);
 
 /* Return the index of a house given a coordinate pair */
-extern int pick_house(struct worldpos *wpos, int y, int x);
+extern int pick_house(struct worldpos *wpos, struct loc *grid);
 
 /* Given coordinates return a house to which they belong */
-extern int find_house(struct player *p, int x, int y, int offset);
+extern int find_house(struct player *p, struct loc *grid, int offset);
 
 /* Set house owner */
 extern void set_house_owner(struct player *p, struct house_type *house);
@@ -81,7 +78,7 @@ extern bool has_home_inventory(struct player *p);
 extern void house_dump(struct player *p, ang_file *fp);
 
 /* Determine if the location is inside a house */
-extern bool location_in_house(struct worldpos *wpos, int y, int x);
+extern bool location_in_house(struct worldpos *wpos, struct loc *grid);
 
 /* Get house */
 extern struct house_type *house_get(int house);
@@ -96,14 +93,14 @@ extern void reset_houses(struct player *p);
 extern void know_houses(struct player *p);
 
 /* Colorize house door */
-extern void colorize_door(struct player *p, struct object_kind *kind, struct chunk *c, int y,
-    int x);
+extern void colorize_door(struct player *p, struct object_kind *kind, struct chunk *c,
+    struct loc *grid);
 
 /* Return the name of a player owned store */
 extern bool get_player_store_name(int num, char *name, int len);
 
 /* Return the index of a house near a location */
-extern int house_near(struct player *p, int x1, int y1, int x2, int y2);
+extern int house_near(struct player *p, struct loc *grid1, struct loc *grid2);
 
 /* Extend house */
 extern bool house_extend(void);

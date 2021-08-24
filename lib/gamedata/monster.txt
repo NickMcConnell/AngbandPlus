@@ -477,10 +477,26 @@ rarity:3
 weight:0
 experience:0
 blow:BITE:HURT:1d1
-flags:PWMANG_BASE
+flags:CAUTIOUS | PWMANG_BASE
 flags:DROP_SKELETON
 flags:RAND_25
-desc:Utterly harmless, except when angry.
+desc:Utterly harmless, and really cautious.
+
+name:horse
+base:quadruped
+color:y
+speed:110
+hit-points:1
+hearing:30
+armor-class:1
+sleepiness:150
+depth:0
+rarity:3
+weight:0
+experience:0
+blow:MOAN
+flags:ANIMAL | FRIENDLY | PWMANG_BASE
+desc:A common horse.
 
 name:Otho Sackville-Baggins
 base:humanoid
@@ -503,7 +519,7 @@ flags:TAKE_ITEM
 flags:NO_CONF | NO_SLEEP | IM_WATER
 desc:This greedy and ill-mannered hobbit thinks he has been spoiled from a good
 desc: heritage.
-force-location:-19,21
+force-location:The Brandywine Bridge
 
 name:Lobelia Sackville-Baggins
 base:humanoid
@@ -526,7 +542,7 @@ flags:TAKE_ITEM
 flags:NO_CONF | NO_SLEEP | IM_WATER
 desc:This greedy and ill-mannered hobbit thinks she has been spoiled from a good
 desc: heritage.
-force-location:-19,21
+force-location:The Brandywine Bridge
 
 ### Dungeon level 1 ###
 
@@ -1754,7 +1770,7 @@ flags:DROP_CORPSE | DROP_SKELETON | WILD_WOOD
 spell-freq:9
 spell-power:4
 spells:ARROW_1 | MISSILE
-drop-base:magic book:3:1:1
+drop-base:nature book:3:1:1
 friends-base:20:1d3:person
 friends-base:40:1d3:person
 friends-base:80:1d3:person
@@ -1928,7 +1944,7 @@ flags:DROP_CORPSE | DROP_SKELETON
 spell-freq:5
 spell-power:4
 spells:ARROW_2
-drop-base:hunt book:5:1:1
+drop-base:nature book:5:1:1
 friends-base:30:1d2:kobold
 friends-base:70:1d2:kobold
 desc:It is an ugly dog-headed humanoid wielding a bow.
@@ -3567,7 +3583,6 @@ spell-power:10
 spells:BLIND | CONF | DARKNESS | MISSILE
 spells:BA_POIS
 drop-base:magic book:10:1:1
-drop-base:magic book:10:1:1
 desc:A dark elven figure, dressed all in black, hurling spells at you.
 
 name:Orfax, Son of Boldor
@@ -3978,8 +3993,7 @@ spells:BLIND | CONF | DARKNESS | MISSILE
 spells:BO_COLD
 spells:S_UNDEAD
 spells:ANIM_DEAD
-drop-base:death book:5:1:1
-drop-base:death book:5:1:1
+drop-base:shadow book:5:1:1
 desc:A dark elven figure, clothed in black robes.
 
 ### Dungeon level 11 ###
@@ -4045,7 +4059,6 @@ spell-power:11
 spells:BLINK | DARKNESS
 spells:BO_COLD
 spells:S_MONSTER
-drop-base:magic book:5:1:1
 drop-base:magic book:5:1:1
 friends:100:4d4:Same
 desc:A mage of short stature.
@@ -4281,7 +4294,6 @@ spells:BLIND | BLINK | SLOW | TPORT
 spells:BA_POIS
 spells:S_MONSTER
 drop-base:magic book:5:1:1
-drop-base:magic book:5:1:1
 desc:A small humanoid that radiates some power.
 
 name:priest
@@ -4307,7 +4319,6 @@ spell-freq:3
 spell-power:12
 spells:CAUSE_2 | HEAL | SCARE
 spells:S_MONSTER
-drop-base:prayer book:8:1:1
 drop-base:prayer book:8:1:1
 friends:50:1d2:brigand
 friends:50:1d2:illusionist
@@ -4337,7 +4348,6 @@ flags:DROP_CORPSE | DROP_SKELETON
 spell-freq:5
 spell-power:12
 spells:BLIND | CAUSE_2 | CONF | DARKNESS | HEAL
-drop-base:prayer book:8:1:1
 drop-base:prayer book:8:1:1
 desc:A dark elven figure, dressed all in black, chanting curses and waiting to
 desc: deliver your soul to hell.
@@ -4751,7 +4761,6 @@ spell-power:13
 spells:BLIND | BLINK | CONF | DARKNESS | HASTE | HOLD
 spells:SLOW | TPORT
 drop-base:magic book:8:1:1
-drop-base:magic book:8:1:1
 friends:50:1d2:brigand
 friends:50:1d2:priest
 friends:50:1d2:Easterling warrior
@@ -4782,10 +4791,7 @@ spell-power:13
 spells:BLIND | BLINK | HASTE | HOLD | SLOW
 spells:BO_ELEC | BO_FIRE
 spells:S_ANIMAL
-drop-base:prayer book:8:1:1
-drop-base:prayer book:8:1:1
-drop-base:summoning book:10:1:1
-drop-base:summoning book:5:1:1
+drop-base:nature book:8:1:1
 desc:A priest devoted to Nature.
 
 name:black orc
@@ -4809,7 +4815,7 @@ flags:DROP_CORPSE | DROP_SKELETON | WILD_ALL
 spell-freq:9
 spell-power:13
 spells:ARROW_2
-drop-base:hunt book:5:1:1
+drop-base:nature book:5:1:1
 friends:20:1d2:cave troll
 friends:70:2d4:snaga
 friends:100:3d4:Same
@@ -5666,7 +5672,7 @@ flags:DROP_CORPSE | DROP_SKELETON
 spell-freq:9
 spell-power:16
 spells:ARROW_2
-drop-base:hunt book:5:1:1
+drop-base:nature book:5:1:1
 friends:40:1d4:half-orc
 friends:80:2d5:warg
 friends:100:3d3:Same
@@ -6064,7 +6070,7 @@ flags:DROP_CORPSE | DROP_SKELETON
 spell-freq:9
 spell-power:18
 spells:ARROW_2
-drop-base:hunt book:5:1:1
+drop-base:nature book:5:1:1
 friends:50:1d5:wolf
 friends:50:1d5:warg
 friends-base:50:1d5:orc
@@ -6780,7 +6786,6 @@ spell-power:20
 spells:BLIND | CONF | DARKNESS | HASTE
 spells:BO_COLD | BO_FIRE
 drop-base:magic book:5:1:1
-drop-base:magic book:5:1:1
 friends:80:1d3:dark elf
 friends:70:1d2:dark elven warrior
 friends:50:1d1:dark elven mage
@@ -6810,8 +6815,7 @@ spell-power:20
 spells:ARROW_2 | BLINK | MISSILE
 spells:BO_COLD | BO_ELEC
 spells:S_ANIMAL
-drop-base:magic book:5:1:1
-drop-base:magic book:5:1:1
+drop-base:nature book:5:1:1
 friends:50:1d1:Easterling champion
 friends:50:1d1:master rogue
 friends:50:1d2:illusionist
@@ -6841,7 +6845,6 @@ flags:DROP_CORPSE | DROP_SKELETON
 spell-freq:4
 spell-power:20
 spells:BLIND | CAUSE_2 | HEAL | SCARE | SLOW
-drop-base:prayer book:5:1:1
 drop-base:prayer book:5:1:1
 friends:50:1d1:Easterling champion
 friends:50:1d1:master rogue
@@ -6934,7 +6937,7 @@ flags:DROP_CORPSE | DROP_SKELETON | DROP_20
 spell-freq:8
 spell-power:20
 spells:ARROW_1
-drop-base:hunt book:5:1:1
+drop-base:nature book:5:1:1
 friends:40:1d4:half-orc
 friends:80:2d5:warg
 friends:100:3d3:Same
@@ -7609,7 +7612,6 @@ flags:DROP_2
 flags:OPEN_DOOR | TAKE_ITEM
 flags:DROP_CORPSE | DROP_SKELETON
 drop-base:shadow book:5:1:1
-drop-base:shadow book:5:1:1
 friends:50:1d1:Easterling champion
 friends:50:1d1:ranger
 friends:50:1d1:mage
@@ -7696,8 +7698,7 @@ spell-freq:5
 spell-power:23
 spells:CONF | DARKNESS | MISSILE
 spells:BO_MANA
-drop-base:sorcery book:5:1:1
-drop-base:sorcery book:5:1:1
+drop-base:magic book:5:1:1
 friends:100:4d4:Same
 desc:A dark elven mage with spells of frightening destructive power.
 
@@ -8031,7 +8032,6 @@ spell-power:24
 spells:BLIND | BLINK | CONF | HOLD | MIND_BLAST | SLOW
 spells:S_MONSTER
 drop-base:psi book:10:1:1
-drop-base:psi book:5:1:1
 friends:50:1d1:Easterling champion
 friends:50:1d1:master rogue
 friends:50:1d1:ranger
@@ -8136,10 +8136,7 @@ spell-freq:6
 spell-power:25
 spells:CONF | DARKNESS | HEAL
 spells:S_ANIMAL | S_MONSTER | S_SPIDER
-drop-base:prayer book:8:1:1
-drop-base:prayer book:8:1:1
-drop-base:summoning book:5:1:1
-drop-base:summoning book:10:1:1
+drop-base:nature book:8:1:1
 desc:A powerful dark elf, with mighty nature-controlling enchantments.
 
 name:stone troll
@@ -8303,7 +8300,6 @@ flags:DROP_CORPSE | DROP_SKELETON
 spell-freq:5
 spell-power:26
 spells:BLINK | CAUSE_1 | DARKNESS | MISSILE | SCARE
-drop-base:prayer book:5:1:1
 drop-base:prayer book:5:1:1
 desc:A troll who is so bright he knows how to read.
 
@@ -8744,7 +8740,6 @@ spells:HEAL | HOLD | TRAPS
 spells:BA_COLD
 spells:S_MONSTER
 drop-base:magic book:5:1:1
-drop-base:magic book:5:1:1
 desc:A hideous ogre wrapped in black sorcerous robes.
 
 name:vampire
@@ -8848,7 +8843,6 @@ spell-power:27
 spells:CAUSE_2 | HOLD | SCARE | TPORT | TRAPS
 spells:BO_FIRE
 spells:S_MONSTER
-drop-base:prayer book:5:1:1
 drop-base:prayer book:5:1:1
 desc:It is an ogre wrapped in furs and covered in grotesque body paints.
 
@@ -9016,7 +9010,6 @@ spell-freq:4
 spell-power:28
 spells:BLIND | DARKNESS | HEAL | MIND_BLAST
 drop-base:prayer book:8:1:1
-drop-base:prayer book:5:1:1
 desc:A wraithly snake-like form with the torso of a beautiful woman, it is the
 desc: most powerful of its kind.
 
@@ -9069,8 +9062,7 @@ flags:DROP_CORPSE | DROP_SKELETON
 spell-freq:8
 spell-power:28
 spells:BLIND | CAUSE_3 | DARKNESS | SCARE
-drop-base:prayer book:8:1:1
-drop-base:prayer book:8:1:1
+drop-base:shadow book:8:1:1
 friends:50:1d1:master rogue
 friends:50:1d1:ranger
 friends:50:1d1:paladin
@@ -9130,7 +9122,6 @@ spells:BLIND | CONF | HASTE | TELE_TO | TPORT
 spells:BO_COLD | BO_ELEC | BO_FIRE
 spells:S_MONSTER
 drop-base:magic book:10:1:1
-drop-base:magic book:7:1:1
 friends-base:100:1d1:golem
 desc:A mage of some power - you can tell by the size of his hat.
 
@@ -9156,7 +9147,6 @@ flags:DROP_CORPSE
 spell-freq:8
 spell-power:28
 spells:BLIND | BRAIN_SMASH | FORGET | HOLD | MIND_BLAST | SCARE
-drop-base:psi book:5:1:1
 drop-base:psi book:5:1:1
 desc:A humanoid form with a gruesome head, tentacular mouth, and piercing eyes.
 desc: Claws reach out for you and you feel a presence invade your mind.
@@ -9288,7 +9278,7 @@ blow:GAZE:PARALYZE:1d4
 blow:GAZE:CONFUSE:1d4
 blow:BITE:HURT:1d8
 flags:NO_FEAR | NO_CONF | NO_SLEEP
-flags:FORCE_SLEEP
+flags:FORCE_SLEEP | SPIRIT
 flags:DROP_CORPSE
 spell-freq:6
 spell-power:28
@@ -10529,8 +10519,7 @@ spell-freq:6
 spell-power:33
 spells:HEAL
 spells:S_ANIMAL | S_SPIDER
-drop-base:prayer book:10:1:1
-drop-base:prayer book:5:1:1
+drop-base:nature book:10:1:1
 friends-base:50:2d4:spider
 desc:An adept at unarmed combat, the mystic strikes with stunning power. He can
 desc: summon help from nature and is able to focus his power to ease any pain.
@@ -10919,7 +10908,6 @@ flags:DROP_CORPSE | DROP_SKELETON
 spell-freq:6
 spell-power:34
 spells:ARROW_2 | BLINK | TRAPS
-drop-base:shadow book:5:1:1
 drop-base:shadow book:5:1:1
 friends:50:1d1:black knight
 friends:50:1d1:mage
@@ -11634,7 +11622,7 @@ flags:IM_POIS | IM_COLD
 spell-freq:3
 spell-power:35
 spells:ARROW_2
-drop-base:hunt book:10:1:1
+drop-base:nature book:10:1:1
 friends:100:4d4:Same
 desc:A rebel halfling who has rejected the halfling tradition of archery.
 
@@ -12140,11 +12128,7 @@ spells:TPORT
 spells:BO_NETH
 spells:S_UNDEAD
 spells:ANIM_DEAD
-drop-base:prayer book:8:1:1
-drop-base:prayer book:8:1:1
-drop-base:death book:8:1:1
-drop-base:death book:8:1:1
-drop-base:death book:15:1:1
+drop-base:shadow book:8:1:1
 friends-base:80:1d3:skeleton
 desc:A gaunt figure, clothed in black robes.
 
@@ -12205,7 +12189,6 @@ spells:HOLD | TPORT
 spells:BO_FIRE
 spells:S_DEMON
 drop-base:magic book:8:1:1
-drop-base:magic book:8:1:1
 friends-base:50:1d3:minor demon
 friends:100:1d1:quasit
 desc:A figure twisted by evil standing in robes of deepest crimson.
@@ -12261,7 +12244,7 @@ blow:GAZE:DISENCHANT:5d2
 blow:GAZE:DISENCHANT:5d2
 blow:GAZE:DRAIN_CHARGES:5d2
 blow:GAZE:DRAIN_CHARGES:5d2
-flags:EVIL
+flags:EVIL | SPIRIT
 flags:BASH_DOOR
 flags:FORCE_SLEEP
 flags:DROP_CORPSE
@@ -12838,8 +12821,7 @@ spell-power:38
 spells:BLIND | CAUSE_3 | SCARE
 spells:BO_NETH
 spells:S_MONSTERS
-drop-base:prayer book:8:1:1
-drop-base:prayer book:8:1:1
+drop-base:shadow book:8:1:1
 friends:50:1d1:imp
 desc:It is a humanoid figure dressed in armour of an ancient form. From beneath
 desc: its helmet, eyes glow a baleful red and seem to pierce you like lances of
@@ -13036,7 +13018,7 @@ blow:CLAW:POISON:2d8
 blow:CLAW:POISON:2d8
 blow:BITE:POISON:2d6
 blow:BITE:POISON:2d6
-flags:EVIL | ANIMAL | SMART
+flags:EVIL | ANIMAL | SMART | SPIRIT
 flags:OPEN_DOOR | GROUP_AI
 flags:HURT_LIGHT | IM_POIS
 flags:FORCE_SLEEP
@@ -13347,7 +13329,7 @@ blow:GAZE:EXP_20:2d6
 blow:GAZE:DRAIN_CHARGES:2d6
 blow:GAZE:FORGET:2d6
 blow:BITE:HURT:6d6
-flags:EVIL
+flags:EVIL | SPIRIT
 flags:BASH_DOOR
 flags:NO_CONF | NO_SLEEP
 flags:FORCE_SLEEP
@@ -13502,7 +13484,6 @@ spell-power:40
 spells:BLIND
 spells:S_DRAGON
 drop-base:magic book:8:1:1
-drop-base:magic book:8:1:1
 friends-base:30:1d1:dragon
 friends-base:60:1d1:dragon
 desc:This elusive female spellcaster has a special affinity for dragons, whom
@@ -13535,10 +13516,7 @@ spells:BLIND | BLINK | CAUSE_3 | CONF | TELE_TO | TRAPS
 spells:BA_COLD | BA_FIRE
 spells:BO_ACID
 spells:S_DRAGON | S_MONSTER | S_UNDEAD
-drop-base:magic book:5:1:1
 drop-base:magic book:10:1:1
-drop-base:sorcery book:5:1:1
-drop-base:sorcery book:5:1:1
 friends:30:1d1:master thief
 friends:30:1d1:ranger chieftain
 friends:30:1d1:patriarch
@@ -13744,7 +13722,6 @@ spell-power:40
 spells:BLIND | CAUSE_3 | CAUSE_4 | HEAL | HOLD
 spells:S_MONSTER | S_UNDEAD
 spells:ANIM_DEAD
-drop-base:prayer book:5:1:1
 drop-base:prayer book:10:1:1
 friends:30:1d1:master thief
 friends:30:1d1:ranger chieftain
@@ -13889,7 +13866,6 @@ spells:TELE_AWAY | TPORT
 spells:BA_COLD | BA_FIRE
 spells:BO_NETH
 spells:S_MONSTERS
-drop-base:psi book:5:1:1
 drop-base:psi book:10:1:1
 friends:30:1d1:swordsmaster
 friends:30:1d1:master thief
@@ -14021,7 +13997,7 @@ weight:3000
 experience:6000
 blow:HIT:HURT:8d6
 blow:HIT:HURT:8d6
-flags:FEMALE | DROP_SKELETON | DROP_CORPSE | PWMANG_BASE
+flags:FEMALE | DROP_SKELETON | DROP_CORPSE | PWMANG_BASE | SPIRIT
 flags:ONLY_ITEM | DROP_1 | DROP_GOOD 
 flags:IM_FIRE | REGENERATE | OPEN_DOOR | BASH_DOOR 
 flags:NO_CONF | NO_SLEEP | NO_HOLD | HAS_LIGHT | ATTR_FLICKER
@@ -14134,10 +14110,8 @@ spells:BA_COLD | BA_FIRE
 spells:BO_ACID
 spells:S_DEMON | S_MONSTER | S_UNDEAD
 spells:ANIM_DEAD
-drop-base:magic book:5:1:1
-drop-base:magic book:10:1:1
-drop-base:sorcery book:5:1:1
-drop-base:sorcery book:5:1:1
+drop-base:magic book:8:1:1
+drop-base:shadow book:8:1:1
 desc:A dark elven figure, dressed in deepest black. Power seems to crackle from
 desc: his slender frame.
 
@@ -14249,7 +14223,6 @@ spells:ARROW_2 | ARROW_3 | ARROW_4 | BLINK | HASTE | MISSILE
 spells:BA_COLD
 spells:BO_ELEC | BO_FIRE
 spells:S_ANIMAL
-drop-base:magic book:8:1:1
 drop-base:magic book:8:1:1
 friends:30:1d1:master thief
 friends:30:1d1:sorcerer
@@ -14853,7 +14826,6 @@ spell-freq:4
 spell-power:44
 spells:BLIND | CAUSE_3 | CAUSE_4 | HASTE | HEAL | SCARE
 drop-base:prayer book:10:1:1
-drop-base:prayer book:10:1:1
 friends:30:1d1:master thief
 friends:30:1d1:ranger chieftain
 friends:30:1d1:patriarch
@@ -15120,7 +15092,7 @@ blow:GAZE:EXP_40:3d6
 blow:GAZE:DRAIN_CHARGES:3d6
 blow:GAZE:FORGET:3d6
 blow:BITE:EXP_40:7d6
-flags:UNDEAD | EVIL | COLD_BLOOD
+flags:UNDEAD | EVIL | COLD_BLOOD | SPIRIT
 flags:BASH_DOOR
 flags:IM_ACID | IM_COLD | IM_ELEC | IM_FIRE | IM_POIS | NO_CONF
 flags:NO_SLEEP | NO_STUN
@@ -15418,7 +15390,7 @@ weight:3000
 experience:8000
 blow:HIT:HURT:8d7
 blow:HIT:HURT:8d7
-flags:MALE | SMART | DROP_SKELETON | DROP_CORPSE | PWMANG_BASE
+flags:MALE | SMART | DROP_SKELETON | DROP_CORPSE | PWMANG_BASE | SPIRIT
 flags:ONLY_ITEM | DROP_1 | DROP_GOOD 
 flags:IM_FIRE | REGENERATE | OPEN_DOOR | BASH_DOOR 
 flags:NO_CONF | NO_SLEEP | NO_HOLD | HAS_LIGHT | ATTR_FLICKER
@@ -15480,7 +15452,6 @@ flags:TAKE_ITEM | OPEN_DOOR
 spell-freq:2
 spell-power:46
 spells:ARROW_1 | BLINK | CONF | TELE_TO | TPORT | TRAPS
-drop-base:shadow book:5:1:1
 drop-base:shadow book:10:1:1
 desc:A class of its own: you are already too late to protect your possessions -
 desc: and he seems to have studied magic too, and is a master of setting traps.
@@ -15672,7 +15643,7 @@ blow:CLAW:POISON:5d8
 blow:CLAW:POISON:5d8
 blow:BITE:HALLU:5d6
 blow:BITE:EAT_LIGHT:5d6
-flags:EVIL | ANIMAL | SMART
+flags:EVIL | ANIMAL | SMART | SPIRIT
 flags:OPEN_DOOR
 flags:HURT_LIGHT | IM_FIRE | IM_POIS
 flags:FORCE_SLEEP
@@ -15837,8 +15808,7 @@ spell-freq:3
 spell-power:50
 spells:HEAL
 spells:S_ANIMAL
-drop-base:prayer book:8:1:1
-drop-base:prayer book:8:1:1
+drop-base:nature book:8:1:1
 friends-base:50:2d4:spider
 desc:A lord of all that is natural, skilled in the mystic ways. He is a master
 desc: of martial arts and is at one with nature, able to summon help from the
@@ -15953,7 +15923,7 @@ weight:3000
 experience:10000
 blow:HIT:HURT:8d9
 blow:HIT:HURT:8d9
-flags:MALE | SMART | DROP_SKELETON | DROP_CORPSE | PWMANG_BASE
+flags:MALE | SMART | DROP_SKELETON | DROP_CORPSE | PWMANG_BASE | SPIRIT
 flags:ONLY_ITEM | DROP_2 | DROP_GOOD 
 flags:IM_FIRE | REGENERATE | OPEN_DOOR | BASH_DOOR 
 flags:NO_CONF | NO_SLEEP | NO_HOLD | HAS_LIGHT | ATTR_FLICKER
@@ -16458,10 +16428,7 @@ spells:BLIND | BLINK | CAUSE_3 | CAUSE_4 | CONF | TELE_TO | TRAPS
 spells:BA_COLD | BA_FIRE | BA_POIS
 spells:BO_ACID
 spells:S_DEMON | S_HI_DRAGON | S_MONSTER | S_UNDEAD
-drop-base:sorcery book:5:1:1
-drop-base:sorcery book:8:1:1
-drop-base:sorcery book:10:1:1
-drop-base:sorcery book:12:1:1
+drop-base:magic book:12:1:1
 desc:A human figure in robes, he moves with magically improved speed, and his
 desc: hands are ablur with spell casting. You stagger at the mighty sound of his
 desc: spells as they echo hollowly through the dungeon.
@@ -16484,7 +16451,7 @@ blow:CLAW:POISON:5d6
 blow:CLAW:POISON:5d6
 blow:BITE:PARALYZE:5d10
 blow:STING:LOSE_STR:5d4
-flags:UNIQUE | FEMALE | EVIL | ANIMAL | SMART | PWMANG_FIXED
+flags:UNIQUE | FEMALE | EVIL | ANIMAL | SMART | SPIRIT | PWMANG_FIXED
 flags:DROP_2 | DROP_GOOD | DROP_GREAT | ONLY_ITEM
 flags:HURT_LIGHT | IM_ACID | IM_POIS | NO_CONF | NO_SLEEP | NO_HOLD
 flags:FORCE_DEPTH | FORCE_SLEEP
@@ -16736,8 +16703,7 @@ spell-freq:3
 spell-power:57
 spells:HEAL | MIND_BLAST
 spells:S_ANIMAL | S_HOUND | S_SPIDER
-drop-base:prayer book:5:1:1
-drop-base:prayer book:15:1:1
+drop-base:nature book:15:1:1
 friends-base:80:3d5:spider
 desc:He is one of the few true masters of the art, being extremely skillful in
 desc: all forms of unarmed combat and controlling the world's natural creatures
@@ -16755,7 +16721,7 @@ depth:57
 rarity:2
 weight:0
 experience:12000
-flags:SMART | ATTR_FLICKER
+flags:SMART | ATTR_FLICKER | SPIRIT
 flags:NEVER_BLOW | NEVER_MOVE
 flags:FORCE_SLEEP
 spell-freq:1
@@ -16868,7 +16834,7 @@ depth:58
 rarity:2
 weight:0
 experience:15000
-flags:SMART | ATTR_FLICKER
+flags:SMART | ATTR_FLICKER | SPIRIT
 flags:NEVER_BLOW | NEVER_MOVE
 flags:IM_FIRE
 flags:FORCE_SLEEP
@@ -16923,7 +16889,7 @@ depth:59
 rarity:2
 weight:0
 experience:18000
-flags:SMART | ATTR_FLICKER
+flags:SMART | ATTR_FLICKER | SPIRIT
 flags:NEVER_BLOW | NEVER_MOVE
 flags:IM_FIRE
 flags:FORCE_SLEEP
@@ -17072,7 +17038,7 @@ weight:3000
 experience:15000
 blow:HIT:HURT:10d9
 blow:HIT:HURT:10d9
-flags:MALE | SMART | DROP_SKELETON | DROP_CORPSE | PWMANG_BASE
+flags:MALE | SMART | DROP_SKELETON | DROP_CORPSE | PWMANG_BASE | SPIRIT
 flags:ONLY_ITEM | DROP_2 | DROP_GOOD 
 flags:IM_FIRE | REGENERATE | OPEN_DOOR | BASH_DOOR 
 flags:NO_CONF | NO_SLEEP | NO_HOLD | HAS_LIGHT | ATTR_FLICKER
@@ -17696,7 +17662,7 @@ blow:BITE:EXP_80:6d6
 blow:GAZE:PARALYZE:5d5
 blow:GAZE:FORGET:5d5
 blow:GAZE:DRAIN_CHARGES:5d5
-flags:FEMALE | EVIL | SMART
+flags:FEMALE | EVIL | SMART | SPIRIT
 flags:BASH_DOOR
 flags:NO_CONF | NO_SLEEP | NO_HOLD
 flags:FORCE_SLEEP
@@ -18041,7 +18007,7 @@ blow:HIT:HURT:10d9
 blow:HIT:HURT:10d9
 blow:HIT:HURT:10d9
 blow:HIT:HURT:10d9
-flags:FEMALE | SMART | DROP_SKELETON | DROP_CORPSE | PWMANG_BASE
+flags:FEMALE | SMART | DROP_SKELETON | DROP_CORPSE | PWMANG_BASE | SPIRIT
 flags:ONLY_ITEM | DROP_2 | DROP_GOOD 
 flags:IM_FIRE | REGENERATE | OPEN_DOOR | BASH_DOOR 
 flags:NO_CONF | NO_SLEEP | NO_HOLD | HAS_LIGHT | ATTR_FLICKER
@@ -18300,7 +18266,7 @@ blow:HIT:HURT:12d10
 blow:CRUSH:HURT:10d10
 blow:CRUSH:HURT:10d10
 flags:SMART | UNIQUE | MALE | EVIL | PWMANG_BASE | ATTR_FLICKER | HAS_LIGHT
-flags:REGENERATE | PWMANG_FIXED
+flags:REGENERATE | PWMANG_FIXED | SPIRIT
 flags:DROP_4 | DROP_GOOD | DROP_GREAT | ONLY_ITEM
 flags:OPEN_DOOR | BASH_DOOR
 flags:IM_FIRE | IM_COLD | IM_POIS
@@ -18548,7 +18514,7 @@ blow:CLAW:POISON:8d6
 blow:CLAW:POISON:8d6
 blow:BITE:PARALYZE:8d10
 blow:STING:LOSE_STR:8d4
-flags:UNIQUE | FEMALE | EVIL | ANIMAL | SMART
+flags:UNIQUE | FEMALE | EVIL | ANIMAL | SMART | SPIRIT
 flags:DROP_4 | DROP_GOOD | ONLY_ITEM
 flags:HURT_LIGHT | IM_ACID | IM_POIS | NO_CONF | NO_SLEEP | NO_HOLD
 flags:FORCE_SLEEP
@@ -19117,7 +19083,7 @@ blow:GAZE:EXP_80:5d5
 blow:GAZE:EXP_80:5d5
 blow:TOUCH:POISON:5d5
 blow:TOUCH:POISON:5d5
-flags:UNIQUE | MALE | SMART
+flags:UNIQUE | MALE | SMART | SPIRIT
 flags:DROP_4 | DROP_GOOD | DROP_GREAT | ONLY_ITEM
 flags:OPEN_DOOR | BASH_DOOR
 flags:IM_FIRE
@@ -20032,7 +19998,7 @@ blow:HIT:SHATTER:20d10
 blow:HIT:SHATTER:20d10
 blow:HIT:LOSE_ALL:10d12
 blow:TOUCH:DRAIN_CHARGES
-flags:UNIQUE | QUESTOR | MALE | EVIL | SMART | REGENERATE | LEVITATE
+flags:UNIQUE | QUESTOR | MALE | EVIL | SMART | REGENERATE | SPIRIT | LEVITATE
 flags:DROP_4 | DROP_GOOD | DROP_GREAT | ONLY_ITEM
 flags:KILL_WALL | MOVE_BODY | ATTR_FLICKER
 flags:IM_ACID | IM_COLD | IM_ELEC | IM_FIRE | IM_POIS | NO_FEAR
@@ -20410,7 +20376,7 @@ blow:HIT:PARALYZE:20d15
 blow:HIT:EXP_80:20d17
 blow:HIT:LOSE_ALL:10d12
 blow:TOUCH:FORGET:12d9
-flags:EVIL | SMART | UNIQUE | MALE | INVISIBLE | POWERFUL
+flags:EVIL | SMART | UNIQUE | MALE | INVISIBLE | POWERFUL | SPIRIT
 flags:WEIRD_MIND | HAS_LIGHT | REGENERATE
 flags:PWMANG_EXTRA | PWMANG_FIXED
 flags:DROP_4 | DROP_GOOD | DROP_GREAT | ONLY_ITEM

@@ -6,6 +6,8 @@
 #ifndef INCLUDED_UTIL_H
 #define INCLUDED_UTIL_H
 
+#define DIR_TARGET  5
+
 extern const char *stat_names[STAT_MAX];
 extern const char *stat_names_reduced[STAT_MAX];
 extern s16b ddx[10];
@@ -40,7 +42,9 @@ extern s16b get_melee_skill(struct player *p);
 extern s16b get_ranged_skill(struct player *p);
 extern byte get_dtrap(struct player *p);
 extern int get_diff(struct player *p);
+extern struct timed_grade *get_grade(int i);
 extern struct player_class *player_id2class(guid id);
+extern struct player_class *lookup_player_class(const char *name);
 extern int player_cmax(void);
 extern struct player_race *player_id2race(guid id);
 extern int player_rmax(void);
@@ -54,5 +58,8 @@ extern int message_lookup_by_name(const char *name);
 extern void player_embody(struct player *p);
 extern const struct magic_realm *lookup_realm(const char *name);
 extern struct trap_kind *lookup_trap(const char *desc);
+extern int recharge_failure_chance(const struct object *obj, int strength);
+extern int race_modifier(const struct player_race *race, int mod, int lvl, bool poly); 
+extern int class_modifier(const struct player_class *clazz, int mod, int lvl);
 
 #endif /* INCLUDED_UTIL_H */

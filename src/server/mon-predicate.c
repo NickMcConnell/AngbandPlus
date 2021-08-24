@@ -28,11 +28,20 @@
 
 
 /*
+ * Undead monsters
+ */
+bool monster_is_undead(const struct monster_race *race)
+{
+    return rf_has(race->flags, RF_UNDEAD);
+}
+
+
+/*
  * Nonliving monsters are immune to life drain
  */
 bool monster_is_nonliving(const struct monster_race *race)
 {
-    return flags_test(race->flags, RF_SIZE, RF_DEMON, RF_UNDEAD, RF_NONLIVING, FLAG_END);
+    return (monster_is_undead(race) || rf_has(race->flags, RF_NONLIVING));
 }
 
 
@@ -57,7 +66,7 @@ bool monster_passes_walls(const struct monster_race *race)
 /*
  * Monster is invisible
  */
-bool monster_is_invisible(const struct monster_race *race)
+bool race_is_invisible(const struct monster_race *race)
 {
     return rf_has(race->flags, RF_INVISIBLE);
 }
@@ -93,9 +102,18 @@ bool monster_is_smart(const struct monster_race *race)
 /*
  * Monster is evil
  */
-bool monster_is_evil(const struct monster_race *race)
+bool race_is_evil(const struct monster_race *race)
 {
     return rf_has(race->flags, RF_EVIL);
+}
+
+
+/*
+ * Monster is an animal
+ */
+bool race_is_animal(const struct monster_race *race)
+{
+    return rf_has(race->flags, RF_ANIMAL);
 }
 
 
@@ -155,4 +173,72 @@ bool monster_is_obvious(struct player *p, int m_idx, const struct monster *mon)
 bool monster_is_mimicking(const struct monster *mon)
 {
     return (mon->camouflage && mon->mimicked_obj);
+}
+
+
+/*
+ * Monster is invisible
+ */
+bool monster_is_invisible(const struct monster *mon)
+{
+    return rf_has(mon->race->flags, RF_INVISIBLE);
+}
+
+
+/*
+ * Monster is not invisible
+ */
+bool monster_is_not_invisible(const struct monster *mon)
+{
+    return (!monster_is_invisible(mon) && !monster_is_camouflaged(mon));
+}
+
+
+/*
+ * Monster is evil
+ */
+bool monster_is_evil(const struct monster *mon)
+{
+    return rf_has(mon->race->flags, RF_EVIL);
+}
+
+
+/*
+ * Monster is not evil
+ */
+bool monster_is_nonevil(const struct monster *mon)
+{
+    return !monster_is_evil(mon);
+}
+
+
+/*
+ * Living monsters
+ */
+bool monster_is_living(const struct monster *mon)
+{
+    return !monster_is_nonliving(mon->race);
+}
+
+
+/*
+ * Monster has a spirit
+ */
+bool monster_has_spirit(const struct monster *mon)
+{
+    return rf_has(mon->race->flags, RF_SPIRIT);
+}
+
+
+/*
+ * Monster has non-innate spells
+ */
+bool monster_has_non_innate_spells(const struct monster *mon)
+{
+    bitflag innate_spells[RSF_SIZE], mon_spells[RSF_SIZE];
+
+    create_mon_spell_mask(innate_spells, RST_INNATE, RST_NONE);
+    rsf_copy(mon_spells, mon->race->spell_flags);
+    rsf_diff(mon_spells, innate_spells);
+    return (rsf_is_empty(mon_spells)? false: true);
 }

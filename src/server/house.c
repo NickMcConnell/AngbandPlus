@@ -72,11 +72,10 @@ bool house_inside(struct player *p, int house)
     if (!houses[house].state) return false;
 
     /* Skip houses not on this level */
-    if (!COORDS_EQUAL(&houses[house].wpos, &p->wpos)) return false;
+    if (!wpos_eq(&houses[house].wpos, &p->wpos)) return false;
 
     /* Player is inside the house */
-    return ((p->px >= houses[house].x_1) && (p->px <= houses[house].x_2) &&
-        (p->py >= houses[house].y_1) && (p->py <= houses[house].y_2));
+    return loc_between(&p->grid, &houses[house].grid_1, &houses[house].grid_2);
 }
 
 
@@ -88,8 +87,7 @@ bool house_owned_by(struct player *p, int house)
     /* Paranoia */
     if ((house < 0) || (house >= houses_count())) return false;
 
-    return (houses[house].state && (houses[house].ownerid > 0) &&
-        (p->id == houses[house].ownerid));
+    return (houses[house].state && (houses[house].ownerid > 0) && (p->id == houses[house].ownerid));
 }
 
 
@@ -111,9 +109,9 @@ int houses_owned(struct player *p)
 
 
 /*
- * Return the index of a house given a coordinate pair
+ * Return the index of a house given a coordinate grid
  */
-int pick_house(struct worldpos *wpos, int y, int x)
+int pick_house(struct worldpos *wpos, struct loc *grid)
 {
     int i;
 
@@ -121,8 +119,7 @@ int pick_house(struct worldpos *wpos, int y, int x)
     for (i = 0; i < houses_count(); i++)
     {
         /* Check this one */
-        if (houses[i].state && (houses[i].door_x == x) && (houses[i].door_y == y) &&
-            COORDS_EQUAL(&houses[i].wpos, wpos))
+        if (houses[i].state && loc_eq(&houses[i].door, grid) && wpos_eq(&houses[i].wpos, wpos))
         {
             /* Return */
             return i;
@@ -136,19 +133,23 @@ int pick_house(struct worldpos *wpos, int y, int x)
 
 /*
  * Given coordinates return a house to which they belong.
- * Houses can be overlapping, so a single coordinate pair may match several
+ * Houses can be overlapping, so a single coordinate grid may match several
  * houses. The offset parameter allows searching for the next match.
  */
-int find_house(struct player *p, int x, int y, int offset)
+int find_house(struct player *p, struct loc *grid, int offset)
 {
     int i;
 
     for (i = offset; i < houses_count(); i++)
     {
+        struct loc prev, next;
+
+        loc_init(&prev, houses[i].grid_1.x - 1, houses[i].grid_1.y - 1);
+        loc_init(&next, houses[i].grid_2.x + 1, houses[i].grid_2.y + 1);
+
         /* Check the house position *including* the walls */
-        if (houses[i].state && COORDS_EQUAL(&houses[i].wpos, &p->wpos) &&
-            (x >= houses[i].x_1 - 1) && (x <= houses[i].x_2 + 1) &&
-            (y >= houses[i].y_1 - 1) && (y <= houses[i].y_2 + 1))
+        if (houses[i].state && wpos_eq(&houses[i].wpos, &p->wpos) &&
+            loc_between(grid, &prev, &next))
         {
             /* We found the house this section of wall belongs to */
             return i;
@@ -165,7 +166,7 @@ void set_house_owner(struct player *p, struct house_type *house)
 {
     house->ownerid = p->id;
     my_strcpy(house->ownername, p->name, sizeof(house->ownername));
-    house->color = PLAYER_STORE_BM;
+    house->color = COLOUR_WHITE;
 }
 
 
@@ -220,34 +221,42 @@ void house_set(int slot, struct house_type *house)
 
 
 /*
- * Verify the current panel (relative to a location).
+ * Get the sector as a "centered" panel
  */
-static void verify_panel_loc(struct player *p, int py, int px, s16b *sy, s16b *sx)
+static void loc_panel(struct player *p, struct loc *grid, struct loc *offset)
 {
-    int screen_hgt, screen_wid;
-    int panel_wid, panel_hgt;
+    int screen_hgt = p->screen_rows / p->tile_hgt;
+    int screen_wid = p->screen_cols / p->tile_wid;
 
-    screen_hgt = p->screen_rows / p->tile_hgt;
-    screen_wid = p->screen_cols / p->tile_wid;
+    int panel_wid = screen_wid / 2;
+    int panel_hgt = screen_hgt / 2;
 
-    panel_wid = screen_wid / 2;
-    panel_hgt = screen_hgt / 2;
+    /* Hack -- enforce illegal panel */
+    loc_init(offset, z_info->dungeon_wid, z_info->dungeon_hgt);
+
+    /* Scroll screen vertically when off-center */
+    if (grid->y != offset->y + panel_hgt)
+        offset->y = grid->y - panel_hgt;
 
     /* Scroll screen vertically when 3 grids from top/bottom edge */
-    if ((py < *sy + 3) || (py >= *sy + screen_hgt - 3))
-        *sy = py - panel_hgt;
+    else if ((grid->y < offset->y + 3) || (grid->y >= offset->y + screen_hgt - 3))
+        offset->y = grid->y - panel_hgt;
+
+    /* Scroll screen horizontally when off-center */
+    if (grid->x != offset->x + panel_wid)
+        offset->x = grid->x - panel_wid;
 
     /* Scroll screen horizontally when 3 grids from left/right edge */
-    if ((px < *sx + 3) || (px >= *sx + screen_wid - 3))
-        *sx = px - panel_wid;
+    else if ((grid->x < offset->x + 3) || (grid->x >= offset->x + screen_wid - 3))
+        offset->x = grid->x - panel_wid;
 
-    /* Verify wy, adjust if needed */
-    if (*sy > z_info->dungeon_hgt - screen_hgt) *sy = z_info->dungeon_hgt - screen_hgt;
-    if (*sy < 0) *sy = 0;
+    /* Verify offset->y, adjust if needed */
+    if (offset->y > z_info->dungeon_hgt - screen_hgt) offset->y = z_info->dungeon_hgt - screen_hgt;
+    if (offset->y < 0) offset->y = 0;
 
-    /* Verify wx, adjust if needed */
-    if (*sx > z_info->dungeon_wid - screen_wid) *sx = z_info->dungeon_wid - screen_wid;
-    if (*sx < 0) *sx = 0;
+    /* Verify offset->x, adjust if needed */
+    if (offset->x > z_info->dungeon_wid - screen_wid) offset->x = z_info->dungeon_wid - screen_wid;
+    if (offset->x < 0) offset->x = 0;
 }
 
 
@@ -258,16 +267,15 @@ void house_list(struct player *p, ang_file *fff)
 {
     int i, j = 0;
     char buf[160];
-    s16b sy, sx;
     char dpt[13];
-    int panel_wid, panel_hgt;
 
-    panel_wid = PANEL_SIZE / p->tile_wid;
-    panel_hgt = PANEL_SIZE / p->tile_hgt;
+    int panel_wid = PANEL_SIZE / p->tile_wid;
+    int panel_hgt = PANEL_SIZE / p->tile_hgt;
 
     for (i = 0; i < houses_count(); i++)
     {
         const char *where = "at";
+        struct loc grid;
 
         if (!house_owned_by(p, i)) continue;
 
@@ -276,12 +284,13 @@ void house_list(struct player *p, ang_file *fff)
         dpt[0] = '\0';
         wild_cat_depth(&houses[i].wpos, dpt, sizeof(dpt));
 
-        verify_panel_loc(p, houses[i].y_1, houses[i].x_1, &sy, &sx);
+        /* Get the sector of the door house as a "centered" panel */
+        loc_panel(p, &houses[i].door, &grid);
 
         if (in_town(&houses[i].wpos)) where = "in";
 
         strnfmt(buf, sizeof(buf), "  %c) House %d %s %s, sector [%d,%d]\n", I2A(j - 1), j, where,
-            dpt, (sy / panel_hgt), (sx / panel_wid));
+            dpt, (grid.y / panel_hgt), (grid.x / panel_wid));
         file_put(fff, buf);
     }
     if (!j) file_put(fff, "You do not own any house.\n");
@@ -298,7 +307,7 @@ bool level_has_owned_houses(struct worldpos *wpos)
     for (i = 0; i < houses_count(); i++)
     {
         /* House on this level and owned? */
-        if (houses[i].state && COORDS_EQUAL(&houses[i].wpos, wpos) && (houses[i].ownerid > 0))
+        if (houses[i].state && wpos_eq(&houses[i].wpos, wpos) && (houses[i].ownerid > 0))
             return true;
     }
 
@@ -316,7 +325,7 @@ void wipe_custom_houses(struct worldpos *wpos)
     for (house = 0; house < houses_count(); house++)
     {
         /* Skip houses not on this level */
-        if (!COORDS_EQUAL(&houses[house].wpos, wpos)) continue;
+        if (!wpos_eq(&houses[house].wpos, wpos)) continue;
 
         /* Wipe extended and custom houses */
         if (houses[house].state >= HOUSE_EXTENDED)
@@ -333,19 +342,21 @@ void wipe_custom_houses(struct worldpos *wpos)
  */
 bool has_home_inventory(struct player *p)
 {
-    int i, x, y;
+    int i;
 
     for (i = 0; i < houses_count(); i++)
     {
+        struct loc_iterator iter;
+
         if (!house_owned_by(p, i)) continue;
 
-        for (y = houses[i].y_1; y <= houses[i].y_2; y++)
+        loc_iterator_first(&iter, &houses[i].grid_1, &houses[i].grid_2);
+
+        do
         {
-            for (x = houses[i].x_1; x <= houses[i].x_2; x++)
-            {
-                if (square_object(chunk_get(&houses[i].wpos), y, x)) return true;
-            }
+            if (square_object(chunk_get(&houses[i].wpos), &iter.cur)) return true;
         }
+        while (loc_iterator_next(&iter));
     }
 
     return false;
@@ -357,7 +368,7 @@ bool has_home_inventory(struct player *p)
  */
 void house_dump(struct player *p, ang_file *fp)
 {
-    int i, j, x, y;
+    int i, j;
     char o_name[NORMAL_WID];
 
     /* Header */
@@ -367,32 +378,34 @@ void house_dump(struct player *p, ang_file *fp)
     for (i = 0; i < houses_count(); i++)
     {
         struct chunk *c = chunk_get(&houses[i].wpos);
+        struct loc_iterator iter;
 
         if (!house_owned_by(p, i)) continue;
 
+        loc_iterator_first(&iter, &houses[i].grid_1, &houses[i].grid_2);
+
         if (i > 0) file_put(fp, "\n");
         j = 0;
-        for (y = houses[i].y_1; y <= houses[i].y_2; y++)
+
+        do
         {
-            for (x = houses[i].x_1; x <= houses[i].x_2; x++)
+            struct object *obj;
+
+            for (obj = square_object(c, &iter.cur); obj; obj = obj->next)
             {
-                struct object *obj;
-
-                for (obj = square_object(c, y, x); obj; obj = obj->next)
+                /* Display groups of 26 objects */
+                if (j == 26)
                 {
-                    /* Display groups of 26 objects */
-                    if (j == 26)
-                    {
-                        file_put(fp, "\n");
-                        j = 0;
-                    }
-
-                    object_desc(p, o_name, sizeof(o_name), obj, ODESC_PREFIX | ODESC_FULL);
-                    file_putf(fp, "%c) %s\n", I2A(j), o_name);
-                    j++;
+                    file_put(fp, "\n");
+                    j = 0;
                 }
+
+                object_desc(p, o_name, sizeof(o_name), obj, ODESC_PREFIX | ODESC_FULL);
+                file_putf(fp, "%c) %s\n", I2A(j), o_name);
+                j++;
             }
         }
+        while (loc_iterator_next(&iter));
     }
 
     /* Add an empty line */
@@ -403,16 +416,15 @@ void house_dump(struct player *p, ang_file *fp)
 /*
  * Determine if the location is inside a house
  */
-bool location_in_house(struct worldpos *wpos, int y, int x)
+bool location_in_house(struct worldpos *wpos, struct loc *grid)
 {
     int i;
 
     for (i = 0; i < houses_count(); i++)
     {
         /* Check this one */
-        if (houses[i].state && COORDS_EQUAL(&houses[i].wpos, wpos) &&
-            (houses[i].x_1 <= x) && (x <= houses[i].x_2) &&
-            (houses[i].y_1 <= y) && (y <= houses[i].y_2))
+        if (houses[i].state && wpos_eq(&houses[i].wpos, wpos) &&
+            loc_between(grid, &houses[i].grid_1, &houses[i].grid_2))
         {
             return true;
         }
@@ -439,8 +451,9 @@ struct house_type *house_get(int house)
  */
 void reset_house(int house)
 {
-    int i, yy, xx;
+    int i;
     struct chunk *c = chunk_get(&houses[house].wpos);
+    struct loc_iterator iter;
 
     /* House is no longer owned */
     houses[house].ownername[0] = '\0';
@@ -462,24 +475,24 @@ void reset_house(int house)
                 struct source *who = &who_body;
 
                 source_player(who, get_player_index(get_connection(p->conn)), p);
-                effect_simple(EF_TELEPORT, who, "10", 0, 0, 0, NULL);
+                effect_simple(EF_TELEPORT, who, "10", 0, 0, 0, 0, 0, NULL);
             }
             while (house_inside(p, house));
         }
     }
 
     /* Close the door */
-    square_colorize_door(c, houses[house].door_y, houses[house].door_x, 0);
+    square_colorize_door(c, &houses[house].door, 0);
+
+    loc_iterator_first(&iter, &houses[house].grid_1, &houses[house].grid_2);
 
     /* Reset the house */
-    for (yy = houses[house].y_1; yy <= houses[house].y_2; yy++)
+    do
     {
-        for (xx = houses[house].x_1; xx <= houses[house].x_2; xx++)
-        {
-            /* Delete the objects */
-            square_excise_pile(c, yy, xx);
-        }
+        /* Delete the objects */
+        square_excise_pile(c, &iter.cur);
     }
+    while (loc_iterator_next(&iter));
 }
 
 
@@ -509,18 +522,23 @@ void reset_houses(struct player *p)
 void know_houses(struct player *p)
 {
     struct object *obj;
-    int i, y, x;
+    int i;
 
     for (i = 0; i < houses_count(); i++)
     {
         struct chunk *c = chunk_get(&houses[i].wpos);
+        struct loc_iterator iter;
 
         if (!house_owned_by(p, i)) continue;
 
-        for (y = houses[i].y_1; y <= houses[i].y_2; y++)
-            for (x = houses[i].x_1; x <= houses[i].x_2; x++)
-                for (obj = square_object(c, y, x); obj; obj = obj->next)
-                    object_notice_everything(p, obj);
+        loc_iterator_first(&iter, &houses[i].grid_1, &houses[i].grid_2);
+
+        do
+        {
+            for (obj = square_object(c, &iter.cur); obj; obj = obj->next)
+                object_notice_everything(p, obj);
+        }
+        while (loc_iterator_next(&iter));
     }
 }
 
@@ -534,56 +552,30 @@ static byte door_color(int missile_attr)
 /*
  * Colorize house door
  */
-void colorize_door(struct player *p, struct object_kind *kind, struct chunk *c, int y, int x)
+void colorize_door(struct player *p, struct object_kind *kind, struct chunk *c, struct loc *grid)
 {
-    int shopnum = PLAYER_STORE_GENERAL, house;
+    int house, i;
 
     /* Find the color of the missile */
     byte m_attr = (kind->flavor? flavor_x_attr[kind->flavor->fidx]: kind_x_attr[kind->kidx]);
 
+    /* Pick a house */
+    if ((house = pick_house(&p->wpos, grid)) == -1) return;
+
+    /* Must own the house */
+    if (!house_owned_by(p, house)) return;
+
     /* Find suitable color */
-    while (shopnum < PLAYER_STORE_MAX)
+    for (i = 1; i < BASIC_COLORS; i++)
     {
-        if (feat_x_attr[FEAT_HOME_CLOSED + shopnum][LIGHTING_LIT] == door_color(m_attr))
-        {
-            char store_name[NORMAL_WID];
+        if (feat_x_attr[FEAT_HOME_CLOSED + i][LIGHTING_LIT] != door_color(m_attr)) continue;
 
-            /* Pick a house */
-            if ((house = pick_house(&p->wpos, y, x)) == -1) break;
+        /* Perform colorization */
+        houses[house].color = i;
+        square_colorize_door(c, grid, i);
 
-            /* Must own the house */
-            if (!house_owned_by(p, house)) break;
-
-            /* Check house contents for non custom stores */
-            if (!get_player_store_name(house, store_name, sizeof(store_name)))
-            {
-                int hy, hx;
-                bool invalid = false;
-
-                /* Scan house */
-                for (hy = houses[house].y_1; (hy <= houses[house].y_2 && !invalid); hy++)
-                {
-                    for (hx = houses[house].x_1; (hx <= houses[house].x_2 && !invalid); hx++)
-                    {
-                        struct object *obj;
-
-                        /* Objects */
-                        for (obj = c->squares[hy][hx].obj; obj && !invalid; obj = obj->next)
-                            invalid = !check_store_drop_color(p, obj, shopnum);
-                    }
-                }
-                if (invalid) break;
-            }
-
-            /* Perform colorization */
-            houses[house].color = shopnum;
-            square_colorize_door(c, y, x, shopnum);
-
-            /* Done */
-            break;
-        }
-
-        shopnum++;
+        /* Done */
+        break;
     }
 }
 
@@ -593,54 +585,42 @@ void colorize_door(struct player *p, struct object_kind *kind, struct chunk *c, 
  */
 bool get_player_store_name(int num, char *name, int len)
 {
-    int x, y;
+    struct loc_iterator iter;
     const char *c;
     struct chunk *cv = chunk_get(&houses[num].wpos);
 
     /* Default title */
-    switch (houses[num].color)
-    {
-        case PLAYER_STORE_GENERAL: my_strcpy(name, "General Store", len); break;
-        case PLAYER_STORE_ARMOURY: my_strcpy(name, "Armoury", len); break;
-        case PLAYER_STORE_SMITH: my_strcpy(name, "Weapon Shop", len); break;
-        case PLAYER_STORE_TEMPLE: my_strcpy(name, "Ecclesial Shop", len); break;
-        case PLAYER_STORE_ALCHEMIST: my_strcpy(name, "Alchemy Shop", len); break;
-        case PLAYER_STORE_MAGIC: my_strcpy(name, "Magic Shop", len); break;
-        case PLAYER_STORE_LIBRARY: my_strcpy(name, "Bookseller", len); break;
-        case PLAYER_STORE_BM: my_strcpy(name, "Black Market", len); break;
-        case PLAYER_STORE_XBM: my_strcpy(name, "Expensive Black Market", len); break;
-        case PLAYER_STORE_TAVERN: my_strcpy(name, "Tavern", len); break;
-        case PLAYER_STORE_HOME: my_strcpy(name, "Home", len); break;
-    }
+    my_strcpy(name, "Shop", len);
+
+    loc_iterator_first(&iter, &houses[num].grid_1, &houses[num].grid_2);
 
     /* Scan house */
-    for (y = houses[num].y_1; y <= houses[num].y_2; y++)
+    do
     {
-        for (x = houses[num].x_1; x <= houses[num].x_2; x++)
-        {
-            struct object *obj;
+        struct object *obj;
 
-            /* Scan all objects in the grid */
-            for (obj = square_object(cv, y, x); obj; obj = obj->next)
+        /* Scan all objects in the grid */
+        for (obj = square_object(cv, &iter.cur); obj; obj = obj->next)
+        {
+            /* If there was an object, does it have a store name? */
+            if (obj->note)
             {
-                /* If there was an object, does it have a store name? */
-                if (obj->note)
+                c = my_stristr(quark_str(obj->note), "store name");
+                if (c)
                 {
-                    c = my_stristr(quark_str(obj->note), "store name");
-                    if (c)
+                    /* Get name */
+                    c += 10; /* skip "store name" */
+                    if (*c++ == ' ')
                     {
-                        /* Get name */
-                        c += 10; /* skip "store name" */
-                        if (*c++ == ' ')
-                        {
-                            my_strcpy(name, c, len);
-                            return true;
-                        }
+                        my_strcpy(name, c, len);
+                        return true;
                     }
                 }
             }
         }
     }
+    while (loc_iterator_next(&iter));
+
     return false;
 }
 
@@ -650,7 +630,7 @@ bool get_player_store_name(int num, char *name, int len)
  *
  * Returns -3 if invalid dimensions, -2 if not owned, -1 if not found, or the index if found.
  */
-int house_near(struct player *p, int x1, int y1, int x2, int y2)
+int house_near(struct player *p, struct loc *grid1, struct loc *grid2)
 {
     int house;
 
@@ -660,35 +640,37 @@ int house_near(struct player *p, int x1, int y1, int x2, int y2)
         if (!houses[house].state) continue;
 
         /* Skip houses not on this level */
-        if (!COORDS_EQUAL(&houses[house].wpos, &p->wpos)) continue;
+        if (!wpos_eq(&houses[house].wpos, &p->wpos)) continue;
 
         /* Skip houses far away */
-        if ((houses[house].x_2 + 2 < x1) || (houses[house].x_1 - 2 > x2) ||
-            (houses[house].y_2 + 2 < y1) || (houses[house].y_1 - 2 > y2))
+        if ((houses[house].grid_2.x + 2 < grid1->x) || (houses[house].grid_1.x - 2 > grid2->x) ||
+            (houses[house].grid_2.y + 2 < grid1->y) || (houses[house].grid_1.y - 2 > grid2->y))
         {
             continue;
         }
 
         /* Check north and south */
-        if ((y1 == houses[house].y_2 + 2) || (y2 == houses[house].y_1 - 2))
+        if ((grid1->y == houses[house].grid_2.y + 2) || (grid2->y == houses[house].grid_1.y - 2))
         {
             /* Do we own this house? */
             if (!house_owned_by(p, house)) return -2;
 
             /* Can we extend this house? */
-            if ((x1 == houses[house].x_1 - 1) && (x2 == houses[house].x_2 + 1)) return house;
+            if ((grid1->x == houses[house].grid_1.x - 1) && (grid2->x == houses[house].grid_2.x + 1))
+                return house;
 
             return -3;
         }
 
         /* Check east and west */
-        if ((x1 == houses[house].x_2 + 2) || (x2 == houses[house].x_1 - 2))
+        if ((grid1->x == houses[house].grid_2.x + 2) || (grid2->x == houses[house].grid_1.x - 2))
         {
             /* Do we own this house? */
             if (!house_owned_by(p, house)) return -2;
 
             /* Can we extend this house? */
-            if ((y1 == houses[house].y_1 - 1) && (y2 == houses[house].y_2 + 1)) return house;
+            if ((grid1->y == houses[house].grid_1.y - 1) && (grid2->y == houses[house].grid_2.y + 1))
+                return house;
 
             return -3;
         }
@@ -718,19 +700,24 @@ bool house_extend(void)
  */
 void memorize_houses(struct player *p)
 {
-    int i, y, x;
+    int i;
 
     for (i = 0; i < houses_count(); i++)
     {
         struct chunk *c = chunk_get(&houses[i].wpos);
+        struct loc_iterator iter;
 
         if (!house_owned_by(p, i)) continue;
 
         /* Only on the current level */
-        if (!COORDS_EQUAL(&houses[i].wpos, &p->wpos)) continue;
+        if (!wpos_eq(&houses[i].wpos, &p->wpos)) continue;
 
-        for (y = houses[i].y_1; y <= houses[i].y_2; y++)
-            for (x = houses[i].x_1; x <= houses[i].x_2; x++)
-                square_know_pile(p, c, y, x);
+        loc_iterator_first(&iter, &houses[i].grid_1, &houses[i].grid_2);
+
+        do
+        {
+            square_know_pile(p, c, &iter.cur);
+        }
+        while (loc_iterator_next(&iter));
     }
 }

@@ -73,7 +73,7 @@ int spell_color(struct player *p, int spell_index)
                 for (eff = spell->effect; eff; eff = eff->next)
                 {
                     if (eff->index != EF_TIMED_INC) continue;
-                    if (player_inc_check(p, NULL, eff->params[0], true)) return spell->lore_attr;
+                    if (player_inc_check(p, NULL, eff->subtype, true)) return spell->lore_attr;
                 }
                 return spell->lore_attr_resist;
             }
@@ -90,7 +90,7 @@ int spell_color(struct player *p, int spell_index)
         (spell->effect->index == EF_BREATH))
     {
         /* Treat by element */
-        switch (spell->effect->params[0])
+        switch (spell->effect->subtype)
         {
             /* Special case - sound */
             case ELEM_SOUND:
@@ -121,7 +121,7 @@ int spell_color(struct player *p, int spell_index)
                 if (!of_has(p->known_state.flags, OF_PROT_STUN))
                     return spell->lore_attr;
                 if (!of_has(p->known_state.flags, OF_PROT_CONF) &&
-                    (spell->effect->params[0] == ELEM_WATER))
+                    (spell->effect->subtype == ELEM_WATER))
                 {
                     return spell->lore_attr;
                 }
@@ -145,9 +145,9 @@ int spell_color(struct player *p, int spell_index)
             /* All other elements */
             default:
             {
-                if (p->known_state.el_info[spell->effect->params[0]].res_level == 3)
+                if (p->known_state.el_info[spell->effect->subtype].res_level == 3)
                     return spell->lore_attr_immune;
-                if (p->known_state.el_info[spell->effect->params[0]].res_level > 0)
+                if (p->known_state.el_info[spell->effect->subtype].res_level > 0)
                     return spell->lore_attr_resist;
                 return spell->lore_attr;
             }

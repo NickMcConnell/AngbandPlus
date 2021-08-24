@@ -311,6 +311,7 @@ void client_ready(bool newchar)
 {
     bool options[OPT_MAX];
     size_t opt;
+    int i;
 
     /* Save birth options for new characters */
     for (opt = 0; newchar && (opt < OPT_MAX); opt++)
@@ -354,12 +355,10 @@ void client_ready(bool newchar)
     Send_autoinscriptions();
 
     /* Send visual preferences */
-    Net_verify();
+    for (i = 0; i < 5; i++) Send_verify(i);
 
-    Setup.initialized = true;
-
-    /* Send request for splash screen (MOTD) to read */
-    Send_text_screen(TEXTFILE_MOTD, 0);
+    /* Send request for features to read */
+    Send_features(0, 0);
 }
 
 
@@ -714,14 +713,6 @@ void cleanup_angband(void)
     cleanup_body();
     for (i = 0; soc_info && (i < z_info->soc_max); i++) string_free(soc_info[i].name);
     mem_free(soc_info);
-    while (hints)
-    {
-        struct hint *h = hints->next;
-
-        string_free(hints->hint);
-        mem_free(hints);
-        hints = h;
-    }
     for (i = 0; r_info && (i < z_info->r_max); i++) string_free(r_info[i].name);
     mem_free(r_info);
     while (rb_info)
@@ -742,6 +733,19 @@ void cleanup_angband(void)
     mem_free(f_info);
     for (i = 0; trap_info && (i < z_info->trap_max); i++) string_free(trap_info[i].desc);
     mem_free(trap_info);
+    for (i = 0; i < TMD_MAX; i++)
+    {
+        struct timed_grade *grade = timed_grades[i];
+
+        while (grade)
+        {
+            struct timed_grade *next = grade->next;
+
+            string_free(grade->name);
+            mem_free(grade);
+            grade = next;
+        }
+    }
 
     /* Free the format() buffer */
     vformat_kill();

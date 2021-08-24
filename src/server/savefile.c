@@ -66,7 +66,7 @@
 /*
  * Magic bits at beginning of savefile
  */
-static const byte savefile_magic[4] = {1, 2, 0, 1};
+static const byte savefile_magic[4] = {1, 3, 0, 1};
 static const byte savefile_name[4] = "PWMG";
 
 
@@ -311,10 +311,10 @@ void wr_hturn(hturn* pv)
 }
 
 
-void wr_loc(struct loc l)
+void wr_loc(struct loc *l)
 {
-    wr_byte((byte)l.y);
-    wr_byte((byte)l.x);
+    wr_byte((byte)l->y);
+    wr_byte((byte)l->x);
 }
 
 
@@ -561,9 +561,15 @@ void save_dungeon_special(struct worldpos *wpos, bool town)
 
     /* Build a file name */
     if (town)
-        strnfmt(lvlname, sizeof(lvlname), "server.town.%d.%d.%d", wpos->wx, wpos->wy, wpos->depth);
+    {
+        strnfmt(lvlname, sizeof(lvlname), "server.town.%d.%d.%d", wpos->grid.x, wpos->grid.y,
+            wpos->depth);
+    }
     else
-        strnfmt(lvlname, sizeof(lvlname), "server.level.%d.%d.%d", wpos->wx, wpos->wy, wpos->depth);
+    {
+        strnfmt(lvlname, sizeof(lvlname), "server.level.%d.%d.%d", wpos->grid.x, wpos->grid.y,
+            wpos->depth);
+    }
     path_build(filename, sizeof(filename), ANGBAND_DIR_SAVE, lvlname);
 
     /* Open the savefile */
@@ -1095,23 +1101,26 @@ static bool load_dungeon_special(void)
     char filename[MSG_LEN];
     char levelname[32];
     ang_file *fhandle;
-    int i, x, y, num_levels = 0, num_towns = 0;
+    int i, num_levels = 0, num_towns = 0;
+    struct loc grid;
+
+    loc_init(&grid, 0, 0);
 
     /* Clear all the special levels and towns */
     for (i = 0; i < MAX_SPECIAL_LEVELS; i++)
     {
-        COORDS_SET(&special_levels[i], 0, 0, -1);
-        COORDS_SET(&special_towns[i], 0, 0, -1);
+        wpos_init(&special_levels[i], &grid, -1);
+        wpos_init(&special_towns[i], &grid, -1);
     }
 
-    for (y = radius_wild; y >= 0 - radius_wild; y--)
+    for (grid.y = radius_wild; grid.y >= 0 - radius_wild; grid.y--)
     {
-        for (x = 0 - radius_wild; x <= radius_wild; x++)
+        for (grid.x = 0 - radius_wild; grid.x <= radius_wild; grid.x++)
         {
-            struct wild_type *w_ptr = get_wt_info_at(y, x);
+            struct wild_type *w_ptr = get_wt_info_at(&grid);
 
             /* Don't load special wilderness levels if no wilderness */
-            if ((cfg_diving_mode > 1) && !((y == base_wpos()->wy) && (x == base_wpos()->wx)))
+            if ((cfg_diving_mode > 1) && !loc_eq(&grid, &base_wpos()->grid))
                 continue;
 
             for (i = 0; i < w_ptr->max_depth; i++)
@@ -1128,7 +1137,7 @@ static bool load_dungeon_special(void)
                 if ((cfg_diving_mode == 3) || cfg_more_towns)
                 {
                     /* Build a file name */
-                    strnfmt(levelname, sizeof(levelname), "server.town.%d.%d.%d", x, y, i);
+                    strnfmt(levelname, sizeof(levelname), "server.town.%d.%d.%d", grid.x, grid.y, i);
                     path_build(filename, sizeof(filename), ANGBAND_DIR_SAVE, levelname);
 
                     if (file_exists(filename))
@@ -1136,7 +1145,8 @@ static bool load_dungeon_special(void)
                     else
                     {
                         /* If no special town is found, check for special level */
-                        strnfmt(levelname, sizeof(levelname), "server.level.%d.%d.%d", x, y, i);
+                        strnfmt(levelname, sizeof(levelname), "server.level.%d.%d.%d", grid.x,
+                            grid.y, i);
                         path_build(filename, sizeof(filename), ANGBAND_DIR_SAVE, levelname);
                     }
                 }
@@ -1145,7 +1155,7 @@ static bool load_dungeon_special(void)
                 else
                 {
                     /* Build a file name */
-                    strnfmt(levelname, sizeof(levelname), "server.level.%d.%d.%d", x, y, i);
+                    strnfmt(levelname, sizeof(levelname), "server.level.%d.%d.%d", grid.x, grid.y, i);
                     path_build(filename, sizeof(filename), ANGBAND_DIR_SAVE, levelname);
                 }
 
@@ -1168,7 +1178,7 @@ static bool load_dungeon_special(void)
                         if (num_towns + 1 > MAX_SPECIAL_LEVELS) break;
 
                         /* Add this depth to the special town list */
-                        COORDS_SET(&special_towns[num_towns], y, x, i);
+                        wpos_init(&special_towns[num_towns], &grid, i);
                         num_towns++;
                     }
                     else
@@ -1177,7 +1187,7 @@ static bool load_dungeon_special(void)
                         if (num_levels + 1 > MAX_SPECIAL_LEVELS) break;
 
                         /* Add this depth to the special level list */
-                        COORDS_SET(&special_levels[num_levels], y, x, i);
+                        wpos_init(&special_levels[num_levels], &grid, i);
                         num_levels++;
                     }
                 }
@@ -1255,7 +1265,7 @@ bool special_level(struct worldpos *wpos)
 
     for (i = 0; i < MAX_SPECIAL_LEVELS; i++)
     {
-        if (COORDS_EQUAL(wpos, &special_levels[i]) || COORDS_EQUAL(wpos, &special_towns[i]))
+        if (wpos_eq(wpos, &special_levels[i]) || wpos_eq(wpos, &special_towns[i]))
             return true;
     }
 
@@ -1272,7 +1282,7 @@ bool special_town(struct worldpos *wpos)
 
     for (i = 0; i < MAX_SPECIAL_LEVELS; i++)
     {
-        if (COORDS_EQUAL(wpos, &special_towns[i])) return true;
+        if (wpos_eq(wpos, &special_towns[i])) return true;
     }
 
     return false;
@@ -1319,7 +1329,7 @@ bool dynamic_town(struct worldpos *wpos)
     if (special_town(wpos) || (cfg_diving_mode < 3)) return false;
 
     /* Not in wilderness dungeons */
-    if ((wpos->wy != base_wpos()->wy) || (wpos->wx != base_wpos()->wx)) return false;
+    if (!loc_eq(&wpos->grid, &base_wpos()->grid)) return false;
 
     /* Every 1000ft */
     return ((wpos->depth == 20) || (wpos->depth == 40) || (wpos->depth == 60) ||

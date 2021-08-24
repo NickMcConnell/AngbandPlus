@@ -324,7 +324,8 @@ static void console_who(int ind, char *dummy)
 
         /* Add an entry */
         entry = format("%s is %s %d %s %s %sat %d ft (%d, %d)\n", p->name, brave, p->lev,
-            p->race->name, p->clazz->name, batty, p->wpos.depth * 50, p->wpos.wx, p->wpos.wy);
+            p->race->name, p->clazz->name, batty, p->wpos.depth * 50,
+            p->wpos.grid.x, p->wpos.grid.y);
         Packet_printf(console_buf_w, "%S", entry);
     }
     Sockbuf_flush(console_buf_w);
@@ -402,7 +403,8 @@ static void console_whois(int ind, char *name)
 
     /* General character description */
     entry = format("%s is %s %d %s %s %sat %d ft (%d, %d)\n", p->name, brave, p->lev,
-            p->race->name, p->clazz->name, batty, p->wpos.depth * 50, p->wpos.wx, p->wpos.wy);
+            p->race->name, p->clazz->name, batty, p->wpos.depth * 50,
+            p->wpos.grid.x, p->wpos.grid.y);
     Packet_printf(console_buf_w, "%S", entry);
 
     /* Breakup the client version identifier */

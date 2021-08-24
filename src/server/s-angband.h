@@ -29,6 +29,7 @@
 #include "game-world.h"
 #include "generate.h"
 #include "help-ui.h"
+#include "hint.h"
 #include "history-ui.h"
 #include "house.h"
 #include "init.h"

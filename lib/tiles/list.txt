@@ -8,7 +8,7 @@
 # directory: directory name
 # size: tile width : tile height : tileset file name
 # pref: preference file name
-# extra: alphablending : start row : end row of double high tiles : distorted
+# extra: alphablending : start row : end row of double high tiles
 
 # 'name' indicates the beginning of an entry. The serial number must
 # increase for each new item. The menu name is the name of the graphics mode
@@ -35,16 +35,10 @@ name:1:David Gervais' tiles
 directory:gervais
 size:32:32:32x32.png
 pref:graf-dvg.prf
-extra:0:0:0:0
+extra:0:0:0
 
 name:2:Shockbolt's tiles
 directory:shockbolt
 size:64:64:64x64.png
 pref:graf-shb.prf
-extra:1:29:31:0
-
-name:3:Pseudo-3D tiles
-directory:pseudo
-size:48:64:48x64.png
-pref:graf-dvg.prf
-extra:0:0:0:1
+extra:1:29:31

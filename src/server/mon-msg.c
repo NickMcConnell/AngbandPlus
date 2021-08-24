@@ -124,7 +124,7 @@ static int message_flags(struct player *p, const struct monster *mon)
 {
     int flags = 0;
 
-    if (!panel_contains(p, mon->fy, mon->fx))
+    if (!panel_contains(p, &((struct monster *)mon)->grid))
         flags |= MON_MSG_FLAG_OFFSCREEN;
 
     if (!monster_is_visible(p, mon->midx))

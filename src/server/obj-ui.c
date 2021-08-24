@@ -72,7 +72,7 @@ static void display_item(struct player *p, struct object *obj, byte equipped)
     char o_name_terse[NORMAL_WID];
     char o_name_base[NORMAL_WID];
     int wgt;
-    s32b price;
+    s32b price = 0;
 
     memset(&info_xtra, 0, sizeof(info_xtra));
 
@@ -86,7 +86,8 @@ static void display_item(struct player *p, struct object *obj, byte equipped)
     wgt = (obj->tval? obj->weight * obj->number: 0);
 
     /* Display the price if needed */
-    price = ((in_store(p) && (p->store_num <= STORE_XBM))? price_item(p, obj, true, obj->number): 0);
+    if (in_store(p) && (store_at(p)->type <= STORE_XBM))
+        price = price_item(p, obj, true, obj->number);
 
     /* Get the info */
     get_object_info(p, obj, equipped, &info_xtra);

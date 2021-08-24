@@ -118,9 +118,6 @@ enum birth_rollers
 #define RES_PANELS  4
 #define RES_ROWS    9
 
-/* Temporary hack -- "ghost" class index */
-#define CLASS_GHOST 15
-
 /* History message types */
 enum
 {
@@ -139,6 +136,16 @@ enum
 #define hist_off(f, flag)        flag_off(f, HIST_SIZE, flag)
 #define hist_wipe(f)             flag_wipe(f, HIST_SIZE)
 #define hist_copy(f1, f2)        flag_copy(f1, f2, HIST_SIZE)
+
+struct timed_grade
+{
+    int grade;
+    byte color;
+    int max;
+    char *name;
+    char *msg;
+    struct timed_grade *next;
+};
 
 /*
  * Player structures
@@ -182,6 +189,31 @@ struct player_body
     struct equip_slot *slots;
 };
 
+struct brand_info
+{
+    bool brand;
+    byte lvl;
+};
+
+struct slay_info
+{
+    bool slay;
+    byte lvl;
+};
+
+struct modifier
+{
+    random_value value;
+    byte lvl;
+};
+
+struct player_shape
+{
+    struct player_shape *next;
+    char *name;
+    byte lvl;
+};
+
 /*
  * Player race info
  */
@@ -202,14 +234,17 @@ struct player_race
     int f_m_ht;                 /* Mod height (females)   */
     int f_b_wt;                 /* Base weight (females) */
     int f_m_wt;                 /* Mod weight (females) */
-    byte infra;                 /* Infra-vision range */
     int body;                   /* Race body */
-    s16b r_adj[STAT_MAX];       /* Stat bonuses */
+    struct modifier modifiers[OBJ_MOD_MAX]; /* Modifiers */
     s16b r_skills[SKILL_MAX];   /* Skills */
     bitflag flags[OF_SIZE];     /* Racial (object) flags */
+    byte flvl[OF_MAX];          /* Application level for racial (object) flags */
+    struct brand_info *brands;  /* Racial brands */
+    struct slay_info *slays;    /* Racial slays */
     bitflag pflags[PF_SIZE];    /* Racial (player) flags */
     struct history_chart *history;
     struct element_info el_info[ELEM_MAX];  /* Resists */
+    struct player_shape *shapes;
 };
 
 /*
@@ -270,6 +305,7 @@ struct class_spell
     int sfail;                          /* Minimum chance of failure */
     int sexp;                           /* Encoded experience bonus */
     int sproj;                          /* Can be projected */
+    int cooldown;                       /* Cooldown */
 };
 
 /*
@@ -306,18 +342,23 @@ struct player_class
     char *name;                     /* Name */
     unsigned int cidx;              /* Index */
     char *title[PY_MAX_LEVEL / 5];  /* Titles */
-    s16b c_adj[STAT_MAX];           /* Stat modifier */
+    struct modifier modifiers[OBJ_MOD_MAX]; /* Modifiers */
     s16b c_skills[SKILL_MAX];       /* Class skills */
     int x_skills[SKILL_MAX];        /* Extra skills */
     byte c_mhp;                     /* Hit-dice adjustment */
-    s16b c_exp;                     /* Experience factor */
+    bitflag flags[OF_SIZE];         /* (Object) flags */
+    byte flvl[OF_MAX];              /* Application level for (object) flags */
+    struct brand_info *brands;      /* Class brands */
+    struct slay_info *slays;        /* Class slays */
     bitflag pflags[PF_SIZE];        /* (Player) flags */
+    struct element_info el_info[ELEM_MAX];  /* Resists */
     int max_attacks;                /* Maximum possible attacks */
     int min_weight;                 /* Minimum weapon weight for calculations */
     int att_multiply;               /* Multiplier for attack calculations */
     struct start_item *start_items; /* Starting inventory */
     struct class_magic magic;       /* Magic spells */
     byte attr;                      /* Class color */
+    struct player_shape *shapes;
 };
 
 /*  
@@ -416,6 +457,7 @@ struct player_upkeep
     s16b inven_cnt;                 /* Number of items in inventory */
     s16b equip_cnt;                 /* Number of items in equipment */
     s16b quiver_cnt;                /* Number of items in the quiver */
+    s16b recharge_pow;              /* Power of recharge effect */
     bool running_update;            /* True if updating monster/object lists while running */
 };
 
@@ -478,7 +520,7 @@ enum
 
 struct player_square
 {
-    byte feat;
+    u16b feat;
     bitflag *info;
     struct object *obj;
     struct trap *trap;
@@ -557,8 +599,7 @@ struct player
 
     const struct player_race *race;
     const struct player_class *clazz;
-    s16b py;                                    /* Player location */
-    s16b px;                                    /* Player location */
+    struct loc grid;                            /* Player location */
     byte hitdie;                                /* Hit dice (sides) */
     s16b expfact;                               /* Experience factor */
     s16b age;                                   /* Characters age */
@@ -586,7 +627,6 @@ struct player
     s16b deep_descent;                          /* Deep Descent counter */
     s32b energy;                                /* Current energy */
     s16b food;                                  /* Current nutrition */
-    byte confusing;                             /* Glowing hands */
     byte unignoring;                            /* Player doesn't hide ignored items */
     byte *spell_flags;                          /* Spell flags */
     byte *spell_order;                          /* Spell order */
@@ -684,10 +724,8 @@ struct player
     byte tile_wid;
     byte tile_hgt;
     bool tile_distorted;
-    s16b offset_y;
-    s16b offset_x;
-    s16b offset_y_old;
-    s16b offset_x_old;
+    struct loc offset_grid;
+    struct loc old_offset_grid;
     cave_view_type **scr_info;
     cave_view_type **trn_info;
     char msg_log[MAX_MSG_HIST][NORMAL_WID]; /* Message history log */
@@ -711,13 +749,14 @@ struct player
     char second_channel[NORMAL_WID];        /* Where his legacy 'privates' are sent */
     byte *on_channel;                       /* Listening to what channels */
     cave_view_type info[MAX_TXT_INFO][NORMAL_WID];
-    s16b info_y;
-    s16b info_x;
+    struct loc info_grid;
     s16b last_info_line;
     byte remote_term;
     bool bubble_checked;                    /* Have we been included in a time bubble check? */
     hturn bubble_change;                    /* Server turn we last changed colour */
-    byte bubble_colour;                     /* Current warning colour for slow time bubbles */
+    bool bubble_colour;                     /* Current warning colour for slow time bubbles */
+    int bubble_speed;                       /* Current speed for slow time bubbles */
+    u32b blink_speed;                       /* Current blink speed for slow time bubbles */
     int arena_num;                          /* What arena this guy is in */
     u32b window_flag;
     bool prevents[128];                     /* Cache of "^" inscriptions */
@@ -729,14 +768,10 @@ struct player
     char interactive_hook[26][32];          /* Sub-menu information */
 
     /* Targeting */
-    bool target_set;                        /* Is the target set? */
-    struct source target_who;               /* Current monster (or player) being tracked */
-    int target_x;                           /* Target location */
-    int target_y;
+    struct target target;                   /* Player target */
     bool tt_flag;                           /* Interesting grids */
     s16b tt_m;                              /* Current index */
-    s16b tt_x;                              /* Current location */
-    s16b tt_y;
+    struct loc tt_grid;                     /* Current location */
     struct object *tt_o;                    /* Current object */
     byte tt_step;                           /* Current step */
     bool tt_help;                           /* Display info/help */
@@ -752,6 +787,7 @@ struct player
     byte *randart_info;                 /* Randarts player has encountered */
     byte *randart_created;              /* Randarts player has created */
     byte *spell_power;                  /* Spell power array */
+    byte *spell_cooldown;               /* Spell cooldown array */
     byte *kind_ignore;                  /* Ignore this object kind */
     byte *kind_everseen;                /* Has the player seen this object kind? */
     byte **ego_ignore_types;            /* Table for ignoring by ego and type */
@@ -785,8 +821,7 @@ struct player
     bool shimmer;                   /* Hack -- optimize multi-hued code (players) */
     bool delayed_display;           /* Hack -- delay messages after character creation */
     bool did_visuals;               /* Hack -- projection indicator (visuals) */
-    s16b old_py;                    /* Previous player location */
-    s16b old_px;
+    struct loc old_grid;            /* Previous player location */
     bool path_drawn;                /* NPP's visible targeting */
     int path_n;
     struct loc path_g[256];
@@ -797,6 +832,8 @@ struct player
     s16b mon_feeling;
     bool ladder;                    /* Hack -- add online ladder info to dump character */
     char depths[13];                /* Displayed coordinates */
+    int frac_blow;                  /* Blow frac (%) */
+    int frac_shot;                  /* Shot frac (%) */
 
     /*
      * In order to prevent the regeneration bonus from the first few turns, we have

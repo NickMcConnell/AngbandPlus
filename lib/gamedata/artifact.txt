@@ -420,6 +420,7 @@ power:0:4d5:-22:-25:0
 flags:ESP_UNDEAD | SEE_INVIS | SLOW_DIGEST | FREE_ACT | AGGRAVATE
 values:SPEED[-10] | STR[-10] | WIS[-10]
 brand:FIRE_3
+brand:VAMPIRIC
 desc:Dark flames wreath the naked steel of the Witch-King of Angmar.
 desc: A mighty curse to all those who wield it apart from its master,
 desc: the torture of the wraithworld awaits those who dare.
@@ -576,6 +577,7 @@ power:0:6d5:18:28:-50
 flags:FREE_ACT | SEE_INVIS | ESP_ALL | AGGRAVATE
 values:RES_ACID[1] | RES_ELEC[1] | RES_FIRE[1] | RES_COLD[1] | RES_CHAOS[1]
 brand:COLD_3
+brand:VAMPIRIC
 slay:ANIMAL_2
 slay:DRAGON_5
 slay:EVIL_2
@@ -845,6 +847,7 @@ flags:AGGRAVATE | ESP_UNDEAD
 values:STR[6] | TUNNEL[4] |
 values:RES_FIRE[3] | RES_DARK[1] | RES_CHAOS[1] | RES_DISEN[1]
 brand:FIRE_3
+brand:VAMPIRIC
 slay:DRAGON_3
 slay:ANIMAL_2
 slay:EVIL_2
@@ -1232,6 +1235,7 @@ values:RES_COLD[3] | RES_DARK[1] |
 values:RES_NETHER[1] | RES_CHAOS[1] | RES_DISEN[1] | RES_TIME[1]
 slay:UNDEAD_5
 slay:EVIL_2
+brand:VAMPIRIC
 desc:Created by tainted arts this scythe, black as the night, cuts souls apart
 desc: from their bodies. Which champion dares to wield it trying to resist its
 desc: corruption? Merely looking at this otherworldly artifact fills your heart
@@ -1272,7 +1276,7 @@ info:45:5:0
 alloc:0:45 to 127
 power:0:0d0:20:25:0
 flags:SUST_DEX | REGEN | ESP_ANIMAL | SEE_INVIS
-values:DEX[3] | STEALTH[3] | MIGHT[1] | SHOTS[1]
+values:DEX[3] | STEALTH[3] | MIGHT[1] | SHOTS[5]
 desc:More effort has gone into crafting this hunting weapon than you would
 desc: have expected. In fact there is no fault to be found in balance or power.
 
@@ -1282,7 +1286,7 @@ info:85:5:0
 alloc:0:85 to 127
 power:0:0d0:28:29:0
 flags:SEE_INVIS | PROT_FEAR
-values:STR[3] | MIGHT[1] | SHOTS[1] | RES_FIRE[1] | RES_COLD[1] | RES_ELEC[1] |
+values:STR[3] | MIGHT[1] | SHOTS[5] | RES_FIRE[1] | RES_COLD[1] | RES_ELEC[1] |
 values:RES_LIGHT[1] | RES_SOUND[1]
 desc:Wielded by Lugh, hero of the skies, this sling will match the skill of even
 desc: the greatest of fighters.
@@ -1303,7 +1307,7 @@ info:30:30:9000
 alloc:10:30 to 80
 power:0:0d0:12:15:0
 flags:SLOW_DIGEST
-values:INT[2] | WIS[2] | DEX[2] | SHOTS[1] | MIGHT[1] | SPEED[1] |
+values:INT[2] | WIS[2] | DEX[2] | SHOTS[5] | MIGHT[1] | SPEED[1] |
 values:RES_FIRE[1] | RES_ELEC[1] | RES_COLD[1]
 desc:One of a pair of hunting bows once belonging to Fëanor's two youngest
 desc: sons. The bows are like and yet unlike, much as the twin brothers were.
@@ -1313,7 +1317,7 @@ base-object:bow:Long Bow
 info:40:40:35000
 alloc:5:40 to 127
 power:0:0d0:20:22:0
-values:DEX[3] | SPEED[1] | STEALTH[1] | SHOTS[1] | RES_DISEN[1]
+values:DEX[3] | SPEED[1] | STEALTH[1] | SHOTS[10] | RES_DISEN[1]
 desc:The great bow of Beleg Cúthalion, the most famous archer of the Elves.
 desc: Its backbone of black yew holds strings of bear sinew, and of old, only
 desc: Beleg himself could draw them.
@@ -1334,7 +1338,7 @@ info:40:40:0
 alloc:0:40 to 127
 power:0:0d0:25:15:0
 flags:ESP_ANIMAL
-values:SEARCH[3] | SHOTS[1] | RES_ACID[1] | RES_FIRE[1] | RES_COLD[1] |
+values:SEARCH[3] | SHOTS[5] | RES_ACID[1] | RES_FIRE[1] | RES_COLD[1] |
 values:RES_ELEC[1] | RES_SOUND[1]
 slay:ANIMAL_2
 desc:A slim hunting bow of unique design and with enchantments protecting its
@@ -1346,7 +1350,7 @@ info:90:40:0
 alloc:0:90 to 127
 power:0:0d0:30:30:0
 flags:ESP_DRAGON | ESP_DEMON | ESP_UNDEAD | FREE_ACT | PROT_FEAR
-values:MIGHT[1] | SHOTS[1] | RES_DISEN[1]
+values:MIGHT[1] | SHOTS[5] | RES_DISEN[1]
 slay:DRAGON_5
 slay:DEMON_5
 slay:EVIL_2
@@ -1854,7 +1858,7 @@ desc:A massive golden crown, set with wondrous jewels of thought and warding,
 desc: once worn by the kings of ancient Númenor.
 
 
-### Light Armor ###
+### Light Armour ###
 
 name:of Incanus
 base-object:soft armour:Robe
@@ -1941,7 +1945,7 @@ desc:An amazingly light tunic and skirt sewn with thick, overlapping scales of
 desc: hardened leather. Those who wear it move with agility and assurance.
 
 
-### Heavy Armor ###
+### Heavy Armour ###
 
 name:of Trone
 base-object:hard armour:Metal Scale Mail
@@ -2229,6 +2233,7 @@ power:1:0d0:0:0:19
 flags:ESP_UNDEAD | REGEN | FREE_ACT
 values:WIS[4]
 slay:UNDEAD_5
+brand:VAMPIRIC
 desc:Sacred gloves of an archpriest whose name is not remembered.
 
 name:'Paurhach'

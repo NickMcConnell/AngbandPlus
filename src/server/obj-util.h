@@ -56,15 +56,19 @@ extern void set_origin(struct object *obj, byte origin, s16b origin_depth,
 extern void shimmer_objects(struct player *p, struct chunk *c);
 extern void process_objects(struct chunk *c);
 extern bool is_owner(struct player *p, struct object *obj);
+extern bool has_level_req(struct player *p, struct object *obj);
+extern void object_audit(struct player *p, struct object *obj);
 extern void object_own(struct player *p, struct object *obj);
 extern void preserve_artifact_aux(const struct object *obj);
 extern void preserve_artifact(const struct object *obj);
 extern bool use_object(struct player *p, struct object *obj, int amount, bool describe);
-extern void redraw_floor(struct worldpos *wpos, int y, int x);
+extern void redraw_floor(struct worldpos *wpos, struct loc *grid);
 extern bool object_marked_aware(struct player *p, const struct object *obj);
 extern struct object *object_from_index(struct player *p, int item, bool prompt,
     bool check_ignore);
 extern struct ego_item *lookup_ego_item(const char *name, struct object_kind *kind);
 extern struct artifact *lookup_artifact_name(const char *name);
+extern void print_custom_message(struct player *p, struct object *obj, const char *string,
+    int msg_type);
 
 #endif /* OBJECT_UTIL_H */

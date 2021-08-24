@@ -195,11 +195,11 @@ static void adjust_level(struct player *p)
 
             /* Restore stats */
             source_player(who, get_player_index(get_connection(p->conn)), p);
-            effect_simple(EF_RESTORE_STAT, who, "0", STAT_STR, 0, 0, NULL);
-            effect_simple(EF_RESTORE_STAT, who, "0", STAT_INT, 0, 0, NULL);
-            effect_simple(EF_RESTORE_STAT, who, "0", STAT_WIS, 0, 0, NULL);
-            effect_simple(EF_RESTORE_STAT, who, "0", STAT_DEX, 0, 0, NULL);
-            effect_simple(EF_RESTORE_STAT, who, "0", STAT_CON, 0, 0, NULL);
+            effect_simple(EF_RESTORE_STAT, who, "0", STAT_STR, 0, 0, 0, 0, NULL);
+            effect_simple(EF_RESTORE_STAT, who, "0", STAT_INT, 0, 0, 0, 0, NULL);
+            effect_simple(EF_RESTORE_STAT, who, "0", STAT_WIS, 0, 0, 0, 0, NULL);
+            effect_simple(EF_RESTORE_STAT, who, "0", STAT_DEX, 0, 0, 0, 0, NULL);
+            effect_simple(EF_RESTORE_STAT, who, "0", STAT_CON, 0, 0, 0, 0, NULL);
 
             /* Record this event in the character history */
             if (!(p->lev % 5))
@@ -207,6 +207,9 @@ static void adjust_level(struct player *p)
                 strnfmt(buf, sizeof(buf), "Reached level %d", p->lev);
                 history_add_unique(p, buf, HIST_GAIN_LEVEL);
             }
+
+            /* Player learns innate runes */
+            player_learn_innate(p);
         }
 
         /* Redraw */
@@ -217,7 +220,7 @@ static void adjust_level(struct player *p)
     if (redraw)
     {
         /* Update some stuff */
-        p->upkeep->update |= (PU_BONUS | PU_SPELLS);
+        p->upkeep->update |= (PU_BONUS | PU_SPELLS | PU_MONSTERS);
 
         /* Redraw some stuff */
         p->upkeep->redraw |= (PR_LEV | PR_TITLE | PR_EXP | PR_STATS | PR_EQUIP | PR_SPELL | PR_PLUSSES);
@@ -270,51 +273,19 @@ void player_exp_lose(struct player *p, s32b amount, bool permanent)
  */
 void player_flags(struct player *p, bitflag f[OF_SIZE])
 {
+    int i;
+
+    /* Unencumbered monks get nice abilities */
+    bool restrict = (player_has(p, PF_MARTIAL_ARTS) && !monk_armor_ok(p));
+
     /* Clear */
     of_wipe(f);
 
-    /* Add racial flags */
-    of_copy(f, p->race->flags);
-
-    /* Some classes become immune to fear at a certain plevel */
-    if (player_has(p, PF_BRAVERY_30) && (p->lev >= 30))
-        of_on(f, OF_PROT_FEAR);
-
-    /* Ent */
-    if (player_has(p, PF_GIANT))
+    /* Add racial/class flags */
+    for (i = 1; i < OF_MAX; i++)
     {
-        if (p->lev >= 5) of_on(f, OF_SEE_INVIS);
-        if (p->lev >= 10) of_on(f, OF_ESP_ANIMAL);
-        if (p->lev >= 15) of_on(f, OF_ESP_ORC);
-        if (p->lev >= 20) of_on(f, OF_ESP_TROLL);
-        if (p->lev >= 25) of_on(f, OF_ESP_GIANT);
-        if (p->lev >= 30) of_on(f, OF_ESP_DRAGON);
-        if (p->lev >= 35) of_on(f, OF_ESP_DEMON);
-        if (p->lev >= 40) of_on(f, OF_ESP_UNDEAD);
-        if (p->lev >= 45) of_on(f, OF_ESP_EVIL);
-        if (p->lev == PY_MAX_LEVEL) of_on(f, OF_ESP_RADIUS);
-    }
-
-    /* Thunderlord */
-    if (player_has(p, PF_THUNDERLORD))
-    {
-        if (p->lev >= 5) of_on(f, OF_ESP_DRAGON);
-    }
-
-    /* Unencumbered monks get nice abilities */
-    if (monk_armor_ok(p))
-    {
-        /* Levitation at level 10 */
-        if (p->lev >= 10) of_on(f, OF_FEATHER);
-
-        /* Fear resistance at level 15 */
-        if (p->lev >= 15) of_on(f, OF_PROT_FEAR);
-
-        /* Confusion resistance at level 20 */
-        if (p->lev >= 20) of_on(f, OF_PROT_CONF);
-
-        /* Free action at level 25 */
-        if (p->lev >= 25) of_on(f, OF_FREE_ACT);
+        if (of_has(p->race->flags, i) && (p->lev >= p->race->flvl[i])) of_on(f, i);
+        if (of_has(p->clazz->flags, i) && (p->lev >= p->clazz->flvl[i]) && !restrict) of_on(f, i);
     }
 
     /* Ghost */
@@ -478,7 +449,7 @@ void player_safe_name(char *safe, size_t safelen, const char *name)
 
 void player_cave_new(struct player *p, int height, int width)
 {
-    int y, x;
+    struct loc grid;
 
     if (p->cave->allocated) player_cave_free(p);
 
@@ -488,13 +459,13 @@ void player_cave_new(struct player *p, int height, int width)
     p->cave->squares = mem_zalloc(p->cave->height * sizeof(struct player_square*));
     p->cave->noise.grids = mem_zalloc(p->cave->height * sizeof(u16b*));
     p->cave->scent.grids = mem_zalloc(p->cave->height * sizeof(u16b*));
-    for (y = 0; y < p->cave->height; y++)
+    for (grid.y = 0; grid.y < p->cave->height; grid.y++)
     {
-        p->cave->squares[y] = mem_zalloc(p->cave->width * sizeof(struct player_square));
-        for (x = 0; x < p->cave->width; x++)
-            p->cave->squares[y][x].info = mem_zalloc(SQUARE_SIZE * sizeof(bitflag));
-        p->cave->noise.grids[y] = mem_zalloc(p->cave->width * sizeof(u16b));
-        p->cave->scent.grids[y] = mem_zalloc(p->cave->width * sizeof(u16b));
+        p->cave->squares[grid.y] = mem_zalloc(p->cave->width * sizeof(struct player_square));
+        for (grid.x = 0; grid.x < p->cave->width; grid.x++)
+            square_p(p, &grid)->info = mem_zalloc(SQUARE_SIZE * sizeof(bitflag));
+        p->cave->noise.grids[grid.y] = mem_zalloc(p->cave->width * sizeof(u16b));
+        p->cave->scent.grids[grid.y] = mem_zalloc(p->cave->width * sizeof(u16b));
     }
     p->cave->allocated = true;
 }
@@ -589,7 +560,7 @@ void init_player(struct player *p, int conn, bool old_history, bool no_recall)
 
     /* Allocate memory for home storage */
     p->home = mem_zalloc(sizeof(struct store));
-    memcpy(p->home, &stores[STORE_HOME], sizeof(struct store));
+    memcpy(p->home, &stores[store_max - 2], sizeof(struct store));
     p->home->stock = NULL;
 
     /* Analyze every object */
@@ -744,21 +715,21 @@ void cleanup_player(struct player *p)
 
 void player_cave_free(struct player *p)
 {
-    int y, x;
+    struct loc grid;
 
     if (!p->cave->allocated) return;
 
-    for (y = 0; y < p->cave->height; y++)
+    for (grid.y = 0; grid.y < p->cave->height; grid.y++)
     {
-        for (x = 0; x < p->cave->width; x++)
+        for (grid.x = 0; grid.x < p->cave->width; grid.x++)
         {
-            mem_free(p->cave->squares[y][x].info);
-            square_forget_pile(p, y, x);
-            square_forget_trap(p, y, x);
+            mem_free(square_p(p, &grid)->info);
+            square_forget_pile(p, &grid);
+            square_forget_trap(p, &grid);
         }
-        mem_free(p->cave->squares[y]);
-        mem_free(p->cave->noise.grids[y]);
-        mem_free(p->cave->scent.grids[y]);
+        mem_free(p->cave->squares[grid.y]);
+        mem_free(p->cave->noise.grids[grid.y]);
+        mem_free(p->cave->scent.grids[grid.y]);
     }
     mem_free(p->cave->squares);
     mem_free(p->cave->noise.grids);
@@ -772,7 +743,8 @@ void player_cave_free(struct player *p)
  */
 void player_cave_clear(struct player *p, bool full)
 {
-    int y, x;
+    struct loc begin, end;
+    struct loc_iterator iter;
 
     /* Assume no feeling */
     if (full) p->feeling = -1;
@@ -780,52 +752,56 @@ void player_cave_clear(struct player *p, bool full)
     /* Reset number of feeling squares */
     if (full) p->cave->feeling_squares = 0;
 
+    loc_init(&begin, 0, 0);
+    loc_init(&end, p->cave->width, p->cave->height);
+    loc_iterator_first(&iter, &begin, &end);
+
     /* Clear flags and flow information. */
-    for (y = 0; y < p->cave->height; y++)
+    do
     {
-        for (x = 0; x < p->cave->width; x++)
+        /* Erase feat */
+        square_forget(p, &iter.cur);
+
+        /* Erase object */
+        square_forget_pile(p, &iter.cur);
+
+        /* Erase trap */
+        square_forget_trap(p, &iter.cur);
+
+        /* Erase flags */
+        if (full)
+            sqinfo_wipe(square_p(p, &iter.cur)->info);
+        else
         {
-            /* Erase feat */
-            square_forget(p, y, x);
+            /* Erase flags (no bounds checking) */
+            sqinfo_off(square_p(p, &iter.cur)->info, SQUARE_SEEN);
+            sqinfo_off(square_p(p, &iter.cur)->info, SQUARE_VIEW);
+            sqinfo_off(square_p(p, &iter.cur)->info, SQUARE_DTRAP);
+        }
 
-            /* Erase object */
-            square_forget_pile(p, y, x);
-
-            /* Erase trap */
-            square_forget_trap(p, y, x);
-
-            /* Erase flags */
-            if (full)
-                sqinfo_wipe(p->cave->squares[y][x].info);
-            else
-            {
-                /* Erase flags (no bounds checking) */
-                sqinfo_off(p->cave->squares[y][x].info, SQUARE_SEEN);
-                sqinfo_off(p->cave->squares[y][x].info, SQUARE_VIEW);
-                sqinfo_off(p->cave->squares[y][x].info, SQUARE_DTRAP);
-            }
-
-            /* Erase flow */
-            if (full)
-            {
-                p->cave->noise.grids[y][x] = 0;
-                p->cave->scent.grids[y][x] = 0;
-            }
+        /* Erase flow */
+        if (full)
+        {
+            p->cave->noise.grids[iter.cur.y][iter.cur.x] = 0;
+            p->cave->scent.grids[iter.cur.y][iter.cur.x] = 0;
         }
     }
+    while (loc_iterator_next_strict(&iter));
 
     /* Memorize the content of owned houses */
     memorize_houses(p);
 }
 
 
-bool player_square_in_bounds(struct player *p, int y, int x)
+bool player_square_in_bounds(struct player *p, struct loc *grid)
 {
-    return ((x >= 0) && (x < p->cave->width) && (y >= 0) && (y < p->cave->height));
+    return ((grid->x >= 0) && (grid->x < p->cave->width) &&
+        (grid->y >= 0) && (grid->y < p->cave->height));
 }
 
 
-bool player_square_in_bounds_fully(struct player *p, int y, int x)
+bool player_square_in_bounds_fully(struct player *p, struct loc *grid)
 {
-    return ((x > 0) && (x < p->cave->width - 1) && (y > 0) && (y < p->cave->height - 1));
+    return ((grid->x > 0) && (grid->x < p->cave->width - 1) &&
+        (grid->y > 0) && (grid->y < p->cave->height - 1));
 }

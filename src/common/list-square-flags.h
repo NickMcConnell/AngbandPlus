@@ -26,3 +26,4 @@ SQUARE(NO_ESP, "telepathy doesn't work on this square") /* global */
 SQUARE(PROJECT, "marked for projection processing")     /* global */
 SQUARE(NO_STAIRS, "square can't contain stairs")        /* global */
 SQUARE(STAIRS, "square can contain stairs")             /* global */
+SQUARE(NOTRASH, "square cannot contain trash")          /* global */

@@ -134,7 +134,7 @@ bool master_in_party(s16b p1_id, s16b p2_id)
 
 bool pvm_check(struct player *p, struct monster *mon)
 {
-   /* Paranoia */
+    /* Paranoia */
     if (!mon->race) return false;
 
     /* Hack -- dungeon master and his monsters */
@@ -142,6 +142,9 @@ bool pvm_check(struct player *p, struct monster *mon)
 
     /* Same party */
     if (master_in_party(mon->master, p->id)) return false;
+
+    /* Friendly */
+    if (rf_has(mon->race->flags, RF_FRIENDLY)) return false;
 
     /* Always hostile by default */
     return true;
@@ -479,7 +482,7 @@ void party_msg_format(int party_id, const char *fmt, ...)
 
 bool party_share_with(struct player *p, int party_id, struct player *q)
 {
-    return (in_party(q, party_id) && COORDS_EQUAL(&q->wpos, &p->wpos) &&
+    return (in_party(q, party_id) && wpos_eq(&q->wpos, &p->wpos) &&
         ((cfg_party_sharelevel == -1) || (abs(q->lev - p->lev) <= cfg_party_sharelevel)));
 }
 
@@ -722,7 +725,7 @@ static bool remove_hostility(struct player *attacker, struct player *target, boo
  *
  * Returns true if a hostile response must be taken
  */
-bool pvp_check(struct player *attacker, struct player *target, int mode, bool silent, byte feat)
+bool pvp_check(struct player *attacker, struct player *target, int mode, bool silent, u16b feat)
 {
     /* Paranoia: we cannot be hostile toward self! */
     if (attacker == target) return false;
@@ -894,12 +897,9 @@ void party_msg_near(struct player *p, const char *msg)
 {
     char buf[MSG_LEN];
     int i;
-    int y = p->py;
-    int x = p->px;
-    int party = p->party;
 
     /* Not a member of any party */
-    if (!party) return;
+    if (!p->party) return;
 
     /* Format the message */
     strnfmt(buf, sizeof(buf), "%s%s", p->name, msg);
@@ -914,13 +914,13 @@ void party_msg_near(struct player *p, const char *msg)
         if (p == q) continue;
 
         /* Make sure this player is at this depth */
-        if (!COORDS_EQUAL(&q->wpos, &p->wpos)) continue;
+        if (!wpos_eq(&q->wpos, &p->wpos)) continue;
 
         /* Meh, different party */
-        if (!player_in_party(party, q)) continue;
+        if (!player_in_party(p->party, q)) continue;
 
         /* Can he see this player? */
-        if (square_isview(q, y, x))
+        if (square_isview(q, &p->grid))
         {
             /* Send the message */
             msg_print(q, buf, MSG_PY_MISC);

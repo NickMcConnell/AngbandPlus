@@ -17,8 +17,8 @@
 # alloc: commonness : min " to " max
 # charges: charges
 # pile: chance of being generated in a pile : dice for number of items
-# effect: effect when used : parameter (maybe) : parameter (maybe)
-# param: parameter : parameter (if needed)
+# effect: effect when used : parameter : parameter : parameter
+# effect-yx: y value for effect : x value for effect
 # dice: dice string
 # expr: dice expression
 # msg_self: message to give when the object is used
@@ -86,10 +86,10 @@
 # without a pile line appear singly.
 
 # 'effect' is for the effect when an object is eaten, activated or whatever.
-# Fields are the name of the effect (as found in src/list-effects.h) and
+# Fields are the name of the effect (as found in list-effects.h) and
 # possibly one or two parameters to the effect.
 
-# 'param' is for an extra parameter to an effect if necessary
+# 'effect-yx' is y and x values for an effect if necessary
 
 # 'dice' provides a random value to be used by an effect (for damage,
 # healing, etc). As well as the normal random value fields described above,
@@ -111,7 +111,7 @@
 # activatable item.              
 
 # 'flags' is for flags, which can be either object flags (as found in
-# src/list-object-flags.h) or kind flags (src/list-kind-flags.h).  As many
+# list-object-flags.h) or kind flags (list-kind-flags.h).  As many
 # flags: lines may be used as are needed to specify all the flags, and
 # flags are separated by the '|' symbol.
 
@@ -1009,7 +1009,7 @@ flags:DIG_3
 desc:This is a digging tool. Use it to dig in walls, destroy doors, or cut wood.
 
 
-##### Armor #####
+##### Armour #####
 
 ### Boots ###
 
@@ -1913,8 +1913,7 @@ type:scroll
 properties:1:5:15
 alloc:50:1 to 100
 pile:100:2d3
-effect:TELEPORT
-param:0:1
+effect:TELEPORT:NONE:0:1
 dice:10
 msg_other: blinks away.
 
@@ -1924,8 +1923,7 @@ type:scroll
 properties:10:5:40
 alloc:40:10 to 100
 pile:25:2
-effect:TELEPORT
-param:0:1
+effect:TELEPORT:NONE:0:1
 dice:$B
 expr:B:MAX_SIGHT:* 5
 msg_other: teleports away.
@@ -1936,8 +1934,7 @@ type:scroll
 properties:20:5:800
 alloc:16:20 to 100
 pile:10:2
-effect:TELEPORT_LEVEL
-param:1
+effect:TELEPORT_LEVEL:NONE:1
 
 ### Detection ###
 
@@ -1948,7 +1945,7 @@ properties:5:5:65
 alloc:50:5 to 100
 pile:70:1d3
 effect:MAP_AREA
-dice:22d40
+effect-yx:22:40
 
 name:Treasure Detection
 graphics:?:w
@@ -1957,7 +1954,7 @@ properties:0:5:70
 alloc:50:0 to 70
 pile:40:1d5
 effect:DETECT_TREASURES
-dice:22d40
+effect-yx:22:40
 
 name:Detect Invisible
 graphics:?:w
@@ -1966,7 +1963,7 @@ properties:1:5:15
 alloc:50:1 to 70
 pile:70:1d3
 effect:DETECT_INVISIBLE_MONSTERS
-dice:22d40
+effect-yx:22:40
 
 ### Enchantments ###
 
@@ -1976,8 +1973,7 @@ type:scroll
 properties:15:5:125
 alloc:40:15 to 70
 pile:25:2
-effect:ENCHANT
-param:1:1
+effect:ENCHANT:TOHIT:1
 dice:1
 
 name:Enchant Weapon To-Dam
@@ -1986,8 +1982,7 @@ type:scroll
 properties:15:5:125
 alloc:40:15 to 70
 pile:25:2
-effect:ENCHANT
-param:2:1
+effect:ENCHANT:TODAM:1
 dice:1
 
 name:Enchant Armour
@@ -1996,8 +1991,7 @@ type:scroll
 properties:15:5:125
 alloc:40:15 to 70
 pile:25:2
-effect:ENCHANT
-param:4:1
+effect:ENCHANT:TOAC:1
 dice:1
 
 name:*Enchant Weapon*
@@ -2006,8 +2000,7 @@ type:scroll
 properties:50:5:500
 alloc:40:50 to 100
 pile:25:2
-effect:ENCHANT
-param:3:1
+effect:ENCHANT:TOBOTH:1
 dice:1d3
 
 name:*Enchant Armour*
@@ -2016,8 +2009,7 @@ type:scroll
 properties:50:5:500
 alloc:40:50 to 100
 pile:25:2
-effect:ENCHANT
-param:4:1
+effect:ENCHANT:TOAC:1
 dice:2+1d3
 
 name:Remove Curse
@@ -2046,8 +2038,7 @@ type:scroll
 properties:1:5:0
 alloc:10:1 to 100
 pile:70:1d3
-effect:SUMMON
-param:0:-1
+effect:SUMMON:ANY:0:-1
 dice:1d3
 
 name:Summon Undead
@@ -2056,8 +2047,7 @@ type:scroll
 properties:15:5:0
 alloc:10:15 to 100
 pile:70:1d3
-effect:SUMMON:UNDEAD
-param:0:-1
+effect:SUMMON:UNDEAD:0:-1
 dice:1d3
 
 name:Acquirement
@@ -2084,8 +2074,7 @@ type:scroll
 properties:40:5:200
 alloc:40:40 to 100
 pile:25:2
-effect:PROJECT_LOS_AWARE:DISP_UNDEAD
-param:1
+effect:PROJECT_LOS_AWARE:DISP_UNDEAD:0:1
 dice:60
 
 name:Banishment
@@ -2129,7 +2118,7 @@ properties:0:5:15
 alloc:50:0 to 60
 pile:35:2d3
 effect:LIGHT_AREA
-param:2
+effect:BLAST:LIGHT_WEAK:2
 dice:2d8
 msg_other: calls light.
 
@@ -2214,23 +2203,22 @@ type:scroll
 properties:5:5:30
 alloc:16:5 to 60
 pile:25:2
-effect:CONFUSING
+effect:TIMED_INC:ATT_CONF
+dice:10000
 
 name:Rune of Protection
 graphics:?:w
 type:scroll
 properties:70:5:500
 alloc:30:70 to 100
-effect:RUNE
-param:1
+effect:GLYPH:WARDING:1
 
 name:*Destruction*
 graphics:?:w
 type:scroll
 properties:40:5:1000
 alloc:30:40 to 100
-effect:DESTRUCTION
-dice:15
+effect:DESTRUCTION:LIGHT:15
 
 ### Bad scrolls ###
 
@@ -2252,7 +2240,7 @@ properties:1:5:0
 alloc:10:1 to 70
 pile:70:1d3
 effect:DARKEN_AREA
-param:3
+effect:BLAST:DARK_WEAK:3
 dice:10
 
 name:Trap Creation
@@ -2261,8 +2249,7 @@ type:scroll
 properties:10:5:0
 alloc:10:10 to 70
 pile:70:1d3
-effect:TOUCH:MAKE_TRAP
-param:3:1
+effect:TOUCH:MAKE_TRAP:3:1
 msg_self:You hear a low-pitched whistling sound.
 
 
@@ -2449,7 +2436,7 @@ name:Neutralize Poison
 graphics:!:d
 type:potion
 properties:1:4:75
-alloc:40:1 to 35
+alloc:60:1 to 35
 pile:25:2
 effect:CURE:POISONED
 
@@ -2532,8 +2519,7 @@ type:potion
 properties:25:4:800
 alloc:40:25 to 100
 pile:25:2
-effect:LIGHT_LEVEL
-param:1
+effect:LIGHT_LEVEL:NONE:1
 
 name:*Enlightenment*
 graphics:!:d
@@ -2541,15 +2527,13 @@ type:potion
 properties:70:4:12000
 alloc:8:70 to 100
 effect:DETECT_ALL_MONSTERS
-effect:DETECT_TREASURES
-param:1
-dice:22d40
+effect:DETECT_TREASURES:NONE:1
+effect-yx:22:40
 effect:GAIN_STAT:WIS
 effect:RESTORE_STAT:WIS
 effect:GAIN_STAT:INT
 effect:RESTORE_STAT:INT
-effect:LIGHT_LEVEL
-param:1
+effect:LIGHT_LEVEL:NONE:1
 
 ### Buffs ###
 
@@ -2559,8 +2543,7 @@ type:potion
 properties:1:4:75
 alloc:40:1 to 100
 pile:25:2
-effect:TIMED_INC:FAST
-param:5
+effect:TIMED_INC:FAST:0:5
 dice:20+1d20
 
 name:Heroism
@@ -2749,11 +2732,9 @@ properties:40:4:100
 pile:100:1d2
 alloc:20:40 to 100
 pile:70:1d3
-effect:BREATH:COLD
-param:20:1
+effect:BREATH:COLD:1:20
 dice:80
-effect:BREATH:FIRE
-param:20:1
+effect:BREATH:FIRE:1:20
 dice:80
 effect:RANDOM
 dice:2
@@ -2954,7 +2935,7 @@ type:wand
 properties:10:10:300
 alloc:20:10 to 100
 combat:0:1d1:0:0:0
-charges:3+d4
+charges:6+d10
 effect:LINE:KILL_WALL
 dice:20+1d30
 
@@ -2965,8 +2946,7 @@ properties:20:10:400
 alloc:20:20 to 60
 combat:0:1d1:0:0:0
 charges:6+d8
-effect:BOLT_AWARE:MON_POLY
-param:1
+effect:BOLT_AWARE:MON_POLY:1
 dice:$B
 expr:B:PLAYER_LEVEL:+ 0
 
@@ -2995,8 +2975,7 @@ properties:20:10:3500
 alloc:20:20 to 100
 combat:0:1d1:0:0:0
 charges:6+d5
-effect:BOLT_STATUS:AWAY_ALL
-param:1
+effect:BOLT_STATUS:AWAY_ALL:1
 dice:$B
 expr:B:MAX_SIGHT:* 5
 
@@ -3031,7 +3010,7 @@ alloc:20:50 to 100
 combat:0:1d1:0:0:0
 charges:1+d3
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-effect:BREATH:FIRE:30
+effect:BREATH:FIRE:0:30
 dice:200
 msg_other: shoots dragon fire!
 
@@ -3043,7 +3022,7 @@ alloc:20:50 to 100
 combat:0:1d1:0:0:0
 charges:1+d3
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-effect:BREATH:COLD:30
+effect:BREATH:COLD:0:30
 dice:160
 msg_other: shoots dragon frost!
 
@@ -3055,19 +3034,19 @@ alloc:20:60 to 100
 combat:0:1d1:0:0:0
 charges:1+d3
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-effect:BREATH:POIS:30
+effect:BREATH:POIS:0:30
 dice:160
 msg_other: shoots dragon poison!
-effect:BREATH:COLD:30
+effect:BREATH:COLD:0:30
 dice:160
 msg_other: shoots dragon frost!
-effect:BREATH:FIRE:30
+effect:BREATH:FIRE:0:30
 dice:160
 msg_other: shoots dragon fire!
-effect:BREATH:ELEC:30
+effect:BREATH:ELEC:0:30
 dice:160
 msg_other: shoots dragon lightning!
-effect:BREATH:ACID:30
+effect:BREATH:ACID:0:30
 dice:160
 msg_other: shoots dragon acid!
 effect:RANDOM
@@ -3130,8 +3109,7 @@ properties:10:50:0
 alloc:10:10 to 100
 combat:0:1d2:0:0:0
 charges:2d3
-effect:SUMMON
-param:0:-1
+effect:SUMMON:ANY:0:-1
 dice:1d3
 
 name:Haste Monsters
@@ -3152,7 +3130,7 @@ alloc:10:5 to 40
 combat:0:1d2:0:0:0
 charges:8+d8
 effect:DARKEN_AREA
-param:3
+effect:BLAST:DARK_WEAK:3
 dice:10
 
 ### Destruction ### 
@@ -3164,8 +3142,7 @@ properties:40:50:350
 alloc:20:40 to 100
 combat:0:1d2:0:0:0
 charges:3+d5
-effect:EARTHQUAKE
-dice:10
+effect:EARTHQUAKE:NONE:10
 
 name:*Destruction*
 graphics:_:d
@@ -3174,8 +3151,7 @@ properties:50:50:6000
 alloc:20:50 to 100
 combat:0:1d2:0:0:0
 charges:1+d3
-effect:DESTRUCTION
-dice:15
+effect:DESTRUCTION:LIGHT:15
 
 ### Monster-affecting ###
 
@@ -3206,7 +3182,7 @@ properties:10:50:700
 alloc:20:10 to 100
 combat:0:1d2:0:0:0
 charges:6+d5
-effect:PROJECT_LOS_AWARE:MON_SLEEP
+effect:PROJECT_LOS_AWARE:SLEEP_ALL
 
 ### Detect ###
 
@@ -3218,7 +3194,7 @@ alloc:30:5 to 100
 combat:0:1d2:0:0:0
 charges:8+d15
 effect:DETECT_INVISIBLE_MONSTERS
-dice:22d40
+effect-yx:22:40
 
 name:Detect Evil
 graphics:_:d
@@ -3228,7 +3204,7 @@ alloc:30:20 to 100
 combat:0:1d2:0:0:0
 charges:8+d15
 effect:DETECT_EVIL
-dice:22d40
+effect-yx:22:40
 
 name:Magic Mapping
 graphics:_:d
@@ -3238,7 +3214,7 @@ alloc:40:10 to 100
 combat:0:1d2:0:0:0
 charges:5+d5
 effect:MAP_AREA
-dice:22d40
+effect-yx:22:40
 
 ### Healing ###
 
@@ -3296,8 +3272,7 @@ properties:50:50:1200
 alloc:50:50 to 100
 combat:0:1d2:0:0:0
 charges:4+d3
-effect:PROJECT_LOS_AWARE:DISP_EVIL
-param:1
+effect:PROJECT_LOS_AWARE:DISP_EVIL:0:1
 dice:60
 
 name:Banishment
@@ -3316,8 +3291,7 @@ properties:70:50:4000
 alloc:20:70 to 100
 combat:0:1d2:0:0:0
 charges:1+d3
-effect:PROJECT_LOS:DISP_ALL
-param:1
+effect:PROJECT_LOS:DISP_ALL:0:1
 dice:120
 
 name:Holiness
@@ -3342,8 +3316,7 @@ dice:$B+1d25
 expr:B:PLAYER_LEVEL:* 3
 effect:HEAL_HP
 dice:50
-effect:PROJECT_LOS_AWARE:DISP_EVIL
-param:1
+effect:PROJECT_LOS_AWARE:DISP_EVIL:0:1
 dice:120
 
 ### Utility ###
@@ -3352,11 +3325,11 @@ name:Light
 graphics:_:d
 type:staff
 properties:5:50:250
-alloc:20:5 to 80
+alloc:30:5 to 80
 combat:0:1d2:0:0:0
 charges:8+d20
 effect:LIGHT_AREA
-param:2
+effect:BLAST:LIGHT_WEAK:2
 dice:2d8
 
 name:Starlight
@@ -3377,8 +3350,7 @@ properties:20:50:2000
 alloc:50:20 to 100
 combat:0:1d2:0:0:0
 charges:5+d4
-effect:TELEPORT
-param:0:1
+effect:TELEPORT:NONE:0:1
 dice:$B
 expr:B:MAX_SIGHT:* 5
 
@@ -3389,8 +3361,7 @@ properties:40:50:2000
 alloc:20:40 to 100
 combat:0:1d2:0:0:0
 charges:4+d3
-effect:TIMED_INC:FAST
-param:5
+effect:TIMED_INC:FAST:0:5
 dice:20+1d20
 
 name:Remove Curse
@@ -3631,8 +3602,8 @@ time:30
 name:Light
 graphics:-:d
 type:rod
-properties:8:15:500
-alloc:20:8 to 100
+properties:5:15:500
+alloc:30:5 to 100
 combat:0:1d1:0:0:0
 act:LIGHT_LINE
 time:9
@@ -3640,8 +3611,8 @@ time:9
 name:Illumination
 graphics:-:d
 type:rod
-properties:20:15:1000
-alloc:20:20 to 100
+properties:10:15:1000
+alloc:20:10 to 100
 combat:0:1d1:0:0:0
 act:LIGHT
 time:30
@@ -4451,4 +4422,13 @@ type:scroll
 properties:1:5:0
 alloc:40:1 to 100
 effect:MAP_WILD
-dice:22d40
+effect-yx:22:40
+
+name:& Fortune Cookie~
+graphics:,:U
+type:fortune cookie
+properties:0:2:1
+effect:COOKIE
+effect:NOURISH
+dice:500
+desc:A biscuit containing a small piece of paper telling your fortune.

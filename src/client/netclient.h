@@ -17,6 +17,7 @@ extern void check_term_resize(bool main_win, int *cols, int *rows);
 extern void net_term_resize(int cols, int rows, int max_rows);
 
 /*** Sending ***/
+extern int Send_features(int lighting, int off);
 extern int Send_verify(int type);
 extern int Send_icky(void);
 extern int Send_symbol(const char *buf);
@@ -113,7 +114,6 @@ extern int cmd_project(struct command *cmd);
 
 /*** General network functions ***/
 extern int Net_packet(void);
-extern int Net_verify(void);
 extern int Net_init(int fd);
 extern void Net_cleanup(void);
 extern int Net_flush(void);

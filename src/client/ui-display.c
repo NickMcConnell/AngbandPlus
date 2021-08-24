@@ -717,7 +717,7 @@ static void update_player_compact_subwindow(game_event_type type, game_event_dat
 
 
 #define TYPE_BROADCAST(type) \
-    (((type) >= MSG_BROADCAST_ENTER_LEAVE) && ((type) <= MSG_BROADCAST_FRUITBAT))
+    (((type) >= MSG_BROADCAST_ENTER_LEAVE) && ((type) <= MSG_BROADCAST_STORE))
 
 
 static void update_messages_subwindow(game_event_type type, game_event_data *data, void *user)
@@ -987,6 +987,12 @@ static void update_message_chat_subwindow(game_event_type type, game_event_data 
         {
             /* Hack -- "&say" */
             tab = find_whisper_tab("&say", text, sizeof(text));
+            if (!tab || tab != view_channel) continue;
+        }
+        else if (type == MSG_YELL)
+        {
+            /* Hack -- "&yell" */
+            tab = find_whisper_tab("&yell", text, sizeof(text));
             if (!tab || tab != view_channel) continue;
         }
         else if (!TYPE_BROADCAST(type))

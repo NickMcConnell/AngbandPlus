@@ -30,11 +30,11 @@
  *
  * Algorithm: hypot(dy,dx) = max(dy,dx) + min(dy,dx) / 2
  */
-int distance(int y1, int x1, int y2, int x2)
+int distance(struct loc *grid1, struct loc *grid2)
 {
     /* Find the absolute y/x distance components */
-    int ay = abs(y2 - y1);
-    int ax = abs(x2 - x1);
+    int ay = abs(grid2->y - grid1->y);
+    int ax = abs(grid2->x - grid1->x);
 
     /* Approximate the distance */
     return (ay > ax)? (ay + (ax >> 1)): (ax + (ay >> 1));
@@ -77,7 +77,7 @@ int distance(int y1, int x1, int y2, int x2)
  * determining which grids are illuminated by the player's torch, and which
  * grids and monsters can be "seen" by the player, etc).
  */
-bool los(struct chunk *c, int y1, int x1, int y2, int x2)
+bool los(struct chunk *c, struct loc *grid1, struct loc *grid2)
 {
     /* Delta */
     int dx, dy;
@@ -92,7 +92,7 @@ bool los(struct chunk *c, int y1, int x1, int y2, int x2)
     int qx, qy;
 
     /* Scanners */
-    int tx, ty;
+    struct loc scan;
 
     /* Scale factors */
     int f1, f2;
@@ -101,8 +101,8 @@ bool los(struct chunk *c, int y1, int x1, int y2, int x2)
     int m;
 
     /* Extract the offset */
-    dy = y2 - y1;
-    dx = x2 - x1;
+    dy = grid2->y - grid1->y;
+    dx = grid2->x - grid1->x;
 
     /* Extract the absolute offset */
     ay = ABS(dy);
@@ -117,18 +117,20 @@ bool los(struct chunk *c, int y1, int x1, int y2, int x2)
         /* South -- check for walls */
         if (dy > 0)
         {
-            for (ty = y1 + 1; ty < y2; ty++)
+            scan.x = grid1->x;
+            for (scan.y = grid1->y + 1; scan.y < grid2->y; scan.y++)
             {
-                if (!square_isprojectable(c, ty, x1)) return false;
+                if (!square_isprojectable(c, &scan)) return false;
             }
         }
 
         /* North -- check for walls */
         else
         {
-            for (ty = y1 - 1; ty > y2; ty--)
+            scan.x = grid1->x;
+            for (scan.y = grid1->y - 1; scan.y > grid2->y; scan.y--)
             {
-                if (!square_isprojectable(c, ty, x1)) return false;
+                if (!square_isprojectable(c, &scan)) return false;
             }
         }
 
@@ -142,18 +144,20 @@ bool los(struct chunk *c, int y1, int x1, int y2, int x2)
         /* East -- check for walls */
         if (dx > 0)
         {
-            for (tx = x1 + 1; tx < x2; tx++)
+            scan.y = grid1->y;
+            for (scan.x = grid1->x + 1; scan.x < grid2->x; scan.x++)
             {
-                if (!square_isprojectable(c, y1, tx)) return false;
+                if (!square_isprojectable(c, &scan)) return false;
             }
         }
 
         /* West -- check for walls */
         else
         {
-            for (tx = x1 - 1; tx > x2; tx--)
+            scan.y = grid1->y;
+            for (scan.x = grid1->x - 1; scan.x > grid2->x; scan.x--)
             {
-                if (!square_isprojectable(c, y1, tx)) return false;
+                if (!square_isprojectable(c, &scan)) return false;
             }
         }
 
@@ -165,23 +169,13 @@ bool los(struct chunk *c, int y1, int x1, int y2, int x2)
     sx = (dx < 0) ? -1 : 1;
     sy = (dy < 0) ? -1 : 1;
 
-    /* Vertical "knights" */
-    if (ax == 1)
-    {
-        if (ay == 2)
-        {
-            if (square_isprojectable(c, y1 + sy, x1)) return true;
-        }
-    }
-
-    /* Horizontal "knights" */
-    else if (ay == 1)
-    {
-        if (ax == 2)
-        {
-            if (square_isprojectable(c, y1, x1 + sx)) return true;
-        }
-    }
+    /* Vertical and horizontal "knights" */
+    loc_init(&scan, grid1->x, grid1->y + sy);
+    if ((ax == 1) && (ay == 2) && square_isprojectable(c, &scan))
+        return true;
+    loc_init(&scan, grid1->x + sx, grid1->y);
+    if ((ay == 1) && (ax == 2) && square_isprojectable(c, &scan))
+        return true;
 
     /* Calculate scale factor div 2 */
     f2 = (ax * ay);
@@ -196,39 +190,39 @@ bool los(struct chunk *c, int y1, int x1, int y2, int x2)
         qy = ay * ay;
         m = qy << 1;
 
-        tx = x1 + sx;
+        scan.x = grid1->x + sx;
 
         /* Consider the special case where slope == 1. */
         if (qy == f2)
         {
-            ty = y1 + sy;
+            scan.y = grid1->y + sy;
             qy -= f1;
         }
         else
-            ty = y1;
+            scan.y = grid1->y;
 
         /* Note (below) the case (qy == f2), where */
         /* the LOS exactly meets the corner of a tile. */
-        while (x2 - tx)
+        while (grid2->x - scan.x)
         {
-            if (!square_isprojectable(c, ty, tx)) return false;
+            if (!square_isprojectable(c, &scan)) return false;
 
             qy += m;
 
             if (qy < f2)
-                tx += sx;
+                scan.x += sx;
             else if (qy > f2)
             {
-                ty += sy;
-                if (!square_isprojectable(c, ty, tx)) return false;
+                scan.y += sy;
+                if (!square_isprojectable(c, &scan)) return false;
                 qy -= f1;
-                tx += sx;
+                scan.x += sx;
             }
             else
             {
-                ty += sy;
+                scan.y += sy;
                 qy -= f1;
-                tx += sx;
+                scan.x += sx;
             }
         }
     }
@@ -240,38 +234,38 @@ bool los(struct chunk *c, int y1, int x1, int y2, int x2)
         qx = ax * ax;
         m = qx << 1;
 
-        ty = y1 + sy;
+        scan.y = grid1->y + sy;
 
         if (qx == f2)
         {
-            tx = x1 + sx;
+            scan.x = grid1->x + sx;
             qx -= f1;
         }
         else
-            tx = x1;
+            scan.x = grid1->x;
 
         /* Note (below) the case (qx == f2), where */
         /* the LOS exactly meets the corner of a tile. */
-        while (y2 - ty)
+        while (grid2->y - scan.y)
         {
-            if (!square_isprojectable(c, ty, tx)) return false;
+            if (!square_isprojectable(c, &scan)) return false;
 
             qx += m;
 
             if (qx < f2)
-                ty += sy;
+                scan.y += sy;
             else if (qx > f2)
             {
-                tx += sx;
-                if (!square_isprojectable(c, ty, tx)) return false;
+                scan.x += sx;
+                if (!square_isprojectable(c, &scan)) return false;
                 qx -= f1;
-                ty += sy;
+                scan.y += sy;
             }
             else
             {
-                tx += sx;
+                scan.x += sx;
                 qx -= f1;
-                ty += sy;
+                scan.y += sy;
             }
         }
     }
@@ -460,60 +454,61 @@ bool los(struct chunk *c, int y1, int x1, int y2, int x2)
 
 static void mark_wasseen(struct player *p, struct chunk *c)
 {
-    int x, y;
+    struct loc begin, end;
+    struct loc_iterator iter;
+
+    loc_init(&begin, 0, 0);
+    loc_init(&end, c->width, c->height);
+    loc_iterator_first(&iter, &begin, &end);
 
     /* Save the old "view" grids for later */
-    for (y = 0; y < c->height; y++)
+    do
     {
-        for (x = 0; x < c->width; x++)
-        {
-            if (square_isseen(p, y, x))
-                sqinfo_on(c->squares[y][x].info, SQUARE_WASSEEN);
-            sqinfo_off(p->cave->squares[y][x].info, SQUARE_VIEW);
-            sqinfo_off(p->cave->squares[y][x].info, SQUARE_SEEN);
-        }
+        if (square_isseen(p, &iter.cur))
+            sqinfo_on(square(c, &iter.cur)->info, SQUARE_WASSEEN);
+        sqinfo_off(square_p(p, &iter.cur)->info, SQUARE_VIEW);
+        sqinfo_off(square_p(p, &iter.cur)->info, SQUARE_SEEN);
     }
+    while (loc_iterator_next_strict(&iter));
 }
 
 
 static void add_monster_lights(struct player *p, struct chunk *c)
 {
-    int i, j, k;
+    int d, k;
 
     /* Scan monster list and add monster lights */
     for (k = 1; k < cave_monster_max(c); k++)
     {
         /* Check the k'th monster */
-        struct monster *m = cave_monster(c, k);
-        bool in_los = los(c, p->py, p->px, m->fy, m->fx);
+        struct monster *mon = cave_monster(c, k);
+        bool in_los = los(c, &p->grid, &mon->grid);
 
         /* Skip dead monsters */
-        if (!m->race) continue;
+        if (!mon->race) continue;
 
         /* Skip monsters not carrying light */
-        if (!rf_has(m->race->flags, RF_HAS_LIGHT)) continue;
+        if (!rf_has(mon->race->flags, RF_HAS_LIGHT)) continue;
 
         /* Light a 3x3 box centered on the monster */
-        for (i = -1; i <= 1; i++)
+        for (d = 0; d < 9; d++)
         {
-            for (j = -1; j <= 1; j++)
-            {
-                int sy = m->fy + i;
-                int sx = m->fx + j;
+            struct loc grid;
 
-                /* If the monster isn't visible we can only light open tiles */
-                if (!in_los && !square_isprojectable(c, sy, sx)) continue;
+            loc_sum(&grid, &mon->grid, &ddgrid_ddd[d]);
 
-                /* If the tile is too far away we won't light it */
-                if (distance(p->py, p->px, sy, sx) > z_info->max_sight) continue;
+            /* If the monster isn't visible we can only light open tiles */
+            if (!in_los && !square_isprojectable(c, &grid)) continue;
 
-                /* If the tile itself isn't in LOS, don't light it */
-                if (!los(c, p->py, p->px, sy, sx)) continue;
+            /* If the tile is too far away we won't light it */
+            if (distance(&p->grid, &grid) > z_info->max_sight) continue;
 
-                /* Mark the square lit and seen */
-                sqinfo_on(p->cave->squares[sy][sx].info, SQUARE_VIEW);
-                sqinfo_on(p->cave->squares[sy][sx].info, SQUARE_SEEN);
-            }
+            /* If the tile itself isn't in LOS, don't light it */
+            if (!los(c, &p->grid, &grid)) continue;
+
+            /* Mark the square lit and seen */
+            sqinfo_on(square_p(p, &grid)->info, SQUARE_VIEW);
+            sqinfo_on(square_p(p, &grid)->info, SQUARE_SEEN);
         }
     }
 }
@@ -528,67 +523,70 @@ static void add_player_lights(struct player *p, struct chunk *c)
     {
         /* Check the k'th player */
         struct player *q = player_get(k);
-        bool in_los = los(c, p->py, p->px, q->py, q->px);
+        bool in_los;
 
         /* Ignore the player that we're updating */
         if (q == p) continue;
 
         /* Skip players not on this level */
-        if (!COORDS_EQUAL(&q->wpos, &p->wpos)) continue;
+        if (!wpos_eq(&q->wpos, &p->wpos)) continue;
 
         /* Skip players not carrying light */
         if (!q->state.cur_light) continue;
+
+        in_los = los(c, &p->grid, &q->grid);
 
         /* Light a cur_light radius area centered on the player */
         for (i = 0 - q->state.cur_light; i <= q->state.cur_light; i++)
         {
             for (j = 0 - q->state.cur_light; j <= q->state.cur_light; j++)
             {
-                int sy = q->py + i;
-                int sx = q->px + j;
+                struct loc grid;
+
+                loc_init(&grid, q->grid.x + j, q->grid.y + i);
 
                 /* Oops */
-                if (!square_in_bounds(c, sy, sx)) continue;
+                if (!square_in_bounds(c, &grid)) continue;
 
                 /* Skip grids out of radius */
-                if (distance(q->py, q->px, sy, sx) > q->state.cur_light) continue;
+                if (distance(&q->grid, &grid) > q->state.cur_light) continue;
 
                 /* If the player isn't visible we can only light open tiles */
-                if (!in_los && !square_isprojectable(c, sy, sx)) continue;
+                if (!in_los && !square_isprojectable(c, &grid)) continue;
 
                 /* If the tile is too far away we won't light it */
-                if (distance(p->py, p->px, sy, sx) > z_info->max_sight) continue;
+                if (distance(&p->grid, &grid) > z_info->max_sight) continue;
 
                 /* If the tile itself isn't in LOS, don't light it */
-                if (!los(c, p->py, p->px, sy, sx)) continue;
+                if (!los(c, &p->grid, &grid)) continue;
 
                 /* If the tile isn't in LOS of the other player, don't light it either */
-                if (!los(c, q->py, q->px, sy, sx)) continue;
+                if (!los(c, &q->grid, &grid)) continue;
 
                 /* Mark the square lit and seen */
-                sqinfo_on(p->cave->squares[sy][sx].info, SQUARE_VIEW);
-                sqinfo_on(p->cave->squares[sy][sx].info, SQUARE_SEEN);
+                sqinfo_on(square_p(p, &grid)->info, SQUARE_VIEW);
+                sqinfo_on(square_p(p, &grid)->info, SQUARE_SEEN);
             }
         }
     }
 }
 
 
-static void update_one(struct player *p, struct chunk *c, int y, int x)
+static void update_one(struct player *p, struct chunk *c, struct loc *grid)
 {
     /* Remove view if blind, check visible squares for traps */
     if (p->timed[TMD_BLIND])
-        sqinfo_off(p->cave->squares[y][x].info, SQUARE_SEEN);
-    else if (square_isseen(p, y, x) && square_issecrettrap(c, y, x))
-        square_reveal_trap(p, y, x, false, true);
+        sqinfo_off(square_p(p, grid)->info, SQUARE_SEEN);
+    else if (square_isseen(p, grid) && square_issecrettrap(c, grid))
+        square_reveal_trap(p, grid, false, true);
 
     /* Square went from unseen -> seen */
-    if (square_isseen(p, y, x) && !square_wasseen(c, y, x))
+    if (square_isseen(p, grid) && !square_wasseen(c, grid))
     {
-        if (square_isfeel(c, y, x) && square_ispfeel(p, y, x))
+        if (square_isfeel(c, grid) && square_ispfeel(p, grid))
         {
             p->cave->feeling_squares++;
-            sqinfo_off(p->cave->squares[y][x].info, SQUARE_FEEL);
+            sqinfo_off(square_p(p, grid)->info, SQUARE_FEEL);
             if (p->cave->feeling_squares == z_info->feeling_need)
             {
                 display_feeling(p, true);
@@ -596,63 +594,68 @@ static void update_one(struct player *p, struct chunk *c, int y, int x)
             }
         }
 
-        square_note_spot_aux(p, c, y, x);
-        square_light_spot_aux(p, c, y, x);
+        square_note_spot_aux(p, c, grid);
+        square_light_spot_aux(p, c, grid);
     }
 
     /* Square went from seen -> unseen */
-    if (!square_isseen(p, y, x) && square_wasseen(c, y, x))
-        square_light_spot_aux(p, c, y, x);
+    if (!square_isseen(p, grid) && square_wasseen(c, grid))
+        square_light_spot_aux(p, c, grid);
 
-    sqinfo_off(c->squares[y][x].info, SQUARE_WASSEEN);
+    sqinfo_off(square(c, grid)->info, SQUARE_WASSEEN);
 }
 
 
-static void become_viewable(struct player *p, struct chunk *c, int y, int x, bool lit,
-    int py, int px)
+static void become_viewable(struct player *p, struct chunk *c, struct loc *grid, bool lit)
 {
-    int xc = x;
-    int yc = y;
+    if (square_isview(p, grid)) return;
 
-    if (square_isview(p, y, x)) return;
+    sqinfo_on(square_p(p, grid)->info, SQUARE_VIEW);
 
-    sqinfo_on(p->cave->squares[y][x].info, SQUARE_VIEW);
+    if (lit) sqinfo_on(square_p(p, grid)->info, SQUARE_SEEN);
 
-    if (lit) sqinfo_on(p->cave->squares[y][x].info, SQUARE_SEEN);
-
-    if (square_isglow(c, y, x))
+    if (square_isglow(c, grid))
     {
+        struct loc gridc;
+
+        loc_copy(&gridc, grid);
+
         /* For walls, move a bit towards the player */
-        if (square_iswall(c, y, x))
+        if (square_iswall(c, grid))
         {
-            xc = ((x < px)? (x + 1): (x > px)? (x - 1): x);
-            yc = ((y < py)? (y + 1): (y > py)? (y - 1): y);
+            loc_init(&gridc,
+                ((grid->x < p->grid.x)? (grid->x + 1): (grid->x > p->grid.x)? (grid->x - 1): grid->x),
+                ((grid->y < p->grid.y)? (grid->y + 1): (grid->y > p->grid.y)? (grid->y - 1): grid->y));
         }
 
-        if (square_isglow(c, yc, xc))
-            sqinfo_on(p->cave->squares[y][x].info, SQUARE_SEEN);
+        if (square_isglow(c, &gridc))
+            sqinfo_on(square_p(p, grid)->info, SQUARE_SEEN);
     }
 }
 
 
-static void update_view_one(struct player *p, struct chunk *c, int y, int x, int radius,
-    int py, int px)
+static void update_view_one(struct player *p, struct chunk *c, struct loc *grid, int radius)
 {
     int dir;
-    int xc = x;
-    int yc = y;
-    int d = distance(y, x, py, px);
+    int d = distance(grid, &p->grid);
     bool lit = ((d < radius)? true: false);
+    struct loc cgrid;
 
     if (d > z_info->max_sight) return;
 
     /* Light squares with bright terrain, or squares adjacent */
-    if (square_isbright(c, y, x)) lit = true;
+    if (square_isbright(c, grid)) lit = true;
     for (dir = 0; dir < 8; dir++)
     {
-        if (!square_in_bounds(c, y + ddy_ddd[dir], x + ddx_ddd[dir])) continue;
-        if (square_isbright(c, y + ddy_ddd[dir], x + ddx_ddd[dir])) lit = true;
+        struct loc adjacent;
+
+        loc_sum(&adjacent, grid, &ddgrid_ddd[dir]);
+
+        if (!square_in_bounds(c, &adjacent)) continue;
+        if (square_isbright(c, &adjacent)) lit = true;
     }
+
+    loc_copy(&cgrid, grid);
 
     /*
      * Special case for wall lighting. If we are a wall and the square in
@@ -666,52 +669,55 @@ static void update_view_one(struct player *p, struct chunk *c, int y, int x, int
      * where the wall cell marked '1' would not be lit because the LOS
      * algorithm runs into the adjacent wall cell.
      */
-    if (square_iswall(c, y, x))
+    if (square_iswall(c, grid))
     {
-        int dx = x - px;
-        int dy = y - py;
+        int dx = grid->x - p->grid.x;
+        int dy = grid->y - p->grid.y;
         int ax = ABS(dx);
         int ay = ABS(dy);
         int sx = (dx > 0)? 1: -1;
         int sy = (dy > 0)? 1: -1;
 
-        xc = ((x < px)? (x + 1): (x > px)? (x - 1): x);
-        yc = ((y < py)? (y + 1): (y > py)? (y - 1): y);
+        loc_init(&cgrid,
+            ((grid->x < p->grid.x)? (grid->x + 1): (grid->x > p->grid.x)? (grid->x - 1): grid->x),
+            ((grid->y < p->grid.y)? (grid->y + 1): (grid->y > p->grid.y)? (grid->y - 1): grid->y));
 
         /*
          * Check that the cell we're trying to steal LOS from isn't a
          * wall. If we don't do this, double-thickness walls will have
          * both sides visible.
          */
-        if (square_iswall(c, yc, xc))
-        {
-            xc = x;
-            yc = y;
-        }
+        if (square_iswall(c, &cgrid)) loc_copy(&cgrid, grid);
 
         /* Check that we got here via the 'knight's move' rule. If so, don't steal LOS. */
         if ((ax == 2) && (ay == 1))
         {
-            if (square_in_bounds(c, y, x - sx) && !square_iswall(c, y, x - sx) &&
-                square_in_bounds(c, y - sy, x - sx) && square_iswall(c, y - sy, x - sx))
+            struct loc grid1, grid2;
+
+            loc_init(&grid1, grid->x - sx, grid->y);
+            loc_init(&grid2, grid->x - sx, grid->y - sy);
+            if (square_in_bounds(c, &grid1) && !square_iswall(c, &grid1) &&
+                square_in_bounds(c, &grid2) && square_iswall(c, &grid2))
             {
-                xc = x;
-                yc = y;
+                loc_copy(&cgrid, grid);
             }
         }
         else if ((ax == 1) && (ay == 2))
         {
-            if (square_in_bounds(c, y - sy, x) && !square_iswall(c, y - sy, x) &&
-                square_in_bounds(c, y - sy, x - sx) && square_iswall(c, y - sy, x - sx))
+            struct loc grid1, grid2;
+
+            loc_init(&grid1, grid->x, grid->y - sy);
+            loc_init(&grid2, grid->x - sx, grid->y - sy);
+            if (square_in_bounds(c, &grid1) && !square_iswall(c, &grid1) &&
+                square_in_bounds(c, &grid2) && square_iswall(c, &grid2))
             {
-                xc = x;
-                yc = y;
+                loc_copy(&cgrid, grid);
             }
         }
     }
 
-    if (los(c, py, px, yc, xc))
-        become_viewable(p, c, y, x, lit, py, px);
+    if (los(c, &p->grid, &cgrid))
+        become_viewable(p, c, grid, lit);
 }
 
 
@@ -720,8 +726,9 @@ static void update_view_one(struct player *p, struct chunk *c, int y, int x, int
  */
 void update_view(struct player *p, struct chunk *c)
 {
-    int x, y;
     int radius;
+    struct loc begin, end;
+    struct loc_iterator iter;
 
     mark_wasseen(p, c);
 
@@ -736,18 +743,28 @@ void update_view(struct player *p, struct chunk *c)
     add_player_lights(p, c);
 
     /* Assume we can view the player grid */
-    sqinfo_on(p->cave->squares[p->py][p->px].info, SQUARE_VIEW);
-    if ((radius > 0) || square_isglow(c, p->py, p->px))
-        sqinfo_on(p->cave->squares[p->py][p->px].info, SQUARE_SEEN);
+    sqinfo_on(square_p(p, &p->grid)->info, SQUARE_VIEW);
+    if ((radius > 0) || square_isglow(c, &p->grid))
+        sqinfo_on(square_p(p, &p->grid)->info, SQUARE_SEEN);
+
+    loc_init(&begin, 0, 0);
+    loc_init(&end, c->width, c->height);
+    loc_iterator_first(&iter, &begin, &end);
 
     /* View squares we have LOS to */
-    for (y = 0; y < c->height; y++)
-        for (x = 0; x < c->width; x++)
-            update_view_one(p, c, y, x, radius, p->py, p->px);
+    do
+    {
+        update_view_one(p, c, &iter.cur, radius);
+    }
+    while (loc_iterator_next_strict(&iter));
 
-    for (y = 0; y < c->height; y++)
-        for (x = 0; x < c->width; x++)
-            update_one(p, c, y, x);
+    loc_iterator_first(&iter, &begin, &end);
+
+    do
+    {
+        update_one(p, c, &iter.cur);
+    }
+    while (loc_iterator_next_strict(&iter));
 }
 
 
@@ -756,5 +773,5 @@ void update_view(struct player *p, struct chunk *c)
  */
 bool no_light(struct player *p)
 {
-    return (!square_isseen(p, p->py, p->px));
+    return (!square_isseen(p, &p->grid));
 }

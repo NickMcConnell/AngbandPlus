@@ -172,71 +172,75 @@ bool is_quest(int level)
  * This is necessary to put the player, which will lose all true artifacts (and probably end up
  * half-naked), in safety.
  */
-static void crumble_angband(struct player *p, struct chunk *c, int fy, int fx)
+static void crumble_angband(struct player *p, struct chunk *c, struct loc *grid)
 {
-    int y, x, k, j;
+    int k, j;
     int notice[MAX_PLAYERS];
     int count = 0;
+    struct loc begin, end;
+    struct loc_iterator iter;
+
+    loc_init(&begin, p->grid.x - 50, p->grid.y - 50);
+    loc_init(&end, p->grid.x + 50, p->grid.y + 50);
+    loc_iterator_first(&iter, &begin, &end);
 
     /* Huge area of effect */
-    for (y = p->py - 50; y <= p->py + 50; y++)
+    do
     {
-        for (x = p->px - 50; x <= p->px + 50; x++)
+        /* Skip illegal grids */
+        if (!square_in_bounds_fully(c, &iter.cur)) continue;
+
+        /* Extract the distance */
+        k = distance(&p->grid, &iter.cur);
+
+        /* Stay in the circle of death */
+        if (k > 50) continue;
+
+        /* Lose room and vault */
+        sqinfo_off(square(c, &iter.cur)->info, SQUARE_ROOM);
+        sqinfo_off(square(c, &iter.cur)->info, SQUARE_VAULT);
+        sqinfo_off(square(c, &iter.cur)->info, SQUARE_NO_TELEPORT);
+        if (square_ispitfloor(c, &iter.cur)) square_clear_feat(c, &iter.cur);
+
+        /* Lose light */
+        square_unglow(c, &iter.cur);
+        square_forget_all(c, &iter.cur);
+        square_light_spot(c, &iter.cur);
+
+        /* Hack -- notice player */
+        if (square(c, &iter.cur)->mon < 0)
         {
-            /* Skip illegal grids */
-            if (!square_in_bounds_fully(c, y, x)) continue;
+            /* Notice the player later */
+            notice[count] = 0 - square(c, &iter.cur)->mon;
+            count++;
 
-            /* Extract the distance */
-            k = distance(p->py, p->px, y, x);
+            /* Do not hurt this grid */
+            continue;
+        }
 
-            /* Stay in the circle of death */
-            if (k > 50) continue;
+        /* Hack -- skip the epicenter */
+        if (player_is_at(p, &iter.cur)) continue;
 
-            /* Lose room and vault */
-            sqinfo_off(c->squares[y][x].info, SQUARE_ROOM);
-            sqinfo_off(c->squares[y][x].info, SQUARE_VAULT);
-            sqinfo_off(c->squares[y][x].info, SQUARE_NO_TELEPORT);
-            if (square_ispitfloor(c, y, x)) square_clear_feat(c, y, x);
+        /* Hack -- skip Morgoth (he will be removed later) */
+        if (loc_eq(&iter.cur, grid)) continue;
 
-            /* Lose light */
-            square_unglow(c, y, x);
-            square_forget_all(c, y, x);
-            square_light_spot(c, y, x);
+        /* Delete the monster (if any) */
+        delete_monster(c, &iter.cur);
+        if (square_ispitfloor(c, &iter.cur)) square_clear_feat(c, &iter.cur);
 
-            /* Hack -- notice player */
-            if (c->squares[y][x].mon < 0)
-            {
-                /* Notice the player later */
-                notice[count] = 0 - c->squares[y][x].mon;
-                count++;
+        /* Don't remove stairs */
+        if (square_isstairs(c, &iter.cur)) continue;
 
-                /* Do not hurt this grid */
-                continue;
-            }
-
-            /* Hack -- skip the epicenter */
-            if (player_is_at(p, y, x)) continue;
-
-            /* Hack -- skip Morgoth (he will be removed later) */
-            if ((y == fy) && (x == fx)) continue;
-
-            /* Delete the monster (if any) */
-            delete_monster(c, y, x);
-            if (square_ispitfloor(c, y, x)) square_clear_feat(c, y, x);
-
-            /* Don't remove stairs */
-            if (square_isstairs(c, y, x)) continue;
-
-            /* Destroy any grid that isn't a permanent wall */
-            if (!square_isperm(c, y, x))
-            {
-                /* Delete objects */
-                square_forget_pile_all(c, y, x);
-                square_excise_pile(c, y, x);
-                square_destroy(c, y, x);
-            }
+        /* Destroy any grid that isn't a permanent wall */
+        if (!square_isperm(c, &iter.cur))
+        {
+            /* Delete objects */
+            square_forget_pile_all(c, &iter.cur);
+            square_excise_pile(c, &iter.cur);
+            square_destroy(c, &iter.cur);
         }
     }
+    while (loc_iterator_next(&iter));
 
     /* Hack -- update players */
     for (j = 0; j < count; j++)
@@ -267,7 +271,7 @@ int quest_check(struct player *p, struct chunk *c, const struct monster *m)
     if (m->race->base != lookup_monster_base("Morgoth")) return -1;
 
     /* A bad day for evil... */
-    crumble_angband(p, c, m->fy, m->fx);
+    crumble_angband(p, c, &((struct monster *)m)->grid);
 
     /* Total winners */
     for (i = 1; i <= NumPlayers; i++)

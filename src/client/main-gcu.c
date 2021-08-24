@@ -791,7 +791,7 @@ static errr Term_text_gcu(int x, int y, int n, u16b a, const char *s)
     {
         for (i = 0; i <= n; i++)
         {
-            int px = x + i + player->offset_x - COL_MAP, py = y + player->offset_y - ROW_MAP;
+            int px = x + i + player->offset_grid.x - COL_MAP, py = y + player->offset_grid.y - ROW_MAP;
 
             /*
              * Hack -- for the minimap, the @ may not be displayed with this function so check the
@@ -799,7 +799,7 @@ static errr Term_text_gcu(int x, int y, int n, u16b a, const char *s)
              */
             if (i == n)
             {
-                if (Term->minimap_active && (px == player->px) && (py == player->py))
+                if (Term->minimap_active && (px == player->grid.x) && (py == player->grid.y))
                     buf[n++] = 0x263A;
             }
 
@@ -810,7 +810,7 @@ static errr Term_text_gcu(int x, int y, int n, u16b a, const char *s)
             }
 
             /* Hack -- always display the player as a @ except when looking/targeting */
-            else if ((px == player->px) && (py == player->py) && !target_icky_screen)
+            else if ((px == player->grid.x) && (py == player->grid.y) && !target_icky_screen)
                 buf[i] = '@';
         }
     }
@@ -961,6 +961,7 @@ errr init_gcu(void)
     int i;
     int rows, cols, y, x;
     int next_win = 0;
+    bool lighterBlue = conf_get_int("MAngband", "LighterBlue", true);
 
     /* Initialize info about terminal capabilities */
     /*termtype = getenv("TERM");
@@ -1013,7 +1014,10 @@ errr init_gcu(void)
         colortable[COLOUR_ORANGE]   = (COLOR_PAIR(PAIR_YELLOW));
         colortable[COLOUR_RED]      = (COLOR_PAIR(PAIR_RED));
         colortable[COLOUR_GREEN]    = (COLOR_PAIR(PAIR_GREEN));
-        colortable[COLOUR_BLUE]     = (COLOR_PAIR(PAIR_BLUE));
+        if (lighterBlue)
+            colortable[COLOUR_BLUE]   = (COLOR_PAIR(PAIR_BLUE) | A_BRIGHT);
+        else
+            colortable[COLOUR_BLUE]     = (COLOR_PAIR(PAIR_BLUE));
         colortable[COLOUR_UMBER]    = (COLOR_PAIR(PAIR_YELLOW));
         colortable[COLOUR_L_DARK]   = (COLOR_PAIR(PAIR_BLACK) | A_BRIGHT);
         colortable[COLOUR_L_WHITE]  = (COLOR_PAIR(PAIR_WHITE));
@@ -1021,7 +1025,10 @@ errr init_gcu(void)
         colortable[COLOUR_YELLOW]   = (COLOR_PAIR(PAIR_YELLOW) | A_BRIGHT);
         colortable[COLOUR_L_RED]    = (COLOR_PAIR(PAIR_RED) | A_BRIGHT);
         colortable[COLOUR_L_GREEN]  = (COLOR_PAIR(PAIR_GREEN) | A_BRIGHT);
-        colortable[COLOUR_L_BLUE]   = (COLOR_PAIR(PAIR_BLUE) | A_BRIGHT);
+        if (lighterBlue)
+            colortable[COLOUR_L_BLUE]  = (COLOR_PAIR(PAIR_CYAN) | A_BRIGHT);
+        else
+            colortable[COLOUR_L_BLUE]   = (COLOR_PAIR(PAIR_BLUE) | A_BRIGHT);
         colortable[COLOUR_L_UMBER]  = (COLOR_PAIR(PAIR_YELLOW));
 
         colortable[COLOUR_PURPLE]      = (COLOR_PAIR(PAIR_MAGENTA));

@@ -51,7 +51,7 @@ CLI_EXE = mangclient.exe
 #
 # Debug mode (un-comment for debugging)
 
-# DBGOPT= -v -N -x -xp
+# DBGOPT= -v -x -xp
 
 
 ###################################################################

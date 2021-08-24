@@ -16,10 +16,12 @@ extern bool append_slay(bool **current, int index);
 extern bool copy_slays(bool **dest, bool *source);
 extern bool append_brand(bool **current, int index);
 extern bool copy_brands(bool **dest, bool *source);
-extern bool append_random_brand(bool **current, struct brand **brand);
+extern bool append_random_brand(bool **current, struct brand **brand, bool is_ammo);
 extern bool append_random_slay(bool **current, struct slay **slay);
 extern int brand_count(bool *local_brands);
 extern int slay_count(bool *local_slays);
+extern bool player_has_temporary_brand(struct player *p, int idx);
+extern bool player_has_temporary_slay(struct player *p, int idx);
 extern void improve_attack_modifier(struct player *p, struct object *obj, struct source *who,
     int *best_mult, struct side_effects *effects, char *verb, size_t len, bool range);
 extern bool react_to_slay(struct object *obj, const struct monster *mon);

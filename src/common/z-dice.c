@@ -133,7 +133,7 @@ static dice_input_t dice_input_for_char(char c)
  *
  * state is the current state.
  * input is the input type to transition with.
- * Return the next state for the input, Or DICE_STATE_MAX for an invalid transition.
+ * Return the next state for the input, or DICE_STATE_MAX for an invalid transition.
  */
 static dice_state_t dice_parse_state_transition(dice_state_t state, dice_input_t input)
 {
@@ -142,7 +142,7 @@ static dice_state_t dice_parse_state_transition(dice_state_t state, dice_input_t
         /* Input:                                &-+dm$DU0 */
         /*[DICE_STATE_START] = */       /* A */ ".B.EHKB..",
         /*[DICE_STATE_BASE_DIGIT] = */  /* B */ "..CE..B.C",
-        /*[DICE_STATE_FLUSH_BASE] = */  /* C */ "...EHKD..",
+        /*[DICE_STATE_FLUSH_BASE] = */  /* C */ ".D.EHKD..",
         /*[DICE_STATE_DICE_DIGIT] = */  /* D */ "...E..D..",
         /*[DICE_STATE_FLUSH_DICE] = */  /* E */ ".....KF..",
         /*[DICE_STATE_SIDE_DIGIT] = */  /* F */ "G...H.F.G",
@@ -320,7 +320,7 @@ int dice_bind_expression(dice_t *dice, const char *name, const expression_t *exp
  * Parse a formatted string for values and variables to represent a dice roll.
  *
  * This function can parse a number of formats in the general style of "1+2d3M4"
- * (base, dice, sides, and bonus). Varibles (to which expressions can be bound) can
+ * (base, dice, sides, and bonus). Variables (to which expressions can be bound) can
  * be subsitituted for numeric values by using an all-uppercase name starting with $.
  * Spaces are ignored, concatenating the strings on either side of the space
  * character. Tokens (numbers and variable names) longer than the maximum will be

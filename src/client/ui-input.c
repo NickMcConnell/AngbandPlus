@@ -1039,14 +1039,14 @@ static bool textui_get_aim_dir(int *dp)
                 /* Set new target, use target if legal */
                 case '*':
                 {
-                    if (cmd_target_interactive(TARGET_KILL | TARGET_AIM)) dir = 5;
+                    if (cmd_target_interactive(TARGET_KILL | TARGET_AIM)) dir = DIR_TARGET;
                     break;
                 }
 
                 /* Set new friendly target, use target if legal */
                 case '(':
                 {
-                    if (cmd_target_interactive(TARGET_HELP)) dir = 5;
+                    if (cmd_target_interactive(TARGET_HELP)) dir = DIR_TARGET;
                     break;
                 }
 
@@ -1054,7 +1054,7 @@ static bool textui_get_aim_dir(int *dp)
                 case '\'':
                 {
                     Send_target_closest(TARGET_KILL);
-                    dir = 5;
+                    dir = DIR_TARGET;
                     break;
                 }
 
@@ -1420,6 +1420,12 @@ byte get_dtrap(struct player *p)
 int get_diff(struct player *p)
 {
     return p->upkeep->inven_cnt;
+}
+
+
+struct timed_grade *get_grade(int i)
+{
+    return timed_grades[i];
 }
 
 

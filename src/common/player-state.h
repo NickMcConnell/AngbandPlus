@@ -86,7 +86,7 @@ struct player_state
     int skills[SKILL_MAX];      /* Skills */
     int speed;                  /* Current speed */
     int num_blows;              /* Number of blows x100 */
-    int num_shots;              /* Number of shots */
+    int num_shots;              /* Number of shots x10 */
     int ammo_mult;              /* Ammo multiplier */
     int ammo_tval;              /* Ammo variety */
     int ac;                     /* Base ac */
@@ -97,9 +97,8 @@ struct player_state
     int cur_light;              /* Radius of light (if any) */
     bool heavy_wield;           /* Heavy weapon */
     bool heavy_shoot;           /* Heavy shooter */
-    bool icky_wield;            /* Icky weapon */
+    bool bless_wield;           /* Blessed weapon */
     bool cumber_armor;          /* Mana draining armor */
-    bool cumber_glove;          /* Mana draining gloves */
     bitflag flags[OF_SIZE];     /* Status flags from race and items */
     bitflag pflags[PF_SIZE];    /* Player intrinsic flags */
     struct element_info el_info[ELEM_MAX];  /* Resists from race and items */
@@ -107,7 +106,6 @@ struct player_state
     /*** PWMAngband extracted fields ***/
 
     bool cumber_shield;         /* Encumbering shield */
-    int frac_blow;              /* Blow frac (%) */
 };
 
 #endif /* INCLUDED_PLAYER_STATE_H */

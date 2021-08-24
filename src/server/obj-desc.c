@@ -86,6 +86,7 @@ static const char *obj_desc_get_basename(const struct object *obj, bool aware, b
         case TV_FOOD:
         case TV_FLASK:
         case TV_CROP:
+        case TV_COOKIE:
             return obj->kind->name;
 
         case TV_CORPSE:
@@ -134,40 +135,25 @@ static const char *obj_desc_get_basename(const struct object *obj, bool aware, b
             return "& Holy Book~ of Prayers #";
         }
 
-        case TV_SORCERY_BOOK:
+        case TV_NATURE_BOOK:
         {
             if (terse) return "& Book~ #";
-            return "& Book~ of Sorcery #";
+            return "& Book~ of Nature Magics #";
         }
 
         case TV_SHADOW_BOOK:
-            return "& Book~ of Shadows #";
-
-        case TV_HUNT_BOOK:
         {
             if (terse) return "& Book~ #";
-            return "& Book~ of Hunting #";
+            return "& Book~ of Shadows #";
         }
 
         case TV_PSI_BOOK:
             return "& Crystal~ #";
 
-        case TV_DEATH_BOOK:
-        {
-            if (terse) return "& Book~ #";
-            return "& Book~ of Necromancy #";
-        }
-
         case TV_ELEM_BOOK:
         {
             if (terse) return "& Spellbook~ #";
             return "& Elemental Spellbook~ #";
-        }
-
-        case TV_SUMMON_BOOK:
-        {
-            if (terse) return "& Book~ #";
-            return "& Book~ of Summoning #";
         }
     }
 
@@ -626,7 +612,10 @@ size_t object_desc(struct player *p, char *buf, size_t max, const struct object 
     }
 
     if (tval_is_money(obj))
-        return strnfmt(buf, max, "%d gold pieces worth of %s", obj->pval, obj->kind->name);
+    {
+        return strnfmt(buf, max, "%d gold piece%s worth of %s", obj->pval, PLURAL(obj->pval),
+            obj->kind->name);
+    }
 
     /* Player is valid, description is not for artifacts and object is not in a store */
     if (p && !((mode & ODESC_ARTIFACT) || (mode & ODESC_STORE)))

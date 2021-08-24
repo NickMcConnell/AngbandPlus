@@ -17,7 +17,8 @@ extern const int adj_mag_stat[];
 
 extern void player_spells_init(struct player *p);
 extern void player_spells_free(struct player *p);
-extern const struct class_book *object_to_book(struct player *p, const struct object *obj);
+extern const struct class_book *object_kind_to_book(const struct object_kind *kind);
+extern const struct class_book *player_object_to_book(struct player *p, const struct object *obj);
 extern int object_to_book_index(struct player *p, const struct object *obj);
 extern const struct class_spell *spell_by_index(const struct class_magic *magic, int index);
 extern s16b spell_chance(struct player *p, int spell_index);

@@ -2,7 +2,7 @@
 
 
 # This file is used to initialize object base information for PWMAngband.
-# Object bases correspond to tvals as defined in src/list-tvals.h.
+# Object bases correspond to tvals as defined in list-tvals.h.
 
 # === Understanding object_base.txt ===
 
@@ -124,15 +124,15 @@ name:cloak:Cloak~
 graphics:light umber
 flags:HATES_ACID | HATES_FIRE
 
-name:soft armour:Soft Armor~
+name:soft armour:Soft Armour~
 graphics:slate
 flags:HATES_ACID | HATES_FIRE
 
-name:hard armour:Hard Armor~
+name:hard armour:Hard Armour~
 graphics:slate
 flags:HATES_ACID
 
-name:dragon armour:Dragon Armor~
+name:dragon armour:Dragon Armour~
 graphics:slate
 
 name:light:Light~
@@ -200,33 +200,26 @@ name:prayer book:Prayer Book~
 graphics:light green
 flags:HATES_FIRE | EASY_KNOW
 
-name:sorcery book:Sorcery Book~
-graphics:orange
+name:nature book:Nature Book~
+graphics:yellow
 flags:HATES_FIRE | EASY_KNOW
 
 name:shadow book:Shadow Book~
-graphics:blue
-flags:HATES_FIRE | EASY_KNOW
-
-name:hunt book:Hunt Book~
 graphics:slate
 flags:HATES_FIRE | EASY_KNOW
 
 name:psi book:Psi Book~
-graphics:yellow
-flags:HATES_FIRE | EASY_KNOW
-
-name:death book:Death Book~
-graphics:light dark
+graphics:light blue
 flags:HATES_FIRE | EASY_KNOW
 
 name:elemental book:Elemental Book~
 graphics:light purple
 flags:HATES_FIRE | EASY_KNOW
 
-name:summoning book:Summoning Book~
-graphics:teal
-flags:HATES_FIRE | EASY_KNOW
+name:fortune cookie:Fortune Cookie~
+graphics:light umber
+break:100
+flags:EASY_KNOW
 
 name:gold
 graphics:yellow

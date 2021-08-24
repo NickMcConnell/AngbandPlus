@@ -67,6 +67,17 @@
  */
 
 
+static void add_stairs(struct chunk *c, int feat)
+{
+    random_value *dir;
+
+    if (feat == FEAT_MORE) dir = &((struct cave_profile *)dun->profile)->down;
+    else dir = &((struct cave_profile *)dun->profile)->up;
+
+    alloc_stairs(c, feat, dir->base + damroll(dir->dice, dir->sides));
+}
+
+
 /*
  * Check whether a square has one of the tunnelling helper flags
  *
@@ -74,10 +85,10 @@
  * (y, x) are the co-ordinates
  * flag is the relevant flag
  */
-static bool square_is_granite_with_flag(struct chunk *c, int y, int x, int flag)
+static bool square_is_granite_with_flag(struct chunk *c, struct loc *grid, int flag)
 {
-    if (c->squares[y][x].feat != FEAT_GRANITE) return false;
-    if (!sqinfo_has(c->squares[y][x].info, flag)) return false;
+    if (square(c, grid)->feat != FEAT_GRANITE) return false;
+    if (!sqinfo_has(square(c, grid)->info, flag)) return false;
 
     return true;
 }
@@ -97,12 +108,11 @@ static bool square_is_granite_with_flag(struct chunk *c, int y, int x, int flag)
  */
 static void build_streamer(struct chunk *c, int feat, int chance)
 {
-    int i, tx, ty;
-    int y, x, dir;
+    int dir;
+    struct loc grid;
 
     /* Hack -- choose starting point */
-    y = rand_spread(c->height / 2, 10);
-    x = rand_spread(c->width / 2, 15);
+    loc_init(&grid, rand_spread(c->width / 2, 15), rand_spread(c->height / 2, 10));
 
     /* Choose a random direction */
     dir = ddd[randint0(8)];
@@ -110,31 +120,34 @@ static void build_streamer(struct chunk *c, int feat, int chance)
     /* Place streamer into dungeon */
     while (true)
     {
+        int i;
+        struct loc change;
+
         /* One grid per density */
         for (i = 0; i < dun->profile->str.den; i++)
         {
             int d = dun->profile->str.rng;
 
             /* Pick a nearby grid */
-            find_nearby_grid(c, &ty, y, d, &tx, x, d);
+            find_nearby_grid(c, &change, &grid, d, d);
 
             /* Only convert walls */
-            if (square_isrock(c, ty, tx))
+            if (square_isrock(c, &change))
             {
                 /* Turn the rock into the vein type */
-                square_set_feat(c, ty, tx, feat);
+                square_set_feat(c, &change, feat);
 
                 /* Sometimes add known treasure */
-                if (one_in_(chance)) square_upgrade_mineral(c, ty, tx);
+                if (one_in_(chance)) square_upgrade_mineral(c, &change);
             }
         }
 
         /* Advance the streamer */
-        y += ddy[dir];
-        x += ddx[dir];
+        grid.y += ddy[dir];
+        grid.x += ddx[dir];
 
         /* Stop at dungeon edge */
-        if (!square_in_bounds(c, y, x)) break;
+        if (!square_in_bounds(c, &grid)) break;
     }
 }
 
@@ -152,7 +165,7 @@ static void add_streamer(struct chunk *c, int feat, int flag)
     struct location *dungeon;
 
     /* Get the dungeon */
-    COORDS_SET(&dpos, c->wpos.wy, c->wpos.wx, 0);
+    wpos_init(&dpos, &c->wpos.grid, 0);
     dungeon = get_dungeon(&dpos);
 
     /* Place streamer into dungeon */
@@ -178,10 +191,12 @@ static void fill_level(struct chunk *c, bool use_floor)
 {
     struct worldpos dpos;
     struct location *dungeon;
-    int count, y, x;
+    int count;
+    struct loc begin, end;
+    struct loc_iterator iter;
 
     /* Get the dungeon */
-    COORDS_SET(&dpos, c->wpos.wy, c->wpos.wx, 0);
+    wpos_init(&dpos, &c->wpos.grid, 0);
     dungeon = get_dungeon(&dpos);
 
     /* No dungeon here, leave basic floors/walls */
@@ -199,144 +214,144 @@ static void fill_level(struct chunk *c, bool use_floor)
     /* Nothing to do */
     if (!count) return;
 
+    loc_init(&begin, 1, 1);
+    loc_init(&end, c->width - 1, c->height - 1);
+    loc_iterator_first(&iter, &begin, &end);
+
     /* Fill the level */
-    for (y = 1; y < c->height - 1; y++)
+    do
     {
-        for (x = 1; x < c->width - 1; x++)
+        int i, chance;
+        bool valid;
+
+        /* Require a valid grid */
+        valid = (use_floor? square_isfloor(c, &iter.cur): square_isrock(c, &iter.cur));
+        if (!valid || square_isvault(c, &iter.cur) || square(c, &iter.cur)->mon ||
+            square(c, &iter.cur)->obj)
         {
-            int i, chance;
-            bool valid = (use_floor? square_isfloor(c, y, x): square_isrock(c, y, x));
+            continue;
+        }
 
-            /* Require a valid grid */
-            if (!valid || square_isvault(c, y, x) || c->squares[y][x].mon || c->squares[y][x].obj)
-                continue;
+        /* Basic chance */
+        chance = randint0(100);
 
-            /* Basic chance */
-            chance = randint0(100);
+        /* Process all features */
+        for (i = 0; i < count; i++)
+        {
+            struct dun_feature *feature = (use_floor? &dungeon->floors[i]: &dungeon->walls[i]);
 
-            /* Process all features */
-            for (i = 0; i < count; i++)
+            /* Fill the level with that feature */
+            if (feature->percent > chance)
             {
-                struct dun_feature *feature = (use_floor? &dungeon->floors[i]: &dungeon->walls[i]);
-
-                /* Fill the level with that feature */
-                if (feature->percent > chance)
-                {
-                    square_set_feat(c, y, x, feature->feat);
-                    break;
-                }
-
-                chance -= feature->percent;
+                square_set_feat(c, &iter.cur, feature->feat);
+                break;
             }
+
+            chance -= feature->percent;
         }
     }
+    while (loc_iterator_next_strict(&iter));
 }
 
 
-static bool square_isperm_outer(struct chunk *c, int y, int x)
+static bool square_isperm_outer(struct chunk *c, struct loc *grid)
 {
-    return (square_isperm(c, y, x) && !square_iswall_inner(c, y, x));
+    return (square_isperm(c, grid) && !square_iswall_inner(c, grid));
 }
 
 
-static bool pierce_outer_locate(struct chunk *c, int tmp_row, int tmp_col, int row_dir, int col_dir,
-    int *prow, int *pcol)
+static bool pierce_outer_locate(struct chunk *c, struct loc *tmp_grid, struct loc *offset,
+    struct loc *grid1)
 {
-    int y, x;
+    struct loc grid;
 
     /* Get the "next" location */
-    y = tmp_row + row_dir;
-    x = tmp_col + col_dir;
+    loc_sum(&grid, tmp_grid, offset);
 
     /* Stay in bounds */
-    if (!square_in_bounds(c, y, x)) return false;
+    if (!square_in_bounds(c, &grid)) return false;
 
     /* Hack -- avoid solid permanent walls */
-    if (square_isperm_outer(c, y, x)) return false;
+    if (square_isperm_outer(c, &grid)) return false;
 
     /* Hack -- avoid outer/solid granite walls */
-    if (square_is_granite_with_flag(c, y, x, SQUARE_WALL_OUTER)) return false;
-    if (square_is_granite_with_flag(c, y, x, SQUARE_WALL_SOLID)) return false;
+    if (square_is_granite_with_flag(c, &grid, SQUARE_WALL_OUTER)) return false;
+    if (square_is_granite_with_flag(c, &grid, SQUARE_WALL_SOLID)) return false;
 
     /* Accept this location */
-    if (prow) *prow = tmp_row;
-    if (pcol) *pcol = tmp_col;
+    if (grid1) loc_copy(grid1, tmp_grid);
     return true;
 }
 
 
-static void pierce_outer_save(struct chunk *c, int row1, int col1)
+static void pierce_outer_save(struct chunk *c, struct loc *grid1)
 {
-    int y, x;
+    struct loc begin, end;
+    struct loc_iterator iter;
 
     /* Save the wall location */
     if (dun->wall_n < z_info->wall_pierce_max)
     {
-        dun->wall[dun->wall_n].y = row1;
-        dun->wall[dun->wall_n].x = col1;
+        loc_copy(&dun->wall[dun->wall_n], grid1);
         dun->wall_n++;
     }
 
-    /* Forbid re-entry near this piercing */
-    for (y = row1 - 1; y <= row1 + 1; y++)
-    {
-        for (x = col1 - 1; x <= col1 + 1; x++)
-        {
-            /* Be sure we are "in bounds" */
-            if (!square_in_bounds_fully(c, y, x)) continue;
+    loc_init(&begin, grid1->x - 1, grid1->y - 1);
+    loc_init(&end, grid1->x + 1, grid1->y + 1);
+    loc_iterator_first(&iter, &begin, &end);
 
-            /* Convert adjacent "outer" walls as "solid" walls */
-            if (square_is_granite_with_flag(c, y, x, SQUARE_WALL_OUTER))
-                set_marked_granite(c, y, x, SQUARE_WALL_SOLID);
-        }
+    /* Forbid re-entry near this piercing */
+    do
+    {
+        /* Be sure we are "in bounds" */
+        if (!square_in_bounds_fully(c, &iter.cur)) continue;
+
+        /* Convert adjacent "outer" walls as "solid" walls */
+        if (square_is_granite_with_flag(c, &iter.cur, SQUARE_WALL_OUTER))
+            set_marked_granite(c, &iter.cur, SQUARE_WALL_SOLID);
     }
+    while (loc_iterator_next(&iter));
 }
 
 
-static bool pierce_outer_wide(struct chunk *c, int row1, int col1, int row_dir, int col_dir,
-    int sign)
+static bool pierce_outer_wide(struct chunk *c, struct loc *grid1, struct loc *offset, int sign)
 {
-    int y, x;
+    struct loc grid, next;
 
     /* Get an adjacent location */
-    y = row1 + sign * col_dir;
-    x = col1 + sign * row_dir;
+    loc_init(&grid, grid1->x + sign * offset->y, grid1->y + sign * offset->x);
 
     /* Must be a valid "outer" wall */
-    if (!square_in_bounds_fully(c, y, x)) return false;
-    if (square_is_granite_with_flag(c, y, x, SQUARE_WALL_SOLID)) return false;
-    if (!square_is_granite_with_flag(c, y, x, SQUARE_WALL_OUTER)) return false;
+    if (!square_in_bounds_fully(c, &grid)) return false;
+    if (square_is_granite_with_flag(c, &grid, SQUARE_WALL_SOLID)) return false;
+    if (!square_is_granite_with_flag(c, &grid, SQUARE_WALL_OUTER)) return false;
 
     /* Get the "next" location */
-    y += sign * col_dir;
-    x += sign * row_dir;
+    loc_init(&next, grid.x + sign * offset->y, grid.y + sign * offset->x);
 
     /* Must be a valid location inside the room (to avoid piercing corners) */
-    if (!square_in_bounds_fully(c, y, x)) return false;
-    if (!square_isroom(c, y, x)) return false;
+    if (!square_in_bounds_fully(c, &next)) return false;
+    if (!square_isroom(c, &next)) return false;
 
     /* Accept this location */
-    return pierce_outer_locate(c, row1 + sign * col_dir, col1 + sign * row_dir, row_dir, col_dir,
-        NULL, NULL);
+    return pierce_outer_locate(c, &grid, offset, NULL);
 }
 
 
-static bool possible_wide_tunnel(struct chunk *c, int row1, int col1, int row_dir, int col_dir,
-    int sign)
+static bool possible_wide_tunnel(struct chunk *c, struct loc *grid1, struct loc *offset, int sign)
 {
-    int y, x;
+    struct loc grid;
 
     /* Get adjacent location */
-    y = row1 + sign * col_dir;
-    x = col1 + sign * row_dir;
+    loc_init(&grid, grid1->x + sign * offset->y, grid1->y + sign * offset->x);
 
     /* Must be a valid granite wall */
-    if (!square_in_bounds_fully(c, y, x)) return false;
-    if (!square_isrock(c, y, x)) return false;
+    if (!square_in_bounds_fully(c, &grid)) return false;
+    if (!square_isrock(c, &grid)) return false;
 
     /* Hack -- avoid outer/solid granite walls */
-    if (square_is_granite_with_flag(c, y, x, SQUARE_WALL_OUTER)) return false;
-    if (square_is_granite_with_flag(c, y, x, SQUARE_WALL_SOLID)) return false;
+    if (square_is_granite_with_flag(c, &grid, SQUARE_WALL_OUTER)) return false;
+    if (square_is_granite_with_flag(c, &grid, SQUARE_WALL_SOLID)) return false;
 
     /* Accept this location */
     return true;
@@ -347,8 +362,8 @@ static bool possible_wide_tunnel(struct chunk *c, int row1, int col1, int row_di
  * Constructs a tunnel between two points
  *
  * c is the current chunk
- * (row1, col1) are the co-ordinates of the first point
- * (row2, col2) are the co-ordinates of the second point
+ * grid1 is the location of the first point
+ * grid2 is the location of the second point
  *
  * This function must be called BEFORE any streamers are created, since we use
  * granite with the special SQUARE_WALL flags to keep track of legal places for
@@ -367,35 +382,33 @@ static bool possible_wide_tunnel(struct chunk *c, int row1, int col1, int row_di
  * The solid wall check prevents corridors from chopping the corners of rooms
  * off, as well as silly door placement, and excessively wide room entrances.
  */
-static void build_tunnel(struct chunk *c, int row1, int col1, int row2, int col2)
+static void build_tunnel(struct chunk *c, struct loc *first, struct loc *second)
 {
-    int i, y, x;
-    int tmp_row, tmp_col;
-    int row_dir, col_dir;
-    int start_row, start_col;
+    int i;
     int main_loop_count = 0;
-    int sign = 1, feat;
-    int cur_row_dir, cur_col_dir, length = 0;
+    struct loc start, tmp_grid, offset, cur_offset, grid1, grid2;
+    int sign = 1, feat, length = 0;
 
     /* Used to prevent excessive door creation along overlapping corridors. */
     bool door_flag = false;
+
+    loc_copy(&grid1, first);
+    loc_copy(&grid2, second);
 
     /* Reset the arrays */
     dun->tunn_n = 0;
     dun->wall_n = 0;
 
     /* Save the starting location */
-    start_row = row1;
-    start_col = col1;
+    loc_copy(&start, &grid1);
 
     /* Start out in the correct direction */
-    correct_dir(&row_dir, &col_dir, row1, col1, row2, col2);
+    correct_dir(&offset, &grid1, &grid2);
 
-    cur_row_dir = row_dir;
-    cur_col_dir = col_dir;
+    loc_copy(&cur_offset, &offset);
 
     /* Keep going until done (or bored) */
-    while ((row1 != row2) || (col1 != col2))
+    while (!loc_eq(&grid1, &grid2))
     {
         /* Hack -- paranoia -- prevent infinite loops */
         if (main_loop_count++ > 2000) break;
@@ -404,98 +417,98 @@ static void build_tunnel(struct chunk *c, int row1, int col1, int row2, int col2
         if (magik(dun->profile->tun.chg))
         {
             /* Get the correct direction */
-            correct_dir(&row_dir, &col_dir, row1, col1, row2, col2);
+            correct_dir(&offset, &grid1, &grid2);
 
             /* Random direction */
-            if (magik(dun->profile->tun.rnd)) rand_dir(&row_dir, &col_dir);
+            if (magik(dun->profile->tun.rnd)) rand_dir(&offset);
         }
 
         /* Get the next location */
-        tmp_row = row1 + row_dir;
-        tmp_col = col1 + col_dir;
+        loc_sum(&tmp_grid, &grid1, &offset);
 
         /* Be sure we are "in bounds" */
-        while (!square_in_bounds(c, tmp_row, tmp_col))
+        while (!square_in_bounds(c, &tmp_grid))
         {
             /* Get the correct direction */
-            correct_dir(&row_dir, &col_dir, row1, col1, row2, col2);
+            correct_dir(&offset, &grid1, &grid2);
 
             /* Random direction */
-            if (magik(dun->profile->tun.rnd)) rand_dir(&row_dir, &col_dir);
+            if (magik(dun->profile->tun.rnd)) rand_dir(&offset);
 
             /* Get the next location */
-            tmp_row = row1 + row_dir;
-            tmp_col = col1 + col_dir;
+            loc_sum(&tmp_grid, &grid1, &offset);
         }
 
-        if ((row_dir == cur_row_dir) && (col_dir == cur_col_dir))
+        if (loc_eq(&offset, &cur_offset))
             length++;
         else
         {
-            cur_row_dir = row_dir;
-            cur_col_dir = col_dir;
+            loc_copy(&cur_offset, &offset);
             length = 0;
         }
 
         /* Avoid the edge of the dungeon */
-        if (square_isperm_outer(c, tmp_row, tmp_col)) continue;
+        if (square_isperm_outer(c, &tmp_grid)) continue;
 
         /* Avoid "solid" granite walls */
-        if (square_is_granite_with_flag(c, tmp_row, tmp_col, SQUARE_WALL_SOLID)) continue;
+        if (square_is_granite_with_flag(c, &tmp_grid, SQUARE_WALL_SOLID)) continue;
 
         /* Pierce "outer" walls of rooms */
-        if (square_is_granite_with_flag(c, tmp_row, tmp_col, SQUARE_WALL_OUTER))
+        if (square_is_granite_with_flag(c, &tmp_grid, SQUARE_WALL_OUTER))
         {
-            if (!pierce_outer_locate(c, tmp_row, tmp_col, row_dir, col_dir, &row1, &col1)) continue;
+            if (!pierce_outer_locate(c, &tmp_grid, &offset, &grid1)) continue;
 
             /* HIGHLY EXPERIMENTAL: turn-based mode (for single player games) */
-            if (TURN_BASED) pierce_outer_save(c, row1, col1);
+            if (TURN_BASED) pierce_outer_save(c, &grid1);
 
             /* PWMAngband: try to create wide openings */
-            else if (pierce_outer_wide(c, row1, col1, row_dir, col_dir, sign))
+            else if (pierce_outer_wide(c, &grid1, &offset, sign))
             {
-                pierce_outer_save(c, row1, col1);
+                struct loc next;
+
+                pierce_outer_save(c, &grid1);
 
                 /* Current adjacent location accepted */
-                pierce_outer_save(c, row1 + sign * col_dir, col1 + sign * row_dir);
+                loc_init(&next, grid1.x + sign * offset.y, grid1.y + sign * offset.x);
+                pierce_outer_save(c, &next);
             }
-            else if (pierce_outer_wide(c, row1, col1, row_dir, col_dir, -sign))
+            else if (pierce_outer_wide(c, &grid1, &offset, -sign))
             {
-                pierce_outer_save(c, row1, col1);
+                struct loc next;
+
+                pierce_outer_save(c, &grid1);
 
                 /* Other adjacent location accepted */
                 sign = -sign;
-                pierce_outer_save(c, row1 + sign * col_dir, col1 + sign * row_dir);
+                loc_init(&next, grid1.x + sign * offset.y, grid1.y + sign * offset.x);
+                pierce_outer_save(c, &next);
             }
             else
             {
-                pierce_outer_save(c, row1, col1);
+                pierce_outer_save(c, &grid1);
 
                 /* No adjacent location accepted: duplicate the entry for later */
-                pierce_outer_save(c, row1, col1);
+                pierce_outer_save(c, &grid1);
             }
         }
 
         /* Travel quickly through rooms */
-        else if (square_isroom(c, tmp_row, tmp_col))
+        else if (square_isroom(c, &tmp_grid))
         {
             /* Accept the location */
-            row1 = tmp_row;
-            col1 = tmp_col;
+            loc_copy(&grid1, &tmp_grid);
         }
 
         /* Tunnel through all other walls */
-        else if (square_isrock(c, tmp_row, tmp_col))
+        else if (square_isrock(c, &tmp_grid))
         {
             /* Accept this location */
-            row1 = tmp_row;
-            col1 = tmp_col;
+            loc_copy(&grid1, &tmp_grid);
 
             /* Save the tunnel location */
             if (dun->tunn_n < z_info->tunn_grid_max)
             {
-                dun->tunn[dun->tunn_n].y = row1;
-                dun->tunn[dun->tunn_n].x = col1;
+                loc_copy(&dun->tunn[dun->tunn_n], &grid1);
                 dun->tunn_n++;
             }
 
@@ -504,19 +517,20 @@ static void build_tunnel(struct chunk *c, int row1, int col1, int row2, int col2
 
             /* PWMAngband: try to create wide tunnels */
             else if ((dun->tunn_n < z_info->tunn_grid_max) &&
-                possible_wide_tunnel(c, row1, col1, row_dir, col_dir, sign))
+                possible_wide_tunnel(c, &grid1, &offset, sign))
             {
-                dun->tunn[dun->tunn_n].y = row1 + sign * col_dir;
-                dun->tunn[dun->tunn_n].x = col1 + sign * row_dir;
+                struct loc next;
+
+                loc_init(&next, grid1.x + sign * offset.y, grid1.y + sign * offset.x);
+                loc_copy(&dun->tunn[dun->tunn_n], &next);
                 dun->tunn_n++;
 
                 /* Add some holes for possible stair placement in long corridors */
                 if ((length >= 10) && one_in_(20) && (dun->tunn_n < z_info->tunn_grid_max) &&
-                    possible_wide_tunnel(c, row1 + sign * col_dir, col1 + sign * row_dir, row_dir,
-                    col_dir, sign))
+                    possible_wide_tunnel(c, &next, &offset, sign))
                 {
-                    dun->tunn[dun->tunn_n].y = row1 + sign * col_dir * 2;
-                    dun->tunn[dun->tunn_n].x = col1 + sign * row_dir * 2;
+                    loc_init(&dun->tunn[dun->tunn_n], grid1.x + sign * offset.y * 2,
+                        grid1.y + sign * offset.x * 2);
                     dun->tunn_flag[dun->tunn_n] = 1;
                     dun->tunn_n++;
                     length = 0;
@@ -531,8 +545,7 @@ static void build_tunnel(struct chunk *c, int row1, int col1, int row2, int col2
         else
         {
             /* Accept the location */
-            row1 = tmp_row;
-            col1 = tmp_col;
+            loc_copy(&grid1, &tmp_grid);
 
             /* Collect legal door locations */
             if (!door_flag)
@@ -540,8 +553,7 @@ static void build_tunnel(struct chunk *c, int row1, int col1, int row2, int col2
                 /* Save the door location */
                 if (dun->door_n < z_info->level_door_max)
                 {
-                    dun->door[dun->door_n].y = row1;
-                    dun->door[dun->door_n].x = col1;
+                    loc_copy(&dun->door[dun->door_n], &grid1);
                     dun->door_n++;
                 }
 
@@ -551,12 +563,12 @@ static void build_tunnel(struct chunk *c, int row1, int col1, int row2, int col2
                 /* PWMAngband: try to create wide intersections */
                 else
                 {
-                    y = row1 + sign * col_dir;
-                    x = col1 + sign * row_dir;
-                    if (square_in_bounds_fully(c, y, x) && (dun->door_n < z_info->level_door_max))
+                    struct loc next;
+
+                    loc_init(&next, grid1.x + sign * offset.y, grid1.y + sign * offset.x);
+                    if (square_in_bounds_fully(c, &next) && (dun->door_n < z_info->level_door_max))
                     {
-                        dun->door[dun->door_n].y = y;
-                        dun->door[dun->door_n].x = x;
+                        loc_copy(&dun->door[dun->door_n], &next);
                         dun->door_n++;
                     }
                 }
@@ -568,16 +580,11 @@ static void build_tunnel(struct chunk *c, int row1, int col1, int row2, int col2
             /* Hack -- allow pre-emptive tunnel termination */
             if (!magik(dun->profile->tun.con))
             {
-                /* Distance between row1 and start_row */
-                tmp_row = row1 - start_row;
-                if (tmp_row < 0) tmp_row = 0 - tmp_row;
-
-                /* Distance between col1 and start_col */
-                tmp_col = col1 - start_col;
-                if (tmp_col < 0) tmp_col = 0 - tmp_col;
+                /* Offset between grid1 and start */
+                loc_diff(&tmp_grid, &grid1, &start);
 
                 /* Terminate the tunnel */
-                if ((tmp_row > 10) || (tmp_col > 10)) break;
+                if ((ABS(tmp_grid.x) > 10) || (ABS(tmp_grid.y) > 10)) break;
             }
         }
     }
@@ -585,26 +592,18 @@ static void build_tunnel(struct chunk *c, int row1, int col1, int row2, int col2
     /* Turn the tunnel into corridor */
     for (i = 0; i < dun->tunn_n; i++)
     {
-        /* Get the grid */
-        y = dun->tunn[i].y;
-        x = dun->tunn[i].x;
-
         /* Clear previous contents, add a floor */
-        square_set_feat(c, y, x, FEAT_FLOOR);
+        square_set_feat(c, &dun->tunn[i], FEAT_FLOOR);
 
         /* Add some holes for possible stair placement in long corridors */
-        if (dun->tunn_flag[i]) sqinfo_on(c->squares[y][x].info, SQUARE_STAIRS);
+        if (dun->tunn_flag[i]) sqinfo_on(square(c, &dun->tunn[i])->info, SQUARE_STAIRS);
     }
 
     /* Apply the piercings that we found */
     for (i = 0; i < dun->wall_n; i++)
     {
-        /* Get the grid */
-        y = dun->wall[i].y;
-        x = dun->wall[i].x;
-
         /* Convert to floor grid */
-        square_set_feat(c, y, x, FEAT_FLOOR);
+        square_set_feat(c, &dun->wall[i], FEAT_FLOOR);
 
         /* HIGHLY EXPERIMENTAL: turn-based mode (for single player games) */
         if (TURN_BASED) {}
@@ -612,7 +611,7 @@ static void build_tunnel(struct chunk *c, int row1, int col1, int row2, int col2
         /* PWMAngband: for wide openings, duplicate the door feature */
         else if (i % 2)
         {
-            if (feat) square_set_feat(c, y, x, feat);
+            if (feat) square_set_feat(c, &dun->wall[i], feat);
             feat = 0;
             continue;
         }
@@ -620,8 +619,8 @@ static void build_tunnel(struct chunk *c, int row1, int col1, int row2, int col2
         /* Place a random door */
         if (magik(dun->profile->tun.pen))
         {
-            place_random_door(c, y, x);
-            feat = c->squares[y][x].feat;
+            place_random_door(c, &dun->wall[i]);
+            feat = square(c, &dun->wall[i])->feat;
         }
         else
             feat = 0;
@@ -636,25 +635,26 @@ static void build_tunnel(struct chunk *c, int row1, int col1, int row2, int col2
  * in rooms.
  *
  * c is the current chunk
- * (y1, x1) are the co-ordinates
+ * grid1 is the location
  *
  * TODO: count stairs, open doors, closed doors?
  */
-static int next_to_corr(struct chunk *c, int y1, int x1)
+static int next_to_corr(struct chunk *c, struct loc *grid1)
 {
     int i, k = 0;
 
-    my_assert(square_in_bounds(c, y1, x1));
+    my_assert(square_in_bounds(c, grid1));
 
     /* Scan adjacent grids */
     for (i = 0; i < 4; i++)
     {
+        struct loc grid;
+
         /* Extract the location */
-        int y = y1 + ddy_ddd[i];
-        int x = x1 + ddx_ddd[i];
+        loc_sum(&grid, grid1, &ddgrid_ddd[i]);
 
         /* Count only floors which aren't part of rooms */
-        if (square_isfloor(c, y, x) && !square_isroom(c, y, x)) k++;
+        if (square_isfloor(c, &grid) && !square_isroom(c, &grid)) k++;
     }
 
     /* Return the number of corridors */
@@ -666,21 +666,27 @@ static int next_to_corr(struct chunk *c, int y1, int x1)
  * Returns whether a doorway can be built in a space.
  *
  * c is the current chunk
- * (y, x) are the co-ordinates
+ * grid is the location
  *
  * To have a doorway, a space must be adjacent to at least two corridors and be
  * between two walls.
  */
-static bool possible_doorway(struct chunk *c, int y, int x)
+static bool possible_doorway(struct chunk *c, struct loc *grid)
 {
-    my_assert(square_in_bounds(c, y, x));
+    struct loc grid1, grid2;
 
-    if (next_to_corr(c, y, x) < 2) return false;
+    my_assert(square_in_bounds(c, grid));
 
-    if (square_isstrongwall(c, y - 1, x) && square_isstrongwall(c, y + 1, x))
+    if (next_to_corr(c, grid) < 2) return false;
+
+    next_grid(&grid1, grid, DIR_N);
+    next_grid(&grid2, grid, DIR_S);
+    if (square_isstrongwall(c, &grid1) && square_isstrongwall(c, &grid2))
         return true;
 
-    if (square_isstrongwall(c, y, x - 1) && square_isstrongwall(c, y, x + 1))
+    next_grid(&grid1, grid, DIR_W);
+    next_grid(&grid2, grid, DIR_E);
+    if (square_isstrongwall(c, &grid1) && square_isstrongwall(c, &grid2))
         return true;
 
     return false;
@@ -692,33 +698,36 @@ static bool possible_doorway(struct chunk *c, int y, int x)
  *
  * To have a wide doorway, a space must be adjacent to three corridors and a wall.
  */
-static bool possible_wide_doorway(struct chunk *c, int y, int x, int *py, int *px)
+static bool possible_wide_doorway(struct chunk *c, struct loc *grid, struct loc *choice)
 {
-    my_assert(square_in_bounds(c, y, x));
+    struct loc next;
 
-    if (next_to_corr(c, y, x) != 3) return false;
-    if (square_isstrongwall(c, y - 1, x))
+    my_assert(square_in_bounds(c, grid));
+
+    if (next_to_corr(c, grid) != 3) return false;
+
+    next_grid(&next, grid, DIR_N);
+    if (square_isstrongwall(c, &next))
     {
-        *py = y + 1;
-        *px = x;
+        next_grid(choice, grid, DIR_S);
         return true;
     }
-    if (square_isstrongwall(c, y + 1, x))
+    next_grid(&next, grid, DIR_S);
+    if (square_isstrongwall(c, &next))
     {
-        *py = y - 1;
-        *px = x;
+        next_grid(choice, grid, DIR_N);
         return true;
     }
-    if (square_isstrongwall(c, y, x - 1))
+    next_grid(&next, grid, DIR_W);
+    if (square_isstrongwall(c, &next))
     {
-        *py = y;
-        *px = x + 1;
+        next_grid(choice, grid, DIR_E);
         return true;
     }
-    if (square_isstrongwall(c, y, x + 1))
+    next_grid(&next, grid, DIR_E);
+    if (square_isstrongwall(c, &next))
     {
-        *py = y;
-        *px = x - 1;
+        next_grid(choice, grid, DIR_W);
         return true;
     }
     return false;
@@ -729,49 +738,49 @@ static bool possible_wide_doorway(struct chunk *c, int y, int x, int *py, int *p
  * Places door or trap at y, x position if at least 2 walls found
  *
  * c is the current chunk
- * (y, x) are the co-ordinates
+ * grid is the location
  */
-static void try_door(struct chunk *c, int y, int x)
+static void try_door(struct chunk *c, struct loc *grid)
 {
-    int y1, x1, y2, x2;
+    struct loc grid1, grid2;
 
-    my_assert(square_in_bounds(c, y, x));
+    my_assert(square_in_bounds(c, grid));
 
-    if (square_isstrongwall(c, y, x)) return;
-    if (square_isroom(c, y, x)) return;
-    if (square_isplayertrap(c, y, x)) return;
-    if (square_isdoor(c, y, x)) return;
+    if (square_isstrongwall(c, grid)) return;
+    if (square_isroom(c, grid)) return;
+    if (square_isplayertrap(c, grid)) return;
+    if (square_isdoor(c, grid)) return;
 
     if (magik(dun->profile->tun.jct))
     {
-        if (possible_doorway(c, y, x))
-            place_random_door(c, y, x);
+        if (possible_doorway(c, grid))
+            place_random_door(c, grid);
 
         /* HIGHLY EXPERIMENTAL: turn-based mode (for single player games) */
         else if (TURN_BASED) {}
 
         /* PWMAngband: for wide intersections, we need two valid adjacent spaces that face each other */
-        else if (possible_wide_doorway(c, y, x, &y1, &x1) &&
-            possible_wide_doorway(c, y1, x1, &y2, &x2) && (y2 == y) && (x2 == x))
+        else if (possible_wide_doorway(c, grid, &grid1) &&
+            possible_wide_doorway(c, &grid1, &grid2) && loc_eq(&grid2, grid))
         {
-            place_random_door(c, y, x);
-            square_set_feat(c, y1, x1, c->squares[y][x].feat);
+            place_random_door(c, grid);
+            square_set_feat(c, &grid1, square(c, grid)->feat);
         }
     }
     else if (CHANCE(dun->profile->tun.jct, 500))
     {
-        if (possible_doorway(c, y, x))
-            place_trap(c, y, x, -1, c->wpos.depth);
+        if (possible_doorway(c, grid))
+            place_trap(c, grid, -1, c->wpos.depth);
 
         /* HIGHLY EXPERIMENTAL: turn-based mode (for single player games) */
         else if (TURN_BASED) {}
 
         /* PWMAngband: for wide intersections, we need two valid adjacent spaces that face each other */
-        else if (possible_wide_doorway(c, y, x, &y1, &x1) &&
-            possible_wide_doorway(c, y1, x1, &y2, &x2) && (y2 == y) && (x2 == x))
+        else if (possible_wide_doorway(c, grid, &grid1) &&
+            possible_wide_doorway(c, &grid1, &grid2) && loc_eq(&grid2, grid))
         {
-            place_trap(c, y, x, -1, c->wpos.depth);
-            place_trap(c, y1, x1, -1, c->wpos.depth);
+            place_trap(c, grid, -1, c->wpos.depth);
+            place_trap(c, &grid1, -1, c->wpos.depth);
         }
     }
 }
@@ -787,33 +796,45 @@ static void ensure_connectedness(struct chunk *c);
  */
 static void remove_unused_holes(struct chunk *c)
 {
-    int y, x;
+    struct loc begin, end;
+    struct loc_iterator iter;
 
-    for (y = 1; y < c->height - 1; y++)
+    loc_init(&begin, 1, 1);
+    loc_init(&end, c->width - 1, c->height - 1);
+    loc_iterator_first(&iter, &begin, &end);
+
+    do
     {
-        for (x = 1; x < c->width - 1; x++)
+        if (sqinfo_has(square(c, &iter.cur)->info, SQUARE_STAIRS))
         {
-            if (sqinfo_has(c->squares[y][x].info, SQUARE_STAIRS))
-            {
-                int k = 0;
+            int k = 0;
+            struct loc grid;
 
-                if (feat_is_wall(c->squares[y + 1][x].feat)) k++;
-                if (feat_is_wall(c->squares[y + 1][x + 1].feat)) k++;
-                if (feat_is_wall(c->squares[y][x + 1].feat)) k++;
-                if (feat_is_wall(c->squares[y - 1][x + 1].feat)) k++;
-                if (feat_is_wall(c->squares[y - 1][x].feat)) k++; 
-                if (feat_is_wall(c->squares[y - 1][x - 1].feat)) k++;
-                if (feat_is_wall(c->squares[y][x - 1].feat)) k++;
-                if (feat_is_wall(c->squares[y + 1][x - 1].feat)) k++;
+            next_grid(&grid, &iter.cur, DIR_S);
+            if (feat_is_wall(square(c, &grid)->feat)) k++;
+            next_grid(&grid, &iter.cur, DIR_SE);
+            if (feat_is_wall(square(c, &grid)->feat)) k++;
+            next_grid(&grid, &iter.cur, DIR_E);
+            if (feat_is_wall(square(c, &grid)->feat)) k++;
+            next_grid(&grid, &iter.cur, DIR_NE);
+            if (feat_is_wall(square(c, &grid)->feat)) k++;
+            next_grid(&grid, &iter.cur, DIR_N);
+            if (feat_is_wall(square(c, &grid)->feat)) k++;
+            next_grid(&grid, &iter.cur, DIR_NW);
+            if (feat_is_wall(square(c, &grid)->feat)) k++;
+            next_grid(&grid, &iter.cur, DIR_W);
+            if (feat_is_wall(square(c, &grid)->feat)) k++;
+            next_grid(&grid, &iter.cur, DIR_SW);
+            if (feat_is_wall(square(c, &grid)->feat)) k++;
 
-                /* Remove unused holes in corridors */
-                if (square_isempty(c, y, x) && (k == 5))
-                    square_set_feat(c, y, x, FEAT_GRANITE);
+            /* Remove unused holes in corridors */
+            if (square_isempty(c, &iter.cur) && (k == 5))
+                square_set_feat(c, &iter.cur, FEAT_GRANITE);
 
-                sqinfo_off(c->squares[y][x].info, SQUARE_STAIRS);
-            }
+            sqinfo_off(square(c, &iter.cur)->info, SQUARE_STAIRS);
         }
     }
+    while (loc_iterator_next_strict(&iter));
 }
 
 
@@ -825,7 +846,8 @@ static void remove_unused_holes(struct chunk *c)
  */
 struct chunk *classic_gen(struct player *p, struct worldpos *wpos, int min_height, int min_width)
 {
-    int i, j, k, y, x, y1, x1;
+    int i, j, k;
+    struct loc grid;
     int by, bx = 0, tby, tbx, key, rarity, built;
     int num_rooms, size_percent;
     int dun_unusual = dun->profile->dun_unusual;
@@ -966,45 +988,41 @@ struct chunk *classic_gen(struct player *p, struct worldpos *wpos, int min_heigh
     {
         int pick1 = randint0(dun->cent_n);
         int pick2 = randint0(dun->cent_n);
+        struct loc tmp;
 
-        y1 = dun->cent[pick1].y;
-        x1 = dun->cent[pick1].x;
-        dun->cent[pick1].y = dun->cent[pick2].y;
-        dun->cent[pick1].x = dun->cent[pick2].x;
-        dun->cent[pick2].y = y1;
-        dun->cent[pick2].x = x1;
+        loc_copy(&tmp, &dun->cent[pick1]);
+        loc_copy(&dun->cent[pick1], &dun->cent[pick2]);
+        loc_copy(&dun->cent[pick2], &tmp);
     }
 
     /* Start with no tunnel doors */
     dun->door_n = 0;
 
     /* Hack -- connect the first room to the last room */
-    y = dun->cent[dun->cent_n - 1].y;
-    x = dun->cent[dun->cent_n - 1].x;
+    loc_copy(&grid, &dun->cent[dun->cent_n - 1]);
 
     /* Connect all the rooms together */
     for (i = 0; i < dun->cent_n; i++)
     {
         /* Connect the room to the previous room */
-        build_tunnel(c, dun->cent[i].y, dun->cent[i].x, y, x);
+        build_tunnel(c, &dun->cent[i], &grid);
 
         /* Remember the "previous" room */
-        y = dun->cent[i].y;
-        x = dun->cent[i].x;
+        loc_copy(&grid, &dun->cent[i]);
     }
 
     /* Place intersection doors */
     for (i = 0; i < dun->door_n; i++)
     {
-        /* Extract junction location */
-        y = dun->door[i].y;
-        x = dun->door[i].x;
-
         /* Try placing doors */
-        try_door(c, y, x - 1);
-        try_door(c, y, x + 1);
-        try_door(c, y - 1, x);
-        try_door(c, y + 1, x);
+        next_grid(&grid, &dun->door[i], DIR_W);
+        try_door(c, &grid);
+        next_grid(&grid, &dun->door[i], DIR_E);
+        try_door(c, &grid);
+        next_grid(&grid, &dun->door[i], DIR_N);
+        try_door(c, &grid);
+        next_grid(&grid, &dun->door[i], DIR_S);
+        try_door(c, &grid);
     }
 
     ensure_connectedness(c);
@@ -1026,11 +1044,9 @@ struct chunk *classic_gen(struct player *p, struct worldpos *wpos, int min_heigh
     fill_level(c, false);
     fill_level(c, true);
 
-    /* Place 3 or 4 down stairs near some walls */
-    alloc_stairs(c, FEAT_MORE, rand_range(3, 4));
-
-    /* Place 1 or 2 up stairs near some walls */
-    alloc_stairs(c, FEAT_LESS, rand_range(1, 2));
+    /* Place stairs near some walls */
+    add_stairs(c, FEAT_MORE);
+    add_stairs(c, FEAT_LESS);
 
     /* Remove holes in corridors that were not used for stair placement */
     remove_unused_holes(c);
@@ -1089,27 +1105,31 @@ struct chunk *classic_gen(struct player *p, struct worldpos *wpos, int min_heigh
  */
 static void lab_get_adjoin(int i, int w, int *a, int *b)
 {
-    int y, x;
+    struct loc grid, next;
 
-    i_to_yx(i, w, &y, &x);
-    if (x % 2 == 0)
+    i_to_grid(i, w, &grid);
+    if (grid.x % 2 == 0)
     {
-        *a = yx_to_i(y - 1, x, w);
-        *b = yx_to_i(y + 1, x, w);
+        next_grid(&next, &grid, DIR_N);
+        *a = grid_to_i(&next, w);
+        next_grid(&next, &grid, DIR_S);
+        *b = grid_to_i(&next, w);
     }
     else
     {
-        *a = yx_to_i(y, x - 1, w);
-        *b = yx_to_i(y, x + 1, w);
+        next_grid(&next, &grid, DIR_W);
+        *a = grid_to_i(&next, w);
+        next_grid(&next, &grid, DIR_E);
+        *b = grid_to_i(&next, w);
     }
 }
 
 
 /*
- * Return whether (x, y) is in a tunnel.
+ * Return whether a grid is in a tunnel.
  *
  * c is the current chunk
- * (y, x) are the co-ordinates
+ * grid is the location
  *
  * For our purposes a tunnel is a horizontal or vertical path, not an
  * intersection. Thus, we want the squares on either side to walls in one
@@ -1119,12 +1139,19 @@ static void lab_get_adjoin(int i, int w, int *a, int *b)
  * The high-level idea is that these are squares which can't be avoided (by
  * walking diagonally around them).
  */
-static bool lab_is_tunnel(struct chunk *c, int y, int x)
+static bool lab_is_tunnel(struct chunk *c, struct loc *grid)
 {
-    bool west = square_isopen(c, y, x - 1);
-    bool east = square_isopen(c, y, x + 1);
-    bool north = square_isopen(c, y - 1, x);
-    bool south = square_isopen(c, y + 1, x);
+    bool west, east, north, south;
+    struct loc next;
+
+    next_grid(&next, grid, DIR_W);
+    west = square_isopen(c, &next);
+    next_grid(&next, grid, DIR_E);
+    east = square_isopen(c, &next);
+    next_grid(&next, grid, DIR_N);
+    north = square_isopen(c, &next);
+    next_grid(&next, grid, DIR_S);
+    south = square_isopen(c, &next);
 
     return ((north == south) && (west == east) && (north != west));
 }
@@ -1133,20 +1160,28 @@ static bool lab_is_tunnel(struct chunk *c, int y, int x)
 /*
  * Helper function for lab_is_wide_tunnel.
  */
-static bool lab_is_wide_tunnel_aux(struct chunk *c, int y, int x, bool recursive, int *dy, int *dx)
+static bool lab_is_wide_tunnel_aux(struct chunk *c, struct loc *grid, bool recursive,
+    struct loc *choice)
 {
-    bool west = square_isopen(c, y, x - 1);
-    bool east = square_isopen(c, y, x + 1);
-    bool north = square_isopen(c, y - 1, x);
-    bool south = square_isopen(c, y + 1, x);
+    bool west, east, north, south;
+    struct loc next;
+
+    next_grid(&next, grid, DIR_W);
+    west = square_isopen(c, &next);
+    next_grid(&next, grid, DIR_E);
+    east = square_isopen(c, &next);
+    next_grid(&next, grid, DIR_N);
+    north = square_isopen(c, &next);
+    next_grid(&next, grid, DIR_S);
+    south = square_isopen(c, &next);
 
     if (west && east && north && !south)
     {
         if (recursive)
         {
-            *dy = -1;
-            *dx = 0;
-            return lab_is_wide_tunnel_aux(c, y - 1, x, false, dy, dx);
+            loc_init(choice, 0, -1);
+            next_grid(&next, grid, DIR_N);
+            return lab_is_wide_tunnel_aux(c, &next, false, choice);
         }
         return true;
     }
@@ -1154,9 +1189,9 @@ static bool lab_is_wide_tunnel_aux(struct chunk *c, int y, int x, bool recursive
     {
         if (recursive)
         {
-            *dy = 1;
-            *dx = 0;
-            return lab_is_wide_tunnel_aux(c, y + 1, x, false, dy, dx);
+            loc_init(choice, 0, 1);
+            next_grid(&next, grid, DIR_S);
+            return lab_is_wide_tunnel_aux(c, &next, false, choice);
         }
         return true;
     }
@@ -1164,9 +1199,9 @@ static bool lab_is_wide_tunnel_aux(struct chunk *c, int y, int x, bool recursive
     {
         if (recursive)
         {
-            *dy = 0;
-            *dx = -1;
-            return lab_is_wide_tunnel_aux(c, y, x - 1, false, dy, dx);
+            loc_init(choice, -1, 0);
+            next_grid(&next, grid, DIR_W);
+            return lab_is_wide_tunnel_aux(c, &next, false, choice);
         }
         return true;
     }
@@ -1174,9 +1209,9 @@ static bool lab_is_wide_tunnel_aux(struct chunk *c, int y, int x, bool recursive
     {
         if (recursive)
         {
-            *dy = 0;
-            *dx = 1;
-            return lab_is_wide_tunnel_aux(c, y, x + 1, false, dy, dx);
+            loc_init(choice, 1, 0);
+            next_grid(&next, grid, DIR_E);
+            return lab_is_wide_tunnel_aux(c, &next, false, choice);
         }
         return true;
     }
@@ -1187,9 +1222,9 @@ static bool lab_is_wide_tunnel_aux(struct chunk *c, int y, int x, bool recursive
 /*
  * Return whether (x, y) is in a wide tunnel.
  */
-static bool lab_is_wide_tunnel(struct chunk *c, int y, int x, int *dy, int *dx)
+static bool lab_is_wide_tunnel(struct chunk *c, struct loc *grid, struct loc *choice)
 {
-    return lab_is_wide_tunnel_aux(c, y, x, true, dy, dx);
+    return lab_is_wide_tunnel_aux(c, grid, true, choice);
 }
 
 
@@ -1206,7 +1241,8 @@ static bool lab_is_wide_tunnel(struct chunk *c, int y, int x, int *dy, int *dx)
 static struct chunk *labyrinth_chunk(struct player *p, struct worldpos *wpos, int h, int w,
     bool lit, bool soft, bool wide)
 {
-    int i, j, k, y, x = 0;
+    int i, j, k;
+    struct loc grid;
 
     /* This is the number of squares in the labyrinth */
     int n = h * w;
@@ -1254,14 +1290,17 @@ static struct chunk *labyrinth_chunk(struct player *p, struct worldpos *wpos, in
     }
 
     /* Cut out a grid of 1x1 rooms which we will call "cells" */
-    for (y = 0; y < h; y += 2)
+    for (grid.y = 0; grid.y < h; grid.y += 2)
     {
-        for (x = 0; x < w; x += 2)
+        for (grid.x = 0; grid.x < w; grid.x += 2)
         {
-            k = yx_to_i(y, x, w);
+            struct loc diag;
+
+            k = grid_to_i(&grid, w);
+            next_grid(&diag, &grid, DIR_SE);
             sets[k] = k;
-            square_set_feat(c, y + 1, x + 1, FEAT_FLOOR);
-            if (lit) sqinfo_on(c->squares[y + 1][x + 1].info, SQUARE_GLOW);
+            square_set_feat(c, &diag, FEAT_FLOOR);
+            if (lit) sqinfo_on(square(c, &diag)->info, SQUARE_GLOW);
         }
     }
 
@@ -1281,9 +1320,9 @@ static struct chunk *labyrinth_chunk(struct player *p, struct worldpos *wpos, in
         j = walls[i];
 
         /* If this cell isn't an adjoining wall, skip it */
-        i_to_yx(j, w, &y, &x);
-        if ((x < 1 && y < 1) || (x > w - 2 && y > h - 2)) continue;
-        if (x % 2 == y % 2) continue;
+        i_to_grid(j, w, &grid);
+        if ((grid.x < 1 && grid.y < 1) || (grid.x > w - 2 && grid.y > h - 2)) continue;
+        if (grid.x % 2 == grid.y % 2) continue;
 
         /* Figure out which cells are separated by this wall */
         lab_get_adjoin(j, w, &a, &b);
@@ -1293,9 +1332,11 @@ static struct chunk *labyrinth_chunk(struct player *p, struct worldpos *wpos, in
         {
             int sa = sets[a];
             int sb = sets[b];
+            struct loc diag;
 
-            square_set_feat(c, y + 1, x + 1, FEAT_FLOOR);
-            if (lit) sqinfo_on(c->squares[y + 1][x + 1].info, SQUARE_GLOW);
+            next_grid(&diag, &grid, DIR_SE);
+            square_set_feat(c, &diag, FEAT_FLOOR);
+            if (lit) sqinfo_on(square(c, &diag)->info, SQUARE_GLOW);
 
             for (k = 0; k < n; k++)
             {
@@ -1308,22 +1349,28 @@ static struct chunk *labyrinth_chunk(struct player *p, struct worldpos *wpos, in
     if (wide)
     {
         /* Simply stretch the original labyrinth area */
-        for (y = h; y >= 1; y--)
+        for (grid.y = h; grid.y >= 1; grid.y--)
         {
-            for (x = w; x >= 1; x--)
+            for (grid.x = w; grid.x >= 1; grid.x--)
             {
-                c->squares[y * 2][x * 2].feat = c->squares[y][x].feat;
-                sqinfo_wipe(c->squares[y * 2][x * 2].info);
-                sqinfo_copy(c->squares[y * 2][x * 2].info, c->squares[y][x].info);
-                c->squares[y * 2][x * 2 - 1].feat = c->squares[y][x].feat;
-                sqinfo_wipe(c->squares[y * 2][x * 2 - 1].info);
-                sqinfo_copy(c->squares[y * 2][x * 2 - 1].info, c->squares[y][x].info);
-                c->squares[y * 2 - 1][x * 2].feat = c->squares[y][x].feat;
-                sqinfo_wipe(c->squares[y * 2 - 1][x * 2].info);
-                sqinfo_copy(c->squares[y * 2 - 1][x * 2].info, c->squares[y][x].info);
-                c->squares[y * 2 - 1][x * 2 - 1].feat = c->squares[y][x].feat;
-                sqinfo_wipe(c->squares[y * 2 - 1][x * 2 - 1].info);
-                sqinfo_copy(c->squares[y * 2 - 1][x * 2 - 1].info, c->squares[y][x].info);
+                struct loc stretch;
+
+                loc_init(&stretch, grid.x * 2, grid.y * 2);
+                square(c, &stretch)->feat = square(c, &grid)->feat;
+                sqinfo_wipe(square(c, &stretch)->info);
+                sqinfo_copy(square(c, &stretch)->info, square(c, &grid)->info);
+                loc_init(&stretch, grid.x * 2 - 1, grid.y * 2);
+                square(c, &stretch)->feat = square(c, &grid)->feat;
+                sqinfo_wipe(square(c, &stretch)->info);
+                sqinfo_copy(square(c, &stretch)->info, square(c, &grid)->info);
+                loc_init(&stretch, grid.x * 2, grid.y * 2 - 1);
+                square(c, &stretch)->feat = square(c, &grid)->feat;
+                sqinfo_wipe(square(c, &stretch)->info);
+                sqinfo_copy(square(c, &stretch)->info, square(c, &grid)->info);
+                loc_init(&stretch, grid.x * 2 - 1, grid.y * 2 - 1);
+                square(c, &stretch)->feat = square(c, &grid)->feat;
+                sqinfo_wipe(square(c, &stretch)->info);
+                sqinfo_copy(square(c, &stretch)->info, square(c, &grid)->info);
             }
         }
     }
@@ -1334,25 +1381,26 @@ static struct chunk *labyrinth_chunk(struct player *p, struct worldpos *wpos, in
         /* Try 10 times to find a useful place for a door, then place it */
         for (j = 0; j < 10; j++)
         {
-            find_empty(c, &y, &x);
+            find_empty(c, &grid);
 
             /* Hack -- for wide corridors, place two doors */
             if (wide)
             {
-                int dy, dx;
+                struct loc choice, next;
 
-                if (lab_is_wide_tunnel(c, y, x, &dy, &dx))
+                if (lab_is_wide_tunnel(c, &grid, &choice))
                 {
-                    place_closed_door(c, y, x);
-                    place_closed_door(c, y + dy, x + dx);
+                    place_closed_door(c, &grid);
+                    loc_sum(&next, &grid, &choice);
+                    place_closed_door(c, &next);
                     break;
                 }
                 continue;
             }
 
-            if (lab_is_tunnel(c, y, x))
+            if (lab_is_tunnel(c, &grid))
             {
-                place_closed_door(c, y, x);
+                place_closed_door(c, &grid);
                 break;
             }
         }
@@ -1436,9 +1484,9 @@ struct chunk *labyrinth_gen(struct player *p, struct worldpos *wpos, int min_hei
     fill_level(c, false);
     fill_level(c, true);
 
-    /* The level should have exactly one down and one up staircase */
-    alloc_stairs(c, FEAT_MORE, 1);
-    alloc_stairs(c, FEAT_LESS, 1);
+    /* Place stairs near some walls */
+    add_stairs(c, FEAT_MORE);
+    add_stairs(c, FEAT_LESS);
 
     /* General amount of rubble, traps and monsters */
     k = MAX(MIN(wpos->depth / 3, 10), 2);
@@ -1494,12 +1542,12 @@ static void init_cavern(struct chunk *c, int density)
 
     while (count > 0)
     {
-        int y = randint1(h - 2);
-        int x = randint1(w - 2);
+        struct loc grid;
 
-        if (square_isrock(c, y, x))
+        loc_init(&grid, randint1(w - 2), randint1(h - 2));
+        if (square_isrock(c, &grid))
         {
-            square_set_feat(c, y, x, FEAT_FLOOR);
+            square_set_feat(c, &grid, FEAT_FLOOR);
             count--;
         }
     }
@@ -1510,21 +1558,20 @@ static void init_cavern(struct chunk *c, int density)
  * Return the number of walls (0-8) adjacent to this square.
  *
  * c is the current chunk
- * (y, x) are the co-ordinates
+ * grid is the location
  */
-static int count_adj_walls(struct chunk *c, int y, int x)
+static int count_adj_walls(struct chunk *c, struct loc *grid)
 {
-    int yd, xd;
+    int d;
     int count = 0;
 
-    for (yd = -1; yd <= 1; yd++)
+    for (d = 0; d < 8; d++)
     {
-        for (xd = -1; xd <= 1; xd++)
-        {
-            if ((yd == 0) && (xd == 0)) continue;
-            if (square_isfloor(c, y + yd, x + xd)) continue;
-            count++;
-        }
+        struct loc adj;
+
+        loc_sum(&adj, grid, &ddgrid_ddd[d]);
+        if (square_isfloor(c, &adj)) continue;
+        count++;
     }
 
     return count;
@@ -1538,36 +1585,39 @@ static int count_adj_walls(struct chunk *c, int y, int x)
  */
 static void mutate_cavern(struct chunk *c)
 {
-    int y, x;
+    struct loc begin, end;
+    struct loc_iterator iter;
     int h = c->height;
     int w = c->width;
     int *temp = mem_zalloc(h * w * sizeof(int));
 
-    for (y = 1; y < h - 1; y++)
-    {
-        for (x = 1; x < w - 1; x++)
-        {
-            int count = count_adj_walls(c, y, x);
+    loc_init(&begin, 1, 1);
+    loc_init(&end, w - 1, h - 1);
+    loc_iterator_first(&iter, &begin, &end);
 
-            if (count > 5)
-                temp[y * w + x] = FEAT_GRANITE;
-            else if (count < 4)
-                temp[y * w + x] = FEAT_FLOOR;
-            else
-                temp[y * w + x] = c->squares[y][x].feat;
-        }
-    }
-
-    for (y = 1; y < h - 1; y++)
+    do
     {
-        for (x = 1; x < w - 1; x++)
-        {
-            if (temp[y * w + x] == FEAT_GRANITE)
-                set_marked_granite(c, y, x, SQUARE_WALL_SOLID);
-            else
-                square_set_feat(c, y, x, temp[y * w + x]);
-        }
+        int count = count_adj_walls(c, &iter.cur);
+
+        if (count > 5)
+            temp[grid_to_i(&iter.cur, w)] = FEAT_GRANITE;
+        else if (count < 4)
+            temp[grid_to_i(&iter.cur, w)] = FEAT_FLOOR;
+        else
+            temp[grid_to_i(&iter.cur, w)] = square(c, &iter.cur)->feat;
     }
+    while (loc_iterator_next_strict(&iter));
+
+    loc_iterator_first(&iter, &begin, &end);
+
+    do
+    {
+        if (temp[grid_to_i(&iter.cur, w)] == FEAT_GRANITE)
+            set_marked_granite(c, &iter.cur, SQUARE_WALL_SOLID);
+        else
+            square_set_feat(c, &iter.cur, temp[grid_to_i(&iter.cur, w)]);
+    }
+    while (loc_iterator_next_strict(&iter));
 
     mem_free(temp);
 }
@@ -1593,24 +1643,18 @@ static void array_filler(int *data, int value, int size)
  *
  * c is the current chunk
  * colors is the array of current point colors
- * (y, x) are the co-ordinates
+ * grid is the location
  */
-static int ignore_point(struct chunk *c, int *colors, int y, int x)
+static int ignore_point(struct chunk *c, int *colors, struct loc *grid)
 {
-    int h = c->height;
-    int w = c->width;
-    int n = yx_to_i(y, x, w);
+    int n = grid_to_i(grid, c->width);
 
-    if ((y < 0) || (x < 0) || (y >= h) || (x >= w)) return true;
+    if (!square_in_bounds(c, grid)) return true;
     if (colors[n]) return true;
-    if (square_ispassable(c, y, x)) return false;
-    if (square_isdoor(c, y, x)) return false;
+    if (square_ispassable(c, grid)) return false;
+    if (square_isdoor(c, grid)) return false;
     return true;
 }
-
-
-static int xds[] = {0, 0, 1, -1, -1, -1, 1, 1};
-static int yds[] = {1, -1, 0, 0, -1, 1, -1, 1};
 
 
 /*
@@ -1619,49 +1663,50 @@ static int yds[] = {1, -1, 0, 0, -1, 1, -1, 1};
  * c is the current chunk
  * colors is the array of current point colors
  * counts is the array of current color counts
- * (y, x) are the co-ordinates
+ * grid is the location
  * color is the color we are coloring
  * diagonal controls whether we can progress diagonally
  */
-static void build_color_point(struct chunk *c, int *colors, int *counts, int y, int x,
+static void build_color_point(struct chunk *c, int *colors, int *counts, struct loc *grid,
     int color, bool diagonal)
 {
     int h = c->height;
     int w = c->width;
     int size = h * w;
     struct queue *queue = q_new(size);
-    int dslimit = (diagonal? 8: 4);
     int *added = mem_zalloc(size * sizeof(int));
 
     array_filler(added, 0, size);
 
-    q_push_int(queue, yx_to_i(y, x, w));
+    q_push_int(queue, grid_to_i(grid, w));
 
     counts[color] = 0;
 
     while (q_len(queue) > 0)
     {
-        int i, y2, x2;
-        int n2 = q_pop_int(queue);
+        int i;
+        struct loc grid1;
+        int n1 = q_pop_int(queue);
 
-        i_to_yx(n2, w, &y2, &x2);
+        i_to_grid(n1, w, &grid1);
 
-        if (ignore_point(c, colors, y2, x2)) continue;
+        if (ignore_point(c, colors, &grid1)) continue;
 
-        colors[n2] = color;
+        colors[n1] = color;
         counts[color]++;
 
-        for (i = 0; i < dslimit; i++)
+        for (i = 0; i < (diagonal? 8: 4); i++)
         {
-            int y3 = y2 + yds[i];
-            int x3 = x2 + xds[i];
-            int n3 = yx_to_i(y3, x3, w);
+            struct loc grid2;
+            int n2;
 
-            if (ignore_point(c, colors, y3, x3)) continue;
-            if (added[n3]) continue;
+            loc_sum(&grid2, &grid1, &ddgrid_ddd[i]);
+            n2 = grid_to_i(&grid2, w);
+            if (ignore_point(c, colors, &grid2)) continue;
+            if (added[n2]) continue;
 
-            q_push_int(queue, n3);
-            added[n3] = 1;
+            q_push_int(queue, n2);
+            added[n2] = 1;
         }
     }
 
@@ -1680,20 +1725,21 @@ static void build_color_point(struct chunk *c, int *colors, int *counts, int y, 
  */
 static void build_colors(struct chunk *c, int *colors, int *counts, bool diagonal)
 {
-    int y, x;
-    int h = c->height;
-    int w = c->width;
     int color = 1;
+    struct loc begin, end;
+    struct loc_iterator iter;
 
-    for (y = 0; y < h; y++)
+    loc_init(&begin, 0, 0);
+    loc_init(&end, c->width, c->height);
+    loc_iterator_first(&iter, &begin, &end);
+
+    do
     {
-        for (x = 0; x < w; x++)
-        {
-            if (ignore_point(c, colors, y, x)) continue;
-            build_color_point(c, colors, counts, y, x, color, diagonal);
-            color++;
-        }
+        if (ignore_point(c, colors, &iter.cur)) continue;
+        build_color_point(c, colors, counts, &iter.cur, color, diagonal);
+        color++;
     }
+    while (loc_iterator_next_strict(&iter));
 }
 
 
@@ -1706,11 +1752,13 @@ static void build_colors(struct chunk *c, int *colors, int *counts, bool diagona
  */
 static void clear_small_regions(struct chunk *c, int *colors, int *counts)
 {
-    int i, y, x;
+    int i;
     int h = c->height;
     int w = c->width;
     int size = h * w;
     int *deleted = mem_zalloc(size * sizeof(int));
+    struct loc begin, end;
+    struct loc_iterator iter;
 
     array_filler(deleted, 0, size);
 
@@ -1723,18 +1771,21 @@ static void clear_small_regions(struct chunk *c, int *colors, int *counts)
         }
     }
 
-    for (y = 1; y < c->height - 1; y++)
+    loc_init(&begin, 1, 1);
+    loc_init(&end, c->width - 1, c->height - 1);
+    loc_iterator_first(&iter, &begin, &end);
+
+    do
     {
-        for (x = 1; x < c->width - 1; x++)
-        {
-            i = yx_to_i(y, x, w);
+        i = grid_to_i(&iter.cur, w);
 
-            if (!deleted[colors[i]]) continue;
+        if (!deleted[colors[i]]) continue;
 
-            colors[i] = 0;
-            if (!square_isperm(c, y, x)) set_marked_granite(c, y, x, SQUARE_WALL_SOLID);
-        }
+        colors[i] = 0;
+        if (!square_isperm(c, &iter.cur))
+            set_marked_granite(c, &iter.cur, SQUARE_WALL_SOLID);
     }
+    while (loc_iterator_next_strict(&iter));
 
     mem_free(deleted);
 }
@@ -1828,8 +1879,8 @@ static void join_region(struct chunk *c, int *colors, int *counts, int color, in
     while (q_len(queue) > 0)
     {
         /* Get the current square and its color */
-        int n = q_pop_int(queue);
-        int color2 = colors[n];
+        int n1 = q_pop_int(queue);
+        int color2 = colors[n1];
 
         /* If we're not looking for a specific color, any new one will do */
         if ((new_color == -1) && color2 && (color2 != color))
@@ -1839,23 +1890,26 @@ static void join_region(struct chunk *c, int *colors, int *counts, int color, in
         if (color2 == new_color)
         {
             /* Step backward through the path, turning stone to tunnel */
-            while (colors[n] != color)
+            while (colors[n1] != color)
             {
-                int x, y;
-                int xp, yp;
+                struct loc grid, gridp;
 
-                i_to_yx(n, w, &y, &x);
-                colors[n] = color;
-                if (!square_isperm(c, y, x) && !square_isvault(c, y, x))
-                    square_set_feat(c, y, x, FEAT_FLOOR);
-                n = previous[n];
+                i_to_grid(n1, w, &grid);
+
+                colors[n1] = color;
+                if (!square_isperm(c, &grid) && !square_isvault(c, &grid))
+                    square_set_feat(c, &grid, FEAT_FLOOR);
+                n1 = previous[n1];
 
                 /* Hack -- create broad corridors */
-                i_to_yx(n, w, &yp, &xp);
-                if (yp != y) x++;
-                else y++;
-                if (square_in_bounds_fully(c, y, x) && !square_isperm(c, y, x) && !square_isvault(c, y, x))
-                    square_set_feat(c, y, x, FEAT_FLOOR);
+                i_to_grid(n1, w, &gridp);
+                if (gridp.y != grid.y) grid.x++;
+                else grid.y++;
+                if (square_in_bounds_fully(c, &grid) && !square_isperm(c, &grid) &&
+                    !square_isvault(c, &grid))
+                {
+                    square_set_feat(c, &grid, FEAT_FLOOR);
+                }
             }
 
             /* Update the color mapping to combine the two colors */
@@ -1868,23 +1922,22 @@ static void join_region(struct chunk *c, int *colors, int *counts, int color, in
         /* If we haven't reached a new color, add all the unprocessed adjacent squares to our queue */
         for (i = 0; i < 4; i++)
         {
-            int y, x, n2;
+            int n2;
+            struct loc grid0, grid;
 
-            i_to_yx(n, w, &y, &x);
+            i_to_grid(n1, w, &grid0);
 
             /* Move to the adjacent square */
-            y += yds[i];
-            x += xds[i];
+            loc_sum(&grid, &grid0, &ddgrid_ddd[i]);
 
             /* Make sure we stay inside the boundaries */
-            if ((y < 0) || (y >= h)) continue;
-            if ((x < 0) || (x >= w)) continue;
+            if (!square_in_bounds(c, &grid)) continue;
 
             /* If the cell hasn't already been processed, add it to the queue */
-            n2 = yx_to_i(y, x, w);
+            n2 = grid_to_i(&grid, w);
             if (previous[n2] >= 0) continue;
             q_push_int(queue, n2);
-            previous[n2] = n;
+            previous[n2] = n1;
         }
     }
 
@@ -2033,11 +2086,9 @@ struct chunk *cavern_gen(struct player *p, struct worldpos *wpos, int min_height
     fill_level(c, false);
     fill_level(c, true);
 
-    /* Place 1-3 down stairs near some walls */
-    alloc_stairs(c, FEAT_MORE, rand_range(1, 3));
-
-    /* Place 1-2 up stairs near some walls */
-    alloc_stairs(c, FEAT_LESS, rand_range(1, 2));
+    /* Place stairs near some walls */
+    add_stairs(c, FEAT_MORE);
+    add_stairs(c, FEAT_LESS);
 
     /* General amount of rubble, traps and monsters */
     k = MAX(MIN(wpos->depth / 3, 10), 2);
@@ -2078,59 +2129,73 @@ struct chunk *cavern_gen(struct player *p, struct worldpos *wpos, int min_height
  *
  * c is the current chunk
  * n is which shop it is
- * yy, xx the row and column of this store in the store layout
+ * grid is the grid of this store in the store layout
  */
-static void build_store(struct chunk *c, int n, int yy, int xx)
+static void build_store(struct chunk *c, int n, struct loc *grid)
 {
-    int feat, y, x;
+    int feat;
+    struct loc door;
+    struct store *s = &stores[n];
 
     /* Hack -- make tavern as large as possible */
-    int rad = ((n == STORE_TAVERN)? 3: 1);
+    int rad = ((s->type == STORE_TAVERN)? 3: 1);
 
     /* Determine door location */
-    int dy = rand_range(yy - rad, yy + rad);
-    int dx = (((dy == yy - rad) || (dy == yy + rad))? rand_range(xx - rad, xx + rad):
-        (xx - rad + rad * 2 * randint0(2)));
+    door.y = rand_range(grid->y - rad, grid->y + rad);
+    door.x = (((door.y == grid->y - rad) || (door.y == grid->y + rad))?
+        rand_range(grid->x - rad, grid->x + rad): (grid->x - rad + rad * 2 * randint0(2)));
 
     /* Build an invulnerable rectangular building */
-    fill_rectangle(c, yy - rad, xx - rad, yy + rad, xx + rad, FEAT_PERM, SQUARE_NONE);
+    fill_rectangle(c, grid->y - rad, grid->x - rad, grid->y + rad, grid->x + rad, FEAT_PERM,
+        SQUARE_NONE);
 
     /* Hack -- make tavern empty */
-    if (n == STORE_TAVERN)
+    if (s->type == STORE_TAVERN)
     {
-        for (y = yy - 2; y <= yy + 2; y++)
-        {
-            for (x = xx - 2; x <= xx + 2; x++)
-            {
-                /* Create the tavern, make it PvP-safe */
-                square_add_safe(c, y, x);
+        struct loc begin, end;
+        struct loc_iterator iter;
 
-                /* Declare this to be a room */
-                sqinfo_on(c->squares[y][x].info, SQUARE_GLOW);
-                sqinfo_on(c->squares[y][x].info, SQUARE_VAULT);
-                sqinfo_on(c->squares[y][x].info, SQUARE_ROOM);
-            }
+        loc_init(&begin, grid->x - 2, grid->y - 2);
+        loc_init(&end, grid->x + 2, grid->y + 2);
+        loc_iterator_first(&iter, &begin, &end);
+
+        do
+        {
+            /* Create the tavern, make it PvP-safe */
+            square_add_safe(c, &iter.cur);
+
+            /* Declare this to be a room */
+            sqinfo_on(square(c, &iter.cur)->info, SQUARE_VAULT);
+            sqinfo_on(square(c, &iter.cur)->info, SQUARE_NOTRASH);
+            sqinfo_on(square(c, &iter.cur)->info, SQUARE_ROOM);
         }
+        while (loc_iterator_next(&iter));
 
         /* Hack -- have everyone start in the tavern */
-        square_set_join_down(c, yy, xx);
+        square_set_join_down(c, grid);
     }
 
     /* Clear previous contents, add a store door */
     for (feat = 0; feat < z_info->f_max; feat++)
     {
         if (feat_is_shop(feat) && (f_info[feat].shopnum == n + 1))
-            square_set_feat(c, dy, dx, feat);
+            square_set_feat(c, &door, feat);
     }
 }
 
 
 /*
- * Locate an empty square for y1 <= y < y2, x1 <= x < x2.
+ * Locate an empty square in a given rectangle.
+ *
+ * c current chunk
+ * grid found grid
+ * top_left top left grid of rectangle
+ * bottom_right bottom right grid of rectangle
  */
-static bool find_empty_range(struct chunk *c, int *y, int y1, int y2, int *x, int x1, int x2)
+static bool find_empty_range(struct chunk *c, struct loc *grid, struct loc *top_left,
+    struct loc *bottom_right)
 {
-    return square_find_in_range(c, y, y1, y2, x, x1, x2, square_isempty);
+    return cave_find_in_range(c, grid, top_left, bottom_right, square_isempty);
 }
 
 
@@ -2142,8 +2207,10 @@ static bool find_empty_range(struct chunk *c, int *y, int y1, int y2, int *x, in
  */
 static void town_gen_layout(struct player *p, struct chunk *c)
 {
-    int y, x, n;
+    int n;
     int num_lava, num_rubble;
+    struct loc begin, end, grid, top_left, bottom_right;
+    struct loc_iterator iter;
 
     /* Boundary */
     int feat_outer = (((cfg_diving_mode > 1) || dynamic_town(&c->wpos))? FEAT_PERM:
@@ -2168,6 +2235,9 @@ static void town_gen_layout(struct player *p, struct chunk *c)
     /* Hack -- induce consistant town */
     Rand_value = seed_wild + world_index(&c->wpos) * 600 + c->wpos.depth * 37;
 
+    loc_init(&top_left, x1, y1);
+    loc_init(&bottom_right, x2, y2);
+
     num_lava = 3 + randint0(3);
     num_rubble = 3 + randint0(3);
 
@@ -2183,110 +2253,124 @@ static void town_gen_layout(struct player *p, struct chunk *c)
     /* Make a town-sized starburst room. */
     generate_starburst_room(c, y1, x1, y2, x2, false, FEAT_FLOOR, false);
 
+    loc_init(&begin, 1, 1);
+    loc_init(&end, c->width - 1, c->height - 1);
+    loc_iterator_first(&iter, &begin, &end);
+
     /* Turn off room illumination flag */
-    for (y = 1; y < c->height - 1; y++)
+    do
     {
-        for (x = 1; x < c->width - 1; x++)
-        {
-            if (square_isfloor(c, y, x))
-                sqinfo_off(c->squares[y][x].info, SQUARE_ROOM);
-            else if (!square_isperm(c, y, x) && !square_isfiery(c, y, x))
-                square_set_feat(c, y, x, FEAT_PERM_STATIC);
-        }
+        if (square_isfloor(c, &iter.cur))
+            sqinfo_off(square(c, &iter.cur)->info, SQUARE_ROOM);
+        else if (!square_isperm(c, &iter.cur) && !square_isfiery(c, &iter.cur))
+            square_set_feat(c, &iter.cur, FEAT_PERM_STATIC);
     }
+    while (loc_iterator_next_strict(&iter));
 
     /* Place stores */
-    for (n = STORE_GENERAL; n <= STORE_HOME; n++)
+    for (n = 0; n < store_max; n++)
     {
         int tries = 1000;
-        int xx, yy;
+        struct loc store;
+        struct store *s = &stores[n];
 
         /*
          * PWMAngband: tavern has radius 3, other stores have radius 1; then we leave at least
          * a space of 3 squares around stores.
          */
-        int rad = ((n == STORE_TAVERN)? 6: 4);
+        int rad = ((s->type == STORE_TAVERN)? 6: 4);
+
+        /* Skip player store */
+        if (s->type == STORE_PLAYER) continue;
 
         /* Find an empty place */
         while (tries)
         {
             bool found_non_floor = false;
 
-            find_empty_range(c, &y, y1, y2, &x, x1, x2);
-            for (yy = y - rad; yy <= y + rad; yy++)
+            find_empty_range(c, &store, &top_left, &bottom_right);
+
+            loc_init(&begin, store.x - rad, store.y - rad);
+            loc_init(&end, store.x + rad, store.y + rad);
+            loc_iterator_first(&iter, &begin, &end);
+
+            do
             {
-                for (xx = x - rad; xx <= x + rad; xx++)
-                {
-                    if (!square_isfloor(c, yy, xx)) found_non_floor = true;
-                }
+                if (!square_isfloor(c, &iter.cur)) found_non_floor = true;
             }
+            while (loc_iterator_next(&iter));
+
             if (!found_non_floor) break;
             tries--;
         }
 
         /* Build a store */
         my_assert(tries);
-        build_store(c, n, y, x);
+        build_store(c, n, &store);
     }
 
     /* Place a few piles of rubble */
     for (n = 0; n < num_rubble; n++)
     {
         int tries = 1000;
-        int xx, yy;
 
         /* Find an empty place */
         while (tries)
         {
             bool found_non_floor = false;
 
-            find_empty_range(c, &y, y1, y2, &x, x1, x2);
-            for (yy = y - 2; yy <= y + 2; yy++)
+            find_empty_range(c, &grid, &top_left, &bottom_right);
+
+            loc_init(&begin, grid.x - 2, grid.y - 2);
+            loc_init(&end, grid.x + 2, grid.y + 2);
+            loc_iterator_first(&iter, &begin, &end);
+
+            do
             {
-                for (xx = x - 2; xx <= x + 2; xx++)
-                {
-                    if (!square_isfloor(c, yy, xx)) found_non_floor = true;
-                }
+                if (!square_isfloor(c, &iter.cur)) found_non_floor = true;
             }
+            while (loc_iterator_next(&iter));
+
             if (!found_non_floor) break;
             tries--;
         }
 
         /* Place rubble at random */
         my_assert(tries);
-        for (yy = y - 1; yy <= y + 1; yy++)
+
+        loc_init(&begin, grid.x - 1, grid.y - 1);
+        loc_init(&end, grid.x + 1, grid.y + 1);
+        loc_iterator_first(&iter, &begin, &end);
+
+        do
         {
-            for (xx = x - 1; xx <= x + 1; xx++)
-            {
-                if (one_in_(1 + ABS(x - xx) + ABS(y - yy)))
-                    square_set_feat(c, yy, xx, FEAT_PASS_RUBBLE);
-            }
+            if (one_in_(1 + ABS(grid.x - iter.cur.x) + ABS(grid.y - iter.cur.y)))
+                square_set_feat(c, &iter.cur, FEAT_PASS_RUBBLE);
         }
+        while (loc_iterator_next(&iter));
     }
 
     /* Place the stairs in the north wall */
-    x = rand_spread(c->width / 2, town_wid / 3);
-    y = 2;
-    while (square_isperm(c, y, x) || square_isfiery(c, y, x)) y++;
-    y--;
+    loc_init(&grid, rand_spread(c->width / 2, town_wid / 3), 2);
+    while (square_isperm(c, &grid) || square_isfiery(c, &grid)) grid.y++;
+    grid.y--;
 
     /* Place a staircase */
-    square_set_downstairs(c, y, x);
+    square_set_downstairs(c, &grid, FEAT_MORE);
 
     /* Hack -- the players start on the stairs while recalling */
-    square_set_join_rand(c, y, x);
+    square_set_join_rand(c, &grid);
 
     /* PWMAngband: dynamically generated towns also get an up staircase */
     if (dynamic_town(&c->wpos))
     {
         /* Place the stairs in the south wall */
-        x = rand_spread(c->width / 2, town_wid / 3);
-        y = c->height - 3;
-        while (square_isperm(c, y, x) || square_isfiery(c, y, x)) y--;
-        y++;
+        loc_init(&grid, rand_spread(c->width / 2, town_wid / 3), c->height - 3);
+        while (square_isperm(c, &grid) || square_isfiery(c, &grid)) grid.y--;
+        grid.y++;
 
         /* Place a staircase */
-        square_set_upstairs(c, y, x);
+        square_set_upstairs(c, &grid);
 
         /* Determine the character location */
         new_player_spot(c, p);
@@ -2297,67 +2381,71 @@ static void town_gen_layout(struct player *p, struct chunk *c)
     {
         int pos;
 
+        loc_init(&begin, 1, 1);
+        loc_init(&end, c->width - 1, c->height - 1);
+        loc_iterator_first(&iter, &begin, &end);
+
         /* Cover the town in dirt */
-        for (y = 1; y < c->height - 1; y++)
+        do
         {
-            for (x = 1; x < c->width - 1; x++)
-            {
-                if (square_isfloor(c, y, x)) square_add_dirt(c, y, x);
-            }
+            if (square_isfloor(c, &iter.cur)) square_add_dirt(c, &iter.cur);
         }
+        while (loc_iterator_next_strict(&iter));
 
         /* Make some exits (wilderness) */
         if (cfg_diving_mode < 2)
         {
             /* Place a vertical opening in the south wall */
             pos = rand_spread(c->width / 2, town_wid / 3);
-            for (x = pos - 2; x <= pos + 2; x++)
+            for (grid.x = pos - 2; grid.x <= pos + 2; grid.x++)
             {
-                y = c->height - 3;
-                while (square_isperm(c, y, x) || square_isfiery(c, y, x))
+                grid.y = c->height - 3;
+                while (square_isperm(c, &grid) || square_isfiery(c, &grid))
                 {
-                    square_add_dirt(c, y, x);
-                    y--;
+                    square_add_dirt(c, &grid);
+                    grid.y--;
                 }
             }
 
             /* Place horizontal openings in the west and east walls */
             pos = rand_spread(c->height / 2, town_hgt / 3);
-            for (y = pos - 2; y <= pos + 2; y++)
+            for (grid.y = pos - 2; grid.y <= pos + 2; grid.y++)
             {
-                x = 2;
-                while (square_isperm(c, y, x) || square_isfiery(c, y, x))
+                grid.x = 2;
+                while (square_isperm(c, &grid) || square_isfiery(c, &grid))
                 {
-                    square_add_dirt(c, y, x);
-                    x++;
+                    square_add_dirt(c, &grid);
+                    grid.x++;
                 }
             }
 
             pos = rand_spread(c->height / 2, town_hgt / 3);
-            for (y = pos - 2; y <= pos + 2; y++)
+            for (grid.y = pos - 2; grid.y <= pos + 2; grid.y++)
             {
-                x = c->width - 3;
-                while (square_isperm(c, y, x) || square_isfiery(c, y, x))
+                grid.x = c->width - 3;
+                while (square_isperm(c, &grid) || square_isfiery(c, &grid))
                 {
-                    square_add_dirt(c, y, x);
-                    x--;
+                    square_add_dirt(c, &grid);
+                    grid.x--;
                 }
             }
 
             /* Surround with dirt (make irregular borders) */
-            for (x = 1; x <= c->width - 2; x++)
+            for (grid.x = 1; grid.x <= c->width - 2; grid.x++)
             {
                 n = randint1(3);
-                for (y = 1; y <= n; y++) square_add_dirt(c, y, x);
+                for (grid.y = 1; grid.y <= n; grid.y++) square_add_dirt(c, &grid);
                 n = randint1(3);
-                for (y = c->height - 1 - n; y <= c->height - 2; y++) square_add_dirt(c, y, x);
+                for (grid.y = c->height - 1 - n; grid.y <= c->height - 2; grid.y++)
+                    square_add_dirt(c, &grid);
             }
-            for (y = 1; y <= c->height - 2; y++)
+            for (grid.y = 1; grid.y <= c->height - 2; grid.y++)
             {
                 n = randint1(3);
-                for (x = 1; x <= n; x++) square_add_dirt(c, y, x);
+                for (grid.x = 1; grid.x <= n; grid.x++) square_add_dirt(c, &grid);
                 n = randint1(3);
-                for (x = c->width - 1 - n; x <= c->width - 2; x++) square_add_dirt(c, y, x);
+                for (grid.x = c->width - 1 - n; grid.x <= c->width - 2; grid.x++)
+                    square_add_dirt(c, &grid);
             }
         }
     }
@@ -2436,7 +2524,8 @@ struct chunk *town_gen(struct player *p, struct worldpos *wpos, int min_height, 
  */
 static struct chunk *modified_chunk(struct player *p, struct worldpos *wpos, int height, int width)
 {
-    int i, y, x, y1, x1;
+    int i;
+    struct loc grid;
     int by = 0, bx = 0, key, rarity;
     int num_floors;
     int num_rooms = dun->profile->n_room_profiles;
@@ -2516,45 +2605,41 @@ static struct chunk *modified_chunk(struct player *p, struct worldpos *wpos, int
     {
         int pick1 = randint0(dun->cent_n);
         int pick2 = randint0(dun->cent_n);
+        struct loc tmp;
 
-        y1 = dun->cent[pick1].y;
-        x1 = dun->cent[pick1].x;
-        dun->cent[pick1].y = dun->cent[pick2].y;
-        dun->cent[pick1].x = dun->cent[pick2].x;
-        dun->cent[pick2].y = y1;
-        dun->cent[pick2].x = x1;
+        loc_copy(&tmp, &dun->cent[pick1]);
+        loc_copy(&dun->cent[pick1], &dun->cent[pick2]);
+        loc_copy(&dun->cent[pick2], &tmp);
     }
 
     /* Start with no tunnel doors */
     dun->door_n = 0;
 
     /* Hack -- connect the first room to the last room */
-    y = dun->cent[dun->cent_n - 1].y;
-    x = dun->cent[dun->cent_n - 1].x;
+    loc_copy(&grid, &dun->cent[dun->cent_n - 1]);
 
     /* Connect all the rooms together */
     for (i = 0; i < dun->cent_n; i++)
     {
         /* Connect the room to the previous room */
-        build_tunnel(c, dun->cent[i].y, dun->cent[i].x, y, x);
+        build_tunnel(c, &dun->cent[i], &grid);
 
         /* Remember the "previous" room */
-        y = dun->cent[i].y;
-        x = dun->cent[i].x;
+        loc_copy(&grid, &dun->cent[i]);
     }
 
     /* Place intersection doors */
     for (i = 0; i < dun->door_n; i++)
     {
-        /* Extract junction location */
-        y = dun->door[i].y;
-        x = dun->door[i].x;
-
         /* Try placing doors */
-        try_door(c, y, x - 1);
-        try_door(c, y, x + 1);
-        try_door(c, y - 1, x);
-        try_door(c, y + 1, x);
+        next_grid(&grid, &dun->door[i], DIR_W);
+        try_door(c, &grid);
+        next_grid(&grid, &dun->door[i], DIR_E);
+        try_door(c, &grid);
+        next_grid(&grid, &dun->door[i], DIR_N);
+        try_door(c, &grid);
+        next_grid(&grid, &dun->door[i], DIR_S);
+        try_door(c, &grid);
     }
 
     ensure_connectedness(c);
@@ -2638,11 +2723,9 @@ struct chunk *modified_gen(struct player *p, struct worldpos *wpos, int min_heig
     fill_level(c, false);
     fill_level(c, true);
 
-    /* Place 3 or 4 down stairs near some walls */
-    alloc_stairs(c, FEAT_MORE, rand_range(3, 4));
-
-    /* Place 1 or 2 up stairs near some walls */
-    alloc_stairs(c, FEAT_LESS, rand_range(1, 2));
+    /* Place stairs near some walls */
+    add_stairs(c, FEAT_MORE);
+    add_stairs(c, FEAT_LESS);
 
     /* Remove holes in corridors that were not used for stair placement */
     remove_unused_holes(c);
@@ -2699,7 +2782,8 @@ struct chunk *modified_gen(struct player *p, struct worldpos *wpos, int min_heig
  */
 static struct chunk *moria_chunk(struct player *p, struct worldpos *wpos, int height, int width)
 {
-    int i, y, x, y1, x1;
+    int i;
+    struct loc grid;
     int by = 0, bx = 0, key, rarity;
     int num_floors;
     int num_rooms = dun->profile->n_room_profiles;
@@ -2779,45 +2863,41 @@ static struct chunk *moria_chunk(struct player *p, struct worldpos *wpos, int he
     {
         int pick1 = randint0(dun->cent_n);
         int pick2 = randint0(dun->cent_n);
+        struct loc tmp;
 
-        y1 = dun->cent[pick1].y;
-        x1 = dun->cent[pick1].x;
-        dun->cent[pick1].y = dun->cent[pick2].y;
-        dun->cent[pick1].x = dun->cent[pick2].x;
-        dun->cent[pick2].y = y1;
-        dun->cent[pick2].x = x1;
+        loc_copy(&tmp, &dun->cent[pick1]);
+        loc_copy(&dun->cent[pick1], &dun->cent[pick2]);
+        loc_copy(&dun->cent[pick2], &tmp);
     }
 
     /* Start with no tunnel doors */
     dun->door_n = 0;
 
     /* Hack -- connect the first room to the last room */
-    y = dun->cent[dun->cent_n - 1].y;
-    x = dun->cent[dun->cent_n - 1].x;
+    loc_copy(&grid, &dun->cent[dun->cent_n - 1]);
 
     /* Connect all the rooms together */
     for (i = 0; i < dun->cent_n; i++)
     {
         /* Connect the room to the previous room */
-        build_tunnel(c, dun->cent[i].y, dun->cent[i].x, y, x);
+        build_tunnel(c, &dun->cent[i], &grid);
 
         /* Remember the "previous" room */
-        y = dun->cent[i].y;
-        x = dun->cent[i].x;
+        loc_copy(&grid, &dun->cent[i]);
     }
 
     /* Place intersection doors */
     for (i = 0; i < dun->door_n; i++)
     {
-        /* Extract junction location */
-        y = dun->door[i].y;
-        x = dun->door[i].x;
-
         /* Try placing doors */
-        try_door(c, y, x - 1);
-        try_door(c, y, x + 1);
-        try_door(c, y - 1, x);
-        try_door(c, y + 1, x);
+        next_grid(&grid, &dun->door[i], DIR_W);
+        try_door(c, &grid);
+        next_grid(&grid, &dun->door[i], DIR_E);
+        try_door(c, &grid);
+        next_grid(&grid, &dun->door[i], DIR_N);
+        try_door(c, &grid);
+        next_grid(&grid, &dun->door[i], DIR_S);
+        try_door(c, &grid);
     }
 
     ensure_connectedness(c);
@@ -2894,11 +2974,9 @@ struct chunk *moria_gen(struct player *p, struct worldpos *wpos, int min_height,
     fill_level(c, false);
     fill_level(c, true);
 
-    /* Place 3 or 4 down stairs near some walls */
-    alloc_stairs(c, FEAT_MORE, rand_range(3, 4));
-
-    /* Place 1 or 2 up stairs near some walls */
-    alloc_stairs(c, FEAT_LESS, rand_range(1, 2));
+    /* Place stairs near some walls */
+    add_stairs(c, FEAT_MORE);
+    add_stairs(c, FEAT_LESS);
 
     /* Remove holes in corridors that were not used for stair placement */
     remove_unused_holes(c);
@@ -2964,7 +3042,7 @@ struct chunk *moria_gen(struct player *p, struct worldpos *wpos, int min_height,
  */
 static void build_feature(struct chunk *c, int n, int yy, int xx)
 {
-    int y, x, dy, dx;
+    int dy, dx;
     int feat;
 
     /* Determine spacing based on town size */
@@ -2981,8 +3059,13 @@ static void build_feature(struct chunk *c, int n, int yy, int xx)
     int x1 = x0 - randint1(5);
     int x2 = x0 + randint1(5);
 
+    struct loc begin, end, grid;
+    struct loc_iterator iter;
+
+    int type = ((n < store_max - 2)? stores[n].type: -1);
+
     /* Hack -- make forest/tavern as large as possible */
-    if ((n == 11) || (n == STORE_TAVERN))
+    if ((n == store_max - 1) || (type == STORE_TAVERN))
     {
         y1 = y0 - 3;
         y2 = y0 + 3;
@@ -2991,7 +3074,7 @@ static void build_feature(struct chunk *c, int n, int yy, int xx)
     }
 
     /* House (at least 2x2) */
-    if (n == 12)
+    if (n == store_max)
     {
         while (y2 - y1 == 2)
         {
@@ -3013,107 +3096,108 @@ static void build_feature(struct chunk *c, int n, int yy, int xx)
     fill_rectangle(c, y1, x1, y2, x2, FEAT_PERM, SQUARE_NONE);
 
     /* Hack -- make tavern empty */
-    if (n == STORE_TAVERN)
+    if (type == STORE_TAVERN)
     {
-        for (y = y1 + 1; y < y2; y++)
-        {
-            for (x = x1 + 1; x < x2; x++)
-            {
-                /* Create the tavern, make it PvP-safe */
-                square_add_safe(c, y, x);
+        loc_init(&begin, x1 + 1, y1 + 1);
+        loc_init(&end, x2, y2);
+        loc_iterator_first(&iter, &begin, &end);
 
-                /* Declare this to be a room */
-                sqinfo_on(c->squares[y][x].info, SQUARE_GLOW);
-                sqinfo_on(c->squares[y][x].info, SQUARE_VAULT);
-                sqinfo_on(c->squares[y][x].info, SQUARE_ROOM);
-            }
+        do
+        {
+            /* Create the tavern, make it PvP-safe */
+            square_add_safe(c, &iter.cur);
+
+            /* Declare this to be a room */
+            sqinfo_on(square(c, &iter.cur)->info, SQUARE_VAULT);
+            sqinfo_on(square(c, &iter.cur)->info, SQUARE_NOTRASH);
+            sqinfo_on(square(c, &iter.cur)->info, SQUARE_ROOM);
         }
+        while (loc_iterator_next_strict(&iter));
 
         /* Hack -- have everyone start in the tavern */
-        square_set_join_down(c, (y1 + y2) / 2, (x1 + x2) / 2);
+        loc_init(&grid, (x1 + x2) / 2, (y1 + y2) / 2);
+        square_set_join_down(c, &grid);
     }
 
     /* Pond */
-    if (n == 10)
+    if (n == store_max - 2)
     {
         /* Create the pond */
         fill_rectangle(c, y1, x1, y2, x2, FEAT_WATER, SQUARE_NONE);
 
         /* Make the pond not so "square" */
-        square_add_dirt(c, y1, x1);
-        square_add_dirt(c, y1, x2);
-        square_add_dirt(c, y2, x1);
-        square_add_dirt(c, y2, x2);
+        loc_init(&grid, x1, y1);
+        square_add_dirt(c, &grid);
+        loc_init(&grid, x2, y1);
+        square_add_dirt(c, &grid);
+        loc_init(&grid, x1, y2);
+        square_add_dirt(c, &grid);
+        loc_init(&grid, x2, y2);
+        square_add_dirt(c, &grid);
 
         return;
     }
 
     /* Forest */
-    if (n == 11)
+    if (n == store_max - 1)
     {
         int xc, yc, max_dis;
         int size = (y2 - y1 + 1) * (x2 - x1 + 1);
-        bool limit_trees = ((cfg_max_trees > 0) && (size > (cfg_max_trees / 4)));
-        int max_chance = (limit_trees? (100 * (cfg_max_trees / 4)): (100 * size));
+        struct loc center;
+
+        loc_init(&begin, x1, y1);
+        loc_init(&end, x2, y2);
 
         /* Find the center of the forested area */
         xc = (x1 + x2) / 2;
         yc = (y1 + y2) / 2;
+        loc_init(&center, xc, yc);
 
         /* Find the max distance from center */
-        max_dis = distance(y2, x2, yc, xc);
+        max_dis = distance(&end, &center);
 
-        for (y = y1; y <= y2; y++)
+        loc_iterator_first(&iter, &begin, &end);
+
+        do
         {
-            for (x = x1; x <= x2; x++)
-            {
-                int chance;
+            int chance;
 
-                /* Put some grass */
-                square_add_grass(c, y, x);
+            /* Put some grass */
+            square_add_grass(c, &iter.cur);
 
-                /* Calculate chance of a tree */
-                chance = 100 * (distance(y, x, yc, xc));
-                chance /= max_dis;
-                chance = 80 - chance;
-                chance *= size;
+            /* Calculate chance of a tree */
+            chance = 100 * (distance(&iter.cur, &center));
+            chance /= max_dis;
+            chance = 80 - chance;
+            chance *= size;
 
-                /* We want at most (cfg_max_trees / 4) trees */
-                if (limit_trees && (chance > max_chance)) chance = max_chance;
-
-                /* Put some trees */
-                if (CHANCE(chance, 100 * size) &&
-                    ((trees_in_town < cfg_max_trees) || (cfg_max_trees == -1)))
-                {
-                    square_add_tree(c, y, x);
-                    trees_in_town++;
-                }
-            }
+            /* Put some trees */
+            if (CHANCE(chance, 100 * size)) square_add_tree(c, &iter.cur);
         }
+        while (loc_iterator_next(&iter));
 
         return;
     }
 
     /* House */
-    if (n == 12)
+    if (n == store_max)
     {
         int house, price;
 
-        for (y = y1 + 1; y < y2; y++)
+        loc_init(&begin, x1 + 1, y1 + 1);
+        loc_init(&end, x2, y2);
+        loc_iterator_first(&iter, &begin, &end);
+
+        do
         {
-            for (x = x1 + 1; x < x2; x++)
-            {
-                /* Fill with safe floor */
-                square_add_safe(c, y, x);
+            /* Fill with safe floor */
+            square_add_safe(c, &iter.cur);
 
-                /* Make it "icky" */
-                sqinfo_on(c->squares[y][x].info, SQUARE_VAULT);
-
-                /* Make it glowing */
-                sqinfo_on(c->squares[y][x].info, SQUARE_ROOM);
-                sqinfo_on(c->squares[y][x].info, SQUARE_GLOW);
-            }
+            /* Declare this to be a room */
+            sqinfo_on(square(c, &iter.cur)->info, SQUARE_VAULT);
+            sqinfo_on(square(c, &iter.cur)->info, SQUARE_ROOM);
         }
+        while (loc_iterator_next_strict(&iter));
 
         /* Remember price */
         price = (x2 - x1 - 1) * (y2 - y1 - 1);
@@ -3121,23 +3205,21 @@ static void build_feature(struct chunk *c, int n, int yy, int xx)
         price *= 80 + randint1(40);
 
         /* Hack -- only create houses that aren't already loaded from disk */
-        house = pick_house(&c->wpos, dy, dx);
+        loc_init(&grid, dx, dy);
+        house = pick_house(&c->wpos, &grid);
         if (house == -1)
         {
             struct house_type h_local;
 
-            square_colorize_door(c, dy, dx, 0);
+            square_colorize_door(c, &grid, 0);
 
             /* Get an empty house slot */
             house = house_add(false);
 
             /* Setup house info */
-            h_local.x_1 = x1 + 1;
-            h_local.y_1 = y1 + 1;
-            h_local.x_2 = x2 - 1;
-            h_local.y_2 = y2 - 1;
-            h_local.door_y = dy;
-            h_local.door_x = dx;
+            loc_init(&h_local.grid_1, x1 + 1, y1 + 1);
+            loc_init(&h_local.grid_2, x2 - 1, y2 - 1);
+            loc_init(&h_local.door, dx, dy);
             memcpy(&h_local.wpos, &c->wpos, sizeof(struct worldpos));
             h_local.price = price;
             h_local.ownerid = 0;
@@ -3152,44 +3234,47 @@ static void build_feature(struct chunk *c, int n, int yy, int xx)
         else
         {
             /* Tag owned house door */
-            square_colorize_door(c, dy, dx, house_get(house)->color);
+            square_colorize_door(c, &grid, house_get(house)->color);
         }
 
         return;
     }
 
     /* Building with stairs */
-    if (n == 13)
+    if (n == store_max + 1)
     {
-        for (y = y1; y <= y2; y++)
-        {
-            for (x = x1; x <= x2; x++)
-            {
-                /* Create the area */
-                if (magik(50))
-                    square_add_grass(c, y, x);
-                else
-                    square_set_feat(c, y, x, FEAT_FLOOR);
-            }
-        }
+        loc_init(&begin, x1, y1);
+        loc_init(&end, x2, y2);
+        loc_iterator_first(&iter, &begin, &end);
 
-        x = (x1 + x2) / 2;
-        y = (y1 + y2) / 2;
+        do
+        {
+            /* Create the area */
+            if (magik(50))
+                square_add_grass(c, &iter.cur);
+            else
+                square_set_feat(c, &iter.cur, FEAT_FLOOR);
+        }
+        while (loc_iterator_next(&iter));
+
+        loc_init(&grid, (x1 + x2) / 2, (y1 + y2) / 2);
 
         /* Place a staircase */
-        square_set_downstairs(c, y, x);
+        square_set_downstairs(c, &grid, FEAT_MORE);
 
         /* Hack -- the players start on the stairs while recalling */
-        square_set_join_rand(c, y, x);
+        square_set_join_rand(c, &grid);
 
         return;
     }
+
+    loc_init(&grid, dx, dy);
 
     /* Clear previous contents, add a store door */
     for (feat = 0; feat < z_info->f_max; feat++)
     {
         if (feat_is_shop(feat) && (f_info[feat].shopnum == n + 1))
-            square_set_feat(c, dy, dx, feat);
+            square_set_feat(c, &grid, feat);
     }
 }
 
@@ -3199,35 +3284,37 @@ static void build_feature(struct chunk *c, int n, int yy, int xx)
  */
 static void place_street(struct chunk *c, int line, bool vert)
 {
-    int y, x, y1, y2, x1, x2;
+    int y1, y2, x1, x2;
+    struct loc begin, end;
+    struct loc_iterator iter;
 
     /* Vertical streets */
     if (vert)
     {
-        x = line * z_info->dungeon_wid / z_info->town_wid;
-        x1 = x - 2;
-        x2 = x + 2;
+        x1 = line * z_info->dungeon_wid / z_info->town_wid - 2;
+        x2 = line * z_info->dungeon_wid / z_info->town_wid + 2;
 
         y1 = 5;
         y2 = c->height - 5;
     }
     else
     {
-        y = line * z_info->dungeon_hgt / z_info->town_hgt;
-        y1 = y - 2;
-        y2 = y + 2;
+        y1 = line * z_info->dungeon_hgt / z_info->town_hgt - 2;
+        y2 = line * z_info->dungeon_hgt / z_info->town_hgt + 2;
 
         x1 = 5;
         x2 = c->width - 5;
     }
 
-    for (y = y1; y <= y2; y++)
+    loc_init(&begin, x1, y1);
+    loc_init(&end, x2, y2);
+    loc_iterator_first(&iter, &begin, &end);
+
+    do
     {
-        for (x = x1; x <= x2; x++)
-        {
-            if (c->squares[y][x].feat != FEAT_STREET) square_add_grass(c, y, x);
-        }
+        if (square(c, &iter.cur)->feat != FEAT_STREET) square_add_grass(c, &iter.cur);
     }
+    while (loc_iterator_next(&iter));
 
     if (vert)
     {
@@ -3253,13 +3340,13 @@ static void mang_town_gen_layout(struct chunk *c)
 {
     int y, x, n, k;
     int *rooms;
-    int n_stores = MAX_STORES - 2; /* MAX_STORES - 2 stores */
+    int n_stores = store_max - 2; /* store_max - 2 stores */
     int n_rows = 2;
     int n_cols = n_stores / n_rows;
     int size = (c->height - 2) * (c->width - 2);
-    bool limit_trees = ((cfg_max_trees > 0) && (size > (cfg_max_trees / 4)));
-    int max_chance = (limit_trees? (100 * (cfg_max_trees / 4)): (100 * size));
     int chance;
+    struct loc begin, end;
+    struct loc_iterator iter;
 
     /* Determine spacing based on town size */
     int y0 = (z_info->town_hgt - n_rows) / 2;
@@ -3280,34 +3367,26 @@ static void mang_town_gen_layout(struct chunk *c)
     /* Create some floor */
     fill_rectangle(c, 1, 1, c->height - 2, c->width - 2, FEAT_FLOOR, SQUARE_NONE);
 
-    trees_in_town = 0;
-
     /* Calculate chance of a tree */
     chance = 4 * size;
 
-    /* We want at most (cfg_max_trees / 4) trees */
-    if (limit_trees && (chance > max_chance)) chance = max_chance;
+    loc_init(&begin, 1, 1);
+    loc_init(&end, c->width - 1, c->height - 1);
+    loc_iterator_first(&iter, &begin, &end);
 
     /* Hack -- start with basic floors */
-    for (y = 1; y < c->height - 1; y++)
+    do
     {
-        for (x = 1; x < c->width - 1; x++)
-        {
-            /* Clear all features, set to "empty floor" */
-            square_add_dirt(c, y, x);
+        /* Clear all features, set to "empty floor" */
+        square_add_dirt(c, &iter.cur);
 
-            /* Generate some trees */
-            if (CHANCE(chance, 100 * size) &&
-                ((trees_in_town < cfg_max_trees) || (cfg_max_trees == -1)))
-            {
-                square_add_tree(c, y, x);
-                trees_in_town++;
-            }
+        /* Generate some trees */
+        if (CHANCE(chance, 100 * size)) square_add_tree(c, &iter.cur);
 
-            /* Generate grass patches */
-            else if (magik(75)) square_add_grass(c, y, x);
-        }
+        /* Generate grass patches */
+        else if (magik(75)) square_add_grass(c, &iter.cur);
     }
+    while (loc_iterator_next_strict(&iter));
 
     /* Place horizontal "streets" */
     for (y = 1; y <= z_info->town_hgt / 2; y = y + 2) place_street(c, y, false);
@@ -3322,12 +3401,12 @@ static void mang_town_gen_layout(struct chunk *c)
     for (n = 0; n < n_stores; n++)
         rooms[n] = n; /* n_stores stores */
     for (n = n_stores; n < n_stores + 6; n++)
-        rooms[n] = 10; /* 6 ponds */
+        rooms[n] = n_stores; /* 6 ponds */
     for (n = n_stores + 6; n < n_stores + 9; n++)
-        rooms[n] = 11; /* 3 forests */
+        rooms[n] = n_stores + 1; /* 3 forests */
     for (n = n_stores + 9; n < z_info->town_wid * z_info->town_hgt - 1; n++)
-        rooms[n] = 12; /* houses */
-    rooms[n++] = 13; /* stairs */
+        rooms[n] = n_stores + 2; /* houses */
+    rooms[n++] = n_stores + 3; /* stairs */
 
     /* Place rows of stores */
     for (y = y0; y < y0 + n_rows; y++)
@@ -3426,7 +3505,8 @@ struct chunk *mang_town_gen(struct player *p, struct worldpos *wpos, int min_hei
  */
 struct chunk *arena_gen(struct player *p, struct worldpos *wpos, int min_height, int min_width)
 {
-    int i, j, k, y, x, y1, x1;
+    int i, j, k;
+    struct loc grid;
     int by, bx = 0, tby, tbx, key, rarity, built;
     int num_rooms;
     int dun_unusual = dun->profile->dun_unusual;
@@ -3556,45 +3636,41 @@ struct chunk *arena_gen(struct player *p, struct worldpos *wpos, int min_height,
     {
         int pick1 = randint0(dun->cent_n);
         int pick2 = randint0(dun->cent_n);
+        struct loc tmp;
 
-        y1 = dun->cent[pick1].y;
-        x1 = dun->cent[pick1].x;
-        dun->cent[pick1].y = dun->cent[pick2].y;
-        dun->cent[pick1].x = dun->cent[pick2].x;
-        dun->cent[pick2].y = y1;
-        dun->cent[pick2].x = x1;
+        loc_copy(&tmp, &dun->cent[pick1]);
+        loc_copy(&dun->cent[pick1], &dun->cent[pick2]);
+        loc_copy(&dun->cent[pick2], &tmp);
     }
 
     /* Start with no tunnel doors */
     dun->door_n = 0;
 
     /* Hack -- connect the first room to the last room */
-    y = dun->cent[dun->cent_n - 1].y;
-    x = dun->cent[dun->cent_n - 1].x;
+    loc_copy(&grid, &dun->cent[dun->cent_n - 1]);
 
     /* Connect all the rooms together */
     for (i = 0; i < dun->cent_n; i++)
     {
         /* Connect the room to the previous room */
-        build_tunnel(c, dun->cent[i].y, dun->cent[i].x, y, x);
+        build_tunnel(c, &dun->cent[i], &grid);
 
         /* Remember the "previous" room */
-        y = dun->cent[i].y;
-        x = dun->cent[i].x;
+        loc_copy(&grid, &dun->cent[i]);
     }
 
     /* Place intersection doors */
     for (i = 0; i < dun->door_n; i++)
     {
-        /* Extract junction location */
-        y = dun->door[i].y;
-        x = dun->door[i].x;
-
         /* Try placing doors */
-        try_door(c, y, x - 1);
-        try_door(c, y, x + 1);
-        try_door(c, y - 1, x);
-        try_door(c, y + 1, x);
+        next_grid(&grid, &dun->door[i], DIR_W);
+        try_door(c, &grid);
+        next_grid(&grid, &dun->door[i], DIR_E);
+        try_door(c, &grid);
+        next_grid(&grid, &dun->door[i], DIR_N);
+        try_door(c, &grid);
+        next_grid(&grid, &dun->door[i], DIR_S);
+        try_door(c, &grid);
     }
 
     ensure_connectedness(c);
@@ -3602,11 +3678,9 @@ struct chunk *arena_gen(struct player *p, struct worldpos *wpos, int min_height,
     /* Tweak floors */
     fill_level(c, true);
 
-    /* Place 3 or 4 down stairs near some walls */
-    alloc_stairs(c, FEAT_MORE, rand_range(3, 4));
-
-    /* Place 1 or 2 up stairs near some walls */
-    alloc_stairs(c, FEAT_LESS, rand_range(1, 2));
+    /* Place stairs near some walls */
+    add_stairs(c, FEAT_MORE);
+    add_stairs(c, FEAT_LESS);
 
     /* Remove holes in corridors that were not used for stair placement */
     remove_unused_holes(c);

@@ -1593,15 +1593,11 @@ static tval_desc sval_dependent[] =
     {TV_MUSHROOM, "Mushrooms"},
     {TV_MAGIC_BOOK, "Magic Books"},
     {TV_PRAYER_BOOK, "Prayer Books"},
-    {TV_SORCERY_BOOK, "Sorcery Books"},
+    {TV_NATURE_BOOK, "Nature Books"},
     {TV_SHADOW_BOOK, "Shadow Books"},
-    {TV_HUNT_BOOK, "Hunt Books"},
     {TV_PSI_BOOK, "Psi Books"},
-    {TV_DEATH_BOOK, "Death Books"},
     {TV_ELEM_BOOK, "Elemental Books"},
-    {TV_SUMMON_BOOK, "Summoning Books"}
-    /*{TV_LIGHT, "Lights"} -- PWMAngband: removed because of ego light sources */
-    /*{TV_FLASK, "Flasks of Oil"} -- PWMAngband: moved to MAngband submenu because lack of space */
+    {TV_FLASK, "Flasks of Oil"}
 };
 
 
@@ -1611,14 +1607,13 @@ static tval_desc sval_dependent[] =
 static bool ignore_tval_extra(int tval)
 {
     /* PWMAngband: allow crops and junk to be ignored */
-    /* PWMAngband: flasks of oil moved here because lack of space on main menu */
     switch (tval)
     {
         case TV_SKELETON:
         case TV_BOTTLE:
         case TV_CORPSE:
-        case TV_FLASK:
-        case TV_CROP: return true;
+        case TV_CROP:
+        case TV_COOKIE: return true;
     }
 
     return false;
@@ -1766,16 +1761,12 @@ static bool sval_menu(int tval, const char *desc)
     switch (tval)
     {
         /* Leave sorted by sval */
-        /*case TV_LIGHT:*/
         case TV_MAGIC_BOOK:
         case TV_PRAYER_BOOK:
-        case TV_SORCERY_BOOK:
+        case TV_NATURE_BOOK:
         case TV_SHADOW_BOOK:
-        case TV_HUNT_BOOK:
         case TV_PSI_BOOK:
-        case TV_DEATH_BOOK:
-        case TV_ELEM_BOOK:
-        case TV_SUMMON_BOOK: break;
+        case TV_ELEM_BOOK: break;
 
         /* Sort by name */
         default: sort(choices, n_choices, sizeof(*choices), cmp_ignore);

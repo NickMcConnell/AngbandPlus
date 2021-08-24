@@ -68,8 +68,14 @@ graphics: :w
 name:glyph of warding:glyph of warding
 graphics:;:y
 appear:0:0:0
-flags:RUNE | VISIBLE | FLOOR
+flags:GLYPH | VISIBLE | FLOOR
 desc:A magical rune which monsters cannot pass without difficulty.
+
+name:decoy:decoy
+graphics:;:G
+appear:0:0:0
+flags:GLYPH | VISIBLE | FLOOR
+desc:A magical decoy which sounds and looks like the player.
 
 name:door lock:door lock
 graphics: :w
@@ -156,8 +162,7 @@ graphics:^:B
 appear:1:3:0
 visibility:0
 flags:TRAP | FLOOR | ONETIME | MAGICAL
-effect:SUMMON:MONSTER:5
-param:0:-2
+effect:SUMMON:MONSTER:5:-2
 dice:1
 desc:A magical rune which calls a monster to attack you.
 msg:A new foe appears from nowhere!
@@ -169,8 +174,7 @@ graphics:^:B
 appear:2:3:0
 visibility:0
 flags:TRAP | FLOOR | ONETIME | MAGICAL
-effect:SUMMON
-param:0:-2
+effect:SUMMON:ANY:0:-2
 dice:2+1d3
 desc:A magical rune which calls up monsters to attack you.
 msg:You are enveloped in a cloud of smoke!
@@ -182,8 +186,7 @@ graphics:^:B
 appear:1:20:0
 visibility:0
 flags:TRAP | FLOOR | ONETIME | MAGICAL
-effect:SUMMON:UNDEAD
-param:0:-2
+effect:SUMMON:UNDEAD:0:-2
 dice:1d3M2
 desc:A magical rune which calls the undead to attack you.
 msg:A sense of dread washes over you...
@@ -195,8 +198,7 @@ graphics:^:B
 appear:1:20:0
 visibility:0
 flags:TRAP | FLOOR | ONETIME | MAGICAL
-effect:SUMMON:DRAGON
-param:0:-2
+effect:SUMMON:DRAGON:0:-2
 dice:1d3
 desc:A magical rune which calls dragons to attack you.
 msg:You hear a dragon's call!
@@ -208,8 +210,7 @@ graphics:^:B
 appear:1:20:0
 visibility:0
 flags:TRAP | FLOOR | ONETIME | MAGICAL
-effect:SUMMON:DEMON
-param:0:-2
+effect:SUMMON:DEMON:0:-2
 dice:1+1d3
 desc:A magical rune which calls demons to attack you.
 msg:Demons appear!
@@ -476,8 +477,7 @@ flags:TRAP | FLOOR
 effect:DAMAGE
 dice:$Dd5
 expr:D:DUNGEON_LEVEL:/ 10 + 1
-effect:EARTHQUAKE
-param:5
+effect:EARTHQUAKE:NONE:5
 desc:A trap that causes an earthquake.
 msg:The ground shakes.
 

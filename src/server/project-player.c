@@ -33,7 +33,7 @@ static bool is_susceptible(struct monster_race *race, int type)
         /* Check these attacks against vulnerability (polymorphed players) */
         case PROJ_LIGHT_WEAK: return (race && rf_has(race->flags, RF_HURT_LIGHT));
         case PROJ_KILL_WALL: return (race && rf_has(race->flags, RF_HURT_ROCK));
-        case PROJ_DISP_EVIL: return (race && monster_is_evil(race));
+        case PROJ_DISP_EVIL: return (race && race_is_evil(race));
         case PROJ_DISP_UNDEAD: return (race && rf_has(race->flags, RF_UNDEAD));
 
         /* Check these attacks against immunity (polymorphed players) */
@@ -290,8 +290,7 @@ typedef struct project_player_handler_context_s
     struct source *origin;
     int r;
     struct chunk *cave;
-    int y;
-    int x;
+    struct loc grid;
     int dam;
     int type;
 
@@ -305,7 +304,7 @@ typedef void (*project_player_handler_f)(project_player_handler_context_t *);
 
 static void project_player_handler_ACID(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     if (context->origin->monster)
         update_smart_learn(context->origin->monster, p, 0, 0, ELEM_ACID);
@@ -321,7 +320,7 @@ static void project_player_handler_ACID(project_player_handler_context_t *contex
 
 static void project_player_handler_ELEC(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     if (context->origin->monster)
         update_smart_learn(context->origin->monster, p, 0, 0, ELEM_ELEC);
@@ -337,7 +336,7 @@ static void project_player_handler_ELEC(project_player_handler_context_t *contex
 
 static void project_player_handler_FIRE(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     if (context->origin->monster)
         update_smart_learn(context->origin->monster, p, 0, 0, ELEM_FIRE);
@@ -353,7 +352,7 @@ static void project_player_handler_FIRE(project_player_handler_context_t *contex
 
 static void project_player_handler_COLD(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     if (context->origin->monster)
         update_smart_learn(context->origin->monster, p, 0, 0, ELEM_COLD);
@@ -369,7 +368,7 @@ static void project_player_handler_COLD(project_player_handler_context_t *contex
 
 static void project_player_handler_POIS(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
     bool check = (context->origin->monster? false: true);
 
     if (player_resists(p, ELEM_POIS))
@@ -384,7 +383,7 @@ static void project_player_handler_POIS(project_player_handler_context_t *contex
 
 static void project_player_handler_LIGHT(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
     bool check = (context->origin->monster? false: true);
 
     if (context->origin->monster)
@@ -401,7 +400,7 @@ static void project_player_handler_LIGHT(project_player_handler_context_t *conte
 
 static void project_player_handler_DARK(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
     bool check = (context->origin->monster? false: true);
 
     if (context->origin->monster)
@@ -418,7 +417,7 @@ static void project_player_handler_DARK(project_player_handler_context_t *contex
 
 static void project_player_handler_SOUND(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
     bool check = (context->origin->monster? false: true);
 
     if (context->origin->monster)
@@ -436,7 +435,7 @@ static void project_player_handler_SOUND(project_player_handler_context_t *conte
 
 static void project_player_handler_SHARD(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
     bool check = (context->origin->monster? false: true);
 
     if (player_resists(p, ELEM_SHARD))
@@ -452,7 +451,7 @@ static void project_player_handler_SHARD(project_player_handler_context_t *conte
 
 static void project_player_handler_NEXUS(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
     struct source who_body;
     struct source *who = &who_body;
 
@@ -476,17 +475,16 @@ static void project_player_handler_NEXUS(project_player_handler_context_t *conte
         if (context->origin->monster)
         {
             who->monster = context->origin->monster;
-            effect_simple(EF_TELEPORT_TO, who, "0", 0, 0, 0, NULL);
+            effect_simple(EF_TELEPORT_TO, who, "0", 0, 0, 0, 0, 0, NULL);
         }
         else
         {
-            effect_simple(EF_TELEPORT_TO, who, "0", context->origin->player->py,
-                context->origin->player->px, 0, NULL);
+            effect_simple(EF_TELEPORT_TO, who, "0", 0, 0, 0, context->origin->player->grid.y,
+                context->origin->player->grid.x, NULL);
         }
 
         /* Hack -- get new location */
-        context->y = p->py;
-        context->x = p->px;
+        loc_copy(&context->grid, &p->grid);
     }
 
     /* Teleport level */
@@ -497,24 +495,23 @@ static void project_player_handler_NEXUS(project_player_handler_context_t *conte
             msg(p, "You avoid the effect!");
             return;
         }
-        effect_simple(EF_TELEPORT_LEVEL, who, "0", 0, 0, 0, NULL);
+        effect_simple(EF_TELEPORT_LEVEL, who, "0", 0, 0, 0, 0, 0, NULL);
     }
 
     /* Teleport */
     else
     {
-        effect_simple(EF_TELEPORT, who, "200", 0, 0, 0, NULL);
+        effect_simple(EF_TELEPORT, who, "200", 0, 0, 0, 0, 0, NULL);
 
         /* Hack -- get new location */
-        context->y = p->py;
-        context->x = p->px;
+        loc_copy(&context->grid, &p->grid);
     }
 }
 
 
 static void project_player_handler_NETHER(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
     int drain = 20 + (p->exp / 50) * z_info->life_drain_percent;
 
     if (context->origin->monster)
@@ -533,7 +530,7 @@ static void project_player_handler_NETHER(project_player_handler_context_t *cont
 
 static void project_player_handler_CHAOS(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
     bool check = (context->origin->monster? false: true);
 
     if (context->origin->monster)
@@ -571,7 +568,7 @@ static void project_player_handler_CHAOS(project_player_handler_context_t *conte
 
 static void project_player_handler_DISEN(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
     struct source who_body;
     struct source *who = &who_body;
 
@@ -583,13 +580,13 @@ static void project_player_handler_DISEN(project_player_handler_context_t *conte
 
     /* Disenchant gear */
     source_player(who, get_player_index(get_connection(p->conn)), p);
-    effect_simple(EF_DISENCHANT, who, "0", 0, 0, 0, NULL);
+    effect_simple(EF_DISENCHANT, who, "0", 0, 0, 0, 0, 0, NULL);
 }
 
 
 static void project_player_handler_WATER(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
     bool check = (context->origin->monster? false: true);
 
     if (context->origin->monster)
@@ -614,7 +611,7 @@ static void project_player_handler_WATER(project_player_handler_context_t *conte
 
 static void project_player_handler_ICE(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
     bool check = (context->origin->monster? false: true);
 
     if (context->origin->monster)
@@ -645,7 +642,7 @@ static void project_player_handler_ICE(project_player_handler_context_t *context
 
 static void project_player_handler_GRAVITY(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
     bool check = (context->origin->monster? false: true);
 
     msg(p, "Gravity warps around you.");
@@ -660,11 +657,10 @@ static void project_player_handler_GRAVITY(project_player_handler_context_t *con
         struct source *who = &who_body;
 
         source_player(who, get_player_index(get_connection(p->conn)), p);
-        effect_simple(EF_TELEPORT, who, "5", 0, 0, 0, NULL);
+        effect_simple(EF_TELEPORT, who, "5", 0, 0, 0, 0, 0, NULL);
 
         /* Hack -- get new location */
-        context->y = p->py;
-        context->x = p->px;
+        loc_copy(&context->grid, &p->grid);
     }
 
     /* Slow */
@@ -680,7 +676,7 @@ static void project_player_handler_GRAVITY(project_player_handler_context_t *con
 
 static void project_player_handler_INERTIA(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
     bool check = (context->origin->monster? false: true);
 
     /* Slow */
@@ -690,9 +686,8 @@ static void project_player_handler_INERTIA(project_player_handler_context_t *con
 
 static void project_player_handler_FORCE(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
     bool check = (context->origin->monster? false: true);
-    char grids_away[5];
     struct loc centre;
     struct source who_body;
     struct source *who = &who_body;
@@ -712,20 +707,18 @@ static void project_player_handler_FORCE(project_player_handler_context_t *conte
     player_inc_timed(p, TMD_STUN, randint1(20), true, check);
 
     /* Thrust player away. */
-    strnfmt(grids_away, sizeof(grids_away), "%d", 3 + context->dam / 20);
     source_player(who, get_player_index(get_connection(p->conn)), p);
     who->trap = context->origin->trap;
-    effect_simple(EF_THRUST_AWAY, who, grids_away, centre.y, centre.x, 0, NULL);
+    thrust_away(context->cave, who, &centre, 3 + context->dam / 20);
 
     /* Hack -- get new location */
-    context->y = p->py;
-    context->x = p->px;
+    loc_copy(&context->grid, &p->grid);
 }
 
 
 static void project_player_handler_TIME(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     project_player_time_effects(p, context->origin);
 }
@@ -733,7 +726,7 @@ static void project_player_handler_TIME(project_player_handler_context_t *contex
 
 static void project_player_handler_PLASMA(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
     bool check = (context->origin->monster? false: true);
 
     if (context->origin->monster)
@@ -775,10 +768,10 @@ static void project_player_handler_RAISE(project_player_handler_context_t *conte
 
 static void project_player_handler_AWAY_EVIL(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     /* Only evil players */
-    if (p->poly_race && monster_is_evil(p->poly_race))
+    if (p->poly_race && race_is_evil(p->poly_race))
     {
         char dice[5];
         struct source who_body;
@@ -786,11 +779,33 @@ static void project_player_handler_AWAY_EVIL(project_player_handler_context_t *c
 
         strnfmt(dice, sizeof(dice), "%d", context->dam);
         source_player(who, get_player_index(get_connection(p->conn)), p);
-        effect_simple(EF_TELEPORT, who, dice, 0, 0, 0, NULL);
+        effect_simple(EF_TELEPORT, who, dice, 0, 0, 0, 0, 0, NULL);
 
         /* Hack -- get new location */
-        context->y = p->py;
-        context->x = p->px;
+        loc_copy(&context->grid, &p->grid);
+    }
+    else
+        msg(p, "You resist the effect!");
+}
+
+
+static void project_player_handler_AWAY_SPIRIT(project_player_handler_context_t *context)
+{
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
+
+    /* Only spirit players */
+    if (p->poly_race && rf_has(p->poly_race->flags, RF_SPIRIT))
+    {
+        char dice[5];
+        struct source who_body;
+        struct source *who = &who_body;
+
+        strnfmt(dice, sizeof(dice), "%d", context->dam);
+        source_player(who, get_player_index(get_connection(p->conn)), p);
+        effect_simple(EF_TELEPORT, who, dice, 0, 0, 0, 0, 0, NULL);
+
+        /* Hack -- get new location */
+        loc_copy(&context->grid, &p->grid);
     }
     else
         msg(p, "You resist the effect!");
@@ -799,34 +814,50 @@ static void project_player_handler_AWAY_EVIL(project_player_handler_context_t *c
 
 static void project_player_handler_AWAY_ALL(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
     char dice[5];
     struct source who_body;
     struct source *who = &who_body;
 
     strnfmt(dice, sizeof(dice), "%d", context->dam);
     source_player(who, get_player_index(get_connection(p->conn)), p);
-    effect_simple(EF_TELEPORT, who, dice, 0, 0, 0, NULL);
+    effect_simple(EF_TELEPORT, who, dice, 0, 0, 0, 0, 0, NULL);
 
     /* Hack -- get new location */
-    context->y = p->py;
-    context->x = p->px;
+    loc_copy(&context->grid, &p->grid);
+}
+
+
+static void apply_fear(struct player *p)
+{
+    if (player_of_has(p, OF_PROT_FEAR))
+        msg(p, "You resist the effect!");
+    else
+        player_inc_timed(p, TMD_AFRAID, 3 + randint1(4), true, true);
 }
 
 
 static void project_player_handler_TURN_UNDEAD(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     /* Only undead players */
     if (p->poly_race && rf_has(p->poly_race->flags, RF_UNDEAD))
-    {
-        /* Fear */
-        if (player_of_has(p, OF_PROT_FEAR))
-            msg(p, "You resist the effect!");
-        else
-            player_inc_timed(p, TMD_AFRAID, 3 + randint1(4), true, true);
-    }
+        apply_fear(p);
+    else
+        msg(p, "You resist the effect!");
+}
+
+
+static void project_player_handler_TURN_LIVING(project_player_handler_context_t *context)
+{
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
+
+    /* Only living players */
+    if (!p->poly_race)
+        apply_fear(p);
+    else if (!rf_has(p->poly_race->flags, RF_UNDEAD) && !rf_has(p->poly_race->flags, RF_NONLIVING))
+        apply_fear(p);
     else
         msg(p, "You resist the effect!");
 }
@@ -834,13 +865,9 @@ static void project_player_handler_TURN_UNDEAD(project_player_handler_context_t 
 
 static void project_player_handler_TURN_ALL(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
-    /* Fear */
-    if (player_of_has(p, OF_PROT_FEAR))
-        msg(p, "You resist the effect!");
-    else
-        player_inc_timed(p, TMD_AFRAID, 3 + randint1(4), true, true);
+    apply_fear(p);
 }
 
 
@@ -849,9 +876,50 @@ static void project_player_handler_DISP_EVIL(project_player_handler_context_t *c
 static void project_player_handler_DISP_ALL(project_player_handler_context_t *context) {}
 
 
+static void apply_paralysis(struct player *p)
+{
+    if (player_of_has(p, OF_FREE_ACT))
+        msg(p, "You resist the effect!");
+    else
+        player_inc_timed(p, TMD_PARALYZED, 3 + randint1(4), true, true);
+}
+
+
+static void project_player_handler_SLEEP_UNDEAD(project_player_handler_context_t *context)
+{
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
+
+    /* Only undead players */
+    if (p->poly_race && rf_has(p->poly_race->flags, RF_UNDEAD))
+        apply_paralysis(p);
+    else
+        msg(p, "You resist the effect!");
+}
+
+
+static void project_player_handler_SLEEP_EVIL(project_player_handler_context_t *context)
+{
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
+
+    /* Only evil players */
+    if (p->poly_race && race_is_evil(p->poly_race))
+        apply_paralysis(p);
+    else
+        msg(p, "You resist the effect!");
+}
+
+
+static void project_player_handler_SLEEP_ALL(project_player_handler_context_t *context)
+{
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
+
+    apply_paralysis(p);
+}
+
+
 static void project_player_handler_MON_CLONE(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     /* Disable */
     msg(p, "You resist the effect!");
@@ -860,7 +928,7 @@ static void project_player_handler_MON_CLONE(project_player_handler_context_t *c
 
 static void project_player_handler_MON_POLY(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     if (player_resists(p, ELEM_NEXUS))
         msg(p, "You resist the effect!");
@@ -887,7 +955,10 @@ static void project_player_handler_MON_POLY(project_player_handler_context_t *co
 
 static void project_player_handler_MON_HEAL(project_player_handler_context_t *context)
 {
-    project_player_handler_MON_CLONE(context);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
+
+    /* Heal */
+    hp_player(p, context->dam);
 }
 
 
@@ -899,7 +970,7 @@ static void project_player_handler_MON_SPEED(project_player_handler_context_t *c
 
 static void project_player_handler_MON_SLOW(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     /* Slow */
     if (player_of_has(p, OF_FREE_ACT))
@@ -911,7 +982,7 @@ static void project_player_handler_MON_SLOW(project_player_handler_context_t *co
 
 static void project_player_handler_MON_CONF(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     /* Confusion */
     if (player_of_has(p, OF_PROT_CONF))
@@ -921,21 +992,9 @@ static void project_player_handler_MON_CONF(project_player_handler_context_t *co
 }
 
 
-static void project_player_handler_MON_SLEEP(project_player_handler_context_t *context)
-{
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
-
-    /* Paralysis */
-    if (player_of_has(p, OF_FREE_ACT))
-        msg(p, "You resist the effect!");
-    else
-        player_inc_timed(p, TMD_PARALYZED, 3 + randint1(4), true, true);
-}
-
-
 static void project_player_handler_MON_HOLD(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     /* Paralysis */
     if (player_of_has(p, OF_FREE_ACT))
@@ -947,7 +1006,7 @@ static void project_player_handler_MON_HOLD(project_player_handler_context_t *co
 
 static void project_player_handler_MON_STUN(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     /* Stun */
     if (player_of_has(p, OF_PROT_STUN))
@@ -958,11 +1017,12 @@ static void project_player_handler_MON_STUN(project_player_handler_context_t *co
 
 
 static void project_player_handler_MON_DRAIN(project_player_handler_context_t *context) {}
+static void project_player_handler_MON_CRUSH(project_player_handler_context_t *context) {}
 
 
 static void project_player_handler_PSI(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     switch (randint1(4))
     {
@@ -1009,11 +1069,9 @@ static void project_player_handler_PSI(project_player_handler_context_t *context
 }
 
 
-static void project_player_handler_DEATH(project_player_handler_context_t *context) {}
-
 static void project_player_handler_PSI_DRAIN(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
     int drain = context->dam;
     char dice[5];
 
@@ -1021,7 +1079,7 @@ static void project_player_handler_PSI_DRAIN(project_player_handler_context_t *c
 
     if (drain > p->chp) drain = p->chp;
     strnfmt(dice, sizeof(dice), "%d", 1 + 3 * drain / 4);
-    effect_simple(EF_RESTORE_MANA, context->origin, dice, 0, 0, 0, NULL);
+    effect_simple(EF_RESTORE_MANA, context->origin, dice, 0, 0, 0, 0, 0, NULL);
 }
 
 static void project_player_handler_CURSE(project_player_handler_context_t *context) {}
@@ -1029,7 +1087,7 @@ static void project_player_handler_CURSE(project_player_handler_context_t *conte
 
 static void project_player_handler_CURSE2(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     /* Cuts */
     player_inc_timed(p, TMD_CUT, damroll(10, 10), true, true);
@@ -1037,29 +1095,27 @@ static void project_player_handler_CURSE2(project_player_handler_context_t *cont
 
 
 static void project_player_handler_DRAIN(project_player_handler_context_t *context) {}
-static void project_player_handler_GUARD(project_player_handler_context_t *context) {}
-static void project_player_handler_FOLLOW(project_player_handler_context_t *context) {}
+static void project_player_handler_COMMAND(project_player_handler_context_t *context) {}
 
 
 static void project_player_handler_TELE_TO(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
     struct source who_body;
     struct source *who = &who_body;
 
     source_player(who, get_player_index(get_connection(p->conn)), p);
-    effect_simple(EF_TELEPORT_TO, who, "0", context->origin->player->py, context->origin->player->px,
-        0, NULL);
+    effect_simple(EF_TELEPORT_TO, who, "0", 0, 0, 0, context->origin->player->grid.y,
+        context->origin->player->grid.x, NULL);
 
     /* Hack -- get new location */
-    context->y = p->py;
-    context->x = p->px;
+    loc_copy(&context->grid, &p->grid);
 }
 
 
 static void project_player_handler_TELE_LEVEL(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     if (player_resists(p, ELEM_NEXUS))
         msg(p, "You resist the effect!");
@@ -1069,14 +1125,14 @@ static void project_player_handler_TELE_LEVEL(project_player_handler_context_t *
         struct source *who = &who_body;
 
         source_player(who, get_player_index(get_connection(p->conn)), p);
-        effect_simple(EF_TELEPORT_LEVEL, who, "0", 0, 0, 0, NULL);
+        effect_simple(EF_TELEPORT_LEVEL, who, "0", 0, 0, 0, 0, 0, NULL);
     }
 }
 
 
 static void project_player_handler_MON_BLIND(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     /* Blindness */
     if (player_of_has(p, OF_PROT_BLIND))
@@ -1088,7 +1144,7 @@ static void project_player_handler_MON_BLIND(project_player_handler_context_t *c
 
 static void project_player_handler_DRAIN_MANA(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
     bool seen = (!p->timed[TMD_BLIND] && player_is_visible(p, context->origin->idx));
 
     drain_mana(p, context->origin, (randint1(context->dam) / 2) + 1, seen);
@@ -1097,7 +1153,7 @@ static void project_player_handler_DRAIN_MANA(project_player_handler_context_t *
 
 static void project_player_handler_FORGET(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     /* Amnesia */
     player_inc_timed(p, TMD_AMNESIA, 8, true, true);
@@ -1106,7 +1162,7 @@ static void project_player_handler_FORGET(project_player_handler_context_t *cont
 
 static void project_player_handler_BLAST(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     /* Confusion */
     if (player_of_has(p, OF_PROT_CONF))
@@ -1121,7 +1177,7 @@ static void project_player_handler_BLAST(project_player_handler_context_t *conte
 
 static void project_player_handler_SMASH(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     /* Slow */
     player_inc_timed(p, TMD_SLOW, 3 + randint1(4), true, true);
@@ -1149,27 +1205,52 @@ static void project_player_handler_SMASH(project_player_handler_context_t *conte
 }
 
 
-static void project_player_handler_ATTACK(project_player_handler_context_t *context) {}
 static void project_player_handler_CONTROL(project_player_handler_context_t *context) {}
 
 
 static void project_player_handler_PROJECT(project_player_handler_context_t *context)
 {
-    struct player *p = player_get(0 - context->cave->squares[context->y][context->x].mon);
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
 
     int cidx = context->origin->player->clazz->cidx;
 
     if (context->origin->player->ghost && !player_can_undead(context->origin->player))
-        cidx = CLASS_GHOST;
+        cidx = lookup_player_class("Ghost")->cidx;
 
     /* "dam" is used as spell index */
     cast_spell_proj(p, cidx, context->dam, false);
 }
 
 
+static void project_player_handler_TREES(project_player_handler_context_t *context) {}
+
+
+static void project_player_handler_AWAY_ANIMAL(project_player_handler_context_t *context)
+{
+    struct player *p = player_get(0 - square(context->cave, &context->grid)->mon);
+
+    /* Only players polymorphed into an animal form */
+    if (p->poly_race && race_is_animal(p->poly_race))
+    {
+        char dice[5];
+        struct source who_body;
+        struct source *who = &who_body;
+
+        strnfmt(dice, sizeof(dice), "%d", context->dam);
+        source_player(who, get_player_index(get_connection(p->conn)), p);
+        effect_simple(EF_TELEPORT, who, dice, 0, 0, 0, 0, 0, NULL);
+
+        /* Hack -- get new location */
+        loc_copy(&context->grid, &p->grid);
+    }
+    else
+        msg(p, "You resist the effect!");
+}
+
+
 static const project_player_handler_f player_handlers[] =
 {
-    #define ELEM(a) project_player_handler_##a,
+    #define ELEM(a, b, c, d) project_player_handler_##a,
     #include "../common/list-elements.h"
     #undef ELEM
     #define PROJ(a) project_player_handler_##a,
@@ -1188,6 +1269,7 @@ static bool project_p_is_threat(int type)
     {
         case PROJ_AWAY_ALL:
         case PROJ_PROJECT:
+        case PROJ_MON_HEAL:
         case PROJ_TELE_TO:
         case PROJ_TELE_LEVEL: break;
         default: threat = true; break;
@@ -1219,7 +1301,7 @@ static bool project_p_is_threat(int type)
  *
  * We assume the player is aware of some effect, and always return "true".
  */
-void project_p(struct source *origin, int r, struct chunk *c, int y, int x, int dam, int typ,
+void project_p(struct source *origin, int r, struct chunk *c, struct loc *grid, int dam, int typ,
     const char *what, bool *did_hit, bool *was_obvious, int *newy, int *newx)
 {
     bool blind, seen;
@@ -1238,25 +1320,28 @@ void project_p(struct source *origin, int r, struct chunk *c, int y, int x, int 
     /* Projected spell */
     int index = dam;
 
-    struct player *p = player_get(0 - c->squares[y][x].mon);
+    struct player *p = player_get(0 - square(c, grid)->mon);
 
     *did_hit = false;
     *was_obvious = false;
-    *newy = y;
-    *newx = x;
+    *newy = grid->y;
+    *newx = grid->x;
+
+    /* Decoy has been hit */
+    if (square_isdecoyed(c, grid) && dam) square_destroy_decoy(p, c, grid);
 
     /* No player here */
     if (!p) return;
 
-    /* Never affect projector (except when trying to polymorph self) */
-    if ((origin->player == p) && (typ != PROJ_MON_POLY)) return;
+    /* Never affect projector (except when trying to polymorph or heal self) */
+    if ((origin->player == p) && (typ != PROJ_MON_POLY) && (typ != PROJ_MON_HEAL)) return;
 
     /* Obtain player info */
     blind = (p->timed[TMD_BLIND]? true: false);
     seen = !blind;
 
-    /* Hack -- polymorph self */
-    if ((origin->player == p) && (typ == PROJ_MON_POLY)) {}
+    /* Hack -- polymorph or heal self */
+    if ((origin->player == p) && ((typ == PROJ_MON_POLY) || (typ == PROJ_MON_HEAL))) {}
 
     /* Hit by a trap */
     else if (origin->trap)
@@ -1304,7 +1389,7 @@ void project_p(struct source *origin, int r, struct chunk *c, int y, int x, int 
             source_player(target, 0, p);
             mode = (target_equals(origin->player, target)? PVP_DIRECT: PVP_INDIRECT);
 
-            if (!pvp_check(origin->player, p, mode, true, c->squares[y][x].feat))
+            if (!pvp_check(origin->player, p, mode, true, square(c, grid)->feat))
                 return;
         }
     }
@@ -1384,8 +1469,7 @@ void project_p(struct source *origin, int r, struct chunk *c, int y, int x, int 
     context.origin = origin;
     context.r = r;
     context.cave = c;
-    context.y = y;
-    context.x = x;
+    loc_copy(&context.grid, grid);
     context.dam = dam;
     context.type = typ;
     context.obvious = obvious;
@@ -1402,8 +1486,8 @@ void project_p(struct source *origin, int r, struct chunk *c, int y, int x, int 
 
     /* Track this player */
     *did_hit = true;
-    *newy = context.y;
-    *newx = context.x;
+    *newy = context.grid.y;
+    *newx = context.grid.x;
 
     /* Return "Anything seen?" */
     *was_obvious = obvious;

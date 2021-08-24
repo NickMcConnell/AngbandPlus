@@ -1963,7 +1963,7 @@ static void add_brand(struct artifact *art)
     /* Get a random brand */
     for (count = 0; count < MAX_TRIES; count++)
     {
-        if (!append_random_brand(&art->brands, &brand)) continue;
+        if (!append_random_brand(&art->brands, &brand, art_is_ammo(art))) continue;
         if (art_is_ammo(art)) break;
 
         /* Frequently add the corresponding resist */
