@@ -29,9 +29,9 @@ L:5:MON(*, DEPTH+7)
 L:9:OBJ(*, DEPTH+7):MON(*, DEPTH+9)
 L:*:TRAP(*, 25%):OBJ(*)
 L:a:ART(sting)
-L:b:OBJ(small sword, DEPTH+5)
-L:c:OBJ(small sword, DEPTH+5)
-L:d:OBJ(small sword, DEPTH+5)
+L:b:OBJ(small sword):ART(-)
+L:c:OBJ(small sword):ART(-)
+L:d:OBJ(small sword):ART(-)
 !:SCRAMBLE(a,b,c,d)
 M:#####################################################
 M:#####################....9a*....#####################

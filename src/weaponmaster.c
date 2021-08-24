@@ -3822,7 +3822,6 @@ class_t *weaponmaster_get_class(int subclass)
         me.base_hp = 12;
         me.exp = 135;
         me.pets = 40;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
 
         me.caster_info = _caster_info;
         me.get_spells = _get_spells;

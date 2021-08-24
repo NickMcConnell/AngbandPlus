@@ -26,8 +26,6 @@ void rune_calc_bonuses(object_type *o_ptr)
 {
     if (o_ptr->rune == RUNE_ABSORPTION)
         p_ptr->magic_resistance += 15;
-    if (o_ptr->rune == RUNE_UNDERSTANDING && object_is_helmet(o_ptr))
-        p_ptr->auto_pseudo_id = TRUE;
     if (o_ptr->rune == RUNE_SHADOW)
     {
         if (object_is_body_armour(o_ptr) || o_ptr->tval == TV_CLOAK)
@@ -2078,7 +2076,6 @@ class_t *rune_knight_get_class(void)
         me.base_hp = 6;
         me.exp = 150;
         me.pets = 35;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
 
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;

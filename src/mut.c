@@ -895,7 +895,6 @@ int mut_rating(int mut_idx)
 int mut_regenerate_mod(void)
 {
     int regen;
-    int mod = 10;
     int count = mut_count(mut_unlocked_pred);
 
     /*
@@ -905,17 +904,70 @@ int mut_regenerate_mod(void)
 
     if (p_ptr->prace == RACE_BEASTMAN)
     {
-        count -= 10;
-        mod = 5;
+        count = MAX(0, count-10);
+		switch (count)
+		{
+		case 0:
+			regen = 100;
+		case 1:
+			regen = 95;
+			break;
+		case 2:
+			regen = 90;
+			break;
+		case 3:
+			regen = 86;
+			break;
+		case 4:
+			regen = 81;
+			break;
+		case 5:
+			regen = 77;
+			break;
+		case 6:
+			regen = 70;
+			break;
+		default:
+			regen = 66;
+			break;
+		}
     }
 
-    /* No negative modifier */
-    if (count <= 0) return 100;
-
-    regen = 100 - count * mod;
-
-    /* Max. 90% decrease in regeneration speed */
-    if (regen < 10) regen = 10;
+	switch (count)
+	{
+	case 0:
+		regen = 100;
+	case 1:
+		regen = 90;
+		break;
+	case 2:
+		regen = 81;
+		break;
+	case 3:
+		regen = 73;
+		break;
+	case 4:
+		regen = 66;
+		break;
+	case 5:
+		regen = 59;
+		break;
+	case 6:
+		regen = 53;
+		break;
+	case 7:
+		regen = 48;
+		break;
+	case 8:
+		regen = 43;
+		break;
+	case 9:
+		regen = 39;
+		break;
+	default:
+		regen = 35;
+		break;
+	}
 
     return regen;
 }

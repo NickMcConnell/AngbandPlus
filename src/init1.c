@@ -257,6 +257,7 @@ static cptr f_info_flags[] =
     "ROGUE_TRAP_2",
     "ROGUE_TRAP_3",
     "WEB",
+    "SEMI_PUN",
 };
 
 
@@ -403,8 +404,8 @@ static cptr r_info_flags7[] =
     "HAS_DARK_2",
     "SELF_DARK_2",
     "CAN_CLIMB",
-    "XXX7X21",
-    "XXX7X22",
+    "RANGED_MELEE",
+    "NASTY_GLYPH",
     "XXX7X23",
     "XXX7X24",
     "XXX7X25",
@@ -672,8 +673,7 @@ static cptr k_info_flags[OF_COUNT] =
     "DEC_MANA",
     "LITE",
     "DARKNESS",
-    "LORE1",
-    "LORE2",
+    "LORE",
 
     "ACTIVATE",
 
@@ -789,7 +789,7 @@ static cptr k_info_gen_flags[] =
     "TOWN",
     "FIXED_ART",
     "FIXED_ACT",
-    "XXX",
+    "NO_SHUFFLE",
     "XXX",
     "XXX",
     "XXX",
@@ -822,7 +822,7 @@ static cptr d_info_flags1[] =
     "CAVE",
     "CAVERN",
     "RANDOM",
-    "XXX",
+    "SMALL",
     "XXX",
     "XXX",
     "FORGET",
@@ -1450,6 +1450,7 @@ static _object_type_t _object_types[] =
     { "CRUSADE_BOOK",       TV_CRUSADE_BOOK },
     { "NECROMANCY_BOOK",    TV_NECROMANCY_BOOK },
     { "ARMAGEDDON_BOOK",    TV_ARMAGEDDON_BOOK },
+    { "LAW_BOOK",           TV_LAW_BOOK },
     { "MUSIC_BOOK",         TV_MUSIC_BOOK },
     { "HISSATSU_BOOK",      TV_HISSATSU_BOOK },
     { "HEX_BOOK",           TV_HEX_BOOK },
@@ -1731,6 +1732,10 @@ static errr _parse_room_grid_artifact(char **args, int arg_ct, room_grid_ptr gri
         {
             grid->flags |= ROOM_GRID_ART_RANDOM;
         }
+		else if (streq(args[0], "-"))
+		{
+			grid->flags |= ROOM_GRID_ART_CURSED;
+		}
         else
         {
             if (_is_numeric(args[0]))
@@ -2247,6 +2252,7 @@ errr parse_m_info(char *buf, header *head)
         else if (streq(book, "MUSIC")) m_ptr->spell_book = TV_MUSIC_BOOK;
         else if (streq(book, "HISSATSU")) m_ptr->spell_book = TV_HISSATSU_BOOK;
         else if (streq(book, "RAGE")) m_ptr->spell_book = TV_RAGE_BOOK;
+        else if (streq(book, "LAW")) m_ptr->spell_book = TV_LAW_BOOK;
         else if (streq(book, "NONE")) m_ptr->spell_book = 0;
         else return (5);
 
@@ -2300,6 +2306,7 @@ errr parse_m_info(char *buf, header *head)
         if (4 != sscanf(buf+2, "%d:%d:%d:%d",
                 &level, &mana, &fail, &exp)) return (1);
 
+        m_ptr->info[realm][magic_idx].realm = realm;
         m_ptr->info[realm][magic_idx].slevel = level;
         m_ptr->info[realm][magic_idx].smana = mana;
         m_ptr->info[realm][magic_idx].sfail = fail;
@@ -4618,7 +4625,40 @@ errr parse_room_line(room_ptr room, char *line, int options)
         memset(letter, 0, sizeof(room_grid_t));
         letter->letter = line[2];
         rc = parse_room_grid(line + 4, letter, options);
-        if (!rc) int_map_add(room->letters, letter->letter, letter);
+		if (!rc)
+		{
+			/* Check for the following case: a quest line is edited during the game,
+			* and the player has already requested or completed a quest that happens
+			* later in the new line without having requested, completed or received a
+			* reward for an earlier quest. This can make either a quest reward or an
+			* entire quest inaccessible. To avoid this, we use a very ugly hack:
+			* buildings set to an Untaken quest or a Completed quest (meaning an
+			* unrewarded one) can only be overwritten by setting them to another
+			* Completed quest. (We allow that so that a player who completes the
+			* later quest first can receive the reward immediately, without having to
+			* take the earlier quest.) */
+			if ((letter->cave_feat >= 128) && (letter->cave_feat < 160))
+			{
+				room_grid_ptr old_grid = int_map_find(room->letters, letter->letter);
+				while ((old_grid) && (old_grid->extra > 0) && (old_grid->cave_feat == letter->cave_feat)
+					&& (old_grid->extra != letter->extra))
+				{
+					quest_ptr q = quests_get(old_grid->extra);
+					if (!q || !q->id) break;
+					if ((q->status == QS_UNTAKEN) || (q->status == QS_COMPLETED))
+					{
+						if (letter->extra < 1) letter->extra = old_grid->extra;
+						else {
+							quest_ptr q2 = quests_get(letter->extra);
+							if (!q2 || !q2->id) letter->extra = old_grid->extra;
+							else if (q2->status != QS_COMPLETED) letter->extra = old_grid->extra;
+						}
+					}
+					break;
+				}
+			}
+			int_map_add(room->letters, letter->letter, letter);
+		}
         else free(letter);
         if (rc) return rc;
     }
@@ -4746,7 +4786,7 @@ static errr process_dungeon_file_aux(char *buf, int options)
 
 
 static char tmp[255];
-static cptr variant_name = "COMPOSBAND";
+static cptr variant_name = "FROGCOMPOSBAND";
 
 /*
  * Helper function for "process_dungeon_file()"

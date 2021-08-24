@@ -33,6 +33,7 @@ extern void    obj_free(obj_ptr obj);
 extern void    obj_release(obj_ptr obj, int options);
 extern void    gear_notice_id(obj_ptr obj);
 extern void    gear_notice_enchant(obj_ptr obj);
+extern void    obj_sense(obj_ptr obj);
 extern void    obj_make_pile(obj_ptr obj);
 
 /* Commands (Top Level User Interface) */
@@ -48,8 +49,7 @@ extern void obj_drop_at(obj_ptr obj, int amt, int x, int y, int break_chance);
 extern void obj_describe_charges(obj_ptr obj);
 
 /* Predicates */
-extern bool obj_can_sense1(obj_ptr obj);
-extern bool obj_can_sense2(obj_ptr obj);
+extern bool obj_can_sense(obj_ptr obj);
 extern bool obj_can_shoot(obj_ptr obj);
 extern bool obj_exists(obj_ptr obj);
 extern bool obj_is_ammo(obj_ptr obj);

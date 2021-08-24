@@ -239,10 +239,10 @@ E:ROCKET:60:15:300
 E:I'll fire CRIMSON! SEKKAKUDAKARA!
 
 N:17:of Lore
-I:39:7:1
+I:39:7:2
 W:30:12:15:20000
 P:0:1d1:0:0:0
-F:INSTA_ART | INT | WIS | LORE2
+F:INSTA_ART | INT | WIS | LORE
 E:PROBING:10:5
 D:A great emerald that fills your mind with images of knowledge and
 D:understanding as you stare into its depths.
@@ -395,7 +395,7 @@ N:31:of Celegorm
 I:34:4:0
 W:50:3:60:30000
 P:6:1d2:0:0:20
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_LITE | RES_DARK | XTRA_H_RES
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_DARK | XTRA_H_RES
 D:This shield emblazoned with a multitude of creatures not seen for ages
 D:once protected Celegorm, lord of Himlad; around it lies a mystic balance
 D:that contains the conflicts of the elements.
@@ -638,7 +638,7 @@ I:31:1:0
 W:10:3:5:30000
 P:1:0d0:0:0:10
 F:FREE_ACT | RES_LITE | SUST_CON | LITE
-E:BOLT_MISSILE:10:2:10
+E:BOLT_MISSILE:10:2:4
 E:Your gloves glow extremely brightly...
 D:These gloves glow so brightly as to light the way for their owner and cast
 D:magical bolts with great frequency.
@@ -681,7 +681,7 @@ I:31:3:0
 W:30:20:25:12000
 P:2:1d1:2:2:7
 F:RES_ACID | BRAND_ACID
-E:BOLT_ACID:12:12:50
+E:BOLT_ACID:12:12:8
 E:Your gauntlets are covered in acid...
 D:A set of handgear so corrosive that dissolves your opponent.
 
@@ -785,7 +785,7 @@ W:4:5:12:12000
 P:0:2d5:6:9:0
 F:BRAND_FIRE | RES_FIRE | SHOW_MODS | LITE | THROWING | XTRA_H_RES
 F:SPEED
-E:BOLT_FIRE:4:12:12
+E:BOLT_FIRE:4:12:6
 E:Your dagger is covered in fire...
 D:A fiery dagger finely balanced for deadly throws.
 
@@ -793,11 +793,11 @@ D:A fiery dagger finely balanced for deadly throws.
 
 N:67:'Nimthanc'
 I:23:4:1
-W:3:5:12:11000
+W:3:4:12:11000
 P:0:2d5:6:9:0
 F:BRAND_COLD | RES_COLD | SHOW_MODS | THROWING | XTRA_H_RES
 F:SPEED
-E:BOLT_COLD:3:12:10
+E:BOLT_COLD:3:12:6
 E:Your dagger is covered in frost...
 D:A frosty dagger finely balanced for deadly throws.
 
@@ -805,11 +805,11 @@ D:A frosty dagger finely balanced for deadly throws.
 
 N:68:'Dethanc'
 I:23:4:1
-W:5:5:12:13000
+W:5:4:12:13000
 P:0:2d5:6:9:0
 F:BRAND_ELEC | RES_ELEC | SHOW_MODS | LITE | THROWING | XTRA_H_RES
 F:SPEED
-E:BEAM_ELEC:5:12:8
+E:BEAM_ELEC:5:12:24
 E:Your dagger is covered in sparks...
 D:A dagger covered in sparks and finely balanced for deadly throws.
 
@@ -817,8 +817,8 @@ D:A dagger covered in sparks and finely balanced for deadly throws.
 
 N:69:of Rilia
 I:23:4:1
-W:15:15:12:35000
-P:0:3d5:8:9:0
+W:15:9:12:35000
+P:0:3d5:12:9:0
 F:SLAY_ORC | RES_POIS | RES_DISEN | SHOW_MODS | BRAND_POIS | THROWING
 F:SPEED
 E:BALL_POIS:5:6:12
@@ -831,7 +831,7 @@ D:wearer seems oddly immune.
 N:70:of Fiona
 I:23:4:3
 W:50:40:12:50000
-P:0:3d5:8:9:0
+P:0:3d5:6:9:0
 F:DEX | HIDE_TYPE | SPEED | BLOWS | BRAND_COLD | RES_COLD |
 F:SEE_INVIS | SLOW_DIGEST | REGEN |
 F:SHOW_MODS | BRAND_POIS | THROWING
@@ -1041,7 +1041,7 @@ D:accuracy.
 N:87:'Careth Asdriag'
 I:23:11:3
 W:15:8:50:25000
-P:0:2d9:8:12:0
+P:0:1d9:8:12:0
 F:BLOWS | SLAY_DRAGON | SLAY_ANIMAL | SLAY_TROLL | SLAY_GIANT | SLAY_HUMAN |
 F:SLAY_ORC | SHOW_MODS | RIDING
 D:An heirloom of the Lords of Rhun far to the east, and a name of
@@ -1077,7 +1077,7 @@ F:SHOW_MODS | XTRA_RES_OR_POWER
 N:90:of Merlin
 I:23:10:4
 W:20:8:80:35000
-P:0:1d8:6:9:0
+P:0:1d8:3:7:0
 F:BLOWS |
 F:SLAY_ANIMAL | SLOW_DIGEST | REGEN | SHOW_MODS | SEE_INVIS | RES_DISEN
 
@@ -1247,7 +1247,7 @@ D:to resist and endure lie ready for he who shall wield it once more.
 
 N:104:'Lotharang'
 I:22:22:1
-W:10:5:170:21000
+W:8:4:170:21000
 P:0:2d9:9:8:0
 F:STR | DEX | HIDE_TYPE |
 F:SLAY_TROLL | SLAY_ORC | SHOW_MODS
@@ -1273,7 +1273,7 @@ D:to ward off the elements and smite evil.
 
 N:106:'Barukkheled'
 I:22:11:3
-W:35:8:130:50000
+W:33:8:130:50000
 P:0:2d7:13:19:0
 F:CON | HIDE_TYPE |
 F:SLAY_EVIL | SLAY_TROLL | SLAY_GIANT | SLAY_ORC |
@@ -1545,7 +1545,7 @@ D:unvanquished Himring, defiant fortress surrounded by the legions of Morgoth.
 N:128:'Kusanagi-no-tsurugi'
 I:23:20:3
 W:50:20:120:123456
-P:0:4d4:15:15:0
+P:0:4d5:15:15:0
 F:STEALTH | DEX | RES_NETHER | RES_DISEN |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:SLAY_EVIL | SLAY_ANIMAL | SLAY_DEMON | SLAY_DRAGON |
@@ -1649,7 +1649,7 @@ P:0:2d6:15:15:0
 F:STR | DEX | HIDE_TYPE | BRAND_MANA |
 F:SHOW_MODS | RIDING | KILL_DEMON
 
-N:138:of Gil-Galad
+N:138:of Gil-galad
 I:34:10:4
 W:70:4:100:65000
 P:10:1d2:0:0:20
@@ -1657,7 +1657,7 @@ F:LITE | CHR | RES_ELEC | RES_ACID | HIDE_TYPE | REFLECT |
 F:SUST_WIS | SUST_CHR
 E:BALL_LITE:40:100:300
 E:Your shield gleams with blinding light...
-D:The legendary shield of Gil-Galad, who fought his way to the gates of
+D:The legendary shield of Gil-galad, who fought his way to the gates of
 D: the Dark Tower, and with whom came light even to Gorgoroth.
 
 N:139:'Winblows'
@@ -2075,7 +2075,11 @@ F:SLAY_ORC | SLAY_TROLL | RES_FIRE
 D:A blade of Elendil that was broken by his fall as the battled Sauron upon
 D: the steps of Barad-Dur.
 
-### GAP
+N:192:'I killed the GHB and all I got was this lousy T-shirt!'
+I:36:0:0
+W:0:0:10:1
+P:1:1d1:0:0:0
+F:QUESTITEM
 
 N:193:of Guan Yu
 I:23:22:3
@@ -3331,10 +3335,10 @@ D:sparks of white radiance shot with glints of the rainbow.
 
 N:330:Sword of the Winds
 I:23:17:3
-W:35:15:130:40000
+W:35:20:130:40000
 P:0:3d6:12:16:0
 F:VORPAL | RIDING | FULL_NAME | BLOWS
-F:SPEED | DEX | SHOW_MODS
+F:SPEED | SHOW_MODS
 D:This sword is light as a feather. The air howls as you swing it.
 
 N:331:'VainGlory'
@@ -3363,6 +3367,68 @@ F:SLAY_HUMAN | FULL_NAME | STR | CHR | RES_FEAR | FREE_ACT
 F:SHOW_MODS | BRAND_ELEC | BRAND_FIRE | LITE
 E:HEROISM:25:35:25
 D:This sword was a divine gift to a warrior destined for conquest.
+
+# FrogComposband additions
+
+N:334:'Micro$oft Edge'
+I:23:31:6
+W:50:20:480:0
+P:0:6d6:6:36:-18
+F:DEC_INT | DEC_WIS | AGGRAVATE | CURSED | HEAVY_CURSE | VORPAL2
+F:BRAND_VAMP | BRAND_CHAOS | DEC_SPEED | SLAY_GOOD | DRAIN_EXP
+F:RANDOM_CURSE0
+D:It feels so sharp you might cut yourself.
+
+N:335:'Silver Hammer'
+I:21:19:2
+W:45:25:150:100000
+P:0:4d7:14:11:0
+F:BLOWS | STEALTH | SLAY_HUMAN | FREE_ACT | RES_FEAR | RES_ELEC | BRAND_ELEC
+D:And you thought they'd made it up!
+
+N:336:of Bubo
+I:30:3:2
+W:30:20:40:50000
+P:3:1d1:0:0:14
+F:RES_FEAR | RES_COLD | RES_DARK | CON | STR | DEX | MAGIC_MASTERY
+E:SPEED:30:100
+D:Old leather boots, comfortable yet sturdy and enduring, worn by Bubo on
+D: his journeys to the frozen lands of the north.
+
+N:337:of Mr. Shine
+I:34:10:2
+W:65:25:100:65000
+P:10:1d2:0:0:22
+F:CHR | INT | RES_SHARDS | RES_POIS | RES_LITE | HIDE_TYPE | REFLECT |
+F:WIS | SUST_INT | SUST_WIS | SUST_CHR
+D:You could almost believe it was made of diamond.
+
+N:338:'Nogudil'
+I:22:12:3
+W:15:15:120:26000
+P:0:2d6:8:7:0
+F:SLAY_GOOD | SLAY_EVIL | IM_COLD | RES_FEAR | FREE_ACT |
+F:VULN_LITE | DEC_INT | DEC_WIS | AGGRAVATE | SPEED
+D:As you lift this great hammer, all your doubts are dispelled: it's time to
+D: get going and crush your enemies into a pulp.
+
+N:339:'Curiosity'
+I:23:10:3
+W:20:20:80:40000
+P:0:2d8:16:5:0
+F:INT | SUST_INT | VORPAL | KILL_ANIMAL
+D:Very sharp, and ideal for cutting stray felines open for examination.
+
+# Many thanks to bostock for providing the flags here
+N:340:of Mokomagi
+I:21:21:3
+W:42:20:40:30000
+P:0:2d2:12:10:0
+F:INT | HIDE_TYPE | DEC_MANA | EASY_SPELL |
+F:RES_CONF | RES_BLIND | SUST_INT | QUESTITEM
+D:It previously belonged to Katoshiko Mokomagi, a young wizard who started
+D: playing with forces beyond his control. (Not a mistake you would ever
+D: make.)
 
 # N: serial number : item name
 # I: tval : sval : pval

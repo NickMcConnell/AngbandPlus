@@ -2,7 +2,7 @@
 
 ?:[EQU $QUEST22 Taken InProgress]
 D:The marauding orcs approach ever closer to our quiet town, as
-D:is happening all over in these troubled times. To the northeast
+D:is happening all over in these troubled times. To the southeast
 D:lies a valley where our scouts have found an orc raiding party
 D:preparing to overrun us once and for all. Our forces are
 D:committed elsewhere; please repel this threat before they reach
@@ -22,7 +22,7 @@ T:QUEST:NORMAL
 L:#:PERMANENT
 L:.:FLOOR
 L:<:UP_STAIR
-L:^:TRAP(TRAP_ALARM, 15%)
+L:^:TRAP(TRAP_ALARM, 35%)
 L:a:MON(orc captain)
 L:s:MON(snaga sapper)
 M:#####################################################################
@@ -48,18 +48,6 @@ M:###########.............a.....................................#######
 M:##############..........................................#############
 M:##################...................................################
 M:#####################################################################
-R:OBJ(SWORD):EGO(slaying)
-?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Axes Polearms] ]
-R:OBJ(POLEARM):EGO(slaying)
-?:[EQU $CLASS Priest]
-R:OBJ(HAFTED):EGO(slaying)
-?:[EQU $RACE Angel]
-R:OBJ(HAFTED):EGO(slaying)
-?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Clubs Staves] ]
-R:OBJ(HAFTED):EGO(slaying)
-?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Diggers] ]
-R:OBJ(DIGGING):EGO(slaying)
-?:[EQU $CLASS Monk Force-Trainer Mystic]
-R:OBJ(GLOVES):EGO(slaying)
+R:OBJ(STAFF_SLEEP_MONSTERS)
 
 # vim: filetype=q :

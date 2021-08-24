@@ -74,13 +74,15 @@ static bool _shroomery_will_buy(obj_ptr obj);
 static bool _shroomery_create(obj_ptr obj, u32b mode);
 static bool _dragon_will_buy(obj_ptr obj);
 static bool _dragon_create(obj_ptr obj, u32b mode);
+static bool _sculptor_will_buy(obj_ptr obj);
+static bool _sculptor_create(obj_ptr obj, u32b mode);
 
 static _type_t _types[] = 
 {
     { SHOP_GENERAL, "General Store", _general_will_buy, _general_create,
         {{  1, "Bilbo the Friendly",         200, 108, RACE_HOBBIT },
          {  2, "Rincewind the Chicken",      200, 108, RACE_HUMAN },
-         {  3, "Sultan the Midget",          300, 107, RACE_GNOME },
+         {  3, "Snafu the Midget",           300, 107, RACE_GNOME },
          {  4, "Lyar-el the Comely",         300, 107, RACE_DEMIGOD },
          {  5, "Falilmawen the Friendly",    250, 108, RACE_HOBBIT },
          {  6, "Voirin the Cowardly",        500, 108, RACE_HUMAN },
@@ -112,7 +114,7 @@ static _type_t _types[] =
          { 32, "Merulla the Humble",        1000, 107, RACE_DEMIGOD }}},
         
     { SHOP_ARMORY, "Armory", _armory_will_buy, _armory_create,
-        {{  1, "Kon-Dar the Ugly",          5000, 115, RACE_SNOTLING },
+        {{  1, "Kon-Dar the Ugly",         10000, 115, RACE_SNOTLING },
          {  2, "Darg-Low the Grim",        10000, 111, RACE_HUMAN },
          {  3, "Decado the Handsome",      25000, 112, RACE_DUNADAN },
          {  4, "Wieland the Smith",        40000, 112, RACE_DWARF },
@@ -125,17 +127,17 @@ static _type_t _types[] =
          { 11, "Animus",                   25000, 112, RACE_GOLEM },
          { 12, "Malvus",                   30000, 112, RACE_HALF_TITAN },
          { 13, "Selaxis",                  10000, 115, RACE_ZOMBIE },
-         { 14, "Deathchill",                5000, 111, RACE_SPECTRE },
+         { 14, "Deathchill",               10000, 111, RACE_SPECTRE },
          { 15, "Drios the Faint",          25000, 112, RACE_SPECTRE },
          { 16, "Bathric the Cold",         30000, 112, RACE_VAMPIRE },
          { 17, "Vengella the Cruel",       10000, 115, RACE_HALF_TROLL },
          { 18, "Wyrana the Mighty",        15000, 111, RACE_HUMAN },
          { 19, "Yojo II",                  25000, 112, RACE_DWARF },
          { 20, "Ranalar the Sweet",        30000, 112, RACE_AMBERITE },
-         { 21, "Horbag the Unclean",        5000, 115, RACE_SNOTLING },
+         { 21, "Horbag the Unclean",       10000, 115, RACE_SNOTLING },
          { 22, "Elelen the Telepath",      15000, 111, RACE_DARK_ELF },
          { 23, "Isedrelias",               25000, 112, RACE_SPRITE },
-         { 24, "Vegnar One-eye",            5000, 112, RACE_CYCLOPS },
+         { 24, "Vegnar One-eye",           10000, 112, RACE_CYCLOPS },
          { 25, "Rodish the Chaotic",       10000, 115, RACE_BEASTMAN },
          { 26, "Hesin Swordmaster",        15000, 111, RACE_NIBELUNG },
          { 27, "Elvererith the Cheat",     10000, 112, RACE_DARK_ELF },
@@ -143,7 +145,7 @@ static _type_t _types[] =
          { 0 }}},
 
     { SHOP_WEAPON, "Weapon Smiths", _weapon_will_buy, _weapon_create,
-        {{  1, "Arnold the Beastly",        5000, 115, RACE_BARBARIAN },
+        {{  1, "Arnold the Beastly",       10000, 115, RACE_BARBARIAN },
          {  2, "Arndal Beast-Slayer",      10000, 110, RACE_HUMAN },
          {  3, "Eddie Beast-Master",       25000, 115, RACE_SNOTLING },
          {  4, "Oglign Dragon-Slayer",     50000, 112, RACE_DWARF },
@@ -151,7 +153,7 @@ static _type_t _types[] =
          {  6, "Orrax Dragonson",          15000, 110, RACE_DRACONIAN },
          {  7, "Anthrax Disease-Carrier",  25000, 115, RACE_BEASTMAN },
          {  8, "Arkhoth the Stout",        35000, 112, RACE_DWARF },
-         {  9, "Sarlyas the Rotten",        5000, 115, RACE_ZOMBIE },
+         {  9, "Sarlyas the Rotten",       10000, 115, RACE_ZOMBIE },
          { 10, "Tuethic Bare-Bones",       15000, 110, RACE_SKELETON },
          { 11, "Bilious",                  25000, 115, RACE_BEASTMAN },
          { 12, "Fasgul",                   30000, 112, RACE_ZOMBIE },
@@ -167,7 +169,7 @@ static _type_t _types[] =
          { 22, "Eramog the Weak",          15000, 110, RACE_KOBOLD },
          { 23, "Eowilith the Fair",        25000, 115, RACE_VAMPIRE },
          { 24, "Huimog Balrog-Slayer",     30000, 112, RACE_SNOTLING },
-         { 25, "Peadus the Cruel",          5000, 115, RACE_HUMAN },
+         { 25, "Peadus the Cruel",         10000, 115, RACE_HUMAN },
          { 26, "Vamog Slayer",             15000, 110, RACE_OGRE },
          { 27, "Hooshnak the Vicious",     25000, 115, RACE_BEASTMAN },
          { 28, "Balenn War-Dancer",        30000, 112, RACE_BARBARIAN },
@@ -340,7 +342,7 @@ static _type_t _types[] =
 	{ SHOP_DRAGON, "Dragonskin Emporium", _dragon_will_buy, _dragon_create,
 		 { { 1, "Beowulf",              50000, 110, RACE_HUMAN },
 		 { 2, "George",                10000, 108, RACE_HUMAN },
-		 { 3, "Sigmund",                     10000, 110, RACE_HUMAN },
+		 { 3, "Sigurd",                     10000, 110, RACE_HUMAN },
 		 { 4, "Conan",				25000, 105, RACE_BARBARIAN },
 		 { 0 } } },
 
@@ -457,6 +459,10 @@ static void _discount(obj_ptr obj)
 static bool _create(obj_ptr obj, int k_idx, int lvl, u32b mode)
 {
     if (!k_idx) return FALSE;
+    if (mode & AM_SHUFFLING)
+    {
+     if (k_info[k_idx].gen_flags & OFG_NO_SHUFFLE) return FALSE;
+    }
 
     object_prep(obj, k_idx);
     apply_magic(obj, lvl, mode);
@@ -471,7 +477,9 @@ static bool _create(obj_ptr obj, int k_idx, int lvl, u32b mode)
     obj->ident |= IDENT_STORE;
     if (obj_value(obj) <= 0) return FALSE; /* Note: requires IDENT_STORE to work!!! */
 
-    _discount(obj);
+    /* discounts could screw up the special pricing in dragonskin emporium */
+    if (k_info[k_idx].tval != TV_DRAG_ARMOR) _discount(obj);
+
     obj_make_pile(obj);
     return TRUE;
 }
@@ -566,7 +574,7 @@ static bool _general_create(obj_ptr obj, u32b mode)
     else if (one_in_(5))
         k_idx = lookup_kind(TV_DIGGING, SV_PICK);
     else
-        k_idx = _get_k_idx(_general_stock_p, _mod_lvl(25));
+        k_idx = _get_k_idx(_general_stock_p, _mod_lvl(15));
     return _create(obj, k_idx, _mod_lvl(rand_range(1, 15)), mode);
 }
 
@@ -600,7 +608,7 @@ static bool _armory_stock_p(int k_idx)
 static bool _armory_create(obj_ptr obj, u32b mode)
 {
     int k_idx = _get_k_idx(_armory_stock_p, _mod_lvl(25));
-    return _create(obj, k_idx, _mod_lvl(rand_range(1, 15)), mode);
+    return _create(obj, k_idx, _mod_lvl(rand_range(1, 25)), mode);
 }
 
 /************************************************************************
@@ -671,7 +679,7 @@ static bool _weapon_create(obj_ptr obj, u32b mode)
 {
     int k_idx;
     int l1 = _mod_lvl(25);
-    int l2 = _mod_lvl(rand_range(1, 15));
+    int l2 = _mod_lvl(rand_range(1, 25));
     if (one_in_(3))
         k_idx = _get_k_idx(_weapon_book_p, l1);
     else if (one_in_(4))
@@ -783,7 +791,7 @@ static bool _temple_create(obj_ptr obj, u32b mode)
         k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE);
     else
         k_idx = _get_k_idx(_temple_stock_p, _mod_lvl(25));
-    return _create(obj, k_idx, _mod_lvl(rand_range(1, 15)), mode);
+    return _create(obj, k_idx, _mod_lvl(rand_range(1, 25)), mode);
 }
 
 /************************************************************************
@@ -821,12 +829,16 @@ static bool _alchemist_stock_p(int k_idx)
 
 static bool _alchemist_create(obj_ptr obj, u32b mode)
 {
-	int k_idx;
-	if (one_in_(3))
-		k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL);
-	else
-		k_idx = _get_k_idx(_alchemist_stock_p, _mod_lvl(25));
-    return _create(obj, k_idx, _mod_lvl(rand_range(1, 15)), mode);
+    int k_idx;
+    if (one_in_(4))
+        k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL);
+    else if (one_in_(22))
+        k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_TELEPORT);
+    else if (one_in_(22))
+        k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_PHASE_DOOR);
+    else
+        k_idx = _get_k_idx(_alchemist_stock_p, _mod_lvl(25));
+    return _create(obj, k_idx, _mod_lvl(rand_range(1, 25)), mode);
 }
 
 /************************************************************************
@@ -875,7 +887,6 @@ static bool _magic_stock_p(int k_idx)
     {
     case TV_WAND:
     case TV_STAFF:
-    case TV_FIGURINE:
     case TV_ARCANE_BOOK:
     case TV_SORCERY_BOOK:
         return TRUE;
@@ -923,7 +934,7 @@ static bool _magic_create(obj_ptr obj, u32b mode)
     }
     else
         k_idx = _get_k_idx(_magic_stock_p, _mod_lvl(25));
-    return _create(obj, k_idx, _mod_lvl(15), mode);
+    return _create(obj, k_idx, _mod_lvl(rand_range(1, 25)), mode);
 }
 
 /************************************************************************
@@ -1000,6 +1011,7 @@ static bool _book_will_buy(obj_ptr obj)
     case TV_CRUSADE_BOOK:
     case TV_NECROMANCY_BOOK:
     case TV_ARMAGEDDON_BOOK:
+    case TV_LAW_BOOK:
     case TV_MUSIC_BOOK:
     case TV_HEX_BOOK:
         break;
@@ -1023,6 +1035,7 @@ static bool _book_stock_p(int k_idx)
     case TV_TRUMP_BOOK:
     case TV_CRAFT_BOOK:
     case TV_DAEMON_BOOK:
+    case TV_LAW_BOOK:
     case TV_MUSIC_BOOK:
     case TV_HEX_BOOK:
     case TV_NECROMANCY_BOOK:
@@ -1034,8 +1047,8 @@ static bool _book_stock_p(int k_idx)
 
 static bool _book_create(obj_ptr obj, u32b mode)
 {
-    int k_idx = _get_k_idx(_book_stock_p, _mod_lvl(25));
-    return _create(obj, k_idx, _mod_lvl(rand_range(1, 15)), mode);
+    int k_idx = _get_k_idx(_book_stock_p, _mod_lvl(20));
+    return _create(obj, k_idx, _mod_lvl(rand_range(1, 20)), mode);
 }
 
 /************************************************************************
@@ -1095,7 +1108,7 @@ static bool _shroomery_stock_p(int k_idx)
 static bool _shroomery_create(obj_ptr obj, u32b mode)
 {
 	int k_idx = _get_k_idx(_shroomery_stock_p, _mod_lvl(25));
-	return _create(obj, k_idx, _mod_lvl(rand_range(1, 15)), mode);
+	return _create(obj, k_idx, _mod_lvl(rand_range(1, 25)), mode);
 }
 
 /************************************************************************
@@ -1138,14 +1151,42 @@ static bool _dragon_stock_aux_p(int k_idx)
 static bool _dragon_create(obj_ptr obj, u32b mode)
 {
 	int k_idx;
-	if (!one_in_(5))
+	if (!one_in_(4))
 	{
-		k_idx = _get_k_idx(_dragon_stock_p, _mod_lvl(50));
+		k_idx = _get_k_idx(_dragon_stock_p, _mod_lvl(55));
 	}
 	else
 	{
 		k_idx = _get_k_idx(_dragon_stock_aux_p, _mod_lvl(50));
 	}
+	return _create(obj, k_idx, _mod_lvl(rand_range(30, 50)), mode);
+}
+
+/************************************************************************
+* The Sculptor
+***********************************************************************/
+
+static bool _sculptor_will_buy(obj_ptr obj)
+{
+	if (obj->tval != TV_FIGURINE && obj->tval != TV_STATUE) return FALSE;
+	return _will_buy(obj);
+}
+
+static bool _sculptor_stock_p(int k_idx)
+{
+	if (!_stock_p(k_idx))
+		return FALSE;
+	if (k_info[k_idx].tval == TV_FIGURINE)
+		return TRUE;
+	if (k_info[k_idx].tval == TV_STATUE)
+		return TRUE;
+	return FALSE;
+}
+
+static bool _sculptor_create(obj_ptr obj, u32b mode)
+{
+	int k_idx;
+		k_idx = _get_k_idx(_sculptor_stock_p, _mod_lvl(25));
 	return _create(obj, k_idx, _mod_lvl(rand_range(1, 25)), mode);
 }
 
@@ -1376,7 +1417,7 @@ static void _loop(_ui_context_ptr context);
 
 static void _maintain(shop_ptr shop);
 static int  _cull(shop_ptr shop, int target);
-static int  _restock(shop_ptr shop, int target);
+static int  _restock(shop_ptr shop, int target, bool is_shuffle);
 static void _wizard_stock(shop_ptr shop);
 static void _shuffle_stock(shop_ptr shop);
 static int  _stock_base(shop_ptr shop);
@@ -1468,7 +1509,7 @@ static void _loop(_ui_context_ptr context)
             ct = inv_count_slots(context->shop->inv, obj_exists);
             if (!ct)
             {
-                _restock(context->shop, _stock_base(context->shop));
+                _restock(context->shop, _stock_base(context->shop), TRUE);
                 context->top = 1;
                 if (one_in_(20)) _change_owner(context->shop);
                 msg_format("<color:U>%s</color> brings out some new stock.", context->shop->owner->name);
@@ -1796,11 +1837,11 @@ static void _sell(_ui_context_ptr context)
 		{
 			if (prace_is_(RACE_SNOTLING) || prace_is_(RACE_DOPPELGANGER)) {
 				msg_print("We don't serve your kind here.");
-				return FALSE;
+				return;
 			}
 			if (p_ptr->prace == RACE_DOPPELGANGER) {
 				msg_print("I'm wise to your tricks. You can't have my mushrooms.");
-				return FALSE;
+				return;
 			}
 		}
 
@@ -1939,7 +1980,7 @@ static void _maintain(shop_ptr shop)
     /* Always initialize an empty shop */
     if (!inv_count_slots(shop->inv, obj_exists))
     {
-        _restock(shop, _stock_base(shop));
+        _restock(shop, _stock_base(shop), FALSE);
         return;
     }
 
@@ -1968,13 +2009,13 @@ static void _maintain(shop_ptr shop)
     for (i = 0; i < num; i++)
     {
         int ct = inv_count_slots(shop->inv, obj_exists);
-        if (ct < _STOCK_LO) _restock(shop, _stock_base(shop));
+        if (ct < _STOCK_LO) _restock(shop, _stock_base(shop), FALSE);
         else if (ct > _STOCK_HI) _cull(shop, _stock_base(shop));
         else
         {
             ct = _cull(shop, MAX(_STOCK_LO, ct - randint1(9)));
             if (allow_restock)
-                ct = _restock(shop, MIN(_STOCK_HI, ct + randint1(9)));
+                ct = _restock(shop, MIN(_STOCK_HI, ct + randint1(9)), FALSE);
         }
     }
 }
@@ -2051,7 +2092,7 @@ static void _wizard_stock(shop_ptr shop)
     Term_clear_rect(ui_shop_msg_rect());
 }
 
-static int _restock(shop_ptr shop, int target)
+static int _restock(shop_ptr shop, int target, bool is_shuffle)
 {
     int ct = inv_count_slots(shop->inv, obj_exists);
     int attempt = 0;
@@ -2062,6 +2103,8 @@ static int _restock(shop_ptr shop, int target)
 
     if (shop->type->id == SHOP_BLACK_MARKET)
         mode |= AM_STOCK_BM;
+
+    if (is_shuffle) mode |= AM_SHUFFLING;
 
     assert(ct <= target);
     for (attempt = 1; ct < target && attempt < 100; attempt++)
@@ -2088,6 +2131,7 @@ static void _shuffle_stock(shop_ptr shop)
         int        cost = _sell_price(shop, 5000);
         string_ptr s;
         char       c;
+        if (shop->type->id == SHOP_BLACK_MARKET) cost *= 2;
         s = string_alloc_format("Shuffle stock for <color:R>%d</color> gp? <color:y>[y/n]</color>", cost);
         c = msg_prompt(string_buffer(s), "ny", PROMPT_YES_NO);
         string_free(s);
@@ -2105,7 +2149,7 @@ static void _shuffle_stock(shop_ptr shop)
             p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
     }
     _cull(shop, 0);
-    _restock(shop, _stock_base(shop));
+    _restock(shop, _stock_base(shop), TRUE);
 }
 
 /************************************************************************
@@ -2251,7 +2295,7 @@ void shop_display_inv(doc_ptr doc, inv_ptr inv, slot_t top, int page_size)
 /************************************************************************
  * Town
  ***********************************************************************/
-static cptr _names[] = { "Wilderness", "Outpost", "Telmora", "Morivant", "Angwil", "Thalos", "Zul", "Dungeon" };
+static cptr _names[] = { "Wilderness", "Outpost", "Telmora", "Morivant", "Angwil", "Anambar", "Thalos", "Zul", "Dungeon" };
 
 struct town_s
 {

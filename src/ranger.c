@@ -33,13 +33,13 @@ static caster_info * _caster_info(void)
     if (!init)
     {
         me.magic_desc = "spell";
-        me.which_stat = A_WIS;
+        me.which_stat = A_INT;
         me.encumbrance.max_wgt = 450;
         me.encumbrance.weapon_pct = 33;
         me.encumbrance.enc_wgt = 1000;
         me.min_level = 3;
         me.min_fail = 5;
-        me.options = CASTER_GLOVE_ENCUMBRANCE;
+        me.options = CASTER_ALLOW_DEC_MANA | CASTER_GLOVE_ENCUMBRANCE;
         init = TRUE;
     }
     return &me;
@@ -70,7 +70,7 @@ class_t *ranger_get_class(void)
                     "is a good fighter and also excellent with a bow. A ranger has "
                     "good stealth, perception, searching and magical resistance. Also, "
                     "rangers are familiar with magical devices and use them well. "
-                    "Wisdom determines a Ranger's spell casting ability.\n \n"
+                    "Intelligence determines a Ranger's spell casting ability.\n \n"
                     "All rangers are trained in Nature magic, and all of these spells are "
                     "available to them. They even learn these spells almost as fast as "
                     "mages. They can also select a secondary realm (from Sorcery, "
@@ -81,8 +81,8 @@ class_t *ranger_get_class(void)
                     "required to evolve.";
 
         me.stats[A_STR] =  2;
-        me.stats[A_INT] =  0;
-        me.stats[A_WIS] =  2;
+        me.stats[A_INT] =  2;
+        me.stats[A_WIS] =  0;
         me.stats[A_DEX] =  1;
         me.stats[A_CON] =  1;
         me.stats[A_CHR] =  0;
@@ -92,9 +92,7 @@ class_t *ranger_get_class(void)
         me.base_hp = 8;
         me.exp = 140;
         me.pets = 35;
-        me.flags = CLASS_SENSE1_SLOW | CLASS_SENSE1_STRONG |
-                   CLASS_SENSE2_SLOW | CLASS_SENSE2_STRONG;
-        
+
         me.birth = _birth;
         me.caster_info = _caster_info;
         me.calc_bonuses = _calc_bonuses;

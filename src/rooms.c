@@ -158,8 +158,8 @@ static room_info_type room_info_normal[ROOM_T_MAX] =
     /*  0  10  20  30  40  50  60  70  80  90 100  min limit */
 
     {{900,800,700,600,500,400,300,200,100,100,100},  0}, /*NORMAL   */
-    {{  0,  0,  0,  0,  1,  3,  4,  5,  4,  3,  2}, 40}, /*LESSER_V */
-    {{  0,  0,  0,  0,  0,  1,  3,  5,  6,  7,  8}, 50}, /*GREATER_V*/
+	{{ 0,  0,  0,  1,  6, 14, 17, 12,  8,  5,  5 }, 30}, /*LESSER_V */
+	{{ 0,  0,  0,  0,  0,  1,  3,  8, 12, 15, 15 }, 40}, /*GREATER_V*/
     {{  0,200,300,400,500,600,700,800,900,900,900}, 10}, /*FRACAVE  */
     {{  1,  6, 12, 18, 24, 30, 36, 42, 48, 54, 60}, 10}, /*CRYPT    */
     {{  0,  0,  1,  1,  1,  2,  3,  4,  5,  6,  8}, 20}, /*TRAP     */
@@ -1910,6 +1910,8 @@ obj_ptr room_grid_make_obj(room_grid_ptr grid, int level)
         int mode = 0;
         if (grid->flags & ROOM_GRID_ART_RANDOM)
             mode = AM_GOOD | AM_GREAT | AM_SPECIAL | AM_NO_FIXED_ART;
+		else if (grid->flags & ROOM_GRID_ART_CURSED)
+			mode = AM_CURSED | AM_SPECIAL | AM_NO_FIXED_ART;
         else if (grid->flags & ROOM_GRID_EGO_RANDOM) /* EGO(*) should allow artifacts */
             mode = AM_GOOD | AM_GREAT;
         else if (grid->object_level)
@@ -1955,6 +1957,10 @@ obj_ptr room_grid_make_obj(room_grid_ptr grid, int level)
             {
                 mode = AM_GOOD | AM_GREAT | AM_SPECIAL | AM_NO_FIXED_ART;
             }
+			else if (grid->flags & ROOM_GRID_ART_CURSED)
+			{
+				mode = AM_CURSED | AM_SPECIAL | AM_NO_FIXED_ART;
+			}
             else if (grid->flags & ROOM_GRID_EGO_RANDOM)
             {
                 mode = AM_GOOD | AM_GREAT | AM_NO_FIXED_ART;
@@ -1973,7 +1979,7 @@ obj_ptr room_grid_make_obj(room_grid_ptr grid, int level)
                 /* Hack: There is only a single k_idx for each class of devices, so
                  * we use the ego index to pick an effect. This means there is no way
                  * to actually grant an ego device ...*/
-                if (!device_init_fixed(&forge, grid->extra))
+                if (!device_init_fixed(&forge, grid->extra, level))
                 {
                     if (grid->extra)
                     {

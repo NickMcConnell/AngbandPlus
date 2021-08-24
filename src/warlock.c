@@ -2064,8 +2064,6 @@ class_t *warlock_get_class(int psubclass)
         me.get_spells = _get_spells;
         me.get_powers = _get_powers;
         me.character_dump = _character_dump;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
 
         me.pets = 15;
         init = TRUE;

@@ -276,13 +276,13 @@ M:###############
 
 N:Ruined Home
 T:WILD:GRASS
-W:1:*:1
+W:1:*:2
 L:,:GRASS
 L:.:DIRT
 L:T:TREE
 L:%:RUBBLE
 L:*:DIRT(ROOM):MON(*, DEPTH+10)
-L:~:DIRT(ROOM):OBJ(*)
+L:~:DIRT(ROOM):OBJ(*, DEPTH+1)
 M:###%%%######%%TT%#
 M:#TT.....~..%TT*.T%
 M:+.........~T.....T
@@ -512,26 +512,6 @@ M: MMM
 M:MMMMM
 M: MMM 
 M:  M  
-
-N:Teaching Academy
-T:WILD:GRASS
-W:10:*:16
-M:------------------------------
-M:------------------------------
-M:------WWWWWWW.WWWWWWW---------
-M:---WWWW#####-.-#####WWWW------
-M:-WWW########-.-########WWW----
-M:-W#########--.--#########W----
-M:WW######-----.-----######WW---
-M:W######----##;##----######W---
-M:W#####--&-#######----#####W---
-M:W#####----#######-&--#####W---
-M:W######----#####----######W---
-M:WW######-----------######WW---
-M:-W#########--9--#########W----
-M:-WWW###################WWW----
-M:---WWWW#############WWWW------
-M:------WWWWWWWWWWWWWWW------9--
 
 N:Knight's Stronghold
 T:WILD:GRASS:FORMATION | GOOD | NO_ROTATE

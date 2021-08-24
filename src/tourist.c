@@ -111,8 +111,6 @@ class_t *tourist_get_class(void)
         me.base_hp = 0;
         me.exp = 70;
         me.pets = 40;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG |
-                   CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
 
         me.birth = _birth;
         me.caster_info = _caster_info;

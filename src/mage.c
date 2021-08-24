@@ -77,9 +77,7 @@ class_t *mage_get_class(void)
         me.base_hp = 0;
         me.exp = 130;
         me.pets = 30;
-        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
-        
+      
         me.birth = _birth;
         me.caster_info = _caster_info;
         /* TODO: This class uses spell books, so we are SOL

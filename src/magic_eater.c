@@ -292,6 +292,7 @@ static void _use_object(object_type *o_ptr)
     {
         if (flush_failure) flush();
         msg_print("You failed to use the device properly.");
+        if (prompt_on_failure) msg_print(NULL);
         sound(SOUND_FAIL);
         return;
     }
@@ -300,6 +301,7 @@ static void _use_object(object_type *o_ptr)
     {
         if (flush_failure) flush();
         msg_print("The device has no charges left.");
+        if (prompt_on_failure) msg_print(NULL);
         energy_use = 0;
         return;
     }
@@ -754,8 +756,6 @@ class_t *magic_eater_get_class(void)
         me.base_hp = 6;
         me.exp = 130;
         me.pets = 30;
-        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
 
         me.birth = _birth;
         me.get_powers = _get_powers;

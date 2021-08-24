@@ -9,21 +9,21 @@
 #define EMPTY_LEVEL 24  /* 1/chance of being 'empty' (15) */
 #define LAKE_LEVEL  18  /* 1/chance of being a lake on the level */
 #define DARK_EMPTY  5   /* 1/chance of arena level NOT being lit (2) */
-#define DUN_CAVERN  20    /* 1/chance of having a cavern level */
+#define DUN_CAVERN  20  /* 1/chance of having a cavern level */
 
 /*
  * Dungeon tunnel generation values
  */
-#define DUN_TUN_RND_MIN     5 /* Chance of random direction (was 10) */
+#define DUN_TUN_RND_MIN    10 /* Chance of random direction (was 10) */
 #define DUN_TUN_RND_MAX    20
-#define DUN_TUN_CHG_MIN    20 /* Chance of changing direction (was 30) */
+#define DUN_TUN_CHG_MIN    30 /* Chance of changing direction (was 30) */
 #define DUN_TUN_CHG_MAX    60
-#define DUN_TUN_CON_MIN 10 /* Chance of extra tunneling (was 15) */
+#define DUN_TUN_CON_MIN    15 /* Chance of extra tunneling (was 15) */
 #define DUN_TUN_CON_MAX    40
-#define DUN_TUN_PEN_MIN 30 /* Chance of doors at room entrances (was 25) */
-#define DUN_TUN_PEN_MAX 70
-#define DUN_TUN_JCT_MIN 60 /* Chance of doors at tunnel junctions (was 90) */
-#define DUN_TUN_JCT_MAX 90
+#define DUN_TUN_PEN_MIN    25 /* Chance of doors at room entrances (was 25) */
+#define DUN_TUN_PEN_MAX    70
+#define DUN_TUN_JCT_MIN    60 /* Chance of doors at tunnel junctions (was 90) */
+#define DUN_TUN_JCT_MAX    90
 
 extern int dun_rooms;
 
@@ -39,9 +39,9 @@ extern int dun_tun_jct;
 #define DUN_STR_DEN     5    /* Density of streamers */
 #define DUN_STR_RNG     5    /* Width of streamers */
 #define DUN_STR_MAG     6    /* 6 Number of magma streamers */
-#define DUN_STR_MC     60    /* 1/chance of treasure per magma (Was 30)*/
+#define DUN_STR_MC     30    /* 1/chance of treasure per magma (Was 30)*/
 #define DUN_STR_QUA     4    /* 4 Number of quartz streamers */
-#define DUN_STR_QC     30    /* 1/chance of treasure per quartz (Was 15) */
+#define DUN_STR_QC     15    /* 1/chance of treasure per quartz (Was 15) */
 #define DUN_STR_WLW     1    /* Width of lava & water streamers -KMW- */
 #define DUN_STR_DWLW    8    /* Density of water & lava streams -KMW- */
 

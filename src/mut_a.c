@@ -54,7 +54,7 @@ void albino_mut(int cmd, variant *res)
         msg_print("You are no longer an albino!");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "You are albino (-4 CON).");
+        var_set_string(res, "You are albino (-4 Cn).");
         break;
     default:
         default_spell(cmd, res);
@@ -182,7 +182,7 @@ void arthritis_mut(int cmd, variant *res)
         msg_print("Your joints stop hurting.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "Your joints ache constantly (-3 DEX).");
+        var_set_string(res, "Your joints ache constantly (-3 Dx).");
         break;
     default:
         default_spell(cmd, res);
@@ -369,7 +369,7 @@ void blank_face_mut(int cmd, variant *res)
         msg_print("Your facial features return.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "Your face is featureless (-1 CHR).");
+        var_set_string(res, "Your face is featureless (-1 Ch).");
         break;
     default:
         default_spell(cmd, res);
@@ -683,7 +683,7 @@ void draconian_regen_mut(int cmd, variant *res)
         var_set_string(res, "You are regenerating extremely quickly.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You will regenerate much more quickly.");
+        var_set_string(res, "You will regenerate much more quickly (1.5 Rg).");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->regen += 150;
@@ -734,7 +734,7 @@ void draconian_resistance_mut(int cmd, variant *res)
         }
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You will gain extra resistance of the appropriate type (e.g. Fire or Cold).");
+        var_set_string(res, "You will gain extra resistance of the appropriate type (Fire, Cold, etc.).");
         break;
     case SPELL_CALC_BONUS:
         switch (p_ptr->psubrace)
@@ -989,7 +989,7 @@ void einstein_mut(int cmd, variant *res)
         msg_print("Your brain reverts to normal.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "Your brain is a living computer (+4 INT/WIS).");
+        var_set_string(res, "Your brain is a living computer (+4 In/Wi).");
         break;
     default:
         default_spell(cmd, res);
@@ -1011,7 +1011,7 @@ void elec_aura_mut(int cmd, variant *res)
         msg_print("Electricity stops running through you.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "Electricity is running through your veins.");
+        var_set_string(res, "Electricity is running through your veins ([E).");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->sh_elec = TRUE;
@@ -1061,7 +1061,7 @@ void extra_eyes_mut(int cmd, variant *res)
         msg_print("Your extra eyes vanish!");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "You have an extra pair of eyes (+15 search).");
+        var_set_string(res, "You have an extra pair of eyes (+15 Sr).");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->skills.fos += 15;
@@ -1087,7 +1087,7 @@ void extra_legs_mut(int cmd, variant *res)
         msg_print("Your extra legs disappear!");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "You have an extra pair of legs (+3 speed).");
+        var_set_string(res, "You have an extra pair of legs (+3 Sp).");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->pspeed += 3;
@@ -1112,7 +1112,7 @@ void extra_noise_mut(int cmd, variant *res)
         msg_print("You stop making strange noise!");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "You make a lot of strange noise (-3 stealth).");
+        var_set_string(res, "You make a lot of strange noise (-3 Sl).");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->skills.stl -= 3;
@@ -1187,7 +1187,7 @@ void fat_mut(int cmd, variant *res)
         msg_print("You benefit from a miracle diet!");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "You are extremely fat (+2 CON, -2 speed).");
+        var_set_string(res, "You are extremely fat (+2 Cn, -2 Sp).");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->pspeed -= 2;
@@ -1213,7 +1213,7 @@ void fearless_mut(int cmd, variant *res)
         msg_print("You begin to feel fear again.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "You are completely fearless.");
+        var_set_string(res, "You are completely fearless (Fe).");
         break;
     case SPELL_CALC_BONUS:
         res_add(RES_FEAR);
@@ -1266,7 +1266,7 @@ void fire_aura_mut(int cmd, variant *res)
         msg_print("Your body is no longer enveloped in flames.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "Your body is enveloped in flames.");
+        var_set_string(res, "Your body is enveloped in flames ([F, Lu).");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->sh_fire = TRUE;
@@ -1454,7 +1454,7 @@ void he_man_mut(int cmd, variant *res)
         msg_print("Your muscles revert to normal.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "You are superhumanly strong (+4 STR).");
+        var_set_string(res, "You are superhumanly strong (+4 St).");
         break;
     default:
         default_spell(cmd, res);
@@ -1558,7 +1558,7 @@ void infravision_mut(int cmd, variant *res)
         msg_print("Your infravision is degraded.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "You have remarkable infravision (+3).");
+        var_set_string(res, "You have remarkable infravision (+3 If).");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->see_infra += 3;
@@ -1616,7 +1616,7 @@ void limber_mut(int cmd, variant *res)
         msg_print("Your muscles stiffen.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "Your body is very limber (+3 DEX).");
+        var_set_string(res, "Your body is very limber (+3 Dx).");
         break;
     default:
         default_spell(cmd, res);
@@ -1717,7 +1717,7 @@ void moron_mut(int cmd, variant *res)
         msg_print("Your brain reverts to normal.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "You are moronic (-4 INT/WIS).");
+        var_set_string(res, "You are moronic (-4 In/Wi).");
         break;
     default:
         default_spell(cmd, res);
@@ -1739,7 +1739,7 @@ void motion_mut(int cmd, variant *res)
         msg_print("You move with less assurance.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "Your movements are precise and forceful (+1 STL).");
+        var_set_string(res, "Your movements are precise and forceful (+1 Sl, Fa).");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->free_act++;
@@ -2007,7 +2007,7 @@ void puny_mut(int cmd, variant *res)
         msg_print("Your muscles revert to normal.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "You are puny (-4 STR).");
+        var_set_string(res, "You are puny (-4 St).");
         break;
     default:
         default_spell(cmd, res);
@@ -2124,7 +2124,7 @@ void regeneration_mut(int cmd, variant *res)
         msg_print("You stop regenerating.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "You are regenerating.");
+        var_set_string(res, "You are regenerating (Rg).");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->regen += 100;
@@ -2150,7 +2150,7 @@ void resilient_mut(int cmd, variant *res)
         msg_print("You become ordinarily resilient again.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "You are very resilient (+4 CON).");
+        var_set_string(res, "You are very resilient (+4 Cn).");
         break;
     default:
         default_spell(cmd, res);
@@ -2174,7 +2174,7 @@ void rotting_flesh_mut(int cmd, variant *res)
         msg_print("Your flesh is no longer afflicted by a rotting disease!");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "Your flesh is rotting (-2 CON, -1 CHR).");
+        var_set_string(res, "Your flesh is rotting (-2 Cn, -1 Ch, -Rg).");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->regen -= 100;
@@ -2312,7 +2312,7 @@ void short_legs_mut(int cmd, variant *res)
         msg_print("Your legs lengthen to normal.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "Your legs are short stubs (-3 speed).");
+        var_set_string(res, "Your legs are short stubs (-3 Sp).");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->pspeed -= 3;
@@ -2337,7 +2337,7 @@ void silly_voice_mut(int cmd, variant *res)
         msg_print("Your voice returns to normal.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "Your voice is a silly squeak (-4 CHR).");
+        var_set_string(res, "Your voice is a silly squeak (-4 Ch).");
         break;
     default:
         default_spell(cmd, res);
@@ -2537,7 +2537,7 @@ void tread_softly_mut(int cmd, variant *res)
         var_set_string(res, "Tread Softly");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "Your stealth is increased.");
+        var_set_string(res, "Your stealth is increased (+3 Sl).");
         break;
     case SPELL_GAIN_MUT:
         msg_print("You feel your stealth increase.");
@@ -2546,7 +2546,7 @@ void tread_softly_mut(int cmd, variant *res)
         msg_print("You feel your stealth return to normal.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "Your stealth will increase.");
+        var_set_string(res, "Your stealth will increase (+3 Sl).");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->skills.stl += 3;
@@ -2660,7 +2660,7 @@ void vulnerability_mut(int cmd, variant *res)
         msg_print("You feel less exposed.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "You are susceptible to damage from the elements.");
+        var_set_string(res, "You are susceptible to damage from the elements (-AcElFiCo).");
         break;
     default:
         default_spell(cmd, res);
@@ -2744,7 +2744,7 @@ void warts_mut(int cmd, variant *res)
         msg_print("Your warts disappear!");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "Your skin is covered with warts (-2 CHR, +5 AC).");
+        var_set_string(res, "Your skin is covered with warts (-2 Ch, +5 AC).");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->to_a += 5;
@@ -2923,7 +2923,7 @@ void wings_mut(int cmd, variant *res)
         msg_print("Your wings fall off.");
         break;
     case SPELL_MUT_DESC:
-        var_set_string(res, "You have wings.");
+        var_set_string(res, "You have wings (Lv).");
         break;
     case SPELL_CALC_BONUS:
         p_ptr->levitation = TRUE;
@@ -2964,4 +2964,3 @@ void wraith_mut(int cmd, variant *res)
         break;
     }
 }
-

@@ -1,6 +1,6 @@
 ?:[EQU $QUEST59 Taken InProgress]
 D:You're one of the strongest we've seen, so here's your
-D:final test - go to Angband and kill ten Lesser Balrogs. If you
+D:final test - go to Angband and kill ten lesser balrogs. If you
 D:can do it, we'll sing songs to your glorious triumph.
 ?:1
 
@@ -12,7 +12,7 @@ D:Wow! Here's a trophy of your great victory.
 D:So you were never that good really.
 ?:1
 
-R:OBJ(broad sword):EGO(daemon)
+R:OBJ(falchion):EGO(daemon)
 
 ?:[EQU $RACE Dragon Hound Spider Ring Beholder Vortex]
 R:OBJ(^ring$):EGO(combat)
@@ -24,30 +24,27 @@ R:OBJ(metal shod boots)
 R:OBJ(^cloak$)
 
 ?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Axes] ]
-R:OBJ(broad axe):EGO(daemon)
+R:OBJ(great axe):EGO(daemon)
 
 ?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Clubs] ]
-R:OBJ(war hammer):EGO(daemon)
+R:OBJ(great hammer):EGO(daemon)
 
 ?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Daggers] ]
-R:OBJ(^dagger$):EGO(daemon)
+R:OBJ(basillard):EGO(daemon)
 
 ?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Diggers] ]
-R:OBJ(^pick$):EGO(daemon)
+R:OBJ(^pick$):EGO(disruption)
 
 ?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Polearms] ]
-R:OBJ(^glaive$):EGO(daemon)
+R:OBJ(halberd):EGO(daemon)
 
 ?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Staves] ]
 R:OBJ(quarterstaff):EGO(daemon)
 
-?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Swords] ]
-R:OBJ(long sword)
+?:[EQU $CLASS Cavalry]
+R:OBJ(lance):EGO(hell)
 
-?:[EQU $CLASS Cavalry Ninja]
-R:OBJ(lance):EGO(daemon)
-
-?:[EQU $CLASS Ninja]
+?:[EQU $CLASS Ninja Ninja-Lawyer]
 R:OBJ(tanto):EGO(daemon)
 
 ?:[EQU $CLASS Mauler]

@@ -597,6 +597,9 @@ cptr do_burglary_spell(int spell, int mode)
             if (!player_has_los_bold(target_row, target_col)) return NULL;
             if (!projectable(py, px, target_row, target_col)) return NULL;
 
+            /* This would cause bizarre behavior */
+            if (cave[target_row][target_col].m_idx == p_ptr->riding) return NULL;
+
             m_ptr = &m_list[cave[target_row][target_col].m_idx];
             r_ptr = &r_info[m_ptr->r_idx];
             monster_desc(m_name, m_ptr, 0);
@@ -756,7 +759,7 @@ static caster_info * _caster_info(void)
         me.encumbrance.max_wgt = 400;
         me.encumbrance.weapon_pct = 33;
         me.encumbrance.enc_wgt = 1000;
-        me.options = CASTER_GLOVE_ENCUMBRANCE;
+        me.options = CASTER_ALLOW_DEC_MANA | CASTER_GLOVE_ENCUMBRANCE;
         init = TRUE;
     }
     if (p_ptr->realm1 == REALM_BURGLARY)
@@ -806,7 +809,7 @@ class_t *rogue_get_class(void)
                     "fight, or to get in a telling first blow. A rogue may also "
                     "backstab a fleeing monster. Rogues also gain shooting bonuses "
                     "when using a sling.\n \n"
-                    "Rogues can select one realm from Sorcery, Death, Trump, Arcane, Craft, "
+                    "Rogues can select one realm - Sorcery, Death, Trump, Arcane, Craft, Law,"
                     "or Burglary. Except for this last realm, rogues have certain limitations " 
                     "on which spells they can learn, and they do not learn new spells "
                     "very quickly. The Burglary Realm however is unique to the rogue and "
@@ -826,12 +829,10 @@ class_t *rogue_get_class(void)
         me.stats[A_CHR] =  1;
         me.base_skills = bs;
         me.extra_skills = xs;
-        me.life = 110;
+        me.life = 108;
         me.base_hp = 12;
         me.exp = 125;
         me.pets = 40;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG |
-                   CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
         
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;

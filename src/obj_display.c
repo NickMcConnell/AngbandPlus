@@ -505,11 +505,8 @@ static void _display_abilities(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
 {
     vec_ptr v = vec_alloc((vec_free_f)string_free);
 
-    if (have_flag(flgs, OF_LORE2))
+    if (have_flag(flgs, OF_LORE))
         vec_add(v, string_copy_s("<color:B>Auto Identify</color>"));
-    else if (have_flag(flgs, OF_LORE1))
-        vec_add(v, string_copy_s("<color:B>Auto Pseudo-Identify</color>"));
-
     if (have_flag(flgs, OF_FREE_ACT))
         vec_add(v, string_copy_s("<color:R>Free Action</color>"));
     if (have_flag(flgs, OF_SEE_INVIS))
@@ -749,7 +746,6 @@ static void _display_curses(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_pt
     vec_ptr v;
 
     if (object_is_device(o_ptr)) return;
-    if (!(o_ptr->ident & (IDENT_KNOWN | IDENT_SENSE))) return;
 
     v = vec_alloc((vec_free_f)string_free);
 
@@ -1092,7 +1088,7 @@ void obj_display_doc(object_type *o_ptr, doc_ptr doc)
         }
         else
         {
-            doc_printf(doc, "This object is unkown. You should either identify it, or, if you are truly bold (foolish?), then you might learn more by equipping it!\n");
+            doc_printf(doc, "This object is unknown. You should either identify it, or, if you are truly bold (foolish?), then you might learn more by equipping it!\n");
         }
     }
     _display_autopick(o_ptr, doc);
@@ -1115,7 +1111,7 @@ void obj_display_smith(object_type *o_ptr, doc_ptr doc)
     _display_name(o_ptr, doc);
     doc_insert(doc, "  <indent><style:indent>");
 
-    if (!object_is_known(o_ptr) && (o_ptr->ident & IDENT_SENSE))
+    if (!object_is_known(o_ptr))
     {
         switch (o_ptr->feeling)
         {

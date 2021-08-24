@@ -561,26 +561,7 @@ static bool _wield_confirm(obj_ptr obj, slot_t slot)
 
     if (confirm_wear)
     {
-        bool do_prompt = FALSE;
-
         if (object_is_known(obj) && object_is_cursed(obj))
-        {
-            do_prompt = TRUE;
-        }
-        else if (obj->ident & IDENT_SENSE)
-        {
-            switch (obj->feeling)
-            {
-            case FEEL_BROKEN:
-            case FEEL_BAD:
-            case FEEL_TERRIBLE:
-            case FEEL_AWFUL:
-            case FEEL_CURSED:
-                do_prompt = TRUE;
-                break;
-            }
-        }
-        if (do_prompt)
         {
             char dummy[MAX_NLEN+80];
             object_desc(o_name, obj, OD_OMIT_PREFIX | OD_NAME_ONLY | OD_COLOR_CODED);
@@ -649,7 +630,6 @@ static void _wield_after(slot_t slot)
     {
         msg_print("Oops! It feels deathly cold!");
         virtue_add(VIRTUE_HARMONY, -1);
-        obj->ident |= IDENT_SENSE;
     }
     if (obj->name1 == ART_HAND_OF_VECNA)
     {
@@ -782,7 +762,6 @@ bool _unwield_verify(obj_ptr obj)
         if (((obj->curse_flags & OFC_HEAVY_CURSE) && one_in_(7)) || one_in_(4))
         {
             msg_print("You tear the cursed equipment off by sheer strength!");
-            obj->ident |= IDENT_SENSE;
             obj->curse_flags = 0L;
             obj->feeling = FEEL_NONE;
             p_ptr->update |= PU_BONUS;
@@ -1212,10 +1191,8 @@ void equip_calc_bonuses(void)
         if (obj->name1 == ART_MAUL_OF_VICE)
             p_ptr->maul_of_vice = TRUE;
 
-        if (have_flag(flgs, OF_LORE2))
+        if (have_flag(flgs, OF_LORE))
             p_ptr->auto_id = TRUE;
-        else if (have_flag(flgs, OF_LORE1))
-            p_ptr->auto_pseudo_id = TRUE;
 
         if (obj->name2 == EGO_GLOVES_GIANT)
         {
@@ -1604,7 +1581,7 @@ void equip_calc_bonuses(void)
                && obj->name2 != EGO_RING_COMBAT
                && obj->name2 != EGO_HELMET_TROLL
                && obj->name2 != EGO_HELMET_RAGE
-               && obj->name2 != EGO_SHIELD_DWARVEN
+               && obj->name2 != EGO_ARMOR_DWARVEN
                && obj->name2 != EGO_SHIELD_ORCISH
                && obj->name2 != EGO_CROWN_MIGHT
                && obj->name2 != EGO_CLOAK_BAT
@@ -1625,7 +1602,7 @@ void equip_calc_bonuses(void)
         bonus_to_h = obj->to_h;
         bonus_to_d = obj->to_d;
 
-        if (p_ptr->pclass == CLASS_NINJA)
+        if (player_is_ninja)
         {
             if (obj->to_h > 0) bonus_to_h = (obj->to_h+1)/2;
             if (obj->to_d > 0) bonus_to_d = (obj->to_d+1)/2;

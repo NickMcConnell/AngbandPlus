@@ -1064,7 +1064,7 @@ static int _draw_monster_list(_mon_list_ptr list, int top, rect_t rect, int mode
                 }
                 else
                 {
-                    sprintf(loc, "%c %2d %c %2d",
+                    sprintf(loc, "%c %2d %c%3d",
                             (info_ptr->dy > 0) ? 'S' : 'N', abs(info_ptr->dy),
                             (info_ptr->dx > 0) ? 'E' : 'W', abs(info_ptr->dx));
                 }
@@ -1684,7 +1684,7 @@ static _obj_list_ptr _create_obj_list(void)
             {
                 cave_type *c_ptr = &cave[y][x];
                 feature_type *f_ptr = &f_info[c_ptr->feat];
-                if (have_flag(f_ptr->flags, FF_STORE) || have_flag(f_ptr->flags, FF_STAIRS))
+                if (have_flag(f_ptr->flags, FF_STORE) || have_flag(f_ptr->flags, FF_STAIRS) || have_flag(f_ptr->flags, FF_BLDG))
                 {
                     _obj_list_info_ptr info = _obj_list_info_alloc();
                     info->group = _GROUP_FEATURE;
@@ -1838,7 +1838,11 @@ static int _draw_obj_list(_obj_list_ptr list, int top, rect_t rect)
                     (info_ptr->dy > 0) ? 'S' : 'N', abs(info_ptr->dy),
                     (info_ptr->dx > 0) ? 'E' : 'W', abs(info_ptr->dx));
 
-            sprintf(name, "%s", f_name + f_ptr->name);
+			if (have_flag(f_ptr->flags, FF_BLDG) && !dun_level)
+			{
+				sprintf(name, "%s", building[f_ptr->subtype].name);
+			}
+            else sprintf(name, "%s", f_name + f_ptr->name);
             if (have_flag(f_ptr->flags, FF_QUEST_ENTER))
             {
                 int quest_id = cave[info_ptr->y][info_ptr->x].special;

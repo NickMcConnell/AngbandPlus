@@ -1,4 +1,4 @@
-/* File: dungeonc */
+/* File: dungeon.c */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -18,254 +18,6 @@
 
 static bool load = TRUE;
 static int wild_regen = 20;
-
-/*
- * Return a "feeling" (or NULL) about an item. Method 1 (Heavy).
- *
- * For strong sensing, we have now have (3.0.3 and later):
- *
- *                    egos         artifacts
- *                    =========    =========
- * average -> good -> excellent -> special
- *         -> bad  -> awful     -> terrible
- */
-byte value_check_aux1(object_type *o_ptr)
-{
-    /* Artifacts */
-    if (object_is_artifact(o_ptr))
-    {
-        /* Cursed/Broken */
-        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_TERRIBLE;
-
-        /* Normal */
-        return FEEL_SPECIAL;
-    }
-
-    /* Ego-Items */
-    if (object_is_ego(o_ptr))
-    {
-        /* Cursed/Broken */
-        if ((object_is_cursed(o_ptr) || object_is_broken(o_ptr)) && !object_is_device(o_ptr)) return FEEL_AWFUL;
-
-        /* Normal */
-        return FEEL_EXCELLENT;
-    }
-
-    /* Cursed items */
-    if (object_is_cursed(o_ptr) && !object_is_device(o_ptr)) return FEEL_BAD;
-
-    /* Broken items */
-    if (object_is_broken(o_ptr)) return FEEL_BROKEN;
-
-    if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) return FEEL_AVERAGE;
-
-    /* Good "armor" bonus */
-    if (o_ptr->to_a > 0) return FEEL_GOOD;
-
-    /* Good "weapon" bonus */
-    if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD;
-
-    /* Default to "average" */
-    return FEEL_AVERAGE;
-}
-
-
-/*
- * Return a "feeling" (or NULL) about an item. Method 2 (Light).
- *
- * For weak sensing, we have:
- *
- * average -> enchanted
- *         -> cursed
- */
-static byte value_check_aux2(object_type *o_ptr)
-{
-    /* Cursed items (all of them) */
-    if (object_is_cursed(o_ptr) && !object_is_device(o_ptr)) return FEEL_CURSED;
-
-    /* Broken items (all of them) */
-    if (object_is_broken(o_ptr)) return FEEL_BROKEN;
-
-    /* Artifacts -- except cursed/broken ones */
-    if (object_is_artifact(o_ptr)) return FEEL_ENCHANTED;
-
-    /* Ego-Items -- except cursed/broken ones */
-    if (object_is_ego(o_ptr)) return FEEL_ENCHANTED;
-
-    /* Good armor bonus */
-    if (o_ptr->to_a > 0) return FEEL_ENCHANTED;
-
-    /* Good weapon bonuses */
-    if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_ENCHANTED;
-
-    return FEEL_AVERAGE;
-}
-
-static bool _sense_strong = FALSE;
-
-static void _sense_obj(obj_ptr obj)
-{
-    byte feel;
-    char name[MAX_NLEN];
-    bool strong = _sense_strong;
-
-    if (obj->ident & IDENT_SENSE) return;
-    if (object_is_known(obj)) return;
-    if (obj->loc.where == INV_PACK && !one_in_(3)) return;
-
-    if (!strong && p_ptr->good_luck && !randint0(13))
-        strong = TRUE;
-    feel = strong ? value_check_aux1(obj) : value_check_aux2(obj);
-    if (!feel) return;
-
-    /*if (disturb_minor) disturb(0, 0);*/
-
-    object_desc(name, obj, OD_OMIT_PREFIX | OD_NAME_ONLY | OD_COLOR_CODED);
-    msg_boundary();
-    if (obj->loc.where == INV_EQUIP)
-    {
-        msg_format("You feel the %s (%c) you are wearing %s %s...",
-               name, slot_label(obj->loc.slot),
-               obj->number == 1 ? "is" : "are",
-                   game_inscriptions[feel]);
-    }
-    else
-    {
-        msg_format("You feel the %s (%c) in your %s %s %s...",
-               name, slot_label(obj->loc.slot),
-               obj->loc.where == INV_QUIVER ? "quiver" : "pack", 
-               obj->number == 1 ? "is" : "are",
-                   game_inscriptions[feel]);
-    }
-
-    obj->ident |= IDENT_SENSE;
-    obj->feeling = feel;
-
-    autopick_alter_obj(obj, destroy_feeling && obj->loc.where != INV_EQUIP);
-    obj_release(obj, OBJ_RELEASE_ID | OBJ_RELEASE_QUIET);
-}
-
-/*
- * Sense the inventory
- */
-static int _adj_pseudo_id(int num)
-{
-	int result = num * adj_pseudo_id[p_ptr->stat_ind[A_WIS]] / 100;
-    int lev = p_ptr->lev;
-
-    result = result * (625 - virtue_current(VIRTUE_KNOWLEDGE)) / 625;
-
-    /* Hack: Pseudo-id becomes instantaneous at CL35 */
-    if (lev >= 35) return 0;
-    for (;;)
-    {
-        lev -= 5;
-        if (lev < 0) break;
-        result /= 2;
-    }
-    return result;
-}
-
-static int _get_pseudo_id_flags(void)
-{
-    if (p_ptr->pclass == CLASS_MONSTER)
-    {
-        race_t *race_ptr = get_race();
-        return get_class_aux(race_ptr->pseudo_class_idx, 0)->flags;
-    }
-    return get_class()->flags;
-}
-
-static void sense_inventory1(void)
-{
-    int  plev = p_ptr->lev + 10;
-    bool strong = FALSE;
-
-    if (p_ptr->confused) return;
-
-	if (easy_id)
-        strong = TRUE;
-	else
-    {
-		int flags = _get_pseudo_id_flags();
-		if (flags & CLASS_SENSE1_STRONG)
-			strong = TRUE;
-		else if (!(flags & CLASS_SENSE1_WEAK))
-            return;
-		if (flags & CLASS_SENSE1_FAST)
-			{
-			if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40)))
-				return;
-			}
-		else if (flags & CLASS_SENSE1_MED)
-			{
-			if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40)))
-				return;
-			}
-		else if (flags & CLASS_SENSE1_SLOW)
-			{
-			if (0 != randint0(_adj_pseudo_id(80000) / (plev * plev + 40)))
-				return;
-			}
-		if (virtue_current(VIRTUE_KNOWLEDGE) >= 100)
-			strong = TRUE;
-    }
-
-    /*** Sense everything ***/
-    _sense_strong = strong;
-    pack_for_each_that(_sense_obj, obj_can_sense1);
-    equip_for_each_that(_sense_obj, obj_can_sense1);
-    quiver_for_each_that(_sense_obj, obj_can_sense1);
-}
-
-
-static void sense_inventory2(void)
-{
-    int  plev = p_ptr->lev + 10;
-    bool strong = FALSE;
-    int  flags = _get_pseudo_id_flags();
-
-    if (p_ptr->confused) return;
-	if (easy_id)
-	{
-        strong = TRUE;
-    }
-    else
-    {
-		int flags = _get_pseudo_id_flags();
-		if (flags & CLASS_SENSE2_STRONG)
-			strong = TRUE;
-		else if (!(flags & CLASS_SENSE2_WEAK))
-        return;
-		if (flags & CLASS_SENSE2_FAST)
-			{
-			if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40)))
-				return;
-			}
-		else if (flags & CLASS_SENSE2_MED)
-			{
-			if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40)))
-				return;
-			}
-		else if (flags & CLASS_SENSE2_SLOW)
-			{
-			if (0 != randint0(_adj_pseudo_id(80000) / (plev * plev + 40)))
-				return;
-			}
-		else /* Super duper slow */
-			{
-			if (0 != randint0(_adj_pseudo_id(240000) / (plev + 5)))
-				return;
-			}
-    }
-
-    /*** Sense everything ***/
-    _sense_strong = strong;
-    pack_for_each_that(_sense_obj, obj_can_sense2);
-    equip_for_each_that(_sense_obj, obj_can_sense2);
-}
-
-
 
 /*
  * Go to any level (ripped off from wiz_jump)
@@ -459,10 +211,6 @@ static bool pattern_effect(void)
 
     return TRUE;
 }
-
-
-
-
 
 /*
  * Regenerate hit points                -RAK-
@@ -758,108 +506,6 @@ void fame_on_failure(void)
 }
 
 /*
- * Forcibly pseudo-identify an object in the inventory
- * (or on the floor)
- *
- * note: currently this function allows pseudo-id of any object,
- * including silly ones like potions & scrolls, which always
- * get '{average}'. This should be changed, either to stop such
- * items from being pseudo-id'd, or to allow psychometry to
- * detect whether the unidentified potion/scroll/etc is
- * good (Cure Light Wounds, Restore Strength, etc) or
- * bad (Poison, Weakness etc) or 'useless' (Slime Mold Juice, etc).
- */
-bool psychometry(void)
-{
-    obj_prompt_t prompt = {0};
-    char         o_name[MAX_NLEN];
-    byte         feel;
-    bool         okay = FALSE;
-
-    prompt.prompt = "Meditate on which item?";
-    prompt.error = "You have nothing appropriate.";
-    prompt.where[0] = INV_PACK;
-    prompt.where[1] = INV_EQUIP;
-    prompt.where[2] = INV_QUIVER;
-    prompt.where[3] = INV_FLOOR;
-
-    obj_prompt(&prompt);
-    if (!prompt.obj) return FALSE;
-
-    /* It is fully known, no information needed */
-    if (object_is_known(prompt.obj))
-    {
-        msg_print("You cannot find out anything more about that.");
-
-        return TRUE;
-    }
-
-    /* Check for a feeling */
-    feel = value_check_aux1(prompt.obj);
-
-    /* Get an object description */
-    object_desc(o_name, prompt.obj, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-
-    /* Skip non-feelings */
-    if (!feel)
-    {
-        msg_format("You do not perceive anything unusual about the %s.", o_name);
-
-        return TRUE;
-    }
-
-    msg_format("You feel that the %s %s %s...",
-               o_name, ((prompt.obj->number == 1) ? "is" : "are"),
-               game_inscriptions[feel]);
-
-
-    /* We have "felt" it */
-    prompt.obj->ident |= (IDENT_SENSE);
-
-    /* "Inscribe" it */
-    prompt.obj->feeling = feel;
-
-    /* Player touches it */
-    prompt.obj->marked |= OM_TOUCHED;
-
-    /* Valid "tval" codes */
-    switch (prompt.obj->tval)
-    {
-    case TV_SHOT:
-    case TV_ARROW:
-    case TV_BOLT:
-    case TV_BOW:
-    case TV_DIGGING:
-    case TV_HAFTED:
-    case TV_POLEARM:
-    case TV_SWORD:
-    case TV_BOOTS:
-    case TV_GLOVES:
-    case TV_HELM:
-    case TV_CROWN:
-    case TV_SHIELD:
-    case TV_CLOAK:
-    case TV_SOFT_ARMOR:
-    case TV_HARD_ARMOR:
-    case TV_DRAG_ARMOR:
-    case TV_CARD:
-    case TV_RING:
-    case TV_AMULET:
-    case TV_LITE:
-    case TV_FIGURINE:
-        okay = TRUE;
-        break;
-    }
-
-    autopick_alter_obj(prompt.obj, okay && destroy_feeling);
-    obj_release(prompt.obj, OBJ_RELEASE_ID | OBJ_RELEASE_QUIET);
-
-    /* Something happened */
-    return (TRUE);
-}
-
-
-/*
  * If player has inscribed the object with "!!", let him know when it's
  * recharged. -LM-
  */
@@ -917,6 +563,46 @@ static object_type *choose_cursed_obj_name(u32b flag)
     if (slot)
         return equip_obj(slot);
     return NULL;
+}
+
+void do_alter_reality(void)
+{
+    /* Disturbing! */
+    disturb(0, 0);
+
+
+    /* Determine the level */
+    if ((!dungeon_type) && (quests_get_current()))
+    {
+        msg_print("The world seems to change for a moment!");
+        p_ptr->alter_reality = 0;
+    }
+    else
+    {
+        if (p_ptr->alter_reality) /* Mega-hack - law */
+        {
+            msg_print("You reject this reality and substitute your own!");
+            p_ptr->alter_reality = 0;
+        } 
+        else msg_print("The world changes!");
+
+        /*
+         * Clear all saved floors
+         * and create a first saved floor
+         */
+        prepare_change_floor_mode(CFM_FIRST_FLOOR);
+
+        /* Record position */
+        p_ptr->oldpx = px;
+        p_ptr->oldpy = py;
+
+        /* Leaving */
+        p_ptr->leaving = TRUE;
+        if (quests_get_current()) quests_on_leave();
+    }
+
+    /* Sound */
+    sound(SOUND_TPLEVEL);
 }
 
 static bool _fast_mana_regen(void)
@@ -1037,39 +723,55 @@ static void process_world_aux_hp_and_sp(void)
         }
     }
 
-	if (have_flag(f_ptr->flags, FF_ACID) && !IS_INVULN())
+	if (have_flag(f_ptr->flags, FF_ACID) && !IS_INVULN() && !one_in_(3))
 	{
-		int damage = 0;
+		int a_damage = 0, p_damage = 0;
+		bool is_deep = have_flag(f_ptr->flags, FF_DEEP);
 
-		if (have_flag(f_ptr->flags, FF_DEEP))
+		if (is_deep)
 		{
-			damage = 6000 + randint0(4000);
+			a_damage = 1400 + randint0(800);
 		}
 		else if (!p_ptr->levitation)
 		{
-			damage = 3000 + randint0(2000);
+			a_damage = 700 + randint0(400);
 		}
 
-		damage = res_calc_dam(RES_ACID, damage);
-		if (p_ptr->levitation) damage = damage / 5;
+		if (p_ptr->levitation) a_damage = a_damage / (is_deep ? 15 : 10);
+		p_damage = a_damage * 6 / 5;
+		a_damage = res_calc_dam(RES_ACID, a_damage);
+		p_damage = res_calc_dam(RES_POIS, p_damage);
 
-		if (damage)
+		if (a_damage > 0 || p_damage > 0)
 		{
-			damage = damage / 100 + (randint0(100) < (damage % 100));
+			a_damage = a_damage / 100 + (randint0(100) < (a_damage % 100));
+			p_damage = p_damage / 100 + (randint0(100) < (p_damage % 100));
+			if ((a_damage > 0) && (one_in_(32)) && (minus_ac())) a_damage = (a_damage + 1) / 2;
 
-			if (p_ptr->levitation)
+			if ((p_ptr->levitation) && ((a_damage > 0) || (p_damage > 0)))
 			{
-				msg_print("The acid burns you!");
-				take_hit(DAMAGE_NOESCAPE, damage, format("flying over %s", f_name + f_info[get_feat_mimic(&cave[py][px])].name));
+				if (a_damage) msg_print("You are burned by toxic fumes!");
+				else msg_print("You are poisoned by toxic fumes!");
+				take_hit(DAMAGE_NOESCAPE, a_damage, format("flying over %s", f_name + f_info[get_feat_mimic(&cave[py][px])].name));
+				if ((p_damage > 0) && (a_damage == 0) && (!p_ptr->poisoned)) /* big fat hack - avoid message duplication */
+				{
+					p_ptr->poisoned += 1;
+					p_damage -= 1;
+				}				
+	 			set_poisoned(p_ptr->poisoned + p_damage, FALSE);
 			}
-			else
+			else if ((a_damage > 0) || (p_damage > 0))
 			{
 				cptr name = f_name + f_info[get_feat_mimic(&cave[py][px])].name;
 				msg_format("The %s burns you!", name);
-				take_hit(DAMAGE_NOESCAPE, damage, name);
+				take_hit(DAMAGE_NOESCAPE, a_damage, name);
+				set_poisoned(p_ptr->poisoned + p_damage, FALSE);
 			}
 
 			cave_no_regen = TRUE;
+
+                if ((one_in_(32)) && (!res_save_default(RES_POIS)))
+                do_dec_stat(A_CON);
 		}
 	}
 
@@ -1543,6 +1245,24 @@ static void process_world_aux_timeout(void)
     if (p_ptr->oppose_pois)
     {
         (void)set_oppose_pois(p_ptr->oppose_pois - 1, TRUE);
+    }
+
+	/* Oppose Confusion */
+	if (p_ptr->oppose_conf)
+	{
+		(void)set_oppose_conf(p_ptr->oppose_conf - 1, TRUE);
+	}
+
+	/* Oppose Blindness */
+	if (p_ptr->oppose_blind)
+	{
+		(void)set_oppose_blind(p_ptr->oppose_blind - 1, TRUE);
+	}
+
+    /* Spin */
+    if (p_ptr->spin)
+    {
+        (void)set_spin(p_ptr->spin - 1, TRUE);
     }
 
     if (p_ptr->ult_res)
@@ -2262,28 +1982,7 @@ void process_world_aux_movement(void)
         /* Activate the alter reality */
         if (!p_ptr->alter_reality)
         {
-            /* Disturbing! */
-            disturb(0, 0);
-
-            /* Determine the level */
-            if (quests_get_current())
-                msg_print("The world seems to change for a moment!");
-            else
-            {
-                msg_print("The world changes!");
-
-                /*
-                 * Clear all saved floors
-                 * and create a first saved floor
-                 */
-                prepare_change_floor_mode(CFM_FIRST_FLOOR);
-
-                /* Leaving */
-                p_ptr->leaving = TRUE;
-            }
-
-            /* Sound */
-            sound(SOUND_TPLEVEL);
+            do_alter_reality();
         }
     }
 }
@@ -2404,9 +2103,6 @@ static byte get_dungeon_feeling(void)
             /* Touched? */
             if (o_ptr->marked & OM_TOUCHED) continue;
         }
-
-        /* Skip pseudo-known objects */
-        if (o_ptr->ident & IDENT_SENSE) continue;
 
         /* Experimental Hack: Force Special Feelings for artifacts no matter what. */
         if (object_is_artifact(o_ptr))
@@ -2537,7 +2233,7 @@ static void process_world(void)
 
         if (number_mon == 0)
         {
-            msg_print("They have kill each other at the same time.");
+            msg_print("They have killed each other at the same time.");
             msg_print(NULL);
             p_ptr->energy_need = 0;
             battle_monsters();
@@ -2572,7 +2268,7 @@ static void process_world(void)
         }
         else if (game_turn - old_turn == 150*TURNS_PER_TICK)
         {
-            msg_format("This battle have ended in a draw.");
+            msg_format("This battle has ended in a draw.");
             p_ptr->au += kakekin;
             stats_on_gold_winnings(kakekin);
             msg_print(NULL);
@@ -2816,7 +2512,7 @@ static void process_world(void)
             int count = 0;
 
             disturb(1, 0);
-            msg_print("A distant bell tolls many times, fading into an deathly silence.");
+            msg_print("A distant bell tolls many times, fading into a deathly silence.");
 
             activate_ty_curse(FALSE, &count);
         }
@@ -2911,10 +2607,6 @@ static void process_world(void)
 
     /* Process recharging */
     process_world_aux_recharge();
-
-    /* Feel the inventory */
-    sense_inventory1();
-    sense_inventory2();
 
     /* Involuntary Movement */
     process_world_aux_movement();
@@ -3029,6 +2721,7 @@ static void _dispatch_command(int old_now_turn)
         /*** Wizard Commands ***/
 
         /* Toggle Wizard Mode */
+        case KTRL('Y'):
         case KTRL('W'):
         {
             if (p_ptr->wizard)
@@ -3423,6 +3116,8 @@ static void _dispatch_command(int old_now_turn)
                     which_power = "psionic powers";
                 else if (p_ptr->pclass == CLASS_SAMURAI)
                     which_power = "hissatsu";
+                else if (p_ptr->pclass == CLASS_LAWYER || p_ptr->pclass == CLASS_NINJA_LAWYER)
+                    which_power = "legal trickery";
                 else if (p_ptr->pclass == CLASS_MIRROR_MASTER)
                     which_power = "mirror magic";
                 else if (p_ptr->pclass == CLASS_NINJA)
@@ -3494,6 +3189,7 @@ static void _dispatch_command(int old_now_turn)
         /*** Use various objects ***/
 
         /* Inscribe an object */
+        case 'Z':
         case '{':
         {
             obj_inscribe_ui();
@@ -3689,11 +3385,13 @@ static void _dispatch_command(int old_now_turn)
             break;
         }
 
+        case 'Y':
         case '[':
             if (!p_ptr->image)
                 do_cmd_list_monsters(MON_LIST_NORMAL);
             break;
 
+        case KTRL('O'):
         case ']':
             if (!p_ptr->image)
                 do_cmd_list_objects();
@@ -3755,6 +3453,7 @@ static void _dispatch_command(int old_now_turn)
         }
 
         /* Interact with macros */
+        case KTRL('E'):
         case '@':
         {
             do_cmd_macros();
@@ -4215,68 +3914,72 @@ static void process_player(void)
      * game mechanics work better if they are indexed to player actions.
      * cf process_world_aux_hp_and_sp. */
 
-    if (p_ptr->lightspeed)
-    {
-        (void)set_lightspeed(p_ptr->lightspeed - 1, TRUE);
-    }
-    if (p_ptr->tim_no_spells)
-    {
-        (void)set_tim_no_spells(p_ptr->tim_no_spells - 1, TRUE);
-    }
-    if (p_ptr->tim_no_device)
-    {
-        (void)set_tim_no_device(p_ptr->tim_no_device - 1, TRUE);
-    }
-    if ((p_ptr->pclass == CLASS_FORCETRAINER) && (p_ptr->magic_num1[0]))
-    {
-        if (p_ptr->magic_num1[0] < 40)
-        {
-            p_ptr->magic_num1[0] = 0;
-        }
-        else p_ptr->magic_num1[0] -= 40;
-        p_ptr->update |= (PU_BONUS);
-    }
-    if (p_ptr->action == ACTION_LEARN)
-    {
-        s32b cost = 0L;
-        u32b cost_frac = (p_ptr->msp + 30L) * 256L;
+	if (!load)
+	{
+		if (p_ptr->lightspeed)
+		{
+			(void)set_lightspeed(p_ptr->lightspeed - 1, TRUE);
+		}
+		if (p_ptr->tim_no_spells)
+		{
+			(void)set_tim_no_spells(p_ptr->tim_no_spells - 1, TRUE);
+		}
+		if (p_ptr->tim_no_device)
+		{
+			(void)set_tim_no_device(p_ptr->tim_no_device - 1, TRUE);
+		}
+		if ((p_ptr->pclass == CLASS_FORCETRAINER) && (p_ptr->magic_num1[0]))
+		{
+			if (p_ptr->magic_num1[0] < 40)
+			{
+				p_ptr->magic_num1[0] = 0;
+			}
+			else p_ptr->magic_num1[0] -= 40;
+			p_ptr->update |= (PU_BONUS);
+		}
+		if (p_ptr->action == ACTION_LEARN)
+		{
+			s32b cost = 0L;
+			u32b cost_frac = (p_ptr->msp + 30L) * 256L;
 
-        /* Convert the unit (1/2^16) to (1/2^32) */
-        s64b_LSHIFT(cost, cost_frac, 16);
+			/* Convert the unit (1/2^16) to (1/2^32) */
+			s64b_LSHIFT(cost, cost_frac, 16);
 
+			if (s64b_cmp(p_ptr->csp, p_ptr->csp_frac, cost, cost_frac) < 0)
+			{
+				/* Mana run out */
+				p_ptr->csp = 0;
+				p_ptr->csp_frac = 0;
+				set_action(ACTION_NONE);
+			}
+			else
+			{
+				/* Reduce mana */
+				s64b_sub(&(p_ptr->csp), &(p_ptr->csp_frac), cost, cost_frac);
+			}
+			p_ptr->redraw |= PR_MANA;
+		}
 
-        if (s64b_cmp(p_ptr->csp, p_ptr->csp_frac, cost, cost_frac) < 0)
-        {
-            /* Mana run out */
-            p_ptr->csp = 0;
-            p_ptr->csp_frac = 0;
-            set_action(ACTION_NONE);
-        }
-        else
-        {
-            /* Reduce mana */
-            s64b_sub(&(p_ptr->csp), &(p_ptr->csp_frac), cost, cost_frac);
-        }
-        p_ptr->redraw |= PR_MANA;
-    }
+		if (p_ptr->special_defense & KATA_MASK)
+		{
+			if (p_ptr->special_defense & KATA_MUSOU)
+			{
+				if (p_ptr->csp < 3)
+				{
+					set_action(ACTION_NONE);
+				}
+				else
+				{
+					p_ptr->csp -= 2;
+					p_ptr->redraw |= (PR_MANA);
+				}
+			}
+		}
 
-    if (p_ptr->special_defense & KATA_MASK)
-    {
-        if (p_ptr->special_defense & KATA_MUSOU)
-        {
-            if (p_ptr->csp < 3)
-            {
-                set_action(ACTION_NONE);
-            }
-            else
-            {
-                p_ptr->csp -= 2;
-                p_ptr->redraw |= (PR_MANA);
-            }
-        }
-    }
+		fear_recover_p();
+	}
 
-    fear_recover_p();
+	load = FALSE;
 
     /*** Handle actual user input ***/
 
@@ -4570,6 +4273,8 @@ static void process_player(void)
         }
         else
             player_turn--;
+
+		predictable_energy_hack = FALSE;
 
         if (!p_ptr->playing || p_ptr->is_dead)
         {
@@ -5235,7 +4940,16 @@ void play_game(bool new_game)
             /* No player?  -- Try to regenerate floor */
             if (!py || !px)
             {
+                quest_ptr qp = quests_get_current();
                 msg_print("What a strange player location. Regenerate the dungeon floor.");
+                if (qp && qp->id) qp->status = QS_TAKEN;
+                enter_quest = FALSE;
+                if (qp) /* Broken quest - force exit */
+                {
+                   dungeon_type = 0;
+                   dun_level = 0;
+                   quests_on_leave();
+                }
                 change_floor();
             }
 
@@ -5262,6 +4976,9 @@ void play_game(bool new_game)
 
     /* Load the "pref" files */
     load_all_pref_files();
+
+    /* Turn on easy mimics */
+	toggle_easy_mimics(easy_mimics);
 
     Term_xtra(TERM_XTRA_REACT, 0);
     p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL);
@@ -5415,6 +5132,9 @@ void play_game(bool new_game)
                 /* Mega-Hack -- Allow player to cheat death */
                 if ((p_ptr->wizard || cheat_live) && !get_check("Die? "))
                 {
+                    quest_ptr qp = quests_get_current();
+                    bool was_in_dung = (dun_level > 0);
+
                     /* Mark savefile */
                     p_ptr->noscore |= 0x0001;
 
@@ -5453,6 +5173,16 @@ void play_game(bool new_game)
                         p_ptr->redraw |= (PR_STATUS);
                     }
 
+                    /* Hack -- cancel quest */
+                    if (qp && qp->id) qp->status = QS_TAKEN;
+                    enter_quest = FALSE;
+                    if (qp) /* Exit the quest */
+                    {
+                        dungeon_type = 0;
+                        dun_level = 0;
+                        quests_on_leave();
+                    }
+
                     /* Note cause of death XXX XXX XXX */
                     (void)strcpy(p_ptr->died_from, "Cheating death");
 
@@ -5477,25 +5207,27 @@ void play_game(bool new_game)
                     p_ptr->inside_battle = FALSE;
                     if (dungeon_type) p_ptr->recall_dungeon = dungeon_type;
                     dungeon_type = 0;
-                    if (no_wilderness)
+                    if (was_in_dung)
                     {
-                        p_ptr->wilderness_y = 1;
-                        p_ptr->wilderness_x = 1;
-                        p_ptr->wilderness_dx = 0;
-                        p_ptr->wilderness_dy = 0;
-                        p_ptr->oldpy = 33;
-                        p_ptr->oldpx = 131;
+                        if (no_wilderness)
+                        {
+                            p_ptr->wilderness_y = 1;
+                            p_ptr->wilderness_x = 1;
+                            p_ptr->wilderness_dx = 0;
+                            p_ptr->wilderness_dy = 0;
+                            p_ptr->oldpy = 33;
+                            p_ptr->oldpx = 131;
+                        }
+                        else /* Move to convenient safe location (Morivant) */
+                        {
+                            p_ptr->wilderness_y = 50;
+                            p_ptr->wilderness_x = 47;
+                            p_ptr->wilderness_dx = 0;
+                            p_ptr->wilderness_dy = 0;
+                            p_ptr->oldpy = 42;
+                            p_ptr->oldpx = 96;
+                        }
                     }
-                    else
-                    {
-                        p_ptr->wilderness_y = 48;
-                        p_ptr->wilderness_x = 5;
-                        p_ptr->wilderness_dx = 0;
-                        p_ptr->wilderness_dy = 0;
-                        p_ptr->oldpy = 33;
-                        p_ptr->oldpx = 131;
-                    }
-
                     /* Leaving */
                     p_ptr->wild_mode = FALSE;
                     p_ptr->leaving = TRUE;

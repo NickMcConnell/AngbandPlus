@@ -425,7 +425,7 @@ static void preserve_pet(void)
                     if (r_info[m_ptr->r_idx].flags1 & RF1_UNIQUE) continue;
                     if (m_ptr->mflag2 & MFLAG2_QUESTOR) continue;
                     if (!los(m_ptr->fy, m_ptr->fx, py, px)) continue;
-                    m_ptr->energy_need += ENERGY_NEED();
+                    m_ptr->mflag |= MFLAG_NICE; //rodent's fix for the stair exploit. I don't agree but it works for now
                 }
                 else if (m_ptr->parent_m_idx)
                 {
@@ -1078,7 +1078,7 @@ void change_floor(void)
     {
         /* Create cave */
         hack_mind = FALSE;
-        generate_cave();
+        generate_cave(dun_level);
         hack_mind = TRUE;
 
         /* Paranoia -- No new saved floor */
@@ -1280,7 +1280,7 @@ void change_floor(void)
             {
                 /* Newly create cave */
                 hack_mind = FALSE;
-                generate_cave();
+                generate_cave(dun_level);
                 hack_mind = TRUE;
             }
 

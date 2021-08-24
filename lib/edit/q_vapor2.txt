@@ -25,13 +25,13 @@ T:QUEST:NORMAL
 L:#:PERMANENT
 L:.:FLOOR
 L:<:UP_STAIR
-L:e:MON(radiation eye)
+L:e:MON(disenchanter eye)
 L:g:MON(gas spore)
 L:E:MON(air elemental)
 L:v:MON(shimmering vortex)
 L:j:MON(weird fume)
-L:b:OBJ(RING)
-L:c:OBJ(AMULET)
+L:b:OBJ(RING, DEPTH+1)
+L:c:OBJ(AMULET, DEPTH+1)
 M:#########################
 M:############v############
 M:###########...###########
@@ -54,6 +54,6 @@ M:#######...........#######
 M:########.........########
 M:###########.<.###########
 M:#########################
-R:OBJ(ROD_DETECT_ALL)
+R:OBJ(iron helm):EGO(seeing)
 
 # vim: filetype=q :

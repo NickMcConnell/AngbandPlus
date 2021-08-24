@@ -46,6 +46,7 @@ static caster_info * _caster_info(void)
         me.encumbrance.max_wgt = 450;
         me.encumbrance.weapon_pct = 20;
         me.encumbrance.enc_wgt = 1200;
+		me.options = CASTER_ALLOW_DEC_MANA;
         me.min_fail = 5;
         init = TRUE;
     }
@@ -98,9 +99,7 @@ class_t *paladin_get_class(void)
         me.base_hp = 12;
         me.exp = 135;
         me.pets = 40;
-        me.flags = CLASS_SENSE1_SLOW | CLASS_SENSE1_STRONG |
-                   CLASS_SENSE2_STRONG;
-        
+ 
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;
         me.caster_info = _caster_info;

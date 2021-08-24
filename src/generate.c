@@ -1029,10 +1029,9 @@ static bool cave_gen(void)
             try_door(y + 1, x);
         }
 
-        if (!alloc_stairs(feat_down_stair, rand_range(4, 5), 3)) return FALSE;
+        if (!alloc_stairs(feat_down_stair, rand_range(4, 5), 0)) return FALSE;
 
-        /* Place 1 or 2 up stairs near some walls */
-        if (!alloc_stairs(feat_up_stair, rand_range(1, 2), 3)) return FALSE;
+        if (!alloc_stairs(feat_up_stair, rand_range(1, 2), 0)) return FALSE;
     }
 
     if (!dun->laketype)
@@ -1329,7 +1328,7 @@ static void battle_gen(void)
 }
 
 /* Make a real level */
-static bool level_gen(cptr *why)
+static bool level_gen(cptr *why, int level)
 {
     bool small = FALSE;
 
@@ -1342,32 +1341,35 @@ static bool level_gen(cptr *why)
      * with dungeon size (including monster density). */
     if (d_info[dungeon_type].flags1 & DF1_BIG)
         small = FALSE;
-    else if (d_info[dungeon_type].flags1 & DF1_SMALLEST)
-        small = TRUE;
-    else if (one_in_(SMALL_LEVEL))
+    else if (d_info[dungeon_type].flags1 & DF1_SMALLEST || d_info[dungeon_type].flags1 & DF1_SMALL || one_in_(SMALL_LEVEL))
         small = TRUE;
 
-    if (small)
+    if (small || level < 30)
     {
         int hgt, wid;
 
-        if (d_info[dungeon_type].flags1 & DF1_SMALLEST) /* Labyrinth and Mine */
+        if (d_info[dungeon_type].flags1 & DF1_SMALLEST || level < 10) /* Labyrinth and Mine */
         {
             hgt = 1;
             wid = 1;
         }
+		else if (d_info[dungeon_type].flags1 & DF1_SMALL || level < 20)
+		{
+			hgt = randint1(2);
+			wid = randint1(2);
+		}
         else
         {
-            int max_hgt = MAX_HGT/SCREEN_HGT;
-            int max_wid = MAX_WID/SCREEN_WID;
+			int max_hgt = 3;
+            int max_wid = 3;
 
             for (;;)
             {
                 hgt = randint1(max_hgt);
                 wid = randint1(max_wid);
                 if (hgt == max_hgt && wid == max_wid) continue;
-                /* exclude 1x1, 1x2 and 2x1 */
-                if (hgt * wid <= 2) continue;
+                /* exclude 1x1 */
+                if (hgt * wid <= 1) continue;
                 break;
             }
         }
@@ -1498,7 +1500,7 @@ void clear_cave(void)
  *
  * Hack -- regenerate any "overflow" levels
  */
-void generate_cave(void)
+void generate_cave(int dun_level)
 {
     int num;
 
@@ -1548,7 +1550,7 @@ void generate_cave(void)
                 quest_generate(q);
             else
             {
-                okay = level_gen(&why);
+                okay = level_gen(&why, dun_level);
                 if (okay && q)
                     okay = quest_post_generate(q);
             }

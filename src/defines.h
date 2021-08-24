@@ -13,12 +13,12 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "ComPosband"
+#define VERSION_NAME "Composband"
 
 
 #define VER_MAJOR 7
-#define VER_MINOR 0
-#define VER_PATCH 4
+#define VER_MINOR 1
+#define VER_PATCH 0
 #define VER_EXTRA 0
 
 #define GAME_MODE_BEGINNER  0
@@ -287,7 +287,7 @@
 /*
  * Random energy
  */
-#define ENERGY_NEED() (randnor(100, 18))
+#define ENERGY_NEED() ((predictable_energy_hack) ? 100 : (randnor(100, 18)))
 
 
 /*
@@ -378,14 +378,11 @@
 /* 1/x chance of hurting even if invulnerable! */
 #define PENETRATE_INVULNERABILITY 13
 
-
-
 /*
  * Refueling constants
  */
 #define FUEL_TORCH      5000    /* Maximum amount of fuel in a torch */
 #define FUEL_LAMP       15000   /* Maximum amount of fuel in a lantern */
-
 
 /*
  * More maximum values
@@ -407,7 +404,6 @@
  */
 #define MIN_M_ALLOC_TN          8
 
-
 /*
  * A monster can only "multiply" (reproduce) if there are fewer than 100
  * monsters on the level capable of such spontaneous reproduction.  This
@@ -415,7 +411,6 @@
  * reproducing monsters.  Messy, but necessary.
  */
 #define MAX_REPRO       100
-
 
 /*
  * Player constants
@@ -461,13 +456,12 @@
 #define CH_CRUSADE      0x000200
 #define CH_NECROMANCY   0x000400
 #define CH_ARMAGEDDON   0x000800
+#define CH_LAW          0x004000
 #define CH_MUSIC        0x008000    /* This is 16th bit */
 #define CH_HISSATSU     0x010000
 #define CH_HEX          0x020000
 #define CH_RAGE         0x040000
 #define CH_BURGLARY     0x080000
-
-
 
 /*
  * Magic realms
@@ -486,7 +480,8 @@
 #define REALM_NECROMANCY   11
 #define REALM_ARMAGEDDON   12
 #define MAX_MAGIC          12
-#define MIN_TECHNIC        16
+#define MIN_TECHNIC        15
+#define REALM_LAW          15
 #define REALM_MUSIC        16
 #define REALM_HISSATSU     17
 #define REALM_HEX          18
@@ -710,19 +705,6 @@
 #define RACE_IS_MONSTER      0x0008
 #define RACE_IS_ILLITERATE   0x0010
 
-/* Pseudo-ID: Sense1 is the traditional equipable item sensing.
- * Sense2 is jewelry, lights and magical devices (mage like sensing). */
-#define CLASS_SENSE1_STRONG  0x0001
-#define CLASS_SENSE1_WEAK    0x0002
-#define CLASS_SENSE1_SLOW    0x0004
-#define CLASS_SENSE1_MED     0x0008
-#define CLASS_SENSE1_FAST    0x0010
-#define CLASS_SENSE2_STRONG  0x0020
-#define CLASS_SENSE2_WEAK    0x0040
-#define CLASS_SENSE2_SLOW    0x0080
-#define CLASS_SENSE2_MED     0x0100
-#define CLASS_SENSE2_FAST    0x0200
-
 #define DEPRECATED           0x80000000 /* race, class, personality (TODO) */
 
 /* Mimicry uses races too ... Its just that players
@@ -810,7 +792,9 @@ enum _mimic_types {
 #define CLASS_YELLOW_MAGE       45
 #define CLASS_GRAY_MAGE         46
 #define CLASS_SKILLMASTER       47
-#define MAX_CLASS               48
+#define CLASS_LAWYER            48
+#define CLASS_NINJA_LAWYER      49
+#define MAX_CLASS               50
 
 /*
 #define CLASS_LOGRUS_MASTER     47
@@ -1027,7 +1011,8 @@ enum {
 #define FF_ROGUE_TRAP_2  114
 #define FF_ROGUE_TRAP_3  115
 #define FF_WEB           116
-#define FF_FLAG_MAX      117
+#define FF_SEMI_PUN 117
+#define FF_FLAG_MAX      118
 #define FF_FLAG_SIZE     (1 + ((FF_FLAG_MAX - 1) / 32))
 
 /* Which features are dynamic */
@@ -1207,6 +1192,7 @@ enum {
 #define ART_HIMRING             127
 #define ART_INCANUS             131
 #define ART_NAMAKE_ARMOR        183
+#define ART_LEGENDARY_LOST_TREASURE 192
 #define ART_DASAI               200
 #define ART_KESHO               204
 
@@ -1337,6 +1323,7 @@ enum {
 #define ART_MASTER_TONBERRY        247
 #define ART_DUELIST                248
 #define ART_ETERNAL_BLADE       294
+#define ART_MICRODOLLAR         334
 
 /* Polearms */
 #define ART_THEODEN             93
@@ -1537,7 +1524,7 @@ enum {
 #define TV_POTION       75
 #define TV_FLASK        77
 #define TV_FOOD         80
-#define TV_RUNE            81
+#define TV_RUNE         81
 #define TV_LIFE_BOOK    90
 #define TV_SORCERY_BOOK 91
 #define TV_NATURE_BOOK  92
@@ -1550,6 +1537,7 @@ enum {
 #define TV_CRUSADE_BOOK 99
 #define TV_NECROMANCY_BOOK 100
 #define TV_ARMAGEDDON_BOOK 101
+#define TV_LAW_BOOK     104
 #define TV_MUSIC_BOOK   105
 #define TV_HISSATSU_BOOK 106
 #define TV_HEX_BOOK     107
@@ -2512,34 +2500,20 @@ enum summon_specific_e {
  * Game generated inscription indices. These are stored in the object,
  * and are used to index the string array from tables.c (game_inscriptions).
  *
- * For strong sensing, we have now have (3.0.3 and later):
- *
- *                    egos         artifacts
- *                    =========    =========
- * average -> good -> excellent -> special
- *         -> bad  -> awful     -> terrible
- *
- * For weak sensing, we have:
- *
- * FEEL_NONE -> enchanted
- *           -> cursed
- *
- * This means that FEEL_CURSED items might be egos or artifacts, and should
- * never be automatically destroyed, whereas FEEL_BAD items are known to be
- * cursed non-egos/arts and can be autodestroyed with impunity. See autopick.c
- * for details. Is "broken" still used?
+ * This is used to create a system whereby potentially interesting objects
+ * can be known in advance
  */
 #define FEEL_NONE              0
-#define FEEL_BROKEN            1   /* ?? */
+#define FEEL_BROKEN            1
 #define FEEL_TERRIBLE          2
 #define FEEL_AWFUL             3
-#define FEEL_CURSED            4
-#define FEEL_ENCHANTED         5
+#define FEEL_ARTIFACT          4   
+#define FEEL_EGO               5   
 #define FEEL_AVERAGE           6
 #define FEEL_GOOD              7
 #define FEEL_EXCELLENT         8
 #define FEEL_SPECIAL           9
-#define FEEL_BAD               10
+#define FEEL_BAD			  10
 
 /*
  * Hack -- special "xtra" object powers
@@ -2577,7 +2551,7 @@ enum summon_specific_e {
 /*
  * Special Object Flags
  */
-#define IDENT_SENSE     0x01    /* Item has been "sensed" */
+#define IDENT_XXX1      0x01    
 #define IDENT_FIXED     0x02    /* Item has been "haggled" */
 #define IDENT_EMPTY     0x04    /* Item charges are known */
 #define IDENT_KNOWN     0x08    /* Item abilities are known */
@@ -2780,8 +2754,7 @@ enum obj_flags_e {
     OF_DEC_MANA,
     OF_LITE,
     OF_DARKNESS,
-    OF_LORE1,
-    OF_LORE2,
+    OF_LORE,
 
     OF_ACTIVATE, /* Present, but not required to Activate (obj_has_effect() suffices).
                     This is a very useful crutch for object lore, though. */
@@ -2908,6 +2881,7 @@ enum obj_flags_e {
 #define OFG_TOWN                0x00020000     /* Item is allowed to be stocked in town */
 #define OFG_FIXED_ART           0x00040000     /* Never replace this art when using random_artifacts */
 #define OFG_FIXED_ACT           0x00080000     /* Keep original activation on replacement artifacts */
+#define OFG_NO_SHUFFLE          0x00100000     /* Disallow shuffling for this item */
 
 /* Object Flags for Curses (OFC_*) */
 #define MAX_CURSE 17
@@ -2964,6 +2938,7 @@ enum obj_flags_e {
 #define AM_STOCK_TOWN   0x00000200
 #define AM_STOCK_BM     0x00000400
 #define AM_QUEST        0x00000800
+#define AM_SHUFFLING    0x00001000
 
 
 /*** Monster blow constants ***/
@@ -3163,6 +3138,8 @@ enum {
 #define RF7_HAS_DARK_2          0x00040000  /* Monster carries darkness */
 #define RF7_SELF_DARK_2         0x00080000  /* Monster darkens itself */
 #define RF7_CAN_CLIMB           0x00100000
+#define RF7_RANGED_MELEE        0x00200000  /* Monster has ranged melee */
+#define RF7_NASTY_GLYPH         0x00400000  /* Monster has nasty glyph */
 
 /*
  * Monster race flags
@@ -3665,6 +3642,8 @@ enum r_drop_e
     start_time = tmp;\
 }
 
+#define player_is_ninja (p_ptr->pclass == CLASS_NINJA || p_ptr->pclass == CLASS_NINJA_LAWYER)
+
 /*
  * Hack -- Prepare to use the "Secure" routines
  */
@@ -3952,9 +3931,9 @@ extern int PlayerUID;
 
 /* Proficiency of weapons and misc. skills (except riding) */
 #define WEAPON_EXP_UNSKILLED     0
-#define WEAPON_EXP_BEGINNER   4000
-#define WEAPON_EXP_SKILLED    6000
-#define WEAPON_EXP_EXPERT     7000
+#define WEAPON_EXP_BEGINNER   2000
+#define WEAPON_EXP_SKILLED    4000
+#define WEAPON_EXP_EXPERT     6000
 #define WEAPON_EXP_MASTER     8000
 
 /* Proficiency of riding */
@@ -3971,8 +3950,8 @@ extern int PlayerUID;
 #define SPELL_EXP_EXPERT      1400
 #define SPELL_EXP_MASTER      1600
 
-#define NO_TOWN 7
-#define SECRET_TOWN 6
+#define NO_TOWN 8
+#define SECRET_TOWN 7
 
 #define NIKKI_HIGAWARI     0
 #define NIKKI_BUNSHOU      1
@@ -4316,6 +4295,7 @@ extern int PlayerUID;
 #define MON_SEVEN_HEADED_HYDRA 614
 #define MON_MOIRE           615
 #define MON_KAVLAX        616
+#define MON_ELDRAK        620
 #define MON_ETTIN         621
 #define MON_NIGHTMARE     622
 #define MON_VAMPIRE_LORD  623
@@ -4477,6 +4457,7 @@ extern int PlayerUID;
 #define MON_D_ELF_SHADE         886
 #define MON_MANA_HOUND          887
 #define MON_VENOM_WYRM          890
+#define MON_DJINNI              892
 #define MON_TROLL_KING          894
 #define MON_SKY_GOLEM           895
 #define MON_BAZOOKER            896
@@ -4597,6 +4578,11 @@ extern int PlayerUID;
 #define MON_HELGA				1149
 #define MON_GERTRUDE            1150
 #define MON_NIGHTMARE_DRAGON    1215
+#define MON_JUSTSHORN           1225
+#define MON_SHEEP               1226
+#define MON_ZOOPI               1229
+#define MON_FESTIVUS            1230
+#define MON_DUCK                1241
 
 /* The Metal Babble guards the Arena dungeon, but this requires the guardian to be a unique
    monster or the dungeon never gets flagged as completed. Note, this messes up the needle
@@ -4785,7 +4771,7 @@ extern int PlayerUID;
 #define DF1_CAVE                0x00000400
 #define DF1_CAVERN              0x00000800
 #define DF1_RANDOM              0x00001000
-#define DF1_XXX13               0x00002000
+#define DF1_SMALL               0x00002000
 #define DF1_XXX14               0x00004000
 #define DF1_XXX15               0x00008000
 #define DF1_FORGET              0x00010000
@@ -4827,12 +4813,15 @@ extern int PlayerUID;
 #define DUNGEON_CHAMELEON 18
 #define DUNGEON_DARKNESS 19
 #define DUNGEON_GLASS    20
+#define DUNGEON_ICKY     21
 #define DUNGEON_OLYMPUS  22
+#define DUNGEON_LONELY   23
 #define DUNGEON_GIANTS_HALL 24
 #define DUNGEON_ARENA    25
 #define DUNGEON_WARREN   30
 #define DUNGEON_HIDEOUT  31
 #define DUNGEON_BATTLEFIELD  32
+#define DUNGEON_TIDAL_CAVE 33
 
 #define DUNGEON_FEAT_PROB_NUM 3
 
@@ -4907,6 +4896,9 @@ enum mon_save_fields_e {
 #define IS_OPPOSE_FIRE() (p_ptr->oppose_fire || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU) || wild_has_power(WILD_RESIST))
 #define IS_OPPOSE_COLD() (p_ptr->oppose_cold || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU) || wild_has_power(WILD_RESIST))
 #define IS_OPPOSE_POIS() (p_ptr->oppose_pois || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU) || wild_has_power(WILD_RESIST))
+#define IS_OPPOSE_CONF() (p_ptr->oppose_conf)
+#define IS_OPPOSE_BLIND() (p_ptr->oppose_blind)
+#define IS_SPINNING() (p_ptr->spin > 0)
 #define IS_RESIST() ((p_ptr->oppose_acid && p_ptr->oppose_elec && p_ptr->oppose_fire && p_ptr->oppose_cold && p_ptr->oppose_pois) || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU) || wild_has_power(WILD_RESIST))
 #define IS_TIM_ESP() (p_ptr->tim_esp || music_singing(MUSIC_MIND) || (p_ptr->concent >= CONCENT_TELE_THRESHOLD) || wild_has_power(WILD_ESP))
 #define IS_TIM_STEALTH() (p_ptr->tim_stealth || music_singing(MUSIC_STEALTH))
@@ -4919,7 +4911,7 @@ enum mon_save_fields_e {
 #define IS_WRAITH() (p_ptr->wraith_form || wild_has_power(WILD_WRAITH))
 
 /* Multishadow effects is determined by turn */
-#define CHECK_MULTISHADOW() (p_ptr->multishadow && (game_turn & 1))
+#define CHECK_MULTISHADOW() (p_ptr->multishadow && (!(game_turn % 3)))
 
 /* Is "teleport level" ineffective to this target? */
 #define TELE_LEVEL_IS_INEFF(TARGET) \
@@ -5285,14 +5277,15 @@ enum ego_type_e {
     EGO_ARMOR_STEALTH,
     EGO_ARMOR_FREE_ACTION = 55,
     EGO_ARMOR_SEEING,
+	EGO_ARMOR_DWARVEN,
 
-    EGO_SHIELD_DWARVEN = 60,
+    EGO_SHIELD_PRESERVATION = 60,
     EGO_SHIELD_ORCISH,
     EGO_SHIELD_REFLECTION,
     EGO_SHIELD_NIGHT_AND_DAY,
     EGO_SHIELD_ENDURANCE,
 
-    EGO_BODY_DWARVEN = 70,
+    EGO_BODY_AUGMENTATION = 70,
     EGO_BODY_URUK_HAI,
     EGO_BODY_OLOG_HAI,
     EGO_BODY_DEMON,
@@ -5329,7 +5322,7 @@ enum ego_type_e {
     EGO_HELMET_TROLL = 115,
     EGO_HELMET_VAMPIRE,
     EGO_HELMET_SUNLIGHT,
-    EGO_HELMET_DWARVEN,
+    EGO_HELMET_DOLPHIN,
     EGO_HELMET_VALKYRIE,
     EGO_HELMET_RAGE = 120,
 
@@ -5351,7 +5344,7 @@ enum ego_type_e {
 
     EGO_BOOTS_LEVITATION = 145,
     EGO_BOOTS_GNOMISH,
-    EGO_BOOTS_DWARVEN,
+    EGO_BOOTS_WOODSMAN,
     EGO_BOOTS_SPEED,
     EGO_BOOTS_ELVENKIND,
     EGO_BOOTS_FEANOR = 150,
@@ -5382,6 +5375,7 @@ enum ego_type_e {
     /* Jewelry */
     EGO_JEWELRY_DEFENDER = 200,
     EGO_JEWELRY_ELEMENTAL,
+	EGO_JEWELRY_VITALITY,
 
     EGO_RING_PROTECTION = 205,
     EGO_RING_COMBAT,
@@ -5726,6 +5720,45 @@ enum effect_e
 #define BIAS_DEMON           0x00080000
 #define BIAS_PROTECTION      0x00100000
 #define BIAS_ARCHER          0x00200000
+
+/* Special multiplier to nerf ninja lawyer melee */
+#define NINJA_LAWYER_MULT 80
+
+/* Lawyer hacks */
+#define LAWYER_HACK_LEVEL 1
+#define LAWYER_HACK_MANA 2
+#define LAWYER_HACK_FAILRATE 3
+
+/* patron interaction triggers */
+#define PATRON_HIT 1
+#define PATRON_KILL_WEAK 2
+#define PATRON_KILL 3
+#define PATRON_KILL_UNIQUE 4
+#define PATRON_KILL_FAMOUS 5
+#define PATRON_KILL_GOOD 6
+#define PATRON_KILL_DEMON 7
+#define PATRON_CAST 8
+#define PATRON_VILLIANY 9
+#define PATRON_CHANCE 10
+#define PATRON_TAKE_HIT 11
+
+/* patrons by name */
+#define PATRON_SLORTAR 0
+#define PATRON_MABELODE 1
+#define PATRON_CHARDROS 2
+#define PATRON_HIONHURN 3
+#define PATRON_XIOMBARG 4
+#define PATRON_PYARAY 5
+#define PATRON_BALAAN 6
+#define PATRON_ARIOCH 7
+#define PATRON_EEQUOR 8
+#define PATRON_NARJHAN 9
+#define PATRON_BALO 10
+#define PATRON_KHORNE 11
+#define PATRON_SLAANESH 12
+#define PATRON_NURGLE 13
+#define PATRON_TZEENTCH 14
+#define PATRON_KHAINE 15
 
 enum dragon_realm_e
 {

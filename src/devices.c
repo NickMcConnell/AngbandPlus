@@ -529,7 +529,7 @@ static cptr _do_potion(int sval, int mode)
         }
         break;
     case SV_POTION_SIGHT:
-        if (desc) return "It gives temporary see invisible and infravision and cures blindness when you quaff it.";
+        if (desc) return "It gives temporary see invisible, infravision and blindess resistance and cures blindness when you quaff it.";
         if (info) return info_duration(_potion_power(100), _potion_power(100));
         if (cast)
         {
@@ -539,6 +539,10 @@ static cptr _do_potion(int sval, int mode)
                 device_noticed = TRUE;
             }
 			if (set_tim_invis(p_ptr->tim_invis + dur, FALSE))
+			{
+				device_noticed = TRUE;
+			}
+			if (set_oppose_blind(p_ptr->oppose_blind + dur, FALSE))
 			{
 				device_noticed = TRUE;
 			}
@@ -552,7 +556,7 @@ static cptr _do_potion(int sval, int mode)
 			int dur = _potion_power(10 + randint1(10));
 			if (set_poisoned(p_ptr->poisoned - MAX(400, p_ptr->poisoned / 2), TRUE))
                 device_noticed = TRUE;
-			if (set_oppose_pois(p_ptr->oppose_cold + dur, FALSE))
+			if (set_oppose_pois(p_ptr->oppose_pois + dur, FALSE))
 			{
 				device_noticed = TRUE;
 			}
@@ -653,7 +657,7 @@ static cptr _do_potion(int sval, int mode)
         }
         break;
     case SV_POTION_CURE_CRITICAL:
-        if (desc) return "It heals you and cures stunned, cuts and berserk when you quaff it.";
+        if (desc) return "It heals you, reduces poisoning and cures stunning, cuts and berserk when you quaff it.";
         if (info) return info_heal(12, _potion_power(8), 0);
         if (cast)
         {
@@ -678,13 +682,14 @@ static cptr _do_potion(int sval, int mode)
         break;
     case SV_POTION_HEALING: {
         int amt = 300;
-        if (desc) return "It heals you and cures blindness, confusion, stunned, cuts and berserk when you quaff it.";
+        if (desc) return "It heals you and cures blindness, confusion, poison, stunned, cuts and berserk when you quaff it.";
         if (info) return info_heal(0, 0, _potion_power(amt));
         if (cast)
         {
             if (hp_player(_potion_power(amt))) device_noticed = TRUE;
             if (set_blind(0, TRUE)) device_noticed = TRUE;
             if (set_confused(0, TRUE)) device_noticed = TRUE;
+			if (set_poisoned(0, TRUE)) device_noticed = TRUE;
             if (set_stun(0, TRUE)) device_noticed = TRUE;
             if (set_cut(0, TRUE)) device_noticed = TRUE;
             if (set_shero(0,TRUE)) device_noticed = TRUE;
@@ -733,12 +738,12 @@ static cptr _do_potion(int sval, int mode)
         }
         break;
     case SV_POTION_CLARITY:
-        if (desc) return "It clears your mind a bit when you quaff it and cures confusion.";
+        if (desc) return "It clears your mind a bit when you quaff it and cures confusion and grants temporary confusion resistance.";
         if (info) return format("3d%d + %d", _potion_power(6), _potion_power(3));
         if (cast)
         {
             int amt = _potion_power(damroll(3, 6) + 3);
-
+			int dur = _potion_power(3 + randint1(5));
             if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
                 msg_print("You are unaffected.");
             else if (sp_player(amt))
@@ -746,16 +751,20 @@ static cptr _do_potion(int sval, int mode)
                 msg_print("You feel your mind clear.");
                 device_noticed = TRUE;
             }
+			if (set_oppose_conf(p_ptr->oppose_conf + dur, FALSE))
+			{
+				device_noticed = TRUE;
+			}
 			if (set_confused(0, TRUE)) device_noticed = TRUE;
         }
         break;
     case SV_POTION_GREAT_CLARITY:
-        if (desc) return "It greatly clears your mind when you quaff it and cures confusion and hallucinations.";
+        if (desc) return "It greatly clears your mind when you quaff it and cures confusion and hallucinations and grants temporary confusion resistance.";
         if (info) return format("10d%d + %d", _potion_power(10), _potion_power(15));
         if (cast)
         {
             int amt = _potion_power(damroll(10, 10) + 15);
-
+			int dur = _potion_power(60 + randint1(60));
             if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
                 msg_print("You are unaffected.");
             else if (sp_player(amt))
@@ -763,6 +772,10 @@ static cptr _do_potion(int sval, int mode)
                 msg_print("You feel your mind clear.");
                 device_noticed = TRUE;
             }
+			if (set_oppose_conf(p_ptr->oppose_conf + dur, FALSE))
+			{
+				device_noticed = TRUE;
+			}
 			if (set_confused(0, TRUE)) device_noticed = TRUE;
 			if (set_image(0, TRUE)) device_noticed = TRUE;
         }
@@ -1493,6 +1506,7 @@ static cptr _do_scroll(int sval, int mode)
                 p_ptr->pclass == CLASS_RUNE_KNIGHT ||
                 p_ptr->pclass == CLASS_WILD_TALENT ||
                 p_ptr->pclass == CLASS_NINJA ||
+                p_ptr->pclass == CLASS_NINJA_LAWYER ||
                 p_ptr->pclass == CLASS_SCOUT ||
                 p_ptr->pclass == CLASS_MYSTIC ||
                 p_ptr->pclass == CLASS_MAULER ||
@@ -2077,7 +2091,7 @@ static _effect_info_t _effect_info[] =
     {"BREATHE_CHAOS",   EFFECT_BREATHE_CHAOS,       75, 250,  4, BIAS_CHAOS},
     {"BREATHE_DISEN",   EFFECT_BREATHE_DISEN,       60, 150,  8, 0},
 	{"BREATHE_INERTIA", EFFECT_BREATHE_INERTIA,     60, 200,  8, 0},
-	{"BREATHE_WATER",   EFFECT_BREATHE_WATER,       65, 100,  8, BIAS_MAGE },
+	{"BREATHE_WATER",   EFFECT_BREATHE_WATER,       65, 150,  8, BIAS_MAGE },
     {"BREATHE_TIME",    EFFECT_BREATHE_TIME,        90, 500, 32, 0},
     {"BREATHE_ELEMENTS", EFFECT_BREATHE_ELEMENTS,   60, 100, 64, 0},
 
@@ -2358,20 +2372,20 @@ bool effect_add(object_type *o_ptr, int type)
 device_effect_info_t wand_effect_table[] =
 {
     /*                            Lvl Cost Rarity  Max  Difficulty Flags */
-    {EFFECT_BOLT_MISSILE,           1,   3,     1,  20,    10,  0, _STOCK_TOWN},
+    {EFFECT_BOLT_MISSILE,           1,   2,     1,  30,    10,  0, _STOCK_TOWN},
     {EFFECT_HEAL_MONSTER,           2,   3,     1,  50,     0,  0, 0},
-    {EFFECT_BEAM_LITE_WEAK,         2,   3,     1,  20,    10,  0, _STOCK_TOWN},
-    {EFFECT_BALL_POIS,              5,   4,     1,  20,    33,  0, _STOCK_TOWN},
-    {EFFECT_SLEEP_MONSTER,          5,   5,     1,  20,    33,  0, _STOCK_TOWN},
-    {EFFECT_SLOW_MONSTER,           5,   5,     1,  20,    33,  0, _STOCK_TOWN},
-    {EFFECT_CONFUSE_MONSTER,        5,   5,     1,  20,    33,  0, _STOCK_TOWN},
-    {EFFECT_SCARE_MONSTER,          7,   5,     1,  20,    33,  0, _STOCK_TOWN},
+    {EFFECT_BEAM_LITE_WEAK,         2,   3,     1,  30,    10,  0, _STOCK_TOWN},
+    {EFFECT_BALL_POIS,              5,   4,     1,  30,    33,  0, _STOCK_TOWN},
+    {EFFECT_SLEEP_MONSTER,          5,   5,     1,  30,    33,  0, _STOCK_TOWN},
+    {EFFECT_SLOW_MONSTER,           5,   5,     1,  30,    33,  0, _STOCK_TOWN},
+    {EFFECT_CONFUSE_MONSTER,        5,   5,     1,  30,    33,  0, _STOCK_TOWN},
+    {EFFECT_SCARE_MONSTER,          7,   5,     1,  30,    33,  0, _STOCK_TOWN},
     {EFFECT_STONE_TO_MUD,          10,   5,     1,   0,    10,  0, _COMMON},
     {EFFECT_POLYMORPH,             12,   6,     1,  30,     0,  0, 0},
     {EFFECT_BOLT_COLD,             12,   7,     1,  30,    33,  0, _STOCK_TOWN},
-    {EFFECT_BOLT_ELEC,             15,   7,     1,  30,    33,  0, _STOCK_TOWN},
-    {EFFECT_BOLT_ACID,             17,   8,     1,  35,    33,  0, _STOCK_TOWN},
-    {EFFECT_BOLT_FIRE,             19,   9,     1,  35,    33,  0, _STOCK_TOWN},
+    {EFFECT_BOLT_ELEC,             12,   7,     1,  30,    33,  0, _STOCK_TOWN},
+    {EFFECT_BOLT_ACID,             15,   8,     1,  35,    33,  0, _STOCK_TOWN},
+    {EFFECT_BOLT_FIRE,             15,   9,     1,  35,    33,  0, _STOCK_TOWN},
     {EFFECT_HASTE_MONSTER,         20,   3,     1,  50,     0,  0, 0},
     {EFFECT_TELEPORT_AWAY,         20,  10,     1,   0,    10,  0, _COMMON},
     {EFFECT_DESTROY_TRAPS,         20,  10,     1,   0,    10,  0, 0},
@@ -2560,84 +2574,20 @@ static int _effect_rarity(device_effect_info_ptr entry, int level)
     return r;
 }
 
-static void _device_pick_effect(object_type *o_ptr, device_effect_info_ptr table, int level, int mode)
+
+static device_effect_info_ptr _device_find_effect(device_effect_info_ptr table, int effect)
 {
-    int i, n;
-    int tot = 0;
+	int i;
 
-    for (i = 0; ; i++)
-    {
-        device_effect_info_ptr entry = &table[i];
-        int                    rarity;
+	for (i = 0; ; i++)
+	{
+		device_effect_info_ptr entry = &table[i];
 
-        if (!entry->type) break;
+		if (!entry->type) break;
+		if (entry->type == effect) return entry;
+	}
 
-        entry->prob = 0;
-        rarity = _effect_rarity(entry, level);
-
-        if (!rarity) continue;
-        if (entry->level > device_level(o_ptr)) continue;
-        if ((mode & AM_GOOD) && !(entry->flags & _DROP_GOOD)) continue;
-        if ((mode & AM_GREAT) && !(entry->flags & _DROP_GREAT)) continue;
-        if ((mode & AM_STOCK_TOWN) && !(entry->flags & _STOCK_TOWN)) continue;
-		if (easy_id && entry->type == EFFECT_IDENTIFY_FULL) continue;
-		if (easy_lore && entry->type == EFFECT_PROBING) continue;
-
-        entry->prob = 64 / rarity;
-        tot += entry->prob;
-    }
-
-    if (!tot) return;
-    n = randint1(tot);
-
-    for (i = 0; ; i++)
-    {
-        device_effect_info_ptr entry = &table[i];
-
-        if (!entry->type) break;
-        if (!entry->prob) continue;
-
-        n -= entry->prob;
-        if (n <= 0)
-        {
-            int cost;
-
-            o_ptr->activation.type = entry->type;
-
-            /* Power is the casting level of the device and determines damage or power of the effect.
-               Difficulty is the level of the effect, and determines the fail rate of the effect.
-               Difficulty is set to the base level of the effect, and then scaled based on the
-               power of the effect using the difficulty_base and xtra percentages. */
-            o_ptr->activation.power = device_level(o_ptr);
-            o_ptr->activation.difficulty = entry->level;
-            if (o_ptr->activation.power > o_ptr->activation.difficulty)
-            {
-                int d = 10*(o_ptr->activation.power - o_ptr->activation.difficulty);
-                int b = entry->difficulty_base * d / 100;
-
-                b += randint0(entry->difficulty_xtra * d / 100);
-                o_ptr->activation.difficulty += b/10;
-                if (randint0(10) < b%10)
-                    o_ptr->activation.difficulty++;
-                if (o_ptr->activation.difficulty > o_ptr->activation.power) /* paranoia */
-                    o_ptr->activation.difficulty = o_ptr->activation.power;
-            }
-
-            cost = entry->cost;
-            cost += effect_cost_extra(&o_ptr->activation);
-            o_ptr->activation.cost = _bounds_check(_rand_normal(cost, 5), 1, 1000);
-
-            if (entry->flags & _NO_DESTROY)
-            {
-                add_flag(o_ptr->flags, OF_IGNORE_ACID);
-                add_flag(o_ptr->flags, OF_IGNORE_ELEC);
-                add_flag(o_ptr->flags, OF_IGNORE_FIRE);
-                add_flag(o_ptr->flags, OF_IGNORE_COLD);
-            }
-
-            return;
-        }
-    }
+	return NULL;
 }
 
 static bool _is_valid_device(object_type *o_ptr)
@@ -2650,6 +2600,136 @@ static bool _is_valid_device(object_type *o_ptr)
         return TRUE;
     }
     return FALSE;
+}
+
+bool device_is_valid_effect(int tval, int effect)
+{
+	switch (tval)
+	{
+	case TV_WAND:
+		return _device_find_effect(wand_effect_table, effect) != NULL;
+	case TV_ROD:
+		return _device_find_effect(rod_effect_table, effect) != NULL;
+	case TV_STAFF:
+		return _device_find_effect(staff_effect_table, effect) != NULL;
+	}
+	return FALSE;
+}
+
+
+static void _device_pick_effect(object_type *o_ptr, device_effect_info_ptr table, int level, int mode)
+{
+	int i, n;
+	int tot = 0;
+
+	for (i = 0; ; i++)
+	{
+		device_effect_info_ptr entry = &table[i];
+		int                    rarity;
+
+		if (!entry->type) break;
+
+		entry->prob = 0;
+		rarity = _effect_rarity(entry, level);
+
+		if (!rarity) continue;
+		if (entry->level > device_level(o_ptr)) continue;
+		if ((mode & AM_GOOD) && !(entry->flags & _DROP_GOOD)) continue;
+		if ((mode & AM_GREAT) && !(entry->flags & _DROP_GREAT)) continue;
+		if ((mode & AM_STOCK_TOWN) && !(entry->flags & _STOCK_TOWN)) continue;
+		if (easy_id && entry->type == EFFECT_IDENTIFY_FULL) continue;
+		if (easy_lore && entry->type == EFFECT_PROBING) continue;
+
+		entry->prob = 64 / rarity;
+		tot += entry->prob;
+	}
+
+	if (!tot) return;
+	n = randint1(tot);
+
+	for (i = 0; ; i++)
+	{
+		device_effect_info_ptr entry = &table[i];
+
+		if (!entry->type) break;
+		if (!entry->prob) continue;
+
+		n -= entry->prob;
+		if (n <= 0)
+		{
+			int cost;
+
+			o_ptr->activation.type = entry->type;
+
+			/* Power is the casting level of the device and determines damage or power of the effect.
+			Difficulty is the level of the effect, and determines the fail rate of the effect.
+			Difficulty is set to the base level of the effect, and then scaled based on the
+			power of the effect using the difficulty_base and xtra percentages. */
+			o_ptr->activation.power = device_level(o_ptr);
+			o_ptr->activation.difficulty = entry->level;
+			if (o_ptr->activation.power > o_ptr->activation.difficulty)
+			{
+				int d = 10 * (o_ptr->activation.power - o_ptr->activation.difficulty);
+				int b = entry->difficulty_base * d / 100;
+
+				b += randint0(entry->difficulty_xtra * d / 100);
+				o_ptr->activation.difficulty += b / 10;
+				if (randint0(10) < b % 10)
+					o_ptr->activation.difficulty++;
+				if (o_ptr->activation.difficulty > o_ptr->activation.power) /* paranoia */
+					o_ptr->activation.difficulty = o_ptr->activation.power;
+			}
+
+			cost = entry->cost;
+			cost += effect_cost_extra(&o_ptr->activation);
+			o_ptr->activation.cost = _bounds_check(_rand_normal(cost, 5), 1, 1000);
+
+			if (entry->flags & _NO_DESTROY)
+			{
+				add_flag(o_ptr->flags, OF_IGNORE_ACID);
+				add_flag(o_ptr->flags, OF_IGNORE_ELEC);
+				add_flag(o_ptr->flags, OF_IGNORE_FIRE);
+				add_flag(o_ptr->flags, OF_IGNORE_COLD);
+			}
+
+			return;
+		}
+	}
+}
+
+static void _device_apply_effect(object_type *o_ptr, device_effect_info_ptr table, int effect)
+{
+	device_effect_info_ptr entry = _device_find_effect(table, effect);
+	int cost;
+	o_ptr->activation.type = entry->type;
+
+	/* Copied from _device_pick_affect. */
+	o_ptr->activation.power = device_level(o_ptr);
+	o_ptr->activation.difficulty = entry->level;
+	if (o_ptr->activation.power > o_ptr->activation.difficulty)
+	{
+		int d = 10 * (o_ptr->activation.power - o_ptr->activation.difficulty);
+		int b = entry->difficulty_base * d / 100;
+
+		b += randint0(entry->difficulty_xtra * d / 100);
+		o_ptr->activation.difficulty += b / 10;
+		if (randint0(10) < b % 10)
+			o_ptr->activation.difficulty++;
+		if (o_ptr->activation.difficulty > o_ptr->activation.power) /* paranoia */
+			o_ptr->activation.difficulty = o_ptr->activation.power;
+	}
+
+	cost = entry->cost;
+	cost += effect_cost_extra(&o_ptr->activation);
+	o_ptr->activation.cost = _bounds_check(_rand_normal(cost, 5), 1, 1000);
+
+	if (entry->flags & _NO_DESTROY)
+	{
+		add_flag(o_ptr->flags, OF_IGNORE_ACID);
+		add_flag(o_ptr->flags, OF_IGNORE_ELEC);
+		add_flag(o_ptr->flags, OF_IGNORE_FIRE);
+		add_flag(o_ptr->flags, OF_IGNORE_COLD);
+	}
 }
 
 /* Initialize a device with a random effect for monster drops, dungeon objects, etc */
@@ -2709,85 +2789,38 @@ bool device_init(object_type *o_ptr, int level, int mode)
     return TRUE;
 }
 
-static device_effect_info_ptr _device_find_effect(device_effect_info_ptr table, int effect)
-{
-    int i;
-
-    for (i = 0; ; i++)
-    {
-        device_effect_info_ptr entry = &table[i];
-
-        if (!entry->type) break;
-        if (entry->type == effect) return entry;
-    }
-
-    return NULL;
-}
-
-bool device_is_valid_effect(int tval, int effect)
-{
-    switch (tval)
-    {
-    case TV_WAND:
-        return _device_find_effect(wand_effect_table, effect) != NULL;
-    case TV_ROD:
-        return _device_find_effect(rod_effect_table, effect) != NULL;
-    case TV_STAFF:
-        return _device_find_effect(staff_effect_table, effect) != NULL;
-    }
-    return FALSE;
-}
-
 /* Initialize a device with a fixed effect. This is useful for birth objects, quest rewards, etc */
-bool device_init_fixed(object_type *o_ptr, int effect)
+bool device_init_fixed(object_type *o_ptr, int effect, int level)
 {
-    device_effect_info_ptr e_ptr = NULL;
-
     if (!_is_valid_device(o_ptr))
         return FALSE;
+
+	o_ptr->xtra3 = _bounds_check(_rand_normal(level, 10), 1, 100); //fixed devices are little better
 
     switch (o_ptr->tval)
     {
     case TV_WAND:
-        e_ptr = _device_find_effect(wand_effect_table, effect);
-        if (!e_ptr)
-            return FALSE;
+		_device_apply_effect(o_ptr, wand_effect_table, effect);
+		if (!o_ptr->activation.type)
+			return FALSE;
+		o_ptr->xtra4 = _bounds_check(_rand_normal(3 * o_ptr->xtra3, 15), o_ptr->activation.cost * 4, 1000);
         break;
     case TV_ROD:
-        e_ptr = _device_find_effect(rod_effect_table, effect);
-        if (!e_ptr)
-            return FALSE;
+		_device_apply_effect(o_ptr, rod_effect_table, effect);
+		if (!o_ptr->activation.type)
+			return FALSE;
+		o_ptr->xtra4 = _bounds_check(_rand_normal(3 * o_ptr->xtra3/2, 15), o_ptr->activation.cost * 2, 1000);
         break;
     case TV_STAFF:
-        e_ptr = _device_find_effect(staff_effect_table, effect);
-        if (!e_ptr)
-            return FALSE;
+		_device_apply_effect(o_ptr, staff_effect_table, effect);
+		if (!o_ptr->activation.type)
+			return FALSE;
+		o_ptr->xtra4 = _bounds_check(_rand_normal(3 * o_ptr->xtra3, 15), o_ptr->activation.cost * 4, 1000);
         break;
     }
-
-    o_ptr->xtra3 = e_ptr->level;
-    if (o_ptr->xtra3 < 7)
-        o_ptr->xtra3 = 7;
-
-    if (o_ptr->tval == TV_ROD)
-        o_ptr->xtra4 = 3 * o_ptr->xtra3 / 2;
-    else
-        o_ptr->xtra4 = 3 * o_ptr->xtra3;
+    
     o_ptr->xtra5 = o_ptr->xtra4; /* Fully Charged */
     o_ptr->xtra5 *= 100; /* scale current sp by 100 for smoother regeneration */
-
-    o_ptr->activation.type = e_ptr->type;
-    o_ptr->activation.power = o_ptr->xtra3;
-    o_ptr->activation.difficulty = e_ptr->level;
-    o_ptr->activation.cost = e_ptr->cost + effect_cost_extra(&o_ptr->activation);
-
-    if (e_ptr->flags & _NO_DESTROY)
-    {
-        add_flag(o_ptr->flags, OF_IGNORE_ACID);
-        add_flag(o_ptr->flags, OF_IGNORE_ELEC);
-        add_flag(o_ptr->flags, OF_IGNORE_FIRE);
-        add_flag(o_ptr->flags, OF_IGNORE_COLD);
-    }
 
     add_flag(o_ptr->flags, OF_ACTIVATE);
 
@@ -3456,24 +3489,29 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (value) return format("%d", 2000);
         if (cast)
         {
-            switch (randint1(13))
-            {
-            case 1: case 2: case 3: case 4: case 5:
-                if (mut_present(MUT_ASTRAL_GUIDE))
-                    energy_use /= 3;
-                teleport_player(10, 0L);
-                break;
-            case 6: case 7: case 8: case 9: case 10:
-                if (mut_present(MUT_ASTRAL_GUIDE))
-                    energy_use /= 3;
-                teleport_player(222, 0L);
-                break;
-            case 11: case 12:
-                stair_creation(FALSE);
-                break;
-            default:
-                if (get_check("Teleport Level? "))
-                    teleport_level(0);
+			switch (randint1(9))
+			{
+			case 1: case 2: case 3: case 4: case 5:
+				if (mut_present(MUT_ASTRAL_GUIDE))
+					energy_use /= 3;
+				teleport_player(10, 0L);
+				break;
+			case 6: case 7: case 8:
+				if (mut_present(MUT_ASTRAL_GUIDE))
+					energy_use /= 3;
+				teleport_player(222, 0L);
+				break;
+			default:
+				if (get_check("Teleport Level? "))
+				{
+					teleport_level(0);
+				}
+				else
+				{
+					if (mut_present(MUT_ASTRAL_GUIDE))
+						energy_use /= 3;
+					teleport_player(222, 0L);
+				}
             }
             device_noticed = TRUE;
         }
@@ -5839,6 +5877,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
 		if (desc) return "It fires a torrent of water.";
 		if (info) return info_damage(0, 0, _BOOST(dam));
 		if (value) return format("%d", 30 * dam);
+		if (cost) return format("%d", dam / 8);
 		if (cast)
 		{
 			if (!get_fire_dir(&dir)) return NULL;
@@ -6120,7 +6159,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
     {
         int dam = _extra(effect, 50 + effect->power/2);
         if (name) return "Vampirism";
-        if (desc) return "It fires a bolt that steals life from a foe when you use it.";
+        if (desc) return "It fires a bolt that steals life from a foe when you use it. You will also gain nutritional sustenance from this.";
         if (info) return info_damage(0, 0, _BOOST(dam));
         if (value) return format("%d", 35*dam);
         if (color) return format("%d", TERM_L_DARK);
@@ -6130,8 +6169,14 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             dam = _BOOST(dam);
             if (drain_life(dir, dam))
             {
-                vamp_player(dam);
+				hp_player(dam);
                 device_noticed = TRUE;
+
+				dam = p_ptr->food + MIN(5000, 100 * dam);
+
+				/* Not gorged already */
+				if (p_ptr->food < PY_FOOD_MAX)
+					set_food(dam >= PY_FOOD_MAX ? PY_FOOD_MAX - 1 : dam);
             }
         }
         break;

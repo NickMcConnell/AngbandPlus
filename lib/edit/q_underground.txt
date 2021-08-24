@@ -28,11 +28,11 @@ L:c:OBJ(large steel chest, DEPTH+30):MON(hand druj)
 L:d:OBJ(large steel chest, DEPTH+30):MON(eye druj)
 L:e:OBJ(skeleton)
 L:*:OBJ(*, DEPTH+20)
-L:k:OBJ(CROWN, DEPTH+25):EGO(lordliness)
+L:k:OBJ(CROWN, DEPTH+25):EGO(might)
 L:l:OBJ(RING, DEPTH+20):EGO(speed)
-L:m:OBJ(mithril chain, DEPTH+30):EGO(70)
-!SCRAMBLE(k,l,m)
-!SCRAMBLE(b,c,d,e)
+L:m:OBJ(mirror shield, DEPTH+30)
+!:SCRAMBLE(k,l,m)
+!:SCRAMBLE(b,c,d,e)
 
 # Dungeon layout
 M:#####################################################################

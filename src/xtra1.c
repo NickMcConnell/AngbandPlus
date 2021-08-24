@@ -598,6 +598,9 @@ static void prt_stat(int stat)
 #define BAR_DRAGON_HEROIC_CHARGE 172
 #define BAR_HOARDING 173
 #define BAR_CAREFUL_AIM 174
+#define BAR_SPIN 175
+#define BAR_RESCONF 176
+#define BAR_RESBLIND 177
 
 static struct {
     byte attr;
@@ -781,6 +784,9 @@ static struct {
     {TERM_VIOLET, "Chg", "Heroic Charge"},
     {TERM_YELLOW, "$$", "Hoarding"},
     {TERM_L_BLUE, "Aim", "Aim"},
+    {TERM_GREEN, "Spn", "Spin"},
+	{TERM_UMBER, "rCf", "rConf" },
+	{TERM_L_DARK, "rBl", "rBlind" },
     {0, NULL, NULL}
 };
 
@@ -895,10 +901,20 @@ static void prt_status(void)
     /* Oppose Poison */
     if (IS_OPPOSE_POIS()) ADD_FLG(BAR_RESPOIS);
 
+	/* Oppose Confusion */
+	if (IS_OPPOSE_CONF()) ADD_FLG(BAR_RESCONF);
+
+	/* Oppose Confusion */
+	if (IS_OPPOSE_BLIND()) ADD_FLG(BAR_RESBLIND);
+
+    /* Spin/Oppose Nether */
+    if (IS_SPINNING()) ADD_FLG(BAR_SPIN);
+    else if (p_ptr->tim_res_nether) ADD_FLG(BAR_RESNETH);
+
     /* Word of Recall */
     if (p_ptr->word_recall) ADD_FLG(BAR_RECALL);
 
-    /* Alter realiry */
+    /* Alter reality */
     if (p_ptr->alter_reality) ADD_FLG(BAR_ALTER);
 
     /* Resist time */
@@ -917,7 +933,6 @@ static void prt_status(void)
     /* tim levitation */
     if (p_ptr->tim_levitation) ADD_FLG(BAR_LEVITATE);
 
-    if (p_ptr->tim_res_nether) ADD_FLG(BAR_RESNETH);
     if (p_ptr->tim_res_disenchantment) ADD_FLG(BAR_RES_DISENCHANTMENT);
 
     if (p_ptr->tim_spell_reaction) ADD_FLG(BAR_SPELL_REACTION);
@@ -2685,7 +2700,7 @@ static void calc_spells(void)
             s_ptr = &mp_ptr->info[p_ptr->realm2-1][j%32];
 
         /* Skip spells we are allowed to know */
-        if (s_ptr->slevel <= p_ptr->lev) continue;
+        if (lawyer_hack(s_ptr, LAWYER_HACK_LEVEL) <= p_ptr->lev) continue;
 
         /* Is it known? */
         if ((j < 32) ?
@@ -2816,7 +2831,7 @@ static void calc_spells(void)
             s_ptr = &mp_ptr->info[p_ptr->realm2-1][j%32];
 
         /* Skip spells we cannot remember */
-        if (s_ptr->slevel > p_ptr->lev) continue;
+        if (lawyer_hack(s_ptr, LAWYER_HACK_LEVEL) > p_ptr->lev) continue;
 
         /* First set of spells */
         if ((j < 32) ?
@@ -2868,7 +2883,7 @@ static void calc_spells(void)
             else s_ptr = &mp_ptr->info[p_ptr->realm1-1][j];
 
             /* Skip spells we cannot remember */
-            if (s_ptr->slevel > p_ptr->lev) continue;
+            if (lawyer_hack(s_ptr, LAWYER_HACK_LEVEL) > p_ptr->lev) continue;
 
             /* Skip spells we already know */
             if (p_ptr->spell_learned1 & (1L << j))
@@ -3124,12 +3139,12 @@ static void calc_mana(void)
 
     if (p_ptr->msp != msp)
     {
-        int delta = p_ptr->msp - p_ptr->csp;
-        int csp = msp - delta;
+        /* Changed to prevent Nivim's lamphax */
+        int suhde = p_ptr->csp * 100 / (p_ptr->msp > 0 ? p_ptr->msp : 1);
+        int csp = !p_ptr->msp ? msp : msp * suhde / 100;
 
         p_ptr->msp = msp;
 
-        /* Preserve the amount of used up mana whenever the total changes */
         if (csp < 0)
             p_ptr->csp = 0;
         else if (p_ptr->csp > 0 && csp >= 0)
@@ -3214,6 +3229,7 @@ static int _calc_xtra_hp(int amt)
         w1 = 1; w2 = 1; w3 = 0;
         break;
 
+    case CLASS_LAWYER:
     case CLASS_RED_MAGE:
     case CLASS_MIRROR_MASTER:
     case CLASS_TIME_LORD:
@@ -3228,6 +3244,10 @@ static int _calc_xtra_hp(int amt)
     case CLASS_YELLOW_MAGE:
     case CLASS_GRAY_MAGE:
         w1 = 0; w2 = 0; w3 = 1;
+        break;
+
+    case CLASS_NINJA_LAWYER:
+        w1 = 0; w2 = 1; w3 = 0;
         break;
 
     case CLASS_WARLOCK:
@@ -3599,7 +3619,6 @@ void calc_bonuses(void)
     p_ptr->levitation = FALSE;
     p_ptr->hold_life = 0;
     p_ptr->auto_id = FALSE;
-    p_ptr->auto_pseudo_id = FALSE;
     p_ptr->auto_id_sp = 0;
     p_ptr->cult_of_personality = FALSE;
     p_ptr->telepathy = FALSE;
@@ -3685,9 +3704,6 @@ void calc_bonuses(void)
 
     p_ptr->align = friend_align;
     p_ptr->maul_of_vice = FALSE;
-
-	if (easy_id || p_ptr->lev >= 20)
-        p_ptr->auto_pseudo_id = TRUE;
 
     if (p_ptr->tim_sustain_str) p_ptr->sustain_str = TRUE;
     if (p_ptr->tim_sustain_int) p_ptr->sustain_int = TRUE;
@@ -3862,7 +3878,9 @@ void calc_bonuses(void)
     if (IS_OPPOSE_FIRE()) res_add(RES_FIRE);
     if (IS_OPPOSE_COLD()) res_add(RES_COLD);
     if (IS_OPPOSE_POIS()) res_add(RES_POIS);
-    if (p_ptr->tim_res_nether) res_add(RES_NETHER);
+	if (IS_OPPOSE_CONF()) res_add(RES_CONF);
+	if (IS_OPPOSE_BLIND()) res_add(RES_BLIND);
+    if ((p_ptr->tim_res_nether) || (IS_SPINNING())) res_add(RES_NETHER);
     if (p_ptr->tim_res_disenchantment) res_add(RES_DISEN);
     if (p_ptr->tim_res_time) res_add(RES_TIME);
 
@@ -4921,40 +4939,43 @@ void calc_bonuses(void)
 
     if ((p_ptr->ult_res || IS_RESIST_MAGIC() || p_ptr->magicdef) && (p_ptr->skills.sav < (95 + p_ptr->lev))) p_ptr->skills.sav = 95 + p_ptr->lev;
 
-    for (i = 0, j = 0; i < 8; i++)
+    if (enable_virtues)
     {
-        switch (p_ptr->vir_types[i])
+        for (i = 0, j = 0; i < 8; i++)
         {
-        case VIRTUE_JUSTICE:
-            p_ptr->align += p_ptr->virtues[i] * 2;
+            switch (p_ptr->vir_types[i])
+            {
+            case VIRTUE_JUSTICE:
+                p_ptr->align += p_ptr->virtues[i] * 2;
+                break;
+            case VIRTUE_CHANCE:
+                /* Do nothing */
+                break;
+            case VIRTUE_NATURE:
+            case VIRTUE_HARMONY:
+                neutral[j++] = i;
+                break;
+            case VIRTUE_UNLIFE:
+                p_ptr->align -= p_ptr->virtues[i];
+                break;
+            default:
+                p_ptr->align += p_ptr->virtues[i];
             break;
-        case VIRTUE_CHANCE:
-            /* Do nothing */
-            break;
-        case VIRTUE_NATURE:
-        case VIRTUE_HARMONY:
-            neutral[j++] = i;
-            break;
-        case VIRTUE_UNLIFE:
-            p_ptr->align -= p_ptr->virtues[i];
-            break;
-        default:
-            p_ptr->align += p_ptr->virtues[i];
-            break;
+            }
         }
-    }
 
-    for (i = 0; i < j; i++)
-    {
-        if (p_ptr->align > 0)
+        for (i = 0; i < j; i++)
         {
-            p_ptr->align -= p_ptr->virtues[neutral[i]] / 2;
-            if (p_ptr->align < 0) p_ptr->align = 0;
-        }
-        else if (p_ptr->align < 0)
-        {
-            p_ptr->align += p_ptr->virtues[neutral[i]] / 2;
-            if (p_ptr->align > 0) p_ptr->align = 0;
+            if (p_ptr->align > 0)
+            {
+                p_ptr->align -= p_ptr->virtues[neutral[i]] / 2;
+                if (p_ptr->align < 0) p_ptr->align = 0;
+            }
+            else if (p_ptr->align < 0)
+            {
+                p_ptr->align += p_ptr->virtues[neutral[i]] / 2;
+                if (p_ptr->align > 0) p_ptr->align = 0;
+            }
         }
     }
 
@@ -5035,6 +5056,7 @@ void calc_bonuses(void)
       || p_ptr->pclass == CLASS_FORCETRAINER
       || p_ptr->pclass == CLASS_SKILLMASTER
       || p_ptr->pclass == CLASS_NINJA
+      || p_ptr->pclass == CLASS_NINJA_LAWYER
       || p_ptr->pclass == CLASS_SCOUT) && (monk_armour_aux != monk_notify_aux))
     {
         if (heavy_armor())
@@ -5489,6 +5511,7 @@ bool heavy_armor(void)
      && p_ptr->pclass != CLASS_MYSTIC
      && p_ptr->pclass != CLASS_FORCETRAINER
      && p_ptr->pclass != CLASS_NINJA
+     && p_ptr->pclass != CLASS_NINJA_LAWYER
      && p_ptr->pclass != CLASS_SCOUT
      && (p_ptr->pclass != CLASS_SKILLMASTER || !_is_martial_arts()) )
     {
@@ -5496,6 +5519,7 @@ bool heavy_armor(void)
     }
 
     monk_arm_wgt = equip_weight(object_is_armour);
+    if (player_is_ninja) return (monk_arm_wgt > (125 + (p_ptr->lev * 2)));
     return (monk_arm_wgt > (100 + (p_ptr->lev * 4)));
 }
 

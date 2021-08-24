@@ -418,17 +418,17 @@ static void _birth(void)
     {
     case DEVICEMASTER_RODS:
         object_prep(&forge, lookup_kind(TV_ROD, SV_ANY));
-        if (device_init_fixed(&forge, EFFECT_DETECT_MONSTERS))
+        if (device_init_fixed(&forge, EFFECT_DETECT_MONSTERS, 5))
             py_birth_obj(&forge);
         break;
     case DEVICEMASTER_STAVES:
         object_prep(&forge, lookup_kind(TV_STAFF, SV_ANY));
-        if (device_init_fixed(&forge, EFFECT_SLEEP_MONSTERS))
+        if (device_init_fixed(&forge, EFFECT_SLEEP_MONSTERS, 5))
             py_birth_obj(&forge);
         break;
     case DEVICEMASTER_WANDS:
         object_prep(&forge, lookup_kind(TV_WAND, SV_ANY));
-        if (device_init_fixed(&forge, EFFECT_SLEEP_MONSTER))
+        if (device_init_fixed(&forge, EFFECT_SLEEP_MONSTER, 5))
             py_birth_obj(&forge);
         break;
     case DEVICEMASTER_POTIONS:
@@ -534,8 +534,6 @@ class_t *devicemaster_get_class(int psubclass)
         me.base_hp = 6;
         me.exp = 130;
         me.pets = 30;
-        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
 
         me.birth = _birth;
         me.get_spells = _get_spells;

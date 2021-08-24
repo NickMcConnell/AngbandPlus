@@ -1,3 +1,7 @@
+  This file was last updated for PosChengband. Most of the advice here
+  applies to Composband, too; substitute Composband for
+  PosChengband where appropriate.
+
 ----- How to install -----
 
 --- LINUX

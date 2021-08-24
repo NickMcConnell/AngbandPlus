@@ -30,18 +30,18 @@ L:t:TREE
 # Default for quest 34 = stone
 L:s:MOUNTAIN
 
-############### Quest 3 - The Stranger ###############
-?:[EQU $QUEST3 Taken]
-L:y:QUEST_ENTER(3)
-?:[EQU $QUEST3 Untaken Taken Completed Failed]
-L:b:BUILDING_1(3)
-?:[EQU $QUEST3 Finished FailedDone]
-L:b:BUILDING_1(6)
-?:1
+# Default for quest 69 = stone
+L:Z:MOUNTAIN
+
+# Default for quest 76 = stone
+L:Y:FLOOR
+
+##################### Castle Quests #################
+
 ############### Quest 6 - The Volcano ###############
 ?:[EQU $QUEST6 Taken]
 L:r:QUEST_ENTER(6)
-?:[EQU $QUEST6 Taken Completed Failed]
+?:[EQU $QUEST6 Untaken Taken Completed Failed]
 L:b:BUILDING_1(6)
 ?:[EQU $QUEST6 Finished FailedDone]
 L:b:BUILDING_1(4)
@@ -78,16 +78,16 @@ L:t:QUEST_ENTER(34)
 ?:[EQU $QUEST34 Taken Completed Failed]
 L:b:BUILDING_1(34)
 ?:[EQU $QUEST34 Finished FailedDone]
-L:b:BUILDING_1(15)
+L:b:BUILDING_1(26)
 ?:1
 #################### Quest 26 - Killing Fields ####################
-#?:[EQU $QUEST26 Taken]
-#L:t:QUEST_ENTER(26)
-#?:[EQU $QUEST26 Taken Completed Failed]
-#L:b:BUILDING_1(26)
-#?:[EQU $QUEST26 Finished FailedDone]
-#L:b:BUILDING_1(15)
-#?:1
+?:[EQU $QUEST26 Taken]
+L:t:QUEST_ENTER(26)
+?:[EQU $QUEST26 Taken Completed Failed]
+L:b:BUILDING_1(26)
+?:[EQU $QUEST26 Finished FailedDone]
+L:b:BUILDING_1(15)
+?:1
 #################### Quest 15 - Eric's Stronghold ####################
 ?:[EQU $QUEST15 Taken]
 L:v:QUEST_ENTER(15)
@@ -95,6 +95,33 @@ L:v:QUEST_ENTER(15)
 L:b:BUILDING_1(15)
 ?:[EQU $QUEST15 Finished FailedDone]
 L:b:BUILDING_1(0)
+?:1
+
+##################### Temple Quests ##################
+
+############### Quest 3 - The Stranger ###############
+?:[EQU $QUEST3 Taken]
+L:y:QUEST_ENTER(3)
+?:[EQU $QUEST3 Untaken Taken Completed Failed]
+L:j:BUILDING_9(3)
+?:[EQU $QUEST3 Finished FailedDone]
+L:j:BUILDING_9(69)
+?:1
+############### Quest 69 - The Old Watchtower
+?:[EQU $QUEST69 Taken]
+L:Z:QUEST_ENTER(69)
+?:[EQU $QUEST69 Taken Completed Failed]
+L:j:BUILDING_9(69)
+?:[EQU $QUEST69 Finished FailedDone]
+L:j:BUILDING_9(76)
+?:1
+############### Quest 76 - Mace Recovery ###############
+?:[EQU $QUEST76 Taken]
+L:Y:QUEST_ENTER(76)
+?:[EQU $QUEST76 Taken Completed Failed]
+L:j:BUILDING_9(76)
+?:[EQU $QUEST76 Finished FailedDone]
+L:j:BUILDING_9(0)
 ?:1
 
 #################### Buildings ####################
@@ -139,7 +166,7 @@ B:6:A:0:Evaluate AC:1000:1000:a:46:0
 B:6:A:0:Evaluate AC:150:150:a:46:0
 ?:1
 
-B:7:N:Fighters Hall:Barak the Brave:Human
+B:7:N:Fighters' Hall:Barak the Brave:Human
 B:7:A:0:Enchant weapon:0:0:w:23:0
 B:7:A:1:Enchant armor:0:0:a:24:0
 B:7:C:*:None
@@ -153,16 +180,17 @@ B:7:C:Mauler:Owner
 B:9:N:Temple of Life:Holy Crysania:Human
 B:9:A:0:Healing prayer:0:150:h:28:0
 B:9:A:1:Restoration:400:1500:r:29:0
+B:9:A:0:Request quest:0:0:q:6:0
 B:9:M:*:None
 B:9:M:Life:Owner
 
-B:10:N:Thieves Guild:Lardbottom the Vain:Hobbit
+B:10:N:Thieves' Guild:Lardbottom the Vain:Hobbit
 B:10:A:1:Rest for the night:0:100:r:17:0
 B:10:A:2:Identify possessions:100:2000:i:26:0
 B:10:C:*:None
 B:10:C:Rogue:Owner
 
-B:11:N:Archers Guild:Trallin Fleetfoot:Half-elf
+B:11:N:Archers' Guild:Trallin Fleetfoot:Half-elf
 B:11:A:0:Enchant missiles:20:40:a:30:0
 B:11:A:1:Enchant bow:0:0:b:31:0
 B:11:C:*:None
@@ -170,7 +198,7 @@ B:11:C:Ranger:Owner
 B:11:C:Archer:Owner
 B:11:C:Sniper:Owner
 
-B:12:N:Paladins Guild:Sir Langordathur:Human
+B:12:N:Paladins' Guild:Sir Langordathur:Human
 B:12:A:0:Enchant armor:300:600:a:24:0
 B:12:A:1:See Healers:0:150:h:28:0
 B:12:C:*:None
@@ -178,7 +206,7 @@ B:12:C:Paladin:Owner
 
 M:-----------------------TT---------------------------------------------------------------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
 M:----------------------TTTT-------------------------------------------------------------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:------------------------TT--------------------------------------------------------------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+M:------------------------TT--------------------------------------------------------------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTYTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
 M:-------------------------------------------------------------------------------------------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT...TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
 M:------------------------------------------------------------------------------------,,,,,,,,,TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
 M:-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-------,,..............----------------TTTTTTTTTTTTTTT-----TTTT------------TT--------.------TTTTTTTTT---TTTTTTTTTTTTTTTTTTT
@@ -207,7 +235,7 @@ M:W##.................................................................##WW,.,---
 M:W##.......####j####.....#########.....#########.....####e####.......##WW,.,--------------------------------,.,--------------TTTTTTTTTTTTTTTTTTTTTTTTTT------------------------------------------------
 M:W##.......#########.....#########.....#########.....#########.......##WW,.,--------------------------####--,.,------------TTTTTTTTTTTTTTTTTTTTTTTTTTT----------------------------------------^^^^-----
 M:W##.......#########.....#########.....#########.....#########.......##WW,.,--------------------------####--,.,-----------TTTTTTTTTTTTTTTTTTTTTTTTTT-------------------------------------^^^^^^^^^^w---
-M:W##.......#########.....#########.....#########.....#########.......##WW,.,-----,,,,,,,,,,,,,,,------####-,.,----------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-----------------------------------^^^^^^^^^^---
+M:W##.......#########.....#########.....#########.....#########.......##WW,.,-----,,,,,,,,,,,,,,,------#Z##-,.,----------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-----------------------------------^^^^^^^^^^---
 M:W##.......####4####.....####3####.....####2####.....####1####.......##WW,.,,,,,,,.............,,,,,,,,,,,,.,-------------TTTTTTTTTTTTTTTTTTTTTTTTTT--------------------------------^^^^^^^^^^^^^^^----
 M:..................................................................................,,,,,,,,,,,.............,------------------TTTTTTTTTTTTTTTTTTTTTTTT-----------------------------^^^^^^^^^^^^^^^^^---
 M:W##.................................................................##WW,.,,,,,,,,----------,,,,,,,,,,,,,,.,---------------T----TTTTTTTTTTTTTTTTTTT---------------------------------^^^^^^^^^^^^^^----

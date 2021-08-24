@@ -2,6 +2,7 @@
 # Consumables
 #########################################
 mushroom of restoring#!E
+~mushroom of hallucination
 
 potions:resist#!kq
 potions:resistance#!kq
@@ -60,6 +61,10 @@ rods:heroic speed#@zs!sdk
 ?wands:rocket#@ar!sdk
 ?wands:disintegrate#@ad!sdk
 
+?:[LEQ $LEVEL 45]
+?staves:cure wounds#@uu!sdk
+?:1
+
 ?:[OR [EQU $CLASS Mage High-Mage Sorcerer] [EQU $RACE Beholder Lich] ]
 wizardstaff
 ?:1
@@ -83,7 +88,7 @@ dragon wings
 dragon fang
 armors:dragon
 
-elven cloak
+#elven cloak
 shadow cloak
 mirror shield
 
@@ -93,7 +98,7 @@ mirror shield
 
 weapons:poison needle
 diamond edge
-#rune sword
+rune sword
 blade of chaos
 
 ?unidentified dice boosted weapons
@@ -162,10 +167,10 @@ junk:^broken skull
 junk:^broken bone
 skeletons
 
-?:[EQU $CLASS Ninja]
+?:[EQU $CLASS Ninja Ninja-Lawyer]
 (~ego lights:of darkness
 feanorian
-Iron Spike#@v0
+Iron Spike#@vz
 ?:1
 
 !potions:apple juice

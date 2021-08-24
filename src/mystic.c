@@ -583,8 +583,6 @@ class_t *mystic_get_class(void)
         me.base_hp = 4;
         me.exp = 130;
         me.pets = 35;
-        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_SLOW | CLASS_SENSE2_STRONG;
 
         me.calc_bonuses = _calc_bonuses;
         me.get_flags = _get_flags;

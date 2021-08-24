@@ -311,33 +311,6 @@ void _character_armor_spell(int cmd, variant *res)
     }
 }
 
-void _psychometry_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Psychometry");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "Gives feeling of an item. Or identify an item at level 25.");
-        break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Pseudo-identifies and object. At L25, identifies an object instead.");
-        break;
-    case SPELL_CAST:
-    {
-        if (p_ptr->lev < 25)
-            var_set_bool(res, psychometry());
-        else
-            var_set_bool(res, ident_spell(NULL));
-        break;
-    }
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-}
-
 void _mind_wave_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -555,7 +528,6 @@ static spell_info _spells[] =
     { 7,   6,  35, _major_displacement_spell},
     { 9,   7,  50, _domination_spell},
     { 11,  7,  30, _pulverise_spell},
-    { 13, 12,  50, _psychometry_spell},
     { 15, 12,  60, _character_armor_spell},
     { 18, 10,  45, _mind_wave_spell},
     { 23, 15,  50, _adrenaline_spell},
@@ -714,8 +686,6 @@ class_t *mindcrafter_get_class(void)
         me.base_hp = 4;
         me.exp = 125;
         me.pets = 35;
-        me.flags = CLASS_SENSE1_SLOW | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
 
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;

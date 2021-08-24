@@ -806,17 +806,6 @@ void _get_object(obj_ptr obj)
             p_ptr->sense_artifact = FALSE;    /* There may be more than one? */
             p_ptr->redraw |= PR_STATUS;
         }
-
-        if (!(obj->ident & IDENT_SENSE))
-        {
-            char name[MAX_NLEN];
-
-            object_desc(name, obj, OD_COLOR_CODED);
-            cmsg_format(TERM_L_BLUE, "You feel that the %s is %s...", name, game_inscriptions[FEEL_SPECIAL]);
-
-            obj->ident |= IDENT_SENSE;
-            obj->feeling = FEEL_SPECIAL;
-        }
     }
 }
 
@@ -850,8 +839,6 @@ class_t *archaeologist_get_class(void)
         me.base_hp = 8;
         me.exp = 120;
         me.pets = 40;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG |
-                   CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
 
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;

@@ -363,7 +363,7 @@ struct object_type
     u16b inscription;    /* Inscription index */
     u16b art_name;      /* Artifact name (random artifacts) */
 
-    byte feeling;          /* Game generated inscription number (eg, pseudo-id) */
+    byte feeling;          /* Game generated inscription number */
 
     u32b flags[OF_ARRAY_SIZE];        /* Extra Flags for ego and artifacts */
 
@@ -831,6 +831,7 @@ typedef struct magic_type magic_type;
 
 struct magic_type
 {
+    byte realm;         /* Which realm the spell is in */
     byte slevel;        /* Required level (to learn) */
     byte smana;            /* Required mana (to cast) */
     byte sfail;            /* Minimum chance of failure */
@@ -1078,7 +1079,9 @@ struct player_type
     s16b oppose_fire;    /* Timed -- oppose heat */
     s16b oppose_cold;    /* Timed -- oppose cold */
     s16b oppose_pois;    /* Timed -- oppose poison */
-
+	s16b oppose_conf;    /* Timed -- oppose confusion */
+	s16b oppose_blind;   /* Timed -- oppose blindness */
+    s16b spin;           /* Timed -- spinning */
 
     s16b tim_esp;       /* Timed ESP */
     s16b tim_esp_magical;
@@ -1388,7 +1391,6 @@ struct player_type
     s16b hold_life;      /* Resist life draining */
 
     bool auto_id;
-    bool auto_pseudo_id;
     int  auto_id_sp;
     bool cult_of_personality;
     bool fairy_stealth;
@@ -1570,8 +1572,8 @@ typedef struct building_type building_type;
 
 struct building_type
 {
-    char name[20];                  /* proprietor name */
-    char owner_name[20];            /* proprietor name */
+    char name[20];                  /* building name */
+    char owner_name[25];            /* proprietor name */
     char owner_race[20];            /* proprietor race */
 
     char act_names[8][30];          /* action names */
@@ -1943,7 +1945,6 @@ typedef struct {
     s16b                    base_hp;
     s16b                    exp;
     byte                    pets;
-    u32b                    flags;
 
     birth_fn                birth;          /* After py_birth() ... grant starting gear, etc */
     birth_ui_fn             birth_ui;       /* Used during py_birth() ... choose a subclass */ 

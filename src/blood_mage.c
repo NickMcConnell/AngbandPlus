@@ -116,8 +116,6 @@ class_t *blood_mage_get_class(void)
         me.base_hp = 10;
         me.exp = 135;
         me.pets = 30;
-        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
 
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;

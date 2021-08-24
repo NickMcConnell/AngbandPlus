@@ -666,8 +666,6 @@ class_t *force_trainer_get_class(void)
         me.base_hp = 4;
         me.exp = 135;
         me.pets = 40;
-        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
 
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;

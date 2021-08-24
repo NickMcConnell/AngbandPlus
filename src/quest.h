@@ -95,6 +95,7 @@ extern void       quests_generate(int id); /* QF_GENERATE located on surface (QU
 extern void       quests_on_kill_mon(mon_ptr mon); /* check for completion */
 extern void       quests_on_get_obj(obj_ptr obj); /* check for completion */
 extern bool       quests_check_leave(void); /* confirm if !OF_RETAKE and !QS_COMPLETED */
+extern bool       quest_allow_poly(mon_ptr mon); /* check for unwanted polymorph orevolution */
 extern void       quests_on_leave(void); /* quest_fail() if !QS_COMPLETED */
 extern bool       quests_allow_downstairs(void); /* check for cave_gen '>' */
 extern bool       quests_allow_downshaft(void);

@@ -195,6 +195,12 @@ N:330:Bolg, Son of Azog
 N:350:Ugluk, the Uruk
 N:356:Lugdush, the Uruk
 N:373:Azog, King of the Uruk-Hai
+N:1182:Balcmeg, the Relentless
+N:1183:Lug, the Grotesque
+N:1184:Boldog, the Merciless
+N:1185:Othrod, Lord of the Orcs
+N:1186:Orcogar, Son of Orcobal
+N:1187:Orcobal the Mighty
 fingers his blade and grins evilly.
 snickers, 'Now, I strike a blow for *our* side!'
 says, 'Orcs don't get no respect... I'm gonna change that!'
@@ -269,7 +275,7 @@ summons special opponents!
 concentrates on its wounds.
 concentrates on its body. It starts moving faster.
 teleports away.
-dies. You see a longsword (5d6).
+dies.  You see a longsword (5d6).
 dies. You see a Stick (1d77).
 
 N:409:Kharis the Powerslave
@@ -764,6 +770,64 @@ says, "Don't you monkey with the monkey!"
 munches on a banana.
 says, "Hear no evil, see no evil, speak no evil."
 
+N:1225:Justshorn, Sorcerer-King of the Sheeple
+yells, 'THE TIME HAS COME FOR THE MEEK TO INHERIT!'
+claims the Amulet of Oretna is his by right.
+recounts how he defeated the seven guardians of the Emerald Dagger.
+promises to teleport you up a flagpole.
+swears he will kill you and process your dead body into sheep feed.
+tells you an awesome story about a dragon and a man named Justin.
+says you're a killer and a looter and not a hero.
+says, 'Only one can match my power: the man called Sjijn."
+
+N:1231:Implorington III
+cackles evilly.
+casts an impressive death spell.
+hums to his favorite tune.
+says, 'Why fight me? I'm not carrying anything good.'
+says, 'We could be friends and rule the world together!'
+says, 'Do you know what happens if you try to ride a sheep? ...not that I've ever tried it.'
+says, 'Just between you and me, there's really good loot on the next level.'
+challenges you not to think of many-headed warthogs.
+tries not to stare behind you.
+invokes the Foot of Doom!
+ponders reading a Scroll of Destruction just to save himself the bother.
+says, 'Have you seen lycra leggings anywhere in this game? ...I'm asking for a friend.'
+says, 'There's a hidden shop in Thalos where they sell orc porn. Don't try to find it.'
+asks, 'Just between you and me, are you carrying anything good?'
+
+N:1236:Moe, the Cyclops
+says, 'Do you know who slaughtered my daughter?'
+asks, 'Did you kill my daughter?'
+says, 'There's so much senseless violence in this world...'
+says, 'When I find out who killed my baby girl, I'll tie them up and drop them in a big box full of tiny baby rats and sing As Time Goes By as I watch the rats slowly eat them from the toes up!'
+yells, 'Listen, mink-face, I have a spare wand of fire bolts and if you bother me you'll get to meet it up close and personal."
+shakes his head.
+sighs wistfully.
+
+N:1148:Aude
+says, 'I'll set you on fire!'
+says, 'Have you lost your way? Come hither..'
+says, 'You'll die having seen the pretty one!'
+says, 'Come join me in a dance... of destruction!'
+says, 'Dally with me darling - before you fall!'
+says, 'I hope you've enjoyed it here... but you won't be here long.'
+says, 'The only death worthy of a warriors heart is fire!'
+
+N:1149:Helga
+says, 'Your time for death has come.'
+says, 'You shall wither on the vine!'
+says, 'You value your petty life far too much!'
+
+N:1150:Gertrude
+says, 'I am the fairest of them all!'
+says, 'Who dares approach me?'
+says, 'Where's my eye of newt?'
+says, 'Hubble dubble toil and trouble.'
+says, 'Fire burn and cauldron bubble.'
+says, 'Whether ye be soldier or wanderer or sailor lost, into my stew you must be tossed.'
+says, 'Please don't make yourself at home.'
+
 N:*:Default lines
 cackles evilly.
 cackles diabolically.
@@ -868,3 +932,9 @@ says, 'I love all that blood.'
 says, 'I don't want to hurt you, I only want to kill you.'
 says, 'I like killing people, because it's so much fun.'
 screams, 'I'm out to destroy and I will cut you down!'
+shouts, 'Have at thee knave!'
+screams, 'I'll have your guts for garters!'
+says, 'Your time has come.'
+says, 'Say your prayers.'
+says, 'Cower before me.'
+says, 'Your deeds have lead you to this.'

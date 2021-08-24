@@ -9,7 +9,7 @@ N: 1:BIAS_ELEC
 'Thunder Bringer'
 'Rising Thunder'
 of Djinni
-of Poseidon
+of Neptune
 of Raijin
 
 N: 2:BIAS_POIS

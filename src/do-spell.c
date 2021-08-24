@@ -319,6 +319,11 @@ void cast_wonder(int dir)
         sleep_monsters(p_ptr->lev);
         hp_player(300);
     }
+
+	if (p_ptr->pclass == CLASS_CHAOS_WARRIOR || mut_present(MUT_CHAOS_GIFT))
+	{
+		chaos_choose_effect(PATRON_CHANCE);
+	}
 }
 
 
@@ -3832,7 +3837,11 @@ static cptr do_death_spell(int spell, int mode)
         if (desc) return "Fires 3 bolts. Each of the bolts absorbs some HP from a monster and gives them to you.";
 
         {
-            int dam = spell_power(100 + p_ptr->to_d_spell/3);
+			int dice = 1;
+			int sides = spell_power(plev * 2);
+			int base = spell_power(plev * 2 + p_ptr->to_d_spell/3);
+			
+			int dam = base + damroll(dice, sides);
 
             if (info) return format("%s3*%d", s_dam, dam);
 
@@ -9405,6 +9414,7 @@ cptr do_spell(int realm, int spell, int mode)
     case REALM_CRAFT:    result = do_craft_spell(spell, mode); break;
     case REALM_DAEMON:   result = do_daemon_spell(spell, mode); break;
     case REALM_CRUSADE:  result = do_crusade_spell(spell, mode); break;
+    case REALM_LAW:      result = do_law_spell(spell, mode); break;
     case REALM_MUSIC:    result = do_music_spell(spell, mode); break;
     case REALM_HISSATSU: result = do_hissatsu_spell(spell, mode); break;
     case REALM_HEX:      result = do_hex_spell(spell, mode); break;

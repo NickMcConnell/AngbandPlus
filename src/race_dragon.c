@@ -1942,8 +1942,6 @@ static void _realm_calc_bonuses(void)
             p_ptr->telepathy = TRUE;
         if (p_ptr->lev >= 40)
             p_ptr->auto_id = TRUE;
-        else
-            p_ptr->auto_pseudo_id = TRUE;
         break;
     case DRAGON_REALM_BREATH:
         p_ptr->to_a -= p_ptr->lev/2;

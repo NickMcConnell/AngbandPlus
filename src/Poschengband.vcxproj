@@ -142,6 +142,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="inv.c" />
+    <ClCompile Include="lawyer.c" />
     <ClCompile Include="load.c" />
     <ClCompile Include="mage.c" />
     <ClCompile Include="magic_eater.c" />
@@ -167,6 +168,7 @@
     <ClCompile Include="mystic.c" />
     <ClCompile Include="necromancer.c" />
     <ClCompile Include="ninja.c" />
+    <ClCompile Include="ninjalaw.c" />
     <ClCompile Include="obj.c" />
     <ClCompile Include="obj_prompt.c" />
     <ClCompile Include="object1.c" />

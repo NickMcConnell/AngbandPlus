@@ -1062,7 +1062,7 @@ void stats_on_identify(object_type *o_ptr)
 
     if (o_ptr->name1)
     {
-        assert(a_info[o_ptr->name1].generated);
+        if (!p_ptr->noscore) assert(a_info[o_ptr->name1].generated);
         a_info[o_ptr->name1].found = TRUE;
     }
 
@@ -1257,8 +1257,7 @@ s32b obj_value(object_type *o_ptr)
         if (!value)
             value = object_value_base(o_ptr);
 
-        if ( (o_ptr->ident & IDENT_SENSE)
-          && (o_ptr->feeling == FEEL_EXCELLENT || o_ptr->feeling == FEEL_AWFUL)
+        if ( (o_ptr->feeling == FEEL_EGO)
           && object_is_ego(o_ptr))
         {
             value += 500;
@@ -1267,13 +1266,12 @@ s32b obj_value(object_type *o_ptr)
             else
                 value = value / o_ptr->number;
         }
-        if ( (o_ptr->ident & IDENT_SENSE)
-          && (o_ptr->feeling == FEEL_SPECIAL || o_ptr->feeling == FEEL_TERRIBLE)
+        if ( (o_ptr->feeling == FEEL_ARTIFACT)
           && object_is_artifact(o_ptr))
         {
             value += 1000;
         }
-        if ((o_ptr->ident & IDENT_SENSE) && object_is_cursed(o_ptr))
+        if (object_is_cursed(o_ptr))
             value = (value+2)/3;
     }
     if (o_ptr->discount)
@@ -1283,38 +1281,14 @@ s32b obj_value(object_type *o_ptr)
 
 
 /*
- * Determines whether an object can be destroyed, and makes fake inscription.
+ * Determines whether an object can be destroyed.
  */
 bool can_player_destroy_object(object_type *o_ptr)
 {
     /* Artifacts cannot be destroyed */
     if (!object_is_artifact(o_ptr) || (o_ptr->rune == RUNE_SACRIFICE)) return TRUE;
 
-    /* If object is unidentified, makes fake inscription */
-    if (!object_is_known(o_ptr))
-    {
-        byte feel = FEEL_SPECIAL;
-
-        /* Hack -- Handle icky artifacts */
-        if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) feel = FEEL_TERRIBLE;
-
-        /* Hack -- inscribe the artifact */
-        o_ptr->feeling = feel;
-
-        /* We have "felt" it (again) */
-        o_ptr->ident |= IDENT_SENSE;
-
-        /* Combine the pack */
-        p_ptr->notice |= PN_OPTIMIZE_PACK;
-
-        /* Window stuff */
-        p_ptr->window |= PW_INVEN | PW_EQUIP;
-
-        /* Done */
-        return FALSE;
-    }
-
-    /* Identified artifact -- Nothing to do */
+    /* Nothing to do */
     return FALSE;
 }
 
@@ -1640,6 +1614,10 @@ static bool make_artifact_special(object_type *o_ptr)
         }
         else
             create_named_art_aux(i, o_ptr);
+
+		/* object feeling assigned on creation */
+		/* placed here for the 'nasty games' in _make_object_aux()*/
+		o_ptr->feeling = FEEL_ARTIFACT;
 
         /* Success */
         return (TRUE);
@@ -2008,9 +1986,6 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power, int mode)
  * if it is "cursed", there is a chance it will be "broken". These chances
  * are related to the "good" / "great" chances above.
  *
- * Otherwise "normal" rings and amulets will be "good" half the time and
- * "cursed" half the time, unless the ring/amulet is always good or cursed.
- *
  * If "okay" is true, and the object is going to be "great", then there is
  * a chance that an artifact will be created. This is true even if both the
  * "good" and "great" arguments are false. As a total hack, if "great" is
@@ -2023,7 +1998,7 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
     int maxf2 = d_info[dungeon_type].obj_great;
 
     if (mode & AM_QUEST)
-        lev += 10;
+        lev += 12;
 
     /* Maximum "level" for various things */
     if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
@@ -2032,25 +2007,27 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
         o_ptr->level = lev; /* Wizard statistics ... */
 
     /* Base chance of being "good" */
-    f1 = lev + 10;
+	switch (o_ptr->tval) {
+	case TV_RING:
+	case TV_AMULET:
+		f1 = lev + 40;
+		break;
+	default:
+		f1 = lev + 10;
+		break;
+	}
 
-    /* Maximal chance of being "good" */
-    if (f1 > maxf1) f1 = maxf1;
+	/* Maximal chance of being "good" */
+	if (f1 > maxf1) f1 = maxf1;
 
     /* Base chance of being "great" */
-    f2 = f1 * 2 / 3;
+    f2 = lev * 2 + 20 / 3;
 
     /* Maximal chance of being "great" */
     if (f2 > maxf2)
         f2 = maxf2;
 
-    /* Temp Hack: It's a bit too hard to find good rings early on. Note we hack after
-       calculating f2! */
-    if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
-    {
-        f1 += 30;
-        if (f1 > maxf1) f1 = maxf1;
-    }
+	
 
     if (p_ptr->good_luck)
     {
@@ -2094,7 +2071,7 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
         /* Assume "cursed" */
         power = -1;
 
-        /* Roll for "broken" */
+        /* Roll for interesting curse */
         if (no_egos && !object_is_jewelry(o_ptr))
         {
         }
@@ -2104,11 +2081,7 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
         }
 
         /* "Cursed" items become tedious in the late game ... */
-        if ( power == -1
-          && o_ptr->tval != TV_RING
-          && o_ptr->tval != TV_AMULET
-          && !object_is_device(o_ptr)
-          && randint1(lev) > 10 )
+        if ( power == -1 && randint1(lev) > 10 )
         {
             power = 0;
         }
@@ -2152,12 +2125,12 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
     if (mode & AM_FORCE_EGO)
     {
         rolls = 0;
-        /* AM_FORCE_EGO is used for granting quest rewards. Ego rings and amulets
-           can be achieved with just power 1 ... Indeed, power 2 is often too much! */
-        if ((o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) && lev < 50)
-            power = MAX(1, power);
-        else
-            power = 2;
+		/* AM_FORCE_EGO is used for granting quest rewards. Ego rings and amulets
+		can be achieved with just power 1 ... Indeed, power 2 is often too much! */
+		if ((o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) && lev < 50)
+			power = MAX(1, power);
+		else 
+			power = 2;
     }
     else
         apply_magic_ego = 0;
@@ -2192,6 +2165,7 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
             a_ptr->floor_id = p_ptr->floor_id;
 
         if (cheat_peek) object_mention(o_ptr);
+		o_ptr->feeling = FEEL_ARTIFACT;
         return TRUE;
     }
 
@@ -2215,6 +2189,7 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
         o_ptr->to_h = a_ptr->to_h;
         o_ptr->to_d = a_ptr->to_d;
         o_ptr->weight = a_ptr->weight;
+		o_ptr->feeling = FEEL_ARTIFACT;
 
         /* Hack -- extract the "broken" flag */
         if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
@@ -2237,7 +2212,8 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
 
     if (o_ptr->art_name)
     {
-        return TRUE;
+		o_ptr->feeling = FEEL_ARTIFACT;
+		return TRUE;
     }
 
 
@@ -2318,10 +2294,10 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
             if (power) obj_create_armor(o_ptr, lev, power, mode);
             break;
         case TV_RING:
-            if (power) ego_create_ring(o_ptr, lev, power, mode);
+            if (power) obj_create_ring(o_ptr, lev, power, mode);
             break;
         case TV_AMULET:
-            if (power) ego_create_amulet(o_ptr, lev, power, mode);
+            if (power) obj_create_amulet(o_ptr, lev, power, mode);
             break;
         case TV_LITE:
             obj_create_lite(o_ptr, lev, power, mode);
@@ -2423,6 +2399,7 @@ static bool kind_is_tailored(int k_idx)
     case TV_SHIELD:
         return equip_can_wield_kind(k_ptr->tval, k_ptr->sval)
             && p_ptr->pclass != CLASS_NINJA
+            && p_ptr->pclass != CLASS_NINJA_LAWYER
             && p_ptr->pclass != CLASS_MAULER
             && p_ptr->pclass != CLASS_DUELIST;
 
@@ -2434,9 +2411,10 @@ static bool kind_is_tailored(int k_idx)
           || p_ptr->pclass == CLASS_MYSTIC
           || p_ptr->pclass == CLASS_DUELIST
           || p_ptr->pclass == CLASS_SCOUT
+          || p_ptr->pclass == CLASS_NINJA_LAWYER
           || p_ptr->pclass == CLASS_NINJA )
         {
-            return k_ptr->weight <= 200 && equip_can_wield_kind(k_ptr->tval, k_ptr->sval);
+            return ((k_ptr->weight <= (player_is_ninja ? 150 : 200)) && (equip_can_wield_kind(k_ptr->tval, k_ptr->sval)));
         }
         return equip_can_wield_kind(k_ptr->tval, k_ptr->sval);
 
@@ -2486,6 +2464,7 @@ static bool kind_is_tailored(int k_idx)
     case TV_MUSIC_BOOK:
     case TV_HISSATSU_BOOK:
     case TV_HEX_BOOK:
+    case TV_LAW_BOOK:
     case TV_BURGLARY_BOOK:
         return check_book_realm(k_ptr->tval, k_ptr->sval)
             && k_ptr->sval >= SV_BOOK_MIN_GOOD
@@ -2578,6 +2557,7 @@ bool kind_is_great(int k_idx)
         case TV_MUSIC_BOOK:
         case TV_HISSATSU_BOOK:
         case TV_HEX_BOOK:
+        case TV_LAW_BOOK:
         case TV_BURGLARY_BOOK:
         {
             if (k_ptr->sval == SV_BOOK_MIN_GOOD) return k_ptr->counts.found < 2; /* Third Spellbooks: I want ?Acquirement to grant these! */
@@ -2680,6 +2660,7 @@ bool kind_is_good(int k_idx)
         case TV_CRUSADE_BOOK:
         case TV_NECROMANCY_BOOK:
         case TV_ARMAGEDDON_BOOK:
+        case TV_LAW_BOOK:
         case TV_MUSIC_BOOK:
         case TV_HISSATSU_BOOK:
         case TV_HEX_BOOK:
@@ -2847,7 +2828,7 @@ static bool _kind_is_amulet(int k_idx) {
     return FALSE;
 }
 bool kind_is_book(int k_idx) {
-    if (TV_LIFE_BOOK <= k_info[k_idx].tval && k_info[k_idx].tval <= TV_BURGLARY_BOOK)
+    if (TV_BOOK_BEGIN <= k_info[k_idx].tval && k_info[k_idx].tval <= TV_BOOK_END)
         return TRUE;
     return FALSE;
 }
@@ -3698,30 +3679,31 @@ static bool _make_object_aux(object_type *j_ptr, u32b mode)
 
 bool make_object(obj_ptr obj, u32b mode)
 {
-    bool result = FALSE;
-    int max_attempts = 1;
-    int attempt = 0;
+	bool result = FALSE;
+	int max_attempts = 1;
+	int attempt = 0;
 
-    _drop_tailored = FALSE;
-    if (mode & AM_TAILORED)
-    {
-        _drop_tailored = TRUE;
-        max_attempts = 1000; /* Tailored drops can fail for certain _choose_obj_kind()s */
-    }
-    else if ((mode & (AM_GOOD | AM_GREAT)) && !get_obj_num_hook)
-    {
-        max_attempts = 100; /* AM_GOOD devices often fail before OL50 ... see the effect tables */
-    }
+	_drop_tailored = FALSE;
+	if (mode & AM_TAILORED)
+	{
+		_drop_tailored = TRUE;
+		max_attempts = 1000; /* Tailored drops can fail for certain _choose_obj_kind()s */
+	}
+	else if ((mode & (AM_GOOD | AM_GREAT)) && !get_obj_num_hook)
+	{
+		max_attempts = 100; /* AM_GOOD devices often fail before OL50 ... see the effect tables */
+	}
 
-    for (; attempt < max_attempts; attempt++)
-    {
-        if (_make_object_aux(obj, mode))
-        {
-            result = TRUE;
-            break;
-        }
-        object_wipe(obj);
-    }
+	for (; attempt < max_attempts; attempt++)
+	{
+		if (_make_object_aux(obj, mode))
+		{
+			result = TRUE;
+			break;
+		}
+		object_wipe(obj);
+	}
+
     obj_drop_theme = 0;
     _drop_tailored = FALSE;
     return result;
@@ -4265,6 +4247,9 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 
         /* Build a stack */
         j_ptr->next_o_idx = c_ptr->o_idx;
+
+		/* Be sure we have a pseudo-id marker */
+		obj_sense(j_ptr);
 
         /* Place the object */
         c_ptr->o_idx = o_idx;

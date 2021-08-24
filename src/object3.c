@@ -136,7 +136,6 @@ static s32b _abilities_q(u32b flgs[OF_ARRAY_SIZE])
     cost += _check_flag_and_score(flgs, OF_SEE_INVIS, 500, &count);
     cost += _check_flag_and_score(flgs, OF_FREE_ACT, 750, &count);
     cost += _check_flag_and_score(flgs, OF_EASY_SPELL, 1000, &count);
-    cost += _check_flag_and_score(flgs, OF_LORE1, 1000, &count);
 
     /* Low ESP */
     count = 0;
@@ -166,7 +165,7 @@ static s32b _abilities_q(u32b flgs[OF_ARRAY_SIZE])
     cost += _check_flag_and_score(flgs, OF_LEVITATION, 1000, &count);
     cost += _check_flag_and_score(flgs, OF_HOLD_LIFE, 1000, &count);
     cost += _check_flag_and_score(flgs, OF_REGEN, 1000, &count);
-    cost += _check_flag_and_score(flgs, OF_LORE2, 5000, &count);
+    cost += _check_flag_and_score(flgs, OF_LORE, 5000, &count);
 
     /* Great Abilities */
     count = 0;
@@ -379,7 +378,7 @@ s32b _finalize_p(s32b p, u32b flgs[OF_ARRAY_SIZE], object_type *o_ptr, int optio
     {
         /* Do we know this is an artifact? */
         if ( (known && object_is_artifact(o_ptr))
-          || (o_ptr->feeling & (FEEL_SPECIAL | FEEL_TERRIBLE)) )
+          || (o_ptr->feeling & (FEEL_ARTIFACT)) )
         {
         }
         else

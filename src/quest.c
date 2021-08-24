@@ -41,6 +41,21 @@ void quest_change_file(quest_ptr q, cptr file)
     else q->file = NULL;
 }
 
+cptr kayttonimi(quest_ptr q)
+{
+    /* Censor (Thalos), (Morivant) etc. in lite-town mode */
+    if ((no_wilderness) && (strpos("(", q->name) > 2))
+    {
+        char putsattu[50];
+        int paikka = strpos("(", q->name);
+        my_strcpy(putsattu, q->name, MIN((int)sizeof(putsattu), paikka - 1));
+        free((vptr)q->name);
+        q->name = _strcpy(putsattu);
+        return q->name;
+    }
+    else return q->name;
+}
+
 /************************************************************************
  * Quest Status
  ***********************************************************************/
@@ -53,13 +68,14 @@ void quest_take(quest_ptr q)
     q->seed = randint0(0x10000000);
     s = quest_get_description(q);
     msg_format("<color:R>%s</color> (<color:U>Level %d</color>): %s",
-        q->name, q->level, string_buffer(s));
+        kayttonimi(q), q->level, string_buffer(s));
     string_free(s);
 }
 
 void quest_complete(quest_ptr q, point_t p)
 {
     assert(q);
+	if ((q->status == QS_COMPLETED) || (q->status == QS_FINISHED)) return;
     assert(q->status == QS_IN_PROGRESS);
     q->status = QS_COMPLETED;
     q->completed_lev = p_ptr->lev;
@@ -119,7 +135,7 @@ void quest_reward(quest_ptr q)
 
     s = quest_get_description(q);
     msg_format("<color:R>%s</color> (<color:U>Level %d</color>): %s",
-        q->name, q->level, string_buffer(s));
+		kayttonimi(q), q->level, string_buffer(s));
     string_free(s);
 
     reward = quest_get_reward(q);
@@ -141,7 +157,7 @@ void quest_fail(quest_ptr q)
     assert(q);
     q->status = QS_FAILED;
     q->completed_lev = p_ptr->lev;
-    msg_format("You have <color:v>failed</color> the quest: <color:R>%s</color>.", q->name);
+    msg_format("You have <color:v>failed</color> the quest: <color:R>%s</color>.", kayttonimi(q));
     virtue_add(VIRTUE_VALOUR, -2);
     fame_on_failure();
     if (!(q->flags & QF_TOWN))
@@ -516,7 +532,7 @@ cptr quests_get_name(int id)
 {
     quest_ptr q = quests_get(id);
     if (!q) return "";
-    return q->name;
+    return kayttonimi(q);
 }
 
 static int _quest_cmp_level(quest_ptr l, quest_ptr r)
@@ -743,9 +759,9 @@ void quests_on_generate(int dungeon, int level)
 {
 	quest_ptr q = _find_quest(dungeon, level);
 
-	//rescuing an indvidual savefile, don't ask. delete away
-	if ((_current == 54) && (!q || !q->id)) {
-		_current = 0; q = quests_get(54); q->status = QS_TAKEN;
+	/* attempt to handle a quest crash */
+	if ((_current > 0) && (!q || !q->id)) { int ongelma = _current;
+		_current = 0; q = quests_get(ongelma); q->status = QS_TAKEN;
 	}
 
     /* N.B. level_gen() might fail for some reason, resulting in multiple
@@ -811,6 +827,20 @@ void quests_on_kill_mon(mon_ptr mon)
     }
 }
 
+/* Check whether we need to prevent a quest monster from polymorphing or evolving */
+bool quest_allow_poly(mon_ptr mon)
+{
+	quest_ptr q;
+	if (!_current) return TRUE;
+	q = quests_get(_current);
+	assert(q);
+	assert(mon);
+	if (q->status == QS_COMPLETED) return TRUE;
+	if (q->goal != QG_KILL_MON) return TRUE;
+	if (mon->r_idx == q->goal_idx) return FALSE;
+	return TRUE;
+}
+
 void quests_on_get_obj(obj_ptr obj)
 {
     quest_ptr q;
@@ -843,7 +873,7 @@ bool quests_check_leave(void)
             if ((q->flags & QF_RANDOM) && q->goal == QG_KILL_MON)
                 string_printf(s, "Kill %s", r_name + r_info[q->goal_idx].name);
             else
-                string_append_s(s, q->name);
+                string_append_s(s, kayttonimi(q));
             string_append_s(s, "</color>. You may return to this quest later though. "
                                "Are you sure you want to leave? <color:y>[Y,n]</color>");
             c = msg_prompt(string_buffer(s), "ny", PROMPT_YES_NO);
@@ -859,7 +889,7 @@ bool quests_check_leave(void)
             if ((q->flags & QF_RANDOM) && q->goal == QG_KILL_MON)
                 string_printf(s, "Kill %s", r_name + r_info[q->goal_idx].name);
             else
-                string_append_s(s, q->name);
+                string_append_s(s, kayttonimi(q));
             string_append_s(s, "</color>. <color:v>You will fail this quest if you leave!</color> "
                                "Are you sure you want to leave? <color:y>[Y,n]</color>");
             c = msg_prompt(string_buffer(s), "nY", PROMPT_NEW_LINE | PROMPT_ESCAPE_DEFAULT | PROMPT_CASE_SENSITIVE);
@@ -1012,7 +1042,7 @@ void quests_display(void)
 
             /* Quest Name and Status */
             doc_printf(doc, "  <color:%c>%s</color> (Lvl <color:U>%d</color>)\n",
-                (q->status == QS_IN_PROGRESS) ? 'y' : 'R', q->name, q->level);
+                (q->status == QS_IN_PROGRESS) ? 'y' : 'R', kayttonimi(q), q->level);
 
             /* Description. However, the QS_COMPLETED description is the 'reward' message */
             if (q->status == QS_COMPLETED)
@@ -1090,7 +1120,7 @@ static void quest_doc(quest_ptr q, doc_ptr doc)
     else
     {
         doc_printf(doc, "  %s <tab:60>DL%3d CL%2d\n",
-            q->name, q->level, q->completed_lev);
+			kayttonimi(q), q->level, q->completed_lev);
     }
 }
 
@@ -1143,12 +1173,12 @@ void quests_load(savefile_ptr file)
         q->status = savefile_read_byte(file);
         q->completed_lev = savefile_read_byte(file);
         q->goal_current = savefile_read_s16b(file);
+        q->seed  = savefile_read_u32b(file);
         if (q->flags & QF_RANDOM)
         {
             q->level = savefile_read_s16b(file);
             q->goal_idx  = savefile_read_s32b(file);
             q->goal_count = savefile_read_s16b(file);
-            q->seed  = savefile_read_u32b(file);
         }
 
         if (q->goal == QG_FIND_ART)
@@ -1169,12 +1199,12 @@ void quests_save(savefile_ptr file)
         savefile_write_byte(file, q->status);
         savefile_write_byte(file, q->completed_lev);
         savefile_write_s16b(file, q->goal_current);
+        savefile_write_u32b(file, q->seed);
         if (q->flags & QF_RANDOM)
         {
             savefile_write_s16b(file, q->level); /* in case I randomize later ... */
             savefile_write_s32b(file, q->goal_idx);
             savefile_write_s16b(file, q->goal_count);
-            savefile_write_u32b(file, q->seed);
         }
     }
     savefile_write_s16b(file, _current);

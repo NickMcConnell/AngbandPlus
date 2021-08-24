@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(ComPosband, 1.1.0, https://github.com/OwenGHB/composband/issues)
+AC_INIT(Composband, 7.1.0a, https://github.com/OwenGHB/composband/issues)
 AC_CONFIG_SRCDIR(src)
 
 AC_CANONICAL_HOST
@@ -8,7 +8,7 @@ AC_CANONICAL_TARGET
 BUILDSYS_INIT
 BUILDSYS_TOUCH_DEPS
 
-AC_SUBST(PACKAGE, composband)
+AC_SUBST(PACKAGE, composband-alpha)
 
 AC_CONFIG_HEADERS(src/autoconf.h)
 
@@ -394,7 +394,7 @@ echo "  var path:                               ${displayedvardatadir}"
 if test "x$wsetgid" = "xyes"; then
     echo "  (as group ${SETEGID})"
 elif test "x$with_private_dirs" = "xyes"; then
-    echo "  (with private save and score files in ~/.angband/PosChengband/)"
+    echo "  (with private save and score files in ~/.angband/Composband/)"
 fi
 
 echo

@@ -826,11 +826,11 @@ void monster_death(int m_idx, bool drop_item)
           && p_ptr->pclass != CLASS_SAMURAI
           && p_ptr->pclass != CLASS_MYSTIC )
         {
-            hp_player_aux(10);
-            sp_player(5);
+            hp_player_aux(randint0(r_ptr->level / 3) + r_ptr->level / 3);
+            sp_player(randint0(r_ptr->level / 6) + r_ptr->level / 6);
         }
         else
-            hp_player_aux(15);
+			hp_player_aux(randint0(r_ptr->level / 2) + r_ptr->level / 2);
     }
 
     if (r_ptr->flags2 & RF2_MULTIPLY)
@@ -888,7 +888,7 @@ void monster_death(int m_idx, bool drop_item)
             {
             case TV_WAND: case TV_ROD: case TV_STAFF:
                 object_prep(q_ptr, lookup_kind(tval, SV_ANY));
-                device_init_fixed(q_ptr, sval);
+                device_init_fixed(q_ptr, sval, r_ptr->level);
                 break;
             default:
                 object_prep(q_ptr, lookup_kind(tval, sval));
@@ -1594,9 +1594,20 @@ void monster_death(int m_idx, bool drop_item)
             chance = 50;
             break;
 
+        case MON_GHB:
+             a_idx = ART_LEGENDARY_LOST_TREASURE;
+             chance = 100;
+             break;
+
         case MON_BULLGATES:
-            a_idx = ART_WINBLOWS;
-            chance = 66;
+            if (one_in_(3)) {
+             a_idx = ART_MICRODOLLAR;
+             chance = 100;
+            }
+            else {
+             a_idx = ART_WINBLOWS;
+             chance = 100;
+            }
             break;
 
         case MON_LUNGORTHIN:
@@ -1935,7 +1946,7 @@ void monster_death(int m_idx, bool drop_item)
                         /* Hack: There is only a single k_idx for each class of devices, so
                          * we use the ego index to pick an effect. This means there is no way
                          * to actually grant an ego device ...*/
-                        if (!device_init_fixed(q_ptr, ego_index))
+                        if (!device_init_fixed(q_ptr, ego_index, object_level))
                         {
                             if (ego_index)
                             {
@@ -2580,11 +2591,15 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
             curse_equipment(100, 50);
 
+			very_nice_summon_hack = TRUE;
+
             do
             {
                 stop_ty = activate_ty_curse(stop_ty, &count);
             }
             while (--curses);
+
+			very_nice_summon_hack = FALSE;
         }
 
         if (r_ptr->flags2 & RF2_CAN_SPEAK)
@@ -2754,6 +2769,35 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
         /* Generate treasure */
         monster_death(m_idx, TRUE);
+
+		/* Chaos patrons take interest */
+		if (p_ptr->pclass == CLASS_CHAOS_WARRIOR || mut_present(MUT_CHAOS_GIFT))
+		{
+			if (r_ptr->flags1 & RF1_UNIQUE && (r_ptr->level + randint1(r_ptr->level) > p_ptr->lev * 2))
+			{
+				chaos_choose_effect(PATRON_KILL_FAMOUS);
+			}
+			else if (r_ptr->flags1 & RF1_UNIQUE)
+			{
+				chaos_choose_effect(PATRON_KILL_UNIQUE);
+			}
+			else if (r_ptr->flags3 & RF3_DEMON)
+			{
+				chaos_choose_effect(PATRON_KILL_DEMON);
+			}
+			else if (r_ptr->flags3 & RF3_GOOD)
+			{
+				chaos_choose_effect(PATRON_KILL_GOOD);
+			}
+			else if (r_ptr->level < (p_ptr->lev - 15))
+			{
+				chaos_choose_effect(PATRON_KILL_WEAK);
+			}
+			else
+			{
+				chaos_choose_effect(PATRON_KILL);
+			}
+		}
 
         /* Mega hack : replace IKETA to BIKETAL */
         if ((m_ptr->r_idx == MON_IKETA) &&
@@ -3893,7 +3937,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
         if (have_flag(f_ptr->flags, FF_QUEST_ENTER))
         {
             quest_ptr q = quests_get(c_ptr->special);
-            name = format("the entrance to the quest '%s'(level %d)", q->name, q->level);
+            name = format("the entrance to the quest '%s'(level %d)", kayttonimi(q), q->level);
         }
 
         /* Hack -- special handling for building doors */

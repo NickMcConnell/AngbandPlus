@@ -1104,7 +1104,7 @@ bool mon_is_type(int r_idx, int type)
         if (r_idx == MON_SOFTWARE_BUG) return TRUE;
         break;
     case SUMMON_GUARDIAN:
-        if (r_ptr->flags7 & RF7_GUARDIAN) return TRUE;
+        if ((r_ptr->flags7 & RF7_GUARDIAN) && (r_ptr->level < 100)) return TRUE;
         break;
     case SUMMON_KNIGHT:
         if ( r_idx == MON_NOV_PALADIN || r_idx == MON_NOV_PALADIN_G || r_idx == MON_PALADIN
@@ -1871,7 +1871,7 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
         /* It could be a Unique */
         if ( (r_ptr->flags1 & RF1_UNIQUE)
           && !(p_ptr->image && !(mode & MD_IGNORE_HALLU))
-          && !(m_ptr->mflag2 & MFLAG2_FUZZY) )
+          && (!(m_ptr->mflag2 & MFLAG2_FUZZY) || (mode & MD_TRUE_NAME)) )
         {
             /* Start with the name (thus nominative and objective) */
             if ((m_ptr->mflag2 & MFLAG2_CHAMELEON) && !(mode & MD_TRUE_NAME))
@@ -2754,7 +2754,7 @@ void update_mon(int m_idx, bool full)
     /* The monster is now visible */
     if (flag)
     {
-        if (!easy && !(m_ptr->mflag2 & MFLAG2_MARK) && !is_pet(m_ptr))
+        if (!easy && !(m_ptr->mflag2 & MFLAG2_MARK) && !is_pet(m_ptr) && !power_tele)
         {
             fuzzy = TRUE;
             m_ptr->mflag2 |= MFLAG2_FUZZY;
@@ -3121,7 +3121,7 @@ byte get_mspeed(monster_race *r_ptr)
     if (!(r_ptr->flags1 & RF1_UNIQUE) && !p_ptr->inside_arena)
     {
         /* Allow some small variation per monster */
-        int i = SPEED_TO_ENERGY(r_ptr->speed) / (one_in_(4) ? 3 : 10);
+		int i = SPEED_TO_ENERGY(r_ptr->speed) / (((one_in_(4)) && (!very_nice_summon_hack)) ? 3 : 10);
         if (i) mspeed += rand_spread(0, i);
     }
 
@@ -3462,6 +3462,12 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
     if (!ironman_nightmare)
     {
         m_ptr->energy_need = ENERGY_NEED() - (s16b)randint0(100);
+		if (very_nice_summon_hack)
+		{
+			m_ptr->energy_need = MIN(184, MAX(88, p_ptr->energy_need + (m_ptr->mspeed * 8 / 7) + 123 - p_ptr->pspeed)); /* yes, really */
+			m_ptr->energy_need = MIN(184, MAX(88, p_ptr->energy_need + (m_ptr->mspeed * 8 / 7) + 123 - (MIN(144, p_ptr->pspeed)))); /* yes, really */
+			predictable_energy_hack = TRUE;
+		}
     }
     else
     {
@@ -3470,7 +3476,7 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
     }
 
     /* Force monster to wait for player, unless in Nightmare mode */
-    if ((r_ptr->flags1 & RF1_FORCE_SLEEP) && !ironman_nightmare)
+	if (((r_ptr->flags1 & RF1_FORCE_SLEEP) || (very_nice_summon_hack)) && (!ironman_nightmare))
     {
         /* Monster is still being nice */
         m_ptr->mflag |= (MFLAG_NICE);
@@ -4227,7 +4233,7 @@ static bool summon_specific_okay(int r_idx)
  * desired monster. Note that this is an upper bound, and also
  * tends to "prefer" monsters of that level. Currently, we use
  * the average of the dungeon and monster levels, and then add
- * five to allow slight increases in monster power.
+ * two to allow slight increases in monster power.
  *
  * Note that we use the new "monster allocation table" creation code
  * to restrict the "get_mon_num()" function to the set of "legal"
@@ -4287,7 +4293,7 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
         _ignore_depth_hack = TRUE;
 
     /* Pick a monster, using the level calculation */
-    r_idx = get_mon_num((dun_level + lev) / 2 + 5);
+    r_idx = get_mon_num((dun_level + lev) / 2 + 2);
 
     /* No pass/kill wall monsters allowed? Well, just pick a normal one then ... */
     if (!r_idx && summon_wall_scummer)
@@ -4847,10 +4853,11 @@ void update_smart_learn(int m_idx, int what)
 bool player_place(int y, int x)
 {
     /* Paranoia XXX XXX */
-    if (cave[y][x].m_idx != 0) return FALSE;
+    //if (cave[y][x].m_idx != 0) return FALSE;
+    if (cave[y][x].m_idx < 0) return FALSE;
 
     /* returning from a quest (QUEST_ENTER -> PERMANENT) */
-    if (!player_can_enter(cave[y][x].feat, 0))
+    if ((!player_can_enter(cave[y][x].feat, 0)) || (cave[y][x].m_idx != 0))
     {
         int dir, nx, ny;
         for (dir = 1; dir < 9; dir++)
@@ -4859,15 +4866,50 @@ bool player_place(int y, int x)
             ny = y + ddy[dir];
             if (!in_bounds2(ny, nx)) continue;
             if (!player_can_enter(cave[ny][nx].feat, 0)) continue;
+            if (cave[ny][nx].m_idx != 0) continue;
             x = nx;
             y = ny;
             break;
         }
     }
 
+    /* For some reason, we still don't have a safe square. (Using Alter Reality can cause this, as it resets oldpx and oldpy) */
+    if ((!player_can_enter(cave[y][x].feat, 0)) || (cave[y][x].m_idx != 0))
+    {
+        int yritys, etaisyys = 2, nx, ny, dx, dy, kokeilu = 1;
+        for (yritys = 1; yritys < 10000; yritys++)
+        {
+            dx = ((yritys % 8) < 4) ? randint0(etaisyys + 1) : etaisyys;
+            dy = ((yritys % 8) < 4) ? etaisyys : randint0(etaisyys + 1);
+            nx = (yritys % 2) ? x + dx : x - dx;
+            ny = ((yritys % 4) < 2) ? y + dy : y - dy;
+            kokeilu++;
+            if (kokeilu >= etaisyys * etaisyys)
+            {
+                etaisyys++;
+                kokeilu = 0;
+            }
+            if (!in_bounds2(ny, nx)) continue;
+            if (!player_can_enter(cave[ny][nx].feat, 0)) continue;
+            if (cave[ny][nx].m_idx != 0) continue;
+            x = nx;
+            y = ny;
+            break;
+        }
+    }   
+
     /* Save player location */
     py = y;
     px = x;
+
+    /* Now we're really getting desperate */
+    if ((!player_can_enter(cave[y][x].feat, 0)) || (cave[y][x].m_idx != 0)) 
+    {
+        msg_print("Failed to place player - attempting desperation teleport...");
+        teleport_player(200, 0L);
+    }
+    if ((!player_can_enter(cave[py][px].feat, 0)) || (cave[py][px].m_idx != 0)) { msg_print("Failed."); return FALSE; }
+
 
     /* Success */
     return TRUE;

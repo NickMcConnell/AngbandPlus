@@ -212,8 +212,6 @@ class_t *bard_get_class(void)
         me.base_hp = 4;
         me.exp = 140;
         me.pets = 25;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
 
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;

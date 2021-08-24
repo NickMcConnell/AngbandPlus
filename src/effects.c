@@ -18,18 +18,18 @@ bool free_act_save_p(int ml)
 {
     int i, skill = p_ptr->skills.sav;
     if (p_ptr->pclass == CLASS_BERSERKER) return TRUE; /* negative skills */
-	if (p_ptr->free_act == 1) 
-	{
-		if (randint0(10) < 9)
-		{
-			equip_learn_flag(OF_FREE_ACT);
-			return TRUE;
-		}
-	}
-	else if (p_ptr->free_act > 1)
+
+    /* Put in a hard limit because Chris's implementation was so unpopular */
+    if (p_ptr->free_act >= 3) return TRUE;
+    if ((ml < 42) && (p_ptr->free_act == 2)) return TRUE;
+
+    for (i = 0; i < p_ptr->free_act; i++)
     {
-        equip_learn_flag(OF_FREE_ACT);
-        return TRUE;
+        if (randint0(100 + ml/2) < skill)
+        {
+            equip_learn_flag(OF_FREE_ACT);
+            return TRUE;
+        }
     }
     return FALSE;
 }
@@ -150,7 +150,11 @@ void reset_tim_flags(void)
     p_ptr->tim_res_nether = 0;
     p_ptr->tim_res_time = 0;
     p_ptr->tim_mimic = 0;
-    p_ptr->mimic_form = MIMIC_NONE;
+	if (p_ptr->prace == RACE_DOPPELGANGER && p_ptr->mimic_form != MIMIC_NONE)
+	{
+		mimic_race(MIMIC_NONE, NULL);
+	}
+	else p_ptr->mimic_form = MIMIC_NONE;
     p_ptr->tim_reflect = 0;
     p_ptr->multishadow = 0;
     p_ptr->dustrobe = 0;
@@ -184,7 +188,10 @@ void reset_tim_flags(void)
     p_ptr->oppose_elec = 0;     /* Timed -- oppose lightning */
     p_ptr->oppose_fire = 0;     /* Timed -- oppose heat */
     p_ptr->oppose_cold = 0;     /* Timed -- oppose cold */
-    p_ptr->oppose_pois = 0;     /* Timed -- oppose poison */
+    p_ptr->oppose_pois = 0;		/* Timed -- oppose poison */
+	p_ptr->oppose_conf = 0;		/* Timed -- oppose confusion */
+	p_ptr->oppose_blind = 0;	/* Timed -- oppose blindness */
+    p_ptr->spin = 0;            /* Timed -- spin (inc. oppose nether) */
 
     p_ptr->word_recall = 0;
     p_ptr->alter_reality = 0;
@@ -374,13 +381,16 @@ bool disenchant_player(void)
             }
             break;
         case 19:
-            if (p_ptr->oppose_acid || p_ptr->oppose_cold || p_ptr->oppose_elec || p_ptr->oppose_fire || p_ptr->oppose_pois)
+            if (p_ptr->oppose_acid || p_ptr->oppose_cold || p_ptr->oppose_elec || p_ptr->oppose_fire || p_ptr->oppose_pois || p_ptr->oppose_conf || p_ptr->oppose_blind || p_ptr->spin)
             {
                 (void)set_oppose_acid(0, TRUE);
                 (void)set_oppose_elec(0, TRUE);
                 (void)set_oppose_fire(0, TRUE);
                 (void)set_oppose_cold(0, TRUE);
                 (void)set_oppose_pois(0, TRUE);
+				(void)set_oppose_blind(0, TRUE);
+				(void)set_oppose_conf(0, TRUE);
+                (void)set_spin(0, TRUE);
                 result = TRUE;
                 return result;
             }
@@ -549,6 +559,7 @@ void dispel_player(void)
     (void)set_oppose_cold(0, TRUE);
     (void)set_oppose_pois(0, TRUE);
     (void)set_ultimate_res(0, TRUE);
+    (void)set_spin(0, TRUE);
     
     /* Its important that doppelganger gets called correctly and not set_mimic()
        since we monkey with things like the experience factor! */
@@ -659,6 +670,7 @@ bool set_mimic(int v, int p, bool do_dec)
         else if ((!p_ptr->tim_mimic) || (p_ptr->mimic_form != p))
         {
             msg_print("You feel that your body changes.");
+			if (p_ptr->prace == RACE_DOPPELGANGER) mimic_race(MIMIC_NONE, "suppress");
             p_ptr->mimic_form=p;
             notice = TRUE;
         }
@@ -670,7 +682,12 @@ bool set_mimic(int v, int p, bool do_dec)
         if (p_ptr->tim_mimic)
         {
             msg_print("You are no longer transformed.");
-            p_ptr->mimic_form= MIMIC_NONE;
+			if (p_ptr->prace == RACE_DOPPELGANGER)
+			{
+				p_ptr->tim_mimic = v;
+				mimic_race(MIMIC_NONE, NULL);
+			}
+			else p_ptr->mimic_form = MIMIC_NONE;
             notice = TRUE;
             p = MIMIC_NONE;
         }
@@ -1440,7 +1457,7 @@ bool set_tim_superstealth(int v, bool do_dec)
         if (p_ptr->tim_superstealth)
         {
             msg_print("You can no longer hide in shadows.");
-            if (p_ptr->pclass != CLASS_NINJA)
+            if (!player_is_ninja)
                 set_superstealth(FALSE);
             notice = TRUE;
         }
@@ -4358,6 +4375,179 @@ bool set_oppose_pois(int v, bool do_dec)
     return (TRUE);
 }
 
+/*
+* Set "p_ptr->oppose_conf", notice observable changes
+*/
+bool set_oppose_conf(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->oppose_conf && !do_dec)
+		{
+			if (p_ptr->oppose_conf > v) return FALSE;
+		}
+		else if (!IS_OPPOSE_CONF())
+		{
+			msg_print("You feel resistant to confusion!");
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_conf)
+		{
+			msg_print("You feel less resistant to confusion.");
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->oppose_conf = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+* Set "p_ptr->oppose_blind", notice observable changes
+*/
+bool set_oppose_blind(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->oppose_blind && !do_dec)
+		{
+			if (p_ptr->oppose_blind > v) return FALSE;
+		}
+		else if (!IS_OPPOSE_BLIND())
+		{
+			msg_print("You feel resistant to blindness!");
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_blind)
+		{
+			msg_print("You feel less resistant to blindness.");
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->oppose_blind = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->spin", notice observable changes
+ */
+bool set_spin(int v, bool do_dec)
+{
+    bool notice = FALSE;
+
+    /* Hack -- Force good values */
+    v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+    if (p_ptr->is_dead) return FALSE;
+
+    /* Open */
+    if (v)
+    {
+        if (p_ptr->spin && !do_dec)
+        {
+            if (p_ptr->spin > v) return FALSE;
+        }
+        else if (!IS_SPINNING())
+        {
+            msg_print("You start spinning stories!");
+
+            notice = TRUE;
+        }
+    }
+
+    /* Shut */
+    else
+    {
+        if (p_ptr->spin)
+        {
+            msg_print("You stop putting your own spin on stories.");
+
+            notice = TRUE;
+        }
+    }
+
+    /* Use the value */
+    p_ptr->spin = v;
+
+    /* Nothing to notice */
+    if (!notice) return (FALSE);
+
+    /* Redraw status bar */
+    p_ptr->redraw |= (PR_STATUS);
+    p_ptr->update |= (PU_BONUS);
+
+    /* Disturb */
+    if (disturb_state) disturb(0, 0);
+
+    /* Handle stuff */
+    handle_stuff();
+
+    /* Result */
+    return (TRUE);
+}
 
 /*
  * Set "p_ptr->stun", notice observable changes
@@ -5404,21 +5594,6 @@ bool restore_level(void)
     return FALSE;
 }
 
-/*
- * Forget everything
- */
-static void _forget(obj_ptr obj)
-{
-    if (!obj_is_identified_fully(obj))
-    {
-        obj->feeling = FEEL_NONE;
-        obj->ident &= ~(IDENT_EMPTY);
-        obj->ident &= ~(IDENT_TRIED);
-        obj->ident &= ~(IDENT_KNOWN);
-        obj->ident &= ~(IDENT_SENSE);
-    }
-}
-
 bool lose_all_info(void)
 {
     virtue_add(VIRTUE_KNOWLEDGE, -5);
@@ -5426,10 +5601,6 @@ bool lose_all_info(void)
 
     if (!p_ptr->auto_id)
     {
-        pack_for_each(_forget);
-        equip_for_each(_forget);
-        quiver_for_each(_forget);
-
         p_ptr->update |= PU_BONUS;
         p_ptr->notice |= PN_OPTIMIZE_PACK;
         p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_OBJECT_LIST);
@@ -5859,6 +6030,10 @@ int take_hit(int damage_type, int damage, cptr hit_from)
     {
         virtue_add(VIRTUE_SACRIFICE, 1);
         virtue_add(VIRTUE_CHANCE, 2);
+		if (p_ptr->pclass == CLASS_CHAOS_WARRIOR || mut_present(MUT_CHAOS_GIFT))
+		{
+			chaos_choose_effect(PATRON_CHANCE);
+		}
     }
 
     /* Dead player */
@@ -5973,6 +6148,14 @@ int take_hit(int damage_type, int damage, cptr hit_from)
     {
         change_wild_mode();
     }
+	else
+	{
+		if (p_ptr->pclass == CLASS_CHAOS_WARRIOR || mut_present(MUT_CHAOS_GIFT))
+		{
+			if (p_ptr->mhp/(old_chp-p_ptr->chp)<=5)
+				chaos_choose_effect(PATRON_TAKE_HIT);
+		}
+	}
     return damage;
 }
 

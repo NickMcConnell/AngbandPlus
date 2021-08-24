@@ -23,7 +23,7 @@ T:QUEST:NORMAL
 L:#:PERMANENT
 L:.:FLOOR
 L:<:UP_STAIR
-L:a:MON(anti-paladin)
+L:a:MON(anti-paladin, NO_SLEEP)
 M:###############
 M:#.............#
 M:#.........a...#
@@ -34,7 +34,21 @@ M:#.............#
 M:#.............#
 M:#<............#
 M:###############
-R:OBJ(STAFF_SLEEP_MONSTERS)
+R:OBJ(SWORD):EGO(blessed)
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Axes Polearms] ]
+R:OBJ(POLEARM):EGO(blessed)
+?:[EQU $CLASS Priest]
+R:OBJ(HAFTED):EGO(blessed)
+?:[EQU $RACE Angel]
+R:OBJ(HAFTED):EGO(blessed)
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Clubs Staves] ]
+R:OBJ(HAFTED):EGO(blessed)
+?:[EQU $CLASS Monk Force-Trainer Mystic]
+R:OBJ(GLOVES):EGO(blessed)
+?:[EQU $CLASS Ninja Ninja-Lawyer]
+R:OBJ(tanto):EGO(blessed)
+?:[EQU $RACE Beholder Dragon]
+R:OBJ(^ring$):EGO(protection)
 
 
 # vim: filetype=q :

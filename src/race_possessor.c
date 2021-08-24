@@ -180,7 +180,7 @@ static void _birth(void)
     equip_on_change_race();
 
     object_prep(&forge, lookup_kind(TV_WAND, SV_ANY));
-    if (device_init_fixed(&forge, EFFECT_BOLT_COLD))
+    if (device_init_fixed(&forge, EFFECT_BOLT_COLD, 5))
         py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_RING, 0));

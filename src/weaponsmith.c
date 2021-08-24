@@ -2287,16 +2287,7 @@ static bool _smithing(void)
     if (!prompt.obj) return FALSE;
 
     /* Smithing now automatically 'Judges' the object for free */
-    if (p_ptr->lev < 10)
-    {
-        if (!obj_is_identified(prompt.obj))
-        {
-            prompt.obj->ident |= IDENT_SENSE;
-            prompt.obj->feeling = value_check_aux1(prompt.obj);
-            prompt.obj->marked |= OM_TOUCHED;
-        }
-    }
-    else
+    if (p_ptr->lev >= 10)
     {
         identify_item(prompt.obj);
         if (p_ptr->lev >= 30)
@@ -2611,8 +2602,6 @@ class_t *weaponsmith_get_class(void)
         me.base_hp = 12;
         me.exp = 130;
         me.pets = 40;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG |
-                   CLASS_SENSE2_STRONG;
 
         me.birth = _birth;
         me.get_powers = _get_powers;

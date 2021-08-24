@@ -2,8 +2,8 @@
 
 #include <assert.h>
 
-extern void ego_create_ring(object_type *o_ptr, int level, int power, int mode);
-extern void ego_create_amulet(object_type *o_ptr, int level, int power, int mode);
+extern void obj_create_ring(object_type *o_ptr, int level, int power, int mode);
+extern void obj_create_amulet(object_type *o_ptr, int level, int power, int mode);
 extern bool obj_create_device(object_type *o_ptr, int level, int power, int mode);
 extern void obj_create_weapon(object_type *o_ptr, int level, int power, int mode);
 extern void obj_create_armor(object_type *o_ptr, int level, int power, int mode);
@@ -195,7 +195,7 @@ static bool _ego_p_body_armor(int e_idx)
     switch (obj_drop_theme)
     {
     case R_DROP_DWARF:
-        if (e_idx == EGO_BODY_DWARVEN) return TRUE;
+        if (e_idx == EGO_ARMOR_DWARVEN) return TRUE;
         return FALSE;
     }
     return TRUE;
@@ -206,7 +206,7 @@ static bool _ego_p_shield(int e_idx)
     switch (obj_drop_theme)
     {
     case R_DROP_DWARF:
-        if (e_idx == EGO_SHIELD_DWARVEN) return TRUE;
+        if (e_idx == EGO_ARMOR_DWARVEN) return TRUE;
         return FALSE;
     }
     return TRUE;
@@ -217,7 +217,7 @@ static bool _ego_p_helmet(int e_idx)
     switch (obj_drop_theme)
     {
     case R_DROP_DWARF:
-        if (e_idx == EGO_HELMET_DWARVEN) return TRUE;
+        if (e_idx == EGO_ARMOR_DWARVEN) return TRUE;
         return FALSE;
     }
     return TRUE;
@@ -257,7 +257,7 @@ static bool _ego_p_boots(int e_idx)
     switch (obj_drop_theme)
     {
     case R_DROP_DWARF:
-        if (e_idx == EGO_BOOTS_DWARVEN) return TRUE;
+        if (e_idx == EGO_ARMOR_DWARVEN) return TRUE;
         return FALSE;
     }
     return TRUE;
@@ -302,7 +302,9 @@ static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
 static bool _check_rand_art(int base, int level, int power, int mode)
 {
     if (mode & AM_CRAFTING) return FALSE;
-    if (power > 2) return TRUE;
+	if (mode & AM_SPECIAL) return TRUE;
+    if (ABS(power) > 2) return TRUE;
+	if (ABS(power) < 2) return FALSE;
     /*if (statistics_hack && one_in_(3)) return TRUE;  XXX Temp */
     base -= base * level / 200;
     if (one_in_(base)) return TRUE;
@@ -393,7 +395,7 @@ static _power_limit_t _get_jewelry_power_limit(int level, int mode)
     return rng;
 }
 
-void ego_create_ring(object_type *o_ptr, int level, int power, int mode)
+void obj_create_ring(object_type *o_ptr, int level, int power, int mode)
 {
     int  i;
     _power_limit_t rng = _get_jewelry_power_limit(level, mode);
@@ -415,7 +417,7 @@ void ego_create_ring(object_type *o_ptr, int level, int power, int mode)
     _create_ring_aux(o_ptr, level, power, mode); /* ooops */
 }
 
-void ego_create_amulet(object_type *o_ptr, int level, int power, int mode)
+void obj_create_amulet(object_type *o_ptr, int level, int power, int mode)
 {
     int  i;
     _power_limit_t rng = _get_jewelry_power_limit(level, mode);
@@ -440,7 +442,7 @@ void ego_create_amulet(object_type *o_ptr, int level, int power, int mode)
 /*************************************************************************
  * Activations
  *************************************************************************/
-#define ACTIVATION_CHANCE (p_ptr->prace == RACE_MON_RING ? 2 : 5)
+#define ACTIVATION_CHANCE 2
 
 static int *_effect_list = NULL;
 static bool _effect_list_p(int effect)
@@ -483,9 +485,9 @@ static int _jewelry_pval(int max, int level)
     return randint1(1 + m_bonus(max - 1, level));
 }
 
-static int _jewelry_powers(int num, int level, int power)
+static int _jewelry_powers(int level, int power)
 {
-    return abs(power) + m_bonus(num, level);
+    return power*power + m_bonus(2 * power, level);
 }
 
 static void _finalize_jewelry(object_type *o_ptr)
@@ -560,22 +562,175 @@ static void _ego_create_jewelry_defender(object_type *o_ptr, int level, int powe
 
         if (one_in_(3))
         {
-            one_high_resistance(o_ptr);
-            one_high_resistance(o_ptr);
+			for (int i = 0; i < 2; i++) {
+				one_high_resistance(o_ptr);
+			}
         }
-        else
-        {
-            one_ele_resistance(o_ptr);
-            one_ele_resistance(o_ptr);
-            one_ele_resistance(o_ptr);
-            one_ele_resistance(o_ptr);
-            one_ele_resistance(o_ptr);
-            one_ele_resistance(o_ptr);
-            one_ele_resistance(o_ptr);
+		else
+		{
+			for (int i = 0; i < 7; i++) {
+				one_ele_resistance(o_ptr);
+			}
         }
     }
     if (one_in_(ACTIVATION_CHANCE))
         effect_add_random(o_ptr, BIAS_PROTECTION);
+}
+
+static void _ego_create_jewelry_vitality(object_type *o_ptr, int level, int power)
+{
+	int powers = 0;
+	for (powers = _jewelry_powers(level, power); powers > 0; --powers)
+	{
+		switch (randint1(7))
+		{
+		case 1:
+			if (!have_flag(o_ptr->flags, OF_REGEN))
+			{
+				add_flag(o_ptr->flags, OF_REGEN);
+				break;
+			}
+		case 2:
+			if (!have_flag(o_ptr->flags, OF_CON))
+			{
+				if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+				add_flag(o_ptr->flags, OF_CON);
+				break;
+			}
+		case 3:
+			if (!have_flag(o_ptr->flags, OF_SUST_CON))
+			{
+				add_flag(o_ptr->flags, OF_SUST_CON);
+				break;
+			}
+		case 4:
+			if (!have_flag(o_ptr->flags, OF_LIFE))
+			{
+				if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+				add_flag(o_ptr->flags, OF_LIFE);
+				break;
+			}
+		case 5:
+			if (!have_flag(o_ptr->flags, OF_HOLD_LIFE))
+			{
+				add_flag(o_ptr->flags, OF_HOLD_LIFE);
+				break;
+			}
+		case 6:
+			if (!have_flag(o_ptr->flags, OF_RES_POIS))
+			{
+				add_flag(o_ptr->flags, OF_RES_POIS);
+				break;
+			}
+		default:
+			o_ptr->to_a += randint1(8);
+			break;
+		}
+	}
+	if (o_ptr->to_a > 20) o_ptr->to_a = 20;
+	if (one_in_(ACTIVATION_CHANCE))
+		effect_add_random(o_ptr, BIAS_PRIESTLY);
+}
+static void _ego_create_ring_elemental_focus(object_type *o_ptr)
+{
+	int resistance;
+	int aura;
+	int brand;
+	int immunity;
+	int activation_bias;
+	switch (randint1(5)) 
+	{
+	case 1:
+		resistance = OF_RES_FIRE;
+		aura = OF_AURA_FIRE;
+		brand = OF_BRAND_FIRE;
+		immunity = OF_IM_FIRE;
+		activation_bias = BIAS_FIRE;
+		break;
+	case 2:
+		resistance = OF_RES_COLD;
+		aura = OF_AURA_COLD;
+		brand = OF_BRAND_COLD;
+		immunity = OF_IM_COLD;
+		activation_bias = BIAS_COLD;
+		break;
+	case 3:
+		resistance = OF_RES_ELEC;
+		aura = OF_AURA_ELEC;
+		brand = OF_BRAND_ELEC;
+		immunity = OF_IM_ELEC;
+		activation_bias = BIAS_ELEC;
+		break;
+	case 4:
+		resistance = OF_RES_POIS;
+		aura = 0;
+		brand = OF_BRAND_POIS;
+		immunity = OF_IM_POIS;
+		activation_bias = BIAS_POIS;
+		break;
+	case 5:
+		resistance = OF_RES_ACID;
+		aura = 0;
+		brand = OF_BRAND_ACID;
+		immunity = OF_IM_ACID;
+		activation_bias = BIAS_ACID;
+		break;
+	}
+	add_flag(o_ptr->flags, resistance);
+	if (aura) {
+		if (one_in_(50)) {
+			add_flag(o_ptr->flags, immunity);
+			if (one_in_(5))
+			{
+				add_flag(o_ptr->flags, brand);
+				if (one_in_(2))
+				{
+					add_flag(o_ptr->flags, aura);
+				}
+			}
+			else if (one_in_(2))
+			{
+				add_flag(o_ptr->flags, aura);
+			}
+		}
+		else if (one_in_(5)) 
+		{
+			add_flag(o_ptr->flags, brand);
+			if (one_in_(2))
+			{
+				add_flag(o_ptr->flags, aura);
+			}
+		}
+		else 
+		{
+			add_flag(o_ptr->flags, aura);
+		}
+		if (one_in_(ACTIVATION_CHANCE))
+			effect_add_random(o_ptr, activation_bias);
+	}
+	else
+	{
+		if (one_in_(50)) {
+			add_flag(o_ptr->flags, immunity);
+			if (one_in_(5))
+			{
+				add_flag(o_ptr->flags, brand);
+			}
+			if (one_in_(ACTIVATION_CHANCE))
+				effect_add_random(o_ptr, activation_bias);
+		}
+		else if (one_in_(5))
+		{
+			add_flag(o_ptr->flags, brand);
+			if (one_in_(ACTIVATION_CHANCE))
+				effect_add_random(o_ptr, activation_bias);
+		}
+		else
+		{
+			effect_add_random(o_ptr, activation_bias);
+		}
+	}
+	o_ptr->to_a += 5 + randint0(15);
 }
 static void _ego_create_jewelry_elemental(object_type *o_ptr, int level, int power)
 {
@@ -584,94 +739,98 @@ static void _ego_create_jewelry_elemental(object_type *o_ptr, int level, int pow
         add_flag(o_ptr->flags, OF_RES_COLD);
         add_flag(o_ptr->flags, OF_RES_FIRE);
         add_flag(o_ptr->flags, OF_RES_ELEC);
-        if (one_in_(3))
+        if (!one_in_(3))
             add_flag(o_ptr->flags, OF_RES_ACID);
-        if (one_in_(5))
+        if (one_in_(2))
             add_flag(o_ptr->flags, OF_RES_POIS);
-        else if (one_in_(5))
+        else if (one_in_(3))
             add_flag(o_ptr->flags, OF_RES_SHARDS);
+		if (one_in_(ACTIVATION_CHANCE))
+			effect_add_random(o_ptr, BIAS_ELEMENTAL);
     }
     else if (o_ptr->tval == TV_RING && abs(power) >= 2)
     {
-        switch (randint1(6))
-        {
-        case 1:
-            add_flag(o_ptr->flags, OF_RES_COLD);
-            add_flag(o_ptr->flags, OF_RES_FIRE);
-            add_flag(o_ptr->flags, OF_RES_ELEC);
-            if (one_in_(3))
-                add_flag(o_ptr->flags, OF_RES_ACID);
-            if (one_in_(5))
-                add_flag(o_ptr->flags, OF_RES_POIS);
-            break;
-        case 2:
-            o_ptr->to_a = 5 + randint1(5) + m_bonus(10, level);
-            add_flag(o_ptr->flags, OF_RES_FIRE);
-            if (one_in_(3))
-                add_flag(o_ptr->flags, OF_AURA_FIRE);
-            if (one_in_(7))
-                add_flag(o_ptr->flags, OF_BRAND_FIRE);
-            else if (randint1(level) >= 70)
-                add_flag(o_ptr->flags, OF_IM_FIRE);
-            if (one_in_(ACTIVATION_CHANCE))
-                effect_add_random(o_ptr, BIAS_FIRE);
-            break;
-        case 3:
-            o_ptr->to_a = 5 + randint1(5) + m_bonus(10, level);
-            add_flag(o_ptr->flags, OF_RES_COLD);
-            if (one_in_(3))
-                add_flag(o_ptr->flags, OF_AURA_COLD);
-            if (one_in_(7))
-                add_flag(o_ptr->flags, OF_BRAND_COLD);
-            else if (randint1(level) >= 70)
-                add_flag(o_ptr->flags, OF_IM_COLD);
-            if (one_in_(ACTIVATION_CHANCE))
-                effect_add_random(o_ptr, BIAS_COLD);
-            break;
-        case 4:
-            o_ptr->to_a = 5 + randint1(5) + m_bonus(10, level);
-            add_flag(o_ptr->flags, OF_RES_ELEC);
-            if (one_in_(3))
-                add_flag(o_ptr->flags, OF_AURA_ELEC);
-            if (one_in_(7))
-                add_flag(o_ptr->flags, OF_BRAND_ELEC);
-            else if (randint1(level) >= 75)
-                add_flag(o_ptr->flags, OF_IM_ELEC);
-            if (one_in_(ACTIVATION_CHANCE))
-                effect_add_random(o_ptr, BIAS_ELEC);
-            break;
-        case 5:
-            o_ptr->to_a = 5 + randint1(5) + m_bonus(10, level);
-            add_flag(o_ptr->flags, OF_RES_ACID);
-            if (one_in_(7))
-                add_flag(o_ptr->flags, OF_BRAND_ACID);
-            else if (randint1(level) >= 65)
-                add_flag(o_ptr->flags, OF_IM_ACID);
-            if (one_in_(ACTIVATION_CHANCE))
-                effect_add_random(o_ptr, BIAS_ACID);
-            break;
-        case 6:
-            o_ptr->to_a = 5 + randint1(5) + m_bonus(10, level);
-            add_flag(o_ptr->flags, OF_RES_SHARDS);
-            if (one_in_(3))
-                add_flag(o_ptr->flags, OF_AURA_SHARDS);
-            break;
-        }
+		switch (randint1(3))
+		{
+		case 1: //resistances
+			add_flag(o_ptr->flags, OF_RES_COLD);
+			add_flag(o_ptr->flags, OF_RES_FIRE);
+			add_flag(o_ptr->flags, OF_RES_ELEC);
+			if (!one_in_(3))
+				add_flag(o_ptr->flags, OF_RES_ACID);
+			if (one_in_(2))
+				add_flag(o_ptr->flags, OF_RES_POIS);
+			if (one_in_(ACTIVATION_CHANCE))
+				effect_add_random(o_ptr, BIAS_ELEMENTAL);
+			break;
+		case 2: //auras
+			switch (randint1(11)) 
+			{
+			case 1: case 2:
+				add_flag(o_ptr->flags, OF_RES_FIRE);
+				add_flag(o_ptr->flags, OF_AURA_FIRE);
+				break;
+			case 3: case 4:
+				add_flag(o_ptr->flags, OF_RES_COLD);
+				add_flag(o_ptr->flags, OF_AURA_COLD);
+				break;
+			case 5: case 6:
+				add_flag(o_ptr->flags, OF_RES_ELEC);
+				add_flag(o_ptr->flags, OF_AURA_ELEC);
+				break;
+			case 7:
+				add_flag(o_ptr->flags, OF_RES_ELEC);
+				add_flag(o_ptr->flags, OF_AURA_ELEC);
+				add_flag(o_ptr->flags, OF_RES_FIRE);
+				add_flag(o_ptr->flags, OF_AURA_FIRE);
+				break;
+			case 8:
+				add_flag(o_ptr->flags, OF_RES_COLD);
+				add_flag(o_ptr->flags, OF_AURA_COLD);
+				add_flag(o_ptr->flags, OF_RES_ELEC);
+				add_flag(o_ptr->flags, OF_AURA_ELEC);
+				break;
+			case 9:
+				add_flag(o_ptr->flags, OF_RES_FIRE);
+				add_flag(o_ptr->flags, OF_AURA_FIRE);
+				add_flag(o_ptr->flags, OF_RES_COLD);
+				add_flag(o_ptr->flags, OF_AURA_COLD);
+				break;
+			case 10:
+				add_flag(o_ptr->flags, OF_RES_FIRE);
+				add_flag(o_ptr->flags, OF_AURA_FIRE);
+				add_flag(o_ptr->flags, OF_RES_COLD);
+				add_flag(o_ptr->flags, OF_AURA_COLD);
+				add_flag(o_ptr->flags, OF_RES_ELEC);
+				add_flag(o_ptr->flags, OF_AURA_ELEC);
+				break;
+			case 11:
+				add_flag(o_ptr->flags, OF_RES_SHARDS);
+				add_flag(o_ptr->flags, OF_AURA_SHARDS);
+				break;
+			}
+			if (one_in_(ACTIVATION_CHANCE))
+				effect_add_random(o_ptr, BIAS_ELEMENTAL);
+			break;
+		case 3: //elemental focus
+			_ego_create_ring_elemental_focus(o_ptr);
+			break;
+		}
     }
     else
     {
         one_ele_resistance(o_ptr);
         if (one_in_(3))
             one_ele_resistance(o_ptr);
+		if (one_in_(ACTIVATION_CHANCE))
+			effect_add_random(o_ptr, BIAS_ELEMENTAL);
     }
-    if (one_in_(ACTIVATION_CHANCE))
-        effect_add_random(o_ptr, BIAS_ELEMENTAL);
 }
 static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
 {
     int powers = 0;
 
-    if (mode & AM_SPECIAL)
+    if (mode & AM_SPECIAL || _check_rand_art(50,level,power,mode))
     {
         _art_create_random(o_ptr, level, power);
         return;
@@ -720,7 +879,7 @@ static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
             effect_add_random(o_ptr, BIAS_NECROMANTIC);
         break;
     case EGO_RING_COMBAT:
-        for (powers = _jewelry_powers(5, level, power); powers > 0;)
+        for (powers = _jewelry_powers(level, power); powers > 0;)
         {
             switch (randint1(10))
             {
@@ -823,7 +982,7 @@ static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
         int div = 1;
         if (abs(power) >= 2) div++;
 
-        for (powers = _jewelry_powers(5, level, power); powers > 0; )
+        for (powers = _jewelry_powers(level, power); powers > 0; )
         {
             switch (randint1(10))
             {
@@ -919,7 +1078,7 @@ static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
         break;
     }
     case EGO_RING_PROTECTION:
-        for (powers = _jewelry_powers(5, level, power); powers > 0; --powers)
+        for (powers = _jewelry_powers(level, power); powers > 0; --powers)
         {
             switch (randint1(7))
             {
@@ -990,7 +1149,7 @@ static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
             while (one_in_(2))
                 o_ptr->pval++;
         }
-        if (level >= 50 && one_in_(ACTIVATION_CHANCE*2))
+        if (power >= 2 && one_in_(ACTIVATION_CHANCE))
         {
             if (one_in_(777))
                 effect_add(o_ptr, EFFECT_LIGHT_SPEED);
@@ -1002,47 +1161,70 @@ static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
         break;
     }
     case EGO_RING_WIZARDRY:
-        for (powers = _jewelry_powers(4, level, power); powers > 0; --powers)
+        for (powers = _jewelry_powers(level, power); powers > 0; --powers)
         {
-            switch (randint1(7))
-            {
-            case 1:
-                add_flag(o_ptr->flags, OF_INT);
-                if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
-                break;
-            case 2:
-                add_flag(o_ptr->flags, OF_SUST_INT);
-                break;
-            case 3:
-                add_flag(o_ptr->flags, OF_SPELL_CAP);
-                if (!o_ptr->pval)
-                    o_ptr->pval = _jewelry_pval(3, level);
-                else if (o_ptr->pval > 3)
-                    o_ptr->pval = 3;
-                break;
-            case 4:
-                add_flag(o_ptr->flags, OF_EASY_SPELL);
-                break;
-            case 5:
-                if (abs(power) >= 2)
-                {
-                    add_flag(o_ptr->flags, OF_DEC_MANA);
-                }
-                else if (one_in_(3))
-                {
-                    add_flag(o_ptr->flags, OF_RES_CONF);
-                }
-                else if (one_in_(3))
-                {
-                    add_flag(o_ptr->flags, OF_RES_BLIND);
-                }
-                else
-                {
-                    add_flag(o_ptr->flags, OF_LEVITATION);
-                }
-                break;
-            case 6:
-                if (abs(power) >= 2 && one_in_(30))
+			switch (randint1(7))
+			{
+			case 1:
+				if (!have_flag(o_ptr->flags, OF_TELEPATHY)) {
+					if (abs(power) >= 2 && one_in_(15))
+						add_flag(o_ptr->flags, OF_TELEPATHY);
+					else
+						one_low_esp(o_ptr);
+					break;
+				}
+			case 2:
+				if (abs(power) >= 2 && !have_flag(o_ptr->flags, OF_DEC_MANA))
+				{
+					add_flag(o_ptr->flags, OF_DEC_MANA);
+					break;
+				}
+				else if (one_in_(3) && !have_flag(o_ptr->flags, OF_RES_CONF))
+				{
+					add_flag(o_ptr->flags, OF_RES_CONF);
+					break;
+				}
+				else if (one_in_(3) && !have_flag(o_ptr->flags, OF_RES_BLIND))
+				{
+					add_flag(o_ptr->flags, OF_RES_BLIND);
+					break;
+				}
+				else if (!have_flag(o_ptr->flags, OF_LEVITATION))
+				{
+					add_flag(o_ptr->flags, OF_LEVITATION);
+					break;
+				}
+			case 3:
+				if (!have_flag(o_ptr->flags, OF_INT))
+				{
+					add_flag(o_ptr->flags, OF_INT);
+					if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+					break;
+				}
+			case 4:
+				if (!have_flag(o_ptr->flags, OF_SUST_INT))
+				{
+					add_flag(o_ptr->flags, OF_SUST_INT);
+					break;
+				}
+			case 5:
+				if (!have_flag(o_ptr->flags, OF_EASY_SPELL))
+				{
+					add_flag(o_ptr->flags, OF_EASY_SPELL);
+					break;
+				}
+			case 6:
+				if (!have_flag(o_ptr->flags, OF_SPELL_CAP))
+				{
+					add_flag(o_ptr->flags, OF_SPELL_CAP);
+					if (!o_ptr->pval)
+						o_ptr->pval = _jewelry_pval(4, level);
+					else if (o_ptr->pval > 4)
+						o_ptr->pval = 4;
+					break;
+				}
+			default:
+                if (abs(power) >= 2 && one_in_(30) && !have_flag(o_ptr->flags, OF_SPELL_POWER))
                 {
                     add_flag(o_ptr->flags, OF_SPELL_POWER);
                     add_flag(o_ptr->flags, OF_DEC_STR);
@@ -1059,12 +1241,6 @@ static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
                         powers--;
                     }
                 }
-                break;
-            default:
-                if (abs(power) >= 2 && one_in_(15))
-                    add_flag(o_ptr->flags, OF_TELEPATHY);
-                else
-                    one_low_esp(o_ptr);
             }
         }
         if (o_ptr->to_d > 20)
@@ -1072,7 +1248,11 @@ static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
         if (one_in_(ACTIVATION_CHANCE))
             effect_add_random(o_ptr, BIAS_MAGE);
         break;
+	case EGO_JEWELRY_VITALITY:
+		_ego_create_jewelry_vitality(o_ptr, level, power);
+		break;
     }
+	
 
     _finalize_jewelry(o_ptr);
 
@@ -1087,7 +1267,7 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
 {
     int powers = 0;
 
-    if (mode & AM_SPECIAL)
+    if (mode & AM_SPECIAL || _check_rand_art(50, level, power, mode))
     {
         _art_create_random(o_ptr, level, power);
         return;
@@ -1098,70 +1278,83 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
     {
     case EGO_AMULET_MAGI:
         add_flag(o_ptr->flags, OF_SEARCH);
-        for (powers = _jewelry_powers(5, level, power); powers > 0; --powers)
+        for (powers = _jewelry_powers(level, power); powers > 0; --powers)
         {
-            switch (randint1(7))
-            {
-            case 1:
-                add_flag(o_ptr->flags, OF_FREE_ACT);
-                add_flag(o_ptr->flags, OF_SEE_INVIS);
-                break;
+			switch (randint1(7))
+			{
+			case 1:
+				if (!have_flag(o_ptr->flags, OF_FREE_ACT) || !have_flag(o_ptr->flags, OF_SEE_INVIS)) {
+					add_flag(o_ptr->flags, OF_FREE_ACT);
+					add_flag(o_ptr->flags, OF_SEE_INVIS);
+					break;
+				}
             case 2:
-                add_flag(o_ptr->flags, OF_SUST_INT);
-                break;
+				if (!have_flag(o_ptr->flags, OF_SUST_INT))
+				{
+					add_flag(o_ptr->flags, OF_SUST_INT);
+					break;
+				}
             case 3:
-                add_flag(o_ptr->flags, OF_EASY_SPELL);
-                break;
+				if (!have_flag(o_ptr->flags, OF_EASY_SPELL))
+				{
+					add_flag(o_ptr->flags, OF_EASY_SPELL);
+					break;
+				}
             case 4:
-                if (abs(power) >= 2 && one_in_(2))
-                    add_flag(o_ptr->flags, OF_TELEPATHY);
-                else
-                    one_low_esp(o_ptr);
-                break;
+				if (!have_flag(o_ptr->flags, OF_TELEPATHY)) {
+					if (abs(power) >= 2 && one_in_(2))
+						add_flag(o_ptr->flags, OF_TELEPATHY);
+					else
+						one_low_esp(o_ptr);
+					break;
+				}
             case 5:
-                if (abs(power) >= 2)
+                if (abs(power) >= 2 && !have_flag(o_ptr->flags, OF_DEC_MANA))
                 {
                     add_flag(o_ptr->flags, OF_DEC_MANA);
                     break;
                 }
-                else if (one_in_(2))
+                else if (one_in_(2) && !have_flag(o_ptr->flags, OF_MAGIC_MASTERY))
                 {
                     add_flag(o_ptr->flags, OF_MAGIC_MASTERY);
                     if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
                     break;
                 }
-                else if (one_in_(3))
+                else if (one_in_(3) && !have_flag(o_ptr->flags, OF_RES_CONF))
                 {
                     add_flag(o_ptr->flags, OF_RES_CONF);
                     break;
                 }
-                else if (one_in_(3))
+                else if (one_in_(3) && !have_flag(o_ptr->flags, OF_RES_BLIND))
                 {
                     add_flag(o_ptr->flags, OF_RES_BLIND);
                     break;
                 }
             case 6:
-                if (abs(power) >= 2 && one_in_(15))
-                {
-                    add_flag(o_ptr->flags, OF_SPELL_POWER);
-                    add_flag(o_ptr->flags, OF_DEC_STR);
-                    add_flag(o_ptr->flags, OF_DEC_DEX);
-                    add_flag(o_ptr->flags, OF_DEC_CON);
-                    o_ptr->pval = _jewelry_pval(2, level);
-                }
-                else
-                {
-                    o_ptr->to_d += randint1(5) + m_bonus(5, level);
-                    while (one_in_(2) && powers > 0)
-                    {
-                        o_ptr->to_d += randint1(5) + m_bonus(5, level);
-                        powers--;
-                    }
-                }
-                break;
+				if (!have_flag(o_ptr->flags, OF_INT))
+				{
+					add_flag(o_ptr->flags, OF_INT);
+					if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+					break;
+				}
             default:
-                add_flag(o_ptr->flags, OF_INT);
-                if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+				if (abs(power) >= 2 && one_in_(15) && !have_flag(o_ptr->flags, OF_SPELL_POWER))
+				{
+					add_flag(o_ptr->flags, OF_SPELL_POWER);
+					add_flag(o_ptr->flags, OF_DEC_STR);
+					add_flag(o_ptr->flags, OF_DEC_DEX);
+					add_flag(o_ptr->flags, OF_DEC_CON);
+					o_ptr->pval = _jewelry_pval(2, level);
+				}
+				else
+				{
+					o_ptr->to_d += randint1(5) + m_bonus(5, level);
+					while (one_in_(2) && powers > 0)
+					{
+						o_ptr->to_d += randint1(5) + m_bonus(5, level);
+						powers--;
+					}
+				}
             }
         }
         if (!o_ptr->pval) o_ptr->pval = randint1(8); /* Searching */
@@ -1173,35 +1366,43 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
             effect_add_random(o_ptr, BIAS_MAGE);
         break;
     case EGO_AMULET_DEVOTION:
-        for (powers = _jewelry_powers(5, level, power); powers > 0; --powers)
+        for (powers = _jewelry_powers(level, power); powers > 0; --powers)
         {
-            switch (randint1(7))
-            {
-            case 1:
-                add_flag(o_ptr->flags, OF_CHR);
-                if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
-                break;
-            case 2:
-                add_flag(o_ptr->flags, OF_REFLECT);
-                break;
+			switch (randint1(7))
+			{
+			case 1:
+				if (!have_flag(o_ptr->flags, OF_CHR)) {
+					add_flag(o_ptr->flags, OF_CHR);
+					if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+					break;
+				}
+			case 2:
+				if (!have_flag(o_ptr->flags, OF_REFLECT)){
+					add_flag(o_ptr->flags, OF_REFLECT);
+					break;
+				}
             case 3:
-                if (abs(power) >= 2 && one_in_(2) && level >= 30)
+                if (abs(power) >= 2 && one_in_(2) && level >= 30 && !have_flag(o_ptr->flags, OF_SPELL_CAP))
                 {
                     add_flag(o_ptr->flags, OF_SPELL_CAP);
                     o_ptr->pval = _jewelry_pval(3, level);
+					break;
                 }
-                else
-                {
-                    add_flag(o_ptr->flags, OF_HOLD_LIFE);
-                    if (one_in_(2))
-                        add_flag(o_ptr->flags, OF_FREE_ACT);
-                    if (one_in_(2))
-                        add_flag(o_ptr->flags, OF_SEE_INVIS);
-                }
-                break;
+				else if (!have_flag(o_ptr->flags, OF_FREE_ACT) || !have_flag(o_ptr->flags, OF_SEE_INVIS))
+				{
+					add_flag(o_ptr->flags, OF_HOLD_LIFE);
+					if (one_in_(2))
+						add_flag(o_ptr->flags, OF_FREE_ACT);
+					if (one_in_(2))
+						add_flag(o_ptr->flags, OF_SEE_INVIS);
+					break;
+				}
             case 4:
-                one_high_resistance(o_ptr);
-                break;
+				if (!have_flag(o_ptr->flags, OF_WIS)) {
+					add_flag(o_ptr->flags, OF_WIS);
+					if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+					break;
+				}
             case 5:
                 if (abs(power) >= 2 && one_in_(2) && level >= 30)
                 {
@@ -1210,8 +1411,7 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
                     break;
                 }
             default:
-                add_flag(o_ptr->flags, OF_WIS);
-                if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+				one_high_resistance(o_ptr);
             }
         }
         if (one_in_(ACTIVATION_CHANCE))
@@ -1219,31 +1419,35 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
         break;
     case EGO_AMULET_TRICKERY:
         add_flag(o_ptr->flags, OF_SEARCH);
-        for (powers = _jewelry_powers(5, level, power); powers > 0; --powers)
+        for (powers = _jewelry_powers(level, power); powers > 0; --powers)
         {
             switch (randint1(7))
             {
             case 1:
-                add_flag(o_ptr->flags, OF_DEX);
-                if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
-                break;
+				if (!have_flag(o_ptr->flags, OF_DEX)) {
+					add_flag(o_ptr->flags, OF_DEX);
+					if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+					break;
+				}
             case 2:
-                add_flag(o_ptr->flags, OF_SUST_DEX);
-                break;
+				if (!have_flag(o_ptr->flags, OF_SUST_DEX)) {
+					add_flag(o_ptr->flags, OF_SUST_DEX);
+					break;
+				}
             case 3:
-                if (one_in_(2))
+                if (one_in_(2) && !have_flag(o_ptr->flags, OF_RES_POIS))
                     add_flag(o_ptr->flags, OF_RES_POIS);
-                else
+                else if (!have_flag(o_ptr->flags, OF_RES_DARK))
                     add_flag(o_ptr->flags, OF_RES_DARK);
                 break;
             case 4:
-                if (one_in_(2))
+                if (one_in_(2) && !have_flag(o_ptr->flags, OF_RES_NEXUS))
                     add_flag(o_ptr->flags, OF_RES_NEXUS);
-                else
+                else if (!have_flag(o_ptr->flags, OF_RES_CONF))
                     add_flag(o_ptr->flags, OF_RES_CONF);
                 break;
             case 5:
-                if (abs(power) >= 2 && one_in_(2) && level >= 50)
+                if (abs(power) >= 2 && one_in_(3) && level >= 50)
                 {
                     add_flag(o_ptr->flags, OF_TELEPATHY);
                     break;
@@ -1277,7 +1481,7 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
     case EGO_AMULET_DWARVEN:
         add_flag(o_ptr->flags, OF_INFRA);
         if (one_in_(2)) add_flag(o_ptr->flags, OF_LITE);
-        for (powers = _jewelry_powers(5, level, power); powers > 0; --powers)
+        for (powers = _jewelry_powers(level, power); powers > 0; --powers)
         {
             switch (randint1(9))
             {
@@ -1319,7 +1523,7 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
         if (!o_ptr->pval) o_ptr->pval = 2 + randint1(6); /* Infravision */
         break;
     case EGO_AMULET_BARBARIAN:
-        for (powers = _jewelry_powers(5, level, power); powers > 0; --powers)
+        for (powers = _jewelry_powers(level, power); powers > 0; --powers)
         {
             switch (randint1(6))
             {
@@ -1369,7 +1573,7 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
         add_flag(o_ptr->flags, OF_BLESSED);
         o_ptr->to_a = randint1(5);
         if (one_in_(2)) add_flag(o_ptr->flags, OF_LITE);
-        for (powers = _jewelry_powers(5, level, power); powers > 0; --powers)
+        for (powers = _jewelry_powers(level, power); powers > 0; --powers)
         {
             switch (randint1(8))
             {
@@ -1425,7 +1629,7 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
     case EGO_AMULET_HELL:
         o_ptr->curse_flags |= OFC_CURSED;
         o_ptr->to_a = -5;
-        for (powers = _jewelry_powers(5, level, power); powers > 0; --powers)
+        for (powers = _jewelry_powers(level, power); powers > 0; --powers)
         {
             switch (randint1(7))
             {
@@ -1511,13 +1715,12 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
     case EGO_JEWELRY_DEFENDER:
         _ego_create_jewelry_defender(o_ptr, level, power);
         break;
+	case EGO_JEWELRY_VITALITY:
+		_ego_create_jewelry_vitality(o_ptr, level, power);
+		break;
     }
 
     _finalize_jewelry(o_ptr);
-
-    /* Be sure to cursify later! */
-    if (power == -1)
-        power--;
 
     ego_finalize(o_ptr, level, power, mode);
 }
@@ -2270,21 +2473,14 @@ void obj_create_weapon(object_type *o_ptr, int level, int power, int mode)
 
     if (!crafting && !object_is_(o_ptr, TV_BOW, SV_HARP))
     {
-        if (power == -1)
+        if (power)
         {
-            o_ptr->to_h -= tohit1;
-            o_ptr->to_d -= todam1;
-            if (power < -1)
-            {
-                o_ptr->to_h -= tohit2;
-                o_ptr->to_d -= todam2;
-            }
-
-            if (o_ptr->to_h + o_ptr->to_d < 0) o_ptr->curse_flags |= OFC_CURSED;
-        }
-        else if (power)
-        {
-            o_ptr->to_h += tohit1;
+			if (power == -1)
+			{
+				o_ptr->curse_flags |= OFC_CURSED;
+				o_ptr->curse_flags |= get_curse(0, o_ptr);
+			}
+			o_ptr->to_h += tohit1;
             o_ptr->to_d += todam1;
             if (power > 1 || power < -1)
             {
@@ -2395,7 +2591,7 @@ static void _ego_create_dragon_armor(object_type *o_ptr, int level)
             if (one_in_(7))
                 add_flag(o_ptr->flags, OF_MAGIC_MASTERY);
             if (one_in_(5))
-                add_flag(o_ptr->flags, OF_LORE2);
+                add_flag(o_ptr->flags, OF_LORE);
             if (one_in_(ACTIVATION_CHANCE))
             {   /* Only do strong effects since we loose the DSM's breathe activation! */
                 int choices[] = {
@@ -2470,7 +2666,7 @@ static void _ego_create_gloves(object_type *o_ptr, int level)
     switch (o_ptr->name2)
     {
 	case EGO_GLOVES_SLAYING:
-		if (one_in_(4))
+		if (one_in_(6))
 		{
 			int rolls = 1 + m_bonus(4, level);
 			int i;
@@ -2488,7 +2684,7 @@ static void _ego_create_gloves(object_type *o_ptr, int level)
 		}
 		break;
     case EGO_GLOVES_GIANT:
-        if (one_in_(4))
+        if (one_in_(3))
         {
             switch (randint1(3))
             {
@@ -2518,7 +2714,7 @@ static void _ego_create_gloves(object_type *o_ptr, int level)
             add_flag(o_ptr->flags, OF_DEC_STR);
         if (one_in_(3))
             add_flag(o_ptr->flags, OF_DEC_CON);
-        if (one_in_(30))
+        if (one_in_(20))
             add_flag(o_ptr->flags, OF_DEVICE_POWER);
         break;
     case EGO_GLOVES_YEEK:
@@ -2625,6 +2821,113 @@ static void _ego_create_armor_elvenkind(object_type *o_ptr, int level)
     if (object_is_body_armour(o_ptr) && level > 60 && one_in_(7))
         add_flag(o_ptr->flags, OF_SPEED);
 }
+static void _ego_create_armor_dwarven(object_type *o_ptr, int level)
+{
+	assert(o_ptr->name2 == EGO_ARMOR_DWARVEN);
+	o_ptr->weight = (2 * k_info[o_ptr->k_idx].weight / 3);
+	o_ptr->ac += k_info[o_ptr->k_idx].ac / 4;
+	for (int powers = m_bonus(8, level) + randint0(1); powers > 0; --powers)
+	{
+		switch (randint1(10))
+		{
+		case 1:
+		case 2:
+			if (!have_flag(o_ptr->flags, OF_REGEN))
+			{
+				add_flag(o_ptr->flags, OF_REGEN);
+				break;
+			}
+		case 3:
+			if (!have_flag(o_ptr->flags, OF_STR))
+			{
+				add_flag(o_ptr->flags, OF_STR);
+				if (one_in_(3)) 
+				{
+					add_flag(o_ptr->flags, OF_DEC_STEALTH);
+				}
+				else if (one_in_(3))
+				{
+					add_flag(o_ptr->flags, OF_DEC_DEX);
+				}
+				break;
+			}
+		case 4:
+			if (!have_flag(o_ptr->flags, OF_CON))
+			{
+				add_flag(o_ptr->flags, OF_CON);
+				if (one_in_(3))
+				{
+					add_flag(o_ptr->flags, OF_DEC_DEX);
+				}
+				else if (one_in_(3))
+				{
+					add_flag(o_ptr->flags, OF_DEC_STEALTH);
+				}
+				break;
+			}
+		case 5:
+			if (!have_flag(o_ptr->flags, OF_FREE_ACT))
+			{
+				add_flag(o_ptr->flags, OF_FREE_ACT);
+				break;
+			}
+		case 6:
+			if (!have_flag(o_ptr->flags, OF_RES_DISEN) && level > 40 && one_in_(2))
+			{
+				add_flag(o_ptr->flags, OF_RES_DISEN);
+				break;
+			}
+			else
+			{
+				if (!have_flag(o_ptr->flags, OF_RES_DARK))
+				{
+					add_flag(o_ptr->flags, OF_RES_DARK);
+					break;
+				}
+			}
+		case 7:
+			if (!have_flag(o_ptr->flags, OF_RES_BLIND) && one_in_(2))
+			{
+				add_flag(o_ptr->flags, OF_RES_BLIND);
+				break;
+			}
+			else
+			{
+				if (!have_flag(o_ptr->flags, OF_SEARCH))
+				{
+					add_flag(o_ptr->flags, OF_SEARCH);
+					break;
+				}
+			}
+		case 8:
+			if (!have_flag(o_ptr->flags, OF_TUNNEL) && one_in_(2))
+			{
+				add_flag(o_ptr->flags, OF_TUNNEL);
+				break;
+			}
+		case 9:
+			if (!have_flag(o_ptr->flags, OF_SUST_CON) && one_in_(2))
+			{
+				add_flag(o_ptr->flags, OF_SUST_CON);
+				break;
+			}
+			else
+			{
+				if (!have_flag(o_ptr->flags, OF_SUST_STR))
+				{
+					add_flag(o_ptr->flags, OF_SUST_STR);
+					break;
+				}
+			}
+		case 10:
+			o_ptr->to_h += randint1(3) + m_bonus(5, level);
+			o_ptr->to_d += randint1(3) + m_bonus(5, level);
+			break;
+		default:
+			break;
+		}
+	}
+}
 static void _ego_create_body_armor(object_type *o_ptr, int level)
 {
     bool done = FALSE;
@@ -2647,21 +2950,12 @@ static void _ego_create_body_armor(object_type *o_ptr, int level)
         case EGO_ARMOR_ELVENKIND:
             _ego_create_armor_elvenkind(o_ptr, level);
             break;
-        case EGO_BODY_DWARVEN:
+        case EGO_ARMOR_DWARVEN:
             if (o_ptr->tval != TV_HARD_ARMOR || o_ptr->sval == SV_RUSTY_CHAIN_MAIL)
                 done = FALSE;
             else
             {
-                o_ptr->weight = (2 * k_info[o_ptr->k_idx].weight / 3);
-                o_ptr->ac = k_info[o_ptr->k_idx].ac + 5;
-                if (one_in_(4))
-                    add_flag(o_ptr->flags, OF_CON);
-                if (one_in_(4))
-                    add_flag(o_ptr->flags, OF_DEC_DEX);
-                if (one_in_(4))
-                    add_flag(o_ptr->flags, OF_DEC_STEALTH);
-                if (one_in_(2))
-                    add_flag(o_ptr->flags, OF_REGEN);
+				_ego_create_armor_dwarven(o_ptr, level);
             }
             break;
         case EGO_BODY_URUK_HAI:
@@ -2732,7 +3026,7 @@ static void _ego_create_shield(object_type *o_ptr, int level)
                 done = FALSE;
             }
             break;
-        case EGO_SHIELD_DWARVEN:
+        case EGO_ARMOR_DWARVEN:
             if ( o_ptr->sval == SV_SMALL_LEATHER_SHIELD
               || o_ptr->sval == SV_LARGE_LEATHER_SHIELD
               || o_ptr->sval == SV_DRAGON_SHIELD
@@ -2742,10 +3036,7 @@ static void _ego_create_shield(object_type *o_ptr, int level)
             }
             else
             {
-                o_ptr->weight = (2 * k_info[o_ptr->k_idx].weight / 3);
-                o_ptr->ac = k_info[o_ptr->k_idx].ac + 4;
-                if (one_in_(4))
-                    add_flag(o_ptr->flags, OF_SUST_CON);
+				_ego_create_armor_dwarven(o_ptr, level);
             }
             break;
         case EGO_SHIELD_ENDURANCE:
@@ -2860,20 +3151,17 @@ static void _ego_create_helmet(object_type *o_ptr, int level)
                 else add_esp_weak(o_ptr, FALSE);
             }
             break;
-        case EGO_HELMET_DWARVEN:
+        case EGO_ARMOR_DWARVEN:
             if (o_ptr->sval == SV_HARD_LEATHER_CAP || o_ptr->sval == SV_DRAGON_HELM)
             {
                 done = FALSE;
                 break;
             }
-            o_ptr->weight = (2 * k_info[o_ptr->k_idx].weight / 3);
-            o_ptr->ac = k_info[o_ptr->k_idx].ac + 3;
-            if (one_in_(4))
-                add_flag(o_ptr->flags, OF_TUNNEL);
+			_ego_create_armor_dwarven(o_ptr, level);
             break;
 
         case EGO_HELMET_SUNLIGHT:
-            if (one_in_(3))
+            if (one_in_(7))
                 add_flag(o_ptr->flags, OF_VULN_DARK);
             if (one_in_(ACTIVATION_CHANCE))
             {
@@ -2888,8 +3176,8 @@ static void _ego_create_helmet(object_type *o_ptr, int level)
         case EGO_HELMET_KNOWLEDGE:
             if (one_in_(7))
                 add_flag(o_ptr->flags, OF_MAGIC_MASTERY);
-            if (one_in_(5))
-                add_flag(o_ptr->flags, OF_LORE2);
+            if (one_in_(3))
+                add_flag(o_ptr->flags, OF_LORE);
             if (one_in_(ACTIVATION_CHANCE))
             {
                 int choices[] = {
@@ -3020,16 +3308,13 @@ static void _ego_create_boots(object_type *o_ptr, int level)
         case EGO_BOOTS_FEANOR:
             o_ptr->pval = 6 + m_bonus(9, level);
             break;
-        case EGO_BOOTS_DWARVEN:
-            if (o_ptr->sval != SV_PAIR_OF_METAL_SHOD_BOOTS)
+        case EGO_ARMOR_DWARVEN:
+            if (o_ptr->sval == SV_PAIR_OF_SOFT_LEATHER_BOOTS || o_ptr->sval == SV_PAIR_OF_HARD_LEATHER_BOOTS)
             {
                 done = FALSE;
                 break;
             }
-            o_ptr->weight = (2 * k_info[o_ptr->k_idx].weight / 3);
-            o_ptr->ac = k_info[o_ptr->k_idx].ac + 4;
-            if (one_in_(4))
-                add_flag(o_ptr->flags, OF_SUST_CON);
+			_ego_create_armor_dwarven(o_ptr, level);
             break;
         case EGO_BOOTS_ELVENKIND:
             if (one_in_(2))
@@ -3053,18 +3338,15 @@ void obj_create_armor(object_type *o_ptr, int level, int power, int mode)
     bool crafting = (mode & AM_CRAFTING) ? TRUE : FALSE;
 
     if (!crafting)
-    {
-        if (power == -1)
+    { 
+        if (power)
         {
-            o_ptr->to_a -= toac1;
-            if (power < -1)
-                o_ptr->to_a -= toac2;
-
-            if (o_ptr->to_a < 0) o_ptr->curse_flags |= OFC_CURSED;
-        }
-        else if (power)
-        {
-            o_ptr->to_a += toac1;
+			if (power == -1)
+			{
+				o_ptr->curse_flags |= OFC_CURSED;
+				o_ptr->curse_flags |= get_curse(0, o_ptr);
+			}
+			o_ptr->to_a += toac1;
             if (power > 1 || power < -1)
                 o_ptr->to_a += toac2;
         }
@@ -3196,8 +3478,8 @@ void obj_create_lite(object_type *o_ptr, int level, int power, int mode)
 
     while (!done)
     {
-        o_ptr->name2 = ego_choose_type(EGO_TYPE_LITE, level);
-        done = TRUE;
+		done = TRUE;
+		o_ptr->name2 = ego_choose_type(EGO_TYPE_LITE, level);
         switch (o_ptr->name2)
         {
         case EGO_LITE_DURATION:
@@ -3390,7 +3672,7 @@ void ego_finalize(object_type *o_ptr, int level, int power, int mode)
         }
         /* Cursed Egos: Make sure to do this last to avoid nonsensical combinations of
            good and bad flags (e.g. resist fire and vulnerable to fire) */
-        if (power == -2)
+        if (power < 0)
         {
             curse_object(o_ptr);
             if (!o_ptr->pval && have_pval_flag(o_ptr->flags))

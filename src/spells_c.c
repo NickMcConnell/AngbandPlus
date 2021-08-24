@@ -891,7 +891,7 @@ bool cast_destruction(void) { return cast_spell(destruction_spell); }
 static void _detect_curses(obj_ptr obj)
 {
     if (object_is_cursed(obj))
-        obj->feeling = FEEL_CURSED;
+		obj->known_curse_flags = obj->curse_flags;
 }
 
 void detect_curses_spell(int cmd, variant *res)
@@ -1883,7 +1883,7 @@ void glyph_of_warding_spell(int cmd, variant *res)
         var_set_string(res, "Glyph of Warding");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Sets a glyph on the floor beneath you. Monsters cannot attack you if you are on a glyph, but can try to break glyph.");
+        var_set_string(res, "Sets a glyph on the floor beneath you. Monsters cannot attack you if you are on a glyph, but can try to break the glyph.");
         break;
     case SPELL_CAST:
         warding_glyph();

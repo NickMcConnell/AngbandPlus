@@ -91,6 +91,9 @@
     <Filter Include="Player\Classes\ComPosband">
       <UniqueIdentifier>{59079a3e-d951-47f0-92d7-aa13f5c88c0d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Player\Classes\FrogComPosband">
+      <UniqueIdentifier>{18dc0d28-c0ed-41e1-812e-44b6829776fb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="files.c">
@@ -638,6 +641,12 @@
     </ClCompile>
     <ClCompile Include="hex_mage.c">
       <Filter>Player\Classes\ComPosband</Filter>
+    </ClCompile>
+    <ClCompile Include="lawyer.c">
+      <Filter>Player\Classes\FrogComPosband</Filter>
+    </ClCompile>
+    <ClCompile Include="ninjalaw.c">
+      <Filter>Player\Classes\FrogComPosband</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

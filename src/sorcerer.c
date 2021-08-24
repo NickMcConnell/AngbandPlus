@@ -105,9 +105,7 @@ class_t *sorcerer_get_class(void)
         me.base_hp = 0;
         me.exp = 160;
         me.pets = 25;
-        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
-        
+
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;
         me.calc_weapon_bonuses = _calc_weapon_bonuses;

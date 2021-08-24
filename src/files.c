@@ -1488,6 +1488,10 @@ void tim_player_flags(u32b flgs[OF_ARRAY_SIZE])
         add_flag(flgs, OF_RES_COLD);
     if (IS_OPPOSE_POIS())
         add_flag(flgs, OF_RES_POIS);
+	if (IS_OPPOSE_CONF())
+		add_flag(flgs, OF_RES_CONF);
+	if (IS_OPPOSE_BLIND())
+		add_flag(flgs, OF_RES_BLIND);
 
     if (p_ptr->tim_sustain_str) add_flag(flgs, OF_SUST_STR);
     if (p_ptr->tim_sustain_int) add_flag(flgs, OF_SUST_INT);
@@ -1546,7 +1550,7 @@ void tim_player_flags(u32b flgs[OF_ARRAY_SIZE])
         add_flag(flgs, OF_FREE_ACT);
         add_flag(flgs, OF_LEVITATION);
     }
-    if (p_ptr->tim_res_nether)
+    if ((p_ptr->tim_res_nether) || (IS_SPINNING()))
     {
         add_flag(flgs, OF_RES_NETHER);
     }
@@ -2268,7 +2272,7 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
         if (show_version)
         {
             prt(format(
-                "[Composband %d.%d.%d, %s, Line %d/%d]",
+                "[Composband %d.%d.%s, %s, Line %d/%d]",
                VER_MAJOR, VER_MINOR, VER_PATCH,
                caption, line, size), 0, 0);
         }
@@ -2741,12 +2745,12 @@ void do_cmd_suicide(void)
     if (!p_ptr->noscore)
     {
         /* Special Verification for suicide */
-        prt("Please verify SUICIDE by typing the '@' sign: ", 0, 0);
+        prt("Please verify SUICIDE by typing the '@' sign (or pressing Ctrl-E): ", 0, 0);
 
         flush();
         i = inkey();
         prt("", 0, 0);
-        if (i != '@') return;
+        if ((i != '@') && (i != KTRL('E'))) return;
     }
 
     /* Initialize "last message" buffer */

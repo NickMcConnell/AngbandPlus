@@ -17,15 +17,15 @@
 /*Exo's patch for updating character info*/
 void updatecharinfoL(void)
 {
+	race_t         *race = get_true_race();
+	class_t        *class_ = get_class();
+	dragon_realm_ptr drealm = dragon_get_realm(p_ptr->dragon_realm);
+
 	//File Output + Lookup Tables
 	char tmp_Path[1024];
 	FILE *oFile;
 	path_build(tmp_Path, sizeof(tmp_Path), ANGBAND_DIR_USER, "CharOutput.txt");
 	oFile = fopen(tmp_Path, "w");
-
-	race_t         *race = get_true_race();
-	class_t        *class_ = get_class();
-	dragon_realm_ptr drealm = dragon_get_realm(p_ptr->dragon_realm);
 
 	fprintf(oFile, "{\n");
 	fprintf(oFile, "race: \"%s\",\n", race->name);
@@ -485,6 +485,9 @@ static void rd_extra(savefile_ptr file)
     p_ptr->oppose_acid = savefile_read_s16b(file);
     p_ptr->oppose_elec = savefile_read_s16b(file);
     p_ptr->oppose_pois = savefile_read_s16b(file);
+	p_ptr->oppose_conf = savefile_read_s16b(file);
+	p_ptr->oppose_blind = savefile_read_s16b(file);
+    p_ptr->spin = savefile_read_s16b(file);
     p_ptr->tsuyoshi = savefile_read_s16b(file);
     p_ptr->tim_esp = savefile_read_s16b(file);
     p_ptr->tim_esp_magical = savefile_read_s16b(file);
@@ -664,6 +667,7 @@ static void rd_extra(savefile_ptr file)
 
     playtime = savefile_read_u32b(file);
     p_ptr->count = savefile_read_u32b(file);
+    for (i = 0; i < 16; i++) (void)savefile_read_s32b(file);
 
     {
     race_t  *race_ptr = get_true_race();

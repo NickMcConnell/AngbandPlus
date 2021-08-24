@@ -755,8 +755,6 @@ class_t *monk_get_class(void)
         me.base_hp = 12;
         me.exp = 130;
         me.pets = 35;
-        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_SLOW | CLASS_SENSE2_STRONG;
 
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;

@@ -15,15 +15,15 @@
 /*Exo's character information patch*/
 void updatecharinfoS(void)
 {
+	race_t         *race = get_true_race();
+	class_t        *class_ = get_class();
+	dragon_realm_ptr drealm = dragon_get_realm(p_ptr->dragon_realm);
+
 	//File Output + Lookup Tables
 	char tmp_Path[1024];
 	FILE *oFile;
 	path_build(tmp_Path, sizeof(tmp_Path), ANGBAND_DIR_USER, "CharOutput.txt");
 	oFile = fopen(tmp_Path, "w");
-
-	race_t         *race = get_true_race();
-	class_t        *class_ = get_class();
-	dragon_realm_ptr drealm = dragon_get_realm(p_ptr->dragon_realm);
 
 	fprintf(oFile, "{\n");
 	fprintf(oFile, "race: \"%s\",\n", race->name);
@@ -570,6 +570,9 @@ static void wr_extra(savefile_ptr file)
     savefile_write_s16b(file, p_ptr->oppose_acid);
     savefile_write_s16b(file, p_ptr->oppose_elec);
     savefile_write_s16b(file, p_ptr->oppose_pois);
+	savefile_write_s16b(file, p_ptr->oppose_conf);
+	savefile_write_s16b(file, p_ptr->oppose_blind);
+    savefile_write_s16b(file, p_ptr->spin);
     savefile_write_s16b(file, p_ptr->tsuyoshi);
     savefile_write_s16b(file, p_ptr->tim_esp);
     savefile_write_s16b(file, p_ptr->tim_esp_magical);
@@ -726,6 +729,8 @@ static void wr_extra(savefile_ptr file)
     savefile_write_s16b(file, p_ptr->floor_id);
     savefile_write_u32b(file, playtime);
     savefile_write_u32b(file, p_ptr->count);
+    for (i = 0; i < 16; i++)
+        savefile_write_s32b(file, 0); /* Future use */
 
     {
     race_t  *race_ptr = get_true_race();
@@ -1358,8 +1363,6 @@ bool save_player(void)
     return (result);
 }
 
-
-
 /*
  * Attempt to Load a "savefile"
  *
@@ -1565,7 +1568,7 @@ bool load_player(void)
         /* Give a conversion warning */
         if ((VER_MAJOR != z_major) ||
             (VER_MINOR != z_minor) ||
-            (VER_PATCH != z_patch))
+            (VER_PATCH!= z_patch))
         {
             msg_format("Converted a %d.%d.%d savefile.",
                 (z_major > 9) ? z_major-10 : z_major , z_minor, z_patch);

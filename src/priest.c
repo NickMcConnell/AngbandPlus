@@ -131,8 +131,6 @@ class_t *priest_get_class(void)
         me.base_hp = 4;
         me.exp = 120;
         me.pets = 35;
-        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
 
         me.birth = _birth;
         me.caster_info = _caster_info;

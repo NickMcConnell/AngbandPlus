@@ -339,6 +339,29 @@ cptr get_ordinal_number_suffix(int num)
 }
 
 /*
+ * Toggle easy_mimics
+ */
+void toggle_easy_mimics(bool kayta)
+{
+    int i;
+    for (i = 1; i < max_r_idx; i++)
+    {
+        monster_race *r_ptr = &r_info[i];
+        if (!r_ptr->name) continue;
+        if (r_ptr->flags7 & RF7_NASTY_GLYPH)
+        {
+            if ((kayta) && (r_ptr->x_char == r_ptr->d_char)) r_ptr->x_char = 'x';
+            else if ((!kayta) && (r_ptr->x_char == 'x')) r_ptr->x_char = r_ptr->d_char;
+            if (r_ptr->d_attr == color_char_to_attr('d'))
+            {
+                if (kayta) r_ptr->x_attr = color_char_to_attr('D');
+                else r_ptr->x_attr = color_char_to_attr('d');
+            } 
+        }
+    }
+}
+
+/*
  * Hack -- redraw the screen
  *
  * This command performs various low level updates, clears all the "extra"
@@ -1211,6 +1234,7 @@ void do_cmd_options(void)
     char k;
     int i, d, skey;
     int y = 0;
+    bool old_easy_mimics = easy_mimics;
 
     /* Save the screen */
     screen_save();
@@ -1227,7 +1251,7 @@ void do_cmd_options(void)
         Term_clear();
 
         /* Why are we here */
-        prt("ComPosband Options", 1, 0);
+        prt("Composband Options", 1, 0);
 
         while(1)
         {
@@ -1490,6 +1514,8 @@ void do_cmd_options(void)
         msg_print(NULL);
     }
 
+    /* Big fat hack */
+    if (easy_mimics || old_easy_mimics) toggle_easy_mimics(easy_mimics);
 
     /* Restore the screen */
     screen_load();
@@ -3215,10 +3241,10 @@ void do_cmd_version(void)
     cptr xtra = "";
     if (VER_MINOR == 0)
     {
-        if (VER_PATCH == 0) xtra = " (Alpha)";
-        else xtra = " (Beta)";
+/*        if (VER_PATCH == 0) xtra = " (Alpha)"; */
+        xtra = " (Beta)";
     }
-    msg_format("You are playing <color:B>ComPosband</color> <color:r>%d.%d.%d%s</color>.",
+    msg_format("You are playing <color:B>Composband</color> <color:r>%d.%d.%s%s</color>.",
         VER_MAJOR, VER_MINOR, VER_PATCH, xtra);
     if (1)
     {
@@ -3801,7 +3827,7 @@ static int collect_objects(int grp_cur, int object_idx[], byte mode)
         if (TV_LIFE_BOOK == group_tval)
         {
             /* Hack -- All spell books */
-            if (TV_LIFE_BOOK <= k_ptr->tval && k_ptr->tval <= TV_BURGLARY_BOOK)
+            if (TV_BOOK_BEGIN <= k_ptr->tval && k_ptr->tval <= TV_BOOK_END)
             {
                 /* Add the object */
                 object_idx[object_cnt++] = i;
@@ -7085,7 +7111,8 @@ void do_cmd_knowledge(void)
             prt("(S) Shooter Damage", row++, col);
         if (mut_count(NULL))
             prt("(M) Mutations", row++, col);
-        prt("(v) Virtues", row++, col);
+        if (enable_virtues)
+            prt("(v) Virtues", row++, col);
         if (class_ptr->character_dump || race_ptr->character_dump)
             prt("(x) Extra info", row++, col);
         prt("(H) High Score List", row++, col);
@@ -7176,7 +7203,10 @@ void do_cmd_knowledge(void)
                 bell();
             break;
         case 'v':
-            do_cmd_knowledge_virtues();
+            if (enable_virtues)
+                do_cmd_knowledge_virtues();
+            else
+                bell();
             break;
         case 'x':
             if (class_ptr->character_dump || race_ptr->character_dump)

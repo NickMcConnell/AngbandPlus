@@ -579,7 +579,7 @@ static caster_info * _caster_info(void)
         me.encumbrance.max_wgt = 430;
         me.encumbrance.weapon_pct = 100;
         me.encumbrance.enc_wgt = 600;
-        me.options = CASTER_GLOVE_ENCUMBRANCE;
+        me.options = CASTER_ALLOW_DEC_MANA | CASTER_GLOVE_ENCUMBRANCE;
         init = TRUE;
     }
     return &me;
@@ -652,8 +652,6 @@ class_t *necromancer_get_class(void)
         me.base_hp = 2;
         me.exp = 125;
         me.pets = 10;
-        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
-                   CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
 
         me.birth = _birth;
         me.caster_info = _caster_info;

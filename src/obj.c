@@ -50,13 +50,48 @@ void obj_free(obj_ptr obj)
     }
 }
 
+void obj_sense(obj_ptr obj)
+{
+	object_kind *k_ptr = &k_info[obj->k_idx];
+	if (obj_is_known(obj)) return;
+	if (obj_can_sense(obj)) {
+		if ((obj->to_a - k_ptr->to_a) > 0 || (obj->to_d - k_ptr->to_d) + (obj->to_h - k_ptr->to_h) > 0)
+		{
+			obj->feeling = FEEL_GOOD;
+		}
+		else
+		{
+			if (obj_is_device(obj))
+			{
+				obj->feeling = FEEL_AVERAGE;
+			}
+			else if (!object_is_ego(obj) && !object_is_artifact(obj))
+			{
+				obj_identify(obj);
+			}
+		}
+	}
+	if (object_is_artifact(obj))
+	{
+		if (obj_can_sense(obj)) obj->feeling = FEEL_ARTIFACT;
+		return;
+	}
+	if (object_is_ego(obj))
+	{
+		if (obj_can_sense(obj)) obj->feeling = FEEL_EGO;
+		if (!object_is_ammo(obj)) return;
+	}
+}
+
 void obj_make_pile(obj_ptr obj)
 {
     int          size = 1;
     object_kind *k_ptr = &k_info[obj->k_idx];
+	
+	obj_sense(obj);
+	if (object_is_artifact(obj)) return;
+	if (object_is_ego(obj) && !object_is_ammo(obj)) return;
 
-    if (object_is_artifact(obj)) return;
-    if (object_is_ego(obj) && !object_is_ammo(obj)) return;
     if (!k_ptr->stack_chance) return;
     if (randint1(100) > k_ptr->stack_chance) return;
 
@@ -193,7 +228,7 @@ void gear_notice_enchant(obj_ptr obj)
 /************************************************************************
  * Predicates
  ***********************************************************************/
-bool obj_can_sense1(obj_ptr obj)
+bool obj_can_sense(obj_ptr obj)
 {
     switch (obj->tval)
     {
@@ -216,22 +251,12 @@ bool obj_can_sense1(obj_ptr obj)
     case TV_HARD_ARMOR:
     case TV_DRAG_ARMOR:
     case TV_CARD:
-        return TRUE;
-    }
-    return FALSE;
-}
-
-bool obj_can_sense2(obj_ptr obj)
-{
-    switch (obj->tval)
-    {
-    case TV_RING:
-    case TV_AMULET:
-    case TV_LITE:
-    case TV_FIGURINE:
-    case TV_WAND:
-    case TV_STAFF:
-    case TV_ROD:
+	case TV_RING:
+	case TV_AMULET:
+	case TV_LITE:
+	case TV_WAND:
+	case TV_STAFF:
+	case TV_ROD:
         return TRUE;
     }
     return FALSE;
@@ -1025,7 +1050,7 @@ void obj_destroy_ui(void)
     }
 
     /* Artifacts cannot be destroyed */
-    if (!can_player_destroy_object(prompt.obj)) /* side effect: obj->sense = FEEL_SPECIAL */
+    if (!can_player_destroy_object(prompt.obj))
     {
         object_desc(name, prompt.obj, OD_COLOR_CODED);
         msg_format("You cannot destroy %s.", name);

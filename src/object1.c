@@ -353,7 +353,7 @@ static void _obj_identify_aux(object_type *o_ptr)
     k_info[o_ptr->k_idx].aware = TRUE;
 
     o_ptr->feeling = FEEL_NONE;
-    o_ptr->ident &= ~(IDENT_SENSE | IDENT_EMPTY | IDENT_TRIED);
+    o_ptr->ident &= ~(IDENT_EMPTY | IDENT_TRIED);
     o_ptr->ident |= IDENT_KNOWN;
 
     /* Lore on unidentified objects is tricky, but flavorful.

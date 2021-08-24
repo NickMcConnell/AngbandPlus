@@ -59,7 +59,7 @@ R:OBJ(^sling$)
 ?:[EQU $CLASS Samurai]
 R:OBJ(wakizashi)
 
-?:[EQU $CLASS Beastmaster Cavalry Ninja]
+?:[EQU $CLASS Cavalry Ninja]
 R:OBJ(gauntlets)
 
 ?:[EQU $CLASS Mauler]

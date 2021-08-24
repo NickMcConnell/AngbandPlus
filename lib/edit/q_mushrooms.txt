@@ -4,14 +4,13 @@ D:and get a pile of magic mushrooms. They grow in the icky cave.
 ?:1
 
 ?:[EQU $QUEST63 Completed]
-D:Good now I can finish my salad. Take this signet
-D:ring to show you're allowed to be here.
+D:Good now I can finish my salad. Take this and read it!
 ?:1
 
 ?:[EQU $QUEST63 Failed]
 D:You know what helps with mushrooms? Other mushrooms.
 ?:1
 
-R:OBJ(RING):EGO(wizardry)
+R:OBJ(scroll of spell)
 
 # vim: filetype=q :

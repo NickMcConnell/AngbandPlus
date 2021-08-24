@@ -1093,6 +1093,7 @@ static void _cast_spell(_spell_info_ptr spell)
         if (flush_failure) flush();
 
         cmsg_format(TERM_VIOLET, "You failed to cast <color:B>%s</color>!", do_spell(spell->realm, spell->idx, SPELL_NAME));
+        if (prompt_on_failure) msg_print(NULL);
         if (demigod_is_(DEMIGOD_ATHENA))
             p_ptr->csp += spell->cost/2;
         spell_stats_on_fail_old(spell->realm, spell->idx);
@@ -1176,13 +1177,6 @@ static void _skills_init_class(class_t *class_ptr)
     pts = _get_skill_pts(_TYPE_SKILLS, _AWARENESS);
     class_ptr->base_skills.srh += 12 + 15*pts;
     class_ptr->base_skills.fos += 6 + 15*pts;
-    if (!pts)
-        class_ptr->flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK;
-    else
-    {
-        class_ptr->flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG |
-                           CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
-    }
 
     pts = _get_skill_pts(_TYPE_SKILLS, _DEVICES);
     class_ptr->base_skills.dev += 10*pts;
@@ -1206,7 +1200,7 @@ static void _skills_calc_bonuses(void)
     switch (pts)
     {
     case 3: p_ptr->telepathy = TRUE;
-    case 2: p_ptr->auto_pseudo_id = TRUE;
+    case 2: p_ptr->auto_id = TRUE;
     case 1: p_ptr->see_inv++;
     }
 
@@ -1225,7 +1219,7 @@ void _skills_get_flags(u32b flgs[OF_ARRAY_SIZE])
     switch (pts)
     {
     case 3: add_flag(flgs, OF_TELEPATHY);
-    case 2: add_flag(flgs, OF_LORE1);
+    case 2: add_flag(flgs, OF_LORE);
     case 1: add_flag(flgs, OF_SEE_INVIS);
     }
 
@@ -1780,7 +1774,6 @@ class_t *skillmaster_get_class(void)
     me.life = 100;
     me.base_hp = 10;
     me.pets = 40;
-    me.flags = 0;
 
     /* Rebuild the class_t, using the current skill allocation */
     if (!spoiler_hack && !birth_hack)

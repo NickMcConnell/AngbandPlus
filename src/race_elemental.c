@@ -475,7 +475,7 @@ static void _air_birth(void)
     py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_STAFF, SV_ANY));
-    if (device_init_fixed(&forge, EFFECT_NOTHING))
+    if (device_init_fixed(&forge, EFFECT_NOTHING, 5))
         py_birth_obj(&forge);
     py_birth_light();
 

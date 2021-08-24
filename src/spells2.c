@@ -90,50 +90,53 @@ void self_knowledge(void)
     }
     info[i++] = "";
 
-    sprintf(Dummy, "Your alignment : %s (%d)", your_alignment(), p_ptr->align);
-    strcpy(buf[1], Dummy);
-    info[i++] = buf[1];
-    for (v_nr = 0; v_nr < 8; v_nr++)
+    if (enable_virtues)
     {
-        char v_name [20];
-        char vir_desc[80];
-        int tester = p_ptr->virtues[v_nr];
+        sprintf(Dummy, "Your alignment : %s (%d)", your_alignment(), p_ptr->align);
+        strcpy(buf[1], Dummy);
+        info[i++] = buf[1];
+        for (v_nr = 0; v_nr < 8; v_nr++)
+        {
+            char v_name [20];
+            char vir_desc[80];
+            int tester = p_ptr->virtues[v_nr];
 
-        strcpy(v_name, virtue_name(p_ptr->vir_types[v_nr]));
+            strcpy(v_name, virtue_name(p_ptr->vir_types[v_nr]));
 
-        sprintf(vir_desc, "Oops. No info about %s.", v_name);
-        if (tester < -100)
-            sprintf(vir_desc, "You are the polar opposite of %s (%d).", v_name, tester);
-        else if (tester < -80)
-            sprintf(vir_desc, "You are an arch-enemy of %s (%d).", v_name, tester);
-        else if (tester < -60)
-            sprintf(vir_desc, "You are a bitter enemy of %s (%d).", v_name, tester);
-        else if (tester < -40)
-            sprintf(vir_desc, "You are an enemy of %s (%d).", v_name, tester);
-        else if (tester < -20)
-            sprintf(vir_desc, "You have sinned against %s (%d).", v_name, tester);
-        else if (tester < 0)
-            sprintf(vir_desc, "You have strayed from the path of %s (%d).", v_name, tester);
-        else if (tester == 0)
-            sprintf(vir_desc,"You are neutral to %s (%d).", v_name, tester);
-        else if (tester < 20)
-            sprintf(vir_desc,"You are somewhat virtuous in %s (%d).", v_name, tester);
-        else if (tester < 40)
-            sprintf(vir_desc,"You are virtuous in %s (%d).", v_name, tester);
-        else if (tester < 60)
-            sprintf(vir_desc,"You are very virtuous in %s (%d).", v_name, tester);
-        else if (tester < 80)
-            sprintf(vir_desc,"You are a champion of %s (%d).",  v_name, tester);
-        else if (tester < 100)
-            sprintf(vir_desc,"You are a great champion of %s (%d).", v_name, tester);
-        else
-            sprintf(vir_desc,"You are the living embodiment of %s (%d).", v_name, tester);
+            sprintf(vir_desc, "Oops. No info about %s.", v_name);
+            if (tester < -100)
+                sprintf(vir_desc, "You are the polar opposite of %s (%d).", v_name, tester);
+            else if (tester < -80)
+                sprintf(vir_desc, "You are an arch-enemy of %s (%d).", v_name, tester);
+            else if (tester < -60)
+                sprintf(vir_desc, "You are a bitter enemy of %s (%d).", v_name, tester);
+            else if (tester < -40)
+                sprintf(vir_desc, "You are an enemy of %s (%d).", v_name, tester);
+            else if (tester < -20)
+                sprintf(vir_desc, "You have sinned against %s (%d).", v_name, tester);
+            else if (tester < 0)
+                sprintf(vir_desc, "You have strayed from the path of %s (%d).", v_name, tester);
+            else if (tester == 0)
+                sprintf(vir_desc,"You are neutral to %s (%d).", v_name, tester);
+            else if (tester < 20)
+                sprintf(vir_desc,"You are somewhat virtuous in %s (%d).", v_name, tester);
+            else if (tester < 40)
+                sprintf(vir_desc,"You are virtuous in %s (%d).", v_name, tester);
+            else if (tester < 60)
+                sprintf(vir_desc,"You are very virtuous in %s (%d).", v_name, tester);
+            else if (tester < 80)
+                sprintf(vir_desc,"You are a champion of %s (%d).",  v_name, tester);
+            else if (tester < 100)
+                sprintf(vir_desc,"You are a great champion of %s (%d).", v_name, tester);
+            else
+                sprintf(vir_desc,"You are the living embodiment of %s (%d).", v_name, tester);
 
-        strcpy(v_string[v_nr], vir_desc);
+            strcpy(v_string[v_nr], vir_desc);
 
-        info[i++] = v_string[v_nr];
+            info[i++] = v_string[v_nr];
+        }
+        info[i++] = "";
     }
-    info[i++] = "";
 
     if (p_ptr->blind)
     {
@@ -628,8 +631,6 @@ void self_knowledge(void)
         info[i++] = "You are immune to charge draining attacks.";
     if (p_ptr->auto_id)
         info[i++] = "Objects are automatically identified as you pass over them.";
-    else if (p_ptr->auto_pseudo_id)
-        info[i++] = "Objects are automatically pseudo-identified as you pass over them.";
     if (p_ptr->cult_of_personality)
         info[i++] = "Summoned monsters sometimes switch their allegiance.";
 
@@ -848,6 +849,18 @@ void report_magics(void)
         info[i++] = "You are resistant to poison";
 
     }
+	if (p_ptr->oppose_conf)
+	{
+		info2[i] = report_magics_aux(p_ptr->oppose_conf);
+		info[i++] = "You are resistant to confusion";
+
+	}
+	if (p_ptr->oppose_blind)
+	{
+		info2[i] = report_magics_aux(p_ptr->oppose_blind);
+		info[i++] = "You are resistant to blindness";
+
+	}
 
     /* Save the screen */
     screen_save();
@@ -901,9 +914,8 @@ static bool detect_feat_flag(int range, int flag, bool known)
     {
         for (x = 1; x <= cur_wid - 1; x++)
         {
-            int dist = distance(py, px, y, x);
+            int dist = MAX(ABS(px - x), ABS(py - y));
             if (dist > range) continue;
-
             /* Access the grid */
             c_ptr = &cave[y][x];
 
@@ -957,6 +969,9 @@ bool detect_traps(int range, bool known)
     bool detect = detect_feat_flag(range, FF_TRAP, known);
 
     if (music_singing(MUSIC_DETECT) && p_ptr->magic_num1[2] > 0) detect = FALSE;
+
+	/* Avoid spoiling, but mark grids as safe if the effect is obvious */
+	if (detect && !known) detect_feat_flag(range, FF_TRAP, TRUE);
 
     /* Describe */
     if (detect)
@@ -1057,7 +1072,7 @@ bool detect_objects_gold(int range)
         x = o_ptr->loc.x;
 
         /* Only detect nearby objects */
-        if (distance(py, px, y, x) > range2) continue;
+        if (MAX(ABS(px - x), ABS(py - y)) > range2) continue;
 
         /* Detect "gold" objects */
         if (o_ptr->tval == TV_GOLD)
@@ -1120,7 +1135,7 @@ bool detect_objects_normal(int range)
         x = o_ptr->loc.x;
 
         /* Only detect nearby objects */
-        if (distance(py, px, y, x) > range2) continue;
+        if (MAX(ABS(px - x), ABS(py - y)) > range2) continue;
 
         /* Detect "real" objects */
         if (o_ptr->tval != TV_GOLD)
@@ -1271,7 +1286,7 @@ bool detect_monsters_normal(int range)
         x = m_ptr->fx;
 
         /* Only detect nearby monsters */
-        if (distance(py, px, y, x) > range) continue;
+        if (MAX(ABS(px - x), ABS(py - y)) > range) continue;
 
         /* Detect all non-invisible monsters
          * N.B. update_mon() will roll the perception check for Invisibility */
@@ -1330,7 +1345,7 @@ bool detect_monsters_invis(int range)
         x = m_ptr->fx;
 
         /* Only detect nearby monsters */
-        if (distance(py, px, y, x) > range) continue;
+        if (MAX(ABS(px - x), ABS(py - y)) > range) continue;
 
         /* Detect invisible monsters */
         if (r_ptr->flags2 & RF2_INVISIBLE)
@@ -1396,7 +1411,7 @@ bool detect_monsters_evil(int range)
         x = m_ptr->fx;
 
         /* Only detect nearby monsters */
-        if (distance(py, px, y, x) > range) continue;
+        if (MAX(ABS(px - x), ABS(py - y)) > range) continue;
 
         /* Detect evil monsters */
         if (r_ptr->flags3 & RF3_EVIL)
@@ -1457,7 +1472,7 @@ bool detect_monsters_nonliving(int range)
         x = m_ptr->fx;
 
         /* Only detect nearby monsters */
-        if (distance(py, px, y, x) > range) continue;
+        if (MAX(ABS(px - x), ABS(py - y)) > range) continue;
 
         /* Detect non-living monsters */
         if (!monster_living(r_ptr))
@@ -1515,7 +1530,7 @@ bool detect_monsters_living(int range, cptr msg)
         y = m_ptr->fy;
         x = m_ptr->fx;
 
-        if (distance(py, px, y, x) > range) continue;
+        if (MAX(ABS(px - x), ABS(py - y)) > range) continue;
 
         if (monster_living(r_ptr))
         {
@@ -1557,7 +1572,7 @@ bool detect_monsters_magical(int range)
         x = m_ptr->fx;
 
         /* Only detect nearby monsters */
-        if (distance(py, px, y, x) > range) continue;
+        if (MAX(ABS(px - x), ABS(py - y)) > range) continue;
 
         /* Detect non-living monsters */
         if (monster_magical(r_ptr))
@@ -1617,7 +1632,7 @@ bool detect_monsters_mind(int range)
         x = m_ptr->fx;
 
         /* Only detect nearby monsters */
-        if (distance(py, px, y, x) > range) continue;
+		if (MAX(ABS(px - x), ABS(py - y)) > range) continue;
 
         /* Detect non-living monsters */
         if (!(r_ptr->flags2 & RF2_EMPTY_MIND))
@@ -1680,7 +1695,7 @@ bool detect_monsters_string(int range, cptr Match)
         x = m_ptr->fx;
 
         /* Only detect nearby monsters */
-        if (distance(py, px, y, x) > range) continue;
+        if (MAX(ABS(px - x), ABS(py - y)) > range) continue;
 
         /* Detect monsters with the same symbol */
         if (my_strchr(Match, r_ptr->d_char))
@@ -1746,7 +1761,7 @@ bool detect_monsters_xxx(int range, u32b match_flag)
         x = m_ptr->fx;
 
         /* Only detect nearby monsters */
-        if (distance(py, px, y, x) > range) continue;
+        if (MAX(ABS(px - x), ABS(py - y)) > range) continue;
 
         /* Detect evil monsters */
         if (r_ptr->flags3 & (match_flag))
@@ -2012,7 +2027,7 @@ void aggravate_monsters(int who)
         /* Speed up monsters in line of sight */
         if (player_has_los_bold(m_ptr->fy, m_ptr->fx))
         {
-            if (!is_pet(m_ptr))
+            if ((!is_pet(m_ptr)) && ((!very_nice_summon_hack) || (!(m_ptr->mflag & MFLAG_NICE))))
             {
                 (void)set_monster_fast(i, MON_FAST(m_ptr) + 100);
                 speed = TRUE;
@@ -3766,6 +3781,13 @@ bool teleport_swap(int dir)
     {
         msg_print("A mysterious force prevents you from teleporting!");
         equip_learn_flag(OF_NO_TELE);
+        return FALSE;
+    }
+
+    /* Require clean line of sight */
+    if (!very_clean_shot(py, px, ty, tx))
+    {
+        msg_print("You cannot see your target well enough.");
         return FALSE;
     }
 

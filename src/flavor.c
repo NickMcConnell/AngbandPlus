@@ -35,6 +35,7 @@ static bool object_easy_know(int i)
         case TV_CRUSADE_BOOK:
         case TV_NECROMANCY_BOOK:
         case TV_ARMAGEDDON_BOOK:
+        case TV_LAW_BOOK:
         case TV_MUSIC_BOOK:
         case TV_HISSATSU_BOOK:
         case TV_HEX_BOOK:
@@ -543,8 +544,7 @@ static flag_insc_table flag_insc_misc[] =
     { "Ty", OF_TY_CURSE, -1 },
     { "Ds", OF_DARKNESS, -1 },
     { "Wm", OF_WEAPONMASTERY, -1 },
-    { "Ps", OF_LORE1, -1 },
-    { "Id", OF_LORE2, -1 },
+    { "Id", OF_LORE, -1 },
     { NULL, 0, -1 }
 };
 
@@ -1332,6 +1332,15 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             break;
         }
 
+        case TV_LAW_BOOK:
+        {
+            if (mp_ptr->spell_book == TV_LIFE_BOOK)
+                basenm = "& Book~ of Legal Tricks %";
+            else
+                basenm = "& Law Book~ %";
+            break;
+        }
+
         case TV_NECROMANCY_BOOK:
         {
             basenm = "& Necromancy Spellbook~ %";
@@ -1856,7 +1865,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         }
     }
 
-    if ((p_ptr->pclass == CLASS_NINJA) && (o_ptr->tval == TV_SPIKE))
+    if ((player_is_ninja) && (o_ptr->tval == TV_SPIKE))
     {
         int avgdam = 1;
         s16b energy_fire = 100 - p_ptr->lev;
@@ -2027,19 +2036,19 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         t = object_desc_str(t, format(" [%d%%]", pct));
     }
 
+	/* Hack -- Process Lanterns/Torches */
+	if ((o_ptr->tval == TV_LITE) && (!(o_ptr->name1 || o_ptr->art_name || (o_ptr->sval == SV_LITE_FEANOR))))
+	{
+		/* Hack -- Turns of light for normal lites */
+		t = object_desc_str(t, " (with ");
+
+		if (o_ptr->name2 == EGO_LITE_DURATION) t = object_desc_num(t, o_ptr->xtra4 * 2);
+		else t = object_desc_num(t, o_ptr->xtra4);
+		t = object_desc_str(t, " turns of light)");
+	}
+
     if (known)
     {
-        /* Hack -- Process Lanterns/Torches */
-        if ((o_ptr->tval == TV_LITE) && (!(o_ptr->name1 || o_ptr->art_name || (o_ptr->sval == SV_LITE_FEANOR))))
-        {
-            /* Hack -- Turns of light for normal lites */
-            t = object_desc_str(t, " (with ");
-
-            if (o_ptr->name2 == EGO_LITE_DURATION) t = object_desc_num(t, o_ptr->xtra4 * 2);
-            else t = object_desc_num(t, o_ptr->xtra4);
-            t = object_desc_str(t, " turns of light)");
-        }
-
         /* Indicate charging objects, but not rods. */
         if (o_ptr->timeout && (o_ptr->tval != TV_ROD))
         {
@@ -2167,13 +2176,13 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     fake_insc_buf[0] = '\0';
 
     /* Use the game-generated "feeling" otherwise, if available */
-    if (o_ptr->feeling)
+    if (o_ptr->feeling && !((mode & OD_STORE) || (o_ptr->ident & IDENT_STORE)))
     {
         strcpy(fake_insc_buf, game_inscriptions[o_ptr->feeling]);
     }
 
     /* Note "cursed" if the item is known to be cursed */
-    else if (object_is_cursed(o_ptr) && (known || (o_ptr->ident & IDENT_SENSE)))
+    else if (object_is_cursed(o_ptr))
     {
         if (object_is_device(o_ptr) && !obj_is_identified_fully(o_ptr))
         {
@@ -2183,14 +2192,6 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             strcpy(fake_insc_buf, "cursed");
     }
 
-    /* Note "unidentified" if the item is unidentified */
-    else if ( (o_ptr->tval == TV_LITE || o_ptr->tval == TV_FIGURINE || o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
-           && aware 
-           && !known
-           && !(o_ptr->ident & IDENT_SENSE) )
-    {
-        strcpy(fake_insc_buf, "unidentified");
-    }
     /* Mega-Hack -- note empty wands/staffs */
     else if (!known && (o_ptr->ident & IDENT_EMPTY))
     {

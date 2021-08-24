@@ -25,7 +25,7 @@ static void _birth(void)
     py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_STAFF, SV_ANY));
-    if (device_init_fixed(&forge, EFFECT_ANIMATE_DEAD))
+    if (device_init_fixed(&forge, EFFECT_ANIMATE_DEAD, 5))
         py_birth_obj(&forge);
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_ROBE));

@@ -299,7 +299,7 @@ static int _basic_cmd(obj_prompt_context_ptr context, int cmd)
         {
             obj_prompt_tab_ptr tab = vec_get(context->tabs, floor_tab);
             context->tab = floor_tab;
-            if (inv_count_slots(tab->inv, obj_exists) == 1)
+			if ((inv_count_slots(tab->inv, obj_exists) == 1) && (!strpos("nscribe", context->prompt->prompt)))
             {
                 slot_t slot = inv_first(tab->inv, obj_exists);
                 obj_ptr obj; 

@@ -76,7 +76,11 @@ bool teleport_away(int m_idx, int dis, u32b mode)
         (((p_ptr->chp * 10) / p_ptr->mhp) > 5) &&
         (4+randint1(5) < ((p_ptr->chp * 10) / p_ptr->mhp)))
     {
-        virtue_add(VIRTUE_VALOUR, -1);
+		virtue_add(VIRTUE_VALOUR, -1);
+		if (p_ptr->pclass == CLASS_CHAOS_WARRIOR || mut_present(MUT_CHAOS_GIFT))
+		{
+			chaos_choose_effect(PATRON_VILLIANY);
+		}
     }
 
     /* Look until done */
@@ -312,11 +316,16 @@ bool cave_player_teleportable_bold(int y, int x, u32b mode)
  * of candidates has equal possibility to be choosen as a destination.
  */
 
+/*
+ * Teleport pong deaths still happen so we're just going to do the
+ * easier more obvious thing of randomising the distance a little.
+ */
+
 #define MAX_TELEPORT_DISTANCE 200
 
 bool teleport_player_aux(int dis, u32b mode)
 {
-    int candidates_at[MAX_TELEPORT_DISTANCE + 1];
+	int candidates_at[MAX_TELEPORT_DISTANCE + 1];
     int total_candidates, cur_candidates;
     int y = 0, x = 0, min, pick, i;
 
@@ -324,6 +333,8 @@ bool teleport_player_aux(int dis, u32b mode)
     int right = MIN(cur_wid - 2, px + dis);
     int top = MAX(1, py - dis);
     int bottom = MIN(cur_hgt - 2, py + dis);
+
+	dis = MAX(1, (2 * dis / 3) + randint0(dis / 3));
 
     if (p_ptr->wild_mode) return FALSE;
 
@@ -1484,6 +1495,7 @@ void call_the_(void)
     int i;
     cave_type *c_ptr;
     bool do_call = TRUE;
+    cptr snoun, sverb;
 
     for (i = 0; i < 9; i++)
     {
@@ -1526,9 +1538,9 @@ void call_the_(void)
 
     else
     {
-        msg_format("You %s the %s too close to a wall!",
-            ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "recite" : "cast"),
-            ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "prayer" : "spell"));
+        snoun = spell_category_name(mp_ptr->spell_book);
+        sverb = spell_category_verb(mp_ptr->spell_book);
+        msg_format("You %s the %s too close to a wall!", sverb, snoun);
         msg_print("There is a loud explosion!");
 
         if (one_in_(666))
@@ -1651,8 +1663,7 @@ void fetch(int dir, int wgt, bool require_los)
     o_ptr->loc.x = (byte)px;
 
     object_desc(o_name, o_ptr, OD_NAME_ONLY);
-    msg_format("%^s flies through the air to your feet.", o_name);
-
+    msg_format("%^s %s through the air to your feet.", o_name, (o_ptr->number == 1) ? "flies" : "fly");
 
     note_spot(py, px);
     p_ptr->redraw |= PR_MAP;
@@ -1806,7 +1817,6 @@ static int remove_curse_aux(int all)
 
         o_ptr->curse_flags = 0;
         o_ptr->known_curse_flags = 0; /* Forget lore in preparation for next cursing */
-        o_ptr->ident  |= IDENT_SENSE;
         o_ptr->feeling = FEEL_NONE;
         p_ptr->update |= PU_BONUS;
         p_ptr->window |= PW_EQUIP;
@@ -1943,8 +1953,6 @@ void break_curse(object_type *o_ptr)
         msg_print("The curse is broken!");
 
         o_ptr->curse_flags = 0L;
-
-        o_ptr->ident |= (IDENT_SENSE);
 
         o_ptr->feeling = FEEL_NONE;
     }
@@ -2674,9 +2682,6 @@ bool bless_weapon(void)
         /* Uncurse it */
         prompt.obj->curse_flags = 0;
 
-        /* Hack -- Assume felt */
-        prompt.obj->ident |= (IDENT_SENSE);
-
         /* Take note */
         prompt.obj->feeling = FEEL_NONE;
 
@@ -3097,7 +3102,9 @@ s16b spell_chance(int spell, int use_realm)
     int             chance, minfail;
     magic_type      *s_ptr;
     int             need_mana;
-    caster_info        *caster_ptr = get_caster_info();
+    caster_info     *caster_ptr = get_caster_info();
+    int             spell_stat;
+    bool            hp_caster;
 
     /* Paranoia -- must be literate */
     if (!mp_ptr->spell_book) return (100);
@@ -3115,22 +3122,32 @@ s16b spell_chance(int spell, int use_realm)
     }
 
     /* Extract the base spell failure rate */
-    chance = s_ptr->sfail;
+    chance = lawyer_hack(s_ptr, LAWYER_HACK_FAILRATE);
 
     /* Reduce failure rate by "effective" level adjustment */
-    chance -= 3 * (p_ptr->lev - s_ptr->slevel);
+    chance -= 3 * (p_ptr->lev - lawyer_hack(s_ptr, LAWYER_HACK_LEVEL));
+
+    hp_caster = (caster_ptr && (caster_ptr->options & CASTER_USE_HP));
+
+    /* Hack - ninja-lawyers have WIS as their spell stat but use DEX for ninjutsu */
+    spell_stat = caster_ptr->which_stat;
+    if ((p_ptr->pclass == CLASS_NINJA_LAWYER) && (use_realm != REALM_LAW)) 
+    {
+        spell_stat = A_DEX;
+        hp_caster = TRUE;
+    }
 
     /* Reduce failure rate by INT/WIS adjustment */
-    chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[caster_ptr->which_stat]] - 1);
+    chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[spell_stat]] - 1);
 
     if (p_ptr->riding)
         chance += MAX(r_info[m_list[p_ptr->riding].r_idx].level - skills_riding_current() / 100 - 10, 0);
 
     /* Extract mana consumption rate */
-    need_mana = mod_need_mana(s_ptr->smana, spell, use_realm);
+    need_mana = mod_need_mana(lawyer_hack(s_ptr, LAWYER_HACK_MANA), spell, use_realm);
 
     /* Not enough mana to cast */
-    if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
+    if (hp_caster)
     {
         /* Spells can't be cast without enough hp, so just leave the fail rate alone! */
     }
@@ -3149,7 +3166,7 @@ s16b spell_chance(int spell, int use_realm)
     }
 
     /* Extract the minimum failure rate */
-    minfail = adj_mag_fail[p_ptr->stat_ind[caster_ptr->which_stat]];
+    minfail = adj_mag_fail[p_ptr->stat_ind[spell_stat]];
 
     /*
      * Non mage/priest characters never get too good
@@ -3215,7 +3232,7 @@ bool spell_okay(int spell, bool learned, bool study_pray, int use_realm, bool br
 	if (browse) return (TRUE);
 
     /* Spell is illegal */
-    if (s_ptr->slevel > p_ptr->lev) return (FALSE);
+    if (lawyer_hack(s_ptr, LAWYER_HACK_LEVEL) > p_ptr->lev) return (FALSE);
 
     /* Spell is forgotten */
     if ((use_realm == p_ptr->realm2) ?
@@ -3259,7 +3276,7 @@ void print_spells(int target_spell, byte *spells, int num, rect_t display, int u
     char            buf[256];
     bool            max = FALSE;
     caster_info    *caster_ptr = get_caster_info();
-
+    int             vaikeustaso;
 
     if (((use_realm <= REALM_NONE) || (use_realm > MAX_REALM)) && p_ptr->wizard)
         msg_print("Warning! print_spells called with null realm");
@@ -3270,7 +3287,7 @@ void print_spells(int target_spell, byte *spells, int num, rect_t display, int u
         strcpy(buf,"  Lvl  SP");
     else
     {
-        if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
+        if (caster_ptr && ((caster_ptr->options & CASTER_USE_HP) || ((p_ptr->pclass == CLASS_NINJA_LAWYER) && (use_realm != REALM_LAW))))
             strcpy(buf,"Profic Lvl  HP Fail Desc");
         else
             strcpy(buf,"Profic Lvl  SP Fail Desc");
@@ -3302,6 +3319,8 @@ void print_spells(int target_spell, byte *spells, int num, rect_t display, int u
             s_ptr = &mp_ptr->info[use_realm - 1][spell];
         }
 
+        vaikeustaso = lawyer_hack(s_ptr, LAWYER_HACK_LEVEL);
+
         if (use_realm == REALM_HISSATSU)
             need_mana = s_ptr->smana;
         else
@@ -3309,15 +3328,15 @@ void print_spells(int target_spell, byte *spells, int num, rect_t display, int u
             s16b exp = experience_of_spell(spell, use_realm);
 
             /* Extract mana consumption rate */
-            need_mana = mod_need_mana(s_ptr->smana, spell, use_realm);
+            need_mana = mod_need_mana(lawyer_hack(s_ptr, LAWYER_HACK_MANA), spell, use_realm);
 
-            if ((increment == 64) || (s_ptr->slevel >= 99)) exp_level = EXP_LEVEL_UNSKILLED;
+            if ((increment == 64) || (vaikeustaso >= 99)) exp_level = EXP_LEVEL_UNSKILLED;
             else exp_level = spell_exp_level(exp);
 
             max = FALSE;
             if (!increment && (exp_level == EXP_LEVEL_MASTER)) max = TRUE;
             else if ((increment == 32) && (exp_level >= EXP_LEVEL_EXPERT)) max = TRUE;
-            else if (s_ptr->slevel >= 99) max = TRUE;
+            else if (vaikeustaso >= 99) max = TRUE;
             else if ((p_ptr->pclass == CLASS_RED_MAGE) && (exp_level >= EXP_LEVEL_SKILLED)) max = TRUE;
 
             strncpy(ryakuji, exp_level_str[exp_level], 4);
@@ -3334,7 +3353,7 @@ void print_spells(int target_spell, byte *spells, int num, rect_t display, int u
         }
         else sprintf(out_val, "  %c) ", I2A(i));
         /* Skip illegible spells */
-        if (s_ptr->slevel >= 99)
+        if (vaikeustaso >= 99)
         {
                 strcat(out_val, format("%-30s", "(illegible)"));
                 c_put_str(TERM_L_DARK, out_val, display.y + i + 1, display.x);
@@ -3355,13 +3374,13 @@ void print_spells(int target_spell, byte *spells, int num, rect_t display, int u
         /* Analyze the spell */
         if ((p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_RED_MAGE))
         {
-            if (s_ptr->slevel > p_ptr->max_plv)
+            if (vaikeustaso > p_ptr->max_plv)
             {
                 comment = "unknown";
 
                 line_attr = TERM_L_BLUE;
             }
-            else if (s_ptr->slevel > p_ptr->lev)
+            else if (vaikeustaso > p_ptr->lev)
             {
                 comment = "forgotten";
 
@@ -3404,14 +3423,14 @@ void print_spells(int target_spell, byte *spells, int num, rect_t display, int u
         {
             strcat(out_val, format("%-25s %3d %3d",
                 do_spell(use_realm, spell, SPELL_NAME),
-                s_ptr->slevel, need_mana));
+                vaikeustaso, need_mana));
         }
         else
         {
             strcat(out_val, format("%-25s%c%-4s %3d %3d %3d%% %s",
                 do_spell(use_realm, spell, SPELL_NAME),
                 (max ? '!' : ' '), ryakuji,
-                s_ptr->slevel, need_mana, spell_chance(spell, use_realm), comment));
+                vaikeustaso, need_mana, spell_chance(spell, use_realm), comment));
         }
         c_put_str(line_attr, out_val, display.y + i + 1, display.x);
     }
