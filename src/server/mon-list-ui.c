@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997-2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2013 Ben Semmler
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -368,7 +368,8 @@ void monster_list_show_interactive(struct player *p, int height, int width)
     text_out_init(p);
 
 	monster_list_collect(p, list);
-	monster_list_sort(list, monster_list_standard_compare);
+	monster_list_sort(list, OPT(p, sort_exp)? monster_list_compare_exp:
+        monster_list_standard_compare);
 
 	/*
 	 * Figure out optimal display rect. Large numbers are passed as the height and

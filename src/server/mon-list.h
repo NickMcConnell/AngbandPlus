@@ -40,6 +40,7 @@ extern monster_list_t *monster_list_shared_instance(struct player *p);
 extern void monster_list_reset(struct player *p, monster_list_t *list);
 extern void monster_list_collect(struct player *p, monster_list_t *list);
 extern int monster_list_standard_compare(const void *a, const void *b);
+extern int monster_list_compare_exp(const void *a, const void *b);
 extern void monster_list_sort(monster_list_t *list, int (*compare)(const void *, const void *));
 extern byte monster_list_entry_line_color(struct player *p, const monster_list_entry_t *entry);
 

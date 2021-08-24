@@ -3,7 +3,7 @@
  * Purpose: Message handling
  *
  * Copyright (c) 2007 Elly, Andi Sidwell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -204,7 +204,7 @@ void msg_format_complex_far(struct player *p, u16b type, const char *fmt, const 
             msg_print(player, buf_vis, type);
 
             /* Disturb player */
-            disturb(player, 0);
+            disturb(player);
         }
         else
         {

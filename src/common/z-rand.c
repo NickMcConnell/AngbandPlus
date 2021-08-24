@@ -3,7 +3,7 @@
  * Purpose: A Random Number Generator for Angband
  *
  * Copyright (c) 1997 Ben Harrison, Randy Hutson
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * See below for copyright on the WELL random number generator.
  *
@@ -167,7 +167,7 @@ void Rand_init(void)
  */
 u32b Rand_div(u32b m)
 {
-    u32b r, n;
+    u32b n, r = 0;
 
     my_assert(m <= 0x10000000);
 

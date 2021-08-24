@@ -13,6 +13,7 @@
 # short : short town name (for file and display)
 # wpos : x coordinate : y coordinate
 # max-townies : max number of townies in town (-1 for no max)
+# symbol : town symbol (for wilderness minimap)
 
 # Starting town should ALWAYS be the first entry in the list.
 # Base town should ALWAYS be the second entry in the list.
@@ -65,3 +66,4 @@ name:The Brandywine Bridge
 short:Brandywine
 wpos:-19:21
 max-townies:10
+symbol:drawbridge

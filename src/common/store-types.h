@@ -17,6 +17,7 @@ enum
     STORE_OTHER = 0,
     STORE_GENERAL,
     STORE_TEMPLE,
+    STORE_BOOKSELLER,
     STORE_B_MARKET,
     STORE_XBM,
     STORE_TAVERN,
@@ -29,7 +30,7 @@ enum
 struct object_buy
 {
     struct object_buy *next;
-    byte tval;
+    u16b tval;
     size_t flag;
 };
 

@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2012 Peter Denison
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -23,90 +23,328 @@
 
 
 /*
- * Each chest has a certain set of traps, determined by pval
- * Each chest has a "pval" from 1 to the chest level (max 55)
- * If the "pval" is negative then the trap has been disarmed
- * The "pval" of a chest determines the quality of its treasure
- * Note that disarming a trap on a chest also removes the lock.
+ * Chest traps are specified in the file chest_trap.txt.
+ *
+ * Chests are described by their 16-bit pval as follows:
+ * - pval of 0 is an empty chest
+ * - pval of 1 is a locked chest with no traps
+ * - pval > 1  is a trapped chest, with each bit of the pval aside from the
+ *             lowest and highest (potentially) representing a different trap
+ * - pval < 1  is a disarmed/unlocked chest; the disarming process is simply
+ *             to negate the pval
+ *
+ * The chest pval also determines the difficulty of disarming the chest.
+ * Currently the maximum difficulty is 60 (32 + 16 + 8 + 4); if more traps are
+ * added to chest_trap.txt, the disarming calculation will need adjusting.
  */
-static const byte chest_traps[64] =
+
+
+static struct chest_trap *chest_traps;
+
+
+/*
+ * Parsing functions for chest_trap.txt
+ */
+
+
+static enum parser_error parse_chest_trap_name(struct parser *p)
 {
-    0,                  /* 0 == empty */
-    (CHEST_POISON),
-    (CHEST_LOSE_STR),
-    (CHEST_LOSE_CON),
-    (CHEST_LOSE_STR),
-    (CHEST_LOSE_CON),           /* 5 == best small wooden */
-    0,
-    (CHEST_POISON),
-    (CHEST_POISON),
-    (CHEST_LOSE_STR),
-    (CHEST_LOSE_CON),
-    (CHEST_POISON),
-    (CHEST_LOSE_STR | CHEST_LOSE_CON),
-    (CHEST_LOSE_STR | CHEST_LOSE_CON),
-    (CHEST_LOSE_STR | CHEST_LOSE_CON),
-    (CHEST_SUMMON),         /* 15 == best large wooden */
-    0,
-    (CHEST_LOSE_STR),
-    (CHEST_LOSE_CON),
-    (CHEST_PARALYZE),
-    (CHEST_LOSE_STR | CHEST_LOSE_CON),
-    (CHEST_SUMMON),
-    (CHEST_PARALYZE),
-    (CHEST_LOSE_STR),
-    (CHEST_LOSE_CON),
-    (CHEST_EXPLODE),            /* 25 == best small iron */
-    0,
-    (CHEST_POISON | CHEST_LOSE_STR),
-    (CHEST_POISON | CHEST_LOSE_CON),
-    (CHEST_LOSE_STR | CHEST_LOSE_CON),
-    (CHEST_EXPLODE | CHEST_SUMMON),
-    (CHEST_PARALYZE),
-    (CHEST_POISON | CHEST_SUMMON),
-    (CHEST_SUMMON),
-    (CHEST_EXPLODE),
-    (CHEST_EXPLODE | CHEST_SUMMON), /* 35 == best large iron */
-    0,
-    (CHEST_SUMMON),
-    (CHEST_EXPLODE),
-    (CHEST_EXPLODE | CHEST_SUMMON),
-    (CHEST_EXPLODE | CHEST_SUMMON),
-    (CHEST_POISON | CHEST_PARALYZE),
-    (CHEST_EXPLODE),
-    (CHEST_EXPLODE | CHEST_SUMMON),
-    (CHEST_EXPLODE | CHEST_SUMMON),
-    (CHEST_POISON | CHEST_PARALYZE),    /* 45 == best small steel */
-    0,
-    (CHEST_LOSE_STR | CHEST_LOSE_CON),
-    (CHEST_LOSE_STR | CHEST_LOSE_CON),
-    (CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_STR),
-    (CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_CON),
-    (CHEST_POISON | CHEST_LOSE_STR | CHEST_LOSE_CON),
-    (CHEST_POISON | CHEST_LOSE_STR | CHEST_LOSE_CON),
-    (CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_STR | CHEST_LOSE_CON),
-    (CHEST_POISON | CHEST_PARALYZE),
-    (CHEST_POISON | CHEST_PARALYZE),    /* 55 == best large steel */
-    (CHEST_EXPLODE | CHEST_SUMMON),
-    (CHEST_EXPLODE | CHEST_SUMMON),
-    (CHEST_EXPLODE | CHEST_SUMMON),
-    (CHEST_EXPLODE | CHEST_SUMMON),
-    (CHEST_EXPLODE | CHEST_SUMMON),
-    (CHEST_EXPLODE | CHEST_SUMMON),
-    (CHEST_EXPLODE | CHEST_SUMMON),
-    (CHEST_EXPLODE | CHEST_SUMMON),
+    const char *name = parser_getstr(p, "name");
+    struct chest_trap *h = parser_priv(p);
+    struct chest_trap *t = mem_zalloc(sizeof(*t));
+
+	/* Order the traps correctly and set the pval */
+	if (h)
+    {
+		h->next = t;
+		t->pval = h->pval * 2;
+	}
+    else
+    {
+		chest_traps = t;
+		t->pval = 1;
+	}
+    t->name = string_make(name);
+    parser_setpriv(p, t);
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_chest_trap_code(struct parser *p)
+{
+    const char *code = parser_getstr(p, "code");
+    struct chest_trap *t = parser_priv(p);
+
+    if (!t)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+    t->code = string_make(code);
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_chest_trap_level(struct parser *p)
+{
+    struct chest_trap *t = parser_priv(p);
+
+    if (!t)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+    t->level = parser_getint(p, "level");
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_chest_trap_effect(struct parser *p)
+{
+    struct chest_trap *t = parser_priv(p);
+	struct effect *effect;
+	struct effect *new_effect = mem_zalloc(sizeof(*new_effect));
+
+	if (!t)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+
+	/* Go to the next vacant effect and set it to the new one  */
+	if (t->effect)
+    {
+		effect = t->effect;
+		while (effect->next)
+			effect = effect->next;
+		effect->next = new_effect;
+	}
+    else
+		t->effect = new_effect;
+
+	/* Fill in the detail */
+	return grab_effect_data(p, new_effect);
+}
+
+
+static enum parser_error parse_chest_trap_dice(struct parser *p)
+{
+	struct chest_trap *t = parser_priv(p);
+	dice_t *dice = NULL;
+	struct effect *effect = t->effect;
+	const char *string = NULL;
+
+	if (!t)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+
+	/* If there is no effect, assume that this is human and not parser error. */
+	if (effect == NULL)
+		return PARSE_ERROR_NONE;
+
+	while (effect->next) effect = effect->next;
+
+	dice = dice_new();
+
+	if (dice == NULL)
+		return PARSE_ERROR_INVALID_DICE;
+
+	string = parser_getstr(p, "dice");
+
+	if (dice_parse_string(dice, string))
+		effect->dice = dice;
+	else
+    {
+		dice_free(dice);
+		return PARSE_ERROR_INVALID_DICE;
+	}
+
+	return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_chest_trap_expr(struct parser *p)
+{
+	struct chest_trap *t = parser_priv(p);
+	struct effect *effect = t->effect;
+	expression_t *expression = NULL;
+	expression_base_value_f function = NULL;
+	const char *name;
+	const char *base;
+	const char *expr;
+
+	if (!t)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+
+	/* If there is no effect, assume that this is human and not parser error. */
+	if (effect == NULL)
+		return PARSE_ERROR_NONE;
+
+	while (effect->next) effect = effect->next;
+
+	/* If there are no dice, assume that this is human and not parser error. */
+	if (effect->dice == NULL)
+		return PARSE_ERROR_NONE;
+
+	name = parser_getsym(p, "name");
+	base = parser_getsym(p, "base");
+	expr = parser_getstr(p, "expr");
+	expression = expression_new();
+
+	if (expression == NULL)
+		return PARSE_ERROR_INVALID_EXPRESSION;
+
+	function = spell_value_base_by_name(base);
+	expression_set_base_value(expression, function);
+
+	if (expression_add_operations_string(expression, expr) < 0)
+		return PARSE_ERROR_BAD_EXPRESSION_STRING;
+
+	if (dice_bind_expression(effect->dice, name, expression) < 0)
+		return PARSE_ERROR_UNBOUND_EXPRESSION;
+
+	/* The dice object makes a deep copy of the expression, so we can free it */
+	expression_free(expression);
+
+	return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_chest_trap_destroy(struct parser *p)
+{
+    struct chest_trap *t = parser_priv(p);
+	int val = 0;
+
+	if (!t)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+    val = parser_getint(p, "val");
+	if (val)
+		t->destroy = true;
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_chest_trap_magic(struct parser *p)
+{
+    struct chest_trap *t = parser_priv(p);
+	int val = 0;
+
+	if (!t)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+    val = parser_getint(p, "val");
+	if (val)
+		t->magic = true;
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_chest_trap_msg(struct parser *p)
+{
+    struct chest_trap *t = parser_priv(p);
+
+	if (!t)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+    t->msg = string_append(t->msg, parser_getstr(p, "text"));
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_chest_trap_msg_death(struct parser *p)
+{
+    struct chest_trap *t = parser_priv(p);
+
+	if (!t)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+    t->msg_death = string_append(t->msg_death, parser_getstr(p, "text"));
+    return PARSE_ERROR_NONE;
+}
+
+
+static struct parser *init_parse_chest_trap(void)
+{
+    struct parser *p = parser_new();
+
+    parser_setpriv(p, NULL);
+    parser_reg(p, "name str name", parse_chest_trap_name);
+    parser_reg(p, "code str code", parse_chest_trap_code);
+    parser_reg(p, "level int level", parse_chest_trap_level);
+	parser_reg(p, "effect sym eff ?sym type ?int radius ?int other", parse_chest_trap_effect);
+	parser_reg(p, "dice str dice", parse_chest_trap_dice);
+	parser_reg(p, "expr sym name sym base str expr", parse_chest_trap_expr);
+	parser_reg(p, "destroy int val", parse_chest_trap_destroy);
+	parser_reg(p, "magic int val", parse_chest_trap_magic);
+	parser_reg(p, "msg str text", parse_chest_trap_msg);
+	parser_reg(p, "msg-death str text", parse_chest_trap_msg_death);
+    return p;
+}
+
+
+static errr run_parse_chest_trap(struct parser *p)
+{
+    return parse_file_quit_not_found(p, "chest_trap");
+}
+
+
+static errr finish_parse_chest_trap(struct parser *p)
+{
+	parser_destroy(p);
+	return 0;
+}
+
+
+static void cleanup_chest_trap(void)
+{
+	struct chest_trap *trap = chest_traps;
+
+	while (trap)
+    {
+		struct chest_trap *old = trap;
+
+		string_free(trap->name);
+		string_free(trap->code);
+		string_free(trap->msg);
+		string_free(trap->msg_death);
+		free_effect(trap->effect);
+		trap = trap->next;
+		mem_free(old);
+	}
+}
+
+
+struct file_parser chest_trap_parser =
+{
+    "chest_trap",
+    init_parse_chest_trap,
+    run_parse_chest_trap,
+    finish_parse_chest_trap,
+    cleanup_chest_trap
 };
 
 
 /*
- * The type of trap a chest has
+ * Chest trap information
  */
-byte chest_trap_type(const struct object *obj)
-{
-    s16b trap_value = obj->pval;
 
-    if (trap_value >= 0) return chest_traps[trap_value];
-    return chest_traps[0 - trap_value];
+
+/*
+ * The name of a chest trap
+ */
+char *chest_trap_name(const struct object *obj)
+{
+	s16b trap_value = obj->pval;
+
+	/* Non-zero value means there either were or are still traps */
+	if (trap_value < 0)
+		return ((trap_value == -1)? "unlocked": "disarmed");
+    if (trap_value > 0)
+    {
+		struct chest_trap *trap = chest_traps, *found = NULL;
+
+		while (trap)
+        {
+			if (trap_value & trap->pval)
+            {
+				if (found)
+					return "multiple traps";
+				found = trap;
+			}
+			trap = trap->next;
+		}
+		if (found)
+			return found->name;
+	}
+
+	return "empty";
 }
 
 
@@ -121,7 +359,7 @@ bool is_trapped_chest(const struct object *obj)
     if (obj->pval <= 0) return false;
 
     /* Some chests simply don't have traps */
-    return (chest_traps[obj->pval] != 0);
+    return ((obj->pval == 1)? false: true);
 }
 
 
@@ -134,6 +372,69 @@ bool is_locked_chest(const struct object *obj)
 
     /* Disarmed or opened chests are not locked */
     return (obj->pval > 0);
+}
+
+
+/*
+ * Chest trap actions
+ */
+
+
+/*
+ * Pick a single chest trap for a given level of chest object
+ */
+static int pick_one_chest_trap(int level)
+{
+	int count = 0, pick;
+	struct chest_trap *trap;
+
+	/* Count possible traps (starting after the "locked" trap) */
+	for (trap = chest_traps->next; trap; trap = trap->next)
+    {
+		if (trap->level <= level) count++;
+	}
+
+	/* Pick a trap, return the pval */
+	pick = randint0(count);
+	for (trap = chest_traps->next; trap; trap = trap->next)
+    {
+		if (!pick--) break;
+	}
+	return trap->pval;
+}
+
+
+/*
+ * Pick a set of chest traps
+ * Currently this only depends on the level of the chest object
+ */
+int pick_chest_traps(struct object *obj)
+{
+	int level = obj->kind->level;
+	int trap = 0;
+
+	/* One in ten chance of no trap */
+	if (one_in_(10))
+		return 1;
+
+	/* Pick a trap, add it */
+	trap |= pick_one_chest_trap(level);
+
+	/* Level dependent chance of a second trap (may overlap the first one) */
+	if ((level > 5) && one_in_(1 + ((65 - level) / 10)))
+		trap |= pick_one_chest_trap(level);
+
+	/* Chance of a third trap for deep chests (may overlap existing traps) */
+	if ((level > 45) && one_in_(65 - level))
+    {
+		trap |= pick_one_chest_trap(level);
+
+		/* Small chance of a fourth trap (may overlap existing traps) */
+		if (one_in_(40))
+			trap |= pick_one_chest_trap(level);
+	}
+
+	return trap;
 }
 
 
@@ -258,7 +559,7 @@ static void chest_death(struct player *p, struct chunk *c, struct loc *grid, str
         }
 
         set_origin(treasure, ORIGIN_CHEST, chest->origin_depth, NULL);
-        drop_near(p, c, &treasure, 0, grid, true, DROP_FADE);
+        drop_near(p, c, &treasure, 0, grid, true, DROP_FADE, false);
         number--;
     }
 
@@ -270,77 +571,35 @@ static void chest_death(struct player *p, struct chunk *c, struct loc *grid, str
 
 /*
  * Chests have traps too.
- *
- * Exploding chest destroys contents (and traps).
- * Note that the chest itself is never destroyed.
  */
-static void chest_trap(struct player *p, struct chunk *c, struct object *obj)
+static void chest_trap(struct player *p, struct object *obj)
 {
-    int trap;
-    const char *pself = player_self(p);
+    int traps = obj->pval;
+	struct chest_trap *trap;
+    bool ident;
     struct source who_body;
     struct source *who = &who_body;
 
     /* Ignore disarmed chests */
-    if (obj->pval <= 0) return;
+    if (traps <= 0) return;
 
     source_player(who, get_player_index(get_connection(p->conn)), p);
 
-    /* Obtain the traps */
-    trap = chest_traps[obj->pval];
-
-    /* Lose strength */
-    if (trap & CHEST_LOSE_STR)
+    /* Apply trap effects */
+	for (trap = chest_traps; trap; trap = trap->next)
     {
-        char df[160];
-
-        msg(p, "A small needle has pricked you!");
-        strnfmt(df, sizeof(df), "pricked %s on a weakening needle", pself);
-        if (!take_hit(p, damroll(1, 4), "a poison needle", false, df))
-            effect_simple(EF_DRAIN_STAT, who, "0", STAT_STR, 0, 0, 0, 0, NULL);
-    }
-
-    /* Lose constitution */
-    if (trap & CHEST_LOSE_CON)
-    {
-        char df[160];
-
-        msg(p, "A small needle has pricked you!");
-        strnfmt(df, sizeof(df), "pricked %s on an exhausting needle", pself);
-        if (!take_hit(p, damroll(1, 4), "a poison needle", false, df))
-            effect_simple(EF_DRAIN_STAT, who, "0", STAT_CON, 0, 0, 0, 0, NULL);
-    }
-
-    /* Poison */
-    if (trap & CHEST_POISON)
-    {
-        msg(p, "A puff of green gas surrounds you!");
-        effect_simple(EF_TIMED_INC, who, "10+1d20", TMD_POISONED, 0, 0, 0, 0, NULL);
-    }
-
-    /* Paralyze */
-    if (trap & CHEST_PARALYZE)
-    {
-        msg(p, "A puff of yellow gas surrounds you!");
-        effect_simple(EF_TIMED_INC, who, "10+1d20", TMD_PARALYZED, 0, 0, 0, 0, NULL);
-    }
-
-    /* Summon monsters */
-    if (trap & CHEST_SUMMON)
-    {
-        msgt(p, MSG_SUM_MONSTER, "You are enveloped in a cloud of smoke!");
-        effect_simple(EF_SUMMON, who, "2+1d3", summon_name_to_idx("MONSTER"), 0, -2, 0, 0, NULL);
-    }
-
-    /* Explode */
-    if (trap & CHEST_EXPLODE)
-    {
-        msg(p, "There is a sudden explosion!");
-        msg(p, "Everything inside the chest is destroyed!");
-        obj->pval = 0;
-        take_hit(p, damroll(5, 8), "an exploding chest", false,
-            "was torn apart by an exploding chest");
-    }
+		if (trap->pval & traps)
+        {
+			if (trap->msg) msg(p, trap->msg);
+            who->chest_trap = trap;
+            effect_do(trap->effect, who, &ident, false, 0, NULL, 0, 0, NULL);
+            if (trap->destroy)
+            {
+                obj->pval = 0;
+                break;
+            }
+		}
+	}
 }
 
 
@@ -367,8 +626,8 @@ bool do_cmd_open_chest(struct player *p, struct chunk *c, struct loc *grid, stru
         i = p->state.skills[SKILL_DISARM_PHYS];
 
         /* Penalize some conditions */
-        if (p->timed[TMD_BLIND] || no_light(p) || p->timed[TMD_CONFUSED] || p->timed[TMD_IMAGE])
-            i = i / 10;
+        if (p->timed[TMD_BLIND] || no_light(p)) i = i / 10;
+        if (p->timed[TMD_CONFUSED] || p->timed[TMD_IMAGE]) i = i / 10;
 
         /* Extract the difficulty */
         j = i - obj->pval;
@@ -396,7 +655,11 @@ bool do_cmd_open_chest(struct player *p, struct chunk *c, struct loc *grid, stru
     if (flag)
     {
         /* Apply chest traps, if any and player is not trapsafe */
-        if (!player_is_trapsafe(p)) chest_trap(p, c, obj);
+        if (is_trapped_chest(obj) && !player_is_trapsafe(p)) chest_trap(p, obj);
+
+        /* Learn trap immunity if there are traps */
+        else if ((obj->pval > 0) && player_of_has(p, OF_TRAP_IMMUNE))
+            equip_learn_flag(p, OF_TRAP_IMMUNE);
 
         /* Let the Chest drop items */
         chest_death(p, c, grid, obj);
@@ -418,31 +681,49 @@ bool do_cmd_open_chest(struct player *p, struct chunk *c, struct loc *grid, stru
 
 /*
  * Attempt to disarm the chest at the given location
- *
  * Assume there is no monster blocking the destination
+ *
+ * The calculation of difficulty assumes that there are 6 types of chest
+ * trap; if more are added, it will need adjusting.
  *
  * Returns true if repeated commands may continue
  */
 bool do_cmd_disarm_chest(struct player *p, struct chunk *c, struct loc *grid, struct object *obj)
 {
-    int i, j;
+    int skill = p->state.skills[SKILL_DISARM_PHYS], diff;
+	struct chest_trap *traps;
+	bool physical = false;
+	bool magic = false;
     bool more = false;
 
-    /* Get the "disarm" factor */
-    if ((obj->pval > 0) && (chest_traps[obj->pval] & CHEST_SUMMON))
-        i = p->state.skills[SKILL_DISARM_MAGIC];
-    else
-        i = p->state.skills[SKILL_DISARM_PHYS];
+    /* Check whether the traps are magic, physical or both */
+	for (traps = chest_traps; traps; traps = traps->next)
+    {
+		if (!(traps->pval & obj->pval)) continue;
+		if (traps->magic)
+			magic = true;
+		else
+			physical = true;
+	}
+
+    /* Physical disarming is the default, if there are magic traps we adjust */
+	if (magic)
+    {
+		if (physical)
+			skill = (p->state.skills[SKILL_DISARM_MAGIC] + p->state.skills[SKILL_DISARM_PHYS]) / 2;
+		else
+			skill = p->state.skills[SKILL_DISARM_MAGIC];
+	}
 
     /* Penalize some conditions */
-    if (p->timed[TMD_BLIND] || no_light(p) || p->timed[TMD_CONFUSED] || p->timed[TMD_IMAGE])
-        i = i / 10;
+    if (p->timed[TMD_BLIND] || no_light(p)) skill /= 10;
+    if (p->timed[TMD_CONFUSED] || p->timed[TMD_IMAGE]) skill /= 10;
 
     /* Extract the difficulty */
-    j = i - obj->pval;
+    diff = skill - obj->pval;
 
     /* Always have a small chance of success */
-    if (j < 2) j = 2;
+    if (diff < 2) diff = 2;
 
     /* Must find the trap first. */
     if (!object_is_known(p, obj))
@@ -453,7 +734,7 @@ bool do_cmd_disarm_chest(struct player *p, struct chunk *c, struct loc *grid, st
         msg(p, "The chest is not trapped.");
 
     /* Success (get a lot of experience) */
-    else if (magik(j))
+    else if (magik(diff))
     {
         msgt(p, MSG_DISARM, "You have disarmed the chest.");
         player_exp_gain(p, obj->pval);
@@ -461,7 +742,7 @@ bool do_cmd_disarm_chest(struct player *p, struct chunk *c, struct loc *grid, st
     }
 
     /* Failure -- keep trying */
-    else if (magik(j))
+    else if (magik(diff))
     {
         more = true;
         msg(p, "You failed to disarm the chest.");
@@ -471,9 +752,10 @@ bool do_cmd_disarm_chest(struct player *p, struct chunk *c, struct loc *grid, st
     else
     {
         msg(p, "You set off a trap!");
-        chest_trap(p, c, obj);
+        chest_trap(p, obj);
     }
 
     /* Result */
     return (more);
 }
+

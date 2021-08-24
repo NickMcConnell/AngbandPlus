@@ -21,8 +21,10 @@ enum
 enum
 {
     EFINFO_NONE,
+    EFINFO_HURT,
     EFINFO_HEAL,
     EFINFO_CONST,
+    EFINFO_FOOD,
     EFINFO_CURE,
     EFINFO_TIMED,
     EFINFO_STAT,
@@ -32,13 +34,13 @@ enum
     EFINFO_QUAKE,
     EFINFO_BALL,
     EFINFO_BREATH,
+    EFINFO_LASH,
     EFINFO_BOLT,
     EFINFO_BOLTD,
     EFINFO_TOUCH,
     EFINFO_TAP,
     EFINFO_MANA,
-    EFINFO_ENCHANT,
-    EFINFO_FOOD
+    EFINFO_ENCHANT
 };
 
 extern void object_info(struct player *p, const struct object *obj, int mode);

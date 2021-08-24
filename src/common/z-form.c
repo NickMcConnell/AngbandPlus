@@ -3,7 +3,7 @@
  * Purpose: Low-level text formatting (snprintf() replacement)
  *
  * Copyright (c) 1997 Ben Harrison
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -583,7 +583,11 @@ static char *format_buf[FORMAT_CYCLE_MAX] = { NULL };
 static size_t format_len[FORMAT_CYCLE_MAX] = { 0 };
 
 
+#ifdef WINDOWS
 #define VA_COPY(DST, SRC) (DST) = (SRC)
+#else
+#define VA_COPY(DST, SRC) va_copy(DST, SRC)
+#endif
 
 
 /*

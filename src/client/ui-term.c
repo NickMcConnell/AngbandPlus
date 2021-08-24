@@ -3,7 +3,7 @@
  * Purpose: A generic, efficient, terminal window package
  *
  * Copyright (c) 1997 Ben Harrison
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -543,50 +543,45 @@ void Term_big_queue_char(term *t, int x, int y, u16b a, char c, u16b a1, char c1
 {
     int hor, vert;
 
+    /* Leave space on bottom for status */
+    int vmax = ((y + tile_height < t->hgt - 1)? tile_height: t->hgt - 1 - y);
+
     /* No tall skinny tiles */
     if (tile_width > 1)
     {
-        /* Horizontal first */
-        for (hor = 0; hor <= tile_width; hor++)
+        /* Horizontal first; skip already marked upper left corner */
+        for (hor = 1; hor < tile_width; hor++)
         {
             /* Queue dummy character */
-            if (hor != 0)
-            {
-                if (a & 0x80)
-                    Term_queue_char(t, x + hor, y, 255, -1, 0, 0);
-                else
-                    Term_queue_char(t, x + hor, y, COLOUR_WHITE, ' ', a1, c1);
-            }
+            if (a & 0x80)
+                Term_queue_char(t, x + hor, y, 255, -1, 0, 0);
+            else
+                Term_queue_char(t, x + hor, y, COLOUR_WHITE, ' ', a1, c1);
+        }
 
-            /* Now vertical */
-            for (vert = 1; vert <= tile_height; vert++)
+        /* Now vertical */
+        for (vert = 1; vert < vmax; vert++)
+        {
+            for (hor = 0; hor < tile_width; hor++)
             {
-                /* Leave space on bottom for status */
-                if (y + vert + 1 < t->hgt)
-                {
-                    /* Queue dummy character */
-                    if (a & 0x80)
-                        Term_queue_char(t, x + hor, y + vert, 255, -1, 0, 0);
-                    else
-                        Term_queue_char(t, x + hor, y + vert, COLOUR_WHITE, ' ', a1, c1);
-                }
+                /* Queue dummy character */
+                if (a & 0x80)
+                    Term_queue_char(t, x + hor, y + vert, 255, -1, 0, 0);
+                else
+                    Term_queue_char(t, x + hor, y + vert, COLOUR_WHITE, ' ', a1, c1);
             }
         }
     }
     else
     {
         /* Only vertical */
-        for (vert = 1; vert <= tile_height; vert++)
+        for (vert = 1; vert < vmax; vert++)
         {
-            /* Leave space on bottom for status */
-            if (y + vert + 1 < t->hgt)
-            {
-                /* Queue dummy character */
-                if (a & 0x80)
-                    Term_queue_char(t, x, y + vert, 255, -1, 0, 0);
-                else
-                    Term_queue_char(t, x, y + vert, COLOUR_WHITE, ' ', a1, c1);
-            }
+            /* Queue dummy character */
+            if (a & 0x80)
+                Term_queue_char(t, x, y + vert, 255, -1, 0, 0);
+            else
+                Term_queue_char(t, x, y + vert, COLOUR_WHITE, ' ', a1, c1);
         }
     }
 }
@@ -1197,53 +1192,18 @@ errr Term_fresh(void)
         /* Cursor was visible */
         if (!old->cu && old->cv)
         {
+            /*
+             * Fake a change at the old cursor position so that
+             * position will be redrawn along with any other changes.
+             */
             int tx = old->cx;
             int ty = old->cy;
 
-            /*u16b *old_aa = old->a[ty];
-            char *old_cc = old->c[ty];*/
-            u16b *scr_aa = scr->a[ty];
-            char *scr_cc = scr->c[ty];
-
-            u16b sa = scr_aa[tx];
-            char sc = scr_cc[tx];
-
-            /*u16b *old_taa = old->ta[ty];
-            char *old_tcc = old->tc[ty];*/
-            u16b *scr_taa = scr->ta[ty];
-            char *scr_tcc = scr->tc[ty];
-
-            u16b sta = scr_taa[tx];
-            char stc = scr_tcc[tx];
-
-            /* Graphics, character (fallback or intended), or erase */
-            if (Term->always_pict)
-                (*Term->pict_hook)(tx, ty, 1, &sa, &sc, &sta, &stc);
-            else if (Term->higher_pict && (sa & 0x80))
-                (*Term->pict_hook)(tx, ty, 1, &sa, &sc, &sta, &stc);
-            else if (sa || Term->always_text)
-            {
-                if (Setup.initialized && !Term->saved && (ty > 0) &&
-                    !((tx == scr->cx) && (ty == scr->cy)))
-                {
-                    int i, j;
-
-                    /* Hack -- erase a big cursor */
-                    for (i = tx; ((i < tx + tile_width) && (i < w)); i++)
-                    {
-                        for (j = ty; ((j < ty + tile_height) && (j < h)); j++)
-                        {
-                            sa = scr->a[j][i];
-                            sc = scr->c[j][i];
-                            (*Term->text_hook)(i, j, 1, sa, &sc);
-                        }
-                    }
-                }
-                else
-                    (*Term->text_hook)(tx, ty, 1, sa, &sc);
-            }
-            else
-                (*Term->wipe_hook)(tx, ty, 1);
+            old->c[ty][tx] = ~scr->c[ty][tx];
+            if (y1 > ty) y1 = ty;
+            if (y2 < ty) y2 = ty;
+            if (Term->x1[ty] > tx) Term->x1[ty] = tx;
+            if (Term->x2[ty] < tx) Term->x2[ty] = tx;
         }
     }
     else
@@ -1260,6 +1220,15 @@ errr Term_fresh(void)
         if (Term->icky_corner && (y2 >= h - 1) && (Term->x2[h - 1] > w - 2))
             Term->x2[h - 1] = w - 2;
 
+        /*
+         * Make the stored y bounds for the modified region empty.
+         * Do so before drawing so that Term_mark() calls from within
+         * the drawing hooks will adjust the bounds on the modified
+         * region for the next update.
+         */
+        Term->y1 = h;
+        Term->y2 = 0;
+
         /* Scan the "modified" rows */
         for (y = y1; y <= y2; ++y)
         {
@@ -1269,6 +1238,10 @@ errr Term_fresh(void)
             /* Flush each "modified" row */
             if (x1 <= x2)
             {
+                /* As above, set the bounds for the modified region to be empty before drawing. */
+                Term->x1[y] = w;
+                Term->x2[y] = 0;
+
                 /* Use "Term_pict()" - always, sometimes or never */
                 if (Term->always_pict)
                 {
@@ -1286,18 +1259,10 @@ errr Term_fresh(void)
                     Term_fresh_row_text(y, x1, x2);
                 }
 
-                /* This row is all done */
-                Term->x1[y] = w;
-                Term->x2[y] = 0;
-
                 /* Hack -- flush that row (if allowed) */
                 if (!Term->never_frosh) Term_xtra(TERM_XTRA_FROSH, y);
             }
         }
-
-        /* No rows are invalid */
-        Term->y1 = h;
-        Term->y2 = 0;
     }
 
     /* Cursor update -- show new cursor */
@@ -1906,6 +1871,12 @@ errr Term_mark(int x, int y)
     old_taa[x] = 0x80;
     old_tcc[x] = 0;
 
+    /* Update bounds for modified region */
+    if (y < Term->y1) Term->y1 = y;
+    if (y > Term->y2) Term->y2 = y;
+    if (x < Term->x1[y]) Term->x1[y] = x;
+    if (x > Term->x2[y]) Term->x2[y] = x;
+
     return (0);
 }
 
@@ -2361,6 +2332,7 @@ errr Term_resize(int w, int h, int hmax)
     term_win *hold_old;
     term_win *hold_scr;
     term_win *hold_mem;
+    term_win **hold_mem_dest;
     term_win *hold_tmp;
     ui_event evt = {EVT_RESIZE};
 
@@ -2416,16 +2388,30 @@ errr Term_resize(int w, int h, int hmax)
     term_win_copy(Term->scr, hold_scr, wid, hgt);
 
     /* If needed */
-    if (hold_mem)
+    hold_mem_dest = &Term->mem;
+    while (hold_mem != 0)
     {
+        term_win* trash;
+
         /* Create new window */
-        Term->mem = mem_zalloc(sizeof(term_win));
+        *hold_mem_dest = mem_zalloc(sizeof(term_win));
 
         /* Initialize new window */
-        term_win_init(Term->mem, w, h);
+        term_win_init(*hold_mem_dest, w, h);
 
         /* Save the contents */
-        term_win_copy(Term->mem, hold_mem, wid, hgt);
+        term_win_copy(*hold_mem_dest, hold_mem, wid, hgt);
+
+        trash = hold_mem;
+        hold_mem = hold_mem->next;
+
+        if ((*hold_mem_dest)->cx >= w) (*hold_mem_dest)->cu = 1;
+        if ((*hold_mem_dest)->cy >= h) (*hold_mem_dest)->cu = 1;
+
+        hold_mem_dest = &((*hold_mem_dest)->next);
+
+        term_win_nuke(trash);
+        mem_free(trash);
     }
 
     /* If needed */
@@ -2464,20 +2450,6 @@ errr Term_resize(int w, int h, int hmax)
     /* Illegal cursor */
     if (Term->scr->cx >= w) Term->scr->cu = 1;
     if (Term->scr->cy >= h) Term->scr->cu = 1;
-
-    /* If needed */
-    if (hold_mem)
-    {
-        /* Nuke */
-        term_win_nuke(hold_mem);
-
-        /* Kill */
-        mem_free(hold_mem);
-
-        /* Illegal cursor */
-        if (Term->mem->cx >= w) Term->mem->cu = 1;
-        if (Term->mem->cy >= h) Term->mem->cu = 1;
-    }
 
     /* If needed */
     if (hold_tmp)

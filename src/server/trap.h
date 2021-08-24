@@ -22,7 +22,7 @@ extern void square_free_trap(struct chunk *c, struct loc *grid);
 extern bool square_reveal_trap(struct player *p, struct loc *grid, bool always, bool domsg);
 extern bool trap_check_hit(struct player *p, int power);
 extern void trap_msg_death(struct player *p, struct trap *trap, char *msg, int len);
-extern void hit_trap(struct player *p);
+extern void hit_trap(struct player *p, struct loc *grid, int delayed);
 extern void wipe_trap_list(struct chunk *c);
 extern bool square_remove_all_traps(struct chunk *c, struct loc *grid);
 extern bool square_remove_trap(struct chunk *c, struct loc *grid, unsigned int t_idx_remove);

@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2014 Nick McConnell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -1306,9 +1306,9 @@ static void calc_hitpoints(struct player *p, struct player_state *state, bool up
 /*
  * Calculate and set the current light radius.
  *
- * Note that a cursed light source no longer emits light.
+ * The light radius will be the total of all lights carried.
  */
-static void calc_torch(struct player *p, struct player_state *state, bool update)
+static void calc_light(struct player *p, struct player_state *state, bool update)
 {
     int i, adj;
 
@@ -1338,9 +1338,9 @@ static void calc_torch(struct player *p, struct player_state *state, bool update
         object_modifiers(obj, modifiers);
 
         /* Light radius - innate plus modifier */
-        if (of_has(obj->flags, OF_LIGHT_1)) amt = 1;
-        else if (of_has(obj->flags, OF_LIGHT_2)) amt = 2;
+        if (of_has(obj->flags, OF_LIGHT_2)) amt = 2;
         else if (of_has(obj->flags, OF_LIGHT_3)) amt = 3;
+        else if (of_has(obj->flags, OF_LIGHT_4)) amt = 4;
         amt += modifiers[OBJ_MOD_LIGHT];
 
         /* Lights without fuel provide no light */
@@ -1358,10 +1358,6 @@ static void calc_torch(struct player *p, struct player_state *state, bool update
 
     /* Extra light from race/class bonuses */
     state->cur_light += adj;
-
-    /* Limit light */
-    state->cur_light = MIN(state->cur_light, 5);
-    state->cur_light = MAX(state->cur_light, 0);
 }
 
 
@@ -1507,6 +1503,16 @@ bool earlier_object(struct player *p, struct object *orig, struct object *newobj
     {
         if (obj_can_browse(p, orig) && !obj_can_browse(p, newobj)) return false;
         if (!obj_can_browse(p, orig) && obj_can_browse(p, newobj)) return true;
+    }
+
+    /* Usable ammo is before other ammo */
+    if (tval_is_ammo(orig) && tval_is_ammo(newobj))
+    {
+        /* First favour usable ammo */
+        if (p && (p->state.ammo_tval == orig->tval) && (p->state.ammo_tval != newobj->tval))
+            return false;
+        if (p && (p->state.ammo_tval != orig->tval) && (p->state.ammo_tval == newobj->tval))
+            return true;
     }
 
     /* Objects sort by decreasing type */
@@ -1907,26 +1913,24 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
     int extra_blows = 0;
     int extra_shots = 0;
     int extra_might = 0;
+    int extra_moves = 0;
     struct object *launcher = equipped_item_by_slot_name(p, "shooting");
     struct object *weapon = equipped_item_by_slot_name(p, "weapon");
     bitflag f[OF_SIZE], f2[OF_SIZE];
     bitflag collect_f[OF_SIZE];
     bool vuln[ELEM_MAX];
     bool unencumbered_monk = monk_armor_ok(p);
-    bool restrict = (player_has(p, PF_MARTIAL_ARTS) && !unencumbered_monk);
+    bool restrict_ = (player_has(p, PF_MARTIAL_ARTS) && !unencumbered_monk);
     byte cumber_shield = 0;
     struct element_info el_info[ELEM_MAX];
     struct object *tool = equipped_item_by_slot_name(p, "tool");
     int eq_to_a = 0;
 
-    create_obj_flag_mask(f2, false, OFT_ESP, OFT_MAX);
+    create_obj_flag_mask(f2, 0, OFT_ESP, OFT_MAX);
 
     /* Set various defaults */
     state->speed = 110;
     state->num_blows = 100;
-    state->num_shots = 10;
-    state->ammo_tval = TV_ROCK;
-    state->ammo_mult = 1;
 
     /* Extract race/class info */
     for (i = 0; i < SKILL_MAX; i++)
@@ -1946,9 +1950,6 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 
     /* Extract the player flags */
     player_flags(p, collect_f);
-
-    /* Add player specific pflags */
-    if (!p->msp) pf_on(state->pflags, PF_NO_MANA);
 
     /* Ghost */
     if (p->ghost) state->see_infra += 3;
@@ -2022,6 +2023,9 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         /* Affect speed */
         state->speed += modifiers[OBJ_MOD_SPEED];
 
+        /* Affect damage reduction */
+        state->dam_red += modifiers[OBJ_MOD_DAM_RED];
+
         /* Affect blows */
         extra_blows += (modifiers[OBJ_MOD_BLOWS] * 10);
 
@@ -2031,6 +2035,9 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         /* Affect Might */
         extra_might += modifiers[OBJ_MOD_MIGHT];
 
+        /* Affect movement speed */
+        extra_moves += modifiers[OBJ_MOD_MOVES];
+
         /* Affect resists */
         for (j = 0; j < ELEM_MAX; j++)
         {
@@ -2038,7 +2045,7 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
             {
                 /* Note vulnerability for later processing */
                 if (el_info[j].res_level == -1)
-                    vuln[i] = true;
+                    vuln[j] = true;
 
                 /* OK because res_level has not included vulnerability yet */
                 if (el_info[j].res_level > state->el_info[j].res_level)
@@ -2101,7 +2108,7 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
     if (p->poly_race)
     {
         if (monster_is_stupid(p->poly_race)) state->stat_add[STAT_INT] -= 2;
-        if (monster_is_smart(p->poly_race)) state->stat_add[STAT_INT] += 2;
+        if (race_is_smart(p->poly_race)) state->stat_add[STAT_INT] += 2;
         if (p->poly_race->freq_spell == 33) state->stat_add[STAT_INT] += 1;
         if (p->poly_race->freq_spell == 50) state->stat_add[STAT_INT] += 3;
         if (p->poly_race->freq_spell == 100) state->stat_add[STAT_INT] += 5;
@@ -2138,6 +2145,9 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         state->stat_add[STAT_DEX] += 3;
         state->stat_add[STAT_CON] += 3;
     }
+
+    /* Combat Regeneration */
+    if (player_has(p, PF_COMBAT_REGEN)) of_on(state->flags, OF_IMPAIR_HP);
 
     /* Calculate the various stat values */
     for (i = 0; i < STAT_MAX; i++)
@@ -2199,16 +2209,19 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         if (i == OBJ_MOD_SPEED)
         {
             /* Unencumbered monks get speed bonus */
-            if (restrict) c_adj = 0;
+            if (restrict_) c_adj = 0;
 
             state->speed += (r_adj + c_adj);
         }
+
+        /* Affect damage reduction */
+        if (i == OBJ_MOD_DAM_RED) state->dam_red += (r_adj + c_adj);
 
         /* Affect blows */
         if (i == OBJ_MOD_BLOWS)
         {
             /* Encumbered monks only get half the extra blows */
-            if (restrict) c_adj /= 2;
+            if (restrict_) c_adj /= 2;
 
             extra_blows += (r_adj + c_adj);
         }
@@ -2218,6 +2231,9 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 
         /* Affect Might */
         if (i == OBJ_MOD_MIGHT) extra_might += (r_adj + c_adj);
+
+        /* Affect movement speed */
+        if (i == OBJ_MOD_MOVES) extra_moves += (r_adj + c_adj);
     }
 
     /* Unencumbered monks get extra ac for wearing very light or no armour at all */
@@ -2270,18 +2286,73 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
             state->el_info[i].res_level--;
     }
 
-    /* Temporary flags */
-    if (p->timed[TMD_STUN] > 50)
+    /* Effects of food outside the "Fed" range */
+    if (!player_timed_grade_eq(p, TMD_FOOD, "Fed"))
+    {
+        int excess = p->timed[TMD_FOOD] - PY_FOOD_FULL;
+        int lack = PY_FOOD_HUNGRY - p->timed[TMD_FOOD];
+
+        /* Scale to units 1/10 of the range and subtract from speed */
+        if ((excess > 0) && !p->timed[TMD_ATT_VAMP])
+        {
+            excess = (excess * 10) / (PY_FOOD_MAX - PY_FOOD_FULL);
+            state->speed -= excess;
+        }
+
+        /* Scale to units 1/20 of the range */
+        else if (lack > 0)
+        {
+            lack = (lack * 20) / PY_FOOD_HUNGRY;
+
+            /* Apply effects progressively */
+            state->to_h -= lack;
+            state->to_d -= lack;
+            if ((lack > 10) && (lack <= 15))
+            {
+                state->skills[SKILL_DEVICE] *= 9;
+                state->skills[SKILL_DEVICE] /= 10;
+            }
+            else if ((lack > 15) && (lack <= 18))
+            {
+                state->skills[SKILL_DEVICE] *= 8;
+                state->skills[SKILL_DEVICE] /= 10;
+                state->skills[SKILL_DISARM_PHYS] *= 9;
+                state->skills[SKILL_DISARM_PHYS] /= 10;
+                state->skills[SKILL_DISARM_MAGIC] *= 9;
+                state->skills[SKILL_DISARM_MAGIC] /= 10;
+            }
+            else if (lack > 18)
+            {
+                state->skills[SKILL_DEVICE] *= 7;
+                state->skills[SKILL_DEVICE] /= 10;
+                state->skills[SKILL_DISARM_PHYS] *= 8;
+                state->skills[SKILL_DISARM_PHYS] /= 10;
+                state->skills[SKILL_DISARM_MAGIC] *= 8;
+                state->skills[SKILL_DISARM_MAGIC] /= 10;
+                state->skills[SKILL_SAVE] *= 9;
+                state->skills[SKILL_SAVE] /= 10;
+                state->skills[SKILL_SEARCH] *= 9;
+                state->skills[SKILL_SEARCH] /= 10;
+            }
+        }
+    }
+
+    /* Other timed effects */
+    player_flags_timed(p, state->flags);
+
+    if (player_timed_grade_eq(p, TMD_STUN, "Heavy Stun"))
     {
         state->to_h -= 20;
         state->to_d -= 20;
         state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 8 / 10;
+        if (update) p->timed[TMD_FASTCAST] = 0;
     }
-    else if (p->timed[TMD_STUN])
+    else if (player_timed_grade_eq(p, TMD_STUN, "Stun"))
     {
         state->to_h -= 5;
         state->to_d -= 5;
         state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 9 / 10;
+        if (update) p->timed[TMD_FASTCAST] = 0;
     }
     if (p->timed[TMD_ADRENALINE])
     {
@@ -2305,9 +2376,6 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         state->to_a += 40;
         state->speed -= 5;
     }
-    if (p->timed[TMD_BOLD]) of_on(state->flags, OF_PROT_FEAR);
-    if (p->timed[TMD_HOLD_LIFE]) of_on(state->flags, OF_HOLD_LIFE);
-    if (p->timed[TMD_FLIGHT]) of_on(state->flags, OF_FEATHER);
     if (p->timed[TMD_HERO])
     {
         state->to_h += 12;
@@ -2323,14 +2391,11 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
     if (p->timed[TMD_FLIGHT]) state->speed += 5;
     if (p->timed[TMD_SLOW]) state->speed -= 10;
     if (p->timed[TMD_SINFRA]) state->see_infra += 5;
-    if (p->timed[TMD_ESP]) of_on(state->flags, OF_ESP_ALL);
     if (of_has(state->flags, OF_ESP_ALL))
     {
         of_diff(state->flags, f2);
         of_on(state->flags, OF_ESP_ALL);
     }
-    if (p->timed[TMD_SINVIS]) of_on(state->flags, OF_SEE_INVIS);
-    if (p->timed[TMD_AFRAID] || p->timed[TMD_TERROR]) of_on(state->flags, OF_AFRAID);
     if (p->timed[TMD_TERROR]) state->speed += 10;
     if (p->timed[TMD_OPP_ACID])
     {
@@ -2362,7 +2427,6 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         state->el_info[ELEM_TIME].res_level++;
         state->el_info[ELEM_GRAVITY].res_level = 1;
     }
-    if (p->timed[TMD_OPP_CONF]) of_on(state->flags, OF_PROT_CONF);
     if (p->timed[TMD_CONFUSED])
         state->skills[SKILL_DEVICE] = state->skills[SKILL_DEVICE] * 75 / 100;
     if (p->timed[TMD_AMNESIA])
@@ -2376,6 +2440,8 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         state->to_d += p->timed[TMD_BLOODLUST] / 2;
         extra_blows += p->timed[TMD_BLOODLUST] / 2;
     }
+    if (p->timed[TMD_STEALTH])
+        state->skills[SKILL_STEALTH] += 10;
 
     /* Analyze flags - check for fear */
     if (of_has(state->flags, OF_AFRAID))
@@ -2417,6 +2483,8 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
     state->skills[SKILL_DIGGING] += adj_str_dig[state->stat_ind[STAT_STR]];
     if (p->poly_race && rf_has(p->poly_race->flags, RF_KILL_WALL))
         state->skills[SKILL_DIGGING] = 2000;
+    if (p->poly_race && rf_has(p->poly_race->flags, RF_SMASH_WALL))
+        state->skills[SKILL_DIGGING] = 2000;
     for (i = 0; i < SKILL_MAX; i++)
         state->skills[i] += (p->clazz->x_skills[i] * p->lev / 10);
     if (p->poly_race)
@@ -2448,6 +2516,8 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
             state->heavy_shoot = true;
         }
 
+        state->num_shots = 10;
+
         /* Type of ammo */
         if (kf_has(launcher->kind->kind_flags, KF_SHOOTS_SHOTS))
             state->ammo_tval = TV_SHOT;
@@ -2469,24 +2539,21 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
             if (player_has(p, PF_FAST_SHOT) && (state->ammo_tval == TV_ARROW))
                 state->num_shots += p->lev / 3;
         }
+
+        /* Handle polymorphed players */
+        if (p->poly_race && (rsf_has(p->poly_race->spell_flags, RSF_SHOT) ||
+            rsf_has(p->poly_race->spell_flags, RSF_ARROW) ||
+            rsf_has(p->poly_race->spell_flags, RSF_BOLT)))
+        {
+            state->num_shots += 5;
+        }
+
+        /* Require at least one shot */
+        if (state->num_shots < 10) state->num_shots = 10;
+
+        /* PWMAngband: require at least a multiplier of one */
+        if (state->ammo_mult < 1) state->ammo_mult = 1;
     }
-
-    /* Monks and archers are good at throwing */
-    if (player_has(p, PF_FAST_THROW) && (state->ammo_tval == TV_ROCK))
-        state->num_shots += p->lev / 2;
-
-    /* Handle polymorphed players */
-    if (p->poly_race && (rsf_has(p->poly_race->spell_flags, RSF_ARROW_X) ||
-        rsf_has(p->poly_race->spell_flags, RSF_ARROW_1) ||
-        rsf_has(p->poly_race->spell_flags, RSF_ARROW_2) ||
-        rsf_has(p->poly_race->spell_flags, RSF_ARROW_3) ||
-        rsf_has(p->poly_race->spell_flags, RSF_ARROW_4)))
-    {
-        state->num_shots += 5;
-    }
-
-    /* Require at least one shot */
-    if (state->num_shots < 10) state->num_shots = 10;
 
     /* Temporary "Farsight" */
     if (p->timed[TMD_FARSIGHT])
@@ -2528,7 +2595,10 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
         }
     }
     else
+    {
+        /* Unarmed */
         state->num_blows = calc_blows(p, NULL, state, extra_blows);
+    }
 
     /* Unencumbered monks get a bonus tohit/todam */
     if (unencumbered_monk)
@@ -2552,9 +2622,15 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
     if (tool && tval_is_digger(tool))
         state->skills[SKILL_DIGGING] += (tool->weight / 10);
 
+    /* Movement speed */
+    state->num_moves = extra_moves;
+    if (update && (p->state.num_moves != state->num_moves))
+        p->upkeep->redraw |= (PR_STATE);
+
     /* Call individual functions for other state fields */
-    calc_torch(p, state, update);
+    calc_light(p, state, update);
     calc_mana(p, state, update);
+    if (!p->msp) pf_on(state->pflags, PF_NO_MANA);
     calc_hitpoints(p, state, update);
 
     /* PWMAngband: display a message when a monk becomes encumbered */
@@ -2622,7 +2698,7 @@ static void update_bonuses(struct player *p)
     }
 
     /* Hack -- telepathy change */
-    create_obj_flag_mask(f, false, OFT_ESP, OFT_MAX);
+    create_obj_flag_mask(f, 0, OFT_ESP, OFT_MAX);
     for (flag = of_next(f, FLAG_START); flag != FLAG_END; flag = of_next(f, flag + 1))
     {
         if (of_has(state.flags, flag) != of_has(p->state.flags, flag))

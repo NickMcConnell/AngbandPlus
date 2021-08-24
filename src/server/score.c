@@ -3,7 +3,7 @@
  * Purpose: Highscore handling
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -24,14 +24,14 @@
 /*
  * Read in a highscore file
  */
-size_t highscore_read(high_score scores[], size_t sz)
+size_t highscore_read(struct high_score scores[], size_t sz)
 {
     char fname[MSG_LEN];
     ang_file *scorefile;
     size_t i;
 
     /* Wipe current scores */
-    memset(scores, 0, sz * sizeof(high_score));
+    memset(scores, 0, sz * sizeof(struct high_score));
 
     path_build(fname, sizeof(fname), ANGBAND_DIR_SCORES, "scores.raw");
     scorefile = file_open(fname, MODE_READ, FTYPE_RAW);
@@ -40,7 +40,7 @@ size_t highscore_read(high_score scores[], size_t sz)
 
     for (i = 0; i < sz; i++)
     {
-        if (file_read(scorefile, (char *)&scores[i], sizeof(high_score)) <= 0) break;
+        if (file_read(scorefile, (char *)&scores[i], sizeof(struct high_score)) <= 0) break;
     }
 
     file_close(scorefile);
@@ -53,7 +53,7 @@ size_t highscore_read(high_score scores[], size_t sz)
  * Just determine where a new score *would* be placed
  * Return the location (0 is best) or -1 on failure
  */
-size_t highscore_where(const high_score *entry, const high_score scores[], size_t sz)
+size_t highscore_where(const struct high_score *entry, const struct high_score scores[], size_t sz)
 {
     size_t i;
 
@@ -62,6 +62,11 @@ size_t highscore_where(const high_score *entry, const high_score scores[], size_
     {
         long entry_pts = strtoul(entry->pts, NULL, 0);
         long score_pts = strtoul(scores[i].pts, NULL, 0);
+        bool entry_winner = streq(entry->how, "winner");
+        bool score_winner = streq(scores[i].how, "winner");
+
+        if (entry_winner && !score_winner) return i;
+        if (!entry_winner && score_winner) continue;
 
         if (entry_pts >= score_pts) return i;
         if (scores[i].what[0] == '\0') return i;
@@ -72,18 +77,21 @@ size_t highscore_where(const high_score *entry, const high_score scores[], size_
 }
 
 
-size_t highscore_add(const high_score *entry, high_score scores[], size_t sz)
+/*
+ * Place an entry into a high score array
+ */
+size_t highscore_add(const struct high_score *entry, struct high_score scores[], size_t sz)
 {
     size_t slot = highscore_where(entry, scores, sz);
 
-    memmove(&scores[slot + 1], &scores[slot], sizeof(high_score) * (sz - 1 - slot));
-    memcpy(&scores[slot], entry, sizeof(high_score));
+    memmove(&scores[slot + 1], &scores[slot], sizeof(struct high_score) * (sz - 1 - slot));
+    memcpy(&scores[slot], entry, sizeof(struct high_score));
 
     return slot;
 }
 
 
-static size_t highscore_count(const high_score scores[], size_t sz)
+static size_t highscore_count(const struct high_score scores[], size_t sz)
 {
     size_t i;
 
@@ -98,9 +106,8 @@ static size_t highscore_count(const high_score scores[], size_t sz)
 
 /*
  * Actually place an entry into the high score file
- * Return the location (0 is best) or -1 on "failure"
  */
-static void highscore_write(const high_score scores[], size_t sz)
+static void highscore_write(const struct high_score scores[], size_t sz)
 {
     size_t n;
     ang_file *lok;
@@ -146,7 +153,7 @@ static void highscore_write(const high_score scores[], size_t sz)
         return;
     }
 
-    file_write(scorefile, (const char *)scores, sizeof(high_score) * n);
+    file_write(scorefile, (const char *)scores, sizeof(struct high_score) * n);
     file_close(scorefile);
 
     /* Now move things around */
@@ -165,12 +172,13 @@ static void highscore_write(const high_score scores[], size_t sz)
 }
 
 
-void build_score(struct player *p, high_score *entry, const char *died_from, time_t *death_time)
+void build_score(struct player *p, struct high_score *entry, const char *died_from,
+    time_t *death_time)
 {
     char psex;
     struct player_death_info score_info;
 
-    memset(entry, 0, sizeof(high_score));
+    memset(entry, 0, sizeof(struct high_score));
 
     switch (p->psex)
     {
@@ -241,8 +249,8 @@ void build_score(struct player *p, high_score *entry, const char *died_from, tim
  */
 void enter_score(struct player *p, time_t *death_time)
 {
-    high_score entry;
-    high_score scores[MAX_HISCORES];
+    struct high_score entry;
+    struct high_score scores[MAX_HISCORES];
 
     /* Add a new entry, if allowed */
     if (p->noscore)

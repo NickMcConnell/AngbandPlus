@@ -47,19 +47,22 @@ struct feature
     char *name;             /* Name */
     char *shortdesc;
     char *desc;
-    unsigned int fidx;      /* Index */
+    unsigned int fidx;          /* Index */
     struct feature *next;
-    char *mimic;            /* Name of feature to mimic */
-    byte priority;          /* Display priority */
-    byte shopnum;           /* Which shop does it take you to? */
-    byte dig;               /* How hard is it to dig through? */
-    bitflag flags[TF_SIZE]; /* Terrain flags */
-    byte d_attr;            /* Default feature attribute */
-    char d_char;            /* Default feature character */
-    char *hurt_msg;         /* Message on being hurt by feature */
-    char *died_flavor;      /* Flavored message on dying to feature */
-    char *die_msg;          /* Message on dying to feature */
-    int resist_flag;        /* Monster resist flag for entering feature */
+    char *mimic;                /* Name of feature to mimic */
+    byte priority;              /* Display priority */
+    byte shopnum;               /* Which shop does it take you to? */
+    byte dig;                   /* How hard is it to dig through? */
+    bitflag flags[TF_SIZE];     /* Terrain flags */
+    byte d_attr;                /* Default feature attribute */
+    char d_char;                /* Default feature character */
+    char *hurt_msg;             /* Message on being hurt by feature */
+    char *died_flavor;          /* Flavored message on dying to feature */
+    char *die_msg;              /* Message on dying to feature */
+    char *confused_msg;         /* Message on confused monster moving into feature */
+    char *look_prefix;          /* Prefix for name in look result */
+    char *look_in_preposition;  /* Preposition in look result when on the terrain */
+    int resist_flag;            /* Monster resist flag for entering feature */
 };
 
 extern struct feature *f_info;
@@ -83,6 +86,7 @@ struct square
 {
     u16b feat;
     bitflag *info;
+    int light;
     s16b mon;
     struct object *obj;
     struct trap *trap;
@@ -111,11 +115,13 @@ struct chunk
     struct monster *monsters;
     u16b mon_max;
     u16b mon_cnt;
+    int num_repro;
+
+    struct monster_group **monster_groups;
 
     struct connector *join;
 
     /* PWMAngband */
-    s16b num_clones;
     bool scan_monsters;
     hturn generated;
     bool *o_gen;
@@ -164,7 +170,6 @@ extern int FEAT_LAVA;
 /* MAngband-specific terrain elements */
 extern int FEAT_PERM_STATIC;
 extern int FEAT_PERM_HOUSE;
-extern int FEAT_PERM_FAKE;
 extern int FEAT_PERM_ARENA;
 
 extern int FEAT_WATER;
@@ -200,6 +205,9 @@ extern int FEAT_PERM_CLEAR;
 /* Special "home doors" */
 extern int FEAT_HOME_OPEN;
 extern int FEAT_HOME_CLOSED;
+
+extern int FEAT_WEB;
+extern int FEAT_TRAINING;
 
 extern s16b ddd[9];
 extern struct loc ddgrid[10];
@@ -277,7 +285,6 @@ extern bool feat_is_trap_holding(int feat);
 extern bool feat_is_object_holding(int feat);
 extern bool feat_is_monster_walkable(int feat);
 extern bool feat_is_shop(int feat);
-extern bool feat_is_vendor(int feat);
 extern bool feat_is_passable(int feat);
 extern bool feat_is_projectable(int feat);
 extern bool feat_is_torch(int feat);
@@ -288,7 +295,6 @@ extern bool feat_is_no_scent(int feat);
 extern bool feat_is_smooth(int feat);
 extern bool feat_issafefloor(int feat);
 extern bool feat_isterrain(int feat);
-extern bool feat_isprefixed(int feat);
 extern int feat_order_special(int feat);
 extern int feat_pseudo(char d_char);
 extern bool feat_ishomedoor(int feat);
@@ -303,7 +309,9 @@ extern bool square_istrappable(struct chunk *c, struct loc *grid);
 extern bool square_isobjectholding(struct chunk *c, struct loc *grid);
 extern bool square_isrock(struct chunk *c, struct loc *grid);
 extern bool square_isperm(struct chunk *c, struct loc *grid);
+extern bool square_isunpassable(struct chunk *c, struct loc *grid);
 extern bool square_isborder(struct chunk *c, struct loc *grid);
+extern bool square_ispermborder(struct chunk *c, struct loc *grid);
 extern bool square_ispermarena(struct chunk *c, struct loc *grid);
 extern bool square_ispermhouse(struct chunk *c, struct loc *grid);
 extern bool square_ispermstatic(struct chunk *c, struct loc *grid);
@@ -347,7 +355,7 @@ extern bool square_isnether(struct chunk *c, struct loc *grid);
 extern bool square_ismountain(struct chunk *c, struct loc *grid);
 extern bool square_isdryfountain(struct chunk *c, struct loc *grid);
 extern bool square_isfountain(struct chunk *c, struct loc *grid);
-extern bool square_isweb(struct chunk *c, struct loc *grid);
+extern bool square_iswebbed(struct chunk *c, struct loc *grid);
 extern bool square_isglow(struct chunk *c, struct loc *grid);
 extern bool square_isvault(struct chunk *c, struct loc *grid);
 extern bool square_notrash(struct chunk *c, struct loc *grid);
@@ -370,10 +378,13 @@ extern bool square_isproject(struct chunk *c, struct loc *grid);
 extern bool square_isno_stairs(struct chunk *c, struct loc *grid);
 extern bool square_isopen(struct chunk *c, struct loc *grid);
 extern bool square_isempty(struct chunk *c, struct loc *grid);
+extern bool square_isemptywater(struct chunk *c, struct loc *grid);
+extern bool square_istraining(struct chunk *c, struct loc *grid);
 extern bool square_isemptyfloor(struct chunk *c, struct loc *grid);
 extern bool square_canputitem(struct chunk *c, struct loc *grid);
 extern bool square_isdiggable(struct chunk *c, struct loc *grid);
 extern bool square_seemsdiggable(struct chunk *c, struct loc *grid);
+extern bool square_iswebbable(struct chunk *c, struct loc *grid);
 extern bool square_is_monster_walkable(struct chunk *c, struct loc *grid);
 extern bool square_ispassable(struct chunk *c, struct loc *grid);
 extern bool square_isprojectable(struct chunk *c, struct loc *grid);
@@ -381,6 +392,7 @@ extern bool square_iswall(struct chunk *c, struct loc *grid);
 extern bool square_isstrongwall(struct chunk *c, struct loc *grid);
 extern bool square_isbright(struct chunk *c, struct loc *grid);
 extern bool square_isfiery(struct chunk *c, struct loc *grid);
+extern bool square_islit(struct chunk *c, struct loc *grid);
 extern bool square_isdamaging(struct chunk *c, struct loc *grid);
 extern bool square_isnoflow(struct chunk *c, struct loc *grid);
 extern bool square_isnoscent(struct chunk *c, struct loc *grid);
@@ -402,12 +414,15 @@ extern bool square_isbelievedwall(struct player *p, struct chunk *c, struct loc 
 extern struct square *square(struct chunk *c, struct loc *grid);
 extern struct player_square *square_p(struct player *p, struct loc *grid);
 extern struct feature *square_feat(struct chunk *c, struct loc *grid);
+extern int square_light(struct chunk *c, struct loc *grid);
 extern struct monster *square_monster(struct chunk *c, struct loc *grid);
 extern struct object *square_object(struct chunk *c, struct loc *grid);
 extern struct trap *square_trap(struct chunk *c, struct loc *grid);
 extern bool square_holds_object(struct chunk *c, struct loc *grid, struct object *obj);
 extern void square_excise_object(struct chunk *c, struct loc *grid, struct object *obj);
 extern void square_excise_pile(struct chunk *c, struct loc *grid);
+extern void square_delete_object(struct chunk *c, struct loc *grid, struct object *obj,
+    bool do_note, bool do_light);
 extern void square_sense_pile(struct player *p, struct chunk *c, struct loc *grid);
 extern void square_know_pile(struct player *p, struct chunk *c, struct loc *grid);
 extern void square_forget_pile(struct player *p, struct loc *grid);
@@ -419,18 +434,21 @@ extern void square_set_obj(struct chunk *c, struct loc *grid, struct object *obj
 extern void square_set_trap(struct chunk *c, struct loc *grid, struct trap *trap);
 extern void square_add_trap(struct chunk *c, struct loc *grid);
 extern void square_add_glyph(struct chunk *c, struct loc *grid, int type);
-extern void square_add_stairs(struct chunk *c, struct loc *grid, byte feat_stairs);
+extern void square_add_web(struct chunk *c, struct loc *grid);
+extern void square_add_stairs(struct chunk *c, struct loc *grid, int feat_stairs);
 extern void square_open_door(struct chunk *c, struct loc *grid);
 extern void square_open_homedoor(struct chunk *c, struct loc *grid);
 extern void square_close_door(struct chunk *c, struct loc *grid);
 extern void square_smash_door(struct chunk *c, struct loc *grid);
 extern void square_unlock_door(struct chunk *c, struct loc *grid);
+extern void square_set_floor(struct chunk *c, struct loc *grid, int feat);
 extern void square_destroy_door(struct chunk *c, struct loc *grid);
 extern void square_destroy_trap(struct chunk *c, struct loc *grid);
 extern void square_disable_trap(struct player *p, struct chunk *c, struct loc *grid);
 extern void square_destroy_decoy(struct player *p, struct chunk *c, struct loc *grid);
 extern void square_tunnel_wall(struct chunk *c, struct loc *grid);
 extern void square_destroy_wall(struct chunk *c, struct loc *grid);
+extern void square_smash_wall(struct chunk *c, struct loc *grid);
 extern void square_destroy(struct chunk *c, struct loc *grid);
 extern void square_earthquake(struct chunk *c, struct loc *grid);
 extern void square_upgrade_mineral(struct chunk *c, struct loc *grid);
@@ -439,6 +457,9 @@ extern int square_shopnum(struct chunk *c, struct loc *grid);
 extern int square_digging(struct chunk *c, struct loc *grid);
 extern int square_apparent_feat(struct player *p, struct chunk *c, struct loc *grid);
 extern const char *square_apparent_name(struct player *p, struct chunk *c, struct loc *grid);
+extern const char *square_apparent_look_prefix(struct player *p, struct chunk *c, struct loc *grid);
+extern const char *square_apparent_look_in_preposition(struct player *p, struct chunk *c,
+    struct loc *grid);
 extern void square_memorize(struct player *p, struct chunk *c, struct loc *grid);
 extern void square_forget(struct player *p, struct loc *grid);
 extern void square_mark(struct player *p, struct loc *grid);
@@ -460,7 +481,8 @@ extern void square_add_safe(struct chunk *c, struct loc *grid);
 extern bool square_isplot(struct chunk *c, struct loc *grid);
 extern void square_actor(struct chunk *c, struct loc *grid, struct source *who);
 extern int square_known_feat(struct player *p, struct chunk *c, struct loc *grid);
-extern void square_illuminate(struct player *p, struct chunk *c, struct loc *grid, bool daytime);
+extern void square_illuminate(struct player *p, struct chunk *c, struct loc *grid, bool daytime,
+    bool light);
 extern struct trap *square_top_trap(struct chunk *c, struct loc *grid);
 extern void square_memorize_trap(struct player *p, struct chunk *c, struct loc *grid);
 extern struct trap *square_known_trap(struct player *p, struct chunk *c, struct loc *grid);
@@ -473,6 +495,7 @@ extern void square_init_join_rand(struct chunk *c);
 extern void square_set_join_rand(struct chunk *c, struct loc *grid);
 extern void square_set_upstairs(struct chunk *c, struct loc *grid);
 extern void square_set_downstairs(struct chunk *c, struct loc *grid, int feat);
+extern void square_set_rubble(struct chunk *c, struct loc *grid, int feat);
 
 /* cave-view.c */
 extern int distance(struct loc *grid1, struct loc *grid2);

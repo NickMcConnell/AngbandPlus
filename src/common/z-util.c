@@ -3,7 +3,7 @@
  * Purpose: Low-level string handling and other utilities.
  *
  * Copyright (c) 1997-2005 Ben Harrison, Robert Ruehlmann.
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -278,7 +278,7 @@ size_t my_strcat(char *buf, const char *src, size_t bufsize)
     size_t dlen = strlen(buf);
 
     /* Is there room left in the buffer? */
-    if (dlen < bufsize - 1)
+    if (dlen + 1 < bufsize)
     {
         /* Append as much as possible  */
         return (dlen + my_strcpy(buf + dlen, src, bufsize - dlen));
@@ -651,14 +651,10 @@ void strescape(char *s, const char c)
  */
 bool contains_only_spaces(const char *s)
 {
-    char spaces[] = " \t";
+    const char spaces[] = " \t";
+    size_t nsp = strspn(s, spaces);
 
-    while (*s)
-    {
-        if (strchr(spaces, *s) != NULL) return false;
-        s++;
-    }
-    return true;
+    return s[nsp] == '\0';
 }
 
 

@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2007-9 Andi Sidwell, Chris Carr, Ed Graham, Erik Osheim
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -152,7 +152,7 @@ void do_cmd_uninscribe(struct player *p, int item)
     p->upkeep->update |= (PU_INVEN);
     p->upkeep->redraw |= (PR_INVEN | PR_EQUIP);
     if (!object_is_carried(p, obj))
-        redraw_floor(&p->wpos, &obj->grid);
+        redraw_floor(&p->wpos, &obj->grid, NULL);
 }
 
 
@@ -163,7 +163,6 @@ void do_cmd_inscribe(struct player *p, int item, const char *inscription)
 {
     struct object *obj = object_from_index(p, item, true, true);
     char o_name[NORMAL_WID];
-    s32b price;
     const char *c;
 
     /* Paranoia: requires an item */
@@ -218,16 +217,25 @@ void do_cmd_inscribe(struct player *p, int item, const char *inscription)
             return;
         }
 
-        /* Can't sell overpriced items */
-        c += 8; /* skip "for sale" */
+        /* Get ask price, skip "for sale" */
+        c += 8;
         if (*c == ' ')
         {
-            price = atoi(c);
+            s32b price = atoi(c);
+
+            /* Can't sell overpriced items */
             if (price > PY_MAX_GOLD)
             {
                 msg(p, "Your price is too high!");
                 return;
             }
+        }
+
+        /* Must set the price */
+        else
+        {
+            msg(p, "You must enter a price.");
+            return;
         }
     }
 
@@ -255,7 +263,7 @@ void do_cmd_inscribe(struct player *p, int item, const char *inscription)
     p->upkeep->update |= (PU_INVEN);
     p->upkeep->redraw |= (PR_INVEN | PR_EQUIP);
     if (!object_is_carried(p, obj))
-        redraw_floor(&p->wpos, &obj->grid);
+        redraw_floor(&p->wpos, &obj->grid, NULL);
 }
 
 
@@ -500,10 +508,10 @@ void do_cmd_wield(struct player *p, int item, int slot)
     else
         act = "You were wearing";
 
+    inven_wield(p, obj, slot);
+
     /* Message */
     msgt(p, MSG_WIELD, "%s %s (%c).", act, o_name, gear_to_label(p, equip_obj));
-
-    inven_wield(p, obj, slot);
 }
 
 
@@ -977,16 +985,21 @@ static bool spell_cast(struct player *p, int spell_index, int dir, quark_t note,
         /* Cast the spell */
         else
         {
-            bool ident = false;
+            bool ident = false, used;
             struct beam_info beam;
 
             fill_beam_info(p, spell_index, &beam);
 
             if (spell->effect && spell->effect->other_msg)
                 msg_print_near(p, (pious? MSG_PY_PRAYER: MSG_PY_SPELL), spell->effect->other_msg);
-            if (!effect_do(spell->effect, who, &ident, true, dir, &beam, 0, note, NULL))
-                return false;
+            target_fix(p);
+            used = effect_do(spell->effect, who, &ident, true, dir, &beam, 0, note, NULL);
+            target_release(p);
+            if (!used) return false;
         }
+
+        /* Reward COMBAT_REGEN with small HP recovery */
+        if (player_has(p, PF_COMBAT_REGEN)) convert_mana_to_hp(p, spell->smana << 16);
 
         /* A spell was cast */
         sound(p, (pious? MSG_PRAYER: MSG_SPELL));
@@ -1061,7 +1074,7 @@ bool do_cmd_cast(struct player *p, int book_index, int spell_index, int dir)
     if (!obj)
     {
         /* Cancel repeat */
-        disturb(p, 0);
+        disturb(p);
         return true;
     }
 
@@ -1072,7 +1085,7 @@ bool do_cmd_cast(struct player *p, int book_index, int spell_index, int dir)
     if (!player_can_cast(p, true))
     {
         /* Cancel repeat */
-        disturb(p, 0);
+        disturb(p);
         return true;
     }
 
@@ -1082,7 +1095,7 @@ bool do_cmd_cast(struct player *p, int book_index, int spell_index, int dir)
         msg(p, "The item's inscription prevents it.");
 
         /* Cancel repeat */
-        disturb(p, 0);
+        disturb(p);
         return true;
     }
 
@@ -1092,7 +1105,7 @@ bool do_cmd_cast(struct player *p, int book_index, int spell_index, int dir)
         msg(p, "This item belongs to someone else!");
 
         /* Cancel repeat */
-        disturb(p, 0);
+        disturb(p);
         return true;
     }
 
@@ -1102,7 +1115,7 @@ bool do_cmd_cast(struct player *p, int book_index, int spell_index, int dir)
         msg(p, "You don't have the required level!");
 
         /* Cancel repeat */
-        disturb(p, 0);
+        disturb(p);
         return true;
     }
 
@@ -1113,7 +1126,7 @@ bool do_cmd_cast(struct player *p, int book_index, int spell_index, int dir)
     if (!book)
     {
         /* Cancel repeat */
-        disturb(p, 0);
+        disturb(p);
         return true;
     }
 
@@ -1123,7 +1136,7 @@ bool do_cmd_cast(struct player *p, int book_index, int spell_index, int dir)
         msg(p, "The item's inscription prevents it.");
 
         /* Cancel repeat */
-        disturb(p, 0);
+        disturb(p);
         return true;
     }
 
@@ -1135,7 +1148,7 @@ bool do_cmd_cast(struct player *p, int book_index, int spell_index, int dir)
         msg(p, "You cannot %s that %s.", book->realm->verb, book->realm->spell_noun);
 
         /* Cancel repeat */
-        disturb(p, 0);
+        disturb(p);
         return true;
     }
 
@@ -1145,7 +1158,7 @@ bool do_cmd_cast(struct player *p, int book_index, int spell_index, int dir)
     if (sidx == -1)
     {
         /* Cancel repeat */
-        disturb(p, 0);
+        disturb(p);
         return true;
     }
 
@@ -1158,7 +1171,7 @@ bool do_cmd_cast(struct player *p, int book_index, int spell_index, int dir)
         msg(p, "You have nothing to identify.");
 
         /* Cancel repeat */
-        disturb(p, 0);
+        disturb(p);
         return true;
     }
 
@@ -1170,7 +1183,7 @@ bool do_cmd_cast(struct player *p, int book_index, int spell_index, int dir)
             spell->realm->spell_noun);
 
         /* Cancel repeat */
-        disturb(p, 0);
+        disturb(p);
         return true;
     }
 
@@ -1181,7 +1194,7 @@ bool do_cmd_cast(struct player *p, int book_index, int spell_index, int dir)
         msg(p, "This %s is on cooldown.", spell->realm->spell_noun);
 
         /* Cancel repeat */
-        disturb(p, 0);
+        disturb(p);
         return true;
     }
 
@@ -1191,7 +1204,7 @@ bool do_cmd_cast(struct player *p, int book_index, int spell_index, int dir)
         use_energy(p);
 
         /* Cancel repeat */
-        disturb(p, 0);
+        disturb(p);
         return true;
     }
 
@@ -1203,13 +1216,13 @@ bool do_cmd_cast(struct player *p, int book_index, int spell_index, int dir)
         (spell_index >= p->clazz->magic.total_spells)? true: false))
     {
         /* Cancel repeat */
-        disturb(p, 0);
+        disturb(p);
         return true;
     }
 
-    /* Take a turn, or half a turn if fast casting */
+    /* Take a turn, or 75% a turn if fast casting */
     if (p->timed[TMD_FASTCAST])
-        p->energy -= move_energy(p->wpos.depth) / 2;
+        p->energy -= (move_energy(p->wpos.depth) * 3) / 4;
     else
         p->energy -= move_energy(p->wpos.depth);
     if (p->energy < 0) p->energy = 0;
@@ -1408,7 +1421,7 @@ static bool do_cmd_use_end(struct player *p, struct object *obj, bool ident, boo
 
             /* Redraw */
             else
-                redraw_floor(&p->wpos, &obj->grid);
+                redraw_floor(&p->wpos, &obj->grid, obj);
         }
         else if (use == USE_TIMEOUT)
         {
@@ -1419,7 +1432,7 @@ static bool do_cmd_use_end(struct player *p, struct object *obj, bool ident, boo
 
                 /* Redraw */
                 if (!object_is_carried(p, obj))
-                    redraw_floor(&p->wpos, &obj->grid);
+                    redraw_floor(&p->wpos, &obj->grid, obj);
             }
 
             /* Other activatable items */
@@ -1449,11 +1462,11 @@ static bool do_cmd_use_end(struct player *p, struct object *obj, bool ident, boo
 
 
 bool execute_effect(struct player *p, struct object **obj_address, struct effect *effect, int dir,
-    bool *ident, bool *used, bool *notice)
+    const char *inscription, bool *ident, bool *used, bool *notice)
 {
     struct beam_info beam;
     int boost, level;
-    byte tval;
+    u16b tval;
     quark_t note;
     bool no_ident = false;
     struct effect *e = effect;
@@ -1477,7 +1490,7 @@ bool execute_effect(struct player *p, struct object **obj_address, struct effect
     }
 
     /* Boost damage effects if skill > difficulty */
-    boost = MAX(p->state.skills[SKILL_DEVICE] - level, 0);
+    boost = MAX((p->state.skills[SKILL_DEVICE] - level) / 2, 0);
 
     /* Various hacks */
     tval = (*obj_address)->tval;
@@ -1554,11 +1567,14 @@ bool execute_effect(struct player *p, struct object **obj_address, struct effect
     }
 
     fill_beam_info(NULL, tval, &beam);
+    my_strcpy(beam.inscription, inscription, sizeof(beam.inscription));
 
     /* Do effect */
     if (effect->other_msg) msg_misc(p, effect->other_msg);
     source_player(who, get_player_index(get_connection(p->conn)), p);
+    target_fix(p);
     *used = effect_do(effect, who, ident, p->was_aware, dir, &beam, boost, note, NULL);
+    target_release(p);
 
     /* Notice */
     if (*ident) *notice = true;
@@ -1664,7 +1680,8 @@ static void use_aux(struct player *p, int item, int dir, cmd_param *p_cmd)
     my_assert(effect);
 
     /* Check for unknown objects to prevent wasted player turns. */
-    if ((effect->index == EF_IDENTIFY) && !spell_identify_unknown_available(p))
+    /* PWMAngband: allow to ID the effect by use */
+    if ((effect->index == EF_IDENTIFY) && p->was_aware && !spell_identify_unknown_available(p))
     {
         msg(p, "You have nothing to identify.");
         return;
@@ -1694,7 +1711,7 @@ static void use_aux(struct player *p, int item, int dir, cmd_param *p_cmd)
         sound(p, p_cmd->snd);
         activation_message(p, obj);
 
-        if (execute_effect(p, &obj, effect, dir, &ident, &used, &notice)) return;
+        if (execute_effect(p, &obj, effect, dir, "", &ident, &used, &notice)) return;
     }
 
     /* Take a turn if device failed */
@@ -1902,10 +1919,10 @@ static void refill_lamp(struct player *p, struct object *lamp, struct object *ob
             used->timeout = 0;
 
             /* Carry or drop */
-            if (object_is_carried(p, obj))
+            if (object_is_carried(p, obj) && inven_carry_okay(p, used))
                 inven_carry(p, used, true, true);
             else
-                drop_near(p, c, &used, 0, &p->grid, false, DROP_FADE);
+                drop_near(p, c, &used, 0, &p->grid, false, DROP_FADE, true);
         }
 
         /* Empty a single lamp */

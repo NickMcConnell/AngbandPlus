@@ -6,7 +6,7 @@
 # code: code for brand to use in object data files
 # name: name of element of the brand
 # verb: verb used when a susceptible monster is hit
-# multiplier: slay multiplier applied to damage dice
+# multiplier: brand multiplier applied to damage dice
 # power: weighting in object power calculations (100 is neutral)
 # resist-flag: monster race flag for resist to the brand element
 # active-verb: verb used when the brand is noticed on an object (singular)

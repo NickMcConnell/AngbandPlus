@@ -3,7 +3,7 @@
  * Purpose: Chunk allocation and utility functions
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -40,7 +40,6 @@ int FEAT_PERM;
 int FEAT_LAVA;
 int FEAT_PERM_STATIC;
 int FEAT_PERM_HOUSE;
-int FEAT_PERM_FAKE;
 int FEAT_PERM_ARENA;
 int FEAT_WATER;
 int FEAT_MUD;
@@ -71,6 +70,8 @@ int FEAT_SHORE;
 int FEAT_PERM_CLEAR;
 int FEAT_HOME_OPEN;
 int FEAT_HOME_CLOSED;
+int FEAT_WEB;
+int FEAT_TRAINING;
 
 
 struct feature *f_info;
@@ -349,7 +350,6 @@ void set_terrain(void)
     FEAT_LAVA = lookup_feat("lava");
     FEAT_PERM_STATIC = lookup_feat("static dungeon town wall");
     FEAT_PERM_HOUSE = lookup_feat("house wall");
-    FEAT_PERM_FAKE = lookup_feat("fake permanent wall");
     FEAT_PERM_ARENA = lookup_feat("arena wall");
     FEAT_WATER = lookup_feat("water");
     FEAT_MUD = lookup_feat("mud");
@@ -380,6 +380,8 @@ void set_terrain(void)
     FEAT_PERM_CLEAR = lookup_feat("border permawall");
     FEAT_HOME_OPEN = lookup_feat("open house door");
     FEAT_HOME_CLOSED = lookup_feat("closed house door");
+    FEAT_WEB = lookup_feat("web");
+    FEAT_TRAINING = lookup_feat("training grounds");
 }
 
 
@@ -406,6 +408,8 @@ struct chunk *cave_new(int height, int width)
 
     c->monsters = mem_zalloc(z_info->level_monster_max * sizeof(struct monster));
     c->mon_max = 1;
+
+    c->monster_groups = mem_zalloc(z_info->level_monster_max * sizeof(struct monster_group*));
 
     c->o_gen = mem_zalloc(MAX_OBJECTS * sizeof(bool));
     c->join = mem_zalloc(sizeof(struct connector));
@@ -437,6 +441,7 @@ void cave_free(struct chunk *c)
 
     mem_free(c->feat_count);
     mem_free(c->monsters);
+    mem_free(c->monster_groups);
     mem_free(c->o_gen);
     mem_free(c->join);
     mem_free(c);

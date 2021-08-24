@@ -59,6 +59,8 @@
 
 /* Use private paths: /save and /scores subdirectories are put in /user if defined */
 /* PWMAngband: since we only work under Windows, we define this here -- do not modify! */
-#define USE_PRIVATE_PATHS
+#ifdef WINDOWS
+# define USE_PRIVATE_PATHS
+#endif
 
 #endif /* INCLUDED_CONFIG_H */

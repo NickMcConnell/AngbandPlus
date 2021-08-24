@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2000-2007 Eytan Zweig, Andrew Doull, Pete Mack.
  * Copyright (c) 2010 Peter Denison, Chris Carr.
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -349,7 +349,7 @@ void do_cmd_messages(void)
             Term_putstr(0, hgt - 3 - j, -1, attr, msg);
 
             /* Highlight "shower" */
-            if (shower[0])
+            if (strlen(shower))
             {
                 str = msg;
 
@@ -371,7 +371,7 @@ void do_cmd_messages(void)
         prt(format("Message recall (%d-%d of %d), offset %d", i, i + j - 1, n, q), 0, 0);
 
         /* Display prompt (not very informative) */
-        if (shower[0])
+        if (strlen(shower))
             prt("[Movement keys to navigate, '-' for next, '=' to find]", hgt - 1, 0);
         else
             prt("[Movement keys to navigate, '=' to find, or ESCAPE to exit]", hgt - 1, 0);
@@ -456,7 +456,7 @@ void do_cmd_messages(void)
             }
 
             /* Find the next item */
-            if ((ke.key.code == '-') && shower[0])
+            if ((ke.key.code == '-') && strlen(shower))
             {
                 s16b z;
 

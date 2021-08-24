@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, and others
  * Copyright (c) 2009-2015 Erik Osheim
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -36,6 +36,46 @@
  */
 /*static char *termtype;
 static bool loaded_terminfo;*/
+
+/* Windows already has this in curses.h */
+#ifndef WINDOWS
+/* PDCurses-specific key */
+#define CTL_LEFT      0x1bb  /* Control-Left-Arrow */
+#define CTL_RIGHT     0x1bc
+#define CTL_PGUP      0x1bd
+#define CTL_PGDN      0x1be
+#define CTL_HOME      0x1bf
+#define CTL_END       0x1c0
+
+#define KEY_A2        0x1c2  /* upper middle on Virt. keypad */
+#define KEY_B1        0x1c4  /* middle left on Virt. keypad */
+#define KEY_B3        0x1c6  /* middle right on Vir. keypad */
+#define KEY_C2        0x1c8  /* lower middle on Virt. keypad */
+
+#define PADSLASH      0x1ca  /* slash on keypad */
+#define PADENTER      0x1cb  /* enter on keypad */
+#define PADSTOP       0x1ce  /* stop on keypad */
+#define PADSTAR       0x1cf  /* star on keypad */
+#define PADMINUS      0x1d0  /* minus on keypad */
+#define PADPLUS       0x1d1  /* plus on keypad */
+#define CTL_UP        0x1e0  /* ctl-up arrow */
+#define CTL_DOWN      0x1e1  /* ctl-down arrow */
+#define PAD0          0x1fa  /* keypad 0 */
+
+#define CTL_PAD0      0x1fb  /* ctl-keypad 0 */
+#define CTL_PAD1      0x1fc
+#define CTL_PAD2      0x1fd
+#define CTL_PAD3      0x1fe
+#define CTL_PAD4      0x1ff
+#define CTL_PAD5      0x200
+#define CTL_PAD6      0x201
+#define CTL_PAD7      0x202
+#define CTL_PAD8      0x203
+#define CTL_PAD9      0x204
+
+#define KEY_SUP       0x223  /* Shifted up arrow */
+#define KEY_SDOWN     0x224  /* Shifted down arrow */
+#endif
 
 /*
  * Information about a term
@@ -83,8 +123,17 @@ static int can_use_color = false;
  */
 static int colortable[BASIC_COLORS];
 
+/*
+ * Same colors as in the colortable, except fg and bg are both set to the fg value.
+ * These pairs are used for drawing solid walls.
+ */
+static int same_colortable[BASIC_COLORS];
+
 /* Screen info: use one big Term 0, or other subwindows? */
 static bool bold_extended = false;
+#ifdef HAVE_USE_DEFAULT_COLORS
+static bool use_default_background = false;
+#endif
 static int term_count = 4;
 
 /*
@@ -100,6 +149,14 @@ static int bg_color = COLOR_BLACK;
 #define PAIR_MAGENTA 5
 #define PAIR_CYAN 6
 #define PAIR_BLACK 7
+#define PAIR_WHITE_WHITE 8
+#define PAIR_RED_RED 9
+#define PAIR_GREEN_GREEN 10
+#define PAIR_YELLOW_YELLOW 11
+#define PAIR_BLUE_BLUE 12
+#define PAIR_MAGENTA_MAGENTA 13
+#define PAIR_CYAN_CYAN 14
+#define PAIR_BLACK_BLACK 15
 
 #endif
 
@@ -692,6 +749,8 @@ static errr Term_xtra_gcu_react(void)
 
             init_pair(i + 1, fg, bg_color);
             colortable[i] = COLOR_PAIR(i + 1) | isbold;
+            init_pair(BASIC_COLORS + i, fg, fg);
+            same_colortable[i] = COLOR_PAIR(BASIC_COLORS + i) | isbold;
         }
     }
 #endif
@@ -743,6 +802,13 @@ static errr Term_xtra_gcu(int n, int v)
 static errr Term_curs_gcu(int x, int y)
 {
     term_data *td = (term_data *)(Term->data);
+
+    /* Highlight the player */
+    if (Term->minimap_active && cursor_x && cursor_y)
+    {
+        x = cursor_x + COL_MAP;
+        y = cursor_y + ROW_MAP;
+    }
 
     gcu_move_cursor(td, y, x);
     return 0;
@@ -822,10 +888,15 @@ static errr Term_text_gcu(int x, int y, int n, u16b a, const char *s)
 
         /* The lower 7 bits of the attribute indicate the fg/bg */
         int attr = a & 127;
-        int color = colortable[attr];
 
         /* The high bit of the attribute indicates a reversed fg/bg */
         bool reversed = a > 127;
+
+        int color;
+
+        /* Set bg and fg to the same color when drawing solid walls */
+        if (a / MAX_COLORS == BG_SAME) color = same_colortable[attr];
+        else color = colortable[attr];
 
         /* The following check for A_BRIGHT is to avoid incorrect lighting */
         if (reversed && (color & A_BRIGHT))
@@ -902,8 +973,12 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x)
  */
 static void hook_plog(const char *str)
 {
+#ifdef WINDOWS
     /* Warning */
     if (str) MessageBox(NULL, str, "Warning", MB_ICONEXCLAMATION | MB_OK);
+#else
+    printf("%s\n", str);
+#endif
 }
 
 
@@ -930,11 +1005,14 @@ static void hook_quit(const char *str)
     /* Cleanup network stuff */
     Net_cleanup();
 
+#ifdef WINDOWS
     /* Cleanup WinSock */
     WSACleanup();
+#endif
 }
 
 
+#ifdef WINDOWS
 static BOOL CtrlHandler(DWORD fdwCtrlType)
 {
     switch (fdwCtrlType)
@@ -946,6 +1024,7 @@ static BOOL CtrlHandler(DWORD fdwCtrlType)
             return TRUE;
     }
 }
+#endif
 
 
 /*
@@ -977,9 +1056,11 @@ errr init_gcu(void)
     plog_aux = hook_plog;
     quit_aux = hook_quit;
 
+#ifdef WINDOWS
     /* Register a control handler */
     if (!SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, true))
         quit("Could not set control handler");
+#endif
 
     /* Require standard size screen */
     if (LINES < MIN_TERM0_LINES || COLS < MIN_TERM0_COLS)
@@ -991,7 +1072,7 @@ errr init_gcu(void)
 
 #ifdef HAVE_USE_DEFAULT_COLORS
     /* Should we use curses' "default color" */
-    if (use_default_colors() == OK) bg_color = -1;
+    if (use_default_background && use_default_colors() == OK) bg_color = -1;
 #endif
 
     /* Attempt to use colors */
@@ -1006,6 +1087,16 @@ errr init_gcu(void)
         init_pair(PAIR_MAGENTA, COLOR_MAGENTA, bg_color);
         init_pair(PAIR_CYAN, COLOR_CYAN, bg_color);
         init_pair(PAIR_BLACK, COLOR_BLACK, bg_color);
+
+        /* These pairs are used for drawing solid walls */
+        init_pair(PAIR_WHITE_WHITE, COLOR_WHITE, COLOR_WHITE);
+        init_pair(PAIR_RED_RED, COLOR_RED, COLOR_RED);
+        init_pair(PAIR_GREEN_GREEN, COLOR_GREEN, COLOR_GREEN);
+        init_pair(PAIR_YELLOW_YELLOW, COLOR_YELLOW, COLOR_YELLOW);
+        init_pair(PAIR_BLUE_BLUE, COLOR_BLUE, COLOR_BLUE);
+        init_pair(PAIR_MAGENTA_MAGENTA, COLOR_MAGENTA, COLOR_MAGENTA);
+        init_pair(PAIR_CYAN_CYAN, COLOR_CYAN, COLOR_CYAN);
+        init_pair(PAIR_BLACK_BLACK, COLOR_BLACK, COLOR_BLACK);
 
         /* Prepare the colors */
         colortable[COLOUR_DARK]     = (COLOR_PAIR(PAIR_BLACK));
@@ -1043,6 +1134,36 @@ errr init_gcu(void)
         colortable[COLOUR_MUSTARD]     = (COLOR_PAIR(PAIR_YELLOW) | A_BRIGHT);
         colortable[COLOUR_BLUE_SLATE]  = (COLOR_PAIR(PAIR_CYAN) | A_BRIGHT);
         colortable[COLOUR_DEEP_L_BLUE] = (COLOR_PAIR(PAIR_CYAN));
+
+        same_colortable[COLOUR_DARK]     = (COLOR_PAIR(PAIR_BLACK_BLACK));
+		same_colortable[COLOUR_WHITE]    = (COLOR_PAIR(PAIR_WHITE_WHITE) | A_BRIGHT);
+		same_colortable[COLOUR_SLATE]    = (COLOR_PAIR(PAIR_WHITE_WHITE));
+		same_colortable[COLOUR_ORANGE]   = (COLOR_PAIR(PAIR_YELLOW_YELLOW) | A_BRIGHT);
+		same_colortable[COLOUR_RED]      = (COLOR_PAIR(PAIR_RED_RED));
+		same_colortable[COLOUR_GREEN]    = (COLOR_PAIR(PAIR_GREEN_GREEN));
+		same_colortable[COLOUR_BLUE]     = (COLOR_PAIR(PAIR_BLUE_BLUE));
+		same_colortable[COLOUR_UMBER]    = (COLOR_PAIR(PAIR_YELLOW_YELLOW));
+		same_colortable[COLOUR_L_DARK]   = (COLOR_PAIR(PAIR_BLACK_BLACK) | A_BRIGHT);
+		same_colortable[COLOUR_L_WHITE]  = (COLOR_PAIR(PAIR_WHITE_WHITE));
+		same_colortable[COLOUR_L_PURPLE] = (COLOR_PAIR(PAIR_MAGENTA_MAGENTA));
+		same_colortable[COLOUR_YELLOW]   = (COLOR_PAIR(PAIR_YELLOW_YELLOW) | A_BRIGHT);
+		same_colortable[COLOUR_L_RED]    = (COLOR_PAIR(PAIR_MAGENTA_MAGENTA) | A_BRIGHT);
+		same_colortable[COLOUR_L_GREEN]  = (COLOR_PAIR(PAIR_GREEN_GREEN) | A_BRIGHT);
+		same_colortable[COLOUR_L_BLUE]   = (COLOR_PAIR(PAIR_BLUE_BLUE) | A_BRIGHT);
+		same_colortable[COLOUR_L_UMBER]  = (COLOR_PAIR(PAIR_YELLOW_YELLOW));
+
+		same_colortable[COLOUR_PURPLE]      = (COLOR_PAIR(PAIR_MAGENTA_MAGENTA));
+		same_colortable[COLOUR_VIOLET]      = (COLOR_PAIR(PAIR_MAGENTA_MAGENTA));
+		same_colortable[COLOUR_TEAL]        = (COLOR_PAIR(PAIR_CYAN_CYAN));
+		same_colortable[COLOUR_MUD]         = (COLOR_PAIR(PAIR_YELLOW_YELLOW));
+		same_colortable[COLOUR_L_YELLOW]    = (COLOR_PAIR(PAIR_YELLOW_YELLOW) | A_BRIGHT);
+		same_colortable[COLOUR_MAGENTA]     = (COLOR_PAIR(PAIR_MAGENTA_MAGENTA) | A_BRIGHT);
+		same_colortable[COLOUR_L_TEAL]      = (COLOR_PAIR(PAIR_CYAN_CYAN) | A_BRIGHT);
+		same_colortable[COLOUR_L_VIOLET]    = (COLOR_PAIR(PAIR_MAGENTA_MAGENTA) | A_BRIGHT);
+		same_colortable[COLOUR_L_PINK]      = (COLOR_PAIR(PAIR_MAGENTA_MAGENTA) | A_BRIGHT);
+		same_colortable[COLOUR_MUSTARD]     = (COLOR_PAIR(PAIR_YELLOW));
+		same_colortable[COLOUR_BLUE_SLATE]  = (COLOR_PAIR(PAIR_BLUE));
+		same_colortable[COLOUR_DEEP_L_BLUE] = (COLOR_PAIR(PAIR_BLUE));
     }
 #endif
 

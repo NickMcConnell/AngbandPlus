@@ -3,7 +3,7 @@
  * Purpose: Utility functions
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -296,8 +296,8 @@ void get_plusses(struct player *p, struct player_state *state, int* dd, int* ds,
     /* Ghosts do barehanded damage relative to level */
     if (p->ghost && !player_can_undead(p)) *dd = 1 + (p->lev - 1) / 2;
 
-    /* Monks and dragons do barehanded damage */
-    else if (player_has(p, PF_MARTIAL_ARTS) || player_has(p, PF_DRAGON))
+    /* Monks, hydras and dragons do barehanded damage */
+    else if (player_has(p, PF_MARTIAL_ARTS) || player_has(p, PF_DRAGON) || player_has(p, PF_HYDRA))
     {
         *dd = 1 + p->lev / 8;
         *ds = 4 + p->lev / 12;
@@ -414,12 +414,30 @@ void clean_name(char *buf, char *name)
 {
     char *str;
     char *dst;
+    bool amp = false;
 
     dst = buf;
     for (str = name; *str; str++)
     {
-        if (isalpha(*str) || isdigit(*str) || (*str == ' ') || (*str == '-') || (*str == '*'))
-            *dst++ = tolower((unsigned char)*str);
+        /* Hack -- notice '&' */
+        if (*str == '&')
+            amp = true;
+        else
+        {
+            /* Lowercase string */
+            if (isalpha(*str))
+                *dst++ = tolower((unsigned char)*str);
+
+            /* Other allowed symbols */
+            else if (isdigit(*str) || (*str == '-') || (*str == '*') || (*str == '\''))
+                *dst++ = *str;
+
+            /* Hack -- allow space if not after '&' */
+            else if ((*str == ' ') && !amp)
+                *dst++ = *str;
+
+            amp = false;
+        }
     }
     *dst++ = '\0';
 }

@@ -3,7 +3,7 @@
  * Purpose: Writing level map info to the screen
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -223,48 +223,22 @@ static byte multi_hued_attr_breath(struct monster_race *race)
 }
 
 
-/*
- * Table of flickering colors.
- */
-static byte color_flicker[MAX_COLORS][3] =
+static byte get_flicker_attr(struct player *p, const struct monster_race *race, const byte base_attr)
 {
-    {COLOUR_DARK, COLOUR_L_DARK, COLOUR_L_RED},
-    {COLOUR_WHITE, COLOUR_L_WHITE, COLOUR_L_BLUE},
-    {COLOUR_SLATE, COLOUR_WHITE, COLOUR_L_DARK},
-    {COLOUR_ORANGE, COLOUR_YELLOW, COLOUR_L_RED},
-    {COLOUR_RED, COLOUR_L_RED, COLOUR_L_PINK},
-    {COLOUR_GREEN, COLOUR_L_GREEN, COLOUR_L_TEAL},
-    {COLOUR_BLUE, COLOUR_L_BLUE, COLOUR_SLATE},
-    {COLOUR_UMBER, COLOUR_L_UMBER, COLOUR_MUSTARD},
-    {COLOUR_L_DARK, COLOUR_SLATE, COLOUR_L_VIOLET},
-    {COLOUR_L_WHITE, COLOUR_WHITE, COLOUR_SLATE},
-    {COLOUR_L_PURPLE, COLOUR_PURPLE, COLOUR_L_VIOLET},
-    {COLOUR_YELLOW, COLOUR_L_YELLOW, COLOUR_MUSTARD},
-    {COLOUR_L_RED, COLOUR_RED, COLOUR_L_PINK},
-    {COLOUR_L_GREEN, COLOUR_L_TEAL, COLOUR_GREEN},
-    {COLOUR_L_BLUE, COLOUR_DEEP_L_BLUE, COLOUR_BLUE_SLATE},
-    {COLOUR_L_UMBER, COLOUR_UMBER, COLOUR_MUD},
-    {COLOUR_PURPLE, COLOUR_VIOLET, COLOUR_MAGENTA},
-    {COLOUR_VIOLET, COLOUR_L_VIOLET, COLOUR_MAGENTA},
-    {COLOUR_TEAL, COLOUR_L_TEAL, COLOUR_L_GREEN},
-    {COLOUR_MUD, COLOUR_YELLOW, COLOUR_UMBER},
-    {COLOUR_L_YELLOW, COLOUR_WHITE, COLOUR_L_UMBER},
-    {COLOUR_MAGENTA, COLOUR_L_PINK, COLOUR_L_RED},
-    {COLOUR_L_TEAL, COLOUR_L_WHITE, COLOUR_TEAL},
-    {COLOUR_L_VIOLET, COLOUR_L_PURPLE, COLOUR_VIOLET},
-    {COLOUR_L_PINK, COLOUR_L_RED, COLOUR_L_WHITE},
-    {COLOUR_MUSTARD, COLOUR_YELLOW, COLOUR_UMBER},
-    {COLOUR_BLUE_SLATE, COLOUR_BLUE, COLOUR_SLATE},
-    {COLOUR_DEEP_L_BLUE, COLOUR_L_BLUE, COLOUR_BLUE},
-};
+    byte attr;
 
+    /* Get the color cycled attribute, if available. */
+    attr = visuals_cycler_get_attr_for_race(race, p->flicker);
 
-/*
- * Multi-hued monsters shimmer according to their flickering colors.
- */
-static byte get_flicker(byte a)
-{
-    return color_flicker[a][randint0(3)];
+    /* Fall back to the flicker attribute. */
+    if (attr == BASIC_COLORS) attr = visuals_flicker_get_attr_for_frame(base_attr, p->flicker);
+
+    /* Fall back to the static attribute if cycling fails. */
+    if (attr == BASIC_COLORS) attr = base_attr;
+
+    p->flicker++;
+
+    return attr;
 }
 
 
@@ -358,12 +332,12 @@ static void player_pict(struct player *p, struct chunk *cv, struct player *q, bo
         else *c = p->r_char[q->poly_race->ridx];
 
         /* Multi-hued monster */
-        if (!p->use_graphics && monster_shimmer(q->poly_race) && allow_shimmer(p))
+        if (monster_shimmer(q->poly_race) && monster_allow_shimmer(p))
         {
             if (rf_has(q->poly_race->flags, RF_ATTR_MULTI))
                 *a = multi_hued_attr_breath(q->poly_race);
             else if (rf_has(q->poly_race->flags, RF_ATTR_FLICKER))
-                *a = get_flicker((byte)*a);
+                *a = get_flicker_attr(p, q->poly_race, (byte)*a);
         }
     }
 
@@ -506,38 +480,6 @@ static void player_pict(struct player *p, struct chunk *cv, struct player *q, bo
 
 
 /*
- * Translate text colours.
- *
- * This translates a color based on the attribute. We use this to set terrain to
- * be lighter or darker, make metallic monsters shimmer, highlight text under the
- * mouse, and reduce the colours on mono colour or 16 colour terms to the correct
- * colour space.
- *
- * TODO: Honour the attribute for the term (full color, mono, 16 color) but ensure
- * that e.g. the lighter version of yellow becomes white in a 16 color term, but
- * light yellow in a full colour term.
- */
-byte get_color(byte a, int attr, int n)
-{
-    /* Accept any graphical attr (high bit set) */
-    if (a & (0x80)) return (a);
-
-    /* TODO: Honour the attribute for the term (full color, mono, 16 color) */
-    if (!attr) return (a);
-
-    /* Translate the color N times */
-    while (n > 0)
-    {
-        a = color_table[a].color_translate[attr];
-        n--;
-    }
-
-    /* Return the modified color */
-    return (a);
-}
-
-
-/*
  * Apply text lighting effects
  */
 static void grid_get_attr(struct player *p, struct grid_data *g, u16b *a)
@@ -548,55 +490,28 @@ static void grid_get_attr(struct player *p, struct grid_data *g, u16b *a)
     /* Remove the high bit so we can add it back again at the end */
     *a = (*a & 0x7F);
 
-    /* Never play with fg colours for treasure */
-    if (!feat_is_treasure(g->f_idx))
+    /* Play with fg colours for terrain affected by torchlight */
+    if (feat_is_torch(g->f_idx))
     {
-        /*
-         * Only apply lighting effects when the attr is white:
-         * this is to stop e.g. doors going grey when out of LOS
-         */
-        if (*a == COLOUR_WHITE)
+        /* Brighten if torchlit, darken if out of LoS, super dark for UNLIGHT */
+        switch (g->lighting)
         {
-            /* If it's a floor tile then we'll tint based on lighting. */
-            if (feat_is_torch(g->f_idx))
+            case LIGHTING_TORCH:
             {
-                switch (g->lighting)
-                {
-                    case LIGHTING_TORCH:
-                        *a = (OPT(p, view_orange_light)? COLOUR_ORANGE: COLOUR_YELLOW);
-                        break;
-                    case LIGHTING_LIT:
-                        *a = COLOUR_L_DARK;
-                        break;
-                    case LIGHTING_DARK:
-                        *a = COLOUR_L_DARK;
-                        break;
-                }
+                *a = get_color(*a, ATTR_LITE, 1);
+                if ((*a == COLOUR_YELLOW) && OPT(p, view_orange_light)) *a = COLOUR_ORANGE;
+                break;
             }
-
-            /* If it's another kind of tile, only tint when unlit. */
-            else if ((g->lighting == LIGHTING_DARK) || (g->lighting == LIGHTING_LIT))
-            {
-                /* Hack -- don't apply lighting effect for the Weapon Smith */
-                if (!feat_is_shop(g->f_idx))
-                    *a = COLOUR_L_DARK;
-            }
+            case LIGHTING_LIT: *a = get_color(*a, ATTR_DARK, 1); break;
+            case LIGHTING_DARK: *a = get_color(*a, ATTR_DARK, 2); break;
         }
-        else if (feat_is_magma(g->f_idx) || feat_is_quartz(g->f_idx))
-        {
-            if (!g->in_view)
-                *a = COLOUR_L_DARK;
-        }
-
-        /* PWMAngband: apply torchlight effect to some other terrain (for example: grass) */
-        else if ((g->lighting == LIGHTING_TORCH) && feat_is_torch(g->f_idx))
-            *a = (OPT(p, view_orange_light)? COLOUR_ORANGE: COLOUR_YELLOW);
     }
 
-    /* Hybrid or block walls -- for GCU, then for everyone else */
-    if (a0)
-        *a = a0 | *a;
-    else if (feat_is_wall(g->f_idx))
+    /* Add the attr inversion back for GCU */
+    if (a0) *a = a0 | *a;
+
+    /* Hybrid or block walls */
+    if (feat_is_wall(g->f_idx))
     {
         if (OPT(p, hybrid_walls))
             *a = *a + (MAX_COLORS * BG_DARK);
@@ -811,7 +726,8 @@ void grid_data_as_text(struct player *p, struct chunk *cv, bool server, struct g
             char dc;
 
             /* Desired attr & char */
-            if (server)
+            /* Hack -- use ASCII symbols instead of tiles if wanted */
+            if (server || OPT(p, ascii_mon))
             {
                 da = monster_x_attr[mon->race->ridx];
                 dc = monster_x_char[mon->race->ridx];
@@ -842,13 +758,13 @@ void grid_data_as_text(struct player *p, struct chunk *cv, bool server, struct g
                 c = dc;
 
                 /* Shimmer the monster */
-                if (allow_shimmer(p))
+                if (monster_allow_shimmer(p))
                 {
                     /* Multi-hued attr */
                     if (rf_has(mon->race->flags, RF_ATTR_MULTI))
                         a = multi_hued_attr_breath(mon->race);
                     else if (rf_has(mon->race->flags, RF_ATTR_FLICKER))
-                        a = get_flicker(da);
+                        a = get_flicker_attr(p, mon->race, da);
 
                     /* Redraw monster list if needed */
                     if (mon->attr != a) p->upkeep->redraw |= PR_MONLIST;
@@ -1114,6 +1030,8 @@ void display_map(struct player *p, bool subwindow)
 
         /* Set the "player" char */
         mc[row][col] = tc;
+
+        Send_minipos(p, row, col);
     }
 
     /* Activate mini-map window */
@@ -1245,6 +1163,7 @@ static void wild_display_map(struct player *p)
             if (type >= 0)
             {
                 struct worldpos wpos;
+                struct location *town;
 
                 g.f_idx = wf_info[type].feat_idx;
 
@@ -1252,6 +1171,10 @@ static void wild_display_map(struct player *p)
                 wpos_init(&wpos, &grid, 0);
                 if ((get_dungeon(&wpos) != NULL) && !in_town(&wpos))
                     g.f_idx = FEAT_MORE;
+
+                /* Show town symbol if it exists */
+                town = get_town(&wpos);
+                if (town && town->feat) g.f_idx = town->feat;
             }
 
             /* Extract the current attr/char at that map location */

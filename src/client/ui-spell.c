@@ -3,7 +3,7 @@
  * Purpose: Spell UI handing
  *
  * Copyright (c) 2010 Andi Sidwell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -136,7 +136,7 @@ static void spell_menu_browser(int oid, void *data, const region *loc)
 
     /* Redirect output to the screen */
     Term_gotoxy(loc->col, loc->row + loc->page_rows);
-    strnfmt(desc, sizeof(desc), "\n%s\n", book_info[d->book].spell_info[oid].desc);
+    strnfmt(desc, sizeof(desc), "\n%s\n\n", book_info[d->book].spell_info[oid].desc);
     text_out_to_screen(COLOUR_WHITE, desc);
 
     spell_menu_erase();
@@ -159,6 +159,13 @@ static const menu_iter spell_menu_iter =
 static int spell_collect_from_book(int book)
 {
     int i = 0, n_spells = 0;
+    const struct player_class *c = player->clazz;
+
+    if (player->ghost && !player_can_undead(player)) c = lookup_player_class("Ghost");
+
+    /* Paranoia */
+    if (book < 0) return 0;
+    if (book >= c->magic.num_books) return 0;
 
     /* Check for end of the book */
     while (book_info[book].spell_info[i].info[0] != '\0')

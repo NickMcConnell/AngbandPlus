@@ -11,7 +11,7 @@
  */
 enum
 {
-    #define STAT(a) STAT_##a,
+    #define STAT(a, b, c) STAT_##a,
     #include "list-stats.h"
     #undef STAT
 
@@ -42,7 +42,7 @@ enum
  */
 enum
 {
-    #define PF(a, b, c) PF_##a,
+    #define PF(a) PF_##a,
     #include "list-player-flags.h"
     #undef PF
     PF__MAX
@@ -87,9 +87,11 @@ struct player_state
     int speed;                  /* Current speed */
     int num_blows;              /* Number of blows x100 */
     int num_shots;              /* Number of shots x10 */
+    int num_moves;              /* Number of extra movement actions */
     int ammo_mult;              /* Ammo multiplier */
     int ammo_tval;              /* Ammo variety */
     int ac;                     /* Base ac */
+    int dam_red;                /* Damage reduction */
     int to_a;                   /* Bonus to ac */
     int to_h;                   /* Bonus to hit */
     int to_d;                   /* Bonus to dam */

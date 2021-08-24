@@ -1,0 +1,257 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!-- C++Builder XML Project -->
+<PROJECT>
+  <MACROS>
+    <VERSION value="BCB.06.00"/>
+    <PROJECT value="..\..\mangclient_sdl.exe"/>
+    <OBJFILES value="..\..\obj\buildid.obj ..\..\obj\datafile.obj ..\..\obj\display.obj 
+      ..\..\obj\guid.obj ..\..\obj\md5.obj ..\..\obj\net-win.obj 
+      ..\..\obj\obj-gear-common.obj ..\..\obj\obj-tval.obj ..\..\obj\option.obj 
+      ..\..\obj\parser.obj ..\..\obj\randname.obj ..\..\obj\sockbuf.obj 
+      ..\..\obj\source.obj ..\..\obj\util.obj ..\..\obj\z-bitflag.obj 
+      ..\..\obj\z-color.obj ..\..\obj\z-dice.obj ..\..\obj\z-expression.obj 
+      ..\..\obj\z-file.obj ..\..\obj\z-form.obj ..\..\obj\z-rand.obj 
+      ..\..\obj\z-type.obj ..\..\obj\z-util.obj ..\..\obj\z-virt.obj 
+      ..\..\obj\c-cmd.obj ..\..\obj\c-cmd-obj.obj ..\..\obj\c-option.obj 
+      ..\..\obj\c-player.obj ..\..\obj\cmd-core.obj ..\..\obj\conf.obj 
+      ..\..\obj\game-event.obj ..\..\obj\game-input.obj ..\..\obj\grafmode.obj 
+      ..\..\obj\main.obj ..\..\obj\main-sdl.obj ..\..\obj\netclient.obj 
+      ..\..\obj\player-properties.obj ..\..\obj\set_focus.obj 
+      ..\..\obj\snd-sdl.obj ..\..\obj\sound-core.obj ..\..\obj\ui-birth.obj 
+      ..\..\obj\ui-command.obj ..\..\obj\ui-context.obj ..\..\obj\ui-curse.obj 
+      ..\..\obj\ui-death.obj ..\..\obj\ui-display.obj ..\..\obj\ui-event.obj 
+      ..\..\obj\ui-game.obj ..\..\obj\ui-init.obj ..\..\obj\ui-input.obj 
+      ..\..\obj\ui-keymap.obj ..\..\obj\ui-knowledge.obj ..\..\obj\ui-menu.obj 
+      ..\..\obj\ui-message.obj ..\..\obj\ui-object.obj ..\..\obj\ui-options.obj 
+      ..\..\obj\ui-output.obj ..\..\obj\ui-prefs.obj ..\..\obj\ui-spell.obj 
+      ..\..\obj\ui-store.obj ..\..\obj\ui-term.obj"/>
+    <RESFILES value="mangclient_sdl.res ..\..\obj\angband.res"/>
+    <IDLFILES value=""/>
+    <IDLGENFILES value=""/>
+    <DEFFILE value=""/>
+    <RESDEPEN value="$(RESFILES)"/>
+    <LIBFILES value="..\_SDL\SDL.lib ..\_SDL\SDL_image.lib ..\_SDL\SDL_mixer.lib 
+      ..\_SDL\SDL_ttf.lib"/>
+    <LIBRARIES value=""/>
+    <SPARELIBS value=""/>
+    <PACKAGES value="vcl.bpi rtl.bpi vclx.bpi dbrtl.bpi adortl.bpi vcldb.bpi bdertl.bpi 
+      vcldbx.bpi ibxpress.bpi dsnap.bpi cds.bpi bdecds.bpi qrpt.bpi teeui.bpi 
+      teedb.bpi tee.bpi dss.bpi teeqr.bpi visualclx.bpi visualdbclx.bpi 
+      dsnapcrba.bpi dsnapcon.bpi bcbsmp.bpi vclie.bpi xmlrtl.bpi inet.bpi 
+      inetdbbde.bpi inetdbxpress.bpi inetdb.bpi nmfast.bpi webdsnap.bpi 
+      bcbie.bpi websnap.bpi soaprtl.bpi dclocx.bpi dbexpress.bpi dbxcds.bpi 
+      indy.bpi bcb2kaxserver.bpi"/>
+    <PATHCPP value=".;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client;..\client"/>
+    <PATHPAS value=".;"/>
+    <PATHRC value=".;..\win;..\win"/>
+    <PATHASM value=".;"/>
+    <DEBUGLIBPATH value="$(BCB)\lib\debug"/>
+    <RELEASELIBPATH value="$(BCB)\lib\release"/>
+    <LINKER value="ilink32"/>
+    <USERDEFINES value="_DEBUG;STRICT;BCC_IDE;USE_SDL;WINDOWS;SOUND_SDL"/>
+    <SYSDEFINES value="NO_STRICT;_NO_VCL;_RTLDLL"/>
+    <MAINSOURCE value="mangclient_sdl.bpf"/>
+    <INCLUDEPATH value="..\win;..\client;..\common;$(BCB)\include;..;..\SDL"/>
+    <LIBPATH value="..\win;..\client;..\common;$(BCB)\lib\obj;$(BCB)\lib;..\SDL"/>
+    <WARNINGS value="-w-par"/>
+    <OTHERFILES value=""/>
+  </MACROS>
+  <OPTIONS>
+    <IDLCFLAGS value="-I..\win -I..\client -I..\common -I$(BCB)\include -I.. -I..\SDL 
+      -src_suffix cpp -D_DEBUG -DSTRICT -DBCC_IDE -DUSE_SDL -DWINDOWS -DSOUND_SDL 
+      -boa"/>
+    <CFLAG1 value="-Od -Vx -Ve -X- -r- -a8 -b -k -y -v -vi- -tWC -tWM -c"/>
+    <PFLAGS value="-N2..\..\obj -N0..\..\obj -$YD -$W -$O- -$A8 -v -JPHNE -M"/>
+    <RFLAGS value=""/>
+    <AFLAGS value="/mx /w2 /zd"/>
+    <LFLAGS value="-I..\..\obj -D&quot;&quot; -ap -Tpe -x -Gn -v"/>
+    <OTHERFILES value=""/>
+  </OPTIONS>
+  <LINKER>
+    <ALLOBJ value="c0x32.obj $(OBJFILES)"/>
+    <ALLRES value="$(RESFILES)"/>
+    <ALLLIB value="$(LIBFILES) $(LIBRARIES) import32.lib cw32mti.lib"/>
+    <OTHERFILES value=""/>
+  </LINKER>
+  <FILELIST>
+      <FILE FILENAME="mangclient_sdl.res" FORMNAME="" UNITNAME="mangclient_sdl.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="mangclient_sdl.bpf" FORMNAME="" UNITNAME="mangclient_sdl" CONTAINERID="BPF" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\buildid.c" FORMNAME="" UNITNAME="buildid" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\datafile.c" FORMNAME="" UNITNAME="datafile" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\display.c" FORMNAME="" UNITNAME="display" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\guid.c" FORMNAME="" UNITNAME="guid" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\md5.c" FORMNAME="" UNITNAME="md5.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\net-win.c" FORMNAME="" UNITNAME="net-win.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\obj-gear-common.c" FORMNAME="" UNITNAME="obj-gear-common" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\obj-tval.c" FORMNAME="" UNITNAME="obj-tval" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\option.c" FORMNAME="" UNITNAME="option" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\parser.c" FORMNAME="" UNITNAME="parser" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\randname.c" FORMNAME="" UNITNAME="randname.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\sockbuf.c" FORMNAME="" UNITNAME="sockbuf.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\source.c" FORMNAME="" UNITNAME="source" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\util.c" FORMNAME="" UNITNAME="util.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-bitflag.c" FORMNAME="" UNITNAME="z-bitflag" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-color.c" FORMNAME="" UNITNAME="z-color" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-dice.c" FORMNAME="" UNITNAME="z-dice.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-expression.c" FORMNAME="" UNITNAME="z-expression.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-file.c" FORMNAME="" UNITNAME="z-file.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-form.c" FORMNAME="" UNITNAME="z-form.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-rand.c" FORMNAME="" UNITNAME="z-rand.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-type.c" FORMNAME="" UNITNAME="z-type" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-util.c" FORMNAME="" UNITNAME="z-util.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-virt.c" FORMNAME="" UNITNAME="z-virt.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\c-cmd.c" FORMNAME="" UNITNAME="c-cmd.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\c-cmd-obj.c" FORMNAME="" UNITNAME="c-cmd-obj" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\c-option.c" FORMNAME="" UNITNAME="c-option" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\c-player.c" FORMNAME="" UNITNAME="c-player" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\cmd-core.c" FORMNAME="" UNITNAME="cmd-core" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\conf.c" FORMNAME="" UNITNAME="conf.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\game-event.c" FORMNAME="" UNITNAME="game-event" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\game-input.c" FORMNAME="" UNITNAME="game-input" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\grafmode.c" FORMNAME="" UNITNAME="grafmode" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\main.c" FORMNAME="" UNITNAME="main" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\main-sdl.c" FORMNAME="" UNITNAME="main-sdl.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\netclient.c" FORMNAME="" UNITNAME="netclient.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\player-properties.c" FORMNAME="" UNITNAME="player-properties" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\set_focus.c" FORMNAME="" UNITNAME="set_focus.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\snd-sdl.c" FORMNAME="" UNITNAME="snd-sdl" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\sound-core.c" FORMNAME="" UNITNAME="sound-core" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-birth.c" FORMNAME="" UNITNAME="ui-birth" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-command.c" FORMNAME="" UNITNAME="ui-command.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-context.c" FORMNAME="" UNITNAME="ui-context" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-curse.c" FORMNAME="" UNITNAME="ui-curse" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-death.c" FORMNAME="" UNITNAME="ui-death.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-display.c" FORMNAME="" UNITNAME="ui-display" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-event.c" FORMNAME="" UNITNAME="ui-event" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-game.c" FORMNAME="" UNITNAME="ui-game" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-init.c" FORMNAME="" UNITNAME="ui-init" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-input.c" FORMNAME="" UNITNAME="ui-input" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-keymap.c" FORMNAME="" UNITNAME="ui-keymap" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-knowledge.c" FORMNAME="" UNITNAME="ui-knowledge" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-menu.c" FORMNAME="" UNITNAME="ui-menu" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-message.c" FORMNAME="" UNITNAME="ui-message" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-object.c" FORMNAME="" UNITNAME="ui-object" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-options.c" FORMNAME="" UNITNAME="ui-options" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-output.c" FORMNAME="" UNITNAME="ui-output" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-prefs.c" FORMNAME="" UNITNAME="ui-prefs" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-spell.c" FORMNAME="" UNITNAME="ui-spell" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-store.c" FORMNAME="" UNITNAME="ui-store" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\client\ui-term.c" FORMNAME="" UNITNAME="ui-term" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\win\angband.rc" FORMNAME="" UNITNAME="angband.rc" CONTAINERID="RCCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\_SDL\SDL.lib" FORMNAME="" UNITNAME="SDL.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\_SDL\SDL_image.lib" FORMNAME="" UNITNAME="SDL_image.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\_SDL\SDL_mixer.lib" FORMNAME="" UNITNAME="SDL_mixer.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\_SDL\SDL_ttf.lib" FORMNAME="" UNITNAME="SDL_ttf.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+  </FILELIST>
+  <BUILDTOOLS>
+  </BUILDTOOLS>
+
+  <IDEOPTIONS>
+[Version Info]
+IncludeVerInfo=0
+AutoIncBuild=0
+MajorVer=1
+MinorVer=0
+Release=0
+Build=0
+Debug=0
+PreRelease=0
+Special=0
+Private=0
+DLL=0
+Locale=1036
+CodePage=1252
+
+[Version Info Keys]
+CompanyName=
+FileDescription=
+FileVersion=1.0.0.0
+InternalName=
+LegalCopyright=
+LegalTrademarks=
+OriginalFilename=
+ProductName=
+ProductVersion=1.0.0.0
+Comments=
+
+[HistoryLists\hlIncludePath]
+Count=7
+Item0=..\win;..\client;..\common;$(BCB)\include;..;..\SDL
+Item1=
+Item2=
+Item3=
+Item4=
+Item5=
+Item6=
+
+[HistoryLists\hlLibraryPath]
+Count=6
+Item0=..\win;..\client;..\common;$(BCB)\lib\obj;$(BCB)\lib;..\SDL
+Item1=$(BCB)\lib\obj;$(BCB)\lib;..\SDL
+Item2=..\client;..\common;$(BCB)\lib\obj;$(BCB)\lib;..\SDL
+Item3=..\common;$(BCB)\lib\obj;$(BCB)\lib;..\SDL
+Item4=..\common;D:\extra\PWMAngband\src\client;$(BCB)\lib\obj;$(BCB)\lib
+Item5=$(BCB)\lib\obj;$(BCB)\lib
+
+[HistoryLists\hlDebugSourcePath]
+Count=1
+Item0=$(BCB)\source\vcl
+
+[HistoryLists\hlConditionals]
+Count=9
+Item0=_DEBUG;STRICT;BCC_IDE;USE_SDL;WINDOWS;SOUND_SDL
+Item1=_DEBUG;STRICT;BCC_IDE;USE_SDL;WINDOWS
+Item2=_DEBUG;STRICT;BCC_IDE;USE_SDL
+Item3=_DEBUG;STRICT;BCC_IDE;USE_SDL;__NDS__
+Item4=_DEBUG;STRICT;BCC_IDE;&quot;USE_SDL&quot;
+Item5=_DEBUG;BCC_IDE;USE_SDL
+Item6=_DEBUG;STRICT;BCC_IDE;USE_SDL;&quot;USE_SDL&quot;
+Item7=_DEBUG;STRICT;BCC_IDE
+Item8=_DEBUG
+
+[HistoryLists\hlIntOutputDir]
+Count=3
+Item0=..\..\obj
+Item1=C:\extra\PWMAngband\obj
+Item2=D:\extra\PWMAngband\obj
+
+[HistoryLists\hlFinalOutputDir]
+Count=6
+Item0=..\..\
+Item1=C:\extra\PWMAngband\
+Item2=C:\extra\PWMAngband
+Item3=D:\extra\PWMAngband\
+Item4=D:\extra\PWMAngband
+Item5=..\..
+
+[Debugging]
+DebugSourceDirs=$(BCB)\source\vcl
+
+[Parameters]
+RunParams=
+Launcher=
+UseLauncher=0
+DebugCWD=
+HostApplication=
+RemoteHost=
+RemotePath=
+RemoteLauncher=
+RemoteCWD=
+RemoteDebug=0
+
+[Compiler]
+ShowInfoMsgs=0
+LinkDebugVcl=0
+LinkCGLIB=0
+
+[CORBA]
+AddServerUnit=1
+AddClientUnit=1
+PrecompiledHeaders=1
+
+[Language]
+ActiveLang=
+ProjectLang=
+RootDir=
+  </IDEOPTIONS>
+</PROJECT>

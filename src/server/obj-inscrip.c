@@ -3,7 +3,7 @@
  * Purpose: Object inscription code
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -38,6 +38,9 @@
  *
  * Note: preventing 'purchase an item' and 'sell an item' are mapped to 'p' and 's', which
  * correspond to the in-store commands.
+ *
+ * Note: preventing 'stealing' is mapped to 'S', even though the command is 's'. This
+ * is to keep 's' for selling.
  */
 static char map_inscriptions[INSCRIPTION_MAX][3] =
 {
@@ -63,7 +66,7 @@ static char map_inscriptions[INSCRIPTION_MAX][3] =
     ";;", /* INSCRIPTION_WALK */
     ".,", /* INSCRIPTION_RUN */
     "hh", /* INSCRIPTION_HOUSE */
-    "JS", /* INSCRIPTION_STEAL */
+    "SS", /* INSCRIPTION_STEAL */
     "__", /* INSCRIPTION_FOUNTAIN */
     "OO", /* INSCRIPTION_RETALIATE */
     "gg", /* INSCRIPTION_PICKUP */

@@ -3,7 +3,7 @@
  * Purpose: Character screens and dumps
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -151,7 +151,7 @@ static void write_character_dump(ang_file *fff, void *data)
     /* Begin dump */
     file_putf(fff, "  [%s Character Dump]\n\n", version_build(cfg_chardump_label, false));
 
-    /* Display player */
+    /* Display player basics */
     display_player_file(p, 0);
 
     /* Dump part of the screen */
@@ -161,26 +161,35 @@ static void write_character_dump(ang_file *fff, void *data)
     /* Skip a line */
     file_put(fff, "\n");
 
-    /* Display player */
+    /* Display player resistances etc */
     display_player_file(p, 1);
 
+    /* Print a header */
+    file_putf(fff, format("%-20s%s\n", "Resistances", "Abilities"));
+
     /* Dump part of the screen */
-    dump_buffer(fff, 10, 18, 39, false);
+    dump_buffer(fff, 9, 21, 40, false);
 
     /* Skip a line */
     file_put(fff, "\n");
 
+    /* Print a header */
+    file_putf(fff, format("%-20s%s\n", "Hindrances", "Modifiers"));
+
     /* Dump part of the screen */
-    dump_buffer(fff, 10, 18, -38, false);
+    dump_buffer(fff, 9, 21, -40, false);
 
     /* Skip a line */
     file_put(fff, "\n");
 
-    /* Display player */
+    /* Display player telepathic powers */
     display_player_file(p, 2);
 
+    /* Print a header */
+    file_putf(fff, "Telepathic powers\n");
+
     /* Dump part of the screen */
-    dump_buffer(fff, 10, 18, 0, false);
+    dump_buffer(fff, 9, 21, 0, true);
 
     /* Skip some lines */
     file_put(fff, "\n\n");

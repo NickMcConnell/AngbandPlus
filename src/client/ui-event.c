@@ -3,7 +3,7 @@
  * Purpose: Utility functions relating to UI events
  *
  * Copyright (c) 2011 Andi Sidwell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -238,7 +238,7 @@ void keypress_from_text(struct keypress *buf, size_t len, const char *str)
     }
 
     /* Terminate */
-    cur = MIN(cur, len);
+    cur = MIN(cur, len - 1);
     buf[cur].type = EVT_NONE;
 }
 

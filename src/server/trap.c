@@ -3,7 +3,7 @@
  * Purpose: The trap layer - player traps, runes and door locks
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -111,6 +111,110 @@ static bool square_verify_trap(struct chunk *c, struct loc *grid, int vis)
     /* Report failure */
     return false;
 }
+
+
+/*
+ * General trap routines
+ */
+
+
+/*
+ * Free memory for all traps on a grid
+ */
+void square_free_trap(struct chunk *c, struct loc *grid)
+{
+    struct trap *next, *trap = square_trap(c, grid);
+
+    while (trap)
+    {
+        next = trap->next;
+        mem_free(trap);
+        trap = next;
+    }
+}
+
+
+/*
+ * Remove all traps from a grid.
+ *
+ * Return true if traps were removed.
+ */
+bool square_remove_all_traps(struct chunk *c, struct loc *grid)
+{
+    struct trap *trap;
+    bool were_there_traps;
+
+    my_assert(square_in_bounds(c, grid));
+
+    trap = square(c, grid)->trap;
+    were_there_traps = ((trap == NULL)? false: true);
+
+    while (trap)
+    {
+        struct trap *next_trap = trap->next;
+
+        mem_free(trap);
+        trap = next_trap;
+    }
+
+    square_set_trap(c, grid, NULL);
+
+    /* Refresh grids that the character can see */
+    square_light_spot(c, grid);
+
+    square_verify_trap(c, grid, 0);
+
+    return were_there_traps;
+}
+
+
+/*
+ * Remove all traps with the given index.
+ *
+ * Return true if traps were removed.
+ */
+bool square_remove_trap(struct chunk *c, struct loc *grid, unsigned int t_idx_remove)
+{
+    bool removed = false;
+    struct trap *prev_trap = NULL;
+    struct trap *trap;
+
+    /* Bounds check */
+    my_assert(square_in_bounds(c, grid));
+
+    /* Look at the traps in this grid */
+    trap = square(c, grid)->trap;
+    while (trap)
+    {
+        struct trap *next_trap = trap->next;
+
+        if (t_idx_remove == trap->kind->tidx)
+        {
+            mem_free(trap);
+            removed = true;
+
+            if (prev_trap) prev_trap->next = next_trap;
+            else square_set_trap(c, grid, next_trap);
+
+            break;
+        }
+
+        prev_trap = trap;
+        trap = next_trap;
+    }
+
+    /* Refresh grids that the character can see */
+    square_light_spot(c, grid);
+
+    square_verify_trap(c, grid, 0);
+
+    return removed;
+}
+
+
+/*
+ * Player traps
+ */
 
 
 /*
@@ -244,22 +348,6 @@ void place_trap(struct chunk *c, struct loc *grid, int tidx, int trap_level)
 
 
 /*
- * Free memory for all traps on a grid
- */
-void square_free_trap(struct chunk *c, struct loc *grid)
-{
-    struct trap *next, *trap = square_trap(c, grid);
-
-    while (trap)
-    {
-        next = trap->next;
-        mem_free(trap);
-        trap = next;
-    }
-}
-
-
-/*
  * Reveal some of the player traps in a square
  */
 bool square_reveal_trap(struct player *p, struct loc *grid, bool always, bool domsg)
@@ -321,43 +409,6 @@ bool square_reveal_trap(struct player *p, struct loc *grid, bool always, bool do
 
 
 /*
- * Count the number of player traps in this location.
- *
- * Called with vis = 0 to accept any trap, = 1 to accept only visible
- * traps, and = -1 to accept only invisible traps.
- */
-static int num_traps(struct chunk *c, struct loc *grid, int vis)
-{
-    int num = 0;
-    struct trap *trap;
-
-    /* Look at the traps in this grid */
-    for (trap = square_trap(c, grid); trap; trap = trap->next)
-    {
-		/* Require that trap be capable of affecting the character */
-        if (!trf_has(trap->kind->flags, TRF_TRAP)) continue;
-
-        /* Require correct visibility */
-        if (vis >= 1)
-        {
-            if (trf_has(trap->flags, TRF_VISIBLE)) num++;
-        }
-        else if (vis <= -1)
-        {
-            if (!trf_has(trap->flags, TRF_VISIBLE)) num++;
-        }
-        else
-        {
-            num++;
-        }
-    }
-
-    /* Return the number of traps */
-    return (num);
-}
-
-
-/*
  * Determine if a trap affects the player.
  * Always miss 5% of the time, always hit 12% of the time.
  * Otherwise, match trap power against player armor.
@@ -407,7 +458,7 @@ void trap_msg_death(struct player *p, struct trap *trap, char *msg, int len)
 /*
  * Hit a trap
  */
-void hit_trap(struct player *p)
+void hit_trap(struct player *p, struct loc *grid, int delayed)
 {
     bool ident = false;
     struct trap *trap;
@@ -415,26 +466,14 @@ void hit_trap(struct player *p)
     struct chunk *c = chunk_get(&p->wpos);
     int target_depth = dungeon_get_next_level(p, p->wpos.depth, 1);
     struct worldpos wpos;
-    struct loc grid;
-    int num;
-
-    /* Save location (player may be displaced) */
-    loc_copy(&grid, &p->grid);
-
-    /* Count the hidden traps here */
-    num = num_traps(c, &grid, -1);
 
     /* The player is safe from all traps */
     if (p->ghost || player_is_trapsafe(p)) return;
 
     wpos_init(&wpos, &p->wpos.grid, target_depth);
     
-    /* Oops. We've walked right into trouble. */
-    if (num == 1) msg(p, "You stumble upon a trap!");
-    else if (num > 1) msg(p, "You stumble upon some traps!");
-    
     /* Look at the traps in this grid */
-    for (trap = square_trap(c, &grid); trap; trap = trap->next)
+    for (trap = square_trap(c, grid); trap; trap = trap->next)
     {
 		int flag;
         bool saved = false, valid = true;
@@ -443,8 +482,10 @@ void hit_trap(struct player *p)
         if (!trf_has(trap->kind->flags, TRF_TRAP)) continue;
         if (trap->timeout) continue;
 
+        if ((delayed != trf_has(trap->kind->flags, TRF_DELAY)) && (delayed != -1)) continue;
+
         /* Disturb the player */
-        disturb(p, 0);
+        disturb(p);
 
         if (trf_has(trap->kind->flags, TRF_DOWN))
         {
@@ -502,12 +543,18 @@ void hit_trap(struct player *p)
                 effect = trap->kind->effect;
                 effect_do(effect, who, &ident, false, 0, NULL, 0, 0, NULL);
 
+                /* Trap may have gone */
+                if (!square_trap(c, grid)) break;
+
                 /* Do any extra effects */
                 if (trap->kind->effect_xtra && one_in_(2))
                 {
                     if (trap->kind->msg_xtra) msg(p, trap->kind->msg_xtra);
                     effect = trap->kind->effect_xtra;
                     effect_do(effect, who, &ident, false, 0, NULL, 0, 0, NULL);
+
+                    /* Trap may have gone */
+                    if (!square_trap(c, grid)) break;
                 }
             }
 
@@ -521,108 +568,25 @@ void hit_trap(struct player *p)
 
             /* Some traps disappear after activating, all have a chance to */
             if (trf_has(trap->kind->flags, TRF_ONETIME) || one_in_(3))
-                square_destroy_trap(c, &grid);
+                square_destroy_trap(c, grid);
         }
 
         /* Trap may have gone */
-        if (!square_trap(c, &grid)) break;
+        if (!square_trap(c, grid)) break;
 
         /* Trap becomes visible (always XXX) */
         trf_on(trap->flags, TRF_VISIBLE);
-        square_memorize(p, c, &grid);
-        square_memorize_trap(p, c, &grid);
+        square_memorize(p, c, grid);
+        square_memorize_trap(p, c, grid);
     }
 
     /* Verify traps (remove marker if appropriate) */
-    square_verify_trap(c, &grid, 0);
-}
-
-
-/*
- * Remove all traps from a grid.
- *
- * Return true if traps were removed.
- */
-bool square_remove_all_traps(struct chunk *c, struct loc *grid)
-{
-    struct trap *trap;
-    bool were_there_traps;
-
-    my_assert(square_in_bounds(c, grid));
-
-    trap = square(c, grid)->trap;
-    were_there_traps = ((trap == NULL)? false: true);
-
-    while (trap)
-    {
-        struct trap *next_trap = trap->next;
-
-        mem_free(trap);
-        trap = next_trap;
-    }
-
-    square_set_trap(c, grid, NULL);
-
-    /* Refresh grids that the character can see */
-    square_light_spot(c, grid);
-
     square_verify_trap(c, grid, 0);
-
-    return were_there_traps;
 }
 
 
 /*
- * Remove all traps with the given kind.
- *
- * Return true if traps were removed.
- */
-bool square_remove_trap(struct chunk *c, struct loc *grid, unsigned int t_idx_remove)
-{
-    bool removed = false;
-    struct trap *prev_trap = NULL;
-    struct trap *trap;
-
-    /* Bounds check */
-    my_assert(square_in_bounds(c, grid));
-
-    /* Look at the traps in this grid */
-    trap = square(c, grid)->trap;
-    while (trap)
-    {
-        struct trap *next_trap = trap->next;
-
-        if (t_idx_remove == trap->kind->tidx)
-        {
-            mem_free(trap);
-            removed = true;
-
-            if (prev_trap) prev_trap->next = next_trap;
-            else square_set_trap(c, grid, next_trap);
-
-            break;
-        }
-
-        prev_trap = trap;
-        trap = next_trap;
-    }
-
-    /* Refresh grids that the character can see */
-    square_light_spot(c, grid);
-
-    square_verify_trap(c, grid, 0);
-
-    return removed;
-}
-
-
-/*
- * Disable traps.
- *
- * If called with tidx < 0, will remove all traps in the location given.
- * Otherwise, will remove all traps with the given kind.
- *
- * Return true if no traps now exist in this grid.
+ * Disable a trap for the specified number of turns
  */
 bool square_set_trap_timeout(struct player *p, struct chunk *c, struct loc *grid, bool domsg,
     unsigned int tidx, int time)
@@ -700,6 +664,11 @@ int square_trap_timeout(struct chunk *c, struct loc *grid, unsigned int tidx)
 
     return 0;
 }
+
+
+/*
+ * Door locks
+ */
 
 
 /*

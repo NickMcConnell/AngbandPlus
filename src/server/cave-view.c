@@ -3,7 +3,7 @@
  * Purpose: Line-of-sight and view calculations
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -452,6 +452,9 @@ bool los(struct chunk *c, struct loc *grid1, struct loc *grid2)
  */
 
 
+/*
+ * Mark the currently seen grids, then wipe in preparation for recalculating
+ */
 static void mark_wasseen(struct player *p, struct chunk *c)
 {
     struct loc begin, end;
@@ -473,57 +476,130 @@ static void mark_wasseen(struct player *p, struct chunk *c)
 }
 
 
-static void add_monster_lights(struct player *p, struct chunk *c)
+/*
+ * Calculate light level for every grid in view - stolen from Sil
+ */
+static void calc_lighting(struct player *p, struct chunk *c)
 {
-    int d, k;
+    int dir, k;
+    int light = p->state.cur_light, radius = ABS(light) - 1;
+    int old_light = p->square_light;
+    struct loc begin, end;
+    struct loc_iterator iter;
 
-    /* Scan monster list and add monster lights */
+    loc_init(&begin, 0, 0);
+    loc_init(&end, c->width, c->height);
+    loc_iterator_first(&iter, &begin, &end);
+
+    /* Starting values based on permanent light */
+    do
+    {
+        square(c, &iter.cur)->light = (square_isglow(c, &iter.cur)? 1: 0);
+
+        /* Squares with bright terrain have intensity 2 */
+        if (square_isbright(c, &iter.cur))
+        {
+            square(c, &iter.cur)->light += 2;
+            for (dir = 0; dir < 8; dir++)
+            {
+                struct loc adj_grid;
+
+                loc_sum(&adj_grid, &iter.cur, &ddgrid_ddd[dir]);
+                if (!square_in_bounds(c, &adj_grid)) continue;
+                square(c, &adj_grid)->light += 1;
+            }
+        }
+    }
+    while (loc_iterator_next_strict(&iter));
+
+    /* Light around the player */
+    if (light)
+    {
+        loc_init(&begin, -radius, -radius);
+        loc_init(&end, radius, radius);
+        loc_iterator_first(&iter, &begin, &end);
+
+        do
+        {
+            struct loc grid;
+            int dist;
+
+            /* Get valid grids within the player's light effect radius */
+            loc_sum(&grid, &p->grid, &iter.cur);
+            dist = distance(&p->grid, &grid);
+            if (!square_in_bounds(c, &grid)) continue;
+            if (dist > radius) continue;
+
+            /* Adjust the light level */
+            if (light > 0)
+            {
+                /* Light getting less further away */
+                square(c, &grid)->light += light - dist;
+            }
+            else
+            {
+                /* Light getting greater further away */
+                square(c, &grid)->light += light + dist;
+            }
+        }
+        while (loc_iterator_next(&iter));
+    }
+
+    /* Scan monster list and add monster light or darkness */
     for (k = 1; k < cave_monster_max(c); k++)
     {
         /* Check the k'th monster */
         struct monster *mon = cave_monster(c, k);
-        bool in_los = los(c, &p->grid, &mon->grid);
 
         /* Skip dead monsters */
         if (!mon->race) continue;
 
-        /* Skip monsters not carrying light */
-        if (!rf_has(mon->race->flags, RF_HAS_LIGHT)) continue;
+        /* Get light info for this monster */
+        light = mon->race->light;
+        radius = ABS(light) - 1;
 
-        /* Light a 3x3 box centered on the monster */
-        for (d = 0; d < 9; d++)
+        /* Skip monsters not affecting light */
+        if (!light) continue;
+
+        loc_init(&begin, -radius, -radius);
+        loc_init(&end, radius, radius);
+        loc_iterator_first(&iter, &begin, &end);
+
+        /* Light or darken around the monster */
+        do
         {
             struct loc grid;
+            int dist;
 
-            loc_sum(&grid, &mon->grid, &ddgrid_ddd[d]);
+            /* Get valid grids within the monster's light effect radius */
+            loc_sum(&grid, &mon->grid, &iter.cur);
+            dist = distance(&mon->grid, &grid);
+            if (!square_in_bounds(c, &grid)) continue;
+            if (dist > radius) continue;
 
-            /* If the monster isn't visible we can only light open tiles */
-            if (!in_los && !square_isprojectable(c, &grid)) continue;
-
-            /* If the tile is too far away we won't light it */
+            /* Only set it if the player can see it */
             if (distance(&p->grid, &grid) > z_info->max_sight) continue;
 
-            /* If the tile itself isn't in LOS, don't light it */
-            if (!los(c, &p->grid, &grid)) continue;
-
-            /* Mark the square lit and seen */
-            sqinfo_on(square_p(p, &grid)->info, SQUARE_VIEW);
-            sqinfo_on(square_p(p, &grid)->info, SQUARE_SEEN);
+            /* Adjust the light level */
+            if (light > 0)
+            {
+                /* Light getting less further away */
+                square(c, &grid)->light += light - dist;
+            }
+            else
+            {
+                /* Light getting greater further away */
+                square(c, &grid)->light += light + dist;
+            }
         }
+        while (loc_iterator_next(&iter));
     }
-}
-
-
-static void add_player_lights(struct player *p, struct chunk *c)
-{
-    int i, j, k;
 
     /* Scan player list and add player lights */
     for (k = 1; k <= NumPlayers; k++)
     {
         /* Check the k'th player */
         struct player *q = player_get(k);
-        bool in_los;
 
         /* Ignore the player that we're updating */
         if (q == p) continue;
@@ -531,131 +607,103 @@ static void add_player_lights(struct player *p, struct chunk *c)
         /* Skip players not on this level */
         if (!wpos_eq(&q->wpos, &p->wpos)) continue;
 
-        /* Skip players not carrying light */
-        if (!q->state.cur_light) continue;
+        /* Get light info for this player */
+        light = q->state.cur_light;
+        radius = ABS(light) - 1;
 
-        in_los = los(c, &p->grid, &q->grid);
+        /* Skip players not affecting light */
+        if (!light) continue;
 
-        /* Light a cur_light radius area centered on the player */
-        for (i = 0 - q->state.cur_light; i <= q->state.cur_light; i++)
+        loc_init(&begin, -radius, -radius);
+        loc_init(&end, radius, radius);
+        loc_iterator_first(&iter, &begin, &end);
+
+        /* Light or darken around the player */
+        do
         {
-            for (j = 0 - q->state.cur_light; j <= q->state.cur_light; j++)
+            struct loc grid;
+            int dist;
+
+            /* Get valid grids within the player's light effect radius */
+            loc_sum(&grid, &q->grid, &iter.cur);
+            dist = distance(&q->grid, &grid);
+            if (!square_in_bounds(c, &grid)) continue;
+            if (dist > radius) continue;
+
+            /* Only set it if the player can see it */
+            if (distance(&p->grid, &grid) > z_info->max_sight) continue;
+
+            /* Adjust the light level */
+            if (light > 0)
             {
-                struct loc grid;
-
-                loc_init(&grid, q->grid.x + j, q->grid.y + i);
-
-                /* Oops */
-                if (!square_in_bounds(c, &grid)) continue;
-
-                /* Skip grids out of radius */
-                if (distance(&q->grid, &grid) > q->state.cur_light) continue;
-
-                /* If the player isn't visible we can only light open tiles */
-                if (!in_los && !square_isprojectable(c, &grid)) continue;
-
-                /* If the tile is too far away we won't light it */
-                if (distance(&p->grid, &grid) > z_info->max_sight) continue;
-
-                /* If the tile itself isn't in LOS, don't light it */
-                if (!los(c, &p->grid, &grid)) continue;
-
-                /* If the tile isn't in LOS of the other player, don't light it either */
-                if (!los(c, &q->grid, &grid)) continue;
-
-                /* Mark the square lit and seen */
-                sqinfo_on(square_p(p, &grid)->info, SQUARE_VIEW);
-                sqinfo_on(square_p(p, &grid)->info, SQUARE_SEEN);
+                /* Light getting less further away */
+                square(c, &grid)->light += light - dist;
+            }
+            else
+            {
+                /* Light getting greater further away */
+                square(c, &grid)->light += light + dist;
             }
         }
+        while (loc_iterator_next(&iter));
     }
-}
 
-
-static void update_one(struct player *p, struct chunk *c, struct loc *grid)
-{
-    /* Remove view if blind, check visible squares for traps */
-    if (p->timed[TMD_BLIND])
-        sqinfo_off(square_p(p, grid)->info, SQUARE_SEEN);
-    else if (square_isseen(p, grid) && square_issecrettrap(c, grid))
-        square_reveal_trap(p, grid, false, true);
-
-    /* Square went from unseen -> seen */
-    if (square_isseen(p, grid) && !square_wasseen(c, grid))
+    /* Update light level indicator */
+    if (square_light(c, &p->grid) != old_light)
     {
-        if (square_isfeel(c, grid) && square_ispfeel(p, grid))
-        {
-            p->cave->feeling_squares++;
-            sqinfo_off(square_p(p, grid)->info, SQUARE_FEEL);
-            if (p->cave->feeling_squares == z_info->feeling_need)
-            {
-                display_feeling(p, true);
-                p->upkeep->redraw |= (PR_STATE);
-            }
-        }
-
-        square_note_spot_aux(p, c, grid);
-        square_light_spot_aux(p, c, grid);
+        p->square_light = square_light(c, &p->grid);
+        p->upkeep->redraw |= PR_STATE;
     }
-
-    /* Square went from seen -> unseen */
-    if (!square_isseen(p, grid) && square_wasseen(c, grid))
-        square_light_spot_aux(p, c, grid);
-
-    sqinfo_off(square(c, grid)->info, SQUARE_WASSEEN);
 }
 
 
-static void become_viewable(struct player *p, struct chunk *c, struct loc *grid, bool lit)
+/*
+ * Make a square part of the current view
+ */
+static void become_viewable(struct player *p, struct chunk *c, struct loc *grid, bool close)
 {
+    int x = grid->x;
+    int y = grid->y;
+
+    /* Already viewable, nothing to do */
     if (square_isview(p, grid)) return;
 
+    /* Add the grid to the view, make seen if it's close enough to the player */
     sqinfo_on(square_p(p, grid)->info, SQUARE_VIEW);
+    if (close) sqinfo_on(square_p(p, grid)->info, SQUARE_SEEN);
 
-    if (lit) sqinfo_on(square_p(p, grid)->info, SQUARE_SEEN);
-
-    if (square_isglow(c, grid))
+    /* Mark lit grids, and walls near to them, as seen */
+    if (square_islit(c, grid))
     {
-        struct loc gridc;
-
-        loc_copy(&gridc, grid);
-
-        /* For walls, move a bit towards the player */
+        /* For walls, check for a lit grid closer to the player */
         if (square_iswall(c, grid))
         {
-            loc_init(&gridc,
-                ((grid->x < p->grid.x)? (grid->x + 1): (grid->x > p->grid.x)? (grid->x - 1): grid->x),
-                ((grid->y < p->grid.y)? (grid->y + 1): (grid->y > p->grid.y)? (grid->y - 1): grid->y));
-        }
+            struct loc gridc;
 
-        if (square_isglow(c, &gridc))
+            loc_init(&gridc, ((x < p->grid.x)? (x + 1): (x > p->grid.x)? (x - 1): x),
+                ((y < p->grid.y)? (y + 1): (y > p->grid.y)? (y - 1): y));
+            if (square_islit(c, &gridc))
+                sqinfo_on(square_p(p, grid)->info, SQUARE_SEEN);
+        }
+        else
             sqinfo_on(square_p(p, grid)->info, SQUARE_SEEN);
     }
 }
 
 
-static void update_view_one(struct player *p, struct chunk *c, struct loc *grid, int radius)
+/*
+ * Decide whether to include a square in the current view
+ */
+static void update_view_one(struct player *p, struct chunk *c, struct loc *grid)
 {
-    int dir;
     int d = distance(grid, &p->grid);
-    bool lit = ((d < radius)? true: false);
+    bool close = ((d < p->state.cur_light)? true: false);
     struct loc cgrid;
 
-    if (d > z_info->max_sight) return;
-
-    /* Light squares with bright terrain, or squares adjacent */
-    if (square_isbright(c, grid)) lit = true;
-    for (dir = 0; dir < 8; dir++)
-    {
-        struct loc adjacent;
-
-        loc_sum(&adjacent, grid, &ddgrid_ddd[dir]);
-
-        if (!square_in_bounds(c, &adjacent)) continue;
-        if (square_isbright(c, &adjacent)) lit = true;
-    }
-
     loc_copy(&cgrid, grid);
+
+    /* Too far away */
+    if (d > z_info->max_sight) return;
 
     /*
      * Special case for wall lighting. If we are a wall and the square in
@@ -689,7 +737,7 @@ static void update_view_one(struct player *p, struct chunk *c, struct loc *grid,
          */
         if (square_iswall(c, &cgrid)) loc_copy(&cgrid, grid);
 
-        /* Check that we got here via the 'knight's move' rule. If so, don't steal LOS. */
+        /* Check if we got here via the 'knight's move' rule and, if so, don't steal LOS. */
         if ((ax == 2) && (ay == 1))
         {
             struct loc grid1, grid2;
@@ -717,49 +765,82 @@ static void update_view_one(struct player *p, struct chunk *c, struct loc *grid,
     }
 
     if (los(c, &p->grid, &cgrid))
-        become_viewable(p, c, grid, lit);
+        become_viewable(p, c, grid, close);
 }
 
 
 /*
- * Calculate the complete field of view.
+ * Update view for a single square
+ */
+static void update_one(struct player *p, struct chunk *c, struct loc *grid)
+{
+    /* Remove view if blind, check visible squares for traps */
+    if (p->timed[TMD_BLIND])
+        sqinfo_off(square_p(p, grid)->info, SQUARE_SEEN);
+    else if (square_isseen(p, grid) && square_issecrettrap(c, grid))
+        square_reveal_trap(p, grid, false, true);
+
+    /* Square went from unseen -> seen */
+    if (square_isseen(p, grid) && !square_wasseen(c, grid))
+    {
+        if (square_isfeel(c, grid) && square_ispfeel(p, grid))
+        {
+            p->cave->feeling_squares++;
+            sqinfo_off(square_p(p, grid)->info, SQUARE_FEEL);
+
+            /* Don't display feeling if it will display for the new level */
+            if (p->cave->feeling_squares == z_info->feeling_need)
+            {
+                display_feeling(p, true);
+                p->upkeep->redraw |= (PR_STATE);
+            }
+        }
+
+        square_note_spot_aux(p, c, grid);
+        square_light_spot_aux(p, c, grid);
+    }
+
+    /* Square went from seen -> unseen */
+    if (!square_isseen(p, grid) && square_wasseen(c, grid))
+        square_light_spot_aux(p, c, grid);
+
+    sqinfo_off(square(c, grid)->info, SQUARE_WASSEEN);
+}
+
+
+/*
+ * Update the player's current view
  */
 void update_view(struct player *p, struct chunk *c)
 {
-    int radius;
     struct loc begin, end;
     struct loc_iterator iter;
 
+    /* Record the current view */
     mark_wasseen(p, c);
-
-    /* Extract "radius" value */
-    radius = p->state.cur_light;
-
-    /* Handle real light */
-    if (radius > 0) ++radius;
-
-    add_monster_lights(p, c);
-
-    add_player_lights(p, c);
 
     /* Assume we can view the player grid */
     sqinfo_on(square_p(p, &p->grid)->info, SQUARE_VIEW);
-    if ((radius > 0) || square_isglow(c, &p->grid))
+    if ((p->state.cur_light > 0) || square_isglow(c, &p->grid))
         sqinfo_on(square_p(p, &p->grid)->info, SQUARE_SEEN);
+
+    /* Calculate light levels */
+    calc_lighting(p, c);
 
     loc_init(&begin, 0, 0);
     loc_init(&end, c->width, c->height);
     loc_iterator_first(&iter, &begin, &end);
 
-    /* View squares we have LOS to */
+    /* Squares we have LOS to get marked as in the view, and perhaps seen */
     do
     {
-        update_view_one(p, c, &iter.cur, radius);
+        update_view_one(p, c, &iter.cur);
     }
     while (loc_iterator_next_strict(&iter));
 
     loc_iterator_first(&iter, &begin, &end);
 
+    /* Update each grid */
     do
     {
         update_one(p, c, &iter.cur);
@@ -775,3 +856,39 @@ bool no_light(struct player *p)
 {
     return (!square_isseen(p, &p->grid));
 }
+
+
+#if 0
+static void add_monster_lights(struct player *p, struct chunk *c)
+{
+    bool in_los = los(c, &p->grid, &mon->grid);
+
+    /* If the monster isn't visible we can only light open tiles */
+    if (!in_los && !square_isprojectable(c, &grid)) continue;
+
+    /* If the tile itself isn't in LOS, don't light it */
+    if (!los(c, &p->grid, &grid)) continue;
+
+    /* Mark the square lit and seen */
+    sqinfo_on(square_p(p, &grid)->info, SQUARE_VIEW);
+    sqinfo_on(square_p(p, &grid)->info, SQUARE_SEEN);
+}
+
+static void add_player_lights(struct player *p, struct chunk *c)
+{
+    bool in_los = los(c, &p->grid, &q->grid);
+
+    /* If the player isn't visible we can only light open tiles */
+    if (!in_los && !square_isprojectable(c, &grid)) continue;
+
+    /* If the tile itself isn't in LOS, don't light it */
+    if (!los(c, &p->grid, &grid)) continue;
+
+    /* If the tile isn't in LOS of the other player, don't light it either */
+    if (!los(c, &q->grid, &grid)) continue;
+
+    /* Mark the square lit and seen */
+    sqinfo_on(square_p(p, &grid)->info, SQUARE_VIEW);
+    sqinfo_on(square_p(p, &grid)->info, SQUARE_SEEN);
+}
+#endif

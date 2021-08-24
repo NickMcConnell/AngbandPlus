@@ -21,7 +21,12 @@ extern int store_max;
 extern struct store *stores;
 
 /* Store orders */
-extern char store_orders[STORE_ORDERS][NORMAL_WID];
+struct store_order
+{
+    char order[NORMAL_WID];
+    hturn turn;
+};
+extern struct store_order store_orders[STORE_ORDERS];
 
 /*** Functions ***/
 

@@ -8,6 +8,7 @@
 
 /* Include the socket library for the correct OS */
 #include "net-win.h"
+#include "net-unix.h"
 
 /* Include the various packet types and error codes */
 #include "pack.h"

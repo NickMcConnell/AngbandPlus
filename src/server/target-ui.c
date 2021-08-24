@@ -3,7 +3,7 @@
  * Purpose: UI for targeting code
  *
  * Copyright (c) 1997-2014 Angband contributors
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -408,7 +408,7 @@ static bool target_set_interactive_aux(struct player *p, struct loc *grid, int m
                 else if (rf_has(who->monster->race->flags, RF_MALE)) s1 = "He is ";
                 else s1 = "It is ";
 
-                /* Disabled for non-DMs since monsters now carry their drops */
+                /* Describe carried objects (DMs only) */
                 if (is_dm_p(p))
                 {
                     /* Use a verb */
@@ -520,7 +520,7 @@ static bool target_set_interactive_aux(struct player *p, struct loc *grid, int m
                 if (query == 'r')
                 {
                     msg(p, "You see:");
-                    display_floor(p, c, floor_list, floor_num);
+                    display_floor(p, c, floor_list, floor_num, false);
                     show_floor(p, OLIST_WEIGHT | OLIST_GOLD);
                     mem_free(floor_list);
                     return false;
@@ -595,15 +595,11 @@ static bool target_set_interactive_aux(struct player *p, struct loc *grid, int m
             bool recall = false;
             struct location *dungeon = get_dungeon(&p->wpos);
 
-            /* Pick a prefix */
-            if (*s2 && feat_isprefixed(feat))
-                s2 = "in ";
+            /* Pick a preposition if needed */
+            if (*s2) s2 = square_apparent_look_in_preposition(p, c, grid);
 
-            /* Pick proper indefinite article */
-            s3 = (is_a_vowel(name[0])? "an ": "a ");
-
-            /* Hack -- special introduction for store doors */
-            if (feat_is_shop(feat) && !feat_is_vendor(feat)) s3 = "the entrance to the ";
+            /* Pick prefix for the name */
+            s3 = square_apparent_look_prefix(p, c, grid);
 
             /* Hack -- dungeon entrance */
             if (dungeon && square_isdownstairs(c, grid))

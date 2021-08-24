@@ -23,6 +23,7 @@
 #define START_INVEN     0x0800  /* Force start in inventory mode */
 #define START_QUIVER    0x1000  /* Force start in quiver mode */
 #define SHOW_RECHARGE   0x2000  /* Show item recharge failure in item lists */
+#define SHOW_THROWING   0x4000  /* Show inventory/quiver/floor throwables */
 
 extern bool (*get_string_hook)(const char *prompt, char *buf, int len);
 extern int (*get_string_ex_hook)(const char *prompt, char *buf, int len, bool priv);

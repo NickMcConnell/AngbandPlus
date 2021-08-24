@@ -70,6 +70,7 @@ normal:food:Flask of Whisky
 normal:food:Hard Biscuit
 normal:food:Pint of Fine Ale
 normal:mushroom:Stoneskin
+normal:mushroom:Purging
 normal:fortune cookie:Fortune Cookie
 normal:light:Lantern
 normal:stone:House Foundation Stone
@@ -216,7 +217,7 @@ normal:scroll:Monster Confusion
 normal:scroll:Magic Mapping
 normal:scroll:Detect Invisible
 normal:scroll:Recharging
-normal:scroll:Satisfy Hunger
+normal:scroll:Remove Hunger
 normal:potion:Boldness
 normal:potion:Berserk Strength
 normal:potion:Resist Heat
@@ -238,6 +239,7 @@ always:magic book
 normal:ring:Searching
 normal:ring:Levitation
 normal:ring:Protection
+normal:ring:Open Wounds
 normal:amulet:Slow Digestion
 normal:amulet:Resist Acid
 normal:wand:Light
@@ -262,6 +264,7 @@ buy:potion
 
 # Bookseller
 store:Bookseller
+type:3
 owner:15000:Yveen the Witch (Half-Elf)
 owner:20000:Narn the Short (Gnome)
 owner:25000:Lord-X the Black (Human)
@@ -281,7 +284,7 @@ buy:elemental book
 
 # Black Market - no stock given but we still need slot/turnover info
 store:Black Market
-type:3
+type:4
 owner:15000:Lo-Hak the Awful (Half-Troll)
 owner:20000:Histor the Goblin (Kobold)
 owner:25000:Durwin the Shifty (Half-Orc)
@@ -291,7 +294,7 @@ turnover:9
 
 # Expensive Black Market - no stock given but we still need slot/turnover info
 store:Expensive Black Market
-type:4
+type:5
 owner:15000:Eek the Yeek (Yeek)
 owner:20000:Zak the Kobold (Kobold)
 owner:25000:Fat-Pig the Snaga (Half-Orc)
@@ -309,21 +312,21 @@ welcome:7:"Welcome back, %s."
 welcome:8:"A pleasure to do business with you, %s."
 
 store:Tavern
-type:5
+type:6
 owner:0:Tavern
 owner:0:Tavern
 owner:0:Tavern
 owner:0:Tavern
 
 store:Home
-type:6
+type:7
 owner:0:Your home
 owner:0:Your home
 owner:0:Your home
 owner:0:Your home
 
 store:Player shop
-type:7
+type:8
 owner:0:Player shop
 owner:0:Player shop
 owner:0:Player shop

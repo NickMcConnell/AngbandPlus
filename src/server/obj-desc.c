@@ -3,7 +3,7 @@
  * Purpose: Create object name descriptions
  *
  * Copyright (c) 1997 - 2007 Angband contributors
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -28,6 +28,9 @@
  */
 static const char *obj_desc_get_modstr(const struct object *obj)
 {
+    if (tval_is_skeleton(obj) && obj->pval)
+        return "skeleton";
+
     if (tval_is_corpse(obj) && obj->pval)
         return "corpse";
 
@@ -57,7 +60,6 @@ static const char *obj_desc_get_basename(const struct object *obj, bool aware, b
     /* Analyze the object */
     switch (obj->tval)
     {
-        case TV_SKELETON:
         case TV_STONE:
         case TV_BOTTLE:
         case TV_DEED:
@@ -88,6 +90,16 @@ static const char *obj_desc_get_basename(const struct object *obj, bool aware, b
         case TV_CROP:
         case TV_COOKIE:
             return obj->kind->name;
+
+        case TV_SKELETON:
+        {
+            struct monster_race* race;
+
+            if (!obj->pval) return "& Skeleton~";
+
+            race = &r_info[obj->pval];
+            return format("& %s #~", race->name);
+        }
 
         case TV_CORPSE:
         {
@@ -280,54 +292,8 @@ static size_t obj_desc_chest(const struct object *obj, char *buf, size_t max, si
     /* The chest is unopened, but we know nothing about its trap/lock */
     if (!known) return end;
 
-    /* May be empty, disarmed or trapped */
-    if (!obj->pval)
-        strnfcat(buf, max, &end, " (empty)");
-    else if (!is_locked_chest(obj))
-    {
-        if (chest_trap_type(obj) != 0)
-            strnfcat(buf, max, &end, " (disarmed)");
-        else
-            strnfcat(buf, max, &end, " (unlocked)");
-    }
-    else
-    {
-        /* Describe the traps */
-        switch (chest_trap_type(obj))
-        {
-            case 0:
-                strnfcat(buf, max, &end, " (Locked)");
-                break;
-
-            case CHEST_LOSE_STR:
-                strnfcat(buf, max, &end, " (Poison Needle)");
-                break;
-
-            case CHEST_LOSE_CON:
-                strnfcat(buf, max, &end, " (Poison Needle)");
-                break;
-
-            case CHEST_POISON:
-                strnfcat(buf, max, &end, " (Gas Trap)");
-                break;
-
-            case CHEST_PARALYZE:
-                strnfcat(buf, max, &end, " (Gas Trap)");
-                break;
-
-            case CHEST_EXPLODE:
-                strnfcat(buf, max, &end, " (Explosion Device)");
-                break;
-
-            case CHEST_SUMMON:
-                strnfcat(buf, max, &end, " (Summoning Runes)");
-                break;
-
-            default:
-                strnfcat(buf, max, &end, " (Multiple Traps)");
-                break;
-        }
-    }
+    /* Describe the traps */
+    strnfcat(buf, max, &end, format(" (%s)", chest_trap_name(obj)));
 
     return end;
 }
@@ -525,7 +491,7 @@ static size_t obj_desc_charges(const struct object *obj, char *buf, size_t max, 
 static size_t obj_desc_inscrip(struct player *p, const struct object *obj, char *buf,
     size_t max, size_t end, bool aware, bool known)
 {
-    const char *u[5] = {NULL, NULL, NULL, NULL, NULL};
+    const char *u[6] = {NULL, NULL, NULL, NULL, NULL, NULL};
     int i, n = 0;
 
     /* Get inscription */

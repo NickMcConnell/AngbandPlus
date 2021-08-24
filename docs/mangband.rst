@@ -56,7 +56,7 @@ Alter Commands
 'c'    Close a door               'T'    Dig a tunnel
 'o'    Open a door or chest       '+'    Alter grid
 '_'    Drink/fill from a fountain
-'D'    Disarm a trap or chest     'J'    Steal
+'D'    Disarm a trap or chest     's'    Steal
 ====== ========================== ====== ==========================
  
 To alter a grid you can also hold down Ctrl and use the numpad direction keys.
@@ -137,7 +137,7 @@ Game Status Commands
 ====== ========================== ====== ==========================
 '~'    Check knowledge            'P'    Access party menu
 '@'    Display connected players  '%'    Display current time
-'C'    Character description
+'C'    Character description      '#'    See abilities
 ====== ========================== ====== ==========================
  
 Saving and Exiting Commands

@@ -3,7 +3,7 @@
  * Purpose: Game core management of the game world
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -130,7 +130,7 @@ static void recharged_notice(struct player *p, const struct object *obj, bool al
     object_desc(p, o_name, sizeof(o_name), obj, ODESC_BASE);
 
     /* Disturb the player */
-    disturb(p, 0);
+    disturb(p);
 
     /* Notify the player */
     if (obj->number > 1)
@@ -315,8 +315,9 @@ static void decrease_timeouts(struct player *p, struct chunk *c)
         {
             case TMD_CUT:
             {
-                /* Hack -- check for truly "mortal" wound */
-                decr = ((p->timed[i] > TMD_CUT_DEEP)? 0: adjust);
+                /* Check for truly "mortal" wound */
+                if (player_timed_grade_eq(p, i, "Mortal Wound")) decr = 0;
+                else decr = adjust;
 
                 /* Biofeedback always helps */
                 if (p->timed[TMD_BIOFEEDBACK]) decr += decr + 10;
@@ -337,13 +338,25 @@ static void decrease_timeouts(struct player *p, struct chunk *c)
                     decr = 0;
                 break;
             }
+
+            case TMD_FOOD:
+            {
+                /* Already handled in digest_food() */
+                decr = 0;
+                break;
+            }
         }
 
         /* Hack -- make -1 permanent */
         if (p->timed[i] == -1) decr = 0;
 
         /* Decrement the effect */
-        if (decr > 0) player_dec_timed(p, i, decr, false);
+        if (decr > 0)
+        {
+            p->no_disturb_icky = true;
+            player_dec_timed(p, i, decr, false);
+            p->no_disturb_icky = false;
+        }
     }
 
     /* Curse effects always decrement by 1 */
@@ -424,10 +437,8 @@ static void process_world(struct player *p, struct chunk *c)
     /* Daybreak/Nighfall in towns or wilderness */
     if ((p->wpos.depth == 0) && !(turn.turn % ((10L * z_info->day_length) / 2)))
     {
-        bool dawn;
-
         /* Check for dawn */
-        dawn = (!(turn.turn % (10L * z_info->day_length)));
+        bool dawn = (!(turn.turn % (10L * z_info->day_length)));
 
         dusk_or_dawn(p, c, dawn);
 
@@ -492,7 +503,7 @@ static void digest_food(struct player *p)
     if (town_area(&p->wpos)) return;
 
     /* Digest some food */
-    player_set_food(p, p->food - player_digest(p));
+    player_dec_timed(p, TMD_FOOD, player_digest(p), false);
 }
 
 
@@ -517,6 +528,7 @@ static void make_noise(struct player *p)
     struct loc next;
     int y, x, d;
     int noise = 0;
+    int noise_increment = (p->timed[TMD_COVERTRACKS]? 4: 1);
     struct queue *queue = q_new(p->cave->height * p->cave->width);
     struct chunk *c = chunk_get(&p->wpos);
     struct loc *decoy = cave_find_decoy(c);
@@ -534,7 +546,7 @@ static void make_noise(struct player *p)
     /* Player makes noise */
     p->cave->noise.grids[next.y][next.x] = noise;
     q_push_int(queue, grid_to_i(&next, p->cave->width));
-    noise++;
+    noise += noise_increment;
 
     /* Propagate noise */
     while (q_len(queue) > 0)
@@ -546,7 +558,7 @@ static void make_noise(struct player *p)
         if (p->cave->noise.grids[next.y][next.x] == noise)
         {
             q_push_int(queue, grid_to_i(&next, p->cave->width));
-            noise++;
+            noise += noise_increment;
             continue;
         }
 
@@ -618,7 +630,7 @@ static void update_scent(struct player *p)
     }
 
     /* Scentless player */
-    if (p->timed[TMD_SCENTLESS]) return;
+    if (p->timed[TMD_COVERTRACKS]) return;
 
     /* Lay down new scent around the player */
     for (y = 0; y < 5; y++)
@@ -667,7 +679,7 @@ static void update_scent(struct player *p)
  */
 static void process_player_world(struct player *p, struct chunk *c)
 {
-    int i, time;
+    int i;
 
     /* Hack -- fade monster detect over time */
     for (i = 1; i < cave_monster_max(c); i++)
@@ -706,16 +718,15 @@ static void process_player_world(struct player *p, struct chunk *c)
     if (p->timed[TMD_POISONED])
         take_hit(p, 1, "poison", false, "died of blood poisoning");
 
-    /* Take damage from cuts */
+    /* Take damage from cuts, worse from serious cuts */
     if (p->timed[TMD_CUT])
     {
-        /* Mortal wound or Deep Gash */
-        if (p->timed[TMD_CUT] > TMD_CUT_SEVERE) i = 3;
-
-        /* Severe cut */
-        else if (p->timed[TMD_CUT] > TMD_CUT_NASTY) i = 2;
-
-        /* Other cuts */
+        if (player_timed_grade_eq(p, TMD_CUT, "Mortal Wound") ||
+            player_timed_grade_eq(p, TMD_CUT, "Deep Gash"))
+        {
+            i = 3;
+        }
+        else if (player_timed_grade_eq(p, TMD_CUT, "Severe Cut")) i = 2;
         else i = 1;
 
         /* Take damage */
@@ -767,32 +778,47 @@ static void process_player_world(struct player *p, struct chunk *c)
 
     /*** Check the Food, and Regenerate ***/
 
-    /* Every 100 "scaled" turns */
-    time = move_energy(p->wpos.depth) / time_factor(p, c);
+    /* Digest */
+    if (!player_timed_grade_eq(p, TMD_FOOD, "Full"))
+    {
+        /* Every 100 "scaled" turns */
+        int time = move_energy(p->wpos.depth) / time_factor(p, c);
 
-    /* Digest normally */
-    if (!(turn.turn % time)) digest_food(p);
+        /* Digest normally */
+        if (!(turn.turn % time)) digest_food(p);
 
-    /* Getting Faint */
-    if (p->food < PY_FOOD_FAINT)
+        /* Fast metabolism */
+        if (p->timed[TMD_HEAL] && !p->ghost)
+        {
+            player_dec_timed(p, TMD_FOOD, 8 * z_info->food_value, false);
+            if (p->timed[TMD_FOOD] < PY_FOOD_HUNGRY)
+                player_set_timed(p, TMD_HEAL, 0, true);
+        }
+    }
+    else
+    {
+        /* Digest quickly when gorged */
+        player_dec_timed(p, TMD_FOOD, 5000 / z_info->food_value, false);
+    }
+
+    /* Faint or starving */
+    if (player_timed_grade_eq(p, TMD_FOOD, "Faint"))
     {
         /* Faint occasionally */
         if (!p->timed[TMD_PARALYZED] && magik(10))
         {
             /* Message */
             msg(p, "You faint from the lack of food.");
-            disturb(p, 1);
+            disturb(p);
 
             /* Hack -- faint (bypass free action) */
             player_inc_timed(p, TMD_PARALYZED, 1 + randint0(5), true, false);
         }
     }
-
-    /* Starve to death (slowly) */
-    if (p->food < PY_FOOD_STARVE)
+    else if (player_timed_grade_eq(p, TMD_FOOD, "Starving"))
     {
         /* Calculate damage */
-        i = (PY_FOOD_STARVE - p->food) / 10;
+        i = (PY_FOOD_STARVE - p->timed[TMD_FOOD]) / 10;
 
         /* Take damage */
         take_hit(p, i, "starvation", false, "starved to death");
@@ -801,8 +827,8 @@ static void process_player_world(struct player *p, struct chunk *c)
     /* Regenerate Hit Points if needed */
     if (p->chp < p->mhp) player_regen_hp(p, c);
 
-    /* Regenerate mana if needed */
-    if (p->csp < p->msp) player_regen_mana(p);
+    /* Regenerate or lose mana */
+    player_regen_mana(p);
 
     /* Check for interrupts */
     player_resting_complete_special(p);
@@ -824,23 +850,23 @@ static void process_player_world(struct player *p, struct chunk *c)
         }
     }
 
-    /* Timeout various things */
-    decrease_timeouts(p, c);
-
     /* Quest */
     process_quest(p);
 
     /* Process light */
     player_update_light(p);
 
-    /* Update noise and scent */
-    make_noise(p);
-    update_scent(p);
+    /* Update noise and scent (not if resting) */
+    if (!player_is_resting(p))
+    {
+        make_noise(p);
+        update_scent(p);
+    }
 
     /*** Process Inventory ***/
 
     /* Handle experience draining */
-    if (player_of_has(p, OF_DRAIN_EXP))
+    if (player_of_has(p, OF_DRAIN_EXP) && !p->is_idle)
     {
         if (magik(10) && (p->exp > 0))
         {
@@ -919,6 +945,7 @@ static void process_player_cleanup(struct player *p)
 {
     int timefactor, time;
     struct chunk *c = chunk_get(&p->wpos);
+    int mode = ((get_connection(p->conn)->state == CONN_QUIT)? AR_QUIT: AR_NORMAL);
 
     /* If we are in a slow time condition, give visual warning */
     timefactor = time_factor(p, c);
@@ -926,7 +953,7 @@ static void process_player_cleanup(struct player *p)
         square_light_spot_aux(p, c, &p->grid);
 
     /* Check for auto-retaliate */
-    if (has_energy(p, true)) auto_retaliate(p, c, false);
+    if (has_energy(p, true)) auto_retaliate(p, c, mode);
 
     /* Notice stuff */
     notice_stuff(p);
@@ -944,7 +971,7 @@ static void process_player_cleanup(struct player *p)
     if (!(turn.turn % 5))
     {
         /* Flicker self if multi-hued */
-        if (p->poly_race && monster_shimmer(p->poly_race) && allow_shimmer(p))
+        if (p->poly_race && monster_shimmer(p->poly_race) && monster_allow_shimmer(p))
             square_light_spot_aux(p, c, &p->grid);
 
         /* Flicker multi-hued players, party leaders and elementalists */
@@ -967,7 +994,7 @@ static void process_player_cleanup(struct player *p)
                 if (q->upkeep->new_level_method) continue;
 
                 /* Flicker multi-hued players */
-                if (p->poly_race && monster_shimmer(p->poly_race) && allow_shimmer(q))
+                if (p->poly_race && monster_shimmer(p->poly_race) && monster_allow_shimmer(q))
                     square_light_spot_aux(q, c, &p->grid);
 
                 /* Flicker party leaders */
@@ -1047,6 +1074,11 @@ static void process_player_cleanup(struct player *p)
  */
 static void process_player(struct player *p)
 {
+    int time = move_energy(p->wpos.depth) / (10 * time_factor(p, chunk_get(&p->wpos)));
+
+    /* Timeout various things */
+    if (!(turn.turn % time)) decrease_timeouts(p, chunk_get(&p->wpos));
+
     /* Try to execute any commands on the command queue. */
     /* NB: process_pending_commands may have deleted the connection! */
     if (process_pending_commands(p->conn)) return;
@@ -1138,8 +1170,9 @@ static void process_various(void)
     {
         int i;
 
-        /* Save server state */
+        /* Save server state + player names */
         save_server_info();
+        save_account_info();
 
         /* Save each player */
         for (i = 1; i <= NumPlayers; i++)
@@ -1234,12 +1267,34 @@ static void process_various(void)
             {
                 struct wild_type *w_ptr = get_wt_info_at(&grid);
                 struct chunk *c = w_ptr->chunk_list[0];
-                int m_idx;
+                int m_idx, i, num_on_depth = 0;
+                struct worldpos wpos;
 
-                if (in_town(&w_ptr->wpos)) continue;
+                /* Must exist */
+                if (!c) continue;
 
-                /* Must exist and not contain players */
-                if (!c || chunk_has_players(&c->wpos)) continue;
+                wpos_init(&wpos, &grid, 0);
+
+                /* Count the number of players actually in game on this level */
+                for (i = 1; i <= NumPlayers; i++)
+                {
+                    struct player *p = player_get(i);
+
+                    if (!p->upkeep->funeral && wpos_eq(&p->wpos, &wpos))
+                        num_on_depth++;
+                }
+
+                /* Only if no one is actually on this level */
+                if (num_on_depth) continue;
+
+                /* Count the number of townies actually on this level if this is a town */
+                if (in_town(&c->wpos))
+                {
+                    int max_townies = get_town(&c->wpos)->max_townies;
+
+                    /* Only if max number of townies is reached */
+                    if ((max_townies == -1) || (cave_monster_count(c) < max_townies)) continue;
+                }
 
                 /* Mimic stuff */
                 for (m_idx = cave_monster_max(c) - 1; m_idx >= 1; m_idx--)
@@ -1248,18 +1303,14 @@ static void process_various(void)
                     struct object *obj = mon->mimicked_obj;
 
                     /* Delete mimicked objects */
-                    if (obj)
-                    {
-                        square_excise_object(c, &mon->grid, obj);
-                        object_delete(&obj);
-                    }
+                    if (obj) square_delete_object(c, &mon->grid, obj, false, false);
 
                     /* Paranoia */
                     if (!mon || !mon->race) continue;
 
                     /* Delete mimicked features */
                     if (mon->race->base == lookup_monster_base("feature mimic"))
-                        square_set_feat(c, &mon->grid, mon->feat);
+                        square_set_floor(c, &mon->grid, mon->feat);
                 }
 
                 /* Wipe the monster list */
@@ -1282,8 +1333,25 @@ static void process_various(void)
                 struct object *obj, *next;
                 struct loc begin, end;
                 struct loc_iterator iter;
+                int i, num_on_depth = 0;
+                struct worldpos wpos;
 
+                /* Must exist */
                 if (!c) continue;
+
+                wpos_init(&wpos, &grid, 0);
+
+                /* Count the number of players actually in game on this level */
+                for (i = 1; i <= NumPlayers; i++)
+                {
+                    struct player *p = player_get(i);
+
+                    if (!p->upkeep->funeral && wpos_eq(&p->wpos, &wpos))
+                        num_on_depth++;
+                }
+
+                /* Only if no one is actually on this level */
+                if (num_on_depth) continue;
 
                 loc_init(&begin, 0, 0);
                 loc_init(&end, c->width, c->height);
@@ -1302,10 +1370,7 @@ static void process_various(void)
 
                         /* Nuke object (unless it's a mimic) */
                         if (!obj->mimicking_m_idx)
-                        {
-                            square_excise_object(c, &iter.cur, obj);
-                            object_delete(&obj);
-                        }
+                            square_delete_object(c, &iter.cur, obj, false, false);
 
                         obj = next;
                     }
@@ -1465,6 +1530,7 @@ static void generate_new_level(struct player *p)
         /* Clear the flags for each cave grid (cave dimensions may have changed) */
         player_cave_new(p, c->height, c->width);
         player_cave_clear(p, true);
+        player_place_feeling(p, c);
 
         /* Illuminate */
         cave_illuminate(p, c, is_daytime());
@@ -1477,15 +1543,27 @@ static void generate_new_level(struct player *p)
             for (i = 1; i < z_info->r_max; i++)
             {
                 struct monster_race *race = &r_info[i];
+                struct monster_group_info info = {0, 0};
+                bool found = false;
+                int tries = 50;
 
                 /* The monster must be an unseen fixed encounter of this depth. */
                 if (race->lore.spawned) continue;
                 if (!rf_has(race->flags, RF_PWMANG_FIXED)) continue;
                 if (race->level != c->wpos.depth) continue;
+                if (!allow_location(race, &c->wpos)) continue;
 
                 /* Pick a location and place the monster */
-                find_empty(c, &grid);
-                place_new_monster(p, c, &grid, race, MON_ASLEEP | MON_GROUP, ORIGIN_DROP);
+                while (tries-- && !found)
+                {
+                    if (rf_has(race->flags, RF_AQUATIC)) found = find_emptywater(c, &grid);
+                    else if (rf_has(race->flags, RF_NO_DEATH)) found = find_training(c, &grid);
+                    else found = (find_empty(c, &grid) && square_is_monster_walkable(c, &grid));
+                }
+                if (found)
+                    place_new_monster(p, c, &grid, race, MON_ASLEEP | MON_GROUP, &info, ORIGIN_DROP);
+                else
+                    plog_fmt("Unable to place monster of race %s", race->name);
             }
         }
     }
@@ -1550,12 +1628,13 @@ static void generate_new_level(struct player *p)
          */
         case LEVEL_OUTSIDE_RAND:
         {
-            /* Make sure we aren't in an "icky" location */
+            /* Make sure we aren't in an "icky" or damaging location */
             do
             {
                 loc_init(&grid, rand_range(1, c->width - 2), rand_range(1, c->height - 2));
             }
-            while (square_isvault(c, &grid) || !square_ispassable(c, &grid));
+            while (square_isvault(c, &grid) || !square_ispassable(c, &grid) ||
+                square_isdamaging(c, &grid));
             break;
         }
     }
@@ -1635,7 +1714,7 @@ static void energize_player(struct player *p)
     }
 
     /* Paralyzed or Knocked Out player gets no turn */
-    if (p->timed[TMD_PARALYZED] || p->timed[TMD_STUN] >= 100)
+    if (p->timed[TMD_PARALYZED] || player_timed_grade_eq(p, TMD_STUN, "Knocked Out"))
         do_cmd_sleep(p);
 
     /* Hack -- if player has energy and we are in a slow time bubble, blink faster */
@@ -1967,7 +2046,7 @@ static void process_player_shimmer(struct player *p)
         square_light_spot_aux(p, c, &p->grid);
 
     /* Shimmer multi-hued objects */
-    shimmer_objects(p, c);
+    if (allow_shimmer(p)) shimmer_objects(p, c);
 
     /* Efficiency */
     if (!c->scan_monsters) return;
@@ -1994,12 +2073,17 @@ static void process_player_shimmer(struct player *p)
  */
 static void process_player_turn_based(struct player *p)
 {
+    int time = move_energy(p->wpos.depth) / (10 * time_factor(p, chunk_get(&p->wpos)));
+
+    /* Timeout various things */
+    if (!(turn.turn % time)) decrease_timeouts(p, chunk_get(&p->wpos));
+
     /* Try to execute any commands on the command queue. */
     /* NB: process_pending_commands may have deleted the connection! */
     if (process_pending_commands(p->conn)) return;
 
     /* Shimmer multi-hued things if idle */
-    if (allow_shimmer(p) && has_energy(p, false)) process_player_shimmer(p);
+    if (monster_allow_shimmer(p) && has_energy(p, false)) process_player_shimmer(p);
 
     /* Process the player until they use some energy */
     if (has_energy(p, false)) return;
@@ -2126,7 +2210,7 @@ bool level_keep_allocated(struct chunk *c)
 static void save_game(struct player *p)
 {
     /* Disturb the player */
-    disturb(p, 1);
+    disturb(p);
 
     /* Clear messages */
     message_flush(p);
@@ -2250,8 +2334,9 @@ static void close_game(void)
     /* Preserve artifacts on the ground */
     preserve_artifacts();
 
-    /* Try to save the server information */
+    /* Try to save the server information + player names */
     save_server_info();
+    save_account_info();
 }
 
 
@@ -2266,9 +2351,11 @@ void play_game(void)
     /* Flash a message */
     plog("Please wait...");
 
-    /* Attempt to load the server state information */
+    /* Attempt to load the server state information + player names */
     if (!load_server_info())
         quit("Broken server savefile");
+    if (!load_account_info())
+        quit("Broken player names savefile");
 
     /* Initialize server state information */
     if (!server_state_loaded) server_birth();
@@ -2345,11 +2432,13 @@ void shutdown_server(void)
     /* Preserve artifacts on the ground */
     preserve_artifacts();
 
-    /* Try to save the server information */
+    /* Try to save the server information + player names */
     if (!save_server_info()) plog("Server state save failed!");
 
     /* Successful save of server info */
     else plog("Server state save succeeded!");
+
+    save_account_info();
 
     /* Tell the metaserver that we're gone */
     Report_to_meta(META_DIE);
@@ -2395,7 +2484,7 @@ void exit_game_panic(void)
         }
 
         /* Hack -- turn off some things */
-        disturb(p, 1);
+        disturb(p);
 
         /* Hack -- delay death */
         if (p->chp < 0) p->is_dead = false;
@@ -2417,11 +2506,13 @@ void exit_game_panic(void)
     /* Preserve artifacts on the ground */
     preserve_artifacts();
 
-    /* Try to save the server information */
+    /* Try to save the server information + player names */
     if (!save_server_info()) plog("Server panic info save failed!");
 
     /* Successful panic save of server info */
     else plog("Server panic info save succeeded!");
+
+    save_account_info();
 
     /* Don't re-enter */
     server_generated = false;
@@ -2431,6 +2522,7 @@ void exit_game_panic(void)
 }
 
 
+#ifdef WINDOWS
 /*
  * Windows specific replacement for signal handling
  */
@@ -2485,6 +2577,7 @@ static LONG WINAPI UnhandledExceptionFilter(struct _EXCEPTION_POINTERS* Exceptio
 
 void setup_exit_handler(void)
 {
+#ifdef WINDOWS
     /* Trap CTRL+C, Logoff, Shutdown, etc */
     if (SetConsoleCtrlHandler((PHANDLER_ROUTINE)ctrl_handler, true))
         plog("Initialised exit save handler.");
@@ -2493,4 +2586,9 @@ void setup_exit_handler(void)
 
     /* Trap unhandled exceptions, i.e. server crashes */
     old_handler = SetUnhandledExceptionFilter(UnhandledExceptionFilter);
+#else
+//...
+#endif
 }
+
+#endif

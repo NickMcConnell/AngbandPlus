@@ -3,7 +3,7 @@
  * Purpose: Low-level bit vector manipulation
  *
  * Copyright (c) 2010 William L Moore
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -101,7 +101,7 @@ int flag_count(const bitflag *flags, const size_t size)
 
     for (i = 0; i < size; i++)
     {
-        for (j = 0; j < FLAG_WIDTH; j++)
+        for (j = 1; j <= FLAG_WIDTH; j++)
         {
             if (flags[i] & FLAG_BINARY(j)) count++;
         }

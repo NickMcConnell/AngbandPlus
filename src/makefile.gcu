@@ -37,7 +37,7 @@ CLI_EXE = mangclient_gcu.exe
 
 CCOPTS = -Hc -tW -lGn -w8080 -w-8004 -w-8057 \
 	-D_WIN32_WINNT=0x0500 -DWINVER=0x0500 \
-	-DWIN32 -D_WINDOWS -DSTRICT -DUSE_GCU \
+	-DWIN32 -D_WINDOWS -DSTRICT -DWINDOWS -DUSE_GCU \
 	-I$(BCCDIR)\include -Icurses
 
 LDFLAGS = -L$(BCCDIR)\lib -Lcurses
@@ -86,6 +86,7 @@ CLI_SRCS = \
   client\main.c \
   client\main-gcu.c \
   client\netclient.c \
+  client\player-properties.c \
   client\set_focus.c \
   client\sound-core.c \
   client\ui-birth.c \
@@ -147,6 +148,7 @@ CLI_OBJS = \
   client\main.obj \
   client\main-gcu.obj \
   client\netclient.obj \
+  client\player-properties.obj \
   client\set_focus.obj \
   client\sound-core.obj \
   client\ui-birth.obj \

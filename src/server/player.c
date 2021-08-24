@@ -3,7 +3,7 @@
  * Purpose: Player implementation
  *
  * Copyright (c) 2011 elly+angband@leptoquark.net. See COPYING.
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -23,7 +23,7 @@
 
 static const char *stat_name_list[] =
 {
-    #define STAT(a) #a,
+    #define STAT(a, b, c) #a,
     #include "../common/list-stats.h"
     #undef STAT
     NULL
@@ -167,6 +167,9 @@ static void adjust_level(struct player *p)
         /* Dragon */
         if (player_has(p, PF_DRAGON)) poly_dragon(p, true);
 
+        /* Hydra */
+        if (player_has(p, PF_HYDRA)) poly_hydra(p, true);
+
         /* Redraw */
         redraw = true;
     }
@@ -179,6 +182,9 @@ static void adjust_level(struct player *p)
 
         /* Dragon */
         if (player_has(p, PF_DRAGON)) poly_dragon(p, true);
+
+        /* Hydra */
+        if (player_has(p, PF_HYDRA)) poly_hydra(p, true);
 
         /* Save the highest level */
         if (p->lev > p->max_lev)
@@ -276,7 +282,7 @@ void player_flags(struct player *p, bitflag f[OF_SIZE])
     int i;
 
     /* Unencumbered monks get nice abilities */
-    bool restrict = (player_has(p, PF_MARTIAL_ARTS) && !monk_armor_ok(p));
+    bool restrict_ = (player_has(p, PF_MARTIAL_ARTS) && !monk_armor_ok(p));
 
     /* Clear */
     of_wipe(f);
@@ -285,7 +291,7 @@ void player_flags(struct player *p, bitflag f[OF_SIZE])
     for (i = 1; i < OF_MAX; i++)
     {
         if (of_has(p->race->flags, i) && (p->lev >= p->race->flvl[i])) of_on(f, i);
-        if (of_has(p->clazz->flags, i) && (p->lev >= p->clazz->flvl[i]) && !restrict) of_on(f, i);
+        if (of_has(p->clazz->flags, i) && (p->lev >= p->clazz->flvl[i]) && !restrict_) of_on(f, i);
     }
 
     /* Ghost */
@@ -355,6 +361,22 @@ void player_flags(struct player *p, bitflag f[OF_SIZE])
             of_on(f, OF_PROT_STUN);
         }
     }
+}
+
+
+/*
+ * Combine any flags due to timed effects on the player into those in f.
+ */
+void player_flags_timed(struct player *p, bitflag f[OF_SIZE])
+{
+    if (p->timed[TMD_BOLD]) of_on(f, OF_PROT_FEAR);
+    if (p->timed[TMD_HOLD_LIFE]) of_on(f, OF_HOLD_LIFE);
+    if (p->timed[TMD_FLIGHT]) of_on(f, OF_FEATHER);
+    if (p->timed[TMD_ESP]) of_on(f, OF_ESP_ALL);
+    if (p->timed[TMD_SINVIS]) of_on(f, OF_SEE_INVIS);
+    if (p->timed[TMD_FREE_ACT]) of_on(f, OF_FREE_ACT);
+    if (p->timed[TMD_AFRAID] || p->timed[TMD_TERROR]) of_on(f, OF_AFRAID);
+    if (p->timed[TMD_OPP_CONF]) of_on(f, OF_PROT_CONF);
 }
 
 
@@ -576,7 +598,7 @@ void init_player(struct player *p, int conn, bool old_history, bool no_recall)
     }
 
     /* Always start with a well fed player */
-    p->food = PY_FOOD_FULL - 1;
+    p->timed[TMD_FOOD] = PY_FOOD_FULL - 2000;
 
     /* Assume no feeling */
     p->feeling = -1;
@@ -618,6 +640,8 @@ void init_player(struct player *p, int conn, bool old_history, bool no_recall)
 
     for (i = 0; i < z_info->k_max; i++)
         add_autoinscription(p, i, connp->Client_setup.note_aware[i]);
+
+    p->cancel_firing = true;
 }
 
 

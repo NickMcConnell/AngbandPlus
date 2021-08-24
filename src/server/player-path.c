@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1988 Christopher J Stuart (running code)
  * Copyright (c) 2004-2007 Christophe Cavalaria, Leon Marrick (pathfinding)
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -188,7 +188,7 @@ static const byte chome[] =
 /*
  * Hack -- check for a "known wall" (see below)
  */
-static int see_wall(struct player *p, struct chunk *c, int dir, struct loc *grid)
+static bool see_wall(struct player *p, struct chunk *c, int dir, struct loc *grid)
 {
     struct loc next;
 
@@ -206,6 +206,9 @@ static int see_wall(struct player *p, struct chunk *c, int dir, struct loc *grid
 
     /* Illegal grids are not known walls XXX XXX XXX */
     if (!square_in_bounds(c, &next)) return false;
+
+    /* Webs are enough like walls */
+    if (square_iswebbed(c, &next)) return true;
 
     /* Non-wall grids are not known walls */
     if (square_ispassable(c, &next)) return false;
@@ -272,6 +275,7 @@ static void run_init(struct player *p, struct chunk *c, int dir)
         /* When in the towns/wilderness, don't break left/right. */
         if (p->wpos.depth > 0)
         {
+            /* Wall diagonally left of player's current grid */
             p->run_break_left = true;
             shortleft = true;
         }
@@ -281,6 +285,7 @@ static void run_init(struct player *p, struct chunk *c, int dir)
         /* When in the towns/wilderness, don't break left/right. */
         if (p->wpos.depth > 0)
         {
+            /* Wall diagonally left of the grid the player is stepping to */
             p->run_break_left = true;
             deepleft = true;
         }
@@ -292,6 +297,7 @@ static void run_init(struct player *p, struct chunk *c, int dir)
         /* When in the towns/wilderness, don't break left/right. */
         if (p->wpos.depth > 0)
         {
+            /* Wall diagonally right of player's current grid */
             p->run_break_right = true;
             shortright = true;
         }
@@ -301,6 +307,7 @@ static void run_init(struct player *p, struct chunk *c, int dir)
         /* When in the towns/wilderness, don't break left/right. */
         if (p->wpos.depth > 0)
         {
+            /* Wall diagonally right of the grid the player is stepping to */
             p->run_break_right = true;
             deepright = true;
         }
@@ -314,7 +321,7 @@ static void run_init(struct player *p, struct chunk *c, int dir)
         if (p->wpos.depth > 0)
             p->run_open_area = false;
 
-        /* Angled or blunt corridor entry */
+        /* Check angled or blunt corridor entry for diagonal directions */
         if (dir & 0x01)
         {
             if (deepleft && !deepright)
@@ -358,7 +365,7 @@ static bool run_test(struct player *p, struct chunk *c)
     /* Where we came from */
     prev_dir = p->run_old_dir;
 
-    /* Range of newly adjacent grids */
+    /* Range of newly adjacent grids - 5 for diagonals, 3 for cardinals */
     max = (prev_dir & 0x01) + 1;
 
     /* Look at every newly adjacent square. */
@@ -389,6 +396,9 @@ static bool run_test(struct player *p, struct chunk *c)
         {
             return true;
         }
+
+        /* Visible traps abort running (unless trapsafe) */
+        if (square_isvisibletrap(c, &grid) && !player_is_trapsafe(p)) return true;
 
         /* Visible objects abort running */
         for (obj = square_known_pile(p, c, &grid); obj; obj = obj->next)
@@ -431,12 +441,10 @@ static bool run_test(struct player *p, struct chunk *c)
                 option = new_dir;
 
             /* Three new directions. Stop running. */
-            else if (option2)
-                return true;
+            else if (option2) return true;
 
             /* Two non-adjacent new directions.  Stop running. */
-            else if (option != cycle[chome[prev_dir] + i - 1])
-                return true;
+            else if (option != cycle[chome[prev_dir] + i - 1]) return true;
 
             /* Two new (adjacent) directions (case 1) */
             else if (new_dir & 0x01)
@@ -460,14 +468,14 @@ static bool run_test(struct player *p, struct chunk *c)
                 {
                     /* Break to the right */
                     if (p->wpos.depth > 0)
-                        p->run_break_right = (true);
+                        p->run_break_right = true;
                 }
 
                 else if (i > 0)
                 {
                     /* Break to the left */
                     if (p->wpos.depth > 0)
-                        p->run_break_left = (true);
+                        p->run_break_left = true;
                 }
             }
         }
@@ -584,8 +592,7 @@ static bool run_test(struct player *p, struct chunk *c)
     }
 
     /* About to hit a known wall, stop */
-    if (see_wall(p, c, p->run_cur_dir, &p->grid))
-        return true;
+    if (see_wall(p, c, p->run_cur_dir, &p->grid)) return true;
 
     /* Failure */
     return false;
@@ -623,16 +630,17 @@ void run_step(struct player *p, int dir)
         if (run_test(p, c))
         {
             /* Disturb */
-            disturb(p, 0);
+            disturb(p);
             return;
         }
     }
 
     /* Take a turn */
-    use_energy(p);
+    p->energy -= energy_per_move(p);
+    if (p->energy < 0) p->energy = 0;
 
     /* Move the player, attempts to disarm if running straight at a trap */
-    move_player(p, c, p->run_cur_dir, (dir && disarm), false, false);
+    move_player(p, c, p->run_cur_dir, (dir && disarm), false, false, 0);
 
     /* Prepare the next step */
     if (p->upkeep->running) cmd_run(p, 0);

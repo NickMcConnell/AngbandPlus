@@ -3,7 +3,7 @@
  * Purpose: Handle the UI bits that happen after the character dies.
  *
  * Copyright (c) 1987 - 2007 Angband contributors
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -76,7 +76,7 @@ void print_tomb(void)
 
     line++;
 
-    put_str_centred(line++, 8, 8+31, "on %-.24s", player->death_info.ctime);
+    put_str_centred(line, 8, 8+31, "on %-.24s", player->death_info.ctime);
 
     /* Show it */
     Term_fresh();

@@ -17,16 +17,6 @@
 #define PY_MAX_GOLD     999999999L  /* Maximum gold */
 #define PY_MAX_LEVEL    50          /* Maximum level */
 
-/*
- * Player food values
- */
-#define PY_FOOD_MAX     17000   /* Food value (Bloated) */
-#define PY_FOOD_FULL    10000   /* Food value (Normal) */
-#define PY_FOOD_ALERT   2000    /* Food value (Hungry) */
-#define PY_FOOD_WEAK    1000    /* Food value (Weak) */
-#define PY_FOOD_FAINT   500     /* Food value (Fainting) */
-#define PY_FOOD_STARVE  100     /* Food value (Starving) */
-
 /** Sexes **/
 
 /*
@@ -116,7 +106,7 @@ enum birth_rollers
  * List of resistances and abilities to display
  */
 #define RES_PANELS  4
-#define RES_ROWS    9
+#define RES_ROWS    13
 
 /* History message types */
 enum
@@ -143,7 +133,8 @@ struct timed_grade
     byte color;
     int max;
     char *name;
-    char *msg;
+    char *up_msg;
+    char *down_msg;
     struct timed_grade *next;
 };
 
@@ -214,6 +205,18 @@ struct player_shape
     byte lvl;
 };
 
+
+/* Barehanded attack */
+struct barehanded_attack
+{
+    char *verb;         /* A verbose attack description */
+    char *hit_extra;
+    int min_level;      /* Minimum level to use */
+    int chance;         /* Chance of failure vs player level */
+    int effect;         /* Special effects */
+    struct barehanded_attack *next;
+};
+
 /*
  * Player race info
  */
@@ -226,14 +229,10 @@ struct player_race
     s16b r_exp;                 /* Experience factor */
     int b_age;                  /* Base age */
     int m_age;                  /* Mod age */
-    int m_b_ht;                 /* Base height (males) */
-    int m_m_ht;                 /* Mod height (males) */
-    int m_b_wt;                 /* Base weight (males) */
-    int m_m_wt;                 /* Mod weight (males) */
-    int f_b_ht;                 /* Base height (females) */
-    int f_m_ht;                 /* Mod height (females)   */
-    int f_b_wt;                 /* Base weight (females) */
-    int f_m_wt;                 /* Mod weight (females) */
+    int base_hgt;               /* Base height */
+    int mod_hgt;                /* Mod height */
+    int base_wgt;               /* Base weight */
+    int mod_wgt;                /* Mod weight */
     int body;                   /* Race body */
     struct modifier modifiers[OBJ_MOD_MAX]; /* Modifiers */
     s16b r_skills[SKILL_MAX];   /* Skills */
@@ -245,6 +244,7 @@ struct player_race
     struct history_chart *history;
     struct element_info el_info[ELEM_MAX];  /* Resists */
     struct player_shape *shapes;
+    struct barehanded_attack *attacks;
 };
 
 /*
@@ -257,7 +257,7 @@ struct dragon_breed
     byte d_fmt;                 /* Dragon name format ("dragon" or "drake") */
     char *w_name;               /* Wyrm name */
     byte w_fmt;                 /* Wyrm name format ("xxx wyrm" or "wyrm of xxx") */
-    byte commonness;            /* Commonnes of the breed */
+    byte commonness;            /* Commonness of the breed */
     s16b r_exp;                 /* Experience factor */
     byte immune;                /* Immunity to element? */
 };
@@ -313,7 +313,7 @@ struct class_spell
  */
 struct class_book
 {
-    byte tval;                          /* Item type of the book */
+    u16b tval;                          /* Item type of the book */
     int sval;                           /* Item sub-type for book (book number) */
     bool dungeon;                       /* Whether this is a dungeon book */
     const struct magic_realm *realm;    /* The magic realm of this book */
@@ -326,7 +326,7 @@ struct class_book
  */
 struct class_magic
 {
-    byte spell_first;                       /* Level of first spell */
+    u16b spell_first;                       /* Level of first spell */
     int spell_weight;                       /* Max armor weight to avoid mana penalties */
     int num_books;                          /* Number of spellbooks */
     struct class_book *books;               /* Details of spellbooks */
@@ -359,6 +359,21 @@ struct player_class
     struct class_magic magic;       /* Magic spells */
     byte attr;                      /* Class color */
     struct player_shape *shapes;
+    struct barehanded_attack *attacks;
+};
+
+/*
+ * Info for player abilities
+ */
+struct player_ability
+{
+    struct player_ability *next;
+    u16b index;                     /* PF_*, OF_* or element index */
+    char *type;                     /* Ability type */
+    char *name;                     /* Ability name */
+    char *desc;                     /* Ability description */
+    int group;                      /* Ability group (set locally when viewing) */
+    int value;                      /* Resistance value for elements */
 };
 
 /*  
@@ -626,7 +641,6 @@ struct player
     s16b word_recall;                           /* Word of recall counter */
     s16b deep_descent;                          /* Deep Descent counter */
     s32b energy;                                /* Current energy */
-    s16b food;                                  /* Current nutrition */
     byte unignoring;                            /* Player doesn't hide ignored items */
     byte *spell_flags;                          /* Spell flags */
     byte *spell_order;                          /* Spell order */
@@ -769,6 +783,8 @@ struct player
 
     /* Targeting */
     struct target target;                   /* Player target */
+    bool target_fixed;                      /* Is the target fixed (for the duration of a spell)? */
+    struct target old_target;               /* Old player target */
     bool tt_flag;                           /* Interesting grids */
     s16b tt_m;                              /* Current index */
     struct loc tt_grid;                     /* Current location */
@@ -818,6 +834,7 @@ struct player
     byte digging_request;
     byte digging_dir;
     byte firing_request;
+    bool cancel_firing;
     bool shimmer;                   /* Hack -- optimize multi-hued code (players) */
     bool delayed_display;           /* Hack -- delay messages after character creation */
     bool did_visuals;               /* Hack -- projection indicator (visuals) */
@@ -834,6 +851,10 @@ struct player
     char depths[13];                /* Displayed coordinates */
     int frac_blow;                  /* Blow frac (%) */
     int frac_shot;                  /* Shot frac (%) */
+    s16b square_light;              /* Square light (for display) */
+    char terrain[40];               /* Displayed terrain */
+    byte flicker;                   /* A counter to select the step color from the flicker table */
+    bool no_disturb_icky;
 
     /*
      * In order to prevent the regeneration bonus from the first few turns, we have
@@ -854,6 +875,8 @@ extern struct player_body *bodies;
 extern struct player_race *races;
 extern struct dragon_breed *breeds;
 extern struct player_class *classes;
+extern struct start_item *dm_start_items;
+extern struct player_ability *player_abilities;
 extern struct magic_realm *realms;
 
 #endif /* INCLUDED_PLAYER_COMMON_H */

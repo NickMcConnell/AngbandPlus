@@ -28,6 +28,7 @@
  *   ARC: Projection is a sector of circle radiating from the caster
  *   PLAY: May affect players
  *   INFO: Use believed map rather than truth for player ui
+ *   SHORT: Use one quarter of max_range
  *   CONST: Effect doesn't decrease with distance
  */
 #define PROJECT_NONE    0x0000
@@ -45,7 +46,9 @@
 #define PROJECT_ARC     0x0400
 #define PROJECT_PLAY    0x0800
 #define PROJECT_INFO    0x1000
-#define PROJECT_CONST   0x2000
+#define PROJECT_SHORT   0x2000
+#define PROJECT_CONST   0x4000
+#define PROJECT_ROCK    0x8000
 
 /*
  * Projection struct
@@ -57,12 +60,14 @@ struct projection
     char *type;
     char *desc;
     char *blind_desc;
+    char *lash_desc;
     int numerator;
     random_value denominator;
     int divisor;
     int damage_cap;
     int msgt;
     bool obvious;
+    bool wake;
     int color;
     byte flags;
     char *threat;
@@ -81,7 +86,8 @@ extern int proj_name_to_idx(const char *name);
 extern const char *proj_idx_to_name(int type);
 extern int project_path(struct player *p, struct loc *gp, int range, struct chunk *c,
     struct loc *grid1, struct loc *grid2, int flg);
-extern bool projectable(struct chunk *c, struct loc *grid1, struct loc *grid2, int flg, bool nowall);
+extern bool projectable(struct player *p, struct chunk *c, struct loc *grid1, struct loc *grid2,
+    int flg, bool nowall);
 extern byte proj_color(int type);
 extern void origin_get_loc(struct loc *ploc, struct source *origin);
 extern bool project(struct source *origin, int rad, struct chunk *cv, struct loc *finish, int dam,
@@ -109,9 +115,8 @@ extern bool project_o(struct source *origin, int r, struct chunk *c, struct loc 
 
 /* project-player.c */
 extern int adjust_dam(struct player *p, int type, int dam, aspect dam_aspect, int resist);
-extern void project_player_swap_stats(struct player *p);
 extern void project_player_time_effects(struct player *p, struct source *who);
 extern void project_p(struct source *origin, int r, struct chunk *c, struct loc *grid, int dam,
-    int typ, const char *what, bool *did_hit, bool *was_obvious, int *newy, int *newx);
+    int typ, int power, const char *what, bool *did_hit, bool *was_obvious, struct loc *newgrid);
 
 #endif /* PROJECT_H */

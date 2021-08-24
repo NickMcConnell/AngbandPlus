@@ -116,7 +116,7 @@ sound:GENERIC
 
 # grass, water, tree, sand
 name:deep water
-feat:0:deep water:=
+feat:60:deep water:=
 chance:0:grass:1
 chance:1:water:97
 chance:2:tree:1

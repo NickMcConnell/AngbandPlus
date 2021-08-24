@@ -26,16 +26,6 @@
 #define rsf_inter(f1, f2)      flag_inter(f1, f2, RSF_SIZE)
 #define rsf_diff(f1, f2)       flag_diff(f1, f2, RSF_SIZE)
 
-/*
- * Breath attacks
- */
-#define RSF_BREATH_MASK \
-    RSF_BR_ACID, RSF_BR_ELEC, RSF_BR_FIRE, RSF_BR_COLD, \
-    RSF_BR_POIS, RSF_BR_NETH, RSF_BR_LIGHT, RSF_BR_DARK, \
-    RSF_BR_SOUN, RSF_BR_CHAO, RSF_BR_DISE, RSF_BR_NEXU, \
-    RSF_BR_TIME, RSF_BR_INER, RSF_BR_GRAV, RSF_BR_SHAR, \
-    RSF_BR_PLAS, RSF_BR_WALL, RSF_BR_MANA, RSF_BR_WATE
-
 /** Functions **/
 
 extern bool mon_spell_is_innate(int index);
@@ -46,7 +36,7 @@ extern bool test_spells(bitflag *f, int types);
 extern void set_breath(bitflag *f);
 extern void ignore_spells(bitflag *f, int types);
 extern void unset_spells(struct player *p, bitflag *spells, bitflag *flags, bitflag *pflags,
-    struct element_info *el, const struct monster_race *race);
+    struct element_info *el, const struct monster *mon);
 extern int breath_dam(int type, int hp);
 extern void create_mon_spell_mask(bitflag *f, ...);
 extern const char *mon_spell_lore_description(int index, const struct monster_race *race);

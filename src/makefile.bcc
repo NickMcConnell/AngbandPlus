@@ -60,7 +60,7 @@ CLI_EXE = mangclient.exe
 
 CCOPTS = -Hc -tW -lGn -w8080 -w-8004 -w-8057 \
 	-D_WIN32_WINNT=0x0500 -DWINVER=0x0500 \
-	-DWIN32 -D_WINDOWS -DSTRICT \
+	-DWIN32 -D_WINDOWS -DSTRICT -DWINDOWS \
 	-I$(BCCDIR)\include
 
 LDFLAGS = -L$(BCCDIR)\lib
@@ -112,6 +112,7 @@ SERV_SRCS = \
   server\control.c \
   server\display-ui.c \
   server\effects.c \
+  server\effects-info.c \
   server\game-world.c \
   server\generate.c \
   server\gen-cave.c \
@@ -132,6 +133,7 @@ SERV_SRCS = \
   server\mon-attack.c \
   server\mon-blows.c \
   server\mon-desc.c \
+  server\mon-group.c \
   server\mon-init.c \
   server\mon-list.c \
   server\mon-list-ui.c \
@@ -193,6 +195,7 @@ SERV_SRCS = \
   server\target.c \
   server\target-ui.c \
   server\trap.c \
+  server\visuals-ui.c \
   server\wilderness.c \
   server\z-quark.c \
   server\z-queue.c \
@@ -238,6 +241,7 @@ SERV_OBJS = \
   server\control.obj \
   server\display-ui.obj \
   server\effects.obj \
+  server\effects-info.obj \
   server\game-world.obj \
   server\generate.obj \
   server\gen-cave.obj \
@@ -258,6 +262,7 @@ SERV_OBJS = \
   server\mon-attack.obj \
   server\mon-blows.obj \
   server\mon-desc.obj \
+  server\mon-group.obj \
   server\mon-init.obj \
   server\mon-list.obj \
   server\mon-list-ui.obj \
@@ -319,6 +324,7 @@ SERV_OBJS = \
   server\target.obj \
   server\target-ui.obj \
   server\trap.obj \
+  server\visuals-ui.obj \
   server\wilderness.obj \
   server\z-quark.obj \
   server\z-queue.obj \
@@ -360,6 +366,7 @@ CLI_SRCS = \
   client\grafmode.c \
   client\main-win.c \
   client\netclient.c \
+  client\player-properties.c \
   client\snd-win.c \
   client\sound-core.c \
   client\ui-birth.c \
@@ -424,6 +431,7 @@ CLI_OBJS = \
   client\grafmode.obj \
   client\main-win.obj \
   client\netclient.obj \
+  client\player-properties.obj \
   client\snd-win.obj \
   client\sound-core.obj \
   client\ui-birth.obj \

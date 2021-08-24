@@ -3,7 +3,7 @@
  * Purpose: Individual saving functions
  *
  * Copyright (c) 1997 Ben Harrison
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -41,7 +41,7 @@ void wr_description(void *data)
 }
 
 
-static void wr_tval_sval(byte tval, byte sval)
+static void wr_tval_sval(u16b tval, u16b sval)
 {
 #ifdef SAVE_AS_STRINGS
     wr_string(tval_find_name(tval));
@@ -55,8 +55,8 @@ static void wr_tval_sval(byte tval, byte sval)
     else
         wr_string("");
 #else
-    wr_byte(tval);
-    wr_byte(sval);
+    wr_u16b(tval);
+    wr_u16b(sval);
 #endif
 }
 
@@ -239,6 +239,7 @@ void wr_monster_memory(void *data)
         wr_s16b(lore->pdeaths);
         wr_s16b(lore->tdeaths);
         wr_s16b(lore->pkills);
+        wr_s16b(lore->thefts);
         wr_s16b(lore->tkills);
 
         /* Count wakes and ignores */
@@ -411,7 +412,6 @@ void wr_player(void *data)
     wr_byte(p->unignoring);
     wr_s16b(p->deep_descent);
 
-    wr_s16b(p->food);
     wr_s32b(p->energy);
     wr_s16b(p->word_recall);
     wr_byte(p->stealthy);
@@ -444,7 +444,7 @@ void wr_ignore(void *data)
 static void wr_race(struct monster_race *race)
 {
 #ifdef SAVE_AS_STRINGS
-    wr_string(race? race->name: "");
+    wr_string(race? race->name: "none");
 #else
     wr_u16b(race? race->ridx: 0);
 #endif
@@ -543,9 +543,6 @@ void wr_misc(void *unused)
 
     /* Current turn */
     wr_hturn(&turn);
-
-    /* PWMAngband */
-    wr_s32b(player_id);
 }
 
 
@@ -652,7 +649,11 @@ void wr_stores(void *unused)
     wr_u16b(STORE_ORDERS);
 
     /* Dump the store orders */
-    for (i = 0; i < STORE_ORDERS; i++) wr_string(store_orders[i]);
+    for (i = 0; i < STORE_ORDERS; i++)
+    {
+        wr_string(store_orders[i].order);
+        wr_hturn(&store_orders[i].turn);
+    }
 }
 
 
@@ -1069,7 +1070,9 @@ static void wr_monster(const struct monster *mon)
     int j;
     struct object *obj = mon->held_obj;
 
+    wr_u16b(mon->midx);
     wr_race(mon->race);
+    wr_race(mon->original_race);
     wr_byte(mon->grid.y);
     wr_byte(mon->grid.x);
     wr_s16b(mon->wpos.grid.y);
@@ -1084,6 +1087,9 @@ static void wr_monster(const struct monster *mon)
     for (j = 0; j < MON_TMD_MAX; j++)
         wr_s16b(mon->m_timed[j]);
 
+    for (j = 0; j < MFLAG_SIZE; j++)
+        wr_byte(mon->mflag[j]);
+
     for (j = 0; j < OF_SIZE; j++)
         wr_byte(mon->known_pstate.flags[j]);
 
@@ -1091,7 +1097,6 @@ static void wr_monster(const struct monster *mon)
         wr_s16b(mon->known_pstate.el_info[j].res_level);
 
     /* Mimic stuff */
-    wr_byte(mon->camouflage);
     wr_s16b(mon->mimicked_k_idx);
     wr_u16b(mon->feat);
 
@@ -1129,6 +1134,12 @@ static void wr_monster(const struct monster *mon)
         obj = obj->next;
     }
     wr_dummy_item();
+
+    /* Write group info */
+    wr_u16b(mon->group_info[PRIMARY_GROUP].index);
+    wr_byte(mon->group_info[PRIMARY_GROUP].role);
+    wr_u16b(mon->group_info[SUMMON_GROUP].index);
+    wr_byte(mon->group_info[SUMMON_GROUP].role);
 }
 
 
@@ -1167,6 +1178,8 @@ void wr_monsters(void *unused)
     int i;
     struct loc grid;
     u32b tmp32u = 0;
+
+    wr_byte(MFLAG_SIZE);
 
     /* Get the number of levels to dump */
     for (grid.y = radius_wild; grid.y >= 0 - radius_wild; grid.y--)
@@ -1529,6 +1542,9 @@ void wr_player_names(void *unused)
     u32b num;
     size_t i;
     hash_entry *ptr;
+
+    /* Current player ID */
+    wr_s32b(player_id);
 
     /* Get the list of player ID's */
     num = player_id_list(&id_list, 0L);

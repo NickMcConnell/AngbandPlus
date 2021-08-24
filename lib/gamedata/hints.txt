@@ -94,5 +94,8 @@ H:Always carry around an escape that you can use while blind and confused.
 H:Staying on a level too long can cause awake random monsters to spawn.
 H:Wands and staves sell for a good price even with 0 charges.
 H:Walking around with lots of heavy weapons is not necessarily a good idea.
-H:Carry around extra copies of basic spellbooks in case one gets burned.
+H:Carry around extra copies of town spellbooks in case one gets burned.
 H:You don't have to cover every resist all the time - carry swap items.
+H:The better fed you are, the faster you regenerate.
+H:The food indicator at the bottom of the screen shows how well fed you are.
+H:The light meter at the bottom of the screen shows your light radius.

@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2013 Erik Osheim, Nick McConnell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -70,11 +70,26 @@
 static void add_stairs(struct chunk *c, int feat)
 {
     random_value *dir;
+    int num;
+    struct worldpos dpos;
+    struct location *dungeon;
 
+    /* Get number of stairs from dungeon profile */
     if (feat == FEAT_MORE) dir = &((struct cave_profile *)dun->profile)->down;
     else dir = &((struct cave_profile *)dun->profile)->up;
+    num = dir->base + damroll(dir->dice, dir->sides);
 
-    alloc_stairs(c, feat, dir->base + damroll(dir->dice, dir->sides));
+    /* Get extra number of stairs from dungeon itself */
+    wpos_init(&dpos, &c->wpos.grid, 0);
+    dungeon = get_dungeon(&dpos);
+    if (dungeon && c->wpos.depth)
+    {
+        if (feat == FEAT_MORE) dir = &dungeon->down;
+        else dir = &dungeon->up;
+        num = num + dir->base + damroll(dir->dice, dir->sides);
+    }
+
+    alloc_stairs(c, feat, num);
 }
 
 
@@ -134,11 +149,16 @@ static void build_streamer(struct chunk *c, int feat, int chance)
             /* Only convert walls */
             if (square_isrock(c, &change))
             {
-                /* Turn the rock into the vein type */
-                square_set_feat(c, &change, feat);
+                /* PWMAngband: don't convert pit walls except sometimes on challenging levels */
+                if (!square_ispermfake(c, &change) ||
+                    (cfg_challenging_levels && one_in_(c->wpos.depth)))
+                {
+                    /* Turn the rock into the vein type */
+                    square_set_feat(c, &change, feat);
 
-                /* Sometimes add known treasure */
-                if (one_in_(chance)) square_upgrade_mineral(c, &change);
+                    /* Sometimes add known treasure */
+                    if (one_in_(chance)) square_upgrade_mineral(c, &change);
+                }
             }
         }
 
@@ -159,7 +179,7 @@ static void build_streamer(struct chunk *c, int feat, int chance)
  * feat is the base feature (FEAT_LAVA or FEAT_WATER or FEAT_SANDWALL)
  * flag is the dungeon flag allowing the streamer to be generated
  */
-static void add_streamer(struct chunk *c, int feat, int flag)
+static void add_streamer(struct chunk *c, int feat, int flag, int chance)
 {
     struct worldpos dpos;
     struct location *dungeon;
@@ -170,28 +190,75 @@ static void add_streamer(struct chunk *c, int feat, int flag)
 
     /* Place streamer into dungeon */
     if (dungeon && c->wpos.depth && df_has(dungeon->flags, flag))
-    {
-        int i, max = 3 + randint0(3);
+        build_streamer(c, feat, chance);
+}
 
-        for (i = 0; i < max; i++)
-        {
-            if (one_in_(3)) build_streamer(c, feat, 0);
-        }
+
+static bool customize_floor_valid(struct chunk *c, struct loc *grid)
+{
+    struct monster *mon = square_monster(c, grid);
+
+    /* Damaging or blocking terrain */
+    if (mon && (monster_hates_grid(c, mon, grid) || !square_ispassable(c, grid)))
+        return false;
+
+    /* Floor can't hold objects */
+    if (square_isanyfloor(c, grid) && !square_isobjectholding(c, grid))
+        return false;
+
+    return true;
+}
+
+
+static bool customize_wall_valid(struct chunk *c, struct loc *grid)
+{
+    /* Floor can't hold objects */
+    if (square_isanyfloor(c, grid) && !square_isobjectholding(c, grid))
+        return false;
+
+    return true;
+}
+
+
+static bool customize_wall_post_valid(struct chunk *c, struct loc *grid, int feat)
+{
+    /* Don't convert pit walls with passable or projectable terrain */
+    if (square_ispermfake(c, grid) && (feat_is_passable(feat) || feat_is_projectable(feat)))
+        return false;
+
+    /* Don't convert vault walls with passable or projectable terrain */
+    if (square_isvault(c, grid) && (feat_is_passable(feat) || feat_is_projectable(feat)))
+        return false;
+
+    return true;
+}
+
+
+static bool entombed(struct chunk *c, struct loc *grid)
+{
+    int d, count = 0;
+
+    for (d = 0; d < 8; d++)
+    {
+        struct loc adjacent;
+
+        loc_sum(&adjacent, grid, &ddgrid_ddd[d]);
+        if (square_seemslikewall(c, &adjacent)) count++;
     }
+
+    return (count == 8);
 }
 
 
 /*
- * Fill a level with floor/wall type specific to a dungeon.
+ * Replace floors/walls/doors/stairs/rubbles/fountains with custom features specific to a dungeon.
  *
  * c is the current chunk
- * use_floor, when TRUE, tells the function to use floor type terrains instead of walls
  */
-static void fill_level(struct chunk *c, bool use_floor)
+static void customize_features(struct chunk *c)
 {
     struct worldpos dpos;
     struct location *dungeon;
-    int count;
     struct loc begin, end;
     struct loc_iterator iter;
 
@@ -199,22 +266,17 @@ static void fill_level(struct chunk *c, bool use_floor)
     wpos_init(&dpos, &c->wpos.grid, 0);
     dungeon = get_dungeon(&dpos);
 
-    /* No dungeon here, leave basic floors/walls */
+    /* No dungeon here, leave basic floors/doors/walls */
     if (!dungeon || !c->wpos.depth) return;
 
-    /* Count features */
-    for (count = 0; count < 3; count++)
+    /* Nothing to do */
+    if (dungeon->n_floors + dungeon->n_walls + dungeon->n_fills + dungeon->n_permas +
+        dungeon->n_doors + dungeon->n_stairs + dungeon->n_rubbles + dungeon->n_fountains == 0)
     {
-        struct dun_feature *feature = (use_floor? &dungeon->floors[count]: &dungeon->walls[count]);
-
-        /* Break if not valid */
-        if (!feature->percent) break;
+        return;
     }
 
-    /* Nothing to do */
-    if (!count) return;
-
-    loc_init(&begin, 1, 1);
+    loc_init(&begin, 0, 0);
     loc_init(&end, c->width - 1, c->height - 1);
     loc_iterator_first(&iter, &begin, &end);
 
@@ -222,35 +284,162 @@ static void fill_level(struct chunk *c, bool use_floor)
     do
     {
         int i, chance;
-        bool valid;
 
-        /* Require a valid grid */
-        valid = (use_floor? square_isfloor(c, &iter.cur): square_isrock(c, &iter.cur));
-        if (!valid || square_isvault(c, &iter.cur) || square(c, &iter.cur)->mon ||
-            square(c, &iter.cur)->obj)
+        /* Floors */
+        if (square_isfloor(c, &iter.cur) && !square_ispitfloor(c, &iter.cur))
         {
-            continue;
+            int feat = 0;
+
+            /* Get a random floor tile */
+            if (customize_feature(c, &iter.cur, dungeon->floors, dungeon->n_floors,
+                customize_floor_valid, NULL, &feat))
+            {
+                square_set_feat(c, &iter.cur, feat);
+            }
         }
 
-        /* Basic chance */
-        chance = randint0(100);
-
-        /* Process all features */
-        for (i = 0; i < count; i++)
+        /* Walls */
+        if (square_isrock(c, &iter.cur))
         {
-            struct dun_feature *feature = (use_floor? &dungeon->floors[i]: &dungeon->walls[i]);
+            int feat = 0;
+            bool fill = entombed(c, &iter.cur);
 
-            /* Fill the level with that feature */
-            if (feature->percent > chance)
+            /* Get a random wall tile */
+            if (customize_feature(c, &iter.cur,
+                (fill && dungeon->fills)? dungeon->fills: dungeon->walls,
+                (fill && dungeon->fills)? dungeon->n_fills: dungeon->n_walls,
+                customize_wall_valid, customize_wall_post_valid, &feat))
             {
-                square_set_feat(c, &iter.cur, feature->feat);
-                break;
+                square_set_feat(c, &iter.cur, feat);
+                sqinfo_on(square(c, &iter.cur)->info, SQUARE_CUSTOM_WALL);
             }
+        }
+        if (square_isperm(c, &iter.cur))
+        {
+            /* Basic chance */
+            chance = randint0(10000);
 
-            chance -= feature->percent;
+            /* Process all features */
+            for (i = 0; i < dungeon->n_permas; i++)
+            {
+                struct dun_feature *feature = &dungeon->permas[i];
+
+                /* Fill the level with that feature */
+                if (feature->chance > chance)
+                {
+                    square_set_feat(c, &iter.cur, feature->feat);
+                    sqinfo_on(square(c, &iter.cur)->info, SQUARE_CUSTOM_WALL);
+                    break;
+                }
+
+                chance -= feature->chance;
+            }
+        }
+
+        /* Doors */
+        if (square_iscloseddoor(c, &iter.cur) || square_isopendoor(c, &iter.cur) ||
+            square_isbrokendoor(c, &iter.cur))
+        {
+            /* Basic chance */
+            chance = randint0(10000);
+
+            /* Process all features */
+            for (i = 0; i < dungeon->n_doors; i++)
+            {
+                struct dun_feature *feature = &dungeon->doors[i];
+
+                /* Fill the level with that feature */
+                if (feature->chance > chance)
+                {
+                    if (square_iscloseddoor(c, &iter.cur))
+                        square_set_feat(c, &iter.cur, feature->feat);
+                    else if (square_isopendoor(c, &iter.cur))
+                        square_set_feat(c, &iter.cur, feature->feat2);
+                    else
+                        square_set_feat(c, &iter.cur, feature->feat3);
+                    break;
+                }
+
+                chance -= feature->chance;
+            }
+        }
+
+        /* Stairs */
+        if (square_isstairs(c, &iter.cur))
+        {
+            /* Basic chance */
+            chance = randint0(10000);
+
+            /* Process all features */
+            for (i = 0; i < dungeon->n_stairs; i++)
+            {
+                struct dun_feature *feature = &dungeon->stairs[i];
+
+                /* Fill the level with that feature */
+                if (feature->chance > chance)
+                {
+                    if (square_isdownstairs(c, &iter.cur))
+                        square_set_feat(c, &iter.cur, feature->feat);
+                    else
+                        square_set_feat(c, &iter.cur, feature->feat2);
+                    break;
+                }
+
+                chance -= feature->chance;
+            }
+        }
+
+        /* Rubbles */
+        if (square_isrubble(c, &iter.cur))
+        {
+            /* Basic chance */
+            chance = randint0(10000);
+
+            /* Process all features */
+            for (i = 0; i < dungeon->n_rubbles; i++)
+            {
+                struct dun_feature *feature = &dungeon->rubbles[i];
+
+                /* Fill the level with that feature */
+                if (feature->chance > chance)
+                {
+                    if (!square_ispassable(c, &iter.cur))
+                        square_set_feat(c, &iter.cur, feature->feat);
+                    else
+                        square_set_feat(c, &iter.cur, feature->feat2);
+                    break;
+                }
+
+                chance -= feature->chance;
+            }
+        }
+
+        /* Fountains */
+        if (square_isfountain(c, &iter.cur))
+        {
+            /* Basic chance */
+            chance = randint0(10000);
+
+            /* Process all features */
+            for (i = 0; i < dungeon->n_fountains; i++)
+            {
+                struct dun_feature *feature = &dungeon->fountains[i];
+
+                /* Fill the level with that feature */
+                if (feature->chance > chance)
+                {
+                    if (!square_isdryfountain(c, &iter.cur))
+                        square_set_feat(c, &iter.cur, feature->feat);
+                    else
+                        square_set_feat(c, &iter.cur, feature->feat2);
+                    break;
+                }
+
+                chance -= feature->chance;
+            }
         }
     }
-    while (loc_iterator_next_strict(&iter));
+    while (loc_iterator_next(&iter));
 }
 
 
@@ -838,6 +1027,20 @@ static void remove_unused_holes(struct chunk *c)
 }
 
 
+static int percent_size(struct worldpos *wpos)
+{
+    int i = randint1(10) + wpos->depth / 24;
+
+    if (is_quest(wpos->depth)) return 100;
+    if (i < 2) return 75;
+    if (i < 3) return 80;
+    if (i < 4) return 85;
+    if (i < 5) return 90;
+    if (i < 6) return 95;
+    return 100;
+}
+
+
 /*
  * Generate a new dungeon level
  *
@@ -860,14 +1063,7 @@ struct chunk *classic_gen(struct player *p, struct worldpos *wpos, int min_heigh
      * gives the same "room density" no matter what size the level turns out
      * to be.
      */
-    i = randint1(10) + wpos->depth / 24;
-    if (is_quest(wpos->depth)) size_percent = 100;
-    else if (i < 2) size_percent = 75;
-    else if (i < 3) size_percent = 80;
-    else if (i < 4) size_percent = 85;
-    else if (i < 5) size_percent = 90;
-    else if (i < 6) size_percent = 95;
-    else size_percent = 100;
+    size_percent = percent_size(wpos);
 
     /* Scale the various generation variables */
     num_rooms = dun->profile->dun_rooms * size_percent / 100;
@@ -1029,20 +1225,28 @@ struct chunk *classic_gen(struct player *p, struct worldpos *wpos, int min_heigh
 
     /* Add some magma streamers */
     for (i = 0; i < dun->profile->str.mag; i++)
-        build_streamer(c, FEAT_MAGMA, dun->profile->str.mc);
+        add_streamer(c, FEAT_MAGMA, DF_STREAMS, dun->profile->str.mc);
 
     /* Add some quartz streamers */
     for (i = 0; i < dun->profile->str.qua; i++)
-        build_streamer(c, FEAT_QUARTZ, dun->profile->str.qc);
+        add_streamer(c, FEAT_QUARTZ, DF_STREAMS, dun->profile->str.qc);
 
     /* Add some streamers */
-    add_streamer(c, FEAT_LAVA, DF_LAVA_RIVER);
-    add_streamer(c, FEAT_WATER, DF_WATER_RIVER);
-    add_streamer(c, FEAT_SANDWALL, DF_SAND_VEIN);
-
-    /* Tweak floors and walls */
-    fill_level(c, false);
-    fill_level(c, true);
+    k = 3 + randint0(3);
+    for (i = 0; i < k; i++)
+    {
+        if (one_in_(3)) add_streamer(c, FEAT_LAVA, DF_LAVA_RIVER, 0);
+    }
+    k = 3 + randint0(3);
+    for (i = 0; i < k; i++)
+    {
+        if (one_in_(3)) add_streamer(c, FEAT_WATER, DF_WATER_RIVER, 0);
+    }
+    k = 3 + randint0(3);
+    for (i = 0; i < k; i++)
+    {
+        if (one_in_(3)) add_streamer(c, FEAT_SANDWALL, DF_SAND_VEIN, 0);
+    }
 
     /* Place stairs near some walls */
     add_stairs(c, FEAT_MORE);
@@ -1062,6 +1266,9 @@ struct chunk *classic_gen(struct player *p, struct worldpos *wpos, int min_heigh
 
     /* Place some fountains in rooms */
     alloc_objects(p, c, SET_ROOM, TYP_FOUNTAIN, randint0(1 + k / 2), wpos->depth, 0);
+
+    /* Customize */
+    customize_features(c);
 
     /* Determine the character location */
     new_player_spot(c, p);
@@ -1134,7 +1341,8 @@ static void lab_get_adjoin(int i, int w, int *a, int *b)
  * For our purposes a tunnel is a horizontal or vertical path, not an
  * intersection. Thus, we want the squares on either side to walls in one
  * case (e.g. up/down) and open in the other case (e.g. left/right). We don't
- * want a square that represents an intersection point.
+ * want a square that represents an intersection point. Treat doors the same
+ * as open floors in the tests since doors may replace a floor but not a wall.
  *
  * The high-level idea is that these are squares which can't be avoided (by
  * walking diagonally around them).
@@ -1145,13 +1353,13 @@ static bool lab_is_tunnel(struct chunk *c, struct loc *grid)
     struct loc next;
 
     next_grid(&next, grid, DIR_W);
-    west = square_isopen(c, &next);
+    west = square_ispassable(c, &next) || square_iscloseddoor(c, &next);
     next_grid(&next, grid, DIR_E);
-    east = square_isopen(c, &next);
+    east = square_ispassable(c, &next) || square_iscloseddoor(c, &next);
     next_grid(&next, grid, DIR_N);
-    north = square_isopen(c, &next);
+    north = square_ispassable(c, &next) || square_iscloseddoor(c, &next);
     next_grid(&next, grid, DIR_S);
-    south = square_isopen(c, &next);
+    south = square_ispassable(c, &next) || square_iscloseddoor(c, &next);
 
     return ((north == south) && (west == east) && (north != west));
 }
@@ -1237,6 +1445,8 @@ static bool lab_is_wide_tunnel(struct chunk *c, struct loc *grid, struct loc *ch
  * lit is whether the labyrinth is lit
  * soft is true if we use regular walls, false if permanent walls
  * wide is true if the labyrinth has wide corridors
+ *
+ * PWMAngband: we don't generate the objects here to be able to move the chunk easily.
  */
 static struct chunk *labyrinth_chunk(struct player *p, struct worldpos *wpos, int h, int w,
     bool lit, bool soft, bool wide)
@@ -1406,14 +1616,6 @@ static struct chunk *labyrinth_chunk(struct player *p, struct worldpos *wpos, in
         }
     }
 
-    /* Unlit labyrinths will have some good items */
-    if (!lit)
-        alloc_objects(p, c, SET_BOTH, TYP_GOOD, Rand_normal(3, 2), wpos->depth, ORIGIN_LABYRINTH);
-
-    /* Hard (non-diggable) labyrinths will have some great items */
-    if (!soft)
-        alloc_objects(p, c, SET_BOTH, TYP_GREAT, Rand_normal(2, 1), wpos->depth, ORIGIN_LABYRINTH);
-
     /* Deallocate our lists */
     mem_free(sets);
     mem_free(walls);
@@ -1454,10 +1656,10 @@ struct chunk *labyrinth_gen(struct player *p, struct worldpos *wpos, int min_hei
     int w = 51 + randint0(wpos->depth / 10) * 2;
 
     /* Most labyrinths are lit */
-    bool lit = ((randint0(wpos->depth) < 25) || (randint0(2) < 1));
+    bool lit = ((randint0(wpos->depth) < z_info->lab_depth) || (randint0(2) < 1));
 
     /* Many labyrinths are known */
-    bool known = (lit && (randint0(wpos->depth) < 25));
+    bool known = (lit && (randint0(wpos->depth) < z_info->lab_depth));
 
     /* Most labyrinths have soft (diggable) walls */
     bool soft = ((randint0(wpos->depth) < 35) || (randint0(3) < 2));
@@ -1473,16 +1675,20 @@ struct chunk *labyrinth_gen(struct player *p, struct worldpos *wpos, int min_hei
     /* Generate the actual labyrinth */
     c = labyrinth_chunk(p, wpos, h, w, lit, soft, wide);
 
+    /* Unlit labyrinths will have some good items */
+    if (!lit)
+        alloc_objects(p, c, SET_BOTH, TYP_GOOD, Rand_normal(3, 2), wpos->depth, ORIGIN_LABYRINTH);
+
+    /* Hard (non-diggable) labyrinths will have some great items */
+    if (!soft)
+        alloc_objects(p, c, SET_BOTH, TYP_GREAT, Rand_normal(2, 1), wpos->depth, ORIGIN_LABYRINTH);
+
     /* Hack -- allow wide corridors */
     if (wide)
     {
         h *= 2;
         w *= 2;
     }
-
-    /* Tweak floors and walls */
-    fill_level(c, false);
-    fill_level(c, true);
 
     /* Place stairs near some walls */
     add_stairs(c, FEAT_MORE);
@@ -1499,6 +1705,9 @@ struct chunk *labyrinth_gen(struct player *p, struct worldpos *wpos, int min_hei
 
     /* Place some traps in the dungeon */
     alloc_objects(p, c, SET_CORR, TYP_TRAP, randint1(k), wpos->depth, 0);
+
+    /* Customize */
+    customize_features(c);
 
     /* Determine the character location */
     new_player_spot(c, p);
@@ -2082,10 +2291,6 @@ struct chunk *cavern_gen(struct player *p, struct worldpos *wpos, int min_height
     /* Surround the level with perma-rock */
     draw_rectangle(c, 0, 0, h - 1, w - 1, FEAT_PERM, SQUARE_NONE);
 
-    /* Tweak floors and walls */
-    fill_level(c, false);
-    fill_level(c, true);
-
     /* Place stairs near some walls */
     add_stairs(c, FEAT_MORE);
     add_stairs(c, FEAT_LESS);
@@ -2101,6 +2306,9 @@ struct chunk *cavern_gen(struct player *p, struct worldpos *wpos, int min_height
 
     /* Place some traps in the dungeon */
     alloc_objects(p, c, SET_CORR, TYP_TRAP, randint1(k), wpos->depth, 0);
+
+    /* Customize */
+    customize_features(c);
 
     /* Determine the character location */
     new_player_spot(c, p);
@@ -2125,55 +2333,375 @@ struct chunk *cavern_gen(struct player *p, struct worldpos *wpos, int min_height
 
 
 /*
+ * Get the bounds of a town lot.
+ *
+ * xroads - the location of the town crossroads
+ * lot - the lot location, indexed from the nw corner
+ * lot_wid - lot width for the town
+ * lot_hgt - lot height for the town
+ * west - a pointer to put the minimum x coord of the lot
+ * north - a pointer to put the minimum y coord of the lot
+ * east - a pointer to put the maximum x coord of the lot
+ * south - a pointer to put the maximum y coord of the lot
+ */
+static void get_lot_bounds(struct loc *xroads, struct loc *lot, int lot_wid, int lot_hgt,
+    int town_wid, int town_hgt, int *west, int *north, int *east, int *south)
+{
+    /* 0 is the road. no lots. */
+    if ((lot->x == 0) || (lot->y == 0))
+    {
+        *east = 0;
+        *west = 0;
+        *north = 0;
+        *south = 0;
+        return;
+    }
+
+    if (lot->x < 0)
+    {
+        *west = MAX(2, xroads->x - 1 + lot->x * lot_wid);
+        *east = MIN(town_wid - 3, xroads->x - 2 + (lot->x + 1) * lot_wid);
+    }
+    else
+    {
+        *west = MAX(2, xroads->x + 2 + (lot->x - 1) * lot_wid);
+        *east = MIN(town_wid - 3, xroads->x + 1 + lot->x * lot_wid);
+    }
+
+    if (lot->y < 0)
+    {
+        *north = MAX(2, xroads->y + lot->y * lot_hgt);
+        *south = MIN(town_hgt - 3, xroads->y - 1 + (lot->y + 1) * lot_hgt);
+    }
+    else
+    {
+        *north = MAX(2, xroads->y + 2 + (lot->y - 1) * lot_hgt);
+        *south = MIN(town_hgt - 3, xroads->y + 1 + lot->y * lot_hgt);
+    }
+}
+
+
+static bool lot_is_clear(struct chunk *c, struct loc *xroads, struct loc *lot,
+    int lot_wid, int lot_hgt, int town_wid, int town_hgt)
+{
+    struct loc nw_corner, se_corner, probe;
+
+    get_lot_bounds(xroads, lot, lot_wid, lot_hgt, town_wid, town_hgt, &nw_corner.x, &nw_corner.y,
+        &se_corner.x, &se_corner.y);
+
+    if ((se_corner.x - nw_corner.x < lot_wid - 1) || (se_corner.y - nw_corner.y < lot_hgt - 1))
+        return false;
+
+    for (probe.x = nw_corner.x; probe.x <= se_corner.x; probe.x++)
+    {
+        for (probe.y = nw_corner.y; probe.y <= se_corner.y; probe.y++)
+        {
+            if (!square_isfloor(c, &probe)) return false;
+        }
+    }
+
+    return true;
+}
+
+
+static bool lot_has_shop(struct chunk *c, struct loc *xroads, struct loc *lot,
+    int lot_wid, int lot_hgt, int town_wid, int town_hgt)
+{
+    struct loc nw_corner, se_corner, probe;
+
+    get_lot_bounds(xroads, lot, lot_wid, lot_hgt, town_wid, town_hgt, &nw_corner.x, &nw_corner.y,
+        &se_corner.x, &se_corner.y);
+
+    for (probe.x = nw_corner.x; probe.x <= se_corner.x; probe.x++)
+    {
+        for (probe.y = nw_corner.y; probe.y <= se_corner.y; probe.y++)
+        {
+            if (feat_is_shop(square(c, &probe)->feat)) return true;
+        }
+    }
+
+    return false;
+}
+
+
+/*
  * Builds a store at a given pseudo-location
  *
  * c is the current chunk
  * n is which shop it is
- * grid is the grid of this store in the store layout
+ * xroads is the location of the town crossroads
+ * lot the location of this store in the town layout
  */
-static void build_store(struct chunk *c, int n, struct loc *grid)
+static void build_store(struct chunk *c, int n, struct loc *xroads, struct loc *lot,
+    int lot_wid, int lot_hgt, int town_wid, int town_hgt)
+{
+    int feat;
+    struct loc door, grid;
+    int lot_w, lot_n, lot_e, lot_s;
+    int build_w, build_n, build_e, build_s;
+
+    get_lot_bounds(xroads, lot, lot_wid, lot_hgt, town_wid, town_hgt, &lot_w, &lot_n, &lot_e, &lot_s);
+
+    /* on the east - west street */
+    if ((lot->x < -1) || (lot->x > 1))
+    {
+        /* north side of street */
+        if (lot->y == -1)
+        {
+            door.y = MAX(lot_n + 1, lot_s - randint0(2));
+            build_s = door.y;
+            build_n = door.y - 2;
+        }
+
+        /* south side */
+        else
+        {
+            door.y = MIN(lot_s - 1, lot_n + randint0(2));
+            build_n = door.y;
+            build_s = door.y + 2;
+        }
+
+        door.x = rand_range(lot_w + 1, lot_e - 2);
+        build_w = rand_range(MAX(lot_w, door.x - 2), door.x);
+        loc_init(&grid, build_w - 1, door.y);
+        if (!square_isfloor(c, &grid))
+        {
+            build_w++;
+            door.x = MAX(door.x, build_w);
+        }
+
+        build_e = rand_range(build_w + 2, MIN(door.x + 2, lot_e));
+        loc_init(&grid, build_e + 1, door.y);
+        if ((build_e - build_w > 1) && !square_isfloor(c, &grid))
+        {
+            build_e--;
+            door.x = MIN(door.x, build_e);
+        }
+    }
+
+    /* on the north - south street */
+    else if ((lot->y < -1) || (lot->y > 1))
+    {
+        /* west side of street */
+        if (lot->x == -1)
+        {
+            door.x = MAX(lot_w + 1, lot_e - randint0(2) - randint0(2));
+            build_e = door.x;
+            build_w = door.x - 2;
+        }
+
+        /* east side */
+        else
+        {
+            door.x = MIN(lot_e - 1, lot_w + randint0(2) + randint0(2));
+            build_w = door.x;
+            build_e = door.x + 2;
+        }
+
+        door.y = rand_range(lot_n, lot_s - 1);
+        build_n = rand_range(MAX(lot_n, door.y - 2), door.y);
+        loc_init(&grid, door.x, build_n - 1);
+        if (!square_isfloor(c, &grid))
+        {
+            build_n++;
+            door.y = MAX(door.y, build_n);
+        }
+
+        build_s = rand_range(MAX(build_n + 1, door.y), MIN(lot_s, door.y + 2));
+        loc_init(&grid, door.x, build_s + 1);
+        if ((build_s - build_n > 1) && !square_isfloor(c, &grid))
+        {
+            build_s--;
+            door.y = MIN(door.y, build_s);
+        }
+    }
+
+    /* corner store */
+    else
+    {
+        /* west side */
+        if (lot->x < 0)
+        {
+            door.x = lot_e - 1 - randint0(2);
+            build_e = MIN(lot_e, door.x + randint0(2));
+            build_w = rand_range(MAX(lot_w, door.x - 2), build_e - 2);
+        }
+
+        /* east side */
+        else
+        {
+            door.x = lot_w + 1 + randint0(2);
+            build_w = MAX(lot_w, door.x - randint0(2));
+            build_e = rand_range(build_w + 2, MIN(lot_e, door.x + 2));
+        }
+
+        /* north side */
+        if (lot->y < 0)
+        {
+            door.y = lot_s - randint0(2);
+
+            /* Avoid encapsulating door */
+            if ((build_e == door.x) || (build_w == door.x))
+                build_s = door.y + randint0(2);
+            else
+                build_s = door.y;
+
+            build_n = MAX(lot_n, door.y - 2);
+            loc_init(&grid, door.x, build_n - 1);
+            if ((build_s - build_n > 1) && !square_isfloor(c, &grid))
+            {
+                build_n++;
+                door.y = MAX(build_n, door.y);
+            }
+        }
+
+        /* south side */
+        else
+        {
+            door.y = lot_n + randint0(2);
+
+            /* Avoid encapsulating door */
+            if ((build_e == door.x) || (build_w == door.x))
+                build_n = door.y - randint0(2);
+            else
+                build_n = door.y;
+
+            build_s = MIN(lot_s, door.y + 2);
+            loc_init(&grid, door.x, build_s + 1);
+            if ((build_s - build_n > 1) && !square_isfloor(c, &grid))
+            {
+                build_s--;
+                door.y = MIN(build_s, door.y);
+            }
+        }
+
+        /* Avoid placing buildings without space between them */
+        if (build_e - build_w > 1)
+        {
+            if (lot->x < 0)
+            {
+                loc_init(&grid, build_w - 1, door.y);
+                if (!square_isfloor(c, &grid))
+                {
+                    build_w++;
+                    door.x = MAX(door.x, build_w);
+                }
+            }
+            else if (lot->x > 0)
+            {
+                loc_init(&grid, build_e + 1, door.y);
+                if (!square_isfloor(c, &grid))
+                {
+                    build_e--;
+                    door.x = MIN(door.x, build_e);
+                }
+            }
+        }
+    }
+
+    build_w = MAX(build_w, lot_w);
+    build_e = MIN(build_e, lot_e);
+    build_n = MAX(build_n, lot_n);
+    build_s = MIN(build_s, lot_s);
+
+    /* Build an invulnerable rectangular building */
+    fill_rectangle(c, build_n, build_w, build_s, build_e, FEAT_PERM, SQUARE_NONE);
+
+    /* Clear previous contents, add a store door */
+    for (feat = 0; feat < z_info->f_max; feat++)
+    {
+        if (feat_is_shop(feat) && (f_info[feat].shopnum == n + 1))
+            square_set_feat(c, &door, feat);
+    }
+}
+
+
+static void build_ruin(struct chunk *c, struct loc *xroads, struct loc *lot,
+    int lot_wid, int lot_hgt, int town_wid, int town_hgt)
+{
+    int lot_west, lot_north, lot_east, lot_south;
+    int wid, hgt, offset_x, offset_y, west, north, south, east;
+    struct loc grid, grid_west, grid_north, grid_south, grid_east;
+
+    get_lot_bounds(xroads, lot, lot_wid, lot_hgt, town_wid, town_hgt, &lot_west, &lot_north,
+        &lot_east, &lot_south);
+
+    if ((lot_east - lot_west < 1) || (lot_south - lot_north < 1)) return;
+
+    /* make a building */
+    wid = rand_range(1, lot_wid - 2);
+    hgt = rand_range(1, lot_hgt - 2);
+    offset_x = rand_range(1, lot_wid - 1 - wid);
+    offset_y = rand_range(1, lot_hgt - 1 - hgt);
+    west = lot_west + offset_x;
+    north = lot_north + offset_y;
+    south = lot_south - (lot_hgt - (hgt + offset_y));
+    east = lot_east - (lot_wid - (wid + offset_x));
+    fill_rectangle(c, north, west, south, east, FEAT_GRANITE, SQUARE_NONE);
+
+    /* and then destroy it and spew rubble everywhere */
+    for (grid.x = lot_west; grid.x <= lot_east; grid.x++)
+    {
+        for (grid.y = lot_north; grid.y <= lot_south; grid.y++)
+        {
+            loc_init(&grid_west, grid.x - 1, grid.y);
+            loc_init(&grid_north, grid.x, grid.y - 1);
+            loc_init(&grid_south, grid.x, grid.y + 1);
+            loc_init(&grid_east, grid.x + 1, grid.y);
+
+            if ((grid.x >= west) && (grid.x <= east) && (grid.y >= north) && (grid.y <= south))
+            {
+                if (!randint0(4)) square_set_feat(c, &grid, FEAT_RUBBLE);
+            }
+
+            /* Avoid placing rubble next to a store */
+            else if (!randint0(3) && square_isfloor(c, &grid) &&
+                ((grid.x > lot_west) || (grid.x == 2) || !square_isperm(c, &grid_west)) &&
+                ((grid.x < lot_east) || (grid.x == town_wid - 2) || !square_isperm(c, &grid_east)) &&
+                ((grid.y > lot_north) || (grid.y == 2) || !square_isperm(c, &grid_north)) &&
+                ((grid.y < lot_south) || (grid.y == town_hgt - 2) || !square_isperm(c, &grid_south)))
+            {
+                square_set_feat(c, &grid, FEAT_PASS_RUBBLE);
+            }
+        }
+    }
+}
+
+
+/*
+ * Builds the tavern
+ */
+static void build_tavern(struct chunk *c, int n, struct loc *grid)
 {
     int feat;
     struct loc door;
-    struct store *s = &stores[n];
-
-    /* Hack -- make tavern as large as possible */
-    int rad = ((s->type == STORE_TAVERN)? 3: 1);
+    struct loc begin, end;
+    struct loc_iterator iter;
 
     /* Determine door location */
-    door.y = rand_range(grid->y - rad, grid->y + rad);
-    door.x = (((door.y == grid->y - rad) || (door.y == grid->y + rad))?
-        rand_range(grid->x - rad, grid->x + rad): (grid->x - rad + rad * 2 * randint0(2)));
+    door.y = rand_range(grid->y - 3, grid->y + 3);
+    door.x = (((door.y == grid->y - 3) || (door.y == grid->y + 3))?
+        rand_range(grid->x - 3, grid->x + 3): (grid->x - 3 + 3 * 2 * randint0(2)));
 
     /* Build an invulnerable rectangular building */
-    fill_rectangle(c, grid->y - rad, grid->x - rad, grid->y + rad, grid->x + rad, FEAT_PERM,
-        SQUARE_NONE);
+    fill_rectangle(c, grid->y - 3, grid->x - 3, grid->y + 3, grid->x + 3, FEAT_PERM, SQUARE_NONE);
 
-    /* Hack -- make tavern empty */
-    if (s->type == STORE_TAVERN)
+    /* Make tavern empty */
+    loc_init(&begin, grid->x - 2, grid->y - 2);
+    loc_init(&end, grid->x + 2, grid->y + 2);
+    loc_iterator_first(&iter, &begin, &end);
+
+    do
     {
-        struct loc begin, end;
-        struct loc_iterator iter;
+        /* Create the tavern, make it PvP-safe */
+        square_add_safe(c, &iter.cur);
 
-        loc_init(&begin, grid->x - 2, grid->y - 2);
-        loc_init(&end, grid->x + 2, grid->y + 2);
-        loc_iterator_first(&iter, &begin, &end);
-
-        do
-        {
-            /* Create the tavern, make it PvP-safe */
-            square_add_safe(c, &iter.cur);
-
-            /* Declare this to be a room */
-            sqinfo_on(square(c, &iter.cur)->info, SQUARE_VAULT);
-            sqinfo_on(square(c, &iter.cur)->info, SQUARE_NOTRASH);
-            sqinfo_on(square(c, &iter.cur)->info, SQUARE_ROOM);
-        }
-        while (loc_iterator_next(&iter));
-
-        /* Hack -- have everyone start in the tavern */
-        square_set_join_down(c, grid);
+        /* Declare this to be a room */
+        sqinfo_on(square(c, &iter.cur)->info, SQUARE_VAULT);
+        sqinfo_on(square(c, &iter.cur)->info, SQUARE_NOTRASH);
+        sqinfo_on(square(c, &iter.cur)->info, SQUARE_ROOM);
     }
+    while (loc_iterator_next(&iter));
 
     /* Clear previous contents, add a store door */
     for (feat = 0; feat < z_info->f_max; feat++)
@@ -2208,23 +2736,28 @@ static bool find_empty_range(struct chunk *c, struct loc *grid, struct loc *top_
 static void town_gen_layout(struct player *p, struct chunk *c)
 {
     int n;
-    int num_lava, num_rubble;
-    struct loc begin, end, grid, top_left, bottom_right;
+    struct loc grid, pgrid, xroads, tavern, training;
+    int num_lava;
+    int ruins_percent = 40; /* PWMAngband: we need to place the tavern, so it's halved */
+    int max_attempts = 100;
+    int num_attempts = 0;
+    bool success = false;
+    int max_store_y = 0;
+    int min_store_x;
+    int max_store_x = 0;
+    struct loc begin, end, top_left, bottom_right;
     struct loc_iterator iter;
 
-    /* Boundary */
-    int feat_outer = (((cfg_diving_mode > 1) || dynamic_town(&c->wpos))? FEAT_PERM:
-        FEAT_PERM_CLEAR);
+    /* divide the town into lots */
+    u16b lot_hgt = 4, lot_wid = 6;
 
     /* Town dimensions (PWMAngband: make town twice as big as Angband) */
     int town_hgt = 44;
     int town_wid = 132;
 
-    /* Town limits */
-    int y1 = (c->height - town_hgt) / 2;
-    int x1 = (c->width - town_wid) / 2;
-    int y2 = (c->height + town_hgt) / 2;
-    int x2 = (c->width + town_wid) / 2;
+    /* Boundary */
+    int feat_outer = (((cfg_diving_mode > 1) || dynamic_town(&c->wpos))? FEAT_PERM:
+        FEAT_PERM_CLEAR);
 
     u32b tmp_seed = Rand_value;
     bool rand_old = Rand_quick;
@@ -2235,130 +2768,260 @@ static void town_gen_layout(struct player *p, struct chunk *c)
     /* Hack -- induce consistant town */
     Rand_value = seed_wild + world_index(&c->wpos) * 600 + c->wpos.depth * 37;
 
-    loc_init(&top_left, x1, y1);
-    loc_init(&bottom_right, x2, y2);
-
     num_lava = 3 + randint0(3);
-    num_rubble = 3 + randint0(3);
+    min_store_x = town_wid;
+
+    /* PWMAngband: fill town area with basic granite (for outer area) */
+    fill_rectangle(c, 0, 0, c->height - 1, c->width - 1, FEAT_GRANITE, SQUARE_NONE);
+
+    /* Create walls */
+    draw_rectangle(c, 0, 0, town_hgt - 1, town_wid - 1, FEAT_PERM, SQUARE_NONE);
+
+    while (!success)
+    {
+        int lot_min_x, lot_max_x, lot_min_y, lot_max_y;
+        bool skip = false;
+
+        /* Initialize to ROCK for build_streamer precondition */
+        for (grid.y = 1; grid.y < town_hgt - 1; grid.y++)
+        {
+            for (grid.x = 1; grid.x < town_wid - 1; grid.x++)
+            {
+                square_set_feat(c, &grid, FEAT_GRANITE);
+            }
+        }
+
+        /* Make some lava streamers */
+        for (n = 0; n < 3 + num_lava; n++) build_streamer(c, FEAT_LAVA, 0);
+
+        /* Make a town-sized starburst room. */
+        generate_starburst_room(c, 0, 0, town_hgt - 1, town_wid - 1, false, FEAT_FLOOR, false);
+
+        /* Turn off room illumination flag and "no stairs" flag */
+        for (grid.y = 1; grid.y < town_hgt - 1; grid.y++)
+        {
+            for (grid.x = 1; grid.x < town_wid - 1; grid.x++)
+            {
+                if (square_isfloor(c, &grid))
+                {
+                    sqinfo_off(square(c, &grid)->info, SQUARE_ROOM);
+                    sqinfo_off(square(c, &grid)->info, SQUARE_NO_STAIRS);
+                }
+            }
+        }
+
+        /* Stairs along north wall */
+        pgrid.x = rand_spread(town_wid / 2, town_wid / 6);
+        pgrid.y = 1;
+        while (!square_isfloor(c, &pgrid) && (pgrid.y < town_hgt / 4)) pgrid.y++;
+        if (pgrid.y >= town_hgt / 4) continue;
+
+        /* no lava next to stairs */
+        for (grid.x = pgrid.x - 1; grid.x <= pgrid.x + 1; grid.x++)
+        {
+            for (grid.y = pgrid.y - 1; grid.y <= pgrid.y + 1; grid.y++)
+            {
+                if (square_isfiery(c, &grid))
+                    square_set_feat(c, &grid, FEAT_GRANITE);
+            }
+        }
+
+        xroads.x = pgrid.x;
+        xroads.y = town_hgt / 2 - randint0(town_hgt / 4) + randint0(town_hgt / 8);
+        lot_min_x = -1 * xroads.x / lot_wid;
+        lot_max_x = (town_wid - xroads.x) / lot_wid;
+        lot_min_y = -1 * xroads.y / lot_hgt;
+        lot_max_y = (town_hgt - xroads.y) / lot_hgt;
+
+        /* place stores along the streets */
+        num_attempts = 0;
+        for (n = 0; n < store_max; n++)
+        {
+            struct loc store_lot;
+            bool found_spot = false;
+            struct store *s = &stores[n];
+
+            /* Skip player store and tavern */
+            if ((s->type == STORE_PLAYER) || (s->type == STORE_TAVERN)) continue;
+
+            /* Skip custom stores */
+            if (s->type == STORE_B_MARKET) skip = false;
+            else if (skip) continue;
+            else if (s->type == STORE_BOOKSELLER) skip = true;
+
+            while (!found_spot && (num_attempts < max_attempts))
+            {
+                num_attempts++;
+
+                /* east-west street */
+                if (randint0(2))
+                {
+                    store_lot.x = rand_range(lot_min_x, lot_max_x);
+                    store_lot.y = (randint0(2)? 1: -1);
+                }
+
+                /* north-south street */
+                else
+                {
+                    store_lot.x = (randint0(2)? 1: -1);
+                    store_lot.y = rand_range(lot_min_y, lot_max_y);
+                }
+
+                if ((store_lot.y == 0) || (store_lot.x == 0)) continue;
+                found_spot = lot_is_clear(c, &xroads, &store_lot, lot_wid, lot_hgt, town_wid,
+                    town_hgt);
+            }
+
+            if (num_attempts >= max_attempts) break;
+
+            max_store_y = MAX(max_store_y, xroads.y + lot_hgt * store_lot.y);
+            min_store_x = MIN(min_store_x, xroads.x + lot_wid * store_lot.x);
+            max_store_x = MAX(max_store_x, xroads.x + lot_wid * store_lot.x);
+            build_store(c, n, &xroads, &store_lot, lot_wid, lot_hgt, town_wid, town_hgt);
+        }
+
+        if (num_attempts >= max_attempts) continue;
+
+        /* place ruins */
+        for (grid.x = lot_min_x; grid.x <= lot_max_x; grid.x++)
+        {
+            /* 0 is the street */
+            if (grid.x == 0) continue;
+
+            for (grid.y = lot_min_y; grid.y <= lot_max_y; grid.y++)
+            {
+                if (grid.y == 0) continue;
+                if (randint0(100) > ruins_percent) continue;
+                if (one_in_(2) && !lot_has_shop(c, &xroads, &grid, lot_wid, lot_hgt, town_wid,
+                    town_hgt))
+                {
+                    build_ruin(c, &xroads, &grid, lot_wid, lot_hgt, town_wid, town_hgt);
+                }
+            }
+        }
+
+        /* clear the street */
+        loc_init(&grid, pgrid.x, pgrid.y + 1);
+        square_set_feat(c, &grid, FEAT_FLOOR);
+        fill_rectangle(c, pgrid.y + 2, pgrid.x - 1, max_store_y, pgrid.x + 1, FEAT_FLOOR, SQUARE_NONE);
+        fill_rectangle(c, xroads.y, min_store_x, xroads.y + 1, max_store_x, FEAT_FLOOR, SQUARE_NONE);
+
+        loc_init(&top_left, 1, 1);
+        loc_init(&bottom_right, town_wid - 1, town_hgt - 1);
+
+        /* Place the tavern */
+        num_attempts = 0;
+        for (n = 0; n < store_max; n++)
+        {
+            struct store *s = &stores[n];
+
+            if (s->type != STORE_TAVERN) continue;
+
+            /* Find an empty place */
+            while (num_attempts < max_attempts)
+            {
+                bool found_non_floor = false;
+
+                num_attempts++;
+
+                find_empty_range(c, &tavern, &top_left, &bottom_right);
+
+                loc_init(&begin, tavern.x - 6, tavern.y - 6);
+                loc_init(&end, tavern.x + 6, tavern.y + 6);
+                loc_iterator_first(&iter, &begin, &end);
+
+                do
+                {
+                    if (!square_in_bounds_fully(c, &iter.cur) ||!square_isfloor(c, &iter.cur))
+                        found_non_floor = true;
+                }
+                while (loc_iterator_next(&iter));
+
+                if (!found_non_floor) break;
+            }
+
+            if (num_attempts >= max_attempts) break;
+
+            /* Build the tavern */
+            build_tavern(c, n, &tavern);
+        }
+
+        if (num_attempts >= max_attempts) continue;
+
+        /* Place the training grounds */
+        num_attempts = 0;
+        while (num_attempts < max_attempts)
+        {
+            bool found_non_floor = false;
+
+            num_attempts++;
+
+            find_empty_range(c, &training, &top_left, &bottom_right);
+
+            loc_init(&begin, training.x - 2, training.y - 2);
+            loc_init(&end, training.x + 2, training.y + 2);
+            loc_iterator_first(&iter, &begin, &end);
+
+            do
+            {
+                if (!square_in_bounds_fully(c, &iter.cur) ||!square_isfloor(c, &iter.cur))
+                    found_non_floor = true;
+            }
+            while (loc_iterator_next(&iter));
+
+            if (!found_non_floor) break;
+        }
+
+        if (num_attempts >= max_attempts) continue;
+
+        square_set_feat(c, &training, FEAT_TRAINING);
+
+        success = true;
+    }
+
+    /* PWMAngband: replace remaining walls with static dungeon town walls */
+    for (grid.y = 0; grid.y < c->height; grid.y++)
+    {
+        for (grid.x = 0; grid.x < c->width; grid.x++)
+        {
+            if ((square(c, &grid)->feat == FEAT_GRANITE) || (square(c, &grid)->feat == FEAT_PERM))
+                square_set_feat(c, &grid, FEAT_PERM_STATIC);
+        }
+    }
+
+    /* PWMAngband: center the town */
+    for (grid.y = town_hgt - 1; grid.y >= 0; grid.y--)
+    {
+        for (grid.x = town_wid - 1; grid.x >= 0; grid.x--)
+        {
+            struct loc moved;
+
+            /* New location */
+            loc_init(&moved, grid.x + (c->width - town_wid) / 2, grid.y + (c->height - town_hgt) / 2);
+
+            /* Set new location */
+            square(c, &moved)->feat = square(c, &grid)->feat;
+            sqinfo_wipe(square(c, &moved)->info);
+            sqinfo_copy(square(c, &moved)->info, square(c, &grid)->info);
+
+            /* Reset old location */
+            sqinfo_wipe(square(c, &grid)->info);
+            square_set_feat(c, &grid, FEAT_PERM_STATIC);
+        }
+    }
 
     /* Create boundary */
     draw_rectangle(c, 0, 0, c->height - 1, c->width - 1, feat_outer, SQUARE_NONE);
 
-    /* Initialize to ROCK for build_streamer precondition */
-    fill_rectangle(c, 1, 1, c->height - 2, c->width - 2, FEAT_GRANITE, SQUARE_WALL_SOLID);
+    /* Have everyone start in the tavern */
+    loc_init(&grid, tavern.x + (c->width - town_wid) / 2, tavern.y + (c->height - town_hgt) / 2);
+    square_set_join_down(c, &grid);
 
-    /* Make some lava streamers */
-    for (n = 0; n < 3 + num_lava; n++) build_streamer(c, FEAT_LAVA, 0);
-
-    /* Make a town-sized starburst room. */
-    generate_starburst_room(c, y1, x1, y2, x2, false, FEAT_FLOOR, false);
-
-    loc_init(&begin, 1, 1);
-    loc_init(&end, c->width - 1, c->height - 1);
-    loc_iterator_first(&iter, &begin, &end);
-
-    /* Turn off room illumination flag */
-    do
-    {
-        if (square_isfloor(c, &iter.cur))
-            sqinfo_off(square(c, &iter.cur)->info, SQUARE_ROOM);
-        else if (!square_isperm(c, &iter.cur) && !square_isfiery(c, &iter.cur))
-            square_set_feat(c, &iter.cur, FEAT_PERM_STATIC);
-    }
-    while (loc_iterator_next_strict(&iter));
-
-    /* Place stores */
-    for (n = 0; n < store_max; n++)
-    {
-        int tries = 1000;
-        struct loc store;
-        struct store *s = &stores[n];
-
-        /*
-         * PWMAngband: tavern has radius 3, other stores have radius 1; then we leave at least
-         * a space of 3 squares around stores.
-         */
-        int rad = ((s->type == STORE_TAVERN)? 6: 4);
-
-        /* Skip player store */
-        if (s->type == STORE_PLAYER) continue;
-
-        /* Find an empty place */
-        while (tries)
-        {
-            bool found_non_floor = false;
-
-            find_empty_range(c, &store, &top_left, &bottom_right);
-
-            loc_init(&begin, store.x - rad, store.y - rad);
-            loc_init(&end, store.x + rad, store.y + rad);
-            loc_iterator_first(&iter, &begin, &end);
-
-            do
-            {
-                if (!square_isfloor(c, &iter.cur)) found_non_floor = true;
-            }
-            while (loc_iterator_next(&iter));
-
-            if (!found_non_floor) break;
-            tries--;
-        }
-
-        /* Build a store */
-        my_assert(tries);
-        build_store(c, n, &store);
-    }
-
-    /* Place a few piles of rubble */
-    for (n = 0; n < num_rubble; n++)
-    {
-        int tries = 1000;
-
-        /* Find an empty place */
-        while (tries)
-        {
-            bool found_non_floor = false;
-
-            find_empty_range(c, &grid, &top_left, &bottom_right);
-
-            loc_init(&begin, grid.x - 2, grid.y - 2);
-            loc_init(&end, grid.x + 2, grid.y + 2);
-            loc_iterator_first(&iter, &begin, &end);
-
-            do
-            {
-                if (!square_isfloor(c, &iter.cur)) found_non_floor = true;
-            }
-            while (loc_iterator_next(&iter));
-
-            if (!found_non_floor) break;
-            tries--;
-        }
-
-        /* Place rubble at random */
-        my_assert(tries);
-
-        loc_init(&begin, grid.x - 1, grid.y - 1);
-        loc_init(&end, grid.x + 1, grid.y + 1);
-        loc_iterator_first(&iter, &begin, &end);
-
-        do
-        {
-            if (one_in_(1 + ABS(grid.x - iter.cur.x) + ABS(grid.y - iter.cur.y)))
-                square_set_feat(c, &iter.cur, FEAT_PASS_RUBBLE);
-        }
-        while (loc_iterator_next(&iter));
-    }
-
-    /* Place the stairs in the north wall */
-    loc_init(&grid, rand_spread(c->width / 2, town_wid / 3), 2);
-    while (square_isperm(c, &grid) || square_isfiery(c, &grid)) grid.y++;
-    grid.y--;
-
-    /* Place a staircase */
+    /* Clear previous contents, add down stairs */
+    loc_init(&grid, pgrid.x + (c->width - town_wid) / 2, pgrid.y + (c->height - town_hgt) / 2);
     square_set_downstairs(c, &grid, FEAT_MORE);
 
-    /* Hack -- the players start on the stairs while recalling */
+    /* The players start on the stairs while recalling */
     square_set_join_rand(c, &grid);
 
     /* PWMAngband: dynamically generated towns also get an up staircase */
@@ -2480,6 +3143,7 @@ struct chunk *town_gen(struct player *p, struct worldpos *wpos, int min_height, 
     struct chunk *c = cave_new(z_info->dungeon_hgt, z_info->dungeon_wid);
 
     memcpy(&c->wpos, wpos, sizeof(struct worldpos));
+    player_cave_new(p, z_info->dungeon_hgt, z_info->dungeon_wid);
 
     /* Base town */
     if (wpos->depth == 0)
@@ -2494,8 +3158,6 @@ struct chunk *town_gen(struct player *p, struct worldpos *wpos, int min_height, 
         residents = 0;
         daytime = true;
     }
-
-    player_cave_new(p, z_info->dungeon_hgt, z_info->dungeon_wid);
 
     /* Build stuff */
     town_gen_layout(p, c);
@@ -2682,14 +3344,7 @@ struct chunk *modified_gen(struct player *p, struct worldpos *wpos, int min_heig
     struct chunk *c;
 
     /* Scale the level */
-    i = randint1(10) + wpos->depth / 24;
-    if (is_quest(wpos->depth)) size_percent = 100;
-    else if (i < 2) size_percent = 75;
-    else if (i < 3) size_percent = 80;
-    else if (i < 4) size_percent = 85;
-    else if (i < 5) size_percent = 90;
-    else if (i < 6) size_percent = 95;
-    else size_percent = 100;
+    size_percent = percent_size(wpos);
     y_size = z_info->dungeon_hgt * (size_percent - 5 + randint0(10)) / 100;
     x_size = z_info->dungeon_wid * (size_percent - 5 + randint0(10)) / 100;
 
@@ -2708,20 +3363,28 @@ struct chunk *modified_gen(struct player *p, struct worldpos *wpos, int min_heig
 
     /* Add some magma streamers */
     for (i = 0; i < dun->profile->str.mag; i++)
-        build_streamer(c, FEAT_MAGMA, dun->profile->str.mc);
+        add_streamer(c, FEAT_MAGMA, DF_STREAMS, dun->profile->str.mc);
 
     /* Add some quartz streamers */
     for (i = 0; i < dun->profile->str.qua; i++)
-        build_streamer(c, FEAT_QUARTZ, dun->profile->str.qc);
+        add_streamer(c, FEAT_QUARTZ, DF_STREAMS, dun->profile->str.qc);
 
     /* Add some streamers */
-    add_streamer(c, FEAT_LAVA, DF_LAVA_RIVER);
-    add_streamer(c, FEAT_WATER, DF_WATER_RIVER);
-    add_streamer(c, FEAT_SANDWALL, DF_SAND_VEIN);
-
-    /* Tweak floors and walls */
-    fill_level(c, false);
-    fill_level(c, true);
+    k = 3 + randint0(3);
+    for (i = 0; i < k; i++)
+    {
+        if (one_in_(3)) add_streamer(c, FEAT_LAVA, DF_LAVA_RIVER, 0);
+    }
+    k = 3 + randint0(3);
+    for (i = 0; i < k; i++)
+    {
+        if (one_in_(3)) add_streamer(c, FEAT_WATER, DF_WATER_RIVER, 0);
+    }
+    k = 3 + randint0(3);
+    for (i = 0; i < k; i++)
+    {
+        if (one_in_(3)) add_streamer(c, FEAT_SANDWALL, DF_SAND_VEIN, 0);
+    }
 
     /* Place stairs near some walls */
     add_stairs(c, FEAT_MORE);
@@ -2741,6 +3404,9 @@ struct chunk *modified_gen(struct player *p, struct worldpos *wpos, int min_heig
 
     /* Place some fountains in rooms */
     alloc_objects(p, c, SET_ROOM, TYP_FOUNTAIN, randint0(1 + k / 2), wpos->depth, 0);
+
+    /* Customize */
+    customize_features(c);
 
     /* Determine the character location */
     new_player_spot(c, p);
@@ -2933,14 +3599,7 @@ struct chunk *moria_gen(struct player *p, struct worldpos *wpos, int min_height,
     struct chunk *c;
 
     /* Scale the level */
-    i = randint1(10) + wpos->depth / 24;
-    if (is_quest(wpos->depth)) size_percent = 100;
-    else if (i < 2) size_percent = 75;
-    else if (i < 3) size_percent = 80;
-    else if (i < 4) size_percent = 85;
-    else if (i < 5) size_percent = 90;
-    else if (i < 6) size_percent = 95;
-    else size_percent = 100;
+    size_percent = percent_size(wpos);
     y_size = z_info->dungeon_hgt * (size_percent - 5 + randint0(10)) / 100;
     x_size = z_info->dungeon_wid * (size_percent - 5 + randint0(10)) / 100;
 
@@ -2959,20 +3618,28 @@ struct chunk *moria_gen(struct player *p, struct worldpos *wpos, int min_height,
 
     /* Add some magma streamers */
     for (i = 0; i < dun->profile->str.mag; i++)
-        build_streamer(c, FEAT_MAGMA, dun->profile->str.mc);
+        add_streamer(c, FEAT_MAGMA, DF_STREAMS, dun->profile->str.mc);
 
     /* Add some quartz streamers */
     for (i = 0; i < dun->profile->str.qua; i++)
-        build_streamer(c, FEAT_QUARTZ, dun->profile->str.qc);
+        add_streamer(c, FEAT_QUARTZ, DF_STREAMS, dun->profile->str.qc);
 
     /* Add some streamers */
-    add_streamer(c, FEAT_LAVA, DF_LAVA_RIVER);
-    add_streamer(c, FEAT_WATER, DF_WATER_RIVER);
-    add_streamer(c, FEAT_SANDWALL, DF_SAND_VEIN);
-
-    /* Tweak floors and walls */
-    fill_level(c, false);
-    fill_level(c, true);
+    k = 3 + randint0(3);
+    for (i = 0; i < k; i++)
+    {
+        if (one_in_(3)) add_streamer(c, FEAT_LAVA, DF_LAVA_RIVER, 0);
+    }
+    k = 3 + randint0(3);
+    for (i = 0; i < k; i++)
+    {
+        if (one_in_(3)) add_streamer(c, FEAT_WATER, DF_WATER_RIVER, 0);
+    }
+    k = 3 + randint0(3);
+    for (i = 0; i < k; i++)
+    {
+        if (one_in_(3)) add_streamer(c, FEAT_SANDWALL, DF_SAND_VEIN, 0);
+    }
 
     /* Place stairs near some walls */
     add_stairs(c, FEAT_MORE);
@@ -2992,6 +3659,9 @@ struct chunk *moria_gen(struct player *p, struct worldpos *wpos, int min_height,
 
     /* Place some fountains in rooms */
     alloc_objects(p, c, SET_ROOM, TYP_FOUNTAIN, randint0(1 + k / 2), wpos->depth, 0);
+
+    /* Customize */
+    customize_features(c);
 
     /* Determine the character location */
     new_player_spot(c, p);
@@ -3022,6 +3692,681 @@ struct chunk *moria_gen(struct player *p, struct worldpos *wpos, int min_height,
     /* Apply illumination */
     player_cave_clear(p, true);
     cave_illuminate(p, c, true);
+
+    return c;
+}
+
+
+/* ------------------ HARD CENTRE ---------------- */
+
+
+/*
+ * Make a chunk consisting only of a greater vault
+ *
+ * p is the player
+ * wpos is the position on the world map
+ * (height, width) are the dimensions of the chunk
+ */
+static struct chunk *vault_chunk(struct player *p, struct worldpos *wpos, int height, int width,
+    int *vhgt, int *vwid)
+{
+    struct vault *v;
+    struct chunk *c;
+    struct loc centre;
+    int y1, x1, y2, x2;
+
+    if (one_in_(2)) v = random_vault(wpos->depth, "Greater vault (new)");
+    else v = random_vault(wpos->depth, "Greater vault");
+
+    /* Paranoia */
+    if (!v) return NULL;
+
+    /* Make the chunk */
+    c = cave_new(height, width);
+    memcpy(&c->wpos, wpos, sizeof(struct worldpos));
+    player_cave_new(p, height, width);
+
+    /* Fill with granite; the vault will override for the grids it sets. */
+    fill_rectangle(c, 0, 0, c->height - 1, c->width - 1, FEAT_GRANITE, SQUARE_NONE);
+
+    /* Get the vault corners */
+    y1 = (height / 2) - (v->hgt / 2);
+    x1 = (width / 2) - (v->wid / 2);
+    y2 = y1 + v->hgt - 1;
+    x2 = x1 + v->wid - 1;
+
+    /* Fill vault area with basic floor */
+    fill_rectangle(c, y1, x1, y2, x2, FEAT_FLOOR, SQUARE_NONE);
+
+    /* Build the vault in it */
+    loc_init(&centre, width / 2, height / 2);
+    build_vault(p, c, &centre, v, false);
+
+    *vhgt = v->hgt;
+    *vwid = v->wid;
+
+    return c;
+}
+
+
+/*
+ * Make sure that all the caverns surrounding the centre are connected.
+ *
+ * c is the entire current chunk (containing the caverns)
+ * floor is an array of sample floor grids, one from each cavern in the
+ * order left, upper, lower, right
+ */
+static void connect_caverns(struct chunk *c, struct loc floor[])
+{
+    int i;
+    int size = c->height * c->width;
+    int *colors = mem_zalloc(size * sizeof(int));
+    int *counts = mem_zalloc(size * sizeof(int));
+    int color_of_floor[4];
+
+    /* Color the regions, find which cavern is which color */
+    build_colors(c, colors, counts, true);
+    for (i = 0; i < 4; i++)
+    {
+        int spot = grid_to_i(&floor[i], c->width);
+
+        color_of_floor[i] = colors[spot];
+    }
+
+    /* Join left and upper, right and lower */
+    join_region(c, colors, counts, color_of_floor[0], color_of_floor[1]);
+    join_region(c, colors, counts, color_of_floor[2], color_of_floor[3]);
+
+    /* Redo the colors, join the two big caverns */
+    build_colors(c, colors, counts, true);
+    for (i = 1; i < 3; i++)
+    {
+        int spot = grid_to_i(&floor[i], c->width);
+
+        color_of_floor[i] = colors[spot];
+    }
+    join_region(c, colors, counts, color_of_floor[1], color_of_floor[2]);
+
+    mem_free(colors);
+    mem_free(counts);
+}
+
+
+/*
+ * Write a chunk to a given offset in another chunk.
+ *
+ * dest the chunk where the copy is going
+ * source the chunk being copied
+ * (y0,x0) offset to use
+ */
+static void chunk_copy(struct chunk *dest, struct chunk *source, int y0, int x0)
+{
+    struct loc begin, end, offset;
+    struct loc_iterator iter;
+
+    loc_init(&begin, 0, 0);
+    loc_init(&end, source->width, source->height);
+    loc_init(&offset, x0, y0);
+    loc_iterator_first(&iter, &begin, &end);
+
+    do
+    {
+        struct loc dest_grid;
+
+        /* Work out where we're going */
+        loc_sum(&dest_grid, &iter.cur, &offset);
+
+        /* Terrain */
+        square(dest, &dest_grid)->feat = square(source, &iter.cur)->feat;
+        sqinfo_copy(square(dest, &dest_grid)->info, square(source, &iter.cur)->info);
+    }
+    while (loc_iterator_next_strict(&iter));
+}
+
+
+
+/*
+ * Generate a hard centre level - a greater vault surrounded by caverns
+ *
+ * p is the player
+ * wpos is the position on the world map
+ */
+struct chunk *hard_centre_gen(struct player *p, struct worldpos *wpos, int min_height, int min_width)
+{
+    int vhgt = 0, vwid = 0;
+
+    /* Make a vault for the centre */
+    struct chunk *c = vault_chunk(p, wpos, z_info->dungeon_hgt, z_info->dungeon_wid, &vhgt, &vwid);
+
+    /* Dimensions for the surrounding caverns */
+    /* PWMAngband: beware of rounding to avoid vault being one horizontal or vertical line off */
+    int centre_cavern_ypos;
+    int centre_cavern_hgt, centre_cavern_wid;
+    int upper_cavern_hgt, lower_cavern_hgt;
+    struct chunk *upper_cavern;
+    struct chunk *lower_cavern;
+    int lower_cavern_ypos;
+    int left_cavern_wid, right_cavern_wid;
+    struct chunk *left_cavern;
+    struct chunk *right_cavern;
+    int i, k, y, x, cavern_area;
+    struct loc grid;
+    struct loc floor[4];
+    struct loc top_left, bottom_right;
+
+    /* Paranoia */
+    if (!c) return NULL;
+
+    /* Measure the vault */
+    centre_cavern_ypos = (z_info->dungeon_hgt / 2) - (vhgt / 2);
+    centre_cavern_hgt = vhgt;
+    centre_cavern_wid = vwid;
+    upper_cavern_hgt = centre_cavern_ypos;
+    lower_cavern_hgt = z_info->dungeon_hgt - upper_cavern_hgt - centre_cavern_hgt;
+    lower_cavern_ypos = centre_cavern_ypos + centre_cavern_hgt;
+
+    /* Make the caverns, return on failure */
+    upper_cavern = cavern_chunk(p, wpos, upper_cavern_hgt, centre_cavern_wid);
+    if (!upper_cavern)
+    {
+        cave_free(c);
+        return NULL;
+    }
+    lower_cavern = cavern_chunk(p, wpos, lower_cavern_hgt, centre_cavern_wid);
+    if (!lower_cavern)
+    {
+        cave_free(c);
+        cave_free(upper_cavern);
+        return NULL;
+    }
+    left_cavern_wid = (z_info->dungeon_wid / 2) - (centre_cavern_wid / 2);
+    left_cavern = cavern_chunk(p, wpos, z_info->dungeon_hgt, left_cavern_wid);
+    if (!left_cavern)
+    {
+        cave_free(c);
+        cave_free(upper_cavern);
+        cave_free(lower_cavern);
+        return NULL;
+    }
+    right_cavern_wid = z_info->dungeon_wid - left_cavern_wid - centre_cavern_wid;
+    right_cavern = cavern_chunk(p, wpos, z_info->dungeon_hgt, right_cavern_wid);
+    if (!right_cavern)
+    {
+        cave_free(c);
+        cave_free(upper_cavern);
+        cave_free(lower_cavern);
+        cave_free(left_cavern);
+        return NULL;
+    }
+
+    player_cave_new(p, z_info->dungeon_hgt, z_info->dungeon_wid);
+
+    /* Copy and find a floor square in each cavern */
+
+    /* Left */
+    chunk_copy(c, left_cavern, 0, 0);
+    loc_init(&top_left, 0, 0);
+    loc_init(&bottom_right, left_cavern_wid - 1, z_info->dungeon_hgt - 1);
+    find_empty_range(c, &floor[0], &top_left, &bottom_right);
+
+    /* Upper */
+    chunk_copy(c, upper_cavern, 0, left_cavern_wid);
+    loc_init(&top_left, left_cavern_wid, 0);
+    loc_init(&bottom_right, left_cavern_wid + centre_cavern_wid - 1, upper_cavern_hgt - 1);
+    find_empty_range(c, &floor[1], &top_left, &bottom_right);
+
+    /* Lower */
+    chunk_copy(c, lower_cavern, lower_cavern_ypos, left_cavern_wid);
+    loc_init(&top_left, left_cavern_wid, lower_cavern_ypos);
+    loc_init(&bottom_right, left_cavern_wid + centre_cavern_wid - 1, z_info->dungeon_hgt - 1);
+    find_empty_range(c, &floor[3], &top_left, &bottom_right);
+
+    /* Right */
+    chunk_copy(c, right_cavern, 0, left_cavern_wid + centre_cavern_wid);
+    loc_init(&top_left, left_cavern_wid + centre_cavern_wid, 0);
+    loc_init(&bottom_right, z_info->dungeon_wid - 1, z_info->dungeon_hgt - 1);
+    find_empty_range(c, &floor[2], &top_left, &bottom_right);
+
+    /* Encase in perma-rock */
+    draw_rectangle(c, 0, 0, c->height - 1, c->width - 1, FEAT_PERM, SQUARE_NONE);
+
+    /* Connect up all the caverns */
+    connect_caverns(c, floor);
+
+    /* Connect to the centre */
+    ensure_connectedness(c);
+
+    /* Temporary until connecting to vault entrances works better */
+    for (y = 0; y < centre_cavern_hgt; y++)
+    {
+        loc_init(&grid, left_cavern_wid, y + centre_cavern_ypos);
+        square_set_feat(c, &grid, FEAT_FLOOR);
+        loc_init(&grid, left_cavern_wid + centre_cavern_wid - 1, y + centre_cavern_ypos);
+        square_set_feat(c, &grid, FEAT_FLOOR);
+    }
+
+    for (x = 0; x < centre_cavern_wid; x++)
+    {
+        loc_init(&grid, x + left_cavern_wid, centre_cavern_ypos);
+        square_set_feat(c, &grid, FEAT_FLOOR);
+        loc_init(&grid, x + left_cavern_wid, centre_cavern_ypos + centre_cavern_hgt - 1);
+        square_set_feat(c, &grid, FEAT_FLOOR);
+    }
+
+    /* Free all the chunks */
+    cave_free(upper_cavern);
+    cave_free(lower_cavern);
+    cave_free(left_cavern);
+    cave_free(right_cavern);
+
+    cavern_area = (left_cavern_wid + right_cavern_wid) * z_info->dungeon_hgt +
+        centre_cavern_wid * (upper_cavern_hgt + lower_cavern_hgt);
+
+    /* Place stairs near some walls */
+    add_stairs(c, FEAT_MORE);
+    add_stairs(c, FEAT_LESS);
+
+    /* General amount of rubble, traps and monsters */
+    k = MAX(MIN(wpos->depth / 3, 10), 2);
+
+    /* Scale number by total cavern size - caverns are fairly sparse */
+    k = (k * cavern_area) / (z_info->dungeon_hgt * z_info->dungeon_wid);
+
+    /* Put some rubble in corridors */
+    alloc_objects(p, c, SET_BOTH, TYP_RUBBLE, randint1(k), wpos->depth, 0);
+
+    /* Place some traps in the dungeon */
+    alloc_objects(p, c, SET_CORR, TYP_TRAP, randint1(k), wpos->depth, 0);
+
+    /* Customize */
+    customize_features(c);
+
+    /* Determine the character location */
+    new_player_spot(c, p);
+
+    /* Put some monsters in the dungeon */
+    for (i = randint1(8) + k; i > 0; i--)
+        pick_and_place_distant_monster(p, c, 0, MON_ASLEEP);
+
+    /* Put some objects/gold in the dungeon */
+    alloc_objects(p, c, SET_BOTH, TYP_OBJECT, Rand_normal(k, 2), wpos->depth + 5, ORIGIN_CAVERN);
+    alloc_objects(p, c, SET_BOTH, TYP_GOLD, Rand_normal(k / 2, 2), wpos->depth, ORIGIN_CAVERN);
+    alloc_objects(p, c, SET_BOTH, TYP_GOOD, randint0(k / 4), wpos->depth, ORIGIN_CAVERN);
+
+    /* Clear the flags for each cave grid */
+    player_cave_clear(p, true);
+
+    return c;
+}
+
+
+/* ------------------ LAIR ---------------- */
+
+
+/*
+ * Generate a lair level - a regular cave generated with the modified
+ * algorithm, connected to a cavern with themed monsters
+ *
+ * p is the player
+ * wpos is the position on the world map
+ */
+struct chunk *lair_gen(struct player *p, struct worldpos *wpos, int min_height, int min_width)
+{
+    int i, k, y, x, n;
+    int size_percent, y_size, x_size;
+    struct chunk *c;
+    struct chunk *lair;
+    struct loc grid;
+
+    /* Scale the level */
+    size_percent = percent_size(wpos);
+    y_size = z_info->dungeon_hgt * (size_percent - 5 + randint0(10)) / 100;
+    x_size = z_info->dungeon_wid * (size_percent - 5 + randint0(10)) / 100;
+
+    /* Enforce minimum dimensions */
+    y_size = MAX(y_size, min_height);
+    x_size = MAX(x_size, min_width);
+
+    y_size = MIN(z_info->dungeon_hgt, y_size);
+    x_size = MIN(z_info->dungeon_wid, x_size);
+
+    /* Set the block height and width */
+    dun->block_hgt = dun->profile->block_size;
+    dun->block_wid = dun->profile->block_size;
+
+    c = modified_chunk(p, wpos, y_size, x_size / 2);
+    if (!c) return NULL;
+
+    lair = cavern_chunk(p, wpos, y_size, x_size / 2);
+    if (!lair)
+    {
+        cave_free(c);
+        return NULL;
+    }
+
+    /* General amount of rubble, traps and monsters */
+    k = MAX(MIN(wpos->depth / 3, 10), 2) / 2;
+
+    /* Add some magma streamers */
+    for (i = 0; i < dun->profile->str.mag; i++)
+        add_streamer(c, FEAT_MAGMA, DF_STREAMS, dun->profile->str.mc);
+
+    /* Add some quartz streamers */
+    for (i = 0; i < dun->profile->str.qua; i++)
+        add_streamer(c, FEAT_QUARTZ, DF_STREAMS, dun->profile->str.qc);
+
+    /* Add some streamers */
+    n = 3 + randint0(3);
+    for (i = 0; i < n; i++)
+    {
+        if (one_in_(3)) add_streamer(c, FEAT_LAVA, DF_LAVA_RIVER, 0);
+    }
+    n = 3 + randint0(3);
+    for (i = 0; i < n; i++)
+    {
+        if (one_in_(3)) add_streamer(c, FEAT_WATER, DF_WATER_RIVER, 0);
+    }
+    n = 3 + randint0(3);
+    for (i = 0; i < n; i++)
+    {
+        if (one_in_(3)) add_streamer(c, FEAT_SANDWALL, DF_SAND_VEIN, 0);
+    }
+
+    /* Pick a smallish number of monsters for the normal half */
+    i = randint1(4) + k;
+
+    /* Put some monsters in the dungeon */
+    for (; i > 0; i--)
+        pick_and_place_distant_monster(p, c, 0, MON_ASLEEP);
+
+    /* PWMAngband: resize the main chunk */
+    for (y = 0; y < y_size; y++)
+    {
+        c->squares[y] = mem_realloc(c->squares[y], x_size * sizeof(struct square));
+        for (x = x_size / 2; x < x_size; x++)
+        {
+            memset(&c->squares[y][x], 0, sizeof(struct square));
+            c->squares[y][x].info = mem_zalloc(SQUARE_SIZE * sizeof(bitflag));
+        }
+    }
+    player_cave_new(p, y_size, x_size);
+    c->width = x_size;
+
+    /* Make the level */
+    chunk_copy(c, lair, 0, x_size / 2);
+
+    /* Free the chunks */
+    cave_free(lair);
+
+    /* Generate permanent walls around the edge of the generated area */
+    draw_rectangle(c, 0, 0, c->height - 1, c->width - 1, FEAT_PERM, SQUARE_NONE);
+
+    /* Connect */
+    ensure_connectedness(c);
+
+    /* Place stairs near some walls */
+    add_stairs(c, FEAT_MORE);
+    add_stairs(c, FEAT_LESS);
+    if (!cfg_limit_stairs)
+    {
+        generate_mark(c, 0, x_size / 2, c->height - 1, c->width - 1, SQUARE_NO_STAIRS);
+        find_start(c, &grid);
+        place_stairs(c, &grid, FEAT_LESS);
+        find_start(c, &grid);
+        place_stairs(c, &grid, FEAT_MORE);
+        generate_unmark(c, 0, x_size / 2, c->height - 1, c->width - 1, SQUARE_NO_STAIRS);
+    }
+
+    /* Remove holes in corridors that were not used for stair placement */
+    remove_unused_holes(c);
+
+    /* Put some rubble in corridors */
+    alloc_objects(p, c, SET_CORR, TYP_RUBBLE, randint1(k), wpos->depth, 0);
+
+    /* Place some traps in the dungeon, reduce frequency by factor of 5 */
+    alloc_objects(p, c, SET_CORR, TYP_TRAP, randint1(k) / 5, wpos->depth, 0);
+
+    /* Place some fountains in rooms */
+    alloc_objects(p, c, SET_ROOM, TYP_FOUNTAIN, randint0(1 + k / 2), wpos->depth, 0);
+
+    /* Customize */
+    customize_features(c);
+
+    /* Put the character in the normal half */
+    generate_mark(c, 0, x_size / 2, c->height - 1, c->width - 1, SQUARE_NO_STAIRS);
+    new_player_spot(c, p);
+    generate_unmark(c, 0, x_size / 2, c->height - 1, c->width - 1, SQUARE_NO_STAIRS);
+
+    /* Pick a larger number of monsters for the lair */
+    i = (z_info->level_monster_min + randint1(20) + k);
+
+    /* Find appropriate monsters */
+    while (true)
+    {
+        /* Choose a pit profile */
+        set_pit_type(wpos->depth, 0);
+
+        /* Set monster generation restrictions */
+        if (mon_restrict(p, dun->pit_type->name, wpos->depth, true)) break;
+    }
+
+    /* Place lair monsters */
+    spread_monsters(p, c, dun->pit_type->name, wpos->depth, i, y_size / 2,
+        x_size / 2 + x_size / 4, y_size / 2, x_size / 4, ORIGIN_CAVERN);
+
+    /* Remove our restrictions. */
+    mon_restrict(p, NULL, wpos->depth, false);
+
+    /* Put some objects in rooms */
+    alloc_objects(p, c, SET_ROOM, TYP_OBJECT, Rand_normal(z_info->room_item_av, 3), wpos->depth,
+        ORIGIN_FLOOR);
+
+    /* Put some objects/gold in the dungeon */
+    alloc_objects(p, c, SET_BOTH, TYP_OBJECT, Rand_normal(z_info->both_item_av, 3), wpos->depth,
+        ORIGIN_FLOOR);
+    alloc_objects(p, c, SET_BOTH, TYP_GOLD, Rand_normal(z_info->both_gold_av, 3), wpos->depth,
+        ORIGIN_FLOOR);
+
+    /* Apply illumination */
+    player_cave_clear(p, true);
+    cave_illuminate(p, c, true);
+
+    return c;
+}
+
+
+/* ------------------ GAUNTLET ---------------- */
+
+
+/*
+ * Generate a gauntlet level - two separate caverns with an unmappable labyrinth
+ * between them, and no teleport and only upstairs from the side where the
+ * player starts.
+ *
+ * p is the player
+ * wpos is the position on the world map
+ */
+struct chunk *gauntlet_gen(struct player *p, struct worldpos *wpos, int min_height, int min_width)
+{
+    int i, k, y;
+    struct chunk *c;
+    struct chunk *arrival;
+    struct chunk *gauntlet;
+    struct chunk *departure;
+    int gauntlet_hgt = 2 * randint1(5) + 3;
+    int gauntlet_wid = 2 * randint1(10) + 19;
+    int y_size = z_info->dungeon_hgt * gauntlet_hgt / (15 + randint1(5));
+    int x_size = z_info->dungeon_wid * gauntlet_wid / ((30 + randint1(10)) * 2);
+    int line1, line2;
+    struct loc grid;
+
+    /* PWMAngband: ensure 2 * x_size + gauntlet_wid < z_info->dungeon_wid */
+    x_size = MIN(x_size, (z_info->dungeon_wid - gauntlet_wid) / 2 - 1);
+
+    /* No wide corridors to keep generation easy */
+    gauntlet = labyrinth_chunk(p, wpos, gauntlet_hgt, gauntlet_wid, false, false, false);
+    if (!gauntlet) return NULL;
+
+    arrival = cavern_chunk(p, wpos, y_size, x_size);
+    if (!arrival)
+    {
+        cave_free(gauntlet);
+        return NULL;
+    }
+
+    departure = cavern_chunk(p, wpos, y_size, x_size);
+    if (!departure)
+    {
+        cave_free(gauntlet);
+        cave_free(arrival);
+        return NULL;
+    }
+
+    /* Record lines between chunks */
+    line1 = arrival->width;
+    line2 = line1 + gauntlet->width;
+
+    /* Set the movement and mapping restrictions */
+    generate_mark(arrival, 0, 0, arrival->height - 1, arrival->width - 1, SQUARE_NO_TELEPORT);
+    generate_mark(gauntlet, 0, 0, gauntlet->height - 1, gauntlet->width - 1, SQUARE_NO_MAP);
+    generate_mark(gauntlet, 0, 0, gauntlet->height - 1, gauntlet->width - 1, SQUARE_NO_TELEPORT);
+
+    /* Open the ends of the gauntlet */
+    loc_init(&grid, 0, randint1(gauntlet->height - 2));
+    square_set_feat(gauntlet, &grid, FEAT_GRANITE);
+    loc_init(&grid, gauntlet->width - 1, randint1(gauntlet->height - 2));
+    square_set_feat(gauntlet, &grid, FEAT_GRANITE);
+
+    /* General amount of rubble, traps and monsters */
+    k = MAX(MIN(wpos->depth / 3, 10), 2) / 2;
+
+    /* Make the level */
+    c = cave_new(y_size, arrival->width + gauntlet->width + departure->width);
+    memcpy(&c->wpos, wpos, sizeof(struct worldpos));
+    player_cave_new(p, y_size, arrival->width + gauntlet->width + departure->width);
+
+    /* Fill cave area with basic granite */
+    fill_rectangle(c, 0, 0, c->height - 1, c->width - 1, FEAT_GRANITE, SQUARE_NONE);
+
+    /* Fill the area between the caverns with permanent rock */
+    fill_rectangle(c, 0, line1, c->height - 1, line2 - 1, FEAT_PERM, SQUARE_NONE);
+
+    /* PWMAngband: copy the gauntlet first */
+    chunk_copy(c, gauntlet, (y_size - gauntlet->height) / 2, line1);
+
+    /* Unlit labyrinths will have some good items */
+    alloc_objects(p, c, SET_BOTH, TYP_GOOD, Rand_normal(3, 2), wpos->depth, ORIGIN_LABYRINTH);
+
+    /* Hard (non-diggable) labyrinths will have some great items */
+    alloc_objects(p, c, SET_BOTH, TYP_GREAT, Rand_normal(2, 1), wpos->depth, ORIGIN_LABYRINTH);
+
+    /* Pick a larger number of monsters for the gauntlet */
+    i = (z_info->level_monster_min + randint1(6) + k);
+
+    /* Find appropriate monsters */
+    while (true)
+    {
+        /* Choose a pit profile */
+        set_pit_type(wpos->depth, 0);
+
+        /* Set monster generation restrictions */
+        if (mon_restrict(p, dun->pit_type->name, wpos->depth, true)) break;
+    }
+
+    /* Place labyrinth monsters */
+    spread_monsters(p, c, dun->pit_type->name, wpos->depth, i, y_size / 2,
+        x_size + gauntlet->width / 2, gauntlet->height / 2, gauntlet->width / 2, ORIGIN_LABYRINTH);
+
+    /* Remove our restrictions. */
+    mon_restrict(p, NULL, wpos->depth, false);
+
+    /* PWMAngband: add the departure cavern */
+    chunk_copy(c, departure, 0, line2);
+
+    /* Place down stairs in the departure cavern */
+    generate_mark(c, 0, line1, c->height - 1, line2 - 1, SQUARE_NO_STAIRS);
+    add_stairs(c, FEAT_MORE);
+
+    /* Pick some of monsters for the departure cavern */
+    i = z_info->level_monster_min + randint1(4) + k;
+
+    /* Place the monsters */
+    generate_mark(c, 0, line1, c->height - 1, line2 - 1, SQUARE_MON_RESTRICT);
+    for (; i > 0; i--)
+        pick_and_place_distant_monster(p, c, 0, MON_ASLEEP);
+
+    /* PWMAngband: add the arrival cavern */
+    chunk_copy(c, arrival, 0, 0);
+
+    /* Place up stairs in the arrival cavern */
+    generate_mark(c, 0, line2, c->height - 1, c->width - 1, SQUARE_NO_STAIRS);
+    add_stairs(c, FEAT_LESS);
+    generate_unmark(c, 0, 0, c->height - 1, c->width - 1, SQUARE_NO_STAIRS);
+
+    /* Pick some monsters for the arrival cavern */
+    i = z_info->level_monster_min + randint1(4) + k;
+
+    /* Place the monsters */
+    generate_mark(c, 0, line2, c->height - 1, c->width - 1, SQUARE_MON_RESTRICT);
+    for (; i > 0; i--)
+        pick_and_place_distant_monster(p, c, 0, MON_ASLEEP);
+    generate_unmark(c, 0, 0, c->height - 1, c->width - 1, SQUARE_MON_RESTRICT);
+
+    /* Free the chunks */
+    cave_free(arrival);
+    cave_free(gauntlet);
+    cave_free(departure);
+
+    /* Generate permanent walls around the edge of the generated area */
+    draw_rectangle(c, 0, 0, c->height - 1, c->width - 1, FEAT_PERM, SQUARE_NONE);
+
+    /* Temporary until connecting to vault entrances works better */
+    for (y = 0; y < gauntlet_hgt; y++)
+    {
+        loc_init(&grid, line1 - 1, y + (y_size - gauntlet_hgt) / 2);
+        square_set_feat(c, &grid, FEAT_FLOOR);
+        loc_init(&grid, line2, y + (y_size - gauntlet_hgt) / 2);
+        square_set_feat(c, &grid, FEAT_FLOOR);
+    }
+
+    /* Connect */
+    ensure_connectedness(c);
+
+    /* Put some rubble in corridors */
+    alloc_objects(p, c, SET_CORR, TYP_RUBBLE, randint1(k), wpos->depth, 0);
+
+    /* Place some traps in the dungeon */
+    alloc_objects(p, c, SET_CORR, TYP_TRAP, randint1(k), wpos->depth, 0);
+
+    /* Customize */
+    customize_features(c);
+
+    /* Put the character in the arrival cavern */
+    generate_mark(c, 0, line1, c->height - 1, c->width - 1, SQUARE_NO_STAIRS);
+    new_player_spot(c, p);
+    generate_unmark(c, 0, line1, c->height - 1, c->width - 1, SQUARE_NO_STAIRS);
+
+    /* PWMAngband: we put players going up in the departure cavern */
+    if (cfg_limit_stairs)
+    {
+        generate_mark(c, 0, 0, c->height - 1, line2 - 1, SQUARE_NO_STAIRS);
+        find_start(c, &grid);
+        square_set_join_up(c, &grid);
+        generate_unmark(c, 0, 0, c->height - 1, line2 - 1, SQUARE_NO_STAIRS);
+    }
+
+    /* Put some objects in rooms */
+	alloc_objects(p, c, SET_ROOM, TYP_OBJECT, Rand_normal(z_info->room_item_av, 3), wpos->depth,
+        ORIGIN_FLOOR);
+
+	/* Put some objects/gold in the dungeon */
+	alloc_objects(p, c, SET_BOTH, TYP_OBJECT, Rand_normal(z_info->both_item_av, 3), wpos->depth,
+        ORIGIN_FLOOR);
+    alloc_objects(p, c, SET_BOTH, TYP_GOLD, Rand_normal(z_info->both_gold_av, 3), wpos->depth,
+        ORIGIN_FLOOR);
+
+    /* Clear the flags for each cave grid */
+    player_cave_clear(p, true);
 
     return c;
 }
@@ -3200,9 +4545,7 @@ static void build_feature(struct chunk *c, int n, int yy, int xx)
         while (loc_iterator_next_strict(&iter));
 
         /* Remember price */
-        price = (x2 - x1 - 1) * (y2 - y1 - 1);
-        price *= 20;
-        price *= 80 + randint1(40);
+        price = house_price((x2 - x1 - 1) * (y2 - y1 - 1), true);
 
         /* Hack -- only create houses that aren't already loaded from disk */
         loc_init(&grid, dx, dy);
@@ -3479,7 +4822,6 @@ struct chunk *mang_town_gen(struct player *p, struct worldpos *wpos, int min_hei
     struct chunk *c = cave_new(z_info->dungeon_hgt, z_info->dungeon_wid);
 
     memcpy(&c->wpos, wpos, sizeof(struct worldpos));
-
     player_cave_new(p, z_info->dungeon_hgt, z_info->dungeon_wid);
 
     /* Build stuff */
@@ -3675,9 +5017,6 @@ struct chunk *arena_gen(struct player *p, struct worldpos *wpos, int min_height,
 
     ensure_connectedness(c);
 
-    /* Tweak floors */
-    fill_level(c, true);
-
     /* Place stairs near some walls */
     add_stairs(c, FEAT_MORE);
     add_stairs(c, FEAT_LESS);
@@ -3696,6 +5035,9 @@ struct chunk *arena_gen(struct player *p, struct worldpos *wpos, int min_height,
 
     /* Place some fountains in rooms */
     alloc_objects(p, c, SET_ROOM, TYP_FOUNTAIN, randint0(1 + k / 2), wpos->depth, 0);
+
+    /* Customize */
+    customize_features(c);
 
     /* Determine the character location */
     new_player_spot(c, p);

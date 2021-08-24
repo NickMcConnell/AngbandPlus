@@ -13,7 +13,7 @@ BCB = $(MAKEDIR)\..
 
 VERSION = BCB.06.00
 # ---------------------------------------------------------------------------
-FREETYPE = freetype-2.10.1
+FREETYPE = freetype-2.10.2
 # ---------------------------------------------------------------------------
 PROJECT = ..\freetype.dll
 OBJFILES = ..\..\SDL\$(FREETYPE)\src\autofit\autofit.obj \

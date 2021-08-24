@@ -3,7 +3,7 @@
  * Purpose: Functions to deal with object curses
  *
  * Copyright (c) 2016 Nick McConnell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -429,6 +429,7 @@ bool do_curse_effect(struct player *p, int i)
     source_obj(who, obj);
     who->player = p;
     effect_do(effect, who, &ident, was_aware, dir, NULL, 0, 0, NULL);
+    disturb(p);
     return !was_aware && ident;
 }
 

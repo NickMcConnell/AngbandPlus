@@ -3,7 +3,7 @@
  * Purpose: Deal with command processing
  *
  * Copyright (c) 2010 Andi Sidwell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -173,7 +173,7 @@ static void view_map_aux(byte mode)
     while (last_line_info != -1)
     {
         /* Loop, looking for net input and responding to keypresses */
-        ke = Net_loop(Term_inkey, map_callback_begin, NULL, SCAN_OFF);
+        ke = Net_loop(Term_inkey, map_callback_begin, NULL, SCAN_OFF, true);
 
         /* Check for user abort */
         if (is_exit(ke)) break;
@@ -265,6 +265,8 @@ static void get_screen_loc(int cursor, int *x, int *y, int n_lines, int *line_st
     int *line_lengths)
 {
     int i, lengths_so_far = 0;
+
+    if (!line_starts || !line_lengths) return;
 
     for (i = 0; i < n_lines; i++)
     {
@@ -870,7 +872,9 @@ void do_cmd_message(void)
     /* Hack to just change the window focus in Windows client */
     if (term_chat->user)
     {
+#ifdef WINDOWS
         set_chat_focus();
+#endif
         return;
     }
 #endif

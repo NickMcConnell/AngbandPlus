@@ -1,0 +1,21 @@
+# File: admin_stuff.txt
+
+
+# This file is used to initialize the "DM starting items" information for
+# PWMAngband.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# === Understanding admin_stuff.txt ===
+
+# equip:tval:sval:amount
+
+# 'equip' is for starting equipment - tval of the item, sval of the item,
+# amount.
+
+
+equip:potion:Augmentation:40
+equip:potion:Experience:40
+equip:ring:Speed:2
+equip:rod:Recall:1

@@ -15,9 +15,9 @@
 # obj-rarity: object rarity
 # color: color
 # mon-base: template name
-# mon-base: template name
 # flags-req: flag | flag | ...
 # flags-ban: forbidden flag | ...
+# spell-freq: freq
 # spell-req: spell | spell | ...
 # spell-ban: forbidden spell | ...
 # mon-ban: forbidden monster name
@@ -54,13 +54,16 @@
 # every listed flag.
 # As many 'flags-req' lines as are necessary may be used.
 #
-# 'spell-req' is for spell flags. Every monster in this nest/pit will have
-# every listed spell flag.
-# As many 'spell-req' lines as are necessary may be used.
-#
 # 'flags-ban' is for forbidden flags. No monster in this nest/pit will have
 # any of the listed flags.
 # As many 'flags-ban' lines as are necessary may be used.
+#
+# 'spell-freq' is for frequency of spells. Every monster in this
+# nest/pit will have this frequency or lower.
+#
+# 'spell-req' is for spell flags. Every monster in this nest/pit will have
+# every listed spell flag.
+# As many 'spell-req' lines as are necessary may be used.
 #
 # 'spell-ban' is for forbidden spell flags. No monster in this nest/pit will
 # have any of the listed spell flags.
@@ -163,6 +166,7 @@ room:2
 alloc:1:50
 obj-rarity:10
 flags-req:ANIMAL
+flags-ban:AQUATIC
 
 name:Undead
 room:2
@@ -206,26 +210,16 @@ name:Spellcasters
 room:1
 alloc:1:20
 obj-rarity:0
-mon-base:kobold
-mon-base:humanoid
-mon-base:orc
-mon-base:person
 spell-req:MISSILE
-spell-ban:ARROW_1
-spell-ban:ARROW_2
+mon-ban:spirit of missile
 
 name:Archers
 room:1
-alloc:1:25
+alloc:1:50
 obj-rarity:0
-mon-base:kobold
-mon-base:orc
-mon-base:person
-color:W
-color:D
-spell-ban:BO_NETH
-spell-ban:HASTE
-spell-ban:BA_NETH
+spell-freq:4
+spell-req:ARROW
+mon-ban:spirit of missile
 
 name:Nagas
 room:1
@@ -246,16 +240,17 @@ alloc:1:25
 obj-rarity:0
 mon-base:person
 color:u
-color:y
-spell-ban:HEAL_KIN
+color:s
+color:M
+spell-ban:DARKNESS | ARROW
 
 name:Dark elves
 room:1
-alloc:1:30
+alloc:1:40
 obj-rarity:0
 mon-base:humanoid
 flags-req:HURT_LIGHT
-spell-ban:CAUSE_1
+spell-ban:TPORT
 
 name:Eyes
 room:1
@@ -288,7 +283,7 @@ mon-base:snake
 mon-base:naga
 mon-base:hydra
 spell-ban:BA_POIS
-spell-ban:BR_FIRE
+spell-ban:BR_FIRE | BR_NETH | BR_CHAO | S_HYDRA
 
 name:Lesser undead
 room:2
@@ -325,7 +320,7 @@ mon-base:hydra
 name:Golems
 room:1
 alloc:1:65
-obj-rarity:0
+obj-rarity:10
 mon-base:golem
 flags-ban:DRAGON
 flags-ban:UNDEAD
@@ -354,7 +349,6 @@ room:3
 alloc:2:15
 mon-base:ant
 mon-base:centipede
-mon-base:louse
 mon-base:dragon fly
 mon-base:insect
 mon-base:killer beetle
@@ -405,12 +399,6 @@ mon-base:mimic
 mon-base:feature mimic
 mon-base:object mimic
 mon-base:random mimic
-
-name:Unlife
-room:2
-alloc:1:110
-obj-rarity:20
-flags-req:NONLIVING
 
 name:People
 room:1

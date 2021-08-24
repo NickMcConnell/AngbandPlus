@@ -12,7 +12,11 @@ struct module
     errr (*init)(void);
 };
 
+#ifdef USE_SDL
 extern errr init_sdl(void);
+#endif
+#ifdef USE_GCU
 extern errr init_gcu(void);
+#endif
 
 #endif /* INCLUDED_MAIN_H */

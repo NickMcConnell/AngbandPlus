@@ -3,7 +3,7 @@
  * Purpose: Core game initialisation
  *
  * Copyright (c) 1997 Ben Harrison, and others
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -146,6 +146,10 @@ static void server_log(const char *str)
         strftime(file, 30, "pwmangband%d%m%y.log", local);
         path_build(path, sizeof(path), ANGBAND_DIR_SCORES, file);
         fp = file_open(path, MODE_APPEND, FTYPE_TEXT);
+        if (fp == NULL) {
+            printf("Unable to open %s for writing!\n", path);
+            return;
+        }
     }
 
     /* Output the message to the daily log file */
@@ -157,7 +161,7 @@ static void server_log(const char *str)
 static void show_version(void)
 {
     printf("PWMAngband Server %s\n", version_build(NULL, true));
-    puts("Copyright (c) 2007-2019 MAngband and PWMAngband Project Team");
+    puts("Copyright (c) 2007-2020 MAngband and PWMAngband Project Team");
 
     /* Actually abort the process */
     quit(NULL);
@@ -169,7 +173,9 @@ static void show_version(void)
  */
 int main(int argc, char *argv[])
 {
+#ifdef WINDOWS
     WSADATA wsadata;
+#endif
     char buf[MSG_LEN];
 
     /* Setup assert hook */
@@ -184,12 +190,16 @@ int main(int argc, char *argv[])
     /* Save the "program name" */
     argv0 = argv[0];
 
+#ifdef WINDOWS
     /* Load our debugging library on Windows, to give us nice stack dumps */
     /* We use exchndl.dll from the mingw-utils package */
     LoadLibrary("exchndl.dll");
+#endif
 
+#ifdef WINDOWS
     /* Initialize WinSock */
     WSAStartup(MAKEWORD(1, 1), &wsadata);
+#endif
 
     /* Process the command line arguments */
     for (--argc, ++argv; argc > 0; --argc, ++argv)
@@ -221,8 +231,10 @@ int main(int argc, char *argv[])
     /* Tell "quit()" to call "Term_nuke()" */
     quit_aux = quit_hook;
 
+#ifdef WINDOWS
     /* Catch nasty "signals" on Windows */
     setup_exit_handler();
+#endif
 
     /* Verify the "news" file */
     path_build(buf, sizeof(buf), ANGBAND_DIR_SCREENS, "news.txt");

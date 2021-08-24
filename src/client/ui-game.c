@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2015 Nick McConnell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -79,7 +79,7 @@ struct cmd_info cmd_action[] =
     {"Dig a tunnel", {'T', KTRL('T')}, CMD_TUNNEL, NULL, NULL},
     {"Go up staircase", {'<'}, CMD_GO_UP, NULL, NULL},
     {"Go down staircase", {'>'}, CMD_GO_DOWN, NULL, NULL},
-    {"Toggle stealth mode", {'S', '#'}, CMD_TOGGLE_STEALTH, NULL, NULL},
+    {"Toggle stealth mode", {'S'}, CMD_TOGGLE_STEALTH, NULL, NULL},
     {"Open a door or a chest", {'o'}, CMD_OPEN, NULL, NULL},
     {"Close a door", {'c'}, CMD_CLOSE, NULL, NULL},
     {"Fire at nearest target", {'h', KC_TAB}, CMD_NULL, do_cmd_fire_at_nearest, NULL},
@@ -99,8 +99,7 @@ struct cmd_info cmd_item_manage[]  =
     {"Display quiver listing", {'|'}, CMD_NULL, do_cmd_quiver, NULL},
     {"Pick up objects", {'g'}, CMD_PICKUP, NULL, NULL},
     {"Ignore an item", {'k', KTRL('D')}, CMD_IGNORE, textui_cmd_ignore, NULL},
-    {"Drop gold", {'$'}, CMD_DROP_GOLD, textui_cmd_drop_gold, NULL},
-    {"Steal an item", {'J', 'S'}, CMD_STEAL, NULL, NULL}
+    {"Drop gold", {'$'}, CMD_DROP_GOLD, textui_cmd_drop_gold, NULL}
 };
 
 
@@ -111,6 +110,7 @@ struct cmd_info cmd_info[] =
 {
     {"Browse a book", {'b', 'P'}, CMD_BROWSE_SPELL, NULL, obj_browse_pre},
     {"Gain new spells or prayers", {'G'}, CMD_STUDY, NULL, obj_study_pre},
+    {"View abilities", {'#'}, CMD_NULL, do_cmd_abilities, NULL},
     {"Cast a spell", {'m'}, CMD_CAST, NULL, obj_cast_pre},
     {"Project a spell", {'p'}, CMD_PROJECT, NULL, obj_cast_pre},
     {"Full dungeon map", {'M'}, CMD_NULL, do_cmd_view_map, NULL},
@@ -158,6 +158,7 @@ struct cmd_info cmd_hidden[] =
 {
     {"Load a single pref line", {'"'}, CMD_NULL, do_cmd_pref, NULL},
     {"Alter a grid", {'+'}, CMD_ALTER, NULL, NULL},
+    {"Steal an item", {'s'}, CMD_STEAL, NULL, NULL},
     {"Walk", {';'}, CMD_WALK, NULL, NULL},
     {"Start running", {'.', ','}, CMD_RUN, NULL, NULL},
     {"Stand still", {',', '.'}, CMD_HOLD, NULL, NULL},
@@ -273,7 +274,7 @@ static void textui_process_command_aux(ui_event e)
     }
 
     /* Use command menus */
-    if (key == KC_ENTER)
+    if ((key == KC_ENTER) && !OPT(player, disable_enter))
         cmd = textui_action_menu_choose();
 
     /* Command key */

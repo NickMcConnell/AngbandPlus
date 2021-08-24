@@ -6,7 +6,6 @@
 #ifndef MONSTER_LORE_H
 #define MONSTER_LORE_H
 
-extern int spell_color(struct player *p, int spell_index);
 extern void lore_learn_spell_if_has(struct monster_lore *lore, const struct monster_race *race,
     int flag);
 extern void lore_learn_spell_if_visible(struct monster_lore *lore, bool visible, int flag);

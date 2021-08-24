@@ -2,7 +2,7 @@
  * File: net-win.c
  * Purpose: Network module
  *
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -17,6 +17,8 @@
  */
 
 #include "angband.h"
+
+#ifdef WINDOWS
 
 #ifdef TERMNET
 /* support for running clients over term, but not servers please. */
@@ -2002,3 +2004,5 @@ const char *GetSocketErrorMessage(void)
 {
     return GetSocketErrorMessageAux(wsa_errno);
 }
+#endif /* WINDOWS*/
+

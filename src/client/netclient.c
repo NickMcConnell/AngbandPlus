@@ -2,7 +2,7 @@
  * File: netclient.c
  * Purpose: The client side of the networking stuff
  *
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -45,6 +45,11 @@ byte section_icky_row;
 bool allow_disturb_icky = true;
 
 
+/* Hack -- player position for the minimap */
+int cursor_x = 0;
+int cursor_y = 0;
+
+
 /* Similar to server's connp->state */
 static int conn_state;
 static u32b last_sent = 0, last_received = 0;
@@ -52,6 +57,10 @@ static u32b last_sent = 0, last_received = 0;
 
 /* Keeps track of time in milliseconds */
 static u32b mticks = 0;
+#ifndef WINDOWS
+/* Helper variable to keep track of time on UNIX */
+static u32b ticks = 0;
+#endif
 
 
 static bool request_redraw;
@@ -59,6 +68,7 @@ static sockbuf_t rbuf, wbuf, qbuf;
 static char talk_pend[MSG_LEN], initialized = 0;
 static ang_file *fp = NULL;
 static bool dump_only = false;
+static byte chardump = 0;
 
 
 /* Packet types */
@@ -67,6 +77,12 @@ static int prev_type = 0;
 
 
 /*** Utilities ***/
+
+
+static int string_bytes(const char *str)
+{
+    return strlen(str) + 1;
+}
 
 
 int Flush_queue(void)
@@ -101,6 +117,7 @@ int Flush_queue(void)
 /* Keep track of time in milliseconds */
 static void updateTicks(void)
 {
+#ifdef WINDOWS
     SYSTEMTIME st;
 
     /* Retrieve the current system date and time */
@@ -109,6 +126,38 @@ static void updateTicks(void)
     /* Keep track of time in milliseconds */
     mticks = ((st.wHour * 60L + st.wMinute) * 60L + st.wSecond) * 1000L + st.wMilliseconds;
 
+#else
+/* BACK-Ported update_ticks from MAngband 1.1.0: */
+// Update the current time, which is stored in 100 ms "ticks".
+// I hope that Windows systems have gettimeofday on them by default.
+// If not there should hopefully be some simmilar efficient call with the same
+// functionality. 
+// I hope this doesn't prove to be a bottleneck on some systems.  On my linux system
+// calling gettimeofday seems to be very very fast.
+	struct timeval cur_time;
+	int newticks;
+	float scale = 100000;
+	int mins,hours;
+
+	hours = time(NULL) % 86400;
+	mins = time(NULL) % 3600;
+
+	gettimeofday(&cur_time, NULL);
+
+	// Set the new ticks to the old ticks rounded down to the number of seconds.
+	newticks = ticks-(ticks%10);
+	// Find the new least significant digit of the ticks
+	newticks += cur_time.tv_usec / scale;
+
+	// Assume that it has not been more than one second since this function was last called
+	if (newticks < ticks) newticks += 10;
+	ticks = newticks;
+	/*RLS*/
+	mticks = (long)(hours*3600*100) +
+		(long)(mins*60*100) +
+		(long)(cur_time.tv_sec*100) +
+		cur_time.tv_usec/((scale/100)/10);
+#endif
     /* Wrap every day */
     if ((mticks < last_sent) || (mticks < last_received))
         last_sent = last_received = 0;
@@ -402,7 +451,7 @@ static int Receive_struct_info(void)
                     /* Packet isn't complete, graceful failure */
                     return n;
                 }
-                bytes_read += strlen(name) + 2;
+                bytes_read += string_bytes(name) + 1;
 
                 r = mem_zalloc(sizeof(*r));
                 r->ridx = ridx;
@@ -536,7 +585,8 @@ static int Receive_struct_info(void)
         case STRUCT_INFO_CLASS:
         {
             s16b base, dice, sides, m_bonus, c_skills, res_level;
-            byte cidx, c_mhp, total_spells, tval, sval, flag, lvl;
+            byte cidx, c_mhp, total_spells, flag, lvl;
+            u16b tval, sval;
             char num_books;
             char realm[NORMAL_WID];
 
@@ -555,7 +605,7 @@ static int Receive_struct_info(void)
                     /* Packet isn't complete, graceful failure */
                     return n;
                 }
-                bytes_read += strlen(name) + 2;
+                bytes_read += string_bytes(name) + 1;
 
                 c = mem_zalloc(sizeof(*c));
                 c->cidx = cidx;
@@ -675,7 +725,7 @@ static int Receive_struct_info(void)
                     c->el_info[j].res_level = res_level;
                     c->el_info[j].lvl = lvl;
                 }
-                if ((n = Packet_scanf(&rbuf, "%b%b%c", &total_spells, &tval, &num_books)) <= 0)
+                if ((n = Packet_scanf(&rbuf, "%b%hu%c", &total_spells, &tval, &num_books)) <= 0)
                 {
                     /* Rollback the socket buffer */
                     Sockbuf_rollback(&rbuf, bytes_read);
@@ -685,7 +735,7 @@ static int Receive_struct_info(void)
                     mem_free(c);
                     return n;
                 }
-                bytes_read += 3;
+                bytes_read += 4;
 
                 c->c_mhp = c_mhp;
                 c->magic.total_spells = total_spells;
@@ -699,7 +749,7 @@ static int Receive_struct_info(void)
                 {
                     struct class_book *book = &c->magic.books[j];
 
-                    if ((n = Packet_scanf(&rbuf, "%b%b%s", &tval, &sval, realm)) <= 0)
+                    if ((n = Packet_scanf(&rbuf, "%hu%hu%s", &tval, &sval, realm)) <= 0)
                     {
                         /* Rollback the socket buffer */
                         Sockbuf_rollback(&rbuf, bytes_read);
@@ -709,7 +759,7 @@ static int Receive_struct_info(void)
                         mem_free(c);
                         return n;
                     }
-                    bytes_read += 2 + strlen(realm);
+                    bytes_read += string_bytes(realm) + 4;
 
                     book->tval = tval;
                     book->sval = sval;
@@ -743,7 +793,7 @@ static int Receive_struct_info(void)
                     /* Packet isn't complete, graceful failure */
                     return n;
                 }
-                bytes_read += strlen(name) + 3;
+                bytes_read += string_bytes(name) + 2;
 
                 b = mem_zalloc(sizeof(*b));
                 b->name = string_make(name);
@@ -763,7 +813,7 @@ static int Receive_struct_info(void)
                         mem_free(b);
                         return n;
                     }
-                    bytes_read += strlen(name) + 3;
+                    bytes_read += string_bytes(name) + 2;
 
                     b->slots[j].type = type;
                     b->slots[j].name = string_make(name);
@@ -798,7 +848,7 @@ static int Receive_struct_info(void)
                     /* Packet isn't complete, graceful failure */
                     return n;
                 }
-                bytes_read += strlen(name) + 1;
+                bytes_read += string_bytes(name);
 
                 s->name = string_make(name);
 
@@ -822,7 +872,7 @@ static int Receive_struct_info(void)
         /* Object kinds */
         case STRUCT_INFO_KINDS:
         {
-            byte tval, sval;
+            u16b tval, sval;
             u32b kidx;
             s16b ac;
 
@@ -845,12 +895,12 @@ static int Receive_struct_info(void)
                     /* Packet isn't complete, graceful failure */
                     return n;
                 }
-                bytes_read += strlen(name) + 1;
+                bytes_read += string_bytes(name);
 
                 if (strlen(name)) kind->name = string_make(name);
 
                 /* Transfer other fields here */
-                if ((n = Packet_scanf(&rbuf, "%b%b%lu%hd", &tval, &sval, &kidx, &ac)) <= 0)
+                if ((n = Packet_scanf(&rbuf, "%hu%hu%lu%hd", &tval, &sval, &kidx, &ac)) <= 0)
                 {
                     /* Rollback the socket buffer */
                     Sockbuf_rollback(&rbuf, bytes_read);
@@ -858,7 +908,7 @@ static int Receive_struct_info(void)
                     /* Packet isn't complete, graceful failure */
                     return n;
                 }
-                bytes_read += 8;
+                bytes_read += 10;
 
                 kind->tval = tval;
                 kind->sval = sval;
@@ -911,7 +961,7 @@ static int Receive_struct_info(void)
                     /* Packet isn't complete, graceful failure */
                     return n;
                 }
-                bytes_read += strlen(name) + 1;
+                bytes_read += string_bytes(name);
 
                 if (strlen(name)) ego->name = string_make(name);
 
@@ -971,7 +1021,7 @@ static int Receive_struct_info(void)
                     /* Packet isn't complete, graceful failure */
                     return n;
                 }
-                bytes_read += strlen(name) + 1;
+                bytes_read += string_bytes(name);
 
                 if (strlen(name)) race->name = string_make(name);
                 race->ridx = i;
@@ -998,7 +1048,7 @@ static int Receive_struct_info(void)
                     /* Packet isn't complete, graceful failure */
                     return n;
                 }
-                bytes_read += strlen(name) + 1;
+                bytes_read += string_bytes(name);
 
                 mb = mem_zalloc(sizeof(*mb));
                 mb->name = string_make(name);
@@ -1033,7 +1083,7 @@ static int Receive_struct_info(void)
                     /* Packet isn't complete, graceful failure */
                     return n;
                 }
-                bytes_read += strlen(name) + 1;
+                bytes_read += string_bytes(name);
 
                 if (strlen(name)) curse->name = string_make(name);
 
@@ -1046,7 +1096,7 @@ static int Receive_struct_info(void)
                     /* Packet isn't complete, graceful failure */
                     return n;
                 }
-                bytes_read += strlen(desc) + 1;
+                bytes_read += string_bytes(desc);
 
                 if (strlen(desc))
                 {
@@ -1054,6 +1104,8 @@ static int Receive_struct_info(void)
                     curse->desc = string_make(desc);
                 }
             }
+
+            Send_play(chardump? 3: 2);
 
             break;
         }
@@ -1079,7 +1131,7 @@ static int Receive_struct_info(void)
                     /* Packet isn't complete, graceful failure */
                     return n;
                 }
-                bytes_read += strlen(name) + 1;
+                bytes_read += string_bytes(name);
 
                 /* Transfer other fields here */
                 if ((n = Packet_scanf(&rbuf, "%s%s", spell_noun, verb)) <= 0)
@@ -1090,8 +1142,7 @@ static int Receive_struct_info(void)
                     /* Packet isn't complete, graceful failure */
                     return n;
                 }
-                bytes_read += strlen(spell_noun) + 1;
-                bytes_read += strlen(verb) + 1;
+                bytes_read += string_bytes(spell_noun) + string_bytes(verb);
 
                 realm = mem_zalloc(sizeof(*realm));
                 realm->name = string_make(name);
@@ -1123,11 +1174,13 @@ static int Receive_struct_info(void)
                     /* Packet isn't complete, graceful failure */
                     return n;
                 }
-                bytes_read += strlen(name) + 1;
+                bytes_read += string_bytes(name);
 
                 if (strlen(name)) f->name = string_make(name);
                 f->fidx = i;
             }
+
+            Send_play(3);
 
             break;
         }
@@ -1151,7 +1204,7 @@ static int Receive_struct_info(void)
                     /* Packet isn't complete, graceful failure */
                     return n;
                 }
-                bytes_read += strlen(name) + 1;
+                bytes_read += string_bytes(name);
 
                 if (strlen(name)) t->desc = string_make(name);
                 t->tidx = i;
@@ -1179,7 +1232,7 @@ static int Receive_struct_info(void)
                     /* Packet isn't complete, graceful failure */
                     return n;
                 }
-                bytes_read += strlen(name) + 4;
+                bytes_read += string_bytes(name) + 4;
 
                 if (strlen(name))
                 {
@@ -1197,6 +1250,43 @@ static int Receive_struct_info(void)
                     timed_grades[i] = mem_zalloc(sizeof(struct timed_grade));
                     current = timed_grades[i];
                 }
+            }
+
+            break;
+        }
+
+        /* Player abilities */
+        case STRUCT_INFO_PROPS:
+        {
+            u16b index, value;
+            char type[NORMAL_WID], desc[NORMAL_WID];
+
+            player_abilities = NULL;
+
+            /* Fill */
+            for (i = 0; i < max; i++)
+            {
+                struct player_ability *a;
+
+                if ((n = Packet_scanf(&rbuf, "%hu%hu%s%s%s", &index, &value, type, desc, name)) <= 0)
+                {
+                    /* Rollback the socket buffer */
+                    Sockbuf_rollback(&rbuf, bytes_read);
+
+                    /* Packet isn't complete, graceful failure */
+                    return n;
+                }
+                bytes_read += string_bytes(type) + string_bytes(desc) + string_bytes(name) + 4;
+
+                a = mem_zalloc(sizeof(*a));
+                a->index = index;
+                a->type = string_make(type);
+                a->desc = string_make(desc);
+                a->name = string_make(name);
+                a->value = value;
+
+                a->next = player_abilities;
+                player_abilities = a;
             }
 
             break;
@@ -1636,11 +1726,17 @@ static int Receive_item_request(void)
 
     if (!player->screen_save_depth && !topline_icky)
     {
+        char inscription[20];
+
+        inscription[0] = '\0';
         c_msg_print(NULL);
 
         switch (tester_hook)
         {
             /* Special hooks */
+            case HOOK_RECALL:
+                result = get_string("Recall depth: ", inscription, sizeof(inscription));
+                break;
             case HOOK_DOWN:
                 result = get_check("Are you sure you want to descend? ");
                 break;
@@ -1653,7 +1749,7 @@ static int Receive_item_request(void)
             {
                 struct object *obj;
 
-                /* Hack -- recharge strength */
+                /* Used to show recharge failure rates */
                 player->upkeep->recharge_pow = atoi(dice_string);
 
                 result = get_item(&obj, tester_hook_item[tester_hook].prompt,
@@ -1671,7 +1767,7 @@ static int Receive_item_request(void)
         if (!result)
             Send_flush();
         else
-            Send_item(item, curse);
+            Send_item(item, curse, inscription);
     }
     else if ((n = Packet_printf(&qbuf, "%b%b", (unsigned)ch, (unsigned)tester_hook)) <= 0)
         return n;
@@ -1739,23 +1835,6 @@ static int Receive_depth(void)
 }
 
 
-static int Receive_food(void)
-{
-    int n;
-    byte ch;
-    s16b food;
-
-    if ((n = Packet_scanf(&rbuf, "%b%hd", &ch, &food)) <= 0)
-        return n;
-
-    player->food = food;
-
-    player->upkeep->redraw |= (PR_STATUS);
-
-    return 1;
-}
-
-
 static int Receive_status(void)
 {
     int n, i;
@@ -1810,10 +1889,10 @@ static int Receive_state(void)
 {
     int n;
     byte ch;
-    s16b stealthy, resting, unignoring, obj_feeling, mon_feeling;
+    s16b stealthy, resting, unignoring, obj_feeling, mon_feeling, square_light, num_moves;
 
-    if ((n = Packet_scanf(&rbuf, "%b%hd%hd%hd%hd%hd", &ch, &stealthy, &resting, &unignoring,
-        &obj_feeling, &mon_feeling)) <= 0)
+    if ((n = Packet_scanf(&rbuf, "%b%hd%hd%hd%hd%hd%hd%hd%s", &ch, &stealthy, &resting, &unignoring,
+        &obj_feeling, &mon_feeling, &square_light, &num_moves, player->terrain)) <= 0)
     {
         return n;
     }
@@ -1823,6 +1902,8 @@ static int Receive_state(void)
     player->unignoring = (byte)unignoring;
     player->obj_feeling = obj_feeling;
     player->mon_feeling = mon_feeling;
+    player->square_light = square_light;
+    player->state.num_moves = num_moves;
 
     player->upkeep->redraw |= (PR_STATE);
 
@@ -2358,8 +2439,9 @@ static int Receive_book_info(void)
 static int Receive_floor(void)
 {
     int n, bytes_read;
-    byte ch, num, tval, sval, notice, attr, act, aim, fuel, fail, known, known_effect, carry,
-        quality_ignore, ignored, magic;
+    byte ch, num, notice, attr, act, aim, fuel, fail, known, known_effect, carry, quality_ignore,
+        ignored, magic, throwable, force;
+    u16b tval, sval;
     s16b amt, slot, oidx, eidx, bidx;
     s32b pval;
     quark_t note;
@@ -2370,11 +2452,11 @@ static int Receive_floor(void)
     char name_power[NORMAL_WID];
     struct object *obj;
 
-    if ((n = Packet_scanf(&rbuf, "%b%b", &ch, &num)) <= 0)
+    if ((n = Packet_scanf(&rbuf, "%b%b%b", &ch, &num, &force)) <= 0)
         return n;
-    bytes_read = 2;
+    bytes_read = 3;
 
-    if ((n = Packet_scanf(&rbuf, "%b%b%hd%lu%ld%b%hd", &tval, &sval, &amt, &note, &pval, &notice,
+    if ((n = Packet_scanf(&rbuf, "%hu%hu%hd%lu%ld%b%hd", &tval, &sval, &amt, &note, &pval, &notice,
         &oidx)) <= 0)
     {
         /* Rollback the socket buffer */
@@ -2383,10 +2465,11 @@ static int Receive_floor(void)
         /* Packet isn't complete, graceful failure */
         return n;
     }
-    bytes_read += 15;
+    bytes_read += 17;
 
-    if ((n = Packet_scanf(&rbuf, "%b%b%b%b%b%hd%b%b%b%b%b%hd%b%hd", &attr, &act, &aim, &fuel, &fail,
-        &slot, &known, &known_effect, &carry, &quality_ignore, &ignored, &eidx, &magic, &bidx)) <= 0)
+    if ((n = Packet_scanf(&rbuf, "%b%b%b%b%b%hd%b%b%b%b%b%hd%b%hd%b", &attr, &act, &aim, &fuel,
+        &fail, &slot, &known, &known_effect, &carry, &quality_ignore, &ignored, &eidx, &magic,
+        &bidx, &throwable)) <= 0)
     {
         /* Rollback the socket buffer */
         Sockbuf_rollback(&rbuf, bytes_read);
@@ -2394,7 +2477,7 @@ static int Receive_floor(void)
         /* Packet isn't complete, graceful failure */
         return n;
     }
-    bytes_read += 16;
+    bytes_read += 18;
 
     if ((n = Packet_scanf(&rbuf, "%s%s%s%s%s", name, name_terse, name_base, name_curse,
         name_power)) <= 0)
@@ -2409,12 +2492,19 @@ static int Receive_floor(void)
     /* Paranoia */
     if (num >= z_info->floor_size) return 1;
 
-    /* Clear */
+    /* No item */
     if (!tval)
     {
-        cleanup_floor();
-        floor_num = 0;
-        player->upkeep->redraw |= (PR_EQUIP);
+        /* Force response */
+        if (force) Send_floor_ack();
+
+        /* Clear */
+        else
+        {
+            cleanup_floor();
+            floor_num = 0;
+            player->upkeep->redraw |= (PR_EQUIP);
+        }
     }
 
     /* Add the item */
@@ -2450,6 +2540,7 @@ static int Receive_floor(void)
         obj->info_xtra.eidx = eidx;
         obj->info_xtra.magic = magic;
         obj->info_xtra.bidx = bidx;
+        obj->info_xtra.throwable = throwable;
 
         /* Hack -- the name is stored separately */
         my_strcpy(obj->info_xtra.name, name, sizeof(obj->info_xtra.name));
@@ -2499,10 +2590,11 @@ static int Receive_store(void)
     s16b wgt, bidx;
     char pos;
     s32b price;
-    byte num, owned, tval, max;
+    byte num, owned, max;
+    u16b tval;
     byte ch;
 
-    if ((n = Packet_scanf(&rbuf, "%b%c%b%hd%b%b%ld%b%b%hd%s", &ch, &pos, &attr, &wgt, &num, &owned,
+    if ((n = Packet_scanf(&rbuf, "%b%c%b%hd%b%b%ld%hu%b%hd%s", &ch, &pos, &attr, &wgt, &num, &owned,
         &price, &tval, &max, &bidx, name)) <= 0)
     {
         return n;
@@ -3036,6 +3128,20 @@ static int Receive_player_pos(void)
 }
 
 
+static int Receive_minipos(void)
+{
+    int n;
+    byte ch;
+
+    if ((n = Packet_scanf(&rbuf, "%b%hd%hd", &ch, &cursor_y, &cursor_x)) <= 0)
+    {
+        return n;
+    }
+
+    return 1;
+}
+
+
 static int Receive_message_flush(void)
 {
     int n;
@@ -3083,10 +3189,24 @@ static int Receive_quit(void)
     }
     else
     {
+        ui_event ch;
+        char buf[NORMAL_WID];
+
         if (Packet_scanf(&rbuf, "%s", reason) <= 0)
             my_strcpy(reason, "unknown reason", sizeof(reason));
         errno = 0;
-        quit_fmt("Quitting: %s", reason);
+        plog_fmt("Quitting: %s", reason);
+
+        /* Hack -- restart game without quitting */
+        if (!strstr(reason, "Server shutdown"))
+        {
+            strnfmt(buf, NORMAL_WID - 2, "%.70s[y/n] ", "Start a new game? ");
+            prt(buf, 0, 0);
+            Term_fresh();
+            Term_inkey(&ch, true, true);
+            if ((ch.key.code != 'Y') && (ch.key.code != 'y')) quit(NULL);
+            play_again = true;
+        }
     }
     return -1;
 }
@@ -3172,7 +3292,7 @@ static int Receive_text_screen(void)
             show_splashscreen();
 
             /* Request gameplay */
-            Send_play(1);
+            Send_play(4);
         }
     }
     else
@@ -3377,7 +3497,19 @@ static int Receive_char_dump(void)
         else
             file_delete(tmp);
 
-        if (dump_only) quit(NULL);
+        if (dump_only)
+        {
+            ui_event ev;
+
+            strnfmt(buf, NORMAL_WID - 2, "%.70s[y/n] ", "Start a new game? ");
+            prt(buf, 0, 0);
+            Term_fresh();
+            Term_inkey(&ev, true, true);
+            if ((ev.key.code != 'Y') && (ev.key.code != 'y')) quit(NULL);
+            play_again = true;
+
+            return -1;
+        }
     }
 
     /* Process the line */
@@ -3460,8 +3592,9 @@ static int Receive_message(void)
 static int Receive_item(void)
 {
     int n, bytes_read;
-    byte ch, tval, equipped, sval, notice, attr, act, aim, fuel, fail, stuck, known, known_effect,
-        sellable, quality_ignore, ignored, magic;
+    byte ch, equipped, notice, attr, act, aim, fuel, fail, stuck, known, known_effect, sellable,
+        quality_ignore, ignored, magic, throwable;
+    u16b tval, sval;
     s16b wgt, amt, oidx, slot, eidx, bidx;
     s32b price, pval;
     quark_t note;
@@ -3472,12 +3605,12 @@ static int Receive_item(void)
     char name_power[NORMAL_WID];
 
     /* Packet and base info */
-    if ((n = Packet_scanf(&rbuf, "%b%b%b", &ch, &tval, &equipped)) <= 0)
+    if ((n = Packet_scanf(&rbuf, "%b%hu%b", &ch, &tval, &equipped)) <= 0)
         return n;
-    bytes_read = 3;
+    bytes_read = 4;
 
     /* Object info */
-    if ((n = Packet_scanf(&rbuf, "%b%hd%hd%ld%lu%ld%b%hd", &sval, &wgt, &amt, &price, &note, &pval,
+    if ((n = Packet_scanf(&rbuf, "%hu%hd%hd%ld%lu%ld%b%hd", &sval, &wgt, &amt, &price, &note, &pval,
         &notice, &oidx)) <= 0)
     {
         /* Rollback the socket buffer */
@@ -3486,12 +3619,12 @@ static int Receive_item(void)
         /* Packet isn't complete, graceful failure */
         return n;
     }
-    bytes_read += 20;
+    bytes_read += 21;
 
     /* Extra info */
-    if ((n = Packet_scanf(&rbuf, "%b%b%b%b%b%hd%b%b%b%b%b%b%hd%b%hd", &attr, &act, &aim, &fuel,
+    if ((n = Packet_scanf(&rbuf, "%b%b%b%b%b%hd%b%b%b%b%b%b%hd%b%hd%b", &attr, &act, &aim, &fuel,
         &fail, &slot, &stuck, &known, &known_effect, &sellable, &quality_ignore, &ignored, &eidx,
-        &magic, &bidx)) <= 0)
+        &magic, &bidx, &throwable)) <= 0)
     {
         /* Rollback the socket buffer */
         Sockbuf_rollback(&rbuf, bytes_read);
@@ -3499,7 +3632,7 @@ static int Receive_item(void)
         /* Packet isn't complete, graceful failure */
         return n;
     }
-    bytes_read += 17;
+    bytes_read += 19;
 
     /* Descriptions */
     if ((n = Packet_scanf(&rbuf, "%s%s%s%s%s", name, name_terse, name_base, name_curse,
@@ -3562,6 +3695,7 @@ static int Receive_item(void)
         obj->info_xtra.eidx = eidx;
         obj->info_xtra.equipped = equipped;
         obj->info_xtra.bidx = bidx;
+        obj->info_xtra.throwable = throwable;
 
         my_strcpy(obj->info_xtra.name, name, sizeof(obj->info_xtra.name));
         my_strcpy(obj->info_xtra.name_terse, name_terse, sizeof(obj->info_xtra.name_terse));
@@ -4083,6 +4217,20 @@ static int Receive_autoinscriptions(void)
 }
 
 
+static int Receive_play_setup(void)
+{
+    int n;
+    byte ch;
+
+    if ((n = Packet_scanf(&rbuf, "%b%b", &ch, &chardump)) <= 0)
+        return n;
+
+    Send_play(1);
+
+    return 1;
+}
+
+
 /*** Sending ***/
 
 
@@ -4561,7 +4709,7 @@ int Send_throw(struct command *cmd)
         /* Prompt */ "Throw which item? ",
         /* Error */ "You have nothing to throw.",
         /* Filter */ NULL,
-        /* Choice */ USE_QUIVER | USE_INVEN | USE_FLOOR | QUIVER_TAGS | START_INVEN) != CMD_OK)
+        /* Choice */ USE_QUIVER | USE_INVEN | USE_FLOOR | QUIVER_TAGS | START_INVEN | SHOW_THROWING) != CMD_OK)
     {
         return 0;
     }
@@ -5327,17 +5475,35 @@ int Send_track_object(int item)
 }
 
 
-int Send_play(int mode)
+int Send_floor_ack(void)
 {
     int n;
 
-    /* Send */
-    n = Packet_printf(&wbuf, "%b%b%s%s", (unsigned)PKT_PLAY, (unsigned)mode, nick, stored_pass);
+    if ((n = Packet_printf(&wbuf, "%b", (unsigned)PKT_FLOOR_ACK)) <= 0)
+        return n;
 
-    /* Set real player name */
-    if (mode == 0)
+    return 1;
+}
+
+
+int Send_play(int phase)
+{
+    int n;
+
+    /* Send marker */
+    n = Packet_printf(&wbuf, "%b%b", (unsigned)PKT_PLAY, (unsigned)phase);
+    if (n <= 0) return n;
+
+    /* Send nick/pass */
+    if (phase == 0)
     {
         int pos = strlen(nick);
+
+        dump_only = false;
+        chardump = 0;
+
+        n = Packet_printf(&wbuf, "%s%s", nick, stored_pass);
+        if (n <= 0) return n;
 
         if (nick[pos - 1] == '=') nick[pos - 1] = '\0';
         else if (nick[pos - 1] == '-') nick[pos - 1] = '\0';
@@ -5348,7 +5514,6 @@ int Send_play(int mode)
         }
     }
 
-    if (n <= 0) return n;
     return 1;
 }
 
@@ -5464,11 +5629,11 @@ int Send_msg(const char *message)
 }
 
 
-int Send_item(int item, int curse)
+int Send_item(int item, int curse, const char *inscription)
 {
     int n;
 
-    if ((n = Packet_printf(&wbuf, "%b%hd%hd", (unsigned)PKT_ITEM, item, curse)) <= 0)
+    if ((n = Packet_printf(&wbuf, "%b%hd%hd%s", (unsigned)PKT_ITEM, item, curse, inscription)) <= 0)
         return n;
 
     return 1;
@@ -5808,7 +5973,7 @@ int Net_packet(void)
         {
             if (result == -1)
             {
-                if (cur_type != PKT_QUIT)
+                if ((cur_type != PKT_QUIT) && !play_again)
                 {
                     errno = 0;
                     plog_fmt("Processing packet type (%d, %d) failed", cur_type, prev_type);

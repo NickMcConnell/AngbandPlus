@@ -40,6 +40,8 @@ extern bool target_able(struct player *p, struct source *who);
 extern bool target_okay(struct player *p);
 extern bool target_set_monster(struct player *p, struct source *who);
 extern void target_set_location(struct player *p, struct loc *grid);
+extern void target_fix(struct player *p);
+extern void target_release(struct player *p);
 extern int cmp_distance(const void *a, const void *b);
 extern s16b target_pick(int y1, int x1, int dy, int dx, struct point_set *targets);
 extern bool target_accept(struct player *p, struct loc *grid);

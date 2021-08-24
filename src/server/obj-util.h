@@ -25,6 +25,7 @@
 #define DROP_FADE   1
 #define DROP_FORBID 2
 #define DROP_SILENT 3
+#define DROP_CARRY  4
 
 extern void flavor_init(void);
 extern void object_flags_aux(const struct object *obj, bitflag flags[OF_SIZE]);
@@ -62,7 +63,7 @@ extern void object_own(struct player *p, struct object *obj);
 extern void preserve_artifact_aux(const struct object *obj);
 extern void preserve_artifact(const struct object *obj);
 extern bool use_object(struct player *p, struct object *obj, int amount, bool describe);
-extern void redraw_floor(struct worldpos *wpos, struct loc *grid);
+extern void redraw_floor(struct worldpos *wpos, struct loc *grid, struct object *obj);
 extern bool object_marked_aware(struct player *p, const struct object *obj);
 extern struct object *object_from_index(struct player *p, int item, bool prompt,
     bool check_ignore);

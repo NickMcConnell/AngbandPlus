@@ -3,7 +3,7 @@
  * Purpose: Various game initialisation routines
  *
  * Copyright (c) 1997 Ben Harrison
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -52,6 +52,7 @@ bool cfg_more_towns = false;
 bool cfg_artifact_drop_shallow = true;
 bool cfg_limit_player_connections = true;
 s32b cfg_tcp_port = 18346;
+s16b cfg_quit_timeout = 5;
 bool cfg_chardump_color = false;
 s16b cfg_pvp_hostility = PVP_SAFE;
 bool cfg_base_monsters = true;
@@ -68,13 +69,18 @@ bool cfg_limited_esp = false;
 bool cfg_double_purse = false;
 bool cfg_level_req = true;
 s16b cfg_constant_time_factor = 5;
+bool cfg_classic_exp_factor = true;
+s16b cfg_house_floor_size = 1;
 s16b cfg_limit_stairs = 0;
 s16b cfg_diving_mode = 0;
 bool cfg_no_artifacts = false;
+s16b cfg_level_feelings = 2;
 bool cfg_no_selling = true;
+bool cfg_gold_drop_vanilla = true;
 bool cfg_no_stores = false;
 bool cfg_no_ghost = false;
-bool cfg_ai_learn = false;
+bool cfg_ai_learn = true;
+bool cfg_challenging_levels = false;
 
 
 static const char *slots[] =
@@ -97,10 +103,10 @@ const char *list_obj_flag_names[] =
 
 const char *obj_mods[] =
 {
-    #define STAT(a) #a,
+    #define STAT(a, b, c) #a,
     #include "../common/list-stats.h"
     #undef STAT
-    #define OBJ_MOD(a) #a,
+    #define OBJ_MOD(a, b, c) #a,
     #include "../common/list-object-modifiers.h"
     #undef OBJ_MOD
     NULL
@@ -145,11 +151,40 @@ static const char *terrain_flags[] =
 
 static const char *player_info_flags[] =
 {
-    #define PF(a, b, c) #a,
+    #define PF(a) #a,
     #include "../common/list-player-flags.h"
     #undef PF
     NULL
 };
+
+
+static const char *attack_effects[] = {
+    #define MA(a) #a,
+    #include "list-attack-effects.h"
+    #undef MA
+    NULL
+};
+
+
+static errr grab_barehanded_attack(struct parser *p, struct barehanded_attack *attack)
+{
+    const char *extra;
+    int val;
+
+    attack->verb = string_make(parser_getsym(p, "verb"));
+    extra = parser_getsym(p, "extra");
+    if (streq(extra, "none")) extra = "";
+    attack->hit_extra = string_make(extra);
+    attack->min_level = parser_getint(p, "level");
+    attack->chance = parser_getint(p, "chance");
+    if (grab_name("effect", parser_getstr(p, "effect"), attack_effects, N_ELEMENTS(attack_effects),
+        &val))
+    {
+        return PARSE_ERROR_INVALID_EFFECT;
+    }
+    attack->effect = val;
+    return PARSE_ERROR_NONE;
+}
 
 
 errr grab_effect_data(struct parser *p, struct effect *effect)
@@ -345,6 +380,12 @@ void create_needed_dirs(void)
 {
     char dirpath[MSG_LEN];
 
+    path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_USER, "");
+    if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
+
+    path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_SAVE, "");
+    if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
+
     path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_SCORES, "");
     if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
 }
@@ -402,6 +443,10 @@ static enum parser_error parse_constants_mon_gen(struct parser *p)
         z->ood_monster_chance = value;
     else if (streq(label, "ood-amount"))
         z->ood_monster_amount = value;
+    else if (streq(label, "group-max"))
+        z->monster_group_max = value;
+    else if (streq(label, "group-dist"))
+        z->monster_group_dist = value;
     else
         return PARSE_ERROR_UNDEFINED_DIRECTIVE;
 
@@ -466,6 +511,8 @@ static enum parser_error parse_constants_dun_gen(struct parser *p)
         z->both_gold_av = value;
     else if (streq(label, "pit-max"))
         z->level_pit_max = value;
+    else if (streq(label, "lab-depth"))
+        z->lab_depth = value;
     else
         return PARSE_ERROR_UNDEFINED_DIRECTIVE;
 
@@ -531,7 +578,10 @@ static enum parser_error parse_constants_carry_cap(struct parser *p)
     else if (streq(label, "quiver-slot-size"))
         z->quiver_slot_size = value;
     else if (streq(label, "floor-size"))
+    {
         z->floor_size = value;
+        if (cfg_house_floor_size > z->floor_size) cfg_house_floor_size = z->floor_size;
+    }
     else
         return PARSE_ERROR_UNDEFINED_DIRECTIVE;
 
@@ -553,6 +603,8 @@ static enum parser_error parse_constants_store(struct parser *p)
 
     if (streq(label, "inven-max"))
         z->store_inven_max = value;
+    else if (streq(label, "home-inven-max"))
+        z->home_inven_max = value;
     else if (streq(label, "turns"))
         z->store_turns = value;
     else if (streq(label, "shuffle"))
@@ -561,6 +613,8 @@ static enum parser_error parse_constants_store(struct parser *p)
         z->store_magic_level = value;
     else
         return PARSE_ERROR_UNDEFINED_DIRECTIVE;
+
+    /* Sanity checks */
 
     return PARSE_ERROR_NONE;
 }
@@ -619,6 +673,8 @@ static enum parser_error parse_constants_player(struct parser *p)
         z->max_range = value;
     else if (streq(label, "start-gold"))
         z->start_gold = value;
+    else if (streq(label, "food-value"))
+        z->food_value = value;
     else
         return PARSE_ERROR_UNDEFINED_DIRECTIVE;
 
@@ -907,7 +963,7 @@ static enum parser_error parse_trap_flags(struct parser *p)
     {
 		if (grab_flag(t->flags, TRF_SIZE, trap_flags, s))
         {
-			string_free(s);
+			string_free(flags);
 			return PARSE_ERROR_INVALID_FLAG;
 		}
 		s = strtok(NULL, " |");
@@ -921,10 +977,12 @@ static enum parser_error parse_trap_flags(struct parser *p)
 static enum parser_error parse_trap_effect(struct parser *p)
 {
 	struct trap_kind *t = parser_priv(p);
-    struct effect *new_effect = mem_zalloc(sizeof(*new_effect));
+    struct effect *new_effect;
     errr ret;
 
 	if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
+
+    new_effect = mem_zalloc(sizeof(*new_effect));
 
     /* Fill in the detail */
     ret = grab_effect_data(p, new_effect);
@@ -1025,10 +1083,12 @@ static enum parser_error parse_trap_expr(struct parser *p)
 static enum parser_error parse_trap_effect_xtra(struct parser *p)
 {
 	struct trap_kind *t = parser_priv(p);
-    struct effect *new_effect = mem_zalloc(sizeof(*new_effect));
+    struct effect *new_effect;
     errr ret;
 
 	if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
+
+    new_effect = mem_zalloc(sizeof(*new_effect));
 
     /* Fill in the detail */
     ret = grab_effect_data(p, new_effect);
@@ -1480,6 +1540,39 @@ static enum parser_error parse_feat_die_msg(struct parser *p)
 }
 
 
+static enum parser_error parse_feat_confused_msg(struct parser *p)
+{
+    struct feature *f = parser_priv(p);
+
+    if (!f) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    f->confused_msg = string_append(f->confused_msg, parser_getstr(p, "text"));
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_feat_look_prefix(struct parser *p)
+{
+    struct feature *f = parser_priv(p);
+
+    if (!f) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    f->look_prefix = string_append(f->look_prefix, parser_getstr(p, "text"));
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_feat_look_in_preposition(struct parser *p)
+{
+    struct feature *f = parser_priv(p);
+
+    if (!f) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    f->look_in_preposition = string_append(f->look_in_preposition, parser_getstr(p, "text"));
+
+    return PARSE_ERROR_NONE;
+}
+
+
 static enum parser_error parse_feat_resist_flag(struct parser *p)
 {
     int flag;
@@ -1510,6 +1603,9 @@ static struct parser *init_parse_feat(void)
     parser_reg(p, "hurt-msg str text", parse_feat_hurt_msg);
     parser_reg(p, "died-flavor str text", parse_feat_died_flavor);
     parser_reg(p, "die-msg str text", parse_feat_die_msg);
+    parser_reg(p, "confused-msg str text", parse_feat_confused_msg);
+    parser_reg(p, "look-prefix str text", parse_feat_look_prefix);
+    parser_reg(p, "look-in-preposition str text", parse_feat_look_in_preposition);
     parser_reg(p, "resist-flag sym flag", parse_feat_resist_flag);
 
     return p;
@@ -1542,6 +1638,13 @@ static errr finish_parse_feat(struct parser *p)
     for (f = parser_priv(p); f; f = n, fidx--)
     {
         memcpy(&f_info[fidx], f, sizeof(*f));
+
+        /* Add trailing space for ease of use with targeting code. */
+        if (f_info[fidx].look_prefix)
+            f_info[fidx].look_prefix = string_append(f_info[fidx].look_prefix, " ");
+        if (f_info[fidx].look_in_preposition)
+            f_info[fidx].look_in_preposition = string_append(f_info[fidx].look_in_preposition, " ");
+
         f_info[fidx].fidx = fidx;
         n = f->next;
         if (fidx < z_info->f_max - 1) f_info[fidx].next = &f_info[fidx + 1];
@@ -1566,6 +1669,9 @@ static void cleanup_feat(void)
 
     for (i = 0; i < z_info->f_max; i++)
     {
+        string_free(f_info[i].look_in_preposition);
+        string_free(f_info[i].look_prefix);
+        string_free(f_info[i].confused_msg);
         string_free(f_info[i].die_msg);
         string_free(f_info[i].died_flavor);
         string_free(f_info[i].hurt_msg);
@@ -1970,13 +2076,26 @@ static enum parser_error parse_p_race_skill_dig(struct parser *p)
 }
 
 
-static enum parser_error parse_p_race_info(struct parser *p)
+static enum parser_error parse_p_race_hitdie(struct parser *p)
 {
     struct player_race *r = parser_priv(p);
 
     if (!r) return PARSE_ERROR_MISSING_RECORD_HEADER;
     r->r_mhp = parser_getint(p, "mhp");
-    r->r_exp = parser_getint(p, "exp");
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_p_race_exp(struct parser *p)
+{
+    struct player_race *r = parser_priv(p);
+    int exp = parser_getint(p, "exp");
+    int cexp = parser_getint(p, "cexp");
+
+    if (!r) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    if (cfg_classic_exp_factor) r->r_exp = cexp;
+    else r->r_exp = exp;
 
     return PARSE_ERROR_NONE;
 }
@@ -1988,8 +2107,18 @@ static enum parser_error parse_p_race_history(struct parser *p)
 
     if (!r) return PARSE_ERROR_MISSING_RECORD_HEADER;
     r->history = findchart(histories, parser_getuint(p, "hist"));
-    r->b_age = parser_getint(p, "b-age");
-    r->m_age = parser_getint(p, "m-age");
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_p_race_age(struct parser *p)
+{
+    struct player_race *r = parser_priv(p);
+
+    if (!r) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    r->b_age = parser_getint(p, "base_age");
+    r->m_age = parser_getint(p, "mod_age");
 
     return PARSE_ERROR_NONE;
 }
@@ -2000,10 +2129,8 @@ static enum parser_error parse_p_race_height(struct parser *p)
     struct player_race *r = parser_priv(p);
 
     if (!r) return PARSE_ERROR_MISSING_RECORD_HEADER;
-    r->m_b_ht = parser_getint(p, "mbht");
-    r->m_m_ht = parser_getint(p, "mmht");
-    r->f_b_ht = parser_getint(p, "fbht");
-    r->f_m_ht = parser_getint(p, "fmht");
+    r->base_hgt = parser_getint(p, "base_hgt");
+    r->mod_hgt = parser_getint(p, "mod_hgt");
 
     return PARSE_ERROR_NONE;
 }
@@ -2014,10 +2141,8 @@ static enum parser_error parse_p_race_weight(struct parser *p)
     struct player_race *r = parser_priv(p);
 
     if (!r) return PARSE_ERROR_MISSING_RECORD_HEADER;
-    r->m_b_wt = parser_getint(p, "mbwt");
-    r->m_m_wt = parser_getint(p, "mmwt");
-    r->f_b_wt = parser_getint(p, "fbwt");
-    r->f_m_wt = parser_getint(p, "fmwt");
+    r->base_wgt = parser_getint(p, "base_wgt");
+    r->mod_wgt = parser_getint(p, "mod_wgt");
 
     return PARSE_ERROR_NONE;
 }
@@ -2171,6 +2296,27 @@ static enum parser_error parse_p_race_shape(struct parser *p)
 }
 
 
+static enum parser_error parse_p_race_attack(struct parser *p)
+{
+    struct player_race *r = parser_priv(p);
+    struct barehanded_attack *attack;
+    errr ret;
+
+    if (!r) return PARSE_ERROR_MISSING_RECORD_HEADER;
+
+    attack = mem_zalloc(sizeof(*attack));
+
+    /* Fill in the detail */
+    ret = grab_barehanded_attack(p, attack);
+    if (ret) return ret;
+
+    attack->next = r->attacks;
+    r->attacks = attack;
+
+    return PARSE_ERROR_NONE;
+}
+
+
 static struct parser *init_parse_p_race(void)
 {
     struct parser *p = parser_new();
@@ -2186,16 +2332,19 @@ static struct parser *init_parse_p_race(void)
     parser_reg(p, "skill-melee int melee", parse_p_race_skill_melee);
     parser_reg(p, "skill-shoot int shoot", parse_p_race_skill_shoot);
     parser_reg(p, "skill-dig int dig", parse_p_race_skill_dig);
-    parser_reg(p, "info int mhp int exp", parse_p_race_info);
-    parser_reg(p, "history uint hist int b-age int m-age", parse_p_race_history);
-    parser_reg(p, "height int mbht int mmht int fbht int fmht", parse_p_race_height);
-    parser_reg(p, "weight int mbwt int mmwt int fbwt int fmwt", parse_p_race_weight);
+    parser_reg(p, "hitdie int mhp", parse_p_race_hitdie);
+    parser_reg(p, "exp int exp int cexp", parse_p_race_exp);
+    parser_reg(p, "history uint hist", parse_p_race_history);
+    parser_reg(p, "age int base_age int mod_age", parse_p_race_age);
+    parser_reg(p, "height int base_hgt int mod_hgt", parse_p_race_height);
+    parser_reg(p, "weight int base_wgt int mod_wgt", parse_p_race_weight);
     parser_reg(p, "obj-flag uint level str flag", parse_p_race_obj_flag);
     parser_reg(p, "brand uint level str code", parse_p_race_obj_brand);
     parser_reg(p, "slay uint level str code", parse_p_race_obj_slay);
     parser_reg(p, "player-flags ?str flags", parse_p_race_play_flags);
     parser_reg(p, "value uint level str value", parse_p_race_value);
     parser_reg(p, "shape uint level str name", parse_p_race_shape);
+    parser_reg(p, "attack sym verb sym extra int level int chance str effect", parse_p_race_attack);
 
     return p;
 }
@@ -2825,6 +2974,27 @@ static enum parser_error parse_p_class_shape(struct parser *p)
 }
 
 
+static enum parser_error parse_class_attack(struct parser *p)
+{
+    struct player_class *c = parser_priv(p);
+    struct barehanded_attack *attack;
+    errr ret;
+
+    if (!c) return PARSE_ERROR_MISSING_RECORD_HEADER;
+
+    attack = mem_zalloc(sizeof(*attack));
+
+    /* Fill in the detail */
+    ret = grab_barehanded_attack(p, attack);
+    if (ret) return ret;
+
+    attack->next = c->attacks;
+    c->attacks = attack;
+
+    return PARSE_ERROR_NONE;
+}
+
+
 static enum parser_error parse_class_magic(struct parser *p)
 {
     struct player_class *c = parser_priv(p);
@@ -3200,6 +3370,7 @@ static struct parser *init_parse_class(void)
     parser_reg(p, "value uint level str value", parse_p_class_value);
     parser_reg(p, "shape uint level str name", parse_p_class_shape);
     parser_reg(p, "title str title", parse_class_title);
+    parser_reg(p, "attack sym verb sym extra int level int chance str effect", parse_class_attack);
     parser_reg(p, "magic uint first int weight int books", parse_class_magic);
     parser_reg(p, "book sym tval sym quality sym name uint spells str realm", parse_class_book);
     parser_reg(p, "book-graphics char glyph sym color", parse_class_book_graphics);
@@ -3248,6 +3419,255 @@ static struct file_parser class_parser =
     run_parse_class,
     finish_parse_class,
     cleanup_class
+};
+
+
+/*
+ * Initialize DM starting items
+ */
+
+
+static enum parser_error parse_dm_start_items(struct parser *p)
+{
+    struct start_item *h = parser_priv(p);
+    struct start_item *si;
+    int tval, sval;
+    struct object_kind *kind;
+
+    tval = tval_find_idx(parser_getsym(p, "tval"));
+    if (tval < 0) return PARSE_ERROR_UNRECOGNISED_TVAL;
+
+    sval = lookup_sval(tval, parser_getsym(p, "sval"));
+    if (sval < 0) return PARSE_ERROR_UNRECOGNISED_SVAL;
+
+    si = mem_zalloc(sizeof(*si));
+    si->tval = tval;
+    si->sval = sval;
+    si->min = parser_getuint(p, "amount");
+
+    kind = lookup_kind(si->tval, si->sval);
+    if (si->min > kind->base->max_stack)
+    {
+        mem_free(si);
+        return PARSE_ERROR_INVALID_ITEM_NUMBER;
+    }
+
+    si->next = h;
+    parser_setpriv(p, si);
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static struct parser *init_parse_dm_start_items(void)
+{
+    struct parser *p = parser_new();
+
+    parser_setpriv(p, NULL);
+    parser_reg(p, "equip sym tval sym sval uint amount", parse_dm_start_items);
+
+    return p;
+}
+
+
+static errr run_parse_dm_start_items(struct parser *p)
+{
+    return parse_file_quit_not_found(p, "admin_stuff");
+}
+
+
+static errr finish_parse_dm_start_items(struct parser *p)
+{
+    dm_start_items = parser_priv(p);
+    parser_destroy(p);
+    return 0;
+}
+
+
+static struct file_parser dm_start_items_parser =
+{
+    "admin_stuff",
+    init_parse_dm_start_items,
+    run_parse_dm_start_items,
+    finish_parse_dm_start_items,
+    cleanup_dm_start_items
+};
+
+
+/*
+ * Initialize player properties
+ */
+
+
+static enum parser_error parse_player_prop_type(struct parser *p)
+{
+	const char *type = parser_getstr(p, "type");
+	struct player_ability *h = parser_priv(p);
+	struct player_ability *ability = mem_zalloc(sizeof(*ability));
+
+	if (h) h->next = ability;
+	else player_abilities = ability;
+	parser_setpriv(p, ability);
+	ability->type = string_make(type);
+	return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_player_prop_code(struct parser *p)
+{
+	const char *code = parser_getstr(p, "code");
+	struct player_ability *ability = parser_priv(p);
+    int index = -1;
+
+	if (!ability) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    if (!ability->type) return PARSE_ERROR_MISSING_PLAY_PROP_TYPE;
+
+	if (streq(ability->type, "player")) index = code_index_in_array(player_info_flags, code);
+    else if (streq(ability->type, "object")) index = code_index_in_array(list_obj_flag_names, code);
+    if (index >= 0) ability->index = index;
+    else return PARSE_ERROR_INVALID_PLAY_PROP_CODE; 
+	return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_player_prop_desc(struct parser *p)
+{
+	struct player_ability *ability = parser_priv(p);
+
+	if (!ability) return PARSE_ERROR_MISSING_RECORD_HEADER;
+
+	ability->desc = string_append(ability->desc, parser_getstr(p, "desc"));
+	return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_player_prop_name(struct parser *p)
+{
+	const char *desc = parser_getstr(p, "desc");
+	struct player_ability *ability = parser_priv(p);
+
+	if (!ability) return PARSE_ERROR_MISSING_RECORD_HEADER;
+
+	ability->name = string_make(desc);
+	return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_player_prop_value(struct parser *p)
+{
+	struct player_ability *ability = parser_priv(p);
+
+	if (!ability) return PARSE_ERROR_MISSING_RECORD_HEADER;
+
+	ability->value = parser_getint(p, "value");
+	return PARSE_ERROR_NONE;
+}
+
+
+struct parser *init_parse_player_prop(void)
+{
+	struct parser *p = parser_new();
+
+	parser_setpriv(p, NULL);
+	parser_reg(p, "type str type", parse_player_prop_type);
+	parser_reg(p, "code str code", parse_player_prop_code);
+	parser_reg(p, "desc str desc", parse_player_prop_desc);
+	parser_reg(p, "name str desc", parse_player_prop_name);
+    parser_reg(p, "value int value", parse_player_prop_value);
+	return p;
+}
+
+
+static errr run_parse_player_prop(struct parser *p)
+{
+	return parse_file_quit_not_found(p, "player_property");
+}
+
+
+static errr finish_parse_player_prop(struct parser *p)
+{
+	struct player_ability *ability = player_abilities;
+	struct player_ability *new_ability, *previous = NULL;
+
+	/* Copy abilities over, making multiple copies for element types */
+    player_abilities = mem_zalloc(sizeof(*player_abilities));
+	new_ability = player_abilities;
+	while (ability)
+    {
+		if (streq(ability->type, "element"))
+        {
+			size_t i;
+
+			for (i = 0; i < N_ELEMENTS(list_element_names) - 1; i++)
+            {
+                char *name = projections[i].name;
+
+				new_ability->index = i;
+				new_ability->type = string_make(ability->type);
+				new_ability->desc = string_make(format("%s %s.", ability->desc, name));
+                my_strcap(name);
+				new_ability->name = string_make(format("%s %s", name, ability->name));
+                new_ability->value = ability->value;
+				if ((i != N_ELEMENTS(list_element_names) - 2) || ability->next)
+                {
+					previous = new_ability;
+					new_ability = mem_zalloc(sizeof(*new_ability));
+					previous->next = new_ability;
+				}
+			}
+			string_free(ability->type);
+			string_free(ability->desc);
+			string_free(ability->name);
+			previous = ability;
+			ability = ability->next;
+			mem_free(previous);
+		}
+        else
+        {
+			new_ability->type = ability->type;
+			new_ability->index = ability->index;
+			new_ability->desc = ability->desc;
+			new_ability->name = ability->name;
+			if (ability->next)
+            {
+				previous = new_ability;
+				new_ability = mem_zalloc(sizeof(*new_ability));
+				previous->next = new_ability;
+			}
+			previous = ability;
+			ability = ability->next;
+			mem_free(previous);
+		}
+	}
+	parser_destroy(p);
+	return 0;
+}
+
+
+static void cleanup_player_prop(void)
+{
+	struct player_ability *ability = player_abilities;
+
+	while (ability)
+    {
+		struct player_ability *totrash = ability;
+
+        ability = ability->next;
+		string_free(totrash->type);
+		string_free(totrash->desc);
+		string_free(totrash->name);
+        mem_free(totrash);
+	}
+}
+
+
+static struct file_parser player_property_parser =
+{
+	"player_property",
+	init_parse_player_prop,
+	run_parse_player_prop,
+	finish_parse_player_prop,
+	cleanup_player_prop
 };
 
 
@@ -3544,6 +3964,64 @@ static struct file_parser hints_parser =
 
 
 /*
+ * Initialize level_golds
+ */
+
+
+static enum parser_error parse_level_golds(struct parser *p)
+{
+    int depth = parser_getint(p, "depth");
+    u16b rate = parser_getuint(p, "rate");
+
+    if ((depth < 0) || (depth > 127))
+        return PARSE_ERROR_INVALID_VALUE;
+    if ((rate < 10) || (rate > 100))
+        return PARSE_ERROR_INVALID_VALUE;
+
+    level_golds[depth] = rate;
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static struct parser *init_parse_level_golds(void)
+{
+    struct parser *p = parser_new();
+
+    parser_reg(p, "rate int depth uint rate", parse_level_golds);
+    return p;
+}
+
+
+static errr run_parse_level_golds(struct parser *p)
+{
+    return parse_file_quit_not_found(p, "level_golds");
+}
+
+
+static errr finish_parse_level_golds(struct parser *p)
+{
+    parser_destroy(p);
+    return 0;
+}
+
+
+static void cleanup_level_golds(void)
+{
+}
+
+
+static struct file_parser level_golds_parser =
+{
+    "level_golds",
+    init_parse_level_golds,
+    run_parse_level_golds,
+    finish_parse_level_golds,
+    cleanup_level_golds
+};
+
+
+/*
  * Game data initialization
  */
 
@@ -3560,6 +4038,7 @@ static struct
 {
     {"projections", &projection_parser},
     {"timed effects", &player_timed_parser},
+    {"player properties", &player_property_parser},
     {"features", &feat_parser},
     {"wilderness feats", &wild_feat_parser},
     {"wilderness info", &wild_info_parser},
@@ -3582,6 +4061,7 @@ static struct
     {"dragon breeds", &dragon_breed_parser},
     {"magic realms", &realm_parser},
     {"player classes", &class_parser},
+    {"DM starting items", &dm_start_items_parser},
     {"artifacts", &artifact_parser},
     {"object properties", &object_property_parser},
     {"object power calculations", &object_power_parser},
@@ -3591,10 +4071,12 @@ static struct
     {"monsters", &monster_parser},
     {"monster pits", &pit_parser},
     {"traps", &trap_parser},
+    {"chest_traps", &chest_trap_parser},
     {"quests", &quests_parser},
     {"flavours", &flavor_parser},
     {"socials", &soc_parser},
     {"hints", &hints_parser},
+    {"level_golds", &level_golds_parser},
     {"random names", &names_parser}
 };
 
@@ -3641,11 +4123,13 @@ extern struct init_module mon_make_module;
 extern struct init_module obj_make_module;
 extern struct init_module ignore_module;
 extern struct init_module store_module;
+extern struct init_module ui_visuals_module;
 
 
 static struct init_module *modules[] =
 {
     &z_quark_module,
+    &ui_visuals_module, /* This needs to load before monsters and objects. */
     &arrays_module,
     &generate_module,
     &rune_module,
@@ -3907,6 +4391,14 @@ static void set_server_option(const char *option, char *value)
         if ((cfg_tcp_port > 65535) || (cfg_tcp_port < 1))
             cfg_tcp_port = 18346;
     }
+    else if (!strcmp(option, "QUIT_TIMEOUT"))
+    {
+        cfg_quit_timeout = atoi(value);
+
+        /* Sanity checks */
+        if (cfg_quit_timeout < 0) cfg_quit_timeout = 0;
+        if (cfg_quit_timeout > 60) cfg_quit_timeout = 60;
+    }
     else if (!strcmp(option, "CHARACTER_DUMP_COLOR"))
         cfg_chardump_color = str_to_boolean(value);
     else if (!strcmp(option, "PVP_HOSTILITY"))
@@ -3963,6 +4455,15 @@ static void set_server_option(const char *option, char *value)
         if (cfg_constant_time_factor < 0) cfg_constant_time_factor = 0;
         if (cfg_constant_time_factor > MIN_TIME_SCALE) cfg_constant_time_factor = MIN_TIME_SCALE;
     }
+    else if (!strcmp(option, "CLASSIC_EXP_FACTOR"))
+        cfg_classic_exp_factor = str_to_boolean(value);
+    else if (!strcmp(option, "HOUSE_FLOOR_SIZE"))
+    {
+        cfg_house_floor_size = atoi(value);
+
+        /* Sanity checks */
+        if (cfg_house_floor_size < 1) cfg_house_floor_size = 1;
+    }
     else if (!strcmp(option, "LIMIT_STAIRS"))
     {
         cfg_limit_stairs = atoi(value);
@@ -3981,14 +4482,26 @@ static void set_server_option(const char *option, char *value)
     }
     else if (!strcmp(option, "NO_ARTIFACTS"))
         cfg_no_artifacts = str_to_boolean(value);
+    else if (!strcmp(option, "LEVEL_FEELINGS"))
+    {
+        cfg_level_feelings = atoi(value);
+
+        /* Sanity checks */
+        if (cfg_level_feelings < 0) cfg_level_feelings = 0;
+        if (cfg_level_feelings > 2) cfg_level_feelings = 2;
+    }
     else if (!strcmp(option, "NO_SELLING"))
         cfg_no_selling = str_to_boolean(value);
+    else if (!strcmp(option, "GOLD_DROP_VANILLA"))
+        cfg_gold_drop_vanilla = str_to_boolean(value);
     else if (!strcmp(option, "NO_STORES"))
         cfg_no_stores = str_to_boolean(value);
     else if (!strcmp(option, "NO_GHOST"))
         cfg_no_ghost = str_to_boolean(value);
     else if (!strcmp(option, "AI_LEARN"))
         cfg_ai_learn = str_to_boolean(value);
+    else if (!strcmp(option, "CHALLENGING_LEVELS"))
+        cfg_challenging_levels = str_to_boolean(value);
     else plog_fmt("Error : unrecognized mangband.cfg option %s", option);
 }
 

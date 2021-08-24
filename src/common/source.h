@@ -16,6 +16,7 @@ struct source
     struct monster *monster;
     struct trap *trap;
     struct object *obj;
+    struct chest_trap *chest_trap;
     struct player *target;  /* Hack -- wraithed player as target */
 };
 

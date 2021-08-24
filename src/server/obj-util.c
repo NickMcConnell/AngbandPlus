@@ -3,7 +3,7 @@
  * Purpose: Object utilities
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -57,7 +57,7 @@ static void flavor_assign_fixed(void)
 }
 
 
-static void flavor_assign_random(byte tval)
+static void flavor_assign_random(u16b tval)
 {
     int i;
     int flavor_count = 0;
@@ -224,7 +224,7 @@ static void remove_redundant_flags(bitflag flags[OF_SIZE])
     {
         bitflag f2[OF_SIZE];
 
-        create_obj_flag_mask(f2, false, OFT_ESP, OFT_MAX);
+        create_obj_flag_mask(f2, 0, OFT_ESP, OFT_MAX);
         of_diff(flags, f2);
         of_on(flags, OF_ESP_ALL);
     }
@@ -951,16 +951,13 @@ void process_objects(struct chunk *c)
 
                 /* No more corpse... */
                 else if (!obj->decay)
-                {
-                    square_excise_object(c, &iter.cur, obj);
-                    object_delete(&obj);
-                }
+                    square_delete_object(c, &iter.cur, obj, false, false);
             }
 
             obj = next;
         }
 
-        if (redraw) redraw_floor(&c->wpos, &iter.cur);
+        if (redraw) redraw_floor(&c->wpos, &iter.cur, NULL);
     }
     while (loc_iterator_next_strict(&iter));
 }
@@ -1132,7 +1129,7 @@ bool use_object(struct player *p, struct object *obj, int amount, bool describe)
  * Note: this is similar to square_note_spot(), but we don't memorize the grid -- we redraw
  * the floor instead.
  */
-void redraw_floor(struct worldpos *wpos, struct loc *grid)
+void redraw_floor(struct worldpos *wpos, struct loc *grid, struct object *obj)
 {
     int i;
 
@@ -1158,6 +1155,15 @@ void redraw_floor(struct worldpos *wpos, struct loc *grid)
 
         /* Redraw */
         p->upkeep->redraw |= PR_FLOOR;
+
+        /* Print a message */
+        if (obj)
+        {
+            char o_name[NORMAL_WID];
+
+            object_desc(p, o_name, sizeof(o_name), obj, ODESC_PREFIX | ODESC_FULL);
+            msg(p, "On the ground: %s.", o_name);
+        }
     }
 }
 

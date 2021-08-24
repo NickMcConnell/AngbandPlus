@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Robert A. Koeneke, James E. Wilson, Ben Harrison
  * Copyright (c) 1998-2014 Angband developers
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -481,8 +481,11 @@ static bool store_purchase(struct store_context *ctx, int item)
         ((store->type == STORE_HOME)? "Take": "Buy"),
         (num? format(" (you have %d)", num): ""), amt);
 
+    /* Hack -- get single items directly from home */
+    if ((store->type == STORE_HOME) && (amt == 1)) {}
+
     /* Get a quantity */
-    amt = get_quantity_ex(o_name, amt);
+    else amt = get_quantity_ex(o_name, amt);
 
     /* Allow user abort */
     if (amt <= 0)
@@ -789,7 +792,7 @@ static bool store_menu_handle(struct menu *m, const ui_event *event, int oid)
         if (leave_store) return true;
 
         /* Loop, looking for net input and responding to keypresses */
-        Net_loop(Term_inkey, store_callback_begin, NULL, SCAN_OFF);
+        Net_loop(Term_inkey, store_callback_begin, NULL, SCAN_OFF, false);
 
         if (storechange) store_menu_recalc(m);
 

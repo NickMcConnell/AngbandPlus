@@ -52,6 +52,7 @@ struct worldpos
 {
     struct loc grid;    /* The wilderness coordinates */
     s16b depth;         /* Cur depth */
+    struct worldpos *next;
 };
 
 extern bool wpos_null(struct worldpos *wpos);
@@ -63,7 +64,7 @@ extern bool wpos_eq(struct worldpos *wpos1, struct worldpos *wpos2);
  */
 typedef struct
 {
-	byte tval;
+	u16b tval;
 	const char *name;
 } grouper;
 
@@ -109,7 +110,6 @@ typedef struct
     char text_screen[MAX_TEXTFILES][TEXTFILE__WID * TEXTFILE__HGT];
 } server_setup_t;
 
-extern server_setup_t Setup;
 
 /* The setting data that the client transmits to the server */
 enum
@@ -239,6 +239,8 @@ struct angband_constants
     u16b repro_monster_max;     /* Maximum breeders on a level */
     u16b ood_monster_chance;    /* Chance of OoD monster is 1 in this */
     u16b ood_monster_amount;    /* Max number of levels OoD */
+    u16b monster_group_max;     /* Maximum size of a group */
+    u16b monster_group_dist;    /* Max dist of a group from a related group */
 
     /* Monster gameplay constants, read from constants.txt */
     u16b glyph_hardness;        /* How hard for a monster to break a glyph */
@@ -256,6 +258,7 @@ struct angband_constants
     u16b both_item_av;          /* Average number of items in random places */
     u16b both_gold_av;          /* Average number of money items */
     u16b level_pit_max;         /* Maximum number of pits on a level */
+    u16b lab_depth;             /* Maximum number of pits on a level */
 
     /* World shape constants, read from constants.txt */
     u16b max_depth;             /* Maximum dungeon level */
@@ -277,6 +280,7 @@ struct angband_constants
 
     /* Store parameters, read from constants.txt */
     u16b store_inven_max;       /* Maximum number of objects in store inventory */
+    u16b home_inven_max;        /* Maximum number of objects in home inventory */
     u16b store_turns;           /* Number of turns between turnovers */
     u16b store_shuffle;         /* 1/per-day-chance of owner changing */
     u16b store_magic_level;     /* Level for apply_magic() in normal stores */
@@ -295,6 +299,7 @@ struct angband_constants
     u16b max_sight;             /* Maximum visual range */
     u16b max_range;             /* Maximum missile and spell range */
     u16b start_gold;            /* Amount of gold the player starts with */
+    u16b food_value;            /* Number of turns 1% of food lasts */
 };
 
 extern struct angband_constants *z_info;

@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2013 Nick McConnell, Leon Marrick
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -261,6 +261,9 @@ void spread_monsters(struct player *p, struct chunk *c, const char *type, int de
 
         /* Place the monster (sleeping, allow groups) */
         pick_and_place_monster(p, c, &grid, depth, MON_ASLEEP | MON_GROUP, origin);
+
+        /* Restrict monsters again (could have been reset if friends are generated) */
+        mon_restrict(p, type, depth, true);
 
         /* Rein in monster groups and escorts a little. */
         if (c->mon_max - start_mon_num > num * 2) break;

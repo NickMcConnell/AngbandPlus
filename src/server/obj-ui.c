@@ -3,7 +3,7 @@
  * Purpose: Lists of objects and object pictures
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -103,6 +103,7 @@ static void display_item(struct player *p, struct object *obj, byte equipped)
     info_xtra.equipped = equipped;
     if (of_has(obj->flags, OF_AMMO_MAGIC)) info_xtra.magic = 1;
     info_xtra.bidx = (s16b)object_to_book_index(p, obj);
+    if (of_has(obj->flags, OF_THROWING)) info_xtra.throwable = 1;
 
     my_strcpy(info_xtra.name, o_name, sizeof(info_xtra.name));
     my_strcpy(info_xtra.name_terse, o_name_terse, sizeof(info_xtra.name_terse));
@@ -188,7 +189,8 @@ void display_equip(struct player *p)
 /*
  * Choice window "shadow" of the "show_floor()" function
  */
-void display_floor(struct player *p, struct chunk *c, struct object **floor_list, int floor_num)
+void display_floor(struct player *p, struct chunk *c, struct object **floor_list, int floor_num,
+    bool force)
 {
     int i;
     struct object *dummy_item;
@@ -210,8 +212,7 @@ void display_floor(struct player *p, struct chunk *c, struct object **floor_list
     memset(&info_xtra, 0, sizeof(info_xtra));
     info_xtra.slot = -1;
     info_xtra.bidx = -1;
-    Send_floor(p, 0, dummy_item, &info_xtra);
-    object_delete(&dummy_item);
+    Send_floor(p, 0, dummy_item, &info_xtra, 0);
 
     /* Display the floor */
     for (i = 0; i < floor_num; i++)
@@ -237,14 +238,25 @@ void display_floor(struct player *p, struct chunk *c, struct object **floor_list
 
         if (of_has(floor_list[i]->flags, OF_AMMO_MAGIC)) info_xtra.magic = 1;
         info_xtra.bidx = (s16b)object_to_book_index(p, floor_list[i]);
+        if (of_has(floor_list[i]->flags, OF_THROWING)) info_xtra.throwable = 1;
 
         my_strcpy(info_xtra.name, o_name, sizeof(info_xtra.name));
         my_strcpy(info_xtra.name_terse, o_name_terse, sizeof(info_xtra.name_terse));
         my_strcpy(info_xtra.name_base, o_name_base, sizeof(info_xtra.name_base));
 
         /* Send the info to the client */
-        Send_floor(p, i, floor_list[i], &info_xtra);
+        Send_floor(p, i, floor_list[i], &info_xtra, 0);
     }
+
+    /* Force response */
+    if (force)
+    {
+        memset(&info_xtra, 0, sizeof(info_xtra));
+        info_xtra.slot = -1;
+        info_xtra.bidx = -1;
+        Send_floor(p, 0, dummy_item, &info_xtra, 1);
+    }
+    object_delete(&dummy_item);
 }
 
 

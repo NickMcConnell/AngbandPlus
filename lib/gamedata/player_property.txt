@@ -1,0 +1,371 @@
+# File: player_property.txt
+# Used in conjunction with list-player-flags.h, list-object-flags.h and
+# list-elements.h
+# Player properties
+#
+# Descriptions and names can be edited without bad effects.
+# Changing the code, or type will severely disrupt the game, and should only
+# be done when the associated list-*.h files (and other code) are also
+# being changed, and the game recompiled.
+# Adding new entries will have no effect without further datafile and code
+# changes.
+#
+# Fields:
+# type - the type of player property.  Valid types are
+#    player  - special player flag from list-player-flags.h
+#    object  - object flag from list-object-flags.h
+#    element - resistance, immunity or vulnerability to an element
+# code - the property name used by the game. Element codes are templates, and
+#        one is made for each element
+# name - the name of the property
+# desc - the description of the property
+# value - value for elements; -1 (vulnerability), 1 (resistance) or 3 (immunity)
+
+## Racial player flags
+
+type:player
+code:KNOW_MUSHROOM
+name:Mushroom Lore
+desc:You easily recognize mushrooms.
+
+type:player
+code:KNOW_ZAPPER
+name:Device Lore
+desc:You easily recognize magic devices.
+
+type:player
+code:SEE_ORE
+name:Miner
+desc:You can sense ore in the walls.
+
+## Class player flags
+
+type:player
+code:FAST_SHOT
+name:Extra Shots
+desc:Your shooting speed improves with tension bows every 10 levels.
+
+type:player
+code:BLESS_WEAPON
+name:Blessed Fighter
+desc:You get improved melee with blessed or hafted weapons.
+
+type:player
+code:ZERO_FAIL
+name:Full Spellcaster
+desc:You may obtain a perfect success rate with magic.
+
+type:player
+code:BEAM
+name:Extra Spell Beaming
+desc:Your bolt spells frequently turn into beams.
+
+type:player
+code:CHOOSE_SPELLS
+name:Spell Choice
+desc:You may choose your own spells to study.
+
+type:player
+code:NO_MANA
+name:No Magic
+desc:You cannot cast spells.
+
+type:player
+code:CHARM
+name:Charms
+desc:You are extra persuasive to monsters.
+
+type:player
+code:UNLIGHT
+name:Unlight
+desc:You gain stealth in, can see in, and resist the dark.
+
+type:player
+code:STEAL
+name:Pickpocketing
+desc:You can steal from monsters.
+
+type:player
+code:SHIELD_BASH
+name:Shield Bash
+desc:You can bash monsters with a shield in melee.
+
+type:player
+code:COMBAT_REGEN
+name:Combat Regeneration
+desc:You draw power from the thrill of combat, represented by
+desc: Spell Points (SP). You gain SP when damaged by an enemy or
+desc: when you attack in melee. As your blood cools your power fades;
+desc: you lose SP at half the rate other classes gain them.
+desc: When you spend SP by casting a spell you regain some health, and
+desc: fading SP replenish your health even more efficiently. The more damaged
+desc: you are, the bigger these health gains will be.
+
+type:player
+code:ELEMENTAL_SPELLS
+name:Elemental Spells
+desc:You get access to elemental spells.
+
+type:player
+code:UNDEAD_POWERS
+name:Undead Powers
+desc:You get access to undead powers.
+
+type:player
+code:STEALTH_MODE
+name:Stealth Mode
+desc:You get access to Stealth Mode.
+
+type:player
+code:STEALING_IMPROV
+name:Improved Stealing
+desc:You get better chance at stealing.
+
+type:player
+code:MONSTER_SPELLS
+name:Monster Spells
+desc:You get access to monster spells.
+
+type:player
+code:MARTIAL_ARTS
+name:Martial Arts
+desc:You may use fighting abilities when fighting barehanded.
+
+type:player
+code:FAST_THROW
+name:Improved Throwing
+desc:You get improved throwing speed.
+
+type:player
+code:BACK_STAB
+name:Backstab Attacks
+desc:You deal extra damage to sleeping and fleeing creatures.
+
+type:player
+code:ORC
+name:Orc
+desc:You belong to the Orc race.
+
+type:player
+code:TROLL
+name:Troll
+desc:You belong to the Troll race.
+
+type:player
+code:ANIMAL
+name:Animal
+desc:You belong to the Animal race.
+
+type:player
+code:GIANT
+name:Giant
+desc:You belong to the Giant race.
+
+type:player
+code:THUNDERLORD
+name:Thunderlord
+desc:You belong to the Thunderlord race.
+
+type:player
+code:DRAGON
+name:Dragon
+desc:You belong to the Dragon race.
+
+type:player
+code:HYDRA
+name:Hydra
+desc:You belong to the Hydra race.
+
+type:player
+code:SUMMON_SPELLS
+name:Summon Spells
+desc:You get access to summon spells.
+
+type:player
+code:SHAPECHANGE
+name:Shapechange
+desc:You can polymorph into monsters.
+
+## Object flags
+
+type:object
+code:SUST_STR
+name:Sustain Strength
+desc:Your strength is sustained.
+
+type:object
+code:SUST_INT
+name:Sustain Intelligence
+desc:Your intelligence is sustained.
+
+type:object
+code:SUST_WIS
+name:Sustain Wisdom
+desc:Your wisdom is sustained.
+
+type:object
+code:SUST_DEX
+name:Sustain Dexterity
+desc:Your dexterity is sustained.
+
+type:object
+code:SUST_CON
+name:Sustain Constitution
+desc:Your constitution is sustained.
+
+type:object
+code:PROT_FEAR
+name:Fear Immunity
+desc:You are immune to fear.
+
+type:object
+code:PROT_BLIND
+name:Blindness Immunity
+desc:You cannot be blinded.
+
+type:object
+code:PROT_CONF
+name:Confusion Immunity
+desc:You cannot be confused.
+
+type:object
+code:PROT_STUN
+name:Stun Immunity
+desc:You cannot be stunned.
+
+type:object
+code:SLOW_DIGEST
+name:Slow Digestion
+desc:You have slow metabolism.
+
+type:object
+code:FEATHER
+name:Feather Falling
+desc:You fall lightly.
+
+type:object
+code:REGEN
+name:Regeneration
+desc:You regenerate quickly.
+
+type:object
+code:SEE_INVIS
+name:See Invisible
+desc:You can see invisible creatures.
+
+type:object
+code:FREE_ACT
+name:Free Action
+desc:You are immune to paralysis.
+
+type:object
+code:HOLD_LIFE
+name:Hold Life
+desc:Your life force is sustained.
+
+type:object
+code:IMPACT
+name:Earthquakes
+desc:You sometimes create earthquakes on impact.
+
+type:object
+code:IMPAIR_HP
+name:Slow Regeneration
+desc:Your hitpoint recovery is impaired.
+
+type:object
+code:IMPAIR_MANA
+name:Slow Mana Regeneration
+desc:Your mana recovery is impaired.
+
+type:object
+code:AFRAID
+name:Constant Fear
+desc:You are afraid of melee, and bad at shooting and casting spells.
+
+type:object
+code:NO_TELEPORT
+name:Teleport Ban
+desc:You cannot teleport.
+
+type:object
+code:AGGRAVATE
+name:Aggravate
+desc:You aggravate creatures nearby.
+
+type:object
+code:DRAIN_EXP
+name:Experience Drain
+desc:Your experience constantly drains away.
+
+type:object
+code:TRAP_IMMUNE
+name:Trap Immune
+desc:You are immune to traps.
+
+type:object
+code:ESP_ANIMAL
+name:ESP Animal
+desc:You can sense animals.
+
+type:object
+code:ESP_EVIL
+name:ESP Evil
+desc:You can sense evil.
+
+type:object
+code:ESP_UNDEAD
+name:ESP Undead
+desc:You can sense undead.
+
+type:object
+code:ESP_DEMON
+name:ESP Demon
+desc:You can sense demons.
+
+type:object
+code:ESP_ORC
+name:ESP Orc
+desc:You can sense orcs.
+
+type:object
+code:ESP_TROLL
+name:ESP Troll
+desc:You can sense trolls.
+
+type:object
+code:ESP_GIANT
+name:ESP Giant
+desc:You can sense giants.
+
+type:object
+code:ESP_DRAGON
+name:ESP Dragon
+desc:You can sense dragons.
+
+type:object
+code:ESP_ALL
+name:Telepathic Powers
+desc:You have telepathic powers.
+
+type:object
+code:ESP_RADIUS
+name:Telepathic Awareness
+desc:You have telepathic awareness.
+
+## Element flags
+
+type:element
+name:Resistance
+desc:You resist
+value:1
+
+type:element
+name:Immunity
+desc:You are immune to
+value:3
+
+type:element
+name:Vulnerability
+desc:You are vulnerable to
+value:-1

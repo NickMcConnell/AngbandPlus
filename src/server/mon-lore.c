@@ -3,7 +3,7 @@
  * Purpose: Monster memory code.
  *
  * Copyright (c) 1997-2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -41,18 +41,22 @@ typedef enum monster_sex monster_sex_t;
  * dangerous the attack is to the player given current state. Spells may be
  * colored green (least dangerous), yellow, orange, or red (most dangerous).
  */
-int spell_color(struct player *p, int spell_index)
+static int spell_color(struct player *p, const struct monster_race *race, int spell_index)
 {
     const struct monster_spell *spell = monster_spell_by_index(spell_index);
+    struct monster_spell_level *level = spell->level;
 
     /* No spell */
     if (!spell) return COLOUR_DARK;
 
+    /* Get the right level */
+    while (level->next && race->spell_power >= level->next->power) level = level->next;
+
     /* Unresistable spells just use the default color */
-    if (!spell->lore_attr_resist && !spell->lore_attr_immune) return spell->lore_attr;
+    if (!level->lore_attr_resist && !level->lore_attr_immune) return level->lore_attr;
 
     /* Spells with a save */
-    if (spell->save_message)
+    if (level->save_message)
     {
         /* Mixed results if the save may fail, perfect result if it can't */
         if (p->known_state.skills[SKILL_SAVE] < 100)
@@ -61,28 +65,28 @@ int spell_color(struct player *p, int spell_index)
             if (spell->effect->index == EF_TELEPORT_LEVEL)
             {
                 if (p->known_state.el_info[ELEM_NEXUS].res_level > 0)
-                    return spell->lore_attr_resist;
-                return spell->lore_attr;
+                    return level->lore_attr_resist;
+                return level->lore_attr;
             }
 
             /* Timed effects with or without damage */
-            if (spell->lore_attr_immune)
+            if (level->lore_attr_immune)
             {
                 struct effect *eff;
 
                 for (eff = spell->effect; eff; eff = eff->next)
                 {
                     if (eff->index != EF_TIMED_INC) continue;
-                    if (player_inc_check(p, NULL, eff->subtype, true)) return spell->lore_attr;
+                    if (player_inc_check(p, NULL, eff->subtype, true)) return level->lore_attr;
                 }
-                return spell->lore_attr_resist;
+                return level->lore_attr_resist;
             }
 
             /* Straight damage */
-            return spell->lore_attr;
+            return level->lore_attr;
         }
-        if (spell->lore_attr_immune) return spell->lore_attr_immune;
-        return spell->lore_attr_resist;
+        if (level->lore_attr_immune) return level->lore_attr_immune;
+        return level->lore_attr_resist;
     }
 
     /* Bolts, balls and breaths */
@@ -96,20 +100,20 @@ int spell_color(struct player *p, int spell_index)
             case ELEM_SOUND:
             {
                 if (p->known_state.el_info[ELEM_SOUND].res_level > 0)
-                    return spell->lore_attr_immune;
+                    return level->lore_attr_immune;
                 if (of_has(p->known_state.flags, OF_PROT_STUN))
-                    return spell->lore_attr_resist;
-                return spell->lore_attr;
+                    return level->lore_attr_resist;
+                return level->lore_attr;
             }
 
             /* Special case - nexus */
             case ELEM_NEXUS:
             {
                 if (p->known_state.el_info[ELEM_NEXUS].res_level > 0)
-                    return spell->lore_attr_immune;
+                    return level->lore_attr_immune;
                 if (p->known_state.skills[SKILL_SAVE] >= 100)
-                    return spell->lore_attr_resist;
-                return spell->lore_attr;
+                    return level->lore_attr_resist;
+                return level->lore_attr;
             }
 
             /* Elements that stun or confuse */
@@ -119,13 +123,13 @@ int spell_color(struct player *p, int spell_index)
             case ELEM_WATER:
             {
                 if (!of_has(p->known_state.flags, OF_PROT_STUN))
-                    return spell->lore_attr;
+                    return level->lore_attr;
                 if (!of_has(p->known_state.flags, OF_PROT_CONF) &&
                     (spell->effect->subtype == ELEM_WATER))
                 {
-                    return spell->lore_attr;
+                    return level->lore_attr;
                 }
-                return spell->lore_attr_resist;
+                return level->lore_attr_resist;
             }
 
             /* Special case - ice (PWMAngband: cold + stun) */
@@ -134,27 +138,27 @@ int spell_color(struct player *p, int spell_index)
                 if (!of_has(p->known_state.flags, OF_PROT_STUN))
                 {
                     if (p->known_state.el_info[ELEM_COLD].res_level > 0)
-                        return spell->lore_attr_resist;
-                    return spell->lore_attr;
+                        return level->lore_attr_resist;
+                    return level->lore_attr;
                 }
                 if (p->known_state.el_info[ELEM_COLD].res_level > 0)
-                    return spell->lore_attr_immune;
-                return spell->lore_attr_resist;
+                    return level->lore_attr_immune;
+                return level->lore_attr_resist;
             }
 
             /* All other elements */
             default:
             {
                 if (p->known_state.el_info[spell->effect->subtype].res_level == 3)
-                    return spell->lore_attr_immune;
+                    return level->lore_attr_immune;
                 if (p->known_state.el_info[spell->effect->subtype].res_level > 0)
-                    return spell->lore_attr_resist;
-                return spell->lore_attr;
+                    return level->lore_attr_resist;
+                return level->lore_attr;
             }
         }
     }
 
-    return spell->lore_attr;
+    return level->lore_attr;
 }
 
 
@@ -536,7 +540,8 @@ static const char *lore_describe_speed(byte speed)
     {
         {130,       "incredibly quickly"},
         {120,       "very quickly"},
-        {110,       "quickly"},
+        {115,       "quickly"},
+        {110,       "fairly quickly"},
         {109,       "normal speed"},
         {99,        "slowly"},
         {89,        "very slowly"},
@@ -574,19 +579,6 @@ static void lore_adjective_speed(struct player *p, const struct monster_race *ra
 }
 
 
-static void lore_multiplier_speed_aux(struct player *p, int speed1, int speed2, const char *suffix,
-    byte attr)
-{
-    char buf[13] = "";
-    int multiplier = 10 * frame_energy(speed1) / frame_energy(speed2);
-    byte int_mul = multiplier / 10;
-    byte dec_mul = multiplier % 10;
-
-    strnfmt(buf, sizeof(buf), "%d.%dx%s", int_mul, dec_mul, suffix);
-    text_out_c(p, attr, buf);
-}
-
-
 /*
  * Append the monster speed, in multipliers, to a textblock.
  *
@@ -594,21 +586,40 @@ static void lore_multiplier_speed_aux(struct player *p, int speed1, int speed2, 
  */
 static void lore_multiplier_speed(struct player *p, const struct monster_race *race)
 {
+    char buf[13] = "";
+    int multiplier = 10 * frame_energy(race->speed) / frame_energy(110);
+    byte int_mul = multiplier / 10;
+    byte dec_mul = multiplier % 10;
+    byte attr = COLOUR_ORANGE;
+
     text_out(p, "at ");
 
-    lore_multiplier_speed_aux(p, race->speed, 110, "", COLOUR_L_BLUE);
+    strnfmt(buf, sizeof(buf), "%d.%dx", int_mul, dec_mul);
+    text_out_c(p, COLOUR_L_BLUE, buf);
 
     text_out(p, " normal speed, which is ");
+    multiplier = 100 * frame_energy(race->speed) / frame_energy(p->state.speed);
+    int_mul = multiplier / 100;
+    dec_mul = multiplier % 100;
+    if (!dec_mul)
+        strnfmt(buf, sizeof(buf), "%dx", int_mul);
+    else if (!(dec_mul % 10))
+        strnfmt(buf, sizeof(buf), "%d.%dx", int_mul, dec_mul / 10);
+    else
+        strnfmt(buf, sizeof(buf), "%d.%02dx", int_mul, dec_mul);
 
     if (p->state.speed > race->speed)
-        lore_multiplier_speed_aux(p, p->state.speed, race->speed, " slower ", COLOUR_L_GREEN);
+        attr = COLOUR_L_GREEN;
     else if (p->state.speed < race->speed)
-        lore_multiplier_speed_aux(p, race->speed, p->state.speed, " faster ", COLOUR_RED);
+        attr = COLOUR_RED;
 
     if (p->state.speed == race->speed)
         text_out(p, "the same as you");
     else
-        text_out(p, "than you");
+    {
+        text_out_c(p, attr, buf);
+        text_out(p, " your speed");
+    }
 }
 
 
@@ -746,7 +757,7 @@ static void lore_append_spell_clause(struct player *p, bitflag *f, bool know_hp,
 
         for (spell = rsf_next(f, FLAG_START); spell; spell = rsf_next(f, spell + 1))
         {
-            int color = spell_color(p, spell);
+            int color = spell_color(p, race, spell);
             int damage = mon_spell_lore_damage(spell, race, know_hp);
 
             /* First entry starts immediately */
@@ -933,12 +944,7 @@ void lore_append_movement(struct player *p, const struct monster_race *race,
 
     /* Describe location */
     if (race->level == 0)
-    {
-        if (race->wpos && !in_town(race->wpos))
-            text_out(p, " lives in a special area");
-        else
-            text_out(p, " lives in a town");
-    }
+        text_out(p, " lives in a town");
     else
     {
         byte colour = (race->level > p->max_depth)? COLOUR_RED: COLOUR_L_BLUE;
@@ -1041,7 +1047,7 @@ void lore_append_toughness(struct player *p, const struct monster_race *race,
         text_out(p, ". ");
 
         /* Player's base chance to hit */
-        chance = py_attack_hit_chance(p, weapon);
+        chance = chance_of_melee_hit(p, weapon);
 
         /* The following calculations are based on test_hit(); make sure to keep it in sync */
         if (chance < 9) chance = 9;
@@ -1073,7 +1079,9 @@ void lore_append_exp(struct player *p, const struct monster_race *race,
     long exp_integer, exp_fraction;
     s16b level;
 
+    /* Check legality and that this is a placeable monster */
     my_assert(race && lore);
+    if (!race->rarity) return;
 
     /* Introduction */
     if (rf_has(known_flags, RF_UNIQUE))
@@ -1223,11 +1231,23 @@ void lore_append_abilities(struct player *p, const struct monster_race *race,
         text_out_c(p, COLOUR_ORANGE, "%s breeds explosively. ", initial_pronoun);
     if (rf_has(known_flags, RF_REGENERATE))
         text_out(p, "%s regenerates quickly. ", initial_pronoun);
-    if (rf_has(known_flags, RF_HAS_LIGHT))
+
+    /* Describe light */
+    if (race->light > 1)
     {
         text_out(p, "%s illuminates %s surroundings. ", initial_pronoun,
             lore_pronoun_possessive(msex, false));
     }
+    else if (race->light == 1)
+        text_out(p, "%s is illuminated. ", initial_pronoun);
+    else if (race->light == -1)
+        text_out(p, "%s is darkened. ", initial_pronoun);
+    else if (race->light < -1)
+    {
+        text_out(p, "%s shrouds %s surroundings in darkness. ", initial_pronoun,
+            lore_pronoun_possessive(msex, false));
+    }
+
     if (rf_has(known_flags, RF_ANTI_MAGIC))
         text_out(p, "%s is surrounded by an anti-magic field. ", initial_pronoun);
     if (rf_has(known_flags, RF_LEVITATE))
@@ -1286,6 +1306,10 @@ void lore_append_abilities(struct player *p, const struct monster_race *race,
         my_strcpy(start, ", and does not resist ", sizeof(start));
     else
         strnfmt(start, sizeof(start), "%s does not resist ", initial_pronoun);
+
+    /* Special case for undead */
+    if (rf_has(known_flags, RF_UNDEAD)) rf_off(current_flags, RF_IM_NETHER);
+
     lore_append_clause(p, current_flags, COLOUR_L_UMBER, start, "or", "");
     if (!rf_is_empty(current_flags)) prev = true;
 
@@ -1378,7 +1402,6 @@ void lore_append_friends(struct player *p, const struct monster_race *race,
 void lore_append_spells(struct player *p, const struct monster_race *race,
     const struct monster_lore *lore, bitflag known_flags[RF_SIZE])
 {
-    int average_frequency;
     monster_sex_t msex = MON_SEX_NEUTER;
     bool breath = false;
     bool magic = false;
@@ -1442,10 +1465,10 @@ void lore_append_spells(struct player *p, const struct monster_race *race,
     }
 
     /* End the sentence about innate/other spells */
-    if (breath || magic)
+    if ((breath || magic) && race->freq_spell)
     {
         /* Calculate total casting and average frequency */
-        average_frequency = race->freq_spell;
+        int average_frequency = race->freq_spell;
 
         /* Describe the spell frequency */
         if (lore->spell_freq_known)
@@ -1459,7 +1482,8 @@ void lore_append_spells(struct player *p, const struct monster_race *race,
         /* Guess at the frequency */
         else if (lore->cast_innate || lore->cast_spell)
         {
-            average_frequency = ((average_frequency + 9) / 10) * 10;
+            average_frequency = MAX(((average_frequency + 9) / 10) * 10, 1);
+
             text_out(p, "; about ");
             text_out_c(p, COLOUR_L_GREEN, "1");
             text_out(p, " time in ");
@@ -1587,7 +1611,7 @@ void lore_append_attack(struct player *p, const struct monster_race *race,
     if (known_attacks < total_attacks)
         text_out_c(p, COLOUR_ORANGE, " at least");
     text_out_c(p, COLOUR_L_GREEN, " %d", total_centidamage / 100);
-    text_out(p, " damage. ");
+    text_out(p, " damage on each of %s turns. ", lore_pronoun_possessive(msex, false));
 }
 
 

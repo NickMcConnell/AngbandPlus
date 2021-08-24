@@ -13,7 +13,9 @@
 # power: the value given to the property in object power calculations
 # mult: relative value of properties, used in power calculations
 # type-mult: extra multiplier used in power for particular properties on
-#            particular types of object. Assumed 1 if not mentioned
+#            particular types of object. Assumed 1 if not mentioned; setting
+#            explicitly to 0 will stop the property appearing on this type
+#            of random artifact.
 # adjective: adjective describing the property as a player attribute, currently
 #            only used by stats
 # neg-adjective: adjective describing the opposite of the property as a player
@@ -101,7 +103,13 @@ code:SPEED
 power:20
 mult:6
 
-name:attack speed
+name:damage reduction
+type:mod
+code:DAM_RED
+power:5
+mult:6
+
+name:extra blows
 type:mod
 code:BLOWS
 power:0
@@ -151,6 +159,30 @@ type:mod
 code:MIGHT
 power:0
 mult:30
+type-mult:horn:0
+type-mult:digger:0
+type-mult:hafted:0
+type-mult:polearm:0
+type-mult:sword:0
+type-mult:mage staff:0
+type-mult:boots:0
+type-mult:gloves:0
+type-mult:helm:0
+type-mult:crown:0
+type-mult:shield:0
+type-mult:cloak:0
+type-mult:soft armour:0
+type-mult:hard armour:0
+type-mult:dragon armour:0
+type-mult:light:0
+type-mult:amulet:0
+type-mult:ring:0
+
+name:extra moves
+type:mod
+code:MOVES
+power:0
+mult:50
 type-mult:horn:0
 type-mult:digger:0
 type-mult:hafted:0
@@ -467,7 +499,7 @@ type-mult:dragon armour:0
 type-mult:light:0
 type-mult:amulet:0
 type-mult:ring:0
-desc:Blessed by the gods
+desc:Blessed by the gods (combat bonuses for holy casters)
 
 name:burns out
 type:flag
@@ -549,7 +581,7 @@ type:flag
 subtype:bad
 id-type:timed
 code:IMPAIR_HP
-power:-9
+power:-8
 msg:You feel your {name} is slowing your recovery.
 desc:Impairs hitpoint recovery
 
@@ -558,7 +590,7 @@ type:flag
 subtype:bad
 id-type:timed
 code:IMPAIR_MANA
-power:-9
+power:-8
 msg:You feel your {name} is slowing your mana recovery.
 desc:Impairs mana recovery
 
@@ -610,14 +642,14 @@ type:flag
 subtype:bad
 id-type:on wield
 code:FRAGILE
-power:0
+power:-1
 desc:Can be destroyed if you attempt to remove its curses
 
-name:radius 1 light
+name:intensity 2 light
 type:flag
 subtype:light
 id-type:on wield
-code:LIGHT_1
+code:LIGHT_2
 power:9
 type-mult:horn:0
 type-mult:bow:0
@@ -638,11 +670,11 @@ type-mult:dragon armour:0
 type-mult:amulet:0
 type-mult:ring:0
 
-name:radius 2 light
+name:intensity 3 light
 type:flag
 subtype:light
 id-type:on wield
-code:LIGHT_2
+code:LIGHT_3
 power:18
 type-mult:horn:0
 type-mult:bow:0
@@ -663,11 +695,11 @@ type-mult:dragon armour:0
 type-mult:amulet:0
 type-mult:ring:0
 
-name:radius 3 light
+name:intensity 4 light
 type:flag
 subtype:light
 id-type:on wield
-code:LIGHT_3
+code:LIGHT_4
 power:27
 type-mult:horn:0
 type-mult:bow:0
@@ -733,6 +765,36 @@ type-mult:hard armour:0
 type-mult:dragon armour:0
 type-mult:amulet:0
 type-mult:ring:0
+
+name:trap immunity
+type:flag
+subtype:misc ability
+id-type:on effect
+code:TRAP_IMMUNE
+power:5
+type-mult:horn:2
+type-mult:digger:2
+type-mult:boots:2
+type-mult:gloves:2
+type-mult:helm:2
+type-mult:crown:2
+type-mult:shield:2
+type-mult:cloak:2
+type-mult:soft armour:2
+type-mult:hard armour:2
+type-mult:dragon armour:2
+type-mult:light:2
+type-mult:amulet:2
+type-mult:ring:2
+msg:Your {name} stops you from setting off the trap.
+desc:Gives immunity to traps
+
+name:throwing
+type:flag
+subtype:throw
+id-type:on wield
+code:THROWING
+power:4
 
 name:auto-id
 type:flag
@@ -1107,6 +1169,11 @@ power:20
 name:mana resistance
 type:resistance
 code:MANA
+power:20
+
+name:water resistance
+type:resistance
+code:WATER
 power:20
 
 name:acid vulnerability

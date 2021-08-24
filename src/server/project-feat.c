@@ -3,7 +3,7 @@
  * Purpose: Projection effects on terrain
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -89,7 +89,8 @@ static void project_feature_handler_FIRE(project_feature_handler_context_t *cont
         square_destroy_tree(context->cave, &context->grid);
 
         /* Reapply illumination */
-        square_illuminate(context->origin->player, context->cave, &context->grid, is_daytime());
+        square_illuminate(context->origin->player, context->cave, &context->grid, is_daytime(),
+            true);
         square_light_spot(context->cave, &context->grid);
 
         /* Update the visuals */
@@ -104,6 +105,14 @@ static void project_feature_handler_FIRE(project_feature_handler_context_t *cont
     {
         /* Destroy the grass */
         square_burn_grass(context->cave, &context->grid);
+    }
+
+    /* Removes webs */
+    if (square_iswebbed(context->cave, &context->grid))
+    {
+        square_clear_feat(context->cave, &context->grid);
+        update_visuals(&context->cave->wpos);
+        fully_update_flow(&context->cave->wpos);
     }
 
     /* Can create lava if extremely powerful. */
@@ -129,11 +138,11 @@ static void project_feature_handler_COLD(project_feature_handler_context_t *cont
         bool occupied = square_isoccupied(context->cave, &context->grid);
 
         if (one_in_(2))
-            square_set_feat(context->cave, &context->grid, FEAT_FLOOR);
+            square_clear_feat(context->cave, &context->grid);
         else if (one_in_(2) && !occupied)
-            square_set_feat(context->cave, &context->grid, FEAT_RUBBLE);
+            square_set_rubble(context->cave, &context->grid, FEAT_RUBBLE);
         else
-            square_set_feat(context->cave, &context->grid, FEAT_PASS_RUBBLE);
+            square_set_rubble(context->cave, &context->grid, FEAT_PASS_RUBBLE);
     }
 }
 
@@ -257,11 +266,11 @@ static void project_feature_handler_ICE(project_feature_handler_context_t *conte
         bool occupied = square_isoccupied(context->cave, &context->grid);
 
         if (one_in_(2))
-            square_set_feat(context->cave, &context->grid, FEAT_FLOOR);
+            square_clear_feat(context->cave, &context->grid);
         else if (one_in_(2) && !occupied)
-            square_set_feat(context->cave, &context->grid, FEAT_RUBBLE);
+            square_set_rubble(context->cave, &context->grid, FEAT_RUBBLE);
         else
-            square_set_feat(context->cave, &context->grid, FEAT_PASS_RUBBLE);
+            square_set_rubble(context->cave, &context->grid, FEAT_PASS_RUBBLE);
     }
 }
 
@@ -339,35 +348,21 @@ static void project_feature_handler_HOLY_ORB(project_feature_handler_context_t *
 }
 
 
-static void project_feature_handler_ARROW_X(project_feature_handler_context_t *context)
+static void project_feature_handler_SHOT(project_feature_handler_context_t *context)
 {
     /* Grid is in line of sight and player is not blind */
     if (context->line_sight && !context->is_blind) context->obvious = true;
 }
 
 
-static void project_feature_handler_ARROW_1(project_feature_handler_context_t *context)
+static void project_feature_handler_ARROW(project_feature_handler_context_t *context)
 {
     /* Grid is in line of sight and player is not blind */
     if (context->line_sight && !context->is_blind) context->obvious = true;
 }
 
 
-static void project_feature_handler_ARROW_2(project_feature_handler_context_t *context)
-{
-    /* Grid is in line of sight and player is not blind */
-    if (context->line_sight && !context->is_blind) context->obvious = true;
-}
-
-
-static void project_feature_handler_ARROW_3(project_feature_handler_context_t *context)
-{
-    /* Grid is in line of sight and player is not blind */
-    if (context->line_sight && !context->is_blind) context->obvious = true;
-}
-
-
-static void project_feature_handler_ARROW_4(project_feature_handler_context_t *context)
+static void project_feature_handler_BOLT(project_feature_handler_context_t *context)
 {
     /* Grid is in line of sight and player is not blind */
     if (context->line_sight && !context->is_blind) context->obvious = true;
@@ -406,7 +401,7 @@ static void project_feature_handler_KILL_WALL(project_feature_handler_context_t 
         return;
 
     /* Permanent walls */
-    if (square_isperm(context->cave, &grid) || square_isborder(context->cave, &grid))
+    if (square_ispermborder(context->cave, &grid))
         return;
 
     /* Different treatment for different walls */
@@ -513,12 +508,31 @@ static void project_feature_handler_KILL_WALL(project_feature_handler_context_t 
         /* Fully update the flow */
         fully_update_flow(&context->cave->wpos);
     }
-    else if (square_isrock(context->cave, &grid))
+    else if (square_isrock(context->cave, &grid) || square_ismineral_other(context->cave, &grid))
     {
         /* Message */
         if (context->line_sound)
         {
             msg(context->origin->player, "The wall turns into mud!");
+            context->obvious = true;
+        }
+
+        /* Destroy the wall */
+        square_destroy_wall(context->cave, &grid);
+
+        /* Update the visuals */
+        update_visuals(&context->cave->wpos);
+
+        /* Fully update the flow */
+        fully_update_flow(&context->cave->wpos);
+    }
+    else
+    {
+        /* Message */
+        if (context->line_sound)
+        {
+            msg(context->origin->player, "The %s turns into mud!",
+                square_apparent_name(context->origin->player, context->cave, &grid));
             context->obvious = true;
         }
 
@@ -601,6 +615,9 @@ static void project_feature_handler_KILL_TRAP(project_feature_handler_context_t 
 
         /* Disable the trap */
         square_disable_trap(context->origin->player, context->cave, &grid);
+
+        /* Visibility change */
+        context->origin->player->upkeep->update |= (PU_UPDATE_VIEW);
     }
     else if (square_islockeddoor(context->cave, &grid))
     {
@@ -630,8 +647,7 @@ static void project_feature_handler_MAKE_DOOR(project_feature_handler_context_t 
     if (!square_isanyfloor(context->cave, &grid)) return;
 
     /* Push objects off the grid */
-    if (square_object(context->cave, &grid))
-        push_object(context->origin->player, context->cave, &grid);
+    push_object(context->origin->player, context->cave, &grid);
 
     /* Create a closed door */
     square_close_door(context->cave, &grid);
@@ -721,7 +737,6 @@ static void project_feature_handler_MON_CRUSH(project_feature_handler_context_t 
 static void project_feature_handler_PSI(project_feature_handler_context_t *context) {}
 static void project_feature_handler_PSI_DRAIN(project_feature_handler_context_t *context) {}
 static void project_feature_handler_CURSE(project_feature_handler_context_t *context) {}
-static void project_feature_handler_CURSE2(project_feature_handler_context_t *context) {}
 static void project_feature_handler_DRAIN(project_feature_handler_context_t *context) {}
 static void project_feature_handler_COMMAND(project_feature_handler_context_t *context) {}
 static void project_feature_handler_TELE_TO(project_feature_handler_context_t *context) {}

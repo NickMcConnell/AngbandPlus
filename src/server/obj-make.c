@@ -3,7 +3,7 @@
  * Purpose: Object generation functions
  *
  * Copyright (c) 1987-2007 Angband contributors
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -19,6 +19,12 @@
 
 
 #include "s-angband.h"
+
+
+/*
+ * This table provides for different gold drop rates at different dungeon depths.
+ */
+u16b level_golds[128];
 
 
 /** Arrays holding an index of objects to generate for a given level */
@@ -279,7 +285,7 @@ static int get_new_power(bitflag flags[OF_SIZE])
     int i, options = 0, flag = 0;
     bitflag newf[OF_SIZE];
 
-    create_obj_flag_mask(newf, false, OFT_PROT, OFT_MISC, OFT_MAX);
+    create_obj_flag_mask(newf, 0, OFT_PROT, OFT_MISC, OFT_MAX);
 
     for (i = of_next(newf, FLAG_START); i != FLAG_END; i = of_next(newf, i + 1))
     {
@@ -379,7 +385,7 @@ static void do_powers(struct object *obj, bitflag kind_flags[KF_SIZE])
     /* Extra powers */
     if (kf_has(kind_flags, KF_RAND_SUSTAIN))
     {
-        create_obj_flag_mask(newf, false, OFT_SUST, OFT_MAX);
+        create_obj_flag_mask(newf, 0, OFT_SUST, OFT_MAX);
         of_on(obj->flags, get_new_attr(obj->flags, newf));
     }
     if (kf_has(kind_flags, KF_RAND_POWER) || (pick == 1))
@@ -406,7 +412,7 @@ static void do_powers(struct object *obj, bitflag kind_flags[KF_SIZE])
         if (random_base_resist(obj, &resist))
         {
             obj->el_info[resist].res_level = 1;
-            obj->el_info[resist].flags |= EL_INFO_RANDOM;
+            obj->el_info[resist].flags |= (EL_INFO_RANDOM | EL_INFO_IGNORE);
         }
     }
     if (kf_has(kind_flags, KF_RAND_HI_RES))
@@ -415,7 +421,7 @@ static void do_powers(struct object *obj, bitflag kind_flags[KF_SIZE])
         if (random_high_resist(obj, &resist))
         {
             obj->el_info[resist].res_level = 1;
-            obj->el_info[resist].flags |= EL_INFO_RANDOM;
+            obj->el_info[resist].flags |= (EL_INFO_RANDOM | EL_INFO_IGNORE);
         }
     }
 }
@@ -435,11 +441,11 @@ static int get_power_flags(const struct object *obj, bitflag flags[OF_SIZE])
 
     /* Get power flags */
     if (kf_has(kind_flags, KF_RAND_SUSTAIN))
-        create_obj_flag_mask(flags, false, OFT_SUST, OFT_MAX);
+        create_obj_flag_mask(flags, 0, OFT_SUST, OFT_MAX);
     if (kf_has(kind_flags, KF_RAND_POWER) || kf_has(kind_flags, KF_RAND_RES_POWER))
-        create_obj_flag_mask(flags, false, OFT_PROT, OFT_MISC, OFT_ESP, OFT_MAX);
+        create_obj_flag_mask(flags, 0, OFT_PROT, OFT_MISC, OFT_ESP, OFT_MAX);
     if (kf_has(kind_flags, KF_RAND_ESP))
-        create_obj_flag_mask(flags, false, OFT_ESP, OFT_MAX);
+        create_obj_flag_mask(flags, 0, OFT_ESP, OFT_MAX);
     
     /* Get resists */
     if (kf_has(kind_flags, KF_RAND_BASE_RES) || kf_has(kind_flags, KF_RAND_RES_POWER))
@@ -919,7 +925,7 @@ static bool artifact_pass_checks(struct artifact *art, int depth)
  *
  * Note -- see "make_artifact()" and "apply_magic()"
  */
-static struct object *make_artifact_special(struct player *p, struct chunk *c, int level)
+static struct object *make_artifact_special(struct player *p, struct chunk *c, int level, int tval)
 {
     int i;
     struct object *new_obj = NULL;
@@ -954,6 +960,9 @@ static struct object *make_artifact_special(struct player *p, struct chunk *c, i
 
             /* Cannot generate an artifact if disallowed by preservation mode  */
             if (p && (p->art_info[i] > cfg_preserve_artifacts)) continue;
+
+            /* Must have the correct fields */
+            if (tval && (art->tval != tval)) continue;
 
             /* We must pass depth and rarity checks */
             if (!artifact_pass_checks(art, c->wpos.depth)) continue;
@@ -1016,6 +1025,9 @@ static struct object *make_artifact_special(struct player *p, struct chunk *c, i
 
             /* Skip non-special artifacts */
             if (!kf_has(kind->kind_flags, KF_INSTA_ART)) continue;
+
+            /* Must have the correct fields */
+            if (tval && (art->tval != tval)) continue;
 
             /* Enforce minimum "object" level (loosely) */
             if (kind->level > level)
@@ -1168,8 +1180,7 @@ static bool make_artifact(struct player *p, struct chunk *c, struct object *obj)
             if (art->created) continue;
 
             /* Cannot generate an artifact if disallowed by preservation mode  */
-            if (p && (p->art_info[i] > cfg_preserve_artifacts))
-                continue;
+            if (p && (p->art_info[i] > cfg_preserve_artifacts)) continue;
 
             /* Must have the correct fields */
             if (art->tval != obj->tval) continue;
@@ -1239,16 +1250,42 @@ static void apply_magic_weapon(struct object *obj, int level, int power)
         obj->to_h += m_bonus(10, level);
         obj->to_d += m_bonus(10, level);
 
-        if (tval_is_melee_weapon(obj) || tval_is_ammo(obj))
+        if (tval_is_melee_weapon(obj))
         {
             /* Super-charge the damage dice */
-            while (one_in_(10L * obj->dd * obj->ds)) obj->dd++;
+            while (one_in_(4 * obj->dd * obj->ds))
+            {
+                /* More dice or sides means more likely to get still more */
+                if (randint0(obj->dd + obj->ds) < obj->dd)
+                {
+                    int newdice = randint1(2 + obj->dd / obj->ds);
 
-            /* But not too high */
-            if (tval_is_melee_weapon(obj) && (obj->dd > MAX_WEAPON_DICE))
-                obj->dd = MAX_WEAPON_DICE;
-            else if (tval_is_ammo(obj) && (obj->dd > MAX_AMMO_DICE))
-                obj->dd = MAX_AMMO_DICE;
+                    while (((obj->dd + 1) * obj->ds <= 40) && newdice)
+                    {
+                        if (!one_in_(3)) obj->dd++;
+                        newdice--;
+                    }
+                }
+                else
+                {
+                    int newsides = randint1(2 + obj->ds / obj->dd);
+
+                    while ((obj->dd * (obj->ds + 1) <= 40) && newsides)
+                    {
+                        if (!one_in_(3)) obj->ds++;
+                        newsides--;
+                    }
+                }
+            }
+        }
+        else if (tval_is_ammo(obj))
+        {
+            /* Up to two chances to enhance damage dice. */
+            if (one_in_(6) == 1)
+            {
+                obj->ds++;
+                if (one_in_(10) == 1) obj->ds++;
+            }
         }
     }
 }
@@ -1499,16 +1536,8 @@ int apply_magic(struct player *p, struct chunk *c, struct object *obj, int lev,
     }
     else if (tval_is_chest(obj))
     {
-        /* Hack -- skip ruined chests */
-        if (obj->kind->level > 0)
-        {
-            /* Hack -- pick a "difficulty" */
-            obj->pval = randint1(obj->kind->level);
-
-            /* Never exceed "difficulty" of 55 to 59 */
-            if (obj->pval > 55)
-                obj->pval = 55 + randint0(5);
-        }
+        /* Get a random, level-dependent set of chest traps */
+        obj->pval = pick_chest_traps(obj);
     }
 
     return power;
@@ -1699,7 +1728,7 @@ struct object *make_object(struct player *p, struct chunk *c, int lev, bool good
     bool extra_roll, s32b *value, int tval)
 {
     int base;
-    struct object_kind *kind;
+    struct object_kind *kind = NULL;
     struct object *new_obj;
     int i;
     int tries = 1;
@@ -1709,7 +1738,7 @@ struct object *make_object(struct player *p, struct chunk *c, int lev, bool good
     /* Try to make a special artifact */
     if (one_in_(good? 10: 1000))
     {
-        new_obj = make_artifact_special(p, c, lev);
+        new_obj = make_artifact_special(p, c, lev, tval);
         if (new_obj)
         {
             if (value)
@@ -1825,7 +1854,7 @@ void acquirement(struct player *p, struct chunk *c, int num, quark_t quark)
         if (quark > 0) nice_obj->note = quark;
 
         /* Drop the object */
-        drop_near(p, c, &nice_obj, 0, &p->grid, true, DROP_FADE);
+        drop_near(p, c, &nice_obj, 0, &p->grid, true, DROP_CARRY, false);
     }
 }
 
@@ -1887,8 +1916,14 @@ struct object *make_gold(struct player *p, int lev, char *coin_type)
     object_prep(p, new_gold, money_kind(coin_type, value), lev, RANDOMISE);
 
     /* If we're playing with no_selling, increase the value */
-    if (p && (cfg_no_selling || OPT(p, birth_no_selling)) && (p->wpos.depth > 0))
-        value *= MIN(5, p->wpos.depth);
+    if (p && (cfg_no_selling || OPT(p, birth_no_selling)))
+    {
+        /* Classic method: multiply by 5 in the dungeon */
+        if (cfg_gold_drop_vanilla && (p->wpos.depth > 0)) value *= 5;
+
+        /* PWMAngband method: multiply by a depth dependent factor */
+        else value = (value * level_golds[p->wpos.depth]) / 10;
+    }
 
     /* Cap gold at max short (or alternatively make pvals s32b) */
     if (value >= SHRT_MAX) value = SHRT_MAX - randint0(200);
@@ -1976,6 +2011,8 @@ void create_randart(struct player *p, struct chunk *c)
         if (object_has_standard_to_h(obj)) obj->known->to_h = 1;
         if (object_flavor_is_aware(p, obj)) object_id_set_aware(obj);
 
+        player_know_floor(p, c);
+
         /* Success */
         msg(p, "You manage to create a random artifact.");
         return;
@@ -2038,8 +2075,7 @@ void reroll_randart(struct player *p, struct chunk *c)
     origin_race = obj->origin_race;
 
     /* We need to start from a clean object, so we delete the old one */
-    square_excise_object(c, &p->grid, obj);
-    object_delete(&obj);
+    square_delete_object(c, &p->grid, obj, false, false);
 
     /* Assign the template */
     obj = object_new();
@@ -2063,7 +2099,7 @@ void reroll_randart(struct player *p, struct chunk *c)
     if (object_has_standard_to_h(obj)) obj->known->to_h = 1;
     if (object_flavor_is_aware(p, obj)) object_id_set_aware(obj);
 
-    drop_near(p, c, &obj, 0, &p->grid, false, DROP_FADE);
+    drop_near(p, c, &obj, 0, &p->grid, false, DROP_FADE, true);
 }
 
 

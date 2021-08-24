@@ -3,7 +3,7 @@
  * Purpose: Core sound support
  *
  * Copyright (c) 2016 Graeme Russ <graeme.russ@gmail.com>
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -51,11 +51,13 @@ static struct msg_snd_data message_sounds[MSG_MAX];
  */
 static const struct sound_module sound_modules[] =
 {
-#ifdef USE_SDL
+#ifdef SOUND_SDL
     {"sdl", "SDL_mixer sound module", init_sound_sdl},
 #else
 # ifndef USE_GCU
+#  ifdef WINDOWS
     {"win", "Windows sound module", init_sound_win},
+#  endif
 # endif
 #endif
     {"", "", NULL}
@@ -180,6 +182,8 @@ static void message_sound_define(u16b message_id, const char *sounds_str)
 
     /* sounds_str is a space separated list of sound names */
     str = cur_token = string_make(sounds_str);
+
+    if (!cur_token) return;
 
     search = strchr(cur_token, ' ');
 

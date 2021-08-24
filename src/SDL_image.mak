@@ -25,7 +25,7 @@ OBJFILES = ..\..\SDL\SDL_image-1.2.12\IMG_xxx.obj ..\..\SDL\SDL_image-1.2.12\IMG
 RESFILES = 
 MAINSOURCE = SDL_image.bpf
 RESDEPEN = $(RESFILES)
-LIBFILES = SDL\SDL.lib win\libpng.lib win\zlib.lib
+LIBFILES = _SDL\SDL.lib win\libpng.lib win\zlib.lib
 IDLFILES = 
 IDLGENFILES = 
 LIBRARIES = 
@@ -38,8 +38,8 @@ DEBUGLIBPATH = $(BCB)\lib\debug
 RELEASELIBPATH = $(BCB)\lib\release
 USERDEFINES = WIN32;_WINDOWS;LOAD_PNG;PNG_USE_DLL;ZLIB_DLL;BUILD_SDL;
 SYSDEFINES = NO_STRICT;_NO_VCL
-INCLUDEPATH = $(BCB)\include;SDL;win
-LIBPATH = $(BCB)\lib\obj;$(BCB)\lib;SDL;win
+INCLUDEPATH = $(BCB)\include;_SDL;win
+LIBPATH = $(BCB)\lib\obj;$(BCB)\lib;_SDL;win
 WARNINGS= -w-par
 PATHCPP= .;..\..\SDL\SDL_image-1.2.12
 PATHASM = .;
@@ -49,7 +49,7 @@ PATHOBJ = .;$(LIBPATH)
 # ---------------------------------------------------------------------------
 CFLAG1 = -WD -O2 -Hc -w- -Vx -Ve -X- \
     -a8 -b -k- -vi -tWD -tWM -c
-IDLCFLAGS = -I$(BCB)\include  -ISDL -Iwin \
+IDLCFLAGS = -I$(BCB)\include  -I_SDL -Iwin \
     -src_suffix cpp -DWIN32 -D_WINDOWS -DBUILD_SDL -DLOAD_PNG \
     -DPNG_USE_DLL -DZLIB_DLL -DNO_STRICT -D_NO_VCL -boa
 PFLAGS = -$Y- -$L- -$D- -$A8 -v -JPHNE -M

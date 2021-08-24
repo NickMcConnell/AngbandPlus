@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2013 Erik Osheim, Nick McConnell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -225,6 +225,17 @@ static enum parser_error parse_profile_room(struct parser *p)
 }
 
 
+static enum parser_error parse_profile_min_level(struct parser *p)
+{
+    struct cave_profile *c = parser_priv(p);
+
+    if (!c) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    c->min_level = parser_getint(p, "min");
+
+    return PARSE_ERROR_NONE;
+}
+
+
 static enum parser_error parse_profile_cutoff(struct parser *p)
 {
     struct cave_profile *c = parser_priv(p);
@@ -251,6 +262,7 @@ static struct parser *init_parse_profile(void)
         "room sym name int rating int height int width int level int pit int rarity int cutoff",
         parse_profile_room);
     parser_reg(p, "cutoff int cutoff", parse_profile_cutoff);
+    parser_reg(p, "min-level int min", parse_profile_min_level);
 
     return p;
 }
@@ -816,6 +828,29 @@ static int calc_mon_feeling(struct chunk *c)
 
 
 /*
+ * Find a cave_profile by name
+ *
+ * name is the name of the cave_profile being looked for
+ */
+static const struct cave_profile *find_cave_profile(char *name)
+{
+    int i;
+
+    for (i = 0; i < z_info->profile_max; i++)
+    {
+        const struct cave_profile *profile;
+
+        profile = &cave_profiles[i];
+        if (!strcmp(name, profile->name))
+            return profile;
+    }
+
+    /* Not there */
+    return NULL;
+}
+
+
+/*
  * Do prime check for labyrinths
  *
  * depth is the depth where we're trying to generate a labyrinth
@@ -899,29 +934,6 @@ static bool arena_check(struct worldpos *wpos)
 
 
 /*
- * Find a cave_profile by name
- *
- * name is the name of the cave_profile being looked for
- */
-static const struct cave_profile *find_cave_profile(char *name)
-{
-    int i;
-
-    for (i = 0; i < z_info->profile_max; i++)
-    {
-        const struct cave_profile *profile;
-
-        profile = &cave_profiles[i];
-        if (!strcmp(name, profile->name))
-            return profile;
-    }
-
-    /* Not there */
-    return NULL;
-}
-
-
-/*
  * Choose a cave profile
  *
  * wpos is the coordinates of the cave the profile will be used to generate
@@ -929,6 +941,8 @@ static const struct cave_profile *find_cave_profile(char *name)
 static const struct cave_profile *choose_profile(struct worldpos *wpos)
 {
     const struct cave_profile *profile = NULL;
+    int moria_cutoff = find_cave_profile("moria")->cutoff;
+    int labyrinth_cutoff = find_cave_profile("labyrinth")->cutoff;
 
     /* Make the profile choice */
     if (wpos->depth > 0)
@@ -941,20 +955,31 @@ static const struct cave_profile *choose_profile(struct worldpos *wpos)
             profile = find_cave_profile("arena");
         else if (cavern_check(wpos))
             profile = find_cave_profile("cavern");
-        else if (labyrinth_check(wpos))
+        else if (labyrinth_check(wpos) && (labyrinth_cutoff >= -1))
             profile = find_cave_profile("labyrinth");
-        else if ((wpos->depth >= 10) && (wpos->depth < 40) && one_in_(40))
+        else if ((wpos->depth >= 10) && (wpos->depth < 40) && one_in_(40) && (moria_cutoff >= -1))
             profile = find_cave_profile("moria");
         else
         {
-            int pick = randint0(200);
-            int i;
+            int tries = 100;
 
-            for (i = 0; i < z_info->profile_max; i++)
+            while (tries)
             {
-                profile = &cave_profiles[i];
-                if (profile->cutoff >= pick) break;
+                int pick = randint0(200);
+                int i;
+
+                for (i = 0; i < z_info->profile_max; i++)
+                {
+                    profile = &cave_profiles[i];
+                    if (wpos->depth < profile->min_level) continue;
+                    if (profile->cutoff > pick) break;
+                }
+
+                if (profile && (i < z_info->profile_max)) break;
+                tries--;
             }
+
+            if (!profile || !tries) profile = find_cave_profile("classic");
         }
     }
     else if (in_base_town(wpos))
@@ -1097,6 +1122,26 @@ void cave_wipe(struct chunk *c)
 }
 
 
+bool allow_location(struct monster_race *race, struct worldpos *wpos)
+{
+    if ((cfg_diving_mode < 2) && race->locations)
+    {
+        bool found = false;
+        struct worldpos *location = race->locations;
+
+        while (location && !found)
+        {
+            if (loc_eq(&location->grid, &wpos->grid)) found = true;
+            else location = location->next;
+        }
+
+        if (!found) return false;
+    }
+
+    return true;
+}
+
+
 /*
  * Generate a random level.
  *
@@ -1156,16 +1201,31 @@ static struct chunk *cave_generate(struct player *p, struct worldpos *wpos, int 
                     rf_has(race->flags, RF_QUESTOR));
                 bool fixed_encounter = (rf_has(race->flags, RF_PWMANG_FIXED) &&
                     (cfg_diving_mode < 2));
+                struct monster_group_info info = {0, 0};
                 struct loc grid;
+                bool found = false;
+                int tries = 50;
 
                 /* The monster must be an unseen quest monster/fixed encounter of this depth. */
                 if (race->lore.spawned) continue;
                 if (!quest_monster && !fixed_encounter) continue;
                 if (race->level != chunk->wpos.depth) continue;
+                if (!allow_location(race, &chunk->wpos)) continue;
 
                 /* Pick a location and place the monster */
-                find_empty(chunk, &grid);
-                place_new_monster(p, chunk, &grid, race, MON_ASLEEP | MON_GROUP, ORIGIN_DROP);
+                while (tries-- && !found)
+                {
+                    if (rf_has(race->flags, RF_AQUATIC)) found = find_emptywater(chunk, &grid);
+                    else if (rf_has(race->flags, RF_NO_DEATH)) found = find_training(chunk, &grid);
+                    else found = (find_empty(chunk, &grid) && square_is_monster_walkable(chunk, &grid));
+                }
+                if (found)
+                {
+                    place_new_monster(p, chunk, &grid, race, MON_ASLEEP | MON_GROUP, &info,
+                        ORIGIN_DROP);
+                }
+                else
+                    plog_fmt("Unable to place monster of race %s", race->name);
             }
         }
 
@@ -1302,6 +1362,24 @@ struct chunk *prepare_next_level(struct player *p, struct worldpos *wpos)
     ht_copy(&c->generated, &turn);
 
     return c;
+}
+
+
+void player_place_feeling(struct player *p, struct chunk *c)
+{
+    struct loc begin, end;
+    struct loc_iterator iter;
+
+    loc_init(&begin, 0, 0);
+    loc_init(&end, c->width, c->height);
+    loc_iterator_first(&iter, &begin, &end);
+
+    do
+    {
+        if (square_isfeel(c, &iter.cur))
+            sqinfo_on(square_p(p, &iter.cur)->info, SQUARE_FEEL);
+    }
+    while (loc_iterator_next_strict(&iter));
 }
 
 

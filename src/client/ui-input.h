@@ -78,7 +78,7 @@ extern void caveprt(cave_view_type* src, int len, s16b x, s16b y);
 extern void cavestr(cave_view_type* dest, const char *src, byte attr, int max_col);
 extern const char *extract_file_name(const char *s);
 extern ui_event Net_loop(errr (*inkey_handler)(ui_event*, bool, bool),
-    void (*callback_begin)(ui_event*), void (*callback_end)(void), char scan_cutoff);
+    void (*callback_begin)(ui_event*), void (*callback_end)(bool), char scan_cutoff, bool inmap);
 extern void turn_off_numlock(void);
 extern ui_event textui_get_command(void);
 extern bool textui_process_key(struct keypress kp, unsigned char *c);

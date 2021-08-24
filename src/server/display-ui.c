@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2007 Antony Sidwell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -324,15 +324,6 @@ static void prt_depth(struct player *p)
 
 
 /*
- * Prints status of hunger
- */
-static void prt_hunger(struct player *p)
-{
-    Send_food(p, p->food);
-}
-
-
-/*
  * Print all timed effects.
  */
 static void prt_tmd(struct player *p)
@@ -351,7 +342,6 @@ static void prt_status(struct player *p)
 {
     int i;
 
-    prt_hunger(p);
     prt_tmd(p);
 
     /* Hack -- timed flags display */
@@ -366,6 +356,7 @@ static void prt_status(struct player *p)
 static void prt_state(struct player *p)
 {
     bool s, r, u;
+    struct chunk *c = chunk_get(&p->wpos);
 
     /* Stealth mode */
     s = (p->stealthy? true: false);
@@ -376,7 +367,34 @@ static void prt_state(struct player *p)
     /* Unignoring */
     u = (p->unignoring? true: false);
 
-    Send_state(p, s, r, u);
+    /* Paranoia */
+    if (!c) Send_state(p, s, r, u, "");
+    else
+    {
+        struct feature *feat = square_feat(c, &p->grid);
+        struct trap *trap = square_trap(c, &p->grid);
+        char buf[39];
+
+        p->terrain[0] = 0;
+
+        if (trap)
+        {
+            my_strcpy(buf, trap->kind->name, sizeof(buf));
+            my_strcap(buf);
+            p->terrain[0] = trap->kind->d_attr;
+            my_strcpy(p->terrain + 1, buf, strlen(buf) + 1);
+        }
+        else if (!OPT(p, hide_terrain))
+        {
+            if (feat->shortdesc) my_strcpy(buf, feat->shortdesc, sizeof(buf));
+            else my_strcpy(buf, feat->name, sizeof(buf));
+            my_strcap(buf);
+            p->terrain[0] = feat->d_attr;
+            my_strcpy(p->terrain + 1, buf, strlen(buf) + 1);
+        }
+
+        Send_state(p, s, r, u, p->terrain);
+    }
 
     /* Print recall/deep descent status */
     Send_recall(p, p->word_recall, p->deep_descent);
@@ -421,7 +439,7 @@ static void prt_floor_item(struct player *p)
     if (!c) return;
 
     floor_num = scan_floor(p, c, floor_list, floor_max, OFLOOR_SENSE | OFLOOR_VISIBLE, NULL);
-    display_floor(p, c, floor_list, floor_num);
+    display_floor(p, c, floor_list, floor_num, false);
     mem_free(floor_list);
 }
 
@@ -704,7 +722,7 @@ static void player_mods(struct player *p, int mod, bool *res, bool *vul)
     int adj;
 
     /* Unencumbered monks get speed bonus */
-    bool restrict = (player_has(p, PF_MARTIAL_ARTS) && !monk_armor_ok(p));
+    bool restrict_ = (player_has(p, PF_MARTIAL_ARTS) && !monk_armor_ok(p));
 
     /* Add racial modifiers */
     adj = race_modifier(p->race, mod, p->lev, false);
@@ -713,7 +731,7 @@ static void player_mods(struct player *p, int mod, bool *res, bool *vul)
 
     /* Add class modifiers */
     adj = class_modifier(p->clazz, mod, p->lev);
-    if ((mod == OBJ_MOD_SPEED) && restrict) adj = 0;
+    if ((mod == OBJ_MOD_SPEED) && restrict_) adj = 0;
     if (adj > 0) *res = true;
     else if (adj < 0) *vul = true;
 
@@ -727,7 +745,11 @@ static void player_mods(struct player *p, int mod, bool *res, bool *vul)
         }
         if (mod == OBJ_MOD_TUNNEL)
         {
-            if (rf_has(p->poly_race->flags, RF_KILL_WALL)) *res = true;
+            if (rf_has(p->poly_race->flags, RF_KILL_WALL) ||
+                rf_has(p->poly_race->flags, RF_SMASH_WALL))
+            {
+                *res = true;
+            }
         }
         if (mod == OBJ_MOD_SPEED)
         {
@@ -1071,7 +1093,7 @@ static void prt_player_sust_info(struct player *p)
         boost = 0;
 
         if (monster_is_stupid(p->poly_race)) boost -= 2;
-        if (monster_is_smart(p->poly_race)) boost += 2;
+        if (race_is_smart(p->poly_race)) boost += 2;
         if (p->poly_race->freq_spell == 33) boost += 1;
         if (p->poly_race->freq_spell == 50) boost += 3;
         if (p->poly_race->freq_spell == 100) boost += 5;
@@ -1133,36 +1155,52 @@ static const struct player_flag_record player_flag_table[(RES_PANELS + 1) * RES_
     {-1, -1, ELEM_DARK, -1},
     {-1, -1, ELEM_SOUND, -1},
     {-1, -1, ELEM_SHARD, -1},
-
     {-1, -1, ELEM_NEXUS, -1},
     {-1, -1, ELEM_NETHER, -1},
     {-1, -1, ELEM_CHAOS, -1},
     {-1, -1, ELEM_DISEN, -1},
-    {-1, OF_FEATHER, -1, TMD_FLIGHT},
+
     {-1, OF_PROT_FEAR, -1, TMD_BOLD},
     {-1, OF_PROT_BLIND, -1, -1},
     {-1, OF_PROT_CONF, -1, TMD_OPP_CONF},
     {-1, OF_PROT_STUN, -1, -1},
-
-    {OBJ_MOD_LIGHT, -1, -1, -1},
+    {-1, OF_HOLD_LIFE, -1, TMD_HOLD_LIFE},
     {-1, OF_REGEN, -1, -1},
     {-1, OF_ESP_ALL, -1, TMD_ESP},
     {-1, OF_SEE_INVIS, -1, TMD_SINVIS},
-    {-1, OF_FREE_ACT, -1, -1},
-    {-1, OF_HOLD_LIFE, -1, TMD_HOLD_LIFE},
+    {-1, OF_FREE_ACT, -1, TMD_FREE_ACT},
+    {-1, OF_FEATHER, -1, TMD_FLIGHT},
+    {-1, OF_SLOW_DIGEST, -1, -1},
+    {-1, OF_TRAP_IMMUNE, -1, -1},
+    {-1, OF_BLESSED, -1, -1},
+
+    {-1, OF_IMPAIR_HP, -1, -1},
+    {-1, OF_IMPAIR_MANA, -1, -1},
+    {-1, OF_AFRAID, -1, TMD_AFRAID},
+    {-1, OF_AGGRAVATE, -1, -1},
+    {-1, OF_NO_TELEPORT, -1, -1},
+    {-1, OF_DRAIN_EXP, -1, -1},
+    {-1, OF_STICKY, -1, -1},
+    {-1, OF_FRAGILE, -1, -1},
+    {-1, -1, -1, -1},
+    {-1, -1, -1, -1},
+    {-1, -1, ELEM_TIME, -1},
+    {-1, -1, ELEM_MANA, -1},
+    {-1, -1, ELEM_WATER, -1},
+
     {OBJ_MOD_STEALTH, -1, -1, -1},
     {OBJ_MOD_SEARCH, -1, -1, -1},
     {OBJ_MOD_INFRA, -1, -1, TMD_SINFRA},
-
     {OBJ_MOD_TUNNEL, -1, -1, -1},
     {OBJ_MOD_SPEED, -1, -1, TMD_FAST},
     {OBJ_MOD_BLOWS, -1, -1, -1},
     {OBJ_MOD_SHOTS, -1, -1, -1},
     {OBJ_MOD_MIGHT, -1, -1, -1},
-    {-1, OF_SLOW_DIGEST, -1, -1},
-    {-1, OF_IMPAIR_HP, -1, -1},
-    {-1, OF_AFRAID, -1, TMD_AFRAID},
-    {-1, OF_AGGRAVATE, -1, -1},
+    {OBJ_MOD_LIGHT, -1, -1, -1},
+    {OBJ_MOD_DAM_RED, -1, -1, -1},
+    {OBJ_MOD_MOVES, -1, -1, -1},
+    {-1, -1, -1, -1},
+    {-1, -1, -1, -1},
 
     {-1, OF_ESP_RADIUS, -1, -1},
     {-1, OF_ESP_EVIL, -1, -1},
@@ -1172,7 +1210,11 @@ static const struct player_flag_record player_flag_table[(RES_PANELS + 1) * RES_
     {-1, OF_ESP_ORC, -1, -1},
     {-1, OF_ESP_TROLL, -1, -1},
     {-1, OF_ESP_GIANT, -1, -1},
-    {-1, OF_ESP_DRAGON, -1, -1}
+    {-1, OF_ESP_DRAGON, -1, -1},
+    {-1, -1, -1, -1},
+    {-1, -1, -1, -1},
+    {-1, -1, -1, -1},
+    {-1, -1, -1, -1}
 };
 
 
@@ -1246,8 +1288,10 @@ static void prt_resistance_panel(struct player *p, int which, const struct playe
                 {
                     timed = (p->timed[rec[i].tmd_flag]? true: false);
 
-                    /* There has to be one special case... */
-                    if ((rec[i].tmd_flag == TMD_AFRAID) && (p->timed[TMD_TERROR]))
+                    /* Special cases */
+                    if ((rec[i].tmd_flag == TMD_AFRAID) && p->timed[TMD_TERROR])
+                        timed = true;
+                    if ((rec[i].tmd_flag == TMD_BOLD) && (p->timed[TMD_HERO] || p->timed[TMD_SHERO]))
                         timed = true;
                 }
 
@@ -1659,7 +1703,7 @@ static void player_strip(struct player *p, bool perma_death)
 
         /* Excise the object and drop it */
         gear_excise_object(p, obj);
-        drop_near(p, c, &obj, 0, &p->grid, false, DROP_FADE);
+        drop_near(p, c, &obj, 0, &p->grid, false, DROP_FADE, false);
     }
 
     mem_free(gear);
@@ -1680,7 +1724,7 @@ static void player_strip(struct player *p, bool perma_death)
         p->au = 0;
 
         /* Drop it */
-        drop_near(p, c, &obj, 0, &p->grid, false, DROP_FADE);
+        drop_near(p, c, &obj, 0, &p->grid, false, DROP_FADE, false);
     }
 }
 
@@ -1861,12 +1905,12 @@ void player_death(struct player *p)
      * Handle permanent death:
      * - all characters have a chance to die permanently (based on number of past deaths)
      * - no ghost characters (except Necromancers that can turn into an undead being)
-     * - Dragon characters
+     * - Dragon and Hydra characters
      * - ghosts
      * - suiciding characters
      */
     perma_death = (magik(p->lives) || (no_ghost && !player_can_undead(p)) ||
-        player_has(p, PF_DRAGON) || p->ghost || !p->alive);
+        player_has(p, PF_DRAGON) || player_has(p, PF_HYDRA) || p->ghost || !p->alive);
 
     /* Know inventory and home items upon permadeath */
     if (perma_death) death_knowledge(p);
@@ -1914,7 +1958,7 @@ void player_death(struct player *p)
     effect_simple(EF_TELEPORT, who, "200", 0, 0, 0, 0, 0, NULL);
 
     /* Feed him (maybe he died from starvation) */
-    player_set_food(p, PY_FOOD_MAX - 1);
+    player_set_timed(p, TMD_FOOD, PY_FOOD_FULL - 1, false);
 
     /* Remove the death flag */
     p->is_dead = false;
@@ -2946,10 +2990,29 @@ static struct object_kind *item_kind_fuzzy(char *name)
     /* Lowercase our search string */
     for (str = name; *str; str++) *str = tolower((unsigned char)*str);
 
+    /* Kind prefixed by '#': search from exact name */
+    if (*name == '#')
+    {
+        for (i = 0; i < z_info->k_max; i++)
+        {
+            struct object_kind *kind = &k_info[i];
+
+            if (!kind->name) continue;
+
+            /* Clean up its name */
+            clean_name(match, kind->name);
+
+            /* If cleaned name matches our search string, return it */
+            if (streq(match, name + 1)) return kind;
+        }
+
+        return NULL;
+    }
+
     /* Check if a symbol has been passed (!speed, =strength...) */
     if ((*name < 'a') || (*name > 'z')) d_char = *name;
 
-    /* For each item kind race */
+    /* For each item kind */
     for (i = 0; i < z_info->k_max; i++)
     {
         struct object_kind *kind = &k_info[i];
@@ -3801,7 +3864,7 @@ static void master_generate(struct player *p, char *parms)
                     object_copy(drop, obj);
                     if (object_has_standard_to_h(drop)) drop->known->to_h = 1;
                     if (object_flavor_is_aware(p, drop)) object_id_set_aware(drop);
-                    drop_near(p, c, &drop, 0, &p->grid, true, DROP_FADE);
+                    drop_near(p, c, &drop, 0, &p->grid, true, DROP_FADE, true);
 
                     /* Reinitialize some stuff */
                     undo_fixed_powers(obj, power, resist);
@@ -3947,7 +4010,7 @@ static void master_generate(struct player *p, char *parms)
             if (object_flavor_is_aware(p, obj)) object_id_set_aware(obj);
 
             /* Drop the object from heaven */
-            drop_near(p, c, &obj, 0, &p->grid, true, DROP_FADE);
+            drop_near(p, c, &obj, 0, &p->grid, true, DROP_FADE, true);
 
             break;
         }
@@ -4112,8 +4175,9 @@ static void master_player(struct player *p, char *parms)
         return;
     }
 
-    /* Cannot toggle ghost for Dragon players or in fruit bat mode */
-    if (dm_ptr->ghost && (player_has(dm_ptr, PF_DRAGON) || OPT(dm_ptr, birth_fruit_bat)))
+    /* Cannot toggle ghost for Dragon and Hydra players or in fruit bat mode */
+    if (dm_ptr->ghost && (player_has(dm_ptr, PF_DRAGON) || player_has(dm_ptr, PF_HYDRA) ||
+        OPT(dm_ptr, birth_fruit_bat)))
     {
         Send_special_line(p, 17, 17, 15, COLOUR_WHITE,
             " Error: can't toggle ghost for no-ghost players");
@@ -4211,21 +4275,27 @@ static void master_order(struct player *p, char *parms)
         /* Cancel order */
         case 'c':
         {
-            if (streq(store_orders[dm_order], "{ordered}")) store_cancel_order(dm_order);
-            my_strcpy(store_orders[dm_order], "", sizeof(store_orders[0]));
+            if (!ht_zero(&store_orders[dm_order].turn)) store_cancel_order(dm_order);
+            memset(&store_orders[dm_order], 0, sizeof(struct store_order));
             return;
         }
     }
 
     /* Display */
-    if (STRZERO(store_orders[dm_order]))
+    if (STRZERO(store_orders[dm_order].order))
         my_strcpy(o_desc, "(available)", sizeof(o_desc));
-    else if (streq(store_orders[dm_order], "{ordered}"))
+    else if (!ht_zero(&store_orders[dm_order].turn))
         store_get_order(dm_order, o_desc, sizeof(o_desc));
     else
-        my_strcpy(o_desc, store_orders[dm_order], sizeof(o_desc));
+        my_strcpy(o_desc, store_orders[dm_order].order, sizeof(o_desc));
     desc = format("  Order #%d: %s", 1 + dm_order, o_desc);
     Send_special_line(p, 17, 17, 15, COLOUR_WHITE, desc);
+    if (!ht_zero(&store_orders[dm_order].turn))
+    {
+        int expiry = player_expiry(&store_orders[dm_order].turn);
+        desc = format("  Expire in: %d days", expiry);
+        Send_special_line(p, 17, 17, 16, (expiry? COLOUR_YELLOW: COLOUR_L_RED), desc);
+    }
 }
 
 
@@ -4796,11 +4866,12 @@ void describe_player(struct player *p, struct player *q)
         strrepall(buf, sizeof(buf), tmp, "You", pm);
         strrepall(tmp, sizeof(tmp), buf, "you", pm2);
 
-        /* Replace "are/have" with "is/has" */
+        /* Replace "are/have/were" with "is/has/was" */
         strrepall(buf, sizeof(buf), tmp, "are", "is");
-        strrepall(tmp, sizeof(tmp), buf, "have", "has");
+        strrepall(tmp, sizeof(tmp), buf, "have", "has"); 
+        strrepall(buf, sizeof(buf), tmp, "were", "was");
 
-        text_out(p, "%s\n", tmp);
+        text_out(p, "%s\n", buf);
     }
 
     /* Restore height and width of current dungeon level */

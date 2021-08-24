@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2001 Chris Carr, Chris Robertson
  * Revised in 2009-11 by Chris Carr, Peter Denison
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -75,6 +75,14 @@ static int object_power_calculation_DICE(void *data)
     }
 
     return 0;
+}
+
+
+static int object_power_calculation_DICE_DICE(void *data)
+{
+    int dice_pwr = (object_power_calculation_DICE(data) * 5) / 4;
+
+    return dice_pwr * dice_pwr;
 }
 
 
@@ -388,7 +396,7 @@ static int object_power_calculation_NUM_TYPE(void *data, int type)
         object_flags_known(power_obj, flags, calc->aware);
 
     of_wipe(f);
-    create_obj_flag_mask(f, false, type, OFT_MAX);
+    create_obj_flag_mask(f, 0, type, OFT_MAX);
     of_inter(f, flags);
     return ((of_count(f) > 1)? of_count(f): 0);
 }
@@ -414,7 +422,7 @@ static int object_power_calculation_ALL_TYPE(void *data, int type)
         object_flags_known(power_obj, flags, calc->aware);
 
     of_wipe(f);
-    create_obj_flag_mask(f, false, type, OFT_MAX);
+    create_obj_flag_mask(f, 0, type, OFT_MAX);
     return (of_is_subset(flags, f)? 1: 0);
 }
 
@@ -734,6 +742,7 @@ expression_base_value_f power_calculation_by_name(const char *name)
     {
         {"OBJ_POWER_TO_DAM", object_power_calculation_TO_DAM},
         {"OBJ_POWER_DICE", object_power_calculation_DICE},
+        {"OBJ_POWER_DICE_DICE", object_power_calculation_DICE_DICE},
         {"OBJ_POWER_IS_EGO", object_power_calculation_IS_EGO},
         {"OBJ_POWER_EXTRA_BLOWS", object_power_calculation_EXTRA_BLOWS},
         {"OBJ_POWER_EXTRA_SHOTS", object_power_calculation_EXTRA_SHOTS},

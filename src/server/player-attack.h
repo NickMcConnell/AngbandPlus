@@ -45,9 +45,9 @@ typedef struct attack_result (*ranged_attack) (struct player *p, struct object *
 
 extern bool do_cmd_fire(struct player *p, int dir, int item);
 extern bool do_cmd_fire_at_nearest(struct player *p);
-extern void do_cmd_throw(struct player *p, int dir, int item);
+extern bool do_cmd_throw(struct player *p, int dir, int item);
 extern void py_attack(struct player *p, struct chunk *c, struct loc *grid);
-extern int py_attack_hit_chance(struct player *p, const struct object *weapon);
+extern int chance_of_melee_hit(struct player *p, const struct object *weapon);
 extern void un_power(struct player *p, struct source *who, bool* obvious);
 extern void eat_fud(struct player *p, struct player *q, bool* obvious);
 extern void drain_xp(struct player *p, int amt);

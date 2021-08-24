@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2010 Chris Carr and Peter Denison
  * Copyright (c) 2014 Nick McConnell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -455,7 +455,8 @@ static void improve_attack_modifier_slay(struct player *p, struct object *obj, s
         if (player_has(who->player, PF_GIANT)) rf_on(race->flags, RF_GIANT);
         if (player_has(who->player, PF_THUNDERLORD) || player_has(who->player, PF_DRAGON))
             rf_on(race->flags, RF_DRAGON);
-        if (player_has(who->player, PF_ANIMAL)) rf_on(race->flags, RF_ANIMAL);
+        if (player_has(who->player, PF_ANIMAL) || player_has(who->player, PF_HYDRA))
+            rf_on(race->flags, RF_ANIMAL);
     }
 
     /* Is the monster vulnerable? */
@@ -472,11 +473,14 @@ static void improve_attack_modifier_slay(struct player *p, struct object *obj, s
                 my_strcpy(verb, s->melee_verb, len);
         }
 
-        /* Learn about the slay */
-        if (obj) object_notice_slay(p, obj, i);
-
         /* Learn about the monster */
-        if (ml) rf_on(lore->flags, s->race_flag);
+        if (ml)
+        {
+            rf_on(lore->flags, s->race_flag);
+
+            /* Learn about the slay */
+            if (obj) object_notice_slay(p, obj, i);
+        }
     }
 
     /* Learn about resistant monsters */
@@ -538,14 +542,14 @@ void improve_attack_modifier(struct player *p, struct object *obj, struct source
     int i;
 
     /* Slays */
-    for (i = 0; obj && obj->slays && (i < z_info->slay_max); i++)
+    for (i = 0; obj->slays && (i < z_info->slay_max); i++)
     {
         if (!obj->slays[i]) continue;
         improve_attack_modifier_slay(p, obj, who, i, best_mult, verb, len, range);
     }
 
     /* Brands */
-    for (i = 0; obj && obj->brands && (i < z_info->brand_max); i++)
+    for (i = 0; obj->brands && (i < z_info->brand_max); i++)
     {
         if (!obj->brands[i]) continue;
 
@@ -554,48 +558,47 @@ void improve_attack_modifier(struct player *p, struct object *obj, struct source
 
         improve_attack_modifier_brand(p, obj, who, i, best_mult, effects, verb, len, range);
     }
+}
 
-    if (obj) return;
 
-    /* Temporary branding (ranged) */
-    if (range)
-    {
-        if (p->timed[TMD_BOWBRAND])
-        {
-            int index = get_bow_brand(&p->brand);
+/*
+ * Extract the multiplier from a given player hitting a given target.
+ *
+ * p is the current player
+ * who is the is the monster (or player) being attacked
+ * best_mult is the best applicable multiplier
+ * effects tells if the best brand is poison, stun or cut
+ * verb is the verb used in the attack ("smite", etc)
+ * len is the size of the verb
+ * range should be true for ranged attacks
+ * ammo should be true for missile attacks
+ */
+void player_attack_modifier(struct player *p, struct source *who, int *best_mult,
+    struct side_effects *effects, char *verb, size_t len, bool range, bool ammo)
+{
+    int i;
 
-            if (index != -1)
-            {
-                /* Notice flags for players */
-                if (who->player) equip_notice_flags(who->player, index);
-
-                improve_attack_modifier_brand(p, NULL, who, index, best_mult, effects, verb, len,
-                    range);
-            }
-        }
-
-        return;
-    }
-
-    /* Handle racial/class slays */
+    /* Slays */
     for (i = 0; i < z_info->slay_max; i++)
     {
+        /* Only for melee attacks */
+        if (range) continue;
+
+        /* Handle racial/class slays */
         if (p->race->slays && p->race->slays[i].slay && (p->lev >= p->race->slays[i].lvl))
             improve_attack_modifier_slay(p, NULL, who, i, best_mult, verb, len, range);
         if (p->clazz->slays && p->clazz->slays[i].slay && (p->lev >= p->clazz->slays[i].lvl))
             improve_attack_modifier_slay(p, NULL, who, i, best_mult, verb, len, range);
+
+        /* Temporary slays */
+        if (player_has_temporary_slay(p, i))
+            improve_attack_modifier_slay(p, NULL, who, i, best_mult, verb, len, range);
     }
 
-    /* Handle racial/class brands */
+    /* Brands */
     for (i = 0; i < z_info->brand_max; i++)
     {
-        if (p->race->brands && p->race->brands[i].brand && (p->lev >= p->race->brands[i].lvl))
-        {
-            /* Notice flags for players */
-            if (who->player) equip_notice_flags(who->player, i);
-
-            improve_attack_modifier_brand(p, NULL, who, i, best_mult, effects, verb, len, range);
-        }
+        /* Handle class brands */
         if (p->clazz->brands && p->clazz->brands[i].brand && (p->lev >= p->clazz->brands[i].lvl))
         {
             /* Notice flags for players */
@@ -603,10 +606,45 @@ void improve_attack_modifier(struct player *p, struct object *obj, struct source
 
             improve_attack_modifier_brand(p, NULL, who, i, best_mult, effects, verb, len, range);
         }
+
+        /* Only for melee attacks */
+        if (range) continue;
+
+        /* Handle racial brands */
+        if (p->race->brands && p->race->brands[i].brand && (p->lev >= p->race->brands[i].lvl))
+        {
+            /* Notice flags for players */
+            if (who->player) equip_notice_flags(who->player, i);
+
+            improve_attack_modifier_brand(p, NULL, who, i, best_mult, effects, verb, len, range);
+        }
+
+        /* Temporary brands */
+        if (player_has_temporary_brand(p, i))
+        {
+            /* Notice flags for players */
+            if (who->player) equip_notice_flags(who->player, i);
+
+            improve_attack_modifier_brand(p, NULL, who, i, best_mult, effects, verb, len, range);
+        }
     }
 
-    /* Handle polymorphed players */
-    if (p->poly_race)
+    /* Temporary branding (missile attacks) */
+    if (ammo && p->timed[TMD_BOWBRAND])
+    {
+        int index = get_bow_brand(&p->brand);
+
+        if (index != -1)
+        {
+            /* Notice flags for players */
+            if (who->player) equip_notice_flags(who->player, index);
+
+            improve_attack_modifier_brand(p, NULL, who, index, best_mult, effects, verb, len, range);
+        }
+    }
+
+    /* Handle polymorphed players (melee attacks) */
+    if (p->poly_race && !range)
     {
         int index = get_poly_brand(p->poly_race, randint0(z_info->mon_blows_max));
 
@@ -615,27 +653,8 @@ void improve_attack_modifier(struct player *p, struct object *obj, struct source
             /* Notice flags for players */
             if (who->player) equip_notice_flags(who->player, index);
 
-            improve_attack_modifier_brand(p, NULL, who, index, best_mult, effects, verb, len,
-                range);
+            improve_attack_modifier_brand(p, NULL, who, index, best_mult, effects, verb, len, range);
         }
-    }
-
-    /* Temporary slays */
-    for (i = 0; i < z_info->slay_max; i++)
-    {
-        if (!player_has_temporary_slay(p, i)) continue;
-        improve_attack_modifier_slay(p, NULL, who, i, best_mult, verb, len, range);
-    }
-
-    /* Temporary brands */
-    for (i = 0; i < z_info->brand_max; i++)
-    {
-        if (!player_has_temporary_brand(p, i)) continue;
-
-        /* Notice flags for players */
-        if (who->player) equip_notice_flags(who->player, i);
-
-        improve_attack_modifier_brand(p, NULL, who, i, best_mult, effects, verb, len, range);
     }
 }
 

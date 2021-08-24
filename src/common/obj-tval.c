@@ -3,7 +3,7 @@
  * Purpose: Wrapper functions for tvals.
  *
  * Copyright (c) 2014 Ben Semmler
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -200,19 +200,6 @@ bool tval_is_ammo(const struct object *obj)
         case TV_ARROW:
         case TV_BOLT:
         case TV_ROCK:
-            return true;
-        default:
-            return false;
-    }
-}
-
-
-bool tval_is_sharp_missile(const struct object *obj)
-{
-    switch (obj->tval)
-    {
-        case TV_ARROW:
-        case TV_BOLT:
             return true;
         default:
             return false;
@@ -555,7 +542,7 @@ bool tval_can_be_fired(const struct object *shooter, const struct object *ammo)
     }
 
     /* No shooter */
-    return (ammo->tval == TV_ROCK);
+    return false;
 }
 
 

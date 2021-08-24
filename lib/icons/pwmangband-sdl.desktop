@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=PWMAngband (SDL)
+Type=Application
+Comment=A roguelike dungeon exploration game based on the books of J.R.R.Tolkien
+Exec=pwmangclient
+TryExec=pwmangclient
+Icon=/usr/local/share/pwmangband/icons/att-32.png
+Categories=Game;RolePlaying;

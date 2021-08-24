@@ -5,7 +5,7 @@
  * Copyright (c) 2003 Takeshi Mogami, Robert Ruehlmann
  * Copyright (c) 2007 Pete Mack
  * Copyright (c) 2010 Andi Sidwell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -67,6 +67,7 @@ static void remove_old_dump(const char *cur_fname, const char *mark)
     new_file = file_open(new_fname, MODE_WRITE, FTYPE_TEXT);
     if (!new_file)
     {
+        file_close(cur_file);
         c_msg_print(format("Failed to create file %s", new_fname));
         return;
     }
@@ -240,12 +241,18 @@ void window_dump(ang_file *f)
         /* Check each flag */
         for (j = 0; j < (int)N_ELEMENTS(window_flag_desc); j++)
         {
+            bool dump;
+
             /* Require a real flag */
             if (!window_flag_desc[j]) continue;
 
+            /* Only dump the flag if true */
+            /* PWMAngband: dump all flags for main/chat windows, since there are extra checks */
+            dump = ((window_flag[i] & (1L << j)) || (i == 0) || (i == PMSG_TERM));
+            if (!dump) continue;
+
             /* Comment */
-            file_putf(f, "# Window '%s', Flag '%s'\n",
-                angband_term_name[i], window_flag_desc[j]);
+            file_putf(f, "# Window '%s', Flag '%s'\n", angband_term_name[i], window_flag_desc[j]);
 
             /* Dump the flag */
             if (window_flag[i] & (1L << j))
@@ -399,9 +406,22 @@ static const char *process_pref_file_expr(char **sp, char *fp)
                 t = process_pref_file_expr(&s, &f);
             while (*s && (f != ']'))
             {
+                char buf[30];
+                char *ptr;
+
                 p = t;
                 t = process_pref_file_expr(&s, &f);
-                if (*t && !streq(p, t)) v = "0";
+
+                /* Hack -- replace '_' by ' ' for races described by two words */
+                ptr = strstr(t, "_");
+                if (ptr)
+                {
+                    my_strcpy(buf, t, 1 + ptr - t);
+                    my_strcat(buf, " ", sizeof(buf));
+                    my_strcat(buf, ptr + 1, sizeof(buf));
+                    if (buf[0] && !streq(p, buf)) v = "0";
+                }
+                else if (*t && !streq(p, t)) v = "0";
             }
         }
         else if (streq(t, "LEQ"))
@@ -431,7 +451,7 @@ static const char *process_pref_file_expr(char **sp, char *fp)
         else
         {
             while (*s && (f != ']'))
-                t = process_pref_file_expr(&s, &f);
+                process_pref_file_expr(&s, &f);
         }
 
         /* Verify ending */

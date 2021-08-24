@@ -3,7 +3,7 @@
  * Purpose: Deal with UI only command processing.
  *
  * Copyright (c) 1997-2014 Angband developers
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -128,6 +128,7 @@ static void Term_what_hack(int x, int y, u16b *a, char *c)
 
     /* Hack -- display walls and floors properly */
     if (*c == 7) *c = '.';
+    if (*c == 8) *c = '.';
     if (*c == 127) *c = '#';
 }
 

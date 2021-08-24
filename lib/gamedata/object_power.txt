@@ -182,16 +182,16 @@ expr:P:OBJ_POWER_EXTRA_MIGHT:+ 0
 expr:Q:OBJ_POWER_BOW_MULTIPLIER:+ 0
 operation:multiply
 
-# slay power is dice power multiplied by best slay
+# slay power is squared dice power multiplied by best slay
 name:slay power
 dice:$Pd$Q
-expr:P:OBJ_POWER_DICE:* 5 / 4
+expr:P:OBJ_POWER_DICE_DICE:+ 0
 expr:Q:OBJ_POWER_BEST_SLAY:- 100
 operation:add
 
-# slay power is 100 times the damage effect, so we need to divide
+# slay power is 2500 times the damage effect, so we need to divide
 name:slay power divisor
-dice:100
+dice:2500
 operation:divide
 apply-to:slay power
 

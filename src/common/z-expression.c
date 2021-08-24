@@ -3,7 +3,7 @@
  * Purpose: Creating, storing, and deserializing simple math expressions
  *
  * Copyright (c) 2013 Ben Semmler
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -279,8 +279,6 @@ s32b expression_evaluate(expression_t const * const expression, void *data)
  */
 static void expression_add_operation(expression_t *expression, const expression_operation_t operation)
 {
-    size_t count = 0;
-
     if (expression->operation_count >= expression->operations_size)
     {
         expression->operations_size += EXPRESSION_ALLOC_SIZE;
@@ -290,7 +288,6 @@ static void expression_add_operation(expression_t *expression, const expression_
 
     expression->operations[expression->operation_count] = operation;
     expression->operation_count++;
-    count++;
 }
 
 

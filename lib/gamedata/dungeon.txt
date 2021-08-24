@@ -15,19 +15,28 @@
 # max-depth : maximum dungeon depth
 # max-level : maximum character level allowed to enter
 # flags : dungeon flags
-# floor : floor feature : chance of getting the feature
-# wall : wall feature : chance of getting the feature
-# rule : chance of using the rule : apply to all monsters
+# floor : floor feature : 1/10000 chance of getting the feature
+# wall : wall feature : 1/10000 chance of getting the feature
+# fill : wall feature : 1/10000 chance of getting the feature
+# perma : permawall feature : 1/10000 chance of getting the feature
+# door : closed door feature : open door feature : broken door feature : 1/10000
+#        chance of getting the feature
+# stair : stairs down : stairs up : 1/10000 chance of getting the feature
+# rubble : rubble : passable rubble : 1/10000 chance of getting the feature
+# fountain : fountain : dried out fountain : 1/10000 chance of getting
+#            the feature
+# rule : 1/10000 chance of using the rule : apply to all monsters
 # rule-flags : monster flags
 # rule-spells : monster spell flags
 # rule-symbols : monster symbols
+# stairs : extra ups : extra downs
 
 # Set min-depth to the depth of the first level of the dungeon.
 # Leaving min-depth unset means that the first level of the dungeon has a
 # standard depth of 1. This should always be the case for the Main Angband
 # dungeon.
 
-# Set max-depth to the depth of the corresponding "force-location" unique
+# Set max-depth to the depth of the corresponding FORCE_DEPTH unique
 # in monster.txt to create the "final level dungeon boss".
 # Leaving max-depth unset means "maximum depth allowed" (defined in
 # constants.txt). This should always be the case for the Main Angband dungeon.
@@ -40,17 +49,28 @@
 
 # 'floor' are dungeon features that can replace basic floors
 # 'wall' are dungeon features that can replace basic walls
+# 'fill' are dungeon features that can replace "core" walls
+# 'perma' are dungeon features that can replace basic permawalls
+# 'door' are dungeon features that can replace basic doors
+# 'stair' are dungeon features that can replace basic stairs
+# 'rubble' are dungeon features that can replace basic rubbles
+# 'fountain' are dungeon features that can replace basic fountains
 
 # 'rule' are dungeon rules to restrict the possible monsters
 # 'rule-flags' are monster flags checked by the rule
 # 'rule-spells' are monster spell flags checked by the rule
 # 'rule-symbols' are monster symbols checked by the rule
 
+# 'stairs' are extra stairs up and down generated in the dungeon
+# up is the random value used for extra up staircases
+# down is the random value used for extra down staircases
+
 
 # Main Angband dungeon
 name:Angband
 wpos:-9:37
-rule:100:1
+flags:STREAMS
+rule:10000:1
 
 # The Training Cave
 name:The Training Cave
@@ -58,24 +78,25 @@ wpos:-21:20
 min-depth:1
 max-depth:2
 max-level:10
-flags:EMPTY
-rule:100:1
+flags:EMPTY | STREAMS
+rule:10000:1
 
-# The Orc Cave (boss: Azog, King of the Uruk-Hai)
+# The Orc Cave (boss: Azog, Enemy of the Dwarves)
 name:The Orc Cave
 wpos:-14:28
 min-depth:10
 max-depth:23
 max-level:30
-flags:CAVERN
-floor:packed dirt:10
-wall:mountain:10
-rule:50:0
+flags:CAVERN | STREAMS
+floor:packed dirt:1000
+wall:mountain:1200
+fill:mountain:600
+rule:5000:0
 rule-flags:ORC
 rule-symbols:koO
-rule:30:0
+rule:3000:0
 rule-flags:TROLL
-rule:20:1
+rule:2000:1
 
 # The Old Forest (boss: Old Man Willow)
 name:The Old Forest
@@ -83,16 +104,34 @@ wpos:-18:19
 min-depth:13
 max-depth:25
 max-level:30
-flags:NO_DOORS | WATER_RIVER
+flags:NO_DOORS | WATER_RIVER | STREAMS
 floor:packed dirt:8
-floor:water:2
-wall:tree:10
-rule:40:0
+floor:water:200
+wall:tree:1200
+fill:tree:600
+rule:4000:0
 rule-flags:ANIMAL
-rule:30:0
+rule:3000:0
 rule-flags:UNDEAD
-rule-symbols:h
-rule:30:1
+rule-symbols:hl
+rule:3000:1
+
+# The Ettenmoors (boss: Bert/Bill/Tom)
+name:The Ettenmoors
+wpos:-6:30
+min-depth:18
+max-depth:30
+max-level:35
+flags:CAVERN | STREAMS
+floor:packed dirt:1000
+wall:mountain:1200
+fill:mountain:600
+rule:5000:0
+rule-flags:TROLL
+rule:3000:0
+rule-flags:GIANT
+rule-symbols:O
+rule:2000:1
 
 # The Sandworm Lair (boss: The Sandworm Queen)
 name:The Sandworm Lair
@@ -100,12 +139,13 @@ wpos:40:-40
 min-depth:22
 max-depth:30
 max-level:35
-flags:NO_DOORS | SAND_VEIN
-floor:sand:10
-wall:sandwall:10
-rule:90:0
+flags:NO_DOORS | SAND_VEIN | STREAMS
+floor:sand:1000
+wall:sandwall:1200
+fill:sandwall:600
+rule:9000:0
 rule-symbols:w
-rule:10:0
+rule:1000:0
 rule-flags:MULTIPLY
 
 # The Land Of Rhûn (boss: Ulfang the Black)
@@ -114,14 +154,17 @@ wpos:32:12
 min-depth:20
 max-depth:34
 max-level:40
-floor:grass:10
-wall:tree:3
-wall:water:3
-rule:30:0
+flags:STREAMS
+floor:grass:1000
+wall:tree:400
+wall:water:400
+fill:tree:200
+fill:water:200
+rule:3000:0
 rule-symbols:ph
-rule:30:0
+rule:3000:0
 rule-flags:ANIMAL
-rule:40:1
+rule:4000:1
 
 # The Barrow-downs (boss: The Wight-King of the Barrow-downs)
 name:The Barrow-downs
@@ -129,13 +172,16 @@ wpos:-16:19
 min-depth:1
 max-depth:35
 max-level:40
-floor:packed dirt:8
-floor:grass:2
-wall:tree:3
-wall:mountain:7
-rule:25:0
+flags:STREAMS
+floor:packed dirt:800
+floor:grass:200
+wall:tree:400
+wall:mountain:800
+fill:tree:200
+fill:mountain:400
+rule:2500:0
 rule-flags:UNDEAD
-rule:75:1
+rule:7500:1
 
 # The Maze (boss: The Minotaur of the Labyrinth)
 name:The Maze
@@ -144,9 +190,9 @@ min-depth:25
 max-depth:40
 max-level:40
 flags:MAZE
-rule:20:0
+rule:2000:0
 rule-symbols:p
-rule:80:1
+rule:8000:1
 
 # The Heart of the Earth (boss: Golgarach, the Living Rock)
 name:The Heart of the Earth
@@ -154,11 +200,12 @@ wpos:21:29
 min-depth:25
 max-depth:45
 max-level:45
-rule:40:0
+flags:STREAMS
+rule:4000:0
 rule-symbols:#XgE
-rule:30:0
+rule:3000:0
 rule-flags:PASS_WALL | KILL_WALL | HURT_ROCK
-rule:30:1
+rule:3000:1
 
 # The Small Water Cave (boss: The Watcher in the Water)
 name:The Small Water Cave
@@ -166,15 +213,17 @@ wpos:-5:10
 min-depth:32
 max-depth:45
 max-level:45
-floor:water:10
-wall:mountain:10
-rule:40:0
+flags:STREAMS
+floor:water:1000
+wall:mountain:1200
+fill:mountain:600
+rule:4000:0
 rule-flags:IM_COLD
-rule:40:0
+rule:4000:0
 rule-spells:BO_WATE | BA_WATE | BR_WATE
-rule:10:0
+rule:1000:0
 rule-flags:IM_WATER
-rule:10:1
+rule:1000:1
 
 # The Helcaraxe (boss: The White Balrog)
 name:The Helcaraxe
@@ -182,10 +231,11 @@ wpos:-14:42
 min-depth:20
 max-depth:50
 max-level:45
-flags:CAVERN | WATER_RIVER
-floor:ice:10
-wall:ice wall:10
-rule:100:0
+flags:CAVERN | WATER_RIVER | STREAMS
+floor:ice:1000
+wall:ice wall:1200
+fill:ice wall:600
+rule:10000:0
 rule-flags:IM_COLD
 
 # The Mines of Moria (boss: The Balrog of Moria)
@@ -194,16 +244,17 @@ wpos:-4:11
 min-depth:30
 max-depth:50
 max-level:45
-flags:WATER_RIVER
-floor:packed dirt:10
-wall:mountain:10
-rule:40:0
+flags:WATER_RIVER | STREAMS
+floor:packed dirt:1000
+wall:mountain:1200
+fill:mountain:600
+rule:4000:0
 rule-flags:ORC
-rule:30:0
+rule:3000:0
 rule-flags:TROLL | GIANT
-rule:20:0
+rule:2000:0
 rule-flags:DEMON
-rule:10:1
+rule:1000:1
 
 # The Illusory Castle (boss: The Glass Golem)
 name:The Illusory Castle
@@ -211,13 +262,16 @@ wpos:-7:2
 min-depth:35
 max-depth:52
 max-level:45
-wall:glass wall:5
-wall:illusion wall:5
-rule:70:0
+flags:STREAMS
+wall:glass wall:600
+wall:illusion wall:600
+fill:glass wall:300
+fill:illusion wall:300
+rule:7000:0
 rule-flags:STUPID | WEIRD_MIND | ATTR_MULTI | ATTR_FLICKER | RAND_25 |
 rule-flags:RAND_50 | EMPTY_MIND | INVISIBLE | PASS_WALL | KILL_WALL | MULTIPLY
 rule-spells:BR_CHAO | CONF | FORGET | TRAPS
-rule:30:1
+rule:3000:1
 
 # Cirith Ungol (boss: Shelob, Spider of Darkness)
 name:Cirith Ungol
@@ -225,17 +279,19 @@ wpos:13:-16
 min-depth:25
 max-depth:55
 max-level:45
-flags:CIRCULAR_ROOMS
-floor:packed dirt:7
-floor:web:3
-wall:mountain:9
-wall:web:1
-rule:49:0
+flags:CIRCULAR_ROOMS | STREAMS
+floor:packed dirt:700
+floor:web:300
+wall:mountain:1000
+wall:web:120
+fill:mountain:500
+fill:web:60
+rule:4900:0
 rule-symbols:caIS
-rule:49:0
+rule:4900:0
 rule-flags:ORC
 rule-symbols:wmj
-rule:2:1
+rule:200:1
 
 # Númenor (boss: Ar-Pharazôn the Golden)
 name:Númenor
@@ -243,88 +299,99 @@ wpos:-39:-17
 min-depth:35
 max-depth:55
 max-level:45
-floor:water:10
-wall:water:9
-rule:80:0
+flags:STREAMS
+floor:water:1000
+wall:water:1000
+fill:water:500
+rule:8000:0
 rule-flags:IM_WATER
-rule:20:1
+rule:2000:1
 
 # Mirkwood (boss: Radagast the Brown)
 name:Mirkwood
 wpos:7:24
 min-depth:11
 max-depth:64
-flags:NO_DOORS
-floor:grass:10
-wall:tree:10
-rule:25:0
+flags:NO_DOORS | STREAMS
+floor:grass:1000
+wall:tree:1200
+fill:tree:600
+rule:2500:0
 rule-symbols:S
-rule:75:1
+rule:7500:1
 
 # Mordor (boss: The Mouth of Sauron)
 name:Mordor
 wpos:13:-10
 min-depth:34
 max-depth:65
-flags:CAVERN | LAVA_RIVER
-floor:packed dirt:7
-floor:ash:3
-wall:mountain:5
-rule:100:1
+flags:CAVERN | LAVA_RIVER | STREAMS
+floor:packed dirt:700
+floor:ash:300
+wall:mountain:600
+fill:mountain:300
+rule:10000:1
 
 # Erebor (boss: Glaurung, Father of the Dragons)
 name:Erebor
 wpos:12:30
 min-depth:58
 max-depth:70
-flags:CAVERN | LAVA_RIVER
-floor:packed dirt:10
-wall:mountain:9
-wall:dark wall:1
-rule:60:0
+flags:CAVERN | LAVA_RIVER | STREAMS
+floor:packed dirt:1000
+wall:mountain:1000
+wall:dark wall:120
+fill:mountain:500
+fill:dark wall:60
+rule:6000:0
 rule-symbols:D
-rule:30:0
+rule:3000:0
 rule-symbols:d
-rule:10:1
+rule:1000:1
 
 # The Sacred Land Of Mountains (boss: Trone, the Rebel Thunderlord)
 name:The Sacred Land Of Mountains
 wpos:25:3
 min-depth:45
 max-depth:72
-floor:grass:10
-wall:mountain:10
-rule:100:1
+flags:STREAMS
+floor:grass:1000
+wall:mountain:1200
+fill:mountain:600
+rule:10000:1
 
 # Dol Guldur (boss: The Necromancer of Dol Guldur)
 name:Dol Guldur
 wpos:6:9
 min-depth:57
 max-depth:75
-floor:water:2
-rule:30:0
+flags:STREAMS
+floor:water:200
+rule:3000:0
 rule-symbols:pP
-rule:30:0
+rule:3000:0
 rule-flags:DEMON | DRAGON
-rule:20:0
+rule:2000:0
 rule-flags:UNDEAD
-rule:10:0
+rule:1000:0
 rule-flags:ORC | TROLL
-rule:10:1
+rule:1000:1
 
 # The Paths of the Dead (boss: Feagwath, the Undead Sorcerer)
 name:The Paths of the Dead
 wpos:-2:-10
 min-depth:40
 max-depth:77
-floor:packed dirt:9
-floor:water:1
-wall:dark wall:3
-rule:85:0
+flags:STREAMS
+floor:packed dirt:900
+floor:water:100
+wall:dark wall:400
+fill:dark wall:200
+rule:8500:0
 rule-flags:UNDEAD | NONLIVING
-rule:10:0
+rule:1000:0
 rule-symbols:p
-rule:5:1
+rule:500:1
 
 # Mount Doom (boss: The Balrog of the Sammath Naur)
 name:Mount Doom
@@ -332,9 +399,10 @@ wpos:16:-13
 min-depth:84
 max-depth:98
 flags:CAVERN | LAVA_RIVER
-floor:lava stream:10
-wall:lava:10
-rule:100:0
+floor:lava stream:1000
+wall:lava:1200
+fill:lava:600
+rule:10000:0
 rule-flags:IM_FIRE
 
 # The Nether Realm (boss: Xakaze, Father of Abominations)
@@ -342,23 +410,25 @@ name:The Nether Realm
 wpos:39:37
 min-depth:101
 max-depth:126
-flags:EMPTY | LAVA_RIVER | WINNERS_ONLY
-floor:nether mist:8
-floor:lava stream:2
-wall:lava:8
-wall:dark wall:2
-rule:95:0
+flags:EMPTY | LAVA_RIVER | WINNERS_ONLY | STREAMS
+floor:nether mist:800
+floor:lava stream:200
+wall:lava:900
+wall:dark wall:300
+fill:lava:450
+fill:dark wall:150
+rule:9500:0
 rule-flags:IM_NETHER
 rule-symbols:GWU
-rule:5:1
+rule:500:1
 
 # Utumno, Portal to the Void (boss: Melkor, Lord of Darkness)
 name:Utumno, Portal to the Void
 wpos:42:42
 min-depth:102
 max-depth:127
-flags:EMPTY | WINNERS_ONLY
-floor:void:10
-rule:99:0
+flags:EMPTY | WINNERS_ONLY | STREAMS
+floor:void:1000
+rule:9900:0
 rule-flags:UNDEAD | DEMON | DRAGON | NONLIVING
-rule:1:1
+rule:100:1

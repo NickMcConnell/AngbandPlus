@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2007 Pete Mack
  * Copyright (c) 2010 Andi Sidwell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -789,6 +789,7 @@ ui_event menu_select(struct menu *menu, int notify, bool popup)
     while (!(in.type & notify))
     {
         ui_event out = EVENT_EMPTY;
+        int cursor = menu->cursor;
 
         menu_refresh(menu, popup);
         in = inkey_ex();
@@ -796,6 +797,9 @@ ui_event menu_select(struct menu *menu, int notify, bool popup)
         /* Handle keyboard commands */
         if (in.type == EVT_KBRD)
         {
+            int mode = (OPT(player, rogue_like_commands)? KEYMAP_MODE_ROGUE: KEYMAP_MODE_ORIG);
+            const struct keypress *act;
+
             /* Command key */
             if (!no_act && menu->cmd_keys && strchr(menu->cmd_keys, (char)in.key.code) &&
                 menu_handle_action(menu, &in))
@@ -811,7 +815,12 @@ ui_event menu_select(struct menu *menu, int notify, bool popup)
                 return in;
             }
 
-            menu_handle_keypress(menu, &in, &out);
+            /* If we find a keymap that starts with ESCAPE, stop here */
+            act = keymap_find(mode, in.key);
+            if (act && (act->code == ESCAPE))
+                out.type = EVT_ESCAPE;
+            else
+                menu_handle_keypress(menu, &in, &out);
         }
         else if (in.type == EVT_RESIZE)
         {
@@ -820,7 +829,8 @@ ui_event menu_select(struct menu *menu, int notify, bool popup)
                 menu->row_funcs->resize(menu);
         }
 
-        /* XXX should redraw menu here if cursor has moved */
+        /* Redraw menu here if cursor has moved */
+        if (cursor != menu->cursor) menu_refresh(menu, popup);
 
         /* If we've selected an item, then send that event out */
         if ((out.type == EVT_SELECT) && !no_act && menu_handle_action(menu, &out))

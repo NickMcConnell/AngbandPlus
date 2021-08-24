@@ -8,8 +8,8 @@
  * Stat properties are defined in lib/gamedata/object_property.txt
  */
 
-STAT(STR)
-STAT(INT)
-STAT(WIS)
-STAT(DEX)
-STAT(CON)
+STAT(STR, "You feel stronger!", "You feel weaker!")
+STAT(INT, "You feel smarter!", "You feel more stupid!")
+STAT(WIS, "You feel wiser!", "You feel more naive!")
+STAT(DEX, "You feel more dextrous!", "You feel clumsier!")
+STAT(CON, "You feel healthier!", "You feel sicklier!")

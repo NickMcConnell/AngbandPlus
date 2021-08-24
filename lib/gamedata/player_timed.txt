@@ -5,7 +5,7 @@
 # Timed player properties
 #
 # Descriptions, messages and message types can be edited without bad effects.
-# Changing code or fail may have unpredictable results.
+# Changing fail may have unpredictable results.
 # Changing the name, reordering, or adding whole new entires will severely
 # disrupt the game, and should only be done when list-player-timed.h
 # (and other code) is also being changed, and the game recompiled.
@@ -84,7 +84,6 @@ desc:fear
 grade:o:10000:Afraid:You are terrified!
 on-end:You feel bolder now.
 on-increase:You are more scared!
-on-decrease:You feel a little less scared.
 near-begin: cowers in fear.
 near-end: appears bolder now.
 msgt:AFRAID
@@ -95,7 +94,6 @@ desc:hallucinations
 grade:o:10000:Hallu:You feel drugged!
 on-end:You can see clearly again.
 on-increase:You feel more drugged!
-on-decrease:You feel less drugged.
 near-begin: appears drugged.
 near-end: can see clearly again.
 msgt:DRUGGED
@@ -129,7 +127,7 @@ msgt:CUT
 name:STUN
 desc:stunning
 grade:o:50:Stun:You have been stunned.
-grade:o:100:Heavy Stun:You have been heavily stunned.
+grade:o:150:Heavy Stun:You have been heavily stunned.
 grade:r:10000:Knocked Out:You have been knocked out.
 on-end:You are no longer stunned.
 near-begin: is stunned.
@@ -137,12 +135,22 @@ near-end: is no longer stunned.
 msgt:STUN
 fail:1:PROT_STUN
 
+# Note food grades are in percentages here, and are translated on parsing
+name:FOOD
+desc:nourishment
+grade:R:1:Starving:unused:You are starving!!
+grade:r:4:Faint:You are still faint.:You are getting faint from hunger!
+grade:o:8:Weak:You are still weak.:You are getting weak from hunger!
+grade:y:15:Hungry:You are still hungry.:You are getting hungry.
+grade:G:90:Fed:You are no longer hungry.:You are no longer full.
+grade:g:100:Full:You are full!
+msgt:HUNGRY
+
 name:PROTEVIL
 desc:protection from evil
 grade:G:10000:ProtEvil:You feel safe from evil!
 on-end:You no longer feel safe from evil.
 on-increase:You feel even safer from evil!
-on-decrease:You feel less safe from evil.
 near-begin: is surrounded by a holy aura.
 near-end:'s holy aura disappears.
 msgt:PROT_EVIL
@@ -159,7 +167,6 @@ desc:heroism (a bonus of {+12} to-hit)
 grade:G:10000:Hero:You feel like a hero!
 on-end:You no longer feel heroic.
 on-increase:You feel more like a hero!
-on-decrease:You feel less heroic.
 near-begin: appears heroic.
 near-end: appears less heroic.
 msgt:HERO
@@ -169,7 +176,6 @@ desc:berserk strength (a bonus of {+24} to-hit, and a penalty of {-10} to AC)
 grade:G:10000:Berserk:You feel like a killing machine!
 on-end:You no longer feel berserk.
 on-increase:You feel even more berserk!
-on-decrease:You feel less berserk.
 near-begin: enters a battle rage.
 near-end: calms down.
 msgt:BERSERK
@@ -178,7 +184,6 @@ name:SHIELD
 grade:G:10000:Shield:A mystic shield forms around your body!
 on-end:Your mystic shield crumbles away.
 on-increase:The mystic shield strengthens.
-on-decrease:The mystic shield weakens.
 near-begin: forms a mystic shield.
 near-end:'s mystic shield crumbles away.
 msgt:SHIELD
@@ -188,7 +193,6 @@ desc:blessing (a bonus of {+5} to armor class and {+10} to-hit)
 grade:G:10000:Blessed:You feel righteous!
 on-end:The prayer has expired.
 on-increase:You feel more righteous!
-on-decrease:You feel less righteous.
 near-begin: is surrounded by a bright aura.
 near-end:'s bright aura disappears.
 msgt:BLESSED
@@ -198,7 +202,6 @@ desc:the power to see invisible
 grade:G:10000:SInvis:Your eyes feel very sensitive!
 on-end:Your eyes no longer feel so sensitive.
 on-increase:Your eyes feel more sensitive!
-on-decrease:Your eyes feel less sensitive.
 near-begin:'s eyes glow brightly.
 near-end:'s eyes are back to normal.
 msgt:SEE_INVIS
@@ -207,8 +210,7 @@ name:SINFRA
 desc:extra infravision ({+50} feet)
 grade:G:10000:Infra:Your eyes begin to tingle!
 on-end:Your eyes stop tingling.
-on-increase:Your eyes' tingling intensifies.
-on-decrease:Your eyes tingle less.
+on-increase:The tingling in your eyes intensifies.
 near-begin:'s eyes begin to tingle.
 near-end:'s eyes stop tingling.
 msgt:INFRARED
@@ -218,7 +220,6 @@ desc:temporary resistance to acid
 grade:s:10000:RAcid:You feel resistant to acid!
 on-end:You are no longer resistant to acid.
 on-increase:You feel more resistant to acid!
-on-decrease:You feel less resistant to acid.
 near-begin: is surrounded by an acidic aura.
 near-end:'s acidic aura disappears.
 msgt:RES_ACID
@@ -229,7 +230,6 @@ desc:temporary resistance to lightning
 grade:b:10000:RElec:You feel resistant to lightning!
 on-end:You are no longer resistant to lightning.
 on-increase:You feel more resistant to lightning!
-on-decrease:You feel less resistant to lightning.
 near-begin: is surrounded by an electric aura.
 near-end:'s electric aura disappears.
 msgt:RES_ELEC
@@ -240,7 +240,6 @@ desc:temporary resistance to fire
 grade:r:10000:RFire:You feel resistant to fire!
 on-end:You are no longer resistant to fire.
 on-increase:You feel more resistant to fire!
-on-decrease:You feel less resistant to fire.
 near-begin: is surrounded by a fiery aura.
 near-end:'s fiery aura disappears.
 msgt:RES_FIRE
@@ -251,7 +250,6 @@ desc:temporary resistance to cold
 grade:w:10000:RCold:You feel resistant to cold!
 on-end:You are no longer resistant to cold.
 on-increase:You feel more resistant to cold!
-on-decrease:You feel less resistant to cold.
 near-begin: is surrounded by a chilling aura.
 near-end:'s chilling aura disappears.
 msgt:RES_COLD
@@ -262,17 +260,16 @@ desc:temporary resistance to poison
 grade:g:10000:RPois:You feel resistant to poison!
 on-end:You are no longer resistant to poison.
 on-increase:You feel more resistant to poison!
-on-decrease:You feel less resistant to poison.
 near-begin: is surrounded by a toxic aura.
 near-end:'s toxic aura disappears.
 msgt:RES_POIS
+fail:3:POIS
 
 name:OPP_CONF
 desc:temporary resistance to confusion
 grade:v:10000:RConf:You feel resistant to confusion!
 on-end:You are no longer resistant to confusion.
 on-increase:You feel more resistant to confusion!
-on-decrease:You feel less resistant to confusion.
 near-begin: is surrounded by a clear aura.
 near-end:'s clear aura disappears.
 
@@ -319,7 +316,6 @@ desc:temporary resistance to fear
 grade:G:10000:Bold:You feel bold!
 on-end:You no longer feel bold.
 on-increase:You feel even bolder!
-on-decrease:You feel less bold.
 near-begin: feels bold.
 near-end: no longer feels bold.
 msgt:BOLD
@@ -328,7 +324,6 @@ name:SCRAMBLE
 grade:v:10000:Scrambled:Your body starts to scramble...
 on-end:Your body reasserts its true nature.
 on-increase:You are more scrambled!
-on-decrease:You are less scrambled.
 near-begin:'s body starts to scramble.
 near-end:'s body reasserts its true nature.
 msgt:SCRAMBLE
@@ -338,7 +333,6 @@ name:TRAPSAFE
 grade:G:10000:TrapSafe:You feel safe from traps.
 on-end:You feel vulnerable to traps again.
 on-increase:You feel even safer from traps!
-on-decrease:You feel less safe from traps.
 near-begin: appears stealthy.
 near-end: appears less stealthy.
 
@@ -385,10 +379,10 @@ near-end:'s weapon's toxic aura disappears.
 
 name:ATT_CONF
 desc:temporary monster confusion
-grade:U:10000:AttConf:Your {kind} begin{s} to glow!
-on-end:The glow fades from your {kind}.
-near-begin:'s weapon is surrounded by a confusing aura.
-near-end:'s weapon's confusing aura disappears.
+grade:U:10000:AttConf:Your hands begin to glow!
+on-end:The glow fades from your hands.
+near-begin:'s hands are surrounded by a confusing aura.
+near-end:'s hands' confusing aura disappears.
 
 name:ATT_EVIL
 desc:temporary slay evil
@@ -411,8 +405,8 @@ near-begin:'s touch becomes vampiric.
 near-end:'s touch is back to normal.
 
 name:HEAL
-grade:G:10000:Heal:You feel the healing powers of nature!
-on-end:The healing effect fades.
+grade:G:10000:Heal:Your metabolism speeds up!
+on-end:Your metabolism returns to normal.
 near-begin: appears healthier.
 near-end: appears less healthy.
 
@@ -422,30 +416,24 @@ on-end:You relax again.
 near-begin: tenses up ready to run away.
 near-end: relaxes again.
 
-name:SCENTLESS
+name:COVERTRACKS
 grade:T:10000:NoTrack:You begin covering your tracks.
 on-end:You stop covering your tracks.
 near-begin:'s scent disappears.
 near-end:'s scent reappears.
 
-name:POWERSHOT
-grade:i:10000:PShot:You prepare to shoot powerfully!
-on-end:Your shooting power returns to normal.
-near-begin: prepares to shoot powerfully.
-near-end:'s shooting power returns to normal.
-
-name:POWERBLOW
-grade:i:10000:PBlow:You feel you can strike with enormous force!
-on-end:Your sense of power dissipates.
-near-begin: appears very powerful.
-near-end: appears less powerful.
+name:TAUNT
+grade:i:10000:Taunt:You start aggravating your enemies!
+on-end:You stop aggravating your enemies.
+near-begin: appears very arrogant.
+near-end: appears less arrogant.
 
 name:BLOODLUST
-grade:y:9:Bloodlust:A red mist descends over your eyes!
-grade:I:19:Bloodlust:Your thirst for blood increases!
-grade:o:29:Bloodlust:Your thirst for blood increases!
-grade:r:39:Bloodlust:Your thirst for blood increases!
-grade:R:48:Bloodlust:Your thirst for blood increases!
+grade:y:10:Bloodlust:A red mist descends over your eyes!
+grade:I:18:Bloodlust:Your thirst for blood increases!
+grade:o:26:Bloodlust:Your thirst for blood increases!
+grade:r:34:Bloodlust:Your thirst for blood increases!
+grade:R:45:Bloodlust:Your thirst for blood increases!
 grade:P:50:Bloodlust:Your thirst for blood is insatiable!
 on-end:The mist clears.
 near-begin:'s eyes become bloodshot red.
@@ -456,6 +444,19 @@ grade:D:10:BlkBrth:You are overcome by the Black Breath!
 on-end:The Black Shadow lifts.
 near-begin: appears deathly sick.
 near-end: appears more healthy.
+
+name:STEALTH
+grade:D:10000:Stealth:You feel silent!
+on-end:You feel less stealthy.
+near-begin: appears more stealthy.
+near-end: appears less stealthy.
+
+name:FREE_ACT
+grade:G:10000:FrAct:Your limbs fill with energy!
+on-end:Your limbs return to normal.
+on-increase:Your limbs feel more energetic!
+near-begin:'s limbs fill with energy.
+near-end:'s limbs return to normal.
 
 # PWMAngband
 

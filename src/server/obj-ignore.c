@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2007 David T. Blackston, Iain McFall, DarkGod, Jeff Greene,
  * David Vestal, Pete Mack, Andi Sidwell.
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -113,7 +113,7 @@ static const char *inscrip_text[] =
 /*
  * Sense an object
  */
-static void sense_object(struct player *p, struct object *obj)
+static void sense_object(struct player *p, struct object *obj, bool tocarry)
 {
     char o_name[NORMAL_WID];
     const char *text = NULL;
@@ -140,7 +140,7 @@ static void sense_object(struct player *p, struct object *obj)
     marker = object_marker(obj);
 
     /* Stop everything */
-    disturb(p, 0);
+    disturb(p);
 
     if (cursed) text = "cursed";
     else if (worthless) text = "worthless";
@@ -152,15 +152,22 @@ static void sense_object(struct player *p, struct object *obj)
     /* Message (inventory) */
     if (object_is_carried(p, obj))
     {
-        msg(p, "You feel the %s (%c) in your pack %s %s...", o_name, gear_to_label(p, obj),
+        msgt(p, MSG_NOTICE, "You feel the %s (%c) in your pack %s %s...", o_name,
+            gear_to_label(p, obj), VERB_AGREEMENT(obj->number, "is", "are"), text);
+    }
+
+    /* Message (object to be carried) */
+    else if (tocarry)
+    {
+        msgt(p, MSG_NOTICE, "You feel the %s in your pack %s %s...", o_name,
             VERB_AGREEMENT(obj->number, "is", "are"), text);
     }
 
     /* Message (floor) */
     else
     {
-        msg(p, "You feel the %s on the ground %s %s...", o_name, VERB_AGREEMENT(obj->number, "is", "are"),
-            text);
+        msgt(p, MSG_NOTICE, "You feel the %s on the ground %s %s...", o_name,
+            VERB_AGREEMENT(obj->number, "is", "are"), text);
     }
 
     /* Set ignore flag as appropriate */
@@ -180,7 +187,7 @@ static void sense_object(struct player *p, struct object *obj)
 /*
  * Assess an object
  */
-void assess_object(struct player *p, struct object *obj)
+void assess_object(struct player *p, struct object *obj, bool tocarry)
 {
     /* Transfer player object knowledge */
     player_know_object(p, obj);
@@ -210,7 +217,7 @@ void assess_object(struct player *p, struct object *obj)
         object_know_everything(p, obj);
 
     /* Sense the object */
-    sense_object(p, obj);
+    sense_object(p, obj, tocarry);
 }
 
 

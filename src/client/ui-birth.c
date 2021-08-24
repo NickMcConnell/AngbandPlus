@@ -3,7 +3,7 @@
  * Purpose: Text-based user interface for character creation
  *
  * Copyright (c) 1987 - 2015 Angband contributors
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -314,8 +314,13 @@ static void birthmenu_display(struct menu *menu, int oid, bool cursor, int row, 
 {
     struct birthmenu_data *data = menu_priv(menu);
     byte attr = curs_attrs[CURS_KNOWN][0 != cursor];
+    int len = strlen(data->items[oid]);
 
-    c_put_str(attr, data->items[oid], row, col);
+    /* Hack -- don't write past menu width */
+    if (len > width)
+        Term_putstr(col, row, width, attr, data->items[oid]);
+    else
+        c_put_str(attr, data->items[oid], row, col);
 }
 
 
@@ -371,80 +376,15 @@ static void skill_help(int col, int *row, const s16b r_skills[], const s16b c_sk
 }
 
 
-static const char *get_flag_desc(bitflag flag)
-{
-    switch (flag)
-    {
-        #define OF(a, b) case OF_##a: return b;
-        #include "../common/list-object-flags.h"
-        #undef OF
-
-        default: return "Undocumented flag";
-    }
-}
-
-
-static const char *get_resist_desc(int element)
-{
-    switch (element)
-    {
-        #define ELEM(a, b, c, d) case ELEM_##a: return b;
-        #include "../common/list-elements.h"
-        #undef ELEM
-
-        default: return "Undocumented element";
-    }
-}
-
-
-static const char *get_immune_desc(int element)
-{
-    switch (element)
-    {
-        #define ELEM(a, b, c, d) case ELEM_##a: return c;
-        #include "../common/list-elements.h"
-        #undef ELEM
-
-        default: return "Undocumented element";
-    }
-}
-
-
-static const char *get_vuln_desc(int element)
-{
-    switch (element)
-    {
-        #define ELEM(a, b, c, d) case ELEM_##a: return d;
-        #include "../common/list-elements.h"
-        #undef ELEM
-
-        default: return "Undocumented element";
-    }
-}
-
-
-static const char *get_pflag_desc(bitflag flag)
-{
-    switch (flag)
-    {
-        #define PF(a, b, c) case PF_##a: return c;
-        #include "../common/list-player-flags.h"
-        #undef PF
-
-        default: return "Undocumented pflag";
-    }
-}
-
-
 /*
  * Display additional information about each race during the selection.
  */
 static void race_help(int i, void *db, const region *l)
 {
     int j;
-    size_t k;
     struct player_race *r = player_id2race(i);
     int len = (STAT_MAX + 1) / 2;
+    struct player_ability *ability;
     int n_flags = 0;
     int flag_space = 3;
 
@@ -470,67 +410,26 @@ static void race_help(int i, void *db, const region *l)
     skill_help(RACE_AUX_COL, &j, r->r_skills, NULL, r->r_mhp, r->r_exp,
         race_modifier(r, OBJ_MOD_INFRA, 1, false));
 
-    for (k = 1; k < OF_MAX; k++)
+    for (ability = player_abilities; ability; ability = ability->next)
     {
-        const char *s;
-
         if (n_flags >= flag_space) break;
-        if (!of_has(r->flags, k)) continue;
-        s = get_flag_desc(k);
-        if (!s) continue;
-        if (r->flvl[k] > 1) continue;
-        format_help(RACE_AUX_COL, j++, "%-30s", s);
-        n_flags++;
-    }
+        if (!ability->name) continue;
+        if (streq(ability->type, "object"))
+        {
+            if (!of_has(r->flags, ability->index)) continue;
+            if (r->flvl[ability->index] > 1) continue;
+        }
+        else if (streq(ability->type, "player"))
+        {
+            if (!pf_has(r->pflags, ability->index)) continue;
+        }
+        else if (streq(ability->type, "element"))
+        {
+            if (r->el_info[ability->index].res_level != ability->value) continue;
+            if (r->el_info[ability->index].lvl > 1) continue;
+        }
 
-    for (k = 0; k < ELEM_MAX; k++)
-    {
-        const char *s;
-
-        if (n_flags >= flag_space) break;
-        if (r->el_info[k].res_level != 1) continue;
-        s = get_resist_desc(k);
-        if (!s) continue;
-        if (r->el_info[k].lvl > 1) continue;
-        format_help(RACE_AUX_COL, j++, "%-30s", s);
-        n_flags++;
-    }
-
-    for (k = 0; k < ELEM_MAX; k++)
-    {
-        const char *s;
-
-        if (n_flags >= flag_space) break;
-        if (r->el_info[k].res_level != 3) continue;
-        s = get_immune_desc(k);
-        if (!s) continue;
-        if (r->el_info[k].lvl > 1) continue;
-        format_help(RACE_AUX_COL, j++, "%-30s", s);
-        n_flags++;
-    }
-
-    for (k = 0; k < ELEM_MAX; k++)
-    {
-        const char *s;
-
-        if (n_flags >= flag_space) break;
-        if (r->el_info[k].res_level != -1) continue;
-        s = get_vuln_desc(k);
-        if (!s) continue;
-        if (r->el_info[k].lvl > 1) continue;
-        format_help(RACE_AUX_COL, j++, "%-30s", s);
-        n_flags++;
-    }
-
-    for (k = 0; k < PF__MAX; k++)
-    {
-        const char *s;
-
-        if (n_flags >= flag_space) break;
-        if (!pf_has(r->pflags, k)) continue;
-        s = get_pflag_desc(k);
-        if (!s) continue;
-        format_help(RACE_AUX_COL, j++, "%-30s", s);
+        format_help(RACE_AUX_COL, j++, "%-30s", ability->name);
         n_flags++;
     }
 
@@ -548,10 +447,10 @@ static void race_help(int i, void *db, const region *l)
 static void class_help(int i, void *db, const region *l)
 {
     int j;
-    size_t k;
     const struct player_class *c = player_id2class(i);
     const struct player_race *r = player->race;
     int len = (STAT_MAX + 1) / 2;
+    struct player_ability *ability;
     int n_flags = 0;
     int flag_space = 5;
 
@@ -600,67 +499,26 @@ static void class_help(int i, void *db, const region *l)
         format_help(CLASS_AUX_COL, j++, "Learns %-23s", adjective);
     }
 
-    for (k = 1; k < OF_MAX; k++)
+    for (ability = player_abilities; ability; ability = ability->next)
     {
-        const char *s;
-
         if (n_flags >= flag_space) break;
-        if (!of_has(c->flags, k)) continue;
-        s = get_flag_desc(k);
-        if (!s) continue;
-        if (c->flvl[k] > 1) continue;
-        format_help(CLASS_AUX_COL, j++, "%-33s", s);
-        n_flags++;
-    }
+        if (!ability->name) continue;
+        if (streq(ability->type, "object"))
+        {
+            if (!of_has(c->flags, ability->index)) continue;
+            if (c->flvl[ability->index] > 1) continue;
+        }
+        else if (streq(ability->type, "player"))
+        {
+            if (!pf_has(c->pflags, ability->index)) continue;
+        }
+        else if (streq(ability->type, "element"))
+        {
+            if (c->el_info[ability->index].res_level != ability->value) continue;
+            if (c->el_info[ability->index].lvl > 1) continue;
+        }
 
-    for (k = 0; k < ELEM_MAX; k++)
-    {
-        const char *s;
-
-        if (n_flags >= flag_space) break;
-        if (c->el_info[k].res_level != 1) continue;
-        s = get_resist_desc(k);
-        if (!s) continue;
-        if (c->el_info[k].lvl > 1) continue;
-        format_help(CLASS_AUX_COL, j++, "%-33s", s);
-        n_flags++;
-    }
-
-    for (k = 0; k < ELEM_MAX; k++)
-    {
-        const char *s;
-
-        if (n_flags >= flag_space) break;
-        if (c->el_info[k].res_level != 3) continue;
-        s = get_immune_desc(k);
-        if (!s) continue;
-        if (c->el_info[k].lvl > 1) continue;
-        format_help(CLASS_AUX_COL, j++, "%-33s", s);
-        n_flags++;
-    }
-
-    for (k = 0; k < ELEM_MAX; k++)
-    {
-        const char *s;
-
-        if (n_flags >= flag_space) break;
-        if (c->el_info[k].res_level != -1) continue;
-        s = get_vuln_desc(k);
-        if (!s) continue;
-        if (c->el_info[k].lvl > 1) continue;
-        format_help(CLASS_AUX_COL, j++, "%-33s", s);
-        n_flags++;
-    }
-
-    for (k = 0; k < PF__MAX; k++)
-    {
-        const char *s;
-
-        if (n_flags >= flag_space) break;
-        if (!pf_has(c->pflags, k)) continue;
-        s = get_pflag_desc(k);
-        if (!s) continue;
-        format_help(CLASS_AUX_COL, j++, "%-33s", s);
+        format_help(CLASS_AUX_COL, j++, "%-33s", ability->name);
         n_flags++;
     }
 
@@ -728,7 +586,7 @@ static void setup_menus(void)
     init_birth_menu(&sex_menu, MAX_SEXES, player->psex, &gender_region, true, NULL);
     mdata = sex_menu.menu_data;
     for (i = 0; i < MAX_SEXES; i++) mdata->items[i] = sex_info[i].title;
-    mdata->hint = "Sex does not have any significant gameplay effects.";
+    mdata->hint = "Man, woman or beast... what is it going to be?";
 
     /* Count the races */
     n = player_rmax();
@@ -799,18 +657,6 @@ static void clear_question(void)
 }
 
 
-#define BIRTH_MENU_HELPLINE1 \
-    "{light blue}Please select your character traits from the menus below:{/}"
-
-#define BIRTH_MENU_HELPLINE3 \
-    "Use the {light green}movement keys{/} to scroll the menu, {light green}Enter{/} to select the current menu"
-
-#define BIRTH_MENU_HELPLINE4 \
-    "item, '{light green}*{/}' for a random menu item, '{light green}ESC{/}' to step back through the birth"
-
-#define BIRTH_MENU_HELPLINE5 \
-    "process, '{light green}={/}' for the birth options, '{light green}?{/}' for help, or '{light green}Ctrl-X{/}' to quit."
-
 /* Show the birth instructions on an otherwise blank screen */
 static void print_menu_instructions(void)
 {
@@ -818,10 +664,11 @@ static void print_menu_instructions(void)
     Term_clear();
 
     /* Display some helpful information */
-    text_out_e(BIRTH_MENU_HELPLINE1, 1, 0);
-    text_out_e(BIRTH_MENU_HELPLINE3, 3, 0);
-    text_out_e(BIRTH_MENU_HELPLINE4, 4, 0);
-    text_out_e(BIRTH_MENU_HELPLINE5, 5, 0);
+    text_out_e("{light blue}Please select your character traits from the menus below:{/}", 0, 0);
+    text_out_e("Use the {light green}movement keys{/} to scroll the menu, {light green}Enter{/} to select the current menu", 2, 0);
+    text_out_e("item, '{light green}*{/}' for a random menu item, '{light green}ESC{/}' to step back through the birth", 3, 0);
+    text_out_e("process, '{light green}={/}' for the birth options, '{light green}?{/}' for help, '{light green}!{/}' for stat gains, ", 4, 0);
+    text_out_e("or '{light green}Ctrl-X{/}' to quit.", 5, 0);
 }
 
 
@@ -941,26 +788,26 @@ static void menu_help(enum birth_stage current, int cursor)
             int j, k, l;
 
             /* Make a rewritable string */
-        memset(out_val, 0, sizeof(out_val));
+            memset(out_val, 0, sizeof(out_val));
             my_strcpy(out_val, t, sizeof(out_val));
 
             /* Print every paragraph with word wrap */
-        j = strlen(out_val);
-        k = 0;
-        while (j)
-        {
-            l = strlen(&out_val[k]);
-            if (j > 75)
+            j = strlen(out_val);
+            k = 0;
+            while (j)
             {
-                l = 75;
-                while (out_val[k + l] != ' ') l--;
-                out_val[k + l] = '\0';
-            }
+                l = strlen(&out_val[k]);
+                if (j > 75)
+                {
+                    l = 75;
+                    while (out_val[k + l] != ' ') l--;
+                    out_val[k + l] = '\0';
+                }
                 if (lines == 23) break;
-            prt(out_val + k, lines++, 2);
-            k += (l + 1);
-            j = strlen(&out_val[k]);
-        }
+                prt(out_val + k, lines++, 2);
+                k += (l + 1);
+                j = strlen(&out_val[k]);
+            }
 
             if (lines == 23) break;
             prt("", lines++, 2);
@@ -974,6 +821,134 @@ static void menu_help(enum birth_stage current, int cursor)
 
     string_free(helper->text);
     mem_free(helper);
+}
+
+
+static const char *obj_mods[] =
+{
+    #define STAT(a, b, c) #a,
+    #include "../common/list-stats.h"
+    #undef STAT
+    #define OBJ_MOD(a, b, c) #a,
+    #include "../common/list-object-modifiers.h"
+    #undef OBJ_MOD
+    NULL
+};
+
+
+static void menu_stats(enum birth_stage current, int cursor)
+{
+    struct player_race *r = NULL;
+    struct player_class *c = NULL;
+    const char *name;
+    struct modifier *modifiers;
+    int mod, row = 2;
+    char buf[70];
+    struct player_ability *ability;
+    bitflag *flags, *pflags;
+    byte *flvl;
+    struct element_info *el_info;
+
+    if ((current != BIRTH_RACE_CHOICE) && (current != BIRTH_CLASS_CHOICE)) return;
+
+    if (current == BIRTH_RACE_CHOICE)
+    {
+        r = player_id2race(cursor);
+        name = r->name;
+        modifiers = r->modifiers;
+        flags = r->flags;
+        flvl = r->flvl;
+        pflags = r->pflags;
+        el_info = r->el_info;
+    }
+    else
+    {
+        c = player_id2class(cursor);
+        name = c->name;
+        modifiers = c->modifiers;
+        flags = c->flags;
+        flvl = c->flvl;
+        pflags = c->pflags;
+        el_info = c->el_info;
+    }
+
+    screen_save();
+    clear_from(0);
+
+    /* Header */
+    c_prt(COLOUR_YELLOW, name, 0, 0);
+
+    /* Stats */
+    for (mod = 0; mod < STAT_MAX; mod++)
+    {
+        if (modifiers[mod].value.sides)
+        {
+            strnfmt(buf, sizeof(buf), "%s%+3d from level %d %+3d every %d levels to level %d",
+                stat_names_reduced[mod], modifiers[mod].value.base, modifiers[mod].lvl,
+                modifiers[mod].value.dice, modifiers[mod].value.sides,
+                modifiers[mod].value.m_bonus? modifiers[mod].value.m_bonus: 50);
+        }
+        else if (modifiers[mod].value.base)
+        {
+            strnfmt(buf, sizeof(buf), "%s%+3d from level %d", stat_names_reduced[mod],
+                modifiers[mod].value.base, modifiers[mod].lvl);
+        }
+        else
+            strnfmt(buf, sizeof(buf), "%s%+3d", stat_names_reduced[mod], 0);
+        prt(buf, row++, 2);
+    }
+
+    /* Skip row */
+    row++;
+
+    /* Modifiers */
+    for (mod = STAT_MAX; mod < OBJ_MOD_MAX; mod++)
+    {
+        if (!modifiers[mod].value.base && !modifiers[mod].value.sides) continue;
+
+        if (modifiers[mod].value.sides)
+        {
+            strnfmt(buf, sizeof(buf), "%s%+4d from level %d %+4d every %d levels to level %d",
+                obj_mods[mod], modifiers[mod].value.base, modifiers[mod].lvl,
+                modifiers[mod].value.dice, modifiers[mod].value.sides,
+                modifiers[mod].value.m_bonus? modifiers[mod].value.m_bonus: 50);
+        }
+        else
+        {
+            strnfmt(buf, sizeof(buf), "%s%+4d from level %d", obj_mods[mod],
+                modifiers[mod].value.base, modifiers[mod].lvl);
+        }
+        prt(buf, row++, 2);
+    }
+
+    /* Skip row */
+    row++;
+
+    /* Abilities */
+    for (ability = player_abilities; ability; ability = ability->next)
+    {
+        if (!ability->name) continue;
+        if (streq(ability->type, "object"))
+        {
+            if (!of_has(flags, ability->index)) continue;
+            strnfmt(buf, sizeof(buf), "%s from level %d", ability->name, flvl[ability->index]);
+        }
+        else if (streq(ability->type, "player"))
+        {
+            if (!pf_has(pflags, ability->index)) continue;
+            strnfmt(buf, sizeof(buf), "%s", ability->name);
+        }
+        else if (streq(ability->type, "element"))
+        {
+            if (el_info[ability->index].res_level != ability->value) continue;
+            strnfmt(buf, sizeof(buf), "%s from level %d", ability->name, el_info[ability->index].lvl);
+        }
+
+        prt(buf, row++, 2);
+    }
+
+    inkey();
+    screen_load(false);
 }
 
 
@@ -992,7 +967,7 @@ static enum birth_stage menu_question(enum birth_stage current, struct menu *cur
     clear_question();
     Term_putstr(QUESTION_COL, QUESTION_ROW, -1, COLOUR_YELLOW, menu_data->hint);
 
-    current_menu->cmd_keys = "?=*Q";
+    current_menu->cmd_keys = "?=*Q!";
 
     while (next == BIRTH_RESET)
     {
@@ -1063,6 +1038,11 @@ static enum birth_stage menu_question(enum birth_stage current, struct menu *cur
             else if (cx.key.code == '?')
             {
                 menu_help(current, current_menu->cursor);
+                next = current;
+            }
+            else if (cx.key.code == '!')
+            {
+                menu_stats(current, current_menu->cursor);
                 next = current;
             }
         }

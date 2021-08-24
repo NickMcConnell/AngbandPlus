@@ -5,7 +5,7 @@
  * Copyright (c) 1997-2000 Robert A. Koeneke, James E. Wilson, Ben Harrison
  * Copyright (c) 2007 Pete Mack
  * Copyright (c) 2010 Andi Sidwell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -1612,8 +1612,7 @@ static bool ignore_tval_extra(int tval)
         case TV_SKELETON:
         case TV_BOTTLE:
         case TV_CORPSE:
-        case TV_CROP:
-        case TV_COOKIE: return true;
+        case TV_CROP: return true;
     }
 
     return false;
@@ -1789,6 +1788,7 @@ static bool sval_menu(int tval, const char *desc)
     if (is_abort(ke)) Term_event_push(&ea);
 
     /* Free memory */
+    mem_free(menu);
     mem_free(choices);
 
     /* Load screen */
@@ -1899,6 +1899,7 @@ static void sval_menu_extra(void)
     if (is_abort(ke)) Term_event_push(&ea);
 
     /* Free memory */
+    mem_free(menu);
     mem_free(choices);
 
     /* Load screen */

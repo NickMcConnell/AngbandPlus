@@ -21,19 +21,22 @@ extern struct feature *f_info;
 
 extern char meta_address[NORMAL_WID];
 extern int meta_port;
+extern char account[NORMAL_WID];
 extern char nick[NORMAL_WID];
 extern char pass[NORMAL_WID];
 extern char stored_pass[NORMAL_WID];
 extern char real_name[NORMAL_WID];
 extern char server_name[NORMAL_WID];
 extern int server_port;
+extern bool play_again;
 extern u16b max_account_chars;
 extern u16b char_num;
 extern char **char_name;
 extern char *char_expiry;
 
 extern void init_file_paths(const char *configpath, const char *libpath, const char *datapath);
-extern void client_init(void);
+extern void create_needed_dirs(void);
+extern void client_init(bool new_game);
 extern void client_ready(bool newchar);
 extern bool gather_settings(void);
 extern void cleanup_floor(void);

@@ -3,7 +3,7 @@
  * Purpose: In-game help
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -139,7 +139,7 @@ bool show_file(struct player *p, const char *name, const char *what, int line, i
         if (color) attr = color_char_to_attr(buf[0]);
 
         /* Highlight "shower" */
-        if (shower[0] && strstr(buf, shower)) attr = COLOUR_YELLOW;
+        if (strlen(shower) && strstr(buf, shower)) attr = COLOUR_YELLOW;
 
         /* Dump the line */
         Send_special_line(p, size - 1, size - 1 - line, i, attr, &buf[color]);
@@ -347,6 +347,7 @@ void common_file_peruse(struct player *p, u32b query)
             /* Back up one line */
             case ARROW_UP:
             case '8':
+            case 'k':
             case '=':
                 p->interactive_line--;
                 break;
@@ -365,6 +366,7 @@ void common_file_peruse(struct player *p, u32b query)
             /* Advance one line */
             case ARROW_DOWN:
             case '2':
+            case 'j':
             case KC_ENTER:
                 p->interactive_line++;
                 break;

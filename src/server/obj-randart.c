@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1998 Greg Wooledge, Ben Harrison, Robert Ruhlmann
  * Copyright (c) 2001 Chris Carr, Chris Robertson
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -86,6 +86,7 @@ static s16b art_idx_boot[] =
     ART_IDX_BOOT_AC,
     ART_IDX_BOOT_FEATHER,
     ART_IDX_BOOT_STEALTH,
+    ART_IDX_BOOT_TRAP_IMM,
     ART_IDX_BOOT_SPEED
 };
 
@@ -188,7 +189,10 @@ static s16b art_idx_gen[] =
     ART_IDX_GEN_AC,
     ART_IDX_GEN_TUNN,
     ART_IDX_GEN_ACTIV,
-    ART_IDX_GEN_PSTUN
+    ART_IDX_GEN_PSTUN,
+    ART_IDX_GEN_DAM_RED,
+    ART_IDX_GEN_MOVES,
+    ART_IDX_GEN_TRAP_IMM
 };
 
 static s16b art_idx_high_resist[] =
@@ -757,6 +761,14 @@ static void count_modifiers(const struct artifact *art, struct artifact_set_data
     if (art->modifiers[OBJ_MOD_INFRA] > 0)
         data->art_probs[ART_IDX_GEN_INFRA]++;
 
+    /* Handle damage reduction bonus - fully generic */
+    if (art->modifiers[OBJ_MOD_DAM_RED] > 0)
+        data->art_probs[ART_IDX_GEN_DAM_RED]++;
+
+    /* Handle moves bonus - fully generic */
+    if (art->modifiers[OBJ_MOD_MOVES] > 0)
+        data->art_probs[ART_IDX_GEN_MOVES]++;
+
     /*
      * Speed - boots handled separately.
      * This is something of a special case in that we use the same
@@ -974,7 +986,7 @@ static void count_abilities(const struct artifact *art, struct artifact_set_data
     struct object_kind *kind = lookup_kind(art->tval, art->sval);
     bitflag f2[OF_SIZE];
 
-    create_obj_flag_mask(f2, false, OFT_ESP, OFT_MAX);
+    create_obj_flag_mask(f2, 0, OFT_ESP, OFT_MAX);
 
     if (flags_test(art->flags, OF_SIZE, OF_SUST_STR, OF_SUST_INT, OF_SUST_WIS, OF_SUST_DEX,
         OF_SUST_CON, FLAG_END))
@@ -1066,6 +1078,15 @@ static void count_abilities(const struct artifact *art, struct artifact_set_data
     {
         /* Regeneration case - generic. */
         data->art_probs[ART_IDX_GEN_REGEN]++;
+    }
+
+    if (of_has(art->flags, OF_TRAP_IMMUNE))
+    {
+        /* Trap immunity - handle boots separately */
+        if (art->tval == TV_BOOTS)
+            data->art_probs[ART_IDX_BOOT_TRAP_IMM]++;
+        else
+            data->art_probs[ART_IDX_GEN_TRAP_IMM]++;
     }
 
     if (of_has(art->flags, OF_KNOWLEDGE))
@@ -1771,8 +1792,9 @@ static void add_immunity(struct artifact *art)
  */
 static void add_mod(struct artifact *art, int mod)
 {
-    /* Blows, might, shots need special treatment */
-    bool powerful = ((mod == OBJ_MOD_BLOWS) || (mod == OBJ_MOD_MIGHT) || (mod == OBJ_MOD_SHOTS));
+    /* Blows, might, shots, moves need special treatment */
+    bool powerful = ((mod == OBJ_MOD_BLOWS) || (mod == OBJ_MOD_MIGHT) || (mod == OBJ_MOD_SHOTS) ||
+        (mod == OBJ_MOD_MOVES));
 
     /* This code aims to favour a few larger bonuses over many small ones */
     if (art->modifiers[mod] < 0)
@@ -2186,7 +2208,7 @@ int get_new_esp(bitflag flags[OF_SIZE])
     /* No extra ESP power if OF_ESP_ALL is already present */
     if (of_has(flags, OF_ESP_ALL)) return 0;
 
-    create_obj_flag_mask(newf, false, OFT_ESP, OFT_MAX);
+    create_obj_flag_mask(newf, 0, OFT_ESP, OFT_MAX);
 
     for (i = of_next(newf, FLAG_START); i != FLAG_END; i = of_next(newf, i + 1))
     {
@@ -2542,6 +2564,19 @@ static void add_ability_aux(struct artifact *art, int r, int target_power,
             add_flag(art, OF_PROT_STUN);
             break;
 
+        case ART_IDX_BOOT_TRAP_IMM:
+        case ART_IDX_GEN_TRAP_IMM:
+            add_flag(art, OF_TRAP_IMMUNE);
+            break;
+
+        case ART_IDX_GEN_DAM_RED:
+            add_mod(art, OBJ_MOD_DAM_RED);
+            break;
+
+        case ART_IDX_GEN_MOVES:
+            add_mod(art, OBJ_MOD_MOVES);
+            break;
+
         case ART_IDX_GEN_ACTIV:
         {
             struct object_kind *kind = lookup_kind(art->tval, art->sval);
@@ -2567,7 +2602,6 @@ static void remove_contradictory(struct artifact *art)
     if (art->modifiers[OBJ_MOD_WIS] < 0) of_off(art->flags, OF_SUST_WIS);
     if (art->modifiers[OBJ_MOD_DEX] < 0) of_off(art->flags, OF_SUST_DEX);
     if (art->modifiers[OBJ_MOD_CON] < 0) of_off(art->flags, OF_SUST_CON);
-    if (art->modifiers[OBJ_MOD_BLOWS] < 0) art->modifiers[OBJ_MOD_BLOWS] = 0;
 
     if (of_has(art->flags, OF_DRAIN_EXP)) of_off(art->flags, OF_HOLD_LIFE);
 
@@ -2590,7 +2624,7 @@ static void remove_contradictory(struct artifact *art)
     {
         bitflag f2[OF_SIZE];
 
-        create_obj_flag_mask(f2, false, OFT_ESP, OFT_MAX);
+        create_obj_flag_mask(f2, 0, OFT_ESP, OFT_MAX);
         of_diff(art->flags, f2);
         of_on(art->flags, OF_ESP_ALL);
     }
@@ -2632,7 +2666,8 @@ static void make_bad(struct artifact *art)
     /* Reverse mods and bonuses */
     for (i = 0; i < OBJ_MOD_MAX; i++)
     {
-        if ((art->modifiers[i] > 0) && one_in_(2)) art->modifiers[i] = 0 - art->modifiers[i];
+        if ((art->modifiers[i] > 0) && one_in_(2))
+            art->modifiers[i] = 0 - art->modifiers[i];
     }
     if ((art->to_a > 0) && one_in_(2)) art->to_a = 0 - art->to_a;
     if ((art->to_h > 0) && one_in_(2)) art->to_h = 0 - art->to_h;
@@ -2751,7 +2786,7 @@ static bool design_artifact(struct artifact *art, struct artifact_set_data *data
 
     /* Choose a power for the artifact */
     int power = Rand_sample(data->avg_tv_power[art->tval], data->max_tv_power[art->tval],
-        data->min_tv_power[art->tval], 25, 30);
+        data->min_tv_power[art->tval], 20, 20);
 
     /* Choose a name */
     /* PWMAngband: easier to regenerate the name from the randart seed when needed */
@@ -2861,8 +2896,16 @@ static bool design_artifact(struct artifact *art, struct artifact_set_data *data
         art->alloc_min = MIN(100, ((ap + 100) * 100 / data->max_power));
 
         /* Have a chance to be less rare or deep, more likely the less power */
-        if (one_in_(500 / power)) art->alloc_prob += randint1(20);
-        else if (one_in_(500 / power)) art->alloc_min /= 2;
+        if (one_in_(5 + power / 20))
+        {
+            art->alloc_prob += randint1(20);
+            if (art->alloc_prob > 99) art->alloc_prob = 99;
+        }
+        else if (one_in_(5 + power / 20))
+        {
+            art->alloc_min /= 2;
+            if (art->alloc_min < 1) art->alloc_min = 1;
+        }
 
         /* Sanity check */
         art->alloc_max = MAX(art->alloc_max, MIN(art->alloc_min * 2, 127));

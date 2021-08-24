@@ -2,7 +2,7 @@
  * File: netserver.c
  * Purpose: The server side of the network stuff
  *
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -249,7 +249,7 @@ static void do_quit(int ind)
     {
         /* Otherwise wait for the timeout */
         connp->quit_msg = string_make("Client quit");
-        Conn_set_state(connp, CONN_QUIT, QUIT_TIMEOUT);
+        Conn_set_state(connp, CONN_QUIT, cfg_quit_timeout);
     }
 }
 
@@ -556,8 +556,12 @@ static int Check_names(char *nick_name, char *real_name, char *host_name)
         else break;
     }
 
-    /* The "server" and "account" names are reserved */
-    if (!my_stricmp(nick_name, "server") || !my_stricmp(nick_name, "account")) return E_INVAL;
+    /* The "server", "account" and "players" names are reserved */
+    if (!my_stricmp(nick_name, "server") || !my_stricmp(nick_name, "account") ||
+        !my_stricmp(nick_name, "players"))
+    {
+        return E_INVAL;
+    }
 
     return SUCCESS;
 }
@@ -1134,7 +1138,9 @@ void Stop_net_server(void)
     Sockbuf_cleanup(&ibuf);
 
     /* Destroy networking */
+#ifdef WINDOWS
     free_input();
+#endif
     free_connections();
 }
 
@@ -1494,7 +1500,7 @@ int Send_class_struct_info(int ind)
 
     for (c = classes; c; c = c->next)
     {
-        byte tval = 0;
+        u16b tval = 0;
 
         if (c->magic.num_books)
             tval = c->magic.books[0].tval;
@@ -1561,7 +1567,7 @@ int Send_class_struct_info(int ind)
                 return -1;
             }
         }
-        if (Packet_printf(&connp->c, "%b%b%c", (unsigned)c->magic.total_spells, (unsigned)tval,
+        if (Packet_printf(&connp->c, "%b%hu%c", (unsigned)c->magic.total_spells, (unsigned)tval,
             c->magic.num_books) <= 0)
         {
             Destroy_connection(ind, "Send_class_struct_info write error");
@@ -1571,7 +1577,7 @@ int Send_class_struct_info(int ind)
         {
             struct class_book *book = &c->magic.books[j];
 
-            if (Packet_printf(&connp->c, "%b%b%s", (unsigned)book->tval, (unsigned)book->sval,
+            if (Packet_printf(&connp->c, "%hu%hu%s", (unsigned)book->tval, (unsigned)book->sval,
                 book->realm->name) <= 0)
             {
                 Destroy_connection(ind, "Send_class_struct_info write error");
@@ -1700,7 +1706,7 @@ int Send_kind_struct_info(int ind)
         }
 
         /* Transfer other fields here */
-        if (Packet_printf(&connp->c, "%b%b%lu%hd", (unsigned)k_info[i].tval,
+        if (Packet_printf(&connp->c, "%hu%hu%lu%hd", (unsigned)k_info[i].tval,
             (unsigned)k_info[i].sval, k_info[i].kidx, (int)ac) <= 0)
         {
             Destroy_connection(ind, "Send_kind_struct_info write error");
@@ -2057,6 +2063,39 @@ int Send_timed_struct_info(int ind)
 }
 
 
+int Send_abilities_struct_info(int ind)
+{
+    connection_t *connp = get_connection(ind);
+    struct player_ability *a;
+
+    if (connp->state != CONN_SETUP)
+    {
+        errno = 0;
+        plog_fmt("Connection not ready for abilities info (%d.%d.%d)", ind, connp->state, connp->id);
+        return 0;
+    }
+
+    if (Packet_printf(&connp->c, "%b%c%hu", (unsigned)PKT_STRUCT_INFO, (int)STRUCT_INFO_PROPS,
+        (unsigned)player_amax()) <= 0)
+    {
+        Destroy_connection(ind, "Send_abilities_struct_info write error");
+        return -1;
+    }
+
+    for (a = player_abilities; a; a = a->next)
+    {
+        if (Packet_printf(&connp->c, "%hu%hu%s%s%s", (unsigned)a->index, (unsigned)a->value,
+            a->type, a->desc, a->name) <= 0)
+        {
+            Destroy_connection(ind, "Send_abilities_struct_info write error");
+            return -1;
+        }
+    }
+
+    return 1;
+}
+
+
 static connection_t *get_connp(struct player *p, const char *errmsg)
 {
     connection_t *connp;
@@ -2264,15 +2303,6 @@ int Send_depth(struct player *p, int depth, int maxdepth, const char *depths)
 }
 
 
-int Send_food(struct player *p, int food)
-{
-    connection_t *connp = get_connp(p, "food");
-    if (connp == NULL) return 0;
-
-    return Packet_printf(&connp->c, "%b%hd", (unsigned)PKT_FOOD, food);
-}
-
-
 int Send_status(struct player *p, s16b *effects)
 {
     int i;
@@ -2299,13 +2329,14 @@ int Send_recall(struct player *p, s16b word_recall, s16b deep_descent)
 }
 
 
-int Send_state(struct player *p, bool stealthy, bool resting, bool unignoring)
+int Send_state(struct player *p, bool stealthy, bool resting, bool unignoring, const char *terrain)
 {
     connection_t *connp = get_connp(p, "state");
     if (connp == NULL) return 0;
 
-    return Packet_printf(&connp->c, "%b%hd%hd%hd%hd%hd", (unsigned)PKT_STATE, (int)stealthy,
-        (int)resting, (int)unignoring, (int)p->obj_feeling, (int)p->mon_feeling);
+    return Packet_printf(&connp->c, "%b%hd%hd%hd%hd%hd%hd%hd%s", (unsigned)PKT_STATE, (int)stealthy,
+        (int)resting, (int)unignoring, (int)p->obj_feeling, (int)p->mon_feeling,
+        (int)p->square_light, p->state.num_moves, terrain);
 }
 
 
@@ -2622,21 +2653,22 @@ int Send_book_info(struct player *p, int book, const char *name)
 }
 
 
-int Send_floor(struct player *p, byte num, const struct object *obj, struct object_xtra *info_xtra)
+int Send_floor(struct player *p, byte num, const struct object *obj, struct object_xtra *info_xtra,
+    byte force)
 {
     byte ignore = ((obj->known->notice & OBJ_NOTICE_IGNORE)? 1: 0);
     connection_t *connp = get_connp(p, "floor");
     if (connp == NULL) return 0;
 
-    Packet_printf(&connp->c, "%b%b", (unsigned)PKT_FLOOR, (unsigned)num);
-    Packet_printf(&connp->c, "%b%b%hd%lu%ld%b%hd", (unsigned)obj->tval, (unsigned)obj->sval,
+    Packet_printf(&connp->c, "%b%b%b", (unsigned)PKT_FLOOR, (unsigned)num, (unsigned)force);
+    Packet_printf(&connp->c, "%hu%hu%hd%lu%ld%b%hd", (unsigned)obj->tval, (unsigned)obj->sval,
         obj->number, obj->note, obj->pval, (unsigned)ignore, obj->oidx);
-    Packet_printf(&connp->c, "%b%b%b%b%b%hd%b%b%b%b%b%hd%b%hd", (unsigned)info_xtra->attr,
+    Packet_printf(&connp->c, "%b%b%b%b%b%hd%b%b%b%b%b%hd%b%hd%b", (unsigned)info_xtra->attr,
         (unsigned)info_xtra->act, (unsigned)info_xtra->aim, (unsigned)info_xtra->fuel,
         (unsigned)info_xtra->fail, info_xtra->slot, (unsigned)info_xtra->known,
         (unsigned)info_xtra->known_effect, (unsigned)info_xtra->carry,
         (unsigned)info_xtra->quality_ignore, (unsigned)info_xtra->ignored, info_xtra->eidx,
-        (unsigned)info_xtra->magic, info_xtra->bidx);
+        (unsigned)info_xtra->magic, info_xtra->bidx, (unsigned)info_xtra->throwable);
     Packet_printf(&connp->c, "%s%s%s%s%s", info_xtra->name, info_xtra->name_terse,
         info_xtra->name_base, info_xtra->name_curse, info_xtra->name_power);
 
@@ -2662,12 +2694,12 @@ int Send_special_other(struct player *p, char *header, byte peruse, bool protect
 
 
 int Send_store(struct player *p, char pos, byte attr, s16b wgt, byte number, byte owned,
-    s32b price, byte tval, byte max, s16b bidx, const char *name)
+    s32b price, u16b tval, byte max, s16b bidx, const char *name)
 {
     connection_t *connp = get_connp(p, "store");
     if (connp == NULL) return 0;
 
-    return Packet_printf(&connp->c, "%b%c%b%hd%b%b%ld%b%b%hd%s", (unsigned)PKT_STORE,
+    return Packet_printf(&connp->c, "%b%c%b%hd%b%b%ld%hu%b%hd%s", (unsigned)PKT_STORE,
         (int)pos, (unsigned)attr, (int)wgt, (unsigned)number, (unsigned)owned,
         price, (unsigned)tval, (unsigned)max, (int)bidx, name);
 }
@@ -2913,6 +2945,15 @@ int Send_player_pos(struct player *p)
 }
 
 
+int Send_minipos(struct player *p, int y, int x)
+{
+    connection_t *connp = get_connp(p, "minipos");
+    if (connp == NULL) return 0;
+
+    return Packet_printf(&connp->c, "%b%hd%hd", (unsigned)PKT_MINIPOS, y, x);
+}
+
+
 int Send_play(int ind)
 {
     connection_t *connp = get_connection(ind);
@@ -2996,20 +3037,6 @@ int Send_char_info(struct player *p, byte ridx, byte cidx, byte psex)
     return Packet_printf(&connp->c, "%b%b%b%b", (unsigned)PKT_CHAR_INFO,
         (unsigned)ridx, (unsigned)cidx, (unsigned)psex);
 }
-
-
-struct birth_options
-{
-    bool force_descend;
-    bool no_recall;
-    bool no_artifacts;
-    bool feelings;
-    bool no_selling;
-    bool start_kit;
-    bool no_stores;
-    bool no_ghost;
-    bool fruit_bat;
-};
 
 
 int Send_birth_options(int ind, struct birth_options *options)
@@ -3102,20 +3129,20 @@ int Send_item(struct player *p, const struct object *obj, int wgt, s32b price,
     if (connp == NULL) return 0;
 
     /* Packet and base info */
-    Packet_printf(&connp->c, "%b%b%b", (unsigned)PKT_ITEM, (unsigned)obj->tval,
+    Packet_printf(&connp->c, "%b%hu%b", (unsigned)PKT_ITEM, (unsigned)obj->tval,
         (unsigned)info_xtra->equipped);
 
     /* Object info */
-    Packet_printf(&connp->c, "%b%hd%hd%ld%lu%ld%b%hd", (unsigned)obj->sval, wgt, obj->number,
+    Packet_printf(&connp->c, "%hu%hd%hd%ld%lu%ld%b%hd", (unsigned)obj->sval, wgt, obj->number,
         price, obj->note, obj->pval, (unsigned)ignore, obj->oidx);
 
     /* Extra info */
-    Packet_printf(&connp->c, "%b%b%b%b%b%hd%b%b%b%b%b%b%hd%b%hd", (unsigned)info_xtra->attr,
+    Packet_printf(&connp->c, "%b%b%b%b%b%hd%b%b%b%b%b%b%hd%b%hd%b", (unsigned)info_xtra->attr,
         (unsigned)info_xtra->act, (unsigned)info_xtra->aim, (unsigned)info_xtra->fuel,
         (unsigned)info_xtra->fail, info_xtra->slot, (unsigned)info_xtra->stuck,
         (unsigned)info_xtra->known, (unsigned)info_xtra->known_effect, (unsigned)info_xtra->sellable,
         (unsigned)info_xtra->quality_ignore, (unsigned)info_xtra->ignored, info_xtra->eidx,
-        (unsigned)info_xtra->magic, info_xtra->bidx);
+        (unsigned)info_xtra->magic, info_xtra->bidx, (unsigned)info_xtra->throwable);
 
     /* Descriptions */
     Packet_printf(&connp->c, "%s%s%s%s%s", info_xtra->name, info_xtra->name_terse,
@@ -3608,7 +3635,7 @@ static int Receive_walk(int ind)
         /* Disturb if running or resting */
         if (p->upkeep->running || player_is_resting(p))
         {
-            disturb(p, 0);
+            disturb(p);
             return 1;
         }
 
@@ -5274,7 +5301,7 @@ static int Receive_jump(int ind)
         /* Disturb if running or resting */
         if (p->upkeep->running || player_is_resting(p))
         {
-            disturb(p, 0);
+            disturb(p);
             return 1;
         }
 
@@ -5638,6 +5665,35 @@ static int Receive_track_object(int ind)
 }
 
 
+static int Receive_floor_ack(int ind)
+{
+    connection_t *connp = get_connection(ind);
+    struct player *p;
+    byte ch;
+    int n;
+
+    if ((n = Packet_scanf(&connp->r, "%b", &ch)) <= 0)
+    {
+        if (n == -1) Destroy_connection(ind, "Receive_floor_ack read error");
+        return n;
+    }
+
+    if (connp->id != -1)
+    {
+        p = player_get(get_player_index(connp));
+
+        /* Break mind link */
+        break_mind_link(p);
+
+        /* Get item for pickup */
+        p->current_action = ACTION_PICKUP;
+        get_item(p, HOOK_CARRY, "");
+    }
+
+    return 1;
+}
+
+
 /*
  * Check if screen size is compatible
  */
@@ -5706,8 +5762,9 @@ static void update_birth_options(struct player *p, struct birth_options *options
     if (cfg_no_stores) OPT(p, birth_no_stores) = true;
     if (cfg_no_ghost) OPT(p, birth_no_ghost) = true;
 
-    /* Fruit bat mode: not when a Dragon */
-    if (pf_has(p->race->pflags, PF_DRAGON)) OPT(p, birth_fruit_bat) = false;
+    /* Fruit bat mode: not when a Dragon or Hydra */
+    if (player_has(p, PF_DRAGON) || player_has(p, PF_HYDRA))
+        OPT(p, birth_fruit_bat) = false;
 
     /* Fruit bat mode supercedes no-ghost mode */
     if (OPT(p, birth_fruit_bat)) OPT(p, birth_no_ghost) = true;
@@ -5999,6 +6056,10 @@ static int Enter_player(int ind)
         msg(p, "Server is no-recall.");
     if (cfg_no_artifacts)
         msg(p, "Server has no artifacts.");
+    if (cfg_level_feelings == 0)
+        msg(p, "Server has no level feelings.");
+    if (cfg_level_feelings == 1)
+        msg(p, "Server has limited level feelings.");
     if (cfg_no_selling)
         msg(p, "Server is no-selling.");
     if (cfg_no_stores)
@@ -6019,6 +6080,7 @@ static int Enter_player(int ind)
     Send_poly(p, (p->poly_race? p->poly_race->ridx: 0));
     p->delayed_display = true;
     p->upkeep->update |= (PU_BONUS | PU_SPELLS | PU_INVEN);
+    p->upkeep->notice |= (PN_COMBINE);
     update_stuff(p, chunk_get(&p->wpos));
     p->delayed_display = false;
 
@@ -6116,17 +6178,30 @@ static bool Limit_connections(int ind)
 static int Receive_play(int ind)
 {
     connection_t *connp = get_connection(ind);
-    byte ch, mode;
+    byte ch, phase;
+    int n;
     char nick[NORMAL_WID];
     char pass[NORMAL_WID];
-    int n;
 
-    if ((n = Packet_scanf(&connp->r, "%b%b%s%s", &ch, &mode, nick, pass)) != 4)
+    /* Read marker */
+    if ((n = Packet_scanf(&connp->r, "%b%b", &ch, &phase)) != 2)
     {
         errno = 0;
         plog("Cannot receive play packet");
         Destroy_connection(ind, "Cannot receive play packet");
         return -1;
+    }
+
+    /* Read nick/pass */
+    if (phase == 0)
+    {
+        if ((n = Packet_scanf(&connp->r, "%s%s", nick, pass)) != 2)
+        {
+            errno = 0;
+            plog("Cannot receive play packet");
+            Destroy_connection(ind, "Cannot receive play packet");
+            return -1;
+        }
     }
 
     if (connp->state != CONN_SETUP)
@@ -6137,14 +6212,14 @@ static int Receive_play(int ind)
         return -1;
     }
 
-    /* Just asking */
-    if (mode == 0)
+    /* Process nick/pass */
+    if (phase == 0)
     {
+        int pos = strlen(nick);
+        byte chardump = 0;
         hash_entry *ptr;
         bool need_info = false;
         byte ridx = 0, cidx = 0, psex = 0;
-        int ret;
-        int pos = strlen(nick);
 
         /* Get a character dump */
         if (nick[pos - 1] == '=')
@@ -6160,6 +6235,8 @@ static int Receive_play(int ind)
                 Destroy_connection(ind, "Character dump failed");
                 return -1;
             }
+
+            chardump = 1;
         }
 
         /* Delete character */
@@ -6222,7 +6299,7 @@ static int Receive_play(int ind)
         /* Test if his password is matching */
         if (!need_info)
         {
-            ret = scoop_player(nick, pass, &ridx, &cidx, &psex);
+            int ret = scoop_player(nick, pass, &ridx, &cidx, &psex);
 
             /* Incorrect Password */
             if (ret == -2)
@@ -6269,6 +6346,18 @@ static int Receive_play(int ind)
             return -1;
         }
 
+        if (Packet_printf(&connp->c, "%b%b", (unsigned)PKT_PLAY_SETUP, (unsigned)chardump) <= 0)
+        {
+            Destroy_connection(ind, "play_setup write error");
+            return -1;
+        }
+
+        return 2;
+    }
+
+    /* Send struct info (part 1) */
+    if (phase == 1)
+    {
         Send_basic_info(ind);
         Send_limits_struct_info(ind);
         Send_kind_struct_info(ind);
@@ -6281,25 +6370,40 @@ static int Receive_play(int ind)
         Send_rinfo_struct_info(ind);
         Send_rbinfo_struct_info(ind);
         Send_curse_struct_info(ind);
+
+        return 2;
+    }
+
+    /* Send feat info */
+    if (phase == 2)
+    {
         Send_feat_struct_info(ind);
+
+        return 2;
+    }
+
+    /* Send struct info (part 2) */
+    if (phase == 3)
+    {
         Send_trap_struct_info(ind);
         Send_timed_struct_info(ind);
+        Send_abilities_struct_info(ind);
         Send_char_info_conn(ind);
+
+        return 2;
     }
-    else
+
+    /* Trying to start gameplay! */
+    if ((n = Enter_player(ind)) == -2)
     {
-        /* Trying to start gameplay! */
-        if ((n = Enter_player(ind)) == -2)
-        {
-            errno = 0;
-            plog_fmt("Unable to play (%02x)", connp->state);
-            Destroy_connection(ind, "Unable to play");
-        }
-        if (n < 0)
-        {
-            /* The connection has already been destroyed */
-            return -1;
-        }
+        errno = 0;
+        plog_fmt("Unable to play (%02x)", connp->state);
+        Destroy_connection(ind, "Unable to play");
+    }
+    if (n < 0)
+    {
+        /* The connection has already been destroyed */
+        return -1;
     }
 
     return 2;
@@ -6551,7 +6655,7 @@ static int Receive_message(int ind)
 }
 
 
-static void Handle_item(struct player *p, int item, int curse)
+static void Handle_item(struct player *p, int item, int curse, const char *inscription)
 {
     /* Set current value */
     p->current_value = item;
@@ -6565,7 +6669,7 @@ static void Handle_item(struct player *p, int item, int curse)
             const struct player_class *c = p->clazz;
             quark_t note = (quark_t)p->current_item;
             const struct class_spell *spell;
-            bool ident = false;
+            bool ident = false, used;
             struct beam_info beam;
             struct source who_body;
             struct source *who = &who_body;
@@ -6577,10 +6681,13 @@ static void Handle_item(struct player *p, int item, int curse)
 
             spell = spell_by_index(&c->magic, p->current_spell);
             fill_beam_info(p, p->current_spell, &beam);
+            my_strcpy(beam.inscription, inscription, sizeof(beam.inscription));
 
             source_player(who, get_player_index(get_connection(p->conn)), p);
-            if (!effect_do(spell->effect, who, &ident, true, 0, &beam, 0, note, NULL))
-                return;
+            target_fix(p);
+            used = effect_do(spell->effect, who, &ident, true, 0, &beam, 0, note, NULL);
+            target_release(p);
+            if (!used) return;
 
             cast_spell_end(p);
 
@@ -6619,7 +6726,7 @@ static void Handle_item(struct player *p, int item, int curse)
         /* Do effect */
         if (effect)
         {
-            if (execute_effect(p, &obj, effect, 0, &ident, &used, &notice)) return;
+            if (execute_effect(p, &obj, effect, 0, inscription, &ident, &used, &notice)) return;
         }
 
         /* If the item is a null pointer or has been wiped, be done now */
@@ -6644,6 +6751,7 @@ static void Handle_item(struct player *p, int item, int curse)
         {
             /* Pickup */
             case ACTION_PICKUP: player_pickup_item(p, chunk_get(&p->wpos), 3, NULL); break;
+
             case ACTION_GO_DOWN: do_cmd_go_down(p); break;
             default: return;
         }
@@ -6658,8 +6766,9 @@ static int Receive_item(int ind)
     byte ch;
     int n;
     s16b item, curse;
+    char inscription[20];
 
-    if ((n = Packet_scanf(&connp->r, "%b%hd%hd", &ch, &item, &curse)) <= 0)
+    if ((n = Packet_scanf(&connp->r, "%b%hd%hd%s", &ch, &item, &curse, inscription)) <= 0)
     {
         if (n == -1) Destroy_connection(ind, "Receive_item read error");
         return n;
@@ -6672,7 +6781,7 @@ static int Receive_item(int ind)
         /* Break mind link */
         break_mind_link(p);
 
-        Handle_item(p, item, curse);
+        Handle_item(p, item, curse, inscription);
     }
 
     return 1;
@@ -6851,8 +6960,8 @@ static int Receive_poly(int ind)
             return 1;
         }
 
-        /* Not if a Dragon or in fruit bat mode */
-        if (player_has(p, PF_DRAGON) || OPT(p, birth_fruit_bat))
+        /* Not if a Dragon or Hydra or in fruit bat mode */
+        if (player_has(p, PF_DRAGON) || player_has(p, PF_HYDRA) || OPT(p, birth_fruit_bat))
         {
             msg(p, "You are already polymorphed permanently.");
             return 1;
@@ -7313,7 +7422,10 @@ bool process_pending_commands(int ind)
     int last_pos, data_advance = 0;
 
     /* Paranoia: ignore input from client if not in SETUP or PLAYING state */
-    if ((connp->state != CONN_PLAYING) && (connp->state != CONN_SETUP)) return true;
+    /*if ((connp->state != CONN_PLAYING) && (connp->state != CONN_SETUP)) return true;*/
+    if ((connp->state == CONN_FREE) || (connp->state == CONN_CONSOLE)) return true;
+    if (connp->state == CONN_QUIT)
+        return false;
 
     /* SETUP state */
     if (connp->state == CONN_SETUP) receive_tbl = &setup_receive[0];
@@ -7401,7 +7513,7 @@ bool process_pending_commands(int ind)
         if (result == 0)
         {
             /* Hack -- if we tried to do something while resting, wake us up. */
-            if ((type != PKT_REST) && player_is_resting(p)) disturb(p, 0);
+            if ((type != PKT_REST) && player_is_resting(p)) disturb(p);
 
             /*
              * If we didn't have enough energy to execute this

@@ -3,7 +3,7 @@
  * Purpose: Low-level file (and directory) handling
  *
  * Copyright (c) 1997-2007 Ben Harrison, pelpel, Andi Sidwell, Matthew Jones
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -18,15 +18,124 @@
  */
 
 
+#ifdef WINDOWS
+
 #include "angband.h"
 #include <sys/stat.h>
 #include <dir.h>
 
+#define INVALID_FILE_NAME (DWORD)0xFFFFFFFF
+
+#else
+
+#include "h-basic.h"
+#include "z-file.h"
+#include "z-form.h"
+#include "z-util.h"
+#include "z-virt.h"
+
+#define _POSIX_SOURCE
+
+#ifndef S_IFDIR
+#define S_IFDIR 0
+#endif
+
+#ifndef O_CREAT
+#define O_CREAT 0
+#endif
+#ifndef O_EXCL
+#define O_EXCL 0
+#endif
+#ifndef O_WRONLY
+#define O_WRONLY 0
+#endif
+
+#ifdef WINDOWS
+# include <windows.h>
+# include <io.h>
+# ifndef CYGWIN
+#  include <direct.h>
+# endif
+#endif
+
+#ifdef HAVE_FCNTL_H
+# include <fcntl.h>
+#endif
+
+#if defined (HAVE_DIRENT_H) || defined (CYGWIN)
+# include <sys/types.h>
+# include <dirent.h>
+#endif
+
+#ifdef HAVE_STAT
+# include <sys/stat.h>
+# include <sys/types.h>
+#endif
+
+#if defined (WINDOWS) && !defined (CYGWIN)
+# define my_mkdir(path, perms) mkdir(path)
+#elif defined(HAVE_MKDIR) || defined(MACH_O_CARBON) || defined (CYGWIN)
+# define my_mkdir(path, perms) mkdir(path, perms)
+#else
+# define my_mkdir(path, perms) false
+#endif
+
+/* Suppress MSC C4996 error */
+#if defined(_MSC_VER)
+#define open _open
+#define fdopen _fdopen
+#define mkdir _mkdir
+#endif
 
 /*
- * Hack -- fake declarations from "dos.h" XXX XXX XXX
+ * Player info
  */
-#define INVALID_FILE_NAME (DWORD)0xFFFFFFFF
+int player_uid;
+int player_egid;
+
+
+/*
+ * Drop permissions
+ */
+void safe_setuid_drop(void)
+{
+#ifdef SETGID
+# if defined(HAVE_SETRESGID)
+
+	if (setresgid(-1, getgid(), -1) != 0)
+		quit("setegid(): cannot drop permissions correctly!");
+
+# else
+
+	if (setegid(getgid()) != 0)
+		quit("setegid(): cannot drop permissions correctly!");
+
+# endif
+#endif /* SETGID */
+}
+
+
+/*
+ * Grab permissions
+ */
+void safe_setuid_grab(void)
+{
+#ifdef SETGID
+# if defined(HAVE_SETRESGID)
+
+	if (setresgid(-1, player_egid, -1) != 0)
+		quit("setegid(): cannot grab permissions correctly!");
+
+# elif defined(HAVE_SETEGID)
+
+	if (setegid(player_egid) != 0)
+		quit("setegid(): cannot grab permissions correctly!");
+
+# endif
+#endif /* SETGID */
+}
+
+#endif
 
 
 /*
@@ -41,12 +150,46 @@ static void path_parse(char *buf, size_t max, const char *file)
 
 static void path_process(char *buf, size_t len, size_t *cur_len, const char *path)
 {
+#if defined(UNIX)
+	/* Home directory on Unixes */
+	if (path[0] == '~') {
+		const char *s;
+		const char *username = path + 1;
+
+		struct passwd *pw;
+		char user[128];
+
+		/* Look for non-user portion of the file */
+		s = strstr(username, PATH_SEP);
+		if (s) {
+			int i;
+
+			/* Keep username a decent length */
+			if (s >= username + sizeof(user)) return;
+
+			for (i = 0; username < s; ++i) user[i] = *username++;
+			user[i] = '\0';
+			username = user;
+		}
+
+		/* Look up a user (or "current" user) */
+		pw = username[0] ? getpwnam(username) : getpwuid(getuid());
+		if (!pw) return;
+
+		/* Copy across */
+		strnfcat(buf, len, cur_len, "%s%s", pw->pw_dir, PATH_SEP);
+		if (s) strnfcat(buf, len, cur_len, "%s", s);
+	} else
+#endif /* defined(UNIX) */
     strnfcat(buf, len, cur_len, "%s", path);
 }
 
 
 /*
  * Create a new path string by appending a 'leaf' to 'base'.
+ *
+ * On Unixes, we convert a tidle at the beginning of a basename to mean the
+ * directory, complicating things a little, but better now than later.
  *
  * Remember to free the return value.
  */
@@ -64,12 +207,16 @@ size_t path_build(char *buf, size_t len, const char *base, const char *leaf)
         return cur_len;
     }
 
-    starts_with_separator = ((!base || !base[0]) || prefix(leaf, PATH_SEP));
-
     /*
-     * If the leafname starts with the separator or there's no base path,
-     * we use the leafname only.
+	 * If the leafname starts with the separator,
+	 *   or with the tilde (on Unix),
+	 *   or there's no base path,
+	 * We use the leafname only.
      */
+    starts_with_separator = ((!base || !base[0]) || prefix(leaf, PATH_SEP));
+#if defined(UNIX)
+	starts_with_separator = starts_with_separator || leaf[0] == '~';
+#endif
     if (starts_with_separator)
     {
         path_process(buf, len, &cur_len, leaf);
@@ -90,6 +237,28 @@ size_t path_build(char *buf, size_t len, const char *base, const char *leaf)
 
 
 /*
+ * Return the index of the filename in a path, using PATH_SEPC. If no path
+ * separator is found, return 0.
+ */
+#ifndef WINDOWS
+size_t path_filename_index(const char *path)
+{
+	int i;
+
+	if (strlen(path) == 0)
+		return 0;
+
+	for (i = strlen(path) - 1; i >= 0; i--) {
+		if (path[i] == PATH_SEPC)
+			return i + 1;
+	}
+
+	return 0;
+}
+#endif
+
+
+/*
  * File-handling API
  */
 
@@ -103,7 +272,8 @@ size_t path_build(char *buf, size_t len, const char *base, const char *leaf)
 #define S_IWUSR S_IWRITE
 #endif
 
-
+/* if the flag O_BINARY is not defined, it is not needed , but we still
+ * need it defined so it will compile */
 #ifndef O_BINARY
 #define O_BINARY 0
 #endif
@@ -132,7 +302,11 @@ struct ang_file
  */
 bool file_delete(const char *fname)
 {
+#ifndef WINDOWS
+	char buf[1024];
+#else
     char buf[MSG_LEN];
+#endif
 
     /* Get the system-specific paths */
     path_parse(buf, sizeof(buf), fname);
@@ -146,8 +320,13 @@ bool file_delete(const char *fname)
  */
 bool file_move(const char *fname, const char *newname)
 {
+#ifndef WINDOWS
+	char buf[1024];
+	char aux[1024];
+#else
     char buf[MSG_LEN];
     char aux[MSG_LEN];
+#endif
 
     /* Get the system-specific paths */
     path_parse(buf, sizeof(buf), fname);
@@ -160,6 +339,14 @@ bool file_move(const char *fname, const char *newname)
 /*
  * Decide whether a file exists or not
  */
+#if defined(HAVE_STAT)
+
+bool file_exists(const char *fname)
+{
+	struct stat st;
+	return (stat(fname, &st) == 0);
+}
+#elif defined(WINDOWS)
 bool file_exists(const char *fname)
 {
     char path[MAX_PATH];
@@ -174,6 +361,15 @@ bool file_exists(const char *fname)
 
     return true;
 }
+#else
+bool file_exists(const char *fname)
+{
+	ang_file *f = file_open(fname, MODE_READ, 0);
+
+	if (f) file_close(f);
+	return (f ? true : false);
+}
+#endif
 
 
 /*
@@ -181,10 +377,13 @@ bool file_exists(const char *fname)
  */
 bool file_newer(const char *first, const char *second)
 {
+#ifdef HAVE_STAT
     struct stat stat1, stat2;
 
     /* Remove W8080 warning: _fstat is declared but never used */
+#ifdef WINDOWS
     _fstat(0, NULL);
+#endif
 
     /* If the first doesn't exist, the first is not newer. */
     if (stat(first, &stat1) != 0) return false;
@@ -194,18 +393,28 @@ bool file_newer(const char *first, const char *second)
 
     /* Compare modification times. */
     return stat1.st_mtime > stat2.st_mtime ? true : false;
+#else /* HAVE_STAT */
+	return false;
+#endif /* !HAVE_STAT */
 }
 
 
 /** File-handle functions **/
 
 
+#ifdef WINDOWS
 /* Mode: write (MODE_WRITE), read (MODE_READ), append (MODE_APPEND) */
 static char modechar[4] = "wra";
 
 
 /* Type: text (FTYPE_TEXT), binary (FTYPE_RAW + FTYPE_SAVE) */
 static char typechar[3] = "tbb";
+#endif
+
+
+#ifndef WINDOWS
+void (*file_open_hook)(const char *path, file_type ftype);
+#endif
 
 
 /*
@@ -215,12 +424,19 @@ static char typechar[3] = "tbb";
 ang_file *file_open(const char *fname, file_mode mode, file_type ftype)
 {
     ang_file *f = mem_zalloc(sizeof(ang_file));
+#ifdef WINDOWS
     char modestr[3] = "__";
     char buf[MSG_LEN];
+#else
+	char buf[1024];
+
+	(void)ftype;
+#endif
 
     /* Get the system-specific path */
     path_parse(buf, sizeof(buf), fname);
 
+#ifdef WINDOWS
     modestr[0] = modechar[mode];
     modestr[1] = typechar[ftype];
 
@@ -240,6 +456,34 @@ ang_file *file_open(const char *fname, file_mode mode, file_type ftype)
     }
     else
         f->fh = fopen(buf, modestr);
+#else
+	switch (mode) {
+		case MODE_WRITE: { 
+			if (ftype == FTYPE_SAVE) {
+				/* open only if the file does not exist */
+				int fd;
+				fd = open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, S_IRUSR | S_IWUSR);
+				if (fd < 0) {
+					/* there was some error */
+					f->fh = NULL;
+				} else {
+					f->fh = fdopen(fd, "wb");
+				}
+			} else {
+				f->fh = fopen(buf, "wb");
+			}
+			break;
+		}
+		case MODE_READ:
+			f->fh = fopen(buf, "rb");
+			break;
+		case MODE_APPEND:
+			f->fh = fopen(buf, "a+");
+			break;
+		default:
+			assert(0);
+	}
+#endif
 
     if (f->fh == NULL)
     {
@@ -249,6 +493,11 @@ ang_file *file_open(const char *fname, file_mode mode, file_type ftype)
 
     f->fname = string_make(buf);
     f->mode = mode;
+
+#ifndef WINDOWS
+	if (mode != MODE_READ && file_open_hook)
+		file_open_hook(buf, ftype);
+#endif
 
     return f;
 }
@@ -275,6 +524,7 @@ bool file_close(ang_file *f)
  */
 ang_file *file_temp(char *fname, size_t len)
 {
+#ifdef WINDOWS
     ang_file *fff;
     char prefix[] = "mng";
 
@@ -293,6 +543,10 @@ ang_file *file_temp(char *fname, size_t len)
     }
 
     return fff;
+#else
+    /* TODO: UNIX VERSION! */
+    return NULL;
+#endif
 }
 
 
@@ -304,6 +558,15 @@ ang_file *file_temp(char *fname, size_t len)
  */
 void file_lock(ang_file *f)
 {
+#if defined(HAVE_FCNTL_H) && defined(UNIX)
+	struct flock lock;
+	lock.l_type = (f->mode == MODE_READ ? F_RDLCK : F_WRLCK);
+	lock.l_whence = SEEK_SET;
+	lock.l_start = 0;
+	lock.l_len = 0;
+	lock.l_pid = 0;
+	fcntl(fileno(f->fh), F_SETLKW, &lock);
+#endif /* HAVE_FCNTL_H && UNIX */
 }
 
 
@@ -312,6 +575,15 @@ void file_lock(ang_file *f)
  */
 void file_unlock(ang_file *f)
 {
+#if defined(HAVE_FCNTL_H) && defined(UNIX)
+	struct flock lock;
+	lock.l_type = F_UNLCK;
+	lock.l_whence = SEEK_SET;
+	lock.l_start = 0;
+	lock.l_len = 0;
+	lock.l_pid = 0;
+	fcntl(fileno(f->fh), F_SETLK, &lock);
+#endif /* HAVE_FCNTL_H && UNIX */
 }
 
 
@@ -483,7 +755,11 @@ bool file_putf(ang_file *f, const char *fmt, ...)
  */
 bool file_vputf(ang_file *f, const char *fmt, va_list vp)
 {
+#ifndef WINDOWS
+	char buf[1024];
+#else
     char buf[MSG_LEN];
+#endif
 
     if (!f) return false;
 
@@ -498,6 +774,7 @@ void file_flush(ang_file *f)
 }
 
 
+#ifdef WINDOWS
 long file_tell(ang_file *f)
 {
     return ftell(f->fh);
@@ -508,6 +785,7 @@ void file_rewind(ang_file *f)
 {
     rewind(f->fh);
 }
+#endif
 
 
 /*
@@ -515,6 +793,7 @@ void file_rewind(ang_file *f)
  */
 bool dir_exists(const char *path)
 {
+#ifdef WINDOWS
     char dirpath[MAX_PATH];
     DWORD attrib;
 
@@ -526,6 +805,19 @@ bool dir_exists(const char *path)
     if (attrib & FILE_ATTRIBUTE_DIRECTORY) return true;
 
     return false;
+#else
+	#ifdef HAVE_STAT
+	struct stat buf;
+	if (stat(path, &buf) != 0)
+		return false;
+	else if (buf.st_mode & S_IFDIR)
+		return true;
+	else
+		return false;
+	#else
+	return true;
+	#endif
+#endif
 }
 
 
@@ -536,14 +828,21 @@ bool dir_exists(const char *path)
  */
 bool dir_create(const char *path)
 {
+#if defined (WINDOWS) || defined (HAVE_STAT)
     const char *ptr;
+    #ifndef WINDOWS
+	char buf[512];
+    #else
     char buf[MSG_LEN];
+    #endif
 
     /* If the directory already exists then we're done */
     if (dir_exists(path)) return true;
 
+	#ifdef WINDOWS
     /* If we're on windows, we need to skip past the "C:" part. */
     if (isalpha(path[0]) && path[1] == ':') path += 2;
+	#endif
 
     /*
      * Iterate through the path looking for path segements. At each step,
@@ -563,7 +862,11 @@ bool dir_create(const char *path)
             if (*(ptr - 1) == PATH_SEPC) continue;
 
             /* We can't handle really big filenames */
+            #ifndef WINDOWS
+			if (len - 1 > 512) return false;
+            #else
             if (len - 1 > MSG_LEN) return false;
+            #endif
 
             /* Create the parent path string, plus null-padding */
             my_strcpy(buf, path, len + 1);
@@ -572,11 +875,22 @@ bool dir_create(const char *path)
             if (dir_exists(buf)) continue;
 
             /* The parent doesn't exist, so create it or fail */
-            if (mkdir(buf) != 0) return false;
+            #ifndef WINDOWS
+			if (my_mkdir(buf, 0755) != 0) return false;
+            #else
+			if (mkdir(buf) != 0) return false;
+            #endif
         }
     }
 
+    #ifndef WINDOWS
+	return my_mkdir(path, 0755) == 0 ? true : false;
+	#else
     return (mkdir(path) == 0)? true: false;
+    #endif
+#else
+    return false;
+#endif
 }
 
 
@@ -584,6 +898,8 @@ bool dir_create(const char *path)
  * Directory scanning API
  */
 
+
+#ifdef WINDOWS
 
 /* System-specific struct */
 struct ang_dir
@@ -665,4 +981,84 @@ void my_dclose(ang_dir *dir)
     mem_free(dir);
 }
 
+#else /* WINDOWS */
 
+#ifdef HAVE_DIRENT_H
+
+/* Define our ang_dir type */
+struct ang_dir
+{
+	DIR *d;
+	char *dirname;
+};
+
+ang_dir *my_dopen(const char *dirname)
+{
+	ang_dir *dir;
+	DIR *d;
+
+	/* Try to open the directory */
+	d = opendir(dirname);
+	if (!d) return NULL;
+
+	/* Allocate memory for the handle */
+	dir = mem_zalloc(sizeof(ang_dir));
+	if (!dir) {
+		closedir(d);
+		return NULL;
+	}
+
+	/* Set up the handle */
+	dir->d = d;
+	dir->dirname = string_make(dirname);
+
+	/* Success */
+	return dir;
+}
+
+bool my_dread(ang_dir *dir, char *fname, size_t len)
+{
+	struct dirent *entry;
+	struct stat filedata;
+	char path[1024];
+
+	assert(dir != NULL);
+
+	/* Try reading another entry */
+	while (1) {
+		entry = readdir(dir->d);
+		if (!entry) return false;
+
+		path_build(path, sizeof path, dir->dirname, entry->d_name);
+            
+		/* Check to see if it exists */
+		if (stat(path, &filedata) != 0)
+			continue;
+
+		/* Check to see if it's a directory */
+		if (S_ISDIR(filedata.st_mode))
+			continue;
+
+		/* We've found something worth returning */
+		break;
+	}
+
+	/* Copy the filename */
+	my_strcpy(fname, entry->d_name, len);
+
+	return true;
+}
+
+void my_dclose(ang_dir *dir)
+{
+	/* Close directory */
+	if (dir->d)
+		closedir(dir->d);
+
+	/* Free memory */
+	mem_free(dir->dirname);
+	mem_free(dir);
+}
+
+#endif /* HAVE_DIRENT_H */
+#endif /* WINDOWS */

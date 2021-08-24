@@ -19,7 +19,7 @@ extern bool monster_passes_walls(const struct monster_race *race);
 extern bool race_is_invisible(const struct monster_race *race);
 extern bool monster_is_unique(const struct monster_race *race);
 extern bool monster_is_stupid(const struct monster_race *race);
-extern bool monster_is_smart(const struct monster_race *race);
+extern bool race_is_smart(const struct monster_race *race);
 extern bool race_is_evil(const struct monster_race *race);
 extern bool race_is_animal(const struct monster_race *race);
 extern bool monster_is_powerful(const struct monster_race *race);
@@ -29,13 +29,19 @@ extern bool monster_is_visible(struct player *p, int m_idx);
 extern bool monster_is_camouflaged(const struct monster *mon);
 extern bool monster_is_obvious(struct player *p, int m_idx, const struct monster *mon);
 extern bool monster_is_mimicking(const struct monster *mon);
+extern bool monster_can_be_scared(struct chunk *c, const struct monster *mon);
 
 extern bool monster_is_invisible(const struct monster *mon);
 extern bool monster_is_not_invisible(const struct monster *mon);
-extern bool monster_is_evil(const struct monster *mon); 
+extern bool monster_is_smart(const struct monster *mon);
+extern bool monster_is_esp_detectable(const struct monster *mon, bool isDM);
+extern bool monster_is_evil(const struct monster *mon);
+extern bool monster_is_fearful(const struct monster *mon);
 extern bool monster_is_nonevil(const struct monster *mon);
 extern bool monster_is_living(const struct monster *mon);
 extern bool monster_has_spirit(const struct monster *mon);
 extern bool monster_has_non_innate_spells(const struct monster *mon);
+extern bool monster_loves_archery(const struct monster *mon);
+extern bool monster_breathes(const struct monster *mon);
 
 #endif /* MONSTER_PREDICATE_H */

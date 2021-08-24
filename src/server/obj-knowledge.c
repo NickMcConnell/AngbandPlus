@@ -5,7 +5,7 @@
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2009 Brian Bull
  * Copyright (c) 2016 Nick McConnell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -76,11 +76,12 @@ static void init_rune(void)
         if (prop->subtype == OFT_NONE) continue;
         if (prop->subtype == OFT_LIGHT) continue;
         if (prop->subtype == OFT_DIG) continue;
+        if (prop->subtype == OFT_THROW) continue;
         count++;
     }
     for (i = 0; i < OBJ_MOD_MAX; i++)
         count++;
-    for (i = 0; i <= ELEM_XHIGH_MAX; i++) /* PWMAngband: some items have resist TIME/MANA */
+    for (i = 0; i <= ELEM_XHIGH_MAX; i++) /* PWMAngband: resist TIME/MANA/WATER */
         count++;
 
     /* Note brand runes cover all brands with the same name */
@@ -138,7 +139,7 @@ static void init_rune(void)
         rune_list[count].name = prop->name;
         count++;
     }
-    for (i = 0; i <= ELEM_XHIGH_MAX; i++) /* PWMAngband: some items have resist TIME/MANA */
+    for (i = 0; i <= ELEM_XHIGH_MAX; i++) /* PWMAngband: resist TIME/MANA/WATER */
     {
         rune_list[count].variety = RUNE_VAR_RESIST;
         rune_list[count].index = i;
@@ -200,6 +201,7 @@ static void init_rune(void)
         if (prop->subtype == OFT_NONE) continue;
         if (prop->subtype == OFT_LIGHT) continue;
         if (prop->subtype == OFT_DIG) continue;
+        if (prop->subtype == OFT_THROW) continue;
 
         rune_list[count].variety = RUNE_VAR_FLAG;
         rune_list[count].index = i;
@@ -483,8 +485,14 @@ bool player_knows_curse(struct player *p, int index)
  *
  * p is the player
  * ego is the ego item type
+ * obj may be NULL to test whether the player knows the ego in general;
+ *   if obj is not NULL, the test is for whether the ego is know for that
+ *   specific object (allows for the ego to be known for the object in the
+ *   case where an ego has range of at least two values, including zero, for
+ *   a modifier, the player doesn't know that modifier, and the object has
+ *   zero for that modifier)
  */
-bool player_knows_ego(struct player *p, struct ego_item *ego)
+bool player_knows_ego(struct player *p, struct ego_item *ego, const struct object *obj)
 {
     int i;
 
@@ -496,8 +504,18 @@ bool player_knows_ego(struct player *p, struct ego_item *ego)
     /* All modifiers known */
     for (i = 0; i < OBJ_MOD_MAX; i++)
     {
-        if (randcalc(ego->modifiers[i], MAX_RAND_DEPTH, MAXIMISE) && !p->obj_k->modifiers[i])
-            return false;
+        int modmax = randcalc(ego->modifiers[i], MAX_RAND_DEPTH, MAXIMISE);
+        int modmin = randcalc(ego->modifiers[i], MAX_RAND_DEPTH, MINIMISE);
+
+        if ((modmax > 0 || modmin < 0) && !p->obj_k->modifiers[i])
+        {
+            /*
+             * If testing a specific object, can possibly know if the range includes zero
+             * (i.e. product of bounds is not positive) and the object has zero for that modifier.
+             */
+            if (!obj || modmax * modmin > 0 || obj->modifiers[i] != 0)
+                return false;
+        }
     }
 
     /* All elements known */
@@ -838,7 +856,7 @@ void object_set_base_known(struct player *p, struct object *obj)
     obj->known->number = obj->number;
 
     /* Unresistables have no hidden properties */
-    /* PWMAngband: some items have resist TIME/MANA */
+    /* PWMAngband: resist TIME/MANA/WATER */
     for (i = ELEM_XHIGH_MAX + 1; i < ELEM_MAX; i++)
         obj->known->el_info[i].res_level = 1;
 
@@ -934,7 +952,7 @@ void player_know_object(struct player *p, struct object *obj)
     }
 
     /* Set ego type if known */
-    if (player_knows_ego(p, obj->ego))
+    if (player_knows_ego(p, obj->ego, obj))
     {
         seen = p->ego_everseen[obj->ego->eidx];
         obj->known->ego = (struct ego_item *)1;
@@ -1024,7 +1042,7 @@ void update_player_object_knowledge(struct player *p)
     p->upkeep->update |= (PU_BONUS | PU_INVEN);
     p->upkeep->notice |= (PN_COMBINE);
     p->upkeep->redraw |= (PR_INVEN | PR_EQUIP);
-    if (c) redraw_floor(&p->wpos, &p->grid);
+    if (c) redraw_floor(&p->wpos, &p->grid, NULL);
 }
 
 
@@ -1266,29 +1284,27 @@ void player_learn_everything(struct player *p)
  */
 
 
-static struct mod_msg
+static const char *mod_msg_pos[] =
 {
-    const char *msg;
-    const char *neg_msg;
-} mod_msgs[] =
+    #define STAT(a, b, c) b,
+    #include "../common/list-stats.h"
+    #undef STAT
+    #define OBJ_MOD(a, b, c) b,
+    #include "../common/list-object-modifiers.h"
+    #undef OBJ_MOD
+    NULL
+};
+
+
+static const char *mod_msg_neg[] =
 {
-    {"You feel stronger!", "You feel weaker!"}, /* OBJ_MOD_STR */
-    {"You feel smarter!", "You feel more stupid!"}, /* OBJ_MOD_INT */
-    {"You feel wiser!", "You feel more naive!"}, /* OBJ_MOD_WIS */
-    {"You feel more dextrous!", "You feel clumsier!"}, /* OBJ_MOD_DEX */
-    {"You feel healthier!", "You feel sicklier!"}, /* OBJ_MOD_CON */
-    {"You feel more attuned to magic.", "You feel less attuned to magic."}, /* OBJ_MOD_MANA */
-    {"You feel stealthier.", "You feel noisier."}, /* OBJ_MOD_STEALTH */
-    {NULL, NULL}, /* OBJ_MOD_SEARCH */
-    {"Your eyes tingle.", "Your eyes ache."}, /* OBJ_MOD_INFRA */
-    {NULL, NULL}, /* OBJ_MOD_TUNNEL */
-    {"You feel strangely quick.", "You feel strangely sluggish."}, /* OBJ_MOD_SPEED */
-    {"Your hands tingle.", "Your hands ache."}, /* OBJ_MOD_BLOWS */
-    {"Your missiles tingle in your hands.", "Your missiles ache in your hands."}, /* OBJ_MOD_SHOTS */
-    {NULL, NULL}, /* OBJ_MOD_MIGHT */
-    {"Your %s glows!", NULL}, /* OBJ_MOD_LIGHT */
-    {NULL, NULL}, /* OBJ_MOD_POLY_RACE */
-    {"You feel less attuned to magic.", "You feel more attuned to magic."} /* OBJ_MOD_ANTI_MAGIC */
+    #define STAT(a, b, c) c,
+    #include "../common/list-stats.h"
+    #undef STAT
+    #define OBJ_MOD(a, b, c) c,
+    #include "../common/list-object-modifiers.h"
+    #undef OBJ_MOD
+    NULL
 };
 
 
@@ -1301,7 +1317,7 @@ static struct mod_msg
 static void mod_message(struct player *p, int mod, const char *name, bool positive)
 {
     /* This should be in object_property.txt */
-    const char *message = (positive? mod_msgs[mod].msg: mod_msgs[mod].neg_msg);
+    const char *message = (positive? mod_msg_pos[mod]: mod_msg_neg[mod]);
 
     if (!message) return;
 
@@ -1404,7 +1420,7 @@ void object_learn_on_wield(struct player *p, struct object *obj)
     object_flavor_tried(p, obj);
 
     /* Get the obvious object flags */
-    create_obj_flag_mask(obvious_mask, true, OFID_WIELD, OFT_MAX);
+    create_obj_flag_mask(obvious_mask, 1, OFID_WIELD, OFT_MAX);
 
     object_flags(obj, f);
     object_modifiers(obj, modifiers);
@@ -1434,7 +1450,7 @@ void object_learn_on_wield(struct player *p, struct object *obj)
 
     if (!obvious) return;
 
-    create_obj_flag_mask(esp_flags, false, OFT_ESP, OFT_MAX);
+    create_obj_flag_mask(esp_flags, 0, OFT_ESP, OFT_MAX);
     if (of_is_inter(f, esp_flags))
         msg(p, "Your mind feels strangely sharper!");
     if (of_has(f, OF_FREE_ACT) && of_has(obvious_mask, OF_FREE_ACT))
@@ -1477,6 +1493,54 @@ void object_learn_on_wield(struct player *p, struct object *obj)
     /* Hack -- know activation on rings of polymorphing to bypass (unfair) learning by use */
     if (tval_is_ring(obj) && (obj->sval == lookup_sval(obj->tval, "Polymorphing")))
         object_notice_effect(p, obj);
+}
+
+
+/*
+ * Learn object properties that would become obvious on wielding
+ * Since Dragons and Monks cannot use weapons, they need to learn "on wield" properties
+ *
+ * p is the player
+ * obj is the wielded object
+ */
+void weapon_learn_on_carry(struct player *p, struct object *obj)
+{
+    bitflag obvious_mask[OF_SIZE];
+    s32b modifiers[OBJ_MOD_MAX];
+    int i;
+
+    /* Only deal with un-ID'd items */
+    if (object_is_known(p, obj)) return;
+
+    /* Only deal with weapons */
+    if (!tval_is_melee_weapon(obj) && !tval_is_mstaff(obj) && !tval_is_launcher(obj)) return;
+
+    /* Check the worn flag */
+    if (obj->known->notice & OBJ_NOTICE_WORN) return;
+    obj->known->notice |= OBJ_NOTICE_WORN;
+
+    /* Get the obvious object flags */
+    create_obj_flag_mask(obvious_mask, 1, OFID_WIELD, OFT_MAX);
+
+    object_modifiers(obj, modifiers);
+
+    /* Make sustains obvious for items with that stat bonus */
+    for (i = 0; i < STAT_MAX; i++)
+    {
+        if (modifiers[i]) of_on(obvious_mask, sustain_flag(i));
+    }
+
+    /* Notice obvious flags */
+    of_union(obj->known->flags, obvious_mask);
+
+    /* Notice all modifiers */
+    for (i = 0; i < OBJ_MOD_MAX; i++)
+        obj->known->modifiers[i] = 1;
+
+    /* Notice curses */
+    object_know_curses(obj);
+
+    object_check_for_ident(p, obj);
 }
 
 
@@ -1768,7 +1832,7 @@ void equip_learn_after_time(struct player *p)
     bool redraw = false;
 
     /* Get the timed flags */
-    create_obj_flag_mask(timed_mask, true, OFID_TIMED, OFT_MAX);
+    create_obj_flag_mask(timed_mask, 1, OFID_TIMED, OFT_MAX);
 
     /* Attempt to learn every flag */
     for (flag = of_next(timed_mask, FLAG_START); flag != FLAG_END;
@@ -2321,18 +2385,18 @@ void object_notice_ego(struct player *p, struct object *obj)
     /* Don't learn random ego extras */
     if (kf_has(obj->ego->kind_flags, KF_RAND_SUSTAIN))
     {
-        create_obj_flag_mask(xtra_flags, false, OFT_SUST, OFT_MAX);
+        create_obj_flag_mask(xtra_flags, 0, OFT_SUST, OFT_MAX);
         of_diff(learned_flags, xtra_flags);
     }
     if (kf_has(obj->ego->kind_flags, KF_RAND_POWER) ||
         kf_has(obj->ego->kind_flags, KF_RAND_RES_POWER))
     {
-        create_obj_flag_mask(xtra_flags, false, OFT_MISC, OFT_PROT, OFT_ESP, OFT_MAX);
+        create_obj_flag_mask(xtra_flags, 0, OFT_MISC, OFT_PROT, OFT_ESP, OFT_MAX);
         of_diff(learned_flags, xtra_flags);
     }
     if (kf_has(obj->ego->kind_flags, KF_RAND_ESP))
     {
-        create_obj_flag_mask(xtra_flags, false, OFT_ESP, OFT_MAX);
+        create_obj_flag_mask(xtra_flags, 0, OFT_ESP, OFT_MAX);
         of_diff(learned_flags, xtra_flags);
     }
 

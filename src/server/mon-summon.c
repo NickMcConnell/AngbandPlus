@@ -3,7 +3,7 @@
  * Purpose: Monster summoning
  *
  * Copyright (c) 1997-2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -178,7 +178,7 @@ static errr run_parse_summon(struct parser *p)
 static errr finish_parse_summon(struct parser *p)
 {
     struct summon *s, *n;
-    int count;
+    int index;
 
     /* Scan the list for the max id */
     z_info->summon_max = 0;
@@ -191,21 +191,21 @@ static errr finish_parse_summon(struct parser *p)
 
     /* Allocate the direct access list and copy the data to it */
     summons = mem_zalloc(z_info->summon_max * sizeof(*s));
-    count = z_info->summon_max - 1;
-    for (s = parser_priv(p); s; s = n, count--)
+    index = z_info->summon_max - 1;
+    for (s = parser_priv(p); s; s = n, index--)
     {
-        memcpy(&summons[count], s, sizeof(*s));
+        memcpy(&summons[index], s, sizeof(*s));
         n = s->next;
-        summons[count].next = NULL;
+        summons[index].next = NULL;
         mem_free(s);
     }
 
     /* Add indices of fallback summons */
-    for (count = 0; count < z_info->summon_max; count++)
+    for (index = 0; index < z_info->summon_max; index++)
     {
-        char *name = summons[count].fallback_name;
+        char *name = summons[index].fallback_name;
 
-        summons[count].fallback = summon_name_to_idx(name);
+        summons[index].fallback = summon_name_to_idx(name);
     }
 
     parser_destroy(p);
@@ -345,6 +345,9 @@ static bool can_call_monster(struct chunk *c, struct loc *grid, struct monster *
     /* Make sure the summoned monster is not in LOS of the summoner */
     if (los(c, grid, &mon->grid)) return false;
 
+    /* Aquatic monsters suffocate if not in water */
+    if (!square_iswater(c, grid) && rf_has(mon->race->flags, RF_AQUATIC)) return false;
+
     return true;
 }
 
@@ -400,8 +403,8 @@ static int call_monster(struct chunk *c, struct loc *grid)
     /* Swap the monster */
     monster_swap(c, &mon->grid, grid);
 
-    /* Wake it up */
-    mon_clear_timed(NULL, mon, MON_TMD_SLEEP, MON_TMD_FLG_NOMESSAGE);
+    /* Wake it up, make it aware */
+    monster_wake(NULL, mon, false, 100);
     mon_clear_timed(NULL, mon, MON_TMD_HOLD, MON_TMD_FLG_NOTIFY);
 
     /* Set it's energy to 0 */
@@ -433,13 +436,14 @@ static int call_monster(struct chunk *c, struct loc *grid)
  * Note that this function may not succeed, though this is very rare.
  */
 int summon_specific(struct player *p, struct chunk *c, struct loc *grid, int lev, int type,
-    bool delay, bool call, int chance)
+    bool delay, bool call, int chance, struct monster *summoner)
 {
     struct monster *mon;
     struct monster_race *race;
     byte status = MSTATUS_HOSTILE, status_player = MSTATUS_SUMMONED;
     int summon_level = (monster_level(&p->wpos) + lev) / 2 + 5;
     struct loc nearby;
+    struct monster_group_info info = {0, 0};
 
     /* Paranoia, make sure the level is allocated */
     if (!c) return 0;
@@ -506,6 +510,9 @@ int summon_specific(struct player *p, struct chunk *c, struct loc *grid, int lev
             continue;
         }
 
+        /* Aquatic monsters suffocate if not in water */
+        if (!square_iswater(c, &nearby) && rf_has(race->flags, RF_AQUATIC)) continue;
+
         /* Done */
         break;
     }
@@ -516,20 +523,34 @@ int summon_specific(struct player *p, struct chunk *c, struct loc *grid, int lev
     /* Handle failure */
     if (!race) return 0;
 
+    /* Put summons in the group of any summoner */
+    if (summoner)
+    {
+        struct monster_group *group = summon_group(c, summoner);
+
+        info.index = group->index;
+        info.role = MON_GROUP_SUMMON;
+    }
+
     /* Attempt to place the monster (awake, don't allow groups) */
-    if (!place_new_monster(p, c, &nearby, race, 0, ORIGIN_DROP_SUMMON))
+    if (!place_new_monster(p, c, &nearby, race, 0, &info, ORIGIN_DROP_SUMMON))
         return 0;
 
     /*
      * If delay, try to let the player act before the summoned monsters,
-     * including slowing down faster monsters for one turn
+     * including holding faster monsters for the required number of turns
      */
     mon = square_monster(c, &nearby);
     if (delay)
     {
+        int turns = (mon->mspeed + 9 - p->state.speed) / 10;
+
         mon->energy = 0;
-        if (mon->mspeed > p->state.speed)
-            mon_inc_timed(p, mon, MON_TMD_SLOW, 1, MON_TMD_FLG_NOMESSAGE);
+        if (turns > 0)
+        {
+            /* Set timer directly to avoid resistance */
+            mon->m_timed[MON_TMD_HOLD] = turns;
+        }
     }
 
     /* Hack -- monster summoned by the player */
@@ -549,6 +570,7 @@ bool summon_specific_race_aux(struct player *p, struct chunk *c, struct loc *gri
     struct monster_race *race, unsigned char size, bool pet)
 {
     int n;
+    struct monster_group_info info = {0, 0};
 
     /* Handle failure */
     if (!race) return false;
@@ -567,8 +589,11 @@ bool summon_specific_race_aux(struct player *p, struct chunk *c, struct loc *gri
         /* Look for a location */
         if (!summon_location(c, &new_grid, grid, 200)) return false;
 
+        /* Aquatic monsters suffocate if not in water */
+        if (!square_iswater(c, &new_grid) && rf_has(race->flags, RF_AQUATIC)) return false;
+
         /* Attempt to place the monster (awake, don't allow groups) */
-        if (!place_new_monster(p, c, &new_grid, race, 0, ORIGIN_DROP_SUMMON))
+        if (!place_new_monster(p, c, &new_grid, race, 0, &info, ORIGIN_DROP_SUMMON))
             return false;
 
         if (pet)
@@ -630,7 +655,7 @@ bool summon_specific_race_somewhere(struct player *p, struct chunk *c, struct mo
  * This function is used when a group of monsters is summoned.
  */
 int summon_monster_aux(struct player *p, struct chunk *c, struct loc *grid, int flag, int rlev,
-    int max, int chance)
+    int max, int chance, struct monster *mon)
 {
     int count = 0, val = 0, attempts = 0;
     int temp;
@@ -640,7 +665,7 @@ int summon_monster_aux(struct player *p, struct chunk *c, struct loc *grid, int 
     while ((val < p->wpos.depth * rlev) && (attempts < max))
     {
         /* Get a monster */
-        temp = summon_specific(p, c, grid, rlev, flag, false, false, chance);
+        temp = summon_specific(p, c, grid, rlev, flag, false, false, chance, mon);
 
         val += temp * temp;
 
@@ -653,7 +678,7 @@ int summon_monster_aux(struct player *p, struct chunk *c, struct loc *grid, int 
 
     /* If the summon failed and there's a fallback type, use that */
     if ((count == 0) && (fallback_type >= 0))
-        count = summon_monster_aux(p, c, grid, fallback_type, rlev, max, 0);
+        count = summon_monster_aux(p, c, grid, fallback_type, rlev, max, 0, mon);
 
     return count;
 }
@@ -687,4 +712,28 @@ bool summon_location(struct chunk *c, struct loc *place, struct loc *grid, int t
 
     /* Failure */
     return false;
+}
+
+
+/*
+ * Select a race for a monster shapechange from its possible summons
+ */
+struct monster_race *select_shape(struct player *p, struct monster *mon, int type)
+{
+    struct monster_race *race = NULL;
+    struct chunk *c = chunk_get(&p->wpos);
+
+    /* Save the "summon" type */
+    summon_specific_type = type;
+
+    /* Prepare allocation table */
+    get_mon_num_prep(summon_specific_okay);
+
+    /* Pick a monster */
+    race = get_mon_num(c, p->wpos.depth + 5, true);
+
+    /* Prepare allocation table */
+    get_mon_num_prep(NULL);
+
+    return race;
 }

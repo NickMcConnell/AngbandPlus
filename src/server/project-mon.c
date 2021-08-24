@@ -3,7 +3,7 @@
  * Purpose: Projection effects on monsters
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -55,6 +55,10 @@ static struct monster_race *poly_race(struct chunk *c, struct monster_race *race
         /* Avoid force-depth monsters, since it might cause a crash in project_m() */
         /* Paranoia: should never happen (see get_mon_num) */
         if (rf_has(new_race->flags, RF_FORCE_DEPTH) && (c->wpos.depth < new_race->level)) continue;
+
+        /* Aquatic and non-aquatic monsters should never mix */
+        if (rf_has(new_race->flags, RF_AQUATIC) && !rf_has(race->flags, RF_AQUATIC)) continue;
+        if (!rf_has(new_race->flags, RF_AQUATIC) && rf_has(race->flags, RF_AQUATIC)) continue;
 
         return new_race;
     }
@@ -276,6 +280,7 @@ static void project_monster_hurt_immune(project_monster_handler_context_t *conte
     if (rf_has(context->mon->race->flags, imm_flag))
     {
         context->hurt_msg = MON_MSG_RESIST_A_LOT;
+        context->die_msg = die_msg;
         context->dam /= imm_factor;
     }
     else if (rf_has(context->mon->race->flags, hurt_flag))
@@ -283,6 +288,11 @@ static void project_monster_hurt_immune(project_monster_handler_context_t *conte
         context->hurt_msg = hurt_msg;
         context->die_msg = die_msg;
         context->dam *= hurt_factor;
+    }
+    else
+    {
+        context->hurt_msg = MON_MSG_NONE;
+        context->die_msg = MON_MSG_DIE;
     }
 }
 
@@ -353,7 +363,10 @@ static void project_monster_teleport_away(project_monster_handler_context_t *con
     if (context->seen) rf_on(context->lore->flags, flag);
 
     if (rf_has(context->mon->race->flags, flag))
+    {
         context->teleport_distance = context->dam;
+        monster_wake(context->origin->player, context->mon, false, 100);
+    }
     else
         context->skipped = true;
 
@@ -375,7 +388,10 @@ static void project_monster_teleport_away(project_monster_handler_context_t *con
 static void project_monster_scare(project_monster_handler_context_t *context, int flag)
 {
     if (rf_has(context->mon->race->flags, flag))
+    {
         context->mon_timed[MON_TMD_FEAR] = context->dam;
+        monster_wake(context->origin->player, context->mon, false, 100);
+    }
     else
         context->skipped = true;
 
@@ -765,11 +781,9 @@ static void project_monster_handler_HOLY_ORB(project_monster_handler_context_t *
 }
 
 
-static void project_monster_handler_ARROW_X(project_monster_handler_context_t *context) {}
-static void project_monster_handler_ARROW_1(project_monster_handler_context_t *context) {}
-static void project_monster_handler_ARROW_2(project_monster_handler_context_t *context) {}
-static void project_monster_handler_ARROW_3(project_monster_handler_context_t *context) {}
-static void project_monster_handler_ARROW_4(project_monster_handler_context_t *context) {}
+static void project_monster_handler_SHOT(project_monster_handler_context_t *context) {}
+static void project_monster_handler_ARROW(project_monster_handler_context_t *context) {}
+static void project_monster_handler_BOLT(project_monster_handler_context_t *context) {}
 static void project_monster_handler_BOULDER(project_monster_handler_context_t *context) {}
 
 
@@ -1004,9 +1018,6 @@ static void project_monster_handler_MON_HEAL(project_monster_handler_context_t *
     }
 
     source_monster(mon, context->mon);
-
-    /* Wake up */
-    mon_clear_timed(context->origin->player, context->mon, MON_TMD_SLEEP, MON_TMD_FLG_NOMESSAGE);
     mon_clear_timed(context->origin->player, context->mon, MON_TMD_HOLD, MON_TMD_FLG_NOTIFY);
 
     /* Heal */
@@ -1187,12 +1198,15 @@ static void project_monster_handler_PSI_DRAIN(project_monster_handler_context_t 
     }
 }
 
-static void project_monster_handler_CURSE(project_monster_handler_context_t *context) {}
-
-
 /* Heavy curse -- damage + cuts */
-static void project_monster_handler_CURSE2(project_monster_handler_context_t *context)
+static void project_monster_handler_CURSE(project_monster_handler_context_t *context)
 {
+    int power;
+
+    if (context->origin->monster) power = context->origin->monster->race->spell_power;
+    else power = context->origin->player->lev * 2;
+    if (power < 55) return;
+
     /* Apply bleeding */
     context->mon_timed[MON_TMD_CUT] = 5 + randint1(5);
 }
@@ -1463,8 +1477,8 @@ bool project_m_monster_attack_aux(struct monster *attacker, struct chunk *c, str
     source_monster(origin, mon);
     update_health(origin);
 
-    /* Wake the monster up */
-    mon_clear_timed(NULL, mon, MON_TMD_SLEEP, MON_TMD_FLG_NOMESSAGE);
+    /* Wake the monster up, don't notice the player */
+    monster_wake(NULL, mon, false, 0);
     mon_clear_timed(NULL, mon, MON_TMD_HOLD, MON_TMD_FLG_NOTIFY);
 
     /* Become aware of its presence */
@@ -1555,16 +1569,17 @@ static bool project_m_player_attack(project_monster_handler_context_t *context)
     enum mon_messages hurt_msg = context->hurt_msg;
     struct monster *mon = context->mon;
 
-    /*
-     * No damage is now going to mean the monster is not hit - and hence
-     * is not woken or released from holding.
-     */
-    if (!dam)
+    /* PWMAngband: cancel fire-till-kill if active and no damage */
+    if ((context->origin->player->firing_request > 1) && !dam)
+        context->origin->player->firing_request = 1;
+
+    /* PWMAngband: add message */
+    if (OPT(context->origin->player, show_damage) && (dam > 0))
     {
-        /* PWMAngband: cancel fire-till-kill if active */
-        if (context->origin->player->firing_request > 1)
-            context->origin->player->firing_request = 1;
-        return false;
+        char m_name[NORMAL_WID];
+
+        monster_desc(context->origin->player, m_name, sizeof(m_name), mon, MDESC_STANDARD);
+        msg(context->origin->player, "%s is hit for %d damage.", m_name, dam);
     }
 
     /*
@@ -1575,14 +1590,17 @@ static bool project_m_player_attack(project_monster_handler_context_t *context)
      * ensures it doesn't print any death message and allows correct ordering
      * of messages.
      */
-    if (dam > mon->hp)
+    if ((dam > mon->hp) && !rf_has(mon->race->flags, RF_NO_DEATH))
     {
-        if (!seen)
-            die_msg = MON_MSG_MORIA_DEATH;
+        if (!seen) die_msg = MON_MSG_MORIA_DEATH;
         add_monster_message(context->origin->player, mon, die_msg, false);
     }
 
-    mon_died = mon_take_hit(context->origin->player, context->cave, mon, dam, &fear, -1);
+    /*
+     * No damage is now going to mean the monster is not hit - and hence
+     * is not woken or released from holding.
+     */
+    if (dam) mon_died = mon_take_hit(context->origin->player, context->cave, mon, dam, &fear, -1);
 
     /*
      * If the monster didn't die, provide additional messages about how it was
@@ -1675,12 +1693,14 @@ static bool project_m_apply_side_effects(project_monster_handler_context_t *cont
         /* Handle polymorph */
         if (new_race != old_race)
         {
+            struct monster_group_info info = {0, 0};
+
             /* Report the polymorph before changing the monster */
             add_monster_message(context->origin->player, context->mon, MON_MSG_CHANGE, false);
 
             /* Delete the old monster, and return a new one */
             delete_monster_idx(context->cave, *m_idx);
-            if (place_new_monster(context->origin->player, context->cave, &grid, new_race, 0,
+            if (place_new_monster(context->origin->player, context->cave, &grid, new_race, 0, &info,
                 ORIGIN_DROP_POLY))
             {
                 *m_idx = square(context->cave, &grid)->mon;
@@ -1712,6 +1732,9 @@ static bool project_m_apply_side_effects(project_monster_handler_context_t *cont
             who->monster = context->mon;
             who->trap = NULL;
             effect_simple(EF_TELEPORT, who, dice, 0, 0, 0, 0, 0, NULL);
+
+            /* Wake the monster up, don't notice the player */
+            monster_wake(context->origin->player, context->mon, false, 0);
 
             /* Hack -- get new location */
             loc_copy(&context->grid, &context->mon->grid);
@@ -1751,6 +1774,9 @@ static bool project_m_apply_side_effects(project_monster_handler_context_t *cont
         effect_simple(EF_TELEPORT, who, dice, 0, 0, 0, 0, 0, NULL);
         if ((context->mon->grid.y == fy) && (context->mon->grid.x == fx))
             context->obvious = false;
+
+        /* Wake the monster up, don't notice the player */
+        monster_wake(context->origin->player, context->mon, false, 0);
 
         /* Hack -- get new location */
         loc_copy(&context->grid, &context->mon->grid);
@@ -1951,6 +1977,9 @@ void project_m(struct source *origin, int r, struct chunk *c, struct loc *grid, 
         context.skipped = true;
         context.dam = 0;
     }
+
+    /* Wake monster if required */
+    if (projections[typ].wake) monster_wake(origin->player, context.mon, false, 100);
 
     /* Absolutely no effect */
     if (context.skipped) return;

@@ -30,7 +30,7 @@ extern s16b place_monster(struct player *p, struct chunk *c, struct monster *mon
 extern int mon_hp(const struct monster_race *race, aspect hp_aspect);
 extern int sleep_value(const struct monster_race *race);
 extern bool place_new_monster(struct player *p, struct chunk *c, struct loc *grid,
-    struct monster_race *race, byte mon_flag, byte origin);
+    struct monster_race *race, byte mon_flag, struct monster_group_info *group_info, byte origin);
 extern bool pick_and_place_monster(struct player *p, struct chunk *c, struct loc *grid, int depth,
     byte mon_flag, byte origin);
 extern bool pick_and_place_distant_monster(struct player *p, struct chunk *c, int dis,

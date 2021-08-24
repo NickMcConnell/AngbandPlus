@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997-2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2013 Ben Semmler
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -185,7 +185,7 @@ void monster_list_collect(struct player *p, monster_list_t *list)
             entry->attr = p->r_attr[mon->race->ridx];
 
 		/* Check for LOS using projectable() */
-		los = (projectable(c, &p->grid, &mon->grid, PROJECT_NONE, true) &&
+		los = (projectable(p, c, &p->grid, &mon->grid, PROJECT_NONE, true) &&
             monster_is_in_view(p, i));
 		field = (los? MONSTER_LIST_SECTION_LOS: MONSTER_LIST_SECTION_ESP);
 		entry->count[field]++;
@@ -239,6 +239,30 @@ int monster_list_standard_compare(const void *a, const void *b)
 	/* Depths are equal, check uniqueness. */
 	if (monster_is_unique(ar) && !monster_is_unique(br)) return -1;
 	if (!monster_is_unique(ar) && monster_is_unique(br)) return 1;
+
+	return 0;
+}
+
+
+/*
+ * Comparison function for the monster list: sort by exp
+ */
+int monster_list_compare_exp(const void *a, const void *b)
+{
+	const struct monster_race *ar = ((monster_list_entry_t *)a)->race;
+	const struct monster_race *br = ((monster_list_entry_t *)b)->race;
+    long a_exp, b_exp;
+
+	/* If this happens, something might be wrong in the collect function. */
+	if ((ar == NULL) || (br == NULL)) return 1;
+
+	/* Experience, integer part */
+	a_exp = (long)ar->mexp * ar->level;
+	b_exp = (long)br->mexp * br->level;
+
+	/* Evaluate exp gained when killing */
+	if (a_exp > b_exp) return -1;
+	if (a_exp < b_exp) return 1;
 
 	return 0;
 }

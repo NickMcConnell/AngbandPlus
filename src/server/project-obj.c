@@ -3,7 +3,7 @@
  * Purpose: Projection effects on objects
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -333,11 +333,9 @@ static void project_object_handler_MANA(project_object_handler_context_t *contex
 
 
 static void project_object_handler_HOLY_ORB(project_object_handler_context_t *context) {}
-static void project_object_handler_ARROW_X(project_object_handler_context_t *context) {}
-static void project_object_handler_ARROW_1(project_object_handler_context_t *context) {}
-static void project_object_handler_ARROW_2(project_object_handler_context_t *context) {}
-static void project_object_handler_ARROW_3(project_object_handler_context_t *context) {}
-static void project_object_handler_ARROW_4(project_object_handler_context_t *context) {}
+static void project_object_handler_SHOT(project_object_handler_context_t *context) {}
+static void project_object_handler_ARROW(project_object_handler_context_t *context) {}
+static void project_object_handler_BOLT(project_object_handler_context_t *context) {}
 static void project_object_handler_BOULDER(project_object_handler_context_t *context) {}
 static void project_object_handler_LIGHT_WEAK(project_object_handler_context_t *context) {}
 static void project_object_handler_DARK_WEAK(project_object_handler_context_t *context) {}
@@ -394,6 +392,32 @@ static bool valid_race(project_object_handler_context_t *context, struct monster
 }
 
 
+/* Is the race consistent with the skeleton? */
+static bool consistent_skeleton(struct monster_race *race, struct monster_race *skeleton)
+{
+    if (streq(race->name, "skeleton kobold"))
+        return (skeleton->base == lookup_monster_base("kobold"));
+
+    if (streq(race->name, "skeleton orc"))
+        return (skeleton->base == lookup_monster_base("orc"));
+
+    if (streq(race->name, "skeleton human"))
+        return (skeleton->base == lookup_monster_base("person"));
+
+    if (streq(race->name, "skeleton troll"))
+        return (skeleton->base == lookup_monster_base("troll"));
+
+    if (streq(race->name, "skeleton two-headed troll"))
+        return streq(skeleton->name, "two-headed troll");
+
+    /* Give a slim chance of getting a powerful druj */
+    if (strstr(race->name, "druj"))
+        return one_in_(100);
+
+    return true;
+}
+
+
 /* Is the race consistent with the corpse? */
 static bool consistent_corpse(struct monster_race *race, struct monster_race *corpse)
 {
@@ -419,6 +443,7 @@ static void project_object_handler_RAISE(project_object_handler_context_t *conte
     struct monster_race *race = NULL;
     struct chunk *c = context->cave;
     struct loc grid;
+    struct monster_group_info info = {0, 0};
 
     /* Raise dead prohibited in towns and special levels */
     if (forbid_special(&c->wpos)) return;
@@ -429,26 +454,29 @@ static void project_object_handler_RAISE(project_object_handler_context_t *conte
     /* Skeletons must match an existing skeleton race */
     if (tval_is_skeleton(context->obj))
     {
-        if (strstr(context->obj->kind->name, "Human"))
-            race = get_race("skeleton human");
-        else if (strstr(context->obj->kind->name, "Elf"))
-            race = get_race("ice skeleton");
-        else if (strstr(context->obj->kind->name, "Kobold"))
-            race = get_race("skeleton kobold");
-        else if (strstr(context->obj->kind->name, "Orc"))
-            race = get_race("skeleton orc");
-        else if (context->obj->sval == lookup_sval(context->obj->tval, "Skull"))
+        struct monster_race *skeleton = &r_info[context->obj->pval];
+        int tries = 20;
+
+        /* Try hard to raise something */
+        while (tries)
         {
-            /* Give a chance of getting a powerful skull druj */
-            if (one_in_(3))
-                race = get_race("skull druj");
-            else
-                race = get_race("flying skull");
+            while (true)
+            {
+                race = &r_info[randint1(z_info->r_max - 1)];
+                if (!race->name) continue;
+
+                /* Animated skeletons can be any of non unique skeleton */
+                if ((race->base == lookup_monster_base("skeleton")) &&
+                    consistent_skeleton(race, skeleton))
+                {
+                    break;
+                }
+            }
+
+            if (valid_race(context, race)) break;
+            race = NULL;
+            tries--;
         }
-        else if (strstr(context->obj->kind->name, "Troll"))
-            race = get_race("skeleton troll");
-        else if (strstr(context->obj->kind->name, "Ettin"))
-            race = get_race("skeleton ettin");
     }
 
     /* Humanoid corpses can be raised too */
@@ -512,7 +540,7 @@ static void project_object_handler_RAISE(project_object_handler_context_t *conte
     if (!summon_location(c, &grid, &context->grid, 60)) return;
 
     /* Place a new monster */
-    if (place_new_monster(context->origin->player, c, &grid, race, 0, ORIGIN_DROP_SUMMON))
+    if (place_new_monster(context->origin->player, c, &grid, race, 0, &info, ORIGIN_DROP_SUMMON))
     {
         context->do_kill = true;
 
@@ -561,7 +589,6 @@ static void project_object_handler_MON_CRUSH(project_object_handler_context_t *c
 static void project_object_handler_PSI(project_object_handler_context_t *context) {}
 static void project_object_handler_PSI_DRAIN(project_object_handler_context_t *context) {}
 static void project_object_handler_CURSE(project_object_handler_context_t *context) {}
-static void project_object_handler_CURSE2(project_object_handler_context_t *context) {}
 static void project_object_handler_DRAIN(project_object_handler_context_t *context) {}
 static void project_object_handler_COMMAND(project_object_handler_context_t *context) {}
 static void project_object_handler_TELE_TO(project_object_handler_context_t *context) {}
@@ -689,12 +716,7 @@ bool project_o(struct source *origin, int r, struct chunk *c, struct loc *grid, 
                     msgt(origin->player, MSG_DESTROY, "The %s %s!", o_name, note_kill);
 
                 /* Delete the object */
-                square_excise_object(c, grid, obj);
-                object_delete(&obj);
-
-                /* Redraw */
-                square_note_spot(c, grid);
-                square_light_spot(c, grid);
+                square_delete_object(c, grid, obj, true, true);
             }
         }
 

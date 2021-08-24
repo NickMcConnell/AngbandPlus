@@ -13,14 +13,14 @@ BCB = $(MAKEDIR)\..
 
 VERSION = BCB.06.00
 # ---------------------------------------------------------------------------
-FREETYPE = freetype-2.10.1
+FREETYPE = freetype-2.10.2
 # ---------------------------------------------------------------------------
 PROJECT = ..\SDL_ttf.dll
 OBJFILES = ..\..\SDL\SDL_ttf-2.0.11\SDL_ttf.obj
 RESFILES = 
 MAINSOURCE = SDL_ttf.bpf
 RESDEPEN = $(RESFILES)
-LIBFILES = SDL\freetype.lib SDL\SDL.lib
+LIBFILES = _SDL\freetype.lib _SDL\SDL.lib
 IDLFILES = 
 IDLGENFILES = 
 LIBRARIES = 
@@ -33,8 +33,8 @@ DEBUGLIBPATH = $(BCB)\lib\debug
 RELEASELIBPATH = $(BCB)\lib\release
 USERDEFINES = WIN32;_WINDOWS;BUILD_SDL;
 SYSDEFINES = NO_STRICT;_NO_VCL
-INCLUDEPATH = $(BCB)\include;SDL;..\..\SDL\$(FREETYPE)\include
-LIBPATH = $(BCB)\lib\obj;$(BCB)\lib;SDL
+INCLUDEPATH = $(BCB)\include;_SDL;..\..\SDL\$(FREETYPE)\include
+LIBPATH = $(BCB)\lib\obj;$(BCB)\lib;_SDL
 WARNINGS= -w-par
 PATHCPP= .;..\..\SDL\SDL_ttf-2.0.11
 PATHASM = .;
@@ -44,7 +44,7 @@ PATHOBJ = .;$(LIBPATH)
 # ---------------------------------------------------------------------------
 CFLAG1 = -WD -O2 -Hc -w- -Vx -Ve -X- \
     -a8 -b -k- -vi -tWD -tWM -c
-IDLCFLAGS = -I$(BCB)\include  -ISDL -I..\..\SDL\$(FREETYPE)\include \
+IDLCFLAGS = -I$(BCB)\include  -I_SDL -I..\..\SDL\$(FREETYPE)\include \
     -src_suffix cpp -DWIN32 -D_WINDOWS -DBUILD_SDL -DNO_STRICT -D_NO_VCL -boa
 PFLAGS = -$Y- -$L- -$D- -$A8 -v -JPHNE -M
 RFLAGS = 

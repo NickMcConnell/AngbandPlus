@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2008-9 Antony Sidwell
  * Copyright (c) 2014 Andi Sidwell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -75,9 +75,9 @@ static const struct command_info game_cmds[] =
     {CMD_HOLD, "stay still", Send_hold},
     {CMD_RUN, "run", Send_run},
     {CMD_ALTER, "alter", Send_alter},
+    {CMD_STEAL, "steal", Send_steal},
     {CMD_BREATH, "breathe", Send_breath},
     {CMD_PROJECT, "project", cmd_project},
-    {CMD_STEAL, "steal", Send_steal},
     {CMD_EXAMINE, "examine", Send_observe}
 };
 

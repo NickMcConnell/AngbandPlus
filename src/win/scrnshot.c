@@ -3,7 +3,7 @@
  * Purpose: Save a graphical screen shot on Windows systems.
  *
  * Copyright (c) 2011 Brett Reid
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -41,7 +41,7 @@
 BOOL SaveWindow_PNG(HWND hWnd, LPSTR lpFileName)
 {
     png_structp png_ptr;
-    png_infop info_ptr;
+    png_infop info_ptr = NULL;
     png_bytep *row_pointers;
     BOOL noerror = TRUE;
     png_byte color_type;

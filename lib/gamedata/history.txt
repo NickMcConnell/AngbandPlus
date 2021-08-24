@@ -36,6 +36,7 @@
 #   Ent           --> 94 --> 95
 #   Thunderlord   --> 89 --> 91
 #   Dragon        --> 98 --> 99
+#   Hydra         --> 97
 
 # This table *must* be correct or the history may look very silly.
 
@@ -48,6 +49,7 @@
 #     $r             Your/His/Her
 #     ~h             have/has
 #     ~a             are/is
+#     ~w             were/was
 
 
 chart:1:2:10
@@ -453,6 +455,9 @@ chart:95:0:50
 phrase:$u ~h green skin and unflexible members.
 chart:95:0:100
 phrase:$u ~h brown skin and unflexible members.
+
+chart:97:0:100
+phrase:$u ~w born in a swamp.
 
 chart:98:99:30
 phrase:$r father was a common dragon. 

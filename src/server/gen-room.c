@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2013 Erik Osheim, Nick McConnell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -78,7 +78,7 @@ static struct room_template *random_room_template(int typ, int rating)
  *
  * Returns a pointer to the vault template.
  */
-static struct vault *random_vault(int depth, const char *typ)
+struct vault *random_vault(int depth, const char *typ)
 {
     struct vault *v = vaults;
     struct vault *r = NULL;
@@ -154,6 +154,30 @@ void generate_mark(struct chunk *c, int y1, int x1, int y2, int x2, int flag)
 
 
 /*
+ * Unmark a rectangle with a set of info flags
+ *
+ * c the current chunk
+ * y1, x1, y2, x2 inclusive room boundaries
+ * flag the SQUARE_* flag we are marking with
+ */
+void generate_unmark(struct chunk *c, int y1, int x1, int y2, int x2, int flag)
+{
+    struct loc begin, end;
+    struct loc_iterator iter;
+
+    loc_init(&begin, x1, y1);
+    loc_init(&end, x2, y2);
+    loc_iterator_first(&iter, &begin, &end);
+
+    do
+    {
+        sqinfo_off(square(c, &iter.cur)->info, flag);
+    }
+    while (loc_iterator_next(&iter));
+}
+
+
+/*
  * Fill a rectangle with a feature.
  *
  * c the current chunk
@@ -165,6 +189,9 @@ void fill_rectangle(struct chunk *c, int y1, int x1, int y2, int x2, int feat, i
 {
     struct loc begin, end;
     struct loc_iterator iter;
+
+    /* Paranoia */
+    if ((x1 > x2) || (y1 > y2)) return;
 
     loc_init(&begin, x1, y1);
     loc_init(&end, x2, y2);
@@ -395,11 +422,16 @@ static void generate_hole(struct chunk *c, int y1, int x1, int y2, int x2, int f
     /* Open random side */
     switch (randint0(4))
     {
-        case 0: loc_init(&grid, x0, y1); square_set_feat(c, &grid, feat); break;
-        case 1: loc_init(&grid, x1, y0); square_set_feat(c, &grid, feat); break;
-        case 2: loc_init(&grid, x0, y2); square_set_feat(c, &grid, feat); break;
-        case 3: loc_init(&grid, x2, y0); square_set_feat(c, &grid, feat); break;
+        case 0: loc_init(&grid, x0, y1); break;
+        case 1: loc_init(&grid, x1, y0); break;
+        case 2: loc_init(&grid, x0, y2); break;
+        case 3: loc_init(&grid, x2, y0); break;
     }
+
+    square_set_feat(c, &grid, feat);
+
+    /* Remove permanent flag */
+    sqinfo_off(square(c, &grid)->info, SQUARE_FAKE);
 }
 
 
@@ -552,9 +584,6 @@ bool generate_starburst_room(struct chunk *c, int y1, int x1, int y2, int x2, bo
                 tmp_cx1 = x1 + (width - height) / 2;
                 tmp_cy2 = y2;
                 tmp_cx2 = tmp_cx1 + (width - height) / 2;
-
-                tmp_cy1 = y1;
-                tmp_cx1 = x1;
             }
 
             /* Make the third room. */
@@ -826,6 +855,7 @@ bool mon_pit_hook(struct monster_race *race)
 {
     bool match_base = true;
     bool match_color = true;
+    int freq_spell = dun->pit_type->freq_spell;
 
     my_assert(dun->pit_type);
     my_assert(race);
@@ -846,6 +876,7 @@ bool mon_pit_hook(struct monster_race *race)
     if (rf_is_inter(race->flags, dun->pit_type->forbidden_flags)) return false;
     if (!rsf_is_subset(race->spell_flags, dun->pit_type->spell_flags)) return false;
     if (rsf_is_inter(race->spell_flags, dun->pit_type->forbidden_spell_flags)) return false;
+    if (race->freq_spell < freq_spell) return false;
     if (dun->pit_type->forbidden_monsters)
     {
         struct pit_forbidden_monster *monster;
@@ -1350,6 +1381,12 @@ bool build_vault(struct player *p, struct chunk *c, struct loc *centre, struct v
 
                 /* Lava */
                 case '`': square_set_feat(c, &grid, FEAT_LAVA); break;
+
+                /* Water */
+                case '/': square_set_feat(c, &grid, FEAT_WATER); break;
+
+                /* Tree */
+                case ';': square_set_feat(c, &grid, FEAT_TREE); break;
             }
 
             /* Part of a vault */
@@ -2482,6 +2519,7 @@ bool build_nest(struct player *p, struct chunk *c, struct loc *centre, int ratin
     int size_vary = randint0(4);
     int height = 9;
     int width = 11 + 2 * size_vary;
+    struct monster_group_info info = {0, 0};
     struct loc begin, end;
     struct loc_iterator iter;
 
@@ -2517,8 +2555,8 @@ bool build_nest(struct player *p, struct chunk *c, struct loc *centre, int ratin
     fill_rectangle(c, y1, x1, y2, x2, FEAT_FLOOR_PIT, SQUARE_NONE);
 
     /* Generate inner walls */
-    /* PWMAngband -- make them permanent to prevent PASS_WALL/KILL_WALL monsters from escaping */
-    draw_rectangle(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_PERM_FAKE, SQUARE_NONE);
+    /* PWMAngband -- make them permanent to prevent monsters from escaping */
+    draw_rectangle(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_GRANITE, SQUARE_FAKE);
 
     /* Open the inner room with a door */
     generate_hole(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_CLOSED);
@@ -2573,7 +2611,7 @@ bool build_nest(struct player *p, struct chunk *c, struct loc *centre, int ratin
         /* Figure out what monster is being used, and place that monster */
         struct monster_race *race = what[randint0(64)];
 
-        place_new_monster(p, c, &iter.cur, race, 0, ORIGIN_DROP_PIT);
+        place_new_monster(p, c, &iter.cur, race, 0, &info, ORIGIN_DROP_PIT);
 
         /* Occasionally place an item, making it good 1/3 of the time */
         if (magik(alloc_obj))
@@ -2631,6 +2669,8 @@ bool build_pit(struct player *p, struct chunk *c, struct loc *centre, int rating
     int alloc_obj;
     int height = 9;
     int width = 15;
+    int group_index = 0;
+    struct monster_group_info info = {0, 0};
     struct loc begin, end, grid;
     struct loc_iterator iter;
 
@@ -2662,8 +2702,8 @@ bool build_pit(struct player *p, struct chunk *c, struct loc *centre, int rating
     fill_rectangle(c, y1, x1, y2, x2, FEAT_FLOOR_PIT, SQUARE_NONE);
 
     /* Generate inner walls, and open with a door */
-    /* PWMAngband -- make them permanent to prevent PASS_WALL/KILL_WALL monsters from escaping */
-    draw_rectangle(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_PERM_FAKE, SQUARE_NONE);
+    /* PWMAngband -- make them permanent to prevent monsters from escaping */
+    draw_rectangle(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_GRANITE, SQUARE_FAKE);
     generate_hole(c, y1 - 1, x1 - 1, y2 + 1, x2 + 1, FEAT_CLOSED);
 
     loc_init(&begin, x1, y1);
@@ -2730,80 +2770,88 @@ bool build_pit(struct player *p, struct chunk *c, struct loc *centre, int rating
     /* Increase the level rating */
     c->mon_rating += (3 + dun->pit_type->ave / 20);
 
+    /* Get a group ID */
+    group_index = monster_group_index_new(c);
+
+    /* Center monster */
+    info.index = group_index;
+    info.role = MON_GROUP_LEADER;
+    place_new_monster(p, c, centre, what[7], 0, &info, ORIGIN_DROP_PIT);
+
+    /* Remaining monsters are servants */
+    info.role = MON_GROUP_SERVANT;
+
     /* Top and bottom rows (middle) */
     for (x = centre->x - 3; x <= centre->x + 3; x++)
     {
         loc_init(&grid, x, centre->y - 2);
-        place_new_monster(p, c, &grid, what[0], 0, ORIGIN_DROP_PIT);
+        place_new_monster(p, c, &grid, what[0], 0, &info, ORIGIN_DROP_PIT);
         loc_init(&grid, x, centre->y + 2);
-        place_new_monster(p, c, &grid, what[0], 0, ORIGIN_DROP_PIT);
+        place_new_monster(p, c, &grid, what[0], 0, &info, ORIGIN_DROP_PIT);
     }
 
     /* Corners */
     for (x = centre->x - 5; x <= centre->x - 4; x++)
     {
         loc_init(&grid, x, centre->y - 2);
-        place_new_monster(p, c, &grid, what[1], 0, ORIGIN_DROP_PIT);
+        place_new_monster(p, c, &grid, what[1], 0, &info, ORIGIN_DROP_PIT);
         loc_init(&grid, x, centre->y + 2);
-        place_new_monster(p, c, &grid, what[1], 0, ORIGIN_DROP_PIT);
+        place_new_monster(p, c, &grid, what[1], 0, &info, ORIGIN_DROP_PIT);
     }
 
     for (x = centre->x + 4; x <= centre->x + 5; x++)
     {
         loc_init(&grid, x, centre->y - 2);
-        place_new_monster(p, c, &grid, what[1], 0, ORIGIN_DROP_PIT);
+        place_new_monster(p, c, &grid, what[1], 0, &info, ORIGIN_DROP_PIT);
         loc_init(&grid, x, centre->y + 2);
-        place_new_monster(p, c, &grid, what[1], 0, ORIGIN_DROP_PIT);
+        place_new_monster(p, c, &grid, what[1], 0, &info, ORIGIN_DROP_PIT);
     }
 
     /* Middle columns */
     for (y = centre->y - 1; y <= centre->y + 1; y++)
     {
         loc_init(&grid, centre->x - 5, y);
-        place_new_monster(p, c, &grid, what[0], 0, ORIGIN_DROP_PIT);
+        place_new_monster(p, c, &grid, what[0], 0, &info, ORIGIN_DROP_PIT);
         loc_init(&grid, centre->x + 5, y);
-        place_new_monster(p, c, &grid, what[0], 0, ORIGIN_DROP_PIT);
+        place_new_monster(p, c, &grid, what[0], 0, &info, ORIGIN_DROP_PIT);
 
         loc_init(&grid, centre->x - 4, y);
-        place_new_monster(p, c, &grid, what[1], 0, ORIGIN_DROP_PIT);
+        place_new_monster(p, c, &grid, what[1], 0, &info, ORIGIN_DROP_PIT);
         loc_init(&grid, centre->x + 4, y);
-        place_new_monster(p, c, &grid, what[1], 0, ORIGIN_DROP_PIT);
+        place_new_monster(p, c, &grid, what[1], 0, &info, ORIGIN_DROP_PIT);
 
         loc_init(&grid, centre->x - 3, y);
-        place_new_monster(p, c, &grid, what[2], 0, ORIGIN_DROP_PIT);
+        place_new_monster(p, c, &grid, what[2], 0, &info, ORIGIN_DROP_PIT);
         loc_init(&grid, centre->x + 3, y);
-        place_new_monster(p, c, &grid, what[2], 0, ORIGIN_DROP_PIT);
+        place_new_monster(p, c, &grid, what[2], 0, &info, ORIGIN_DROP_PIT);
 
         loc_init(&grid, centre->x - 2, y);
-        place_new_monster(p, c, &grid, what[3], 0, ORIGIN_DROP_PIT);
+        place_new_monster(p, c, &grid, what[3], 0, &info, ORIGIN_DROP_PIT);
         loc_init(&grid, centre->x + 2, y);
-        place_new_monster(p, c, &grid, what[3], 0, ORIGIN_DROP_PIT);
+        place_new_monster(p, c, &grid, what[3], 0, &info, ORIGIN_DROP_PIT);
     }
 
     /* Corners around the middle monster */
     loc_init(&grid, centre->x - 1, centre->y - 1);
-    place_new_monster(p, c, &grid, what[4], 0, ORIGIN_DROP_PIT);
+    place_new_monster(p, c, &grid, what[4], 0, &info, ORIGIN_DROP_PIT);
     loc_init(&grid, centre->x + 1, centre->y - 1);
-    place_new_monster(p, c, &grid, what[4], 0, ORIGIN_DROP_PIT);
+    place_new_monster(p, c, &grid, what[4], 0, &info, ORIGIN_DROP_PIT);
     loc_init(&grid, centre->x - 1, centre->y + 1);
-    place_new_monster(p, c, &grid, what[4], 0, ORIGIN_DROP_PIT);
+    place_new_monster(p, c, &grid, what[4], 0, &info, ORIGIN_DROP_PIT);
     loc_init(&grid, centre->x + 1, centre->y + 1);
-    place_new_monster(p, c, &grid, what[4], 0, ORIGIN_DROP_PIT);
+    place_new_monster(p, c, &grid, what[4], 0, &info, ORIGIN_DROP_PIT);
 
     /* Above/Below the center monster */
     loc_init(&grid, centre->x, centre->y + 1);
-    place_new_monster(p, c, &grid, what[5], 0, ORIGIN_DROP_PIT);
+    place_new_monster(p, c, &grid, what[5], 0, &info, ORIGIN_DROP_PIT);
     loc_init(&grid, centre->x, centre->y - 1);
-    place_new_monster(p, c, &grid, what[5], 0, ORIGIN_DROP_PIT);
+    place_new_monster(p, c, &grid, what[5], 0, &info, ORIGIN_DROP_PIT);
 
     /* Next to the center monster */
     loc_init(&grid, centre->x + 1, centre->y);
-    place_new_monster(p, c, &grid, what[6], 0, ORIGIN_DROP_PIT);
+    place_new_monster(p, c, &grid, what[6], 0, &info, ORIGIN_DROP_PIT);
     loc_init(&grid, centre->x - 1, centre->y);
-    place_new_monster(p, c, &grid, what[6], 0, ORIGIN_DROP_PIT);
-
-    /* Center monster */
-    place_new_monster(p, c, centre, what[7], 0, ORIGIN_DROP_PIT);
+    place_new_monster(p, c, &grid, what[6], 0, &info, ORIGIN_DROP_PIT);
 
     /* Place some objects */
     for (grid.y = centre->y - 2; grid.y <= centre->y + 2; grid.y++)

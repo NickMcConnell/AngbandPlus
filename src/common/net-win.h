@@ -1,3 +1,4 @@
+#ifdef WINDOWS
 /*
  * File: net-win.h
  * Purpose: Network module
@@ -47,3 +48,4 @@ extern const char *GetSocketErrorMessageAux(int error);
 extern const char *GetSocketErrorMessage(void);
 
 #endif /* _SOCKLIB_INCLUDED */
+#endif /* WINDOWS */

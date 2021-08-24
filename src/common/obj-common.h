@@ -23,7 +23,7 @@ enum
 #define ELEM_BASE_MAX   ELEM_COLD
 #define ELEM_HIGH_MIN   ELEM_POIS
 #define ELEM_HIGH_MAX   ELEM_DISEN
-#define ELEM_XHIGH_MAX  ELEM_MANA
+#define ELEM_XHIGH_MAX  ELEM_WATER
 
 /* The object flags */
 enum
@@ -88,10 +88,10 @@ enum
 /* The object modifiers */
 enum
 {
-    #define STAT(a) OBJ_MOD_##a,
+    #define STAT(a, b, c) OBJ_MOD_##a,
     #include "list-stats.h"
     #undef STAT
-    #define OBJ_MOD(a) OBJ_MOD_##a,
+    #define OBJ_MOD(a, b, c) OBJ_MOD_##a,
     #include "list-object-modifiers.h"
     #undef OBJ_MOD
     OBJ_MOD_MAX
@@ -132,6 +132,23 @@ struct effect
 };
 
 /*
+ * Chests
+ */
+struct chest_trap
+{
+    struct chest_trap *next;
+    char *name;
+    char *code;
+    int level;
+    struct effect *effect;
+    int pval;
+    bool destroy;
+    bool magic;
+    char *msg;
+    char *msg_death;
+};
+
+/*
  * Object flavors
  */
 struct flavor
@@ -139,8 +156,8 @@ struct flavor
     char *text;         /* Text */
     unsigned int fidx;  /* Index */
     struct flavor *next;
-    byte tval;          /* Associated object type */
-    byte sval;          /* Associated object sub-type */
+    u16b tval;          /* Associated object type */
+    u16b sval;          /* Associated object sub-type */
     byte d_attr;        /* Default flavor attribute */
     char d_char;        /* Default flavor character */
 };
@@ -260,8 +277,8 @@ struct object_kind
     struct object_base *base;
     u32b kidx;                      /* Index */
     struct object_kind *next;
-    byte tval;                      /* General object type (see TV_ macros) */
-    byte sval;                      /* Object sub-type */
+    u16b tval;                      /* General object type (see TV_ macros) */
+    u16b sval;                      /* Object sub-type */
     random_value pval;              /* Item extra-parameter */
     random_value to_h;              /* Bonus to hit */
     random_value to_d;              /* Bonus to damage */
@@ -418,6 +435,7 @@ struct object_xtra
     byte equipped;          /* Equipped flag */
     byte magic;             /* Magic flag */
     s16b bidx;              /* Book index */
+    byte throwable;         /* Throwable flag */
     char name[NORMAL_WID];
     char name_terse[NORMAL_WID];
     char name_base[NORMAL_WID];
@@ -485,8 +503,8 @@ struct object
 
     struct loc grid;                    /* Position on map, or (0, 0) */
 
-    byte tval;                          /* Item type (from kind) */
-    byte sval;                          /* Item sub-type (from kind) */
+    u16b tval;                          /* Item type (from kind) */
+    u16b sval;                          /* Item sub-type (from kind) */
 
     s32b pval;                          /* Item extra-parameter */
 

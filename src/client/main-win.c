@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, Skirmantas Kligys, Robert Ruehlmann,
  * and others
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -590,7 +590,7 @@ static void save_prefs_aux(term_data *td, const char *sec_name)
     if (rc.top < 0) rc.top = 0;
 
     /* Get information about the placement of the window */
-    if (lpwndpl.flags & SW_SHOWMAXIMIZED)
+    if (lpwndpl.showCmd & SW_SHOWMAXIMIZED)
         td->maximized = true;
     else
         td->maximized = false;
@@ -2008,6 +2008,7 @@ static errr Term_text_win(int x, int y, int n, u16b a, const char *s)
     u16b fa, ta;
     char fc, tc;
     int tile_wid = 1, tile_hgt = 1;
+    term_data *td = (term_data*)(Term->data);
 
     /* Large tile mode */
     if (!map_active && !Term->minimap_active)
@@ -2015,6 +2016,10 @@ static errr Term_text_win(int x, int y, int n, u16b a, const char *s)
         tile_wid = tile_width;
         tile_hgt = tile_height;
     }
+
+    /* Highlight the player */
+    if (Term->minimap_active && (td == &data[0]) && cursor_x && cursor_y)
+        Term_curs_win(cursor_x + COL_MAP, cursor_y + ROW_MAP);
 
     /* Redraw the current text */
     Term_text_win_aux(x, y, n, a, s);
@@ -2066,6 +2071,7 @@ static errr Term_pict_win(int x, int y, int n, const u16b *ap, const char *cp, c
     u16b a, ta;
     char c, tc;
     int tile_wid = 1, tile_hgt = 1;
+    term_data *td = (term_data*)(Term->data);
 
     /* Large tile mode */
     if (!map_active && !Term->minimap_active)
@@ -2073,6 +2079,10 @@ static errr Term_pict_win(int x, int y, int n, const u16b *ap, const char *cp, c
         tile_wid = tile_width;
         tile_hgt = tile_height;
     }
+
+    /* Highlight the player */
+    if (Term->minimap_active && (td == &data[0]) && cursor_x && cursor_y)
+        Term_curs_win(cursor_x + COL_MAP, cursor_y + ROW_MAP);
 
     /* Redraw the top tiles */
     for (i = 0; i < n; i++)
@@ -2220,7 +2230,7 @@ static void windows_map(void)
     while (last_line_info != -1)
     {
         /* Wait for net input, or a key */
-        ke = Net_loop(Term_inkey, map_callback_begin, NULL, SCAN_OFF);
+        ke = Net_loop(Term_inkey, map_callback_begin, NULL, SCAN_OFF, true);
 
         /* Check for user abort */
         if (is_exit(ke)) break;
@@ -2306,6 +2316,7 @@ static void init_windows(void)
     int i;
     term_data *td;
     char buf[MSG_LEN];
+    WINDOWPLACEMENT lpwndpl;
     HFONT editfont;
     MENUITEMINFO mii;
     HMENU hm;
@@ -2390,23 +2401,26 @@ static void init_windows(void)
         my_td = NULL;
         if (!td->w) quit("Failed to create sub-window");
 
-        if (td->visible)
-        {
-            td->size_hack = true;
-            ShowWindow(td->w, SW_SHOW);
-            td->size_hack = false;
-        }
-
         term_data_link(td);
         angband_term[i] = &td->t;
 
         if (td->visible)
         {
+            td->size_hack = true;
+            ShowWindow(td->w, SW_SHOW);
+            td->size_hack = false;
+
             /* Activate the window */
             SetActiveWindow(td->w);
 
-            /* Bring window to top */
-            SetWindowPos(td->w, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+            /* Bring window to top, place it correctly */
+            lpwndpl.length = sizeof(WINDOWPLACEMENT);
+            lpwndpl.showCmd = SW_SHOWNORMAL;
+            lpwndpl.rcNormalPosition.left = td->pos_x;
+            lpwndpl.rcNormalPosition.top = td->pos_y;
+            lpwndpl.rcNormalPosition.right = td->pos_x + td->size_wid;
+            lpwndpl.rcNormalPosition.bottom = td->pos_y + td->size_hgt;
+            SetWindowPlacement(td->w, &lpwndpl);
         }
     }
 
@@ -2439,8 +2453,14 @@ static void init_windows(void)
     /* Activate the main window */
     SetActiveWindow(td->w);
 
-    /* Bring main window back to top */
-    SetWindowPos(td->w, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+    /* Bring window to top, place it correctly */
+    lpwndpl.length = sizeof(WINDOWPLACEMENT);
+    lpwndpl.showCmd = SW_SHOWNORMAL;
+    lpwndpl.rcNormalPosition.left = td->pos_x;
+    lpwndpl.rcNormalPosition.top = td->pos_y;
+    lpwndpl.rcNormalPosition.right = td->pos_x + td->size_wid;
+    lpwndpl.rcNormalPosition.bottom = td->pos_y + td->size_hgt;
+    SetWindowPlacement(td->w, &lpwndpl);
 
     if (gamma_correction > 0)
         build_gamma_table(gamma_correction);
@@ -4171,7 +4191,7 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
     turn_off_numlock();
 
     /* Initialize everything, contact the server, and start the loop */
-    client_init();
+    client_init(true);
 
     /* Paranoia */
     quit(NULL);

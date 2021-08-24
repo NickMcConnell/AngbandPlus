@@ -1,0 +1,352 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!-- C++Builder XML Project -->
+<PROJECT>
+  <MACROS>
+    <VERSION value="BCB.06.00"/>
+    <PROJECT value="..\..\mangband.exe"/>
+    <OBJFILES value="..\..\obj\buildid.obj ..\..\obj\datafile.obj ..\..\obj\display.obj 
+      ..\..\obj\guid.obj ..\..\obj\md5.obj ..\..\obj\net-win.obj 
+      ..\..\obj\obj-gear-common.obj ..\..\obj\option.obj ..\..\obj\obj-tval.obj 
+      ..\..\obj\parser.obj ..\..\obj\randname.obj ..\..\obj\sockbuf.obj 
+      ..\..\obj\source.obj ..\..\obj\util.obj ..\..\obj\z-bitflag.obj 
+      ..\..\obj\z-color.obj ..\..\obj\z-dice.obj ..\..\obj\z-expression.obj 
+      ..\..\obj\z-file.obj ..\..\obj\z-form.obj ..\..\obj\z-rand.obj 
+      ..\..\obj\z-set.obj ..\..\obj\z-type.obj ..\..\obj\z-util.obj 
+      ..\..\obj\z-virt.obj ..\..\obj\account.obj ..\..\obj\cave.obj 
+      ..\..\obj\cave-map.obj ..\..\obj\cave-square.obj ..\..\obj\cave-view.obj 
+      ..\..\obj\channel.obj ..\..\obj\cmd-cave.obj ..\..\obj\cmd-innate.obj 
+      ..\..\obj\cmd-misc.obj ..\..\obj\cmd-obj.obj ..\..\obj\cmd-pickup.obj 
+      ..\..\obj\control.obj ..\..\obj\display-ui.obj ..\..\obj\effects.obj 
+      ..\..\obj\effects-info.obj ..\..\obj\game-world.obj ..\..\obj\generate.obj 
+      ..\..\obj\gen-cave.obj ..\..\obj\gen-chunk.obj ..\..\obj\gen-monster.obj 
+      ..\..\obj\gen-room.obj ..\..\obj\gen-util.obj ..\..\obj\help-ui.obj 
+      ..\..\obj\history-ui.obj ..\..\obj\house.obj ..\..\obj\init.obj 
+      ..\..\obj\knowledge-ui.obj ..\..\obj\load.obj ..\..\obj\main.obj 
+      ..\..\obj\map-ui.obj ..\..\obj\message.obj ..\..\obj\metaclient.obj 
+      ..\..\obj\mon-attack.obj ..\..\obj\mon-blows.obj ..\..\obj\mon-desc.obj 
+      ..\..\obj\mon-group.obj ..\..\obj\mon-init.obj ..\..\obj\mon-list.obj 
+      ..\..\obj\mon-list-ui.obj ..\..\obj\mon-lore.obj ..\..\obj\mon-lore-ui.obj 
+      ..\..\obj\mon-make.obj ..\..\obj\mon-move.obj ..\..\obj\mon-msg.obj 
+      ..\..\obj\mon-predicate.obj ..\..\obj\mon-spell.obj 
+      ..\..\obj\mon-summon.obj ..\..\obj\mon-timed.obj ..\..\obj\mon-util.obj 
+      ..\..\obj\netserver.obj ..\..\obj\obj-chest.obj ..\..\obj\obj-curse.obj 
+      ..\..\obj\obj-desc.obj ..\..\obj\obj-gear.obj ..\..\obj\obj-ignore.obj 
+      ..\..\obj\obj-info.obj ..\..\obj\obj-init.obj ..\..\obj\obj-inscrip.obj 
+      ..\..\obj\obj-knowledge.obj ..\..\obj\obj-list.obj 
+      ..\..\obj\obj-list-ui.obj ..\..\obj\obj-make.obj ..\..\obj\obj-pile.obj 
+      ..\..\obj\obj-power.obj ..\..\obj\obj-properties.obj 
+      ..\..\obj\obj-randart.obj ..\..\obj\obj-slays.obj ..\..\obj\obj-ui.obj 
+      ..\..\obj\obj-util.obj ..\..\obj\party.obj ..\..\obj\player.obj 
+      ..\..\obj\player-attack.obj ..\..\obj\player-birth.obj 
+      ..\..\obj\player-calcs.obj ..\..\obj\player-history.obj 
+      ..\..\obj\player-path.obj ..\..\obj\player-quest.obj 
+      ..\..\obj\player-spell.obj ..\..\obj\player-timed.obj 
+      ..\..\obj\player-ui.obj ..\..\obj\player-util.obj ..\..\obj\prefs-ui.obj 
+      ..\..\obj\project.obj ..\..\obj\project-feat.obj ..\..\obj\project-mon.obj 
+      ..\..\obj\project-obj.obj ..\..\obj\project-player.obj ..\..\obj\save.obj 
+      ..\..\obj\savefile.obj ..\..\obj\sched-win.obj ..\..\obj\score.obj 
+      ..\..\obj\score-ui.obj ..\..\obj\store.obj ..\..\obj\s-util.obj 
+      ..\..\obj\target.obj ..\..\obj\target-ui.obj ..\..\obj\trap.obj 
+      ..\..\obj\visuals-ui.obj ..\..\obj\wilderness.obj ..\..\obj\z-quark.obj 
+      ..\..\obj\z-queue.obj ..\..\obj\z-textblock.obj"/>
+    <RESFILES value="mangband.res ..\..\obj\angband.res"/>
+    <IDLFILES value=""/>
+    <IDLGENFILES value=""/>
+    <DEFFILE value=""/>
+    <RESDEPEN value="$(RESFILES)"/>
+    <LIBFILES value=""/>
+    <LIBRARIES value="rtl.lib"/>
+    <SPARELIBS value="rtl.lib"/>
+    <PACKAGES value="vcl.bpi rtl.bpi vclx.bpi"/>
+    <PATHCPP value=".;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\common;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server;..\server"/>
+    <PATHPAS value=".;"/>
+    <PATHRC value=".;..\win;..\win"/>
+    <PATHASM value=".;"/>
+    <DEBUGLIBPATH value="$(BCB)\lib\debug"/>
+    <RELEASELIBPATH value="$(BCB)\lib\release"/>
+    <LINKER value="ilink32"/>
+    <USERDEFINES value="_DEBUG;STRICT;BCC_IDE;WINDOWS"/>
+    <SYSDEFINES value="NO_STRICT;_NO_VCL;_RTLDLL"/>
+    <MAINSOURCE value="mangband.bpf"/>
+    <INCLUDEPATH value="..\..\..\temp;&quot;C:\Program Files\Borland\CBuilder6\Projects&quot;;..\win;..\common;$(BCB)\include;..\server"/>
+    <LIBPATH value="..\..\..\temp;&quot;C:\Program Files\Borland\CBuilder6\Projects&quot;;..\win;..\common;..\server;$(BCB)\lib\obj;$(BCB)\lib"/>
+    <WARNINGS value="-wuse -w-par"/>
+    <OTHERFILES value=""/>
+  </MACROS>
+  <OPTIONS>
+    <IDLCFLAGS value="-I..\..\..\temp -I&quot;C:\Program Files\Borland\CBuilder6\Projects&quot; -I..\win 
+      -I..\common -I$(BCB)\include -I..\server -src_suffix cpp -D_DEBUG -DSTRICT 
+      -DBCC_IDE -DWINDOWS -boa"/>
+    <CFLAG1 value="-Od -H=$(BCB)\lib\vcl60.csm -Hc -Vx -Ve -X- -r- -a8 -b- -k -y -v -vi- -tWC 
+      -tWM -c"/>
+    <PFLAGS value="-N2..\..\obj -N0..\..\obj -$YD -$W -$O- -$A8 -v -JPHNE -M"/>
+    <RFLAGS value=""/>
+    <AFLAGS value="/mx /w2 /zi"/>
+    <LFLAGS value="-I..\..\obj -D&quot;&quot; -ap -Tpe -GD -s -Gn -v"/>
+    <OTHERFILES value=""/>
+  </OPTIONS>
+  <LINKER>
+    <ALLOBJ value="c0x32.obj $(OBJFILES)"/>
+    <ALLRES value="$(RESFILES)"/>
+    <ALLLIB value="$(LIBFILES) $(LIBRARIES) import32.lib cw32mti.lib"/>
+    <OTHERFILES value=""/>
+  </LINKER>
+  <FILELIST>
+      <FILE FILENAME="mangband.res" FORMNAME="" UNITNAME="mangband.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="mangband.bpf" FORMNAME="" UNITNAME="mangband" CONTAINERID="BPF" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\buildid.c" FORMNAME="" UNITNAME="buildid" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\datafile.c" FORMNAME="" UNITNAME="datafile" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\display.c" FORMNAME="" UNITNAME="display" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\guid.c" FORMNAME="" UNITNAME="guid" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\md5.c" FORMNAME="" UNITNAME="md5.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\net-win.c" FORMNAME="" UNITNAME="net-win.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\obj-gear-common.c" FORMNAME="" UNITNAME="obj-gear-common" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\option.c" FORMNAME="" UNITNAME="option" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\obj-tval.c" FORMNAME="" UNITNAME="obj-tval" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\parser.c" FORMNAME="" UNITNAME="parser" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\randname.c" FORMNAME="" UNITNAME="randname.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\sockbuf.c" FORMNAME="" UNITNAME="sockbuf.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\source.c" FORMNAME="" UNITNAME="source" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\util.c" FORMNAME="" UNITNAME="util.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-bitflag.c" FORMNAME="" UNITNAME="z-bitflag" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-color.c" FORMNAME="" UNITNAME="z-color" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-dice.c" FORMNAME="" UNITNAME="z-dice" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-expression.c" FORMNAME="" UNITNAME="z-expression" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-file.c" FORMNAME="" UNITNAME="z-file.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-form.c" FORMNAME="" UNITNAME="z-form.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-rand.c" FORMNAME="" UNITNAME="z-rand.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-set.c" FORMNAME="" UNITNAME="z-set" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-type.c" FORMNAME="" UNITNAME="z-type" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-util.c" FORMNAME="" UNITNAME="z-util.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\common\z-virt.c" FORMNAME="" UNITNAME="z-virt.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\account.c" FORMNAME="" UNITNAME="account" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\cave.c" FORMNAME="" UNITNAME="cave.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\cave-map.c" FORMNAME="" UNITNAME="cave-map" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\cave-square.c" FORMNAME="" UNITNAME="cave-square" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\cave-view.c" FORMNAME="" UNITNAME="cave-view" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\channel.c" FORMNAME="" UNITNAME="channel" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\cmd-cave.c" FORMNAME="" UNITNAME="cmd-cave" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\cmd-innate.c" FORMNAME="" UNITNAME="cmd-innate" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\cmd-misc.c" FORMNAME="" UNITNAME="cmd-misc" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\cmd-obj.c" FORMNAME="" UNITNAME="cmd-obj" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\cmd-pickup.c" FORMNAME="" UNITNAME="cmd-pickup" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\control.c" FORMNAME="" UNITNAME="control.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\display-ui.c" FORMNAME="" UNITNAME="display-ui" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\effects.c" FORMNAME="" UNITNAME="effects.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\effects-info.c" FORMNAME="" UNITNAME="effects-info" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\game-world.c" FORMNAME="" UNITNAME="game-world" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\generate.c" FORMNAME="" UNITNAME="generate.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\gen-cave.c" FORMNAME="" UNITNAME="gen-cave" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\gen-chunk.c" FORMNAME="" UNITNAME="gen-chunk" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\gen-monster.c" FORMNAME="" UNITNAME="gen-monster" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\gen-room.c" FORMNAME="" UNITNAME="gen-room" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\gen-util.c" FORMNAME="" UNITNAME="gen-util" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\help-ui.c" FORMNAME="" UNITNAME="help-ui" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\history-ui.c" FORMNAME="" UNITNAME="history-ui" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\house.c" FORMNAME="" UNITNAME="house" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\init.c" FORMNAME="" UNITNAME="init" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\knowledge-ui.c" FORMNAME="" UNITNAME="knowledge-ui" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\load.c" FORMNAME="" UNITNAME="load.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\main.c" FORMNAME="" UNITNAME="main" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\map-ui.c" FORMNAME="" UNITNAME="map-ui" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\message.c" FORMNAME="" UNITNAME="message" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\metaclient.c" FORMNAME="" UNITNAME="metaclient" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\mon-attack.c" FORMNAME="" UNITNAME="mon-attack" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\mon-blows.c" FORMNAME="" UNITNAME="mon-blows" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\mon-desc.c" FORMNAME="" UNITNAME="mon-desc" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\mon-group.c" FORMNAME="" UNITNAME="mon-group" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\mon-init.c" FORMNAME="" UNITNAME="mon-init" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\mon-list.c" FORMNAME="" UNITNAME="mon-list" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\mon-list-ui.c" FORMNAME="" UNITNAME="mon-list-ui" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\mon-lore.c" FORMNAME="" UNITNAME="mon-lore.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\mon-lore-ui.c" FORMNAME="" UNITNAME="mon-lore-ui" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\mon-make.c" FORMNAME="" UNITNAME="mon-make.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\mon-move.c" FORMNAME="" UNITNAME="mon-move" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\mon-msg.c" FORMNAME="" UNITNAME="mon-msg.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\mon-predicate.c" FORMNAME="" UNITNAME="mon-predicate" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\mon-spell.c" FORMNAME="" UNITNAME="mon-spell" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\mon-summon.c" FORMNAME="" UNITNAME="mon-summon" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\mon-timed.c" FORMNAME="" UNITNAME="mon-timed" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\mon-util.c" FORMNAME="" UNITNAME="mon-util.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\netserver.c" FORMNAME="" UNITNAME="netserver" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\obj-chest.c" FORMNAME="" UNITNAME="obj-chest" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\obj-curse.c" FORMNAME="" UNITNAME="obj-curse" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\obj-desc.c" FORMNAME="" UNITNAME="obj-desc.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\obj-gear.c" FORMNAME="" UNITNAME="obj-gear" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\obj-ignore.c" FORMNAME="" UNITNAME="obj-ignore" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\obj-info.c" FORMNAME="" UNITNAME="obj-info.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\obj-init.c" FORMNAME="" UNITNAME="obj-init" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\obj-inscrip.c" FORMNAME="" UNITNAME="obj-inscrip" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\obj-knowledge.c" FORMNAME="" UNITNAME="obj-knowledge" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\obj-list.c" FORMNAME="" UNITNAME="obj-list" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\obj-list-ui.c" FORMNAME="" UNITNAME="obj-list-ui" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\obj-make.c" FORMNAME="" UNITNAME="obj-make.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\obj-pile.c" FORMNAME="" UNITNAME="obj-pile" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\obj-power.c" FORMNAME="" UNITNAME="obj-power" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\obj-properties.c" FORMNAME="" UNITNAME="obj-properties" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\obj-randart.c" FORMNAME="" UNITNAME="obj-randart.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\obj-slays.c" FORMNAME="" UNITNAME="obj-slays" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\obj-ui.c" FORMNAME="" UNITNAME="obj-ui.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\obj-util.c" FORMNAME="" UNITNAME="obj-util.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\party.c" FORMNAME="" UNITNAME="party.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\player.c" FORMNAME="" UNITNAME="player" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\player-attack.c" FORMNAME="" UNITNAME="player-attack" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\player-birth.c" FORMNAME="" UNITNAME="player-birth" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\player-calcs.c" FORMNAME="" UNITNAME="player-calcs.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\player-history.c" FORMNAME="" UNITNAME="player-history" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\player-path.c" FORMNAME="" UNITNAME="player-path" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\player-quest.c" FORMNAME="" UNITNAME="player-quest" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\player-spell.c" FORMNAME="" UNITNAME="player-spell" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\player-timed.c" FORMNAME="" UNITNAME="player-timed" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\player-ui.c" FORMNAME="" UNITNAME="player-ui" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\player-util.c" FORMNAME="" UNITNAME="player-util" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\prefs-ui.c" FORMNAME="" UNITNAME="prefs-ui" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\project.c" FORMNAME="" UNITNAME="project" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\project-feat.c" FORMNAME="" UNITNAME="project-feat" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\project-mon.c" FORMNAME="" UNITNAME="project-mon" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\project-obj.c" FORMNAME="" UNITNAME="project-obj" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\project-player.c" FORMNAME="" UNITNAME="project-player" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\save.c" FORMNAME="" UNITNAME="save.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\savefile.c" FORMNAME="" UNITNAME="savefile" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\sched-win.c" FORMNAME="" UNITNAME="sched-win.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\score.c" FORMNAME="" UNITNAME="score" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\score-ui.c" FORMNAME="" UNITNAME="score-ui" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\store.c" FORMNAME="" UNITNAME="store.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\s-util.c" FORMNAME="" UNITNAME="s-util.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\target.c" FORMNAME="" UNITNAME="target" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\target-ui.c" FORMNAME="" UNITNAME="target-ui" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\trap.c" FORMNAME="" UNITNAME="trap" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\visuals-ui.c" FORMNAME="" UNITNAME="visuals-ui" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\wilderness.c" FORMNAME="" UNITNAME="wilderness.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\z-quark.c" FORMNAME="" UNITNAME="z-quark" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\z-queue.c" FORMNAME="" UNITNAME="z-queue" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\server\z-textblock.c" FORMNAME="" UNITNAME="z-textblock" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\win\angband.rc" FORMNAME="" UNITNAME="angband.rc" CONTAINERID="RCCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+  </FILELIST>
+  <BUILDTOOLS>
+  </BUILDTOOLS>
+
+  <IDEOPTIONS>
+[Version Info]
+IncludeVerInfo=0
+AutoIncBuild=0
+MajorVer=1
+MinorVer=0
+Release=0
+Build=0
+Debug=0
+PreRelease=0
+Special=0
+Private=0
+DLL=0
+Locale=1036
+CodePage=1252
+
+[Version Info Keys]
+CompanyName=
+FileDescription=
+FileVersion=1.0.0.0
+InternalName=
+LegalCopyright=
+LegalTrademarks=
+OriginalFilename=
+ProductName=
+ProductVersion=1.0.0.0
+Comments=
+
+[Excluded Packages]
+c:\program files\borland\cbuilder6\Bin\dclado60.bpl=Composants DB ADO Borland
+C:\Program Files\Borland\CBuilder6\Bin\dcldb60.bpl=Composants Base de données Borland
+c:\program files\borland\cbuilder6\Bin\dclbde60.bpl=Composants BD BDE Borland
+C:\Program Files\Borland\CBuilder6\Bin\dbx60.bpl=Paquet d'interface Explorateur SQL Borland
+c:\program files\borland\cbuilder6\Bin\DCLIB60.bpl=Composants Accès données InterBase
+c:\program files\borland\cbuilder6\Bin\dclcds60.bpl=Composant Base Cached ClientDataset Borland
+C:\Program Files\Borland\CBuilder6\Bin\dclmid60.bpl=Composants d'accès aux données MyBase Borland
+c:\program files\borland\cbuilder6\Bin\dclbdecds60.bpl=Composants ClientDataSet DBE local Borland
+c:\program files\borland\cbuilder6\Bin\dclqrt60.bpl=Composants QuickReport
+c:\program files\borland\cbuilder6\Bin\dcltee60.bpl=Composants TeeChart
+c:\program files\borland\cbuilder6\Bin\dcldss60.bpl=Composants Decision Cube Borland
+c:\program files\borland\cbuilder6\Bin\dcltqr60.bpl=Composants TeeChart pour QuickReport
+c:\program files\borland\cbuilder6\Bin\dclclxdb60.bpl=Composants BD CLX Borland
+C:\Program Files\Borland\CBuilder6\Bin\dclclxstd60.bpl=Composants Standard CLX Borland
+c:\program files\borland\cbuilder6\Bin\dclmcn60.bpl=Composants Connexion DataSnap Borland
+c:\program files\borland\cbuilder6\Bin\dclsmpedit60.bpl=Améliorations script Editeur Borland
+c:\program files\borland\cbuilder6\Bin\applet60.bpl=Paquet Applet Panneau de configuration Borland
+c:\program files\borland\cbuilder6\Bin\dclemacsedit60.bpl=Améliorations Emacs Editeur Borland
+c:\program files\borland\cbuilder6\Bin\dclact60.bpl=Composants ActionBar Borland
+c:\program files\borland\cbuilder6\Bin\dclmlwiz60.bpl=Experts Borland Markup Language
+c:\program files\borland\cbuilder6\Bin\idefilters60.bpl=IDE Filter for CPP32
+c:\program files\borland\cbuilder6\Bin\dcl31w60.bpl=Composants compatibilité Delphi 1.0
+c:\program files\borland\cbuilder6\Bin\dclbcbsmp60.bpl=Paquet mode conception de contr?? exemple Borland
+c:\program files\borland\cbuilder6\Bin\dclnet60.bpl=Composant Internet Borland
+c:\program files\borland\cbuilder6\Bin\DBWEBXPRT.BPL=Paquet Expert Web Borland
+c:\program files\borland\cbuilder6\Bin\DCLNMF60.bpl=Outils NetMasters Fastnet
+c:\program files\borland\cbuilder6\Bin\dclwbm60.bpl=Composants InternetExpress Borland
+c:\program files\borland\cbuilder6\Bin\bcbie60.bpl=Borland C++Builder Internet Explorer 5 Components Package
+c:\program files\borland\cbuilder6\Bin\dclwebsnap60.bpl=Composants WebSnap Borland
+c:\program files\borland\cbuilder6\Bin\dclsoap60.bpl=Composants SOAP Borland
+c:\program files\borland\cbuilder6\Bin\dclocx60.bpl=Contrôles ActiveX importés exemples Borland
+c:\program files\borland\cbuilder6\Bin\dclite60.bpl=Environnement de traduction intégré Borland
+c:\program files\borland\cbuilder6\Bin\dcldbx60.bpl=Composants dbExpress Borland
+c:\program files\borland\cbuilder6\Bin\dcldbxcds60.bpl=Composants ClientDataSet DBX local Borland
+c:\program files\borland\cbuilder6\Bin\dclindy60.bpl=Internet Direct (Indy) pour éditeurs de composants et de propriétés D6
+c:\program files\borland\cbuilder6\Bin\bcb2kaxserver60.bpl=Borland C++Builder COM Server Components Sample Package
+
+[HistoryLists\hlIncludePath]
+Count=2
+Item0=..\win;..\common;$(BCB)\include;..\server
+Item1=C:\Program Files\Borland\CBuilder6\Projects;..\win;..\common;$(BCB)\include;..\server
+
+[HistoryLists\hlLibraryPath]
+Count=2
+Item0=..\win;..\common;..\server;$(BCB)\lib\obj;$(BCB)\lib
+Item1=C:\Program Files\Borland\CBuilder6\Projects;..\win;..\common;..\server;$(BCB)\lib\obj;$(BCB)\lib
+
+[HistoryLists\hlDebugSourcePath]
+Count=1
+Item0=$(BCB)\source\vcl
+
+[HistoryLists\hlConditionals]
+Count=6
+Item0=_DEBUG;STRICT;BCC_IDE;WINDOWS
+Item1=_DEBUG;STRICT;BCC_IDE
+Item2=_DEBUG;STRICT;BCC_IDE;DEBUG_MODE
+Item3=_DEBUG;STRICT;BCC_IDE;DEBUG
+Item4=_DEBUG;STRICT
+Item5=_DEBUG
+
+[HistoryLists\hlIntOutputDir]
+Count=1
+Item0=..\..\obj
+
+[HistoryLists\hlFinalOutputDir]
+Count=2
+Item0=..\..\
+Item1=..\..
+
+[Debugging]
+DebugSourceDirs=$(BCB)\source\vcl
+
+[Parameters]
+RunParams=
+Launcher=
+UseLauncher=0
+DebugCWD=
+HostApplication=
+RemoteHost=
+RemotePath=
+RemoteLauncher=
+RemoteCWD=
+RemoteDebug=0
+
+[Compiler]
+ShowInfoMsgs=0
+LinkDebugVcl=0
+LinkCGLIB=0
+
+[CORBA]
+AddServerUnit=1
+AddClientUnit=1
+PrecompiledHeaders=1
+  </IDEOPTIONS>
+</PROJECT>

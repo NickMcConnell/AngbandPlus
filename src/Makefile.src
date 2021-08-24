@@ -1,0 +1,300 @@
+#
+# File: Makefile.src
+#
+# A makefile which includes the current object files, hopefully includable
+# across a range of different makefiles, to cut down on maintenance.
+#
+
+NAME = PWMAngband
+VERSION = 1.4.0
+COPYRIGHT = (c) 1995-2020 PWMAngband contributors
+PROGNAME = pwmangband
+CLIENT_PROGNAME = pwmangclient
+
+SERVER_HEADERS = \
+	angband.h \
+	cmds.h \
+	cmd-core.h \
+	config.h \
+	effects.h \
+	game-event.h \
+	guid.h \
+	h-basic.h \
+	init.h \
+	main.h \
+	option.h \
+	parser.h \
+	ui-event.h \
+	ui-menu.h \
+	wizard.h \
+	z-bitflag.h \
+	z-color.h \
+	z-dice.h \
+	z-expression.h \
+	z-file.h \
+	z-form.h \
+	z-quark.h \
+	z-queue.h \
+	z-rand.h \
+	z-set.h \
+	z-type.h \
+	z-util.h \
+	z-virt.h
+
+CLIENT_HEADERS = \
+	common/const.h \
+	angband.h \
+	cmds.h \
+	cmd-core.h \
+	config.h \
+	effects.h \
+	game-event.h \
+	guid.h \
+	h-basic.h \
+	init.h \
+	main.h \
+	option.h \
+	parser.h \
+	ui-event.h \
+	ui-menu.h \
+	wizard.h \
+	z-bitflag.h \
+	z-color.h \
+	z-dice.h \
+	z-expression.h \
+	z-file.h \
+	z-form.h \
+	z-quark.h \
+	z-queue.h \
+	z-rand.h \
+	z-set.h \
+	z-type.h \
+	z-util.h \
+	z-virt.h
+
+CLIENT_ZFILES = \
+	common/z-bitflag.o \
+	common/z-color.o \
+	common/z-dice.o \
+	common/z-expression.o \
+	common/z-file.o \
+	common/z-form.o \
+	server/z-quark.o \
+	server/z-queue.o \
+	common/z-rand.o \
+	common/z-set.o \
+	server/z-textblock.o \
+	common/z-type.o \
+	common/z-util.o \
+	common/z-virt.o
+
+SERVER_ZFILES = \
+	common/z-bitflag.o \
+	common/z-color.o \
+	common/z-dice.o \
+	common/z-expression.o \
+	common/z-file.o \
+	common/z-form.o \
+	server/z-quark.o \
+	server/z-queue.o \
+	common/z-rand.o \
+	common/z-set.o \
+	server/z-textblock.o \
+	common/z-type.o \
+	common/z-util.o \
+	common/z-virt.o
+
+# MAINFILES is defined by autotools (or manually) to be combinations of these
+
+BASEMAINFILES = client/main.o
+
+GCUMAINFILES = client/main-gcu.o
+
+SDLMAINFILES = client/main-sdl.o
+
+SNDSDLFILES = client/snd-sdl.o
+
+TESTMAINFILES = client/main-test.o
+
+SERVERMAINFILES = server/server.o
+
+WINMAINFILES = \
+        win/angband.res \
+        main-win.o \
+        win/readdib.o \
+        win/readpng.o \
+        win/scrnshot.o \
+        win/win-layout.o
+
+X11MAINFILES = client/main-x11.o
+
+SERVER_ANGFILES = \
+	server/cave.o \
+	server/cave-map.o \
+	server/cave-square.o \
+	server/cave-view.o \
+	server/cmd-cave.o \
+	server/cmd-misc.o \
+	server/cmd-obj.o \
+	server/cmd-pickup.o \
+	common/datafile.o \
+	server/effects.o \
+	server/effects-info.o \
+	server/game-world.o \
+	server/generate.o \
+	server/gen-cave.o \
+	server/gen-chunk.o \
+	server/gen-monster.o \
+	server/gen-room.o \
+	server/gen-util.o \
+	common/guid.o \
+	server/init.o \
+	server/load.o \
+	server/message.o \
+	server/mon-attack.o \
+	server/mon-blows.o \
+	server/mon-desc.o \
+	server/mon-init.o \
+	server/mon-list.o \
+	server/mon-lore.o \
+	server/mon-make.o \
+	server/mon-move.o \
+	server/mon-msg.o \
+	server/mon-predicate.o \
+	server/mon-spell.o \
+	server/mon-summon.o \
+	server/mon-timed.o \
+	server/mon-util.o \
+	server/obj-chest.o \
+	server/obj-curse.o \
+	server/obj-desc.o \
+	server/obj-gear.o \
+	server/obj-ignore.o \
+	server/obj-info.o \
+	server/obj-init.o \
+	server/obj-knowledge.o \
+	server/obj-list.o \
+	server/obj-make.o \
+	server/obj-pile.o \
+	server/obj-power.o \
+	server/obj-properties.o \
+	server/obj-randart.o \
+	server/obj-slays.o \
+	common/obj-tval.o \
+	server/obj-util.o \
+	common/option.o \
+	common/parser.o \
+	common/randname.o \
+	server/player-attack.o \
+	server/player-birth.o \
+	server/player-calcs.o \
+	server/player-history.o \
+	server/player-path.o \
+	server/player-quest.o \
+	server/player-spell.o \
+	server/player-timed.o \
+	server/player-util.o \
+	server/player.o \
+	server/project.o \
+	server/project-feat.o \
+	server/project-mon.o \
+	server/project-obj.o \
+	server/project-player.o \
+	server/score.o \
+	server/save.o \
+	server/savefile.o \
+	common/source.o \
+	server/store.o \
+	server/target.o \
+	server/trap.o \
+	common/md5.o \
+	common/net-unix.o \
+	server/netserver.o \
+	server/s-util.o \
+	server/visuals-ui.o \
+	server/wilderness.o \
+	common/util.o \
+	server/display-ui.o \
+	server/obj-ui.o \
+	server/party.o \
+	server/history-ui.o \
+	common/display.o \
+	common/obj-gear-common.o \
+	server/knowledge-ui.o \
+	server/help-ui.o \
+	server/score-ui.o \
+	server/obj-list-ui.o \
+	server/mon-list-ui.o \
+	server/house.o \
+	server/map-ui.o \
+	server/prefs-ui.o \
+	server/player-ui.o \
+	common/buildid.o \
+	server/control.o \
+	common/sockbuf.o \
+	server/channel.o \
+	server/sched-unix.o \
+	server/obj-inscrip.o \
+	server/target-ui.o \
+	server/cmd-innate.o \
+	server/mon-lore-ui.o \
+	server/mon-group.o \
+	server/account.o \
+	server/metaclient.o \
+	server/main.o \
+
+CLIENT_ANGFILES = \
+	common/buildid.o \
+	client/conf.o \
+	client/set_focus.o \
+	common/md5.o \
+	common/net-unix.o \
+	common/sockbuf.o \
+	common/util.o \
+	common/obj-tval.o \
+	common/obj-gear-common.o \
+	client/c-player.o \
+	client/c-cmd.o \
+	client/c-cmd-obj.o \
+	client/cmd-core.o \
+	client/netclient.o \
+	client/c-option.o \
+	common/datafile.o \
+	client/game-event.o \
+	client/game-input.o \
+	client/grafmode.o \
+	common/guid.o \
+	common/option.o \
+	common/parser.o \
+	common/randname.o \
+	client/sound-core.o \
+	common/display.o \
+	common/source.o \
+	client/player-properties.o \
+	client/ui-birth.o \
+	client/ui-command.o \
+	client/ui-context.o \
+	client/ui-curse.o \
+	client/ui-death.o \
+	client/ui-display.o \
+	client/ui-event.o \
+	client/ui-game.o \
+	client/ui-init.o \
+	client/ui-input.o \
+	client/ui-keymap.o \
+	client/ui-knowledge.o \
+	client/ui-message.o \
+	client/ui-menu.o \
+	client/ui-object.o \
+	client/ui-options.o \
+	client/ui-output.o \
+	client/ui-prefs.o \
+	client/ui-spell.o \
+	client/ui-store.o \
+	client/ui-term.o \
+
+STATSMAINFILES = main-stats.o \
+        stats/db.o
+
+#common/buildid.o: $(CLIENT_ANGFILES)
+#CLIENT_ANGFILES += common/buildid.o

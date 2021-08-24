@@ -51,7 +51,6 @@ extern bool tval_can_have_timeout(const struct object *obj);
 extern bool tval_is_body_armor(const struct object *obj);
 extern bool tval_is_head_armor(const struct object *obj);
 extern bool tval_is_ammo(const struct object *obj);
-extern bool tval_is_sharp_missile(const struct object *obj);
 extern bool tval_is_launcher(const struct object *obj);
 extern bool tval_is_useable(const struct object *obj);
 extern bool tval_can_have_failure(const struct object *obj);

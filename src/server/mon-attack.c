@@ -3,7 +3,7 @@
  * Purpose: Monster attacks
  *
  * Copyright (c) 1997 Ben Harrison
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -41,12 +41,40 @@
 
 
 /*
+ * Given the monster, *mon, and cave *c, set *dist to the distance to the
+ * monster's target and *grid to the target's location. Accounts for a player
+ * decoy, if present. Either dist or grid may be NULL if that value is not
+ * needed.
+ */
+static void monster_get_target_dist_grid(struct chunk *c, struct monster *mon,
+    int target_m_dis, int *dist, struct loc *target, struct loc *grid)
+{
+    struct loc *decoy = cave_find_decoy(c);
+
+    if (loc_is_zero(decoy))
+    {
+        if (dist) *dist = target_m_dis;
+        if (grid) loc_copy(grid, target);
+    }
+    else
+    {
+        if (dist) *dist = distance(&mon->grid, decoy);
+        if (grid) loc_copy(grid, decoy);
+    }
+}
+
+
+/*
  * Check if a monster has a chance of casting a spell this turn
  */
-static bool monster_can_cast(struct chunk *c, struct monster *mon, int target_m_dis,
-    struct loc *grid)
+static bool monster_can_cast(struct player *p, struct chunk *c, struct monster *mon,
+    int target_m_dis, struct loc *grid)
 {
     int chance = mon->race->freq_spell;
+    int tdist;
+    struct loc tgrid;
+
+    monster_get_target_dist_grid(c, mon, target_m_dis, &tdist, grid, &tgrid);
 
     /* Cannot cast spells when blind */
     if (mon->m_timed[MON_TMD_BLIND]) return false;
@@ -54,14 +82,43 @@ static bool monster_can_cast(struct chunk *c, struct monster *mon, int target_m_
     /* Not allowed to cast spells */
     if (!chance) return false;
 
+    /* Taunted monsters are likely just to attack */
+    if (p->timed[TMD_TAUNT]) chance /= 2;
+
+    /* Monsters at their preferred range are more likely to cast */
+    if (tdist == mon->best_range) chance *= 2;
+
     /* Only do spells occasionally */
     if (!magik(chance)) return false;
 
     /* Check range */
-    if (target_m_dis > z_info->max_range) return false;
+    if (tdist > z_info->max_range) return false;
 
     /* Check path (destination could be standing on a wall) */
-    if (!projectable(c, &mon->grid, grid, PROJECT_NONE, false)) return false;
+    if (!projectable(p, c, &mon->grid, &tgrid, PROJECT_SHORT, false)) return false;
+
+    /* If the target isn't the player, only cast if the player can witness */
+    if (!loc_eq(&p->grid, &tgrid) && !square_isview(p, &mon->grid) && !!square_isview(p, &tgrid))
+    {
+        struct loc *path = mem_alloc(z_info->max_range * sizeof(*path));
+        int npath, ipath;
+
+        npath = project_path(p, path, z_info->max_range, c, &mon->grid, &tgrid, PROJECT_SHORT);
+        ipath = 0;
+        while (1)
+        {
+            /* No point on path visible. Don't cast. */
+            if (ipath >= npath)
+            {
+                mem_free(path);
+                return false;
+            }
+
+            if (square_isview(p, &path[ipath])) break;
+            ++ipath;
+        }
+        mem_free(path);
+    }
 
     return true;
 }
@@ -70,12 +127,16 @@ static bool monster_can_cast(struct chunk *c, struct monster *mon, int target_m_
 /*
  * Remove the "bad" spells from a spell list
  */
-static void remove_bad_spells(struct player *p, struct monster *mon, bitflag f[RSF_SIZE])
+static void remove_bad_spells(struct player *p, struct chunk *c, struct monster *mon,
+    bitflag f[RSF_SIZE])
 {
     bitflag f2[RSF_SIZE];
+    int tdist;
 
     /* Hack -- MvM */
     if (!p) return;
+
+    monster_get_target_dist_grid(c, mon, mon->cdis, &tdist, NULL, NULL);
 
     /* Take working copy of spell flags */
     rsf_copy(f2, f);
@@ -91,7 +152,15 @@ static void remove_bad_spells(struct player *p, struct monster *mon, bitflag f[R
     if (mon->m_timed[MON_TMD_FAST] > 10) rsf_off(f2, RSF_HASTE);
 
     /* Don't teleport to if the player is already next to us */
-    if (mon->cdis == 1) rsf_off(f2, RSF_TELE_TO);
+    if (tdist == 1)
+    {
+        rsf_off(f2, RSF_TELE_TO);
+        rsf_off(f2, RSF_TELE_SELF_TO);
+    }
+
+    /* Don't use the lash effect if the player is too far away */
+    if (tdist > 2) rsf_off(f2, RSF_WHIP);
+    if (tdist > 3) rsf_off(f2, RSF_SPIT);
 
     /* Update acquired knowledge */
     if (cfg_ai_learn)
@@ -102,7 +171,7 @@ static void remove_bad_spells(struct player *p, struct monster *mon, bitflag f[R
         bool know_something = false;
 
         /* Occasionally forget player status */
-        if (one_in_(100))
+        if (one_in_(20))
         {
             of_wipe(mon->known_pstate.flags);
             pf_wipe(mon->known_pstate.pflags);
@@ -125,7 +194,7 @@ static void remove_bad_spells(struct player *p, struct monster *mon, bitflag f[R
         }
 
         /* Cancel out certain flags based on knowledge */
-        if (know_something) unset_spells(p, f2, ai_flags, ai_pflags, el, mon->race);
+        if (know_something) unset_spells(p, f2, ai_flags, ai_pflags, el, mon);
     }
 
     /* Use working copy of spell flags */
@@ -180,20 +249,22 @@ static bool summon_possible(struct chunk *c, struct loc *grid)
  *
  * This function could be an efficiency bottleneck.
  */
-static int choose_attack_spell(bitflag *f)
+static int choose_attack_spell(bitflag *f, bool innate)
 {
     int num = 0;
     byte spells[RSF_MAX];
     int i;
 
-    /* Extract all spells: "innate", "normal", "bizarre" */
+    /* Paranoid initialization */
+    for (i = 0; i < RSF_MAX; i++) spells[i] = 0;
+
+    /* Extract spells, filtering as necessary */
     for (i = FLAG_START; i < RSF_MAX; i++)
     {
+        if (!innate && mon_spell_is_innate(i)) continue;
+        if (innate && !mon_spell_is_innate(i)) continue;
         if (rsf_has(f, i)) spells[num++] = i;
     }
-
-    /* Paranoia */
-    if (num == 0) return 0;
 
     /* Pick at random */
     return (spells[randint0(num)]);
@@ -238,25 +309,29 @@ static int get_thrown_spell(struct player *p, struct player *who, struct chunk *
 {
     int thrown_spell, failrate;
     bitflag f[RSF_SIZE];
+    bool innate;
 
     /* Check prerequisites */
-    if (!monster_can_cast(c, mon, target_m_dis, grid)) return -1;
+    if (!monster_can_cast(p, c, mon, target_m_dis, grid)) return -1;
 
     /* Extract the racial spell flags */
     rsf_copy(f, mon->race->spell_flags);
 
     /* Smart monsters can use "desperate" spells */
-    if (monster_is_smart(mon->race) && (mon->hp < mon->maxhp / 10) && magik(50))
+    if (monster_is_smart(mon) && (mon->hp < mon->maxhp / 10) && magik(50))
         ignore_spells(f, RST_DAMAGE | RST_INNATE | RST_MISSILE);
 
     /* Non-stupid monsters do some filtering */
     if (!monster_is_stupid(mon->race))
     {
+        struct loc tgrid;
+
         /* Remove the "ineffective" spells */
-        remove_bad_spells(who, mon, f);
+        remove_bad_spells(who, c, mon, f);
 
         /* Check for a clean bolt shot */
-        if (test_spells(f, RST_BOLT) && !projectable(c, &mon->grid, grid, PROJECT_STOP, false))
+        monster_get_target_dist_grid(c, mon, 0, NULL, grid, &tgrid);
+        if (test_spells(f, RST_BOLT) && !projectable(p, c, &mon->grid, &tgrid, PROJECT_STOP, false))
             ignore_spells(f, RST_BOLT);
 
         /* Check for a possible summon */
@@ -268,7 +343,8 @@ static int get_thrown_spell(struct player *p, struct player *who, struct chunk *
     if (rsf_is_empty(f)) return -1;
 
     /* Choose a spell to cast */
-    thrown_spell = choose_attack_spell(f);
+    innate = magik(mon->race->freq_innate);
+    thrown_spell = choose_attack_spell(f, innate);
 
     /* Abort if no spell was chosen */
     if (!thrown_spell) return -1;
@@ -318,7 +394,7 @@ static int get_thrown_spell(struct player *p, struct player *who, struct chunk *
  * them, or has spells but they will have no "useful" effect.  Note that
  * this function has been an efficiency bottleneck in the past.
  */
-bool make_attack_spell(struct source *who, struct chunk *c, struct monster *mon, int target_m_dis)
+bool make_ranged_attack(struct source *who, struct chunk *c, struct monster *mon, int target_m_dis)
 {
     struct monster_lore *lore = get_lore(who->player, mon->race);
     int thrown_spell;
@@ -339,7 +415,7 @@ bool make_attack_spell(struct source *who, struct chunk *c, struct monster *mon,
     if (monster_is_camouflaged(mon)) become_aware(who->player, c, mon);
 
     /* Cast the spell. */
-    disturb(who->player, 1);
+    disturb(who->player);
     do_mon_spell(who->player, c, who->monster, thrown_spell, mon, seen);
 
     /* Remember what the monster did */
@@ -495,8 +571,7 @@ bool make_attack_normal(struct monster *mon, struct source *who)
     for (ap_cnt = 0; ap_cnt < z_info->mon_blows_max; ap_cnt++)
     {
         struct loc grid;
-        bool visible = (monster_is_visible(who->player, mon->midx) ||
-            rf_has(mon->race->flags, RF_HAS_LIGHT));
+        bool visible = (monster_is_visible(who->player, mon->midx) || (mon->race->light > 0));
         bool obvious = false;
         int damage = 0;
         int do_cut = 0;
@@ -529,7 +604,7 @@ bool make_attack_normal(struct monster *mon, struct source *who)
             const char* flav = NULL;
 
             /* Always disturbing */
-            disturb(who->player, 1);
+            disturb(who->player);
 
             /* Hack -- apply "protection from evil" */
             if ((who->player->timed[TMD_PROTEVIL] > 0) && !who->monster)
@@ -718,7 +793,7 @@ bool make_attack_normal(struct monster *mon, struct source *who)
         else if (visible && method->miss)
         {
             /* Disturbing */
-            disturb(who->player, 1);
+            disturb(who->player);
 
             /* Message */
             msgt(who->player, MSG_MISS, "%s misses %s.", m_name, target_m_name);

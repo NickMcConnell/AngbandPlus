@@ -2,7 +2,7 @@
  * File: display.c
  * Purpose: Display the character on the screen or in a file
  *
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -197,55 +197,75 @@ char *buffer_line(int row)
  */
 static const char *player_flag_table[(RES_PANELS + 1) * RES_ROWS] =
 {
-    "Ac :", /* ELEM_ACID */
-    "El :", /* ELEM_ELEC */
-    "Fi :", /* ELEM_FIRE */
-    "Co :", /* ELEM_COLD */
-    "Po :", /* ELEM_POIS */
-    "Lt :", /* ELEM_LIGHT */
-    "Dk :", /* ELEM_DARK */
-    "Snd:", /* ELEM_SOUND */
-    "Shr:", /* ELEM_SHARD */
+    "Acid:", /* ELEM_ACID */
+    "Elec:", /* ELEM_ELEC */
+    "Fire:", /* ELEM_FIRE */
+    "Cold:", /* ELEM_COLD */
+    "Pois:", /* ELEM_POIS */
+    "Lite:", /* ELEM_LIGHT */
+    "Dark:", /* ELEM_DARK */
+    "Soun:", /* ELEM_SOUND */
+    "Shar:", /* ELEM_SHARD */
+    "Nexu:", /* ELEM_NEXUS */
+    "Neth:", /* ELEM_NETHER */
+    "Chao:", /* ELEM_CHAOS */
+    "Dise:", /* ELEM_DISEN */
 
-    "Nxs:", /* ELEM_NEXUS */
-    "Ntr:", /* ELEM_NETHER */
-    "Chs:", /* ELEM_CHAOS */
-    "Dsn:", /* ELEM_DISEN */
-    "Lev:", /* OF_FEATHER */
-    "Fe :", /* OF_PROT_FEAR */
-    "Bld:", /* OF_PROT_BLIND */
-    "Cnf:", /* OF_PROT_CONF */
-    "Stn:", /* OF_PROT_STUN */
+    "Fear:", /* OF_PROT_FEAR */
+    "Blnd:", /* OF_PROT_BLIND */
+    "Conf:", /* OF_PROT_CONF */
+    "Stun:", /* OF_PROT_STUN */
+    "HLif:", /* OF_HOLD_LIFE */
+    " Rgn:", /* OF_REGEN */
+    " ESP:", /* OF_ESP_XXX */
+    "SInv:", /* OF_SEE_INVIS */
+    "FAct:", /* OF_FREE_ACT */
+    " Lev:", /* OF_FEATHER */
+    "SDig:", /* OF_SLOW_DIGEST */
+    "Trap:", /* OF_TRAP_IMMUNE */
+    "Blss:", /* OF_BLESSED */
 
-    "Lit:", /* OBJ_MOD_LIGHT */
-    "Rgn:", /* OF_REGEN */
-    "ESP:", /* OF_ESP_XXX */
-    "SI :", /* OF_SEE_INVIS */
-    "FA :", /* OF_FREE_ACT */
-    "HL :", /* OF_HOLD_LIFE */
-    "Stl:", /* OBJ_MOD_STEALTH */
-    "Src:", /* OBJ_MOD_SEARCH */
-    "Inf:", /* OBJ_MOD_INFRA */
+    " -HP:", /* OF_IMPAIR_HP */
+    " -SP:", /* OF_IMPAIR_MANA */
+    "Afrd:", /* OF_AFRAID */
+    "Aggr:", /* OF_AGGRAVATE */
+    "-Tel:", /* OF_NO_TELEPORT */
+    "-Exp:", /* OF_DRAIN_EXP */
+    "Stck:", /* OF_STICKY */
+    "Frag:", /* OF_FRAGILE */
+    "",
+    "",
+    "Time:", /* ELEM_TIME */
+    "Mana:", /* ELEM_MANA */
+    "Wate:", /* ELEM_WATER */
 
-    "Tun:", /* OBJ_MOD_TUNNEL */
-    "Spd:", /* OBJ_MOD_SPEED */
-    "EA :", /* OBJ_MOD_BLOWS */
-    "XS :", /* OBJ_MOD_SHOTS */
-    "XM :", /* OBJ_MOD_MIGHT */
-    "Dig:", /* OF_SLOW_DIGEST */
-    "-HP:", /* OF_IMPAIR_HP */
-    "Afr:", /* OF_AFRAID */
-    "Agg:", /* OF_AGGRAVATE */
+    "Stea:", /* OBJ_MOD_STEALTH */
+    "Sear:", /* OBJ_MOD_SEARCH */
+    "Infr:", /* OBJ_MOD_INFRA */
+    "Tunn:", /* OBJ_MOD_TUNNEL */
+    " Spd:", /* OBJ_MOD_SPEED */
+    "Blow:", /* OBJ_MOD_BLOWS */
+    "Shot:", /* OBJ_MOD_SHOTS */
+    "Mght:", /* OBJ_MOD_MIGHT */
+    "PLit:", /* OBJ_MOD_LIGHT */
+    "DRed:", /* OBJ_MOD_DAM_RED */
+    "Move:", /* OBJ_MOD_MOVES */
+    "",
+    "",
 
-    "Rad:", /* OF_ESP_RADIUS */
-    "Evi:", /* OF_ESP_EVIL */
-    "Ani:", /* OF_ESP_ANIMAL */
-    "Und:", /* OF_ESP_UNDEAD */
-    "Dem:", /* OF_ESP_DEMON */
-    "Orc:", /* OF_ESP_ORC */
-    "Tro:", /* OF_ESP_TROLL */
-    "Gia:", /* OF_ESP_GIANT */
-    "Dra:"  /* OF_ESP_DRAGON */
+    "Radi:", /* OF_ESP_RADIUS */
+    "Evil:", /* OF_ESP_EVIL */
+    "Anim:", /* OF_ESP_ANIMAL */
+    "Unde:", /* OF_ESP_UNDEAD */
+    "Demo:", /* OF_ESP_DEMON */
+    "Orc :", /* OF_ESP_ORC */
+    "Trol:", /* OF_ESP_TROLL */
+    "Gian:", /* OF_ESP_GIANT */
+    "Drag:", /* OF_ESP_DRAGON */
+    "",
+    "",
+    "",
+    ""
 };
 
 
@@ -280,13 +300,16 @@ static void display_resistance_panel(struct player *p, const char **rec, const r
     int j;
     int col = bounds->col;
     int row = bounds->row;
-    int off = 1 + STAT_MAX + RES_ROWS * col / (p->body.count + 6);
+    int off = 1 + STAT_MAX + RES_ROWS * col / (p->body.count + 7);
 
     /* Special case: ESP flags */
-    if (col == RES_PANELS * (p->body.count + 6)) col = 0;
+    if (col == RES_PANELS * (p->body.count + 7)) col = 0;
+
+    /* Equippy */
+    display_equippy(p, row++, col + 5);
 
     /* Header */
-    put_str_hook(col, row++, -1, COLOUR_WHITE, "    abcdefghijklm@");
+    put_str_hook(col, row++, -1, COLOUR_WHITE, "     abcdefghijklm@");
 
     /* Lines */
     for (i = 0; i < RES_ROWS; i++, row++)
@@ -297,7 +320,7 @@ static void display_resistance_panel(struct player *p, const char **rec, const r
         for (j = 0; j <= p->body.count; j++)
         {
             byte attr = p->hist_flags[off + i][j].a;
-            char sym = p->hist_flags[off + i][j].c;
+            char sym = (strlen(rec[i])? p->hist_flags[off + i][j].c: ' ');
             bool rune = false;
 
             /* Hack -- rune is known */
@@ -308,7 +331,7 @@ static void display_resistance_panel(struct player *p, const char **rec, const r
             }
 
             /* Dump proper character */
-            put_ch_hook(col + 4 + j, row, attr, sym);
+            put_ch_hook(col + 5 + j, row, attr, sym);
 
             /* Name color */
 
@@ -334,27 +357,21 @@ static void display_resistance_panel(struct player *p, const char **rec, const r
         }
 
         /* Name */
-        put_str_hook(col, row, -1, name_attr, rec[i]);
+        if (strlen(rec[i])) put_str_hook(col, row, -1, name_attr, rec[i]);
     }
-
-    /* Footer */
-    put_str_hook(col, row++, -1, COLOUR_WHITE, "    abcdefghijklm@");
-
-    /* Equippy */
-    display_equippy(p, row++, col + 4);
 }
 
 
 static void display_player_flag_info(struct player *p)
 {
     int i;
-    int res_cols = p->body.count + 5;
+    int res_cols = p->body.count + 6;
     region resist_region[] =
     {
-        {0, 10, 0, RES_ROWS + 2},
-        {0, 10, 0, RES_ROWS + 2},
-        {0, 10, 0, RES_ROWS + 2},
-        {0, 10, 0, RES_ROWS + 2}
+        {0, 8, 0, RES_ROWS + 2},
+        {0, 8, 0, RES_ROWS + 2},
+        {0, 8, 0, RES_ROWS + 2},
+        {0, 8, 0, RES_ROWS + 2}
     };
 
     for (i = 0; i < N_ELEMENTS(resist_region); i++)
@@ -370,11 +387,11 @@ static void display_player_flag_info(struct player *p)
 
 static void display_player_esp_info(struct player *p)
 {
-    int res_cols = p->body.count + 5;
+    int res_cols = p->body.count + 6;
     region resist_region;
 
     resist_region.col = RES_PANELS * (res_cols + 1);
-    resist_region.row = 10;
+    resist_region.row = 8;
     resist_region.width = res_cols;
     resist_region.page_rows = RES_ROWS + 2;
 
@@ -491,12 +508,6 @@ static void display_player_sust_info(struct player *p)
             put_ch_hook(col + i, row + stat, a, c);
         }
     }
-
-    /* Footer */
-    put_str_hook(col, row + STAT_MAX, -1, COLOUR_WHITE, "abcdefghijklm@");
-
-    /* Equippy */
-    display_equippy(p, row + STAT_MAX + 1, col);
 }
 
 
@@ -865,49 +876,6 @@ struct state_info
 
 
 /*
- * Simple macro to initialize structs
- */
-#define S(s) s, sizeof(s)
-
-
-/*
- * player->hunger descriptions
- */
-static const struct state_info hunger_data[] =
-{
-    { PY_FOOD_FAINT,   S("Faint"),  COLOUR_RED },
-    { PY_FOOD_WEAK,    S("Weak"),   COLOUR_ORANGE },
-    { PY_FOOD_ALERT,   S("Hungry"), COLOUR_YELLOW },
-    { PY_FOOD_FULL,    S(""),       COLOUR_L_GREEN },
-    { PY_FOOD_MAX + 1, S("Full"),   COLOUR_L_GREEN }
-};
-
-
-/*
- * Prints status of hunger
- */
-static size_t prt_hunger(struct player *p, int row, int col)
-{
-    size_t i;
-
-    for (i = 0; i < N_ELEMENTS(hunger_data); i++)
-    {
-        if (p->food < hunger_data[i].value)
-        {
-            if (hunger_data[i].str[0])
-            {
-                put_str_hook(col, row, -1, hunger_data[i].attr, hunger_data[i].str);
-                return hunger_data[i].len;
-            }
-            return 0;
-        }
-    }
-
-    return 0;
-}
-
-
-/*
  * Print all timed effects.
  */
 static size_t prt_tmd(struct player *p, int row, int col)
@@ -924,6 +892,15 @@ static size_t prt_tmd(struct player *p, int row, int col)
                 grade = grade->next;
             put_str_hook(col + len, row, -1, grade->color, grade->name);
             len += strlen(grade->name) + 1;
+
+            /* Food meter */
+            if (i == TMD_FOOD)
+            {
+                char *meter = format("%d %%", p->timed[i] / 100);
+
+                put_str_hook(col + len, row, -1, grade->color, meter);
+                len += strlen(meter) + 1;
+            }
         }
     }
 
@@ -944,7 +921,7 @@ static const byte obj_feeling_color[] =
     COLOUR_L_GREEN, /* "there may not be much interesting here." */
     COLOUR_L_GREEN, /* "there aren't many treasures here." */
     COLOUR_L_BLUE, /* "there are only scraps of junk here." */
-    COLOUR_L_BLUE /* "there are naught but cobwebs here." */
+    COLOUR_L_BLUE /* "there is naught but cobwebs here." */
 };
 
 
@@ -983,7 +960,7 @@ static size_t prt_level_feeling(struct player *p, int row, int col)
      *   1 -> '$' "you sense an item of wondrous power!" (special feeling)
      *   2 to 10 are feelings from 2 meaning superb feeling to 10 meaning naught but cobwebs
      * It is easier for the player to have poor feelings as a low number and superb feelings
-     * as a higher one. So for display we reverse this numbers and substract 1. Thus (2-10)
+     * as a higher one. So for display we reverse this numbers and subtract 1. Thus (2-10)
      * becomes ('1'-'9' reversed). But before that check if the player has explored enough
      * to get a feeling. If not display as '?'.
      */
@@ -1024,6 +1001,40 @@ static size_t prt_level_feeling(struct player *p, int row, int col)
     put_str_hook(new_col, row, -1, obj_feeling_color_print, obj_feeling_str);
     new_col += strlen(obj_feeling_str) + 1;
     return new_col - col;
+}
+
+
+/*
+ * Prints player grid light level
+ */
+static size_t prt_light(struct player *p, int row, int col)
+{
+    int light = p->square_light;
+
+    if (light > 0)
+        put_str_hook(col, row, -1, COLOUR_YELLOW, format("Light %d ", light));
+    else
+        put_str_hook(col, row, -1, COLOUR_PURPLE, format("Light %d ", light));
+
+    return 8 + ((ABS(light) > 9)? 1: 0) + ((light < 0)? 1: 0);
+}
+
+
+/*
+ * Prints the movement speed of a character.
+ */
+static size_t prt_moves(struct player *p, int row, int col)
+{
+    int i = p->state.num_moves;
+
+    /* Display the number of moves */
+    if (i > 0)
+        put_str_hook(col, row, -1, COLOUR_L_TEAL, format("Moves +%d ", i));
+    else if (i < 0)
+        put_str_hook(col, row, -1, COLOUR_L_TEAL, format("Moves -%d ", ABS(i)));
+
+    /* Shouldn't be double digits, but be paranoid */
+    return ((i != 0)? (9 + ABS(i) / 10): 0);
 }
 
 
@@ -1106,33 +1117,6 @@ static size_t prt_state(struct player *p, int row, int col)
 
 
 /*
- * Prints trap detection status
- */
-static size_t prt_dtrap(struct player *p, int row, int col)
-{
-    byte attr = COLOUR_WHITE;
-    const char *text = "";
-    byte dtrap = get_dtrap(p);
-
-    if (dtrap == 2)
-    {
-        attr = COLOUR_YELLOW;
-        text = "DTrap";
-    }
-    if (dtrap == 1)
-    {
-        attr = COLOUR_L_GREEN;
-        text = "DTrap";
-    }
-
-    /* Display the info (or blanks) */
-    put_str_hook(col, row, -1, attr, text);
-
-    return (text[0]? (strlen(text) + 1): 0);
-}
-
-
-/*
  * Print how many spells the player can study.
  */
 static size_t prt_study(struct player *p, int row, int col)
@@ -1160,6 +1144,46 @@ static size_t prt_study(struct player *p, int row, int col)
 
 
 /*
+ * Prints trap detection status
+ */
+static size_t prt_dtrap(struct player *p, int row, int col)
+{
+    byte attr = COLOUR_WHITE;
+    const char *text = "";
+    byte dtrap = get_dtrap(p);
+
+    if (dtrap == 2)
+    {
+        attr = COLOUR_YELLOW;
+        text = "DTrap";
+    }
+    if (dtrap == 1)
+    {
+        attr = COLOUR_L_GREEN;
+        text = "DTrap";
+    }
+
+    /* Display the info (or blanks) */
+    put_str_hook(col, row, -1, attr, text);
+
+    return (text[0]? (strlen(text) + 1): 0);
+}
+
+
+/*
+ * Prints player trap (if any) or terrain
+ */
+static size_t prt_terrain(struct player *p, int row, int col)
+{
+    if (!p->terrain[0]) return 0;
+
+    put_str_hook(col, row, -1, p->terrain[0], p->terrain + 1);
+
+    return strlen(p->terrain) - 1;
+}
+
+
+/*
  * Descriptive typedef for status handlers
  */
 typedef size_t status_f(struct player *p, int row, int col);
@@ -1170,8 +1194,8 @@ typedef size_t status_f(struct player *p, int row, int col);
  */
 static status_f *status_handlers[] =
 {
-    prt_level_feeling, prt_unignore, prt_recall, prt_descent, prt_state, prt_hunger, prt_study,
-        prt_tmd, prt_dtrap
+    prt_level_feeling, prt_light, prt_moves, prt_unignore, prt_recall, prt_descent, prt_state,
+        prt_study, prt_tmd, prt_dtrap, prt_terrain
 };
 
 

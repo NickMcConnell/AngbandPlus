@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2007 Antony Sidwell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -707,7 +707,7 @@ static void update_player_compact_subwindow(game_event_type type, game_event_dat
 
     /* Depth, Speed */
     prt_depth(row++, col);
-    prt_speed(row++, col);
+    prt_speed(row, col);
 
     Term_fresh();
 

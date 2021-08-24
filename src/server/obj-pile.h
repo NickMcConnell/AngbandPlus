@@ -58,7 +58,7 @@ extern bool floor_carry(struct player *p, struct chunk *c, struct loc *grid, str
     bool *note);
 extern bool floor_add(struct chunk *c, struct loc *grid, struct object *drop);
 extern void drop_near(struct player *p, struct chunk *c, struct object **dropped, int chance,
-    struct loc *grid, bool verbose, int mode);
+    struct loc *grid, bool verbose, int mode, bool prefer_pile);
 extern void push_object(struct player *p, struct chunk *c, struct loc *grid);
 extern int scan_floor(struct player *p, struct chunk *c, struct object **items, int max_size,
     object_floor_t mode, item_tester tester);

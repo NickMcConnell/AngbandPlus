@@ -86,7 +86,7 @@ msg:The {kind} sound{s} loud and clear...
 name:ARROW
 aim:1
 power:11
-effect:BOLT:ARROW_X
+effect:BOLT:ARROW
 dice:150
 msg_other: fires a magical arrow.
 msg:Your {kind} form{s} a magical arrow...
@@ -971,7 +971,7 @@ name:RECHARGE
 aim:0
 power:11
 effect:RECHARGE
-dice:60
+dice:10
 msg:Your {kind} glow{s} bright yellow...
 
 name:REMOVE_CURSE
@@ -1148,10 +1148,9 @@ effect:GLYPH:WARDING
 name:SATISFY
 aim:0
 power:7
-effect:SET_NOURISH
-dice:$B
-expr:B:FOOD_MAX:- 1
-desc:magically renders you well-fed (but not satiated)
+effect:NOURISH:INC_TO
+dice:50
+desc:magically renders you comfortably fed
 
 name:SHERO
 aim:0
@@ -1199,9 +1198,8 @@ power:5
 effect:CURE:POISONED
 effect:RESTORE_STAT:CON
 effect:RESTORE_STAT:STR
-effect:SET_NOURISH
-dice:$B
-expr:B:FOOD_FAINT:- 1
+effect:NOURISH:SET_TO
+dice:5
 desc:makes you very hungry but neutralizes poison and restores strength and
 desc: constitution
 
@@ -1346,6 +1344,13 @@ effect:TIMED_INC:ESP
 dice:24+9d9
 effect:CURE:BLIND
 desc:cures blindness and grants the power of telepathy for {24+9d9} turns
+
+name:TMD_FREE_ACT
+aim:0
+power:4
+effect:TIMED_INC:FREE_ACT
+dice:10+1d10
+desc:grants temporary free action for {10+1d10} turns
 
 name:TMD_INFRA
 aim:0

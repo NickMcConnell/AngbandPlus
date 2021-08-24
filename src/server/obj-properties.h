@@ -23,6 +23,7 @@ enum object_flag_type
     OFT_MELEE,      /* applicable only to melee weapons */
     OFT_BAD,        /* an undesirable flag */
     OFT_DIG,        /* applicable only to diggers */
+    OFT_THROW,      /* applicable only to throwables */
     OFT_ESP,        /* an ESP flag */
     OFT_OTHER,      /* other flags (auto-id, magic) */
 
@@ -88,7 +89,7 @@ extern struct obj_property *obj_properties;
  */
 
 extern struct obj_property *lookup_obj_property(int type, int index);
-extern void create_obj_flag_mask(bitflag *f, bool id, ...);
+extern void create_obj_flag_mask(bitflag *f, int id, ...);
 extern void flag_message(struct player *p, int flag, char *name);
 extern int sustain_flag(int stat);
 

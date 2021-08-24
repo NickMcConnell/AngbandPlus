@@ -3,7 +3,7 @@
  * Purpose: All quest-related code
  *
  * Copyright (c) 2013 Angband developers
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -232,7 +232,7 @@ static void crumble_angband(struct player *p, struct chunk *c, struct loc *grid)
         if (square_isstairs(c, &iter.cur)) continue;
 
         /* Destroy any grid that isn't a permanent wall */
-        if (!square_isperm(c, &iter.cur))
+        if (!square_isunpassable(c, &iter.cur))
         {
             /* Delete objects */
             square_forget_pile_all(c, &iter.cur);

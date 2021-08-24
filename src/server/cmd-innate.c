@@ -2,7 +2,7 @@
  * File: cmd-innate.c
  * Purpose: Innate casting
  *
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -92,15 +92,17 @@ void do_cmd_ghost(struct player *p, int ability, int dir)
     /* Cast the spell */
     else
     {
-        bool ident = false;
+        bool ident = false, used;
         struct beam_info beam;
 
         fill_beam_info(p, spell_index, &beam);
 
         if (spell->effect && spell->effect->other_msg)
             msg_print_near(p, MSG_PY_SPELL, spell->effect->other_msg);
-        if (!effect_do(spell->effect, who, &ident, true, dir, &beam, 0, 0, NULL))
-            return;
+        target_fix(p);
+        used = effect_do(spell->effect, who, &ident, true, dir, &beam, 0, 0, NULL);
+        target_release(p);
+        if (!used) return;
     }
 
     /* Take a turn */
@@ -318,7 +320,7 @@ void do_cmd_mimic(struct player *p, int page, int spell_index, int dir)
         /* Cast the spell */
         else
         {
-            bool ident = false;
+            bool ident = false, used;
 
             if (spell->effect && spell->effect->other_msg)
             {
@@ -341,8 +343,10 @@ void do_cmd_mimic(struct player *p, int page, int spell_index, int dir)
                     }
                 }
             }
-            if (!effect_do(spell->effect, who, &ident, true, dir, NULL, 0, 0, NULL))
-                return;
+            target_fix(p);
+            used = effect_do(spell->effect, who, &ident, true, dir, NULL, 0, 0, NULL);
+            target_release(p);
+            if (!used) return;
         }
     }
 

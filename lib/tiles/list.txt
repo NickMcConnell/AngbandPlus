@@ -36,9 +36,3 @@ directory:gervais
 size:32:32:32x32.png
 pref:graf-dvg.prf
 extra:0:0:0
-
-name:2:Shockbolt's tiles
-directory:shockbolt
-size:64:64:64x64.png
-pref:graf-shb.prf
-extra:1:29:31

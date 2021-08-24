@@ -3,7 +3,7 @@
  * Purpose: Character creation
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -334,7 +334,7 @@ static void get_bonuses(struct player *p)
 
 
 #define g_strcat(P, T) \
-    n = strlen((T)); strncpy((P), (T), n); (P) += n
+    n = strlen((T)); my_strcpy((P), (T), n + 1); (P) += n
 
 
 /*
@@ -388,6 +388,7 @@ static void get_history(struct player *p)
                         case 'r': {g_strcat(t, "Your"); break;}
                         case 'a': {g_strcat(t, "are"); break;}
                         case 'h': {g_strcat(t, "have"); break;}
+                        case 'w': {g_strcat(t, "were"); break;}
                         default: continue;
                     }
                     break;
@@ -452,28 +453,9 @@ static void get_ahw(struct player *p)
     /* Calculate the age */
     p->age = p->race->b_age + randint1(p->race->m_age);
 
-    /* Calculate the height/weight for males */
-    if (p->psex == SEX_MALE)
-    {
-        p->ht = Rand_normal(p->race->m_b_ht, p->race->m_m_ht);
-        p->wt = Rand_normal(p->race->m_b_wt, p->race->m_m_wt);
-    }
-
-    /* Calculate the height/weight for females */
-    else if (p->psex == SEX_FEMALE)
-    {
-        p->ht = Rand_normal(p->race->f_b_ht, p->race->f_m_ht);
-        p->wt = Rand_normal(p->race->f_b_wt, p->race->f_m_wt);
-    }
-
-    /* For neither, go inbetween */
-    else
-    {
-        p->ht = Rand_normal((p->race->f_b_ht + p->race->m_b_ht) / 2,
-            (p->race->f_m_ht + p->race->m_m_ht) / 2);
-        p->wt = Rand_normal((p->race->f_b_wt + p->race->m_b_wt) / 2,
-            (p->race->f_m_wt + p->race->m_m_wt) / 2);
-    }
+    /* Calculate the height/weight */
+    p->ht = Rand_normal(p->race->base_hgt, p->race->mod_hgt);
+    p->wt = Rand_normal(p->race->base_wgt, p->race->mod_wgt);
 }
 
 
@@ -590,6 +572,7 @@ static void player_outfit(struct player *p, bool start_kit, bool no_recall)
 
         if (prop->subtype == OFT_LIGHT) of_on(p->obj_k->flags, i);
         if (prop->subtype == OFT_DIG) of_on(p->obj_k->flags, i);
+        if (prop->subtype == OFT_THROW) of_on(p->obj_k->flags, i);
     }
 
     /* Give the player starting equipment */
@@ -657,7 +640,7 @@ static void player_outfit(struct player *p, bool start_kit, bool no_recall)
 static void player_outfit_dm(struct player *p)
 {
     int i;
-    struct object_kind *kind;
+    const struct start_item *si;
 
     /* Initialize the DM with special powers */
     if (is_dm_p(p))
@@ -693,11 +676,13 @@ static void player_outfit_dm(struct player *p)
     }
 
     /* Other useful stuff */
-    kind = lookup_kind_by_name(TV_POTION, "Augmentation");
-    player_outfit_aux(p, kind, kind->base->max_stack);
-    kind = lookup_kind_by_name(TV_POTION, "Experience");
-    player_outfit_aux(p, kind, kind->base->max_stack);
-    player_outfit_aux(p, lookup_kind_by_name(TV_RING, "Speed"), 2);
+    for (si = dm_start_items; si; si = si->next)
+    {
+        struct object_kind *kind = lookup_kind(si->tval, si->sval);
+
+        my_assert(kind);
+        player_outfit_aux(p, kind, (byte)si->min);
+    }
 
     /* Max recall depth */
     p->max_depth = z_info->max_depth - 1;
@@ -714,6 +699,8 @@ static void player_outfit_dm(struct player *p)
 static void player_generate(struct player *p, byte psex, const struct player_race *r,
     const struct player_class *c)
 {
+    int i;
+
     p->psex = psex;
     p->clazz = c;
     p->race = r;
@@ -721,8 +708,9 @@ static void player_generate(struct player *p, byte psex, const struct player_rac
     /* Initialize the spells */
     player_spells_init(p);
 
-    /* No Dragon DMs, turn into a Human instead */
-    if (pf_has(p->race->pflags, PF_DRAGON) && is_dm_p(p)) p->race = player_id2race(0);
+    /* No Dragon/Hydra DMs, turn into a Human instead */
+    if ((player_has(p, PF_DRAGON) || player_has(p, PF_HYDRA)) && is_dm_p(p))
+        p->race = player_id2race(0);
 
     p->sex = &sex_info[p->psex];
 
@@ -735,11 +723,18 @@ static void player_generate(struct player *p, byte psex, const struct player_rac
     /* Hitdice */
     p->hitdie = p->race->r_mhp + p->clazz->c_mhp;
 
-    /* Initial hitpoints */
-    p->mhp = p->hitdie;
-
     /* Pre-calculate level 1 hitdice */
     p->player_hp[0] = p->hitdie;
+
+    /*
+     * Fill in overestimates of hitpoints for additional levels. Do not
+     * do the actual rolls so the player can not reset the birth screen
+     * to get a desirable set of initial rolls.
+     */
+    for (i = 1; i < p->lev; i++) p->player_hp[i] = p->player_hp[i - 1] + p->hitdie;
+
+    /* Initial hitpoints */
+    p->mhp = p->player_hp[p->lev - 1];
 }
 
 
@@ -909,6 +904,7 @@ static void player_setup(struct player *p, int id, u32b account, bool no_recall)
             /* Clear the flags for each cave grid (cave dimensions may have changed) */
             player_cave_new(p, c->height, c->width);
             player_cave_clear(p, true);
+            player_place_feeling(p, c);
             done = true;
         }
 
@@ -1004,6 +1000,9 @@ static void player_setup(struct player *p, int id, u32b account, bool no_recall)
      * This is also useful when the savefile has been manually deleted.
      */
     delete_player_name(p->name);
+
+    /* Verify player ID */
+    if (!p->id || lookup_player(p->id)) p->id = player_id++;
 
     /* Add him to the player name database */
     ht_reset(&death_turn);
@@ -1245,6 +1244,17 @@ struct player *player_birth(int id, u32b account, const char *name, const char *
             return NULL;
         }
 
+        /* Important: check password */
+        if (strcmp(p->pass, pass))
+        {
+            plog("Invalid password");
+            Destroy_connection(p->conn, "Invalid password");
+            cleanup_player(p);
+            mem_free(p);
+            player_set(id, NULL);
+            return NULL;
+        }
+
         /* Player is dead */
         if (p->is_dead)
         {
@@ -1319,6 +1329,13 @@ struct player *player_birth(int id, u32b account, const char *name, const char *
         if (player_has(p, PF_DRAGON))
         {
             poly_dragon(p, false);
+            get_bonuses(p);
+        }
+
+        /* Hydra */
+        if (player_has(p, PF_HYDRA))
+        {
+            poly_hydra(p, false);
             get_bonuses(p);
         }
 

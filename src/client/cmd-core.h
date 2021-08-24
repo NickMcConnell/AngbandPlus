@@ -51,6 +51,7 @@ typedef enum cmd_code
     CMD_RUN,
     CMD_HOLD,
     CMD_ALTER,
+    CMD_STEAL,
 
     /* PWMAngband */
     CMD_POLY,
@@ -58,7 +59,6 @@ typedef enum cmd_code
     CMD_PROJECT,
     CMD_FOUNTAIN,
     CMD_DROP_GOLD,
-    CMD_STEAL,
     CMD_EXAMINE,
 
     CMD_MAX

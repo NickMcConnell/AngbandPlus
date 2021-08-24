@@ -138,6 +138,7 @@
 #define N_HOOKS         11
 
 /* Special hooks */
+#define HOOK_RECALL     253
 #define HOOK_DOWN       254
 #define HOOK_CONFIRM    255
 

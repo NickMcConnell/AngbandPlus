@@ -3,7 +3,7 @@
  * Purpose: Functions to deal with object properties
  *
  * Copyright (c) 2014 Chris Carr, Nick McConnell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -57,7 +57,7 @@ struct obj_property *lookup_obj_property(int type, int index)
  *
  * N.B. OFT_MAX must be the last item in the ... list
  */
-void create_obj_flag_mask(bitflag *f, bool id, ...)
+void create_obj_flag_mask(bitflag *f, int id, ...)
 {
     int i, j;
     va_list args;

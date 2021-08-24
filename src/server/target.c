@@ -3,7 +3,7 @@
  * Purpose: Targeting code
  *
  * Copyright (c) 1997-2007 Angband contributors
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -67,6 +67,8 @@ static const char *look_health_desc(bool living, int chp, int mhp)
 void look_mon_desc(struct monster *mon, char *buf, size_t max)
 {
     bool living = true;
+
+    if (!mon) return;
 
     /* Determine if the monster is "living" (vs "undead") */
     if (monster_is_nonliving(mon->race)) living = false;
@@ -148,12 +150,13 @@ bool target_able(struct player *p, struct source *who)
     if (who->player)
     {
         return (wpos_eq(&p->wpos, &who->player->wpos) && player_is_visible(p, who->idx) &&
-            !who->player->k_idx && projectable(c, &p->grid, &who->player->grid, PROJECT_NONE, true) &&
+            !who->player->k_idx &&
+            projectable(p, c, &p->grid, &who->player->grid, PROJECT_NONE, true) &&
             !p->timed[TMD_IMAGE]);
     }
 
     return (who->monster->race && monster_is_obvious(p, who->idx, who->monster) &&
-        projectable(c, &p->grid, &who->monster->grid, PROJECT_NONE, true) &&
+        projectable(p, c, &p->grid, &who->monster->grid, PROJECT_NONE, true) &&
         !p->timed[TMD_IMAGE]);
 }
 
@@ -211,7 +214,7 @@ bool target_okay(struct player *p)
 
 
 /*
- * Set the target to a monster/player (or nobody)
+ * Set the target to a monster/player (or nobody); if target is fixed, don't unset
  */
 bool target_set_monster(struct player *p, struct source *who)
 {
@@ -226,6 +229,16 @@ bool target_set_monster(struct player *p, struct source *who)
         else
             loc_copy(&p->target.grid, &who->player->grid);
 
+        return true;
+    }
+
+    /*
+     * If a monster has died during a spell, this maintains its grid as
+     * the target in case further effects of the spell need it
+     */
+    if (p->target_fixed)
+    {
+        memset(&p->target.target_who, 0, sizeof(struct source));
         return true;
     }
 
@@ -263,6 +276,35 @@ void target_set_location(struct player *p, struct loc *grid)
 
     /* Reset target info */
     memset(&p->target, 0, sizeof(p->target));
+}
+
+
+/*
+ * Fix the target
+ */
+void target_fix(struct player *p)
+{
+    memcpy(&p->old_target, &p->target, sizeof(struct target));
+    p->target_fixed = true;
+}
+
+
+/*
+ * Release the target
+ */
+void target_release(struct player *p)
+{
+    p->target_fixed = false;
+
+    /* If the old target is a now-dead monster, cancel it */
+    if (!source_null(&p->old_target.target_who))
+    {
+        struct monster *mon = p->old_target.target_who.monster;
+        struct player *player = p->old_target.target_who.player;
+
+        if ((mon && (!mon->race || !monster_is_in_view(p, mon->midx))) || (player && player->is_dead))
+            loc_init(&p->target.grid, 0, 0);
+    }
 }
 
 

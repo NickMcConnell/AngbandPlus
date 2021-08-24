@@ -3,7 +3,7 @@
  * Purpose: Spell and prayer casting/praying
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -258,14 +258,15 @@ static int min_fail(struct player *p, const struct class_spell *spell)
  */
 s16b spell_chance(struct player *p, int spell_index)
 {
-    int chance, minfail;
+    int chance = 100, minfail;
     const struct class_spell *spell;
 
     /* Paranoia -- must be literate */
-    if (!p->clazz->magic.total_spells) return (100);
+    if (!p->clazz->magic.total_spells) return chance;
 
     /* Get the spell */
     spell = spell_by_index(&p->clazz->magic, spell_index);
+    if (!spell) return chance;
 
     /* Extract the base spell failure rate */
     chance = spell->sfail;
@@ -297,7 +298,7 @@ s16b spell_chance(struct player *p, int spell_index)
     if (p->timed[TMD_STUN] > 50) chance += 25;
     else if (p->timed[TMD_STUN]) chance += 15;
 
-    /* Amnesia doubles failure change */
+    /* Amnesia makes spells very difficult */
     if (p->timed[TMD_AMNESIA]) chance = 50 + chance / 2;
 
     /* Always a 5 percent chance of working */
@@ -324,13 +325,13 @@ static size_t append_random_value_string(char *buffer, size_t size, random_value
     {
         offset += strnfmt(buffer + offset, size - offset, "%d", rv->base);
 
-        if (rv->dice > 0 || rv->sides > 0)
+        if (rv->dice > 0 && rv->sides > 0)
             offset += strnfmt(buffer + offset, size - offset, "+");
     }
 
-    if (rv->dice == 1)
+    if (rv->dice == 1 && rv->sides > 0)
         offset += strnfmt(buffer + offset, size - offset, "d%d", rv->sides);
-    else if (rv->dice > 1)
+    else if (rv->dice > 1 && rv->sides > 0)
         offset += strnfmt(buffer + offset, size - offset, "%dd%d", rv->dice, rv->sides);
 
     return offset;
@@ -496,14 +497,17 @@ void get_spell_info(struct player *p, int spell_index, char *buf, size_t len)
 
         if (type == NULL) return;
 
-        if (first) offset += strnfmt(buf, len, " %s ", type);
-        else offset += strnfmt(buf + offset, len - offset, "+");
-        offset += append_random_value_string(buf + offset, len - offset, &rv);
+        if ((rv.base > 0) || (rv.dice > 0 && rv.sides > 0))
+        {
+            if (first) offset += strnfmt(buf, len, " %s ", type);
+            else offset += strnfmt(buf + offset, len - offset, "+");
+            offset += append_random_value_string(buf + offset, len - offset, &rv);
 
-        if (special != NULL)
-            strnfmt(buf + offset, len - offset, "%s", special);
+            if (special != NULL)
+                strnfmt(buf + offset, len - offset, "%s", special);
 
-        first = false;
+            first = false;
+        }
 
         /* Hack -- if next effect has the same tip, also append that info */
         if (!effect->next) return;
@@ -556,18 +560,6 @@ static int spell_value_base_max_sight(void *data)
 }
 
 
-static int spell_value_base_food_faint(void *data)
-{
-    return PY_FOOD_FAINT;
-}
-
-
-static int spell_value_base_food_starve(void *data)
-{
-    return PY_FOOD_STARVE;
-}
-
-
 static int spell_value_base_weapon_damage(void *data)
 {
     struct source *who = (struct source *)data;
@@ -587,12 +579,6 @@ static int spell_value_base_monster_percent_hp_gone(void *data)
     if (who->player)
         return (((who->player->mhp - who->player->chp) * 100) / who->player->mhp);
     return 0;
-}
-
-
-static int spell_value_base_food_max(void *data)
-{
-    return PY_FOOD_MAX;
 }
 
 
@@ -652,11 +638,8 @@ expression_base_value_f spell_value_base_by_name(const char *name)
         {"PLAYER_LEVEL", spell_value_base_player_level},
         {"DUNGEON_LEVEL", spell_value_base_dungeon_level},
         {"MAX_SIGHT", spell_value_base_max_sight},
-        {"FOOD_FAINT", spell_value_base_food_faint},
-        {"FOOD_STARVE", spell_value_base_food_starve},
         {"WEAPON_DAMAGE", spell_value_base_weapon_damage},
         {"MONSTER_PERCENT_HP_GONE", spell_value_base_monster_percent_hp_gone},
-        {"FOOD_MAX", spell_value_base_food_max},
         {"PLAYER_SPELL_POWER", spell_value_base_player_spell_power},
         {"BALL_ELEMENT", spell_value_base_ball_element},
         {"XBALL_ELEMENT", spell_value_base_xball_element},
@@ -1140,7 +1123,7 @@ bool cast_spell_proj(struct player *p, int cidx, int spell_index, bool silent)
     const struct player_class *c = player_id2class(cidx);
     const struct class_spell *spell = spell_by_index(&c->magic, spell_index);
     bool pious = streq(spell->realm->name, "divine");
-    bool ident = false;
+    bool ident = false, used;
     struct source who_body;
     struct source *who = &who_body;
 
@@ -1177,7 +1160,10 @@ bool cast_spell_proj(struct player *p, int cidx, int spell_index, bool silent)
     }
 
     source_player(who, get_player_index(get_connection(p->conn)), p);
-    return effect_do(spell->effect, who, &ident, true, 0, NULL, 0, 0, NULL);
+    target_fix(p);
+    used = effect_do(spell->effect, who, &ident, true, 0, NULL, 0, 0, NULL);
+    target_release(p);
+    return used;
 }
 
 

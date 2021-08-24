@@ -2,7 +2,7 @@
  * File: wilderness.c
  * Purpose: Wilderness generation
  *
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -469,6 +469,17 @@ static enum parser_error parse_location_info_max_townies(struct parser *p)
 }
 
 
+static enum parser_error parse_location_info_symbol(struct parser *p)
+{
+    struct location *t = parser_priv(p);
+
+    if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    t->feat = lookup_feat(parser_getstr(p, "terrain"));
+
+    return PARSE_ERROR_NONE;
+}
+
+
 static const char *dungeon_flags[] =
 {
     #define DF(a, b) #a,
@@ -527,7 +538,7 @@ static enum parser_error parse_location_info_floor(struct parser *p)
 
     /* Now read the data */
     f->feat = lookup_feat(parser_getsym(p, "feat"));
-    f->percent = parser_getint(p, "percent");
+    f->chance = parser_getint(p, "chance");
 
     return PARSE_ERROR_NONE;
 }
@@ -556,7 +567,186 @@ static enum parser_error parse_location_info_wall(struct parser *p)
 
     /* Now read the data */
     f->feat = lookup_feat(parser_getsym(p, "feat"));
-    f->percent = parser_getint(p, "percent");
+    f->chance = parser_getint(p, "chance");
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_location_info_fill(struct parser *p)
+{
+    struct location *t = parser_priv(p);
+    struct dun_feature *f;
+
+    if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    f = t->fills;
+
+    /* Go to the last valid feature, then allocate a new one */
+    if (!f)
+    {
+        t->fills = mem_zalloc(sizeof(struct dun_feature));
+        f = t->fills;
+    }
+    else
+    {
+        while (f->next) f = f->next;
+        f->next = mem_zalloc(sizeof(struct dun_feature));
+        f = f->next;
+    }
+
+    /* Now read the data */
+    f->feat = lookup_feat(parser_getsym(p, "feat"));
+    f->chance = parser_getint(p, "chance");
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_location_info_perma(struct parser *p)
+{
+    struct location *t = parser_priv(p);
+    struct dun_feature *f;
+
+    if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    f = t->permas;
+
+    /* Go to the last valid feature, then allocate a new one */
+    if (!f)
+    {
+        t->permas = mem_zalloc(sizeof(struct dun_feature));
+        f = t->permas;
+    }
+    else
+    {
+        while (f->next) f = f->next;
+        f->next = mem_zalloc(sizeof(struct dun_feature));
+        f = f->next;
+    }
+
+    /* Now read the data */
+    f->feat = lookup_feat(parser_getsym(p, "feat"));
+    f->chance = parser_getint(p, "chance");
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_location_info_door(struct parser *p)
+{
+    struct location *t = parser_priv(p);
+    struct dun_feature *f;
+
+    if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    f = t->doors;
+
+    /* Go to the last valid feature, then allocate a new one */
+    if (!f)
+    {
+        t->doors = mem_zalloc(sizeof(struct dun_feature));
+        f = t->doors;
+    }
+    else
+    {
+        while (f->next) f = f->next;
+        f->next = mem_zalloc(sizeof(struct dun_feature));
+        f = f->next;
+    }
+
+    /* Now read the data */
+    f->feat = lookup_feat(parser_getsym(p, "feat"));
+    f->feat2 = lookup_feat(parser_getsym(p, "open"));
+    f->feat3 = lookup_feat(parser_getsym(p, "broken"));
+    f->chance = parser_getint(p, "chance");
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_location_info_stair(struct parser *p)
+{
+    struct location *t = parser_priv(p);
+    struct dun_feature *f;
+
+    if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    f = t->stairs;
+
+    /* Go to the last valid feature, then allocate a new one */
+    if (!f)
+    {
+        t->stairs = mem_zalloc(sizeof(struct dun_feature));
+        f = t->stairs;
+    }
+    else
+    {
+        while (f->next) f = f->next;
+        f->next = mem_zalloc(sizeof(struct dun_feature));
+        f = f->next;
+    }
+
+    /* Now read the data */
+    f->feat = lookup_feat(parser_getsym(p, "feat"));
+    f->feat2 = lookup_feat(parser_getsym(p, "up"));
+    f->chance = parser_getint(p, "chance");
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_location_info_rubble(struct parser *p)
+{
+    struct location *t = parser_priv(p);
+    struct dun_feature *f;
+
+    if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    f = t->rubbles;
+
+    /* Go to the last valid feature, then allocate a new one */
+    if (!f)
+    {
+        t->rubbles = mem_zalloc(sizeof(struct dun_feature));
+        f = t->rubbles;
+    }
+    else
+    {
+        while (f->next) f = f->next;
+        f->next = mem_zalloc(sizeof(struct dun_feature));
+        f = f->next;
+    }
+
+    /* Now read the data */
+    f->feat = lookup_feat(parser_getsym(p, "feat"));
+    f->feat2 = lookup_feat(parser_getsym(p, "pass"));
+    f->chance = parser_getint(p, "chance");
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_location_info_fountain(struct parser *p)
+{
+    struct location *t = parser_priv(p);
+    struct dun_feature *f;
+
+    if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    f = t->fountains;
+
+    /* Go to the last valid feature, then allocate a new one */
+    if (!f)
+    {
+        t->fountains = mem_zalloc(sizeof(struct dun_feature));
+        f = t->fountains;
+    }
+    else
+    {
+        while (f->next) f = f->next;
+        f->next = mem_zalloc(sizeof(struct dun_feature));
+        f = f->next;
+    }
+
+    /* Now read the data */
+    f->feat = lookup_feat(parser_getsym(p, "feat"));
+    f->feat2 = lookup_feat(parser_getsym(p, "dried"));
+    f->chance = parser_getint(p, "chance");
 
     return PARSE_ERROR_NONE;
 }
@@ -584,7 +774,7 @@ static enum parser_error parse_location_info_rule(struct parser *p)
     }
 
     /* Now read the data */
-    r->percent = parser_getint(p, "percent");
+    r->chance = parser_getint(p, "chance");
     r->all = parser_getuint(p, "all");
 
     return PARSE_ERROR_NONE;
@@ -664,6 +854,31 @@ static enum parser_error parse_location_info_rule_symbols(struct parser *p)
 }
 
 
+static enum parser_error parse_location_info_stairs(struct parser *p)
+{
+    struct location *t = parser_priv(p);
+    dice_t *dice;
+
+    if (!t) return PARSE_ERROR_MISSING_RECORD_HEADER;
+    dice = dice_new();
+    if (!dice_parse_string(dice, parser_getsym(p, "up")))
+    {
+        dice_free(dice);
+        return PARSE_ERROR_NOT_RANDOM;
+    }
+    dice_random_value(dice, NULL, &t->up);
+    if (!dice_parse_string(dice, parser_getstr(p, "down")))
+    {
+        dice_free(dice);
+        return PARSE_ERROR_NOT_RANDOM;
+    }
+    dice_random_value(dice, NULL, &t->down);
+    dice_free(dice);
+
+    return PARSE_ERROR_NONE;
+}
+
+
 static struct parser *init_parse_location_info(void)
 {
     struct parser *p = parser_new();
@@ -676,13 +891,21 @@ static struct parser *init_parse_location_info(void)
     parser_reg(p, "max-depth int depth", parse_location_info_max_depth);
     parser_reg(p, "max-level int level", parse_location_info_max_level);
     parser_reg(p, "max-townies int townies", parse_location_info_max_townies);
+    parser_reg(p, "symbol str terrain", parse_location_info_symbol);
     parser_reg(p, "flags ?str flags", parse_location_info_flags);
-    parser_reg(p, "floor sym feat int percent", parse_location_info_floor);
-    parser_reg(p, "wall sym feat int percent", parse_location_info_wall);
-    parser_reg(p, "rule int percent uint all", parse_location_info_rule);
+    parser_reg(p, "floor sym feat int chance", parse_location_info_floor);
+    parser_reg(p, "wall sym feat int chance", parse_location_info_wall);
+    parser_reg(p, "fill sym feat int chance", parse_location_info_fill);
+    parser_reg(p, "perma sym feat int chance", parse_location_info_perma);
+    parser_reg(p, "door sym feat sym open sym broken int chance", parse_location_info_door);
+    parser_reg(p, "stair sym feat sym up int chance", parse_location_info_stair);
+    parser_reg(p, "rubble sym feat sym pass int chance", parse_location_info_rubble);
+    parser_reg(p, "fountain sym feat sym dried int chance", parse_location_info_fountain);
+    parser_reg(p, "rule int chance uint all", parse_location_info_rule);
     parser_reg(p, "rule-flags ?str flags", parse_location_info_rule_flags);
     parser_reg(p, "rule-spells ?str flags", parse_location_info_rule_spells);
     parser_reg(p, "rule-symbols str symbols", parse_location_info_rule_symbols);
+    parser_reg(p, "stairs sym up str down", parse_location_info_stairs);
 
     return p;
 }
@@ -739,6 +962,36 @@ static errr finish_parse_town_info(struct parser *p)
             mem_free(f);
         }
         for (i = 0, f = t->walls; f; i++, f = fn)
+        {
+            fn = f->next;
+            mem_free(f);
+        }
+        for (i = 0, f = t->fills; f; i++, f = fn)
+        {
+            fn = f->next;
+            mem_free(f);
+        }
+        for (i = 0, f = t->permas; f; i++, f = fn)
+        {
+            fn = f->next;
+            mem_free(f);
+        }
+        for (i = 0, f = t->doors; f; i++, f = fn)
+        {
+            fn = f->next;
+            mem_free(f);
+        }
+        for (i = 0, f = t->stairs; f; i++, f = fn)
+        {
+            fn = f->next;
+            mem_free(f);
+        }
+        for (i = 0, f = t->rubbles; f; i++, f = fn)
+        {
+            fn = f->next;
+            mem_free(f);
+        }
+        for (i = 0, f = t->fountains; f; i++, f = fn)
         {
             fn = f->next;
             mem_free(f);
@@ -816,41 +1069,132 @@ static errr finish_parse_dungeon_info(struct parser *p)
         dungeons[count].next = NULL;
 
         /* Rules */
-        dungeons[count].rules = mem_zalloc(5 * sizeof(struct dun_rule));
+        dungeons[count].n_rules = 0;
         for (i = 0, r = t->rules; r; i++, r = rn)
         {
-            /* Keep five rules at max */
-            if (i < 5)
-            {
-                memcpy(&dungeons[count].rules[i], r, sizeof(*r));
-                dungeons[count].rules[i].next = NULL;
-            }
+            dungeons[count].n_rules++;
+            rn = r->next;
+        }
+        dungeons[count].rules = mem_zalloc(dungeons[count].n_rules * sizeof(struct dun_rule));
+        for (i = 0, r = t->rules; r; i++, r = rn)
+        {
+            memcpy(&dungeons[count].rules[i], r, sizeof(*r));
+            dungeons[count].rules[i].next = NULL;
             rn = r->next;
             mem_free(r);
         }
 
         /* Features */
-        dungeons[count].floors = mem_zalloc(3 * sizeof(struct dun_feature));
+        dungeons[count].n_floors = 0;
         for (i = 0, f = t->floors; f; i++, f = fn)
         {
-            /* Keep three features at max */
-            if (i < 3)
-            {
-                memcpy(&dungeons[count].floors[i], f, sizeof(*f));
-                dungeons[count].floors[i].next = NULL;
-            }
+            dungeons[count].n_floors++;
+            fn = f->next;
+        }
+        dungeons[count].floors = mem_zalloc(dungeons[count].n_floors * sizeof(struct dun_feature));
+        for (i = 0, f = t->floors; f; i++, f = fn)
+        {
+            memcpy(&dungeons[count].floors[i], f, sizeof(*f));
+            dungeons[count].floors[i].next = NULL;
             fn = f->next;
             mem_free(f);
         }
-        dungeons[count].walls = mem_zalloc(3 * sizeof(struct dun_feature));
+        dungeons[count].n_walls = 0;
         for (i = 0, f = t->walls; f; i++, f = fn)
         {
-            /* Keep three features at max */
-            if (i < 3)
-            {
-                memcpy(&dungeons[count].walls[i], f, sizeof(*f));
-                dungeons[count].walls[i].next = NULL;
-            }
+            dungeons[count].n_walls++;
+            fn = f->next;
+        }
+        dungeons[count].walls = mem_zalloc(dungeons[count].n_walls * sizeof(struct dun_feature));
+        for (i = 0, f = t->walls; f; i++, f = fn)
+        {
+            memcpy(&dungeons[count].walls[i], f, sizeof(*f));
+            dungeons[count].walls[i].next = NULL;
+            fn = f->next;
+            mem_free(f);
+        }
+        dungeons[count].n_fills = 0;
+        for (i = 0, f = t->fills; f; i++, f = fn)
+        {
+            dungeons[count].n_fills++;
+            fn = f->next;
+        }
+        dungeons[count].fills = mem_zalloc(dungeons[count].n_fills * sizeof(struct dun_feature));
+        for (i = 0, f = t->fills; f; i++, f = fn)
+        {
+            memcpy(&dungeons[count].fills[i], f, sizeof(*f));
+            dungeons[count].fills[i].next = NULL;
+            fn = f->next;
+            mem_free(f);
+        }
+        dungeons[count].n_permas = 0;
+        for (i = 0, f = t->permas; f; i++, f = fn)
+        {
+            dungeons[count].n_permas++;
+            fn = f->next;
+        }
+        dungeons[count].permas = mem_zalloc(dungeons[count].n_permas * sizeof(struct dun_feature));
+        for (i = 0, f = t->permas; f; i++, f = fn)
+        {
+            memcpy(&dungeons[count].permas[i], f, sizeof(*f));
+            dungeons[count].permas[i].next = NULL;
+            fn = f->next;
+            mem_free(f);
+        }
+        dungeons[count].n_doors = 0;
+        for (i = 0, f = t->doors; f; i++, f = fn)
+        {
+            dungeons[count].n_doors++;
+            fn = f->next;
+        }
+        dungeons[count].doors = mem_zalloc(dungeons[count].n_doors * sizeof(struct dun_feature));
+        for (i = 0, f = t->doors; f; i++, f = fn)
+        {
+            memcpy(&dungeons[count].doors[i], f, sizeof(*f));
+            dungeons[count].doors[i].next = NULL;
+            fn = f->next;
+            mem_free(f);
+        }
+        dungeons[count].n_stairs = 0;
+        for (i = 0, f = t->stairs; f; i++, f = fn)
+        {
+            dungeons[count].n_stairs++;
+            fn = f->next;
+        }
+        dungeons[count].stairs = mem_zalloc(dungeons[count].n_stairs * sizeof(struct dun_feature));
+        for (i = 0, f = t->stairs; f; i++, f = fn)
+        {
+            memcpy(&dungeons[count].stairs[i], f, sizeof(*f));
+            dungeons[count].stairs[i].next = NULL;
+            fn = f->next;
+            mem_free(f);
+        }
+        dungeons[count].n_rubbles = 0;
+        for (i = 0, f = t->rubbles; f; i++, f = fn)
+        {
+            dungeons[count].n_rubbles++;
+            fn = f->next;
+        }
+        dungeons[count].rubbles = mem_zalloc(dungeons[count].n_rubbles * sizeof(struct dun_feature));
+        for (i = 0, f = t->rubbles; f; i++, f = fn)
+        {
+            memcpy(&dungeons[count].rubbles[i], f, sizeof(*f));
+            dungeons[count].rubbles[i].next = NULL;
+            fn = f->next;
+            mem_free(f);
+        }
+        dungeons[count].n_fountains = 0;
+        for (i = 0, f = t->fountains; f; i++, f = fn)
+        {
+            dungeons[count].n_fountains++;
+            fn = f->next;
+        }
+        dungeons[count].fountains = mem_zalloc(dungeons[count].n_fountains *
+            sizeof(struct dun_feature));
+        for (i = 0, f = t->fountains; f; i++, f = fn)
+        {
+            memcpy(&dungeons[count].fountains[i], f, sizeof(*f));
+            dungeons[count].fountains[i].next = NULL;
             fn = f->next;
             mem_free(f);
         }
@@ -873,6 +1217,15 @@ static void cleanup_dungeon_info(void)
     for (i = 0; i < z_info->dungeon_max; i++)
     {
         string_free(dungeons[i].name);
+        string_free(dungeons[i].shortname);
+        mem_free(dungeons[i].floors);
+        mem_free(dungeons[i].walls);
+        mem_free(dungeons[i].fills);
+        mem_free(dungeons[i].permas);
+        mem_free(dungeons[i].doors);
+        mem_free(dungeons[i].stairs);
+        mem_free(dungeons[i].rubbles);
+        mem_free(dungeons[i].fountains);
         mem_free(dungeons[i].rules);
     }
     mem_free(dungeons);
@@ -1043,48 +1396,48 @@ bool town_area(struct worldpos *wpos)
 
 
 /*
- * Restrict to this location.
- * Returns the coordinates of this location (town, dungeon or special coordinates).
+ * Restrict to these locations.
+ * Returns the coordinates of the locations (town, dungeon or special coordinates).
  */
-struct worldpos *restrict_location(const char *location)
+struct worldpos *restrict_locations(const char *locations)
 {
     int i;
-    struct loc grid;
+    char *s, *t;
+    struct worldpos *result = NULL;
 
-    /* Browse the towns */
-    for (i = 0; i < z_info->town_max; i++)
+    /* List the locations */
+    s = string_make(locations);
+    t = strtok(s, "|");
+    while (t)
     {
-        if (streq(towns[i].name, location))
+        struct worldpos* found = NULL;
+
+        /* Browse the towns */
+        for (i = 0; i < z_info->town_max && !found; i++)
         {
-            struct worldpos* wpos = mem_zalloc(sizeof(struct worldpos));
-
-            memcpy(wpos, &towns[i].wpos, sizeof(struct worldpos));
-            return wpos;
+            if (streq(towns[i].name, t)) found = &towns[i].wpos;
         }
-    }
 
-    /* Browse the dungeons */
-    for (i = 0; i < z_info->dungeon_max; i++)
-    {
-        if (streq(dungeons[i].name, location))
+        /* Browse the dungeons */
+        for (i = 0; i < z_info->dungeon_max && !found; i++)
         {
-            struct worldpos* wpos = mem_zalloc(sizeof(struct worldpos));
-
-            memcpy(wpos, &dungeons[i].wpos, sizeof(struct worldpos));
-            return wpos;
+            if (streq(dungeons[i].name, t)) found = &dungeons[i].wpos;
         }
+
+        if (found)
+        {
+            struct worldpos *wpos = mem_zalloc(sizeof(struct worldpos));
+
+            memcpy(wpos, found, sizeof(struct worldpos));
+            wpos->next = result;
+            result = wpos;
+        }
+
+        t = strtok(NULL, "|");
     }
+    string_free(s);
 
-    /* Simply use the given coordinates */
-    if (2 == sscanf(location, "%d,%d", &grid.x, &grid.y))
-    {
-        struct worldpos* wpos = mem_zalloc(sizeof(struct worldpos));
-
-        wpos_init(wpos, &grid, 0);
-        return wpos;
-    }
-
-    return NULL;
+    return result;
 }
 
 
@@ -1410,6 +1763,17 @@ static bool wild_monst_aux_swamp(struct monster_race *race)
 /*
  * Helper function for wild_add_monster
  */
+static bool wild_monst_aux_ocean(struct monster_race *race)
+{
+    if (rf_has(race->flags, RF_WILD_OCEAN)) return true;
+
+    return false;
+}
+
+
+/*
+ * Helper function for wild_add_monster
+ */
 static bool wild_monst_aux_hill(struct monster_race *race)
 {
     if (rf_has(race->flags, RF_WILD_MOUNTAIN)) return true;
@@ -1428,6 +1792,7 @@ void wild_add_monster(struct player *p, struct chunk *c)
     int tries = 50;
     struct monster_race *race;
     struct wild_type *w_ptr = get_wt_info_at(&p->wpos.grid);
+    struct monster_group_info info = {0, 0};
 
     /* Prepare allocation table */
     switch (w_ptr->type)
@@ -1441,10 +1806,19 @@ void wild_add_monster(struct player *p, struct chunk *c)
         case WILD_DESERT: get_mon_num_prep(wild_monst_aux_desert); break;
         case WILD_GLACIER: get_mon_num_prep(wild_monst_aux_glacier); break;
         case WILD_SWAMP: get_mon_num_prep(wild_monst_aux_swamp); break;
-        case WILD_DEEPWATER: return;
+        case WILD_DEEPWATER: get_mon_num_prep(wild_monst_aux_ocean); break;
         case WILD_HILL: get_mon_num_prep(wild_monst_aux_hill); break;
         case WILD_SHORE: get_mon_num_prep(wild_monst_aux_shallow_water); break;
     }
+
+    /* Get the monster */
+    race = get_mon_num(c, monster_level(&p->wpos), false);
+
+    /* Prepare allocation table */
+    get_mon_num_prep(NULL);
+
+    /* Handle failure */
+    if (!race) return;
 
     /* Find a legal, unoccupied space */
     while (true)
@@ -1459,20 +1833,15 @@ void wild_add_monster(struct player *p, struct chunk *c)
         /* Hack -- don't place monster in an arena */
         if (pick_arena(&c->wpos, &grid) != -1) continue;
 
-        if (square_isempty(c, &grid)) break;
+        if (rf_has(race->flags, RF_AQUATIC))
+        {
+            if (square_isemptywater(c, &grid)) break;
+        }
+        else if (square_isempty(c, &grid)) break;
     }
 
-    /* Get the monster */
-    race = get_mon_num(c, monster_level(&p->wpos), false);
-
-    /* Prepare allocation table */
-    get_mon_num_prep(NULL);
-
-    /* Handle failure */
-    if (!race) return;
-
     /* Place the monster */
-    place_new_monster(p, c, &grid, race, MON_GROUP, ORIGIN_DROP);
+    place_new_monster(p, c, &grid, race, MON_GROUP, &info, ORIGIN_DROP);
 }
 
 
@@ -1522,6 +1891,7 @@ void wild_add_crop(struct chunk *c, struct loc *grid, int type)
                 {TV_MUSHROOM, "Debility", 5},
                 {TV_MUSHROOM, "Sprinting", 5},
                 {TV_MUSHROOM, "Purging", 5},
+                {TV_MUSHROOM, "Shadows", 1},
                 {TV_FOOD, "Slime Mold", 100}
             };
             int i;
@@ -1545,7 +1915,7 @@ void wild_add_crop(struct chunk *c, struct loc *grid, int type)
 
     /* Drop food */
     set_origin(food, ORIGIN_FLOOR, c->wpos.depth, NULL);
-    drop_near(NULL, c, &food, 0, grid, false, DROP_FADE);
+    drop_near(NULL, c, &food, 0, grid, false, DROP_FADE, false);
 }
 
 
@@ -2316,7 +2686,7 @@ static void wild_furnish_dwelling(struct player *p, struct chunk *c, bool **plot
 
             set_origin(food, ORIGIN_FLOOR, c->wpos.depth, NULL);
 
-            drop_near(NULL, c, &food, 0, &grid, false, DROP_FADE);
+            drop_near(NULL, c, &food, 0, &grid, false, DROP_FADE, false);
 
             num_food--;
         }
@@ -2341,6 +2711,7 @@ static void wild_furnish_dwelling(struct player *p, struct chunk *c, bool **plot
         if (race)
         {
             struct loc grid;
+            struct monster_group_info info = {0, 0};
 
             /* Get the owner's location */
             while (true)
@@ -2361,7 +2732,7 @@ static void wild_furnish_dwelling(struct player *p, struct chunk *c, bool **plot
             }
 
             /* Place the owner */
-            place_new_monster(p, c, &grid, race, 0, ORIGIN_DROP);
+            place_new_monster(p, c, &grid, race, 0, &info, ORIGIN_DROP);
         }
     }
 
@@ -2381,6 +2752,7 @@ static void wild_furnish_dwelling(struct player *p, struct chunk *c, bool **plot
         if (race)
         {
             struct loc_iterator iter;
+            struct monster_group_info info = {0, 0};
 
             loc_iterator_first(&iter, grid1, grid2);
 
@@ -2388,7 +2760,7 @@ static void wild_furnish_dwelling(struct player *p, struct chunk *c, bool **plot
             do
             {
                 if (magik(50)) continue;
-                place_new_monster(p, c, &iter.cur, race, 0, ORIGIN_DROP);
+                place_new_monster(p, c, &iter.cur, race, 0, &info, ORIGIN_DROP);
             }
             while (loc_iterator_next(&iter));
         }
@@ -2408,6 +2780,32 @@ static void wild_furnish_dwelling(struct player *p, struct chunk *c, bool **plot
 
     /* Restore the RNG */
     Rand_value = old_seed;
+}
+
+
+int house_price(int area, bool town)
+{
+    int price = 0;
+
+    if (town)
+    {
+        price = area;
+        price *= 20;
+        price *= (80 + randint1(40));
+    }
+    else
+    {
+        /* This is the dominant term for large houses */
+        if (area > 40) price = (area - 40) * (area - 40) * (area - 40) * 3;
+
+        /* This is the dominant term for medium houses */
+        price += area * area * 33;
+
+        /* This is the dominant term for small houses */
+        price += area * (900 + randint0(200));
+    }
+
+    return price;
 }
 
 
@@ -2612,15 +3010,7 @@ static void wild_add_dwelling(struct player *p, struct chunk *c, bool **plot, st
 
         case WILD_TOWN_HOME:
         {
-            /* This is the dominant term for large houses */
-            if (area > 40) price = (area - 40) * (area - 40) * (area - 40) * 3;
-            else price = 0;
-
-            /* This is the dominant term for medium houses */
-            price += area * area * 33;
-
-            /* This is the dominant term for small houses */
-            price += area * (900 + randint0(200));
+            price = house_price(area, false);
 
             /* Hack -- only add a house if it is not already in memory */
             i = pick_house(&p->wpos, &door);
@@ -3084,6 +3474,69 @@ void get_town_file(char *buf, size_t len, const char *name)
         /* Replace spaces with underscores */
         if (*str == ' ') *str = '_';
     }
+}
+
+
+bool customize_feature(struct chunk *c, struct loc *grid, struct dun_feature *dun_feats, int size,
+    bool (*test)(struct chunk *, struct loc *),
+    bool (*post_test)(struct chunk *, struct loc *, int), int *feat)
+{
+    int i, chance = 0, maxchance = 0, count = 0;
+    struct dun_feature **feats = mem_zalloc(size * sizeof(struct dun_feature *));
+    bool result = false;
+
+    /* List valid custom features */
+    for (i = 0; i < size; i++)
+    {
+        struct dun_feature *feature = &dun_feats[i];
+        int current_feat = square(c, grid)->feat;
+        bool ok = true;
+
+        /* Make the change for testing */
+        square(c, grid)->feat = feature->feat;
+
+        /* Apply testing function */
+        if (!test(c, grid)) ok = false;
+
+        /* Revert the change */
+        square(c, grid)->feat = current_feat;
+
+        /* Apply post-testing function */
+        if (post_test && !post_test(c, grid, feature->feat)) ok = false;
+
+        if (ok)
+        {
+            feats[count++] = feature;
+            maxchance += feature->chance;
+        }
+
+        chance += feature->chance;
+    }
+
+    /* Default feature is always valid, so get its chance */
+    chance = MIN(chance, 10000);
+    maxchance += (10000 - chance);
+
+    /* Basic chance */
+    chance = randint0(maxchance);
+
+    /* Get a random custom feature */
+    for (i = 0; i < count; i++)
+    {
+        struct dun_feature *feature = feats[i];
+
+        if (feature->chance > chance)
+        {
+            *feat = feature->feat;
+            result = true;
+            break;
+        }
+
+        chance -= feature->chance;
+    }
+
+    mem_free(feats);
+    return result;
 }
 
 

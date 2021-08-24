@@ -40,6 +40,8 @@
 # in some different way.  It is IMPORTANT that non-zero cutoffs appear in
 # ascending order through this file.
 
+# min-level is the shallowest dungeon level on which the profile can be used
+
 # room: name : rating : height : width : level : pit : rarity : cutoff
 # name is the room name, which must match the name in list-rooms.h so the 
 # correct room-building function can be called.
@@ -67,6 +69,7 @@ cutoff:-1
 
 
 ## Labyrinth - these have cutoff -1, but still appear after other checks
+## To completely turn them off, set cutoff to a more negative value (eg -2)
 name:labyrinth
 params:1:0:200:0
 up:1
@@ -120,7 +123,7 @@ tunnel:10:30:15:25:50
 streamer:5:2:3:90:2:40
 up:1d2
 down:2+1d2
-cutoff:200
+cutoff:197
 
 # Really big rooms only have rarity 0 but they have other checks
 room:Greater vault:0:44:66:35:0:0:100
@@ -148,6 +151,7 @@ room:simple room:0:11:33:1:0:0:100
 
 
 ## Moria - these have cutoff -1, but still appear after other checks
+## To completely turn them off, set cutoff to a more negative value (eg -2)
 name:moria
 params:1:50:250:2
 tunnel:10:30:15:25:30
@@ -169,6 +173,59 @@ room:Interesting room:0:44:55:0:0:2:100
 
 # Normal moria-style rooms (rarity = 0)
 room:moria room:0:11:33:1:0:0:100
+
+
+## Lair
+name:lair
+params:1:50:500:2
+tunnel:10:30:15:25:50
+streamer:5:2:3:90:2:40
+up:1d2
+down:2+1d2
+min-level:20
+cutoff:198
+
+# Really big rooms only have rarity 0 but they have other checks
+room:Greater vault:0:44:66:35:0:0:100
+room:huge room:0:44:66:40:0:0:100
+
+# Very rare rooms (rarity = 2)
+room:room of chambers:0:44:66:10:0:2:4
+room:monster pit:0:11:33:5:1:2:12
+room:monster nest:0:11:33:5:1:2:20
+room:Medium vault:0:22:33:30:0:2:40
+room:Lesser vault:0:22:33:20:0:2:60
+
+# Unusual rooms (rarity = 1)
+room:Interesting room:0:44:55:0:0:1:10
+room:large room:0:11:33:3:0:1:25
+room:crossed room:0:11:33:3:0:1:40
+room:circular room:0:22:22:1:0:1:55
+room:overlap room:0:11:33:1:0:1:70
+room:room template:1:11:33:1:0:1:95
+room:room template:2:11:33:10:0:1:99
+room:room template:3:11:33:30:0:1:100
+
+# Normal rooms (rarity = 0)
+room:simple room:0:11:33:1:0:0:100
+
+
+## Gauntlet
+name:gauntlet
+params:1:0:200:0
+up:1d3
+down:1+1d2
+min-level:20
+cutoff:199
+
+
+## Hard Centre
+name:hard centre
+params:1:0:200:0
+up:1d2
+down:1d3
+min-level:50
+cutoff:200
 
 
 ## Wilderness

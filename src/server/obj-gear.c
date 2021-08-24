@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2014 Nick McConnell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -97,25 +97,32 @@ static bool object_is_in_quiver(struct player *p, const struct object *obj)
 static int pack_slots_used(struct player *p)
 {
     struct object *obj;
-    int quiver_slots = 0;
-    int pack_slots = 0;
+    int i, pack_slots = 0;
     int quiver_ammo = 0;
 
     for (obj = p->gear; obj; obj = obj->next)
     {
+        bool found = false;
+
         /* Equipment doesn't count */
         if (!object_is_equipped(p->body, obj))
         {
-            /* Check if it could be in the quiver */
-            if (tval_is_ammo(obj) && (quiver_slots < z_info->quiver_size))
+            /* Check if it is in the quiver */
+            if (tval_is_ammo(obj))
             {
-                quiver_slots++;
-                quiver_ammo += obj->number;
+                for (i = 0; i < z_info->quiver_size; i++)
+                {
+                    if (p->upkeep->quiver[i] == obj)
+                    {
+                        quiver_ammo += obj->number;
+                        found = true;
+                        break;
+                    }
+                }
             }
 
             /* Count regular slots */
-            else
-                pack_slots++;
+            if (!found) pack_slots++;
         }
     }
 
@@ -554,6 +561,7 @@ void inven_carry(struct player *p, struct object *obj, bool absorb, bool message
         p->upkeep->notice |= (PN_COMBINE);
 
         /* Hobbits ID mushrooms on pickup, gnomes ID wands and staffs on pickup */
+        /* PWMAngband: Dragons and Monks cannot use weapons, so they need to learn "on wield" */
         if (!object_is_known(p, obj))
         {
             if (player_has(p, PF_KNOW_MUSHROOM) && tval_is_mushroom(obj))
@@ -564,6 +572,12 @@ void inven_carry(struct player *p, struct object *obj, bool absorb, bool message
 
             else if (player_has(p, PF_KNOW_ZAPPER) && tval_is_zapper(obj))
                 object_know_everything(p, obj);
+
+            else if (player_has(p, PF_DRAGON) || player_has(p, PF_HYDRA) ||
+                player_has(p, PF_MARTIAL_ARTS))
+            {
+                weapon_learn_on_carry(p, obj);
+            }
         }
     }
 
@@ -638,6 +652,8 @@ void inven_wield(struct player *p, struct object *obj, int slot)
         /* Just use the object directly */
         else
             wielded = obj;
+
+        p->upkeep->notice |= (PN_COMBINE);
     }
     else
     {
@@ -694,7 +710,7 @@ void inven_wield(struct player *p, struct object *obj, int slot)
     /* Recalculate bonuses, torch, mana, gear */
     p->upkeep->notice |= (PN_IGNORE);
     p->upkeep->update |= (PU_BONUS | PU_INVEN | PU_UPDATE_VIEW);
-    p->upkeep->redraw |= (PR_PLUSSES | PR_INVEN | PR_BASIC);
+    p->upkeep->redraw |= (PR_PLUSSES | PR_INVEN | PR_EQUIP | PR_BASIC);
     update_stuff(p, c);
 }
 
@@ -741,13 +757,13 @@ void inven_takeoff(struct player *p, struct object *obj)
     p->body.slots[slot].obj = NULL;
     p->upkeep->equip_cnt--;
 
-    /* Message */
-    msgt(p, MSG_WIELD, "%s %s (%c).", act, o_name, I2A(slot));
-
     p->upkeep->update |= (PU_BONUS | PU_INVEN | PU_UPDATE_VIEW);
     p->upkeep->redraw |= (PR_INVEN | PR_EQUIP | PR_PLUSSES);
     p->upkeep->notice |= (PN_IGNORE);
     update_stuff(p, chunk_get(&p->wpos));
+
+    /* Message */
+    msgt(p, MSG_WIELD, "%s %s (%c).", act, o_name, gear_to_label(p, obj));
 }
 
 
@@ -842,7 +858,7 @@ bool inven_drop(struct player *p, struct object *obj, int amt, bool bypass_inscr
 
     /* Drop it (carefully) near the player */
     drop_near(p, chunk_get(&p->wpos), &dropped, 0, &p->grid, false,
-        (bypass_inscr? DROP_SILENT: DROP_FORBID));
+        (bypass_inscr? DROP_SILENT: DROP_FORBID), true);
 
     /* Sound for quiver objects */
     if (quiver) sound(p, MSG_QUIVER);
@@ -942,7 +958,7 @@ void pack_overflow(struct player *p, struct chunk *c, struct object *obj)
     if (!pack_is_overfull(p)) return;
 
     /* Disturbing */
-    disturb(p, 0);
+    disturb(p);
 
     /* Warning */
     msg(p, "Your pack overflows!");
@@ -964,7 +980,7 @@ void pack_overflow(struct player *p, struct chunk *c, struct object *obj)
 
     /* Excise the object and drop it (carefully) near the player */
     gear_excise_object(p, obj);
-    drop_near(p, c, &obj, 0, &p->grid, false, DROP_FADE);
+    drop_near(p, c, &obj, 0, &p->grid, false, DROP_FADE, true);
 
     /* Describe */
     msg(p, "You no longer have %s.", o_name);
@@ -984,8 +1000,8 @@ bool item_tester_hook_wear(struct player *p, const struct object *obj)
 
     if ((slot < 0) || (slot >= p->body.count)) return false;
 
-    /* Dragons and Monks cannot use weapons */
-    if ((player_has(p, PF_DRAGON) || player_has(p, PF_MARTIAL_ARTS)) &&
+    /* Dragons, Hydras and Monks cannot use weapons */
+    if ((player_has(p, PF_DRAGON) || player_has(p, PF_HYDRA) || player_has(p, PF_MARTIAL_ARTS)) &&
         ((slot == slot_by_name(p, "weapon")) || (slot == slot_by_name(p, "shooting"))))
     {
         return false;

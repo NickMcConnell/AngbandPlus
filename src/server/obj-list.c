@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997-2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2013 Ben Semmler
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -169,7 +169,7 @@ void object_list_collect(struct player *p, object_list_t *list)
         if (!obj) continue;
 
         /* Determine which section of the list the object entry is in */
-        los = (projectable(c, &p->grid, &iter.cur, PROJECT_NONE, true) ||
+        los = (projectable(p, c, &p->grid, &iter.cur, PROJECT_NONE, true) ||
             loc_eq(&iter.cur, &p->grid));
         field = (los? OBJECT_LIST_SECTION_LOS: OBJECT_LIST_SECTION_NO_LOS);
 
@@ -383,7 +383,7 @@ void object_list_format_name(struct player *p, const object_list_entry_t *entry,
         has_singular_prefix = true;
 
     /* Work out if the object is in view */
-    los = (projectable(c, &p->grid, &entry->object->grid, PROJECT_NONE, true) ||
+    los = (projectable(p, c, &p->grid, &entry->object->grid, PROJECT_NONE, true) ||
         loc_eq(&entry->object->grid, &p->grid));
     field = (los? OBJECT_LIST_SECTION_LOS: OBJECT_LIST_SECTION_NO_LOS);
 

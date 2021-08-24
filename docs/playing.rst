@@ -91,7 +91,7 @@ Original Keyset Command Summary
 ``g``  Get objects on floor          ``G``  Gain new spells/prayers
 ``h``  Fire default ammo at target   ``H``  (unused)
 ``i``  Inventory list                ``I``  Observe an item
-``j``  (unused)                      ``J``  Steal
+``j``  (unused)                      ``J``  (unused)
 ``k``  Ignore an item                ``K``  Toggle ignore
 ``l``  Look around                   ``L``  Locate player on map
 ``m``  Cast a spell                  ``M``  Full dungeon map
@@ -100,7 +100,7 @@ Original Keyset Command Summary
 ``p``  Project a spell               ``P``  Access party menu
 ``q``  Quaff a potion                ``Q``  End character & quit
 ``r``  Read a scroll                 ``R``  Rest for a period
-``s``  (unused)                      ``S``  Toggle stealth mode
+``s``  Steal                         ``S``  Toggle stealth mode
 ``t``  Take off equipment            ``T``  Dig a tunnel
 ``u``  Use a staff                   ``U``  Use an item
 ``v``  Throw an item                 ``V``  Polymorph into a monster
@@ -110,7 +110,7 @@ Original Keyset Command Summary
 ``z``  Zap a rod                     ``Z``  (unused)
 ``!``  (unused)                      ``^A`` Do autopickup
 ``@``  Display connected players     ``^B`` (unused)
-``#``  (unused)                      ``^C`` End character & quit
+``#``  See abilities                 ``^C`` End character & quit
 ``$``  Drop gold                     ``^D`` Describe object
 ``%``  Display current time          ``^E`` Buy a house
 ``^``  (special - control key)       ``^F`` Repeat level feeling
@@ -161,7 +161,7 @@ Roguelike Keyset Command Summary
   p    Project a spell                 P    Browse a book (Peruse)
   q    Quaff a potion                  Q    End character & quit
   r    Read a scroll                   R    Rest for a period
-  s    (unused)                        S    Steal
+  s    Steal                           S    Toggle stealth mode
   t    Fire an item                    T    Take off equipment
   u    (walk - north east)             U    (run - north east)
   v    Throw an item                   V    Polymorph into a monster
@@ -171,7 +171,7 @@ Roguelike Keyset Command Summary
   z    Aim a wand (Zap)                Z    Use a staff (Zap)
   !    Access party menu               ^A   Do autopickup
   @    Center map                      ^B   (alter - south west)
-  #    Toggle stealth mode             ^C   End character & quit
+  #    See abilities                   ^C   End character & quit
   $    Drop gold                       ^D   Ignore an item
   %    Display current time            ^E   Buy a house
   ^    (special - control key)         ^F   Repeat level feeling
@@ -251,5 +251,3 @@ letter. If lower case is used, the selection takes place immediately. If
 upper case is used, then the particular option is described, and you are
 given the option of confirming or retracting that choice. Upper case
 selection is thus safer, but requires an extra key stroke.
-
-For more information on selecting object, see 'Customising the game'.

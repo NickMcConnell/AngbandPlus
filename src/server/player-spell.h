@@ -11,6 +11,7 @@ struct beam_info
     int beam;
     int spell_power;
     int elem_power;
+    char inscription[20];
 };
 
 extern const int adj_mag_stat[];

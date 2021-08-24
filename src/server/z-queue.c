@@ -3,7 +3,7 @@
  * Purpose: Simple circular integer queue.
  *
  * Copyright (c) 2011 Erik Osheim
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -26,6 +26,7 @@ struct queue *q_new(size_t size)
 {
     struct queue *q = (struct queue*)malloc(sizeof(struct queue));
 
+    if (!q) return NULL;
     q->data = (uintptr_t*)malloc(sizeof(uintptr_t) * (size + 1));
     q->size = size + 1;
     q->head = 0;

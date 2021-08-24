@@ -171,7 +171,7 @@ but not all do.
 
 Hold Monster:
   Paralyses a monster until you hit them
-  Increased chance of player getting a critical hit
+  Increases chance of player getting a critical hit
   Normal duration 3-8 turns
   
 ..
@@ -179,23 +179,23 @@ Hold Monster:
 Stun Monster:
   Reduces the monster's melee accuracy and damage by 25%
   1 in 10 chance that the monster will miss the turn
-  Increased chance of player getting a critical hit
+  Increases chance of player getting a critical hit
   Normal duration 5-10 turns
 
 ..
 
 Confuse Monster:
   Monster spells fail 50% more often
-  Monster 20% more likely to miss target with spells/ranged attacks
-  Monster aimed spells sometimes go in random direction
-  30% chance of erratic movement
-  Increased chance of critical hit
+  Monster at least 40% more likely to miss target with spells/ranged attacks
+  Monster ball & bolt spells sometimes go in the wrong direction
+  30% chance of erratic movement, more when more confused
+  Increases chance of player getting a critical hit
   Normal duration 5-10 turns
 
 ..
 
 Slow Monster:
-  -2 speed
+  -2 speed, more if more slowed
   Normal duration 10 or more turns
 
 ..
@@ -206,9 +206,14 @@ Sleep Monster:
 ..
 
 Scare Monster:
-  Makes monsters run away
+  Monster will run away
   Monster spells fail 20% more often
-  Normal duration 10 or more turns
+
+..
+
+Disenchant Monster:
+  Monster spells fail 50% more often
+  Normal duration 5-10 turns
 
 ..
 
@@ -279,11 +284,12 @@ handled in different ways for the player and the monster, and for different
 attack forms.
 
 Bolt spells will hit the first monster (or the player) in the line of fire;
-ball spells and breaths may centre on a target which may be hiding behind
+ball spells may centre on a target which may be hiding behind
 other targets. Ball spells and breath weapons affect an area: other
 monsters caught in the blast take reduced damage depending on their distance
 from the centre of the blast. Breath weapons are proportional to a
-fraction of the monster's current hit points, with a maximum cap on the
+fraction of the monster's current hit points and drop off in power with
+distance from the monster, with a maximum cap on the
 damage (which is higher for the most common of such attacks, owing to the
 fact that the resistances are also easier to find). Bolt and ball spell
 damage is calculated differently - often (but not always) relative to
@@ -376,10 +382,7 @@ cut status are displayed at the bottom of the screen.
 There are resistances available to chaos, disenchantment, confusion, nexus, 
 sound, shards, light and darkness: all of these will reduce the damage and 
 prevent side-effects other than physical damage. With these resistances, as 
-with nether resistance, damage is a random fraction: for light and dark, it 
-is between 4/7 and 4/12, for sound and confusion it is between 5/7 and
-5/12, and for chaos, disenchantment, nexus, shards and nether it is between
-6/7 and 6/12.
+with nether resistance, damage is a random fraction between 1/2 and 2/3.
 
 It should be noted that not all of these are actually vital to completing 
 the game: indeed, of the above list, only fire, cold, acid, lightning,
@@ -397,10 +400,11 @@ A note on speed
 ---------------
 
 Monsters which do not move at normal speed generally move "slowly" (-10 to
-speed), "fast" (+10), "very fast" (+20) or "incredibly fast" (+30). (It will 
-surprise nobody that Morgoth is one of the few monsters in the last
-category.) This is further adjusted by the fact that any non-unique monster
-may have a random adjustment from (-2) to (+2) to its own speed.
+speed), "fairly quickly" (+5), "quickly" (+10), "very quickly" (+20) or
+"incredibly quickly" (+30). (It will surprise nobody that Morgoth is one of
+the few monsters in the last category.) This is further adjusted by the fact
+that any non-unique monster may have a random adjustment from (-2) to (+2)
+to its own speed.
 
 Generally, (+10) is exactly double normal speed, and (-10) exactly half. 
 (+20) is about three times normal speed, but after that there is less 

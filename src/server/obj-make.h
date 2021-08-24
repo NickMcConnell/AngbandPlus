@@ -12,6 +12,8 @@
  */
 #define NO_MINIMUM  255
 
+extern u16b level_golds[128];
+
 extern struct object_kind *get_obj_num(int level, bool good, int tval);
 extern void init_powers(const struct object *obj, int *power, int *resist);
 extern void dec_power(const struct object *obj, int *power);

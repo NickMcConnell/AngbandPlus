@@ -9,6 +9,8 @@ extern u16b flavor_max;
 extern s16b section_icky_col;
 extern byte section_icky_row;
 extern bool allow_disturb_icky;
+extern int cursor_x;
+extern int cursor_y;
 
 /*** Utilities ***/
 extern int Flush_queue(void);
@@ -84,14 +86,15 @@ extern int Send_toggle_ignore(void);
 extern int Send_use_any(struct command *cmd);
 extern int Send_store_order(const char *buf);
 extern int Send_track_object(int item);
-extern int Send_play(int mode);
+extern int Send_floor_ack(void);
+extern int Send_play(int phase);
 extern int Send_text_screen(int type, s32b off);
 extern int Send_keepalive(void);
 extern int Send_char_info(void);
 extern int Send_options(bool settings);
 extern int Send_char_dump(void);
 extern int Send_msg(const char *message);
-extern int Send_item(int item, int curse);
+extern int Send_item(int item, int curse, const char *inscription);
 extern int Send_store_sell(int item, int amt);
 extern int Send_party(s16b command, const char *buf);
 extern int Send_special_line(int type, int line);
@@ -122,4 +125,5 @@ extern int Net_input(void);
 extern bool Net_Send(int Socket, sockbuf_t* ibuf);
 extern bool Net_WaitReply(int Socket, sockbuf_t* ibuf, int retries);
 
-
+/* Server setup information. */
+extern server_setup_t Setup;

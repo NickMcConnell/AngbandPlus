@@ -3,7 +3,7 @@
  * Purpose: Savefile loading functions
  *
  * Copyright (c) 1997 Ben Harrison, and others
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -45,6 +45,12 @@ static byte curse_max;
 
 
 /*
+ * Monster constants
+ */
+static byte mflag_size = 0;
+
+
+/*
  * Trap constants
  */
 static byte trf_size = 0;
@@ -56,7 +62,7 @@ static byte trf_size = 0;
 typedef struct object *(*rd_item_t)(void);
 
 
-static void rd_tval_sval(byte *tval, byte *sval)
+static void rd_tval_sval(u16b *tval, u16b *sval)
 {
 #ifdef SAVE_AS_STRINGS
     char buf[MSG_LEN];
@@ -66,8 +72,8 @@ static void rd_tval_sval(byte *tval, byte *sval)
     rd_string(buf, sizeof(buf));
     if (buf[0]) *sval = lookup_sval(*tval, buf);
 #else
-    rd_byte(tval);
-    rd_byte(sval);
+    rd_u16b(tval);
+    rd_u16b(sval);
 #endif
 }
 
@@ -360,6 +366,7 @@ int rd_monster_memory(struct player *p)
         rd_s16b(&lore->pdeaths);
         rd_s16b(&lore->tdeaths);
         rd_s16b(&lore->pkills);
+        rd_s16b(&lore->thefts);
         rd_s16b(&lore->tkills);
 
         /* Count wakes and ignores */
@@ -524,6 +531,19 @@ int rd_player(struct player *p)
 
     /* Verify player ID */
     if (!p->id) p->id = player_id++;
+    else
+    {
+        hash_entry *ptr = lookup_player_by_name(p->name);
+
+        /* If character exists, ids must match */
+        if (ptr)
+        {
+            if (ptr->id != p->id) p->id = player_id++;
+        }
+
+        /* If character doesn't exist, don't steal the id of someone else */
+        else if (lookup_player(p->id)) p->id = player_id++;
+    }
 
     rd_string(p->died_from, NORMAL_WID);
     rd_string(p->died_flavor, 160);
@@ -603,7 +623,6 @@ int rd_player(struct player *p)
     rd_s16b(&p->deep_descent);
 
     /* Read the flags */
-    rd_s16b(&p->food);
     rd_s32b(&p->energy);
     rd_s16b(&p->word_recall);
     rd_byte(&p->stealthy);
@@ -686,7 +705,7 @@ static struct monster_race *rd_race(void)
     char race_name[NORMAL_WID];
 
     rd_string(race_name, sizeof(race_name));
-    if (race_name[0]) return lookup_monster(race_name);
+    if (strcmp(race_name, "none")) return lookup_monster(race_name);
 #else
     u16b race;
 
@@ -810,9 +829,6 @@ int rd_misc(struct player *unused)
 
     /* Current turn */
     rd_hturn(&turn);
-
-    /* PWMAngband */
-    rd_s32b(&player_id);
 
     /* Success */
     return (0);
@@ -1068,7 +1084,11 @@ static int rd_stores_aux(rd_item_t rd_item_version)
 
     /* Read the store orders */
     rd_u16b(&tmp16u);
-    for (i = 0; i < tmp16u; i++) rd_string(store_orders[i], NORMAL_WID);
+    for (i = 0; i < tmp16u; i++)
+    {
+        rd_string(store_orders[i].order, NORMAL_WID);
+        rd_hturn(&store_orders[i].turn);
+    }
 
     /* Success */
     return 0;
@@ -1337,9 +1357,9 @@ static int rd_objects_aux(rd_item_t rd_item_version, struct chunk *c)
         {
             if (!floor_add(c, &obj->grid, obj))
             {
-                object_delete(&obj);
                 plog_fmt("Cannot place object at row %d, column %d!", obj->grid.y, obj->grid.x);
-                return -1;
+                object_delete(&obj);
+                if (!beta_version()) return -1;
             }
         }
         else
@@ -1423,15 +1443,19 @@ static bool rd_monster_aux(struct chunk *c, struct monster *mon, rd_item_t rd_it
     byte tmp8u;
     u16b tmp16u;
     size_t j;
+    bool remove = false;
     s16b tmp16x, tmp16y;
 
     /* Read the monster race */
+    rd_u16b(&tmp16u);
+    mon->midx = tmp16u;
     mon->race = rd_race();
     if (!mon->race)
     {
         plog("Monster race no longer exists!");
         return false;
     }
+    mon->original_race = rd_race();
 
     /* Read the other information */
     rd_byte(&tmp8u);
@@ -1454,6 +1478,10 @@ static bool rd_monster_aux(struct chunk *c, struct monster *mon, rd_item_t rd_it
     for (j = 0; j < (size_t)tmp8u; j++)
         rd_s16b(&mon->m_timed[j]);
 
+    /* Read and extract the flag */
+    for (j = 0; j < (size_t)mflag_size; j++)
+        rd_byte(&mon->mflag[j]);
+
     for (j = 0; j < (size_t)of_size; j++)
         rd_byte(&mon->known_pstate.flags[j]);
 
@@ -1461,7 +1489,6 @@ static bool rd_monster_aux(struct chunk *c, struct monster *mon, rd_item_t rd_it
         rd_s16b(&mon->known_pstate.el_info[j].res_level);
 
     /* Mimic stuff */
-    rd_bool(&mon->camouflage);
     rd_s16b(&mon->mimicked_k_idx);
     rd_u16b(&mon->feat);
 
@@ -1497,7 +1524,7 @@ static bool rd_monster_aux(struct chunk *c, struct monster *mon, rd_item_t rd_it
         /* Find and set the mimicked object */
         struct object *square_obj = square_object(c, &mon->grid);
 
-        /* Try and find the mimicked object; if we fail, create a new one */
+        /* Try and find the mimicked object; if we fail, delete the monster */
         while (square_obj)
         {
             if (square_obj->mimicking_m_idx == tmp16u) break;
@@ -1506,7 +1533,7 @@ static bool rd_monster_aux(struct chunk *c, struct monster *mon, rd_item_t rd_it
         if (square_obj)
             mon->mimicked_obj = square_obj;
         else
-            mon_create_mimicked_object(NULL, c, mon, tmp16u);
+            remove = true;
     }
 
     /* Read all the held objects (order is unimportant) */
@@ -1521,6 +1548,19 @@ static bool rd_monster_aux(struct chunk *c, struct monster *mon, rd_item_t rd_it
 
         pile_insert(&mon->held_obj, obj);
     }
+
+    /* Read group info */
+    rd_u16b(&tmp16u);
+    mon->group_info[PRIMARY_GROUP].index = tmp16u;
+    rd_byte(&tmp8u);
+    mon->group_info[PRIMARY_GROUP].role = tmp8u;
+    rd_u16b(&tmp16u);
+    mon->group_info[SUMMON_GROUP].index = tmp16u;
+    rd_byte(&tmp8u);
+    mon->group_info[SUMMON_GROUP].role = tmp8u;
+
+    /* Now delete the monster if necessary */
+    if (remove) delete_monster(c, &mon->grid);
 
     return true;
 }
@@ -1593,6 +1633,16 @@ int rd_monsters(struct player *unused)
     u32b num, tmp32u;
     struct worldpos wpos;
     s16b tmp16x, tmp16y;
+
+    /* Monster temporary flags */
+    rd_byte(&mflag_size);
+
+    /* Incompatible save files */
+    if (mflag_size > MFLAG_SIZE)
+    {
+        plog_fmt("Too many (%u) monster temporary flags!", mflag_size);
+        return (-1);
+    }
 
     /* Read the number of levels to be loaded */
     rd_u32b(&tmp32u);
@@ -1667,8 +1717,11 @@ int rd_player_traps(struct player *p)
         if (loc_is_zero(&trap->grid)) break;
 
         /* Put the trap at the front of the grid trap list */
-        trap->next = square_p(p, &trap->grid)->trap;
-        square_p(p, &trap->grid)->trap = trap;
+        if (player_square_in_bounds_fully(p, &trap->grid))
+        {
+            trap->next = square_p(p, &trap->grid)->trap;
+            square_p(p, &trap->grid)->trap = trap;
+        }
     }
 
     mem_free(trap);
@@ -1800,9 +1853,7 @@ int rd_header(struct player *p)
     char buf[NORMAL_WID];
 
     rd_string(p->name, NORMAL_WID);
-
-    /* Skip password */
-    strip_string(NORMAL_WID);
+    rd_string(p->pass, NORMAL_WID);
 
     /* Player race */
     rd_string(buf, sizeof(buf));
@@ -2051,6 +2102,9 @@ int rd_player_names(struct player *unused)
     u32b tmp32u;
     char name[NORMAL_WID];
 
+    /* Current player ID */
+    rd_s32b(&player_id);
+
     /* Read the player name database */
     rd_u32b(&tmp32u);
 
@@ -2072,6 +2126,9 @@ int rd_player_names(struct player *unused)
 
         /* Read the time of death */
         rd_hturn(&death_turn);
+
+        /* Remove duplicates from the player name database */
+        delete_player_name(name);
 
         /* Store the player name */
         add_player_name(id, account, name, &death_turn);

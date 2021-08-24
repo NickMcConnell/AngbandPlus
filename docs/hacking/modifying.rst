@@ -1,5 +1,5 @@
 Modifying PWMAngband
-==================== 
+====================
 
 PWMAngband is not just a great game in its own right, it is really easy to
 modify. Much of the detail of the game is contained in text data files. These
@@ -14,7 +14,7 @@ make changes to the files. Below is brief description of each of the files.
 
 Those who want to change the game more than is allowed just by varying the
 data files will need the source code. Below the data file descriptions is a
-brief discussion of where to start on such an endeavour. 
+brief discussion of where to start on such an endeavour.
 
 The data files
 --------------

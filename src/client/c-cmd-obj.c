@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2007-9 Andi Sidwell, Chris Carr, Ed Graham, Erik Osheim
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -29,6 +29,13 @@
 bool obj_can_takeoff(struct player *p, const struct object *obj)
 {
     return !obj->info_xtra.stuck;
+}
+
+
+/* Determine if an object is designed for throwing */
+bool obj_is_throwing(struct player *p, const struct object *obj)
+{
+    return (obj->info_xtra.throwable? true: false);
 }
 
 

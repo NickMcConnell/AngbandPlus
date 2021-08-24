@@ -21,7 +21,7 @@
  *
  * Note that "string comparisons" are thus valid on "pts".
  */
-typedef struct
+struct high_score
 {
     char what[8];       /* Version info (string) */
     char pts[10];       /* Total Score (number) */
@@ -38,12 +38,13 @@ typedef struct
     char max_lev[4];    /* Max Player Level (number) */
     char max_dun[4];    /* Max Dungeon Level (number) */
     char how[32];       /* Method of death (string) */
-} high_score;
+};
 
-extern size_t highscore_read(high_score scores[], size_t sz);
-extern size_t highscore_where(const high_score *entry, const high_score scores[], size_t sz);
-extern size_t highscore_add(const high_score *entry, high_score scores[], size_t sz);
-extern void build_score(struct player *p, high_score *entry, const char *died_from,
+extern size_t highscore_read(struct high_score scores[], size_t sz);
+extern size_t highscore_where(const struct high_score *entry, const struct high_score scores[],
+    size_t sz);
+extern size_t highscore_add(const struct high_score *entry, struct high_score scores[], size_t sz);
+extern void build_score(struct player *p, struct high_score *entry, const char *died_from,
     time_t *death_time);
 extern void enter_score(struct player *p, time_t *death_time);
 extern long total_points(struct player *p, s32b max_exp, s16b max_depth);

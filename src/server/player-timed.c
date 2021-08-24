@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison
  * Copyright (c) 2007 Andi Sidwell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -20,6 +20,14 @@
 
 
 #include "s-angband.h"
+
+
+int PY_FOOD_MAX;
+int PY_FOOD_FULL;
+int PY_FOOD_HUNGRY;
+int PY_FOOD_WEAK;
+int PY_FOOD_FAINT;
+int PY_FOOD_STARVE;
 
 
 /*
@@ -121,7 +129,21 @@ static enum parser_error parse_player_timed_grade(struct parser *p)
     l->color = attr;
     l->max = parser_getint(p, "max");
     l->name = string_make(parser_getsym(p, "name"));
-    l->msg = string_make(parser_getsym(p, "msg"));
+    l->up_msg = string_make(parser_getsym(p, "up_msg"));
+    if (parser_hasval(p, "down_msg"))
+        l->down_msg  = string_make(parser_getsym(p, "down_msg"));
+
+    /* Set food constants and deal with percentages */
+    if (streq(t->name, "FOOD"))
+    {
+        l->max *= z_info->food_value;
+        if (streq(l->name, "Starving")) PY_FOOD_STARVE = l->max;
+        else if (streq(l->name, "Faint")) PY_FOOD_FAINT = l->max;
+        else if (streq(l->name, "Weak")) PY_FOOD_WEAK = l->max;
+        else if (streq(l->name, "Hungry")) PY_FOOD_HUNGRY = l->max;
+        else if (streq(l->name, "Fed")) PY_FOOD_FULL = l->max;
+        else if (streq(l->name, "Full")) PY_FOOD_MAX = l->max;
+    }
 
     return PARSE_ERROR_NONE;
 }
@@ -226,7 +248,8 @@ static struct parser *init_parse_player_timed(void)
 
     parser_reg(p, "name str name", parse_player_timed_name);
     parser_reg(p, "desc str desc", parse_player_timed_desc);
-    parser_reg(p, "grade sym color int max sym name sym msg", parse_player_timed_grade);
+    parser_reg(p, "grade sym color int max sym name sym up_msg ?sym down_msg",
+        parse_player_timed_grade);
     parser_reg(p, "on-end str text", parse_player_timed_end_message);
     parser_reg(p, "on-increase str text", parse_player_timed_increase_message);
     parser_reg(p, "on-decrease str text", parse_player_timed_decrease_message);
@@ -265,7 +288,8 @@ static void cleanup_player_timed(void)
             struct timed_grade *next = grade->next;
 
             string_free(grade->name);
-            string_free(grade->msg);
+            string_free(grade->up_msg);
+            string_free(grade->down_msg);
             mem_free(grade);
             grade = next;
         }
@@ -300,6 +324,36 @@ struct file_parser player_timed_parser =
 /*
  * Utilities for more complex or anomolous effects
  */
+
+
+/*
+ * Swap stats at random to temporarily scramble the player's stats.
+ */
+static void player_scramble_stats(struct player *p)
+{
+    int max1, cur1, max2, cur2, i, j, swap;
+
+    /* Fisher-Yates shuffling algorithm. */
+    for (i = STAT_MAX - 1; i > 0; --i)
+    {
+        j = randint0(i);
+
+        max1 = p->stat_max[i];
+        cur1 = p->stat_cur[i];
+        max2 = p->stat_max[j];
+        cur2 = p->stat_cur[j];
+
+        p->stat_max[i] = max2;
+        p->stat_cur[i] = cur2;
+        p->stat_max[j] = max1;
+        p->stat_cur[j] = cur1;
+
+        /* Record what we did */
+        swap = p->stat_map[i];
+        p->stat_map[i] = p->stat_map[j];
+        p->stat_map[j] = swap;
+    }
+}
 
 
 /*
@@ -407,7 +461,7 @@ static bool set_bow_brand(struct player *p, int v)
                     msg_misc(p, "'s missiles are covered with venom.");
                     msg(p, "Your missiles are covered with venom!");
                     break;
-                case PROJ_ARROW_X:
+                case PROJ_ARROW:
                     msg_misc(p, "'s missiles sharpen.");
                     msg(p, "Your missiles sharpen!");
                     break;
@@ -446,7 +500,7 @@ static bool set_bow_brand(struct player *p, int v)
     if (!notice) return false;
 
     /* Disturb */
-    disturb(p, 0);
+    disturb(p);
 
     /* Redraw the "brand" */
     p->upkeep->redraw |= (PR_STATUS);
@@ -486,7 +540,7 @@ static bool player_set_timed_perma(struct player *p, int idx)
     if (p->timed[idx] == 0)
     {
         msg_misc(p, effect->near_begin);
-        msgt(p, effect->msgt, current_grade->msg);
+        msgt(p, effect->msgt, current_grade->up_msg);
         notify = true;
     }
 
@@ -497,7 +551,7 @@ static bool player_set_timed_perma(struct player *p, int idx)
     if (!notify) return false;
 
     /* Disturb */
-    disturb(p, 0);
+    disturb(p);
 
     /* Reveal hidden players */
     if (p->k_idx) aware_player(p, p);
@@ -675,7 +729,7 @@ static bool set_adrenaline(struct player *p, int v)
     p->upkeep->update |= (PU_BONUS);
 
     /* Disturb */
-    disturb(p, 0);
+    disturb(p);
 
     /* Redraw the "adrenaline" */
     p->upkeep->redraw |= (PR_STATUS);
@@ -751,7 +805,7 @@ static bool set_biofeedback(struct player *p, int v)
     p->upkeep->update |= (PU_BONUS);
 
     /* Disturb */
-    disturb(p, 0);
+    disturb(p);
 
     /* Redraw the "biofeedback" */
     p->upkeep->redraw |= (PR_STATUS);
@@ -907,7 +961,7 @@ static bool set_harmony(struct player *p, int v)
     p->upkeep->update |= (PU_BONUS);
 
     /* Disturb */
-    disturb(p, 0);
+    disturb(p);
 
     /* Redraw the status */
     p->upkeep->redraw |= (PR_STATUS);
@@ -921,117 +975,48 @@ static bool set_harmony(struct player *p, int v)
 
 
 /*
- * Set "p->food", notice observable changes
- *
- * The "p->food" variable can get as large as 17000, allowing the
- * addition of the most "filling" item, Elvish Waybread, which adds
- * 7500 food units, without overflowing the 32767 maximum limit.
- *
- * Perhaps we should disturb the player with various messages,
- * especially messages about hunger status changes.  XXX XXX XXX
- *
- * Digestion of food is handled in "dungeon.c", in which, normally,
- * the player digests about 20 food units per 100 game turns, more
- * when "fast", more when "regenerating", less with "slow digestion".
+ * Return true if the player timed effect matches the given string
  */
-bool player_set_food(struct player *p, int v)
+bool player_timed_grade_eq(struct player *p, int idx, char *match)
 {
-    int old_aux, new_aux;
-    bool notice = false;
-
-    p->starving = false;
-
-    /* Hack -- force good values */
-    v = MIN(v, PY_FOOD_MAX);
-    v = MAX(v, 0);
-
-    /* Current value */
-    if (p->food < PY_FOOD_FAINT) old_aux = 0;
-    else if (p->food < PY_FOOD_WEAK) old_aux = 1;
-    else if (p->food < PY_FOOD_ALERT) old_aux = 2;
-    else if (p->food < PY_FOOD_FULL) old_aux = 3;
-    else old_aux = 4;
-
-    /* New value */
-    if (v < PY_FOOD_FAINT) new_aux = 0;
-    else if (v < PY_FOOD_WEAK) new_aux = 1;
-    else if (v < PY_FOOD_ALERT) new_aux = 2;
-    else if (v < PY_FOOD_FULL) new_aux = 3;
-    else new_aux = 4;
-
-    /* Change */
-    if (new_aux != old_aux) notice = true;
-
-    /* Hack -- do not display message for ghosts */
-    if (p->ghost) old_aux = new_aux;
-
-    /* Food increase or decrease */
-    if (new_aux > old_aux)
+    if (p->timed[idx])
     {
-        switch (new_aux)
-        {
-            case 1:
-                msg(p, "You are still weak.");
-                break;
-            case 2:
-                msg(p, "You are still hungry.");
-                break;
-            case 3:
-                msg(p, "You are no longer hungry.");
-                break;
-            case 4:
-                msg(p, "You are full!");
-                break;
-        }
-    }
-    else if (new_aux < old_aux)
-    {
-        switch (new_aux)
-        {
-            case 0:
-            {
-                msgt(p, MSG_NOTICE, "You are getting faint from hunger!");
+        struct timed_grade *grade = timed_effects[idx].grade;
 
-                /*
-                 * If the player is at full hit points,
-                 * destroy his connection (this will hopefully prevent
-                 * people from starving while afk)
-                 */
-                if ((p->chp == p->mhp) && OPT(p, disturb_faint)) p->starving = true;
-                break;
-            }
-            case 1:
-                msgt(p, MSG_NOTICE, "You are getting weak from hunger!");
-                break;
-            case 2:
-                msgt(p, MSG_HUNGRY, "You are getting hungry.");
-                break;
-            case 3:
-                msgt(p, MSG_NOTICE, "You are no longer full.");
-                break;
-        }
+        while (p->timed[idx] > grade->max) grade = grade->next;
+        if (grade->name && streq(grade->name, match)) return true;
     }
 
-    /* Use the value */
-    p->food = v;
-
-    /* Nothing to notice */
-    if (!notice) return false;
-
-    /* Disturb and update */
-    disturb(p, 0);
-    p->upkeep->update |= (PU_BONUS);
-    p->upkeep->redraw |= (PR_STATUS);
-    handle_stuff(p);
-
-    /* Result */
-    return true;
+    return false;
 }
 
 
 /*
  * Setting, increasing, decreasing and clearing timed effects
  */
+
+
+/*
+ * Hack: check if player has permanent protection from confusion (see calc_bonuses)
+ */
+static bool player_of_has_prot_conf(struct player *p)
+{
+    bitflag collect_f[OF_SIZE], f[OF_SIZE];
+    int i;
+
+    player_flags(p, collect_f);
+
+    for (i = 0; i < p->body.count; i++)
+    {
+        struct object *obj = slot_object(p, i);
+
+        if (!obj) continue;
+        object_flags(obj, f);
+        of_union(collect_f, f);
+    }
+
+    return of_has(collect_f, OF_PROT_CONF);
+}
 
 
 /*
@@ -1042,7 +1027,8 @@ bool player_set_timed(struct player *p, int idx, int v, bool notify)
     struct timed_effect_data *effect;
     struct timed_grade *new_grade, *current_grade;
     struct object *weapon;
-    bool result;
+    bool result, no_disturb = false;
+    int food_meter = 0;
 
     my_assert(idx >= 0);
     my_assert(idx < TMD_MAX);
@@ -1053,7 +1039,7 @@ bool player_set_timed(struct player *p, int idx, int v, bool notify)
     weapon = equipped_item_by_slot_name(p, "weapon");
 
     /* Lower bound */
-    v = MAX(v, 0);
+    v = MAX(v, (idx == TMD_FOOD)? 1: 0);
 
     /* No change */
     if (p->timed[idx] == v) return false;
@@ -1116,14 +1102,24 @@ bool player_set_timed(struct player *p, int idx, int v, bool notify)
     if ((idx == TMD_OPP_ELEC) && player_is_immune(p, ELEM_ELEC)) notify = false;
     if ((idx == TMD_OPP_FIRE) && player_is_immune(p, ELEM_FIRE)) notify = false;
     if ((idx == TMD_OPP_COLD) && player_is_immune(p, ELEM_COLD)) notify = false;
-    if ((idx == TMD_OPP_CONF) && player_of_has(p, OF_PROT_CONF)) notify = false;
+    if ((idx == TMD_OPP_CONF) && player_of_has_prot_conf(p)) notify = false;
 
     /* Always mention going up a grade, otherwise on request */
     if (new_grade->grade > current_grade->grade)
     {
         msg_misc(p, effect->near_begin);
-        print_custom_message(p, weapon, new_grade->msg, effect->msgt);
+        print_custom_message(p, weapon, new_grade->up_msg, effect->msgt);
         notify = true;
+    }
+    else if ((new_grade->grade < current_grade->grade) && new_grade->down_msg)
+    {
+        msg_misc(p, effect->near_begin);
+        print_custom_message(p, weapon, new_grade->down_msg, effect->msgt);
+        notify = true;
+
+        /* If the player is at full hit points and starving, destroy his connection */
+        if ((idx == TMD_FOOD) && (v < PY_FOOD_FAINT) && (p->chp == p->mhp) && OPT(p, disturb_faint))
+            p->starving = true;
     }
     else if (notify)
     {
@@ -1143,19 +1139,33 @@ bool player_set_timed(struct player *p, int idx, int v, bool notify)
             print_custom_message(p, weapon, effect->on_increase, effect->msgt);
     }
 
+    /* Handle stat swap */
+    if (idx == TMD_SCRAMBLE)
+    {
+        if (p->timed[idx] == 0) player_scramble_stats(p);
+        else if (v == 0) player_fix_scramble(p);
+    }
+
+    /* Hack -- food meter */
+    if (idx == TMD_FOOD) food_meter = p->timed[idx] / 100;
+
     /* Use the value */
     p->timed[idx] = v;
+
+    /* Hack -- food meter */
+    if ((idx == TMD_FOOD) && (food_meter != p->timed[idx] / 100))
+    {
+        if (!notify) no_disturb = true;
+        notify = true;
+    }
 
     /* Sort out the sprint effect */
     if ((idx == TMD_SPRINT) && (v == 0)) player_inc_timed(p, TMD_SLOW, 100, true, false);
 
-    /* Undo stat swap */
-    if ((idx == TMD_SCRAMBLE) && (v == 0)) player_fix_scramble(p);
-
     if (notify)
     {
         /* Disturb */
-        disturb(p, 0);
+        if (!no_disturb) disturb(p);
 
         /* Reveal hidden players */
         if (p->k_idx) aware_player(p, p);
@@ -1271,6 +1281,8 @@ bool player_dec_timed(struct player *p, int idx, int v, bool notify)
     my_assert(idx >= 0);
     my_assert(idx < TMD_MAX);
     new_value = p->timed[idx] - v;
+
+    if (p->no_disturb_icky && (new_value > 0)) p->no_disturb_icky = false;
 
     /* Obey `notify` if not finishing; if finishing, always notify */
     if (new_value > 0) return player_set_timed(p, idx, new_value, notify);

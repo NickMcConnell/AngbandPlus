@@ -204,7 +204,7 @@ Stealth Commands
 
 ..
 
-Toggle stealth mode (``S``) or Toggle stealth mode (``#``)
+Toggle stealth mode (``S``)
   Only Rogues are able to use this command. When first pressed, the message
   "Stealth Mode" will appear at the bottom of the screen. You are now taking
   two turns for each command, one for the command and one to act carefully.
@@ -226,8 +226,9 @@ Tunnel (``T``) or Tunnel ('^T')
   sometimes contain treasure, in which case they will be displayed in a
   different way. Rubble sometimes covers an object but is easy to tunnel
   through, even with your bare hands. Tunnelling ability increases with
-  strength and weapon weight. This command requires a direction, and takes
-  some energy.
+  strength and weapon weight. If you have a digging tool in your tool slot, the
+  game will automatically use this to dig. This command requires a direction,
+  and takes some energy.
 
 ..
 
@@ -235,10 +236,9 @@ Open a door or chest (``o``)
   To open an object such as a door or chest, you must use this command. If
   the object is locked, you will attempt to pick the lock based on your
   disarming ability. If you open a trapped chest without disarming the
-  traps first, the trap will be set off. Some doors will be locked shut and
-  may have to be forced open. Opening will automatically attempt to pick
-  any locked doors. You may need several tries to open a door or chest. This
-  command requires a direction, and takes some energy.
+  traps first, the trap will be set off. Opening will automatically attempt
+  to pick any door locks. You may need several tries to open a door or chest.
+  This command requires a direction, and takes some energy.
 
 ..
 
@@ -254,10 +254,11 @@ Close a door (``c``)
 Disarm a trap or chest, or lock a door (``D``)
   You can attempt to disarm traps on the floor or on chests. If you fail,
   there is a chance that you will blunder and set it off. You can only
-  disarm a trap after you have found it. The command can also be used to lock
-  a closed door. This will create a hindrance for monsters. Even if many
-  monsters will be able to pick the lock or bash the door down, it will often
-  take them some time. This command requires a direction, and takes some energy.
+  disarm a trap after you have found it. The command can also be used to
+  lock a closed door, which will create a hindrance for monsters. Even if
+  many monsters will be able to pick the lock or bash the door down, it
+  will often take them some time. This command requires a direction, and takes
+  some energy.
 
 ..
 
@@ -272,7 +273,7 @@ Alter (``+``)
 
 ..
 
-Steal (``J``) or Steal (``S``)
+Steal (``s``)
   This command allows you to steal gold or items from other players. Stealing
   is usually disabled on most of the servers. If allowed, a failed attempt at
   stealing will make the offended player automatically hostile.
@@ -368,13 +369,15 @@ Object Manipulation Commands
 ..
 
 Eat some food (``E``)
-  You must eat regularly to prevent starvation. As you grow hungry, a
-  message will appear at the bottom of the screen saying "Hungry". If you
-  go hungry long enough, you will become weak, then start fainting, and
-  eventually, you may well die of starvation. You may use this command to
-  eat food in your inventory. Note that you can sometimes find food in the
-  dungeon, but it is not always wise to eat strange food. This command
-  takes some energy.
+  You must eat regularly to prevent starvation. There is a hunger meter
+  at the bottom of the screen, which says "Fed" and gives a percentage in
+  most circumstances. If you go hungry long enough, you will become weak,
+  then start fainting, and eventually, you may well die of starvation
+  (accompanied by increasingly alarming messages on your hunger meter).
+  It is also possible to be "Full", which will make you move slowly; more
+  slowly the fuller you get. You may use this command to eat food in your
+  inventory. Note that you can sometimes find food in the dungeon, but it
+  is not always wise to eat strange food. This command takes some energy.
 
 ..
 
@@ -485,11 +488,11 @@ Throwing and Missile Weapons
 ..
 
 Fire an item (``f``) or Fire an item (``t``)
-  This command will allow you to fire a missile from either
-  your quiver or your inventory provided it is the appropriate ammunition
-  for the current missile weapon you have equipped. You may not fire an
-  item without a missile weapon equipped. Fired ammunition has a chance of
-  breaking. This command takes some energy.
+  This command will allow you to fire a missile from either your quiver or
+  your inventory provided it is the appropriate ammunition for the current
+  missile weapon you have equipped. You may not fire an item without a
+  missile weapon equipped. Fired ammunition has a chance of breaking.
+  This command takes some energy.
 
 ..
 
@@ -508,7 +511,8 @@ Throw an item (``v``)
   object from a pile will be thrown at a time. Note that throwing an object
   will often cause it to break, so be careful! If you throw something at a
   creature, your chances of hitting it are determined by your plusses to
-  hit, your ability at throwing, and the object's plusses to hit. Once the
+  hit, your ability at throwing, and the object's plusses to hit. Some
+  weapons are especially designed for throwing. Once the
   creature is hit, the object may or may not do any damage to it.
   Note that flasks of oil will do some fire damage to a monster on impact.
   If you are wielding a missile launcher compatible with the object you are
@@ -729,7 +733,12 @@ Display connected players (``@``) or Display connected players ('^V')
 
 Display current time (``%``)
   This command allows you to see what time it is on server. Useful to keep track
-  of sunrise/sunset.  
+  of sunrise/sunset.
+
+..
+
+See abilities (``#``)
+  This command allows you to see player abilities.
  
 Saving and Exiting Commands
 ---------------------------

@@ -3,7 +3,7 @@
  * Purpose: Show player and terrain context menus
  *
  * Copyright (c) 2011 Brett Reid
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -296,7 +296,7 @@ int context_menu_object(struct object *obj)
             memset(&cmd, 0, sizeof(cmd));
             cmd.code = CMD_DROP;
 
-            /* Drop entire stack with confirmation. */
+            /* Drop entire stack without confirmation. */
             cmd_set_arg_item(&cmd, "item", obj);
             cmd_set_arg_number(&cmd, "quantity", obj->number);
             Send_drop(&cmd);

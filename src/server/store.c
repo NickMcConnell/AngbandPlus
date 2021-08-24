@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Robert A. Koeneke, James E. Wilson, Ben Harrison
  * Copyright (c) 2007 Andi Sidwell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -55,7 +55,7 @@ struct hint *hints;
 
 
 /* Store orders */
-char store_orders[STORE_ORDERS][NORMAL_WID];
+struct store_order store_orders[STORE_ORDERS];
 
 
 /* Default welcome messages */
@@ -157,9 +157,9 @@ static enum parser_error parse_type(struct parser *p)
 
     s->type = parser_getint(p, "type");
 
-    /* PWMAngband: the Home has half capacity if we have access to houses */
+    /* PWMAngband: the Home has its own capacity if we have access to houses */
     if ((s->type == STORE_HOME) && (cfg_diving_mode < 2))
-        s->stock_size = z_info->store_inven_max / 2;
+        s->stock_size = z_info->home_inven_max;
 
     return PARSE_ERROR_NONE;
 }
@@ -607,6 +607,7 @@ static bool store_will_buy(struct player *p, int sidx, const struct object *obj)
 {
     struct object_buy *buy;
     struct store *store = &stores[sidx];
+    bool unknown;
 
     /* Home accepts anything */
     if (store->type == STORE_HOME) return true;
@@ -615,7 +616,8 @@ static bool store_will_buy(struct player *p, int sidx, const struct object *obj)
     if ((store->type == STORE_GENERAL) && !object_fully_known(p, obj)) return false;
 
     /* Ignore "worthless" items */
-    if (!object_value(p, obj, 1)) return false;
+    unknown = (OPT(p, birth_no_selling) && tval_has_variable_power(obj) && !object_runes_known(obj));
+    if (!object_value(p, obj, 1) && !unknown) return false;
 
     /* No buy list means we buy anything */
     if (!store->buy) return true;
@@ -676,32 +678,14 @@ s32b price_item(struct player *p, struct object *obj, bool store_buying, int qty
     /* Player owned shops */
     if (s->type == STORE_PLAYER)
     {
-        double maxprice, askprice;
-
         /* Disable selling true artifacts */
         if (true_artifact_p(obj)) return (0L);
 
-        /* Get the value of the given quantity of items */
-        price = (double)object_value(p, obj, qty);
-
-        /* Worthless items */
-        if (price <= 0) return (0L);
-
         /* Get the desired value of the given quantity of items */
-        askprice = (double)obj->askprice * qty;
+        price = (double)obj->askprice * qty;
 
         /* Allow items to be "shown" without being "for sale" */
-        if (askprice <= 0) return (0L);
-
-        /* Never get too silly: 2x the expensive black market price is enough! */
-        maxprice = price * 2 * factor;
-
-        /* Use black market price for player owned shops */
-        price = price * 2;
-
-        /* Use sellers asking price as base price */
-        if (askprice > price) price = askprice;
-        if (price > maxprice) price = maxprice;
+        if (price <= 0) return (0L);
 
         /* Paranoia */
         if (price > PY_MAX_GOLD) return PY_MAX_GOLD;
@@ -807,7 +791,6 @@ static void mass_produce(struct object *obj)
         case TV_FOOD:
         case TV_MUSHROOM:
         case TV_CROP:
-        case TV_COOKIE:
         case TV_FLASK:
         case TV_LIGHT:
         {
@@ -1100,14 +1083,16 @@ struct object *store_carry(struct player *p, struct store *store, struct object 
 
         for (i = 0; i < STORE_ORDERS; i++)
         {
-            if (STRZERO(store_orders[i])) continue;
+            /* Discard empty and running orders */
+            if (STRZERO(store_orders[i].order)) continue;
+            if (!ht_zero(&store_orders[i].turn)) continue;
 
             /* Check loosely */
-            if (str_contains(o_name, store_orders[i]))
+            if (str_contains(o_name, store_orders[i].order))
             {
                 /* Flag the item as "ordered" */
                 obj->ordered = 1 + i;
-                my_strcpy(store_orders[i], "{ordered}", sizeof(store_orders[0]));
+                ht_copy(&store_orders[i].turn, &turn);
 
                 break;
             }
@@ -1138,9 +1123,10 @@ static void store_delete(struct store *s, struct object *obj, int amt)
 
         /* Remove the corresponding order */
         if (obj->ordered)
-            my_strcpy(store_orders[obj->ordered - 1], "", sizeof(store_orders[0]));
+            memset(&store_orders[obj->ordered - 1], 0, sizeof(struct store_order));
 
         object_delete(&obj);
+        my_assert(s->stock_num);
         s->stock_num--;
     }
 }
@@ -1195,8 +1181,20 @@ static void store_delete_random(struct store *store)
     obj = store->stock;
     while (what--) obj = obj->next;
 
-    /* Hack -- ordered items stay in the shop until bought */
-    if (obj->ordered) return;
+    /* Hack -- ordered items stay in the shop until bought or expired */
+    if (obj->ordered)
+    {
+        struct store_order *order = &store_orders[obj->ordered - 1];
+
+        /* Remove expired orders */
+        if (!player_expiry(&order->turn))
+        {
+            memset(order, 0, sizeof(struct store_order));
+            obj->ordered = 0;
+        }
+        else
+            return;
+    }
 
     /* Determine how many objects are in the slot */
     num = obj->number;
@@ -1463,7 +1461,7 @@ static void store_maint(struct store *s, bool force)
     /* Check for orders */
     for (j = 0; ((s->type == STORE_XBM) && (j < STORE_ORDERS)); j++)
     {
-        if (!STRZERO(store_orders[j])) n++;
+        if (!STRZERO(store_orders[j].order)) n++;
     }
 
     /*
@@ -1536,8 +1534,9 @@ static void store_maint(struct store *s, bool force)
             /* Create the item if it doesn't exist */
             if (!obj) obj = store_create_item(s, kind);
 
-            /* Ensure a full stack */
-            obj->number = obj->kind->base->max_stack;
+            /* Ensure a full stack (except cookies) */
+            if (obj->tval != TV_COOKIE)
+                obj->number = obj->kind->base->max_stack;
         }
     }
 
@@ -1796,6 +1795,16 @@ static byte find_inven(struct player *p, struct object *obj)
                 break;
             }
 
+            /* Skeletons */
+            case TV_SKELETON:
+            {
+                /* Require identical monster type */
+                if (obj->pval != gear_obj->pval) continue;
+
+                /* Probably okay */
+                break;
+            }
+
             /* Corpses */
             case TV_CORPSE:
             {
@@ -1920,17 +1929,17 @@ static void display_entry(struct player *p, struct object *obj, bool home)
 
 static bool set_askprice(struct object *obj)
 {
-    const char *c;
+    const char *c = my_stristr(quark_str(obj->note), "for sale");
 
-    c = my_stristr(quark_str(obj->note), "for sale");
     if (c)
     {
         /* Get ask price, skip "for sale" */
-        obj->askprice = 1;
         c += 8;
-        if (*c == ' ') obj->askprice = atoi(c);
-
-        return true;
+        if (*c == ' ')
+        {
+            obj->askprice = atoi(c);
+            return true;
+        }
     }
 
     return false;
@@ -2272,10 +2281,7 @@ static void sell_player_item(struct player *p, struct object *original, struct o
 
     /* Full purchase */
     if (bought->number == original->number)
-    {
-        square_excise_object(c, &original->grid, original);
-        object_delete(&original);
-    }
+        square_delete_object(c, &original->grid, original, false, false);
 
     /* Partial purchase */
     else
@@ -2336,7 +2342,7 @@ static void sell_player_item(struct player *p, struct object *original, struct o
         gold_obj->pval = price;
 
         /* Put it in the house */
-        drop_near(p, c, &gold_obj, 0, &space, false, DROP_FADE);
+        drop_near(p, c, &gold_obj, 0, &space, false, DROP_FADE, false);
     }
 }
 
@@ -2569,6 +2575,7 @@ void do_cmd_retrieve(struct player *p, int item, int amt)
 
     /* Paranoia */
     if (item < 0) return;
+    if (!store) return;
 
     if (store->type != STORE_HOME)
     {
@@ -2918,7 +2925,11 @@ void store_confirm(struct player *p)
     }
 
     /* The store gets that (known) item */
-    store_carry(NULL, store, sold_item);
+    if (!store_carry(NULL, store, sold_item))
+    {
+        /* The store rejected it; delete. */
+        object_delete(&sold_item);
+    }
 
     /* Resend the basic store info */
     display_store(p, false);
@@ -3045,7 +3056,7 @@ void store_order(struct player *p, const char *buf)
     /* Check for space */
     for (i = 0; i < STORE_ORDERS; i++)
     {
-        if (STRZERO(store_orders[i]))
+        if (STRZERO(store_orders[i].order))
         {
             idx = i;
             break;
@@ -3078,7 +3089,8 @@ void store_order(struct player *p, const char *buf)
 
             /* Accept the order */
             msg(p, "Order accepted.");
-            my_strcpy(store_orders[idx], "{ordered}", sizeof(store_orders[0]));
+            my_strcpy(store_orders[idx].order, buf, NORMAL_WID);
+            ht_copy(&store_orders[idx].turn, &turn);
 
             return;
         }
@@ -3086,7 +3098,7 @@ void store_order(struct player *p, const char *buf)
 
     /* Not in stock: place an order */
     msg(p, "Order accepted.");
-    my_strcpy(store_orders[idx], buf, sizeof(store_orders[0]));
+    my_strcpy(store_orders[idx].order, buf, NORMAL_WID);
 }
 
 
@@ -3228,30 +3240,15 @@ bool check_store_drop(struct player *p)
  */
 s32b player_price_item(struct player *p, struct object *obj)
 {
-    double price, maxprice, askprice;
+    double price;
 
     /* Is this item for sale? */
     if (!obj->note) return -1;
     if (!set_askprice(obj)) return -1;
 
-    /* Get the value of all items */
-    price = (double)object_value(p, obj, obj->number);
-
-    /* Worthless items */
-    if (price <= 0) return (0L);
-
     /* Get the desired value of all items */
-    askprice = (double)obj->askprice * obj->number;
-
-    /* Never get too silly: 2x the expensive black market price is enough! */
-    maxprice = price * 20;
-
-    /* BM Prices */
-    price = price * 2;
-
-    /* Use sellers asking price as base price */
-    if (askprice > price) price = askprice;
-    if (price > maxprice) price = maxprice;
+    price = (double)obj->askprice * obj->number;
+    if (price <= 0) return (0L);
 
     /* Paranoia */
     if (price > PY_MAX_GOLD) return PY_MAX_GOLD;

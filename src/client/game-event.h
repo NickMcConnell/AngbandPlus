@@ -28,7 +28,7 @@ typedef enum
     EVENT_STUDYSTATUS,      /* "Study" availability */
     EVENT_STATUS,           /* Status */
     EVENT_DETECTIONSTATUS,  /* Trap detection status */
-    EVENT_STATE,            /* Resting and Stealth Mode */
+    EVENT_STATE,            /* Resting and Stealth Mode (+ Light level) */
     EVENT_PLUSSES,          /* Plusses to hit/dam */
     EVENT_OTHER,            /* Other info (skills, history, ...) */
     EVENT_LAG,              /* Lag meter */

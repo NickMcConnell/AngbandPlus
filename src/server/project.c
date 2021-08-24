@@ -3,7 +3,7 @@
  * Purpose: The project() function and helpers
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -197,13 +197,17 @@ int project_path(struct player *p, struct loc *gp, int range, struct chunk *c, s
                 if (loc_eq(&gp[n - 1], grid2)) break;
             }
 
-            /* Stop at non-initial wall grids, except where that would leak info during targeting */
-            if (!(flg & (PROJECT_INFO)))
+            /* Don't stop if making paths through rock for generation */
+            if (!(flg & (PROJECT_ROCK)))
             {
-                if ((n > 0) && !square_isprojectable(c, &gp[n - 1])) break;
+                /* Stop at non-initial wall grids, except where that would leak info during targeting */
+                if (!(flg & (PROJECT_INFO)))
+                {
+                    if ((n > 0) && !square_isprojectable(c, &gp[n - 1])) break;
+                }
+                else
+                    if ((n > 0) && p && square_isbelievedwall(p, c, &gp[n - 1])) break;
             }
-            else
-                if ((n > 0) && square_isbelievedwall(p, c, &gp[n - 1])) break;
 
             /* Sometimes stop at non-initial targets */
             if (flg & (PROJECT_STOP))
@@ -265,13 +269,17 @@ int project_path(struct player *p, struct loc *gp, int range, struct chunk *c, s
                 if (loc_eq(&gp[n - 1], grid2)) break;
             }
 
-            /* Stop at non-initial wall grids, except where that would leak info during targeting */
-            if (!(flg & (PROJECT_INFO)))
+            /* Don't stop if making paths through rock for generation */
+            if (!(flg & (PROJECT_ROCK)))
             {
-                if ((n > 0) && !square_isprojectable(c, &gp[n - 1])) break;
+                /* Stop at non-initial wall grids, except where that would leak info during targeting */
+                if (!(flg & (PROJECT_INFO)))
+                {
+                    if ((n > 0) && !square_isprojectable(c, &gp[n - 1])) break;
+                }
+                else
+                    if ((n > 0) && p && square_isbelievedwall(p, c, &gp[n - 1])) break;
             }
-            else
-                if ((n > 0) && square_isbelievedwall(p, c, &gp[n - 1])) break;
 
             /* Sometimes stop at non-initial targets */
             if (flg & (PROJECT_STOP))
@@ -327,13 +335,17 @@ int project_path(struct player *p, struct loc *gp, int range, struct chunk *c, s
                 if (loc_eq(&gp[n - 1], grid2)) break;
             }
 
-            /* Stop at non-initial wall grids, except where that would leak info during targeting */
-            if (!(flg & (PROJECT_INFO)))
+            /* Don't stop if making paths through rock for generation */
+            if (!(flg & (PROJECT_ROCK)))
             {
-                if ((n > 0) && !square_isprojectable(c, &gp[n - 1])) break;
+                /* Stop at non-initial wall grids, except where that would leak info during targeting */
+                if (!(flg & (PROJECT_INFO)))
+                {
+                    if ((n > 0) && !square_isprojectable(c, &gp[n - 1])) break;
+                }
+                else
+                    if ((n > 0) && p && square_isbelievedwall(p, c, &gp[n - 1])) break;
             }
-            else
-                if ((n > 0) && square_isbelievedwall(p, c, &gp[n - 1])) break;
 
             /* Sometimes stop at non-initial targets */
             if (flg & (PROJECT_STOP))
@@ -367,13 +379,18 @@ int project_path(struct player *p, struct loc *gp, int range, struct chunk *c, s
  * If 'nowall' is false, we allow targets to be in walls, otherwise wraithed players/ghosts
  * would be safe from monster spells!
  */
-bool projectable(struct chunk *c, struct loc *grid1, struct loc *grid2, int flg, bool nowall)
+bool projectable(struct player *p, struct chunk *c, struct loc *grid1, struct loc *grid2, int flg,
+    bool nowall)
 {
     struct loc grid_g[512];
     int grid_n = 0;
+    int max_range = z_info->max_range;
+
+    /* Check for shortened projection range */
+    if ((flg & PROJECT_SHORT) && p && p->timed[TMD_COVERTRACKS]) max_range /= 4;
 
     /* Check the projection path */
-    grid_n = project_path(NULL, grid_g, z_info->max_range, c, grid1, grid2, flg);
+    grid_n = project_path(NULL, grid_g, max_range, c, grid1, grid2, flg);
 
     /* No grid is ever projectable from itself */
     if (!grid_n) return false;
@@ -478,10 +495,14 @@ static bool stop_project(struct source *who, struct loc *grid, struct chunk *cv,
  */
 void origin_get_loc(struct loc *ploc, struct source *origin)
 {
-    if (origin->monster) loc_copy(ploc, &origin->monster->grid);
-    else if (origin->trap) loc_copy(ploc, &origin->trap->grid);
-    else if (origin->player) loc_copy(ploc, &origin->player->grid);
-    else loc_init(ploc, -1, -1);
+    if (origin->monster)
+        loc_copy(ploc, &origin->monster->grid);
+    else if (origin->trap)
+        loc_copy(ploc, &origin->trap->grid);
+    else if (origin->player || origin->obj || origin->chest_trap)
+        loc_copy(ploc, &origin->player->grid);
+    else
+        loc_init(ploc, -1, -1);
 }
 
 
@@ -875,26 +896,27 @@ bool project(struct source *origin, int rad, struct chunk *cv, struct loc *finis
                 /* If this is a wall grid, ... */
                 if (!square_isprojectable(cv, &iter.cur))
                 {
-                    /* Check neighbors */
-                    for (i = 0, k = 0; i < 8; i++)
-                    {
-                        struct loc ngrid;
+                    bool can_see_one = false;
 
-                        loc_sum(&ngrid, &iter.cur, &ddgrid_ddd[i]);
-                        if (los(cv, &centre, &ngrid))
+                    /* Check neighbors */
+                    for (i = 0; i < 8; i++)
+                    {
+                        struct loc adj_grid;
+
+                        loc_sum(&adj_grid, &iter.cur, &ddgrid_ddd[i]);
+                        if (los(cv, &centre, &adj_grid))
                         {
-                            k++;
+                            can_see_one = true;
                             break;
                         }
                     }
 
                     /* Require at least one adjacent grid in LOS. */
-                    if (!k) continue;
+                    if (!can_see_one) continue;
                 }
             }
             else if (!square_isprojectable(cv, &iter.cur))
                 continue;
-            /*if (!los(cv, &centre, &iter.cur)) continue;*/
 
             /* Must be within maximum distance. */
             dist_from_centre = distance(&centre, &iter.cur);
@@ -911,32 +933,27 @@ bool project(struct source *origin, int rad, struct chunk *cv, struct loc *finis
                 n2x = iter.cur.x - start.x + 20;
 
                 /*
-                 * Find the angular difference (/2) between
-                 * the lines to the end of the arc's center-
-                 * line and to the current grid.
+                 * Find the angular difference (/2) between the lines to
+                 * the end of the arc's center-line and to the current grid.
                  */
                 rotate = 90 - get_angle_to_grid[n1y][n1x];
                 tmp = ABS(get_angle_to_grid[n2y][n2x] + rotate) % 180;
                 diff = ABS(90 - tmp);
 
-                /*
-                 * If difference is not greater then that
-                 * allowed, and the grid is in LOS, accept it.
-                 */
-                if (diff < (degrees_of_arc + 6) / 4)
+                /* If difference is greater then that allowed, skip it */
+                if (diff >= (degrees_of_arc + 6) / 4)
                 {
-                    if (los(cv, &centre, &iter.cur))
+                    /* ...unless it's on the target path */
+                    for (i = 0; i < num_path_grids; i++)
                     {
-                        loc_copy(&blast_grid[num_grids], &iter.cur);
-                        distance_to_grid[num_grids] = dist_from_centre;
-                        sqinfo_on(square(cv, &iter.cur)->info, SQUARE_PROJECT);
-                        num_grids++;
+                        if (loc_eq(&iter.cur, &path_grid[i])) break;
                     }
+                    if (i == num_path_grids) continue;
                 }
             }
 
             /* Accept all grids in LOS */
-            else if (los(cv, &centre, &iter.cur))
+            if (los(cv, &centre, &iter.cur))
             {
                 loc_copy(&blast_grid[num_grids], &iter.cur);
                 distance_to_grid[num_grids] = dist_from_centre;
@@ -968,7 +985,7 @@ bool project(struct source *origin, int rad, struct chunk *cv, struct loc *finis
          */
         else
         {
-            dam_temp = (diameter_of_source * dam) / ((i + 1) * 10);
+            dam_temp = (diameter_of_source * dam) / (i + 1);
             if (dam_temp > (u32b)dam) dam_temp = dam;
         }
 
@@ -1104,6 +1121,16 @@ bool project(struct source *origin, int rad, struct chunk *cv, struct loc *finis
         bool did_hit = false;
         int num_hit = 0;
         struct loc last_hit;
+        int power = 0;
+
+        /* Set power */
+        if (origin->monster)
+        {
+            power = origin->monster->race->spell_power;
+
+            /* Breaths from powerful monsters get power effects as well */
+            if (monster_is_powerful(origin->monster->race)) power = MAX(power, 80);
+        }
 
         loc_init(&last_hit, 0, 0);
 
@@ -1116,7 +1143,7 @@ bool project(struct source *origin, int rad, struct chunk *cv, struct loc *finis
 
             /* Affect the player in the grid */
             project_p(origin, distance_to_grid[i], cv, &blast_grid[i],
-                dam_at_dist[distance_to_grid[i]], typ, what, &did_hit, &was_obvious, &grid.y, &grid.x);
+                dam_at_dist[distance_to_grid[i]], typ, power, what, &did_hit, &was_obvious, &grid);
             if (was_obvious) notice = true;
             if (did_hit)
             {

@@ -199,7 +199,34 @@ Kick out when starving while at full hps ``disturb_faint``
 
 Risky casting ``risky_casting``
   Allow the player to cast spells while not having the required amount of mana
-  at the risk of damaging constitution and getting paralyzed
+  at the risk of damaging constitution and getting paralyzed.
+
+..
+
+Use single items from floor instantly ``quick_floor``
+  This option enables instant using of single items on the floor instead of
+  displaying a menu with one item.
+
+..
+
+Hide terrain description on status line ``hide_terrain``
+  This option hides terrain description on status line.
+
+..
+
+Disable Enter menu ``disable_enter``
+  This option disables the Enter menu.
+
+..
+
+Sort monsters by experience in the monster list ``sort_exp``
+  This option sorts monsters by experience instead of depth in the monster list.
+
+..
+
+Display monsters in ASCII ``ascii_mon``
+  This option displays monsters using ASCII symbols instead of tiles when using
+  a tileset.
 
 Birth options
 -------------

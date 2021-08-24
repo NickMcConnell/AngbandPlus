@@ -140,7 +140,7 @@ sought after.
 Races
 -----
 
-There are fifteen different races that you can choose to play in PWMAngband. 
+There are sixteen different races that you can choose to play in PWMAngband. 
 Each race has its own adjustments to a character's stats and abilities. 
 Most races also have intrinsic abilities. The bonuses to statistics and 
 the experience penalty will be displayed next to the races as you move 
@@ -192,7 +192,7 @@ Gnome
   mages, and have very good saving throws. They are good at searching,
   disarming, perception, and stealth. They have lower strength than humans
   so they are not very good at fighting with hand weapons. Gnomes have good
-  infravision.  Gnomes are intrinsically protected against paralysis and 
+  infravision. Gnomes are intrinsically protected against paralysis and 
   some slowing effects. Gnomes are excellent at using wands and staves
   and can identify them when found.
 
@@ -239,10 +239,8 @@ Half-Troll
 
 Dunadan
   Dunedain are a race of hardy men from the West. This elder race surpasses
-  human abilities in every field, especially constitution. However, being
-  men of the world, very little is new to them, and levels are very hard to
-  gain... their hardiness ensures that their constitution cannot be
-  reduced. They have no infravision.
+  human abilities in every field, especially constitution. Their hardiness
+  ensures that their constitution cannot be reduced. They have no infravision.
 
 .. _High-Elf:
 
@@ -253,8 +251,8 @@ High-Elf
   thousands of years before returning to mortal lands. Because of this,
   they are far superior in terms of abilities when compared to their lesser
   Elven kindred. They can also see into the invisible world of ghosts and
-  wraiths. However, they find new experience even harder to come by than
-  Dunedain. Like normal Elves, they resist attacks involving bright light.
+  wraiths. However, they find new experience harder to come by than other
+  races. Like normal Elves, they resist attacks involving bright light.
   They have good infravision and can even see cold-blooded invisible
   creatures.
 
@@ -323,6 +321,21 @@ Dragon
   they gain levels. Starting at level 5, Dragons are able to breathe their
   corresponding element, but using this ability costs them hit points. At that
   level, they also gain the innate resistances and abilities of their type.
+
+.. _Hydra:
+
+Hydra
+  They are also creatures legends are made of. They are average at everything
+  and need much more experience to advance in levels compared to humans. Like
+  Dragons, they evolve physically as they gain experience. At level 1, they
+  start as regular hydras. At level 10, they gain an extra head and polymorph
+  into a 2-headed hydra. At levels 15, 20, 24, 28, 32, 36, 40, 42, 44, 46, 48
+  and 50, they also gain an extra head to evolve finally into a 14-headed hydra.
+  Hydras cannot wield any weapons, but get extra dice on their barehanded
+  attacks as they gain levels. They can breathe several elements (poison, fire,
+  acid) as they gain the corresponding head, and get the innate resistances and
+  abilities of their type (which also means they are all vulnerable to cold and
+  permanently aggravate).
 
 Classes
 -------
@@ -710,6 +723,7 @@ adjusted for constitution).
     Ent           +8   -4   +2   -4   +8      14        275%   50'
     Thunderlord   +6   +2   +1   +1   +3      12        350%   None
     Dragon         0    0    0    0    0      13        450%   10'
+    Hydra          0    0    0    0    0      10        400%   None
 ================ ===  ===  ===  ===  ===  =========  ========  ======
 
 ~~~
@@ -725,7 +739,7 @@ adjusted for constitution).
     Paladin       +1   -3   +1   -1   +2       7
     Rogue          0   +1   -3   +3   -1       5
     Ranger         0    0   +2   +1   -1       6
-    Blackguard    +2    0   -3    0   +2       8
+    Blackguard    +2    0   -3    0   +2       9
     Sorceror      -5   +5    0    0   -3       0
     Unbeliever    +3   -4   -3   +2   +2       9
     Archer        -2   -2   +2   +2    0       4
@@ -757,6 +771,7 @@ Ability Tables
  Ent            5       0      20      -6       2      15       5
  Thunderlord    6       0      10     -16      10      15       5
  Dragon         6       0      10     -16      10      15       5
+ Hydra          0       0       0       0       0       0       0
 ============ ======  ======  =====  =======  ======  ======  =====
 
 ~~~
@@ -772,7 +787,7 @@ Ability Tables
  Paladin    34(+08) 27(+07) 24(+10) 25(+11)  0(+0)  10(+12) 65(+40) 40(+30)
  Rogue      43(+11) 36(+10) 32(+10) 28(+10)  3(+1)  20(+16) 35(+45) 66(+30)
  Ranger     36(+10) 42(+10) 32(+10) 28(+10)  3(+0)  15(+15) 60(+40) 72(+45)
- Blackguard 20(+15) 20(+10) 24(+10) 25(+11)  0(+0)  10(+12) 60(+40) 50(+30)
+ Blackguard 20(+15) 20(+10) 24(+10) 18(+10) -1(-1)   8(+10) 65(+40) 35(+15)
  Sorceror   35(+09) 50(+12) 40(+15) 30(+9)   2(+0)  10(+12) 30(+11) 20(+15)
  Unbeliever 42(+10) 21(+07)  0(+0)  32(+14)  0(+0)  10(+12) 70(+45) 55(+45)
  Archer     42(+10) 28(+08) 32(+10) 28(+10)  2(+0)  15(+15) 56(+30) 82(+55)

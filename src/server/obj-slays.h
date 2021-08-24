@@ -24,6 +24,8 @@ extern bool player_has_temporary_brand(struct player *p, int idx);
 extern bool player_has_temporary_slay(struct player *p, int idx);
 extern void improve_attack_modifier(struct player *p, struct object *obj, struct source *who,
     int *best_mult, struct side_effects *effects, char *verb, size_t len, bool range);
+extern void player_attack_modifier(struct player *p, struct source *who, int *best_mult,
+    struct side_effects *effects, char *verb, size_t len, bool range, bool ammo);
 extern bool react_to_slay(struct object *obj, const struct monster *mon);
 extern bool brands_are_equal(const struct object *obj1, const struct object *obj2);
 extern bool slays_are_equal(const struct object *obj1, const struct object *obj2);

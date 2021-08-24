@@ -35,7 +35,13 @@
 # optional, and the number of dice is optional and assumed to be 1
 # when not specified.  10+2d3M4 has the range 12-20.  10+M4 has the
 # range 10-14.  10+2d3 has the range 12-16.  10+d3 has the range 11-13.
-# 2d3, d3, M4, 2d3M4, and d3M4 are all acceptable as well.
+# 2d3, d3, M4, 2d3M4, and d3M4 are all acceptable as well. Randomized
+# expressions which begin with "-" are currently handled differently in
+# the "values" line than they are elsewhere. In the "values" line, the
+# leading "-" sets the sign on the base value (i.e. 10 in the example).
+# On other lines, a leading "-" in the randomized expression means multiply
+# what follows by negative one. As a result, something like "-d4" will not
+# work as you want when used for a "values" line. Use "-5+1d4" instead.
 
 # 'name' indicates the beginning of an entry.
 
@@ -98,10 +104,11 @@
 
 name:of Shadows
 info:1000:10
-alloc:8:10 to 100
-type:light
-values:STEALTH[d2] | RES_LIGHT[1]
-min-values:STEALTH[0]
+alloc:40:10 to 100
+item:light:Lantern
+item:light:Lamp
+values:STEALTH[d2] | RES_LIGHT[1] | LIGHT[-4]
+min-values:STEALTH[0] | LIGHT[-4]
 
 name:of Brightness
 info:2000:10
@@ -127,20 +134,20 @@ flags:PROT_BLIND | SEE_INVIS
 
 name:of Presentiment
 info:6000:20
-alloc:5:20 to 127
+alloc:25:50 to 127
 item:light:Wooden Torch
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | RAND_ESP
 
 name:of *Brightness*
 info:6000:15
-alloc:8:20 to 127
+alloc:40:20 to 60
 item:light:Wooden Torch
 values:LIGHT[2] | RES_DARK[1]
 min-values:LIGHT[2]
 
 name:of the Magi
 info:6000:25
-alloc:2:20 to 127
+alloc:10:50 to 127
 item:light:Wooden Torch
 flags:PROT_BLIND | SEE_INVIS | REGEN | RAND_HI_RES | RAND_POWER
 values:INT[d3] | WIS[d3]
@@ -148,7 +155,7 @@ min-values:INT[0] | WIS[0]
 
 name:of Perpetuity
 info:6000:25
-alloc:2:20 to 127
+alloc:10:50 to 127
 item:light:Wooden Torch
 flags:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | HOLD_LIFE | REGEN |
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD

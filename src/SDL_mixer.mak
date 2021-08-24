@@ -34,7 +34,7 @@ OBJFILES = ..\..\SDL\SDL_mixer-1.2.12\dynamic_flac.obj \
 RESFILES = 
 MAINSOURCE = SDL_mixer.bpf
 RESDEPEN = $(RESFILES)
-LIBFILES = SDL\SDL.lib
+LIBFILES = _SDL\SDL.lib
 IDLFILES = 
 IDLGENFILES = 
 LIBRARIES = 
@@ -47,8 +47,8 @@ DEBUGLIBPATH = $(BCB)\lib\debug
 RELEASELIBPATH = $(BCB)\lib\release
 USERDEFINES = WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;WAV_MUSIC;MP3_MAD_MUSIC;BUILD_SDL;FPM_DEFAULT
 SYSDEFINES = NO_STRICT;_NO_VCL
-INCLUDEPATH = $(BCB)\include;SDL;..\..\SDL\libmad-0.15.1b
-LIBPATH = $(BCB)\lib\obj;$(BCB)\lib;SDL
+INCLUDEPATH = $(BCB)\include;_SDL;..\..\SDL\libmad-0.15.1b
+LIBPATH = $(BCB)\lib\obj;$(BCB)\lib;_SDL
 WARNINGS= -w-par
 PATHCPP= .;..\..\SDL\SDL_mixer-1.2.12;..\..\SDL\libmad-0.15.1b
 PATHASM = .;
@@ -58,7 +58,7 @@ PATHOBJ = .;$(LIBPATH)
 # ---------------------------------------------------------------------------
 CFLAG1 = -WD -O2 -Hc -w- -Vx -Ve -X- \
     -a8 -b -k- -vi -tWD -tWM -c
-IDLCFLAGS = -I$(BCB)\include -ISDL \
+IDLCFLAGS = -I$(BCB)\include -I_SDL \
     -I..\..\SDL\libmad-0.15.1b \
     -src_suffix cpp -DWIN32 -D_WINDOWS -D_CRT_SECURE_NO_WARNINGS -DWAV_MUSIC \
     -DMP3_MAD_MUSIC -DBUILD_SDL -DFPM_DEFAULT -DNO_STRICT -D_NO_VCL -boa

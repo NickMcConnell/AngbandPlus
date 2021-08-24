@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2014 Nick McConnell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -175,8 +175,8 @@ bool obj_can_wear(struct player *p, const struct object *obj)
         case TV_MSTAFF:
         case TV_BOW:
         {
-            /* Dragons and Monks cannot use weapons */
-            if (player_has(p, PF_DRAGON) || player_has(p, PF_MARTIAL_ARTS))
+            /* Dragons, Hydras and Monks cannot use weapons */
+            if (player_has(p, PF_DRAGON) || player_has(p, PF_HYDRA) || player_has(p, PF_MARTIAL_ARTS))
                 return false;
 
             return true;
@@ -195,11 +195,7 @@ bool obj_can_wear(struct player *p, const struct object *obj)
         case TV_GLOVES:
         case TV_BOOTS:
         case TV_DIGGING:
-        case TV_HORN:
-        case TV_ROCK:
-        case TV_SHOT:
-        case TV_ARROW:
-        case TV_BOLT: return true;
+        case TV_HORN: return true;
     }
 
     /* Assume not wearable */

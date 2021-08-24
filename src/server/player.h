@@ -78,6 +78,8 @@ enum
  */
 #define allow_shimmer(P) \
     (OPT(P, animate_flicker) && !(P)->use_graphics)
+#define monster_allow_shimmer(P) \
+    (OPT(P, animate_flicker) && (!(P)->use_graphics || OPT(P, ascii_mon)))
 
 /*
  * Prevents abuse from level 1 characters
@@ -100,6 +102,7 @@ extern bool player_stat_dec(struct player *p, int stat, bool permanent);
 extern void player_exp_gain(struct player *p, s32b amount);
 extern void player_exp_lose(struct player *p, s32b amount, bool permanent);
 extern void player_flags(struct player *p, bitflag f[OF_SIZE]);
+extern void player_flags_timed(struct player *p, bitflag f[OF_SIZE]);
 extern void init_players(void);
 extern void free_players(void);
 extern struct player *player_get(int id);

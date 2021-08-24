@@ -3,7 +3,7 @@
  * Purpose: Various game initialisation routines
  *
  * Copyright (c) 1997 Ben Harrison
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -33,12 +33,14 @@ struct feature *f_info;
 /* Connection parameters */
 char meta_address[NORMAL_WID];
 int meta_port;
+char account[NORMAL_WID];
 char nick[NORMAL_WID];
 char pass[NORMAL_WID];
 char stored_pass[NORMAL_WID];
 char real_name[NORMAL_WID];
 char server_name[NORMAL_WID];
 int server_port;
+bool play_again = false;
 
 
 /* Character list */
@@ -124,6 +126,21 @@ void init_file_paths(const char *configpath, const char *libpath, const char *da
 }
 
 
+/*
+ * Create any missing directories.
+ *
+ * We create only those dirs which may be empty. The others are assumed
+ * to contain required files and therefore must exist at startup.
+ */
+void create_needed_dirs(void)
+{
+    char dirpath[MSG_LEN];
+
+    path_build(dirpath, sizeof(dirpath), ANGBAND_DIR_USER, "");
+	if (!dir_create(dirpath)) quit_fmt("Cannot create '%s'", dirpath);
+}
+
+
 static void init_arrays(void)
 {
     /* Message variables */
@@ -204,6 +221,9 @@ void init_stuff(void)
 
     /* Initialize */
     init_file_paths(configpath, libpath, datapath);
+
+    /* Create any missing directories */
+    create_needed_dirs();
 }
 
 
@@ -239,10 +259,12 @@ static void initialize_all_pref_files(void)
 
 
 /* Loop callback */
-static void input_callback_end()
+static void input_callback_end(bool inmap)
 {
     /* Process any commands we got */
     textui_process_command();
+
+    if (!inmap) return;
 
     /* Hack -- don't redraw the screen until we have all of it */
     if (last_line_info != -1) return;
@@ -264,7 +286,7 @@ static void Input_loop(void)
     }
 
     /* Loop, looking for net input and responding to keypresses */
-    Net_loop(NULL, NULL, input_callback_end, SCAN_OFF);
+    Net_loop(NULL, NULL, input_callback_end, SCAN_OFF, false);
 }
 
 
@@ -363,9 +385,57 @@ void client_ready(bool newchar)
 
 
 /*
+ * Free player struct
+ */
+static void cleanup_player(void)
+{
+    int i;
+    if (!player) return; /* Never initialised in the first place. */
+
+    /* Free the things that are always initialised */
+    mem_free(player->timed);
+    if (player->upkeep)
+    {
+        mem_free(player->upkeep->inven);
+        mem_free(player->upkeep->quiver);
+    }
+    mem_free(player->upkeep);
+    player->upkeep = NULL;
+
+    /* Free the things that are only there if there is a loaded player */
+    mem_free(player->gear);
+    mem_free(player->body.slots);
+
+    /* PWMAngband */
+    for (i = 0; player->scr_info && (i < Setup.max_row + ROW_MAP + 1); i++)
+    {
+        mem_free(player->scr_info[i]);
+        mem_free(player->trn_info[i]);
+    }
+    mem_free(player->scr_info);
+    mem_free(player->trn_info);
+    for (i = 0; i < N_HISTORY_FLAGS; i++)
+        mem_free(player->hist_flags[i]);
+    mem_free(player->obj_aware);
+    mem_free(player->kind_ignore);
+    mem_free(player->kind_everseen);
+    for (i = 0; player->ego_ignore_types && (i < z_info->e_max); i++)
+        mem_free(player->ego_ignore_types[i]);
+    mem_free(player->ego_ignore_types);
+    mem_free(player->ego_everseen);
+
+    mem_free(player->on_channel);
+
+    /* Free the basic player struct */
+    mem_free(player);
+    player = NULL;
+}
+
+
+/*
  * Initialize everything, contact the server, and start the loop.
  */
-void client_init(void)
+void client_init(bool new_game)
 {
     sockbuf_t ibuf;
     char status, num_types, expiry;
@@ -373,24 +443,29 @@ void client_init(void)
     char host_name[NORMAL_WID], trymsg[NORMAL_WID];
     u16b conntype = CONNTYPE_PLAYER;
     char buffer[NORMAL_WID];
+#ifdef WINDOWS
     DWORD nSize = NORMAL_WID;
+#endif
     bool done = false;
     u16b num, max;
     u32b num_name;
     size_t i, j;
     struct keypress c;
 
-    /* Initialize input hooks */
-    textui_input_init();
+    if (new_game)
+    {
+        /* Initialize input hooks */
+        textui_input_init();
 
-    /* Initialise sound */
-    init_sound();
+        /* Initialise sound */
+        init_sound();
 
-    /* Set up the display handlers and things. */
-    init_display();
+        /* Set up the display handlers and things. */
+        init_display();
 
-    /* Load in basic data */
-    init_arrays();
+        /* Load in basic data */
+        init_arrays();
+    }
 
     /* Initialize player */
     init_player();
@@ -400,41 +475,55 @@ void client_init(void)
 
     GetLocalHostName(host_name, NORMAL_WID);
 
-    /* Default server host and port */
-    server_port = conf_get_int("MAngband", "port", 18346);
-    my_strcpy(server_name, conf_get_string("MAngband", "host", ""), sizeof(server_name));
-
-    /* Read host/port from the command line */
-    clia_read_string(server_name, sizeof(server_name), "host");
-    clia_read_int(&server_port, "port");
-
-    /* Check whether we should query the metaserver */
-    if (STRZERO(server_name))
+    if (new_game)
     {
-        /* Query metaserver */
-        if (!get_server_name())
-            quit("No server specified.");
+        /* Default server host and port */
+        server_port = conf_get_int("MAngband", "port", 18346);
+        my_strcpy(server_name, conf_get_string("MAngband", "host", ""), sizeof(server_name));
+
+        /* Read host/port from the command line */
+        clia_read_string(server_name, sizeof(server_name), "host");
+        clia_read_int(&server_port, "port");
+
+        /* Check whether we should query the metaserver */
+        if (STRZERO(server_name))
+        {
+            /* Query metaserver */
+            if (!get_server_name())
+                quit("No server specified.");
+        }
+
+        /* Fix "localhost" */
+        if (!strcmp(server_name, "localhost"))
+            my_strcpy(server_name, host_name, sizeof(server_name));
+
+        /* Default nickname and password */
+        my_strcpy(nick, conf_get_string("MAngband", "nick", nick), sizeof(nick));
+        my_strcpy(pass, conf_get_string("MAngband", "pass", pass), sizeof(pass));
+
+        /* Capitalize the name */
+        my_strcap(nick);
+
+        /* Get account name and pass */
+        get_account_name();
+
+        /* Hack -- save account name */
+        my_strcpy(account, nick, sizeof(account));
     }
-
-    /* Fix "localhost" */
-    if (!strcmp(server_name, "localhost"))
-        my_strcpy(server_name, host_name, sizeof(server_name));
-
-    /* Default nickname and password */
-    my_strcpy(nick, conf_get_string("MAngband", "nick", nick), sizeof(nick));
-    my_strcpy(pass, conf_get_string("MAngband", "pass", pass), sizeof(pass));
-
-    /* Capitalize the name */
-    my_strcap(nick);
-
-    /* Get account name and pass */
-    get_account_name();
+    else
+    {
+        /* Hack -- restore account name */
+        my_strcpy(nick, account, sizeof(nick));
+    }
 
     /* Create the net socket and make the TCP connection */
     if ((Socket = CreateClientSocket(server_name, server_port)) == -1)
     {
         /* Display the socket error message */
+#ifdef WINDOWS
+        /* TODO: similar function for unix */
         put_str(GetSocketErrorMessage(), 19, 1);
+#endif
 
         while (!done)
         {
@@ -480,12 +569,14 @@ void client_init(void)
     /* Clear it */
     Sockbuf_clear(&ibuf);
 
+#ifdef WINDOWS
     /* Get user name */
     if (GetUserName(buffer, &nSize))
     {
         buffer[16] = '\0';
         my_strcpy(real_name, buffer, sizeof(real_name));
     }
+#endif
 
     /* Put the contact info in it */
     Packet_printf(&ibuf, "%hu", (unsigned)conntype);
@@ -576,53 +667,15 @@ void client_init(void)
 
     /* Main loop */
     Input_loop();
-}
 
-
-/*
- * Free player struct
- */
-static void cleanup_player(void)
-{
-    int i;
-
-    /* Free the things that are always initialised */
-    mem_free(player->timed);
-    if (player->upkeep)
+    /* Hack -- restart game without quitting */
+    if (play_again)
     {
-        mem_free(player->upkeep->inven);
-        mem_free(player->upkeep->quiver);
+        play_again = false;
+        cleanup_player();
+        Setup.initialized = false;
+        client_init(false);
     }
-    mem_free(player->upkeep);
-    player->upkeep = NULL;
-
-    /* Free the things that are only there if there is a loaded player */
-    mem_free(player->gear);
-    mem_free(player->body.slots);
-
-    /* PWMAngband */
-    for (i = 0; player->scr_info && (i < Setup.max_row + ROW_MAP + 1); i++)
-    {
-        mem_free(player->scr_info[i]);
-        mem_free(player->trn_info[i]);
-    }
-    mem_free(player->scr_info);
-    mem_free(player->trn_info);
-    for (i = 0; i < N_HISTORY_FLAGS; i++)
-        mem_free(player->hist_flags[i]);
-    mem_free(player->obj_aware);
-    mem_free(player->kind_ignore);
-    mem_free(player->kind_everseen);
-    for (i = 0; player->ego_ignore_types && (i < z_info->e_max); i++)
-        mem_free(player->ego_ignore_types[i]);
-    mem_free(player->ego_ignore_types);
-    mem_free(player->ego_everseen);
-
-    mem_free(player->on_channel);
-
-    /* Free the basic player struct */
-    mem_free(player);
-    player = NULL;
 }
 
 

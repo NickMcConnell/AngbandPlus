@@ -31,7 +31,7 @@ and you will be asked a series of questions. For this demo, enter a character
 name (you can use the default name which is equal to the account's name), and
 press ``a`` three times to select a "female human warrior" character. Then press
 ``b`` and ``Enter`` to choose the standard roller, and choose stat order by
-pressing ``a``, ``e``, ``d``, ``f``, ``c``, and ``b``. Press ``Enter`` twice and
+pressing ``a``, ``e``, ``d``, ``b`` and ``c``. Press ``Enter`` twice and
 your character will be placed into the "town".
 
 You should now be looking at the basic dungeon interaction screen. To the

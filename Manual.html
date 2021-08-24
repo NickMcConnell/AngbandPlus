@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.15.2: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.16: http://docutils.sourceforge.net/" />
 <title>index.rst</title>
 <style type="text/css">
 
@@ -151,7 +151,7 @@ h7 {
 <header id="pageheader">
     <div style="display: flex; align-items: baseline;">
         <h1>The PWMAngband Manual</h1>
-        <span class="version">v1.3.0</span>
+        <span class="version">v1.4.0</span>
     </div>
     <img src="lib/icons/att.svg" style="height: 4rem;">
 </header>
@@ -177,7 +177,7 @@ experiences. Don't be shy!</p>
 <p>PWMAngband forum: <a class="reference external" href="http://www.mangband.org/forum/viewforum.php?f=9">http://www.mangband.org/forum/viewforum.php?f=9</a></p>
 <p>Angband forum: <a class="reference external" href="http://angband.oook.cz">http://angband.oook.cz</a></p>
 <div class="contents topic" id="table-of-contents">
-<p class="topic-title first">Table of Contents :</p>
+<p class="topic-title">Table of Contents :</p>
 <ul class="auto-toc simple">
 <li><a class="reference internal" href="#welcome-to-pwmangband" id="id19">1&nbsp;&nbsp;&nbsp;Welcome to PWMAngband</a></li>
 <li><a class="reference internal" href="#getting-started" id="id20">2&nbsp;&nbsp;&nbsp;Getting Started</a><ul class="auto-toc">
@@ -457,16 +457,16 @@ experiences. Don't be shy!</p>
 <li><a class="reference internal" href="#control-flow" id="id230">5.4.6&nbsp;&nbsp;&nbsp;Control Flow</a><ul class="auto-toc">
 <li><a class="reference internal" href="#startup" id="id231">5.4.6.1&nbsp;&nbsp;&nbsp;Startup</a></li>
 <li><a class="reference internal" href="#main-c-and-main-c" id="id232">5.4.6.2&nbsp;&nbsp;&nbsp;<tt class="docutils literal">main.c</tt> and <tt class="docutils literal"><span class="pre">main-*.c</span></tt></a></li>
-<li><a class="reference internal" href="#dungeon-c-play-game" id="id233">5.4.6.3&nbsp;&nbsp;&nbsp;dungeon.c - <tt class="docutils literal">play_game</tt></a></li>
-<li><a class="reference internal" href="#init-c-init-angband" id="id234">5.4.6.4&nbsp;&nbsp;&nbsp;init.c - <tt class="docutils literal">init_angband</tt></a></li>
-<li><a class="reference internal" href="#prefs-c-process-pref-file" id="id235">5.4.6.5&nbsp;&nbsp;&nbsp;prefs.c - <tt class="docutils literal">process_pref_file</tt></a></li>
-<li><a class="reference internal" href="#gameplay" id="id236">5.4.6.6&nbsp;&nbsp;&nbsp;Gameplay</a></li>
-<li><a class="reference internal" href="#dungeon-c-the-game-main-loop" id="id237">5.4.6.7&nbsp;&nbsp;&nbsp;dungeon.c - the game main loop</a></li>
-<li><a class="reference internal" href="#dungeon-c-the-level-main-loop" id="id238">5.4.6.8&nbsp;&nbsp;&nbsp;dungeon.c - the level main loop</a></li>
-<li><a class="reference internal" href="#mon-melee2-c-process-monsters" id="id239">5.4.6.9&nbsp;&nbsp;&nbsp;mon-melee2.c - process_monsters()</a></li>
-<li><a class="reference internal" href="#dungeon-c-process-player" id="id240">5.4.6.10&nbsp;&nbsp;&nbsp;dungeon.c - process_player()</a></li>
+<li><a class="reference internal" href="#init-c-init-angband" id="id233">5.4.6.3&nbsp;&nbsp;&nbsp;init.c - <tt class="docutils literal">init_angband</tt></a></li>
+<li><a class="reference internal" href="#ui-init-c-textui-init" id="id234">5.4.6.4&nbsp;&nbsp;&nbsp;ui-init.c - <tt class="docutils literal">textui_init</tt></a></li>
+<li><a class="reference internal" href="#ui-prefs-c-process-pref-file" id="id235">5.4.6.5&nbsp;&nbsp;&nbsp;ui-prefs.c - <tt class="docutils literal">process_pref_file</tt></a></li>
+<li><a class="reference internal" href="#ui-game-c-play-game" id="id236">5.4.6.6&nbsp;&nbsp;&nbsp;ui-game.c - <tt class="docutils literal">play_game</tt></a></li>
+<li><a class="reference internal" href="#gameplay" id="id237">5.4.6.7&nbsp;&nbsp;&nbsp;Gameplay</a></li>
+<li><a class="reference internal" href="#game-world-c-the-game-main-loop" id="id238">5.4.6.8&nbsp;&nbsp;&nbsp;game-world.c - the game main loop</a></li>
+<li><a class="reference internal" href="#mon-move-c-process-monsters" id="id239">5.4.6.9&nbsp;&nbsp;&nbsp;mon-move.c - process_monsters()</a></li>
+<li><a class="reference internal" href="#game-world-c-process-player" id="id240">5.4.6.10&nbsp;&nbsp;&nbsp;game-world.c - process_player()</a></li>
 <li><a class="reference internal" href="#keeping-the-ui-up-to-date" id="id241">5.4.6.11&nbsp;&nbsp;&nbsp;Keeping the UI up to date</a></li>
-<li><a class="reference internal" href="#dungeon-c-process-world" id="id242">5.4.6.12&nbsp;&nbsp;&nbsp;dungeon.c - process_world()</a></li>
+<li><a class="reference internal" href="#game-world-c-process-world" id="id242">5.4.6.12&nbsp;&nbsp;&nbsp;game-world.c - process_world()</a></li>
 </ul>
 </li>
 </ul>
@@ -516,7 +516,7 @@ and you will be asked a series of questions. For this demo, enter a character
 name (you can use the default name which is equal to the account's name), and
 press <tt class="docutils literal">a</tt> three times to select a &quot;female human warrior&quot; character. Then press
 <tt class="docutils literal">b</tt> and <tt class="docutils literal">Enter</tt> to choose the standard roller, and choose stat order by
-pressing <tt class="docutils literal">a</tt>, <tt class="docutils literal">e</tt>, <tt class="docutils literal">d</tt>, <tt class="docutils literal">f</tt>, <tt class="docutils literal">c</tt>, and <tt class="docutils literal">b</tt>. Press <tt class="docutils literal">Enter</tt> twice and
+pressing <tt class="docutils literal">a</tt>, <tt class="docutils literal">e</tt>, <tt class="docutils literal">d</tt>, <tt class="docutils literal">b</tt> and <tt class="docutils literal">c</tt>. Press <tt class="docutils literal">Enter</tt> twice and
 your character will be placed into the &quot;town&quot;.</p>
 <p>You should now be looking at the basic dungeon interaction screen. To the
 left is some information about your character. To the right is an overhead
@@ -697,7 +697,7 @@ playing, get into the dungeon and try, well, whatever seems to be prudent.
 You'll probably die rather quickly, but the following will make much more sense
 to you if you have just a little actual gameplay experience.</p>
 <p>This guide was written for Angband 3.5.0, and is now a little out of date
-(particularly the sections on identifying and collecting items). It is still
+(although the worst of the obsolete stuff has been cleaned out). It is still
 a handy source of hints and advice; just don't take it as an authority.</p>
 <div class="section" id="the-basics">
 <h3><a class="toc-backref" href="#id23">2.2.1&nbsp;&nbsp;&nbsp;The basics</a></h3>
@@ -865,10 +865,9 @@ the first trip down.</p>
 <div class="section" id="the-first-trip">
 <h4><a class="toc-backref" href="#id29">2.2.3.1&nbsp;&nbsp;&nbsp;The first trip</a></h4>
 <p>It's quite possible to get to 500' (dl 10) or deeper in the first trip into the
-dungeon. Plan to return when either you have enough stuff that your character
-will be significantly more powerful after reselling it, or if you run out of
-either escapes (?Phase door), protection from side-effects (curing potions), or
-damage (arrows if you are a ranger, flasks of oil if you are otherwise weak.)</p>
+dungeon. Plan to return when you run out of either escapes (?Phase door),
+protection from side-effects (curing potions), or damage (arrows if you are a
+ranger, flasks of oil if you are otherwise weak.)</p>
 <p>Since you don't have much, don't spend it on less valuable monsters.</p>
 </div>
 <div class="section" id="what-to-kill">
@@ -980,34 +979,30 @@ spellbooks that you know you can't afford to lose during a fight.</p>
 charges), or a single Potion of become Chuck Norris, and then you keep
 carrying it around and never actually use it. It could be a life insurance,
 but you might still reconsider your strategy: maybe you've become too careful
-lately (Angband rewards deliberate risk-taking, after all). Or maybe you
-should just sell the thing and invest the money into something you do use.</p>
+lately (Angband rewards deliberate risk-taking, after all).</p>
 </div>
 <div class="section" id="identifying-your-items">
 <h4><a class="toc-backref" href="#id41">2.2.5.7&nbsp;&nbsp;&nbsp;Identifying your items</a></h4>
-<p>Most items found will initially be unidentified. Characters able to pray or
-cast spells will later develop the ability to identify items. Starting out, a
-stack of Scrolls of Identify will allow these items to be identified. In the
-early stages of the game these are expensive, so it may be more cost effective
-to sell the items in the town until you can afford to regularly purchase
-scrolls. Weapons and armour can be identified by being worn and used in combat,
-and most can be removed if found to be of poor quality.</p>
+<p>Many items found, especially early in the game, will be unidentified or
+partially identified. Weapons and armour can be identified by being worn and
+used in combat, and can be removed if found to be of poor quality. Some
+characters learn to cast spells to identify the runes on wearable items that
+define their properties.</p>
 <p>Staves, rods and wands can often be identified by being used against monsters,
 but be aware that some of these magical items can have negative effects. Only
 use this approach when facing easily defeated monsters. Consuming unidentified
-potions and mushrooms is very risky, so it's best to either identify them
-yourself or sell them in the town. Ammunition can normally be identified by
-being thrown or fired at a monster, and typically the worst thing that can
-happen is that the attack does little damage to the monster. As with staves,
-wands and rods, do this when facing a monster than can be easily defeated.</p>
+potions and mushrooms can be risky, so the risk-averse player may prefer to
+sell them in the town. Ammunition can normally be identified by being thrown
+or fired at a monster, and typically the worst thing that can happen is that
+the attack does little damage to the monster. As with staves, wands and rods,
+do this when facing a monster than can be easily defeated.</p>
 <p>Scrolls can normally be identified by being read, but some scrolls have
 negative effects. Your character may have a very short life if they read a
 scroll that summons a horde of undead monsters. If using this approach, it's a
 good idea to position your character on top of some stairs so you can quickly
 escape if a mysterious scroll leaves your character surrounded by monsters.</p>
-<p>With weapons and armour, your character may in time be able to roughly gauge
-the value of an item by keeping it in their bag while they explore the
-dungeons.</p>
+<p>With weapons and armour, your character will in time learn their inscribed
+runes.</p>
 </div>
 <div class="section" id="the-dungeon-is-dark">
 <h4><a class="toc-backref" href="#id42">2.2.5.8&nbsp;&nbsp;&nbsp;The dungeon is dark</a></h4>
@@ -1088,7 +1083,7 @@ objects -- but still, the dungeon level is the most important factor. What was
 </div>
 <div class="section" id="regarding-artifacts">
 <h4><a class="toc-backref" href="#id50">2.2.5.16&nbsp;&nbsp;&nbsp;Regarding Artifacts</a></h4>
-<p>For every single item, there is a 1 in 1000 chance that it will be an
+<p>For every single wearable item, there is a small chance that it will be an
 artifact. This might seem slim, but considering the number of monsters you
 will slay, it soon adds up. If you work through a large room full of orcs,
 there's about a one-in-ten chance that you'll discover at least one artifact
@@ -1110,8 +1105,8 @@ speed bonus, etc) and lose it all due to something very avoidable had you been
 paying diligent attention.</p>
 <p>While playing, always make sure to check for the basics -- particularly
 monsters, stairs, and traps. Don't loose a character, asserting that you can
-kill a &quot;C&quot; easily only to discover that a &quot;Jackal&quot; is a far cry from a
-&quot;Hellhound&quot;.</p>
+kill a &quot;C&quot; easily only to discover that a &quot;wild dog&quot; is a far cry from a
+&quot;hellhound&quot;.</p>
 <p>Similarly, if you just got some nice artifacts / other equipment or achieved a
 significant accomplishment -- save your game and take a break. You don't have
 to continue to play to enjoy your past success, and when you return you will
@@ -1160,19 +1155,14 @@ on stairs, facilitating running away.</p>
 <p>Its easy to stockpile, but you'll run out of space VERY quickly. Further, what
 was useful may not be useful now and what's useful now may not be useful
 later. It can be easy to try to grab everything in sight and then return to
-town when your inventory is full to liquidate everything; however, when you
-reach this point, try continuing to dive, even with a full inventory.</p>
-<p>Inventory full of standard items and found a {magical} one? Toss a standard
-one and pick it up. Got a lot of {magical} and found an {ego} item? Toss a
-{magical} one. As your character progresses and you continue to dive you will
-find better classes of items. If you can differentiate even by pseudo-ID,
-don't be afraid to toss the less valuable stuff to make room, so you can
-continue diving.</p>
+town when your inventory is full; however, when you reach this point, try
+continuing to dive, even with a full inventory.</p>
+<p>As your character progresses and you continue to dive you will find better
+classes of items. Don't be afraid to toss the less valuable stuff to make room,
+so you can continue diving.</p>
 <p>This is particularly important while diving. If you let a full inventory be a
 limiting factor, you won't be able to get nearly as deep as if you are willing
-to discard items along the way -- even if they would have fetched a decent
-price. Remember, {magic} is usually worth still more than standard, and {ego}
-is usually worth more than {magic}...</p>
+to discard items along the way.</p>
 </div>
 <div class="section" id="take-a-break">
 <h4><a class="toc-backref" href="#id56">2.2.6.5&nbsp;&nbsp;&nbsp;Take a Break</a></h4>
@@ -1422,7 +1412,7 @@ If running doesn't work, try pressing Numlock.</p>
 </tr>
 <tr><td>'D'</td>
 <td>Disarm a trap or chest</td>
-<td>'J'</td>
+<td>'s'</td>
 <td>Steal</td>
 </tr>
 </tbody>
@@ -1652,8 +1642,8 @@ To view your own shop inventory, press this key inside a house.</p>
 </tr>
 <tr><td>'C'</td>
 <td>Character description</td>
-<td>&nbsp;</td>
-<td>&nbsp;</td>
+<td>'#'</td>
+<td>See abilities</td>
 </tr>
 </tbody>
 </table>
@@ -1969,7 +1959,7 @@ sought after.</p>
 </div>
 <div class="section" id="races">
 <h3><a class="toc-backref" href="#id96">3.1.2&nbsp;&nbsp;&nbsp;Races</a></h3>
-<p>There are fifteen different races that you can choose to play in PWMAngband.
+<p>There are sixteen different races that you can choose to play in PWMAngband.
 Each race has its own adjustments to a character's stats and abilities.
 Most races also have intrinsic abilities. The bonuses to statistics and
 the experience penalty will be displayed next to the races as you move
@@ -2015,7 +2005,7 @@ halflings, live in the earth in burrow-like homes. Gnomes make excellent
 mages, and have very good saving throws. They are good at searching,
 disarming, perception, and stealth. They have lower strength than humans
 so they are not very good at fighting with hand weapons. Gnomes have good
-infravision.  Gnomes are intrinsically protected against paralysis and
+infravision. Gnomes are intrinsically protected against paralysis and
 some slowing effects. Gnomes are excellent at using wands and staves
 and can identify them when found.</dd>
 </dl>
@@ -2058,10 +2048,8 @@ have fair infravision.</dd>
 <dl class="docutils" id="dunadan">
 <dt>Dunadan</dt>
 <dd>Dunedain are a race of hardy men from the West. This elder race surpasses
-human abilities in every field, especially constitution. However, being
-men of the world, very little is new to them, and levels are very hard to
-gain... their hardiness ensures that their constitution cannot be
-reduced. They have no infravision.</dd>
+human abilities in every field, especially constitution. Their hardiness
+ensures that their constitution cannot be reduced. They have no infravision.</dd>
 </dl>
 <dl class="docutils" id="high-elf">
 <dt>High-Elf</dt>
@@ -2071,8 +2059,8 @@ the sun and moon were made, and lived in the Blessed Realm for many
 thousands of years before returning to mortal lands. Because of this,
 they are far superior in terms of abilities when compared to their lesser
 Elven kindred. They can also see into the invisible world of ghosts and
-wraiths. However, they find new experience even harder to come by than
-Dunedain. Like normal Elves, they resist attacks involving bright light.
+wraiths. However, they find new experience harder to come by than other
+races. Like normal Elves, they resist attacks involving bright light.
 They have good infravision and can even see cold-blooded invisible
 creatures.</dd>
 </dl>
@@ -2136,6 +2124,20 @@ special melee attacks instead (biting and clawing) that increase in power as
 they gain levels. Starting at level 5, Dragons are able to breathe their
 corresponding element, but using this ability costs them hit points. At that
 level, they also gain the innate resistances and abilities of their type.</dd>
+</dl>
+<dl class="docutils" id="hydra">
+<dt>Hydra</dt>
+<dd>They are also creatures legends are made of. They are average at everything
+and need much more experience to advance in levels compared to humans. Like
+Dragons, they evolve physically as they gain experience. At level 1, they
+start as regular hydras. At level 10, they gain an extra head and polymorph
+into a 2-headed hydra. At levels 15, 20, 24, 28, 32, 36, 40, 42, 44, 46, 48
+and 50, they also gain an extra head to evolve finally into a 14-headed hydra.
+Hydras cannot wield any weapons, but get extra dice on their barehanded
+attacks as they gain levels. They can breathe several elements (poison, fire,
+acid) as they gain the corresponding head, and get the innate resistances and
+abilities of their type (which also means they are all vulnerable to cold and
+permanently aggravate).</dd>
 </dl>
 </div>
 <div class="section" id="classes">
@@ -2659,6 +2661,16 @@ adjusted for constitution).</p>
 <td>450%</td>
 <td>10'</td>
 </tr>
+<tr><td>Hydra</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>10</td>
+<td>400%</td>
+<td>None</td>
+</tr>
 </tbody>
 </table>
 <p>~~~</p>
@@ -2753,7 +2765,7 @@ adjusted for constitution).</p>
 <td>-3</td>
 <td>0</td>
 <td>+2</td>
-<td>8</td>
+<td>9</td>
 </tr>
 <tr><td>Sorceror</td>
 <td>-5</td>
@@ -2982,6 +2994,15 @@ adjusted for constitution).</p>
 <td>15</td>
 <td>5</td>
 </tr>
+<tr><td>Hydra</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
 </tbody>
 </table>
 <p>~~~</p>
@@ -3094,11 +3115,11 @@ adjusted for constitution).</p>
 <td>20(+15)</td>
 <td>20(+10)</td>
 <td>24(+10)</td>
-<td>25(+11)</td>
-<td>0(+0)</td>
-<td>10(+12)</td>
-<td>60(+40)</td>
-<td>50(+30)</td>
+<td>18(+10)</td>
+<td>-1(-1)</td>
+<td>8(+10)</td>
+<td>65(+40)</td>
+<td>35(+15)</td>
 </tr>
 <tr><td>Sorceror</td>
 <td>35(+09)</td>
@@ -3502,7 +3523,7 @@ something you are more comfortable with.</p>
 <td>Killer Beetle</td>
 </tr>
 <tr><td><tt class="docutils literal">l</tt></td>
-<td>Giant Louse</td>
+<td>Tree/Ent</td>
 <td><tt class="docutils literal">L</tt></td>
 <td>Lich</td>
 </tr>
@@ -3585,9 +3606,9 @@ something you are more comfortable with.</p>
 <p>The town level is where you will begin your adventure. The town consists of
 ten buildings (each with an entrance), some townspeople, some houses that can
 be bought to store treasures and sell items to other players, and (sometimes)
-a wall which surrounds the town. The first time you are in town it will be
-daytime (or night time), but note that the sun rises and falls (rather
-instantly) as time passes.</p>
+a wall which surrounds the town. It may contain streams of lava. The first time
+you are in town it will be daytime (or night time), but note that the sun rises
+and falls (rather instantly) as time passes.</p>
 </div>
 <div class="section" id="townspeople">
 <h3><a class="toc-backref" href="#id111">3.2.3&nbsp;&nbsp;&nbsp;Townspeople</a></h3>
@@ -3879,12 +3900,11 @@ dungeon. The symbols for the up and down staircases are the same as the
 commands to use them. A <tt class="docutils literal">&lt;</tt> represents an up staircase and a <tt class="docutils literal">&gt;</tt>
 represents a down staircase. You must move your character over the
 staircase before you can use it.</p>
-<p>Each level has at least one up staircase and at least two down staircases.
-There are no exceptions to this rule. You may have trouble finding some
-well hidden secret doors, or you may have to dig through obstructions to
-get to them, but you can always find the stairs if you look hard enough.
-Stairs, like permanent rock, and shop entrances, cannot be destroyed by any
-means.</p>
+<p>Most levels have at least one up staircase and at least two down staircases.
+You may have trouble finding some well hidden secret doors, or you may have
+to dig through obstructions to get to them, but you can always find the stairs
+if you look hard enough. Stairs, like permanent rock, and shop entrances,
+cannot be destroyed by any means.</p>
 <p>Many secret doors are used within the dungeon to confuse and demoralize
 adventurers foolish enough to enter, although all secret doors can be
 discovered by stepping adjacent to them. Secret doors will sometimes
@@ -3927,7 +3947,7 @@ dungeon.</p>
 <p>The possible messages are:</p>
 <blockquote>
 <ul class="simple">
-<li>1 - &quot;there are naught but cobwebs here.&quot;</li>
+<li>1 - &quot;there is naught but cobwebs here.&quot;</li>
 <li>2 - &quot;there are only scraps of junk here.&quot;</li>
 <li>3 - &quot;there aren't many treasures here.&quot;</li>
 <li>4 - &quot;there may not be much interesting here.&quot;</li>
@@ -4136,7 +4156,7 @@ but not all do.</p>
 <dl class="docutils">
 <dt>Hold Monster:</dt>
 <dd>Paralyses a monster until you hit them
-Increased chance of player getting a critical hit
+Increases chance of player getting a critical hit
 Normal duration 3-8 turns</dd>
 </dl>
 <!--  -->
@@ -4144,23 +4164,23 @@ Normal duration 3-8 turns</dd>
 <dt>Stun Monster:</dt>
 <dd>Reduces the monster's melee accuracy and damage by 25%
 1 in 10 chance that the monster will miss the turn
-Increased chance of player getting a critical hit
+Increases chance of player getting a critical hit
 Normal duration 5-10 turns</dd>
 </dl>
 <!--  -->
 <dl class="docutils">
 <dt>Confuse Monster:</dt>
 <dd>Monster spells fail 50% more often
-Monster 20% more likely to miss target with spells/ranged attacks
-Monster aimed spells sometimes go in random direction
-30% chance of erratic movement
-Increased chance of critical hit
+Monster at least 40% more likely to miss target with spells/ranged attacks
+Monster ball &amp; bolt spells sometimes go in the wrong direction
+30% chance of erratic movement, more when more confused
+Increases chance of player getting a critical hit
 Normal duration 5-10 turns</dd>
 </dl>
 <!--  -->
 <dl class="docutils">
 <dt>Slow Monster:</dt>
-<dd>-2 speed
+<dd>-2 speed, more if more slowed
 Normal duration 10 or more turns</dd>
 </dl>
 <!--  -->
@@ -4171,9 +4191,14 @@ Normal duration 10 or more turns</dd>
 <!--  -->
 <dl class="docutils">
 <dt>Scare Monster:</dt>
-<dd>Makes monsters run away
-Monster spells fail 20% more often
-Normal duration 10 or more turns</dd>
+<dd>Monster will run away
+Monster spells fail 20% more often</dd>
+</dl>
+<!--  -->
+<dl class="docutils">
+<dt>Disenchant Monster:</dt>
+<dd>Monster spells fail 50% more often
+Normal duration 5-10 turns</dd>
 </dl>
 <!--  -->
 <dl class="docutils">
@@ -4239,11 +4264,12 @@ and the monsters, may be resistant to these forms of attack: resistance is
 handled in different ways for the player and the monster, and for different
 attack forms.</p>
 <p>Bolt spells will hit the first monster (or the player) in the line of fire;
-ball spells and breaths may centre on a target which may be hiding behind
+ball spells may centre on a target which may be hiding behind
 other targets. Ball spells and breath weapons affect an area: other
 monsters caught in the blast take reduced damage depending on their distance
 from the centre of the blast. Breath weapons are proportional to a
-fraction of the monster's current hit points, with a maximum cap on the
+fraction of the monster's current hit points and drop off in power with
+distance from the monster, with a maximum cap on the
 damage (which is higher for the most common of such attacks, owing to the
 fact that the resistances are also easier to find). Bolt and ball spell
 damage is calculated differently - often (but not always) relative to
@@ -4328,10 +4354,7 @@ cut status are displayed at the bottom of the screen.</p>
 <p>There are resistances available to chaos, disenchantment, confusion, nexus,
 sound, shards, light and darkness: all of these will reduce the damage and
 prevent side-effects other than physical damage. With these resistances, as
-with nether resistance, damage is a random fraction: for light and dark, it
-is between 4/7 and 4/12, for sound and confusion it is between 5/7 and
-5/12, and for chaos, disenchantment, nexus, shards and nether it is between
-6/7 and 6/12.</p>
+with nether resistance, damage is a random fraction between 1/2 and 2/3.</p>
 <p>It should be noted that not all of these are actually vital to completing
 the game: indeed, of the above list, only fire, cold, acid, lightning,
 poison and confusion resists are regarded as truly vital, with blindness,
@@ -4347,10 +4370,11 @@ effects of a gravity attack.</p>
 <div class="section" id="a-note-on-speed">
 <h3><a class="toc-backref" href="#id130">3.3.7&nbsp;&nbsp;&nbsp;A note on speed</a></h3>
 <p>Monsters which do not move at normal speed generally move &quot;slowly&quot; (-10 to
-speed), &quot;fast&quot; (+10), &quot;very fast&quot; (+20) or &quot;incredibly fast&quot; (+30). (It will
-surprise nobody that Morgoth is one of the few monsters in the last
-category.) This is further adjusted by the fact that any non-unique monster
-may have a random adjustment from (-2) to (+2) to its own speed.</p>
+speed), &quot;fairly quickly&quot; (+5), &quot;quickly&quot; (+10), &quot;very quickly&quot; (+20) or
+&quot;incredibly quickly&quot; (+30). (It will surprise nobody that Morgoth is one of
+the few monsters in the last category.) This is further adjusted by the fact
+that any non-unique monster may have a random adjustment from (-2) to (+2)
+to its own speed.</p>
 <p>Generally, (+10) is exactly double normal speed, and (-10) exactly half.
 (+20) is about three times normal speed, but after that there is less
 noticeable improvement as speed goes higher - for instance, (+30) is not
@@ -4921,7 +4945,7 @@ which is most convenient when using the original keyset.</p>
 <tr><td><tt class="docutils literal">j</tt></td>
 <td>(unused)</td>
 <td><tt class="docutils literal">J</tt></td>
-<td>Steal</td>
+<td>(unused)</td>
 </tr>
 <tr><td><tt class="docutils literal">k</tt></td>
 <td>Ignore an item</td>
@@ -4964,7 +4988,7 @@ which is most convenient when using the original keyset.</p>
 <td>Rest for a period</td>
 </tr>
 <tr><td><tt class="docutils literal">s</tt></td>
-<td>(unused)</td>
+<td>Steal</td>
 <td><tt class="docutils literal">S</tt></td>
 <td>Toggle stealth mode</td>
 </tr>
@@ -5014,7 +5038,7 @@ which is most convenient when using the original keyset.</p>
 <td>(unused)</td>
 </tr>
 <tr><td><tt class="docutils literal">#</tt></td>
-<td>(unused)</td>
+<td>See abilities</td>
 <td><tt class="docutils literal">^C</tt></td>
 <td>End character &amp; quit</td>
 </tr>
@@ -5252,9 +5276,9 @@ which is most convenient when using the original keyset.</p>
 <td>Rest for a period</td>
 </tr>
 <tr><td>s</td>
-<td>(unused)</td>
-<td>S</td>
 <td>Steal</td>
+<td>S</td>
+<td>Toggle stealth mode</td>
 </tr>
 <tr><td>t</td>
 <td>Fire an item</td>
@@ -5302,7 +5326,7 @@ which is most convenient when using the original keyset.</p>
 <td>(alter - south west)</td>
 </tr>
 <tr><td>#</td>
-<td>Toggle stealth mode</td>
+<td>See abilities</td>
 <td>^C</td>
 <td>End character &amp; quit</td>
 </tr>
@@ -5486,7 +5510,6 @@ letter. If lower case is used, the selection takes place immediately. If
 upper case is used, then the particular option is described, and you are
 given the option of confirming or retracting that choice. Upper case
 selection is thus safer, but requires an extra key stroke.</p>
-<p>For more information on selecting object, see 'Customising the game'.</p>
 </div>
 </div>
 <div class="section" id="command-descriptions">
@@ -5689,7 +5712,7 @@ number of turns to rest), and takes some energy.</dd>
 <h3><a class="toc-backref" href="#id148">3.5.4&nbsp;&nbsp;&nbsp;Stealth Commands</a></h3>
 <!--  -->
 <dl class="docutils">
-<dt>Toggle stealth mode (<tt class="docutils literal">S</tt>) or Toggle stealth mode (<tt class="docutils literal">#</tt>)</dt>
+<dt>Toggle stealth mode (<tt class="docutils literal">S</tt>)</dt>
 <dd>Only Rogues are able to use this command. When first pressed, the message
 &quot;Stealth Mode&quot; will appear at the bottom of the screen. You are now taking
 two turns for each command, one for the command and one to act carefully.
@@ -5711,8 +5734,9 @@ soft). Quartz and Magma veins may be displayed in a special way, and may
 sometimes contain treasure, in which case they will be displayed in a
 different way. Rubble sometimes covers an object but is easy to tunnel
 through, even with your bare hands. Tunnelling ability increases with
-strength and weapon weight. This command requires a direction, and takes
-some energy.</dd>
+strength and weapon weight. If you have a digging tool in your tool slot, the
+game will automatically use this to dig. This command requires a direction,
+and takes some energy.</dd>
 </dl>
 <!--  -->
 <dl class="docutils">
@@ -5720,10 +5744,9 @@ some energy.</dd>
 <dd>To open an object such as a door or chest, you must use this command. If
 the object is locked, you will attempt to pick the lock based on your
 disarming ability. If you open a trapped chest without disarming the
-traps first, the trap will be set off. Some doors will be locked shut and
-may have to be forced open. Opening will automatically attempt to pick
-any locked doors. You may need several tries to open a door or chest. This
-command requires a direction, and takes some energy.</dd>
+traps first, the trap will be set off. Opening will automatically attempt
+to pick any door locks. You may need several tries to open a door or chest.
+This command requires a direction, and takes some energy.</dd>
 </dl>
 <!--  -->
 <dl class="docutils">
@@ -5739,10 +5762,11 @@ a direction, and takes some energy.</dd>
 <dt>Disarm a trap or chest, or lock a door (<tt class="docutils literal">D</tt>)</dt>
 <dd>You can attempt to disarm traps on the floor or on chests. If you fail,
 there is a chance that you will blunder and set it off. You can only
-disarm a trap after you have found it. The command can also be used to lock
-a closed door. This will create a hindrance for monsters. Even if many
-monsters will be able to pick the lock or bash the door down, it will often
-take them some time. This command requires a direction, and takes some energy.</dd>
+disarm a trap after you have found it. The command can also be used to
+lock a closed door, which will create a hindrance for monsters. Even if
+many monsters will be able to pick the lock or bash the door down, it
+will often take them some time. This command requires a direction, and takes
+some energy.</dd>
 </dl>
 <!--  -->
 <dl class="docutils">
@@ -5757,7 +5781,7 @@ grid&quot; command. This command requires a direction, and takes some energy.</d
 </dl>
 <!--  -->
 <dl class="docutils">
-<dt>Steal (<tt class="docutils literal">J</tt>) or Steal (<tt class="docutils literal">S</tt>)</dt>
+<dt>Steal (<tt class="docutils literal">s</tt>)</dt>
 <dd>This command allows you to steal gold or items from other players. Stealing
 is usually disabled on most of the servers. If allowed, a failed attempt at
 stealing will make the offended player automatically hostile.
@@ -5853,13 +5877,15 @@ and kill counts. This command takes some energy.</dd>
 <!--  -->
 <dl class="docutils">
 <dt>Eat some food (<tt class="docutils literal">E</tt>)</dt>
-<dd>You must eat regularly to prevent starvation. As you grow hungry, a
-message will appear at the bottom of the screen saying &quot;Hungry&quot;. If you
-go hungry long enough, you will become weak, then start fainting, and
-eventually, you may well die of starvation. You may use this command to
-eat food in your inventory. Note that you can sometimes find food in the
-dungeon, but it is not always wise to eat strange food. This command
-takes some energy.</dd>
+<dd>You must eat regularly to prevent starvation. There is a hunger meter
+at the bottom of the screen, which says &quot;Fed&quot; and gives a percentage in
+most circumstances. If you go hungry long enough, you will become weak,
+then start fainting, and eventually, you may well die of starvation
+(accompanied by increasingly alarming messages on your hunger meter).
+It is also possible to be &quot;Full&quot;, which will make you move slowly; more
+slowly the fuller you get. You may use this command to eat food in your
+inventory. Note that you can sometimes find food in the dungeon, but it
+is not always wise to eat strange food. This command takes some energy.</dd>
 </dl>
 <!--  -->
 <dl class="docutils">
@@ -5970,11 +5996,11 @@ target. This command takes some energy.</dd>
 <!--  -->
 <dl class="docutils">
 <dt>Fire an item (<tt class="docutils literal">f</tt>) or Fire an item (<tt class="docutils literal">t</tt>)</dt>
-<dd>This command will allow you to fire a missile from either
-your quiver or your inventory provided it is the appropriate ammunition
-for the current missile weapon you have equipped. You may not fire an
-item without a missile weapon equipped. Fired ammunition has a chance of
-breaking. This command takes some energy.</dd>
+<dd>This command will allow you to fire a missile from either your quiver or
+your inventory provided it is the appropriate ammunition for the current
+missile weapon you have equipped. You may not fire an item without a
+missile weapon equipped. Fired ammunition has a chance of breaking.
+This command takes some energy.</dd>
 </dl>
 <!--  -->
 <dl class="docutils">
@@ -5993,7 +6019,8 @@ weight, it may travel across the room or drop down beside you. Only one
 object from a pile will be thrown at a time. Note that throwing an object
 will often cause it to break, so be careful! If you throw something at a
 creature, your chances of hitting it are determined by your plusses to
-hit, your ability at throwing, and the object's plusses to hit. Once the
+hit, your ability at throwing, and the object's plusses to hit. Some
+weapons are especially designed for throwing. Once the
 creature is hit, the object may or may not do any damage to it.
 Note that flasks of oil will do some fire damage to a monster on impact.
 If you are wielding a missile launcher compatible with the object you are
@@ -6215,6 +6242,11 @@ toward other players.</dd>
 <dt>Display current time (<tt class="docutils literal">%</tt>)</dt>
 <dd>This command allows you to see what time it is on server. Useful to keep track
 of sunrise/sunset.</dd>
+</dl>
+<!--  -->
+<dl class="docutils">
+<dt>See abilities (<tt class="docutils literal">#</tt>)</dt>
+<dd>This command allows you to see player abilities.</dd>
 </dl>
 </div>
 <div class="section" id="id14">
@@ -6560,7 +6592,34 @@ prevent people from starving while afk.</dd>
 <dl class="docutils">
 <dt>Risky casting <tt class="docutils literal">risky_casting</tt></dt>
 <dd>Allow the player to cast spells while not having the required amount of mana
-at the risk of damaging constitution and getting paralyzed</dd>
+at the risk of damaging constitution and getting paralyzed.</dd>
+</dl>
+<!--  -->
+<dl class="docutils">
+<dt>Use single items from floor instantly <tt class="docutils literal">quick_floor</tt></dt>
+<dd>This option enables instant using of single items on the floor instead of
+displaying a menu with one item.</dd>
+</dl>
+<!--  -->
+<dl class="docutils">
+<dt>Hide terrain description on status line <tt class="docutils literal">hide_terrain</tt></dt>
+<dd>This option hides terrain description on status line.</dd>
+</dl>
+<!--  -->
+<dl class="docutils">
+<dt>Disable Enter menu <tt class="docutils literal">disable_enter</tt></dt>
+<dd>This option disables the Enter menu.</dd>
+</dl>
+<!--  -->
+<dl class="docutils">
+<dt>Sort monsters by experience in the monster list <tt class="docutils literal">sort_exp</tt></dt>
+<dd>This option sorts monsters by experience instead of depth in the monster list.</dd>
+</dl>
+<!--  -->
+<dl class="docutils">
+<dt>Display monsters in ASCII <tt class="docutils literal">ascii_mon</tt></dt>
+<dd>This option displays monsters using ASCII symbols instead of tiles when using
+a tileset.</dd>
 </dl>
 </div>
 <div class="section" id="birth-options">
@@ -6848,7 +6907,14 @@ find them, then save these autoinscriptions to pref file by using <tt class="doc
 <dl class="docutils">
 <dt>Inscribing an item with '=g':</dt>
 <dd>This marks an item as 'always pick up'. This is sometimes useful for
-picking up ammunition after a shootout.</dd>
+picking up ammunition after a shootout. If there is a number
+immediately after the 'g', then the amount picked up automatically
+will be limited. If you have inscribed a spellbook with '=g4' and have
+four or more copies in your pack, you will not automatially pick up
+any more copies when you have the 'pickup if in inventory' option
+enabled. If you have three copies in your pack with that inscription
+and happen to find a pile of two copies, you'll automatically pick up
+one so there is four in the pack.</dd>
 </dl>
 <!--  -->
 <dl class="docutils">
@@ -6977,11 +7043,11 @@ user pref file.</p>
 <h1><a class="toc-backref" href="#id179">4&nbsp;&nbsp;&nbsp;Meta</a></h1>
 <div class="section" id="version-information">
 <h2><a class="toc-backref" href="#id180">4.1&nbsp;&nbsp;&nbsp;Version Information</a></h2>
-<p>PWMAngband 1.3.0 is based on Angband 4.1.3 and MAngband 1.x. The latest
-build for PWMAngband 1.3.0 is build 11.</p>
-<p>Angband information was last updated for Angband 4.1.3.
+<p>PWMAngband 1.4.0 is based on Angband 4.2.x and MAngband 1.x. The latest
+build for PWMAngband 1.4.0 is build 4.</p>
+<p>Angband information was last updated for Angband 4.2.x.
 MAngband information was last updated for MAngband 1.x.
-PWMAngband information was last updated for PWMAngband 1.3.0.</p>
+PWMAngband information was last updated for PWMAngband 1.4.0.</p>
 <div class="section" id="angband-version-information">
 <h3><a class="toc-backref" href="#id181">4.1.1&nbsp;&nbsp;&nbsp;Angband Version Information</a></h3>
 <p>Detailed information about current and previous versions can be found at
@@ -7530,6 +7596,7 @@ vanilla Angband and MAngband.</p>
 <li>PWMAngband 1.1.11   : 01/05/2016 (Angband 4.0.x  + MAngband 1.1.2)</li>
 <li>PWMAngband 1.1.12   : 12/24/2017 (Angband 4.1.x  + MAngband 1.1.2)</li>
 <li>PWMAngband 1.2.0    : 03/01/2019 (Angband 4.1.x  + MAngband 1.1.4)</li>
+<li>PWMAngband 1.3.0    : 09/28/2019 (Angband 4.1.3  + MAngband 1.x)</li>
 </ul>
 </div>
 </div>
@@ -8552,59 +8619,49 @@ Windows, where main-win.c's <tt class="docutils literal">WinMain()</tt> is used,
 special <tt class="docutils literal">main()</tt> in main-nds.c is used. The <tt class="docutils literal">main()</tt> function is responsible
 for dropping permissions if PWMAngband is running setuid, parsing command line
 arguments, then finding a frontend to use and initializing it. Once <tt class="docutils literal">main()</tt>
-finds a frontend, it sets up signal handlers, sets up the display, then calls
-<tt class="docutils literal">play_game()</tt>.</p>
-</div>
-<div class="section" id="dungeon-c-play-game">
-<h4><a class="toc-backref" href="#id233">5.4.6.3&nbsp;&nbsp;&nbsp;dungeon.c - <tt class="docutils literal">play_game</tt></a></h4>
-<p>This function is responsible for driving the remaining initialization. It first
-calls <a class="reference internal" href="#init-c-init-angband">init.c - init_angband</a>, which loads all the <a class="reference internal" href="#gamedata-files">gamedata files</a> and
-initializes other static data used by the game. It then configures subwindows,
-loads a saved game if there is a valid save (see <a class="reference internal" href="#savefiles">savefiles</a>), sets up the RNG,
-loads pref files (see <a class="reference internal" href="#prefs-c-process-pref-file">prefs.c - process_pref_file</a>), and enters the game main
-loop (see <a class="reference internal" href="#dungeon-c-the-game-main-loop">dungeon.c - the game main loop</a>).</p>
+finds a frontend, it sets up signal handlers, sets up the display, and calls
+<a class="reference internal" href="#init-c-init-angband">init.c - init_angband</a>, which loads all the <a class="reference internal" href="#gamedata-files">gamedata files</a> and initializes
+other static data used by the game.</p>
 </div>
 <div class="section" id="init-c-init-angband">
-<h4><a class="toc-backref" href="#id234">5.4.6.4&nbsp;&nbsp;&nbsp;init.c - <tt class="docutils literal">init_angband</tt></a></h4>
+<h4><a class="toc-backref" href="#id233">5.4.6.3&nbsp;&nbsp;&nbsp;init.c - <tt class="docutils literal">init_angband</tt></a></h4>
 <p>The init_angband() function in init.c is responsible for loading and setting up
 static data needed by the game engine. Inside init.c, there is a list of 'init
 modules' that have startup-time static data they need to initialize, these are
 registered in an array of module pointers in init.c, and init_angband() calls
-their initialization hooks before doing any other work. The init_angband()
-function then loads the top-level pref file (see <a class="reference internal" href="#pref-files">pref files</a>), initializes the
-command queue (see <a class="reference internal" href="#the-command-queue">the command queue</a>), then waits for the UI to enqueue
-either QUIT, NEWGAME, or LOADFILE. This function returns true if the player
-wants to roll a new character, and false if they want to load an existing
-character.</p>
+their initialization hooks before doing any other work. Finally it sets up the
+RNG.</p>
 </div>
-<div class="section" id="prefs-c-process-pref-file">
-<h4><a class="toc-backref" href="#id235">5.4.6.5&nbsp;&nbsp;&nbsp;prefs.c - <tt class="docutils literal">process_pref_file</tt></a></h4>
-<p>The process_pref_file() function in prefs.c is responsible for loading user pref
-files, which can live at multiple paths. User preference files override default
-preference files. See <a class="reference internal" href="#pref-files">pref files</a> for more details.</p>
+<div class="section" id="ui-init-c-textui-init">
+<h4><a class="toc-backref" href="#id234">5.4.6.4&nbsp;&nbsp;&nbsp;ui-init.c - <tt class="docutils literal">textui_init</tt></a></h4>
+<p>The textui_init() function then loads the top-level pref file (see
+<a class="reference internal" href="#pref-files">pref files</a>), initializes the command queue (see <a class="reference internal" href="#the-command-queue">the command queue</a>),
+and configures subwindows.</p>
+</div>
+<div class="section" id="ui-prefs-c-process-pref-file">
+<h4><a class="toc-backref" href="#id235">5.4.6.5&nbsp;&nbsp;&nbsp;ui-prefs.c - <tt class="docutils literal">process_pref_file</tt></a></h4>
+<p>The process_pref_file() function in ui-prefs.c is responsible for loading user
+pref files, which can live at multiple paths. User preference files override
+default preference files. See <a class="reference internal" href="#pref-files">pref files</a> for more details.</p>
+</div>
+<div class="section" id="ui-game-c-play-game">
+<h4><a class="toc-backref" href="#id236">5.4.6.6&nbsp;&nbsp;&nbsp;ui-game.c - <tt class="docutils literal">play_game</tt></a></h4>
+<p>This function calls start_game() to load a saved game if there is a valid save
+(see <a class="reference internal" href="#savefiles">savefiles</a>) or birth a new character if not. It then asks for a command
+from the player, and then runs the game main loop (see
+<a class="reference internal" href="#game-world-c-the-game-main-loop">game-world.c - the game main loop</a>), over and over until the character dies
+or the player quits.</p>
 </div>
 <div class="section" id="gameplay">
-<h4><a class="toc-backref" href="#id236">5.4.6.6&nbsp;&nbsp;&nbsp;Gameplay</a></h4>
-<p>Once the simulation is set up, the game main loop in <a class="reference internal" href="#dungeon-c-play-game">dungeon.c - play_game</a> is
-responsible for stepping the simulation.</p>
+<h4><a class="toc-backref" href="#id237">5.4.6.7&nbsp;&nbsp;&nbsp;Gameplay</a></h4>
+<p>Once the simulation is set up, the game main loop in game-world.c
+is responsible for stepping the simulation.</p>
 </div>
-<div class="section" id="dungeon-c-the-game-main-loop">
-<h4><a class="toc-backref" href="#id237">5.4.6.7&nbsp;&nbsp;&nbsp;dungeon.c - the game main loop</a></h4>
-<p>The main loop of the game is inside play_game() in typical understated
-PWMAngband style. This loop runs once per time that either the level is
-regenerated, the player dies, or the player quits the game. Each iteration
-through, the this loop runs the level main loop to completion for an individual
-level.</p>
-</div>
-<div class="section" id="dungeon-c-the-level-main-loop">
-<h4><a class="toc-backref" href="#id238">5.4.6.8&nbsp;&nbsp;&nbsp;dungeon.c - the level main loop</a></h4>
-<p>The main loop for the level is implemented in dungeon() in dungeon.c. The
-dungeon() function is called when the player enters a level, and returns only
-when the player exits the level, either by changing levels, dying, or quitting.
-This function is responsible for tracking the player's max level/depth,
-autosaving at level entry, and running the main simulation loop. Each iteration
-of the main simulation loop is one &quot;turn&quot; in PWMAngband parlance, or one step of
-the simulator. During each turn:</p>
+<div class="section" id="game-world-c-the-game-main-loop">
+<h4><a class="toc-backref" href="#id238">5.4.6.8&nbsp;&nbsp;&nbsp;game-world.c - the game main loop</a></h4>
+<p>The main loop of the game, run_game_loop() is repeatedly called inside
+play_game(). Each iteration of the main loop is one &quot;turn&quot; in PWAngband
+parlance, or one step of the simulator. During each turn:</p>
 <ul class="simple">
 <li>All monsters with more energy than the player act</li>
 <li>The player acts</li>
@@ -8614,17 +8671,17 @@ the simulator. During each turn:</p>
 <li>End-of-turn housekeeping is done</li>
 </ul>
 </div>
-<div class="section" id="mon-melee2-c-process-monsters">
-<h4><a class="toc-backref" href="#id239">5.4.6.9&nbsp;&nbsp;&nbsp;mon-melee2.c - process_monsters()</a></h4>
+<div class="section" id="mon-move-c-process-monsters">
+<h4><a class="toc-backref" href="#id239">5.4.6.9&nbsp;&nbsp;&nbsp;mon-move.c - process_monsters()</a></h4>
 <p>In PWMAngband, creatures act in order of &quot;energy&quot;, which roughly determines how
 many actions they can take per step through the simulation. The
-process_monsters() function in mon-melee2.c is responsible for walking through
+process_monsters() function in mon-move.c is responsible for walking through
 the list of all monsters in the current chunk (see <a class="reference internal" href="#the-chunk">the chunk</a>) and having each
 monster act by calling process_monster(), which implements the highest level AI
 for monsters.</p>
 </div>
-<div class="section" id="dungeon-c-process-player">
-<h4><a class="toc-backref" href="#id240">5.4.6.10&nbsp;&nbsp;&nbsp;dungeon.c - process_player()</a></h4>
+<div class="section" id="game-world-c-process-player">
+<h4><a class="toc-backref" href="#id240">5.4.6.10&nbsp;&nbsp;&nbsp;game-world.c - process_player()</a></h4>
 <p>The process_player() function allows the player to act repeatedly until they do
 something that uses energy. Commands like looking around or inscribing items do
 not use energy; movement, attacking, casting spells, using items, and so on do.
@@ -8664,8 +8721,8 @@ game state;</td>
 <p>These functions are called during every game loop, after the player and all
 monsters have acted.</p>
 </div>
-<div class="section" id="dungeon-c-process-world">
-<h4><a class="toc-backref" href="#id242">5.4.6.12&nbsp;&nbsp;&nbsp;dungeon.c - process_world()</a></h4>
+<div class="section" id="game-world-c-process-world">
+<h4><a class="toc-backref" href="#id242">5.4.6.12&nbsp;&nbsp;&nbsp;game-world.c - process_world()</a></h4>
 <p>The process_world() function only runs every 10 turns. It is responsible for the
 day/night transition in town, restocking the stores, generating new creatures
 over time, dealing poison/cut damage, applying hunger, regeneration, ticking

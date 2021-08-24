@@ -3,7 +3,7 @@
  * Purpose: Savefile loading and saving main routines
  *
  * Copyright (c) 2009 Andi Sidwell <andi@takkaria.org>
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -66,7 +66,7 @@
 /*
  * Magic bits at beginning of savefile
  */
-static const byte savefile_magic[4] = {1, 3, 0, 1};
+static const byte savefile_magic[4] = {1, 4, 0, 1};
 static const byte savefile_name[4] = "PWMG";
 
 
@@ -149,8 +149,7 @@ static const savefile_saver server_savers[] =
     {"parties", wr_parties, 1},
     {"houses", wr_houses, 1},
     {"arenas", wr_arenas, 1},
-    {"wilderness", wr_wilderness, 1},
-    {"player_names", wr_player_names, 1}
+    {"wilderness", wr_wilderness, 1}
 };
 
 
@@ -158,6 +157,13 @@ static const savefile_saver server_savers[] =
 static const savefile_saver special_savers[] =
 {
     {"dungeon", wr_level, 1}
+};
+
+
+/* Savefile saving functions (account) */
+static const savefile_saver account_savers[] =
+{
+    {"player_names", wr_player_names, 1}
 };
 
 
@@ -220,6 +226,13 @@ static const struct blockinfo special_loaders[] =
     {"dungeon", rd_level, 1}
 };
 static bool load_dungeon_special(void);
+
+
+/* Savefile loading functions (account) */
+static const struct blockinfo account_loaders[] =
+{
+    {"player_names", rd_player_names, 1}
+};
 
 
 /* Buffer bits */
@@ -632,6 +645,76 @@ bool save_server_info(void)
         bool err = false;
 
         path_build(savefile, sizeof(savefile), ANGBAND_DIR_SAVE, "server");
+
+        if (file_exists(savefile) && !file_move(savefile, old_savefile))
+            err = true;
+
+        if (!err)
+        {
+            if (!file_move(new_savefile, savefile)) err = true;
+
+            if (err) file_move(old_savefile, savefile);
+            else file_delete(old_savefile);
+        }
+
+        return !err;
+    }
+
+    /* Delete temp file if the save failed */
+    if (file) file_delete(new_savefile);
+
+    return false;
+}
+
+
+/*
+ * Save the player names to a "players" savefile.
+ */
+bool save_account_info(void)
+{
+    ang_file *file;
+    int count = 0;
+    char new_savefile[MSG_LEN], new_name[MSG_LEN];
+    char old_savefile[MSG_LEN], old_name[MSG_LEN];
+    bool account_saved = false;
+
+    /* New savefile */
+    strnfmt(old_name, sizeof(old_name), "players%u.old", Rand_simple(1000000));
+    path_build(old_savefile, sizeof(old_savefile), ANGBAND_DIR_SAVE, old_name);
+    while (file_exists(old_savefile) && (count++ < 100))
+    {
+        strnfmt(old_name, sizeof(old_name), "players%u%u.old", Rand_simple(1000000), count);
+        path_build(old_savefile, sizeof(old_savefile), ANGBAND_DIR_SAVE, old_name);
+    }
+    count = 0;
+
+    /* Open the savefile */
+    strnfmt(new_name, sizeof(new_name), "players%u.new", Rand_simple(1000000));
+    path_build(new_savefile, sizeof(new_savefile), ANGBAND_DIR_SAVE, new_name);
+    while (file_exists(new_savefile) && (count++ < 100))
+    {
+        strnfmt(new_name, sizeof(new_name), "players%u%u.new", Rand_simple(1000000), count);
+        path_build(new_savefile, sizeof(new_savefile), ANGBAND_DIR_SAVE, new_name);
+    }
+    file = file_open(new_savefile, MODE_WRITE, FTYPE_SAVE);
+
+    if (file)
+    {
+        file_write(file, (char *)&savefile_magic, 4);
+        file_write(file, (char *)&savefile_name, 4);
+
+        account_saved = try_save(NULL, file, (savefile_saver *)account_savers,
+            N_ELEMENTS(account_savers));
+        file_close(file);
+    }
+
+    /* Attempt to save the player names */
+    if (account_saved)
+    {
+        char savefile[MSG_LEN];
+        bool err = false;
+
+        path_build(savefile, sizeof(savefile), ANGBAND_DIR_SAVE, "players");
 
         if (file_exists(savefile) && !file_move(savefile, old_savefile))
             err = true;
@@ -1257,6 +1340,51 @@ bool load_server_info(void)
 
 
 /*
+ * Load the player names from a special savefile.
+ */
+bool load_account_info(void)
+{
+    bool ok;
+    ang_file *f;
+    char buf[MSG_LEN];
+
+    path_build(buf, sizeof(buf), ANGBAND_DIR_SAVE, "players");
+
+    /* No file */
+    if (!file_exists(buf))
+    {
+        /* Give message */
+        plog("Player names savefile does not exist.");
+
+        /* Allow this */
+        return true;
+    }
+
+    /* Open savefile */
+    f = file_open(buf, MODE_READ, FTYPE_RAW);
+
+    if (!f)
+    {
+        plog("Couldn't open player names savefile.");
+        return false;
+    }
+
+    ok = try_load(NULL, f, account_loaders, N_ELEMENTS(account_loaders), true);
+    file_close(f);
+
+    /* Okay */
+    if (ok)
+    {
+        /* Success */
+        return true;
+    }
+
+    /* Oops */
+    return false;
+}
+
+
+/*
  * Return true if the given level is a special static level, i.e. a hand designed level.
  */
 bool special_level(struct worldpos *wpos)
@@ -1335,3 +1463,4 @@ bool dynamic_town(struct worldpos *wpos)
     return ((wpos->depth == 20) || (wpos->depth == 40) || (wpos->depth == 60) ||
         (wpos->depth == 80));
 }
+

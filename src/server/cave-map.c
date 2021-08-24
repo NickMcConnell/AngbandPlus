@@ -3,7 +3,7 @@
  * Purpose: Lighting and map management functions
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -72,7 +72,7 @@ void map_info(struct player *p, struct chunk *c, struct loc *grid, struct grid_d
     /* Default "clear" values, others will be set later where appropriate. */
     g->first_obj = NULL;
     g->multiple_objects = false;
-    g->lighting = LIGHTING_DARK;
+    g->lighting = LIGHTING_LIT;
     g->unseen_object = false;
     g->unseen_money = false;
 
@@ -87,11 +87,10 @@ void map_info(struct player *p, struct chunk *c, struct loc *grid, struct grid_d
     {
         g->lighting = LIGHTING_LOS;
 
-        /* Darkness or torchlight */
+        /* Torchlight */
         if (!square_isglow(c, grid))
         {
-            if (OPT(p, view_yellow_light))
-                g->lighting = LIGHTING_TORCH;
+            if (OPT(p, view_yellow_light)) g->lighting = LIGHTING_TORCH;
         }
 
         /* Remember seen grid */
@@ -99,12 +98,9 @@ void map_info(struct player *p, struct chunk *c, struct loc *grid, struct grid_d
         square_know_pile(p, c, grid);
         square_memorize_trap(p, c, grid);
     }
-    else if (square_isknown(p, grid) && square_isglow(c, grid))
-        g->lighting = LIGHTING_LIT;
 
     /* Use known feature */
-    g->f_idx = square_known_feat(p, c, grid);
-    if (f_info[g->f_idx].mimic) g->f_idx = lookup_feat(f_info[g->f_idx].mimic);
+    g->f_idx = square_apparent_feat(p, c, grid);
 
     /* Use known trap */
     g->trap = square_known_trap(p, c, grid);
@@ -346,11 +342,11 @@ static void cave_light(struct player *p, struct chunk *c, struct point_set *ps)
             if (monster_is_stupid(mon->race)) chance = 10;
 
             /* Smart monsters always wake up */
-            if (monster_is_smart(mon->race)) chance = 100;
+            if (monster_is_smart(mon)) chance = 100;
 
-            /* Sometimes monsters wake up */
+            /* Sometimes monsters wake up, and become aware if they do */
             if (mon->m_timed[MON_TMD_SLEEP] && magik(chance))
-                mon_clear_timed(p, mon, MON_TMD_SLEEP, MON_TMD_FLG_NOTIFY);
+                monster_wake(p, mon, true, 100);
         }
     }
 }
@@ -491,18 +487,25 @@ void wiz_light(struct player *p, struct chunk *c, bool full)
         /* Process all non-walls */
         if (!square_seemslikewall(c, &iter.cur))
         {
-            /* Scan all neighbors */
-            for (i = 0; i < 9; i++)
+            /* Perma-light the grid */
+            sqinfo_on(square(c, &iter.cur)->info, SQUARE_GLOW);
+
+            /* Memorize normal features, mark grids as processed */
+            if (square_isnormal(c, &iter.cur))
+            {
+                square_memorize(p, c, &iter.cur);
+                square_mark(p, &iter.cur);
+            }
+
+            /* Memorize known walls */
+            for (i = 0; i < 8; i++)
             {
                 struct loc a_grid;
 
                 loc_sum(&a_grid, &iter.cur, &ddgrid_ddd[i]);
 
-                /* Perma-light the grid */
-                sqinfo_on(square(c, &a_grid)->info, SQUARE_GLOW);
-
-                /* Memorize normal features, mark grids as processed */
-                if (square_isnormal(c, &a_grid))
+                /* Memorize walls (etc), mark grids as processed */
+                if (square_seemslikewall(c, &a_grid))
                 {
                     square_memorize(p, c, &a_grid);
                     square_mark(p, &a_grid);
@@ -565,18 +568,25 @@ void wiz_dark(struct player *p, struct chunk *c, bool full)
         /* Process all non-walls */
         if (!square_seemslikewall(c, &iter.cur))
         {
-            /* Scan all neighbors */
-            for (i = 0; i < 9; i++)
+            /* PWMAngband: unlight the grid */
+            square_unglow(c, &iter.cur);
+
+            /* Memorize normal features, mark grids as processed */
+            if (square_isnormal(c, &iter.cur))
+            {
+                square_memorize(p, c, &iter.cur);
+                square_mark(p, &iter.cur);
+            }
+
+            /* Memorize known walls */
+            for (i = 0; i < 8; i++)
             {
                 struct loc a_grid;
 
                 loc_sum(&a_grid, &iter.cur, &ddgrid_ddd[i]);
 
-                /* PWMAngband: unlight the grid */
-                square_unglow(c, &a_grid);
-
-                /* Memorize normal features, mark grids as processed */
-                if (square_isnormal(c, &a_grid))
+                /* Memorize walls (etc), mark grids as processed */
+                if (square_seemslikewall(c, &a_grid))
                 {
                     square_memorize(p, c, &a_grid);
                     square_mark(p, &a_grid);
@@ -636,10 +646,13 @@ void cave_illuminate(struct player *p, struct chunk *c, bool daytime)
     /* Apply light or darkness */
     do
     {
+        bool light = true;
+
         if (square_ispermstatic(c, &iter.cur) || square_isbright(c, &iter.cur))
         {
             int d;
-            bool light = false;
+
+            light = false;
 
             /* Skip static dungeon town walls/lava squares with no surrounding floors or stairs */
             for (d = 0; d < 9; d++)
@@ -656,12 +669,10 @@ void cave_illuminate(struct player *p, struct chunk *c, bool daytime)
                 if (square_isanyfloor(c, &a_grid) || square_isstairs(c, &a_grid))
                     light = true;
             }
-
-            if (!light) continue;
         }
 
         /* Only interesting grids at night */
-        square_illuminate(p, c, &iter.cur, daytime);
+        square_illuminate(p, c, &iter.cur, daytime, light);
     }
     while (loc_iterator_next_strict(&iter));
 

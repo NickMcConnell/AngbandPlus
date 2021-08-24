@@ -3,7 +3,7 @@
  * Purpose: Core game initialisation
  *
  * Copyright (c) 1997 Ben Harrison, and others
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -71,13 +71,16 @@ static void quit_hook(const char *s)
     textui_cleanup();
     cleanup_angband();
 
+#ifdef WINDOWS
     /* Cleanup WinSock */
     WSACleanup();
+#endif
 }
 
 
 static void read_credentials(void)
 {
+#ifdef WINDOWS
     char buffer[20] = {'\0'};
     DWORD bufferLen = sizeof(buffer);
 
@@ -95,6 +98,12 @@ static void read_credentials(void)
         /* Copy to real name */
         my_strcpy(real_name, buffer, sizeof(real_name));
     }
+#else
+    /* Initial defaults */
+    my_strcpy(nick, "PLAYER", sizeof(nick));
+    my_strcpy(pass, "passwd", sizeof(pass));
+    my_strcpy(real_name, "PLAYER", sizeof(real_name));
+#endif
 }
 
 
@@ -104,7 +113,9 @@ static void read_credentials(void)
 int main(int argc, char *argv[])
 {
     bool done = false;
+#ifdef WINDOWS
     WSADATA wsadata;
+#endif
     int i;
 
     /* Save the program name */
@@ -113,8 +124,10 @@ int main(int argc, char *argv[])
     /* Save command-line arguments */
     clia_init(argc, (const char**)argv);
 
+#ifdef WINDOWS
     /* Initialize WinSock */
     WSAStartup(MAKEWORD(1, 1), &wsadata);
+#endif
 
     memset(&Setup, 0, sizeof(Setup));
 
@@ -152,7 +165,7 @@ int main(int argc, char *argv[])
     turn_off_numlock();
 
     /* Initialize everything, contact the server, and start the loop */
-    client_init();
+    client_init(true);
 
     /* Quit */
     quit(NULL);

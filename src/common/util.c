@@ -3,7 +3,7 @@
  * Purpose: Utility functions
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -26,6 +26,8 @@ struct ego_item *e_info;
 struct player_race *races;
 struct dragon_breed *breeds;
 struct player_class *classes;
+struct start_item *dm_start_items;
+struct player_ability *player_abilities;
 struct magic_realm *realms;
 struct player_body *bodies;
 struct monster_race *r_info;
@@ -39,6 +41,7 @@ void cleanup_p_race(void)
     struct player_race *p = races;
     struct player_race *next;
     struct player_shape *shape, *shape_next;
+    struct barehanded_attack *attack, *attack_next;
 
     while (p)
     {
@@ -53,6 +56,15 @@ void cleanup_p_race(void)
             string_free(shape->name);
             mem_free(shape);
             shape = shape_next;
+        }
+        attack = p->attacks;
+        while (attack)
+        {
+            attack_next = attack->next;
+            string_free(attack->verb);
+            string_free(attack->hit_extra);
+            mem_free(attack);
+            attack = attack_next;
         }
         mem_free(p);
         p = next;
@@ -107,6 +119,7 @@ void cleanup_class(void)
     struct class_spell *spell;
     struct class_book *book;
     struct player_shape *shape, *shape_next;
+    struct barehanded_attack *attack, *attack_next;
     int i, j;
 
     while (c)
@@ -144,8 +157,30 @@ void cleanup_class(void)
             mem_free(shape);
             shape = shape_next;
         }
+        attack = c->attacks;
+        while (attack)
+        {
+            attack_next = attack->next;
+            string_free(attack->verb);
+            string_free(attack->hit_extra);
+            mem_free(attack);
+            attack = attack_next;
+        }
         mem_free(c);
         c = next;
+    }
+}
+
+
+void cleanup_dm_start_items(void)
+{
+    struct start_item *item = dm_start_items, *item_next;
+
+    while (item)
+    {
+        item_next = item->next;
+        mem_free(item);
+        item = item_next;
     }
 }
 
@@ -377,7 +412,7 @@ void object_short_name(char *buf, size_t max, const char *name)
     size_t len = strlen(name);
 
     /* Copy across the name, stripping modifiers & and ~ */
-    for (j = 0, k = 0; ((j < len) && (k < max)); j++)
+    for (j = 0, k = 0; ((j < len) && (k < max - 1)); j++)
     {
         if ((j == 0) && (name[0] == '&') && (name[1] == ' ')) j += 2;
         if (name[j] == '~') continue;
@@ -870,6 +905,17 @@ int player_cmax(void)
 }
 
 
+int player_amax(void)
+{
+    int n = 0;
+    struct player_ability *a;
+
+    for (a = player_abilities; a; a = a->next) n++;
+
+    return n;
+}
+
+
 struct player_race *player_id2race(guid id)
 {
     struct player_race *r;
@@ -1210,7 +1256,9 @@ struct trap_kind *lookup_trap(const char *desc)
  */
 int recharge_failure_chance(const struct object *obj, int strength)
 {
-    int raw_chance = (strength + 100 - obj->kind->level - (10 * (obj->pval / obj->number))) / 15;
+    /* Ease of recharge ranges from 9 down to 4 (wands) or 3 (staffs) */
+    int ease_of_recharge = (100 - obj->kind->level) / 10;
+    int raw_chance = strength + ease_of_recharge - 2 * (obj->pval / obj->number);
 
     return ((raw_chance > 1)? raw_chance: 1);
 }

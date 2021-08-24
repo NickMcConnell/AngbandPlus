@@ -121,11 +121,11 @@ CAPTION "About PWMAngband..."
 FONT 8, "MS Sans Serif", 0, 0
 BEGIN
     ICON            "ANGBAND", IDC_STATIC, 7, 7, 21, 20
-    LTEXT           "PowerWyrm's MAngband Version 1.3.0", IDC_STATIC, 38, 14, 200, 8
-    LTEXT           "Based on Angband 4.1.3 and MAngband 1.1.4", IDC_STATIC, 38, 28, 200, 8
+    LTEXT           "PowerWyrm's MAngband Version 1.4.0", IDC_STATIC, 38, 14, 200, 8
+    LTEXT           "Based on Angband 4.2.x and MAngband 1.x", IDC_STATIC, 38, 28, 200, 8
     LTEXT           "Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke", IDC_STATIC, 38, 42, 200, 8
     LTEXT           "and Umoria:   Copyright (c) 1989 James E. Wilson", IDC_STATIC, 51, 50, 200, 8
-    LTEXT           "Angband 4.1.3:     Copyright (c) 1997-2019 Ben Harrison,", IDC_STATIC, 38, 60, 200, 8
+    LTEXT           "Angband 4.2.x:     Copyright (c) 1997-2020 Ben Harrison,", IDC_STATIC, 38, 60, 200, 8
     LTEXT           "Robert Ruehlmann and others", IDC_STATIC, 96, 68, 200, 8
     LTEXT           "Ported to multiplayer by Keldon Jones", IDC_STATIC, 38, 82, 200, 8
     LTEXT           "Newbies :    Hit '?' for help    Hit ':' to talk", IDC_STATIC, 38, 96, 200, 8

@@ -37,12 +37,12 @@ CLI_EXE = mangclient_sdl.exe
 
 CCOPTS = -Hc -tW -lGn -w8080 -w-8004 -w-8057 \
 	-D_WIN32_WINNT=0x0500 -DWINVER=0x0500 \
-	-DWIN32 -D_WINDOWS -DSTRICT \
-	-D"USE_SDL" \
+	-DWIN32 -D_WINDOWS -DSTRICT -DWINDOWS \
+	-D"USE_SDL" -D"SOUND_SDL" \
 	-I$(BCCDIR)\include \
-	-ISDL
+	-I_SDL
 
-LDFLAGS = -L$(BCCDIR)\lib -LSDL
+LDFLAGS = -L$(BCCDIR)\lib -L_SDL
 
 
 # Compile flags:
@@ -88,6 +88,7 @@ CLI_SRCS = \
   client\main.c \
   client\main-sdl.c \
   client\netclient.c \
+  client\player-properties.c \
   client\set_focus.c \
   client\snd-sdl.c \
   client\sound-core.c \
@@ -150,6 +151,7 @@ CLI_OBJS = \
   client\main.obj \
   client\main-sdl.obj \
   client\netclient.obj \
+  client\player-properties.obj \
   client\set_focus.obj \
   client\snd-sdl.obj \
   client\sound-core.obj \
@@ -180,7 +182,7 @@ default: $(CLI_EXE)
 
 ########################### Explicit Rules ########################
 $(CLI_EXE): $(CLI_OBJS) win\angband.res
-	$(LINKER) -aa $(LDFLAGS) -x $(CLI_OBJS) c0x32.obj, $(CLI_EXE),, cw32mt.lib import32.lib ws2_32.lib SDL\SDL.lib SDL\SDL_ttf.lib SDL\SDL_image.lib SDL\SDL_mixer.lib,, win\angband.res
+	$(LINKER) -aa $(LDFLAGS) -x $(CLI_OBJS) c0x32.obj, $(CLI_EXE),, cw32mt.lib import32.lib ws2_32.lib _SDL\SDL.lib _SDL\SDL_ttf.lib _SDL\SDL_image.lib _SDL\SDL_mixer.lib,, win\angband.res
 
 win\angband.res: win\angband.rc
 	$(RC) -r win\angband.rc

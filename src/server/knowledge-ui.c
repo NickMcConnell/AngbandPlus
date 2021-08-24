@@ -5,7 +5,7 @@
  * Copyright (c) 1997-2007 Robert A. Koeneke, James E. Wilson, Ben Harrison,
  * Eytan Zweig, Andrew Doull, Pete Mack.
  * Copyright (c) 2004 DarkGod (HTML dump code)
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -140,7 +140,7 @@ static struct
     {"H",               "Hybrids"},
     {"M",               "Hydras"},
     {"i",               "Icky Things"},
-    {"lFI",             "Insects"},
+    {"FI",              "Insects"},
     {"j",               "Jellies"},
     {"K",               "Killer Beetles"},
     {"k",               "Kobolds"},
@@ -157,6 +157,7 @@ static struct
     {"S",               "Scorpions/Spiders"},
     {"s",               "Skeletons"},
     {"J",               "Snakes"},
+    {"l",               "Trees/Ents"},
     {"T",               "Trolls"},
     {"V",               "Vampires"},
     {"W",               "Wights/Wraiths"},
@@ -291,7 +292,9 @@ static void do_cmd_knowledge_monsters(struct player *p, int line)
             a = COLOUR_VIOLET;
 
         /* Display kills */
-        if (monster_is_unique(race))
+        if (!race->rarity)
+            my_strcpy(kills, "shape", sizeof(kills));
+        else if (monster_is_unique(race))
             my_strcpy(kills, (lore->pkills? " dead": "alive"), sizeof(kills));
         else
             strnfmt(kills, sizeof(kills), "%5d", lore->pkills);
@@ -369,7 +372,7 @@ static const grouper object_text_order[] =
     {TV_HORN, "Horn"},
     {TV_DIGGING, "Digger"},
     {TV_CHEST, "Chest"},
-    {TV_SKELETON, "Junk/Other"},
+    {TV_SKELETON, NULL},
     {TV_BOTTLE, NULL},
     {TV_STONE, NULL},
     {TV_CORPSE, NULL},
@@ -1324,8 +1327,8 @@ static void do_cmd_knowledge_uniques(struct player *p, int line)
     {
         race = &r_info[k];
 
-        /* Only print Uniques */
-        if (monster_is_unique(race))
+        /* Only print Uniques that can be killed */
+        if (monster_is_unique(race) && !rf_has(race->flags, RF_NO_DEATH))
         {
             /* Only display "known" uniques */
             if (race->lore.seen)
@@ -1711,7 +1714,7 @@ void do_cmd_drop_gold(struct player *p, s32b amt)
     /* Take a turn */
     use_energy(p);
 
-    /* Substract from the player's gold */
+    /* Subtract from the player's gold */
     p->au -= amt;
 
     /* Message */
@@ -1731,7 +1734,7 @@ void do_cmd_drop_gold(struct player *p, s32b amt)
     obj->owner = p->id;
 
     /* Drop it */
-    drop_near(p, chunk_get(&p->wpos), &obj, 0, &p->grid, false, DROP_FADE);
+    drop_near(p, chunk_get(&p->wpos), &obj, 0, &p->grid, false, DROP_FADE, true);
 }
 
 
@@ -1847,7 +1850,7 @@ void do_cmd_steal(struct player *p, int dir)
         return;
     }
 
-    /* Check preventive inscription '^J' */
+    /* Check preventive inscription '^S' */
     if (check_prevent_inscription(p, INSCRIPTION_STEAL))
     {
         msg(p, "The item's inscription prevents it.");
@@ -2010,7 +2013,7 @@ void do_cmd_steal(struct player *p, int dir)
     {
         /* Base monster protection and player stealing skill */
         bool unique = rf_has(who->monster->race->flags, RF_UNIQUE);
-        int guard = (who->monster->race->level * (unique? 4: 3)) / 2 + who->monster->mspeed -
+        int guard = (who->monster->race->level * (unique? 4: 3)) / 4 + who->monster->mspeed -
             p->state.speed;
         int steal_skill = p->state.skills[SKILL_STEALTH] + adj_dex_th[p->state.stat_ind[STAT_DEX]];
         int monster_reaction;
@@ -2019,8 +2022,8 @@ void do_cmd_steal(struct player *p, int dir)
         guard /= 2;
 
         /* Monster base reaction, plus allowance for item weight */
-        monster_reaction = guard / 2 + randint1(MAX(guard / 2, 1));
-        if (obj && !tval_is_money(obj)) monster_reaction += obj->weight / 10;
+        monster_reaction = guard / 2 + randint1(MAX(guard, 1));
+        if (obj && !tval_is_money(obj)) monster_reaction += obj->weight / 20;
 
         /* Check for success */
         if (monster_reaction < steal_skill) success = true;
@@ -2103,14 +2106,18 @@ void do_cmd_steal(struct player *p, int dir)
             else
             {
                 char o_name[NORMAL_WID];
+                struct monster_lore *lore = get_lore(p, who->monster->race);
 
                 object_desc(p, o_name, sizeof(o_name), obj, ODESC_PREFIX | ODESC_FULL);
                 msg(p, "You steal %s from %s.", o_name, m_name);
                 inven_carry(p, obj, true, false);
+
+                /* Track thefts */
+                if (lore->thefts < SHRT_MAX) lore->thefts++;
             }
 
-            /* Monster wakes */
-            mon_clear_timed(p, who->monster, MON_TMD_SLEEP, MON_TMD_FLG_NOTIFY);
+            /* Monster wakes, may notice */
+            monster_wake(p, who->monster, true, 50);
         }
 
         /* Player hit and run */
@@ -2150,8 +2157,8 @@ void do_cmd_steal(struct player *p, int dir)
             monster_desc(p, m_name, sizeof(m_name), who->monster, MDESC_TARG);
             msg(p, "You fail to steal anything from %s.", m_name);
 
-            /* Monster wakes */
-            mon_clear_timed(p, who->monster, MON_TMD_SLEEP, MON_TMD_FLG_NOTIFY);
+            /* Monster wakes, may notice */
+            monster_wake(p, who->monster, true, 50);
         }
     }
 
@@ -2533,7 +2540,7 @@ void do_cmd_fountain(struct player *p, int item)
         apply_magic(p, c, obj, p->wpos.depth, false, false, false, false);
 
         /* Drop it in the dungeon */
-        drop_near(p, c, &obj, 0, &p->grid, true, DROP_FADE);
+        drop_near(p, c, &obj, 0, &p->grid, true, DROP_FADE, false);
     }
 
     /* Drink from a fountain */
@@ -2753,7 +2760,7 @@ static bool mimic_shape(struct player_shape *shapes, struct monster_race *race, 
     {
         if ((lev >= shape->lvl) && streq(race->name, shape->name)) return true;
         shape = shape->next;
-}
+    }
 
     return false;
 }

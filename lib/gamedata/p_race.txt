@@ -1,7 +1,7 @@
 # File: p_race.txt
 
 
-# This file is used to initialize the "player race" information for PWMAngband.
+# This file is used to initialize the player race information for PWMAngband.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
@@ -18,15 +18,19 @@
 # skill-melee:base
 # skill-shoot:base
 # skill-dig:base
-# info:hitdie:expbase
-# history:history:agebase:agemod
-# height:hgtmale:modhgtmale:hgtfemale:modhgtfemale
-# weight:wgtmale:modwgtmale:wgtfemale:modwgtfemale
+# hitdie:hitdie
+# exp:expbase:classic expbase
+# history:history
+# age:agebase:agemod
+# height:hgt:modhgt
+# weight:wgt:modwgt
 # obj-flag:level of application:object flag
 # value:level of application:object modifier
 # brand:level of application:brand code
 # slay:level of application:slay code
 # player-flags:racial flags
+# shape:level of application:monster race
+# attack:verb:hit_extra:min_level:chance:effect
 
 # 'name' indicates the beginning of an entry.
 
@@ -34,17 +38,18 @@
 # and magical disarming, magic devices, saving throws, stealth,
 # to hit (normal), to hit (bows), digging bonus.
 
-# 'info' is for gameplay info - max. hitpoints gained per level, experience
-# factor in percent.
+# 'hitdie' is for max. hitpoints gained per level.
 
-# 'history' is for background info - starting point of the player history,
-# base age, random age modifier.
+# 'exp' is for percent of "standard" experience needed to gain a level.
+# 'classic expbase' is used instead in the "classic experience factor" mode
 
-# 'height' is height info - base height (males), mod height (males),
-# base height (females), mod height (females).
+# 'history' is for starting point of the player history (see history.txt).
 
-# 'weight' is weight info - base weight (males), mod weight (males),
-# base weight (females), mod weight (females).
+# 'age' is age info - base age, random age modifier.
+
+# 'height' is height info - base height, random height modifier.
+
+# 'weight' is weight info - base weight, random weight modifier.
 
 # 'obj-flag' is for object flags (as in list-object-flags.h) that
 # races possess innately at a certain level.
@@ -59,6 +64,10 @@
 # 'player-flags' is for player flags (as in list-player-flags.h) that
 # races possess innately.
 
+# 'shape' is for shapes that races can polymorph into at a certain level.
+
+# 'attack' is for barehanded attacks.
+
 
 name:Human
 skill-disarm-phys:0
@@ -70,10 +79,12 @@ skill-search:0
 skill-melee:0
 skill-shoot:0
 skill-dig:0
-info:10:100
-history:1:14:6
-height:72:6:66:4
-weight:180:25:150:20
+hitdie:10
+exp:100:100
+history:1
+age:14:6
+height:69:10
+weight:165:35
 
 name:Half-Elf
 skill-disarm-phys:2
@@ -85,10 +96,12 @@ skill-search:3
 skill-melee:-1
 skill-shoot:5
 skill-dig:0
-info:10:110
-history:4:24:16
-height:66:6:62:6
-weight:130:15:100:10
+hitdie:10
+exp:120:110
+history:4
+age:24:16
+height:71:8
+weight:115:25
 obj-flag:1:SUST_DEX
 value:1:INT[1]
 value:1:WIS[-1]
@@ -106,10 +119,12 @@ skill-search:6
 skill-melee:-5
 skill-shoot:15
 skill-dig:0
-info:9:120
-history:5:75:75
-height:60:4:54:4
-weight:100:6:80:6
+hitdie:9
+exp:120:120
+history:5
+age:75:75
+height:73:7
+weight:90:10
 obj-flag:1:SUST_DEX
 value:1:STR[-1]
 value:1:INT[2]
@@ -129,10 +144,12 @@ skill-search:6
 skill-melee:-10
 skill-shoot:20
 skill-dig:0
-info:7:110
-history:10:21:12
-height:36:3:33:3
-weight:60:3:50:3
+hitdie:7
+exp:120:110
+history:10
+age:21:12
+height:34:4
+weight:55:5
 obj-flag:1:HOLD_LIFE
 value:1:STR[-2]
 value:1:INT[2]
@@ -152,10 +169,12 @@ skill-search:4
 skill-melee:-8
 skill-shoot:12
 skill-dig:0
-info:8:125
-history:13:50:40
-height:42:3:39:3
-weight:90:6:75:3
+hitdie:8
+exp:120:125
+history:13
+age:50:40
+height:40:5
+weight:80:5
 obj-flag:1:FREE_ACT
 value:1:STR[-1]
 value:1:INT[2]
@@ -174,10 +193,12 @@ skill-search:2
 skill-melee:15
 skill-shoot:0
 skill-dig:40
-info:11:120
-history:16:35:15
-height:48:3:46:3
-weight:150:10:120:10
+hitdie:11
+exp:120:120
+history:16
+age:35:15
+height:47:4
+weight:135:20
 obj-flag:1:PROT_BLIND
 value:1:STR[2]
 value:1:INT[-3]
@@ -197,10 +218,12 @@ skill-search:-3
 skill-melee:12
 skill-shoot:-5
 skill-dig:0
-info:10:110
-history:19:11:4
-height:66:1:62:1
-weight:150:5:120:5
+hitdie:10
+exp:120:110
+history:19
+age:11:4
+height:64:2
+weight:135:15
 value:1:STR[2]
 value:1:INT[-1]
 value:1:CON[1]
@@ -218,10 +241,12 @@ skill-search:-9
 skill-melee:20
 skill-shoot:-10
 skill-dig:0
-info:12:120
-history:21:20:10
-height:96:10:84:8
-weight:250:50:225:40
+hitdie:12
+exp:120:120
+history:21
+age:20:10
+height:90:16
+weight:240:60
 obj-flag:1:SUST_STR
 obj-flag:1:REGEN
 value:1:STR[4]
@@ -242,10 +267,12 @@ skill-search:3
 skill-melee:15
 skill-shoot:10
 skill-dig:0
-info:10:180
-history:1:50:20
-height:82:5:78:6
-weight:190:20:180:15
+hitdie:10
+exp:120:180
+history:1
+age:50:20
+height:80:6
+weight:190:20
 obj-flag:1:SUST_CON
 value:1:STR[1]
 value:1:INT[2]
@@ -263,10 +290,12 @@ skill-search:10
 skill-melee:10
 skill-shoot:25
 skill-dig:0
-info:10:200
-history:7:100:30
-height:90:10:82:10
-weight:190:20:180:15
+hitdie:10
+exp:145:200
+history:7
+age:100:30
+height:77:6
+weight:190:20
 obj-flag:1:SEE_INVIS
 value:1:STR[1]
 value:1:INT[3]
@@ -286,10 +315,12 @@ skill-search:10
 skill-melee:-5
 skill-shoot:10
 skill-dig:0
-info:8:115
-history:23:15:10
-height:38:4:36:3
-weight:70:5:60:4
+hitdie:8
+exp:120:115
+history:23
+age:15:10
+height:37:4
+weight:65:5
 value:1:STR[-1]
 value:1:INT[-1]
 value:1:DEX[2]
@@ -307,10 +338,12 @@ skill-search:0
 skill-melee:0
 skill-shoot:0
 skill-dig:0
-info:6:50:0
-history:1:14:6
-height:24:2:22:2
-weight:40:2:32:2
+hitdie:6
+exp:80:50
+history:1
+age:14:6
+height:23:3
+weight:36:6
 obj-flag:1:FEATHER
 value:1:STR[-5]
 value:1:INT[-5]
@@ -329,10 +362,12 @@ skill-search:2
 skill-melee:15
 skill-shoot:5
 skill-dig:0
-info:14:275
-history:94:255:70
-height:180:6:150:4
-weight:255:25:230:20
+hitdie:14
+exp:165:275
+history:94
+age:255:70
+height:170:20
+weight:240:60
 obj-flag:1:SLOW_DIGEST
 obj-flag:5:SEE_INVIS
 obj-flag:10:ESP_ANIMAL
@@ -364,10 +399,12 @@ skill-search:10
 skill-melee:15
 skill-shoot:5
 skill-dig:0
-info:12:350
-history:89:14:6
-height:180:6:150:4
-weight:255:25:230:20
+hitdie:12
+exp:180:350
+history:89
+age:14:6
+height:170:20
+weight:240:60
 obj-flag:1:FEATHER
 obj-flag:5:ESP_DRAGON
 value:1:STR[6]
@@ -391,11 +428,37 @@ skill-search:10
 skill-melee:15
 skill-shoot:5
 skill-dig:0
-info:13:450
-history:98:255:70
-height:180:6:150:4
-weight:255:25:230:20
+hitdie:13
+exp:210:450
+history:98
+age:255:70
+height:170:20
+weight:240:60
 obj-flag:1:FEATHER
 value:1:INFRA[1]
 value:1:RES_NEXUS[1]
-player-flags:DRAGON
+player-flags:DRAGON | FAST_THROW
+attack:claw:none:1:0:NONE
+attack:bite:none:5:4:DAM
+attack:crush:none:45:40:CRUSH
+
+name:Hydra
+skill-disarm-phys:0
+skill-disarm-magic:0
+skill-device:0
+skill-save:0
+skill-stealth:0
+skill-search:0
+skill-melee:0
+skill-shoot:0
+skill-dig:0
+hitdie:10
+exp:195:400
+history:97
+age:255:70
+height:170:20
+weight:240:60
+obj-flag:1:AGGRAVATE
+player-flags:HYDRA | FAST_THROW
+attack:bite:none:1:0:NONE
+attack:hit: with a circular attack:35:30:CIRCLE

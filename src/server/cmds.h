@@ -20,7 +20,7 @@ extern bool do_cmd_tunnel(struct player *p);
 extern void do_cmd_disarm(struct player *p, int dir, bool easy);
 extern void do_cmd_alter(struct player *p, int dir);
 extern void move_player(struct player *p, struct chunk *c, int dir, bool disarm,
-    bool check_pickup, bool force);
+    bool check_pickup, bool force, int delayed);
 extern void do_cmd_walk(struct player *p, int dir);
 extern void do_cmd_jump(struct player *p, int dir);
 extern void do_cmd_run(struct player *p, int dir);
@@ -52,7 +52,7 @@ extern void do_cmd_destroy(struct player *p, int item, bool des);
 extern void do_cmd_study(struct player *p, int book_index, int spell_index);
 extern bool do_cmd_cast(struct player *p, int book_index, int spell_index, int dir);
 extern bool execute_effect(struct player *p, struct object **obj_address, struct effect *effect,
-    int dir, bool *ident, bool *used, bool *notice);
+    int dir, const char *inscription, bool *ident, bool *used, bool *notice);
 extern void do_cmd_use_staff(struct player *p, int item);
 extern void do_cmd_aim_wand(struct player *p, int item, int dir);
 extern void do_cmd_zap_rod(struct player *p, int item, int dir);

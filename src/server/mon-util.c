@@ -3,7 +3,7 @@
  * Purpose: Monster manipulation utilities.
  *
  * Copyright (c) 1997-2007 Ben Harrison, James E. Wilson, Robert A. Koeneke
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -19,6 +19,11 @@
 
 
 #include "s-angband.h"
+
+
+/*
+ * Lore utilities
+ */
 
 
 static const struct monster_flag monster_flag_table[] =
@@ -77,6 +82,11 @@ void create_mon_flag_mask(bitflag *f, ...)
 
 
 /*
+ * Lore utilities
+ */
+
+
+/*
  * Return whether the given base matches any of the names given.
  *
  * Accepts a variable-length list of name strings. The list must end with NULL.
@@ -94,6 +104,11 @@ bool match_monster_bases(const struct monster_base *base, ...)
 
     return ok;
 }
+
+
+/*
+ * Monster updates
+ */
 
 
 /*
@@ -300,7 +315,7 @@ static void update_mon_aux(struct player *p, struct monster *mon, struct chunk *
     /* Detected */
     if (p->mon_det[mon->midx]) flag = true;
 
-    /* Check if telepathy works */
+    /* Check if telepathy works here */
     if (square_isno_esp(c, &mon->grid) || square_isno_esp(c, &grid))
         telepathy_ok = false;
 
@@ -314,41 +329,13 @@ static void update_mon_aux(struct player *p, struct monster *mon, struct chunk *
         basic = (isDM || ((hasESP || isTL) && telepathy_ok));
 
         /* Basic telepathy */
-        if (basic)
+        if (basic && monster_is_esp_detectable(mon, isDM))
         {
-            /* Empty mind, no telepathy */
-            if (rf_has(mon->race->flags, RF_EMPTY_MIND)) {}
+            /* Detectable */
+            flag = true;
 
-            /* Weird mind, one in ten individuals are detectable */
-            else if (rf_has(mon->race->flags, RF_WEIRD_MIND))
-            {
-                if ((mon->midx % 10) == 5)
-                {
-                    /* Detectable */
-                    flag = true;
-
-                    /* Check for LOS so that MFLAG_VIEW is set later */
-                    if (square_isview(p, &mon->grid)) easy = true;
-                }
-            }
-
-            /* Normal mind, allow telepathy */
-            else
-            {
-                flag = true;
-
-                /* Check for LOS so that MFLAG_VIEW is set later */
-                if (square_isview(p, &mon->grid)) easy = true;
-            }
-
-            /* DM has perfect ESP */
-            if (isDM)
-            {
-                flag = true;
-
-                /* Check for LOS so that MFLAG_VIEW is set later */
-                if (square_isview(p, &mon->grid)) easy = true;
-            }
+            /* Check for LOS so that MFLAG_VIEW is set later */
+            if (square_isview(p, &mon->grid)) easy = true;
         }
 
         /* Normal line of sight and player is not blind */
@@ -371,9 +358,6 @@ static void update_mon_aux(struct player *p, struct monster *mon, struct chunk *
             /* Use illumination */
             if (square_isseen(p, &mon->grid))
             {
-                /* Learn it emits light */
-                rf_on(lore->flags, RF_HAS_LIGHT);
-
                 /* Learn about invisibility */
                 rf_on(lore->flags, RF_INVISIBLE);
 
@@ -434,7 +418,7 @@ static void update_mon_aux(struct player *p, struct monster *mon, struct chunk *
         }
 
         /* Efficiency -- notice multi-hued monsters */
-        if (monster_shimmer(mon->race) && allow_shimmer(p))
+        if (monster_shimmer(mon->race) && monster_allow_shimmer(p))
             c->scan_monsters = true;
     }
 
@@ -471,7 +455,10 @@ static void update_mon_aux(struct player *p, struct monster *mon, struct chunk *
             if (OPT(p, disturb_near) && (mon->level > 0) && pvm_check(p, mon) &&
                 !monster_is_camouflaged(mon))
             {
-                disturb(p, (p->firing_request? 3: 1));
+                /* Hack -- do not cancel fire_till_kill on appearance */
+                if (p->firing_request) p->cancel_firing = false;
+
+                disturb(p);
             }
 
             /* Redraw */
@@ -561,87 +548,24 @@ void update_monsters(struct chunk *c, bool full)
 }
 
 
-/*  
- * See if a monster can carry an object (it will pick up either way)
+/*
+ * Monster (and player) actual movement
  */
-static bool monster_can_carry(struct monster *mon, struct object *obj, bool force)
-{
-    int total_number = 0;
-    struct object *held_obj;
-
-    /* Always carry artifacts */
-    if (obj->artifact) return true;
-
-    /* Clones don't carry stuff */
-    if (mon->clone) return false;
-
-    /* Force to carry monster drops */
-    if (force) return true;
-
-    /* Only carry stuff in the dungeon */
-    if (mon->wpos.depth == 0) return false;
-
-#if !defined(MAX_MONSTER_BAG)
-    return true;
-#else
-    /* Scan objects already being held for combination */
-    for (held_obj = mon->held_obj; held_obj; held_obj = held_obj->next)
-        total_number++;
-
-    /*
-     * Chance-based response. The closer monster to his limit, the less the chance is.
-     * If he reached the limit, he will not pick up
-     * XXX XXX XXX -- double chance && strict limit
-     */
-    if ((randint0(MAX_MONSTER_BAG) * 2 > total_number) && (total_number < MAX_MONSTER_BAG))
-        return true;
-
-    return false;
-#endif
-}
 
 
 /*
- * Add the given object to the given monster's inventory.
- *
- * Returns true if the object is successfully added, false otherwise.
+ * Called when the player has just left grid1 for grid2.
  */
-bool monster_carry(struct monster *mon, struct object *obj, bool force)
+static void player_leaving(struct player *p, struct chunk *c, struct loc *grid1, struct loc *grid2)
 {
-    struct object *held_obj;
+    struct loc *decoy = cave_find_decoy(c);
 
-    /* See if the monster can carry the object */
-    if (!monster_can_carry(mon, obj, force)) return false;
+    /* Decoys get destroyed if player is too far away */
+    if (!loc_is_zero(decoy) && (distance(decoy, grid2) > z_info->max_sight))
+        square_destroy_decoy(p, c, decoy);
 
-    /* Scan objects already being held for combination */
-    for (held_obj = mon->held_obj; held_obj; held_obj = held_obj->next)
-    {
-        /* Check for combination */
-        if (object_similar(NULL, held_obj, obj, OSTACK_MONSTER))
-        {
-            /* Combine the items */
-            object_absorb(held_obj, obj);
-
-            /* Result */
-            return true;
-        }
-    }
-
-    /* Forget location */
-    loc_init(&obj->grid, 0, 0);
-
-    /* Hack -- reset index */
-    obj->oidx = 0;
-
-    /* Link the object to the monster */
-    obj->held_m_idx = mon->midx;
-    memcpy(&obj->wpos, &mon->wpos, sizeof(struct worldpos));
-
-    /* Add the object to the monster's inventory */
-    pile_insert(&mon->held_obj, obj);
-
-    /* Result */
-    return true;
+    /* Delayed traps trigger when the player leaves */
+    hit_trap(p, grid1, 1);
 }
 
 
@@ -653,7 +577,6 @@ void monster_swap(struct chunk *c, struct loc *grid1, struct loc *grid2)
     struct player *p;
     int m1, m2;
     struct monster *mon;
-    struct loc *decoy = cave_find_decoy(c);
 
     /* Hack -- don't use grid1 and grid2 directly, they may refer to current player/monster grids */
     struct loc from, to;
@@ -683,8 +606,8 @@ void monster_swap(struct chunk *c, struct loc *grid1, struct loc *grid2)
         /* Update monster */
         update_mon(mon, c, true);
 
-        /* Radiate light? */
-        if (rf_has(mon->race->flags, RF_HAS_LIGHT)) update_view_all(&c->wpos, 0);
+        /* Affect light? */
+        if (mon->race->light != 0) update_view_all(&c->wpos, 0);
     }
 
     /* Player 1 */
@@ -697,10 +620,7 @@ void monster_swap(struct chunk *c, struct loc *grid1, struct loc *grid2)
 
         /* Move player */
         loc_copy(&p->grid, &to);
-
-        /* Decoys get destroyed if player is too far away */
-        if (!loc_is_zero(decoy) && (distance(decoy, &p->grid) > z_info->max_sight))
-            square_destroy_decoy(p, c, decoy);
+        player_leaving(p, c, &p->old_grid, &p->grid);
 
         /* Update the trap detection status */
         p->upkeep->redraw |= (PR_DTRAP);
@@ -731,8 +651,8 @@ void monster_swap(struct chunk *c, struct loc *grid1, struct loc *grid2)
         /* Update monster */
         update_mon(mon, c, true);
 
-        /* Radiate light? */
-        if (rf_has(mon->race->flags, RF_HAS_LIGHT)) update_view_all(&c->wpos, 0);
+        /* Affect light? */
+        if (mon->race->light != 0) update_view_all(&c->wpos, 0);
     }
 
     /* Player 2 */
@@ -745,10 +665,7 @@ void monster_swap(struct chunk *c, struct loc *grid1, struct loc *grid2)
 
         /* Move player */
         loc_copy(&p->grid, &from);
-
-        /* Decoys get destroyed if player is too far away */
-        if (!loc_is_zero(decoy) && (distance(decoy, &p->grid) > z_info->max_sight))
-            square_destroy_decoy(p, c, decoy);
+        player_leaving(p, c, &p->old_grid, &p->grid);
 
         /* Update the trap detection status */
         p->upkeep->redraw |= (PR_DTRAP);
@@ -768,6 +685,23 @@ void monster_swap(struct chunk *c, struct loc *grid1, struct loc *grid2)
     /* Redraw */
     square_light_spot(c, &from);
     square_light_spot(c, &to);
+}
+
+
+/*
+ * Awareness and learning
+ */
+
+
+/*
+ * Monster wakes up and possibly becomes aware of the player
+ */
+void monster_wake(struct player *p, struct monster *mon, bool notify, int aware_chance)
+{
+    int flag = (notify? MON_TMD_FLG_NOTIFY: MON_TMD_FLG_NOMESSAGE);
+
+    mon_clear_timed(p, mon, MON_TMD_SLEEP, flag);
+    if (randint0(100) < aware_chance) mflag_on(mon->mflag, MFLAG_AWARE);
 }
 
 
@@ -795,7 +729,7 @@ void become_aware(struct player *p, struct chunk *c, struct monster *mon)
 
     if (!monster_is_camouflaged(mon)) return;
 
-    mon->camouflage = false;
+    mflag_off(mon->mflag, MFLAG_CAMOUFLAGE);
 
     /* Learn about mimicry */
     if (lore && rf_has(mon->race->flags, RF_UNAWARE)) rf_on(lore->flags, RF_UNAWARE);
@@ -833,7 +767,7 @@ void become_aware(struct player *p, struct chunk *c, struct monster *mon)
         if (p) msg(p, "The %s was really a monster!", f_info[square(c, &mon->grid)->feat].name);
 
         /* Clear the feature */
-        square_set_feat(c, &mon->grid, mon->feat);
+        square_set_floor(c, &mon->grid, mon->feat);
     }
 
     /* Update monster and item lists */
@@ -874,7 +808,7 @@ void update_smart_learn(struct monster *mon, struct player *p, int flag, int pfl
     if (monster_is_stupid(mon->race)) return;
 
     /* Not intelligent, only learn sometimes */
-    if (!monster_is_smart(mon->race) && one_in_(2)) return;
+    if (!monster_is_smart(mon) && one_in_(2)) return;
 
     /* Analyze the knowledge; fail very rarely */
     if (one_in_(100)) return;
@@ -901,6 +835,11 @@ void update_smart_learn(struct monster *mon, struct player *p, int flag, int pfl
     if (element_ok)
         mon->known_pstate.el_info[element].res_level = p->state.el_info[element].res_level;
 }
+
+
+/*
+ * Monster healing
+ */
 
 
 #define MAX_KIN_RADIUS      5
@@ -984,6 +923,11 @@ struct monster *choose_nearby_injured_kin(struct chunk *c, const struct monster 
 
     return found;
 }
+
+
+/*
+ * Monster damage and death utilities
+ */
 
 
 /*
@@ -1118,6 +1062,17 @@ static void player_kill_monster(struct player *p, struct chunk *c, struct source
     /* Assume normal death sound */
     int soundfx = MSG_KILL;
 
+    /* Extract monster name */
+    monster_desc(p, m_name, sizeof(m_name), mon, MDESC_DEFAULT);
+
+    /* Shapechanged monsters revert on death */
+    if (mon->original_race)
+    {
+        monster_revert_shape(p, mon);
+        lore = get_lore(p, mon->race);
+        monster_desc(p, m_name, sizeof(m_name), mon, MDESC_DEFAULT);
+    }
+
     /* Play a special sound if the monster was unique */
     if (monster_is_unique(mon->race))
     {
@@ -1126,9 +1081,6 @@ static void player_kill_monster(struct player *p, struct chunk *c, struct source
         else
             soundfx = MSG_KILL_UNIQUE;
     }
-
-    /* Extract monster name */
-    monster_desc(p, m_name, sizeof(m_name), mon, MDESC_DEFAULT);
 
     /* Death message */
     switch (note)
@@ -1259,8 +1211,8 @@ static void player_kill_monster(struct player *p, struct chunk *c, struct source
     /* Redraw */
     p->upkeep->redraw |= (PR_MONLIST | PR_ITEMLIST);
 
-    /* Radiate light? */
-    if (rf_has(mon->race->flags, RF_HAS_LIGHT)) update_view_all(&c->wpos, 0);
+    /* Affect light? */
+    if (mon->race->light != 0) update_view_all(&c->wpos, 0);
 
     /* Delete the monster */
     delete_monster_idx(c, mon->midx);
@@ -1270,7 +1222,8 @@ static void player_kill_monster(struct player *p, struct chunk *c, struct source
 /*
  * See how a monster reacts to damage
  */
-static void monster_scared_by_damage(struct player *p, struct monster *mon, int dam, bool *fear)
+static void monster_scared_by_damage(struct player *p, struct chunk *c, struct monster *mon,
+    int dam, bool *fear)
 {
     /* Pain can reduce or cancel existing fear, or cause fear */
     if (!(*fear) && mon->m_timed[MON_TMD_FEAR] && (dam > 0))
@@ -1294,7 +1247,7 @@ static void monster_scared_by_damage(struct player *p, struct monster *mon, int 
     }
 
     /* Sometimes a monster gets scared by damage */
-    if (!mon->m_timed[MON_TMD_FEAR] && !rf_has(mon->race->flags, RF_NO_FEAR))
+    if (monster_can_be_scared(c, mon))
     {
         int percentage;
 
@@ -1335,12 +1288,15 @@ bool mon_take_hit(struct player *p, struct chunk *c, struct monster *mon, int da
     struct source who_body;
     struct source *who = &who_body;
 
+    /* If it cannot die, we're done */
+    if (rf_has(mon->race->flags, RF_NO_DEATH)) return false;
+
     /* Redraw (later) if needed */
     source_monster(who, mon);
     update_health(who);
 
-    /* Wake it up */
-    mon_clear_timed(p, mon, MON_TMD_SLEEP, MON_TMD_FLG_NOMESSAGE);
+    /* Wake it up, make it aware of the player */
+    monster_wake(p, mon, false, 100);
     mon_clear_timed(p, mon, MON_TMD_HOLD, MON_TMD_FLG_NOTIFY);
 
     /* Become aware of its presence */
@@ -1348,6 +1304,9 @@ bool mon_take_hit(struct player *p, struct chunk *c, struct monster *mon, int da
 
     /* No damage, we're done */
     if (dam == 0) return false;
+
+    /* Covering tracks is no longer possible */
+    p->timed[TMD_COVERTRACKS] = 0;
 
     /* Hurt it */
     mon->hp -= dam;
@@ -1366,7 +1325,7 @@ bool mon_take_hit(struct player *p, struct chunk *c, struct monster *mon, int da
     }
 
     /* Did it get frightened? */
-    monster_scared_by_damage(p, mon, dam, fear);
+    monster_scared_by_damage(p, c, mon, dam, fear);
 
     /* Not dead yet */
     return false;
@@ -1395,9 +1354,115 @@ void monster_take_terrain_damage(struct chunk *c, struct monster *mon)
         if (square_isnether(c, &mon->grid))
             note_dies = MON_MSG_DRAIN;
 
+        if (rf_has(mon->race->flags, RF_AQUATIC))
+            note_dies = MON_MSG_SUFFOCATE;
+
         project_m_monster_attack_aux(NULL, c, mon, 100 + randint1(100), note_dies);
     }
 }
+
+
+/*
+ * Terrain is currently damaging monster
+ */
+bool monster_taking_terrain_damage(struct chunk *c, struct monster *mon)
+{
+    return monster_hates_grid(c, mon, &mon->grid);
+}
+
+
+/*
+ * Monster inventory utilities
+ */
+
+
+/*  
+ * See if a monster can carry an object (it will pick up either way)
+ */
+static bool monster_can_carry(struct monster *mon, struct object *obj, bool force)
+{
+    int total_number = 0;
+    struct object *held_obj;
+
+    /* Always carry artifacts */
+    if (obj->artifact) return true;
+
+    /* Clones don't carry stuff */
+    if (mon->clone) return false;
+
+    /* Force to carry monster drops */
+    if (force) return true;
+
+    /* Only carry stuff in the dungeon */
+    if (mon->wpos.depth == 0) return false;
+
+#if !defined(MAX_MONSTER_BAG)
+    return true;
+#else
+    /* Scan objects already being held for combination */
+    for (held_obj = mon->held_obj; held_obj; held_obj = held_obj->next)
+        total_number++;
+
+    /*
+     * Chance-based response. The closer monster to his limit, the less the chance is.
+     * If he reached the limit, he will not pick up
+     * XXX XXX XXX -- double chance && strict limit
+     */
+    if ((randint0(MAX_MONSTER_BAG) * 2 > total_number) && (total_number < MAX_MONSTER_BAG))
+        return true;
+
+    return false;
+#endif
+}
+
+
+/*
+ * Add the given object to the given monster's inventory.
+ *
+ * Returns true if the object is successfully added, false otherwise.
+ */
+bool monster_carry(struct monster *mon, struct object *obj, bool force)
+{
+    struct object *held_obj;
+
+    /* See if the monster can carry the object */
+    if (!monster_can_carry(mon, obj, force)) return false;
+
+    /* Scan objects already being held for combination */
+    for (held_obj = mon->held_obj; held_obj; held_obj = held_obj->next)
+    {
+        /* Check for combination */
+        if (object_similar(NULL, held_obj, obj, OSTACK_MONSTER))
+        {
+            /* Combine the items */
+            object_absorb(held_obj, obj);
+
+            /* Result */
+            return true;
+        }
+    }
+
+    /* Forget location */
+    loc_init(&obj->grid, 0, 0);
+
+    /* Hack -- reset index */
+    obj->oidx = 0;
+
+    /* Link the object to the monster */
+    obj->held_m_idx = mon->midx;
+    memcpy(&obj->wpos, &mon->wpos, sizeof(struct worldpos));
+
+    /* Add the object to the monster's inventory */
+    pile_insert(&mon->held_obj, obj);
+
+    /* Result */
+    return true;
+}
+
+
+/*
+ * Player updates
+ */
 
 
 static bool is_detected_p(struct player *p, struct player *q, int dis_esp)
@@ -1412,6 +1477,7 @@ static bool is_detected_p(struct player *p, struct player *q, int dis_esp)
     if (player_has(q, PF_THUNDERLORD) && player_of_has(p, OF_ESP_DRAGON)) return true;
     if (player_has(q, PF_ANIMAL) && player_of_has(p, OF_ESP_ANIMAL)) return true;
     if (player_has(q, PF_DRAGON) && player_of_has(p, OF_ESP_DRAGON)) return true;
+    if (player_has(q, PF_HYDRA) && player_of_has(p, OF_ESP_ANIMAL)) return true;
     if (q->ghost && player_of_has(p, OF_ESP_UNDEAD)) return true;
 
     /* Radius ESP */
@@ -1439,6 +1505,9 @@ static void update_player_aux(struct player *p, struct player *q, struct chunk *
 
     bool isDM = ((p->dm_flags & DM_SEE_PLAYERS)? true: false);
 
+    /* Players in the same party are always visible */
+    bool inParty = in_party(p, q->party);
+
     /* Compute distance */
     d = distance(&q->grid, &p->grid);
 
@@ -1459,14 +1528,14 @@ static void update_player_aux(struct player *p, struct player *q, struct chunk *
         telepathy_ok = false;
 
     /* Nearby */
-    if ((d <= z_info->max_sight) || !cfg_limited_esp || isDM)
+    if ((d <= z_info->max_sight) || !cfg_limited_esp || isDM || inParty)
     {
         bool hasESP = is_detected_p(p, q, d_esp);
         bool isTL = (player_has(p, PF_THUNDERLORD) &&
             (d_esp <= (p->lev * z_info->max_sight / PY_MAX_LEVEL)));
 
         /* Basic telepathy */
-        if (isDM || ((hasESP || isTL) && telepathy_ok))
+        if (isDM || inParty || ((hasESP || isTL) && telepathy_ok))
         {
             /* Empty mind, no telepathy */
             if (q->poly_race && rf_has(q->poly_race->flags, RF_EMPTY_MIND)) {}
@@ -1495,8 +1564,8 @@ static void update_player_aux(struct player *p, struct player *q, struct chunk *
                 if (square_isview(p, &q->grid)) easy = true;
             }
 
-            /* DM has perfect ESP */
-            if (isDM)
+            /* DM or party members have perfect ESP */
+            if (isDM || inParty)
             {
                 /* Detectable */
                 flag = true;
@@ -1549,9 +1618,6 @@ static void update_player_aux(struct player *p, struct player *q, struct chunk *
             path_analyse(p, c, &q->grid);
         }
 
-        /* Players in the same party are always visible */
-        if (in_party(p, q->party)) easy = flag = true;
-
         /* Hack -- dungeon masters are invisible */
         if (q->dm_flags & DM_SECRET_PRESENCE) easy = flag = false;
     }
@@ -1575,7 +1641,7 @@ static void update_player_aux(struct player *p, struct player *q, struct chunk *
         }
 
         /* Efficiency -- notice multi-hued players */
-        if (q->poly_race && monster_shimmer(q->poly_race) && allow_shimmer(p))
+        if (q->poly_race && monster_shimmer(q->poly_race) && monster_allow_shimmer(p))
             q->shimmer = true;
 
         /* Efficiency -- notice party leaders */
@@ -1615,7 +1681,7 @@ static void update_player_aux(struct player *p, struct player *q, struct chunk *
                  !p->firing_request)
             {
                 /* Disturb */
-                disturb(p, 1);
+                disturb(p);
             }
         }
     }
@@ -1692,17 +1758,11 @@ bool is_humanoid(const struct monster_race *race)
 
 
 /*
- * Half humanoid monsters: nagas (half snake/half human), hybrids,
- * driders (half spider/half human), human metamorphs
+ * Half humanoid monsters: nagas (half snake/half human), hybrids, human metamorphs
  */
 bool is_half_humanoid(const struct monster_race *race)
 {
-    if ((race->base == lookup_monster_base("naga")) || strstr(race->name, "harpy") ||
-        strstr(race->name, "taur") || streq(race->name, "Sphinx") ||
-        streq(race->name, "Gorgon") || streq(race->name, "Drider") ||
-        strstr(race->name, "Were")) return true;
-
-    return false;
+    return rf_has(race->flags, RF_HYBRID);
 }
 
 
@@ -1738,5 +1798,190 @@ void update_view_all(struct worldpos *wpos, int skip)
         if (wpos_eq(&player->wpos, wpos) && (i != skip))
             player->upkeep->update |= PU_UPDATE_VIEW;
     }
+}
+
+
+/*
+ * Monster shapechange utilities
+ */
+
+
+/*
+ * The shape base for shapechanges
+ */
+struct monster_base *shape_base;
+
+
+/*
+ * Predicate function for get_mon_num_prep
+ * Check to see if the monster race has the same base as the desired shape
+ */
+static bool monster_base_shape_okay(struct monster_race *race)
+{
+    my_assert(race);
+
+    /* Check if it matches */
+    if (race->base != shape_base) return false;
+
+    return true;
+}
+
+
+/*
+ * Monster shapechange
+ */
+bool monster_change_shape(struct player *p, struct monster *mon)
+{
+    struct monster_shape *shape = mon->race->shapes;
+    struct monster_race *race = NULL;
+    struct chunk *c = chunk_get(&p->wpos);
+
+    /* Use the monster's preferred shapes if any */
+    if (shape)
+    {
+        /* Pick one */
+        int choice = randint0(mon->race->num_shapes);
+
+        while (choice--) shape = shape->next;
+
+        /* Race or base? */
+        if (shape->race)
+        {
+            /* Simple */
+            race = shape->race;
+        }
+        else
+        {
+            /* Set the shape base */
+            shape_base = shape->base;
+
+            /* Choose a race of the given base */
+            get_mon_num_prep(monster_base_shape_okay);
+
+            /* Pick a random race */
+            race = get_mon_num(c, p->wpos.depth + 5, false);
+
+            /* Reset allocation table */
+            get_mon_num_prep(NULL);
+        }
+    }
+
+    /* Choose something the monster can summon */
+    else
+    {
+        bitflag summon_spells[RSF_SIZE];
+        int i, poss = 0, which, index, summon_type;
+        const struct monster_spell *spell;
+
+        /* Extract the summon spells */
+        create_mon_spell_mask(summon_spells, RST_SUMMON, RST_NONE);
+        rsf_inter(summon_spells, mon->race->spell_flags);
+
+        /* Count possibilities */
+        for (i = rsf_next(summon_spells, FLAG_START); i != FLAG_END;
+            i = rsf_next(summon_spells, i + 1))
+        {
+            poss++;
+        }
+
+        /* Pick one */
+        which = randint0(poss);
+        index = rsf_next(summon_spells, FLAG_START);
+        for (i = 0; i < which; i++) index = rsf_next(summon_spells, index);
+        spell = monster_spell_by_index(index);
+
+        /* Set the summon type, and the kin_base if necessary */
+        summon_type = spell->effect->subtype;
+        if (summon_type == summon_name_to_idx("KIN")) kin_base = mon->race->base;
+
+        /* Choose a race */
+        race = select_shape(p, mon, summon_type);
+    }
+
+    /* Print a message immediately, update visuals */
+    if (monster_is_obvious(p, mon->midx, mon))
+    {
+        char m_name[NORMAL_WID];
+        struct source *health_who = &p->upkeep->health_who;
+        struct source mon1_body;
+        struct source *mon1 = &mon1_body;
+
+        source_monster(mon1, mon);
+
+        monster_desc(p, m_name, sizeof(m_name), mon, MDESC_IND_HID);
+        msgt(p, MSG_GENERIC, "%s %s", m_name, "shimmers and changes!");
+        if (source_equal(health_who, mon1)) p->upkeep->redraw |= (PR_HEALTH);
+        p->upkeep->redraw |= (PR_MONLIST);
+        square_light_spot(c, &mon->grid);
+    }
+
+    /* Set the race */
+    if (race)
+    {
+        mon->original_race = mon->race;
+        mon->race = race;
+        mon->mspeed += mon->race->speed - mon->original_race->speed;
+    }
+
+    /* Emergency teleport if needed */
+    if (!monster_passes_walls(mon->race) && square_iswall(c, &mon->grid))
+    {
+        struct source origin_body;
+        struct source *origin = &origin_body;
+
+        source_player(origin, get_player_index(get_connection(p->conn)), p);
+        origin->monster = mon;
+
+        effect_simple(EF_TELEPORT, origin, "1", 0, 0, 0, 0, 0, NULL);
+    }
+
+    return (mon->original_race != NULL);
+}
+
+
+/*
+ * Monster reverse shapechange
+ */
+bool monster_revert_shape(struct player *p, struct monster *mon)
+{
+    struct chunk *c = chunk_get(&p->wpos);
+
+    if (mon->original_race)
+    {
+        if (monster_is_obvious(p, mon->midx, mon))
+        {
+            char m_name[NORMAL_WID];
+            struct source *health_who = &p->upkeep->health_who;
+            struct source mon1_body;
+            struct source *mon1 = &mon1_body;
+
+            source_monster(mon1, mon);
+
+            monster_desc(p, m_name, sizeof(m_name), mon, MDESC_IND_HID);
+            msgt(p, MSG_GENERIC, "%s %s", m_name, "shimmers and changes!");
+            if (source_equal(health_who, mon1)) p->upkeep->redraw |= (PR_HEALTH);
+            p->upkeep->redraw |= (PR_MONLIST);
+            square_light_spot(c, &mon->grid);
+        }
+        mon->mspeed += mon->original_race->speed - mon->race->speed;
+        mon->race = mon->original_race;
+        mon->original_race = NULL;
+
+        /* Emergency teleport if needed */
+        if (!monster_passes_walls(mon->race) && square_iswall(c, &mon->grid))
+        {
+            struct source origin_body;
+            struct source *origin = &origin_body;
+
+            source_player(origin, get_player_index(get_connection(p->conn)), p);
+            origin->monster = mon;
+
+            effect_simple(EF_TELEPORT, origin, "1", 0, 0, 0, 0, 0, NULL);
+        }
+
+        return true;
+    }
+
+    return false;
 }
 

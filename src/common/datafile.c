@@ -3,7 +3,7 @@
  * Purpose: Data file reading and writing routines
  *
  * Copyright (c) 2017 Nick McConnell
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -147,6 +147,20 @@ int lookup_flag(const char **flag_table, const char *flag_name)
     if (!flag_table[i]) i = FLAG_END;
 
     return i;
+}
+
+
+int code_index_in_array(const char *code_name[], const char *code)
+{
+    int i = 0;
+
+    while (code_name[i])
+    {
+        if (streq(code_name[i], code)) return i;
+        i++;
+    }
+
+    return -1;
 }
 
 

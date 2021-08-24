@@ -74,7 +74,7 @@ h  Humanoid                   H  Hybrid
 i  Icky-Thing                 I  Insect
 j  Jelly                      J  Snake
 k  Kobold                     K  Killer Beetle
-l  Giant Louse                L  Lich
+l  Tree/Ent                   L  Lich
 m  Mold                       M  Multi-Headed Hydra
 n  Naga                       N  -
 o  Orc                        O  Ogre

@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2007 Leon Marrick
- * Copyright (c) 2019 MAngband and PWMAngband Developers
+ * Copyright (c) 2020 MAngband and PWMAngband Developers
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -78,8 +78,7 @@ static void player_pickup_gold(struct player *p, struct chunk *c)
         object_own(p, obj);
 
         /* Delete the gold */
-        square_excise_object(c, &p->grid, obj);
-        object_delete(&obj);
+        square_delete_object(c, &p->grid, obj, false, false);
         obj = next;
     }
 
@@ -89,7 +88,7 @@ static void player_pickup_gold(struct player *p, struct chunk *c)
         char buf[100];
 
         /* Disturb */
-        disturb(p, 0);
+        disturb(p);
 
         /* Build a message */
         strnfmt(buf, sizeof(buf), "You have found %d gold piece%s worth of ", total_gold,
@@ -148,13 +147,54 @@ static unsigned check_for_inscrip(const struct object *obj, const char *inscrip)
 
 
 /*
+ * Looks if "inscrip" immediately followed by a decimal integer without a
+ * leading sign character is present on the given object. Returns the number
+ * of times such an inscription occurs and, if that value is at least one,
+ * sets *ival to the value of the integer that followed the first such
+ * inscription.
+ */
+static unsigned check_for_inscrip_with_int(const struct object *obj, const char *inscrip, int* ival)
+{
+    unsigned i = 0;
+    size_t inlen = strlen(inscrip);
+    const char *s;
+
+    if (!obj->note) return 0;
+
+    s = quark_str(obj->note);
+    if (!s) return 0;
+
+    do
+    {
+        s = strstr(s, inscrip);
+        if (!s) break;
+        if (isdigit(s[inlen]))
+        {
+            if (i == 0)
+            {
+                long inarg = strtol(s + inlen, 0, 10);
+
+                *ival = ((inarg < INT_MAX)? (int)inarg: INT_MAX);
+            }
+            i++;
+        }
+        s++;
+    }
+    while (s);
+
+    return i;
+}
+
+
+/*
  * Find the specified object in the inventory (not equipment)
  */
-static struct object *find_stack_object_in_inventory(struct player *p, const struct object *obj)
+static const struct object *find_stack_object_in_inventory(struct player *p,
+    const struct object *obj, const struct object *start)
 {
-    struct object *gear_obj;
+    const struct object *gear_obj;
 
-    for (gear_obj = p->gear; gear_obj; gear_obj = gear_obj->next)
+    for (gear_obj = (start? start: p->gear); gear_obj; gear_obj = gear_obj->next)
     {
         if (!object_is_equipped(p->body, gear_obj) &&
             object_stackable(p, gear_obj, obj, OSTACK_PACK))
@@ -169,56 +209,96 @@ static struct object *find_stack_object_in_inventory(struct player *p, const str
 
 
 /*
- * Determine if an object can be picked up automatically.
+ * Determine if an object can be picked up automatically and return the
+ * number to pick up.
  */
-static bool auto_pickup_okay(struct player *p, struct object *obj)
+static int auto_pickup_okay(struct player *p, struct object *obj)
 {
+    int num = inven_carry_num(p, obj, false);
+    unsigned obj_has_auto, obj_has_maxauto;
+    int obj_maxauto;
+
     /*** Negative checks ***/
 
     /* Winners cannot pickup artifacts except the Crown and Grond */
     if (true_artifact_p(obj) && restrict_winner(p, obj))
-        return false;
+        return 0;
 
     /* Restricted by choice */
     if (obj->artifact && (cfg_no_artifacts || OPT(p, birth_no_artifacts)))
-        return false;
+        return 0;
 
     /* It can't be carried */
-    if (!inven_carry_okay(p, obj)) return false;
+    if (!num) return 0;
 
     /* Note that the pack is too heavy */
-    if (!weight_okay(p, obj)) return false;
+    if (!weight_okay(p, obj)) return 0;
 
     /* Restricted by choice */
-    if (!is_owner(p, obj)) return false;
+    if (!is_owner(p, obj)) return 0;
 
     /* Must meet level requirement */
-    if (!has_level_req(p, obj)) return false;
+    if (!has_level_req(p, obj)) return 0;
 
     /* Ignore ignored items */
-    if (ignore_item_ok(p, obj)) return false;
+    if (ignore_item_ok(p, obj)) return 0;
 
     /* Check preventive inscription '!g' */
-    if (protected_p(p, obj, INSCRIPTION_PICKUP, false)) return false;
+    if (protected_p(p, obj, INSCRIPTION_PICKUP, false)) return 0;
 
     /*** Positive checks ***/
 
     /* Vacuum up everything if requested */
-    if (OPT(p, pickup_always)) return true;
+    if (OPT(p, pickup_always)) return num;
 
     /* Check inscription */
-    if (check_for_inscrip(obj, "=g")) return true;
+    obj_has_auto = check_for_inscrip(obj, "=g");
+    obj_maxauto = INT_MAX;
+    obj_has_maxauto = check_for_inscrip_with_int(obj, "=g", &obj_maxauto);
+    if (obj_has_auto > obj_has_maxauto) return num;
 
     /* Pickup if it matches the inventory */
-    if (OPT(p, pickup_inven))
+    if (OPT(p, pickup_inven) || obj_has_maxauto)
     {
-        struct object *gear_obj = find_stack_object_in_inventory(p, obj);
+        const struct object *gear_obj = find_stack_object_in_inventory(p, obj, NULL);
 
-        if (inven_carry_num(p, obj, true) && !check_for_inscrip(gear_obj, "!g")) return true;
+        if (!gear_obj)
+        {
+            if (obj_has_maxauto) return ((num < obj_maxauto)? num: obj_maxauto);
+            return 0;
+        }
+        if (!check_for_inscrip(gear_obj, "!g"))
+        {
+            unsigned int gear_has_auto = check_for_inscrip(gear_obj, "=g");
+            int gear_maxauto = INT_MAX;
+            unsigned int gear_has_maxauto;
+
+            gear_has_maxauto = check_for_inscrip_with_int(gear_obj, "=g", &gear_maxauto);
+            if (gear_has_auto > gear_has_maxauto) return num;
+            if (obj_has_maxauto || gear_has_maxauto)
+            {
+                /* Use the pack inscription if have both */
+                int max_num = (gear_has_maxauto? gear_maxauto: obj_maxauto);
+
+                /* Determine the total number in the pack */
+                int pack_num = gear_obj->number;
+
+                while (1)
+                {
+                    if (!gear_obj->next) break;
+                    gear_obj = find_stack_object_in_inventory(p, obj, gear_obj->next);
+                    if (!gear_obj) break;
+                    pack_num += gear_obj->number;
+                }
+                if (pack_num >= max_num) return 0;
+                return ((num < max_num - pack_num)? num: max_num - pack_num);
+            }
+            return num;
+        }
     }
 
     /* Don't auto pickup */
-    return false;
+    return 0;
 }
 
 
@@ -245,6 +325,9 @@ static void player_pickup_aux(struct player *p, struct chunk *c, struct object *
         /* Bypass auto-ignore */
         obj->ignore_protect = 1;
     }
+
+    /* Allow auto-pickup to limit the number if it wants to */
+    if (auto_max && max > auto_max) max = auto_max;
 
     /* Carry the object, prompting for number if necessary */
     if (max == obj->number)
@@ -519,11 +602,8 @@ byte player_pickup_item(struct player *p, struct chunk *c, int pickup, struct ob
         /* No item -> get one */
         if (p->current_value == ITEM_REQUEST)
         {
-            /* Update the floor on the client */
-            display_floor(p, c, floor_list, floor_num);
-
-            p->current_action = ACTION_PICKUP;
-            get_item(p, HOOK_CARRY, "");
+            /* Update the floor on the client, force response */
+            display_floor(p, c, floor_list, floor_num, true);
             mem_free(floor_list);
             return objs_picked_up;
         }
@@ -667,7 +747,7 @@ byte do_autopickup(struct player *p, struct chunk *c, int pickup)
             bool auto_pickup;
 
             /* Hack -- disturb */
-            if (!p->ghost) disturb(p, 0);
+            if (!p->ghost) disturb(p);
 
             /* Hack -- ghosts don't pick up gold automatically */
             auto_pickup = (pickup? true: false);
@@ -675,11 +755,16 @@ byte do_autopickup(struct player *p, struct chunk *c, int pickup)
                 auto_pickup = false;
 
             /* Automatically pick up items into the backpack */
-            if (auto_pickup && auto_pickup_okay(p, obj))
+            if (auto_pickup)
             {
+                int auto_num = auto_pickup_okay(p, obj);
+
                 /* Pick up the object (as much as possible) with message */
-                player_pickup_aux(p, c, obj, inven_carry_num(p, obj, true), true);
-                objs_picked_up++;
+                if (auto_num)
+                {
+                    player_pickup_aux(p, c, obj, auto_num, true);
+                    objs_picked_up++;
+                }
             }
         }
 

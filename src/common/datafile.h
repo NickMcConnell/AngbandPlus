@@ -35,6 +35,7 @@ extern errr parse_file_quit_not_found(struct parser *p, const char *filename);
 extern errr parse_file(struct parser *p, const char *filename);
 extern void cleanup_parser(struct file_parser *fp);
 extern int lookup_flag(const char **flag_table, const char *flag_name);
+extern int code_index_in_array(const char *code_name[], const char *code);
 extern errr grab_rand_value(random_value *value, const char **value_type,
     const char *name_and_value);
 extern errr grab_index_and_rand(random_value *value, int *index, const char **value_type,

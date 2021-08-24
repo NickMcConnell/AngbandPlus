@@ -23,6 +23,7 @@
 #    - VISIBLE: trap will not be hidden when generated
 #    - FLOOR: * can be set on the floor
 #    - TRAP: * is a trap
+#    - DELAY: activates as the player leaves its square rather than entering
 #
 #    Flags marked '*' must be set for a trap to be generated as part of
 #    normal dungeon generation.
@@ -377,6 +378,17 @@ effect:WAKE
 desc:A trap that wakes nearby monsters and impels them toward you.
 msg:A high-pitched whistle blares through the dungeon!
 
+# alarm -- siren
+
+name:alarm:siren
+graphics:^:R
+appear:1:1:0
+visibility:60+d10
+flags:TRAP | FLOOR | MAGICAL
+effect:WAKE
+desc:A trap that wakes nearby monsters.
+msg:A horn blast sounds!
+
 # explosion -- mine
 
 name:explosion:mine trap
@@ -481,6 +493,17 @@ effect:EARTHQUAKE:NONE:5
 desc:A trap that causes an earthquake.
 msg:The ground shakes.
 
+# dungeon alter -- block fall
+
+name:ancient mechanism:block fall trap
+graphics:^:U
+appear:1:4:0
+visibility:40+d5
+flags:TRAP | FLOOR | ONETIME | DELAY
+effect:GRANITE
+desc:A pressure plate that drops a stone block behind you.
+msg:A section of the ceiling falls in behind you!
+
 # dungeon alter - stone to mud
 
 name:ancient mechanism:area blast trap
@@ -566,14 +589,3 @@ effect:TIMED_INC:STONESKIN
 dice:20+1d20
 desc:A trap that stuns you and gives you stoneskin.
 msg:You feel yourself turning to stone!
-
-# alarm -- aggravation
-
-name:alarm:siren
-graphics:^:R
-appear:1:1:0
-visibility:60+d10
-flags:TRAP | FLOOR | MAGICAL
-effect:WAKE
-desc:A trap that wakes nearby monsters.
-msg:A horn blast sounds!
