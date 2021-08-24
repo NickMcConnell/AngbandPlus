@@ -23,7 +23,7 @@ int setup_tests(void **state) {
 	player = &test_player;
 
 	z_info = mem_zalloc(sizeof(*z_info));
-	z_info->k_max = 5;
+	z_info->k_max = 6;
 	/* Won't set up any egos for testing. */
 	z_info->e_max = 0;
 	z_info->max_obj_depth = 2;
@@ -41,7 +41,7 @@ int setup_tests(void **state) {
 	k_info[1].alloc_min = 0;
 	k_info[1].alloc_max = 6;
 	k_info[1].alloc_prob = 40;
-	k_info[1].tval = TV_POTION;
+	k_info[1].tval = TV_PILL;
 	k_info[2].alloc_min = 0;
 	k_info[2].alloc_max = 6;
 	k_info[2].alloc_prob = 20;
@@ -49,13 +49,17 @@ int setup_tests(void **state) {
 	k_info[3].alloc_min = 0;
 	k_info[3].alloc_max = 6;
 	k_info[3].alloc_prob = 10;
-	k_info[3].tval = TV_POTION;
+	k_info[3].tval = TV_PILL;
 	kf_on(k_info[3].kind_flags, KF_GOOD);
 	k_info[4].alloc_min = 1;
 	k_info[4].alloc_max = 6;
 	k_info[4].alloc_prob = 5;
 	k_info[4].tval = TV_WAND;
 	kf_on(k_info[4].kind_flags, KF_GOOD);
+	k_info[5].alloc_min = 0;
+	k_info[5].alloc_max = 6;
+	k_info[5].alloc_prob = 0;
+	k_info[5].tval = TV_GOLD;
 
 	st = mem_alloc(sizeof(*st));
 	st->histogram = mem_alloc(z_info->k_max * sizeof(*st->histogram));
@@ -223,10 +227,10 @@ int test_get_obj_num_basic(void *state) {
 		{ 1, 0, false },
 		{ 2, 0, false },
 		{ 1, 0, true },
-		{ 0, TV_POTION, false },
-		{ 1, TV_POTION, false },
-		{ 2, TV_POTION, false },
-		{ 1, TV_POTION, true }
+		{ 0, TV_PILL, false },
+		{ 1, TV_PILL, false },
+		{ 2, TV_PILL, false },
+		{ 1, TV_PILL, true }
 	};
 	int ntrials, i;
 	struct alloc_test_state *st = state;

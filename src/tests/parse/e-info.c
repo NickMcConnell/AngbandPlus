@@ -87,6 +87,7 @@ int test_flags0(void *state) {
 	e = parser_priv(state);
 	require(e);
 	require(e->flags);
+	/* FIXME: check the flag */
 	ok;
 }
 

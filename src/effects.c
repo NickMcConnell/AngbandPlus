@@ -282,11 +282,12 @@ static void remove_object_fault(struct object *obj, int index, bool message)
 /**
  * Attempts to remove a fault from an object.
  */
-static bool unfault_object(struct object *obj, int strength, char *dice_string)
+static bool repair_object(struct object *obj, int strength, random_value value)
 {
 	int index = 0;
+	bool remove = false;
 
-	if (get_fault(&index, obj, dice_string)) {
+	if (get_fault(&index, obj, value)) {
 		struct fault_data fault = obj->faults[index];
 		char o_name[80];
 
@@ -297,6 +298,9 @@ static bool unfault_object(struct object *obj, int strength, char *dice_string)
 			/* Successfully removed this fault */
 			remove_object_fault(obj->known, index, false);
 			remove_object_fault(obj, index, true);
+		} else if (kf_has(obj->kind->kind_flags, KF_ACT_FAILED)) {
+			light_special_activation(obj);
+			remove = true;
 		} else if (!of_has(obj->flags, OF_FRAGILE)) {
 			/* Failure to remove, object is now fragile */
 			object_desc(o_name, sizeof(o_name), obj, ODESC_FULL);
@@ -305,10 +309,13 @@ static bool unfault_object(struct object *obj, int strength, char *dice_string)
 			player_learn_flag(player, OF_FRAGILE);
 		} else if (one_in_(4)) {
 			/* Failure - unlucky fragile object is destroyed */
-			struct object *destroyed;
-			bool none_left = false;
+			remove = true;
 			msg("There is a bang and a flash!");
 			take_hit(player, damroll(5, 5), "Failed repairing");
+		}
+		if (remove) {
+			bool none_left = false;
+			struct object *destroyed;
 			if (object_is_carried(player, obj)) {
 				destroyed = gear_object_for_use(obj, 1, false, &none_left);
 				if (destroyed->artifact) {
@@ -1379,16 +1386,15 @@ bool effect_handler_DRAIN_LIGHT(effect_handler_context_t *context)
 }
 
 /**
- * Attempt to unfault an object
+ * Attempt to repair an object
  */
 bool effect_handler_REMOVE_FAULT(effect_handler_context_t *context)
 {
-	const char *prompt = "Unfault which item? ";
+	const char *prompt = "Repair which item? ";
 	const char *rejmsg = "You have no faults to remove.";
 	int itemmode = (USE_EQUIP | USE_INVEN | USE_QUIVER | USE_FLOOR);
 	int strength = effect_calculate_value(context, false);
 	struct object *obj = NULL;
-	char dice_string[20];
 
 	context->ident = true;
 
@@ -1401,23 +1407,7 @@ bool effect_handler_REMOVE_FAULT(effect_handler_context_t *context)
 			itemmode))
 		return false;
 
-	/* Get the possible dice strings */
-	if ((context->value.dice == 1) && context->value.base) {
-		strnfmt(dice_string, sizeof(dice_string), "%d+d%d",
-				context->value.base, context->value.sides);
-	} else if (context->value.dice && context->value.base) {
-		strnfmt(dice_string, sizeof(dice_string), "%d+%dd%d",
-				context->value.base, context->value.dice, context->value.sides);
-	} else if (context->value.dice == 1) {
-		strnfmt(dice_string, sizeof(dice_string), "d%d", context->value.sides);
-	} else if (context->value.dice) {
-		strnfmt(dice_string, sizeof(dice_string), "%dd%d",
-				context->value.dice, context->value.sides);
-	} else {
-		strnfmt(dice_string, sizeof(dice_string), "%d", context->value.base);
-	}
-
-	return unfault_object(obj, strength, dice_string);
+	return repair_object(obj, strength, context->value);
 }
 
 /**
@@ -2286,9 +2276,7 @@ bool effect_handler_DISENCHANT(effect_handler_context_t *context)
 
 	/* Count slots */
 	for (i = 0; i < player->body.count; i++) {
-		/* Ignore rings, amulets and lights */
-		if (slot_type_is(i, EQUIP_RING)) continue;
-		if (slot_type_is(i, EQUIP_AMULET)) continue;
+		/* Ignore lights */
 		if (slot_type_is(i, EQUIP_LIGHT)) continue;
 
 		/* Count disenchantable slots */
@@ -2297,9 +2285,7 @@ bool effect_handler_DISENCHANT(effect_handler_context_t *context)
 
 	/* Pick one at random */
 	for (i = player->body.count - 1; i >= 0; i--) {
-		/* Ignore rings, amulets and lights */
-		if (slot_type_is(i, EQUIP_RING)) continue;
-		if (slot_type_is(i, EQUIP_AMULET)) continue;
+		/* Ignore lights */
 		if (slot_type_is(i, EQUIP_LIGHT)) continue;
 
 		if (one_in_(count--)) break;
@@ -5361,7 +5347,7 @@ static int printkind_compar(const void *a, const void *b)
 	return ((struct printkind *)a)->difficulty - ((struct printkind *)b)->difficulty;
 }
 
-/* Convert a difficulty (per 10K) to a colour index: red -> green */
+/** Convert a difficulty (per 10K) to a colour index: red -> green */
 static int difficulty_colour(int diff)
 {
 	if (diff < 1000)
@@ -5377,7 +5363,7 @@ static int difficulty_colour(int diff)
 	return COLOUR_PURPLE;
 }
 
-/* Return true if it is possible (in any circumstances) to print an item.
+/** Return true if it is possible (in any circumstances) to print an item.
  * (This does not have to check the material)
  * Unprintable items include blocks, special artifacts, etc. There should probably be a flag for
  * more granular control.
@@ -5630,8 +5616,8 @@ bool effect_handler_PRINT(effect_handler_context_t *context)
 				difficulty /= 2;
 				difficulty += 100;
 
-				 /* Easy end: difficulty easier than -100 is all the same */
-				 if (difficulty < 0) 
+				/* Easy end: difficulty easier than -100 is all the same */
+				if (difficulty < 0)
 					difficulty = 0;
 
 				/* Difficult end: off the end = no chance, stop */
@@ -5657,8 +5643,7 @@ bool effect_handler_PRINT(effect_handler_context_t *context)
 				int length = strlen(item[nprintable].name);
 				if (length > longestname)
 					longestname = length;
-				
-				
+
 				nprintable++;
 			}
 		}

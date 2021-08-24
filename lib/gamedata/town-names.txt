@@ -38,6 +38,7 @@ S:Derrick
 S:Drywall
 S:Doornail
 S:Duck Soup
+S:Duranceville
 S:Fallout
 S:Fallover
 S:Fenceline
@@ -82,6 +83,7 @@ S:Twoshacks
 S:Upsy Daisy
 S:Vapour Trail
 S:Whizz
+S:Whizz Bang
 S:Wirefence
 S:Williewaw
 S:Witchford
@@ -89,6 +91,7 @@ S:Witt's End
 S:Yuck
 S:Zippy
 
+F:Ash
 F:Atomic
 F:Bat
 F:Beacon
@@ -112,6 +115,7 @@ F:Double
 F:False
 F:Filthy
 F:Flaming
+F:Flash
 F:Flint
 F:Foggy
 F:Fool's
@@ -120,6 +124,7 @@ F:Frog
 F:Garbage
 F:Ghost
 F:Glass
+F:Gloomy
 F:Glowing
 F:Gravel
 F:Hot
@@ -130,6 +135,7 @@ F:Klaxon
 F:Lemming
 F:Lightning
 F:Little
+F:Moldy
 F:Mouse
 F:Midge
 F:Mucky
@@ -151,18 +157,22 @@ F:Salt
 F:Sandy
 F:Scary
 F:Sewage
+F:Shaky
 F:Smokey
 F:Snail
+F:Soda
 F:Sooty
 F:Spider
 F:Steamy
 F:Slab
 F:Slimy
+F:Sneezy
 F:Split
 F:Stinking
 F:Sulfur
 F:Thunder
 F:Triple
+F:Trouble
 F:Toad
 F:Toadstool
 F:Turtle

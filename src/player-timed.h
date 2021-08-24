@@ -30,8 +30,14 @@ enum
 	#define TMD(a, b, c, d) TMD_##a,
 	#include "list-player-timed.h"
 	#undef TMD
+	#define PF(a) TMD_##a,
+	#include "list-player-flags.h"
+	#undef PF
 	TMD_MAX
 };
+
+/* The first timed effect flag which is derived from a player flag */
+#define TMD_PF	TMD_NONE
 
 /**
  * Effect failure flag types

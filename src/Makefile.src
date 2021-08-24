@@ -6,8 +6,8 @@
 #
 
 NAME = Xygos
-VERSION = 0.0.1
-COPYRIGHT = (c) 1995-2021 Xygos / Angband contributors
+VERSION = 0.0.2
+COPYRIGHT = (c) 1995-2021 Xygos, Angband contributors
 PROGNAME = xygos
 
 HEADERS = \
@@ -145,6 +145,7 @@ ANGFILES = \
 	option.o \
 	parser.o \
 	r_android.o \
+	r_cyborg.o \
 	r_mutant.o \
 	r_timelord.o \
 	randname.o \

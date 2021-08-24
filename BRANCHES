@@ -1,4 +1,5 @@
 master
+artifacts	active, experimental	Randarts / halfarts etc.
 sliding		active, experimental	Sliding (mixed) classes
 champions	active, experimental	Champions (ghosts)
 world		inactive, merged		Multi-town world

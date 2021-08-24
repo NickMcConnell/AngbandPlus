@@ -252,6 +252,16 @@ look-prefix:the entrance to the
 look-in-preposition:at
 desc:A ticket office from which you can fly daily to other cities.
 
+name:Cyber Salon
+graphics:!:v
+priority:20
+flags:SHOP | PROJECT | PASSABLE | PERMANENT | INTERESTING | EASY
+info:11:0
+look-prefix:the entrance to the
+look-in-preposition:at
+desc:A large room in clean, surgical white lined with peculiar gleaming 
+desc:equipment and uncanny yet enticing pictures of their work.
+
 name:secret door
 graphics:#:w
 priority:10

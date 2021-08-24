@@ -520,6 +520,23 @@ void player_adjust_hp_precise(struct player *p, s32b hp_gain)
 	p->upkeep->redraw |= (PR_HP);
 }
 
+void light_special_activation(struct object *obj)
+{
+	bool ident = false;
+	bool was_aware = object_flavor_is_aware(obj);
+	int dir = randint1(8);
+	if (obj->kind->effect_msg)
+		print_custom_message(obj, obj->kind->effect_msg, MSG_GENERIC);
+	object_flavor_aware(obj);
+	if ((!was_aware) && (object_is_carried(player, obj)))
+		print_custom_message(obj, "You realize you were carrying a {kind}!", MSG_GENERIC);
+	struct effect effect;
+	memcpy(&effect, obj->effect, sizeof(effect));
+	effect.x = obj->grid.x;
+	effect.y = obj->grid.y;
+	effect_do(&effect, source_object(obj), NULL, &ident, was_aware, dir, 0, 0, NULL);
+}
+
 void light_timeout(struct object *obj)
 {
 	/* The light is now out */
@@ -527,20 +544,7 @@ void light_timeout(struct object *obj)
 
 	/* Special handling for some 'lights' */
 	if (object_effect(obj) && (of_has(obj->flags, OF_NO_ACTIVATION))) {
-		bool ident = false;
-		bool was_aware = object_flavor_is_aware(obj);
-		int dir = randint1(8);
-		if (obj->kind->effect_msg)
-			print_custom_message(obj, obj->kind->effect_msg, MSG_GENERIC);
-		object_flavor_aware(obj);
-		if ((!was_aware) && (object_is_carried(player, obj)))
-			print_custom_message(obj, "You realize you were carrying a {kind}!", MSG_GENERIC);
-		struct effect effect;
-		memcpy(&effect, obj->effect, sizeof(effect));
-		effect.x = obj->grid.x;
-		effect.y = obj->grid.y;
-		effect_do(&effect, source_object(obj), NULL, &ident, was_aware, dir, 0, 0, NULL);
-
+		light_special_activation(obj);
 	} else {
 		/* Default burning out message */
 		if (object_is_carried(player, obj))
@@ -551,10 +555,15 @@ void light_timeout(struct object *obj)
 	if (of_has(obj->flags, OF_BURNS_OUT)) {
 		bool dummy;
 		struct object *burnt;
-		if (object_is_carried(player, obj))
-			burnt = gear_object_for_use(obj, 1, true, &dummy);
-		else
-			burnt = floor_object_for_use(obj, 1, true, &dummy);
+		if (obj->held_m_idx) {
+			pile_excise(&cave_monster(cave, obj->held_m_idx)->held_obj, obj);
+			burnt = obj;
+		} else {
+			if (object_is_carried(player, obj))
+				burnt = gear_object_for_use(obj, 1, true, &dummy);
+			else
+				burnt = floor_object_for_use(obj, 1, true, &dummy);
+		}
 		if (burnt->known)
 			object_delete(&burnt->known);
 		object_delete(&burnt);
@@ -806,10 +815,31 @@ int player_check_terrain_damage(struct player *p, struct loc grid)
 		int base_dam = 20 + randint1(40);
 		int res = p->state.el_info[ELEM_WATER].res_level;
 
-		/* Feather fall = water wings. */
+		/* Feather fall = water wings. This even helps if you can't swim. */
 		if (player_of_has(p, OF_FEATHER)) {
 			dam_taken -= 20;
 		}
+
+		if (!player_has(p, PF_NO_SWIMMING)) {
+			/* Most players can swim, but are limited by weight.
+			 * So obtain the load as a % of the limit (the point at which weight speed
+			 * penalties start)...
+			 **/
+			int load = (p->upkeep->total_weight * 100) / weight_limit(&player->state);
+
+			/* And reduce depending on the load.
+			 * So (assuming no feather falling) at 130%+ load you will take full damage,
+			 * at 70%- load you will take no damage and at 110%- load, as well as seeing
+			 * less max damage you will sometimes take no damage.
+			 **/
+			if (load < 130) {
+				base_dam -= (130 - load);
+			}
+		}
+
+		/* Bound */
+		if (base_dam < 0)
+			base_dam = 0;
 
 		/* Water damage */
 		dam_taken = adjust_dam(p, ELEM_WATER, base_dam, RANDOMISE, res, false);

@@ -121,6 +121,10 @@ static void c_player_race(char *rest) {
 	printf("player-race: %s\n", player->race->name);
 }
 
+static void c_player_ext(char *rest) {
+	printf("player-ext: %s\n", player->extension->name);
+}
+
 typedef struct {
 	const char *name;
 	void (*func)(char *args);
@@ -137,6 +141,7 @@ static test_cmd cmds[] = {
 	{ "player-birth", c_player_birth },
 	{ "player-class?", c_player_class },
 	{ "player-race?", c_player_race },
+	{ "player-ext?", c_player_ext },
 
 	{ NULL, NULL }
 };

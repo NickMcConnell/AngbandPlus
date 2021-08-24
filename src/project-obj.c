@@ -217,7 +217,7 @@ static void project_object_handler_ACID(project_object_handler_context_t *contex
 	project_object_elemental(context, ELEM_ACID, "melts", "melt");
 }
 
-/* Elec -- Rings and Wands */
+/* Elec */
 static void project_object_handler_ELEC(project_object_handler_context_t *context)
 {
 	project_object_elemental(context, ELEM_ELEC, "is destroyed", "are destroyed");

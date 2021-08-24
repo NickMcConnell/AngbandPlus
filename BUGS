@@ -1,61 +1,27 @@
 BUGS
 ====
 
-BUG: Lights are using wrong descriptions?
-	- New game. Create with debug option a stick of dynamite. It appears unIDed (e.g. striped) but has the description of a known flare and behaves like one too.
-	- "wax candle" gives something with no description 
-	- "firecracker" (the next) has the description of a wax candle
-	- It's off by 1, is this just the debug mode & is it just lights?
-		- A bike helmet generates OK, and so do rings, cards etc.
-		- And is the item being known another bug?
-	- Note that other flavored items don't have any description besides "It can be drunk" when created by debug option. This is how lights should be.
-	- Could it be the object.txt or flavor.txt?
-	** May be a dup or related to the following three issues **
 
-BUG: got am item with {??} generated in a store
-		- Light, with the rune being "use energy" or "light"?
-			- Is this a problem? It's IDed on buying it. Other stuff doesn't behave like that, though...
-	e.g. "a tactical flashlight (RTG Mod) (charging) {??}" in the store
-		- The same thing can be made up with play-with-object, and it behaves the same way.
-		- Also rune-ID fails silently on these objects
-		- May only happen on wiz-command generated items
+BUG After the success/failure message from a quest, ESC is the only way to get back out.
 
-BUG: Tourists' starting sun hat (resLight) isn't rune-IDed
-	- That might be reasonable. But the battery the tourist started with is also unIDed. It becomes IDed mysteriously later.
-	- Similar symptoms if they start with a wax candle.
-		- which is {??}. Wielding doesn't change it. Using an ID card on it produces no message but removes the ??.
-	- Is there something about start items (and wiz-command created?), like having no known object, that is different from normal creation?
+BUG: "no position"
 
-BUG: Buying a pair of shoes (retro rocket) {??} from a store was locked up in the store.c "Learn flavor, any effect and all the runes" loop.
+Defer
+=====
 
-------------
+BUG:/home/msearle/rogl/angband/v-xygos/angband/src/xygos: Error in flag_on(lore->flags, b->resist_flag): FlagID[0] Size[11] FlagOff[4294967295] FlagBV[128]
+	(Hit a lizard with a laser knife)
+	(flagID 0 = illegal, 1 is the first allowed.)
+	- does every brand need a resist-flag?
+	Certainly all previously have
+	UTR
 
-BUG: "angband: gen-cave.c:2009: town_gen: Assertion `grid.x > 0' failed." (= the x,y are 0, 0.)
-	- Can be triggered by Time Lord regeneration putting you in town, but has also been seen entering the town normally by <. 
-	** related to the following? **
+BUG: Lock up at start (occasionally)
+	UTR easily, and is likely the (fixed?) shop filling bug
 
-BUG: Saw climbing the stair into town put me in the middle of the level (not on a store, or the <)
-
--------------
-
-BUG:"You are too heavily loaded to swim" even when not overloaded.
-	(well, more accurately you can never swim - you always drown. You should be able to if not loaded, at least for most races.)
-
-BUG: Plurals: knifes vs knives, "13 alkaline battery" not ies.
-
-BUG: After gaining an ability (Sprinting) modifying stats, char-screen and left-panel weren't updated until later (e.g. when changing level)
-
-BUG: Printers all seem to generate with {ignore}
-	- can't easily reproduce this
-
-BUG "These two can't intersect"
-
-BUG: m-techniques top label is wonky (move the level 1 to the right, and the cost-label 2 to the left?)
-
-BUG: "When activated, it feeds you for X turns" (on a battery. This isn't really even true for Androids - the 'activated' part)
-	- is there an existing way to hide activation descriptions?
-
-BUG: (default) Black Market stocking level should be reduced, because faction can increase it? (I have seen as many as 16 items at init)
+BUG?? - In quests, multiplying monsters are handled OK.
+	But not newly spawned monsters that happen to be of the same type, or monsters removed through genocide or kill-body - and at least some of that could occur
+	and could be fixed, although probably not in any quest currently in use.
 
 BUG: Resists screen is >80 wide (Also, the per-slot stats only label only displays a to l)
 	Remove ':' lines?
@@ -65,28 +31,204 @@ BUG: Resists screen is >80 wide (Also, the per-slot stats only label only displa
 	But will there end up with more, or less slots? Rings and amulets will disappear. OTOH, a form with more slots might appear...
 	Adapting to large terminals is also a possibility, but can't be the only way to play.
 	So best to leave alone for now?
-	
-BUG: tval_is_sharp_missile
 
-BUG: Stone/steel skin timed should be blocked by the mutation (or combined with it in some way)
+BUG: "angband: gen-cave.c:2009: town_gen: Assertion `grid.x > 0' failed." (= the x,y are 0, 0.)
+	- Can be triggered by Time Lord regeneration putting you in town, but has also been seen entering the town normally by <.
+	As of 05904e9b066bb48a66f707a9bf4726182a27dc38 it no longer is easy (if possible at all) to
+	trigger. A warning has been left in place.
+
+	- This was seen, repeatably within a games, for all stores, with "Crazy River"/50m (L1)
+		=> no "Stores" or other name (usual would be "Stores"/50m (L1)
+	- Other 5 towns were Fortress, Caverns, Mine, Stores, Volcano, so this is Sewers.
+	- It persists through save/load.
+	This is (as expected) index 1 into t_info.
+	Without having travelled to another town, all have xy=0,0.
+	Flew to another town (2) and there were no complaints.
+	Flew back and it moaned again.
+	In another game though no problem with Sewers. (Or any other.)
+
+	** related to the following? **
+
+BUG: Saw climbing the stair into town put me in the middle of the level (not on a store, or the <)
+	- is the search breaking the X loop, not the Y loop (gen-cave.c:1990)?
+		- no.
+	Assuming this is the same as the one above.
+
+WontFix
+=======
+
+BUG? Do small dungeons have a bottom at the right place? (You can jump past it)
+	Yes. (No endboss, yet though)
+
+BUG: Printers all seem to generate with {ignore}
+	- Can't easily reproduce this
+
+BUG: "You fail to the tengu" (+ red worm mass - when you attack it with a pocket knife)
+	- UTR on dl0/1 outside the quest. Rubble?
+
+BUG: m-techniques top label is wonky (move the level 1 to the right, and the cost-label 2 to the left?)
+	- Unable to reproduce with Spit Acid, Sprint.
+
+Fixed
+=====
+BUG "How to handle forbids/requires, on equipment/temporary player flags?"
+	- Innate <=> innate forbids are already handled (although they assume that all abilities are innate).
+	- Equipment/Temporary: If forbidden by innate, other equipment, or temporary effects then it doesn't take effect.
+	- Equipment/temporary requires: This shouldn't allow you to gain anything intrinsically (or allow any
+	additional equipment or temporary effects) that you couldn't without it.
+	Fixed: 1ad3b926c7fb3e5bcddfd6840be575fac9097a73
 
 BUG: At dungeon l127 and l0, able to generate a Massive Iron Crown with acquisition (with INSTA_ART | QUEST_ART)
 	- Unable to reproduce (by checking in make_object_named), and artifact probabilities for it are zero.
 	- With no generation line (alloc 0) they shouldn't appear... could this have been the old "special artifacts" bug?
-	- If so, it's now gone.
+	- No - seen this again (with a Mighty Hammer at l15, using debug option G)
+	- Fixed 8273ffd288aac2cd4382a46c490e3e86720ae060
 
-BUG?? - In quests, multiplying monsters are handled OK.
-	But not newly spawned monsters that happen to be of the same type, or monsters removed through genocide or kill-body - and at least some of that could occur
-	and could be fixed, although probably not in any quest currently in use.
+BUG: The "use flavors" option is ignored
+	- Fixed. a2c1a08917e191ad472a54cf161449ac3adf7f0a
 
-BUG? After the success/failure message from a quest, ESC is the only way to get back out.
+BUG: Battery/s (not the objects, but elsewhere)
+	- Wiz 'What kind of object?'
+	- also implantsx2
+	Fixed
+
+BUG: Shops have a lot of items, more than would be expected from mass production, and startup is slow.
+	Is there a milder version of the shop-filling bug still around?
+	Fixed a8d635069c46f99885a388422f0b3b530bb514be
+
+BUG "dozifier field" (staff, in a store) has no article. Other staffs do.
+	Fixed
+
+BUG: Wording of some lights, etc. is awkward.
+	For example, "a firecracker" .. "Cannot be recharged" .. "Takes 16 turns to recharge".
+	with something similar for the disposable flashlight.
+
+BUG: After gaining an ability (Sprinting) modifying stats, char-screen and left-panel weren't updated until later (e.g. when changing level)
+	Fixed: 4a16691e3f4e5a7b3ae61a31d932688228a6b249
+
+BUG: pills, cards have missing top and tail from their names
+	Fixed: 3ff4fd1f6a21474bdf054e0ffd9fc03de9af8791
+
+BUG: After starting a new char, there is an unusual (3+ second) pause (also can pause on exit) and the Magic Shop has lots of supercharged wands/staffs  (50 teleporters (10075 charges) etc.)
+	- Seen on the Ring Remove and later Unit Test 100% commits, but doesnt show up every time.
+		- Save and reload, and they are gone.
+		- Debug gen of all-devices doesn't show anything like that.
+		- Consistent with items having # of charges multiplied by the size of the pile
+	Fixed: f14c51989bbceea922c8cb9200ad9131dfecbee9
+ 
+BUG: "You are too heavily loaded to swim" even when not overloaded.
+	(well, more accurately you can never swim - you always drown. You should be able to if not loaded, at least for most races.)
+	Fixed: 2afb97798b19cb9e3b0bf8a72896df229f0e9ba9
+
+BUG: (default) Black Market stocking level should be reduced, because faction can increase it? (I have seen as many as 16 items at init)
+	Fixed: f68aab201792f83cd254d82924f81727f6bcdca8
+
+BUG: Buying a pair of shoes (retro rocket) {??} from a store was locked up in the store.c "Learn flavor, any effect and all the runes" loop.
+	Fixed: 416ff90a18e92ba95db126ffd717488548a88762
+
+BUG: "When activated, it feeds you for X turns" (on a battery. This isn't really even true for Androids - the 'activated' part)
+	- is there an existing way to hide activation descriptions?
+	Fixed (?)
+
+BUG: Quaffing pills
+	- one way to go would be to remove all references in the text to quaffing, make pills targets for eating, but keep the quaff command around as a shortcut and for finger memory.
+	Fixed: ed4d2f1faaf6610e9efc1b365291ae75c3503655
 
 BUG: When in Giant Form (from a snozzcumber) you can't eat. Or quaff. Quaffing prompts to to change back. (Reasonably for some forms, not really for this - is there a flag? If not, one could be added)
-	Eating just says that you don't have any food (wrong!)
-	- Base this on OPEN_DOOR/BASH_DOOR flags?
 	- There seems to be nothing preventing you staying in giant form. But you do need to eat.
 	- There should be a timeout anyway - fast hunger? (Androids can't do this anyway, at least for as long as the only way to take giant form is by eating something)
-	- You also can't use shops ("scream"), which is generally OK but it should be possible to use ones you own, or the home! Well, maybe - it depends on the form, and the message is still out.
+=> OTOH only eating from the floor is consistent with not being able to get at your pack, so it's OK as long as the messages aren't misleading.
+	WontFix
+
+=>	Eating just says that you don't have any food (wrong!)
+	Fixed 810ebb5906360c9344c6ddced0c77e5024879db9
+
+=>	You also can't use shops ("scream"), which is generally OK but should it be possible to use ones you own, or the home? For consistency (you can't drop items on the ground, so why allow use of your home?) this is OK. The message is still out, though - there's nobody at home to scream.
+	- It might be reasonable to say (given that most of the existing forms in shape.txt won't be used) that any form is either too big or awkwardly shaped to fit through the door, or unable to operate a lock / doorknob. For the moment, assume a giant is the only big one (anything more general should wait until there are more examples being used).
+	- (So why isn't this true of the shops? Well IRL shops have unlocked / open / automatic doors which may be bigger that your average front door - the scream message is worth keeping, anyway.)
+	Fixed 810ebb5906360c9344c6ddced0c77e5024879db9
+
+=>
 	- Turn back when below 50% health? And/or a CON check.
 	- Or just treat being transformed as another timed counter?
-	
+	- HP might be an interestingly different mechanic, though. There are a lot of timed effects
+		already and they can be too predictable. A per-turn chance based non-linearly on HP would
+		make more sense than a flat 50%, though.
+	- Fixed e90a3e850e7f7583cfb28e486dc819c7e5ec0552
+
+
+BUG: Tourists' starting sun hat (resLight) isn't rune-IDed
+	- That might be reasonable. But the battery the tourist started with is also unIDed. It becomes IDed mysteriously later.
+	- Similar symptoms if they start with a wax candle.
+		- which is {??}. Wielding doesn't change it. Using an ID card on it produces no message but removes the ??.
+	- Is there something about start items (and wiz-command created?), like having no known object, that is different from normal creation?
+		- Still occurs after 416ff90a18e92ba95db126ffd717488548a88762
+		- But only partly. The hat is unIDed, but reading ID on it behaves as expected.
+		- Is an ID loop similar to the shop, used on start items, a good idea?
+			- Yes, given that it is done right. See object_know_all().
+	Fixed: 99c26d1c47820871daeb39c0cd57b17f0a15537a
+
+BUG: tval_is_sharp_missile
+	Fixed: 9afc1bef64d42699c2a6f6e12517e92a1ba29397
+
+BUG: "
+		- Light, with the rune being "use energy" or "light"?
+			- Is this a problem? It's IDed on buying it. Other stuff doesn't behave like that, though...
+	e.g. "a tactical flashlight (RTG Mod) (charging) {??}" in the store
+		- The same thing can be made up with play-with-object, and it behaves the same way.
+		- Also rune-ID fails silently on these objects
+		- May only happen on wiz-command generated items
+		- Still occurs after 416ff90a18e92ba95db126ffd717488548a88762
+		- Also partly fixed: on buy it is IDed as "use energy".
+		- Pre-ID (like combat runes)?
+		- Fixed 39b7b5351cb93c6902f8e423e5f67e89ec4e51cb
+
+BUG: Lights are using wrong descriptions?
+	- New game. Create with debug option a stick of dynamite. It appears unIDed (e.g. striped) but has the description of a known flare and behaves like one too.
+	- "wax candle" gives "cybernetic..fast running..speed" i.e. the one before it.
+	- "firecracker" (the next) has the description of a wax candle
+		- it lasts for 15 turns (like a firecracker) but "goes out" rather than exploding (like a candle).
+		- ones generated by "All Lights" are the same.
+	- It's off by 1, is this just the debug mode & is it just lights?
+		- It's only flavored lights (a disposable flashlight is OK, so is a life pill)
+	- Note that other flavored items don't have any description besides "It can be drunk" when created by debug option. This is how lights should be.
+	- Could it be the object.txt or flavor.txt?
+	- must be MIMIC_KNOW = one before!
+	Fixed: 9afdfcfa7e44790941d902bff767ecaddc7b7f93
+
+BUG: Pile integrity failure (firecracker, which was held by a monster when it went off)
+	Not caused by 9afdfcfa7e44790941d902bff767ecaddc7b7f93
+	- and there is no explosion
+	- Fixed: 05904e9b066bb48a66f707a9bf4726182a27dc38
+
+
+BUG: Androids have a 'invisible extension' (you have to press Enter twice, which hits the birth tests.) ESC back also may be affected.
+	- Fixed: 025540a6ecfc105a14723010dd2928eb1fe3a770
+
+BUG: The starting town was once "Smokey R8". Getting 99999999 gold got it renamed to Smokey R89999.
+	In another game with ok start, one of the other town names  had a corrupt last 
+	- Fixed (Probably. It's valgrind clean, anyway) in 84d53533f82af015f75bdb1f172bc23ba7b173dd
+
+BUG: 
+	Stone/steel skin timed/fault should be blocked by the mutation (or combined with it in some way)
+	- Fixed 98f38c1a1cf121ecb3bcf49667f4b193e582d04b
+
+BUG: Human Cyborg Engineer has no cyberware slots (starting gear is in pack) 
+	- Fixed (rebase)
+
+BUG "These two can't intersect"
+	- Fixed ffe9c52e
+
+BUG Crash at player-birth.c:463 (bodies is linked)
+	Fixed
+
+BUG: Failed the Msing Pills, returned to the Pharmacy, got "nothing needs to be done"
+	Fixed: 83cc48d181f80ae337e9a78ef930941733d83821
+
+Theme
+=====
+
+TODO: Remove & replace melee weapons
+TODO: Remove & replace armor
+
+TODO: Reword: Inscription, dungeon, potion, spell, book, Saving Throw, magic, chests, treasure

@@ -20,10 +20,10 @@
 #include "obj-tval.h"
 #include "player.h"
 #include "player-calcs.h"
+#include "player-timed.h"
 #include "project.h"
 
-/* 31 = TMD_MAX */
-static s16b TEST_DATA test_timed[31] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 
+static s16b TEST_DATA test_timed[TMD_MAX] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 
 };
 
 static struct object_base TEST_DATA sword_base = {
@@ -41,15 +41,15 @@ static struct object_base TEST_DATA light_base = {
 };
 
 static struct object_base TEST_DATA flask_base = {
-	.name = "Test Flask~",
-	.tval = TV_FLASK,
+	.name = "Test Battery~",
+	.tval = TV_BATTERY,
 	.next = NULL,
 	.break_perc = 100,
 };
 
 static struct object_base TEST_DATA rod_base = {
-	.name = "Test Rod~",
-	.tval = TV_ROD,
+	.name = "Test Gadget~",
+	.tval = TV_GADGET,
 	.next = NULL,
 };
 
@@ -93,7 +93,7 @@ static struct object_kind TEST_DATA test_longsword = {
 		[OBJ_MOD_SEARCH] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_INFRA] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_TUNNEL] = { 0, 0, 0, 0 }, 
-		[OBJ_MOD_SPEED] = { 0, 0, 0, 0 }, 
+		[OBJ_MOD_SPD] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_BLOWS] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_SHOTS] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_MIGHT] = { 0, 0, 0, 0 }, 
@@ -194,7 +194,7 @@ static struct object_kind TEST_DATA test_torch = {
 		[OBJ_MOD_SEARCH] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_INFRA] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_TUNNEL] = { 0, 0, 0, 0 }, 
-		[OBJ_MOD_SPEED] = { 0, 0, 0, 0 }, 
+		[OBJ_MOD_SPD] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_BLOWS] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_SHOTS] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_MIGHT] = { 0, 0, 0, 0 }, 
@@ -274,7 +274,7 @@ static struct object_kind TEST_DATA test_lantern = {
 	.next = NULL,
  	.kidx = 3,
 	.tval = TV_LIGHT,
-	.sval = 2, //Hack - depends on edit file order -  Lantern (NRM)
+	.sval = 8, //Hack - depends on edit file order -  Lantern (NRM)
 	.pval = {
 		.base = 5000,
 		.dice = 0,
@@ -321,7 +321,7 @@ static struct object_kind TEST_DATA test_lantern = {
 		[OBJ_MOD_SEARCH] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_INFRA] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_TUNNEL] = { 0, 0, 0, 0 }, 
-		[OBJ_MOD_SPEED] = { 0, 0, 0, 0 }, 
+		[OBJ_MOD_SPD] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_BLOWS] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_SHOTS] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_MIGHT] = { 0, 0, 0, 0 }, 
@@ -399,7 +399,7 @@ static struct object_kind TEST_DATA test_flask = {
 	.text = "A test flask.",
 	.base = &flask_base,
 	.kidx = 1,
-	.tval = TV_FLASK,
+	.tval = TV_BATTERY,
 	.sval = 0,
 	.pval = {
 				.base = 7500,
@@ -418,7 +418,7 @@ static struct object_kind TEST_DATA test_flask = {
 		[OBJ_MOD_SEARCH] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_INFRA] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_TUNNEL] = { 0, 0, 0, 0 }, 
-		[OBJ_MOD_SPEED] = { 0, 0, 0, 0 }, 
+		[OBJ_MOD_SPD] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_BLOWS] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_SHOTS] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_MIGHT] = { 0, 0, 0, 0 }, 
@@ -470,7 +470,7 @@ static struct object_kind TEST_DATA test_rod_treasure_location = {
 	.text = "A test rod of treasure location.",
 	.base = &rod_base,
 	.kidx = 1,
-	.tval = TV_ROD,
+	.tval = TV_GADGET,
 	.sval = 1,
 	.pval = {
 				.base = 0,
@@ -489,7 +489,7 @@ static struct object_kind TEST_DATA test_rod_treasure_location = {
 		[OBJ_MOD_SEARCH] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_INFRA] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_TUNNEL] = { 0, 0, 0, 0 }, 
-		[OBJ_MOD_SPEED] = { 0, 0, 0, 0 }, 
+		[OBJ_MOD_SPD] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_BLOWS] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_SHOTS] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_MIGHT] = { 0, 0, 0, 0 }, 
@@ -559,7 +559,7 @@ static struct object_kind TEST_DATA test_gold = {
 		[OBJ_MOD_SEARCH] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_INFRA] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_TUNNEL] = { 0, 0, 0, 0 }, 
-		[OBJ_MOD_SPEED] = { 0, 0, 0, 0 }, 
+		[OBJ_MOD_SPD] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_BLOWS] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_SHOTS] = { 0, 0, 0, 0 }, 
 		[OBJ_MOD_MIGHT] = { 0, 0, 0, 0 }, 
@@ -623,7 +623,7 @@ static struct player_race TEST_DATA test_race = {
 		[SKILL_STEALTH] = -5,
 		[SKILL_SEARCH] = -10,
 		[SKILL_TO_HIT_MELEE] = 0,
-		[SKILL_TO_HIT_BOW] = 0,
+		[SKILL_TO_HIT_GUN] = 0,
 		[SKILL_TO_HIT_THROW] = 0,
 		[SKILL_DIGGING] = 0,
 	},
@@ -660,37 +660,20 @@ static struct start_item TEST_DATA start_longsword = {
 	.next = &start_torch,
 };
 
-static struct magic_realm TEST_DATA test_realm = {
-	.next = NULL,
-	.name = "realm",
-	.stat = 1,
-	.verb = "spell_verb",
-	.spell_noun = "spell_noun",
-	.book_noun = "book_noun",
-};
-
 static struct class_book TEST_DATA test_book = {
-	.tval = 10,
-	.sval = 4,
-	.realm = &test_realm,
 	.num_spells = 8,
 	.spells = NULL,
 };
 
+static const char *test_title[3] = {
+	"TestTitle0",
+	"TestTitle1",
+	NULL
+};
+
 static struct player_class TEST_DATA test_class = {
 	.name = "TestClass",
-	.title = {
-		"TestTitle0",
-		"TestTitle1",
-		"TestTitle2",
-		"TestTitle3",
-		"TestTitle4",
-		"TestTitle5",
-		"TestTitle6",
-		"TestTitle7",
-		"TestTitle8",
-		"TestTitle9",
-	},
+	.title = test_title,
 
 	.c_adj = {
 		[STAT_STR] = +1,
@@ -708,7 +691,7 @@ static struct player_class TEST_DATA test_class = {
 		[SKILL_STEALTH] = 1,
 		[SKILL_SEARCH] = 14,
 		[SKILL_TO_HIT_MELEE] = 70,
-		[SKILL_TO_HIT_BOW] = 55,
+		[SKILL_TO_HIT_GUN] = 55,
 		[SKILL_TO_HIT_THROW] = 55,
 		[SKILL_DIGGING] = 0,
 	},
@@ -721,7 +704,7 @@ static struct player_class TEST_DATA test_class = {
 		[SKILL_STEALTH] = 0,
 		[SKILL_SEARCH] = 0,
 		[SKILL_TO_HIT_MELEE] = 45,
-		[SKILL_TO_HIT_BOW] = 45,
+		[SKILL_TO_HIT_GUN] = 45,
 		[SKILL_TO_HIT_THROW] = 45,
 		[SKILL_DIGGING] = 0,
 	},
@@ -1089,7 +1072,8 @@ static struct player TEST_DATA test_player = {
 	.race = &test_race,
 	.class = &test_class,
 	.hitdie = 10,
-	.expfact = 100,
+	.expfact_low = 100,
+	.expfact_high = 100,
 	.age = 12,
 	.ht = 40,
 	.wt = 80,
@@ -1102,8 +1086,6 @@ static struct player TEST_DATA test_player = {
 	.exp = 80,
 	.mhp = 20,
 	.chp = 14,
-	.msp = 12,
-	.csp = 11,
 	.stat_max = {
 		[STAT_STR] = 14,
 		[STAT_DEX] = 12,

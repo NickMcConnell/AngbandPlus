@@ -1395,12 +1395,6 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v)
 								 ORIGIN_VAULT, tval);
 					break;
 				}
-					/* Ring. */
-				case '=': place_object(c, grid, c->depth + 3, one_in_(4), false,
-									   ORIGIN_VAULT, TV_RING); break;
-					/* Amulet. */
-				case '"': place_object(c, grid, c->depth + 3, one_in_(4), false,
-									   ORIGIN_VAULT, TV_AMULET); break;
 					/* Pill. */
 				case '!': place_object(c, grid, c->depth + 3, one_in_(4), false,
 									   ORIGIN_VAULT, TV_PILL); break;
@@ -1413,8 +1407,13 @@ bool build_vault(struct chunk *c, struct loc centre, struct vault *v)
 					/* Wand or rod. */
 				case '-': place_object(c, grid, c->depth + 3, one_in_(4), false,
 									   ORIGIN_VAULT,
-									   one_in_(2) ? TV_WAND : TV_ROD);
-					break;
+									   one_in_(2) ? TV_WAND : TV_GADGET); break;
+					/* Cyberware */
+				case '"': place_object(c, grid, c->depth + 3, one_in_(4), false,
+									   ORIGIN_VAULT, tval_random_implant()); break;
+					/* Printer or block */
+				case '=': place_object(c, grid, c->depth + 3, one_in_(4), false,
+									   ORIGIN_VAULT, one_in_(3) ? TV_PRINTER : TV_BLOCK); break;
 					/* Food or mushroom. */
 				case ',': place_object(c, grid, c->depth + 3, one_in_(4), false,
 									   ORIGIN_VAULT, TV_FOOD); break;

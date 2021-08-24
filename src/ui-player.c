@@ -221,7 +221,7 @@ static void configure_char_sheet(void)
 
 	cached_config->res_nlabel = 6;
 	cached_config->res_cols =
-		cached_config->res_nlabel + 1 + player->body.count;
+		cached_config->res_nlabel + 2 + player->body.count;
 	cached_config->res_rows = 0;
 	for (i = 0; i < 4; ++i) {
 		int j;
@@ -375,13 +375,14 @@ static void display_player_equippy(int y, int x)
 
 static void display_resistance_panel(int ipart, struct char_sheet_config *config)
 {
-	int *vals = mem_alloc((player->body.count + 1) * sizeof(*vals));
-	int *auxs = mem_alloc((player->body.count + 1) * sizeof(*auxs));
+	int *vals = mem_alloc((player->body.count + 2) * sizeof(*vals));
+	int *auxs = mem_alloc((player->body.count + 2) * sizeof(*auxs));
 	struct object **equipment =
 		mem_alloc(player->body.count * sizeof(*equipment));
 	struct cached_object_data **ocaches =
 		mem_zalloc(player->body.count * sizeof(*ocaches));
 	struct cached_player_data *pcache = NULL;
+	struct cached_object_data *gcache = NULL;
 	struct ui_entry_details render_details;
 	int i;
 	int j;
@@ -395,7 +396,11 @@ static void display_resistance_panel(int ipart, struct char_sheet_config *config
 	/* Equippy */
 	display_player_equippy(row++, col + config->res_nlabel);
 
-	Term_putstr(col, row++, config->res_cols, COLOUR_WHITE, "      abcdefghijklm@");
+	char buf[64];
+	strcpy(buf, "      abcdefghijklmnopqrstuvwxyz");
+	strcpy(buf+player->body.count+6, "*@");
+
+	Term_putstr(col, row++, config->res_cols, COLOUR_WHITE, buf);
 	render_details.label_position.x = col;
 	render_details.value_position.x = col + config->res_nlabel;
 	render_details.position_step = loc(1, 0);
@@ -409,16 +414,20 @@ static void display_resistance_panel(int ipart, struct char_sheet_config *config
 		for (j = 0; j < player->body.count; j++) {
 			compute_ui_entry_values_for_object(entry, equipment[j], player, ocaches + j, vals + j, auxs + j);
 		}
-		compute_ui_entry_values_for_player(entry, player, &pcache, vals + player->body.count, auxs + player->body.count);
+		compute_ui_entry_values_for_gear(entry, player, &gcache, vals + player->body.count, auxs + player->body.count);
+		compute_ui_entry_values_for_player(entry, player, &pcache, vals + player->body.count + 1, auxs + player->body.count + 1);
 
 		render_details.label_position.y = row;
 		render_details.value_position.y = row;
 		render_details.known_icon = is_ui_entry_for_known_icon(entry, player);
-		ui_entry_renderer_apply(get_ui_entry_renderer_index(entry), config->resists_by_region[ipart][i].label, config->res_nlabel, vals, auxs, player->body.count + 1, &render_details);
+		ui_entry_renderer_apply(get_ui_entry_renderer_index(entry), config->resists_by_region[ipart][i].label, config->res_nlabel, vals, auxs, player->body.count + 2, &render_details);
 	}
 
 	if (pcache) {
 		release_cached_player_data(pcache);
+	}
+	if (gcache) {
+		release_cached_object_data(gcache);
 	}
 	for (i = 0; i < player->body.count; ++i) {
 		if (ocaches[i]) {
@@ -664,7 +673,7 @@ static const char *show_adv_exp(void)
 {
 	if (player->lev < PY_MAX_LEVEL) {
 		static char buffer[30];
-		s32b advance = (player_exp[player->lev - 1] * player->expfact / 100L);
+		s32b advance = exp_to_gain(player->lev + 1);
 		strnfmt(buffer, sizeof(buffer), "%d", advance);
 		return buffer;
 	}
@@ -743,7 +752,7 @@ static struct panel *get_panel_midleft(void) {
 	panel_line(p, COLOUR_L_GREEN, "Max Exp", "%d", player->max_exp);
 	panel_line(p, COLOUR_L_GREEN, "Adv Exp", "%s", show_adv_exp());
 	panel_space(p);
-	panel_line(p, COLOUR_L_GREEN, "Gold", "%d", player->au);
+	panel_line(p, COLOUR_L_GREEN, "Cash", "%d", player->au);
 	panel_line(p, attr, "Burden", fmt_weight(player->upkeep->total_weight, NULL));
 	panel_line(p, attr, "Overweight", fmt_weight(-diff, NULL));
 	panel_line(p, COLOUR_L_GREEN, "Max Depth", "%s", show_depth());

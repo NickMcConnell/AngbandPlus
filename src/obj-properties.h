@@ -21,6 +21,8 @@
 #include "z-file.h"
 #include "z-bitflag.h"
 
+struct object;
+
 /**
  * ------------------------------------------------------------------------
  * Constants
@@ -192,5 +194,6 @@ struct obj_property *lookup_obj_property(int type, int index);
 void create_obj_flag_mask(bitflag *f, int id, ...);
 void flag_message(int flag, char *name);
 int sustain_flag(int stat);
+void object_know_all(struct object *obj);
 
 #endif /* !INCLUDED_OBJPROPERTIES_H */

@@ -1206,9 +1206,9 @@ desc:speeds up you temporarily but also makes you mortally afraid
 name:SHROOM_STONE
 aim:0
 power:5
-effect:TIMED_SET:STONESKIN
+effect:TIMED_SET:STONE_SKIN
 dice:79+1d41
-desc:turns your skin to stone briefly, which grants an extra 40AC but slows you down
+desc:turns your skin to stone: protection and shards resistance, but clumsiness and acid vulnerability
 
 name:SHROOM_DEBILITY
 aim:0

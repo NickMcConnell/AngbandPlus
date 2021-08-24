@@ -55,6 +55,9 @@ void compute_ui_entry_values_for_object(const struct ui_entry *entry,
 void compute_ui_entry_values_for_player(const struct ui_entry *entry,
 	struct player *p, struct cached_player_data **cache, int *val,
 	int *auxval);
+void compute_ui_entry_values_for_gear(const struct ui_entry *entry,
+	struct player *p, struct cached_object_data **cache, int *val,
+	int *auxval);
 void release_cached_object_data(struct cached_object_data *cache);
 void release_cached_player_data(struct cached_player_data *cache);
 

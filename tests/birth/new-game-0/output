@@ -1,2 +1,3 @@
 player-race: Human
-player-class: Warrior
+player-ext: Cyborg
+player-class: Engineer

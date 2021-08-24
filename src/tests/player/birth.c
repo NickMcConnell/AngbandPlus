@@ -12,6 +12,8 @@ int setup_tests(void **state) {
 	z_info->quest_max = 1;
 	z_info->quiver_size = 10;
 	quests = &test_quest;
+	races = extensions = &test_race;
+	classes = &test_class;
 	player_init(p);
 	*state = p;
 	return 0;
@@ -27,7 +29,7 @@ int teardown_tests(void *state) {
 	mem_free(p->timed);
 	mem_free(p->obj_k->brands);
 	mem_free(p->obj_k->slays);
-	mem_free(p->obj_k->curses);
+	mem_free(p->obj_k->faults);
 	mem_free(p->obj_k);
 	mem_free(state);
 	return 0;
@@ -35,9 +37,10 @@ int teardown_tests(void *state) {
 
 int test_generate0(void *state) {
 	struct player *p = state;
-	player_generate(p, &test_race, &test_class, false);
+	player_generate(p, &test_race, &test_race, &test_class, false);
 	eq(p->lev, 1);
 	ptreq(p->race, &test_race);
+	ptreq(p->extension, &test_race);
 	ptreq(p->class, &test_class);
 	ok;
 }

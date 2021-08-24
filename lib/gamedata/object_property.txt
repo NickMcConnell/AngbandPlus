@@ -137,8 +137,6 @@ code:BLOWS
 power:0
 mult:50
 type-mult:gun:0
-type-mult:ring:3
-type-mult:amulet:3
 type-mult:light:3
 type-mult:soft armor:3
 type-mult:hard armor:3
@@ -160,8 +158,6 @@ type-mult:sword:0
 type-mult:polearm:0
 type-mult:hafted:0
 type-mult:digger:0
-type-mult:ring:4
-type-mult:amulet:4
 type-mult:light:4
 type-mult:soft armor:4
 type-mult:hard armor:4
@@ -183,8 +179,6 @@ type-mult:sword:0
 type-mult:polearm:0
 type-mult:hafted:0
 type-mult:digger:0
-type-mult:ring:0
-type-mult:amulet:0
 type-mult:light:0
 type-mult:soft armor:0
 type-mult:hard armor:0
@@ -206,8 +200,6 @@ type-mult:sword:0
 type-mult:polearm:0
 type-mult:hafted:0
 type-mult:digger:0
-type-mult:ring:0
-type-mult:amulet:0
 type-mult:light:0
 type-mult:soft armor:0
 type-mult:hard armor:0
@@ -364,8 +356,6 @@ subtype:misc ability
 id-type:timed
 code:REGEN
 power:5
-type-mult:ring:2
-type-mult:amulet:2
 type-mult:light:2
 type-mult:soft armor:2
 type-mult:hard armor:2
@@ -385,8 +375,6 @@ type:flag
 subtype:misc ability
 id-type:on wield
 code:TELEPATHY
-type-mult:ring:2
-type-mult:amulet:2
 type-mult:light:2
 type-mult:soft armor:2
 type-mult:hard armor:2
@@ -406,8 +394,6 @@ type:flag
 subtype:misc ability
 id-type:on wield
 code:SEE_INVIS
-type-mult:ring:2
-type-mult:amulet:2
 type-mult:light:2
 type-mult:soft armor:2
 type-mult:hard armor:2
@@ -428,8 +414,6 @@ subtype:misc ability
 id-type:on effect
 code:FREE_ACT
 power:8
-type-mult:ring:2
-type-mult:amulet:2
 type-mult:light:2
 type-mult:soft armor:2
 type-mult:hard armor:2
@@ -450,8 +434,6 @@ subtype:misc ability
 id-type:on effect
 code:HOLD_LIFE
 power:5
-type-mult:ring:2
-type-mult:amulet:2
 type-mult:light:2
 type-mult:soft armor:2
 type-mult:hard armor:2
@@ -473,8 +455,6 @@ id-type:on effect
 code:IMPACT
 power:10
 type-mult:gun:0
-type-mult:ring:0
-type-mult:amulet:0
 type-mult:light:0
 type-mult:soft armor:0
 type-mult:hard armor:0
@@ -495,8 +475,6 @@ id-type:on wield
 code:BLESSED
 power:1
 type-mult:gun:0
-type-mult:ring:0
-type-mult:amulet:0
 type-mult:light:0
 type-mult:soft armor:0
 type-mult:hard armor:0
@@ -521,8 +499,6 @@ type-mult:polearm:0
 type-mult:hafted:0
 type-mult:digger:0
 type-mult:gun:0
-type-mult:ring:0
-type-mult:amulet:0
 type-mult:soft armor:0
 type-mult:hard armor:0
 type-mult:dragon armor:0
@@ -544,8 +520,6 @@ type-mult:polearm:0
 type-mult:hafted:0
 type-mult:digger:0
 type-mult:gun:0
-type-mult:ring:0
-type-mult:amulet:0
 type-mult:soft armor:0
 type-mult:hard armor:0
 type-mult:dragon armor:0
@@ -567,8 +541,6 @@ type-mult:polearm:0
 type-mult:hafted:0
 type-mult:digger:0
 type-mult:gun:0
-type-mult:ring:0
-type-mult:amulet:0
 type-mult:soft armor:0
 type-mult:hard armor:0
 type-mult:dragon armor:0
@@ -675,8 +647,6 @@ type-mult:polearm:0
 type-mult:hafted:0
 type-mult:digger:0
 type-mult:gun:0
-type-mult:ring:0
-type-mult:amulet:0
 type-mult:soft armor:0
 type-mult:hard armor:0
 type-mult:dragon armor:0
@@ -698,8 +668,6 @@ type-mult:polearm:0
 type-mult:hafted:0
 type-mult:digger:0
 type-mult:gun:0
-type-mult:ring:0
-type-mult:amulet:0
 type-mult:soft armor:0
 type-mult:hard armor:0
 type-mult:dragon armor:0
@@ -721,8 +689,6 @@ type-mult:polearm:0
 type-mult:hafted:0
 type-mult:digger:0
 type-mult:gun:0
-type-mult:ring:0
-type-mult:amulet:0
 type-mult:soft armor:0
 type-mult:hard armor:0
 type-mult:dragon armor:0
@@ -744,8 +710,6 @@ type-mult:polearm:0
 type-mult:hafted:0
 type-mult:digger:0
 type-mult:gun:0
-type-mult:ring:0
-type-mult:amulet:0
 type-mult:soft armor:0
 type-mult:hard armor:0
 type-mult:dragon armor:0
@@ -791,8 +755,6 @@ type-mult:polearm:0
 type-mult:hafted:0
 type-mult:digger:0
 type-mult:gun:0
-type-mult:ring:0
-type-mult:amulet:0
 type-mult:soft armor:0
 type-mult:hard armor:0
 type-mult:dragon armor:0
@@ -809,8 +771,6 @@ subtype:misc ability
 id-type:on effect
 code:TRAP_IMMUNE
 power:5
-type-mult:ring:2
-type-mult:amulet:2
 type-mult:light:2
 type-mult:soft armor:2
 type-mult:hard armor:2
@@ -836,6 +796,12 @@ name:no-activate
 type:flag
 subtype:throw
 code:NO_ACTIVATION
+power:0
+
+name:hide-activate
+type:flag
+subtype:throw
+code:HIDE_ACTIVATION
 power:0
 
 name:ignore acid
@@ -988,3 +954,13 @@ name:task special
 type:flag
 code:QUEST_SPECIAL
 power:1
+
+name:unable to equip
+type:flag
+code:NO_EQUIP
+power:0
+
+name:magnetic
+type:flag
+code:MAGNETIC
+power:-8

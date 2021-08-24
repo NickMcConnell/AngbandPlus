@@ -286,18 +286,18 @@ if you do not mind being slow. Your weight "limit" is determined by your
 strength.
 
 Many objects found within the dungeon have special commands for their use.
-Wands must be Aimed, devices must be Used, scrolls must be Read, and potions
-must be Quaffed. You may, in general, not only use items in your pack, but
-also items on the ground, if you are standing on top of them. At the
-beginning of the game all items are assigned a random 'flavor'. For example
-potions of 'cure light wounds' could be 'red potions'. If you have never
-used, sold, or bought one of these potions, you will only see the flavor.
+Wands must be aimed, devices must be used, scrolls must be read, and pills
+must be taken (or eaten). You may, in general, not only use items in your
+pack, but also items on the ground, if you are standing on top of them. At
+the beginning of the game all items are assigned a random 'flavor'. For
+example 'curing' pills could be 'gensimine pills'. If you have never
+used, sold, or bought one of these pills, you will only see the flavor.
 You can learn what type of item it is by selling it to a store, or using it
-(although learning by use does not always apply to magic devices). Lastly,
+(although learning by use does not always apply to all devices). Lastly,
 items in stores that you have not yet identified the flavor of will be labeled
 '{unseen}'.
 
-Chests are complex objects, containing traps, locks, and possibly treasure
+Containerss are complex objects, containing traps, locks, and possibly cash
 or other objects inside them once they are opened. Many of the commands
 that apply to traps or doors also apply to chests and, like traps and
 doors, these commands do not work if you are carrying the chest.

@@ -52,7 +52,7 @@ int test_slots0(void *state) {
 }
 
 int test_owner0(void *state) {
-	enum parser_error r = parser_parse(state, "owner:5000:Foo");
+	enum parser_error r = parser_parse(state, "owner:10:5000:Foo");
 	struct store *s;
 
 	eq(r, PARSE_ERROR_NONE);
@@ -64,14 +64,6 @@ int test_owner0(void *state) {
 
 /* Causes segfault: lookup_name() requires z_info/k_info */
 int test_i0(void *state) {
-	enum parser_error r = parser_parse(state, "normal:3:5");
-	struct store *s;
-
-	eq(r, PARSE_ERROR_NONE);
-	s = parser_priv(state);
-	require(s);
-	require(s->normal_table[0]);
-	require(s->normal_table[1]);
 	ok;
 }
 

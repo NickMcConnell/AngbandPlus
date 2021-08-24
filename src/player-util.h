@@ -81,6 +81,7 @@ extern struct death_msg *death; /* player-util.c */
 int feeling_need(struct player *p);
 int energy_per_move(struct player *p);
 s16b modify_stat_value(int value, int amount);
+void light_special_activation(struct object *obj);
 void light_timeout(struct object *obj);
 void player_regen_hp(struct player *p);
 void player_adjust_hp_precise(struct player *p, s32b hp_gain);

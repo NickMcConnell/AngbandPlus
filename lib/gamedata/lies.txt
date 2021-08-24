@@ -356,6 +356,7 @@ R:The gods love us, they even created birds to throw presents down.
 R:The king will return, know him because he carries the Sword of Albion.
 R:The magic word is "XYZZY".
 R:The moving finger writes, and having writ... gestures.
+R:The moving finger writes, and having writ... goes on to write another bit.
 R:The opinion you had were salt expresses.
 R:The thrum of serious risk-taking heightens the suspense. Hitchcock it up!
 R:There are black market stores hidden on deep levels, with COOL stuff!
@@ -383,6 +384,7 @@ R:They say that 43% of statistics are made up on the spot.
 R:They say that 5 green molds have captured a Princess.
 R:They say that Elf shot the food.
 R:They say that Evil Iggy is more evil than the Balrog.
+R:They say that Evil Iggy isn't evil at all.
 R:They say that Elf shot the a.out.
 R:They say that Koffing is just a huge bag of farts.
 R:They say that Leeroy Jenkins is like Forrest Gump.
@@ -417,6 +419,7 @@ R:They say that gazpacho soup should be served cold.
 R:They say that handsome guys are hard to find these days.
 R:They say that hindsight is always 20-20.
 R:They say that hindsight is always 20%.
+R:They say that Hunter's pies are worth every cent.
 R:They say that if you defeat me I shall return, more powerful than ever.
 R:They say that if you go down to the woods today, you're sure of a big surprise.
 R:They say that if you leave Galaxy 7 from Rainza, you will end up in Oresrati.
@@ -501,6 +504,7 @@ R:They say that you can always trust rumors.
 R:They say that you can find Genetic Engineering in ancient scrolls of wisdom.
 R:They say that you can gain Charisma by dipping your T-shirt in a fountain.
 R:They say that you don't win friends with salad.
+R:They say that you do win friends with my salad!
 R:They say you can get a potion of cure dianthroritis in 30 turns, or it's free.
 R:They say that you can stand on an explosive barrel and fire a rocket down.
 R:They say that you got the quad damage!
@@ -644,6 +648,7 @@ R:You may be a ***WINNER*** if you recall within 1000 turns!
 R:You must be three times as resistant to {illegible} than other elements.
 R:You must eat a great dessert, you must eat it all alone...
 R:You seem inoffensive, a mere joker, a light-weight. But your eyes ..?
+R:You transform into an amoeba.
 R:You undergo a freakish metamorphosis!
 R:You walk like you're dead!
 R:You will die in 1289 turns.

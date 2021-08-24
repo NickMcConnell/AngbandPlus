@@ -227,7 +227,7 @@ static void birthmenu_display(struct menu *menu, int oid, bool cursor,
  */
 static const menu_iter birth_iter = { NULL, NULL, birthmenu_display, NULL, NULL };
 
-static void skill_help(const int r_skills[], const int c_skills[], int mhp, int exp, int infra)
+static void skill_help(const int r_skills[], const int c_skills[], int mhp, int exp, int exphigh, int infra)
 {
 	s16b skills[SKILL_MAX];
 	unsigned i;
@@ -237,7 +237,10 @@ static void skill_help(const int r_skills[], const int c_skills[], int mhp, int 
 
 	text_out_e("Hit/Shoot/Throw: %+d/%+d/%+d   \n", skills[SKILL_TO_HIT_MELEE],
 			   skills[SKILL_TO_HIT_GUN], skills[SKILL_TO_HIT_THROW]);
-	text_out_e("Hit die: %2d   XP mod: %d%%\n", mhp, exp);
+	if (exp == exphigh)
+		text_out_e("Hit die: %2d   XP mod: %d%%\n", mhp, exp);
+	else
+		text_out_e("Hit die: %2d   XP mod: %d%%=>%d%%\n", mhp, exp, exphigh);
 	text_out_e("Disarm: %+3d/%+3d   Devices: %+3d\n", skills[SKILL_DISARM_PHYS],
 			   skills[SKILL_DISARM_MAGIC], skills[SKILL_DEVICE]);
 	text_out_e("Save:   %+3d   Stealth: %+3d\n", skills[SKILL_SAVE],
@@ -307,7 +310,7 @@ static void race_ext_help(int i, void *db, const region *l, struct player_race *
 	/* Display skill information */
 	text_out_indent = SKILL_COL;
 	Term_gotoxy(SKILL_COL, TABLE_ROW);
-	skill_help(r->r_skills, NULL, r->r_mhp, r->r_exp, r->infra);
+	skill_help(r->r_skills, NULL, r->r_mhp, r->r_exp, r->r_high_exp, r->infra);
 
 	/* Display race description */
 	for(int y=DESC_ROW; y<=DESC_END; y++)
@@ -391,7 +394,7 @@ static void class_help(int i, void *db, const region *l)
 	text_out_indent = SKILL_COL;
 	Term_gotoxy(SKILL_COL, TABLE_ROW);
 	skill_help(r->r_skills, c->c_skills, r->r_mhp + c->c_mhp,
-			   r->r_exp + c->c_exp, -1);
+			   r->r_exp + c->c_exp, r->r_high_exp + c->c_exp, -1);
 
 	/* Display class description */
 	for(int y=DESC_ROW; y<=DESC_END; y++)
@@ -614,7 +617,7 @@ static enum birth_stage menu_question(enum birth_stage current,
 					/* 
 					 * Make sure we've got a point-based char to play with. 
 					 * We call point_based_start here to make sure we get
-					 * an upda  te on the points totals before trying to
+					 * an update on the points totals before trying to
 					 * display the screen.  The call to CMD_RESET_STATS
 					 * forces a rebuying of the stats to give us up-to-date
 					 * totals.  This is, it should go without saying, a hack.
@@ -1178,6 +1181,8 @@ int textui_do_birth(void)
 
 	while (!done) {
 
+		int previous_stage = current_stage - 1;
+
 		switch (current_stage)
 		{
 			case BIRTH_RESET:
@@ -1221,6 +1226,8 @@ int textui_do_birth(void)
 					 **/
 					setup_menus();
 					if (ext_menu.count <= 1) {
+						menu_refresh(&ext_menu, false);
+						current_stage++;
 						command = CMD_CHOOSE_CLASS;
 						menu = &class_menu;
 					} else {
@@ -1243,7 +1250,7 @@ int textui_do_birth(void)
 				next = menu_question(current_stage, menu, command);
 
 				if (next == BIRTH_BACK)
-					next = current_stage - 1;
+					next = previous_stage;
 
 				/* Make sure the character gets reset before quickstarting */
 				if (next == BIRTH_QUICKSTART) 

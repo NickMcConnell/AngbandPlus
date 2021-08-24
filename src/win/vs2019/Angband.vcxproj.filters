@@ -189,7 +189,7 @@
     <ClCompile Include="src\obj-chest.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\obj-curse.c">
+    <ClCompile Include="src\obj-fault.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\obj-desc.c">
@@ -330,7 +330,7 @@
     <ClCompile Include="src\ui-context.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ui-curse.c">
+    <ClCompile Include="src\ui-fault.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ui-death.c">
@@ -698,7 +698,7 @@
     <ClInclude Include="src\obj-chest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\obj-curse.h">
+    <ClInclude Include="src\obj-fault.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\obj-desc.h">
@@ -830,7 +830,7 @@
     <ClInclude Include="src\ui-context.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui-curse.h">
+    <ClInclude Include="src\ui-fault.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ui-death.h">
@@ -1003,7 +1003,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="src\win\angband.ico">
+    <Image Include="src\win\xygos.ico">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="lib\icons\att-16.png">
@@ -1038,7 +1038,7 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="src\win\angband.rc">
+    <ResourceCompile Include="src\win\xygos.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -1225,7 +1225,7 @@
     <Text Include="lib\gamedata\constants.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
-    <Text Include="lib\gamedata\curse.txt">
+    <Text Include="lib\gamedata\fault.txt">
       <Filter>Resource Files\gamedata</Filter>
     </Text>
     <Text Include="lib\gamedata\dungeon_profile.txt">

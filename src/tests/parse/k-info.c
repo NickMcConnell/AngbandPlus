@@ -79,13 +79,13 @@ int test_level0(void *state) {
 }
 
 int test_weight0(void *state) {
-	errr r = parser_parse(state, "weight:5");
+	errr r = parser_parse(state, "weight:5kg");
 	struct object_kind *k;
 
 	eq(r, 0);
 	k = parser_priv(state);
 	require(k);
-	eq(k->weight, 5);
+	eq(k->weight, 5000);
 	ok;
 }
 

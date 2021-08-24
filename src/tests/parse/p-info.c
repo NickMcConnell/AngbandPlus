@@ -30,7 +30,7 @@ int test_name0(void *state) {
 }
 
 int test_stats0(void *state) {
-	enum parser_error r = parser_parse(state, "stats:1:-1:2:-2:3");
+	enum parser_error r = parser_parse(state, "stats:1:-1:2:-2:3:4:5");
 	struct player_race *pr;
 
 	eq(r, PARSE_ERROR_NONE);
@@ -41,6 +41,8 @@ int test_stats0(void *state) {
 	eq(pr->r_adj[STAT_WIS], 2);
 	eq(pr->r_adj[STAT_DEX], -2);
 	eq(pr->r_adj[STAT_CON], 3);
+	eq(pr->r_adj[STAT_CHR], 4);
+	eq(pr->r_adj[STAT_SPD], 5);
 	ok;
 }
 
@@ -117,7 +119,7 @@ int test_skill_shoot0(void *state) {
 	eq(r, PARSE_ERROR_NONE);
 	pr = parser_priv(state);
 	require(pr);
-	eq(pr->r_skills[SKILL_TO_HIT_BOW], 6);
+	eq(pr->r_skills[SKILL_TO_HIT_GUN], 6);
 	ok;
 }
 
@@ -212,14 +214,24 @@ int test_height0(void *state) {
 }
 
 int test_weight0(void *state) {
-	enum parser_error r = parser_parse(state, "weight:80:10");
+	enum parser_error r = parser_parse(state, "weight:80kg");
 	struct player_race *pr;
 
 	eq(r, PARSE_ERROR_NONE);
 	pr = parser_priv(state);
 	require(pr);
-	eq(pr->base_wgt, 80);
-	eq(pr->mod_wgt, 10);
+	eq(pr->base_wgt, 80000);
+	ok;
+}
+
+int test_weightmod0(void *state) {
+	enum parser_error r = parser_parse(state, "weightmod:20kg");
+	struct player_race *pr;
+
+	eq(r, PARSE_ERROR_NONE);
+	pr = parser_priv(state);
+	require(pr);
+	eq(pr->mod_wgt, 20000);
 	ok;
 }
 
@@ -265,6 +277,7 @@ struct test tests[] = {
 	{ "age0", test_age0 },
 	{ "height0", test_height0 },
 	{ "weight0", test_weight0 },
+	{ "weightmod0", test_weightmod0 },
 	{ "object_flags0", test_obj_flags0 },
 	{ "player_flags0", test_play_flags0 },
 	{ NULL, NULL }

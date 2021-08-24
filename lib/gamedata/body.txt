@@ -2,18 +2,12 @@
 
 # Shamelessly stolen from PosChengband
 
-# Body types  - currently only the standard body is used, and there
-# is no facility for different bodies in p_race.txt.
-
 # Note that each body record must take the form of a body-name line,
 # followed by a sequence of alternating slot-type and slot-name lines.
 
-body:Humanoid
+body:HumanoidNoImplants
 slot:WEAPON:weapon
 slot:GUN:shooting
-slot:RING:right hand
-slot:RING:left hand
-slot:AMULET:neck
 slot:LIGHT:light
 slot:BODY_ARMOR:body
 slot:CLOAK:back
@@ -23,3 +17,16 @@ slot:HAT:head
 slot:GLOVES:hands
 slot:BOOTS:feet
 
+body:Humanoid
+slot:WEAPON:weapon
+slot:GUN:shooting
+slot:LIGHT:light
+slot:BODY_ARMOR:body
+slot:CLOAK:back
+slot:BELT:belt
+slot:SHIELD:arm
+slot:HAT:head
+slot:GLOVES:hands
+slot:BOOTS:feet
+slot:LEGS:legs
+slot:ARMS:arms

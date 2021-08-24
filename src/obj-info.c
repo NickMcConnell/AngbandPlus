@@ -34,8 +34,10 @@
 #include "obj-slays.h"
 #include "obj-tval.h"
 #include "obj-util.h"
+#include "player-ability.h"
 #include "player-attack.h"
 #include "player-calcs.h"
+#include "player-properties.h"
 #include "project.h"
 #include "z-textblock.h"
 
@@ -1604,6 +1606,45 @@ static bool describe_light(textblock *tb, const struct object *obj,
 }
 
 /**
+ * Describe player flags.
+ */
+static bool describe_player_flags(textblock *tb, const struct object *obj,
+						   oinfo_detail_t mode)
+{
+	if (pf_is_empty(obj->pflags))
+		return false;
+
+	for(int i=0;i<PF_MAX;i++) {
+		if (pf_has(obj->pflags, i)) {
+			textblock_append(tb, "When worn, ");
+			if (ability[i]) {
+				char *desc = string_make(ability[i]->desc);
+				desc[0] = tolower(desc[0]);
+				textblock_append(tb, desc);
+				string_free(desc);
+			} else {
+				struct player_ability *pa = player_abilities;
+				while (pa && (pa->index != i))
+					pa = pa->next;
+				if (pa && pa->desc) {
+					char *desc = string_make(pa->desc);
+					desc[0] = tolower(desc[0]);
+					textblock_append(tb, desc);
+					string_free(desc);
+				} else {
+					textblock_append(tb, "you gain ");
+					textblock_append(tb, player_info_flags[i]);
+					textblock_append(tb, ".");
+				}
+			}
+			textblock_append(tb, "\n");
+		}
+	}
+
+	return true;
+}
+
+/**
  * Gives the known effects of using the given item.
  *
  * Fills in:
@@ -1679,16 +1720,16 @@ static bool describe_effect(textblock *tb, const struct object *obj,
 		return false;
 	}
 
-		if (kf_has(obj->kind->kind_flags, KF_MIMIC_KNOW) && (!obj->kind->aware)) {
-			effect = obj_mimic_kind(obj)->effect;
-		}
+	if (kf_has(obj->kind->kind_flags, KF_MIMIC_KNOW) && (!object_flavor_is_aware(obj))) {
+		effect = obj_mimic_kind(obj)->effect;
+	}
 
 	/* Effect not known, mouth platitudes */
 	if (!effect && object_effect(obj)) {
 		if (tval_is_edible(obj)) {
 			textblock_append(tb, "It can be eaten.\n");
 		} else if (tval_is_pill(obj)) {
-			textblock_append(tb, "It can be drunk.\n");
+			textblock_append(tb, "It can be taken.\n");
 		} else if (tval_is_card(obj)) {
 			textblock_append(tb, "It can be run.\n");
 		} else if (aimed) {
@@ -1701,36 +1742,38 @@ static bool describe_effect(textblock *tb, const struct object *obj,
 	}
 
 	/* Activations get a special message */
-	if (obj->activation && obj->activation->desc) {
-		textblock_append(tb, "When activated, it ");
-		textblock_append(tb, "%s", obj->activation->desc);
-	} else {
-		int level = obj->artifact ?
-			obj->artifact->level : obj->kind->level;
-		int boost = MAX((player->state.skills[SKILL_DEVICE] - level) / 2, 0);
-		const char *prefix;
-		textblock *tbe;
+	if (!(of_has(obj->flags, OF_HIDE_ACTIVATION))) {
+		if (obj->activation && obj->activation->desc) {
+			textblock_append(tb, "When activated, it ");
+			textblock_append(tb, "%s", obj->activation->desc);
+		} else {
+			int level = obj->artifact ?
+				obj->artifact->level : obj->kind->level;
+			int boost = MAX((player->state.skills[SKILL_DEVICE] - level) / 2, 0);
+			const char *prefix;
+			textblock *tbe;
 
-		if (aimed)
-			prefix = "When aimed, it ";
-		else if (tval_is_edible(obj))
-			prefix = "When eaten, it ";
-		else if (tval_is_pill(obj))
-			prefix = "When quaffed, it ";
-		else if (tval_is_card(obj))
-			prefix = "When run, it ";
-		else
-			prefix = "When activated, it ";
+			if (aimed)
+				prefix = "When aimed, it ";
+			else if (tval_is_edible(obj))
+				prefix = "When eaten, it ";
+			else if (tval_is_pill(obj))
+				prefix = "When taken, it ";
+			else if (tval_is_card(obj))
+				prefix = "When run, it ";
+			else
+				prefix = "When activated, it ";
 
-		tbe = effect_describe(effect, prefix, boost, false);
-		if (! tbe) {
-			return false;
+			tbe = effect_describe(effect, prefix, boost, false);
+			if (! tbe) {
+				return false;
+			}
+			textblock_append_textblock(tb, tbe);
+			textblock_free(tbe);
 		}
-		textblock_append_textblock(tb, tbe);
-		textblock_free(tbe);
-	}
 
-	textblock_append(tb, ".\n");
+		textblock_append(tb, ".\n");
+	}
 
 	if (min_time || max_time) {
 		/* Sometimes adjust for player speed */
@@ -1750,7 +1793,11 @@ static bool describe_effect(textblock *tb, const struct object *obj,
 			textblock_append_c(tb, COLOUR_L_GREEN, "%d", max_time);
 		}
 
-		textblock_append(tb, " turns to recharge");
+		char *recharge = "recharge";
+		if (!kf_has(obj->kind->kind_flags, KF_EASY_KNOW)) {	/* => candle-like */
+			recharge = "burn down";
+		}
+		textblock_append(tb, " turns to %s", recharge);
 		if (subjective && player->state.speed != 110)
 			textblock_append(tb, " at your current speed");
 
@@ -1829,11 +1876,15 @@ static bool describe_origin(textblock *tb, const struct object *obj, bool terse)
 }
 
 /* Returns the kind used by a MIMIC_KNOW object when unknown.
- * (This is a huge HACK - fix!)
+ * (This is slightly less of a hack than before, but still limiting!)
  */
 struct object_kind *obj_mimic_kind(const struct object *obj)
 {
-	return (obj->kind-1);
+	int k_idx = obj->kind - k_info;
+	do {
+		k_idx--;
+	} while (kf_has(k_info[k_idx].kind_flags, KF_MIMIC_KNOW));
+	return k_info + k_idx;
 }
 
 /**
@@ -1856,7 +1907,7 @@ static void describe_flavor_text(textblock *tb, const struct object *obj,
 		bool did_desc = false;
 		if (!ego && obj->kind->text) {
 			const char *text = obj->kind->text;
-			if (kf_has(obj->kind->kind_flags, KF_MIMIC_KNOW) && (!obj->kind->aware)) {
+			if (kf_has(obj->kind->kind_flags, KF_MIMIC_KNOW) && (!object_flavor_is_aware(obj))) {
 				text = obj_mimic_kind(obj)->text;
 			}
 			textblock_append(tb, "%s", text);
@@ -1944,6 +1995,7 @@ static textblock *object_info_out(const struct object *obj, int mode)
 	if (describe_sustains(tb, flags)) something = true;
 	if (describe_misc_magic(tb, flags)) something = true;
 	if (describe_light(tb, obj, mode)) something = true;
+	if (describe_player_flags(tb, obj, mode)) something = true;
 	if (ego && describe_ego(tb, obj->ego)) something = true;
 	if (something) textblock_append(tb, "\n");
 

@@ -26,8 +26,11 @@
 
 void flavor_init(void);
 void flavor_set_all_aware(void);
+bool obj_cyber_can_takeoff(const struct object *obj);
 void object_flags(const struct object *obj, bitflag flags[OF_SIZE]);
 void object_flags_known(const struct object *obj, bitflag flags[OF_SIZE]);
+void object_carried_flags(const struct object *obj, bitflag flags[OF_SIZE]);
+void object_carried_flags_known(const struct object *obj, bitflag flags[OF_SIZE]);
 bool object_test(item_tester tester, const struct object *o);
 bool item_test(item_tester tester, int item);
 bool is_unknown(const struct object *obj);

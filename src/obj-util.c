@@ -94,16 +94,25 @@ static void flavor_assign_random(byte tval)
 	for (f = flavors; f; f = f->next)
 		if (f->tval == tval && f->sval == SV_UNKNOWN)
 			flavor_count++;
-
 	for (i = 0; i < z_info->k_max; i++) {
 		if (k_info[i].tval != tval || k_info[i].flavor || (tval == TV_LIGHT && kf_has(k_info[i].kind_flags, KF_EASY_KNOW)))
 			continue;
 
-		if (!flavor_count)
-			quit_fmt("Not enough flavors for tval %d.", tval);
+		if (!flavor_count) {
+			for (f = flavors; f; f = f->next)
+				if (f->tval == tval && f->sval == SV_UNKNOWN)
+					flavor_count++;
+			int need_count = 0;
+			for (i = 0; i < z_info->k_max; i++) {
+				if (k_info[i].tval != tval || k_info[i].flavor || (tval == TV_LIGHT && kf_has(k_info[i].kind_flags, KF_EASY_KNOW)))
+					continue;
+				need_count++;
+			}
+			quit_fmt("Not enough flavors for tval %d (%s), found %d, need %d.", tval, tval_find_name(tval), flavor_count, need_count);
+		}
 
 		choice = randint0(flavor_count);
-	
+
 		for (f = flavors; f; f = f->next) {
 			if (f->tval != tval || f->sval != SV_UNKNOWN)
 				continue;
@@ -112,9 +121,9 @@ static void flavor_assign_random(byte tval)
 				k_info[i].flavor = f;
 				f->sval = k_info[i].sval;
 				if (tval == TV_PILL)
-					f->text = pill_adj[k_info[i].sval];
+					f->text = pill_adj[k_info[i].sval - 1];
 				if (tval == TV_CARD)
-					f->text = card_adj[k_info[i].sval];
+					f->text = card_adj[k_info[i].sval - 1];
 				flavor_count--;
 				break;
 			}
@@ -134,12 +143,8 @@ void flavor_reset_fixed(void)
 {
 	struct flavor *f;
 
-	for (f = flavors; f; f = f->next) {
-		if (f->tval == TV_RING && strstr(f->text, "Plain Gold"))
-			continue;
-
+	for (f = flavors; f; f = f->next)
 		f->sval = SV_UNKNOWN;
-	}
 }
 
 static void clean_strings(char ***array, int *length)
@@ -171,7 +176,7 @@ static void insert_string(char *buf, int i, char ***array, int *length)
  * For the most part, flavors are assigned randomly each game.
  *
  * Initialize descriptions for the "colored" objects, including:
- * Rings, Amulets, Devices, Wands, Rods, Mushrooms, Pills, Cards.
+ * Devices, Wands, Gadgets, Mushrooms, Pills, Cards.
  *
  * Hack -- make sure everything stays the same for each saved game
  * This is accomplished by the use of a saved "random seed", as in
@@ -211,11 +216,9 @@ void flavor_init(void)
 	flavor_assign_fixed();
 
 	flavor_assign_random(TV_LIGHT);
-	flavor_assign_random(TV_RING);
-	flavor_assign_random(TV_AMULET);
 	flavor_assign_random(TV_DEVICE);
 	flavor_assign_random(TV_WAND);
-	flavor_assign_random(TV_ROD);
+	flavor_assign_random(TV_GADGET);
 	flavor_assign_random(TV_MUSHROOM);
 
 	/* Pills (random titles, always magenta)
@@ -247,6 +250,11 @@ void flavor_init(void)
 
 	/* And combine them */
 	i = 0;
+	if (pill_adj) {
+		mem_free(pill_adj);
+		pill_adj = NULL;
+	}
+	n_pill_adj = 0;
 	for (struct flavor *f = flavors; f; f = f->next) {
 		if (f->tval == TV_PILL && f->sval == SV_UNKNOWN) {
 			char base[11];
@@ -441,6 +449,38 @@ void object_flags_known(const struct object *obj, bitflag flags[OF_SIZE])
 	if (obj->ego && easy_know(obj)) {
 		of_union(flags, obj->ego->flags);
 		of_diff(flags, obj->ego->flags_off);
+	}
+}
+
+/**
+ * Obtain the carried flags for an item
+ */
+void object_carried_flags(const struct object *obj, bitflag flags[OF_SIZE])
+{
+	of_wipe(flags);
+	if (!obj) return;
+	of_copy(flags, obj->carried_flags);
+}
+
+/**
+ * Obtain the carried flags for an item which are known to the player
+ */
+void object_carried_flags_known(const struct object *obj, bitflag flags[OF_SIZE])
+{
+	object_carried_flags(obj, flags);
+	of_inter(flags, obj->known->carried_flags);
+
+	if (!obj->kind) {
+		return;
+	}
+
+	if (object_flavor_is_aware(obj)) {
+		of_union(flags, obj->kind->carried_flags);
+	}
+
+	if (obj->ego && easy_know(obj)) {
+		of_union(flags, obj->ego->carried_flags);
+		of_diff(flags, obj->ego->carried_flags_off);
 	}
 }
 
@@ -894,6 +934,18 @@ bool obj_can_refill(const struct object *obj)
 /* Can only take off non-sticky (or for the special case of lamps, uncharged) items */
 bool obj_can_takeoff(const struct object *obj)
 {
+	if (of_has(obj->flags, OF_NO_EQUIP))
+		return false;
+	if (!obj_has_flag(obj, OF_STICKY))
+		return true;
+	if (tval_is_light(obj) && (obj->timeout == 0))
+		return true;
+	return false;
+}
+
+/* Equivalent, but implants can be removed (for use by the store) */
+bool obj_cyber_can_takeoff(const struct object *obj)
+{
 	if (!obj_has_flag(obj, OF_STICKY))
 		return true;
 	if (tval_is_light(obj) && (obj->timeout == 0))
@@ -904,7 +956,7 @@ bool obj_can_takeoff(const struct object *obj)
 /* Can only put on wieldable items */
 bool obj_can_wear(const struct object *obj)
 {
-	return (wield_slot(obj) >= 0);
+	return ((wield_slot(obj) >= 0) && (!(of_has(obj->flags, OF_NO_EQUIP))));
 }
 
 /* Can only fire an item with the right tval */

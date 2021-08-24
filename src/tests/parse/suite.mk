@@ -3,7 +3,6 @@ TESTPROGS += parse/a-info \
 	parse/e-info \
 	parse/f-info \
 	parse/flavor \
-	parse/graphics \
 	parse/h-info \
 	parse/k-info \
 	parse/lore \

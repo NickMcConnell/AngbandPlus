@@ -25,7 +25,7 @@
 /**
  * Bit flags for the "flag_general" timed effects member
  */
-#define PG_NASTY		0x00000001L		/* Timed ffect is nasty (unwanted) */
+#define PG_NASTY		0x00000001L		/* Timed effect is nasty (unwanted) */
 
 /**
  * Bit flags for the "player->upkeep->notice" variable

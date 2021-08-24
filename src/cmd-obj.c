@@ -41,6 +41,8 @@
 #include "target.h"
 #include "trap.h"
 
+static bool check_shapechanged(void);
+
 /**
  * ------------------------------------------------------------------------
  * Utility bits and bobs
@@ -59,7 +61,7 @@ static int check_devices(struct object *obj)
 
 	/* Get the right string */
 	if (tval_is_rod(obj)) {
-		action = "zap the rod";
+		action = "zap the gadget";
 	} else if (tval_is_wand(obj)) {
 		action = "use the wand";
 		what = "wand";
@@ -108,7 +110,7 @@ static int beam_chance(int tval)
 	switch (tval)
 	{
 		case TV_WAND: return 20;
-		case TV_ROD:  return 10;
+		case TV_GADGET:  return 10;
 	}
 
 	return 0;
@@ -148,14 +150,8 @@ void do_cmd_uninscribe(struct command *cmd)
 {
 	struct object *obj;
 
-	if (player_is_shapechanged(player)) {
-		msg("You cannot do this while in %s form.",	player->shape->name);
-		if (get_check("Do you want to change back? " )) {
-			player_resume_normal_shape(player);
-		} else {
-			return;
-		}
-	}
+	if (check_shapechanged())
+		return;
 
 	/* Get arguments */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -183,14 +179,8 @@ void do_cmd_inscribe(struct command *cmd)
 	char prompt[1024];
 	char o_name[80];
 
-	if (player_is_shapechanged(player)) {
-		msg("You cannot do this while in %s form.",	player->shape->name);
-		if (get_check("Do you want to change back? " )) {
-			player_resume_normal_shape(player);
-		} else {
-			return;
-		}
-	}
+	if (check_shapechanged())
+		return;
 
 	/* Get arguments */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -244,14 +234,8 @@ void do_cmd_takeoff(struct command *cmd)
 {
 	struct object *obj;
 
-	if (player_is_shapechanged(player)) {
-		msg("You cannot do this while in %s form.",	player->shape->name);
-		if (get_check("Do you want to change back? " )) {
-			player_resume_normal_shape(player);
-		} else {
-			return;
-		}
-	}
+	if (check_shapechanged())
+		return;
 
 	/* Get arguments */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -282,14 +266,8 @@ void do_cmd_wield(struct command *cmd)
 	int slot;
 	struct object *obj;
 
-	if (player_is_shapechanged(player)) {
-		msg("You cannot do this while in %s form.",	player->shape->name);
-		if (get_check("Do you want to change back? " )) {
-			player_resume_normal_shape(player);
-		} else {
-			return;
-		}
-	}
+	if (check_shapechanged())
+		return;
 
 	/* Get arguments */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -309,6 +287,8 @@ void do_cmd_wield(struct command *cmd)
 		return;
 	}
 
+/* This will be repurposed for cyberkit */
+#ifdef undef
 	/* Usually if the slot is taken we'll just replace the item in the slot,
 	 * but for rings we need to ask the user which slot they actually
 	 * want to replace */
@@ -323,6 +303,7 @@ void do_cmd_wield(struct command *cmd)
 		/* Change slot if necessary */
 		slot = equipped_item_slot(player->body, equip_obj);
 	}
+#endif
 
 	/* Prevent wielding into a stickied slot */
 	if (!obj_can_takeoff(equip_obj)) {
@@ -373,14 +354,8 @@ void do_cmd_drop(struct command *cmd)
 	int amt;
 	struct object *obj;
 
-	if (player_is_shapechanged(player)) {
-		msg("You cannot do this while in %s form.",	player->shape->name);
-		if (get_check("Do you want to change back? " )) {
-			player_resume_normal_shape(player);
-		} else {
-			return;
-		}
-	}
+	if (check_shapechanged())
+		return;
 
 	/* Get arguments */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -652,14 +627,8 @@ void do_cmd_run_card(struct command *cmd)
 {
 	struct object *obj;
 
-	if (player_is_shapechanged(player)) {
-		msg("You cannot do this while in %s form.",	player->shape->name);
-		if (get_check("Do you want to change back? " )) {
-			player_resume_normal_shape(player);
-		} else {
-			return;
-		}
-	}
+	if (check_shapechanged())
+		return;
 
 	/* Check player can use card */
 	if (!player_can_run(player, true))
@@ -682,14 +651,8 @@ void do_cmd_use_device(struct command *cmd)
 {
 	struct object *obj;
 
-	if (player_is_shapechanged(player)) {
-		msg("You cannot do this while in %s form.",	player->shape->name);
-		if (get_check("Do you want to change back? " )) {
-			player_resume_normal_shape(player);
-		} else {
-			return;
-		}
-	}
+	if (check_shapechanged())
+		return;
 
 	/* Get an item */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -713,14 +676,8 @@ void do_cmd_aim_wand(struct command *cmd)
 {
 	struct object *obj;
 
-	if (player_is_shapechanged(player)) {
-		msg("You cannot do this while in %s form.",	player->shape->name);
-		if (get_check("Do you want to change back? " )) {
-			player_resume_normal_shape(player);
-		} else {
-			return;
-		}
-	}
+	if (check_shapechanged())
+		return;
 
 	/* Get an item */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -744,24 +701,18 @@ void do_cmd_zap_rod(struct command *cmd)
 {
 	struct object *obj;
 
-	if (player_is_shapechanged(player)) {
-		msg("You cannot do this while in %s form.",	player->shape->name);
-		if (get_check("Do you want to change back? " )) {
-			player_resume_normal_shape(player);
-		} else {
-			return;
-		}
-	}
+	if (check_shapechanged())
+		return;
 
 	/* Get an item */
 	if (cmd_get_item(cmd, "item", &obj,
-			"Zap which rod? ",
-			"You have no rods to zap.",
+			"Zap which gadget? ",
+			"You have no gadgets to zap.",
 			tval_is_rod,
 			USE_INVEN | USE_FLOOR | SHOW_FAIL) != CMD_OK) return;
 
 	if (!obj_can_zap(obj)) {
-		msg("That rod is still charging.");
+		msg("That gadget is still charging.");
 		return;
 	}
 
@@ -775,14 +726,8 @@ void do_cmd_activate(struct command *cmd)
 {
 	struct object *obj;
 
-	if (player_is_shapechanged(player)) {
-		msg("You cannot do this while in %s form.",	player->shape->name);
-		if (get_check("Do you want to change back? " )) {
-			player_resume_normal_shape(player);
-		} else {
-			return;
-		}
-	}
+	if (check_shapechanged())
+		return;
 
 	/* Get an item */
 	if (cmd_get_item(cmd, "item", &obj,
@@ -828,8 +773,15 @@ void do_cmd_activate(struct command *cmd)
  */
 void do_cmd_eat_food(struct command *cmd)
 {
-	struct object *obj;
+	struct object *obj = NULL;
 	int use = USE_SINGLE;
+
+	if (player_is_shapechanged(player)) {
+		msg("In %s form, you can only eat from the floor.",	player->shape->name);
+		if (get_check("Do you want to change back? " )) {
+			player_resume_normal_shape(player);
+		}
+	}
 
 	/* Get an item */
 	if (player_has(player, PF_NO_FOOD)) {
@@ -868,7 +820,7 @@ static bool check_shapechanged(void)
 }
 
 /**
- * Quaff a pill 
+ * Take a pill
  */
 void do_cmd_quaff_pill(struct command *cmd)
 {
@@ -879,8 +831,8 @@ void do_cmd_quaff_pill(struct command *cmd)
 
 	/* Get an item */
 	if (cmd_get_item(cmd, "item", &obj,
-			"Quaff which pill? ",
-			"You have no pills from which to quaff.",
+			"Take which pill? ",
+			"You have no pills which you can take.",
 			tval_is_pill,
 			USE_INVEN | USE_FLOOR) != CMD_OK) return;
 

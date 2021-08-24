@@ -1101,9 +1101,9 @@ void move_player(int dir, bool disarm)
 		int dam_taken = player_check_terrain_damage(player, grid);
 
 		/* Check if running, or going to cost more than a third of hp.
-		 * Confused players go woopsie daisy
+		 * Confused (or blind) players go woopsie daisy
 		 **/
-		if (!player->timed[TMD_CONFUSED]) {
+		if ((!player->timed[TMD_CONFUSED]) && (!player->timed[TMD_BLIND])) {
 			if (player->upkeep->running && dam_taken) {
 				if (!get_check(feat->run_msg)) {
 					player->upkeep->running = 0;
@@ -1152,7 +1152,16 @@ void move_player(int dir, bool disarm)
 		/* Handle store doors, or notice objects */
 		if (square_isshop(cave, grid)) {
 			if (player_is_shapechanged(player)) {
-				msg("There is a scream and the door slams shut!");
+				struct store *store = store_at(cave, player->grid);
+				if (store->sidx == STORE_HOME) {
+					if (streq(player->shape->name, "giant")) {
+						msg("You are unable to get through the door!");
+					} else {
+						msg("You are unable to get a grip on the handle!");
+					}
+				} else {
+					msg("There is a scream and the door slams shut!");
+				}
 				return;
 			}
 			disturb(player);

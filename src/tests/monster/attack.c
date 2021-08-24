@@ -64,6 +64,7 @@ static int test_blows(void *state) {
 	rf_off(m->race->flags, RF_NEVER_BLOW);
 	eq(delta, 0);
 
+	p->upkeep = &test_player_upkeep;
 	delta = take1(p, m, &test_blow_method, &test_blow_effect_hurt);
 	eq(delta, mdam(m));
 

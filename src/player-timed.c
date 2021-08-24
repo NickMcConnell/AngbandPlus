@@ -25,6 +25,7 @@
 #include "obj-gear.h"
 #include "obj-knowledge.h"
 #include "obj-util.h"
+#include "player-ability.h"
 #include "player-calcs.h"
 #include "player-timed.h"
 #include "player-util.h"
@@ -52,6 +53,9 @@ struct timed_effect_data timed_effects[TMD_MAX] = {
 	#define TMD(a, b, c, d)	{ #a, b, c, d },
 	#include "list-player-timed.h"
 	#undef TMD
+	#define PF(a) { #a, PR_STATUS, PU_BONUS, 0},
+	#include "list-player-flags.h"
+	#undef PF
 };
 
 int timed_name_to_idx(const char *name)
@@ -72,6 +76,9 @@ static const char *list_timed_effect_names[] = {
 	#define TMD(a, b, c, d) #a,
 	#include "list-player-timed.h"
 	#undef TMD
+	#define PF(a) #a,
+	#include "list-player-flags.h"
+	#undef PF
 	"MAX",
 	NULL
 };
@@ -437,6 +444,40 @@ bool player_set_timed(struct player *p, int idx, int v, bool notify)
 
 	/* No change */
 	if (p->timed[idx] == v) {
+		return false;
+	}
+
+	/* Player-flag timed effects */
+	if (!new_grade) {
+		if (idx >= TMD_PF) {
+			bool old = (p->timed[idx] > 0);
+			bool new = (v > 0);
+
+			/* Use the value */
+			p->timed[idx] = v;
+
+			if (old == new)
+				return false;
+			int a = idx - TMD_PF;
+			if (ability[a]) {
+				bool was = pf_has(player->state.pflags, a);
+				changed_abilities();
+				bool is = pf_has(player->state.pflags, a);
+				if (is && !was) {
+					if (ability[a]->gain)
+						msg(ability[a]->gain);
+				} else if (was && !is) {
+					if (ability[a]->lose)
+						msg(ability[a]->lose);
+				}
+			}
+
+			return true;
+		}
+
+		/* Use the value */
+		p->timed[idx] = v;
+
 		return false;
 	}
 

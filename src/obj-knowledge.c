@@ -718,9 +718,18 @@ static bool object_non_fault_icons_known(const struct object *obj)
 	}
 
 	/* Not all flags known */
-	if (!of_is_subset(obj->known->flags, obj->flags)) return false;
+	bool unknown = false;
+	for (i = 0; i < (int) icon_max; i++) {
+		int index = icon_index(ICON_VAR_FAULT, i);
+		if (index < 0) {
+			if (object_has_icon(obj, i) && !player_knows_icon(player, i)) {
+				unknown = true;
+				break;
+			}
+		}
+	}
 
-	return true;
+	return !unknown;
 }
 
 /**
@@ -1119,11 +1128,6 @@ void player_know_object(struct player *p, struct object *obj)
 	if (player_knows_ego(p, obj->ego, obj)) {
 		seen = obj->ego->everseen;
 		obj->known->ego = obj->ego;
-	}
-
-	if (object_non_fault_icons_known(obj) && tval_is_jewelry(obj)) {
-		seen = obj->kind->everseen;
-		object_flavor_aware(obj);
 	}
 
 	/* Ensure effect is known as if object_set_base_known() had been called. */
@@ -2284,4 +2288,34 @@ void object_flavor_tried(struct object *obj)
 	assert(obj);
 	assert(obj->kind);
 	obj->kind->tried = true;
+}
+
+/**
+ * Know everything about an object
+ *
+ * \param obj is the object
+ */
+void object_know_all(struct object *obj)
+{
+	struct object *known_obj;
+	if (!obj->known) {
+		known_obj = object_new();
+		obj->known = known_obj;
+		object_set_base_known(obj);
+	}
+	obj->known->pval = obj->pval;
+	obj->known->effect = obj->effect;
+
+	/* This is needed for the following loop to terminate!
+	 * Without it, player_know_object will exit early and won't set the flags needed.
+	 */
+	obj->known->notice |= OBJ_NOTICE_ASSESSED;
+
+	object_flavor_aware(obj);
+	obj->known->effect = obj->effect;
+
+	while (!object_fully_known(obj)) {
+		object_learn_unknown_icon(player, obj);
+		player_know_object(player, obj);
+	}
 }

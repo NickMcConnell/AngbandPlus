@@ -165,21 +165,6 @@ typedef enum stat_code
 	ST_ENDGAME_DEVICES,
 	ST_WANDS,
 	ST_TELEPOTHER_WANDS,
-	ST_RINGS,
-	ST_SPEEDS_RINGS,
-	ST_STAT_RINGS,
-	ST_RPOIS_RINGS,
-	ST_FA_RINGS,
-	ST_SI_RINGS,
-	ST_BRAND_RINGS,
-	ST_ELVEN_RINGS,
-	ST_ONE_RINGS,
-	ST_FAULTY_RINGS,
-	ST_AMULETS,
-	ST_WIS_AMULETS,
-	ST_TELEP_AMULETS,
-	ST_ENDGAME_AMULETS,
-	ST_FAULTY_AMULETS,
 	ST_AMMO,
 	ST_BAD_AMMO,
 	ST_AVERAGE_AMMO,
@@ -258,7 +243,7 @@ static const struct stat_data stat_message[] =
 	{ST_CARDS, "\n ***CARDS***   \n All:        "},
 	{ST_ENDGAME_CARDS, " Endgame     "},// destruction, banish, mass banish, rune
 	{ST_ACQUIRE_CARDS, " Acquire.    "},
-	{ST_RODS, "\n ***RODS***      \n All:        "},
+	{ST_RODS, "\n ***GADGETS***      \n All:        "},
 	{ST_UTILITY_RODS, " Utility     "},//dtrap, dstairs, dobj, light, illum
 	{ST_TELEPOTHER_RODS, " Tele Other  "},
 	{ST_DETECTALL_RODS, " Detect all  "},
@@ -270,21 +255,6 @@ static const struct stat_data stat_message[] =
 	{ST_ENDGAME_DEVICES, " Endgame     "},//healing, magi, banishment
 	{ST_WANDS, "\n ***WANDS***     \n All:        "},
 	{ST_TELEPOTHER_WANDS, " Tele Other  "},
-	{ST_RINGS, "\n ***RINGS***     \n All:        "},
-	{ST_SPEEDS_RINGS, " Speed       "},
-	{ST_STAT_RINGS, " Stat        "},//str, dex, con, int
-	{ST_RPOIS_RINGS, " Res. Pois.  "},
-	{ST_FA_RINGS, " Free Action "},
-	{ST_SI_RINGS, " See Invis.  "},
-	{ST_BRAND_RINGS, " Brand       "},
-	{ST_ELVEN_RINGS, " Elven       "},
-	{ST_ONE_RINGS, " The One     "},
-	{ST_FAULTY_RINGS, " Faulty      "},
-	{ST_RINGS, "\n ***AMULETS***   \n All:        "},
-	{ST_WIS_AMULETS, " Wisdom      "},
-	{ST_TELEP_AMULETS, " Telepathy   "},
-	{ST_ENDGAME_AMULETS, " Endgame     "},//Trickery, weaponmastery, magi
-	{ST_FAULTY_AMULETS, " Faulty      "},
 	{ST_AMMO, "\n ***AMMO***      \n All:        "},
 	{ST_BAD_AMMO, " Bad         "},
 	{ST_AVERAGE_AMMO, " Average     "},
@@ -451,17 +421,14 @@ static void get_obj_data(const struct object *obj, int y, int x, bool mon,
 	/* check for some stuff that we will use regardless of type */
 	/* originally this was armor, but I decided to generalize it */
 
-	/* has free action (hack: don't include Inertia)*/
-	if (of_has(obj->flags, OF_FREE_ACT) && 
-		!((obj->tval == TV_AMULET) &&
-		  (!strstr(obj->kind->name, "Inertia")))) {
+	/* has free action */
+	if (of_has(obj->flags, OF_FREE_ACT)) {
+		/* add the stats */
+		add_stats(ST_FA_EQUIPMENT, vault, mon, number);
 
-			/* add the stats */
-			add_stats(ST_FA_EQUIPMENT, vault, mon, number);
-
-			/* record first level */
-			first_find(ST_FF_FA);
-		}
+		/* record first level */
+		first_find(ST_FF_FA);
+	}
 
 
 	/* has see invis */
@@ -750,7 +717,7 @@ static void get_obj_data(const struct object *obj, int y, int x, bool mon,
 		}
 
 		/* rods */
-		case TV_ROD:{
+		case TV_GADGET:{
 
 			/* add to total */
 			add_stats(ST_RODS, vault, mon, number);
@@ -799,65 +766,6 @@ static void get_obj_data(const struct object *obj, int y, int x, bool mon,
 
 			if (strstr(obj->kind->name, "Teleport Other"))
 				add_stats(ST_TELEPOTHER_WANDS, vault, mon, number);
-			break;
-		}
-
-		case TV_RING:{
-
-			add_stats(ST_RINGS, vault, mon, number);
-
-			/* is it faulty */
-			if (obj->faults)
-				add_stats(ST_FAULTY_RINGS, vault, mon, number);
-
-			if (strstr(obj->kind->name, "Speed")) {
-				add_stats(ST_SPEEDS_RINGS, vault, mon, number);
-			} else if ((strstr(obj->kind->name, "Strength")) ||
-					   (strstr(obj->kind->name, "Intelligence")) ||
-					   (strstr(obj->kind->name, "Dexterity")) ||
-					   (strstr(obj->kind->name, "Constitution"))) {
-				add_stats(ST_STAT_RINGS, vault, mon, number);
-			} else if (strstr(obj->kind->name, "Resist Poison")) {
-				add_stats(ST_RPOIS_RINGS, vault, mon, number);
-			} else if (strstr(obj->kind->name, "Free Action")) {
-				add_stats(ST_FA_RINGS, vault, mon, number);
-			} else if (strstr(obj->kind->name, "See invisible")) {
-				add_stats(ST_SI_RINGS, vault, mon, number);
-			} else if ((strstr(obj->kind->name, "Flames")) ||
-					   (strstr(obj->kind->name, "Ice")) ||
-					   (strstr(obj->kind->name, "Acid")) ||
-					   (strstr(obj->kind->name, "Lightning"))) {
-				add_stats(ST_BRAND_RINGS, vault, mon, number);
-			} else if ((strstr(obj->kind->name, "Fire")) ||
-					   (strstr(obj->kind->name, "Adamant")) ||
-					   (strstr(obj->kind->name, "Firmament"))) {
-				add_stats(ST_ELVEN_RINGS, vault, mon, number);
-			} else if (strstr(obj->kind->name, "Power")) {
-				add_stats(ST_ONE_RINGS, vault, mon, number);
-			}
-
-
-			break;
-		}
-
-		case TV_AMULET:{
-
-			add_stats(ST_AMULETS, vault, mon, number);
-
-			if (strstr(obj->kind->name, "Wisdom")) {
-				add_stats(ST_WIS_AMULETS, vault, mon, number);
-			} else if ((strstr(obj->kind->name, "Magi")) || 
-					   (strstr(obj->kind->name, "Trickery")) ||
-					   (strstr(obj->kind->name, "Weaponmastery"))) {
-				add_stats(ST_ENDGAME_AMULETS, vault, mon, number);
-			} else if (strstr(obj->kind->name, "ESP")) {
-				add_stats(ST_TELEP_AMULETS, vault, mon, number);
-			}
-
-			/* is faulty */
-			if (obj->faults)
-				add_stats(ST_FAULTY_AMULETS, vault, mon, number);
-
 			break;
 		}
 
@@ -963,9 +871,7 @@ static void get_obj_data(const struct object *obj, int y, int x, bool mon,
 		if (art->alloc_min > (player->depth)) art_ood[lvl] += addval;
 
 		/* check to see if it's a special artifact */
-		if ((obj->tval == TV_LIGHT) || (obj->tval == TV_AMULET)
-			|| (obj->tval == TV_RING)){
-
+		if (obj->tval == TV_LIGHT) {
 			/* increment special artifact counter */
 			art_spec[lvl] += addval;
 		} else {
@@ -1134,15 +1040,14 @@ static void print_heading(void)
 	file_putf(stats_log,"            weapons, are one of the above with xblows or slay evil\n");
 	file_putf(stats_log," Launchers: xtra shots and xtra might are only logged for x3 or\n");
 	file_putf(stats_log,"            better.  Very good has +to hit or + to dam > 15\n");
-	file_putf(stats_log," Amulets:   Endgame amulets are trickery, weaponmaster and magi\n");
 	file_putf(stats_log," Armor:     Low resist armor may have more than one basic resist (acid, \n");
 	file_putf(stats_log,"		     elec, fire, cold) but not all. \n");
 	file_putf(stats_log," Pills:   Aug counts as 5 pills, *enlight* as 2.  Healing pills are \n");
 	file_putf(stats_log,"			 only *Healing* and Life\n");
 	file_putf(stats_log," Cards:   Endgame cards include *Dest*, Rune, MBan and Ban \n");
 	file_putf(stats_log,"    		 *Acq* counts as two Acq cards");
-	file_putf(stats_log," Rods: 	 Utility rods: d-obj, d-stairs, d-traps, light, illum \n");
-	file_putf(stats_log,"    		 Endgame rods: Speed, Healing \n");
+	file_putf(stats_log," Gadgets: 	 Utility gadgets: d-obj, d-stairs, d-traps, light, illum \n");
+	file_putf(stats_log,"    		 Endgame gadgets: Speed, Healing \n");
 	file_putf(stats_log," Devices: 	 Kill devices: dispel evil, power, holiness. \n");
 	file_putf(stats_log,"    		 Power devices: healing, magi, banishment \n");
 }

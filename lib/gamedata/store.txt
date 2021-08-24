@@ -38,9 +38,9 @@ always:cloak:Cloak
 #always:food:Apple
 #always:digger:Shovel
 #always:digger:Pick
-normal:6mm ammo:6mm bullet
-#normal:9mm ammo:9mm bullet
-#normal:12mm ammo:12mm bullet
+normal:6mm ammo:6mm bullet:7500
+normal:9mm ammo:9mm bullet:2500
+normal:12mm ammo:12mm bullet:500
 #normal:light:disposable flashlight
 normal:boots:pair of high heels
 normal:boots:pair of flip flops
@@ -49,7 +49,7 @@ normal:light:keyfob light
 normal:battery:alkaline battery
 normal:food:Pint of Fine Wine
 normal:food:Slime Mold
-normal:food:Flask of Whisky
+normal:food:bottle of whiskey
 normal:mushroom:Stoneskin
 normal:mushroom:Purging
 buy:light
@@ -58,9 +58,9 @@ buy:mushroom
 buy:battery
 buy:digger
 buy:cloak
-buy:shot
-buy:bolt
-buy:arrow
+buy:ammo_6
+buy:ammo_9
+buy:ammo_12
 
 # Armoury
 store:2:Armoury
@@ -82,13 +82,9 @@ normal:boots:pair of armored boots
 normal:helm:Hard Leather Cap
 normal:helm:Metal Cap
 normal:helm:Iron Helm
-normal:soft armour:Robe
-normal:soft armour:Soft Leather Armour
-normal:soft armour:Studded Leather Armour
-normal:soft armour:Hard Leather Armour
-normal:soft armour:Leather Scale Mail
-normal:hard armour:Metal Scale Mail
-normal:hard armour:Chain Mail
+normal:soft armour
+normal:soft armour
+normal:hard armour
 normal:gloves:Set of Leather Gloves
 normal:gloves:Set of Gauntlets
 normal:shield:Wicker Shield
@@ -123,27 +119,9 @@ danger:72:90
 normal:6mm ammo:6mm bullet
 normal:9mm ammo:9mm bullet
 normal:12mm ammo:12mm bullet
-normal:sword:Dagger
-normal:sword:Main Gauche
-normal:sword:Rapier
-normal:sword:Short Sword
-normal:sword:Cutlass
-normal:sword:Tulwar
-normal:sword:Broad Sword
-normal:sword:Long Sword
-normal:sword:Scimitar
-normal:sword:Katana
-normal:sword:Bastard Sword
-normal:polearm:Spear
-normal:polearm:Awl-Pike
-normal:polearm:Trident
-normal:polearm:Pike
-normal:polearm:Beaked Axe
-normal:polearm:Broad Axe
-normal:polearm:Battle Axe
-normal:polearm:Lance
-normal:polearm:Lucerne Hammer
-normal:hafted:Whip
+normal:sword
+normal:polearm
+normal:hafted
 normal:gun:6mm handgun
 normal:gun:6mm rifle
 normal:gun:9mm handgun
@@ -237,12 +215,6 @@ owner:0:0:-
 slots:4:14
 turnover:9
 danger:70:90
-normal:ring:Searching
-normal:ring:Feather Falling
-normal:ring:Protection
-normal:ring:Open Wounds
-normal:amulet:Slow Digestion
-normal:amulet:Resist Acid
 normal:wand:beamlight
 normal:wand:molasso ray
 normal:wand:pixilator
@@ -254,11 +226,12 @@ normal:device:Light
 normal:device:mapping
 normal:device:anti-stealth radar
 normal:device:Detect Evil
-buy:amulet
-buy:ring
+normal:wand
+normal:device
+normal:gadget
 buy:device
 buy:wand
-buy:rod
+buy:gadget
 
 # Black Market - no stock given but we still need slot/turnover info
 store:7:Black Market
@@ -273,8 +246,8 @@ owner:14:30000:Drago the Fair (Elf)
 owner:12:25000:Durwin the Shifty (Half-Orc)
 owner:14:30000:Drago the Fair (Elf)
 owner:0:0:-
-slots:6:18
-turnover:9
+slots:4:12
+turnover:6
 danger:85:95
 
 store:8:Home
@@ -318,3 +291,21 @@ owner:0:0:Mercury Rising
 owner:0:0:Starhopper
 owner:0:0:Bounce Air
 danger:99:99
+
+store:11:Cyber Salon
+owner:0:0:95% (Meta-Human)
+owner:0:0:Neo (Trans-Human)
+owner:0:0:Fran (Neo-Human)
+owner:0:0:Jimmy (Mostly Human)
+owner:0:0:Neo (Trans-Human)
+owner:0:0:Fran (Neo-Human)
+owner:0:0:95% (Meta-Human)
+owner:0:0:Neo (Trans-Human)
+owner:0:0:Fran (Neo-Human)
+slots:2:5
+turnover:1
+normal:legs
+#normal:arms:0
+buy:arms
+buy:legs
+danger:85:95

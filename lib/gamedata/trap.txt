@@ -590,7 +590,7 @@ graphics:^:blue
 appear:1:5:0
 visibility:20+d5
 flags:TRAP | FLOOR | MAGICAL
-effect:TIMED_INC:STONESKIN
+effect:TIMED_INC:STONE_SKIN
 dice:20+1d20
 effect:TIMED_INC:STUN
 dice:20+1d20

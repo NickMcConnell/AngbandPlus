@@ -192,9 +192,26 @@ bool player_stat_dec(struct player *p, int stat, bool permanent)
 /* Experience needed to gain the given level.
  * (The -2 is because the first entry in the table, player_exp[0], is the requirement to gain level 2.)
  */ 
-static s32b exp_to_gain(s32b level)
+s32b exp_to_gain(s32b level)
 {
-	return (player_exp[level-2] * player->expfact) / 100L;
+	/* Base exp to advance, ignoring exp factors */
+	double exp = player_exp[level-2];
+
+	/* Level-1 and max-level factors */
+	double exp_low = exp * player->expfact_low;
+	double exp_high = exp * player->expfact_high;
+
+	/* Fractional factors */
+	double prop_high = (level - 2) / (PY_MAX_LEVEL - 2);
+	double prop_low = 1.0 - prop_high;
+
+	/* Mix */
+	double frac_high = exp_high * prop_high;
+	double frac_low = exp_low * prop_low;
+	double exp_mix = frac_high + frac_low;
+
+	/* And return as percentage */
+	return exp_mix / 100.0;
 }
 
 

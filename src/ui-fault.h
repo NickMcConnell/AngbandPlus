@@ -17,4 +17,4 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
-bool textui_get_fault(int *choice, struct object *obj, char *dice_string);
+bool textui_get_fault(int *choice, struct object *obj, random_value value);

@@ -444,19 +444,19 @@ Fighting
   lighter weapons. Strength and dexterity both modify the ability to hit an
   opponent. This skill increases with the level of the character. Inspecting
   a weapon will show you how quickly you can attack with it.
- 
+
 Shooting Ability
   Using ranged missile weapons (and throwing objects) is included in this
   skill. Different stats apply to different weapons, but this ability may
   modify the distance an object is thrown/fired, the amount of damage done,
   and the ability to hit a creature. This skill increases with the level of
   the character.
- 
+
 Saving Throws
   A Saving Throw is the ability of a character to resist the effects of a
   spell cast on him by another person/creature. This does not include
-  spells cast on the player by his own stupidity, such as quaffing a nasty
-  potion. This ability increases with the level of the character, but then
+  spells cast on the player by his own stupidity, such as taking a nasty
+  pill. This ability increases with the level of the character, but then
   most high level creatures are better at casting spells, so it tends to
   even out. A high wisdom also increases this ability. It is possible to
   get 100% saving throw, making you immune to many attacks.
@@ -467,7 +467,7 @@ Stealth
   Also, creatures may fail to notice a stealthy character entirely,
   allowing a player to avoid certain fights. This skill is based upon race 
   and class, but can be magically enhanced.
- 
+
 Disarming
   Disarming is the ability to remove traps safely, and also includes
   picking locks on traps and doors. A successful disarming will gain the

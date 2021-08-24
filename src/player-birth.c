@@ -359,7 +359,11 @@ void roll_hp(void)
 	 * The score is the geometric mean of all negative deviations, and
 	 * the process finishes when the worst-case -ve deviation between
 	 * levels 5 and 40 has been reduced below 5%.
+	 * Give up if 100K rolls have been made without progress - this can
+	 * happen with some unexpected inputs, such as a very low hitdie.
 	 */
+	int runrolls = 0;
+	int worst;
 	do {
 		int before = hp_roll_score(level);
 		int from = randint1(PY_MAX_LEVEL-1);
@@ -368,13 +372,17 @@ void roll_hp(void)
 		level[from] = level[to];
 		level[to] = tmp;
 		int after = hp_roll_score(level);
-		if (before < after) {
+		if (before <= after) {
 			// revert it - this has increased the deviation
 			tmp = level[from];
 			level[from] = level[to];
 			level[to] = tmp;
+		} else {
+			runrolls = 0;
 		}
-	} while (hp_roll_worst(level) < -500); // 5%
+		runrolls++;
+		worst = hp_roll_worst(level);
+	} while ((worst < -500) && (runrolls < 100000)); // 5%
 
 	/* Copy into the player's hitpoints */
 	player->player_hp[0] = (2 * player->hitdie) / PY_MAX_LEVEL;
@@ -438,9 +446,6 @@ static void get_ahw(struct player *p)
 	get_height_weight(p);
 }
 
-
-
-
 /**
  * Creates the player's body
  */
@@ -450,14 +455,20 @@ static void player_embody(struct player *p)
 	int i;
 
 	assert(p->race);
+	struct player_body *bod = bodies;
+	for (i = 0; i < p->race->body; i++) {
+		bod = bod->next;
+		assert(bod);
+	}
 
-	memcpy(&p->body, &bodies[p->race->body], sizeof(p->body));
-	my_strcpy(buf, bodies[p->race->body].name, sizeof(buf));
+	memcpy(&p->body, bod, sizeof(p->body));
+	my_strcpy(buf, bod->name, sizeof(buf));
 	p->body.name = string_make(buf);
 	p->body.slots = mem_zalloc(p->body.count * sizeof(struct equip_slot));
+
 	for (i = 0; i < p->body.count; i++) {
-		p->body.slots[i].type = bodies[p->race->body].slots[i].type;
-		my_strcpy(buf, bodies[p->race->body].slots[i].name, sizeof(buf));
+		p->body.slots[i].type = bod->slots[i].type;
+		my_strcpy(buf, bod->slots[i].name, sizeof(buf));
 		p->body.slots[i].name = string_make(buf);
 	}
 }
@@ -467,7 +478,7 @@ static void player_embody(struct player *p)
  */
 static void get_money(void)
 {
-	player->au = player->au_birth = z_info->start_gold;
+	player->au = player->au_birth = Rand_normal(z_info->start_gold, z_info->start_gold_spread);
 }
 
 void player_init(struct player *p)
@@ -530,6 +541,8 @@ void player_init(struct player *p)
 	/* Default to the first race/class in the edit file */
 	p->race = races;
 	p->extension = extensions;
+	while (p->extension->next)
+		p->extension = p->extension->next;
 	p->class = classes;
 
 	/* Player starts unshapechanged */
@@ -588,11 +601,11 @@ void wield_all(struct player *p)
 
 void add_start_items(struct player *p, const struct start_item *si, bool skip, bool pay, int origin)
 {
-	struct object *obj, *known_obj;
+	struct object *obj;
 	for (; si; si = si->next) {
 		int num = rand_range(si->min, si->max);
 		struct object_kind *kind;
-		if (si->sval)
+		if (si->sval > SV_UNKNOWN)
 			kind = lookup_kind(si->tval, si->sval);
 		else
 			kind = get_obj_num(0, false, si->tval);
@@ -621,13 +634,7 @@ void add_start_items(struct player *p, const struct start_item *si, bool skip, b
 		obj->number = num;
 		obj->origin = origin;
 
-		known_obj = object_new();
-		obj->known = known_obj;
-		object_set_base_known(obj);
-		object_flavor_aware(obj);
-		obj->known->pval = obj->pval;
-		obj->known->effect = obj->effect;
-		obj->known->notice |= OBJ_NOTICE_ASSESSED;
+		object_know_all(obj);
 
 		/* Deduct the cost of the item from starting cash */
 		if (pay)
@@ -707,7 +714,7 @@ static void recalculate_stats(int *stats_local_local, int points_left_local)
 	}
 
 	/* Gold is inversely proportional to cost */
-	player->au_birth = z_info->start_gold + (50 * points_left_local);
+	player->au_birth = Rand_normal(z_info->start_gold, z_info->start_gold_spread) + (50 * points_left_local);
 
 	/* Update bonuses, hp, etc. */
 	get_bonuses();
@@ -1001,7 +1008,8 @@ void player_generate(struct player *p, struct player_race *r, struct player_race
 	p->max_lev = p->lev = 1;
 
 	/* Experience factor */
-	p->expfact = p->race->r_exp + p->extension->r_exp + p->class->c_exp;
+	p->expfact_low = p->race->r_exp + p->extension->r_exp + p->class->c_exp;
+	p->expfact_high = p->race->r_high_exp + p->extension->r_high_exp + p->class->c_exp;
 
 	/* Hitdice */
 	p->hitdie = p->race->r_mhp + p->extension->r_mhp + p->class->c_mhp;
@@ -1255,6 +1263,9 @@ void do_cmd_accept_character(struct command *cmd)
 	cmd_abilities(player, true, player->talent_points, NULL);
 	init_talent(level_tp);
 
+	/* No quest in progress */
+	player->active_quest = -1;
+
 	/* Make a world: towns */
 	world_init_towns();
 
@@ -1284,10 +1295,13 @@ void do_cmd_accept_character(struct command *cmd)
 	if (OPT(player, birth_know_icons))
 		player_learn_all_icons(player);
 
-	/* Hack - player knows all combat icons.  Maybe make them not icons? NRM */
+	/* Hack - player knows all combat icons, and "use energy".
+	 * Maybe make them not icons? NRM
+	 **/
 	player->obj_k->to_a = 1;
 	player->obj_k->to_h = 1;
 	player->obj_k->to_d = 1;
+	player->obj_k->modifiers[OBJ_MOD_USE_ENERGY] = 1;
 
 	/* Initialise the stores, dungeon */
 	store_reset();
@@ -1318,9 +1332,6 @@ void do_cmd_accept_character(struct command *cmd)
 
 	/* Outfit the player, if they can sell the stuff */
 	player_outfit(player);
-
-	/* No quest in progress */
-	player->active_quest = -1;
 
 	/* Cooldowns at zero */
 	if (!player->cooldown)

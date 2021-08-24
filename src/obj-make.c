@@ -317,7 +317,7 @@ static int binary_search_probtable(const u32b *tbl, int n, u32b p)
 /**
  * Select a base item for an ego.
  */
-static struct object_kind *select_ego_kind(struct ego_item *ego, int level)
+static struct object_kind *select_ego_kind(struct ego_item *ego, int level, int tval)
 {
 	struct poss_item *poss;
 	double *prob = mem_zalloc(sizeof(*prob) * z_info->k_max);
@@ -325,8 +325,11 @@ static struct object_kind *select_ego_kind(struct ego_item *ego, int level)
 
 	/* Fill a table of usable base items */
 	for (poss = ego->poss_items; poss; poss = poss->next) {
-		prob[poss->kidx] = obj_alloc[poss->kidx];
-		total += prob[poss->kidx];
+		if ((tval == 0) || (tval == k_info[poss->kidx].tval)) {
+			assert(poss->kidx);
+			prob[poss->kidx] = obj_alloc[poss->kidx] - obj_alloc[poss->kidx-1];
+			total += prob[poss->kidx];
+		}
 	}
 
 	/* No possibilities */
@@ -342,9 +345,24 @@ static struct object_kind *select_ego_kind(struct ego_item *ego, int level)
 }
 
 /**
+ * Return true if at least one item has a matching tval
+ */
+static bool ego_can_use_tval(struct ego_item *ego, int tval)
+{
+	struct poss_item *poss;
+
+	for (poss = ego->poss_items; poss; poss = poss->next) {
+		if (tval == k_info[poss->kidx].tval)
+			return true;
+	}
+
+	return false;
+}
+
+/**
  * Select an ego-item at random, based on the level.
  */
-static struct ego_item *ego_find_random(int level)
+static struct ego_item *ego_find_random(int level, int tval)
 {
 	int i;
 	double *prob = mem_zalloc(sizeof(*prob) * z_info->e_max);
@@ -356,20 +374,22 @@ static struct ego_item *ego_find_random(int level)
 		struct ego_item *ego = &e_info[i];
 		double p = 0.0;
 
-		if (level <= ego->alloc_max) {
-			p = table[i].prob2;
-			if (level >= ego->alloc_min) {
-				/* Between min and max levels - scale linearly
-				 * from maximum probability at native depth to
-				 * zero at maximum depth + 1
-				 **/
-				p *= (ego->alloc_max + 1) - level;
-				p /= (ego->alloc_max + 1) - ego->alloc_min;
-			} else {
-				/* Out of depth.
-				 * Divide by the # of levels OOD, * a constant
-				 **/
-				p /= 1.0 + (((double)(ego->alloc_min - level)) / 3.0);
+		if ((tval == 0) || (ego_can_use_tval(ego, tval))) {
+			if (level <= ego->alloc_max) {
+				p = table[i].prob2;
+				if (level >= ego->alloc_min) {
+					/* Between min and max levels - scale linearly
+					 * from maximum probability at native depth to
+					 * zero at maximum depth + 1
+					 **/
+					p *= (ego->alloc_max + 1) - level;
+					p /= (ego->alloc_max + 1) - ego->alloc_min;
+				} else {
+					/* Out of depth.
+					 * Divide by the # of levels OOD, * a constant
+					 **/
+					p /= 1.0 + (((double)(ego->alloc_min - level)) / 3.0);
+				}
 			}
 		}
 
@@ -444,6 +464,9 @@ void ego_apply_magic(struct object *obj, int level)
 	/* Apply flags */
 	of_union(obj->flags, obj->ego->flags);
 	of_diff(obj->flags, obj->ego->flags_off);
+	of_union(obj->carried_flags, obj->ego->flags);
+	of_diff(obj->carried_flags, obj->ego->flags_off);
+	pf_union(obj->pflags, obj->ego->pflags);
 
 	/* Add slays, brands and faults */
 	copy_slays(&obj->slays, obj->ego->slays);
@@ -499,10 +522,10 @@ static void ego_apply_minima(struct object *obj)
  * Try to find an ego-item for an object, setting obj->ego if successful and
  * applying various bonuses.
  */
-static struct ego_item *find_ego_item(int level)
+static struct ego_item *find_ego_item(int level, int tval)
 {
 	/* Try to get a legal ego type for this item */
-	return ego_find_random(level);
+	return ego_find_random(level, tval);
 }
 
 
@@ -544,6 +567,8 @@ void copy_artifact_data(struct object *obj, const struct artifact *art)
 	obj->timeout = 0;
 
 	of_union(obj->flags, art->flags);
+	of_union(obj->carried_flags, art->flags);
+	pf_union(obj->pflags, art->pflags);
 	copy_slays(&obj->slays, art->slays);
 	copy_brands(&obj->brands, art->brands);
 	copy_faults(obj, art->faults);
@@ -808,7 +833,9 @@ void object_prep(struct object *obj, struct object_kind *k, int lev,
 
 	/* Copy flags */
 	of_copy(obj->flags, k->base->flags);
-	of_copy(obj->flags, k->flags);
+	of_union(obj->flags, k->flags);
+	of_copy(obj->carried_flags, k->carried_flags);
+	pf_copy(obj->pflags, k->pflags);
 
 	/* Assign modifiers */
 	for (i = 0; i < OBJ_MOD_MAX; i++)
@@ -821,8 +848,7 @@ void object_prep(struct object *obj, struct object_kind *k, int lev,
 	/* Assign pval for food, batteries, pills, printers and launchers */
 	if (tval_is_edible(obj) || tval_is_pill(obj) || tval_is_fuel(obj) ||
 		tval_is_launcher(obj) || tval_is_printer(obj))
-		obj->pval
-			= randcalc(k->pval, lev, rand_aspect);
+			obj->pval = randcalc(k->pval, lev, rand_aspect);
 
 	/* Default fuel */
 	if (tval_is_light(obj))
@@ -914,12 +940,6 @@ int apply_magic(struct object *obj, int lev, bool allow_artifacts, bool good,
 		apply_magic_weapon(obj, lev, power);
 	} else if (tval_is_armor(obj)) {
 		apply_magic_armour(obj, lev, power);
-	} else if (tval_is_ring(obj)) {
-		if (obj->sval == lookup_sval(obj->tval, "Speed")) {
-			/* Super-charge the ring */
-			while (one_in_(2))
-				obj->modifiers[OBJ_MOD_SPD]++;
-		}
 	} else if (tval_is_chest(obj)) {
 		/* Get a random, level-dependent set of chest traps */
 		obj->pval = pick_chest_traps(obj);
@@ -974,7 +994,8 @@ bool kind_is_good(const struct object_kind *kind)
 static struct object_kind *get_obj_num_by_kind(int level, bool good, int tval)
 {
 	const u32b *objects;
-	u32b total, value;
+	u32b total = 0;
+	u32b value;
 	int item;
 
 	assert(level >= 0 && level <= z_info->max_obj_depth);
@@ -982,7 +1003,8 @@ static struct object_kind *get_obj_num_by_kind(int level, bool good, int tval)
 	if (good) {
 		objects = obj_alloc_great + level * (z_info->k_max + 1);
 		total = obj_total_tval_great[level * TV_MAX + tval];
-	} else {
+	}
+	if (!total) {
 		objects = obj_alloc + level * (z_info->k_max + 1);
 		total = obj_total_tval[level * TV_MAX + tval];
 	}
@@ -1035,11 +1057,13 @@ struct object_kind *get_obj_num(int level, bool good, int tval)
 	if (tval)
 		return get_obj_num_by_kind(level, good, tval);
 
-	objects = (good ? obj_alloc_great : obj_alloc) +
-		level * (z_info->k_max + 1);
+	objects = (good ? obj_alloc_great : obj_alloc) + (level * (z_info->k_max + 1));
+
+	if ((!objects[z_info->k_max]) && good)
+		objects = obj_alloc + (level * (z_info->k_max + 1));
 
 	/* Pick an object. */
-	if (! objects[z_info->k_max]) {
+	if (!objects[z_info->k_max]) {
 		return NULL;
 	}
 	value = randint0(objects[z_info->k_max]);
@@ -1246,14 +1270,14 @@ struct object *make_object_named(struct chunk *c, int lev, bool good, bool great
 		} else {
 			if (makeego) {
 				/* Select an ego item. This might fail */
-				ego = find_ego_item(lev);
+				ego = find_ego_item(lev, tval);
 			}
 			if (ego) {
 				/* Choose from the ego's allowed kinds */
-				kind = select_ego_kind(ego, lev);
+				kind = select_ego_kind(ego, lev, tval);
 			} else {
 				/* Try to choose an object kind */
-				while (tries) {
+				while (tries--) {
 					kind = get_obj_num(base, good || great, tval);
 					break;
 				}
@@ -1317,22 +1341,31 @@ struct object *make_object(struct chunk *c, int lev, bool good, bool great,
 /**
  * Scatter some objects near the player
  */
-void acquirement(struct loc grid, int level, int num, bool great)
+void do_acquirement(struct loc grid, int level, int num, bool good, bool great)
 {
 	struct object *nice_obj;
 
 	/* Acquirement */
-	while (num--) {
+	while (num) {
 		/* Make a good (or great) object (if possible) */
-		nice_obj = make_object(cave, level, true, great, true, NULL, 0);
+		nice_obj = make_object(cave, level, good, great, true, NULL, 0);
 		if (!nice_obj) continue;
 
+		num--;
 		nice_obj->origin = ORIGIN_ACQUIRE;
 		nice_obj->origin_depth = player->depth;
 
 		/* Drop the object */
 		drop_near(cave, &nice_obj, 0, grid, true, false);
 	}
+}
+
+/**
+ * Scatter some objects near the player
+ */
+void acquirement(struct loc grid, int level, int num, bool great)
+{
+	do_acquirement(grid, level, num, true, great);
 }
 
 

@@ -101,6 +101,9 @@
 # flags: lines may be used as are needed to specify all the flags, and
 # flags are separated by the '|' symbol.
 
+# 'carried-flags' is for (object) flags, which take effect when carried
+# (and *not* when worn)
+
 # 'values' is for object modifiers which take a value - stats, slays, brands,
 # resistances and so on.  An example is SLAY_UNDEAD[3], which denotes that
 # the weapon concerned has a basic 3x slay against undead creatures.  Like
@@ -161,6 +164,169 @@ name:<fault object>
 type:none
 graphics:*:v
 
+##### Implants (Arms) #####
+
+# Dex - FA? (But that's more a whole-body thing)
+# Esp Str. Maybe con
+# + to hit/dam?
+# tunneling? (DIG_1 ..3)
+# blows, shots, might? (Not might for guns)
+# sustains?
+
+# Str only
+name:& Cybasics Cydearm~
+type:arms
+graphics:!:White
+weight:4740g
+cost:5450
+level:28
+alloc:4:20 to 50
+values:STR[1+M2]
+desc:A cybernetic implant - without any of the extra features of the high-end implants, it is still effective at strengthening your arms.
+material:steel
+
+# Str sustained
+name:& Collective Powerlift~
+type:arms
+graphics:!:Red
+weight:3800g
+cost:11500
+level:38
+alloc:3:30 to 127
+values:STR[2d2M2]
+flags:SUST_STR
+desc:The Powerlift cybernetic implant greatly strengthens your arms. The included advanced nanorebuilder also makes it almost impossible to become weakened.
+material:titanium
+
+# Dex (and a little str) - to hit?
+name:& Collective Powerflex~
+type:arms
+graphics:!:Red
+weight:3500g
+cost:15500
+level:43
+alloc:3:36 to 127
+values:STR[1+M2]
+values:DEX[2d2M2]
+flags:SUST_STR
+flags:SUST_DEX
+attack:0d0:1+M9:0
+desc:The Powerflex cybernetic implant strengthens your arms and improves your dexterity, so making you a more precise, effective combatant. The included advanced nanorebuilder also makes it almost impossible to become weaker or less agile.
+material:titanium
+
+##### Implants (Legs) #####
+
+#Blink/teleport?
+#FA, regen, sus SPD?
+# Stealth?
+# (But also look at making them into egos)
+
+# Basics only
+name:& Cybasics Legend~
+type:legs
+graphics:!:White
+weight:9150g
+cost:7700
+level:33
+alloc:3:25 to 55
+values:MOVES[1]
+desc:A cybernetic implant - without any of the extra features of the high-end implants, it still gets you moving faster.
+material:steel
+
+# Sprinting
+name:& Netrunner Sprint~
+type:legs
+graphics:!:Blue
+weight:6550g
+cost:11000
+level:40
+alloc:4:25 to 127
+values:SPD[-1+d2M1]
+values:MOVES[1]
+desc:A cybernetic implant, combining fast running with sprinting (extra move speed for a short while, as a technique).
+material:titanium
+
+book:[Legs]
+spell:Sprint:1:12:4:4:1:3d30
+seffect:TIMED_INC:FAST:0:5
+sdice:6d3
+sdesc:Sprints - rapid movement for a few moments.
+
+# FF / AC / Stealth
+name:& Collective Skate~
+type:legs
+weight:5400g
+cost:12400
+level:42
+alloc:4:30 to 127
+graphics:!:Red
+flags:FEATHER
+values:MOVES[1+M2]
+values:STEALTH[1+M2]
+desc:A cybernetic implant - the main intent being fast running, but force-skate technology has been integrated to provide some protection and especially to cushion falls. An additional benefit of this is that your steps are muffled, improving your stealth.
+
+# Mixed bag
+name:& Netrunner Leg-Up~
+type:legs
+graphics:!:Blue
+weight:7600g
+cost:14000
+level:45
+alloc:3:30 to 127
+values:SPD[-1+d2M1]
+values:MOVES[1+M3]
+values:STR[M3]
+values:DEX[M4]
+values:CON[M2]
+desc:A cybernetic implant, with the main intent being fast running though there are usually some side benefits.
+material:titanium
+
+# Dex
+name:& Netrunner Flex~
+type:legs
+graphics:!:Blue
+weight:5890g
+cost:18000
+level:49
+alloc:2:35 to 127
+values:SPD[d2M1]
+values:MOVES[1+M3]
+values:DEX[2d2M4]
+desc:A cybernetic implant, combining fast running with agility and overall quickness.
+material:titanium
+
+# Str/con
+name:& Collective Powertrain~
+type:legs
+graphics:!:Red
+weight:7950g
+cost:21000
+level:52
+alloc:2:38 to 127
+values:MOVES[1+M3]
+values:STR[d2M4]
+values:CON[d2M4]
+desc:A cybernetic implant, combining fast running with enhanced strength and toughness.
+material:titanium
+
+# Speed
+name:& Collective Lightning~
+type:legs
+graphics:!:Red
+weight:8300g
+cost:25000
+level:55
+alloc:2:55 to 127
+values:SPD[3d2M4]
+values:MOVES[1+M3]
+flags:SUST_SPD
+desc:A cybernetic implant, allowing fast running combined with overall speed.
+material:titanium
+
+# Capstone?
+# (But consider FBCs)
+
+
 ##### Lights #####
 
 name:& wax candle~
@@ -175,7 +341,7 @@ attack:1d1:0:0
 armor:0:0
 pval:1500
 time:1500
-flags:BURNS_OUT | LIGHT_2 | MIMIC_KNOW
+flags:BURNS_OUT | LIGHT_2
 desc:A wax candle.
 
 name:& firecracker~
@@ -190,7 +356,7 @@ attack:1d1:0:0
 armor:0:0
 pval:15
 time:15
-flags:BURNS_OUT | LIGHT_2 | MIMIC_KNOW
+flags:BURNS_OUT | LIGHT_2 | MIMIC_KNOW | ACT_FAILED | NO_ACTIVATION
 msg:The {flavor} explodes!
 effect:SPOT:SHARD:3
 dice:4d10
@@ -224,7 +390,7 @@ attack:1d1:0:0
 armor:0:0
 pval:15
 time:15
-flags:BURNS_OUT | LIGHT_2 | MIMIC_KNOW
+flags:BURNS_OUT | LIGHT_2 | MIMIC_KNOW | ACT_FAILED | NO_ACTIVATION
 msg:The {flavor} explodes!
 effect:SPOT:SHARD:6
 dice:4d20
@@ -325,7 +491,7 @@ values:USE_ENERGY[10]
 flags:TAKES_FUEL | EASY_KNOW | LIGHT_5 | IGNORE_FIRE
 desc:A very big, heavy and bright LED lamp, which drains its battery very quickly.
 
-name:& alkaline battery
+name:& alkaline batter|y|ies|
 type:battery
 graphics:!:Copper
 level:0
@@ -335,13 +501,13 @@ alloc:50:0 to 50
 attack:1d4:0:0
 armor:0:0
 pval:3000
-flags:BURNS_OUT
+flags:BURNS_OUT | HIDE_ACTIVATION
 desc:A BogStan brand D-cell, sealed in plastic and claiming to be ultra-long-life but long past its sell-by date despite that. Still, with luck it should still be usable to some extent.
 msg:You drain the cell dry.
 effect:NOURISH:INC_BY
 dice:30
 
-name:& lithium battery
+name:& lithium batter|y|ies|
 type:battery
 graphics:!:HotPink
 level:3
@@ -351,13 +517,13 @@ alloc:20:2 to 70
 attack:1d4:0:0
 armor:0:0
 pval:7500
-flags:BURNS_OUT
+flags:BURNS_OUT | HIDE_ACTIVATION
 desc:A Flammacell D-size battery, sealed in plastic and not too far past its sell-by date. You can expect to get a lot more use from it than the cheap alternatives.
 msg:You drain the cell dry.
 effect:NOURISH:INC_BY
 dice:75
 
-name:& alcohol cell
+name:& alcohol cell~
 type:battery
 graphics:!:Violet
 level:19
@@ -367,13 +533,13 @@ alloc:5:13 to 85
 attack:1d4:0:0
 armor:0:0
 pval:15000
-flags:BURNS_OUT
+flags:BURNS_OUT | HIDE_ACTIVATION
 desc:A D-size Bendacell battery, based on an alcohol fuel cell. It lasts much longer than any normal battery, and is lighter as well. In more than ways than one - drop it and it's as likely as not to go up in flames.
 msg:You drain the cell dry. Hic!
 effect:NOURISH:INC_BY
 dice:100
 
-name:& hydrogen cell
+name:& hydrogen cell~
 type:battery
 graphics:!:OrangeRed
 level:33
@@ -383,14 +549,14 @@ alloc:5:20 to 100
 attack:1d4:0:0
 armor:0:0
 pval:30000
-flags:BURNS_OUT
+flags:BURNS_OUT | HIDE_ACTIVATION
 desc:A D-size Flammacell battery, based on a hydrogen fuel cell. It lasts a great deal longer than any normal battery, and it's very light too. Apart from a slight tendency to explode it's a real win.
 msg:You drain the cell dry.
 effect:NOURISH:INC_BY
 dice:100
 
 # cooldown, reusable
-name:& atomic cell
+name:& atomic cell~
 type:battery
 graphics:!:CadetBlue
 level:54
@@ -401,6 +567,7 @@ attack:1d4:0:0
 armor:0:0
 pval:7500
 time:500
+flags:HIDE_ACTIVATION
 desc:A Bettacell atomic battery which can be used like conventional D cells, to recharge any device. While it has a cooldown interlock preventing it from being used twice without waiting for a few minutes, its reserves of energy are sufficient that it will live - if not quite for ever - then at least for longer than you will. Especially if you drop it.
 msg:You recharge from the atomic cell.
 effect:NOURISH:INC_BY
@@ -419,6 +586,7 @@ attack:1d4:0:0
 armor:0:0
 pval:30000
 time:25
+flags:HIDE_ACTIVATION
 desc:The iconic dustbin-sized fusion reactor that powers cars and homes, now shrunk into a D-cell format. Few were made - you may consider yourself lucky to have found one of them. Or not, depending on which rumors you believe about *why* they were so quickly pulled off the market...
 msg:You recharge from Mr Fusion.
 effect:NOURISH:INC_BY
@@ -624,6 +792,20 @@ effect:NOURISH:INC_BY
 dice:25
 desc:A round, warty, green melon.
 
+name:& carrot~
+type:food
+graphics:,:Carrot
+level:1
+weight:200g
+cost:18
+alloc:5:0 to 30
+power:0
+msg:That tastes good.
+effect:NOURISH:INC_BY
+dice:12
+effect:CURE:BLIND
+desc:A long skinny bright orange carrot, complete with a bunch of greens.
+
 name:& pepper~
 type:food
 graphics:,:R
@@ -698,6 +880,7 @@ cost:4
 alloc:5:0 to 50
 power:0
 msg:That tastes good.
+carried-flags:AGGRAVATE
 effect:NOURISH:INC_BY
 dice:20
 desc:A small round hard pongy pale yellow cheese.
@@ -811,7 +994,7 @@ dice:20
 desc:Food of the elves is always good; their waybread is no exception.  These
 desc: thin cakes are wrapped in leaves and keep their tastiness for months.
 
-name:& Flask~ of Whisky
+name:& bottle~ of whiskey
 type:food
 graphics:,:y
 level:0
@@ -982,7 +1165,20 @@ dice:200
 effect:NOURISH:INC_BY
 dice:5
 
-name:Terror
+name:gigantism
+type:mushroom
+graphics:,:d
+level:0
+weight:1
+cost:700
+pile:40:1d2
+alloc:1:20 to 100
+power:9
+effect:SHAPECHANGE:giant
+desc:It one-ups the more common snozzcumber by allowing you to assume giant form 
+desc:without any risk of failure.
+
+name:terror
 type:mushroom
 graphics:,:d
 level:0
@@ -997,7 +1193,7 @@ effect:NOURISH:INC_BY
 dice:5
 desc:It allows you to run for your life.
 
-name:Stoneskin
+name:stoneskin
 type:mushroom
 graphics:,:d
 level:0
@@ -1006,7 +1202,7 @@ cost:60
 alloc:10:10 to 40
 pile:70:1d4
 power:5
-effect:TIMED_SET:STONESKIN
+effect:TIMED_SET:STONE_SKIN
 dice:50+7d7
 effect:NOURISH:INC_BY
 dice:5
@@ -1090,20 +1286,21 @@ desc:It makes you very stealthy for a short while.
 
 ### Swords ###
 
-name:& pocket knife~
+name:& pocket kni|fe|ves|
 type:sword
 graphics:|:W
 level:0
 weight:100g
 cost:30
-alloc:20:0 to 100
+alloc:20:0 to 30
 attack:1d3:0:0
 armor:0:0
 desc:A small knife (and set of several semi-useful tools) in a folding, pocketable
 desc: case. It's not intended as a weapon of course, but could be used as one if
 desc: you really had nothing else better.
+material:steel
 
-name:& flick knife~
+name:& flick kni|fe|ves|
 type:sword
 graphics:|:W
 level:1
@@ -1113,8 +1310,9 @@ alloc:20:1 to 100
 attack:1d5:0:0
 armor:0:0
 desc:A smallish knife, spring-loaded to open automatically.
+material:steel
 
-name:& survival knife~
+name:& survival kni|fe|ves|
 type:sword
 graphics:|:W
 level:3
@@ -1124,6 +1322,7 @@ alloc:20:3 to 100
 attack:1d7:0:0
 armor:0:0
 desc:A long, heavy knife with a metal guard, long black leather hilt and attached strap.
+material:steel
 
 name:& machete~
 type:sword
@@ -1135,502 +1334,221 @@ alloc:20:5 to 100
 attack:1d9:0:0
 armor:0:0
 desc:A very long knife, broadening toward the tip, with a serrated back and moulded rubber grip.
+material:steel
 
-name:& Rapier~
+
+# Laser knives - like a miniature lightsaber.
+# There are a lot of these (5 laserknives, 5 crystal knives, 12? lightsabers) and all should
+# be unusual, so all must be rare.
+# They fade out l60ish as they are (not strictly, but for most characters that have reached that far) worse
+# than the *crystal knives.
+
+name:& laser kni|fe|ves|
 type:sword
-graphics:|:W
-level:5
-weight:40
-cost:70
-alloc:20:5 to 100
-attack:1d6:0:0
+graphics:|:Green
+level:20
+weight:150g
+alloc:4:20 to 60
+attack:1d12:0:0
 armor:0:0
-desc:A long, thin thrusting blade, mainly used in duels.
+brand:LIGHT_2
+values:LIGHT[1]
+desc:A line of green laser light forms a long knife that cuts through armour easily.
+material:aluminium
 
-name:& Short Sword~
+name:& phase kni|fe|ves|
 type:sword
-graphics:|:W
-level:5
-weight:80
-cost:90
-alloc:20:5 to 100
-attack:1d7:0:0
-armor:0:0
-desc:A short thrusting sword.
-
-name:& Cutlass~
-type:sword
-graphics:|:W
-level:5
-weight:110
-cost:120
-alloc:20:5 to 100
-attack:1d8:0:0
-armor:0:0
-desc:A thicker and slightly longer dagger, the cutlass is a slashing sword.  It
-desc: possesses a slight curve and only one side is sharp.
-
-name:& Tulwar~
-type:sword
-graphics:|:W
-level:5
-weight:100
-cost:170
-alloc:20:5 to 100
-attack:2d4:0:0
-armor:0:0
-desc:A wider-bladed cousin of the shamshir, with less of a curve.
-
-name:& Scimitar~
-type:sword
-graphics:|:W
-level:10
-weight:150
-cost:300
-alloc:20:10 to 100
-attack:4d2:0:0
-armor:0:0
-desc:A long sabre with an extreme curve to the blade.
-
-name:& Long Sword~
-type:sword
-graphics:|:W
-level:10
-weight:130
-cost:300
-alloc:20:10 to 100
-attack:2d5:0:0
-armor:0:0
-desc:A long, straight, two-edged blade, with two hand guards projecting out
-desc: from the hilt to form a perfect cross.
-
-name:& Broad Sword~
-type:sword
-graphics:|:W
-level:10
-weight:150
-cost:300
-alloc:20:10 to 100
-attack:2d5:0:0
-armor:0:0
-desc:A heavy, single-edged sword with a strong grip.
-
-name:& Bastard Sword~
-type:sword
-graphics:|:W
+graphics:|:White
 level:15
-weight:140
-cost:400
-alloc:20:15 to 100
-attack:3d4:0:0
+weight:150g
+alloc:4:15 to 56
+attack:1d8:8+d5M10:0
 armor:0:0
-desc:Also known as the hand-and-a-half blade.  A larger-than-normal straight-
-desc:sided sword with two cutting edges.
+brand:NEXUS_2
+desc:A line of shimmering points of light - a blade of pure phased energy for which armor doesn't exist.
+material:aluminium
 
-name:& Katana~
-type:sword
-graphics:|:W
-level:20
-weight:120
-cost:600
-alloc:20:20 to 100
-attack:3d5:0:0
-armor:0:0
-desc:A slightly curved long-handled slashing sword with a single-edged
-desc: blade and a chisel tip.
+# absorption, disruption, prismatic?
 
-name:& Zweihander~
+# Lightsabers, etc.
+# These also eventually are outclassed by *blades, though not by dual/dim etc.
+# They generally have a brand (weak if dual) but no resistance.
+
+name:& lightsaber~
 type:sword
-graphics:|:W
+graphics:|:Green
 level:30
-weight:200
-cost:700
-alloc:20:30 to 100
-attack:3d6:0:0
+alloc:3:25 to 65
+weight:350g
+attack:1d14:0:0
 armor:0:0
-desc:A sword designed for two hands.
+brand:LIGHT_3
+values:LIGHT[1]
+desc:A line of green laser light extends from a saber's hilt, a powerful weapon that cuts through armour easily.
+material:aluminium
 
-name:& Executioner's Sword~
+name:& dual lightsaber~
 type:sword
-graphics:|:r
+graphics:|:Green
 level:40
-weight:260
-cost:850
-alloc:20:40 to 100
-attack:4d5:0:0
+alloc:2:35 to 75
+weight:1250g
+attack:2d14:-5:0
 armor:0:0
-desc:A giant, curved blade designed to cleave the head cleanly from the body.
+brand:LIGHT_2
+values:LIGHT[1]
+desc:Two lines of green laser light extend in each direction from a saber's hilt, a powerful weapon that cuts through armour easily - though it's considerably heavier and more unwieldy than the single type.
+material:aluminium
 
-name:& Blade~ of Chaos
+name:& X-rated lightsaber~
 type:sword
-graphics:|:v
-level:70
-weight:180
-cost:4000
-alloc:10:70 to 100
-attack:6d5:0:0
+graphics:|:Blue
+level:35
+alloc:2:30 to 70
+weight:350g
+attack:1d18:-20:0
 armor:0:0
-values:RES_CHAOS[1]
-desc:This inconstant weapon revels in disorder, hacking and slashing your foes
-desc: with bloodthirsty glee.
+brand:RADIATION_3
+desc:A line of invisible radiation extends from a saber's hilt, a powerful weapon - if you can hit anything with it.
 
-
-
-### Whips ###
-
-name:& Whip~
-type:hafted
-graphics:\:D
-level:3
-weight:30
-cost:30
-alloc:20:3 to 100
-attack:1d3:0:0
-armor:0:0
-desc:A heavy whip, this thick coil is thrown from the shoulder and can
-desc: knock down a large man.
-
-name:& Ball-and-Chain~
-type:hafted
-graphics:\:D
-level:20
-weight:150
-cost:200
-alloc:20:20 to 100
-attack:2d4:0:0
-armor:0:0
-desc:A weighty iron ball, suspended by a chain from a sturdy oaken handle.
-
-name:& Morning Star~
-type:hafted
-graphics:\:D
-level:10
-weight:150
-cost:396
-alloc:20:10 to 100
-attack:2d6:0:0
-armor:0:0
-desc:A sturdy wooden pole connected by a chain to a ball of steel, which often
-desc: has projecting spikes.
-
-name:& Flail~
-type:hafted
-graphics:\:D
-level:10
-weight:150
-cost:353
-alloc:20:10 to 100
-attack:2d6:0:0
-armor:0:0
-desc:Two heavy bars of wood connected by a short link of chain, capable of
-desc: delivering crushing blows.
-
-name:& Two-Handed Great Flail~
-type:hafted
-graphics:\:y
+name:& X-rated dual lightsaber~
+type:sword
+graphics:|:Blue
 level:45
-weight:280
-cost:590
-alloc:20:45 to 100
-attack:3d6:0:0
+alloc:2:40 to 80
+weight:1250g
+attack:2d18:-25:0
 armor:0:0
-desc:Two great bars of wood connected by a massive chain, needing two hands
-desc: to properly wield.
+brand:RADIATION_2
+desc:Two lines of invisible radiation extend in each direction from a saber's hilt, a powerful weapon that cuts through armour easily - though it's considerably heavier and more unwieldy than the single type, and so is even less easy to hit with.
 
+
+
+
+# Crystal knives - rare, deadly and bearing an elemental attack and resistance.
+# They are something like more advanced versions of the laser/phaser knives - more powerful
+# than the *sabers, although not the *blades.
+# Nega/soni=sonic, spectra=laser, para/warp- =phaser, perma=disruption, prismatic=?
+
+name:& sonicrystal kni|fe|ves|
+type:sword
+graphics:|:D
+level:50
+weight:400g
+alloc:2:40 to 127
+attack:1d16:0:0
+armor:0:0
+values:RES_SOUND[1]
+brand:SOUND_3
+desc:A long knife of glossy black crystal, which buzzes faintly as you hold it.
+material:glass
+
+name:& spectracrystal kni|fe|ves|
+type:sword
+graphics:|:Violet
+level:52
+weight:400g
+alloc:2:42 to 127
+attack:1d17:0:0
+armor:0:0
+values:RES_LIGHT[1]
+brand:LIGHT_3
+desc:A long knife of brilliant crystal, flashing thousands of colours.
+material:glass
+
+name:& warp-crystal kni|fe|ves|
+type:sword
+graphics:|:Gray50
+level:55
+weight:400g
+alloc:2:45 to 127
+attack:1d15:10+2d4M10:0
+armor:0:0
+values:RES_NEXUS[1]
+brand:NEXUS_3
+desc:A long knife of greyish crystal, which doesn't seem to be all quite there...
+material:glass
+
+# disruption equivalent
 
 ### Clubs ###
 
-name:& Mace~
-type:hafted
-graphics:\:D
-level:5
-weight:120
-cost:130
-alloc:20:5 to 100
-attack:2d4:0:0
-armor:0:0
-desc:A war club with an iron head, usually flanged or spiked.
-
-name:& Lead-Filled Mace~
-type:hafted
-graphics:\:D
-level:15
-weight:180
-cost:502
-alloc:20:15 to 100
-attack:4d3:0:0
-armor:0:0
-desc:A heavy war club topped with a mass of lead-filled steel, capable of
-desc: landing crushing blows.
-
-name:& Quarterstaff~
+name:& baseball bat~
 type:hafted
 graphics:\:U
-level:10
-weight:150
-cost:200
-alloc:20:10 to 100
-attack:1d9:0:0
-armor:0:0
-desc:Six feet of oak which can be wielded in both hands to give a drubbing or
-desc: block one.
-
-name:& Throwing Hammer~
-type:hafted
-graphics:\:D
-level:40
-weight:55
-cost:250
-alloc:10:40 to 100
+level:1
+weight:960g
+cost:50
+alloc:20:0 to 100
 attack:2d4:0:0
 armor:0:0
-flags:THROWING
-desc:A short-handled iron hammer that can strike hard when thrown.
+desc:'If that dragon's got any voonerables, that arrow'll find 'em.'
+material:wood
 
-name:& War Hammer~
+name:& sledgehammer~
 type:hafted
 graphics:\:D
-level:5
-weight:120
-cost:225
-alloc:20:5 to 100
+level:3
+weight:5500g
+cost:105
+alloc:20:3 to 100
 attack:3d3:0:0
 armor:0:0
-desc:A mallet with a tapered head and a long handle.
+desc:A heavy hammer with a long handle.
+material:wood
 
-name:& Maul~
+name:& blackjack~
 type:hafted
-graphics:\:D
+graphics:\:U
 level:5
-weight:200
-cost:130
+weight:580g
+cost:70
 alloc:20:5 to 100
-attack:4d4:0:0
+attack:2d2:0:0
 armor:0:0
-desc:A long-handled hammer with a heavy head.
+desc:A small, easily concealed bludgeon. The heavy head makes it a reasonably effective weapon despite its small size. 
+material:wood
 
-name:& Great Hammer~
+name:& crowbar~
 type:hafted
-graphics:\:D
-level:5
-weight:180
-cost:500
-alloc:20:20 to 100
-attack:8d1:0:0
+graphics:\:s
+level:8
+weight:6200g
+cost:250
+alloc:20:8 to 100
+attack:3d4:0:0
 armor:0:0
-desc:A mighty hammer with a massive head designed to crush and stun.
-
-name:& Mace~ of Disruption
-type:hafted
-graphics:\:v
-level:80
-weight:400
-cost:4300
-alloc:10:80 to 100
-attack:5d8:0:0
-armor:0:0
-slay:UNDEAD_3
-desc:A giant's weapon, enchanted with shattering power that breaks bones,
-desc: bodies, and spirit.
-
-
-
-### Spears ###
-
-name:& Spear~
-type:polearm
-graphics:/:s
-level:5
-weight:50
-cost:36
-alloc:20:5 to 100
-attack:1d6:0:0
-armor:0:0
-flags:THROWING
-desc:The basic polearm, with a double-edged knife mounted on a light shaft.
-desc:  This weapon can be thrown effectively.
-
-name:& Awl-Pike~
-type:polearm
-graphics:/:s
-level:10
-weight:160
-cost:340
-alloc:20:10 to 100
-attack:1d8:0:0
-armor:0:0
-desc:A more robust version of the basic polearm, with a double-edged knife
-desc: mounted on a sturdy shaft.  It cannot be thrown effectively, but offers
-desc: some protection to the wielder.
-
-name:& Trident~
-type:polearm
-graphics:/:y
-level:5
-weight:70
-cost:120
-alloc:20:5 to 100
-attack:1d10:0:0
-armor:0:0
-desc:A three-pronged spear, originally for catching fish.
-
-name:& Halberd~
-type:polearm
-graphics:/:s
-level:25
-weight:190
-cost:430
-alloc:20:25 to 100
-attack:3d5:0:0
-armor:0:0
-desc:The most successful of the polearms, the halberd has a long haft mounted
-desc: with a heavy axe blade and opposing spike, and topped by a thrusting
-desc: spine.
-
-name:& Pike~
-type:polearm
-graphics:/:s
-level:15
-weight:160
-cost:358
-alloc:20:15 to 100
-attack:2d5:0:0
-armor:0:0
-desc:A fifteen foot spear, requiring two hands to wield, principally used in
-desc: infantry formations.
+desc:A hefty hooked metal bar, intended as a levering tool but it makes a useful improvised weapon if you can handle the weight.
+material:steel
 
 
 ### Axes ###
 
-name:& Throwing Axe~
+name:& hatchet~
 type:polearm
 graphics:/:s
-level:25
-weight:40
+level:12
+weight:780g
 cost:150
-alloc:10:25 to 100
-attack:2d3:0:0
-armor:0:0
-flags:THROWING
-desc:A short-handled hatchet, balanced for throwing.  A classic skirmisher's
-desc: weapon.
-
-name:& Beaked Axe~
-type:polearm
-graphics:/:s
-level:15
-weight:180
-cost:408
-alloc:20:15 to 100
-attack:2d6:0:0
-armor:0:0
-desc:A narrow axe head opposed by a crow's beak for penetrating armour.
-
-name:& Broad Axe~
-type:polearm
-graphics:/:s
-level:15
-weight:160
-cost:304
-alloc:20:15 to 100
-attack:2d6:0:0
-armor:0:0
-desc:A simple, single-bladed war axe capable of chopping though limbs or armour.
-
-name:& Battle Axe~
-type:polearm
-graphics:/:s
-level:15
-weight:170
-cost:334
-alloc:20:15 to 100
-attack:2d8:0:0
-armor:0:0
-desc:A double-bladed axe.  Very popular among Dwarves.
-
-name:& Lochaber Axe~
-type:polearm
-graphics:/:D
-level:45
-weight:250
-cost:750
-alloc:20:45 to 100
-attack:3d8:0:0
-armor:0:0
-desc:A long shaft with a long narrow blade.
-
-name:& Great Axe~
-type:polearm
-graphics:/:s
-level:40
-weight:230
-cost:500
-alloc:20:40 to 100
-attack:4d4:0:0
-armor:0:0
-desc:An enormous two-handed battle axe, carried by Dwarven champions, who
-desc: compete to see who can cleave the most orc heads.
-
-
-### Other misc polearms ###
-
-name:& Scythe~
-type:polearm
-graphics:/:s
-level:45
-weight:250
-cost:800
-alloc:20:45 to 100
-attack:5d3:0:0
-armor:0:0
-desc:The long crescent blade stands out from the handle of this
-desc: polearm, and it is swung with two hands to harvest grain or blood.
-
-name:& Glaive~
-type:polearm
-graphics:/:s
-level:20
-weight:190
-cost:363
-alloc:20:20 to 100
-attack:2d6:0:0
-armor:0:0
-desc:A reinforced wooden pole eight feet long, topped by a massive knife blade
-desc: that can be used to thrust or chop.
-
-name:& Lance~
-type:polearm
-graphics:/:s
-level:10
-weight:300
-cost:230
-alloc:20:10 to 100
-attack:2d8:0:0
-armor:0:0
-desc:A massive, tapered spear used primarily from horseback.
-
-name:& Scythe~ of Slicing
-type:polearm
-graphics:/:r
-level:60
-weight:250
-cost:3500
-alloc:10:60 to 100
-attack:8d4:0:0
-armor:0:0
-desc:A reaper's weapon, the long blade almost hums in anticipation of
-desc: the blood it will spill.
-
-name:& Lucerne Hammer~
-type:polearm
-graphics:/:B
-level:10
-weight:120
-cost:376
-alloc:20:10 to 100
+alloc:20:12 to 100
 attack:2d5:0:0
 armor:0:0
-desc:A long pole with a three- or four-pronged head balanced by a long spike.
+desc:A simple, short-handled hatchet.
+material:steel
+
+name:& fire axe~
+type:polearm
+graphics:/:s
+level:15
+weight:1450g
+cost:408
+alloc:10:15 to 100
+attack:2d7:0:0
+armor:0:0
+flags:IGNORE_FIRE
+values:RES_FIRE[1]
+desc:A narrow axe head, backed with a spike on a long, bright red handle.
+material:steel
 
 
 ##### Guns #####
@@ -1698,6 +1616,18 @@ pval:3
 
 ##### Missiles #####
 
+name:& 6mm bullet~
+type:6mm ammo
+graphics:{:s
+level:1
+weight:20g
+cost:2
+pile:100:9d7
+alloc:30:1 to 100
+attack:1d3:0:0
+armor:0:0
+desc:6mm ammunition, suitable for any gun of that caliber.
+
 name:& 9mm bullet~
 type:9mm ammo
 graphics:{:s
@@ -1710,109 +1640,17 @@ attack:1d6:0:0
 armor:0:0
 desc:9mm ammunition, suitable for any gun of that caliber.
 
-#name:& 9mm seeker bullet~
-#type:9mm ammo
-#graphics:{:G
-#level:55
-#weight:2
-#cost:20
-#alloc:25:55 to 100
-#pile:100:7d7
-#attack:4d4:0:0
-#armor:0:0
-#desc:It can be shot with a bow.
-
-#name:& Mithril Arrow~
-#type:9mm ammo
-#graphics:{:B
-#level:55
-#weight:2
-#cost:25
-#pile:100:7d7
-#alloc:20:50 to 100
-#attack:3d4:0:0
-#armor:0:0
-#flags:IGNORE_ACID | IGNORE_FIRE
-#desc:It can be shot with a bow.
-
-
 name:& 12mm bullet~
 type:12mm ammo
 graphics:{:s
-level:3
+level:5
 weight:80g
 cost:4
 pile:100:5d7
-alloc:30:3 to 100
+alloc:30:5 to 100
 attack:1d10:0:0
 armor:0:0
 desc:12mm ammunition, suitable for any gun of that caliber.
-
-#name:& Seeker Bolt~
-#type:12mm ammo
-#graphics:{:g
-#level:65
-#weight:3
-#cost:25
-#pile:100:5d7
-#alloc:25:65 to 100
-#attack:4d5:0:0
-#armor:0:0
-#desc:It can be shot with a crossbow.
-
-#name:& Mithril Bolt~
-#type:12mm ammo
-#graphics:{:B
-#level:50
-#weight:2
-#cost:30
-#pile:100:5d7
-#alloc:20:60 to 100
-#attack:3d5:0:0
-#armor:0:0r,
-#flags:IGNORE_ACID
-#desc:It can be shot with a crossbow.
-
-
-#name:& Rounded Pebble~
-#type:6mm ammo
-#graphics:{:s
-#level:0
-#weight:4
-#cost:1
-#pile:100:5d7
-#alloc:30:0 to 100
-#attack:1d2:0:0
-#armor:0:0
-#flags:THROWING
-#desc:It can be shot with a sling or thrown.
-
-
-name:& 6mm bullet~
-type:6mm ammo
-graphics:{:s
-level:3
-weight:20g
-cost:2
-pile:100:5d7
-alloc:30:3 to 100
-attack:1d3:0:0
-armor:0:0
-desc:6mm ammunition, suitable for any gun of that caliber.
-
-#name:& Mithril Shot~
-#type:6mm ammo
-#graphics:{:B
-#level:40
-#weight:4
-#cost:20
-#pile:100:5d7
-#alloc:20:40 to 100
-#attack:2d4:5:5
-#armor:0:0
-#flags:THROWING
-#desc:It can be shot with a sling or thrown.
-
 
 ##### Digging Tools #####
 
@@ -2050,283 +1888,33 @@ material:plastic
 
 #combat helmet?
 
-name:& Iron Helm~
-type:helm
-graphics:]:s
-level:20
-weight:50
-cost:75
-alloc:20:20 to 100
-attack:1d3:0:0
-armor:7:0
-desc:A mighty helmet of heavy iron, completely enclosing the head.
-
-name:& Steel Helm~
-type:helm
-graphics:]:W
-level:40
-weight:60
-cost:200
-alloc:20:40 to 100
-attack:1d3:0:0
-armor:9:0
-desc:This great helm covers the head and shoulders with plates of steel and a
-desc: curtain of mail.
-
-name:& Iron Crown~
-type:crown
-graphics:]:s
-level:45
-weight:20
-cost:500
-alloc:20:45 to 100
-attack:1d1:0:0
-armor:0:0
-desc:A plain band of iron, crowned with iron spikes.  It is a tyrant's
-desc: symbol.
-
-name:& Golden Crown~
-type:crown
-graphics:]:y
-level:45
-weight:30
-cost:1000
-alloc:10:45 to 100
-attack:1d1:0:0
-armor:0:0
-flags:IGNORE_ACID
-desc:An elegant golden circlet, with slender spines thrusting upward.
-desc:  It looks like it should be resting over the brow of a king.
-
-name:& Jewel Encrusted Crown~
-type:crown
-graphics:]:v
-level:50
-weight:40
-cost:2000
-alloc:10:50 to 100
-attack:1d1:0:0
-armor:0:0
-flags:IGNORE_ACID
-desc:An elaboratedly decorated crown of massive gold, studded with a rainbow
-desc: of gems and jewels; worthy of a High King.
-
-
 ### Body armours ###
 
 name:& loud shirt~
 type:soft armor
 graphics:(:HotPink
-level:1
+level:0
+alloc:20:0 to 100
 weight:150g
 cost:4
-alloc:20:1 to 100
 attack:0d0:0:0
 armor:1:0
 desc:A loose, short-sleeved cotton shirt printed in colourful patterns.
+material:cloth
 
-name:& Robe~
-type:soft armor
-graphics:(:b
-level:1
-weight:20
-cost:4
-alloc:20:1 to 100
-attack:0d0:0:0
-armor:2:0
-desc:A practical garment of thick wool or velvet, draping from neck to heels.
-
-name:Soft Leather Armour~
-type:soft armor
-graphics:(:U
-level:3
-weight:80
-cost:20
-alloc:20:3 to 100
-attack:0d0:0:0
-armor:8:0
-desc:A cuirass of pliable leather, with a thicker leather jack.
-
-name:Studded Leather Armour~
-type:soft armor
-graphics:(:U
-level:10
-weight:100
-cost:100
-alloc:20:5 to 100
-attack:1d1:-1:0
-armor:12:0
-desc:A cuirass of pliable leather studded with metal rivets.
-
-name:Hard Leather Armour~
-type:soft armor
-graphics:(:U
-level:5
-weight:120
-cost:150
-alloc:20:10 to 100
-attack:1d2:-1:0
-armor:16:0
-desc:A boiled leather cuirass and shoulder plates.
-
-name:Leather Scale Mail~
-type:soft armor
-graphics:(:U
-level:15
-weight:140
-cost:370
-alloc:20:15 to 100
-attack:1d1:-1:0
-armor:20:0
-desc:A tunic and skirt sewn with thick, overlapping scales of hardened
-desc: leather.
-
-name:Metal Scale Mail~
+name:& force harness~
 type:hard armor
-graphics:[:s
-level:25
-weight:250
-cost:550
-alloc:20:25 to 100
-attack:1d4:-2:0
-armor:38:0
-desc:A heavy shirt of overlapping steel scales backed by leather, with
-desc: matching skirt and sleeves.
-
-name:Chain Mail~
-type:hard armor
-graphics:[:s
-level:25
-weight:220
-cost:750
-alloc:20:20 to 100
-attack:1d4:-2:0
-armor:32:0
-desc:A hauberk, leggings, and sleeves of interlocking steel rings, well padded
-desc: with leather.
-
-name:Augmented Chain Mail~
-type:hard armor
-graphics:[:s
-level:30
-weight:270
-cost:900
-alloc:20:35 to 100
-attack:1d4:-2:0
-armor:42:0
-desc:A hauberk, leggings, and sleeves of interlocking steel rings,
-desc: strategically reinforced at vital locations with a second layer
-desc: of chain, all over a layer of heavy padding.
-
-name:Bar Chain Mail~
-type:hard armor
-graphics:[:s
-level:35
-weight:280
-cost:950
-alloc:20:40 to 100
-attack:1d4:-2:0
-armor:45:0
-desc:A hauberk, leggings, and sleeves of interlocking steel rings,
-desc: reinforced around the shoulders with segmented plates of steel,
-desc: all over a layer of heavy padding.
-
-name:Metal Brigandine Armour~
-type:hard armor
-graphics:[:s
-level:35
-weight:290
-cost:1100
-alloc:20:45 to 100
-attack:1d4:-3:0
-armor:48:0
-desc:A stiff suit of armour composed of small metal plates sewn to an
-desc: inner layer of heavy canvas, and covered with a second layer of
-desc: cloth.
-
-name:Partial Plate Armour~
-type:hard armor
-graphics:[:W
-level:45
-weight:260
-cost:1200
-alloc:20:30 to 100
-attack:1d6:-3:0
-armor:40:0
-desc:A steel corselet and vambraces over a skirt and leggings of chain.
-
-name:Metal Lamellar Armour~
-type:hard armor
-graphics:[:W
-level:45
-weight:340
-cost:1250
-alloc:20:50 to 100
-attack:1d6:-3:0
-armor:58:0
-desc:This unusual armour is a surprisingly light suit of laced and
-desc: overlapping metal plates.
-
-name:Full Plate Armour~
-type:hard armor
-graphics:[:W
-level:45
-weight:360
-cost:1350
-alloc:15:55 to 100
-attack:2d4:-3:0
-armor:62:0
-desc:A full suit of carefully fitted plates, with hinged joints backed
-desc: by chain, and light padding underneath.
-
-name:Ribbed Plate Armour~
-type:hard armor
-graphics:[:W
-level:50
-weight:380
-cost:1500
-alloc:15:60 to 100
-attack:2d4:-3:0
-armor:66:0
-desc:A full suit of finely fitted metal armour consisting of steel plates
-desc: reinforced ridging.
-
-name:Mithril Chain Mail~
-type:hard armor
-graphics:[:B
-level:55
-weight:150
-cost:7000
-alloc:10:55 to 100
-attack:1d4:-1:0
-armor:28:0
+graphics:[:Grey75
+level:52
+alloc:1:40 to 100
+weight:1100g
+cost:3000
+attack:1d1:-4:0
+armor:4:10+2d5M50
 flags:IGNORE_ACID
-desc:This wondrous suit of fine-linked chain shimmers as though of pure silver.
+desc:Close fitting, telescoping titanium chains, which cross over your chest and back between a collar and belt. They don't look as if they could offer much protection, but are in fact the equivalent of the more common belt forcefield generators and can be very effective.
+material:titanium
 
-name:Mithril Plate Mail~
-type:hard armor
-graphics:[:B
-level:60
-weight:300
-cost:15000
-alloc:10:65 to 100
-attack:2d4:-3:0
-armor:60:0
-flags:IGNORE_ACID
-desc:A shimmering suit of true-silver, forged long ago by dwarven smiths of
-desc: legend.  It gleams with purest white as you gaze upon it.
-
-name:Adamantite Plate Mail~
-type:hard armor
-graphics:[:G
-level:75
-weight:420
-cost:20000
-alloc:10:75 to 100
-attack:2d4:-4:0
-armor:80:0
-flags:IGNORE_ACID
-desc:An exquisite suit of nearly impenetrable adamantite.
 
 ################ forcefield generators (belt armor)
 ## These are worn on the belt and you can only have one at once - including force-type
@@ -2348,6 +1936,7 @@ attack:0d0:0:0
 armor:0:4+d3M2
 flags:IGNORE_ACID
 desc:A small device that clips to your belt and radiates a force field that turns away blows, or at least reduces their impact.
+material:plastic
 
 name:& Reflex forcefield generator~
 type:belt
@@ -2359,6 +1948,7 @@ armor:0:11+d5M4
 weight:120g
 flags:IGNORE_ACID
 desc:A small device that clips to your belt and radiates a force field that turns away blows, or at least reduces their impact.
+material:plastic
 
 name:& Rebound forcefield generator~
 type:belt
@@ -2371,6 +1961,7 @@ weight:900g
 values:STEALTH[-5+d3M1]
 flags:IGNORE_ACID
 desc:A small(ish) device that clips to your belt and radiates a protective force field.  It's Rebound's alternative to the Reflex generator - based on previous-generation technology, which shows in the weight and in the annoying buzz it makes.  Despite these disadvantages, it does provide a lot of protection and is as popular as the Reflex.
+material:plastic
 
 name:& Triplex forcefield generator~
 type:belt
@@ -2382,6 +1973,7 @@ armor:0:27+d6M4
 weight:280g
 flags:IGNORE_ACID
 desc:A small device that clips to your belt and radiates a protective force field. It's Reflex's most advanced model, expensive and hard to find but very effective.
+material:plastic
 
 name:& military forcefield generator~
 type:belt
@@ -2393,6 +1985,7 @@ armor:0:39+d10M6
 weight:250g
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD 
 desc:A small device that clips to your belt and radiates a powerful protective force field. It's related to the common personal forcefield generators, but far more effective - and also more difficult to damage.
+material:aluminium
 
 name:& special forcefield generator~
 type:belt
@@ -2404,6 +1997,7 @@ armor:0:62+d8M5
 weight:330g
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD 
 desc:A small device that clips to your belt and radiates a very powerful protective force field. This is the latest generation of military spec equipment - just about as good as it gets.
+material:aluminium
 
 #scarcity 5? 5 arts?
 name:prototype forcefield generator~
@@ -2415,7 +2009,8 @@ alloc:1:76 to 100
 armor:0:76+2d10
 weight:1250g
 flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD 
-desc:A chunky, awkward device that clips to your belt and radiates an extremely powerful protective force field. Never made in any quantity, you are very lucky to have found one of the few prototypes!"
+desc:A chunky, awkward device that clips to your belt and radiates an extremely powerful protective force field. Never made in any quantity, you are very lucky to have found one of the few prototypes!
+material:steel
 
 ### Cloaks ###
 
@@ -2440,32 +2035,6 @@ alloc:20:20 to 100
 attack:0d0:0:0
 armor:3:0
 desc:A heavy cloak made from fur and lined with leather; a luxury.
-
-name:& Elven Cloak~
-type:cloak
-graphics:(:D
-level:60
-weight:5
-cost:2000
-alloc:8:40 to 100
-attack:0d0:0:0
-armor:6:0
-values:STEALTH[1] | SPD[1]
-desc:A mantle made of curious silken material by the Galadrim that wondrously 
-desc:takes on the hues and shapes of its surroundings.
-
-name:& Ethereal Cloak~
-type:cloak
-graphics:(:W
-level:50
-weight:0
-cost:4500
-alloc:10:70 to 100
-attack:0d0:0:0
-armor:0:10
-flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD 
-desc:This unearthly, completely transparent body mantle folds and drapes in 
-desc:iridescent patterns around you.  It weighs absolutely nothing.
 
 
 ### Gloves ###
@@ -2492,51 +2061,6 @@ attack:1d1:0:0
 armor:3:0
 desc:A set of gloves that completely covers the hand and wrist in steel plating.
 
-name:& Set~ of Mithril Gauntlets
-type:gloves
-graphics:]:B
-level:0
-weight:15
-cost:700
-alloc:20:40 to 100
-attack:1d1:0:0
-armor:6:0
-flags:IGNORE_ACID | IGNORE_FIRE
-desc:A set of gauntlets wrought of light, shining mithril.
-
-name:& Set~ of Caestus
-type:gloves
-graphics:]:U
-level:0
-weight:40
-cost:100
-alloc:10:20 to 100
-attack:1d1:0:3
-armor:5:0
-desc:An ancient battle glove designed for hand-to-hand fighting.  Its layered
-desc: leather thongs are enhanced for combat by bloody-looking spikes.
-
-name:& Set~ of Alchemist's Gloves
-type:gloves
-graphics:]:R
-level:0
-weight:5
-cost:500
-alloc:10:50 to 100
-attack:1d1:0:0
-armor:0:5+d5
-flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-desc:Highly protective gloves designed for an alchemist's elemental magics.
-
-#N:179:& Set~ of Mining Gloves
-#G:]:U
-#I:gloves
-#W:0:0:5:500 
-#A:10:50 to 100
-#P:0:1d1:0:0:2
-#V:TUNNEL[1d3]
-
-
 ### Shields ###
 
 #N:180:& Buckler~
@@ -2557,617 +2081,6 @@ alloc:20:1 to 100
 attack:1d1:0:0
 armor:2:0
 desc:A light circular frame of wood surrounding fine-grained wickerwork.
-
-name:& Small Metal Shield~
-type:shield
-graphics:):s
-level:10
-weight:60
-cost:80
-alloc:20:15 to 100
-attack:1d2:0:0
-armor:5:0
-desc:A round shield of wood reinforced with metal rims and central disk.
-
-name:& Leather Shield~
-type:shield
-graphics:):U
-level:15
-weight:90
-cost:200
-alloc:20:10 to 100
-attack:1d3:0:0
-armor:8:0
-desc:A large oval shield made of layered wooden strips with a thick leather
-desc: covering.
-
-name:& Large Metal Shield~
-type:shield
-graphics:):s
-level:30
-weight:120
-cost:500
-alloc:20:30 to 100
-attack:1d5:0:0
-armor:12:0
-desc:An oval shield of wood covered by leather and rimmed with metal.  A large
-desc: iron shield boss offers excellent hand protection.
-
-name:& Knight's Shield~
-type:shield
-graphics:):W
-level:50
-weight:160
-cost:750
-alloc:10:50 to 100
-attack:1d6:0:0
-armor:15:0
-desc:A kite-shaped shield with rounded corners that covers the wearer from
-desc: chest to toe, emblazoned with heraldic symbols.
-
-name:& Mithril Shield~
-type:shield
-graphics:):B
-level:70
-weight:100
-cost:10000
-alloc:10:70 to 100
-attack:1d4:0:0
-armor:16:10
-flags:IGNORE_ACID
-desc:A shield of purest white, made of mithril.
-
-
-
-
-##### Rings #####
-
-### Stat rings ###
-
-name:Strength
-type:ring
-graphics:=:d
-level:30
-weight:2
-cost:500
-alloc:50:30 to 100
-flags:SUST_STR | 
-values:STR[1+M5]
-
-name:Intelligence
-type:ring
-graphics:=:d
-level:30
-weight:2
-cost:500
-alloc:50:30 to 100
-flags:SUST_INT | 
-values:INT[1+M5]
-
-name:Dexterity
-type:ring
-graphics:=:d
-level:30
-weight:2
-cost:500
-alloc:50:30 to 100
-flags:SUST_DEX | 
-values:DEX[1+M5]
-
-name:Constitution
-type:ring
-graphics:=:d
-level:30
-weight:2
-cost:500
-alloc:50:30 to 100
-flags:SUST_CON | 
-values:CON[1+M5]
-
-name:Speed
-type:ring
-graphics:=:d
-level:75
-weight:2
-cost:100000
-alloc:40:75 to 100
-flags:GOOD
-values:SPD[4+M6]
-
-name:Searching
-type:ring
-graphics:=:d
-level:5
-weight:2
-cost:250
-alloc:20:5 to 90
-values:SEARCH[d4M2]
-
-### Stat sustain rings ###
-
-name:Bodykeeping
-type:ring
-graphics:=:d
-level:30
-weight:2
-cost:750
-alloc:20:30 to 100
-flags:SUST_STR | SUST_DEX | SUST_CON | SUST_SPD | EASY_KNOW
-
-name:Soulkeeping
-type:ring
-graphics:=:d
-level:30
-weight:2
-cost:600
-alloc:20:30 to 100
-flags:SUST_STR | SUST_INT | SUST_WIS | SUST_CHR | EASY_KNOW
-
-
-### Resistance rings ###
-
-name:Resist Poison
-type:ring
-graphics:=:d
-level:40
-weight:2
-cost:16000
-alloc:50:40 to 100
-flags:EASY_KNOW
-values:RES_POIS[1]
-
-name:Resist Fire and Cold
-type:ring
-graphics:=:d
-level:10
-weight:2
-cost:250
-alloc:50:10 to 50
-flags:IGNORE_COLD | IGNORE_FIRE | EASY_KNOW
-values:RES_FIRE[1] | RES_COLD[1]
-
-### Elemental rings ###
-
-name:Light
-type:ring
-graphics:=:d
-level:0
-weight:2
-cost:400
-alloc:20:25 to 100
-values:SEARCH[1+M5] | LIGHT[1] | RES_LIGHT[1]
-
-name:Flames
-type:ring
-graphics:=:d
-level:50
-weight:2
-cost:500
-alloc:20:20 to 100
-attack:0d0:0:0
-armor:0:5+d5M10
-flags:IGNORE_FIRE
-values:RES_FIRE[1]
-power:11
-effect:BALL:FIRE:2
-dice:80
-effect:TIMED_INC:OPP_FIRE
-dice:20+1d20
-time:50+d50
-
-name:Acid
-type:ring
-graphics:=:d
-level:50
-weight:2
-cost:500
-alloc:20:20 to 100
-attack:0d0:0:0
-armor:0:5+d5M10
-flags:IGNORE_ACID
-values:RES_ACID[1]
-power:11
-effect:BALL:ACID:2
-dice:70
-effect:TIMED_INC:OPP_ACID
-dice:20+1d20
-time:50+d50
-
-name:Ice
-type:ring
-graphics:=:d
-level:50
-weight:2
-cost:500
-alloc:20:20 to 100
-attack:0d0:0:0
-armor:0:5+d5M10
-flags:IGNORE_COLD
-values:RES_COLD[1]
-power:11
-effect:BALL:COLD:2
-dice:75
-effect:TIMED_INC:OPP_COLD
-dice:20+1d20
-time:50+d50
-
-name:Lightning
-type:ring
-graphics:=:d
-level:50
-weight:2
-cost:500
-alloc:20:20 to 100
-attack:0d0:0:0
-armor:0:5+d5M10
-flags:IGNORE_ELEC
-values:RES_ELEC[1]
-power:11
-effect:BALL:ELEC:2
-dice:85
-effect:TIMED_INC:OPP_ELEC
-dice:20+1d20
-time:50+d50
-
-### Combat rings ###
-
-name:Damage
-type:ring
-graphics:=:d
-level:20
-weight:2
-cost:500
-alloc:30:20 to 100
-attack:0d0:0:5+d3M7
-armor:0:0
-desc:It boosts your to-dam value.
-
-name:Accuracy
-type:ring
-graphics:=:d
-level:20
-weight:2
-cost:500
-alloc:30:20 to 100
-attack:0d0:10+d6M7:0
-armor:0:0
-desc:It boosts your to-hit value.
-
-name:Slaying
-type:ring
-graphics:=:d
-level:40
-weight:2
-cost:1000
-alloc:20:40 to 100
-attack:0d0:d10M10:d5M5
-armor:0:0
-desc:It boosts your to-hit and to-dam values.
-
-name:Protection
-type:ring
-graphics:=:d
-level:10
-weight:2
-cost:500
-alloc:50:10 to 40
-attack:0d0:0:0
-armor:0:5+d5M10
-desc:It increases your armor class.
-
-
-### Mixed blessings ###
-
-name:Teleportation
-type:ring
-graphics:=:d
-level:5
-weight:2
-cost:1000
-alloc:20:10 to 50
-flags:EASY_KNOW
-fault:teleportation:100
-values:SPD[2]
-
-name:Reckless Attacks
-type:ring
-graphics:=:d
-level:0
-weight:2
-cost:200
-alloc:30:10 to 50
-attack:0d0:2+d3:2+d3
-armor:0:-8+4d3
-
-name:Open Wounds
-type:ring
-graphics:=:d
-level:10
-weight:2
-cost:700
-alloc:20:10 to 50
-flags:IMPAIR_HP | EASY_KNOW
-power:25
-effect:HEAL_HP
-dice:40
-effect:CURE:BLIND
-effect:CURE:CUT
-effect:CURE:CONFUSED
-time:10+5d8
-
-name:Escaping
-type:ring
-graphics:=:d
-level:30
-weight:2
-cost:4000
-alloc:50:15 to 80
-flags:AFRAID | EASY_KNOW
-values:SPD[2]
-
-name:the Mouse
-type:ring
-graphics:=:d
-level:30
-weight:2
-cost:100
-alloc:50:10 to 50
-attack:0d0:0:-3d5
-armor:0:0
-values:DEX[d4] | STEALTH[d4]
-
-name:the Dog
-type:ring
-graphics:=:d
-level:0
-weight:2
-cost:100
-alloc:50:10 to 50
-flags:PROT_FEAR | EASY_KNOW
-values:STEALTH[-2]
-
-### Misc rings ###
-
-name:Slow Digestion
-type:ring
-graphics:=:d
-level:5
-weight:2
-cost:250
-alloc:30:10 to 50
-flags:SLOW_DIGEST | EASY_KNOW
-
-name:Feather Falling
-type:ring
-graphics:=:d
-level:5
-weight:2
-cost:200
-alloc:20:10 to 50
-flags:FEATHER | EASY_KNOW
-
-name:Free Action
-type:ring
-graphics:=:d
-level:20
-weight:2
-cost:1500
-alloc:50:20 to 100
-flags:FREE_ACT | EASY_KNOW
-
-name:See Invisible
-type:ring
-graphics:=:d
-level:30
-weight:2
-cost:340
-alloc:50:30 to 100
-flags:SEE_INVIS | EASY_KNOW
-
-name:Digging
-type:ring
-graphics:=:d
-level:0
-weight:2
-cost:800
-alloc:20:10 to 50
-values:TUNNEL[2+d3]
-power:6
-effect:LINE:KILL_WALL
-dice:20+1d30
-time:15+2d10
-
-
-
-##### Amulets #####
-
-### Stat boosts ###
-
-name:Wisdom
-type:amulet
-graphics:":d
-level:30
-weight:3
-cost:500
-alloc:50:20 to 90
-flags:SUST_WIS | 
-values:WIS[1+M5]
-
-### Resistances ###
-
-name:Resist Lightning
-type:amulet
-graphics:":d
-level:10
-weight:3
-cost:300
-alloc:50:10 to 50
-flags:IGNORE_ELEC | EASY_KNOW
-values:RES_ELEC[1]
-
-name:Resist Acid
-type:amulet
-graphics:":d
-level:10
-weight:3
-cost:300
-alloc:50:10 to 50
-flags:IGNORE_ACID | EASY_KNOW
-values:RES_ACID[1]
-
-name:Resistance
-type:amulet
-graphics:":d
-level:60
-weight:3
-cost:20000
-alloc:10:60 to 100
-flags:EASY_KNOW
-flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-values:RES_FIRE[1] | RES_ACID[1] | RES_ELEC[1] | RES_COLD[1]
-
-### JLE amulets ###
-
-name:Sustenance
-type:amulet
-graphics:":d
-level:60
-weight:3
-cost:20000
-alloc:10:60 to 100
-flags:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON |
-flags:HOLD_LIFE | SLOW_DIGEST | EASY_KNOW | 
-flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-name:the Magi
-type:amulet
-graphics:":d
-level:70
-weight:3
-cost:30000
-alloc:10:70 to 100
-attack:0d0:0:0
-armor:0:d5M5
-flags:FREE_ACT | SEE_INVIS | SUST_INT | PROT_BLIND | GOOD
-flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-values:SEARCH[1+M3] | INT[1+M3]
-
-name:ESP
-type:amulet
-graphics:":d
-level:50
-weight:3
-cost:25000
-alloc:10:60 to 100
-flags:TELEPATHY
-flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | 
-
-name:Devotion
-type:amulet
-graphics:":d
-level:70
-weight:3
-cost:30000
-alloc:10:70 to 100
-flags:HOLD_LIFE | SUST_WIS | GOOD
-values:WIS[1+M3] | LIGHT[1] | RES_DARK[1] | RES_LIGHT[1] | RES_FIRE[1]
-
-name:Weaponmastery
-type:amulet
-graphics:":d
-level:70
-weight:3
-cost:30000
-alloc:10:70 to 100
-attack:0d0:1+M4:1+M4
-armor:0:0
-flags:SUST_STR | SUST_CON | FREE_ACT | PROT_FEAR | GOOD
-values:STR[1+M2] | RES_DISEN[1]
-
-name:Trickery
-type:amulet
-graphics:":d
-level:70
-weight:3
-cost:30000
-alloc:10:70 to 100
-flags:SUST_DEX | GOOD
-values:DEX[1+M4] | SPD[1+M2] | STEALTH[1+M2] | SEARCH[1+d3M3] | INFRA[1+d3M3]
-values:RES_NEXUS[1] | RES_POIS[1]
-
-### Ability boosts ###
-
-name:Regeneration
-type:amulet
-graphics:":d
-level:30
-weight:3
-cost:600
-alloc:20:30 to 100
-flags:REGEN | EASY_KNOW
-
-name:Infravision
-type:amulet
-graphics:":d
-level:10
-weight:3
-cost:200
-alloc:30:10 to 70
-values:INFRA[1+M5]
-
-name:Searching
-type:amulet
-graphics:":d
-level:15
-weight:3
-cost:600
-alloc:20:10 to 40
-values:SEARCH[d5M5]
-
-### Powers ###
-
-name:Teleportation
-type:amulet
-graphics:":d
-level:10
-weight:3
-cost:10
-alloc:20:10 to 40
-flags:EASY_KNOW
-fault:teleportation:100
-
-name:Slow Digestion
-type:amulet
-graphics:":d
-level:15
-weight:3
-cost:200
-alloc:20:15 to 40
-flags:SLOW_DIGEST | EASY_KNOW
-
-name:Adornment
-type:amulet
-graphics:":d
-level:10
-weight:3
-cost:0
-alloc:20:10 to 40
-flags:EASY_KNOW
-
-
-### Mixed ###
-
-name:Inertia
-type:amulet
-graphics:":d
-level:15
-weight:3
-cost:10
-alloc:20:15 to 40
-flags:FREE_ACT
-values:SPD[-3+1d2]
-
-
 
 
 ##### Cards #####
@@ -4461,7 +3374,7 @@ dice:20+1d20
 effect:SHAPECHANGE:bat
 effect:DRAIN_STAT:INT
 effect:DRAIN_STAT:WIS
-effect:TIMED_INC:STONESKIN
+effect:TIMED_INC:STONE_SKIN
 dice:20+1d20
 
 name:emetic
@@ -4506,7 +3419,7 @@ dice:80
 
 ### Bolts ###
 
-name:mini-missile launcher
+name:& mini-missile launcher~
 type:wand
 graphics:-:d
 level:3
@@ -4520,7 +3433,7 @@ power:3
 effect:BOLT_OR_BEAM:MISSILE
 dice:3d4
 
-name:beam taser
+name:& beam taser~
 type:wand
 graphics:-:d
 level:15
@@ -4534,7 +3447,7 @@ power:5
 effect:BEAM:ELEC
 dice:6d6
 
-name:icer
+name:& icer~
 type:wand
 graphics:-:d
 level:20
@@ -4548,7 +3461,7 @@ power:4
 effect:BOLT:COLD
 dice:12d8
 
-name:flame thrower
+name:& flame thrower~
 type:wand
 graphics:-:d
 level:30
@@ -4562,7 +3475,7 @@ power:7
 effect:BOLT_OR_BEAM:FIRE
 dice:12d8
 
-name:squirt gun
+name:& squirt gun~
 type:wand
 graphics:-:d
 level:30
@@ -4579,7 +3492,7 @@ dice:10d8
 
 ### Balls ###
 
-name:cloudmaker
+name:& cloudmaker~
 type:wand
 graphics:-:d
 level:5
@@ -4593,7 +3506,7 @@ power:3
 effect:BALL:POIS:3
 dice:12
 
-name:mass-tazer
+name:& mass-tazer~
 type:wand
 graphics:-:d
 level:35
@@ -4608,7 +3521,7 @@ power:9
 effect:BALL:ELEC:2
 dice:64
 
-name:cryosplat gun
+name:& cryosplat gun~
 type:wand
 graphics:-:d
 level:40
@@ -4623,7 +3536,7 @@ power:10
 effect:BALL:COLD:2
 dice:100
 
-name:fireballista
+name:& fireballista~
 type:wand
 graphics:-:d
 level:50
@@ -4638,7 +3551,7 @@ power:11
 effect:BALL:FIRE:2
 dice:144
 
-name:super soaker
+name:& super soaker~
 type:wand
 graphics:-:d
 level:50
@@ -4656,7 +3569,7 @@ dice:120
 
 ### Monster status changing ###
 
-name:molasso ray
+name:& molasso ray~
 type:wand
 graphics:-:d
 level:5
@@ -4670,7 +3583,7 @@ power:3
 effect:BOLT_AWARE:MON_SLOW
 dice:10+1d20
 
-name:pixilator
+name:& pixilator~
 type:wand
 graphics:-:d
 level:5
@@ -4684,7 +3597,7 @@ power:3
 effect:BOLT_AWARE:MON_CONF
 dice:5+1d5
 
-name:paralator
+name:& paralator~
 type:wand
 graphics:-:d
 level:5
@@ -4698,7 +3611,7 @@ power:3
 effect:BOLT_AWARE:MON_HOLD
 dice:3+1d5
 
-name:stun gun
+name:& stun gun~
 type:wand
 graphics:-:d
 level:5
@@ -4712,7 +3625,7 @@ power:3
 effect:BOLT_AWARE:MON_STUN
 dice:5+1d5
 
-name:terrorizer
+name:& terrorizer~
 type:wand
 graphics:-:d
 level:10
@@ -4730,7 +3643,7 @@ dice:10
 ### Utility ###
 
 #remove or upgrade to LIGHT?
-name:beamlight
+name:& beamlight~
 type:wand
 graphics:-:d
 level:3
@@ -4745,7 +3658,7 @@ power:6
 effect:LINE:LIGHT_WEAK
 dice:6d8
 
-name:mining rig
+name:& mining rig~
 type:wand
 graphics:-:d
 level:10
@@ -4759,7 +3672,7 @@ power:6
 effect:LINE:KILL_WALL
 dice:20+1d30
 
-name:transmogrificator
+name:& transmogrificator~
 type:wand
 graphics:-:d
 level:20
@@ -4774,7 +3687,7 @@ effect:BOLT_AWARE:MON_POLY
 dice:$B
 expr:B:PLAYER_LEVEL:+ 0
 
-name:etheric beamlight
+name:& etheric beamlight~
 type:wand
 graphics:-:d
 level:3
@@ -4788,7 +3701,7 @@ power:4
 effect:LINE:DARK_WEAK
 dice:6d8
 
-name:replicator beam
+name:& replicator beam~
 type:wand
 graphics:-:d
 level:15
@@ -4801,7 +3714,7 @@ charges:3+d5
 power:0
 effect:BOLT_STATUS:MON_CLONE
 
-name:transporter beam
+name:& transporter beam~
 type:wand
 graphics:-:d
 level:20
@@ -4816,7 +3729,7 @@ effect:BOLT_STATUS:AWAY_ALL
 dice:$B
 expr:B:MAX_SIGHT:* 5
 
-name:deboobilizer
+name:& deboobilizer~
 type:wand
 graphics:-:d
 level:20
@@ -4830,7 +3743,7 @@ power:7
 effect:ALTER:KILL_TRAP
 desc:Makes traps safe.
 
-name:omniprojector
+name:& omniprojector~
 type:wand
 graphics:-:d
 level:3
@@ -4850,7 +3763,7 @@ expr:B:PLAYER_LEVEL:/ 5
 
 ### Dragons' wands ###
 
-name:melta belta
+name:& melta belta~
 type:wand
 graphics:-:d
 level:50
@@ -4865,7 +3778,7 @@ power:13
 effect:ARC:FIRE:0:30
 dice:200
 
-name:cryonic projector
+name:& cryonic projector~
 type:wand
 graphics:-:d
 level:50
@@ -4880,7 +3793,7 @@ power:12
 effect:ARC:COLD:0:30
 dice:160
 
-name:multi-thrower
+name:& multi-thrower~
 type:wand
 graphics:-:d
 level:60
@@ -4908,7 +3821,7 @@ dice:160
 
 ### Drain lifes ###
 
-name:death ray
+name:& death ray~
 type:wand
 graphics:-:d
 level:50
@@ -4922,7 +3835,7 @@ power:11
 effect:BOLT_STATUS_DAM:MON_DRAIN
 dice:150
 
-name:annihilator
+name:& annihilator~
 type:wand
 graphics:-:d
 level:60
@@ -4940,7 +3853,7 @@ dice:250
 
 ### Rubbish ###
 
-name:healing ray
+name:& healing ray~
 type:wand
 graphics:-:d
 level:3
@@ -4954,7 +3867,7 @@ power:0
 effect:BOLT_STATUS:MON_HEAL
 dice:4d6
 
-name:energy beamer
+name:& energy beamer~
 type:wand
 graphics:-:d
 level:3
@@ -4990,7 +3903,7 @@ power:0
 effect:SUMMON:ANY
 dice:1d3
 
-name:energizing field
+name:& energizing field~
 type:device
 graphics:_:d
 level:10
@@ -5004,7 +3917,7 @@ power:0
 effect:PROJECT_LOS:MON_SPEED
 dice:50
 
-name:etheric strobe
+name:& etheric strobe~
 type:device
 graphics:_:d
 level:5
@@ -5021,7 +3934,7 @@ dice:10
 
 ### Destruction ###
 
-name:seismic shaker
+name:& seismic shaker~
 type:device
 graphics:_:d
 level:40
@@ -5034,7 +3947,7 @@ charges:3+d5
 power:5
 effect:EARTHQUAKE:NONE:10
 
-name:disinto device
+name:& disinto device~
 type:device
 graphics:_:d
 level:50
@@ -5049,7 +3962,7 @@ effect:DESTRUCTION:LIGHT:15
 
 ### Monster-affecting ###
 
-name:pixilator field
+name:& pixilator field~
 type:device
 graphics:_:d
 level:10
@@ -5063,7 +3976,7 @@ power:10
 effect:PROJECT_LOS_AWARE:MON_CONF
 dice:5+1d5
 
-name:molasso field
+name:& molasso field~
 type:device
 graphics:_:d
 level:10
@@ -5077,7 +3990,7 @@ power:7
 effect:PROJECT_LOS:MON_SLOW
 dice:10+1d10
 
-name:dozifier field
+name:& dozifier field~
 type:device
 graphics:_:d
 level:10
@@ -5095,7 +4008,7 @@ expr:B:PLAYER_LEVEL:* 10 + 500
 
 ### Detect ###
 
-name:anti-stealth radar
+name:& anti-stealth radar~
 type:device
 graphics:_:d
 level:5
@@ -5125,7 +4038,7 @@ effect:DETECT_EVIL
 effect-yx:22:40
 
 #navigation module?
-name:mapping device
+name:& mapping device~
 type:device
 graphics:_:d
 level:20
@@ -5275,7 +4188,7 @@ effect:CURE:AMNESIA
 
 ### Utility ###
 
-name:floodlight
+name:& floodlight~
 type:device
 graphics:_:d
 level:5
@@ -5290,7 +4203,7 @@ effect:LIGHT_AREA
 effect:SPOT:LIGHT_WEAK:2
 dice:2d8
 
-name:starlight laser show
+name:& starlight laser show~
 type:device
 graphics:_:d
 level:20
@@ -5304,7 +4217,7 @@ power:5
 effect:STAR:LIGHT
 dice:6d8
 
-name:teleporter
+name:& teleporter~
 type:device
 graphics:_:d
 level:20
@@ -5332,7 +4245,7 @@ power:10
 effect:TIMED_INC:FAST:0:5
 dice:20+2d10
 
-name:repair module
+name:& repair module~
 type:device
 graphics:_:d
 level:40
@@ -5351,8 +4264,8 @@ dice:20+d20
 
 ### Detection ###
 
-name:metal detector
-type:rod
+name:& metal detector~
+type:gadget
 graphics:-:d
 level:5
 weight:15
@@ -5365,8 +4278,8 @@ effect:SENSE_OBJECTS
 effect-yx:22:40
 time:50
 
-name:universal detector
-type:rod
+name:& universal detector~
+type:gadget
 graphics:-:d
 level:30
 weight:15
@@ -5386,8 +4299,8 @@ effect:DETECT_VISIBLE_MONSTERS
 effect-yx:22:40
 time:100
 
-name:galactic map
-type:rod
+name:&galactic map~
+type:gadget
 graphics:-:d
 level:65
 weight:15
@@ -5400,8 +4313,8 @@ effect:MAP_AREA
 effect-yx:33:55
 time:100
 
-name:tricorder
-type:rod
+name:& tricorder~
+type:gadget
 graphics:-:d
 level:35
 weight:15
@@ -5417,7 +4330,7 @@ time:100
 ### Bolts ###
 
 name:Fire Bolts
-type:rod
+type:gadget
 graphics:-:d
 level:30
 weight:15
@@ -5431,7 +4344,7 @@ dice:12d8
 time:15
 
 name:Frost Bolts
-type:rod
+type:gadget
 graphics:-:d
 level:25
 weight:15
@@ -5445,7 +4358,7 @@ dice:12d8
 time:13
 
 name:Lightning Bolts
-type:rod
+type:gadget
 graphics:-:d
 level:20
 weight:15
@@ -5459,7 +4372,7 @@ dice:6d6
 time:11
 
 name:Acid Bolts
-type:rod
+type:gadget
 graphics:-:d
 level:40
 weight:15
@@ -5476,7 +4389,7 @@ time:12
 ### Balls ###
 
 name:Fire Balls
-type:rod
+type:gadget
 graphics:-:d
 level:75
 weight:15
@@ -5490,7 +4403,7 @@ dice:144
 time:30
 
 name:Cold Balls
-type:rod
+type:gadget
 graphics:-:d
 level:60
 weight:15
@@ -5504,7 +4417,7 @@ dice:100
 time:25
 
 name:Lightning Balls
-type:rod
+type:gadget
 graphics:-:d
 level:55
 weight:15
@@ -5519,7 +4432,7 @@ dice:64
 time:23
 
 name:Acid Balls
-type:rod
+type:gadget
 graphics:-:d
 level:70
 weight:15
@@ -5536,7 +4449,7 @@ time:27
 ### Status-affecting ###
 
 name:Slow Monster
-type:rod
+type:gadget
 graphics:-:d
 level:30
 weight:15
@@ -5550,7 +4463,7 @@ dice:10+1d20
 time:40
 
 name:Hold Monster
-type:rod
+type:gadget
 graphics:-:d
 level:30
 weight:15
@@ -5567,7 +4480,7 @@ time:40
 ### Healing ###
 
 name:Curing
-type:rod
+type:gadget
 graphics:-:d
 level:65
 weight:15
@@ -5584,7 +4497,7 @@ effect:CURE:CONFUSED
 time:100
 
 name:Healing
-type:rod
+type:gadget
 graphics:-:d
 level:80
 weight:15
@@ -5601,7 +4514,7 @@ effect:CURE:STUN
 time:1000
 
 name:Restoration
-type:rod
+type:gadget
 graphics:-:d
 level:80
 weight:15
@@ -5623,7 +4536,7 @@ time:1000
 ### Other ###
 
 name:Polymorph
-type:rod
+type:gadget
 graphics:-:d
 level:35
 weight:15
@@ -5638,7 +4551,7 @@ expr:B:PLAYER_LEVEL:+ 0
 time:25
 
 name:Drain Life
-type:rod
+type:gadget
 graphics:-:d
 level:75
 weight:15
@@ -5652,7 +4565,7 @@ dice:150
 time:23
 
 name:Teleport Other
-type:rod
+type:gadget
 graphics:-:d
 level:45
 weight:15
@@ -5667,7 +4580,7 @@ expr:B:MAX_SIGHT:* 5
 time:25
 
 name:Disable Traps
-type:rod
+type:gadget
 graphics:-:d
 level:35
 weight:15
@@ -5680,7 +4593,7 @@ effect:ALTER:KILL_TRAP
 time:30
 
 name:Light
-type:rod
+type:gadget
 graphics:-:d
 level:10
 weight:15
@@ -5695,7 +4608,7 @@ dice:6d8
 time:9
 
 name:Illumination
-type:rod
+type:gadget
 graphics:-:d
 level:20
 weight:15
@@ -5710,7 +4623,7 @@ dice:2d8
 time:30
 
 name:Recall
-type:rod
+type:gadget
 graphics:-:d
 level:30
 weight:15
@@ -5724,7 +4637,7 @@ effect:RECALL
 time:60
 
 name:Speed
-type:rod
+type:gadget
 graphics:-:d
 level:95
 weight:15
@@ -5980,241 +4893,6 @@ effect:BREATH:ACID:0:20
 dice:120
 time:50
 desc:A suit of utterly black scales, against which no metal or wood can rest.
-
-name:Blue Dragon Scale Mail~
-type:dragon armor
-graphics:[:b
-level:50
-weight:100
-cost:40000
-alloc:8:25 to 100
-attack:2d4:-2:0
-armor:12:10
-flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-values:RES_ELEC[1]
-power:18
-effect:BREATH:ELEC:0:20
-dice:150
-time:50
-desc:A suit of scales as blue as sapphires, emitting eerie sparks and coronas
-desc: as you move about in it.
-
-name:White Dragon Scale Mail~
-type:dragon armor
-graphics:[:w
-level:50
-weight:110
-cost:40000
-alloc:8:30 to 100
-attack:2d4:-2:0
-armor:14:10
-flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-values:RES_COLD[1]
-power:10
-effect:BREATH:COLD:0:20
-dice:100
-time:50
-desc:A suit of scales, coldly gleaming in frosty white.  A shiver runs down
-desc: through your spine even as you look at it.
-
-name:Red Dragon Scale Mail~
-type:dragon armor
-graphics:[:r
-level:50
-weight:160
-cost:40000
-alloc:8:40 to 100
-attack:2d4:-2:0
-armor:24:10
-flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-values:RES_FIRE[1]
-power:20
-effect:BREATH:FIRE:0:20
-dice:200
-time:50
-desc:A suit of scales, with all the reds of every fire ever lit.  The scar
-desc: tissue from an old burn aches as you put this armour on.
-
-name:Green Dragon Scale Mail~
-type:dragon armor
-graphics:[:g
-level:60
-weight:140
-cost:60000
-alloc:8:60 to 100
-attack:2d4:-2:0
-armor:20:10
-flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-values:RES_POIS[1]
-power:19
-effect:BREATH:POIS:0:20
-dice:150
-time:50
-desc:A suit of scales, glistening in sickly green, out from which falls the
-desc: skeleton of a rat who touched it and died in agony.
-
-name:Multi-Hued Dragon Scale Mail~
-type:dragon armor
-graphics:[:v
-level:90
-weight:260
-cost:150000
-alloc:5:75 to 100
-attack:2d4:-2:0
-armor:45:10
-flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-values:RES_ACID[1] | RES_ELEC[1] | RES_FIRE[1] | RES_COLD[1] | RES_POIS[1]
-power:20
-effect:RANDOM
-dice:5
-effect:BREATH:ACID:0:20
-dice:250
-effect:BREATH:ELEC:0:20
-dice:250
-effect:BREATH:FIRE:0:20
-dice:250
-effect:BREATH:COLD:0:20
-dice:250
-effect:BREATH:POIS:0:20
-dice:250
-time:50
-desc:A suit of scales that throbs with angry energies; it takes all your energy
-desc: to master the Elements fighting an endless war trapped inside.
-
-name:Shining Dragon Scale Mail~
-type:dragon armor
-graphics:[:o
-level:65
-weight:200
-cost:60000
-alloc:6:75 to 100
-attack:2d4:-2:0
-armor:32:10
-flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-values:RES_LIGHT[1] | RES_DARK[1]
-power:21
-effect:RANDOM
-dice:2
-effect:BREATH:LIGHT:0:20
-dice:200
-effect:BREATH:DARK:0:20
-dice:200
-time:50
-desc:A suit of scales shining like a beacon of Light even as it greedily sucks
-desc: the energy away from everything that glows into Dark insatiate.
-
-name:Law Dragon Scale Mail~
-type:dragon armor
-graphics:[:B
-level:80
-weight:220
-cost:80000
-alloc:6:80 to 100
-attack:2d4:-2:0
-armor:36:10
-flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-values:RES_SOUND[1] | RES_SHARD[1]
-power:23
-effect:RANDOM
-dice:2
-effect:BREATH:SOUND:0:20
-dice:230
-effect:BREATH:SHARD:0:20
-dice:230
-time:50
-desc:A suit of scales in stern blue and silver.  You feel the slightest tremor
-desc: as you touch it, like massed trumpets heard and cyclones felt from afar.
-
-name:Gold Dragon Scale Mail~
-type:dragon armor
-graphics:[:y
-level:50
-weight:180
-cost:40000
-alloc:8:70 to 100
-attack:2d4:-2:0
-armor:28:10
-flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-values:RES_SOUND[1]
-power:19
-effect:BREATH:SOUND:0:20
-dice:150
-time:50
-desc:A suit of scales in mirror-like gold.  You hear nothing unusual as you
-desc: wear this armour, yet your ears ache as though in the midst of a
-desc: cacophony.
-
-name:Chaos Dragon Scale Mail~
-type:dragon armor
-graphics:[:v
-level:80
-weight:240
-cost:80000
-alloc:5:85 to 100
-attack:2d4:-2:0
-armor:40:10
-flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-values:RES_CHAOS[1] | RES_DISEN[1]
-power:23
-effect:RANDOM
-dice:2
-effect:BREATH:CHAOS:0:20
-dice:220
-effect:BREATH:DISEN:0:20
-dice:220
-time:50
-desc:A suit of scales that ripples and twists through every color and shape
-desc: imaginable as you stare in fascination.
-
-name:Balance Dragon Scale Mail~
-type:dragon armor
-graphics:[:v
-level:95
-weight:280
-cost:100000
-alloc:3:95 to 100
-attack:2d4:-2:0
-armor:50:10
-flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-values:RES_SOUND[1] | RES_SHARD[1] | RES_CHAOS[1] | RES_DISEN[1]
-power:24
-effect:RANDOM
-dice:4
-effect:BREATH:SOUND:0:20
-dice:250
-effect:BREATH:SHARD:0:20
-dice:250
-effect:BREATH:CHAOS:0:20
-dice:250
-effect:BREATH:DISEN:0:20
-dice:250
-time:50
-desc:A suit of scales.  Featureless grey to casual inspection, yet a closer
-desc: look reveals patterns within patterns of iridescence that throb with
-desc: leashed energies bound as though by chains of adamant.
-
-name:Power Dragon Scale Mail~
-type:dragon armor
-graphics:[:v
-level:100
-weight:300
-cost:300000
-alloc:1:100 to 100
-attack:2d4:-3:0
-armor:60:15
-flags:PROT_CONF
-flags:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-values:RES_ACID[1] | RES_FIRE[1] | RES_COLD[1] | RES_ELEC[1] | RES_POIS[1]
-values:RES_DISEN[1] | RES_SOUND[1] | RES_SHARD[1]
-values:RES_LIGHT[1] | RES_DARK[1] | RES_CHAOS[1]
-power:25
-effect:BREATH:MISSILE:0:20
-dice:300
-time:50
-desc:A suit with scales of every color, surrounded in a nimbus of perfectly
-desc: untrammelled yet inextricably intermingled and utterly mastered powers
-desc: elemental and ethereal.
-
 
 
 ##### Gold/gems #####

@@ -262,27 +262,25 @@ Eat some food (``E``)
   (accompanied by increasingly alarming messages on your hunger meter).
   It is also possible to be "Full", which will make you move slowly; more
   slowly the fuller you get. You may use this command to eat food in your
-  inventory. Note that you can sometimes find food in the dungeon, but it
-  is not always wise to eat strange food. This command takes some energy.
-
-Fuel your lantern/torch (``F``)
-  If you are using a lantern and have flasks of oil in your pack, then you
-  can "refuel" them with this command. Torches and Lanterns are limited
-  in their maximal fuel. In general, two flasks will fully fuel a lantern.
+  inventory. Note that you can sometimes find floor food, but it is not
+  always wise to eat it. Also, you can use this command to take pills.
   This command takes some energy.
 
-Quaff a potion (``q``)
-  Use this command to drink a potion. Potions affect the player in various
+Recharge your lamp (``F``)
+  If you are using a rechargeable light and have batteries in your pack,
+  then you can "fill" them with this command. Lights are limited in their
+  maximal charge. This command takes some energy.
+
+Take a pill (``q``)
+  Use this command to take a pill. Pills affect the player in various
   ways, but the effects are not always immediately obvious. This command
   takes some energy.
 
-Read a scroll (``r``)
-  Use this command to read a scroll. Scroll spells usually have an area
-  effect, except for a few cases where they act on other objects. Reading a
-  scroll causes the parchment to disintegrate as the scroll takes effect.
-  Most scrolls which prompt for more information can be aborted (by
-  pressing escape), which will stop reading the scroll before it
-  disintegrates. This command takes some energy.
+Run a card (``r``)
+  Use this command to run a card. Cards usually have an area effect, except
+  for a few cases where they act on other objects. Cards are single use,
+  however most scrolls which prompt for more information can be aborted
+  harmlessly (by pressing escape). This command takes some energy.
  
 Inscribe an object (``{``) 
   This command inscribes a string on an object. The inscription is
@@ -295,7 +293,7 @@ Inscribe an object (``{``)
   on top of it later.
 
   In addition, Angband will place the inscription '??' on an object for you
-  if the object has a property (or "rune") that you have not learned yet.
+  if the object has a property (or "icon") that you have not learned yet.
   This inscription will remain until you know all the runes on the object.
 
   An item labeled as '{empty}' was found to be out of charges, and an

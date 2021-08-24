@@ -245,12 +245,6 @@ on-end:Your horizons are once more limited.
 on-increase:Your mind expands further.
 msgt:GENERIC
 
-name:STONESKIN
-desc:stone skin
-grade:G:10000:Stone:Your skin turns to stone.
-on-end:A fleshy shade returns to your skin.
-msgt:GENERIC
-
 name:TERROR
 desc:terror
 grade:r:10000:Terror:You feel the need to run away and fast!

@@ -22,23 +22,24 @@ int teardown_tests(void *state) {
 	return 0;
 }
 
-/* Regression test for #1409 */
+/* Originally a regression test for #1409.
+ * Modified to use the new monster list and so probably
+ * not relevant to that bug any more.
+ **/
 int test_match_monster_bases(void *state) {
 	struct monster_base *base;
 
-	/* Scruffy little dog */
-	base = (&r_info[3])->base;
-	require(match_monster_bases(base, "canine", NULL));
-	require(match_monster_bases(base, "zephyr hound", "canine", NULL));
-	require(!match_monster_bases(base, "angel", NULL));
-	require(!match_monster_bases(base, "lich", "vampire", "wraith", NULL));
+	/* Green lemming */
+	base = (lookup_monster("green lemming"))->base;
+	require(match_monster_bases(base, "lemming", NULL));
+	require(!match_monster_bases(base, "person", NULL));
+	require(!match_monster_bases(base, "hologran", NULL));
 
-	/* Morgoth */
-	base = (lookup_monster("Morgoth, Lord of Darkness"))->base;
-	require(!match_monster_bases(base, "canine", NULL));
-	require(!match_monster_bases(base, "lich", "vampire", "wraith", NULL));
-	require(match_monster_bases(base, "person", "Morgoth", NULL));
-	require(match_monster_bases(base, "Morgoth", NULL));
+	/* Pinky */
+	base = (lookup_monster("Pinky"))->base;
+	require(match_monster_bases(base, "hologram", NULL));
+	require(!match_monster_bases(base, "lemming", NULL));
+	require(!match_monster_bases(base, "person", NULL));
 
 	ok;
 }

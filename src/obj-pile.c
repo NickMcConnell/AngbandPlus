@@ -434,8 +434,7 @@ bool object_stackable(const struct object *obj1, const struct object *obj2,
 			return false;
 
 		/* ... otherwise ok */
-	} else if (tval_is_weapon(obj1) || tval_is_armor(obj1) ||
-		tval_is_jewelry(obj1) || tval_is_light(obj1)) {
+	} else if (tval_has_variable_power(obj1)) {
 		bool obj1_is_known = object_fully_known((struct object *)obj1);
 		bool obj2_is_known = object_fully_known((struct object *)obj2);
 
@@ -975,62 +974,77 @@ static void floor_carry_fail(struct object *drop, bool broke, bool always)
  */
 static void drop_find_grid(struct object *drop, bool prefer_pile, struct loc *grid)
 {
-	int best_score = -1;
+	int best_score;
 	struct loc start = *grid;
 	struct loc best = start;
 	int i, dy, dx;
 	struct object *obj;
 
-	/* Scan local grids */
-	for (dy = -3; dy <= 3; dy++) {
-		for (dx = -3; dx <= 3; dx++) {
-			bool combine = false;
-			int dist = (dy * dy) + (dx * dx);
-			struct loc try = loc_sum(start, loc(dx, dy));
-			int num_shown = 0;
-			int num_ignored = 0;
-			int score;
+	int max = 1;
+	do {
+		best_score = -1;
+		max++;
+		int maxdist = (max * max) + 1;
+		int fullscale = MAX(1, 15 / max);
+		int offset = maxdist + (fullscale * max);
+		int bests = 2;
 
-			/* Lots of reasons to say no */
-			if ((dist > 10) ||
-				!square_in_bounds_fully(cave, try) ||
-				!los(cave, start, try) ||
-				!square_isfloor(cave, try) ||
-				square_istrap(cave, try))
-				continue;
+		/* Scan local grids */
+		for (dy = -max; dy <= max; dy++) {
+			for (dx = -max; dx <= max; dx++) {
+				bool combine = false;
+				int dist = (dy * dy) + (dx * dx);
+				struct loc try = loc_sum(start, loc(dx, dy));
+				int num_shown = 0;
+				int num_ignored = 0;
+				int score;
 
-			/* Analyse the grid for carrying the new object */
-			for (obj = square_object(cave, try); obj; obj = obj->next){
-				/* Check for possible combination */
-				if (object_similar(obj, drop, OSTACK_FLOOR))
-					combine = true;
+				/* Lots of reasons to say no */
+				if ((dist > maxdist) ||
+					!square_in_bounds_fully(cave, try) ||
+					!los(cave, start, try) ||
+					!square_isfloor(cave, try) ||
+					square_istrap(cave, try))
+					continue;
 
-				/* Count objects */
-				if (!ignore_item_ok(obj))
+				/* Analyse the grid for carrying the new object */
+				for (obj = square_object(cave, try); obj; obj = obj->next){
+					/* Check for possible combination */
+					if (object_similar(obj, drop, OSTACK_FLOOR))
+						combine = true;
+
+					/* Count objects */
+					if (!ignore_item_ok(obj))
+						num_shown++;
+					else
+						num_ignored++;
+				}
+				if (!combine)
 					num_shown++;
-				else
-					num_ignored++;
+
+				/* Disallow if the stack size is too big */
+				if ((!OPT(player, birth_stacking) && (num_shown > 1)) ||
+					((num_shown + num_ignored) > z_info->floor_size &&
+					 !floor_get_oldest_ignored(cave, try)))
+					continue;
+
+				/* Score the location based on how close and how full the grid is */
+				score = offset -
+					(dist + (prefer_pile ? 0 : num_shown * fullscale));
+
+				if (score < best_score)
+					continue;
+
+				if ((score == best_score) && one_in_(bests)) {
+					bests++;
+					continue;
+				}
+
+				best_score = score;
+				best = try;
 			}
-			if (!combine)
-				num_shown++;
-
-			/* Disallow if the stack size is too big */
-			if ((!OPT(player, birth_stacking) && (num_shown > 1)) ||
-				((num_shown + num_ignored) > z_info->floor_size &&
-				 !floor_get_oldest_ignored(cave, try)))
-				continue;
-
-			/* Score the location based on how close and how full the grid is */
-			score = 1000 -
-				(dist + (prefer_pile ? 0 : num_shown * 5));
-
-			if ((score < best_score) || ((score == best_score) && one_in_(2)))
-				continue;
-
-			best_score = score;
-			best = try;
 		}
-	}
+	} while ((best_score < 0) && (max < 20));
 
 	/* Return if we have a score, otherwise fail or try harder for artifacts */
 	if (best_score >= 0) {

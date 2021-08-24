@@ -16,4 +16,5 @@ dungeon:1:1+2d2:Stores
 dungeon:1:2+3d2:Sewers
 dungeon:1:6+3d3:Mine
 dungeon:1:9+4d3:Caverns
+dungeon:1:8+4d4:Volcano
 

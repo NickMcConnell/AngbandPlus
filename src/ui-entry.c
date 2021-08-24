@@ -764,6 +764,189 @@ void compute_ui_entry_values_for_object(const struct ui_entry *entry,
 	}
 }
 
+void compute_ui_entry_values_for_gear(const struct ui_entry *entry,
+	struct player *p, struct cached_object_data **cache, int *val,
+	int *auxval)
+{
+	struct ui_entry_combiner_state cst = { 0, 0, 0 };
+	struct ui_entry_combiner_funcs combiner;
+	const struct fault_data *fault;
+	struct cached_object_data *cache2;
+	bool first, all_unknown, all_aux_unknown, any_aux, all_aux;
+	int fault_ind;
+
+	bitflag f[OF_SIZE];
+	if (*cache == NULL) {
+		*cache = mem_alloc(sizeof(**cache));
+	}
+	if (!p) {
+		*val = UI_ENTRY_VALUE_NOT_PRESENT;
+		*auxval = UI_ENTRY_VALUE_NOT_PRESENT;
+		return;
+	}
+	of_wipe((*cache)->f);
+	for (struct object *obj = p->gear; obj; obj = obj->next) {
+		if (!object_is_equipped(p->body, obj)) {
+			object_carried_flags_known(obj, f);
+			of_union(((*cache)->f), f);
+
+			first = true;
+			all_unknown = true;
+			all_aux_unknown = true;
+			any_aux = false;
+			all_aux = true;
+			if (ui_entry_combiner_get_funcs(entry->combiner_index, &combiner)) {
+				assert(0);
+			}
+			cache2 = *cache;
+			fault = obj->faults;
+
+			for (int i = 0; i < entry->n_obj_prop; ++i) {
+				int ind = entry->obj_props[i].index;
+
+				if (entry->obj_props[i].isaux) {
+					if (entry->flags & ENTRY_FLAG_TIMED_AUX) {
+						continue;
+					}
+					any_aux = true;
+				} else {
+					all_aux = false;
+				}
+
+				switch (entry->obj_props[i].type) {
+				case OBJ_PROPERTY_STAT:
+				case OBJ_PROPERTY_MOD:
+					if (p->obj_k->modifiers[ind] != 0 ||
+						obj->modifiers[ind] == 0) {
+						int v = obj->modifiers[ind];
+						int a = 0;
+
+						if (v && entry->obj_props[i].have_value) {
+							v = entry->obj_props[i].value;
+						}
+						if (entry->obj_props[i].isaux) {
+							int t = a;
+
+							a = v;
+							v = t;
+							all_aux_unknown = false;
+						} else {
+							all_unknown = false;
+						}
+						if (first) {
+							(*combiner.init_func)(v, a, &cst);
+							first = false;
+						} else {
+							(*combiner.accum_func)(v, a, &cst);
+						}
+					}
+					break;
+
+				case OBJ_PROPERTY_FLAG:
+					if (object_flag_is_known(obj, ind)) {
+						int v = of_has(cache2->f, ind) ? 1 : 0;
+						int a = 0;
+
+						if (v && entry->obj_props[i].have_value) {
+							v = entry->obj_props[i].value;
+						}
+						if (entry->obj_props[i].isaux) {
+							int t = a;
+
+							a = v;
+							v = t;
+							all_aux_unknown = false;
+						} else {
+							all_unknown = false;
+						}
+						if (first) {
+							(*combiner.init_func)(v, a, &cst);
+							first = false;
+						} else {
+							(*combiner.accum_func)(v, a, &cst);
+						}
+					}
+					break;
+
+				case OBJ_PROPERTY_IGNORE:
+					if (object_element_is_known(obj, ind)) {
+						int v = (obj->el_info[ind].flags &
+							EL_INFO_IGNORE) ? 1 : 0;
+						int a = 0;
+
+						if (v && entry->obj_props[i].have_value) {
+							v = entry->obj_props[i].value;
+						}
+						if (entry->obj_props[i].isaux) {
+							int t = a;
+
+							a = v;
+							v = t;
+							all_aux_unknown = false;
+						} else {
+							all_unknown = false;
+						}
+						if (first) {
+							(*combiner.init_func)(v, a, &cst);
+							first = false;
+						} else {
+							(*combiner.accum_func)(v, a, &cst);
+						}
+					}
+					break;
+
+				case OBJ_PROPERTY_RESIST:
+				case OBJ_PROPERTY_VULN:
+				case OBJ_PROPERTY_IMM:
+					if (object_element_is_known(obj, ind)) {
+						int v = obj->el_info[ind].res_level;
+						int a = 0;
+
+						if (v && entry->obj_props[i].have_value) {
+							v = entry->obj_props[i].value;
+						}
+						if (entry->obj_props[i].isaux) {
+							int t = a;
+
+							a = v;
+							v = t;
+							all_aux_unknown = false;
+						} else {
+							all_unknown = false;
+						}
+						if (first) {
+							(*combiner.init_func)(v, a, &cst);
+							first = false;
+						} else {
+							(*combiner.accum_func)(v, a, &cst);
+						}
+					}
+					break;
+
+				default:
+					break;
+				}
+			}
+
+			if (all_unknown && all_aux_unknown) {
+				*val = (all_aux) ? 0 : UI_ENTRY_UNKNOWN_VALUE;
+				*auxval = (any_aux) ? UI_ENTRY_UNKNOWN_VALUE : 0;
+			} else {
+				(*combiner.finish_func)(&cst);
+				if (all_unknown) {
+					*val = (all_aux) ? 0 : UI_ENTRY_UNKNOWN_VALUE;
+				} else {
+					*val = cst.accum;
+				}
+				if (all_aux_unknown) {
+					*auxval = (any_aux) ? UI_ENTRY_UNKNOWN_VALUE : 0;
+				} else {
+					*auxval = cst.accum_aux;
+				}
+			}
+		}
+	}
+}
 
 void compute_ui_entry_values_for_player(const struct ui_entry *entry,
 	struct player *p, struct cached_player_data **cache, int *val,
@@ -1260,9 +1443,6 @@ static int get_timed_modifier_effect(const struct player *p, int ind)
 
 	case OBJ_MOD_SPD:
 		result = (p->timed[TMD_FAST] || p->timed[TMD_SPRINT]) ? 10 : 0;
-		if (p->timed[TMD_STONESKIN]) {
-			result -= 5;
-		}
 		if (p->timed[TMD_SLOW]) {
 			result -= 10;
 		}

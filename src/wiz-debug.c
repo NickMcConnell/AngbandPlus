@@ -635,7 +635,7 @@ static struct object *wiz_create_item_object_from_artifact(struct artifact *art)
  *
  * \param obj The object to drop.
  */
-static void wiz_create_item_drop_object(struct object *obj)
+static void wiz_create_item_drop_object(struct object *obj, bool id)
 {
 	if (obj == NULL)
 		return;
@@ -644,9 +644,15 @@ static void wiz_create_item_drop_object(struct object *obj)
 	obj->origin = ORIGIN_CHEAT;
 	obj->origin_depth = player->depth;
 
+	/* ID it */
+	if (id)
+		object_know_all(obj);
+
 	/* Drop the object from heaven */
 	drop_near(cave, &obj, 0, player->grid, true, true);
 }
+
+static bool wiz_create_item_id = true;
 
 /**
  * Drop all possible artifacts or objects by the player.
@@ -665,7 +671,7 @@ static void wiz_create_item_all_items(bool create_artifacts)
 		for (i = 1; i < z_info->a_max; i++) {
 			art = &a_info[i];
 			obj = wiz_create_item_object_from_artifact(art);
-			wiz_create_item_drop_object(obj);
+			wiz_create_item_drop_object(obj, wiz_create_item_id);
 		}
 	}
 	else {
@@ -679,7 +685,7 @@ static void wiz_create_item_all_items(bool create_artifacts)
 				continue;
 
 			obj = wiz_create_item_object_from_kind(kind);
-			wiz_create_item_drop_object(obj);
+			wiz_create_item_drop_object(obj, wiz_create_item_id);
 		}
 	}
 }
@@ -732,7 +738,7 @@ static bool wiz_create_item_subaction(struct menu *m, const ui_event *e, int oid
 		for (cur = 0; cur < oid; cur++) {
 			kind = &k_info[choices[cur]];
 			obj = wiz_create_item_object_from_kind(kind);
-			wiz_create_item_drop_object(obj);
+			wiz_create_item_drop_object(obj, wiz_create_item_id);
 		}
 	}
 	else if (selected == WIZ_CREATE_ALL_MENU_ITEM && choose_artifact) {
@@ -740,18 +746,18 @@ static bool wiz_create_item_subaction(struct menu *m, const ui_event *e, int oid
 		for (cur = 0; cur < oid; cur++) {
 			art = &a_info[choices[cur]];
 			obj = wiz_create_item_object_from_artifact(art);
-			wiz_create_item_drop_object(obj);
+			wiz_create_item_drop_object(obj, wiz_create_item_id);
 		}
 	}
 	else if (selected != WIZ_CREATE_ALL_MENU_ITEM && !choose_artifact) {
 		kind = &k_info[choices[oid]];
 		obj = wiz_create_item_object_from_kind(kind);
-		wiz_create_item_drop_object(obj);
+		wiz_create_item_drop_object(obj, wiz_create_item_id);
 	}
 	else if (selected != WIZ_CREATE_ALL_MENU_ITEM && choose_artifact) {
 		art = &a_info[choices[oid]];
 		obj = wiz_create_item_object_from_artifact(art);
-		wiz_create_item_drop_object(obj);
+		wiz_create_item_drop_object(obj, wiz_create_item_id);
 	}
 
 	return false;
@@ -874,10 +880,11 @@ static const menu_iter wiz_create_item_menu =
 /**
  * Choose and create an instance of an artifact or object kind
  */
-static void wiz_create_item(bool art)
+static void wiz_create_item(bool art, bool id)
 {
 	int tvals[TV_MAX];
 	int i, n;
+	wiz_create_item_id = id;
 
 	struct menu *menu = menu_new(MN_SKIN_COLUMNS, &wiz_create_item_menu);
 
@@ -2105,14 +2112,14 @@ void get_debug_command(void)
 		/* Create any object */
 		case 'c':
 		{
-			wiz_create_item(false);
+			wiz_create_item(false, true);
 			break;
 		}
 
 		/* Create an artifact */
 		case 'C':
 		{
-			wiz_create_item(true);
+			wiz_create_item(true, true);
 			break;
 		}
 
@@ -2167,7 +2174,7 @@ void get_debug_command(void)
 		{
 			int n;
 			screen_save();
-			n= get_quantity("How many good objects? ", 40);
+			n= get_quantity("How many good objects? ", 99999);
 			screen_load();
 			if (n < 1) n = 1;
 			acquirement(player->grid, player->depth, n, false);
@@ -2262,6 +2269,18 @@ void get_debug_command(void)
 			else
 				msg("No monster found.");
 			
+			break;
+		}
+
+		/* Normal Objects */
+		case 'N':
+		{
+			int n;
+			screen_save();
+			n= get_quantity("How many normal objects? ", 99999);
+			screen_load();
+			if (n < 1) n = 1;
+			do_acquirement(player->grid, player->depth, n, false, false);
 			break;
 		}
 
@@ -2407,12 +2426,19 @@ void get_debug_command(void)
 			break;
 		}
 
+		/* Create any object, leave it unidentified */
+		case 'U':
+		{
+			wiz_create_item(false, false);
+			break;
+		}
+
 		/* Very Good Objects */
 		case 'v':
 		{
 			int n;
 			screen_save();
-			n = get_quantity("How many great objects? ", 40);
+			n = get_quantity("How many great objects? ", 99999);
 			screen_load();
 			if (n < 1) n = 1;
 			acquirement(player->grid, player->depth, n, true);

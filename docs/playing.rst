@@ -90,7 +90,7 @@ Original Keyset Command Summary
  ``b``  Browse a book                 ``B``  (unused)
  ``c``  Close a door                  ``C``  Character description
  ``d``  Drop an item                  ``D``  Disarm a trap or lock a door
- ``e``  Equipment list                ``E``  Eat some food
+ ``e``  Equipment list                ``E``  Eat some food (or a pill)
  ``f``  Fire an item                  ``F``  Fuel your lantern/torch
  ``g``  Get objects on floor          ``G``  Gain new spells/prayers
  ``h``  Fire default ammo at target   ``H``  (unused)
@@ -102,7 +102,7 @@ Original Keyset Command Summary
  ``n``  Repeat previous command       ``N``  (unused)
  ``o``  Open a door or chest          ``O``  (unused)
  ``p``  Cast a spell                  ``P``  (unused)
- ``q``  Quaff a potion                ``Q``  End character & quit
+ ``q``  Take a pill                   ``Q``  End character & quit
  ``r``  Read a scroll                 ``R``  Rest for a period
  ``s``  Steal (rogues only)           ``S``  (unused)
  ``t``  Take off equipment            ``T``  Dig a tunnel
@@ -152,7 +152,7 @@ Roguelike Keyset Command Summary
   b    (walk - south west)             B    (run - south west)
   c    Close a door                    C    Character description
   d    Drop an item                    D    Disarm a trap or lock a door
-  e    Equipment list                  E    Eat some food
+  e    Equipment list                  E    Eat some food (or a pill)
   f    (unused)                        F    Fuel your lantern/torch
   g    Get objects on floor            G    Gain new spells/prayers
   h    (walk - west)                   H    (run - west)
@@ -164,7 +164,7 @@ Roguelike Keyset Command Summary
   n    (walk - south east)             N    (run - south east)
   o    Open a door or chest            O    Toggle ignore
   p    Cast a spell                    P    Browse a book
-  q    Quaff a potion                  Q    End character & quit
+  q    Take a pill                     Q    End character & quit
   r    Read a scroll                   R    Rest for a period
   s    Steal (rogues only)             S    (unused)
   t    Fire an item                    T    Take off equipment

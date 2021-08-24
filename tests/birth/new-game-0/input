@@ -1,12 +1,41 @@
+# Get past the splash screen
 key space
+
+# 'redo'
+key N
+
+# Human
 key a
+key enter
+
+# Cyborg
+key c
+key enter
+
+# Engineer
+key f
+key enter
+
+# Point based
 key a
-key a
+
+# Accept default stats
 key enter
+
+# Accept default name
 key enter
+
+# Accept character history
+key y
+
+# Accept character
 key enter
+
+# Accept talents
 key enter
+
 # Character birthed.
 player-race?
+player-ext?
 player-class?
 quit

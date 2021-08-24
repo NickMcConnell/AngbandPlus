@@ -21,11 +21,6 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "guid.h"
-#include "obj-properties.h"
-#include "object.h"
-#include "option.h"
-
 /**
  * Indexes of the player stats (hard-coded by savefiles).
  */
@@ -48,10 +43,15 @@ enum
 	PF_MAX
 };
 
+#define PF_SIZE                FLAG_SIZE(PF_MAX)
+
+#include "guid.h"
+#include "obj-properties.h"
+#include "object.h"
+#include "option.h"
+
 #define player_hookz(X)			if (player->class->X) { player->class->X(); } if (player->race->X) { player->race->X(); } if (player->extension->X) { player->extension->X(); }
 #define player_hook(X, ...)		if (player->class->X) { player->class->X(__VA_ARGS__); } if (player->race->X) player->race->X(__VA_ARGS__); if (player->extension->X) player->extension->X(__VA_ARGS__);
-
-#define PF_SIZE                FLAG_SIZE(PF_MAX)
 
 #define pf_has(f, flag)        flag_has_dbg(f, PF_SIZE, flag, #f, #flag)
 #define pf_next(f, flag)       flag_next(f, PF_SIZE, flag)
@@ -220,6 +220,7 @@ struct player_race {
 
 	int r_mhp;					/**< Hit-dice modifier */
 	int r_exp;					/**< Experience factor */
+	int r_high_exp;				/**< High level experience factor */
 
 	int tp_base;				/** Talent points at birth */
 	int tp_max;					/** Talent points gained by max level */
@@ -485,7 +486,10 @@ struct player_state {
 
 	bitflag flags[OF_SIZE];					/**< Status flags from race and items */
 	struct element_info el_info[ELEM_MAX];	/**< Resists from race and items */
-	bitflag pflags[PF_SIZE];				/**< Player intrinsic flags */
+	bitflag pflags[PF_SIZE];				/**< Player intrinsic flags, combined */
+	bitflag pflags_base[PF_SIZE];			/**< Player intrinsic flags, from player */
+	bitflag pflags_equip[PF_SIZE];			/**< Player intrinsic flags, from gear */
+	bitflag pflags_temp[PF_SIZE];			/**< Player intrinsic flags, from temp effects */
 };
 
 #define player_has(p, flag)       (pf_has(p->state.pflags, (flag)))
@@ -564,7 +568,8 @@ struct player {
 	struct loc grid;/* Player location */
 
 	u32b hitdie;	/* Hit dice (sides) */
-	byte expfact;	/* Experience factor */
+	u16b expfact_low;	/* Experience factor (low and high level) */
+	u16b expfact_high;
 
 	s16b age;		/* Characters age */
 	s16b ht;		/* Height */
@@ -691,6 +696,7 @@ byte player_hp_attr(struct player *p);
 byte player_sp_attr(struct player *p);
 void player_safe_name(char *safe, size_t safelen, const char *name, bool strip_suffix);
 void player_cleanup_members(struct player *p);
+s32b exp_to_gain(s32b level);
 
 /* player-race.c */
 struct player_race *player_id2race(guid id);

@@ -34,6 +34,7 @@
 # player-flags:player flags
 # values:values
 # desc:desc
+# body:body
 
 # 'name' indicates the beginning of an entry.
 
@@ -75,6 +76,8 @@
 
 # 'desc' is for the description shown on the character creation screen
 
+# 'body' is for the body as defined in body.txt. By default the last entry of that file ("Humanoid") is used.
+
 ext:None
 desc:A typical member of your race with nothing added or taken away - not a mutant, cyborg or other exotic variation.
  
@@ -85,8 +88,13 @@ exp:10
 player-flags:REROLL_MUTATIONS
 desc:You will begin with one or more mutations - which although they may have disadvantages are not purely negative. You'll gain at least one more mutation as you advance, and you'll gain the ability to exchange unwanted mutations for one that may be preferable - and eventually, to withstand radiation innately.
 
+ext:Cyborg
+talents:-3:0
+exp:60:0
+desc:You will begin with one or more cybernetic implants. These are varied and generally powerful, but having become used to your new abilities you have had less time for learning other things. So you have less talents available, and more experience is needed to advance - especially early on.
+
 name:Human
-exts:Mutant,None
+exts:Mutant,Cyborg,None
 stats:0:0:0:0:0:0:0
 talents:3:5
 skill-disarm-phys:0
@@ -110,6 +118,7 @@ weightmod:350
 desc:The race with average abilities, from a human perspective at least. While you won't have bulletproof skin or [bla], there's a reason that is has primarily been humans who have colonized the galaxy - in a word, adaptability. That shows in the lowest experience requirement and the most specialization through talents.
 
 name:Android
+body:HumanoidNoImplants
 exts:None
 stats:3:-2:-4:2:2:-3:2
 talents:0:0
@@ -134,12 +143,12 @@ weight:2400
 weightmod:600
 obj-flags:REGEN
 player-flags:NO_MUTATIONS
-player-flags:NO_FOOD | EAT_BATTERIES
+player-flags:NO_FOOD | EAT_BATTERIES | NO_SWIMMING
 values:RES_ELEC[-1]
 desc:Sentient robots have been constructed for a variety of purposes and while artificial intelligence still isn't as good as the real thing, they have many advantages: a tough, fast metal body, precise aiming, rapid regeneration and IR vision. However, you can't easily gain talents, can't eat normal food and must avoid electric shocks.
 
 name:Time-Lord
-exts:Mutant,None
+exts:Mutant,Cyborg,None
 stats:0:2:2:0:3:2:0
 talents:0:3
 skill-disarm-phys:10

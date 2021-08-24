@@ -165,6 +165,7 @@ int test_msg0(void *state) {
 	eq(r, 0);
 	a = parser_priv(state);
 	require(a);
+	require(a->alt_msg);
 	require(streq(a->alt_msg, "foobar"));
 	ok;
 }

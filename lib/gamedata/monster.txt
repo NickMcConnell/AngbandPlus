@@ -7024,36 +7024,6 @@ flags:IM_POIS
 desc:A strange ox-like form with a huge head but a thin, weak neck, it looks
 desc: like the creation of some deranged alchemist.
 
-name:ring mimic
-base:mimic
-glyph:=
-color:w
-speed:120
-hit-points:180
-hearing:30
-armor-class:72
-sleepiness:100
-depth:29
-rarity:3
-experience:200
-blow:HIT:POISON:3d4
-blow:HIT:POISON:3d4
-blow:HIT:POISON:3d4
-blow:HIT:POISON:3d4
-spell-freq:4
-spells:BO_ACID | BO_COLD | BO_ELEC | BO_FIRE
-spells:S_MONSTER
-spells:BLIND | WOUND | CONF | SCARE
-desc:A strange creature that disguises itself as a discarded ring to lure
-desc: unsuspecting adventurers within reach of its venomous claws.
-mimic:ring:Speed
-mimic:ring:Slaying
-mimic:ring:Constitution
-mimic:ring:Resist Poison
-mimic:ring:Free Action
-mimic:ring:See Invisible
-
-
 name:energy vortex
 plural:energy vortices
 base:vortex

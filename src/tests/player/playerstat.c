@@ -11,7 +11,10 @@ int setup_tests(void **state) {
 	z_info = mem_zalloc(sizeof(struct angband_constants));
 	z_info->pack_size = 23;
 	z_info->quiver_size = 10;
+	races = extensions = &test_race;
+	classes = &test_class;
 	player_init(p);
+	player_generate(p, &test_race, &test_race, &test_class, false);
 	*state = p;
 	return 0;
 }
@@ -25,7 +28,7 @@ int teardown_tests(void *state) {
 	mem_free(p->timed);
 	mem_free(p->obj_k->brands);
 	mem_free(p->obj_k->slays);
-	mem_free(p->obj_k->curses);
+	mem_free(p->obj_k->faults);
 	mem_free(p->obj_k);
 	mem_free(state);
 	return 0;

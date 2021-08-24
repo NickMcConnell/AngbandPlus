@@ -1316,9 +1316,6 @@ static void calc_shapechange(struct player_state *state,
 	/* Object flags */
 	of_union(state->flags, shape->flags);
 
-	/* Player flags */
-	pf_union(state->pflags, shape->pflags);
-
 	/* Stats */
 	for (i = 0; i < STAT_MAX; i++) {
 		state->stat_add[i] += shape->modifiers[i];
@@ -1445,15 +1442,90 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 		}
 	}
 
-	/* Base pflags */
-	pf_wipe(state->pflags);
-	pf_copy(state->pflags, p->race->pflags);
-	pf_union(state->pflags, p->extension->pflags);
-	pf_union(state->pflags, p->class->pflags);
-	pf_union(state->pflags, p->ability_pflags);
+	/* Base pflags = from player only, ignoring equipment and timed effects */
+	pf_wipe(state->pflags_base);
+	pf_copy(state->pflags_base, p->race->pflags);
+	pf_union(state->pflags_base, p->extension->pflags);
+	pf_union(state->pflags_base, p->class->pflags);
+	pf_union(state->pflags_base, p->ability_pflags);
+	pf_union(state->pflags_base, p->shape->pflags);
 
 	/* Extract the player flags */
 	player_flags(p, collect_f);
+
+	/* Analyze equipment for player flags */
+	pf_wipe(state->pflags_equip);
+
+	for (i = 0; i < p->body.count; i++) {
+		int index = 0;
+		struct object *obj = slot_object(p, i);
+		struct fault_data *fault = obj ? obj->faults : NULL;
+
+		while (obj) {
+			/* Extract player flags */
+			pf_union(state->pflags_equip, obj->pflags);
+
+			/* Move to any unprocessed fault object */
+			if (fault) {
+				index++;
+				obj = NULL;
+				while (index < z_info->fault_max) {
+					if (fault[index].power) {
+						obj = faults[index].obj;
+						break;
+					} else {
+						index++;
+					}
+				}
+			} else {
+				obj = NULL;
+			}
+		}
+	}
+
+	/* Extract from timed conditions */
+	pf_wipe(state->pflags_temp);
+	for (i = 0; i < PF_MAX; i++) {
+		if (player->timed[TMD_PF + i]) {
+			pf_on(state->pflags_temp, i);
+		}
+	}
+
+	/* Extract forbids - FIXME, this looks slow. Cache it in state? */
+	bool forbid[PF_MAX];
+	memset(forbid, 0, sizeof(forbid));
+	bitflag has_flag[PF_SIZE];
+	pf_copy(has_flag, state->pflags_temp);
+	pf_union(has_flag, state->pflags_equip);
+	pf_union(has_flag, state->pflags_base);
+	for (i = 0; i < PF_MAX; i++) {
+		if (ability[i]) {
+			if (pf_has(has_flag, i)) {
+				for (j = 0; j < PF_MAX; j++) {
+					if (ability[j]) {
+						if (ability[i]->forbid[j]) {
+							forbid[j] = true;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/* Apply forbids to equipment and temporary flags */
+	for (i = 0; i < PF_MAX; i++) {
+		if (forbid[i]) {
+			pf_off(state->pflags_equip, i);
+			pf_off(state->pflags_temp, i);
+		}
+	}
+
+	/* Combine base, temporary and equipment pflags. This must be done early, so that
+	 * "Extract from abilities" knows about all flags.
+	 **/
+	pf_copy(state->pflags, state->pflags_base);
+	pf_union(state->pflags, state->pflags_equip);
+	pf_union(state->pflags, state->pflags_temp);
 
 	/* Extract from abilities */
 	state->ac = 0;
@@ -1463,7 +1535,11 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 				state->ac += ability[i]->ac;
 				state->to_h += ability[i]->tohit;
 				state->to_d += ability[i]->todam;
+
+				/* Add to both base and combined pflags */
+				pf_union(state->pflags_base, ability[i]->pflags);
 				pf_union(state->pflags, ability[i]->pflags);
+
 				of_union(collect_f, ability[i]->oflags);
 
 				/* Apply element info, noting vulnerabilites for later processing */
@@ -1553,6 +1629,19 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 			} else {
 				obj = NULL;
 			}
+		}
+	}
+
+	/* Analyze gear */
+	for (struct object *obj = player->gear; obj; obj = obj->next) {
+		if (!object_is_equipped(player->body, obj)) {
+			/* Extract the item carried flags */
+			if (known_only) {
+				object_carried_flags_known(obj, f);
+			} else {
+				object_carried_flags(obj, f);
+			}
+			of_union(collect_f, f);
 		}
 	}
 
@@ -1708,10 +1797,6 @@ void calc_bonuses(struct player *p, struct player_state *state, bool known_only,
 	}
 	if (p->timed[TMD_SHIELD]) {
 		state->to_a += 50;
-	}
-	if (p->timed[TMD_STONESKIN]) {
-		state->to_a += 40;
-		state->speed -= 5;
 	}
 	if (p->timed[TMD_HERO]) {
 		state->to_h += 12;

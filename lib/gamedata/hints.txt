@@ -226,8 +226,10 @@ H:They say that a blank card is like a blank check.
 H:They say that a day is not quite a day.
 H:They say that a desperate shopper might pay any price in a shop.
 H:They say that a fortune only has one line, but you can read between it.
+H:They say that a secret recipe is valuable everywhere.
 H:They say that a visit to 3250m can be quite an experience.
 H:They say that a visit to 3250m will only get you killed.
+H:They say that an opponent picking up your candles might regret it.
 H:They say that alcohol is bad for your health.
 H:They say that an empty stomach is one's worst enemy.
 H:They say that bananas can be bad for your health.

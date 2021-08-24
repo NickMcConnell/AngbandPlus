@@ -100,6 +100,7 @@ typedef enum cmd_code {
 	CMD_BUY,
 	CMD_STASH,
 	CMD_RETRIEVE,
+	CMD_INSTALL,
 
 	/* Hors categorie Commands */
 	CMD_SUICIDE,

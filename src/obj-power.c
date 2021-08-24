@@ -166,6 +166,28 @@ static int gun_multiplier(const struct object *obj)
 }
 
 /**
+ * Tval power
+ * Some items gain power from e.g. being able to use a special slot.
+ * Cyberware definitely, and maybe belts?
+ */
+static int tval_power(const struct object *obj)
+{
+	int p = 0;
+	switch (obj->tval) {
+		case TV_LEGS:
+			p = 50;
+			break;
+		case TV_ARMS:
+			p = 40;
+			break;
+		case TV_BELT:
+			p = 15;
+			break;
+	}
+	return p;
+}
+
+/**
  * To damage power
  */
 static int to_damage_power(const struct object *obj)
@@ -512,19 +534,6 @@ static int to_ac_power(const struct object *obj, int p)
 }
 
 /**
- * Add base power for jewelry
- */
-static int jewelry_power(const struct object *obj, int p)
-{
-	if (tval_is_jewelry(obj)) {
-		p += BASE_JEWELRY_POWER;
-		log_obj(format("Adding %d power for jewelry, total is %d\n", 
-					   BASE_JEWELRY_POWER, p));
-	}
-	return p;
-}
-
-/**
  * Add power for modifiers
  */
 static int modifier_power(const struct object *obj, int p)
@@ -757,6 +766,7 @@ s32b object_power(const struct object* obj, bool verbose, ang_file *log_file)
 
 	/* Get all the attack power */
 	p = to_damage_power(obj);
+	p += tval_power(obj);
 	dice_pwr = damage_dice_power(obj);
 	p += dice_pwr;
 	if (dice_pwr) log_obj(format("total is %d\n", p));
@@ -776,9 +786,6 @@ s32b object_power(const struct object* obj, bool verbose, ang_file *log_file)
 	/* Armour class power */
 	p = ac_power(obj, p);
 	p = to_ac_power(obj, p);
-
-	/* Bonus for jewelry */
-	p = jewelry_power(obj, p);
 
 	/* Other object properties */
 	p = modifier_power(obj, p);
@@ -813,18 +820,21 @@ static int object_value_base(const struct object *obj)
 		case TV_FOOD:
 		case TV_MUSHROOM:
 			return 5;
+		case TV_BATTERY:
+			return 12;
+		case TV_BLOCK:
+			return 15;
 		case TV_PILL:
 		case TV_CARD:
 			return 20;
-		case TV_RING:
-		case TV_AMULET:
-			return 45;
 		case TV_WAND:
 			return 50;
 		case TV_DEVICE:
 			return 70;
-		case TV_ROD:
+		case TV_GADGET:
 			return 90;
+		case TV_PRINTER:
+			return 100;
 	}
 
 	return 0;
@@ -870,6 +880,7 @@ int object_value_real(const struct object *obj, int qty)
 #else /* PRICE_DEBUG */
 		power = object_power(obj, false, NULL);
 #endif /* PRICE_DEBUG */
+		/* Variation */
 		value = SGN(power) * ((a * power * power) + (b * power));
 
 		/* Rescale for expendables */
@@ -877,6 +888,9 @@ int object_value_real(const struct object *obj, int qty)
 			 && !obj->ego) || tval_is_ammo(obj)) {
 			value = value / AMMO_RESCALER;
 		}
+
+		/* Add base cost */
+		value += obj->kind->cost;
 
 		/* Round up to make sure things like cloaks are not worthless */
 		if (value == 0) {

@@ -30,7 +30,7 @@ void player_quests_free(struct player *p);
 struct quest *get_quest_by_grid(struct loc grid);
 bool quest_check(const struct monster *m);
 extern struct file_parser quests_parser;
-void quest_reward(const struct quest *q, bool success);
+void quest_reward(struct quest *q, bool success);
 struct quest *get_quest_by_name(const char *name);
 bool quest_item_check(const struct object *obj);
 void quest_enter_level(struct chunk *c);

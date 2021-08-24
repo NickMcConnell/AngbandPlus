@@ -40,6 +40,7 @@ struct object *make_object(struct chunk *c, int lev, bool good, bool great,
 						   bool extra_roll, s32b *value, int tval);
 struct object *make_object_named(struct chunk *c, int lev, bool good, bool great,
 						   bool extra_roll, s32b *value, int tval, const char *name);
+void do_acquirement(struct loc grid, int level, int num, bool good, bool great);
 void acquirement(struct loc grid, int level, int num, bool great);
 struct object_kind *money_kind(const char *name, int value);
 struct object *make_gold(int lev, char *coin_type);

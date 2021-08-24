@@ -340,7 +340,7 @@ static void decrease_timeouts(void)
 
 		/* If an unwanted effect and below 0, skip */
 		if (player->chp < 0)
-			if (timed_effects[TMD_MAX].flag_general & PG_NASTY)
+			if (timed_effects[i].flag_general & PG_NASTY)
 				continue;
 
 		/* Special cases */
@@ -670,6 +670,25 @@ void process_world(struct chunk *c)
 		p->timed[TMD_PARALYZED] = 2;	// as it will be reduced by 1 later in process_world
 		p->timed[TMD_FOOD] = PY_FOOD_WEAK;
 	}
+
+	/* Occasionally pick a slot. If it contains a steel item, magnetize it */
+	if (player_of_has(player, OF_MAGNETIC)) {
+		if (one_in_(50)) {
+			int slot = randint0(p->body.count);
+			struct object *obj = p->body.slots[slot].obj;
+			if (obj) {
+				if (obj->kind->material == MAT_STEEL) {
+					if (!of_has(obj->flags, OF_STICKY)) {
+						char oname[256];
+						object_desc(oname, sizeof(oname), obj, ODESC_BASE);
+						msg("Your %s jerks.", oname);
+						of_on(obj->flags, OF_STICKY);
+					}
+				}
+			}
+		}
+	}
+
 	/*** Damage (or healing) over Time ***/
 
 	/* Take damage from radiation */
@@ -739,6 +758,31 @@ void process_world(struct chunk *c)
 				int newrad2 = p->timed[TMD_RAD] - maxreduce;
 				p->timed[TMD_RAD] = MAX(newrad1, newrad2);
 			}
+		}
+	}
+
+	/* Giants return to normal form after a while.
+	 * How long is unpredictable, but strongly dependent on HP.
+	 **/
+	if (streq(p->shape->name, "giant")) {
+		int turns;
+		if (player->chp == player->mhp)
+			turns = 256;
+		else {
+			/* Scale nonlinearly.
+			 * This reduces to 1/4 of full scale (256) at 1/2 HP,
+			 * to 1/16 at 1/4 HP input etc.
+			 */
+			double chp = MAX(0, player->chp) * 16; /* sqrt (256) */
+			double mhp = player->mhp;
+			double turns_s = chp / mhp;
+			turns = turns_s * turns_s;
+		}
+		if (turns < 5)
+			turns = 5;
+		if (!randint0(turns)) {
+			/* Failed check: return to normal form */
+			player_resume_normal_shape(player);
 		}
 	}
 
@@ -1163,7 +1207,7 @@ void process_player(void)
 }
 
 /** Handle timed danger.
- * If the timie limit is active and sufficient time has passed,
+ * If the time limit is active and sufficient time has passed,
  * increase the danger level and mark stores for destruction.
  **/
 void increase_danger_level(void)

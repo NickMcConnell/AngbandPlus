@@ -2,7 +2,7 @@
 Frequently Asked Questions
 ==========================
 
-The best way to get answers to your questions is to post them on the `Angband forum`_.
+The best way to get answers to your questions is to post them on the `Angband forum`_, in the Variants section.
 
 .. contents:: Contents
    :local:
@@ -17,6 +17,7 @@ Post on the `Angband forum`_.
 
 Bug reports should include:
 
+* that you are playing Xygos, not standard Angband or some other variant
 * your current operating system (e.g. Windows 10)
 * what version the problem appeared in
 * the best steps you can figure out to reproduce the bug.
@@ -57,14 +58,13 @@ Development
 What are the current plans for the game?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Ever-changing and subject to U-turning with public dissent. See http://trac.rephial.org/roadmap
+Nothing is set in stone, but expect much of future Angband releases to be pulled in when they arrive and the
+general movement from a Tolkien-inspired fantasy theme to eclectic sci-fi to continue.
 
 How do I suggest an idea/feature?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Post it on the forums.  If people think it's a good idea, it will generally get some discussion; if they don't, it won't.  The developers keep an eye on the forums, and ideas deemed OK will get filed for future implementation.
-
-Sometimes a suggestion may not be right for the game, though. Some suggestions would change aspects of Angband that are essential to its nature; Angband has a long history, and so has developed a certain character over the years.  Some suggestions might make a good game, perhaps even a better game than Angband, but would make a game that is not Angband. To some extent, variants exist to address this, but even so they tend to adhere to the core Angband principles.
+Post it on the forums (variant section, marked as Xygos).  If people think it's a good idea, it will generally get some discussion; if they don't, it won't.  I keep an eye on the forums, and these ideas may be filed for future implementation.
 
 How do I get a copy of the source code?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -86,10 +86,11 @@ You have two options:
 
 All contributions are accepted as dual-licenced with both the Angband and GPLv2 licences.
 
-If the patch is a bugfix, then you can reasonably expect it to be integrated into the development tree. If it's more involved, and the feature is not one that the next version is planned to have, the patch may go through several reviews before being incorporated. It may also just be unsuitable for Angband - in which case, please don't take rejection badly; you may just be better off writing a variant.
+If the patch is a bugfix, then you can reasonably expect it to be integrated into the development tree. If it's more involved, and the feature is not one that the next version is planned to have, the patch may go through several reviews before being incorporated. It may also just be unsuitable for Xygos - in which case, please don't take rejection badly; you may just be better off writing your own variant (or submitting it to another variant with
+different goals).
 
 Non-code activities are different. Documentation can be written on the wiki, or if you're a graphics designer (and they're always welcome) then please talk on the mailing list about your work.
 
 
-.. _GitHub: https://github.com/angband/angband/
+.. _GitHub: https://github.com/msearle5/xygos/
 .. _Angband forum: http://angband.oook.cz/forum

@@ -23,7 +23,7 @@
     <ProjectGuid>{F9D9B5D4-3694-4705-8651-82EB225E68FA}</ProjectGuid>
     <RootNamespace>AngBand</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>Angband</ProjectName>
+    <ProjectName>Xygos</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -209,7 +209,7 @@ xcopy $(MSBuildProjectDirectory)\lib\* $(OutDir)lib\ /DESY /exclude:$(MSBuildPro
     <ClCompile Include="src\mon-timed.c" />
     <ClCompile Include="src\mon-util.c" />
     <ClCompile Include="src\obj-chest.c" />
-    <ClCompile Include="src\obj-curse.c" />
+    <ClCompile Include="src\obj-fault.c" />
     <ClCompile Include="src\obj-desc.c" />
     <ClCompile Include="src\obj-gear.c" />
     <ClCompile Include="src\obj-ignore.c" />
@@ -258,7 +258,7 @@ xcopy $(MSBuildProjectDirectory)\lib\* $(OutDir)lib\ /DESY /exclude:$(MSBuildPro
     <ClCompile Include="src\ui-birth.c" />
     <ClCompile Include="src\ui-command.c" />
     <ClCompile Include="src\ui-context.c" />
-    <ClCompile Include="src\ui-curse.c" />
+    <ClCompile Include="src\ui-fault.c" />
     <ClCompile Include="src\ui-death.c" />
     <ClCompile Include="src\ui-display.c" />
     <ClCompile Include="src\ui-entry-combiner.c" />
@@ -380,7 +380,7 @@ xcopy $(MSBuildProjectDirectory)\lib\* $(OutDir)lib\ /DESY /exclude:$(MSBuildPro
     <ClInclude Include="src\mon-util.h" />
     <ClInclude Include="src\monster.h" />
     <ClInclude Include="src\obj-chest.h" />
-    <ClInclude Include="src\obj-curse.h" />
+    <ClInclude Include="src\obj-fault.h" />
     <ClInclude Include="src\obj-desc.h" />
     <ClInclude Include="src\obj-gear.h" />
     <ClInclude Include="src\obj-ignore.h" />
@@ -425,7 +425,7 @@ xcopy $(MSBuildProjectDirectory)\lib\* $(OutDir)lib\ /DESY /exclude:$(MSBuildPro
     <ClInclude Include="src\ui-birth.h" />
     <ClInclude Include="src\ui-command.h" />
     <ClInclude Include="src\ui-context.h" />
-    <ClInclude Include="src\ui-curse.h" />
+    <ClInclude Include="src\ui-fault.h" />
     <ClInclude Include="src\ui-death.h" />
     <ClInclude Include="src\ui-display.h" />
     <ClInclude Include="src\ui-entry-combiner.h" />
@@ -493,10 +493,10 @@ xcopy $(MSBuildProjectDirectory)\lib\* $(OutDir)lib\ /DESY /exclude:$(MSBuildPro
     <Image Include="lib\tiles\nomad\8x16.png" />
     <Image Include="lib\tiles\old\8x8.png" />
     <Image Include="lib\tiles\shockbolt\64x64.png" />
-    <Image Include="src\win\angband.ico" />
+    <Image Include="src\win\xygos.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="src\win\angband.rc" />
+    <ResourceCompile Include="src\win\xygos.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="lib\customize\font-gcu.prf" />
@@ -561,7 +561,7 @@ xcopy $(MSBuildProjectDirectory)\lib\* $(OutDir)lib\ /DESY /exclude:$(MSBuildPro
     <Text Include="lib\gamedata\chest_trap.txt" />
     <Text Include="lib\gamedata\class.txt" />
     <Text Include="lib\gamedata\constants.txt" />
-    <Text Include="lib\gamedata\curse.txt" />
+    <Text Include="lib\gamedata\fault.txt" />
     <Text Include="lib\gamedata\dungeon_profile.txt" />
     <Text Include="lib\gamedata\ego_item.txt" />
     <Text Include="lib\gamedata\flavor.txt" />

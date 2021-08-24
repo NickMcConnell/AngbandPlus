@@ -1,0 +1,107 @@
+This is a summary of major changes made to Xygos by release.
+For changes pulled in from Vanilla, see changes.txt.
+For more detail, see the git history.
+
+Xygos 0.0.2
+===========
+
+Much bug fixing.
+Add "general player flags" (can be present on equipment, or as a temporary effect).
+Add "carried flags" (object flags that take effect when an item is carried, not equipped).
+Add a body type (as in body.txt) per player race.
+Adds cyberware: legs and arms, and a shop to install it (you can't do it elsewhere, usually).
+Also adds a "Cyborg" extension (where you start with random cyberware).
+Removes rings and amulets and much medieval arms and armor, with a few replacements.
+Rods are now Gadgets. 
+
+Xygos 0.0.1
+===========
+
+Renamed as Xygos 0.0.1 (so it should be able to be installed alongside V).
+Pulled in most of V 4.2.2.
+Add factions (visible in shop greetings, affecting quality and amount of shop loot).
+Sticky curses (for now, only on lamps - and the curse lets go when the lamp runs out of power.)
+No more hard-coded limits on the number or length of flavor names.
+Curses are now described as "faults", remove-curse as "repair".
+Multiple towns. No wilderness, but airports to travel between them. One has a full size dungeon,
+	the others have minidungeons. They each have their own level layout and array of stores.
+Staffs are now Devices.
+Soft cap XP gain in a single turn (usually by !oExp) - each level past the first gained halves the
+	remaining experience. A cl1 !oExp still gives 8 levels, and normal monster kills shouldn't care.
+Store items with a rarity (for e.g. rare heal items along with the usual CCW)
+Scrolls are now Cards (and are 'run', and can be used in the dark but not while blind, and the
+	Bookseller is renamed)
+Ego and artifact generation has been redone. In both cases, the first step is to determine whether
+	an ego or artifact should be generated - and only then to find a suitable base item. This gets
+	rid of dependencies on base item levels that produced unexpected results (e.g. Ringil being
+	more common at lower depth, just because it's based on a longsword). The probabilities are
+	also calculated differently, getting rid of (or at least much reducing) the large steps in
+	ego and artifact probability that were seen as other egos and artifacts went in and out of
+	level.
+More interactions with stores.
+	You can put an item on layaway, pay to turn over stock, pay more to replace the owner, pay
+	more again to buy the store yourself - or try to steal stuff (risking a fight) or just pick
+	a fight yourself. That's the other way to own a store (and so it usually doesn't end well).
+	Or you can ask if the owner has anything that needs doing - that is, a quest.
+Quests:
+	AKA tasks - ask a store owner what needs doing and you will be pointed to a > into a special
+		level. Optional, but recommended (there's a lot of loot and other rewards).
+	The "Soldier, Sailor, Chef, Pie" quest (Fetch a stolen card - but there's an alternative
+	way to complete this)
+	The "Msing Pills" quest (return the pills from a Pacman-like maze)
+	The "Whiskey Cave" quest (return bottles from the back of a volcanic cave)
+	The "Rats" quest (kill all the (breeding) rats)
+Runes are now Icons. "Some equipment has unusual properties, signified by icons. At one time their
+    meaning was supposed to be obvious, but now they might as well be mystic runes for all the
+    sense they make - however, once you have discovered what an icon means you can assume that it
+    has the same meaning wherever else you see it."
+Extensions: Like race/class. You can be for example a Human Mutant Soldier - "Mutant" extends
+	Human (or other races), giving mutations at birth, more later etc.
+All old races besides Human removed. Added Time-Lord and Android. Time-Lords regenerate on death
+	(sometimes) and at higher level can regen at any time (dropping them healed in town). There's
+	a maximum of 12 regens, but a level limit for each and it's always chancy even if you reach
+	level 50 before using your first. Androids can't eat (they use batteries) or take extensions,
+	or mutate.
+Radiation as a damage type, replacing nether. Fallout as a terrain type, and water. Both hurt,
+	like lava, although water only does so if you are too heavily loaded to swim (for most @s:
+	Androids can't swim)
+Abilities, Talents, Mutations:
+	These all involve a player flag, but with an additional ability structure attached which can
+	add flags, change stats etc. A talent can be bought (some only at birth, some later) with
+	talent points. Some are class specific (for skill with guns, for example). Mutations are
+	normally acquired randomly (from a pill, or radiation) and may be purely -ve, +ve or (most
+	often) a mixed blessing. All of these are described generically as abilities.
+Techniques:
+	These are the replacement for spells. Books don't exist as physical objects, but are retained
+	as an abstraction describing a set of techniques. Realms have also gone.
+	These could be derived from class/race, or equipment etc. They have a % fail (much as before),
+	but as SP has been removed, the mana cost has been replaced by HP and/or a timed cooldown.
+Burden speed penalty has changed. You can't pick up more than 4x your weight limit (the point at
+	which you get -1), and it increases exponentially (-10 at 2x your limit, -40 at 3x, -160 at
+	4x). 
+Classes replaced with Soldier, Marksman, Tourist etc.
+Bows are now Guns.
+Hunger has been tweaked (being hungry is harmless, but being weak is worse).
+Printers: An item which with blocks of metal can be used to create items from it.
+Lamps: replaced with a mix of rechargeable torches, one-time glowsticks etc and lightables. There
+	is a plain wax candle, but the main point of this is the dynamite, flare etc. - special effects,
+	hidden by a flavor.
+Hitdie tweaked so that while each level's HP gain is random, the sum is (for a given race/class) fixed.
+	This means that "life rating" doesn't exist any more.
+Belts (new slot, armor type)
+A soft time limit. After a few days nastier monsters start to show up in the town, and if you really
+	drag your feet stores will start to be destroyed. Dungeon levels get more dangerous, too. This
+	should help make the multi-towns less cheesy (there's plenty of time for even quite a grindy
+	playstyle, but you will quickly see penalties if you always jet about looking for more loot)
+Cash items replaced with more interesting items and should always be described as cash, not gold.
+Negative HP:
+	This doesn't always kill you immediately (though it can). You don't heal and statuses don't time out,
+	you lose 1 HP per turn and suffer bad effects (XP and stat loss).
+New stats: Charisma and Speed. CHR is much cheaper, speed more expensive at birth. Speed works by giving you
+(stat - 10) to speed, so a maximum of +30. This makes it easier to get early, harder later (but probably
+needs balancing).
+Added the Zorbus rooms, as a new vault class. (No special monsters and items as interesting rooms do - they
+	are just unusual shapes, so they can be used more frequently especially as there are over 1100 of them!)
+Some interesting foods
+
+Forked from 4.2.1 tip around Jan 1 2021.

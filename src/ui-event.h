@@ -155,7 +155,6 @@ typedef enum
  */
 typedef u32b keycode_t;
 
-
 /**
  * Struct holding all relevant info for keypresses.
  */

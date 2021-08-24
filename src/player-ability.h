@@ -64,6 +64,7 @@ extern struct ability *ability[];
 
 extern struct file_parser ability_parser;
 
+void changed_abilities(void);
 bool ability_levelup(struct player *p, int from, int to);
 int setup_talents(void);
 int cmd_abilities(struct player *p, bool birth, int selected, bool *flip);

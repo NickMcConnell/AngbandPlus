@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.5 FATAL_ERROR)
-PROJECT(Xygos VERSION 0.0.1 LANGUAGES C)
+PROJECT(Xygos VERSION 0.0.2 LANGUAGES C)
 
 IF (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     MESSAGE(FATAL_ERROR "Not support to CMake in Windows")
@@ -116,6 +116,7 @@ ADD_EXECUTABLE(Xygos
         src/project-player.c
         src/project.c
         src/r_android.c
+        src/r_cyborg.c
         src/r_mutant.c
         src/r_timelord.c
         src/randname.c

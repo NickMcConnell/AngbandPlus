@@ -23,6 +23,7 @@ L: Log (Work out what the player is typing)
 m: Mapping
 M: Dump a map of the current level as HTML.
 n: Summon named monster
+N: Create normal quality objects
 o: Object mods (quantity, etc)
 p: Phase door (aka blinking)
 P: Monster pit stats
@@ -33,6 +34,7 @@ S: Collect stats
 t: Teleport
 T: Create a trap
 u: Un-hide all monsters
+U: Create any specified object, unidentified
 v: Create very good objects
 V: Create all items of a tval
 w: Wizard light the level

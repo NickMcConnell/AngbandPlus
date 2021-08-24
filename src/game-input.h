@@ -52,7 +52,7 @@ extern bool (*get_item_hook)(struct object **choice, const char *pmt,
 							 const char *str, cmd_code cmd, item_tester tester,
 							 int mode);
 extern bool (*get_fault_hook)(int *choice, struct object *obj,
-							  char *dice_string);
+							  random_value value);
 extern void (*get_panel_hook)(int *min_y, int *min_x, int *max_y, int *max_x);
 extern bool (*panel_contains_hook)(unsigned int y, unsigned int x);
 extern bool (*map_is_visible_hook)(void);
@@ -67,7 +67,7 @@ int get_spell(const char *verb, cmd_code cmd,
 			  const char *error, bool (*spell_filter)(int spell));
 bool get_item(struct object **choice, const char *pmt, const char *str,
 			  cmd_code cmd, item_tester tester, int mode);
-bool get_fault(int *choice, struct object *obj, char *dice_string);
+bool get_fault(int *choice, struct object *obj, random_value value);
 void get_panel(int *min_y, int *min_x, int *max_y, int *max_x);
 bool panel_contains(unsigned int y, unsigned int x);
 bool map_is_visible(void);

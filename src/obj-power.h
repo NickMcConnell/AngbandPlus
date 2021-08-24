@@ -24,7 +24,7 @@
  * Constants for the power algorithm:
  * - fudge factor for extra damage from rings etc. (used if extra blows)
  * - assumed damage for off-weapon brands
- * - base power for jewelry
+ * - base power for 
  * - base power for armour items (for halving acid damage)
  * - power per point of damage
  * - power per point of +to_hit
@@ -36,7 +36,7 @@
  */
 #define NONWEAP_DAMAGE   		15 /* fudge to boost extra blows */
 #define WEAP_DAMAGE				12 /* and for off-weapon combat flags */
-#define BASE_JEWELRY_POWER		 4
+#define BASE__POWER		 4
 #define BASE_ARMOUR_POWER		 1
 #define DAMAGE_POWER             5 /* i.e. 2.5 */
 #define TO_HIT_POWER             3 /* i.e. 1.5 */

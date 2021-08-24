@@ -11,16 +11,16 @@
 #### Lights
 kind:light:~
 
-flavor:306:Red:& red candle~
-flavor:307:Blue:& blue candle~
-flavor:308:Green:& green candle~
-flavor:309:White:& white candle~
-flavor:310:Light Slate:& silvery candle~
-flavor:311:Cream:& stubby candle~
-flavor:312:Cream:& long candle~
-flavor:313:Cream:& tapered candle~
-flavor:314:Cream:& ribbed candle~
-flavor:315:Violet:& striped candle~
+flavor:306:Red:red
+flavor:307:Blue:blue
+flavor:308:Green:green
+flavor:309:White:white
+flavor:310:Light Slate:silvery
+flavor:311:Cream:stubby
+flavor:312:Cream:long
+flavor:313:Cream:tapered
+flavor:314:Cream:ribbed
+flavor:315:Violet:striped
 
 #### Food
 kind:food:,
@@ -29,144 +29,6 @@ fixed:320:choke-apple:Light Green:& apple~
 fixed:321:habanero:Red:& pepper~
 fixed:322:snozzcumber:Green:& cucumber~
 
-
-##### Rings #####
-# These are precious or semi-precious stones
-
-kind:ring:=
-
-# Fixed: the One Ring
-fixed:1:Ring of Power:Yellow:Plain Gold
-
-# The Ring of Barahir 50
-# The Ring of Tulkas 51
-
-# The Ring of Fire 'Narya'
-fixed:28:Ring of Fire:Red:Ruby
-
-# The Ring of Adamant 'Nenya'
-fixed:40:Ring of Adamant:Light Blue:Mithril
-
-# The Ring of Firmament 'Vilya'
-fixed:29:Ring of Firmament:Blue:Sapphire
-
-flavor:2:Green:Alexandrite
-flavor:3:Violet:Amethyst
-flavor:4:Light Blue:Aquamarine
-flavor:5:Light Blue:Azurite
-flavor:6:Light Green:Beryl
-flavor:7:Red:Bloodstone
-flavor:8:White:Calcite
-flavor:9:Red:Carnelian
-flavor:10:Slate:Corundum
-flavor:11:White:Diamond
-flavor:12:Green:Emerald
-flavor:13:Light Green:Fluorite
-flavor:14:Red:Garnet
-flavor:15:Light Slate:Hematite
-flavor:16:Light Green:Jade
-flavor:17:Umber:Jasper
-flavor:18:Blue:Lapis Lazuli
-flavor:19:Green:Malachite
-flavor:20:White:Marble
-flavor:21:Light Slate:Moonstone
-flavor:22:Light Red:Onyx
-flavor:23:Light Slate:Opal
-flavor:24:White:Pearl
-flavor:25:Light Slate:Quartz
-flavor:26:Light Slate:Quartzite
-flavor:27:Light Red:Rhodonite
-#flavor:28:Red:Ruby
-#flavor:29:Blue:Sapphire
-flavor:30:Yellow:Tiger Eye
-flavor:31:Yellow:Topaz
-flavor:32:Light Blue:Turquoise
-flavor:33:Light Umber:Zircon
-flavor:34:White:Platinum
-flavor:35:Light Umber:Bronze
-flavor:36:Yellow:Gold
-flavor:37:Light Dark:Obsidian
-flavor:38:Light Slate:Silver
-flavor:39:Umber:Amber
-#flavor:40:Light Blue:Mithril
-flavor:41:Light Dark:Jet
-flavor:42:Yellow:Jewelled
-flavor:43:Light Green:Adamantite
-
-# Agate
-# Black Diamond
-# Blue Diamond
-# Flawed Diamond
-# Nephrite
-# Rose Quartz
-# Tanzanite
-# Jacinth
-# Platinum
-
-##### Amulets #####
-
-kind:amulet:"
-
-# The Amulet of Carlammas
-fixed:52:Amulet:Light Umber:Bronze
-
-# The Amulet of Ingwe 51
-
-# The Necklace of the Dwarves
-fixed:55:Necklace:Yellow:Golden
-
-# New Artifact (14): The Elfstone 'Elessar'
-fixed:44:Elfstone:Green:Green
-
-# New Artifact (15): The Jewel 'Evenstar'
-fixed:46:Jewel:White:White
-
-#flavor:44:Yellow:Amber
-flavor:45:Light Umber:Driftwood
-#flavor:46:White:Coral
-flavor:47:Light Slate:Agate
-flavor:48:White:Ivory
-flavor:49:Light Dark:Obsidian
-flavor:50:White:Bone
-flavor:51:Light Umber:Brass
-#flavor:52:Light Umber:Bronze
-flavor:53:Slate:Pewter
-flavor:54:Umber:Tortoise Shell
-#flavor:55:Yellow:Golden
-flavor:56:Light Blue:Azure
-flavor:57:White:Crystal
-flavor:58:Light Slate:Silver
-flavor:59:Light Umber:Copper
-flavor:60:Umber:Carved Oak
-flavor:61:Light Slate:Dragon Tooth
-flavor:62:Red:Ruby
-flavor:63:Light Blue:Mithril
-flavor:64:Light Green:Adamant
-flavor:65:Slate:Flint Stone
-flavor:66:Light Blue:Sea Shell
-flavor:67:Light Slate:Mother-of-Pearl
-
-# Azure
-# Bead
-# Dragon's Claw
-# Enameled
-# Horn
-# Shark's Tooth
-# Stained Glass
-# Fingerbone
-# Cog
-# Alabaster
-# Bone
-# Crystal
-# Enamel
-# Flint
-# Glass
-# Granite
-# Haematite
-# Marble
-# Obsidian
-# Serpentine
-# Porcelain
 
 ##### Devices #####
 # These are described by what they do, or how you use them.
@@ -197,13 +59,17 @@ flavor:87:Green:twisting
 flavor:88:Orange:twirling
 flavor:89:Yellow:revolving
 flavor:90:Light Yellow:rotating
-
+# flapping?
 
 ##### Wands #####
 # These are finishes, materials, coverings, shapes.
 
 kind:wand:-
 
+flavor:99:White:shiny
+flavor:100:Blue:sheathed
+flavor:101:Light Slate:angular
+flavor:102:Light Slate:smooth
 flavor:103:Orange:coiled
 flavor:104:Slate:pointed
 flavor:105:Light Slate:forked
@@ -235,54 +101,53 @@ flavor:130:White:gleaming
 flavor:131:Slate:grayish
 flavor:132:Light Slate:knurled
 flavor:133:Light Slate:ribbed
-flavor:134:White:shiny
-flavor:135:Blue:sheathed
-flavor:136:Light Slate:angular
-flavor:137:Light Slate:smooth
 
-#flavor:138:Yellow:brassy
+#flavor:134:Yellow:brassy
+#branching
 
+##### Gadgets #####
+# These are 'feelings/impressions', mostly of otherness, complexity, confusion.
+# Ornate, decorative are shared with ": should they be?
 
-##### Rods #####
-# These are metals
+kind:gadget:-
 
-kind:rod:-
-
-flavor:138:Light Blue:Aluminium
-flavor:139:Light Dark:Cast Iron
-flavor:140:White:Chromium
-flavor:141:Light Umber:Copper
-flavor:142:Yellow:Gold
-flavor:143:Slate:Iron
-flavor:144:Light Slate:Magnesium
-flavor:145:Light Slate:Molybdenum
-flavor:146:Light Umber:Nickel
-flavor:147:Red:Rusty Iron
-flavor:148:Light Slate:Silver
-flavor:149:Light Slate:Steel
-flavor:150:Light Slate:Tin
-flavor:151:White:Titanium
-flavor:152:White:Tungsten
-flavor:153:Light Slate:Zirconium
-flavor:154:Light Slate:Zinc
-flavor:155:Light Blue:Aluminium-Plated
-flavor:156:Light Umber:Copper-Plated
-flavor:157:Yellow:Engraved Gold
-flavor:158:Light Umber:Nickel-Plated
-flavor:159:Light Slate:Silver-Gilt
-flavor:160:Light Slate:Polished Steel
-flavor:161:Light Slate:Tin-Plated
-flavor:162:White:White Gold
-flavor:163:Light Blue:Mithril-Plated
-flavor:164:Light Blue:Mithril
-flavor:165:Umber:Runed
-flavor:166:Light Umber:Bronze
-flavor:167:Light Umber:Brass
-flavor:168:White:Platinum
-flavor:169:Red:Rusted Steel
-flavor:170:Slate:Lead-Plated
-flavor:171:White:Ivory
-flavor:172:Slate:Pewter
+# freaky, crazy, sophisticated
+flavor:137:Light Umber:alien
+flavor:138:Slate:arcane
+flavor:139:Light Slate:baffling
+flavor:140:Light Slate:bewildering
+flavor:141:Slate:bizarre
+flavor:142:Light Dark:complex
+flavor:143:Light Slate:complicated
+flavor:144:Red:confusing
+flavor:145:White:convoluted
+flavor:146:Light Blue:curious
+flavor:147:Light Umber:decorative
+flavor:148:White:detailed
+flavor:149:Light Umber:elaborate
+flavor:150:Light Umber:enigmatic
+flavor:151:Light Slate:esoteric
+flavor:152:Light Slate:exotic
+flavor:153:Light Slate:extraordinary
+flavor:154:Light Umber:fascinating
+flavor:155:White:interesting
+flavor:156:Yellow:intricate
+flavor:157:Light Blue:intriguing
+flavor:158:Light Slate:mysterious
+flavor:159:Light Slate:mystifying
+flavor:160:White:obscure
+flavor:161:Yellow:odd
+flavor:162:Light Slate:ornate
+flavor:163:Light Umber:outlandish
+flavor:164:Light Slate:peculiar
+flavor:165:Light Slate:perplexing
+flavor:166:White:puzzling
+flavor:167:Umber:remarkable
+flavor:168:Light Blue:strange
+flavor:169:Light Umber:suspicious
+flavor:170:Light Blue:unfamiliar
+flavor:171:White:unusual
+flavor:172:Slate:weird
 
 # Wrought Iron
 

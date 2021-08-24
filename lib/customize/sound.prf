@@ -225,8 +225,8 @@ sound:STUDY:plm_book_pageturn
 # You teleport or phase door.
 sound:TELEPORT:plm_chimes_jangle
 
-# You quaff a potion.
-sound:QUAFF:plm_bottle_clinks plm_cork_pop plm_cork_squeak
+# You take a pill.
+sound:QUAFF:plm_eat_bite
 
 # You zap a rod.
 sound:ZAP_ROD:plm_zap_rod

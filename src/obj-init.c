@@ -76,6 +76,14 @@ static const char *element_names[] = {
 	NULL
 };
 
+static const char *py_flags[] =
+{
+	#define PF(a) #a,
+	#include "list-player-flags.h"
+	#undef PF
+	NULL
+};
+
 static bool grab_element_flag(struct element_info *info, const char *flag_name)
 {
 	char prefix[20];
@@ -1015,6 +1023,8 @@ static enum parser_error parse_fault_flags(struct parser *p) {
 		bool found = false;
 		if (!grab_flag(fault->obj->flags, OF_SIZE, obj_flags, t))
 			found = true;
+		if (!grab_flag(fault->obj->pflags, PF_SIZE, py_flags, t))
+			found = true;
 		if (grab_element_flag(fault->obj->el_info, t))
 			found = true;
 		if (!found)
@@ -1719,7 +1729,28 @@ static enum parser_error parse_object_flags(struct parser *p) {
 			found = true;
 		if (!grab_flag(k->kind_flags, KF_SIZE, kind_flags, t))
 			found = true;
+		if (!grab_flag(k->pflags, PF_SIZE, py_flags, t))
+			found = true;
 		if (grab_element_flag(k->el_info, t))
+			found = true;
+		if (!found)
+			break;
+		t = strtok(NULL, " |");
+	}
+	mem_free(s);
+	return t ? PARSE_ERROR_INVALID_FLAG : PARSE_ERROR_NONE;
+}
+
+static enum parser_error parse_object_carried_flags(struct parser *p) {
+	struct object_kind *k = parser_priv(p);
+	char *s = string_make(parser_getstr(p, "flags"));
+	char *t;
+	assert(k);
+
+	t = strtok(s, " |");
+	while (t) {
+		bool found = false;
+		if (!grab_flag(k->carried_flags, OF_SIZE, obj_flags, t))
 			found = true;
 		if (!found)
 			break;
@@ -2022,6 +2053,7 @@ struct parser *init_parse_object(void) {
 	parser_reg(p, "charges rand charges", parse_object_charges);
 	parser_reg(p, "pile int prob rand stack", parse_object_pile);
 	parser_reg(p, "flags str flags", parse_object_flags);
+	parser_reg(p, "carried-flags str flags", parse_object_carried_flags);
 	parser_reg(p, "power int power", parse_object_power);
 	parser_reg(p, "effect sym eff ?sym type ?int radius ?int other", parse_object_effect);
 	parser_reg(p, "effect-yx int y int x", parse_object_effect_yx);
@@ -2066,8 +2098,9 @@ static errr finish_parse_object(struct parser *p) {
 		memcpy(&k_info[kidx], k, sizeof(*k));
 		k_info[kidx].kidx = kidx;
 
-		/* Add base kind flags to kind kind flags */
+		/* Add base [kind] flags to kind [kind] flags */
 		kf_union(k_info[kidx].kind_flags, kb_info[k->tval].kind_flags);
+		of_union(k_info[kidx].flags, kb_info[k->tval].flags);
 
 		next = k->next;
 		if (kidx < z_info->k_max - 1)
@@ -2339,6 +2372,8 @@ static enum parser_error parse_ego_flags(struct parser *p) {
 		if (!grab_flag(e->flags, OF_SIZE, obj_flags, t))
 			found = true;
 		if (!grab_flag(e->kind_flags, KF_SIZE, kind_flags, t))
+			found = true;
+		if (!grab_flag(e->pflags, PF_SIZE, py_flags, t))
 			found = true;
 		if (grab_element_flag(e->el_info, t))
 			found = true;
@@ -2743,6 +2778,8 @@ static enum parser_error parse_artifact_flags(struct parser *p) {
 		bool found = false;
 		if (!grab_flag(a->flags, OF_SIZE, obj_flags, t))
 			found = true;
+		if (!grab_flag(a->pflags, PF_SIZE, py_flags, t))
+			found = true;
 		if (grab_element_flag(a->el_info, t))
 			found = true;
 		if (!found)
@@ -2788,7 +2825,6 @@ static enum parser_error parse_artifact_time(struct parser *p) {
 static enum parser_error parse_artifact_msg(struct parser *p) {
 	struct artifact *a = parser_priv(p);
 	assert(a);
-
 	a->alt_msg = string_append(a->alt_msg, parser_getstr(p, "text"));
 	return PARSE_ERROR_NONE;
 }

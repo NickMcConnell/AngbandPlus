@@ -1612,41 +1612,48 @@ static enum parser_error parse_monster_color_cycle(struct parser *p)
 	return PARSE_ERROR_NONE;
 }
 
+#define IPMLS() \
+	IPML( "plural ?str plural", parse_monster_plural); \
+	IPML( "glyph char glyph", parse_monster_glyph); \
+	IPML( "color sym color", parse_monster_color); \
+	IPML( "speed int speed", parse_monster_speed); \
+	IPML( "hit-points int hp", parse_monster_hit_points); \
+	IPML( "light int light", parse_monster_light); \
+	IPML( "hearing int hearing", parse_monster_hearing); \
+	IPML( "smell int smell", parse_monster_smell); \
+	IPML( "armor-class int ac", parse_monster_armor_class); \
+	IPML( "sleepiness int sleep", parse_monster_sleepiness); \
+	IPML( "depth int level", parse_monster_depth); \
+	IPML( "rarity int rarity", parse_monster_rarity); \
+	IPML( "experience int mexp", parse_monster_experience); \
+	IPML( "flags-off ?str flags", parse_monster_flags_off); \
+	IPML( "desc str desc", parse_monster_desc); \
+	IPML( "innate-freq int freq", parse_monster_innate_freq); \
+	IPML( "spell-freq int freq", parse_monster_spell_freq); \
+	IPML( "spell-power uint power", parse_monster_spell_power); \
+	IPML( "shape str name", parse_monster_shape); \
+	IPML( "deathspells str spells", parse_monster_deathspells); \
+	IPML( "color-cycle sym group sym cycle", parse_monster_color_cycle)
+
 struct parser *init_parse_monster(void) {
 	struct parser *p = parser_new();
 	parser_setpriv(p, NULL);
+	#define IPML(A, B) parser_reg(p, A, B );
 
 	parser_reg(p, "name str name", parse_monster_name);
-	parser_reg(p, "plural ?str plural", parse_monster_plural);
 	parser_reg(p, "base sym base", parse_monster_base);
-	parser_reg(p, "glyph char glyph", parse_monster_glyph);
-	parser_reg(p, "color sym color", parse_monster_color);
-	parser_reg(p, "speed int speed", parse_monster_speed);
-	parser_reg(p, "hit-points int hp", parse_monster_hit_points);
-	parser_reg(p, "light int light", parse_monster_light);
-	parser_reg(p, "hearing int hearing", parse_monster_hearing);
-	parser_reg(p, "smell int smell", parse_monster_smell);
-	parser_reg(p, "armor-class int ac", parse_monster_armor_class);
-	parser_reg(p, "sleepiness int sleep", parse_monster_sleepiness);
-	parser_reg(p, "depth int level", parse_monster_depth);
-	parser_reg(p, "rarity int rarity", parse_monster_rarity);
-	parser_reg(p, "experience int mexp", parse_monster_experience);
 	parser_reg(p, "blow sym method ?sym effect ?rand damage", parse_monster_blow);
 	parser_reg(p, "flags ?str flags", parse_monster_flags);
-	parser_reg(p, "flags-off ?str flags", parse_monster_flags_off);
-	parser_reg(p, "desc str desc", parse_monster_desc);
-	parser_reg(p, "innate-freq int freq", parse_monster_innate_freq);
-	parser_reg(p, "spell-freq int freq", parse_monster_spell_freq);
-	parser_reg(p, "spell-power uint power", parse_monster_spell_power);
 	parser_reg(p, "spells str spells", parse_monster_spells);
-	parser_reg(p, "deathspells str spells", parse_monster_deathspells);
 	parser_reg(p, "drop sym tval sym sval uint chance uint min uint max", parse_monster_drop);
 	parser_reg(p, "drop-base sym tval uint chance uint min uint max", parse_monster_drop_base);
 	parser_reg(p, "friends uint chance rand number sym name ?sym role", parse_monster_friends);
 	parser_reg(p, "friends-base uint chance rand number sym name ?sym role", parse_monster_friends_base);
 	parser_reg(p, "mimic sym tval sym sval", parse_monster_mimic);
-	parser_reg(p, "shape str name", parse_monster_shape);
-	parser_reg(p, "color-cycle sym group sym cycle", parse_monster_color_cycle);
+
+	IPMLS();
+
+	#undef IPML
 	return p;
 }
 
@@ -2406,39 +2413,23 @@ static enum parser_error parse_lore_mimic(struct parser *p) {
 struct parser *init_parse_lore(void) {
 	struct parser *p = parser_new();
 	parser_setpriv(p, NULL);
+	#define IPML(A, B) parser_reg(p, A, ignored );
+
+	IPMLS();
 
 	parser_reg(p, "name str name", parse_lore_name);
-	parser_reg(p, "plural ?str plural", ignored);
 	parser_reg(p, "base sym base", parse_lore_base);
-	parser_reg(p, "glyph char glyph", ignored);
-	parser_reg(p, "color sym color", ignored);
-	parser_reg(p, "speed int speed", ignored);
-	parser_reg(p, "hit-points int hp", ignored);
-	parser_reg(p, "light int light", ignored);
-	parser_reg(p, "hearing int hearing", ignored);
-	parser_reg(p, "smell int smell", ignored);
-	parser_reg(p, "armor-class int ac", ignored);
-	parser_reg(p, "sleepiness int sleep", ignored);
-	parser_reg(p, "depth int level", ignored);
-	parser_reg(p, "rarity int rarity", ignored);
-	parser_reg(p, "experience int mexp", ignored);
 	parser_reg(p, "counts int sights int deaths int tkills int wake int ignore int innate int spell", parse_lore_counts);
 	parser_reg(p, "blow sym method ?sym effect ?rand damage ?int seen ?int index", parse_lore_blow);
 	parser_reg(p, "flags ?str flags", parse_lore_flags);
-	parser_reg(p, "flags-off ?str flags", ignored);
-	parser_reg(p, "desc str desc", ignored);
-	parser_reg(p, "innate-freq int freq", ignored);
-	parser_reg(p, "spell-freq int freq", ignored);
-	parser_reg(p, "spell-power uint power", ignored);
 	parser_reg(p, "spells str spells", parse_lore_spells);
 	parser_reg(p, "drop sym tval sym sval uint chance uint min uint max", parse_lore_drop);
 	parser_reg(p, "drop-base sym tval uint chance uint min uint max", parse_lore_drop_base);
-	parser_reg(p, "drop-artifact str name", ignored);
 	parser_reg(p, "friends uint chance rand number sym name ?sym role", parse_lore_friends);
 	parser_reg(p, "friends-base uint chance rand number sym name ?sym role", parse_lore_friends_base);
 	parser_reg(p, "mimic sym tval sym sval", parse_lore_mimic);
-	parser_reg(p, "shape str name", ignored);
-	parser_reg(p, "color-cycle sym group sym cycle", ignored);
+
+	#undef IPML
 	return p;
 }
 

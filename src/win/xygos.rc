@@ -1,4 +1,4 @@
-/* File: angband.rc */
+/* File: xygos.rc */
 #include "win-menu.h"
 
 ANGBAND MENU
@@ -158,5 +158,5 @@ ANGBAND MENU
 	}
 }
 
-ANGBAND ICON "angband.ico"
+ANGBAND ICON "xygos.ico"
 

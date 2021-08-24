@@ -20,6 +20,7 @@
 #include "generate.h"
 #include "init.h"
 #include "mon-make.h"
+#include "mon-spell.h"
 #include "mon-util.h"
 #include "monster.h"
 #include "obj-desc.h"
@@ -494,6 +495,17 @@ void quest_enter_level(struct chunk *c)
 	const char *n = q->name;
 	s32b value;
 
+	/* Find the entry point */
+	struct loc grid;
+	for (grid.y = 0; grid.y < c->height; grid.y++) {
+		for (grid.x = 0; grid.x < c->width; grid.x++) {
+			if (square_isstairs(c, grid))
+				break;
+		}
+		if ((grid.x < c->width) && (square_isstairs(c, grid)))
+			break;
+	}
+
 	 if (streq(n, "Msing Pills")) {
 		/* Traps:
 		 * Place a portal at each side first.
@@ -566,7 +578,75 @@ void quest_enter_level(struct chunk *c)
 		place_new_monster(c, loc(c->width-2, 1), lookup_monster("Blinky"), false, false, info, ORIGIN_DROP);
 		place_new_monster(c, loc(1, c->height - 2), lookup_monster("Pinky"), false, false, info, ORIGIN_DROP);
 		place_new_monster(c, loc(c->width-2, c->height - 2), lookup_monster("Clyde"), false, false, info, ORIGIN_DROP);
-	 }
+	} else if (streq(n, "Whiskey Cave")) {
+		/* Scatter the loot distant from you */
+		for(int i=0;i<q->min_found * 2;i++) {
+			struct loc xy;
+			int dist;
+			int value;
+			struct object *obj = make_object_named(c, 1, false, false, false, &value, TV_FOOD, "bottle of whiskey");
+			if (!obj)
+				obj = make_object_named(c, 1, false, false, false, &value, TV_FOOD, NULL);
+			if (!obj)
+				obj = make_object_named(c, 1, false, false, false, &value, 0, NULL);
+			assert(obj);
+			do {
+				xy = loc(randint0(c->width), randint0(c->height));
+				dist = (abs(grid.x - xy.x) + abs(grid.y - xy.y));
+			} while ((!square_isempty(c, xy)) || (dist < 14));
+			quest_item_at(c, xy, obj);
+		}
+
+		/* Monsters - fire theme */
+		for(int i=0;i<12+randint0(3);i++) {
+			struct loc xy;
+			int dist;
+			struct monster_race *mon;
+			/* Try hard to find thematic monsters, but give up if there aren't any */
+			do {
+				mon = get_mon_num(q->level);
+				/* Thematic means:
+				 * 	Immune to fire or plasma, or capable of projecting fire or plasma.
+				 */
+				if (rf_has(mon->flags, RF_IM_FIRE)) break;
+				if (rf_has(mon->flags, RF_IM_PLASMA)) break;
+				if (rsf_has(mon->spell_flags, RSF_BR_FIRE)) break;
+				if (rsf_has(mon->spell_flags, RSF_BR_PLAS)) break;
+				if (rsf_has(mon->spell_flags, RSF_BA_FIRE)) break;
+				if (rsf_has(mon->spell_flags, RSF_BO_FIRE)) break;
+				if (rsf_has(mon->spell_flags, RSF_BO_PLAS)) break;
+			} while (randint0(1000) > 0);
+			do {
+				xy = loc(randint0(c->width), randint0(c->height));
+				dist = (abs(grid.x - xy.x) + abs(grid.y - xy.y));
+			} while ((!square_isempty(c, xy)) || (dist < 5));
+			struct monster_group_info info = { 0, 0 };
+			place_new_monster(c, xy, mon, false, false, info, ORIGIN_DROP);
+		}
+
+		/* Traps:
+		 * There should be a number of granite, rubble, pit type of traps.
+		 */
+		struct trap_kind *traps[5];
+		traps[0] = lookup_trap("pit");
+		traps[1] = lookup_trap("fire trap");
+		traps[2] = traps[3] = lookup_trap("rock fall trap");
+		traps[4] = lookup_trap("earthquake trap");
+		for(int i=0;i<5+randint0(3);i++) {
+			struct loc xy;
+			int dist;
+			do {
+				xy = loc(randint0(c->width), randint0(c->height));
+				dist = (abs(grid.x - xy.x) + abs(grid.y - xy.y));
+			} while ((!square_isempty(c, xy)) || (dist < 7));
+			struct trap_kind *glyph = traps[randint0(5)];
+			if (glyph) {
+				int tidx = glyph->tidx;
+				place_trap(c, loc(1, 9), tidx, 0);
+				place_trap(c, loc(c->width-2, 9), tidx, 0);
+			}
+		}
+	}
 }
 
 static struct object * has_special_flag(struct object *obj, void *data)
@@ -619,6 +699,20 @@ static void quest_remove_specials(void)
 		if (obj)
 			remove_object(obj);
 	} while (obj);
+}
+
+/** Count all items with the QUEST_SPECIAL flag.
+ */
+static int quest_count_specials(void)
+{
+	struct object *obj;
+	int count = 0;
+	do {
+		obj = find_object(has_special_flag, NULL);
+		if (obj)
+			count++;
+	} while (obj);
+	return count;
 }
 
 /** Count all items of a given kind
@@ -677,6 +771,7 @@ void quest_changing_level(void)
 		/* Fail, or reward */
 		if (!(quest->flags & QF_SUCCEEDED)) {
 			quest->flags |= QF_FAILED;
+			quest->flags |= QF_UNREWARDED;
 		} else {
 			quest->flags |= QF_UNREWARDED;
 		}
@@ -807,7 +902,7 @@ bool quest_is_rewardable(const struct quest *q)
  * Passed true if the quest was completed successfully.
  * Make sure overflowing inventory is handled reasonably.
  */
-void quest_reward(const struct quest *q, bool success)
+void quest_reward(struct quest *q, bool success)
 {
 	const char *n = q->name;
 	int au = 0;
@@ -824,6 +919,17 @@ void quest_reward(const struct quest *q, bool success)
 			add_item(si, TV_FOOD, "Hunter's pie", 12, 12);
 			add_item(si, TV_MUSHROOM, "clarity", 5, 5);
 			add_item(si, TV_MUSHROOM, "emergency", 7, 7);
+		} else if (streq(n, "Whiskey Cave")) {
+			int specials = quest_count_specials();
+			au = 200 * specials;
+			if (specials >= ((3 * q->min_found) / 2)) {
+				char buf[256];
+				add_item(si, (specials == (q->min_found * 2)) ? TV_HARD_ARMOR : TV_SOFT_ARMOR, "(fireproof)", 1, 1);
+				strnfmt(buf, sizeof(buf), "%s Since you went beyond what I was expecting in bringing %d bottles back, I have also found some protective gear that you might like.", q->succeed);
+				char *msg = string_make(buf);
+				string_free(q->succeed);
+				q->succeed = msg;
+			}
 		}
 		quest_remove_specials();
 	} else {

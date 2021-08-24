@@ -24,8 +24,6 @@ desc:attracts opponents and weakens the defences
 name:teleportation
 type:helm
 type:crown
-type:amulet
-type:ring
 effect:TELEPORT
 dice:40
 time:d100
@@ -105,8 +103,6 @@ type:soft armor
 type:hard armor
 type:dragon armor
 type:light
-type:amulet
-type:ring
 effect:TIMED_INC:POISONED
 dice:10+d10
 time:1d500
@@ -128,8 +124,6 @@ type:soft armor
 type:hard armor
 type:dragon armor
 type:light
-type:amulet
-type:ring
 effect:WAKE
 time:100+1d50
 msg:A horn blares out!
@@ -151,8 +145,6 @@ type:soft armor
 type:hard armor
 type:dragon armor
 type:light
-type:amulet
-type:ring
 effect:TIMED_INC:IMAGE
 dice:10+d10
 time:1d500
@@ -174,8 +166,6 @@ type:soft armor
 type:hard armor
 type:dragon armor
 type:light
-type:amulet
-type:ring
 effect:TIMED_INC:PARALYZED
 dice:5+1d5
 time:1d1000
@@ -225,19 +215,49 @@ conflict-flags:IMPAIR_HP
 desc:makes you slow to recover hitpoints
 
 name:cowardice
-type:amulet
-type:ring
+type:gun
+type:digger
+type:boots
+type:gloves
+type:helm
+type:crown
+type:shield
+type:cloak
+type:soft armor
+type:hard armor
+type:light
 flags:AFRAID
 conflict-flags:AFRAID | PROT_FEAR
 desc:makes you too scared to fight
 
 name:stone
-type:amulet
-type:ring
-effect:TIMED_INC:STONESKIN
+type:digger
+type:boots
+type:gloves
+type:helm
+type:crown
+type:shield
+type:cloak
+type:soft armor
+type:hard armor
+type:light
+effect:TIMED_INC:STONE_SKIN
 dice:20+1d20
 time:1d1000
 desc:periodically turns your skin to stone
+
+name:steelskin
+type:digger
+type:hafted
+type:polearm
+type:sword
+type:helm
+type:crown
+type:shield
+type:hard armor
+type:light
+flags:STEEL_SKIN
+desc:makes your skin harder to damage, but conduct electricity
 
 name:anti-teleportation
 type:boots
@@ -245,8 +265,6 @@ type:cloak
 type:soft armor
 type:hard armor
 type:dragon armor
-type:amulet
-type:ring
 flags:NO_TELEPORT
 desc:prevents you from teleporting
 conflict:teleportation
@@ -291,23 +309,6 @@ type:dragon armor
 values:RES_FIRE[1] | RES_COLD[-1]
 desc:makes you vulnerable to cold attacks, but resistant to fire
 conflict:burning
-
-name:steelskin
-type:digger
-type:hafted
-type:polearm
-type:sword
-type:helm
-type:crown
-type:shield
-type:hard armor
-type:dragon armor
-type:light
-type:amulet
-type:ring
-combat:0:0:20
-values:RES_ELEC[-1] | RES_SHARD[1]
-desc:makes your skin harder to damage, but conduct electricity
 
 name:air swing
 combat:-20:0:0

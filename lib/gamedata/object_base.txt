@@ -135,15 +135,6 @@ break:50
 # max-stack:10
 flags:HATES_FIRE
 
-name:amulet:Amulet~
-graphics:orange
-# max-stack:2
-
-name:ring:Ring~
-graphics:red
-# max-stack:5
-flags:HATES_ELEC
-
 name:device:Device~
 graphics:light umber
 # max-stack:5
@@ -154,7 +145,7 @@ graphics:green
 # max-stack:5
 flags:HATES_ELEC | EASY_KNOW
 
-name:rod:Rod~
+name:gadget:gadget~
 graphics:light purple
 # max-stack:5
 flags:HATES_ELEC | EASY_KNOW
@@ -171,7 +162,7 @@ break:10
 flags:HATES_ACID | HATES_FIRE
 flags:EASY_KNOW
 
-name:battery:battery~
+name:battery:batter|y|ies|
 graphics:orange
 break:80
 # max-stack:20
@@ -192,3 +183,15 @@ flags:EASY_KNOW
 
 name:cash
 graphics:light yellow
+
+name:legs:leg implant~
+graphics:white
+break:0
+flags:HATES_FIRE | HATES_ELEC
+flags:EASY_KNOW | NO_EQUIP
+
+name:arms:arm implant~
+graphics:white
+break:0
+flags:HATES_FIRE | HATES_ELEC
+flags:EASY_KNOW | NO_EQUIP

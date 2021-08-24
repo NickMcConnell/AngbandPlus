@@ -637,6 +637,8 @@ static enum parser_error parse_constants_player(struct parser *p) {
 		z->max_range = value;
 	else if (streq(label, "start-gold"))
 		z->start_gold = value;
+	else if (streq(label, "start-gold-spread"))
+		z->start_gold_spread = value;
 	else if (streq(label, "food-value"))
 		z->food_value = value;
 	else
@@ -2032,6 +2034,30 @@ static struct file_parser history_parser = {
  * Intialize player races
  * ------------------------------------------------------------------------ */
 
+struct player_body *get_body_by_name(const char *name)
+{
+	struct player_body *b;
+	for (b = bodies; b; b = b->next) {
+		if (streq(b->name, name)) {
+			return b;
+		}
+	}
+	return NULL;
+}
+
+int get_body_idx_by_name(const char *name)
+{
+	struct player_body *b;
+	int i = 0;
+	for (b = bodies; b; b = b->next) {
+		if (streq(b->name, name)) {
+			return i;
+		}
+		i++;
+	}
+	return -1;
+}
+
 static enum parser_error parse_p_race_name(struct parser *p) {
 	struct player_race *h = parser_priv(p);
 	struct player_race *r = mem_zalloc(sizeof *r);
@@ -2039,9 +2065,23 @@ static enum parser_error parse_p_race_name(struct parser *p) {
 	r->next = h;
 	r->name = string_make(parser_getstr(p, "name"));
 	parsing_magic = &r->magic;
-	/* Default body is humanoid */
+	/* Default body is humanoid (the last in body.txt) */
 	r->body = 0;
 	parser_setpriv(p, r);
+	return PARSE_ERROR_NONE;
+}
+
+static enum parser_error parse_p_race_body(struct parser *p) {
+		struct player_race *r = parser_priv(p);
+	if (!r)
+		return PARSE_ERROR_MISSING_RECORD_HEADER;
+	char *name = parser_getstr(p, "body");
+	int body = get_body_idx_by_name(name);
+	if (body >= 0) {
+		r->body = body;
+	} else {
+		return PARSE_ERROR_INVALID_VALUE;
+	}
 	return PARSE_ERROR_NONE;
 }
 
@@ -2078,8 +2118,8 @@ static enum parser_error parse_p_race_talents(struct parser *p) {
 	struct player_race *r = parser_priv(p);
 	if (!r)
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
-	r->tp_base = parser_getuint(p, "base");
-	r->tp_max = parser_getuint(p, "max");
+	r->tp_base = parser_getint(p, "base");
+	r->tp_max = parser_getint(p, "max");
 	return PARSE_ERROR_NONE;
 }
 
@@ -2176,6 +2216,11 @@ static enum parser_error parse_p_race_exp(struct parser *p) {
 	if (!r)
 		return PARSE_ERROR_MISSING_RECORD_HEADER;
 	r->r_exp = parser_getint(p, "exp");
+	if (parser_hasval(p, "high_exp")) {
+		r->r_high_exp = parser_getint(p, "high_exp");
+	} else {
+		r->r_high_exp = r->r_exp;
+	}
 	return PARSE_ERROR_NONE;
 }
 
@@ -2355,7 +2400,7 @@ struct parser *init_parse_p_race(void) {
 	parser_reg(p, "ext str name", parse_p_race_ext);
 	parser_reg(p, "exts str exts", parse_p_race_exts);
 	parser_reg(p, "stats int str int int int wis int dex int con int chr int spd", parse_p_race_stats);
-	parser_reg(p, "talents uint base uint max", parse_p_race_talents);
+	parser_reg(p, "talents int base int max", parse_p_race_talents);
 	parser_reg(p, "skill-disarm-phys int disarm", parse_p_race_skill_disarm_phys);
 	parser_reg(p, "skill-disarm-magic int disarm", parse_p_race_skill_disarm_magic);
 	parser_reg(p, "skill-device int device", parse_p_race_skill_device);
@@ -2368,7 +2413,7 @@ struct parser *init_parse_p_race(void) {
 	parser_reg(p, "skill-dig int dig", parse_p_race_skill_dig);
 	parser_reg(p, "equip sym tval sym sval uint min uint max", parse_p_race_equip);
 	parser_reg(p, "hitdie int mhp", parse_p_race_hitdie);
-	parser_reg(p, "exp int exp", parse_p_race_exp);
+	parser_reg(p, "exp int exp ?int high_exp", parse_p_race_exp);
 	parser_reg(p, "infravision int infra", parse_p_race_infravision);
 	parser_reg(p, "history uint hist", parse_p_race_history);
 	parser_reg(p, "age int base_age int mod_age", parse_p_race_age);
@@ -2379,6 +2424,7 @@ struct parser *init_parse_p_race(void) {
 	parser_reg(p, "player-flags ?str flags", parse_p_race_play_flags);
 	parser_reg(p, "values str values", parse_p_race_values);
 	parser_reg(p, "desc str desc", parse_p_race_desc);
+	parser_reg(p, "body str body", parse_p_race_body);
 	init_parse_magic(p);
 	return p;
 }

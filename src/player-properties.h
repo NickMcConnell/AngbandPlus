@@ -26,4 +26,5 @@ bool race_has_ability(const struct player_race *race,
 					  struct player_ability *ability);
 void do_cmd_abilities(void);
 
+extern struct player_ability ability_list[32];
 #endif /* !PLAYER_PROPS_H */

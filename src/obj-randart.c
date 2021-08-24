@@ -1363,24 +1363,14 @@ static struct object_kind *get_base_item(struct artifact_set_data *data,
 	char name[120] = "";
 	int start = 1;
 
-	/* Restrict to appropriate kinds if jewellery */
-	if ((tval == TV_RING) || (tval == TV_AMULET)) {
-		struct object_kind *test_kind = lookup_kind(tval, start);
-		while (test_kind->kidx < z_info->ordinary_kind_max) {
-			start++;
-			test_kind = lookup_kind(tval, start);
-		}
-	}
-
 	/* Pick an sval for that tval at random */
 	while (!kind) {
 		int r = start + randint0(kb_info[tval].num_svals - start + 1);
 		kind = lookup_kind(tval, r);
 
-		/* No items based on quest artifacts or elven rings */
-		if (strstr(kind->name, "Ring of") ||
-			kf_has(kind->kind_flags, KF_QUEST_ART))
-				kind = NULL;
+		/* No items based on quest artifacts */
+		if (kf_has(kind->kind_flags, KF_QUEST_ART))
+			kind = NULL;
 	}
 
 	object_short_name(name, sizeof name, kind->name);
@@ -1461,8 +1451,6 @@ void artifact_prep(struct artifact *art, const struct object_kind *kind,
 				art->modifiers[OBJ_MOD_LIGHT] = 3;
 			}
 			break;
-		case TV_RING:
-		case TV_AMULET:
 		default:
 			break;
 	}

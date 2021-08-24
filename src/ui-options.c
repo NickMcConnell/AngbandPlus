@@ -1439,8 +1439,6 @@ static bool quality_action(struct menu *m, const ui_event *event, int oid, bool 
 
 	/* Work out how many options we have */
 	count = IGNORE_MAX;
-	if ((oid == ITYPE_RING) || (oid == ITYPE_AMULET))
-		count = area.page_rows = IGNORE_BAD + 1;
 
 	/* Run menu */
 	menu_init(&menu, MN_SKIN_SCROLL, &menu_f);
@@ -1515,13 +1513,11 @@ typedef struct
  */
 static tval_desc sval_dependent[] =
 {
-	{ TV_DEVICE,			"Devices" },
+	{ TV_DEVICE,		"Devices" },
 	{ TV_WAND,			"Wands" },
-	{ TV_ROD,			"Rods" },
+	{ TV_GADGET,		"Gadgets" },
 	{ TV_CARD,			"Cards" },
 	{ TV_PILL,			"Pills" },
-	{ TV_RING,			"Rings" },
-	{ TV_AMULET,		"Amulets" },
 	{ TV_FOOD,			"Food" },
 	{ TV_MUSHROOM,		"Mushrooms" },
 	{ TV_LIGHT,			"Lights" },

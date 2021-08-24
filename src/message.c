@@ -115,6 +115,10 @@ void message_add(const char *str, u16b type)
 {
 	message_t *m;
 
+	if (strstr(str, "fail to the")) {
+		abort();
+	}
+
 	if (messages->head &&
 	    messages->head->type == type &&
 	    !strcmp(messages->head->str, str) &&

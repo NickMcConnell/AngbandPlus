@@ -40,7 +40,8 @@ enum {
 	STORE_HOME		= 7,
 	STORE_HQ		= 8,
 	STORE_AIR		= 9,
-	MAX_STORES		= 10
+	STORE_CYBER		= 10,
+	MAX_STORES		= 11
 };
 
 struct object_buy {
@@ -60,6 +61,7 @@ struct owner {
 struct store_entry {
 	struct object_kind *kind;
 	random_value rarity;
+	int tval;
 };
 
 struct store {
@@ -117,7 +119,7 @@ void store_maint(struct store *s);
 void free_stores(void);
 void store_stock_list(struct store *store, struct object **list, int n);
 void home_carry(struct object *obj);
-struct object *store_carry(struct store *store, struct object *obj);
+struct object *store_carry(struct store *store, struct object *obj, bool maintain);
 void store_reset(void);
 void store_shuffle(struct store *store);
 void store_update(void);
@@ -137,6 +139,7 @@ extern struct parser *store_owner_parser_new(struct store *stores);
 
 extern void do_cmd_sell(struct command *cmd);
 extern void do_cmd_stash(struct command *cmd);
+extern void do_cmd_install(struct command *cmd);
 extern void do_cmd_buy(struct command *cmd);
 extern void do_cmd_retrieve(struct command *cmd);
 

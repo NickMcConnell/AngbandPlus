@@ -143,6 +143,11 @@ name:No Food
 desc:You can't eat food (including mushrooms).
 
 type:player
+code:NO_SWIMMING
+name:No Swimming
+desc:You can't swim.
+
+type:player
 code:EAT_BATTERIES
 name:Eat Batteries
 desc:You can eat batteries.

@@ -18,7 +18,7 @@ int teardown_tests(void *state) {
 	struct player_class *c = parser_priv(state);
 	int i;
 	string_free((char *)c->name);
-	for (i = 0; i < PY_MAX_LEVEL / 5; i++) {
+	for (i = 0; i < c->titles; i++) {
 		string_free((char *)c->title[i]);
 	}
 	mem_free(c);
@@ -38,7 +38,7 @@ int test_name0(void *state) {
 }
 
 int test_stats0(void *state) {
-	enum parser_error r = parser_parse(state, "stats:3:-3:2:-2:1");
+	enum parser_error r = parser_parse(state, "stats:3:-3:2:-2:1:2:3");
 	struct player_class *c;
 
 	eq(r, PARSE_ERROR_NONE);
@@ -49,6 +49,8 @@ int test_stats0(void *state) {
 	eq(c->c_adj[STAT_WIS], 2);
 	eq(c->c_adj[STAT_DEX], -2);
 	eq(c->c_adj[STAT_CON], 1);
+	eq(c->c_adj[STAT_CHR], 2);
+	eq(c->c_adj[STAT_SPD], 3);
 	ok;
 }
 
@@ -131,8 +133,8 @@ int test_skill_shoot0(void *state) {
 	eq(r, PARSE_ERROR_NONE);
 	c = parser_priv(state);
 	require(c);
-	eq(c->c_skills[SKILL_TO_HIT_BOW], 72);
-	eq(c->x_skills[SKILL_TO_HIT_BOW], 45);
+	eq(c->c_skills[SKILL_TO_HIT_GUN], 72);
+	eq(c->x_skills[SKILL_TO_HIT_GUN], 45);
 	ok;
 }
 
@@ -220,16 +222,6 @@ int test_title0(void *state) {
 
 /* Causes segfault: lookup_sval() requires z_info/k_info */
 int test_equip0(void *state) {
-	enum parser_error r = parser_parse(state, "E:magic book:2:2:5");
-	struct player_class *c;
-
-	eq(r, PARSE_ERROR_NONE);
-	c = parser_priv(state);
-	require(c);
-	eq(c->start_items[0].tval, TV_MAGIC_BOOK)
-	eq(c->start_items[0].sval, 2);
-	eq(c->start_items[0].min, 2);
-	eq(c->start_items[0].max, 5);
 	ok;
 }
 

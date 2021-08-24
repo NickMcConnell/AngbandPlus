@@ -482,7 +482,7 @@ static bool ability_allowed(unsigned a, bool gain) {
 	for(int i=0; i<PF_MAX; i++) {
 		if (ability[i]) {
 			if (ability[i]->forbid[a]) {
-				if (player_has(player, i)) {
+				if (pf_has(player->state.pflags_base, i)) {
 					return false;
 				}
 			}
@@ -493,7 +493,7 @@ static bool ability_allowed(unsigned a, bool gain) {
 	for(int i=0; i<PF_MAX; i++) {
 		if (ability[i]) {
 			if (ability[a]->require[i]) {
-				if (!player_has(player, i)) {
+				if (!pf_has(player->state.pflags_base, i)) {
 					return false;
 				}
 			}
@@ -519,7 +519,7 @@ static bool can_gain_ability(unsigned a, bool birth) {
 	assert(a < PF_MAX);
 	assert(ability[a]);
 
-	if (player_has(player, a))
+	if (pf_has(player->state.pflags_base, a))
 		return false;
 
 	if (!ability_allowed(a, true))
@@ -546,9 +546,23 @@ static bool can_gain_talent(unsigned a, bool birth) {
 }
 
 /* Recalculate everything needed after an ability has been changed */
-static void changed_abilities(void) {
-	player->upkeep->update |= PU_BONUS | PU_HP;
+void changed_abilities(void) {
+	/* Update player */
+	handle_stuff(player);
+
+	/* Flush messages */
+	event_signal(EVENT_MESSAGE_FLUSH);
+
+	/* Update stuff */
+	player->upkeep->update |= PU_BONUS | PU_HP | PU_SPELLS | PU_TORCH | PU_UPDATE_VIEW | PU_PANEL | PU_INVEN;
+
 	update_stuff(player);
+
+	/* Update stuff */
+	player->upkeep->update |= PU_BONUS | PU_HP | PU_SPELLS | PU_TORCH | PU_UPDATE_VIEW | PU_PANEL | PU_INVEN;
+	player->upkeep->redraw |= PR_BASIC | PR_EXTRA | PR_LIGHT | PR_INVEN | PR_EQUIP;
+
+	handle_stuff(player);
 }
 
 /* Attempt to gain an ability, returning true if successful.
@@ -576,7 +590,7 @@ static bool lose_ability(unsigned a) {
 	assert(a < PF_MAX);
 	assert(ability[a]);
 
-	if (!player_has(player, a))
+	if (!pf_has(player->state.pflags_base, a))
 		return false;
 
 	if (!ability_allowed(a, false))
@@ -643,7 +657,7 @@ bool get_mutation(unsigned long flags, bool allow_loss)
 	for(int i=0;i<PF_MAX;i++) {
 		if (ability[i]) {
 			if ((ability[i]->flags & flags) == flags) {
-				if ((player_has(player, i) && allow_loss) || (can_gain_ability(i, true))) {
+				if ((pf_has(player->state.pflags_base, i) && allow_loss) || (can_gain_ability(i, true))) {
 					ok = true;
 					break;
 				}
@@ -661,7 +675,7 @@ bool get_mutation(unsigned long flags, bool allow_loss)
 		mut = randint0(PF_MAX);
 		if (ability[mut]) {
 			if ((ability[mut]->flags & flags) == flags) {
-				if ((player_has(player, mut) && allow_loss) || (can_gain_ability(mut, true))) {
+				if ((pf_has(player->state.pflags_base, mut) && allow_loss) || (can_gain_ability(mut, true))) {
 					break;
 				}
 			}
@@ -691,7 +705,7 @@ bool get_mutation(unsigned long flags, bool allow_loss)
 	}
 
 	/* If you already have it, remove it - otherwise gain it */
-	if (player_has(player, mut))
+	if (pf_has(player->state.pflags_base, mut))
 		lose_ability(mut);
 	else
 		gain_ability(mut, true);
@@ -717,12 +731,33 @@ static const char *ability_name(int a) {
  * to init_talent after birth talents have been selected)
  */
 int setup_talents(void) {
-	player->talent_points = player->race->tp_base + player->class->tp_base;
-	
+	int base = player->race->tp_base + player->extension->tp_base + player->class->tp_base;
+	int max = player->race->tp_max + player->extension->tp_max + player->class->tp_max;
+
+	/* If something (such as an extension) has reduced base or max talents below 0, take it
+	 * from the other - but never allow negative base or max to get through.
+	 */
+	if (base < 0) {
+		max += base;
+		base = 0;
+	}
+	if (max < 0) {
+		base += max;
+		max = 0;
+	}
+	if (base < 0) {
+		base = 0;
+	}
+	if (max < 0) {
+		max = 0;
+	}
+
+	player->talent_points = base;
+
 	/* These must take all your TP */
 	ability[PF_PATIENCE]->cost = ability[PF_UNKNOWN_TALENTS]->cost = player->talent_points;
 	
-	return player->race->tp_max + player->class->tp_max;
+	return max;
 }
 
 /* Display the abilities which you have or could gain, with more information
@@ -752,7 +787,7 @@ int cmd_abilities(struct player *p, bool birth, int selected, bool *flip) {
 		Term_clear();
 
 		/* Build the top message */
-		const char *tops = "\nThis is a list of all your abilities (including talents and abilities gained through other means, such as mutations), plus any additional talents which you can currently gain. Existing abilities are displayed in grey, gainable talents in green";
+		const char *tops = "\nThis is a list of all your abilities (including talents and abilities gained through other means, such as mutations), plus any additional talents which you can currently gain. Existing intrinsic abilities are displayed in grey, existing abilities gained through your equipment in blue, existing abilities gained through temporary effects in magenta, gainable talents in green";
 		const char *tops_b = ", and talents which can only be gained at character creation in orange";
 		if (!birth)
 			tops_b = "";
@@ -839,7 +874,16 @@ int cmd_abilities(struct player *p, bool birth, int selected, bool *flip) {
 					if (i == selected) {
 						colour = COLOUR_WHITE;
 					} else {
-						colour = COLOUR_SLATE;
+						if (pf_has(player->state.pflags_base, avail[i])) {
+							/* Intrinsic */
+							colour = COLOUR_SLATE;
+						} else if (pf_has(player->state.pflags_equip, avail[i])) {
+							/* Equipment */
+							colour = COLOUR_L_BLUE;
+						} else {
+							/* Temporary */
+							colour = COLOUR_MAGENTA;
+						}
 					}
 				} else {
 					if (ability[avail[i]]->flags & AF_BIRTH) {
@@ -868,8 +912,10 @@ int cmd_abilities(struct player *p, bool birth, int selected, bool *flip) {
 			tb = textblock_new();
 			if (gain[selected])
 				textblock_append_c(tb, COLOUR_SLATE, "With this talent %s", ability[avail[selected]]->desc_future ? ability[avail[selected]]->desc_future : ability[avail[selected]]->desc);
-			else
-				textblock_append_c(tb, COLOUR_SLATE, "%c%s", toupper(ability[avail[selected]]->desc[0]), ability[avail[selected]]->desc + 1);
+			else {
+				if (ability[avail[selected]]->desc)
+					textblock_append_c(tb, COLOUR_SLATE, "%c%s", toupper(ability[avail[selected]]->desc[0]), ability[avail[selected]]->desc + 1);
+			}
 
 			/* Stats, AC, skills, etc */
 			for(int i=0;i<STAT_MAX;i++) {

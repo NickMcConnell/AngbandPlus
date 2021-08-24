@@ -26,6 +26,10 @@
  */
 #define SV_UNKNOWN			0
 
+bool tval_is_legs(const struct object *obj);
+bool tval_is_arms(const struct object *obj);
+bool tval_is_implant(const struct object *obj);
+int tval_random_implant(void);
 bool tval_can_have_charges(const struct object *obj);
 bool tval_can_have_failure(const struct object *obj);
 bool tval_can_have_flavor_k(const struct object_kind *kind);
@@ -34,7 +38,6 @@ bool tval_can_have_timeout(const struct object *obj);
 int tval_find_idx(const char *name);
 const char *tval_find_name(int tval);
 bool tval_is_ammo(const struct object *obj);
-bool tval_is_sharp_missile(const struct object *obj);
 bool kind_tval_is_armor(const struct object_kind *kind);
 bool tval_is_armor(const struct object *obj);
 bool tval_is_battery(const struct object *obj);
@@ -46,7 +49,6 @@ bool tval_is_mushroom(const struct object *obj);
 bool tval_is_mushroom_k(const struct object_kind *kind);
 bool tval_is_fuel(const struct object *obj);
 bool tval_is_head_armor(const struct object *obj);
-bool tval_is_jewelry(const struct object *obj);
 bool tval_is_launcher(const struct object *obj);
 bool tval_is_light(const struct object *obj);
 bool tval_is_light_k(const struct object_kind *kind);
@@ -56,7 +58,6 @@ bool tval_is_money(const struct object *obj);
 bool tval_is_money_k(const struct object_kind *kind);
 bool tval_is_digger(const struct object *obj);
 bool tval_is_pill(const struct object *obj);
-bool tval_is_ring(const struct object *obj);
 bool tval_is_rod(const struct object *obj);
 bool tval_is_card(const struct object *obj);
 bool tval_is_device(const struct object *obj);
@@ -69,5 +70,6 @@ bool tval_is_edible(const struct object *obj);
 bool tval_is_zapper(const struct object *obj);
 int tval_sval_count(const char *name);
 int tval_sval_list(const char *name, int *list, int max_size);
+bool kind_tval_is_weapon(const struct object_kind *kind);
 
 #endif /* OBJECT_TVAL_H */

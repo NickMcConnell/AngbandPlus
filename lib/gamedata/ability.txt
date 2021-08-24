@@ -173,6 +173,7 @@ brief:You have extraordinary intuition.
 desc:You have extraordinary awareness and intuition, giving you the ability to get a feeling about the likely contents of a level very quickly.
 desc_future:you would have extraordinary awareness and intuition, giving you the ability to get a feeling about the likely contents of a level very quickly.
 flag:talent
+flag:mutation
 stats:0:0:0:0:0:5:0
 cost:1
 
@@ -329,7 +330,7 @@ sdesc:Sprints - rapid movement for a few moments. It's never for that long, but 
 ## Eyes mutations ##
 
 name:Compound_Eyes
-gain:Your eys transform into faceted black insectile compound eyes.
+gain:Your eyes transform into faceted black insectile compound eyes.
 lose:Your eyes return to normal.
 brief:You have faceted black compound eyes.
 desc:You have faceted black insectile compound eyes. This protects you from blindness, and the wider field of view makes you more perceptive. But it can be difficult to make sense of what you see, and so you are vulnerable to confusion.
@@ -344,7 +345,7 @@ forbid:Wide_Eyes
 forbid:Cat_Eyes
 
 name:Wide_Eyes
-gain:Your eys expand into wide, staring, lidless pools.
+gain:Your eyes expand into wide, staring, lidless pools.
 lose:Your eyes return to normal.
 brief:You have wide lidless eyes.
 desc:You have wide lidless eyes. They are sensitive, seeing in the infra-red and further into the darkness - but you are also more easily hurt by bright light.
@@ -372,13 +373,23 @@ values:STEALTH[-1]
 forbid:Compound_Eyes
 forbid:Wide_Eyes
 
-# pin = light res, blind res, -1 light, -3 infra?
-# third eye (telpathy)?
+# pin eyes = light res, blind res, -1 light, -3 infra?
+# third eye (telepathy)?
 # blank eyes
 # dazzling?
-# wis/int shift 'left log'?
 
 ## Mental mutations ##
+
+name:Animal_Magnetism
+gain:You taste blood for a moment.
+lose:You feel repulsive for a moment.
+brief:You have an animal magnetism.
+desc:You have an animal magnetism. This manifests itself as inexplicable charisma and an iron will - but is offset by trouble dealing with metal gear.
+flag:mutation
+flag:nasty
+stats:0:0:3:0:0:5:0
+obj-flags:MAGNETIC
+forbid:Thick_Brain
 
 name:Thick_Brain
 gain:You grow a thick, ropey brain.
@@ -390,6 +401,7 @@ flag:mutation
 flag:nasty
 stats:0:-4:-3:0:0:-1:0
 obj-flags:PROT_CONF
+forbid:Animal_Magnetism
 
 # cold/strange ('broken mirror') mind?
 
@@ -408,6 +420,7 @@ ac:40
 forbid:Steel_Skin
 forbid:Scaly_Skin
 forbid:Crystal_Skin
+forbid:Stone_Skin
 
 name:Crystal_Skin
 gain:Hundreds of sparkling crystals grow from your skin.
@@ -422,6 +435,7 @@ values:STEALTH[-3]
 forbid:Steel_Skin
 forbid:Scaly_Skin
 forbid:Elephant_Hide
+forbid:Stone_Skin
 
 name:Scaly_Skin
 gain:You grow scaly, reptilian skin.
@@ -437,11 +451,13 @@ values:RES_COLD[-1]
 forbid:Steel_Skin
 forbid:Crystal_Skin
 forbid:Elephant_Hide
+forbid:Stone_Skin
 
 name:Steel_Skin
 gain:Your skin turns to shiny metal.
 lose:Your skin no longer looks metallic.
-brief:You have shiny metallic skin. This is very protective in general and especially effective against shards, but clumsy and vulnerable to electric shocks.
+brief:You have shiny metallic skin.
+desc:You have shiny metallic skin. This is very protective in general and especially effective against shards, but clumsy and vulnerable to electric shocks.
 flag:mutation
 flag:nasty
 flag:birth
@@ -452,4 +468,22 @@ values:RES_ELEC[-1]
 forbid:Scaly_Skin
 forbid:Crystal_Skin
 forbid:Elephant_Hide
+forbid:Stone_Skin
+
+name:Stone_Skin
+gain:Your skin turns to rough, hard stone.
+lose:Your skin no longer feels stony.
+brief:You have hard, stone-like skin.
+desc:You have pale, hard, rough, stone-like skin. This provides good protection and is especially effective against shards, but makes you clumsy and vulnerable to acid.
+flag:mutation
+flag:nasty
+flag:birth
+stats:0:0:0:-4:0:-1:0
+ac:40
+values:RES_SHARD[1]
+values:RES_ACID[-1]
+forbid:Scaly_Skin
+forbid:Crystal_Skin
+forbid:Elephant_Hide
+forbid:Steel_Skin
 

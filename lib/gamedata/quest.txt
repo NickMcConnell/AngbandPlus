@@ -32,8 +32,7 @@ name:Rats
 level:6
 race:giant grey rat
 number:12
-store:Sewer:General Store
-store:Fortress:General Store
+store:Volcano:General Store
 entrymin:2
 entrymax:5
 entryfeature:permanent wall
@@ -45,17 +44,19 @@ unlock:Whiskey Cave
 
 name:Whiskey Cave
 level:15
-#race:giant grey rat
-#number:12
+object:bottle
 store:Rats
-entrymin:2
-entrymax:12
 entryfeature:lava
-intro:Well, I guess I can trust you now. I thought I was being clever, using a small cave that I thought nobody knew about to store my stash of valuable rare spirits safely. It's by the volcanic vent. Unfortunately the roof collapsed. Could you dig your way in and retrieve it for me? You'll be rewarded, and not just with a few bottle caps this time. I would take digging equipment of some kind - I don't know how far back the collapse went.
+#12 generated - more rewards if you return more than 6
+min-found:6
+max-remaining:0
+intro:Well, I guess I can trust you now. I thought I was being clever, using a small cave that I thought nobody knew about to store my stash of valuable rare spirits safely. It's by the volcanic vent. Unfortunately the roof collapsed - I really didn't expect that! Could you dig your way in and retrieve it for me? You'll be rewarded, and not just with a few bottle caps this time. I would take digging equipment of some kind - I don't know how far back the collapse went.
 desc:Retrieve the rare booze from the volcanic cave
-succeed:Well done. A reward? Isn't the thrill of exploration its own reward? No? Well, OK.
+succeed:Thanks a lot. As promised I have $200 per bottle for you.
 failure:It was all lost? That's a shame.
 flags:locked
+
+#succeed:Well done. A reward? Isn't the thrill of exploration its own reward? No? Well, OK.
 
 name:Msing Pills
 level:15

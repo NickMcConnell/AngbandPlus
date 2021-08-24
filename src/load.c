@@ -172,8 +172,14 @@ static struct object *rd_item(void)
 	}
 	rd_byte(&obj->notice);
 
-	for (i = 0; i < of_size; i++)
+	for (i = 0; i < of_size; i++) {
 		rd_byte(&obj->flags[i]);
+		rd_byte(&obj->carried_flags[i]);
+	}
+
+	for (i = 0; i < PF_SIZE; i++) {
+		rd_byte(&obj->pflags[i]);
+	}
 
 	for (i = 0; i < obj_mod_max; i++) {
 		rd_s16b(&obj->modifiers[i]);
@@ -734,7 +740,8 @@ int rd_player(void)
 
 	/* Special Race/Class info */
 	rd_u32b(&player->hitdie);
-	rd_byte(&player->expfact);
+	rd_u16b(&player->expfact_low);
+	rd_u16b(&player->expfact_high);
 
 	/* Age/Height/Weight */
 	rd_s16b(&player->age);
@@ -1279,7 +1286,7 @@ static int rd_stores_aux(rd_item_t rd_item_version)
 					if (store->sidx == STORE_HOME)
 						home_carry(obj);
 					else
-						store_carry(store, obj);
+						store_carry(store, obj, false);
 				}
 			}
 

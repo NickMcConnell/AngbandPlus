@@ -1650,8 +1650,11 @@ static void build_store(struct chunk *c, int n, struct loc xroads,
 
 	/* Clear previous contents, add a store door */
 	square_set_feat(c, door, entrance_feature(n+1));
-	
+
 	/* And store its location */
+	if (door.x == 0) {
+		msg("Warning! Building store without location\n");
+	}
 	stores[n].x = door.x;
 	stores[n].y = door.y;
 }
@@ -2006,16 +2009,20 @@ struct chunk *town_gen(struct player *p, int min_height, int min_width)
 	/* Add or remove doors (after quest return) */
 	for(int i=0;i<MAX_STORES;i++) {
 		struct loc grid = loc(stores[i].x, stores[i].y);
-		assert(grid.x > 0);
-		assert(grid.y > 0);
-		byte feature = square(c_new, grid)->feat;
-		byte entrance = entrance_feature(i+1);
-		/* Otherwise destroyed, so ignore */
-		if ((feature == entrance) || (feature == FEAT_PERM)) {
-			feature = FEAT_PERM;
-			if (stores[i].open)
-				feature = entrance;
-			square_set_feat(c_new, grid, feature);
+		if (grid.x == 0) {
+			msg("Warning! Store %d has no position\n", i);
+		} else {
+			assert(grid.x > 0);
+			assert(grid.y > 0);
+			byte feature = square(c_new, grid)->feat;
+			byte entrance = entrance_feature(i+1);
+			/* Otherwise destroyed, so ignore */
+			if ((feature == entrance) || (feature == FEAT_PERM)) {
+				feature = FEAT_PERM;
+				if (stores[i].open)
+					feature = entrance;
+				square_set_feat(c_new, grid, feature);
+			}
 		}
 	}
 

@@ -53,6 +53,9 @@ int test_newgame(void *state) {
 	cmdq_push(CMD_CHOOSE_RACE);
 	cmd_set_arg_choice(cmdq_peek(), "choice", 0);
 
+	cmdq_push(CMD_CHOOSE_EXT);
+	cmd_set_arg_choice(cmdq_peek(), "choice", 0);
+
 	cmdq_push(CMD_CHOOSE_CLASS);
 	cmd_set_arg_choice(cmdq_peek(), "choice", 0);
 

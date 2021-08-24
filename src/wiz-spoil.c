@@ -109,17 +109,14 @@ static const grouper group_item[] =
 	{ TV_GLOVES,		NULL },
 	{ TV_BOOTS,			NULL },
 
-	{ TV_AMULET,		"Amulets" },
-	{ TV_RING,			"Rings" },
-
 	{ TV_CARD,			"Cards" },
 	{ TV_PILL,			"Pills" },
 	{ TV_FOOD,			"Food" },
 	{ TV_MUSHROOM,		"Mushrooms" },
 
-	{ TV_ROD,			"Rods" },
+	{ TV_GADGET,			"Gadgets" },
 	{ TV_WAND,			"Wands" },
-	{ TV_DEVICE,			"Devices" },
+	{ TV_DEVICE,		"Devices" },
 
 	{ TV_CHEST,			"Containers" },
 
@@ -359,8 +356,6 @@ static const grouper group_artifact[] =
 	{ TV_BOOTS,         "Boots" },
 
 	{ TV_LIGHT,         "Light Sources" },
-	{ TV_AMULET,        "Amulets" },
-	{ TV_RING,          "Rings" },
 
 	{ 0, NULL }
 };

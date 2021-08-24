@@ -983,6 +983,10 @@ static void Term_fresh_row_text(int y, int x1, int x2)
  */
 errr Term_mark(int x, int y)
 {
+	if (!Term) {
+		return (0);
+	}
+
 	int *old_aa = Term->old->a[y];
 	wchar_t *old_cc = Term->old->c[y];
 	int *old_taa = Term->old->ta[y];
@@ -1133,6 +1137,10 @@ bool smlcurs = true;
 errr Term_fresh(void)
 {
 	int x, y;
+
+	if (!Term) {
+		return (0);
+	}
 
 	int w = Term->wid;
 	int h = Term->hgt;
@@ -1349,6 +1357,10 @@ errr Term_fresh(void)
  */
 errr Term_set_cursor(bool v)
 {
+	if (!Term) {
+		return 0;
+	}
+
 	/* Already done */
 	if (Term->scr->cv == v) return (1);
 
@@ -1367,6 +1379,9 @@ errr Term_set_cursor(bool v)
  */
 errr Term_gotoxy(int x, int y)
 {
+	if (!Term)
+		return (0);
+
 	int w = Term->wid;
 	int h = Term->hgt;
 
@@ -1393,6 +1408,9 @@ errr Term_gotoxy(int x, int y)
  */
 errr Term_draw(int x, int y, int a, wchar_t c)
 {
+	if (!Term)
+		return (0);
+
 	int w = Term->wid;
 	int h = Term->hgt;
 
@@ -1429,6 +1447,9 @@ errr Term_draw(int x, int y, int a, wchar_t c)
  */
 errr Term_addch(int a, wchar_t c)
 {
+	if (!Term)
+		return (0);
+
 	int w = Term->wid;
 
 	/* Handle "unusable" cursor */
@@ -1476,6 +1497,9 @@ errr Term_addch(int a, wchar_t c)
 errr Term_addstr(int n, int a, const char *buf)
 {
 	int k;
+
+	if (!Term)
+		return (0);
 
 	int w = Term->wid;
 
@@ -1603,6 +1627,9 @@ errr Term_erase(int x, int y, int n)
 {
 	int i;
 
+	if (!Term)
+		return 0;
+
 	int w = Term->wid;
 	/* int h = Term->hgt; */
 
@@ -1678,6 +1705,9 @@ errr Term_clear(void)
 {
 	int x, y;
 
+	if (!Term)
+		return 0;
+
 	int w = Term->wid;
 	int h = Term->hgt;
 
@@ -1731,6 +1761,9 @@ errr Term_clear(void)
  */
 errr Term_redraw(void)
 {
+	if (!Term)
+		return (0);
+
 	/* Force "total erase" */
 	Term->total_erase = true;
 
@@ -1748,6 +1781,9 @@ errr Term_redraw(void)
 errr Term_redraw_section(int x1, int y1, int x2, int y2)
 {
 	int i, j;
+
+	if (!Term)
+		return (0);
 
 	wchar_t *c_ptr;
 
@@ -1801,6 +1837,11 @@ errr Term_redraw_section(int x1, int y1, int x2, int y2)
  */
 errr Term_get_cursor(bool *v)
 {
+	if (!Term) {
+		*v = false;
+		return (0);
+	}
+
 	/* Extract visibility */
 	(*v) = Term->scr->cv;
 
@@ -1825,6 +1866,12 @@ errr Term_get_size(int *w, int *h)
  */
 errr Term_locate(int *x, int *y)
 {
+	if (!Term) {
+		*x = 0;
+		*y = 0;
+		return (0);
+	}
+
 	/* Access the cursor */
 	(*x) = Term->scr->cx;
 	(*y) = Term->scr->cy;
@@ -1844,6 +1891,12 @@ errr Term_locate(int *x, int *y)
  */
 errr Term_what(int x, int y, int *a, wchar_t *c)
 {
+	if (!Term) {
+		*a = 0;
+		*c = ' ';
+		return (0);
+	}
+
 	int w = Term->wid;
 	int h = Term->hgt;
 
@@ -2027,6 +2080,13 @@ errr Term_inkey(ui_event *ch, bool wait, bool take)
 {
 	/* Assume no key */
 	memset(ch, 0, sizeof *ch);
+
+	if (!Term) {
+		ch->key.type = EVT_KBRD;
+		ch->key.code = KC_ENTER;
+		ch->key.mods = 0;
+		return (0);
+	}
 
 	/* Hack -- get bored */
 	if (!Term->never_bored)
