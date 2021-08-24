@@ -6,17 +6,8 @@
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * 						Jeff Greene, Diego Gonzalez
  *
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
- *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 3, or
- *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
  */
 #include "src/npp.h"
 #include "src/init.h"
@@ -39,19 +30,41 @@ QChar index_to_label(int i)
 
 static int get_inscribed_ammo_slot(const object_type *o_ptr)
 {
+    if (!o_ptr->k_idx) return FALSE;
     if (o_ptr->inscription.isEmpty()) return 0;
+    QString inscrip = o_ptr->inscription;
 
-    // Look for the first 'f'.
-    int first_f = o_ptr->inscription.indexOf("f");
-    if (!first_f) return 0;
+    while (inscrip.contains('@'))
+    {
+        /* Find the first '@' */
+        int first_index = inscrip.indexOf('@');
 
-    //if next character is a number, convert it to one
-    QChar which_slot = o_ptr->inscription[first_f+1];
-    if (!which_slot.isDigit())return 0;
+        // clear the '@'
+        inscrip.remove(first_index, 1);
 
-    int slot = letter_to_number(which_slot);
+        //Paranoia
+        if (inscrip.length() < first_index) continue;
 
-    return (QUIVER_START + slot);
+        QChar s = inscrip[first_index];
+
+        /* Found "@n"? */
+        if (s.isDigit())
+        {
+            /* Convert to number */
+            return (QUIVER_START + s.digitValue());
+        }
+
+        if (s.isLetter())
+        {
+            int convert = letter_to_number(s);
+            if ((convert >=0) && (convert < 10))
+            {
+                return (QUIVER_START + convert);
+            }
+        }
+    }
+
+    return (0);
 }
 
 
@@ -266,16 +279,16 @@ QString mention_use(int slot)
         case INVEN_HANDS: return "On hands";
         case INVEN_FEET:  return "On feet";
 
-        case QUIVER_START + 0: return "In quiver [f0]";
-        case QUIVER_START + 1: return "In quiver [f1]";
-        case QUIVER_START + 2: return "In quiver [f2]";
-        case QUIVER_START + 3: return "In quiver [f3]";
-        case QUIVER_START + 4: return "In quiver [f4]";
-        case QUIVER_START + 5: return "In quiver [f5]";
-        case QUIVER_START + 6: return "In quiver [f6]";
-        case QUIVER_START + 7: return "In quiver [f7]";
-        case QUIVER_START + 8: return "In quiver [f8]";
-        case QUIVER_START + 9: return "In quiver [f9]";
+        case QUIVER_START + 0: return "In quiver [0]";
+        case QUIVER_START + 1: return "In quiver [1]";
+        case QUIVER_START + 2: return "In quiver [2]";
+        case QUIVER_START + 3: return "In quiver [3]";
+        case QUIVER_START + 4: return "In quiver [4]";
+        case QUIVER_START + 5: return "In quiver [5]";
+        case QUIVER_START + 6: return "In quiver [6]";
+        case QUIVER_START + 7: return "In quiver [7]";
+        case QUIVER_START + 8: return "In quiver [8]";
+        case QUIVER_START + 9: return "In quiver [9]";
     }
 
     return "In pack";
@@ -2616,7 +2629,7 @@ void inven_item_increase(int item, int num)
  * is cmd. If cmd is 0 then "x" can be anything.
  * Returns FALSE if the object doesn't have a valid tag.
  */
-int get_tag_num(int o_idx, QChar cmd, byte *tag_num)
+int get_tag_num(int o_idx, byte *tag_num)
 {
     object_type *o_ptr = &inventory[o_idx];
     QString inscrip = o_ptr->inscription;
@@ -2643,20 +2656,18 @@ int get_tag_num(int o_idx, QChar cmd, byte *tag_num)
         if (s.isDigit())
         {
             /* Convert to number */
-            *tag_num = letter_to_number(s);
+            *tag_num = s.digitValue();
             return TRUE;
         }
 
-        if (inscrip.length() <= first_index) continue;
-
-        QChar z = inscrip[first_index + 1];
-
-        /* Found "@xn"? */
-        if (cmd.isNull() || (operator==(s, cmd) && z.isDigit()))
+        if (s.isLetter())
         {
-            /* Convert to number */
-            *tag_num = letter_to_number(z);
-            return TRUE;
+            int convert = letter_to_number(s);
+            if ((convert >=0) && (convert < 10))
+            {
+                *tag_num = convert;
+                return (TRUE);
+            }
         }
     }
 
@@ -2805,7 +2816,7 @@ int sort_quiver(int slot)
         i_group = quiver_get_group(i_ptr);
 
         /* Get the real tag of the object, if any */
-        if (get_tag_num(i, quiver_group[i_group].cmd, &tag))
+        if (get_tag_num(i, &tag))
         {
             /* Determine the portion of the table to be used */
             j = first_locked;
@@ -3015,7 +3026,7 @@ int sort_quiver(int slot)
         }
 
         /* Window stuff */
-        p_ptr->window |= (PR_WIN_EQUIPMENT);
+        p_ptr->redraw |= (PR_WIN_EQUIPMENT);
 
         /* Message */
         if (!slot) message(QString("You reorganize your quiver."));
@@ -3979,7 +3990,7 @@ void combine_quiver(void)
     if (flag)
     {
         /* Window stuff */
-        p_ptr->window |= (PR_WIN_EQUIPMENT);
+        p_ptr->redraw |= (PR_WIN_EQUIPMENT);
 
         /* Message */
         message(QString("You combine your quiver."));

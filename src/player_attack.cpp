@@ -5,16 +5,8 @@
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *                    Jeff Greene, Diego Gonzalez
  *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 3, or
- *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include <src/npp.h>
@@ -989,15 +981,29 @@ void command_fire(cmd_arg args)
     y = p_ptr->py;
     x = p_ptr->px;
 
-    /* Predict the "target" location */
-    ty = p_ptr->py + 99 * ddy[dir];
-    tx = p_ptr->px + 99 * ddx[dir];
+    // First target closest, if there is anything there
+    if (dir == DIR_CLOSEST)
+    {
+        if (target_set_closest(TARGET_KILL | TARGET_QUIET))
+        {
+            ty = p_ptr->target_row;
+            tx = p_ptr->target_col;
+        }
+        else if (!get_aim_dir(&dir, FALSE)) return;
+    }
 
     /* Check for "target request" */
-    if ((dir == DIR_TARGET) && target_okay())
+    else if ((dir == DIR_TARGET) && target_okay())
     {
         tx = p_ptr->target_col;
         ty = p_ptr->target_row;
+    }
+
+    else
+    {
+        /* Predict the "target" location */
+        ty = p_ptr->py + 99 * ddy[dir];
+        tx = p_ptr->px + 99 * ddx[dir];
     }
 
     /* Calculate the path */
@@ -1266,7 +1272,7 @@ void do_cmd_fire_at_nearest(void)
     object_type *j_ptr = &inventory[INVEN_BOW];
 
     /* the direction '5' means 'use the target' */
-    int i, dir = DIR_TARGET, item = -1;
+    int i, dir = DIR_CLOSEST, item = -1;
 
     /* Make sure we are using a weapon instead of a bow/shovel */
     if (birth_swap_weapons)
@@ -1978,15 +1984,29 @@ void command_throw(cmd_arg args)
     y = p_ptr->py;
     x = p_ptr->px;
 
-    /* Predict the "target" location */
-    ty = p_ptr->py + 99 * ddy[dir];
-    tx = p_ptr->px + 99 * ddx[dir];
+    // First target closest, if there is anything there
+    if (dir == DIR_CLOSEST)
+    {
+        if (target_set_closest(TARGET_KILL | TARGET_QUIET))
+        {
+            ty = p_ptr->target_row;
+            tx = p_ptr->target_col;
+        }
+        else if (!get_aim_dir(&dir, FALSE)) return;
+    }
 
     /* Check for "target request" */
-    if ((dir == 5) && target_okay())
+    else if ((dir == DIR_TARGET) && target_okay())
     {
         tx = p_ptr->target_col;
         ty = p_ptr->target_row;
+    }
+
+    else
+    {
+        /* Predict the "target" location */
+        ty = p_ptr->py + 99 * ddy[dir];
+        tx = p_ptr->px + 99 * ddx[dir];
     }
 
     /* Calculate the path */

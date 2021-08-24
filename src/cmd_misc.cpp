@@ -4,20 +4,14 @@
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *                    Jeff Greene, Diego Gonzalez
  *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
  *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 3, or
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include <src/npp.h>
 #include "src/player_command.h"
+#include <src/cmds.h>
 #include <QFile>
 
 
@@ -139,7 +133,39 @@ void do_cmd_repeat(void)
         }
     }
 
-    if (!command_ptr->keep_direction())
+    if (p_ptr->command_previous == CMD_CAST)
+    {
+
+        if (!spell_needs_aim(cp_ptr->spell_book, p_ptr->command_previous_args.number)) p_ptr->command_previous_args.direction = DIR_UNKNOWN;
+        else if (p_ptr->command_previous_args.direction == DIR_CLOSEST)
+        {
+            int mode = TARGET_QUIET;
+
+            if (!is_trap_spell(cp_ptr->spell_book, p_ptr->command_previous_args.number)) mode |= TARGET_KILL;
+            else mode |= TARGET_TRAP;
+
+            if (!target_set_closest(mode)) p_ptr->command_previous_args.direction = DIR_UNKNOWN;
+        }
+    }
+
+    else if (p_ptr->command_previous == CMD_ITEM_USE)
+    {
+        object_type *o_ptr = object_from_item_idx(p_ptr->command_previous_args.item);
+
+        if (!obj_needs_aim(o_ptr)) p_ptr->command_previous_args.direction = DIR_UNKNOWN;
+        else if (p_ptr->command_previous_args.direction == DIR_CLOSEST)
+        {
+            int mode = TARGET_QUIET;
+
+            if (!k_info[o_ptr->k_idx].is_trap_object_kind()) mode |= TARGET_KILL;
+            else mode |= TARGET_TRAP;
+
+            if (!target_set_closest(mode)) p_ptr->command_previous_args.direction = DIR_UNKNOWN;
+        }
+    }
+
+
+    else if (!command_ptr->keep_direction())
     {
         p_ptr->command_previous_args.direction = DIR_UNKNOWN;
     }

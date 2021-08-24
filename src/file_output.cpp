@@ -133,6 +133,7 @@ void save_screenshot(byte do_png)
 
 
     out << QString("<!DOCTYPE html><html><head><br>");
+    out << (QString(" <meta name='filetype' value= 'screenshot'>"));
     out << (QString("  <meta name='variant' value='%1'>") .arg(VERSION_MODE_NAME));
     out << (QString("  <meta name='variant_version' value='%1'>") .arg(VERSION_STRING));
     out << (QString("  <meta name='character_name' value='%1'>") .arg(op_ptr->full_name));
@@ -523,6 +524,7 @@ void save_character_file(void)
     QList<QLabel *> lbl_list = dlg.findChildren<QLabel *>();
 
     out << QString("<!DOCTYPE html><html><head>");
+    out << (QString(" <meta name='filetype' value= 'character dump'>"));
     out << (QString("  <meta name='variant' value='%1'>") .arg(VERSION_MODE_NAME));
     out << (QString("  <meta name='variant_version' value='%1'>") .arg(VERSION_STRING));
     out << (QString("  <meta name='character_name' value='%1'>") .arg(to_ascii(op_ptr->full_name)));
@@ -751,7 +753,7 @@ void save_character_file(void)
     // Print character description
     QString desc = color_string(to_ascii(p_ptr->history), TERM_BLUE);
     int first_space = desc.indexOf(' ', 90, Qt::CaseInsensitive);
-    desc.replace(first_space, 1, QString("<br>"));
+    if (first_space >=0) desc.replace(first_space, 1, QString("<br>"));
     out << QString("<br>") << desc << QString("<br><br>");
 
     // Print character description
@@ -759,7 +761,7 @@ void save_character_file(void)
     {
         desc = color_string(to_ascii(describe_quest(guild_quest_level())), TERM_RED);
         first_space = desc.indexOf(' ', 60, Qt::CaseInsensitive);
-        desc.replace(first_space, 1, QString("<br>"));
+        if (first_space >=0) desc.replace(first_space, 1, QString("<br>"));
         out << QString("<br>") << desc << QString("<br><br>");
     }
 

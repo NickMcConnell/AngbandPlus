@@ -4,17 +4,8 @@
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * 						Jeff Greene, Diego Gonzalez
  *
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
- *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 3, or
- *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "src/npp.h"
@@ -188,7 +179,7 @@ QString store_welcome(int store_idx)
     /* Extract the first name of the store owner (stop before the first space) */
     QString short_name = owner_name;
     int j = short_name.indexOf(' ');
-    short_name.truncate(j);
+    if (j >=0) short_name.truncate(j);
 
     welcome.prepend(short_name);
 

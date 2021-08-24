@@ -4,16 +4,8 @@
 /*
  * Copyright (c) 2014 Jeff Greene, Diego Gonzalez
  *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 3, or
- *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include <src/command_list.h>
@@ -36,7 +28,7 @@ static struct command_desc list_commands_targeting[] =
     {"<h3>Aiming, Interactive, and Manual Targeting Modes</h3>", NULL},
     {"Toggle Between Interactive and Manual Targeting Mode", "'m' or '*'"},
     {"Use the Closest Target", "'c' or ','"},
-    {"Select Closest Target", "'h' , '5' or '.'"},
+    {"Select Current Target", "'h' , '5' or '.'"},
     {"Mouse Double-click - Select Target", NULL},
     {"Single Mouseclick on Square- Select grid and switch to manual targeting mode", NULL},
     {"Second Single Mouseclick on same square - Select Square As Target", NULL},
@@ -322,6 +314,7 @@ void KeyboardCommandList::add_keyboard_commands(QGridLayout *return_layout)
 
         QLabel *this_key = new QLabel();
         make_standard_label(this_key, QString(cmd_ptr->command_key), TERM_BLUE);
+
         // HTML throws off the display of this character
         if (strings_match(QString(cmd_ptr->command_key), QString("<")))
         {
@@ -451,19 +444,14 @@ void KeyboardCommandList::add_dir_keyboard(QVBoxLayout *return_layout, bool keyb
 
 
 
-KeyboardCommandList::KeyboardCommandList(void)
+KeyboardCommandList::KeyboardCommandList(void): NPPDialog()
 {
-
-    //Set up the main scroll bar
-    QVBoxLayout *top_layout = new QVBoxLayout;
+    central = new QWidget;
     QVBoxLayout *main_layout = new QVBoxLayout;
-    QWidget *top_widget = new QWidget;
-    QScrollArea *scroll_box = new QScrollArea;
-    top_widget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-    top_widget->setLayout(main_layout);
-    scroll_box->setWidget(top_widget);
-    scroll_box->setWidgetResizable(TRUE);
-    top_layout->addWidget(scroll_box);
+    central->setLayout(main_layout);
+    main_layout->setSpacing(10);
+    // IMPORTANT: it must be called AFTER setting the layout
+    this->setClient(central);
 
     QLabel *main_prompt = new QLabel(QString("<h2>Directional Commands</h2>"));
     main_layout->addWidget(main_prompt, Qt::AlignCenter);
@@ -505,12 +493,10 @@ KeyboardCommandList::KeyboardCommandList(void)
     connect(&buttons, SIGNAL(accepted()), this, SLOT(close()));
     main_layout->addWidget(&buttons);
 
-    setLayout(top_layout);
+    setLayout(main_layout);
     setWindowTitle(tr("Command List"));
 
-    QSize this_size = QSize(width() * 1.8, height() * 2);
-    resize(ui_max_widget_size(this_size));
-    updateGeometry();
+    this->clientSizeUpdated();
 
     this->exec();
 }
@@ -552,19 +538,13 @@ void MouseCommandList::add_mouse_commands(QVBoxLayout *return_layout)
     return_layout->addWidget(dummy, x, 0);
 }
 
-MouseCommandList::MouseCommandList(void)
+MouseCommandList::MouseCommandList(void): NPPDialog()
 {
-
-    //Set up the main scroll bar
-    QVBoxLayout *top_layout = new QVBoxLayout;
+    central = new QWidget;
     QVBoxLayout *main_layout = new QVBoxLayout;
-    QWidget *top_widget = new QWidget;
-    QScrollArea *scroll_box = new QScrollArea;
-    top_widget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-    top_widget->setLayout(main_layout);
-    scroll_box->setWidget(top_widget);
-    scroll_box->setWidgetResizable(TRUE);
-    top_layout->addWidget(scroll_box);
+    central->setLayout(main_layout);
+    main_layout->setSpacing(10);
+    this->setClient(central);  // IMPORTANT: it must be called AFTER setting the layout
 
     QLabel *mouse_prompt = new QLabel(QString("<h2>Mouse Commands</h2>"));
     main_layout->addWidget(mouse_prompt, Qt::AlignCenter);
@@ -579,14 +559,11 @@ MouseCommandList::MouseCommandList(void)
     main_layout->addWidget(&buttons);
 
     main_layout->addStretch(1);
-    top_layout->addStretch(1);
 
-    setLayout(top_layout);
+    setLayout(main_layout);
     setWindowTitle(tr("Mouse Command List"));
 
-    QSize this_size = QSize(width() * 1.3, height());
-    resize(ui_max_widget_size(this_size));
-    updateGeometry();
+    this->clientSizeUpdated();
 
     this->exec();
 }
@@ -622,12 +599,14 @@ void TargetCommandList::add_dir_targeting(QVBoxLayout *return_layout, bool keybo
 }
 
 
-void TargetCommandList::add_targeting_commands(QVBoxLayout *return_layout)
+void TargetCommandList::add_targeting_commands(QGridLayout *return_layout)
 {
     int x = 0;
 
     while (TRUE)
     {
+
+        int col = 0;
         command_desc *cmd_ptr = &list_commands_targeting[x++];
 
         // Null pointer means we are done
@@ -635,26 +614,26 @@ void TargetCommandList::add_targeting_commands(QVBoxLayout *return_layout)
 
         QLabel *this_title = new QLabel();
         make_standard_label(this_title, QString(cmd_ptr->command_title), TERM_BLUE);
-        return_layout->addWidget(this_title, Qt::AlignLeft);
-    }
+        return_layout->addWidget(this_title, x, col++, Qt::AlignLeft);
 
-    QLabel *dummy = new QLabel("   ");
-    return_layout->addWidget(dummy, x, 0);
+        if (!cmd_ptr->command_key.length()) continue;
+
+        QLabel *dummy = new QLabel("   ");
+        return_layout->addWidget(dummy, x, col++);
+
+        QLabel *this_key = new QLabel();
+        make_standard_label(this_key, QString(cmd_ptr->command_key), TERM_BLUE);
+        return_layout->addWidget(this_key, x, col++, Qt::AlignLeft);
+    }
 }
 
-TargetCommandList::TargetCommandList(void)
+TargetCommandList::TargetCommandList(void): NPPDialog()
 {
-    //Set up the main scroll bar
-    QScrollArea *scroll_box = new QScrollArea(this);
-    QWidget *top_widget = new QWidget(this);
-    scroll_box->setWidget(top_widget);
-    scroll_box->setWidgetResizable(TRUE);
-    QVBoxLayout *main_layout = new QVBoxLayout(this);
-    top_widget->setLayout(main_layout);
-    QHBoxLayout *top_layout = new QHBoxLayout(this);
-    top_layout->addWidget(scroll_box);
-
-    setLayout(top_layout);
+    central = new QWidget;
+    QVBoxLayout *main_layout = new QVBoxLayout;
+    central->setLayout(main_layout);
+    main_layout->setSpacing(10);
+    this->setClient(central);  // IMPORTANT: it must be called AFTER setting the layout
 
     QLabel *targeting_prompt = new QLabel(color_string(QString("<h2>Targeting Commands</h2>"), TERM_BLUE));
     main_layout->addWidget(targeting_prompt, Qt::AlignCenter);
@@ -673,9 +652,9 @@ TargetCommandList::TargetCommandList(void)
 
     top_across->addStretch(1);
 
-    QVBoxLayout *vlay_target_commands = new QVBoxLayout;
-    add_targeting_commands(vlay_target_commands);
-    main_layout->addLayout(vlay_target_commands);
+    QGridLayout *glay_target_commands = new QGridLayout;
+    add_targeting_commands(glay_target_commands);
+    main_layout->addLayout(glay_target_commands);
 
     QDialogButtonBox buttons;
     buttons.setStandardButtons(QDialogButtonBox::Ok);
@@ -683,14 +662,10 @@ TargetCommandList::TargetCommandList(void)
     main_layout->addWidget(&buttons);
 
     main_layout->addStretch(1);
-    top_layout->addStretch(1);
 
-    setLayout(top_layout);
     setWindowTitle(tr("Targeting Command List"));
 
-    QSize this_size = QSize(width(), height() * 1.5);
-    resize(ui_max_widget_size(this_size));
-    updateGeometry();
+    this->clientSizeUpdated();
 
     this->exec();
 }
@@ -807,6 +782,7 @@ void commands_new_keyset(int key_press, bool shift_key, bool alt_key, bool ctrl_
         }
         case Qt::Key_5:
         case Qt::Key_H:
+        case Qt::Key_Clear:
         {
             do_cmd_hold();
             break;
@@ -819,6 +795,7 @@ void commands_new_keyset(int key_press, bool shift_key, bool alt_key, bool ctrl_
         }
         case Qt::Key_C:
         case Qt::Key_0:
+        case Qt::Key_Insert:
         {
             if (shift_key && alt_key) save_character_file();
             else if (shift_key)     do_cmd_character_screen();
@@ -1058,6 +1035,7 @@ void commands_angband_keyset(int key_press, bool shift_key, bool alt_key, bool c
             break;
         }
         case Qt::Key_5:
+        case Qt::Key_Clear:
         {
             do_cmd_hold();
             break;
@@ -1142,6 +1120,7 @@ void commands_angband_keyset(int key_press, bool shift_key, bool alt_key, bool c
         }
         case Qt::Key_N:
         case Qt::Key_0:
+        case Qt::Key_Insert:
         {
             if (!using_mods)        do_cmd_repeat();
             break;

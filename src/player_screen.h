@@ -4,6 +4,7 @@
 #include <QVBoxLayout>
 #include <src/npp.h>
 #include <QLabel>
+#include <src/nppdialog.h>
 
 enum
 {
@@ -24,7 +25,7 @@ struct player_flag_record
     bool bad_flag;          // Is it a bad one?
 };
 
-class PlayerScreenDialog : public QDialog
+class PlayerScreenDialog : public NPPDialog
 {
     Q_OBJECT
 
@@ -36,6 +37,7 @@ public slots:
 
 private:
     void name_change_pushbutton(QGridLayout *return_layout);
+    QWidget *central;
 
 };
 

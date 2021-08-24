@@ -4,16 +4,8 @@
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *                    Jeff Greene, Diego Gonzalez
  *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 3, or
- *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "src/player_death.h"
@@ -236,8 +228,6 @@ void player_death(void)
     QTime right_now = QTime::currentTime();
     QString long_day = QString("%1 at %2") .arg(today.toString()) .arg(right_now.toString());
 
-
-
     write_death_note(long_day);
 
     print_tomb();
@@ -252,6 +242,7 @@ void player_death(void)
     // Automatic character dump
     if (death_char_dump)
     {
+        save_character_file();
         save_screenshot(FALSE);
     }
 

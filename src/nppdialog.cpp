@@ -1,3 +1,12 @@
+
+/*
+ * Copyright (c) 2014 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * 						Jeff Greene, Diego Gonzalez
+ *
+ * Please see copyright.txt for complete copyright and licensing restrictions.
+ *
+ */
+
 #include "nppdialog.h"
 #include <QScrollArea>
 #include <QDesktopWidget>
@@ -8,10 +17,25 @@
 #include <QKeyEvent>
 #include <QCoreApplication>
 #include <QIntValidator>
+#include <QHash>
 #include "npp.h"
 #include "player_command.h"
 
+static QHash<QString, QPoint> positions;
 
+void NPPDialog::exec_saved(QString id)
+{
+    QPoint p;
+
+    if (positions.contains(id)) {
+        p = positions.value(id);
+        this->move(p);
+    }
+
+    this->exec();
+
+    positions.insert(id, this->pos());
+}
 
 NPPDialog::NPPDialog(QWidget *parent, int _padding, qreal _max_ratio) :
     QDialog(parent)

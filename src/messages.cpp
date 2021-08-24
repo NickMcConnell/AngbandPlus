@@ -1,16 +1,8 @@
 /*
  * Copyright (c) 2015 Jeff Greene, Diego Gonzalez
  *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 3, or
- *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "messages.h"
@@ -88,6 +80,9 @@ void stop_message_window_append(void)
  */
 void update_message_window(QTextEdit *message_area, QFont message_font)
 {
+    // Paranoia
+    if (!message_list.size()) return;
+
     int start_point = message_list.size()-1;
 
     if (completed_lines.length() > 15000)

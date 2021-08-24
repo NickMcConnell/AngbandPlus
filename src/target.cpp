@@ -4,16 +4,8 @@
  *
  * Copyright (c) 1997-2007 Angband contributors, Jeff Greene, Diego Gonzalez
  *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 3, or
- *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "src/npp.h"
@@ -622,6 +614,7 @@ bool target_set_interactive(int mode, int x, int y)
                 case Qt::Key_H:
                 case Qt::Key_5:
                 case Qt::Key_Period:
+                case Qt::Key_Clear:
                 {
                     int m_idx = dungeon_info[y][x].monster_idx;
 
@@ -812,6 +805,7 @@ bool target_set_interactive(int mode, int x, int y)
                 case Qt::Key_H:
                 case Qt::Key_5:
                 case Qt::Key_Period:
+                case Qt::Key_Clear:
                 {
                     target_set_location(y, x);
                     done = TRUE;
@@ -1113,6 +1107,19 @@ bool get_aim_dir(int *dp, bool target_trap)
 
     bool done = FALSE;
 
+    if (*dp == DIR_CLOSEST)
+    {
+        int mode = TARGET_QUIET;
+
+        if (target_trap) mode |= TARGET_KILL;
+        else mode |= TARGET_TRAP;
+
+        if (target_set_closest(mode))
+        {
+            return(TRUE);
+        }
+    }
+
     /* Initialize */
     (*dp) = 0;
 
@@ -1169,7 +1176,7 @@ bool get_aim_dir(int *dp, bool target_trap)
                 /* Set new target, use target if legal */
                 int mode = TARGET_KILL;
                 if (target_trap) mode |= TARGET_TRAP;
-                if (target_set_interactive(mode, -1, -1)) dir = DIR_TARGET;
+                if (target_set_interactive(mode, -1, -1)) dir = DIR_CLOSEST;
                 else done = TRUE;
                 continue;
             }
@@ -1179,7 +1186,7 @@ bool get_aim_dir(int *dp, bool target_trap)
                 /* Set to closest target */
                 if (target_set_closest(TARGET_KILL))
                 {
-                    dir = DIR_TARGET;
+                    dir = DIR_CLOSEST;
                     continue;
                 }
                 break;
@@ -1192,6 +1199,7 @@ bool get_aim_dir(int *dp, bool target_trap)
             case Qt::Key_H:
             case Qt::Key_5:
             case Qt::Key_Period:
+            case Qt::Key_Clear:
             {
                 /* Use current target, if set and legal */
                 if (target_okay()) dir = DIR_TARGET;
@@ -1262,28 +1270,37 @@ bool target_set_closest(int mode)
         return FALSE;
     }
 
-    /* Find the first monster in the queue */
-    y = target_grids[0].y;
-    x = target_grids[0].x;
-    m_idx = dungeon_info[y][x].monster_idx;
-
-    /* Target the monster, if possible */
-    if ((m_idx <= 0) || !target_able(m_idx))
+    if (mode & (TARGET_KILL))
     {
-        if (!(mode & TARGET_QUIET)) message(QString("No Available Target."));
-        return FALSE;
+        /* Find the first monster in the queue */
+        y = target_grids[0].y;
+        x = target_grids[0].x;
+        m_idx = dungeon_info[y][x].monster_idx;
+
+        /* Target the monster, if possible */
+        if ((m_idx <= 0) || !target_able(m_idx))
+        {
+            if (!(mode & TARGET_QUIET)) message(QString("No Available Target."));
+            return FALSE;
+        }
+
+        /* Target the monster */
+        m_ptr = &mon_list[m_idx];
+        m_name = monster_desc(m_ptr, 0x00);
+        if (!(mode & TARGET_QUIET))
+            message(QString("%1 is targeted.").arg(capitalize_first(m_name)));
+
+        /* Set up target inQStringion */
+        monster_race_track(m_ptr->r_idx);
+        // TODO health_track(cave_m_idx[y][x]);
+        target_set_monster(m_idx);
+    }
+    else
+    {
+        target_set_location(target_grids[0].y, target_grids[0].x);
     }
 
-    /* Target the monster */
-    m_ptr = &mon_list[m_idx];
-    m_name = monster_desc(m_ptr, 0x00);
-    if (!(mode & TARGET_QUIET))
-        message(QString("%1 is targeted.").arg(capitalize_first(m_name)));
 
-    /* Set up target inQStringion */
-    monster_race_track(m_ptr->r_idx);
-    // TODO health_track(cave_m_idx[y][x]);
-    target_set_monster(m_idx);
 
     return TRUE;
 }

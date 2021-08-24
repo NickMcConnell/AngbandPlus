@@ -3,16 +3,8 @@
 /*
  * Copyright (c) 2014 Jeff Greene, Diego Gonzalez
  *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 3, or
- *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
  */
 
 
@@ -47,6 +39,13 @@
 #include "package.h"
 #include "tilebag.h"
 #include <src/messages.h>
+
+// Needed to check for keypresses
+#ifdef Q_OS_WIN
+
+#include "windows.h"
+
+#endif // Q_OS_WIN
 
 
 MainWindow *main_window = 0;
@@ -848,53 +847,75 @@ void MainWindow::keyPressEvent(QKeyEvent* which_key)
 
     executing_command = TRUE;
 
+    int key_pressed = which_key->key();
+
     Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
 
     bool shift_key = modifiers.testFlag(Qt::ShiftModifier);
     bool ctrl_key = modifiers.testFlag(Qt::ControlModifier);
     bool alt_key = modifiers.testFlag(Qt::AltModifier);
     bool meta_key = modifiers.testFlag(Qt::MetaModifier);
+    bool keypad_used = modifiers.testFlag(Qt::KeypadModifier);
+    bool numlock_on = FALSE;
 
     if (QApplication::queryKeyboardModifiers() & (Qt::ShiftModifier))    shift_key = TRUE;
     if (QApplication::queryKeyboardModifiers() & (Qt::ControlModifier))  ctrl_key = TRUE;
     if (QApplication::queryKeyboardModifiers() & (Qt::AltModifier))      alt_key = TRUE;
     if (QApplication::queryKeyboardModifiers() & (Qt::MetaModifier))     meta_key = TRUE;
+    if (QApplication::queryKeyboardModifiers() & (Qt::KeypadModifier))   keypad_used = TRUE;
 
-    // EXPERIMENTAL - Detect shift modifiers with keypad
-    // VERY IMPORTANT: We assume that the numlock key is alwasy pressed (normally)
-    // because the code needed to tell us that exactly is very very platform dependent
-    if (!shift_key && modifiers.testFlag(Qt::KeypadModifier))
+    // Check for keypresses
+#ifdef Q_OS_WIN
+    if (GetKeyState(VK_NUMLOCK) == 1) numlock_on = TRUE;
+    if (GetKeyState(VK_CAPITAL) == 1) shift_key = TRUE;
+#endif // Q_OS_WIN
+
+    // Numlock interferes with the shift key detection.
+    // However the keys below can only be pressed on the keypad if the shift key is pressed.
+    if (keypad_used && numlock_on && !shift_key)
     {
-        Qt::Key code = Qt::Key(which_key->key());
 
-        QList<Qt::Key> lNumPadKeys = QList<Qt::Key>() << Qt::Key_Insert
-            << Qt::Key_End << Qt::Key_Down << Qt::Key_PageDown
-            << Qt::Key_Left << Qt::Key_Clear << Qt::Key_Right
-            << Qt::Key_Home << Qt::Key_Up << Qt::Key_PageUp
-            << Qt::Key_Delete;
 
-        if (lNumPadKeys.contains(code)) shift_key = TRUE;
+        switch (key_pressed)
+        {
+            case Qt::Key_End:
+            case Qt::Key_Down:
+            case Qt::Key_PageDown:
+            case Qt::Key_Left:
+            case Qt::Key_Clear:
+            case Qt::Key_Right:
+            case Qt::Key_Home:
+            case Qt::Key_Up:
+            case Qt::Key_PageUp:
+            case Qt::Key_Insert:
+            {
+                shift_key = TRUE;
+                break;
+            }
+            default: break;
+        }
     }
 
     //Hotkeys are checked first
-    if (check_hotkey_commands(which_key->key(), shift_key, alt_key, ctrl_key, meta_key))
+    if (check_hotkey_commands(key_pressed, shift_key, alt_key, ctrl_key, meta_key))
     {
         // Fall through
     }
     else if (which_keyset == KEYSET_NEW)
     {
-        commands_new_keyset(which_key->key(), shift_key, alt_key, ctrl_key, meta_key);
+        commands_new_keyset(key_pressed, shift_key, alt_key, ctrl_key, meta_key);
     }
     else if (which_keyset == KEYSET_ANGBAND)
     {
-        commands_angband_keyset(which_key->key(), shift_key, alt_key, ctrl_key, meta_key);
+        commands_angband_keyset(key_pressed, shift_key, alt_key, ctrl_key, meta_key);
     }
     else if (which_keyset == KEYSET_ROGUE)
     {
-        commands_roguelike_keyset(which_key->key(), shift_key, alt_key, ctrl_key, meta_key);
+        commands_roguelike_keyset(key_pressed, shift_key, alt_key, ctrl_key, meta_key);
     }
     else pop_up_message_box("invalid keyset");
 
+    notice_stuff();
     handle_stuff();
     clear_message_label();
 
@@ -1084,7 +1105,7 @@ void MainWindow::about()
 {
    QMessageBox::about(this, tr("About NPPAngband and NPPMoria"),
             tr("<h2>NPPAngband and NPPMoria"
-               "<p>Copyright (c) 2003-2015 Jeff Greene and Diego González.</h2>"
+               "<p>Copyright (c) 2003-2016 Jeff Greene and Diego González.</h2>"
 
                "<p>For resources and links to places you can talk about the game, please see:"
                "<p>http://forum.nppangband.org/ -- the NPPAngband Forums"

@@ -488,7 +488,6 @@ public:
     u32b notice;		/* Special Updates (bit flags) */
     u32b update;		/* Pending Updates (bit flags) */
     u32b redraw;		/* Normal Redraws (bit flags) */
-    u32b window;		/* Window Redraws (bit flags) */
 
     /* Generation fields (for quick start) */
     s32b au_birth;          /* Birth gold when option birth_money is false */

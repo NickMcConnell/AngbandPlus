@@ -5,16 +5,9 @@
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2007-9 Andrew Sidwell, Chris Carr, Ed Graham, Erik Osheim
  *                       Jeff Greene, Diego Gonzalez
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
  *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 3, or
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include <src/npp.h>
@@ -346,6 +339,8 @@ void command_uninscribe(cmd_arg args)
 
     p_ptr->notice |= (PN_COMBINE | PN_REORDER | PN_SORT_QUIVER);
     p_ptr->redraw |= (PR_WIN_INVENTORY | PR_WIN_EQUIPMENT);
+
+    notice_stuff();
 }
 
 /*
@@ -416,6 +411,8 @@ void command_inscribe(cmd_arg args)
 
     /* Redraw stuff */
     p_ptr->redraw |= (PR_WIN_INVENTORY | PR_WIN_EQUIPMENT);
+
+    notice_stuff();
 
 }
 
@@ -1023,7 +1020,7 @@ static void swap_weapons(void)
     process_player_energy(BASE_ENERGY_MOVE);
 }
 
-/* Search the backpack for a weapon with @x and wield it*/
+/* Search the backpack for a weapon with marked as a swap weapon and wield it*/
 static void wield_swap_weapon(void)
 {
     int i;
@@ -1070,12 +1067,12 @@ static void wield_swap_weapon(void)
     }
 
     /* Didn't find anything */
-    pop_up_message_box("Please inscribe a weapon with '@x' in order to swap it.");
+    pop_up_message_box("Please go to object settings for a weapon and select 'Use as Swap Weapon' to swap it.");
 }
 
 /*
  * Depending on game options, either swap weapons between the main weapon
- * slot and the swap weapon slot, or search for weapon with the @x inscription and wield it
+ * slot and the swap weapon slot, or search for weapon marked as a swap weapon and wield it
  */
 void command_swap(cmd_arg args)
 {

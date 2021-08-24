@@ -22,6 +22,8 @@ public:
     void setClient(QWidget *_client);
     void clientSizeUpdated();
 
+    void exec_saved(QString id);
+
 signals:
 
 public slots:

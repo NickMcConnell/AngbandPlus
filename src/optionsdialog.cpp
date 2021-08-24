@@ -1,3 +1,12 @@
+
+/*
+ * Copyright (c) 2014 Jeff Greene, Diego Gonzalez
+ *
+ * Please see copyright.txt for complete copyright and licensing restrictions.
+ *
+ */
+
+
 #include "optionsdialog.h"
 #include "npp.h"
 #include <src/help.h>

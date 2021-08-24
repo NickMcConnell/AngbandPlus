@@ -7,9 +7,9 @@
 #include <src/object_dialog.h> //includes npp.h and player_command.h
 #include "src/utilities.h"
 #include <QLabel>
-#include <QScrollArea>
 #include <QTabWidget>
 #include <QRadioButton>
+#include <src/nppdialog.h>
 
 
 
@@ -22,7 +22,7 @@ enum
     TABS_MAX
 };
 
-class AllObjectsDialog : public QDialog
+class AllObjectsDialog : public NPPDialog
 {
     Q_OBJECT
 private:
@@ -38,9 +38,7 @@ private:
     // Message area
     QLabel *message_area;
 
-    QWidget *top_widget;
-
-    QScrollArea *scroll_box;
+    QWidget *central;
 
     bool allow_floor;
     bool allow_inven;
@@ -63,6 +61,7 @@ private:
     QGridLayout *quiver_list;
 
     QLabel *quiver_header;
+
 
 private slots:
     void move_left(void);

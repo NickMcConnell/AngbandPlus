@@ -13,13 +13,6 @@
 #include "QDir"
 
 
-/*
- * Copyright (c) 2000 Robert Ruehlmann
- *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
- */
 
 
 /*
@@ -37,6 +30,7 @@ enum
     PARSE_ERROR_MISSING_RECORD_HEADER,
     PARSE_ERROR_NON_SEQUENTIAL_RECORDS,
     PARSE_ERROR_NOT_NUMBER,
+    PARSE_ERROR_INVALID_FEATURE_TRANSITION,
     PARSE_ERROR_OBSOLETE_FILE,
     PARSE_ERROR_OUT_OF_BOUNDS,
     PARSE_ERROR_OUT_OF_MEMORY,

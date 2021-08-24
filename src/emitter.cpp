@@ -381,8 +381,9 @@ BoltAnimation::BoltAnimation(QPointF from, QPointF to, int new_gf_type, u32b new
     anim = new QPropertyAnimation(this, "pos");   
 
     int d = QLineF(from, to).length();
-    int dur = d * delay * 1.2; // +20%
-    if (dur < 250) dur = 250;  // minimum    
+    int dur = d * 0.8;
+    if (dur < 120) dur = 120;  // minimum
+
     anim->setDuration(dur);    
 
     QPointF adj = QPointF(pix.width() / 2, pix.height() / 2);
@@ -624,7 +625,6 @@ ArcAnimation::ArcAnimation(QPointF from, QPointF to, int newDegrees, int type, i
 
     timer.setInterval(delay * 20);
     connect(&timer, SIGNAL(timeout()), this, SLOT(do_timeout()));
-    connect(&timer, SIGNAL(timeout()), &this_loop, SLOT(quit()));
 }
 
 void ArcAnimation::start()
@@ -639,6 +639,7 @@ void ArcAnimation::finish()
     timer.stop();
     main_window->animation_done();
     this->deleteLater();
+    this_loop.quit();
 }
 
 void ArcAnimation::do_timeout()
@@ -781,8 +782,7 @@ StarAnimation::StarAnimation(QPointF newCenter, int radius, int newGFType, int g
     maxLength = main_window->main_cell_hgt * (radius + 0.5);
 
     timer.setInterval(40);
-    connect(&timer, SIGNAL(timeout()), this, SLOT(do_timeout()));
-    connect(&timer, SIGNAL(timeout()), &this_loop, SLOT(quit()));
+    connect(&timer, SIGNAL(timeout()), this, SLOT(do_timeout()));    
 }
 
 void StarAnimation::start()
@@ -802,6 +802,7 @@ void StarAnimation::stop()
     }
     particles.clear();
     this->deleteLater();
+    this_loop.quit();
 }
 
 void StarAnimation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -885,8 +886,7 @@ HaloAnimation::HaloAnimation(int y, int x)
 
     timer.setInterval(70);
 
-    connect(&timer, SIGNAL(timeout()), this, SLOT(do_timeout()));
-    connect(&timer, SIGNAL(timeout()), &this_loop, SLOT(quit()));
+    connect(&timer, SIGNAL(timeout()), this, SLOT(do_timeout()));    
 
     this->setVisible(false);
 }
@@ -903,6 +903,7 @@ void HaloAnimation::stop()
     main_window->animation_done();
     if (scene()) scene()->removeItem(this);
     this->deleteLater();
+    this_loop.quit();
 }
 
 void HaloAnimation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -964,7 +965,7 @@ DetectionAnimation::DetectionAnimation(int y, int x, int rad)
     c_y = adj.y();
     c_x = adj.x();
 
-    timer.setInterval(70);
+    timer.setInterval(60);
 
     steps = 0;
 
@@ -972,8 +973,7 @@ DetectionAnimation::DetectionAnimation(int y, int x, int rad)
 
     opacity = 0.7;
 
-    connect(&timer, SIGNAL(timeout()), this, SLOT(do_timeout()));
-    connect(&timer, SIGNAL(timeout()), &this_loop, SLOT(quit()));
+    connect(&timer, SIGNAL(timeout()), this, SLOT(do_timeout()));    
 
     this->setVisible(false);
 }
@@ -990,6 +990,7 @@ void DetectionAnimation::stop()
     main_window->animation_done();
     if (scene()) scene()->removeItem(this);
     this->deleteLater();
+    this_loop.quit();
 }
 
 QRectF DetectionAnimation::boundingRect() const
@@ -999,14 +1000,14 @@ QRectF DetectionAnimation::boundingRect() const
 
 void DetectionAnimation::do_timeout()
 {
-    if (++steps > 5)
+    if (++steps > 3)
     {
         stop();
         return;
     }
 
     if (steps > 1) {
-        angle += 3;
+        angle += 2;
         currentPix = rotate_pix(detectionPix, angle);
 
         opacity = MIN(opacity + 0.20, 1.0);

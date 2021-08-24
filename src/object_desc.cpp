@@ -4,17 +4,8 @@
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * 						Jeff Greene, Diego Gonzalez
  *
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
- *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 3, or
- *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "src/npp.h"
@@ -258,7 +249,7 @@ static QString obj_desc_name(object_type *o_ptr, bool prefix, byte mode, bool sp
 
             while (basename[lookahead] == ' ') lookahead++;
 
-            if (basename.contains('#'))
+            if (basename.contains('#') && (o_ptr->tval != TV_SCROLL))
             {
                 if (!modstr.isEmpty() && begins_with_vowel(modstr))
                     an = TRUE;
@@ -649,53 +640,50 @@ static QString obj_desc_charges(object_type *o_ptr, QString buf)
 
 static QString obj_desc_inscrip(object_type *o_ptr, QString buf)
 {
-    QString u[6];
-    int n = 0;
+    QVector<QString> inscriptions;
+    inscriptions.clear();
 
     /* See if the object is "known" */
     bool known = o_ptr->is_known();
     bool aware = o_ptr->is_aware();
 
     /* Get inscription, pdeudo-id, or store discount */
-    if (!o_ptr->inscription.isEmpty()) u[n++] = o_ptr->inscription;
+    if (!o_ptr->inscription.isEmpty()) inscriptions.append(o_ptr->inscription);
     if (o_ptr->discount >= INSCRIP_NULL)
     {
-        u[n++] = inscrip_text[o_ptr->discount - INSCRIP_NULL];
+        inscriptions.append(inscrip_text[o_ptr->discount - INSCRIP_NULL]);
     }
     else if (o_ptr->is_cursed() && known)
     {
-        u[n++] = "cursed";
+        inscriptions.append(QString("cursed"));
     }
     else if ((o_ptr->ident & IDENT_EMPTY) && (!known))
     {
-        u[n++] = "empty";
+        inscriptions.append(QString("empty"));
     }
     else if ((!aware) && o_ptr->is_tried())
     {
-        u[n++] = "tried";
+        inscriptions.append(QString("tried"));
     }
     else if (o_ptr->discount > 0)
     {
-        QString addon = (QString("%1 pct off") .arg(o_ptr->discount));
-
-        u[n++] = addon;
+        inscriptions.append(QString("%1 pct off") .arg(o_ptr->discount));
     }
 
     /* Use the "unknown" inscription */
     else if (!known && o_ptr->can_be_pseudo_ided() &&
             (o_ptr->discount < INSCRIP_NULL))
     {
-        u[n++] = "unknown";
+        inscriptions.append(QString("unknown"));
     }
 
-    if (n)
+    if (inscriptions.size())
     {
-        int i;
-        for (i = 0; i < n; i++)
+        for (int i = 0; i < inscriptions.size(); i++)
         {
             if (i == 0) buf.append(" {");
-            buf.append(QString("%1") .arg(u[i]));
-            if (i < n-1) buf.append(", ");
+            buf.append(inscriptions.at(i));
+            if (i < inscriptions.size()-1) buf.append(", ");
         }
 
         buf.append("}");

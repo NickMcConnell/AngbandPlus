@@ -381,7 +381,7 @@ extern s16b floor_carry(int y, int x, object_type *j_ptr);
 extern bool drop_near(object_type *j_ptr, int chance, int y, int x);
 extern void inven_item_describe(int item);
 extern void inven_item_increase(int item, int num);
-extern int get_tag_num(int o_idx, QChar cmd, byte *tag_num);
+extern int get_tag_num(int o_idx, byte *tag_num);
 extern int quiver_space_per_unit(const object_type *o_ptr);
 extern void save_quiver_size(void);
 extern int compare_ammo(int slot1, int slot2);

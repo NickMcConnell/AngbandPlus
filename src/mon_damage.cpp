@@ -4,17 +4,8 @@
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * 						Jeff Greene, Diego Gonzalez
  *
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
- *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 3, or
- *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "src/npp.h"
@@ -1215,6 +1206,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, QString note, int who, bool do
 
     /* Redraw (later) if needed */
     if (m_ptr->sidebar) p_ptr->redraw |= (PR_SIDEBAR_MON);
+    if (p_ptr->monster_race_idx == m_ptr->r_idx) p_ptr->redraw |= (PR_WIN_MON_RECALL);
 
     if (!dam) return(FALSE);
 
@@ -1286,6 +1278,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, QString note, int who, bool do
             else message(QString("%1 has been slain") .arg(capitalize_first(m_name)));
         }
 
+        /* Generate treasure */
+        monster_death(m_idx, who);
+
         if ((who == SOURCE_PLAYER) || (who == SOURCE_TRAP))
         {
 
@@ -1310,9 +1305,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, QString note, int who, bool do
             /* Gain experience */
             gain_exp(new_exp);
         }
-
-        /* Generate treasure */
-        monster_death(m_idx, who);
 
         /* When the player kills a Unique, it stays dead */
         if (r_ptr->flags1 & (RF1_UNIQUE))

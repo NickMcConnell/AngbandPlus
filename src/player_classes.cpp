@@ -4,16 +4,8 @@
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *                    Jeff Greene, Diego Gonzalez
  *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 3, or
- *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "src/npp.h"
@@ -288,7 +280,7 @@ void player_type::player_type_wipe()
     player_command_wipe();
     player_previous_command_wipe();
     new_spells = 0;
-    notice = update = redraw = window = 0;
+    notice = update = redraw = 0;
     au_birth = 0;
     for (i = 0; i < A_MAX; i++) stat_birth[i] = 0;
     ht_birth = wt_birth = sc_birth = 0;

@@ -1,3 +1,12 @@
+/* File: qt_mainwindow.cpp */
+
+/*
+ * Copyright (c) 2014 Jeff Greene, Diego Gonzalez
+ *
+ * Please see copyright.txt for complete copyright and licensing restrictions.
+ *
+ */
+
 #include "storedialog.h"
 #include <QKeyEvent>
 
@@ -7,7 +16,6 @@
 #include <QGroupBox>
 #include <QSpinBox>
 #include <QCoreApplication>
-#include <QScrollArea>
 #include <QLabel>
 #include <QPixmap>
 #include "npp.h"
@@ -44,7 +52,7 @@ void launch_store(int store_idx)
     }
 
     StoreDialog *dlg = new StoreDialog(store_idx);
-    dlg->exec();
+    dlg->exec_saved("StoreDialog");
     delete dlg;
     p_ptr->in_store = FALSE;
     p_ptr->message_append_stop();

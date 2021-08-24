@@ -6,9 +6,9 @@
 #include <QDialogButtonBox>
 #include <QButtonGroup>
 #include <QKeyEvent>
-#include <QScrollArea>
 #include <QDialog>
 #include <QLabel>
+#include <QScrollArea>
 
 
 // The numbered order of the tabs

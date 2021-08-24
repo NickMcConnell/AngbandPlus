@@ -9,6 +9,7 @@
 #include <src/player_scores.h>
 #include <src/messages.h>
 #include <QTime>
+#include <QApplication>
 
 // was init.2
 
@@ -16,16 +17,8 @@
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *                    Jeff Greene, Diego Gonzalez
  *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 3, or
- *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
  */
 
 /*
@@ -82,6 +75,7 @@ static QString err_str[PARSE_ERROR_MAX] =
     "missing record header",
     "non-sequential records",
     "value not a number",
+    "unrecognized feature transition"
     "obsolete file",
     "value out of bounds",
     "out of memory",
@@ -144,6 +138,16 @@ void create_directories()
 {
 
     npp_dir_base.setPath(QDir::currentPath());
+
+    // OSX currentPath() currently isn't working properly.  Fix the path
+    QString test_string = npp_dir_base.path();
+    if (test_string.length() < 3)
+    {
+        QString this_path = (QApplication::applicationFilePath());
+        int cut_index = this_path.indexOf(QString("/NPPG"), 1, Qt::CaseSensitive);
+        if (cut_index >=0) this_path.resize(cut_index);
+        npp_dir_base.setPath(this_path);
+    }
 
     npp_dir_bone.setPath(QString(npp_dir_base.path() .append("/lib/bone/")));
     npp_dir_edit.setPath(QString(npp_dir_base.path() .append("/lib/edit/")));

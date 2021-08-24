@@ -7,9 +7,8 @@
 /*
  * Copyright (c) 2010 Jeff Greene, Diego Gonzalez
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * Please see copyright.txt for complete copyright and licensing restrictions.
+ *
  */
 
 
@@ -564,7 +563,7 @@
   */
 
 #define RF1_OBVIOUS_MASK \
-    (RF1_UNIQUE | RF1_QUESTOR | RF1_MALE | RF1_FEMALE | \
+    (RF1_UNIQUE | RF1_QUESTOR | RF1_MALE | RF1_FEMALE | RF1_NEVER_MOVE |\
      RF1_FRIEND | RF1_FRIENDS | RF1_ESCORT | RF1_ESCORTS)
 
 /*

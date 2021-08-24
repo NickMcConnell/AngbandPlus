@@ -5,16 +5,8 @@
  * Copyright (c) 2007 David T. Blackston, Iain McFall, DarkGod, Jeff Greene,
  * Diego Gonzalez, David Vestal, Pete Mack, Andrew Sidwell.
  *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 3, or
- *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
  */
 #include "src/npp.h"
 #include "src/squelch.h"
@@ -380,7 +372,7 @@ static QString expand_inscription(object_type *o_ptr)
             dest.append(format_object_flags(o_ptr, mode_list[found]));
         }
 
-        src[src.indexOf(':')] = ' ';
+        src.remove(src.indexOf(':'), 1);
     }
 
     return (dest);

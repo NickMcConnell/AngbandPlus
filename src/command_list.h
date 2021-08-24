@@ -3,6 +3,7 @@
 
 
 #include <src/player_screen.h>
+#include <src/nppdialog.h>
 
 typedef struct command_desc command_desc;
 
@@ -12,7 +13,7 @@ struct command_desc
     QString command_key;
 };
 
-class KeyboardCommandList : public QDialog
+class KeyboardCommandList : public NPPDialog
 {
     Q_OBJECT
 
@@ -23,9 +24,10 @@ private:
     void add_dir_keyboard(QVBoxLayout *return_layout, bool keyboard);
     void add_dir_commands(QGridLayout *return_layout);
     void add_keyboard_commands(QGridLayout *return_layout);
+    QWidget *central;
 };
 
-class MouseCommandList : public QDialog
+class MouseCommandList : public NPPDialog
 {
     Q_OBJECT
 
@@ -34,18 +36,22 @@ public:
 
 private:
     void add_mouse_commands(QVBoxLayout *return_layout);
+    QWidget *central;
+
 };
 
-class TargetCommandList : public QDialog
+class TargetCommandList : public NPPDialog
 {
     Q_OBJECT
 
 public:
     explicit TargetCommandList(void);
 
+
 private:
     void add_dir_targeting(QVBoxLayout *return_layout, bool keyboard);
-    void add_targeting_commands(QVBoxLayout *return_layout);
+    void add_targeting_commands(QGridLayout *return_layout);
+    QWidget *central;
 };
 
 extern void do_cmd_list_keyboard_commands(void);

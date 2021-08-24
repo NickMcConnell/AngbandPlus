@@ -6,16 +6,9 @@
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  * Copyright (c) 2007-9 Andrew Sidwell, Chris Carr, Ed Graham, Erik Osheim
  *                       Jeff Greene, Diego Gonzalez
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
  *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 3, or
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include <src/npp.h>
@@ -86,7 +79,7 @@ static int check_devices(object_type *o_ptr)
         message(QString("The %1 has no charges left.") .arg(msg));
         o_ptr->ident |= (IDENT_EMPTY);
         p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-        p_ptr->window |= (PR_WIN_INVENTORY);
+        p_ptr->redraw |= (PR_WIN_INVENTORY);
 
         return FALSE;
     }
@@ -3166,7 +3159,7 @@ void command_use(cmd_arg args)
             message(QString("That wand has no charges."));
             o_ptr->ident |= (IDENT_EMPTY);
             p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-            p_ptr->window |= (PR_WIN_INVENTORY);
+            p_ptr->redraw |= (PR_WIN_INVENTORY);
             return;
         }
 
@@ -3181,7 +3174,7 @@ void command_use(cmd_arg args)
             message(QString("That staff has no charges."));
             o_ptr->ident |= (IDENT_EMPTY);
             p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-            p_ptr->window |= (PR_WIN_INVENTORY);
+            p_ptr->redraw |= (PR_WIN_INVENTORY);
             return;
         }
 
@@ -3243,6 +3236,16 @@ void command_use(cmd_arg args)
     {
         dir = args.direction;
 
+        if (dir == DIR_CLOSEST)
+        {
+            int mode = TARGET_QUIET;
+
+            if (!obj_aim_trap(o_ptr)) mode |= TARGET_KILL;
+            else mode |= TARGET_TRAP;
+
+            if (!target_set_closest(mode)) dir = DIR_UNKNOWN;
+        }
+
         if (dir == DIR_UNKNOWN)
         {
             if (!get_aim_dir(&dir, obj_aim_trap(o_ptr))) return;
@@ -3283,12 +3286,9 @@ void command_use(cmd_arg args)
         /* Clear the item mark */
         o_ptr->obj_in_use = FALSE;
 
-        // Don't repeat command if we just actived an object
-        if (!used || (use !=USE_TIMEOUT))
-        {
-            p_ptr->player_previous_command_update(CMD_ITEM_USE, args);
-            p_ptr->command_previous_args.k_idx = o_ptr->k_idx;
-        }
+        // Set up the repeat
+        p_ptr->player_previous_command_update(CMD_ITEM_USE, args);
+        p_ptr->command_previous_args.k_idx = o_ptr->k_idx;
 
         /* Quit if the item wasn't used and no knowledge was gained */
         if (!used && (was_aware || !ident))
@@ -3306,22 +3306,20 @@ void command_use(cmd_arg args)
     p_ptr->notice |= (PN_COMBINE | PN_REORDER | PN_SORT_QUIVER);
 
     /* Window stuff */
-    p_ptr->window |= (PR_WIN_INVENTORY | PR_WIN_EQUIPMENT);
+    p_ptr->redraw |= (PR_WIN_INVENTORY | PR_WIN_EQUIPMENT);
 
     /* Handle first-time use */
     if (ident)
     {
         /* Successfully determined the object function */
-        if (!o_ptr->is_known())
+        if (!o_ptr->is_aware())
         {
             /* Object level */
             int lev = k_info[o_ptr->k_idx].k_level;
-
+            o_ptr->mark_aware();
             gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
             apply_autoinscription(o_ptr);
         }
-
-        o_ptr->mark_known(TRUE);
     }
 
     /* If the item is a null pointer or has been wiped, be done now */

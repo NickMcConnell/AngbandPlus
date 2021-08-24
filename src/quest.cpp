@@ -4,11 +4,8 @@
 /*
  * Copyright (c) 1997 Eytan Zweig, Jeff Greene, Diego Gonzalez
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * This file contains functions used for handling quests by Eytan Zweig
  */
 
 #include "src/npp.h"
@@ -2775,7 +2772,7 @@ void write_quest_note(bool success)
             race_name = plural_aux(race_name);
         }
 
-        if (r_ptr->flags1 == RF1_UNIQUE)
+        if (r_ptr->is_unique())
         {
             if (success)
             {

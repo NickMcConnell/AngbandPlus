@@ -1,18 +1,11 @@
 /* File: hotkeys.cpp */
 
 /*
- * Copyright (c) 2014 Jeff Greene, Diego Gonzalez
+ * Copyright (c) 2015 Jeff Greene, Diego Gonzalez
  *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
  *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 3, or
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include <src/npp.h>
@@ -1800,10 +1793,16 @@ static int extract_hotkey_dir(int dir, bool trap_spell)
     // First target closest, if there is anything there
     if (dir == DIR_CLOSEST)
     {
-        if (target_set_closest(TARGET_KILL | TARGET_QUIET))
+        int mode = TARGET_QUIET;
+
+        if (!trap_spell) mode |= TARGET_KILL;
+        else mode |= TARGET_TRAP;
+
+        if (target_set_closest(mode))
         {
-            return(DIR_TARGET);
+            return(DIR_CLOSEST);
         }
+        else dir = DIR_UNKNOWN;
     }
     if (dir == DIR_TARGET)
     {

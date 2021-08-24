@@ -3,16 +3,8 @@
 /*
  * Copyright (c) 2014 Jeff Greene, Diego Gonzalez
  *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 3, or
- *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include <src/npp.h>
@@ -25,7 +17,6 @@
 #include <QPushButton>
 #include <QDialogButtonBox>
 #include <QHeaderView>
-#include <QScrollArea>
 
 void qtablewidget_add_palette(QTableWidget *this_tablewidget)
 {
@@ -44,9 +35,15 @@ void qpushbutton_dark_background(QPushButton *this_pushbutton)
 }
 
 
-DisplayNotesFile::DisplayNotesFile(void)
+DisplayNotesFile::DisplayNotesFile(void): NPPDialog()
 {
+    central = new QWidget;
     QVBoxLayout *main_layout = new QVBoxLayout;
+    central->setLayout(main_layout);
+    main_layout->setSpacing(10);
+    // IMPORTANT: it must be called AFTER setting the layout
+    this->setClient(central);
+
     QGridLayout *notes_info = new QGridLayout;
 
     main_layout->addLayout(notes_info);
@@ -79,8 +76,13 @@ DisplayNotesFile::DisplayNotesFile(void)
         notes_type *notes_ptr = &notes_log[i];
         QLabel *game_turn = new QLabel(number_to_formatted_string(notes_ptr->game_turn));
         notes_info->addWidget(game_turn, row, col++, Qt::AlignRight | Qt::AlignTop);
-        // Format the depth, unless the player is in town
-        if (notes_ptr->dun_depth) depth_note = number_to_formatted_string(notes_ptr->dun_depth * 50);
+        // Format the depth, handle objects from chests and quest rewards.
+        if (notes_ptr->dun_depth)
+        {
+            if (notes_ptr->dun_depth == CHEST_LEVEL) depth_note = "Chest";
+            else if (notes_ptr->dun_depth == QUEST_LEVEL) depth_note = "Quest";
+            else depth_note = number_to_formatted_string(notes_ptr->dun_depth * 50);
+        }
         QLabel *game_depth = new QLabel(depth_note);
         notes_info->addWidget(game_depth, row, col++, Qt::AlignRight | Qt::AlignTop);
         QLabel *player_level = new QLabel(QString("%1 ") .arg(notes_ptr->player_level));
@@ -101,6 +103,8 @@ DisplayNotesFile::DisplayNotesFile(void)
     setLayout(main_layout);
     setWindowTitle(tr("Notes and Accomplishments"));
 
+    this->clientSizeUpdated();
+
     this->exec();
 }
 
@@ -112,7 +116,7 @@ void display_notes_file(void)
     DisplayNotesFile();
 }
 
-DisplayHomeInven::DisplayHomeInven(void)
+DisplayHomeInven::DisplayHomeInven(void): NPPDialog()
 {
     // First handle an empty home
     store_type *st_ptr = &store[STORE_HOME];
@@ -122,16 +126,13 @@ DisplayHomeInven::DisplayHomeInven(void)
         return;
     }
 
-    //Set up the main scroll bar
-    QVBoxLayout *top_layout = new QVBoxLayout;
+    central = new QWidget;
     QVBoxLayout *main_layout = new QVBoxLayout;
-    QWidget *top_widget = new QWidget;
-    QScrollArea *scroll_box = new QScrollArea;
-    top_widget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-    top_widget->setLayout(main_layout);
-    scroll_box->setWidget(top_widget);
-    scroll_box->setWidgetResizable(TRUE);
-    top_layout->addWidget(scroll_box);
+    central->setLayout(main_layout);
+    main_layout->setSpacing(10);
+    // IMPORTANT: it must be called AFTER setting the layout
+    this->setClient(central);
+
 
     /* Display contents of the home */
     for (int i = 0; i < st_ptr->stock_num; i++)
@@ -155,13 +156,9 @@ DisplayHomeInven::DisplayHomeInven(void)
     connect(&buttons, SIGNAL(rejected()), this, SLOT(close()));
     main_layout->addWidget(&buttons);
 
-    setLayout(top_layout);
     setWindowTitle(tr("Home Inventory"));
 
-    QSize this_size = QSize(width()* 1.5, height() * 2);
-
-    resize(ui_max_widget_size(this_size));
-    updateGeometry();
+    this->clientSizeUpdated();
 
     this->exec();
 }
@@ -176,11 +173,18 @@ void display_home_inventory(void)
 
 
 
-DisplayScores::DisplayScores(void)
+DisplayScores::DisplayScores(void): NPPDialog()
 {
+
+    central = new QWidget;
+    QVBoxLayout *main_layout = new QVBoxLayout;
+    central->setLayout(main_layout);
+    main_layout->setSpacing(10);
+    // IMPORTANT: it must be called AFTER setting the layout
+    this->setClient(central);
+
     scores_proxy_model = new QSortFilterProxyModel;
     scores_proxy_model->setSortCaseSensitivity(Qt::CaseSensitive);
-    QVBoxLayout *main_layout = new QVBoxLayout;
 
     //Copy the vector, add the player and sort it.
     QVector<high_score> score_list;

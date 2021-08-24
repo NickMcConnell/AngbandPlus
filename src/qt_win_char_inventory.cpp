@@ -1,16 +1,8 @@
 /*
  * Copyright (c) 2015 Jeff Greene, Diego Gonzalez
  *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
+ * Please see copyright.txt for complete copyright and licensing restrictions.
  *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 3, or
- *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include <src/npp.h>
@@ -139,7 +131,7 @@ void MainWindow::win_char_inventory_update()
     if (!character_generated) return;
     if (!show_char_inventory) return;
 
-    update_inven_list(inven_list, FALSE, inven_show_buttons);
+    update_inven_list(inven_list, TRUE, inven_show_buttons);
     if (inven_show_buttons) inven_link_pushbuttons();
     update_label_inventory_font();
 }

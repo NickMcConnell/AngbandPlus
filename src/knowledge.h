@@ -11,6 +11,7 @@
 #include <QButtonGroup>
 #include <QSplitter>
 #include "src/npp.h"
+#include <src/nppdialog.h>
 
 enum
 {
@@ -157,12 +158,13 @@ private slots:
     int terrain_matches_group(int f_idx);
 };
 
-class DisplayNotesFile : public QDialog
+class DisplayNotesFile : public NPPDialog
 {
     Q_OBJECT
 
 public:
     explicit DisplayNotesFile(void);
+    QWidget *central;
 };
 
 // Used for DisplayMonKillCount
@@ -173,15 +175,16 @@ public:
     s16b total_kills;
 };
 
-class DisplayHomeInven : public QDialog
+class DisplayHomeInven : public NPPDialog
 {
     Q_OBJECT
 
 public:
     explicit DisplayHomeInven(void);
+    QWidget *central;
 };
 
-class DisplayScores : public QDialog
+class DisplayScores : public NPPDialog
 {
     Q_OBJECT
 
@@ -191,7 +194,7 @@ public:
 private:
     QTableWidget *scores_table;
     QSortFilterProxyModel *scores_proxy_model;
-
+    QWidget *central;
 };
 
 
