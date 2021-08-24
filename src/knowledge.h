@@ -208,7 +208,26 @@ public:
 
 private:
     QPointer<QTableWidget> kill_count_table;
+};
 
+class DisplayKnowledgeMenu : public NPPDialog
+{
+    Q_OBJECT
+
+public:
+    explicit DisplayKnowledgeMenu(void);
+    QPointer<QWidget> central;
+
+private slots:
+    void slot_monster_knowledge(void){DisplayMonsterKnowledge();};
+    void slot_object_knowledge(void){DisplayObjectKnowledge();};
+    void slot_ego_item_knowledge(void){DisplayEgoItemKnowledge();};
+    void slot_artifact_knowledge(void){DisplayArtifactKnowledge();};
+    void slot_terrain_knowledge(void){DisplayTerrainKnowledge();};
+    void slot_notes_file(void){DisplayNotesFile();};
+    void slot_home_inventory(void){DisplayHomeInven();};
+    void slot_player_scores(void){DisplayScores();};
+    void slot_mon_kill_count(void){DisplayMonKillCount();};
 };
 
 extern void display_monster_knowledge(void);
@@ -221,6 +240,7 @@ extern void display_home_inventory(void);
 extern void display_player_scores(void);
 extern void display_mon_kill_count(void);
 extern int find_first_ego_match(int e_idx);
+extern void do_cmd_knowledge_screens(void);
 
 extern void qtablewidget_add_palette(QTableWidget *this_tablewidget);
 extern void qpushbutton_dark_background(QPushButton *this_pushbutton);

@@ -56,29 +56,29 @@ void MainWindow::toggle_equip_show_buttons()
     if (!equip_show_buttons)
     {
         equip_show_buttons = TRUE;
-        char_equipment_buttons->setText("Hide Command Buttons");
+        char_equipment_buttons_act->setText("Hide Command Buttons");
     }
     else
     {
         equip_show_buttons = FALSE;
-        char_equipment_buttons->setText("Show Command Buttons");
+        char_equipment_buttons_act->setText("Show Command Buttons");
     }
     win_char_equipment_update();
 }
 
 void MainWindow::update_label_equipment_font()
 {
-    QList<QLabel *> lbl_list = window_char_equipment->findChildren<QLabel *>();
+    QList<QLabel *> lbl_list = char_equipment_settings.main_widget->findChildren<QLabel *>();
     for (int i = 0; i < lbl_list.size(); i++)
     {
         QLabel *this_lbl = lbl_list.at(i);
-        this_lbl->setFont(font_char_equipment);
+        this_lbl->setFont(char_equipment_settings.win_font);
     }
 
     // Now make the buttons about the same size
-    QFontMetrics metrics(font_char_equipment);
+    QFontMetrics metrics(char_equipment_settings.win_font);
     QSize button_size((metrics.width('M') + 2), (metrics.height() + 2));
-    QList<QPushButton *> pushbutton_list = window_char_equipment->findChildren<QPushButton *>();
+    QList<QPushButton *> pushbutton_list = char_equipment_settings.main_widget->findChildren<QPushButton *>();
     for (int i = 0; i < pushbutton_list.size(); i++)
     {
         QPushButton *this_button = pushbutton_list.at(i);
@@ -89,7 +89,7 @@ void MainWindow::update_label_equipment_font()
 
 void MainWindow::set_font_char_equipment(QFont newFont)
 {
-    font_char_equipment = newFont;
+    char_equipment_settings.win_font = newFont;
     update_label_equipment_font();
 
 }
@@ -97,7 +97,7 @@ void MainWindow::set_font_char_equipment(QFont newFont)
 void MainWindow::win_char_equipment_font()
 {
     bool selected;
-    QFont font = QFontDialog::getFont( &selected, font_char_equipment, this);
+    QFont font = QFontDialog::getFont( &selected, char_equipment_settings.win_font, this);
 
     if (selected)
     {
@@ -107,7 +107,7 @@ void MainWindow::win_char_equipment_font()
 
 void MainWindow::equip_link_pushbuttons()
 {
-    QList<QPushButton *> pushbutton_list = window_char_equipment->findChildren<QPushButton *>();
+    QList<QPushButton *> pushbutton_list = char_equipment_settings.main_widget->findChildren<QPushButton *>();
 
     for (int i = 0; i < pushbutton_list.size(); i++)
     {
@@ -120,16 +120,16 @@ void MainWindow::equip_link_pushbuttons()
 // For when savefiles close but the game doesn't.
 void MainWindow::win_char_equipment_wipe()
 {
-    if (!show_char_equipment) return;
+    if (!char_equipment_settings.win_show) return;
     if (!character_generated) return;
-    clear_layout(main_vlay_equipment);
+    clear_layout(char_equipment_settings.main_vlay);
 }
 
 
 void MainWindow::win_char_equipment_update()
 {
     if (!character_generated) return;
-    if (!show_char_equipment) return;
+    if (!char_equipment_settings.win_show) return;
 
     update_equip_list(equip_list, FALSE, equip_show_buttons);
     update_quiver_list(quiver_list, FALSE, equip_show_buttons);
@@ -140,11 +140,11 @@ void MainWindow::win_char_equipment_update()
 void MainWindow::create_win_char_equipment()
 {
     if (!character_generated) return;
-    if (!show_char_equipment) return;
+    if (!char_equipment_settings.win_show) return;
 
     // Add the equipment
     QPointer<QVBoxLayout> equip_vlay = new QVBoxLayout;
-    main_vlay_equipment->addLayout(equip_vlay);
+    char_equipment_settings.main_vlay->addLayout(equip_vlay);
     QPointer<QLabel> header_equip = new QLabel(QString("<b><h1>Equipment</b></h1>"));
     equip_vlay->addWidget(header_equip, Qt::AlignCenter);
     equip_list = new QGridLayout;
@@ -154,26 +154,18 @@ void MainWindow::create_win_char_equipment()
     // Add a space
     QPointer<QLabel> empty_space = new QLabel;
     empty_space->setText(" ");
-    main_vlay_equipment->addWidget(empty_space);
+    char_equipment_settings.main_vlay->addWidget(empty_space);
 
     // Add the quiver
     QPointer<QVBoxLayout> quiver_vlay = new QVBoxLayout;
-    main_vlay_equipment->addLayout(quiver_vlay);
+    char_equipment_settings.main_vlay->addLayout(quiver_vlay);
     QPointer<QLabel> header_quiver = new QLabel(QString("<b><h1>Quiver</b></h1>"));
     quiver_vlay->addWidget(header_quiver, Qt::AlignCenter);
     quiver_list = new QGridLayout;
     quiver_vlay->addLayout(quiver_list);
 
     win_char_equipment_update();
-    main_vlay_equipment->addStretch(1);
-}
-
-void MainWindow::close_win_char_equipment_frame(QObject *this_object)
-{
-    (void)this_object;
-    window_char_equipment = NULL;
-    show_char_equipment = FALSE;
-    win_char_equipment->setText("Show Character Equipment Screen");
+    char_equipment_settings.main_vlay->addStretch(1);
 }
 
 
@@ -184,51 +176,60 @@ void MainWindow::close_win_char_equipment_frame(QObject *this_object)
  */
 void MainWindow::win_char_equipment_create()
 {
-    window_char_equipment = new QWidget();
-    main_vlay_equipment = new QVBoxLayout;
-    window_char_equipment->setLayout(main_vlay_equipment);
+    char_equipment_settings.make_extra_window();
 
-    char_equipment_menubar = new QMenuBar;
-    main_vlay_equipment->setMenuBar(char_equipment_menubar);
-    window_char_equipment->setWindowTitle("Character Equipment Screen");
-    char_equipment_settings = char_equipment_menubar->addMenu(tr("&Settings"));
-    char_equipment_font = new QAction(tr("Set Equipment Screen Font"), this);
-    char_equipment_font->setStatusTip(tr("Set the font for the Equipment screen."));
-    connect(char_equipment_font, SIGNAL(triggered()), this, SLOT(win_char_equipment_font()));
-    char_equipment_settings->addAction(char_equipment_font);
-    char_equipment_buttons = new QAction(tr("Show Command Buttons"), this);
-    if (equip_show_buttons) char_equipment_buttons->setText("Hide Command Buttons");
-    char_equipment_buttons->setStatusTip(tr("Displays or hides the command buttons."));
-    connect(char_equipment_buttons, SIGNAL(triggered()), this, SLOT(toggle_equip_show_buttons()));
-    char_equipment_settings->addAction(char_equipment_buttons);
-    window_char_equipment->setAttribute(Qt::WA_DeleteOnClose);
-    connect(window_char_equipment, SIGNAL(destroyed(QObject*)), this, SLOT(close_win_char_equipment_frame(QObject*)));
+    char_equipment_settings.main_widget->setWindowTitle("Character Equipment Screen");
+    connect(char_equipment_settings.win_font_act, SIGNAL(triggered()), this, SLOT(win_char_equipment_font()));
+    char_equipment_buttons_act = new QAction(tr("Show Command Buttons"), this);
+    if (equip_show_buttons) char_equipment_buttons_act->setText("Hide Command Buttons");
+    char_equipment_buttons_act->setStatusTip(tr("Displays or hides the command buttons."));
+    connect(char_equipment_buttons_act, SIGNAL(triggered()), this, SLOT(toggle_equip_show_buttons()));
+    char_equipment_settings.win_menu->addAction(char_equipment_buttons_act);
+
+    connect(char_equipment_settings.main_widget, SIGNAL(destroyed(QObject*)), this, SLOT(win_char_equipment_destroy(QObject*)));
 }
 
-void MainWindow::win_char_equipment_destroy()
+/*
+ * This version should only be used when the game is shutting down.
+ * So it is remembered if the window was open or not.
+ * For closing the window mid-game use win_char_inventory_destroy directly
+ */
+void MainWindow::win_char_equipment_destroy(QObject *this_object)
 {
-    if (!show_char_equipment) return;
-    delete window_char_equipment;
-    window_char_equipment = NULL;
+    (void)this_object;
+    if (!char_equipment_settings.win_show) return;
+    if (!char_equipment_settings.main_widget) return;
+    char_equipment_settings.get_widget_settings(char_equipment_settings.main_widget);
+    char_equipment_settings.main_widget->deleteLater();
+    char_equipment_settings.win_show = FALSE;
+    win_char_equipment_act->setText("Show Character Equipment Screen");
+}
+
+/*
+ * This version should only be used when the game is shutting down.
+ * So it is remembered if the window was open or not.
+ * For closing the window mid-game use win_char_equipment_destroy directly
+ */
+void MainWindow::win_char_equipment_close()
+{
+    bool was_open = char_equipment_settings.win_show;
+    win_char_equipment_destroy(char_equipment_settings.main_widget);
+    char_equipment_settings.win_show = was_open;
 }
 
 void MainWindow::toggle_win_char_equipment_frame()
 {
-    if (!show_char_equipment)
+    if (!char_equipment_settings.win_show)
     {
         win_char_equipment_create();
-        show_char_equipment = TRUE;
+        char_equipment_settings.win_show = TRUE;
         create_win_char_equipment();
-        win_char_equipment->setText("Hide Character Equipment Screen");
-        window_char_equipment->show();
+        char_equipment_settings.main_widget->setGeometry(char_equipment_settings.win_geometry);
+        win_char_equipment_act->setText("Hide Character Equipment Screen");
+        if (char_equipment_settings.win_maximized) char_equipment_settings.main_widget->showMaximized();
+        else char_equipment_settings.main_widget->show();
     }
-    else
-
-    {
-        win_char_equipment_destroy();
-        show_char_equipment = FALSE;
-        win_char_equipment->setText("Show Character Equipment Screen");
-    }
+    else win_char_equipment_destroy(char_equipment_settings.main_widget);
 }
 
 

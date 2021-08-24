@@ -73,7 +73,7 @@ static bool compare_items(object_vis ov1, object_vis ov2)
 
 void MainWindow::set_font_win_obj_list(QFont newFont)
 {
-    font_win_obj_list = newFont;
+    win_obj_list_settings.win_font = newFont;
     win_obj_list_update();
 }
 
@@ -91,7 +91,7 @@ void MainWindow::win_obj_list_font()
 // For when savefiles close but the game doesn't.
 void MainWindow::win_obj_list_wipe()
 {
-    if (!show_obj_list) return;
+    if (!win_obj_list_settings.win_show) return;
     if (!character_generated) return;
     while (obj_list_area->rowCount()) obj_list_area->removeRow(obj_list_area->rowCount()-1);
 }
@@ -99,8 +99,7 @@ void MainWindow::win_obj_list_wipe()
 void MainWindow::win_obj_list_update()
 {
     if (!character_generated) return;
-    if (!show_obj_list) return;
-
+    if (!win_obj_list_settings.win_show) return;
 
     win_obj_list_wipe();
 
@@ -113,19 +112,19 @@ void MainWindow::win_obj_list_update()
 
         QTableWidgetItem *header1 = new QTableWidgetItem("You can't believe");
         header1->setTextAlignment(Qt::AlignLeft);
-        header1->setFont(font_win_obj_list);
+        header1->setFont(win_obj_list_settings.win_font);
         header1->setTextColor(defined_colors[TERM_ORANGE]);
         obj_list_area->setItem(0, 0, header1);
 
         QTableWidgetItem *header2 = new QTableWidgetItem("what you are seeing!");
         header2->setTextColor(defined_colors[TERM_YELLOW]);
-        header2->setFont(font_win_obj_list);
+        header2->setFont(win_obj_list_settings.win_font);
         header2->setTextAlignment(Qt::AlignLeft);
         obj_list_area->setItem(1, 0, header2);
 
         QTableWidgetItem *header3 = new QTableWidgetItem("It's like a dream!");
         header3->setTextColor(defined_colors[TERM_ORANGE_PEEL]);
-        header3->setFont(font_win_obj_list);
+        header3->setFont(win_obj_list_settings.win_font);
         header3->setTextAlignment(Qt::AlignLeft);
         obj_list_area->setItem(2, 0, header3);
 
@@ -229,7 +228,7 @@ void MainWindow::win_obj_list_update()
             QTableWidgetItem *header1 = new QTableWidgetItem("You are blind!");
             header1->setTextColor(defined_colors[TERM_RED]);
             header1->setTextAlignment(Qt::AlignLeft);
-            header1->setFont(font_win_obj_list);
+            header1->setFont(win_obj_list_settings.win_font);
             obj_list_area->setItem(0, 0, header1);
         }
         else
@@ -237,7 +236,7 @@ void MainWindow::win_obj_list_update()
             QTableWidgetItem *header1 = new QTableWidgetItem("You see no objects.");
             header1->setTextColor(defined_colors[TERM_WHITE]);
             header1->setTextAlignment(Qt::AlignLeft);
-            header1->setFont(font_win_obj_list);
+            header1->setFont(win_obj_list_settings.win_font);
             obj_list_area->setItem(0, 0, header1);
         }
 
@@ -258,7 +257,7 @@ void MainWindow::win_obj_list_update()
         QString player_message = (QString("YOU ARE STANDING ON %1 OBJECTS:") .arg(num_player));
         if (num_player == 1) player_message = "YOU ARE STANDING ON 1 OBJECT:";
         QTableWidgetItem *in_los = new QTableWidgetItem(player_message);
-        in_los->setFont(font_win_obj_list);
+        in_los->setFont(win_obj_list_settings.win_font);
         in_los->setTextColor(defined_colors[TERM_L_BLUE]);
         in_los->setTextAlignment(Qt::AlignLeft);
         obj_list_area->setItem(0, 1, in_los);
@@ -287,7 +286,7 @@ void MainWindow::win_obj_list_update()
 
         obj_ltr->setData(Qt::ForegroundRole, k_ptr->d_color);
         obj_ltr->setTextAlignment(Qt::AlignCenter);
-        obj_ltr->setFont(font_win_obj_list);
+        obj_ltr->setFont(win_obj_list_settings.win_font);
         obj_list_area->setItem(row, col++, obj_ltr);
 
         QColor this_color;
@@ -302,7 +301,7 @@ void MainWindow::win_obj_list_update()
         QString obj_name = object_desc(o_ptr, ODESC_PREFIX | ODESC_FULL);
         if (o_ptr->number > 1) obj_name.append(QString("(x%1)") .arg(o_ptr->number));
         QTableWidgetItem *object_label = new QTableWidgetItem(obj_name);
-        object_label->setFont(font_win_obj_list);
+        object_label->setFont(win_obj_list_settings.win_font);
         object_label->setTextColor(this_color);
         object_label->setTextAlignment(Qt::AlignLeft);
         obj_list_area->setItem(row, col++, object_label);
@@ -315,7 +314,7 @@ void MainWindow::win_obj_list_update()
         obj_list_area->insertRow(row);
         QTableWidgetItem *label_see = new QTableWidgetItem(QString("YOU CAN SEE %1 OBJECTS:") .arg(vis_obj_list.size()));
         if (vis_obj_list.size() == 1) label_see->setText("YOU CAN SEE 1 OBJECT:");
-        label_see->setFont(font_win_obj_list);
+        label_see->setFont(win_obj_list_settings.win_font);
         label_see->setTextColor(defined_colors[TERM_L_BLUE]);
         label_see->setTextAlignment(Qt::AlignLeft);
         obj_list_area->setItem(row++, 1, label_see);
@@ -345,7 +344,7 @@ void MainWindow::win_obj_list_update()
 
         obj_ltr->setData(Qt::ForegroundRole, o_ptr->get_color());
         obj_ltr->setTextAlignment(Qt::AlignCenter);
-        obj_ltr->setFont(font_win_obj_list);
+        obj_ltr->setFont(win_obj_list_settings.win_font);
         obj_list_area->setItem(row, col++, obj_ltr);
 
         QColor this_color;
@@ -360,7 +359,7 @@ void MainWindow::win_obj_list_update()
         QString obj_name = object_desc(o_ptr, ODESC_PREFIX | ODESC_FULL);
         if (o_ptr->number > 1) obj_name.append(QString("(x%1)") .arg(o_ptr->number));
         QTableWidgetItem *object_label = new QTableWidgetItem(obj_name);
-        object_label->setFont(font_win_obj_list);
+        object_label->setFont(win_obj_list_settings.win_font);
         object_label->setTextColor(this_color);
         object_label->setTextAlignment(Qt::AlignLeft);
         obj_list_area->setItem(row, col++, object_label);
@@ -434,7 +433,7 @@ void MainWindow::win_obj_list_update()
                 break;
             }
         }
-        dir_label->setFont(font_win_obj_list);
+        dir_label->setFont(win_obj_list_settings.win_font);
         dir_label->setTextColor(this_color);
         dir_label->setTextAlignment(Qt::AlignLeft);
         obj_list_area->setItem(row, col++, dir_label);
@@ -445,23 +444,14 @@ void MainWindow::win_obj_list_update()
     obj_list_area->resizeColumnsToContents();
 }
 
-void MainWindow::close_win_obj_list(QObject *this_object)
-{
-    (void)this_object;
-    window_obj_list = NULL;
-    show_obj_list = FALSE;
-    win_obj_list->setText("Show Object List Window");
-}
-
 /*
  *  Show widget is called after this to allow
  * the settings to restore the save geometry.
  */
 void MainWindow::win_obj_list_create()
 {
-    window_obj_list = new QWidget();
-    obj_list_vlay = new QVBoxLayout;
-    window_obj_list->setLayout(obj_list_vlay);
+    win_obj_list_settings.make_extra_window();
+
     obj_list_area = new QTableWidget(0, 3);
     obj_list_area->setAlternatingRowColors(FALSE);
     obj_list_area->verticalHeader()->setVisible(FALSE);
@@ -469,42 +459,55 @@ void MainWindow::win_obj_list_create()
     obj_list_area->setEditTriggers(QAbstractItemView::NoEditTriggers);
     obj_list_area->setSortingEnabled(FALSE);
     qtablewidget_add_palette(obj_list_area);
-    obj_list_vlay->addWidget(obj_list_area);
-    obj_list_menubar = new QMenuBar;
-    obj_list_vlay->setMenuBar(obj_list_menubar);
-    window_obj_list->setWindowTitle("Viewable Object List");
-    obj_win_settings = obj_list_menubar->addMenu(tr("&Settings"));
-    obj_list_set_font = new QAction(tr("Set Object List Font"), this);
-    obj_list_set_font->setStatusTip(tr("Set the font for the Object List."));
-    connect(obj_list_set_font, SIGNAL(triggered()), this, SLOT(win_obj_list_font()));
-    obj_win_settings->addAction(obj_list_set_font);
+    win_obj_list_settings.main_vlay->addWidget(obj_list_area);
+    win_obj_list_settings.main_widget->setWindowTitle("Viewable Object List");
 
-    window_obj_list->setAttribute(Qt::WA_DeleteOnClose);
-    connect(window_obj_list, SIGNAL(destroyed(QObject*)), this, SLOT(close_win_obj_list(QObject*)));
+    connect(win_obj_list_settings.win_font_act, SIGNAL(triggered()), this, SLOT(win_obj_list_font()));
+
+    connect(win_obj_list_settings.main_widget, SIGNAL(destroyed(QObject*)), this, SLOT(win_obj_list_destroy(QObject*)));
 }
 
-void MainWindow::win_obj_list_destroy()
+/*
+ * win_obj_list_close should be used when the game is shutting down.
+ * Use this function for closing the window mid-game
+ */
+void MainWindow::win_obj_list_destroy(QObject *this_object)
 {
-    if (!show_obj_list) return;
-    if (!window_obj_list) return;
-    delete window_obj_list;
-    window_obj_list = NULL;
+    (void)this_object;
+    if (!win_obj_list_settings.win_show) return;
+    if (!win_obj_list_settings.main_widget) return;
+    win_obj_list_settings.get_widget_settings(win_obj_list_settings.main_widget);
+    win_obj_list_settings.main_widget->deleteLater();
+    win_obj_list_settings.win_show = FALSE;
+    win_obj_list_act->setText("Show Object List Window");
 }
+
+/*
+ * This version should only be used when the game is shutting down.
+ * So it is remembered if the window was open or not.
+ * For closing the window mid-game use win_obj_list_destroy directly
+ */
+void MainWindow::win_obj_list_close()
+{
+    bool was_open = win_obj_list_settings.win_show;
+    win_obj_list_destroy(win_obj_list_settings.main_widget);
+    win_obj_list_settings.win_show = was_open;
+}
+
+
 
 void MainWindow::toggle_win_obj_list()
 {
-    if (!show_obj_list)
+    if (!win_obj_list_settings.win_show)
     {
         win_obj_list_create();
-        show_obj_list = TRUE;
-        win_obj_list->setText("Hide Object List Window");
-        window_obj_list->show();
+        win_obj_list_settings.win_show = TRUE;
+        win_obj_list_settings.main_widget->setGeometry(win_obj_list_settings.win_geometry);
+        win_obj_list_act->setText("Hide Object List Window");
+        if (win_obj_list_settings.win_maximized) win_obj_list_settings.main_widget->showMaximized();
+        else win_obj_list_settings.main_widget->show();
+
         win_obj_list_update();
     }
-    else
-    {
-        win_obj_list_destroy();
-        show_obj_list = FALSE;
-        win_obj_list->setText("Show Object List Window");
-    }
+    else win_obj_list_destroy(win_obj_list_settings.main_widget);
 }

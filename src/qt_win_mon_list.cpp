@@ -116,7 +116,7 @@ static QString get_mon_name(int r_idx, int los_all, int sleeping)
 
 void MainWindow::set_font_win_mon_list(QFont newFont)
 {
-    font_win_mon_list = newFont;
+    win_mon_list_settings.win_font = newFont;
     win_mon_list_update();
 }
 
@@ -134,7 +134,7 @@ void MainWindow::win_mon_list_font()
 // For when savefiles close but the game doesn't.
 void MainWindow::win_mon_list_wipe()
 {
-    if (!show_mon_list) return;
+    if (!win_mon_list_settings.win_show) return;
     if (!character_generated) return;
     while (mon_list_area->rowCount()) mon_list_area->removeRow(mon_list_area->rowCount()-1);
 }
@@ -142,7 +142,7 @@ void MainWindow::win_mon_list_wipe()
 void MainWindow::win_mon_list_update()
 {
     if (!character_generated) return;
-    if (!show_mon_list) return;
+    if (!win_mon_list_settings.win_show) return;
 
     win_mon_list_wipe();
 
@@ -155,19 +155,19 @@ void MainWindow::win_mon_list_update()
 
         QTableWidgetItem *header1 = new QTableWidgetItem("You can't believe");
         header1->setTextAlignment(Qt::AlignLeft);
-        header1->setFont(font_win_mon_list);
+        header1->setFont(win_mon_list_settings.win_font);
         header1->setTextColor(defined_colors[TERM_ORANGE_PEEL]);
         mon_list_area->setItem(0, 0, header1);
 
         QTableWidgetItem *header2 = new QTableWidgetItem("what you are seeing!");
         header2->setTextColor(defined_colors[TERM_YELLOW]);
-        header2->setFont(font_win_mon_list);
+        header2->setFont(win_mon_list_settings.win_font);
         header2->setTextAlignment(Qt::AlignLeft);
         mon_list_area->setItem(1, 0, header2);
 
         QTableWidgetItem *header3 = new QTableWidgetItem("It's like a dream!");
         header3->setTextColor(defined_colors[TERM_ORANGE_PEEL]);
-        header3->setFont(font_win_mon_list);
+        header3->setFont(win_mon_list_settings.win_font);
         header3->setTextAlignment(Qt::AlignLeft);
         mon_list_area->setItem(2, 0, header3);
 
@@ -248,7 +248,7 @@ void MainWindow::win_mon_list_update()
             QTableWidgetItem *header1 = new QTableWidgetItem("You are blind!");
             header1->setTextColor(defined_colors[TERM_RED]);
             header1->setTextAlignment(Qt::AlignLeft);
-            header1->setFont(font_win_mon_list);
+            header1->setFont(win_mon_list_settings.win_font);
             mon_list_area->setItem(0, 0, header1);
         }
         else
@@ -256,7 +256,7 @@ void MainWindow::win_mon_list_update()
             QTableWidgetItem *header1 = new QTableWidgetItem("You see no monsters.");
             header1->setTextColor(defined_colors[TERM_WHITE]);
             header1->setTextAlignment(Qt::AlignLeft);
-            header1->setFont(font_win_mon_list);
+            header1->setFont(win_mon_list_settings.win_font);
             mon_list_area->setItem(0, 0, header1);
         }
 
@@ -285,7 +285,7 @@ void MainWindow::win_mon_list_update()
 
     QTableWidgetItem *in_los = new QTableWidgetItem(QString("%1 MONSTERS IN LOS") .arg(los_count));
     if (los_count == 1) in_los->setText("1 MONSTER IN LOS");
-    in_los->setFont(font_win_mon_list);
+    in_los->setFont(win_mon_list_settings.win_font);
     in_los->setTextColor(defined_colors[TERM_L_BLUE]);
     in_los->setTextAlignment(Qt::AlignLeft);
     mon_list_area->setItem(0, 2, in_los);
@@ -315,7 +315,7 @@ void MainWindow::win_mon_list_update()
 
         mon_ltr->setData(Qt::ForegroundRole, r_ptr->d_color);
         mon_ltr->setTextAlignment(Qt::AlignCenter);
-        mon_ltr->setFont(font_win_mon_list);
+        mon_ltr->setFont(win_mon_list_settings.win_font);
         mon_list_area->setItem(row, col++, mon_ltr);
 
         // Note how many displayed
@@ -331,7 +331,7 @@ void MainWindow::win_mon_list_update()
         // Quantity
         QString this_mon_quant = get_mon_quantity(mon_vis_ptr->mon_r_idx, mon_vis_ptr->count_los);
         QTableWidgetItem *quantity = new QTableWidgetItem(this_mon_quant);
-        quantity->setFont(font_win_mon_list);
+        quantity->setFont(win_mon_list_settings.win_font);
         quantity->setTextColor(this_color);
         quantity->setTextAlignment(Qt::AlignRight);
         mon_list_area->setItem(row, col++, quantity);
@@ -339,7 +339,7 @@ void MainWindow::win_mon_list_update()
         // Race
         QString this_mon_race = get_mon_name(mon_vis_ptr->mon_r_idx, mon_vis_ptr->count_los, mon_vis_ptr->count_sleeping_los);
         QTableWidgetItem *race = new QTableWidgetItem(this_mon_race);
-        race->setFont(font_win_mon_list);
+        race->setFont(win_mon_list_settings.win_font);
         race->setTextColor(this_color);
         race->setTextAlignment(Qt::AlignLeft);
         mon_list_area->setItem(row, col++, race);
@@ -364,7 +364,7 @@ void MainWindow::win_mon_list_update()
     mon_list_area->insertRow(row);
     QTableWidgetItem *out_los = new QTableWidgetItem(QString("%1 MONSTERS OUT OF LOS") .arg(total_count - los_count));
     if ((total_count - los_count) == 1) out_los->setText("1 MONSTER OUT OF LOS");
-    out_los->setFont(font_win_mon_list);
+    out_los->setFont(win_mon_list_settings.win_font);
     out_los->setTextColor(defined_colors[TERM_L_BLUE]);
     out_los->setTextAlignment(Qt::AlignLeft);
     mon_list_area->setItem(row++, 2, out_los);
@@ -396,7 +396,7 @@ void MainWindow::win_mon_list_update()
 
         mon_ltr->setData(Qt::ForegroundRole, r_ptr->d_color);
         mon_ltr->setTextAlignment(Qt::AlignCenter);
-        mon_ltr->setFont(font_win_mon_list);
+        mon_ltr->setFont(win_mon_list_settings.win_font);
         mon_list_area->setItem(row, col++, mon_ltr);
 
         // Note how many displayed
@@ -412,7 +412,7 @@ void MainWindow::win_mon_list_update()
         // Quantity
         QString this_mon_quant = get_mon_quantity(mon_vis_ptr->mon_r_idx, mon_vis_ptr->count_no_los());
         QTableWidgetItem *quantity = new QTableWidgetItem(this_mon_quant);
-        quantity->setFont(font_win_mon_list);
+        quantity->setFont(win_mon_list_settings.win_font);
         quantity->setTextColor(this_color);
         quantity->setTextAlignment(Qt::AlignRight);
         mon_list_area->setItem(row, col++, quantity);
@@ -420,7 +420,7 @@ void MainWindow::win_mon_list_update()
         // Race
         QString this_mon_race = get_mon_name(mon_vis_ptr->mon_r_idx, mon_vis_ptr->count_no_los(), mon_vis_ptr->count_sleeping_no_los());
         QTableWidgetItem *race = new QTableWidgetItem(this_mon_race);
-        race->setFont(font_win_mon_list);
+        race->setFont(win_mon_list_settings.win_font);
         race->setTextColor(this_color);
         race->setTextAlignment(Qt::AlignLeft);
         mon_list_area->setItem(row, col++, race);
@@ -444,7 +444,7 @@ void MainWindow::win_mon_list_update()
         this_string.append(" ");
 
         QTableWidgetItem *quantity = new QTableWidgetItem(this_string);
-        quantity->setFont(font_win_mon_list);
+        quantity->setFont(win_mon_list_settings.win_font);
         quantity->setTextColor(defined_colors[TERM_WHITE]);
         quantity->setTextAlignment(Qt::AlignRight);
         mon_list_area->setItem(row, col++, quantity);
@@ -452,7 +452,7 @@ void MainWindow::win_mon_list_update()
         QString hidden_mon = "Hidden Monster";
         if (hidden > 1) hidden_mon.append("s");
         QTableWidgetItem *in_los = new QTableWidgetItem(hidden_mon);
-        in_los->setFont(font_win_mon_list);
+        in_los->setFont(win_mon_list_settings.win_font);
         in_los->setTextColor(defined_colors[TERM_WHITE]);
         in_los->setTextAlignment(Qt::AlignLeft);
         mon_list_area->setItem(row++, col++, in_los);
@@ -461,13 +461,7 @@ void MainWindow::win_mon_list_update()
     mon_list_area->resizeColumnsToContents();
 }
 
-void MainWindow::close_win_mon_list(QObject *this_object)
-{
-    (void)this_object;
-    window_mon_list = NULL;
-    show_mon_list = FALSE;
-    win_mon_list->setText("Show Monster List Window");
-}
+
 
 /*
  *  Show widget is called after this to allow
@@ -475,9 +469,8 @@ void MainWindow::close_win_mon_list(QObject *this_object)
  */
 void MainWindow::win_mon_list_create()
 {
-    window_mon_list = new QWidget();
-    mon_list_vlay = new QVBoxLayout;
-    window_mon_list->setLayout(mon_list_vlay);
+    win_mon_list_settings.make_extra_window();
+
     mon_list_area = new QTableWidget(0, 3);
     mon_list_area->setAlternatingRowColors(FALSE);
     mon_list_area->verticalHeader()->setVisible(FALSE);
@@ -485,41 +478,52 @@ void MainWindow::win_mon_list_create()
     mon_list_area->setEditTriggers(QAbstractItemView::NoEditTriggers);
     mon_list_area->setSortingEnabled(FALSE);
     qtablewidget_add_palette(mon_list_area);
-    mon_list_vlay->addWidget(mon_list_area);
-    mon_list_menubar = new QMenuBar;
-    mon_list_vlay->setMenuBar(mon_list_menubar);
-    window_mon_list->setWindowTitle("Viewable Monster List");
-    mon_win_settings = mon_list_menubar->addMenu(tr("&Settings"));
-    mon_list_set_font = new QAction(tr("Set Monster List Font"), this);
-    mon_list_set_font->setStatusTip(tr("Set the font for the Monster List."));
-    connect(mon_list_set_font, SIGNAL(triggered()), this, SLOT(win_mon_list_font()));
-    mon_win_settings->addAction(mon_list_set_font);
+    win_mon_list_settings.main_vlay->addWidget(mon_list_area);
+    win_mon_list_settings.main_widget->setWindowTitle("Viewable Monster List");
+    connect(win_mon_list_settings.win_font_act, SIGNAL(triggered()), this, SLOT(win_mon_list_font()));
 
-    window_mon_list->setAttribute(Qt::WA_DeleteOnClose);
-    connect(window_mon_list, SIGNAL(destroyed(QObject*)), this, SLOT(close_win_mon_list(QObject*)));
+    connect(win_mon_list_settings.main_widget, SIGNAL(destroyed(QObject*)), this, SLOT(win_mon_list_destroy(QObject*)));
 }
 
-void MainWindow::win_mon_list_destroy()
+/*
+ * win_mon_list_close should be used when the game is shutting down.
+ * Use this function for closing the window mid-game
+ */
+void MainWindow::win_mon_list_destroy(QObject *this_object)
 {
-    if (!show_mon_list) return;
-    delete window_mon_list;
-    window_mon_list = NULL;
+    (void)this_object;
+    if (!win_mon_list_settings.win_show) return;
+    if (!win_mon_list_settings.main_widget) return;
+    win_mon_list_settings.get_widget_settings(win_mon_list_settings.main_widget);
+    win_mon_list_settings.main_widget->deleteLater();
+    win_mon_list_settings.win_show = FALSE;
+    win_mon_list_act->setText("Show Monster List Window");
+}
+
+/*
+ * This version should only be used when the game is shutting down.
+ * So it is remembered if the window was open or not.
+ * For closing the window mid-game use win_mon_list_destroy directly
+ */
+void MainWindow::win_mon_list_close()
+{
+    bool was_open = win_mon_list_settings.win_show;
+    win_mon_list_destroy(win_mon_list_settings.main_widget);
+    win_mon_list_settings.win_show = was_open;
 }
 
 void MainWindow::toggle_win_mon_list()
 {
-    if (!show_mon_list)
+    if (!win_mon_list_settings.win_show)
     {
         win_mon_list_create();
-        show_mon_list = TRUE;
-        win_mon_list->setText("Hide Monster List Window");
-        window_mon_list->show();
+        win_mon_list_settings.win_show = TRUE;
+        win_mon_list_settings.main_widget->setGeometry(win_mon_list_settings.win_geometry);
+        win_mon_list_act->setText("Hide Monster List Window");
+        if (win_mon_list_settings.win_maximized) win_mon_list_settings.main_widget->showMaximized();
+        else win_mon_list_settings.main_widget->show();
+
         win_mon_list_update();
     }
-    else
-    {
-        win_mon_list_destroy();
-        show_mon_list = FALSE;
-        win_mon_list->setText("Show Monster List Window");
-    }
+    else win_mon_list_destroy(win_mon_list_settings.main_widget);
 }

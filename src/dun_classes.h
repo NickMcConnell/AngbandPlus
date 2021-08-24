@@ -60,6 +60,9 @@ public:
     QString effect_tile;
     QString monster_tile;
 
+
+    byte priority;
+
     bool double_height_monster;
 
     u16b ui_flags;
@@ -83,6 +86,7 @@ public:
     void mark_square();
 
     bool is_wall(bool known);
+    bool is_store(void);
     bool is_door(void);
     bool is_secret_door(void);
     bool is_known_door(void);
@@ -164,7 +168,8 @@ public:
     u16b f_level;     	/* Minimum level */
     u16b f_rarity;    	/* 1/Rarity */
 
-    u16b priority;  /* Map priority */
+    byte f_priority;  /* Map priority */
+
     s16b defaults;     /* Default state */
 
     feature_state state[MAX_FEAT_STATES];
@@ -197,6 +202,7 @@ public:
 
     void feature_wipe();
     bool is_door(void);
+    bool is_store(void);
     bool is_secret_door(void);
     bool is_known_door(void);
     bool is_closed_door(void);

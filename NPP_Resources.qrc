@@ -105,6 +105,30 @@
         <file>lib/icons/select.png</file>
         <file>lib/icons/arrow-right-double.png</file>
         <file>lib/icons/arrow-left-double.png</file>
-    <file>lib/icons/hotkeys.png</file>
-  </qresource>
+        <file>lib/icons/hotkeys.png</file>
+        <file>lib/icons/key_f1.png</file>
+        <file>lib/icons/key_f12.png</file>
+        <file>lib/icons/key_f11.png</file>
+        <file>lib/icons/key_f10.png</file>
+        <file>lib/icons/key_f9.png</file>
+        <file>lib/icons/key_f8.png</file>
+        <file>lib/icons/key_f7.png</file>
+        <file>lib/icons/key_f6.png</file>
+        <file>lib/icons/key_f5.png</file>
+        <file>lib/icons/key_f4.png</file>
+        <file>lib/icons/key_f3.png</file>
+        <file>lib/icons/key_f2.png</file>
+        <file>lib/icons/key_f12_shift.png</file>
+        <file>lib/icons/key_f11_shift.png</file>
+        <file>lib/icons/key_f10_shift.png</file>
+        <file>lib/icons/key_f9_shift.png</file>
+        <file>lib/icons/key_f8_shift.png</file>
+        <file>lib/icons/key_f7_shift.png</file>
+        <file>lib/icons/key_f6_shift.png</file>
+        <file>lib/icons/key_f5_shift.png</file>
+        <file>lib/icons/key_f4_shift.png</file>
+        <file>lib/icons/key_f3_shift.png</file>
+        <file>lib/icons/key_f2_shift.png</file>
+        <file>lib/icons/key_f1_shift.png</file>
+    </qresource>
 </RCC>

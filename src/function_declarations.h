@@ -30,6 +30,7 @@ extern void handle_stuff(void);
 
 //cave.cpp
 extern int distance(int y1, int x1, int y2, int x2);
+extern int distance_pythagorean(int y1, int x1, int y2, int x2);
 extern bool generic_los(int y1, int x1, int y2, int x2, u16b flg);
 extern bool no_light(void);
 extern bool cave_valid_bold(int y, int x);
@@ -145,7 +146,6 @@ extern void place_random_stairs(int y, int x);
 extern void get_mon_hook(byte theme);
 extern byte get_nest_theme(int nestlevel, bool quest_theme);
 extern byte get_pit_theme(int pitlevel, bool quest_theme);
-extern void build_terrain(int y, int x, int feat);
 extern byte get_level_theme(s16b orig_theme_num, bool quest_level);
 extern byte max_themed_monsters(const monster_race *r_ptr, u32b max_power);
 extern void update_arena_level(byte stage);
@@ -459,7 +459,7 @@ extern void player_death(void);
 //player_ghost.cpp
 extern void prepare_ghost_name(void);
 extern bool prepare_ghost(int r_idx);
-extern void ghost_challenge(void);
+extern void ghost_challenge(bool color);
 extern void remove_player_ghost(void);
 extern void delete_player_ghost_entry(void);
 extern void add_player_ghost_entry(void);

@@ -19,7 +19,7 @@
  * The label of the group who collects miscellaneous features.
  */
 #define MISC_GRP "Misc"
-#define MAX_FEATURE_TYPES	18
+#define MAX_FEATURE_TYPES	17
 
 /*
  * Description of each feature group.
@@ -34,7 +34,6 @@ QString feature_group_text[MAX_FEATURE_TYPES] =
     "Stairs",
     "Walls",
     "Stores",
-    "Bridges",
     "Water",
     "Lava",
     "Ice",
@@ -61,7 +60,6 @@ static const u32b feature_flags[MAX_FEATURE_TYPES][3] =
     {FF1_STAIRS, 0, 0},
     {FF1_WALL, 0, 0},
     {FF1_SHOP, 0, 0},
-    {0, FF2_BRIDGED, 0},
     {0, 0, FF3_WATER},
     {0, 0, FF3_LAVA},
     {0, 0, FF3_ICE},

@@ -683,23 +683,20 @@ bool beam_chain(int gf_type, int dam, int max_hits, int decrement)
     int y = py;
     int x = px;
 
-    int i, k;
-
     /* The indexes in mon_list of the reached monsters */
-    u16b *monsters;
-    u16b *hits;
-    u16b n = 0;
+    QVector<u16b> hits;
+    hits.clear();
+    QVector<u16b> monsters;
+    monsters.clear();
 
     bool flag = FALSE;
 
-    hits = C_ZNEW(mon_max, u16b);
-    monsters = C_ZNEW(mon_max, u16b);
-
     /* Cast max_hits beams */
-    for (i = 0; i < max_hits; i++)
+    for (int i = 0; i < max_hits; i++)
     {
+        monsters.clear();
+
         int m_idx;
-        u16b m = 0;
 
         /* Scan monsters as potential targets */
 
@@ -726,32 +723,25 @@ bool beam_chain(int gf_type, int dam, int max_hits, int decrement)
             /* It must be close enough to the previous location */
             if (distance(y, x, yy, xx) > MAX_RANGE) continue;
 
-            /* Find the monster in the list */
-            for (k = 0; k < n; k++)
-            {
-                /* Found. Stop */
-                if (hits[k] == m_idx) break;
-            }
-
-            /* If the monster was found in the list we just ignore it */
-            if (k < n) continue;
+            // Make sure we haven't hit this monster before;
+            if (hits.contains(m_idx)) continue;
 
             /* Mark the monster as a possible candidate */
-            monsters[m++] = m_idx;
+            monsters.append(m_idx);
         }
 
         /* No monsters. Done */
-        if (!m) break;
+        if (monsters.size()) break;
 
         /* Select a random monster from the list */
-        m_idx = monsters[rand_int(m)];
+        m_idx = monsters.at(randint0(monsters.size()));
 
         /* Get its location */
         yy = mon_list[m_idx].fy;
         xx = mon_list[m_idx].fx;
 
         /* Remember the monster */
-        hits[n++] = m_idx;
+        hits.append(m_idx);
 
         /* Cast the beam */
         project(SOURCE_PLAYER, 0, y, x, yy, xx, dam, gf_type,
@@ -769,11 +759,7 @@ bool beam_chain(int gf_type, int dam, int max_hits, int decrement)
         /* Remember the last location */
         y = yy;
         x = xx;
-
     }
-
-    FREE(hits);
-    FREE(monsters);
 
     return (flag);
 }

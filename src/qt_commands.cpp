@@ -14,6 +14,7 @@
 #include <src/player_command.h>
 #include <src/object_all_menu.h>
 #include <src/messages.h>
+#include <src/knowledge.h>
 
 static struct command_desc list_commands_targeting[] =
 {
@@ -71,6 +72,7 @@ static struct command_desc list_commands_new[] =
     {"Inspect All Objects", "i"},
     {"Inspect Object", "I (shift-i)"},
     {"Jam a Door", "Q (shift-q}"},
+    {"Knowledge Screens", "~"},
     {"Learn Spells, Prayers, or Incantations", "M (shift-m)"},
     {"Look", "l"},
     {"Make/Modify Trap", "O (shift-o)"},
@@ -141,6 +143,7 @@ static struct command_desc list_commands_angband[] =
     {"Inspect Inventory", "i"},
     {"Inspect Object", "I (shift-i)"},
     {"Jam a Door", "j"},
+    {"Knowledge Screens", "~"},
     {"Learn Spells, Prayers, or Incantations", "G (shift-g)"},
     {"Look", "l"},
     {"Make/Modify Trap", "O (shift-o)"},
@@ -172,7 +175,7 @@ static struct command_desc list_commands_angband[] =
     {"Spike A Door", "j"},
     {"Swap Weapon", "x"},
     {"Take Off Item", "t"},
-    {"Target CLosest", "'*'' or Apostrophe"},
+    {"Target Closest", "'*'' or Apostrophe"},
     {"Terminate Character", "Q (shift-q)"},
     {"Throw Item", "v"},
     {"Tunnel", "T (shift-t)"},
@@ -214,6 +217,7 @@ static struct command_desc list_commands_roguelike[] =
     {"Inspect Inventory", "i"},
     {"Inspect Object", "I (shift-i)"},
     {"Jam a Door", "S (shift-s)"},
+    {"Knowledge Screens", "~"},
     {"Learn Spells, Prayers, or Incantations", "G (shift-g)"},
     {"Look", "x"},
     {"Make/Modify Trap", "O (shift-o)"},
@@ -503,26 +507,33 @@ KeyboardCommandList::KeyboardCommandList(void): NPPDialog()
 
 static struct command_desc list_commands_mouse[] =
 {
-    {"<h3>Single Clicks on dungeon square (other than player square)</h3>", NULL},
+    {"<h3>Single Clicks on Dungeon Square </h3>", NULL},
     {"Left Click on a known dungeon square to run to that spot.", NULL},
     {"Middle Click on any dungeon square to walk one square in that direction.", NULL},
     {"Right Click on a dungeon square to learn about the contents of that square", NULL},
     {"Click Extra Button 1 - TBD", NULL},
     {"Click Extra Button 2 - TBD", NULL},
     {" ", NULL},
-    {"<h3>Single Clicks on player</h3>", NULL},
-    {"Use Magic (Cast, Pray, Chant)", NULL},
-    {"Use an Item", NULL},
-    {"Fire Ammunition", NULL},
+    {"<h3>Single Clicks on Player Square</h3>", NULL},
+    {"Left Click on the player square to use an item", NULL},
+    {"Middle Click on the player square to Use Magic (Cast, Pray, Chant)", NULL},
+    {"Middle Click on the player square to see contents of that square", NULL},
     {"Click Extra Button 1 to bring up the object handling dialog", NULL},
     {"Click Extra Button 2 to bring up the character screen dialog", NULL},
     {" ", NULL},
-    {"<h3>Double Clicks</h3>", NULL},
+    {"<h3>Double Clicks on Dungeon Square</h3>", NULL},
     {"Left Double-Click on any dungeon square to run in that direction.", NULL},
     {"Middle Double-Click on any dungeon square to alter the square in that direction.", NULL},
     {"Right Double-Click to target that square.", NULL},
     {"Double-Click Extra Button 1 - TBD", NULL},
     {"Double-Click Extra Button 2 - TBD", NULL},
+        {" ", NULL},
+    {"<h3>Double Clicks on Player Square</h3>", NULL},
+    {"Left Double-Click on the player square to Fire Ammunition.", NULL},
+    {"Middle Double-Click on Player Square to Fire At Nearest.", NULL},
+    {"Right Double-Click on Player Square to target that square.", NULL},
+    {"Double-Click Extra Button 1 on the player square - TBD", NULL},
+    {"Double-Click Extra Button 2 on the player square - TBD", NULL},
     {" ", NULL},
     {"<h3>Mouse Wheel</h3>", NULL},
     {"Increase or decrease the tile multiplier", NULL},
@@ -967,6 +978,11 @@ void commands_new_keyset(int key_press, bool shift_key, bool alt_key, bool ctrl_
             save_screenshot(TRUE);
             break;
         }
+        case Qt::Key_AsciiTilde:
+        {
+            do_cmd_knowledge_screens();
+            break;
+        }
         default:
         {
             break;
@@ -1272,6 +1288,11 @@ void commands_angband_keyset(int key_press, bool shift_key, bool alt_key, bool c
             save_screenshot(TRUE);
             break;
         }
+        case Qt::Key_AsciiTilde:
+        {
+            do_cmd_knowledge_screens();
+            break;
+        }
         default:
         {
             break;
@@ -1546,6 +1567,11 @@ void commands_roguelike_keyset(int key_press, bool shift_key, bool alt_key, bool
         case Qt::Key_ParenLeft:
         {
             save_screenshot(TRUE);
+            break;
+        }
+        case Qt::Key_AsciiTilde:
+        {
+            do_cmd_knowledge_screens();
             break;
         }
         default:

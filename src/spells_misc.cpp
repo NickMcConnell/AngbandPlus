@@ -1559,6 +1559,7 @@ void destroy_area(int y1, int x1, int r)
 
             if (cave_valid_bold(y, x))
             {
+                bool do_rubble = FALSE;
                 int feat = FEAT_FLOOR;
 
                 /* Delete objects */
@@ -1599,11 +1600,12 @@ void destroy_area(int y1, int x1, int r)
                 else if (t < 130)
                 {
                     /* Create rubble */
-                    feat = FEAT_RUBBLE;
+                    do_rubble = TRUE;
                 }
 
                 /* Change the feature */
                 cave_set_feat(y, x, feat);
+                if (do_rubble) set_effect_rocks(FEAT_RUBBLE, y, x);
             }
         }
     }

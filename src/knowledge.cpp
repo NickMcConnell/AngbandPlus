@@ -477,3 +477,68 @@ void display_mon_kill_count(void)
 
     DisplayMonKillCount();
 }
+
+DisplayKnowledgeMenu::DisplayKnowledgeMenu(void): NPPDialog()
+{
+    central = new QWidget;
+    QPointer<QVBoxLayout> main_layout = new QVBoxLayout;
+    central->setLayout(main_layout);
+    main_layout->setSpacing(10);
+    // IMPORTANT: it must be called AFTER setting the layout
+    this->setClient(central);
+
+    // Add the 9 knowledge screens to the grid
+    QPointer<QPushButton>pb_obj_knowledge = new QPushButton("View Object Knowledge");
+    connect(pb_obj_knowledge, SIGNAL(clicked()), this, SLOT(slot_object_knowledge()));
+    main_layout->addWidget(pb_obj_knowledge, Qt::AlignLeft);
+
+    QPointer<QPushButton>pb_ego_knowledge = new QPushButton("View Ego item Knowledge");
+    connect(pb_ego_knowledge, SIGNAL(clicked()), this, SLOT(slot_ego_item_knowledge()));
+    main_layout->addWidget(pb_ego_knowledge,  Qt::AlignLeft);
+
+    QPointer<QPushButton>pb_artifact_knowledge = new QPushButton("View Artifact Knowledge");
+    connect(pb_artifact_knowledge, SIGNAL(clicked()), this, SLOT(slot_artifact_knowledge()));
+    main_layout->addWidget(pb_artifact_knowledge, Qt::AlignLeft);
+
+    QPointer<QPushButton>pb_mon_knowledge = new QPushButton("View Monster Knowledge");
+    connect(pb_mon_knowledge, SIGNAL(clicked()), this, SLOT(slot_monster_knowledge()));
+    main_layout->addWidget(pb_mon_knowledge,  Qt::AlignLeft);
+
+    QPointer<QPushButton>pb_terrain_knowledge = new QPushButton("View Terrain Knowledge");
+    connect(pb_terrain_knowledge, SIGNAL(clicked()), this, SLOT(slot_terrain_knowledge()));
+    main_layout->addWidget(pb_terrain_knowledge, Qt::AlignLeft);
+
+    QPointer<QPushButton>pb_notes_file = new QPushButton("View Game Notes");
+    connect(pb_notes_file, SIGNAL(clicked()), this, SLOT(slot_notes_file()));
+    main_layout->addWidget(pb_notes_file,  Qt::AlignLeft);
+
+    QPointer<QPushButton>pb_home_inven = new QPushButton("View Home Inventory");
+    connect(pb_home_inven, SIGNAL(clicked()), this, SLOT(slot_home_inventory()));
+    main_layout->addWidget(pb_home_inven, Qt::AlignLeft);
+
+    QPointer<QPushButton>pb_player_scores = new QPushButton("View Player Scores");
+    connect(pb_player_scores, SIGNAL(clicked()), this, SLOT(slot_player_scores()));
+    main_layout->addWidget(pb_player_scores, Qt::AlignLeft);
+
+    QPointer<QPushButton>pb_mon_kill_count = new QPushButton("View Monster Kill Count");
+    connect(pb_mon_kill_count, SIGNAL(clicked()), this, SLOT(slot_mon_kill_count()));
+    main_layout->addWidget(pb_mon_kill_count, Qt::AlignCenter);
+
+    //Add a close button on the right side
+    QPointer<QDialogButtonBox> buttons = new QDialogButtonBox(QDialogButtonBox::Close);
+    connect(buttons, SIGNAL(rejected()), this, SLOT(close()));
+    main_layout->addWidget(buttons);
+
+
+    setWindowTitle("Knowledge");
+
+    this->clientSizeUpdated();
+
+    this->exec();
+
+}
+
+void do_cmd_knowledge_screens()
+{
+    DisplayKnowledgeMenu();
+}

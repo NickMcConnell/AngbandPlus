@@ -25,8 +25,8 @@ int main(int argc, char *argv[])
 
     MainWindow *main_window = new MainWindow;
 
-    main_window->setGeometry(200, 200, 200, 200);
-
-    main_window->show();
+    main_window->setGeometry(main_window->win_geometry);
+    if (main_window->win_maximized) main_window->showMaximized();
+    else main_window->show();
     return app.exec();
 }

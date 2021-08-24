@@ -353,7 +353,7 @@ static void get_town_target(monster_type *m_ptr)
         {
             for (x = 1; x < p_ptr->cur_map_wid - 1; x++)
             {
-                if (cave_shop_bold(y, x))
+                if (dungeon_info[y][x].is_store())
                 {
 
                     /* Is our store */
@@ -757,7 +757,7 @@ static s16b process_monster(monster_type *m_ptr)
     {
         /* Always have somewhere to go */
         if ((!m_ptr->target_y) || (!m_ptr->target_x) ||
-            (cave_shop_bold(m_ptr->fy, m_ptr->fx)))
+            (dungeon_info[m_ptr->fy][m_ptr->fx].is_store()))
         {
             /* Get a new target */
             get_town_target(m_ptr);
@@ -1118,7 +1118,7 @@ void process_entities(void)
     /* Clear the moment vector */
     mon_moment_info.clear();
 
-    p_ptr->player_turn = FALSE;
+    p_ptr->player_turn  = p_ptr->do_redraws = FALSE;
 
     /* Give the character some energy (unless leaving) */
     if (!p_ptr->leaving_level)

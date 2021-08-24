@@ -2922,7 +2922,7 @@ void command_hold(cmd_arg args)
     py_pickup(always_pickup);
 
     /* Hack -- enter a store if we are on one */
-    if (cave_shop_bold(p_ptr->py,p_ptr->px))
+    if (dungeon_info[p_ptr->py][p_ptr->px].is_store())
     {
         /* Disturb */
         disturb(TRUE, TRUE);

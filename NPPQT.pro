@@ -47,6 +47,11 @@ SOURCES +=  src/qt_main.cpp \
             src/dun_effect.cpp \
             src/dun_feat_info.cpp \
             src/dun_feature.cpp \
+            src/dun_gen_capabilities.cpp \
+            src/dun_gen_features.cpp \
+            src/dun_gen_quest_levels.cpp \
+            src/dun_gen_rooms.cpp \
+            src/dun_gen_tables.cpp \
             src/dun_generate.cpp \
             src/dun_process.cpp \
             src/emitter.cpp \
@@ -137,7 +142,9 @@ HEADERS  += src/qt_mainwindow.h\
             src/cmds.h \
             src/command_list.h \
             src/dun_classes.h \
+            src/dun_gen_defines.h \
             src/dun_generate.h \
+            src/dun_gen_structures.h \
             src/dun_traps.h \
             src/emitter.h \
             src/griddialog.h \
@@ -168,7 +175,7 @@ HEADERS  += src/qt_mainwindow.h\
             src/tilebag.h \
             src/user_macros.h \
             src/utilities.h \
-            src/wizard_mode.h
+            src/wizard_mode.h \
 
 
 RESOURCES += \

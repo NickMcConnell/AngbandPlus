@@ -249,9 +249,9 @@ void player_death(void)
     }
 
     // Hack - update everything onscreen
-    p_ptr->player_turn = TRUE;
+    p_ptr->do_redraws = TRUE;
     redraw_stuff();
-    p_ptr->player_turn = FALSE;
+    p_ptr->do_redraws = FALSE;
 
     // Automatic character dump
     if (death_char_dump)

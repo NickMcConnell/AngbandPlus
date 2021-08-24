@@ -56,29 +56,29 @@ void MainWindow::toggle_inven_show_buttons()
     if (!inven_show_buttons)
     {
         inven_show_buttons = TRUE;
-        char_inventory_buttons->setText("Hide Command Buttons");
+        char_inventory_buttons_act->setText("Hide Command Buttons");
     }
     else
     {
         inven_show_buttons = FALSE;
-        char_inventory_buttons->setText("Show Command Buttons");
+        char_inventory_buttons_act->setText("Show Command Buttons");
     }
     win_char_inventory_update();
 }
 
 void MainWindow::update_label_inventory_font()
 {
-    QList<QLabel *> lbl_list = window_char_inventory->findChildren<QLabel *>();
+    QList<QLabel *> lbl_list = char_inventory_settings.main_widget->findChildren<QLabel *>();
     for (int i = 0; i < lbl_list.size(); i++)
     {
         QLabel *this_lbl = lbl_list.at(i);
-        this_lbl->setFont(font_char_inventory);
+        this_lbl->setFont(char_inventory_settings.win_font);
     }
 
     // Now make the buttons about the same size
-    QFontMetrics metrics(font_char_inventory);
+    QFontMetrics metrics(char_inventory_settings.win_font);
     QSize button_size((metrics.width('M') + 2), (metrics.height() + 2));
-    QList<QPushButton *> pushbutton_list = window_char_inventory->findChildren<QPushButton *>();
+    QList<QPushButton *> pushbutton_list = char_inventory_settings.main_widget->findChildren<QPushButton *>();
     for (int i = 0; i < pushbutton_list.size(); i++)
     {
         QPushButton *this_button = pushbutton_list.at(i);
@@ -89,7 +89,7 @@ void MainWindow::update_label_inventory_font()
 
 void MainWindow::set_font_char_inventory(QFont newFont)
 {
-    font_char_inventory = newFont;
+    char_inventory_settings.win_font = newFont;
     update_label_inventory_font();
 
 }
@@ -97,7 +97,7 @@ void MainWindow::set_font_char_inventory(QFont newFont)
 void MainWindow::win_char_inventory_font()
 {
     bool selected;
-    QFont font = QFontDialog::getFont( &selected, font_char_inventory, this);
+    QFont font = QFontDialog::getFont( &selected, char_inventory_settings.win_font, this);
 
     if (selected)
     {
@@ -107,7 +107,7 @@ void MainWindow::win_char_inventory_font()
 
 void MainWindow::inven_link_pushbuttons()
 {
-    QList<QPushButton *> pushbutton_list = window_char_inventory->findChildren<QPushButton *>();
+    QList<QPushButton *> pushbutton_list = char_inventory_settings.main_widget->findChildren<QPushButton *>();
 
     for (int i = 0; i < pushbutton_list.size(); i++)
     {
@@ -120,16 +120,16 @@ void MainWindow::inven_link_pushbuttons()
 // For when savefiles close but the game doesn't.
 void MainWindow::win_char_inventory_wipe()
 {
-    if (!show_char_inventory) return;
+    if (!char_inventory_settings.win_show) return;
     if (!character_generated) return;
-    clear_layout(main_vlay_inventory);
+    clear_layout(char_inventory_settings.main_vlay);
 }
 
 
 void MainWindow::win_char_inventory_update()
 {
     if (!character_generated) return;
-    if (!show_char_inventory) return;
+    if (!char_inventory_settings.win_show) return;
 
     update_inven_list(inven_list, TRUE, inven_show_buttons);
     if (inven_show_buttons) inven_link_pushbuttons();
@@ -139,25 +139,17 @@ void MainWindow::win_char_inventory_update()
 void MainWindow::create_win_char_inventory()
 {
     if (!character_generated) return;
-    if (!show_char_inventory) return;
+    if (!char_inventory_settings.win_show) return;
 
     // Add the inventory
     QPointer<QLabel> header_inven = new QLabel(QString("<b><h1>Inventory</b></h1>"));
-    main_vlay_inventory->addWidget(header_inven, Qt::AlignCenter);
+    char_inventory_settings.main_vlay->addWidget(header_inven, Qt::AlignCenter);
     inven_list = new QGridLayout;
-    main_vlay_inventory->addLayout(inven_list);
+    char_inventory_settings.main_vlay->addLayout(inven_list);
     // I have no idea why a stretch of 1 doesn't work here.
-    main_vlay_inventory->addStretch(1000);
+    char_inventory_settings.main_vlay->addStretch(1000);
 
     win_char_inventory_update();
-}
-
-void MainWindow::close_win_char_inventory_frame(QObject *this_object)
-{
-    (void)this_object;
-    window_char_inventory = NULL;
-    show_char_inventory = FALSE;
-    win_char_inventory->setText("Show Character Inventory Screen");
 }
 
 
@@ -168,53 +160,60 @@ void MainWindow::close_win_char_inventory_frame(QObject *this_object)
  */
 void MainWindow::win_char_inventory_create()
 {
-    window_char_inventory = new QWidget();
-    main_vlay_inventory = new QVBoxLayout;
-    window_char_inventory->setLayout(main_vlay_inventory);
+    char_inventory_settings.make_extra_window();
 
-    char_inventory_menubar = new QMenuBar;
-    main_vlay_inventory->setMenuBar(char_inventory_menubar);
-    window_char_inventory->setWindowTitle("Character Inventory Screen");
-    char_inventory_settings = char_inventory_menubar->addMenu(tr("&Settings"));
-    char_inventory_font = new QAction(tr("Set Inventory Screen Font"), this);
-    char_inventory_font->setStatusTip(tr("Set the font for the Inventory screen."));
-    connect(char_inventory_font, SIGNAL(triggered()), this, SLOT(win_char_inventory_font()));
-    char_inventory_settings->addAction(char_inventory_font);
-    char_inventory_buttons = new QAction(tr("Show Command Buttons"), this);
-    if (inven_show_buttons) char_inventory_buttons->setText("Hide Command Buttons");
-    char_inventory_buttons->setStatusTip(tr("Displays or hides the command buttons."));
-    connect(char_inventory_buttons, SIGNAL(triggered()), this, SLOT(toggle_inven_show_buttons()));
-    char_inventory_settings->addAction(char_inventory_buttons);
+    char_inventory_settings.main_widget->setWindowTitle("Character Inventory Screen");
+    connect(char_inventory_settings.win_font_act, SIGNAL(triggered()), this, SLOT(win_char_inventory_font()));
 
-    window_char_inventory->setAttribute(Qt::WA_DeleteOnClose);
-    connect(window_char_inventory, SIGNAL(destroyed(QObject*)), this, SLOT(close_win_char_inventory_frame(QObject*)));
+    char_inventory_buttons_act = new QAction(tr("Show Command Buttons"), this);
+    if (inven_show_buttons) char_inventory_buttons_act->setText("Hide Command Buttons");
+    char_inventory_buttons_act->setStatusTip(tr("Displays or hides the command buttons."));
+    connect(char_inventory_buttons_act, SIGNAL(triggered()), this, SLOT(toggle_inven_show_buttons()));
+    char_inventory_settings.win_menu->addAction(char_inventory_buttons_act);
+
+    connect(char_inventory_settings.main_widget, SIGNAL(destroyed(QObject*)), this, SLOT(win_char_inventory_destroy(QObject*)));
 }
 
-void MainWindow::win_char_inventory_destroy()
+/*
+ * Win_char_inventory_close should be used when the game is shutting down.
+ * Use this function for closing the window mid-game
+ */
+void MainWindow::win_char_inventory_destroy(QObject *this_object)
 {
-    if (!show_char_inventory) return;
-    if (!window_char_inventory) return;
-    delete window_char_inventory;
-    window_char_inventory = NULL;
+    (void)this_object;
+    if (!char_inventory_settings.win_show) return;
+    if (!char_inventory_settings.main_widget) return;
+    char_inventory_settings.get_widget_settings(char_inventory_settings.main_widget);
+    char_inventory_settings.main_widget->deleteLater();
+    char_inventory_settings.win_show = FALSE;
+    win_char_inventory_act->setText("Show Character Inventory Screen");
+}
+
+/*
+ * This version should only be used when the game is shutting down.
+ * So it is remembered if the window was open or not.
+ * For closing the window mid-game use win_char_inventory_destroy directly
+ */
+void MainWindow::win_char_inventory_close()
+{
+    bool was_open = char_inventory_settings.win_show;
+    win_char_inventory_destroy(char_inventory_settings.main_widget);
+    char_inventory_settings.win_show = was_open;
 }
 
 void MainWindow::toggle_win_char_inventory_frame()
 {
-    if (!show_char_inventory)
+    if (!char_inventory_settings.win_show)
     {
         win_char_inventory_create();
-        show_char_inventory = TRUE;
+        char_inventory_settings.win_show = TRUE;
         create_win_char_inventory();
-        win_char_inventory->setText("Hide Character Inventory Screen");
-        window_char_inventory->show();
+        char_inventory_settings.main_widget->setGeometry(char_inventory_settings.win_geometry);
+        win_char_inventory_act->setText("Hide Character Inventory Screen");
+        if (char_inventory_settings.win_maximized) char_inventory_settings.main_widget->showMaximized();
+        else char_inventory_settings.main_widget->show();
     }
-    else
-
-    {
-        win_char_inventory_destroy();
-        show_char_inventory = FALSE;
-        win_char_inventory->setText("Show Character Inventory Screen");
-    }
+    else win_char_inventory_destroy(char_inventory_settings.main_widget);
 }
 
 

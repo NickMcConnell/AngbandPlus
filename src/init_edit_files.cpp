@@ -709,14 +709,14 @@ static flag_name info_flags[] =
     {"BRIDGE", FF2, FF2_BRIDGE},
     {"RIVER", FF2, FF2_RIVER},
     {"LAKE", FF2, FF2_LAKE},
-    {"BRIDGED", FF2, FF2_BRIDGED},
+    {"F2XXX_1", FF2, FF2_F2XXX_1},
     {"COVERED", FF2, FF2_COVERED},
     {"GLOW", FF2, FF2_GLOW},
     {"F2XXX_2", FF2, FF2_F2XXX_2},
     {"EFFECT", FF2, FF2_EFFECT},
     {"F2XXX_3", FF2, FF2_F2XXX_3},
-    {"SHALLOW", FF2, FF2_SHALLOW},
-    {"DEEP", FF2, FF2_DEEP},
+    {"F2XXX_14", FF2, FF2_F2XXX_14},
+    {"F2XXX_15", FF2, FF2_F2XXX_15},
     {"F2XXX_13", FF2, FF2_F2XXX_13},
     {"HURT_ROCK", FF2, FF2_HURT_ROCK},
     {"HURT_FIRE", FF2, FF2_HURT_FIRE},
@@ -1914,17 +1914,16 @@ int parse_f_info(QString line_info)
     /* Process 'W' for "More Info" (one line only) */
     else if (command == 'W')
     {
-        int level = 0, rarity = 0, priority = 0, power = 0;
+        int level = 0, rarity = 0, power = 0;
 
         /* There better be a current v_ptr */
         if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
-         if (process_4_ints(line_info, &level, &rarity, & priority, & power) > 0) return (PARSE_ERROR_GENERIC);
+         if (process_3_ints(line_info, &level, &rarity, & power) > 0) return (PARSE_ERROR_GENERIC);
 
         /* Save the values */
         f_ptr->f_level = level;
         f_ptr->f_rarity = rarity;
-        f_ptr->priority = priority;
         f_ptr->f_power = power;
     }
 

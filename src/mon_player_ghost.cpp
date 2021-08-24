@@ -724,7 +724,7 @@ static QString do_cmd_challenge_text[NUM_GHOST_CHALLENGES] =
 /*
  * Personalize, randomize, and announce the challenge of a player ghost.
  */
-void ghost_challenge(void)
+void ghost_challenge(bool color)
 {
     size_t i;
 
@@ -741,7 +741,10 @@ void ghost_challenge(void)
 
     i = randint0(NUM_GHOST_CHALLENGES);
 
-    message(QString("%1 %2") .arg(capitalize_first(player_ghost_name)) .arg(do_cmd_challenge_text[i]));
+    QString challenge = (QString("%1 %2") .arg(capitalize_first(player_ghost_name)) .arg(do_cmd_challenge_text[i]));
+
+    if (color) color_message(challenge, TERM_RED_LAVA);
+    else message(challenge);
 }
 
 

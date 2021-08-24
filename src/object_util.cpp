@@ -4712,7 +4712,7 @@ bool object_kind_is_available(int k_idx, int mode)
     bool use_store = ((mode & USE_STORE) ? TRUE : FALSE);
 
     // Paranoia
-    if (!p_ptr->in_store || !cave_shop_bold(p_ptr->py, p_ptr->px)) use_store = FALSE;
+    if (!p_ptr->in_store || !dungeon_info[p_ptr->py][p_ptr->px].is_store()) use_store = FALSE;
 
     if (use_inven)
     {

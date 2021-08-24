@@ -114,6 +114,11 @@ bool dungeon_type::is_wall(bool known)
     return (f_info[this_feat].is_wall());
 }
 
+bool dungeon_type::is_store(void)
+{
+    return (f_info[feature_idx].is_store());
+}
+
 bool dungeon_type::is_door(void)
 {
     return (f_info[feature_idx].is_door());
@@ -173,7 +178,7 @@ void dungeon_type::dungeon_square_wipe()
 {
     feature_idx = effect_idx = monster_idx = object_idx = 0;
     path_cost = cave_info = 0;
-    special_lighting = obj_special_symbol = 0;
+    priority = special_lighting = obj_special_symbol = 0;
     ui_flags = 0;
     path_flow = dtrap = FALSE;
     double_height_monster = FALSE;
@@ -234,7 +239,7 @@ void feature_type::feature_wipe()
     f_text = QString("");
 
     f_mimic = f_edge = f_flags1 = f_flags2 = f_flags3 = 0;
-    f_level = f_rarity = priority = defaults = f_power = unused = 0;
+    f_level = f_rarity = f_priority = defaults = f_power = unused = 0;
 
     for (int i = 0; i < MAX_FEAT_STATES; i++) {
         state[i].fs_action = state[i].fs_power = state[i].fs_result = 0;
@@ -260,6 +265,12 @@ bool feature_type::is_door(void)
     return (FALSE);
 }
 
+bool feature_type::is_store(void)
+{
+    if (f_flags1 & (FF1_SHOP)) return (TRUE);
+    return (FALSE);
+}
+
 bool feature_type::is_secret_door(void)
 {
     if (!is_door()) return (FALSE);
@@ -276,6 +287,7 @@ bool feature_type::is_closed_door(void)
 
 bool feature_type::is_known_door(void)
 {
+    if (!is_door()) return (FALSE);
     if (is_secret_door())   return (FALSE);
     return (TRUE);
 }
@@ -360,9 +372,16 @@ void dynamic_grid_type::dynamic_grid_wipe()
 
 void reset_dungeon_info()
 {
-    for (int y = 0; y < MAX_DUNGEON_HGT; y++) {
-        for (int x = 0; x < MAX_DUNGEON_WID; x++) {
+    for (int y = 0; y < MAX_DUNGEON_HGT; y++)
+    {
+        for (int x = 0; x < MAX_DUNGEON_WID; x++)
+        {
             dungeon_info[y][x].dungeon_square_wipe();
+
+            for(int i = 0; i < MAX_FLOWS; i++)
+            {
+                cave_cost[i][y][x] = 0;
+            }
         }
     }
 

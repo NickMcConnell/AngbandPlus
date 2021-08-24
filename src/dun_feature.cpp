@@ -54,7 +54,7 @@ QString feature_desc(u16b feat, bool add_prefix, bool get_mimic)
         if (name.contains("the ")) prefix.clear();
 
         /* Hack -- Handle shops */
-        if (feat_ff1_match(feat, FF1_SHOP))
+        if (f_info[feat].is_store())
         {
             prefix = "the entrance to the ";
         }

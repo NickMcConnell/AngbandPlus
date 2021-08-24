@@ -54,6 +54,7 @@ QString mult_list[] =
 {
   QString("0.25:0.25"),
   QString("0.5:0.5"),
+  QString("0.67:0.67"),
   QString("0.75:0.75"),
   QString("1:1"),
   QString("1.25:1.25"),
@@ -498,20 +499,30 @@ MainWindow::MainWindow()
     // Store a reference for public functions (panel_contains and others)
     if (!main_window) main_window = this;
 
+    setAttribute(Qt::WA_DeleteOnClose);
+
     anim_depth = 0;
     which_keyset = KEYSET_NEW;
-    executing_command = show_obj_list = show_mon_list = show_messages_win = FALSE;
-    show_obj_recall = show_mon_recall = show_feat_recall = FALSE;
-    show_char_info_basic = show_char_info_equip = show_char_equipment = show_char_inventory = FALSE;
     character_dungeon = character_generated = character_loaded = FALSE;
-    show_win_overhead_map = show_win_dun_map = overhead_map_created = dun_map_created = FALSE;
+    executing_command = overhead_map_created = dun_map_created = FALSE;
     equip_show_buttons = inven_show_buttons = TRUE;
     dun_map_cell_wid = dun_map_cell_hgt = 0;
     dun_map_use_graphics = dun_map_created = FALSE;
     overhead_map_cell_wid = overhead_map_cell_hgt = 0;
     overhead_map_use_graphics = overhead_map_created = FALSE;
 
-    setAttribute(Qt::WA_DeleteOnClose);
+    win_mon_list_settings.set_extra_win_default();
+    win_obj_list_settings.set_extra_win_default();
+    win_mon_recall_settings.set_extra_win_default();
+    win_obj_recall_settings.set_extra_win_default();
+    win_feat_recall_settings.set_extra_win_default();
+    win_message_settings.set_extra_win_default();
+    char_info_basic_settings.set_extra_win_default();
+    char_info_equip_settings.set_extra_win_default();
+    char_equipment_settings.set_extra_win_default();
+    char_inventory_settings.set_extra_win_default();
+    dun_map_settings.set_extra_win_default();
+    overhead_map_settings.set_extra_win_default();
 
     targeting_mode = MODE_NO_TARGETING;
 
@@ -800,6 +811,8 @@ void MainWindow::handle_grid_wheelevent(bool wheelscroll_increase)
         list_multipliers.at(x)->trigger();
         break;
     }
+
+
 }
 
 
@@ -928,57 +941,63 @@ void MainWindow::closeEvent(QCloseEvent *event)
         pop_up_message_box("Game saved");
     }
 
-    write_settings();
+    /*
+     * Take out the additional windows.
+     * We do this before the write the settings so the
+     * most recent windows geometry is recorded.
+     */
+    win_mon_list_close();
+    win_obj_list_close();
+    win_mon_recall_close();
+    win_obj_recall_close();
+    win_feat_recall_close();
+    win_messages_close();
+    win_char_info_basic_close();
+    win_char_info_equip_close();
+    win_char_equipment_close();
+    win_char_inventory_close();
+    win_dun_map_close();
+    win_overhead_map_close();
 
-    // Take out the additional windows
-    win_mon_list_destroy();
-    win_obj_list_destroy();
-    win_mon_recall_destroy();
-    win_obj_recall_destroy();
-    win_feat_recall_destroy();
-    win_messages_destroy();
-    win_char_info_basic_destroy();
-    win_char_info_equip_destroy();
-    win_char_equipment_destroy();
-    win_char_inventory_destroy();
-    win_dun_map_destroy();
-    win_overhead_map_destroy();
+    write_settings();
 
     event->accept();
 }
 
 void MainWindow::hideEvent(QHideEvent *event)
 {
-    if (show_obj_list && window_obj_list) window_obj_list->hide();
-    if (show_mon_list && window_mon_list) window_mon_list->hide();
-    if (show_mon_recall && window_mon_recall) window_mon_recall->hide();
-    if (show_obj_recall && window_obj_recall) window_obj_recall->hide();
-    if (show_feat_recall && window_feat_recall) window_feat_recall->hide();
-    if (show_messages_win && window_messages) window_messages->hide();
-    if (show_char_info_basic && window_char_info_basic) window_char_info_basic->hide();
-    if (show_char_info_equip && window_char_info_equip) window_char_info_equip->hide();
-    if (show_char_equipment && window_char_equipment) window_char_equipment->hide();
-    if (show_char_inventory && window_char_inventory) window_char_inventory->hide();
-    if (show_win_dun_map && window_dun_map) window_dun_map->hide();
-    if (show_win_overhead_map && window_overhead_map) window_overhead_map->hide();
+    if (win_mon_list_settings.win_show && win_mon_list_settings.main_widget) win_mon_list_settings.main_widget->hide();
+    if (win_obj_list_settings.win_show && win_obj_list_settings.main_widget) win_obj_list_settings.main_widget->hide();
+    if (win_mon_recall_settings.win_show && win_mon_recall_settings.main_widget) win_mon_recall_settings.main_widget->hide();
+    if (win_obj_recall_settings.win_show && win_obj_recall_settings.main_widget) win_obj_recall_settings.main_widget->hide();
+    if (win_feat_recall_settings.win_show && win_feat_recall_settings.main_widget) win_feat_recall_settings.main_widget->hide();
+    if (win_message_settings.win_show && win_message_settings.main_widget) win_message_settings.main_widget->hide();
+    if (char_info_basic_settings.win_show && char_info_basic_settings.main_widget) char_info_basic_settings.main_widget->hide();
+    if (char_info_equip_settings.win_show && char_info_equip_settings.main_widget) char_info_equip_settings.main_widget->hide();
+    if (char_equipment_settings.win_show && char_equipment_settings.main_widget) char_equipment_settings.main_widget->hide();
+    if (char_inventory_settings.win_show && char_inventory_settings.main_widget) char_inventory_settings.main_widget->hide();
+    if (dun_map_settings.win_show && dun_map_settings.main_widget) dun_map_settings.main_widget->hide();
+    if (overhead_map_settings.win_show && overhead_map_settings.main_widget) overhead_map_settings.main_widget->hide();
 
     event->accept();
 }
 
 void MainWindow::showEvent(QShowEvent *event)
 {
-    if (show_obj_list && window_obj_list) window_obj_list->show();
-    if (show_mon_list && window_mon_list) window_mon_list->show();
-    if (show_mon_recall && window_mon_recall) window_mon_recall->show();
-    if (show_obj_recall && window_obj_recall) window_obj_recall->show();
-    if (show_feat_recall && window_feat_recall) window_feat_recall->show();
-    if (show_messages_win && window_messages) window_messages->show();
-    if (show_char_info_basic && window_char_info_basic) window_char_info_basic->show();
-    if (show_char_info_equip && window_char_info_equip) window_char_info_equip->show();
-    if (show_char_equipment && window_char_equipment) window_char_equipment->show();
-    if (show_char_inventory && window_char_inventory) window_char_inventory->show();
-    if (show_win_dun_map && window_dun_map) window_dun_map->show();
-    if (show_win_overhead_map && window_overhead_map) window_overhead_map->show();
+    if (win_mon_list_settings.win_show && win_mon_list_settings.main_widget) win_mon_list_settings.main_widget->show();
+    if (win_obj_list_settings.win_show && win_obj_list_settings.main_widget) win_obj_list_settings.main_widget->show();
+    if (win_mon_recall_settings.win_show && win_mon_recall_settings.main_widget) win_mon_recall_settings.main_widget->show();
+    if (win_obj_recall_settings.win_show && win_obj_recall_settings.main_widget) win_obj_recall_settings.main_widget->show();
+    if (win_feat_recall_settings.win_show && win_feat_recall_settings.main_widget) win_feat_recall_settings.main_widget->show();
+    if (win_message_settings.win_show && win_message_settings.main_widget) win_message_settings.main_widget->show();
+    if (char_info_basic_settings.win_show && char_info_basic_settings.main_widget) char_info_basic_settings.main_widget->show();
+    if (char_info_equip_settings.win_show && char_info_equip_settings.main_widget) char_info_equip_settings.main_widget->show();
+    if (char_equipment_settings.win_show && char_equipment_settings.main_widget) char_equipment_settings.main_widget->show();
+    if (char_inventory_settings.win_show && char_inventory_settings.main_widget) char_inventory_settings.main_widget->show();
+    if (dun_map_settings.win_show && dun_map_settings.main_widget) dun_map_settings.main_widget->show();
+    if (overhead_map_settings.win_show && overhead_map_settings.main_widget) overhead_map_settings.main_widget->show();
+
+    main_window->activateWindow();
 
     event->accept();
 }
@@ -1120,6 +1139,8 @@ void MainWindow::import_hotkeys()
     if (file_name.isEmpty()) return;
 
     do_hotkey_import(file_name);
+
+    update_hotkey_toolbar();
 }
 
 
@@ -1444,53 +1465,54 @@ void MainWindow::create_actions()
     view_kill_count->setStatusTip(tr("View the number of kills sorted by monster race."));
     connect(view_kill_count, SIGNAL(triggered()), this, SLOT(display_kill_count()));
 
-    win_mon_list = new QAction(tr("Show Monster List Window"), this);
-    win_mon_list->setStatusTip(tr("Displays a list of all the visible monsters on the level."));
-    connect(win_mon_list, SIGNAL(triggered()), this, SLOT(toggle_win_mon_list()));
+    win_mon_list_act = new QAction(tr("Show Monster List Window"), this);
+    win_mon_list_act->setStatusTip(tr("Displays a list of all the visible monsters on the level."));
+    connect(win_mon_list_act, SIGNAL(triggered()), this, SLOT(toggle_win_mon_list()));
 
-    win_obj_list = new QAction(tr("Show Object List Window"), this);
-    win_obj_list->setStatusTip(tr("Displays a list of all visible objects on the level."));
-    connect(win_obj_list, SIGNAL(triggered()), this, SLOT(toggle_win_obj_list()));
+    win_obj_list_act = new QAction(tr("Show Object List Window"), this);
+    win_obj_list_act->setStatusTip(tr("Displays a list of all visible objects on the level."));
+    connect(win_obj_list_act, SIGNAL(triggered()), this, SLOT(toggle_win_obj_list()));
 
-    win_mon_recall = new QAction(tr("Show Monster Recall Window"), this);
-    win_mon_recall->setStatusTip(tr("Displays all known information about a given monster race."));
-    connect(win_mon_recall, SIGNAL(triggered()), this, SLOT(toggle_win_mon_recall()));
+    win_mon_recall_act = new QAction(tr("Show Monster Recall Window"), this);
+    win_mon_recall_act->setStatusTip(tr("Displays all known information about a given monster race."));
+    connect(win_mon_recall_act, SIGNAL(triggered()), this, SLOT(toggle_win_mon_recall()));
 
-    win_obj_recall = new QAction(tr("Show Object Recall Window"), this);
-    win_obj_recall->setStatusTip(tr("Displays all known information about a given object."));
-    connect(win_obj_recall, SIGNAL(triggered()), this, SLOT(toggle_win_obj_recall()));
+    win_obj_recall_act = new QAction(tr("Show Object Recall Window"), this);
+    win_obj_recall_act->setStatusTip(tr("Displays all known information about a given object."));
+    connect(win_obj_recall_act, SIGNAL(triggered()), this, SLOT(toggle_win_obj_recall()));
 
-    win_feat_recall = new QAction(tr("Show Feature Recall Window"), this);
-    win_feat_recall->setStatusTip(tr("Displays all known information about a given feature."));
-    connect(win_feat_recall, SIGNAL(triggered()), this, SLOT(toggle_win_feat_recall()));
+    win_feat_recall_act = new QAction(tr("Show Feature Recall Window"), this);
+    win_feat_recall_act->setStatusTip(tr("Displays all known information about a given feature."));
+    connect(win_feat_recall_act, SIGNAL(triggered()), this, SLOT(toggle_win_feat_recall()));
 
-    win_messages = new QAction(tr("Show Message Window"), this);
-    win_messages->setStatusTip(tr("Displays all recent messages."));
-    connect(win_messages, SIGNAL(triggered()), this, SLOT(toggle_win_messages()));
+    win_messages_act = new QAction(tr("Show Message Window"), this);
+    win_messages_act->setStatusTip(tr("Displays all recent messages."));
+    connect(win_messages_act, SIGNAL(triggered()), this, SLOT(toggle_win_messages()));
 
-    win_char_basic = new QAction(tr("Show Basic Character Information"), this);
-    win_char_basic->setStatusTip(tr("Display basic character information."));
-    connect(win_char_basic, SIGNAL(triggered()), this, SLOT(toggle_win_char_info_frame()));
+    win_char_basic_act = new QAction(tr("Show Basic Character Information"), this);
+    win_char_basic_act ->setStatusTip(tr("Display basic character information."));
+    connect(win_char_basic_act , SIGNAL(triggered()), this, SLOT(toggle_win_char_basic_frame()));
 
-    win_char_equip_info = new QAction(tr("Show Character Equipment Information"), this);
-    win_char_equip_info->setStatusTip(tr("Display character equipment resistance and stat modifier information."));
-    connect(win_char_equip_info, SIGNAL(triggered()), this, SLOT(toggle_win_char_equip_frame()));
+    win_char_equip_info_act = new QAction(tr("Show Character Equipment Information"), this);
+    win_char_equip_info_act->setStatusTip(tr("Display character equipment resistance and stat modifier information."));
+    connect(win_char_equip_info_act, SIGNAL(triggered()), this, SLOT(toggle_win_char_equip_frame()));
 
-    win_char_equipment = new QAction(tr("Show Character Equipment Screen"), this);
-    win_char_equipment->setStatusTip(tr("Display character equipment screen."));
-    connect(win_char_equipment, SIGNAL(triggered()), this, SLOT(toggle_win_char_equipment_frame()));
+    win_char_equipment_act = new QAction(tr("Show Character Equipment Screen"), this);
+    win_char_equipment_act->setStatusTip(tr("Display character equipment screen."));
+    connect(win_char_equipment_act, SIGNAL(triggered()), this, SLOT(toggle_win_char_equipment_frame()));
 
-    win_char_inventory = new QAction(tr("Show Character Inventory Screen"), this);
-    win_char_inventory->setStatusTip(tr("Display character Inventory screen."));
-    connect(win_char_inventory, SIGNAL(triggered()), this, SLOT(toggle_win_char_inventory_frame()));
+    win_char_inventory_act = new QAction(tr("Show Character Inventory Screen"), this);
+    win_char_inventory_act->setStatusTip(tr("Display character Inventory screen."));
+    connect(win_char_inventory_act, SIGNAL(triggered()), this, SLOT(toggle_win_char_inventory_frame()));
 
-    win_dun_map = new QAction(tr("Show Map Window"), this);
-    win_dun_map->setStatusTip(tr("Display map window."));
-    connect(win_dun_map, SIGNAL(triggered()), this, SLOT(toggle_win_dun_map_frame()));
+    win_dun_map_act = new QAction(tr("Show Map Window"), this);
+    win_dun_map_act->setStatusTip(tr("Display map window."));
+    connect(win_dun_map_act, SIGNAL(triggered()), this, SLOT(toggle_win_dun_map_frame()));
 
-    win_overhead_map = new QAction(tr("Show Overhead Map"), this);
-    win_overhead_map->setStatusTip(tr("Display overhead map."));
-    connect(win_overhead_map, SIGNAL(triggered()), this, SLOT(toggle_win_overhead_map_frame()));
+    win_overhead_map_act = new QAction(tr("Show Overhead Map"), this);
+    win_overhead_map_act->setStatusTip(tr("Display overhead map."));
+    win_overhead_map_act->setShortcut(tr("Alt+M"));
+    connect(win_overhead_map_act, SIGNAL(triggered()), this, SLOT(toggle_win_overhead_map_frame()));
 
     help_about = new QAction(tr("&About"), this);
     help_about->setStatusTip(tr("Show the application's About box"));
@@ -1761,18 +1783,18 @@ void MainWindow::create_menus()
     connect(act, SIGNAL(triggered()), this, SLOT(do_extract_from_package()));
 
     win_menu = menuBar()->addMenu(tr("&Windows"));
-    win_menu->addAction(win_mon_list);
-    win_menu->addAction(win_obj_list);
-    win_menu->addAction(win_mon_recall);
-    win_menu->addAction(win_obj_recall);
-    win_menu->addAction(win_feat_recall);
-    win_menu->addAction(win_messages);
-    win_menu->addAction(win_char_basic);
-    win_menu->addAction(win_char_equip_info);
-    win_menu->addAction(win_char_equipment);
-    win_menu->addAction(win_char_inventory);
-    win_menu->addAction(win_dun_map);
-    win_menu->addAction(win_overhead_map);
+    win_menu->addAction(win_mon_list_act);
+    win_menu->addAction(win_obj_list_act);
+    win_menu->addAction(win_mon_recall_act);
+    win_menu->addAction(win_obj_recall_act);
+    win_menu->addAction(win_feat_recall_act);
+    win_menu->addAction(win_messages_act);
+    win_menu->addAction(win_char_basic_act);
+    win_menu->addAction(win_char_equip_info_act);
+    win_menu->addAction(win_char_equipment_act);
+    win_menu->addAction(win_char_inventory_act);
+    win_menu->addAction(win_dun_map_act);
+    win_menu->addAction(win_overhead_map_act);
 
     // Help section of top menu.
     help_menu = menuBar()->addMenu(tr("&Help"));
@@ -1820,18 +1842,18 @@ void MainWindow::select_font()
             font_main_window = QFont(family);
             font_message_window = QFont(family);
             font_sidebar_window = QFont(family);
-            font_win_mon_list = QFont(family);
-            font_win_obj_list = QFont(family);
-            font_win_mon_recall = QFont(family);
-            font_win_obj_recall = QFont(family);
-            font_win_feat_recall = QFont(family);
-            font_win_messages = QFont(family);
-            font_char_basic_info = QFont(family);
-            font_char_equip_info = QFont(family);
-            font_char_equipment = QFont(family);
-            font_char_inventory = QFont(family);
-            font_dun_map = QFont(family);
-            font_overhead_map = QFont(family);
+            win_mon_list_settings.win_font = QFont(family);
+            win_obj_list_settings.win_font = QFont(family);
+            win_mon_recall_settings.win_font = QFont(family);
+            win_obj_recall_settings.win_font = QFont(family);
+            win_feat_recall_settings.win_font = QFont(family);
+            win_message_settings.win_font = QFont(family);
+            char_info_basic_settings.win_font = QFont(family);
+            char_info_equip_settings.win_font = QFont(family);
+            char_equipment_settings.win_font = QFont(family);
+            char_inventory_settings.win_font = QFont(family);
+            dun_map_settings.win_font = QFont(family);
+            overhead_map_settings.win_font = QFont(family);
             have_font = TRUE;
         }
     }
@@ -1839,20 +1861,19 @@ void MainWindow::select_font()
     font_main_window.setPointSize(12);
     font_message_window.setPointSize(12);
     font_sidebar_window.setPointSize(12);
-    font_win_mon_list.setPointSize(12);
-    font_win_obj_list.setPointSize(12);
-    font_win_mon_recall.setPointSize(12);
-    font_win_obj_recall.setPointSize(12);
-    font_win_feat_recall.setPointSize(12);
-    font_win_messages.setPointSize(12);
-    font_char_basic_info.setPointSize(12);
-    font_char_equip_info.setPointSize(12);
-    font_char_equipment.setPointSize(12);
-    font_char_inventory.setPointSize(12);
-    font_dun_map.setPointSize(10);
-    font_overhead_map.setPointSize(8);
+    win_mon_list_settings.win_font.setPointSize(12);
+    win_obj_list_settings.win_font.setPointSize(12);
+    win_mon_recall_settings.win_font.setPointSize(12);
+    win_obj_recall_settings.win_font.setPointSize(12);
+    win_message_settings.win_font.setPointSize(12);
+    win_message_settings.win_font.setPointSize(12);
+    char_info_basic_settings.win_font.setPointSize(12);
+    char_info_equip_settings.win_font.setPointSize(12);
+    char_equipment_settings.win_font.setPointSize(12);
+    char_inventory_settings.win_font.setPointSize(12);
+    dun_map_settings.win_font.setPointSize(10);
+    overhead_map_settings.win_font.setPointSize(8);
 }
-
 
 
 // Read and write the game settings.
@@ -1861,7 +1882,12 @@ void MainWindow::read_settings()
 {
     QSettings settings("NPPGames", "NPPQT");
 
-    restoreGeometry(settings.value("mainWindowGeometry").toByteArray());
+    QWidget dummy_widget;
+
+    dummy_widget.restoreGeometry(settings.value("mainWindowGeometry").toByteArray());
+    win_geometry = dummy_widget.geometry();
+    win_maximized = (settings.value("mainWindowMaximized", false).toBool());
+
     recent_savefiles = settings.value("recentFiles").toStringList();
     show_targeting_buttons = settings.value("target_buttons", false).toBool();
     if (!show_targeting_buttons)
@@ -1898,155 +1924,197 @@ void MainWindow::read_settings()
     font_message_window.fromString(load_font);
     load_font = settings.value("font_window_sidebar", font_sidebar_window ).toString();
     font_sidebar_window.fromString(load_font);
-    load_font = settings.value("font_window_mon_list", font_win_mon_list ).toString();
-    font_win_mon_list.fromString(load_font);
-    load_font = settings.value("font_window_obj_list", font_win_obj_list ).toString();
-    font_win_obj_list.fromString(load_font);
-    load_font = settings.value("font_window_mon_recall", font_win_mon_recall ).toString();
-    font_win_mon_recall.fromString(load_font);
-    load_font = settings.value("font_window_obj_recall", font_win_obj_recall ).toString();
-    font_win_obj_recall.fromString(load_font);
-    load_font = settings.value("font_window_feat_recall", font_win_feat_recall ).toString();
-    font_win_feat_recall.fromString(load_font);
-    load_font = settings.value("font_win_messages", font_win_messages ).toString();
-    font_win_messages.fromString(load_font);
-    load_font = settings.value("font_char_basic", font_char_basic_info ).toString();
-    font_char_basic_info.fromString(load_font);
-    load_font = settings.value("font_char_equip_info", font_char_equip_info ).toString();
-    font_char_equip_info.fromString(load_font);
-    load_font = settings.value("font_char_equipment", font_char_equipment ).toString();
-    font_char_equipment.fromString(load_font);
-    load_font = settings.value("font_char_inventory", font_char_inventory ).toString();
-    font_char_inventory.fromString(load_font);
-    load_font = settings.value("font_dun_map", font_dun_map ).toString();
-    font_dun_map.fromString(load_font);
-    load_font = settings.value("font_overhead_map", font_overhead_map ).toString();
-    font_overhead_map.fromString(load_font);
+
+
     restoreState(settings.value("window_state").toByteArray());
 
-    show_mon_list = settings.value("show_mon_list_window", false).toBool();
-    if (show_mon_list)
+
+
+    // Monster List window settings
+    win_mon_list_settings.win_show = settings.value("show_mon_list_window", false).toBool();
+    dummy_widget.restoreGeometry(settings.value("winMonListGeometry").toByteArray());
+    win_mon_list_settings.win_geometry = dummy_widget.geometry();
+    win_mon_list_settings.win_maximized = settings.value("winMonListMaximized", false).toBool();
+    load_font = settings.value("font_mon_list_recall", win_mon_list_settings.win_font ).toString();
+    win_mon_list_settings.win_font.fromString(load_font);
+    if (win_mon_list_settings.win_show)
     {
-        show_mon_list = FALSE; //hack - so it gets toggled to true
+        win_mon_list_settings.win_show = FALSE; //hack - so it gets toggled to true
         toggle_win_mon_list();
-        window_mon_list->restoreGeometry(settings.value("winMonListGeometry").toByteArray());
-        window_mon_list->show();
     }
 
-    show_obj_list = settings.value("show_obj_list_window", false).toBool();
-    if (show_obj_list)
+
+    // Object List window settings
+    win_obj_list_settings.win_show = settings.value("show_obj_list_window", false).toBool();
+    dummy_widget.restoreGeometry(settings.value("winObjListGeometry").toByteArray());
+    win_obj_list_settings.win_geometry = dummy_widget.geometry();
+    win_obj_list_settings.win_maximized = settings.value("winObjListMaximized", false).toBool();
+    load_font = settings.value("font_obj_list_recall", win_obj_list_settings.win_font ).toString();
+    win_obj_list_settings.win_font.fromString(load_font);
+    if (win_obj_list_settings.win_show)
     {
-        show_obj_list = FALSE; //hack - so it gets toggled to true
+        win_obj_list_settings.win_show = FALSE; //hack - so it gets toggled to true
         toggle_win_obj_list();
-        window_obj_list->restoreGeometry(settings.value("winObjListGeometry").toByteArray());
-        window_obj_list->show();
     }
 
-    show_mon_recall = settings.value("show_mon_recall_window", false).toBool();
-    if (show_mon_recall)
+
+    // Monster recall window settings
+    win_mon_recall_settings.win_show = settings.value("show_mon_recall_window", false).toBool();
+    dummy_widget.restoreGeometry(settings.value("winMonRecallGeometry").toByteArray());
+    win_mon_recall_settings.win_geometry = dummy_widget.geometry();
+    win_mon_recall_settings.win_maximized = settings.value("winMonRecallMaximized", false).toBool();
+    load_font = settings.value("font_window_mon_recall", win_mon_recall_settings.win_font ).toString();
+    win_mon_recall_settings.win_font.fromString(load_font);
+    if (win_mon_recall_settings.win_show)
     {
-        show_mon_recall = FALSE; //hack - so it gets toggled to true
+        win_mon_recall_settings.win_show = FALSE; //hack - so it gets toggled to true
         toggle_win_mon_recall();
-        window_mon_recall->restoreGeometry(settings.value("winMonRecallGeometry").toByteArray());
-        window_mon_recall->show();
     }
 
-    show_obj_recall = settings.value("show_obj_recall_window", false).toBool();
-    if (show_obj_recall)
+
+    // Object recall window settings
+    win_obj_recall_settings.win_show = settings.value("show_obj_recall_window", false).toBool();
+    dummy_widget.restoreGeometry(settings.value("winObjRecallGeometry").toByteArray());
+    win_obj_recall_settings.win_geometry = dummy_widget.geometry();
+    win_obj_recall_settings.win_maximized = settings.value("winObjRecallMaximized", false).toBool();
+    load_font = settings.value("font_window_obj_recall", win_obj_recall_settings.win_font ).toString();
+    win_obj_recall_settings.win_font.fromString(load_font);
+    if (win_obj_recall_settings.win_show)
     {
-        show_obj_recall = FALSE; //hack - so it gets toggled to true
+        win_obj_recall_settings.win_show = FALSE; //hack - so it gets toggled to true
         toggle_win_obj_recall();
-        window_obj_recall->restoreGeometry(settings.value("winObjRecallGeometry").toByteArray());
-        window_obj_recall->show();
     }
 
-    show_feat_recall = settings.value("show_feat_recall_window", false).toBool();
-    if (show_feat_recall)
+    // Feature recall window settings
+    win_feat_recall_settings.win_show = settings.value("show_feat_recall_window", false).toBool();
+    dummy_widget.restoreGeometry(settings.value("winFeatRecallGeometry").toByteArray());
+    win_feat_recall_settings.win_geometry = dummy_widget.geometry();
+    win_feat_recall_settings.win_maximized = settings.value("winFeatRecallMaximized", false).toBool();
+    load_font = settings.value("font_window_feat_recall", win_feat_recall_settings.win_font ).toString();
+    win_feat_recall_settings.win_font.fromString(load_font);
+    if (win_feat_recall_settings.win_show)
     {
-        show_feat_recall = FALSE; //hack - so it gets toggled to true
+        win_feat_recall_settings.win_show = FALSE; //hack - so it gets toggled to true
         toggle_win_feat_recall();
-        window_feat_recall->restoreGeometry(settings.value("winFeatRecallGeometry").toByteArray());
-        window_feat_recall->show();
     }
 
-    show_messages_win = settings.value("show_messages_window", false).toBool();
-    if (show_messages_win)
+    // Messages window settings
+    win_message_settings.win_show = settings.value("show_messages_window", false).toBool();
+    dummy_widget.restoreGeometry(settings.value("winMessagesGeometry").toByteArray());
+    win_message_settings.win_geometry = dummy_widget.geometry();
+    win_message_settings.win_maximized = settings.value("winMessagesMaximized", false).toBool();
+    load_font = settings.value("font_messages_window", win_message_settings.win_font ).toString();
+    win_message_settings.win_font.fromString(load_font);
+    if (win_message_settings.win_show)
     {
-        show_messages_win = FALSE; //hack - so it gets toggled to true
+        win_message_settings.win_show = FALSE; //hack - so it gets toggled to true
         toggle_win_messages();
-        window_messages->restoreGeometry(settings.value("winMessagesGeometry").toByteArray());
-        window_messages->show();
     }
 
-    show_char_info_basic = settings.value("show_char_basic_window", false).toBool();
-    if (show_char_info_basic)
+
+    // Character Basic Information window settings
+    char_info_basic_settings.win_show = settings.value("show_char_info_basic_window", false).toBool();
+    dummy_widget.restoreGeometry(settings.value("winCharBasicGeometry").toByteArray());
+    char_info_basic_settings.win_geometry = dummy_widget.geometry();
+    char_info_basic_settings.win_maximized = settings.value("winCharBasicMaximized", false).toBool();
+    load_font = settings.value("font_char_info_basic", char_info_basic_settings.win_font ).toString();
+    char_info_basic_settings.win_font.fromString(load_font);
+    if (char_info_basic_settings.win_show)
     {
-        show_char_info_basic = FALSE; //hack - so it gets toggled to true
-        toggle_win_char_info_frame();
-        window_char_info_basic->restoreGeometry(settings.value("winCharBasicGeometry").toByteArray());
-        window_char_info_basic->show();
+        char_info_basic_settings.win_show = FALSE; //hack - so it gets toggled to true
+        toggle_win_char_basic_frame();
     }
 
-    show_char_info_equip = settings.value("show_char_equip_info_window", false).toBool();
-    if (show_char_info_equip)
+
+    // Character Equipment Information window settings
+    char_info_equip_settings.win_show = settings.value("show_char_info_equip_window", false).toBool();
+    dummy_widget.restoreGeometry(settings.value("winCharInfoEquipGeometry").toByteArray());
+    char_info_equip_settings.win_geometry = dummy_widget.geometry();
+    char_info_equip_settings.win_maximized = settings.value("winCharInfoEquipMaximized", false).toBool();
+    load_font = settings.value("font_char_info_equip", char_info_equip_settings.win_font ).toString();
+    char_info_equip_settings.win_font.fromString(load_font);
+    if (char_info_equip_settings.win_show)
     {
-        show_char_info_equip = FALSE; //hack - so it gets toggled to true
+        char_info_equip_settings.win_show = FALSE; //hack - so it gets toggled to true
         toggle_win_char_equip_frame();
-        window_char_info_equip->restoreGeometry(settings.value("winCharEquipGeometry").toByteArray());
-        window_char_info_equip->show();
     }
 
-    show_char_equipment = settings.value("show_char_equipment_window", false).toBool();
+    // Character Equipment window settings
+    char_equipment_settings.win_show = settings.value("show_char_equipment_window", false).toBool();
     equip_show_buttons = settings.value("show_equip_window_buttons", false).toBool();
-    if (show_char_equipment)
+    dummy_widget.restoreGeometry(settings.value("winCharEquipmentGeometry").toByteArray());
+    char_equipment_settings.win_geometry = dummy_widget.geometry();
+    char_equipment_settings.win_maximized = settings.value("winCharEquipmentMaximized", false).toBool();
+    load_font = settings.value("font_char_equipment", char_equipment_settings.win_font ).toString();
+    char_equipment_settings.win_font.fromString(load_font);
+    if (char_equipment_settings.win_show)
     {
-        show_char_equipment = FALSE; //hack - so it gets toggled to true
+        char_equipment_settings.win_show = FALSE; //hack - so it gets toggled to true
         toggle_win_char_equipment_frame();
-        window_char_equipment->restoreGeometry(settings.value("winCharEquipmentGeometry").toByteArray());
-        window_char_equipment->show();
     }
 
-    show_char_inventory = settings.value("show_char_inventory_window", false).toBool();
+
+    // Character Inventory window settings
+    char_inventory_settings.win_show = settings.value("show_char_inventory_window", false).toBool();
     inven_show_buttons = settings.value("show_inven_window_buttons", false).toBool();
-    if (show_char_inventory)
+    dummy_widget.restoreGeometry(settings.value("winCharInventoryGeometry").toByteArray());
+    char_inventory_settings.win_geometry = dummy_widget.geometry();
+    char_inventory_settings.win_maximized = settings.value("winCharInventoryMaximized", false).toBool();
+    load_font = settings.value("font_char_inventory", char_inventory_settings.win_font ).toString();
+    char_inventory_settings.win_font.fromString(load_font);
+    if (char_inventory_settings.win_show)
     {
-        show_char_inventory = FALSE; //hack - so it gets toggled to true
+        char_inventory_settings.win_show = FALSE; //hack - so it gets toggled to true
         toggle_win_char_inventory_frame();
-        window_char_inventory->restoreGeometry(settings.value("winCharInventoryGeometry").toByteArray());
-        window_char_inventory->show();
     }
 
-    show_win_dun_map = settings.value("show_dun_map_window", false).toBool();
+
+    // Dungeon map window settings
+    dun_map_settings.win_show = settings.value("show_dun_map_window", false).toBool();
     dun_map_use_graphics = settings.value("graphics_dun_map", false).toBool();
     dun_map_multiplier = settings.value("dun_map_tile_multiplier", "1:1").toString();
-    if (show_win_dun_map)
+    dummy_widget.restoreGeometry(settings.value("winDunMapGeometry").toByteArray());
+    dun_map_settings.win_geometry = dummy_widget.geometry();
+    dun_map_settings.win_maximized = settings.value("winDunMapMaximized", false).toBool();
+    load_font = settings.value("font_dun_map", dun_map_settings.win_font).toString();
+    dun_map_settings.win_font.fromString(load_font);
+
+    if (dun_map_settings.win_show)
     {
-        show_win_dun_map = FALSE; //hack - so it gets toggled to true
+        dun_map_settings.win_show = FALSE; //hack - so it gets toggled to true
         toggle_win_dun_map_frame();
-        window_dun_map->restoreGeometry(settings.value("winDunMapGeometry").toByteArray());
-        window_dun_map->show();
     }
 
-    show_win_overhead_map = settings.value("show_dun_overhead_window", false).toBool();
+    // Overhead map window settings
+    overhead_map_settings.win_show = settings.value("show_dun_overhead_window", false).toBool();
     overhead_map_use_graphics = settings.value("graphics_overhead_map", false).toBool();
     overhead_map_multiplier = settings.value("dun_overhead_tile_multiplier", "1:1").toString();
-    if (show_win_overhead_map)
+    dummy_widget.restoreGeometry(settings.value("winOverheadMapGeometry").toByteArray());
+    overhead_map_settings.win_geometry = dummy_widget.geometry();
+    overhead_map_settings.win_maximized = settings.value("winOverheadMapMaximized", false).toBool();
+    load_font = settings.value("font_overhead_map", overhead_map_settings.win_font ).toString();
+    overhead_map_settings.win_font.fromString(load_font);
+    if (overhead_map_settings.win_show)
     {
-        show_win_overhead_map = FALSE; //hack - so it gets toggled to true
+        overhead_map_settings.win_show = FALSE; //hack - so it gets toggled to true
         toggle_win_overhead_map_frame();
-        window_overhead_map->restoreGeometry(settings.value("winOverheadMapGeometry").toByteArray());
-        window_overhead_map->show();
     }
-
-
 
     update_recent_savefiles();
 }
 
+/*
+ *  Note all the extra windows are destroyed before this function is
+ *  called so the latest windows settings are recorded.
+ */
+
 void MainWindow::write_settings()
 {
+    QWidget dummy_widget;
+
     QSettings settings("NPPGames", "NPPQT");
     settings.setValue("mainWindowGeometry", saveGeometry());
+    settings.setValue("mainWindowMaximized", main_window->isMaximized());
     settings.setValue("recentFiles", recent_savefiles);
     settings.setValue("target_buttons", show_targeting_buttons);
     settings.setValue("hotkey_toolbar", show_hotkey_toolbar);
@@ -2059,100 +2127,110 @@ void MainWindow::write_settings()
     settings.setValue("font_window_main", font_main_window.toString());
     settings.setValue("font_window_messages", font_message_window.toString());
     settings.setValue("font_window_sidebar", font_sidebar_window.toString());
-    settings.setValue("font_window_mon_list", font_win_mon_list.toString());
-    settings.setValue("font_window_obj_list", font_win_obj_list.toString());
-    settings.setValue("font_window_mon_recall", font_win_mon_recall.toString());
-    settings.setValue("font_window_obj_recall", font_win_obj_recall.toString());
-    settings.setValue("font_window_feat_recall", font_win_feat_recall.toString());
-    settings.setValue("font_win_messages", font_win_messages.toString());
-    settings.setValue("font_char_basic", font_char_basic_info.toString());
-    settings.setValue("font_char_equip_info", font_char_equip_info.toString());
-    settings.setValue("font_char_equipment", font_char_equipment.toString());
-    settings.setValue("font_char_inventory", font_char_inventory.toString());
-    settings.setValue("font_dun_map", font_dun_map.toString());
-    settings.setValue("font_overhead_map", font_overhead_map.toString());
+
+
     settings.setValue("window_state", saveState());
 
-    settings.setValue("show_mon_list_window", show_mon_list);
-    if (show_mon_list)
-    {
-        settings.setValue("winMonListGeometry", window_mon_list->saveGeometry());
-    }
 
-    settings.setValue("show_obj_list_window", show_obj_list);
-    if (show_obj_list)
-    {
-        settings.setValue("winObjListGeometry", window_obj_list->saveGeometry());
-    }
 
-    settings.setValue("show_mon_recall_window", show_mon_recall);
-    if (show_mon_recall)
-    {
-        settings.setValue("winMonRecallGeometry", window_mon_recall->saveGeometry());
-    }
+    // Monster List window settings
+    settings.setValue("show_mon_list_window", win_mon_list_settings.win_show);
+    dummy_widget.setGeometry(win_mon_list_settings.win_geometry);
+    settings.setValue("winMonListGeometry", dummy_widget.saveGeometry());
+    settings.setValue("winMonListMaximized", win_mon_list_settings.win_maximized);
+    settings.setValue("font_mon_list_recall", win_mon_list_settings.win_font.toString());
 
-    settings.setValue("show_obj_recall_window", show_obj_recall);
-    if (show_obj_recall)
-    {
-        settings.setValue("winObjRecallGeometry", window_obj_recall->saveGeometry());
-    }
 
-    settings.setValue("show_feat_recall_window", show_feat_recall);
-    if (show_feat_recall)
-    {
-        settings.setValue("winFeatRecallGeometry", window_feat_recall->saveGeometry());
-    }
+    // Object List window settings
+    settings.setValue("show_obj_list_window", win_obj_list_settings.win_show);
+    dummy_widget.setGeometry(win_obj_list_settings.win_geometry);
+    settings.setValue("winObjListGeometry", dummy_widget.saveGeometry());
+    settings.setValue("winObjListMaximized", win_obj_list_settings.win_maximized);
+    settings.setValue("font_obj_list_recall", win_obj_list_settings.win_font.toString());
 
-    settings.setValue("show_messages_window", show_messages_win);
-    if (show_messages_win)
-    {
-        settings.setValue("winMessagesGeometry", window_messages->saveGeometry());
-    }
 
-    settings.setValue("show_char_basic_window", show_char_info_basic);
-    if (show_char_info_basic)
-    {
-        settings.setValue("winCharBasicGeometry", window_char_info_basic->saveGeometry());
-    }
+    // Monster recall window settings
+    settings.setValue("show_mon_recall_window", win_mon_recall_settings.win_show);
+    dummy_widget.setGeometry(win_mon_recall_settings.win_geometry);
+    settings.setValue("winMonRecallGeometry", dummy_widget.saveGeometry());
+    settings.setValue("winMonRecallMaximized", win_mon_recall_settings.win_maximized);
+    settings.setValue("font_window_mon_recall", win_mon_recall_settings.win_font.toString());
 
-    settings.setValue("show_char_equip_info_window", show_char_info_equip);
-    if (show_char_info_equip)
-    {
-        settings.setValue("winCharEquipGeometry", window_char_info_equip->saveGeometry());
-    }
 
-    settings.setValue("show_char_equipment_window", show_char_equipment);
-    if (show_char_equipment)
-    {
-        settings.setValue("winCharEquipmentGeometry", window_char_equipment->saveGeometry());
-    }
+    // Object recall window settings
+    settings.setValue("show_obj_recall_window", win_obj_recall_settings.win_show);
+    dummy_widget.setGeometry(win_obj_recall_settings.win_geometry);
+    settings.setValue("winObjRecallGeometry", dummy_widget.saveGeometry());
+    settings.setValue("winObjRecallMaximized", win_obj_recall_settings.win_maximized);
+    settings.setValue("font_window_obj_recall", win_obj_recall_settings.win_font.toString());
+
+
+    // Feature recall window settings
+    settings.setValue("show_feat_recall_window", win_feat_recall_settings.win_show);
+    dummy_widget.setGeometry(win_feat_recall_settings.win_geometry);
+    settings.setValue("winFeatRecallGeometry", dummy_widget.saveGeometry());
+    settings.setValue("winFeatRecallMaximized", win_feat_recall_settings.win_maximized);
+    settings.setValue("font_window_feat_recall", win_feat_recall_settings.win_font.toString());
+
+
+    // Messages window settings
+    settings.setValue("show_messages_window", win_message_settings.win_show);
+    dummy_widget.setGeometry(win_message_settings.win_geometry);
+    settings.setValue("winMessagesGeometry", dummy_widget.saveGeometry());
+    settings.setValue("winMessagesMaximized", win_message_settings.win_maximized);
+    settings.setValue("font_messages_window", win_message_settings.win_font.toString());
+
+
+    // Character Basic Information window settings
+    settings.setValue("show_char_info_basic_window", char_info_basic_settings.win_show);
+    dummy_widget.setGeometry(char_info_basic_settings.win_geometry);
+    settings.setValue("winCharBasicGeometry", dummy_widget.saveGeometry());
+    settings.setValue("winCharBasicMaximized", char_info_basic_settings.win_maximized);
+    settings.setValue("font_char_info_basic", char_info_basic_settings.win_font.toString());
+
+
+    // Character Equipment Information window settings
+    settings.setValue("show_char_info_equip_window", char_info_equip_settings.win_show);
+    dummy_widget.setGeometry(char_info_equip_settings.win_geometry);
+    settings.setValue("winCharInfoEquipGeometry", dummy_widget.saveGeometry());
+    settings.setValue("winCharInfoEquipMaximized", char_info_equip_settings.win_maximized);
+    settings.setValue("font_char_info_equip", char_info_equip_settings.win_font.toString());
+
+    // Character Equipment window settings
+    settings.setValue("show_char_equipment_window", char_equipment_settings.win_show);
     settings.setValue("show_equip_window_buttons", equip_show_buttons);
+    dummy_widget.setGeometry(char_equipment_settings.win_geometry);
+    settings.setValue("winCharEquipmentGeometry", dummy_widget.saveGeometry());
+    settings.setValue("winCharEquipmentMaximized", char_equipment_settings.win_maximized);
+    settings.setValue("font_char_equipment", char_equipment_settings.win_font.toString());
 
-    settings.setValue("show_char_inventory_window", show_char_inventory);
-    if (show_char_inventory)
-    {
-        settings.setValue("winCharInventoryGeometry", window_char_inventory->saveGeometry());
-    }
+
+    // Character Inventory window settings
+    settings.setValue("show_char_inventory_window", char_inventory_settings.win_show);
     settings.setValue("show_inven_window_buttons", inven_show_buttons);
+    dummy_widget.setGeometry(char_inventory_settings.win_geometry);
+    settings.setValue("winCharInventoryGeometry", dummy_widget.saveGeometry());
+    settings.setValue("winCharInventoryMaximized", char_inventory_settings.win_maximized);
+    settings.setValue("font_char_inventory", char_inventory_settings.win_font.toString());
 
-    settings.setValue("show_dun_map_window", show_win_dun_map);
 
-    if (show_win_dun_map)
-    {
-        settings.setValue("winDunMapGeometry", window_dun_map->saveGeometry());
-    }
+    // Dungeon map window settings
+    settings.setValue("show_dun_map_window", dun_map_settings.win_show);
     settings.setValue("graphics_dun_map", dun_map_use_graphics);
     settings.setValue("dun_map_tile_multiplier", dun_map_multiplier);
+    dummy_widget.setGeometry(dun_map_settings.win_geometry);
+    settings.setValue("winDunMapGeometry", dummy_widget.saveGeometry());
+    settings.setValue("winDunMapMaximized", dun_map_settings.win_maximized);
+    settings.setValue("font_dun_map", dun_map_settings.win_font.toString());
 
-    settings.setValue("show_dun_overhead_window", show_win_overhead_map);
-    if (show_win_overhead_map)
-    {
-
-        settings.setValue("winOverheadMapGeometry", window_overhead_map->saveGeometry());
-
-    }
+    // Overhead map window settings
+    settings.setValue("show_dun_overhead_window", overhead_map_settings.win_show);
     settings.setValue("graphics_overhead_map", overhead_map_use_graphics);
     settings.setValue("dun_overhead_tile_multiplier", overhead_map_multiplier);
+    dummy_widget.setGeometry(overhead_map_settings.win_geometry);
+    settings.setValue("winOverheadMapGeometry", dummy_widget.saveGeometry());
+    settings.setValue("winOverheadMapMaximized", overhead_map_settings.win_maximized);
+    settings.setValue("font_overhead_map", overhead_map_settings.win_font.toString());
 }
 
 
@@ -2193,18 +2271,18 @@ void MainWindow::load_file(const QString &file_name)
                 update_sidebar_font();
 
                 // Now that we have a character, fill in the char info window
-                if (show_char_info_basic) create_win_char_info();
-                if (show_char_info_equip) create_win_char_equip_info();
-                if (show_char_equipment) create_win_char_equipment();
-                if (show_char_inventory) create_win_char_inventory();
-                if (show_win_dun_map) create_win_dun_map();
-                if (show_win_overhead_map) create_win_overhead_map();
+                if (char_info_basic_settings.win_show) create_win_char_info();
+                if (char_info_equip_settings.win_show) create_win_char_equip_info();
+                if (char_equipment_settings.win_show) create_win_char_equipment();
+                if (char_inventory_settings.win_show) create_win_char_inventory();
+                if (dun_map_settings.win_show) create_win_dun_map();
+                if (overhead_map_settings.win_show) create_win_overhead_map();
                 ui_player_moved();
 
                 //hack - draw everything
-                p_ptr->player_turn = TRUE;
+                p_ptr->do_redraws = TRUE;
                 redraw_stuff();
-                p_ptr->player_turn = FALSE;
+                p_ptr->do_redraws = FALSE;
             }
 
             event_timer->start();
@@ -2229,12 +2307,12 @@ void MainWindow::launch_birth(bool quick_start)
         graphics_view->setFocus();
         redraw_all();
         update_sidebar_font();
-        if (show_char_info_basic) create_win_char_info();
-        if (show_char_info_equip) create_win_char_equip_info();
-        if (show_char_equipment) create_win_char_equipment();
-        if (show_char_inventory) create_win_char_inventory();
-        if (show_win_dun_map) create_win_dun_map();
-        if (show_win_overhead_map) create_win_overhead_map();
+        if (char_info_basic_settings.win_show) create_win_char_info();
+        if (char_info_equip_settings.win_show) create_win_char_equip_info();
+        if (char_equipment_settings.win_show) create_win_char_equipment();
+        if (char_inventory_settings.win_show) create_win_char_inventory();
+        if (dun_map_settings.win_show) create_win_dun_map();
+        if (overhead_map_settings.win_show) create_win_overhead_map();
         ui_player_moved();
 
         // The main purpose of this greeting is to avoid crashes
@@ -2242,9 +2320,9 @@ void MainWindow::launch_birth(bool quick_start)
         message(QString("Welcome %1") .arg(op_ptr->full_name));
 
         //hack - draw everything
-        p_ptr->player_turn = TRUE;
+        p_ptr->do_redraws = TRUE;
         redraw_stuff();
-        p_ptr->player_turn = FALSE;
+        p_ptr->do_redraws = FALSE;
 
         event_timer->start();
     }

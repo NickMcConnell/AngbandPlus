@@ -864,9 +864,8 @@ static void process_world(void)
 
     int regen_amount;
 
-    int feat;
-
     object_type *o_ptr;
+
 
     /* We decrease noise slightly every game turn */
     total_wakeup_chance -= 400;
@@ -877,6 +876,10 @@ static void process_world(void)
 
     /* Every 10 game turns */
     if (p_ptr->game_turn % 10) return;
+
+    // To ensure events that affect the screen, such as
+    // word of recall, are processed.
+    p_ptr->do_redraws = TRUE;
 
     /*** Update quests ***/
     if (guild_quest_active())
@@ -1020,7 +1023,7 @@ static void process_world(void)
     /* Occasionally have the ghost give a challenge */
     if (!(p_ptr->game_turn % 2500))
     {
-        ghost_challenge();
+        ghost_challenge(FALSE);
     }
 
     /* Put out fire if necessary */
@@ -1042,30 +1045,6 @@ static void process_world(void)
     notice_stuff();
 
     /*** Damage over Time ***/
-
-    /* Get the feature */
-    feat = dungeon_info[p_ptr->py][p_ptr->px].feature_idx;
-
-    /* If paralyzed, we drown in deep */
-    if ((p_ptr->timed[TMD_PARALYZED] || (p_ptr->stun_status() == STUN_KNOCKED_OUT)) &&
-        feat_ff2_match(feat, FF2_DEEP))
-    {
-        /* Calculate damage */
-        int dam = damroll(4, 6);
-
-        /* Don't kill the player, just hurt him/her */
-        if (dam <= p_ptr->chp)
-        {
-
-            /* Get the feature name */
-            QString name = feature_desc(feat, TRUE, TRUE);
-
-            bell(QString("You are drowning in %1!") .arg(name));
-
-            /* Apply the blow */
-            take_hit(dam, "drowning");
-        }
-    }
 
     /* Take damage from poison */
     if (p_ptr->timed[TMD_POISONED])
@@ -1479,6 +1458,8 @@ static void process_world(void)
 
     /* Notice stuff */
     notice_stuff();
+    redraw_stuff();
+    p_ptr->do_redraws = FALSE;
 }
 
 void change_player_level(void)
@@ -1714,17 +1695,8 @@ void change_player_level(void)
     /* Fully update the visuals (and monster distances) */
     p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_DISTANCE);
 
-    /* Redraw dungeon */
-    p_ptr->redraw |= (PR_SIDEBAR_ALL | PR_STATUSBAR | PR_MAP);
-
-    /* Redraw "statusy" things */
-    p_ptr->redraw |= (PR_WIN_INVENTORY | PR_WIN_EQUIPMENT | PR_WIN_MON_RECALL | PR_WIN_MONLIST | PR_WIN_OBJLIST);
-
     /* Update stuff */
     update_stuff();
-
-    /* Redraw stuff */
-    redraw_stuff();
 
     character_xtra = FALSE;
 
@@ -1759,12 +1731,14 @@ void change_player_level(void)
 
     /* Notice stuff */
     notice_stuff();
-
-    /* Update stuff */
     update_stuff();
 
     /* Redraw stuff */
-    redraw_stuff();
+    p_ptr->do_redraws = TRUE;
+    ui_redraw_all();
+    p_ptr->do_redraws = FALSE;
+
+    ui_center(p_ptr->py, p_ptr->px);
 
     /* Handle delayed death */
     if (p_ptr->is_dead) return;
@@ -1773,7 +1747,7 @@ void change_player_level(void)
     if (p_ptr->depth && (do_feeling)) do_cmd_feeling();
 
     /* Announce a player ghost challenge. -LM- */
-    ghost_challenge();
+    ghost_challenge(TRUE);
 }
 
 

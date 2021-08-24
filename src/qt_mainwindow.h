@@ -56,6 +56,25 @@ public:
     int mouse_click_x;
 };
 
+class extra_win_settings
+{
+public:
+    QPointer<QWidget> main_widget;
+    QPointer<QVBoxLayout> main_vlay;
+    QMenuBar *win_menubar;
+    QPointer<QMenu> win_menu;
+    QPointer<QAction> win_font_act;
+
+    QRect win_geometry;
+    bool win_maximized;
+    bool win_show;
+    QFont win_font;
+
+    void set_extra_win_default();
+    void get_widget_settings(QWidget *this_widget);
+    void make_extra_window();
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -87,6 +106,8 @@ public:
     bool show_targeting_buttons;
     bool show_hotkey_toolbar;
     bool executing_command;
+    bool win_maximized;
+    QRect win_geometry;
 
     // Scaled tiles
     QHash<QString,QPixmap> tiles;
@@ -360,18 +381,18 @@ private:
     QPointer<QAction> wall_block_act;
 
     // Commands for the additional windows
-    QPointer<QAction> win_mon_list;
-    QPointer<QAction> win_obj_list;
-    QPointer<QAction> win_mon_recall;
-    QPointer<QAction> win_obj_recall;
-    QPointer<QAction> win_feat_recall;
-    QPointer<QAction> win_messages;
-    QPointer<QAction> win_char_basic;
-    QPointer<QAction> win_char_equip_info;
-    QPointer<QAction> win_char_equipment;
-    QPointer<QAction> win_char_inventory;
-    QPointer<QAction> win_dun_map;
-    QPointer<QAction> win_overhead_map;
+    QPointer<QAction> win_mon_list_act;
+    QPointer<QAction> win_obj_list_act;
+    QPointer<QAction> win_mon_recall_act;
+    QPointer<QAction> win_obj_recall_act;
+    QPointer<QAction> win_feat_recall_act;
+    QPointer<QAction> win_messages_act;
+    QPointer<QAction> win_char_basic_act;
+    QPointer<QAction> win_char_equip_info_act;
+    QPointer<QAction> win_char_equipment_act;
+    QPointer<QAction> win_char_inventory_act;
+    QPointer<QAction> win_dun_map_act;
+    QPointer<QAction> win_overhead_map_act;
 
     // Holds the actual commands for the help menu.
     QPointer<QAction> help_about;
@@ -440,156 +461,114 @@ private:
 
 // Monster list window
 private:
-    bool show_mon_list;
-    QPointer<QWidget> window_mon_list;
-    QPointer<QVBoxLayout> mon_list_vlay;
     QTableWidget *mon_list_area;
-    QMenuBar *mon_list_menubar;
-    QPointer<QAction> mon_list_set_font;
-    QFont font_win_mon_list;
-    QPointer<QMenu> mon_win_settings;
     void win_mon_list_create();
-    void win_mon_list_destroy();
+    void win_mon_list_close();
     void win_mon_list_wipe();
     void set_font_win_mon_list(QFont newFont);
 
 public:
     void win_mon_list_update();
+    extra_win_settings win_mon_list_settings;
 
 private slots:
     void win_mon_list_font();
     void toggle_win_mon_list();
-    void close_win_mon_list(QObject *this_object);
+    void win_mon_list_destroy(QObject *this_object);
 
 // Object list window
 private:
-    bool show_obj_list;
-    QPointer<QWidget> window_obj_list;
-    QPointer<QVBoxLayout> obj_list_vlay;
     QTableWidget *obj_list_area;
-    QMenuBar *obj_list_menubar;
-    QPointer<QAction> obj_list_set_font;
-    QFont font_win_obj_list;
-    QPointer<QMenu> obj_win_settings;
     void win_obj_list_create();
-    void win_obj_list_destroy();
+    void win_obj_list_close();
     void win_obj_list_wipe();
     void set_font_win_obj_list(QFont newFont);
 
 public:
     void win_obj_list_update();
+    extra_win_settings win_obj_list_settings;
 
 private slots:
     void win_obj_list_font();
     void toggle_win_obj_list();
-    void close_win_obj_list(QObject *this_object);
+    void win_obj_list_destroy(QObject *this_object);
 
 // Monster Recall window
 private:
-    bool show_mon_recall;
-    QPointer<QWidget> window_mon_recall;
-    QPointer<QVBoxLayout> mon_recall_vlay;
     QTextEdit *mon_recall_area;
-    QMenuBar *mon_recall_menubar;
-    QPointer<QAction> mon_recall_set_font;
-    QFont font_win_mon_recall;
-    QPointer<QMenu> mon_recall_win_settings;
     void win_mon_recall_create();
-    void win_mon_recall_destroy();
+    void win_mon_recall_close();
     void win_mon_recall_wipe();
     void set_font_win_mon_recall(QFont newFont);
 
 public:
     void win_mon_recall_update();
+    extra_win_settings win_mon_recall_settings;
 
 private slots:
     void win_mon_recall_font();
     void toggle_win_mon_recall();
-    void close_win_mon_recall(QObject *this_object);
+    void win_mon_recall_destroy(QObject *this_object);
 
 
 // Object Recall window
 private:
-    bool show_obj_recall;
-    QPointer<QWidget> window_obj_recall;
-    QPointer<QVBoxLayout> obj_recall_vlay;
     QTextEdit *obj_recall_area;
-    QMenuBar *obj_recall_menubar;
-    QPointer<QAction> obj_recall_set_font;
-    QFont font_win_obj_recall;
-    QPointer<QMenu> obj_recall_win_settings;
     void win_obj_recall_create();
-    void win_obj_recall_destroy();
+    void win_obj_recall_close();
     void win_obj_recall_wipe();
     void set_font_win_obj_recall(QFont newFont);
 
 public:
     void win_obj_recall_update();
+    extra_win_settings win_obj_recall_settings;
 
 private slots:
     void win_obj_recall_font();
     void toggle_win_obj_recall();
-    void close_win_obj_recall(QObject *this_object);
+    void win_obj_recall_destroy(QObject *this_object);
 
 // Feature Recall window
 private:
-    bool show_feat_recall;
-    QPointer<QWidget> window_feat_recall;
-    QPointer<QVBoxLayout> feat_recall_vlay;
     QTextEdit *feat_recall_area;
-    QMenuBar *feat_recall_menubar;
-    QPointer<QAction> feat_recall_set_font;
-    QFont font_win_feat_recall;
-    QPointer<QMenu> feat_recall_win_settings;
     void win_feat_recall_create();
-    void win_feat_recall_destroy();
+    void win_feat_recall_close();
     void win_feat_recall_wipe();
     void set_font_win_feat_recall(QFont newFont);
 
 public:
     void win_feat_recall_update();
+    extra_win_settings win_feat_recall_settings;
 
 private slots:
     void win_feat_recall_font();
     void toggle_win_feat_recall();
-    void close_win_feat_recall(QObject *this_object);
+    void win_feat_recall_destroy(QObject *this_object);
 
 // Messages window
 private:
-    bool show_messages_win;
-    QPointer<QWidget> window_messages;
-    QPointer<QVBoxLayout> win_messages_vlay;
     QTextEdit *win_messages_area;
-    QMenuBar *win_messages_menubar;
-    QPointer<QAction> win_messages_set_font;
-    QFont font_win_messages;
-    QPointer<QMenu> messages_win_settings;
+    QPointer<QMenu> win_messages_win_settings;
     void win_messages_create();
-    void win_messages_destroy();
+    void win_messages_close();
     void win_messages_wipe();
     void set_font_win_messages(QFont newFont);
 
+
 public:
     void win_messages_update();
+    extra_win_settings win_message_settings;
 
 private slots:
     void win_messages_font();
     void toggle_win_messages();
-    void close_win_messages(QObject *this_object);
-
+    void win_messages_destroy(QObject *this_object);
 
 
 // Character Information window
 private:
-    bool show_char_info_basic;
-    QPointer<QWidget> window_char_info_basic;
-    QPointer<QVBoxLayout> main_vlay_char_basic;
-    QMenuBar *char_info_basic_menubar;
-    QPointer<QAction> char_info_basic_font;
-    QFont font_char_basic_info;
-    QPointer<QMenu> char_info_basic_settings;
     void win_char_info_basic_create();
-    void win_char_info_basic_destroy();
+    void win_char_info_basic_close();
     void win_char_info_basic_wipe();
     void update_label_basic_font();
     void set_font_char_info_basic(QFont newFont);
@@ -600,24 +579,19 @@ public:
     void win_char_info_basic_update();
     void win_char_info_score();
     void win_char_info_turncount();
+    extra_win_settings char_info_basic_settings;
 
 private slots:
     void win_char_info_basic_font();
-    void toggle_win_char_info_frame();
+    void toggle_win_char_basic_frame();
     void name_change(void);
-    void close_win_char_info_frame(QObject *this_object);
+    void win_char_info_basic_destroy(QObject *this_object);
 
 // Character Equipment Information window
 private:
-    bool show_char_info_equip;
-    QPointer<QWidget> window_char_info_equip;
-    QPointer<QVBoxLayout> main_vlay_char_equip_info;
-    QMenuBar *char_info_equip_menubar;
-    QPointer<QAction> char_info_equip_font;
-    QFont font_char_equip_info;
-    QPointer<QMenu> char_info_equip_settings;
+    QPointer<QAction> char_info_equip_font_act;
     void win_char_info_equip_create();
-    void win_char_info_equip_destroy();
+    void win_char_info_equip_close();
     void win_char_info_equip_wipe();
     void update_label_equip_info_font();
     void set_font_char_info_equip(QFont newFont);
@@ -647,24 +621,18 @@ public:
     QList<QLabel *> list_ability_equippy;
     QList<QLabel *> list_equip_equippy;
     QList<QLabel *> list_nativity_equippy;
+    extra_win_settings char_info_equip_settings;
 
 private slots:
     void win_char_info_equip_font();
     void toggle_win_char_equip_frame();
-    void close_win_char_equip_frame(QObject *this_object);
+    void win_char_info_equip_destroy(QObject *this_object);
 
 // Character Equipment window
 private:
-    bool show_char_equipment;
-    QPointer<QWidget> window_char_equipment;
-    QPointer<QVBoxLayout> main_vlay_equipment;
-    QMenuBar *char_equipment_menubar;
-    QPointer<QAction> char_equipment_font;
-    QPointer<QAction> char_equipment_buttons;
-    QFont font_char_equipment;
-    QPointer<QMenu> char_equipment_settings;
+    QPointer<QAction> char_equipment_buttons_act;
     void win_char_equipment_create();
-    void win_char_equipment_destroy();
+    void win_char_equipment_close();
     void win_char_equipment_wipe();
     void update_label_equipment_font();
     void set_font_char_equipment(QFont newFont);
@@ -677,26 +645,20 @@ private:
 
 public:
     void win_char_equipment_update();
+    extra_win_settings char_equipment_settings;
 
 private slots:
     void win_char_equipment_font();
     void toggle_equip_show_buttons();
     void toggle_win_char_equipment_frame();
     void equip_button_click();
-    void close_win_char_equipment_frame(QObject *this_object);
+    void win_char_equipment_destroy(QObject *this_object);
 
 // Character Inventory window
 private:
-    bool show_char_inventory;
-    QPointer<QWidget> window_char_inventory;
-    QPointer<QVBoxLayout> main_vlay_inventory;
-    QMenuBar *char_inventory_menubar;
-    QPointer<QAction> char_inventory_font;
-    QPointer<QAction> char_inventory_buttons;
-    QFont font_char_inventory;
-    QPointer<QMenu> char_inventory_settings;
+    QPointer<QAction> char_inventory_buttons_act;
     void win_char_inventory_create();
-    void win_char_inventory_destroy();
+    void win_char_inventory_close();
     void win_char_inventory_wipe();
     void update_label_inventory_font();
     void set_font_char_inventory(QFont newFont);
@@ -708,26 +670,23 @@ private:
 
 public:
     void win_char_inventory_update();
+    extra_win_settings char_inventory_settings;
 
 private slots:
     void win_char_inventory_font();
     void toggle_inven_show_buttons();
     void toggle_win_char_inventory_frame();
     void inven_button_click();
-    void close_win_char_inventory_frame(QObject *this_object);
+    void win_char_inventory_destroy(QObject *this_object);
 
     // Small map window
 private:
-    QPointer<QWidget> window_dun_map;
-    QPointer<QVBoxLayout> main_vlay_dun_map;
     QPointer<QGraphicsScene> dun_map_scene;
     QPointer<QGraphicsView> dun_map_view;
-    QMenuBar *win_dun_map_menubar;
-    QPointer<QAction> dun_map_font;
-    QPointer<QAction> dun_map_graphics;
-    QPointer<QMenu> win_dun_map_settings;
+    QPointer<QAction> dun_map_graphics_act;
+
     void win_dun_map_create();
-    void win_dun_map_destroy();
+    void win_dun_map_close();
     void win_dun_map_wipe();
     void create_win_dun_map();
     DunMapGrid *dun_map_grids[MAX_DUNGEON_HGT][MAX_DUNGEON_WID];
@@ -736,9 +695,7 @@ private:
     QString dun_map_multiplier;
     void set_dun_map_font(QFont newFont);
 
-
 public:
-    bool show_win_dun_map;
     bool dun_map_use_graphics;
     void win_dun_map_update();
     void dun_map_update_one_grid(int y, int x);
@@ -748,37 +705,32 @@ public:
     int dun_map_font_hgt, dun_map_font_wid;
     int dun_map_tile_hgt, dun_map_tile_wid;
     int dun_map_cell_wid, dun_map_cell_hgt;
-    QFont font_dun_map;
+    extra_win_settings dun_map_settings;
 
 private slots:
     void win_dun_map_font();
     void toggle_win_dun_map_frame();
     void dun_map_multiplier_clicked(QAction *);
     void set_dun_map_graphics();
-    void close_win_dun_map_frame(QObject *this_object);
+    void win_dun_map_destroy(QObject *this_object);
 
     // Overhead window
 private:
-    QPointer<QWidget> window_overhead_map;
-    QPointer<QVBoxLayout> main_vlay_overhead_map;
     QPointer<QGraphicsScene> overhead_map_scene;
     QPointer<QGraphicsView> overhead_map_view;
-    QMenuBar *win_overhead_map_menubar;
-    QPointer<QAction> overhead_map_font;
-    QPointer<QAction> overhead_map_graphics;
-    QPointer<QMenu> win_overhead_map_settings;
+    QPointer<QAction> overhead_map_graphics_act;
     void win_overhead_map_create();
-    void win_overhead_map_destroy();
     void win_overhead_map_wipe();
+    void win_overhead_map_close();
     void create_win_overhead_map();
-    DunOverheadGrid *overhead_map_grids[MAX_DUNGEON_HGT][MAX_DUNGEON_WID];
+    DunOverheadGrid *overhead_map_grids[MAX_DUNGEON_HGT/2][MAX_DUNGEON_WID/2];
     void overhead_map_calc_cell_size();
     QPointer<QActionGroup> overhead_map_multipliers;
     QString overhead_map_multiplier;
     void set_overhead_map_font(QFont newFont);
 
+
 public:
-    bool show_win_overhead_map;
     bool overhead_map_use_graphics;
     void win_overhead_map_update();
     void overhead_map_update_one_grid(int y, int x);
@@ -788,14 +740,14 @@ public:
     int overhead_map_font_hgt, overhead_map_font_wid;
     int overhead_map_tile_hgt, overhead_map_tile_wid;
     int overhead_map_cell_wid, overhead_map_cell_hgt;
-    QFont font_overhead_map;
+    extra_win_settings overhead_map_settings;
 
 private slots:
     void win_overhead_map_font();
     void toggle_win_overhead_map_frame();
     void overhead_map_multiplier_clicked(QAction *);
     void set_overhead_map_graphics();
-    void close_win_overhead_map_frame(QObject *this_object);
+    void win_overhead_map_destroy(QObject *this_object);
 
 };
 

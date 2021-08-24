@@ -13,14 +13,14 @@
 
 void MainWindow::set_font_win_obj_recall(QFont newFont)
 {
-    font_win_obj_recall = newFont;
+    win_obj_recall_settings.win_font = newFont;
     win_obj_recall_update();
 }
 
 void MainWindow::win_obj_recall_font()
 {
     bool selected;
-    QFont font = QFontDialog::getFont(&selected, font_win_obj_recall, this );
+    QFont font = QFontDialog::getFont(&selected, win_obj_recall_settings.win_font, this );
 
     if (selected)
     {
@@ -31,7 +31,7 @@ void MainWindow::win_obj_recall_font()
 // For when savefiles close but the game doesn't.
 void MainWindow::win_obj_recall_wipe()
 {
-    if (!show_obj_recall) return;
+    if (!win_obj_recall_settings.win_show) return;
     if (!character_generated) return;
 
     obj_recall_area->clear();
@@ -41,11 +41,11 @@ void MainWindow::win_obj_recall_wipe()
 void MainWindow::win_obj_recall_update()
 {
     win_obj_recall_wipe();
-    if (!show_obj_recall) return;
+    if (!win_obj_recall_settings.win_show) return;
     if (!character_generated) return;
     if (!p_ptr->object_kind_idx && !p_ptr->object_idx) return;
 
-    obj_recall_area->setFont(font_win_obj_recall);
+    obj_recall_area->setFont(win_obj_recall_settings.win_font);
     obj_recall_area->moveCursor(QTextCursor::Start);
 
     QString obj_recall;
@@ -75,13 +75,6 @@ void MainWindow::win_obj_recall_update()
     obj_recall_area->insertHtml(obj_recall);
 }
 
-void MainWindow::close_win_obj_recall(QObject *this_object)
-{
-    (void)this_object;
-    window_obj_recall = NULL;
-    show_obj_recall = FALSE;
-    win_obj_recall->setText("Show Object Recall Window");
-}
 
 /*
  *  Show widget is called after this to allow
@@ -89,50 +82,61 @@ void MainWindow::close_win_obj_recall(QObject *this_object)
  */
 void MainWindow::win_obj_recall_create()
 {
-    window_obj_recall = new QWidget();
-    obj_recall_vlay = new QVBoxLayout;
-    window_obj_recall->setLayout(obj_recall_vlay);
+    win_obj_recall_settings.make_extra_window();
+
     obj_recall_area = new QTextEdit;
     obj_recall_area->setReadOnly(TRUE);
     obj_recall_area->setStyleSheet("background-color: lightGray;");
     obj_recall_area->setTextInteractionFlags(Qt::NoTextInteraction);
-    obj_recall_vlay->addWidget(obj_recall_area);
-    obj_recall_menubar = new QMenuBar;
-    obj_recall_vlay->setMenuBar(obj_recall_menubar);
-    window_obj_recall->setWindowTitle("Object Recall Window");
-    obj_recall_win_settings = obj_recall_menubar->addMenu(tr("&Settings"));
-    obj_recall_set_font = new QAction(tr("Set Object Recall Font"), this);
-    obj_recall_set_font->setStatusTip(tr("Set the font for the Object Recall Window."));
-    connect(obj_recall_set_font, SIGNAL(triggered()), this, SLOT(win_obj_recall_font()));
-    obj_recall_win_settings->addAction(obj_recall_set_font);
+    win_obj_recall_settings.main_vlay->addWidget(obj_recall_area);
+    win_obj_recall_settings.main_widget->setWindowTitle("Object Recall Window");
+    connect(win_obj_recall_settings.win_font_act, SIGNAL(triggered()), this, SLOT(win_obj_recall_font()));
 
-    window_obj_recall->setAttribute(Qt::WA_DeleteOnClose);
-    connect(window_obj_recall, SIGNAL(destroyed(QObject*)), this, SLOT(close_win_obj_recall(QObject*)));
+    connect(win_obj_recall_settings.main_widget, SIGNAL(destroyed(QObject*)), this, SLOT(win_obj_recall_destroy(QObject*)));
 }
 
 
-void MainWindow::win_obj_recall_destroy()
+
+/*
+ * win_obj_recall_close should be used when the game is shutting down.
+ * Use this function for closing the window mid-game
+ */
+void MainWindow::win_obj_recall_destroy(QObject *this_object)
 {
-    if (!show_obj_recall) return;
-    delete window_obj_recall;
-    window_obj_recall = NULL;
+    (void)this_object;
+    if (!win_obj_recall_settings.win_show) return;
+    if (!win_obj_recall_settings.main_widget) return;
+    win_obj_recall_settings.get_widget_settings(win_obj_recall_settings.main_widget);
+    win_obj_recall_settings.main_widget->deleteLater();
+    win_obj_recall_settings.win_show = FALSE;
+    win_obj_recall_act->setText("Show Object Recall Window");
+}
+
+/*
+ * This version should only be used when the game is shutting down.
+ * So it is remembered if the window was open or not.
+ * For closing the window mid-game use win_obj_recall_destroy directly
+ */
+void MainWindow::win_obj_recall_close()
+{
+    bool was_open = win_obj_recall_settings.win_show;
+    win_obj_recall_destroy(win_obj_recall_settings.main_widget);
+    win_obj_recall_settings.win_show = was_open;
 }
 
 void MainWindow::toggle_win_obj_recall()
 {
-    if (!show_obj_recall)
+    if (!win_obj_recall_settings.win_show)
     {
         win_obj_recall_create();
-        show_obj_recall = TRUE;
-        win_obj_recall->setText("Hide Object Recall Window");
-        window_obj_recall->show();
+        win_obj_recall_settings.win_show = TRUE;
+        win_obj_recall_settings.main_widget->setGeometry(win_obj_recall_settings.win_geometry);
+        win_obj_recall_act->setText("Hide Object Recall Window");
+        if (win_obj_recall_settings.win_maximized) win_obj_recall_settings.main_widget->showMaximized();
+        else win_obj_recall_settings.main_widget->show();
+
         win_obj_recall_update();
     }
-    else
-    {
-        win_obj_recall_destroy();
-        show_obj_recall = FALSE;
-        win_obj_recall->setText("Show Object Recall Window");
-    }
+    else win_obj_recall_destroy(win_obj_recall_settings.main_widget);
 }
 

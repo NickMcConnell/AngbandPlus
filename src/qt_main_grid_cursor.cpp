@@ -500,7 +500,11 @@ void DungeonGrid::handle_single_click(mouse_click_info mouse_event)
         {
             if (mouse_event.right_click)
             {
-                do_cmd_cast(-1);
+                // This needs to be the same as the ordinary right click, information can be given
+                // grid the player is standing on.
+                parent->cursor->setVisible(true);
+                parent->cursor->moveTo(c_y, c_x);
+                GridDialog dlg(c_y, c_x);
             }
             else if (mouse_event.left_click)
             {
@@ -508,7 +512,7 @@ void DungeonGrid::handle_single_click(mouse_click_info mouse_event)
             }
             else if (mouse_event.middle_click)
             {
-                do_cmd_fire();
+                do_cmd_cast(-1);
             }
             else if (mouse_event.extra_button_1)
             {
@@ -657,6 +661,35 @@ void DungeonGrid::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
         int old_x = parent->cursor->c_x;
         int old_y = parent->cursor->c_y;
         parent->grids[old_y][old_x]->update();
+
+
+        // The player square has been clicked on.
+        if ((p_ptr->py == c_y) && (p_ptr->px == c_x))
+        {
+            if (right_button)
+            {
+                dungeon_type *dun_ptr = &dungeon_info[c_y][c_x];
+
+                if (target_able(dun_ptr->monster_idx, FALSE)) target_set_monster(dun_ptr->monster_idx, FALSE);
+                else if (dun_ptr->projectable()) target_set_location(c_y, c_x);
+            }
+            else if (left_button)
+            {
+                do_cmd_fire();
+            }
+            else if (middle_button)
+            {
+                do_cmd_fire_at_nearest();
+            }
+            else if (extra1)
+            {
+
+            }
+            else if (extra2)
+            {
+
+            }
+        }
 
         if (right_button)
         {

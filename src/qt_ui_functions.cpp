@@ -409,14 +409,14 @@ void ui_update_sidebar_all()
 
 void ui_update_sidebar_player()
 {
-    if (!p_ptr->player_turn) return;
+    if (!p_ptr->player_turn && !p_ptr->do_redraws) return;
     main_window->update_sidebar_player();
     p_ptr->redraw &= ~(PR_SIDEBAR_PL);
 }
 
 void ui_update_sidebar_mon()
 {
-    if (!p_ptr->player_turn) return;
+    if (!p_ptr->player_turn && !p_ptr->do_redraws) return;
     if (character_xtra) return;
     main_window->update_sidebar_mon();
     p_ptr->redraw &= ~(PR_SIDEBAR_MON);
@@ -447,7 +447,7 @@ void ui_update_messages()
 
 void ui_update_monlist()
 {
-    if (!p_ptr->player_turn) return;
+    if (!p_ptr->player_turn && !p_ptr->do_redraws) return;
     if (p_ptr->is_running()) return;
     if (p_ptr->is_resting()) return;
     if (character_xtra) return;
@@ -457,7 +457,7 @@ void ui_update_monlist()
 
 void ui_update_objlist()
 {
-    if (!p_ptr->player_turn) return;
+    if (!p_ptr->player_turn && !p_ptr->do_redraws) return;
     if (p_ptr->is_running()) return;
     if (p_ptr->is_resting()) return;
     if (character_xtra) return;
@@ -507,7 +507,7 @@ void ui_update_message_window()
 
 void ui_update_char_basic_window()
 {
-    if (!p_ptr->player_turn) return;
+    if (!p_ptr->player_turn && !p_ptr->do_redraws) return;
     if (p_ptr->is_running() || p_ptr->is_resting()) return;
     main_window->win_char_info_basic_update();
     p_ptr->redraw &= ~(PR_WIN_CHAR_BASIC | PR_PLYR_SCORE | PR_TURNCOUNT);
@@ -515,7 +515,7 @@ void ui_update_char_basic_window()
 
 void ui_update_char_equip_info_window()
 {
-    if (!p_ptr->player_turn) return;
+    if (!p_ptr->player_turn && !p_ptr->do_redraws) return;
     if (p_ptr->is_running() || p_ptr->is_resting()) return;
     main_window->win_char_info_equip_update();
     p_ptr->redraw &= ~(PR_WIN_CHAR_EQUIP_INFO);
@@ -523,7 +523,7 @@ void ui_update_char_equip_info_window()
 
 void ui_update_char_equipment_window()
 {
-    if (!p_ptr->player_turn) return;
+    if (!p_ptr->player_turn && !p_ptr->do_redraws) return;
     if (p_ptr->is_running() || p_ptr->is_resting()) return;
     main_window->win_char_equipment_update();
     p_ptr->redraw &= ~(PR_WIN_EQUIPMENT);
@@ -531,7 +531,7 @@ void ui_update_char_equipment_window()
 
 void ui_update_char_inventory_window()
 {
-    if (!p_ptr->player_turn) return;
+    if (!p_ptr->player_turn && !p_ptr->do_redraws) return;
     if (p_ptr->is_running() || p_ptr->is_resting()) return;
     main_window->win_char_inventory_update();
     p_ptr->redraw &= ~(PR_WIN_INVENTORY);
@@ -662,9 +662,11 @@ bool ui_using_monster_tiles()
     return (ui_using_tiles());
 }
 
+// Change the tile multiplier, then re-center in on the player.
 void ui_handle_grid_wheelevent(bool wheelscroll_increase)
 {
     main_window->handle_grid_wheelevent(wheelscroll_increase);
+    ui_center(p_ptr->py, p_ptr->px);
 }
 
 void ui_redraw_grid(int y, int x)
@@ -674,7 +676,7 @@ void ui_redraw_grid(int y, int x)
     g_ptr->update(g_ptr->boundingRect());
 
     main_window->dun_map_update_one_grid(y, x);
-    main_window->overhead_map_update_one_grid(y, x);
+    main_window->overhead_map_update_one_grid(y/2, x/2);
 }
 
 void ui_redraw_all()
@@ -682,7 +684,6 @@ void ui_redraw_all()
     p_ptr->redraw &= ~(PR_MAP | PR_DRAW);
     redraw_coords.clear();
     main_window->redraw_all();
-
 }
 
 void player_death_close_game(void)

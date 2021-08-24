@@ -35,10 +35,10 @@ static QString get_feature_type(const feature_lore *f_l_ptr)
 static QString describe_feature_basic(int f_idx, const feature_lore *f_l_ptr)
 {
     const feature_type *f_ptr = &f_info[f_idx];
-    QString flags[50];
+    QVector<QString> flags;
+    flags.clear();
     QString type;
     int i = 0;
-    u16b n = 0;
 
     QString output;
     output.clear();
@@ -46,24 +46,21 @@ static QString describe_feature_basic(int f_idx, const feature_lore *f_l_ptr)
     output.append("This is a");
 
     /* Collect some flags */
-    if (f_l_ptr->f_l_flags2 & FF2_SHALLOW)		if (n < N_ELEMENTS(flags)) flags[n++] = " shallow";
-    if (f_l_ptr->f_l_flags2 & FF2_DEEP)			if (n < N_ELEMENTS(flags)) flags[n++] = " deep";
-
     if ((f_l_ptr->f_l_flags2 & FF2_GLOW) &&
-         (!(f_l_ptr->f_l_flags1 & FF1_SHOP)))	if (n < N_ELEMENTS(flags)) flags[n++] = " glowing";
+         (!(f_l_ptr->f_l_flags1 & FF1_SHOP)))	flags.append(" glowing");
 
-    if (f_l_ptr->f_l_flags3 & FF3_LAVA)			if (n < N_ELEMENTS(flags)) flags[n++] = " lava";
-    if (f_l_ptr->f_l_flags3 & FF3_ICE)			if (n < N_ELEMENTS(flags)) flags[n++] = " icy";
-    if (f_l_ptr->f_l_flags3 & FF3_OIL)			if (n < N_ELEMENTS(flags)) flags[n++] = " oil";
-    if (f_l_ptr->f_l_flags3 & FF3_FIRE)			if (n < N_ELEMENTS(flags)) flags[n++] = " fire";
-    if (f_l_ptr->f_l_flags3 & FF3_SAND)			if (n < N_ELEMENTS(flags)) flags[n++] = " sandy";
-    if (f_l_ptr->f_l_flags3 & FF3_FOREST)		if (n < N_ELEMENTS(flags)) flags[n++] = " forest";
-    if (f_l_ptr->f_l_flags3 & FF3_WATER)		if (n < N_ELEMENTS(flags)) flags[n++] = " water";
-    if (f_l_ptr->f_l_flags3 & FF3_ACID)			if (n < N_ELEMENTS(flags)) flags[n++] = " acid";
-    if (f_l_ptr->f_l_flags3 & FF3_MUD)			if (n < N_ELEMENTS(flags)) flags[n++] = " mud";
+    if (f_l_ptr->f_l_flags3 & FF3_LAVA)			flags.append(" lava");
+    if (f_l_ptr->f_l_flags3 & FF3_ICE)			flags.append(" icy");
+    if (f_l_ptr->f_l_flags3 & FF3_OIL)			flags.append(" oil");
+    if (f_l_ptr->f_l_flags3 & FF3_FIRE)			flags.append(" fire");
+    if (f_l_ptr->f_l_flags3 & FF3_SAND)			flags.append(" sandy");
+    if (f_l_ptr->f_l_flags3 & FF3_FOREST)		flags.append(" forest");
+    if (f_l_ptr->f_l_flags3 & FF3_WATER)		flags.append(" water");
+    if (f_l_ptr->f_l_flags3 & FF3_ACID)			flags.append(" acid");
+    if (f_l_ptr->f_l_flags3 & FF3_MUD)			flags.append(" mud");
 
     /* Print the collected flags */
-    for (i = 0; i < n; i++)
+    for (i = 0; i < flags.size(); i++)
     {
         /* Append a 'n' to 'a' if the first flag begins with a vowel */
         if ((i == 0) && begins_with_vowel(flags[i])) output.append("n");
@@ -75,13 +72,13 @@ static QString describe_feature_basic(int f_idx, const feature_lore *f_l_ptr)
     type = get_feature_type(f_l_ptr);
 
     /* Append a 'n' to 'a' if the type name begins with a vowel */
-    if ((n == 0) && begins_with_vowel(type)) output.append("n");
+    if (!flags.size() && begins_with_vowel(type)) output.append("n");
 
     /* Describe the feature type */
     output.append(type);
 
     /* Describe location */
-    if (f_ptr->f_flags2 & FF2_EFFECT)
+    if (f_ptr->f_flags2 & (FF2_EFFECT))
     {
         /* Do nothing */
     }
@@ -153,37 +150,34 @@ static QString describe_feature_move_see_cast(int f_idx, const feature_lore *f_l
     QString output;
     output.clear();
 
-    int vn, n;
-    QString vp[6];
-
-    /* Collect special abilities. */
-    vn = 0;
+    QVector<QString> vp;
+    vp.clear();
 
     if (f_l_ptr->f_l_flags1 & FF1_MOVE)
     {
-        if feat_ff1_match(f_idx, FF1_FLOOR)	vp[vn++] = "move over";
-        else vp[vn++] = "move through";
+        if feat_ff1_match(f_idx, FF1_FLOOR)	vp.append("move over");
+        else vp.append("move through");
     }
-    if (f_l_ptr->f_l_flags1 & FF1_LOS) vp[vn++] = "see through";
-    if (f_l_ptr->f_l_flags1 & FF1_RUN) vp[vn++] = "run past";
+    if (f_l_ptr->f_l_flags1 & FF1_LOS) vp.append("see through");
+    if (f_l_ptr->f_l_flags1 & FF1_RUN) vp.append("run past");
     if (f_l_ptr->f_l_flags1 & FF1_PROJECT)
     {
-        vp[vn++] = "cast magic through";
-        vp[vn++] = "fire projectiles through";
+        vp.append("cast magic through");
+        vp.append("fire projectiles through");
     }
 
     /* Describe special abilities. */
-    if (vn)
+    if (vp.size())
     {
         /* Intro */
         output.append("  You ");
 
         /* Scan */
-        for (n = 0; n < vn; n++)
+        for (int n = 0; n < vp.size(); n++)
         {
             /* Intro */
             if (n == 0) output.append("can ");
-            else if (n < vn-1) output.append(", ");
+            else if (n < (vp.size()-1)) output.append(", ");
             else output.append(" and ");
 
             /* Dump */
@@ -265,19 +259,16 @@ static QString describe_feature_interaction(int f_idx, const feature_lore *f_l_p
 
     const feature_type *f_ptr = &f_info[f_idx];
 
-    int vn, n, i;
-    QString vp[15];
+    QVector<QString> vp;
+    vp.clear();
 
     u32b filtered_flag1 = f_l_ptr->f_l_flags1;
-
-    /* Collect special abilities. */
-    vn = 0;
 
     /*
      * First get rid of redundant messages, if they are to be
      * described later in describe_feature_transitions.
      */
-    for (i = 0; i < MAX_FEAT_STATES; i++)
+    for (int i = 0; i < MAX_FEAT_STATES; i++)
     {
         /* There isn't a recorded action here */
         if (f_ptr->state[i].fs_action == FS_FLAGS_END) continue;
@@ -300,29 +291,29 @@ static QString describe_feature_interaction(int f_idx, const feature_lore *f_l_p
         }
     }
 
-    if (filtered_flag1 & FF1_CAN_OPEN) vp[vn++] = "open";
-    if (filtered_flag1 & FF1_CAN_CLOSE) vp[vn++] = "close";
-    if (filtered_flag1 & FF1_CAN_BASH) vp[vn++] = "bash";
-    if (filtered_flag1 & FF1_CAN_SPIKE) vp[vn++] = "spike";
-    if (filtered_flag1 & FF1_CAN_DISARM) vp[vn++] = "disarm";
-    if (filtered_flag1 & FF1_CAN_TUNNEL) vp[vn++] = "tunnel into";
+    if (filtered_flag1 & FF1_CAN_OPEN) vp.append("open");
+    if (filtered_flag1 & FF1_CAN_CLOSE) vp.append("close");
+    if (filtered_flag1 & FF1_CAN_BASH) vp.append("bash");
+    if (filtered_flag1 & FF1_CAN_SPIKE) vp.append("spike");
+    if (filtered_flag1 & FF1_CAN_DISARM) vp.append("disarm");
+    if (filtered_flag1 & FF1_CAN_TUNNEL) vp.append("tunnel into");
 
     /* Describe special abilities. */
-    if (vn)
+    if (vp.size())
     {
         /* Intro */
         output.append("  You ");
 
         /* Scan */
-        for (n = 0; n < vn; n++)
+        for (int n = 0; n < vp.size(); n++)
         {
             /* Intro */
             if (n == 0) output.append("can ");
-            else if (n < vn-1) output.append(", ");
+            else if (n < (vp.size()-1)) output.append(", ");
             else output.append(" and ");
 
             /* Dump */
-            output.append(color_string(vp[n], TERM_GOLD));
+            output.append(color_string(vp.at(n), TERM_GOLD));
         }
 
         /* End */
@@ -340,27 +331,24 @@ static QString describe_feature_vulnerabilities(const feature_lore *f_l_ptr)
     QString output;
     output.clear();
 
-    int vn, n;
-    QString vp[15];
+    QVector<QString> vp;
+    vp.clear();
 
-    /* Collect special abilities. */
-    vn = 0;
-
-    if (f_l_ptr->f_l_flags2 & FF2_HURT_ROCK) vp[vn++] = "stone-to-mud";
-    if (f_l_ptr->f_l_flags2 & FF2_HURT_FIRE) vp[vn++] = "fire";
-    if (f_l_ptr->f_l_flags2 & FF2_HURT_FIRE) vp[vn++] = "lava";
-    if (f_l_ptr->f_l_flags2 & FF2_HURT_FIRE) vp[vn++] = "plasma";
-    if (f_l_ptr->f_l_flags2 & FF2_HURT_COLD) vp[vn++] = "cold";
-    if (f_l_ptr->f_l_flags2 & FF2_HURT_COLD) vp[vn++] = "ice";
-    if (f_l_ptr->f_l_flags2 & FF2_HURT_ACID) vp[vn++] = "acid";
-    if (f_l_ptr->f_l_flags2 & FF2_HURT_ELEC) vp[vn++] = "electricity";
-    if (f_l_ptr->f_l_flags2 & FF2_HURT_WATER) vp[vn++] = "water";
-    if (f_l_ptr->f_l_flags3 & FF3_HURT_BOIL_WATER) vp[vn++] = "boiling water";
-    if (f_l_ptr->f_l_flags3 & FF3_HURT_BOIL_WATER) vp[vn++] = "steam";
-    if (f_l_ptr->f_l_flags3 & FF3_HURT_POIS) vp[vn++] = "poison";
+    if (f_l_ptr->f_l_flags2 & FF2_HURT_ROCK) vp.append("stone-to-mud");
+    if (f_l_ptr->f_l_flags2 & FF2_HURT_FIRE) vp.append("fire");
+    if (f_l_ptr->f_l_flags2 & FF2_HURT_FIRE) vp.append("lava");
+    if (f_l_ptr->f_l_flags2 & FF2_HURT_FIRE) vp.append("plasma");
+    if (f_l_ptr->f_l_flags2 & FF2_HURT_COLD) vp.append("cold");
+    if (f_l_ptr->f_l_flags2 & FF2_HURT_COLD) vp.append("ice");
+    if (f_l_ptr->f_l_flags2 & FF2_HURT_ACID) vp.append("acid");
+    if (f_l_ptr->f_l_flags2 & FF2_HURT_ELEC) vp.append("electricity");
+    if (f_l_ptr->f_l_flags2 & FF2_HURT_WATER) vp.append("water");
+    if (f_l_ptr->f_l_flags3 & FF3_HURT_BOIL_WATER) vp.append("boiling water");
+    if (f_l_ptr->f_l_flags3 & FF3_HURT_BOIL_WATER) vp.append("steam");
+    if (f_l_ptr->f_l_flags3 & FF3_HURT_POIS) vp.append("poison");
 
     /* Describe special abilities. */
-    if (vn)
+    if (vp.size())
     {
         /* Intro */
         output.append("  This");
@@ -370,15 +358,15 @@ static QString describe_feature_vulnerabilities(const feature_lore *f_l_ptr)
         output.append(" is affected ");
 
         /* Scan */
-        for (n = 0; n < vn; n++)
+        for (int n = 0; n < vp.size(); n++)
         {
             /* Intro */
             if (n == 0) output.append("by ");
-            else if (n < vn-1) output.append(", ");
+            else if (n < vp.size()-1) output.append(", ");
             else output.append(" and ");
 
             /* Dump */
-            output.append(color_string(vp[n], TERM_RED));
+            output.append(color_string(vp.at(n), TERM_RED));
         }
 
         /* End */
@@ -842,7 +830,7 @@ QString get_feature_description(int f_idx, bool spoilers, bool include_header)
     feature_lore save_mem;
 
     /* Get the race and lore */
-    const feature_type *f_ptr = &f_info[f_idx];
+    feature_type *f_ptr = &f_info[f_idx];
     feature_lore *f_l_ptr = &f_l_list[f_idx];
     QString feat_name = feature_desc(f_idx, TRUE, FALSE);
 
@@ -918,7 +906,7 @@ QString get_feature_description(int f_idx, bool spoilers, bool include_header)
 
     output.append(describe_feature_dynamic(f_idx, &lore));
 
-    if (f_ptr->f_flags1 & (FF1_SHOP))
+    if (f_ptr->is_store())
     {
         output.append("<br>");
         output.append(describe_store(f_idx));

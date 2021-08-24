@@ -9,7 +9,7 @@
 #include <QDialog>
 #include <QLabel>
 #include <QScrollArea>
-#include <QPOinter>
+#include <QPointer>
 
 
 // The numbered order of the tabs

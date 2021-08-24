@@ -74,7 +74,7 @@ static void mod_dd_slays(u32b f1, u32b r3, u32b *r_l3, int *mult, bool seen)
     if (max_mult > *mult) *mult = max_mult;
 }
 
-static int mod_dd_brands(u32b f1, u32b r3, u32b *r_l3, byte *divider, bool deep, int *mult, bool seen, bool is_native, bool is_flying, u32b element)
+static int mod_dd_brands(u32b f1, u32b r3, u32b *r_l3, byte *divider, int *mult, bool seen, bool is_native, bool is_flying, u32b element)
 {
     u16b i;
     int max_mult = 1;
@@ -131,28 +131,6 @@ static int mod_dd_brands(u32b f1, u32b r3, u32b *r_l3, byte *divider, bool deep,
                 {
                     *divider = bi->divisor;
                     terrain_flag = -1;
-                }
-
-                /* A deep feature increases damage even more */
-                else if (deep)
-                {
-                    /* Use the multiplier for a deep terrain if it is better */
-                    if (max_mult < bi->deep_mult)
-                    {
-                        max_mult = bi->deep_mult;
-                        terrain_flag = 1;
-                    }
-                }
-
-                /* Handle shallow terrains */
-                else
-                {
-                    /* Use the multiplier for a deep terrain if it is better */
-                    if (max_mult < bi->shallow_mult)
-                    {
-                        max_mult = bi->shallow_mult;
-                        terrain_flag = 1;
-                    }
                 }
             }
 
@@ -305,7 +283,6 @@ static void dam_dice_aux(object_type *o_ptr, int *dd, const monster_type *m_ptr,
 
     /* Find out if monster is native to terrain */
     bool is_native = is_monster_native(y, x, r_ptr);
-    bool deep = (cave_ff2_match(y, x, FF2_DEEP));
 
     /* Find out if monster is flying over terrain */
     bool is_flying = (m_ptr->mflag & (MFLAG_FLYING)) != 0;
@@ -315,7 +292,7 @@ static void dam_dice_aux(object_type *o_ptr, int *dd, const monster_type *m_ptr,
 
     /* Modify damage dice for branding */
     terrain_flag = mod_dd_brands(o_ptr->obj_flags_1, r_ptr->flags3, &l_ptr->r_l_flags3,
-                                 &divider, deep, &mult, m_ptr->ml, is_native, is_flying, element);
+                                 &divider, &mult, m_ptr->ml, is_native, is_flying, element);
 
     extra_dam = mod_dd_succept(o_ptr->obj_flags_1, r_ptr->flags3, &l_ptr->r_l_flags3, m_ptr->ml);
 

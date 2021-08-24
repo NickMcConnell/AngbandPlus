@@ -301,8 +301,6 @@ struct brands_structure
   byte multiplier;
   u32b mon_flag; /* Assumes in monster flag RF3 */
   u32b element;
-  byte shallow_mult;
-  byte deep_mult;
   byte divisor;
   QString brand_resist;
 };

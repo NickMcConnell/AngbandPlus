@@ -13,14 +13,14 @@
 
 void MainWindow::set_font_win_messages(QFont newFont)
 {
-    font_win_messages = newFont;
+    win_message_settings.win_font = newFont;
     win_messages_update();
 }
 
 void MainWindow::win_messages_font()
 {
     bool selected;
-    QFont font = QFontDialog::getFont(&selected, font_win_messages, this );
+    QFont font = QFontDialog::getFont(&selected, win_message_settings.win_font, this );
 
     if (selected)
     {
@@ -31,7 +31,7 @@ void MainWindow::win_messages_font()
 // For when savefiles close but the game doesn't.
 void MainWindow::win_messages_wipe()
 {
-    if (!show_messages_win) return;
+    if (!win_message_settings.win_show) return;
     if (!character_generated) return;
 
     win_messages_area->clear();
@@ -40,18 +40,12 @@ void MainWindow::win_messages_wipe()
 
 void MainWindow::win_messages_update()
 {
-    if (!show_messages_win) return;
+    if (!win_message_settings.win_show) return;
     if (!character_generated) return;
-    update_message_window(win_messages_area, font_win_messages);
+    update_message_window(win_messages_area, win_message_settings.win_font);
 }
 
-void MainWindow::close_win_messages(QObject *this_object)
-{
-    (void)this_object;
-    window_messages = NULL;
-    show_messages_win = FALSE;
-    win_messages->setText("Show Message Display Window");
-}
+
 
 /*
  *  Show widget is called after this to allow
@@ -59,54 +53,55 @@ void MainWindow::close_win_messages(QObject *this_object)
  */
 void MainWindow::win_messages_create()
 {
-    window_messages = new QWidget();
-    win_messages_vlay = new QVBoxLayout;
-    window_messages->setLayout(win_messages_vlay);
+    win_message_settings.make_extra_window();
+
     win_messages_area = new QTextEdit;
     win_messages_area->setReadOnly(TRUE);
     win_messages_area->setStyleSheet("background-color: black;");
     win_messages_area->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    win_messages_vlay->addWidget(win_messages_area);
-    win_messages_menubar = new QMenuBar;
-    win_messages_vlay->setMenuBar(win_messages_menubar);
-    window_messages->setWindowTitle("Messages Window");
-    messages_win_settings = win_messages_menubar->addMenu(tr("&Settings"));
-    win_messages_set_font = new QAction(tr("Set Messages Window Font"), this);
-    win_messages_set_font->setStatusTip(tr("Set the font for the Messages Window."));
-    connect(win_messages_set_font, SIGNAL(triggered()), this, SLOT(win_messages_font()));
-    messages_win_settings->addAction(win_messages_set_font);
+    win_message_settings.main_vlay->addWidget(win_messages_area);
 
-    window_messages->setAttribute(Qt::WA_DeleteOnClose);
-    connect(window_messages, SIGNAL(destroyed(QObject*)), this, SLOT(close_win_messages(QObject*)));
+    win_message_settings.main_widget->setWindowTitle("Messages Window");
+
+    connect(win_message_settings.win_font_act, SIGNAL(triggered()), this, SLOT(win_messages_font()));
+
+    connect(win_message_settings.main_widget, SIGNAL(destroyed(QObject*)), this, SLOT(win_messages_destroy(QObject*)));
 
     reset_message_display_marks();
 }
 
-
-void MainWindow::win_messages_destroy()
+void MainWindow::win_messages_destroy(QObject *this_object)
 {
-    if (!show_messages_win) return;
-    if (!window_messages) return;
-    delete window_messages;
-    window_messages = NULL;
+    (void)this_object;
+    if (!win_message_settings.win_show) return;
+    if (!win_message_settings.main_widget) return;
+    win_message_settings.get_widget_settings(win_message_settings.main_widget);
+    win_message_settings.main_widget->deleteLater();
+    win_message_settings.win_show = FALSE;
+    win_messages_act->setText("Show Message Display Window");
+
     reset_message_display_marks();
+}
+
+void MainWindow::win_messages_close()
+{
+    bool was_open = win_message_settings.win_show;
+    win_messages_destroy(win_message_settings.main_widget);
+    win_message_settings.win_show = was_open;
 }
 
 void MainWindow::toggle_win_messages()
 {
-    if (!show_messages_win)
+    if (!win_message_settings.win_show)
     {
         win_messages_create();
-        show_messages_win = TRUE;
-        win_messages->setText("Hide Message Display Window");
-        window_messages->show();
+        win_message_settings.win_show = TRUE;
+        win_message_settings.main_widget->setGeometry(win_message_settings.win_geometry);
+        win_messages_act->setText("Hide Message Display Window");
+        if (win_message_settings.win_maximized) win_message_settings.main_widget->showMaximized();
+        else win_message_settings.main_widget->show();
         win_messages_update();
     }
-    else
-    {
-        win_messages_destroy();
-        show_messages_win = FALSE;
-        win_messages->setText("Show Message Display Window");
-    }
+    else win_messages_destroy(win_message_settings.main_widget);
 }
 

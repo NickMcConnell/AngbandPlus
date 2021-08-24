@@ -368,14 +368,14 @@ enum
 #define FF2_BRIDGE      0x00000001  /*Bridge this feature when generating a corridor here.*/
 #define FF2_RIVER       0x00000002  /*Place as river through dungeon.*/
 #define FF2_LAKE 	0x00000004  /*Place as lake in dungeon.*/
-#define FF2_BRIDGED	0x00000008  /* Feature has been bridged */
+#define FF2_F2XXX_1	0x00000008  // Unused
 #define FF2_COVERED     0x00000010  /* Terrain provides coverage for monster */
 #define FF2_GLOW 	0x00000020  /*Spot is self illuminating*/
 #define FF2_F2XXX_2   0x00000040    // Unused
 #define FF2_EFFECT     0x00000080  /* Feature is an effect, rather than a true floor feature */
 #define FF2_F2XXX_3  	0x00000100  /* Unused */
-#define FF2_SHALLOW     0x00000200  /*Double weight of load. Chance of sinking in feature and losing move*/
-#define FF2_DEEP 	0x00000400  /*Triple weight of load. Chance of sinking in feature and losing move*/
+#define FF2_F2XXX_14     0x00000200  //
+#define FF2_F2XXX_15 	0x00000400  //
 #define FF2_F2XXX_13     0x00000800  /*Unused*/
 #define FF2_HURT_ROCK   0x00001000  /*Destroyed by transmute rock to mud/rock remover.*/
 #define FF2_HURT_FIRE   0x00002000  /*Destroyed by fire balls/bolts/breath*/
@@ -737,13 +737,6 @@ _feat_ff3_match(f_info + dungeon_info[y][x].feature_idx, flags)
  !cave_hidden_object_bold(Y, X) &&\
  !cave_ff3_match(Y, X, FF3_LAVA | FF3_WATER | FF3_ACID | FF3_OIL | FF3_FIRE) && \
  (dungeon_info[Y][X].object_idx == 0))
-
-
-/*
- * Determine if a "legal" grid is a "shop" grid
- */
-#define cave_shop_bold(Y,X) \
-     (f_info[dungeon_info[Y][X].feature_idx].f_flags1 & (FF1_SHOP))
 
 
 /*

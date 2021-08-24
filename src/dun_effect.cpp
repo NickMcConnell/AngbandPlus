@@ -506,7 +506,13 @@ bool set_effect_rocks(int f_idx, byte y, byte x)
     u16b flags = (EF1_PERMANENT | EF1_SKIP);
 
     //Hack - plain rubble doesn't have an object.
-    if (f_idx != FEAT_RUBBLE) flags |= EF1_OBJECT;
+    if (f_idx == FEAT_RUBBLE_HIDDEN_OBJECT) flags |= EF1_OBJECT;
+
+    // 25% of the time
+    else if (f_idx == FEAT_LOOSE_ROCK)
+    {
+        if (one_in_(4)) flags |= EF1_OBJECT;
+    }
 
     /*All full*/
     if (!x_idx) return (FALSE);

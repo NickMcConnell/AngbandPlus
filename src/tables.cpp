@@ -2911,16 +2911,16 @@ QString roguelike_equip_letters = "acdefgimopqrstuwvxzABCD";
 
 const brands_structure brands_info_nppangband[10] =
 {
-    {TR1_BRAND_POIS, 3, RF3_IM_POIS, 0L, 1, 1, 1, "resist poison"},
-    {TR1_BRAND_ACID, 3, RF3_IM_ACID, ELEMENT_ACID, 4, 5, 1, "resist acid"},
-    {TR1_BRAND_ELEC, 3, RF3_IM_ELEC, (ELEMENT_WATER | ELEMENT_BWATER), 4, 5, 1, "resist electricity"},
-    {TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_LAVA), 5, 5, 1, "resist fire"},
-    {TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_FIRE | ELEMENT_BWATER), 4, 4, 1, "resist fire"},
-    {TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_WATER), 1, 1, 2, "resist fire"},
-    {TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_ICE), 5, 5, 1, "resist cold"},
-    {TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_WATER), 4, 4, 1, "resist cold"},
-    {TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_LAVA), 1, 1, 2, "resist cold"},
-    {TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_BMUD | ELEMENT_BWATER), 1, 1, 2,"resist cold"}
+    {TR1_BRAND_POIS, 3, RF3_IM_POIS, 0L, 1, "resist poison"},
+    {TR1_BRAND_ACID, 3, RF3_IM_ACID, ELEMENT_ACID, 1, "resist acid"},
+    {TR1_BRAND_ELEC, 3, RF3_IM_ELEC, (ELEMENT_WATER | ELEMENT_BWATER), 1, "resist electricity"},
+    {TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_LAVA), 1, "resist fire"},
+    {TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_FIRE | ELEMENT_BWATER), 1, "resist fire"},
+    {TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_WATER), 2, "resist fire"},
+    {TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_ICE), 1, "resist cold"},
+    {TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_WATER), 1, "resist cold"},
+    {TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_LAVA), 2, "resist cold"},
+    {TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_BMUD | ELEMENT_BWATER), 2,"resist cold"}
 };
 
 

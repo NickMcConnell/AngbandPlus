@@ -14,7 +14,7 @@
 #include "src/init.h"
 #include "tilebag.h"
 #include "src/hotkeys.h"
-
+#include <QtCore/qmath.h>
 
 /*
  * Support for Adam Bolt's tileset, lighting and transparency effects
@@ -46,6 +46,19 @@ int distance(int y1, int x1, int y2, int x2)
 
     /* Hack -- approximate the distance */
     return ((ay > ax) ? (ay + (ax>>1)) : (ax + (ay>>1)));
+}
+
+/*
+ * Distance between two squares using Pythagorean theorum
+ */
+int distance_pythagorean(int y1, int x1, int y2, int x2)
+{
+    qreal distance = qSqrt(qPow((y1 - y2), 2) + qPow((x1 - x2), 2));
+
+    int int_distance = distance;
+
+    /* Hack -- approximate the distance */
+    return (int_distance);
 }
 
 
@@ -1212,6 +1225,41 @@ static void map_monster (s16b y, s16b x)
     }
 }
 
+static void set_priority(int y, int x)
+{
+    dungeon_type *dun_ptr = &dungeon_info[y][x];
+
+    feature_type *f_ptr = &f_info[dun_ptr->feature_idx];
+
+    byte priority = 0;
+
+    if (dun_ptr->has_visible_terrain()) priority = f_ptr->f_priority;
+
+    if (dun_ptr->has_visible_effect())
+    {
+        feature_type *f2_ptr = &f_info[dun_ptr->effect_idx];
+        priority += f2_ptr->f_priority;
+    }
+    if (dun_ptr->has_visible_object()) priority += 10;
+    if (dun_ptr->has_visible_monster())
+    {
+        // Player square has the hightest priority
+        if ((y == p_ptr->py) && (x == p_ptr->px))
+        {
+            priority = MAX_BYTE;
+        }
+        else
+        {
+            monster_type *m_ptr = &mon_list[dun_ptr->monster_idx];
+            monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+            priority += MAX(10,(r_ptr->level - (2 * p_ptr->lev / 3)));
+        }
+    }
+
+    dun_ptr->priority = priority;
+}
+
 
 
 void map_info(s16b y, s16b x)
@@ -1226,6 +1274,8 @@ void map_info(s16b y, s16b x)
     map_effects (y, x);
 
     map_monster (y, x);
+
+    set_priority(y, x);
 }
 
 
@@ -1364,6 +1414,7 @@ void light_spot(int y, int x)
     if (redraw_above || d_ptr->double_height_monster)
     {
         if (in_bounds(y-1, x)) redraw_coords.append(make_coords(y-1, x));
+        p_ptr->redraw |= PR_DRAW;
     }
 }
 
@@ -2010,10 +2061,6 @@ void forget_view(void)
 /*
  * Calculate the complete field of view using a new algorithm
  *
- * If "view_g" and "temp_g" were global pointers to arrays of grids, as
- * opposed to actual arrays of grids, then we could be more efficient by
- * using "pointer swapping".
- *
  * Note the following idiom, which is used in the function below.
  * This idiom processes each "octant" of the field of view, in a
  * clockwise manner, starting with the east strip, south side,
@@ -2100,7 +2147,7 @@ void update_view(void)
 
     u16b pg = GRID(py,px);
 
-    int i, j, o2, d;
+    int i, j, o2;
     u16b g;
 
     int radius;
@@ -2150,6 +2197,8 @@ void update_view(void)
     /* Handle real light */
     if (radius > 0) ++radius;    
 
+    /*** Step 2 -- Monster Lights  ***/
+
     /* Scan monster list and add monster lites */
     for ( k = 1; k < mon_max; k++)
     {
@@ -2180,7 +2229,7 @@ void update_view(void)
                     int dx = (p_ptr->px > (fx+j)) ? (p_ptr->px - (fx+j)) : ((fx+j) - p_ptr->px);
 
                     /* Approximate distance */
-                    d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
+                    int d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
 
                     if ((d <= MAX_SIGHT) && (los(p_ptr->py,p_ptr->px,fy+i,fx+j)))
                     {
@@ -2195,7 +2244,8 @@ void update_view(void)
         }
     }
 
-    /*** Step 1 -- player grid ***/
+
+    /*** Step 2 -- player grid ***/
 
     /* Player grid */
     g = pg;
@@ -2223,7 +2273,7 @@ void update_view(void)
     /* Save in the "fire" array */
     fire_grids.append(make_coords(p_ptr->py, p_ptr->px));
 
-    /*** Step 2a -- octants (CAVE_VIEW + CAVE_SEEN) ***/
+    /*** Step 2b -- octants (CAVE_VIEW + CAVE_SEEN) ***/
 
     /* Scan each octant */
     for (o2 = 0; o2 < 8; o2++)
@@ -2361,7 +2411,7 @@ void update_view(void)
         }
     }
 
-    /*** Step 2b -- octants (CAVE_FIRE) ***/
+    /*** Step 3b -- octants (CAVE_FIRE) ***/
 
     /* Scan each octant */
     for (o2 = 0; o2 < 8; o2++)
@@ -2491,7 +2541,7 @@ void update_view(void)
     }
 
 
-    /*** Step 3 -- Complete the algorithm ***/
+    /*** Step 4 -- Complete the algorithm ***/
 
     /* Handle blindness */
     if (p_ptr->timed[TMD_BLIND])
@@ -3562,7 +3612,7 @@ void town_illuminate(bool daytime)
         for (x = 0; x < p_ptr->cur_map_wid; x++)
         {
             /* Track shop doorways */
-            if (cave_shop_bold(y,x))
+            if (dungeon_info[y][x].is_store())
             {
                 for (i = 0; i < 8; i++)
                 {
@@ -3681,6 +3731,8 @@ void update_los_proj_move(int y, int x)
 
 /*
  * Hack -- Really change the feature
+ * This is the only function that should actually change a floor feature, outside of wiping
+ * the dungeon feature in the class method.
  */
 static void cave_set_feat_aux(int y, int x, u16b feat)
 {
@@ -3939,7 +3991,7 @@ void cave_alter_feat(int y, int x, int action)
 
 
 /*
- * Change the "feat" flag for a grid, and notice/redraw the grid
+ * Change the "feature_idx" flag for a grid, and notice/redraw the grid
  */
 void cave_set_feat(int y, int x, u16b feat)
 {

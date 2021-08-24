@@ -839,9 +839,6 @@ static bool do_cmd_refill_lamp_from_terrain(void)
     /* Increase fuel amount (not too much) */
     j_ptr->timeout += (200 + rand_int(3) * 50);
 
-    /* Increase fuel amount even more if there is more oil on that grid */
-    if (cave_ff2_match(y, x, FF2_DEEP)) j_ptr->timeout += (100 + rand_int(2) * 50);
-
     /* Message */
     message(QString("You fuel your lamp."));
 
