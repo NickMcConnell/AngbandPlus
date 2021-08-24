@@ -399,6 +399,35 @@ static cptr _weapon(_forge_ptr forge)
 }
 
 /******************************************************************************
+ * Harps
+ ******************************************************************************/
+static cptr _harp_low(_forge_ptr forge)
+{
+    static cptr name[] = { "of the Fool", "of the Court Jester", "of the Unfinished Symphony",
+        "'Cacophony'", "'Screech'", "'Eternal Feedback'", "'Quiet Riot'", "'Karaoke'", NULL};
+    return _random(name);
+}
+static cptr _harp_med(_forge_ptr forge)
+{
+    static cptr name[] = { "of the Bard", "of Soothing Melodies", "of Inspiration",
+        "'Unending Song'", "'Harmonic Flux'", "'Musical Infusions'", "'Sonic Projection'",
+        "'Tragic Symphony'", "'Gypsy Melodies'", "'Harmonizer'", NULL };
+    return _random(name);
+}
+static cptr _harp_high(_forge_ptr forge)
+{
+    static cptr name[] = { "of the Master Bard", "of Rivendell", "of Beleriand", "of the Muse",
+        "'Overtones of Despair'", "'Harmonic Storm'", "'Songs of Victory'", "'Amadeus'", NULL };
+    return _random(name);
+}
+static cptr _harp(_forge_ptr forge)
+{
+    if (forge->score < 10000) return _harp_low(forge);
+    else if (forge->score < 40000) return _harp_med(forge);
+    return _harp_high(forge);
+}
+
+/******************************************************************************
  * Armor
  ******************************************************************************/
 static cptr _armor_low(_forge_ptr forge)
@@ -704,7 +733,9 @@ static cptr _ring(_forge_ptr forge)
  ******************************************************************************/
 static cptr _name(_forge_ptr forge)
 {
-    if (obj_is_weapon_ammo(forge->obj) || obj_is_bow(forge->obj))
+    if (obj_is_(forge->obj, TV_BOW, SV_HARP))
+        return _harp(forge);
+    else if (obj_is_weapon_ammo(forge->obj) || obj_is_bow(forge->obj))
         return _weapon(forge);
     else if (obj_is_armor(forge->obj))
         return _armor(forge);

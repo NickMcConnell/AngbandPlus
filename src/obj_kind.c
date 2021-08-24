@@ -67,6 +67,7 @@ bool object_is_favorite(object_type *o_ptr)
     switch (class_idx)
     {
     case CLASS_PRIEST:
+    case CLASS_HIGH_PRIEST:
         if (priest_is_evil())
             return TRUE;
         else if (plr->realm1 == REALM_NATURE)

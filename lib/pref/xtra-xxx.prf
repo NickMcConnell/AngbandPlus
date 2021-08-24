@@ -39,7 +39,7 @@ R:@.player:0:0x8D
 R:@.player:0:0x8E
 ?:[EQU $RACE Yeek]
 R:@.player:0:0x8F
-?:[EQU $RACE Klackon Centaur]
+?:[EQU $RACE Klackon Centaur Drider]
 R:@.player:0:0x90
 ?:[EQU $RACE Kobold]
 R:@.player:0:0x91
@@ -86,7 +86,7 @@ R:@.player:0:0x97
 R:@.player:0xA4:0
 ?:[EQU $CLASS Mage Blood-Mage Necromancer Yellow-Mage Gray-Mage]
 R:@.player:0xA5:0
-?:[EQU $CLASS Priest]
+?:[EQU $CLASS Priest High-Priest]
 R:@.player:0xA6:0
 ?:[EQU $CLASS Rogue Skillmaster]
 R:@.player:0xA7:0

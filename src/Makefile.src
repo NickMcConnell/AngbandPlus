@@ -38,7 +38,7 @@ WINMAINFILES = $(PROGNAME).res main-win.o readdib.o
 ANGFILES = \
 	dun.o dun_cell.o dun_gen.o dun_mon.o dun_obj.o dun_project.o dun_tim.o dun_type.o dun_util.o dun_world.o dun_world_gen.o \
     archaeologist.o archer.o art.o art_name.o artifact.o autopick.o virtue.o bard.o \
-    beastmaster.o birth.o blood_knight.o blue_mage.o \
+    beastmaster.o birth.o bless.o blood_knight.o blue_mage.o \
     cavalry.o cave.o chaos_warrior.o classes.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o \
     cmd6.o combat.o demigod.o devicemaster.o devices.o do-spell.o doppelganger.o duelist.o \
     dungeon.o ego.o effects.o equip.o fear.o files.o flavor.o force_trainer.o gf.o gray_mage.o \

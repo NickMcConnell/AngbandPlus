@@ -193,7 +193,10 @@ static int_map_ptr _info(void)
         _register(map, _weaponmastery());
         _register(map, _wraith());
         /* this file is getting too big ... */
-        register_illusion_timers();
+        illusion_register_timers();
+        music_register_timers();
+        hex_register_timers();
+        bless_register_timers();
     }
     return map;
 }
@@ -204,6 +207,11 @@ static plr_tim_info_ptr _find_info(int id)
     assert(info);
     assert(info->id == id);
     return info;
+}
+
+plr_tim_info_ptr plr_tim_info_find(int id)
+{
+    return _find_info(id);
 }
 
 void plr_tim_register(plr_tim_info_ptr info)
@@ -237,13 +245,12 @@ static void _plr_hook_off(plr_tim_ptr timer)
 /************************************************************************
  * Timer Queue
  ************************************************************************/
-static plr_tim_ptr _timers = NULL;
 static bool        _tick = FALSE;
 
 static plr_tim_ptr _find(int id)
 {
     plr_tim_ptr t;
-    for (t = _timers; t; t = t->next)
+    for (t = plr->timers; t; t = t->next)
     {
         if (t->id == id) return t;
     }
@@ -253,7 +260,7 @@ static int _count(void)
 {
     int ct = 0;
     plr_tim_ptr t;
-    for (t = _timers; t; t = t->next) ct++;
+    for (t = plr->timers; t; t = t->next) ct++;
     return ct;
 }
 static void _off(plr_tim_ptr t)
@@ -265,15 +272,15 @@ static void _off(plr_tim_ptr t)
 }
 static void _add_tail(plr_tim_ptr tim)
 {
-    plr_tim_ptr t = _timers;
+    plr_tim_ptr t = plr->timers;
     while (t && t->next) t = t->next;
-    if (!t) _timers = tim;
+    if (!t) plr->timers = tim;
     else t->next = tim;
 }
 static void _add_head(plr_tim_ptr tim)
 {
-    tim->next = _timers;
-    _timers = tim;
+    tim->next = plr->timers;
+    plr->timers = tim;
 }
 static bool _add(plr_tim_ptr t)
 {
@@ -296,11 +303,11 @@ static void _remove(plr_tim_ptr tim)
         tim->count = 0;
         return;
     }
-    for (t = _timers; t; p = t, t = t->next)
+    for (t = plr->timers; t; p = t, t = t->next)
     {
         if (t == tim)
         {
-            if (!p) _timers = t->next;
+            if (!p) plr->timers = t->next;
             else p->next = t->next;
             _off(t);
             free(t);
@@ -438,13 +445,13 @@ void plr_tim_unlock(int id)
 }
 static void _cleanup(void)
 {
-    plr_tim_ptr t = _timers, p = NULL;
+    plr_tim_ptr t = plr->timers, p = NULL;
     while (t)
     {
         if (t->count <= 0 && !(t->flags & TF_LOCKED))
         {
             plr_tim_ptr x = t;
-            if (!p) _timers = t->next;
+            if (!p) plr->timers = t->next;
             else p->next = t->next;
             _off(t);
             t = t->next;
@@ -463,7 +470,7 @@ void plr_tim_tick(void)
     plr_tim_ptr t;
     if (plr->is_dead) return;
     _tick = TRUE;
-    for (t = _timers; t; t = t->next)
+    for (t = plr->timers; t; t = t->next)
     {
         if (t->count > 0 && !(t->flags & TF_FAST_TICK))
         {
@@ -486,7 +493,7 @@ void plr_tim_fast_tick(void)
     plr_tim_ptr t;
     if (plr->is_dead) return;
     _tick = TRUE;
-    for (t = _timers; t; t = t->next)
+    for (t = plr->timers; t; t = t->next)
     {
         if (t->count > 0 && (t->flags & TF_FAST_TICK))
         {
@@ -506,10 +513,10 @@ void plr_tim_fast_tick(void)
 }
 void plr_tim_clear(void)
 {
-    while (_timers)
+    while (plr->timers)
     {
-        plr_tim_ptr x = _timers;
-        _timers = _timers->next;
+        plr_tim_ptr x = plr->timers;
+        plr->timers = plr->timers->next;
         free(x);
     }
     plr->redraw |= PR_STATUS;
@@ -517,13 +524,13 @@ void plr_tim_clear(void)
 bool plr_tim_dispel(void)
 {
     bool notice = FALSE;
-    plr_tim_ptr t = _timers, p = NULL;
+    plr_tim_ptr t = plr->timers, p = NULL;
     while (t)
     {
         if (!(t->flags & (TF_NO_DISPEL | TF_LOCKED)))
         {
             plr_tim_ptr x = t;
-            if (!p) _timers = t->next;
+            if (!p) plr->timers = t->next;
             else p->next = t->next;
             _off(t);
             t = t->next;
@@ -533,6 +540,9 @@ bool plr_tim_dispel(void)
         }
         else
         {
+            plr_tim_info_ptr info = _find_info(t->id);
+            if (info->dispel_f)
+                info->dispel_f(t);
             p = t;
             t = t->next;
         }
@@ -543,7 +553,7 @@ bool plr_tim_disenchant(void)
 {
     plr_tim_ptr t;
     int tot = 0, n;
-    for (t = _timers; t; t = t->next)
+    for (t = plr->timers; t; t = t->next)
     {
         if (t->flags & TF_NO_DISPEL) continue;
         if (t->flags & TF_LOCKED) continue;
@@ -551,7 +561,7 @@ bool plr_tim_disenchant(void)
     }
     if (!tot) return FALSE;
     n = randint0(tot);
-    for (t = _timers; t; t = t->next)
+    for (t = plr->timers; t; t = t->next)
     {
         if (t->flags & TF_NO_DISPEL) continue;
         if (t->flags & TF_LOCKED) continue;
@@ -566,7 +576,8 @@ bool plr_tim_disenchant(void)
 }
 bool plr_tim_find(int id)
 {
-    return _find(id) != NULL;
+    plr_tim_ptr t = _find(id);
+    return t && !(t->flags & TF_INTERRUPTED);
 }
 int plr_tim_parm(int id)
 {
@@ -591,7 +602,7 @@ int plr_tim_count(void)
 void plr_tim_calc_bonuses(void)
 {
     plr_tim_ptr t;
-    for (t = _timers; t; t = t->next)
+    for (t = plr->timers; t; t = t->next)
     {
         plr_tim_info_ptr info = _find_info(t->id);
         if (info->calc_bonuses_f)
@@ -601,7 +612,7 @@ void plr_tim_calc_bonuses(void)
 void plr_tim_calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr attack_info)
 {
     plr_tim_ptr t;
-    for (t = _timers; t; t = t->next)
+    for (t = plr->timers; t; t = t->next)
     {
         plr_tim_info_ptr info = _find_info(t->id);
         if (info->calc_weapon_bonuses_f)
@@ -611,7 +622,7 @@ void plr_tim_calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr attack_info)
 void plr_tim_calc_shooter_bonuses(obj_ptr obj, plr_shoot_info_ptr shooter_info)
 {
     plr_tim_ptr t;
-    for (t = _timers; t; t = t->next)
+    for (t = plr->timers; t; t = t->next)
     {
         plr_tim_info_ptr info = _find_info(t->id);
         if (info->calc_shooter_bonuses_f)
@@ -621,7 +632,7 @@ void plr_tim_calc_shooter_bonuses(obj_ptr obj, plr_shoot_info_ptr shooter_info)
 void plr_tim_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     plr_tim_ptr t;
-    for (t = _timers; t; t = t->next)
+    for (t = plr->timers; t; t = t->next)
     {
         plr_tim_info_ptr info = _find_info(t->id);
         if (info->flags_f)
@@ -631,7 +642,7 @@ void plr_tim_flags(u32b flgs[OF_ARRAY_SIZE])
 void plr_tim_stats(s16b stats[MAX_STATS])
 {
     plr_tim_ptr t;
-    for (t = _timers; t; t = t->next)
+    for (t = plr->timers; t; t = t->next)
     {
         plr_tim_info_ptr info = _find_info(t->id);
         if (info->stats_f)
@@ -661,7 +672,7 @@ void plr_tim_status_bar(void)
 
     Term_erase(r.x, r.y, r.cx);
     doc_insert(doc, "<style:table>");
-    for (t = _timers; t; t = t->next)
+    for (t = plr->timers; t; t = t->next)
     {
         plr_tim_info_ptr info = _find_info(t->id);
         status_display_t sd;
@@ -690,7 +701,7 @@ void plr_tim_status_bar(void)
         bool spaces = FALSE;
         doc_rollback(doc, doc_pos_create(0, 0));
         if (short_len + ct < r.cx) spaces = TRUE;
-        for (t = _timers; t; t = t->next)
+        for (t = plr->timers; t; t = t->next)
         {
             plr_tim_info_ptr info = _find_info(t->id);
             status_display_t sd;
@@ -718,7 +729,7 @@ void plr_tim_status_bar(void)
 void plr_tim_prt_effects(doc_ptr doc)
 {
     plr_tim_ptr t;
-    for (t = _timers; t; t = t->next)
+    for (t = plr->timers; t; t = t->next)
     {
         plr_tim_info_ptr info = _find_info(t->id);
         if (info->prt_effects_f)
@@ -728,7 +739,7 @@ void plr_tim_prt_effects(doc_ptr doc)
 bool plr_tim_dispel_check(mon_ptr mon)
 {
     plr_tim_ptr t;
-    for (t = _timers; t; t = t->next)
+    for (t = plr->timers; t; t = t->next)
     {
         plr_tim_info_ptr info = _find_info(t->id);
         if (info->dispel_prob && randint0(100) < info->dispel_prob)
@@ -741,18 +752,21 @@ bool plr_tim_dispel_check(mon_ptr mon)
 void plr_tim_self_knowledge(doc_ptr doc)
 {
     plr_tim_ptr t;
-    for (t = _timers; t; t = t->next)
+    for (t = plr->timers; t; t = t->next)
     {
         plr_tim_info_ptr info = _find_info(t->id);
         if (!info->desc) continue;
-        doc_insert(doc, info->desc);
+        if (t->flags & TF_INTERRUPTED)
+            doc_printf(doc, "<color:D>%s</color> (<color:r>Interrupted</color>)", info->desc);
+        else
+            doc_insert(doc, info->desc);
         doc_newline(doc);
     }
 }
 void plr_tim_weigh_magic(doc_ptr doc)
 {
     plr_tim_ptr t;
-    for (t = _timers; t; t = t->next)
+    for (t = plr->timers; t; t = t->next)
     {
         plr_tim_info_ptr info = _find_info(t->id);
         doc_printf(doc, "<color:U>%-18.18s</color> %3d <indent>%s</indent>\n", info->name, t->count, info->desc ? info->desc : "");
@@ -774,13 +788,15 @@ void plr_tim_load(savefile_ptr file)
         t->parm = savefile_read_s16b(file);
         _add_tail(t);
     }
+    if (music_current())
+        plr->action = ACTION_SING;
 }
 
 void plr_tim_save(savefile_ptr file)
 {
     plr_tim_ptr t;
     savefile_write_s16b(file, _count());
-    for (t = _timers; t; t = t->next)
+    for (t = plr->timers; t; t = t->next)
     {
         savefile_write_s16b(file, t->id);
         savefile_write_s16b(file, t->count);
@@ -930,6 +946,10 @@ static void _aura_holy_off(plr_tim_ptr timer)
 {
     msg_print("Your aura of righteousness fades away.");
 }
+static void _aura_holy_bonus(plr_tim_ptr timer)
+{
+    plr->sh_holy = TRUE;
+}
 static status_display_t _aura_holy_display(plr_tim_ptr timer)
 {
     return status_display_create("Holy", "Ho", TERM_WHITE);
@@ -940,6 +960,7 @@ static plr_tim_info_ptr _aura_holy(void)
     info->desc = "You are protected by a holy aura that damages evil monsters.";
     info->on_f = _aura_holy_on;
     info->off_f = _aura_holy_off;
+    info->calc_bonuses_f = _aura_holy_bonus;
     info->status_display_f = _aura_holy_display;
     return info;
 }
@@ -1028,6 +1049,7 @@ static void _berserk_bonus(plr_tim_ptr timer)
         plr->innate_attack_info.to_d += to_d;
         plr->innate_attack_info.dis_to_d += to_d;
     }
+    plr->xtra_hp += 30;
 }
 static void _berserk_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
@@ -1091,19 +1113,19 @@ static void _blessed_off(plr_tim_ptr timer)
     msg_print("The prayer has expired.");
     plr->update |= PU_BONUS;
 }
-static void _blessed_bonus(plr_tim_ptr timer)
+void blessed_bonus(plr_tim_ptr timer)
 {
     plr_bonus_ac(5);
     plr->to_h_m += 10;
     plr->innate_attack_info.to_h += 10;
     plr->innate_attack_info.dis_to_h += 10;
 }
-static void _blessed_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
+void blessed_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
 {
     info->to_h += 10;
     info->dis_to_h += 10;
 }
-static void _blessed_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, plr_shoot_info_ptr info)
+void blessed_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, plr_shoot_info_ptr info)
 {
     info->to_h += 10;
     info->dis_to_h += 10;
@@ -1118,9 +1140,9 @@ static plr_tim_info_ptr _blessed(void)
     info->desc = "You are blessed.";
     info->on_f = _blessed_on;
     info->off_f = _blessed_off;
-    info->calc_bonuses_f = _blessed_bonus;
-    info->calc_weapon_bonuses_f = _blessed_weapon_bonus;
-    info->calc_shooter_bonuses_f = _blessed_shooter_bonus;
+    info->calc_bonuses_f = blessed_bonus;
+    info->calc_weapon_bonuses_f = blessed_weapon_bonus;
+    info->calc_shooter_bonuses_f = blessed_shooter_bonus;
     info->status_display_f = _blessed_display;
     return info;
 }
@@ -1853,6 +1875,7 @@ static void _giant_strength_off(plr_tim_ptr timer)
 static void _giant_strength_bonus(plr_tim_ptr timer)
 {
     plr->skills.thn += 60*plr->lev/50;
+    plr->xtra_hp += 10 + plr->lev/2;
 }
 static void _giant_strength_stats(plr_tim_ptr timer, s16b stats[MAX_STATS])
 {
@@ -1946,23 +1969,24 @@ static void _hero_off(plr_tim_ptr timer)
     msg_print("The heroism wears off.");
     plr->update |= PU_BONUS | PU_HP;
 }
-static void _hero_bonus(plr_tim_ptr timer)
+void hero_bonus(plr_tim_ptr timer)
 {
+    plr->xtra_hp += 10;
     plr->to_h_m += 12;
     plr->innate_attack_info.to_h += 12;
     plr->innate_attack_info.dis_to_h += 12;
     res_add(GF_FEAR);
 }
-static void _hero_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
+void hero_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_RES_(GF_FEAR));
 }
-static void _hero_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
+void hero_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info)
 {
     info->to_h += 12;
     info->dis_to_h += 12;
 }
-static void _hero_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, plr_shoot_info_ptr info)
+void hero_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, plr_shoot_info_ptr info)
 {
     info->to_h += 12;
     info->dis_to_h += 12;
@@ -1977,10 +2001,10 @@ static plr_tim_info_ptr _hero(void)
     info->desc = "You are the stuff of legends.";
     info->on_f = _hero_on;
     info->off_f = _hero_off;
-    info->calc_bonuses_f = _hero_bonus;
-    info->flags_f = _hero_flags;
-    info->calc_weapon_bonuses_f = _hero_weapon_bonus;
-    info->calc_shooter_bonuses_f = _hero_shooter_bonus;
+    info->calc_bonuses_f = hero_bonus;
+    info->flags_f = hero_flags;
+    info->calc_weapon_bonuses_f = hero_weapon_bonus;
+    info->calc_shooter_bonuses_f = hero_shooter_bonus;
     info->status_display_f = _hero_display;
     return info;
 }
@@ -2679,6 +2703,10 @@ static void _prot_evil_off(plr_tim_ptr timer)
 {
     msg_print("You no longer feel safe from evil.");
 }
+static void _prot_evil_bonus(plr_tim_ptr timer)
+{
+    plr->repel_evil = TRUE;
+}
 static status_display_t _prot_evil_display(plr_tim_ptr timer)
 {
     return status_display_create("PrtEvl", "Ev", TERM_YELLOW);
@@ -2689,6 +2717,7 @@ static plr_tim_info_ptr _prot_evil(void)
     info->desc = "You are protected from the melee attacks of evil monsters.";
     info->on_f = _prot_evil_on;
     info->off_f = _prot_evil_off;
+    info->calc_bonuses_f = _prot_evil_bonus;
     info->status_display_f = _prot_evil_display;
     return info;
 }
@@ -2705,6 +2734,10 @@ static void _prot_good_off(plr_tim_ptr timer)
 {
     msg_print("You no longer feel safe from good.");
 }
+static void _prot_good_bonus(plr_tim_ptr timer)
+{
+    plr->repel_good = TRUE;
+}
 static status_display_t _prot_good_display(plr_tim_ptr timer)
 {
     return status_display_create("PrtGood", "Gd", TERM_L_DARK);
@@ -2715,6 +2748,7 @@ static plr_tim_info_ptr _prot_good(void)
     info->desc = "You are protected from the melee attacks of good monsters.";
     info->on_f = _prot_good_on;
     info->off_f = _prot_good_off;
+    info->calc_bonuses_f = _prot_good_bonus;
     info->status_display_f = _prot_good_display;
     return info;
 }
@@ -3206,6 +3240,7 @@ static bool _revenge_on(plr_tim_ptr timer)
         msg_print("You feel like bloody revenge!");
     else 
         msg_print("You feel like a keeper of commandments!");
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _revenge_off(plr_tim_ptr timer)
@@ -3214,6 +3249,11 @@ static void _revenge_off(plr_tim_ptr timer)
         msg_print("You no longer feel like bloody revenge.");
     else 
         msg_print("You no longer feel like a keeper.");
+    plr->update |= PU_BONUS;
+}
+static void _revenge_bonus(plr_tim_ptr timer)
+{
+    plr->revenge = TRUE;
 }
 static status_display_t _revenge_display(plr_tim_ptr timer)
 {
@@ -3225,6 +3265,7 @@ static plr_tim_info_ptr _revenge(void)
     info->desc = "Monsters that damage you are damaged in kind.";
     info->on_f = _revenge_on;
     info->off_f = _revenge_off;
+    info->calc_bonuses_f = _revenge_bonus;
     info->status_display_f = _revenge_display;
     return info;
 }
@@ -3540,6 +3581,12 @@ static void _stun_add(plr_tim_ptr timer, int amt)
     if (amt > 0 && timer->count >= STUN_KNOCKED_OUT) return;
     _stun_change(timer->count, timer->count + amt);
     timer->count += amt;
+    /* XXX stunning is unusual ... cf _high_priest_timer_on for chanting realms
+     * that wish to make a STUN save every time the plr stun level increases.
+     * Note that light stuns are *extremely* common, so having that function
+     * as an effective dispel magic is just too harsh ... XXX */
+    if (amt > 0)
+        _plr_hook_on(timer);
 }
 static void _stun_off(plr_tim_ptr timer)
 {
@@ -3723,7 +3770,7 @@ static void _ult_res_off(plr_tim_ptr timer)
     msg_print("You feel less resistant");
     plr->update |= PU_BONUS;
 }
-static void _ult_res_bonus(plr_tim_ptr timer)
+void ult_res_bonus(plr_tim_ptr timer)
 {
     res_add_ultimate();
     plr->reflect = TRUE;
@@ -3739,7 +3786,7 @@ static void _ult_res_bonus(plr_tim_ptr timer)
     plr->sustain_chr = TRUE;
     plr_bonus_ac(75);
 }
-static void _ult_res_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
+void ult_res_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_RES_(GF_ACID));
     add_flag(flgs, OF_RES_(GF_ELEC));
@@ -3777,8 +3824,8 @@ static plr_tim_info_ptr _ult_res(void)
     info->desc = "You are resistant to almost everything.";
     info->on_f = _ult_res_on;
     info->off_f = _ult_res_off;
-    info->calc_bonuses_f = _ult_res_bonus;
-    info->flags_f = _ult_res_flags;
+    info->calc_bonuses_f = ult_res_bonus;
+    info->flags_f = ult_res_flags;
     info->status_display_f = _ult_res_display;
     info->dispel_prob = 100;
     return info;

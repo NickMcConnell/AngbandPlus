@@ -131,6 +131,12 @@ void init_blows_calc(object_type *o_ptr, plr_attack_info_ptr info)
         info->blows_calc.mul = 35;
         break;
 
+    case CLASS_HIGH_PRIEST:
+        info->blows_calc.max = 500;
+        info->blows_calc.wgt = 100;
+        info->blows_calc.mul = 30;
+        break;
+
     case CLASS_DEVICEMASTER:
         info->blows_calc.max = 400;
         info->blows_calc.wgt = 100;

@@ -66,10 +66,11 @@ enum { D_NONE = 0,
        D_MONASTERY,
        D_GRAVEYARD,
        D_SANCTUARY, /* of the Knight's Templar */
-       D_PANDEMONIUM,
+       D_PANDEMONIUM, /* Demons and Mephistopheles */
        D_NUMENOR,
        D_RLYEH,
-       D_DARK_CASTLE,
+       D_DARK_CASTLE, /* Vampires and Thuringwethil|Vlad */
+       D_DARK_CAVE, /* Dark Elves and Malekith */
 };
 
 typedef void (*dun_place_f)(dun_ptr dun, point_t pos);
@@ -86,7 +87,6 @@ struct dun_type_s
     u16b    id;
     cptr    name;
     cptr    desc;
-    cptr    parse;
     rect_t  (*size_f)(dun_type_ptr me);
     void    (*enter_f)(dun_type_ptr me);
     void    (*init_f)(dun_type_ptr me);

@@ -103,6 +103,7 @@ enum {
     TV_HEX_BOOK,
     TV_RAGE_BOOK,
     TV_BURGLARY_BOOK,
+    TV_BLESS_BOOK,
     TV_GOLD = 127,
 };
 /* First, we flag the slot type for equipment. Many of these could
@@ -279,6 +280,7 @@ extern bool obj_is_ring(obj_ptr obj);
 extern bool obj_is_amulet(obj_ptr obj);
 extern bool obj_is_light(obj_ptr obj);
 extern bool obj_is_body_armor(obj_ptr obj);
+extern bool obj_is_centaur_armor(obj_ptr obj);
 extern bool obj_is_cloak(obj_ptr obj);
 extern bool obj_is_helmet(obj_ptr obj);
 extern bool obj_is_gloves(obj_ptr obj);

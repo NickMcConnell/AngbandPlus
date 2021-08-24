@@ -331,7 +331,8 @@ static bool item_tester_learn_spell(object_type *o_ptr)
     if (!obj_is_spellbook(o_ptr)) return FALSE;
     if (o_ptr->tval == TV_MUSIC_BOOK && plr->pclass == CLASS_BARD) return TRUE;
     if (o_ptr->tval == TV_BURGLARY_BOOK && plr->pclass == CLASS_ROGUE) return TRUE;
-    else if (o_ptr->tval == TV_HEX_BOOK && plr->pclass == CLASS_HIGH_MAGE && REALM1_BOOK == o_ptr->tval) return TRUE;
+    else if (o_ptr->tval == TV_HEX_BOOK && plr->pclass == CLASS_HIGH_PRIEST && REALM1_BOOK == o_ptr->tval) return TRUE;
+    else if (o_ptr->tval == TV_BLESS_BOOK && plr->pclass == CLASS_HIGH_PRIEST && REALM1_BOOK == o_ptr->tval) return TRUE;
     else if (!is_magic(tval2realm(o_ptr->tval))) return FALSE;
     if (REALM1_BOOK == o_ptr->tval || REALM2_BOOK == o_ptr->tval) return TRUE;
     if (choices & (0x0001 << (tval2realm(o_ptr->tval) - 1))) return TRUE;
@@ -775,15 +776,38 @@ void do_cmd_cast(void)
         return;
     }
 
-    /* Hex */
+    /* Chants */
     if (plr->realm1 == REALM_HEX)
     {
-        if (hex_spell_fully())
+        if (hex_count() == hex_max())
         {
             bool flag = FALSE;
-            msg_print("Can not spell new spells more.");
+            msg_print("You cannot chant any more foul curses.");
             flush();
-            if (plr->lev >= 35) flag = stop_hex_spell();
+            if (plr->lev >= 35)
+            {
+                msg_print(NULL);
+                flag = hex_stop_one();
+                if (!msg_line_is_empty())
+                    msg_line_clear(); /* XXX 'Stop All' emits 'You stop chanting' due to ACTION_SPELL->ACTION_NONE */
+            }
+            if (!flag) return;
+        }
+    }
+    if (plr->realm1 == REALM_BLESS)
+    {
+        if (bless_count() == bless_max())
+        {
+            bool flag = FALSE;
+            msg_print("You cannot chant any more blessings.");
+            flush();
+            if (plr->lev >= 35)
+            {
+                msg_print(NULL);
+                flag = bless_stop_one();
+                if (!msg_line_is_empty())
+                    msg_line_clear(); /* XXX 'Stop All' emits 'You stop chanting' due to ACTION_SPELL->ACTION_NONE */
+            }
             if (!flag) return;
         }
     }
@@ -810,16 +834,6 @@ void do_cmd_cast(void)
         return;
     }
 
-    /* Hex */
-    if (use_realm == REALM_HEX)
-    {
-        if (hex_spelling(spell))
-        {
-            msg_print("You are already casting it.");
-            return;
-        }
-    }
-
     if (!is_magic(use_realm))
     {
         s_ptr = &technic_info[use_realm - MIN_TECHNIC][spell];
@@ -831,6 +845,7 @@ void do_cmd_cast(void)
 
     /* Extract mana consumption rate */
     need_mana = mod_need_mana(s_ptr->smana, spell, use_realm);
+    current_spell_cost = need_mana; /* XXX */
 
     /* Verify "dangerous" spells */
     if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
@@ -1185,6 +1200,7 @@ void do_cmd_browse(void)
         Term_erase(display.x, line + 1, display.cx);
         Term_erase(display.x, line + 2, display.cx);
         Term_erase(display.x, line + 3, display.cx);
+        Term_erase(display.x, line + 4, display.cx);
 
         roff_to_buf(do_spell(use_realm, spell, SPELL_DESC), 62, temp, sizeof(temp));
 

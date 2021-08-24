@@ -321,11 +321,17 @@ static bool _cloak_innocence_on(plr_tim_ptr timer)
 {
     _cloak_on(timer->id);
     msg_print("You conjure a cloak of innocence!");
+    plr->update |= PU_BONUS;
     return TRUE;
 }
 static void _cloak_innocence_off(plr_tim_ptr timer)
 {
     msg_print("Your cloak of innocence vanishes.");
+    plr->update |= PU_BONUS;
+}
+static void _cloak_innocence_bonus(plr_tim_ptr timer)
+{
+    plr->innocence = TRUE;
 }
 static status_display_t _cloak_innocence_display(plr_tim_ptr timer)
 {
@@ -337,6 +343,7 @@ static plr_tim_info_ptr _cloak_innocence(void)
     info->desc = "You wouldn't hurt a fly ... would you?";
     info->on_f = _cloak_innocence_on;
     info->off_f = _cloak_innocence_off;
+    info->calc_bonuses_f = _cloak_innocence_bonus;
     info->status_display_f = _cloak_innocence_display;
     return info;
 }
@@ -544,7 +551,7 @@ static plr_tim_info_ptr _mask_discord(void)
 }
 
 /* register the timers: these are global timers available in every game */
-void register_illusion_timers(void)
+void illusion_register_timers(void)
 {
     plr_tim_register(_cloak_innocence());
     plr_tim_register(_cloak_invis());

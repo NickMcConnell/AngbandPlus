@@ -2679,9 +2679,6 @@ void process_player(void)
         handle_stuff();
     }
 
-    if (!load) bard_check_music();
-    if (!load) check_hex();
-    if (!load) revenge_spell();
     if (!load) plr_hook_process_player();
     if (load) equip_on_load();
 

@@ -121,6 +121,15 @@ bool mon_hook_dungeon(int r_idx)
         return TRUE;
 }
 
+void set_temp_friendly(monster_type *m_ptr)
+{
+    if (!have_flag(m_ptr->smart, SM_FRIENDLY))
+    {
+        add_flag(m_ptr->smart, SM_FRIENDLY);
+        add_flag(m_ptr->smart, SM_TEMP_FRIENDLY);
+    }
+}
+
 void set_friendly(monster_type *m_ptr)
 {
     add_flag(m_ptr->smart, SM_FRIENDLY);
@@ -177,6 +186,7 @@ void set_hostile(monster_type *m_ptr)
     remove_flag(m_ptr->smart, SM_PET);
     remove_flag(m_ptr->smart, SM_TEMP_PET);
     remove_flag(m_ptr->smart, SM_FRIENDLY);
+    remove_flag(m_ptr->smart, SM_TEMP_FRIENDLY);
 
     /* friendly uniques now wander the dungeon, but if attacked,
      * they should seek the plr instead */
@@ -197,17 +207,36 @@ void anger_monster(monster_type *m_ptr)
 {
     if (mon_is_friendly(m_ptr) || mon_is_temp_pet(m_ptr))
     {
-        char m_name[80];
+        if (mon_show_msg(m_ptr))
+        {
+            char m_name[80];
 
-        monster_desc(m_name, m_ptr, 0);
-        msg_format("%^s gets angry!", m_name);
-
+            monster_desc(m_name, m_ptr, 0);
+            msg_format("%^s gets angry!", m_name);
+        }
         set_hostile(m_ptr);
 
         virtue_add(VIRTUE_INDIVIDUALISM, 1);
-        virtue_add(VIRTUE_HONOUR, -1);
-        virtue_add(VIRTUE_JUSTICE, -1);
-        virtue_add(VIRTUE_COMPASSION, -1);
+        if (plr_tim_find(T_BLESS_FRIENDSHIP))
+        {
+            plr_tim_remove(T_BLESS_FRIENDSHIP);
+            virtue_add(VIRTUE_HONOUR, -5);
+            virtue_add(VIRTUE_JUSTICE, -5);
+            virtue_add(VIRTUE_COMPASSION, -5);
+        }
+        else if (plr_tim_find(T_BLESS_OBEDIENCE))
+        {
+            plr_tim_remove(T_BLESS_OBEDIENCE);
+            virtue_add(VIRTUE_HONOUR, -5);
+            virtue_add(VIRTUE_JUSTICE, -5);
+            virtue_add(VIRTUE_COMPASSION, -5);
+        }
+        else
+        {
+            virtue_add(VIRTUE_HONOUR, -1);
+            virtue_add(VIRTUE_JUSTICE, -1);
+            virtue_add(VIRTUE_COMPASSION, -1);
+        }
     }
 }
 

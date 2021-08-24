@@ -175,7 +175,7 @@ Map & Screen Options
   with the "run" command, only when the running finishes. If this 
   option is set, the map always centers on the player.
   
-  Use special graphics for lighting (view_lite)
+  Use special graphics for lighting (view_light)
   This option causes special graphics to be used to indicate the 
   lighting level. Lighting is a super-position of player light (or 
   darkness), monster light (or darkness) and terrain light (or 
@@ -183,17 +183,17 @@ Map & Screen Options
   Daylight" (not recommended) and to "View Grid Light", both described 
   below.
   
-  Use special graphics for surface daylight (view_daylite)
+  Use special graphics for surface daylight (view_daylight)
   Enabling this option will include surface daylight in the lighting 
-  level for displaying special graphical lighting with the view_lite 
+  level for displaying special graphical lighting with the view_light 
   option. It is not recommended. In the daytime, the surface level has 
   an ambient ligthing level of 5 which is quite bright and washes out 
   any further lighting effects (for example, the player's torch or a 
   shopkeeper's entrance).
   
-  Use special graphics for lit rooms (view_gridlite)
+  Use special graphics for lit rooms (view_gridlight)
   Enabling this option will include room lighting in the lighting level 
-  for displaying special graphical lighting with the view_lite option. 
+  for displaying special graphical lighting with the view_light option. 
   There are situations when this information is important (e.g. 
   Vampires and Ninjas). You may also prefer this display but I usually 
   disable this option. Without it, there is no display difference 
@@ -390,11 +390,6 @@ Game Play Options
   the appropriate list. This allows the "look" and "target" commands to 
   "cycle" through all appropriate grids forever, and the "identify 
   symbol" to browse through all of the monsters of a given type.
-  
-  Boundary walls become 'permanent wall' (bound_walls_perm)
-  If this option is set, boundaries of dungeon floors will explicitly 
-  look like permanent walls. If unset, those will look like normal 
-  walls, but still behave as permanent walls.
   
   Leave last words when your character dies (last_words)
   Display a random line from the "death.txt" file when your character 

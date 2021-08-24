@@ -431,7 +431,8 @@ static tval_desc tvals[] =
     { TV_ILLUSION_BOOK,     "Illusion Spellbook"},
     { TV_MUSIC_BOOK,        "Music Spellbook"      },
     { TV_HISSATSU_BOOK,     "Book of Kendo"        },
-    { TV_HEX_BOOK,          "Hex Spellbook"        },
+    { TV_HEX_BOOK,          "Malediction Book"     },
+    { TV_BLESS_BOOK,        "Benediction Book"     },
     { TV_RAGE_BOOK,         "Rage Spellbook"       },
     { TV_BURGLARY_BOOK,     "Thieve's Guide"       },
     { TV_PARCHMENT,         "Parchment" },
@@ -1226,8 +1227,8 @@ static void _wiz_stats_inspect_obj(obj_ptr pile)
         if (0) _wiz_stats_log_speed(level, obj);
         if (0) _wiz_stats_log_books(level, obj, 20, 20);
         if (0) _wiz_stats_log_devices(level, obj);
-        if (1) _wiz_stats_log_arts(level, obj);
-        if (0) _wiz_stats_log_rand_arts(level, obj);
+        if (0) _wiz_stats_log_arts(level, obj);
+        if (1) _wiz_stats_log_rand_arts(level, obj);
 
         if (0 && !object_is_nameless(obj) && weaponmaster_is_favorite(obj))
             _wiz_stats_log_obj(level, obj);
@@ -1899,6 +1900,7 @@ void do_cmd_debug(void)
         doc_free(doc);
         sym_test();
         #endif
+        #if 0
         int i, k_idx = lookup_kind(TV_CORPSE, SV_SKELETON);
         for (i = 0; i < 10; i++)
         {
@@ -1908,6 +1910,8 @@ void do_cmd_debug(void)
             assert(forge.race_id);
             dun_drop_near(cave, &forge, plr->pos);
         }
+        #endif
+        dispel_player();
         break; }
     default:
         msg_print("That is not a valid debug command.");

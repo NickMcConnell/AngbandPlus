@@ -279,6 +279,11 @@ static bool _breakage(plr_shoot_ptr context)
 {
     int chance;
 
+    /* defense: prevent accidental destruction of artifact|endurance ammo.
+     * client hooks might set AMMO_BREAK w/o checking (cf the Sniper) */
+    if (obj_is_art(context->ammo)) return FALSE;
+    if (context->ammo->name2 == EGO_AMMO_ENDURANCE) return FALSE;
+
     if (context->action == AMMO_BREAK) return TRUE;
     if (context->action == AMMO_PIERCE) return TRUE;
     if (!context->hit_body) return FALSE;
@@ -420,6 +425,7 @@ static void _shoot_aux(plr_shoot_ptr context)
         ammo.number = 1;
         dun_drop_near(cave, &ammo, last);
         context->ammo->number--;
+        plr->update |= PU_BONUS; /* Weight changed */
     }
 }
 static void _hit_msg(plr_shoot_ptr context, mon_ptr mon)

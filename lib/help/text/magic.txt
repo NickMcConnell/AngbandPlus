@@ -245,17 +245,28 @@ Music
   current song, discontinuing its effects. It is said that certain 
   harps may enhance this form of magic.
 
-Hex
-  Unique to the High-Mage, Hex magic thrives on curses. Most of its 
-  spells are cast continually, like the musical songs of the bard, but 
-  they are chanted rather than sung. And multiple chants may be woven 
-  at once, inter-weaving verse upon verse, and hex upon hex, allowing 
-  the caster to get a few effects going at a time. But the number of 
-  concurrent spells is strictly limited, increasing slowly with level. 
-  And while their chants are interrupted by reading a scroll, I've 
-  heard tell of Hex casters inhaling potions through their nose without 
-  interrupting their foul chants in the least. But I find this rather 
-  hard to believe and rather funny besides.
+Malediction
+  Normally restricted to the High-Priest, Malediction magic thrives on 
+  curses. Most of its spells are cast continually, like the musical 
+  songs of the bard, but they are chanted rather than sung. And 
+  multiple chants may be woven at once, inter-weaving verse upon verse, 
+  and hex upon hex, allowing the caster to get a few effects going at a 
+  time. But the number of concurrent spells is strictly limited, 
+  increasing slowly with level. And while their chants are interrupted 
+  by reading a scroll, I've heard tell of Maleditory casters inhaling 
+  potions through their nose without interrupting their foul chants in 
+  the least. But I find this hard to believe and rather funny besides.
+
+Benediction
+  Normally restricted to the High-Priest, Benediction magic thrives on 
+  blessings. Most of its spells are cast continually, like the musical 
+  songs of the bard, but they are chanted rather than sung. And 
+  multiple chants may be woven at once, inter-weaving verse upon verse, 
+  and bless upon bless, allowing the caster to get a few effects going 
+  at a time. But the number of concurrent spells is strictly limited, 
+  increasing slowly with level. While the chants in this realm offer 
+  strong protection and healing, they offer little in the way of direct 
+  damage.
 
 Burglary
   This is the preferred realm of the Rogue, and unique to that class. 

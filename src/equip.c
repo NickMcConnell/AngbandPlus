@@ -1480,7 +1480,7 @@ void equip_calc_bonuses(void)
         if (have_flag(flgs, OF_AURA_REVENGE))  plr->sh_retaliation = TRUE;
         if (have_flag(flgs, OF_NO_MAGIC)) plr->anti_magic = TRUE;
         if (have_flag(flgs, OF_NO_TELE))  plr->anti_tele = TRUE;
-        if (have_flag(flgs, OF_NO_SUMMON)) plr->anti_summon = TRUE;
+        if (have_flag(flgs, OF_NO_SUMMON)) plr->block_summon = TRUE;
 
         if (have_flag(flgs, OF_SUST_STR)) plr->sustain_str = TRUE;
         if (have_flag(flgs, OF_SUST_INT)) plr->sustain_int = TRUE;

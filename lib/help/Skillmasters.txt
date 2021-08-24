@@ -168,6 +168,9 @@ This ability grants automatic, instantaneous identification of objects as you st
   <indent><topic:Massacre><color:o>Massacre</color>
 This power allows you to attack each and every adjacent monster with your normal melee attacks. If you find yourself frequently surrounded by orcs, hounds and trolls, they can be more efficiently dispatched when you can kill them by eights instead of by ones!</indent>
 
+  <indent><topic:Noctovision><color:o>Noctovision</color>
+This power allows you to see in the dark without the use of a torch or lantern. With this ability, you will be able to equip <color:keyword>Dark Stones</color>. In addition, you will be able to explore large darkened cavern rooms without the need to illuminate the room first, which often wakes monsters up. This ability is a good choice for stealthy characters.</indent>
+
   <indent><topic:Panic Hit><color:o>Panic Hit</color>
 With this power you will understand how thieves feel. After attacking an adjacent enemy with your normal melee attacks, you will be teleported a short way off. This is very useful in situations where you need to teleport anyway since you get to land some additional damage in the process. But know this: sometimes you will fail to escape. Thus, if you are on death's door then you better not attempt to rely on Panic Hit (quaff some healing instead).</indent>
 
@@ -179,6 +182,9 @@ This power grants temporary resistance to the basic elemental attacks of acid, f
 
   <indent><topic:Rodeo><color:o>Rodeo</color>
 This power allows you to attempt to forcibly mount an unfriendly monster. If successful, you may tame yourself a new mount to ride. But often such an attempt ends in utter humiliation. Perhaps you've heard a certain saying?</indent>
+
+  <indent><topic:Rush Attack><color:o>Rush Attack</color>
+This power allows you to leap in to attack nearby monsters, all in a single action.</indent>
 
   <indent><topic:Stone Skin><color:o>Stone Skin</color>
 This power temporarily grants increased armor class, making you harder to hit and harder to damage in melee combat. The amount of protection increases with your experience level. If you plan on defeating the <color:keyword>Serpent of Chaos</color> with melee, then this would be a very useful ability to have.</indent>

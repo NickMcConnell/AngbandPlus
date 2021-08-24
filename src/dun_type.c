@@ -43,6 +43,7 @@ static dun_type_ptr _pandemonium(void);
 static dun_type_ptr _numenor(void);
 static dun_type_ptr _rlyeh(void);
 static dun_type_ptr _dark_castle(void);
+static dun_type_ptr _dark_cave(void);
 
 static _entry_t _tbl[] = {
     { D_WORLD, "D_WORLD", "World", _world },
@@ -77,6 +78,7 @@ static _entry_t _tbl[] = {
     { D_NUMENOR, "D_NUMENOR", "Numenor", _numenor },
     { D_RLYEH, "D_RLYEH", "R'lyeh", _rlyeh },
     { D_DARK_CASTLE, "D_DARK_CASTLE", "Dark Castle", _dark_castle },
+    { D_DARK_CAVE, "D_DARK_CAVE", "Dark Cave", _dark_cave },
     { 0 }
 };
 
@@ -2214,6 +2216,66 @@ static dun_type_ptr _dark_castle(void)
     type->mon_alloc_f = _dark_castle_mon_alloc;
     type->init_f = _dark_castle_init;
     type->flags.gen = DF_GEN_NO_CAVE | DF_GEN_CURTAIN | DF_GEN_ARENA;
+    type->flags.info = DF_NO_STATS | DF_NO_LIGHT;
+    return type;
+}
+/************************************************************************
+ * Dark Cave
+ ************************************************************************/
+static void _dark_cave_init(dun_type_ptr me)
+{
+    mon_race_parse("h.Malekith")->flagsx |= RFX_GUARDIAN;
+}
+static void _dark_cave_change_dun(dun_type_ptr me, dun_ptr dun)
+{
+    if (dun->dun_lvl == me->max_dun_lvl && !_is_completed(me))
+        _alloc_guardian(me, dun);
+}
+static void _dark_cave_kill_mon(dun_type_ptr me, mon_ptr mon)
+{
+    if (mon->race->id == me->final_guardian && (mon->mflag2 & MFLAG2_QUESTOR))
+    {
+        _reward(mon->dun, mon->pos);
+        _conquer(me);
+    }
+}
+static int _dark_cave_mon_alloc(dun_type_ptr me, mon_race_ptr race, int prob)
+{
+    if (mon_race_is_dark_elf(race)) return prob * 50;
+    switch (mon_race_char(race)) /* there are always spiders and bats in caves */
+    {
+    case 'S': return prob * 3;
+    case 'b': return prob * 3;
+    }
+    return prob;
+}
+static rect_t _dark_cave_size(dun_type_ptr me)
+{
+    return rect_create(0, 0, 200, 70);
+}
+static void _dark_cave_wall(dun_ptr dun, point_t pos)
+{
+    if (_1d(100) <= 90)
+        dun_place_granite(dun, pos);
+    else
+        dun_place_chasm(dun, pos);
+}
+static dun_type_ptr _dark_cave(void)
+{
+    dun_type_ptr type = dun_type_alloc(D_DARK_CAVE, "The Dark Cave");
+    type->desc = "a dark tunnel leading to caverns dark as pitch";
+    type->init_f = _dark_cave_init;
+    type->place_wall = _dark_cave_wall;
+    type->place_floor = dun_place_dirt;
+    type->min_dun_lvl = 30;
+    type->max_dun_lvl = 40;
+    type->final_guardian = mon_race_parse("h.Malekith")->id;
+    type->size_f = _dark_cave_size;
+    type->change_dun_f = _dark_cave_change_dun;
+    type->kill_mon_f = _dark_cave_kill_mon;
+    type->mon_alloc_f = _dark_cave_mon_alloc;
+    type->flags.gen = DF_GEN_CAVE | DF_GEN_RIVER_LAVA | DF_GEN_CAVERN | DF_GEN_DESTROY
+                | DF_GEN_LAKE_LAVA | DF_GEN_LAKE_TREE | DF_GEN_LAKE_RUBBLE;
     type->flags.info = DF_NO_STATS | DF_NO_LIGHT;
     return type;
 }

@@ -1911,6 +1911,7 @@ static void _build_statistics(doc_ptr doc)
         _device_counts_imp(doc, TV_ROD, EFFECT_SPEED_HERO);
         _device_counts_imp(doc, TV_ROD, EFFECT_HEAL_CURING_HERO);
         _device_counts_imp(doc, TV_ROD, EFFECT_RESTORING);
+        _device_counts_imp(doc, TV_ROD, EFFECT_GREAT_CLARITY);
         _device_counts_imp(doc, TV_ROD, EFFECT_BALL_MANA);
         _device_counts_imp(doc, TV_ROD, EFFECT_BALL_SHARDS);
         _device_counts_imp(doc, TV_ROD, EFFECT_BALL_CHAOS);

@@ -71,6 +71,7 @@ enum {
     _CREATE_AMMO,
     _RODEO,
     _RUSH_ATTACK,
+    _NOCTOVISION,
     _ABILITY_STOP
 };
 
@@ -147,9 +148,11 @@ static _group_t _groups[] = {
         "fail rates. Life magic is only available as a Prayer talent. The other prayer "
         "realms are duplicated as Magic talents, but you can only learn them in one "
         "way: as either INT based or WIS based.",
-        {{ _TYPE_PRAYER, REALM_CRUSADE, "Crusade", 5, 0 },
+        {{ _TYPE_PRAYER, REALM_BLESS, "Benediction", 5, 0 },
+         { _TYPE_PRAYER, REALM_CRUSADE, "Crusade", 5, 0 },
          { _TYPE_PRAYER, REALM_DAEMON, "Daemon", 5, 0 },
          { _TYPE_PRAYER, REALM_DEATH, "Death", 5, 0 },
+         { _TYPE_PRAYER, REALM_HEX, "Malediction", 5, 0 },
          { _TYPE_PRAYER, REALM_LIFE, "Life", 5, 0 },
          { _TYPE_PRAYER, REALM_NATURE, "Nature", 5, 0 },
          { 0 }}},
@@ -177,6 +180,7 @@ static _group_t _groups[] = {
         "Burglary spells. Note that Burglary uses DEX as the primary spell stat.",
         {{ _TYPE_TECHNIQUE, REALM_BURGLARY, "Burglary", 5, 0 },
          { _TYPE_TECHNIQUE, _DUAL_WIELDING, "Dual Wielding", 5, 0 },
+         { _TYPE_TECHNIQUE, REALM_MUSIC, "Music", 5, 0 },
          { _TYPE_TECHNIQUE, _RIDING, "Riding", 5, 0 },
          { 0 }}},
     { _TYPE_ABILITY, "Abilities",
@@ -190,6 +194,7 @@ static _group_t _groups[] = {
          { _TYPE_ABILITY, _LUCK, "Good Luck", 1, 0 },
          { _TYPE_ABILITY, _LOREMASTER, "Loremastery", 1, 0 },
          { _TYPE_ABILITY, _MASSACRE, "Massacre", 1, 0 },
+         { _TYPE_ABILITY, _NOCTOVISION, "Noctovision", 1, 0 },
          { _TYPE_ABILITY, _PANIC_HIT, "Panic Hit", 1, 0 },
          { _TYPE_ABILITY, _REGENERATION, "Regeneration", 1, 0 },
          { _TYPE_ABILITY, _RESISTANCE, "Resistance", 1, 0 },
@@ -450,6 +455,11 @@ static void _calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)
 
     info->to_d += melee.to_d;
     info->dis_to_d += melee.to_d;
+
+    if (_get_skill_pts(_TYPE_PRAYER, REALM_HEX))
+        hex_calc_weapon_bonuses(obj, info);
+    if (_get_skill_pts(_TYPE_PRAYER, REALM_BLESS))
+        bless_calc_weapon_bonuses(obj, info);
 }
 
 int skillmaster_weapon_prof(int tval)
@@ -702,6 +712,7 @@ caster_info *_caster_info(void)
     int magic_pts = _get_group_pts(_TYPE_MAGIC);
     int prayer_pts = _get_group_pts(_TYPE_PRAYER);
     int melee_pts = _get_group_pts(_TYPE_MELEE);
+    int music_pts = _get_skill_pts(_TYPE_TECHNIQUE, REALM_MUSIC);
     int enc_pts = magic_pts + (prayer_pts + 1) / 2;
 
     info.options = 0;
@@ -714,8 +725,15 @@ caster_info *_caster_info(void)
     if (info.encumbrance.weapon_pct > 100)
         info.encumbrance.weapon_pct = 100;
 
-    /* Use INT or WIS for mana, depending on which
-     * has the most total points */
+    if (music_pts && music_pts >= magic_pts && music_pts >= prayer_pts)
+    {
+        info.which_stat = A_CHR;
+        info.magic_desc = "song";
+        info.encumbrance.max_wgt = 400;
+        info.encumbrance.weapon_pct = 67;
+        info.encumbrance.enc_wgt = 800;
+        return &info;
+    }
     if (magic_pts && magic_pts >= prayer_pts)
     {
         info.which_stat = A_INT;
@@ -725,7 +743,7 @@ caster_info *_caster_info(void)
             info.options |= CASTER_ALLOW_DEC_MANA;
         return &info;
     }
-    else if (prayer_pts)
+    if (prayer_pts)
     {
         info.which_stat = A_WIS;
         info.magic_desc = "prayer";
@@ -733,7 +751,7 @@ caster_info *_caster_info(void)
             info.options |= CASTER_ALLOW_DEC_MANA;
         return &info;
     }
-    else if (_get_skill_pts(_TYPE_TECHNIQUE, REALM_BURGLARY))
+    if (_get_skill_pts(_TYPE_TECHNIQUE, REALM_BURGLARY))
     {
         info.which_stat = A_DEX;
         info.magic_desc = "thieving talent";
@@ -761,7 +779,8 @@ static bool _has_magic(void)
 {
     if ( !_get_group_pts(_TYPE_MAGIC)
       && !_get_group_pts(_TYPE_PRAYER)
-      && !_get_skill_pts(_TYPE_TECHNIQUE, REALM_BURGLARY) )
+      && !_get_skill_pts(_TYPE_TECHNIQUE, REALM_BURGLARY)
+      && !_get_skill_pts(_TYPE_TECHNIQUE, REALM_MUSIC) )
     {
         return FALSE;
     }
@@ -807,7 +826,7 @@ static bool _can_cast(void)
 static int _get_realm_pts(int realm)
 {
     _skill_ptr s;
-    if (realm == REALM_BURGLARY)
+    if (realm == REALM_BURGLARY || realm == REALM_MUSIC)
     {
         s = _get_skill(_TYPE_TECHNIQUE, realm);
         assert(s);
@@ -829,6 +848,8 @@ static int _get_realm_stat(int realm)
     _skill_ptr s;
     if (realm == REALM_BURGLARY)
         return A_DEX;
+    if (realm == REALM_MUSIC)
+        return A_CHR;
     s = _get_skill(_TYPE_MAGIC, realm);
     if (s && s->current)
         return A_INT;
@@ -1091,6 +1112,14 @@ static void _cast_spell(_spell_info_ptr spell)
     assert(spell->level <= plr->lev);
     assert(spell->cost <= plr->csp);
 
+    /* spells require vocalization, ending any active songs */
+    if (spell->realm != REALM_MUSIC && music_current())
+        music_stop();
+    if (spell->realm != REALM_HEX && hex_count())
+        hex_stop();
+    if (spell->realm != REALM_BLESS && bless_count())
+        bless_stop();
+
     plr->csp -= spell->cost;
     energy_use = 100;
 
@@ -1108,6 +1137,7 @@ static void _cast_spell(_spell_info_ptr spell)
     }
     else
     {
+        current_spell_cost = spell->cost; /* XXX needed for music|hex upkeep */
         if (!do_spell(spell->realm, spell->idx, SPELL_CAST))
         {  /* Canceled */
             plr->csp += spell->cost;
@@ -1128,9 +1158,39 @@ void skillmaster_cast(void)
     {
         object_type  *spellbook = _prompt_spellbook();
         _spell_info_t spell = {0};
-        
+
         if (!spellbook)
             return;
+        if (tval2realm(spellbook->tval) == REALM_HEX)
+        {
+            if (hex_count() == hex_max())
+            {
+                bool flag = FALSE;
+                msg_print("You cannot chant any more foul curses.");
+                flush();
+                if (plr->lev >= 35)
+                {
+                    msg_print(NULL);
+                    flag = hex_stop_one();
+                }
+                if (!flag) return;
+            }
+        } 
+        if (tval2realm(spellbook->tval) == REALM_BLESS)
+        {
+            if (bless_count() == bless_max())
+            {
+                bool flag = FALSE;
+                msg_print("You cannot chant any more holy prayers.");
+                flush();
+                if (plr->lev >= 35)
+                {
+                    msg_print(NULL);
+                    flag = bless_stop_one();
+                }
+                if (!flag) return;
+            }
+        } 
         if (_prompt_spell(spellbook, &spell, 0))
             _cast_spell(&spell);
     }
@@ -1154,10 +1214,14 @@ static bool _is_spellbook(int tval)
     return tv_is_spellbook(tval);
 }
 
+bool skillmaster_is_valid_realm(int realm)
+{
+    return _get_realm_pts(realm) > 0;
+}
 bool skillmaster_is_allowed_book(int tval, int sval) /* For autopick.c */
 {
     if (!_is_spellbook(tval)) return FALSE;
-    return _get_realm_pts(tval2realm(tval)) > 0;
+    return skillmaster_is_valid_realm(tval2realm(tval));
 }
 
 /************************************************************************
@@ -1270,6 +1334,14 @@ void _tech_init_class(class_t *class_ptr)
     pts = _get_skill_pts(_TYPE_TECHNIQUE, REALM_BURGLARY);
     class_ptr->skills.stl += (pts + 1) / 2;
     class_ptr->skills.dis += 5*pts;
+
+    /* XXX nerf things so we don't obsolete bards */
+    pts = _get_skill_pts(_TYPE_TECHNIQUE, REALM_MUSIC);
+    class_ptr->skills.stl -= pts;
+    class_ptr->stats[A_STR] -= pts/2;
+    class_ptr->stats[A_CON] -= pts/2;
+    class_ptr->stats[A_CHR] += pts/2;
+    class_ptr->skills.thn -= 4*pts;
 }
 
 void _tech_calc_bonuses(void)
@@ -1342,6 +1414,8 @@ static int _get_skill_realm(_skill_ptr s)
     if (s->type == _TYPE_MAGIC || s->type == _TYPE_PRAYER)
         realm = s->subtype;
     else if (s->type == _TYPE_TECHNIQUE && s->subtype == REALM_BURGLARY)
+        realm = s->subtype;
+    else if (s->type == _TYPE_TECHNIQUE && s->subtype == REALM_MUSIC)
         realm = s->subtype;
     return realm;
 }
@@ -1440,6 +1514,8 @@ static int _gain_skill_ui(_group_ptr g)
                     if(_confirm_skill_ui(s) == UI_OK)
                     {
                         s->current++;
+                        if (s->type == _TYPE_ABILITY && s->subtype == _NOCTOVISION)
+                            plr->update |= PU_UN_VIEW | PU_VIEW;
                         return UI_OK;
                     }
                     REPEAT_POP();
@@ -1580,12 +1656,20 @@ static void _calc_bonuses(void)
         plr->regen += 150;
     if (_get_skill_pts(_TYPE_ABILITY, _CLEAR_MIND))
         plr->clear_mind = TRUE;
+    if (_get_skill_pts(_TYPE_PRAYER, REALM_HEX))
+        hex_calc_bonuses();
+    if (_get_skill_pts(_TYPE_PRAYER, REALM_BLESS))
+        bless_calc_bonuses();
+    if (_get_skill_pts(_TYPE_ABILITY, _NOCTOVISION))
+        plr->see_nocto = DUN_VIEW_MAX;
 }
 
 void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     _melee_get_flags(flgs);
     _skills_get_flags(flgs);
+    if (_get_skill_pts(_TYPE_PRAYER, REALM_HEX))
+        hex_get_flags(flgs);
 }
 
 static void _add_power(spell_info* spell, ang_spell fn)
@@ -1622,6 +1706,12 @@ static int _get_powers(spell_info* spells, int max)
         _add_power(&spells[ct++], rodeo_spell);
     if (ct < max && _get_skill_pts(_TYPE_ABILITY, _RUSH_ATTACK) > 0)
         _add_power(&spells[ct++], rush_attack_spell);
+    if (ct < max && _get_skill_pts(_TYPE_TECHNIQUE, REALM_MUSIC) > 0)
+        _add_power(&spells[ct++], music_stop_spell);
+    if (ct < max && _get_skill_pts(_TYPE_PRAYER, REALM_HEX) > 0)
+        _add_power(&spells[ct++], hex_stop_spell);
+    if (ct < max && _get_skill_pts(_TYPE_PRAYER, REALM_BLESS) > 0)
+        _add_power(&spells[ct++], bless_stop_spell);
 
     return ct;
 }
@@ -1743,8 +1833,11 @@ int skillmaster_calc_xtra_hp(int amt)
 
     w2 += _get_group_pts(_TYPE_SHOOT);
     w2 += _get_group_pts(_TYPE_PRAYER);
+    w2 += _get_skill_pts(_TYPE_TECHNIQUE, REALM_MUSIC);
+    w2 += _get_skill_pts(_TYPE_TECHNIQUE, REALM_BURGLARY);
 
     w3 += _get_group_pts(_TYPE_MAGIC);
+    w3 += _get_skill_pts(_TYPE_TECHNIQUE, REALM_MUSIC);
 
     if (w1 + w2 + w3 == 0)
         return plr_prorata_level_aux(amt, 1, 1, 1);

@@ -435,6 +435,11 @@ bool plr_view(point_t pos)
     if (!_view) return FALSE;
     return dun_bmp_test(_view, pos);
 }
+void plr_view_iter(void (*f)(dun_ptr dun, point_t pos))
+{
+    if (!_view) return;
+    dun_bmp_iter(_view, f);
+}
 void dun_forget_view(dun_ptr dun)
 {
     if (_view)
@@ -2169,12 +2174,13 @@ void dun_update_light(dun_ptr dun)
     dun_light_iter(_light, _set_new_light);
     point_map_iter_int(_light_map, _redraw_light);
     plr->update |= PU_DELAY_VIS;
-    if (dm->prof)
-        z_timer_pause(&dm->prof->light_timer);
 
     /* hack for *ranged* noctovision */
     if (0 < plr->see_nocto && plr->see_nocto < DUN_VIEW_MAX)
         dun_update_nocto(dun);
+
+    if (dm->prof)
+        z_timer_pause(&dm->prof->light_timer);
 
     plr_hook_update_light();
 
@@ -2505,11 +2511,11 @@ static bool _blast_p(dun_blast_ptr blast, dun_blast_point_t pos)
     plr->project_dam = ouch;
 
     /* class specific after the effect */
-    revenge_store(ouch);
+    hex_on_dam(ouch);
     if (ouch > 0 && !plr->is_dead && caster)
         weaponmaster_do_readied_shot(caster);
 
-    if (plr_tim_find(T_REVENGE) && ouch > 0 && !plr->is_dead && caster)
+    if (plr->revenge && ouch > 0 && !plr->is_dead && caster)
     {
         char m_name[80];
         char m_name_self[80];
@@ -3406,7 +3412,7 @@ static bool _burst_aux(dun_ptr dun, who_t who, int rad, point_t target, int gf, 
     return notice;
 }
 /*************************************************************************
- * burst interface (note the automatic damage scaling)
+ * burst interface (note the automatic damage scaling in dun_blast_burst)
  *************************************************************************/
 bool plr_burst(int rad, int gf, int dam)
 {
@@ -3746,8 +3752,13 @@ static bool _wrath_of_god_aux(dun_ptr dun, who_t who, point_t source, point_t ta
     int spread = 5;
     int rad = 2;
 
+    if (point_equals(source, target))
+    {
+        /* XXX e.g. Azriel stuck in a web ... I like allowing this
+         * case for a dramatic escape! cf _ai_stuck in mon_spell.c XXX */
+    }
     /* fix target (cf dun_path_fix) */
-    if (!dun_allow_project_at(dun, target)) /* in wall */
+    else if (!dun_allow_project_at(dun, target)) /* e.g. plr in wall|web|tree */
     {
         dun_path_ptr path = dun_path_alloc(dun, source, target, PROJECT_STOP);
         assert(path->count); /* target == source*/

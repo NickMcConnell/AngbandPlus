@@ -1120,6 +1120,7 @@ bool mon_race_is_cold_blooded(mon_race_ptr race) { return BOOL(race->attributes 
 void mon_lore_cold_blooded(mon_ptr mon) { mon_lore_attributes(mon, RF_COLD_BLOOD); }
 
 bool mon_is_friendly(mon_ptr mon) { return mon_has_smart_flag(mon, SM_FRIENDLY); } /* XXX N.B. Abuse!  XXX */
+bool mon_is_temp_friendly(mon_ptr mon) { return mon_is_friendly(mon) && mon_has_smart_flag(mon, SM_TEMP_FRIENDLY); }
 bool mon_race_is_friendly(mon_race_ptr race) { return BOOL(race->attributes & RF_FRIENDLY); }
 void mon_lore_friendly(mon_ptr mon) { mon_lore_attributes(mon, RF_FRIENDLY); }
 
@@ -1442,7 +1443,7 @@ bool mon_is_temp_pet(mon_ptr mon) { return mon_is_pet(mon) && mon_has_smart_flag
 bool mon_is_cloned(mon_ptr mon) { return mon_has_smart_flag(mon, SM_CLONED); }
 bool mon_is_hostile(mon_ptr mon)
 {
-    if (plr_tim_find(T_CLOAK_INNOCENCE)) return FALSE; /* innocence trumps discord! */
+    if (plr->innocence) return FALSE; /* innocence trumps discord! */
     if (mon_tim_find(mon, MT_DISCORD)) return TRUE; /* temporarily override SM_FRIENDLY *and* SM_PET ... mon is not in his right mind! */
     if (mon_is_pet(mon)) return FALSE;
     if (mon_is_friendly(mon)) return FALSE;

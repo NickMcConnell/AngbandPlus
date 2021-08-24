@@ -48,6 +48,7 @@ enum {
     RACE_CENTAUR,
     RACE_WOOD_ELF,
     RACE_DOPPELGANGER,
+    RACE_DRIDER,
     MAX_RACES,  /* XXX try to stop using this! cf building_type and spoilers */
 
     /* player monster races for monster mode */

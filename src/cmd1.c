@@ -484,12 +484,6 @@ bool move_player_effect(point_t pos, u32b mpe_mode)
 
     if (mpe_mode & MPE_ENERGY_USE)
     {
-        if (music_singing(MUSIC_WALL))
-        {
-            gf_affect_o(who_create_plr(), plr->pos, GF_DISINTEGRATE, 0, 0);
-            if (!dun_plr_at(cave, pos) || plr->is_dead) return FALSE;
-        }
-
         /* Spontaneous Searching */
         if ((plr->skills.fos >= 50) || (0 == randint0(50 - plr->skills.fos)))
             search();

@@ -94,4 +94,10 @@ extern bool    plr_cast_direct(int gf, dice_t dice);
 extern bool    plr_cast_rocket(int rad, dice_t dice);
 extern bool    plr_cast_star_dust(int count, int gf, dice_t dice);
 extern bool    plr_cast_wrath_of_god(int gf, dice_t dice);
+
+extern bool    plr_block_magic(mon_ptr mon);
+extern bool    plr_block_multiply(mon_ptr mon);
+extern bool    plr_block_steal(mon_ptr mon);
+extern bool    plr_block_summon(mon_ptr mon);
+extern bool    plr_block_teleport(mon_ptr mon);
 #endif

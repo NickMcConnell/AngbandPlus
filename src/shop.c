@@ -697,6 +697,8 @@ static bool _temple_will_buy(obj_ptr obj)
     {
     case TV_LIFE_BOOK:
     case TV_CRUSADE_BOOK:
+    case TV_BLESS_BOOK:
+    case TV_HEX_BOOK:
     case TV_SCROLL:
     case TV_POTION:
     case TV_HAFTED:
@@ -731,6 +733,7 @@ static bool _temple_stock_p(int k_idx)
     {
     case TV_LIFE_BOOK:
     case TV_CRUSADE_BOOK:
+    case TV_BLESS_BOOK:
         return TRUE;
 
     case TV_HAFTED:
@@ -855,7 +858,6 @@ static bool _magic_will_buy(obj_ptr obj)
     case TV_CRAFT_BOOK:
     case TV_DAEMON_BOOK:
     case TV_MUSIC_BOOK:
-    case TV_HEX_BOOK:
     case TV_AMULET:
     case TV_RING:
     case TV_STAFF:
@@ -1031,6 +1033,7 @@ static bool _book_will_buy(obj_ptr obj)
     case TV_ILLUSION_BOOK:
     case TV_MUSIC_BOOK:
     case TV_HEX_BOOK:
+    case TV_BLESS_BOOK:
         break;
     default:
         return FALSE;
@@ -3115,6 +3118,7 @@ static bool _priest_command(bldg_ptr bldg, int cmd)
 static bool _priest_guild(void)
 {
     if (plr->realm1 == REALM_LIFE) return TRUE;
+    if (plr->realm1 == REALM_BLESS) return TRUE;
     if (prace_is_(RACE_MON_ANGEL)) return TRUE;
     return FALSE;
 }

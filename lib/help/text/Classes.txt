@@ -414,9 +414,9 @@ Magic
   The Gray-Mage does not choose spell realms the way an ordinary spell 
   caster would. Instead, they choose a general bias towards one of 
   Good, Neutral or Evil magic. So while all Gray-Mages may learn spells 
-  from the Arcane, Armageddon, Chaos, Craft, Sorcery and Trump realms, 
-  only a Good Bias allows access to Life and Crusade magic; only a 
-  Neutral Bias allows access to Nature magic; and only an Evil Bias 
+  from the Arcane, Armageddon, Craft, Sorcery and Trump realms, only a 
+  Good Bias allows access to Life and Crusade magic; only a Neutral 
+  Bias allows access to Nature and Chaos magic; and only an Evil Bias 
   allows access to Death and Daemon magic. Still, it is obvious that 
   the Gray Mage will have an extremely large pool of spells from which 
   to choose. Like the Mage, Intelligence is the key stat.
@@ -443,8 +443,6 @@ Magic
   failure rates of the spells in their speciality realm. They have a 
   class power - 'Eat Magic' - which absorbs mana from wands, staves, or 
   rods.
-   
-  And then, only High-Mages are able to cast Hex spells.
   
     Stats                   Skills
     Strength      -4        Disarming   Fair         
@@ -666,6 +664,39 @@ Prayer
     Life Rating  100%       Melee       Fair         
     Base HP        4        Bows        Poor         
     Experience   120%
+    
+  High-Priest
+  Similar to the Priest, the High-Priest is a character devoted to 
+  serving a higher power. However, the High-Priest specializes in a 
+  single realm of prayer in order to gain awesome bonuses in casting 
+  costs and fail rates. Service to the good involes choosing Life, 
+  Crusade or Benediction magic, and these choices restrict the player 
+  to using blunt weapons (unless otherwise 'blessed'). Service to evil 
+  involves choosing one of Death, Daemon or Malediction, and the evil 
+  priest is under no compunction concerning the spilling of blood. In 
+  fact, they revel in it! Finally, a High-Priest may serve Nature, a 
+  realm of balance. In this case, sharp weapons are prohibited as they 
+  are kin to the much hated axe, feller of trees. Each realm choice 
+  will grant additional abilities, skills or powers. Of course, wisdom 
+  is the primary stat.
+  
+  Benediction and Malediction magic are quite unique and involve spells 
+  that are chanted continuously to maintain an effect. Like the Bard, 
+  the priest vocalizes spells in a continuous fashion granting 
+  abilities as long as the chant is maintained. But unlike the Bard, 
+  the priest may evoke multiple chants at once, weaving the rhythms in 
+  an intricate display of musical prowess.
+  
+    Stats                   Skills
+    Strength      -2        Disarming   Poor         
+    Intelligence  -3        Device      Excellent    
+    Wisdom        +4        Save        Excellent    
+    Dexterity     -1        Stealth     Fair         
+    Constitution  -1        Searching   Poor         
+    Charisma      +2        Perception  Bad          
+    Life Rating   98%       Melee       Poor         
+    Base HP        4        Bows        Bad          
+    Experience   135%
     
   
 Stealth
@@ -1243,6 +1274,7 @@ Yellow-Mage    -4   +3   +0   +1   -2   -2   95%   +0  130%
 Devicemaster   -1   +2   +1   +2   -2   -2  101%   +6  130%
 Magic-Eater    -1   +2   +1   +2   -2   -2  103%   +6  130%
 Priest         -1   -3   +3   -1   +0   +2  100%   +4  120%
+High-Priest    -2   -3   +4   -1   -1   +2   98%   +4  135%
 Ninja          +0   -1   -1   +3   +2   +2  100%   +4  120%
 Rogue          +2   +1   -1   +3   +1   +1  110%  +12  125%
 Scout          +1   -1   +2   +3   +0   +0  104%   +8  130%
@@ -1291,6 +1323,7 @@ Yellow-Mage   Fair          Superb        Good          Good
 Devicemaster  Poor          Superb        Fair          Fair         
 Magic-Eater   Poor          Superb        Fair          Fair         
 Priest        Poor          Very Good     Excellent     Fair         
+High-Priest   Poor          Excellent     Excellent     Fair         
 Ninja         Superb        Fair          Fair          Superb       
 Rogue         Superb        Excellent     Fair          Excellent    
 Scout         Excellent     Very Good     Fair          Excellent    
@@ -1339,6 +1372,7 @@ Yellow-Mage   Poor          Fair          Very Bad      Very Bad
 Devicemaster  Fair          Poor          Fair          Poor         
 Magic-Eater   Fair          Poor          Fair          Poor         
 Priest        Poor          Bad           Fair          Poor         
+High-Priest   Poor          Bad           Poor          Bad          
 Ninja         Excellent     Good          Superb        Poor         
 Rogue         Good          Fair          Excellent     Good         
 Scout         Excellent     Fair          Very Good     Superb       
@@ -1363,5 +1397,5 @@ Wild-Talent   Fair          Poor          Very Good     Very Good
 
 
 
-Automatically generated for PosChengband 7.3.1.
+Automatically generated for PosChengband 7.3.4.
 

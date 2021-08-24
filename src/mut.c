@@ -110,7 +110,7 @@ static mutation_info _mutations[MAX_MUTATIONS] =
     {MUT_RATING_GOOD,                     0,             0, 0, {0,  0,   0, weapon_skills_mut}},
     {MUT_RATING_GOOD,                     0,             0, 0, {0,  0,   0, subtle_casting_mut}},
     {MUT_RATING_GOOD,        MUT_TYPE_BONUS,             0, 0, {0,  0,   0, peerless_sniper_mut}},
-    {MUT_RATING_GOOD,                     0,             0, 0, {0,  0,   0, unyielding_mut}},
+    {MUT_RATING_GOOD,        MUT_TYPE_BONUS,             0, 0, {0,  0,   0, unyielding_mut}},
     {MUT_RATING_GREAT,                     0,             0, 0, {0,  0,   0, ambidexterity_mut}},
     {MUT_RATING_GOOD,        MUT_TYPE_BONUS,             0, 0, {0,  0,   0, untouchable_mut}},
     {MUT_RATING_GOOD,        MUT_TYPE_BONUS,         A_INT, 0, {0,  0,   0, loremaster_mut}},

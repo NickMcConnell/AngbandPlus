@@ -3476,6 +3476,9 @@ R:p.camelot knight:0xE0:0x85
 
 # Morgana Le Fay
 R:p.Morgana:0xE0:0x83
+ 
+# Arch-druid
+R:p.arch-druid:0xE1:0x83
 
 # Mordred
 R:p.Mordred:0xE0:0x82

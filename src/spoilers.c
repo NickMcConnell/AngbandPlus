@@ -146,7 +146,7 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
     { "Humans",
         {RACE_AMBERITE, RACE_BARBARIAN, RACE_DEMIGOD, RACE_DUNADAN, RACE_HUMAN, -1} },
     { "Elves",
-        {RACE_DARK_ELF, RACE_HIGH_ELF, RACE_WATER_ELF, RACE_WOOD_ELF, -1} },
+        {RACE_DARK_ELF, RACE_DRIDER, RACE_HIGH_ELF, RACE_WATER_ELF, RACE_WOOD_ELF, -1} },
     { "Hobbits/Dwarves",
         {RACE_DWARF, RACE_GNOME, RACE_HOBBIT, RACE_NIBELUNG, -1} },
     { "Fairies",
@@ -159,8 +159,8 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
     { "The Undead",
         {RACE_SKELETON, RACE_SPECTRE, RACE_VAMPIRE, RACE_ZOMBIE, -1} },
     { "Other Races",
-        {RACE_ANDROID, RACE_BEASTMAN, RACE_CENTAUR, RACE_DRACONIAN, RACE_DOPPELGANGER, RACE_ENT,
-         RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_YEEK,-1 } },
+        {RACE_ANDROID, RACE_BEASTMAN, RACE_CENTAUR, RACE_DRACONIAN, RACE_DOPPELGANGER,
+         RACE_ENT, RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_YEEK,-1 } },
 };
 
 static void _race_help_table(FILE *fp, race_t *race_ptr)
@@ -1064,7 +1064,7 @@ static _class_group_t _class_groups[_MAX_CLASS_GROUPS] = {
     { "Magic", {CLASS_BLUE_MAGE, CLASS_GRAY_MAGE, CLASS_HIGH_MAGE, CLASS_MAGE,
                     CLASS_NECROMANCER, CLASS_SORCERER, CLASS_YELLOW_MAGE, -1} },
     { "Devices", {CLASS_DEVICEMASTER, CLASS_MAGIC_EATER, -1} },
-    { "Prayer", {CLASS_PRIEST, -1} },
+    { "Prayer", {CLASS_PRIEST, CLASS_HIGH_PRIEST, -1} },
     { "Stealth", {CLASS_NINJA, CLASS_ROGUE, CLASS_SCOUT, -1} },
     { "Hybrid", {CLASS_CHAOS_WARRIOR, CLASS_PALADIN, CLASS_RANGER, CLASS_RED_MAGE,
                     CLASS_WARRIOR_MAGE, -1} },

@@ -3758,6 +3758,42 @@ A:80/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
+N:*:[Chants and Blessings]
+G:?:W
+I:BLESS_BOOK:0
+W:10:30:30:100
+A:10/1
+P:0:1d1:0:0:0
+F:TOWN
+M:100:1d3
+
+N:*:[Holy Vows]
+G:?:W
+I:BLESS_BOOK:1
+W:20:50:30:1000
+A:20/1
+P:0:1d1:0:0:0
+F:TOWN
+M:50:1d2
+
+N:*:[Holy Infusions]
+G:?:w
+I:BLESS_BOOK:2
+W:45:90:30:15000
+A:45/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:*:[Book of Transcendence]
+G:?:w
+I:BLESS_BOOK:3
+W:80:0:30:100000
+A:80/3
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+# XXX 575 ... re-write k_info to not use k_idx sequence XXX
+
 ########################################################################
 #  Lights (TV_LIGHT) and Flasks of Oil (TV_FLASK)
 ########################################################################

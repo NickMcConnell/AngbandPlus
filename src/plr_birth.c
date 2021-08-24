@@ -727,7 +727,7 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
     { "Human",
         {RACE_AMBERITE, RACE_BARBARIAN, RACE_DEMIGOD, RACE_DUNADAN, RACE_HUMAN, -1} },
     { "Elf",
-        {RACE_DARK_ELF, RACE_HIGH_ELF, RACE_WATER_ELF, RACE_WOOD_ELF, -1} },
+        {RACE_DARK_ELF, RACE_DRIDER, RACE_HIGH_ELF, RACE_WATER_ELF, RACE_WOOD_ELF, -1} },
     { "Hobbit/Dwarf",
         {RACE_DWARF, RACE_GNOME, RACE_HOBBIT, RACE_NIBELUNG, -1} },
     { "Fairy",
@@ -740,8 +740,8 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
     { "Undead",
         {RACE_SKELETON, RACE_SPECTRE, RACE_VAMPIRE, RACE_ZOMBIE, -1} },
     { "Other",
-        {RACE_ANDROID, RACE_BEASTMAN, RACE_CENTAUR, RACE_DRACONIAN, RACE_DOPPELGANGER, RACE_ENT,
-         RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_YEEK,-1 } },
+        {RACE_ANDROID, RACE_BEASTMAN, RACE_CENTAUR, RACE_DRACONIAN, RACE_DOPPELGANGER,
+         RACE_ENT, RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_YEEK,-1 } },
 };
 
 static void _race_group_ui(void)
@@ -908,7 +908,7 @@ static bool _is_valid_race_class(int race_id, int class_id)
     }
     if (class_id == CLASS_BEASTMASTER || class_id == CLASS_CAVALRY)
     {
-        if (race_id == RACE_CENTAUR)
+        if (race_id == RACE_CENTAUR || race_id == RACE_DRIDER)
             return FALSE;
     }
     return TRUE;
@@ -1039,7 +1039,7 @@ static _class_group_t _class_groups[_MAX_CLASS_GROUPS] = {
     { "Magic", {CLASS_BLUE_MAGE, CLASS_GRAY_MAGE, CLASS_HIGH_MAGE, CLASS_MAGE,
                     CLASS_NECROMANCER, CLASS_SORCERER, CLASS_YELLOW_MAGE, -1} },
     { "Devices", {CLASS_DEVICEMASTER, CLASS_MAGIC_EATER, -1} },
-    { "Prayer", {CLASS_PRIEST, -1} },
+    { "Prayer", {CLASS_PRIEST, CLASS_HIGH_PRIEST, -1} },
     { "Stealth", {CLASS_NINJA, CLASS_ROGUE, CLASS_SCOUT, -1} },
     { "Hybrid", {CLASS_CHAOS_WARRIOR, CLASS_PALADIN, CLASS_RANGER, CLASS_RED_MAGE,
                     CLASS_WARRIOR_MAGE, -1} },
@@ -2273,6 +2273,7 @@ static void _stats_init(void)
             break;
         }
         case CLASS_PRIEST:
+        case CLASS_HIGH_PRIEST:
         case CLASS_PALADIN:
         case CLASS_MINDCRAFTER:
         case CLASS_FORCETRAINER:

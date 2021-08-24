@@ -2041,18 +2041,17 @@ static bool _try_multiply(mon_ptr mon)
         dun_ptr dun = mon->dun;
         if (dun->breed_ct >= MAX_REPRO) return FALSE;
         if (randint0(375) < virtue_current(VIRTUE_HARMONY)) return FALSE;
+        if (plr_block_multiply(mon)) return FALSE;
         if (randint1(MAX_REPRO - dun->breed_ct) > randint1(5*dun->breed_kill_ct))
         {
             int ct = 0, dir;
+
             for (dir = 0; dir < 8; dir++)
             {
                 point_t p = point_step(mon->pos, ddd[dir]);
                 if (!dun_pos_interior(dun, p)) continue;
                 if (dun_mon_at(dun, p)) ct++;
             }
-
-            /* Hex */
-            if (multiply_barrier(mon->id)) ct = 8;
 
             /* Hack -- multiply slower in crowded areas */
             if (ct < 4 && one_in_(8 + 8*ct))
@@ -2210,7 +2209,7 @@ static bool _preprocess(mon_ptr mon)
     mon->mflag &= ~MFLAG_IGNORE_PLR; /* assume we are aware of the player */
     if (!mon_is_pet(mon))
     {
-        if (plr_tim_find(T_CLOAK_INNOCENCE)) /* but he wouldn't hurt a fly, would he? */
+        if (plr->innocence) /* but he wouldn't hurt a fly, would he? */
             mon->mflag |= MFLAG_IGNORE_PLR;
         else if (plr->special_defense & NINJA_S_STEALTH)
         {
@@ -2270,11 +2269,60 @@ static bool _preprocess(mon_ptr mon)
          * T_MASK_DISCORD for better results :D */
     }
 
+    /* Chant of Friendship grants temporary friendship so long as the chant
+     * is maintained and audible. */
+    if ( mon_is_temp_friendly(mon)
+      && (/* XXX !plr_view(mon->pos) ||*/ !plr_tim_find(T_BLESS_FRIENDSHIP))
+      && one_in_(7))
+    {
+        if (!mon_is_unique(mon) && !mon_save_p(mon, A_CHR))
+        {
+            /* your chant made a deep impression on this monster ... a conversion! */
+            remove_flag(mon->smart, SM_TEMP_FRIENDLY);
+        }
+        else /* recidivism */
+        {
+            if (mon_show_msg(mon))
+            {
+                char name[80];
+
+                monster_desc(name, mon, 0);
+                msg_format("%^s gets angry!", name);
+            }
+            set_hostile(mon);
+        }
+    }
+
+    /* Chant of Obedience grants temporary obedience so long as the chant
+     * is maintained and audible. Note: Mask of Command does a similar thing
+     * for the Illusionist, so we need to check the source of obedience. */
+    if ( mon_is_temp_pet(mon)
+      && !plr_tim_find(T_MASK_CHARM) /* cf _mask_command_off */
+      && (/* XXX !plr_view(mon->pos) || */ !plr_tim_find(T_BLESS_OBEDIENCE))
+      && one_in_(7) )
+    {
+        if (!mon_is_unique(mon) && !mon_save_p(mon, A_CHR))
+        {
+            /* your chant made a deep impression on this monster ... a conversion! */
+            remove_flag(mon->smart, SM_TEMP_PET);
+        }
+        else /* recidivism */
+        {
+            if (mon_show_msg(mon))
+            {
+                char name[80];
+
+                monster_desc(name, mon, 0);
+                msg_format("%^s gets angry!", name);
+            }
+            set_hostile(mon);
+        }
+    }
+    /* XXX not sure about requiring LoS for chants ... could check range instead? */
+
     if (mon->parent_id && !dun_mon(dun, mon->parent_id))
     {
-        /* Its parent have gone, it also goes away.
-           Hack: Only for pets.
-        */
+        /* Its parent have gone, it also goes away.  Hack: Only for pets.  */
         if (!mon_is_pet(mon))
         {
             mon_set_parent(mon, 0);

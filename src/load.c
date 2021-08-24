@@ -201,7 +201,6 @@ static void rd_extra(savefile_ptr file)
     for (i = 0; i < 10; i++) plr->skill_exp[i] = savefile_read_s16b(file);
     for (i = 0; i < MAX_MAGIC_NUM; i++) plr->magic_num1[i] = savefile_read_s32b(file);
     for (i = 0; i < MAX_MAGIC_NUM; i++) plr->magic_num2[i] = savefile_read_byte(file);
-    if (music_singing_any()) plr->action = ACTION_SING;
 
     plr->start_race = savefile_read_s16b(file);
     plr->old_race1 = savefile_read_s32b(file);

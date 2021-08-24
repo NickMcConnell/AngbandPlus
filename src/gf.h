@@ -158,6 +158,11 @@ enum {
     GF_LICH_WORD,
 
     /* New Stuff (unsorted) */
+    GF_FRIENDSHIP,
+    GF_OBEDIENCE,
+    GF_EXORCISM,
+    GF_REPENTANCE,
+
     /* Add new effects here. Reorganize later for next major version upgrade. */
 
     GF_COUNT  /* enumerate 0 <= i < GF_COUNT */

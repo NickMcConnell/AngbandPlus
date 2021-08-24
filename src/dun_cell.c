@@ -1336,13 +1336,19 @@ static void _tree_accept_plr(dun_ptr dun, point_t pos, dun_cell_ptr cell)
         cell_make_grass(cell);
     else
     {
-        if ( plr->pclass != CLASS_RANGER
-          && plr->pclass != CLASS_SCOUT
-          && !prace_is_(RACE_ENT)
-          && !prace_is_(RACE_CENTAUR)
-          && !prace_is_(RACE_WOOD_ELF)
-          && !plr->levitation
-          && (!plr->riding || !(plr_riding_race()->alloc.flags & RFA_WILD_WOOD)))
+        /* movement thru the forest is slow ... riding players require suitable
+         * mounts while non-riding players require racial|class bonuses (e.g.
+         * rangers, scouts, ents and some elves). flying also speeds things up.  */
+        if (plr->riding)
+        {
+            mon_race_ptr race = plr_riding_race();
+            if ( !(race->alloc.flags & RFA_WILD_WOOD)
+              && !(race->move.flags & RFM_FLY) )
+            {
+                energy_use *= 2;
+            }
+        }
+        else if (!plr->pass_tree && !plr->levitation)
         {
             energy_use *= 2;
         }
@@ -3527,11 +3533,29 @@ static void _floor_accept_mon(dun_ptr dun, point_t pos, dun_cell_ptr cell, mon_p
         dun_burst(dun, who_create_trap(pos), 2, pos, GF_MANA, _7d(7) + plr->lev);
         dun_remove_glyph(dun, pos);
     }
-    else if (floor_has_web(cell) && mon_can_tunnel(mon))
+    else if (floor_has_web(cell))
     {
-        floor_remove_web(cell);
-        dun_note_pos(dun, pos);
-        dun_draw_pos(dun, pos);
+        /* Some game mechanics work better if monsters get stuck immediately
+         * upon entering webbed terrain. cf _stuck and plr_check_hit */
+        mon_aura_ptr aura = mon_auras_find(mon->race, GF_FIRE);
+        if (aura)
+        {
+            floor_remove_web(cell);
+            dun_note_pos(dun, mon->pos);
+            dun_draw_pos(dun, mon->pos);
+            mon_lore_aura(mon, aura);
+        }
+        else if (mon_can_tunnel(mon))
+        {
+            floor_remove_web(cell);
+            dun_note_pos(dun, pos);
+            dun_draw_pos(dun, pos);
+        }
+        else if (mon_can_passweb(mon))
+            mon_lore_passweb(mon);
+        else
+            mon->mflag2 |= MFLAG2_WEB; 
+        /* XXX mon_can_clearweb requires energy and should not be applied on this turn */
     }
 }
 static void _floor_flags(dun_cell_ptr cell)
@@ -3711,7 +3735,7 @@ static cptr _pattern_desc(dun_cell_ptr cell)
 }
 static int _pattern_priority(dun_cell_ptr cell) { return 16; }
 static bool _pattern_allow_plr(dun_cell_ptr cell) { return TRUE; }
-static bool _pattern_allow_mon(dun_cell_ptr cell, mon_ptr mon) { return mon_can_fly(mon); }
+static bool _pattern_allow_mon(dun_cell_ptr cell, mon_ptr mon) { return mon_can_fly(mon) || plr->riding == mon->id; }
 static bool _pattern_allow_mon_race(dun_cell_ptr cell, mon_race_ptr race) { return mon_race_can_fly(race); }
 static void _teleport_level(dun_ptr dun)
 {

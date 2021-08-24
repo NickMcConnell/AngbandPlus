@@ -1904,12 +1904,18 @@ mon_ptr place_monster_one(who_t who, point_t pos, mon_race_ptr race, mon_pack_pt
         set_pet(mon);
     }
     /* Friendly? */
-    else if ( mon_race_is_friendly(race)
-           || (mode & PM_FORCE_FRIENDLY)
-           || (parent && mon_is_friendly(parent)) )
+    else if ( ( mon_race_is_friendly(race)
+             || (mode & PM_FORCE_FRIENDLY)
+             || (parent && mon_is_friendly(parent)) )
+           && !(mode & PM_NO_FRIEND) )
     {
         if (allow_friendly_monster && !align_hostile(plr->align, mon->align))
-            set_friendly(mon);
+        {
+            if (parent && mon_is_temp_friendly(parent))
+                set_temp_friendly(mon);
+            else
+                set_friendly(mon);
+        }
     }
     else if (pack)
     {
@@ -2452,14 +2458,12 @@ bool summon_specific(who_t who, point_t tgt_pos, int lev, int type, u32b mode)
             boss_summoned = TRUE;
     }
 
-    if (mon_summoned || who_is_plr(who))
+    if (who_is_mon(who) && plr_block_summon(who_mon(who)))
     {
-        if (plr->anti_summon && plr_view(pos) && !one_in_(3))
-        {
-            msg_format("The summoning is blocked!");
-            return FALSE;
-        }
+        msg_format("The summoning is blocked!");
+        return FALSE;
     }
+
     pos = mon_scatter(NULL, tgt_pos, 2);
     if (!dun_pos_interior(cave, pos)) return FALSE;
 
@@ -2557,7 +2561,7 @@ mon_ptr summon_named_creature(who_t who, point_t tgt_pos, mon_race_ptr race, u32
     point_t pos;
 
     if (!race) return FALSE;
-    if (plr->anti_summon && !one_in_(3))
+    if (who_is_mon(who) && plr_block_summon(who_mon(who)))
     {
         msg_format("The summoning is blocked!");
         return FALSE;

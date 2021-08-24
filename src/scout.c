@@ -468,6 +468,8 @@ static void _calc_bonuses(void)
     int ct = _count_open_terrain();
     bool disrupt = heavy_armor();
 
+    plr->pass_tree = TRUE;
+
     /* Hack: Heavy Armor negates advantages of being in the open, and
        actually incurs penalties for being entrenched! */
     if (disrupt)

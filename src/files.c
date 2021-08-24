@@ -1455,23 +1455,6 @@ void player_flags(u32b flgs[OF_ARRAY_SIZE])
     mut_get_flags(flgs);
 }
 
-#if 0
-void tim_player_flags(u32b flgs[OF_ARRAY_SIZE])
-{
-    /* Hex bonuses */
-    if (plr->realm1 == REALM_HEX)
-    {
-        if (hex_spelling(HEX_DEMON_AURA))
-        {
-            add_flag(flgs, OF_AURA_FIRE);
-            add_flag(flgs, OF_REGEN);
-        }
-        if (hex_spelling(HEX_ICE_ARMOR)) add_flag(flgs, OF_AURA_COLD);
-        if (hex_spelling(HEX_SHOCK_CLOAK)) add_flag(flgs, OF_AURA_ELEC);
-    }
-}
-
-#endif
 static int _ct;
 static void _ct_kills(mon_race_ptr r)
 {

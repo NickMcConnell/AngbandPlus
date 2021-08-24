@@ -8,10 +8,10 @@ cp src/poschengband.exe .
 if [ -n "$1" ]
 then
     file=poschengband-"$1".zip
-    src_file=poschengband-"$1"-src.zip
+    src_file=poschengband-"$1"-src.tar
 else
     file=poschengband-"$(git describe)".zip
-    src_file=poschengband-"$(git describe)"-src.zip
+    src_file=poschengband-"$(git describe)"-src.tar
 fi
 
 rm $file
@@ -19,7 +19,12 @@ find ./lib -name Makefile -prune -o -name .deps -prune -o -print | zip $file -@
 zip $file poschengband.exe readme.txt
 
 rm $src_file
+rm "$src_file".gz
 git archive -o $src_file HEAD
+tar -rf $src_file ./lib/xtra/graf/13x24.bmp
+gzip -c $src_file > "$src_file".gz
+rm $src_file
 
 rm scores.zip
 zip -j scores.zip ~/.angband/PosChengband/scores/html/*.html
+zip -j scores_back.zip ~/.angband/PosChengband/scores/*

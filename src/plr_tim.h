@@ -49,10 +49,42 @@ enum {
     T_STUN, T_CUT, T_FEAR,
     T_EGO_WHIP, T_MIND_TRAP, T_DRAIN_MANA, T_DRAIN_FOOD, T_TELEPORT,
     /* special */
-    T_KUTAR_EXPAND, T_ENLARGE_WEAPON,
+    T_KUTAR_EXPAND, T_ENLARGE_WEAPON, /* XXX 80 XXX */
+
+    /* Music (Bard and Skillmaster) */
+    T_SONG_BEGIN = 300,
+    T_SONG_SLOW = T_SONG_BEGIN, T_SONG_BLESS, T_SONG_STUN, T_SONG_FLOW_OF_LIFE,
+    T_SONG_FEAR, T_SONG_HERO, T_SONG_DETECT, T_SONG_PSI, T_SONG_LORE,
+    T_SONG_STEALTH, T_SONG_CONFUSE, T_SONG_DOOMCALL, T_SONG_CHARM,
+    T_SONG_DISINTEGRATE, T_SONG_RESIST, T_SONG_SPEED, T_SONG_DISPEL,
+    T_SONG_SARUMAN, T_SONG_QUAKE, T_SONG_STASIS, T_SONG_HEROS_POEM,
+    T_SONG_YAVANNA, T_SONG_FINGOLFIN,
+    T_SONG_END,
+
+    /* Hex (Malediction) (High-Priest) */
+    T_HEX_BEGIN = 350,
+    T_HEX_BLESS, T_HEX_CURE_LIGHT, T_HEX_DEMON_AURA, T_HEX_STINKING_MIST,
+    T_HEX_XTRA_MIGHT, T_HEX_DETECT_EVIL, T_HEX_PATIENCE, T_HEX_ICE_ARMOR,
+    T_HEX_CURE_SERIOUS, T_HEX_VAMP_MIST, T_HEX_RUNESWORD, T_HEX_CONFUSION,
+    T_HEX_BUILDING, T_HEX_ANTI_TELE, T_HEX_SHOCK_CLOAK, T_HEX_CURE_CRITICAL,
+    T_HEX_ANIMATE_DEAD, T_HEX_SHADOW_CLOAK, T_HEX_PAIN_TO_MANA, T_HEX_EYE_FOR_EYE,
+    T_HEX_ANTI_MULTIPLY, T_HEX_RESTORE, T_HEX_VAMP_BLADE, T_HEX_STUN,
+    T_HEX_ANTI_MAGIC, T_HEX_REVENGE,
+    T_HEX_END,
+
+    /* Bless (Benediction) (High-Priest) */
+    T_BLESS_BEGIN = 400,
+    T_BLESS_BLESS, T_BLESS_CURE_LIGHT, T_BLESS_DETECT_EVIL, T_BLESS_FRIENDSHIP,
+    T_BLESS_RESTORE, T_BLESS_CURE_SERIOUS, T_BLESS_CHASTITY, T_BLESS_POVERTY,
+    T_BLESS_UNBARRING, T_BLESS_PROT_EVIL, T_BLESS_OBEDIENCE, T_BLESS_BANISH_EVIL,
+    T_BLESS_CURE_CRITICAL, T_BLESS_HOLY_CHANT, T_BLESS_HERO, T_BLESS_HOLY_AURA,
+    T_BLESS_REVELATION, T_BLESS_RESIST, T_BLESS_SPEED, T_BLESS_HOLY_AVENGER,
+    T_BLESS_PEACE, T_BLESS_GROWING, T_BLESS_EXORCISM, T_BLESS_REPEL, T_BLESS_HEAL,
+    T_BLESS_JUSTICE, T_BLESS_REPENTANCE,
+    T_BLESS_END,
 
     /* XXX add new effects here without breaking savefiles (cf plr_tim_save and plr_tim_load) */
-    T_EXTRA = 300,
+    T_EXTRA = 600,
     /* monsters share some of the forgoing, but also have their own types */
     T_MONSTER = 800,
     /* classes may add custom timers (plr_tim_register) */
@@ -79,13 +111,14 @@ enum { /* levels for T_CUT */
 };
 
 /* timer flags (TF_*) */
-#define TF_FAST_TICK 0x0001  /* timer ticks every player action (vs every 10 game turns) */
-#define TF_LOCKED    0x0002  /* timer remains even if expired (e.g. bard songs) */
-#define TF_NO_DISPEL 0x0004  /* timer never gets dispelled (perhaps it is something bad) */
-#define TF_AUGMENT   0x0008  /* count accumulates on each plr_tim_add() (e.g. E_POISON) */
-#define TF_IGNORE    0x0010  /* count ignores new additions until it expires (e.g. E_PARALYZED) */
-#define TF_NO_MSG    0x0020  /* omit messages ... for timer_on and timer_off plr hooks XXX You'll need to implement this in plr_tim.c as needed! cf _paralyzed */
-#define TF_DUPLICATE 0x0040  /* allow duplicate timers with same id (MT_AMNESIA) XXX not implemented for plr_tim_add yet */
+#define TF_FAST_TICK   0x0001  /* timer ticks every player action (vs every 10 game turns) */
+#define TF_LOCKED      0x0002  /* timer remains even if expired (e.g. bard songs) */
+#define TF_NO_DISPEL   0x0004  /* timer never gets dispelled (perhaps it is something bad) */
+#define TF_AUGMENT     0x0008  /* count accumulates on each plr_tim_add() (e.g. E_POISON) */
+#define TF_IGNORE      0x0010  /* count ignores new additions until it expires (e.g. E_PARALYZED) */
+#define TF_NO_MSG      0x0020  /* omit messages ... for timer_on and timer_off plr hooks XXX You'll need to implement this in plr_tim.c as needed! cf _paralyzed */
+#define TF_DUPLICATE   0x0040  /* allow duplicate timers with same id (MT_AMNESIA) XXX not implemented for plr_tim_add yet */
+#define TF_INTERRUPTED 0x0080  /* music, hex and dispel magic */
 #define TF_BIFF (TF_NO_DISPEL | TF_AUGMENT)
 
 /* the timer */
@@ -113,7 +146,7 @@ struct plr_tim_info_s
     cptr   name, desc;   /* name and desc are descriptive for Self Knowledge et. al. */
     bool (*on_f)(plr_tim_ptr timer);
     void (*add_f)(plr_tim_ptr timer, int amt); /* custom adding to existing timer (e.g. T_STUN, T_CUT) */
-    void (*off_f)(plr_tim_ptr timer);
+    void (*off_f)(plr_tim_ptr timer); /* XXX timer is no longer in plr->timers at time of call (cf hex.c) */
     void (*tick_f)(plr_tim_ptr timer); /* you manage decrementing timer->count */
     void (*calc_bonuses_f)(plr_tim_ptr timer);
     void (*calc_weapon_bonuses_f)(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info); /* obj == NULL for PAT_MONK */
@@ -121,6 +154,7 @@ struct plr_tim_info_s
     void (*flags_f)(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE]);
     void (*stats_f)(plr_tim_ptr timer, s16b stats[MAX_STATS]);
     bool (*dispel_check_f)(plr_tim_ptr timer, mon_ptr mon); /* e.g. _brand_fire or _res_acid */
+    void (*dispel_f)(plr_tim_ptr timer);  /* use TF_NO_DISPEL as well ... this is for music and hex */
     status_display_t (*status_display_f)(plr_tim_ptr timer);
     void (*prt_effects_f)(plr_tim_ptr timer, doc_ptr doc);
     u32b   flags;
@@ -128,6 +162,7 @@ struct plr_tim_info_s
 
 /* allocate and register custom timers on a per class basis (cf E_CUSTOM) */
 extern plr_tim_info_ptr plr_tim_info_alloc(int id, cptr name);
+extern plr_tim_info_ptr plr_tim_info_find(int id);
 extern void plr_tim_register(plr_tim_info_ptr info);
 
 /* Adding a timer (plr_tim_add):
@@ -219,5 +254,16 @@ extern void plr_tim_save(savefile_ptr file);
  * For example Stone Skin gives +50 AC and Ult Res +75. Together, only +75 (not +125) */
 extern void plr_bonus_ac(int amt);
 extern void plr_bonus_speed(int amt);
+
+/* XXX Shared with Musical|Chanting Realms */
+extern void blessed_bonus(plr_tim_ptr timer);
+extern void blessed_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info);
+extern void blessed_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, plr_shoot_info_ptr info);
+extern void hero_bonus(plr_tim_ptr timer);
+extern void hero_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE]);
+extern void hero_weapon_bonus(plr_tim_ptr timer, obj_ptr obj, plr_attack_info_ptr info);
+extern void hero_shooter_bonus(plr_tim_ptr timer, obj_ptr obj, plr_shoot_info_ptr info);
+extern void ult_res_bonus(plr_tim_ptr timer);
+extern void ult_res_flags(plr_tim_ptr timer, u32b flgs[OF_ARRAY_SIZE]);
 
 #endif

@@ -11,8 +11,7 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     if (plr->lev >= 30)
         add_flag(flgs, OF_RES_(GF_FEAR));
-    if (plr->lev >= 45)
-        add_flag(flgs, OF_REGEN);
+    add_flag(flgs, OF_REGEN);
 }
 
 static void _calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info)

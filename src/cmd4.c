@@ -3114,6 +3114,7 @@ static vec_ptr collect_monsters(int grp_cur, byte mode)
         else if (grp_unique)
         {
             if (!mon_race_is_fixed_unique(r_ptr)) continue;
+            if (mon_race_is_olympian(r_ptr)) continue; /* XXX Pending 'The Clash of the Titans' XXX */
         }
 
         else if (grp_guardian)
@@ -3328,7 +3329,7 @@ static int collect_objects(int grp_cur, vec_ptr kinds, byte mode)
         if (TV_LIFE_BOOK == group_tval)
         {
             /* Hack -- All spell books */
-            if (TV_LIFE_BOOK <= k_ptr->tval && k_ptr->tval <= TV_BURGLARY_BOOK)
+            if (TV_LIFE_BOOK <= k_ptr->tval && k_ptr->tval <= TV_BLESS_BOOK)
                 vec_add(kinds, k_ptr);
             else continue;
         }

@@ -1035,7 +1035,7 @@ I:COLOR(Light Green)
 P:Copy:Demigod:Mystic
 
 N:p.grand fearlord:p.base:Grand Fearlord
-I:LVL(65,127):RARITY(3)
+I:LVL(65):RARITY(3)
 I:SPEED(+25):HP(50d100):AC(120):EXP(25000)
 I:CAN(FEAR):ATTR(SMART):ALERT(Fairly Unseeing):DARK(0+2)
 B:HIT(x4):HURT(3d10+25):TERRIFY:LOSE_CHR(50%)
@@ -1049,15 +1049,32 @@ D:eyeballs of foes defeated. The sight of him strikes terror into your soul.
 I:COLOR(Light Umber)
 P:Copy:Demigod:Beastmaster
 
+N:p.arch-druid:p.base:Arch-druid
+I:LVL(69):RARITY(3)
+I:SPEED(+15):HP(1500):AC(120):EXP(15000)
+I:ATTR(SMART)
+B:HIT(x4):HURT(5d5+20)
+I:RESIST(BASE|POIS|CONF):IMMUNE(SLEEP|SLOW)
+S:FREQ_50 | BLINK | BLINK_OTHER | HASTE | HEAL
+S:METEOR | HURRICANE | BA_WATER(150) | BA_ICE(150) | QUAKE
+S:S_ENT(1d2)
+S:DETECT_MONSTERS | MAPPING
+O:4d2:OBJ(*, GOOD):DROP_MAGE
+I:COLOR(Green)
+P:Copy:Dunadan:High-Priest
+P:Speed:+7
+D:Garbed in robes of green, this human figure is at one with nature.
+D:The very air about you seems to presage the gathering storm.
+
 N:p.old sorcerer:p.base:Old sorcerer
 I:LVL(69):RARITY(3)
-I:SPEED(+20):HP(1300):AC(60):EXP(10000):EVOLVE(p.ultimate magus, 100000)
+I:SPEED(+20):HP(1300):AC(60):EXP(15000):EVOLVE(p.ultimate magus, 100000)
 I:ALIGN(Evil):ATTR(SMART)
 B:HIT(x3):HURT(1d8+20)
 B:TOUCH:DRAIN_MANA(6d8)
 I:RESIST(CONF):IMMUNE(SLEEP|SLOW)
-S:1_IN_2 | BLINK | BLINK_OTHER | TELE_TO | BLIND | CONFUSE | CAUSE_3 | CAUSE_4 | TRAPS
-S:BO_ACID | BA_FIRE | BA_COLD | BA_POISON | BO_WATER | BO_MANA | BA_WATER
+S:FREQ_75 | BLINK | BLINK_OTHER
+S:METEOR | BA_DISENCHANT | BA_WATER | BO_MANA | BA_CHAOS | BA_SOUND
 S:S_MONSTER | S_UNDEAD | S_DRAGON | S_HI_DRAGON | S_HI_UNDEAD
 S:DETECT_MONSTERS | MAPPING | IDENTIFY
 O:4d2:OBJ(*, GOOD):DROP_MAGE

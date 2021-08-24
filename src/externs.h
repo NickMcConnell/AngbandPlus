@@ -618,6 +618,16 @@ extern int spell_power(int pow);
 extern int spell_power_aux(int pow, int bonus);
 extern int spell_cap(int cap);
 extern int spell_cap_aux(int cap, int bonus);
+
+/* XXX This hack is for Music and Hex magic. Songs and chants require upkeep
+ * to be paid and do_spell() is never passed the casting cost. Historically,
+ * the bard and hex caster remembered the "spell index (0 - 31)" and used this
+ * to look into technic_info on every upkeep turn to recompute the casting cost.
+ * However, I want Music to be available for the Skillmaster, so this won't work
+ * as proficiency points scale the casting cost. So ... another global until I 
+ * can think of a less tasteful way to do this. XXX */
+extern int current_spell_cost;
+
 extern cptr do_spell(int realm, int spell, int mode);
 extern cptr info_damage(int dice, int sides, int base);
 extern cptr info_duration(int base, int sides);
@@ -633,7 +643,7 @@ bool trump_summoning(int num, bool pet, point_t pos, int lev, int type, u32b mod
 
 /* realm_illusion.c */
 extern cptr do_illusion_spell(int spell, int mode);
-extern void register_illusion_timers(void);
+extern void illusion_register_timers(void);
 extern void confusing_lights(int power);
 
 /* dungeon.c */
@@ -763,6 +773,7 @@ extern void mon_lore_effect(monster_type *m_ptr, mon_effect_ptr effect);
 extern void mon_lore_aux_effect(monster_race *r_ptr, mon_effect_ptr effect);
 
 extern void set_friendly(monster_type *m_ptr);
+extern void set_temp_friendly(monster_type *m_ptr);
 extern void set_pet(monster_type *m_ptr);
 extern void set_temp_pet(monster_type *m_ptr);
 extern void set_hostile(monster_type *m_ptr);
@@ -1082,6 +1093,7 @@ extern bool identify_item(object_type *o_ptr);
 extern bool recharge_from_player(int power);
 extern bool recharge_from_device(int power);
 extern bool bless_weapon(void);
+extern bool bless_armor(void);
 extern bool polish_shield(void);
 extern bool potion_smash_effect(who_t who, point_t pos, int k_idx);
 extern s16b experience_of_spell(int spell, int realm);
@@ -1371,6 +1383,7 @@ extern bool dispel_check(int m_idx);
 extern int original_score;
 extern int replacement_score;
 extern void one_sustain(object_type *o_ptr);
+extern void one_bless(obj_ptr obj);
 extern void one_high_resistance(object_type *o_ptr);
 extern bool one_high_vulnerability(object_type *o_ptr);
 extern void one_undead_resistance(object_type *o_ptr);
@@ -1549,22 +1562,47 @@ extern bool is_fired;
 extern void reset_concentration(bool msg);
 extern void display_snipe_list(void);
 
-/* hex.c */
+/* bard.c */
+extern class_t *bard_get_class(void);
+extern cptr     do_music_spell(int spell, int mode);
+extern void     music_register_timers(void);
+extern int      music_current(void);
+extern int      music_duration(void);
+extern void     music_stop(void);
+extern void     music_stop_spell(int cmd, var_ptr res);
+
+/* bless.c (Benediction magic) */
+extern int  bless_count(void); /* number of active chants */
+extern int  bless_max(void); /* max number of active chants */
+extern void bless_stop(void); /* stops all active chants (e.g. when reading a scroll) */
+extern bool bless_stop_one(void); /* prompt to stop a single chant (if multiple active) */
+
+extern cptr do_bless_spell(int spell, int mode);
+extern void bless_stop_spell(int cmd, var_ptr res);
+
+extern void bless_calc_bonuses(void);
+extern void bless_calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info);
+extern void bless_get_flags(u32b flgs[OF_ARRAY_SIZE]);
+extern void bless_register_timers(void);
+
+/* hex.c (Malediction magic) */
+extern bool hex_inhale; /* XXX hack for "Inhale Potion" and do_cmd_quaff_potion_aux */
+extern int  hex_count(void); /* number of active chants */
+extern int  hex_max(void); /* max number of active chants */
+extern void hex_stop(void); /* stops all active chants (e.g. when reading a scroll) */
+extern bool hex_stop_one(void); /* prompt to stop a single chant (if multiple active) */
+extern void hex_on_dam(int dam); /* observe damage to player for later *revenge* */
+
+extern void hex_load(savefile_ptr file);
+extern void hex_save(savefile_ptr file);
+
 extern cptr do_hex_spell(int spell, int mode);
-extern bool stop_hex_spell_all(void);
-extern bool stop_hex_spell(void);
-extern void check_hex(void);
-extern bool hex_spell_fully(void);
-extern void hex_stop_spelling_spell(int cmd, var_ptr res);
+extern void hex_stop_spell(int cmd, var_ptr res);
+
 extern void hex_calc_bonuses(void);
-extern void hex_calc_stats(s16b stats[MAX_STATS]);
+extern void hex_get_flags(u32b flgs[OF_ARRAY_SIZE]);
 extern void hex_calc_weapon_bonuses(obj_ptr obj, plr_attack_info_ptr info);
-extern void revenge_spell(void);
-extern void revenge_store(int dam);
-extern bool teleport_barrier(int m_idx);
-extern bool magic_barrier(int m_idx);
-extern bool magic_barrier_aux(mon_ptr m_ptr);
-extern bool multiply_barrier(int m_idx);
+extern void hex_register_timers(void);
 
 /* personalities.c */
 extern personality_ptr get_personality_aux(int index);
@@ -1603,6 +1641,7 @@ extern race_t *demigod_get_race(int psubrace);
 extern void    demigod_rechoose_powers(void);
 extern race_t *doppelganger_get_race(void);
 extern race_t *draconian_get_race(int psubrace);
+extern race_t *drider_get_race(void);
 extern race_t *dunadan_get_race(void);
 extern race_t *dwarf_get_race(void);
 extern race_t *ent_get_race(void);
@@ -1814,12 +1853,6 @@ extern bool     archaeologist_is_favored_weapon(object_type *o_ptr);
 extern int      archaeologist_spell_stat_idx(void);
 extern class_t *archer_get_class(void);
 
-extern class_t *bard_get_class(void);
-extern void     bard_check_music(void);
-extern void     bard_start_singing(int spell, int song);
-extern void     bard_stop_singing(void);
-extern cptr     do_music_spell(int spell, int mode);
-
 extern class_t *beastmaster_get_class(void);
 extern class_t *berserker_get_class(void);
 extern class_t *blood_knight_get_class(void);
@@ -1867,6 +1900,7 @@ extern class_t *ninja_get_class(void);
 extern class_t *paladin_get_class(void);
 extern bool     player_is_monster_king(void);
 extern class_t *priest_get_class(void);
+extern class_t *high_priest_get_class(void);
 extern bool     priest_is_good(void);
 extern bool     priest_is_evil(void);
 extern class_t *psion_get_class(void);
@@ -1931,6 +1965,7 @@ extern void     skillmaster_cast(void);
 extern int      skillmaster_antimagic_prob(void);
 extern void     skillmaster_browse(void);
 extern bool     skillmaster_is_allowed_book(int tval, int sval);
+extern bool     skillmaster_is_valid_realm(int realm);
 extern int      skillmaster_calc_xtra_hp(int amt);
 extern bool     skillmaster_weapon_is_icky(int tval);
 

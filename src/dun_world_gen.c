@@ -652,9 +652,6 @@ static int _deep_water_w(point_t pos, dun_grid_ptr grid)
  * overcrowding the wilderness. We'll divide the available dungeons
  * into tiers for better distribution (e.g. ensure at least 1 high
  * difficulty dungeon). */
-#define _TIER_LOW 1
-#define _TIER_MID 2
-#define _TIER_HIGH 3
 typedef struct {
     int id;
     int tier;
@@ -662,23 +659,25 @@ typedef struct {
     int run;
 } _dun_tbl_t, *_dun_tbl_ptr;
 static _dun_tbl_t _dun_tbl[] = {
-    /* Low Tier Dungeons */
-    { D_ICKY_CAVE, _TIER_LOW, _swamp_w },
-    { D_FOREST, _TIER_LOW, _forest_w },
-    { D_CAMELOT, _TIER_LOW, _shy_dry_w },
-    /* Mid Tier Dungeons */
-    { D_MOUNTAIN, _TIER_MID, _mountain_w },
-    { D_WIZARDS_TOWER, _TIER_MID, _shy_dry_w },
-    { D_MONASTERY, _TIER_MID, _shy_dry_w },
-    { D_SANCTUARY, _TIER_MID, _shy_dry_w },
-    { D_CASTLE, _TIER_MID, _shy_dry_w },
-    { D_DARK_CASTLE, _TIER_MID, _inner_mountain_w },
-    /* High Tier Dungeons */
-    { D_RLYEH, _TIER_HIGH, _deep_water_w },
-    { D_DRAGONS_LAIR, _TIER_HIGH, _shy_mountain_w },
-    { D_GRAVEYARD, _TIER_HIGH, _shy_swamp_w },
-    { D_NUMENOR, _TIER_HIGH, _deep_water_w },
-    { D_PANDEMONIUM, _TIER_HIGH, _shy_mountain_w },
+    /* Tier 1: End DL32-35 */
+    { D_ICKY_CAVE, 1, _swamp_w },
+    { D_FOREST, 1, _forest_w },
+    { D_CAMELOT, 1, _shy_dry_w },
+    /* Tier 2: End DL40-45 */
+    { D_MOUNTAIN, 2, _mountain_w },
+    { D_DARK_CAVE, 2, _foothills_w },
+    /* Tier 3: End DL50 or even DL60 */
+    { D_WIZARDS_TOWER, 3, _shy_dry_w },
+    { D_MONASTERY, 3, _shy_dry_w },
+    { D_SANCTUARY, 3, _shy_dry_w },
+    { D_CASTLE, 3, _shy_dry_w },
+    { D_DARK_CASTLE, 3, _inner_mountain_w },
+    /* Tier 4: End DL70 or more */
+    { D_RLYEH, 4, _deep_water_w },
+    { D_DRAGONS_LAIR, 4, _shy_mountain_w },
+    { D_GRAVEYARD, 4, _shy_swamp_w },
+    { D_NUMENOR, 4, _deep_water_w },
+    { D_PANDEMONIUM, 4, _shy_mountain_w },
     { D_NONE }
 };
 static int _run = 0;
@@ -744,9 +743,10 @@ static void _dungeons(void)
     _dungeon(D_ORC_CAVE, _foothills_w);
 
     /* randomized dungeons */
-    _random_dungeons(_TIER_LOW, _1d(2));
-    _random_dungeons(_TIER_MID, 2);
-    _random_dungeons(_TIER_HIGH, 2);
+    _random_dungeons(1, _1d(2));
+    _random_dungeons(2, 1);
+    _random_dungeons(3, 2);
+    _random_dungeons(4, 2);
 }
 static int _water_w(point_t pos, dun_grid_ptr grid)
 {

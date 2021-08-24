@@ -107,6 +107,8 @@ static int _max_vampiric_drain(void)
         return 30;
     if (mut_present(MUT_DRACONIAN_METAMORPHOSIS))
         return 30;
+    if (plr->pclass == CLASS_HIGH_PRIEST && plr->realm1 == REALM_DEATH)
+        return 100;
     return 50;
 }
 static bool _penetrate_invuln(plr_attack_ptr context)
@@ -708,7 +710,7 @@ static void _apply_vampiric(plr_attack_ptr context)
     {
         int drain_heal = damroll(2, context->dam_drain / 6);
 
-        if (hex_spelling(HEX_VAMP_BLADE)) drain_heal *= 2;
+        if (plr_tim_find(T_HEX_VAMP_BLADE)) drain_heal *= 2;
         if (prace_is_(RACE_MON_VAMPIRE)) drain_heal *= 2;
 
         context->drain_hits++;
@@ -1672,7 +1674,7 @@ static void _hit_effects2(plr_attack_ptr context) /* after mon_take_hit ... but 
     /* Confusion attack */
     if ( (plr->special_attack & ATTACK_CONFUSE)
       || context->mode == PLR_HIT_CONFUSE
-      || hex_spelling(HEX_CONFUSION)
+      || plr_tim_find(T_HEX_CONFUSION)
       || (giant_is_(GIANT_TITAN) && plr->lev >= 30 && one_in_(5)) )
     {
         /* Cancel glowing hands */
@@ -2198,7 +2200,7 @@ bool plr_check_hit(plr_attack_ptr context)
             /* always works against sleeping monsters (and never misses!) */
             bool do_it = mon_tim_find(context->mon, MT_SLEEP)
                       || mon_tim_find(context->mon, T_PARALYZED)
-                      || plr_tim_find(T_CLOAK_INNOCENCE);
+                      || plr->innocence; /* You brute! */
             /* sometimes works if invisible */
             if (!do_it && (plr->special_defense & DEFENSE_INVISIBLE))
             {
@@ -2207,11 +2209,8 @@ bool plr_check_hit(plr_attack_ptr context)
                 if (randint0(tmp) > context->race->alloc.lvl + 20)
                     do_it = TRUE;
             }
-            /* sometimes works if monster not aware of plr (or confused) */
-            if ( !do_it 
-              && ( (context->mon->mflag & MFLAG_IGNORE_PLR) 
-                || mon_tim_find(context->mon, T_CONFUSED)
-                || mon_tim_find(context->mon, T_BLIND) ) )
+            /* sometimes works if monster not aware of plr */
+            if (!do_it && (context->mon->mflag & MFLAG_IGNORE_PLR))
             {
                 int tmp = plr->lev * 2 + (plr->skills.stl + 10) * 4/3;
                 if (plr->cursed & OFC_AGGRAVATE) tmp /= 2;
@@ -2220,6 +2219,17 @@ bool plr_check_hit(plr_attack_ptr context)
                     context->mon->mflag &= ~MFLAG_IGNORE_PLR; /* he's aware of you now! */
                     do_it = TRUE;
                 }
+            }
+            /* sometimes works if monster stuck in a web, confused, or blinded ...
+             * note that plr aggravation does not biff the odds here */
+            if ( !do_it
+              && ( (context->mon->mflag2 & MFLAG2_WEB)
+                || mon_tim_find(context->mon, T_CONFUSED)
+                || mon_tim_find(context->mon, T_BLIND) ) )
+            {
+                int tmp = plr->lev * 2 + (plr->skills.stl + 10) * 4/3;
+                if (randint0(tmp) > context->race->alloc.lvl + 20)
+                    do_it = TRUE;
             }
             if (do_it)
             {

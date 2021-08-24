@@ -566,35 +566,6 @@ static void prt_status(void)
 
     if (world_player) ADD_FLG(BAR_THE_WORLD);
 
-    /* Hex spells */
-    if (plr->realm1 == REALM_HEX)
-    {
-        if (hex_spelling(HEX_BLESS)) ADD_FLG(BAR_BLESSED);
-        if (hex_spelling(HEX_DEMON_AURA)) { ADD_FLG(BAR_SHFIRE); ADD_FLG(BAR_REGENERATION); }
-        if (hex_spelling(HEX_XTRA_MIGHT)) ADD_FLG(BAR_MIGHT);
-        if (hex_spelling(HEX_DETECT_EVIL)) ADD_FLG(BAR_ESP_EVIL);
-        if (hex_spelling(HEX_ICE_ARMOR)) ADD_FLG(BAR_SHCOLD);
-        if (hex_spelling(HEX_RUNESWORD)) ADD_FLG(BAR_RUNESWORD);
-        if (hex_spelling(HEX_BUILDING)) ADD_FLG(BAR_BUILD);
-        if (hex_spelling(HEX_ANTI_TELE)) ADD_FLG(BAR_ANTITELE);
-        if (hex_spelling(HEX_SHOCK_CLOAK)) ADD_FLG(BAR_SHELEC);
-        if (hex_spelling(HEX_SHADOW_CLOAK)) ADD_FLG(BAR_SHSHADOW);
-        if (hex_spelling(HEX_CONFUSION)) ADD_FLG(BAR_ATTKCONF);
-        if (hex_spelling(HEX_EYE_FOR_EYE)) ADD_FLG(BAR_EYEEYE);
-        if (hex_spelling(HEX_ANTI_MULTI)) ADD_FLG(BAR_ANTIMULTI);
-        if (hex_spelling(HEX_VAMP_BLADE)) ADD_FLG(BAR_VAMPILIC);
-        if (hex_spelling(HEX_ANTI_MAGIC)) ADD_FLG(BAR_ANTIMAGIC);
-        if (hex_spelling(HEX_CURE_LIGHT) ||
-            hex_spelling(HEX_CURE_SERIOUS) ||
-            hex_spelling(HEX_CURE_CRITICAL)) ADD_FLG(BAR_CURE);
-
-        if (plr->magic_num2[2])
-        {
-            if (plr->magic_num2[1] == 1) ADD_FLG(BAR_PATIENCE);
-            if (plr->magic_num2[1] == 2) ADD_FLG(BAR_REVENGE);
-        }
-    }
-
     #endif
 }
 
@@ -1088,7 +1059,7 @@ static void prt_effects(void)
 {
     int i;
     rect_t r = ui_char_info_rect();
-    doc_ptr doc = doc_alloc(r.cx + 1);
+    doc_ptr doc = doc_alloc(r.cx);
 
     doc_insert(doc, "<style:table>");
 
@@ -1181,7 +1152,7 @@ static void prt_effects(void)
 
     plr_hook_prt_effects(doc);
 
-    doc_sync_term(doc, doc_range_all(doc), doc_pos_create(r.x, r.y)); 
+    doc_sync_term(doc, doc_range_top_lines(doc, r.cy), doc_pos_create(r.x, r.y)); 
     doc_free(doc);
 }
 
@@ -2185,6 +2156,7 @@ static int _racial_mana_adjust(int i)
         /* full bonus */
         case CLASS_MAGE:
         case CLASS_HIGH_MAGE:
+        case CLASS_HIGH_PRIEST:
         case CLASS_SORCERER:
             break;
         /* restricted bonus */
@@ -2515,12 +2487,8 @@ static void calc_hitpoints(void)
     if (mmhp < 1)
         mmhp = 1;
 
-    if (plr_tim_find(T_HERO)) mmhp += 10;
-    if (plr_tim_find(T_BERSERK)) mmhp += 30;
-    if (hex_spelling(HEX_XTRA_MIGHT)) mmhp += 15;
-    if (hex_spelling(HEX_BUILDING)) mmhp += 60;
-    if (plr_tim_find(T_GIANT_STRENGTH)) mmhp += 10 + plr->lev/2;
-    if (mut_present(MUT_UNYIELDING)) mmhp += plr->lev;
+    /* apply temp hp bonuses from timers et. al. (Heroism, Berserk, ...) */
+    mmhp += plr->xtra_hp;
 
     mhp = mmhp;
     mhp -= mhp*(1000 - plr->clp)/2000;
@@ -2771,6 +2739,8 @@ void calc_bonuses(void)
     plr->kill_wall = FALSE;
     plr->pass_web = FALSE;
     plr->clear_web = FALSE;
+    plr->pass_tree = FALSE;
+    plr->centaur_armor = FALSE;
     plr->dec_mana = 0;
     plr->spell_power = 0;
     plr->device_power = 0;
@@ -2816,6 +2786,7 @@ void calc_bonuses(void)
     res_clear();
 
     plr->life = 0;
+    plr->xtra_hp = 0;
     plr->reflect = FALSE;
 
     plr->sh_fire = FALSE;
@@ -2824,12 +2795,18 @@ void calc_bonuses(void)
     plr->sh_shards = FALSE;
     plr->sh_retaliation = FALSE;
     plr->sh_fear = FALSE;
+    plr->sh_holy = FALSE;
+    plr->revenge = FALSE;
+    plr->innocence = FALSE;
+
+    plr->repel_evil = FALSE;
+    plr->repel_good = FALSE;
+    plr->repel_monsters = FALSE;
 
     plr->anti_magic = FALSE;
     plr->res_magic = FALSE;
     plr->vuln_magic = FALSE;
     plr->anti_tele = FALSE;
-    plr->anti_summon = FALSE;
     plr->stealthy_snipe = FALSE;
     plr->nimble_dodge = FALSE;
     plr->warning = FALSE;
@@ -2837,6 +2814,12 @@ void calc_bonuses(void)
     plr->see_nocto = 0;
     plr->easy_capture = FALSE;
     plr->easy_realm1 = REALM_NONE;
+
+    plr->block_summon = FALSE;
+    plr->block_multiply = FALSE;
+    plr->block_teleport = FALSE;
+    plr->block_magic = FALSE;
+    plr->block_steal = FALSE;
 
     plr->move_random = FALSE;
 
@@ -2969,9 +2952,6 @@ void calc_bonuses(void)
 
     if (mut_present(MUT_GOOD_LUCK))
         plr->good_luck = TRUE;
-
-    if (music_singing(MUSIC_WALL))
-        plr->kill_wall = TRUE;
 
     /* Hack -- apply racial/class stat maxes */
     /* Apply the racial modifiers */
@@ -3699,7 +3679,6 @@ void calc_bonuses(void)
     /* Affect Skill -- stealth (bonus one) */
     plr->skills.stl += 1;
 
-    if (music_singing(MUSIC_STEALTH)) plr->skills.stl += 99;
     if (plr->action == ACTION_STALK) plr->skills.stl += (plr->lev+2)/3;
 
     /* Affect Skill -- disarming (DEX and INT) */

@@ -38,8 +38,9 @@ bool can_do_cmd_cast(void)
 
 void stop_mouth(void)
 {
-    if (music_singing_any()) bard_stop_singing();
-    if (hex_spelling_any()) stop_hex_spell_all();
+    if (music_current()) music_stop();
+    if (hex_count()) hex_stop();
+    if (bless_count()) bless_stop();
     warlock_stop_singing();
 }
 

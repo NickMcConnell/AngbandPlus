@@ -437,6 +437,7 @@ extern bool mon_race_is_cold_blooded(mon_race_ptr race);
 extern void mon_lore_cold_blooded(mon_ptr mon);
 
 extern bool mon_is_friendly(mon_ptr mon);
+extern bool mon_is_temp_friendly(mon_ptr mon);
 extern bool mon_race_is_friendly(mon_race_ptr race);
 extern void mon_lore_friendly(mon_ptr mon);
 

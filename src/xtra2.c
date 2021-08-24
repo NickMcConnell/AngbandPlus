@@ -1044,7 +1044,17 @@ bool mon_take_hit(mon_ptr mon, int dam, bool *fear, cptr note)
     int         expdam;
 
     set_sanctuary(FALSE);
-    plr_tim_remove(T_CLOAK_INNOCENCE);
+    /* plr->innocence blocks monster hostility, allowing the plr to pass unscathed ... */
+    if (plr->innocence)
+    {
+        /* ... so attacking is a very evil action! */
+        virtue_add(VIRTUE_HONOUR, -5);
+        virtue_add(VIRTUE_COMPASSION, -5);
+        virtue_add(VIRTUE_JUSTICE, -5);
+        plr_tim_remove(T_CLOAK_INNOCENCE);
+        plr_tim_remove(T_BLESS_PEACE);
+        plr->innocence = FALSE; /* XXX only trash virtues once ... PU_BONUS is pending end of melee attacks */
+    }
 
     /* Hack: Player mimic has revealed itself! */
     if (plr->prace == RACE_MON_RING && !plr->riding)

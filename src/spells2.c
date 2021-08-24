@@ -140,6 +140,10 @@ void self_knowledge(void)
         doc_insert(doc, "You can fly.\n");
     if (plr->free_act)
         doc_insert(doc, "You have free action.\n");
+    if (plr->pass_web)
+        doc_insert(doc, "You are unhampered by sticky webs.\n");
+    if (plr->pass_tree)
+        doc_insert(doc, "You are unhampered by thick foliage.\n");
     if (plr->regen > 100)
         doc_insert(doc, "You regenerate quickly.\n");
     if (plr->slow_digest)
@@ -327,10 +331,17 @@ static bool detect_feat_p(int range, cell_p p, bool known)
 
     return _detect;
 }
+static bool _music_check(int threshold)
+{
+    /* this check prevents multiple messages while maintaining the song
+     * of detection (Clairaudience) ... only msg on the first turn */
+    return (plr_tim_find(T_SONG_DETECT) && music_duration() > threshold)
+        || (plr_tim_find(T_BLESS_REVELATION) && plr_tim_amount(T_BLESS_REVELATION) - 1 > threshold);
+}
 bool detect_traps(int range, bool known)
 {
     bool detect = detect_feat_p(range, floor_has_trap, known);
-    if (music_singing(MUSIC_DETECT) && plr->magic_num1[2] > 0) detect = FALSE;
+    if (_music_check(0)) detect = FALSE;
     if (detect)
         msg_print("You sense the presence of traps!");
     return detect;
@@ -339,7 +350,7 @@ static bool _cell_is_door(dun_cell_ptr cell) { return cell_is_door(cell) || wall
 bool detect_doors(int range)
 {
     bool detect = detect_feat_p(range, _cell_is_door, TRUE);
-    if (music_singing(MUSIC_DETECT) && plr->magic_num1[2] > 0) detect = FALSE;
+    if (_music_check(0)) detect = FALSE;
     if (detect)
         msg_print("You sense the presence of doors!");
     return detect;
@@ -347,7 +358,7 @@ bool detect_doors(int range)
 bool detect_stairs(int range)
 {
     bool detect = detect_feat_p(range, cell_is_stairs, TRUE);
-    if (music_singing(MUSIC_DETECT) && plr->magic_num1[2] > 0) detect = FALSE;
+    if (_music_check(0)) detect = FALSE;
     if (detect)
         msg_print("You sense the presence of stairs!");
     return detect;
@@ -355,7 +366,7 @@ bool detect_stairs(int range)
 bool detect_recall(int range)
 {
     bool detect = detect_feat_p(range, portal_is_recall, TRUE);
-    if (music_singing(MUSIC_DETECT) && plr->magic_num1[2] > 0) detect = FALSE;
+    if (_music_check(0)) detect = FALSE;
     if (detect)
         msg_print("You sense the presence of a way back home!");
     return detect;
@@ -363,7 +374,7 @@ bool detect_recall(int range)
 bool detect_treasure(int range)
 {
     bool detect = detect_feat_p(range, wall_has_treasure, TRUE);
-    if (music_singing(MUSIC_DETECT) && plr->magic_num1[2] > 6) detect = FALSE;
+    if (_music_check(6)) detect = FALSE;
     if (detect)
         msg_print("You sense the presence of buried treasure!");
     return detect;
@@ -410,7 +421,7 @@ bool detect_objects_gold(int range)
     bool detect = FALSE;
     if (detect_obj_aux(obj_is_gold, range))
     {
-        if (music_singing(MUSIC_DETECT) && plr->magic_num1[2] > 6) {}
+        if (_music_check(6)) {}
         else msg_print("You sense the presence of treasure!");
         detect = TRUE;
     }
@@ -425,7 +436,7 @@ bool detect_objects_normal(int range)
     bool detect = FALSE;
     if (detect_obj_aux(obj_is_not_gold, range))
     {
-        if (music_singing(MUSIC_DETECT) && plr->magic_num1[2] > 6) {}
+        if (_music_check(6)) {}
         else msg_print("You sense the presence of objects!");
         detect = TRUE;
     }
@@ -490,7 +501,7 @@ bool detect_monsters_normal(int range)
     bool detect = FALSE;
     if (detect_mon_aux(_mon_normal_p, range))
     {
-        if (music_singing(MUSIC_DETECT) && plr->magic_num1[2] > 6) {}
+        if (_music_check(3)) {}
         else msg_print("You sense the presence of monsters!");
         detect = TRUE;
     }
@@ -501,7 +512,7 @@ bool detect_monsters_invis(int range)
     bool detect = FALSE;
     if (detect_mon_aux(mon_is_invisible, range))
     {
-        if (music_singing(MUSIC_DETECT) && plr->magic_num1[2] > 3) {}
+        if (_music_check(3)) {}
         else msg_print("You sense the presence of invisible creatures!");
         detect = TRUE;
     }
@@ -586,7 +597,7 @@ bool detect_monsters_string(int range, cptr match)
     _mon_match_string = match;
     if (detect_mon_aux(_mon_match_p, range))
     {
-        if (music_singing(MUSIC_DETECT) && plr->magic_num1[2] > 3) {}
+        if (_music_check(3)) {}
         else msg_print("You sense the presence of monsters!");
         detect = TRUE;
     }
@@ -598,7 +609,7 @@ bool detect_monsters_mimic(int range)
     _mon_match_string = "!=?|/`";
     if (detect_mon_aux(_mon_match_p, range))
     {
-        if (music_singing(MUSIC_DETECT) && plr->magic_num1[2] > 3) {}
+        if (_music_check(3)) {}
         else msg_print("You sense the presence of mimics!");
         detect = TRUE;
     }

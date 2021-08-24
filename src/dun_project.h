@@ -73,6 +73,7 @@ extern void dun_update_view(dun_ptr dun);
 extern void dun_forget_view(dun_ptr dun);
 extern void dun_wizard_view(dun_ptr dun);
 extern bool plr_view(point_t pos);
+extern void plr_view_iter(void (*f)(dun_ptr dun, point_t pos));
 
 extern void dun_update_light(dun_ptr dun);
 extern void dun_update_mon_light(dun_ptr dun);

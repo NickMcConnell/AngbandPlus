@@ -94,6 +94,12 @@ static int _spellbook_max(int tval, int sval)
     return max;
 }
 
+static bool _allow_harp(void)
+{
+    if (plr->pclass == CLASS_BARD) return TRUE;
+    if (plr->pclass != CLASS_SKILLMASTER) return FALSE;
+    return skillmaster_is_valid_realm(REALM_MUSIC);
+}
 /*
  * Choose an object kind that seems "appropriate" to the given level
  *
@@ -152,7 +158,8 @@ s16b get_obj_num(int level)
         k_idx = table[i].index;
         k_ptr = &k_info[k_idx];
         if (k_ptr->tval == TV_FOOD && k_ptr->sval == SV_FOOD_AMBROSIA && cave->type->id != D_OLYMPUS) continue;
-        if (k_ptr->tval == TV_BOW && k_ptr->sval == SV_HARP && plr->pclass != CLASS_BARD) continue;
+        if (k_ptr->tval == TV_BOW && k_ptr->sval == SV_HARP && !_allow_harp()) continue;
+
         /* Hack -- prevent embedded chests */
         if (opening_chest && (k_ptr->tval == TV_CHEST)) continue;
 
@@ -1828,6 +1835,7 @@ static bool kind_is_tailored(int k_idx)
     case TV_HISSATSU_BOOK:
     case TV_HEX_BOOK:
     case TV_BURGLARY_BOOK:
+    case TV_BLESS_BOOK:
         return check_book_realm(k_ptr->tval, k_ptr->sval)
             && k_ptr->sval >= SV_BOOK_MIN_GOOD
             && k_ptr->counts.found < 3;
@@ -1921,6 +1929,7 @@ bool kind_is_great(int k_idx)
         case TV_HISSATSU_BOOK:
         case TV_HEX_BOOK:
         case TV_BURGLARY_BOOK:
+        case TV_BLESS_BOOK:
         {
             if (k_ptr->sval == SV_BOOK_MIN_GOOD) return k_ptr->counts.found < 2; /* Third Spellbooks: I want ?Acquirement to grant these! */
             if (k_ptr->sval >= SV_BOOK_MIN_GOOD + 1) return k_ptr->counts.found < 2;   /* Fourth Spellbooks */
@@ -2027,6 +2036,7 @@ bool kind_is_good(int k_idx)
         case TV_HISSATSU_BOOK:
         case TV_HEX_BOOK:
         case TV_BURGLARY_BOOK:
+        case TV_BLESS_BOOK:
         {
             if (k_ptr->sval == SV_BOOK_MIN_GOOD) return k_ptr->counts.found < 2; /* Third Spellbooks */
             if (k_ptr->sval >= SV_BOOK_MIN_GOOD + 1) return k_ptr->counts.found < 2;   /* Fourth Spellbooks */

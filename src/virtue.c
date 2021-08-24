@@ -130,6 +130,7 @@ static s16b _realm_virtue(int realm)
     switch (realm)
     {
     case REALM_LIFE:
+    case REALM_BLESS:
         if (virtue_present(VIRTUE_VITALITY)) return VIRTUE_TEMPERANCE;
         else return VIRTUE_VITALITY;
     case REALM_SORCERY:
@@ -225,6 +226,7 @@ void virtue_init(void)
         plr->vir_types[i++] = VIRTUE_ENCHANTMENT;
         break;
     case CLASS_PRIEST:
+    case CLASS_HIGH_PRIEST:
         plr->vir_types[i++] = VIRTUE_FAITH;
         plr->vir_types[i++] = VIRTUE_TEMPERANCE;
         break;
@@ -391,7 +393,7 @@ void virtue_init(void)
     case RACE_MIND_FLAYER:
         plr->vir_types[i++] = VIRTUE_ENLIGHTENMENT;
         break;
-    case RACE_DARK_ELF: case RACE_DRACONIAN: case RACE_SHADOW_FAIRY:
+    case RACE_DARK_ELF: case RACE_DRACONIAN: case RACE_SHADOW_FAIRY: case RACE_DRIDER:
         plr->vir_types[i++] = VIRTUE_ENCHANTMENT;
         break;
     case RACE_NIBELUNG:
@@ -619,6 +621,7 @@ void virtue_on_fail_spell(int realm, int fail)
     switch (realm)
     {
     case REALM_LIFE:
+    case REALM_BLESS:
         if (randint1(100) < fail)
             virtue_add(VIRTUE_VITALITY, -1);
         break;
@@ -661,6 +664,12 @@ void virtue_on_first_cast_spell(int realm)
         virtue_add(VIRTUE_COMPASSION, 1);
         virtue_add(VIRTUE_VITALITY, 1);
         virtue_add(VIRTUE_DILIGENCE, 1);
+        break;
+    case REALM_BLESS:
+        virtue_add(VIRTUE_TEMPERANCE, 1);
+        virtue_add(VIRTUE_COMPASSION, 1);
+        virtue_add(VIRTUE_VITALITY, 1);
+        virtue_add(VIRTUE_HONOUR, 1);
         break;
     case REALM_DEATH:
     case REALM_NECROMANCY:
@@ -706,6 +715,12 @@ void virtue_on_cast_spell(int realm, int cost, int fail)
         if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_COMPASSION, 1);
         if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_VITALITY, 1);
         if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_DILIGENCE, 1);
+        break;
+    case REALM_BLESS:
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_TEMPERANCE, 1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_COMPASSION, 1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_VITALITY, 1);
+        if (randint1(100 + plr->lev) < cost) virtue_add(VIRTUE_HONOUR, 1);
         break;
     case REALM_DEATH:
     case REALM_NECROMANCY:

@@ -2646,7 +2646,7 @@ F:FREE_ACT | PERMA_CURSE | QUESTITEM | INSTA_ART | NO_ENCHANT
 D:It is a charred and rotting vestige of the once
 D:great Emperor Lich.
 
-N:{.Cupid:'Cupid's Arrow'
+N:{.Cupid:of Cupid
 I:ARROW:1:0
 W:35:35:2:2000
 P:0:1d4:0:0:0

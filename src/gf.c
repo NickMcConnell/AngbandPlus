@@ -180,6 +180,10 @@ static gf_info_t _gf_tbl[] = {
     { GF_LICH_WORD, "Word of Vecna", TERM_VIOLET, "LICH_WORD", GFF_STATUS | GFF_DAMAGE | GFF_HIDE },
 
     /* New Stuff ... Reorder later */
+    { GF_FRIENDSHIP, "Friendship", TERM_ORANGE, "FRIENDSHIP", GFF_SPECIAL | GFF_HIDE },
+    { GF_OBEDIENCE, "Obedience", TERM_ORANGE, "OBEDIENCE", GFF_SPECIAL | GFF_HIDE },
+    { GF_EXORCISM, "Exorcism", TERM_L_DARK, "EXORCISM", GFF_HIDE },
+    { GF_REPENTANCE, "Repentance", TERM_ORANGE, "REPENTANCE", GFF_SPECIAL | GFF_HIDE },
     
     { 0 }
 };
@@ -2714,10 +2718,14 @@ bool gf_affect_m(who_t who, mon_ptr mon, int gf, int dam, int flags)
             dam = dam * 2 / 3;
 
         /* Attempt a saving throw */
-        if ((mon->mflag2 & MFLAG2_QUESTOR) ||
-            !mon_is_undead(mon) ||
-            (mon->mflag2 & MFLAG2_NOPET) ||
-            (race->alloc.lvl > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+        if (mon_is_pet(mon))
+        {
+            note = " is already in your thrall!";
+        }
+        else if ( (mon->mflag2 & MFLAG2_QUESTOR)
+               || !mon_is_undead(mon)
+               || (mon->mflag2 & MFLAG2_NOPET)
+               || race->alloc.lvl > 10 + _1d(MAX(1, dam - 10)) )
         {
             /* No obvious effect */
             if (!quiet) note = " is unaffected!";
@@ -2734,7 +2742,6 @@ bool gf_affect_m(who_t who, mon_ptr mon, int gf, int dam, int flags)
         else
         {
             note = " is in your thrall!";
-
             set_pet(mon);
         }
         dam = 0;
@@ -2898,6 +2905,90 @@ bool gf_affect_m(who_t who, mon_ptr mon, int gf, int dam, int flags)
         }
         dam = 0;
         break;
+    case GF_FRIENDSHIP:
+        if (mon_is_pet(mon) || mon_is_friendly(mon)) return FALSE;
+        if (mon->mflag2 & MFLAG2_QUESTOR) return FALSE;
+        if (mon_race_is_unique(race) && randint0(dam) < race->alloc.lvl) return FALSE;
+        if (_1d(150) <= -mon->race->align) return FALSE; /* evil monsters resist */
+        if (_mon_save_aux(mon, dam)) return FALSE;
+        mon_tim_delete(mon, MT_SLEEP);
+        if (mon_show_msg(mon))
+        {
+            char name[MAX_NLEN_MON];
+            monster_desc(name, mon, 0);
+            msg_format("%^s is soothed by your calming chant.", name);
+        }
+        set_temp_friendly(mon);
+        return TRUE; /* bypass mon_take_hit ... */
+    case GF_OBEDIENCE:
+        if (mon_is_pet(mon) || mon_is_temp_friendly(mon)) return FALSE;
+        if (mon->mflag2 & MFLAG2_QUESTOR) return FALSE;
+        if (mon_race_is_unique(race) && randint0(dam) < race->alloc.lvl) return FALSE;
+        if (_1d(150) <= -mon->race->align) return FALSE; /* evil monsters resist */
+        if (_mon_save_aux(mon, dam)) return FALSE;
+        mon_tim_delete(mon, MT_SLEEP);
+        if (mon_show_msg(mon))
+        {
+            char name[MAX_NLEN_MON];
+            monster_desc(name, mon, 0);
+            msg_format("%^s is soothed by your calming chant.", name);
+        }
+        set_temp_pet(mon);
+        return TRUE; /* bypass mon_take_hit ... */
+    case GF_EXORCISM:
+        if (seen) obvious = TRUE;
+        if (!mon_is_undead(mon) && !mon_is_demon(mon))
+        {
+            mon_lore_undead(mon);
+            mon_lore_demon(mon);
+            if (seen_msg && !quiet)
+                msg_format("%^s is unaffected!", m_name);
+        }
+        else if (genocide_aux(mon, dam, who_is_plr(who), (race->alloc.lvl + 1) / 2, "Exorcism"))
+        {
+            if (seen_msg)
+                msg_format("%^s is cast from the world of the living!", m_name);
+
+            virtue_add(VIRTUE_FAITH, 1);
+            return TRUE; /* monster has been deleted! */
+        }
+        skipped = TRUE;
+        break;
+    case GF_REPENTANCE:
+        if (mon_is_pet(mon) || mon_is_temp_friendly(mon)) return FALSE;
+        if (!mon->parent_id) return FALSE;
+        { /* check for missing parent (cf _preprocess in mon_ai.c ... pure paranoia)
+             only sway minions not actively serving the cause of good ... 
+             neutrality is not an option! */
+            mon_ptr parent = mon_parent(mon);
+            if (!parent || parent->race->align >= ALIGN_NEUTRAL_GOOD) return FALSE;
+        }
+        if (mon->mflag2 & MFLAG2_QUESTOR) return FALSE;
+        if (mon_race_is_unique(race) && randint0(dam) < race->alloc.lvl) return FALSE;
+        if (_mon_save_aux(mon, dam)) return FALSE;
+        mon_tim_delete(mon, MT_SLEEP);
+        if (one_in_(7))
+        {
+            if (mon_show_msg(mon))
+            {
+                char name[MAX_NLEN_MON];
+                monster_desc(name, mon, 0);
+                msg_format("%^s switches allegiances.", name);
+            }
+            mon->parent_id = 0; /* XXX set_pet should probably do this ... plr is now master! */
+            set_pet(mon);
+        }
+        else
+        {
+            if (mon_show_msg(mon))
+            {
+                char name[MAX_NLEN_MON];
+                monster_desc(name, mon, 0);
+                msg_format("%^s repents and withdraws from the battle.", name);
+            }
+            delete_monster(mon);
+        }
+        return TRUE; /* bypass mon_take_hit ... */
     case GF_SLEEP:
         if (seen) obvious = TRUE;
         dam = mon_res_calc_dam(mon, GF_SLEEP, dam);
@@ -4335,6 +4426,8 @@ bool gf_affect_o(who_t who, point_t where, int type, int dam, int flags)
             }
             break;
         case GF_IDENTIFY:
+            if (!obj_is_identified(obj))
+                notice = TRUE; /* XXX identify_item has queer semantics ... */
             identify_item(obj);
             autopick_alter_obj(obj, FALSE); /* inscription */
             break;

@@ -52,9 +52,10 @@ A confused cyberdemon is still dangerous, launching rockets in random directions
 Pets are now much smarter at finding a targetted enemy.
 Try joining up with Gandalf the next time you see him, assuming he is friendly!
 A Necromancer can attack with the <color:keyword>Hand of Vecna</color>.
-Tired of everbody attacking you? Don a <color:keyword>Cloak of Innocence</color>!
+Tired of everybody attacking you? Don a <color:keyword>Cloak of Innocence</color>!
 I hear a <color:keyword>Mask of Discord</color> will make enemy monsters attack one another.
 An illusory wall will fool monsters even if they see you walk right through one.
 With a <color:keyword>Mask of Command</color> you can steal control over an enemy's summons.
 To slay the <color:keyword>Lord of Darkness</color> requires a very bright light source!
 Monster darkness can completely overwhelm weak light sources: you might even no longer see yourself!
+A <color:r>Fiery Aura</color> will burn away those sticky webs!

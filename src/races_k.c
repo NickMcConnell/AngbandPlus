@@ -773,7 +773,7 @@ static void _vampire_calc_bonuses(void)
     res_add(GF_POIS);
     res_add_vuln(GF_LIGHT);
     plr->hold_life++;
-    plr->see_nocto = MAX(plr->see_nocto, 2);
+    plr->see_nocto = MAX(plr->see_nocto, 2 + plr->lev/13);
 }
 static void _vampire_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -901,6 +901,10 @@ static int _wood_elf_get_powers(spell_info* spells, int max)
 {
     return get_powers_aux(spells, max, _wood_elf_powers);
 }
+static void _wood_elf_calc_bonuses(void)
+{
+    plr->pass_tree = TRUE;
+}
 plr_race_ptr wood_elf_get_race(void)
 {
     static plr_race_ptr me = NULL;
@@ -937,6 +941,7 @@ plr_race_ptr wood_elf_get_race(void)
         me->shop_adjust = 95;
 
         me->hooks.get_powers = _wood_elf_get_powers;
+        me->hooks.calc_bonuses = _wood_elf_calc_bonuses;
     }
 
     return me;

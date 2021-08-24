@@ -246,7 +246,7 @@ Experience   130%
 <topic:Gray-Mage><color:o>Gray-Mage</color>
 The Gray-Mage casts spells from memory, rather than from a book.  Indeed, the spell book is only required for the initial learning process. However, only a small number of spells may be learned at any given time, and while the Gray-Mage may replace old spells with new ones, they can only learn a fixed number of total spells (based upon Intelligence and Experience).
  
-The Gray-Mage does not choose spell realms the way an ordinary spell caster would. Instead, they choose a general bias towards one of Good, Neutral or Evil magic. So while all Gray-Mages may learn spells from the Arcane, Armageddon, Chaos, Craft, Sorcery and Trump realms, only a Good Bias allows access to Life and Crusade magic; only a Neutral Bias allows access to Nature magic; and only an Evil Bias allows access to Death and Daemon magic. Still, it is obvious that the Gray Mage will have an extremely large pool of spells from which to choose. Like the Mage, Intelligence is the key stat.
+The Gray-Mage does not choose spell realms the way an ordinary spell caster would. Instead, they choose a general bias towards one of Good, Neutral or Evil magic. So while all Gray-Mages may learn spells from the Arcane, Armageddon, Craft, Sorcery and Trump realms, only a Good Bias allows access to Life and Crusade magic; only a Neutral Bias allows access to Nature and Chaos magic; and only an Evil Bias allows access to Death and Daemon magic. Still, it is obvious that the Gray Mage will have an extremely large pool of spells from which to choose. Like the Mage, Intelligence is the key stat.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> -4</color>        Disarming   <color:o>Fair         </color>
@@ -263,8 +263,6 @@ Experience   130%
 High-mages are mages who specialize in one particular field of magic and learn it very well - much better than the ordinary mage. A high mage's prime statistic is intelligence as this determines his spell casting ability.
  
 For the price of giving up a second realm of magic, High-mages gain substantial benefits in the mana costs, power, minimum levels, and failure rates of the spells in their speciality realm. They have a class power - 'Eat Magic' - which absorbs mana from wands, staves, or rods.
- 
-And then, only High-Mages are able to cast Hex spells.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> -4</color>        Disarming   <color:o>Fair         </color>
@@ -395,6 +393,22 @@ Life Rating  100%       Melee       <color:o>Fair         </color>
 Base HP        4        Bows        <color:R>Poor         </color>
 Experience   120%
 </style></indent>
+<topic:High-Priest><color:o>High-Priest</color>
+Similar to the Priest, the High-Priest is a character devoted to serving a higher power. However, the High-Priest specializes in a single realm of prayer in order to gain awesome bonuses in casting costs and fail rates. Service to the good involes choosing Life, Crusade or Benediction magic, and these choices restrict the player to using blunt weapons (unless otherwise 'blessed'). Service to evil involves choosing one of Death, Daemon or Malediction, and the evil priest is under no compunction concerning the spilling of blood. In fact, they revel in it! Finally, a High-Priest may serve Nature, a realm of balance. In this case, sharp weapons are prohibited as they are kin to the much hated axe, feller of trees. Each realm choice will grant additional abilities, skills or powers. Of course, wisdom is the primary stat.
+
+Benediction and Malediction magic are quite unique and involve spells that are chanted continuously to maintain an effect. Like the Bard, the priest vocalizes spells in a continuous fashion granting abilities as long as the chant is maintained. But unlike the Bard, the priest may evoke multiple chants at once, weaving the rhythms in an intricate display of musical prowess.
+
+  <indent><style:table><color:G>Stats                   Skills</color>
+Strength     <color:w> -2</color>        Disarming   <color:R>Poor         </color>
+Intelligence <color:w> -3</color>        Device      <color:G>Excellent    </color>
+Wisdom       <color:v> +4</color>        Save        <color:G>Excellent    </color>
+Dexterity    <color:w> -1</color>        Stealth     <color:o>Fair         </color>
+Constitution <color:w> -1</color>        Searching   <color:R>Poor         </color>
+Charisma     <color:w> +2</color>        Perception  <color:r>Bad          </color>
+Life Rating   98%       Melee       <color:R>Poor         </color>
+Base HP        4        Bows        <color:r>Bad          </color>
+Experience   135%
+</style></indent>
 </indent>
 <style:heading>Stealth</style>
   <indent><topic:Ninja><color:o>Ninja</color>
@@ -420,9 +434,9 @@ Rogues can select one realm from Sorcery, Death, Trump, Arcane, Craft, or Burgla
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> +2</color>        Disarming   <color:g>Superb       </color>
-Intelligence <color:v> +1</color>        Device      <color:G>Excellent    </color>
+Intelligence <color:w> +1</color>        Device      <color:G>Excellent    </color>
 Wisdom       <color:w> -1</color>        Save        <color:o>Fair         </color>
-Dexterity    <color:w> +3</color>        Stealth     <color:G>Excellent    </color>
+Dexterity    <color:v> +3</color>        Stealth     <color:G>Excellent    </color>
 Constitution <color:w> +1</color>        Searching   <color:y>Good         </color>
 Charisma     <color:w> +1</color>        Perception  <color:o>Fair         </color>
 Life Rating  110%       Melee       <color:G>Excellent    </color>
@@ -750,8 +764,9 @@ Yellow-Mage    -4 <color:v>  +3 </color>  +0   +1   -2   -2   95%   +0  130%
 Devicemaster   -1 <color:v>  +2 </color>  +1   +2   -2   -2  101%   +6  130%
 Magic-Eater    -1   +2   +1   +2   -2   -2  103%   +6  130%
 Priest         -1   -3 <color:v>  +3 </color>  -1   +0   +2  100%   +4  120%
+High-Priest    -2   -3 <color:v>  +4 </color>  -1   -1   +2   98%   +4  135%
 Ninja          +0   -1   -1 <color:v>  +3 </color>  +2   +2  100%   +4  120%
-Rogue          +2 <color:v>  +1 </color>  -1   +3   +1   +1  110%  +12  125%
+Rogue          +2   +1   -1 <color:v>  +3 </color>  +1   +1  110%  +12  125%
 Scout          +1   -1 <color:v>  +2 </color>  +3   +0   +0  104%   +8  130%
 Chaos-Warrior  +2 <color:v>  +1 </color>  -1   +0   +2   +1  111%  +12  125%
 Paladin        +3   -3 <color:v>  +1 </color>  +0   +2   +2  111%  +12  135%
@@ -798,6 +813,7 @@ Yellow-Mage   <color:o>Fair         </color> <color:g>Superb       </color> <col
 Devicemaster  <color:R>Poor         </color> <color:g>Superb       </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Magic-Eater   <color:R>Poor         </color> <color:g>Superb       </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Priest        <color:R>Poor         </color> <color:y>Very Good    </color> <color:G>Excellent    </color> <color:o>Fair         </color>
+High-Priest   <color:R>Poor         </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:o>Fair         </color>
 Ninja         <color:g>Superb       </color> <color:o>Fair         </color> <color:o>Fair         </color> <color:g>Superb       </color>
 Rogue         <color:g>Superb       </color> <color:G>Excellent    </color> <color:o>Fair         </color> <color:G>Excellent    </color>
 Scout         <color:G>Excellent    </color> <color:y>Very Good    </color> <color:o>Fair         </color> <color:G>Excellent    </color>
@@ -846,6 +862,7 @@ Yellow-Mage   <color:R>Poor         </color> <color:o>Fair         </color> <col
 Devicemaster  <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:R>Poor         </color>
 Magic-Eater   <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:R>Poor         </color>
 Priest        <color:R>Poor         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:R>Poor         </color>
+High-Priest   <color:R>Poor         </color> <color:r>Bad          </color> <color:R>Poor         </color> <color:r>Bad          </color>
 Ninja         <color:G>Excellent    </color> <color:y>Good         </color> <color:g>Superb       </color> <color:R>Poor         </color>
 Rogue         <color:y>Good         </color> <color:o>Fair         </color> <color:G>Excellent    </color> <color:y>Good         </color>
 Scout         <color:G>Excellent    </color> <color:o>Fair         </color> <color:y>Very Good    </color> <color:g>Superb       </color>
@@ -870,4 +887,4 @@ Wild-Talent   <color:o>Fair         </color> <color:R>Poor         </color> <col
 </style>
 
 
-<color:s>Automatically generated for PosChengband 7.3.1.</color>
+<color:s>Automatically generated for PosChengband 7.3.4.</color>

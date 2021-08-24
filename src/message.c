@@ -263,6 +263,11 @@ void msg_line_clear(void)
         Term_clear_rect(r);
         if (r.cy > 1)
         {
+            if (plr->redraw & PR_MSG_LINE_MAP)
+            {
+                assert(rect_is_valid(_delayed_rect));
+                r.cy = MAX(r.cy, _delayed_rect.cy);
+            }
             plr->redraw |= PR_MSG_LINE_MAP; /* XXX Later ... but note multiple msg_line_clears before redraw_stuff happens XXX */
             _delayed_rect = r;
         }

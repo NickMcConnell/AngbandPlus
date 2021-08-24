@@ -2000,15 +2000,122 @@ bool recharge_from_device(int power)
 }
 
 /*
- * Bless a weapon
+ * Bless a weapon|armor
  */
+static void _bless_aux(obj_ptr obj)
+{
+    char o_name[MAX_NLEN];
+    object_desc(o_name, obj, OD_OMIT_PREFIX | OD_NAME_ONLY);
+
+    if (obj->number > 1)
+    {
+        msg_print("Failed! You may only bless a single object at a time.");
+        return;
+    }
+
+    /* overcome existing curses */
+    if (obj_is_cursed(obj))
+    {
+        if ( ((obj->curse_flags & OFC_HEAVY_CURSE) && one_in_(3))
+          || (obj->curse_flags & OFC_PERMA_CURSE) )
+        {
+            msg_format("The black aura on the %s disrupts the blessing!", o_name);
+            return;
+        }
+
+        msg_format("A malignant aura leaves the %s.", o_name);
+
+        obj->curse_flags = 0;
+        obj->ident |= (IDENT_SENSE);
+        obj->feeling = FEEL_NONE;
+        plr->update |= PU_BONUS;
+        plr->window |= (PW_EQUIP);
+    }
+
+    if (obj_has_flag(obj, OF_BLESSED))
+    {
+        msg_format("The %s is already blessed.", o_name);
+        return;
+    }
+
+    /* bless the object: artifacts and egos can resist and become disenchanted.
+     * Note that weapons disenchant (+h,+d) while armors disenchant [+a] ... mostly. */
+    if ((obj_is_art(obj) || obj_is_ego(obj)) && !one_in_(3))
+    {
+        bool flag = FALSE;
+
+        msg_format("The %s resists your blessing!", o_name);
+        if ((obj_is_weapon(obj) || one_in_(13)) && obj->to_h > 0)
+        {
+            obj->to_h--;
+            if (obj->to_h > 5 && one_in_(3))
+                obj->to_h--;
+            flag = TRUE;
+        }
+        if ((obj_is_weapon(obj) || one_in_(13)) && obj->to_d > 0)
+        {
+            obj->to_d--;
+            if (obj->to_d > 5 && one_in_(3))
+                obj->to_d--;
+            flag = TRUE;
+        }
+        if ((obj_is_armor(obj) || one_in_(13)) && obj->to_a > 0)
+        {
+            obj->to_a--;
+            if (obj->to_a > 5 && one_in_(3))
+                obj->to_a--;
+            flag = TRUE;
+        }
+        if (flag)
+        {
+            msg_print("There is a static feeling in the air...");
+            msg_format("The %s was disenchanted!", o_name);
+        }
+    }
+    else
+    {
+        msg_format("The %s shines!", o_name);
+
+        add_flag(obj->flags, OF_BLESSED);
+        add_flag(obj->known_flags, OF_BLESSED);
+
+        if (object_is_nameless(obj))
+            obj->discount = 99;
+        else if (obj_is_armor(obj) && one_in_(3))
+        {
+            if (one_in_(3))
+                one_bless(obj);
+            else
+                obj->to_a += _1d(3);
+        }
+    }
+    plr->update |= PU_BONUS;
+    plr->window |= PW_EQUIP;
+    android_calc_exp();
+}
+bool bless_armor(void)
+{
+    obj_prompt_t prompt = {0};
+
+    prompt.prompt = "Bless which armor?";
+    prompt.error = "You have no armor to bless.";
+    prompt.filter = obj_is_armor;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_EQUIP;
+    prompt.where[2] = INV_FLOOR;
+
+    obj_prompt(&prompt);
+    if (!prompt.obj) return FALSE;
+
+    _bless_aux(prompt.obj);
+    return TRUE;
+}
 bool bless_weapon(void)
 {
     obj_prompt_t prompt = {0};
-    char         o_name[MAX_NLEN];
 
     prompt.prompt = "Bless which weapon?";
-    prompt.error = "You have weapon to bless.";
+    prompt.error = "You have no weapon to bless.";
     prompt.filter = obj_is_weapon;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_EQUIP;
@@ -2017,120 +2124,7 @@ bool bless_weapon(void)
     obj_prompt(&prompt);
     if (!prompt.obj) return FALSE;
 
-    object_desc(o_name, prompt.obj, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-
-    if (obj_is_cursed(prompt.obj))
-    {
-        if (((prompt.obj->curse_flags & OFC_HEAVY_CURSE) && (randint1(100) < 33)) ||
-            (prompt.obj->curse_flags & OFC_PERMA_CURSE))
-        {
-            msg_format("The black aura on %s %s disrupts the blessing!",
-                (prompt.obj->loc.where != INV_FLOOR) ? "your" : "the", o_name);
-
-            return TRUE;
-        }
-
-        msg_format("A malignant aura leaves %s %s.",
-            (prompt.obj->loc.where != INV_FLOOR) ? "your" : "the", o_name);
-
-        /* Uncurse it */
-        prompt.obj->curse_flags = 0;
-
-        /* Hack -- Assume felt */
-        prompt.obj->ident |= (IDENT_SENSE);
-
-        /* Take note */
-        prompt.obj->feeling = FEEL_NONE;
-
-        /* Recalculate the bonuses */
-        plr->update |= (PU_BONUS);
-
-        /* Window stuff */
-        plr->window |= (PW_EQUIP);
-    }
-
-    /*
-     * Next, we try to bless it. Artifacts have a 1/3 chance of
-     * being blessed, otherwise, the operation simply disenchants
-     * them, godly power negating the magic. Ok, the explanation
-     * is silly, but otherwise priests would always bless every
-     * artifact weapon they find. Ego weapons and normal weapons
-     * can be blessed automatically.
-     */
-    if (obj_has_flag(prompt.obj, OF_BLESSED))
-    {
-        msg_format("%s %s %s blessed already.",
-            ((prompt.obj->loc.where != INV_FLOOR) ? "Your" : "The"), o_name,
-            ((prompt.obj->number > 1) ? "were" : "was"));
-
-        return TRUE;
-    }
-
-    if (!(obj_is_art(prompt.obj) || obj_is_ego(prompt.obj)) || one_in_(3))
-    {
-        /* Describe */
-        msg_format("%s %s shine%s!",
-            ((prompt.obj->loc.where != INV_FLOOR) ? "Your" : "The"), o_name,
-            ((prompt.obj->number > 1) ? "" : "s"));
-
-        add_flag(prompt.obj->flags, OF_BLESSED);
-        add_flag(prompt.obj->known_flags, OF_BLESSED);
-        if (object_is_nameless(prompt.obj))
-            prompt.obj->discount = 99;
-    }
-    else
-    {
-        bool dis_happened = FALSE;
-
-        msg_print("The weapon resists your blessing!");
-
-
-        /* Disenchant tohit */
-        if (prompt.obj->to_h > 0)
-        {
-            prompt.obj->to_h--;
-            dis_happened = TRUE;
-        }
-
-        if ((prompt.obj->to_h > 5) && (randint0(100) < 33)) prompt.obj->to_h--;
-
-        /* Disenchant todam */
-        if (prompt.obj->to_d > 0)
-        {
-            prompt.obj->to_d--;
-            dis_happened = TRUE;
-        }
-
-        if ((prompt.obj->to_d > 5) && (randint0(100) < 33)) prompt.obj->to_d--;
-
-        /* Disenchant toac */
-        if (prompt.obj->to_a > 0)
-        {
-            prompt.obj->to_a--;
-            dis_happened = TRUE;
-        }
-
-        if ((prompt.obj->to_a > 5) && (randint0(100) < 33)) prompt.obj->to_a--;
-
-        if (dis_happened)
-        {
-            msg_print("There is a static feeling in the air...");
-
-            msg_format("%s %s %s disenchanted!",
-                ((prompt.obj->loc.where != INV_FLOOR) ? "Your" : "The"), o_name,
-                ((prompt.obj->number > 1) ? "were" : "was"));
-
-        }
-    }
-
-    /* Recalculate bonuses */
-    plr->update |= (PU_BONUS);
-
-    /* Window stuff */
-    plr->window |= PW_EQUIP;
-
-    android_calc_exp();
-
+    _bless_aux(prompt.obj);
     return TRUE;
 }
 
@@ -2526,7 +2520,7 @@ s16b spell_chance(int spell, int use_realm)
         minfail -= 1;
 
     /* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
-    if (plr->pclass == CLASS_PRIEST || plr->pclass == CLASS_SORCERER)
+    if (plr->pclass == CLASS_PRIEST || plr->pclass == CLASS_HIGH_PRIEST || plr->pclass == CLASS_SORCERER)
     {
         if (have_flag(plr->attack_info[0].paf_flags, PAF_ICKY)) chance += 25;
         if (have_flag(plr->attack_info[1].paf_flags, PAF_ICKY)) chance += 25;

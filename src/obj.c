@@ -261,9 +261,10 @@ static tv_info_t _tv_tbl[] = {
     { TV_ILLUSION_BOOK, "Book of Illusions", TERM_L_BLUE,{"ILLUSION_BOOK"}, _SPELLBOOK, 5 },
     { TV_MUSIC_BOOK, "Music Book", TERM_GREEN, {"MUSIC_BOOK"}, _SPELLBOOK, 5 },
     { TV_HISSATSU_BOOK, "Kendo Book", TERM_UMBER, {"HISSATSU_BOOK", "KENDO_BOOK"}, _SPELLBOOK, 5 },
-    { TV_HEX_BOOK, "Hex Book", TERM_VIOLET, {"HEX_BOOK"}, _SPELLBOOK, 5 },
+    { TV_HEX_BOOK, "Malediction Book", TERM_VIOLET, {"HEX_BOOK"}, _SPELLBOOK, 5 },
     { TV_RAGE_BOOK, "Rage Book", TERM_L_BLUE, {"RAGE_BOOK"}, _SPELLBOOK, 5 },
     { TV_BURGLARY_BOOK, "Burglary Book", TERM_UMBER, {"BURGLARY_BOOK"}, _SPELLBOOK, 5 },
+    { TV_BLESS_BOOK, "Benediction Book", TERM_WHITE, {"BLESS_BOOK"}, _SPELLBOOK, 5 },
     { TV_GOLD, "Gold", TERM_YELLOW, {"GOLD", "$"} },
     { 0 }
 };
@@ -716,6 +717,7 @@ bool obj_is_ring(obj_ptr obj)       { return tv_is_ring(obj->tval); }
 bool obj_is_amulet(obj_ptr obj)     { return tv_is_amulet(obj->tval); }
 bool obj_is_light(obj_ptr obj)       { return tv_is_light(obj->tval); }
 bool obj_is_body_armor(obj_ptr obj) { return tv_is_body_armor(obj->tval); }
+bool obj_is_centaur_armor(obj_ptr obj) { return obj_is_body_armor(obj) && obj->ac > 8; }
 bool obj_is_cloak(obj_ptr obj)      { return tv_is_cloak(obj->tval); }
 bool obj_is_helmet(obj_ptr obj)     { return tv_is_helmet(obj->tval); }
 bool obj_is_gloves(obj_ptr obj)     { return tv_is_gloves(obj->tval); }
@@ -3067,6 +3069,7 @@ static _object_type_t _object_types[] =
     { "HEX_BOOK",           TV_HEX_BOOK },
     { "RAGE_BOOK",          TV_RAGE_BOOK },
     { "BURGLARY_BOOK",      TV_BURGLARY_BOOK },
+    { "BLESS_BOOK",         TV_BLESS_BOOK },
     { "GOLD",               TV_GOLD },
     { "DEVICE",             OBJ_TYPE_DEVICE, EGO_TYPE_DEVICE },
     { "JEWELRY",            OBJ_TYPE_JEWELRY },

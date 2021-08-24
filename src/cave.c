@@ -1346,8 +1346,11 @@ static void _map_grid(point_t pos, dun_grid_ptr grid)
 }
 void map_area(int range)
 {
+    rect_t r = rect_create_centered(plr->pos, range, range);
+    rect_t cr = rect_deflate(cave->rect, 1, 1); /* interior only ... _map_grid does not bounds check! */
+    r = rect_intersect(cr, r);
     _map_range = range;
-    dun_iter_interior(cave, _map_grid);
+    dun_iter_rect(cave, r, _map_grid);
     plr->redraw |= (PR_MAP);
     plr->window |= (PW_OVERHEAD | PW_DUNGEON);
 }

@@ -1773,9 +1773,7 @@ void nausea_mut(int cmd, var_ptr res)
 
             set_food(PY_FOOD_WEAK);
 
-            if (music_singing_any()) bard_stop_singing();
-            if (hex_spelling_any()) stop_hex_spell_all();
-            warlock_stop_singing();
+            stop_mouth();
         }
         break;
     default:
@@ -2636,6 +2634,9 @@ void unyielding_mut(int cmd, var_ptr res)
         break;
     case SPELL_HELP_DESC:
         var_set_string(res, "You will gain a bonus to hitpoints.");
+        break;
+    case SPELL_CALC_BONUS:
+        plr->xtra_hp += plr->lev;
         break;
     default:
         default_spell(cmd, res);

@@ -18,8 +18,6 @@ static void _calc_shooter_bonuses(object_type *o_ptr, plr_shoot_info_ptr info_pt
         info_ptr->to_h += 10 + plr->lev/5;
         info_ptr->dis_to_h += 10 + plr->lev/5;
     }
-    if (info_ptr->base_shot > 100)
-        info_ptr->base_shot = 100 + (info_ptr->base_shot - 100) / 2;
 }
 
 /************************************************************************
@@ -261,9 +259,10 @@ static void _after_hit(plr_shoot_ptr context, mon_ptr mon)
     }
     else if (context->mode == _EVILNESS || context->mode == _HOLINESS)
     {
-        /* increase the breakage chance ... note that AMMO_PIERCE => AMMO_BREAK
-         * XXX even endurance ammo will break XXX */
-        if (context->action != AMMO_PIERCE && randint0(100) < 40)
+        /* increase the breakage chance ... note that AMMO_PIERCE => AMMO_BREAK */
+        /* XXX cf _breakage in plr_shoot ... the game engine will no longer allow artifact|endurance
+         * ammo to be destroyed XXX */
+        if (context->action != AMMO_PIERCE && !obj_is_art(context->ammo) && randint0(100) < 40)
             context->action = AMMO_BREAK;
     }
     else if (context->mode == _NEEDLE || context->mode == _FINAL)

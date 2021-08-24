@@ -94,6 +94,7 @@ void quiver_carry(obj_ptr obj)
         }
     }
     obj->number += xtra;
+    plr->update |= PU_BONUS; /* Weight changed */
     plr->window |= PW_EQUIP; /* a Quiver [32 of 110] */
     plr->notice |= PN_CARRY;
 }

@@ -32,7 +32,7 @@ cptr realm_jouhou[VALID_REALM] =
 "The Illusionist survives through trickery and misdirection. There are several kinds of illusions including: one time flashes of light that confuse, blind or hypnotize; illusory monsters that, although harmless, may provide a useful distraction; illusory walls that fool even the most intelligent of monsters; self illusions that mask and protect the illusionist; and finally, illusions of self that affect all visible monsters inducing fear, confusion, command or discord. The Illusionist even has a few tricks of escape including diversions and decoys. For a mage, this realm is best paired with an offensive realm, since, after all, an illusion never really hurt anybody. Note that visual illusions are not noticed by all monsters: mindless, sleeping and blind foes cannot be affected.",
 "Music magic shows various effects as sing song. There is two type of song; the one which shows effects instantly and the other one shows effect continuously until SP runs out. But the latter type has a limit; only one song can be sing at the same time.",
 "The books of Kendo describe about various combat techniques. When learning new techniques, you are required to carry the books, but once you memorizes them, you don't have to carry them. When using a technique, wielding a weapon is required.",
-"Hex is a very terrible realm. Spells gives continual effects when they are spelled continually like songs. Spells may obstract monsters' actions, may deal damages in sight, may revenge against enemies.",
+"Malediction is a very terrible realm. Spells gives continual effects when they are spelled continually like songs. Spells may obstract monsters' actions, may deal damages in sight, may revenge against enemies.",
 "The books of Rage describe various techniques. To learn a new technique, you must perform a ritual of rage, destroying the book in the process."
     " Once learned, you may use techniques without requiring the corresponding Rage book, but you will need to find many copies of each book in order"
     " to learn all of the techniques.",
@@ -40,6 +40,11 @@ cptr realm_jouhou[VALID_REALM] =
     "This realm offers good detection and escapes, offers talents for picking pockets and setting traps, "
     "and even allows for direct assassination of sleeping monsters. The books for this realm are only "
     "available in the Black Market (or in the dungeon).",
+"Benediction is a holy realm of chants and blessings. Like the music of the bard, most spells are "
+    "chanted continuously granting effects so long as the chant is maintained. But unlike the "
+    "bard, the Benedictory priest may weave multiple chants together in complicated rhythms of "
+    "holy power granting several bonuses at once. Benediction is protective realm and "
+    "offers little in the way of direct damage.",
 };
 
 

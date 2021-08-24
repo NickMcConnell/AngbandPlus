@@ -946,7 +946,7 @@ static cptr do_life_spell(int spell, int mode)
         break;
     case 27:
         if (name) return "Clairvoyance";
-        if (desc) return "Maps and lights whole dungeon level. Knows all objects location. And gives telepathy for a while.";
+        if (desc) return "Maps and lights whole dungeon level. Knows all objects location.";
         if (cast) wiz_lite();
         break;
     case 28:
@@ -3797,6 +3797,7 @@ static cptr do_crusade_spell(int spell, int mode)
         dice.base = plr->to_d_spell;
         rad = 2 + plr->lev/30;
         if (plr->pclass == CLASS_PRIEST ||
+            plr->pclass == CLASS_HIGH_PRIEST ||
             plr->pclass == CLASS_HIGH_MAGE ||
             plr->pclass == CLASS_SORCERER)
             dice.base += plr->lev + plr->lev / 2;
@@ -4311,6 +4312,7 @@ static cptr do_armageddon_spell(int spell, int mode)
 /*
  * Do everything for each spell
  */
+int current_spell_cost; /* For Music and Hex upkeep */
 cptr do_spell(int realm, int spell, int mode)
 {
     cptr result = NULL;
@@ -4334,6 +4336,7 @@ cptr do_spell(int realm, int spell, int mode)
     case REALM_ILLUSION: result = do_illusion_spell(spell, mode); break;
     case REALM_MUSIC:    result = do_music_spell(spell, mode); break;
     case REALM_HEX:      result = do_hex_spell(spell, mode); break;
+    case REALM_BLESS:    result = do_bless_spell(spell, mode); break;
     case REALM_NECROMANCY: result = do_necromancy_spell(spell, mode); break;
     case REALM_BURGLARY: result = do_burglary_spell(spell, mode); break;
     }

@@ -261,6 +261,15 @@ void plr_hook_load(savefile_ptr file)
     plr_class_ptr c = plr_class();
     if (r->hooks.load_player) r->hooks.load_player(file);
     if (c->hooks.load_player) c->hooks.load_player(file);
+    hex_load(file);
+}
+void plr_hook_save(savefile_ptr file)
+{
+    plr_race_ptr r = plr_true_race();
+    plr_class_ptr c = plr_class();
+    if (r->hooks.save_player) r->hooks.save_player(file);
+    if (c->hooks.save_player) c->hooks.save_player(file);
+    hex_save(file);
 }
 plr_magic_ptr plr_magic(void)
 {
@@ -331,13 +340,6 @@ void plr_hook_register_timers(void)
     }
     else if (c->hooks.register_timers) c->hooks.register_timers();
 }
-void plr_hook_save(savefile_ptr file)
-{
-    plr_race_ptr r = plr_true_race();
-    plr_class_ptr c = plr_class();
-    if (r->hooks.save_player) r->hooks.save_player(file);
-    if (c->hooks.save_player) c->hooks.save_player(file);
-}
 void plr_hook_update_light(void)
 {
     plr_race_ptr r = plr_race();
@@ -405,19 +407,24 @@ static void _set_target(mon_ptr mon)
     plr->target = who_create_mon(mon);
     plr->redraw |= PR_HEALTH_BARS;
 }
-static mon_ptr _get_adjacent_target(bool pet)
+static mon_ptr _get_adjacent_target(bool allow_pet)
 {
+    mon_ptr result = NULL;
     int i;
     for (i = 0; i < 8; i++)
     {
         point_t p = point_step(plr->pos, cdd[i]);
         mon_ptr mon = dun_mon_at(cave, p);
         if (!mon || !mon->ml) continue;
-        if (!pet && !mon_is_hostile(mon)) continue;
-        _set_target(mon);
-        return mon;
+        if (!allow_pet && !mon_is_hostile(mon)) continue; /* XXX skip friends as well */
+        /* XXX only auto-target an adjacent monster if the choice
+         * is not ambiguous XXX */
+        if (result) return NULL;
+        result = mon;
     }
-    return NULL;
+    if (result)
+        _set_target(result);
+    return result;
 }
 static mon_ptr _target_adjacent_mon(bool pet)
 {
@@ -875,3 +882,41 @@ bool plr_cast_direct(int gf, dice_t dice)
     gf_affect_m(who_create_plr(), mon, gf, dice_roll(dice), GF_AFFECT_SPELL);
     return TRUE;
 }
+
+static bool _block_check(mon_ptr mon)
+{
+    if (mon->dun->id != plr->dun_id) return FALSE;
+    if (mon->cdis > DUN_VIEW_MAX) return FALSE;
+    return 3*plr->lev/2 >= _1d(mon_lvl(mon));
+}
+bool plr_block_magic(mon_ptr mon)
+{
+    if (plr->block_magic)
+        return _block_check(mon);
+    return FALSE;
+}
+bool plr_block_multiply(mon_ptr mon)
+{
+    if (plr->block_multiply)
+        return _block_check(mon);
+    return FALSE;
+}
+bool plr_block_steal(mon_ptr mon)
+{
+    if (plr->block_steal)
+        return _block_check(mon);
+    return FALSE;
+}
+bool plr_block_summon(mon_ptr mon)
+{
+    if (plr->block_summon)
+        return _block_check(mon);
+    return FALSE;
+}
+bool plr_block_teleport(mon_ptr mon)
+{
+    if (plr->block_teleport)
+        return _block_check(mon);
+    return FALSE;
+}
+

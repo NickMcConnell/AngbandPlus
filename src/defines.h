@@ -19,7 +19,7 @@
 /* Current Version */
 #define VER_MAJOR 7
 #define VER_MINOR 3
-#define VER_PATCH 3
+#define VER_PATCH 4
 #define VER_EXTRA 1
 
 /* Oldest Supported Version (cf rd_savefile_new_aux) */
@@ -306,6 +306,7 @@
 #define CH_HEX          0x020000
 #define CH_RAGE         0x040000
 #define CH_BURGLARY     0x080000
+#define CH_BLESS        0x100000
 
 
 
@@ -330,10 +331,11 @@
 #define MIN_TECHNIC        16
 #define REALM_MUSIC        16
 #define REALM_HISSATSU     17
-#define REALM_HEX          18
+#define REALM_HEX          18  /* Malediction */
 #define REALM_RAGE         19
 #define REALM_BURGLARY     20
-#define MAX_REALM          20
+#define REALM_BLESS        21  /* Benediction */
+#define MAX_REALM          21
 
 #define VALID_REALM        (MAX_REALM + MAX_MAGIC - MIN_TECHNIC + 1)
 #define NUM_TECHNIC        (MAX_REALM - MIN_TECHNIC + 1)
@@ -342,7 +344,7 @@
 #define tval2realm(A) ((A) - TV_LIFE_BOOK + 1)
 #define realm2tval(A) ((A) + TV_LIFE_BOOK - 1)
 #define technic2magic(A)      (is_magic(A) ? (A) : (A) - MIN_TECHNIC + 1 + MAX_MAGIC)
-#define is_good_realm(REALM)   ((REALM) == REALM_LIFE || (REALM) == REALM_CRUSADE)
+#define is_good_realm(REALM)   ((REALM) == REALM_LIFE || (REALM) == REALM_CRUSADE || (REALM) == REALM_BLESS)
 #define is_evil_realm(REALM)   ((REALM) == REALM_DEATH || (REALM) == REALM_DAEMON || (REALM) == REALM_HEX)
 
 /*
@@ -1312,6 +1314,7 @@ enum {
 #define PM_RING_BEARER    0x00002000
 #define PM_QUESTOR        0x00004000
 #define PM_ILLUSION       0x00008000
+#define PM_NO_FRIEND      0x00010000 /* e.g. hostile mon summons ents */
 
 
 /* Bit flags for monster_desc() */
@@ -2061,66 +2064,12 @@ extern int PlayerUID;
 
 
 /*
- * Buildings actions
- */
-#define BACT_NOTHING                 0
-#define BACT_RESEARCH_ITEM           1
-#define BACT_TOWN_HISTORY            2
-#define BACT_RACE_LEGENDS            3
-#define BACT_GREET_KING              4
-#define BACT_KING_LEGENDS            5
-#define BACT_QUEST                   6
-#define BACT_XXX_UNUSED              7
-#define BACT_POSTER                  8
-#define BACT_ARENA_RULES             9
-#define BACT_ARENA                  10
-#define BACT_ARENA_LEGENDS          11
-#define BACT_IN_BETWEEN             12
-#define BACT_GAMBLE_RULES           13
-#define BACT_CRAPS                  14
-#define BACT_SPIN_WHEEL             15
-#define BACT_DICE_SLOTS             16
-#define BACT_REST                   17
-#define BACT_FOOD                   18
-#define BACT_RUMORS                 19
-#define BACT_RESEARCH_MONSTER       20
-#define BACT_COMPARE_WEAPONS        21
-#define BACT_LEGENDS                22
-#define BACT_ENCHANT_WEAPON         23
-#define BACT_ENCHANT_ARMOR          24
-#define BACT_RECHARGE               25
-#define BACT_IDENTS                 26
-#define BACT_LEARN                  27
-#define BACT_HEALING                28
-#define BACT_RESTORE                29
-#define BACT_ENCHANT_ARROWS         30
-#define BACT_ENCHANT_BOW            31
-#define BACT_GREET                  32
-#define BACT_RECALL                 33
-#define BACT_TELEPORT_LEVEL         34
-#define BACT_LOSE_MUTATION          35
-#define BACT_XXX_BATTLE             36
-#define BACT_TSUCHINOKO             37
-#define BACT_TARGET                 38
-#define BACT_KUBI                   39
-#define BACT_KANKIN                 40
-#define BACT_HEIKOUKA               41
-#define BACT_TELE_TOWN              42
-#define BACT_POKER                  43
-#define BACT_IDENT_ONE              44
-#define BACT_RECHARGE_ALL           45
-#define BACT_EVAL_AC                46
-#define BACT_REPUTATION             55
-#define BACT_REFORGE_ARTIFACT       56
-#define BACT_CHANGE_NAME            57
-
-/*
  * Initialization flags
  */
 #define INIT_XXXXXX1            0x01
 #define INIT_XXXXXX2            0x02
 #define INIT_XXXXXX3            0x04
-#define INIT_SCROLL_WILDERNESS  0x08
+#define INIT_XXXXXX4            0x08
 #define INIT_XXXXXX5            0x10
 #define INIT_DEBUG              0x20 /* error checking on dungeon files */
 
@@ -2129,17 +2078,6 @@ extern int PlayerUID;
  */
 #define GRAPHICS_NONE       0
 #define GRAPHICS_ORIGINAL   1
-
-/*
- * Modes for the random name generator
- */
-#define NAME_DWARF  1
-#define NAME_ELF    2
-#define NAME_GNOME  3
-#define NAME_HOBBIT 4
-#define NAME_HUMAN  5
-#define NAME_ORC    6
-
 
 /*
  * Modes for the tokenizer
@@ -2212,50 +2150,10 @@ extern int PlayerUID;
 #define DO_QUERY_AUTOPICK 0x20
 #define DO_AUTO_ID        0x40
 
-
-#define MAGIC_GLOVE_REDUCE_MANA 0x0001
-#define MAGIC_FAIL_5PERCENT     0x0002
-#define MAGIC_GAIN_EXP          0x0004
-
-#define SPELL_DD_S 27
-#define SPELL_DD_T 13
-#define SPELL_SW   22
-#define SPELL_KABE 20
+#define MAGIC_GAIN_EXP    0x0004
 
 #define KNOW_STAT   0x01
 #define KNOW_HPRATE 0x02
-
-/*
- * Music songs
- */
-#define MUSIC_NONE              0
-#define MUSIC_SLOW              1
-#define MUSIC_BLESS             2
-#define MUSIC_STUN              3
-#define MUSIC_L_LIFE            4
-#define MUSIC_FEAR              5
-#define MUSIC_HERO              6
-#define MUSIC_STEALTH           8
-#define MUSIC_ID                9
-#define MUSIC_CONF              10
-#define MUSIC_SOUND             11
-#define MUSIC_CHARM             12
-#define MUSIC_WALL              13
-#define MUSIC_RESIST            14
-#define MUSIC_SPEED             15
-#define MUSIC_DISPEL            16
-#define MUSIC_SARUMAN           17
-#define MUSIC_QUAKE             18
-#define MUSIC_STASIS            19
-#define MUSIC_SHERO             20
-#define MUSIC_H_LIFE            21
-#define MUSIC_INVULN            22
-#define MUSIC_PSI               23
-
-#define MUSIC_DETECT            101
-
-#define music_singing(X) ((plr->pclass == CLASS_BARD) && (plr->magic_num1[0] == (X)))
-#define music_singing_any() ((plr->pclass == CLASS_BARD) && plr->magic_num1[0])
 
 /* XXX I'm refactoring ... these should all be removed
  * or made private. cf PLR_HIT_* codes in plr_attack.h.
@@ -2308,57 +2206,8 @@ enum {
 #define MPE_DONT_SWAP_MON 0x00000080
 
 
-/*
- * Bit flags for screen_object()
- */
-#define SCROBJ_FAKE_OBJECT  0x00000001
-#define SCROBJ_FORCE_DETAIL 0x00000002
-
-
 #define CONCENT_RADAR_THRESHOLD 2
 #define CONCENT_TELE_THRESHOLD  5
-
-/* Hex */
-#define hex_spelling_any() \
-    ((plr->realm1 == REALM_HEX) && (plr->magic_num1[0]))
-#define hex_spelling(X) \
-    ((plr->realm1 == REALM_HEX) && (plr->magic_num1[0] & (1L << (X))))
-/* 1st book */
-#define HEX_BLESS             0
-#define HEX_CURE_LIGHT        1
-#define HEX_DEMON_AURA        2
-#define HEX_STINKING_MIST     3
-#define HEX_XTRA_MIGHT        4
-#define HEX_CURSE_WEAPON      5
-#define HEX_DETECT_EVIL       6
-#define HEX_PATIENCE          7
-/* 2nd book */
-#define HEX_ICE_ARMOR         8
-#define HEX_CURE_SERIOUS      9
-#define HEX_INHAIL           10
-#define HEX_VAMP_MIST        11
-#define HEX_RUNESWORD        12
-#define HEX_CONFUSION        13
-#define HEX_BUILDING         14
-#define HEX_ANTI_TELE        15
-/* 3rd book */
-#define HEX_SHOCK_CLOAK      16
-#define HEX_CURE_CRITICAL    17
-#define HEX_RECHARGE         18
-#define HEX_RAISE_DEAD       19
-#define HEX_CURSE_ARMOUR     20
-#define HEX_SHADOW_CLOAK     21
-#define HEX_PAIN_TO_MANA     22
-#define HEX_EYE_FOR_EYE      23
-/* 4th book */
-#define HEX_ANTI_MULTI       24
-#define HEX_RESTORE          25
-#define HEX_DRAIN_CURSE      26
-#define HEX_VAMP_BLADE       27
-#define HEX_STUN_MONSTERS    28
-#define HEX_SHADOW_MOVE      29
-#define HEX_ANTI_MAGIC       30
-#define HEX_REVENGE          31
 
 /* object_type.rune */
 #define RUNE_ABSORPTION           1
@@ -2466,30 +2315,6 @@ enum {
     WARLOCK_DRAGON_TOGGLE_HEALING,
     WARLOCK_DRAGON_TOGGLE_HEROIC_CHARGE,
 };
-
-/* Wild Counters */
-#define WILD_INFRAVISION 1
-#define WILD_BLESS 2
-#define WILD_BERSERK 3
-#define WILD_SPEED 4
-#define WILD_ESP 5
-#define WILD_PROT_EVIL 6
-#define WILD_MAGIC_RESIST 7
-#define WILD_RESIST 8
-#define WILD_STONE_SKIN 9
-#define WILD_PASSWALL 10
-#define WILD_REVENGE 11
-#define WILD_INVULN 12
-#define WILD_WRAITH 13
-#define WILD_LIGHT_SPEED 14
-
-#define LEAVING_UNKOWN 0
-#define LEAVING_RECALL 1
-#define LEAVING_REWIND_TIME 2
-#define LEAVING_TELEPORT_LEVEL 3
-#define LEAVING_ALTER_REALITY 4
-
-#define MAX_SUMMONS 50
 
 /* All of the following enumeration values are persisted in
    savefiles, so should not be changed. Add new options to

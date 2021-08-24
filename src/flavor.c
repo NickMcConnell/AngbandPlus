@@ -41,6 +41,7 @@ static bool object_easy_know(int i)
         case TV_HEX_BOOK:
         case TV_RAGE_BOOK:
         case TV_BURGLARY_BOOK:
+        case TV_BLESS_BOOK:
         {
             return (TRUE);
         }
@@ -1059,13 +1060,9 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         case TV_FLASK:
         case TV_CHEST:
         case TV_WHISTLE:
-        {
             break;
-        }
 
         case TV_CAPTURE:
-        {
-
             if (known)
             {
                 if (!o_ptr->race_id)
@@ -1092,12 +1089,9 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
                 }
             }
             break;
-        }
 
-        /* Figurines/Statues */
         case TV_FIGURINE:
-        case TV_STATUE:
-        {
+        case TV_STATUE: {
             mon_race_ptr race = mon_race_lookup(o_ptr->race_id);
             cptr t = race->name;
 
@@ -1110,12 +1104,9 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             {
                 modstr = t;
             }
-            break;
-        }
+            break; }
 
-        /* Corpses */
-        case TV_CORPSE:
-        {
+        case TV_CORPSE: {
             mon_race_ptr race = mon_race_lookup(o_ptr->race_id);
 
             modstr = race->name;
@@ -1124,10 +1115,8 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
                 basenm = "& % of #";
             else
                 basenm = "& # %";
-            break;
-        }
+            break; }
 
-        /* Missiles/ Bows/ Weapons */
         case TV_SHOT:
         case TV_BOLT:
         case TV_ARROW:
@@ -1135,28 +1124,25 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         case TV_POLEARM:
         case TV_SWORD:
         case TV_DIGGING:
-        {
             show_weapon = TRUE;
             break;
-        }
 
         case TV_BOW:
-        {
             if (o_ptr->sval != SV_HARP && o_ptr->sval != SV_CRIMSON && o_ptr->sval != SV_RAILGUN)
                 show_weapon = TRUE;
-
             break;
-        }
+
         case TV_QUIVER:
             break;
 
-        /* Armour */
         case TV_SHIELD:
+            /* hack: shield bashing weaponmasters treat shields as melee weapons */
             if (have_flag(flgs, OF_FAKE) && weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH)
             {
                 show_weapon = TRUE;
                 break;
             }
+            /* vvv FALL THROUGH vvv */
         case TV_BOOTS:
         case TV_GLOVES:
         case TV_CLOAK:
@@ -1165,7 +1151,6 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         case TV_SOFT_ARMOR:
         case TV_HARD_ARMOR:
         case TV_DRAG_ARMOR:
-        {
             if (obj_is_specified_art(o_ptr, "].Vecna"))
             {
                 modstr = flavor_k_ptr->flavor_name;
@@ -1176,11 +1161,8 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             else
                 show_armour = TRUE;
             break;
-        }
 
-        /* Lites (including a few "Specials") */
         case TV_LIGHT:
-        {
             if (obj_is_specified_art(o_ptr, "~.Vecna"))
             {
                 modstr = flavor_k_ptr->flavor_name;
@@ -1189,7 +1171,6 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
                 else            basenm = "& # Eye~";
             }
             break;
-        }
 
         case TV_AMULET:
         case TV_RING:
@@ -1198,14 +1179,8 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             break;
 
         case TV_CARD:
-        {
-            break;
-        }
-
         case TV_RUNE:
-        {
             break;
-        }
 
         case TV_STAFF:
         case TV_WAND:
@@ -1214,8 +1189,6 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             break;
 
         case TV_SCROLL:
-        {
-            /* Color the object */
             modstr = flavor_k_ptr->flavor_name;
 
             if (!flavor)    basenm = "& Scroll~ of %";
@@ -1223,176 +1196,118 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             else            basenm = "& Scroll~ titled \"#\"";
 
             break;
-        }
 
         case TV_POTION:
-        {
-            /* Color the object */
             modstr = flavor_k_ptr->flavor_name;
 
             if (!flavor)    basenm = "& Potion~ of %";
             else if (aware) basenm = "& # Potion~ of %";
             else            basenm = "& # Potion~";
             break;
-        }
 
         case TV_FOOD:
-        {
             /* Ordinary food is "boring" */
             if (!k_ptr->flavor_name) break;
 
-            /* Color the object */
             modstr = flavor_k_ptr->flavor_name;
 
             if (!flavor)    basenm = "& Mushroom~ of %";
             else if (aware) basenm = "& # Mushroom~ of %";
             else            basenm = "& # Mushroom~";
             break;
-        }
 
         case TV_PARCHMENT:
-        {
             basenm = "& Parchment~ - %";
             break;
-        }
 
         /* Magic Books */
         case TV_LIFE_BOOK:
-        {
             if (mp_ptr->spell_book == TV_LIFE_BOOK)
                 basenm = "& Book~ of Life Magic %";
             else
                 basenm = "& Life Spellbook~ %";
             break;
-        }
-
         case TV_SORCERY_BOOK:
-        {
             if (mp_ptr->spell_book == TV_LIFE_BOOK)
                 basenm = "& Book~ of Sorcery %";
             else
                 basenm = "& Sorcery Spellbook~ %";
             break;
-        }
-
         case TV_NATURE_BOOK:
-        {
             if (mp_ptr->spell_book == TV_LIFE_BOOK)
                 basenm = "& Book~ of Nature Magic %";
             else
                 basenm = "& Nature Spellbook~ %";
             break;
-        }
-
         case TV_CHAOS_BOOK:
-        {
             if (mp_ptr->spell_book == TV_LIFE_BOOK)
                 basenm = "& Book~ of Chaos Magic %";
             else
                 basenm = "& Chaos Spellbook~ %";
             break;
-        }
-
         case TV_DEATH_BOOK:
-        {
             if (mp_ptr->spell_book == TV_LIFE_BOOK)
                 basenm = "& Book~ of Death Magic %";
             else
                 basenm = "& Death Spellbook~ %";
             break;
-        }
-
         case TV_TRUMP_BOOK:
-        {
             if (mp_ptr->spell_book == TV_LIFE_BOOK)
                 basenm = "& Book~ of Trump Magic %";
             else
                 basenm = "& Trump Spellbook~ %";
             break;
-        }
-
         case TV_ARCANE_BOOK:
-        {
             if (mp_ptr->spell_book == TV_LIFE_BOOK)
                 basenm = "& Book~ of Arcane Magic %";
             else
                 basenm = "& Arcane Spellbook~ %";
             break;
-        }
-
         case TV_CRAFT_BOOK:
-        {
             if (mp_ptr->spell_book == TV_LIFE_BOOK)
                 basenm = "& Book~ of Craft Magic %";
             else
                 basenm = "& Craft Spellbook~ %";
             break;
-        }
-
         case TV_DAEMON_BOOK:
-        {
             if (mp_ptr->spell_book == TV_LIFE_BOOK)
                 basenm = "& Book~ of Daemon Magic %";
             else
                 basenm = "& Daemon Spellbook~ %";
             break;
-        }
-
         case TV_CRUSADE_BOOK:
-        {
             if (mp_ptr->spell_book == TV_LIFE_BOOK)
                 basenm = "& Book~ of Crusade Magic %";
             else
                 basenm = "& Crusade Spellbook~ %";
             break;
-        }
-
         case TV_NECROMANCY_BOOK:
-        {
             basenm = "& Necromancy Spellbook~ %";
             break;
-        }
-
         case TV_RAGE_BOOK:
-        {
             basenm = "& Rage Spellbook~ %";
             break;
-        }
-
         case TV_BURGLARY_BOOK:
-        {
             basenm = "& Thieves' Guide~ %";
             break;
-        }
-
         case TV_ARMAGEDDON_BOOK:
             basenm = "& Armageddon Spellbook~ %";
             break;
-
         case TV_ILLUSION_BOOK:
             basenm = "& Book~ of Illusion %";
             break;
-
         case TV_MUSIC_BOOK:
-        {
             basenm = "& Song Book~ %";
             break;
-        }
-
         case TV_HISSATSU_BOOK:
-        {
             basenm = "Book~ of Kendo %";
             break;
-        }
-
         case TV_HEX_BOOK:
-        {
-            if (mp_ptr->spell_book == TV_LIFE_BOOK)
-                basenm = "& Book~ of Hex Magic %";
-            else
-                basenm = "& Hex Spellbook~ %";
+            basenm = "& Malediction Book~ %";
             break;
-        }
+        case TV_BLESS_BOOK:
+            basenm = "& Benediction Book~ %";
+            break;
 
         /* Hack -- Gold/Gems */
         case TV_GOLD:
@@ -1902,7 +1817,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             int ac = o_ptr->ac;
             int to_a = o_ptr->to_a;
 
-            if (prace_is_(RACE_CENTAUR) && obj_is_body_armor(o_ptr))
+            if (plr->centaur_armor && obj_is_centaur_armor(o_ptr))
             {
                 ac -= ac / 3;
                 if (to_a > 0)

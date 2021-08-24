@@ -62,6 +62,7 @@ enum {
     ANNOY_TRAPS,
     ANNOY_WORLD,
     ANNOY_EGO_WHIP,
+    ANNOY_QUAKE,
 };
 static _parse_t _annoy_tbl[] = {
     { "AMNESIA", { MST_ANNOY, ANNOY_AMNESIA },
@@ -130,6 +131,7 @@ static _parse_t _annoy_tbl[] = {
         { "Create Traps", TERM_WHITE,
           "$CASTER casts a spell and cackles evilly.",
           "$CASTER mumbles gleefully.",
+          "$CASTER casts a spell and cackles evilly.",
           "You create a trap." }},
     { "WORLD", { MST_ANNOY, ANNOY_WORLD },
         { "Stop Time", TERM_L_BLUE}},
@@ -139,6 +141,12 @@ static _parse_t _annoy_tbl[] = {
           "$CASTER focuses on your mind!",
           "$CASTER focuses on $TARGET_POS mind!",
           "You focus on $TARGET_POS mind!"}, MSF_TARGET | MSF_DIRECT},
+    { "QUAKE", { MST_ANNOY, ANNOY_QUAKE },
+        { "Earthquake", TERM_UMBER,
+          "$CASTER strikes the ground powerfully with his staff!",
+          "$CASTER mumbles.",
+          "$CASTER strikes the ground powerfully with his staff!",
+          "You conjure an <color:u>Earthquake</color>." }},
     {0}
 };
 
@@ -238,6 +246,30 @@ static _parse_t _ball_tbl[] = {
           "$CASTER mumbles powerfully.",
           "$CASTER invokes a <color:B>Mana Storm</color> at $TARGET.",
           "You invoke a <color:B>Mana Storm</color>." }, MSF_TARGET | MSF_BALL4},
+    { "BA_DISENCHANT", { MST_BALL, GF_DISENCHANT },
+        { "Anti-magic Storm", TERM_VIOLET,
+          "$CASTER invokes an <color:v>Anti-magic Storm</color>.",
+          "$CASTER mumbles powerfully.",
+          "$CASTER invokes an <color:v>Anti-magic Storm</color> at $TARGET.",
+          "You invoke an <color:v>Anti-magic Storm</color>." }, MSF_TARGET | MSF_BALL4},
+    { "BA_SOUND", { MST_BALL, GF_SOUND },
+        { "Sonic Storm", TERM_ORANGE,
+          "$CASTER invokes an <color:o>Sonic Storm</color>.",
+          "$CASTER mumbles powerfully.",
+          "$CASTER invokes an <color:o>Sonic Storm</color> at $TARGET.",
+          "You invoke an <color:o>Sonic Storm</color>." }, MSF_TARGET | MSF_BALL4},
+    { "BA_ICE", { MST_BALL, GF_ICE },
+        { "Blizzard", TERM_L_WHITE,
+          "$CASTER conjures a <color:W>Blizzard</color>.",
+          "$CASTER mumbles powerfully.",
+          "$CASTER conjures a <color:W>Blizzard</color> at $TARGET.",
+          "You conjure a <color:W>Blizzard</color>." }, MSF_TARGET | MSF_BALL4},
+    { "HURRICANE", { MST_BALL, GF_STORM },
+        { "Hurricane", TERM_BLUE,
+          "$CASTER conjures a <color:b>Hurricane</color>.",
+          "$CASTER mumbles powerfully.",
+          "$CASTER conjures a <color:b>Hurricane</color> at $TARGET.",
+          "You conjure a <color:b>Hurricane</color>." }, MSF_TARGET | MSF_BALL4},
     { "BA_NUKE", { MST_BALL, GF_NUKE },
         { "Radiation Ball", TERM_L_GREEN,
           "$CASTER casts a <color:G>Ball of Radiation</color>.",
@@ -304,6 +336,12 @@ static _parse_t _ball_tbl[] = {
           "$CASTER mumbles powerfully.",
           "$CASTER invokes the <color:v>Wrath of God</color> at $TARGET!",
           "You invoke the <color:v>Wrath of God</color>!" }, MSF_TARGET},
+    { "METEOR", { MST_BALL, GF_METEOR },
+        { "Meteor", TERM_RED,
+          "$CASTER conjures a <color:r>Meteor</color>!",
+          "$CASTER mumbles powerfully.",
+          "$CASTER conjures a <color:v>Meteor</color> at $TARGET!",
+          "You conjure a <color:v>Meteor</color>!" }, MSF_TARGET},
     {0}
 };
 
@@ -743,9 +781,11 @@ static mon_spell_parm_t _ball_parm(int which, int rlev)
         parm.v.dice = _dice(10, 10, 50 + 4*rlev);
         break;
     case GF_CHAOS:
+    case GF_ICE:
         parm.v.dice = _dice(10, 10, rlev);
         break;
     case GF_DISENCHANT:
+    case GF_SOUND:
         parm.v.dice = _dice(10, 10, 3*rlev);
         break;
     case GF_WATER:
@@ -768,6 +808,10 @@ static mon_spell_parm_t _ball_parm(int which, int rlev)
         break;
     case GF_ROCKET:
         parm.v.dice = _dice(0, 0, 6*rlev);
+        break;
+    case GF_METEOR:
+    case GF_STORM:
+        parm.v.dice = _dice(0, 0, 3*rlev); /* unresistable */
         break;
     case GF_HOLY_FIRE:
         parm.v.dice = _dice(3, 6, rlev);
@@ -806,6 +850,7 @@ static mon_spell_parm_t _bolt_parm(int which, int rlev)
         parm.v.dice = _dice(5, 5, 30 + rlev);
         break;
     case GF_WATER:
+    case GF_SOUND:
         parm.v.dice = _dice(10, 10, rlev);
         break;
     case GF_PLASMA:
@@ -840,6 +885,7 @@ static mon_spell_parm_t _beam_parm(int which, int rlev)
         parm.v.dice = _dice(0, 0, 2*rlev);
         break;
     case GF_PLASMA:
+    case GF_SOUND:
         parm.v.dice = _dice(0, 0, 3*rlev);
         break;
     default:
@@ -1662,7 +1708,7 @@ static bool _spell_blocked(void)
 {
     if (_current.spell->flags & MSF_INNATE)
         return FALSE;
-    if (magic_barrier_aux(_current.mon))
+    if (plr_block_magic(_current.mon))
     {
         msg_format("Your anti-magic barrier blocks the spell which %^s casts.", _current.name);
         return (TRUE);
@@ -1957,6 +2003,12 @@ static void _annoy_m(void)
         if (!_current.mon2) break; /* MSF_DIRECT */
         gf_affect_m(_who(), _current.mon2, GF_AMNESIA, 0, GF_AFFECT_SPELL);
         break;
+    case ANNOY_QUAKE:
+        if (_current.flags & MSC_SRC_PLAYER)
+            earthquake(plr->pos, 10);
+        else
+            earthquake_aux(_current.mon->pos, DUN_VIEW_MAX, _current.mon->id);
+        break;
     case ANNOY_ANIMATE_DEAD:
         if (_current.flags & MSC_SRC_PLAYER)
             plr_animate_dead();
@@ -2053,6 +2105,9 @@ static void _annoy_p(void)
     {
     case ANNOY_AMNESIA:
         gf_affect_p(_who(), GF_AMNESIA, 0, GF_AFFECT_SPELL);
+        break;
+    case ANNOY_QUAKE:
+        earthquake_aux(_current.mon->pos, 10, _current.mon->id);
         break;
     case ANNOY_ANIMATE_DEAD:
         mon_animate_dead(_current.mon);
@@ -2252,8 +2307,8 @@ static void _escape(void)
     case ESCAPE_TELE_SELF:
         if (_current.flags & MSC_SRC_PLAYER)
             teleport_player(10 + 2*_current.race->alloc.lvl, 0);
-        else if (teleport_barrier(_current.mon->id))
-            msg_format("Magic barrier obstructs teleporting of %s.", _current.name);
+        else if (plr_block_teleport(_current.mon))
+            msg_format("Your magic barrier obstructs the teleportation of %s.", _current.name);
         else
         {
             if (mon_show_msg(_current.mon))
@@ -2309,8 +2364,8 @@ static void _m_tactic(void)
     switch (_current.spell->id.effect)
     {
     case TACTIC_BLINK:
-        if (teleport_barrier(_current.mon->id))
-            msg_format("Magic barrier obstructs teleporting of %s.", _current.name);
+        if (plr_block_teleport(_current.mon))
+            msg_format("Your magic barrier obstructs the teleportation of %s.", _current.name);
         else
         {
             if (!plr_tim_find(T_BLIND) && _current.mon->ml)
@@ -2448,6 +2503,8 @@ static u32b _summon_mode(u32b mode)
 {
     if (_current.flags & MSC_SRC_PLAYER)
         mode |= PM_FORCE_PET;
+    else
+        mode |= PM_NO_FRIEND; /* summoned monsters side with summoner, not player */
     return mode;
 }
 static mon_ptr _summon_race(mon_race_ptr race, u32b mode)
@@ -2561,7 +2618,7 @@ static void _weird_bird_p(void)
         if (get_damage > 0)
             weaponmaster_do_readied_shot(_current.mon);
 
-        if (plr_tim_find(T_REVENGE) && get_damage > 0 && !plr->is_dead)
+        if (plr->revenge && get_damage > 0 && !plr->is_dead)
         {
             char m_name_self[80];
             monster_desc(m_name_self, _current.mon, MD_PRON_VISIBLE | MD_POSSESSIVE | MD_OBJECTIVE);
@@ -2625,7 +2682,7 @@ static void _weird_bird_m(void)
             get_damage = take_hit(DAMAGE_NOESCAPE, dam, _current.name);
             if (get_damage > 0)
                 weaponmaster_do_readied_shot(_current.mon);
-            if (plr_tim_find(T_REVENGE) && get_damage > 0 && !plr->is_dead)
+            if (plr->revenge && get_damage > 0 && !plr->is_dead)
             {
                 char m_name_self[80];
                 monster_desc(m_name_self, _current.mon, MD_PRON_VISIBLE | MD_POSSESSIVE | MD_OBJECTIVE);
@@ -3444,6 +3501,7 @@ static int _antimagic_prob(void)
     case CLASS_RED_MAGE:
     case CLASS_NECROMANCER:
     case CLASS_PRIEST:
+    case CLASS_HIGH_PRIEST:
     case CLASS_BARD:
     case CLASS_TIME_LORD:
     case CLASS_WARLOCK:
@@ -3783,6 +3841,7 @@ static bool _ai_stuck(mon_spell_cast_ptr cast)
     _remove_group(spells->groups[MST_WEIRD], NULL);
     _remove_group(spells->groups[MST_SUMMON], NULL);
     _remove_group(spells->groups[MST_HEAL], NULL);
+    _remove_spell(spells, _id(MST_TACTIC, TACTIC_BLINK_OTHER));
 
     _adjust_group_uncover(spells->groups[MST_BREATH]);
     _adjust_group_uncover(spells->groups[MST_BALL]);
@@ -3849,6 +3908,11 @@ static void _ai_indirect(mon_spell_cast_ptr cast)
             /* Heal and Self Telportation OK */
             _remove_spell(spells, _id(MST_ESCAPE, ESCAPE_TELE_OTHER));
         }
+
+        /* earthquake to uncover a hiding player */
+        spell = mon_spells_find(spells, _id(MST_ANNOY, ANNOY_QUAKE));
+        if (spell)
+            spell->prob = 30; /* XXX we turned off all of MST_ANNOY above */
     }
     else
     {
@@ -4001,9 +4065,13 @@ static bool _choose_target(mon_spell_cast_ptr cast)
     mon_ptr mon2 = NULL;
     if (mon_is_pet(cast->mon) && who_is_mon(plr->pet_target))
     {
-        mon2 = who_mon(plr->pet_target);
-        if (mon2->dun == cave && (mon2->id == cast->mon->id || !mon_project(cast->mon, mon2->pos)))
-            mon2 = NULL;
+        mon_ptr tgt = who_mon(plr->pet_target);
+        if ( tgt->dun == cast->mon->dun
+          && mon_project(cast->mon, tgt->pos)
+          && tgt != cast->mon ) /* paranoia: plr->pet_target should not be a pet! */
+        {
+            mon2 = tgt;
+        }
     }
     if (!mon2 && cast->mon->target_id)
     {
@@ -4787,6 +4855,7 @@ static int _heal_pct(mon_race_ptr race)
     switch (race->body.class_id)
     {
     case CLASS_PRIEST: return 75;
+    case CLASS_HIGH_PRIEST: return 70;
     case CLASS_PALADIN: return 85;
     case CLASS_MYSTIC:
     case CLASS_MONK: return 100;
@@ -4934,6 +5003,7 @@ static bool _allow_dec_mana(mon_spell_ptr spell, mon_race_ptr race)
     case CLASS_HIGH_MAGE:
     case CLASS_SORCERER:
     case CLASS_PRIEST: /* XXX */
+    case CLASS_HIGH_PRIEST:
         return TRUE;
     }
     return FALSE;

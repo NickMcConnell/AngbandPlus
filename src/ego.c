@@ -320,17 +320,33 @@ static bool _check_rand_art(int per_mill, int level, int power, int mode)
 
     return randint0(1000) < per_mill;
 }
-
-static bool _art_create_random(object_type *o_ptr, int level, int power, int mode)
+typedef struct { int min, max; } _range_t;
+_range_t _get_power_range(obj_ptr obj, int level)
 {
-    int     i;
-    point_t min_tbl[5] = { {0,     0}, {20, 10000}, {40, 20000}, {60,  40000}, {100,  60000} };
-    point_t max_tbl[5] = { {0, 10000}, {20, 20000}, {40, 40000}, {60, 100000}, {100, 200000} };
-    int     min = interpolate(level, min_tbl, 5);
-    int     max = interpolate(level, max_tbl, 5);
-    int     pct = 100;
-    object_type best = {0};
-    int     best_score = -1;
+    _range_t r = {0};
+    if (obj_is_body_armor(obj))
+    {
+        point_t min_tbl[5] = { {0, 10000}, {20, 15000}, {40, 25000}, {60,  45000}, {100,  60000} };
+        point_t max_tbl[5] = { {0, 20000}, {20, 30000}, {40, 50000}, {60, 100000}, {100, 200000} };
+        r.min = interpolate(level, min_tbl, 5);
+        r.max = interpolate(level, max_tbl, 5);
+    }
+    else
+    {
+        point_t min_tbl[5] = { {0,     0}, {20, 10000}, {40, 20000}, {60,  40000}, {100,  60000} };
+        point_t max_tbl[5] = { {0, 10000}, {20, 20000}, {40, 40000}, {60, 100000}, {100, 200000} };
+        r.min = interpolate(level, min_tbl, 5);
+        r.max = interpolate(level, max_tbl, 5);
+    }
+    return r;
+}
+static bool _art_create_random(obj_ptr obj, int level, int power, int mode)
+{
+    int      i;
+    int      pct = 100;
+    _range_t rng = _get_power_range(obj, level);
+    obj_t    best = {0};
+    int      best_score = -1;
 
     /* scale the tier for special drops (e.g. uniques) */
     if (mode & AM_VAULT) pct += 35;
@@ -338,19 +354,19 @@ static bool _art_create_random(object_type *o_ptr, int level, int power, int mod
     else if (mode & AM_GREAT) pct += 15;
     else if (mode & AM_GOOD) pct += 10;
 
-    min = min * pct / 100;
-    max = max * pct / 100;
+    rng.min = rng.min * pct / 100;
+    rng.max = rng.max * pct / 100;
 
     /* normalize based on the slot for this object (cf artifact.c)
      * weapons/armor are 100%; amulets/lights 50%; etc. */
-    pct = get_slot_power(o_ptr);
-    min = min * pct / 100;
-    max = max * pct / 100;
+    pct = get_slot_power(obj);
+    rng.min = rng.min * pct / 100;
+    rng.max = rng.max * pct / 100;
 
-    if (obj_is_ammo(o_ptr))
+    if (obj_is_ammo(obj))
     {
-        min /= 30;
-        max /= 30;
+        rng.min /= 30;
+        rng.max /= 30;
     }
 
     if (power < 0)
@@ -358,8 +374,8 @@ static bool _art_create_random(object_type *o_ptr, int level, int power, int mod
 
     for (i = 0; i < 100; i++)
     {
-        object_type forge = *o_ptr;
-        int         score;
+        obj_t forge = *obj;
+        int   score;
 
         if (forge.name2)
             art_create_ego(&forge, level, mode);
@@ -368,24 +384,24 @@ static bool _art_create_random(object_type *o_ptr, int level, int power, int mod
 
         score = obj_value_real(&forge);
 
-        if (score > best_score && score < min)
+        if (score > best_score && score < rng.min)
         {
             best = forge;
             best_score = score;
         }
 
-        if (score < min) continue;
-        if (score > max) continue;
+        if (score < rng.min) continue;
+        if (score > rng.max) continue;
 
-        *o_ptr = forge;
-        art_remember_name(quark_str(o_ptr->art_name));
+        *obj = forge;
+        art_remember_name(quark_str(obj->art_name));
         return TRUE;
     }
     /* XXX returning below the power limits is OK */
     if (best_score > 0)
     {
-        *o_ptr = best;
-        art_remember_name(quark_str(o_ptr->art_name));
+        *obj = best;
+        art_remember_name(quark_str(obj->art_name));
         return TRUE;
     }
     /* XXX but never return above the power limits. Note that

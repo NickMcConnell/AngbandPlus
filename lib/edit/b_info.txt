@@ -754,15 +754,12 @@ S:BOW:Shooting
 S:QUIVER:Quiver
 S:RING:Right Ring:0
 S:RING:Left Ring:1
-S:AMULET:Amulet
+S:AMULET:Neck
+S:LIGHT:Light
 S:BODY_ARMOR:Body
 S:CLOAK:Cloak
-S:HELMET:Helm
+S:HELMET:Head
 S:GLOVES:Hands
-S:BOOTS:Boots
-S:BOOTS:Boots
-S:BOOTS:Boots
-S:BOOTS:Boots
 
 N:Scorpion
 S:RING:Ring

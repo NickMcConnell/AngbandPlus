@@ -368,6 +368,7 @@ enum {
     SM_FRIENDLY,
     SM_SUMMONED,
     SM_TEMP_PET,   /* only until T_MASK_CHARM wears off */
+    SM_TEMP_FRIENDLY, /* only while T_BLESS_FRIENDSHIP is audible */
     SM_MAX
 };
 #define SM_ARRAY_SIZE 2
@@ -586,6 +587,8 @@ struct player_type
     point_t new_pos;   /* D_QUEST position: setting pos too early can break savefiles on panic_save */
     u32b turn;
 
+    plr_tim_ptr timers;
+
     byte psex;            /* Sex index */
     s16b prace;            /* Race index */
     byte pclass;        /* Class index */
@@ -802,6 +805,7 @@ struct player_type
 
     s16b resist[GF_RES_COUNT];
     s16b life;
+    s16b xtra_hp;
 
     bool reflect;
     bool sh_fire;
@@ -810,6 +814,13 @@ struct player_type
     bool sh_shards;
     bool sh_retaliation;
     bool sh_fear;
+    bool sh_holy;
+    bool revenge;  /* Eye for an Eye inflicts immediate revenge: T_REVENGE and T_HEX_REVENGE */
+    bool innocence; /* Cloak of Innocence and Chant of Peace */
+
+    bool repel_evil;    /* T_PROT_EVIL */
+    bool repel_good;
+    bool repel_monsters;
 
     bool no_eldritch;
     bool no_cut;
@@ -822,9 +833,15 @@ struct player_type
     bool res_magic;
     bool vuln_magic;
     bool anti_tele;     /* Prevent teleportation */
-    bool anti_summon;
     bool stealthy_snipe; /* MUT_PEERLESS_SNIPER and scout's Stealthy Snipe */
     bool nimble_dodge;
+
+    /* the following plr abilities attempt to block various monster actions */
+    bool block_summon;
+    bool block_multiply;
+    bool block_teleport;
+    bool block_magic;
+    bool block_steal;
 
     bool sustain_str;    /* Keep strength */
     bool sustain_int;    /* Keep intelligence */
@@ -872,6 +889,8 @@ struct player_type
     bool kill_wall;
     bool pass_web;
     bool clear_web;
+    bool pass_tree;     /* No energy penalty when moving thru the forest */
+    bool centaur_armor; /* Centaurs|Driders can only use the breast plate portion of body armor */
     s16b dec_mana;
     s16b spell_power;
     s16b device_power;

@@ -5,6 +5,7 @@ static void _calc_bonuses(void)
     /* rangers are decent shooters all around, but especially good with bows */
     slot_t slot = equip_find_obj(TV_BOW, SV_ANY); /* fyi, shooter_info not set yet ... */
     if (slot) plr->skills.thb += 20 + plr->lev;
+    plr->pass_tree = TRUE;
 }
 
 static void _calc_shooter_bonuses(object_type *o_ptr, plr_shoot_info_ptr info_ptr)

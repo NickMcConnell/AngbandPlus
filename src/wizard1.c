@@ -100,8 +100,9 @@ static grouper group_item[] =
     { TV_ILLUSION_BOOK, "Books (Illusion)" },
     { TV_MUSIC_BOOK,    "Song Books" },
     { TV_HISSATSU_BOOK, "Books (Kendo)" },
-    { TV_HEX_BOOK,      "Books (Hex)" },
-    { TV_RAGE_BOOK,      "Books (Rage)" },
+    { TV_HEX_BOOK,      "Books (Malediction)" },
+    { TV_HEX_BOOK,      "Books (Benediction)" },
+    { TV_RAGE_BOOK,     "Books (Rage)" },
 
     { TV_WHISTLE,       "Whistle" },
     { TV_CAPTURE,       "Capture Ball" },

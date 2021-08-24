@@ -643,12 +643,9 @@ static int _centaur_get_powers(spell_info* spells, int max)
 {
     return get_powers_aux(spells, max, _centaur_powers);
 }
-
-static void _centaur_calc_bonuses(void)
+static void _centaur_armor(void) /* shared with drider */
 {
-    int slot = equip_find_first(obj_is_body_armor);
-    plr->pspeed += plr->lev / 10;
-
+    int slot = equip_find_first(obj_is_centaur_armor);
     if (slot)
     {
         object_type *o_ptr = equip_obj(slot);
@@ -661,6 +658,13 @@ static void _centaur_calc_bonuses(void)
             plr->dis_to_a -= o_ptr->to_a / 3;
         }
     }
+    plr->centaur_armor = TRUE; /* XXX for object_desc so display reflects the biff XXX */
+}
+static void _centaur_calc_bonuses(void)
+{
+    plr->pspeed += plr->lev / 10;
+    plr->pass_tree = TRUE;
+    _centaur_armor();
 }
 
 static void _centaur_get_flags(u32b flgs[OF_ARRAY_SIZE])
@@ -821,12 +825,15 @@ static int _dark_elf_get_powers(spell_info* spells, int max)
 static void _dark_elf_calc_bonuses(void)
 {
     res_add(GF_DARK);
+    res_add_vuln(GF_LIGHT);
     plr->spell_cap += 3;
     if (plr->lev >= 20) plr->see_inv++;
+    plr->see_nocto = MAX(plr->see_nocto, 2 + plr->lev/13);
 }
 static void _dark_elf_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_RES_(GF_DARK));
+    add_flag(flgs, OF_VULN_(GF_LIGHT));
     add_flag(flgs, OF_SPELL_CAP);
     if (plr->lev >= 20)
         add_flag(flgs, OF_SEE_INVIS);
@@ -989,6 +996,7 @@ static void _draconian_breathe_spell(int cmd, var_ptr res)
             int e = _draconian_breath_effect();
             int dam = _draconian_breath_amount();
             if (e < 0) return;
+            stop_mouth();
             msg_format("You breathe %s.", gf_name(e));
             _draconian_do_breathe(e, pos, dam);
             var_set_bool(res, TRUE);
@@ -1143,6 +1151,7 @@ static int _draconian_attack_level(void)
         l = MAX(1, l * 105 / 100);
         break;
     case CLASS_PRIEST:
+    case CLASS_HIGH_PRIEST:
     case CLASS_MINDCRAFTER:
     case CLASS_MAGIC_EATER:
     case CLASS_ARCHAEOLOGIST:
@@ -1409,6 +1418,85 @@ plr_race_ptr draconian_get_race(int psubrace)
 }
 
 /****************************************************************
+ * Drider
+ ****************************************************************/
+static power_info _drider_powers[] =
+{
+    { A_INT, {1, 2, 30, magic_missile_spell} },
+    { A_DEX, {30, 10, 60, spider_web_spell} },
+    { -1, {-1, -1, -1, NULL} }
+};
+static int _drider_get_powers(spell_info* spells, int max)
+{
+    return get_powers_aux(spells, max, _drider_powers);
+}
+static void _drider_calc_bonuses(void)
+{
+    _dark_elf_calc_bonuses();
+    if (plr->lev >= 30)
+        res_add(GF_POIS);
+    plr->pspeed += plr->lev / 10;
+    plr->pass_web = TRUE;
+    _centaur_armor();
+}
+static void _drider_get_flags(u32b flgs[OF_ARRAY_SIZE])
+{
+    _dark_elf_get_flags(flgs);
+    if (plr->lev >= 30)
+        add_flag(flgs, OF_RES_(GF_POIS));
+    if (plr->lev >= 10)
+        add_flag(flgs, OF_SPEED);
+}
+plr_race_ptr drider_get_race(void)
+{
+    static plr_race_ptr me = NULL;
+
+    if (!me)
+    {
+        me = plr_race_alloc(RACE_DRIDER);
+        me->name = "Drider";
+        me->desc = "Driders combine the bloated body of a giant spider with the head, arms and torso of "
+                    "a dark elf. Due to their body type they are unable to wear boots and "
+                    "can only equip the breast plate portion of body armor on their humanoid "
+                    "torso. Hence they tend to have a lower armor class than other races.\n\n"
+                    "Like dark elves, they prefer the dark places of the world. Like spiders, "
+                    "they are unhampered by sticky webs and may even eventually weave webs of "
+                    "their own. Strong in magic, the drider makes a formidable mage but their "
+                    "melee and health are somewhat lower than average.";
+
+        me->stats[A_STR] = -1;
+        me->stats[A_INT] =  3;
+        me->stats[A_WIS] =  1;
+        me->stats[A_DEX] =  2;
+        me->stats[A_CON] = -1;
+        me->stats[A_CHR] =  2;
+
+        me->skills.dis = 5;
+        me->skills.dev = 7;
+        me->skills.sav = 12;
+        me->skills.stl = 3;
+        me->skills.srh = 8;
+        me->skills.fos = 12;
+        me->skills.thn = -5;
+        me->skills.thb =  6;
+
+        me->life = 99;
+        me->base_hp = 20;
+        me->exp = 190;
+        me->infra = 5;
+        me->shop_adjust = 130;
+
+        me->hooks.calc_bonuses = _drider_calc_bonuses;
+        me->hooks.get_flags = _drider_get_flags;
+        me->hooks.get_powers = _drider_get_powers;
+
+        me->equip_template = equip_template_parse("Drider");
+    }
+
+    return me;
+}
+
+/****************************************************************
  * Dunadan
  ****************************************************************/
 static void _dunadan_calc_bonuses(void)
@@ -1541,6 +1629,7 @@ static int _ent_get_powers(spell_info* spells, int max)
 }
 static void _ent_calc_bonuses(void)
 {
+    plr->pass_tree = TRUE;
     /*res_add_vuln(GF_FIRE); cf resists.c res_pct_aux() for an alternative*/
     if (!equip_find_first(obj_is_weapon))
         plr->skill_dig += plr->lev * 10;

@@ -67,7 +67,7 @@ void set_action(int typ)
             msg_print("You are no longer moving extremely fast.");
             break;
         case ACTION_SPELL:
-            msg_print("You stopped spelling all spells.");
+            msg_print("You stop chanting.");
             break;
         case ACTION_STALK:
             msg_print("You no longer stalk your prey.");
@@ -77,7 +77,7 @@ void set_action(int typ)
 
     plr->action = typ;
 
-    if (prev_typ == ACTION_SING) bard_stop_singing();
+    if (prev_typ == ACTION_SING) music_stop();
 
     switch (plr->action)
     {
@@ -157,29 +157,6 @@ void dispel_player(void)
     {
         plr->special_attack &= ~(ATTACK_CONFUSE);
         msg_print("Your hands stop glowing.");
-    }
-
-    if (music_singing_any() || hex_spelling_any())
-    {
-        cptr str = (music_singing_any()) ? "singing" : "spelling";
-        plr->magic_num1[1] = plr->magic_num1[0];
-        plr->magic_num1[0] = 0;
-        msg_format("Your %s is interrupted.", str);
-        plr->action = ACTION_NONE;
-
-        /* Recalculate bonuses */
-        plr->update |= (PU_BONUS | PU_HP);
-
-        /* Redraw map */
-        plr->redraw |= (PR_MAP | PR_STATUS | PR_STATE);
-
-        /* Update monsters */
-        plr->update |= (PU_MONSTERS);
-
-        /* Window stuff */
-        plr->window |= (PW_OVERHEAD | PW_DUNGEON);
-
-        plr->energy_need += ENERGY_NEED();
     }
 }
 

@@ -627,7 +627,7 @@ void obj_learn_equipped(object_type *o_ptr)
         if (obj_learn_flag(o_ptr, info->id)) learned = TRUE;
     }
 
-    if (plr->pclass == CLASS_PRIEST)
+    if (plr->pclass == CLASS_PRIEST || plr->pclass == CLASS_HIGH_PRIEST)
     {
         if (obj_learn_flag(o_ptr, OF_BLESSED)) learned = TRUE;
     }

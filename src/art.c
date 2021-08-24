@@ -683,19 +683,26 @@ static void _one_shield(_forge_ptr forge)
     _one(forge, tbl);
 }
 
+static void _body_armor_resist(_forge_ptr forge)
+{
+    static _table_t tbl[] = {
+        { 0,        _resist_base, NULL, 20 },
+        { 0,  _many_high_resists, NULL, 15 },
+        { 0,     _resist_balance, NULL,  1 },
+        { 0,      _resist_undead, NULL,  1 },
+        { 0 } };
+    _one(forge, tbl);
+}
 static void _one_body_armor(_forge_ptr forge)
 {
     static _table_t tbl[] = {
-        { 0,           _boost_ac, NULL, 15 },
-        { 0,        _resist_base, NULL,  3, _ONCE },
-        { 0,     _resist_balance, NULL,  1, _ONCE },
-        { 0,      _resist_undead, NULL,  1, _ONCE },
+        { 0,           _boost_ac, NULL, 15, _ONCE },
+        { 0,  _body_armor_resist, NULL, 35, _ONCE },
         { 0,        _one_sustain, NULL,  3 },
         { 0,           _one_aura, NULL,  3 },
         { 0,              _might, NULL,  3, _ONCE },
         { 0,          _one_armor, NULL, 45 },
         { 0 } };
-
     _one(forge, tbl);
 }
 
@@ -928,7 +935,7 @@ static void _one_robe(_forge_ptr forge)
         { 0,         _resist_base, NULL,  5, _ONCE},
         { 0,            _one_aura, NULL,  5 },
         { 0,          _brilliance, NULL,  5, _ONCE },
-        { 0,           _one_armor, NULL, 75 },
+        { 0,           _one_armor, NULL, 50 },
         { 0 } };
 
     _one(forge, tbl);
@@ -1187,10 +1194,28 @@ static void _one_bow(_forge_ptr forge)
 }
 
 /******************************************************************************
- * Lights and Jewelry
+ * Harps (... are not bows)
  ******************************************************************************/
 static void _clairvoyance(_forge_ptr forge) { effect_add(forge->obj, EFFECT_CLAIRVOYANCE); }
+static void _one_harp(_forge_ptr forge)
+{
+    static _table_t tbl[] = {
+        { 0,                  _one_plus, NULL, 200 },
+        { 0,               _one_ability, NULL, 150 },
+        { 0,                _one_resist, NULL, 300 },
+        { OF_RES_(GF_SOUND),   _freebie, NULL,  50, _ONCE },
+        { OF_SPELL_CAP,            NULL, NULL,  10 },
+        { 0,                _brilliance, NULL,   5, _ONCE },
+        { 0,                   _one_esp, NULL,   5 },
+        { 0,              _clairvoyance, NULL,   2, _ONCE },
+        { 0 } };
 
+    _one(forge, tbl);
+}
+
+/******************************************************************************
+ * Lights and Jewelry
+ ******************************************************************************/
 static void _one_light(_forge_ptr forge)
 {
     static _table_t tbl[] = {
@@ -1198,7 +1223,6 @@ static void _one_light(_forge_ptr forge)
         { 0,           _one_ability, NULL, 150 },
         { 0,            _one_resist, NULL, 300 },
         { OF_HOLD_LIFE,    _freebie, NULL,  50, _ONCE },
-        { OF_DARKNESS,     _freebie, NULL,  15, _ONCE },
         { OF_SPELL_POWER,      NULL, NULL,   1, _ONCE },
         { 0,                   _esp, NULL,   5, _ONCE },
         { 0,          _clairvoyance, NULL,   2, _ONCE },
@@ -1287,6 +1311,8 @@ static bool obj_is_hard_armor(obj_ptr o) { return o->tval == TV_HARD_ARMOR; }
 static bool obj_is_soft_armor(obj_ptr o) { return o->tval == TV_SOFT_ARMOR; }
 static bool _obj_is_light(obj_ptr o) { return o->tval == TV_LIGHT && o->sval != SV_LIGHT_DARK; }
 static bool _obj_is_dark(obj_ptr o) { return o->tval == TV_LIGHT && o->sval == SV_LIGHT_DARK; }
+static bool _obj_is_harp(obj_ptr o) { return o->tval == TV_BOW && o->sval == SV_HARP; }
+static bool _obj_is_bow(obj_ptr o) { return  o->tval == TV_BOW && o->sval != SV_HARP; }
 
 /* Pick the forge function for this artifact. The goal here is twofold:
  * [1] To pick a forge function appropriate to the kind of object being forged
@@ -1300,7 +1326,7 @@ static _forge_f _choose_forge_f(_forge_ptr forge)
         { 0, _one_cloak,        obj_is_cloak,          1 },
         { 0, _one_shield,       obj_is_shield,         1 },
 
-        { 0, _one_robe,         obj_is_robe,         200 },
+        { 0, _one_robe,         obj_is_robe,        2000 }, /* XXX make mage gear more common XXX */
         { 0, _one_body_armor,   obj_is_body_armor,   100 },
         { 0, _one_demon_armor,  obj_is_hard_armor,     5 },
         { 0, _one_undead_armor, obj_is_body_armor,     5 },
@@ -1312,13 +1338,14 @@ static _forge_f _choose_forge_f(_forge_ptr forge)
         { 0, _one_ring,         obj_is_ring,           1 },
         { 0, _one_amulet,       obj_is_amulet,         1 },
 
-        { 0, _one_wizardstaff,  obj_is_wizardstaff,  200 },
+        { 0, _one_wizardstaff,  obj_is_wizardstaff, 1000 }, /* XXX make mage gear more common XXX */
         { 0, _one_weapon,       obj_is_weapon,       100 },
         { 0, _one_demon_weapon, obj_is_weapon,         5 }, 
         { 0, _one_undead_weapon,obj_is_weapon,         5 }, 
         { 0, _one_holy_weapon,  obj_is_weapon,         5 }, 
 
-        { 0, _one_bow,          obj_is_bow,            1 },
+        { 0, _one_harp,         _obj_is_harp,          1 },
+        { 0, _one_bow,          _obj_is_bow,           1 },
         { 0, _one_ammo,         obj_is_ammo,           1 },
         { 0 } };
 
@@ -1405,6 +1432,7 @@ int get_slot_power(obj_ptr obj) /* for ego.c */
     if (obj_is_weapon(obj))
     {
         int d = k_info[obj->k_idx].dd * k_info[obj->k_idx].ds;
+        if (obj_is_wizardstaff(obj)) d = 6; /* fudge ... but allow strong mage gear */
         if (d < 12)
             w = w * d / 12;
     }

@@ -28,7 +28,7 @@ savefiles cannot be supported.
   possible state, and each feature "mimicked" a base state for display 
   purposes.) In addition, webs have been re-desinged with ideas from 
   Vanilla.
-
+   
   Graphics: Many new tiles have been added and terrain tiles have been 
   enhanced to support the lighting changes from 7.2.2.
 
@@ -240,23 +240,17 @@ changes discussed come from earlier versions in the 7x series.
   square in the view, if you move to that square, your original square 
   will be in the current view.
 
-  A new player light system: I've added a new light system, 
-  consoldiating the effects of all light sources into a single value. 
-  This includes contributions from the player's torch and equipment, 
-  from monster light or darkness, from terrain light (or darkness!!!) 
-  and from ambient sunshine on the surface. To view a square, its 
-  lighting value must be positive. To "see" a monster in a non-fuzzy 
-  manner, it must be standing on a square with positive light. To read 
-  a scroll or spellbook, the player's square must have a positive light 
-  value. This is very significant since monster darkness might 
-  completely overwhelm the player's torch rendering him unable to see! 
-  (Note that accurate light calculation requires that light sources 
-  "project" a ball of light or dark that respects the terrain (e.g. 
-  walls and closed doors block light). Code must then iterate this 
-  projection, considering only those grids in the player's view when 
-  calculating the light value. Finally, care must be taken with wall 
-  illumination: a monster on the opposite side of a wall from the 
-  player should not shine through the wall!) With the new system, 
+  A new player light system:
+  I've added a new light system, consoldiating the effects of all light 
+  sources into a single value. This includes contributions from the 
+  player's torch and equipment, from monster light or darkness, from 
+  terrain light (or darkness!!!) and from ambient sunshine on the 
+  surface. To view a square, its lighting value must be positive. To 
+  "see" a monster in a non-fuzzy manner, it must be standing on a 
+  square with positive light. To read a scroll or spellbook, the 
+  player's square must have a positive light value. This is very 
+  significant since monster darkness might completely overwhelm the 
+  player's torch rendering him unable to see! With the new system, 
   Vampires (monster mode) now have a rougher time of things and the 
   game is much more realistic. Attack a sleeping human and he wakes up 
   and quickly lights his lantern, causing the impudent vampire to 

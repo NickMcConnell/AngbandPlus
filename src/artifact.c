@@ -28,6 +28,29 @@ static bool _add_bad_flag(object_type *o_ptr, int bad_flag, int good_flag)
     return FALSE;
 }
 
+void one_bless(obj_ptr obj)
+{
+    switch (randint0(16))
+    {
+        case 0: add_flag(obj->flags, OF_SUST_STR); break;
+        case 1: add_flag(obj->flags, OF_SUST_INT); break;
+        case 2: add_flag(obj->flags, OF_SUST_WIS); break;
+        case 3: add_flag(obj->flags, OF_SUST_DEX); break;
+        case 4: add_flag(obj->flags, OF_SUST_CON); break;
+        case 5: add_flag(obj->flags, OF_SUST_CHR); break;
+        case 6: add_flag(obj->flags, OF_LIGHT); break;
+        case 7: add_flag(obj->flags, OF_HOLD_LIFE); break;
+        case 8: add_flag(obj->flags, OF_REGEN); break;
+        case 9: add_flag(obj->flags, OF_FREE_ACT); break;
+        case 10: add_flag(obj->flags, OF_SEE_INVIS); break;
+        case 11: add_flag(obj->flags, OF_REFLECT); break;
+        case 12: add_flag(obj->flags, OF_ESP_EVIL); break;
+        case 13: add_flag(obj->flags, OF_SLOW_DIGEST); break;
+        case 14: add_flag(obj->flags, OF_WARNING); break;
+        case 15: add_flag(obj->flags, OF_LEVITATION); break;
+    }
+}
+
 /*
  * Choose one random sustain
  */

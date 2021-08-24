@@ -129,6 +129,7 @@ D:the lands after the fall of Camelot.
 I:COLOR(Red)
 P:Copy:Human:Mage
 P:Stat:Int(6)
+P:Skill:Thn(60+80)
 
 N:q.Questing Beast:The Questing Beast
 I:LVL(35):RARITY(7):ALLOC(D_CAMELOT|UNIQUE)

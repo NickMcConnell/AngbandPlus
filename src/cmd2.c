@@ -842,15 +842,7 @@ void do_cmd_rest(void)
     if (weaponmaster_get_toggle() == TOGGLE_SHADOW_STANCE)
         weaponmaster_set_toggle(TOGGLE_NONE);
 
-    if ((plr->pclass == CLASS_BARD) && (plr->magic_num1[0] || plr->magic_num1[1]))
-    {
-        bard_stop_singing();
-    }
-
-    /* Hex */
-    if (hex_spelling_any()) stop_hex_spell_all();
-
-    warlock_stop_singing();
+    stop_mouth();
 
     /* Prompt for time if needed */
     if (command_arg == 0)

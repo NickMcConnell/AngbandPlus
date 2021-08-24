@@ -72,9 +72,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
     int  lev = k_info[obj->k_idx].level;
     bool ident = FALSE;
 
-    if (music_singing_any()) bard_stop_singing();
-    if (hex_spelling_any()) stop_hex_spell_all();
-    warlock_stop_singing();
+    stop_mouth();
 
     if (object_is_mushroom(obj) && obj->art_name && obj->timeout)
     {
@@ -535,11 +533,13 @@ static void do_cmd_quaff_potion_aux(obj_ptr obj)
         return;
     }
 
-    if (music_singing_any()) bard_stop_singing();
-    if (hex_spelling_any())
+    if (music_current()) music_stop();
+    if (hex_count())
     {
-        if (!hex_spelling(HEX_INHAIL)) stop_hex_spell_all();
+        if (!hex_inhale)
+            hex_stop();
     }
+    if (bless_count()) bless_stop();
     warlock_stop_singing();
 
     if (devicemaster_is_(DEVICEMASTER_POTIONS) && !devicemaster_desperation)
@@ -757,11 +757,18 @@ static void do_cmd_read_scroll_aux(obj_ptr o_ptr)
         return;
     }
 
-    if (music_singing_any()) bard_stop_singing();
-
-    /* Hex */
-    if (hex_spelling_any() && ((plr->lev < 35) || hex_spell_fully())) stop_hex_spell_all();
-
+    /* reading interrupts singing|chanting */
+    if (music_current()) music_stop();
+    if (hex_count())
+    {
+        if (plr->lev < 35 || hex_count() >= hex_max())
+            hex_stop();
+    }
+    if (bless_count())
+    {
+        if (plr->lev < 35 || bless_count() >= bless_max())
+            bless_stop();
+    }
     warlock_stop_singing();
 
     /* Assume the scroll will get used up */
@@ -1137,7 +1144,7 @@ void do_cmd_zap_rod(void)
 static void _do_capture_ball(object_type *o_ptr)
 {
     int dir;
-    if (!o_ptr->pval)
+    if (!o_ptr->race_id)
     {
         mon_ptr mon = plr_target_adjacent_pet();
         if (!mon) return;
@@ -1233,7 +1240,7 @@ static void _do_capture_ball(object_type *o_ptr)
                         o_ptr->inscription = quark_add(buf);
                     }
                 }
-                o_ptr->pval = 0;
+                o_ptr->race_id = 0;
                 o_ptr->xtra3 = 0;
                 o_ptr->xtra4 = 0;
                 o_ptr->xtra5 = 0;

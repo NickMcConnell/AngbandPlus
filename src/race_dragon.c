@@ -343,6 +343,7 @@ static void _breathe_spell(int cmd, var_ptr res)
             int e = _breath_effect();
             int dam = _breath_amount();
             if (e < 0) return;
+            stop_mouth();
             msg_format("You breathe %s.", gf_name(e));
             _do_breathe(e, pos, dam);
             var_set_bool(res, TRUE);

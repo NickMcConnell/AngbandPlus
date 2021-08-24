@@ -84,6 +84,7 @@ syn match riAllocFlag /FIXED_UNIQUE/ contained
 syn match riAllocFlag /UNIQUE/ contained
 syn match riAllocFlag /UNIQUE2/ contained
 syn match riAllocFlag /GUARDIAN/ contained
+syn match riAllocFlag /WEB/ contained
 syn match riAllocFlag /\<D_[A-Z_]\+/ contained
 syn match riAllocFlag /\<W_[A-Z_]\+/ contained
 syn match riAllocFlag /\<MAX_\d\+/ contained
@@ -105,6 +106,8 @@ syn match riMoveFlag /FLY/ contained
 syn match riMoveFlag /CLIMB/ contained
 syn match riMoveFlag /TRUMP/ contained
 syn match riMoveFlag /QUICK/ contained
+syn match riMoveFlag /WEB/ contained
+syn match riMoveFlag /CLEARWEB/ contained
 syn match riMoveFlag /\<RAND_\d\+/ contained
 syn region riMoveExp matchgroup=riOp start=/MOVE(/ end=/)/ contains=riMoveFlag contained
 syn match riGFFlag /ACID/ contained
@@ -113,7 +116,6 @@ syn match riGFFlag /FIRE/ contained
 syn match riGFFlag /COLD/ contained
 syn match riGFFlag /POIS/ contained
 syn match riGFFlag /POISON/ contained
-syn match riGFFlag /LITE/ contained
 syn match riGFFlag /LIGHT/ contained
 syn match riGFFlag /DARK/ contained
 syn match riGFFlag /NETHER/ contained
@@ -163,11 +165,13 @@ syn match riPosFlag /SUST_ALL/ contained
 syn match riPosFlag /BACKSTAB/ contained
 syn region riPosExp matchgroup=riOp start=/POS(/ end=/)/ contains=riPosFlag contained
 syn match riAlign /Lawful/ contained
+syn match riAlign /Very Good/ contained
 syn match riAlign /Good/ contained
 syn match riAlign /Neutral Good/ contained
 syn match riAlign /Neutral/ contained
 syn match riAlign /Neutral Evil/ contained
 syn match riAlign /Evil/ contained
+syn match riAlign /Very Evil/ contained
 syn match riAlign /Chaotic/ contained
 syn region riAlignExp matchgroup=riOp start=/ALIGN(/ end=/)/ contains=riAlign contained
 syn match riKindFlag /ORC/ contained
@@ -204,7 +208,7 @@ syn match riAttrFlag /KILL_EXP/ contained
 syn match riAttrFlag /IM_ILLUSION/ contained
 syn match riAttrFlag /DEPRECATED/ contained
 syn region riAttrExp matchgroup=riOp start=/ATTR(/ end=/)/ contains=riAttrFlag contained
-syn region riLiteExp matchgroup=riOp start=/LITE(/ end=/)/ contains=riNumber contained
+syn region riLiteExp matchgroup=riOp start=/LIGHT(/ end=/)/ contains=riNumber contained
 syn region riDarkExp matchgroup=riOp start=/DARK(/ end=/)/ contains=riNumber contained
 syn match riAbilityFlag /SPEAK/ contained
 syn match riAbilityFlag /REFLECT/ contained
@@ -370,7 +374,7 @@ syn region riGFExp matchgroup=riOp start=/GRAVITY(/ end=/)/ contains=riDice,riPe
 syn region riGFExp matchgroup=riOp start=/HELL_FIRE(/ end=/)/ contains=riDice,riPercent,riNumber,riFrequency contained
 syn region riGFExp matchgroup=riOp start=/HOLY_FIRE(/ end=/)/ contains=riDice,riPercent,riNumber,riFrequency contained
 syn region riGFExp matchgroup=riOp start=/ICE(/ end=/)/ contains=riDice,riPercent,riNumber,riFrequency contained
-syn region riGFExp matchgroup=riOp start=/LITE(/ end=/)/ contains=riDice,riPercent,riNumber,riFrequency contained
+syn region riGFExp matchgroup=riOp start=/LIGHT(/ end=/)/ contains=riDice,riPercent,riNumber,riFrequency contained
 syn region riGFExp matchgroup=riOp start=/MIND_BLAST(/ end=/)/ contains=riDice,riPercent,riNumber,riFrequency contained
 syn region riGFExp matchgroup=riOp start=/NETHER(/ end=/)/ contains=riDice,riPercent,riNumber,riFrequency contained
 syn region riGFExp matchgroup=riOp start=/NEXUS(/ end=/)/ contains=riDice,riPercent,riNumber,riFrequency contained

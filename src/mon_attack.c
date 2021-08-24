@@ -397,8 +397,12 @@ static void _effect_plr(mon_attack_ptr context, mon_effect_ptr effect, int dam)
         if (mon_is_thief(context->mon))
             mon_lore_thief(context->mon);
 
-        if (!plr_tim_find(T_PARALYZED) &&
-            (randint0(100) < (adj_dex_safe[plr->stat_ind[A_DEX]] + plr->lev)))
+        if (plr_block_steal(context->mon))
+        {
+            msg_format("%^s decides not to steal from you.", context->mon_name);
+        }
+        else if ( !plr_tim_find(T_PARALYZED)
+               && randint0(100) < adj_dex_safe[plr->stat_ind[A_DEX]] + plr->lev )
         {
             msg_print("You quickly protect your money pouch!");
             if (randint0(3)) context->do_blink = TRUE;
@@ -440,8 +444,13 @@ static void _effect_plr(mon_attack_ptr context, mon_effect_ptr effect, int dam)
         if (mon_is_thief(context->mon))
             mon_lore_thief(context->mon);
 
-        if (!plr_tim_find(T_PARALYZED) &&
-            (randint0(100) < (adj_dex_safe[plr->stat_ind[A_DEX]] + plr->lev)))
+        if (plr_block_steal(context->mon))
+        {
+            msg_format("%^s decides not to steal from you.", context->mon_name);
+            break;
+        }
+        else if ( !plr_tim_find(T_PARALYZED)
+               && randint0(100) < adj_dex_safe[plr->stat_ind[A_DEX]] + plr->lev )
         {
             msg_print("You grab hold of your backpack!");
             context->do_blink = TRUE;
@@ -486,6 +495,12 @@ static void _effect_plr(mon_attack_ptr context, mon_effect_ptr effect, int dam)
 
         if (mon_is_thief(context->mon))
             mon_lore_thief(context->mon);
+
+        if (plr_block_steal(context->mon))
+        {
+            msg_format("%^s decides not to steal from you.", context->mon_name);
+            break;
+        }
 
         for (k = 0; k < 10; k++)
         {
@@ -625,7 +640,7 @@ static bool _is_touch(mon_blow_ptr blow)
 
 static bool _repelled(mon_attack_ptr context)
 {
-    if ( plr_tim_find(T_PROT_EVIL)
+    if ( plr->repel_evil
       && _1d(200) <= -context->race->align
       && !mon_save_p(context->mon, A_CHR) )
     {
@@ -633,12 +648,19 @@ static bool _repelled(mon_attack_ptr context)
         plr_tim_subtract(T_PROT_EVIL, _1d(1 + mon_lvl(context->mon)/10));
         return TRUE;
     }
-    if ( plr_tim_find(T_PROT_GOOD)
+    if ( plr->repel_good
       && _1d(200) <= context->race->align
       && !mon_save_p(context->mon, A_CHR) )
     {
         cmsg_format(TERM_L_BLUE, "%^s is repelled.", context->mon_name);
         plr_tim_subtract(T_PROT_GOOD, _1d(1 + mon_lvl(context->mon)/10));
+        return TRUE;
+    }
+    if ( plr->repel_monsters
+      && _1d(200) > mon_lvl(context->mon)
+      && !mon_save_p(context->mon, A_CHR) )
+    {
+        cmsg_format(TERM_L_BLUE, "%^s is repelled.", context->mon_name);
         return TRUE;
     }
     return FALSE;
@@ -703,7 +725,7 @@ bool mon_hit_plr(mon_attack_ptr context)
         _effect_plr(context, effect, dam); 
         mon_lore_effect(context->mon, effect);
     }
-    revenge_store(context->dam); /* store after each blow in case we stop */
+    hex_on_dam(context->dam); /* store after each blow in case we stop */
     context->dam_total += context->dam;
 
     /* lore */
@@ -898,12 +920,14 @@ void mon_on_hit_plr(mon_attack_ptr context)
         if (_stop_attack(context)) return;
     }
 
-    if (plr_tim_find(T_AURA_HOLY))
+    if (plr->sh_holy)
     {
-        if (mon_is_evil(context->mon))
+        int align = context->mon->race->align;
+        if (align < 0)
         {
             int dam = _aura_dam_p();
 
+            dam = dam * holy_align_dam_pct(align) / 100;
             dam = mon_damage_mod(context->mon, dam, FALSE);
             msg_format("%^s is injured by holy power!", context->mon_name);
 
@@ -917,7 +941,7 @@ void mon_on_hit_plr(mon_attack_ptr context)
     }
 
     /* XXX move to hex.c */
-    if (hex_spelling(HEX_SHADOW_CLOAK))
+    if (plr_tim_find(T_HEX_SHADOW_CLOAK))
     {
         int dam = 1;
         int slot, hand;
@@ -1159,7 +1183,7 @@ static void _delayed_effects(mon_attack_ptr context)
     if (context->stop) return;
     if (context->do_blink)
     {
-        if (teleport_barrier(context->mon->id))
+        if (plr_block_teleport(context->mon))
         {
             if (!(context->flags & _UNVIEW))
                 msg_print("The thief flees laughing...? But a magic barrier obstructs it.");
@@ -1284,11 +1308,11 @@ static void _post_attack(mon_attack_ptr context)
 
     if (context->stop) return;
 
-    if (plr_tim_find(T_REVENGE) && context->dam_total > 0)
+    if (plr->revenge && context->dam_total > 0)
     {
         char m_name_self[80];
         monster_desc(m_name_self, context->mon, MD_PRON_VISIBLE | MD_POSSESSIVE | MD_OBJECTIVE);
-        msg_format("The attack of %s has wounded %s!", context->mon_name, m_name_self);
+        msg_format("The attack of %s has wounded %s!", context->mon_full_name, m_name_self);
         gf_affect_m(who_create_plr(), context->mon, GF_MISSILE, psion_backlash_dam(context->dam_total), 0);
         plr_tim_subtract(T_REVENGE, 5);
     }
