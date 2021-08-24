@@ -14,6 +14,7 @@
 typedef struct maxima maxima;
 typedef struct colors_preset colors_preset;
 typedef struct alloc_entry alloc_entry;
+typedef struct alloc_entry_new alloc_entry_new;
 typedef struct quest_type quest_type;
 typedef struct owner_type owner_type;
 typedef struct store_type store_type;
@@ -120,6 +121,23 @@ struct alloc_entry
     byte prob3;		/* Probability, pass 3 */
 
     u16b total;		/* Unused for now */
+};
+
+/*
+ * An entry for the object/monster allocation functions
+ *
+ * Pass 1 is determined from allocation information
+ * Pass 2 is determined from allocation restriction
+ * Pass 3 is determined from allocation calculation
+ */
+struct alloc_entry_new
+{
+    s16b index;		/* The actual index */
+
+    byte level;		/* Base dungeon level */
+    byte base_probability;		/* Probability, pass 1 */
+    byte hook_probability;      // Probability after the functional hook
+    byte final_probability;     // Probability after the level (or other) filter
 };
 
 

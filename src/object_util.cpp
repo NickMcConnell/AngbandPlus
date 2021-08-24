@@ -398,7 +398,7 @@ static int quiver_wield(int item, object_type *o_ptr)
     o_name = object_desc(i_ptr, ODESC_PREFIX | ODESC_FULL);
 
     /*Mark it to go in the quiver */
-    o_ptr->ident |= (IDENT_QUIVER);
+    o_ptr->use_verify[AUTO_WIELD_QUIVER] = TRUE;
 
     slot = wield_slot_ammo(o_ptr);
 
@@ -1337,24 +1337,21 @@ int get_obj_num_prep(void)
 {
     int i;
 
-    /* Get the entry */
-    alloc_entry *table = alloc_kind_table;
-
     /* Scan the allocation table */
-    for (i = 0; i < alloc_kind_size; i++)
+    for (i = 0; i < alloc_kind_table.size(); i++)
     {
         /* Accept objects which pass the restriction, if any */
-        if (!get_obj_num_hook || (*get_obj_num_hook)(table[i].index))
+        if (!get_obj_num_hook || (*get_obj_num_hook)(alloc_kind_table[i].index))
         {
             /* Accept this object */
-            table[i].prob2 = table[i].prob1;
+            alloc_kind_table[i].hook_probability = alloc_kind_table[i].base_probability;
         }
 
         /* Do not use this object */
         else
         {
             /* Decline this object */
-            table[i].prob2 = 0;
+            alloc_kind_table[i].hook_probability = 0;
         }
     }
 
@@ -3380,7 +3377,7 @@ s16b quiver_carry(object_type *o_ptr)
             object_absorb(j_ptr, o_ptr);
 
             /*Mark it to go in the quiver */
-            j_ptr->ident |= (IDENT_QUIVER);
+            o_ptr->use_verify[AUTO_WIELD_QUIVER] = TRUE;
 
             /* Recalculate bonuses */
             p_ptr->update |= (PU_BONUS);
@@ -3492,7 +3489,7 @@ s16b quiver_carry(object_type *o_ptr)
     j_ptr->marked = FALSE;
 
     /*Mark it to go in the quiver */
-    j_ptr->ident |= (IDENT_QUIVER);
+    j_ptr->use_verify[AUTO_WIELD_QUIVER] = TRUE;
 
     /* Recalculate bonuses */
     p_ptr->update |= (PU_BONUS);
@@ -3751,7 +3748,7 @@ s16b inven_takeoff(int item, int amt)
     slot = inven_carry(i_ptr);
 
     /* Remove the mark to auto-wield in quiver */
-    o_ptr->ident &= ~(IDENT_QUIVER);
+    o_ptr->use_verify[AUTO_WIELD_QUIVER] = FALSE;
 
     /* Special handling for the quiver */
     if ((item > QUIVER_START) && (item < QUIVER_END))

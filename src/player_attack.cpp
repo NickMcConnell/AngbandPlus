@@ -750,6 +750,12 @@ void py_attack(int y, int x)
             /* Damage, check for fear and death */
             if (mon_take_hit(dungeon_info[y][x].monster_idx, k, &fear, NULL, SOURCE_PLAYER, TRUE))
             {
+                // Make sure it is awake from zero damage attacks.
+                if (m_ptr->m_timed[MON_TMD_SLEEP])
+                {
+                    wake_monster_attack(m_ptr, MON_TMD_FLG_NOTIFY);
+                }
+
                 /*return energy from unused attacks*/
                 if (num < p_ptr->state.num_blow)
                 {
@@ -905,7 +911,7 @@ void command_fire(cmd_arg args)
     if (IS_QUIVER_SLOT(item))
     {
         /*Mark it to go in the quiver */
-        i_ptr->ident |= (IDENT_QUIVER);
+        i_ptr->use_verify[AUTO_WIELD_QUIVER] = TRUE;
     }
 
     /* Sound */
@@ -1168,6 +1174,12 @@ void command_fire(cmd_arg args)
             {
                 /* Message */
                 message_pain(dungeon_info[y][x].monster_idx, tdam);
+
+                //Make sure it is awake from zero damage attacks.
+                if (m_ptr->m_timed[MON_TMD_SLEEP])
+                {
+                    wake_monster_attack(m_ptr, MON_TMD_FLG_NOTIFY);
+                }
 
             }
         }
@@ -1899,7 +1911,7 @@ void command_throw(cmd_arg args)
     if (IS_QUIVER_SLOT(item))
     {
         /*Mark it to go in the quiver */
-        i_ptr->ident |= (IDENT_QUIVER);
+        i_ptr->use_verify[AUTO_WIELD_QUIVER] = TRUE;
     }
 
     /* Description */
@@ -2199,6 +2211,12 @@ void command_throw(cmd_arg args)
                 /* Message if applicable*/
                 if ((!potion_effect) || (pdam > 0))
                     message_pain(dungeon_info[y][x].monster_idx,  (pdam ? pdam : tdam));
+
+                //Make sure it is awake from zero damage attacks.
+                if (m_ptr->m_timed[MON_TMD_SLEEP])
+                {
+                    wake_monster_attack(m_ptr, MON_TMD_FLG_NOTIFY);
+                }
             }
         }
     }

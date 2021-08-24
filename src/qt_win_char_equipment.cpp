@@ -130,6 +130,7 @@ void MainWindow::win_char_equipment_update()
 {
     if (!character_generated) return;
     if (!char_equipment_settings.win_show) return;
+    if (!char_equipment_settings.main_vlay->count()) return;
 
     update_equip_list(equip_list, FALSE, equip_show_buttons);
     update_quiver_list(quiver_list, FALSE, equip_show_buttons);

@@ -814,7 +814,7 @@ void add_player_ghost_entry(void)
         ghost_template *t_ptr = &t_info[i];
 
         /* This slot already used...keep looking */
-        if (t_ptr->t_name.isEmpty()) continue;
+        if (!t_ptr->t_name.isEmpty()) continue;
 
         /* Make the entry */
         if (!op_ptr->full_name.isEmpty())

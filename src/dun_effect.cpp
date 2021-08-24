@@ -12,6 +12,7 @@
  */
 
 #include "src/npp.h"
+#include "src/emitter.h"
 
 
 /* Maximum number of delayed effect bursts */
@@ -1262,20 +1263,11 @@ static void process_effect(int x_idx)
 static void show_burst_effects(void)
 {
     /* We need something to show */
-    if (effect_bursts.size() && player_can_observe())
-    {
+    if (effect_bursts.size() && player_can_observe()) {
         /* Show the burst effects */
-        for (int i = 0; i < effect_bursts.size(); i++)
-        {
-            //Paranoia
-            if (i >= effect_burst_gf.size()) break;
-
-            /* Get coordinates */
-            int y = effect_bursts.at(i).y;
-            int x = effect_bursts.at(i).x;
-
-            ui_animate_ball(y, x, 1, effect_burst_gf.at(i), 0L);
-        }
+        BurstAnimation *anim = new BurstAnimation(&effect_bursts, &effect_burst_gf);
+        anim->start();
+        delete anim;
     }
 
     /* Reset the vectors */

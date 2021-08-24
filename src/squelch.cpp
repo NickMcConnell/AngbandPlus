@@ -12,6 +12,8 @@
 #include "src/squelch.h"
 #include "src/object_settings.h"
 
+
+
 /* Pseudo flag */
 #define RBASE (TR2_RES_FIRE | TR2_RES_COLD | TR2_RES_ELEC | TR2_RES_ACID)
 
@@ -91,7 +93,7 @@ quality_name_struct quality_values[SQUELCH_MAX] =
     { SQUELCH_CURSED,	"Squelch cursed" },
     { SQUELCH_AVERAGE,	"Squelch cursed and average" },
     { SQUELCH_GOOD_STRONG,	"Squelch good, average, and cursed" },
-    { SQUELCH_GOOD_WEAK,	"squelch good pseudo-id, average, and cursed" },
+    { SQUELCH_GOOD_WEAK,	"Squelch good pseudo-id, average, and cursed" },
     { SQUELCH_ALL,	"Squelch all but artifacts" },
 };
 
@@ -510,12 +512,9 @@ QString quality_squelch_type_label(object_type *o_ptr)
     return("(oops)");
 }
 
-QString get_ego_name(object_type *o_ptr)
+QString get_ego_name(ego_item_type *e_ptr)
 {
-    // Paranoia
-    if (!o_ptr->ego_num) return (QString("(None"));
     int i;
-    ego_item_type *e_ptr = &e_info[o_ptr->ego_num];
     QVector<byte> tval_table;
     QString ego_name;
     ego_name.clear();
@@ -566,6 +565,16 @@ QString get_ego_name(object_type *o_ptr)
     ego_name = capitalize_first(ego_name);
 
     return (ego_name);
+}
+
+QString get_ego_name(object_type *o_ptr)
+{
+    // Paranoia
+    if (!o_ptr->ego_num) return (QString("(None"));
+    ego_item_type *e_ptr = &e_info[o_ptr->ego_num];
+
+    return (get_ego_name(e_ptr));
+
 
 }
 

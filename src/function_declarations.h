@@ -799,12 +799,19 @@ extern void autoinscribe_pack(void);
 extern QString squelch_to_label(int squelch);
 extern byte squelch_type_of(object_type *o_ptr);
 extern QString quality_squelch_type_label(object_type *o_ptr);
+extern QString get_ego_name(ego_item_type *e_ptr);
 extern QString get_ego_name(object_type *o_ptr);
 extern int squelch_itemp(object_type *o_ptr, byte feeling, bool fullid);
 extern int do_squelch_item(int squelch, int item, object_type *o_ptr);
 extern void rearrange_stack(int y, int x);
 extern bool squelch_item_ok(object_type *o_ptr);
 extern void do_squelch_pile(int y, int x);
+
+
+//squelch_dialogs.cpp
+extern void do_object_squelch_menu(void);
+extern void do_ego_item_squelch_menu(void);
+extern void do_quality_squelch_menu(void);
 
 /*store.c*/
 extern QString store_welcome(int store_idx);

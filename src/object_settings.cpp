@@ -228,52 +228,63 @@ void ObjectSettingsAux::add_quality_buttons(QVBoxLayout *quality_buttons)
     if (squelch_type == PS_TYPE_AMULET) limited_types = TRUE;
     else if (squelch_type == PS_TYPE_RING) limited_types = TRUE;
     quality_group = new QButtonGroup(this);
+    quality_group->setExclusive(TRUE);
+
     QPointer<QLabel> quality_label = new QLabel(QString("<b><big>   Quality Squelch Settings   </big></b>"));
     quality_label->setAlignment(Qt::AlignCenter);
     quality_label->setToolTip("The settings below allow the player to automatically destroy an item on identification, or pseudo-id, based on the quality of that item.");
+
     QPointer<QLabel> quality_name = new QLabel(QString("<b>%1</b>") .arg(quality_squelch_type_label(o_ptr)));
     quality_name->setAlignment(Qt::AlignCenter);
     quality_buttons->addWidget(quality_label);
     quality_buttons->addWidget(quality_name);
+
     quality_none = new QRadioButton(quality_values[SQUELCH_NONE].name);
-    squelch_never->setToolTip("Do not automatically destroy items of this type based on the quality of that item.");
+    quality_none->setToolTip("Do not automatically destroy items of this type based on the quality of that item.");
+    quality_group->addButton(quality_none, SQUELCH_NONE);
+    quality_buttons->addWidget(quality_none);
+    quality_none->setChecked(TRUE);
+
     quality_cursed = new QRadioButton(quality_values[SQUELCH_CURSED].name);
     quality_cursed->setToolTip("Automatically destroy cursed or broken items upon identification or pseudo-id.");
-    quality_average = new QRadioButton(quality_values[SQUELCH_AVERAGE].name);
-    quality_average->setToolTip("Automatically destroy cursed or average items of this type  upon identification or pseudo-id.");
-    quality_good_strong = new QRadioButton(quality_values[SQUELCH_GOOD_STRONG].name);
-    quality_good_strong->setToolTip("Automatically destroy cursed, average, or good items of this type upon identification or pseudo-id.");
-    if (!cp_ptr->pseudo_id_heavy())
-    {
-        quality_good_weak = new QRadioButton(quality_values[SQUELCH_GOOD_WEAK].name);
-        quality_good_weak->setToolTip("Automatically destroy cursed, average, or good items of this type upon identification or pseudo-id.");
-        quality_group->addButton(quality_good_weak, SQUELCH_GOOD_WEAK);
-    }
-    quality_all_but_artifact = new QRadioButton(quality_values[SQUELCH_ALL].name);
-    quality_all_but_artifact->setToolTip("Automatically destroy all items of this type, except artifacts, upon identification or pseudo-id.");
-    if (squelch_level[squelch_type] == SQUELCH_NONE) quality_none->setChecked(TRUE);
-    else if (squelch_level[squelch_type] == SQUELCH_CURSED) quality_cursed->setChecked(TRUE);
-    else if (squelch_level[squelch_type] == SQUELCH_AVERAGE) quality_average->setChecked(TRUE);
-    else if (squelch_level[squelch_type] == SQUELCH_GOOD_STRONG) quality_good_strong->setChecked(TRUE);
-    else if (squelch_level[squelch_type] == SQUELCH_GOOD_WEAK && !cp_ptr->pseudo_id_heavy()) quality_good_weak->setChecked(TRUE);
-    else quality_all_but_artifact->setChecked(TRUE); // SQUELCH_ALL
-
-    quality_group->addButton(quality_none, SQUELCH_NONE);
     quality_group->addButton(quality_cursed, SQUELCH_CURSED);
-    quality_group->addButton(quality_average, SQUELCH_AVERAGE);
-    quality_group->addButton(quality_good_strong, SQUELCH_GOOD_STRONG);
-    quality_group->addButton(quality_all_but_artifact, SQUELCH_ALL);
-
-    quality_buttons->addWidget(quality_none);
     quality_buttons->addWidget(quality_cursed);
+    if (squelch_level[squelch_type] == SQUELCH_CURSED) quality_cursed->setChecked(TRUE);
+
     if (!limited_types)
     {
+        quality_average = new QRadioButton(quality_values[SQUELCH_AVERAGE].name);
+        quality_average->setToolTip("Automatically destroy cursed or average items of this type  upon identification or pseudo-id.");
+        quality_group->addButton(quality_average, SQUELCH_AVERAGE);
         quality_buttons->addWidget(quality_average);
-        if (!cp_ptr->pseudo_id_heavy()) quality_buttons->addWidget(quality_good_weak);
-        quality_buttons->addWidget(quality_good_strong);
+        if (squelch_level[squelch_type] == SQUELCH_AVERAGE) quality_average->setChecked(TRUE);
 
+        quality_good_strong = new QRadioButton(quality_values[SQUELCH_GOOD_STRONG].name);
+        if (cp_ptr->pseudo_id_heavy()) quality_good_strong->setToolTip("Automatically destroy cursed, average, or good items of this type upon identification or pseudo-id.");
+        else quality_good_strong->setToolTip("Automatically destroy cursed or average item of this type upon identification or pseudo-id. Destroy good items upon identification, but do not destroy items that psuedo-id as good (to prevent an excellent item that pseudo-ids as good from being destroyed).");
+        quality_group->addButton(quality_good_strong, SQUELCH_GOOD_STRONG);
+        quality_buttons->addWidget(quality_good_strong);
+        if (squelch_level[squelch_type] == SQUELCH_GOOD_STRONG) quality_good_strong->setChecked(TRUE);
+
+        if (!cp_ptr->pseudo_id_heavy())
+        {
+            quality_good_weak = new QRadioButton(quality_values[SQUELCH_GOOD_WEAK].name);
+            quality_good_weak->setToolTip("Automatically destroy cursed, average, or good items of this type upon identification or pseudo-id.  Excellent items that pseudo-id as a good item will be destroyed.");
+            quality_group->addButton(quality_good_weak, SQUELCH_GOOD_WEAK);
+            quality_buttons->addWidget(quality_good_weak);
+            if (squelch_level[squelch_type] == SQUELCH_GOOD_WEAK) quality_good_weak->setChecked(TRUE);
+        }
     }
-    quality_buttons->addWidget(quality_all_but_artifact);
+
+    if (game_mode != GAME_NPPMORIA)
+    {
+        quality_all_but_artifact = new QRadioButton(quality_values[SQUELCH_ALL].name);
+        quality_all_but_artifact->setToolTip("Automatically destroy all items of this type, except artifacts, upon identification or pseudo-id.");
+        quality_group->addButton(quality_all_but_artifact, SQUELCH_ALL);
+        quality_buttons->addWidget(quality_all_but_artifact);
+        if (squelch_level[squelch_type] == SQUELCH_ALL) quality_all_but_artifact->setChecked(TRUE);
+    }
+
 
     quality_buttons->addStretch(1);
 

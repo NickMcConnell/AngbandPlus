@@ -18,7 +18,7 @@
 #include <QPushButton>
 #include <QHeaderView>
 
-static QString squelch_status[SQUELCH_OPT_MAX] =
+QString squelch_status[SQUELCH_OPT_MAX] =
 {
     "Never Squelch",
     "Never Pickup",
@@ -26,7 +26,7 @@ static QString squelch_status[SQUELCH_OPT_MAX] =
     "Always Squelch",
 };
 
-static const byte squelch_status_color[SQUELCH_OPT_MAX] =
+byte squelch_status_color[SQUELCH_OPT_MAX] =
 {
     TERM_COPPER,
     TERM_L_GREEN,
@@ -686,7 +686,7 @@ DisplayEgoItemKnowledge::DisplayEgoItemKnowledge(void)
     {
         ego_item_type *e_ptr = &e_info[i];
 
-        /* Skip "empty" and unknown objects, and gold */
+        /* Skip "empty" and unknown ego-items */
         if (!e_ptr->e_name.length()) continue;
         if (!e_ptr->everseen) continue;
 

@@ -423,7 +423,6 @@ public:
     bool terminated;        // Player game was deliberately ended.
     bool is_dead;			/* Player is dead */
     bool player_turn;      /* It is the player's turn to move */
-    bool do_redraws;        // Turn on redraw for parts of the screen (usulaly kept off to prevent multiple re-draws of the same thing)
     bool is_wizard;			/* Player is in wizard mode */
 
 

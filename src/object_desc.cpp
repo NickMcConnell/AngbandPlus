@@ -37,7 +37,6 @@ QString strip_name(int k_idx)
     //remove '~'
     str.remove(QChar('~'));
 
-    /* Terminate the new name */
     return (str);
 }
 

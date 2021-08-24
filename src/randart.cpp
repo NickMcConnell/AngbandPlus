@@ -1434,22 +1434,21 @@ static void store_base_power (void)
     {
         int y;
         bool found_rarity = FALSE;
-        alloc_entry *table = alloc_kind_table;
 
         /* Kinds array was populated in the above step in artifact_power */
         k_idx = kinds[i];
         a_ptr = &a_info[i];
 
         /* Process probabilities */
-        for (y = 0; y < alloc_kind_size; y++)
+        for (y = 0; y < alloc_kind_table.size(); y++)
         {
-            if (k_idx != table[y].index) continue;
+            if (k_idx != alloc_kind_table[y].index) continue;
 
             /*The table is sorted by depth, just use the lowest one*/
-            base_item_level[i] = table[y].level;
+            base_item_level[i] = alloc_kind_table[y].level;
 
             /*The rarity tables are divided by 100 in the prob_table*/
-            base_item_rarity[i] = 100 / table[y].prob2;
+            base_item_rarity[i] = 100 / alloc_kind_table[y].hook_probability;
 
             /*Paranoia*/
             if (base_item_rarity[i] < 1) base_item_rarity[i] = 1;
@@ -2227,8 +2226,6 @@ static void	artifact_prep(s16b k_idx, int a_idx)
             ego_item_type *e_ptr;
             int i, j, e_idx;
 
-            alloc_entry *table = alloc_ego_table;
-
             long total, value;
 
             /* Reset total */
@@ -2238,13 +2235,19 @@ static void	artifact_prep(s16b k_idx, int a_idx)
               object level doesn't matter so we always succeed*/
 
             /* Process probabilities */
-            for (i = 0; i < alloc_ego_size; i++)
+            for (i = 0; i < alloc_ego_table.size(); i++)
             {
+                alloc_entry_new *ae_ptr = &alloc_ego_table[i];
+
+                // Ego items don't currently use the "hook" phase
+                ae_ptr->hook_probability = ae_ptr->base_probability;
+
                 /* Default */
-                table[i].prob3 = 0;
+
+                ae_ptr->final_probability = 0;
 
                 /* Get the index */
-                e_idx = table[i].index;
+                e_idx = ae_ptr->index;
 
                 /* Get the actual kind */
                 e_ptr = &e_info[e_idx];
@@ -2262,31 +2265,33 @@ static void	artifact_prep(s16b k_idx, int a_idx)
                             if (a_ptr->sval <= e_ptr->max_sval[j])
                             {
                                 /* Accept */
-                                table[i].prob3 = table[i].prob2;
+                                ae_ptr->final_probability = ae_ptr->hook_probability;
                             }
                         }
                     }
                 }
 
                 /* Total */
-                total += table[i].prob3;
+                total += ae_ptr->final_probability;
             }
 
             /* Pick an ego-item */
             value = rand_int(total);
 
-            /* Find the object */
-            for (i = 0; i < alloc_ego_size; i++)
+            /* Find the ego-item */
+            for (i = 0; i < alloc_ego_table.size(); i++)
             {
+                alloc_entry_new *ae_ptr = &alloc_ego_table[i];
+
                 /* Found the entry */
-                if (value < table[i].prob3) break;
+                if (value < ae_ptr->final_probability) break;
 
                 /* Decrement */
-                value = value - table[i].prob3;
+                value = value - ae_ptr->final_probability;
             }
 
             /*point to it*/
-            e_ptr = &e_info[table[i].index];
+            e_ptr = &e_info[alloc_ego_table[i].index];
 
             /*Apply the ego-item flags to the artifact*/
             a_ptr->a_flags1 |= e_ptr->e_flags1;
@@ -2544,17 +2549,15 @@ static void choose_item(int a_idx)
     {
         int y;
 
-        alloc_entry *table = alloc_kind_table;
-
         k_idx = kinds[a_idx];
 
         /* Process probabilities */
-        for (y = 0; y < alloc_kind_size; y++)
+        for (y = 0; y < alloc_kind_table.size(); y++)
         {
-            if (k_idx != table[y].index) continue;
+            if (k_idx != alloc_kind_table[y].index) continue;
 
             /*The rarity tables are divided by 100 in the prob_table*/
-            a_ptr->a_rarity += (100 / table[y].prob2);
+            a_ptr->a_rarity += (100 / alloc_kind_table[y].hook_probability);
 
             break;
         }
@@ -3203,7 +3206,6 @@ static void scramble_artifact(int a_idx)
          */
         int y;
         int new_object_rarity = 0;
-        alloc_entry *table = alloc_kind_table;
 
         /* Capture the rarity of the original base item and artifact */
         base_rarity_old = base_item_rarity[a_idx];
@@ -3222,12 +3224,12 @@ static void scramble_artifact(int a_idx)
          */
 
         /* Process probabilities */
-        for (y = 0; y < alloc_kind_size; y++)
+        for (y = 0; y < alloc_kind_table.size(); y++)
         {
-            if (k_idx != table[y].index) continue;
+            if (k_idx != alloc_kind_table[y].index) continue;
 
             /*The rarity tables are divided by 100 in the prob_table*/
-            new_object_rarity = MAX((100 / table[y].prob2), 1);
+            new_object_rarity = MAX((100 / alloc_kind_table[y].hook_probability), 1);
 
             break;
         }

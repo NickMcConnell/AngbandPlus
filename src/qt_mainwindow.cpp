@@ -23,6 +23,7 @@
 #include <QStatusBar>
 #include <QScrollBar>
 #include <QDockWidget>
+#include <QMenuBar>
 
 #include "src/npp.h"
 #include "src/qt_mainwindow.h"
@@ -425,10 +426,19 @@ void MainWindow::redraw_all()
     update_cursor();
     force_redraw(); // Hack -- Force full redraw
 
-    p_ptr->redraw |= (PR_MESSAGES | PR_WIN_MESSAGES | PR_SIDEBAR_ALL | PR_WIN_OBJLIST | PR_WIN_MONLIST);
-    p_ptr->redraw |= (PR_WIN_CHAR_BASIC | PR_WIN_CHAR_EQUIP_INFO | PR_WIN_EQUIPMENT);
+    update_messages();
+    update_titlebar();
+    update_statusbar();
+    win_char_info_basic_update();
+    update_sidebar_mon();
+    update_sidebar_player();
+    win_obj_list_update();
+    win_mon_list_update();
+    win_char_info_equip_update();
+    win_char_equipment_update();
 
-    redraw_stuff();
+
+    p_ptr->redraw = 0L;
 }
 
 bool MainWindow::panel_contains(int y, int x)
@@ -503,13 +513,14 @@ MainWindow::MainWindow()
 
     anim_depth = 0;
     which_keyset = KEYSET_NEW;
-    character_dungeon = character_generated = character_loaded = FALSE;
+    character_dungeon = character_generated = character_loaded = character_xtra = FALSE;
     executing_command = overhead_map_created = dun_map_created = FALSE;
     equip_show_buttons = inven_show_buttons = TRUE;
     dun_map_cell_wid = dun_map_cell_hgt = 0;
     dun_map_use_graphics = dun_map_created = FALSE;
     overhead_map_cell_wid = overhead_map_cell_hgt = 0;
     overhead_map_use_graphics = overhead_map_created = FALSE;
+    object_level = monster_level = 0;
 
     win_mon_list_settings.set_extra_win_default();
     win_obj_list_settings.set_extra_win_default();
@@ -1078,6 +1089,21 @@ void MainWindow::toggle_show_hotkey_toolbar()
     }
 }
 
+void MainWindow::object_squelch_menu(void)
+{
+    do_object_squelch_menu();
+}
+
+void MainWindow::quality_squelch_menu(void)
+{
+    do_quality_squelch_menu();
+}
+
+void MainWindow::ego_item_squelch_menu(void)
+{
+    do_ego_item_squelch_menu();
+}
+
 void MainWindow::font_dialog_main_window()
 {
     bool selected;
@@ -1199,6 +1225,9 @@ void MainWindow::update_file_menu_game_active()
     hitpoint_warning_act->setEnabled(TRUE);
     delay_anim_factor_act->setEnabled(TRUE);
     delay_run_factor_act->setEnabled(TRUE);
+    object_squelch_act->setEnabled(TRUE);
+    quality_squelch_act->setEnabled(TRUE);
+    ego_item_squelch_act->setEnabled(TRUE);
     view_monster_knowledge->setEnabled(TRUE);
     view_object_knowledge->setEnabled(TRUE);
     view_ego_item_knowledge->setEnabled(TRUE);
@@ -1239,6 +1268,9 @@ void MainWindow::update_file_menu_game_inactive()
     hitpoint_warning_act->setEnabled(FALSE);
     delay_anim_factor_act->setEnabled(FALSE);
     delay_run_factor_act->setEnabled(FALSE);
+    object_squelch_act->setEnabled(FALSE);
+    quality_squelch_act->setEnabled(FALSE);
+    ego_item_squelch_act->setEnabled(FALSE);
     view_monster_knowledge->setEnabled(FALSE);
     view_object_knowledge->setEnabled(FALSE);
     view_ego_item_knowledge->setEnabled(FALSE);
@@ -1349,6 +1381,18 @@ void MainWindow::create_actions()
     show_hotkey_toolbar_act = new QAction(tr("Hide Hotkey Toolbar"), this);
     show_hotkey_toolbar_act->setStatusTip(tr("Hide the Hotkey Toolbar."));
     connect(show_hotkey_toolbar_act, SIGNAL(triggered()), this, SLOT(toggle_show_hotkey_toolbar()));
+
+    object_squelch_act = new QAction(tr("Object Squelch Menu"), this);
+    object_squelch_act->setStatusTip(tr("Modify squelch and pickup preferencs settings for all known objects."));
+    connect(object_squelch_act, SIGNAL(triggered()), this, SLOT(object_squelch_menu()));
+
+    quality_squelch_act = new QAction(tr("Quality Squelch Menu"), this);
+    quality_squelch_act->setStatusTip(tr("Modify squelch settings for items upon identification or pseudo-id, based on the quality of the item."));
+    connect(quality_squelch_act, SIGNAL(triggered()), this, SLOT(quality_squelch_menu()));
+
+    ego_item_squelch_act = new QAction(tr("Ego-Item Squelch Menu"), this);
+    ego_item_squelch_act->setStatusTip(tr("Modify squelch settings for ego-items upon identification."));
+    connect(ego_item_squelch_act, SIGNAL(triggered()), this, SLOT(ego_item_squelch_menu()));
 
     keymap_new = new QAction(tr("Simplified Command Set"), this);
     keymap_new->setStatusTip(tr("Use simplified keyset to enter commands (recommended for players new to Angband and variants"));
@@ -1541,31 +1585,26 @@ void MainWindow::create_actions()
 void MainWindow::set_reg()
 {
     set_graphic_mode(GRAPHICS_RAYMOND_GAUSTADNES);
-    ui_redraw_all();
 }
 
 void MainWindow::set_dvg()
 {
     set_graphic_mode(GRAPHICS_DAVID_GERVAIS);
-    ui_redraw_all();
 }
 
 void MainWindow::set_old_tiles()
 {
     set_graphic_mode(GRAPHICS_ORIGINAL);
-    ui_redraw_all();
 }
 
 void MainWindow::set_ascii()
 {
     set_graphic_mode(GRAPHICS_NONE);
-    ui_redraw_all();
 }
 
 void MainWindow::set_25d_graphics()
 {
     do_25d_graphics = graphics_25d_act->isChecked();
-    ui_redraw_all();
 }
 
 void MainWindow::set_wall_block()
@@ -1578,7 +1617,6 @@ void MainWindow::set_pseudo_ascii()
 {
     do_pseudo_ascii = pseudo_ascii_act->isChecked();
     ui_redraw_all();
-    update_sidebar_all();
 }
 
 void MainWindow::display_monster_info()
@@ -1719,9 +1757,16 @@ void MainWindow::create_menus()
 
     separator_act = settings->addSeparator();
 
+    settings->addAction(object_squelch_act);
+    settings->addAction(quality_squelch_act);
+    settings->addAction(ego_item_squelch_act);
+
+    separator_act = settings->addSeparator();
+
     settings->addAction(hitpoint_warning_act);
     settings->addAction(delay_anim_factor_act);
     settings->addAction(delay_run_factor_act);
+
 
     // Knowledge section of top menu.
     knowledge = menuBar()->addMenu(tr("&Knowledge"));
@@ -1928,7 +1973,14 @@ void MainWindow::read_settings()
 
     restoreState(settings.value("window_state").toByteArray());
 
-
+    /*
+     * Before reading the geometry of the windows, add a toolbar to the dummy widget
+     * So the widgets appear in the same position upon reloading.
+     */
+    QVBoxLayout dummy_vlay;
+    dummy_widget.setLayout(&dummy_vlay);
+    QMenuBar dummy_menubar;
+    dummy_vlay.setMenuBar(&dummy_menubar);
 
     // Monster List window settings
     win_mon_list_settings.win_show = settings.value("show_mon_list_window", false).toBool();
@@ -2053,7 +2105,6 @@ void MainWindow::read_settings()
         toggle_win_char_equipment_frame();
     }
 
-
     // Character Inventory window settings
     char_inventory_settings.win_show = settings.value("show_char_inventory_window", false).toBool();
     inven_show_buttons = settings.value("show_inven_window_buttons", false).toBool();
@@ -2113,7 +2164,8 @@ void MainWindow::write_settings()
     QWidget dummy_widget;
 
     QSettings settings("NPPGames", "NPPQT");
-    settings.setValue("mainWindowGeometry", saveGeometry());
+    dummy_widget.setGeometry(geometry());
+    settings.setValue("mainWindowGeometry", dummy_widget.saveGeometry());
     settings.setValue("mainWindowMaximized", main_window->isMaximized());
     settings.setValue("recentFiles", recent_savefiles);
     settings.setValue("target_buttons", show_targeting_buttons);
@@ -2132,6 +2184,14 @@ void MainWindow::write_settings()
     settings.setValue("window_state", saveState());
 
 
+    /*
+     * Before saving the geometry of the windows, add a toolbar to the dummy widget
+     * So the widgets appear in the same position upon reloading.
+     */
+    QVBoxLayout dummy_vlay;
+    dummy_widget.setLayout(&dummy_vlay);
+    QMenuBar dummy_menubar;
+    dummy_vlay.setMenuBar(&dummy_menubar);
 
     // Monster List window settings
     settings.setValue("show_mon_list_window", win_mon_list_settings.win_show);
@@ -2267,7 +2327,6 @@ void MainWindow::load_file(const QString &file_name)
                 update_file_menu_game_active();
                 launch_game();
                 graphics_view->setFocus();
-                redraw_all();
                 update_sidebar_font();
 
                 // Now that we have a character, fill in the char info window
@@ -2280,9 +2339,7 @@ void MainWindow::load_file(const QString &file_name)
                 ui_player_moved();
 
                 //hack - draw everything
-                p_ptr->do_redraws = TRUE;
-                redraw_stuff();
-                p_ptr->do_redraws = FALSE;
+                ui_redraw_all();
             }
 
             event_timer->start();
@@ -2305,7 +2362,6 @@ void MainWindow::launch_birth(bool quick_start)
         launch_game();
         save_character();
         graphics_view->setFocus();
-        redraw_all();
         update_sidebar_font();
         if (char_info_basic_settings.win_show) create_win_char_info();
         if (char_info_equip_settings.win_show) create_win_char_equip_info();
@@ -2320,9 +2376,7 @@ void MainWindow::launch_birth(bool quick_start)
         message(QString("Welcome %1") .arg(op_ptr->full_name));
 
         //hack - draw everything
-        p_ptr->do_redraws = TRUE;
-        redraw_stuff();
-        p_ptr->do_redraws = FALSE;
+        ui_redraw_all();
 
         event_timer->start();
     }

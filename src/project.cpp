@@ -261,8 +261,9 @@ bool teleport_player(int dis, bool native)
     /* Move player */
     monster_swap(py, px, locations.at(i).y, locations.at(i).x);
 
-    /* Handle stuff XXX XXX XXX */
-    handle_stuff();
+    /* Complete redraw */
+    update_stuff();
+    ui_redraw_all();
 
     return (TRUE);
 }
@@ -311,8 +312,9 @@ void teleport_player_to(int ny, int nx)
     /* Move player */
     monster_swap(py, px, y, x);
 
-    /* Handle stuff XXX XXX XXX */
-    handle_stuff();
+    /* Complete redraw */
+    update_stuff();
+    ui_redraw_all();
 }
 
 
@@ -1236,7 +1238,8 @@ void take_hit(int dam, QString kb_str)
         else
         {
             /* Message */
-            bell(color_string(("*** LOW HITPOINT WARNING! ***"), TERM_RED));
+            color_message("*** LOW HITPOINT WARNING! ***", TERM_RED);
+            bell(NULL);
         }
 
     }

@@ -4,6 +4,7 @@
 #include <QPainter>
 #include <QtCore/qmath.h>
 #include <QGraphicsScene>
+#include <QGraphicsPixmapItem>
 #include <QLinearGradient>
 #include <QHash>
 #include "tilebag.h"
@@ -207,6 +208,16 @@ QPolygonF get_cloud_points(QPointF from, QPointF to, qreal step)
         l -= step;
     }
     return poly;
+}
+
+QPointF center_pixmap(QPixmap pix, int y, int x)
+{
+    QPointF center = getCenter(y, x);
+    int w = pix.width();
+    int h = pix.height();
+    QPointF adj(w / 2, h / 2);
+    QPointF pos = center - adj;
+    return pos;
 }
 
 void BeamAnimation::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -1037,4 +1048,85 @@ void DetectionAnimation::paint(QPainter *painter, const QStyleOptionGraphicsItem
     center -= adj;
     painter->drawPixmap(center, currentPix);
     painter->setOpacity(1.0);
+}
+
+BurstAnimation::BurstAnimation(QVector<coord> *pos, QVector<byte> *gf)
+{
+    this->src_pos = pos;
+    this->src_gf = gf;
+
+    this->step = 0;
+}
+
+void BurstAnimation::start()
+{
+    connect(&timer, SIGNAL(timeout()), this, SLOT(on_timeout()));
+
+    this->timer.start(70);
+
+    this->this_loop.exec(QEventLoop::ExcludeUserInputEvents);
+}
+
+void BurstAnimation::on_timeout()
+{
+    for (int i = 0; i < this->drawn.size(); i++) {
+        QGraphicsPixmapItem *item = this->drawn.at(i);
+
+        item->setVisible(false);
+
+        main_window->dungeon_scene->removeItem(item);
+
+        delete item;
+    }
+
+    this->drawn.clear();
+
+    if (++this->step > 1) {
+        this->stop();
+        return;
+    }
+
+    qreal opacity = 1.0;
+
+    for (int i = 0; i < this->src_pos->size(); i++) {
+        int x = this->src_pos->at(i).x;
+        int y = this->src_pos->at(i).y;
+
+        if (!player_can_see_bold(y, x)) continue;
+
+        int gf_type = this->src_gf->at(i);
+        QColor cloud_color = defined_colors[gf_color(gf_type) % MAX_COLORS];
+
+        int k = rand_int(100);
+        if (k < 20) cloud_color = cloud_color.darker();
+
+        QPixmap pix = tiles_projections->get_tile("ball1.png");
+        pix = colorize_pix2(pix, cloud_color);
+
+        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(pix);
+
+        QPointF pos = center_pixmap(pix, y, x);
+
+        int adj = 30;
+        QPointF pos2 = pos + QPointF(adj / 2 - rand_int(adj),
+                                     adj / 2 - rand_int(adj));
+        item->setPos(pos2);
+
+        item->setOpacity(opacity);
+        item->setVisible(true);
+
+        main_window->dungeon_scene->addItem(item);
+
+        this->drawn.append(item);
+    }
+
+    if (this->drawn.empty()) {
+        this->stop();
+        return;
+    }
+}
+
+void BurstAnimation::stop()
+{
+    this->this_loop.quit();
 }

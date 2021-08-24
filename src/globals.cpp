@@ -192,25 +192,15 @@ object_type *inventory;
 
 
 /*
- * The size of "alloc_kind_table" (at most z_info->k_max * 4)
+ * The vector of entries in the "kind allocator table"
  */
-s16b alloc_kind_size;
-
-/*
- * The array[alloc_kind_size] of entries in the "kind allocator table"
- */
-alloc_entry *alloc_kind_table;
+QVector<alloc_entry_new> alloc_kind_table;
 
 
 /*
- * The size of the "alloc_ego_table"
+ * The vector of entries in the "ego allocator table"
  */
-s16b alloc_ego_size;
-
-/*
- * The array[alloc_ego_size] of entries in the "ego allocator table"
- */
-alloc_entry *alloc_ego_table;
+QVector<alloc_entry_new> alloc_ego_table;
 
 /*
  * The size of "alloc_feat_table" (at most MAX_F_IDX * 4)

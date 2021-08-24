@@ -16,7 +16,7 @@
 // Update and display the appropriate icons on the statusbar;
 void MainWindow::update_statusbar(void)
 {
-
+    if (!character_generated) return;
     if (p_ptr->word_recall) recall->setVisible(TRUE);
     else recall->setVisible(FALSE);
 

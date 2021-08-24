@@ -882,10 +882,10 @@ enum
 #define IDENT_HIDE_CARRY		0x00000400	/* Don't reveal the object is being carried by a creature*/
 #define IDENT_EFFECT 			0x00000800	/* Know item activation/effect */
 #define IDENT_FIRED			    0x00001000	/* Has been used as a missile */
-#define IDENT_UNUSED_XXX1XXXX   0x00002000
+#define IDENT_UNUSED_XXX02XXX   0x00002000
 #define IDENT_NAME			    0x00004000	/* Know the name of ego or artifact if there is one */
 #define IDENT_NOTART		    0x00008000	/* Item is known not to be an artifact */
-#define IDENT_QUIVER		    0x00010000	/* Ammo goes in quiver */
+#define IDENT_UNUSED_XXX1XXXX   0x00010000	/* Ammo goes in quiver */
 #define IDENT_UNUSED_XXX2XXXX   0x00020000	/* Unused */
 #define IDENT_UNUSED_XXX4XXXX   0x00040000	/* Unused */
 #define IDENT_UNUSED_XXX8XXXX   0x00080000	/* Unused */

@@ -2274,7 +2274,10 @@ void RestDialog::keyPressEvent(QKeyEvent *event)
     {
         this->reject();
         return;
-    }
+    }\
+
+    // Otherwise, the isLetter check below would cause the game to crash if just a modifier was pressed
+    if (!txt.length()) return;
 
     if (txt.at(0).isLetter())
     {

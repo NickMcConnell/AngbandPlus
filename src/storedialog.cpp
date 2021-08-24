@@ -1129,8 +1129,8 @@ void StoreDialog::reset_all()
     reset_quest_status();
     reset_gold();
     update_message_area(message_area, 3);
-    update_header();
     handle_stuff();
+    update_header();
 
     ui_request_size_update(inven_tab);
     ui_request_size_update(equip_tab);

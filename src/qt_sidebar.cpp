@@ -344,7 +344,7 @@ static void prt_feeling(QLabel *this_label)
 }
 
 /*
- * Calculate the hp color separately, for ports.
+ * Calculate the hp color separately.
  */
 static int player_hp_attr(void)
 {
@@ -361,7 +361,7 @@ static int player_hp_attr(void)
 }
 
 /*
- * Calculate the sp color separately, for ports.
+ * Calculate the sp color separately.
  */
 static int player_sp_attr(void)
 {
@@ -369,7 +369,7 @@ static int player_sp_attr(void)
 
     if (p_ptr->csp >= p_ptr->msp)
         attr = TERM_L_GREEN;
-    else if (p_ptr->csp > (p_ptr->msp * op_ptr->hitpoint_warn) / 10)
+    else if (p_ptr->csp > (p_ptr->msp * op_ptr->hitpoint_warn) / 100)
         attr = TERM_YELLOW;
     else
         attr = TERM_L_RED;
@@ -412,6 +412,9 @@ static void update_mon_sidebar_list(void)
     adjacent_monsters.clear();
     line_of_sight_monsters.clear();
     visible_monsters.clear();
+
+    // Paranoia
+    if (!character_dungeon) return;
 
     /* Scan the list of monsters on the level */
     for (i = 1; i < mon_max; i++)
@@ -545,7 +548,11 @@ void MainWindow::update_sidebar_font()
 
 void MainWindow::update_sidebar_player()
 {
-    if (!p_ptr->playing) return;
+    if (!character_generated)
+    {
+        hide_sidebar();
+        return;
+    }
 
     // Update the player sidebar info
     for (int x = 0; x < list_sidebar_labels.size(); x++)

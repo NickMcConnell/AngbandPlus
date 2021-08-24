@@ -3,6 +3,7 @@
 
 #include "defines.h"
 #include "object_classes.h"
+#include "structures.h"
 #include <QObject>
 #include <QPointF>
 #include <QList>
@@ -12,6 +13,7 @@
 #include <QTimer>
 #include <QEventLoop>
 #include <QPointer>
+#include <QVector>
 
 class NPPAnimation: public QObject
 {
@@ -26,6 +28,30 @@ public:
     virtual ~NPPAnimation();
 
     virtual void start();
+};
+
+class QGraphicsPixmapItem;
+
+class BurstAnimation: public NPPAnimation
+{
+    Q_OBJECT
+
+    QTimer timer;
+
+    QVector<coord> *src_pos;
+    QVector<byte> *src_gf;
+
+    int step;
+
+    QVector<QGraphicsPixmapItem *> drawn;
+public:
+    BurstAnimation(QVector<coord> *pos, QVector<byte> *gf);
+
+    void start();
+    void stop();
+
+public slots:
+    void on_timeout();
 };
 
 class BeamAnimation: public NPPAnimation, public QGraphicsItem

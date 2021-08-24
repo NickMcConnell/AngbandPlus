@@ -1124,7 +1124,8 @@ static void map_monster (s16b y, s16b x)
             dun_ptr->monster_tile = r_ptr->tile_id;
             if (r_ptr->flags2 & RF2_PASS_WALL)
             {
-                dun_ptr->ui_flags |= UI_TRANSPARENT_MONSTER;
+                // In this tileset the monsters are alredy drawn transparent
+                if (use_graphics != GRAPHICS_RAYMOND_GAUSTADNES) dun_ptr->ui_flags |= UI_TRANSPARENT_MONSTER;
             }
 
             if (r_ptr->double_height_tile) dun_ptr->double_height_monster = TRUE;
@@ -1866,7 +1867,6 @@ int vinfo_init(void)
 
     /* Sort the (unique) LOS slopes */
     ang_sort(hack->slopes, NULL, hack->num_slopes);
-
 
     /* Enqueue player grid */
     queue[queue_tail++] = &vinfo[0];

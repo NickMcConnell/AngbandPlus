@@ -11,6 +11,7 @@
 #include <src/knowledge.h>
 #include <QHeaderView>
 #include <QFontDialog>
+#include <QPushButton>
 
 /*
  * Monster data for the visible monster list
@@ -136,7 +137,21 @@ void MainWindow::win_mon_list_wipe()
 {
     if (!win_mon_list_settings.win_show) return;
     if (!character_generated) return;
+
     while (mon_list_area->rowCount()) mon_list_area->removeRow(mon_list_area->rowCount()-1);
+
+    // Make sure all the buttons are removed from the group
+    QList<QAbstractButton *> list = mon_button_group->buttons();
+    for (int x = 0; x < list.size(); x++)
+    {
+        QAbstractButton *ab_ptr = list[x];
+        mon_button_group->removeButton(ab_ptr);
+    }
+}
+
+void MainWindow::mon_info_press(int mon_race)
+{
+    describe_monster(mon_race, p_ptr->is_wizard, NULL);
 }
 
 void MainWindow::win_mon_list_update()
@@ -344,8 +359,17 @@ void MainWindow::win_mon_list_update()
         race->setTextAlignment(Qt::AlignLeft);
         mon_list_area->setItem(row, col++, race);
 
+        // Mon info
+        QPointer<QPushButton> new_button = new QPushButton();
+        qpushbutton_dark_background(new_button);
+        new_button->setIcon(QIcon(":/icons/lib/icons/help_dark.png"));
+        mon_list_area->setCellWidget(row, col++, new_button);
+        mon_button_group->addButton(new_button, mon_vis_ptr->mon_r_idx);
+
         row ++;
     }
+
+
 
     // Handle if we are done
     if (disp_count == total_count)
@@ -425,6 +449,13 @@ void MainWindow::win_mon_list_update()
         race->setTextAlignment(Qt::AlignLeft);
         mon_list_area->setItem(row, col++, race);
 
+        // Mon info
+        QPointer<QPushButton> new_button = new QPushButton();
+        qpushbutton_dark_background(new_button);
+        new_button->setIcon(QIcon(":/icons/lib/icons/help_dark.png"));
+        mon_list_area->setCellWidget(row, col++, new_button);
+        mon_button_group->addButton(new_button, mon_vis_ptr->mon_r_idx);
+
         row ++;
     }
 
@@ -471,7 +502,7 @@ void MainWindow::win_mon_list_create()
 {
     win_mon_list_settings.make_extra_window();
 
-    mon_list_area = new QTableWidget(0, 3);
+    mon_list_area = new QTableWidget(0, 4);
     mon_list_area->setAlternatingRowColors(FALSE);
     mon_list_area->verticalHeader()->setVisible(FALSE);
     mon_list_area->horizontalHeader()->setVisible(FALSE);
@@ -480,7 +511,11 @@ void MainWindow::win_mon_list_create()
     qtablewidget_add_palette(mon_list_area);
     win_mon_list_settings.main_vlay->addWidget(mon_list_area);
     win_mon_list_settings.main_widget->setWindowTitle("Viewable Monster List");
-    connect(win_mon_list_settings.win_font_act, SIGNAL(triggered()), this, SLOT(win_mon_list_font()));
+
+    // To track the monster race info button
+    mon_button_group = new QButtonGroup(this);
+    mon_button_group->setExclusive(FALSE);
+    connect(mon_button_group, SIGNAL(buttonClicked(int)), this, SLOT(mon_info_press(int)));
 
     connect(win_mon_list_settings.main_widget, SIGNAL(destroyed(QObject*)), this, SLOT(win_mon_list_destroy(QObject*)));
 }
@@ -494,6 +529,7 @@ void MainWindow::win_mon_list_destroy(QObject *this_object)
     (void)this_object;
     if (!win_mon_list_settings.win_show) return;
     if (!win_mon_list_settings.main_widget) return;
+    if (mon_button_group) mon_button_group->~QButtonGroup();
     win_mon_list_settings.get_widget_settings(win_mon_list_settings.main_widget);
     win_mon_list_settings.main_widget->deleteLater();
     win_mon_list_settings.win_show = FALSE;

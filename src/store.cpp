@@ -2943,7 +2943,7 @@ void do_cmd_sell(int this_store, cmd_arg args)
 
     /* The item belongs to the store now */
     sold_item.ident |= IDENT_STORE;
-    o_ptr->ident &= ~(IDENT_QUIVER);
+    o_ptr->use_verify[AUTO_WIELD_QUIVER] = FALSE;
 
     /*
      * Hack -- Allocate charges between those wands, staves, or rods

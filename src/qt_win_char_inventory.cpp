@@ -130,6 +130,7 @@ void MainWindow::win_char_inventory_update()
 {
     if (!character_generated) return;
     if (!char_inventory_settings.win_show) return;
+    if (!char_equipment_settings.main_vlay->count()) return;
 
     update_inven_list(inven_list, TRUE, inven_show_buttons);
     if (inven_show_buttons) inven_link_pushbuttons();
@@ -140,6 +141,7 @@ void MainWindow::create_win_char_inventory()
 {
     if (!character_generated) return;
     if (!char_inventory_settings.win_show) return;
+
 
     // Add the inventory
     QPointer<QLabel> header_inven = new QLabel(QString("<b><h1>Inventory</b></h1>"));

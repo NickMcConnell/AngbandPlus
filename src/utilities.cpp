@@ -971,6 +971,9 @@ int roman_to_int(QString roman)
 // Use recursion to clear out layouts inside of layouts
 void clear_layout(QLayout* layout)
 {
+    // Paranoia - Layout doesn't exist.
+    if (!layout) return;
+
     while (QLayoutItem* item = layout->takeAt(0))
     {
         if (QWidget* widget = item->widget()) delete widget;

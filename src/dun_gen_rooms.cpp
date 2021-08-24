@@ -1668,7 +1668,7 @@ void build_type_nest(int y0, int x0)
     /*Hack - make some pits harder if deeper*/
     if (randint(100) < harder_nest_check)
     {
-        /* Use the top 8 entries */
+        /* Use the top 32 entries */
         for (i = 0; i < 32; i++)
         {
 

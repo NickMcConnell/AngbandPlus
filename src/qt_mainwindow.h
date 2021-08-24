@@ -232,6 +232,9 @@ private slots:
     void delay_run_factor_dialog();
     void toggle_show_targeting();
     void toggle_show_hotkey_toolbar();
+    void object_squelch_menu();
+    void quality_squelch_menu();
+    void ego_item_squelch_menu();
     void font_dialog_main_window();
     void font_dialog_message_window();
     void font_dialog_sidebar_window();
@@ -353,6 +356,9 @@ private:
     QPointer<QAction> hotkey_import;
     QPointer<QAction> show_targeting_act;
     QPointer<QAction> show_hotkey_toolbar_act;
+    QPointer<QAction> object_squelch_act;
+    QPointer<QAction> quality_squelch_act;
+    QPointer<QAction> ego_item_squelch_act;
     QPointer<QAction> hitpoint_warning_act;
     QPointer<QAction> delay_anim_factor_act;
     QPointer<QAction> delay_run_factor_act;
@@ -466,6 +472,7 @@ private:
     void win_mon_list_close();
     void win_mon_list_wipe();
     void set_font_win_mon_list(QFont newFont);
+    QPointer<QButtonGroup> mon_button_group;
 
 public:
     void win_mon_list_update();
@@ -475,6 +482,7 @@ private slots:
     void win_mon_list_font();
     void toggle_win_mon_list();
     void win_mon_list_destroy(QObject *this_object);
+    void mon_info_press(int mon_race);
 
 // Object list window
 private:
@@ -483,6 +491,7 @@ private:
     void win_obj_list_close();
     void win_obj_list_wipe();
     void set_font_win_obj_list(QFont newFont);
+    QPointer<QButtonGroup> obj_button_group;
 
 public:
     void win_obj_list_update();
@@ -492,6 +501,7 @@ private slots:
     void win_obj_list_font();
     void toggle_win_obj_list();
     void win_obj_list_destroy(QObject *this_object);
+    void obj_info_press(int k_idx);
 
 // Monster Recall window
 private:

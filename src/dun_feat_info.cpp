@@ -736,7 +736,7 @@ static QString describe_feature_dynamic(int f_idx, const feature_lore *f_l_ptr)
      */
     if (f_idx == FEAT_ETHEREAL_WALL)
     {
-        output.append("  This wall can teleport you across the dungeon, or explode in a burst of light.");
+        output.append("  This wall can teleport you across the dungeon, or explode in a burst of light that blinds the player, unless the player has resist blindness or resist light.");
     }
 
     /* TODO - figure out how to remember this in feature_lore.*/

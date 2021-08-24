@@ -116,6 +116,7 @@ SOURCES +=  src/qt_main.cpp \
             src/spells_misc.cpp \
             src/spoilers.cpp \
             src/squelch.cpp \
+            src/squelch_dialogs.cpp \
             src/store.cpp \
             src/storedialog.cpp \
             src/tables.cpp \
@@ -123,7 +124,8 @@ SOURCES +=  src/qt_main.cpp \
             src/tilebag.cpp \
             src/timed.cpp \
             src/utilities.cpp \
-            src/wizard_mode.cpp
+            src/wizard_mode.cpp \
+
 
 
 HEADERS  += src/qt_mainwindow.h\
@@ -170,12 +172,14 @@ HEADERS  += src/qt_mainwindow.h\
             src/player_screen.h \
             src/randart.h \
             src/squelch.h \
+            src/squelch_dialogs.h \
             src/spells.h \
             src/storedialog.h \
             src/tilebag.h \
             src/user_macros.h \
             src/utilities.h \
             src/wizard_mode.h \
+
 
 
 RESOURCES += \

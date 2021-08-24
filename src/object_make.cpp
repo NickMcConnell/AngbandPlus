@@ -41,10 +41,6 @@ s16b get_obj_num(int level)
 
     long value, total;
 
-    object_kind *k_ptr;
-
-    alloc_entry *table = alloc_kind_table;
-
     /* Boost level */
     if (level > 0)
     {
@@ -60,16 +56,20 @@ s16b get_obj_num(int level)
     total = 0L;
 
     /* Process probabilities */
-    for (i = 0; i < alloc_kind_size; i++)
+    for (i = 0; i < alloc_kind_table.size(); i++)
     {
+        alloc_entry_new *ae_ptr = &alloc_kind_table[i];
+
+        object_kind *k_ptr = &k_info[ae_ptr->index];
+
         /* Objects are sorted by depth */
-        if (table[i].level > level) break;
+        if (ae_ptr->level > level) break;
 
         /* Default */
-        table[i].prob3 = 0;
+        ae_ptr->final_probability = 0;
 
         /* Get the index */
-        k_idx = table[i].index;
+        k_idx = ae_ptr->index;
 
         /* Get the actual kind */
         k_ptr = &k_info[k_idx];
@@ -79,10 +79,10 @@ s16b get_obj_num(int level)
                 && (k_ptr->tval == TV_CHEST)) continue;
 
         /* Accept */
-        table[i].prob3 = table[i].prob2;
+        ae_ptr->final_probability = ae_ptr->hook_probability;
 
         /* Total */
-        total += table[i].prob3;
+        total += ae_ptr->final_probability;
     }
 
     /* No legal objects */
@@ -92,13 +92,13 @@ s16b get_obj_num(int level)
     value = rand_int(total);
 
     /* Find the object */
-    for (i = 0; i < alloc_kind_size; i++)
+    for (i = 0; i < alloc_kind_table.size(); i++)
     {
         /* Found the entry */
-        if (value < table[i].prob3) break;
+        if (value < alloc_kind_table[i].final_probability) break;
 
         /* Decrement */
-        value = value - table[i].prob3;
+        value = value - alloc_kind_table[i].final_probability;
     }
 
 
@@ -114,18 +114,19 @@ s16b get_obj_num(int level)
         /* Pick a object */
         value = rand_int(total);
 
-        /* Find the monster */
-        for (i = 0; i < alloc_kind_size; i++)
+        /* Find the object */
+        for (i = 0; i < alloc_kind_table.size(); i++)
         {
+
             /* Found the entry */
-            if (value < table[i].prob3) break;
+            if (value < alloc_kind_table[i].final_probability) break;
 
             /* Decrement */
-            value = value - table[i].prob3;
+            value = value - alloc_kind_table[i].final_probability;
         }
 
         /* Keep the "best" one */
-        if (table[i].level < table[j].level) i = j;
+        if (alloc_kind_table[i].level < alloc_kind_table[j].level) i = j;
     }
 
     /* Try for a "better" object twice (10%) */
@@ -138,21 +139,22 @@ s16b get_obj_num(int level)
         value = rand_int(total);
 
         /* Find the object */
-        for (i = 0; i < alloc_kind_size; i++)
+        for (i = 0; i < alloc_kind_table.size(); i++)
         {
+
             /* Found the entry */
-            if (value < table[i].prob3) break;
+            if (value < alloc_kind_table[i].final_probability) break;
 
             /* Decrement */
-            value = value - table[i].prob3;
+            value = value - alloc_kind_table[i].final_probability;
         }
 
         /* Keep the "best" one */
-        if (table[i].level < table[j].level) i = j;
+        if (alloc_kind_table[i].level < alloc_kind_table[j].level) i = j;
     }
 
     /* Result */
-    return (table[i].index);
+    return (alloc_kind_table[i].index);
 }
 
 
@@ -259,8 +261,6 @@ static int make_ego_item(object_type *o_ptr, bool only_good, bool only_great)
 
     ego_item_type *e_ptr;
 
-    alloc_entry *table = alloc_ego_table;
-
     /* Fail if object already is ego or artifact */
     if (o_ptr->art_num) return (FALSE);
     if (o_ptr->ego_num) return (FALSE);
@@ -282,16 +282,21 @@ static int make_ego_item(object_type *o_ptr, bool only_good, bool only_great)
     total = 0L;
 
     /* Process probabilities */
-    for (i = 0; i < alloc_ego_size; i++)
+    for (i = 0; i < alloc_ego_table.size(); i++)
     {
-        /* Default */
-        table[i].prob3 = 0;
+        alloc_entry_new *ae_ptr = &alloc_ego_table[i];
 
-        /* Objects are sorted by depth */
-        if (table[i].level > level) continue;
+        // Ego items don't currently use the "hook" phase
+        ae_ptr->hook_probability = ae_ptr->base_probability;
+
+        /* Default */
+        ae_ptr->final_probability = 0;
+
+        /* Ego Items are sorted by depth */
+        if (ae_ptr->level > level) continue;
 
         /* Get the index */
-        e_idx = table[i].index;
+        e_idx = ae_ptr->index;
 
         /* Get the actual kind */
         e_ptr = &e_info[e_idx];
@@ -312,14 +317,14 @@ static int make_ego_item(object_type *o_ptr, bool only_good, bool only_great)
                     if (o_ptr->sval <= e_ptr->max_sval[j])
                     {
                         /* Accept */
-                        table[i].prob3 = table[i].prob2;
+                        ae_ptr->final_probability = ae_ptr->hook_probability;
                     }
                 }
             }
         }
 
         /* Total */
-        total += table[i].prob3;
+        total += ae_ptr->final_probability;
     }
 
     /* No ego-item types for this object (example: books in non-ironman mode) */
@@ -331,18 +336,20 @@ static int make_ego_item(object_type *o_ptr, bool only_good, bool only_great)
     /* Pick an ego-item */
     value = rand_int(total);
 
-    /* Find the object */
-    for (i = 0; i < alloc_ego_size; i++)
+    /* Find the ego-item */
+    for (i = 0; i < alloc_ego_table.size(); i++)
     {
+        alloc_entry_new *ae_ptr = &alloc_ego_table[i];
+
         /* Found the entry */
-        if (value < table[i].prob3) break;
+        if (value < ae_ptr->final_probability) break;
 
         /* Decrement */
-        value = value - table[i].prob3;
+        value = value - ae_ptr->final_probability;
     }
 
     /* We have one */
-    e_idx = (byte)table[i].index;
+    e_idx = (byte)alloc_ego_table[i].index;
     o_ptr->ego_num = e_idx;
 
     return ((e_info[e_idx].e_flags3 & TR3_LIGHT_CURSE) ? -2 : 2);

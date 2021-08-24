@@ -877,10 +877,6 @@ static void process_world(void)
     /* Every 10 game turns */
     if (p_ptr->game_turn % 10) return;
 
-    // To ensure events that affect the screen, such as
-    // word of recall, are processed.
-    p_ptr->do_redraws = TRUE;
-
     /*** Update quests ***/
     if (guild_quest_active())
     {
@@ -1459,7 +1455,6 @@ static void process_world(void)
     /* Notice stuff */
     notice_stuff();
     redraw_stuff();
-    p_ptr->do_redraws = FALSE;
 }
 
 void change_player_level(void)
@@ -1724,19 +1719,16 @@ void change_player_level(void)
         {
             q_info[i].q_flags |= (QFLAG_STARTED);
 
-            p_ptr->redraw = (PR_SIDEBAR_PL);
+            p_ptr->redraw |= (PR_SIDEBAR_PL);
             break;
         }
     }
 
     /* Notice stuff */
     notice_stuff();
-    update_stuff();
 
     /* Redraw stuff */
-    p_ptr->do_redraws = TRUE;
     ui_redraw_all();
-    p_ptr->do_redraws = FALSE;
 
     ui_center(p_ptr->py, p_ptr->px);
 

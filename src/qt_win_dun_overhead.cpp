@@ -41,7 +41,10 @@ void extra_win_settings::set_extra_win_default()
  */
 void extra_win_settings::get_widget_settings(QWidget *this_widget)
 {
-    QPoint top_left(this_widget->pos());
+    int this_x = this_widget->geometry().x();
+    int this_y = this_widget->geometry().y();
+
+    QPoint top_left(this_x, this_y);
     QSize widget_size(this_widget->size());
 
     win_geometry = QRect(top_left, widget_size);

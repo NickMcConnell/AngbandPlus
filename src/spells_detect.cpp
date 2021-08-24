@@ -509,9 +509,6 @@ bool detect(int dist, u16b detect_checks)
         p_ptr->redraw |= (PR_STATUSBAR);
     }
 
-    /* Some detects need the map re-drawn. */
-    if (detect_checks & (DETECT_MAP | DETECT_TERRAIN)) p_ptr->redraw |= (PR_MAP);
-
     /* Go through and check all of the applicable detection functions */
     for (i = 0; i < N_ELEMENTS(detect_handlers); i++)
     {
@@ -545,8 +542,9 @@ bool detect(int dist, u16b detect_checks)
     /* Nothing found */
     if ((!detect_type_found) && (!refresh)) return (FALSE);
 
+    p_ptr->redraw |= PR_MAP;
     handle_stuff();
-    ui_redraw_all();
+
 
     /* Print out the messages */
     for (i = 0; i < N_ELEMENTS(detect_handlers); i++)

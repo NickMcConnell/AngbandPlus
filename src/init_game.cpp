@@ -167,9 +167,10 @@ void create_directories()
     npp_dir_graf.setPath(QString(npp_dir_lib.path() .append("/graf/")));
 
     /*
-     * Make sure the save and user directories exist.
+     * Make sure the bone, save and user directories exist.
      * mkdir does nothing and returns FALSE if the directories already exist.
      */
+    (void)npp_dir_bone.mkdir(npp_dir_bone.path());
     (void)npp_dir_save.mkdir(npp_dir_save.path());
     (void)npp_dir_user.mkdir(npp_dir_user.path());
 }
@@ -802,6 +803,15 @@ static int init_other(void)
     return (0);
 }
 
+// FIrst sort by level, then probability
+static bool alloc_table_sort(alloc_entry_new first, alloc_entry_new second)
+{
+    if (first.level < second.level) return (TRUE);
+    if (first.level > second.level) return (FALSE);
+
+    if (first.base_probability > second.base_probability) return (TRUE);
+    return (FALSE);
+}
 
 
 /*
@@ -828,53 +838,12 @@ static int init_alloc(void)
 
     /*** Analyze object allocation info ***/
 
-    /* Clear the "aux" array */
-    (void)C_WIPE(aux, MAX_DEPTH_ALL, s16b);
-
-    /* Clear the "num" array */
-    (void)C_WIPE(num, MAX_DEPTH_ALL, s16b);
-
-    /* Size of "alloc_kind_table" */
-    alloc_kind_size = 0;
-
-    /* Scan the objects */
-    for (i = 1; i < z_info->k_max; i++)
-    {
-        k_ptr = &k_info[i];
-
-        /* Scan allocation pairs */
-        for (j = 0; j < 4; j++)
-        {
-            /* Count the "legal" entries */
-            if (k_ptr->chance[j])
-            {
-                /* Count the entries */
-                alloc_kind_size++;
-
-                /* Group by level */
-                num[k_ptr->locale[j]]++;
-            }
-        }
-    }
-
-    /* Collect the level indexes */
-    for (i = 1; i < MAX_DEPTH_ALL; i++)
-    {
-        /* Group by level */
-        num[i] += num[i-1];
-    }
-
-    /* Paranoia */
-    if (!num[0]) quit_npp_games(QObject::tr("No town objects!"));
 
 
     /*** Initialize object allocation info ***/
 
     /* Allocate the alloc_kind_table */
-    alloc_kind_table = C_ZNEW(alloc_kind_size, alloc_entry);
-
-    /* Get the table entry */
-    table = alloc_kind_table;
+    alloc_kind_table.clear();
 
     /* Scan the objects */
     for (i = 1; i < z_info->k_max; i++)
@@ -887,32 +856,20 @@ static int init_alloc(void)
             /* Count the "legal" entries */
             if (k_ptr->chance[j])
             {
-                int p, x, y, z;
+                alloc_entry_new new_entry;
 
-                /* Extract the base level */
-                x = k_ptr->locale[j];
+                new_entry.index = i;
+                new_entry.level = k_ptr->locale[j];
+                new_entry.base_probability = (100 / k_ptr->chance[j]);
+                new_entry.hook_probability = 0;
+                new_entry.final_probability = 0;
 
-                /* Extract the base probability */
-                p = (100 / k_ptr->chance[j]);
-
-                /* Skip entries preceding our locale */
-                y = (x > 0) ? num[x-1] : 0;
-
-                /* Skip previous entries at this locale */
-                z = y + aux[x];
-
-                /* Load the entry */
-                table[z].index = i;
-                table[z].level = x;
-                table[z].prob1 = p;
-                table[z].prob2 = p;
-                table[z].prob3 = p;
-
-                /* Another entry complete for this locale */
-                aux[x]++;
+                alloc_kind_table.append(new_entry);
             }
         }
     }
+
+    qSort(alloc_kind_table.begin(), alloc_kind_table.end(), alloc_table_sort);
 
     /*** Analyze feature allocation info ***/
 
@@ -1085,40 +1042,8 @@ static int init_alloc(void)
     /* Clear the "num" array */
     (void)C_WIPE(num, MAX_DEPTH_ALL, s16b);
 
-    /* Size of "alloc_ego_table" */
-    alloc_ego_size = 0;
-
-    /* Scan the ego items */
-    for (i = 1; i < z_info->e_max; i++)
-    {
-        /* Get the i'th ego item */
-        e_ptr = &e_info[i];
-
-        /* Legal items */
-        if (e_ptr->rarity)
-        {
-            /* Count the entries */
-            alloc_ego_size++;
-
-            /* Group by level */
-            num[e_ptr->level]++;
-        }
-    }
-
-    /* Collect the level indexes */
-    for (i = 1; i < MAX_DEPTH_ALL; i++)
-    {
-        /* Group by level */
-        num[i] += num[i-1];
-    }
-
-    /*** Initialize ego-item allocation info ***/
-
-    /* Allocate the alloc_ego_table */
-    alloc_ego_table = C_ZNEW(alloc_ego_size, alloc_entry);
-
-    /* Get the table entry */
-    table = alloc_ego_table;
+    /* Clear the "alloc_ego_table" */
+    alloc_ego_table.clear();
 
     /* Scan the ego-items */
     for (i = 1; i < z_info->e_max; i++)
@@ -1129,31 +1054,19 @@ static int init_alloc(void)
         /* Count valid pairs */
         if (e_ptr->rarity)
         {
-            int p, x, y, z;
+            alloc_entry_new new_entry;
 
-            /* Extract the base level */
-            x = e_ptr->level;
+            new_entry.index = i;
+            new_entry.level = e_ptr->level;
+            new_entry.base_probability = (100 / e_ptr->rarity);
+            new_entry.hook_probability = 0;
+            new_entry.final_probability = 0;
 
-            /* Extract the base probability */
-            p = (100 / e_ptr->rarity);
-
-            /* Skip entries preceding our locale */
-            y = (x > 0) ? num[x-1] : 0;
-
-            /* Skip previous entries at this locale */
-            z = y + aux[x];
-
-            /* Load the entry */
-            table[z].index = i;
-            table[z].level = x;
-            table[z].prob1 = p;
-            table[z].prob2 = p;
-            table[z].prob3 = p;
-
-            /* Another entry complete for this locale */
-            aux[x]++;
+            alloc_ego_table.append(new_entry);
         }
     }
+
+    qSort(alloc_ego_table.begin(), alloc_ego_table.end(), alloc_table_sort);
 
     /* Success */
     return (0);
@@ -1340,11 +1253,13 @@ void cleanup_npp_games(void)
 {
     //clear_graphics();
 
+    /* Clear the "alloc_ego_table" */
+    alloc_kind_table.clear();
+    alloc_ego_table.clear();
+
     /* Free the allocation tables */
-    FREE_ARRAY(alloc_ego_table);
     FREE_ARRAY(alloc_feat_table);
     FREE_ARRAY(alloc_race_table);
-    FREE_ARRAY(alloc_kind_table);
 
     if (store)
     {

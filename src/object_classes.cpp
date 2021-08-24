@@ -352,7 +352,10 @@ bool object_type::is_tried()
 void object_type::has_been_seen()
 {
     k_info[k_idx].everseen = TRUE;
-    if (ego_num) e_info[ego_num].everseen = TRUE;
+    if (ego_num && is_known())
+    {
+        e_info[ego_num].everseen = TRUE;
+    }
 }
 
 // Mark it and remember it has been seen.

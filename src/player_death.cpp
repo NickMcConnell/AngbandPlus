@@ -249,9 +249,7 @@ void player_death(void)
     }
 
     // Hack - update everything onscreen
-    p_ptr->do_redraws = TRUE;
-    redraw_stuff();
-    p_ptr->do_redraws = FALSE;
+    ui_redraw_all();
 
     // Automatic character dump
     if (death_char_dump)

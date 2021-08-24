@@ -11,6 +11,7 @@
 #include <QHeaderView>
 #include <QFontDialog>
 #include <QtCore/qmath.h>
+#include <QPushButton>
 
 /*
  * Object data for the visible object list
@@ -94,7 +95,28 @@ void MainWindow::win_obj_list_wipe()
     if (!win_obj_list_settings.win_show) return;
     if (!character_generated) return;
     while (obj_list_area->rowCount()) obj_list_area->removeRow(obj_list_area->rowCount()-1);
+
+    // Make sure all the buttons are removed from the group
+    QList<QAbstractButton *> list = obj_button_group->buttons();
+    for (int x = 0; x < list.size(); x++)
+    {
+        QAbstractButton *ab_ptr = list[x];
+        obj_button_group->removeButton(ab_ptr);
+    }
 }
+
+// Display the object info
+void MainWindow::obj_info_press(int k_idx)
+{
+    object_type object_type_body;
+    object_type *o_ptr = &object_type_body;
+
+    make_object_fake(o_ptr, k_idx, 0, TRUE);
+
+    object_info_screen(o_ptr);
+}
+
+void obj_info_press(int mon_race);
 
 void MainWindow::win_obj_list_update()
 {
@@ -306,6 +328,13 @@ void MainWindow::win_obj_list_update()
         object_label->setTextAlignment(Qt::AlignLeft);
         obj_list_area->setItem(row, col++, object_label);
 
+        // object settings
+        QPointer<QPushButton> info_button = new QPushButton();
+        qpushbutton_dark_background(info_button);
+        info_button->setIcon(QIcon(":/icons/lib/icons/help_dark.png"));
+        obj_list_area->setCellWidget(row, col++, info_button);
+        obj_button_group->addButton(info_button, o_ptr->k_idx);
+
         row ++;
     }
 
@@ -438,6 +467,13 @@ void MainWindow::win_obj_list_update()
         dir_label->setTextAlignment(Qt::AlignLeft);
         obj_list_area->setItem(row, col++, dir_label);
 
+        // object settings
+        QPointer<QPushButton> info_button = new QPushButton();
+        qpushbutton_dark_background(info_button);
+        info_button->setIcon(QIcon(":/icons/lib/icons/help_dark.png"));
+        obj_list_area->setCellWidget(row, col++, info_button);
+        obj_button_group->addButton(info_button, o_ptr->k_idx);
+
         row ++;
     }
 
@@ -452,7 +488,7 @@ void MainWindow::win_obj_list_create()
 {
     win_obj_list_settings.make_extra_window();
 
-    obj_list_area = new QTableWidget(0, 3);
+    obj_list_area = new QTableWidget(0, 4);
     obj_list_area->setAlternatingRowColors(FALSE);
     obj_list_area->verticalHeader()->setVisible(FALSE);
     obj_list_area->horizontalHeader()->setVisible(FALSE);
@@ -461,6 +497,11 @@ void MainWindow::win_obj_list_create()
     qtablewidget_add_palette(obj_list_area);
     win_obj_list_settings.main_vlay->addWidget(obj_list_area);
     win_obj_list_settings.main_widget->setWindowTitle("Viewable Object List");
+
+    // To track the monster race info button
+    obj_button_group = new QButtonGroup(this);
+    obj_button_group->setExclusive(FALSE);
+    connect(obj_button_group, SIGNAL(buttonClicked(int)), this, SLOT(obj_info_press(int)));
 
     connect(win_obj_list_settings.win_font_act, SIGNAL(triggered()), this, SLOT(win_obj_list_font()));
 
@@ -476,6 +517,7 @@ void MainWindow::win_obj_list_destroy(QObject *this_object)
     (void)this_object;
     if (!win_obj_list_settings.win_show) return;
     if (!win_obj_list_settings.main_widget) return;
+    if (obj_button_group) obj_button_group->~QButtonGroup();
     win_obj_list_settings.get_widget_settings(win_obj_list_settings.main_widget);
     win_obj_list_settings.main_widget->deleteLater();
     win_obj_list_settings.win_show = FALSE;
