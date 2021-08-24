@@ -3195,14 +3195,14 @@ D:A small humanoid that radiates some power.
 N:225:Priest
 G:p:B
 I:110:12d8:20:22:40:150
-W:12 to 50:1:36:800:445
+W:12 to 50:1:50:800:445
 B:HIT(x2):HURT(1d3+2)
 F:MALE | GOOD | HAS_LITE_2 | WILD_TOWN
 F:FORCE_SLEEP | HUMAN |
 F:SMART | OPEN_DOOR | BASH_DOOR |
 F:DROP_SKELETON | DROP_CORPSE
 S:1_IN_3 |
-S:HEAL | SCARE | CAUSE_2 | S_MONSTER(1d1) | DETECT_EVIL | BLESS
+S:HEAL | SCARE | HOLY_ORB(17) | S_MONSTER(1d1) | DETECT_EVIL | BLESS
 P:Copy:Dunadan:Priest
 O:1d2:DROP_PRIEST
 D:A robed humanoid dedicated to his god.
@@ -6737,7 +6737,7 @@ F:RES_FIRE | RES_COLD | RES_POIS | NO_CONF | NO_SLEEP | RES_TELE
 F:POS_HOLD_LIFE | POS_GAIN_AC
 P:Copy:Archon:Paladin
 S:1_IN_3 |
-S:HEAL | HASTE | BLIND | CONFUSE | SCARE | DETECT_EVIL | BLESS
+S:HEAL | HASTE | BLIND | CONFUSE | SCARE | DETECT_EVIL | BLESS | HOLY_ORB
 O:1d2+1:DROP_PALADIN
 D:A lesser angel protected by an aura of holiness. Its muscular form looks
 D:extremely powerful next to your own frail body.
@@ -6789,7 +6789,7 @@ O:1d2+1:OBJ(*)
 O:1d3:OBJ(GOLD)
 P:Copy:Demigod:Beastmaster
 P:Body:Dragon
-S:FREQ_7 | SCARE | DETECT_OBJECTS | BR_ELEC(40%)
+S:FREQ_7 | SCARE | DETECT_OBJECTS | BR_ELEC(30%)
 D:It has a form that legends are made of. Its still-tender scales are a
 D:deep blue in hue. Sparks crackle along its length.
 
@@ -6807,7 +6807,7 @@ O:1d2+1:OBJ(*)
 O:1d3:OBJ(GOLD)
 P:Copy:Demigod:Beastmaster
 P:Body:Dragon
-S:FREQ_7 | SCARE | BR_COLD(40%) | DETECT_OBJECTS 
+S:FREQ_7 | SCARE | BR_COLD(30%) | DETECT_OBJECTS 
 D:It has a form that legends are made of. Its still-tender scales are a
 D:frosty white in hue. Icy blasts of cold air come from it as it breathes.
 
@@ -7656,8 +7656,8 @@ F:NO_CONF | NO_SLEEP | SELF_LITE_2 |
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Archon:Paladin
 S:1_IN_3 |
-S:HEAL | HASTE | BLIND | SCARE | MIND_BLAST | BO_FIRE(18d8+22) |
-S:S_MONSTER | DETECT_EVIL | BLESS
+S:HEAL | HASTE | BLIND | SCARE | MIND_BLAST
+S:S_MONSTER | DETECT_EVIL | BLESS | HOLY_ORB
 O:1d2+2:DROP_PALADIN
 D:It is an angel moving very quickly, wielding a holy war hammer and casting
 D:a volley of powerful spells in your direction.
@@ -8227,7 +8227,7 @@ O:1d2+1:OBJ(*)
 O:1d3:OBJ(GOLD)
 P:Copy:Demigod:Beastmaster
 P:Body:Dragon
-S:FREQ_7 | SCARE | BR_ACID(40%) | DETECT_OBJECTS 
+S:FREQ_7 | SCARE | BR_ACID(30%) | DETECT_OBJECTS 
 D:It has a form that legends are made of. Its still-tender scales are a
 D:darkest black hue. Acid drips from its body.
 
@@ -8257,7 +8257,7 @@ O:1d2+1:OBJ(*)
 O:1d3:OBJ(GOLD)
 P:Copy:Barbarian:Beastmaster
 P:Body:Dragon
-S:FREQ_9 | SCARE | BR_COLD(50%) | DETECT_OBJECTS 
+S:FREQ_9 | SCARE | BR_COLD(30%) | DETECT_OBJECTS 
 D:A large dragon, scales gleaming bright white.
 
 N:550:Xorn
@@ -8384,7 +8384,7 @@ O:1d3+1:OBJ(GOLD)
 P:Copy:Demigod:Beastmaster
 P:Body:Dragon
 S:FREQ_7 | SCARE | DETECT_OBJECTS 
-S:BR_ACID(40%) | BR_FIRE(40%) | BR_COLD(40%) | BR_ELEC(40%) | BR_POISON(40%)
+S:BR_ACID(30%) | BR_FIRE(30%) | BR_COLD(30%) | BR_ELEC(30%) | BR_POISON
 D:It has a form that legends are made of. Beautiful scales of shimmering
 D:and magical colors cover it.
 
@@ -8456,7 +8456,7 @@ O:2d2+1:OBJ(*)
 O:1d3+1:OBJ(GOLD)
 P:Copy:Barbarian:Beastmaster
 P:Body:Dragon
-S:FREQ_9 | SCARE | BR_ELEC(50%) | DETECT_OBJECTS 
+S:FREQ_9 | SCARE | BR_ELEC(30%) | DETECT_OBJECTS 
 D:A large dragon, scales tinted deep blue.
 
 N:561:Mature green dragon
@@ -8473,7 +8473,7 @@ O:2d2+1:OBJ(*)
 O:1d3+1:OBJ(GOLD)
 P:Copy:Barbarian:Beastmaster
 P:Body:Dragon
-S:FREQ_9 | SCARE | BR_POISON(50%) | DETECT_OBJECTS 
+S:FREQ_9 | SCARE | BR_POISON | DETECT_OBJECTS 
 D:A large dragon, scales tinted deep green.
 
 N:562:Mature bronze dragon
@@ -8508,7 +8508,7 @@ O:1d2+1:OBJ(*)
 O:1d3:OBJ(GOLD)
 P:Copy:Demigod:Beastmaster
 P:Body:Dragon
-S:FREQ_7 | SCARE | BR_FIRE(40%) | DETECT_OBJECTS 
+S:FREQ_7 | SCARE | BR_FIRE(30%) | DETECT_OBJECTS 
 D:It has a form that legends are made of. Its still-tender scales are a
 D:deepest red hue. Heat radiates from its form.
 
@@ -8953,7 +8953,7 @@ O:2d2+1:OBJ(*)
 O:1d3+1:OBJ(GOLD)
 P:Copy:Barbarian:Beastmaster
 P:Body:Dragon
-S:FREQ_9 | CONFUSE | SCARE | BR_FIRE(50%) | DETECT_OBJECTS 
+S:FREQ_9 | CONFUSE | SCARE | BR_FIRE(30%) | DETECT_OBJECTS 
 D:A large dragon, scales tinted deep red.
 
 N:590:Mature gold dragon
@@ -9008,7 +9008,7 @@ O:2d2+1:OBJ(*)
 O:1d3+1:OBJ(GOLD)
 P:Copy:Barbarian:Beastmaster
 P:Body:Dragon
-S:FREQ_9 | SCARE | BR_ACID(50%) | DETECT_OBJECTS 
+S:FREQ_9 | SCARE | BR_ACID(30%) | DETECT_OBJECTS 
 D:A large dragon, with scales of deepest black.
 
 N:593:Mature multi-hued dragon
@@ -9028,7 +9028,7 @@ O:1d3+2:OBJ(GOLD)
 P:Copy:Barbarian:Beastmaster
 P:Body:Dragon
 S:FREQ_9 | BLIND | CONFUSE | SCARE | DETECT_OBJECTS
-S:BR_ACID(40%) | BR_FIRE(40%) | BR_COLD(40%) | BR_ELEC(40%) | BR_POISON(40%)
+S:BR_ACID(30%) | BR_FIRE(30%) | BR_COLD(30%) | BR_ELEC(30%) | BR_POISON
 D:A large dragon, scales shimmering many colors.
 
 N:594:Sky whale
@@ -9172,7 +9172,7 @@ O:1d3+2:OBJ(GOLD)
 P:Copy:Half-Titan:Beastmaster
 P:Life:110
 P:Body:Dragon
-S:FREQ_10 | BLIND | CONFUSE | SCARE | BR_ELEC(50%) | DETECT_OBJECTS 
+S:FREQ_10 | BLIND | CONFUSE | SCARE | BR_ELEC(35%) | DETECT_OBJECTS 
 D:A huge draconic form. Lightning crackles along its length.
 
 N:602:Ancient bronze dragon
@@ -9241,7 +9241,7 @@ F:NO_CONF | NO_SLEEP | SELF_LITE_2 |
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Archon:Paladin
 S:1_IN_11 |
-S:HEAL | HASTE | TELE_OTHER | CONFUSE | BO_MANA | BO_PLASMA |
+S:HEAL | HASTE | TELE_OTHER | CONFUSE | BO_MANA | HOLY_ORB
 S:S_MONSTER | DETECT_EVIL | BLESS | HEROISM | MAPPING
 O:1d2+2:DROP_PALADIN
 D:It is an angel, fast and strong. You are stunned by its extreme holiness
@@ -9460,7 +9460,7 @@ O:4d2:OBJ(*, GOOD)
 O:1d3+2:OBJ(GOLD)
 P:Copy:Barbarian:Beastmaster
 P:Body:Kavlax
-S:FREQ_15 | BR_SHARDS | BR_GRAVITY | BR_NEXUS | BR_SOUND | BR_CONFUSION |
+S:FREQ_15 | BR_SHARDS | BR_GRAVITY(15%) | BR_NEXUS(15%) | BR_SOUND | BR_CONFUSION |
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | DETECT_OBJECTS 
 D:A large dragon with a selection of heads, all shouting and arguing as they
 D:look for prey, but each with its own deadly breath weapon.
@@ -9480,7 +9480,7 @@ O:1d3+2:OBJ(GOLD)
 P:Copy:Half-Titan:Beastmaster
 P:Life:110
 P:Body:Dragon
-S:FREQ_10 | BLIND | CONFUSE | SCARE | BR_COLD(50%) | DETECT_OBJECTS 
+S:FREQ_10 | BLIND | CONFUSE | SCARE | BR_COLD(35%) | DETECT_OBJECTS 
 D:A huge draconic form. Frost covers it from head to tail.
 
 N:618:Ancient green dragon
@@ -9499,7 +9499,7 @@ O:1d3+2:OBJ(GOLD)
 P:Copy:Half-Titan:Beastmaster
 P:Life:110
 P:Body:Dragon
-S:FREQ_10 | BLIND | CONFUSE | SCARE | BR_POISON(50%) | DETECT_OBJECTS 
+S:FREQ_10 | BLIND | CONFUSE | SCARE | BR_POISON | DETECT_OBJECTS 
 D:A huge draconic form enveloped in clouds of poisonous vapour.
 
 N:619:Chthonian
@@ -9611,7 +9611,7 @@ O:1d3+2:OBJ(GOLD)
 P:Copy:Half-Titan:Beastmaster
 P:Life:110
 P:Body:Dragon
-S:FREQ_10 | BLIND | CONFUSE | SCARE | BR_ACID(50%) | DETECT_OBJECTS 
+S:FREQ_10 | BLIND | CONFUSE | SCARE | BR_ACID(35%) | DETECT_OBJECTS 
 D:A huge draconic form. Pools of acid melt the floor around it.
 
 N:625:Weird fume
@@ -9943,7 +9943,7 @@ O:1d3+2:OBJ(GOLD)
 P:Copy:Half-Titan:Beastmaster
 P:Life:115
 P:Body:Dragon
-S:FREQ_10 | BLIND | CONFUSE | SCARE | BR_FIRE(40%) | DETECT_OBJECTS 
+S:FREQ_10 | BLIND | CONFUSE | SCARE | BR_FIRE(35%) | DETECT_OBJECTS 
 D:A huge draconic form. Wisps of smoke steam from its nostrils and the
 D:extreme heat surrounding it makes you gasp for breath.
 
@@ -10144,7 +10144,7 @@ B:CRUSH(x2):HURT(3d5):ACID(2d5)
 B:HIT(x2):HURT(3d5):POISON(2d5)
 F:UNIQUE | CAN_SPEAK | NO_STUN | NO_SLEEP | NO_CONF |
 F:FORCE_SLEEP | FORCE_MAXHP | ELDRITCH_HORROR | ESCORT |
-F:REGENERATE | GUARDIAN
+F:REGENERATE
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | KILL_BODY |
 F:EVIL | HURT_FIRE | RES_COLD | RES_POIS | RES_NETH
 F:POS_GAIN_AC | POS_SEE_INVIS | POS_HOLD_LIFE | POS_SUST_STR | POS_SUST_CON
@@ -10268,7 +10268,7 @@ F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY | RES_LITE |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_TELE | CAN_FLY
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
 P:Copy:Archon:Paladin
-S:1_IN_3 | TELE_TO | BLIND | SCARE | CAUSE_2 | CAUSE_4 | BO_MANA |
+S:1_IN_3 | TELE_TO | BLIND | SCARE | CAUSE_2 | CAUSE_4 | BO_MANA | HOLY_ORB(77)
 S:S_MONSTER | INVULN | DETECT_MONSTERS | BLESS | HEROISM | MAPPING
 O:2d2+2:OBJ(*, GOOD):DROP_PALADIN
 D:Never a more heavenly being have you seen. The very holiness of its
@@ -12702,11 +12702,11 @@ D:relish for combat. You suspect all may not be as it seems.
 N:780:Vlad Dracula, Prince of Darkness
 G:V:b
 I:130:50d100:20:166:10:170
-W:63:4:33333
+W:63:4:35000
 B:BITE(x2):VAMP(8d8):UNLIFE(8d8)
 B:HIT(x2):CONFUSE(8d8)
 A:NETHER(3d6)
-F:UNIQUE | MALE |
+F:UNIQUE | MALE | ESCORT
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | CAN_SPEAK | CAN_FLY |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE | RES_NETH | RES_DARK |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP | RES_TELE
@@ -14646,7 +14646,7 @@ P:Copy:Half-Giant:Mauler
 P:Life:120
 P:Speed:+15
 S:FREQ_30 |
-S:BRAIN_SMASH(200) | DISPEL_MAGIC | ANTI_MAGIC |
+S:BRAIN_SMASH(200) | DISPEL_MAGIC | ANTI_MAGIC | TELE_TO
 S:MANA_STORM | BA_DARK | BO_MANA | BA_NETHER(10d10+450) | ANIM_DEAD
 S:S_MONSTER | S_UNIQUE | S_HI_UNDEAD | S_HI_DRAGON
 D:He is the Master of the Pits of Angband. His figure is like a black
@@ -14689,7 +14689,11 @@ S:FREQ_35 |
 S:BR_CHAOS | BR_NETHER | BR_MANA | BR_NUKE | BR_DISINTEGRATE
 S:BA_CHAOS(10d10+200) | ROCKET(600) | HAND_DOOM | BRAIN_SMASH(200)
 S:TELE_TO | DISPEL_MAGIC | ANTI_MAGIC
-S:S_MONSTER | S_CYBER | S_GUARDIAN | S_HI_UNDEAD | S_HI_DRAGON | S_UNIQUE |
+S:S_MONSTER | S_CYBER | S_HI_UNDEAD | S_HI_DRAGON | S_UNIQUE |
+#XXX Need to rework this in a multi-world scenario. It is probably not fair
+#to summon guardians from dungeons that the player cannot enter, since they
+#don't exist in W_AMBER (e.g. Sauron, Gothmog, Morgoth, etc).
+#S:S_GUARDIAN
 D:The Big Boss himself. Before the universe the Serpent was. The Unicorn
 D:of Order fought with Serpent and stole one of its eyes, known as the
 D:Jewel of Judgement. With the Jewel, Dworkin drew the Pattern and thus
@@ -15402,7 +15406,7 @@ B:TOUCH:ACID(3d5)
 B:HIT:HURT(3d5)
 A:POISON(2d3):ACID(2d3)
 F:UNIQUE | FEMALE | FORCE_MAXHP | CAN_SPEAK | SMART | ESCORT
-F:DROP_CORPSE | GUARDIAN
+F:DROP_CORPSE
 F:WEIRD_MIND | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS
 O:1d2:OBJ(*, GOOD)
@@ -15866,7 +15870,7 @@ D:An undead dragon skeleton.
 N:942:Planetar
 G:A:r
 I:130:22d100:30:150:255:180
-W:50:6:10000:100000:943
+W:50:6:15000:100000:943
 B:HIT(x3):HURT(5d6+10)
 B:HIT:HURT(5d6+10):LOSE_CHR(50%)
 F:FORCE_SLEEP | FORCE_MAXHP | GOOD | SELF_LITE_2 |
@@ -15876,7 +15880,7 @@ F:NO_CONF | NO_SLEEP | CAN_FLY |
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
 O:1d2+2:OBJ(*, GOOD):DROP_PALADIN
 P:Copy:Archon:Paladin
-S:1_IN_4 | HEAL | HASTE | TELE_OTHER | BO_MANA | BO_PLASMA(8d7+85) | CAUSE_4 |
+S:1_IN_4 | HEAL | HASTE | TELE_OTHER | BO_MANA | HOLY_ORB(111) | CAUSE_4 |
 S:S_MONSTER | S_ANGEL | INVULN | PSY_SPEAR(1d100+150) | S_DRAGON | DISPEL_MAGIC |
 S:ANTI_MAGIC | DETECT_MONSTERS | BLESS | HEROISM | MAPPING
 D:It is an angel, fast and strong. You are stunned by its extreme holiness
@@ -15885,7 +15889,7 @@ D:and try to resist all desires to obey it.
 N:943:Solar
 G:A:y
 I:130:100d30:30:160:255:180
-W:64:6:22000
+W:64:6:25000
 B:GAZE(x2):DISENCHANT(10d4)
 B:HIT(x2):HURT(8d8+18):LOSE_CHR(25%)
 A:HOLY_FIRE(3d3)
@@ -15898,7 +15902,7 @@ O:7d2:OBJ(*, GOOD):DROP_PALADIN
 P:Copy:Archon:Paladin
 S:1_IN_3 |
 S:TELE_TO | BLIND | SCARE | CAUSE_4 | BO_MANA | PSY_SPEAR(1d128+150) | INVULN
-S:S_ANGEL | S_DRAGON | BA_LITE | HEAL | DISPEL_MAGIC | ANTI_MAGIC
+S:S_ANGEL | S_DRAGON | BA_LITE | HEAL | DISPEL_MAGIC | ANTI_MAGIC | HOLY_ORB(177)
 S:DETECT_MONSTERS | BLESS | HEROISM | MAPPING
 D:Never a more heavenly being have you seen. The very holiness of its
 D:presence makes you deeply respect it. Few creatures can match the powers

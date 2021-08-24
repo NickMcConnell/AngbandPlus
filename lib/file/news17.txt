@@ -1,37 +1,30 @@
 <color:y>PosChengband <$:version></color><style:screenshot>
-<color:w>Name       : </color><color:B>Striver                       </color><color:w>========== Stats ==========
-Sex        : </color><color:B>Male                                </color><color:w>STR! :    </color><color:G>18/***
-</color><color:w>Personality: </color><color:B>Lucky                               </color><color:w>INT! :    </color><color:G>18/210
-</color><color:w>Race       : </color><color:B>High-Elf                            </color><color:w>WIS! :    </color><color:G>18/130
-</color><color:w>Subrace    : </color><color:B>None                                </color><color:w>DEX! :    </color><color:G>18/***
-</color><color:w>Class      : </color><color:B>Warrior                             </color><color:w>CON! :    </color><color:G>18/210
-                                                 </color><color:w>CHR! :    </color><color:G>18/190
-                                        
-</color><color:w>Level      :       </color><color:G>50                            </color><color:w>HP   : </color><color:G>1065/1065
-</color><color:w>Cur Exp    : </color><color:G>30613824                            </color><color:w>SP   :       </color><color:G>0/0
-</color><color:w>Max Exp    : </color><color:G>30613824                            </color><color:w>AC   :       </color><color:G>208
-</color><color:w>Adv Exp    :    </color><color:G>*****                            </color><color:w>Speed:       </color><color:G>+28
-                                        
-                                           </color><color:w>========== Skills =========
-Gold       : </color><color:G>10559201                      </color><color:w>Melee      : </color><color:v>Amber[42]
-</color><color:w>Kills      :     </color><color:G>7092                      </color><color:w>Archery    : </color><color:v>Amber[42]
-</color><color:w>Uniques    :      </color><color:G>251                      </color><color:w>SavingThrow: </color><color:b>Heroic
-</color><color:w>Artifacts  :  </color><color:G>148+108                      </color><color:w>Stealth    : </color><color:g>Superb
-                                           </color><color:w>Perception : </color><color:g>Superb
-</color><color:w>Game Day   :       </color><color:G>78                      </color><color:w>Searching  : </color><color:g>Superb
-</color><color:w>Game Time  :    </color><color:G>14:06                      </color><color:w>Disarming  : </color><color:g>Superb
-</color><color:w>Play Time  :    </color><color:G>18:16                      </color><color:w>Device     : </color><color:b>Heroic
-                                        
-</color><color:w>a) The Great Hammer of Aegir (7d6) (+15,+20) [+10] (+4)
-</color><color:w>b) </color><color:U>The Mirror 'Yata-no-Kagami' [0,+18] (+3)
-</color><color:w>c) </color><color:u>a Heavy Crossbow of Extra Might (x5.21) (+12,+31) (+2)
-</color><color:w>d) </color><color:U>a Quiver of Holding [59 of 230]
-</color><color:w>e) </color><color:r>The Ring of Power (Vilya) (+3)
-</color><color:w>f) </color><color:r>a Ring of Speed (+15)
-</color><color:w>g) </color><color:o>an Amulet of Devotion {CfNtCaDi}
-</color><color:w>h) </color><color:y>The Jewel of Judgement (+3) {!!}
-</color><color:w>i) </color><color:W>The Balance Dragon Scale Mail 'Striver' (-2) [40,+25] {AcElFiCoPoLiNtNx}
-</color><color:w>j) </color><color:U>The Shadow Cloak of Jack of Shadows [6,+19] (+5) {cursed}
-</color><color:w>k) </color><color:U>The Steel Helm of Hammerhand (+3,+4) [6,+20] (+3)
-</color><color:w>l) </color><color:U>The Set of Dragon Gloves 'Striver' [4,+20] (+3) {Dx;FiCoDkShFe;Fa}
-</color><color:w>m) </color><color:U>The Pair of Soft Leather Boots of Shiva's Avatar (+5,+5) [4,+16] (+4)</style>
+You found a trap! You hit a teleport trap!                                      
+                                                                    LEVEL <color:G>    50</color>
+                                                                    EXP <color:G>********</color>
+       ###                                                          AU  <color:G>   6.78M</color>
+######## ########                                                   <color:o>/</color><color:s>)</color><color:U>}~</color><color:g>==</color><color:y>"*</color><color:s>[</color><color:g>(</color><color:y>]</color><color:U>]</color>
+                ########################             ############## STR!: <color:G>18/***</color>
+                                       #             #              INT!: <color:G> 18/80</color>
+                ###################### ####          # ############ WIS!: <color:G>18/110</color>
+########<color:U>+</color>#<color:U>+</color>######                    #    #######    # #            DEX!: <color:G>18/160</color>
+     #     # #                       ####       ###### ###          CON!: <color:G>18/190</color>
+     # # ### #                          #######          #          CHR!: <color:G>18/110</color>
+     # # # # #                                ############          AC     <color:G>  177</color>
+######## ###<color:U>+</color>##         ######<color:y>#######</color>                               HP <color:G>1013</color>/<color:G>1013</color>
+              #         #     <color:y>...</color>@<color:y>..#</color>                                           
+              #         # <color:U>#########</color><color:y>.#</color>                                           
+              ########### <color:U>####</color><color:v>*</color><color:U>####</color> #                               @ <color:G>100%</color>      
+              <color:U>+</color>         <color:U>+</color> <color:U>#</color>       <color:U>#</color> #                               <color:U>,</color> <color:o> 23%</color>      
+              ########### <color:U>#</color>       <color:U>#</color> ####                                        
+              #         # <color:U>####</color><color:R>'</color><color:U>####</color>    ########                                 
+              #         #           #  >##    #                                 
+###### ########         ###### ###### #### ## #####################             
+     ###                     # # # ##      ##                       <color:G>Fast (+39)</color>  
+                             # ### ## #######  ####################             
+                             #     ####     ####                                
+                             #######                                            
+                                                                                
+<color:s>The Dark Castle: L40</color>                                                            
+</style>
+

@@ -8224,7 +8224,6 @@ cptr do_spell(int realm, int spell, int mode)
     case REALM_DAEMON:   result = do_daemon_spell(spell, mode); break;
     case REALM_CRUSADE:  result = do_crusade_spell(spell, mode); break;
     case REALM_MUSIC:    result = do_music_spell(spell, mode); break;
-    case REALM_HISSATSU: result = do_hissatsu_spell(spell, mode); break;
     case REALM_HEX:      result = do_hex_spell(spell, mode); break;
     case REALM_NECROMANCY: result = do_necromancy_spell(spell, mode); break;
     case REALM_ARMAGEDDON: result = do_armageddon_spell(spell, mode); break;

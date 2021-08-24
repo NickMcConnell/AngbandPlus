@@ -14,6 +14,7 @@ typedef struct feature_type dun_feat_t, *dun_feat_ptr;
 
 typedef void (*dun_grid_f)(point_t pos, dun_grid_ptr grid);
 typedef bool (*dun_grid_p)(point_t pos, dun_grid_ptr grid);
+typedef int  (*dun_grid_weight_f)(point_t pos, dun_grid_ptr grid);
 
 extern bool dun_grid_allow_drop(dun_grid_ptr grid);
 extern dun_feat_ptr dun_grid_feat(dun_grid_ptr grid);
@@ -64,8 +65,22 @@ enum { D_NONE = 0,
        D_MOUNT_DOOM,
        D_ANGBAND,
 
-       /* XXX */
-       D_OLYMPUS };
+       /* For Random Wilderness */
+       D_OLYMPUS,
+       D_DRAGONS_LAIR,
+       D_RANDOM_FOREST,
+       D_RANDOM_MOUNTAIN,
+       D_RANDOM_VOLCANO,
+       D_RANDOM_SEA,
+       D_WIZARDS_TOWER,
+       D_MONASTERY,
+       D_GRAVEYARD,
+       D_SANCTUARY, /* of the Knight's Templar */
+       D_PANDEMONIUM,
+       D_NUMENOR,
+       D_RLYEH,
+       D_DARK_CASTLE,
+};
 
 struct dun_type_s
 {
@@ -75,6 +90,7 @@ struct dun_type_s
     cptr    parse;
     rect_t  (*size_f)(dun_type_ptr me);
     void    (*enter_f)(dun_type_ptr me);
+    void    (*init_f)(dun_type_ptr me);
     void    (*pre_gen_f)(dun_type_ptr me, dun_gen_ptr gen);
     void    (*post_gen_f)(dun_type_ptr me, dun_gen_ptr gen);
     void    (*change_dun_f)(dun_type_ptr me, dun_ptr dun);
@@ -137,6 +153,7 @@ struct dun_type_s
 
 /* other */
 #define DF_RANDOM           0x10000000
+#define DF_KNOWN            0x20000000   /* player "knows" this dungeon location on world map */
 
 /* player flags */
 #define DFP_ENTERED         0x0001 /* plr has entered this dungeon */
@@ -318,7 +335,7 @@ extern point_t       dun_find_grid(dun_ptr dun, dun_grid_p p);
 
 /* Randomly choose an interior position based upon a weight function. Check the result against
  * dun_pos_interior to make sure the selection worked (Expensive) */
-extern point_t       dun_random_grid(dun_ptr dun, int (*weight_f)(point_t pos, dun_grid_ptr grid));
+extern point_t       dun_random_grid(dun_ptr dun, dun_grid_weight_f weight);
 
 /* XXX need to think how to handle low level primitives in a multi-dungeon scenario.
  * Hacking a global "cave" pointer and calling existing code is a last resort, but
@@ -360,6 +377,8 @@ extern void          dun_destroy_obj_at(dun_ptr dun, point_t pos);  /* destructi
 extern void          dun_iter_obj(dun_ptr dun, void (*f)(int id, obj_ptr obj));
 extern void          dun_iter_floor_obj(dun_ptr dun, void (*f)(point_t pos, obj_ptr pile));
 extern vec_ptr       dun_filter_obj(dun_ptr dun, obj_p p); /* floor objects only */
+extern bool          dun_obj_integrity(dun_ptr dun);
+extern void          dun_obj_panic(dun_ptr dun); /* recover a corrupted savefile */
 
 /* Player Management */
 extern void          dun_move_plr(dun_ptr dun, point_t pos);
@@ -455,7 +474,9 @@ extern void         dun_mgr_display(rect_t map_rect);
 enum { W_NONE = 0,
        W_SMAUG,
        W_SARUMAN,
-       W_SAURON };
+       W_SAURON,
+       W_AMBER,
+};
 typedef struct dun_world_s dun_world_t, *dun_world_ptr;
 struct dun_world_s
 {
@@ -464,6 +485,7 @@ struct dun_world_s
     cptr    name;
     cptr    desc;
     cptr    file;        /* map file to generate D_WORLD dun_t (The World Map) */
+    void    (*init_f)(dun_world_ptr me);
     void    (*pre_gen_f)(dun_world_ptr me, dun_gen_ptr dun);
     void    (*post_gen_f)(dun_world_ptr me, dun_gen_ptr dun);
     void    (*change_dun_f)(dun_world_ptr me, dun_ptr dun);
@@ -476,6 +498,7 @@ struct dun_world_s
     u16b    final_guardian;
     u16b    next_world_id;  /* slay the final_guardian to go to the next_world_id */
     u16b    plr_flags;
+    byte    encounter_chance;  /* permil chance of wilderness encounters (ROOM_WILDERNESS) */
 
     vec_ptr mon_alloc_tbl;
     vec_ptr obj_alloc_tbl;
@@ -491,6 +514,8 @@ extern int           dun_world_town_id(void);
 extern void          dun_world_map_ui(void);
 extern void          dun_world_reseed(u32b world_seed);
 extern void          dun_world_dump_frac(dun_ptr dun); /* XXX debug */
+extern dun_ptr       dun_world_gen_map(dun_world_ptr world);
+extern void          dun_gen_world_wizard(void);
 
 extern dun_world_ptr dun_worlds_current(void);
 extern void          dun_worlds_birth(void);

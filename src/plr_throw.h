@@ -46,5 +46,6 @@ void  (*after_hit_f)(plr_throw_ptr context, int m_idx); /* e.g. confuse or stun 
 
 extern bool plr_throw(plr_throw_ptr context);
 extern void plr_throw_doc(plr_throw_ptr context, doc_ptr doc);
+extern void plr_throw_display(plr_throw_ptr context);
 
 #endif

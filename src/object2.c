@@ -1088,7 +1088,7 @@ static bool make_artifact_special(object_type *o_ptr, int level)
             int d = (a_ptr->level - cave->dun_lvl) * 2;
 
             /* Roll for out-of-depth creation */
-            if (!one_in_(d)) continue;
+            if (d > 24 || !one_in_(d)) continue;
         }
 
         a_ptr->tries++; /* Debug for statistics runs */
@@ -1166,11 +1166,10 @@ static bool make_artifact(object_type *o_ptr, int level)
         if (a_ptr->level > level)
         {
             /* Acquire the "out-of-depth factor" */
-            /*int d = (a_ptr->level - level) * (a_ptr->level - level);*/
             int d = a_ptr->level - level;
 
             /* Roll for out-of-depth creation */
-            if (!one_in_(d)) continue;
+            if (d > 24 || !one_in_(d)) continue;
         }
 
         a_ptr->tries++; /* Debug for statistics runs */
@@ -1806,6 +1805,7 @@ static bool _is_device_class(void)
     case CLASS_SORCERER:
     case CLASS_YELLOW_MAGE:
     case CLASS_GRAY_MAGE:
+    case CLASS_BLUE_MAGE:
         return TRUE;
     }
     /* Note: Devicemasters only want their speciality, which is checked below. */

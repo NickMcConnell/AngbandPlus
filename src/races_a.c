@@ -1159,6 +1159,7 @@ static int _draconian_attack_level(void)
     case CLASS_MIRROR_MASTER:
     case CLASS_YELLOW_MAGE:
     case CLASS_GRAY_MAGE:
+    case CLASS_BLUE_MAGE:
         l = MAX(1, l * 80 / 100);
         break;
     case CLASS_SORCERER:

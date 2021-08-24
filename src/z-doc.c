@@ -1947,9 +1947,14 @@ int doc_display_help_aux(cptr file_name, cptr topic, rect_t display)
     fp = my_fopen(path, "r");
     if (!fp)
     {
-        cmsg_format(TERM_VIOLET, "Cannot open '%s'.", file_name);
-        msg_print(NULL);
-        return _OK;
+        path_build(path, sizeof(path), ANGBAND_DIR_FILE, file_name);
+        fp = my_fopen(path, "r");
+        if (!fp)
+        {
+            cmsg_format(TERM_VIOLET, "Cannot open '%s'.", file_name);
+            msg_print(NULL);
+            return _OK;
+        }
     }
 
     doc = doc_alloc(MIN(80, display.cx));

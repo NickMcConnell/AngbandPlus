@@ -641,6 +641,10 @@ void quests_on_birth(void)
     quests_init();
 
     /* assign random quests */
+    /* XXX random quests are all in D_AMBER; note: using world_id rather
+     * than initial_world_id allows me to do some tricky stuff in wizard mode. */
+    if (p_ptr->world_id != W_AMBER) return;
+
     v = quests_get_random();
     for (i = 0; i < vec_length(v); i++)
     {
@@ -648,12 +652,18 @@ void quests_on_birth(void)
         int       spread = MIN(8, MAX(3, q->level/10));
         int       lvl, attempt = 0;
 
+        if (q->dungeon && !last)
+        {
+            dun_type_ptr dt = dun_types_lookup(q->dungeon);
+            last = dt->min_dun_lvl;
+        }
+
         assert(q->level + spread > last);
         do
         {
             lvl = rand_range(q->level - spread, q->level + spread);
             ++attempt;
-        } while (lvl <= last && attempt < 1000);
+        } while ((lvl <= last || lvl > 98)  && attempt < 1000);
         last = lvl;
         q->level = lvl;
 
@@ -685,6 +695,7 @@ quest_ptr quests_find_quest(int dungeon, int level)
         if (d != dungeon) continue;
         if (q->level != level) continue;
         if ((q->flags & QF_TOWN) && q->status == QS_UNTAKEN) continue;
+        if (q->goal == QG_KILL_MON && !q->goal_idx) continue;
 
         result = q;
         break;

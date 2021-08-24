@@ -5,6 +5,7 @@
 /************************************************************************
  * Default Timers
  ************************************************************************/
+static mon_tim_info_ptr _amnesia(void);
 static mon_tim_info_ptr _berserk(void);
 static mon_tim_info_ptr _confused(void);
 static mon_tim_info_ptr _ego_whip(void);
@@ -38,6 +39,7 @@ static int_map_ptr _info(void)
     if (!map)
     {
         map = int_map_alloc(free);
+        _register(map, _amnesia());
         _register(map, _berserk());
         _register(map, _confused());
         _register(map, _ego_whip());
@@ -148,10 +150,13 @@ void mon_tim_add(mon_ptr mon, int id, int count)
 }
 void mon_tim_add_aux(mon_ptr mon, int id, int count, int parm)
 {
-    mon_tim_ptr t;
+    mon_tim_ptr t = NULL;
+    mon_tim_info_ptr info = _find_info(id);
     if (count <= 0) return;
     if (mon_is_dead(mon)) return;
-    t = _find(mon, id);
+
+    if (!(info->flags & TF_DUPLICATE))
+        t = _find(mon, id);
     if (t)
     {
         if (!(t->flags & TF_IGNORE))
@@ -356,6 +361,7 @@ void mon_tim_clear(mon_ptr mon)
     while (mon->timers)
     {
         mon_tim_ptr x = mon->timers;
+        _off(mon, mon->timers); /* XXX T_FAST, T_SLOW, T_BERSERK etc must call off_f */
         mon->timers = mon->timers->next;
         free(x);
     }
@@ -393,7 +399,10 @@ void mon_tim_load(mon_ptr mon, savefile_ptr file)
         s16b ct = savefile_read_s16b(file);
         mon_tim_ptr t = _alloc(e, ct);
         t->flags = savefile_read_u16b(file);
-        t->parm = savefile_read_s16b(file);
+        if (savefile_is_older_than(file, 7, 1, 2, 2))
+            t->parm = savefile_read_s16b(file);
+        else
+            t->parm = savefile_read_s32b(file);
         _add_aux(mon, t);
     }
 }
@@ -407,7 +416,7 @@ void mon_tim_save(mon_ptr mon, savefile_ptr file)
         savefile_write_s16b(file, t->id);
         savefile_write_s16b(file, t->count);
         savefile_write_u16b(file, t->flags);
-        savefile_write_s16b(file, t->parm);
+        savefile_write_s32b(file, t->parm);
     }
 }
 
@@ -418,6 +427,7 @@ static bool _mon_show_msg(mon_ptr mon, mon_tim_ptr timer)
 {
     if (!(cave->flags & DF_GENERATED)) return FALSE;
     if (timer->flags & TF_NO_MSG) return FALSE;
+    if (mon_is_dead(mon)) return FALSE;
     return mon_show_msg(mon);
 }
 static cptr _mon_name_aux(mon_ptr mon, int options)
@@ -569,6 +579,10 @@ static void _fast_off(mon_ptr mon, mon_tim_ptr timer)
     if (p_ptr->riding == mon->id && !p_ptr->leaving)
         p_ptr->update |= PU_BONUS;
 }
+static void _fast_display(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
+{
+    doc_insert_char(doc, TERM_YELLOW, 'F');
+}
 static void _fast_probe(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
 {
     doc_printf(doc, "<color:y>Fast (<color:w>%d</color>)</color>\n", timer->count);
@@ -578,6 +592,7 @@ static mon_tim_info_ptr _fast(void)
     mon_tim_info_ptr info = mon_tim_info_alloc(T_FAST, "Fast");
     info->on_f = _fast_on;
     info->off_f = _fast_off;
+    info->display_f = _fast_display;
     info->probe_f = _fast_probe;
     return info;
 }
@@ -820,6 +835,12 @@ static void _slow_off(mon_ptr mon, mon_tim_ptr timer)
     if (p_ptr->riding == mon->id && !p_ptr->leaving)
         p_ptr->update |= PU_BONUS;
 }
+static void _slow_tick(mon_ptr mon, mon_tim_ptr timer)
+{
+    do {
+        timer->count--;
+    } while (timer->count > 0 && mon_is_unique(mon) && mon_save_aux(mon->r_idx, 50));
+}
 static void _slow_display(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
 {
     doc_insert_char(doc, TERM_UMBER, 'S');
@@ -833,6 +854,7 @@ static mon_tim_info_ptr _slow(void)
     mon_tim_info_ptr info = mon_tim_info_alloc(T_SLOW, "Slow");
     info->on_f = _slow_on;
     info->off_f = _slow_off;
+    info->tick_f = _slow_tick;
     info->probe_f = _slow_probe;
     info->display_f = _slow_display;
     /* XXX Historically, not a TF_BIFF. It can be dispelled! */
@@ -879,5 +901,42 @@ static mon_tim_info_ptr _stun(void)
     info->display_f = _stun_display;
     info->probe_f = _stun_probe;
     info->flags = TF_BIFF;
+    return info;
+}
+/************************************************************************
+ * MT_AMNESIA
+ ************************************************************************/
+static void _amnesia_on(mon_ptr mon, mon_tim_ptr timer)
+{
+    if (_mon_show_msg(mon, timer))
+        msg_format("%^s seems to have forgotten something.", _mon_name(mon));
+}
+static void _amnesia_off(mon_ptr mon, mon_tim_ptr timer)
+{
+    if (_mon_show_msg(mon, timer))
+        msg_format("%^s seems to have remembered something.", _mon_name(mon));
+}
+static void _amnesia_probe(mon_ptr mon, mon_tim_ptr timer, doc_ptr doc)
+{
+    mon_race_ptr race = mon_race(mon);
+    if (race->spells) /* devolution? */
+    {
+        mon_spell_id_t id = mon_spell_unpack(timer->parm);
+        mon_spell_ptr spell = mon_spells_find(race->spells, id);
+        if (spell)
+        {
+            doc_insert(doc, "<color:B>Amnesia: ");
+            mon_spell_doc(spell, doc);
+            doc_printf(doc, " (<color:w>%d</color>)</color>\n", timer->count);
+        }
+    }
+}
+static mon_tim_info_ptr _amnesia(void)
+{
+    mon_tim_info_ptr info = mon_tim_info_alloc(MT_AMNESIA, "Amnesia");
+    info->on_f = _amnesia_on;
+    info->off_f = _amnesia_off;
+    info->probe_f = _amnesia_probe;
+    info->flags = TF_FAST_TICK | TF_DUPLICATE;
     return info;
 }

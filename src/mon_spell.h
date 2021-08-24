@@ -42,6 +42,8 @@ typedef struct {
 
 extern mon_spell_id_t mon_spell_id(int type, int effect);
 extern int            mon_spell_hash(mon_spell_id_t id);
+extern int            mon_spell_pack(mon_spell_id_t id);
+extern mon_spell_id_t mon_spell_unpack(int packed);
 
 /* Every spell can be parameterized (MSP_*) */
 enum {
@@ -142,6 +144,7 @@ extern void           mon_spells_save(mon_spells_ptr spells, savefile_ptr file);
 #define MSC_DIRECT       0x0020
 #define MSC_SPLASH       0x0040
 #define MSC_UNVIEW       0x0080
+#define MSC_DEST_MOUNT   0x0100
 typedef struct {
     mon_ptr       mon;             /* Src monster or null if MSC_SRC_PLAYER */
     char          name[MAX_NLEN];
@@ -163,6 +166,13 @@ extern bool           mon_spell_cast_mon(mon_ptr mon, mon_spell_ai ai);
 extern void           mon_spell_wizard(mon_ptr mon, mon_spell_ai ai, doc_ptr doc);
 extern mon_spell_ptr  mon_spell_find(mon_race_ptr race, mon_spell_id_t id);
 extern bool           mon_spell_cast_possessor(mon_race_ptr race);
+extern mon_spell_ptr  mon_spell_random(mon_ptr mon);
+
+/* The Blue-Mage needs special handling and access to some private functions */
+extern bool           mon_spell_cast_blue_mage(mon_spell_ptr spell, mon_race_ptr race);
+extern int            mon_spell_cost_plr(mon_spell_ptr spell, mon_race_ptr race);
+extern int            mon_spell_fail_plr(mon_spell_ptr spell, mon_race_ptr race);
+extern void           mon_spell_list_info(doc_ptr doc, mon_spell_ptr spell, mon_race_ptr race);
 
 /* Some classes need to know what spell is being cast, and who is doing it: */
 extern mon_spell_ptr  mon_spell_current(void);

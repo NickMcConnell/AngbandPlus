@@ -1156,13 +1156,22 @@ void map_info(point_t pos, byte *ap, char *cp, byte *tap, char *tcp)
     {
         if (gx.grid->info & CAVE_ROAD)
             gx.feat_mimic = &f_info[feat_floor];
+        #if 0
+        if (gx.grid->info & CAVE_RIVER)
+            gx.feat_mimic = &f_info[feat_pattern_start];
+        #endif
         if (gx.grid->info & CAVE_TOWN)
             gx.feat_mimic = &f_info[feat_town];
         if (gx.grid->info & CAVE_DUNGEON)
         {
             dun_type_ptr type = dun_types_lookup(gx.grid->special);
             if (!(type->plr_flags & (DFP_FAILED | DFP_SECRET)))
-                gx.feat_mimic = &f_info[feat_down_stair];
+            {
+                if (!(type->plr_flags & DFP_ENTERED))
+                    gx.feat_mimic = &f_info[feat_quest_entrance];
+                else
+                    gx.feat_mimic = &f_info[feat_down_stair];
+            }
         }
     }
 

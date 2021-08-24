@@ -305,7 +305,12 @@ static void msg_line_flush(void)
                 auto_more_state = AUTO_MORE_SKIP_ALL;
                 break;
             }
-            else if (cmd == '\n' || cmd == '\r' || cmd == 'n')
+            /* XXX clearing -more- on normal keys is a bad idea. For example,
+             * spellcasting uses 'm' and is often macro'd up. -more- prompts are
+             * rare enough these days that forcing SPACE or ENTER is OK.
+             * For example, try playing a Blue-Mage. Learning is so erratic
+             * that you often bypass the -more- with macro'd spellcasting. */
+            else if (cmd == '\n' || cmd == '\r'/* || cmd == 'n'*/)
             {
                 auto_more_state = AUTO_MORE_SKIP_BLOCK;
                 break;
@@ -317,7 +322,7 @@ static void msg_line_flush(void)
                 screen_load_aux();
                 continue;
             }
-            else if (cmd == ' ' || cmd == 'm' || quick_messages)
+            else if (cmd == ' '/* || cmd == 'm'*/ || quick_messages)
             {
                 break;
             }

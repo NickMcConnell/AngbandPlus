@@ -1,12 +1,10 @@
 <style:title>The Town and Wilderness</style>
 
-After you have created your character, you will begin your adventure in the town called Outpost. Symbols appearing on your screen will represent the walls, floor, objects, features, and creatures lurking about. In order to direct your character through his adventure, you will enter single character commands (see <link:command.txt>).
+The game takes place in one of several worlds, depending on the choice you made during the birth process. For example, if you are playing <color:keyword>The World of Middle Earth</color>, then the game begins in a world called <color:keyword>The Desolation of Smaug</color>. Every world has a goal: a monster you must slay in order to either advance to the next world, or to complete the game. Each world also has a surface wilderness populated with towns and dungeons to explore. You must travel in this world in order to learn the layout, though it might prove beneficial to ask a wizard for help in locating unknown dungeon entrances.
 
-<style:note>The Global Map: Press the <color:keypress><</color> to enter the global map for wilderness travel.</style>
-  
-Since this world is very large, it is convenient to go into global map mode by pressing the <color:keypress><</color> key, and then return to local map mode by <color:keypress>></color> key when you are at the destination.  When in the wilderness, stay in safe grids such as roads or plains; seas and lava fields are best avoided for a while.
+Fortunately, your adventures will begin in the (relative) safety of town where you may equip yourself for the adventures to come. Next to your starting town, there should be an initial dungeon entrance which you can located either with the map display (<color:keypress>M</color>) or with the object list (<color:keypress>]</color>). You will generally want to explore this dungeon initially until your character is powerful enough to survive the dangers of unknown wilderness exploration!
 
-Many towns and dungeons await you; good ones to explore early on include the orc caves and the Labyrinth.  To the northeast of the town of Morivant, near the center of the map, is the dread dungeon of Angband.  It is home to the <color:keyword>Serpent of Chaos</color>, whom you must kill in order to win the game.
+<style:note>There is no longer a global map (<color:keypress><</color>) for wilderness travel. You simply explore the wilderness as you would any other dungeon level.</style>
 
 <topic:MapSymbols><style:heading>Town and Wilderness Symbols</style>
 
@@ -26,123 +24,78 @@ Symbols on your map can be broken down into three categories: terrain features s
   <$:FF_GRASS>   Grass                     <$:FF_BOOKSTORE>   Entrance to Bookstore
   <$:FF_ENTRANCE>   Dungeon Entrance          <$:FF_MUSEUM>   Entrance to the Museum
   <$:FF_QUEST_ENTER>   Quest Entrance
-  <$:FF_QUEST_EXIT>   Quest Exit
 </style>
 Note that trees, water (deep and shallow) and lava (deep and shallow) may also appear in the dungeon.
 
 <topic:TownLevel><style:heading>The Town Level</style>
 <style:screenshot>
-LEVEL <color:G>     1</color> <color:b>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color><color:u>.</color>.<color:g>......</color>.....<color:G>#################</color>
-EXP <color:G>      11</color> <color:b>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color><color:U>####</color><color:b>~</color><color:u>.</color>.<color:g>....</color>...<color:G>#####################</color>
-AU  <color:G>     161</color> <color:U>###################################</color><color:b>~</color><color:u>.</color>......<color:G>#######################</color>
-<color:D>\</color><color:d>     </color><color:u>~</color><color:U>(</color><color:g>(</color><color:d>   </color> <color:U>###################################</color><color:b>~</color><color:u>.</color>.<color:g>...</color><color:G>#########################</color>
-STR : <color:G>    15</color> ................................<color:U>###</color><color:b>~</color><color:u>.</color>.<color:g>...</color><color:G>#########################</color>
-INT : <color:G>    13</color> <color:U>######</color>................<color:U>######</color>....<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>...</color><color:G>#########################</color>
-WIS : <color:G> 18/10</color> <color:U>######</color>................<color:U>######</color>....<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>....</color><color:G>########################</color>
-DEX : <color:G>    16</color> <color:U>######</color>................<color:U>######</color>....<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>...</color><color:G>#########################</color>
-CON : <color:G>    18</color> <color:U>######</color>..........................<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>...</color><color:G>#########################</color>
-CHR : <color:G>    12</color> ................................<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>...</color><color:G>#########################</color>
-AC     <color:G>    6</color> ................................<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>...</color><color:G>#########</color><color:o>#####</color><color:G>###########</color>
-HP <color:G>  42</color>/<color:G>  42</color> ..<color:U>#########</color>.....<color:U>#########</color>.......<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>...</color><color:G>########</color><color:o>#######</color><color:G>##########</color>
-SP <color:y>  11</color>/<color:G>  12</color> ..<color:U>#########</color>.....<color:U>#########</color>.......<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>....</color><color:G>######</color><color:o>########</color><color:G>##########</color>
-             ..<color:U>#########</color>.....<color:U>####1####</color>......<color:U>####</color><color:b>~</color><color:u>.</color>.<color:g>.....</color><color:G>######</color><color:o>##</color><color:v>></color><color:o>###</color><color:G>###########</color>
-             ..<color:U>####</color><color:s>2</color><color:U>####</color>....................<color:U>####</color><color:b>~</color><color:u>.</color>.<color:g>......</color><color:G>######</color><color:u>.</color>.<color:u>.</color><color:G>#####</color>........
-             ..................................@........................<color:G>#######</color>
-             ...............................<color:U>####</color><color:b>~</color><color:u>.</color>.<color:g>......</color><color:G>######################</color>
-             ...............................<color:U>####</color><color:b>~</color><color:u>.</color>.<color:g>.....</color><color:G>#######################</color>
-             ................................<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>...</color><color:G>#########################</color>
-             ...............<color:U>#####+######</color>.....<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>..</color><color:G>##########################</color>
-             ...<color:U>####</color><color:r>6</color><color:U>####</color>...<color:U>############</color>.....<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>..</color><color:G>##########################</color>
-             ...<color:U>#########</color>...<color:U>############</color>.....<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>..</color><color:G>##########################</color>
-             ...<color:U>#########</color>...<color:U>############</color>.....<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>..</color><color:G>##########################</color>
-             ...<color:U>#########</color>....................<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>..</color><color:G>##########################</color>
-             ...<color:U>#########</color>....................<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>..</color><color:G>##########################</color>
-                                                                        Outpost
+<color:U>############################################</color><color:b>~</color><color:u>.</color>.<color:g>.........</color><color:G>:</color><color:g>.....</color><color:G>:</color><color:g>....</color> LEVEL <color:G>     1</color>
+.........................................<color:U>###</color><color:b>~</color><color:u>.</color>.<color:g>....</color><color:G>:</color><color:g>.</color><color:G>:</color><color:g>.</color><color:G>:</color><color:g>:...</color><color:G>:</color><color:g>......</color> EXP <color:G>      10</color>
+...............................<color:U>######</color>....<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>......</color><color:G>:</color><color:g>..</color><color:G>:</color><color:g>........</color><color:G>:</color><color:g>.</color> AU  <color:G>     461</color>
+...............................<color:B>+</color><color:U>#####</color>....<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>...........</color><color:G>:</color><color:g>.....</color><color:G>:</color><color:g>.:</color> <color:W>|</color><color:d> </color><color:U>}</color><color:d>     </color><color:s>[</color><color:d>   </color>
+...............................<color:U>######</color>....<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>.</color><color:G>:</color><color:g>...............</color><color:G>:</color><color:g>.:</color> STR : <color:G> 18/50</color>
+.........................................<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>.............</color><color:G>:</color><color:g>...</color><color:G>:</color><color:g>..</color> INT : <color:G>     4</color>
+.........................................<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>..............</color><color:G>:</color><color:g>..:</color><color:G>::</color> WIS : <color:G>     4</color>
+<color:U>######</color>...................................<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>...................</color><color:G>:</color> DEX : <color:G> 18/10</color>
+<color:U>######</color>.....<color:U>#########</color>.....<color:U>#########</color>.......<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>....................</color> CON : <color:G>    18</color>
+<color:U>######</color>.....<color:U>#########</color>.....<color:U>#########</color>.......<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>....................</color> CHR : <color:G>    11</color>
+<color:U>#</color>3<color:U>####</color>.....<color:U>#########</color>.....<color:U>####1####</color>......<color:U>####</color><color:b>~</color><color:u>.</color>.<color:g>....................</color> AC     <color:G>   16</color>
+...........<color:U>####</color><color:s>2</color><color:U>####</color>....................<color:U>####</color><color:b>~</color><color:u>.</color>.<color:g>...........</color><color:G>:</color><color:g>........</color> HP <color:y>  54</color>/<color:G>  56</color>
+....................................@..........<color:g>.</color><color:G>:::</color><color:g>................</color>             
+........................................<color:U>####</color><color:b>~</color><color:u>.</color>.<color:g>..</color><color:u>..</color><color:g>.............</color><color:u>.</color><color:g>.</color><color:u>.</color>             
+........................................<color:U>####</color><color:b>~</color><color:u>.</color>......<color:u>..</color><color:g>.......</color><color:u>...</color>.<color:u>.</color>. @ <color:y> 96%</color>      
+.........................................<color:U>##</color><color:b>~~</color><color:u>.</color>.......<color:u>..</color><color:g>...</color><color:u>..</color>....... <color:U>,</color>  99%      
+<color:U>#</color><color:b>5</color><color:U>####</color>..................<color:U>#####+######</color>.....<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:y>....</color>....<color:u>...</color>.......<color:y>..</color>             
+<color:U>######</color>......<color:U>####</color><color:r>6</color><color:U>####</color>...<color:U>############</color>.....<color:U>##</color><color:b>~~</color><color:u>.</color>.....<color:y>..</color>........<color:y>....</color>..             
+<color:U>######</color>......<color:U>#########</color>...<color:U>############</color>.....<color:U>##</color><color:b>~~</color><color:u>.</color>.......<color:y>..</color>...<color:y>...</color>......             
+<color:U>######</color>......<color:U>#########</color>...<color:U>############</color>.....<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:u>.</color><color:g>.</color><color:u>.</color>.....<color:y>...</color>........<color:u>.</color>             
+<color:U>######</color>......<color:U>#########</color>....................<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>....</color><color:u>.</color>.........<color:u>.</color><color:g>.</color><color:u>.</color><color:g>...</color>             
+............<color:U>#########</color>....................<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>.....</color><color:u>..</color>.....<color:u>.</color><color:g>.......</color>             
+.........................................<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>.......</color><color:u>..</color><color:g>.</color><color:u>..</color><color:g>.....</color><color:G>:</color><color:g>..</color>             
+....<color:U>###</color><color:v>0</color><color:U>###</color>...................<color:U>####</color>.......<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>...................</color><color:G>:</color>             
+....<color:U>#######</color>.....<color:U>#######</color>.......<color:U>###</color><color:y>8</color>.......<color:U>##</color><color:b>~~</color><color:u>.</color>.<color:g>...................</color><color:G>:</color>             
+Outpost                                                                         
 </style>
 The town level is where you will begin your adventure. The first time you are in town it will be daytime (unless you are playing an undead race who start at night), but note that the sun rises and falls as time passes and if you enter the town at night, the town will be dark. Fortunately, the various shops and the other special buildings are open on a 24-hour basis.
 
-The world includes multiple towns separated by a wilderness and many dungeons as well. Be sure to check the various buildings in each town to see what services are available. Some buildings will offer you quests to complete, and reward you (lavishly?) upon success (see <link:town.txt#FixedQuests> below).
+The world includes multiple towns separated by a wilderness and many dungeons as well. Be sure to check the various buildings in each town to see what services are available.
 
-While most people welcome this large world, it is not for everyone and consequently, there exists an option to disable the wilderness. In this case, you will begin life in a special town and there will only be a single dungeon entrance to the <color:keyword>Pits of Angband</color>.  You can set this option during character generation (see <link:option.txt#no_wilderness>).
+<topic:Wilderness><style:heading>The Wilderness Map</style>
 
-Your choice of town is fixed for the duration of your character's life and will be the new default for future characters created with that savefile. This of course may be changed by pressing <color:keypress>=</color> during the creation of your next character.
-
-<topic:Wilderness><style:heading>The Wilderness Option</style>
+The wilderness requires actual exploration to learn the layout. The following is a sample map from <color:keyword>The World of Amber</color> which I have completely explored:
 <style:screenshot>
-You are in Outpost [q,p,o,+,-,?,<dir>] L0
-LEVEL <color:G>     1</color> <color:U>#</color><color:B>~~~~~~~~~~~~~~~~~~~~</color><color:g>.</color>.<color:g>...</color><color:G>###</color><color:u>..</color>..<color:u>.........</color><color:g>...</color>..<color:g>............</color><color:B>~~</color><color:G>###</color><color:o>##</color>
-EXP <color:G>      11</color> <color:U>#</color><color:B>~~~~~~~~~~~~~~~~~~~~</color><color:g>.</color>.<color:g>..</color><color:G>#####</color><color:u>..</color>....<color:u>......</color><color:g>..</color>..<color:g>...</color><color:o>###</color><color:g>.......</color><color:B>~</color><color:G>##</color><color:o>####</color>
-AU  <color:G>     161</color> <color:U>#</color><color:B>~~~~~~~~~~~~~~~~~~~~</color><color:g>.</color>.<color:g>...</color><color:G>#####</color><color:u>....</color>..<color:u>.....</color><color:g>.</color>..<color:g>.....</color><color:o>###</color><color:g>......</color><color:B>~~</color><color:G>#</color><color:o>####</color>
-<color:D>\</color><color:d>     </color><color:u>~</color><color:U>(</color><color:g>(</color><color:d>   </color> <color:U>#</color><color:B>~~~~~~~~~~~~~~~~~~~~</color><color:g>.</color>.<color:g>....</color><color:G>##</color><color:o>##</color><color:u>.....</color>...<color:u>...</color>..<color:g>.....</color><color:o>#</color><color:g>.</color><color:o>#</color><color:g>........</color><color:B>~~~</color><color:v>></color><color:o>##</color>
-STR : <color:G>    15</color> <color:U>#</color><color:B>~~~~~~~~~~~~~~~~~~~~</color><color:g>.</color>.<color:g>..</color><color:o>#####</color><color:v>></color><color:g>..</color><color:u>.....</color>...<color:g>.</color>.<color:g>....</color><color:v>></color><color:g>..............</color><color:o>#</color><color:B>~~</color><color:o>#</color>
-INT : <color:G>    13</color> <color:U>#</color><color:B>~~~</color><color:g>...</color><color:B>~~~~~~~~~~</color><color:g>..</color>....<color:o>####</color><color:g>.............</color>...<color:g>............</color><color:B>....</color><color:g>...</color><color:o>####</color>
-WIS : <color:G> 18/10</color> <color:U>#</color><color:B>~~</color><color:g>.....</color>......<color:g>.</color><color:B>~~</color><color:g>.</color>..<color:B>~</color><color:g>.</color>..<color:g>...</color>.......<color:g>........</color>.....<color:g>......</color><color:B>....~~</color><color:g>....</color><color:o>###</color>
-DEX : <color:G>    16</color> <color:U>#</color><color:B>~</color><color:g>...</color>@...<color:g>....</color>......<color:B>~~</color><color:g>..</color>.....<color:g>.....</color>....<color:g>.........</color>..<color:g>....</color><color:B>...~~~~</color><color:g>...</color><color:o>####</color>
-CON : <color:G>    18</color> <color:U>#</color><color:B>~</color><color:g>.....</color>.<color:g>..........</color><color:B>~~~~</color><color:g>.......</color><color:B>~~~</color><color:g>....</color>......<color:g>.....</color>.<color:g>....</color><color:B>..~~~~~</color><color:g>.....</color><color:o>##</color>
-CHR : <color:G>    12</color> <color:U>#</color><color:B>~</color><color:g>...</color><color:v>></color><color:B>.</color>.<color:g>....</color><color:o>##</color><color:g>....</color><color:B>~~~~~~~~~~~~~~~</color><color:g>........</color>......<color:W>*</color><color:g>...</color><color:B>..~~~~~</color><color:g>.</color>...<color:g>....</color>
-AC     <color:G>    6</color> <color:U>#</color><color:B>~</color><color:g>...</color><color:B>..</color>..<color:g>..</color><color:o>####</color><color:g>.</color><color:G>#</color><color:g>..</color><color:B>~~~~~~</color><color:g>.....</color><color:B>~~~~~~~~~~~</color>.<color:B>~~~</color><color:g>..</color>...<color:g>.</color><color:B>~~..</color>.....<color:G>#</color>...<color:g>..</color>
-HP <color:G>  42</color>/<color:G>  42</color> <color:U>#</color><color:B>~</color><color:g>...</color><color:B>..</color><color:g>.</color>.<color:g>.</color><color:o>##</color><color:r>~~</color><color:o>##</color><color:g>....</color><color:B>~~~~</color><color:g>.....</color>..<color:g>.</color><color:B>~~~~~~~~</color>..<color:B>~~~~~</color><color:g>..</color>.......<color:G>#######</color>...
-SP <color:y>  10</color>/<color:G>  12</color> <color:U>#</color><color:B>~~</color><color:g>..</color><color:B>..</color><color:g>.</color>..<color:g>.</color><color:U>~</color><color:r>~</color><color:v>></color><color:o>##</color><color:g>....</color><color:B>~~~</color><color:g>...</color><color:G>#</color><color:g>...</color>..<color:g>.</color><color:B>~~~~</color><color:g>...</color>.<color:g>....</color><color:B>~~~~~~</color><color:G>############</color><color:v>></color><color:G>#</color>.
-             <color:U>#</color><color:B>~~~</color><color:g>.</color><color:B>.</color><color:g>...</color>.<color:g>.</color><color:U>~~</color><color:r>~</color><color:o>##</color><color:g>.</color><color:G>#</color><color:g>..</color><color:B>~~</color><color:g>..</color><color:G>###</color><color:g>....</color>...<color:B>~~</color><color:g>..</color>...<color:g>......</color><color:B>~~~~~</color><color:G>##############</color>
-             <color:U>#</color><color:B>~~~~~</color><color:g>...</color>.<color:g>...</color><color:o>##</color><color:g>.</color><color:G>#</color><color:g>.</color><color:B>~~~</color><color:g>..</color><color:G>###</color><color:g>.......</color>......<color:g>.</color><color:G>####</color><color:g>....</color><color:B>~~</color><color:G>################</color>
-             <color:U>#</color><color:B>~~~~</color><color:G>###</color>..<color:g>..</color><color:o>##</color><color:g>.</color><color:G>#</color><color:g>..</color><color:B>~~~</color><color:g>.....</color><color:u>...</color><color:g>......</color>.<color:G>#########</color><color:g>...</color><color:B>~</color><color:G>#################</color>
-             <color:U>#</color><color:B>~~~</color><color:G>###</color>..<color:G>#</color><color:g>......</color><color:G>#</color><color:g>..</color><color:B>~~</color><color:g>....</color><color:u>.....</color><color:g>.</color><color:v>></color><color:g>...</color>.<color:G>######</color><color:o>#</color><color:G>##</color><color:g>..</color><color:B>~~</color><color:G>#################</color>
-             <color:U>#</color><color:B>~~</color><color:G>####</color>.<color:G>###</color><color:g>..</color><color:o>#</color><color:g>.....</color><color:B>~~</color><color:g>.....</color><color:u>.........</color>.<color:G>#####</color><color:o>#</color><color:v>></color><color:o>#</color><color:G>###</color><color:g>.</color><color:B>~</color><color:G>#################</color>
-             <color:U>#</color><color:B>~</color><color:G>#####</color><color:v>></color><color:G>#</color><color:B>~~</color><color:u>..</color><color:g>.</color><color:o>#</color><color:g>.....</color><color:B>~</color><color:g>...</color><color:u>..........</color>..<color:g>..</color><color:G>####</color><color:o>#</color><color:G>####</color><color:g>.</color><color:B>~~</color><color:G>###############</color><color:B>~</color>
-             <color:U>#</color><color:B>~~</color><color:G>####</color><color:B>~~~~~</color><color:u>..</color><color:g>......</color><color:B>~~~</color><color:u>.......</color><color:B>~~~~~~</color><color:g>...</color><color:G>#######</color><color:g>..</color><color:B>~~~</color><color:G>###############</color>
-             <color:U>#</color><color:B>~~</color><color:G>###</color><color:B>~~~</color><color:r>~~</color><color:B>~</color><color:u>...</color><color:g>...</color><color:B>~~~~~~</color><color:u>....</color><color:B>~~~~~~~~~~~~</color><color:g>.........</color><color:B>~~~</color><color:G>##############</color>
-             <color:U>#</color><color:B>~~</color><color:G>###</color><color:B>~~~</color><color:r>~~</color><color:B>~</color><color:u>.....</color><color:g>.</color><color:B>~~~~~~~~~~~~~~~~</color><color:b>~~</color><color:B>~~~~~~~~~</color><color:g>..</color><color:B>~~~~~~~~</color><color:G>#########</color><color:B>~~</color>
-             <color:U>#</color><color:B>~</color><color:G>######</color><color:B>~~~</color><color:u>.....</color><color:B>~~~~~~~~~~~~~~~</color><color:b>~~~~~~~~</color><color:B>~~~~~~~~~~~~~~~~~~~~~~~~~~~</color>
-             <color:U>#</color><color:B>~~~~~~~~~~~~~~~~~~~~~~~~~</color><color:b>~~~~~~~~~~~~~~~</color><color:B>~~~~~~~~</color><color:b>~~~~</color><color:B>~~~~~~~~~~~~</color><color:b>~</color>
-             <color:U>##################################################################</color>
-                                                                        Surface
+<color:R>World Map</color> [<color:o>dir</color>, <color:o>M</color>, <color:o>q</color> to quit]                                                   
+ <color:o>#</color><color:G>#########</color><color:o>############</color><color:G>#########</color><color:g>...</color><color:B>~~~~~~~~~</color><color:g>......</color><color:o>#</color>                             
+ <color:o>#</color><color:G>#########</color><color:o>#############</color><color:G>#</color><color:o>#</color><color:G>#######</color><color:g>..</color><color:B>~~~~~~~~~</color><color:g>......</color><color:o>#</color>                             
+ <color:o>#</color><color:G>##########</color><color:o>#</color><color:y>></color><color:o>###############</color><color:G>##</color><color:o>#</color><color:G>###</color><color:g>...</color><color:B>~~</color><color:g>.</color><color:B>~~~~~~~~~</color><color:o>#</color>                             
+ <color:o>#</color><color:g>...</color><color:G>########</color><color:o>######</color><color:y>></color><color:o>############</color><color:G>######</color><color:g>.....</color><color:B>~~~</color><color:b>~</color><color:B>~~~</color><color:o>#</color>                             
+ <color:o>#</color><color:g>...</color><color:G>##########</color><color:o>#</color><color:G>#</color><color:o>###############</color><color:G>#########</color><color:g>..</color><color:B>~~~~~~~</color><color:o>#</color>                             
+ <color:o>#</color><color:g>....</color><color:G>#</color><color:g>.</color><color:G>#######</color><color:o>#################</color><color:G>#########</color><color:g>....</color><color:B>~~~~</color><color:b>~</color><color:o>#</color>                             
+ <color:o>#</color><color:B>~~~~</color><color:g>..</color><color:G>#########</color><color:o>###########</color><color:W>*</color><color:o>######</color><color:G>####</color><color:y>></color><color:G>#</color><color:g>...</color><color:B>~~</color><color:b>~~~~</color><color:o>#</color>                             
+ <color:o>#</color><color:b>~</color><color:B>~</color><color:b>~</color><color:B>~~~</color><color:g>.</color><color:G>########</color><color:o>##################</color><color:G>######</color><color:g>...</color><color:B>~~</color><color:b>~~~~</color><color:o>#</color>                             
+ <color:o>#</color><color:b>~~</color><color:B>~~~~</color><color:g>.</color><color:G>######</color><color:o>#####################</color><color:G>#####</color><color:g>..</color><color:B>~~</color><color:b>~~~~~</color><color:o>#</color>                             
+ <color:o>#</color><color:b>~~~</color><color:B>~~~</color><color:g>...</color><color:G>######</color><color:o>################</color><color:y>></color><color:o>#</color><color:G>######</color><color:g>..</color><color:B>~~~</color><color:b>~~~~</color><color:o>#</color>                             
+ <color:o>#</color><color:b>~~~~</color><color:B>~</color><color:b>~</color><color:B>~</color><color:g>...</color><color:G>########</color><color:o>############</color><color:G>#########</color><color:g>...</color><color:B>~~~~~</color><color:b>~</color><color:o>#</color>                             
+ <color:o>#</color><color:b>~~~~~~~</color><color:B>~</color><color:b>~</color><color:B>~</color><color:g>.</color><color:B>~</color><color:g>.</color><color:G>#</color><color:g>.</color><color:G>######</color><color:o>#########</color><color:G>#####</color><color:W>*</color>......<color:g>...</color><color:B>~~~</color><color:o>#</color>                             
+ <color:o>#</color><color:b>~~~~~~~~~~</color><color:B>~</color><color:y>></color><color:B>~</color><color:g>...</color><color:G>######</color><color:o>#####</color><color:G>#</color><color:o>#</color><color:G>###########</color><color:g>.</color>.<color:g>....</color><color:B>~~</color><color:o>#</color>                             
+ <color:o>#</color><color:b>~~~~~~~~~~~~</color><color:B>~~~</color><color:g>...</color><color:G>####</color><color:o>#####</color><color:G>##############</color>.<color:g>..</color><color:B>~</color><color:g>...</color><color:o>#</color>                             
+ <color:o>#</color><color:B>~~~</color><color:y>></color><color:b>~~~~~~~~~</color><color:B>~~</color><color:g>.</color><color:G>########################</color><color:g>.</color>..<color:y>></color><color:g>....</color><color:o>#</color>                             
+ <color:o>#</color><color:B>~~~</color><color:b>~~~~~~~~~~</color><color:B>~~</color><color:g>..</color><color:G>#####################</color><color:g>....</color><color:W>*</color>.....<color:o>#</color>                             
+ <color:o>#</color><color:g>.</color><color:y>></color><color:g>.</color><color:B>~~~</color><color:b>~~~~~~~</color><color:B>~~</color><color:g>...</color><color:G>#################</color><color:g>............</color><color:W>*</color><color:o>#</color>                             
+ <color:o>#</color><color:g>...</color><color:B>~~~</color><color:b>~~~~~~~~~</color><color:g>...</color><color:G>###############</color><color:g>...</color><color:B>~</color><color:g>.</color><color:B>~</color><color:g>.......</color><color:G>##</color><color:o>#</color>                             
+ <color:o>##################################################</color>                             
 </style>
-The wilderness consists of a 97x62 tile world. Each tile is the size of a standard dungeon level and contains themed wilderness terrain (mountainous areas, oceans, plains, etc). There are several towns located in various parts of the world and each town is situated in its own wilderness square. In addition, there are numerous (too many?) dungeon entrances in the wilderness. Again, each is located on its own wilderness square.
+This world is randomly generated for each game you play, so the actual map layout will differ from game to game (as will the available dungeons). In <color:keyword>The World of Middle Earth</color> you get a fixed sequence of world maps that do not change from game to game.
+
+The wilderness consists of a moderately sized tile world. Each tile is the size of a standard dungeon level and contains themed wilderness terrain (mountainous areas, oceans, plains, etc). There are several towns located in various parts of the world and each town is situated in its own wilderness square. In addition, there are numerous dungeon entrances in the wilderness. Again, each is located on its own wilderness square.
 
 The wilderness is not uninhabited and can be dangerous for the unwary. As a general rule, the further your character gets from civilization the more cautious he or she should be. When traveling between towns, try to stay on the roads. These are by no means safe, but they are safer than wandering off the beaten path. In addition, traveling is safer during the daytime.
 
-Since this world is very large, it is convenient to go into global map mode by pressing the <color:keypress><</color> key, and then return to local map mode by pressing the <color:keypress>></color> key when you are at the destination. In the global map, however, you might suddenly get ambushed by monsters. In such a situation, you cannot simply run away using the <color:keypress><</color> key but you might try escaping with a scroll of teleport.
-
 Each of the towns contains the standard nine shops where you can purchase your supplies for your trips into the dungeon and sell the items you have collected. There are also special buildings offering services for a fee. The services available and the prices charged may vary from town to town so it can be worth hunting around for the best prices.
-
-<topic:NoWilderness><style:heading>The No Wilderness Option</style>
-<style:screenshot>
-LEVEL <color:G>     1</color> <color:U>#############################</color>.<color:U>################################</color>....
-EXP <color:G>      22</color> <color:U>#############################</color>.<color:U>#################################</color>...
-AU  <color:G>     341</color> <color:U>##</color>.......................................................<color:U>#######</color>..
-<color:W>|</color><color:d>           </color> <color:U>#</color><color:u>+</color>.......................................................<color:B>+</color><color:U>######</color>..
-STR : <color:G> 18/20</color> <color:U>##</color>.......................................................<color:U>#######</color>..
-INT : <color:G>    18</color> <color:U>#</color>.........<color:U>###</color><color:v>0</color><color:U>###</color>..<color:U>####</color><color:o>+</color><color:U>####</color>...<color:U>####+####</color>..<color:U>###</color><color:G>+</color><color:U>###</color>.........<color:U>######</color>..
-WIS : <color:G>     9</color> ...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>...<color:U>#</color><color:B>+</color><color:U>###</color>..
-DEX : <color:G> 18/50</color> ...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>......<color:U>##</color>..
-CON : <color:G>    11</color> ...<color:U>##+##</color>..<color:U>###</color><color:o>9</color><color:U>###</color>..<color:U>####</color>3<color:U>####</color>...<color:U>####</color><color:r>6</color><color:U>####</color>..<color:U>###</color><color:g>4</color><color:U>###</color>..<color:U>##+##</color>......<color:U>##</color>..
-CHR : <color:G>    14</color> ..............................................................<color:U>##</color>..
-AC     <color:G>    3</color> ..............................................................<color:U>##</color>..
-HP <color:G>  43</color>/<color:G>  43</color> ..............................................................<color:U>##</color>..
-             .............................<color:v>></color>...@................................
-             ..............................................................<color:U>##</color>..
-             ..............................................................<color:U>##</color>..
-             ..............................................................<color:U>##</color>..
-             ...<color:U>##1##</color>..<color:U>###</color><color:D>7</color><color:U>###</color>..<color:U>####</color><color:s>2</color><color:U>####</color>...<color:U>####</color><color:b>5</color><color:U>####</color>..<color:U>###</color><color:y>8</color><color:U>###</color>..<color:U>##+##</color>......<color:U>##</color>..
-             ...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>......<color:U>##</color>..
-             ...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>...<color:U>#</color><color:R>+</color><color:U>###</color>..
-             <color:U>#</color>.........<color:U>###</color><color:v>+</color><color:U>###</color>..<color:U>####</color>+<color:U>####</color>...<color:U>####</color><color:B>+</color><color:U>####</color>..<color:U>#######</color>.........<color:U>######</color>..
-             <color:U>##</color>.......................................................<color:U>#######</color>..
-             <color:U>##</color>.......................................................<color:v>+</color><color:U>######</color>..
-             <color:U>##</color>.......................................................<color:U>#######</color>..
-             <color:U>#############################</color>.<color:U>#################################</color>...
-             <color:U>#############################</color>.<color:U>################################</color>....
-                                                                           Town
-</style>
-The <color:keyword>No Wilderness</color> option creates a 1x1 wilderness square containing a single town. This town contains the nine standard shops, the special buildings and access to a limited wilderness. Some fixed quests are also available. This option is intended to be used by players who want to take advantage of the special buildings and fixed quests but don't want the large wilderness and by players who need a smaller wilderness for computer efficiency reasons.
 
 <topic:Townspeople><style:heading>Townspeople</style>
 
-The town contains many different kinds of people. There are the street urchins, young children who will mob an adventurer for money, and seem to come out of the woodwork when excited. Blubbering idiots are a constant annoyance, but not harmful. Public drunks wander about the town singing, and are of no threat to anyone. Sneaky rogues who work for the black market are always greedily eyeing your backpack for potential new 'purchases'... And finally, what town would be complete without a swarm of half drunk warriors, who take offense or become annoyed just for the fun of it.
-
-Most of the townspeople should be avoided by the largest possible distance when you wander from store to store. Fights will break out, though, so be prepared. Since your character grew up in this world of intrigue, no experience is awarded for killing the town inhabitants, though you may acquire treasure.
-
-One word of warning however: occasionally a creature who normally would inhabit only the wilderness and dungeons may wander into the town. These should generally be handled with much more caution than the ordinary townspeople.
+The town contains many different kinds of people. There are the street urchins, young children who will mob an adventurer for money, and seem to come out of the woodwork when excited. Blubbering idiots are a constant annoyance, but not harmful. Public drunks wander about the town singing, and are of no threat to anyone. Sneaky rogues who work for the black market are always greedily eyeing your backpack for potential new 'purchases'... And what town would be complete without a swarm of half drunk warriors, who take offense or become annoyed just for the fun of it? Finally, towns are no longer completely safe. Monsters can wander in from the wild, of course (e.g. an Orc raiding party may rampage through town). In addition, you will see many types of men and elves in towns, and they are not always friendly. A difficult town may be populated with sorcerers and arch-priests!
 
 <topic:Shopping><style:heading>Shopping in Town</style>
 
@@ -198,73 +151,13 @@ This is a place where you can donate any item to display. Use it when you find i
 
 <topic:Buildings><style:heading>Special Buildings</style>
 
-In addition to the shops, the town will have special buildings with custom services. The buildings vary from town to town significantly both in terms of their name and the services they offer. Each town contains an Inn where the player may obtain food (assuming food does them any good) and rest for the night. Each town also contains a building which houses the local ruler.
-
-In addition to the inn and the ruler's house or castle, other buildings might include libraries where you can research objects and monsters, guilds for the various classes and magic realms, gambling dens and casinos, temples, healers and more. Note that some buildings such as guilds may offer preferential prices to members of their guild or offer services which are only available to their guild. Some building owners may offer preferential treatment to their own race or to a group of races.
-
-Here is a sample from a local Casino which always seems glad to take my gold:
-<style:screenshot>
- Materim (Human)                              Casino
-
-  <color:g>Dice Slots</color>
-
-  /--------------------------\
-   <color:y>   ####.</color> <color:s>   /\   </color> <color:y>   ####.</color>
-   <color:y>  #    #</color> <color:s>   ##   </color> <color:y>  #    #</color>
-   <color:y> #     #</color> <color:s>   ##   </color> <color:y> #     #</color>
-   <color:y>#      #</color> <color:s>   ##   </color> <color:y>#      #</color>
-   <color:y>#      #</color> <color:s>   ##   </color> <color:y>#      #</color>
-   <color:y>#     # </color> <color:s>   ##   </color> <color:y>#     # </color>
-   <color:y>#    #  </color> <color:u> ###### </color> <color:y>#    #  </color>
-   <color:y>.####   </color> <color:u>   ##   </color> <color:y>.####   </color>
-    Lemon    Sword    Lemon          You Lost
-  \--------------------------/
-                                     Again(Y/N)?
-
-  Gold before game:    122651
-  Current Wager:            1
-  Current Gold:        122650
-</style>
-
-<topic:FixedQuests><style:heading>Fixed Quests</style>
-
-At least one building in each town will offer the player the opportunity to undertake a quest. Such quests typically fall under the following categories: kill a certain number of a certain type of monster (for example kill 10 orcs), kill all the monsters in the quest level, retrieve a certain object, and escape from the quest level. For example:
-<style:screenshot>
- Denegor (Human)                              Castle
-
-Quest Information (Danger level: 15)
-
-The Sewer
-<color:y>The sewer underneath the city has been acting strange</color>
-<color:y>lately. There are rumors of monsters living beneath our</color>
-<color:y>fair city. I need you to exterminate the vermin and</color>
-<color:y>bring the sewer back to its normal, if dirty, self.</color>
-
-
-
-
-
-
-
- q) Request quest
-
-
-
- ESC) Exit building                                  Gold Remaining:  123k
-</style>
-When you request a quest, you will be given a brief description of the quest and your objective and also an indication of its danger level (a number which represents the dungeon level equivalence of the quest). Note that the danger indication can be somewhat misleading since the fixed nature of the quests allows you to apply tactics learned through several attempts to the same situation often making successive attempts easier. It also allows the quest designers to set up some particularly nasty ambushes!
-
-Once you have accepted a quest an quest entrance will appear and you may enter the quest level. Note that you do not have to enter the quest at that time and can delay entering until much later in the game should you wish. Many of the quests only allow you to attempt them once per game and you should therefore not enter them until you are confident in your ability to succeed.
-
-Whether you complete a quest or fail it, be sure to return to the person who assigned the quest and report. If you were successful you may receive a reward which will be waiting for you outside the building when you leave. However the rewards may take other forms. If you failed, you will receive a damning review of your performance. Note that you may not request another quest from that person until you have collected your reward or reported your failure. And if you do fail, the quest granter might not be willing to trust you in the future, so you will need to look elsewhere for fame and glory (and loot).
-
-<style:note>Note: You can not use Genocide, Mass Genocide or Destruction inside a quest.</style>
+In addition to the shops, the town will have special buildings with custom services. The buildings vary from town to town significantly both in terms of their name and the services they offer. Each town contains an Inn where the player may obtain food (assuming food does them any good) and rest for the night. Other buildings might include libraries where you can research objects and monsters, guilds for the various classes and magic realms, temples, healers and more. Note that some buildings such as guilds may offer preferential prices to members of their guild or offer services which are only available to their guild. Some building owners may offer preferential treatment to their own race or to a group of races.
 
 <color:D>
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
 Updated    : Hengband 1.0.11
-Updated    : PosChengband 4.0.0
+Updated    : PosChengband 7.2.0
 </color>
 

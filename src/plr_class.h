@@ -49,6 +49,7 @@ enum {
     CLASS_YELLOW_MAGE,
     CLASS_GRAY_MAGE,
     CLASS_SKILLMASTER,
+    CLASS_BLUE_MAGE,
     MAX_CLASS,  /* XXX try to stop using this! */
 };
 struct class_s; /* XXX define this here and rename */

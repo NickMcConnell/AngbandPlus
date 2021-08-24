@@ -81,6 +81,7 @@ enum { /* levels for T_CUT */
 #define TF_AUGMENT   0x0008  /* count accumulates on each plr_tim_add() (e.g. E_POISON) */
 #define TF_IGNORE    0x0010  /* count ignores new additions until it expires (e.g. E_PARALYZED) */
 #define TF_NO_MSG    0x0020  /* omit messages ... for timer_on and timer_off plr hooks XXX You'll need to implement this in plr_tim.c as needed! cf _paralyzed */
+#define TF_DUPLICATE 0x0040  /* allow duplicate timers with same id (MT_AMNESIA) XXX not implemented for plr_tim_add yet */
 #define TF_BIFF (TF_NO_DISPEL | TF_AUGMENT)
 
 /* the timer */

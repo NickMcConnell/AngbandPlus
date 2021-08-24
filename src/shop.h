@@ -90,6 +90,7 @@ enum
 {
     TOWN_NONE = 0,
     TOWN_RANDOM,
+    /* Middle Earth */
     TOWN_RIVENDELL,
     TOWN_BEORN,
     TOWN_LAKETOWN,
@@ -97,6 +98,12 @@ enum
     TOWN_MINAS_TIRITH,
     TOWN_OSGILIATH,
     TOWN_MORANNON,
+    /* Amber */
+    TOWN_OUTPOST,
+    TOWN_ANGWIL,
+    TOWN_TELMORA,
+    TOWN_MORIVANT,
+    TOWN_ZUL,
 };
 
 extern void     towns_reset_world(void);

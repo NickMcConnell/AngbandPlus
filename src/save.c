@@ -261,6 +261,7 @@ static void wr_quick_start(savefile_ptr file)
 {
     int i;
 
+    savefile_write_s16b(file, previous_char.initial_world_id);
     savefile_write_byte(file, previous_char.game_mode);
     savefile_write_byte(file, previous_char.psex);
     savefile_write_s16b(file, previous_char.prace);

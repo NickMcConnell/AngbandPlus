@@ -548,6 +548,27 @@ static slay_t _slay(int mul)
     slay.mul = mul;
     return slay;
 }
+void plr_throw_display(plr_throw_ptr context)
+{
+    doc_ptr doc = doc_alloc(80);
+    plr_throw_doc(context, doc);
+    if (doc_line_count(doc))
+    {
+        /* screen_load|save do nothing if already saved. I'll fix this someday, but
+         * for now we need ugly hacks to prevent garbage when browsing spells.
+         * these hacks only work if screen_depth is 1 and if clients know to redraw
+         * their menus inside their menu loops */
+        bool screen_hack = screen_is_saved();
+        if (screen_hack) screen_load(); /* screen_depth back to 0 */
+    
+        screen_save(); /* <=== bug: this would not save our current state without the screen_hack */
+        doc_display(doc, "Throw", 0);
+        screen_load(); /* <=== bug: this would not erase our drawing without the screen_hack */
+
+        if (screen_hack) screen_save(); /* screen_depth back to 1 with (hopefully) the original screen */
+    }
+    doc_free(doc);
+}
 void plr_throw_doc(plr_throw_ptr context, doc_ptr doc)
 {
     int to_d = 0, i;

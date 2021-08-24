@@ -404,8 +404,13 @@ static bool _stock_p(int k_idx)
 
     if (plr_dun()->dun_type_id == D_SURFACE)
     {
-        if (!(k_info[k_idx].gen_flags & OFG_TOWN))
-            return FALSE;
+        town_ptr town = towns_current_town();
+        assert(town);
+        if (!town || !(town->flags & TF_SECRET))
+        {
+            if (!(k_info[k_idx].gen_flags & OFG_TOWN))
+                return FALSE;
+        }
     }
     return TRUE;
 }
@@ -1071,8 +1076,6 @@ static bool _jeweler_will_buy(obj_ptr obj)
 
 static bool _jeweler_stock_p(int k_idx)
 {
-    if (!_stock_p(k_idx))
-        return FALSE;
     switch (k_info[k_idx].tval)
     {
     case TV_RING:
@@ -2302,7 +2305,7 @@ static _owner_t _wizard_owners[] = {
     { 11, "Thenamir, Betrayer of Hope", 200, 117, RACE_HUMAN },
     { 12, "Alantin the Wise",           200, 112, RACE_HUMAN },
     { 13, "Althanos the Thaumaturge",   200, 109, RACE_HUMAN },
-    { 14, "Vartilla the Worldbringer",  200, 107, RACE_HUMAN },
+    { 14, "Vartilla the Worldsinger",   200, 107, RACE_HUMAN },
     { 15, "Malizondra the Voidbringer", 200, 125, RACE_DARK_ELF },
     { 16, "Silfranna Mirthwood",        200, 104, RACE_SPRITE },
     {0}
@@ -2950,11 +2953,57 @@ static void _wizard_recall(bldg_ptr bldg)
         leave_bldg = TRUE;
     }
 }
+static void _wizard_locate(bldg_ptr bldg)
+{
+    dun_ptr world = dun_mgr()->world;
+    int price = _bldg_price(bldg, 10000), i, tot = 0;
+    vec_ptr v;
+    if (price > p_ptr->au)
+    {
+        msg_print("You don't have enough gold!");
+        return;
+    }
+    v = world_dun_types();
+    for (i = 0; i < vec_length(v); i++)
+    {
+        dun_type_ptr dt = vec_get(v, i);
+        if (dt->plr_flags & DFP_ENTERED) continue;
+        if (dt->plr_flags & DFP_SECRET) continue;
+        if (!dun_pos_interior(world, dt->world_pos)) continue; /* paranoia */
+        if (dun_grid_at(world, dt->world_pos)->info & CAVE_MARK) continue;
+        tot++;
+    }
+    if (!tot)
+        msg_print("You have located all of the dungeons in this world.");
+    else
+    {
+        int n = randint0(tot);
+        for (i = 0; i < vec_length(v); i++)
+        {
+            dun_type_ptr dt = vec_get(v, i);
+            if (dt->plr_flags & DFP_ENTERED) continue;
+            if (dt->plr_flags & DFP_SECRET) continue;
+            if (!dun_pos_interior(world, dt->world_pos)) continue; /* paranoia */
+            if (dun_grid_at(world, dt->world_pos)->info & CAVE_MARK) continue;
+            if (--n < 0)
+            {
+                dun_grid_ptr grid = dun_grid_at(world, dt->world_pos);
+                grid->info |= CAVE_MARK;
+                _plr_pay(price);
+                msg_format("I have located <color:o>%s</color> for you. Check your wilderness map once you leave my premises (MM).",
+                    dt->name);
+                break;
+            }
+        }
+    }
+    vec_free(v);
+}
 static void _wizard_display(bldg_ptr bldg, doc_ptr doc)
 {
     _bldg_display_aux('a', "Research Item", _bldg_price(bldg, 1300), doc);
     _bldg_display_aux('i', "Identify Item", _bldg_price(bldg, 50), doc);
     _bldg_display_aux('r', "Recall to Dungeon", _bldg_price(bldg, 200), doc);
+    _bldg_display_aux('l', "Locate Dungeon", _bldg_price(bldg, 10000), doc);
     if (bldg->town->level > 45)
         _bldg_display_aux('k', "Self Knowledge", _bldg_price(bldg, 50000), doc);
 }
@@ -2965,6 +3014,7 @@ static bool _wizard_command(bldg_ptr bldg, int cmd)
     case 'a': _wizard_identify_full(bldg); break;
     case 'i': _wizard_identify(bldg); break;
     case 'r': _wizard_recall(bldg); break;
+    case 'l': _wizard_locate(bldg); break;
     case 'k': 
         if (bldg->town->level > 45)
         {
@@ -3411,6 +3461,7 @@ void bldg_ui(bldg_ptr bldg)
     }
     character_icky = FALSE;
     energy_use = 100;
+    msg_print(NULL); /* recall service might warn about guardian */
     msg_line_clear();
     msg_line_init(ui_msg_rect());
 
@@ -3567,6 +3618,10 @@ static town_ptr _edoras(void);
 static town_ptr _morannon(void);
 static town_ptr _osgiliath(void);
 static town_ptr _minas_tirith(void);
+static town_ptr _outpost(void);
+static town_ptr _angwil(void);
+static town_ptr _telmora(void);
+static town_ptr _zul(void);
 
 typedef struct {
     int        id;
@@ -3581,6 +3636,10 @@ static _town_entry_t _town_tbl[] = {
     { TOWN_MORANNON, "Morannon", _morannon },
     { TOWN_OSGILIATH, "Osgiliath", _osgiliath },
     { TOWN_MINAS_TIRITH, "Minas Tirith", _minas_tirith },
+    { TOWN_OUTPOST, "Outpost", _outpost },
+    { TOWN_ANGWIL, "Angwil", _angwil },
+    { TOWN_TELMORA, "Telmora", _telmora },
+    { TOWN_ZUL, "Zul", _zul },
     { 0 }
 };
 
@@ -3597,7 +3656,7 @@ int towns_parse(cptr name)
     for (i = 0;; i++)
     {
         _town_entry_ptr e = &_town_tbl[i];
-        if (!e->create_f) break;
+        if (e->id == TOWN_NONE) break;
         if (strcmp(e->parse, name) == 0) return e->id;
     }
     return TOWN_NONE;
@@ -3611,6 +3670,7 @@ town_ptr towns_lookup(int id)
         for (i = 0; !town; i++)
         {
             _town_entry_ptr e = &_town_tbl[i];
+            if (e->id == TOWN_NONE) break;
             if (e->id != id) continue;
             assert(e->create_f);
             if (!e->create_f) return NULL;
@@ -3901,6 +3961,55 @@ static town_ptr _minas_tirith(void)
     town_ptr me = town_alloc(TOWN_MINAS_TIRITH, "Minas Tirith");
     me->level = 50;
     me->file = "t_minas_tirith.txt";
+    return me;
+}
+static town_ptr _outpost(void)
+{
+    town_ptr me = town_alloc(TOWN_OUTPOST, "Outpost");
+    me->level = 5;
+    me->file = "t_outpost.txt";
+    return me;
+}
+static int _angwil_mon_alloc(mon_race_ptr race, int prob)
+{
+    if (race->d_char == 'h') return 10 * prob;
+    if (race->d_char == 't') return 0;
+    if (race->flags3 & RF3_EVIL) return 0;
+    return prob;
+}
+static bool _angwil_owner_race(int id)
+{
+    switch (id)
+    {
+    case RACE_HIGH_ELF:
+    case RACE_WATER_ELF:
+    case RACE_WOOD_ELF:
+        return TRUE;
+    }
+    return FALSE;
+}
+static town_ptr _angwil(void)
+{
+    town_ptr me = town_alloc(TOWN_ANGWIL, "Angwil");
+    me->level = 15;
+    me->file = "t_angwil.txt";
+    me->mon_alloc_f = _angwil_mon_alloc;
+    me->owner_race_p = _angwil_owner_race;
+    return me;
+}
+static town_ptr _telmora(void)
+{
+    town_ptr me = town_alloc(TOWN_TELMORA, "Telmora");
+    me->level = 10;
+    me->file = "t_telmora.txt";
+    return me;
+}
+static town_ptr _zul(void)
+{
+    town_ptr me = town_alloc(TOWN_ZUL, "Zul");
+    me->level = 50;
+    me->file = "t_zul.txt";
+    me->flags = TF_SECRET;
     return me;
 }
 /************************************************************************

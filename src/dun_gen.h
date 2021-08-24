@@ -66,5 +66,7 @@ extern bool        dun_gen_template_room(dun_gen_ptr gen, int type, int subtype)
 extern bool        dun_gen_cave_room(dun_gen_ptr gen);
 extern void        dun_gen_cave_wizard(void);
 
-extern void        dun_gen_secret_door(point_t pos, dun_grid_ptr grid, int type); /* XXX until room templates are moved here */
+extern void        dun_gen_secret_door(point_t pos, dun_grid_ptr grid, int type);
+extern void        _sort_cluster(point_vec_ptr rooms, point_t origin);
+
 #endif

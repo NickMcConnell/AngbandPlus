@@ -969,7 +969,7 @@ void plr_display_powers(doc_ptr doc, spell_info *table, int ct)
     vfm  = var_create();
 
     doc_printf(doc, "<topic:Powers>=================================== <color:keypress>P</color>owers ====================================\n\n");
-    doc_printf(doc, "<color:G>%-20.20s Lvl Cost Fail %-15.15s Cast Fail</color>\n", "", "Desc");
+    doc_printf(doc, "<color:G><tab:30>Lvl Cost Fail %-15.15s  Cast Fail</color>\n", "Desc");
     for (i = 0; i < ct; i++)
     {
         spell_info     *spell = &table[i];
@@ -980,7 +980,8 @@ void plr_display_powers(doc_ptr doc, spell_info *table, int ct)
         spell->fn(SPELL_COST_EXTRA, &vc);
         spell->fn(SPELL_FAIL_MIN, &vfm);
 
-        doc_printf(doc, "%-20.20s %3d %4d %3d%% %-15.15s %4d %4d %3d%%\n",
+        doc_printf(doc, " %c) %-25.25s %3d %4d %3d%% %-15.15s %5d %4d %3d%%\n",
+            I2A(i),
             var_get_string(&vn),
             spell->level, calculate_cost(spell->cost + var_get_int(&vc)), MAX(spell->fail, var_get_int(&vfm)),
             var_get_string(&vd),
@@ -1082,13 +1083,27 @@ static void _build_spells(doc_ptr doc)
 }
 
 /****************************** Miscellaneous ************************************/
+static bool _is_vowel(char c)
+{
+    return strchr("aeiou", c) != NULL;
+}
+static void _doc_race(doc_ptr doc, plr_race_ptr race)
+{
+    if (_is_vowel(race->name[0])) doc_insert(doc, " an ");
+    else doc_insert(doc, " a ");
+    doc_insert(doc, race->name);
+    if (race->subname)
+        doc_printf(doc, " (%s)", race->subname);
+}
 static void _build_race_history(doc_ptr doc)
 {
     if (p_ptr->old_race1 || p_ptr->old_race2)
     {
         int i;
 
-        doc_printf(doc, "\n You were born as %s.\n", get_race_aux(p_ptr->start_race, 0)->name);
+        doc_insert(doc, "You were born as");
+        _doc_race(doc, plr_race_aux(p_ptr->start_race, 0));
+        doc_insert(doc, ".\n");
         for (i = 0; i < MIN(64, MAX_RACES); i++)
         {
             if (p_ptr->start_race == i) continue;
@@ -1100,9 +1115,17 @@ static void _build_race_history(doc_ptr doc)
             {
                 if (!(p_ptr->old_race2 & 1L << (i-32))) continue;
             }
-            doc_printf(doc, " You were a %s before.\n", get_race_aux(i, 0)->name);
+            doc_insert(doc, "You were");
+            _doc_race(doc, plr_race_aux(i, 0));
+            doc_insert(doc, " before.\n");
         }
         doc_newline(doc);
+    }
+    else if (p_ptr->mimic_form != MIMIC_NONE)
+    {
+        doc_insert(doc, "You were born as");
+        _doc_race(doc, plr_race_aux(p_ptr->start_race, 0));
+        doc_insert(doc, ".\n\n");
     }
 }
 
@@ -1277,7 +1300,7 @@ static void _build_pets(doc_ptr doc)
         doc_printf(doc, "  Allow cast attack spell:            %s\n", (p_ptr->pet_extra_flags & PF_ATTACK_SPELL) ? "ON" : "OFF");
         doc_printf(doc, "  Allow cast summon spell:            %s\n", (p_ptr->pet_extra_flags & PF_SUMMON_SPELL) ? "ON" : "OFF");
         doc_printf(doc, "  Allow involve player in area spell: %s\n", (p_ptr->pet_extra_flags & PF_BALL_SPELL) ? "ON" : "OFF");
-        if (p_ptr->wizard)
+        if (0 || p_ptr->wizard)
             doc_printf(doc, "  Riding Skill:                       %d\n", skills_riding_current());
 
         doc_newline(doc);
@@ -1990,7 +2013,6 @@ static void _build_statistics(doc_ptr doc)
         _device_counts_imp(doc, TV_ROD, EFFECT_RECALL);
         _device_counts_imp(doc, TV_ROD, EFFECT_DETECT_ALL);
         _device_counts_imp(doc, TV_ROD, EFFECT_ENLIGHTENMENT);
-        _device_counts_imp(doc, TV_ROD, EFFECT_BALL_SOUND);
         _device_counts_imp(doc, TV_ROD, EFFECT_SPEED_HERO);
         _device_counts_imp(doc, TV_ROD, EFFECT_HEAL_CURING_HERO);
         _device_counts_imp(doc, TV_ROD, EFFECT_RESTORING);
@@ -2038,7 +2060,8 @@ static void _build_statistics(doc_ptr doc)
 void plr_display_dungeons(doc_ptr doc)
 {
     vec_ptr v = plr_dun_types();
-    int i;
+    int     ct = 0;
+    int     i;
     for (i = 0; i < vec_length(v); i++)
     {
         dun_type_ptr type = vec_get(v, i);
@@ -2049,6 +2072,27 @@ void plr_display_dungeons(doc_ptr doc)
     }
     vec_free(v);
     doc_newline(doc);
+
+    /* In W_AMBER, you get a random dungeon selection and an unknown total number of dungeons.
+     * Let the player know how much they are missing. */
+    v = world_dun_types();
+    ct = 0;
+    for (i = 0; i < vec_length(v); i++)
+    {
+        dun_type_ptr type = vec_get(v, i);
+        if (!type->max_dun_lvl) continue;
+        if (type->flags & DF_RANDOM) continue;
+        if (!dun_pos_interior(dun_mgr()->world, type->world_pos)) continue;
+        if (dun_grid_at(dun_mgr()->world, type->world_pos)->info & CAVE_MARK) continue;
+        ct++;
+    }
+    vec_free(v);
+    doc_printf(doc,
+        " There %s <color:%c>%d</color> undiscovered dungeon%s remaining in this world.\n",
+        ct == 1 ? "is" : "are",
+        ct == 0 ? 'G' : 'R',
+        ct,
+        ct == 1 ? "" : "s");
 
     if (p_ptr->is_dead)
     {
@@ -2076,14 +2120,14 @@ void plr_display_dungeons(doc_ptr doc)
             doc_printf(doc, " You were killed by %s in %s.\n", p_ptr->died_from, map_name());
         }
     }
-    else if ((cave->flags & DF_GENERATED))
+    else if (cave->flags & DF_GENERATED)
     {
         if (plr_on_surface())
-            doc_printf(doc, " Now, you are in %s.\n", map_name());
+            doc_printf(doc, " You are currently in %s.\n", map_name());
         else if (plr_in_dungeon())
-            doc_printf(doc, " Now, you are exploring level %d of %s.\n", cave->dun_lvl, map_name());
+            doc_printf(doc, " You are currently exploring level %d of %s.\n", cave->dun_lvl, map_name());
         else if (quests_get_current())
-            doc_printf(doc, " Now, you are in the quest '%s'.\n", quests_get_current()->name);
+            doc_printf(doc, " You are currently in the quest '%s'.\n", quests_get_current()->name);
         else
             doc_insert(doc, " Hmmm ... Where are you?");
     }
@@ -2098,9 +2142,15 @@ void plr_display_dungeons(doc_ptr doc)
     doc_newline(doc);
 }
 
+static cptr _world_name(void)
+{
+    if (p_ptr->initial_world_id == W_SMAUG) return "The World of Middle Earth";
+    return dun_worlds_lookup(p_ptr->initial_world_id)->name;
+}
 static void _build_dungeons(doc_ptr doc)
 {
     doc_printf(doc, "<topic:Dungeons>=================================== <color:keypress>D</color>ungeons ==================================\n\n");
+    doc_printf(doc, " You are playing <color:B>%s</color>\n\n", _world_name());
     plr_display_dungeons(doc);
 }
 
@@ -2159,10 +2209,11 @@ static void _build_options(doc_ptr doc)
 /****************************** Character Sheet ************************************/
 static void _build_quests(doc_ptr doc)
 {
-    #if 0
-    doc_printf(doc, "<topic:uQuests>==================================== Q<color:keypress>u</color>ests ===================================\n\n");
-    quests_doc(doc);
-    #endif
+    if (p_ptr->initial_world_id == W_AMBER)
+    {
+        doc_printf(doc, "<topic:uQuests>==================================== Q<color:keypress>u</color>ests ===================================\n\n");
+        quests_doc(doc);
+    }
 }
 
 static bool _is_retired(void)

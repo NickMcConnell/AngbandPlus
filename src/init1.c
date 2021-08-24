@@ -1238,7 +1238,7 @@ static errr _parse_room_grid_feature(char* name, char **args, int arg_ct, room_g
                 return PARSE_ERROR_UNDEFINED_DIRECTIVE;
             }
         }
-        else if (grid->cave_info & CAVE_DUNGEON)
+        else if ((grid->cave_info & CAVE_DUNGEON) || grid->cave_feat == feat_entrance)
         {
             grid->extra = dun_types_parse(args[1]);
             if (!grid->extra)
@@ -1348,6 +1348,8 @@ static errr _parse_room_flags(char* buf, room_ptr room)
             room->flags |= ROOM_DEBUG;
         else if (streq(flag, "NO_ROTATE"))
             room->flags |= ROOM_NO_ROTATE;
+        else if (streq(flag, "NOTICE"))
+            room->flags |= ROOM_NOTICE;
         else if (streq(flag, "FORMATION"))
             room->flags |= ROOM_THEME_FORMATION;
         else if (streq(flag, "THEME_OBJECT"))
@@ -1397,6 +1399,8 @@ static errr _parse_room_type(char *buf, room_ptr room)
             room->subtype = ROOM_RECALL;
         else if (streq(zz[1], "TRAVEL"))
             room->subtype = ROOM_TRAVEL;
+        else if (streq(zz[1], "PATTERN"))
+            room->subtype = ROOM_PATTERN;
 
         if (!room->subtype)
         {
@@ -3768,30 +3772,75 @@ errr parse_room_line(room_ptr room, char *line, int options)
     if (line[0] == 'T' && line[1] == ':')
         return _parse_room_type(line + 2, room);
 
-    /* W:Level:MaxLevel:Rarity */
+    /* W specifies "when" information:
+     * W:10:1              #Level 10, Rarity 1
+     * W:10 to 30:1        #Level range of 10 to 30
+     * W:Amber(1):5        #Restrict to D_AMBER
+     * W:Amber(20 to 50):7 #Restrict to range of levels in D_AMBER */
     else if (line[0] == 'W' && line[1] == ':')
     {
-        char *zz[10];
-        int   num = tokenize(line + 2, 10, zz, 0);
-        int   tmp;
+        char *commands[10];
+        int   command_ct = z_string_split(line + 2, commands, 10, ":");
 
-        if (num != 3)
+        if (command_ct != 2)
         {
-            msg_print("Error: Invalid W: line. Syntax: W:<Level>:<MaxLevel>:<Rarity>.");
+            msg_print("Error: Invalid W: line. Syntax: W:<Level> to <MaxLevel>:<Rarity>.");
             return PARSE_ERROR_TOO_FEW_ARGUMENTS;
         }
-        room->level = atoi(zz[0]);
-        if (streq(zz[1], "*"))
-            room->max_level = 0;
-        else
-            room->max_level = atoi(zz[1]);
-        tmp = atoi(zz[2]);
-        if (tmp < 0 || tmp > 255) /* room_t.rarity is a byte */
+        room->max_level = 0;
+        switch (command_ct)
         {
-            msg_format("Error: Invalid rarity %d. Enter a value between 1 and 255.", tmp);
-            return PARSE_ERROR_OUT_OF_BOUNDS;
+        case 2: {
+            int tmp = atoi(commands[1]);
+            if (tmp < 0 || tmp > 255) /* room_t.rarity is a byte */
+            {
+                msg_format("Error: Invalid rarity %d. Enter a value between 1 and 255.", tmp);
+                return PARSE_ERROR_OUT_OF_BOUNDS;
+            }
+            room->rarity = tmp; }
+        case 1:
+            if (_is_numeric(commands[0])) room->level = atoi(commands[0]);
+            else
+            {
+                char *command = commands[0];
+                char *name;
+                char *args[10];
+                int   arg_ct = parse_args(command, &name, args, 10);
+                int   lvl, max_lvl;
+
+                /* "Angband(1)" or "Angband(10 to 20)" */
+                if (arg_ct == 1)
+                {
+                    room->dun_type_id = dun_types_parse(name);
+                    if (!room->dun_type_id)
+                    {
+                        msg_format("<color:r>Error:</color> Unknown Dungeon '%s' (Case Sensitive)", name);
+                        return 1;
+                    }
+                    if (_is_numeric(args[0]))
+                        room->level = atoi(args[0]);
+                    else if (sscanf(args[0], "%d to %d", &lvl, &max_lvl) == 2)
+                    {
+                        room->level = lvl;
+                        room->max_level = max_lvl;
+                    }
+                    else return 1;
+                }
+                /* "1" or "10 to 20" */
+                else
+                {
+                    if (_is_numeric(name))
+                        room->level = atoi(name);
+                    else if (sscanf(name, "%d to %d", &lvl, &max_lvl) == 2)
+                    {
+                        room->level = lvl;
+                        room->max_level = max_lvl;
+                    }
+                    else return 1;
+                }
+            }
+            break;
         }
-        room->rarity = tmp;
     }
 
     /* L:X:... */
@@ -4193,7 +4242,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
                 v = variant_name;
             else if (streq(b+1, "WORLD"))
             {
-                sprintf(tmp, "%d", p_ptr->world_id);
+                sprintf(tmp, "%d", p_ptr->initial_world_id);
                 v = tmp;
             }
             else if (streq(b+1, "SPECIALITY"))

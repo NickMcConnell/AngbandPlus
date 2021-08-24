@@ -245,6 +245,10 @@ static void _polymorph_undo_spell(int cmd, var_ptr res)
         break;
     case SPELL_CAST:
         _set_mimic_form(MIMIC_NONE);
+        equip_shuffle("@vampire1");
+        equip_shuffle("@vampire2");
+        equip_shuffle("@vampire3");
+        equip_shuffle("@vampire4");
         equip_shuffle("@vampire");
         msg_print("You revert to your natural form.");
         var_set_bool(res, TRUE);
@@ -555,7 +559,7 @@ void vampire_check_light_status(void)
         _last_light_penalty = _light_penalty;
         if (_light_penalty)
         {
-            int n = _light_penalty * _light_penalty * _light_penalty * MAX(1, cave->dun_lvl/5);
+            int n = _light_penalty * _light_penalty * _light_penalty * MAX(1, cave->difficulty/5);
             if (!fear_save_p(n))
             {
                 msg_print("You fear the light!");

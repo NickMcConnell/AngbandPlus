@@ -16,10 +16,15 @@
 #define VERSION_NAME "PosChengband"
 
 
+/* Current Version */
 #define VER_MAJOR 7
-#define VER_MINOR 1
+#define VER_MINOR 2
 #define VER_PATCH 1
-#define VER_EXTRA 0
+#define VER_EXTRA 1
+
+/* Oldest Supported Version (cf rd_savefile_new_aux) */
+#define MIN_VER_MAJOR 7
+#define MIN_VER_MINOR 1
 
 #define GAME_MODE_BEGINNER  0
 #define GAME_MODE_NORMAL    1
@@ -1940,7 +1945,7 @@ enum {
 #define PW_INVEN        0x00000001     /* Display inven/equip */
 #define PW_EQUIP        0x00000002     /* Display equip/inven */
 #define PW_SPELL        0x00000004     /* Display spell list */
-#define PW_XXX          0x00000008
+#define PW_WORLD_MAP    0x00000008
 #define PW_OBJECT_LIST  0x00000010     /* Display object list */
 #define PW_MONSTER_LIST 0x00000020     /* Display monster list */
 #define PW_MESSAGE      0x00000040     /* Display messages */
@@ -2231,7 +2236,7 @@ enum summon_specific_e {
  *              already printed in autopick_pickup_items().
  */
 #define OM_FOUND           0x0001    /* original boolean flag */
-#define OM_NOMSG           0x0002    /* temporary flag to suppress messages */
+#define OM_NO_MSG          0x0002    /* temporary flag to suppress messages */
 #define OM_NO_QUERY        0x0004    /* Query for auto-pick was already answered as 'No' */
 #define OM_AUTODESTROY     0x0008
 #define OM_TOUCHED         0x0010    /* Object was touched by player */
@@ -2735,6 +2740,15 @@ enum r_drop_e
 #define RFX_SUPPRESS        0x00000002  /* Unique Monster won't generate this game */
 #define RFX_WANTED          0x00000004  /* Wanted monster (bounty at hunters guild) */
 #define RFX_BOUNTY          0x00000008  /* Player turned in wanted corpse at hunters guild) */
+#define RFX_GUARDIAN        0x00000010  /* Monster guards a dungeon (1) */
+
+/* (1) RF7_GUARDIAN means the monster is always a dungeon guardian, and never appears
+ * even if the guarded dungeon is not present in the current world sequence. For
+ * example, Morgoth won't show up in Amber ... and The Serpent of Chaos won't show
+ * up in Middle Earth. However, suppose I want Vecna to guard The Graveyard in Amber?
+ * When playing Middle Earth, Vecna should not be a guardian and should spawn normally.
+ * When playing Amber, Vecna is a guardian, but only if D_GRAVEYARD gets chosen as a 
+ * random dungeon. Otherwise, he is free to spawn normally. */
 
 /*
  * Hack -- "torch" masks
@@ -3703,6 +3717,7 @@ extern int PlayerUID;
 #define MON_CHAOS_VORTEX        751
 #define MON_AETHER_VORTEX       752
 #define MON_LERNEAN_HYDRA       754
+#define MON_THURINGWETHIL       755
 #define MON_BLOODTHIRSTER       758
 #define MON_DRACONIC_QUYLTHULG  759
 #define MON_NYOGTHA             760
@@ -3729,6 +3744,7 @@ extern int PlayerUID;
 #define MON_FIONA               791
 #define MON_SKY_DRAKE           793
 #define MON_JULIAN              794
+#define MON_TIAMAT              795
 #define MON_RHAN_TEGOTH         797
 #define MON_BLACK_REAVER        798
 #define MON_CAINE               799
@@ -3828,6 +3844,7 @@ extern int PlayerUID;
 #define MON_HORSE               956
 #define MON_BOTEI               963
 #define MON_KAGE                964
+#define MON_NARSE               970
 #define MON_BELD                973
 #define MON_THAT_BAT            975
 #define MON_SHUTEN              979

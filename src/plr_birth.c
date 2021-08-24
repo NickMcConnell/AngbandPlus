@@ -18,6 +18,7 @@
  ***********************************************************************/
 extern int plr_birth(void);
     static int _welcome_ui(void);
+    static int _world_ui(void);
     static int _race_class_ui(void);
         static void _pers_ui(void);
         /* Normal Mode */
@@ -246,6 +247,9 @@ static int _welcome_ui(void)
         else if (cmd == 'q' && previous_char.quick_ok)
         {
             int i;
+            p_ptr->initial_world_id = previous_char.initial_world_id;
+            if (!p_ptr->initial_world_id)
+                p_ptr->initial_world_id = W_SMAUG; /* paranoia */
             game_mode = previous_char.game_mode;
             p_ptr->psex = previous_char.psex;
             p_ptr->prace = previous_char.prace;
@@ -263,7 +267,7 @@ static int _welcome_ui(void)
                 p_ptr->stat_max[i] = previous_char.stat_max[i];
             }
             _stats_changed = TRUE; /* block default stat allocation via _stats_init */
-            if (_race_class_ui() == UI_OK)
+            if (_race_class_ui() == UI_OK) /* XXX skip _world_ui */
                 return UI_OK;
         }
         else if (cmd == 'Q' && previous_char.quick_ok)
@@ -271,7 +275,8 @@ static int _welcome_ui(void)
         else if (cmd == 'b')
         {
             _set_mode(GAME_MODE_BEGINNER);
-            if (_race_class_ui() == UI_OK)
+            p_ptr->initial_world_id = W_SMAUG;
+            if (_race_class_ui() == UI_OK) /* XXX skip _world_ui */
                 return UI_OK;
         }
         else if (cmd == 'B')
@@ -279,7 +284,7 @@ static int _welcome_ui(void)
         else if (cmd == 'n')
         {
             _set_mode(GAME_MODE_NORMAL);
-            if (_race_class_ui() == UI_OK)
+            if (_world_ui() == UI_OK)
                 return UI_OK;
         }
         else if (cmd == 'N')
@@ -287,7 +292,7 @@ static int _welcome_ui(void)
         else if (cmd == 'm')
         {
             _set_mode(GAME_MODE_MONSTER);
-            if (_race_class_ui() == UI_OK)
+            if (_world_ui() == UI_OK)
                 return UI_OK;
         }
         else if (cmd == 'M')
@@ -364,6 +369,55 @@ static void _set_mode(int mode)
     }
     game_mode = mode;
     first = FALSE;
+}
+
+static int _world_ui(void)
+{
+    for (;;)
+    {
+        int cmd;
+
+        doc_clear(_doc);
+
+        doc_insert(_doc, "<color:G>Choose Which World to Play</color>\n");
+
+        doc_printf(_doc, "  <color:y>a</color>) <indent><color:%c>The World of Middle Earth</color>\n"
+            "You must travel to Mordor and slay both Sauron and Morgoth. This game consists "
+            "of multiple worlds, each with its own wilderness map, set of dungeons, and "
+            "final world guardian to slay.</indent>\n\n",
+            p_ptr->initial_world_id == W_SMAUG ? 'B' : 'U'
+        );
+        doc_printf(_doc, "  <color:y>b</color>) <indent><color:%c>The World of Amber</color>\n"
+            "You must slay the Serpent of Chaos in order to restore balance to the world. This "
+            "game consists of a single world with a randomly generated wilderness. In addition, "
+            "some of the available dungeons are randomly chosen for each game.</indent>\n\n",
+            p_ptr->initial_world_id == W_AMBER ? 'B' : 'U'
+        );
+        doc_insert(_doc, "  <color:y>?</color>) Help\n");
+        doc_insert(_doc, "<color:y>ESC</color>) Prev Screen\n");
+
+        doc_newline(_doc);
+        _sync_term(_doc);
+        cmd = _inkey();
+        if (cmd == '?')
+            doc_display_help("birth.txt", NULL /*"World"*/);
+        else if (cmd == ESCAPE)
+            return UI_CANCEL;
+        else if (cmd == '=')
+            _birth_options();
+        else if (cmd == 'a')
+        {
+            p_ptr->initial_world_id = W_SMAUG;
+            if (_race_class_ui() == UI_OK)
+                return UI_OK;
+        }
+        else if (cmd == 'b')
+        {
+            p_ptr->initial_world_id = W_AMBER;
+            if (_race_class_ui() == UI_OK)
+                return UI_OK;
+        }
+    }
 }
 
 /************************************************************************
@@ -957,7 +1011,7 @@ static _class_group_t _class_groups[_MAX_CLASS_GROUPS] = {
                     CLASS_WEAPONSMITH, -1} },
     { "Archery", {CLASS_ARCHER, CLASS_SNIPER, -1} },
     { "Martial Arts", {CLASS_FORCETRAINER, CLASS_MONK, CLASS_MYSTIC, -1} },
-    { "Magic", {CLASS_GRAY_MAGE, CLASS_HIGH_MAGE, CLASS_MAGE,
+    { "Magic", {CLASS_BLUE_MAGE, CLASS_GRAY_MAGE, CLASS_HIGH_MAGE, CLASS_MAGE,
                     CLASS_NECROMANCER, CLASS_SORCERER, CLASS_YELLOW_MAGE, -1} },
     { "Devices", {CLASS_DEVICEMASTER, CLASS_MAGIC_EATER, -1} },
     { "Prayer", {CLASS_PRIEST, -1} },
@@ -2126,7 +2180,6 @@ static void _stats_init(void)
         case CLASS_CAVALRY:
         case CLASS_MAULER:
         case CLASS_ARCHER:
-        case CLASS_SAMURAI:
         case CLASS_WEAPONSMITH:
         case CLASS_WEAPONMASTER:
         case CLASS_NINJA:
@@ -2141,6 +2194,18 @@ static void _stats_init(void)
         case CLASS_BLOOD_KNIGHT:
         {
             int stats[6] = { 17, 8, 8, 15, 17, 9 };
+            _stats_init_aux(stats);
+            break;
+        }
+        case CLASS_SAMURAI:
+        {
+            int stats[6] = { 16, 9, 16, 16, 14, 10 };
+            _stats_init_aux(stats);
+            break;
+        }
+        case CLASS_BLUE_MAGE:
+        {
+            int stats[6] = { 16, 16, 9, 16, 14, 10 };
             _stats_init_aux(stats);
             break;
         }
@@ -2673,7 +2738,9 @@ static void _birth_finalize(void)
     p_ptr->id = scores_next_id();
 
     /* Quick Start */
+    assert(p_ptr->initial_world_id);
     previous_char.quick_ok = TRUE;
+    previous_char.initial_world_id = p_ptr->initial_world_id;
     previous_char.game_mode = game_mode;
     previous_char.psex = p_ptr->psex;
     previous_char.prace = p_ptr->prace;
@@ -2690,8 +2757,6 @@ static void _birth_finalize(void)
         previous_char.stat_max[i] = p_ptr->stat_max[i];
 
     /* Other Initialization */
-    p_ptr->world_id = W_SMAUG;
-
     art_init();
     equip_init();
     pack_init();

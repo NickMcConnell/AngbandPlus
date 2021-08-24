@@ -220,6 +220,7 @@ void virtue_init(void)
     case CLASS_NECROMANCER:
     case CLASS_YELLOW_MAGE:
     case CLASS_GRAY_MAGE:
+    case CLASS_BLUE_MAGE:
         p_ptr->vir_types[i++] = VIRTUE_KNOWLEDGE;
         p_ptr->vir_types[i++] = VIRTUE_ENCHANTMENT;
         break;

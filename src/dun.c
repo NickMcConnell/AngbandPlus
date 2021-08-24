@@ -425,11 +425,11 @@ void dun_iter_rect_boundary(dun_ptr dun, rect_t rect, dun_grid_f f)
         f(pos, dun_grid_at(dun, pos));
     }
 }
-point_t dun_random_grid(dun_ptr dun, int (*weight_f)(point_t pos, dun_grid_ptr grid))
+point_t dun_random_grid(dun_ptr dun, dun_grid_weight_f weight)
 {
     point_t pos;
     int total = 0, roll;
-    assert(weight_f);
+    assert(weight);
     for (pos.y = dun->rect.y + 1; pos.y < dun->rect.y + dun->rect.cy - 1; pos.y++)
     {
         dun_grid_ptr grid;
@@ -437,7 +437,7 @@ point_t dun_random_grid(dun_ptr dun, int (*weight_f)(point_t pos, dun_grid_ptr g
         grid = dun_grid_at(dun, pos);
         for (; pos.x < dun->rect.x + dun->rect.cx - 1; pos.x++)
         {
-            total += weight_f(pos, grid);
+            total += weight(pos, grid);
             grid++;
         }
     }
@@ -450,7 +450,7 @@ point_t dun_random_grid(dun_ptr dun, int (*weight_f)(point_t pos, dun_grid_ptr g
         grid = dun_grid_at(dun, pos);
         for (; pos.x < dun->rect.x + dun->rect.cx - 1; pos.x++)
         {
-            roll -= weight_f(pos, grid);
+            roll -= weight(pos, grid);
             if (roll < 0) return pos;
             grid++;
         }
@@ -1041,7 +1041,9 @@ static void dun_process_monsters(dun_ptr dun)
 
         mon->energy_need += ENERGY_NEED();
         _process_mon(dun, mon);
-        mon_tim_fast_tick(mon); /* timers go after monster moves (e.g. T_PARALYZED) */
+        mon->turns++; /* XXX restore old MFLAG_NICE behaviour ... cf _can_cast */
+        if (mon->dun_id == dun->dun_id) /* XXX check if monster took stairs */
+            mon_tim_fast_tick(mon); /* timers go after monster moves (e.g. T_PARALYZED) */
 
         mon->pain = 0; /* XXX pain cancels fear hack; avoid msg spam and bool *fear parameters ... */
         reset_target(mon);
@@ -1623,7 +1625,7 @@ void dun_mgr_plr_change_dun(dun_ptr new_dun, point_t new_pos)
         new_dun->flags |= DF_AUTOSAVE; /* later ... once the stack unwinds to the next dun_mgr_process() */
 
     /* XXX do_cmd_save_game does a handle_stuff ... Saving currently *requires* forget_view et. al. */
-    p_ptr->window |= PW_MONSTER_LIST | PW_OBJECT_LIST | PW_MONSTER | PW_OVERHEAD | PW_DUNGEON;
+    p_ptr->window |= PW_MONSTER_LIST | PW_OBJECT_LIST | PW_MONSTER | PW_OVERHEAD | PW_DUNGEON | PW_WORLD_MAP;
     p_ptr->redraw |= PR_BASIC | PR_EXTRA | PR_EQUIPPY | PR_MSG_LINE | PR_MAP;
     p_ptr->update |= PU_VIEW | PU_LITE | PU_MON_LITE | PU_TORCH;
     p_ptr->update |= PU_MONSTERS;
@@ -1871,6 +1873,7 @@ void dun_load(dun_ptr dun, savefile_ptr file)
             pile = obj;
         }
         assert(pile);
+        assert(pile->loc.where == INV_FLOOR);
         point_map_add(dun->obj_pos, pos, pile);
     }
     /* monsters */
@@ -1933,6 +1936,10 @@ void dun_load(dun_ptr dun, savefile_ptr file)
         dun->town = town_alloc(TOWN_RANDOM, "Random");
         town_load(dun->town, file);
     }
+    /* XXX Detect and recover broken savefiles. For example, I received a file
+     * where an object pile was in dun->obj_pos under two different locations. */
+    if (!dun_obj_integrity(dun))
+        dun_obj_panic(dun);
 }
 static savefile_ptr _file = NULL;
 static void _obj_save(int id, obj_ptr obj) { obj_save(obj, _file); }
@@ -2046,6 +2053,10 @@ void dun_mgr_load(savefile_ptr file)
     dun_mgr_ptr dm = dun_mgr();
     int i, ct;
 
+    if (savefile_is_older_than(file, 7, 1, 2, 1))
+        p_ptr->initial_world_id = W_SMAUG;
+    else
+        p_ptr->initial_world_id = savefile_read_u16b(file);
     p_ptr->world_id = savefile_read_u16b(file);
     p_ptr->dun_id = savefile_read_u16b(file);
     p_ptr->pos = _point_load(file);
@@ -2089,6 +2100,20 @@ void dun_mgr_load(savefile_ptr file)
 
     dun_world_reseed(dm->world_seed);
     cave = int_map_find(dm->dungeons, p_ptr->dun_id);
+
+    #if 0
+    if (p_ptr->initial_world_id == W_AMBER) /* XXX fixup savefile for my playtesting char */
+    {
+        vec_ptr v = world_dun_types();
+        for (i = 0; i < vec_length(v); i++)
+        {
+            dun_type_ptr t = vec_get(v, i);
+            if (t->init_f)
+                t->init_f(t);
+        }
+        vec_free(v);
+    }
+    #endif
 }
 void dun_mgr_save(savefile_ptr file)
 {
@@ -2115,6 +2140,7 @@ void dun_mgr_save(savefile_ptr file)
 
     dun_mgr_gc(TRUE);
 
+    savefile_write_u16b(file, p_ptr->initial_world_id);
     savefile_write_u16b(file, p_ptr->world_id);
     savefile_write_u16b(file, p_ptr->dun_id);
     _point_save(p_ptr->pos, file);

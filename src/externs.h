@@ -426,6 +426,7 @@ extern door_type feat_door[MAX_DOOR_TYPES];
 extern s16b feat_up_stair;
 extern s16b feat_down_stair;
 extern s16b feat_entrance;
+extern s16b feat_quest_entrance;
 extern s16b feat_trap_open;
 extern s16b feat_trap_armageddon;
 extern s16b feat_trap_piranha;
@@ -699,6 +700,7 @@ extern void do_cmd_list_monsters(int mode);
 extern void do_cmd_list_objects(void);
 extern void fix_monster_list(void);
 extern void fix_object_list(void);
+extern void fix_world_map(void);
 
 /* cmd4.c */
 extern cptr get_ordinal_number_suffix(int num);
@@ -771,6 +773,7 @@ extern cptr do_device(object_type *o_ptr, int mode, int boost);
 
 extern bool device_init(object_type *o_ptr, int level, int mode);
 extern bool device_init_fixed(object_type *o_ptr, int effect);
+extern void device_init_cost(obj_ptr obj); /* for devicemaster's transfer effect ... */
 extern bool device_is_valid_effect(int tval, int effect);
 extern int  device_level(object_type *o_ptr);
 extern int  device_sp(object_type *o_ptr);
@@ -1711,12 +1714,6 @@ extern void curse_object(object_type *o_ptr);
 extern void get_bloody_moon_flags(object_type *o_ptr);
 extern bool create_named_art(int a_idx, point_t pos);
 
-/* hissatsu.c */
-extern void hissatsu_info(char *p, int power);
-extern void do_cmd_hissatsu(void);
-extern void do_cmd_hissatsu_browse(void);
-extern void do_cmd_gain_hissatsu(void);
-
 /*
  * Hack -- conditional (or "bizarre") externs
  */
@@ -2145,7 +2142,10 @@ extern class_t *beastmaster_get_class(void);
 extern class_t *berserker_get_class(void);
 extern class_t *blood_knight_get_class(void);
 extern class_t *blood_mage_get_class(void);
+
 extern class_t *blue_mage_get_class(void);
+extern void     blue_mage_learn(mon_spell_cast_ptr spell);
+extern void     blue_mage_cast(void);
 
 extern class_t *cavalry_get_class(void);
 extern void     rodeo_spell(int cmd, var_ptr res);
@@ -2159,8 +2159,8 @@ extern cptr     devicemaster_speciality_desc(int psubclass);
 extern bool     devicemaster_is_speciality(object_type *o_ptr);
 extern class_t *force_trainer_get_class(void);
 
-extern void     gray_mage_browse_spell(void);
-extern void     gray_mage_cast_spell(void);
+extern void     gray_mage_browse(void);
+extern void     gray_mage_cast(void);
 extern void     gray_mage_gain_spell(void);
 extern class_t *gray_mage_get_class(int psubclass);
 extern bool     gray_mage_is_allowed_book(int tval, int sval);
@@ -2234,7 +2234,8 @@ extern class_t *samurai_get_class(void);
 extern void     samurai_posture_get_flags(u32b flgs[OF_ARRAY_SIZE]);
 extern void     samurai_posture_calc_stats(s16b stats[MAX_STATS]);
 extern void     samurai_posture_calc_bonuses(void);
-extern cptr     do_hissatsu_spell(int spell, int mode);
+extern void     samurai_gain_spell(void);
+extern void     samurai_browse_spell(void);
 
 extern class_t *skillmaster_get_class(void);
 extern void     skillmaster_gain_skill(void);

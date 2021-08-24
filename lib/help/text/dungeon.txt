@@ -29,7 +29,7 @@ on your map.
 
   Features that do not block line of sight
   .   Floor                       *   A Mirror
-     A trap (hidden)             ;   A glyph of warding
+  .   A trap (hidden)             ;   A glyph of warding
   ^   A trap (known)              ;   A explosive rune
   .   Dirt                        *   Section of the Pattern
   .   Patch of grass              *   Section of the Pattern
@@ -43,10 +43,8 @@ on your map.
   #   Dark pit                    8   Home
   '   An open door                9   Bookstore
   '   A broken door               0   Museum
-  <   A staircase up                 Other building
-  >   A staircase down               Other building
-  <   A shaft up
-  >   A shaft down
+  <   A staircase up
+  >   A staircase down
   >   An entrance to dungeon
   >   quest entrance
 
@@ -64,17 +62,17 @@ Once your character is adequately supplied with food, light, armor, and
 weapons, he is ready to enter the dungeon. Move on top of the > symbol 
 and use the Down command (>).
 
-Your character will enter a maze of interconnecting staircases and 
-finally arrive somewhere on the first level of the dungeon. Each level 
-of the dungeon is fifty feet high (thus dungeon level "Lev 1" is often 
-called "50 ft"), and is divided into (large) rectangular regions 
-(several times larger than the screen) by titanium walls. Once you 
-leave a level by a staircase, you will never again find your way back 
-to that region of that level, but there are an infinite number of other 
-regions at that same "depth" that you can explore later. So be careful 
-that you have found all the treasure before you leave a level, or you 
-may never find it again! The monsters, of course, can use the stairs, 
-and you may eventually encounter them again.
+Note that the game engine supports multiple concurrent dungeon levels, 
+and processes them as needed. This means that as your character 
+approaches those stairs, the level already has been generated and 
+monsters may "wake up" and hunt the player, leaving their current level 
+to pursue you up the stairs. So while you might feel safe now, since 
+nothing nasty is lurking nearby, stair cases are always a bit of a 
+wildcard. Also, levels are not re-generated if you leave and then come 
+back. Rather, game levels are persistent (for a while, at least ... 
+distant levels do eventually get garbage collected after which 
+re-visitation will generate a new level). This gives a much more 
+realistic game experience.
 
 In the dungeon, there are many things to find, but your character must 
 survive many horrible and challenging encounters to find the treasure 
@@ -90,7 +88,7 @@ careful not to run out of light!
 A character must wield a torch or lamp in order to supply his own 
 light. A torch or lamp burns fuel as it is used, and once it is out of 
 fuel, it stops supplying light. You will be warned as the light 
-approaches this point. You may use the "Fuel" command ("F") to refuel 
+approaches this point. You may use the "Fuel" command (F) to refuel 
 your lantern (with flasks of oil) or your torch (with other torches), 
 so it is a good idea to carry extra torches or flasks of oil, as 
 appropriate. There are rumors of objects of exceptional power which 
@@ -244,12 +242,12 @@ it unless your character's continued survival is in question.
 
 Random Quests
 
-Every character will encounter a fixed number of random quests in the 
-dungeon of Angband. By default, each quest is to kill a certain out of 
-depth unique monster, though you may change this to kill a certain 
-number of a random type of monster with a birth option [d]. Be warned: 
-unique monsters are generally powerful for their native depths, so 
-fighting them out of depth is especially difficult!
+If you are playing The World of Amber, then you will encounter a fixed 
+number of random quests in the dungeon of Amber. By default, each quest 
+is to kill a certain out of depth unique monster, though you may change 
+this to kill a certain number of a random type of monster with a birth 
+option [d]. Be warned: unique monsters are generally powerful for their 
+native depths, so fighting them out of depth is especially difficult!
 
 On random quest levels, no down staircases are generated until the last 
 monster is killed which means that you cannot continue further into the 
@@ -258,22 +256,18 @@ monster, the down staircase will be created and the monster will drop
 an item of 'excellent' quality or above. This is true even of monsters 
 that do not normally drop items.
 
-The random quests in Angband will appear on random levels, so you won't 
-be able to know or guess when they might happen. Should a given quest 
-prove too difficult for you, then you may retreat to safety until you 
-are more powerful. The quest monster will patiently await your return. 
-To retreat is to shame oneself, but it is better to know your own 
-limits then to die in a foolhearty attempt (with full honor). Upon 
-retreating from a quest, you are also given the option to intentionally 
-fail the quest. If you choose this path, then your fame will be greatly 
-diminished, but at least you will be able to continue your descent in 
-Angband.
+The random quests in Amber will appear on random levels, so you won't 
+be able to know or guess when they might happen. Quests must be 
+completed when they are encountered and retreat is no longer an option 
+(unless you don't mind failing the quest).
+
+The World of Middle Earth currently does not have any quests.
 
 
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
 Updated    : Hengband 1.0.11
-Updated    : PosChengband 4.0.0
+Updated    : PosChengband 7.2.0
 
 

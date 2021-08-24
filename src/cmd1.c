@@ -1490,7 +1490,7 @@ void move_player(int dir, bool do_pickup, bool break_trap)
             disturb(0, 0);
         }
 
-        if (oktomove && mon_tim_find(riding_m_ptr, T_STUN) && one_in_(2))
+        if (oktomove && randint0(50) < mon_tim_amount(riding_m_ptr, T_STUN))
         {
             char m_name[80];
             monster_desc(m_name, riding_m_ptr, 0);

@@ -10,10 +10,9 @@ Please choose one of the following online help files:
     <link:option.txt#GamePlay> Game Play Options
     <link:option.txt#Disturbance> Disturbance Options
     <link:option.txt#AutoDestroyer> Easy Auto-Destroyer Options
-    <link:option.txt#BaseDelay> Base Delay Factor
+    <link:option.txt#BaseDelay> Delay Factor
     <link:option.txt#Hitpoint> Hitpoint Warning
     <link:option.txt#Autosave> Autosave Options
     <link:option.txt#Window> Window Flags
-    <link:option.txt#Cheating> Cheating Options
 
     <color:y>(?) Help System Commands</color>

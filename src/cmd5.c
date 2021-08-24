@@ -1496,7 +1496,20 @@ bool rakuba(int dam, bool force)
 
             skills_riding_gain_rakuba(dam);
 
-            /* see design/riding.ods */
+            if (0 || p_ptr->wizard)
+            {
+                int r = dam/2 + rakubalevel*2;
+                int n = cur/30 + 10;
+                if (r > n)
+                {
+                    double p1 = (double)n/(double)r;
+                    int    r2 = p_ptr->lev*(p_ptr->riding_ryoute ? 2 : 3) + 30;
+                    double p2 = 1.0 - 1.0/(double)r2;
+                    if (max == RIDING_EXP_MASTER && !p_ptr->riding_ryoute) p2 = 1.0;
+                    msg_format("<color:D>StayMounted = %.2f%% * %.2f%% = %.2f%%.</color>", 
+                        p1*100., p2*100., p1*p2*100.);
+                }
+            }
             if (randint0(dam / 2 + rakubalevel * 2) < cur / 30 + 10)
             {
                 if (max == RIDING_EXP_MASTER && !p_ptr->riding_ryoute)
@@ -1632,8 +1645,8 @@ bool do_riding(bool force)
     }
     else
     {
+        mon_race_ptr race = NULL;
         int roll;
-        mon_race_ptr race = mon_race(mon);
 
         if (plr_tim_find(T_CONFUSED))
         {
@@ -1660,6 +1673,7 @@ bool do_riding(bool force)
         }
         else
         {
+            race = mon_race(mon);
             if (!(race->flags7 & RF7_RIDING))
             {
                 msg_print("This monster doesn't seem suitable for riding.");
@@ -1686,6 +1700,11 @@ bool do_riding(bool force)
             return FALSE;
         }
         roll = skills_riding_current()/50 + p_ptr->lev/2 + 20;
+        if (0 || p_ptr->wizard)
+        {
+            int n = roll - race->level + 1;
+            msg_format("<color:D>Riding = %d.%d%%</color>", n * 100 /roll, (n * 1000 / roll) % 10);
+        }
         if (p_ptr->prace != RACE_MON_RING && race->level > randint1(roll))
         {
             if (race->level > roll) /* XXX spoil that it is hopeless! */

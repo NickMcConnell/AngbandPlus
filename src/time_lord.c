@@ -888,7 +888,7 @@ static void _calc_bonuses(void)
     _dec_mana(ART_AGES);
 
     if (p_ptr->lev >= 30) res_add(RES_TIME);
-    p_ptr->pspeed += (p_ptr->lev) / 7;
+    p_ptr->pspeed += p_ptr->lev / 7;
 }
 
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE])

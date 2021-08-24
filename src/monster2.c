@@ -629,6 +629,7 @@ bool mon_is_type(int r_idx, int type)
         break;
     case SUMMON_GUARDIAN:
         if (r_ptr->flags7 & RF7_GUARDIAN) return TRUE;
+        if (r_ptr->flagsx & RFX_GUARDIAN) return TRUE;
         break;
     case SUMMON_KNIGHT:
         if ( r_idx == MON_NOV_PALADIN || r_idx == MON_PALADIN
@@ -790,6 +791,7 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
     char            buf[128];
     char            silly_name[1024];
     bool            seen, pron;
+    bool            fuzzy = (m_ptr->mflag2 & MFLAG2_FUZZY) && !(mode & MD_IGNORE_FUZZY);
     bool            named = FALSE;
 
     /* Hack: Chengband requested to just show the pet's name (e.g. 'Stinky' vs
@@ -802,7 +804,7 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 
     r_ptr = mon_apparent_race(m_ptr);
 
-    if ((m_ptr->mflag2 & MFLAG2_FUZZY) && !(mode & MD_IGNORE_FUZZY)) name = "Monster";
+    if (fuzzy) name = "Monster";
     /* Mode of MD_TRUE_NAME will reveal Chameleon's true name */
     else if (mode & MD_TRUE_NAME) name = (r_name + real_r_ptr(m_ptr)->name);
     else name = (r_name + r_ptr->name);
@@ -923,7 +925,7 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
         /* It could be a Unique */
         if ( (r_ptr->flags1 & RF1_UNIQUE)
           && !(plr_tim_find(T_HALLUCINATE) && !(mode & MD_IGNORE_HALLU))
-          && !(m_ptr->mflag2 & MFLAG2_FUZZY) )
+          && !fuzzy )
         {
             /* Start with the name (thus nominative and objective) */
             if ((m_ptr->mflag2 & MFLAG2_CHAMELEON) && !(mode & MD_TRUE_NAME))
@@ -1016,6 +1018,10 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
     if (p_ptr->wizard && m_ptr->mpower != 1000)
     {
         strcat(desc, format(" (%d.%d%%)", m_ptr->mpower/10, m_ptr->mpower%10));
+    }
+    if (p_ptr->wizard && m_ptr->turns)
+    {
+        strcat(desc, format(" (%d)", m_ptr->turns));
     }
 }
 
@@ -2710,7 +2716,7 @@ mon_ptr place_monster_aux(int who, point_t pos, int r_idx, u32b mode)
     /* Give uniques variable AI strategies. We do this as a hack, using the
        existing pack code, by creating a "pack of 1".
                                         v---- Mercy!*/
-    if ((r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flagsx & RFX_QUESTOR) && !(r_ptr->flags7 & RF7_GUARDIAN))
+    if ((r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flagsx & RFX_QUESTOR) && !(r_ptr->flags7 & RF7_GUARDIAN) && !(r_ptr->flagsx & RFX_GUARDIAN))
     {
         if (!pack_ptr)
         {
@@ -3051,11 +3057,17 @@ bool summon_specific(int who, point_t tgt_pos, int lev, int type, u32b mode)
 }
 
 /* A "dangerous" function, creates a pet of the specified type */
+static bool _allow_summon_named(mon_race_ptr race)
+{
+    if ((race->flags7 & RF7_GUARDIAN) && !p_ptr->wizard) return FALSE;
+    if ((race->flagsx & RFX_GUARDIAN) && !p_ptr->wizard) return FALSE;
+    if (race->cur_num >= race->max_num) return FALSE;
+    return TRUE;
+}
 mon_ptr summon_named_creature(int who, point_t tgt_pos, int r_idx, u32b mode)
 {
     mon_ptr result = NULL;
     point_t pos;
-    monster_race *r_ptr;
 
     if (r_idx >= max_r_idx) return FALSE;
     if (p_ptr->anti_summon && !one_in_(3))
@@ -3065,9 +3077,7 @@ mon_ptr summon_named_creature(int who, point_t tgt_pos, int r_idx, u32b mode)
     }
     if (!mon_scatter(r_idx, &pos.y, &pos.x, tgt_pos.y, tgt_pos.x, 2)) return FALSE;
 
-    r_ptr = mon_race_lookup(r_idx);
-
-    if ((!(r_ptr->flags7 & RF7_GUARDIAN) || p_ptr->wizard) && r_ptr->cur_num < r_ptr->max_num)
+    if (_allow_summon_named(mon_race_lookup(r_idx)))
         result = place_monster_aux(who, pos, r_idx, mode | PM_NO_KAGE);
 
     return result;

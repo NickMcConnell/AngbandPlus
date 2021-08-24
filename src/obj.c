@@ -1157,7 +1157,9 @@ static void _drop(obj_ptr obj)
     char name[MAX_NLEN];
     object_desc(name, obj, OD_COLOR_CODED);
     msg_format("You drop %s.", name);
+    obj->marked |= OM_NO_MSG; /* suppress the "rolls beneath your feet" msg */
     drop_near(obj, p_ptr->pos, -1);
+    obj->marked &= ~OM_NO_MSG;
     p_ptr->update |= PU_BONUS; /* Weight changed */
     if (obj->loc.where == INV_PACK)
         p_ptr->window |= PW_INVEN;

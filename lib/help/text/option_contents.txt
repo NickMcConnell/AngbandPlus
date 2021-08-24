@@ -10,11 +10,10 @@ Please choose one of the following online help files:
     [f] Game Play Options
     [g] Disturbance Options
     [h] Easy Auto-Destroyer Options
-    [i] Base Delay Factor
+    [i] Delay Factor
     [j] Hitpoint Warning
     [k] Autosave Options
     [l] Window Flags
-    [m] Cheating Options
 
     (?) Help System Commands
 

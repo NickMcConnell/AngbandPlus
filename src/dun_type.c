@@ -28,6 +28,19 @@ static dun_type_ptr _dark_tower(void);
 static dun_type_ptr _mount_doom(void);
 static dun_type_ptr _angband(void);
 static dun_type_ptr _olympus(void);
+static dun_type_ptr _dragons_lair(void);
+static dun_type_ptr _random_forest(void);
+static dun_type_ptr _random_mountain(void);
+static dun_type_ptr _random_volcano(void);
+static dun_type_ptr _random_sea(void);
+static dun_type_ptr _wizards_tower(void);
+static dun_type_ptr _monastery(void);
+static dun_type_ptr _graveyard(void);
+static dun_type_ptr _sanctuary(void);
+static dun_type_ptr _pandemonium(void);
+static dun_type_ptr _numenor(void);
+static dun_type_ptr _rlyeh(void);
+static dun_type_ptr _dark_castle(void);
 
 static _entry_t _tbl[] = {
     { D_SURFACE, "Surface", _surface },
@@ -48,6 +61,19 @@ static _entry_t _tbl[] = {
     { D_MOUNT_DOOM, "Mount Doom", _mount_doom },
     { D_ANGBAND, "Angband", _angband },
     { D_OLYMPUS, "Olympus", _olympus },
+    { D_DRAGONS_LAIR, "Dragons' Lair", _dragons_lair },
+    { D_RANDOM_FOREST, "Random Forest", _random_forest },
+    { D_RANDOM_MOUNTAIN, "Random Mountain", _random_mountain },
+    { D_RANDOM_VOLCANO, "Random Volcano", _random_volcano },
+    { D_RANDOM_SEA, "Random Sea", _random_sea },
+    { D_WIZARDS_TOWER, "Wizards' Tower", _wizards_tower },
+    { D_MONASTERY, "Monastery", _monastery },
+    { D_GRAVEYARD, "Graveyard", _graveyard },
+    { D_SANCTUARY, "Sanctuary", _sanctuary },
+    { D_PANDEMONIUM, "Pandemonium", _pandemonium },
+    { D_NUMENOR, "Numenor", _numenor },
+    { D_RLYEH, "R'lyeh", _rlyeh },
+    { D_DARK_CASTLE, "Dark Castle", _dark_castle },
     { 0 }
 };
 
@@ -113,12 +139,14 @@ dun_type_ptr dun_types_lookup(int id)
     if (!type)
     {
         int i;
+        if (!id) return NULL; /* paranoia */
         for (i = 0; !type; i++)
         {
             _entry_ptr e = &_tbl[i];
+            if (!e->id) return NULL;
             if (e->id != id) continue;
             assert(e->create_f);
-            if (!e->create_f) return NULL;
+            if (!e->create_f) return NULL; /* paranoia */
             type = e->create_f();
             assert(type->id == id);
             int_map_add(_types(), id, type);
@@ -134,9 +162,6 @@ void dun_types_reset_world(void)
             int_map_iter_next(iter))
     {
         dun_type_ptr type = int_map_iter_current(iter);
-        /* dungeon types should be constrained to just a single world, 
-         * but, D_AMBER, being located at the crossroads to many worlds,
-         * is an exception. */
         type->world_pos = point_create(0, 0);
     }
     int_map_iter_free(iter);
@@ -144,8 +169,11 @@ void dun_types_reset_world(void)
 
 static void dun_type_load(dun_type_ptr type, savefile_ptr file)
 {
+    int n;
     type->max_dun_lvl = savefile_read_s16b(file);
-    type->final_guardian = savefile_read_s16b(file);
+    /* XXX Support adding a guardian to a dun_type that previously had none */
+    n = savefile_read_s16b(file);
+    if (n) type->final_guardian = n;
     type->world_pos.x = savefile_read_s16b(file);
     type->world_pos.y = savefile_read_s16b(file);
     type->plr_max_lvl = savefile_read_s16b(file);
@@ -369,7 +397,7 @@ int _surface_mon_alloc(dun_type_ptr me, mon_race_ptr race, int prob)
 }
 static dun_type_ptr _surface(void)
 {
-    dun_type_ptr type = dun_type_alloc(D_SURFACE, "The Surface");
+    dun_type_ptr type = dun_type_alloc(D_SURFACE, "The Wilderness");
     _set_feat(type->floor_type, feat_dirt, 0, 100);
     type->mon_alloc_f = _surface_mon_alloc;
     type->mon_alloc_tbl = vec_filter(mon_alloc_tbl, (vec_item_p)mon_alloc_surface);
@@ -429,8 +457,12 @@ static bool _alloc_guardian(dun_type_ptr me, dun_ptr dun)
     {
         point_t pos = dun_random_mon_pos(cave, race);
         mon_ptr mon;
+        dun_grid_ptr grid;
 
         if (!dun_pos_interior(cave, pos)) continue;
+        if (!dun_allow_mon_at(dun, pos)) continue;
+        grid = dun_grid_at(dun, pos);
+        if (!monster_can_cross_terrain(grid->feat, race, 0)) continue;
 
         /* allocated on a different level? move the guardian here! */
         if ((race->flags1 & RF1_UNIQUE) && race->cur_num)
@@ -502,11 +534,12 @@ static dun_type_ptr _amber(void)
 {
     dun_type_ptr type = dun_type_alloc(D_AMBER, "The World of Amber");
     type->desc = "the fabulous world of Amber";
-    type->min_dun_lvl = 1;
+    type->min_dun_lvl = 15;
     type->max_dun_lvl = 99;
     type->final_guardian = MON_OBERON;
     type->change_dun_f = _amber_change_dun;
     type->kill_mon_f = _amber_kill_mon;
+    type->flags = DF_KNOWN;
     return type;
 }
 /************************************************************************
@@ -575,7 +608,7 @@ static dun_type_ptr _stronghold(void)
     type->change_dun_f = _stronghold_change_dun;
     type->kill_mon_f = _stronghold_kill_mon;
     type->mon_alloc_f = _stronghold_mon_alloc;
-    type->flags = DF_NO_CAVE | DF_CURTAIN;
+    type->flags = DF_NO_CAVE | DF_CURTAIN | DF_KNOWN;
     return type;
 }
 
@@ -646,7 +679,7 @@ static dun_type_ptr _orc_cave(void)
     type->change_dun_f = _orc_cave_change_dun;
     type->kill_mon_f = _orc_cave_kill_mon;
     type->mon_alloc_f = _orc_cave_mon_alloc;
-    type->flags = DF_CAVE | DF_RIVER_WATER | DF_CAVERN | DF_LAKE_TREE | DF_DESTROY;
+    type->flags = DF_CAVE | DF_RIVER_WATER | DF_CAVERN | DF_LAKE_TREE | DF_DESTROY | DF_KNOWN;
     return type;
 }
 /************************************************************************
@@ -736,10 +769,8 @@ static int _forest_mon_alloc(dun_type_ptr me, mon_race_ptr race, int prob)
     }
     return prob;
 }
-static dun_type_ptr _forest(void)
+static void _forest_aux(dun_type_ptr type)
 {
-    dun_type_ptr type = dun_type_alloc(D_FOREST, "The Forest");
-    type->desc = "a path leading to a Forest";
     _set_feat(type->floor_type, feat_grass, 0, 85);
     _set_feat(type->floor_type, feat_flower, 85, 5);
     _set_feat(type->floor_type, feat_shallow_water, 90, 10);
@@ -749,13 +780,30 @@ static dun_type_ptr _forest(void)
     type->feat_wall_solid = feat_brake;
     type->stream1 = feat_granite;
     type->stream2 = feat_brake;
+    type->mon_alloc_f = _forest_mon_alloc;
+    type->flags = DF_NO_DOORS | DF_RIVER_WATER;
+}
+static dun_type_ptr _forest(void)
+{
+    dun_type_ptr type = dun_type_alloc(D_FOREST, "The Forest");
+    type->desc = "a path leading to a Forest";
+    _forest_aux(type);
     type->min_dun_lvl = 20;
     type->max_dun_lvl = 32;
     type->final_guardian = MON_SHELOB;
     type->change_dun_f = _forest_change_dun;
     type->kill_mon_f = _forest_kill_mon;
-    type->mon_alloc_f = _forest_mon_alloc;
-    type->flags = DF_NO_DOORS | DF_RIVER_WATER;
+    type->flags |= DF_KNOWN;
+    return type;
+}
+static dun_type_ptr _random_forest(void)
+{
+    dun_type_ptr type = dun_type_alloc(D_RANDOM_FOREST, "Random Forest");
+    type->desc = "a path leading to an unknown forest";
+    _forest_aux(type);
+    type->min_dun_lvl = 15;
+    type->max_dun_lvl = 35;
+    type->flags |= DF_RANDOM;
     return type;
 }
 /************************************************************************
@@ -817,6 +865,11 @@ static dun_type_ptr _camelot(void)
 /************************************************************************
  * Icky Cave
  ************************************************************************/
+static void _icky_cave_init(dun_type_ptr me)
+{
+    mon_race_lookup(MON_ICKY_QUEEN)->flagsx |= RFX_GUARDIAN;
+    mon_race_lookup(MON_UBBO_SATHLA)->flagsx |= RFX_GUARDIAN;
+}
 static void _icky_cave_change_dun(dun_type_ptr me, dun_ptr dun)
 {
     if (dun->dun_lvl == me->max_dun_lvl && !(me->plr_flags & DFP_COMPLETED))
@@ -861,7 +914,7 @@ static int _icky_cave_mon_alloc(dun_type_ptr me, mon_race_ptr race, int prob)
     }
     return prob;
 }
-rect_t _icky_cave_size(dun_type_ptr me)
+static rect_t _icky_cave_size(dun_type_ptr me)
 {
     return rect_create(0, 0, 200, 70);
 }
@@ -879,7 +932,8 @@ static dun_type_ptr _icky_cave(void)
     type->change_dun_f = _icky_cave_change_dun;
     type->kill_mon_f = _icky_cave_kill_mon;
     type->mon_alloc_f = _icky_cave_mon_alloc;
-    type->flags = DF_CAVE | DF_RIVER_WATER | DF_CAVERN | DF_LAKE_TREE | DF_DESTROY;
+    type->init_f = _icky_cave_init;
+    type->flags = DF_CAVE | DF_RIVER_WATER | DF_CAVERN | DF_LAKE_TREE | DF_DESTROY | DF_KNOWN;
     return type;
 }
 /************************************************************************
@@ -988,10 +1042,8 @@ rect_t _mountain_size(dun_type_ptr me)
 {
     return rect_create(0, 0, 200, 70);
 }
-static dun_type_ptr _mountain(void)
+static void _mountain_aux(dun_type_ptr type)
 {
-    dun_type_ptr type = dun_type_alloc(D_MOUNTAIN, "The Mountain");
-    type->desc = "a dark tunnel leading to the Mountain";
     _set_feat(type->floor_type, feat_grass, 0, 100);
     _set_feat(type->fill_type, feat_mountain_wall, 0, 100);
     type->feat_wall_outer = feat_mountain_wall;
@@ -999,14 +1051,66 @@ static dun_type_ptr _mountain(void)
     type->feat_wall_inner = feat_granite;
     type->stream1 = 0;
     type->stream2 = 0;
+    type->size_f = _mountain_size;
+    type->mon_alloc_f = _mountain_mon_alloc;
+    type->flags = DF_CAVE | DF_RIVER_WATER | DF_CAVERN | DF_NO_DOORS;
+}
+static dun_type_ptr _mountain(void)
+{
+    dun_type_ptr type = dun_type_alloc(D_MOUNTAIN, "The Mountain");
+    type->desc = "a dark tunnel leading to the Mountain";
+    _mountain_aux(type);
     type->min_dun_lvl = 35;
     type->max_dun_lvl = 44;
     type->final_guardian = MON_UTGARD_LOKE;
-    type->size_f = _mountain_size;
     type->change_dun_f = _mountain_change_dun;
     type->kill_mon_f = _mountain_kill_mon;
-    type->mon_alloc_f = _mountain_mon_alloc;
-    type->flags = DF_CAVE | DF_RIVER_WATER | DF_CAVERN | DF_NO_DOORS;
+    return type;
+}
+static dun_type_ptr _random_mountain(void)
+{
+    dun_type_ptr type = dun_type_alloc(D_RANDOM_MOUNTAIN, "Random Mountain");
+    type->desc = "a dark tunnel leading to an unknown mountain";
+    _mountain_aux(type);
+    type->min_dun_lvl = 30;
+    type->max_dun_lvl = 50;
+    type->flags |= DF_RANDOM;
+    return type;
+}
+/************************************************************************
+ * Volcano
+ ************************************************************************/
+void _volcano_pre_gen(dun_type_ptr me, dun_gen_ptr gen)
+{
+    dun_gen_lava_vault(gen);
+}
+rect_t _volcano_size(dun_type_ptr me)
+{
+    return rect_create(0, 0, 200, 70);
+}
+static bool _volcano_p(mon_race_ptr race)
+{
+    if (race->flagsr & RFR_IM_FIRE) return TRUE;
+    if (race->flags7 & RF7_CAN_FLY) return TRUE;
+    if (race->flags8 & RF8_WILD_VOLCANO) return TRUE;
+    return FALSE;
+}
+static dun_type_ptr _random_volcano(void)
+{
+    dun_type_ptr type = dun_type_alloc(D_RANDOM_VOLCANO, "Random Volcano");
+    type->desc = "a dark tunnel leading to an unknown volcano";
+    _set_feat(type->floor_type, feat_dirt, 0, 40);
+    _set_feat(type->floor_type, feat_shallow_lava, 40, 40);
+    _set_feat(type->floor_type, feat_deep_lava, 80, 20);
+    _set_feat(type->fill_type, feat_granite, 0, 90);
+    _set_feat(type->fill_type, feat_dark_pit, 90, 10);
+    type->min_dun_lvl = 40;
+    type->max_dun_lvl = 60;
+    type->pre_gen_f = _volcano_pre_gen;
+    type->size_f = _volcano_size;
+    type->mon_alloc_tbl = vec_filter(mon_alloc_tbl, (vec_item_p)_volcano_p);
+    type->flags = DF_CAVE | DF_NO_DOORS;
+    type->flags |= DF_RANDOM;
     return type;
 }
 /************************************************************************
@@ -1346,5 +1450,487 @@ static dun_type_ptr _olympus(void)
     type->change_dun_f = _olympus_change_dun;
     type->kill_mon_f = _olympus_kill_mon;
     type->flags = DF_CAVE | DF_RIVER_WATER | DF_CAVERN | DF_NO_DOORS;
+    return type;
+}
+/************************************************************************
+ * Dragons' Lair
+ ************************************************************************/
+static int _dragons_lair_mon_alloc(dun_type_ptr me, mon_race_ptr race, int prob)
+{
+    if (race->flags3 & RF3_DRAGON) return prob * 5;
+    if (race->flags3 & RF3_GIANT) return prob * 2;
+    return prob;
+}
+rect_t _dragons_lair_size(dun_type_ptr me)
+{
+    return rect_create(0, 0, 200, 70);
+}
+static void _dragons_lair_init(dun_type_ptr me)
+{
+    mon_race_lookup(MON_NARSE)->flagsx |= RFX_GUARDIAN;
+    mon_race_lookup(MON_TIAMAT)->flagsx |= RFX_GUARDIAN;
+}
+static void _dragons_lair_change_dun(dun_type_ptr me, dun_ptr dun)
+{
+    if (dun->dun_lvl == me->max_dun_lvl && !(me->plr_flags & DFP_COMPLETED))
+        _alloc_guardian(me, dun);
+}
+static void _dragons_lair_kill_mon(dun_type_ptr me, mon_ptr mon)
+{
+    if (mon->r_idx == me->final_guardian && (mon->mflag2 & MFLAG2_QUESTOR))
+    {
+        dun_ptr dun = mon_dun(mon);
+        obj_t   forge = {0};
+
+        if (mon->r_idx == MON_NARSE)
+        {
+            dun_quest_stairs(dun, mon->pos, me->max_dun_lvl + 1);
+            if (make_object(&forge, me->max_dun_lvl, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST))
+                dun_drop_near(dun, &forge, mon->pos);
+            virtue_add(VIRTUE_VALOUR, 2);
+            p_ptr->fame++;
+
+            me->max_dun_lvl = 72;
+            me->final_guardian = MON_TIAMAT;
+        }
+        else
+        {
+            int k_idx = lookup_kind(TV_DRAG_ARMOR, SV_DRAGON_MULTIHUED);
+
+            object_prep(&forge, k_idx);
+            apply_magic(&forge, me->max_dun_lvl, AM_NO_FIXED_ART | AM_GOOD | AM_GREAT | AM_QUEST);
+            dun_drop_near(dun, &forge, mon->pos);
+            _conquer(me);
+        }
+    }
+}
+static dun_type_ptr _dragons_lair(void)
+{
+    dun_type_ptr type = dun_type_alloc(D_DRAGONS_LAIR, "The Dragons' Lair");
+    type->desc = "the entrance to the Dragons' Lair";
+    _set_feat(type->floor_type, feat_dirt, 0, 100);
+    _set_feat(type->fill_type, feat_dark_pit, 90, 10);
+    type->min_dun_lvl = 60;
+    type->max_dun_lvl = 60;
+    type->final_guardian = MON_NARSE;
+    type->init_f = _dragons_lair_init;
+    type->size_f = _dragons_lair_size;
+    type->change_dun_f = _dragons_lair_change_dun;
+    type->kill_mon_f = _dragons_lair_kill_mon;
+    type->mon_alloc_f = _dragons_lair_mon_alloc;
+    type->flags = DF_CAVE | DF_RIVER_LAVA | DF_CAVERN | DF_DESTROY
+                | DF_LAKE_LAVA | DF_LAKE_TREE | DF_LAKE_RUBBLE;
+    return type;
+}
+/************************************************************************
+ * Random Sea
+ ************************************************************************/
+static bool _can_swim(mon_race_ptr race)
+{
+    if (race->flags7 & RF7_AQUATIC) return TRUE;
+    if (race->flags7 & RF7_CAN_SWIM) return TRUE;
+    if (race->flags7 & RF7_CAN_FLY) return TRUE;
+    if (race->flags8 & RF8_WILD_OCEAN) return TRUE;
+    return FALSE;
+}
+rect_t _random_sea_size(dun_type_ptr me)
+{
+    return rect_create(0, 0, 200, 70);
+}
+static void _sea_aux(dun_type_ptr type)
+{
+    _set_feat(type->floor_type, feat_floor, 0, 80);
+    _set_feat(type->floor_type, feat_shallow_water, 80, 20);
+    _set_feat(type->fill_type, feat_deep_water, 0, 80);
+    _set_feat(type->fill_type, feat_shallow_water, 80, 10);
+    _set_feat(type->fill_type, feat_granite, 90, 10);
+    type->stream1 = 0;
+    type->stream2 = 0;
+    type->size_f = _random_sea_size;
+    type->mon_alloc_tbl = vec_filter(mon_alloc_tbl, (vec_item_p)_can_swim);
+    type->flags = DF_LAKE_WATER | DF_RIVER_WATER | DF_DESTROY; 
+}
+static dun_type_ptr _random_sea(void)
+{
+    dun_type_ptr type = dun_type_alloc(D_RANDOM_SEA, "Random Sea");
+    type->desc = "an entrance to an unkown submerged land";
+    _sea_aux(type);
+    type->min_dun_lvl = 40;
+    type->max_dun_lvl = 60;
+    type->flags |= DF_RANDOM;
+    return type;
+}
+static void _numenor_init(dun_type_ptr me)
+{
+    mon_race_lookup(MON_JORMUNGAND)->flagsx |= RFX_GUARDIAN;
+}
+static void _numenor_change_dun(dun_type_ptr me, dun_ptr dun)
+{
+    if (dun->dun_lvl == me->max_dun_lvl && !(me->plr_flags & DFP_COMPLETED))
+        _alloc_guardian(me, dun);
+}
+static void _numenor_kill_mon(dun_type_ptr me, mon_ptr mon)
+{
+    if (mon->r_idx == me->final_guardian && (mon->mflag2 & MFLAG2_QUESTOR))
+    {
+        dun_ptr dun = mon_dun(mon);
+        obj_t   forge = {0};
+
+        if (!a_info[ART_WRATH].generated)
+            create_named_art(ART_WRATH, mon->pos);
+        else if (make_object(&forge, me->max_dun_lvl, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST))
+            dun_drop_near(dun, &forge, mon->pos);
+
+        _conquer(me);
+    }
+}
+static dun_type_ptr _numenor(void)
+{
+    dun_type_ptr type = dun_type_alloc(D_NUMENOR, "Numenor");
+    type->desc = "a submerged way to the lost land of Numenor";
+    _sea_aux(type);
+    type->min_dun_lvl = 55;
+    type->max_dun_lvl = 75;
+    type->final_guardian = MON_JORMUNGAND;
+    type->init_f = _numenor_init;
+    type->change_dun_f = _numenor_change_dun;
+    type->kill_mon_f = _numenor_kill_mon;
+    return type;
+}
+/************************************************************************
+ * Wizard's Tower
+ ************************************************************************/
+static int _wizards_tower_mon_alloc(dun_type_ptr me, mon_race_ptr race, int prob)
+{
+    switch (race->d_char)
+    {
+    case 'p':
+    case 'h':
+        if (mon_race_is_magical(race)) return prob * race->spells->freq;
+        break;
+    case 'g':
+        return prob * 10; /* golems are animated by magical means ... */
+    }
+    return prob;
+}
+rect_t _wizards_tower_size(dun_type_ptr me)
+{
+    return rect_create(0, 0, 151, 75);
+}
+static dun_type_ptr _wizards_tower(void)
+{
+    dun_type_ptr type = dun_type_alloc(D_WIZARDS_TOWER, "The Wizards' Tower");
+    type->desc = "the Wizards' Tower";
+    type->stream1 = 0;
+    type->stream2 = 0;
+    type->min_dun_lvl = 40;
+    type->max_dun_lvl = 60;
+    type->size_f = _wizards_tower_size;
+    type->mon_alloc_f = _wizards_tower_mon_alloc;
+    type->flags = DF_NO_CAVE | DF_CURTAIN | DF_ARENA | DF_TOWER;
+    return type;
+}
+/************************************************************************
+ * Monastery
+ ************************************************************************/
+static bool _is_monk(mon_race_ptr r)
+{
+    int i;
+    assert(r->blows);
+    for (i = 0; i < vec_length(r->blows); i++)
+    {
+        mon_blow_ptr blow = vec_get(r->blows, i);
+        if (blow->method == RBM_MONK) return TRUE;
+    }
+    return FALSE;
+}
+
+static int _monastery_mon_alloc(dun_type_ptr me, mon_race_ptr race, int prob)
+{
+    if (_is_monk(race)) return prob * 50;
+    if (race->flags2 & RF2_HUMAN) return prob * 5;
+    return prob;
+}
+rect_t _monastery_size(dun_type_ptr me)
+{
+    return rect_create(0, 0, 151, 75);
+}
+static dun_type_ptr _monastery(void)
+{
+    dun_type_ptr type = dun_type_alloc(D_MONASTERY, "The Monastery");
+    type->desc = "the Monastery";
+    type->stream1 = 0;
+    type->stream2 = 0;
+    type->min_dun_lvl = 35;
+    type->max_dun_lvl = 50;
+    type->size_f = _monastery_size;
+    type->mon_alloc_f = _monastery_mon_alloc;
+    type->flags = DF_NO_CAVE | DF_CURTAIN | DF_ARENA | DF_TOWER;
+    return type;
+}
+/************************************************************************
+ * Graveyard
+ ************************************************************************/
+static int _graveyard_mon_alloc(dun_type_ptr me, mon_race_ptr race, int prob)
+{
+    if (race->flags3 & RF3_UNDEAD) return prob * 50;
+    if (race->flags3 & RF3_NONLIVING) return prob * 10;
+    return prob;
+}
+static void _graveyard_init(dun_type_ptr me)
+{
+    mon_race_lookup(MON_VECNA)->flagsx |= RFX_GUARDIAN;
+}
+static void _graveyard_change_dun(dun_type_ptr me, dun_ptr dun)
+{
+    if (dun->dun_lvl == me->max_dun_lvl && !(me->plr_flags & DFP_COMPLETED))
+        _alloc_guardian(me, dun);
+}
+static void _graveyard_kill_mon(dun_type_ptr me, mon_ptr mon)
+{
+    if (mon->r_idx == me->final_guardian && (mon->mflag2 & MFLAG2_QUESTOR))
+    {
+        dun_ptr dun = mon_dun(mon);
+        obj_t   forge = {0};
+
+        if (make_object(&forge, me->max_dun_lvl, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST))
+            dun_drop_near(dun, &forge, mon->pos);
+
+        _conquer(me);
+    }
+}
+static dun_type_ptr _graveyard(void)
+{
+    dun_type_ptr type = dun_type_alloc(D_GRAVEYARD, "The Graveyard");
+    type->desc = "the Graveyard";
+    _set_feat(type->floor_type, feat_shallow_water, 85, 15);
+    _set_feat(type->fill_type, feat_dark_pit, 90, 10);
+    type->stream1 = 0;
+    type->stream2 = 0;
+    type->min_dun_lvl = 50;
+    type->max_dun_lvl = 70;
+    type->mon_alloc_f = _graveyard_mon_alloc;
+    type->final_guardian = MON_VECNA;
+    type->change_dun_f = _graveyard_change_dun;
+    type->kill_mon_f = _graveyard_kill_mon;
+    type->init_f = _graveyard_init;
+    type->flags = DF_RIVER_WATER | DF_LAKE_WATER | DF_ARENA | DF_DESTROY | DF_LAKE_RUBBLE;
+    return type;
+}
+/************************************************************************
+ * Sanctuary
+ ************************************************************************/
+static int _sanctuary_mon_alloc(dun_type_ptr me, mon_race_ptr race, int prob)
+{
+    if (race->flags3 & RF3_EVIL) return 0;
+    if (race->flags7 & (RF7_HAS_DARK_1 | RF7_HAS_DARK_2 | RF7_SELF_DARK_1 | RF7_SELF_DARK_2)) return 0;
+    if (race->flags3 & RF3_GOOD) prob *= 3;
+    if (race->d_char == 'A') prob *= 5;
+    if (race->flags2 & RF2_KNIGHT) prob *= 5;
+    else if (race->flags2 & RF2_HUMAN) prob *= 2;
+    if (race->flags3 & RF3_NONLIVING) prob = (prob + 2)/3;
+
+    return prob;
+}
+rect_t _sanctuary_size(dun_type_ptr me)
+{
+    return rect_create(0, 0, 151, 75);
+}
+static dun_type_ptr _sanctuary(void)
+{
+    dun_type_ptr type = dun_type_alloc(D_SANCTUARY, "The Sanctuary");
+    type->desc = "the grand doorway of The Sanctuary of the Light";
+    _set_feat(type->fill_type, feat_permanent, 80, 20);
+    type->stream1 = 0;
+    type->stream2 = 0;
+    type->min_dun_lvl = 40;
+    type->max_dun_lvl = 70; /* tower to heaven */
+    type->size_f = _sanctuary_size;
+    type->mon_alloc_f = _sanctuary_mon_alloc;
+    type->flags = DF_NO_CAVE | DF_CURTAIN | DF_ARENA | DF_TOWER;
+    return type;
+}
+/************************************************************************
+ * Pandemonium
+ ************************************************************************/
+void _pandemonium_pre_gen(dun_type_ptr me, dun_gen_ptr gen)
+{
+    if (gen->dun->dun_lvl == me->max_dun_lvl && !(me->plr_flags & DFP_COMPLETED))
+        dun_gen_lava_vault(gen);
+}
+static void _pandemonium_init(dun_type_ptr me)
+{
+    mon_race_lookup(MON_MEPHISTOPHELES)->flagsx |= RFX_GUARDIAN;
+}
+static void _pandemonium_change_dun(dun_type_ptr me, dun_ptr dun)
+{
+    if (dun->dun_lvl == me->max_dun_lvl && !(me->plr_flags & DFP_COMPLETED))
+        _alloc_guardian(me, dun);
+}
+static void _pandemonium_kill_mon(dun_type_ptr me, mon_ptr mon)
+{
+    if (mon->r_idx == me->final_guardian && (mon->mflag2 & MFLAG2_QUESTOR))
+    {
+        dun_ptr dun = mon_dun(mon);
+        obj_t   forge = {0};
+
+        if (make_object(&forge, me->max_dun_lvl, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST))
+            dun_drop_near(dun, &forge, mon->pos);
+
+        p_ptr->fame += 10;
+        _conquer(me);
+    }
+}
+static int _pandemonium_mon_alloc(dun_type_ptr me, mon_race_ptr race, int prob)
+{
+    if (!(race->flags3 & RF3_EVIL)) return 0;
+    if (!(race->flagsr & RFR_IM_FIRE) && !(race->flags7 & RF7_CAN_FLY)) return 0;
+
+    if (race->flags3 & RF3_DEMON) prob *= 50;
+    return prob;
+}
+rect_t _pandemonium_size(dun_type_ptr me)
+{
+    return rect_create(0, 0, 200, 70);
+}
+static dun_type_ptr _pandemonium(void)
+{
+    dun_type_ptr type = dun_type_alloc(D_PANDEMONIUM, "Pandemonium");
+    type->desc = "hell: Abandon all hope ye who enter here";
+    _set_feat(type->floor_type, feat_dirt, 0, 40);
+    _set_feat(type->floor_type, feat_shallow_lava, 40, 40);
+    _set_feat(type->floor_type, feat_deep_lava, 80, 20);
+    _set_feat(type->fill_type, feat_dark_pit, 90, 10);
+    type->min_dun_lvl = 66;
+    type->max_dun_lvl = 80;
+    type->final_guardian = MON_MEPHISTOPHELES;
+    type->init_f = _pandemonium_init;
+    type->mon_alloc_f = _pandemonium_mon_alloc;
+    type->change_dun_f = _pandemonium_change_dun;
+    type->kill_mon_f = _pandemonium_kill_mon;
+    type->pre_gen_f = _pandemonium_pre_gen;
+    type->size_f = _pandemonium_size;
+    type->flags = DF_CAVERN | DF_CAVE | DF_LAKE_LAVA | DF_RIVER_LAVA | DF_DESTROY;
+    return type;
+}
+/************************************************************************
+ * R'lyeh
+ ************************************************************************/
+static int _rlyeh_mon_alloc(dun_type_ptr me, mon_race_ptr race, int prob)
+{
+    if (race->flags3 & RF3_DEMON) return prob * 50;
+    else if (race->flags2 & RF2_ELDRITCH_HORROR) return prob * 30;
+    return prob;
+}
+static void _rlyeh_init(dun_type_ptr me)
+{
+    mon_race_lookup(MON_G_CTHULHU)->flagsx |= RFX_GUARDIAN;
+}
+static void _rlyeh_change_dun(dun_type_ptr me, dun_ptr dun)
+{
+    if (dun->dun_lvl == me->max_dun_lvl && !(me->plr_flags & DFP_COMPLETED))
+        _alloc_guardian(me, dun);
+}
+static void _rlyeh_kill_mon(dun_type_ptr me, mon_ptr mon)
+{
+    if (mon->r_idx == me->final_guardian && (mon->mflag2 & MFLAG2_QUESTOR))
+    {
+        dun_ptr dun = mon_dun(mon);
+        obj_t   forge = {0};
+
+        if (make_object(&forge, me->max_dun_lvl, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST))
+            dun_drop_near(dun, &forge, mon->pos);
+
+        _conquer(me);
+    }
+}
+static dun_type_ptr _rlyeh(void)
+{
+    dun_type_ptr type = dun_type_alloc(D_RLYEH, "R'lyeh");
+    type->desc = "a way to R'lyeh";
+    _set_feat(type->floor_type, feat_shallow_water, 50, 30);
+    _set_feat(type->floor_type, feat_deep_water, 80, 20);
+    type->min_dun_lvl = 80;
+    type->max_dun_lvl = 96;
+    type->mon_alloc_f = _rlyeh_mon_alloc;
+    type->final_guardian = MON_G_CTHULHU;
+    type->change_dun_f = _rlyeh_change_dun;
+    type->kill_mon_f = _rlyeh_kill_mon;
+    type->init_f = _rlyeh_init;
+    type->flags = DF_RIVER_WATER | DF_LAKE_WATER | DF_ARENA;
+    return type;
+}
+/************************************************************************
+ * Dark Castle (of Vlad)
+ ************************************************************************/
+static void _dark_castle_init(dun_type_ptr me)
+{
+    mon_race_lookup(MON_THURINGWETHIL)->flagsx |= RFX_GUARDIAN;
+    mon_race_lookup(MON_VLAD)->flagsx |= RFX_GUARDIAN;
+}
+static void _dark_castle_change_dun(dun_type_ptr me, dun_ptr dun)
+{
+    if (dun->dun_lvl == me->max_dun_lvl && !(me->plr_flags & DFP_COMPLETED))
+        _alloc_guardian(me, dun);
+}
+static void _dark_castle_kill_mon(dun_type_ptr me, mon_ptr mon)
+{
+    if (mon->r_idx == me->final_guardian && (mon->mflag2 & MFLAG2_QUESTOR))
+    {
+        dun_ptr dun = mon_dun(mon);
+        obj_t   forge = {0};
+
+        if (mon->r_idx == MON_THURINGWETHIL)
+        {
+            dun_quest_stairs(dun, mon->pos, me->max_dun_lvl + 1);
+            if (make_object(&forge, me->max_dun_lvl, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST))
+                dun_drop_near(dun, &forge, mon->pos);
+            virtue_add(VIRTUE_VALOUR, 2);
+            p_ptr->fame++;
+            me->max_dun_lvl = 60;
+            me->final_guardian = MON_VLAD;
+        }
+        else
+        {
+            if (make_object(&forge, me->max_dun_lvl, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST))
+                dun_drop_near(dun, &forge, mon->pos);
+
+            _conquer(me);
+        }
+    }
+}
+static int _dark_castle_mon_alloc(dun_type_ptr me, mon_race_ptr race, int prob)
+{
+    if (race->flags3 & RF3_GOOD) return 0;
+    /* Vampires, wolves, bats and rats ... */
+    switch (race->d_char)
+    {
+    case 'V': return prob * 50;
+    case 'b': return prob * 25;
+    case 'C': return prob * 25;
+    case 'r': return prob * 25;
+    }
+    if (race->flags3 & RF3_UNDEAD) return prob * 10;
+    return prob;
+}
+rect_t _dark_castle_size(dun_type_ptr me)
+{
+    return rect_create(0, 0, 200, 45);
+}
+static dun_type_ptr _dark_castle(void)
+{
+    dun_type_ptr type = dun_type_alloc(D_DARK_CASTLE, "The Dark Castle");
+    type->desc = "the gates of the Dark Castle";
+    type->stream1 = 0;
+    type->stream2 = 0;
+    type->min_dun_lvl = 40;
+    type->max_dun_lvl = 50;
+    type->final_guardian = MON_THURINGWETHIL;
+    type->size_f = _dark_castle_size;
+    type->change_dun_f = _dark_castle_change_dun;
+    type->kill_mon_f = _dark_castle_kill_mon;
+    type->mon_alloc_f = _dark_castle_mon_alloc;
+    type->init_f = _dark_castle_init;
+    type->flags = DF_NO_CAVE | DF_CURTAIN | DF_ARENA;
     return type;
 }

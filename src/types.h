@@ -596,7 +596,7 @@ typedef struct monster_type monster_type;
 enum {
     SM_REFLECTION = RES_MAX,
     SM_FREE_ACTION,
-    SM_GUARDIAN,
+    SM_GUARDIAN,   /* XXX This is being checked, but is never set XXX */
     SM_CLONED,
     SM_PET,
     SM_FRIENDLY,
@@ -650,6 +650,19 @@ struct monster_type
 
     byte drop_ct;
     byte stolen_ct;
+    u16b turns;
+    /* XXX Digression: The game used to have MFLAG_NICE, which was set on monster
+     * birth along with "repair_monsters". For summoned monsters, this prevented them
+     * casting a spell before the player had a chance to react to the initial summons, which
+     * can be nasty with chain summoning and brain smashes. However, repair_monsters doesn't
+     * work correctly with multiple levels as it only repairs monsters on the player's level.
+     * (e.g. Nodens would come up the stairs and never cast spells since he never had
+     * his MFLAG_NICE flag repaired).
+     * Instead of this, we'll use a counter to track the number of moves each monster takes
+     * (might be interesting for other things) and block spells on the monster's initial
+     * move. This will allow a spell if a summoned monster gets a double move, but that is rare.
+     * cf dun_process_monsters (dun.c) and _can_cast (mon_spell.c)
+     * nb this "nice behaviour" requires RF1_FORCE_SLEEP XXX */
 
     byte anti_magic_ct;
     byte anger;
@@ -842,8 +855,8 @@ struct player_type
 {
     s32b id;
 
-    /* XXX These are all TODO */
-    u16b world_id;     /* 0 => randomly generated D_WORLD; non-0 => id used to parse world map */
+    u16b initial_world_id; /* W_SMAUG for middle earth; W_AMBER for random world */
+    u16b world_id;     /* worlds may be sequenced (W_SMAUG->W_SARUMAN->W_SAURON) */
     u16b dun_id;       /* may differ from cave->dun_id */
     point_t pos;       /* current position in dun_id */
     point_t old_pos;   /* last position in D_SURFACE for recall */
@@ -1200,6 +1213,7 @@ typedef struct birther birther;
 
 struct birther
 {
+    s16b initial_world_id;
     byte game_mode;
     byte psex;         /* Sex index */
     s16b prace;        /* Race index */

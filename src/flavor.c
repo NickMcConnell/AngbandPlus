@@ -1586,7 +1586,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
 
     /* Hack -- Append "Artifact" or "Special" names */
-    if (known && !have_flag(flgs, OF_FULL_NAME))
+    if (known && (!have_flag(flgs, OF_FULL_NAME) || o_ptr->art_name))
     {
         /* Is it a new random artifact ? */
         if (o_ptr->art_name)

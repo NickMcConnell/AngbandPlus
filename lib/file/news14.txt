@@ -1,36 +1,23 @@
 <color:y>PosChengband <$:version></color><style:screenshot>
-<color:w>Name       : </color><color:B>Aetheros                      </color><color:w>========== Stats ==========
-Sex        : </color><color:B>Male                                </color><color:w>STR! :    </color><color:G>18/200
-</color><color:w>Personality: </color><color:B>Mighty                              </color><color:w>INT! :     </color><color:G>18/30
-</color><color:w>Race       : </color><color:B>Elemental                           </color><color:w>WIS! :     </color><color:G>18/90
-</color><color:w>Subrace    : </color><color:B>Air Elemental                       </color><color:w>DEX! :    </color><color:G>18/***
-</color><color:w>Class      : </color><color:B>Monster                             </color><color:w>CON! :    </color><color:G>18/200
-                                                 </color><color:w>Chr  :    </color><color:y>18/214
-                                        
-</color><color:w>Level      :       </color><color:G>50                            </color><color:w>HP   :   </color><color:r>-21/956
-</color><color:w>Cur Exp    : </color><color:G>11210004                            </color><color:w>SP   :       </color><color:G>0/0
-</color><color:w>Max Exp    : </color><color:G>11210004                            </color><color:w>AC   :       </color><color:G>149
-</color><color:w>Adv Exp    :    </color><color:G>*****                            </color><color:w>Speed:    </color><color:y>+31+10
-                                        
-                                           </color><color:w>========== Skills =========
-Gold       :  </color><color:G>1561224                      </color><color:w>Melee      : </color><color:v>Amber[35]
-</color><color:w>Kills      :     </color><color:G>5282                      </color><color:w>Archery    : </color><color:v>Amber[35]
-</color><color:w>Uniques    :      </color><color:G>149                      </color><color:w>SavingThrow: </color><color:g>Superb
-</color><color:w>Artifacts  :    </color><color:G>91+51                      </color><color:w>Stealth    : </color><color:y>Good
-                                           </color><color:w>Perception : </color><color:o>Fair
-</color><color:w>Game Day   :       </color><color:G>47                      </color><color:w>Searching  : </color><color:y>Very Good
-</color><color:w>Game Time  :    </color><color:G>16:04                      </color><color:w>Disarming  : </color><color:g>Superb
-</color><color:w>Play Time  :    </color><color:G>13:04                      </color><color:w>Device     : </color><color:g>Superb
-                                        
-</color><color:w>a) a Mace of Disruption (Daemon) (5d8) (+12,+12) (+2) {-Sl;Lu|F, !!}
-</color><color:w>c) </color><color:u>The Sling 'Zombie Claw' (x2.23) (+23,+21) (+1) {If;FiPoDkNt;Si}
-</color><color:w>d) </color><color:U>a Quiver of Holding [1 of 170]
-</color><color:w>e) </color><color:r>a Ring (Elemental) {AcElFiCoPo}
-</color><color:w>f) </color><color:r>The Ring 'Frakir' (+1)
-</color><color:w>g) </color><color:o>The Amulet of Sacred Knights [+10] (+2)
-</color><color:w>h) </color><color:y>The Palantir of Westernesse (+3) {!!}
-</color><color:w>i) </color><color:W>The O-yoroi of the Bando Musha (+5,+5) [24,+20] (+2) {Li}
-</color><color:w>j) </color><color:U>The Ethereal Cloak of Ariel, Queen of Air (+17,+2) [0,+15] (+5)
-</color><color:w>k) </color><color:U>The Kabuto of Yositsune [7,+11] (+2)
-</color><color:w>l) </color><color:U>The Set of Cesti of Phasing [5,+14] (+2) {Dx;NtSh(Dx}
-</color><color:w>m) </color><color:U>The Pair of Hard Leather Boots of Feanor [3,+20] (+15)</style>
+<color:o>##################################################</color>                              
+<color:o>#</color><color:G>###</color><color:g>..</color><color:G>#</color><color:g>.....</color><color:G>########</color><color:o>#</color><color:G>#</color><color:o>######</color><color:G>#####################</color><color:o>#</color>                              
+<color:o>#</color><color:G>#######</color>><color:G>##############</color><color:o>#</color><color:G>##########</color><color:y>></color>......<color:G>########</color><color:o>#</color>                              
+<color:o>#</color><color:G>#</color>..................................<color:B>~</color><color:g>...</color><color:W>*</color><color:G>#</color><color:g>....</color><color:G>###</color><color:o>#</color>                              
+<color:o>#</color><color:G>#</color>.<color:G>###</color><color:o>######</color><color:U>~</color><color:o>######</color><color:G>########</color><color:g>...</color><color:B>~</color><color:g>..</color><color:B>~~~</color><color:b>~</color><color:B>~~~</color>><color:g>.......</color><color:G>#</color><color:o>#</color>                              
+<color:o>#</color><color:W>*</color>.<color:o>####</color><color:y>></color><color:o>########</color><color:G>########</color><color:g>...</color><color:B>~~~</color><color:b>~</color><color:B>~~</color><color:b>~~~~~</color><color:B>~</color><color:b>~</color><color:B>~~~~~~</color><color:g>...</color><color:o>#</color>                              
+<color:o>#</color>.<color:o>##########</color><color:G>#</color><color:o>##</color><color:G>######</color><color:g>...</color><color:b>~</color><color:B>~~</color><color:b>~</color><color:B>~~</color><color:b>~~~~~~~~~~~~~~</color><color:B>~</color><color:b>~</color><color:B>~~~</color><color:o>#</color>                              
+<color:o>#</color>..<color:o>#</color><color:W>*</color><color:o>####</color><color:G>######</color><color:g>.</color><color:G>##</color><color:g>...</color><color:B>~~~</color><color:b>~~~~~~~~~~~~~~~~~~~~~~~~~</color><color:o>#</color>                              
+<color:o>##</color>.<color:o>####</color><color:G>######</color><color:g>.</color><color:G>#</color><color:g>...</color><color:B>~~~</color><color:b>~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color><color:o>#</color>                              
+<color:o>##</color>.<color:o>##</color><color:G>#######</color><color:B>~</color><color:g>..</color><color:B>~~~~</color><color:b>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color><color:o>#</color>                              
+<color:o>##</color>.<color:G>#######</color><color:g>..</color><color:B>~~~~~~</color><color:b>~~~~~~~~~~~~~~~~~~~~~~~~~~~</color><color:B>~</color><color:b>~~~</color><color:o>#</color>                              
+<color:o>#</color><color:G>#</color>.<color:G>######</color><color:g>..</color><color:B>~~~~~~~</color><color:b>~~~~~~~~~~~~~~~~~~</color><color:B>~</color><color:b>~~</color><color:B>~~~</color><color:g>.</color><color:B>~~~~~~</color><color:o>#</color>                              
+<color:o>#</color><color:G>#</color>.<color:G>####</color><color:g>...</color><color:B>~~</color><color:b>~</color><color:B>~~</color><color:b>~~~~~~~~~~~~~~</color><color:y>></color><color:b>~~~</color><color:B>~~~~~</color>><color:g>...</color><color:G>#</color><color:g>..</color><color:G>####</color><color:o>#</color>                              
+<color:o>#</color><color:G>#</color>.<color:G>#</color><color:g>.</color><color:G>#</color><color:g>....</color><color:B>~~</color><color:b>~~~~~~~~~~~~~~~~~~~~~</color><color:B>~~~</color><color:g>....</color><color:G>#######</color><color:o>#</color><color:G>#</color><color:o>#</color>                              
+<color:o>#</color><color:G>#</color>....<color:g>..</color><color:B>~~</color><color:b>~~~~~~~~~~~~~~~~~~~~~~~</color><color:B>~~~</color><color:g>...</color>><color:G>#####</color><color:o>#</color><color:G>#</color><color:o>###</color>                              
+<color:o>#</color><color:G>#</color>.<color:G>#</color><color:g>.</color>.<color:g>..</color><color:B>~~~~~~~~~~~</color><color:b>~~</color><color:B>~</color><color:b>~~</color><color:B>~</color><color:b>~~</color><color:B>~~~</color><color:g>......</color><color:G>######</color><color:o>########</color>                              
+<color:o>#</color><color:G>####</color>.....<color:g>....</color><color:B>~</color><color:g>.</color><color:B>~~</color><color:W>*</color><color:B>~~</color><color:g>.</color><color:B>~~</color><color:g>..</color><color:B>~</color><color:g>...</color><color:G>############</color><color:o>#</color><color:G>#</color><color:o>######</color>                              
+<color:o>#</color><color:G>###</color>><color:G>####</color>..........<color:G>#################</color><color:o>#</color><color:G>##</color><color:o>#</color><color:G>##</color><color:o>###</color><color:G>#</color><color:o>#</color><color:G>##</color><color:o>#</color>                              
+<color:o>#</color><color:G>#######################</color><color:o>##</color><color:G>#</color><color:o>##</color><color:G>#</color>><color:o>############</color><color:G>######</color><color:o>#</color>                              
+<color:o>##################################################</color>                              
+</style>
+

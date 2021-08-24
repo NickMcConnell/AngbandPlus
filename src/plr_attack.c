@@ -97,6 +97,12 @@ static int _max_vampiric_drain(void)
 {
     if (prace_is_(RACE_MON_VAMPIRE) || prace_is_(MIMIC_BAT))
         return 100;
+    /* XXX note that dragon forms attack with claws and bites, and
+     * the vampiric counter gets reset for each form on innate attack (plr_attack_mon) */
+    if (prace_is_(RACE_MON_DRAGON))
+        return 30;
+    if (mut_present(MUT_DRACONIAN_METAMORPHOSIS))
+        return 30;
     return 50;
 }
 static bool _penetrate_invuln(plr_attack_ptr context)
@@ -1505,7 +1511,12 @@ static void _innate_hit_mon(plr_attack_ptr context)
             _check_race(context);
         }
     }
-    if ((context->blow->flags & MBF_TOUCH) && !context->stop)
+    /* XXX Need a call to _stop_attack rather than just checking context->stop.
+     * For example, _gf_innate might kill the monster (or teleport it) on the *last*
+     * effect for this blow, at which point context->stop == 0 causing us to
+     * mis-apply auras (or crash if the monster is dead). An example is a Death monk
+     * killing an Ice Elemental with a Zombie Claw (GF_NETHER). XXX */
+    if ((context->blow->flags & MBF_TOUCH) && !_stop_attack(context))
         plr_on_hit_mon(context);
 }
 
@@ -2153,6 +2164,7 @@ void plr_on_hit_mon(plr_attack_ptr context)
       && context->retaliation_ct < 1 + context->blow_ct/3
       && !mon_tim_find(context->mon, T_CONFUSED)
       && !mon_tim_find(context->mon, T_PARALYZED)
+      && point_fast_distance(context->plr_pos, context->mon_pos) < 2  /* e.g. Samurai's Tobi Izuna */
       && randint0(150) < context->race->level )
     {
         mon_retaliate_plr(context->mon);
@@ -2663,7 +2675,7 @@ static void _display_weapon(plr_attack_ptr context, doc_ptr doc)
     if (context->info.info)
     {
         byte a = context->info.info_attr;
-        doc_printf(cols[0], " <color:%c>%s</color>\n", attr_to_attr_char(a), context->info.info);
+        doc_printf(cols[0], "\n <indent><color:%c>%s</color></indent>\n", attr_to_attr_char(a), context->info.info);
     }
 
     /* Column #2 */

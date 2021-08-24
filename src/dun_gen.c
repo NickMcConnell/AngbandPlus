@@ -90,7 +90,7 @@ static int _stair_pos(point_t pos, dun_grid_ptr grid)
 static int _stair_pos_panic(point_t pos, dun_grid_ptr grid)
 {
     dun_feat_ptr feat = dun_grid_feat(grid);
-    if (!have_flag(feat->flags, FF_FLOOR)) return 0; 
+    if (!have_flag(feat->flags, FF_PLACE)) return 0;
     if (have_flag(feat->flags, FF_PATTERN)) return 0; 
     return 1;
 }
@@ -372,14 +372,16 @@ dun_ptr dun_gen_connected(dun_ptr return_dun, dun_stairs_ptr return_stairs)
         dun_add_stairs(dun, stairs);
         dun->flow_pos = stairs->pos_here;
 
-        /* random down stairs */
-        if (!quests_find_quest(dun->dun_type_id, dun->dun_lvl))
-            _place_stairs(dun, feat_down_stair, 2, 3);
+        if (!(dun_types_lookup(dun->dun_type_id)->flags & DF_RANDOM))
+        {
+            /* random down stairs */
+            if (!quests_find_quest(dun->dun_type_id, dun->dun_lvl))
+                _place_stairs(dun, feat_down_stair, 2, 3);
 
-        /* random up stairs */
-        if (return_dun->dun_type_id != D_SURFACE)
-            _place_stairs(dun, feat_up_stair, 1, 3);
-
+            /* random up stairs */
+            if (return_dun->dun_type_id != D_SURFACE)
+                _place_stairs(dun, feat_up_stair, 1, 3);
+        }
         dun->flags |= DF_UPDATE_FLOW | DF_GENERATED;
         _generating = NULL;
     }
@@ -1218,8 +1220,8 @@ bool dun_gen_normal_room(dun_gen_ptr gen)
             for (p.x = min.x; p.x <= max.x; p.x++)
             {
                 grid = _grid_at(p);
-                _inner_wall(p, grid);
                 if (curtain2) grid->feat = feat_door[DOOR_CURTAIN].closed;
+                else _inner_wall(p, grid);
             }
             /* Prevent edge of wall from being tunneled */
             _solid_wall_at_xy(min.x - 1, p.y);
@@ -1232,8 +1234,8 @@ bool dun_gen_normal_room(dun_gen_ptr gen)
             for (p.y = min.y; p.y <= max.y; p.y++)
             {
                 grid = _grid_at(p);
-                _inner_wall(p, grid);
                 if (curtain2) grid->feat = feat_door[DOOR_CURTAIN].closed;
+                else _inner_wall(p, grid);
             }
             /* Prevent edge of wall from being tunneled */
             _solid_wall_at_xy(p.x, min.y - 1);
@@ -1243,8 +1245,8 @@ bool dun_gen_normal_room(dun_gen_ptr gen)
         if (ok)
         {
             grid = _grid_at(center);
-            _random_door(center, grid);
             if (curtain2) grid->feat = feat_door[DOOR_CURTAIN].closed;
+            else _random_door(center, grid);
         }
     }
     return TRUE;
@@ -1389,7 +1391,7 @@ static dun_frac_ptr _cave_frac(rect_t rect, int cutoff_pct)
     point_t center = rect_center(rect);
     point_t p;
 
-    /* these fractal algorithms require careful tuning an are rather fragile
+    /* these fractal algorithms require careful tuning and are rather fragile
      * wrt small parameter changes */
     frac->rough = 2 + max_height * 9 / 100;
     frac->grid = 3 + max_height * 13 / 100;
@@ -1594,7 +1596,12 @@ void dun_gen_cave_wizard(void)
 typedef int (*dun_gen_weight_f)(dun_gen_ptr gen);
 static bool _gen_template(dun_gen_ptr gen) { return dun_gen_template_room(gen, ROOM_ROOM, ROOM_NORMAL); }
 static bool _gen_shop(dun_gen_ptr gen) { return dun_gen_template_room(gen, ROOM_ROOM, ROOM_SHOP); }
-static bool _gen_recall(dun_gen_ptr gen) { return dun_gen_template_room(gen, ROOM_ROOM, ROOM_RECALL); }
+static bool _gen_recall(dun_gen_ptr gen)
+{ 
+    if (gen->dun->dun_type_id == D_AMBER && gen->dun->dun_lvl < 99 && randint0(150) < gen->dun->difficulty)
+        return dun_gen_template_room(gen, ROOM_ROOM, ROOM_PATTERN); /* PATTERN_EXIT can recall (pattern_effect) */
+    return dun_gen_template_room(gen, ROOM_ROOM, ROOM_RECALL);
+}
 static bool _gen_lesser_vault(dun_gen_ptr gen) { return dun_gen_template_room(gen, ROOM_VAULT, VAULT_LESSER); }
 static bool _gen_greater_vault(dun_gen_ptr gen) { return dun_gen_template_room(gen, ROOM_VAULT, VAULT_GREATER); }
 static int _template_weight(dun_gen_ptr gen) { return MIN(500, 5*gen->dun->difficulty); } 
@@ -2511,7 +2518,7 @@ static int _cmp_cluster(point_t left, point_t right, point_t origin)
     }
     return 0;
 }
-static void _sort_cluster(point_vec_ptr rooms, point_t origin)
+void _sort_cluster(point_vec_ptr rooms, point_t origin)
 {
     int i, j, ct = point_vec_length(rooms);
     for (i = 0; i < ct; i++) /* bubble sort: ct is really small (4 to 6 at most) */

@@ -37,12 +37,12 @@ WINMAINFILES = $(PROGNAME).res main-win.o readdib.o
 
 ANGFILES = \
     archaeologist.o archer.o art.o art_name.o artifact.o autopick.o virtue.o bard.o \
-    beastmaster.o birth.o blood_knight.o \
+    beastmaster.o birth.o blood_knight.o blue_mage.o \
     cavalry.o cave.o chaos_warrior.o classes.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o \
     cmd6.o combat.o demigod.o devicemaster.o devices.o do-spell.o doppelganger.o duelist.o \
-	dun.o dun_gen.o dun_mon.o dun_obj.o dun_type.o dun_util.o dun_world.o \
+	dun.o dun_gen.o dun_mon.o dun_obj.o dun_type.o dun_util.o dun_world.o dun_world_gen.o \
     dungeon.o ego.o effects.o equip.o fear.o files.o flavor.o force_trainer.o gf.o gray_mage.o \
-    hex.o high_mage.o hissatsu.o home.o init1.o init2.o int_map.o inv.o load.o mage.o map.o \
+    hex.o high_mage.o home.o init1.o init2.o int_map.o inv.o load.o mage.o map.o \
     magic_eater.o mauler.o melee1.o melee2.o menu.o message.o mindcrafter.o mirror_master.o \
     mon.o mon_attack.o mon_display.o mon_spell.o mon_tim.o monk.o monk_attack.o monster.o monster1.o monster2.o mspells1.o mspells2.o mut.o \
     mut_a.o mystic.o necromancer.o ninja.o obj.o obj_display.o obj_prompt.o \

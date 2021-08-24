@@ -42,7 +42,7 @@ void rodeo_spell(int cmd, var_ptr res)
         if (r_ptr->flags1 & RF1_UNIQUE) rlev = rlev * 3 / 2;
         if (rlev > 60) rlev = 60+(rlev-60)/2;
 
-        if ((r_ptr->flags7 & RF7_GUARDIAN) || (r_ptr->flagsx & RFX_QUESTOR))
+        if ((r_ptr->flags7 & RF7_GUARDIAN) || (r_ptr->flagsx & (RFX_QUESTOR | RFX_GUARDIAN)))
         {
             cmsg_format(TERM_RED, "It is impossible to tame %s!", m_name);
             tame_success = FALSE;
@@ -53,18 +53,40 @@ void rodeo_spell(int cmd, var_ptr res)
             cmsg_format(TERM_RED, "You are not powerful enough to tame %s.", m_name);
             tame_success = FALSE;
         }
-        else if (!(randint1(skills_riding_current() / 120 + p_ptr->lev * 2 / 3) > rlev
-          && one_in_(2) 
-          && rlev < p_ptr->lev * 3 / 2 + randint0(p_ptr->lev / 5) ))
-        {
-            // No message here, but still the "you have been thrown off" later down.
-            tame_success = FALSE;
-        }
         else
         {
-            tame_success = TRUE;
+            if (0 || p_ptr->wizard)
+            {
+                int r1 = skills_riding_current()/120 * p_ptr->lev*2/3;
+                double p1 = 1.0 - (double)rlev/r1;
+                double p2 = 0.5;
+                double p3 = 1.0;
+                if (rlev < p_ptr->lev*3/2)
+                    p3 = 1.0;
+                else if (rlev >= p_ptr->lev*3/2 + p_ptr->lev/5 - 1)
+                    p3 = 0.0;
+                else
+                {
+                    int b3 = rlev - p_ptr->lev*3/2;
+                    int r3 = p_ptr->lev/5;
+                    p3 = (double)b3/r3;
+                }
+                /* all 3 tests need to pass for rodeo to succeed */
+                msg_format("<color:D>Rodeo = %.2f%% * %.2f%% * %.2f%% = %.2f%%.</color>",
+                    p1*100., p2*100., p3*100., p1*p2*p3*100.);
+            }
+            if (!( randint1(skills_riding_current() / 120 + p_ptr->lev * 2 / 3) > rlev
+                && one_in_(2) 
+                && rlev < p_ptr->lev * 3 / 2 + randint0(p_ptr->lev / 5) ))
+            {
+                // No message here, but still the "you have been thrown off" later down.
+                tame_success = FALSE;
+            }
+            else
+            {
+                tame_success = TRUE;
+            }
         }
-
         if (tame_success)
         {
             cmsg_format(TERM_L_GREEN, "You tame %s.", m_name);

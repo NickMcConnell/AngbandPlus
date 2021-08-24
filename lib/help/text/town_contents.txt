@@ -5,14 +5,12 @@ Please choose one of the following online help files:
     [a] The Town and Wilderness
     [b] Town and Wilderness Symbols
     [c] The Town Level
-    [d] The Wilderness Option
-    [e] The No Wilderness Option
-    [f] Townspeople
-    [g] Shopping in Town
-    [h] Object Pricing
-    [i] List of Shops
-    [j] Special Buildings
-    [k] Fixed Quests
+    [d] The Wilderness Map
+    [e] Townspeople
+    [f] Shopping in Town
+    [g] Object Pricing
+    [h] List of Shops
+    [i] Special Buildings
 
     (?) Help System Commands
 

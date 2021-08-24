@@ -205,4 +205,4 @@ You will be able to summon aid from dragons.</indent>
 
 
 
-<color:s>Automatically generated for PosChengband 7.1.0.</color>
+<color:s>Automatically generated for PosChengband 7.2.1.</color>

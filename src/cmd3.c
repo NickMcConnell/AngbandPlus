@@ -1172,7 +1172,7 @@ static void _mon_display_probe(doc_ptr doc, int m_idx)
     doc_printf(doc, "HP   : <color:%c>%6d</color>/<color:G>%6d</color>\n",
         _mon_health_color(m_ptr),
         m_ptr->hp,
-        m_ptr->maxhp
+        m_ptr->max_maxhp
     );
     doc_printf(doc, "AC   : <color:G>%13d</color>\n", mon_ac(m_ptr));
     if (m_ptr->mpower != 1000)
@@ -1898,6 +1898,18 @@ static int _draw_obj_list(_obj_list_ptr list, int top, rect_t rect)
                 int quest_id = cave_at_xy(info_ptr->x, info_ptr->y)->special;
                 sprintf(name + strlen(name), ": %s", quests_get_name(quest_id));
             }
+            else if (cave->dun_type_id == D_SURFACE && have_flag(f_ptr->flags, FF_MORE))
+            {
+                int dun_type_id = cave_at_xy(info_ptr->x, info_ptr->y)->special;
+                dun_type_ptr dt = dun_types_lookup(dun_type_id);
+                if (dt) 
+                {
+                    if (dt->flags & DF_RANDOM)
+                        sprintf(name, "%s (L?)", dt->name);
+                    else
+                        sprintf(name, "%s (L%d)", dt->name, dt->min_dun_lvl);
+                }
+            }
             Term_queue_bigchar(rect.x + 1, rect.y + i, f_ptr->x_attr[F_LIT_STANDARD], f_ptr->x_char[F_LIT_STANDARD], 0, 0);
             c_put_str(use_graphics ? f_ptr->d_attr[F_LIT_STANDARD] : f_ptr->x_attr[F_LIT_STANDARD],
                 format(obj_fmt, name), rect.y + i, rect.x + 3);
@@ -2178,6 +2190,98 @@ void fix_object_list(void)
         Term_activate(angband_term[j]);
 
         _fix_object_list_aux();
+
+        Term_fresh();
+        Term_activate(old);
+    }
+}
+static point_t plr_current_surface_pos(void)
+{
+    if (cave->dun_type_id == D_SURFACE) return p_ptr->pos;
+    return p_ptr->old_pos;
+}
+static point_t plr_current_world_pos(void)
+{
+    return dun_world_pos(plr_current_surface_pos());
+}
+static rect_t term_display(void)
+{
+    rect_t r = {0};
+    Term_get_size(&r.cx, &r.cy);
+    return r;
+}
+void _fix_world_map_aux(void)
+{
+    rect_t  ui = term_display();
+    point_t plr = plr_current_world_pos();
+    point_t plr2 = plr;
+    point_t offset = {0}, p;
+    dun_ptr world = dun_mgr()->world;
+
+    assert(world->rect.x == 0 && world->rect.y == 0);
+    assert(ui.x == 0 && ui.y == 0);
+    plr2.x += 3;
+    plr2.y += 2;
+
+    if (!rect_contains_point(ui, plr2))
+    {
+        if (plr2.x >= ui.cx) offset.x += plr2.x - ui.cx + 1;
+        if (plr2.y >= ui.cy) offset.y += plr2.y - ui.cy + 1;
+    }
+
+    for (p.y = 0; p.y < ui.cy; p.y++)
+    {
+        for (p.x = 0; p.x < ui.cx; p.x++)
+        {
+            point_t tmp = point_add(p, offset);
+            byte a = TERM_WHITE;
+            char c = ' ';
+
+            if (dun_pos_valid(world, tmp))
+            {
+                dun_grid_ptr grid = dun_grid_at(world, tmp);
+                if (grid->info & CAVE_MARK)
+                {
+                    dun_feat_ptr feat = &f_info[grid->feat];
+                    if (grid->info & CAVE_ROAD)
+                        feat = &f_info[feat_floor];
+                    if (grid->info & CAVE_TOWN)
+                        feat = &f_info[feat_town];
+                    if (grid->info & CAVE_DUNGEON)
+                    {
+                        dun_type_ptr type = dun_types_lookup(grid->special);
+                        if (!(type->plr_flags & (DFP_FAILED | DFP_SECRET)))
+                        {
+                            if (!(type->plr_flags & DFP_ENTERED))
+                                feat = &f_info[feat_quest_entrance];
+                            else
+                                feat = &f_info[feat_down_stair];
+                        }
+                    }
+                    a = feat->x_attr[F_LIT_STANDARD];
+                    c = feat->x_char[F_LIT_STANDARD];
+                    if (point_equals(plr, tmp))
+                        plr_get_display_char_attr(&c, &a);
+                }
+            }
+
+            Term_putch(p.x, p.y, a, c);
+        }
+    }
+}
+void fix_world_map(void)
+{
+    int j;
+    for (j = 0; j < 8; j++)
+    {
+        term *old = Term;
+
+        if (!angband_term[j]) continue;
+        if (!(window_flag[j] & PW_WORLD_MAP)) continue;
+
+        Term_activate(angband_term[j]);
+
+        _fix_world_map_aux();
 
         Term_fresh();
         Term_activate(old);

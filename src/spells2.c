@@ -68,7 +68,7 @@ void self_knowledge(void)
         int pct = res_pct(i);
         if (pct != 0)
         {
-            if (j == RES_FEAR)
+            if (i == RES_FEAR)
                 doc_printf(doc, "You are %s to %s.\n", pct > 0 ? "resistant" : "vulnerable", res_name(i));
             else
                 doc_printf(doc, "You are %d%% %s to %s.\n", ABS(pct), pct > 0 ? "resistant" : "vulnerable", res_name(i));
@@ -2833,6 +2833,8 @@ bool activate_ty_curse(bool stop_ty, int *count)
         case 25:
             /*
              * Only summon Cyberdemons deep in the dungeon.
+             * XXX Yes, but see activate_hi_summon which can summon cyberdemons
+             * on *any* dungeon level!
              */
             if ((cave->difficulty > 65) && !stop_ty)
             {

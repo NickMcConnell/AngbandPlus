@@ -747,6 +747,22 @@ static bool _room_grid_mon_hook(mon_race_ptr race)
     return TRUE;
 }
 
+static bool _is_deep_night(void)
+{
+    int day, hour, min;
+    extract_day_hour_min(&day, &hour, &min);
+    if (hour > 3 && hour < 22)
+        return FALSE;
+    return TRUE;
+}
+static bool _is_broad_daylight(void)
+{
+    int day, hour, min;
+    extract_day_hour_min(&day, &hour, &min);
+    if (hour < 8 || hour > 18)
+        return FALSE;
+    return TRUE;
+}
 static void _apply_room_grid_mon(point_t p, room_grid_ptr grid, room_ptr room)
 {
     int mode = 0;
@@ -781,24 +797,20 @@ static void _apply_room_grid_mon(point_t p, room_grid_ptr grid, room_ptr room)
        in the deep, dark hours of night! */
     if ((room->flags & ROOM_THEME_NIGHT) && plr_on_surface())
     {
-        int day, hour, min;
-        extract_day_hour_min(&day, &hour, &min);
-        if (hour > 3 && hour < 22)
+        if (!_is_deep_night())
             return;
     }
 
     /* Added for symmetry with ROOM_THEME_NIGHT ... any ideas? */
     if ((room->flags & ROOM_THEME_DAY) && plr_on_surface())
     {
-        int day, hour, min;
-        extract_day_hour_min(&day, &hour, &min);
-        if (hour < 8 || hour > 18)
+        if (!_is_broad_daylight())
             return;
     }
 
     if (grid->flags & (ROOM_GRID_MON_TYPE | ROOM_GRID_MON_RANDOM | ROOM_GRID_MON_CHAR))
     {
-        int r_idx;
+        mon_race_ptr race = NULL;
         u32b options = 0;
         int  min_level = 0;
         mon_ptr mon;
@@ -828,16 +840,19 @@ static void _apply_room_grid_mon(point_t p, room_grid_ptr grid, room_ptr room)
         _room_flags_hack = room->flags;
         mon_alloc_push_filter(_room_grid_mon_hook);
         mon_alloc_push_filter(mon_alloc_feat_p(cave_at(p)->feat));
-        r_idx = mon_alloc_choose_aux2(mon_alloc_current_tbl(), level, min_level, options)->id;
+        race = mon_alloc_choose_aux2(mon_alloc_current_tbl(), level, min_level, options);
         mon_alloc_pop_filter();
         mon_alloc_pop_filter();
-        mon = place_monster_aux(0, p, r_idx, mode);
-        if (mon)
+        if (race) /* XXX Oval Crypt I in D_SANCTUARY will fail to pick a monster */
         {
-            /* Vault Monsters need to be faced! The level check is for Nodens, Destroyer, Gothmog, etc.
-             * as an act of mercy! */
-            if (room->type == ROOM_VAULT && room->subtype == VAULT_GREATER && mon_race_lookup(r_idx)->level < 90)
-                mon->mflag2 |= MFLAG2_VAULT;
+            mon = place_monster_aux(0, p, race->id, mode);
+            if (mon)
+            {
+                /* Vault Monsters need to be faced! The level check is for Nodens, Destroyer, Gothmog, etc.
+                 * as an act of mercy! */
+                if (room->type == ROOM_VAULT && room->subtype == VAULT_GREATER && race->level < 90)
+                    mon->mflag2 |= MFLAG2_VAULT;
+            }
         }
     }
     else if (grid->monster)
@@ -1221,6 +1236,30 @@ void build_room_template_aux(room_ptr room, transform_ptr xform)
                     if (have_flag(f_info[c_ptr->feat].flags, FF_PERMANENT))
                         c_ptr->info |= CAVE_MARK | CAVE_GLOW;
                 }
+                /* Hack for random dungeon encounters on the surface (cf _gen_monsters in dun_world.c) */
+                if (c_ptr->feat == feat_entrance && room->type == ROOM_WILDERNESS)
+                {
+                    dun_stairs_ptr s = malloc(sizeof(dun_stairs_t));
+                    dun_type_ptr   di = dun_types_lookup(c_ptr->special);
+
+                    memset(s, 0, sizeof(dun_stairs_t));
+                    s->pos_here = p;
+                    s->dun_type_id = c_ptr->special;
+                    s->dun_lvl = rand_range(di->min_dun_lvl, di->max_dun_lvl);
+                    dun_add_stairs(cave, s);
+                }
+                continue;
+            }
+            /* XXX Formations usually define '0', but '1' thru '9'
+             * are implicit monster tiles. Apply default '0' or '.' feature
+             * to make sure monsters get generated below (cf Ogre Cave) */
+            else if ( room->type == ROOM_WILDERNESS
+                   && (room->flags & ROOM_THEME_FORMATION)
+                   && '1' <= letter && letter <= '9' )
+            {
+                grid = _find_room_grid(room, '0');
+                if (!grid || !grid->cave_feat) grid = _find_room_grid(room, '.');
+                if (grid) _apply_room_grid_feat(p, grid, room->flags);
                 continue;
             }
 
@@ -1254,15 +1293,20 @@ void build_room_template_aux(room_ptr room, transform_ptr xform)
                 c_ptr->feat = feat_permanent_glass_wall;
                 break;
 
-                /* Secret doors */
+                /* Doors and Curtains */
             case '+':
-                dun_gen_secret_door(p, c_ptr, DOOR_DEFAULT);
+                if (room->type == ROOM_WILDERNESS)
+                    c_ptr->feat = feat_locked_door_random(DOOR_DOOR);
+                else
+                    dun_gen_secret_door(p, c_ptr, DOOR_DEFAULT);
+                break;
+            case '\'':
+                if (room->type == ROOM_WILDERNESS)
+                    c_ptr->feat = feat_door[DOOR_CURTAIN].open;
+                else
+                    dun_gen_secret_door(p, c_ptr, DOOR_CURTAIN);
                 break;
 
-                /* Curtains */
-            case '\'':
-                dun_gen_secret_door(p, c_ptr, DOOR_CURTAIN);
-                break;
 
                 /* The Pattern */
             case 'p':
@@ -1395,16 +1439,17 @@ void build_room_template_aux(room_ptr room, transform_ptr xform)
 
 static bool _room_is_allowed(room_ptr room, int type, int subtype)
 {
-    if (cave->dun_lvl < room->level) return FALSE;  /* Note: cave->dun_lvl is 0 for wilderness encounters! */
-    if (room->max_level && room->max_level < cave->dun_lvl) return FALSE;
+    if (cave->difficulty < room->level) return FALSE;  /* Note: cave->dun_lvl is 0 for wilderness encounters! */
+    if (room->max_level && room->max_level < cave->difficulty) return FALSE;
+    if (room->dun_type_id && room->dun_type_id != cave->dun_type_id) return FALSE;
     if (room->type != type) return FALSE;
     if (room->subtype != subtype) return FALSE;
     if (!room->rarity) return FALSE;
 
     if (cave->dun_type_id == D_SURFACE)
     {
-        if ((room->flags & ROOM_THEME_DAY) && !is_daytime()) return FALSE;
-        if ((room->flags & ROOM_THEME_NIGHT) && is_daytime()) return FALSE;
+        if ((room->flags & ROOM_THEME_DAY) && !_is_broad_daylight()) return FALSE;
+        if ((room->flags & ROOM_THEME_NIGHT) && !_is_deep_night()) return FALSE;
     }
 
     return TRUE;

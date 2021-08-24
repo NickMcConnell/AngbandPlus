@@ -1,37 +1,30 @@
 <color:y>PosChengband <$:version></color><style:screenshot>
-<color:w>Name       : </color><color:B>Dal Dror                      </color><color:w>========== Stats ==========
-Sex        : </color><color:B>Male                                </color><color:w>STR! :    </color><color:G>18/***
-</color><color:w>Personality: </color><color:B>Hasty                               </color><color:w>INT! :    </color><color:G>18/130
-</color><color:w>Race       : </color><color:B>Dwarf                               </color><color:w>WIS! :    </color><color:G>18/***
-</color><color:w>Subrace    : </color><color:B>None                                </color><color:w>DEX! :    </color><color:G>18/***
-</color><color:w>Class      : </color><color:B>Skillmaster                         </color><color:w>CON! :    </color><color:G>18/200
-                                                 </color><color:w>CHR! :    </color><color:G>18/200
-                                        
-</color><color:w>Level      :       </color><color:G>50                            </color><color:w>HP   :  </color><color:y>914/1003
-</color><color:w>Cur Exp    : </color><color:G>29235166                            </color><color:w>SP   :   </color><color:y>405/437
-</color><color:w>Max Exp    : </color><color:G>29235166                            </color><color:w>AC   :       </color><color:G>258
-</color><color:w>Adv Exp    :    </color><color:G>*****                            </color><color:w>Speed:       </color><color:G>+29
-                                        
-                                           </color><color:w>========== Skills =========
-Gold       : </color><color:G>14433736                      </color><color:w>Melee      : </color><color:v>Amber[30]
-</color><color:w>Kills      :     </color><color:G>8979                      </color><color:w>Archery    : </color><color:v>Amber[12]
-</color><color:w>Uniques    :      </color><color:G>251                      </color><color:w>SavingThrow: </color><color:v>Amber[7]
-</color><color:w>Artifacts  :   </color><color:G>123+86                      </color><color:w>Stealth    : </color><color:y>Good
-                                           </color><color:w>Perception : </color><color:y>Very Good
-</color><color:w>Game Day   :       </color><color:G>64                      </color><color:w>Searching  : </color><color:y>Very Good
-</color><color:w>Game Time  :    </color><color:G>18:20                      </color><color:w>Disarming  : </color><color:g>Superb
-</color><color:w>Play Time  :    </color><color:G>23:56                      </color><color:w>Device     : </color><color:b>Heroic
-                                        
-</color><color:w>a) The Great Axe of Changes (5d4) (+25,+25) (+2) {InWiDxChSr;Bs|ACoCa/X*}
-</color><color:w>b) </color><color:U>The Mirror 'Yata-no-Kagami' [0,+17] (+3)
-</color><color:w>c) </color><color:u>The Light Crossbow of Hellfire (x4) (+12,+35) (+4)
-</color><color:w>d) </color><color:U>a Quiver of Protection [50 of 140]
-</color><color:w>e) </color><color:r>a Ring of Protection [+7] {LiDkNtSoShCaFe;FaSi}
-</color><color:w>f) </color><color:r>a Ring of Speed (+12)
-</color><color:w>g) </color><color:o>a Dwarven Necklace (+3) {StCnIf;DkDi;Rg}
-</color><color:w>h) </color><color:y>The Jewel of Judgement (+3)
-</color><color:w>i) </color><color:W>The Metal Scale Mail of Julian (-2) [15,+40] (+4) {Cf}
-</color><color:w>j) </color><color:U>a Cloak of Aman [1,+23] (+3) {Po}
-</color><color:w>k) </color><color:U>The Golden Crown of Amber [0,+15] (+3)
-</color><color:w>l) </color><color:U>The Set of Cesti of Fingolfin (+10,+10) [5,+20] (+4) {Si}
-</color><color:w>m) </color><color:U>The Pair of Soft Leather Boots of Shiva's Avatar (+5,+5) [4,+16] (+4)</style>
+                                                                                
+<color:B>~~.~.~~~.~.........~...................</color><color:g>.</color><color:B>.....</color><color:G>#</color><color:g>.</color><color:u>....................</color> LEVEL <color:G>    50</color>
+<color:B>~~~~.~..~..~.~...........................</color><color:g>.</color><color:B>...</color><color:g>:</color><color:G>#</color><color:u>....................</color> EXP <color:G>********</color>
+<color:B>~~~..~..~.~~..~~.~~.................</color><color:g>..</color><color:B>..</color><color:g>.</color><color:G>#</color><color:g>..</color><color:B>.</color><color:g>:</color><color:G>#</color><color:u>....................</color> AU  <color:G>   6.78M</color>
+<color:B>~~...~..~~~~~~~...........~..........</color><color:g>.</color><color:B>.</color><color:g>..</color><color:G>#</color><color:g>.</color><color:G>##</color><color:g>::</color><color:u>....................</color> <color:o>/</color><color:s>)</color><color:U>}~</color><color:g>==</color><color:y>"*</color><color:s>[</color><color:g>(</color><color:y>]</color><color:U>]</color>
+<color:B>~~~..~.~...~~..~...~.~..~..........</color><color:g>.</color><color:G>#</color><color:g>..:</color><color:G>#</color><color:g>:.:...</color><color:u>....................</color> STR!: <color:G>18/***</color>
+<color:B>~~~...~..~..~....~..~....~~.......</color><color:g>.</color><color:G>#</color><color:g>..</color><color:G>#</color><color:g>::::.::.</color><color:u>....................</color> INT!: <color:G> 18/80</color>
+<color:B>~~..~~~.~..~~.~....~.....~.......</color><color:G>##</color><color:g>..</color><color:G>#</color><color:g>::::</color><color:u>....</color><color:g>.</color><color:u>....................</color> WIS!: <color:G>18/110</color>
+<color:B>~~~.~~~~..~.....~.~~..~.~........</color><color:g>.....</color><color:G>#</color><color:g>....</color><color:u>........................</color> DEX!: <color:G>18/160</color>
+<color:B>~~~.~~~~~..~~.~...~...~.........</color><color:g>.:</color><color:G>#</color><color:g>:</color><color:G>##</color><color:g>::::.</color><color:u>........................</color> CON!: <color:G>18/190</color>
+<color:B>~~~~.~~.......~.....~~..........</color><color:g>..</color><color:G>##</color><color:g>:</color><color:G>#</color><color:g>:..</color><color:u>.</color><color:g>..</color><color:u>.......................</color> CHR!: <color:G>18/110</color>
+<color:B>.~~.~.....~.................</color><color:g>..</color><color:G>###:.</color><color:g>....</color><color:u>............................</color> AC     <color:G>  177</color>
+<color:B>......~.~.~.........</color><color:g>.</color><color:B>........</color><color:g>.:</color><color:G>##.:.</color><color:g>...</color><color:u>.....................</color><color:G>:::::::</color> HP <color:G>1013</color>/<color:G>1013</color>
+<color:B>..~...............</color><color:g>.</color><color:G>#</color><color:g>...</color><color:B>....</color><color:G>#</color><color:g>.</color><color:G>#:.:...</color><color:U>.</color><color:u>.</color><color:g>.</color><color:u>.................</color><color:G>::::::</color><color:g>:</color><color:G>::</color><color:g>:</color><color:G>:</color>             
+<color:B>............</color><color:g>.</color><color:G>#</color><color:B>..</color><color:g>.</color><color:B>..</color><color:G>#</color><color:g>..:</color><color:G>##</color><color:g>....:</color><color:G>...</color>@<color:G>.</color><color:U>..</color><color:u>..........</color><color:G>:</color><color:u>........</color><color:G>::</color><color:g>:::::.:..</color>             
+<color:B>...........</color><color:g>.</color><color:B>.</color><color:g>.</color><color:G>#</color><color:g>::..:::::.:..</color><color:u>.</color><color:g>.</color><color:U>..</color><color:G>..</color><color:U>...</color><color:u>.............</color><color:G>:</color><color:u>.</color><color:G>::</color><color:u>.</color><color:G>:::</color><color:g>:</color><color:G>:</color><color:g>:......</color> @ <color:G>100%</color>      
+<color:B>........</color><color:g>...</color><color:B>.</color><color:g>.</color><color:G>#</color><color:g>.::.</color><color:G>#</color><color:g>:.::::...</color><color:u>...</color><color:U>.....</color><color:u>..............</color><color:G>::</color><color:g>:</color><color:G>::</color><color:g>:</color><color:G>::</color><color:g>:::.</color><color:G>#</color><color:g>.</color><color:G>#</color><color:g>..</color> <color:U>,</color> <color:G>110%</color>      
+<color:B>.......</color><color:G>##</color><color:g>..</color><color:G>#</color><color:g>:::..:</color><color:G>#</color><color:g>.</color><color:G>##</color><color:g>:...</color><color:u>......</color><color:U>...</color><color:u>............</color><color:G>::::</color><color:g>::</color><color:G>::</color><color:g>:::</color><color:G>:</color><color:g>::......</color>             
+<color:B>...</color><color:g>..</color><color:G>#</color><color:g>:.</color><color:G>#</color><color:g>:.:</color><color:G>#</color><color:g>:.</color><color:u>.</color><color:g>..</color><color:u>...</color><color:g>...</color><color:u>.......................</color><color:g>::</color><color:G>::</color><color:g>::::::.:...</color><color:G>#</color><color:g>..</color><color:G>##</color>             
+<color:B>...</color><color:g>.</color><color:B>.</color><color:G>##</color><color:g>.::::.</color><color:u>.</color><color:g>....</color><color:u>.............................</color><color:g>::</color><color:G>:</color><color:g>:::::::::..</color><color:G>##</color><color:g>..</color><color:G>#</color><color:u>.</color>             
+<color:B>...</color><color:G>#</color><color:g>::....::.</color><color:u>..</color><color:g>.</color><color:u>.</color><color:g>.</color><color:u>.............................</color><color:g>::::....</color><color:G>#</color><color:g>..:...</color><color:G>#</color><color:g>.</color><color:G>###</color>             
+<color:B>...</color><color:G>#</color><color:g>:...</color><color:u>.</color><color:g>...</color><color:u>...................................</color><color:g>.:.:.</color><color:G>###</color><color:g>.......</color><color:G>#####</color> <color:G>Fast (+39)</color>  
+<color:g>..</color><color:G>##</color><color:g>......</color><color:u>.....................................</color><color:g>..</color><color:G>#</color><color:g>..</color><color:G>#</color><color:g>.</color><color:G>##</color><color:g>..</color><color:G>#######</color><color:u>..</color> <color:G>Full</color>        
+<color:g>.:..</color><color:u>.</color><color:g>...</color><color:u>.</color><color:g>.</color><color:u>.....................................</color><color:g>.</color><color:G>###</color><color:g>.</color><color:G>######</color><color:g>..</color><color:G>##</color><color:u>.....</color>             
+<color:g>....</color><color:u>.</color><color:g>.</color><color:u>.........................................</color><color:g>..</color><color:G>#</color><color:g>.</color><color:G>##</color><color:g>.</color><color:G>#####</color><color:g>.</color><color:G>#</color><color:u>......</color>             
+<color:g>.</color><color:u>..............................................</color><color:G>###</color><color:g>...</color><color:G>#######</color><color:g>.</color><color:G>#</color><color:u>.</color><color:G>#</color><color:u>...</color>             
+Wilderness: L17                                                                 
+</style>
+

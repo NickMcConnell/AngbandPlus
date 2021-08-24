@@ -2568,6 +2568,7 @@ void weaponsmith_object_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE])
                 break;
             case _SPECIAL_SLAYING:
                 add_flag(flgs, OF_SHOW_MODS);
+                add_flag(flgs, OF_MELEE);
                 break;
             case _SPECIAL_BRAND_ELEMENTS:
                 add_flag(flgs, OF_BRAND_ELEC);

@@ -855,6 +855,9 @@ static void _display_other(monster_race *r_ptr, doc_ptr doc)
     if (r_ptr->flags7 & RF7_GUARDIAN)
         vec_add(v, string_copy_s("<color:R>Dungeon Guardian</color>"));
 
+    if (r_ptr->flagsx & RFX_GUARDIAN)
+        vec_add(v, string_copy_s("<color:B>Dungeon Guardian</color>")); /* XXX different color */
+
     if (vec_length(v))
     {
         doc_insert(doc, "Info    : <indent><style:indent>");
@@ -1159,6 +1162,9 @@ void mon_display_doc(monster_race *r_ptr, doc_ptr doc)
         if (r_ptr->flags1 & RF1_UNIQUE)  copy.flags1 |= RF1_UNIQUE;
         if (r_ptr->flags1 & RF1_MALE)    copy.flags1 |= RF1_MALE;
         if (r_ptr->flags1 & RF1_FEMALE)  copy.flags1 |= RF1_FEMALE;
+
+        /* XXX Can't you tell just by looking if you can ride a monster? */
+        if (r_ptr->flags7 & RF7_RIDING)  copy.flags7 |= RF7_RIDING;
 
         /* Assume some "creation" flags */
         if (r_ptr->flags1 & RF1_FRIENDS) copy.flags1 |= RF1_FRIENDS;

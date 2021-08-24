@@ -34,6 +34,7 @@ enum room_subtype_e {
     ROOM_SHOP,       /* T:ROOM:SHOP... */
     ROOM_RECALL,     /* T:ROOM:RECALL... */
     ROOM_TRAVEL,
+    ROOM_PATTERN,
 };
 
 enum vault_type_e {
@@ -78,6 +79,7 @@ enum vault_type_e {
 #define ROOM_THEME_OBJECT      0x00000040  /* Hack: All objects similar (e.g. Potions, Devices, ...) */
 #define ROOM_DEBUG             0x00004000  /* For debugging ... force this template to always be chosen */
 #define ROOM_NO_ROTATE         0x00008000
+#define ROOM_NOTICE            0x00010000  /* For ROOM_WILDERNSS: disturb the player */
 
 struct room_grid_s
 {
@@ -115,6 +117,7 @@ struct room_s
     u16b subtype;
     u16b flags;
 
+    s16b dun_type_id;
     byte height;
     byte width;
 

@@ -96,9 +96,17 @@ bool mon_attack_begin(mon_attack_ptr context, mon_ptr mon, point_t pos)
 
     if (point_equals(p_ptr->pos, pos))
     {
-        context->mon2 = NULL;
-        context->flags |= _ATTACK_PLR;
-        if (!is_hostile(context->mon)) return FALSE;
+        if (p_ptr->riding && one_in_(2))
+        {
+            context->mon2 = plr_riding_mon();
+            _init_race2(context);
+        }
+        else
+        {
+            context->mon2 = NULL;
+            context->flags |= _ATTACK_PLR;
+            if (!is_hostile(context->mon)) return FALSE;
+        }
     }
     else
     {
@@ -110,11 +118,14 @@ bool mon_attack_begin(mon_attack_ptr context, mon_ptr mon, point_t pos)
             context->flags |= _UNVIEW;
     }
 
-    _plr_custom_init(context); /* give race/class a chance to install a begin_f! */
-    if (context->begin_f)
+    if (context->flags & _ATTACK_PLR)
     {
-        context->begin_f(context);
-        if (context->stop) return FALSE; /* allow custom aborts */
+        _plr_custom_init(context); /* give race/class a chance to install a begin_f! */
+        if (context->begin_f)
+        {
+            context->begin_f(context);
+            if (context->stop) return FALSE; /* allow custom aborts */
+        }
     }
 
     _current = context;
@@ -676,11 +687,12 @@ bool mon_hit_plr(mon_attack_ptr context)
     }
 
     /* XXX Hacks processed on every hit */
-    if (p_ptr->riding && context->dam && rakuba(MIN(200, context->dam), FALSE))
+    if (p_ptr->riding && context->dam)
     {
         char m_name[MAX_NLEN];
-        monster_desc(m_name, dun_mon(cave, p_ptr->riding), 0);
-        msg_format("You have fallen from %s.", m_name);
+        monster_desc(m_name, plr_riding_mon(), 0);
+        if (rakuba(MIN(200, context->dam), FALSE)) /* XXX might clear p_ptr->riding */
+            msg_format("You have fallen from %s.", m_name);
     }
     if (p_ptr->special_defense & NINJA_KAWARIMI)
     {

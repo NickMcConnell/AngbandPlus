@@ -416,7 +416,9 @@ static int _attack_level(void)
 static int _bite_max_blows(int l)
 {
     int b;
-    b = 50 + prorate(150, l, 100, 1, 1, 1);
+    /* XXX We already prorate when calculating the attack level
+     * b = 50 + prorate(150, l, 100, 1, 1, 1);*/
+    b = 50 + 150*l/100;
     if (b < 100) b = 100;
     if (b > 200) b = 200;
     return b;
@@ -2094,7 +2096,11 @@ static void _realm_calc_bonuses(void)
         if (p_ptr->lev >= 40)
             p_ptr->auto_id = TRUE;
         else
+        {
+            if (p_ptr->lev > 20)
+                p_ptr->auto_id_sp = 10;
             p_ptr->auto_pseudo_id = TRUE;
+        }
         break;
     case DRAGON_REALM_BREATH:
         p_ptr->to_a -= p_ptr->lev/2;

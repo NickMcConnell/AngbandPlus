@@ -38,7 +38,7 @@ static void _mod_damage(plr_attack_ptr context)
             context->dam /= 2;
         break;
     case _HISSATSU_MINEUCHI: {
-        int tmp = 10 + randint1(15) + p_ptr->lev / 5;
+        int tmp = 10 + randint1(15) + p_ptr->lev / 2;
 
         context->dam = 0; /* no damage, but monsters don't get a saving throw either */
         anger_monster(context->mon);
@@ -110,7 +110,7 @@ static slay_t _calc_slay(plr_attack_ptr context, slay_ptr best_slay)
         {
             slay.id = _HISSATSU_SEKIRYUKA;
             slay.name = "Bloody Maelstrom";
-            slay.mul = MIN(1000, MAX(100, plr_tim_amount(T_CUT)));
+            slay.mul = MIN(1000, MAX(100, plr_tim_amount(T_CUT))); /* cf CUT_MORTAL_WOUND */
         }
         break;
     case _HISSATSU_HAGAN:
@@ -196,24 +196,11 @@ static void _mod_blows(plr_attack_ptr context)
     if (!context->obj) return; /* don't affect innate attacks or martial arts */
     switch (context->mode)
     {
-    case _HISSATSU_COLD:
-        context->blow_ct += 2;
-        break;
     case _HISSATSU_MINEUCHI:
     case _HISSATSU_3DAN:
         context->blow_ct = 1;
         break;
-    case _HISSATSU_TWIN_SLASH:
-        context->blow_ct *= 2;
-        break;
     }
-}
-static bool _check_hit(plr_attack_ptr context)
-{
-    bool hit = plr_check_hit(context);
-    if (context->mode == PLR_HIT_CRIT && one_in_(3))
-        hit = FALSE;
-    return hit;
 }
 
 static void _begin(plr_attack_ptr context)
@@ -233,6 +220,49 @@ static void _begin(plr_attack_ptr context)
     }
     if (p_ptr->special_defense & KATA_KOUKIJIN) context->to_h += 50;
 }
+    
+bool _begin_weapon(plr_attack_ptr context)
+{
+    context->info.info_attr = TERM_L_BLUE;
+    switch (context->mode)
+    {
+    case _HISSATSU_FIRE:
+        context->info.info = "Attacks a monster with more damage unless it has resistance to fire.";
+        break;
+    case _HISSATSU_POIS:
+        context->info.info = "Attacks a monster with more damage unless it has resistance to poison.";
+        break;
+    case _HISSATSU_ZANMA:
+        context->info.info = "Attacks an evil unliving monster with great damage. No effect to other monsters.";
+        break;
+    case _HISSATSU_HAGAN:
+        context->info.info = "Breaks rock. Or greatly damage a monster made by rocks.";
+        break;
+    case _HISSATSU_COLD:
+        context->info.xtra_blow += 200;
+        context->info.info = "Attacks a monster with increased number of attacks and more damage unless it has resistance to cold.";
+        break;
+    case PLR_HIT_CRIT:
+        context->skill = context->skill * 65 / 100;
+        context->info.info = "Attempts to attack with critical hits. But this attack is easy to evade for a monster.";
+        break;
+    case _HISSATSU_ELEC:
+        context->info.info = "Attacks a monster with more damage unless it has resistance to electricity.";
+        break;
+    case _HISSATSU_SEKIRYUKA:
+        context->info.info = "Attacks all adjacent monsters with power corresponding to your cut status. Then increases your cut status. No effect to unliving monsters.";
+        break;
+    case _HISSATSU_TWIN_SLASH:
+        context->info.info = "Attacks with double the number of blows.";
+        context->info.base_blow *= 2;
+        context->info.xtra_blow *= 2;
+        break;
+    case _HISSATSU_UNDEAD:
+        context->info.info = "Attacks a monster with extremely powerful damage, hurting yourself in the process. Undead monsters are especially hurt by this technique.";
+        break;
+    }
+    return TRUE;
+}
 
 static void _end(plr_attack_ptr context)
 {
@@ -247,7 +277,7 @@ static void _end(plr_attack_ptr context)
         break;
     }
 
-    if (p_ptr->special_defense & KATA_IAI)
+    if (!(context->flags & PAC_DISPLAY) && (p_ptr->special_defense & KATA_IAI))
     {
         if (context->mode != HISSATSU_IAI || context->stop == STOP_MON_DEAD)
             set_action(ACTION_NONE);
@@ -257,156 +287,251 @@ static void _end(plr_attack_ptr context)
 static void _attack_init(plr_attack_ptr context)
 {
     context->hooks.begin_f = _begin;
+    context->hooks.begin_weapon_f = _begin_weapon;
     context->hooks.calc_slay_f = _calc_slay;
     context->hooks.calc_brand_f = _calc_brand;
     context->hooks.mod_damage_f = _mod_damage;
     context->hooks.mod_blows_f = _mod_blows;
-    context->hooks.check_hit_f = _check_hit;
     context->hooks.end_f = _end;
 }
 
 /***********************************************************************
- * Samurai Spells (Hissatsu)
+ * Samurai Spells
  ***********************************************************************/
-cptr do_hissatsu_spell(int spell, int mode)
+static void _tobi_izuna_spell(int cmd, var_ptr res)
 {
-    bool name = BOOL(mode == SPELL_NAME);
-    bool desc = BOOL(mode == SPELL_DESC);
-    bool cast = BOOL(mode == SPELL_CAST);
-    bool browse = BOOL(mode == SPELL_ON_BROWSE);
-
-    int dir;
-    int plev = p_ptr->lev;
-
-    switch (spell)
+    switch (cmd)
     {
-    case 0:
-        if (name) return "Tobi-Izuna";
-        if (desc) return "Attacks a two squares distant monster.";
-        if (browse) return NULL;
-        if (cast && !plr_attack_ranged(PLR_HIT_NORMAL, PAC_NO_INNATE, 2)) return NULL;
+    case SPELL_NAME:
+        var_set_string(res, "Tobi-Izuna");
         break;
+    case SPELL_DESC:
+        var_set_string(res, "Reaches out to attack a distant monster (Range 2).");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, plr_attack_ranged(PLR_HIT_NORMAL, PAC_NO_INNATE, 2));
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
 
-    case 1:
-        if (name) return "3-Way Attack";
-        if (desc) return "Attacks in 3 directions in one time. Attacks in entered direction as well as to the left and right of this direction.";
-        if (browse) return NULL;
-        if (cast)
+static bool _3_way_attack(point_t pos)
+{
+    plr_attack_t context = {0};
+    context.flags = PAC_ANIMATE;
+    return plr_attack(&context, pos);
+}
+static void _3_way_attack_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "3-Way Attack");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attacks in 3 directions in a single move. Attacks in the entered direction as well as to the left and right of this direction.");
+        break;
+    case SPELL_CAST: {
+        int cdir, dir;
+        point_t pos;
+
+        var_set_bool(res, FALSE);
+        if (!get_rep_dir2(&dir)) return;
+        if (dir == 5) return;
+
+        for (cdir = 0;cdir < 8; cdir++)
         {
-            int cdir, dir;
-            point_t pos;
-
-            if (!get_rep_dir2(&dir)) return NULL;
-            if (dir == 5) return NULL;
-
-            for (cdir = 0;cdir < 8; cdir++)
-            {
-                if (cdd[cdir] == dir) return NULL;
-            }
-
-            if (cdir == 8) return NULL;
-
-            pos = point_step(p_ptr->pos, cdd[cdir]);
-            if (mon_at(pos))
-                plr_attack_normal(pos);
-            else
-                msg_print("You attack the empty air.");
-
-            pos = point_step(p_ptr->pos, cdd[(cdir + 7)%8]);
-            if (mon_at(pos))
-                plr_attack_normal(pos);
-            else
-                msg_print("You attack the empty air.");
-
-            pos = point_step(p_ptr->pos, cdd[(cdir + 1)%8]);
-            if (mon_at(pos))
-                plr_attack_normal(pos);
-            else
-                msg_print("You attack the empty air.");
+            if (cdd[cdir] == dir) break;
         }
-        break;
 
-    case 2:
-        if (name) return "Boomerang";
-        if (desc) return "Throws current weapon. And it'll return to your hand unless failed.";
-        if (browse) return NULL;
-        if (cast)
+        if (cdir == 8) return;
+
+        pos = point_step(p_ptr->pos, cdd[cdir]);
+        if (mon_at(pos))
+            _3_way_attack(pos);
+        else
+            msg_print("You attack the empty air.");
+
+        pos = point_step(p_ptr->pos, cdd[(cdir + 7)%8]);
+        if (mon_at(pos))
+            _3_way_attack(pos);
+        else
+            msg_print("You attack the empty air.");
+
+        pos = point_step(p_ptr->pos, cdd[(cdir + 1)%8]);
+        if (mon_at(pos))
+            _3_way_attack(pos);
+        else
+            msg_print("You attack the empty air.");
+        var_set_bool(res, TRUE);
+        break; }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _boomerang_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Boomerang");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Throws current weapon. And it'll return to your hand unless failed.");
+        break;
+    case SPELL_ON_BROWSE:
+    case SPELL_CAST: {
+        plr_throw_t context = {0};
+        context.type = THROW_BOOMERANG;
+        context.back_chance = 24 + randint1(5);
+        if (cmd == SPELL_CAST)
+            var_set_bool(res, plr_throw(&context));
+        else
         {
-            plr_throw_t context = {0};
-            context.type = THROW_BOOMERANG;
-            context.back_chance = 24 + randint1(5);
-            if (!plr_throw(&context)) return NULL;
+            context.type |= THROW_DISPLAY;
+            plr_throw_display(&context);
+            var_set_bool(res, TRUE);
         }
+        break; }
+    default:
+        default_spell(cmd, res);
         break;
+    }
+}
 
-    case 3:
-        if (name) return "Burning Strike";
-        if (desc) return "Attacks a monster with more damage unless it has resistance to fire.";
-        if (browse) plr_attack_display_special(_HISSATSU_FIRE, 0);
-        if (cast && !plr_attack_special(_HISSATSU_FIRE, 0)) return NULL;
+static void _burning_strike_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Burning Strike");
         break;
-
-    case 4:
-        if (name) return "Detect Ferocity";
-        if (desc) return "Detects all monsters except mindless in your vicinity.";
-        if (browse) return NULL;
-        if (cast) detect_monsters_mind(DETECT_RAD_DEFAULT);
+    case SPELL_DESC:
+        var_set_string(res, "Attacks a monster with more damage unless it has resistance to fire.");
         break;
-
-    case 5:
-        if (name) return "Strike to Stun";
-        if (desc) return "Attempts to stun a monster in the adjacent.";
-        if (browse) return NULL;
-        if (cast && !plr_attack_special(_HISSATSU_MINEUCHI, PAC_NO_INNATE)) return NULL;
+    case SPELL_CAST:
+        var_set_bool(res, plr_attack_special(_HISSATSU_FIRE, 0));
         break;
+    case SPELL_ON_BROWSE:
+        plr_attack_display_special(_HISSATSU_FIRE, 0);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
 
-    case 6:
-        if (name) return "Counter";
-        if (desc) return "Prepares to counterattack. When attack by a monster, strikes back using SP each time.";
-        if (browse) return NULL;
-        if (cast)
+static void _detect_ferocity_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Detect Ferocity");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Detects all non-mindless monsters in your vicinity.");
+        break;
+    case SPELL_CAST:
+        detect_monsters_mind(DETECT_RAD_DEFAULT);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _strike_to_stun_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Strike to Stun");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attacks an adjacent monster with a single blow that stuns, but does no damage.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, plr_attack_special(_HISSATSU_MINEUCHI, PAC_NO_INNATE));
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _counter_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Counter");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "For a single turn, you will counter-attack all attacking monsters. This costs SP for each counter-attack.");
+        break;
+    case SPELL_CAST:
+        if (p_ptr->riding)
         {
-            if (p_ptr->riding)
-            {
-                msg_print("You cannot do it when riding.");
-                return NULL;
-            }
+            msg_print("You cannot do it when riding.");
+            var_set_bool(res, FALSE);
+        }
+        else
+        {
             msg_print("You prepare to counter blow.");
             p_ptr->counter = TRUE;
+            var_set_bool(res, TRUE);
         }
         break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
 
-    case 7:
-        if (name) return "Harainuke";
-        if (desc) return "Attacks monster with your weapons normally, then move through counter side of the monster.";
-        if (browse) return NULL;
-        if (cast)
+static void _harainuke_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Harainuke");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attacks monster with your weapons normally, then move through counter side of the monster.");
+        break;
+    case SPELL_CAST: {
+        point_t pos;
+        cave_ptr grid;
+        int dir;
+
+        var_set_bool(res, FALSE);
+        if (p_ptr->riding)
         {
-            point_t pos;
-            cave_ptr grid;
-            if (p_ptr->riding)
-            {
-                msg_print("You cannot do it when riding.");
-                return NULL;
-            }
-    
-            if (!get_rep_dir2(&dir)) return NULL;
-    
-            if (dir == 5) return NULL;
-            pos = point_step(p_ptr->pos, dir);
-    
-            if (!mon_at(pos))
-            {
-                msg_print("There is no monster.");
-                return NULL;
-            }
-    
-            plr_attack_normal(pos);
+            msg_print("You cannot do it when riding.");
+            return;
+        }
 
-            grid = cave_at(pos);
-            if (!player_can_enter(grid->feat, 0) || grid->feat)
-                break;
-    
+        if (!get_rep_dir2(&dir)) return;
+
+        if (dir == 5) return;
+        pos = point_step(p_ptr->pos, dir);
+
+        if (!mon_at(pos))
+        {
+            msg_print("There is no monster.");
+            return;
+        }
+
+        plr_attack_normal(pos);
+
+        grid = cave_at(pos);
+        if (player_can_enter(grid->feat, 0) && !is_trap(grid->feat))
+        {
             pos = point_step(pos, dir);
             grid = cave_at(pos);
             if (player_can_enter(grid->feat, 0) && !is_trap(grid->feat) && !mon_at(pos))
@@ -415,467 +540,1011 @@ cptr do_hissatsu_spell(int spell, int mode)
                 move_player_effect(pos, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
             }
         }
+        var_set_bool(res, TRUE);
+        break; }
+    default:
+        default_spell(cmd, res);
         break;
+    }
+}
 
-    case 8:
-        if (name) return "Serpent's Tongue";
-        if (desc) return "Attacks a monster with more damage unless it has resistance to poison.";
-        if (browse) plr_attack_display_special(_HISSATSU_POIS, 0);
-        if (cast && !plr_attack_special(_HISSATSU_POIS, 0)) return NULL;
+static void _serpents_tongue_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Serpent's Tongue");
         break;
-
-    case 9:
-        if (name) return "Zammaken";
-        if (desc) return "Attacks an evil unliving monster with great damage. No effect to other monsters.";
-        if (browse) plr_attack_display_special(_HISSATSU_ZANMA, 0);
-        if (cast && !plr_attack_special(_HISSATSU_ZANMA, 0)) return NULL;
+    case SPELL_DESC:
+        var_set_string(res, "Attacks a monster with more damage unless it has resistance to poison.");
         break;
-
-    case 10:
-        if (name) return "Wind Blast";
-        if (desc) return "Attacks an adjacent monster, and blow it away.";
-        if (browse) return NULL;
-        if (cast && !plr_attack_special(PLR_HIT_KNOCKBACK, 0)) return NULL;
+    case SPELL_CAST:
+        var_set_bool(res, plr_attack_special(_HISSATSU_POIS, 0));
         break;
+    case SPELL_ON_BROWSE:
+        plr_attack_display_special(_HISSATSU_POIS, 0);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
 
-    case 11:
-        if (name) return "Judge";
-        if (desc) return "Identifies a weapon or armor. Or *identifies* these at level 45.";
-        if (browse) return NULL;
-        if (cast)
+static void _zammaken_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Zammaken");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attacks an evil unliving monster with great damage. No effect to other monsters.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, plr_attack_special(_HISSATSU_ZANMA, 0));
+        break;
+    case SPELL_ON_BROWSE:
+        plr_attack_display_special(_HISSATSU_ZANMA, 0);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _wind_blast_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Wind Blast");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attack an adjacent monster and then blow it away.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, plr_attack_special(PLR_HIT_KNOCKBACK, 0));
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _judge_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Judge");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Identifies a weapon or armor. Or *identifies* these at level 45.");
+        break;
+    case SPELL_CAST:
+        if (p_ptr->lev > 44)
+            var_set_bool(res, identify_fully(object_is_weapon_armour_ammo));
+        else
+            var_set_bool(res, ident_spell(object_is_weapon_armour_ammo));
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _rock_smash_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Rock Smash");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Breaks rock. Or greatly damage a monster made by rocks.");
+        break;
+    case SPELL_CAST: {
+        int dir;
+        point_t pos;
+
+        var_set_bool(res, FALSE);
+        if (!get_rep_dir2(&dir)) return;
+        if (dir == 5) return;
+
+        pos = point_step(p_ptr->pos, dir);
+        if (mon_at(pos))
         {
-            if (plev > 44)
-            {
-                if (!identify_fully(object_is_weapon_armour_ammo)) return NULL;
-            }
-            else
-            {
-                if (!ident_spell(object_is_weapon_armour_ammo)) return NULL;
-            }
+            plr_attack_t ctx = {0};
+            ctx.mode = _HISSATSU_HAGAN;
+            plr_attack(&ctx, pos);
         }
-        break;
-
-    case 12:
-        if (name) return "Rock Smash";
-        if (desc) return "Breaks rock. Or greatly damage a monster made by rocks.";
-        if (browse) return NULL;
-        if (cast)
+        if (cave_have_flag_at(pos, FF_HURT_ROCK))
         {
-            point_t pos;
-
-            if (!get_rep_dir2(&dir)) return NULL;
-            if (dir == 5) return NULL;
-
-            pos = point_step(p_ptr->pos, dir);
-
-            if (mon_at(pos))
-            {
-                plr_attack_t ctx = {0};
-                ctx.mode = _HISSATSU_HAGAN;
-                plr_attack(&ctx, pos);
-            }
-    
-            if (!cave_have_flag_at(pos, FF_HURT_ROCK)) break;
-
             cave_alter_feat(pos.y, pos.x, FF_HURT_ROCK);
             p_ptr->update |= PU_FLOW;
         }
+        var_set_bool(res, TRUE);
+        break; }
+    case SPELL_ON_BROWSE:
+        plr_attack_display_special(_HISSATSU_HAGAN, 0);
+        var_set_bool(res, TRUE);
         break;
-
-    case 13:
-        if (name) return "Midare-Setsugekka";
-        if (desc) return "Attacks a monster with increased number of attacks and more damage unless it has resistance to cold.";
-        if (browse) plr_attack_display_special(_HISSATSU_COLD, 0);
-        if (cast && !plr_attack_special(_HISSATSU_COLD, 0)) return NULL;
-        break;
-
-    case 14:
-        if (name) return "Spot Aiming";
-        if (desc) return "Attempts to kill a monster instantly. If failed cause only 1HP of damage.";
-        if (browse) return NULL;
-        if (cast && !plr_attack_special(PLR_HIT_KILL, PAC_NO_INNATE)) return NULL;
-        break;
-
-    case 15:
-        if (name) return "Majingiri";
-        if (desc) return "Attempts to attack with critical hit. But this attack is easy to evade for a monster.";
-        if (browse) plr_attack_display_special(PLR_HIT_CRIT, 0);
-        if (cast && !plr_attack_special(PLR_HIT_CRIT, 0)) return NULL;
-        break;
-
-    case 16:
-        if (name) return "Desperate Attack";
-        if (desc) return "Attacks with all of your power. But all damages you take will be doubled for one turn.";
-        if (browse) return NULL;
-        if (cast)
-        {
-            if (plr_attack_special(_HISSATSU_SUTEMI, 0))
-                p_ptr->sutemi = TRUE;
-        }
-        break;
-
-    case 17:
-        if (name) return "Lightning Eagle";
-        if (desc) return "Attacks a monster with more damage unless it has resistance to electricity.";
-        if (cast && !plr_attack_special(_HISSATSU_ELEC, 0)) return NULL;
-        if (browse) plr_attack_display_special(_HISSATSU_ELEC, 0);
-        break;
-
-    case 18:
-        if (name) return "Rush Attack";
-        if (desc) return "Steps close to a monster and attacks at a time.";
-        if (browse) return NULL;
-        if (cast)
-        {
-            if (!rush_attack(5, NULL)) return NULL;
-        }
-        break;
-
-    case 19:
-        if (name) return "Bloody Maelstrom";
-        if (desc) return "Attacks all adjacent monsters with power corresponding to your cut status. Then increases your cut status. No effect to unliving monsters.";
-        if (browse) plr_attack_display_special(_HISSATSU_SEKIRYUKA, 0);
-    
-        if (cast)
-        {
-            if (!p_ptr->no_cut)
-            {
-                if (plr_tim_amount(T_CUT) < 300)
-                    plr_tim_add(T_CUT, 300);
-                else
-                    plr_tim_add(T_CUT, plr_tim_amount(T_CUT));
-            } 
-            for (dir = 0; dir < 8; dir++)
-            {
-                point_t p = point_step(p_ptr->pos, ddd[dir]);
-                mon_ptr mon = mon_at(p);
-                
-                if (mon && (mon->ml || cave_have_flag_at(p, FF_PROJECT)))
-                {
-                    if (!mon_is_living(mon))
-                    {
-                        char m_name[80];
-                        monster_desc(m_name, mon, 0);
-                        msg_format("%s is unharmed!", m_name);
-                    }
-                    else
-                    {
-                        plr_attack_t ctx = {0};
-                        ctx.mode = _HISSATSU_SEKIRYUKA;
-                        plr_attack(&ctx, p);
-                    }
-                }
-            }
-        }
-        break;
-
-    case 20:
-        if (name) return "Earthquake Blow";
-        if (desc) return "Shakes dungeon structure, and results in random swapping of floors and walls.";
-        if (browse) return NULL;
-        /* XXX You now need to actually hit an enemy to get the quake ... */
-        if (cast && !plr_attack_special(PLR_HIT_QUAKE, 0)) return NULL;
-        break;
-
-    case 21:
-        if (name) return "Crack";
-        if (desc) return "Fires a beam of shock wave.";
-        if (browse) return NULL;
-        if (cast)
-        {
-            int total_damage = 0, hand;
-            if (!get_fire_dir(&dir)) return NULL;
-            msg_print("You swing your weapon downward.");
-
-            for (hand = 0; hand < MAX_HANDS; hand++)
-            {
-                int damage, basedam;
-                u32b flgs[OF_ARRAY_SIZE];
-                object_type *o_ptr = NULL;
-
-                if (p_ptr->attack_info[hand].type != PAT_WEAPON) continue;
-                o_ptr = equip_obj(p_ptr->attack_info[hand].slot);
-                if (!o_ptr) continue; /* paranoia */
-
-                basedam = (o_ptr->dd * (o_ptr->ds + 1)) * 50;
-                damage = o_ptr->to_d * 100;
-                
-                obj_flags(o_ptr, flgs);
-                if (have_flag(flgs, OF_VORPAL2))
-                {
-                    basedam *= 5;
-                    basedam /= 3;
-                }
-                else if (have_flag(flgs, OF_VORPAL))
-                {
-                    basedam *= 11;
-                    basedam /= 9;
-                }
-                damage += basedam;
-                damage *= NUM_BLOWS(hand)/100;
-                total_damage += damage / 200;
-            }
-            fire_beam(GF_FORCE, dir, total_damage);
-        }
-        break;
-
-    case 22:
-        if (name) return "War Cry";
-        if (desc) return "Damages all monsters in sight with sound. Aggravate nearby monsters.";
-        if (browse) return NULL;
-    
-        if (cast)
-        {
-            msg_print("You roar out!");
-            project_los(GF_SOUND, randint1(plev * 3));
-            aggravate_monsters(0);
-        }
-        break;
-
-    case 23:
-        if (name) return "Musou-Sandan";
-        if (desc) return "Attacks with powerful 3 strikes.";
-        if (browse) return NULL;
-    
-        if (cast)
-        {
-            int i;
-            cptr result = NULL; /* spell counts as cancelled */
-
-            if (!get_rep_dir2(&dir)) return result;
-            if (dir == 5) return result;
-
-            for (i = 0; i < 3; i++)
-            {
-                point_t pos = point_step(p_ptr->pos, dir), next_pos;
-                cave_type *c_ptr;
-                plr_attack_t ctx = {0}; /* paranoia: new context for each attack */
-    
-                c_ptr = cave_at(pos);
-    
-                if (!mon_at(pos))
-                {
-                    msg_print("There is no monster.");
-                    return result;
-                }
-
-                ctx.mode = _HISSATSU_3DAN;
-                ctx.flags = PAC_NO_INNATE;
-                if (!plr_attack(&ctx, pos)) return result;
-                result = ""; /* ok, now the spell counts as being cast */
-                if (ctx.stop) return result; /* for any reason (e.g. dead, teleported, player fear, etc) */
-    
-                next_pos = point_step(pos, dir);
-    
-                /* move the monster from pos to next_pos */
-                if (!monster_can_enter(next_pos.y, next_pos.x, ctx.race, 0))
-                {
-                    if (i < 2) msg_print(NULL); /* -more- */
-                    continue; /* keep attacking! */
-                }
-                dun_move_mon(cave, ctx.mon, next_pos);
-    
-                /* move the player to pos */
-                if (!player_can_enter(c_ptr->feat, 0)) return result;
-                if (!move_player_effect(pos, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP)) return result;
-                if (i < 2) msg_print(NULL); /* -more- */
-            }
-        }
-        break;
-
-    case 24:
-        if (name) return "Vampire's Fang";
-        if (desc) return "Attacks with vampiric strikes which absorbs HP from a monster and gives them to you. No effect to unliving monsters.";
-        if (browse) return NULL;
-        if (cast && !plr_attack_special(PLR_HIT_VAMP, 0)) return NULL;
-        break;
-
-    case 25:
-        if (name) return "Moon Dazzling";
-        if (desc) return "Attempts to stun, confuse and sleep all waking monsters.";
-        if (browse) return NULL;
-    
-        if (cast)
-        {
-            msg_print("You irregularly wave your weapon...");
-            project_los(GF_ENGETSU, plev * 4);
-            project_los(GF_ENGETSU, plev * 4);
-            project_los(GF_ENGETSU, plev * 4);
-        }
-        break;
-
-    case 26:
-        if (name) return "Hundred Slaughter";
-        if (desc) return "Performs a series of rush attacks. The series continues while killing each monster in a time and SP remains.";
-        if (browse) return NULL;
-    
-        if (cast)
-        {
-            const int mana_cost_per_monster = 8;
-            bool new = TRUE;
-            bool mdeath;
-
-            do
-            {
-                if (!rush_attack(5, &mdeath)) break;
-                if (new)
-                {
-                    /* Reserve needed mana point */
-                    p_ptr->csp -= technic_info[REALM_HISSATSU - MIN_TECHNIC][26].smana;
-                    new = FALSE;
-                }
-                else
-                    p_ptr->csp -= mana_cost_per_monster;
-
-                if (!mdeath) break;
-                command_dir = 0;
-
-                p_ptr->redraw |= PR_MANA;
-                handle_stuff();
-            }
-            while (p_ptr->csp > mana_cost_per_monster);
-
-            if (new) return NULL;
-    
-            /* Restore reserved mana */
-            p_ptr->csp += technic_info[REALM_HISSATSU - MIN_TECHNIC][26].smana;
-        }
-        break;
-
-    case 27:
-        if (name) return "Dragonic Flash";
-        if (desc) return "Runs toward given location while attacking all monsters on the path.";
-        if (browse) return NULL;
-    
-        if (cast)
-        {
-            int y, x;
-
-            if (!tgt_pt(&x, &y, MAX_SIGHT / 2)) return NULL;
-
-            if (!cave_player_teleportable_bold(y, x, 0L) ||
-                (distance(y, x, p_ptr->pos.y, p_ptr->pos.x) > MAX_SIGHT / 2) ||
-                !projectable(p_ptr->pos.y, p_ptr->pos.x, y, x))
-            {
-                msg_print("You cannot move to that place!");
-                break;
-            }
-            if (p_ptr->anti_tele)
-            {
-                msg_print("A mysterious force prevents you from teleporting!");
-                equip_learn_flag(OF_NO_TELE);
-                break;
-            }
-            project(0, 0, y, x, _HISSATSU_ISSEN, GF_ATTACK, PROJECT_BEAM | PROJECT_KILL);
-            teleport_player_to(y, x, 0L);
-        }
-        break;
-
-    case 28:
-        if (name) return "Twin Slash";
-        if (desc) return "double attacks at a time.";
-        if (browse) return NULL;
-        if (cast && !plr_attack_special(_HISSATSU_TWIN_SLASH, 0)) return NULL;
-        break;
-
-    case 29:
-        if (name) return "Kofuku-Zettousei";
-        if (desc) return "Performs a powerful attack which even effect nearby monsters.";
-        if (browse) return NULL;
-        if (cast)
-        {
-            int total_damage = 0, hand;
-            int y, x;
-    
-            if (!get_rep_dir2(&dir)) return NULL;
-            if (dir == 5) return NULL;
-
-            y = p_ptr->pos.y + ddy[dir];
-            x = p_ptr->pos.x + ddx[dir];
-
-            if (cave->flags & DF_NO_MELEE)
-            {
-                msg_print("Something prevent you from attacking.");
-                return "";
-            }
-            msg_print("You swing your weapon downward.");
-            for (hand = 0; hand < MAX_HANDS; hand++)
-            {
-                int damage, basedam;
-                u32b flgs[OF_ARRAY_SIZE];
-                object_type *o_ptr = NULL;
-
-                if (p_ptr->attack_info[hand].type != PAT_WEAPON) continue;
-                o_ptr = equip_obj(p_ptr->attack_info[hand].slot);
-                if (!o_ptr) continue; /* paranoia */
-
-                basedam = (o_ptr->dd * (o_ptr->ds + 1)) * 50;
-                damage = o_ptr->to_d * 100;
-                
-                obj_flags(o_ptr, flgs);
-                if (have_flag(flgs, OF_VORPAL2))
-                {
-                    basedam *= 5;
-                    basedam /= 3;
-                }
-                else if (have_flag(flgs, OF_VORPAL))
-                {
-                    basedam *= 11;
-                    basedam /= 9;
-                }
-                damage += basedam;
-                damage += p_ptr->attack_info[hand].to_d * 100;
-                damage *= NUM_BLOWS(hand)/100;
-                total_damage += damage / 200;
-            }
-            project(0, (cave_have_flag_bold(y, x, FF_PROJECT) ? 5 : 0), y, x, total_damage * 3 / 2, GF_METEOR, PROJECT_KILL | PROJECT_JUMP | PROJECT_ITEM);
-        }
-        break;
-
-    case 30:
-        if (name) return "Keiun-Kininken";
-        if (desc) return "Attacks a monster with extremely powerful damage. But you also takes some damages. Hurts a undead monster greatly.";
-        if (browse) plr_attack_display_special(_HISSATSU_UNDEAD, 0);
-    
-        if (cast)
-        {
-            if (!plr_attack_special(_HISSATSU_UNDEAD, 0)) return NULL;
-            take_hit(DAMAGE_NOESCAPE, 100 + randint1(100), "exhaustion on using Keiun-Kininken");
-        }
-        break;
-
-    case 31:
-        if (name) return "Harakiri";
-        if (desc) return "'Busido is found in death'";
-        if (browse) return NULL;
-
-        if (cast)
-        {
-            int i;
-            if (!get_check("Do you really want to commit suicide? ")) return NULL;
-                /* Special Verification for suicide */
-            prt("Please verify SUICIDE by typing the '@' sign: ", 0, 0);
-    
-            flush();
-            i = inkey();
-            prt("", 0, 0);
-            if (i != '@') return NULL;
-            if (p_ptr->total_winner)
-            {
-                take_hit(DAMAGE_FORCE, 9999, "Seppuku");
-                p_ptr->total_winner = TRUE;
-            }
-            else
-            {
-                msg_print("Meaning of Bushi-do is found in the death.");
-                take_hit(DAMAGE_FORCE, 9999, "Seppuku");
-            }
-        }
+    default:
+        default_spell(cmd, res);
         break;
     }
-
-    return "";
 }
+
+static void _midare_setsugekka_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Midare-Setsugekka");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attacks a monster with increased number of attacks and more damage unless it has resistance to cold.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, plr_attack_special(_HISSATSU_COLD, 0));
+        break;
+    case SPELL_ON_BROWSE:
+        plr_attack_display_special(_HISSATSU_COLD, 0);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _spot_aiming_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Spot Aiming");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attempts to kill a monster instantly. If failed cause only 1HP of damage.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, plr_attack_special(PLR_HIT_KILL, PAC_NO_INNATE));
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _majingiri_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Majingiri");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attempts to attack with critical hit. But this attack is easy to evade for a monster.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, plr_attack_special(PLR_HIT_CRIT, 0));
+        break;
+    case SPELL_ON_BROWSE:
+        plr_attack_display_special(PLR_HIT_CRIT, 0);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _desperate_attack_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Desperate Attack");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attacks with all of your power doing double damage. But all damages you take will be doubled for one turn.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, FALSE);
+        if (plr_attack_special(_HISSATSU_SUTEMI, 0))
+        {
+            p_ptr->sutemi = TRUE;
+            var_set_bool(res, TRUE);
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _lightning_eagle_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Lightning Eagle");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attacks a monster with more damage unless it has resistance to electricity.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, plr_attack_special(_HISSATSU_ELEC, 0));
+        break;
+    case SPELL_ON_BROWSE:
+        plr_attack_display_special(_HISSATSU_ELEC, 0);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _rush_attack_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Rush Attack");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Steps close to a monster and attacks at a time.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, rush_attack(5, NULL));
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _bloody_maelstrom_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Bloody Maelstrom");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attacks all adjacent monsters with power corresponding to your cut status. Then increases your cut status. No effect to unliving monsters.");
+        break;
+    case SPELL_CAST: {
+        int dir;
+        if (!p_ptr->no_cut)
+        {
+            if (plr_tim_amount(T_CUT) < 300)
+                plr_tim_add(T_CUT, 300);
+            else
+                plr_tim_add(T_CUT, plr_tim_amount(T_CUT));
+        } 
+        for (dir = 0; dir < 8; dir++)
+        {
+            point_t p = point_step(p_ptr->pos, ddd[dir]);
+            mon_ptr mon = mon_at(p);
+            
+            if (mon && (mon->ml || cave_have_flag_at(p, FF_PROJECT)))
+            {
+                if (!mon_is_living(mon))
+                {
+                    char m_name[80];
+                    monster_desc(m_name, mon, 0);
+                    msg_format("%s is unharmed!", m_name);
+                }
+                else
+                {
+                    plr_attack_t ctx = {0};
+                    ctx.mode = _HISSATSU_SEKIRYUKA;
+                    plr_attack(&ctx, p);
+                }
+            }
+        }
+        var_set_bool(res, TRUE);
+        break; }
+    case SPELL_ON_BROWSE:
+        plr_attack_display_special(_HISSATSU_SEKIRYUKA, 0);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _earthquake_blow_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Earthquake Blow");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Shakes dungeon structure, and results in random swapping of floors and walls.");
+        break;
+    case SPELL_CAST:
+        /* XXX You now need to actually hit an enemy to get the quake ... */
+        var_set_bool(res, plr_attack_special(PLR_HIT_QUAKE, 0));
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static int _crack_dam(void)
+{
+    int total_dam = 0, hand;
+    for (hand = 0; hand < MAX_HANDS; hand++)
+    {
+        int dam, basedam;
+        u32b flgs[OF_ARRAY_SIZE];
+        object_type *o_ptr = NULL;
+
+        if (p_ptr->attack_info[hand].type != PAT_WEAPON) continue;
+        o_ptr = equip_obj(p_ptr->attack_info[hand].slot);
+        if (!o_ptr) continue; /* paranoia */
+
+        basedam = (o_ptr->dd * (o_ptr->ds + 1)) * 50;
+        dam = o_ptr->to_d * 100;
+        
+        obj_flags(o_ptr, flgs);
+        if (have_flag(flgs, OF_VORPAL2))
+        {
+            basedam *= 5;
+            basedam /= 3;
+        }
+        else if (have_flag(flgs, OF_VORPAL))
+        {
+            basedam *= 11;
+            basedam /= 9;
+        }
+        dam += basedam;
+        dam *= NUM_BLOWS(hand)/100;
+        total_dam += dam / 200;
+    }
+    return total_dam;
+}
+static void _crack_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Crack");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Fires a beam of shock wave.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_damage(0, 0, _crack_dam()));
+        break;
+    case SPELL_CAST: {
+        int dir;
+        var_set_bool(res, FALSE);
+        if (!get_fire_dir(&dir)) return;
+        msg_print("You swing your weapon downward.");
+        fire_beam(GF_FORCE, dir, _crack_dam());
+        var_set_bool(res, TRUE);
+        break; }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _war_cry_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "War Cry");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Damages all monsters in sight with sound. Aggravate nearby monsters.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_damage(1, p_ptr->lev * 3, 0));
+        break;
+    case SPELL_CAST:
+        msg_print("You roar out!");
+        project_los(GF_SOUND, randint1(p_ptr->lev * 3));
+        aggravate_monsters(0);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _musou_sandan_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Musou-Sandan");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attacks with 3 powerful strikes.");
+        break;
+    case SPELL_CAST: {
+        int i, dir;
+
+        var_set_bool(res, FALSE);
+        if (!get_rep_dir2(&dir)) return;
+        if (dir == 5) return;
+
+        for (i = 0; i < 3; i++)
+        {
+            point_t pos = point_step(p_ptr->pos, dir), next_pos;
+            cave_type *c_ptr;
+            plr_attack_t ctx = {0}; /* paranoia: new context for each attack */
+
+            c_ptr = cave_at(pos);
+
+            if (!mon_at(pos))
+            {
+                msg_print("There is no monster.");
+                return;
+            }
+
+            ctx.mode = _HISSATSU_3DAN;
+            ctx.flags = PAC_NO_INNATE;
+            if (!plr_attack(&ctx, pos)) return;
+            var_set_bool(res, TRUE); /* ok, now the spell counts as being cast */
+            if (ctx.stop) return; /* for any reason (e.g. dead, teleported, player fear, etc) */
+
+            next_pos = point_step(pos, dir);
+
+            /* move the monster from pos to next_pos */
+            if (!monster_can_enter(next_pos.y, next_pos.x, ctx.race, 0))
+            {
+                if (i < 2) msg_print(NULL); /* -more- */
+                continue; /* keep attacking! */
+            }
+            dun_move_mon(cave, ctx.mon, next_pos);
+
+            /* move the player to pos */
+            if (!player_can_enter(c_ptr->feat, 0)) return;
+            if (!move_player_effect(pos, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP)) return;
+            if (i < 2) msg_print(NULL); /* -more- */
+        }
+        break; }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _vampires_fang_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Vampire's Fang");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attacks with vampiric strikes which absorbs HP from a monster and gives them to you. No effect to unliving monsters.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, plr_attack_special(PLR_HIT_VAMP, 0));
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _moon_dazzling_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Moon Dazzling");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attempts to stun, confuse and sleep all waking monsters.");
+        break;
+    case SPELL_CAST:
+        msg_print("You irregularly wave your weapon...");
+        project_los(GF_ENGETSU, p_ptr->lev * 4);
+        project_los(GF_ENGETSU, p_ptr->lev * 4);
+        project_los(GF_ENGETSU, p_ptr->lev * 4);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _hundred_slaughter_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Hundred Slaughter");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Performs a series of rush attacks. The series continues while killing each monster in a time and SP remains.");
+        break;
+    case SPELL_CAST: {
+        const int mana_cost_per_monster = 8;
+        bool mdeath;
+        var_set_bool(res, FALSE);
+        do
+        {
+            if (!rush_attack(5, &mdeath)) break;
+            var_set_bool(res, TRUE);
+            p_ptr->csp -= mana_cost_per_monster;
+
+            if (!mdeath) break;
+            command_dir = 0;
+            p_ptr->redraw |= PR_MANA;
+            handle_stuff();
+            /*msg_print(NULL);*/
+        }
+        while (p_ptr->csp > mana_cost_per_monster);
+        break; }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _dragonic_flash_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Dragonic Flash");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Runs toward given location while attacking all monsters on the path.");
+        break;
+    case SPELL_CAST: {
+        int y, x;
+
+        var_set_bool(res, FALSE);
+        if (!tgt_pt(&x, &y, MAX_SIGHT / 2)) return;
+
+        if (!cave_player_teleportable_bold(y, x, 0L) ||
+            (distance(y, x, p_ptr->pos.y, p_ptr->pos.x) > MAX_SIGHT / 2) ||
+            !projectable(p_ptr->pos.y, p_ptr->pos.x, y, x))
+        {
+            msg_print("You cannot move to that place!");
+            return;
+        }
+        if (p_ptr->anti_tele)
+        {
+            msg_print("A mysterious force prevents you from teleporting!");
+            equip_learn_flag(OF_NO_TELE);
+        }
+        else
+        {
+            project(0, 0, y, x, _HISSATSU_ISSEN, GF_ATTACK, PROJECT_BEAM | PROJECT_KILL);
+            teleport_player_to(y, x, 0);
+        }
+        var_set_bool(res, TRUE);
+        break; }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _twin_slash_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Twin Slash");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Double attacks at a time.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, plr_attack_special(_HISSATSU_TWIN_SLASH, 0));
+        break;
+    case SPELL_ON_BROWSE:
+        plr_attack_display_special(_HISSATSU_TWIN_SLASH, 0);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static int _kofuku_dam(void)
+{
+    return _crack_dam() * 3 / 2;
+}
+static void _kofuku_zettousei_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Kofuku-Zettousei");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Performs a powerful attack which even effect nearby monsters.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_damage(0, 0, _kofuku_dam()));
+        break;
+    case SPELL_CAST: {
+        int dir;
+        int y, x;
+
+        var_set_bool(res, FALSE);
+        if (!get_rep_dir2(&dir)) return;
+        if (dir == 5) return;
+        var_set_bool(res, TRUE);
+
+        if (cave->flags & DF_NO_MELEE)
+        {
+            msg_print("Something prevent you from attacking.");
+            return;
+        }
+        y = p_ptr->pos.y + ddy[dir];
+        x = p_ptr->pos.x + ddx[dir];
+        msg_print("You swing your weapon downward.");
+        project(0, (cave_have_flag_bold(y, x, FF_PROJECT) ? 5 : 0), y, x, _kofuku_dam(), GF_METEOR, PROJECT_KILL | PROJECT_JUMP | PROJECT_ITEM);
+        break; }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _keiun_kininken_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Keiun-Kininken");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attacks a monster with extremely powerful damage. But you also takes some damages. Hurts a undead monster greatly.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, FALSE);
+        if (!plr_attack_special(_HISSATSU_UNDEAD, 0)) return;
+        take_hit(DAMAGE_NOESCAPE, 100 + randint1(100), "exhaustion on using Keiun-Kininken");
+        var_set_bool(res, TRUE);
+        break;
+    case SPELL_ON_BROWSE:
+        plr_attack_display_special(_HISSATSU_UNDEAD, 0);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _harakiri_spell(int cmd, var_ptr res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Harakiri");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "'Busido is found in death'");
+        break;
+    case SPELL_CAST: {
+        int i;
+        var_set_bool(res, FALSE);
+        if (!get_check("Do you really want to commit suicide? ")) return;
+            /* Special Verification for suicide */
+        prt("Please verify SUICIDE by typing the '@' sign: ", 0, 0);
+
+        flush();
+        i = inkey();
+        prt("", 0, 0);
+        if (i != '@') return;
+        if (p_ptr->total_winner)
+        {
+            take_hit(DAMAGE_FORCE, 9999, "Seppuku");
+            p_ptr->total_winner = TRUE;
+        }
+        else
+        {
+            msg_print("Meaning of Bushi-do is found in the death.");
+            take_hit(DAMAGE_FORCE, 9999, "Seppuku");
+        }
+        var_set_bool(res, TRUE);
+        break; }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+/***********************************************************************
+ * Samurai Books
+ ***********************************************************************/
+#define _SPELLS_PER_BOOK 8
+
+typedef struct {
+    cptr name;
+    spell_info spells[_SPELLS_PER_BOOK];
+} book_t;
+
+static book_t _books[4] = {
+    { "Bugei Shofu",
+        {{ 1, 15,  0, _tobi_izuna_spell},
+         { 3, 10,  0, _3_way_attack_spell},
+         { 6, 15,  0, _boomerang_spell},
+         { 9,  8,  0, _burning_strike_spell},
+         {10, 12,  0, _detect_ferocity_spell},
+         {12, 25,  0, _strike_to_stun_spell},
+         {14,  7,  0, _counter_spell},
+         {17, 20,  0, _harainuke_spell}}
+    },
+    { "Yagyuu Bugeichou",
+        {{19, 10,  0, _serpents_tongue_spell},
+         {22, 20,  0, _zammaken_spell},
+         {24, 30,  0, _wind_blast_spell},
+         {25, 10,  0, _judge_spell},
+         {27, 15,  0, _rock_smash_spell},
+         {29, 45,  0, _midare_setsugekka_spell},
+         {32, 70,  0, _spot_aiming_spell},
+         {35, 50,  0, _majingiri_spell}}
+    },
+    { "Gorinnosho",
+        {{18, 40,  0, _desperate_attack_spell},
+         {22, 22,  0, _lightning_eagle_spell},
+         {24, 30,  0, _rush_attack_spell},
+         {26, 35,  0, _bloody_maelstrom_spell},
+         {30, 30,  0, _earthquake_blow_spell},
+         {32, 60,  0, _crack_spell},
+         {36, 40,  0, _war_cry_spell},
+         {39, 80,  0, _musou_sandan_spell}}
+    },
+    { "Hokusin Ittouryuu Kaiden",
+        {{26, 20,  0, _vampires_fang_spell},
+         {29, 40,  0, _moon_dazzling_spell},
+         {31, 35,  0, _hundred_slaughter_spell},
+         {36, 80,  0, _dragonic_flash_spell},
+         {39,100,  0, _twin_slash_spell},
+         {42,110,  0, _kofuku_zettousei_spell},
+         {45,130,  0, _keiun_kininken_spell},
+         {50,255,  0, _harakiri_spell}}
+    },
+};
+
+/***********************************************************************
+ * Gain Spell
+ ***********************************************************************/
+static int _spell_index(int book, int spell)
+{
+    return book * _SPELLS_PER_BOOK + spell;
+}
+
+static bool _is_spell_known(int book, int spell)
+{
+    int idx = _spell_index(book, spell);
+    if (p_ptr->spell_learned1 & (1L << idx)) return TRUE;
+    return FALSE;
+}
+
+static void _learn_spell(int book, int spell)
+{
+    int idx = _spell_index(book, spell);
+    int i;
+
+    p_ptr->spell_learned1 |= (1L << idx);
+
+    /* Find the next open entry in "p_ptr->spell_order[]" */
+    for (i = 0; i < 64; i++)
+    {
+        /* Stop at the first empty space */
+        if (p_ptr->spell_order[i] == 99) break;
+    }
+
+    /* Add the spell to the known list */
+    p_ptr->spell_order[i++] = spell;
+    p_ptr->learned_spells++;
+    p_ptr->update |= PU_SPELLS;
+    p_ptr->redraw |= PR_EFFECTS;
+
+    msg_format("You have learned the technique of <color:B>%s</color>.", get_spell_name(_books[book].spells[spell].fn));
+}
+
+static bool _gain_spell(int book)
+{
+    int ct = 0, i;
+
+    /* automatically learn all relevant techniques */
+    for (i = 0; i < _SPELLS_PER_BOOK; i++)
+    {
+        spell_info *src = &_books[book].spells[i];
+
+        if (!_is_spell_known(book, i) && src->level <= p_ptr->lev)
+        {
+            _learn_spell(book, i);
+            ct++;
+        }
+    }
+
+    if (ct == 0)
+    {
+        msg_print("You may not learn any techniques in that book.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static bool _is_samurai_book(obj_ptr obj) { return obj->tval == TV_HISSATSU_BOOK; }
+void samurai_gain_spell(void)
+{
+    obj_prompt_t prompt = {0};
+
+    if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
+        set_action(ACTION_NONE);
+
+    if (plr_tim_find(T_BLIND) || no_lite())
+    {
+        msg_print("You cannot see!");
+        return;
+    }
+    if (plr_tim_find(T_CONFUSED))
+    {
+        msg_print("You are too confused!");
+        return;
+    }
+    if (!p_ptr->new_spells)
+    {
+        msg_print("You cannot learn any new techniques!");
+        return;
+    }
+
+    prompt.prompt = "Study which book?";
+    prompt.error = "You have no books that you can read.";
+    prompt.filter = _is_samurai_book;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
+
+    obj_prompt(&prompt);
+    if (!prompt.obj) return;
+
+    if (_gain_spell(prompt.obj->sval))
+        energy_use = 100;
+}
+
+#define _BROWSE 0x01
+static int _get_spells_imp(spell_info* spells, int max, int book, int options)
+{
+    int ct = 0, i;
+    for (i = 0; i < _SPELLS_PER_BOOK; i++)
+    {
+        spell_info *src, *dest;
+
+        if (ct >= max) break;
+        src = &_books[book].spells[i];
+
+        if ((options & _BROWSE) || _is_spell_known(book, i))
+        {
+            dest = &spells[ct++];
+            dest->level = src->level;
+            dest->cost = src->cost;
+            dest->fail = calculate_fail_rate(
+                src->level,
+                src->fail,
+                p_ptr->stat_ind[A_STR]
+            );
+            dest->fn = src->fn;
+        }
+    }
+    return ct;
+}
+
+void samurai_browse_spell(void)
+{
+    obj_prompt_t prompt = {0};
+    spell_info spells[MAX_SPELLS];
+    int ct;
+
+    if (plr_tim_find(T_BLIND) || no_lite())
+    {
+        msg_print("You cannot see!");
+        return;
+    }
+    if (plr_tim_find(T_CONFUSED))
+    {
+        msg_print("You are too confused!");
+        return;
+    }
+
+    prompt.prompt = "Browse which book?";
+    prompt.error = "You have no books that you can read.";
+    prompt.filter = _is_samurai_book;
+    prompt.where[0] = INV_PACK;
+    prompt.where[1] = INV_FLOOR;
+
+    obj_prompt(&prompt);
+    if (!prompt.obj) return;
+
+    ct = _get_spells_imp(spells, MAX_SPELLS, prompt.obj->sval, _BROWSE);
+    browse_spells(spells, ct, "technique");
+}
+
+static void _book_menu_fn(int cmd, int which, vptr cookie, var_ptr res)
+{
+    switch (cmd)
+    {
+    case MENU_TEXT:
+        var_set_string(res, _books[which].name);
+        break;
+    default:
+        default_menu(cmd, which, cookie, res);
+    }
+}
+
+static int _get_spells(spell_info* spells, int max)
+{
+    int idx = -1;
+    int ct = 0;
+    menu_t menu = { "Use which book?", NULL, NULL,
+                    _book_menu_fn, _books, 4 };
+
+    if (!equip_find_first(obj_is_weapon))
+    {
+        if (flush_failure) flush();
+        msg_print("You need to wield a weapon!");
+        return 0;
+    }
+    if (equip_find_obj(TV_SWORD, SV_POISON_NEEDLE))
+    {
+        if (flush_failure) flush();
+        msg_print("Your weapon is dishonorable!");
+        return 0;
+    }
+    if (!p_ptr->spell_learned1)
+    {
+        msg_print("You don't know any special attacks.");
+        return 0;
+    }
+
+    idx = menu_choose(&menu);
+    if (idx < 0) return 0;
+
+    ct = _get_spells_imp(spells, max, idx, 0);
+    if (ct == 0)
+        msg_print("You don't know any of those techniques yet!");
+    return ct;
+}
+
+static void _character_dump(doc_ptr doc)
+{
+    int i;
+
+    doc_printf(doc, "<topic:Techniques>================================= <color:keypress>T</color>echniques ==================================\n\n");
+    for (i = 0; i < 4; i++)
+    {
+        spell_info spells[MAX_SPELLS];
+        int        ct = _get_spells_imp(spells, MAX_SPELLS, i, 0);
+        char       header[100];
+        if (ct)
+        {
+            sprintf(header, "<color:u>%s</color>", _books[i].name);
+            plr_display_spells_aux(doc, spells, ct, header);
+        }
+    }
+}
+
 
 /***********************************************************************
  * Samurai Postures (Kata)
@@ -940,18 +1609,21 @@ void samurai_posture_get_flags(u32b flgs[OF_ARRAY_SIZE])
 
     if (p_ptr->special_defense & KATA_MUSOU)
     {
-        add_flag(flgs, OF_RES_FEAR);
+        add_flag(flgs, OF_RES_ACID);
+        add_flag(flgs, OF_RES_ELEC);
+        add_flag(flgs, OF_RES_FIRE);
+        add_flag(flgs, OF_RES_COLD);
+        add_flag(flgs, OF_RES_POIS);
         add_flag(flgs, OF_RES_LITE);
         add_flag(flgs, OF_RES_DARK);
-        add_flag(flgs, OF_RES_BLIND);
         add_flag(flgs, OF_RES_CONF);
-        add_flag(flgs, OF_RES_SOUND);
-        add_flag(flgs, OF_RES_SHARDS);
         add_flag(flgs, OF_RES_NETHER);
         add_flag(flgs, OF_RES_NEXUS);
+        add_flag(flgs, OF_RES_SOUND);
+        add_flag(flgs, OF_RES_SHARDS);
         add_flag(flgs, OF_RES_CHAOS);
         add_flag(flgs, OF_RES_DISEN);
-        add_flag(flgs, OF_RES_TIME);
+        add_flag(flgs, OF_RES_FEAR);
         add_flag(flgs, OF_REFLECT);
         add_flag(flgs, OF_HOLD_LIFE);
         add_flag(flgs, OF_FREE_ACT);
@@ -1300,13 +1972,14 @@ plr_class_ptr samurai_get_class(void)
         me->flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
 
         me->hooks.birth = _birth;
+        me->hooks.get_spells = _get_spells;
         me->hooks.caster_info = _caster_info;
         me->hooks.attack_init = _attack_init;
         me->hooks.calc_bonuses = _calc_bonuses;
         me->hooks.calc_stats = _calc_stats;
         me->hooks.get_flags = _get_flags;
         me->hooks.get_powers = _get_powers;
-        me->hooks.character_dump = spellbook_character_dump;
+        me->hooks.character_dump = _character_dump;
         me->hooks.timer_on = _timer_on;
     }
 

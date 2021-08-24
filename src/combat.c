@@ -83,6 +83,7 @@ void init_blows_calc(object_type *o_ptr, plr_attack_info_ptr info)
     case CLASS_HIGH_MAGE:
     case CLASS_YELLOW_MAGE:
     case CLASS_GRAY_MAGE:
+    case CLASS_BLUE_MAGE:
         info->blows_calc.max = 400;
         info->blows_calc.wgt = 100;
         info->blows_calc.mult = 20;

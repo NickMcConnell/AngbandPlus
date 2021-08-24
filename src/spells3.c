@@ -391,8 +391,8 @@ void teleport_player(int dis, u32b mode)
 
                 if (!point_project(old_pos, pos)) continue;
 
-                /* The latter limitation is to avoid totally unkillable suckers...  */
-                if (mon_race_can_teleport(race) && !(race->flagsr & RFR_RES_TELE))
+                /* The latter limitations are to avoid totally unkillable suckers...  */
+                if (mon_race_can_teleport(race) && !(race->flagsr & RFR_RES_TELE) && !(mon->mflag2 & MFLAG2_VAULT))
                 {
                     if (!mon_tim_find(mon, MT_SLEEP))
                         teleport_monster_to(mon->id, p_ptr->pos.y, p_ptr->pos.x, race->level, 0);
@@ -431,8 +431,8 @@ void teleport_player_away(int m_idx, int dis)
 
                 if (!point_project(old_pos, pos)) continue;
 
-                /* The latter limitation is to avoid totally unkillable suckers...  */
-                if (mon_race_can_teleport(race) && !(race->flagsr & RFR_RES_TELE))
+                /* The latter limitations are to avoid totally unkillable suckers...  */
+                if (mon_race_can_teleport(race) && !(race->flagsr & RFR_RES_TELE) && !(mon->mflag2 & MFLAG2_VAULT))
                 {
                     if (!mon_tim_find(mon, MT_SLEEP))
                         teleport_monster_to(mon->id, p_ptr->pos.y, p_ptr->pos.x, race->level, 0);

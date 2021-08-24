@@ -686,11 +686,11 @@ static cptr _do_potion(int sval, int mode)
             if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
                 msg_print("You are unaffected.");
             else if (sp_player(amt))
-            {
-                msg_print("You feel your mind clear.");
                 device_noticed = TRUE;
-            }
             if (plr_tim_remove(T_BERSERK)) device_noticed = TRUE;
+            if (plr_tim_remove(T_STUN)) device_noticed = TRUE;
+            if (device_noticed)
+                msg_print("You feel your mind clear.");
         }
         break;
     case SV_POTION_GREAT_CLARITY:
@@ -703,11 +703,11 @@ static cptr _do_potion(int sval, int mode)
             if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
                 msg_print("You are unaffected.");
             else if (sp_player(amt))
-            {
-                msg_print("You feel your mind clear.");
                 device_noticed = TRUE;
-            }
             if (plr_tim_remove(T_BERSERK)) device_noticed = TRUE;
+            if (plr_tim_remove(T_STUN)) device_noticed = TRUE;
+            if (device_noticed)
+                msg_print("You feel your mind clear.");
         }
         break;
     case SV_POTION_RESTORE_MANA:
@@ -2595,6 +2595,31 @@ static device_effect_info_ptr _device_find_effect(device_effect_info_ptr table, 
     }
 
     return NULL;
+}
+
+/* XXX When a Devicemaster transfers an effect, we better re-calc the
+ * cost. For example, transfering -Disitegrate from entry level to
+ * a high end P100 device would grant too many charges. */
+void device_init_cost(obj_ptr obj)
+{
+    device_effect_info_ptr e = NULL;
+    int cost;
+    switch (obj->tval)
+    {
+    case TV_WAND:
+        e = _device_find_effect(wand_effect_table, obj->activation.type);
+        break;
+    case TV_ROD:
+        e = _device_find_effect(rod_effect_table, obj->activation.type);
+        break;
+    case TV_STAFF:
+        e = _device_find_effect(staff_effect_table, obj->activation.type);
+        break;
+    }
+    assert(e);
+    cost = e->cost;
+    cost += effect_cost_extra(&obj->activation);
+    obj->activation.cost = _bounds_check(_rand_normal(cost, 5), 1, 1000);
 }
 
 bool device_is_valid_effect(int tval, int effect)
@@ -4598,10 +4623,11 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
                 msg_print("You are unaffected.");
             else if (sp_player(_BOOST(amt)))
-            {
-                msg_print("You feel your mind clear.");
                 device_noticed = TRUE;
-            }
+            if (plr_tim_remove(T_BERSERK)) device_noticed = TRUE;
+            if (plr_tim_remove(T_STUN)) device_noticed = TRUE;
+            if (device_noticed)
+                msg_print("You feel your mind clear.");
         }
         break;
     }
@@ -4618,10 +4644,11 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
                 msg_print("You are unaffected.");
             else if (sp_player(_BOOST(amt)))
-            {
-                msg_print("You feel your mind clear.");
                 device_noticed = TRUE;
-            }
+            if (plr_tim_remove(T_BERSERK)) device_noticed = TRUE;
+            if (plr_tim_remove(T_STUN)) device_noticed = TRUE;
+            if (device_noticed)
+                msg_print("You feel your mind clear.");
         }
         break;
     }

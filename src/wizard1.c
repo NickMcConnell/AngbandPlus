@@ -1540,9 +1540,10 @@ static bool _can_breathe(mon_race_ptr r, int gf)
 
 static bool _mon_dam_p(mon_race_ptr r)
 {
+    return TRUE;
+    return r->d_char == 'd' || r->d_char == 'D';
     return (r->flags1 & RF1_UNIQUE) && (r->flags3 & RF3_UNDEAD);
     return BOOL(r->flags1 & RF1_UNIQUE);
-    return TRUE;
     return _can_breathe(r, GF_NETHER) && (r->flagsr & RFR_RES_NETH);
     return BOOL(r->flagsr & RFR_RES_NETH);
     return (r->flags3 & RF3_EVIL) && !(r->flagsr & RFR_RES_NETH);

@@ -373,6 +373,36 @@ Martial Arts
     
   
 Magic
+  Blue-Mage
+  The Blue-Mage is not your ordinary mage. Rather than using 
+  spellbooks, the blue-mage learns monster spells through direct 
+  experience. With their special technique of Learning they have a 
+  chance to learn spells every time they see a monster perform a spell. 
+  The odds of learning the spell depend on the player's level and the 
+  monster's level. Moreover, when performing learned spells, the 
+  effectiveness depends upon the monster they learned the spell from; 
+  breathing fire learned from a fire hound is much less effective then 
+  the same learned from a Great Hell Wyrm! Finally, the blue-mage can 
+  only remember a limited number of spells at a time. Learning a new 
+  spell must replace an existing spell once this limit is reached.
+  
+  The Blue-Mage is weak in melee and archery, but not nearly so bad as 
+  a normal mage would be. This is fortunate, since it may take a little 
+  while to learn that first offensive spell. Starting players will need 
+  to use melee and archery until an arsenal of good monster spells is 
+  acquired.
+  
+    Stats                   Skills
+    Strength      -1        Disarming   Fair         
+    Intelligence  +3        Device      Excellent    
+    Wisdom        +0        Save        Fair         
+    Dexterity     -1        Stealth     Good         
+    Constitution  -1        Searching   Poor         
+    Charisma      +0        Perception  Fair         
+    Life Rating  100%       Melee       Fair         
+    Base HP        4        Bows        Poor         
+    Experience   130%
+    
   Gray-Mage
   The Gray-Mage casts spells from memory, rather than from a book.  
   Indeed, the spell book is only required for the initial learning 
@@ -1199,6 +1229,7 @@ Sniper         +2   -1   -1   +2   +1   +0  100%   +4  110%
 Force-Trainer  +0   -1   +3   +2   +1   +0  100%   +4  135%
 Monk           +2   -1   +1   +3   +2   +1  110%  +12  130%
 Mystic         +2   -1   -2   +3   +1   +2  100%   +4  130%
+Blue-Mage      -1   +3   +0   -1   -1   +0  100%   +4  130%
 Gray-Mage      -4   +3   +0   +1   -2   -2   95%   +0  130%
 High-Mage      -4   +4   +0   +0   -2   -2   94%   +0  130%
 Mage           -4   +3   +0   +1   -2   -2   95%   +0  130%
@@ -1246,6 +1277,7 @@ Sniper        Good          Fair          Poor          Excellent
 Force-Trainer Good          Very Good     Good          Very Good    
 Monk          Superb        Very Good     Fair          Excellent    
 Mystic        Superb        Very Good     Fair          Excellent    
+Blue-Mage     Fair          Excellent     Fair          Good         
 Gray-Mage     Fair          Superb        Good          Good         
 High-Mage     Fair          Superb        Good          Good         
 Mage          Fair          Superb        Good          Good         
@@ -1293,6 +1325,7 @@ Sniper        Good          Fair          Poor          Superb
 Force-Trainer Good          Fair          Fair          Fair         
 Monk          Good          Fair          Excellent     Excellent    
 Mystic        Good          Fair          Excellent     Fair         
+Blue-Mage     Poor          Fair          Fair          Poor         
 Gray-Mage     Poor          Fair          Very Bad      Very Bad     
 High-Mage     Poor          Fair          Very Bad      Very Bad     
 Mage          Poor          Fair          Very Bad      Very Bad     
@@ -1326,5 +1359,5 @@ Wild-Talent   Fair          Poor          Very Good     Very Good
 
 
 
-Automatically generated for PosChengband 7.1.0.
+Automatically generated for PosChengband 7.2.1.
 

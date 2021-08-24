@@ -956,6 +956,11 @@ cptr process_pref_file_expr(char **sp, char *fp)
             {
                 v = get_class()->name;
             }
+            else if (streq(b+1, "WORLD"))
+            {
+                sprintf(tmp, "%d", p_ptr->initial_world_id);
+                v = tmp;
+            }
 
             /* Player */
             else if (streq(b+1, "PLAYER"))

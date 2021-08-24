@@ -125,7 +125,7 @@ static int _mon_alloc_prob(mon_race_ptr race, int level, int min_level, u32b opt
     if (race->rarity == 0 || race->rarity > 100) return 0;
     if (!chameleon_change_mon && summon_specific_type != SUMMON_GUARDIAN)
     {
-        if (race->flagsx & (RFX_QUESTOR | RFX_SUPPRESS)) return 0;
+        if (race->flagsx & (RFX_QUESTOR | RFX_SUPPRESS | RFX_GUARDIAN)) return 0;
         if (race->flags7 & RF7_GUARDIAN) return 0;
         if ((race->flags1 & RF1_FORCE_DEPTH) && race->level > cave->dun_lvl) return 0;
     }
@@ -250,7 +250,13 @@ bool mon_alloc_dungeon(mon_race_ptr race)
     if (cave->dun_type_id == D_SURFACE) return TRUE; /* XXX ignore this filter if on surface */
 
     /* Allow Gwaihir, Thorondor and Meneldor to appear in "The Mountain" */
-    if (cave->dun_type_id == D_MOUNTAIN && (race->flags8 & RF8_WILD_MOUNTAIN))
+    if (cave->dun_type_id == D_MOUNTAIN && race->d_char == 'B' && (race->flags8 & RF8_WILD_MOUNTAIN))
+        return TRUE;
+    if (cave->dun_type_id == D_RANDOM_MOUNTAIN && race->d_char == 'B' && (race->flags8 & RF8_WILD_MOUNTAIN))
+        return TRUE;
+    if (cave->dun_type_id == D_RANDOM_SEA && (race->flags8 & RF8_WILD_OCEAN))
+        return TRUE;
+    if (cave->dun_type_id == D_RANDOM_VOLCANO && (race->flags8 & RF8_WILD_VOLCANO))
         return TRUE;
     return !(race->flags8 & RF8_WILD_ONLY); 
 }
@@ -489,7 +495,15 @@ bool mon_save_time(int r_idx, int dam, int flags)
 {
     int  ml = mon_save_r_level(r_idx);
     if (flags & GF_AFFECT_SPELL)
-        return randint1(_ds(ml, 12)) > dam;
+    {
+        int ds = _ds(ml, 12);
+        #if 0
+        int odds = 0;
+        if (ds > dam) odds = (ds - dam)*1000/ds;
+        msg_format("<color:D>mon_save_time(%d, %d) = %d.%d%%</color>", ml, dam, odds/10, odds%10);
+        #endif
+        return randint1(ds) > dam;
+    }
     return randint1(dam) <= randint1(ml);
 }
 bool mon_save_poly(int rlev, int dam)
@@ -881,7 +895,8 @@ static obj_ptr _make(mon_ptr mon, mon_race_ptr race, mon_drop_ptr drop)
     else /* Don't try to tailor themed drops since they could easily fail ... */
     {
         if ( (mon->mflag2 & MFLAG2_QUESTOR)
-          || (race->flags7 & RF7_GUARDIAN) )
+          || (race->flags7 & RF7_GUARDIAN)
+          || (race->flagsx & RFX_GUARDIAN) )
         {
             if (one_in_(5))
                 mode |= AM_TAILORED;
@@ -1357,6 +1372,7 @@ enum {
     SAVE_MON_ANGER,
     SAVE_MON_MANA,
     SAVE_MON_TIMERS,
+    SAVE_MON_TURNS,
 };
 
 void mon_load(mon_ptr mon, savefile_ptr file)
@@ -1451,6 +1467,9 @@ void mon_load(mon_ptr mon, savefile_ptr file)
             break;
         case SAVE_MON_MANA:
             mon->mana = savefile_read_s16b(file);
+            break;
+        case SAVE_MON_TURNS:
+            mon->turns = savefile_read_u16b(file);
             break;
         /* default:
             TODO: Report an error back to the load routine!!*/
@@ -1561,6 +1580,11 @@ void mon_save(mon_ptr mon, savefile_ptr file)
     {
         savefile_write_byte(file, SAVE_MON_MANA);
         savefile_write_s16b(file, mon->mana);
+    }
+    if (mon->turns)
+    {
+        savefile_write_byte(file, SAVE_MON_TURNS);
+        savefile_write_u16b(file, mon->turns);
     }
 
     savefile_write_byte(file, SAVE_MON_DONE);

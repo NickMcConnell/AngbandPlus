@@ -1416,7 +1416,7 @@ static bool _wiz_dun_skip(int id)
 {
     switch (id)
     {
-    case D_AMBER:
+    case D_OLYMPUS:
     case D_CAMELOT:
     case D_ICKY_CAVE:
     case D_MOUNTAIN:
@@ -1479,6 +1479,7 @@ static void _obj_id_full_desc(point_t pos, obj_ptr pile)
     }
 }
 static void _wiz_glow(point_t pos, cave_ptr grid) { grid->info |= CAVE_GLOW | CAVE_MARK | CAVE_AWARE; }
+static void _world_glow(point_t pos, dun_grid_ptr grid) { grid->info |= CAVE_MARK | CAVE_GLOW; }
 /*************************************************************************
  * Handle the ^A wizard commands. Perhaps there should be a UI for this?
  ************************************************************************/
@@ -1571,15 +1572,22 @@ void do_cmd_debug(void)
     case 'f': /* debug surface fractals */
         if (cave->dun_type_id == D_SURFACE)
         {
+            #if 0
             dun_mgr_ptr dm = dun_mgr();
             dm->world_seed = randint0(0x10000000);
             dun_world_reseed(dm->world_seed);
             dun_regen_surface(cave);
             do_cmd_redraw();
-            /*dun_world_dump_frac(cave);*/
+            #endif
+            #if 0
+            dun_world_dump_frac(cave);
+            #endif
         }
         else
-            dun_gen_cave_wizard();
+        {
+            dun_gen_world_wizard();
+            /*dun_gen_cave_wizard();*/
+        }
         break;
 
     /* Create desired feature */
@@ -1605,6 +1613,11 @@ void do_cmd_debug(void)
         if (command_arg <= 0) command_arg = 10;
         acquirement(p_ptr->pos.y, p_ptr->pos.x, command_arg, FALSE, TRUE);
 #endif
+        break;
+
+    case 'G':
+        if (cave->dun_type_id == D_SURFACE)
+            dun_iter_grids(dun_mgr()->world, _world_glow);
         break;
 
     /* Hitpoint rerating */
@@ -1693,8 +1706,8 @@ void do_cmd_debug(void)
     /* Magic Mapping */
     case 'm':
         map_area(DETECT_RAD_ALL * 3);
-        (void)detect_monsters_invis(255);
-        (void)detect_monsters_normal(255);
+        /*(void)detect_monsters_invis(255);
+        (void)detect_monsters_normal(255);*/
         break;
 
     /* Mutation */
@@ -1980,8 +1993,19 @@ void do_cmd_debug(void)
         break;
     }
     case '_': {
+        #if 1
         int id = get_quantity("Which? ", 100);
         dun_worlds_wizard(id);
+        #else
+        int curses = 1 + randint1(3);
+        bool stop_ty = FALSE;
+        int count = 0;
+        do
+        {
+            stop_ty = activate_ty_curse(stop_ty, &count);
+        }
+        while (--curses);
+        #endif
         break; }
     default:
         msg_print("That is not a valid debug command.");

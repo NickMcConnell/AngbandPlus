@@ -31,49 +31,12 @@ off after the creation is finished!
   Allow monsters to know what spell attacks you are resistant to, and 
   to use this information to choose the best attacks.
   
-  Play without a wilderness (no_wilderness)
-  This option disables the wilderness, forcing you to play with a 
-  single special town level. As a result, the only dungeon that will be 
-  available is the Pits of Angband. However, the town is relatively 
-  well serviced and many, if not most, of the various fixed quests will 
-  be available for your pleasure (see [b]).
-  
-  Stores are permanently closed (ironman_shops)
-  This option closes all shops. Try to survive in the deeps of the 
-  dungeon without supplies from town. Your Home still functions 
-  normally, and various town services are still available.
-  
-  Disable recall and use of up stairs (ironman_downward)
-  You are not allowed to climb upwards, or recall to town. All stairs 
-  are downstairs and every time you teleport level, you'll teleport to 
-  a deeper level.
-  
-  Always create empty 'arena' levels (ironman_empty_levels)
-  If this option is enabled, then every level will be empty 'arena' 
-  level. See the "Allow empty 'arena' levels" option below.
-  
-  Nightmare mode(it isn't even remotely fair!) (ironman_nightmare)
-  If this option is enabled, all monsters become unusually powerful, 
-  and fast. And there will be various unbelievable things happening in 
-  various situations. Furthermore, at 12:00 every night, you will have 
-  a real nightmare. You need to be crazy to turn this option on!
-  
-  Preserve artifacts (preserve_mode)
-  In non-preserve mode, once a fixed artifact is generated (either on 
-  the dungeon floor or in a monster drop), it will never be generated 
-  again during that game. This means that if you miss the artifact by 
-  leaving the level before you pick it up it is gone forever. On the 
-  other hand, in preserve mode this behavior is only exhibited once you 
-  have identified the artifact. It is therefor safer to leave a level 
-  before it is completely explored as any fixed artifact can be 
-  regenerated in subsequent levels.
-  
   
 Input Options
   
   Rogue-like commands (rogue_like_commands)
   Selects the roguelike command set which is an alternative way of 
-  mapping keystrokes to underlying game commands. (see [c] for info).
+  mapping keystrokes to underlying game commands. (see [b] for info).
   
   Pick things up by default (always_pickup)
   Tells the game that walking onto an item should attempt to pick it 
@@ -125,7 +88,7 @@ Input Options
   Repeat obvious commands (always_repeat)
   Tells the game that when you attempt to open a door or chest, bash a 
   door, tunnel through walls, or disarm traps or chests, that you wish 
-  to repeat the command 99 times (see [d]).
+  to repeat the command 99 times (see [c]).
   
   Prompt for destruction of known worthless items (confirm_destroy)
   Normally, no confirmation will be asked if you attempt to destroy an 
@@ -177,21 +140,6 @@ Input Options
   staff or rod able to detect traps. The game will use the object for 
   you automatically, consuming a scroll or a single charge from an 
   appropriate device.
-  
-  Automatically map area while running (auto_map_area)
-  With this option enabled, the game will attempt to automatically map 
-  your surroundings whenever you run outside a previously mapped zone. 
-  Unlike auto_detect_traps, there is no visual indication of regions 
-  that are flagged as mapped versus those that are not. When you invoke 
-  magic mapping, the game maps your surroundings, and it also sets a 
-  flag on each tile in the area of effect. When your player runs from a 
-  tile so flagged onto one not so flagged, then the game attempts to 
-  automatically map for you by locating an appropriate scroll or device 
-  and using it for you. Both this option and auto_detect_traps work 
-  best if you always run when travelling about. When you enter a new 
-  level, manually detect traps and map your surroundings. If you always 
-  run when travelling, the game will automatically take care of the 
-  detection tedium for the rest of the level.
   
   Use numpad keys as cursor keys in editor mode (numpad_as_cursorkey)
   This option makes numpad keys work as cursor movement keys while text 
@@ -375,17 +323,17 @@ Text Display Options
   Display player hp bar (display_hp_bar)
   This option will display a status bar on the main screen that details 
   your current health. For example:
-    @[*******--]
+    @ 52%
   
   Display player sp bar (display_sp_bar)
   This option will display a status bar on the main screen that details 
   your current mana. For example:
-    ?[***------]
+    ?  3%
   
   Display detailed food status (display_food_bar)
   This option will display a status bar on the main screen that details 
   your current state of hunger. For example:
-    ,[**-------]
+    , 15%
   
   Compress messages in savefiles (compress_savefile)
   Compress the savefile, by only saving the most recent "messages" that 
@@ -403,7 +351,7 @@ Text Display Options
   Fire is not an EXTRA resistance.
   
   The list of abbreviations for each resistances and abilities are 
-  described in [e].
+  described in [d].
   
   Describe obj's all resistances by abbreviation (abbrev_all)
   When an *identified* equipment is displayed, an abbreviation string 
@@ -411,7 +359,7 @@ Text Display Options
   inscriptions of the object.
   
   The list of abbreviations for each resistances and abilities are 
-  described in [f].
+  described in [e].
   
   Show the experience needed for the next level (exp_need)
   Setting this option to yes alters the display of experience on the 
@@ -447,15 +395,6 @@ Game Play Options
   the appropriate list. This allows the "look" and "target" commands to 
   "cycle" through all appropriate grids forever, and the "identify 
   symbol" to browse through all of the monsters of a given type.
-  
-  Allow empty 'arena' levels (empty_levels)
-  Normal dungeon levels consist mostly of rock. If this option is in 
-  use, levels which have empty floor instead of solid rock may also be 
-  created (somewhat reminiscent of Nethack's "big-room" levels). These 
-  levels can be extremely deadly, especially with breathing monsters 
-  (since there are few obstructions to shield). Arena levels may have 
-  vaults, nests and pits in them like normal levels. Some arena levels 
-  are dark when they are created, but most are lit.
   
   Boundary walls become 'permanent wall' (bound_walls_perm)
   If this option is set, boundaries of dungeon floors will explicitly 
@@ -569,7 +508,7 @@ Easy Auto-Destroyer Options
   
     Note: The Easy Auto-Destroyer is a simpler to use 
     version of the full featured Mogaminator discussed in 
-    [g]. It is designed for those who feel the full version 
+    [f]. It is designed for those who feel the full version 
     is too complicated to use. However, you really should 
     only use one or the other. So if you are using the full 
     version, then you should not also enable the easy 
@@ -625,12 +564,17 @@ Easy Auto-Destroyer Options
   Auto-destroyer leaves items your race/class needs (leave_special)
   This option protects specific items which are normally worthless, but very imp
   
-  Base Delay Factor
+  Delay Factor
   
-  The delay_factor value, if non-zero, is used to slow down the game, 
-  which is useful to allow you to observe the animations of bolt, beam, 
-  and ball attacks. The actual delay is equal to delay_factor cubed, in 
-  milliseconds.
+  Delay Factors, if non-zero, are used to slow down the game, which is 
+  useful to allow you to observe the animations of bolt, beam, and ball 
+  attacks. The game now prompts you for two separate delay factors. The 
+  first, called the Animation Delay, is applied whenever the game is 
+  animating an effect, such as a player's fire ball spell or a dragon's 
+  deadly breath. The second, called the Running Delay, is applied 
+  whenever the player is using the run or travel commands. Computers 
+  have simply become too fast, and you will need to slow down running, 
+  especially in the wilderness. Enter values in milliseconds.
   
   Hitpoint Warning
   
@@ -677,6 +621,12 @@ Easy Auto-Destroyer Options
     Display equip/inven
     Display the player equipment (and sometimes the inventory). Note 
     that you can toggle between Inventory and Equipment by pressing ^I.
+    
+    Display World Map
+    Displays the surface map. Since the player must learn the 
+    wilderness layout through exploration, this is a very useful 
+    display option. You can also access the world map by pressing M 
+    from the normal map display (so press MM from the top level).
     
     Display Object List
     This option displays the results of the Object List command (]). 
@@ -728,41 +678,12 @@ Easy Auto-Destroyer Options
     This window flag is currently used only by the Borg which is not 
     currently supported in this variant.
     
-  Cheating Options
-  
-  Using the cheating options marks your character as "Cheater" and you 
-  won't get into the high-score list. Turning off the cheating options 
-  later does NOT allow your character to get a highscore entry, so 
-  think twice before using any cheat.
-    
-    Peek into object creation (cheat_peek)
-    Cheaters never win. But they can peek at object creation.
-    
-    Peek into monster creation (cheat_hear)
-    Cheaters never win. But they can peek at monster creation.
-    
-    Peek into dungeon creation (cheat_room)
-    Cheaters never win. But they can peek at room creation.
-    
-    Peek into something else (cheat_xtra)
-    Cheaters never win. But they can see debugging messages.
-    
-    Know complete monster info (cheat_know)
-    Cheaters never win. But they can know all about monsters.
-    
-    Allow player to avoid death (cheat_live)
-    Cheaters never win. But they can cheat death.
-    
-    Ask for saving death (cheat_save)
-    Cheaters never win. But they can choose whether they save dead 
-    character data or not when they die.
-    
   
   Original   : Ben Harrison
   Updated    : Zangband 2.1.* by Topi Ylinen
   Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
   Updated    : Zangband DevTeam
   Updated    : Hengband 1.5.2
-  Updated    : PosChengband 4.0.0
+  Updated    : PosChengband 7.2.0
   
   

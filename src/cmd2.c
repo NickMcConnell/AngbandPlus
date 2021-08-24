@@ -3554,6 +3554,8 @@ static bool _travel_flow_p(point_t pos, dun_grid_ptr grid)
     if (have_flag(feat->flags, FF_WALL) || have_flag(feat->flags, FF_CAN_DIG)) return FALSE;
     if (!have_flag(feat->flags, FF_MOVE) && have_flag(feat->flags, FF_CAN_FLY) && !p_ptr->levitation)
         return FALSE;
+    if (have_flag(feat->flags, FF_PATTERN))
+        return FALSE;
     /*if (have_flag(feat->flags, FF_LAVA) && !elemental_is_(ELEMENTAL_FIRE) && res_pct(RES_FIRE) < 100)
         return FALSE;*/
     return TRUE;
@@ -3702,6 +3704,13 @@ void travel_end(void)
 void do_cmd_travel(void)
 {
     int x, y;
+    if (cave_have_flag_at(p_ptr->pos, FF_PATTERN))
+    {
+        /* XXX travel flow does not support walking the pattern. instead,
+         * you will receive 255 messages saying you cannot leave the pattern! */
+        msg_print("You may not travel while walking the pattern.");
+        return;
+    }
     if (!tgt_pt(&x, &y, -1)) return;
     travel_begin(TRAVEL_MODE_NORMAL, point_create(x, y));
 }

@@ -35,7 +35,7 @@ static caster_info * _caster_info(void)
 
 static void _calc_bonuses(void)
 {
-    p_ptr->spells_per_round += plr_prorata_level(150);
+    p_ptr->spells_per_round += plr_prorata_level(100);
     if (p_ptr->lev >= 30)
         p_ptr->wizard_sight = TRUE;
 }

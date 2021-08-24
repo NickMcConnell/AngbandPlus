@@ -661,9 +661,10 @@ static void _one_helmet(_forge_ptr forge)
 static void _one_cloak(_forge_ptr forge)
 {
     static _table_t tbl[] = {
-        { OF_STEALTH,       NULL, NULL,  3, _ONCE },
-        { 0,           _one_aura, NULL,  1 },
-        { 0,          _one_armor, NULL, 15 },
+        { OF_STEALTH,       NULL, NULL,  6, _ONCE },
+        { OF_LEVITATION,    NULL, NULL,  1, _ONCE }, /* a flying cape a la superman (for RACE_MON_HYDRA) */
+        { 0,           _one_aura, NULL,  2 },
+        { 0,          _one_armor, NULL, 30 },
         { 0 } };
 
     _one(forge, tbl);
@@ -1670,6 +1671,7 @@ static void _cleanup(_forge_ptr forge)
     _flag_superfluous(forge, OF_KILL_ORC, OF_SLAY_ORC);
     _flag_superfluous(forge, OF_KILL_TROLL, OF_SLAY_TROLL);
     _flag_superfluous(forge, OF_KILL_GIANT, OF_SLAY_GIANT);
+    _flag_superfluous(forge, OF_VORPAL2, OF_VORPAL);
 
     _flag_superfluous(forge, OF_IM_ACID, OF_RES_ACID);
     _flag_superfluous(forge, OF_IM_ELEC, OF_RES_ELEC);
@@ -1683,6 +1685,8 @@ static void _cleanup(_forge_ptr forge)
     {
         forge->obj->pval = 0;
     }
+
+    remove_flag(forge->obj->flags, OF_FULL_NAME); /* e.g. ?Art on a Hell Harness (cf object_desc) */
 }
 
 static void _finalize(_forge_ptr forge)

@@ -261,6 +261,10 @@ int gf_affect_p(int who, int type, int dam, int flags)
     int          damage_type = aura ? DAMAGE_NOESCAPE : DAMAGE_ATTACK;
     int          stat_drain_odds = aura ? 3 * HURT_CHANCE : HURT_CHANCE;
 
+    #if 0
+    if (flags & GF_AFFECT_SPELL)
+        msg_format("<color:D>gf_affect_p(%s, %d)</color>", gf_lookup(type)->name, dam);
+    #endif
     if (who > 0)
     {
         m_ptr = dun_mon(cave, who);
@@ -1240,6 +1244,11 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
     /* Prevents problems with chain reactions of exploding monsters */
     if (mon->hp < 0) return (FALSE);
 
+    #if 0
+    if (p_ptr->riding == mon->id && (flags & GF_AFFECT_SPELL))
+        msg_format("<color:D>gf_affect_m(%s, %d)</color>", gf_lookup(type)->name, dam);
+    #endif
+
     /* Big hack here ... Jump Spiders are immune to the jumps of their kin
      * (They come in packs, and it would be silly for them to destroy each other) */
     if (mon_spell_current() && race->spells)
@@ -1844,12 +1853,12 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                 int which = randint1(100);
                 if (which <= 15)
                 {
-                    if (unique)
+                    if (unique && mon_save_time(race->id, dam, flags))
                     {
                         if (p_ptr->wizard)
-                            note = " cannot be slowed.";
+                            note = " resists being slowed.";
                     }
-                    else mon_tim_add(mon, T_SLOW, 50);
+                    else mon_tim_add(mon, T_SLOW, 10 + randint1(15));
                 }
                 else if (which <= 20)
                 {
@@ -1863,15 +1872,15 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                 }
                 else if (which <= 40)
                 {
-                    if (!unique)
+                    if (unique && mon_save_time(race->id, dam, flags))
                     {
-                        note = " is suspended!";
-                        do_paralyzed = 5;
+                        if (p_ptr->wizard)
+                            note = " resists being suspended.";
                     }
                     else
                     {
-                        if (p_ptr->wizard)
-                            note = " cannot be suspended.";
+                        /*note = " is suspended!";*/
+                        do_paralyzed = 5;
                     }
                 }
                 else if (which <= 50)
@@ -1881,14 +1890,21 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                 }
                 else if (which <= 60)
                 {
-                    do_time = (dam + 1) / 2;
+                    mon_spell_ptr spell = mon_spell_random(mon);
+                    if (spell)
+                    {
+                        int parm = mon_spell_pack(spell->id);
+                        mon_tim_add_aux(mon, MT_AMNESIA, 10 + randint1(10), parm);
+                    }
+                    else
+                        do_time = (dam + 1) / 2;
                 }
                 else if (which <= 70)
                 {
                     mon->mspeed -= randint1(2);
                     note = " is permanently slowed!";
                 }
-                else if (which <= 90)
+                else if (which <= 80)
                 {
                     mon->mpower = MAX(300, mon->mpower * (850 + randint0(100)) / 1000);
                     note = " shrinks!";
@@ -2444,6 +2460,11 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
             if (seen_msg) msg_format("%^s recovers %s vitality.", m_name, m_poss);
             mon->maxhp = mon->max_maxhp;
         }
+        if (mon->mpower < 1000)
+        {
+            if (seen_msg) msg_format("%^s recovers %s life.", m_name, m_poss);
+            mon->mpower = 1000;
+        }
 
         if (!dam)
         {
@@ -2581,7 +2602,6 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         }
         else
         {
-            note = " is <color:v>paralyzed</color>!";
             do_paralyzed = randint1(3);
         }
         dam = 0;
@@ -2596,7 +2616,6 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
         }
         else
         {
-            /*note = " is suspended!";*/
             do_paralyzed = 3;
         }
         dam = 0;
@@ -3454,7 +3473,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                 hp_player(dam);
             }
         }
-        else if (!quiet) msg_format("%^s is unaffected.", m_name);
+        else if (seen_msg && !quiet) msg_format("%^s is unaffected.", m_name);
         dam = 0;
         break;
     case GF_ANTIMAGIC: { /* Formerly restricted to rage-mage. But now, mon vs mon */
@@ -3729,6 +3748,7 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
             if (mon->mflag2 & MFLAG2_CHAMELEON) choose_new_monster(mon, FALSE, MON_CHAMELEON);
             msg_format("You capture %^s!", m_name);
             quests_on_kill_mon(mon);
+            mon_tim_clear(mon); /* undo T_FAST et. al. before "capturing" mspeed */
             cap_mon = mon->r_idx;
             cap_mspeed = mon->mspeed;
             cap_hp = mon->hp;

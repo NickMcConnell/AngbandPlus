@@ -581,14 +581,87 @@ static dun_frac_ptr _gen_frac(dun_page_ptr page)
 
     return frac;
 }
+static int _encounter_terrain_type(int feat)
+{
+    if (feat == feat_shallow_water || feat == feat_deep_water)
+        return TERRAIN_DEEP_WATER;
+    if (feat == feat_swamp) return TERRAIN_SWAMP;
+    if (feat == feat_grass) return TERRAIN_GRASS;
+    if (feat == feat_tree) return TERRAIN_TREES;
+    if (feat == feat_mountain) return TERRAIN_MOUNTAIN;
+    if (feat == feat_shallow_lava || feat == feat_deep_lava)
+        return TERRAIN_DEEP_LAVA;
+    return TERRAIN_EDGE;
+}
+static void _wipe_gen_flags(dun_page_ptr page, rect_t r)
+{
+    point_t min = rect_top_right(r);
+    point_t max = rect_bottom_left(r), p;
+    for (p.y = min.y; p.y <= max.y; p.y++)
+    {
+        for (p.x = min.x; p.x <= max.x; p.x++)
+        {
+            dun_grid_ptr g = dun_page_grid_at(page, p);
+            g->info &= ~CAVE_MASK;
+        }
+    }
+}
+static bool _notice(room_ptr room)
+{
+    /* Notice wilderness encounters, but only in the daytime.
+     * Don't notice trivial encounters (require ROOM_NOTICE to be set) */
+    if (room->type != ROOM_WILDERNESS) return FALSE;
+    if (p_ptr->wizard) return TRUE; /* XXX Testing */
+    if (!(room->flags & ROOM_NOTICE)) return FALSE;
+    if (!is_daytime()) return FALSE;
+    return TRUE;
+}
+static bool _gen_room_aux(dun_page_ptr page, room_ptr room, transform_ptr xform)
+{
+    rect_t pr = rect_deflate(page->rect, 2, 1);
+    rect_t rr = rect_translate(xform->dest,
+        pr.x + 2 + randint0(pr.cx - xform->dest.cx - 4),
+        pr.y + 1 + randint0(pr.cy - xform->dest.cy - 2));
+
+    if (!rect_contains(pr, rr)) return FALSE;
+
+    xform->dest = rr;
+    build_room_template_aux(room, xform);
+    _wipe_gen_flags(page, rr);
+
+    if (_notice(room))
+    {
+        if (p_ptr->wizard)
+            msg_format("You have stumbled onto <color:o>%s</color>.", room->name);
+        else
+            msg_print("You have stumbled on to something interesting.");
+        disturb(1, 0);
+    }
+    return TRUE;
+}
+static bool _gen_room(dun_page_ptr page, room_ptr room)
+{
+    int i;
+    assert(room);
+    for (i = 0; i < 100; i++)
+    {
+        transform_ptr xform = transform_alloc_room(room, size_create(_TILE_CX - 4, _TILE_CY - 2));
+        bool          ok = _gen_room_aux(page, room, xform);
+        transform_free(xform);
+        if (ok) return TRUE;
+    }
+    return FALSE;
+}
 static void _gen_monsters(dun_ptr dun, dun_page_ptr page)
 {
     int          i, j, ct = 0;
     rect_t       r = rect_interior(page->rect);
     point_t      world_pos = dun_world_pos(rect_center(r));
     dun_grid_ptr world_grid = dun_grid_at(dun_mgr()->world, world_pos);
+    dun_world_ptr world_info = dun_worlds_lookup(p_ptr->world_id);
     int          lvl = _difficulty(world_grid);
     int          mode = PM_ALLOW_GROUP;
+    bool         allow_encounter = !(world_grid->info & (CAVE_TOWN | CAVE_ROAD | CAVE_RIVER | CAVE_DUNGEON | CAVE_QUEST));
 
     if (!p_ptr->dun_id && !(world_grid->info & CAVE_TOWN)) /* plr_birth: give an easy start! */
         return;
@@ -616,7 +689,16 @@ static void _gen_monsters(dun_ptr dun, dun_page_ptr page)
     {
         ct = randint0(randint1(7));
     }
-    if (!ct) return;
+
+    /* XXX before adding mon_alloc filters */
+    if (allow_encounter && randint0(1000) < world_info->encounter_chance)
+    {
+        int which = _encounter_terrain_type(world_grid->feat);
+        room_ptr room = choose_room_template(ROOM_WILDERNESS, which);
+        assert(cave == dun);
+        if (room && _gen_room(page, room))
+            ct = (ct + 1)/2; /* fewer monsters to compensate */
+    }
 
     if (world_grid->info & CAVE_TOWN)
         mon_alloc_push_filter(mon_alloc_town);
@@ -638,13 +720,14 @@ static void _gen_monsters(dun_ptr dun, dun_page_ptr page)
         mon_alloc_push_filter(mon_alloc_volcano);
     else if (world_grid->feat == feat_deep_lava)
         mon_alloc_push_filter(mon_alloc_volcano);
-    else return;
+    else 
+        mon_alloc_push_filter(mon_alloc_grass);
     for (i = 0; i < ct; i++)
     {
         point_t pos = {0};
         mon_race_ptr race = NULL;
 
-        if ((world_grid->info & CAVE_TOWN) || one_in_(3))
+        if ((world_grid->info & CAVE_TOWN) || one_in_(2))
             mode |= PM_ALLOW_SLEEP;
         else
             mode &= ~PM_ALLOW_SLEEP;
@@ -772,7 +855,6 @@ static void _gen_page(dun_ptr dun, dun_page_ptr page, dun_grid_ptr world_grid)
         _gen_quest(dun, page, world_grid->special);
     }
 
-    _glow_page(page);
     Rand_quick = FALSE;
 }
 static bool _home(point_t pos, dun_grid_ptr grid)
@@ -803,14 +885,18 @@ dun_ptr _gen_surface(point_t world_pos, bool place)
         page->next = surface->page;
         surface->page = page;
         _gen_page(surface, page, world_grid); /* <=== Might generate a town */
-        world_grid->info |= CAVE_MARK | CAVE_GLOW;
+        world_grid->info |= CAVE_MARK;
     }
+    p_ptr->window |= PW_WORLD_MAP;
 
     /* Pass 2: Generate monsters in a separate pass to avoid page
      * faults with monster groups (scatter might leave the current
      * page to an unallocated page; cf place_monster_group). */
     for (page = surface->page; page; page = page->next)
+    {
         _gen_monsters(surface, page);
+        _glow_page(page);
+    }
     
     cave = old_cave;
     surface->flags |= DF_GENERATED;
@@ -908,6 +994,12 @@ void dun_world_move_plr(dun_ptr dun, point_t pos)
                 page->flags &= ~PF_MARK;
                 page->next = keep;
                 keep = page;
+                /* XXX During nightime travel, we only "mark" the player's current grid. */
+                if (rect_contains_point(page->rect, pos))
+                {
+                    dun_grid_ptr world_grid = dun_grid_at(dun_mgr()->world, dun_world_pos(pos));
+                    world_grid->info |= CAVE_MARK;
+                }
             }
         }
         dun->page = keep;
@@ -928,11 +1020,16 @@ void dun_world_move_plr(dun_ptr dun, point_t pos)
                     page->next = dun->page;
                     dun->page = page;
                     _gen_page(dun, page, world_grid);
-                    world_grid->info |= CAVE_MARK | CAVE_GLOW;
-                    if (world_grid->info & (CAVE_DUNGEON | CAVE_QUEST))
+                    if (is_daytime())
+                        world_grid->info |= CAVE_MARK;
+                    if (world_grid->info & CAVE_DUNGEON)
                     {
-                        msg_print("You have stumbled on to something interesting.");
-                        disturb(1, 0);
+                        dun_type_ptr type = dun_types_lookup(world_grid->special);
+                        if (!(type->plr_flags & DFP_ENTERED))
+                        {
+                            msg_print("You have stumbled on to something interesting.");
+                            disturb(1, 0);
+                        }
                     }
                 }
             }
@@ -946,21 +1043,17 @@ void dun_world_move_plr(dun_ptr dun, point_t pos)
             if (page->flags & PF_MARK)
             {
                 _gen_monsters(dun, page);
-                page->flags &= PF_MARK;
+                _glow_page(page);
+                page->flags &= ~PF_MARK;
             }
         }
+        p_ptr->window |= PW_WORLD_MAP;
     }
 }
 
 /************************************************************************
  * D_WORLD
  ************************************************************************/
-static room_ptr _room;
-static errr _parse_room(char *line, int options)
-{
-    assert(_room);
-    return parse_room_line(_room, line, options);
-}
 static bool _plr_start_pos(point_t pos, dun_grid_ptr grid) { return (grid->info & CAVE_MARK); }
 static bool _plr_start_panic_pos(point_t pos, dun_grid_ptr grid) { return BOOL(grid->info & (CAVE_TOWN)); }
 static point_t _start_pos(dun_ptr world)
@@ -995,7 +1088,14 @@ static void _process_world_map(dun_ptr world)
         {
             dun_grid_ptr grid = dun_grid_at(world, p);
             if (grid->info & CAVE_DUNGEON)
-                dun_types_lookup(grid->special)->world_pos = p;
+            {
+                dun_type_ptr type = dun_types_lookup(grid->special);
+                type->world_pos = p;
+                if (type->flags & DF_KNOWN)
+                    grid->info |= CAVE_MARK;
+                if (type->init_f)
+                    type->init_f(type);
+            }
             else if (grid->info & CAVE_TOWN)
                 towns_lookup(grid->special)->world_pos = p;
         }
@@ -1107,11 +1207,13 @@ typedef struct {
 static dun_world_ptr _smaug(void);
 static dun_world_ptr _saruman(void);
 static dun_world_ptr _sauron(void);
+static dun_world_ptr _amber(void);
 
 static _entry_t _tbl[] = {
     { W_SMAUG, "Smaug", _smaug },
     { W_SARUMAN, "Saruman", _saruman },
     { W_SAURON, "Sauron", _sauron },
+    { W_AMBER, "Amber", _amber }, 
     { 0 }
 };
 static dun_world_ptr dun_world_alloc(int id, cptr name)
@@ -1214,17 +1316,11 @@ void dun_worlds_load(savefile_ptr file)
 static void _dun_worlds_enter(int id)
 {
     dun_mgr_ptr   dm = dun_mgr();
-    dun_ptr       world, old_cave = cave;
-    transform_ptr xform;
+    dun_world_ptr world = dun_worlds_lookup(id);
+    dun_ptr       world_map = dun_world_gen_map(world);
+    point_t       start_pos;
 
-    _room = room_alloc("world");
-    if (parse_edit_file(dun_worlds_lookup(id)->file, _parse_room, 0) != ERROR_SUCCESS)
-    {
-        room_free(_room);
-        _room = NULL;
-        quit("Unable to initialize World Map.");
-        return;
-    }
+    if (!world_map) return;
 
     if (dm->world) /* changing worlds */
     {
@@ -1242,31 +1338,25 @@ static void _dun_worlds_enter(int id)
     dun_types_reset_world();
 
     p_ptr->world_id = id;
-    dun_worlds_lookup(id)->plr_flags |= WFP_ENTERED;
+    world->plr_flags |= WFP_ENTERED;
 
-    world = dun_mgr_alloc_dun(rect_create(0, 0, _room->width, _room->height));
-    world->dun_type_id = D_WORLD;
-    world->flags |= DF_LOCKED | DF_GENERATED;
-    dm->world = world;
+    assert(!int_map_find(dm->dungeons, world_map->dun_id));
+    int_map_add(dm->dungeons, world_map->dun_id, world_map);
+    dm->world = world_map;
     dm->world_seed = randint0(0x10000000);
     dun_world_reseed(dm->world_seed);
     
-    cave = world;
-    xform = transform_alloc_room(_room, size_create(_room->width, _room->height));
-    build_room_template_aux(_room, xform);
-    transform_free(xform);
-    cave = old_cave;
+    if (world->init_f)
+        world->init_f(world);
 
-    room_free(_room);
-    _room = NULL;
+    start_pos = _start_pos(world_map); /* XXX don't start at D_AMBER */
+    _process_world_map(world_map);     /* XXX this CAVE_MARKs D_AMBER for convenience */
 
-    _process_world_map(world);
-
-    dun_mgr()->surface = _gen_surface(_start_pos(world), TRUE);
+    dun_mgr()->surface = _gen_surface(start_pos, TRUE);
 }
 void dun_worlds_birth(void)
 {
-    _dun_worlds_enter(p_ptr->world_id);
+    _dun_worlds_enter(p_ptr->initial_world_id);
 }
 void dun_worlds_wizard(int id)
 {
@@ -1414,5 +1504,21 @@ static dun_world_ptr _sauron(void)
     me->final_guardian = MON_MORGOTH;
     me->kill_mon_f = _sauron_kill_mon;
     me->pre_gen_f = _pre_gen;
+    return me;
+}
+/************************************************************************
+ * Amber
+ ************************************************************************/
+static dun_world_ptr _amber(void)
+{
+    dun_world_ptr me = dun_world_alloc(W_AMBER, "The World of Amber");
+    me->desc = "The forces of chaos have grown troublesome of late. You must "
+               "slay the dreaded <color:keyword>Serpent of Chaos</color> in "
+               "order to restore balance to the world. Good Luck!";
+    me->final_dungeon = D_AMBER;
+    me->final_guardian = MON_SERPENT;
+    me->kill_mon_f = _kill_mon;
+    me->pre_gen_f = _pre_gen;
+    me->encounter_chance = 10;
     return me;
 }

@@ -2284,7 +2284,8 @@ void process_monster(mon_ptr mon)
             /* The player is in the way. Attack him. */
             if (do_move)
             {
-                if (!p_ptr->riding || one_in_(2))
+                /* XXX if (!p_ptr->riding || one_in_(2))
+                 * mon_attack_begin now makes this decision */
                 {
                     /* Do the attack */
                     mon_attack(mon, new_pos);
@@ -2386,7 +2387,7 @@ void process_monster(mon_ptr mon)
                 }
             }
 
-            if (mon->r_idx == MON_GOTHMOG)
+            if (mon->r_idx == MON_GOTHMOG && !cave_have_flag_at(new_pos, FF_PERMANENT))
                 cave_set_feat(new_pos.y, new_pos.x, feat_deep_lava);
         }
         /* Fangorn and Ents */
@@ -2416,7 +2417,8 @@ void process_monster(mon_ptr mon)
                     }
                 }
             }
-            cave_set_feat(new_pos.y, new_pos.x, feat_tree);
+            if (cave_have_flag_at(new_pos, FF_FLOOR))
+                cave_set_feat(new_pos.y, new_pos.x, feat_tree);
         }
         /* Spiders */
         if (do_move && (mon->r_idx == MON_UNGOLIANT || mon->r_idx == MON_ATLACH_NACHA))
@@ -2436,7 +2438,8 @@ void process_monster(mon_ptr mon)
                 if (c_ptr->feat != feat_web && randint0(150) < r_ptr->level)
                     cave_set_feat(p.y, p.x, feat_web);
             }
-            cave_set_feat(new_pos.y, new_pos.x, feat_web);
+            if (cave_have_flag_at(new_pos, FF_FLOOR))
+                cave_set_feat(new_pos.y, new_pos.x, feat_web);
         }
 
         if (did_kill_wall && do_move)
@@ -2750,6 +2753,8 @@ void mon_gain_exp(mon_ptr mon, int amt)
     mon_race_ptr race = mon_race(mon);
     if (!race->next_exp) return;
     mon->exp += amt;
+    if (0 || p_ptr->wizard)
+        msg_format("<color:D>mon_gain_exp %d (needs %d).</color>", mon->exp, race->next_exp);
 
     if (mon->mflag2 & MFLAG2_CHAMELEON) return;
 

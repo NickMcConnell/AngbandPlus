@@ -1174,7 +1174,7 @@ static void prt_effects(void)
         if (amt > 0)
             doc_printf(doc, "<color:B>Study (%d)</color>\n", amt);
     }
-    else if (p_ptr->new_spells && p_ptr->pclass != CLASS_RAGE_MAGE)
+    else if (p_ptr->new_spells && p_ptr->pclass != CLASS_RAGE_MAGE && p_ptr->pclass != CLASS_SAMURAI)
         doc_printf(doc, "<color:B>Study (%d)</color>\n", p_ptr->new_spells);
     if (p_ptr->fasting)
         doc_insert(doc, "<color:g>Fasting</color>\n");
@@ -1301,7 +1301,7 @@ static void prt_mon_health_bar(int m_idx, doc_ptr doc)
     /* Tracking a visible monster */
     else if (m_ptr->maxhp > 0 && m_ptr->max_maxhp > 0)
     {
-        int pct = 100 * m_ptr->hp / m_ptr->maxhp;
+        int pct = 100 * m_ptr->hp / m_ptr->max_maxhp;
         byte attr = TERM_RED;/* Default to almost dead */
         mon_race_ptr r_ptr = mon_apparent_race(m_ptr);
 
@@ -1310,7 +1310,7 @@ static void prt_mon_health_bar(int m_idx, doc_ptr doc)
         else
             doc_insert_char(doc, r_ptr->x_attr, r_ptr->x_char);
 
-        if (pct >= 100) attr = TERM_L_GREEN;
+        if (pct >= 100 || m_ptr->hp == m_ptr->maxhp) attr = TERM_L_GREEN;
         else if (pct >= 60) attr = TERM_YELLOW;
         else if (pct >= 25) attr = TERM_ORANGE;
         else if (pct >= 10) attr = TERM_L_RED;
@@ -1846,6 +1846,7 @@ static void calc_spells(void)
         /* Efficiency -- all done */
         if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
         if (p_ptr->pclass == CLASS_RAGE_MAGE) break;
+        if (p_ptr->pclass == CLASS_SAMURAI) break;
         if (p_ptr->pclass == CLASS_GRAY_MAGE) break;
 
         /* Access the spell */
@@ -1918,6 +1919,7 @@ static void calc_spells(void)
         if (p_ptr->new_spells >= 0) break;
 
         if (p_ptr->pclass == CLASS_RAGE_MAGE) break;
+        if (p_ptr->pclass == CLASS_SAMURAI) break;
         if (p_ptr->pclass == CLASS_GRAY_MAGE) break;
 
         /* Efficiency -- all done */
@@ -1975,6 +1977,7 @@ static void calc_spells(void)
         /* None left to remember */
         if (p_ptr->new_spells <= 0) break;
         if (p_ptr->pclass == CLASS_RAGE_MAGE) break;
+        if (p_ptr->pclass == CLASS_SAMURAI) break;
         if (p_ptr->pclass == CLASS_GRAY_MAGE) break;
 
         /* Efficiency -- all done */
@@ -2390,6 +2393,7 @@ static int _calc_xtra_hp(int amt)
         break;
 
     case CLASS_RED_MAGE:
+    case CLASS_BLUE_MAGE:
     case CLASS_MIRROR_MASTER:
     case CLASS_TIME_LORD:
     case CLASS_NECROMANCER:
@@ -3210,9 +3214,16 @@ void calc_bonuses(void)
         int speed = riding_m_ptr->mspeed;
         int old_pspeed = p_ptr->pspeed;
 
+        /* XXX get base monster speed (cf _fast_on and _slow_on in mon_tim.c) */
+        if (mon_tim_find(riding_m_ptr, T_FAST)) speed -= 10;
+        if (mon_tim_find(riding_m_ptr, T_SLOW)) speed += 10;
+
         if (riding_m_ptr->mspeed > 110)
         {
-            p_ptr->pspeed = 110 + (s16b)((speed - 110) * (skills_riding_current() * 3 + p_ptr->lev * 160L - 10000L) / (22000L));
+            int boost = speed - 110;
+            int skill = skills_riding_current();
+            int speed = boost * (skill*3 + p_ptr->lev*160 - 10000)/22000;
+            p_ptr->pspeed = 110 + speed;
             if (p_ptr->pspeed < 110) p_ptr->pspeed = 110;
         }
         else
@@ -3230,6 +3241,10 @@ void calc_bonuses(void)
         {
             p_ptr->pspeed += (skills_riding_current() + p_ptr->lev *160)/3200;
         }
+
+        /* XXX mon T_FAST and T_SLOW should give full effect regardless of plr skill and level */
+        if (mon_tim_find(riding_m_ptr, T_FAST)) p_ptr->pspeed += 10;
+        if (mon_tim_find(riding_m_ptr, T_SLOW)) p_ptr->pspeed -= 10;
 
         if (warlock_is_(WARLOCK_DRAGONS))
         {
@@ -4251,6 +4266,12 @@ void window_stuff(void)
     {
         p_ptr->window &= ~(PW_MONSTER);
         fix_monster();
+    }
+
+    if (p_ptr->window & PW_WORLD_MAP)
+    {
+        p_ptr->window &= ~PW_WORLD_MAP;
+        fix_world_map();
     }
 
     if (p_ptr->window & PW_OBJECT_LIST)

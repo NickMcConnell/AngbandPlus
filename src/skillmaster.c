@@ -173,13 +173,8 @@ static _group_t _groups[] = {
     { _TYPE_TECHNIQUE, "Techniques",
         "There are various specialty <color:B>Techniques</color> which you may want to "
         "learn, including the Riding and Dual Wielding talents, as well as access to the "
-        "Burglary and Kendo techniques. These latter two function like spell realms, using "
-        "DEX and WIS respectively as their primary spell stat. Kendo also makes your mana "
-        "function like that of the Samurai, and this behavior is used no matter what other "
-        "Magic or Prayer realms you have learned. Note that Kendo still requires you to "
-        "carry the appropriate spellbooks since you really are not samurai.",
+        "Burglary technique. Note that Burglary uses DEX as the primary spell stat.",
         {{ _TYPE_TECHNIQUE, REALM_BURGLARY, "Burglary", 5, 0 },
-         { _TYPE_TECHNIQUE, REALM_HISSATSU, "Kendo", 5, 0 }, 
          { _TYPE_TECHNIQUE, _DUAL_WIELDING, "Dual Wielding", 5, 0 },
          { _TYPE_TECHNIQUE, _RIDING, "Riding", 5, 0 },
          { 0 }}},
@@ -340,9 +335,13 @@ static void _load_group(savefile_ptr file,_group_ptr g)
 {
     for (;;)
     {
-        int subtype = savefile_read_u16b(file);
+        int subtype = savefile_read_u16b(file), current;
+        _skill_ptr skill;
         if (subtype == 0xFFFE) break;
-        _get_skill_aux(g, subtype)->current = savefile_read_u16b(file);
+        /* XXX REALM_KENDO removed due to samurai.c spell re-write */
+        skill = _get_skill_aux(g, subtype);
+        current = savefile_read_u16b(file);
+        if (skill) skill->current = current;
     }
 }
 
@@ -714,21 +713,9 @@ caster_info *_caster_info(void)
     if (info.encumbrance.weapon_pct > 100)
         info.encumbrance.weapon_pct = 100;
 
-    /* Experimental: Learning Kendo let's you focus
-     * to supercharge mana, no matter what other realms you
-     * know. This is powerful, so we preclude access
-     * to CASTER_ALLOW_DEC_MANA altogether. Also, unlike
-     * Samurai, you still need to carry books! */
-    if (_get_skill_pts(_TYPE_TECHNIQUE, REALM_HISSATSU))
-    {
-        info.which_stat = A_WIS;
-        info.magic_desc = "technique";
-        info.options = CASTER_SUPERCHARGE_MANA;
-        return &info;
-    }
-    /* Now, use INT or WIS for mana, depending on which
+    /* Use INT or WIS for mana, depending on which
      * has the most total points */
-    else if (magic_pts && magic_pts >= prayer_pts)
+    if (magic_pts && magic_pts >= prayer_pts)
     {
         info.which_stat = A_INT;
         info.magic_desc = "spell";
@@ -773,8 +760,7 @@ static bool _has_magic(void)
 {
     if ( !_get_group_pts(_TYPE_MAGIC)
       && !_get_group_pts(_TYPE_PRAYER)
-      && !_get_skill_pts(_TYPE_TECHNIQUE, REALM_BURGLARY)
-      && !_get_skill_pts(_TYPE_TECHNIQUE, REALM_HISSATSU) )
+      && !_get_skill_pts(_TYPE_TECHNIQUE, REALM_BURGLARY) )
     {
         return FALSE;
     }
@@ -820,7 +806,7 @@ static bool _can_cast(void)
 static int _get_realm_pts(int realm)
 {
     _skill_ptr s;
-    if (realm == REALM_BURGLARY || realm == REALM_HISSATSU)
+    if (realm == REALM_BURGLARY)
     {
         s = _get_skill(_TYPE_TECHNIQUE, realm);
         assert(s);
@@ -842,8 +828,6 @@ static int _get_realm_stat(int realm)
     _skill_ptr s;
     if (realm == REALM_BURGLARY)
         return A_DEX;
-    else if (realm == REALM_HISSATSU)
-        return A_WIS;
     s = _get_skill(_TYPE_MAGIC, realm);
     if (s && s->current)
         return A_INT;
@@ -895,10 +879,7 @@ static _spell_info_ptr _get_spell(int realm, int idx, int pts)
     spell->idx = idx;
     spell->level = MAX(1, info.slevel * skill.lvl_mult / 100);
     spell->cost = MAX(1, info.smana * skill.cost_mult / 100);
-    if (realm == REALM_HISSATSU)
-        spell->fail = 0;
-    else
-        spell->fail = MIN(95, MAX(5, info.sfail + skill.fail_adj));
+    spell->fail = MIN(95, MAX(5, info.sfail + skill.fail_adj));
 
     return spell;
 }
@@ -919,23 +900,20 @@ static vec_ptr _get_spell_list(object_type *spellbook)
     for (i = start; i < stop; i++)
     {
         _spell_info_ptr spell = _get_spell(realm, i, pts);
+        int old_dec_mana = p_ptr->dec_mana;
 
-        if (realm != REALM_HISSATSU)
+        if (p_ptr->easy_realm1 == realm) /* XXX calculate_fail_rate_aux needs a refactor */
+            p_ptr->dec_mana++;
+        if (spell->cost && is_magic(realm))
         {
-            int old_dec_mana = p_ptr->dec_mana;
-            if (p_ptr->easy_realm1 == realm) /* XXX calculate_fail_rate_aux needs a refactor */
-                p_ptr->dec_mana++;
-            if (spell->cost && is_magic(realm))
-            {
-                if (p_ptr->easy_realm1 == realm || (p_ptr->dec_mana && pts >= 4))
-                    spell->cost = MAX(1, (spell->cost + 1) * dec_mana_cost(p_ptr->dec_mana) / 100);
-            }
-            spell->fail = virtue_mod_spell_fail(realm, spell->fail); /* Ditto with virtues */
-            spell->fail = calculate_fail_rate(spell->level, spell->fail, stat);
-            p_ptr->dec_mana = old_dec_mana;
-            if (spell->fail < skill.fail_min)
-                spell->fail = skill.fail_min;
+            if (p_ptr->easy_realm1 == realm || (p_ptr->dec_mana && pts >= 4))
+                spell->cost = MAX(1, (spell->cost + 1) * dec_mana_cost(p_ptr->dec_mana) / 100);
         }
+        spell->fail = virtue_mod_spell_fail(realm, spell->fail); /* Ditto with virtues */
+        spell->fail = calculate_fail_rate(spell->level, spell->fail, stat);
+        p_ptr->dec_mana = old_dec_mana;
+        if (spell->fail < skill.fail_min)
+            spell->fail = skill.fail_min;
 
         vec_add(v, spell);
     }
@@ -1156,12 +1134,6 @@ void skillmaster_cast(void)
         
         if (!spellbook)
             return;
-        if (spellbook->tval == TV_HISSATSU_BOOK && !equip_find_first(obj_is_weapon))
-        {
-            if (flush_failure) flush();
-            msg_print("You need to wield a weapon!");
-            return;
-        }
         if (_prompt_spell(spellbook, &spell, 0))
             _cast_spell(&spell);
     }
@@ -1298,10 +1270,6 @@ void _tech_init_class(class_t *class_ptr)
     pts = _get_skill_pts(_TYPE_TECHNIQUE, REALM_BURGLARY);
     class_ptr->skills.stl += (pts + 1) / 2;
     class_ptr->skills.dis += 5*pts;
-
-    pts = _get_skill_pts(_TYPE_TECHNIQUE, REALM_HISSATSU);
-    if (pts)
-        class_ptr->stats[A_WIS] += 1;
 }
 
 void _tech_calc_bonuses(void)
@@ -1373,7 +1341,7 @@ static int _get_skill_realm(_skill_ptr s)
     int realm = REALM_NONE;
     if (s->type == _TYPE_MAGIC || s->type == _TYPE_PRAYER)
         realm = s->subtype;
-    else if (s->type == _TYPE_TECHNIQUE && (s->subtype == REALM_BURGLARY || s->subtype == REALM_HISSATSU))
+    else if (s->type == _TYPE_TECHNIQUE && s->subtype == REALM_BURGLARY)
         realm = s->subtype;
     return realm;
 }
@@ -1390,7 +1358,7 @@ static void _skill_display_help(_skill_ptr s)
             doc_display(doc, s->name, 0);
             doc_free(doc);
         }
-        else if (realm == REALM_HISSATSU || realm == REALM_BURGLARY)
+        else if (realm == REALM_BURGLARY)
             doc_display_help("Skillmasters.txt", s->name);
         else
             doc_display_help("magic.txt", s->name);
@@ -1636,8 +1604,6 @@ static int _get_powers(spell_info* spells, int max)
 
     if (ct < max && _get_skill_pts(_TYPE_SHOOT, _THROWING) > 0)
         _add_power(&spells[ct++], _throw_weapon_spell);
-    if (ct < max && _get_skill_pts(_TYPE_TECHNIQUE, REALM_HISSATSU) > 0)
-        _add_power(&spells[ct++], samurai_concentration_spell);
     if (ct < max && _get_skill_pts(_TYPE_ABILITY, _CLEAR_MIND) > 0)
         _add_power(&spells[ct++], clear_mind_spell);
     if (ct < max && _get_skill_pts(_TYPE_ABILITY, _EAT_MAGIC) > 0)

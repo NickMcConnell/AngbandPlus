@@ -226,11 +226,11 @@ static bool _transfer_effect(void)
         return FALSE;
     }
 
-    /* Move the effect */
+    /* Move the effect and re-calc the casting cost to reflect changes in power level */
     dest_obj->activation.type = src_obj->activation.type;
     dest_obj->activation.difficulty = src_obj->activation.difficulty;
-    dest_obj->activation.cost = src_obj->activation.cost;
     dest_obj->activation.extra = src_obj->activation.extra;
+    device_init_cost(dest_obj);
 
     /* Destroy the source */
     assert(src_obj->number == 1); /* Wands/Rods/Staves no longer stack */

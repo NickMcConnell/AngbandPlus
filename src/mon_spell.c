@@ -68,53 +68,64 @@ static _parse_t _annoy_tbl[] = {
         { "Amnesia", TERM_L_BLUE,
           "$CASTER tries to blank your mind.",
           "$CASTER tries to blank your mind.",
-          "$CASTER tries to blank $TARGET_POS mind."}, MSF_TARGET},
+          "$CASTER tries to blank $TARGET_POS mind.",
+          "You try to blank $TARGET_POS mind."}, MSF_TARGET | MSF_DIRECT},
     { "ANIM_DEAD", { MST_ANNOY, ANNOY_ANIMATE_DEAD },
         { "Animate Dead", TERM_L_DARK,
           "$CASTER casts a spell to revive the dead.",
-          "$CASTER mumbles."}},
+          "$CASTER mumbles.",
+          "",
+          "You cast a spell to revive the dead."}},
     { "BLIND", { MST_ANNOY, ANNOY_BLIND },
         { "Blind", TERM_WHITE,
           "$CASTER casts a spell, burning your eyes!",
           "$CASTER mumbles.",
-          "$CASTER casts a spell, burning $TARGET_POS eyes!"}, MSF_TARGET},
+          "$CASTER casts a spell, burning $TARGET_POS eyes!",
+          "You cast a spell, burning $TARGET_POS eyes!"}, MSF_TARGET | MSF_DIRECT},
     { "CONFUSE", { MST_ANNOY, ANNOY_CONFUSE },
         { "Confuse", TERM_L_UMBER,
           "$CASTER creates a mesmerizing illusion.",
           "$CASTER mumbles, and you hear puzzling noises.",
-          "$CASTER creates a mesmerizing illusion at $TARGET."}, MSF_TARGET},
+          "$CASTER creates a mesmerizing illusion at $TARGET.",
+          "You create a mesmerizing illusion at $TARGET."}, MSF_TARGET | MSF_DIRECT},
     { "DARKNESS", { MST_ANNOY, ANNOY_DARKNESS },
         { "Create Darkness", TERM_L_DARK }},
     { "PARALYZE", { MST_ANNOY, ANNOY_PARALYZE },
         { "Paralyze", TERM_RED,
           "$CASTER stares deep into your eyes!",
           "$CASTER mumbles.",
-          "$CASTER stares deep into $TARGET_POS eyes!"}, MSF_TARGET},
+          "$CASTER stares deep into $TARGET_POS eyes!",
+          "You stare deep into $TARGET_POS eyes!"}, MSF_TARGET | MSF_DIRECT},
     { "SCARE", { MST_ANNOY, ANNOY_SCARE },
         { "Terrify", TERM_RED,
           "$CASTER casts a fearful illusion.",
           "$CASTER mumbles, and you hear scary noises.",
-          "$CASTER casts a fearful illusion at $TARGET."}, MSF_TARGET},
+          "$CASTER casts a fearful illusion at $TARGET.",
+          "You cast a fearful illusion at $TARGET."}, MSF_TARGET | MSF_DIRECT},
     { "SLOW", { MST_ANNOY, ANNOY_SLOW },
         { "Slow", TERM_L_UMBER,
           "$CASTER drains power from your muscles!",
           "$CASTER drains power from your muscles!",
-          "$CASTER drains power from $TARGET_POS muscles!"}, MSF_TARGET},
+          "$CASTER drains power from $TARGET_POS muscles!",
+          "You drain power from $TARGET_POS muscles!"}, MSF_TARGET | MSF_DIRECT},
     { "SHRIEK", { MST_ANNOY, ANNOY_SHRIEK },
         { "Shriek", TERM_L_BLUE,
           "$CASTER makes a high pitched shriek.",
           "$CASTER makes a high pitched shriek.",
-          "$CASTER makes a high pitched shriek."}, MSF_INNATE },
+          "$CASTER makes a high pitched shriek.",
+          "You make a high pitched shriek."}, MSF_INNATE },
     { "TELE_LEVEL", { MST_ANNOY, ANNOY_TELE_LEVEL },
         { "Teleport Level", TERM_WHITE,
           "$CASTER gestures at your feet.",
           "$CASTER mumbles strangely.",
-          "$CASTER gestures at $TARGET_POS feet."}, MSF_TARGET | MSF_DIRECT},
+          "$CASTER gestures at $TARGET_POS feet.",
+          "You gesture at $TARGET_POS feet."}, MSF_TARGET | MSF_DIRECT},
     { "TELE_TO", { MST_ANNOY, ANNOY_TELE_TO },
         { "Teleport To", TERM_WHITE,
           "$CASTER commands you to return.",
           "$CASTER mumbles.",
-          "$CASTER commands $TARGET to return."}, MSF_TARGET | MSF_DIRECT},
+          "$CASTER commands $TARGET to return.",
+          "You command $TARGET to return."}, MSF_TARGET | MSF_DIRECT},
     { "TRAPS", { MST_ANNOY, ANNOY_TRAPS },
         { "Create Traps", TERM_WHITE,
           "$CASTER casts a spell and cackles evilly.",
@@ -236,18 +247,19 @@ static _parse_t _ball_tbl[] = {
           "$CASTER gazes deep into your eyes.",
           "You feel something focusing on your mind.", 
           "$CASTER gazes deep into the eyes of $TARGET.",
-          "You gaze deeply." }, MSF_BALL0 | MSF_TARGET },
+          "You gaze deep into the eyes of $TARGET." }, MSF_BALL0 | MSF_TARGET },
     { "DRAIN_MANA", { MST_BALL, GF_DRAIN_MANA },
         { "Drain Mana", TERM_L_BLUE,
           "$CASTER drains psychic energy from you.",
           "$CASTER drains psychic energy from you.",
-          "$CASTER drains psychic energy from $TARGET."}, MSF_BALL0 | MSF_TARGET },
+          "$CASTER drains psychic energy from $TARGET.",
+          "You drain psychic energy from $TARGET."}, MSF_BALL0 | MSF_TARGET },
     { "MIND_BLAST", { MST_BALL, GF_MIND_BLAST },
         { "Mind Blast", TERM_L_BLUE,
           "$CASTER gazes deep into your eyes.",
           "You feel something focusing on your mind.", 
           "$CASTER gazes deep into the eyes of $TARGET.",
-          "You gaze deeply." }, MSF_BALL0 | MSF_TARGET},
+          "You gaze deep into the eyes of $TARGET." }, MSF_BALL0 | MSF_TARGET},
     { "PULVERISE", { MST_BALL, GF_TELEKINESIS },
         { "Pulverise", TERM_L_BLUE,
           "$CASTER <color:B>pulverises</color> you.",
@@ -266,6 +278,12 @@ static _parse_t _ball_tbl[] = {
           "$CASTER shouts, 'Haaa!!'.",
           "$CASTER throws a large rock at $TARGET.", 
           "You throw a large rock." }, MSF_INNATE | MSF_BALL0 | MSF_TARGET},
+    { "HOLY_ORB", { MST_BALL, GF_HOLY_FIRE },
+        { "Holy Orb", TERM_YELLOW,
+          "$CASTER casts a <color:y>Holy Orb</color>.",
+          "$CASTER mumbles.",
+          "$CASTER casts a <color:y>Holy Orb</color> at $TARGET.",
+          "You cast a <color:y>Holy Orb</color>." }, MSF_TARGET},
     {0}
 };
 
@@ -559,6 +577,21 @@ int mon_spell_hash(mon_spell_id_t id)
     return hash;
 }
 
+int mon_spell_pack(mon_spell_id_t id)
+{
+    int pack = id.type << 16;
+    pack += id.effect;
+    return pack;
+}
+
+mon_spell_id_t mon_spell_unpack(int packed)
+{
+    mon_spell_id_t id;
+    id.type = (packed & 0xFFFF0000) >> 16;
+    id.effect = packed & 0x0000FFFF;
+    return id;
+}
+
 /*************************************************************************
  * Parm
  ************************************************************************/
@@ -727,6 +760,9 @@ static mon_spell_parm_t _ball_parm(int which, int rlev)
         break;
     case GF_ROCKET:
         parm.v.dice = _dice(0, 0, 6*rlev);
+        break;
+    case GF_HOLY_FIRE:
+        parm.v.dice = _dice(3, 6, rlev);
         break;
     default:
         parm.v.dice = _dice(5, 5, rlev);
@@ -1423,6 +1459,9 @@ static bool _can_cast(mon_ptr mon)
     if (p_ptr->dun_id != cave->dun_id) return FALSE;
     if (!p_ptr->playing || p_ptr->is_dead) return FALSE;
 
+    if (!mon->turns && (mon_race_lookup(mon->r_idx)->flags1 & RF1_FORCE_SLEEP))
+        return FALSE;
+
     return TRUE;
 }
 
@@ -1497,55 +1536,75 @@ bool mon_spell_cast_mon(mon_ptr mon, mon_spell_ai ai)
 }
 
 static bool _projectable(point_t src, point_t dest);
+int mon_spell_fail_plr(mon_spell_ptr spell, mon_race_ptr race)
+{
+    int fail = 25 - (race->level + 3)/4;
+    int stun = plr_tim_amount(T_STUN);
+    int spell_stat = race->body.spell_stat;
+
+    /* XXX Innate breath attacks are very strong for the Blue-Mage, so let's
+     * give them fail rates to compensate. Possessors and Mimics are just like
+     * monsters, though, and never fail innate attacks. */
+    if ((spell->flags & MSF_INNATE) && p_ptr->pclass != CLASS_BLUE_MAGE) return 0;
+
+    /* Fail rates go down as player level exceeds base level.
+     * For example, a Novice Mage has a ridiculously un-useful
+     * Magic Missile (23% fail). But at CL15, this becomes just
+     * 13% (which still sucks, but high Int can help here) */
+    if (p_ptr->lev > race->level)
+        fail -= (p_ptr->lev - race->level);
+
+    /* XXX Possessors and mimics should not get a free ride wrt
+     * spell casting stats, but the mechanics should not be too 
+     * harsh either since early game stats are bound to be poor.
+     * Note that poor stats also means a poor mana pool.
+     * XXX Hack: Breaths always use Con for fail rates. This is
+     * odd since they are MSF_INNATE, but this is for the Blue-Mage. */
+    if (spell->id.type == MST_BREATH) spell_stat = A_CON;
+    if (spell_stat != A_NONE)
+    {
+        int     stat = p_ptr->stat_ind[spell_stat] + 3;
+        point_t tbl[5] = { {3, 25}, {10, 10}, {15, 0}, {20, 0}, {40, -10} };
+        int     adj = interpolate(stat, tbl, 5);
+
+        fail += adj;
+        if (fail < 1) fail = 1;
+    }
+
+    /* And finally, trying to learn a new form puts the player at
+     * a slight disadvantage. No fair taking down Loki with his own
+     * mana storms!! */
+    if (p_ptr->prace == RACE_MON_MIMIC && !mimic_is_memorized(p_ptr->current_r_idx))
+    {
+        fail += 15;
+    }
+    if (stun > 0)
+        fail += 50 * MIN(100, stun)/100;
+    return fail;
+}
 static bool _spell_fail(void)
 {
-    int fail, stun;
+    int fail;
 
-    if (_current.spell->flags & MSF_INNATE)
-        return FALSE;
-    if (_current.race->flags2 & RF2_STUPID)
-        return FALSE;
     if (plr_in_dungeon() && (cave->flags & DF_NO_MAGIC))
         return TRUE;
 
-    fail = 25 - (_current.race->level + 3)/4;
     if (_current.flags & MSC_SRC_PLAYER)
+        fail = mon_spell_fail_plr(_current.spell, _current.race);
+    else
     {
-        stun = plr_tim_amount(T_STUN);
- 
-        /* Fail rates go down as player level exceeds base level.
-         * For example, a Novice Mage has a ridiculously un-useful
-         * Magic Missile (23% fail). But at CL15, this becomes just
-         * 13% (which still sucks, but high Int can help here) */
-        if (p_ptr->lev > _current.race->level)
-            fail -= (p_ptr->lev - _current.race->level);
+        int stun;
 
-        /* XXX Possessors and mimics should not get a free ride wrt
-         * spell casting stats, but the mechanics should not be too 
-         * harsh either since early game stats are bound to be poor.
-         * Note that poor stats also means a poor mana pool. */
-        if (_current.race->body.spell_stat != A_NONE)
-        {
-            int     stat = p_ptr->stat_ind[_current.race->body.spell_stat] + 3;
-            point_t tbl[5] = { {3, 25}, {10, 10}, {15, 0}, {20, 0}, {40, -10} };
-            int     adj = interpolate(stat, tbl, 5);
+        if (_current.spell->flags & MSF_INNATE)
+            return FALSE;
+        if (_current.race->flags2 & RF2_STUPID) /* XXX ? */
+            return FALSE;
 
-            fail += adj;
-            if (fail < 1) fail = 1;
-        }
-
-        /* And finally, trying to learn a new form puts the player at
-         * a slight disadvantage. No fair taking down Loki with his own
-         * mana storms!! */
-        if (p_ptr->prace == RACE_MON_MIMIC && !mimic_is_memorized(p_ptr->current_r_idx))
-        {
-            fail += 15;
-        }
+        stun = mon_tim_amount(_current.mon, T_STUN);
+        fail = 25 - (_current.race->level + 3)/4;
+        if (stun > 0)
+            fail += 50 * MIN(100, stun)/100;
     }
-    else stun = mon_tim_amount(_current.mon, T_STUN);
-    if (stun > 0)
-        fail += 50 * MIN(100, stun)/100;
-
     if (fail && randint0(100) < fail)
     {
         if (_current.flags & MSC_SRC_PLAYER)
@@ -1619,11 +1678,13 @@ static void _breath(void)
         dam = chp * pct / 100;
         dam = dam * mult / 100;
         dam = (dam + 50) / 100;
+        dam = MIN(p_ptr->chp, dam);
     }
     else
     {
         dam = _current.mon->hp * pct / 100;
-        flags |= PROJECT_PLAYER;
+        if (_current.flags & MSC_DEST_PLAYER)
+            flags |= PROJECT_PLAYER;
     }
     if (dam > max) dam = max;
 
@@ -1652,13 +1713,19 @@ static void _ball(void)
     int    rad = 2;
     int    flags = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
+    if (_current.spell->flags & MSF_BALL0) rad = 0;
+    else if (_current.spell->flags & MSF_BALL4) rad = 4;
+
     if (_current.flags & MSC_SRC_MONSTER)
-        flags |= PROJECT_PLAYER;
+    {
+        if (_current.flags & MSC_DEST_PLAYER)
+            flags |= PROJECT_PLAYER;
+        if (_current.spell->flags & MSF_BALL0)
+            flags |= PROJECT_AIMED;
+    }
 
     assert(_current.spell->parm.tag == MSP_DICE);
     dam = _scale(_roll(dice));
-    if (_current.spell->flags & MSF_BALL0) rad = 0;
-    else if (_current.spell->flags & MSF_BALL4) rad = 4;
 
     switch (_current.spell->id.effect)
     {
@@ -1668,7 +1735,7 @@ static void _ball(void)
     case GF_DRAIN_MANA:
     case GF_MIND_BLAST:
     case GF_BRAIN_SMASH:
-        flags |= PROJECT_HIDE | PROJECT_AIMED;
+        flags |= PROJECT_HIDE;
         break;
     }
 
@@ -1681,7 +1748,12 @@ static void _bolt(void)
     int flags = PROJECT_STOP | PROJECT_KILL | PROJECT_REFLECTABLE;
 
     if (_current.flags & MSC_SRC_MONSTER)
-        flags |= PROJECT_PLAYER;
+    {
+        if (_current.flags & MSC_DEST_PLAYER)
+            flags |= PROJECT_PLAYER;
+        if (_current.flags & MSC_DEST_MOUNT)
+            flags |= PROJECT_AIMED;
+    }
 
     assert(_current.spell->parm.tag == MSP_DICE);
     if (_current.race->id == MON_ARTEMIS && _spell_is_(_current.spell, MST_BOLT, GF_ARROW))
@@ -1703,7 +1775,12 @@ static void _beam(void)
     int flags = PROJECT_BEAM | PROJECT_KILL | PROJECT_THRU;
 
     if (_current.flags & MSC_SRC_MONSTER)
-        flags |= PROJECT_PLAYER;
+    {
+        if (_current.flags & MSC_DEST_PLAYER)
+            flags |= PROJECT_PLAYER;
+        if (_current.flags & MSC_DEST_MOUNT)
+            flags |= PROJECT_AIMED;
+    }
     assert(_current.spell->parm.tag == MSP_DICE);
     project(_who(), 0, _current.dest.y, _current.dest.x,
         _scale(_roll(_current.spell->parm.v.dice)),
@@ -1712,19 +1789,25 @@ static void _beam(void)
 static void _curse(void)
 {
     int dam;
-    int flags = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_HIDE | PROJECT_AIMED;
+    int flags = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_HIDE;
     assert(_current.spell->parm.tag == MSP_DICE);
     dam = _roll(_current.spell->parm.v.dice);
     if (_current.flags & MSC_SRC_MONSTER)
     {
-        flags |= PROJECT_PLAYER;
-        if (_current.spell->id.effect == GF_HAND_DOOM)
-            dam = dam * p_ptr->chp / 100;
-        else
-            dam = _scale(dam);
+        if (_current.flags & MSC_DEST_PLAYER)
+            flags |= PROJECT_PLAYER;
+        /* curses are effectively MSF_BALL0 and should be "aimed" at either mount or player */
+        flags |= PROJECT_AIMED;
     }
-    else if (_current.spell->id.effect == GF_HAND_DOOM) /* XXX Inconsistent ... */
-        dam = 3 * p_ptr->lev;
+    if (_current.spell->id.effect == GF_HAND_DOOM) /* XXX hackish */
+    {
+        if (_current.flags & MSC_DEST_PLAYER)
+            dam = dam * p_ptr->chp / 100;
+        else if (_current.flags & MSC_SRC_MONSTER)
+            dam = _scale(dam);
+        else
+            dam = 3 * p_ptr->lev;
+    }
     project(_who(), 0, _current.dest.y, _current.dest.x,
         dam, _current.spell->id.effect, flags);
 }
@@ -2057,7 +2140,10 @@ static void _escape(void)
         {
             if (mon_show_msg(_current.mon))
                 msg_format("%s teleports away.", _current.name);
-            teleport_away_followable(_current.mon->id);
+            if (p_ptr->riding == _current.mon->id)
+                teleport_player(10 + 2*_current.race->level, 0);
+            else
+                teleport_away_followable(_current.mon->id);
         }
         break;
     case ESCAPE_TELE_OTHER:
@@ -2112,7 +2198,10 @@ static void _m_tactic(void)
         {
             if (!plr_tim_find(T_BLIND) && _current.mon->ml)
                 msg_format("%s blinks away.", _current.name);
-            teleport_away(_current.mon->id, 10, 0);
+            if (p_ptr->riding == _current.mon->id)
+                teleport_player(10, 0);
+            else
+                teleport_away(_current.mon->id, 10, 0);
             p_ptr->update |= PU_MONSTERS;
         }
         break;
@@ -2145,7 +2234,10 @@ static void _m_tactic(void)
             _roll(_current.spell->parm.v.dice)*5/4, /* XXX */
             _current.spell->id.effect,
             PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAYER);
-        teleport_away(_current.mon->id, 10, 0); 
+        if (p_ptr->riding == _current.mon->id)
+            teleport_player(10, 0);
+        else
+            teleport_away(_current.mon->id, 10, 0); 
         p_ptr->update |= PU_MONSTERS;
     }
 }
@@ -2671,6 +2763,8 @@ static void _spell_cast_aux(void)
     case MST_WEIRD:   _weird();   break;
     case MST_POSSESSOR: _possessor(); break;
     }
+    if (p_ptr->action == ACTION_LEARN && (_current.flags & MSC_SRC_MONSTER) )
+        blue_mage_learn(&_current);
 }
 
 /*************************************************************************
@@ -3374,6 +3468,7 @@ static int _antimagic_prob(void)
     case CLASS_GRAY_MAGE:
     case CLASS_HIGH_MAGE:
     case CLASS_MIRROR_MASTER:
+    case CLASS_BLUE_MAGE:
         return 300;
 
     case CLASS_SORCERER:
@@ -3714,6 +3809,19 @@ static void _ai_indirect(mon_spell_cast_ptr cast)
         /* XXX Bring back evil non-direct TELE_TO? */
     }
 }
+static void _amnesia(mon_spells_ptr spells, mon_ptr mon)
+{
+    mon_tim_ptr t;
+    for (t = mon->timers; t; t = t->next)
+    {
+        if (t->id == MT_AMNESIA)
+        {
+            mon_spell_id_t id = mon_spell_unpack(t->parm);
+            mon_spell_ptr spell = mon_spells_find(spells, id);
+            if (spell) spell->prob = 0;
+        }
+    }
+}
 static void _ai_think(mon_spell_cast_ptr cast)
 {
     /* Generally, we require direct los to spell against the player.
@@ -3723,8 +3831,9 @@ static void _ai_think(mon_spell_cast_ptr cast)
         _ai_direct(cast);
     else
         _ai_indirect(cast);
-}
 
+    _amnesia(cast->race->spells, cast->mon); /* XXX do this last! */
+}
 static mon_spell_ptr _choose_random(mon_spells_ptr spells)
 {
     int i, j, total = 0, roll;
@@ -3757,11 +3866,27 @@ static void _ai_choose(mon_spell_cast_ptr cast)
 {
     cast->spell = _choose_random(cast->race->spells);
 }
+static void _ai_think_mon(mon_spell_cast_ptr cast);
 static bool _default_ai(mon_spell_cast_ptr cast)
 {
     if (!cast->race->spells) return FALSE;
     _ai_init(cast->race->spells);
-    _ai_think(cast);
+    /* XXX I think this logic got lost during the 7.0 mon_spell re-write.
+     * Note that _ai_think_mon will currently assert projectability, since
+     * I haven't implemented splash AI for mon vs mon fighting. */
+    if (p_ptr->riding && point_project(cast->src, cast->dest) && one_in_(2))
+    {
+        cast->flags &= ~MSC_DEST_PLAYER;
+        cast->flags |= MSC_DEST_MONSTER | MSC_DEST_MOUNT;
+        cast->mon2 = plr_riding_mon();
+        _mon_desc(cast->mon2, cast->name2, 'o');
+        assert(point_equals(cast->dest, cast->mon2->pos));
+        _ai_think_mon(cast);
+    }
+    else
+    {
+        _ai_think(cast);
+    }
     _ai_choose(cast);
     return cast->spell != NULL;
 }
@@ -3858,6 +3983,12 @@ static void _ai_think_pet(mon_spell_cast_ptr cast)
         _remove_group(spells->groups[MST_BOLT], NULL);
         _remove_group(spells->groups[MST_BEAM], NULL);
         _remove_group(spells->groups[MST_CURSE], NULL);
+        _remove_spell(spells, _id(MST_ANNOY, ANNOY_BLIND));
+        _remove_spell(spells, _id(MST_ANNOY, ANNOY_CONFUSE));
+        _remove_spell(spells, _id(MST_ANNOY, ANNOY_PARALYZE));
+        _remove_spell(spells, _id(MST_ANNOY, ANNOY_SCARE));
+        _remove_spell(spells, _id(MST_ANNOY, ANNOY_SLOW));
+        _remove_spell(spells, _id(MST_ANNOY, ANNOY_EGO_WHIP));
     }
 
     if (!(p_ptr->pet_extra_flags & PF_SUMMON_SPELL))
@@ -4406,7 +4537,7 @@ bool mon_race_has_lite_dark_spell(mon_race_ptr race) /* glass castle */
 }
 
 /*************************************************************************
- * Possessor/Mimic
+ * Possessor/Mimic/Blue-Mage
  ************************************************************************/
 static void _possessor(void)
 {
@@ -4624,7 +4755,7 @@ static int _spell_cost_aux(mon_spell_ptr spell, mon_race_ptr race)
     }
     return 0;
 }
-static int _spell_cost(mon_spell_ptr spell, mon_race_ptr race)
+int mon_spell_cost_plr(mon_spell_ptr spell, mon_race_ptr race)
 {
     int cost = _spell_cost_aux(spell, race);
     if (p_ptr->dec_mana && cost > 0)
@@ -4640,7 +4771,7 @@ static void _list_dice(doc_ptr doc, dice_t dice)
     else
         doc_printf(doc, "%d", dice.base);
 }
-static void _list_spell_info(doc_ptr doc, mon_spell_ptr spell, mon_race_ptr race)
+void mon_spell_list_info(doc_ptr doc, mon_spell_ptr spell, mon_race_ptr race)
 {
     switch (spell->id.type)
     {
@@ -4654,6 +4785,7 @@ static void _list_spell_info(doc_ptr doc, mon_spell_ptr spell, mon_race_ptr race
         int dam = chp * pct / 100;
         dam = dam * mult / 100;
         dam = MIN(max, (dam + 50) / 100);
+        dam = MIN(p_ptr->chp, dam);
         doc_printf(doc, " dam %d", dam);
         break; }
     case MST_BALL:
@@ -4725,7 +4857,7 @@ static void _list_spells(doc_ptr doc, vec_ptr spells, mon_spell_cast_ptr cast)
 
         if (cast->flags & MSC_SRC_PLAYER)
         {
-            cost = _spell_cost(spell, cast->race);
+            cost = mon_spell_cost_plr(spell, cast->race);
             avail = p_ptr->csp;
             if (spell->flags & MSF_INNATE)
                 avail += p_ptr->chp;
@@ -4739,7 +4871,7 @@ static void _list_spells(doc_ptr doc, vec_ptr spells, mon_spell_cast_ptr cast)
             doc_printf(doc, "<tab:30>%4d", cost);
         else
             doc_insert(doc, "<tab:30>    ");
-        _list_spell_info(doc, spell, cast->race);
+        mon_spell_list_info(doc, spell, cast->race);
         doc_newline(doc);
     }
 }
@@ -4755,7 +4887,7 @@ static void _prompt_plr_aux(mon_spell_cast_ptr cast, vec_ptr spells)
         if (0 <= i && i < vec_length(spells))
         {
             mon_spell_ptr spell = vec_get(spells, i);
-            int           cost = _spell_cost(spell, cast->race);
+            int           cost = mon_spell_cost_plr(spell, cast->race);
             int           avail = p_ptr->csp;
             if (spell->flags & MSF_INNATE)
                 avail += p_ptr->chp;
@@ -4783,7 +4915,7 @@ static void _prompt_plr_aux(mon_spell_cast_ptr cast, vec_ptr spells)
             if (0 <= i && i < vec_length(spells))
             {
                 mon_spell_ptr spell = vec_get(spells, i);
-                int           cost = _spell_cost(spell, cast->race);
+                int           cost = mon_spell_cost_plr(spell, cast->race);
                 int           avail = p_ptr->csp;
                 if (spell->flags & MSF_INNATE)
                     avail += p_ptr->chp;
@@ -4890,19 +5022,8 @@ static vec_ptr _prompt_spell_group(mon_race_ptr race)
     vec_free(groups);
     return spells;
 }
-static bool _prompt_plr(mon_spell_cast_ptr cast)
+static bool _prompt_plr_target(mon_spell_cast_ptr cast)
 {
-    vec_ptr spells = _spells_plr(cast->race, NULL);
-    if (vec_length(spells) > 26)
-    {
-        vec_free(spells);
-        spells = _prompt_spell_group(cast->race);
-        if (!spells) return FALSE;
-    }
-    if (vec_length(spells))
-        _prompt_plr_aux(cast, spells);
-    vec_free(spells);
-
     if ( cast->spell != NULL
       && (cast->flags & MSC_SRC_PLAYER)
       && (cast->spell->flags & MSF_TARGET) )
@@ -4934,6 +5055,21 @@ static bool _prompt_plr(mon_spell_cast_ptr cast)
     }
     return cast->spell != NULL;
 }
+static bool _prompt_plr(mon_spell_cast_ptr cast)
+{
+    vec_ptr spells = _spells_plr(cast->race, NULL);
+    if (vec_length(spells) > 26)
+    {
+        vec_free(spells);
+        spells = _prompt_spell_group(cast->race);
+        if (!spells) return FALSE;
+    }
+    if (vec_length(spells))
+        _prompt_plr_aux(cast, spells);
+    vec_free(spells);
+
+    return _prompt_plr_target(cast);
+}
 bool mon_spell_cast_possessor(mon_race_ptr race)
 {
     mon_spell_cast_t cast = {0};
@@ -4941,7 +5077,7 @@ bool mon_spell_cast_possessor(mon_race_ptr race)
     assert(cast.race->spells);
     if (_prompt_plr(&cast))
     {
-        int cost = _spell_cost(cast.spell, cast.race);
+        int cost = mon_spell_cost_plr(cast.spell, cast.race);
         if ((cast.spell->flags & MSF_INNATE) && p_ptr->csp < cost)
         {
             int hp = cost - p_ptr->csp;
@@ -4956,11 +5092,49 @@ bool mon_spell_cast_possessor(mon_race_ptr race)
     }
     return FALSE;
 }
+bool mon_spell_cast_blue_mage(mon_spell_ptr spell, mon_race_ptr race)
+{
+    mon_spell_cast_t cast = {0};
+    _spell_cast_init_plr(&cast, race);
+    cast.spell = spell;
+    /* XXX The Blue-Mage will provide its own spell selection UI, but
+     * we must handle the actual target selection and casting. */
+    if (_prompt_plr_target(&cast))
+    {
+        int cost = mon_spell_cost_plr(cast.spell, cast.race);
+        if ((cast.spell->flags & MSF_INNATE) && p_ptr->csp < cost)
+        {
+            int hp = cost - p_ptr->csp;
+            sp_player(-p_ptr->csp);
+            take_hit(DAMAGE_USELIFE, hp, "concentrating too hard");
+        }
+        else
+        {
+            assert(p_ptr->csp >= cost); /* XXX Blue-Mage needs to verify this */
+            sp_player(-cost);
+        }
+        _current = cast;
+        _spell_cast_aux();
+        memset(&_current, 0, sizeof(mon_spell_cast_t));
+        return TRUE;
+    }
+    return FALSE;
+}
 bool mon_spell_ai_wizard(mon_spell_cast_ptr cast)
 {
     if (!cast->race->spells) return FALSE;
     if ((cast->flags & MSC_DEST_MONSTER) && !_choose_target(cast)) return FALSE;
     if ((cast->flags & MSC_DEST_PLAYER) && !_default_ai(cast)) return FALSE;
     return _prompt_plr(cast);
+}
+
+/* pick a random spell for monster amnesia */
+mon_spell_ptr mon_spell_random(mon_ptr mon)
+{
+    mon_race_ptr race = mon_race(mon);
+    if (!race->spells) return NULL;
+    _ai_init(race->spells);
+    _amnesia(race->spells, mon);
+    return _choose_random(race->spells);
 }
 

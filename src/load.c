@@ -209,6 +209,10 @@ static void rd_quick_start(savefile_ptr file)
 {
     int i;
 
+    if (savefile_is_older_than(file, 7, 2, 0, 1))
+        previous_char.initial_world_id = W_SMAUG;
+    else
+        previous_char.initial_world_id = savefile_read_s16b(file);
     previous_char.game_mode = savefile_read_byte(file);
     previous_char.psex = savefile_read_byte(file);
     previous_char.prace = savefile_read_s16b(file);
@@ -397,19 +401,10 @@ static errr rd_savefile_new_aux(savefile_ptr file)
     u32b o_x_check, o_v_check;
 #endif
 
-    /* Mention the savefile version */
-    note(format(
-             "Loading a %d.%d.%d savefile...",
-             (z_major > 9) ? z_major - 10 : z_major, z_minor, z_patch));
-
-    /* hard limit due to cave re-write */
-    if (savefile_is_older_than(file, 7, 1, 0, 0))
-        note("Savefiles older than 7.1.0 are not supported!");
-
-    /* Savefiles break iff VER_MAJOR bumps */
-    if (savefile_is_older_than(file, VER_MAJOR, 0, 0, 0))
+    note(format( "Loading a %d.%d.%d savefile...", z_major, z_minor, z_patch));
+    if (savefile_is_older_than(file, MIN_VER_MAJOR, MIN_VER_MINOR, 0, 0))
     {
-        note(format("Savefiles older than %d.0.0 are not supported!", VER_MAJOR));
+        note(format("Savefiles older than %d.%d.0 are not supported!", MIN_VER_MAJOR, MIN_VER_MINOR));
         return 1;
     }
 

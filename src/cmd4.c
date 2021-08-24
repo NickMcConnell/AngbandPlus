@@ -388,7 +388,7 @@ void do_cmd_redraw(void)
 
     /* Window stuff */
     p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON |
-        PW_MONSTER | PW_MONSTER_LIST | PW_OBJECT_LIST | PW_OBJECT);
+        PW_MONSTER | PW_MONSTER_LIST | PW_OBJECT_LIST | PW_OBJECT | PW_WORLD_MAP);
 
     /* Prevent spamming ^R to circumvent fuzzy detection */
     redraw_hack = TRUE;
@@ -977,7 +977,7 @@ static void do_cmd_options_win(void)
 
 
 
-#define OPT_NUM 14
+#define OPT_NUM 13
 
 static struct opts
 {
@@ -1002,7 +1002,6 @@ option_fields[OPT_NUM] =
     { 'w', "Window Flags", 16 },
 
     { 'b', "Birth Options (Browse Only)", 18 },
-    { 'c', "Cheat Options", 19 },
 };
 
 
@@ -3073,6 +3072,7 @@ static cptr monster_group_text[] =
     "Wanted monsters",
     "Amberite",
     "Olympian",
+    "Guardian",
     "Ant",
     "Bat",
     "Centipede",
@@ -3145,6 +3145,7 @@ static cptr monster_group_char[] =
     (char *) -4L,
     (char *) -5L,
     (char *) -6L,
+    (char *) -7L,
     "a",
     "b",
     "c",
@@ -3251,6 +3252,7 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
     bool        grp_wanted = (monster_group_char[grp_cur] == (char *) -4L);
     bool        grp_amberite = (monster_group_char[grp_cur] == (char *) -5L);
     bool        grp_olympian = (monster_group_char[grp_cur] == (char *) -6L);
+    bool        grp_guardian = (monster_group_char[grp_cur] == (char *) -7L);
     int_map_ptr available_corpses = NULL;
 
     if (grp_corpses)
@@ -3312,6 +3314,11 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
         else if (grp_unique)
         {
             if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
+        }
+
+        else if (grp_guardian)
+        {
+            if (!(r_ptr->flags7 & RF7_GUARDIAN) && !(r_ptr->flagsx & RFX_GUARDIAN)) continue;
         }
 
         else if (grp_riding)
@@ -4188,9 +4195,19 @@ static void _prof_weapon_doc(doc_ptr doc, int tval)
         int          max = skills_weapon_max(k_ptr->tval, k_ptr->sval);
         int          exp_lvl = weapon_exp_level(exp);
         char         name[MAX_NLEN];
+        char         color = 'w';
 
+        /* XXX player knows which weapons are ok for riding */
+        if ( (p_ptr->pclass == CLASS_BEASTMASTER || p_ptr->pclass == CLASS_CAVALRY)
+          && tval != TV_BOW
+          && !have_flag(k_ptr->flags, OF_RIDING) )
+        {
+            color = 'D';
+        }
+        if (equip_find_obj(k_ptr->tval, k_ptr->sval))
+            color = 'B';
         strip_name(name, k_ptr->idx);
-        doc_printf(doc, "<color:%c>%-19s</color> ", equip_find_obj(k_ptr->tval, k_ptr->sval) ? 'B' : 'w', name);
+        doc_printf(doc, "<color:%c>%-19s</color> ", color, name);
         doc_printf(doc, "%c<color:%c>%-4s</color>", exp >= max ? '!' : ' ', _prof_exp_color[exp_lvl], _prof_exp_str[exp_lvl]);
         doc_newline(doc);
     }

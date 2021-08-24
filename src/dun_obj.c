@@ -13,6 +13,16 @@ static int _obj_id(obj_ptr obj)
     }
     return 0; /* bug */
 }
+static point_t _obj_pos(obj_ptr obj)
+{
+    point_t pos = point_create(-1, -1);
+    if (obj->loc.where == INV_FLOOR)
+    {
+        pos.x = obj->loc.v.floor.x;
+        pos.y = obj->loc.v.floor.y;
+    }
+    return pos;
+}
 
 #ifndef NDEBUG
 static void _assert_obj(dun_ptr dun)
@@ -26,16 +36,23 @@ static void _assert_obj(dun_ptr dun)
         assert(obj->loc.where == INV_FLOOR || obj->loc.where == INV_MON_PACK);
         if (obj->loc.where == INV_FLOOR)
         {
-            point_t pos = point_create(obj->loc.v.floor.x, obj->loc.v.floor.y);
+            point_t pos = _obj_pos(obj);
             obj_ptr pile = point_map_find(dun->obj_pos, pos);
             bool    found = FALSE;
+            assert(pile);
             for (; pile; pile = pile->next)
             {
+                point_t pos2 = _obj_pos(pile);
                 if (pile == obj) found = TRUE;
                 assert(pile->loc.where == INV_FLOOR);
                 assert(pile->loc.v.floor.dun_id == dun->dun_id);
-                assert(pile->loc.v.floor.x == pos.x);
-                assert(pile->loc.v.floor.y == pos.y);
+                if (!point_equals(pos2, pos))
+                {
+                    obj_ptr pile2 = point_map_find(dun->obj_pos, pos2);
+                    /* this check failed once. same pile under 2 positions! */
+                    assert(!pile2);
+                }
+                assert(point_equals(pos, pos2));
             }
             assert(found);
         }
@@ -133,8 +150,6 @@ vec_ptr dun_pile_at(dun_ptr dun, point_t pos)
 }
 void dun_place_obj(dun_ptr dun, obj_ptr obj, point_t pos)
 {
-    obj_ptr pile;
-    
     assert(dun_pos_interior(dun, pos));
     assert(dun_allow_drop_at(dun, pos));
     assert(!obj->next);
@@ -147,24 +162,27 @@ void dun_place_obj(dun_ptr dun, obj_ptr obj, point_t pos)
     obj->loc.v.floor.y = pos.y;
 
     int_map_add(dun->obj, _obj_id(obj), obj);
-    pile = point_map_find(dun->obj_pos, pos);
-    if (pile)
-        obj->next = pile;
+
+    obj->next = point_map_find(dun->obj_pos, pos);
     point_map_add(dun->obj_pos, pos, obj);
+
+    dun_assert_obj(dun);
 }
 bool dun_fetch_obj(dun_ptr dun, point_t from, point_t to)
 {
     obj_ptr src = point_map_find(dun->obj_pos, from);
-    obj_ptr dest = point_map_find(dun->obj_pos, to);
 
     if (!src) return FALSE;
+
     if (src->next) point_map_add(dun->obj_pos, from, src->next);
     else point_map_delete(dun->obj_pos, from);
 
-    src->next = dest;
     src->loc.v.floor.x = to.x;
     src->loc.v.floor.y = to.y;
+
+    src->next = point_map_find(dun->obj_pos, to);
     point_map_add(dun->obj_pos, to, src);
+
     return TRUE;
 }
 static bool _mon_ignore_pickup(obj_ptr obj)
@@ -350,10 +368,11 @@ obj_ptr dun_detach_obj(dun_ptr dun, int id)
         /* update obj_pos map with modified pile */
         if (pile) point_map_add(dun->obj_pos, pos, pile);  /* XXX could be skipped if obj wasn't head */
         else point_map_delete(dun->obj_pos, pos);
-        obj->next = NULL;
     }
     int_map_detach(dun->obj, id);
     memset(&obj->loc, 0, sizeof(obj_loc_t));
+    obj->next = NULL;
+    dun_assert_obj(dun);
     return obj;
 }
 void dun_delete_obj(dun_ptr dun, int id)
@@ -532,7 +551,6 @@ bool dun_drop_near(dun_ptr dun, obj_ptr obj, point_t pos)
     _combine(dun, obj, drop_pos);
     if (obj->number > 0)
     {
-        obj_ptr pile;
         obj = obj_copy(obj);
         obj->loc.where = INV_FLOOR;
         obj->loc.v.floor.dun_id = dun->dun_id;
@@ -541,14 +559,15 @@ bool dun_drop_near(dun_ptr dun, obj_ptr obj, point_t pos)
         obj->loc.v.floor.y = drop_pos.y;
 
         int_map_add(dun->obj, _obj_id(obj), obj);
-        pile = point_map_find(dun->obj_pos, drop_pos);
-        if (pile) obj->next = pile;
+        obj->next = point_map_find(dun->obj_pos, drop_pos);
         point_map_add(dun->obj_pos, drop_pos, obj);
 
         dun_note_pos(dun, drop_pos);
         dun_lite_pos(dun, drop_pos);
         p_ptr->window |= PW_OBJECT_LIST;
-        if (dun_plr_at(dun, drop_pos)) /* XXX skip if do_cmd_drop */
+        if (obj->marked & OM_NO_MSG)
+            obj->marked &= ~OM_NO_MSG;
+        else if (dun_plr_at(dun, drop_pos))
             msg_print("You feel something roll beneath your feet.");
     }
     dun_assert_obj(dun);
@@ -559,7 +578,7 @@ bool dun_drop_break_near(dun_ptr dun, obj_ptr obj, point_t pos, int break_pct)
     if (randint0(100) < break_pct)
     {
         _msg_drop_disappears(dun, obj, pos);
-        stats_on_m_destroy(obj, 1);
+        stats_on_m_destroy(obj, obj->number);
         return FALSE;
     }
     return dun_drop_near(dun, obj, pos);
@@ -577,8 +596,7 @@ void dun_mon_drop_carried_obj(dun_ptr dun, mon_ptr mon)
             _combine(dun, obj, drop_pos);
             if (obj->number > 0)
             {
-                obj_ptr pile = point_map_find(dun->obj_pos, drop_pos);
-                u16b    obj_id = _obj_id(obj);
+                u16b obj_id = _obj_id(obj);
 
                 obj->loc.where = INV_FLOOR;
                 obj->loc.v.floor.dun_id = dun->dun_id;
@@ -586,8 +604,7 @@ void dun_mon_drop_carried_obj(dun_ptr dun, mon_ptr mon)
                 obj->loc.v.floor.x = drop_pos.x;
                 obj->loc.v.floor.y = drop_pos.y;
 
-                if (pile) obj->next = pile;
-                else obj->next = NULL;
+                obj->next = point_map_find(dun->obj_pos, drop_pos);
                 point_map_add(dun->obj_pos, drop_pos, obj);
 
                 dun_note_pos(dun, drop_pos);
@@ -613,5 +630,165 @@ void dun_mon_drop_carried_obj(dun_ptr dun, mon_ptr mon)
         }
     }
     mon->obj = NULL;
+    dun_assert_obj(dun);
+}
+
+/************************************************************************
+ * Fix Broken Savefiles (XXX Need to find the Bug(s)! XXX)
+ * XXX This duplicates dun_assert_obj. When I play, it is a checked
+ * build inside the debugger, and I want execution to halt at the point
+ * of inconsistency. But for an end-user, we need to just detect and
+ * fix a corrupted savefile. Of course, code just works when I play ;D
+ * XXX Objects may be lost during dun_obj_panic, but at least the user
+ * can keep playing!
+ ************************************************************************/
+static bool _valid_obj_loc(obj_ptr obj)
+{
+    switch (obj->loc.where)
+    {
+    case INV_FLOOR:
+    case INV_MON_PACK:
+        return TRUE;
+    }
+    return FALSE;
+}
+static bool _check_obj(dun_ptr dun)
+{
+    bool ok = TRUE;
+    int_map_iter_ptr iter;
+    for (iter = int_map_iter_alloc(dun->obj);
+            int_map_iter_is_valid(iter);
+            int_map_iter_next(iter))
+    {
+        obj_ptr obj = int_map_iter_current(iter);
+        if (!_valid_obj_loc(obj)) ok = FALSE;
+        if (obj->loc.where == INV_FLOOR)
+        {
+            point_t pos = _obj_pos(obj);
+            obj_ptr pile = point_map_find(dun->obj_pos, pos);
+            bool    found = FALSE;
+            if (!pile) ok = FALSE;
+            for (; pile; pile = pile->next)
+            {
+                point_t pos2 = _obj_pos(pile);
+                if (pile == obj) found = TRUE;
+                if (pile->loc.where != INV_FLOOR) ok = FALSE;
+                if (!point_equals(pos2, pos)) ok = FALSE;
+            }
+            if (!found) ok = FALSE;
+        }
+        else
+        {
+            mon_ptr mon = int_map_find(dun->mon, obj->loc.v.mon_pack.mon_id);
+            obj_ptr pile = mon->obj;
+            bool    found = FALSE;
+            for (; pile; pile = pile->next)
+            {
+                if (pile == obj) found = TRUE;
+                if (pile->loc.where != INV_MON_PACK) ok = FALSE;
+                if (pile->loc.v.mon_pack.mon_id != mon->id) ok = FALSE;
+            }
+            if (!found) ok = FALSE;
+        }
+    }
+    int_map_iter_free(iter);
+    return ok;
+}
+static bool _check_pile(dun_ptr dun, obj_ptr pile, point_t pos)
+{
+    bool ok = TRUE;
+    for (; pile; pile = pile->next)
+    {
+        point_t pos2 = _obj_pos(pile);
+        if (!point_equals(pos2, pos)) ok = FALSE;
+    }
+    return ok;
+}
+static bool _check_obj_pos(dun_ptr dun)
+{
+    bool ok = TRUE;
+    point_map_iter_ptr iter;
+    for (iter = point_map_iter_alloc(dun->obj_pos);
+            point_map_iter_is_valid(iter);
+            point_map_iter_next(iter))
+    {
+        obj_ptr pile = point_map_iter_current(iter);
+        point_t pos = point_map_iter_current_key(iter);
+        if (!_check_pile(dun, pile, pos)) ok = FALSE;
+    }
+    point_map_iter_free(iter);
+    return ok;
+}
+static bool _check_mon_pack(dun_ptr dun)
+{
+    bool ok = TRUE;
+    int_map_iter_ptr iter;
+    for (iter = int_map_iter_alloc(dun->mon);
+            int_map_iter_is_valid(iter);
+            int_map_iter_next(iter))
+    {
+        mon_ptr mon = int_map_iter_current(iter);
+        obj_ptr pile = mon->obj;
+        for (; pile; pile = pile->next)
+        {
+            if (pile->loc.where != INV_MON_PACK) ok = FALSE;
+            else if (pile->loc.v.mon_pack.mon_id != mon->id) ok = FALSE;
+        }
+    }
+    int_map_iter_free(iter);
+    return ok;
+}
+bool dun_obj_integrity(dun_ptr dun)
+{
+    if (!_check_obj_pos(dun)) return FALSE;
+    if (!_check_mon_pack(dun)) return FALSE;
+    if (!_check_obj(dun)) return FALSE;
+    return TRUE;
+}
+static void _mon_clear_obj(int id, mon_ptr mon) { mon->obj = NULL; }
+void dun_obj_panic(dun_ptr dun)
+{
+    vec_ptr garbage = vec_alloc(NULL);
+    int_map_iter_ptr iter;
+    int i;
+
+    /* clear floor piles and monster packs */
+    point_map_clear(dun->obj_pos);
+    int_map_iter(dun->mon, (int_map_iter_f)_mon_clear_obj);
+
+    /* rebuild everything */
+    for (iter = int_map_iter_alloc(dun->obj);
+            int_map_iter_is_valid(iter);
+            int_map_iter_next(iter))
+    {
+        obj_ptr obj = int_map_iter_current(iter);
+        int     id = int_map_iter_current_key(iter);
+        if (obj->loc.where == INV_FLOOR)
+        {
+            point_t pos = _obj_pos(obj);
+            obj->next = point_map_find(dun->obj_pos, pos);
+            point_map_add(dun->obj_pos, pos, obj);
+        }
+        else if (obj->loc.where == INV_MON_PACK)
+        {
+            mon_ptr mon = int_map_find(dun->mon, obj->loc.v.mon_pack.mon_id);
+            if (mon)
+            {
+                obj->next = mon->obj;
+                mon->obj = obj;
+            }
+            else vec_add_int(garbage, id);
+        }
+        else vec_add_int(garbage, id);
+    }
+    int_map_iter_free(iter);
+
+    /* delete garbage */
+    for (i = 0; i < vec_length(garbage); i++)
+    {
+        int id = vec_get_int(garbage, i);
+        int_map_delete(dun->obj, id);
+    }
+    vec_free(garbage);
     dun_assert_obj(dun);
 }

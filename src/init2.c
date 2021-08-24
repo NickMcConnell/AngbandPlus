@@ -760,6 +760,7 @@ static errr init_feat_variables(void)
     feat_up_stair = f_tag_to_index_in_init("UP_STAIR");
     feat_down_stair = f_tag_to_index_in_init("DOWN_STAIR");
     feat_entrance = f_tag_to_index_in_init("ENTRANCE");
+    feat_quest_entrance = f_tag_to_index_in_init("QUEST_ENTER");
 
     /* Normal traps */
     init_normal_traps();

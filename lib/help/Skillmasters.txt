@@ -20,7 +20,7 @@ The main skill groups are:
 
   <color:R>Skills</color>      <indent>Improve basic skills such as Devices, Stealth, Speed and Saving Throw</indent>
 
-  <color:R>Techniques</color>  <indent>Access to advanced or unusual talents that most players lack. This includes some book based talents, such as Burglary and Kendo, as well as other non-standard talents like Riding and Dual Wielding.</indent>
+  <color:R>Techniques</color>  <indent>Access to advanced or unusual talents that most players lack. This includes some book based talents, such as Burglary, as well as other non-standard talents like Riding and Dual Wielding.</indent>
 
   <color:R>Abilities</color>   <indent>For a single skill point, you can buy a power like Stone Skin or an ability like Good Luck.</indent>
 
@@ -64,7 +64,7 @@ Yes, you can melee with Picks and Shovels if you want, but the weapons in this c
   <indent><topic:Martial Arts><color:o>Martial Arts</color>
 With this skill you may fight monsters using a special, bare-handed combat technique. I assume you've played a Monk before (if not, try one as they are most enjoyable) and this skill allows you access to this powerful mode of combat. If you are building a Martial Artist, then I recommend using the full 5 points for this skill as that will give you 100% monk-like efficiency when choosing types of attacks and critical hits. But compared to the monk, you will get one fewer attack per round.
 
-A few cautions regarding this skill are in order. First, if you fight bare-handed, then you get the normal monk armor restrictions as well as the AC bonus when forgoing various equipment slots (but you do not gain a monk speed boost or access to various postures). These armor restrictions do not apply if you switch to normal weapon based melee. Second, martial arts will not work when mounted so it is a bad idea to waste your precious skill points on Riding when building a martial arts based class. Finally, you've played a Samurai before, right? Well, even if you have, you might never have noticed that casting a Kendo technique <color:v>requires a melee weapon</color>, so won't work at all with martial arts.</indent>
+A few cautions regarding this skill are in order. First, if you fight bare-handed, then you get the normal monk armor restrictions as well as the AC bonus when forgoing various equipment slots (but you do not gain a monk speed boost or access to various postures). These armor restrictions do not apply if you switch to normal weapon based melee. Second, martial arts will not work when mounted so it is a bad idea to waste your precious skill points on Riding when building a martial arts based class.</indent>
 
 <topic:Ranged><style:heading>Ranged Skills</style>
 
@@ -137,13 +137,6 @@ Techniques are specialty skills. By default, most players can not access these s
 
   <indent><topic:Burglary><color:o>Burglary</color>
 Normally restricted to the Rogue, Burglary is a spellbook based technique using DEX as the primary stat. This realm functions like the other realms in <color:keyword>Magic</color> and <color:keyword>Prayer</color> in the sense that the number of points invested here determines each spell's level, cost and fail rate. You will need a full five points to match a rogue in burglary! This skill also increases your stealth and your disarming skills. See <link:magic.txt#Burglary> for more information.</indent>
-
-  <indent><topic:Kendo><color:o>Kendo</color>
-Normally restricted to the Samurai, Kendo is a spellbook based technique that enhances melee combat. Indeed, in order to cast any spell in this realm, you must wield a melee weapon (So do <color:v>not</color> attempt to combine this skill with <color:keyword>Martial Arts</color>). There are no fail rates for Kendo techniques. Also, learning this skill changes your mana to behave like that of the Samurai. Your max resting mana is very small and is determined solely by your WIS. But with <color:keyword>Concentration</color> (a special class power), you can temporarily boost your mana pool. Boosted mana decays rather quickly with each turn, so the net effect is that you must time your concentration carefully before engaging an enemy in battle, and then you must hurry to defeat your foe before your mana runs out.
-
-Unlike the Samurai, with this technique you will still need to carry the various Kendo books in order to access the various talents. Also, if you are mixing Kendo with other magic, know that the Samurai mana mechanics take precedent. On the one hand, this should be rather useful since you can regain your mana so easily (provided you have a few quiet turns in which to concentrate). On the other hand, your maximum mana, even after concentration, will never match the default maximum for normal spellcasters. So, fewer spells will be possible than normal. And concentration is quite a bit slower than quaffing a potion of restore mana, so the final battle may be more difficult. As a final insult, Kendo mana mechanics blocks the spell cost enhancement effects of wizardstaves and mage jewelry (but the various realm stones still work and you need not worry about glove encumbrance).
-
-If you are investing in this technique, even if you are combining it with other casting realms, you really should invest in melee as well. The spells in Kendo enhance your normal melee attacks quite powerfully, but you still need to be able to hit monsters in order to benefit.</indent>
 
   <indent><topic:Dual Wielding><color:o>Dual Wielding</color>
 The Dual Wielding skill allows effective melee with two weapons at once and is inspired by the famous dual sword technique created by Miyamoto Musashi. By investing in this skill, you will instantly increase your proficiency with this powerful combat technique. Obviously, you should combine this skill generously with <color:keyword>Melee</color> talents.</indent>

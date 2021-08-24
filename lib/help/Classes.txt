@@ -227,7 +227,23 @@ Experience   130%
 </style></indent>
 </indent>
 <style:heading>Magic</style>
-  <indent><topic:Gray-Mage><color:o>Gray-Mage</color>
+  <indent><topic:Blue-Mage><color:o>Blue-Mage</color>
+The Blue-Mage is not your ordinary mage. Rather than using spellbooks, the blue-mage learns monster spells through direct experience. With their special technique of <color:keyword>Learning</color> they have a chance to learn spells every time they see a monster perform a spell. The odds of learning the spell depend on the player's level and the monster's level. Moreover, when performing learned spells, the effectiveness depends upon the monster they learned the spell from; breathing fire learned from a fire hound is <color:v>much</color> less effective then the same learned from a Great Hell Wyrm! Finally, the blue-mage can only remember a limited number of spells at a time. Learning a new spell must replace an existing spell once this limit is reached.
+
+The Blue-Mage is weak in melee and archery, but not nearly so bad as a normal mage would be. This is fortunate, since it may take a little while to learn that first offensive spell. Starting players will need to use melee and archery until an arsenal of good monster spells is acquired.
+
+  <indent><style:table><color:G>Stats                   Skills</color>
+Strength     <color:w> -1</color>        Disarming   <color:o>Fair         </color>
+Intelligence <color:v> +3</color>        Device      <color:G>Excellent    </color>
+Wisdom       <color:w> +0</color>        Save        <color:o>Fair         </color>
+Dexterity    <color:w> -1</color>        Stealth     <color:y>Good         </color>
+Constitution <color:w> -1</color>        Searching   <color:R>Poor         </color>
+Charisma     <color:w> +0</color>        Perception  <color:o>Fair         </color>
+Life Rating  100%       Melee       <color:o>Fair         </color>
+Base HP        4        Bows        <color:R>Poor         </color>
+Experience   130%
+</style></indent>
+<topic:Gray-Mage><color:o>Gray-Mage</color>
 The Gray-Mage casts spells from memory, rather than from a book.  Indeed, the spell book is only required for the initial learning process. However, only a small number of spells may be learned at any given time, and while the Gray-Mage may replace old spells with new ones, they can only learn a fixed number of total spells (based upon Intelligence and Experience).
  
 The Gray-Mage does not choose spell realms the way an ordinary spell caster would. Instead, they choose a general bias towards one of Good, Neutral or Evil magic. So while all Gray-Mages may learn spells from the Arcane, Armageddon, Chaos, Craft, Sorcery and Trump realms, only a Good Bias allows access to Life and Crusade magic; only a Neutral Bias allows access to Nature magic; and only an Evil Bias allows access to Death and Daemon magic. Still, it is obvious that the Gray Mage will have an extremely large pool of spells from which to choose. Like the Mage, Intelligence is the key stat.
@@ -722,6 +738,7 @@ Sniper         +2   -1   -1 <color:v>  +2 </color>  +1   +0  100%   +4  110%
 Force-Trainer  +0   -1 <color:v>  +3 </color>  +2   +1   +0  100%   +4  135%
 Monk           +2   -1 <color:v>  +1 </color>  +3   +2   +1  110%  +12  130%
 Mystic         +2   -1   -2   +3   +1 <color:v>  +2 </color> 100%   +4  130%
+Blue-Mage      -1 <color:v>  +3 </color>  +0   -1   -1   +0  100%   +4  130%
 Gray-Mage      -4 <color:v>  +3 </color>  +0   +1   -2   -2   95%   +0  130%
 High-Mage      -4 <color:v>  +4 </color>  +0   +0   -2   -2   94%   +0  130%
 Mage           -4 <color:v>  +3 </color>  +0   +1   -2   -2   95%   +0  130%
@@ -769,6 +786,7 @@ Sniper        <color:y>Good         </color> <color:o>Fair         </color> <col
 Force-Trainer <color:y>Good         </color> <color:y>Very Good    </color> <color:y>Good         </color> <color:y>Very Good    </color>
 Monk          <color:g>Superb       </color> <color:y>Very Good    </color> <color:o>Fair         </color> <color:G>Excellent    </color>
 Mystic        <color:g>Superb       </color> <color:y>Very Good    </color> <color:o>Fair         </color> <color:G>Excellent    </color>
+Blue-Mage     <color:o>Fair         </color> <color:G>Excellent    </color> <color:o>Fair         </color> <color:y>Good         </color>
 Gray-Mage     <color:o>Fair         </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Good         </color>
 High-Mage     <color:o>Fair         </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Good         </color>
 Mage          <color:o>Fair         </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Good         </color>
@@ -816,6 +834,7 @@ Sniper        <color:y>Good         </color> <color:o>Fair         </color> <col
 Force-Trainer <color:y>Good         </color> <color:o>Fair         </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Monk          <color:y>Good         </color> <color:o>Fair         </color> <color:G>Excellent    </color> <color:G>Excellent    </color>
 Mystic        <color:y>Good         </color> <color:o>Fair         </color> <color:G>Excellent    </color> <color:o>Fair         </color>
+Blue-Mage     <color:R>Poor         </color> <color:o>Fair         </color> <color:o>Fair         </color> <color:R>Poor         </color>
 Gray-Mage     <color:R>Poor         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
 High-Mage     <color:R>Poor         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
 Mage          <color:R>Poor         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
@@ -849,4 +868,4 @@ Wild-Talent   <color:o>Fair         </color> <color:R>Poor         </color> <col
 </style>
 
 
-<color:s>Automatically generated for PosChengband 7.1.0.</color>
+<color:s>Automatically generated for PosChengband 7.2.1.</color>

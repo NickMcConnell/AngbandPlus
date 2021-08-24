@@ -58,6 +58,7 @@ static _class_info_t _class_tbl[] = {
     {CLASS_YELLOW_MAGE, "Yellow-Mage", yellow_mage_get_class, NULL},
     {CLASS_GRAY_MAGE, "Gray-Mage", NULL, gray_mage_get_class},
     {CLASS_SKILLMASTER, "Skillmaster", skillmaster_get_class, NULL},
+    {CLASS_BLUE_MAGE, "Blue-Mage", blue_mage_get_class, NULL},
     {0}
 };
 plr_class_ptr plr_class_alloc(int class_id) { return plr_class_alloc_aux(class_id, 0); }

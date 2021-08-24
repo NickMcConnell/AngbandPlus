@@ -270,7 +270,7 @@ static void pattern_teleport(void)
         char    ppp[80];
         char    tmp_val[160];
 
-        max_level = dun_type()->max_dun_lvl;
+        max_level = dun_type()->plr_max_lvl;
         min_level = dun_type()->min_dun_lvl;
 
         /* Prompt */
@@ -285,6 +285,8 @@ static void pattern_teleport(void)
 
         /* Extract request */
         command_arg = atoi(tmp_val);
+        if (command_arg < min_level) command_arg = min_level;
+        if (command_arg > max_level) command_arg = max_level;
     }
     else if (get_check("Normal teleport? "))
     {
@@ -412,7 +414,11 @@ static bool pattern_effect(void)
         if (prace_is_(RACE_AMBERITE) && !one_in_(2))
             return TRUE;
         else if (!plr_tim_find(T_INVULN))
-            take_hit(DAMAGE_NOESCAPE, damroll(1, 3), "walking the Pattern");
+        {
+            int dd = 1 + cave->difficulty / 40;
+            int ds = 3 + cave->difficulty / 20;
+            take_hit(DAMAGE_NOESCAPE, damroll(dd, ds), "walking the Pattern");
+        }
         break;
     }
 
@@ -2312,7 +2318,7 @@ static void _dispatch_command(int old_now_turn)
             else if (p_ptr->pclass == CLASS_SKILLMASTER)
                 skillmaster_gain_skill();
             else if (p_ptr->pclass == CLASS_SAMURAI)
-                do_cmd_gain_hissatsu();
+                samurai_gain_spell();
             else if (p_ptr->pclass == CLASS_RAGE_MAGE)
                 rage_mage_gain_spell();
             else if (p_ptr->pclass == CLASS_MAGIC_EATER)
@@ -2337,10 +2343,12 @@ static void _dispatch_command(int old_now_turn)
                 magic_eater_browse();
             else if (p_ptr->pclass == CLASS_RAGE_MAGE)
                 rage_mage_browse_spell();
+            else if (p_ptr->pclass == CLASS_SAMURAI)
+                samurai_browse_spell();
             else if (p_ptr->pclass == CLASS_SKILLMASTER)
                 skillmaster_browse();
             else if (p_ptr->pclass == CLASS_GRAY_MAGE)
-                gray_mage_browse_spell();
+                gray_mage_browse();
             else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
                      p_ptr->pclass == CLASS_DUELIST ||
                      p_ptr->pclass == CLASS_WARLOCK ||
@@ -2424,6 +2432,7 @@ static void _dispatch_command(int old_now_turn)
             {
                 msg_format("You cannot think clearly!");
                 energy_use = 0;
+                flush(); /* XXX Macro 'mdd' while T_BERSERK will drop your best spellbook! */
             }
             else
             {
@@ -2435,10 +2444,10 @@ static void _dispatch_command(int old_now_turn)
                     magic_eater_cast(0);
                 else if (p_ptr->pclass == CLASS_SKILLMASTER)
                     skillmaster_cast();
-                else if (p_ptr->pclass == CLASS_SAMURAI)
-                    do_cmd_hissatsu();
                 else if (p_ptr->pclass == CLASS_GRAY_MAGE)
-                    gray_mage_cast_spell();
+                    gray_mage_cast();
+                else if (p_ptr->pclass == CLASS_BLUE_MAGE)
+                    blue_mage_cast();
                 else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
                             p_ptr->pclass == CLASS_DUELIST ||
                             p_ptr->pclass == CLASS_WARLOCK ||
@@ -2453,6 +2462,7 @@ static void _dispatch_command(int old_now_turn)
                             p_ptr->pclass == CLASS_WEAPONMASTER ||
                             p_ptr->pclass == CLASS_DEVICEMASTER ||
                             p_ptr->pclass == CLASS_RAGE_MAGE ||
+                            p_ptr->pclass == CLASS_SAMURAI ||
                             p_ptr->pclass == CLASS_SCOUT ||
                             p_ptr->pclass == CLASS_MAULER ||
                             p_ptr->pclass == CLASS_MYSTIC ||
@@ -2843,9 +2853,13 @@ static void process_command(void)
             else
             {
                 town_ptr town = towns_current_town();
-                shop_ptr shop = town_get_shop(town, which);
-
-                shop_ui(shop);
+                if (!town)
+                    msg_print("The shop is closed!"); /* XXX bug on D_SURFACE for ROOM_WILDERNESS */
+                else
+                {
+                    shop_ptr shop = town_get_shop(town, which);
+                    shop_ui(shop);
+                }
             }
         }
         break; }
@@ -3657,7 +3671,7 @@ void play_game(bool new_game)
 
     viewport_verify();
     character_xtra = TRUE;
-    p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_MONSTER_LIST | PW_OBJECT_LIST | PW_MONSTER | PW_OVERHEAD | PW_DUNGEON);
+    p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_MONSTER_LIST | PW_OBJECT_LIST | PW_MONSTER | PW_OVERHEAD | PW_DUNGEON | PW_WORLD_MAP);
     p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_EQUIPPY | PR_MSG_LINE);
     p_ptr->redraw |= (PR_MAP);
     p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -3672,6 +3686,10 @@ void play_game(bool new_game)
     handle_stuff();
     Term_fresh();
     if (!load_game && (p_ptr->special_defense & NINJA_S_STEALTH)) set_superstealth(FALSE);
+
+    /* XXX Zap -Detection then quit game. On restart, player gains telepathy on detected
+     * monsters since they never got "repaired". XXX */
+    repair_monsters = TRUE;
 
     /* Process */
     dun_mgr_process();

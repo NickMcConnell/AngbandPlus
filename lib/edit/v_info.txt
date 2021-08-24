@@ -207,9 +207,6 @@
 #    $ - glass wall
 #    X - impenetrable rock
 #    Y - impenetrable glass wall
-#    + - secret door
-#    - - secret glass door
-#    ' - curtain
 #
 ######################################################################
 # OK ... let's try remove the hardcoding. There is much voodoo going on
@@ -240,9 +237,8 @@ L:9:MON(*, NO_GROUP | DEPTH+15):OBJ(*, DEPTH+20):EGO(*)
 # Type:    WILD | AMBUSH
 # Subtype: GRASS | WATER | SWAMP | TREES | LAVA | MOUNTAIN
 #
-# Wilderness Encounters must fit snugly inside a single scroll tile
-# now that the wilderness allows infinite exploration. The current
-# scroll tile is 66x22 but the available space is only 62x20.
+# Wilderness Encounters must fit snugly inside a single 128x64 page.
+# cf dun_world.c
 #
 # The terrain subtype limits where the encounter can occur on the surface.
 # For example, lava infested demon swarms make sense in lava terrains, but
@@ -251,51 +247,9 @@ L:9:MON(*, NO_GROUP | DEPTH+15):OBJ(*, DEPTH+20):EGO(*)
 ####################
 # Grass Encounters #
 ####################
-
-N:Hermit's House
-T:WILD:GRASS
-W:1:*:2
-L:_:GRASS
-L:.:DIRT(ROOM)
-L:p:DIRT(ROOM):MON(HUMAN, DEPTH+15)
-L:C:DIRT(ROOM):MON(C, HASTE | DEPTH+10)
-L:,:DIRT(ROOM):OBJ(FOOD)
-L:!:DIRT(ROOM):OBJ(POTION)
-L:&:DIRT(ROOM):OBJ(GOLD)
-M:###############
-M:#.......#,!..&#
-M:+.......#..p..#
-M:#.......#.....#
-M:#.......###+###
-M:#.......#.....#
-M:#.......#..C..#
-M:#.......#.....#
-M:#.......+.....#
-M:###############
-
-N:Ruined Home
-T:WILD:GRASS
-W:1:*:1
-L:,:GRASS
-L:.:DIRT
-L:T:TREE
-L:%:RUBBLE
-L:*:DIRT(ROOM):MON(*, DEPTH+10)
-L:~:DIRT(ROOM):OBJ(JUNK)
-M:###%%%######%%TT%#
-M:#TT.....~..%TT*.T%
-M:+.........~T.....T
-M:#*,,,......%.....%
-M:#T,,.......###T,,.
-M:T....TT....#,TTT,#
-M:#TT...TT...#*,T,.#
-M:,.TT.......#.T,..%
-M:#........~.,TTT..%
-M:##   ##%%,,..T#%%,
-
 N:Archery Practice
 T:WILD:GRASS:FORMATION
-W:1:*:4
+W:1:4
 L:0:MON(ARCHER)
 L:$:OBJ(BOW_AMMO)
 M: 2 0 4 
@@ -306,146 +260,9 @@ M:
 M:4  $  2
 M: 4 0 2 
 
-N:Menagerie
-T:WILD:GRASS
-W:10:*:16
-L:M:MON(ANIMAL, DEPTH+10)
-L:p:MON(p, NO_GROUP | FRIENDLY)
-L:+:GLASS_WALL
-M:#########
-M:#M#M#M#M#
-M:#+#+#+#+#
-M:    p    
-M:#+#+#+#+#
-M:#M#M#M#M#
-M:#########
-
-N:Dog Trainer
-T:WILD:GRASS:FRIENDLY
-W:1:*:8
-L:.:FLOOR(ROOM)
-L:p:MON(p, NO_UNIQUE | NO_GROUP)
-L:C:MON(C, NO_UNIQUE | NO_GROUP)
-M:#######
-M:#C.C..#
-M:#.C..p+
-M:#C.C..#
-M:#######
-
-N:General Store
-T:WILD:GRASS
-W:1:*:4
-L:1:GENERAL_STORE(GLOW)
-M:XXXXXXXXX
-M:XXXXXXXXX
-M:'.....1XX
-M:XXXXXXXXX
-M:XXXXXXXXX
-
-N:Temple
-T:WILD:GRASS
-W:1:*:8
-L:4:TEMPLE(GLOW)
-M:XXXXXXXXX
-M:XXXXXXXXX
-M:'.....4XX
-M:XXXXXXXXX
-M:XXXXXXXXX
-
-N:Black Market
-T:WILD:GRASS
-W:1:*:32
-L:7:BLACK_MARKET(GLOW)
-M:XXXXXXXXX
-M:XXXXXXXXX
-M:'.....7XX
-M:XXXXXXXXX
-M:XXXXXXXXX
-
-N:Sorcerer's Tower
-T:WILD:GRASS
-W:20:*:16
-L:.:FLOOR(ROOM)
-L:p:FLOOR(ROOM):MON(MAGE, NO_SLEEP | NO_GROUP | DEPTH+20):OBJ(WAND, DEPTH+10)
-M:################
-M:+..............#
-M:##############.#
-M:#............#.#
-M:#.##########.#.#
-M:#.#p.........#.#
-M:#.############.#
-M:#..............#
-M:################
-
-N:Chapel
-T:WILD:GRASS
-W:1:*:16
-L:&:OBJ(STATUE, DEPTH+100)
-M:XXXXXXXXX
-M:XXXXXXXXX
-M:'.....&XX
-M:XXXXXXXXX
-M:XXXXXXXXX
-
-N:Graveyard
-T:WILD:GRASS:DAY
-W:1:*:8
-L:.:DIRT
-L:,:GRASS
-M: ###########
-M: #,,,,,,,,,#
-M: #,#,#,#,#,#
-M:..........,#
-M: #,#,#,#,#,#
-M: #,,,,,,,,,#
-M: ###########
-
-N:Graveyard
-T:WILD:GRASS:NIGHT
-W:1:*:8
-L:G:GRASS:MON(UNDEAD)
-L:z:GRASS:MON(ZOMBIE)
-L:.:DIRT
-L:,:GRASS
-M: ###########
-M: #,z,,,G,,G#
-M: #z#z#,#,#,#
-M:..........G#
-M: #z#z#,#,#,#
-M: #,z,,,G,,G#
-M: ###########
-
-N:Logrus Master
-T:WILD:GRASS
-W:20:*:16
-L:p:DIRT:MON(logrus master)
-L:.:DIRT
-M:############
-M:#..........#
-M:#.........p#
-M:#..........#
-M:#..#########
-M:#..........+
-M:############
-
-N:Monument
-T:WILD:GRASS
-W:1:*:16
-L:.:DIRT
-L:~:SHALLOW_WATER
-M:    X    
-M:   X.X   
-M:  X...X  
-M: X..X..X 
-M:X..X~X..X
-M: X..X..X 
-M:  X...X  
-M:   X.X   
-M:    X    
-
 N:Murder
 T:WILD:GRASS
-W:10:*:16
+W:10:16
 L:M:MON(^crow$)
 M: M M 
 M:M   M
@@ -453,75 +270,13 @@ M:  M
 M:M   M
 M: M M 
 
-##################
-# Grass Ambushes #
-##################
-
-N:Flanked
-T:AMBUSH:GRASS:FORMATION
-W:1:*:3
-L:0:MON(*, DEPTH+5)
-M:         0       
-M:      6 6 6 6    
-M:       4 4 4     
-M:        2 2      
-M:                 
-M:                 
-M:         @       
-M:                 
-M:                 
-M:        2 2      
-M:       4 4 4     
-M:      6 6 6 6    
-M:         0       
-
-N:Surrounded
-T:AMBUSH:GRASS:FORMATION
-W:1:*:2
-L:0:MON(*, DEPTH+5)
-M:                 
-M:                 
-M:         8       
-M:                 
-M:       8   8     
-M:  2              
-M: 202 8   @   8   
-M:  2              
-M:       8   8     
-M:                 
-M:         8       
-M:                 
-M:                 
-
-N:Marauding Orcs
-T:AMBUSH:GRASS:FORMATION | NIGHT
-W:1:*:1
-L:0:MON(o, DEPTH+5 | NO_GROUP)
-L:T:MON(T, NO_SLEEP | NO_GROUP | DEPTH+10)
-M:T 6 T        T
-M: 636          
-M:63036     @   
-M: 636          
-M:T 6 T        T
-
-N:Dread of Night
-T:AMBUSH:GRASS:FORMATION | NIGHT
-W:1:*:1
-L:0:MON(UNDEAD, DEPTH+5)
-M:      6   8   6  
-M:                 
-M:   0   8  @  8  0
-M:                 
-M:      6   8   6  
-
 ###################
 # Lava Encounters #
 ###################
-
 N:Random Volcano Level
-T:WILD:LAVA
-W:40:*:1
-L:>:ENTRANCE(GLOW | MARK, 27)
+T:WILD:LAVA:NOTICE
+W:40:1
+L:>:ENTRANCE(GLOW | MARK, Random Volcano)
 L:~:DEEP_LAVA(GLOW)
 L:.:SHALLOW_LAVA(GLOW)
 L:^:MOUNTAIN
@@ -535,7 +290,7 @@ M:  ^^^^^
 
 N:Demonologist
 T:WILD:LAVA
-W:40:*:16
+W:40:16
 L:~:DEEP_LAVA
 L:U:DEEP_LAVA:MON(BALROG, NO_SLEEP | DEPTH+40)
 L:p:DIRT:MON(demonologist, NO_SLEEP)
@@ -550,111 +305,18 @@ M:...p...
 
 N:How Vile!
 T:WILD:LAVA
-W:20:*:2
+W:20:2
 L:u:MON(arch-vile)
 M:u   u
 M:  u  
 M:u   u
 
-N:Hounds of Hell
-T:WILD:LAVA
-W:40:*:32
-L:C:MON(hell hound of julian, NO_SLEEP)
-M:C
-
 #######################
 # Mountain Encounters #
 #######################
-
-N:Empty Cave
-T:WILD:MOUNTAIN
-W:40:*:1
-L:.:DIRT
-L:~:SHALLOW_WATER
-L:,:GRASS
-L:T:TREE
-L:#:MOUNTAIN
-M:     ,##,,         
-M: #####..###,       
-M:#.,TT,,..~~###     
-M: #.,TT,,.,,..#,    
-M:  #.,,T,,,T~,.####,
-M:  #.,T,,.,,T~,....#
-M: #,TTT....,~T,....#
-M:#..,,,T,..,T,...##.
-M:.#####,~~.######.  
-M:      #...#        
-M:      ####.        
-
-N:Ogre Cave
-T:WILD:MOUNTAIN:FORMATION
-W:40:*:2
-L:.:DIRT
-L:~:SHALLOW_WATER
-L:,:GRASS
-L:T:TREE
-L:#:MOUNTAIN
-L:0:DIRT:MON(O, DEPTH+20)
-L:$:DIRT:OBJ(SKELETON)
-M:     ,##,,         
-M: #####.6###,       
-M:#8,TT,,..~~###     
-M: #.,TT,,$,,..#,    
-M:  #.,,T,,,T~,.####,
-M:  #.,T,,0,,T~,.$..#
-M: #,TTT2...,~T,....#
-M:#7.,,,T,..,T,2..##.
-M:.#####,~~.######.  
-M:      #$..#        
-M:      ####.        
-
-N:Troll Cave
-T:WILD:MOUNTAIN:FORMATION
-W:40:*:2
-L:.:DIRT
-L:~:SHALLOW_WATER
-L:,:GRASS
-L:T:TREE
-L:#:MOUNTAIN
-L:0:DIRT:MON(T, DEPTH+20)
-L:$:DIRT:OBJ(SKELETON)
-M:     ,##,,         
-M: #####.6###,       
-M:#8,TT,,..~~###     
-M: #.,TT,,$,,..#,    
-M:  #.,,T,,,T~,.####,
-M:  #.,T,,0,,T~,.$..#
-M: #,TTT2...,~T,....#
-M:#7.,,,T,..,T,2..##.
-M:.#####,~~.######.  
-M:      #$..#        
-M:      ####.        
-
-N:Giant Cave
-T:WILD:MOUNTAIN:FORMATION
-W:40:*:8
-L:.:DIRT
-L:~:SHALLOW_WATER
-L:,:GRASS
-L:T:TREE
-L:#:MOUNTAIN
-L:0:DIRT:MON(GIANT, DEPTH+20)
-L:$:DIRT:OBJ(SKELETON)
-M:     ,##,,         
-M: #####.6###,       
-M:#8,TT,,..~~###     
-M: #.,TT,,$,,..#,    
-M:  #.,,T,,,T~,.####,
-M:  #.,T,,0,,T~,.$..#
-M: #,TTT2...,~T,....#
-M:#7.,,,T,..,T,2..##.
-M:.#####,~~.######.  
-M:      #$..#        
-M:      ####.        
-
 N:Eyrie
 T:WILD:MOUNTAIN:FORMATION
-W:40:*:4
+W:40:4
 L:0:MON(B, DEPTH+10)
 M:    8     
 M:   6 4 3  
@@ -662,42 +324,16 @@ M:    2   5
 M:      0  7
 M:    8     
 
-N:Dragon's Lair
-T:WILD:MOUNTAIN
-W:40:*:32
-L:M:GRASS:MON(HI_DRAGON, DEPTH+20)
-L:$:GRASS:OBJ(GOLD)
-L:.:DIRT
-L:~:SHALLOW_WATER
-L:,:GRASS
-L:T:TREE
-L:#:MOUNTAIN
-M:       ###       
-M:     ###.###     
-M:    ##T....##    
-M:   ##..TT...##   
-M:  ##,...$....##  
-M: ##,~,.$$$..T~## 
-M:##.T,~$$$$$..T~##
-M:#..,~$$$M$$$..,,#
-M:##T,~~$$$$$....##
-M: ##.,,~$$$....## 
-M:  ##.T,,$....##  
-M:   ##..TT...##   
-M:    ##.....##    
-M:     ###.###     
-M:       ###       
-
 N:Random Mountain Level
-T:WILD:MOUNTAIN
-W:40:*:16
-L:>:ENTRANCE(GLOW | MARK, 28)
+T:WILD:MOUNTAIN:NOTICE
+W:30:16
+L:>:ENTRANCE(GLOW | MARK, Random Mountain)
 M:>
 
 N:Random Volcano Level
-T:WILD:MOUNTAIN
-W:40:*:16
-L:>:ENTRANCE(GLOW | MARK, 27)
+T:WILD:MOUNTAIN:NOTICE
+W:40:16
+L:>:ENTRANCE(GLOW | MARK, Random Volcano)
 L:~:DEEP_LAVA(GLOW)
 L:.:SHALLOW_LAVA(GLOW)
 L:^:MOUNTAIN
@@ -709,27 +345,12 @@ M:^^..~..^^
 M: ^^...^^ 
 M:  ^^^^^  
 
-#####################
-# Mountain Ambushes #
-#####################
-
-N:The Enchantress
-T:AMBUSH:MOUNTAIN:FORMATION
-W:30:*:8
-L:0:TREE:MON(DRAGON)
-L:p:TREE:MON(^enchantress$, NO_SLEEP)
-L:.:TREE
-M:741.....
-M:8p0..@..
-M:953.....
-
 ####################
 # Swamp Encounters #
 ####################
-
 N:Bat Attack!
 T:WILD:SWAMP:FORMATION
-W:10:*:3
+W:10:3
 L:0:DIRT:MON(b, DEPTH+10)
 M:    8     
 M:   6 4 3  
@@ -739,7 +360,7 @@ M:    8
 
 N:Ick!
 T:WILD:SWAMP:FORMATION
-W:10:*:1
+W:10:1
 L:0:DIRT:MON(i)
 M:    88    
 M:   66466  
@@ -750,7 +371,7 @@ M:    99329
 
 N:Ewwwww!
 T:WILD:SWAMP:FORMATION
-W:10:*:2
+W:10:2
 L:0:DIRT:MON(j, DEPTH+10)
 M:    88    
 M:   66466  
@@ -758,38 +379,12 @@ M:    43245
 M:     40357
 M:    89    
 
-N:Who would live here?
-T:WILD:SWAMP
-W:10:*:4
-L:-:BROKEN_DOOR
-L:~:OBJ(JUNK)
-M:######
-M:#   ~#
-M:# ####
-M:#-#   
-
-N:The Sacred Temple of Ick
-T:WILD:SWAMP
-W:10:*:16
-L:j:MON(j, DEPTH+5)
-M:  ####  
-M:  #jj#  
-M:###jj###
-M:+jjjjjj#
-M:###jj###
-M:  #jj#  
-M:  ####  
-
-#Haunted House
-#Witch's Hut
-
 #####################
 # Forest Encounters #
 #####################
-
 N:Spiders
 T:WILD:TREES:FORMATION
-W:10:*:2
+W:10:2
 L:0:MON(S, DEPTH+10)
 L:$:OBJ(SKELETON)
 M:   8$  4  $8   
@@ -802,7 +397,7 @@ M:   8$  4  $8
 
 N:Roasting Hobbits
 T:WILD:TREES:NIGHT
-W:15:*:4
+W:15:4
 L:T:MON(forest troll, NO_SLEEP)
 L:h:MON(scruffy looking hobbit, FRIENDLY)
 L:~:SHALLOW_LAVA
@@ -815,7 +410,7 @@ M:T
 
 N:Druidic Circle
 T:WILD:TREES
-W:10:*:32
+W:10:32
 L:T:TREE
 L:M:GRASS:MON(^huorn$, NO_SLEEP)
 L:p:GRASS:MON(^druid$)
@@ -838,47 +433,25 @@ M:       TTT
 
 N:Treeherder
 T:WILD:TREES
-W:30:*:200
+W:30:200
 L:T:MON(^ent$, FRIENDLY | NO_SLEEP)
 M:T
 
-#Fishing Hole
-#Robin Hood and his Merry Men
-#Huorns
-#Hermit's Hut
-#Snake infested ruins
-
 N:Random Forest Level
-T:WILD:TREES
-W:20:*:8
-L:>:ENTRANCE(GLOW | MARK, 26)
+T:WILD:TREES:NOTICE
+W:10:4
+L:>:ENTRANCE(GLOW | MARK, Random Forest)
 M:>
 
 ####################
 # Water Encounters #
 ####################
-
-#Treasure Island
-#Convict's Island
-#Land of the Lost (Dinosaur Island!)
-#Rookery
-#Trading Port
-#Piranhas
-#Shipwrecked
-#Reef of Despair
-#Shark Infested Waters (Complete with bathers!)
-
 N:Random Sea Level
-T:WILD:WATER
-W:40:*:8
-L:>:ENTRANCE(GLOW | MARK, 29)
+T:WILD:WATER:NOTICE
+W:30:8
+L:>:ENTRANCE(GLOW | MARK, Random Sea)
 L:~:DEEP_WATER
 L:_:SHALLOW_WATER
-M:__~__~___
-M:_~_~__~_~
-M:~_~_~~_~_
-M:_~~~>~~__
-M:~__~~~__~
-M:_~~___~~_
+M:>
 
 # vim: filetype=q :

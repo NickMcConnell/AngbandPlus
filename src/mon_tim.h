@@ -7,6 +7,7 @@
 
 enum {
     MT_SLEEP = T_MONSTER, /* XXX we share some T_* codes with plr_tim (T_PARALYZED, T_INVULN, etc) */
+    MT_AMNESIA,
 };
 
 typedef struct mon_tim_s  mon_tim_t, *mon_tim_ptr;
@@ -15,7 +16,7 @@ struct mon_tim_s
     s16b id;
     s16b count;
     u16b flags;
-    s16b parm;
+    s32b parm;
     mon_tim_ptr next;
 };
 

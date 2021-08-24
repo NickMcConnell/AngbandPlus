@@ -2286,7 +2286,7 @@ static void _get_obj(obj_ptr obj)
 
             if (!get_check(out_val))
             {
-                obj->marked |= (OM_NOMSG | OM_NO_QUERY);
+                obj->marked |= (OM_NO_MSG | OM_NO_QUERY);
                 return;
             }
 

@@ -464,7 +464,7 @@ static int _choose_spell_to_gain(object_type *o_ptr)
 /**********************************************************************
  * Public
  **********************************************************************/
-void gray_mage_browse_spell(void)
+void gray_mage_browse(void)
 {
     bool done = FALSE;
 
@@ -482,7 +482,7 @@ void gray_mage_browse_spell(void)
     screen_load();
 }
 
-void gray_mage_cast_spell(void)
+void gray_mage_cast(void)
 {
     _slot_info_ptr slot_ptr;
 

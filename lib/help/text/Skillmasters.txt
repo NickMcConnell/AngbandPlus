@@ -47,8 +47,8 @@ The main skill groups are:
 
   Techniques  Access to advanced or unusual talents that most players 
               lack. This includes some book based talents, such as 
-              Burglary and Kendo, as well as other non-standard talents 
-              like Riding and Dual Wielding.
+              Burglary, as well as other non-standard talents like 
+              Riding and Dual Wielding.
 
   Abilities   For a single skill point, you can buy a power like Stone 
               Skin or an ability like Good Luck.
@@ -177,10 +177,7 @@ individual melee skills are discussed next.
   restrictions do not apply if you switch to normal weapon based melee. 
   Second, martial arts will not work when mounted so it is a bad idea 
   to waste your precious skill points on Riding when building a martial 
-  arts based class. Finally, you've played a Samurai before, right? 
-  Well, even if you have, you might never have noticed that casting a 
-  Kendo technique requires a melee weapon, so won't work at all with 
-  martial arts.
+  arts based class.
 
 Ranged Skills
 
@@ -426,41 +423,6 @@ this group has no gameplay effects.
   rate. You will need a full five points to match a rogue in burglary! 
   This skill also increases your stealth and your disarming skills. See 
   [b] for more information.
-
-  Kendo
-  Normally restricted to the Samurai, Kendo is a spellbook based 
-  technique that enhances melee combat. Indeed, in order to cast any 
-  spell in this realm, you must wield a melee weapon (So do not attempt 
-  to combine this skill with Martial Arts). There are no fail rates for 
-  Kendo techniques. Also, learning this skill changes your mana to 
-  behave like that of the Samurai. Your max resting mana is very small 
-  and is determined solely by your WIS. But with Concentration (a 
-  special class power), you can temporarily boost your mana pool. 
-  Boosted mana decays rather quickly with each turn, so the net effect 
-  is that you must time your concentration carefully before engaging an 
-  enemy in battle, and then you must hurry to defeat your foe before 
-  your mana runs out.
-  
-  Unlike the Samurai, with this technique you will still need to carry 
-  the various Kendo books in order to access the various talents. Also, 
-  if you are mixing Kendo with other magic, know that the Samurai mana 
-  mechanics take precedent. On the one hand, this should be rather 
-  useful since you can regain your mana so easily (provided you have a 
-  few quiet turns in which to concentrate). On the other hand, your 
-  maximum mana, even after concentration, will never match the default 
-  maximum for normal spellcasters. So, fewer spells will be possible 
-  than normal. And concentration is quite a bit slower than quaffing a 
-  potion of restore mana, so the final battle may be more difficult. As 
-  a final insult, Kendo mana mechanics blocks the spell cost 
-  enhancement effects of wizardstaves and mage jewelry (but the various 
-  realm stones still work and you need not worry about glove 
-  encumbrance).
-  
-  If you are investing in this technique, even if you are combining it 
-  with other casting realms, you really should invest in melee as well. 
-  The spells in Kendo enhance your normal melee attacks quite 
-  powerfully, but you still need to be able to hit monsters in order to 
-  benefit.
 
   Dual Wielding
   The Dual Wielding skill allows effective melee with two weapons at 
