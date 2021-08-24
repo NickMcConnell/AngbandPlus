@@ -3067,15 +3067,12 @@ void inc_stat(int stat)
  */
 bool dec_stat(int stat, int amount)
 {
-	int cur, max, loss, same, res = FALSE;
+	int cur, max, loss, res = FALSE;
 
 
 	/* Get the current value */
 	cur = p_ptr->stat_cur[stat];
 	max = p_ptr->stat_max[stat];
-
-	/* Note when the values are identical */
-	same = (cur == max);
 
 	/* Damage "current" value */
 	if (cur > 3)
@@ -4838,11 +4835,10 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 
 					if ((who > SOURCE_MONSTER_START) || (who <= SOURCE_PLAYER_START))
 					{
-						int path_n;
 						u16b path_g[256];
 
 						/* Calculate the path */
-						path_n = project_path(path_g, dist, y, x, &ny, &nx, 0);
+						(void)project_path(path_g, dist, y, x, &ny, &nx, 0);
 
 						ny = GRID_Y(path_g[dist]);
 						nx = GRID_X(path_g[dist]);
@@ -5401,47 +5397,6 @@ static bool questor_test_heal(int m_idx)
 	if ((m_ptr->hp == m_ptr->maxhp) && !(m_ptr->poisoned) &&
 			!(m_ptr->stunned) && !(m_ptr->cut) && !(m_ptr->confused)) return (TRUE);
 	else return (FALSE);
-}
-
-
-/*
- *  Check how many monsters of a particular race are affected by a state
- *  that a quest requires.
- */
-void check_monster_quest(int m_idx, bool (*questor_test_hook)(int m_idx), u32b event)
-{
-	int i;
-	int k = 0;
-	int r_idx = m_idx ? m_list[m_idx].r_idx : 0;
-
-	quest_event qe;
-
-	for (i = 0; i < z_info->m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-
-		/* Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Check any monster race, if necessary */
-		if ((r_idx) && !(m_ptr->r_idx != r_idx)) continue;
-
-		/* Check for state */
-		if (!questor_test_hook(m_idx)) continue;
-
-		/* Accumulate count */
-		k++;
-	}
-
-	if (!k) return;
-
-	WIPE(&qe, quest_event);
-
-	qe.flags = event;
-	qe.number = k;
-
-	/* Check for quest completion */
-	check_quest(&qe, FALSE);
 }
 
 
@@ -13089,6 +13044,20 @@ bool project_t(int who, int what, int y, int x, int dam, int typ)
 		}
 		else
 		{
+		    quest_event event;
+
+			/* Use this to allow quests to succeed or fail */
+			WIPE(&event, quest_event);
+
+			/* Set up departure event */
+			event.flags = EVENT_BANISH_RACE;
+			event.dungeon = p_ptr->dungeon;
+			event.level = p_ptr->depth;
+			event.race = m_ptr->r_idx;
+			event.number = 1;
+
+			check_quest(&event, TRUE);
+
 			/* Message */
 			note = " disappears!";
 		}

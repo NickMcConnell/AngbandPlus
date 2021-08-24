@@ -11,7 +11,7 @@
 
 # Version stamp (required)
 
-V:0.6.6
+V:0.7.0
 
 # Maximum number of method/blow types
 M:m:229
@@ -94,6 +94,8 @@ M:O:1024
 # Maximum number of monsters
 M:M:1024
 
+# Maximum number of randart tvals
+M:t:64
 
 #
 # Array sizes (in bytes) for some initialization stuff

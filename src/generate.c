@@ -404,7 +404,7 @@ static byte room_build_order[ROOM_MAX] = {ROOM_LAIR, ROOM_GREATER_VAULT, ROOM_CH
 
 
 /*
- * Count the number of walls adjacent to the given grid.
+ * Count the number of walls orthogonally adjacent to the given grid.
  *
  * Note -- Assumes "in_bounds_fully(y, x)"
  *
@@ -415,9 +415,9 @@ static int next_to_walls(int y, int x)
 	int k = 0;
 
 	if (f_info[cave_feat[y+1][x]].flags1 & (FF1_WALL)) k++;
-	if (f_info[cave_feat[y+1][x]].flags1 & (FF1_WALL)) k++;
-	if (f_info[cave_feat[y+1][x]].flags1 & (FF1_WALL)) k++;
-	if (f_info[cave_feat[y+1][x]].flags1 & (FF1_WALL)) k++;
+	if (f_info[cave_feat[y-1][x]].flags1 & (FF1_WALL)) k++;
+	if (f_info[cave_feat[y][x+1]].flags1 & (FF1_WALL)) k++;
+	if (f_info[cave_feat[y][x-1]].flags1 & (FF1_WALL)) k++;
 
 	return (k);
 }
@@ -2756,7 +2756,6 @@ static bool generate_cellular_cave(int y1, int x1, int y2, int x2, s16b wall, s1
 	 		case GRID_EDGE:
 	 		{
 	 			int d;
-	 			bool edged = FALSE;
 	 			byte cave_flag_edge = (edge && f_info[edge].flags1 & (FF1_OUTER)) ? (cave_flag) : ((cave_flag) & ~(CAVE_ROOM));
 
 	 			if (edge || wall)
@@ -2769,7 +2768,6 @@ static bool generate_cellular_cave(int y1, int x1, int y2, int x2, s16b wall, s1
 		 				{
 							cave_set_feat(y1 + yi, x1 + xi, edge ? edge : wall);
 							cave_info[y1+yi][x1 + xi] |= (cave_flag_edge);
-							edged = TRUE;
 		 					break;
 		 				}
 		 			}
@@ -2950,7 +2948,6 @@ static bool generate_poly_room(int n, int *y, int *x, s16b edge, s16b floor, s16
 	 		case GRID_EDGE:
 	 		{
 	 			int d;
-	 			bool edged = FALSE;
 
 	 			if (edge)
 	 			{
@@ -2962,7 +2959,6 @@ static bool generate_poly_room(int n, int *y, int *x, s16b edge, s16b floor, s16
 		 				{
 							cave_set_feat(y0 + yi, x0 + xi, edge);
 							cave_info[y0+yi][x0 + xi] |= (cave_flag_edge);
-							edged = TRUE;
 		 					break;
 		 				}
 		 			}
@@ -12664,6 +12660,7 @@ static bool build_type26(int room, int type)
 		}
 	}
 
+	/* FIXME -- figure out what this condition should be : currently always true */
 	/* Need at least 3 different races in pit */
 	if (ecology_start + 2 >= cave_ecology.num_races)
 	{
@@ -15766,7 +15763,11 @@ static bool town_gen(void)
 		for (x = 0; x < DUNGEON_WID; x++)
 		{
 			/* Create "solid" perma-wall */
-			cave_set_feat(y, x, FEAT_PERM_SOLID);
+			if (x >= TOWN_WID || y >= TOWN_HGT) {
+				cave_set_feat(y, x, FEAT_NONE);
+			} else {
+				cave_set_feat(y, x, FEAT_PERM_SOLID);
+			}
 		}
 	}
 
@@ -15787,7 +15788,8 @@ static bool town_gen(void)
 	if ((level_flag & (LF1_SURFACE)) != 0) town_illuminate((level_flag & (LF1_DAYLIGHT)) != 0);
 
 	/* Ensure guardian monsters */
-	if (((level_flag & (LF1_GUARDIAN)) != 0) && ((level_flag & (LF1_DAYLIGHT)) == 0))
+	if (((level_flag & (LF1_GUARDIAN)) != 0) && (((level_flag & (LF1_DAYLIGHT)) == 0)
+			|| ((r_info[zone->guard].flags3 & RF3_HURT_LITE) == 0)))
 	{
 		/* Place the guardian in the town */
 		place_guardian(3, 3, TOWN_HGT - 4, TOWN_WID -4);
@@ -15837,7 +15839,7 @@ void generate_cave(void)
 	/* Set up departure event */
 	event.flags = EVENT_TRAVEL;
 	event.dungeon = p_ptr->dungeon;
-	event.level = p_ptr->depth - min_depth(p_ptr->dungeon);
+	event.level = p_ptr->depth;
 
 	/* Reset the monster generation level; make level feeling interesting */
 	monster_level = p_ptr->depth >= 4 ? p_ptr->depth + 2 :
@@ -16002,7 +16004,8 @@ void generate_cave(void)
 		ensure_quest();
 
 		/* Extract the feeling */
-		if (rating > 100) feeling = 2;
+		if (good_item_flag) feeling = 1;
+		else if (rating > 100) feeling = 2;
 		else if (rating > 70) feeling = 3;
 		else if (rating > 40) feeling = 4;
 		else if (rating > 30) feeling = 5;

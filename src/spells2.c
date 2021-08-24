@@ -1801,7 +1801,7 @@ static bool item_tester_cursed(const object_type *o_ptr)
  */
 static bool detect_objects_type(bool (*detect_item_hook)(const object_type *o_ptr), int sense_type, int ignore_feeling)
 {
-	int i, y, x, tv;
+	int i, y, x;
 
 	bool detect = FALSE;
 
@@ -1825,9 +1825,6 @@ static bool detect_objects_type(bool (*detect_item_hook)(const object_type *o_pt
 
 		/* Only detect nearby objects */
 		if (distance(p_ptr->py, p_ptr->px, y, x) > 2 * MAX_SIGHT) continue;
-
-		/* Examine the tval */
-		tv = o_ptr->tval;
 
 		/* Artifacts, misc magic items, or enchanted wearables */
 		if (!(detect_item_hook) || (detect_item_hook)(o_ptr))
@@ -5670,8 +5667,8 @@ static int spell_damage(spell_blow *blow_ptr, int level, u32b flg, bool player, 
 		/* Roll out the damage */
 		if (blow_ptr->d_side)
 		{
-			int dd = blow_ptr->d_dice;
-			int ds = blow_ptr->d_side;
+			uint dd = blow_ptr->d_dice;
+			uint ds = blow_ptr->d_side;
 
 			/* Determine damage */
 			damage += (forreal) ? damroll(dd, ds) : ((ds > 1) ? (dd * (ds + 1) / 2) : (dd * ds));
@@ -5680,8 +5677,8 @@ static int spell_damage(spell_blow *blow_ptr, int level, u32b flg, bool player, 
 		/* Roll out level dependent damage */
 		if (blow_ptr->l_side)
 		{
-			int dd = blow_ptr->l_dice * level / blow_ptr->levels;
-			int ds = blow_ptr->l_side;
+			uint dd = blow_ptr->l_dice * level / blow_ptr->levels;
+			uint ds = blow_ptr->l_side;
 
 			/* Determine damage */
 			damage += (forreal) ? damroll(dd, ds) : ((ds > 1) ? (dd * (ds + 1) / 2) : (dd * ds));
@@ -6486,7 +6483,7 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	if ((s_ptr->flags2 & (SF2_OPP_POIS)) && (inc_timed(TMD_OPP_POIS, lasts, TRUE))) obvious = TRUE;
 
 	/* SF3 - timed abilities */
-	if ((s_ptr->flags3 & (SF3_PFIX_CURSE)) && (set_timed(TMD_CURSED, p_ptr->timed[TMD_CURSED] / 2, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_FLY)) && (inc_timed(TMD_FLY, lasts, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_CURE_CURSE)) && (clear_timed(TMD_CURSED, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_INC_STR)) && (inc_timed(TMD_INC_STR, lasts, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_INC_STR)) && (inc_timed(TMD_INC_SIZ, lasts, TRUE))) obvious = TRUE;
@@ -6736,7 +6733,6 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	if ((s_ptr->flags3 & (SF3_CURE_EXP)) && (restore_level())) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_FREE_ACT)) && (clear_timed(TMD_SLOW, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_CURE_MEM)) && (clear_timed(TMD_AMNESIA, TRUE))) obvious = TRUE;
-	if ((s_ptr->flags3 & (SF3_PFIX_CURSE)) && (remove_curse())) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_CURE_CURSE)) && (remove_all_curse())) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_PFIX_CUTS)) && (pfix_timed(TMD_CUT, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_CURE_CUTS)) && (clear_timed(TMD_CUT, TRUE))) obvious = TRUE;

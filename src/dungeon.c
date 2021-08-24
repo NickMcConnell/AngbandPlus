@@ -3427,7 +3427,12 @@ static void process_player(void)
 
 	/* Update scent trail */
 	update_smell();
-
+	
+	/* If narrative shown, update narrative */
+	if (show_narrative)
+	{
+		print_emergent_narrative();
+	}
 
 	/*
 	 * Reset character vulnerability.  Will be calculated by
@@ -3629,9 +3634,9 @@ static void dungeon(void)
 		s16b delta_energy = extract_energy[p_ptr->pspeed];
 
 		/* Apply "encumbrance" from weight */
-		if (p_ptr->total_weight > (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 50))
+		if (p_ptr->total_weight > (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 50)) {
 				delta_energy -= (delta_energy * ((p_ptr->total_weight / (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 10)) - 5)) / 10;
-		if(cheat_xtra) msg_format("Player gets energy %i", delta_energy);
+		}
 
 		/* Hack -- player always gets at least one energy */
 		p_ptr->energy += ((delta_energy > 0) ? delta_energy : 1);
@@ -3665,6 +3670,9 @@ static void dungeon(void)
 
 		/* Hack -- Hilite the player */
 		move_cursor_relative(p_ptr->py, p_ptr->px);
+
+		/* Hack -- Quest payouts */
+		while(do_quest_resolution());
 
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
@@ -4036,7 +4044,6 @@ void play_game(bool new_game)
 					else
 						zone_depth = t_info[i].zone[ii+1].level - 1;
 
-#if 0
 					if (r_info[guard].level /* Maggot */
 						&& r_info[guard].level < zone_depth)
 						fputs(format("Warning: Guardian %d (%s) wimpy.\n", guard, r_info[guard].name + r_name), stderr);
@@ -4046,8 +4053,6 @@ void play_game(bool new_game)
 						fputs(format("Warning: Guardian %d (%s) deadly.\n", guard, r_info[guard].name + r_name), stderr);
 					if (r_info[guard].calculated_level > zone_depth + 20)
 						fputs(format("Warning: Guardian %d (%s) really deadly.\n", guard, r_info[guard].name + r_name), stderr);
-
-#endif
 				}
 			}
 		}
