@@ -715,9 +715,9 @@ W:1:0:20:2
 P:0:0d0:0:0d0:0
 A:1/1:3/1
 F:NO_SMITHING | EASY_KNOW
-D:You can equip it as a light source with a radius of 1 square. It may
-D: also be used to fuel another torch, up to a maximum of 3,000 turns of
-D: light. 
+D:You can equip it as a light source with a radius of 1 square.
+D: It may also be used to fuel another wooden torch, up to a
+D: maximum of 3,000 turns of light.
 
 
 N:129:& Brass Lantern~
@@ -733,6 +733,7 @@ D: 7,000 turns of light.
 
 # Lesser Jewel is at index 21
 
+# Mallorn Torch is at index 411
 
 N:130:& Feanorian Lamp~
 G:~:B
@@ -755,7 +756,6 @@ F:SEE_INVIS | SUST_GRA | EASY_KNOW
 F:IGNORE_ALL | NO_SMITHING
 D:You can equip it as a light source with a radius of 7 squares.
 D: It will shine forever.
-
 
 ##### Amulets #####
 
@@ -1471,6 +1471,7 @@ F:IGNORE_ALL | EASY_KNOW
 
 ##### Herbs #####
 
+# Do not move Herb of Rage from this location, used by quests.
 
 N:380:Rage
 G:,:d
@@ -1496,6 +1497,7 @@ F:EASY_KNOW
 D:It provides nourishment for about 2000 turns
 D: under normal conditions. 
 
+# Do not move Herb of Terror from this location, used by quests.
 
 N:382:Terror
 G:,:d
@@ -1647,6 +1649,21 @@ A:15/20
 F:EASY_KNOW
 D:Small shining pieces of true silver. They can be used at a forge
 D: to create mithril items.
+
+
+#### Out of place ####
+
+N:411:& Mallorn Torch~
+G:~:U
+I:39:3:0
+W:1:0:10:2
+P:0:0d0:0:0d0:0
+A:3/4:6/2
+F:NO_SMITHING | EASY_KNOW
+D:The wood of the mallorn burns bright but briefly.
+D: You can equip it as a light source with a radius of 3 squares.
+D: It may also be used to fuel another wooden torch, up to a
+D: maximum of 100 turns of light.
 
 
 #### Damaged items ####
@@ -2125,7 +2142,7 @@ D:Some characters master Smithing and create enchanted items.
 D: To do so requires you to find a forge and when standing in it,
 D: to press (,). Your character knows how to make magical jewellery.
 D: Find the forge through this door and create a Ring of Frost.
-
+D: This will help protect you from enemies that have fiery attacks.
 
 N:485:& Note~
 G:~:W1
@@ -2135,7 +2152,6 @@ P:0:0d0:0:0d0
 F:EASY_KNOW
 D:When you have learnt about Song and Smithing, go through this door.
 
-
 N:486:& Note~
 G:~:W1
 I:2:36:0
@@ -2144,11 +2160,7 @@ P:0:0d0:0:0d0
 F:EASY_KNOW
 D:Each of the eight skills has a set of special Abilities tied to it.
 D: Each type of song is an Ability for the Song skill. Jewellery is
-D: an Ability for the Smithing skill. The amulet you made grants an
-D: Ability called Keen Senses, linked to the Perception skill. This
-D: lets you see enemies lurking in the shadows just beyond the edge
-D: of the light.
-
+D: an Ability for the Smithing skill.
 
 N:487:& Note~
 G:~:W1

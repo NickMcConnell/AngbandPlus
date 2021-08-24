@@ -664,6 +664,117 @@ static void special_lighting_wall(byte* a, char* c, int feat, int info)
     }
 }
 
+int player_tile_offset()
+{
+    object_type * main_wield_ptr = &inventory[INVEN_WIELD];
+    object_type * secondary_wield_ptr = &inventory[INVEN_ARM];
+
+    byte main_type = main_wield_ptr->tval;
+    byte main_subtype = main_wield_ptr->sval;
+
+    byte secondary_type = secondary_wield_ptr->tval;
+
+    if (secondary_type && !main_type)
+    {
+        main_type = secondary_type;
+        main_subtype = secondary_wield_ptr->sval;
+        secondary_type = 0;
+    }
+
+    bool smallSwordMain =
+        (main_type == TV_SWORD && main_subtype == SV_DAGGER) ||
+        (main_type == TV_SWORD && main_subtype == SV_SHORT_SWORD);
+    bool curvedSwordMain =
+        (main_type == TV_SWORD && main_subtype == SV_CURVED_SWORD);
+    bool bigSwordMain =
+        (main_type == TV_SWORD && main_subtype > SV_CURVED_SWORD) ||
+        (main_type == TV_DIGGING && main_subtype == SV_SHOVEL);
+    bool spearMain =
+        (main_type == TV_POLEARM && main_subtype < SV_HAND_AXE);
+    bool smallAxeMain =
+        (main_type == TV_POLEARM && main_subtype == SV_HAND_AXE) ||
+        (main_type == TV_HAFTED && main_subtype == SV_WAR_HAMMER) ||
+        (main_type == TV_DIGGING && main_subtype == SV_MATTOCK);
+    bool bigAxeMain =
+        (main_type == TV_POLEARM && main_subtype > SV_HAND_AXE);
+    bool quarterstaffMain =
+        (main_type == TV_HAFTED && main_subtype == SV_QUARTERSTAFF);
+    bool shieldOffhand =
+        (secondary_type == TV_SHIELD);
+    bool axeOffhand =
+        (secondary_type == TV_POLEARM);
+    bool swordOffhand =
+        (secondary_type == TV_SWORD);
+
+    if (inventory[INVEN_BOW].tval == TV_BOW &&
+        p_ptr->skill_use[S_ARC] > p_ptr->skill_use[S_MEL])
+    {
+        return 15;
+    }
+    if (!secondary_type)
+    {
+        if (smallSwordMain)
+        {
+            return 1;
+        }
+        if (curvedSwordMain)
+        {
+            return 2;
+        }
+        if (bigSwordMain)
+        {
+            return 3;
+        }
+        if (spearMain)
+        {
+            return 4;
+        }
+        if (smallAxeMain)
+        {
+            return 5;
+        }
+        if (bigAxeMain)
+        {
+            return 6;
+        }
+        if (quarterstaffMain)
+        {
+            return 7;
+        }
+    }
+    else if (shieldOffhand)
+    {
+        if (bigAxeMain)
+        {
+            return 9;
+        }
+        if (smallAxeMain)
+        {
+            return 10;
+        }
+        return 8;
+    }
+    else if (swordOffhand)
+    {
+        if (smallAxeMain || bigAxeMain)
+        {
+            return 13;
+        }
+        return 11;
+    }
+    else if (axeOffhand)
+    {
+        if (smallAxeMain || bigAxeMain)
+        {
+            return 14;
+        }
+        return 12;
+    }
+
+    return 0;
+}
+
+
 /*
  * Extract the attr/char to display at the given (legal) map location
  *
@@ -1054,13 +1165,13 @@ void map_info(int y, int x, byte* ap, char* cp, byte* tap, char* tcp)
                 a = TERM_RED;
             }
 
-            if (hilite_unwary && (m_ptr->alertness < ALERTNESS_ALERT) &&
-                use_background_colors && graphics_are_ascii())
+            if (hilite_unwary && (m_ptr->alertness < ALERTNESS_ALERT)
+                && use_background_colors && graphics_are_ascii())
             {
                 a += (MAX_COLORS * BG_DARK);
             }
-            else if (!graphics_are_ascii() &&
-                m_ptr->alertness >= ALERTNESS_ALERT)
+            else if (!graphics_are_ascii()
+                && m_ptr->alertness >= ALERTNESS_ALERT)
             {
                 c += GRAPHICS_ALERT_MASK;
             }
@@ -1072,34 +1183,19 @@ void map_info(int y, int x, byte* ap, char* cp, byte* tap, char* tcp)
     {
         monster_race* r_ptr = &r_info[0];
 
-        /* Get the "player" attr */
-
         if (graphics_are_ascii())
         {
             a = health_attr(p_ptr->chp, p_ptr->mhp);
+            c = r_ptr->x_char;
         }
         else
+        {
+            r_ptr = &r_info[p_ptr->prace];
+
             a = r_ptr->x_attr;
-
-        /* Get the "player" char */
-        c = r_ptr->x_char;
-    }
-
-#ifdef MAP_INFO_MULTIPLE_PLAYERS
-    /* Players */
-    else if (m_idx < 0)
-#else /* MAP_INFO_MULTIPLE_PLAYERS */
-    /* Handle "player" */
-    else if (m_idx < 0)
-#endif /* MAP_INFO_MULTIPLE_PLAYERS */
-    {
-        monster_race* r_ptr = &r_info[0];
-
-        /* Get the "player" attr */
-        a = r_ptr->x_attr;
-
-        /* Get the "player" char */
-        c = r_ptr->x_char;
+            c = r_ptr->x_char;
+            c += player_tile_offset();
+        }
     }
 
     /* Result */
@@ -3555,13 +3651,6 @@ void update_flow(int cy, int cx, int which_flow)
     monster_race* r_ptr = NULL; // default to soothe compiler warnings
 
     byte flow_table[2][2][8 * FLOW_MAX_DIST];
-
-    // paranoia
-    if (which_flow == FLOW_AUTOMATON)
-    {
-        msg_debug("Tried to use update_flow() with FLOW_AUTOMATON.");
-        return;
-    }
 
     // pull out the relevant monster info for the monster flows
     if (which_flow < MAX_MONSTERS)

@@ -15,6 +15,150 @@ bool graphics_are_ascii()
     return use_graphics == GRAPHICS_NONE || use_graphics == GRAPHICS_PSEUDO;
 }
 
+#define QUEST_TYPES 2
+#define QUEST_HUMAN 0
+#define QUEST_ELF 1
+
+char* quest_text[] = {
+    "something to lighten the darkness",
+    "something to eat"
+};
+
+char* quest_requirement[] = {
+    "You have no spare light.",
+    "You have no food."
+};
+
+char* quest_outcome[] = {
+    "hides it among their rags",
+    "begins eating it"
+};
+
+/*
+ * Puts an item in the player's inventory.
+ * If the inventory would overflow, this is handled at the start of the next
+ * player turn.
+ */
+void give_player_item(object_type * o_ptr)
+{
+    char o_name[80];
+    int slot = inven_carry(o_ptr);
+
+    /* reset the pointer to the new location to pick up the count of the item
+       in the inventory */
+    o_ptr = &inventory[slot];
+
+    object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+
+    if (slot >= 0)
+        msg_format("You have %s (%c).", o_name, index_to_label(slot));
+}
+
+/*
+ * Rewards player depending on the quest.
+ */
+void reward_player_for_quest(cptr m_name, unsigned int quest_index)
+{
+    int selection;
+    object_type herb;
+
+    if (quest_index >= QUEST_TYPES)
+    {
+        msg_print("Bug detected! Quest invalid!");
+        return;
+    }
+
+    /* Take a couple of turns */
+    p_ptr->energy_use = 100;
+    p_ptr->skip_next_turn = TRUE;
+
+    if (quest_index == QUEST_ELF)
+    {
+        if (p_ptr->chp < p_ptr->mhp / 2)
+        {
+            msg_format("%^s murmurs the song of staunching.", m_name);
+            set_cut(0);
+            hp_player(50, TRUE, TRUE);
+            p_ptr->slave_quest = QUEST_COMPLETE;
+            return;
+        }
+    }
+
+    selection = dieroll(3);
+
+    switch(selection)
+    {
+    case 1:
+        msg_format("%^s gives you a ragged herb.", m_name);
+        object_prep(&herb, O_IDX_HERB_RAGE);
+        give_player_item(&herb);
+        p_ptr->slave_quest = QUEST_COMPLETE;
+        break;
+    case 2:
+        msg_format("%^s gives you a ragged herb.", m_name);
+        object_prep(&herb, O_IDX_HERB_TERROR);
+        give_player_item(&herb);
+        p_ptr->slave_quest = QUEST_COMPLETE;
+        break;
+    default:
+        msg_format("%^s tells you about some passages a little way off.", m_name);
+        p_ptr->slave_quest = QUEST_REWARD_MAP;
+    }
+}
+
+/*
+ * Handles quests given by peaceful monsters.
+ */
+void do_quest(monster_type* m_ptr)
+{
+    char m_name[80];
+    int item;
+    unsigned int quest_index = m_ptr->r_idx - R_IDX_ALERT_HUMAN_SLAVE;
+
+    if (quest_index >= QUEST_TYPES)
+    {
+        msg_print("Bug detected! Quest monster invalid!");
+        return;
+    }
+
+    cptr q = "Give slave which item? ";
+    cptr s = quest_requirement[quest_index];
+
+    /* Get the monster name */
+    monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+    if (p_ptr->slave_quest > QUEST_GIVER_PRESENT)
+    {
+        msg_format("%^s thanks you again.", m_name);
+        return;
+    }
+
+    msg_format("Looking up at you, %s begs you for %s.", m_name,
+        quest_text[quest_index]);
+
+    switch (quest_index)
+    {
+    case QUEST_HUMAN:
+        item_tester_hook = item_tester_hook_light_with_fuel;
+        break;
+    case QUEST_ELF:
+        item_tester_hook = item_tester_hook_non_herb_food;
+        break;
+    };
+
+    if (get_item(&item, q, s, (USE_INVEN)))
+    {
+        inven_item_increase(item, -1);
+        inven_item_describe(item);
+        inven_item_optimize(item);
+
+        msg_format("%^s %s and thanks you.", m_name,
+            quest_outcome[quest_index]);
+
+        reward_player_for_quest(m_name, quest_index);
+    }
+}
+
 void new_wandering_flow(monster_type* m_ptr, int ty, int tx)
 {
     int y, x, i;
@@ -228,6 +372,10 @@ void set_alertness(monster_type* m_ptr, int alertness)
 
     // Nothing to be done...
     if (m_ptr->alertness == alertness)
+        return;
+
+    // Can't wake up non-alert slaves
+    if (m_ptr->r_idx == R_IDX_HUMAN_SLAVE || m_ptr->r_idx == R_IDX_ELF_SLAVE)
         return;
 
     // cap the alertness value
@@ -2515,8 +2663,8 @@ void search_square(int y, int x, int dist, int searching)
             difficulty += 10; // secret door
         if (chest_trap_present)
             difficulty += 15; // chest trap
-        // if (cave_info[y][x] & (CAVE_ICKY))				difficulty +=
-        // 2;   // inside least/lesser/greater vaults
+        // if (cave_info[y][x] & (CAVE_ICKY)) difficulty
+        // += 2;   // inside least/lesser/greater vaults
 
         // Spider bane bonus helps to find webs
         if (cave_feat[y][x] == FEAT_TRAP_WEB)
@@ -2634,28 +2782,13 @@ extern void perceive(void)
  */
 void py_pickup_aux(int o_idx)
 {
-    int slot;
-
-    char o_name[80];
     object_type* o_ptr;
-
     o_ptr = &o_list[o_idx];
 
     /*hack - don't pickup &nothings*/
     if (o_ptr->k_idx)
     {
-        /* Carry the object */
-        slot = inven_carry(o_ptr);
-
-        /* Get the object again */
-        o_ptr = &inventory[slot];
-
-        /* Describe the object */
-        object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
-
-        /* Message */
-        if (slot >= 0)
-            msg_format("You have %s (%c).", o_name, index_to_label(slot));
+        give_player_item(o_ptr);
 
         // Break the truce if creatures see
         break_truce(FALSE);
@@ -2875,8 +3008,9 @@ void hit_trap(int y, int x)
     combat_roll_special_char = (&f_info[feat])->d_char;
     combat_roll_special_attr = (&f_info[feat])->d_attr;
 
-    if (feat != FEAT_CHASM && feat != FEAT_TRAP_ROOST && feat != FEAT_TRAP_WEB
-        && feat != FEAT_TRAP_PIT && feat != FEAT_TRAP_SPIKED_PIT)
+    if (p_ptr->avoid_traps && feat != FEAT_CHASM && feat != FEAT_TRAP_ROOST
+        && feat != FEAT_TRAP_WEB && feat != FEAT_TRAP_PIT
+        && feat != FEAT_TRAP_SPIKED_PIT)
     {
         msg_print("You carefully avoid a trap.");
         reveal_trap(y, x);
@@ -3720,12 +3854,6 @@ bool knock_back(int y1, int x1, int y2, int x2)
     return (knocked);
 }
 
-bool dishonourable_attack(monster_type* m_ptr)
-{
-    return (chosen_oath(OATH_HONOUR) && !oath_invalid(OATH_HONOUR)
-        && (m_ptr->stance == STANCE_FLEEING));
-}
-
 bool merciless_attack(monster_type* m_ptr)
 {
     monster_race* r_ptr = &r_info[m_ptr->r_idx];
@@ -3734,13 +3862,13 @@ bool merciless_attack(monster_type* m_ptr)
         && ((r_ptr->flags3 & (RF3_MAN)) || (r_ptr->flags3 & (RF3_ELF))));
 }
 
-bool abort_for_mercy_or_honour(monster_type* m_ptr)
+bool abort_for_mercy(monster_type* m_ptr)
 {
     // Unseen enemies are okay to kill
     if (!m_ptr->ml)
         return FALSE;
 
-    if ((dishonourable_attack(m_ptr) || merciless_attack(m_ptr))
+    if (merciless_attack(m_ptr)
         && !get_check("Are you sure you wish to break your oath? "))
     {
         return TRUE;
@@ -3749,7 +3877,7 @@ bool abort_for_mercy_or_honour(monster_type* m_ptr)
     return FALSE;
 }
 
-void break_honour_and_mercy_oath(monster_type* m_ptr, int damage)
+void break_mercy_oath(monster_type* m_ptr, int damage)
 {
     // Unseen enemies are okay to kill
     if (!m_ptr->ml)
@@ -3757,15 +3885,6 @@ void break_honour_and_mercy_oath(monster_type* m_ptr, int damage)
 
     monster_race* r_ptr = &r_info[m_ptr->r_idx];
 
-    if (m_ptr->stance == STANCE_FLEEING)
-    {
-        if (dishonourable_attack(m_ptr))
-        {
-            msg_print("You break your oath of honour.");
-            do_cmd_note("Broke your oath", p_ptr->depth);
-        }
-        p_ptr->oaths_broken |= OATH_HONOUR;
-    }
     if (damage > 0
         && ((r_ptr->flags3 & (RF3_MAN)) || (r_ptr->flags3 & (RF3_ELF))))
     {
@@ -3804,6 +3923,7 @@ void py_attack_aux(int y, int x, int attack_type)
     int effective_strength;
     int damage_type = GF_HURT;
 
+    int m_idx;
     monster_type* m_ptr;
     monster_race* r_ptr;
 
@@ -3827,7 +3947,8 @@ void py_attack_aux(int y, int x, int attack_type)
                            // identified it goes here
 
     /* Get the monster */
-    m_ptr = &mon_list[cave_m_idx[y][x]];
+    m_idx = cave_m_idx[y][x];
+    m_ptr = &mon_list[m_idx];
     r_ptr = &r_info[m_ptr->r_idx];
 
     /*possibly update the monster health bar*/
@@ -3868,7 +3989,15 @@ void py_attack_aux(int y, int x, int attack_type)
     {
         if (attack_type == ATT_MAIN)
         {
-            msg_format("You stop before you bump into %s.", m_name);
+            if (m_ptr->r_idx == R_IDX_ALERT_HUMAN_SLAVE ||
+                m_ptr->r_idx == R_IDX_ALERT_ELF_SLAVE)
+            {
+                do_quest(m_ptr);
+            }
+            else
+            {
+                msg_format("You stop before you bump into %s.", m_name);
+            }
         }
 
         abort_attack = TRUE;
@@ -3918,12 +4047,11 @@ void py_attack_aux(int y, int x, int attack_type)
 
     // Don't make the player deal with Oath warnings on free attacks - pass them
     // up
-    if (!is_normal_attack(attack_type)
-        && (dishonourable_attack(m_ptr) || merciless_attack(m_ptr)))
+    if (!is_normal_attack(attack_type) && merciless_attack(m_ptr))
     {
         abort_attack = TRUE;
     }
-    else if (abort_for_mercy_or_honour(m_ptr))
+    else if (abort_for_mercy(m_ptr))
     {
         abort_attack = TRUE;
     }
@@ -4107,24 +4235,6 @@ void py_attack_aux(int y, int x, int attack_type)
             prt = damroll(r_ptr->pd, r_ptr->ps);
             prt_percent = prt_after_sharpness(o_ptr, &noticed_flag);
 
-            bool can_sharpen
-                = ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))
-                && (prt_percent == 100);
-            if (singing(SNG_WHETTING) && can_sharpen)
-            {
-                int weight = o_ptr->weight;
-                if (off_hand_blow)
-                {
-                    // If offhand, consider weight of main weapon first
-                    weight += inventory[INVEN_WIELD].weight;
-                }
-
-                if (weight <= 5 * ability_bonus(S_SNG, SNG_WHETTING))
-                {
-                    prt_percent -= 50;
-                }
-            }
-
             if (prt_percent < 0)
             {
                 prt_percent = 0;
@@ -4138,13 +4248,10 @@ void py_attack_aux(int y, int x, int attack_type)
             if (net_dam < 0)
                 net_dam = 0;
 
-            break_honour_and_mercy_oath(m_ptr, net_dam);
+            break_mercy_oath(m_ptr, net_dam);
 
             // determine the punctuation for the attack ("...", ".", "!" etc)
             attack_punctuation(punctuation, net_dam, crit_bonus_dice);
-
-            update_combat_rolls2(total_dice, mds, dam, r_ptr->pd, r_ptr->ps,
-                prt, prt_percent, damage_type, TRUE);
 
             /* Special message for visible unalert creatures */
             if (stealth_bonus)
@@ -4213,8 +4320,41 @@ void py_attack_aux(int y, int x, int attack_type)
             }
 
             // damage, check for death
-            fatal_blow = mon_take_hit(cave_m_idx[y][x], net_dam, NULL, -1);
+            fatal_blow = mon_take_hit(m_idx, net_dam, NULL, -1);
             p_ptr->vengeance = 0;
+
+            if (singing(SNG_SLAYING) && !fatal_blow && crit_bonus_dice > 0)
+            {
+                int kill_threshold = ability_bonus(S_SNG, SNG_SLAYING);
+                if (m_ptr->hp < kill_threshold)
+                {
+                    msg_format("Your song soars as %s falls before you.", m_name);
+
+                    /* Sort out combat rolls window */
+                    total_dice = 0;
+                    mds = 0;
+                    dam = m_ptr->hp;
+                    prt = 0;
+                    prt_percent = 0;
+
+                    /* Generate treasure */
+                    monster_death(m_idx);
+
+                    /* Auto-recall only if visible or unique */
+                    if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
+                    {
+                        monster_race_track(m_ptr->r_idx);
+                    }
+
+                    /* Delete the monster */
+                    delete_monster_idx(m_idx);
+                    
+                    fatal_blow = TRUE;
+                }
+            }
+
+            update_combat_rolls2(total_dice, mds, dam, r_ptr->pd, r_ptr->ps,
+                prt, prt_percent, damage_type, TRUE);
 
             // use different colours depending on whether knock back triggered
             if (do_knock_back)
@@ -4247,6 +4387,13 @@ void py_attack_aux(int y, int x, int attack_type)
 
                 // deal with 'follow_through' ability
                 possible_follow_through(y, x, attack_type);
+
+                if (p_ptr->active_ability[S_WIL][WIL_FORMIDABLE])
+                {
+                    int will_score = p_ptr->skill_use[S_WIL];
+                    if (project_los(GF_FEAR, 0, 0, will_score))
+                        msg_print("Your foes flee before you!");
+                }
 
                 // stop attacking
                 break;
@@ -4488,7 +4635,7 @@ void flanking_or_retreat(int y, int x)
         {
             m_ptr = &mon_list[cave_m_idx[fy][fx]];
 
-            if (!(dishonourable_attack(m_ptr) || merciless_attack(m_ptr))
+            if (!merciless_attack(m_ptr)
                 && m_ptr->ml
                 && (!forgo_attacking_unwary
                     || (m_ptr->alertness >= ALERTNESS_ALERT)))
@@ -4530,7 +4677,7 @@ void flanking_or_retreat(int y, int x)
                 m_ptr = &mon_list[cave_m_idx[fy][fx]];
 
                 // base conditions for an attack
-                if (!(dishonourable_attack(m_ptr) || merciless_attack(m_ptr))
+                if (!merciless_attack(m_ptr)
                     && m_ptr->ml
                     && (!forgo_attacking_unwary
                         || (m_ptr->alertness >= ALERTNESS_ALERT)))
@@ -5703,3 +5850,4 @@ void run_step(int dir)
     /* Move the player */
     move_player(p_ptr->run_cur_dir);
 }
+

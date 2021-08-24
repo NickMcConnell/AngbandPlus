@@ -2628,7 +2628,7 @@ void show_help_screen(int i)
         // R",  row, col); 			else
         // c_put_str(TERM_WHITE, " Z",  row, col);
         // c_put_str(TERM_SLATE, "rest (until recovered)",  row, col + 3);
-        //row++; 			if (angband_keyset)
+        // row++; 			if (angband_keyset)
         // c_put_str(TERM_WHITE, " R",  row, col); 			else
         // c_put_str(TERM_WHITE, " ,",  row, col);
         // c_put_str(TERM_SLATE, "interact with own square",  row, col + 3);
@@ -4158,16 +4158,6 @@ static errr enter_score(high_score* the_score)
     }
 #endif
 
-#ifndef SCORE_AUTOMATONS
-    /* automaton-mode pre-empts scoring */
-    if (p_ptr->noscore & 0x00F0)
-    {
-        Term_putstr(15, 8, -1, TERM_L_DARK, "(no high score for automaton)");
-        score_idx = -1;
-        return (0);
-    }
-#endif /* SCORE_AUTOMATONS */
-
     /* Hack -- Interupted */
     if (!p_ptr->escaped && streq(p_ptr->died_from, "Interrupting"))
     {
@@ -4856,7 +4846,7 @@ static void close_game_aux(void)
     p_ptr->image = 0;
 
     // Automatic character dump
-    char curr_time[30], sheet[60];
+    char curr_time[30], sheet[90];
     time_t ct = time((time_t*)0);
     (void)strftime(curr_time, 30, "%Y%m%d-%H%M%S.txt", localtime(&ct));
     sprintf(sheet, "%s-%s", op_ptr->full_name, curr_time);

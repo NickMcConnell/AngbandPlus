@@ -3,9 +3,13 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
+	<string>en</string>
 	<key>CFBundleExecutable</key>
 	<string>sil</string>
+	<key>CFBundleDisplayName</key>
+	<string>Sil</string>
+	<key>CFBundleName</key>
+	<string>Sil</string>
 	<key>CFBundleIconFile</key>
 	<string>Sil_Icons</string>
 	<key>CFBundleIdentifier</key>
@@ -15,11 +19,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.3.0</string>
+	<string>$VERSION$</string>
 	<key>CFBundleSignature</key>
 	<string>Sil1</string>
 	<key>CFBundleVersion</key>
-	<string>1.3.0</string>
+	<string>$VERSION$</string>
 	<key>CGDisableCoalescedUpdates</key>
 	<true/>
 	<key>NSMainNibFile</key>

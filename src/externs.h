@@ -49,8 +49,8 @@ extern byte spell_info_RF4[32][3];
 extern byte spell_desire_RF4[32][2];
 
 /* variable.c */
-char mini_screenshot_char[7][7];
-byte mini_screenshot_attr[7][7];
+extern char mini_screenshot_char[7][7];
+extern byte mini_screenshot_attr[7][7];
 extern cptr copyright;
 extern byte version_major;
 extern byte version_minor;
@@ -248,7 +248,6 @@ extern byte bones_selector;
 extern int r_ghost;
 extern char ghost_name[80];
 extern char g_vault_name[80];
-extern bool waiting_for_command;
 extern bool skill_gain_in_progress;
 extern bool save_game_quietly;
 extern bool stop_stealth_mode;
@@ -261,9 +260,6 @@ extern bool use_background_colors;
 /* birth.c */
 extern void player_birth(void);
 extern bool gain_skills(void);
-
-/* automaton.c */
-extern void do_cmd_automaton(void);
 
 /* cave.c */
 extern int distance(int y1, int x1, int y2, int x2);
@@ -305,6 +301,7 @@ extern void object_kind_track(int k_idx);
 extern void disturb(int stop_stealth, int unused_flag);
 
 /* cmd1.c */
+extern void give_player_item(object_type * o_ptr);
 extern bool graphics_are_ascii();
 extern void new_wandering_flow(monster_type* m_ptr, int y, int x);
 extern void new_wandering_destination(
@@ -356,8 +353,8 @@ extern int concentration_bonus(int y, int x);
 extern int focused_attack_bonus(void);
 extern int master_hunter_bonus(monster_type* m_ptr);
 extern bool knock_back(int y1, int x1, int y2, int x2);
-extern bool abort_for_mercy_or_honour(monster_type* m_ptr);
-extern void break_honour_and_mercy_oath(monster_type* m_ptr, int damage);
+extern bool abort_for_mercy(monster_type* m_ptr);
+extern void break_mercy_oath(monster_type* m_ptr, int damage);
 extern void attack_punctuation(
     char* punctuation, int net_dam, int crit_bonus_dice);
 extern void py_attack_aux(int y, int x, int attack_type);
@@ -413,7 +410,8 @@ extern void do_cmd_observe(void);
 extern void do_cmd_uninscribe(void);
 extern void do_cmd_inscribe(void);
 extern void do_cmd_refuel_lamp(object_type* default_o_ptr, int default_item);
-extern void do_cmd_refuel_torch(object_type* default_o_ptr, int default_item);
+extern void do_cmd_refuel_torch(
+    object_type* default_o_ptr, int default_item, bool is_mallorn);
 extern void do_cmd_refuel(void);
 extern void do_cmd_target(void);
 extern void do_cmd_look(void);
@@ -801,8 +799,8 @@ extern bool item_tester_hook_wieldable_ided_weapon(const object_type* o_ptr);
 extern bool item_tester_hook_wieldable_weapon(const object_type* o_ptr);
 extern bool item_tester_hook_ided_armour(const object_type* o_ptr);
 extern bool item_tester_hook_armour(const object_type* o_ptr);
-extern bool item_tester_hook_elvenkindable_armour(const object_type* o_ptr);
-extern bool item_tester_hook_enchantable_ring(const object_type* o_ptr);
+extern bool item_tester_hook_non_herb_food(const object_type* o_ptr);
+extern bool item_tester_hook_light_with_fuel(const object_type* o_ptr);
 extern bool item_tester_hook_enchantable_amulet(const object_type* o_ptr);
 extern int do_ident_item(int item, object_type* o_ptr);
 extern bool ident_spell(void);
@@ -852,8 +850,6 @@ extern bool explosion(
 extern bool light_line(int dir);
 extern bool destroy_door(int dir);
 extern bool disarm_trap(int dir);
-extern bool curse_armor(void);
-extern bool curse_weapon(void);
 extern bool item_tester_hook_ided_ammo(const object_type* o_ptr);
 extern bool item_tester_hook_ammo(const object_type* o_ptr);
 extern bool item_tester_hook_ordinary_ammo(const object_type* o_ptr);

@@ -468,8 +468,8 @@ static bool describe_ignores(const object_type* o_ptr, u32b f3)
     //	if ((f3 & (TR3_IGNORE_ACID)) && hates_acid(o_ptr)) list[n++] = "acid";
     //	if ((f3 & (TR3_IGNORE_ELEC)) && hates_elec(o_ptr)) list[n++] =
     //"electricity"; 	if ((f3 & (TR3_IGNORE_FIRE)) && hates_fire(o_ptr))
-    //list[n++] = "fire"; 	if ((f3 & (TR3_IGNORE_COLD)) &&
-    //hates_cold(o_ptr)) list[n++] = "cold";
+    // list[n++] = "fire"; 	if ((f3 & (TR3_IGNORE_COLD)) &&
+    // hates_cold(o_ptr)) list[n++] = "cold";
 
     /* Describe ignores */
     if ((f3 & (TR3_IGNORE_ACID)) && (f3 & (TR3_IGNORE_FIRE))
@@ -555,6 +555,8 @@ static bool describe_misc_magic(const object_type* o_ptr, u32b f2, u32b f3)
         good[gc++] = "lets you stand fast against your foes";
     if (f3 & (TR3_AVOID_TRAPS))
         good[gc++] = "lets you step on traps without triggering them";
+    if (f3 & (TR3_MEDIC))
+        good[gc++] = "increases the health you get from healing items";
 
     /* Describe */
     output_desc_list("It ", good, gc);

@@ -238,7 +238,8 @@ void do_cmd_redraw(void)
     p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0);
 
     /* Window stuff */
-    p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
+    p_ptr->window
+        |= (PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT | PW_MONLIST);
 
     /* Clear screen */
     Term_clear();
@@ -980,34 +981,34 @@ int bane_menu(int* highlight)
 
 #define OATH_TYPES 4
 
-static u32b oath_flag[] = { 0L, OATH_SILENCE, OATH_HONOUR, OATH_MERCY };
+static u32b oath_flag[] = { 0L, OATH_MERCY, OATH_SILENCE, OATH_IRON };
 
 char* oath_name[] = {
     "Nothing",
-    "Silence",
-    "Honour",
     "Mercy",
+    "Silence",
+    "Iron",
 };
 
 char* oath_desc1[] = {
     "Nothing",
-    "as you came, grim and silent",
-    "having fought none who were unwilling to fight",
-    "without shedding blood of Man or Elf",
+    "to leave Angband without shedding blood of Man or Elf",
+    "to leave Angband as you came, grim and silent",
+    "that none will daunt you from facing Morgoth forthwith",
 };
 
 char* oath_desc2[] = {
     "Nothing",
-    "sing",
-    "attack fleeing enemies",
     "attack Men or Elves",
+    "sing",
+    "go up stairs without a Silmaril",
 };
 
 char* oath_reward[] = {
     "Nothing",
-    "+1 Dexterity",
-    "+1 Strength",
     "+1 Grace",
+    "+2 Strength",
+    "+3 Constitution",
 };
 
 bool oath_invalid(int i) { return ((p_ptr->oaths_broken & oath_flag[i]) > 0); }
@@ -1063,13 +1064,13 @@ int oath_menu(int* highlight)
 
             if (oath_invalid(i))
             {
-                strnfmt(buf, 120, "It is too late to vow to leave Angband %s.",
+                strnfmt(buf, 120, "It is too late to vow %s.",
                     oath_desc1[i]);
                 text_out_to_screen(attr, buf);
             }
             else
             {
-                strnfmt(buf, 120, "You vow to leave Angband %s.\n\n",
+                strnfmt(buf, 120, "You vow %s.\n\n",
                     oath_desc1[i]);
                 text_out_to_screen(attr, buf);
                 strnfmt(buf, 120, "You may not %s.\n", oath_desc2[i]);
@@ -1992,6 +1993,7 @@ static const smithing_flag_desc smithing_flag_types[] = { { CAT_STAT, TR1_STR,
     { CAT_MISC, TR3_CHEAT_DEATH, 3, "Cheat Death" },
     { CAT_MISC, TR3_STAND_FAST, 3, "Stand Fast" },
     { CAT_MISC, TR3_AVOID_TRAPS, 3, "Avoid Traps" },
+    { CAT_MISC, TR3_MEDIC, 3, "Medicine Bonus" },
     { CAT_MEL, TR1_TUNNEL, 1, "Tunneling Bonus" },
     { CAT_MEL, TR1_SHARPNESS, 1, "Sharpness" },
     { CAT_MEL, TR1_VAMPIRIC, 1, "Vampiric" },
@@ -3247,6 +3249,10 @@ int object_difficulty(object_type* o_ptr)
     if (f3 & TR3_AVOID_TRAPS)
     {
         dif_inc += 6;
+    }
+    if (f3 & TR3_MEDIC)
+    {
+        dif_inc += 4;
     }
 
     // Elemental Resistances
@@ -5569,7 +5575,7 @@ void artefact_menu(void)
     int choice = -1;
     int highlight = 1;
 
-    char buf[30];
+    char buf[36];
     bool leave_menu = FALSE;
 
     /* Save screen */
@@ -10657,6 +10663,13 @@ static void display_monster_list(int col, int row, int per_page,
 
         /* Display symbol */
         Term_putch(68, row + i, r_ptr->x_attr, r_ptr->x_char);
+        if (use_bigtile)
+        {
+            if ((byte)(r_ptr->x_attr) & 0x80)
+                Term_putch(69, row + i, 255, -1);
+            else
+                Term_putch(69, row + i, 0, ' ');
+        }
 
         /* Display kills */
         if (r_ptr->flags1 & (RF1_UNIQUE))
@@ -10995,6 +11008,7 @@ void apply_magic_fake(object_type* o_ptr)
         switch (o_ptr->sval)
         {
         case SV_LIGHT_TORCH:
+        case SV_LIGHT_MALLORN:
         case SV_LIGHT_LANTERN:
         {
             o_ptr->timeout = 0;

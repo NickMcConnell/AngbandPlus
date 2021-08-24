@@ -1023,7 +1023,7 @@ bool get_alertness_text(
         }
         else
         {
-            char morale_buf[6];
+            char morale_buf[8];
 
             if (m_ptr->stance == STANCE_FLEEING)
             {
@@ -1846,6 +1846,12 @@ void calc_torch(void)
                 p_ptr->cur_light += light_up_to(RADIUS_LANTERN, o_ptr);
             }
 
+            /* Mallorn torches (with fuel) provide even more light */
+            else if ((o_ptr->sval == SV_LIGHT_MALLORN) && (o_ptr->timeout > 0))
+            {
+                p_ptr->cur_light += light_up_to(RADIUS_MALLORN, o_ptr);
+            }
+
             else
             {
                 extinguished = TRUE;
@@ -2003,9 +2009,9 @@ int ability_bonus(int skilltype, int abilitynum)
             bonus = skill;
             break;
         }
-        case SNG_WHETTING:
+        case SNG_THRESHOLDS:
         {
-            bonus = skill / 2;
+            bonus = skill;
             break;
         }
         case SNG_TREES:
@@ -2013,12 +2019,12 @@ int ability_bonus(int skilltype, int abilitynum)
             bonus = skill / 5;
             break;
         }
-        case SNG_THRESHOLDS:
+        case SNG_STAYING:
         {
             bonus = skill;
             break;
         }
-        case SNG_STAYING:
+        case SNG_SLAYING:
         {
             bonus = skill;
             break;
@@ -2271,6 +2277,7 @@ static void calc_bonuses(void)
     p_ptr->see_inv = 0;
     p_ptr->free_act = 0;
     p_ptr->stand_fast = 0;
+    p_ptr->avoid_traps = 0;
     p_ptr->regenerate = 0;
     p_ptr->telepathy = 0;
     p_ptr->sustain_str = 0;
@@ -2386,6 +2393,9 @@ static void calc_bonuses(void)
 
         if (f3 & (TR3_STAND_FAST))
             p_ptr->stand_fast += 1;
+
+        if (f3 & (TR3_AVOID_TRAPS))
+            p_ptr->avoid_traps += 1;
 
         /* Bad flags */
         if (f2 & (TR2_HUNGER))
@@ -2538,10 +2548,10 @@ static void calc_bonuses(void)
 
     if (p_ptr->active_ability[S_WIL][WIL_OATH])
     {
-        if (chosen_oath(OATH_HONOUR) && !oath_invalid(OATH_HONOUR))
-            p_ptr->stat_misc_mod[A_STR]++;
+        if (chosen_oath(OATH_IRON) && !oath_invalid(OATH_IRON))
+            p_ptr->stat_misc_mod[A_CON]+=3;
         else if (chosen_oath(OATH_SILENCE) && !oath_invalid(OATH_SILENCE))
-            p_ptr->stat_misc_mod[A_DEX]++;
+            p_ptr->stat_misc_mod[A_STR]+=2;
         else if (chosen_oath(OATH_MERCY) && !oath_invalid(OATH_MERCY))
             p_ptr->stat_misc_mod[A_GRA]++;
     }
@@ -2735,9 +2745,6 @@ static void calc_bonuses(void)
             case SNG_STAUNCHING:
                 song_noise += 4;
                 break;
-            case SNG_WHETTING:
-                song_noise += 4;
-                break;
             case SNG_TREES:
                 song_noise += 4;
                 break;
@@ -2745,6 +2752,9 @@ static void calc_bonuses(void)
                 song_noise += 4;
                 break;
             case SNG_STAYING:
+                song_noise += 8;
+                break;
+            case SNG_SLAYING:
                 song_noise += 8;
                 break;
             case SNG_LORIEN:
@@ -2807,7 +2817,7 @@ static void calc_bonuses(void)
     // Apply song effects that modify skills
     if (singing(SNG_STAYING))
     {
-        p_ptr->skill_misc_mod[S_WIL] += ability_bonus(S_SNG, SNG_STAYING);
+        p_ptr->skill_misc_mod[S_WIL] += ability_bonus(S_SNG, SNG_STAYING) / 2;
     }
     if (singing(SNG_FREEDOM))
     {
@@ -3104,7 +3114,7 @@ void update_lore_aux(object_type* o_ptr)
         if (o_ptr->name1)
         {
             artefact_type* a_ptr = &a_info[o_ptr->name1];
-            char note[120];
+            char note[150];
             char shorter_desc[120];
             int new_exp;
 

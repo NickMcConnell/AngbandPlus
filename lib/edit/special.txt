@@ -62,7 +62,7 @@ V:1.5.0
 # Includes shields and greaves
 
 N:1:of Protection
-W:0:1:0:1000
+W:0:2:0:1000
 C:0:0:0:0:0:1:0
 T:34:0:99
 T:30:2:99
@@ -93,7 +93,7 @@ F:IGNORE_ALL
 # Leather armour, gloves and boots only
 
 N:4:of Brethil
-W:6:6:0:1000
+W:6:10:0:1000
 C:0:0:0:0:0:0:0
 T:36:4:7
 T:30:0:1
@@ -145,7 +145,7 @@ F:RES_COLD | IGNORE_ALL
 
 
 N:9:of Blight
-W:0:6:0:0
+W:0:1:0:0
 C:0:0:0:0:0:0:0
 T:36:0:99
 T:37:0:6
@@ -172,7 +172,7 @@ F:IGNORE_ALL
 
 # Mithril shields only
 
-N:14:of Fate Thwarted
+N:14:with Many Runes
 W:20:20:0:1000
 C:0:0:0:0:0:0:0
 T:34:10:10
@@ -289,15 +289,6 @@ T:22:12:99
 T:23:21:25
 B:0/8
 F:AGGRAVATE | LIGHT_CURSE
-
-
-# Mithril swords only
-
-N:30:of Dawn's Glory
-W:12:10:0:1000
-C:1:0:0:0:0:0:3
-T:23:28:30
-F:LIGHT | PERCEPTION
 
 
 # Swords only
@@ -523,12 +514,13 @@ T:32:0:99
 F:RES_CONFU | RES_STUN | RES_HALLU
 
 
-# lesser jewels
+# mithril helms and lesser jewels
 
 N:75:of Grace
 W:0:1:0:3000
 C:0:0:0:0:0:0:1
-T:39:2:2
+T:32:0:99
+T:39:8:8
 F:GRA
 
 ###
@@ -538,16 +530,6 @@ W:0:4:0:3000
 C:0:0:0:0:0:0:0
 T:32:0:7
 F:FEAR
-
-# Mithril helms only
-# (ability 7/1 is Song of Challenge)
-
-N:81:of Battle Joined
-W:10:2:0:3000
-C:0:0:0:0:0:0:2
-T:32:8:8
-F:SONG
-B:7/1
 
 
 # a helm that lowers perception?
@@ -565,8 +547,9 @@ C:0:0:0:0:0:0:3
 T:35:0:99
 F:STEALTH
 
+
 N:83:of Warmth
-W:0:2:0:1000
+W:4:8:0:1000
 C:0:0:0:0:0:0:0
 T:35:0:99
 F:RES_COLD
@@ -741,11 +724,11 @@ T:31:1:1
 F:ARCHERY
 
 
-N:121:of Vigour
-W:0:2:0:1000
+N:121:of Lorellin
+W:0:4:0:1000
 C:0:0:0:0:0:0:0
 T:31:0:99
-F:RES_BLEED | REGEN
+F:MEDIC
 
 
 # (ability 2/2 is Parry)
@@ -757,14 +740,11 @@ T:31:0:99
 B:2/2
 
 
-# (ability 0/0 is Power)
-
-N:123:of Brutality
-W:0:4:0:3000
+N:123:of the Ironfists
+W:4:6:0:2000
 C:0:0:0:0:0:0:1
 T:31:2:2
-F:DEX | LIGHT_CURSE
-B:0/0
+F:CON | NEG_DEX
 
 
 # Mithril gauntlets only
@@ -774,6 +754,7 @@ W:10:4:0:3000
 C:0:0:0:0:0:0:1
 T:31:3:3
 F:STR
+F:IGNORE_ALL
 
 
 ###
@@ -796,7 +777,8 @@ B:3/4
 N:130:of Brightness
 W:0:1:0:1000
 C:0:0:0:0:0:0:0
-T:39:1:8
+T:39:1:2
+T:39:8:8
 F:LIGHT
 
 

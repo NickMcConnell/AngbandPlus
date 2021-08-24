@@ -165,10 +165,7 @@ extern int p_min(int typ, bool melee)
 
     if (singing(SNG_STAYING))
     {
-        if (ability_bonus(S_SNG, SNG_STAYING) > 0)
-        {
-            prt += 2;
-        }
+        prt += 2;
     }
 
     // armour:
@@ -2517,7 +2514,8 @@ bool make_attack_ranged(monster_type* m_ptr, int attack)
 
         if (o_ptr->tval == TV_LIGHT && o_ptr->timeout > 0)
         {
-            if (o_ptr->sval == SV_LIGHT_TORCH)
+            if (o_ptr->sval == SV_LIGHT_TORCH
+                || o_ptr->sval == SV_LIGHT_MALLORN)
                 msg_print("Your torch sputters.");
             else if (o_ptr->sval == SV_LIGHT_LANTERN)
                 msg_print("Your lantern sputters.");

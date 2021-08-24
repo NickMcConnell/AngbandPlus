@@ -180,11 +180,6 @@
 #define SCORE_WIZARDS
 
 /*
- * OPTION: Allow "automata" to yield "high scores"
- */
-#define SCORE_AUTOMATON
-
-/*
  * OPTION: Allow "Cheaters" to yield "high scores"
  */
 /* #define SCORE_CHEATERS */
@@ -338,9 +333,6 @@
  * but has Mac OS/Windows-like user interface
  */
 #ifdef MACH_O_CARBON
-#ifdef PRIVATE_USER_PATH
-#undef PRIVATE_USER_PATH
-#endif
 #ifdef SAVEFILE_USE_UID
 #undef SAVEFILE_USE_UID
 #endif

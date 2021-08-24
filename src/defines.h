@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING "1.5.0-beta1"
+#define VERSION_STRING "1.5.0-beta2"
 
 /*
  * Current version numbers
@@ -61,8 +61,8 @@
  * Oldest version number that can still be imported
  */
 #define OLD_VERSION_MAJOR 1
-#define OLD_VERSION_MINOR 4
-#define OLD_VERSION_PATCH 2
+#define OLD_VERSION_MINOR 5
+#define OLD_VERSION_PATCH 0
 
 /*
  * Version of random artefact code.
@@ -191,6 +191,8 @@
 #define R_IDX_HUMAN_SLAVE 13
 #define R_IDX_ELF_SLAVE 14
 #define R_IDX_ORC_SLAVEMASTER 15
+#define R_IDX_ALERT_HUMAN_SLAVE 16
+#define R_IDX_ALERT_ELF_SLAVE 17
 #define R_IDX_SPIDER_HATCHLING 32
 #define R_IDX_ORC_ARCHER 51
 #define R_IDX_ORC_CHAMPION 81
@@ -212,6 +214,9 @@
 #define R_IDX_MORGOTH 251 // the location of Morgoth
 #define R_IDX_CARCHAROTH 253 // the location of Carcharoth
 #define R_IDX_MORGOTH_HALLU 401 // the location of Morgoth's hallucination image
+
+#define O_IDX_HERB_RAGE 380
+#define O_IDX_HERB_TERROR 382
 
 /*
  * Maximum size of the "view" array (see "cave.c")
@@ -254,7 +259,6 @@
 #define FLOW_WANDERING_TAIL FLOW_WANDERING_HEAD + MAX_WANDERING_GROUPS - 1
 #define FLOW_PLAYER_NOISE FLOW_WANDERING_TAIL + 1
 #define FLOW_MONSTER_NOISE FLOW_WANDERING_TAIL + 2
-#define FLOW_AUTOMATON FLOW_WANDERING_TAIL + 3
 #define MAX_FLOWS FLOW_WANDERING_TAIL + 4
 
 /*
@@ -359,6 +363,7 @@
  */
 #define FUEL_TORCH 3000 /* Maximum amount of fuel in a torch */
 #define FUEL_LAMP 7000 /* Maximum amount of fuel in a lantern */
+#define FUEL_MALLORN 100 /* Maximum amount of fuel in a lantern */
 
 /*
  * More maximum values
@@ -495,10 +500,10 @@
 /*
  * Will abilities
  */
-#define WIL_FORMIDABLE 0
+#define WIL_CURSE_BREAKING 0
 #define WIL_CHANNELING 1
 #define WIL_STRENGTH_IN_ADVERSITY 2
-#define WIL_CURSE_BREAKING 3
+#define WIL_FORMIDABLE 3
 #define WIL_INNER_LIGHT 4
 #define WIL_INDOMITABLE 5
 #define WIL_OATH 6
@@ -528,9 +533,9 @@
 #define SNG_FREEDOM 3
 #define SNG_SILENCE 4
 #define SNG_STAUNCHING 5
-#define SNG_WHETTING 6
+#define SNG_THRESHOLDS 6
 #define SNG_TREES 7
-#define SNG_THRESHOLDS 8
+#define SNG_SLAYING 8
 #define SNG_STAYING 9
 #define SNG_LORIEN 10
 #define SNG_MASTERY 11
@@ -1130,32 +1135,31 @@
 
 /* The "sval" codes for TV_DIGGING */
 #define SV_SHOVEL 1
-#define SV_MATTOCK 7
+#define SV_MATTOCK 3
 
 /* The "sval" values for TV_HAFTED */
-#define SV_QUARTERSTAFF 3 /* 2d3 */
+#define SV_QUARTERSTAFF 3 /* 2d5 */
 #define SV_WAR_HAMMER 8 /* 4d1 */
 #define SV_GROND 50 /* 5d5 */
 
 /* The "sval" values for TV_POLEARM */
-#define SV_SPEAR 1 /* 1d11 */
-#define SV_GREAT_SPEAR 2 /* 1d14 */
-#define SV_TRIDENT 3 /* 1d8 */
+#define SV_SPEAR 1 /* 1d9 */
+#define SV_GREAT_SPEAR 2 /* 1d13 */
 #define SV_GLAIVE 4 /* 2d9 */
-#define SV_THROWING_AXE 11 /* 2d4 */
+#define SV_HAND_AXE 11 /* 4d2 */
 #define SV_BATTLE_AXE 12 /* 3d4 */
 #define SV_GREAT_AXE 13 /* 4d4 */
 
 /* The "sval" codes for TV_SWORD */
 
-#define SV_DAGGER 4 /* 1d4 */
+#define SV_DAGGER 4 /* 1d5 */
 #define SV_CURVED_SWORD 7 /* 2d5 */
-#define SV_SHORT_SWORD 10 /* 1d8 */
+#define SV_SHORT_SWORD 10 /* 1d7 */
 #define SV_LONG_SWORD 17 /* 2d5 */
 #define SV_BASTARD_SWORD 21 /* 3d3 */
 #define SV_GREAT_SWORD 25 /* 3d5 */
 #define SV_MITHRIL_LONG_SWORD 28 /* 2d5 */
-#define SV_MITHRIL_GREAT_SWORD 30 /* 3d5 */
+#define SV_MITHRIL_GREAT_SWORD 30 /* 3d6 */
 
 /* The "sval" codes for TV_SHIELD */
 #define SV_BROKEN_SHIELD 1
@@ -1204,6 +1208,7 @@
 #define SV_LIGHT_TORCH 0
 #define SV_LIGHT_LANTERN 1
 #define SV_LIGHT_LESSER_JEWEL 2
+#define SV_LIGHT_MALLORN 3
 #define SV_LIGHT_FEANORIAN 8
 #define SV_LIGHT_SILMARIL 9
 
@@ -1211,6 +1216,7 @@
 #define RADIUS_TORCH 1
 #define RADIUS_LESSER_JEWEL 1
 #define RADIUS_LANTERN 2
+#define RADIUS_MALLORN 3
 #define RADIUS_FEANORIAN 4
 #define RADIUS_ARTEFACT 3
 #define RADIUS_SILMARIL 7
@@ -1781,7 +1787,7 @@
 #define TR3_ACCURATE 0x00000008L /* Reroll misses */
 #define TR3_CUMBERSOME 0x00000010L /* No critical hits */
 #define TR3_AVOID_TRAPS 0x00000020L /* Do not trigger traps */
-#define TR3_TR3XXX5 0x00000040L /* xxx */
+#define TR3_MEDIC 0x00000040L /* xxx */
 #define TR3_TR3XXX6 0x00000080L /* xxx */
 #define TR3_TR3XXX7 0x00000100L /* xxx */
 #define TR3_TR3XXX8 0x00000200L /* xxx */
@@ -1864,23 +1870,6 @@
 
 /*Chance of adding additional flags after the first one*/
 #define EXTRA_FLAG_CHANCE 20
-
-#define EGO_AMMO_FLAME 99
-#define EGO_AMMO_FROST 100
-#define EGO_AMMO_VENOM 97
-
-#define EGO_ELVENKIND_ARMOR 2
-#define EGO_ELVENKIND_SHIELD 11
-#define EGO_ELVENKIND_BOOTS 110
-#define EGO_HOLY_AVENGER 35
-#define EGO_FURY 36
-#define EGO_BRAND_ELEMENTS 41
-#define BRAND_OFFSET_FLAME 2
-#define BRAND_OFFSET_FROST 3
-#define BRAND_OFFSET_VENOM 4
-
-#define EGO_SHATTERED 143
-#define EGO_BLASTED 144
 
 /*** Race/House flags ***/
 
@@ -2730,15 +2719,14 @@
             : ((k_info[(T)->k_idx].flavor)                                     \
                     ? (flavor_info[k_info[(T)->k_idx].flavor].x_attr)          \
                     : graphics_are_ascii()                                     \
-                            ? weapon_glows(T)                                  \
-                                ? (TERM_L_BLUE)                                \
-                                : (((T)->name1 && a_info[(T)->name1].d_attr)   \
+                        ? weapon_glows(T)                                      \
+                            ? (TERM_L_BLUE)                                    \
+                            : (((T)->name1 && a_info[(T)->name1].d_attr)       \
                                     ? (a_info[(T)->name1].d_attr)              \
                                     : (k_info[(T)->k_idx].x_attr))             \
-                            : weapon_glows(T)                                  \
-                                ? ((k_info[(T)->k_idx].x_attr) |               \
-                                    GRAPHICS_GLOW_MASK)                        \
-                                : (k_info[(T)->k_idx].x_attr)))
+                        : weapon_glows(T) ? ((k_info[(T)->k_idx].x_attr)       \
+                              | GRAPHICS_GLOW_MASK)                            \
+                                          : (k_info[(T)->k_idx].x_attr)))
 /*
  * Return the "attr" for a k_idx.
  * Use "flavor" if available.
@@ -3288,8 +3276,8 @@
 /* Returns TRUE if T is a torch or a lantern */
 #define fuelable_light_p(T)                                                    \
     (((T)->tval == TV_LIGHT)                                                   \
-        && (((T)->sval == SV_LIGHT_LANTERN) || ((T)->sval == SV_LIGHT_TORCH)))
-
+        && (((T)->sval == SV_LIGHT_LANTERN) || ((T)->sval == SV_LIGHT_TORCH)   \
+            || ((T)->sval == SV_LIGHT_MALLORN)))
 /*
  * Returns the current length of the text in the buffer.
  */
@@ -3344,6 +3332,14 @@
 /*
  * Flags for the Oath skill
  */
-#define OATH_SILENCE 1
-#define OATH_HONOUR 2
-#define OATH_MERCY 4
+#define OATH_MERCY 1
+#define OATH_SILENCE 2
+#define OATH_IRON 4
+
+/*
+ * States for the slave quest
+ */
+#define QUEST_NOT_STARTED 0
+#define QUEST_GIVER_PRESENT 1
+#define QUEST_REWARD_MAP 2
+#define QUEST_COMPLETE 10

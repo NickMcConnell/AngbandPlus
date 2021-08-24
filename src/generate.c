@@ -2729,6 +2729,18 @@ static bool build_vault(int y0, int x0, vault_type* v_ptr, bool flip_d)
             {
                 int humanOrElf
                     = one_in_(2) ? R_IDX_HUMAN_SLAVE : R_IDX_ELF_SLAVE;
+
+                if (p_ptr->slave_quest == QUEST_NOT_STARTED)
+                {
+                    if (one_in_(20))
+                    {
+                        humanOrElf = one_in_(2) ?
+                                    R_IDX_ALERT_HUMAN_SLAVE :
+                                    R_IDX_ALERT_ELF_SLAVE;
+                        p_ptr->slave_quest = QUEST_GIVER_PRESENT; 
+                    }
+                }
+
                 place_monster_one(y, x, humanOrElf, TRUE, TRUE, NULL);
                 break;
             }
@@ -4179,5 +4191,12 @@ void generate_cave(void)
                 p_ptr->forge_count++;
             }
         }
+    }
+
+    if (p_ptr->slave_quest == QUEST_REWARD_MAP)
+    {
+        msg_print("You remember the slave told you of the passages here.");
+        map_area();
+        p_ptr->slave_quest = QUEST_COMPLETE;
     }
 }

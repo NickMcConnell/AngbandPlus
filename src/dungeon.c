@@ -606,7 +606,8 @@ static void process_world(void)
             }
 
             /* The light is getting dim */
-            else if ((o_ptr->timeout <= 100) && (!(o_ptr->timeout % 20)))
+            else if ((o_ptr->timeout <= 100) && (!(o_ptr->timeout % 20))
+                && o_ptr->sval != SV_LIGHT_MALLORN)
             {
                 // disturb the first time
                 if (o_ptr->timeout == 100)
@@ -753,34 +754,6 @@ static bool verify_debug_mode(void)
 }
 
 #endif /* ALLOW_DEBUG */
-
-/*
- * Verify use of "automaton" mode
- */
-static bool verify_automaton_mode(void)
-{
-    /* Ask first time */
-    if (!(p_ptr->noscore & 0x0010))
-    {
-        /* Mention effects */
-        msg_print("You are about to turn on the automaton.");
-        msg_print("This is highly experimental and will probably kill your "
-                  "character.");
-        message_flush();
-
-        /* Verify request */
-        if (!get_check("Are you sure you want to use the automaton? "))
-        {
-            return (FALSE);
-        }
-    }
-
-    /* Mark savefile */
-    p_ptr->noscore |= 0x0010;
-
-    /* Okay */
-    return (TRUE);
-}
 
 /*
  * Parse and execute the current command
@@ -986,14 +959,6 @@ static void process_command(void)
         break;
     }
 
-        /* Automaton */
-    case '|':
-    {
-        if (verify_automaton_mode())
-            do_cmd_automaton();
-        break;
-    }
-
     /*** Stairs and Doors and Chests and Traps ***/
 
     /* Go up staircase */
@@ -1178,7 +1143,7 @@ static void process_command(void)
     }
     case ESCAPE:
     {
-        if (easy_main_menu && !p_ptr->automaton)
+        if (easy_main_menu)
             do_cmd_main_menu();
         break;
     }
@@ -1640,9 +1605,6 @@ static void process_player(void)
 
                 /* Disturb */
                 disturb(0, 0);
-
-                // cancel automaton control
-                p_ptr->automaton = FALSE;
 
                 /* Hack -- Show a Message */
                 msg_print("Cancelled.");
@@ -2575,7 +2537,7 @@ static void dungeon(void)
                 // do_cmd_note(format("exp:%d = s:5000 + e:%d + k:%d + d:%d +
                 // i:%d",
                 //		    p_ptr->exp, p_ptr->encounter_exp,
-                //p_ptr->kill_exp, p_ptr->descent_exp, p_ptr->ident_exp), i);
+                // p_ptr->kill_exp, p_ptr->descent_exp, p_ptr->ident_exp), i);
             }
         }
         p_ptr->max_depth = p_ptr->depth;

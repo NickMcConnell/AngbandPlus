@@ -369,6 +369,7 @@ void self_knowledge(void)
     int mel = 0;
     int arc = 0;
     int stl = 0;
+    int medic = 0;
 
     // initialise the arrays
     for (i = 0; i < 100; i++)
@@ -416,6 +417,9 @@ void self_knowledge(void)
             arc += o_ptr->pval;
         if (t1 & (TR1_STL))
             stl += o_ptr->pval;
+
+        if (t3 & (TR3_MEDIC))
+            medic++;
     }
 
     if (f2 & TR2_TRAITOR)
@@ -438,6 +442,14 @@ void self_knowledge(void)
     {
         strnfmt(s[i], 80, "Your feet do not trigger traps");
         strnfmt(t[i], 80, "(does not protect from webs, roosts and pits)");
+        good[i] = TRUE;
+        i++;
+    }
+
+    if (f3 & TR3_MEDIC)
+    {
+        strnfmt(s[i], 80, "You gain extra health from healing items");
+        strnfmt(t[i], 80, "(%d%%)", 20 * medic);
         good[i] = TRUE;
         i++;
     }
@@ -685,6 +697,15 @@ void self_knowledge(void)
         i++;
     }
 
+    if (p_ptr->resist_bleed > 0)
+    {
+        strnfmt(s[i], 80, "You are resistant to bleeding",
+            (p_ptr->resist_bleed > 1));
+        strnfmt(t[i], 80, "(damage reduced to 1)");
+        good[i] = TRUE;
+        i++;
+    }
+
     if (p_ptr->resist_fear > 0)
     {
         strnfmt(s[i], 80, "You are %sresistant to fear",
@@ -702,6 +723,7 @@ void self_knowledge(void)
         good[i] = TRUE;
         i++;
     }
+
     if (p_ptr->resist_confu)
     {
         strnfmt(s[i], 80, "You are %sresistant to confusion",
@@ -847,6 +869,13 @@ void self_knowledge(void)
         strnfmt(t[i], 80, "(%+d side%s)", p_ptr->to_mds,
             (ABS(p_ptr->to_mds) > 1) ? "s" : "");
         good[i] = (p_ptr->to_mds > 0) ? TRUE : FALSE;
+        i++;
+    }
+
+    if (p_ptr->slave_quest == QUEST_REWARD_MAP)
+    {
+        strnfmt(s[i], 80, "You remember being told of some passages nearby");
+        good[i] = TRUE;
         i++;
     }
 
@@ -2073,26 +2102,28 @@ bool item_tester_hook_armour(const object_type* o_ptr)
 }
 
 /*
- * Hook to specify "armour that can be elvenkind"
+ * Hook to specify non-herb food
  */
-bool item_tester_hook_elvenkindable_armour(const object_type* o_ptr)
+bool item_tester_hook_non_herb_food(const object_type* o_ptr)
 {
-    if ((o_ptr->tval == TV_SHIELD) || (o_ptr->tval == TV_MAIL)
-        || (o_ptr->tval == TV_SOFT_ARMOR) || (o_ptr->tval == TV_BOOTS))
+    if ((o_ptr->tval == TV_FOOD) && (o_ptr->pval > 300))
         return (TRUE);
 
     return (FALSE);
 }
 
 /*
- * Hook to specify "enchantable ring"
+ * Hook to specify light with fuel or that does not need fuel
  */
-bool item_tester_hook_enchantable_ring(const object_type* o_ptr)
+bool item_tester_hook_light_with_fuel(const object_type* o_ptr)
 {
-    if ((o_ptr->tval == TV_RING) && (o_ptr->pval > 0))
-        return (TRUE);
+    if (o_ptr->tval != TV_LIGHT)
+        return (FALSE);
 
-    return (FALSE);
+    if (o_ptr->timeout < 1 && fuelable_light_p(o_ptr))
+        return (FALSE);
+
+    return (TRUE);
 }
 
 /*
@@ -3836,129 +3867,6 @@ bool disarm_trap(int dir)
     u32b flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM;
     return (
         fire_bolt_beam_special(GF_KILL_TRAP, dir, 0, 0, -1, MAX_RANGE, flg));
-}
-
-/*
- * Curse the player's armor
- */
-bool curse_armor(void)
-{
-    object_type* o_ptr;
-
-    char o_name[80];
-
-    /* Curse the body armor */
-    o_ptr = &inventory[INVEN_BODY];
-
-    /* Nothing to curse */
-    if (!o_ptr->k_idx)
-        return (FALSE);
-
-    /* Describe */
-    object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
-
-    /* Attempt a saving throw for artefacts */
-    if (artefact_p(o_ptr) && percent_chance(50))
-    {
-        /* Cool */
-        msg_format("A %s tries to %s, but your %s resists the effects!",
-            "terrible black aura", "surround your armour", o_name);
-    }
-
-    /* not artefact or failed save... */
-    else
-    {
-        /* Oops */
-        msg_format("A terrible black aura blasts your %s!", o_name);
-
-        /* Blast the armor */
-        o_ptr->name1 = 0;
-        o_ptr->name2 = EGO_BLASTED;
-        o_ptr->evn = 0 - dieroll(5) - dieroll(5);
-        o_ptr->att = 0;
-        o_ptr->pd = 1;
-        o_ptr->ps = 1;
-        o_ptr->dd = 1;
-        o_ptr->ds = 1;
-
-        /* Curse it */
-        o_ptr->ident |= (IDENT_CURSED);
-
-        /* Break it */
-        o_ptr->ident |= (IDENT_BROKEN);
-
-        /* Recalculate bonuses */
-        p_ptr->update |= (PU_BONUS);
-
-        /* Recalculate mana */
-        p_ptr->update |= (PU_MANA);
-
-        /* Window stuff */
-        p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0);
-    }
-
-    return (TRUE);
-}
-
-/*
- * Curse the player's weapon
- */
-bool curse_weapon(void)
-{
-    object_type* o_ptr;
-
-    char o_name[80];
-
-    /* Curse the weapon */
-    o_ptr = &inventory[INVEN_WIELD];
-
-    /* Nothing to curse */
-    if (!o_ptr->k_idx)
-        return (FALSE);
-
-    /* Describe */
-    object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
-
-    /* Attempt a saving throw */
-    if (artefact_p(o_ptr) && percent_chance(50))
-    {
-        /* Cool */
-        msg_format("A %s tries to %s, but your %s resists the effects!",
-            "terrible black aura", "surround your weapon", o_name);
-    }
-
-    /* not artefact or failed save... */
-    else
-    {
-        /* Oops */
-        msg_format("A terrible black aura blasts your %s!", o_name);
-
-        /* Shatter the weapon */
-        o_ptr->name1 = 0;
-        o_ptr->name2 = EGO_SHATTERED;
-        o_ptr->att = 0 - dieroll(5) - dieroll(5);
-        o_ptr->evn = 0;
-        o_ptr->dd = 1;
-        o_ptr->ds = 1;
-
-        /* Curse it */
-        o_ptr->ident |= (IDENT_CURSED);
-
-        /* Break it */
-        o_ptr->ident |= (IDENT_BROKEN);
-
-        /* Recalculate bonuses */
-        p_ptr->update |= (PU_BONUS);
-
-        /* Recalculate mana */
-        p_ptr->update |= (PU_MANA);
-
-        /* Window stuff */
-        p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0);
-    }
-
-    /* Notice */
-    return (TRUE);
 }
 
 /*

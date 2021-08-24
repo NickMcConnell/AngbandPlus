@@ -197,10 +197,6 @@ void flavor_init(void)
     }
 }
 
-#ifdef ALLOW_AUTOMATON_GRAPHICS
-extern void init_translate_visuals(void);
-#endif /* ALLOW_AUTOMATON_GRAPHICS */
-
 /*
  * Reset the "visual" lists
  *
@@ -282,11 +278,6 @@ void reset_visuals(bool unused)
         /* Process "font.prf" */
         process_pref_file("font.prf");
     }
-
-#ifdef ALLOW_AUTOMATON_GRAPHICS
-    /* Initialize the translation table for the automaton */
-    init_translate_visuals();
-#endif /* ALLOW_AUTOMATON_GRAPHICS */
 }
 
 /*
@@ -1889,16 +1880,10 @@ void display_inven(void)
         Term_putstr(0, i, 3, attr, tmp_val);
 
         /* Display the symbol */
+        Term_putch(3, i, object_attr(o_ptr), object_char(o_ptr));
         if (use_bigtile)
         {
-            Term_putstr(3, i, 1, object_attr(o_ptr),
-                format("%c", object_char(o_ptr)));
-            Term_putstr(4, i, 1, 255, format("%c", 255));
-        }
-        else
-        {
-            Term_putstr(3, i, 1, object_attr(o_ptr),
-                format("%c", object_char(o_ptr)));
+            Term_putch(4, i, 255, -1);
         }
 
         /* Obtain an item description */
@@ -1911,6 +1896,7 @@ void display_inven(void)
         attr = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
 
         /* Display the entry itself */
+        Term_putch(offset - 1, i, attr, ' ');
         Term_putstr(offset, i, n, attr, o_name);
 
         /* Erase the rest of the line */
@@ -1989,16 +1975,19 @@ void display_equip(void)
         Term_putstr(0, i - INVEN_WIELD, 3, attr, tmp_val);
 
         /* Display the symbol */
-        if (use_bigtile)
+        if (!use_graphics && !o_ptr->tval)
         {
-            Term_putstr(3, i - INVEN_WIELD, 1, object_attr(o_ptr),
-                format("%c", object_char(o_ptr)));
-            Term_putstr(4, i - INVEN_WIELD, 1, 255, format("%c", 255));
+            /* object_char() for an empty slot gives '\0'.  Use ' ' instead. */
+            Term_putch(3, i - INVEN_WIELD, attr, ' ');
         }
         else
         {
-            Term_putstr(3, i - INVEN_WIELD, 1, object_attr(o_ptr),
-                format("%c", object_char(o_ptr)));
+            Term_putch(
+                3, i - INVEN_WIELD, object_attr(o_ptr), object_char(o_ptr));
+        }
+        if (use_bigtile)
+        {
+            Term_putch(4, i - INVEN_WIELD, 255, -1);
         }
 
         /* Obtain an item description */
@@ -2018,6 +2007,7 @@ void display_equip(void)
         attr = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
 
         /* Display the entry itself */
+        Term_putch(offset - 1, i - INVEN_WIELD, attr, ' ');
         Term_putstr(offset, i - INVEN_WIELD, n, attr, o_name);
 
         /* Erase the rest of the line */
