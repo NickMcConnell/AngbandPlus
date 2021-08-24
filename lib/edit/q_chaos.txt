@@ -26,7 +26,7 @@ L:a:MON(chaos spawn)
 L:b:MON(hell hound, NO_GROUP)
 L:c:SHALLOW_LAVA:MON(fire elemental)
 L:d:SHALLOW_LAVA:MON(magma elemental)
-L:e:DEEP_LAVA:MON(great hell wyrm)
+L:e:DEEP_LAVA:MON(great brimstone wyrm)
 M:###############################
 M:##*****~~~~~~*****~~~~~~~****##
 M:#***~~~c~~~~~~***~~~~~c~~~*~**#

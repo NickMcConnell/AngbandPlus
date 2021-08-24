@@ -37,7 +37,7 @@ L:g:MON(ancient red dragon)
 L:h:MON(11-headed hydra)
 L:i:MON(plasma hound)
 L:j:MON(lava golem)
-L:k:MON(fire angel)
+L:k:MON(yellow dragon)
 L:l:MON(cacodemon)
 
 M:####################################################################

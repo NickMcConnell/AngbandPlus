@@ -152,4 +152,4 @@ Gives you access to the Shuffle spell, and automatically gives Self Knowledge if
 </style>
 
 
-<color:s>Automatically generated for Oposband 0.3.5.</color>
+<color:s>Automatically generated for Oposband 0.3.6.</color>

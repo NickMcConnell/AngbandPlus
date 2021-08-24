@@ -397,5 +397,5 @@ you will choose for your character.
 
 
 
-Automatically generated for Oposband 0.3.5.
+Automatically generated for Oposband 0.3.6.
 

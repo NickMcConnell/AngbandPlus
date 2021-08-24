@@ -76,7 +76,7 @@ R:OBJ(^ring$):EGO(protection)
 R:OBJ(studded leather gloves)
 
 ?:[EQU $CLASS Duelist]
-R:OBJ(thrusting sword)
+R:OBJ(fencer sword)
 
 ?:[EQU $CLASS Archaeologist]
 R:OBJ(^whip$)

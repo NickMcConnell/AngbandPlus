@@ -761,38 +761,36 @@ cptr skills_innate_describe_current(cptr name)
 
 void skills_on_birth(void)
 {
-    /* Start with weapon proficiency halfway to beginner */
-    for (int i = 0; i < MAX_PROFICIENCIES - 2; i++)
+    if (game_mode == GAME_MODE_MONSTER)
     {
-        p_ptr->proficiency[i] = WEAPON_EXP_BEGINNER / 2;
+        monster_proficiencies();
     }
-    p_ptr->proficiency[PROF_RIDING] = RIDING_EXP_UNSKILLED;
+    else
+    {
+        /* Start with weapon proficiency halfway to beginner */
+        for (int i = 0; i < MAX_PROFICIENCIES - 2; i++)
+        {
+            p_ptr->proficiency[i] = WEAPON_EXP_BEGINNER / 2;
+        }
+        p_ptr->proficiency[PROF_RIDING] = RIDING_EXP_UNSKILLED;
 
-    /* Everyone starts unskilled with innate attacks, but can become an expert since they are innate. */
-    p_ptr->proficiency[PROF_INNATE_ATTACKS] = WEAPON_EXP_BEGINNER / 2;
-    p_ptr->proficiency_cap[PROF_INNATE_ATTACKS] = WEAPON_EXP_EXPERT;
+        /* Everyone starts unskilled with innate attacks, but can become an expert since they are innate. */
+        p_ptr->proficiency[PROF_INNATE_ATTACKS] = WEAPON_EXP_BEGINNER / 2;
+        p_ptr->proficiency_cap[PROF_INNATE_ATTACKS] = WEAPON_EXP_EXPERT;
+    }
+
 }
 
 /* Default monster weapon / skill proficiencies */
 void monster_proficiencies(void)
 {
-    p_ptr->proficiency[PROF_DIGGER] = WEAPON_EXP_BEGINNER;
-    p_ptr->proficiency[PROF_BLUNT] = WEAPON_EXP_BEGINNER;
-    p_ptr->proficiency[PROF_POLEARM] = WEAPON_EXP_BEGINNER;
-    p_ptr->proficiency[PROF_SWORD] = WEAPON_EXP_BEGINNER;
-    p_ptr->proficiency[PROF_DAGGER] = WEAPON_EXP_BEGINNER;
-    p_ptr->proficiency[PROF_BOW] = WEAPON_EXP_BEGINNER;
-    p_ptr->proficiency[PROF_CROSSBOW] = WEAPON_EXP_BEGINNER;
-    p_ptr->proficiency[PROF_SLING] = WEAPON_EXP_BEGINNER;
-    p_ptr->proficiency[PROF_INNATE_ATTACKS] = WEAPON_EXP_BEGINNER;
-
-    p_ptr->proficiency_cap[PROF_DIGGER] = WEAPON_EXP_MASTER;
-    p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_MASTER;
-    p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_MASTER;
-    p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_MASTER;
-    p_ptr->proficiency_cap[PROF_STAVE] = WEAPON_EXP_MASTER;
-    p_ptr->proficiency_cap[PROF_AXE] = WEAPON_EXP_MASTER;
-    p_ptr->proficiency_cap[PROF_DAGGER] = WEAPON_EXP_MASTER;
+    p_ptr->proficiency_cap[PROF_DIGGER] = WEAPON_EXP_EXPERT;
+    p_ptr->proficiency_cap[PROF_BLUNT] = WEAPON_EXP_EXPERT;
+    p_ptr->proficiency_cap[PROF_POLEARM] = WEAPON_EXP_EXPERT;
+    p_ptr->proficiency_cap[PROF_SWORD] = WEAPON_EXP_EXPERT;
+    p_ptr->proficiency_cap[PROF_STAVE] = WEAPON_EXP_EXPERT;
+    p_ptr->proficiency_cap[PROF_AXE] = WEAPON_EXP_EXPERT;
+    p_ptr->proficiency_cap[PROF_DAGGER] = WEAPON_EXP_EXPERT;
     p_ptr->proficiency_cap[PROF_BOW] = WEAPON_EXP_EXPERT;
     p_ptr->proficiency_cap[PROF_CROSSBOW] = WEAPON_EXP_EXPERT;
     p_ptr->proficiency_cap[PROF_SLING] = WEAPON_EXP_EXPERT;

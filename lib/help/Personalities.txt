@@ -341,4 +341,4 @@ Split        <color:o>Fair         </color> <color:o>Fair         </color> <colo
 </style>
 
 
-<color:s>Automatically generated for Oposband 0.3.5.</color>
+<color:s>Automatically generated for Oposband 0.3.6.</color>

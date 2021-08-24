@@ -26,7 +26,7 @@ T:QUEST:NORMAL
 ###################################
 # The Monsters
 L:a:MON(anti-paladin)
-L:A:MON(corrupted celestial)
+L:A:MON(darkened archon)
 L:C:MON(crypt thing)
 L:d:MON(time bomb)
 L:E:MON(enchantress)

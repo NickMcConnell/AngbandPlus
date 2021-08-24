@@ -42,7 +42,7 @@ L:k:TRAP(TRAP_TELEPORT)
 L:~:DEEP_WATER
 L:D:MON(ancient multi-hued dragon, NO_SLEEP)
 L:e:MON(enchantress)
-L:u:MON(baron of hell, NO_SLEEP)
+L:u:MON(baron of chaos, NO_SLEEP)
 L:p:MON(hell knight)
 L:q:MON(demonologist)
 L:g:MON(goat of mendes, NO_SLEEP)

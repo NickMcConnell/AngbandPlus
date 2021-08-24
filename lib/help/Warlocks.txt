@@ -142,4 +142,4 @@ Giants            <color:R>Poor         </color> <color:r>Bad          </color> 
 </style>
 
 
-<color:s>Automatically generated for Oposband 0.3.5.</color>
+<color:s>Automatically generated for Oposband 0.3.6.</color>

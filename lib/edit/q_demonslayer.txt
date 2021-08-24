@@ -51,7 +51,7 @@ R:OBJ(long sword):EGO(daemon)
 R:OBJ(lance):EGO(daemon)
 
 ?:[EQU $CLASS Ninja Ninja-Lawyer]
-R:OBJ(ninjato):EGO(daemon)
+R:OBJ(shadow blade):EGO(daemon)
 
 ?:[EQU $CLASS Archaeologist]
 R:OBJ(whip):EGO(daemon)
