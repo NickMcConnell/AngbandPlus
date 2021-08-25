@@ -1141,16 +1141,6 @@ void sense_inventory(void)
 		object_last_wield = 0;
 	}
 
-
-	/* Get improvement rate */
-	if (player_has(PF_PSEUDO_ID_IMPROV))
-		rate = cp_ptr->sense_base / (p_ptr->lev * p_ptr->lev + cp_ptr->sense_div);
-	else
-		rate = cp_ptr->sense_base / (p_ptr->lev + cp_ptr->sense_div);
-
-	if (!one_in_(rate)) return;
-
-
 	/* Check everything */
 	for (i = 0; i < ALL_INVEN_TOTAL; i++)
 	{
@@ -1202,7 +1192,7 @@ void sense_inventory(void)
 		if (object_was_sensed(o_ptr))
 		{
 			/* Small chance of wielded, sensed items getting complete ID */
-			if (!o_ptr->name1 && (i >= INVEN_WIELD) && one_in_(1000))
+			if (!o_ptr->name1 && (i >= INVEN_WIELD) && one_in_(10))
 				do_ident_item(i, o_ptr);
 
 			continue;

@@ -12,8 +12,10 @@ struct spellholder {
 	char needs_dir;
 };
 
-extern int last_bookless_dir;
-extern struct spellholder last_bookless_spell;
+struct last_bookless {
+	int dir;
+	struct spellholder *spell;
+};
 
 extern void do_cmd_bookless();
 extern void do_cmd_repeat_bookless();

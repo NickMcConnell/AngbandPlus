@@ -40,9 +40,9 @@
 #define SAVEFILE_NAME  "NBND"
 
 #ifdef BUILD_ID
-# define VERSION_STRING "0.7.0 (" BUILD_ID ")"
+# define VERSION_STRING "0.7.1 (" BUILD_ID ")"
 #else
-# define VERSION_STRING "0.7.0"
+# define VERSION_STRING "0.7.1"
 #endif
 
 
@@ -106,14 +106,14 @@
  * Must be a multiple of SCREEN_HGT
  * Must be less or equal to 256
  */
-#define DUNGEON_HGT		44
+#define DUNGEON_HGT		66
 
 /*
  * Number of grids in each dungeon (horizontally)
  * Must be a multiple of SCREEN_WID
  * Must be less or equal to 256
  */
-#define DUNGEON_WID		88
+#define DUNGEON_WID		99
 
 #define TOWN_WID 66
 #define TOWN_HGT 22

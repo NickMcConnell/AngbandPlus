@@ -9,9 +9,10 @@
 #include "bookless.h"
 #include "target.h"
 
-/* Globals for last spell */
-int last_bookless_dir = -1;
-struct spellholder last_bookless_spell;
+struct last_bookless last_bookless = {
+	-1, /* no dir yet */
+	NULL, /* no spell yet */
+};
 
 /* Assassins */
 void Assassin_poison_dart(int dir) {
@@ -518,9 +519,9 @@ void do_cmd_bookless()
 	/* Get a direction if the spell needs it */
 	if (spell_info[A2I(choice)].needs_dir && !get_aim_dir(&dir))
 		return;		
-	/* Set the necessary globals for repeat casting */
-	last_bookless_dir = dir;
-	last_bookless_spell = spell_info[A2I(choice)];
+	/* Set the necessary variables for repeat casting */
+	last_bookless.dir = dir;
+	last_bookless.spell = &(spell_info[A2I(choice)]);
 
 	/* Cast the spell */
 	cast_bookless(spell_info[A2I(choice)], dir);
@@ -528,11 +529,11 @@ void do_cmd_bookless()
 
 void do_cmd_repeat_bookless()
 {
-	if (last_bookless_dir == -1) /* Implies no spell also */
+	if (last_bookless.dir == -1) /* Implies no spell also */
 		return;
 	/* If old target is dead, get a new one */
-	if (!target_okay() && last_bookless_dir == 5)
-		if (!get_aim_dir(&last_bookless_dir))
+	if (!target_okay() && last_bookless.dir == 5)
+		if (!get_aim_dir(&(last_bookless.dir)))
 			return;
-	cast_bookless(last_bookless_spell, last_bookless_dir);
+	cast_bookless(*(last_bookless.spell), last_bookless.dir);
 }

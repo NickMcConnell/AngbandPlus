@@ -1684,6 +1684,10 @@ void calc_bonuses(object_type inventory[], player_state *state, bool id_only)
 
 			/* Extra might */
 			state->ammo_mult += extra_might;
+			
+			/* Might bonus for snipers */
+			if (player_has(PF_CAST_SNIPER))
+				state->ammo_mult += p_ptr->lev / 6;
 
 			/* Hack -- Rangers love Bows */
 			if (player_has(PF_EXTRA_SHOT) &&
