@@ -546,18 +546,29 @@ int player_pict(int Ind, int who)
 			p_ptr->bubble_change = turn;
 			if(p_ptr->bubble_colour == TERM_VIOLET)
 			{
-				p_ptr->bubble_colour = p_ptr->r_attr[0];
+				p_ptr->bubble_colour = TERM_WHITE;
 			}
 			else
 			{
 				p_ptr->bubble_colour = TERM_VIOLET;
 			}
 		}
-		a = p_ptr->bubble_colour;
+		if (p_ptr->use_graphics)
+		{
+			/* In graphics mode, only reset on every other blink. */
+			if (p_ptr->bubble_colour == TERM_VIOLET)
+			{
+				/* Reset pict mode */
+				a = p_ptr->bubble_colour;
+				c = '@';
+			}
+		} else {
+			a = p_ptr->bubble_colour;
+		}
 	}
 	else if( who == Ind )
 	{
-		a = p_ptr->r_attr[0];
+		p_ptr->bubble_colour = TERM_WHITE;
 	}
 	
 	/* Reflect players current hitpoints in the player symbol */
@@ -565,6 +576,10 @@ int player_pict(int Ind, int who)
 	if (health < 7) 
 	{
 		c = health + 48;
+		if (p_ptr->use_graphics)
+		{
+			a = (Ind==who) ? p_ptr->bubble_colour : player_color(who);
+		}
 	}
 	
 	return (PICT(a, c));
@@ -4007,25 +4022,26 @@ void monster_race_track(int Ind, int r_idx)
  * The second arg is currently unused, but could induce output flush.
  *
  * All disturbance cancels repeated commands, resting, and running.
+ *
+ * MAngband-specific: the "unused_flag" is actually used, to tell apart
+ * disturb calls provoked by Player intent (1) and calls provoked by
+ * some external event (0).
  */
 void disturb(int Ind, int stop_search, int unused_flag)
 {
 	player_type *p_ptr = Players[Ind];
 
-	/* Unused */
-	unused_flag = unused_flag;
+	/* Used */
+	int player_intent = unused_flag;
 
 	/* Cancel auto-commands */
 	/* command_new = 0; */
 
-#if 0
-//disabling per powerwyrm's comment, see #596
 	/* Dungeon Master is never disturbed */
-	if (p_ptr->dm_flags & DM_NEVER_DISTURB)
+	if ((p_ptr->dm_flags & DM_NEVER_DISTURB) && !player_intent)
 	{
 		return;
 	}
-#endif
 
 #if 0
 	/* Cancel repeated commands */
