@@ -745,10 +745,11 @@ int send_objflags(int Ind, int line)
 	return 1;
 }
 
-int send_message(int Ind, cptr msg, u16b typ)
+/* XXX REMOVE ME XXX Remove at next protocol upgrade. */
+int send_message_DEPRECATED(int Ind, cptr msg, u16b typ)
 {
 	connection_type *ct = PConn[Ind];
-	char buf[80];
+	char buf[MAX_CHARS];
 
 	if (!ct) return -1;
 
@@ -760,6 +761,33 @@ int send_message(int Ind, cptr msg, u16b typ)
 	buf[78] = '\0';
 
 	if (!cq_printf(&ct->wbuf, "%c%ud%s", PKT_MESSAGE, typ, buf))
+	{
+		client_withdraw(ct);
+	}
+	return 1;
+
+}
+
+int send_message(int Ind, cptr msg, u16b typ)
+{
+	connection_type *ct = PConn[Ind];
+	char buf[MSG_LEN];
+
+	if (!ct) return -1;
+
+	if (msg == NULL)
+		return 1;
+
+	/* Hack -- use old version of the function */
+	if (!client_version_atleast(Players[Ind]->version, 1,5,2))
+	{
+		return send_message_DEPRECATED(Ind, msg, typ);
+	}
+
+	/* Clip end of msg if too long */
+	my_strcpy(buf, msg, MSG_LEN);
+
+	if (!cq_printf(&ct->wbuf, "%c%ud%S", PKT_MESSAGE, typ, buf))
 	{
 		client_withdraw(ct);
 	}
@@ -1422,11 +1450,19 @@ int recv_term_key(connection_type *ct, player_type *p_ptr)
 /* Client sent us some "mouse" action */
 int recv_mouse(connection_type *ct, player_type *p_ptr) {
 	byte mod, x, y;
+	int n;
+	char key;
 
 	if (cq_scanf(&ct->rbuf, "%c%c%c", &mod, &x, &y) < 3) return 0;
 
-	/* We don't do anything with this data, currently */
-	(void)p_ptr;
+	if ((mod & MCURSOR_META))
+		target_set_interactive_mouse(p_ptr, mod,  y, x);
+	else if (!(mod & MCURSOR_EMB))
+		do_cmd_mouseclick(p_ptr, mod, y, x);
+	else if ((n = p_ptr->special_handler))
+		(*(void (*)(player_type*, char))(custom_commands[n].do_cmd_callback))(p_ptr, key);
+	else if (p_ptr->special_file_type)
+		do_cmd_interactive(p_ptr, key);
 
 	return 1;
 }
@@ -1438,7 +1474,7 @@ int recv_redraw(connection_type *ct, player_type *p_ptr)
 	{
 		p_ptr->store_num = -1; //TODO: check if this is really necessary/okay?
 		p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_FLOOR);
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER | PW_MAP | PW_MONLIST);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER | PW_MAP | PW_MONLIST | PW_ITEMLIST);
 		p_ptr->update |= (PU_BONUS | PU_VIEW | PU_MANA | PU_HP);
 		//TODO: check if there are more generic ways to apply those
 	}

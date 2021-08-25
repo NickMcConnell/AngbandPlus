@@ -594,6 +594,9 @@ bool client_setup()
 	/* Initialize the pref files */
 	initialize_all_pref_files();
 
+	/* Horrible hack -- resave birth options if player adjusted them */
+	if (ignore_birth_options) Save_options();
+
 	/* Send request for MOTD to read (optional) */
 	//Send_motd(0); // pass -1 to receive motd off-screen
 
@@ -631,6 +634,9 @@ bool client_ready()
 
 	/* Subscribe to data streams */
 	init_subscriptions();
+
+	/* Prepare command menu */
+	cmd_init();
 
 	return TRUE;
 }
