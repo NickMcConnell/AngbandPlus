@@ -1,6 +1,6 @@
 ## Makefile.am -- Process this file with automake to process Makefile.in
 
-bin_PROGRAMS = unangband
+bin_PROGRAMS = friendband
 
 WRES = windres
 

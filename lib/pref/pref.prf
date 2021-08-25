@@ -109,6 +109,24 @@ C:1:k
 A:;9
 C:1:u
 
+# Movement (WSAD keys)
+A:;1
+C:1:z
+A:;2
+C:1:s
+A:;3
+C:1:c
+A:;4
+C:1:a
+A:;6
+C:1:d
+A:;7
+C:1:q
+A:;8
+C:1:w
+A:;9
+C:1:e
+
 # Running (shift + rogue keys)
 A:.1
 C:1:B
@@ -126,6 +144,24 @@ A:.8
 C:1:K
 A:.9
 C:1:U
+
+# Running (WSAD keys)
+A:.1
+C:1:Z
+A:.2
+C:1:S
+A:.3
+C:1:C
+A:.4
+C:1:A
+A:.6
+C:1:D
+A:.7
+C:1:Q
+A:.8
+C:1:W
+A:.9
+C:1:E
 
 # Altering (control + rogue keys)
 A:+1
@@ -145,6 +181,24 @@ C:1:^K
 A:+9
 C:1:^U
 
+# Altering (WSAD keys)
+A:+1
+C:1:^Z
+A:+2
+C:1:^S
+A:+3
+C:1:^C
+A:+4
+C:1:^A
+A:+6
+C:1:^D
+A:+7
+C:1:^Q
+A:+8
+C:1:^W
+A:+9
+C:1:^E
+
 # Allow use of the "tunnel" command
 A:T
 C:1:^T
@@ -153,21 +207,13 @@ C:1:^T
 A:k
 C:1:^D
 
-# Locate player on map
-A:L
-C:1:W
-
 # Browse a book (Peruse)
 A:b
 C:1:P
 
 # Jam a door (Spike)
 A:j
-C:1:S
-
-# Toggle search mode
-A:S
-C:1:#
+C:1:J
 
 # Use a staff (Zap)
 A:u
@@ -178,8 +224,8 @@ A:t
 C:1:T
 
 # Fire an item
-A:f
-C:1:t
+#A:f
+#C:1:t
 
 # Bash a door (Force)
 A:B
@@ -191,11 +237,11 @@ C:1:x
 
 # Aim a wand (Zap)
 A:a
-C:1:z
+C:1:g
 
 # Zap a rod (Activate)
 A:z
-C:1:a
+C:1:r
 
 # Engrave a rune (Apply)
 A:y
@@ -203,11 +249,11 @@ C:1:^G
 
 # Hack -- Commit suicide
 A:Q
-C:1:^C
+C:1:^X
 
 # Hack -- Swap equipment
 A:w0
-C:1:X
+C:1:V
 
 # Roguelike keymap: Repeat last command
 A:^V
@@ -226,8 +272,8 @@ A:^T
 C:1:'
 
 # Center screen on player
-A:^L
-C:1:X
+#A:^L
+#C:1:X
 
 # Handle an item
 A:h

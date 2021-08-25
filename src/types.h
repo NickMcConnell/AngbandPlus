@@ -266,6 +266,8 @@ struct town_type
 
 	byte a_char;	/* Use races of this char as allies for BATTLE levels */
 	u32b a_flag;	/* Use races with this flag as allies for BATTLE levels */
+	
+	char rumours[MAX_TOWN_RUMOURS][80]; /* Store up to 4 town rumours spoken by townfolk */
 };
 
 
@@ -1197,7 +1199,8 @@ struct monster_type
 	byte cdis;      /* Current dis from player */
 
 	bool ml;	/* Monster is "visible" */
-
+	
+	char speech[51];    /* Monster is speaking */
 };
 
 
@@ -1774,6 +1777,7 @@ struct player_type
 
 	s16b rest;      /* Current rest */
 	s16b water;     /* TODO: Current water */
+	s16b wet;     /* Count number of steps player remains wet and unlit */
 
 	s16b held_song;     /* Currently held song */
 	s16b spell_trap;	/* Spells the player cast get turned into traps */
@@ -1817,6 +1821,7 @@ struct player_type
 
 	char died_from[80];     /* Cause of death */
 	char history[250];    /* Initial history */
+	char dialog_text[300];     /* Dialog text to display */
 
 	u16b total_winner;      /* Total winner */
 	u16b panic_save;/* Panic save */
@@ -1999,6 +2004,8 @@ struct player_type
 	byte outside;	/* Player is outside? */
 	bool cursed_quiver;	/* The quiver is cursed */
 
+	char speech[51];    /* Player is speaking */
+	int show_speech; /* Show speech for these number of turns, usually 3 */
 };
 
 
@@ -2032,16 +2039,16 @@ struct high_score
 	char uid[8];    /* Player UID (number) */
 
 	char sex[2];    /* Player Sex (string) */
-	char p_r[3];    /* Player Race (number) */
-	char p_c[3];    /* Player Class (number) */
-	char p_s[3];    /* Player Style (number) */
-	char p_p[3];    /* Player Pvalstyle (number) */
+	char p_r[4];    /* Player Race (number) */
+	char p_c[4];    /* Player Class (number) */
+	char p_s[4];    /* Player Style (number) */
+	char p_p[4];    /* Player Pvalstyle (number) */
 
-	char cur_lev[4];/* Current Player Level (number) */
-	char cur_dep[4];/* Current Player Depth (number) */
-	char cur_dun[4];/* Current Dungeon (number) */
-	char max_lev[4];/* Max Player Level (number) */
-	char max_dep[4];/* Max Dungeon Level (number) */
+	char cur_lev[7];/* Current Player Level (number) */
+	char cur_dep[7];/* Current Player Depth (number) */
+	char cur_dun[7];/* Current Dungeon (number) */
+	char max_lev[7];/* Max Player Level (number) */
+	char max_dep[7];/* Max Dungeon Level (number) */
 
 	char how[32];   /* Method of death (string) */
 };

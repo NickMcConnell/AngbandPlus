@@ -182,21 +182,7 @@ A:15/1
 P:0:0d0:0:0:0
 F:EAT_HEAL
 
-##### Normal Food #####
-
-N:21:& Ration~ of Food
-G:,:U
-I:80:35:0
-W:0:500:10:3
-A:0/1:5/1:10/1
-P:0:0d0:0:0:0
-
-N:22:& Hard Biscuit~
-G:,:U
-I:80:32:0
-W:0:400:2:1
-A:0/1
-P:0:1d1:0:0:0
+##### Food #####
 
 N:23:& Strip~ of Beef Jerky
 G:,:u
@@ -205,34 +191,6 @@ W:0:750:2:2
 A:0/2
 P:0:0d0:0:0:0
 
-N:24:& Slime Mold~
-G:,:m
-I:80:36:0
-W:1:600:5:2
-A:1/1
-P:0:0d0:0:0:0
-
-N:25:& Piece~ of Elvish Waybread
-G:,:B
-I:80:37:0
-W:5:2500:3:10
-A:5/1:10/1:20/1
-P:0:0d0:0:0:0
-
-N:26:& Pint~ of Fine Ale
-G:,:y
-I:80:40:0
-W:0:100:5:1
-A:0/2
-P:0:1d2:0:0:0
-
-N:27:& Pint~ of Fine Wine
-G:,:r
-I:80:41:0
-W:0:100:10:2
-A:0/2
-P:0:1d2:0:0:0
-
 N:28:Mana
 G:,:w
 I:79:20:0
@@ -240,13 +198,6 @@ W:10:500:1:75
 A:15/1
 P:0:0d0:0:0:0
 F:EAT_MANA
-
-N:29:& Apple~
-G:,:g
-I:80:39:0
-W:1:700:3:2
-A:1/1
-P:0:1d1:0:0:0
 
 ##### Edged Weapons #####
 
@@ -1496,7 +1447,7 @@ A:3/1
 P:0:0d0:0:0:0
 Y:15:2
 
-N:185:Phase Door
+N:185:Nearby Teleport
 G:?:w
 I:70:8:0
 W:1:0:5:15
@@ -1519,14 +1470,6 @@ W:20:0:5:50
 A:20/1
 P:0:0d0:0:0:0
 Y:15:3
-
-N:188:& Pint~ of Orcish Spirits
-G:,:r
-I:80:42:0
-W:0:0:10:20
-A:0/2
-P:0:0d0:0:0:0
-F:IGNORE_FIRE |
 
 N:189:Magic Mapping
 G:?:w
@@ -1770,7 +1713,7 @@ W:25:0:5:80
 A:25/1
 P:0:0d0:0:0:0
 
-N:220:Word of Recall
+N:220:Word of Town Portal
 G:?:w
 I:70:11:0
 W:5:0:5:150
@@ -2863,31 +2806,6 @@ A:1/1
 P:0:1d3:0:0:0
 F:THROWING |
 
-N:346:& Wooden Torch~
-G:~:U
-I:39:0:0
-W:1:4000:30:2
-A:1/1
-P:0:1d1:0:0:0
-
-N:347:& Brass Lantern~
-G:~:o
-I:39:1:0
-W:3:7500:70:55
-A:3/1
-P:0:1d3:0:0:0
-F:IGNORE_FIRE |
-
-# Flask of Oil
-
-N:348:Oil
-G:!:y
-I:77:0:0
-W:1:7500:10:3
-A:1/1
-P:0:1d1:0:0:0
-F:THROWING |
-
 N:349:& # Bottle~
 G:~:g
 I:2:1:0
@@ -2930,7 +2848,7 @@ A:42/5
 P:0:1d1:0:0:0
 Y:17:1
 
-N:354:Recall
+N:354:Town Portal
 G:-:w
 I:66:13:0
 W:30:60:15:4000
@@ -4995,13 +4913,6 @@ W:5:0:2000:0
 A:5/1
 P:0:1d7:0:0:0
 
-N:599:& handful~ of Berries
-G:,:g
-I:80:38:0
-W:1:300:2:2
-A:1/1
-P:0:0d0:0:0:0
-
 # Runestones
 
 N:600:Acid
@@ -6188,7 +6099,7 @@ I:99:4:0
 W:25:0:0:150
 P:0:0d0:0:0:0
 
-N:754:Word of Recall
+N:754:Word of Town Portal
 G:?:v
 I:99:5:0
 W:25:0:0:75
@@ -6260,7 +6171,7 @@ I:99:16:0
 W:40:0:0:1000
 P:0:0d0:0:0:0
 
-N:766:Word of Recall
+N:766:Word of Town Portal
 G:?:v
 I:99:17:0
 W:25:0:0:75

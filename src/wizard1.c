@@ -1830,7 +1830,7 @@ static void spoil_magic_info(cptr fname)
 				/* Get caster details */
 				for (j = 0; (i + j < casters_n) && (j < 3); j++)
 				{
-					int l;
+					//int l;
 
 					/* Fake the class */
 					spoil_fake_class(name, sizeof(name),casters[i+j], t, s);
@@ -1865,7 +1865,7 @@ static void spoil_magic_info(cptr fname)
 				/* Get caster details */
 				for (j = 0; (i+j < casters_n) && (j < 3); j++)
 				{
-					int l;
+					//int l;
 
 					/* Fake the class */
 					spoil_fake_class(name, sizeof(name),casters[i+j], t, s);

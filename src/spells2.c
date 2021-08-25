@@ -1801,7 +1801,7 @@ static bool item_tester_cursed(const object_type *o_ptr)
  */
 static bool detect_objects_type(bool (*detect_item_hook)(const object_type *o_ptr), int sense_type, int ignore_feeling)
 {
-	int i, y, x, tv;
+	int i, y, x/*, tv*/;
 
 	bool detect = FALSE;
 
@@ -1827,7 +1827,7 @@ static bool detect_objects_type(bool (*detect_item_hook)(const object_type *o_pt
 		if (distance(p_ptr->py, p_ptr->px, y, x) > 2 * MAX_SIGHT) continue;
 
 		/* Examine the tval */
-		tv = o_ptr->tval;
+		//tv = o_ptr->tval;
 
 		/* Artifacts, misc magic items, or enchanted wearables */
 		if (!(detect_item_hook) || (detect_item_hook)(o_ptr))
@@ -2660,6 +2660,7 @@ static bool item_tester_unknown_gauge(const object_type *o_ptr)
 			case TV_STAFF:
 			{
 				if (!(o_ptr->ident & (IDENT_BONUS))) return TRUE;
+				__attribute__ ((fallthrough));
 			}
 			case TV_WAND:
 			{
@@ -5674,7 +5675,7 @@ static int spell_damage(spell_blow *blow_ptr, int level, u32b flg, bool player, 
 			int ds = blow_ptr->d_side;
 
 			/* Determine damage */
-			damage += (forreal) ? damroll(dd, ds) : ((ds > 1) ? (dd * (ds + 1) / 2) : (dd * ds));
+			damage += (forreal) ? (int) damroll(dd, ds) : ((ds > 1) ? (dd * (ds + 1) / 2) : (dd * ds));
 		}
 
 		/* Roll out level dependent damage */
@@ -5684,7 +5685,7 @@ static int spell_damage(spell_blow *blow_ptr, int level, u32b flg, bool player, 
 			int ds = blow_ptr->l_side;
 
 			/* Determine damage */
-			damage += (forreal) ? damroll(dd, ds) : ((ds > 1) ? (dd * (ds + 1) / 2) : (dd * ds));
+			damage += (forreal) ? (int) damroll(dd, ds) : ((ds > 1) ? (dd * (ds + 1) / 2) : (dd * ds));
 		}
 
 		/* Add constant damage */
@@ -5862,7 +5863,7 @@ int process_spell_target(int who, int what, int y0, int x0, int y1, int x1, int 
 			/* Increase delay - we predict effects of acceleration/deceleration */
 			if (r_ptr->flags1 & (RE1_ACCELERATE | RE1_DECELERATE))
 			{
-				int i;
+				//int i;
 				int delay_current = r_ptr->delay_reset;
 
 				for (i = 0; i < r_ptr->lifespan; i++)
@@ -6404,7 +6405,7 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 			else { sprintf(s, " and "); s += 5; }
 
 			/* Dump */
-			sprintf(s, vp[n]);
+			sprintf(s, "%s", vp[n]);
 
 			s += strlen(vp[n]);
 		}
@@ -6970,12 +6971,14 @@ bool process_spell_types(int who, int spell, int level, bool *cancel, bool known
 				if (!get_grid_by_aim(TARGET_KILL, &y, &x)) return (FALSE);
 				
 				/* Fall through */
+				__attribute__ ((fallthrough));
 			}
 			case SPELL_CREATE:
 			{
 				if ((s_ptr->type != SPELL_AIM_SUMMON) && (s_ptr->type != SPELL_AIM_SUMMONS)) flg |= (MFLAG_MADE);
 				
 				/* Fall through */
+				__attribute__ ((fallthrough));
 			}
 			case SPELL_SUMMON:
 			case SPELL_SUMMONS:
@@ -7013,12 +7016,14 @@ bool process_spell_types(int who, int spell, int level, bool *cancel, bool known
 				if (!get_grid_by_aim(TARGET_KILL, &y, &x)) return (FALSE);
 				
 				/* Fall through */
+				__attribute__ ((fallthrough));
 			}
 			case SPELL_CREATE_RACE:
 			{
 				if (s_ptr->type != SPELL_AIM_SUMMON_RACE) flg |= (MFLAG_MADE);
 				
 				/* Fall through */
+				__attribute__ ((fallthrough));
 			}
 			case SPELL_SUMMON_RACE:
 			case SPELL_SUMMONS_RACE:
@@ -7056,12 +7061,14 @@ bool process_spell_types(int who, int spell, int level, bool *cancel, bool known
 				if (!get_grid_by_aim(TARGET_KILL, &y, &x)) return (FALSE);
 				
 				/* Fall through */
+				__attribute__ ((fallthrough));
 			}
 			case SPELL_CREATE_GROUP_IDX:
 			{
 				if (s_ptr->type != SPELL_AIM_SUMMON_GROUP_IDX) flg |= (MFLAG_MADE);
 				
 				/* Fall through */
+				__attribute__ ((fallthrough));
 			}
 			case SPELL_SUMMON_GROUP_IDX:
 			case SPELL_SUMMONS_GROUP_IDX:
@@ -7457,28 +7464,31 @@ bool process_spell_types(int who, int spell, int level, bool *cancel, bool known
 					obvious = TRUE;
 					break;
 				}
+				
+				/* Should this fall through? */
+				break;
 			}
 
 			case SPELL_LIGHT_CHAMBERS:
 			{
-				int x, y, i;
+				int x1, y1, i;
 
-				for (y = 0; y < DUNGEON_HGT; y++)
+				for (y1 = 0; y1 < DUNGEON_HGT; y1++)
 				{
-					for (x = 0; x < DUNGEON_WID; x++)
+					for (x1 = 0; x1 < DUNGEON_WID; x1++)
 					{
 						/* Light all room grids, but not vaults or hidden rooms.
 						 * Note that light chambers _will_ light gloomy rooms. */
-						if ((cave_info[y][x] & (CAVE_ROOM)) && !(room_has_flag(y, x, (ROOM_ICKY | ROOM_HIDDEN))))
+						if ((cave_info[y1][x1] & (CAVE_ROOM)) && !(room_has_flag(y1, x1, (ROOM_ICKY | ROOM_HIDDEN))))
 						{
-							cave_info[y][x] |= (CAVE_GLOW);
+							cave_info[y1][x1] |= (CAVE_GLOW);
 
 							/* Light spills out of windows etc. */
-							if (f_info[cave_feat[y][x]].flags1 & (FF1_LOS))
+							if (f_info[cave_feat[y1][x1]].flags1 & (FF1_LOS))
 							{
 								for (i = 0; i < 8; i++)
 								{
-									cave_info[y + ddy_ddd[i]][x + ddx_ddd[i]] |= (CAVE_GLOW);
+									cave_info[y1 + ddy_ddd[i]][x1 + ddx_ddd[i]] |= (CAVE_GLOW);
 								}
 							}
 
@@ -8239,13 +8249,13 @@ void excise_region_piece(s16b region_piece)
 
 	for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
 	{
-		region_piece_type *rp_ptr;
+		region_piece_type *rp_ptr2;
 
 		/* Get the object */
-		rp_ptr = &region_piece_list[this_region_piece];
+		rp_ptr2 = &region_piece_list[this_region_piece];
 
 		/* Get the next object */
-		next_region_piece = rp_ptr->next_in_grid;
+		next_region_piece = rp_ptr2->next_in_grid;
 
 		/* Done */
 		if (this_region_piece == region_piece)
@@ -8266,7 +8276,7 @@ void excise_region_piece(s16b region_piece)
 			}
 
 			/* Forget next pointer */
-			rp_ptr->next_in_grid = 0;
+			rp_ptr2->next_in_grid = 0;
 
 			/* Done */
 			break;
@@ -8281,10 +8291,10 @@ void excise_region_piece(s16b region_piece)
 /*
  * Wipe a region piece clean.
  */
-void region_piece_wipe(region_piece_type *rp_ptr)
+void region_piece_wipe(region_piece_type *rp_ptr2)
 {
 	/* Wipe the structure */
-	(void)WIPE(rp_ptr, region_piece_type);
+	(void)WIPE(rp_ptr2, region_piece_type);
 }
 
 
@@ -8298,20 +8308,20 @@ void wipe_region_piece_list(void)
 	/* Delete the existing objects */
 	for (i = 1; i < region_piece_max; i++)
 	{
-		region_piece_type *rp_ptr = &region_piece_list[i];
+		region_piece_type *rp_ptr2 = &region_piece_list[i];
 
 		/* Get the location */
-		int y = rp_ptr->y;
-		int x = rp_ptr->x;
+		int y = rp_ptr2->y;
+		int x = rp_ptr2->x;
 
 		/* Skip dead region piece */
-		if (!rp_ptr->region) continue;
+		if (!rp_ptr2->region) continue;
 
 		/* Hack -- see above */
 		cave_region_piece[y][x] = 0;
 
 		/* Wipe the region_piece */
-		region_piece_wipe(rp_ptr);
+		region_piece_wipe(rp_ptr2);
 	}
 
 	/* Reset "o_max" */
@@ -8325,14 +8335,14 @@ void wipe_region_piece_list(void)
 /*
  * Copy a region piece
  */
-void region_piece_copy(region_piece_type *rp_ptr, const region_piece_type *rp_ptr2)
+void region_piece_copy(region_piece_type *rp_ptr2, const region_piece_type *rp_ptr3)
 {
 	/* Copy the structure */
-	(void)COPY(rp_ptr, rp_ptr2, region_piece_type);
+	(void)COPY(rp_ptr2, rp_ptr3, region_piece_type);
 
 	/* Zero some parameters */
-	rp_ptr->next_in_region = 0;
-	rp_ptr->next_in_grid = 0;
+	rp_ptr2->next_in_region = 0;
+	rp_ptr2->next_in_grid = 0;
 }
 
 
@@ -8343,7 +8353,7 @@ void compact_region_pieces_aux(int i1, int i2)
 {
 	int i, y, x;
 
-	region_piece_type *rp_ptr;
+	region_piece_type *rp_ptr2;
 	region_type *r_ptr;
 
 	/* Do nothing */
@@ -8353,23 +8363,23 @@ void compact_region_pieces_aux(int i1, int i2)
 	for (i = 1; i < region_piece_max; i++)
 	{
 		/* Get the object */
-		rp_ptr = &region_piece_list[i];
+		rp_ptr2 = &region_piece_list[i];
 
 		/* Skip "dead" objects */
-		if (!rp_ptr->region) continue;
+		if (!rp_ptr2->region) continue;
 
 		/* Repair "next" pointers */
-		if (rp_ptr->next_in_region == i1)
+		if (rp_ptr2->next_in_region == i1)
 		{
 			/* Repair */
-			rp_ptr->next_in_region = i2;
+			rp_ptr2->next_in_region = i2;
 		}
 
 		/* Repair "next" pointers */
-		if (rp_ptr->next_in_grid == i1)
+		if (rp_ptr2->next_in_grid == i1)
 		{
 			/* Repair */
-			rp_ptr->next_in_grid = i2;
+			rp_ptr2->next_in_grid = i2;
 		}
 	}
 
@@ -8391,11 +8401,11 @@ void compact_region_pieces_aux(int i1, int i2)
 	}
 
 	/* Get the object */
-	rp_ptr = &region_piece_list[i1];
+	rp_ptr2 = &region_piece_list[i1];
 
 	/* Get location */
-	y = rp_ptr->y;
-	x = rp_ptr->x;
+	y = rp_ptr2->y;
+	x = rp_ptr2->x;
 
 	/* Repair grid */
 	if (cave_region_piece[y][x] == i1)
@@ -8408,7 +8418,7 @@ void compact_region_pieces_aux(int i1, int i2)
 	COPY(&region_piece_list[i2], &region_piece_list[i1], region_piece_type);
 
 	/* Hack -- wipe hole */
-	region_piece_wipe(rp_ptr);
+	region_piece_wipe(rp_ptr2);
 }
 
 
@@ -8429,10 +8439,10 @@ void compact_region_pieces(int size)
 	/* Excise dead objects (backwards!) */
 	for (i = region_piece_max - 1; i >= 1; i--)
 	{
-		region_piece_type *rp_ptr = &region_piece_list[i];
+		region_piece_type *rp_ptr2 = &region_piece_list[i];
 
 		/* Skip real region pieces */
-		if (rp_ptr->region) continue;
+		if (rp_ptr2->region) continue;
 
 		/* Move last object into open hole */
 		compact_region_pieces_aux(region_piece_max - 1, i);
@@ -8479,13 +8489,13 @@ s16b region_piece_pop(void)
 	/* Recycle dead region pieces */
 	for (i = 1; i < region_piece_max; i++)
 	{
-		region_piece_type *rp_ptr;
+		region_piece_type *rp_ptr2;
 
 		/* Get the region piece */
-		rp_ptr = &region_piece_list[i];
+		rp_ptr2 = &region_piece_list[i];
 
 		/* Skip live region pieces */
-		if (rp_ptr->region) continue;
+		if (rp_ptr2->region) continue;
 
 		/* Count region pieces */
 		region_piece_cnt++;
@@ -8522,16 +8532,16 @@ int get_region_piece(int y, int x, s16b region)
 
 	for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
 	{
-		region_piece_type *rp_ptr;
+		region_piece_type *rp_ptr2;
 
 		/* Get the object */
-		rp_ptr = &region_piece_list[this_region_piece];
+		rp_ptr2 = &region_piece_list[this_region_piece];
 
 		/* Get the next object */
-		next_region_piece = rp_ptr->next_in_grid;
+		next_region_piece = rp_ptr2->next_in_grid;
 
 		/* Done */
-		if (rp_ptr->region == region)
+		if (rp_ptr2->region == region)
 		{
 			return (this_region_piece);
 		}
@@ -8585,7 +8595,7 @@ void compact_regions_aux(int i1, int i2)
 {
 	int i;
 
-	region_piece_type *rp_ptr;
+	region_piece_type *rp_ptr2;
 	region_type *r_ptr;
 
 	/* Do nothing */
@@ -8595,16 +8605,16 @@ void compact_regions_aux(int i1, int i2)
 	for (i = 1; i < region_piece_max; i++)
 	{
 		/* Get the object */
-		rp_ptr = &region_piece_list[i];
+		rp_ptr2 = &region_piece_list[i];
 
 		/* Skip "dead" objects */
-		if (!rp_ptr->region) continue;
+		if (!rp_ptr2->region) continue;
 
 		/* Repair "next" pointers */
-		if (rp_ptr->region == i1)
+		if (rp_ptr2->region == i1)
 		{
 			/* Repair */
-			rp_ptr->region = i2;
+			rp_ptr2->region = i2;
 		}
 	}
 
@@ -8710,22 +8720,22 @@ void region_delete(s16b region)
 
 	for (this_region_piece = region_list[region].first_piece; this_region_piece; this_region_piece = next_region_piece)
 	{
-		region_piece_type *rp_ptr;
+		region_piece_type *rp_ptr2;
 
 		/* Get the object */
-		rp_ptr = &region_piece_list[this_region_piece];
+		rp_ptr2 = &region_piece_list[this_region_piece];
 
 		/* Get the next object */
-		next_region_piece = rp_ptr->next_in_region;
+		next_region_piece = rp_ptr2->next_in_region;
 
 		/* Excise region piece */
 		excise_region_piece(this_region_piece);
 
 		/* Forget next pointer */
-		rp_ptr->next_in_region = 0;
+		rp_ptr2->next_in_region = 0;
 
 		/* Forget owner */
-		rp_ptr->region = 0;
+		rp_ptr2->region = 0;
 	}
 
 	/* Clear first in sequence */
@@ -8739,18 +8749,18 @@ void region_delete(s16b region)
 void region_piece_insert(int y, int x, s16b d, s16b region)
 {
 	int r = region_piece_pop();
-	region_piece_type *rp_ptr = &region_piece_list[r];
+	region_piece_type *rp_ptr2 = &region_piece_list[r];
 
 	/* Paranoia */
 	if (!r) return;
 
 	/* Update the region piece with the grid details */
-	rp_ptr->d = d;
-	rp_ptr->x = x;
-	rp_ptr->y = y;
-	rp_ptr->region = region;
-	rp_ptr->next_in_grid = cave_region_piece[y][x];
-	rp_ptr->next_in_region = region_list[region].first_piece;
+	rp_ptr2->d = d;
+	rp_ptr2->x = x;
+	rp_ptr2->y = y;
+	rp_ptr2->region = region;
+	rp_ptr2->next_in_grid = cave_region_piece[y][x];
+	rp_ptr2->next_in_region = region_list[region].first_piece;
 	cave_region_piece[y][x] = r;
 	region_list[region].first_piece = r;
 
@@ -8786,13 +8796,13 @@ s16b region_copy_pieces(s16b region, s16b region2)
 	for (this_region_piece = region_list[region].first_piece; this_region_piece; this_region_piece = next_region_piece)
 	{
 		/* Get the region piece */
-		region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+		region_piece_type *rp_ptr2 = &region_piece_list[this_region_piece];
 
 		/* Get the next object */
-		next_region_piece = rp_ptr->next_in_region;
+		next_region_piece = rp_ptr2->next_in_region;
 
 		/* Copy the region pieces */
-		region_piece_insert(rp_ptr->y, rp_ptr->x, rp_ptr->d, new_region);
+		region_piece_insert(rp_ptr2->y, rp_ptr2->x, rp_ptr2->d, new_region);
 	}
 
 	return (new_region);
@@ -8838,13 +8848,13 @@ bool region_grid(int y, int x, bool region_iterator(int y, int x, s16b d, s16b r
 	for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
 	{
 		/* Get the region piece */
-		region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+		region_piece_type *rp_ptr2 = &region_piece_list[this_region_piece];
 
 		/* Get the next object */
-		next_region_piece = rp_ptr->next_in_grid;
+		next_region_piece = rp_ptr2->next_in_grid;
 
 		/* Iterate on region piece */
-		seen |= region_iterator(y, x, rp_ptr->d, rp_ptr->region);
+		seen |= region_iterator(y, x, rp_ptr2->d, rp_ptr2->region);
 	}
 
 	return (seen);
@@ -8862,13 +8872,13 @@ bool region_iterate(s16b region, bool region_iterator(int y, int x, s16b d, s16b
 	for (this_region_piece = region_list[region].first_piece; this_region_piece; this_region_piece = next_region_piece)
 	{
 		/* Get the region piece */
-		region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+		region_piece_type *rp_ptr2 = &region_piece_list[this_region_piece];
 
 		/* Get the next object */
-		next_region_piece = rp_ptr->next_in_region;
+		next_region_piece = rp_ptr2->next_in_region;
 
 		/* Iterate on region piece */
-		seen |= region_iterator(rp_ptr->y, rp_ptr->x, rp_ptr->d, region);
+		seen |= region_iterator(rp_ptr2->y, rp_ptr2->x, rp_ptr2->d, region);
 	}
 
 	return (seen);
@@ -8890,19 +8900,19 @@ bool region_iterate_distance(s16b region, int y, int x, s16b d, bool gt, bool re
 	for (this_region_piece = region_list[region].first_piece; this_region_piece; this_region_piece = next_region_piece)
 	{
 		/* Get the region piece */
-		region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+		region_piece_type *rp_ptr2 = &region_piece_list[this_region_piece];
 
 		/* Get the next object */
-		next_region_piece = rp_ptr->next_in_region;
+		next_region_piece = rp_ptr2->next_in_region;
 
 		/* Check distance */
-		if ((distance(y, x, rp_ptr->y, rp_ptr->x) > d) == gt) continue;
+		if ((distance(y, x, rp_ptr2->y, rp_ptr2->x) > d) == gt) continue;
 
 		/* Check projectable */
-		if (!generic_los(y, x, rp_ptr->y, rp_ptr->x, method_ptr->flags1 & (PROJECT_LOS) ? CAVE_XLOS : CAVE_XLOF)) continue;
+		if (!generic_los(y, x, rp_ptr2->y, rp_ptr2->x, method_ptr->flags1 & (PROJECT_LOS) ? CAVE_XLOS : CAVE_XLOF)) continue;
 
 		/* Iterate on region piece */
-		seen |= region_iterator(rp_ptr->y, rp_ptr->x, rp_ptr->d, region);
+		seen |= region_iterator(rp_ptr2->y, rp_ptr2->x, rp_ptr2->d, region);
 	}
 
 	return (seen);
@@ -8983,13 +8993,13 @@ bool region_highlight_hook(int y, int x, s16b d, s16b region)
 	/* Iterate through stack of grids */
 	for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
 	{
-		region_piece_type *rp_ptr;
+		region_piece_type *rp_ptr2;
 
 		/* Get the object */
-		rp_ptr = &region_piece_list[this_region_piece];
+		rp_ptr2 = &region_piece_list[this_region_piece];
 
 		/* Get the next object */
-		next_region_piece = rp_ptr->next_in_grid;
+		next_region_piece = rp_ptr2->next_in_grid;
 
 		/* Done */
 		if (region_piece_list[this_region_piece].region == region)
@@ -9010,7 +9020,7 @@ bool region_highlight_hook(int y, int x, s16b d, s16b region)
 			}
 
 			/* Remember first on stack */
-			rp_ptr->next_in_grid = next_region_piece;
+			rp_ptr2->next_in_grid = next_region_piece;
 
 			/* Bring to top of stack */
 			cave_region_piece[y][x] = this_region_piece;
@@ -9115,13 +9125,13 @@ void region_update(s16b region)
 		for (this_region_piece = region_list[region].first_piece; this_region_piece; this_region_piece = next_region_piece)
 		{
 			/* Get the region piece */
-			region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+			region_piece_type *rp_ptr2 = &region_piece_list[this_region_piece];
 
 			/* Get the next object */
-			next_region_piece = rp_ptr->next_in_region;
+			next_region_piece = rp_ptr2->next_in_region;
 
 			/* Empty grids don't trigger anything */
-			if (cave_m_idx[rp_ptr->y][rp_ptr->x] == 0)
+			if (cave_m_idx[rp_ptr2->y][rp_ptr2->x] == 0)
 			{
 				continue;
 			}
@@ -9130,12 +9140,12 @@ void region_update(s16b region)
 			else if (r_ptr->flags1 & (RE1_HIT_TRAP))
 			{
 				/* Some traps are avoidable by monsters*/
-				if ((cave_m_idx[rp_ptr->y][rp_ptr->x] > 0) && (mon_avoid_trap(&m_list[cave_m_idx[rp_ptr->y][rp_ptr->x]],y, x, cave_feat[r_ptr->y0][r_ptr->x0])))
+				if ((cave_m_idx[rp_ptr2->y][rp_ptr2->x] > 0) && (mon_avoid_trap(&m_list[cave_m_idx[rp_ptr2->y][rp_ptr2->x]],y, x, cave_feat[r_ptr->y0][r_ptr->x0])))
 				{
 					continue;
 				}
 				/* Some traps are avoidable by the player */
-				else if ((cave_m_idx[rp_ptr->y][rp_ptr->x] < 0) && (avoid_trap(y, x, cave_feat[r_ptr->y0][r_ptr->x0])))
+				else if ((cave_m_idx[rp_ptr2->y][rp_ptr2->x] < 0) && (avoid_trap(y, x, cave_feat[r_ptr->y0][r_ptr->x0])))
 				{
 					continue;
 				}
@@ -9144,8 +9154,8 @@ void region_update(s16b region)
 			/* Trigger the region */
 			if (!rand_int(++k))
 			{
-				y = rp_ptr->y;
-				x = rp_ptr->x;
+				y = rp_ptr2->y;
+				x = rp_ptr2->x;
 			}
 		}
 
@@ -9175,7 +9185,7 @@ bool region_uplift_hook(int y, int x, s16b d, s16b region)
 	region_type *r_ptr = &region_list[region];
 	s16b region_piece = get_region_piece(y, x, region);
 
-	region_piece_type *rp_ptr = &region_piece_list[region_piece];
+	region_piece_type *rp_ptr2 = &region_piece_list[region_piece];
 
 	int this_region_piece, next_region_piece = 0;
 
@@ -9194,29 +9204,29 @@ bool region_uplift_hook(int y, int x, s16b d, s16b region)
 	if ((r_ptr->flags1 & (RE1_SCALAR_FEATURE))== 0) return (FALSE);
 
 	/* Have we already collected a feature */
-	if (rp_ptr->d) return (FALSE);
+	if (rp_ptr2->d) return (FALSE);
 
 	/* Check overlapping regions */
 	for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
 	{
-		region_piece_type *rp_ptr2 = &region_piece_list[this_region_piece];
+		region_piece_type *rp_ptr3 = &region_piece_list[this_region_piece];
 
 		/* Get the next object */
-		next_region_piece = rp_ptr2->next_in_grid;
+		next_region_piece = rp_ptr3->next_in_grid;
 
 		/* Skip itself */
-		if (rp_ptr2->region == region) continue;
+		if (rp_ptr3->region == region) continue;
 
 		/* Skip if not a region piece */
 		if ((r_ptr->flags1 & (RE1_SCALAR_FEATURE))== 0) continue;
 
 		/* We have something else collecting the underlying feature. Use it's value instead */
-		rp_ptr->d = rp_ptr2->d;
+		rp_ptr2->d = rp_ptr3->d;
 		return (FALSE);
 	}
 
 	/* Collect this feature */
-	rp_ptr->d = cave_feat[y][x];
+	rp_ptr2->d = cave_feat[y][x];
 
 	/* Notice elsewhere */
 	return (FALSE);
@@ -9419,13 +9429,13 @@ s16b region_random_piece(s16b region)
 	/* Count grids we could effect */
 	for (this_region_piece = region_list[region].first_piece; this_region_piece; this_region_piece = next_region_piece)
 	{
-		region_piece_type *rp_ptr;
+		region_piece_type *rp_ptr2;
 
 		/* Get the object */
-		rp_ptr = &region_piece_list[this_region_piece];
+		rp_ptr2 = &region_piece_list[this_region_piece];
 
 		/* Get the next object */
-		next_region_piece = rp_ptr->next_in_region;
+		next_region_piece = rp_ptr2->next_in_region;
 
 		/* Count the grids */
 		k++;
@@ -9437,13 +9447,13 @@ s16b region_random_piece(s16b region)
 	/* Get the coordinates of the grid choosen */
 	for (this_region_piece = region_list[region].first_piece; this_region_piece; this_region_piece = next_region_piece, k--)
 	{
-		region_piece_type *rp_ptr;
+		region_piece_type *rp_ptr2;
 
 		/* Get the object */
-		rp_ptr = &region_piece_list[this_region_piece];
+		rp_ptr2 = &region_piece_list[this_region_piece];
 
 		/* Get the next object */
-		next_region_piece = rp_ptr->next_in_region;
+		next_region_piece = rp_ptr2->next_in_region;
 
 		/* Get coordinates */
 		if (k == 1)
@@ -9518,35 +9528,35 @@ bool region_effect(int region, int y, int x)
 			for (this_region_piece = region_list[region].first_piece; this_region_piece; this_region_piece = next_region_piece)
 			{
 				/* Get the region piece */
-				region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+				region_piece_type *rp_ptr2 = &region_piece_list[this_region_piece];
 
 				/* Get the next object */
-				next_region_piece = rp_ptr->next_in_region;
+				next_region_piece = rp_ptr2->next_in_region;
 
 				/* Skip if it doesn't match source feature */
 				if ((r_ptr->who != SOURCE_FEATURE) && (r_ptr->who != SOURCE_PLAYER_TRAP)) continue;
-				if (r_ptr->what != cave_feat[rp_ptr->y][rp_ptr->x]) continue;
+				if (r_ptr->what != cave_feat[rp_ptr2->y][rp_ptr2->x]) continue;
 
 				/* Copy to child region */
 				if (child_region)
 				{
 					region_copy_to = child_region;
 
-					notice |= region_iterate_distance(region, rp_ptr->y, rp_ptr->x, r_ptr->age, TRUE, region_copy_pieces_hook);
+					notice |= region_iterate_distance(region, rp_ptr2->y, rp_ptr2->x, r_ptr->age, TRUE, region_copy_pieces_hook);
 				}
 				/* Hack -- restore original terrain if going backwards */
 				else if ((r_ptr->flags1 & (RE1_BACKWARDS)) && (r_ptr->flags1 & (RE1_SCALAR_FEATURE)))
 				{
-					notice |= region_iterate_distance(region, rp_ptr->y, rp_ptr->x, r_ptr->age, FALSE, region_restore_hook);
+					notice |= region_iterate_distance(region, rp_ptr2->y, rp_ptr2->x, r_ptr->age, FALSE, region_restore_hook);
 				}
 				/* Apply projection to region */
 				else
 				{
 					/* Apply projection effects to the grids */
-					notice |= region_iterate_distance(region, rp_ptr->y, rp_ptr->x, r_ptr->age, TRUE, region_project_hook);
+					notice |= region_iterate_distance(region, rp_ptr2->y, rp_ptr2->x, r_ptr->age, TRUE, region_project_hook);
 
 					/* Apply temporary effects to grids */
-					notice |= region_iterate_distance(region, rp_ptr->y, rp_ptr->x, r_ptr->age, TRUE, region_project_t_hook);
+					notice |= region_iterate_distance(region, rp_ptr2->y, rp_ptr2->x, r_ptr->age, TRUE, region_project_t_hook);
 
 					/* Clear temporary array */
 					clear_temp_array();
@@ -9642,7 +9652,7 @@ bool region_effect(int region, int y, int x)
 	/* Define child region */
 	if (child_region)
 	{
-		region_type *r_ptr = &region_list[child_region];
+		r_ptr = &region_list[child_region];
 
 		/* Hack -- lifespan */
 		r_ptr->lifespan = scale_method(ri_ptr->child_lasts, r_ptr->level);
@@ -9672,8 +9682,8 @@ void trigger_region(int y, int x, bool move)
 	int this_region_piece, next_region_piece = 0;
 	for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
 	{
-		region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
-		region_type *r_ptr = &region_list[rp_ptr->region];
+		region_piece_type *rp_ptr2 = &region_piece_list[this_region_piece];
+		region_type *r_ptr = &region_list[rp_ptr2->region];
 		method_type *method_ptr = &method_info[r_ptr->method];
 
 		bool notice = FALSE;
@@ -9682,7 +9692,7 @@ void trigger_region(int y, int x, bool move)
 		int tx = x;
 
 		/* Get the next object */
-		next_region_piece = rp_ptr->next_in_grid;
+		next_region_piece = rp_ptr2->next_in_grid;
 
 		/* Paranoia */
 		if (!r_ptr->type) continue;
@@ -9712,7 +9722,7 @@ void trigger_region(int y, int x, bool move)
 			/* Randomize grid hit */
 			if (r_ptr->flags1 & (RE1_RANDOM))
 			{
-				int r = region_random_piece(rp_ptr->region);
+				int r = region_random_piece(rp_ptr2->region);
 
 				ty = region_piece_list[r].y;
 				tx = region_piece_list[r].x;
@@ -9732,7 +9742,7 @@ void trigger_region(int y, int x, bool move)
 			r_ptr->flags1 |= (RE1_TRIGGERED);
 
 			/* Actually discharge the region */
-			notice |= region_effect(rp_ptr->region, ty, tx);
+			notice |= region_effect(rp_ptr2->region, ty, tx);
 
 			/* Paranoia - region has been removed */
 			if (!r_ptr->type) return;
@@ -9747,12 +9757,12 @@ void trigger_region(int y, int x, bool move)
 			/* Get the damage from the region piece */
 			if (r_ptr->flags1 & (RE1_SCALAR_DAMAGE))
 			{
-				dam = rp_ptr->d;
+				dam = rp_ptr2->d;
 			}
 			/* Compute the damage based on distance */
-			else if ((rp_ptr->d) && (r_ptr->flags1 & (RE1_SCALAR_DISTANCE)))
+			else if ((rp_ptr2->d) && (r_ptr->flags1 & (RE1_SCALAR_DISTANCE)))
 			{
-				dam = r_ptr->damage / rp_ptr->d;
+				dam = r_ptr->damage / rp_ptr2->d;
 			}
 			/* Get the damage from the region */
 			else
@@ -9782,7 +9792,7 @@ void trigger_region(int y, int x, bool move)
 			r_ptr->flags1 |= (RE1_NOTICE | RE1_DISPLAY);
 
 			/* Refresh required */
-			if (refresh) region_refresh(rp_ptr->region);
+			if (refresh) region_refresh(rp_ptr2->region);
 		}
 	}
 }
@@ -9879,13 +9889,13 @@ bool region_iterate_movement(s16b region, void region_iterator(int y, int x, s16
 	for (this_region_piece = r_ptr->first_piece; this_region_piece; this_region_piece = next_region_piece)
 	{
 		/* Get the region piece */
-		region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+		region_piece_type *rp_ptr2 = &region_piece_list[this_region_piece];
 
 		/* Get the next object */
-		next_region_piece = rp_ptr->next_in_region;
+		next_region_piece = rp_ptr2->next_in_region;
 
 		/* Unable to exist here */
-		if (!cave_passable_bold(rp_ptr->y, rp_ptr->x, method_ptr->flags1))
+		if (!cave_passable_bold(rp_ptr2->y, rp_ptr2->x, method_ptr->flags1))
 		{
 			/* Excise region piece */
 			excise_region_piece(this_region_piece);
@@ -9908,13 +9918,13 @@ bool region_iterate_movement(s16b region, void region_iterator(int y, int x, s16
 			}
 
 			/* Remove region piece */
-			rp_ptr->region = 0;
+			rp_ptr2->region = 0;
 
 			/* Forget next pointer */
-			rp_ptr->next_in_region = 0;
+			rp_ptr2->next_in_region = 0;
 
 			/* Relight */
-			lite_spot(rp_ptr->y, rp_ptr->x);
+			lite_spot(rp_ptr2->y, rp_ptr2->x);
 
 			continue;
 		}
@@ -9923,22 +9933,22 @@ bool region_iterate_movement(s16b region, void region_iterator(int y, int x, s16
 		prev_region_piece = this_region_piece;
 
 		/* Iterate on region piece */
-		region_iterator(rp_ptr->y, rp_ptr->x, rp_ptr->d, region, &ty, &tx);
+		region_iterator(rp_ptr2->y, rp_ptr2->x, rp_ptr2->d, region, &ty, &tx);
 
 		/* Move the piece */
-		if ((ty != rp_ptr->y) || (tx != rp_ptr->x))
+		if ((ty != rp_ptr2->y) || (tx != rp_ptr2->x))
 		{
-			int y = rp_ptr->y;
-			int x = rp_ptr->x;
+			int y = rp_ptr2->y;
+			int x = rp_ptr2->x;
 			
 			/* Can't move out of bounds */
 			if (!in_bounds(ty, tx)) continue;
 
 			/* Move the region piece */
 			excise_region_piece(this_region_piece);
-			rp_ptr->y = ty;
-			rp_ptr->x = tx;
-			rp_ptr->next_in_grid = cave_region_piece[ty][tx];
+			rp_ptr2->y = ty;
+			rp_ptr2->x = tx;
+			rp_ptr2->next_in_grid = cave_region_piece[ty][tx];
 			cave_region_piece[ty][tx] = this_region_piece;
 
 			/* Redraw old grid */

@@ -547,13 +547,13 @@ static void rd_region(region_type *r_ptr)
 /*
  * Read a "region piece" record
  */
-static void rd_region_piece(region_piece_type *rp_ptr)
+static void rd_region_piece(region_piece_type *rp_ptr2)
 {
 	/* Read the region piece */
-	rd_byte(&rp_ptr->y);
-	rd_byte(&rp_ptr->x);
-	rd_s16b(&rp_ptr->d);
-	rd_s16b(&rp_ptr->region);
+	rd_byte(&rp_ptr2->y);
+	rd_byte(&rp_ptr2->x);
+	rd_s16b(&rp_ptr2->d);
+	rd_s16b(&rp_ptr2->region);
 
 }
 
@@ -731,7 +731,7 @@ static errr rd_store()
 		for (j = 1; j < total_store_count; j++)
 		{
 			/* Get the store */
-			store_type *st_ptr = store[j];
+			st_ptr = store[j];
 
 			/* Free the store inventory */
 			FREE(st_ptr->stock);
@@ -833,7 +833,7 @@ static errr rd_store()
 		/* Accept any valid items */
 		if (st_ptr->stock_num < STORE_INVEN_MAX)
 		{
-			int k = st_ptr->stock_num++;
+			k = st_ptr->stock_num++;
 
 			/* Accept the item */
 			object_copy(&st_ptr->stock[k], i_ptr);
@@ -2037,8 +2037,8 @@ static errr rd_dungeon(void)
 		/* Dungeon floor */
 		if (!i_ptr->held_m_idx)
 		{
-			int x = i_ptr->ix;
-			int y = i_ptr->iy;
+			x = i_ptr->ix;
+			y = i_ptr->iy;
 
 			/* ToDo: Verify coordinates */
 
@@ -2077,7 +2077,7 @@ static errr rd_dungeon(void)
 			region_type region_type_body;
 
 			s16b region;
-			region_type *rp_ptr;
+			region_type *rp_ptr2;
 
 
 			/* Get the object */
@@ -2100,10 +2100,10 @@ static errr rd_dungeon(void)
 			}
 
 			/* Get the object */
-			rp_ptr = &region_list[region];
+			rp_ptr2 = &region_list[region];
 
 			/* Structure Copy */
-			region_copy(rp_ptr, i_ptr);
+			region_copy(rp_ptr2, i_ptr);
 		}
 
 		/* Read the region piece count */
@@ -2124,10 +2124,10 @@ static errr rd_dungeon(void)
 			region_type *r_ptr;
 
 			s16b region_piece;
-			region_piece_type *rp_ptr;
+			region_piece_type *rp_ptr2;
 
-			int x;
-			int y;
+			//int x;
+			//int y;
 
 			/* Get the object */
 			i_ptr = &region_piece_type_body;
@@ -2149,23 +2149,23 @@ static errr rd_dungeon(void)
 			}
 
 			/* Get the object */
-			rp_ptr = &region_piece_list[region_piece];
+			rp_ptr2 = &region_piece_list[region_piece];
 
 			/* Structure Copy */
-			region_piece_copy(rp_ptr, i_ptr);
+			region_piece_copy(rp_ptr2, i_ptr);
 
 			/* Get the region */
-			r_ptr = &region_list[rp_ptr->region];
+			r_ptr = &region_list[rp_ptr2->region];
 
 			/* Paranoia */
 			if (!r_ptr->type)
 			{
-				note(format("Inserting piece into expired region %d!", rp_ptr->region));
+				note(format("Inserting piece into expired region %d!", rp_ptr2->region));
 				return (-1);
 			}
 
 			/* Insert into the region */
-			rp_ptr->next_in_region = r_ptr->first_piece;
+			rp_ptr2->next_in_region = r_ptr->first_piece;
 			r_ptr->first_piece = region_piece;
 
 			/* ToDo: Verify coordinates */
@@ -2173,7 +2173,7 @@ static errr rd_dungeon(void)
 			x = i_ptr->x;
 
 			/* Link the object to the pile */
-			rp_ptr->next_in_grid = cave_region_piece[y][x];
+			rp_ptr2->next_in_grid = cave_region_piece[y][x];
 
 			/* Link the floor to the object */
 			cave_region_piece[y][x] = region_piece;
@@ -2645,7 +2645,7 @@ static errr rd_savefile_new_aux(void)
 	{
 		object_kind *k_ptr = &k_info[i];
 
-		byte tmp8u;
+		//byte tmp8u;
 
 		if (older_than(0,6,3,6))
 		{
@@ -2684,7 +2684,7 @@ static errr rd_savefile_new_aux(void)
 	/* Load the Quests */
 	for (i = 0; i < tmp16u; i++)
 	{
-		int j;
+		//int j;
 
 		rd_byte(&tmp8u);
 

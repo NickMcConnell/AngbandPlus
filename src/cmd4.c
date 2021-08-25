@@ -78,14 +78,14 @@ typedef struct join {
 
 /* A default group-by */
 static join_t *default_join;
-static int default_join_cmp(const void *a, const void *b)
-{
-	join_t *ja = &default_join[*(int*)a];
-	join_t *jb = &default_join[*(int*)b];
-	int c = ja->gid - jb->gid;
-	if (c) return c;
-	return ja->oid - jb->oid;
-}
+//static int default_join_cmp(const void *a, const void *b)
+//{
+//	join_t *ja = &default_join[*(int*)a];
+//	join_t *jb = &default_join[*(int*)b];
+//	int c = ja->gid - jb->gid;
+//	if (c) return c;
+//	return ja->oid - jb->oid;
+//}
 static int default_group(int oid) { return default_join[oid].gid; }
 
 
@@ -483,9 +483,10 @@ static void display_knowledge_start_at(
 
 	int grp_old = -1, grp_top = 0; /* group list positions */
 	int o_cur = 0, object_top = 0; /* object list positions */
-	int g_o_count = 0; /* object count for group */
+	//int g_o_count = 0; /* object count for group */
 	int o_first = 0, g_o_max = 0; /* group limits in object list */
-	int oid = -1, old_oid = -1;  /* object identifiers */
+	//int oid = -1, old_oid = -1;  /* object identifiers */
+	int oid = -1;  /* object identifiers */
 
 	/* display state variables */
 	bool visual_list = FALSE;
@@ -576,10 +577,10 @@ static void display_knowledge_start_at(
 		if(g_cur != grp_old) {
 			o_first = o_cur = g_offset[g_cur];
 			object_top = o_first;
-			g_o_count = g_offset[g_cur+1] - g_offset[g_cur];
+			//g_o_count = g_offset[g_cur+1] - g_offset[g_cur];
 			g_o_max = g_offset[g_cur+1];
 			grp_old = g_cur;
-			old_oid = -1;
+			//old_oid = -1;
 
 			/* Tweak the starting object position
 			if(init_obj >= 0) {
@@ -701,6 +702,8 @@ static void display_knowledge_start_at(
 				if (!ke.mousebutton) break;
 				if(oid != obj_list[o_cur])
 					break;
+				
+				__attribute__ ((fallthrough));
 			}
 
 			case 'R':
@@ -764,7 +767,7 @@ static void display_knowledge_start_at(
 					if (!i_ptr->k_idx || i_ptr->note != old_note) continue;
 
 					/* Not matching item */
-					if (!g_funcs.group(oid) != i_ptr->tval) continue;
+					if ((!g_funcs.group(oid)) != i_ptr->tval) continue;
 
 					/* Auto-inscribe */
 					if (g_funcs.aware(i_ptr) || adult_auto)
@@ -778,63 +781,74 @@ static void display_knowledge_start_at(
 			case 'w': case 'W':
 			case 'a': case 'A':
 			case 'f': case 'F':
-			case 'd': case 'D':
+			case 'd': 
+			case 'D':
+			{
 				/* precondition -- valid feature */
 				if (o_funcs.flags3 != NULL && o_funcs.flags3(oid) != 0)
-			{
-				u32b *flags3 = o_funcs.flags3(oid);
+				{
+					u32b *flags3 = o_funcs.flags3(oid);
 
-			switch(ke.key)
-			{
-			case 'a': case 'A':
-			{
-				if (*flags3 & (FF3_ATTR_LITE))
-				{
-					*flags3 &= ~(FF3_ATTR_LITE);
-				}
-				else
-				{
-					*flags3 |= (FF3_ATTR_LITE);
-				}
-			}
+					switch(ke.key)
+					{
+						case 'a': case 'A':
+						{
+							if (*flags3 & (FF3_ATTR_LITE))
+							{
+								*flags3 &= ~(FF3_ATTR_LITE);
+							}
+							else
+							{
+								*flags3 |= (FF3_ATTR_LITE);
+							}
+							
+							__attribute__ ((fallthrough));
+						}
 
-			case 'f': case 'F':
-			{
-				if (*flags3 & (FF3_ATTR_ITEM))
-				{
-					*flags3 &= ~(FF3_ATTR_ITEM);
-				}
-				else
-				{
-					*flags3 |= (FF3_ATTR_ITEM);
-				}
-			}
+						case 'f': case 'F':
+						{
+							if (*flags3 & (FF3_ATTR_ITEM))
+							{
+								*flags3 &= ~(FF3_ATTR_ITEM);
+							}
+							else
+							{
+								*flags3 |= (FF3_ATTR_ITEM);
+							}
+							
+							__attribute__ ((fallthrough));
+						}
 
-			case 'd': case 'D':
-			{
-				if (*flags3 & (FF3_ATTR_DOOR))
-				{
-					*flags3 &= ~(FF3_ATTR_DOOR);
-				}
-				else
-				{
-					*flags3 |= (FF3_ATTR_DOOR);
-				}
-			}
+						case 'd': case 'D':
+						{
+							if (*flags3 & (FF3_ATTR_DOOR))
+							{
+								*flags3 &= ~(FF3_ATTR_DOOR);
+							}
+							else
+							{
+								*flags3 |= (FF3_ATTR_DOOR);
+							}
+							
+							__attribute__ ((fallthrough));
+						}
 
-			case 'w': case 'W':
-			{
-				if (*flags3 & (FF3_ATTR_WALL))
-				{
-					*flags3 &= ~(FF3_ATTR_WALL);
+						case 'w': case 'W':
+						{
+							if (*flags3 & (FF3_ATTR_WALL))
+							{
+								*flags3 &= ~(FF3_ATTR_WALL);
+							}
+							else
+							{
+								*flags3 |= (FF3_ATTR_WALL);
+							}
+						}
+					}
+					break;
 				}
-				else
-				{
-					*flags3 |= (FF3_ATTR_WALL);
-				}
-			}
-			}
-			break;
+				
+				__attribute__ ((fallthrough));
 			}
 			default:
 			{
@@ -1903,16 +1917,16 @@ static void do_cmd_knowledge_home(void)
 
 int count_routes(int from, int to)
 {
-  s16b routes[24];
-  int i, num;
+	s16b routes[24];
+	int i, num;
 
-  num = set_routes(routes, 24, from);
+	num = set_routes(routes, 24, from);
 
-  for (i = 0; i < num; i++)
-    if (to == routes[i]) return num;
+	for (i = 0; i < num; i++)
+		if (to == routes[i]) return num;
 
-    /* no route */
-    return -num;
+	/* no route */
+	return -num;
 }
 
 static void describe_surface_dungeon(int dun)
@@ -3005,7 +3019,7 @@ static void do_cmd_options_win(void)
 			/* Display the windows */
 			for (j = 0; j < ANGBAND_TERM_MAX; j++)
 			{
-				byte a = TERM_WHITE;
+				a = TERM_WHITE;
 
 				char c = '.';
 

@@ -45,7 +45,7 @@ void do_cmd_inven(void)
 	prt("(Inventory) Command: ", 0, 0);
 
 	/* Hack -- Get a new command */
-	p_ptr->command_new = inkey_ex();
+	//p_ptr->command_new = inkey_ex();
 
 	/* Load screen */
 	screen_load();
@@ -1767,6 +1767,8 @@ bool player_trade(int item2)
 						monster_speech(trade_m_idx, "You should see the rest of my home.", FALSE);
 						break;
 					}
+					
+					__attribute__ ((fallthrough));
 				}
 
 				/* Tells the player about the most powerful monster in the ecology */
@@ -1781,6 +1783,8 @@ bool player_trade(int item2)
 
 						break;
 					}
+					
+					__attribute__ ((fallthrough));
 				}
 
 				/* Tells the player about the local region. */

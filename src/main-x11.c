@@ -844,14 +844,14 @@ static errr Infowin_impell(int x, int y)
 /*
  * Resize an infowin
  */
-static errr Infowin_resize(int w, int h)
-{
+//static errr Infowin_resize(int w, int h)
+//{
 	/* Execute the request */
-	XResizeWindow(Metadpy->dpy, Infowin->win, w, h);
+//	XResizeWindow(Metadpy->dpy, Infowin->win, w, h);
 
 	/* Success */
-	return (0);
-}
+//	return (0);
+//}
 
 
 #ifndef IGNORE_UNUSED_FUNCTIONS
@@ -1714,28 +1714,28 @@ static void mark_selection(void)
 /*
  * Forget a selection for one reason or another.
  */
-static void copy_x11_release(void)
-{
+//static void copy_x11_release(void)
+//{
 	/* Deselect the current selection. */
-	x11_selection->select = FALSE;
+//	x11_selection->select = FALSE;
 
 	/* Remove its graphical represesntation. */
-	mark_selection();
-}
+//	mark_selection();
+//}
 
 
 /*
  * Start to select some text on the screen.
  */
-static void copy_x11_start(int x, int y)
-{
-	if (x11_selection->select) copy_x11_release();
+//static void copy_x11_start(int x, int y)
+//{
+//	if (x11_selection->select) copy_x11_release();
 
 	/* Remember where the selection started. */
-	x11_selection->t = Term;
-	x11_selection->init.x = x11_selection->cur.x = x11_selection->old.x = x;
-	x11_selection->init.y = x11_selection->cur.y = x11_selection->old.y = y;
-}
+//	x11_selection->t = Term;
+//	x11_selection->init.x = x11_selection->cur.x = x11_selection->old.x = x;
+//	x11_selection->init.y = x11_selection->cur.y = x11_selection->old.y = y;
+//}
 
 
 /*
@@ -1854,8 +1854,8 @@ static errr CheckEvent(bool wait)
 			bool press = (xev->type == ButtonPress);
 
 			/* Where is the mouse */
-			int x = xev->xbutton.x;
-			int y = xev->xbutton.y;
+			x = xev->xbutton.x;
+			y = xev->xbutton.y;
 
 			int z = 0;
 
@@ -2007,8 +2007,8 @@ static errr CheckEvent(bool wait)
 			if ((Infowin->w != wid) || (Infowin->h != hgt))
 			{
 				/* Resize window */
-				Infowin_set(td->win);
-				Infowin_resize(wid, hgt);
+				//Infowin_set(td->win);
+				//Infowin_resize(wid, hgt);
 			}
 
 			break;
@@ -2334,6 +2334,8 @@ static errr term_data_init(term_data *td, int i)
 	char res_name[20];
 	char res_class[20];
 
+	bool is_main_term = (i == 0);
+
 	XSizeHints *sh;
 
 	/* Get default font for this term */
@@ -2384,7 +2386,26 @@ static errr term_data_init(term_data *td, int i)
 	/* Prepare the standard font */
 	td->fnt = ZNEW(infofnt);
 	Infofnt_set(td->fnt);
-	if (Infofnt_init_data(font)) quit_fmt("Couldn't load the requested font. (%s)", font);
+
+	if (! has_env_font(i) && is_main_term) {
+		if (Infofnt_init_data(MODERN_X11_FONT)) {
+			printf("\nUsing base xfont, install Terminus xfonts for improved visuals.\n");
+
+			if (Infofnt_init_data(font)) {
+				printf("\nUsing sys font, please install Terminus/base xfonts (reboot required).\n\n");
+
+				if (Infofnt_init_data(FALLBACK_X11_FONT))
+					quit_fmt("Please install xfonts (Terminus or base, reboot required). (%s)", font);
+			}
+		}
+	} else {
+		if (Infofnt_init_data(font)) {
+			printf("\nUsing sys font, please install base xfonts (reboot required).\n\n");
+
+			if (Infofnt_init_data(FALLBACK_X11_FONT))
+				quit_fmt("Please install base xfonts (reboot required). (%s)", font);
+		}
+	}
 
 	/* Hack -- key buffer size */
 	num = ((i == 0) ? 1024 : 16);
@@ -2436,7 +2457,7 @@ static errr term_data_init(term_data *td, int i)
 		/* Main window min size is 80x24 */
 		sh->flags = PMinSize | PMaxSize;
 		sh->min_width = 80 * td->fnt->wid + (ox + ox);
-		sh->min_height = 24 * td->fnt->hgt + (oy + oy);
+		sh->min_height = 34 * td->fnt->hgt + (oy + oy);
 		sh->max_width = 255 * td->fnt->wid + (ox + ox);
 		sh->max_height = 255 * td->fnt->hgt + (oy + oy);
 	}

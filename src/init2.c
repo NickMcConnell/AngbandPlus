@@ -2171,7 +2171,7 @@ void init_angband(void)
 
 	int mode = 0644;
 
-	FILE *fp;
+	//FILE *fp;
 
 	char buf[1024];
 
@@ -2203,32 +2203,32 @@ void init_angband(void)
 	/*** Display the "news" file ***/
 
 	/* Clear screen */
-	Term_clear();
+	//Term_clear();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "news.txt");
+	//path_build(buf, 1024, ANGBAND_DIR_FILE, "news.txt");
 
 	/* Open the News file */
-	fp = my_fopen(buf, "r");
+	//fp = my_fopen(buf, "r");
 
 	/* Dump */
-	if (fp)
-	{
-		int i = 0;
+	//if (fp)
+	//{
+	//	int i = 0;
 
 		/* Dump the file to the screen */
-		while (0 == my_fgets(fp, buf, sizeof(buf)))
-		{
+	//	while (0 == my_fgets(fp, buf, sizeof(buf)))
+	//	{
 			/* Display and advance */
-			Term_putstr(0, i++, -1, TERM_WHITE, buf);
-		}
+	//		Term_putstr(0, i++, -1, TERM_WHITE, buf);
+	//	}
 
 		/* Close */
-		my_fclose(fp);
-	}
+	//	my_fclose(fp);
+	//}
 
 	/* Flush it */
-	Term_fresh();
+	//Term_fresh();
 
 
 	/*** Verify (or create) the "high score" file ***/

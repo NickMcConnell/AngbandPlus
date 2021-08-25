@@ -30,10 +30,11 @@
 # 'G' is for graphics - symbol and color. There are 16 colors, as
 # follows:
 
-# D - Black        w - White          s - Gray          o - Orange
+# d - Black        w - White          s - Gray          o - Orange
 # r - Red          g - Green          b - Blue          u - Brown
 # d - Dark Gray    W - Light Gray     v - Violet        y - Yellow
 # R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
+# D - Dark Gray
 
 # 'W' is for where the feature appears, its rarity, the priority number used
 # when viewing the condensed map, and the index of a feature that surrounds
@@ -386,7 +387,7 @@ V:0.6.6
 # 0x00 --> nothing
 
 N:0:nothing
-G: :w
+G: :d
 O:0
 W:0:0:0:0
 F:ATTR_LITE |
@@ -421,7 +422,7 @@ F:HURT_POIS | HURT_WATER | ATTR_LITE |
 # 0x02 --> invisible trap (drawn as open floor)
 
 N:2:invisible trap
-G:x:D
+G:x:d
 M:1
 #$ open floor
 U:56
@@ -1775,7 +1776,7 @@ F:ATTR_LITE |
 # 0x3C --> permanent wall -- basic (perm)
 
 N:60:permanent wall
-G:#:z
+G:#:w
 U:56
 #$ granite wall
 O:0
@@ -3582,7 +3583,7 @@ F:OUTSIDE | ATTR_LITE |
 #Chasm center.
 
 N:141:chasm
-G: :D
+G: :d
 O:0
 W:45:2:1:142
 #$ chasm
@@ -9014,7 +9015,7 @@ F:LAKE | CAN_CLIMB | CAN_FLY | HIDE_DIG |
 F:HURT_WATER | GET_FEAT | GROUND | OUTSIDE | ATTR_LITE |
 
 N:411:grass
-G:.:G
+G:.:f
 O:0
 W:1:10:15:0
 K:DEFAULT:411:0
@@ -20302,3 +20303,47 @@ K:DEFAULT:1000:51
 F:LOS | PROJECT | MOVE | NOTICE | REMEMBER | ENTER | PERMANENT |
 F:GLOW | CAN_FLY |
 F:OUTSIDE | ATTR_LITE |
+
+# 0x3E9 --> permanent wall -- roof (perm)
+
+N:1001:permanent wall
+G:#:r
+U:56
+#$ granite wall
+O:0
+W:0:1:10:0
+K:DEFAULT:1001:0
+F:REMEMBER | TUNNEL | WALL | PERMANENT |
+F:FILLED | CAN_CLIMB |
+F:ATTR_LITE |
+D:This seems to be permanent rock.
+
+# 0x3EA --> permanent wall -- edge (perm)
+
+N:1002:permanent wall
+G:#:z
+U:56
+#$ granite wall
+O:0
+W:0:1:10:0
+K:DEFAULT:1002:0
+F:REMEMBER | TUNNEL | WALL | PERMANENT |
+F:FILLED | CAN_CLIMB |
+F:ATTR_LITE |
+D:This seems to be permanent rock.
+
+# 0x3EB --> permanent wall -- roof (perm)
+
+N:1003:permanent wall
+G:^:g
+U:56
+#$ granite wall
+O:0
+W:0:1:10:0
+K:DEFAULT:1001:0
+F:LOS | PROJECT | MOVE | PLACE | DROP | RUN |
+F:PATH | LAKE | HURT_FIRE | CAN_CLIMB | CAN_FLY | HIDE_ITEM | HIDE_SNEAK |
+F:HIDE_DIG |
+F:HURT_WATER | GROUND | OUTSIDE | LIVING | ATTR_LITE |
+D:This seems to be grass.
+

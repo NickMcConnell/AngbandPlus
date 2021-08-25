@@ -295,7 +295,7 @@ static int wiz_create_itemtype(void)
 	int col, row;
 	int tval;
 
-	cptr tval_desc;
+	cptr tval_desc2;
 	char ch;
 
 	int choice[78];
@@ -335,7 +335,7 @@ static int wiz_create_itemtype(void)
 
 	/* Base object type chosen, fill in tval */
         tval = object_group[num].tval;
-        tval_desc = object_group[num].text;
+        tval_desc2 = object_group[num].text;
 
 
 	/*** And now we go for k_idx ***/
@@ -374,7 +374,7 @@ static int wiz_create_itemtype(void)
 	max_num = num;
 
 	/* Choose! */
-	if (!get_com(format("What Kind of %s? ", tval_desc), &ch)) return (0);
+	if (!get_com(format("What Kind of %s? ", tval_desc2), &ch)) return (0);
 
 	/* Analyze choice */
 	num = -1;
@@ -694,7 +694,7 @@ static void wiz_quantity_item(object_type *o_ptr, bool carried)
 {
 	int tmp_int;
 
-	char tmp_val[3];
+	char tmp_val[4];
 
 
 	/* Never duplicate artifacts */

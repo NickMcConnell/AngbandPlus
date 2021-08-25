@@ -1546,7 +1546,7 @@ static u32b add_name(header *head, cptr buf)
  */
 errr parse_z_info(char *buf, header *head)
 {
-	maxima *z_info = (maxima*)head->info_ptr;
+	maxima *z_info2 = (maxima*)head->info_ptr;
 
 	/* Hack - Verify 'M:x:' format */
 	if (buf[0] != 'M') return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
@@ -1563,7 +1563,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->d_max = max;
+		z_info2->d_max = max;
 	}
 	/* Process 'F' for "Maximum f_info[] index" */
 	else if (buf[2] == 'F')
@@ -1574,7 +1574,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->f_max = max;
+		z_info2->f_max = max;
 	}
 
 	/* Process 'K' for "Maximum k_info[] index" */
@@ -1586,7 +1586,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->k_max = max;
+		z_info2->k_max = max;
 	}
 
 	/* Process 'A' for "Maximum number of standard artifacts " */
@@ -1598,7 +1598,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->a_max = max;
+		z_info2->a_max = max;
 	}
 
 	/* Process 'a' for "Maximum a_info[] index" */
@@ -1610,7 +1610,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->a_max_standard = max;
+		z_info2->a_max_standard = max;
 	}
 
 	/* Process 'E' for "Maximum e_info[] index" */
@@ -1622,7 +1622,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->e_max = max;
+		z_info2->e_max = max;
 	}
 
 	/* Process 'X' for "Maximum x_info[] index" */
@@ -1634,7 +1634,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->x_max = max;
+		z_info2->x_max = max;
 	}
 
 	/* Process 'R' for "Maximum r_info[] index" */
@@ -1646,7 +1646,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->r_max = max;
+		z_info2->r_max = max;
 	}
 
 
@@ -1659,7 +1659,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->v_max = max;
+		z_info2->v_max = max;
 	}
 
 
@@ -1672,7 +1672,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->p_max = max;
+		z_info2->p_max = max;
 	}
 
 	/* Process 'G' for "Maximum g_info[] index" */
@@ -1684,7 +1684,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->g_max = max;
+		z_info2->g_max = max;
 	}
 
 	/* Process 'C' for "Maximum c_info[] index" */
@@ -1696,7 +1696,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->c_max = max;
+		z_info2->c_max = max;
 	}
 
 	/* Process 'W' for "Maximum w_info[] index" */
@@ -1708,7 +1708,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->w_max = max;
+		z_info2->w_max = max;
 	}
 
 	/* Process 'S' for "Maximum s_info[] index" */
@@ -1720,7 +1720,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->s_max = max;
+		z_info2->s_max = max;
 	}
 
 	/* Process 'Y' for "Maximum y_info[] index" */
@@ -1732,7 +1732,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->y_max = max;
+		z_info2->y_max = max;
 	}
 	/* Process 'T' for "Maximum t_info[] index" */
 	else if (buf[2] == 'T')
@@ -1743,7 +1743,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->t_max = max;
+		z_info2->t_max = max;
 	}
 
 	/* Process 'U' for "Maximum u_info[] index" */
@@ -1755,7 +1755,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->u_max = max;
+		z_info2->u_max = max;
 	}
 
 	/* Process 'H' for "Maximum h_info[] index" */
@@ -1767,7 +1767,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->h_max = max;
+		z_info2->h_max = max;
 	}
 
 	/* Process 'B' for "Maximum b_info[] subindex" */
@@ -1779,7 +1779,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->b_max = max;
+		z_info2->b_max = max;
 	}
 
 	/* Process 'm' for "Maximum blow_info[] subindex" */
@@ -1791,7 +1791,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->method_max = max;
+		z_info2->method_max = max;
 	}
 
 	/* Process 'e' for "Maximum effect_info[] subindex" */
@@ -1803,7 +1803,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->effect_max = max;
+		z_info2->effect_max = max;
 	}
 
 	/* Process 'p' for "Maximum region_piece_list[] subindex" */
@@ -1815,7 +1815,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->region_piece_max = max;
+		z_info2->region_piece_max = max;
 	}
 
 	/* Process 'i' for "Maximum region_info[] subindex" */
@@ -1827,7 +1827,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->region_info_max = max;
+		z_info2->region_info_max = max;
 	}
 
 	/* Process 'r' for "Maximum region_list[] subindex" */
@@ -1839,7 +1839,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->region_max = max;
+		z_info2->region_max = max;
 	}
 
 	/* Process 'Q' for "Maximum q_info[] subindex" */
@@ -1851,7 +1851,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->q_max = max;
+		z_info2->q_max = max;
 	}
 
 	/* Process 'O' for "Maximum o_list[] index" */
@@ -1863,7 +1863,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->o_max = max;
+		z_info2->o_max = max;
 	}
 
 	/* Process 'M' for "Maximum m_list[] index" */
@@ -1875,7 +1875,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->m_max = max;
+		z_info2->m_max = max;
 	}
 
 	/* Process 'N' for "Fake name size" */
@@ -1887,7 +1887,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%ld", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->fake_name_size = max;
+		z_info2->fake_name_size = max;
 	}
 
 	/* Process 'I' for "Fake text size" */
@@ -1899,7 +1899,7 @@ errr parse_z_info(char *buf, header *head)
 		if (1 != sscanf(buf+4, "%ld", &max)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the value */
-		z_info->fake_text_size = max;
+		z_info2->fake_text_size = max;
 	}
 	else
 	{
@@ -2394,7 +2394,7 @@ errr parse_method_info(char *buf, header *head)
 	{
 		int mult, div, var, max, div_pow, max_pow;
 		int n, n1;
-		char *s;
+		//char *s;
 
 		/* There better be a current method_ptr */
 		if (!method_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
@@ -4174,7 +4174,7 @@ errr parse_k_info(char *buf, header *head)
 	/* Process 'A' for "Allocation" (one line only) */
 	else if (buf[0] == 'A')
 	{
-		int i;
+		//int i;
 
 		/* There better be a current k_ptr */
 		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
@@ -4724,13 +4724,13 @@ errr parse_e_info(char *buf, header *head)
 	/* Process 'X' for "Xtra" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int slot, rating, xtra;
+		int slot/*, rating*/, xtra;
 
 		/* There better be a current e_ptr */
 		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
+		if (3 != sscanf(buf+2, "%d:%hd:%d",
 			    &slot, &rating, &xtra)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
@@ -6302,7 +6302,7 @@ errr parse_s_info(char *buf, header *head)
 	{
 		int tval,sval,slot;
 
-		bool collision = FALSE;
+		//bool collision = FALSE;
 		bool last_slot = 0;
 		int j, k;
 
@@ -6356,7 +6356,7 @@ errr parse_s_info(char *buf, header *head)
 				{
 					if (last_slot < s2_ptr->appears[k].slot) last_slot = s2_ptr->appears[k].slot;
 
-					if (s2_ptr->appears[k].slot == slot) collision = TRUE;
+					//if (s2_ptr->appears[k].slot == slot) collision = TRUE;
 				}
 			}
 		}
@@ -7211,6 +7211,25 @@ errr parse_t_info(char *buf, header *head)
 		if (!add_text(&t_ptr->text, head, s))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
+	/* Process 'T' for "Town rumour" */
+	else if (buf[0] == 'T')
+	{
+		int rumour_index;
+		for (rumour_index = 0; rumour_index < MAX_TOWN_RUMOURS+1; rumour_index++)
+			if (t_ptr->rumours[rumour_index][0] == '\0') break;
+		
+		/* If town rumour max is reached, ignore rumour */
+		if (rumour_index == MAX_TOWN_RUMOURS+1) return 0;
+		
+		/* There better be a current t_ptr */
+		if (!t_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Store the rumour */
+		for (unsigned int char_index = 2; char_index < strlen(buf); char_index++) {
+			if (buf[char_index] == '\0') break;
+			t_ptr->rumours[rumour_index][char_index-2] = buf[char_index];
+		}
+	}
 
 	else
 	{
@@ -7701,19 +7720,19 @@ errr parse_q_info(char *buf, header *head)
 	/* Process 'T' for "Travel to" (one line per stage) */
 	else if (buf[0] == 'T')
 	{
-		int dungeon, level, store;
+		int dungeon, level, store2;
 
 		/* There better be a current q_ptr */
 		if (!q_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
 		if (3 != sscanf(buf+2, "%d:%d:%d",
-				&dungeon, &level, &store)) return (PARSE_ERROR_GENERIC);
+				&dungeon, &level, &store2)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		qe_ptr->dungeon = dungeon;
 		qe_ptr->level = level;
-		qe_ptr->store = store;
+		qe_ptr->store = store2;
 	}
 
 	/* Process 'A' for "Artifact" (one line per stage) */
@@ -7783,17 +7802,17 @@ errr parse_q_info(char *buf, header *head)
 	/* Process 'E' for "Ego item" (one line per stage) */
 	else if (buf[0] == 'E')
 	{
-		int ego_item_type;
+		int ego_item_type2;
 
 		/* There better be a current q_ptr */
 		if (!q_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
 		if (1 != sscanf(buf+2, "%d",
-				&ego_item_type)) return (PARSE_ERROR_GENERIC);
+				&ego_item_type2)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
-		qe_ptr->ego_item_type = ego_item_type;
+		qe_ptr->ego_item_type = ego_item_type2;
 	}
 
 	/* Process 'R' for "Races" (one line per stage) */
@@ -9427,7 +9446,7 @@ errr eval_e_power(header *head)
 errr eval_f_power(header *head)
 {
 	int i;
-	feature_type *f_ptr = NULL;
+	//feature_type *f_ptr = NULL;
 #if 0
 	feature_type *f2_ptr = NULL;
 #endif
@@ -9436,7 +9455,7 @@ errr eval_f_power(header *head)
 	for (i = 0; i < z_info->f_max; i++)
 	{
 		/* Point at the "info" */
-		f_ptr = (feature_type*)head->info_ptr + i;
+		//f_ptr = (feature_type*)head->info_ptr + i;
 
 	}
 

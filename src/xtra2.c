@@ -909,227 +909,231 @@ bool set_cut(int v)
  */
 bool set_food(int v)
 {
-	int old_aux, new_aux;
+	/* Player never goes hungry and does not need food */
+	p_ptr->food = PY_FOOD_MAX - 1;
+	return (TRUE);
+	
+	//int old_aux, new_aux;
 
-	bool notice = FALSE;
+	//bool notice = FALSE;
 
 	/* Hack -- Force good values */
-	v = (v > 20000) ? 20000 : (v < 0) ? 0 : v;
+	//v = (v > 20000) ? 20000 : (v < 0) ? 0 : v;
 
 	/* Starving */
-	if (p_ptr->food < PY_FOOD_STARVE)
-	{
-		old_aux = 0;
-	}
+	//if (p_ptr->food < PY_FOOD_STARVE)
+	//{
+		//old_aux = 0;
+	//}
 
 	/* Fainting */
-	else if (p_ptr->food < PY_FOOD_FAINT)
-	{
-		old_aux = 1;
-	}
+	//else if (p_ptr->food < PY_FOOD_FAINT)
+	//{
+		//old_aux = 1;
+	//}
 
 	/* Weak */
-	else if (p_ptr->food < PY_FOOD_WEAK)
-	{
-		old_aux = 2;
-	}
+	//else if (p_ptr->food < PY_FOOD_WEAK)
+	//{
+		//old_aux = 2;
+	//}
 
 	/* Hungry */
-	else if (p_ptr->food < PY_FOOD_ALERT)
-	{
-		old_aux = 3;
-	}
+	//else if (p_ptr->food < PY_FOOD_ALERT)
+	//{
+		//old_aux = 3;
+	//}
 
 	/* Normal */
-	else if (p_ptr->food < PY_FOOD_FULL)
-	{
-		old_aux = 4;
-	}
+	//else if (p_ptr->food < PY_FOOD_FULL)
+	//{
+		//old_aux = 4;
+	//}
 
 	/* Full */
-	else if (p_ptr->food < PY_FOOD_MAX)
-	{
-		old_aux = 5;
-	}
+	//else if (p_ptr->food < PY_FOOD_MAX)
+	//{
+		//old_aux = 5;
+	//}
 
 	/* Gorged */
-	else
-	{
-		old_aux = 6;
-	}
+	//else
+	//{
+		//old_aux = 6;
+	//}
 
 	/* Starving */
-	if (v < PY_FOOD_STARVE)
-	{
-		new_aux = 0;
-	}
+	//if (v < PY_FOOD_STARVE)
+	//{
+		//new_aux = 0;
+	//}
 
 	/* Fainting */
-	else if (v < PY_FOOD_FAINT)
-	{
-		new_aux = 1;
-	}
+	//else if (v < PY_FOOD_FAINT)
+	//{
+		//new_aux = 1;
+	//}
 
 	/* Weak */
-	else if (v < PY_FOOD_WEAK)
-	{
-		new_aux = 2;
-	}
+	//else if (v < PY_FOOD_WEAK)
+	//{
+		//new_aux = 2;
+	//}
 
 	/* Hungry */
-	else if (v < PY_FOOD_ALERT)
-	{
-		new_aux = 3;
-	}
+	//else if (v < PY_FOOD_ALERT)
+	//{
+		//new_aux = 3;
+	//}
 
 	/* Normal */
-	else if (v < PY_FOOD_FULL)
-	{
-		new_aux = 4;
-	}
+	//else if (v < PY_FOOD_FULL)
+	//{
+		//new_aux = 4;
+	//}
 
 	/* Full */
-	else if (v < PY_FOOD_MAX)
-	{
-		new_aux = 5;
-	}
+	//else if (v < PY_FOOD_MAX)
+	//{
+		//new_aux = 5;
+	//}
 
 	/* Gorged */
-	else
-	{
-		new_aux = 6;
-	}
+	//else
+	//{
+		//new_aux = 6;
+	//}
 
 	/* Food increase */
-	if ((new_aux > old_aux) || ((v > p_ptr->food) && (new_aux == old_aux)))
-	{
+	//if ((new_aux > old_aux) || ((v > p_ptr->food) && (new_aux == old_aux)))
+	//{
 		/* Describe the state */
-		switch (new_aux)
-		{
+		//switch (new_aux)
+		//{
 			/* Weak */
-			case 0:
-			case 1:
-			case 2:
-			{
-				msg_print("You are still starving.");
-				break;
-			}
+			//case 0:
+			//case 1:
+			//case 2:
+			//{
+				//msg_print("You are still starving.");
+				//break;
+			//}
 
 			/* Hungry */
-			case 3:
-			{
-				msg_print("You are still hungry.");
-				break;
-			}
+			//case 3:
+			//{
+				//msg_print("You are still hungry.");
+				//break;
+			//}
 
 			/* Normal */
-			case 4:
-			{
-				if (new_aux != old_aux) msg_print("You are no longer hungry.");
-				break;
-			}
+			//case 4:
+			//{
+				//if (new_aux != old_aux) msg_print("You are no longer hungry.");
+				//break;
+			//}
 
 			/* Full */
-			case 5:
-			{
-				msg_print("You are full!");
-				break;
-			}
+			//case 5:
+			//{
+				//msg_print("You are full!");
+				//break;
+			//}
 
 			/* Bloated */
-			case 6:
-			{
-				msg_print("You have gorged yourself!");
-				break;
-			}
-		}
+			//case 6:
+			//{
+				//msg_print("You have gorged yourself!");
+				//break;
+			//}
+		//}
 
 		/* Change */
-		notice = TRUE;
-	}
+		//notice = TRUE;
+	//}
 
 	/* Food decrease */
-	else if (!new_aux || new_aux < old_aux)
-	{
+	//else if (!new_aux || new_aux < old_aux)
+	//{
 		/* Describe the state */
-		switch (new_aux)
-		{
+		//switch (new_aux)
+		//{
 		        /* A step from hunger death */
-			case 0:
-			{
+			//case 0:
+			//{
 			  /* Disturb */
-			  disturb(1, 1);
+			  //disturb(1, 1);
 
 			  /* Hack -- bell on first notice */
-			  if (new_aux < old_aux)
-			    bell("You are dying from hunger!");
+			  //if (new_aux < old_aux)
+			    //bell("You are dying from hunger!");
 
 			  /* Message */
-			  msg_print("You are dying from hunger!");
-			  msg_print(NULL);
-			  break;
-			}
+			  //msg_print("You are dying from hunger!");
+			  //msg_print(NULL);
+			  //break;
+			//}
 
 			/* Fainting / Starving */
-			case 1:
-			{
-				msg_print("You are getting faint from hunger!");
-				break;
-			}
+			//case 1:
+			//{
+				//msg_print("You are getting faint from hunger!");
+				//break;
+			//}
 
 			/* Weak */
-			case 2:
-			{
-				msg_print("You are getting weak from hunger!");
-				break;
-			}
+			//case 2:
+			//{
+				//msg_print("You are getting weak from hunger!");
+				//break;
+			//}
 
 			/* Hungry */
-			case 3:
-			{
-				msg_print("You are getting hungry.");
-				break;
-			}
+			//case 3:
+			//{
+				//msg_print("You are getting hungry.");
+				//break;
+			//}
 
 			/* Normal */
-			case 4:
-			{
-				msg_print("You are no longer full.");
-				break;
-			}
+			//case 4:
+			//{
+				//msg_print("You are no longer full.");
+				//break;
+			//}
 
 			/* Full */
-			case 5:
-			{
-				msg_print("You are no longer gorged.");
-				break;
-			}
-		}
+			//case 5:
+			//{
+				//msg_print("You are no longer gorged.");
+				//break;
+			//}
+		//}
 
 		/* Change */
-		notice = TRUE;
-	}
+		//notice = TRUE;
+	//}
 
 	/* Use the value */
-	p_ptr->food = v;
+	//p_ptr->food = v;
 
 	/* Nothing to notice */
-	if (!notice) return (FALSE);
+	//if (!notice) return (FALSE);
 
 	/* Disturb - wake player if hungry */
-	if (disturb_state) disturb(0, new_aux <= 2 ? TRUE : FALSE);
+	//if (disturb_state) disturb(0, new_aux <= 2 ? TRUE : FALSE);
 
 	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
+	//p_ptr->update |= (PU_BONUS);
 
 	/* Redraw hunger */
-	p_ptr->redraw |= (PR_HUNGER);
+	//p_ptr->redraw |= (PR_HUNGER);
 
 	/* Handle stuff */
-	handle_stuff();
+	//handle_stuff();
 
 	/* Result */
-	return (TRUE);
+	//return (TRUE);
 }
 
 
@@ -1413,22 +1417,91 @@ bool stat_commands(char choice, const s16b *sn, int i, bool *redraw)
 	return (TRUE);
 }
 
+int remove_drained_stat(int stat) {
+	int tmp = 0;
+	
+	if (p_ptr->stat_cur[stat] < p_ptr->stat_max[stat])
+		tmp = p_ptr->stat_cur[stat];
+	p_ptr->stat_cur[stat] = p_ptr->stat_max[stat];
+	
+	return tmp;
+}
+
+void set_stat(int stat, int value) {
+	p_ptr->stat_cur[stat] = value;
+}
+
 /*
  * Improve a player-chosen set of stats.
  * Note the hack to always improve the maximal value of a stat.
  */
 static void improve_stat(void)
 {
+	char player_level_speech[51];
+	//char keypress;
+	//bool valid_choice = FALSE;
+	
+	//int old_str, old_con, old_dex, old_agi, old_int, old_wis;
+	
+	//char improve_stat_dialog[] = "Congratulations, you gained a level and can improve your character. Choose:\n\n (1) to improve your strength and health\n (2) to improve your agility\n (3) to improve your magic skill";
+	
+	//keypress = get_dialog(improve_stat_dialog, TRUE, "123");
+	
+	//switch (keypress) {
+	//	case '1':
+	//		old_str = remove_drained_stat(A_STR);
+	//		old_con = remove_drained_stat(A_CON);
+			
+	//		inc_stat(A_STR);
+	//		inc_stat(A_CON);
+			
+			/* restore drained stats */
+	//		if (old_str) set_stat(A_STR, old_str);
+	//		if (old_con) set_stat(A_CON, old_con);
+
+	//		break;
+	//	case '2':
+	//		old_dex = remove_drained_stat(A_DEX);
+	//		old_agi = remove_drained_stat(A_AGI);
+			
+	//		inc_stat(A_DEX);
+	//		inc_stat(A_AGI);
+			
+			/* restore drained stats */
+	//		if (old_dex) set_stat(A_DEX, old_dex);
+	//		if (old_agi) set_stat(A_AGI, old_agi);
+			
+	//		break;
+	//	case '3':
+	//		old_int = remove_drained_stat(A_INT);
+	//		old_wis = remove_drained_stat(A_WIS);
+			
+	//		inc_stat(A_INT);
+	//		inc_stat(A_WIS);
+			
+			/* restore drained stats */
+	//		if (old_int) set_stat(A_INT, old_int);
+	//		if (old_wis) set_stat(A_WIS, old_wis);
+			
+	//		break;
+	//}
+	
+	/* Update stats */
+	//p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+	//update_stuff();
+	
+	//return;
+	
 	int tmp = 0;
 	int i;
 
-	s16b table[A_MAX+1];
-	s16b old_max[A_MAX+1];
-	s16b old_cur[A_MAX+1];
+	//s16b table[A_MAX+1];
+	//s16b old_max[A_MAX+1];
+	//s16b old_cur[A_MAX+1];
 
-	char buf[32];
+	//char buf[32];
 
-	cptr p = "";
+	//cptr p = "";
 
 	int count = 0;
 
@@ -1442,10 +1515,10 @@ static void improve_stat(void)
 	/* Check which stats can still be improved and store old stats*/
 	for (i = 0; i < A_MAX; i++)
 	{
-		table[i] = i;
+		//table[i] = i;
 		if (p_ptr->stat_max[i] < 18 + 999) count++;
-		old_max[i] = p_ptr->stat_max[i];
-		old_cur[i] = p_ptr->stat_cur[i];
+		//old_max[i] = p_ptr->stat_max[i];
+		//old_cur[i] = p_ptr->stat_cur[i];
 	}
 
 	/* No stats left to improve */
@@ -1454,8 +1527,8 @@ static void improve_stat(void)
 	/* Reduce count to number of abilities allowed improvements */
 	if (count > stat_gains[p_ptr->lev -1]) count = stat_gains[p_ptr->lev -1];
 
-	if (adult_rand_stats)
-	{
+	//if (adult_rand_stats)
+	//{
 		/* Improve how many stats with level gain */
 		for (stat_gain_selected = 0; stat_gain_selected < count; stat_gain_selected++)
 		{
@@ -1483,148 +1556,151 @@ static void improve_stat(void)
 			}
 		}
 		
-        /* Improve how many stats with level gain */
-        for (stat_gain_selected = 0; stat_gain_selected < count; stat_gain_selected++)
-        {
-			/* Display */
-			if (p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] < p_ptr->stat_max[stat_gain_selection[stat_gain_selected]])
-			{
-				/* Set description */
-				p = "you could be ";
-				
-				/* Hack --- store stat */
-				tmp = p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]];
-				p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] = p_ptr->stat_max[stat_gain_selection[stat_gain_selected]];
-			}
-			else
-			{
-				p = "";
-				tmp = 0;
-			}
-			
-			/* Increase */
-			inc_stat(stat_gain_selection[stat_gain_selected]);
-#if 0
-			/* Message */
-			msg_format("You feel %s%s.",p,desc_stat_imp[stat_gain_selection[stat_gain_selected]]);
-#endif
-			/* Hack --- restore stat */
-			if (tmp) p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] = tmp;
-        }
-		
-		/* end adult_rand_stats */
-		return;
-	}
-	
-	/* Save screen */
-	screen_save();
-	
-	/* Update stats */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
-	update_stuff();
-
-	/* Confirm stat selection */
-	while (count)
-	{
 		/* Improve how many stats with level gain */
 		for (stat_gain_selected = 0; stat_gain_selected < count; stat_gain_selected++)
 		{
-			/* Should be paranoid here */
-			while (TRUE)
-			{
-				sprintf(buf,"Improve which attribute%s (%d)", count > 1 ? "s" : "", count - stat_gain_selected);
-				
-				/* Select stat to improve */
-				if (get_list(print_stats, table, A_MAX, "Attribute", buf, ", ?=help", 1, 36, stat_commands, &(stat_gain_selection[stat_gain_selected])))
+				/* Display */
+				if (p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] < p_ptr->stat_max[stat_gain_selection[stat_gain_selected]])
 				{
-					/* Check if stat at maximum */
-					if (p_ptr->stat_max[stat_gain_selection[stat_gain_selected]] >= 18 + 999)
-					{
-						msg_format("You cannot get any better.");
-					}
-
-					/* Good stat_gain_selection? */
-					else
-					{
-						bool okay = TRUE;
-
-						/* Check we are not improving another stat */
-						for (i = 0; i < stat_gain_selected; i++)
-						{
-							if (stat_gain_selection[i] == stat_gain_selection[stat_gain_selected]) okay = FALSE;
-						}
-
-						if (okay)
-						{
-							/* Check for drained stats */
-							if (p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]]
-								   < p_ptr->stat_max[stat_gain_selection[stat_gain_selected]])
-								tmp = p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]];
-							else
-								tmp = 0;
-							
-							/* Temporarily restore the stat before increasing */
-							p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] = p_ptr->stat_max[stat_gain_selection[stat_gain_selected]];
-							
-							/* Increase */
-							inc_stat(stat_gain_selection[stat_gain_selected]);
-							
-							/* Restore drained stats */
-							if (tmp) p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] = tmp;
-
-							/* Update stats */
-							p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
-							update_stuff();
-							
-							/* Redisplay stats */
-							print_stats(table, A_MAX, 1, 36);
-														
-							break;
-						}
-					}
+					/* Set description */
+					//p = "you could be ";
+					
+					/* Hack --- store stat */
+					tmp = p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]];
+					p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] = p_ptr->stat_max[stat_gain_selection[stat_gain_selected]];
 				}
 				else
 				{
+					//p = "";
+					tmp = 0;
+				}
+				
+				/* Increase */
+				inc_stat(stat_gain_selection[stat_gain_selected]);
+	#if 0
+				/* Message */
+				msg_format("You feel %s%s.",p,desc_stat_imp[stat_gain_selection[stat_gain_selected]]);
+	#endif
+				/* Hack --- restore stat */
+				if (tmp) p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] = tmp;
+		}
+		
+		/* end adult_rand_stats */
+		sprintf(player_level_speech, "I feel stronger, I'm now level %d", p_ptr->lev);
+		add_player_speech(player_level_speech);
+		
+		return;
+	//}
+	
+	/* Save screen */
+	//screen_save();
+	
+	/* Update stats */
+	//p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+	//update_stuff();
+
+	/* Confirm stat selection */
+	//while (count)
+	//{
+	//	/* Improve how many stats with level gain */
+	//	for (stat_gain_selected = 0; stat_gain_selected < count; stat_gain_selected++)
+	//	{
+	//		/* Should be paranoid here */
+	//		while (TRUE)
+	//		{
+	//			sprintf(buf,"Improve which attribute%s (%d)", count > 1 ? "s" : "", count - stat_gain_selected);
+	//			
+	//			/* Select stat to improve */
+	//			if (get_list(print_stats, table, A_MAX, "Attribute", buf, ", ?=help", 1, 36, stat_commands, &(stat_gain_selection[stat_gain_selected])))
+	//			{
+	//				/* Check if stat at maximum */
+	//				if (p_ptr->stat_max[stat_gain_selection[stat_gain_selected]] >= 18 + 999)
+	//				{
+	//					msg_format("You cannot get any better.");
+	//				}
+
+	//				/* Good stat_gain_selection? */
+	//				else
+	//				{
+	//					bool okay = TRUE;
+
+	//					/* Check we are not improving another stat */
+	//					for (i = 0; i < stat_gain_selected; i++)
+	//					{
+	//						if (stat_gain_selection[i] == stat_gain_selection[stat_gain_selected]) okay = FALSE;
+	//					}
+
+	//					if (okay)
+	//					{
+	//						/* Check for drained stats */
+	//						if (p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]]
+	//							   < p_ptr->stat_max[stat_gain_selection[stat_gain_selected]])
+	//							tmp = p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]];
+	//						else
+	//							tmp = 0;
+	//						
+	//						/* Temporarily restore the stat before increasing */
+	//						p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] = p_ptr->stat_max[stat_gain_selection[stat_gain_selected]];
+	//						
+	//						/* Increase */
+	//						inc_stat(stat_gain_selection[stat_gain_selected]);
+	//						
+	//						/* Restore drained stats */
+	//						if (tmp) p_ptr->stat_cur[stat_gain_selection[stat_gain_selected]] = tmp;
+
+	//						/* Update stats */
+	//						p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+	//						update_stuff();
+							
+							/* Redisplay stats */
+	//						print_stats(table, A_MAX, 1, 36);
+														
+	//						break;
+	//					}
+	//				}
+	//			}
+	//			else
+	//			{
 					/* Clear the attributes */
-					stat_gain_selected = 0;
+	//				stat_gain_selected = 0;
 					
 					/* Restore old stats */
-					for (i = 0; i < A_MAX; i++)
-					{
-						p_ptr->stat_max[i] = old_max[i];
-						p_ptr->stat_cur[i] = old_cur[i];
-					}
+	//				for (i = 0; i < A_MAX; i++)
+	//				{
+	//					p_ptr->stat_max[i] = old_max[i];
+	//					p_ptr->stat_cur[i] = old_cur[i];
+	//				}
 
 					/* Update stats */
-					p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
-					update_stuff();
-				}
-			}
-		}
+	//				p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+	//				update_stuff();
+	//			}
+	//		}
+	//	}
 
 		/* Redisplay stats */			
-		print_stats(table, A_MAX, 1, 36);
+	//	print_stats(table, A_MAX, 1, 36);
 
 		/* Confirm? */
-		if (get_check("Increasing highlighted stats. Are you sure? "))
-		{
-			break;
-		}
+	//	if (get_check("Increasing highlighted stats. Are you sure? "))
+	//	{
+	//		break;
+	//	}
 
 		/* Otherwise restore old stats */
-		for (i = 0; i < A_MAX; i++)
-		{
-			p_ptr->stat_max[i] = old_max[i];
-			p_ptr->stat_cur[i] = old_cur[i];
-		}
+	//	for (i = 0; i < A_MAX; i++)
+	//	{
+	//		p_ptr->stat_max[i] = old_max[i];
+	//		p_ptr->stat_cur[i] = old_cur[i];
+	//	}
 
 		/* Update stats */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
-		update_stuff();
-	}
+	//	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+	//	update_stuff();
+	//}
 	
 	/* Load screen */
-	screen_load();	
+	//screen_load();	
 }
 
 
@@ -1977,7 +2053,7 @@ void check_experience(void)
 			p_ptr->max_lev = p_ptr->lev;
 		
 			/* Queue level tips for beginners */
-			if (adult_beginner)
+			if (FALSE && adult_beginner)
 			{
 				/* Assume the player is no longer a beginner after reaching level 10 */
 				if (p_ptr->max_lev >= 10)
@@ -2218,7 +2294,8 @@ bool check_quest(quest_event *qe1_ptr, bool advance)
 
 				/* Check for level match */
 				if ((qe2_ptr->dungeon) && ((qe2_ptr->dungeon != qe1_ptr->dungeon) ||
-						(qe2_ptr->level != qe2_ptr->level))) continue;
+						(qe2_ptr->level != qe1_ptr->level))) 
+							continue;
 
 				/* Check for race match */
 				if (qe1_ptr->flags & (EVENT_GIVE_RACE | EVENT_GET_RACE | EVENT_FIND_RACE | EVENT_KILL_RACE |
@@ -2532,6 +2609,7 @@ bool monster_drop(int m_idx)
 				case TV_BOW:
 				{
 					hack_monster_equip |= (RF8_DROP_MISSILE);
+					__attribute__ ((fallthrough));
 				}
 				case TV_SHOT:
 				case TV_ARROW:
@@ -2563,6 +2641,7 @@ bool monster_drop(int m_idx)
 				{
 					if (rand_int(100) < 50) hack_monster_equip |= (RF8_DROP_MUSIC);
 					if (rand_int(100) < 50) hack_monster_equip |= (RF8_DROP_WRITING);
+					__attribute__ ((fallthrough));
 				}
 				case TV_INSTRUMENT:
 				{
@@ -2645,6 +2724,7 @@ bool monster_drop(int m_idx)
 				case TV_STAFF:
 				{
 					hack_monster_equip |= (RF8_DROP_WEAPON);
+					__attribute__ ((fallthrough));
 				}
 				case TV_ROD:
 				case TV_WAND:
@@ -3167,12 +3247,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			 (r_ptr->flags2 & (RF2_STUPID)))
 		{
 			/* Warn allies */
-			tell_allies_death(m_ptr->fy, m_ptr->fx, "& has destroyed one of us!");
+			tell_allies_death(m_ptr->fy, m_ptr->fx, "They has destroyed one of us!");
 		}
 		else
 		{
 			/* Warn allies */
-			tell_allies_death(m_ptr->fy, m_ptr->fx, "& has killed one of us!");
+			tell_allies_death(m_ptr->fy, m_ptr->fx, "They has killed one of us!");
 		}
 
 		/* Death of player allies doesn't provide experience */
@@ -3414,7 +3494,7 @@ bool change_panel(int dir)
 /*
  * Hack - generate the current room description
  */
-static void get_room_desc(int room, char *name, int name_s, char *text_visible, int text_visible_s, char *text_always, int text_always_s)
+void get_room_desc(int room, char *name, int name_s, char *text_visible, int text_visible_s, char *text_always, int text_always_s)
 {
 	bool scan_name = FALSE;
 	bool scan_desc = FALSE;
@@ -3494,6 +3574,7 @@ static void get_room_desc(int room, char *name, int name_s, char *text_visible, 
 			beware = TRUE;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		case (ROOM_LESSER_VAULT):
@@ -4563,11 +4644,11 @@ static bool target_set_interactive_accept(int y, int x)
 	/* Scan all regions in the grid */
 	for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
 	{
-		region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
-		region_type *r_ptr = &region_list[rp_ptr->region];
+		region_piece_type *rp_ptr2 = &region_piece_list[this_region_piece];
+		region_type *r_ptr = &region_list[rp_ptr2->region];
 
 		/* Get the next region */
-		next_region_piece = rp_ptr->next_in_grid;
+		next_region_piece = rp_ptr2->next_in_grid;
 
 		/* Skip dead regions */
 		if (!r_ptr->type) continue;
@@ -4884,7 +4965,7 @@ key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr inf
 
 					object_type *o_ptr;
 
-					bool recall = FALSE;
+					recall = FALSE;
 
 					/* Get the object */
 					o_ptr = &o_list[this_o_idx];
@@ -4967,11 +5048,11 @@ key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr inf
 		/* Regions */
 		for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
 		{
-			region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
-			region_type *r_ptr = &region_list[rp_ptr->region];
+			region_piece_type *rp_ptr2 = &region_piece_list[this_region_piece];
+			region_type *r_ptr = &region_list[rp_ptr2->region];
 
 			/* Get the next region */
-			next_region_piece = rp_ptr->next_in_grid;
+			next_region_piece = rp_ptr2->next_in_grid;
 
 			/* Skip dead regions */
 			if (!r_ptr->type) continue;
@@ -4993,10 +5074,10 @@ key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr inf
 				boring = FALSE;
 
 				/* Bring region to 'top' */
-				region_highlight(rp_ptr->region);
+				region_highlight(rp_ptr2->region);
 
 				/* And refresh */
-				region_refresh(rp_ptr->region);
+				region_refresh(rp_ptr2->region);
 
 				/* Interact */
 				while (1)
@@ -5054,7 +5135,7 @@ key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr inf
 				{
 					r_ptr->flags1 &= ~(RE1_DISPLAY);
 
-					region_refresh(rp_ptr->region);
+					region_refresh(rp_ptr2->region);
 				}
 
 				/* Change the intro */
@@ -5823,7 +5904,7 @@ bool target_set_interactive(int mode, int range, int radius, u32b flg, byte arc,
 					break;
 				}
 
-				case ' ':
+				//case ' ':
 				case '*':
 				case '+':
 				{
@@ -5870,6 +5951,9 @@ bool target_set_interactive(int mode, int range, int radius, u32b flg, byte arc,
 
 					/* Handle stuff */
 					handle_stuff();
+					
+					/* Should this fall through? */
+					__attribute__ ((fallthrough));
 				}
 
 				case 'o':
@@ -5992,6 +6076,8 @@ bool target_set_interactive(int mode, int range, int radius, u32b flg, byte arc,
 				case '5':
 				case '0':
 				case '@':
+				case 'f':
+				case ' ':
 				{
 					int m_idx = cave_m_idx[y][x];
 
@@ -6076,6 +6162,7 @@ bool target_set_interactive(int mode, int range, int radius, u32b flg, byte arc,
 				/* Use interesting grid if found */
 				if (i >= 0) m = i;
 			}
+			
 		}
 
 		/* Arbitrary grids */
@@ -6103,7 +6190,7 @@ bool target_set_interactive(int mode, int range, int radius, u32b flg, byte arc,
 					break;
 				}
 
-				case ' ':
+				//case ' ':
 				case '*':
 				case '+':
 				case '-':
@@ -6266,6 +6353,8 @@ bool target_set_interactive(int mode, int range, int radius, u32b flg, byte arc,
 				case 't':
 				case '5':
 				case '0':
+				case 'f':
+				case ' ':
 				{
 					/* Prevent easy suicide */
 					if ((p_ptr->py == y) && (p_ptr->px == x))
@@ -6273,6 +6362,8 @@ bool target_set_interactive(int mode, int range, int radius, u32b flg, byte arc,
 						bell("Illegal target! Use @ to target yourself.");
 						break;
 					}
+					
+					__attribute__ ((fallthrough));
 				}
 				case '@':
 				{
@@ -6308,6 +6399,7 @@ bool target_set_interactive(int mode, int range, int radius, u32b flg, byte arc,
 					break;
 				}
 			}
+
 
 			/* Handle "direction" */
 			if (d)
@@ -6365,7 +6457,9 @@ bool target_set_interactive(int mode, int range, int radius, u32b flg, byte arc,
 					handle_stuff();
 				}
 			}
+			
 		}
+
 	}
 
 	/* Forget */
@@ -6438,8 +6532,10 @@ bool get_aim_dir(int *dp, int mode, int range, int radius, u32b flg, byte arc, b
 	int dir;
 
 	key_event ke;
+	
+	char keypress = '*';
 
-	cptr p;
+	//cptr p;
 
 #ifdef ALLOW_REPEAT
 
@@ -6464,23 +6560,23 @@ bool get_aim_dir(int *dp, int mode, int range, int radius, u32b flg, byte arc, b
 	if (use_old_target && target_okay()) dir = 5;
 
 	/* Ask until satisfied */
-	while (!dir)
-	{
+	//while (!dir)
+	//{
 		/* Choose a prompt */
 		if (!target_okay())
 		{
-			p = "Direction ('*' to choose a target, Escape to cancel)? ";
+			//p = "Direction ('*' to choose a target, Escape to cancel)? ";
 		}
 		else
 		{
-			p = "Direction ('5' for target, '*' to re-target, Escape to cancel)? ";
+			//p = "Direction ('5' for target, '*' to re-target, Escape to cancel)? ";
 		}
 
 		/* Get a command (or Cancel) */
-		if (!get_com_ex(p, &ke)) break;
+		//if (!get_com_ex(p, &ke)) break;
 
 		/* Analyze */
-		switch (ke.key)
+		switch (keypress /*ke.key*/)
 		{
 			/* Mouse aiming */
 			case '\xff':
@@ -6496,7 +6592,10 @@ bool get_aim_dir(int *dp, int mode, int range, int radius, u32b flg, byte arc, b
 					dir = 5;
 					break;
 				}
-				else continue;
+				//else continue;
+				
+				/* Should this fall through? */
+				__attribute__ ((fallthrough));
 			}
 
 			/* Set new target, use target if legal */
@@ -6526,7 +6625,7 @@ bool get_aim_dir(int *dp, int mode, int range, int radius, u32b flg, byte arc, b
 
 		/* Error */
 		if (!dir) bell("Illegal aim direction!");
-	}
+	//}
 
 	/* No direction */
 	if (!dir) return (FALSE);

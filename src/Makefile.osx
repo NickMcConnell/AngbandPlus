@@ -10,7 +10,7 @@ CC = clang
 LD = ld
 OPT ?= -O2
 
-NAME = Unangband
+NAME = Friendband_OSX_64
 
 # for consistency with older versions, use a lower case bundle ID
 BUNDLE_IDENTIFIER = io.github.dgolddragon28.unangband

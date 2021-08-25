@@ -239,35 +239,119 @@ bool monster_scale(monster_race *n_ptr, int m_idx, int depth)
 			/* Pick a 'magely' attack spell */
 			switch((m_ptr->r_idx * 13) % 12)
 			{
-				case 0: if ((n_ptr->flags6 & (RF6_DARKNESS)) && (depth > 20)) { n_ptr->flags5 |= (RF5_BALL_DARK); break; }
-				case 1: n_ptr->flags5 |= (RF5_BOLT_ACID); break;
-				case 2: if ((n_ptr->flags6 & (RF6_CONF)) && (depth > 30)) { n_ptr->flags5 |= (RF5_BALL_CONFU); break; }
-				case 3: n_ptr->flags5 |= (RF5_BOLT_COLD); break;
-				case 4: if ((n_ptr->flags6 & (RF6_ILLUSION)) && (depth > 50)) { n_ptr->flags5 |= (RF5_BALL_CHAOS); break; }
-				case 5: n_ptr->flags5 |= (RF5_BOLT_FIRE); break;
-				case 6: if ((n_ptr->flags6 & (RF6_HOLD)) && (depth > 40)) { n_ptr->flags5 |= (RF5_BOLT_NETHR); break; }
-				case 7: n_ptr->flags5 |= (RF5_BOLT_ELEC); break;
-				case 8: if ((n_ptr->flags3 & (RF3_EVIL)) && (depth > 60)) { n_ptr->flags5 |= (RF5_BALL_NETHR); break; }
-				case 9: n_ptr->flags5 |= (RF5_BOLT_POIS); break;
-				case 10: if ((n_ptr->flags6 & (RF6_SLOW)) && (depth > 60)) { n_ptr->flags5 |= (RF5_BALL_SOUND); break; }
-				case 11: n_ptr->flags5 |= (RF5_BOLT_MANA); break;
+				case 0:
+					if ((n_ptr->flags6 & (RF6_DARKNESS)) && (depth > 20)) { 
+						n_ptr->flags5 |= (RF5_BALL_DARK); 
+						break; 
+					}
+					__attribute__ ((fallthrough));
+				case 1: 
+					n_ptr->flags5 |= (RF5_BOLT_ACID); 
+					break;
+				case 2: 
+					if ((n_ptr->flags6 & (RF6_CONF)) && (depth > 30)) { 
+						n_ptr->flags5 |= (RF5_BALL_CONFU); 
+						break; 
+					}
+					__attribute__ ((fallthrough));
+				case 3: 
+					n_ptr->flags5 |= (RF5_BOLT_COLD); 
+					break;
+				case 4: 
+					if ((n_ptr->flags6 & (RF6_ILLUSION)) && (depth > 50)) { 
+						n_ptr->flags5 |= (RF5_BALL_CHAOS); 
+						break; 
+					}
+					__attribute__ ((fallthrough));
+				case 5: 
+					n_ptr->flags5 |= (RF5_BOLT_FIRE); 
+					break;
+				case 6: 
+					if ((n_ptr->flags6 & (RF6_HOLD)) && (depth > 40)) { 
+						n_ptr->flags5 |= (RF5_BOLT_NETHR); 
+						break; 
+					}
+					__attribute__ ((fallthrough));
+				case 7: 
+					n_ptr->flags5 |= (RF5_BOLT_ELEC); 
+					break;
+				case 8: 
+					if ((n_ptr->flags3 & (RF3_EVIL)) && (depth > 60)) { 
+						n_ptr->flags5 |= (RF5_BALL_NETHR); 
+						break; 
+					}
+					__attribute__ ((fallthrough));
+				case 9: 
+					n_ptr->flags5 |= (RF5_BOLT_POIS); 
+					break;
+				case 10: 
+					if ((n_ptr->flags6 & (RF6_SLOW)) && (depth > 60)) { 
+						n_ptr->flags5 |= (RF5_BALL_SOUND); 
+						break; 
+					}
+					__attribute__ ((fallthrough));
+				case 11: 
+					n_ptr->flags5 |= (RF5_BOLT_MANA); 
+					break;
 			}
 
 			/* And another one */
 			if (depth > 30) switch((m_ptr->r_idx * 17) % 12)
 			{
-				case 0: if ((n_ptr->flags5 & (RF5_BOLT_POIS))/* && (depth > 20) */) { n_ptr->flags5 |= (RF5_BALL_POIS); break; }
-				case 1: n_ptr->flags5 |= (RF5_BOLT_ACID); break;
-				case 2: if ((n_ptr->flags5 & (RF5_BOLT_ELEC))/* && (depth > 30) */) { n_ptr->flags5 |= (RF5_BALL_WIND); break; }
-				case 3: n_ptr->flags5 |= (RF5_BOLT_COLD); break;
-				case 4: if ((n_ptr->flags5 & (RF5_BOLT_ACID)) && (depth > 50)) { n_ptr->flags5 |= (RF5_BALL_ACID); break; }
-				case 5: n_ptr->flags5 |= (RF5_BOLT_FIRE); break;
-				case 6: if ((n_ptr->flags5 & (RF5_BOLT_FIRE)) && (depth > 40)) { n_ptr->flags5 |= (RF5_BALL_FIRE); break; }
-				case 7: n_ptr->flags5 |= (RF5_BOLT_ELEC); break;
-				case 8: if ((n_ptr->flags5 & (RF5_BOLT_COLD)) && (depth > 50)) { n_ptr->flags5 |= (RF5_BALL_COLD); break; }
-				case 9: n_ptr->flags5 |= (RF5_BOLT_POIS); break;
-				case 10: if ((n_ptr->flags5 & (RF5_BOLT_MANA)) && (depth > 60)) { n_ptr->flags5 |= (RF5_BALL_MANA); break; }
-				case 11: n_ptr->flags5 |= (RF5_BOLT_MANA); break;
+				case 0: 
+					if ((n_ptr->flags5 & (RF5_BOLT_POIS))/* && (depth > 20) */) { 
+						n_ptr->flags5 |= (RF5_BALL_POIS); 
+						break; 
+					}
+					__attribute__ ((fallthrough));
+				case 1: 
+					n_ptr->flags5 |= (RF5_BOLT_ACID); 
+					break;
+				case 2: 
+					if ((n_ptr->flags5 & (RF5_BOLT_ELEC))/* && (depth > 30) */) {
+						n_ptr->flags5 |= (RF5_BALL_WIND); 
+						break; 
+					}
+					__attribute__ ((fallthrough));
+				case 3: 
+					n_ptr->flags5 |= (RF5_BOLT_COLD); 
+					break;
+				case 4: 
+					if ((n_ptr->flags5 & (RF5_BOLT_ACID)) && (depth > 50)) { 
+						n_ptr->flags5 |= (RF5_BALL_ACID); 
+						break; 
+					}
+					__attribute__ ((fallthrough));
+				case 5: 
+					n_ptr->flags5 |= (RF5_BOLT_FIRE); 
+					break;
+				case 6: 
+					if ((n_ptr->flags5 & (RF5_BOLT_FIRE)) && (depth > 40)) { 
+						n_ptr->flags5 |= (RF5_BALL_FIRE); 
+						break; 
+					}
+					__attribute__ ((fallthrough));
+				case 7: 
+					n_ptr->flags5 |= (RF5_BOLT_ELEC); 
+					break;
+				case 8: 
+					if ((n_ptr->flags5 & (RF5_BOLT_COLD)) && (depth > 50)) { 
+						n_ptr->flags5 |= (RF5_BALL_COLD); 
+						break; 
+					}
+					__attribute__ ((fallthrough));
+				case 9: 
+					n_ptr->flags5 |= (RF5_BOLT_POIS); 
+					break;
+				case 10: 
+					if ((n_ptr->flags5 & (RF5_BOLT_MANA)) && (depth > 60)) { 
+						n_ptr->flags5 |= (RF5_BALL_MANA); 
+						break; 
+					}
+					__attribute__ ((fallthrough));
+				case 11: 
+					n_ptr->flags5 |= (RF5_BOLT_MANA); 
+					break;
 			}
 
 			/* And maybe one more */
@@ -646,7 +730,7 @@ static bool check_hit(int power, int level, int who, bool ranged)
 	/* Some items and effects count for more at range */
 	if (ranged)
 	{
-		object_type *o_ptr = &inventory[INVEN_ARM];
+		o_ptr = &inventory[INVEN_ARM];
 
 		/* Shields count for double */
 		if ((o_ptr->k_idx) && (o_ptr->tval == TV_SHIELD))
@@ -692,7 +776,7 @@ static bool check_hit(int power, int level, int who, bool ranged)
  */
 int attack_desc(char *buf, int target, int method, int effect, int damage, u16b flg, int buf_size)
 {
-	char t_name[80];
+	char t_name2[80];
 	char t_poss[80];
 
 	const char *s;
@@ -715,7 +799,7 @@ int attack_desc(char *buf, int target, int method, int effect, int damage, u16b 
 	if (flg & (ATK_DESC_SELF))
 	{
 		/* Get the monster reflexive ("himself"/"herself"/"itself") */
-		monster_desc(t_name, sizeof(t_name), target, 0x23);
+		monster_desc(t_name2, sizeof(t_name2), target, 0x23);
 
 		/* Get the monster possessive ("his"/"her"/"its") */
 		monster_desc(t_poss, sizeof(t_poss), target, 0x22);
@@ -723,19 +807,19 @@ int attack_desc(char *buf, int target, int method, int effect, int damage, u16b 
 	else if (target > 0)
 	{
 		/* Get the monster name (or "it") */
-		monster_desc(t_name, sizeof(t_name), target, 0x00);
+		monster_desc(t_name2, sizeof(t_name2), target, 0x00);
 
 		/* Get the monster possessive ("the goblin's") */
 		monster_desc(t_poss, sizeof(t_poss), target, 0x02);
 	}
 	else if (target < 0)
 	{
-		my_strcpy(t_name,"you", sizeof(t_name));
+		my_strcpy(t_name2,"you", sizeof(t_name2));
 		my_strcpy(t_poss,"your", sizeof(t_poss));
 	}
 	else
 	{
-		my_strcpy(t_name,"it", sizeof(t_name));
+		my_strcpy(t_name2,"it", sizeof(t_name2));
 		my_strcpy(t_poss,"its", sizeof(t_poss));
 	}
 
@@ -829,7 +913,7 @@ int attack_desc(char *buf, int target, int method, int effect, int damage, u16b 
 		if (*s == '&')
 		{
 			/* Append the name */
-			cptr u = t_name;
+			cptr u = t_name2;
 
 			while ((*u) && ((t - buf) < buf_size))
 			{
@@ -1057,11 +1141,12 @@ bool make_attack_normal(int m_idx, bool harmless)
 
 	int ap_cnt;
 
-	int tmp, ac, rlev;
+	int tmp/*, ac*/, rlev;
 	bool do_cut, do_stun, touched = FALSE;
 
 	char m_name[80];
 	char atk_desc[80];
+	char attack_speech[82];
 
 	char ddesc[80];
 
@@ -1080,7 +1165,7 @@ bool make_attack_normal(int m_idx, bool harmless)
 	if (p_ptr->timed[TMD_STASTIS]) return (FALSE);
 
 	/* Total armor */
-	ac = p_ptr->ac + p_ptr->to_a;
+	//ac = p_ptr->ac + p_ptr->to_a;
 
 	/* Extract the effective monster level */
 	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
@@ -1203,7 +1288,10 @@ bool make_attack_normal(int m_idx, bool harmless)
 			result = attack_desc(atk_desc, -1, method, effect, damage, flg, 80);
 
 			/* Describe the attack */
-			if (result >= 0) msg_format("%^s %s", m_name, atk_desc);
+			//if (result >= 0) msg_format("%^s %s", m_name, atk_desc);
+			atk_desc[strlen(atk_desc)-1] = '*';
+			sprintf(attack_speech, "*%s", atk_desc);
+			if (result >= 0) add_monster_speech(m_ptr, attack_speech);
 
 			/* Slime */
 			if (method_ptr->flags2 & (PR2_SLIME))
@@ -1764,7 +1852,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 	char m_name[80];
 	char m_poss[80];
 
-	char t_name[80];
+	char t_name2[80];
 	char t_poss[80];
 	char t_nref[80]; /* Not reflexive if required */
 
@@ -1775,7 +1863,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 	int target = cave_m_idx[y][x];
 
 	/* Summoner */
-	int summoner = 0;
+	int summoner2 = 0;
 
 	/* Summon count */
 	int count = 0;
@@ -1789,7 +1877,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 	bool seen;	/* Source seen */
 	bool known;	/* Either source or target seen */
 	bool powerful;
-	bool normal;
+	//bool normal;
 	bool direct;
 
 	u32b allies = 0L;
@@ -1884,10 +1972,10 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		k_ptr = &l_list[who];
 
 		/* Get the monster name (or "it") */
-		monster_desc(t_nref, sizeof(t_name), target, 0x00);
+		monster_desc(t_nref, sizeof(t_name2), target, 0x00);
 
 		/* Get the monster reflexive ("himself"/"herself"/"itself") */
-		monster_desc(t_name, sizeof(t_nref), target, 0x23);
+		monster_desc(t_name2, sizeof(t_nref), target, 0x23);
 
 		/* Get the monster possessive ("his"/"her"/"its") */
 		monster_desc(t_poss, sizeof(t_poss), target, 0x22);
@@ -1903,7 +1991,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		k_ptr = &l_list[target];
 
 		/* Get the monster name (or "it") */
-		monster_desc(t_name, sizeof(t_name), target, 0x00);
+		monster_desc(t_name2, sizeof(t_name2), target, 0x00);
 
 		/* Get the monster name (or "it") */
 		monster_desc(t_nref, sizeof(t_nref), target, 0x00);
@@ -1918,7 +2006,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		s_ptr = &r_info[0];
 		k_ptr = &l_list[0];
 
-		my_strcpy(t_name,"you", sizeof(t_name));
+		my_strcpy(t_name2,"you", sizeof(t_name2));
 		my_strcpy(t_nref,"you", sizeof(t_nref));
 		my_strcpy(t_poss,"your", sizeof(t_poss));
 	}
@@ -1929,7 +2017,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		s_ptr = &r_info[0];
 		k_ptr = &l_list[0];
 
-		my_strcpy(t_name,format("the %s",f_name + f_info[cave_feat[y][x]].name), sizeof(t_name));
+		my_strcpy(t_name2,format("the %s",f_name + f_info[cave_feat[y][x]].name), sizeof(t_name2));
 		my_strcpy(t_nref,format("the %s",f_name + f_info[cave_feat[y][x]].name), sizeof(t_nref));
 		my_strcpy(t_poss,format("the %s's",f_name + f_info[cave_feat[y][x]].name), sizeof(t_poss));
 	}
@@ -1959,7 +2047,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		seen = FALSE;
 
 		/* Assume "normal" target */
-		normal = (target < 0);
+		//normal = (target < 0);
 
 		/* Assume "projectable" */
 		direct = TRUE;
@@ -1977,7 +2065,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		powerful = (p_ptr->depth > 50 ? TRUE : FALSE);
 
 		/* No summoner */
-		summoner = 0;
+		summoner2 = 0;
 
 		/* Fake the summoning level */
 		summon_lev = p_ptr->depth + 3;
@@ -2024,7 +2112,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		powerful = (r_ptr->flags2 & (RF2_POWERFUL) ? TRUE : FALSE);
 
 		/* Extract the summoner */
-		summoner = m_list[who].r_idx;
+		summoner2 = m_list[who].r_idx;
 
 		/* Extract the summoning level.  Must be at least 1. */
 		summon_lev = MAX(1, (r_ptr->level + p_ptr->depth) / 2 - 1);
@@ -2140,7 +2228,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			known = ((m_ptr->ml || n_ptr->ml));
 
 			/* Not "normal" target */
-			normal = FALSE;
+			//normal = FALSE;
 		}
 		else if (target < 0)
 		{
@@ -2148,14 +2236,14 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			known = TRUE;
 
 			/* Assume "normal" target */
-			normal = TRUE;
+			//normal = TRUE;
 		}
 		else
 		{
 			known = (m_ptr->ml && player_can_see_bold(y,x));
 
 			/* Assume "normal" target */
-			normal = TRUE;
+			//normal = TRUE;
 		}
 
 		/* Check "projectable" */
@@ -2332,7 +2420,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Count them for later */
 			for (k = 0; k < num; k++)
 			{
-				count += summon_specific(y, x, summoner, summon_lev - (friend ? 0 : 1), summon_type, TRUE, allies);
+				count += summon_specific(y, x, summoner2, summon_lev - (friend ? 0 : 1), summon_type, TRUE, allies);
 			}
 		}
 
@@ -2512,7 +2600,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				disturb(1,0);
 
 				if (blind) msg_format("%^s mumbles.", m_name);
-				else msg_format("%^s gathers power for %s.", m_name, t_name);
+				else msg_format("%^s gathers power for %s.", m_name, t_name2);
 			}
 
 			if (target > 0)
@@ -2866,7 +2954,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				if ((known) && ((m_ptr->mflag & (MFLAG_ALLY)) == 0)) disturb(1, 0);
 
 				/* Get the target name (using "A"/"An") again. */
-				monster_desc(t_name, sizeof(t_name), target, 0x08);
+				monster_desc(t_name2, sizeof(t_name2), target, 0x08);
 
 				/* Move monster (also updates "m_ptr->ml"). */
 				teleport_away(target, 10);
@@ -2909,7 +2997,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				if ((known)	&& ((m_ptr->mflag & (MFLAG_ALLY)) == 0)) disturb(1, 0);
 
 				/* Get the target name (using "A"/"An") again. */
-				monster_desc(t_name, sizeof(t_name), target, 0x08);
+				monster_desc(t_name2, sizeof(t_name2), target, 0x08);
 
 				/* Move monster (also updates "m_ptr->ml"). */
 				teleport_away(target, MAX_SIGHT * 2 + 5);
@@ -2968,7 +3056,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				if (n_ptr->ml)
 				{
 					/* Get the target name (using "A"/"An") again. */
-					monster_desc(t_name, sizeof(t_name), target, 0x08);
+					monster_desc(t_name2, sizeof(t_name2), target, 0x08);
 
 					update_mon(target, FALSE);
 
@@ -3085,7 +3173,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				if (!(s_ptr->flags9 & (RF9_RES_TPORT)))
 				{
 					disturb(1, 0);
-					msg_format("%^s teleports %s away.", m_name, t_name);
+					msg_format("%^s teleports %s away.", m_name, t_name2);
 					teleport_hook = NULL;
 					teleport_away(target, MAX_SIGHT * 2 + 5);
 				}
@@ -3196,7 +3284,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF6_TRAPS */
 		case 160+13:
 		{
-			int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
+			flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
 
 			if (!direct) break;
 			if (target < 0) disturb(1, 0);
@@ -3206,7 +3294,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			{
 				if (((blind) && (known)) && (target < 0)) msg_format("%^s mumbles, and then cackles evilly.", m_name);
 				else if ((target < 0) || ((target ==0) && (known))) msg_format("%^s casts a spell and cackles evilly.", m_name);
-				else if (known) msg_format("%^s casts a spell at %s and cackles evilly.",m_name,t_name);
+				else if (known) msg_format("%^s casts a spell at %s and cackles evilly.",m_name,t_name2);
 			}
 
 			(void)project(who, what, 1, 0, y, x, y, x, 0, GF_MAKE_TRAP, flg, 0, 0);
@@ -3286,7 +3374,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				if (n_ptr->mana > 0)
 				{
 					/* Basic message */
-					msg_format("%^s draws psychic energy from %s.", m_name, t_name);
+					msg_format("%^s draws psychic energy from %s.", m_name, t_name2);
 
 					r1 = (randint(spower) / 20) + 1;
 
@@ -3351,8 +3439,8 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			if (!direct) break;
 			if (target < 0) disturb(1, 0);
 
-			if ((blind) && (known)) msg_format("%^s curses %s.", m_name, t_name);
-			else msg_format("%^s points at %s and curses.", m_name, t_name);
+			if ((blind) && (known)) msg_format("%^s curses %s.", m_name, t_name2);
+			else msg_format("%^s points at %s and curses.", m_name, t_name2);
 
 			(void)project(who, what, 0, 0, m_ptr->fy, m_ptr->fx, y, x, get_dam(spower, attack, TRUE), GF_CURSE, FLG_MON_DIRECT, 0, 0);
 
@@ -3370,7 +3458,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			}
 			else if (who > SOURCE_MONSTER_START)
 			{
-				msg_format("%^s dispels %s magic.", m_name, t_name);
+				msg_format("%^s dispels %s magic.", m_name, t_name2);
 			}
 
 			(void)project(who, what, 0, 0, m_ptr->fy, m_ptr->fx, y, x, rlev, GF_DISPEL, FLG_MON_DIRECT, 0, 0);
@@ -3446,7 +3534,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				if (((blind) && (known)) && (target < 0)) msg_format("%^s mumbles, and you hear deceptive noises.", m_name);
 				else if ((blind) && (known)) msg_format("%^s mumbles.",m_name);
 				else if ((target < 0) || ((target ==0) && (known))) msg_format("%^s casts a deceptive illusion.", m_name);
-				else if (known) msg_format("%^s casts a deceptive illusion at %s.",m_name,t_name);
+				else if (known) msg_format("%^s casts a deceptive illusion at %s.",m_name,t_name2);
 			}
 
 			if ((target < 0) && !(p_ptr->timed[TMD_STASTIS]))
@@ -3498,31 +3586,31 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			if (spower < 4)
 			{
 				if (blind) msg_format("%^s mumbles.", m_name);
-				else msg_format("%^s points at %s and curses.", m_name, t_name);
+				else msg_format("%^s points at %s and curses.", m_name, t_name2);
 				k = 1;
 			}
 			else if (spower < 10)
 			{
 				if (blind) msg_format("%^s mumbles deeply.", m_name);
-				else msg_format("%^s points at %s and curses horribly.", m_name, t_name);
+				else msg_format("%^s points at %s and curses horribly.", m_name, t_name2);
 				k = 2;
 			}
 			else if (spower < 20)
 			{
 				if (blind) msg_format("%^s murmurs loudly.", m_name);
-				else msg_format("%^s points at %s, incanting terribly.", m_name, t_name);
+				else msg_format("%^s points at %s, incanting terribly.", m_name, t_name2);
 				k = 3;
 			}
 			else if (spower < 35)
 			{
 				if (blind) msg_format("%^s cries out wrathfully.", m_name);
-				else msg_format("%^s points at %s, screaming words of peril!", m_name, t_name);
+				else msg_format("%^s points at %s, screaming words of peril!", m_name, t_name2);
 				k = 4;
 			}
 			else
 			{
 				if (blind) msg_format("%^s screams the word 'DIE!'", m_name);
-				else msg_format("%^s points at %s, screaming the word DIE!", m_name, t_name);
+				else msg_format("%^s points at %s, screaming the word DIE!", m_name, t_name2);
 				k = 5;
 			}
 
@@ -3600,7 +3688,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				}
 				else if (who != SOURCE_SELF)
 				{
-					msg_format("%^s blesses %s.", m_name, t_name);
+					msg_format("%^s blesses %s.", m_name, t_name2);
 				}
 				else
 				{
@@ -3641,7 +3729,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				disturb(1,0);
 
 				if (blind) msg_format("%^s mumbles.", m_name);
-				else msg_format("%^s whips %s up into a frenzy.", m_name, t_name);
+				else msg_format("%^s whips %s up into a frenzy.", m_name, t_name2);
 			}
 
 			if (target > 0)
@@ -3677,7 +3765,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				disturb(1,0);
 
 				if (blind) msg_format("%^s mumbles.", m_name);
-				else msg_format("%^s concentrates on the air around %s.", m_name, t_name);
+				else msg_format("%^s concentrates on the air around %s.", m_name, t_name2);
 			}
 
 			if (target > 0)
@@ -3750,7 +3838,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			if (target == 0) break;
 
 			if (blind) msg_format("%^s %s commanded to feel hungry.", t_nref, target < 0 ? "are" : "is");
-			else msg_format("%^s gestures at %s, and commands that %s feel%s hungry.", m_name, t_name, t_name, target < 0 ? "" : "s");
+			else msg_format("%^s gestures at %s, and commands that %s feel%s hungry.", m_name, t_name2, t_name2, target < 0 ? "" : "s");
 
 			if (target < 0)
 			{
@@ -3810,7 +3898,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			if (((blind) && (known)) && (target < 0)) msg_format("%^s mumbles, and you hear scary noises.", m_name);
 			else if ((blind) && (known)) msg_format("%^s mumbles.",m_name);
 			else if ((target < 0) || ((target ==0) && (known))) msg_format("%^s casts a fearful illusion.", m_name);
-			else if (known) msg_format("%^s casts a fearful illusion at %s.",m_name,t_name);
+			else if (known) msg_format("%^s casts a fearful illusion at %s.",m_name,t_name2);
 
 			if ((target < 0) && !(p_ptr->timed[TMD_STASTIS]))
 			{
@@ -3933,7 +4021,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			if (((blind) && (known)) && (target < 0)) msg_format("%^s mumbles, and you hear puzzling noises.", m_name);
 			else if ((blind) && (known)) msg_format ("%^s mumbles.",m_name);
 			else if ((target < 0) || ((target == 0) && (known))) msg_format("%^s casts a mesmerising illusion.", m_name);
-			else if (known) msg_format("%^s creates a mesmerising illusion for %s.", m_name, t_name);
+			else if (known) msg_format("%^s creates a mesmerising illusion for %s.", m_name, t_name2);
 
 			if ((target < 0) && !(p_ptr->timed[TMD_STASTIS]))
 			{

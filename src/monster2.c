@@ -214,12 +214,12 @@ bool has_torch_lit(int y, int x)
 
 bool redraw_torch_lit_loss(int y, int x)
 {
-	return ((play_info[y][x] & (PLAY_VIEW)) && ((cave_info[y][x] & (CAVE_TLIT)) == 0));
+	return (((play_info[y][x] & (PLAY_VIEW)) && ((cave_info[y][x] & (CAVE_TLIT)) == 0)) || (p_ptr->outside && ! is_daytime()));
 }
 
 bool redraw_torch_lit_gain(int y, int x)
 {
-	return ((play_info[y][x] & (PLAY_VIEW)) && ((cave_info[y][x] & (CAVE_TLIT)) != 0));
+	return (((play_info[y][x] & (PLAY_VIEW)) && ((cave_info[y][x] & (CAVE_TLIT)) != 0)) || (p_ptr->outside && ! is_daytime()));
 }
 
 void apply_torch_lit(int y, int x)
@@ -1282,7 +1282,7 @@ void display_monlist(int row, unsigned int width, int mode, bool command, bool f
 						if ((sleep_counts[m_ptr->r_idx]) && (sleep_counts[m_ptr->r_idx] < race_counts[m_ptr->r_idx]))
 						{
 							/* Add race count */
-							sprintf(buf, format(" (%d awake)", race_counts[m_ptr->r_idx] - sleep_counts[m_ptr->r_idx]));
+							sprintf(buf, "%s", format(" (%d awake)", race_counts[m_ptr->r_idx] - sleep_counts[m_ptr->r_idx]));
 
 							/* Display the entry itself */
 							if (forreal) Term_addstr(-1, attr, buf);
@@ -1404,7 +1404,7 @@ void display_monlist(int row, unsigned int width, int mode, bool command, bool f
 				/* Print "and others" message if we're out of space */
 				if (disp_count != total_count)
 				{
-					sprintf(buf, format("  ...and %d others.", total_count - disp_count));
+					sprintf(buf, "%s", format("  ...and %d others.", total_count - disp_count));
 					Term_putstr(0, line, width+1, TERM_WHITE, buf);
 					Term_erase(strlen(buf), line, width + 1 - strlen(buf));
 
@@ -1564,7 +1564,7 @@ void display_monlist(int row, unsigned int width, int mode, bool command, bool f
 							(unknown_counts[o_ptr->k_idx]) && (unknown_counts[o_ptr->k_idx] < kind_counts[o_ptr->k_idx]))
 					{
 						/* Add race count */
-						sprintf(buf, format(" (%d unknown)", unknown_counts[o_ptr->k_idx]));
+						sprintf(buf, "%s", format(" (%d unknown)", unknown_counts[o_ptr->k_idx]));
 
 						/* Display the entry itself */
 						if (forreal) Term_addstr(-1, attr, buf);
@@ -1689,7 +1689,7 @@ void display_monlist(int row, unsigned int width, int mode, bool command, bool f
 				/* Print "and others" message if we're out of space */
 				if (disp_count != total_count)
 				{
-					sprintf(buf, format("  ...and %d others.", total_count - disp_count));
+					sprintf(buf, "%s", format("  ...and %d others.", total_count - disp_count));
 					Term_putstr(0, line, width+1, TERM_WHITE, buf);
 					Term_erase(strlen(buf), line, width + 1 - strlen(buf));
 
@@ -3266,6 +3266,11 @@ void monster_swap(int y1, int x1, int y2, int x2)
 	/* Update grids */
 	cave_m_idx[y1][x1] = m2;
 	cave_m_idx[y2][x2] = m1;
+	
+	/* This function is misused to move monsters and not swap them. */
+	/* Used to enable "glowing" NPCs outside at night. */
+	/* Using bool to detect whether monsters are swapped or only moved. */
+	bool is_real_monster_swap = (m1 > 0 && m2 > 0);
 
 	/* Monster 1 */
 	if (m1 > 0)
@@ -3368,28 +3373,34 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		player_swap(y2, x2, y1, x1);
 	}
 
-	/* Check monster lites */
-	if (lite1 && !lite4)
-	{
-		check_attribute_lost(y1, x1, 2, CAVE_XLOS, require_torch_lit, has_torch_lit, redraw_torch_lit_loss, remove_torch_lit, reapply_torch_lit);
-	}
+	/* Redraw lit monster lights outside at night, to avoid a light trail glitch */
+	if (! is_real_monster_swap && lite2){
+		check_attribute_lost(y1, x1, 2, CAVE_GLOW, require_torch_lit, has_torch_lit, redraw_torch_lit_loss, remove_torch_lit, reapply_torch_lit);
+		gain_attribute(y2, x2, 2, CAVE_GLOW, apply_torch_lit, redraw_torch_lit_gain);
+	} else {
+		/* Check monster lites */
+		if (lite1 && !lite4)
+		{
+			check_attribute_lost(y1, x1, 2, CAVE_XLOS, require_torch_lit, has_torch_lit, redraw_torch_lit_loss, remove_torch_lit, reapply_torch_lit);
+		}
 
-	/* Check monster lites */
-	if (lite3 && !lite2)
-	{
-		check_attribute_lost(y2, x2, 2, CAVE_XLOS, require_torch_lit, has_torch_lit, redraw_torch_lit_loss, remove_torch_lit, reapply_torch_lit);
-	}
+		/* Check monster lites */
+		if (lite3 && !lite2)
+		{
+			check_attribute_lost(y2, x2, 2, CAVE_XLOS, require_torch_lit, has_torch_lit, redraw_torch_lit_loss, remove_torch_lit, reapply_torch_lit);
+		}
 
-	/* Handle creating "glowing" terrain */
-	if (!lite1 && lite4)
-	{
-		gain_attribute(y1, x1, 2, CAVE_XLOS, apply_torch_lit, redraw_torch_lit_gain);
-	}
+		/* Handle creating "glowing" terrain */
+		if (!lite1 && lite4)
+		{
+			gain_attribute(y1, x1, 2, CAVE_XLOS, apply_torch_lit, redraw_torch_lit_gain);
+		}
 
-	/* Handle creating "glowing" terrain */
-	if (!lite3 && lite2)
-	{
-		gain_attribute(y2, x2, 2, CAVE_XLOS, apply_torch_lit, redraw_torch_lit_gain);
+		/* Handle creating "glowing" terrain */
+		if (!lite3 && lite2)
+		{
+			gain_attribute(y2, x2, 2, CAVE_XLOS, apply_torch_lit, redraw_torch_lit_gain);
+		}
 	}
 
 	/* Redraw */
@@ -3707,11 +3718,11 @@ int place_monster_here(int y, int x, int r_idx)
 
 		for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
 		{
-			region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
-			region_type *re_ptr = &region_list[rp_ptr->region];
+			region_piece_type *rp_ptr2 = &region_piece_list[this_region_piece];
+			region_type *re_ptr = &region_list[rp_ptr2->region];
 
 			/* Get the next object */
-			next_region_piece = rp_ptr->next_in_grid;
+			next_region_piece = rp_ptr2->next_in_grid;
 
 			/* Skip dead regions */
 			if (!re_ptr->type) continue;
@@ -4284,7 +4295,8 @@ int find_monster_ammo(int m_idx, int blow, bool created)
 	/* Examine the attacks */
 	for (i = (blow < 0 ? 0 : blow); i < (blow < 0 ? 4 : blow + 1); i++)
 	{
-		int method, effect, d_dice, d_side;
+		//int method, effect, d_dice, d_side;
+		int method, d_dice;
 
 		method_type *method_ptr;
 
@@ -4293,9 +4305,9 @@ int find_monster_ammo(int m_idx, int blow, bool created)
 
 		/* Extract the attack info */
 		method = r_ptr->blow[i].method;
-		effect = r_ptr->blow[i].effect;
+		//effect = r_ptr->blow[i].effect;
 		d_dice = r_ptr->blow[i].d_dice;
-		d_side = r_ptr->blow[i].d_side;
+		//d_side = r_ptr->blow[i].d_side;
 
 		/* Get the blow pointer */
 		method_ptr  = &method_info[method];
@@ -5533,6 +5545,7 @@ static bool summon_specific_okay(int r_idx)
 			if (okay) break;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		/* Match on flag3 */
@@ -5655,6 +5668,8 @@ static bool summon_specific_okay(int r_idx)
 				/* Reject non-dragons */
 				okay = ((strchr("AdD",r_ptr->d_char)) != 0);
 			}
+			
+			__attribute__ ((fallthrough));
 		}
 
 		case SUMMON_GROUP:
@@ -5979,7 +5994,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, u32b flg)
 	/* Certain monsters created in giant spider webs */
 	if (r_ptr->flags2 & (RF2_HAS_WEB))
 	{
-		int flg = PROJECT_BOOM | PROJECT_4WAY | PROJECT_4WAX | PROJECT_GRID | PROJECT_THRU | PROJECT_HIDE;
+		flg = PROJECT_BOOM | PROJECT_4WAY | PROJECT_4WAX | PROJECT_GRID | PROJECT_THRU | PROJECT_HIDE;
 
 		/* Shoot web out in 8 directions when placed */
 		(void)project(SOURCE_BIRTH, r_idx, (r_ptr->level / 10) + 2, 0, y, x, y, x, 0, GF_WEB, flg, 0, 0);
@@ -6073,12 +6088,12 @@ bool place_monster(int y, int x, bool slp, bool grp)
  * Hack_ecology is used to distinguish between when we are populating an ecology, against
  * summoning monsters.
  */
-void summon_specific_params(int r_idx, int summon_specific_type, bool hack_ecology)
+void summon_specific_params(int r_idx, int summon_specific_type2, bool hack_ecology)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Handle no summoner or restrictions */
-	if ((!r_idx) || (!summon_specific_type))
+	if ((!r_idx) || (!summon_specific_type2))
 	{
 		summon_char_type = '\0';
 		summon_flag_type = 0L;
@@ -6091,7 +6106,7 @@ void summon_specific_params(int r_idx, int summon_specific_type, bool hack_ecolo
 	}
 
 	/* Hack -- Set specific summoning parameters if not currently set */
-	switch (summon_specific_type)
+	switch (summon_specific_type2)
 	{
 		case SUMMON_KIN:
 		{
@@ -6196,7 +6211,7 @@ void summon_specific_params(int r_idx, int summon_specific_type, bool hack_ecolo
 				{
 					t++;
 
-					if ((summon_specific_type == SUMMON_ALL_BUT_PREFIX) && (*t == ' ')) break;
+					if ((summon_specific_type2 == SUMMON_ALL_BUT_PREFIX) && (*t == ' ')) break;
 				}
 
 				/* Copy string */
@@ -6303,6 +6318,7 @@ void summon_specific_params(int r_idx, int summon_specific_type, bool hack_ecolo
 			}
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		case SUMMON_ALIGN:

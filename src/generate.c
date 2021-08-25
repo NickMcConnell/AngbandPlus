@@ -404,7 +404,7 @@ static byte room_build_order[ROOM_MAX] = {ROOM_LAIR, ROOM_GREATER_VAULT, ROOM_CH
 
 
 /*
- * Count the number of walls adjacent to the given grid.
+ * Count the number of walls orthogonally adjacent to the given grid.
  *
  * Note -- Assumes "in_bounds_fully(y, x)"
  *
@@ -415,9 +415,9 @@ static int next_to_walls(int y, int x)
 	int k = 0;
 
 	if (f_info[cave_feat[y+1][x]].flags1 & (FF1_WALL)) k++;
-	if (f_info[cave_feat[y+1][x]].flags1 & (FF1_WALL)) k++;
-	if (f_info[cave_feat[y+1][x]].flags1 & (FF1_WALL)) k++;
-	if (f_info[cave_feat[y+1][x]].flags1 & (FF1_WALL)) k++;
+	if (f_info[cave_feat[y-1][x]].flags1 & (FF1_WALL)) k++;
+	if (f_info[cave_feat[y][x+1]].flags1 & (FF1_WALL)) k++;
+	if (f_info[cave_feat[y][x-1]].flags1 & (FF1_WALL)) k++;
 
 	return (k);
 }
@@ -1232,8 +1232,8 @@ static bool draw_maze(int y1, int x1, int y2, int x2, s16b feat_wall,
 	/* Save the existing terrain to overwrite the maze later */
 	if ((flag & (MAZE_SAVE)) != 0)
 	{
-		int const dx =  1 + x2 - x1;
-		int const dy =  1 + y2 - y1;
+		dx =  1 + x2 - x1;
+		dy =  1 + y2 - y1;
 
 		saved = C_ZNEW(dx*dy,s16b);
 
@@ -1834,8 +1834,8 @@ static bool draw_maze(int y1, int x1, int y2, int x2, s16b feat_wall,
 	/* Restore grids */
 	if ((flag & (MAZE_SAVE)) != 0)
 	{
-		int const dx =  1 + x2 - x1;
-		int const dy =  1 + y2 - y1;
+		dx =  1 + x2 - x1;
+		dy =  1 + y2 - y1;
 
 		for (y = 0; y < dy; y++)
 		{
@@ -2756,7 +2756,7 @@ static bool generate_cellular_cave(int y1, int x1, int y2, int x2, s16b wall, s1
 	 		case GRID_EDGE:
 	 		{
 	 			int d;
-	 			bool edged = FALSE;
+	 			//bool edged = FALSE;
 	 			byte cave_flag_edge = (edge && f_info[edge].flags1 & (FF1_OUTER)) ? (cave_flag) : ((cave_flag) & ~(CAVE_ROOM));
 
 	 			if (edge || wall)
@@ -2769,7 +2769,7 @@ static bool generate_cellular_cave(int y1, int x1, int y2, int x2, s16b wall, s1
 		 				{
 							cave_set_feat(y1 + yi, x1 + xi, edge ? edge : wall);
 							cave_info[y1+yi][x1 + xi] |= (cave_flag_edge);
-							edged = TRUE;
+							//edged = TRUE;
 		 					break;
 		 				}
 		 			}
@@ -2950,7 +2950,7 @@ static bool generate_poly_room(int n, int *y, int *x, s16b edge, s16b floor, s16
 	 		case GRID_EDGE:
 	 		{
 	 			int d;
-	 			bool edged = FALSE;
+	 			//bool edged = FALSE;
 
 	 			if (edge)
 	 			{
@@ -2962,7 +2962,7 @@ static bool generate_poly_room(int n, int *y, int *x, s16b edge, s16b floor, s16
 		 				{
 							cave_set_feat(y0 + yi, x0 + xi, edge);
 							cave_info[y0+yi][x0 + xi] |= (cave_flag_edge);
-							edged = TRUE;
+							//edged = TRUE;
 		 					break;
 		 				}
 		 			}
@@ -3554,7 +3554,7 @@ static void generate_patt(int y1, int x1, int y2, int x2, s16b feat, u32b flag, 
 			else
 			{
 				u32b maze_exits = 0L;
-				int k = 0;
+				k = 0;
 
 				if (((maze_flags & (MAZE_OUTER_N)) == 0) && !(rand_int(++k))) maze_exits = MAZE_EXIT_N;
 				if (((maze_flags & (MAZE_OUTER_S)) == 0) && !(rand_int(++k))) maze_exits = MAZE_EXIT_S;
@@ -5622,7 +5622,7 @@ static bool build_overlapping(int room, int type, int y1a, int x1a, int y2a, int
 				try_simple = FALSE;
 
 				/* Ensure some space */
-				if (x2w <= x2w) x2w = x1w + 1;
+				if (TRUE /*x2w <= x2w*/) x2w = x1w + 1;
 				generate_patt(y1w, x1w, y2w, x2w, place_feat, place_flag, exclude, dy, dx, scale, (scatter + placements - 1) / placements);
 			}
 
@@ -8047,6 +8047,7 @@ static bool build_vault(int room, int y0, int x0, int ymax, int xmax, cptr data)
 					case '&':
 					{
 						place_chest(y, x);
+						break;
 					}
 					/* Lava. */
 					case '@':
@@ -10967,7 +10968,7 @@ static bool build_tunnel(int row1, int col1, int row2, int col2, bool allow_over
 	/* If the ending room has decorations next to doors, overwrite the start */
 	if ((end_room) && (end_room < DUN_ROOMS) && (room_info[end_room].theme[THEME_SOLID]) && (dun->next_n < NEXT_MAX))
 	{
-		int j;
+		//int j;
 
 		for (j = first_next; j < dun->next_n; j++)
 		{
@@ -12519,7 +12520,7 @@ static bool build_type232425(int room, int type)
 							/* Allow lighting up rooms to work correctly */
 							if (f_info[cave_feat[y][x]].flags1 & (FF1_LOS))
 							{
-								int d;
+								//int d;
 
 								/* Look in all directions. */
 								for (d = 0; d < 8; d++)
@@ -15142,8 +15143,11 @@ static bool cave_gen(void)
 		/* For safety sake we identify and fix special levels */
 		switch(dun->special)
 		{
-			case SPECIAL_GREAT_PILLARS:
+			case SPECIAL_GREAT_PILLARS: {
 				level_flag &= ~(LF1_ROOMS);
+				
+				__attribute__ ((fallthrough));
+			}
 			case SPECIAL_GREAT_HALL:
 			case SPECIAL_GREAT_CAVE:
 				level_flag |= (LF1_WILD);
@@ -15450,7 +15454,7 @@ static bool cave_gen(void)
  */
 static void build_store(int feat, int yy, int xx)
 {
-	int y, x, y0, x0, y1, x1, y2, x2, tmp;
+	int y, x, y0, x0, y1, x1, y2, x2, tmp, x1_loop, x2_loop;
 
 	/* Hack -- extract char value */
 	byte d_char = f_info[feat].d_char;
@@ -15469,10 +15473,12 @@ static void build_store(int feat, int yy, int xx)
 	x0 = xx * 14 + 12;
 
 	/* Determine the store boundaries */
-	y1 = y0 - randint((yy == 0) ? 3 : 2);
-	y2 = y0 + randint((yy == 1) ? 3 : 2);
-	x1 = x0 - randint(5);
-	x2 = x0 + randint(5);
+	//y1_rand = ((yy == 0) ? 3 : 2);
+	//y2_rand = ((yy == 1) ? 3 : 2);
+	y1 = y0 - randint((yy == 0 && p_ptr->dungeon != 1) ? 3 : 2);
+	y2 = y0 + randint((yy == 1 && p_ptr->dungeon != 1) ? 3 : 1);
+	x1 = x0 - randint((5));
+	x2 = x0 + randint((5));
 
 	/* Hack -- decrease building size to create space for small terrain */
 	if (zone->small)
@@ -15490,26 +15496,45 @@ static void build_store(int feat, int yy, int xx)
 		/* Build an invulnerable rectangular building */
 		for (y = y1; y <= y2; y++)
 		{
-			for (x = x1; x <= x2; x++)
+			x1_loop = x1;
+			x2_loop = x2;
+			
+			// Rounded top corners for Hobbiton houses
+			if (p_ptr->dungeon == 1 && y-y1 < 2) {
+				x1_loop += (2 - (y-y1));
+				x2_loop -= (2 - (y-y1));
+				if (x1_loop > x2_loop) continue;
+			}
+			
+			for (x = x1_loop; x <= x2_loop; x++)
 			{
 				/* Create the building */
-				cave_set_feat(y, x, FEAT_PERM_EXTRA);
+				if (p_ptr->dungeon == 1) { // Hobbit houses
+					cave_set_feat(y, x, FEAT_PERM_HOBBIT);
+				} else { // regular houses
+					cave_set_feat(y, x, 
+						(y == 0 || (y-y1) / (float) (y2-y1) < 0.7 ? 
+							FEAT_PERM_ROOF : 
+							FEAT_PERM_EXTRA));
+				}
 			}
 		}
 	}
 
 	/* Pick a door direction (S,N,E,W) */
-	tmp = rand_int(4);
+	//tmp = rand_int(4);
 
 	/* Re-roll "annoying" doors */
-	if (((tmp == 0) && (yy == 1)) ||
-	    ((tmp == 1) && (yy == 0)) ||
-	    ((tmp == 2) && (xx == 3)) ||
-	    ((tmp == 3) && (xx == 0)))
-	{
+	//if (((tmp == 0) && (yy == 1)) ||
+	//    ((tmp == 1) && (yy == 0)) ||
+	//    ((tmp == 2) && (xx == 3)) ||
+	//    ((tmp == 3) && (xx == 0)))
+	//{
 		/* Pick a new direction */
-		tmp = rand_int(4);
-	}
+	//	tmp = rand_int(4);
+	//}
+	
+	tmp = 0;
 
 	/* Place the store door */
 	generate_door(y1, x1, y2, x2, tmp, feat);
@@ -15766,7 +15791,11 @@ static bool town_gen(void)
 		for (x = 0; x < DUNGEON_WID; x++)
 		{
 			/* Create "solid" perma-wall */
-			cave_set_feat(y, x, FEAT_PERM_SOLID);
+			if (x >= TOWN_WID || y >= TOWN_HGT) {
+				cave_set_feat(y, x, FEAT_NONE);
+			} else {
+				cave_set_feat(y, x, FEAT_PERM_SOLID);
+			}
 		}
 	}
 
@@ -15982,7 +16011,11 @@ void generate_cave(void)
 		if (level_flag & (LF1_TOWN))
 		{
 			/* Make a town */
-			if (!town_gen()) okay = FALSE;
+			if (!town_gen()) {
+				okay = FALSE;
+			} else {
+				p_ptr->town = p_ptr->dungeon;
+			}
 
 			/* Report why */
 			if (cheat_room) why = "defective town";
@@ -16147,7 +16180,16 @@ void generate_cave(void)
 		t_info[p_ptr->dungeon].visited = TRUE;
 
 		/* Show tip */
-		queue_tip(format("dungeon%d.txt", p_ptr->dungeon));
+		if (p_ptr->dungeon == 1) {
+			memset(p_ptr->dialog_text, '\0', sizeof(p_ptr->dialog_text));
+			strcpy(p_ptr->dialog_text, "Your adventure begins here in Hobbiton.\n\n Acquire weapons, armor, and magical devices by bartering with shop owners. Then travel through the world of Unangband, explore dungeons, gain experience by killing fierce creatures and collect treasures.");
+		}
+		
+		if (p_ptr->dungeon == 5) {
+			memset(p_ptr->dialog_text, '\0', sizeof(p_ptr->dialog_text));
+			strcpy(p_ptr->dialog_text, "A Heartfelt Love Letter:\n\n To Mrs Maggot, I'll be out in the fields again until sundown. As always, I'm looking forward to your home cooking.\n\n Have you seen the dogs? If they are chasing the neighbour's sheep again, I'll have to lock them in the cellar.\n\n Yours, Mr Maggot");
+		}
+		//queue_tip(format("dungeon%d.txt", p_ptr->dungeon));
 	}
 
 	/* Set maximum depth for this dungeon */

@@ -278,13 +278,13 @@ static void wr_region(const region_type *r_ptr)
 /*
  * Write a "region piece" record
  */
-static void wr_region_piece(const region_piece_type *rp_ptr)
+static void wr_region_piece(const region_piece_type *rp_ptr2)
 {
 	/* Write the region piece */
-	wr_byte(rp_ptr->y);
-	wr_byte(rp_ptr->x);
-	wr_s16b(rp_ptr->d);
-	wr_s16b(rp_ptr->region);
+	wr_byte(rp_ptr2->y);
+	wr_byte(rp_ptr2->x);
+	wr_s16b(rp_ptr2->d);
+	wr_s16b(rp_ptr2->region);
 
 }
 
@@ -1095,10 +1095,10 @@ static void wr_dungeon(void)
 	/* Dump the regions */
 	for (i = 1; i < region_piece_max; i++)
 	{
-		region_piece_type *rp_ptr = &region_piece_list[i];
+		region_piece_type *rp_ptr2 = &region_piece_list[i];
 
 		/* Dump it */
-		wr_region_piece(rp_ptr);
+		wr_region_piece(rp_ptr2);
 	}
 
 

@@ -14,7 +14,7 @@ ANGBAND MENU
 		MENUITEM "E&xit", 130
 	}
 
-	POPUP "&Window"
+	/*POPUP "&Window"
 	{
 		POPUP "&Visibility"
 		{
@@ -102,9 +102,9 @@ ANGBAND MENU
 			MENUITEM "Term-7 window", 277
 		}
 
-	}
+	}*/
 
-	POPUP "&Options"
+	/*POPUP "&Options"
 	{
 		POPUP "&Graphics"
 		{
@@ -132,12 +132,12 @@ ANGBAND MENU
 		MENUITEM "Low Priority", 420
 		MENUITEM "Activate Screensaver", 430
 		MENUITEM "&Map", 440
-	}
+	}*/
 
-	POPUP "&Help"
+	/*POPUP "&Help"
 	{
 		MENUITEM "&Contents", 901
-	}
+	}*/
 }
 
 ANGBAND ICON "unangband.ico"

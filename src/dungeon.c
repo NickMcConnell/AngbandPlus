@@ -1248,7 +1248,7 @@ static void process_world(void)
 		/* Update the stores once a day (while in dungeon) */
 		if (!(turn % (10L * STORE_TURNS)))
 		{
-		  int n, i;
+			int n;
 
 			/* Message */
 			if (cheat_xtra) msg_print("Updating Shops...");
@@ -1257,7 +1257,7 @@ static void process_world(void)
 			for (n = 0; n < total_store_count; n++)
 			{
 				/* no restocking for alien towns; at most 1 shop n in each town */
-				town_type *t_ptr = &t_info[p_ptr->town];
+				t_ptr = &t_info[p_ptr->town];
 				for (i = 0; i < MAX_STORES; i++)
 				{
 			      if (t_ptr->store_index[i] == n)
@@ -1880,7 +1880,8 @@ static void process_world(void)
 	/* Uncontrolled items */
 	if ((p_ptr->uncontrolled) && (rand_int(UNCONTROLLED_CHANCE) < 1))
 	{
-		int j = 0, k = 0;
+		j = 0;
+		k = 0;
 
 		/* Scan inventory and pick uncontrolled item */
 		for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
@@ -2212,10 +2213,10 @@ static void process_command(void)
 	switch (p_ptr->command_cmd)
 	{
 		/* Ignore */
-		case ESCAPE:
+		/*case ESCAPE:
 		{
 			break;
-		}
+		}*/
 
 
 		/*** Cheating Commands ***/
@@ -2272,25 +2273,25 @@ static void process_command(void)
 		/*** Inventory Commands ***/
 
 		/* Handle something - this is the generic do anything to an object command */
-		case 'h':
+		/*case 'h':
 		{
 			do_cmd_item(COMMAND_ITEM_HANDLE);
 			break;
-		}
+		}*/
 		
 		/* Wear/wield equipment */
-		case 'w':
+		/*case 'w':
 		{
 			do_cmd_item(COMMAND_ITEM_WIELD);
 			break;
-		}
+		}*/
 
 		/* Take off equipment */
-		case 't':
+		/*case 't':
 		{
 			do_cmd_item(COMMAND_ITEM_TAKEOFF);
 			break;
-		}
+		}*/
 
 		/* Drop an item */
 		case 'd':
@@ -2300,32 +2301,33 @@ static void process_command(void)
 		}
 
 		/* Destroy an item */
-		case 'k':
+		/*case 'k':
 		{
 			do_cmd_item(COMMAND_ITEM_DESTROY);
 			break;
-		}
+		}*/
 
 		/* Equipment list */
-		case 'e':
+		/*case 'e':
 		{
 			do_cmd_equip();
 			break;
-		}
+		}*/
 
 		/* Inventory list */
 		case 'i':
 		{
 			do_cmd_inven();
+			do_cmd_item(COMMAND_ITEM_HANDLE);
 			break;
 		}
 
 		/* Offer an item */
-		case 'O':
+		/*case 'O':
 		{
 			do_cmd_item(COMMAND_ITEM_OFFER);
 			break;
-		}
+		}*/
 
 
 		/*** Various commands ***/
@@ -2385,32 +2387,32 @@ static void process_command(void)
 		}
 
 		/* Pickup */
-		case 'g':
+		/*case 'g':
 		{
 			do_cmd_pickup();
 			break;
-		}
+		}*/
 
 		/* Rest -- Arg is time */
-		case 'R':
+		/*case 'R':
 		{
 			do_cmd_rest();
 			break;
-		}
+		}*/
 
 		/* Search for traps/doors/ steal from monsters */
-		case 's':
+		/*case 's':
 		{
 			do_cmd_search_or_steal();
 			break;
-		}
+		}*/
 
 		/* Toggle search mode */
-		case 'S':
+		/*case 'S':
 		{
 			do_cmd_toggle_search();
 			break;
-		}
+		}*/
 
 
 		/*** Stairs and Doors and Chests and Traps ***/
@@ -2423,18 +2425,18 @@ static void process_command(void)
 		}
 
 		/* Go up staircase */
-		case '<':
+		/*case '<':
 		{
 			do_cmd_go_up();
 			break;
-		}
+		}*/
 
 		/* Go down staircase */
-		case '>':
+		/*case '>':
 		{
 			do_cmd_go_down();
 			break;
-		}
+		}*/
 
 		/* Open a door or chest */
 		case 'o':
@@ -2444,11 +2446,11 @@ static void process_command(void)
 		}
 
 		/* Close a door */
-		case 'c':
+		/*case 'c':
 		{
 			do_cmd_close();
 			break;
-		}
+		}*/
 
 		/* Jam a door with spikes */
 		case 'j':
@@ -2465,128 +2467,130 @@ static void process_command(void)
 		}
 
 		/* Disarm a trap or chest */
-		case 'D':
+		/*case 'D':
 		{
 			do_cmd_disarm();
 			break;
-		}
+		}*/
 
 
 		/*** Magic and Prayers ***/
 
 		/* Gain new spells/prayers */
-		case 'G':
+		/*case 'G':
 		{
 			do_cmd_item(COMMAND_ITEM_STUDY);
 			break;
-		}
+		}*/
 
 		/* Browse a book */
-		case 'b':
+		/*case 'b':
 		{
 			do_cmd_item(COMMAND_ITEM_BROWSE);
 			break;
-		}
+		}*/
 
 		/* Cast a spell */
-		case 'm':
+		/*case 'm':
 		{
 			do_cmd_item(COMMAND_ITEM_CAST_SPELL);
 			break;
-		}
+		}*/
 
 		/*** Use various objects ***/
 
 		/* Inscribe an object */
-		case '{':
+		/*case '{':
 		{
 			do_cmd_item(COMMAND_ITEM_INSCRIBE);
 			break;
-		}
+		}*/
 
 		/* Uninscribe an object */
-		case '}':
+		/*case '}':
 		{
 			do_cmd_item(COMMAND_ITEM_UNINSCRIBE);
 			break;
-		}
+		}*/
 
 		/* Activate an artifact */
-		case 'A':
+		/*case 'A':
 		{
 			do_cmd_item(COMMAND_ITEM_ACTIVATE);
 			break;
-		}
+		}*/
 
 		/* Eat some food */
-		case 'E':
+		/*case 'E':
 		{
 			do_cmd_item(COMMAND_ITEM_EAT);
 			break;
-		}
+		}*/
 
 		/* Fuel your lantern/torch */
-		case 'F':
+		/*case 'F':
 		{
 			do_cmd_item(COMMAND_ITEM_FUEL);
 			break;
-		}
+		}*/
 
 		/* Fire an item */
 		case 'f':
+		case 't':
+		case ' ':
 		{
 			do_cmd_item(p_ptr->fire_command);
 			break;
 		}
 
 		/* Throw an item */
-		case 'v':
+		/*case 'v':
 		{
 			do_cmd_item(COMMAND_ITEM_THROW);
 			break;
-		}
+		}*/
 
 		/* Aim a wand */
-		case 'a':
+		/*case 'a':
 		{
 			do_cmd_item(COMMAND_ITEM_AIM);
 			break;
-		}
+		}*/
 
 		/* Zap a rod */
-		case 'z':
+		/*case 'z':
 		{
 			do_cmd_item(COMMAND_ITEM_ZAP);
 			break;
-		}
+		}*/
 
 		/* Quaff a potion */
-		case 'q':
+		/*case 'q':
 		{
 			do_cmd_item(COMMAND_ITEM_QUAFF);
 			break;
-		}
+		}*/
 
 		/* Read a scroll */
-		case 'r':
+		/*case 'r':
 		{
 			do_cmd_item(COMMAND_ITEM_READ);
 			break;
-		}
+		}*/
 
 		/* Use a staff */
-		case 'u':
+		/*case 'u':
 		{
 			do_cmd_item(COMMAND_ITEM_USE);
 			break;
-		}
+		}*/
 
 		/* Apply a rune */
-		case 'y':
+		/*case 'y':
 		{
 			do_cmd_item(COMMAND_ITEM_APPLY);
 			break;
-		}
+		}*/
 
 		/* Assemble a mechanism */
 		case 'Y':
@@ -2596,11 +2600,11 @@ static void process_command(void)
 		}
 
 		/* Light or douse a light source */
-		case '|':
+		/*case '|':
 		{
 			do_cmd_item(COMMAND_ITEM_LITE);
 			break;
-		}
+		}*/
 
 		/*** Looking at Things (nearby or on map) ***/
 
@@ -2612,25 +2616,25 @@ static void process_command(void)
 		}
 
 		/* Locate player on map */
-		case 'L':
+		/*case 'L':
 		{
 			do_cmd_locate();
 			break;
-		}
+		}*/
 
 		/* Center map on player */
-		case KTRL('L'):
+		/*case KTRL('L'):
 		{
 			do_cmd_center_map();
 			break;
-		}
+		}*/
 
 		/* Look around */
-		case 'l':
+		/*case 'l':
 		{
 			do_cmd_look();
 			break;
-		}
+		}*/
 
 		/* Target monster or location */
 		case '*':
@@ -2640,11 +2644,11 @@ static void process_command(void)
 		}
 
 		/* Show visible monster list */
-		case '[':
+		/*case '[':
 		{
 			do_cmd_monlist();
 			break;
-		}
+		}*/
 
 
 
@@ -2672,11 +2676,11 @@ static void process_command(void)
 		}
 
 		/* Character description */
-		case 'C':
+		/*case 'C':
 		{
 			do_cmd_change_name();
 			break;
-		}
+		}*/
 
 
 		/*** System Commands ***/
@@ -2696,12 +2700,12 @@ static void process_command(void)
 		}
 
 		/* Interact with options */
-		case '=':
+		/*case '=':
 		{
 			do_cmd_menu(MENU_OPTIONS, "options");
 			do_cmd_redraw();
 			break;
-		}
+		}*/
 
 		/*** Misc Commands ***/
 
@@ -2764,16 +2768,16 @@ static void process_command(void)
 #ifndef VERIFY_SAVEFILE
 
 		/* Hack -- Save and don't quit */
-		case KTRL('S'):
+		/*case 'R':
 		{
 			do_cmd_save_game();
 			break;
-		}
+		}*/
 
 #endif
 
 		/* Save and quit */
-		case KTRL('X'):
+		case 'X':
 		{
 			/* Stop playing */
 			p_ptr->playing = FALSE;
@@ -2784,8 +2788,8 @@ static void process_command(void)
 			break;
 		}
 
-		/* Quit (commit suicide) */
-		case 'Q':
+		/* Quit / Reset (commit suicide) */
+		case 'R':
 		{
 			do_cmd_suicide();
 			break;
@@ -2820,7 +2824,7 @@ static void process_command(void)
 		}
 
 		/* Save "toggle monster list on or off" */
-		case ' ':
+		/*case ' ':
 		{
 			if (easy_monlist)
 			{
@@ -2828,7 +2832,7 @@ static void process_command(void)
 			}
 
 			break;
-		}
+		}*/
 
 		/* Mouse interaction */
 		case '\xff':
@@ -3427,7 +3431,12 @@ static void process_player(void)
 
 	/* Update scent trail */
 	update_smell();
-
+	
+	/* If narrative shown, update narrative */
+	if (show_narrative)
+	{
+		print_emergent_narrative();
+	}
 
 	/*
 	 * Reset character vulnerability.  Will be calculated by
@@ -3635,13 +3644,13 @@ static void dungeon(void)
 
 		/* Hack -- player always gets at least one energy */
 		p_ptr->energy += ((delta_energy > 0) ? delta_energy : 1);
-
+		
 		/* Can the player move? */
 		while ((p_ptr->energy >= 100) && !p_ptr->leaving)
 		{
-
 			/* process monster with even more energy first */
 			process_monsters((byte)(p_ptr->energy + 1));
+			process_monster_speech();
 
 			/* if still alive */
 			if (!p_ptr->leaving)
@@ -3713,6 +3722,12 @@ static void dungeon(void)
 
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
+		
+		/* Display dialog box if text is set */
+		if (strlen(p_ptr->dialog_text) > 1) {
+			get_dialog(p_ptr->dialog_text, FALSE, "");
+			memset(p_ptr->dialog_text, '\0', sizeof(p_ptr->dialog_text));
+		}
 
 		/* Count game turns */
 		turn++;
@@ -4022,19 +4037,19 @@ void play_game(bool new_game)
 				guard = t_info[i].zone[ii].guard;
 				if (guard)
 				{
-					int zone_depth;
+					//int zone_depth;
 
 					assert (r_info[guard].flags1 & RF1_UNIQUE);
 					r_info[guard].flags1 |= (RF1_GUARDIAN);
 					if (r_info[guard].max_num > 1) r_info[guard].max_num = 1;
 
 					/* Sane depth */
-					if (ii == MAX_DUNGEON_ZONES - 1
-						|| t_info[i].zone[ii+1].level == 0)
+					//if (ii == MAX_DUNGEON_ZONES - 1
+					//	|| t_info[i].zone[ii+1].level == 0)
 						/* last zone */
-						zone_depth = t_info[i].zone[ii].level;
-					else
-						zone_depth = t_info[i].zone[ii+1].level - 1;
+					//	zone_depth = t_info[i].zone[ii].level;
+					//else
+					//	zone_depth = t_info[i].zone[ii+1].level - 1;
 
 #if 0
 					if (r_info[guard].level /* Maggot */

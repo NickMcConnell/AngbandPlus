@@ -506,7 +506,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 
 	int n,r;
 	cptr vp[64];
-	bool timed_effect = FALSE;
+	bool timed_effect2 = FALSE;
 
 	u32b id_flags = s_ptr->flags1;
 	
@@ -779,7 +779,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	/* Describe timed effects */
 	if (vn)
 	{
-		timed_effect = TRUE;
+		timed_effect2 = TRUE;
 
 		/* Hack -- continue sentence */
 		r = 1;
@@ -850,7 +850,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	/* Describe timed effects */
 	if (vn)
 	{
-		timed_effect = TRUE;
+		timed_effect2 = TRUE;
 
 		if (!introduced)
 		{
@@ -898,7 +898,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	/* Describe stat effects */
 	if (vn)
 	{
-		timed_effect = TRUE;
+		timed_effect2 = TRUE;
 
 		if (!introduced)
 		{
@@ -927,7 +927,7 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	}
 
 	/* Roll out the duration */
-	if (!detail || !timed_effect)
+	if (!detail || !timed_effect2)
 	{
 		/* Nothing */
 	}
@@ -4341,7 +4341,7 @@ void list_object(const object_type *o_ptr, int mode)
 		cptr vp[128];
 		int vt[128];
 		bool vd[128];
-		bool fired = FALSE;
+		//bool fired = FALSE;
 
 		cptr vp_set_trap = "When set in a trap, it ";
 		cptr vp_throw = "When thrown, it ";
@@ -4442,21 +4442,21 @@ void list_object(const object_type *o_ptr, int mode)
 				vp[vn] = "When fired from a crossbow, it "; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
 				vp[vn] = vp_set_trap; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_VICTIM;
 				vp[vn] = vp_throw; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
-				fired = TRUE;
+				//fired = TRUE;
 				break;
 
 			case TV_ARROW:
 				vp[vn] = "When fired from a bow, it "; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
 				vp[vn] = vp_set_trap; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_VICTIM;
 				vp[vn] = vp_throw; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
-				fired = TRUE;
+				//fired = TRUE;
 				break;
 
 			case TV_SHOT:
 				vp[vn] = "When fired from a sling, it "; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
 				vp[vn] = vp_set_trap; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_VICTIM;
 				vp[vn] = vp_throw; vd[vn] = TRUE; vt[vn++] = SPELL_TARGET_AIMED;
-				fired = TRUE;
+				//fired = TRUE;
 				break;
 
 			case TV_SERVICE:
@@ -4750,25 +4750,25 @@ void list_object(const object_type *o_ptr, int mode)
 	/* Have sensed something about this item */
 	if ((o_ptr->feeling) || (object_known_p(o_ptr)))
 	{
-		int feeling = o_ptr->feeling;
-		if (!feeling)
+		int feelings = o_ptr->feeling;
+		if (!feelings)
 		{
-			feeling = value_check_aux1(o_ptr);
+			feelings = value_check_aux1(o_ptr);
 
 			/* Hack -- exclude 'average' feelings for known items */
-			if ((feeling == INSCRIP_AVERAGE) && (object_known_p(o_ptr))) feeling = 0;
+			if ((feelings == INSCRIP_AVERAGE) && (object_known_p(o_ptr))) feelings = 0;
 		}
 
-		if (feeling)
+		if (feelings)
 		{
-			if (feeling <= INSCRIP_COATED)
+			if (feelings <= INSCRIP_COATED)
 			{
-				text_out(inscrip_info[feeling]);
+				text_out(inscrip_info[feelings]);
 				anything = TRUE;
 			}
-			else if (feeling >= MAX_INSCRIP)
+			else if (feelings >= MAX_INSCRIP)
 			{
-				int bag = lookup_kind(TV_BAG, feeling - MAX_INSCRIP);
+				int bag = lookup_kind(TV_BAG, feelings - MAX_INSCRIP);
 
 				if (bag)
 				{
@@ -5971,7 +5971,7 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3, u32b f4, bo
 	else if (o_ptr->xtra1 >= OBJECT_XTRA_MIN_RUNES)
 	{
 		int rune = o_ptr->xtra1 - OBJECT_XTRA_MIN_RUNES;
-		int i;
+		//int i;
 
 		for (i = 0;i<MAX_RUNE_FLAGS;i++)
 		{
@@ -7523,6 +7523,7 @@ s32b object_power(const object_type *o_ptr)
 			ADD_POWER("resist water",	 3, TR4_RES_WATER, 4, );
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		case TV_GLOVES:
@@ -7562,6 +7563,7 @@ s32b object_power(const object_type *o_ptr)
 				p = 0;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 
 		}
 
@@ -7573,6 +7575,7 @@ s32b object_power(const object_type *o_ptr)
 				&& ( (f1 & ~(kf1)) || (f2 & ~(TR2_IGNORE_MASK) & ~(kf2)) || (f3 & ~(kf3)) || (f4 & ~(kf4)) ) ) p++;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		case TV_SOFT_ARMOR:
@@ -7662,6 +7665,7 @@ s32b object_power(const object_type *o_ptr)
 			}
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 		case TV_AMULET:
 		{
@@ -7703,6 +7707,7 @@ s32b object_power(const object_type *o_ptr)
 			if (((f2 & (TR2_IGNORE_FIRE)) != 0) && ((kf2 & (TR2_IGNORE_FIRE)) == 0)) p += 2;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 		case TV_MUSHROOM:
 		case TV_FOOD:

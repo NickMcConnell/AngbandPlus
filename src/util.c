@@ -3711,6 +3711,216 @@ bool get_check(cptr prompt)
 	return (TRUE);
 }
 
+void add_player_speech(char* speech)
+{
+	printf("DEBUG add player speech\n");
+	memset(p_ptr->speech, '\0', sizeof(p_ptr->speech));
+	
+	strncpy(p_ptr->speech, speech, (strlen(speech) > 50 ? 50 : strlen(speech)));
+	
+	p_ptr->show_speech = 5;
+}
+
+void add_monster_speech(monster_type *monster, char* speech)
+{
+	memset(monster->speech, '\0', sizeof(monster->speech));
+	
+	strncpy(monster->speech, speech, (strlen(speech) > 50 ? 50 : strlen(speech)));
+	
+	p_ptr->show_speech = 5;
+}
+
+void process_monster_speech()
+{
+	char speech[51];
+	int reserved_rows[300];
+	int speech_row;
+	int speech_col;
+	int player_y, player_x, monster_y, monster_x;
+	
+	int area_height = ((level_flag & (LF1_TOWN)) != 0 ? TOWN_HGT : Term->hgt);
+	
+	int index;
+	
+	monster_type *monster;
+	
+	memset(reserved_rows, 0, sizeof(reserved_rows));
+	
+	if (p_ptr->show_speech > -1) {
+		prt_map();
+	}
+	
+	/* Loop over monsters to display new speech bubbles */
+	if (p_ptr->show_speech > 0) {
+		if (strlen(p_ptr->speech) > 0) {
+		    player_y = p_ptr->py - p_ptr->wy;
+		    player_x = p_ptr->px - p_ptr->wx;
+		    
+			speech_row = (player_y < area_height/2 ? player_y + 3 : player_y - 1);
+			
+			if (reserved_rows[speech_row] == 0) {
+				reserved_rows[speech_row] = 1;
+				
+				if (player_y < area_height/2) {
+					c_put_str(TERM_ORANGE, "\\", player_y+2, player_x+1+SIDEBAR_WID);
+				} else {
+					c_put_str(TERM_ORANGE, "/", player_y, player_x+1+SIDEBAR_WID);
+				}
+				
+				speech_col = (player_x+1+SIDEBAR_WID) - (strlen(p_ptr->speech) / 2);
+				if (speech_col < SIDEBAR_WID) speech_col = SIDEBAR_WID;
+				if (speech_col > Term->wid) speech_col = Term->wid - strlen(speech);
+				
+				c_put_str(TERM_L_YELLOW, p_ptr->speech, speech_row, speech_col);
+				
+				if (p_ptr->show_speech == 1)
+					memset(p_ptr->speech, '\0', strlen(p_ptr->speech));
+			}
+		}
+		
+		for (index = 1; index < z_info->m_max; index++) {
+			monster = &m_list[index];
+			
+			/* Only visible monsters */
+			if (!monster->ml) continue;
+			if (!player_can_see_bold(monster->fy, monster->fx)) continue;
+			
+			if (strlen(monster->speech) > 0) {
+			    monster_y = monster->fy - p_ptr->wy; // relative Y pos
+			    monster_x = monster->fx - p_ptr->wx; // relative X pos
+			    
+				speech_row = (monster_y < area_height/2 ? monster_y + 3 : monster_y - 1);
+				
+				if (reserved_rows[speech_row] == 0) {
+					reserved_rows[speech_row] = 1;
+					
+					if (monster_y < area_height/2) {
+						c_put_str(TERM_ORANGE, "\\", monster_y+2, monster_x+1+SIDEBAR_WID);
+					} else {
+						c_put_str(TERM_ORANGE, "/", monster_y, monster_x+1+SIDEBAR_WID);
+					}
+					
+					speech_col = (monster_x+1+SIDEBAR_WID) - (strlen(monster->speech) / 2);
+					if (speech_col < SIDEBAR_WID) speech_col = SIDEBAR_WID;
+					if (speech_col > Term->wid) speech_col = Term->wid - strlen(speech);
+					
+					c_put_str(TERM_L_YELLOW, monster->speech, speech_row, speech_col);
+					
+					if (p_ptr->show_speech == 1)
+						memset(monster->speech, '\0', strlen(monster->speech));
+				}
+			}
+		}
+		
+		for (index = 1; index < z_info->m_max; index++) {
+			monster = &m_list[index];
+			
+			/* Only visible monsters */
+			if (!monster->ml) continue;
+			if (!player_can_see_bold(monster->fy, monster->fx)) continue;
+			
+			lite_spot(monster->fy, monster->fx);
+	    }
+	    
+	    lite_spot(p_ptr->py, p_ptr->px);
+	}
+	
+	if (p_ptr->show_speech > -1) p_ptr->show_speech--;
+}
+
+
+/*
+ * Show text in a dialog box and return the user keypress
+ */
+char get_dialog(char* text, bool is_confirmation, char* valid_keys)
+{
+	char keypress;
+	bool is_valid_key = FALSE;
+
+	unsigned int i;
+	unsigned int newlines;
+	unsigned int max_text_width = 56; // 40 dialog - 2x padding (left and right)
+	int starting_line_number = 3;
+	int line_number = starting_line_number;
+	int starting_line_column = (Term->wid / 2 - (max_text_width+4) / 2 + SIDEBAR_WID/2);
+	int line_column = starting_line_column;
+	
+	char token_trimmed[max_text_width+1];
+	char top_dialog_line[] = "************************************************************";
+	char open_dialog_line[] = "*                                                          *";
+	char bottom_dialog_line[] = "****************** Press space to continue *****************";
+	
+	/* Prompt for it */
+	c_put_str(TERM_ORANGE, top_dialog_line, line_number++, starting_line_column);
+	c_put_str(TERM_ORANGE, open_dialog_line, line_number, starting_line_column);
+	
+	line_column = starting_line_column + 2;
+	char* token = strtok(text, " ");
+	
+	while( token != NULL && line_number < Term->hgt-1 ) {
+		newlines = 0;
+		
+		for (i = 0; i < strlen(token); i++)
+			if (token[i] == '\n') {
+				newlines++;
+				token[i] = ' ';
+			}
+		
+		if (strlen(token) > max_text_width) {
+			strncpy(token_trimmed, token, max_text_width);
+			token_trimmed[max_text_width] = '\0';
+		} else {
+			strcpy(token_trimmed, token);
+			token_trimmed[ strlen(token) ] = '\0';
+		}
+		
+		if ((line_column + strlen(token_trimmed)) 
+			>= starting_line_column+2+max_text_width) {
+				line_column = starting_line_column + 2;
+				line_number++;
+				c_put_str(TERM_ORANGE, open_dialog_line, line_number, starting_line_column);
+		}
+		
+		c_put_str(TERM_L_YELLOW, token_trimmed, line_number, line_column);
+		
+		line_column = line_column + strlen(token_trimmed) + 1;
+		
+		if (newlines > 0) {
+			line_column = starting_line_column + 2;
+			for (i = 0; i < newlines; i++) {
+				line_number++;
+				c_put_str(TERM_ORANGE, open_dialog_line, line_number, starting_line_column);
+			}
+		}
+		
+		token = strtok(NULL, " ");
+	}
+	
+	line_number++;
+	c_put_str(TERM_ORANGE, (is_confirmation ? top_dialog_line : bottom_dialog_line), line_number, starting_line_column);
+	
+	/* Retrieve keypress */
+	if (strlen(valid_keys) == 0) {
+		while (! is_valid_key) {
+			keypress = anykey().key;
+			if (keypress == ' ') is_valid_key = TRUE;
+		}
+	} else {
+		while (! is_valid_key) {
+			keypress = anykey().key;
+			for (i = 0; i < strlen(valid_keys); i++)
+				if (keypress == valid_keys[i])
+					is_valid_key = TRUE;
+		}
+	}
+	
+	/* Clear message */
+	prt_map();
+	
+	/* Return keypress */
+	return keypress;
+}
+
 
 /*
  * Prompts for a keypress
@@ -3997,7 +4207,7 @@ void request_command(bool shopping)
 		act = keymap_act[mode][(byte)(ke.key)];
 
 		/* Apply keymap if not inside a keymap already */
-		if (act && !inkey_next)
+		if (!shopping && act && !inkey_next)
 		{
 			/* Install the keymap (limited buffer size) */
 			strnfmt(request_command_buffer, 256, "%s", act);
@@ -4873,11 +5083,11 @@ bool is_valid_pf(int y, int x)
 	/* Don't move over known regions */
 	for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
 	{
-		region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
-		region_type *r_ptr = &region_list[rp_ptr->region];
+		region_piece_type *rp_ptr2 = &region_piece_list[this_region_piece];
+		region_type *r_ptr = &region_list[rp_ptr2->region];
 
 		/* Get the next region */
-		next_region_piece = rp_ptr->next_in_grid;
+		next_region_piece = rp_ptr2->next_in_grid;
 
 		/* Skip dead regions */
 		if (!r_ptr->type) continue;
@@ -4906,8 +5116,11 @@ static void fill_terrain_info(void)
 	ex = MIN(p_ptr->px + MAX_PF_RADIUS / 2 - 1,DUNGEON_WID);
 	ey = MIN(p_ptr->py + MAX_PF_RADIUS / 2 - 1,DUNGEON_HGT);
 
-	for (i=0;i<MAX_PF_RADIUS*MAX_PF_RADIUS;i++)
-		terrain[0][i] = -1;
+	/*for (i=0;i<MAX_PF_RADIUS*MAX_PF_RADIUS;i++)
+		terrain[0][i] = -1;*/
+	for (i=0;i<MAX_PF_RADIUS;i++)
+		for (j=0;j<MAX_PF_RADIUS;j++)
+			terrain[j][i] = -1;
 
 	for (j=oy;j<ey;j++)
 		for (i=ox;i<ex;i++)
@@ -5085,7 +5298,7 @@ cptr get_month_name(int day, bool full, bool compact)
 		{
 			char buf2[20];
 
-			sprintf(buf2, get_day(day + 1));
+			sprintf(buf2, "%s", get_day(day + 1));
 			if (full) sprintf(buf, "%s (%s day)", month_name[i], buf2);
 			else sprintf(buf, "%s", month_name[i]);
 			break;
@@ -5096,8 +5309,8 @@ cptr get_month_name(int day, bool full, bool compact)
 			char buf2[20];
 			char buf3[20];
 
-			sprintf(buf2, get_day(day + 1 - month_day[i]));
-			sprintf(buf3, get_day(day + 1));
+			sprintf(buf2, "%s", get_day(day + 1 - month_day[i]));
+			sprintf(buf3, "%s", get_day(day + 1));
 
 			if (full) sprintf(buf, "%s day of %s (%s day)", buf2, month_name[i], buf3);
 			else if (compact) sprintf(buf, "%s day of %s", buf2, month_name[i]);

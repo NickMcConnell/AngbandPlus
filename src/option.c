@@ -48,6 +48,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 
 	/* Display */
 	{
+		OPT_show_narrative,
 		OPT_hilite_player,
  		OPT_center_player,
 		OPT_show_piles,
@@ -66,7 +67,6 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_room_names,
 		OPT_room_descriptions,
 		OPT_show_tips,
-		OPT_NONE,
 		OPT_NONE
 	},
 
@@ -150,12 +150,12 @@ typedef struct
 
 static option_entry options[OPT_MAX] =
 {
-{ "rogue_like_commands", "Rogue-like commands",                         FALSE }, /* 0 */
+{ "rogue_like_commands", "Rogue-like commands",                         TRUE }, /* 0 */
 { "quick_messages",      "Activate quick messages",                     TRUE },  /* 1 */
 { "use_sound",           "Use sound",                                   FALSE }, /* 2 */
 { "pickup_detail",       "Be verbose when picking things up",           TRUE },  /* 3 */
 { "use_old_target",      "Use old target by default",                   FALSE }, /* 4 */
-{ "pickup_always",       "Always pickup items",                         FALSE }, /* 5 */
+{ "pickup_always",       "Always pickup items",                         TRUE }, /* 5 */
 { "pickup_inven",        "Always pickup items matching inventory",      TRUE },  /* 6 */
 { NULL,                  NULL,                                          FALSE }, /* 7 */
 { NULL,                  NULL,                                          FALSE }, /* 8 */
@@ -215,7 +215,7 @@ static option_entry options[OPT_MAX] =
 { "view_granite_lite",   "Use special colors for wall grids",           FALSE }, /* 62 */
 { "view_special_lite",   "Use special colors for floor grids",          TRUE },  /* 63 */
 { "easy_open",           "Open/Disarm/Close without direction",         FALSE }, /* 64 */
-{ "easy_alter",          "Open/Disarm doors/traps on movement",         FALSE }, /* 65 */
+{ "easy_alter",          "Open/Disarm doors/traps on movement",         TRUE }, /* 65 */
 { NULL,                  NULL,                                          FALSE }, /* 66 */
 { "show_piles",          "Show stacks using special attr/char",         FALSE }, /* 67 */
 { "center_player",       "Center map continuously",                     FALSE }, /* 68 */
@@ -240,11 +240,11 @@ static option_entry options[OPT_MAX] =
 { NULL,                  NULL,                                          FALSE }, /* 87 */
 { NULL,                  NULL,                                          FALSE }, /* 88 */
 { NULL,                  NULL,                                          FALSE }, /* 89 */
-{ "room_descriptions",   "Display room descriptions",                   TRUE }, /* 90 */
-{ "room_names",          "Display room names",                          TRUE }, /* 91 */
+{ "room_descriptions",   "Display room descriptions",                   FALSE }, /* 90 */
+{ "room_names",          "Display room names",                          FALSE }, /* 91 */
 { "verify_mana",         "Verify critical mana",                        FALSE }, /* 92 */
 { "easy_autos",          "Automatically inscribe all objects",          FALSE }, /* 93 */
-{ "easy_search",         "Start searching if not disturbed",            FALSE }, /* 94 */
+{ "easy_search",         "Start searching if not disturbed",            TRUE }, /* 94 */
 { "view_glowing_lite",   "Use special colours for glowing lite",        TRUE }, /* 95 */
 { "show_sidebar",        "Display stats in main window",                FALSE }, /* 96 */
 { "show_itemlist",       "Display all items on the bottom line",        FALSE }, /* 97 */
@@ -258,9 +258,9 @@ static option_entry options[OPT_MAX] =
 { "autosave_backup",     "Create backup savefile before descending",   TRUE }, /* 105 */
 { "auto_monlist",        "Always show visible monsters/objects",		FALSE }, /* 106 */
 { "easy_monlist",        "Spacebar toggles visible monsters/objects",   FALSE }, /* 107 */
-{ "view_fogged_grids",   "Show fog of war for unexplored areas",        TRUE }, /* 108 */
+{ "view_fogged_grids",   "Show fog of war for unexplored areas",        FALSE }, /* 108 */
 { "ally_messages",       "Show detailed combat messages for allies",    FALSE }, /* 109 */
-{ NULL,                  NULL,                                          FALSE }, /* 110 */
+{ "show_narrative",      "Single-window narrative mode",                TRUE }, /* 110 */
 { NULL,                  NULL,                                          FALSE }, /* 111 */
 { NULL,                  NULL,                                          FALSE }, /* 112 */
 { NULL,                  NULL,                                          FALSE }, /* 113 */

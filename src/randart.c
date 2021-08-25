@@ -17,7 +17,7 @@
 
 #define LOG_PRINT(string) \
 	do { if (randart_verbose) \
-		fprintf(randart_log, (string)); \
+		fprintf(randart_log, "%s", (string)); \
 	} while (0);
 
 #define LOG_PRINT1(string, value) \
@@ -1215,7 +1215,8 @@ static void store_base_power (void)
 				art_shield_total++; break;
 			case TV_CLOAK:
 				if (a_info[i].sval <= SV_SHADOW_CLOAK) art_cloak_total++;
-				else art_armor_total++; break;
+				else art_armor_total++;
+				break;
 			case TV_HELM:
 			case TV_CROWN:
 				art_headgear_total++; break;
@@ -4900,7 +4901,7 @@ errr do_randart(u32b randart_seed, bool full)
 	/* Only do all the following if full randomization requested */
 	if (full)
 	{
-		int i;
+		//int i;
 
 		int art_high_slot = z_info->a_max - 1;
 

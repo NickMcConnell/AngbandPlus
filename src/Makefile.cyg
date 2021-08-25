@@ -6,13 +6,13 @@
 # Standard defines
 #
 
-CC = gcc
-WRES = windres
+CC = i686-w64-mingw32-gcc
+WRES = i686-w64-mingw32-windres
 LIBS = -s -mwindows -e _mainCRTStartup -lwinmm
 CFLAGS = -Wall -W -pedantic -O2 -fno-strength-reduce -DWINDOWS
 OBJEXT=.o
 
-default: unangband
+default: friendband_windows_64
 
 include commondefs.inc
 EXOBJS = $(COMMONOBJS) angband.res readdib$(OBJEXT) main-win$(OBJEXT)
@@ -29,19 +29,19 @@ main-win.o: main-win.c
 # Targets
 #
 
-all: unangband movebin
+all: friendband_windows_64 movebin
 
-install: unangband movebin cleanobjs
+install: friendband_windows_64 movebin cleanobjs
 
 movebin:
-	mv -f unangband.exe ../unangband.exe
+	mv -f friendband_windows_64.exe ../friendband_windows_64.exe
 
 cleanobjs:
 	rm -f $(EXOBJS)
 	rm -f $(TOLUAOBJS)
 
 cleanbin:
-	rm -f unangband.exe
+	rm -f friendband_windows_64.exe
 
 clean:	cleanobjs cleanbin
 
@@ -49,8 +49,8 @@ clean:	cleanobjs cleanbin
 # Dependency rules
 #
 
-unangband: $(EXOBJS)
-	$(CC) -o unangband $(EXOBJS) $(INCDIRS) $(LIBDIRS) $(LIBS)
+friendband_windows_64: $(EXOBJS)
+	$(CC) -o friendband_windows_64 $(EXOBJS) $(INCDIRS) $(LIBDIRS) $(LIBS)
 
 
 #

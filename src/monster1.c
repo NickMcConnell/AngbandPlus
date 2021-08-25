@@ -596,9 +596,9 @@ static void describe_monster_drop(const monster_race *r_ptr, const monster_lore 
 			/* Dump "treasure(s)" */
 			if (l_ptr->flags9 & (RF9_DROP_MINERAL))
 			{
-				int coin_type = get_coin_type(r_ptr);
+				int coin_type2 = get_coin_type(r_ptr);
 
-				switch (k_info[coin_type + OBJ_GOLD_LIST].tval)
+				switch (k_info[coin_type2 + OBJ_GOLD_LIST].tval)
 				{
 					case TV_GOLD:
 						vp[vn++] = "precious metal";
@@ -676,7 +676,7 @@ static void describe_monster_attack(const monster_race *r_ptr, const monster_lor
 	/* Examine (and count) the actual attacks */
 	for (r = 0, m = 0; m < 4; m++)
 	{
-		int method, effect, d1, d2;
+		int effect, d1, d2;
 
 		bool detail = FALSE;
 

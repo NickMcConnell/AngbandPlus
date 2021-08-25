@@ -451,6 +451,7 @@ extern void object_actual_track(const object_type *j_ptr);
 extern void disturb(int stop_search, int wake_up);
 extern bool is_quest(int level);
 extern void init_level_flags(void);
+extern bool is_daytime(void);
 
 /* cmd1.c */
 extern bool test_hit_fire(int chance, int ac, int vis);
@@ -485,7 +486,7 @@ extern void do_cmd_disarm(void);
 extern void do_cmd_bash(void);
 extern void do_cmd_alter(void);
 extern bool player_set_trap_or_spike(int item);
-extern void do_cmd_walk(void);
+extern bool do_cmd_walk(void);
 extern void do_cmd_pathfind(int y, int x);
 extern void do_cmd_run(void);
 extern void do_cmd_hold(void);
@@ -847,7 +848,7 @@ extern void object_tried(object_type *o_ptr);
 extern s32b object_value_real(const object_type *o_ptr);
 extern s32b object_value(const object_type *o_ptr);
 extern bool object_similar(const object_type *o_ptr, const object_type *j_ptr);
-extern void object_absorb(object_type *o_ptr, const object_type *j_ptr, bool floor);
+extern void object_absorb(object_type *o_ptr, object_type *j_ptr, bool floor);
 extern s16b lookup_kind(int tval, int sval);
 extern void object_wipe(object_type *o_ptr);
 extern void object_copy(object_type *o_ptr, const object_type *j_ptr);
@@ -910,7 +911,7 @@ extern s16b spell_chance(int spell);
 extern bool spell_okay(int spell, bool known);
 extern byte allow_altered_inventory;
 extern int get_tag_num(int o_idx, int cmd, byte *tag_num);
-extern void find_quiver_size(void);
+extern int find_quiver_size(void);
 extern void combine_quiver(void);
 extern int reorder_quiver(int slot);
 extern bool is_throwing_item(const object_type *o_ptr);
@@ -1125,6 +1126,10 @@ extern bool get_string(cptr prompt, char *buf, int len);
 extern int get_quantity_aux(cptr prompt, int max, int amt);
 extern s16b get_quantity(cptr prompt, int max);
 extern bool get_check(cptr prompt);
+extern void add_player_speech(char* speech);
+extern void add_monster_speech(monster_type *monster, char* speech);
+extern void process_monster_speech(void);
+extern char get_dialog(char* text, bool is_confirmation, char* valid_keys);
 extern bool get_com(cptr prompt, char *command);
 extern bool get_com_ex(cptr prompt, key_event *command);
 extern void pause_line(int row);
@@ -1170,6 +1175,7 @@ extern void update_stuff(void);
 extern void redraw_stuff(void);
 extern void window_stuff(void);
 extern void handle_stuff(void);
+extern int print_emergent_narrative(void);
 
 /* xtra2.c */
 extern bool set_timed(int idx, int v, bool notify);
@@ -1229,7 +1235,7 @@ extern void get_zone(dungeon_zone **zone_handle, int dungeon, int depth);
 extern void long_level_name(char* str, int town, int depth);
 extern void current_long_level_name(char* str);
 extern int scale_method(method_level_scalar_type scalar, int level);
-
+extern void get_room_desc(int room, char *name, int name_s, char *text_visible, int text_visible_s, char *text_always, int text_always_s);
 
 /*
  * Hack -- conditional (or "bizarre") externs

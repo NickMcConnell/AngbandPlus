@@ -232,67 +232,67 @@ int actual_route(int dun)
  * and has no "!<" in its inscription.
  * Also, if it has "=<' it will be always eaten, reasonable or not.
  */
-static bool auto_consume_okay(const object_type *o_ptr)
-{
-	cptr s;
+//static bool auto_consume_okay(const object_type *o_ptr)
+//{
+//	cptr s;
 
 	/* Inedible */
-	if (!item_tester_hook_food_edible(o_ptr)) return (FALSE);
+//	if (!item_tester_hook_food_edible(o_ptr)) return (FALSE);
 
 	/* Hack -- normal food is fine except gorging meat, etc. */
 	/* You can inscribe them with !< to prevent this however */
-	if ((o_ptr->tval == TV_FOOD)
-		 && (o_ptr->sval != SV_FOOD_WAYBREAD)
-		 && (o_ptr->sval != SV_FOOD_SPRIG_OF_ATHELAS)
-		 && (o_ptr->sval != SV_FOOD_COOKED_MEET)
-		 && (o_ptr->sval != SV_FOOD_PINT_OF_SPIRITS))
-	{
+//	if ((o_ptr->tval == TV_FOOD)
+//		 && (o_ptr->sval != SV_FOOD_WAYBREAD)
+//		 && (o_ptr->sval != SV_FOOD_SPRIG_OF_ATHELAS)
+//		 && (o_ptr->sval != SV_FOOD_COOKED_MEET)
+//		 && (o_ptr->sval != SV_FOOD_PINT_OF_SPIRITS))
+//	{
 		/* No inscription */
-		if (!o_ptr->note) return (TRUE);
+//		if (!o_ptr->note) return (TRUE);
 
 		/* Find a '!' */
-		s = strchr(quark_str(o_ptr->note), '!');
+//		s = strchr(quark_str(o_ptr->note), '!');
 
 		/* Process inscription */
-		while (s)
-		{
+//		while (s)
+//		{
 			/* Not auto-consume on "!<" */
-			if (s[1] == '<')
-			{
+//			if (s[1] == '<')
+//			{
 				/* Pick up */
-				return (FALSE);
-			}
+//				return (FALSE);
+//			}
 
 			/* Find another '=' */
-			s = strchr(s + 1, '!');
-		}
+//			s = strchr(s + 1, '!');
+//		}
 
-		return (TRUE);
-	}
+//		return (TRUE);
+//	}
 
 	/* No inscription */
-	if (!o_ptr->note) return (FALSE);
+//	if (!o_ptr->note) return (FALSE);
 
 	/* Find a '=' */
-	s = strchr(quark_str(o_ptr->note), '=');
+//	s = strchr(quark_str(o_ptr->note), '=');
 
 	/* Process inscription */
-	while (s)
-	{
+//	while (s)
+//	{
 		/* Auto-consume on "=<" */
-		if (s[1] == '<')
-		{
+//		if (s[1] == '<')
+//		{
 			/* Pick up */
-			return (TRUE);
-		}
+//			return (TRUE);
+//		}
 
 		/* Find another '=' */
-		s = strchr(s + 1, '=');
-	}
+//		s = strchr(s + 1, '=');
+//	}
 
 	/* Don't auto consume */
-	return (FALSE);
-}
+//	return (FALSE);
+//}
 
 
 /*
@@ -442,7 +442,7 @@ int set_routes(s16b *routes, int max_num, int from)
 	/* Sort the routes in order */
 	for(i = 0; i < num; i++)
 	{
-		int ii;
+		//int ii;
 		s16b temp;
 
 		max = i;
@@ -474,7 +474,8 @@ static void do_cmd_travel(void)
 	town_type *t_ptr = &t_info[p_ptr->dungeon];
 	dungeon_zone *zone = &t_ptr->zone[0];
 
-	int i, num = 0;
+	//int i, num = 0;
+	int i = 0;
 
 	int journey = 0;
 
@@ -483,8 +484,38 @@ static void do_cmd_travel(void)
 
 	bool edge_y = ((by < 2) || (by > ((DUNGEON_HGT/BLOCK_HGT)-3)));
 	bool edge_x = ((bx < 2) || (bx > ((DUNGEON_WID/BLOCK_WID)-3)));
+	
+	bool head_north = (p_ptr->py < 3);
+	bool head_east = (p_ptr->px > ((level_flag & (LF1_TOWN)) ? TOWN_WID : DUNGEON_WID)-3);
+	bool head_south = (p_ptr->py > ((level_flag & (LF1_TOWN)) ? TOWN_HGT : DUNGEON_HGT)-3);
+	bool head_west = (p_ptr->px - SIDEBAR_WID < 3);
+	
+	//town = t_ptr->nearby[i]; //route[i];
+	//long_level_name(str, town, 0);
 
-	char str[46];
+	char str[1000];
+	char destination_name[46];
+	char travel_confirm_message[240];
+	char keypress;
+	
+	int selection = p_ptr->dungeon;
+	
+	char no_return_message[] = "As you set foot upon the path, you have the sudden feeling you might not be able to get back this way for a long while.\n\n ";
+	
+	int travel_direction = 0;
+	if (head_north) travel_direction = 0;
+	if (head_east) travel_direction = 1;
+	if (head_south) travel_direction = 2;
+	if (head_west) travel_direction = 3;
+	
+	selection = t_ptr->nearby[travel_direction];
+	
+	if (selection == 0) return;
+	
+	long_level_name(destination_name, selection, 0);
+	
+	town_type *next_town = &t_info[selection];
+	dungeon_zone *next_zone = &next_town->zone[0];
 
 	current_long_level_name(str);
 
@@ -523,9 +554,8 @@ static void do_cmd_travel(void)
 		}
 		else
 		{
-			int selection = p_ptr->dungeon;
 
-			s16b routes[24];
+			//s16b routes[24];
 
 			quest_event event;
 
@@ -541,10 +571,14 @@ static void do_cmd_travel(void)
 			if (check_quest(&event, FALSE)) return;
 
 			/* Routes */
-			num = set_routes(routes, 24, p_ptr->dungeon);
+			//num = set_routes(routes, 24, p_ptr->dungeon);
 
 			/* Display the list and get a selection */
-			if (get_list(print_routes, routes, num, "Routes", "Travel to where", ", L=locations, M=map", 1, 22, route_commands, &selection))
+			//if (get_list(print_routes, routes, num, "Routes", "Travel to where", ", L=locations, M=map", 1, 22, route_commands, &selection))
+			
+			
+			
+			if (TRUE /*keypress == 'y'*/)
 			{
 				int found = 0;
 				
@@ -552,7 +586,7 @@ static void do_cmd_travel(void)
 
 				if (!t_info[selection].visited)
 				{
-					char str[1000];
+					memset(str, '\0', sizeof(str));
 
 					for (i = 1; i < z_info->t_max; i++)
 					{
@@ -585,58 +619,64 @@ static void do_cmd_travel(void)
 				if (found == 0
 					&& count_routes(selection, p_ptr->dungeon) <= 0)
 				{
-					msg_print("As you set foot upon the path, you have the sudden feeling you might not be able to get back this way for a long while.");
+					//msg_print("As you set foot upon the path, you have the sudden feeling you might not be able to get back this way for a long while.");
 					found = 1;
 				}
 
-				if (found != 0
-					&& !get_check("Are you sure you want to travel? "))
+				//if (found != 0
+				//	&& !get_check("Are you sure you want to travel? "))
 					/* Bail out */
-					return;
+				//	return;
+				
+				sprintf(travel_confirm_message, "%sDo you want to travel to %s (difficulty level %d)? [y/n]", (found != 0 ? no_return_message : ""), destination_name, next_zone->level);
+				keypress = get_dialog(travel_confirm_message, TRUE, "yn");
+				
+				/* if not confirmed, bail out */
+				if (keypress == 'n') return;
 
 				/* Save the old dungeon in case something goes wrong */
 				if (autosave_backup)
 					do_cmd_save_bkp();
 
 				/* Will try to auto-eat? */
-				if (p_ptr->food < PY_FOOD_FULL)
+				/*if (p_ptr->food < PY_FOOD_FULL)
 				{
 					msg_print("You set about filling your stomach for the long road ahead.");
-				}
+				}*/
 
 				/* Hack -- Consume most food not inscribed with !< */
-				while (p_ptr->food < PY_FOOD_FULL)
-				{
-					for (i = INVEN_PACK - 1; i >= 0; i--)
-					{
-						/* Eat the food */
-						if (auto_consume_okay(&inventory[i]))
-						{
-							/* Eat the food */
-							player_eat_food(i);
+				//while (p_ptr->food < PY_FOOD_FULL)
+				//{
+				//	for (i = INVEN_PACK - 1; i >= 0; i--)
+				//	{
+				//		/* Eat the food */
+				//		if (auto_consume_okay(&inventory[i]))
+				//		{
+				//			/* Eat the food */
+				//			player_eat_food(i);
 
-							break;
-						}
-					}
+				//			break;
+				//		}
+				//	}
 
 					/* Escape out if no food */
-					if (i < 0) break;
-				}
+				//	if (i < 0) break;
+				//}
 
 				if (easy_more) messages_easy(FALSE);
 
 				/* Need to be full to travel */
-				if (p_ptr->food < PY_FOOD_FULL)
-				{
-					msg_print("You notice you don't have enough food to fully satiate you before the travel.");
-					msg_print("You realize you will face the unforeseen dangers with a half-empty stomach!");
+				//if (p_ptr->food < PY_FOOD_FULL)
+				//{
+				//	msg_print("You notice you don't have enough food to fully satiate you before the travel.");
+				//	msg_print("You realize you will face the unforeseen dangers with a half-empty stomach!");
 
-					if (!get_check("Are you sure you want to travel? "))
+				//	if (!get_check("Are you sure you want to travel? "))
 						/* Bail out */
-						return;
+				//		return;
 					
-					risk_stat_loss = TRUE;
-				}
+				//	risk_stat_loss = TRUE;
+				//}
 
 				/* Longer and more random journeys via map */
 				journey = damroll(2 + (risk_stat_loss ? 1 : 0) + (level_flag & LF1_DAYLIGHT ? 1 : 0), 4);
@@ -647,26 +687,26 @@ static void do_cmd_travel(void)
 					if (t_info[p_ptr->dungeon].nearby[i] == selection) journey = damroll(1 + (risk_stat_loss ? 1 : 0) + (level_flag & LF1_DAYLIGHT ? 1 : 0), 3);
 				}
 
-				if (journey < 4)
-				{
-					msg_print("You have a mild and pleasant journey.");
-				}
-				else if (journey < 7)
-				{
-					msg_print("Your travels are without incident.");
-				}
-				else if (journey < 10)
-				{
-					msg_print("You have a long and arduous trip.");
-				}
-				else
-				{
-					msg_print("You get lost in the wilderness!");
+				//if (journey < 4)
+				//{
+				//	msg_print("You have a mild and pleasant journey.");
+				//}
+				//else if (journey < 7)
+				//{
+				//	msg_print("Your travels are without incident.");
+				//}
+				//else if (journey < 10)
+				//{
+				//	msg_print("You have a long and arduous trip.");
+				//}
+				//else
+				//{
+				//	msg_print("You get lost in the wilderness!");
 					/* XXX Fake a wilderness location? */
-				}
+				//}
 
 				/* Hack -- Get hungry/tired/sore */
-				set_food(p_ptr->food - PY_FOOD_FULL/10*journey);
+				//set_food(p_ptr->food - PY_FOOD_FULL/10*journey);
 
 				/* Hack -- Time passes (at 4* food use rate) */
 				turn += PY_FOOD_FULL/10*journey*4;
@@ -676,14 +716,14 @@ static void do_cmd_travel(void)
 				 * we reduce a stat and leave them only very hungry if they would end up weak.
 				 * This also prevents the player from infinitely travelling.
 				 */
-				while (p_ptr->food < PY_FOOD_WEAK + PY_FOOD_STARVE)
-				{
+				//while (p_ptr->food < PY_FOOD_WEAK + PY_FOOD_STARVE)
+				//{
 					/* Decrease random stat */
-					if (risk_stat_loss) do_dec_stat(rand_int(A_MAX));
+				//	if (risk_stat_loss) do_dec_stat(rand_int(A_MAX));
 					
 					/* Feed the player */
-					set_food(p_ptr->food + PY_FOOD_FAINT);
-				}
+				//	set_food(p_ptr->food + PY_FOOD_FAINT);
+				//}
 
 				/* XXX Recharges, stop temporary speed etc. */
 				/* We don't do this to e.g. allow the player to buff themselves before fighting Beorn. */
@@ -809,7 +849,7 @@ void do_cmd_go_up(void)
 	else
 	{
 		/* Success */
-		message(MSG_STAIRS_UP, 0, "You enter a maze of up staircases.");
+		//message(MSG_STAIRS_UP, 0, "You enter a maze of up staircases.");
 
 		/* Hack -- take a turn */
 		p_ptr->energy_use = 100;
@@ -921,7 +961,7 @@ void do_cmd_go_down(void)
 	else
 	{
 		/* Success */
-		message(MSG_STAIRS_DOWN, 0, "You enter a maze of down staircases.");
+		//message(MSG_STAIRS_DOWN, 0, "You enter a maze of down staircases.");
 
 		/* Hack -- take a turn */
 		p_ptr->energy_use = 100;
@@ -1590,7 +1630,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 {
 	bool more = FALSE;
 
-	int i,j;
+	int j;
 
 	cptr name;
 
@@ -1601,7 +1641,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	/* Verify legality */
 	if (!do_cmd_test(y, x, FS_TUNNEL)) return (FALSE);
 
-	i = p_ptr->skills[SKILL_DIGGING];
+	//i = p_ptr->skills[SKILL_DIGGING];
 
 	j = f_info[cave_feat[y][x]].power;
 
@@ -2751,6 +2791,7 @@ bool player_set_trap_or_spike(int item)
 					    case 3:
 					    {
 							if (i_ptr->tval != TV_SHOT) trap_allowed = FALSE;
+							__attribute__ ((fallthrough));
 					    }
 						default:
 						{
@@ -2930,15 +2971,16 @@ bool player_set_trap_or_spike(int item)
 
 static bool do_cmd_walk_test(int y, int x)
 {
+	int original_feature;
 	int feat;
 
 	cptr name;
 
 	/* Get feature */
-	feat = cave_feat[y][x];
+	original_feature = cave_feat[y][x];
 
 	/* Get mimiced feature */
-	feat = f_info[feat].mimic;
+	feat = f_info[original_feature].mimic;
 
 	/* Get the name */
 	name = (f_name + f_info[feat].name);
@@ -2954,6 +2996,14 @@ static bool do_cmd_walk_test(int y, int x)
 
 	/* Hack -- walking allows gathering XXX XXX */
 	if (f_info[feat].flags3 & (FF3_GET_FEAT)) return (TRUE);
+	
+	/* Travel when touching an outside edge */
+	if (p_ptr->outside 
+		&& (f_info[original_feature].flags1 & (FF1_PERMANENT))
+		&& (f_info[original_feature].flags1 & (FF1_SOLID))) {
+			do_cmd_go_up();
+			return (FALSE);
+	}
 
 	/* Player can not walk through "walls" */
 	/* Also cannot climb over unknown "trees/rubble" */
@@ -2982,22 +3032,27 @@ static bool do_cmd_walk_test(int y, int x)
 /*
  * Walk into a grid. For mouse movement when confused.
  */
-void do_cmd_walk()
+bool do_cmd_walk()
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int y, x, dir;
+	int y, x, dir, keypress;
+	
+	int feat;
+	//char query;
+	char climb_up_message[] = "Climb up the stairs? (y/n)";
+	char climb_down_message[] = "Climb down the stairs? (y/n)";
 
 	/* Get a direction (or abort) */
-	if (!get_rep_dir(&dir)) return;
+	if (!get_rep_dir(&dir)) return (FALSE);
 
 	/* Get location */
 	y = py + ddy[dir];
 	x = px + ddx[dir];
 
 	/* Verify legality */
-	if (!do_cmd_walk_test(y, x)) return;
+	if (!do_cmd_walk_test(y, x)) return (FALSE);
 
 	/* Take time */
 	p_ptr->energy_use = 100;
@@ -3027,7 +3082,7 @@ void do_cmd_walk()
 	}
 
 	/* Verify legality */
-	if (!do_cmd_walk_test(y, x)) return;
+	if (!do_cmd_walk_test(y, x)) return (FALSE);
 
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
@@ -3044,6 +3099,26 @@ void do_cmd_walk()
 
 	/* Move the player */
 	move_player(dir);
+	
+	feat = f_info[cave_feat[p_ptr->py][p_ptr->px]].mimic;
+
+	if ((f_info[feat].flags1 & (FF1_STAIRS)) && (f_info[feat].flags1 & (FF1_LESS))) {
+		keypress = get_dialog(climb_up_message, TRUE, "yn");
+		if (keypress == 'y') {
+			do_cmd_go_up();
+			return (FALSE);
+		}
+	}
+
+	if ((f_info[feat].flags1 & (FF1_STAIRS)) && (f_info[feat].flags1 & (FF1_MORE))) {
+		keypress = get_dialog(climb_down_message, TRUE, "yn");
+		if (keypress == 'y') {
+			do_cmd_go_down();
+			return (FALSE);
+		}
+	}
+	
+	return (FALSE);
 }
 
 
@@ -3716,7 +3791,7 @@ void player_fire_or_throw_selected(int item, bool fire)
 	 * a chance to shoot without fumbling */
 	if ((ranged_skill <= 1) && (rand_int(100) < 50)) ranged_skill = 2;
 	
-	/* Test for fumble */
+	/* STEP 1: ask for target / Test for fumble */
 	/* XXX Avoid divide by zero here */
 	if ((ranged_skill <= 1)
 		|| ((inaccuracy > 5) && (rand_int(ranged_skill) < inaccuracy)))
@@ -3760,7 +3835,6 @@ void player_fire_or_throw_selected(int item, bool fire)
 			{
 				/* Reset the chosen direction */
 				p_ptr->command_dir = 0;
-
 				if (!get_aim_dir(&dir, TARGET_KILL, tdis, 0, (PROJECT_BEAM), 0, 0))
 				{
 					/* Canceled */
@@ -3778,7 +3852,7 @@ void player_fire_or_throw_selected(int item, bool fire)
 					}
 				}
 				else
-				{
+				{	
 					/* No cancel */
 
 					/* Check for "target request" */

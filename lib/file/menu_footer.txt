@@ -1,0 +1,8 @@
+Unangband by:
+Gold Dragon, Andrew Doull, Mikolaj Konarski, Mogami, Andrew Sidwell and others
+
+Angband by: Alex Cutler, Andy Astrand, Sean Marsh, Geoff Hill, Charles Teague, 
+Charles Swiger, Ben Harrison, Robert Ruehlmann and others
+
+This program incorporates code from other Angband variants: NPPAngband &
+Sangband. Released under the traditional Angband license and GNU GPL.

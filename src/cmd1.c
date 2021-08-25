@@ -2101,13 +2101,13 @@ void cave_alter_source_feat(int y, int x, int action)
 	for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
 	{
 		/* Get the region piece */
-		region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+		region_piece_type *region_p_ptr = &region_piece_list[this_region_piece];
 
 		/* Get the region */
-		region_type *r_ptr = &region_list[rp_ptr->region];
+		region_type *r_ptr = &region_list[region_p_ptr->region];
 
 		/* Get the next object */
-		next_region_piece = rp_ptr->next_in_grid;
+		next_region_piece = region_p_ptr->next_in_grid;
 
 		/* Skip regions that don't apply */
 		if ((r_ptr->flags1 & (RE1_SOURCE_FEATURE)) == 0) continue;
@@ -2425,6 +2425,7 @@ bool discharge_trap(int y, int x, int ty, int tx, s16b child_region)
 				apply_terrain = TRUE;
 
 				/* Drop through to use a charge */
+				__attribute__ ((fallthrough));
 			}
 
 			case TV_WAND:
@@ -2587,6 +2588,7 @@ bool discharge_trap(int y, int x, int ty, int tx, s16b child_region)
 				apply_terrain = TRUE;
 
 				/* Drop through to use a number */
+				__attribute__ ((fallthrough));
 			}
 
 			case TV_POTION:
@@ -2722,7 +2724,7 @@ bool discharge_trap(int y, int x, int ty, int tx, s16b child_region)
 			int effect = f_ptr->spell ? method_ptr->d_res : blow_ptr->effect;
 
 			int num = scale_method(method_ptr->number, p_ptr->depth);
-			int i, j;
+			int j;
 
 			/* Hack -- minimum number */
 			if (!num) num = 1;
@@ -2761,7 +2763,7 @@ bool discharge_trap(int y, int x, int ty, int tx, s16b child_region)
 				for (j = 0; j < region_max; j++)
 				{
 					/* Get the region */
-					region_type *r_ptr = &region_list[j];
+					r_ptr = &region_list[j];
 	
 					/* Region random? */
 					if (((r_ptr->flags1 & (RE1_HIT_TRAP)) != 0) && (r_ptr->y0 == y) && (r_ptr->x0 == x) && (r_ptr->flags1 & (RE1_RANDOM)))
@@ -4237,11 +4239,11 @@ static int see_stop(int dir, int y, int x)
 	/* Don't move over known regions */
 	for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
 	{
-		region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
-		region_type *r_ptr = &region_list[rp_ptr->region];
+		region_piece_type *region_p_ptr = &region_piece_list[this_region_piece];
+		region_type *r_ptr = &region_list[region_p_ptr->region];
 
 		/* Get the next region */
-		next_region_piece = rp_ptr->next_in_grid;
+		next_region_piece = region_p_ptr->next_in_grid;
 
 		/* Skip dead regions */
 		if (!r_ptr->type) continue;
@@ -4559,7 +4561,7 @@ static bool run_test(void)
 
 	int prev_dir;
 	int new_dir;
-	int check_dir = 0;
+	//int check_dir = 0;
 
 	int row, col;
 	int i, max, inv;
@@ -4702,14 +4704,14 @@ static bool run_test(void)
 			/* Two new (adjacent) directions (case 1) */
 			else if (new_dir & 0x01)
 			{
-				check_dir = cycle[chome[prev_dir] + i - 2];
+				//check_dir = cycle[chome[prev_dir] + i - 2];
 				option2 = new_dir;
 			}
 
 			/* Two new (adjacent) directions (case 2) */
 			else
 			{
-				check_dir = cycle[chome[prev_dir] + i + 1];
+				//check_dir = cycle[chome[prev_dir] + i + 1];
 				option2 = option;
 				option = new_dir;
 			}

@@ -113,7 +113,7 @@
  * into the main window. So in these instances, we cheat, and shrink it slightly to 12.
  *
  */
-#define SIDEBAR_WID		(show_sidebar ? (use_dbltile || use_trptile ? 12 : 13) : 0)
+#define SIDEBAR_WID		(show_sidebar | show_narrative ? (use_dbltile || use_trptile ? 12 : 13) : 0)
 
 
 #define ROW_MAP			1
@@ -174,6 +174,11 @@
  * Total number of stores per town (see "store.c", etc)
  */
 #define MAX_STORES	8
+
+/*
+ * Maximum number of rumours townfolk can talk about
+ */
+#define MAX_TOWN_RUMOURS	5
 
 /*
  * Total number of items in home (see "store.c", etc)
@@ -1196,6 +1201,9 @@ enum
 #define FEAT_PERM_INNER	0x3D
 #define FEAT_PERM_OUTER	0x3E
 #define FEAT_PERM_SOLID	0x3F
+#define FEAT_PERM_ROOF	0x3E9
+#define FEAT_PERM_EDGE	0x3EA
+#define FEAT_PERM_HOBBIT	0x3EB
 
 /* Extra features (need colour) */
 #define FEAT_UPPER_EXTRA 0x0040
@@ -5335,7 +5343,22 @@ extern int PlayerUID;
 #define TERM_BLUE_SLATE 26	/* 'z' */
 #define TERM_DEEP_L_BLUE 27	/* 'Z' */
 
-#define BASE_COLORS 	28	/* Maximum 'normal' colours */
+#define TERM_DARK_RED	28
+#define TERM_DARK_GREEN 29
+#define TERM_DARK_BLUE	30
+
+#define TERM_NIGHT_DARK	31
+#define TERM_NIGHT_RED	32
+#define TERM_NIGHT_GREEN 33
+#define TERM_NIGHT_BLUE	34
+
+#define TERM_HIGH_RED	35
+#define TERM_HIGH_GREEN 36
+#define TERM_HIGH_BLUE	37
+
+#define TERM_FOREST	38	/* 'f' */
+
+#define BASE_COLORS 	39	/* Maximum 'normal' colours */
 #define MAX_COLORS 		256	/* Maximum 'normal' colours */
 
 
@@ -5348,12 +5371,13 @@ extern int PlayerUID;
 #define ATTR_HIGH		6	/* "Highlight" color translation */
 #define ATTR_METAL		7	/* "Metallic" color translation */
 #define ATTR_MISC		8	/* "Miscellaneous" color translation - see misc_to_attr */
+#define ATTR_NIGHT		9	/* "Miscellaneous" color translation - see misc_to_attr */
 
 /* Strongly consider the following for accessibility reasons */
 #define ATTR_COLOR_RG	9	/* Red/green colorblind users */
 #define ATTR_CONTRAST	10	/* High contrast colors */
 
-#define MAX_ATTR		9
+#define MAX_ATTR		10
 
 /*** Message constants ***/
 

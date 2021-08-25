@@ -243,10 +243,17 @@ static void prt_level(void)
  */
 static void prt_exp(void)
 {
-	char out_val[32];
+	//char out_val[32]; // 17 for normal XP bar
+	int xp_bar_size = (Term->wid - COL_EXP - 1);
+	char out_val[ xp_bar_size ];
 	s32b exp_display;
 	byte attr;
 	int max_number;
+	int i;
+	
+	s32b xp_required = (player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L);
+	s32b xp_offset = (player_exp[p_ptr->lev - 2] * p_ptr->expfact / 100L);
+	int exp_bar = 0;
 
 	/*use different color if player's experience is drained*/
 	if (p_ptr->exp >= p_ptr->max_exp)
@@ -265,7 +272,8 @@ static void prt_exp(void)
 				* p_ptr->expfact / 100L) -
 			       p_ptr->exp);
 		/*Print experience label*/
-		put_str("NEXT ", ROW_EXP, COL_EXP);
+		//put_str("NEXT ", ROW_EXP, COL_EXP);
+		put_str("XP:", ROW_EXP, COL_EXP-4);
 
 		max_number = 99999;
 	}
@@ -274,7 +282,8 @@ static void prt_exp(void)
 		exp_display = p_ptr->exp;
 
 		/*Print experience label*/
-		put_str("EXP ", ROW_EXP, COL_EXP);
+		//put_str("EXP ", ROW_EXP, COL_EXP);
+		put_str("XP:", ROW_EXP, COL_EXP-4);
 
 		max_number = 999999;
 	}
@@ -283,16 +292,30 @@ static void prt_exp(void)
 	  sprintf(out_val, "%8ld", exp_display);
 	}
 	else {
-	  if (exp_display > max_number) {
-	    exp_display = exp_display / 1000;
-	    sprintf(out_val, "%5ldK", exp_display);
-	  }
-	  else {
-	    sprintf(out_val, "%6ld", exp_display);
-	  }
+		if (exp_display > max_number) {
+			exp_display = exp_display / 1000;
+			sprintf(out_val, "%5ldK", exp_display);
+		}
+		else {
+			//sprintf(out_val, "%6ld", exp_display);
+
+			for (i = 0; i < xp_bar_size; i++)
+				out_val[i] = ' ';
+
+			out_val[0] = '[';
+			out_val[xp_bar_size-1] = ']';
+
+			exp_bar = (int) ((p_ptr->exp - xp_offset) / (float) (xp_required - xp_offset) * (xp_bar_size - 1));
+
+			for (i = 1; i < (xp_bar_size - 1); i++)
+				if (i-1 < exp_bar)
+					out_val[i] = '*';
+
+			//sprintf(out_val, "%6ld/%-6ld", p_ptr->exp, xp_required);
+		}
 	}
 
-	c_put_str(attr, out_val, ROW_EXP, COL_EXP + 4);
+	c_put_str(attr, out_val, ROW_EXP, COL_EXP - 1);
 }
 
 
@@ -303,11 +326,528 @@ static void prt_gold(void)
 {
 	char tmp[32];
 
-	put_str("AU ", ROW_GOLD, COL_GOLD);
-	sprintf(tmp, "%9ld", (long)p_ptr->au);
-	c_put_str(TERM_L_GREEN, tmp, ROW_GOLD, COL_GOLD + 3);
+	put_str("Gold:", ROW_GOLD, COL_GOLD);
+	sprintf(tmp, "%-9ld", (long)p_ptr->au);
+	c_put_str(TERM_L_GREEN, tmp, ROW_GOLD, COL_GOLD + 5);
 }
 
+
+/*
+ * Clear sidebar
+ */
+int clear_sidebar(int height_start, int height_end)
+{
+	int index;
+	
+	for (index = height_start; index <= height_end; index++) {
+		c_put_str(TERM_DARK, "             ", index, 0);
+	}
+	
+	return 1;
+}
+
+
+/* Check if integer value is in array */
+int is_in_array(int value, int *array, int size){
+    int index;
+    
+    for (index = 0; index < size; index++) {
+        if (array[index] == value)
+            return 1;
+    }
+    
+    return 0;
+}
+
+
+/*
+ * Prints tokenized name on multiple lines in the sidebar
+ */
+int print_tokenized_name(int line_number, byte color, char display_character, char* name, int max_line_number)
+{
+	int show_display_character = 1;
+	
+	char text[80];
+	char trimmed_text[14];
+	
+	char* token = strtok(name, " ");
+	
+	while( token != NULL && line_number < max_line_number ) {
+		if (strlen(token) > 2) {
+			if (show_display_character) {
+				sprintf(text, "%c: %s", display_character, token);
+				show_display_character = 0;
+			} else {
+				sprintf(text, "   %s", token);
+			}
+			
+			strncpy(trimmed_text, text, 13);
+			trimmed_text[13] = '\0';
+			c_put_str(color, trimmed_text, line_number, 0);
+			
+			line_number++;
+		}
+		
+		token = strtok(NULL, " ");
+	}
+	
+	return line_number;
+}
+
+
+/*
+ * Print monster character, color and name
+ */
+int print_monster_narrative(int line_number, int max_line_number)
+{
+	int index;
+	int previous_monsters[100];
+	int previous_monster_count = 0;
+	
+	char name[80];
+	
+	byte color;
+	
+	monster_type *monster;
+	monster_race *monster_race2;
+	
+	/* Loop over monsters */
+	for (index = 1; index < z_info->m_max; index++) {
+		monster = &m_list[index];
+		
+		/* Only visible monsters */
+		if (!monster->ml) continue;
+		
+		if (!player_can_see_bold(monster->fy, monster->fx)) continue;
+		
+		/* Get monster race */
+		monster_race2 = &r_info[monster->r_idx];
+		
+		/* Get the monster name */
+		monster_desc(name, sizeof(name), index, 0x208);
+		
+		color = monster_race2->d_attr;
+		
+		/* Ignore duplicates */
+		if ( is_in_array(
+			monster->r_idx, 
+			previous_monsters, 
+			sizeof(previous_monsters)) == 1 ) 
+				continue;
+		
+		line_number = print_tokenized_name(
+			line_number, 
+			color, 
+			monster_race2->d_char, 
+			name, 
+			max_line_number);
+		
+		previous_monsters[ previous_monster_count ] = monster->r_idx;
+		previous_monster_count++;
+		
+		if (Term->hgt > 40) line_number++;
+	}
+	
+	return line_number;
+}
+
+
+/*
+ * Print object character, color and name
+ */
+int print_object_narrative(int line_number, int max_line_number)
+{
+	int index;
+	int previous_objects[100];
+	int previous_object_count = 0;
+	
+	char name[80];
+	
+	byte color;
+	
+	object_type *object;
+	
+	/* Loop over objects */
+	for (index = 1; index < z_info->o_max; index++) {
+		object_type object_type_body;
+		
+		object = &o_list[index];
+		
+		/* Only visible objects */
+		if ((object->ident & (IDENT_MARKED)) == 0) continue;
+		
+		/* Only objects on the floor */
+		if (object->held_m_idx) continue;
+		
+		if (!player_can_see_bold(object->iy, object->ix)) continue;
+		
+		/* Prepare a fake object */
+		object_prep(&object_type_body, object->k_idx);
+		
+		/* Fake the artifact */
+		if (object_named_p(object) && object->name1) {
+			object_type_body.name1 = object->name1;
+		}
+		
+		/* Describe the object */
+		object_desc(name, sizeof(name), &object_type_body, TRUE, 0);
+		
+		color = k_info[object->k_idx].d_attr;
+		
+		/* Ignore duplicates */
+		if ( is_in_array(
+			object->k_idx, 
+			previous_objects, 
+			sizeof(previous_objects)) == 1 ) 
+				continue;
+		
+		line_number = print_tokenized_name(
+			line_number, 
+			color, 
+			k_info[object->k_idx].d_char, 
+			name, 
+			max_line_number);
+		
+		previous_objects[ previous_object_count ] = object->k_idx;
+		previous_object_count++;
+		
+		if (Term->hgt > 40) line_number++;
+	}
+	
+	return line_number;
+}
+
+
+/*
+ * Print noticable feature character, color and name
+ */
+int print_feature_narrative(int line_number, int max_line_number)
+{
+	int player_x = p_ptr->px;
+	int player_y = p_ptr->py;
+	int scan_square_size = 6;
+	int x, y, i;
+	char previous_feature_chars[100];
+	int previous_feature_count = 0;
+	
+	char name[80];
+	
+	byte color;
+	byte previous_feature_colors[100];
+	
+	feature_type *feature;
+	
+	bool is_duplicate;
+	bool outside = (level_flag & (LF1_SURFACE))
+		&& (f_info[cave_feat[player_y][player_x]].flags3 & (FF3_OUTSIDE));
+	
+	/* Scan rectangle shape around player */
+	for (y = (player_y - scan_square_size); y <= (player_y + scan_square_size); y++) {
+		/* Skip if Y falls outside terrain borders */
+		if (y < 0 || (outside && y > TOWN_HGT) 
+			|| (!outside && y > DUNGEON_HGT)) 
+				continue;
+		
+		for (x = (player_x - scan_square_size); x <= (player_x + scan_square_size); x++) {
+			/* Skip if X falls outside terrain borders */
+			if (x < 0 || (outside && x > TOWN_WID) 
+				|| (!outside && x > DUNGEON_WID)) 
+					continue;
+			
+			if (!player_can_see_bold(y, x)) continue;
+			
+			feature = &f_info[cave_feat[y][x]];
+			
+			/* Only display is feature is noticable */
+			if ((feature->flags1 & FF1_NOTICE) 
+				|| (feature->flags1 & RE1_NOTICE)) {
+					sprintf(name, "%s", (f_name + feature->name));
+					color = feature->d_attr;
+					
+					/* Ignore duplicates */
+					/* Compare char and color because I couldn't find a unique index */
+					is_duplicate = (bool) 0;
+					for (i = 0; i < previous_feature_count; i++) {
+						if (previous_feature_chars[i] == feature->d_char
+							&& previous_feature_colors[i] == color) {
+								is_duplicate = (bool) 1;
+								continue;
+						}
+					}
+					if (is_duplicate) continue;
+					
+					line_number = print_tokenized_name(
+						line_number, 
+						color, 
+						feature->d_char, 
+						name, 
+						max_line_number);
+					
+					previous_feature_chars[ previous_feature_count ] = feature->d_char;
+					previous_feature_colors[ previous_feature_count ] = color;
+					previous_feature_count++;
+					
+					if (Term->hgt > 40) line_number++;
+			}
+		}
+	}
+	
+	return line_number;
+}
+
+
+/*
+ * Print text word by word, break lines on sidebar width
+ */
+int print_text_in_sidebar(int line_number, byte color, char* text, int max_line_number, bool first_sentence_only)
+{
+	int line_column = 0;
+	
+	char token_trimmed[14];
+	
+	char* token = strtok(text, " ");
+	
+	while( token != NULL && line_number < max_line_number ) {
+		if (strlen(token) > 13) {
+			strncpy(token_trimmed, token, 13);
+			token_trimmed[13] = '\0';
+		} else {
+			strcpy(token_trimmed, token);
+			token_trimmed[ strlen(token) ] = '\0';
+		}
+		
+		if ((line_column + strlen(token_trimmed)) >= 13) {
+			line_column = 0;
+			line_number++;
+		}
+		
+		c_put_str(color, token_trimmed, line_number, line_column);
+		
+		line_column = line_column + strlen(token_trimmed) + 1;
+		
+		/* If first sentence only, stop after the first period */
+		if (first_sentence_only && strchr(token, '.') != NULL) break;
+		
+		token = strtok(NULL, " ");
+	}
+	
+	line_number++;
+	
+	return line_number;
+}
+
+
+/*
+ * Print room description
+ */
+int print_room_narrative(int line_number, char* title, char* text, int max_line_number, bool is_long_description)
+{
+#ifdef ALLOW_BORG
+	/* Hack -- No descriptions for the borg */
+	if (count_stop) return line_number;
+#endif
+	
+	/* Hack -- handle "xtra" mode */
+	if (!character_dungeon) return line_number;
+	
+	/* Hack -- not a room */
+	//if (!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))) room = 0;
+	
+	if (title && strlen(title) > 0 && strcmp(title, "empty room") != 0) {
+		title[0] = toupper(title[0]);
+		line_number = print_text_in_sidebar(
+			line_number, 
+			TERM_WHITE, 
+			title, 
+			max_line_number, 
+			(bool) 0);
+		//if (Term->hgt > 40 || ! is_long_description) line_number++;
+	}
+	
+	if (text && strlen(text) > 0) {
+		line_number = print_text_in_sidebar(
+			line_number, 
+			TERM_L_DARK, 
+			text, 
+			max_line_number, 
+			is_long_description);
+		line_number++;
+	}
+	
+	return line_number;
+}
+
+#define MAX_DESTINATION_NAME_LENGTH 15
+
+/*
+ * Get direction name from NESW direction and set to name
+ */
+/*void get_destination_name(char *name, town_type *t_ptr, int direction)
+{
+	int destination_trim_size;
+	char destination_name[43];
+	char directionArrow[] = "^>v<";
+	
+	memset(name, '\0', MAX_DESTINATION_NAME_LENGTH);
+	
+	if (t_ptr->nearby[direction] != 0) {
+		long_level_name(destination_name, t_ptr->nearby[direction], 0);
+		destination_trim_size = strlen(destination_name);
+		if (destination_trim_size > 11) destination_trim_size = 14;
+		snprintf(name, destination_trim_size, "%c %s", directionArrow[direction], destination_name);
+	}
+}*/
+
+/*
+ * Print emergent narrative using:
+ * - visible monsters
+ * - visible objects
+ * - visible noticable features
+ * - room title and both descriptions
+ */
+int print_emergent_narrative(void)
+{
+	int line_number = 1;
+	int max_line_number = (Term->hgt - 2);
+	int ammo;
+	char ammo_message[10];
+	
+	int room = room_idx(p_ptr->py, p_ptr->px);
+	
+	char wet_message[16];
+	char character_level[7];
+	char name[62];
+	char text_visible[1024];
+	char text_always[1024];
+	char text_empty[] = "";
+	
+	char north[15] = "";
+	char east[15] = "";
+	char south[15] = "";
+	char west[15] = "";
+	
+	bool has_directions = FALSE;
+	
+	town_type *t_ptr = &t_info[p_ptr->dungeon];
+	
+	//get_destination_name(&north[0], t_ptr, 0);
+	//get_destination_name(&east[0], t_ptr, 1);
+	//get_destination_name(&south[0], t_ptr, 2);
+	//get_destination_name(&west[0], t_ptr, 3);
+	
+	if (t_ptr->nearby[0] != 0)
+		snprintf(north, 14, "^ %s", (t_info[ t_ptr->nearby[0] ].name + t_name));
+	if (t_ptr->nearby[1] != 0)
+		snprintf(east, 14, "> %s", (t_info[ t_ptr->nearby[1] ].name + t_name));
+	if (t_ptr->nearby[2] != 0)
+		snprintf(south, 14, "v %s", (t_info[ t_ptr->nearby[2] ].name + t_name));
+	if (t_ptr->nearby[3] != 0)
+		snprintf(west, 14, "< %s", (t_info[ t_ptr->nearby[3] ].name + t_name));
+	
+	if (strlen(north) > 0 || strlen(east) > 0 || strlen(south) > 0 || strlen(west) > 0)
+		has_directions = TRUE;
+	
+	sprintf(character_level, " L%-d", (char) p_ptr->lev);
+	
+	if (p_ptr->wet && p_ptr->wet > 0)
+		sprintf(wet_message, "Soaked for %-d", (char) p_ptr->wet);
+	
+	bool is_long_description;
+	
+	/* Get the room description */
+	get_room_desc(
+		room, 
+		name, 
+		sizeof(name), 
+		text_visible, 
+		sizeof(text_visible), 
+		text_always, 
+		sizeof(text_always));
+	
+	/* Check if a description is long */
+	is_long_description = ((Term->hgt < 40 
+		&& strlen(text_always) > 80) 
+		|| strlen(text_always) > 160);
+	
+	clear_sidebar(line_number, max_line_number);
+	
+	/* Soaked message and count-down */
+	if (p_ptr->wet && p_ptr->wet > 0) {
+		line_number = print_text_in_sidebar(
+			line_number, 
+			TERM_ORANGE, 
+			wet_message, 
+			max_line_number, 
+			(bool) 0);
+		line_number++;
+	}
+	
+	c_put_str(TERM_L_WHITE, "@: You", line_number, 0);
+	c_put_str(TERM_L_DARK, character_level, line_number, 7);
+	line_number++;
+	if (Term->hgt > 40) line_number++;
+	
+	line_number = print_monster_narrative(line_number, max_line_number);
+	line_number = print_object_narrative(line_number, max_line_number);
+	line_number = print_feature_narrative(line_number, max_line_number);
+	
+	ammo = find_quiver_size();
+	sprintf(ammo_message, "Ammo: %d", ammo);
+	if (line_number < max_line_number) 
+		c_put_str(TERM_YELLOW, ammo_message, line_number++, 0);
+	
+	/* Add whitespace between list and room description for smaller screens */
+	if (Term->hgt <= 40) line_number++;
+	
+	line_number = print_room_narrative(
+		line_number, 
+		name, 
+		text_visible, 
+		max_line_number, 
+		is_long_description);
+	
+	line_number = print_room_narrative(
+		line_number, 
+		text_empty, 
+		text_always, 
+		max_line_number, 
+		is_long_description);
+	
+	if (line_number < max_line_number)
+		if (has_directions)
+			c_put_str(TERM_SLATE, "Directions:", line_number++, 0);
+	if (line_number < max_line_number)
+		if (strlen(north) > 0)
+			c_put_str(TERM_TEAL, north, line_number++, 0);
+	if (line_number < max_line_number)
+		if (strlen(east) > 0)
+			c_put_str(TERM_TEAL, east, line_number++, 0);
+	if (line_number < max_line_number)
+		if (strlen(south) > 0)
+			c_put_str(TERM_TEAL, south, line_number++, 0);
+	if (line_number < max_line_number)
+		if (strlen(west) > 0)
+			c_put_str(TERM_TEAL, west, line_number++, 0);
+	
+	if (has_directions) line_number++;
+
+	if (line_number < max_line_number)
+		c_put_str(TERM_SLATE, "? = help", line_number++, 0);
+	
+	//if (line_number < max_line_number)
+	//	c_put_str(TERM_SLATE, "(I)nventory", line_number++, 0);
+	
+	//if (line_number < max_line_number)
+	//	c_put_str(TERM_SLATE, "(M)ap", line_number++, 0);
+	
+	//if (line_number < max_line_number)
+	//	c_put_str(TERM_SLATE, "(S)ave & quit", line_number++, 0);
+	
+	//if (line_number < max_line_number)
+	//	c_put_str(TERM_SLATE, "(Q) Reset", line_number++, 0);
+
+	return line_number;
+}
 
 
 /*
@@ -341,7 +881,8 @@ static void prt_hp(void)
 	c_put_str(color, tmp, ROW_MAXHP, COL_MAXHP + (show_sidebar ? 7 : 1));
 
 
-	put_str((show_sidebar ? "Cur HP " : "HP:    "), ROW_CURHP, COL_CURHP);
+	put_str((show_sidebar ? "Cur HP " : "Life:  "), ROW_CURHP, COL_CURHP);
+	//put_str((show_sidebar ? "Cur HP " : "HP:    "), ROW_CURHP, COL_CURHP);
 
 	sprintf(tmp, (show_sidebar ? "%5d" : "%d"), p_ptr->chp);
 
@@ -386,7 +927,8 @@ static void prt_sp(void)
 	c_put_str(color, tmp, ROW_MAXSP, COL_MAXSP + (show_sidebar ? 7 : 1));
 
 
-	put_str((show_sidebar ? "Cur SP " : "SP:    "), ROW_CURSP, COL_CURSP);
+	put_str((show_sidebar ? "Cur SP " : "Magic: "), ROW_CURSP, COL_CURSP);
+	//put_str((show_sidebar ? "Cur SP " : "SP:    "), ROW_CURSP, COL_CURSP);
 
 	sprintf(tmp, (show_sidebar ? "%5d" : "%d"), p_ptr->csp);
 
@@ -453,44 +995,44 @@ static void prt_depth(void)
 /*
  * Prints status of hunger
  */
-static void prt_hunger(void)
-{
+//static void prt_hunger(void)
+//{
 	/* Fainting / Starving */
-	if (p_ptr->food < PY_FOOD_FAINT)
-	{
-		c_put_str(TERM_RED, (show_sidebar ? "Weak  " : "Weak"), ROW_HUNGRY, COL_HUNGRY);
-	}
+//	if (p_ptr->food < PY_FOOD_FAINT)
+//	{
+//		c_put_str(TERM_RED, (show_sidebar ? "Weak  " : "Weak"), ROW_HUNGRY, COL_HUNGRY);
+//	}
 
 	/* Weak */
-	else if (p_ptr->food < PY_FOOD_WEAK)
-	{
-		c_put_str(TERM_ORANGE, (show_sidebar ? "Weak  " : "Weak"), ROW_HUNGRY, COL_HUNGRY);
-	}
+//	else if (p_ptr->food < PY_FOOD_WEAK)
+//	{
+//		c_put_str(TERM_ORANGE, (show_sidebar ? "Weak  " : "Weak"), ROW_HUNGRY, COL_HUNGRY);
+//	}
 
 	/* Hungry */
-	else if (p_ptr->food < PY_FOOD_ALERT)
-	{
-		c_put_str(TERM_YELLOW, (show_sidebar ? "Hungry" : "Hung"), ROW_HUNGRY, COL_HUNGRY);
-	}
+//	else if (p_ptr->food < PY_FOOD_ALERT)
+//	{
+//		c_put_str(TERM_YELLOW, (show_sidebar ? "Hungry" : "Hung"), ROW_HUNGRY, COL_HUNGRY);
+//	}
 
 	/* Normal */
-	else if (p_ptr->food < PY_FOOD_FULL)
-	{
-		c_put_str(TERM_L_GREEN, (show_sidebar ? "      " : "    "), ROW_HUNGRY, COL_HUNGRY);
-	}
+//	else if (p_ptr->food < PY_FOOD_FULL)
+//	{
+//		c_put_str(TERM_L_GREEN, (show_sidebar ? "      " : "    "), ROW_HUNGRY, COL_HUNGRY);
+//	}
 
 	/* Full */
-	else if (p_ptr->food < PY_FOOD_MAX)
-	{
-		c_put_str(TERM_L_GREEN, (show_sidebar ? "Full  " : "Full"), ROW_HUNGRY, COL_HUNGRY);
-	}
+//	else if (p_ptr->food < PY_FOOD_MAX)
+//	{
+//		c_put_str(TERM_L_GREEN, (show_sidebar ? "Full  " : "Full"), ROW_HUNGRY, COL_HUNGRY);
+//	}
 
 	/* Gorged */
-	else
-	{
-		c_put_str(TERM_GREEN, (show_sidebar ? "Gorged" : "Gorg"), ROW_HUNGRY, COL_HUNGRY);
-	}
-}
+//	else
+//	{
+//		c_put_str(TERM_GREEN, (show_sidebar ? "Gorged" : "Gorg"), ROW_HUNGRY, COL_HUNGRY);
+//	}
+//}
 
 /*
  * Prints Searching, Resting, Paralysis, or 'count' status
@@ -722,7 +1264,7 @@ static bool visible;
 static int level_name_start;
 static char level_name_str[46];
 static int level_depth_start;
-static char level_depth_str[5];
+static char level_depth_str[14];
 
 static void print_level_depth(void)
 {
@@ -764,7 +1306,13 @@ static void init_level_name(void)
 
     if (p_ptr->depth > 0)
 		if (depth_in_feet) sprintf(level_depth_str, " %4d'", 50 * p_ptr->depth);
-		else sprintf(level_depth_str, " %2d", p_ptr->depth);
+		else { 
+			sprintf(
+				level_depth_str, 
+				"  depth:%2d/%-2d", 
+				(p_ptr->depth - min_depth(p_ptr->dungeon)),
+				(max_depth(p_ptr->dungeon) - min_depth(p_ptr->dungeon)));
+		}
     else
 		level_depth_str[0] = 0;
 
@@ -1626,7 +2174,7 @@ static void prt_frame_basic(void)
 	}
 
 	/* Level/Experience */
-	prt_level();
+	if (! show_narrative) prt_level();
 	prt_exp();
 
 	/* All Stats */
@@ -1672,7 +2220,7 @@ static void prt_frame_extra(void)
 	prt_state();
 
 	/* Food */
-	prt_hunger();
+	//prt_hunger();
 
 	/* Disease */
 	prt_disease();
@@ -2910,82 +3458,95 @@ static void calc_hitpoints(void)
  */
 static void calc_torch(void)
 {
-	object_type *o_ptr = &inventory[INVEN_LITE];
+	int feat = f_info[cave_feat[p_ptr->py][p_ptr->px]].mimic;
+	
+	if (f_info[feat].flags2 & (FF2_WATER))
+		p_ptr->wet = 5;
+	
+	/* Assume player is always lit without light source */
+	if (p_ptr->wet && p_ptr->wet > 0) {
+		p_ptr->cur_lite = 1;
+		p_ptr->wet--;
+	} else {
+		p_ptr->cur_lite = 2;
+	}
+	
+	//object_type *o_ptr = &inventory[INVEN_LITE];
 
-	u32b f1;
-	u32b f2;
-	u32b f3;
-	u32b f4;
+	//u32b f1;
+	//u32b f2;
+	//u32b f3;
+	//u32b f4;
 
 	/* Assume no light */
-	p_ptr->cur_lite = 0;
+	//p_ptr->cur_lite = 0;
 
 	/* Get the object flags */
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	//object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Examine actual lites */
-	if (o_ptr->tval == TV_LITE)
-	{
+	//if (o_ptr->tval == TV_LITE)
+	//{
 		/* Burning torches provide some lite */
-		if ((o_ptr->sval == SV_LITE_TORCH) && (o_ptr->timeout > 0))
-		{
-			if (o_ptr->timeout < FUEL_LOW) p_ptr->cur_lite = 1;
-			else p_ptr->cur_lite = 2;
-		}
+		//if ((o_ptr->sval == SV_LITE_TORCH) && (o_ptr->timeout > 0))
+		//{
+		//	if (o_ptr->timeout < FUEL_LOW) p_ptr->cur_lite = 1;
+		//	else p_ptr->cur_lite = 2;
+		//}
 
 		/* Lanterns (with fuel) provide more lite */
-		if ((o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->timeout > 0))
-		{
-			p_ptr->cur_lite = 2;
-		}
+		//if ((o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->timeout > 0))
+		//{
+		//	p_ptr->cur_lite = 2;
+		//}
 
 		/* Artifact Lites provide permanent, bright, lite */
-		if (artifact_p(o_ptr))
-		{
-			p_ptr->cur_lite = 2;
+		//if (artifact_p(o_ptr))
+		//{
+		//	p_ptr->cur_lite = 2;
 
 #ifdef ALLOW_OBJECT_INFO_MORE
 			/* TODO: Sense as an artifact */
 #endif
 
-		}
+		//}
 
-	}
+	//}
 	/* Examine spells */
-	else if (o_ptr->tval == TV_SPELL)
-	{
-		if (f3 & (TR3_LITE))
-		{
-			p_ptr->cur_lite = 2;
+	//else if (o_ptr->tval == TV_SPELL)
+	//{
+		//if (f3 & (TR3_LITE))
+		//{
+			//p_ptr->cur_lite = 2;
 
 #ifdef ALLOW_OBJECT_INFO_MORE
-			object_can_flags(o_ptr,0x0L,0x0L,TR3_LITE,0x0L, FALSE);
+			//object_can_flags(o_ptr,0x0L,0x0L,TR3_LITE,0x0L, FALSE);
 #endif
-		}
-		else
-		{
-			p_ptr->cur_lite = 1;
-		}
-	}
+		//}
+		//else
+		//{
+			//p_ptr->cur_lite = 1;
+		//}
+	//}
 
 	/* Player is glowing */
-	if ((p_ptr->cur_flags3 & (TR3_LITE)) != 0)
-	{
+	//if ((p_ptr->cur_flags3 & (TR3_LITE)) != 0)
+	//{
 #ifdef ALLOW_OBJECT_INFO_MORE
-		equip_can_flags(0x0L,0x0L,TR3_LITE,0x0L);
+		//equip_can_flags(0x0L,0x0L,TR3_LITE,0x0L);
 #endif
-		p_ptr->cur_lite += p_ptr->glowing;
-	}
+		//p_ptr->cur_lite += p_ptr->glowing;
+	//}
 
 	/* Notice changes in the "lite radius" */
-	if (p_ptr->old_lite != p_ptr->cur_lite)
-	{
+	//if (p_ptr->old_lite != p_ptr->cur_lite)
+	//{
 		/* Update the visuals */
-		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+		//p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 		/* Remember the old lite */
-		p_ptr->old_lite = p_ptr->cur_lite;
-	}
+		//p_ptr->old_lite = p_ptr->cur_lite;
+	//}
 }
 
 
@@ -4321,7 +4882,7 @@ void update_stuff(void)
 	if (p_ptr->update & (PU_ROOM_INFO))
 	{
 		p_ptr->update &= ~(PU_ROOM_INFO);
-		describe_room();
+		//describe_room();
 	}
 }
 
@@ -4526,7 +5087,7 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & (PR_HUNGER))
 	{
 		p_ptr->redraw &= ~(PR_HUNGER);
-		prt_hunger();
+		//prt_hunger();
 	}
 
 	if (p_ptr->redraw & (PR_BLIND))
@@ -4596,6 +5157,8 @@ void redraw_stuff(void)
 		p_ptr->redraw &= ~(PR_STUDY);
 		prt_study();
 	}
+	
+	if (show_narrative) print_emergent_narrative();
 }
 
 

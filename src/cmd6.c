@@ -203,8 +203,16 @@ bool do_cmd_item(int command)
 	/* Restrict choices to tval */
 	item_tester_tval = cmd_item_list[command].item_tester_tval;
 
-	/* Get an item */
-	if (!get_item(&item, cmd_item_list[command].item_query, cmd_item_list[command].item_not_found, flags & ~(USE_BAGS))) return (FALSE);
+	/* STEP 1: Get an item */
+	item = INVEN_QUIVER;
+	if (command == COMMAND_ITEM_HANDLE 
+		|| command == COMMAND_ITEM_CAST_SPELL)
+			if (!get_item(
+				&item, 
+				cmd_item_list[command].item_query, 
+				cmd_item_list[command].item_not_found, 
+				flags & ~(USE_BAGS))) 
+					return (FALSE);
 
 	/* Get the item from a bag or quiver */
 	if ((flags & (USE_BAGC)) || (IS_QUIVER_SLOT(item)))

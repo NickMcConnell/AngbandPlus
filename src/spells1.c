@@ -2976,6 +2976,7 @@ bool player_ignore_terrain(int f_idx)
 			}
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 		case GF_LAVA:
 		{
@@ -3067,7 +3068,7 @@ void inc_stat(int stat)
  */
 bool dec_stat(int stat, int amount)
 {
-	int cur, max, loss, same, res = FALSE;
+	int cur, max, loss/*, same*/, res = FALSE;
 
 
 	/* Get the current value */
@@ -3075,7 +3076,7 @@ bool dec_stat(int stat, int amount)
 	max = p_ptr->stat_max[stat];
 
 	/* Note when the values are identical */
-	same = (cur == max);
+	//same = (cur == max);
 
 	/* Damage "current" value */
 	if (cur > 3)
@@ -3305,6 +3306,7 @@ static void apply_nexus(monster_type *m_ptr)
 			else
 			{
 				/* Fall through */
+				__attribute__ ((fallthrough));
 			}
 		}
 
@@ -3533,6 +3535,7 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 			if (f_ptr->flags2 & (FF2_WATER)) dam /= 2;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 		case GF_LAVA:
 		case GF_PLASMA:
@@ -3564,6 +3567,7 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 			if (f_ptr->flags2 & (FF2_WATER)) dam *= 2;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 		case GF_ICE:
 		{
@@ -3718,8 +3722,8 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 			/* Trigger opening */
 			for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
 			{
-				region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
-				region_type *r_ptr = &region_list[rp_ptr->region];
+				region_piece_type *rp_ptr2 = &region_piece_list[this_region_piece];
+				region_type *r_ptr = &region_list[rp_ptr2->region];
 
 				/* Start opening */
 				if (r_ptr->flags1 & (RE1_TRIGGER_OPEN))
@@ -3853,6 +3857,7 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 			}
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		/* Jam Doors */
@@ -3863,8 +3868,8 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 			/* Trigger closing */
 			for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
 			{
-				region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
-				region_type *r_ptr = &region_list[rp_ptr->region];
+				region_piece_type *rp_ptr2 = &region_piece_list[this_region_piece];
+				region_type *r_ptr = &region_list[rp_ptr2->region];
 
 				/* Start opening */
 				if (r_ptr->flags1 & (RE1_TRIGGER_CLOSE))
@@ -4672,6 +4677,7 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 				}
 
 				/* Fall through */
+				__attribute__ ((fallthrough));
 			}
 
 			/* Water -- books, lites, scrolls, food */
@@ -4838,11 +4844,11 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 
 					if ((who > SOURCE_MONSTER_START) || (who <= SOURCE_PLAYER_START))
 					{
-						int path_n;
+						//int path_n;
 						u16b path_g[256];
 
 						/* Calculate the path */
-						path_n = project_path(path_g, dist, y, x, &ny, &nx, 0);
+						/*path_n = */project_path(path_g, dist, y, x, &ny, &nx, 0);
 
 						ny = GRID_Y(path_g[dist]);
 						nx = GRID_X(path_g[dist]);
@@ -6524,6 +6530,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			do_pois = dam;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		/* Weak water damage -- Heavily stunned/confused take damage */
@@ -7067,6 +7074,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			typ = GF_DRAIN_LIFE;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		/* Drain Life and Vampiric Drain */
@@ -9868,6 +9876,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 					&& !(p_ptr->timed[TMD_IMAGE])) dam = 0;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		/* Standard damage -- hurts inventory too */
@@ -9889,6 +9898,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 					&& !(p_ptr->timed[TMD_IMAGE])) dam = 0;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		/* Standard damage -- hurts inventory too */
@@ -9910,6 +9920,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 					&& !(p_ptr->timed[TMD_IMAGE])) dam = 0;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		/* Standard damage -- hurts inventory too */
@@ -9931,6 +9942,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 					&& !(p_ptr->timed[TMD_IMAGE])) dam = 0;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		/* Standard damage -- hurts inventory too */
@@ -9953,6 +9965,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 					&& !(p_ptr->timed[TMD_IMAGE])) dam = 0;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		/* Standard damage -- also poisons player */
@@ -9971,7 +9984,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 		/* Standard damage -- also disease player */
 		case GF_DISEASE:
 		{
-			u32b old_disease = p_ptr->disease;
+			old_disease = p_ptr->disease;
 
 			if (fuzzy) msg_print("You are hit by disease!");
 
@@ -9986,49 +9999,49 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			}
 			else
 			{
-				int rating = dam / (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
+				int rating2 = dam / (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
 				/* Always notice */
 				(void)player_not_flags(who, 0x0L,0x0L,0x0L,TR4_RES_DISEASE);
 
 				/* Critical disease - multiple effects either quickly, powerfully or heavily */
-				if (rating > 45)
+				if (rating2 > 45)
 				{
-					while (rating > 0)
+					while (rating2 > 0)
 					{
-						if (p_ptr->disease & (DISEASE_HEAVY)) rating -= 45;
-						else if (p_ptr->disease & (DISEASE_QUICK)) rating -= 30;
-						else if (p_ptr->disease & (DISEASE_POWER)) rating -= 15;
+						if (p_ptr->disease & (DISEASE_HEAVY)) rating2 -= 45;
+						else if (p_ptr->disease & (DISEASE_QUICK)) rating2 -= 30;
+						else if (p_ptr->disease & (DISEASE_POWER)) rating2 -= 15;
 
-						if (rating > 0)
+						if (rating2 > 0)
 						{
 							p_ptr->disease |= (1 << rand_int(DISEASE_TYPES_HEAVY));
-							rating -= 15;
+							rating2 -= 15;
 
-							if ((rating > 45) && (rand_int(4)))
+							if ((rating2 > 45) && (rand_int(4)))
 							{
 								p_ptr->disease |= (DISEASE_HEAVY);
-								rating -= 60;
+								rating2 -= 60;
 							}
-							else if ((rating > 15) && (rand_int(3)))
+							else if ((rating2 > 15) && (rand_int(3)))
 							{
 								p_ptr->disease |= (DISEASE_QUICK);
-								rating -= 30;
+								rating2 -= 30;
 							}
-							else if ((rating > 15) && (rand_int(2)))
+							else if ((rating2 > 15) && (rand_int(2)))
 							{
 								p_ptr->disease |= (DISEASE_POWER);
-								rating -= 30;
+								rating2 -= 30;
 							}
 						}
 
 						p_ptr->disease &= ~(DISEASE_LIGHT);
 					}
 
-					if (rating < 0) rating = 0;
+					if (rating2 < 0) rating2 = 0;
 				}
 				/* Serious disease - multiple mutating disease effects for long time */
-				else if (rating > 25)
+				else if (rating2 > 25)
 				{
 					if (!p_ptr->disease)
 					{
@@ -10039,7 +10052,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 					p_ptr->disease &= ~(DISEASE_LIGHT);
 				}
 				/* Moderate disease - 1 disease effect for a long time, or multiple for a short time */
-				else if (rating > 10)
+				else if (rating2 > 10)
 				{
 					if ((!p_ptr->disease) && (rand_int(100) < 33))
 					{
@@ -10052,7 +10065,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 					}
 				}
 				/* Light disease - 1 disease effect for limited time */
-				else if (rating > 0)
+				else if (rating2 > 0)
 				{
 					if (!p_ptr->disease)
 					{
@@ -10198,7 +10211,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			take_hit(who, what, dam);
 			if ((p_ptr->cur_flags2 & (TR2_RES_SOUND)) == 0)
 			{
-				int k = (randint((dam > 40) ? 35 : (dam * 3 / 4 + 5)));
+				k = (randint((dam > 40) ? 35 : (dam * 3 / 4 + 5)));
 
 				/* Notice */
 				player_not_flags(who, 0x0L,TR2_RES_SOUND,0x0L,0x0L);
@@ -10318,6 +10331,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			else (void)player_can_flags(who, 0x0L,TR2_RES_POIS,0x0L,0x0L);
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		/* Weak water -- wet only */
@@ -10437,7 +10451,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			}
 			else
 			{
-				int k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));
+				k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));
 
 				/* Always notice */
 				player_not_flags(who, 0x0L,TR2_RES_SOUND,0x0L,0x0L);
@@ -10463,6 +10477,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			dam = 0;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		/* Pure confusion */
@@ -10504,7 +10519,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			/* Increase "image" */
 			if ((p_ptr->cur_flags2 & (TR2_RES_CHAOS)) == 0)
 			{
-				int k = 6 + randint(dam / 2);
+				k = 6 + randint(dam / 2);
 
 				/* Inflict disease */
 				if ((p_ptr->timed[TMD_IMAGE] > 100) && (randint(1000) < k)) inflict_disease(DISEASE_HALLUC, k, 20);
@@ -10622,6 +10637,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			}
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		/* Lite -- blinding */
@@ -10664,7 +10680,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 		/* Weak darkness -- douses light now instead of blinding */
 		case GF_DARK_WEAK:
 		{
-			object_type *o_ptr = &inventory[INVEN_LITE];
+			o_ptr = &inventory[INVEN_LITE];
 			
 			dam = 0;
 			
@@ -11257,6 +11273,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			dam = 0;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		case GF_BLIND:
@@ -11302,6 +11319,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			dam = 0;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		case GF_TERRIFY:
@@ -11400,7 +11418,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 		/* Curse */
 		case GF_CURSE:
 		{
-			int k =	10 + randint(15);
+			k =	10 + randint(15);
 
 			/* Take damage */
 			take_hit(who, what, dam);
@@ -11441,7 +11459,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 		/* Make the player temporarily forgetful */
 		case GF_FORGET:
 		{
-			int k =	10 + randint(15);
+			k =	10 + randint(15);
 
 			/* Take damage */
 			take_hit(who, what, dam);
@@ -11478,7 +11496,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 		/* Petrification */
 		case GF_PETRIFY:
 		{
-			int k = randint((dam / 3) + 2);
+			k = randint((dam / 3) + 2);
 
 			/* Take damage */
 			take_hit(who, what, dam);
@@ -11560,7 +11578,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			}
 			else
 			{
-				int k = randint((dam / 3) + 2);
+				k = randint((dam / 3) + 2);
 
 				/* Always notice */
 				player_not_flags(who, 0x0L,0x0L,TR3_FREE_ACT,0x0L);
@@ -11597,7 +11615,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			}
 			else
 			{
-				int k = randint((dam / 3) + 2);
+				k = randint((dam / 3) + 2);
 
 				/* Inflict stastis */
 				if (set_timed(TMD_STASTIS, k, TRUE))
@@ -12180,6 +12198,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			if ((p_ptr->mhp - p_ptr->chp) > 100) dam = (p_ptr->mhp - p_ptr->chp) * dam / 100;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		/* Heal the player, except if undead */
@@ -12211,6 +12230,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			dam = p_ptr->mhp * dam / 100;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		/* Heal the player if undead, else damage */
@@ -12372,6 +12392,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			if (p_ptr->csp > 100) dam = p_ptr->csp * dam / 100;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 		case GF_LOSE_MANA:
 		{
@@ -12465,6 +12486,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			if ((p_ptr->msp - p_ptr->csp) > 100) dam = (p_ptr->msp - p_ptr->csp) * dam / 100;
 
 			/* Fall through */
+			__attribute__ ((fallthrough));
 		}
 
 		/* Melee attack - gain mana */
@@ -12576,7 +12598,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 		/* Remove enchantments from the player */
 		case GF_DISPEL:
 		{
-			int j;
+			//int j;
 
 			msg_print("You have been stripped of enchantments!");
 
@@ -12693,6 +12715,9 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 
 			/* Drop it near the new location */
 			drop_near(i_ptr, -1, y, x, FALSE);
+			
+			/* Should this fall through? */
+			__attribute__ ((fallthrough));
 		}
 
 		/* Default */
@@ -13051,6 +13076,9 @@ bool project_t(int who, int what, int y, int x, int dam, int typ)
 			
 			/* Non-player quake effects don't delete monsters */
 			else if (who > SOURCE_PLAYER_ALLY) break;
+			
+			/* Should this fall through? */
+			__attribute__ ((fallthrough));
 		}
 		case GF_DESTROY:
 		{
@@ -13664,8 +13692,8 @@ bool project_shape(u16b *grid, s16b *gd, int *grids, int grid_s, int rad, int rn
 			/* In each direction */
 			for (i = 0; (i < 8) && (dirs & (1 << i)); i++)
 			{
-				int y = y2 + ddy_ddd[i] * k;
-				int x = x2 + ddx_ddd[i] * k;
+				y = y2 + ddy_ddd[i] * k;
+				x = x2 + ddx_ddd[i] * k;
 
 				/* This is a non-projectable grid */
 				if (!cave_project_bold(y, x) &&
