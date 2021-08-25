@@ -43,6 +43,8 @@
 #include "project.h"
 #include "store.h"
 #include "trap.h"
+#include "game-world.h"  /* [TR] */
+#include "tr-defs.h"  /* [TR] */
 
 /**
  * Go up one level
@@ -101,6 +103,12 @@ void do_cmd_go_down(struct command *cmd)
 	/* Paranoia, no descent from z_info->max_depth - 1 */
 	if (player->depth == z_info->max_depth - 1) {
 		msg("The dungeon does not appear to extend deeper");
+		return;
+	}
+
+	/* [TR] You can't leave the town once Eru summons you */
+	if (player->townperson_timer && (player->depth == 0)) {
+		msg("No.");
 		return;
 	}
 
@@ -1119,6 +1127,10 @@ void do_cmd_walk(struct command *cmd)
 		return;
 
 	player->upkeep->energy_use = z_info->move_energy;
+
+	/* [TR] Chance for XP gain */
+	if(!randint0(TR_AVG_XP_WAIT * TR_MOVE_XP_MULT))
+		player_exp_gain(player, ambient_xp_of(player->lev));
 
 	/* Attempt to disarm unless it's a trap and we're trapsafe */
 	move_player(dir, !(square_isdisarmabletrap(cave, y, x) && trapsafe));

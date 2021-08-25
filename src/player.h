@@ -14,7 +14,7 @@
  *
  * b) the "Angband licence":
  *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
+ s*    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
 
@@ -481,6 +481,19 @@ struct player {
 	s16b csp;		/* Cur mana pts */
 	u16b csp_frac;	/* Cur mana frac (times 2^16) */
 
+	s32b ap_sorrow; 	/* [TR] Apparent sorrow */
+	s16b hid_sorrow;	/* [TR] Hidden sorrow */
+	s16b deep_sorrow;	/* [TR] Deep sorrow */
+
+	float hid_sorrow_sensitivity; /* [TR] modifier for converting ap_sorrow to hid_sorrow */
+	float hss_target;	/* [TR] target for hid_sorrow_sensitivity changes */
+
+	u16b townperson_timer;	/* [TR] How long until @ becomes t on shutdown? */
+
+	s16b sorrow_disturb;	/* [TR] Is the player too disturbed to process sorrow? */
+
+	u16b done;		/* [TR] Is the player done with deep sorrow and can retire? */
+
 	s16b stat_max[STAT_MAX];	/* Current "maximal" stat values */
 	s16b stat_cur[STAT_MAX];	/* Current "natural" stat values */
 	s16b stat_map[STAT_MAX];	/* Tracks remapped stats from temp stat swap */
@@ -569,6 +582,16 @@ byte player_hp_attr(struct player *p);
 byte player_sp_attr(struct player *p);
 bool player_restore_mana(struct player *p, int amt);
 void player_safe_name(char *safe, size_t safelen, const char *name, bool strip_suffix);
+    /* [TR] */
+void player_gain_ap_sorrow(struct player *p, s32b amount);
+void player_lose_ap_sorrow(struct player *p, s32b amount);
+void player_gain_hidden_sorrow(struct player *p, s16b amount);
+void player_lose_hidden_sorrow(struct player *p, s16b amount);
+void player_gain_deep_sorrow(struct player *p, s16b amount);
+void player_lose_deep_sorrow(struct player *p, s32b amount);
+void player_process_ap_sorrow(struct player *p);
+void player_process_deep_sorrow(struct player *p);
+
 
 /* player-race.c */
 struct player_race *player_id2race(guid id);

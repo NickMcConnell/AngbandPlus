@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(Angband, 4.1.0, bugs@rephial.org)
+AC_INIT(Angband-tr, 0.1a, banks@10v24.net)
 AC_CONFIG_SRCDIR(src)
 
 AC_CANONICAL_HOST
@@ -8,7 +8,7 @@ AC_CANONICAL_TARGET
 BUILDSYS_INIT
 BUILDSYS_TOUCH_DEPS
 
-AC_SUBST(PACKAGE, angband)
+AC_SUBST(PACKAGE, angband-tr)
 
 AC_CONFIG_HEADERS(src/autoconf.h)
 
@@ -406,7 +406,7 @@ echo "  var path:                               ${displayedvardatadir}"
 if test "x$wsetgid" = "xyes"; then
 	echo "  (as group ${SETEGID})"
 elif test "x$with_private_dirs" = "xyes"; then
-	echo "  (with private save and score files in ~/.angband/Angband/)"
+	echo "  (with private save and score files in ~/.angband/Angband-tr/)"
 fi
 
 echo

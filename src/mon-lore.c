@@ -762,17 +762,17 @@ void lore_append_kills(textblock *tb, const struct monster_race *race,
 			textblock_append(tb, "%s has slain %d of your ancestors",
 							 lore_pronoun_nominative(msex, true), lore->deaths);
 
-			/* But we've also killed it */
+			/* [TR] But we've also killed it */
 			if (dead)
-				textblock_append(tb, ", but you have taken revenge!  ");
-
+				textblock_append(tb, ", but you have taken care of this threat.  ");
 			/* Unavenged (ever) */
 			else
 				textblock_append(tb, ", who %s unavenged.  ",
 								 VERB_AGREEMENT(lore->deaths, "remains",
 												"remain"));
 		} else if (dead) { /* Dead unique who never hurt us */
-			textblock_append(tb, "You have slain this foe.  ");
+			/* [TR] */
+			textblock_append(tb, "You have defeated this foe.  ");
 		} else {
 			/* Alive and never killed us */
 			out = false;

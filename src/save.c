@@ -210,6 +210,7 @@ static void wr_monster(const struct monster *mon)
 	wr_byte(mon->fx);
 	wr_s16b(mon->hp);
 	wr_s16b(mon->maxhp);
+	wr_byte(mon->permaterror);  /* [TR] */
 	wr_byte(mon->mspeed);
 	wr_byte(mon->energy);
 	wr_byte(MON_TMD_MAX);
@@ -351,6 +352,7 @@ void wr_monster_memory(void)
 		if (!race->name || !lore->pkills) continue;
 		wr_string(race->name);
 		wr_u16b(lore->pkills);
+
 	}
 	wr_string("No more monsters");
 }
@@ -401,6 +403,9 @@ void wr_quests(void)
 void wr_player(void)
 {
 	int i;
+
+	/* [TR] hack, a byte to hold hid_sorrow_sensitivity and hss_target */
+	byte tmp;
 
 	wr_string(player->full_name);
 
@@ -458,6 +463,23 @@ void wr_player(void)
 	wr_s16b(player->msp);
 	wr_s16b(player->csp);
 	wr_u16b(player->csp_frac);
+
+	/* [TR] variables */
+
+	wr_s32b(player->ap_sorrow);
+	wr_s16b(player->hid_sorrow);
+	wr_s16b(player->deep_sorrow);
+
+	/*   hack   */
+	tmp = (byte)(player->hid_sorrow_sensitivity * 10);
+	wr_byte(tmp);
+	tmp = (byte)(player->hss_target * 10);
+	wr_byte(tmp);
+
+	wr_u16b(player->townperson_timer);
+	wr_s16b(player->sorrow_disturb);
+	wr_u16b(player->done);
+
 
 	/* Max Player and Dungeon Levels */
 	wr_s16b(player->max_lev);
@@ -588,6 +610,9 @@ void wr_ignore(void)
 void wr_misc(void)
 {
 	size_t i;
+
+	/* [TR] TR-patch version */
+	wr_string("TR 0.1");
 
 	/* Random artifact seed */
 	wr_u32b(seed_randart);

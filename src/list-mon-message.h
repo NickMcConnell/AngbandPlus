@@ -45,6 +45,7 @@ MON_MSG(HASTED,				MSG_GENERIC,	false,	"start[s] moving faster.")
 MON_MSG(NOT_HASTED,			MSG_GENERIC,	false,	"slow[s] down.")
 MON_MSG(MORE_AFRAID,		MSG_GENERIC,	false,	"look[s] more terrified!")
 MON_MSG(FLEE_IN_TERROR,		MSG_FLEE,		false,	"flee[s] in terror!")
+MON_MSG(PERMATERRIFIED,		MSG_PT,		false, "[is|are] deeply terrified.") /* [TR] */
 MON_MSG(NOT_AFRAID,			MSG_GENERIC,	false,	"[is|are] no longer afraid.")
 MON_MSG(HELD,				MSG_GENERIC,    false,  "[is|are] frozen to the spot!")
 MON_MSG(NOT_HELD,			MSG_GENERIC,    false,  "can move again.")

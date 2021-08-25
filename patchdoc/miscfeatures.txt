@@ -1,0 +1,52 @@
+[SENTENCE 2]
+
+Players gain ambient XP when they move,
+
+1. find code for movement.
+2. add something like
+  if(!randint0(TR_AVG_XP_WAIT * TR_MOVE_XP_MULT))
+     player_gain_exp(player, ambient_xp_of(player->lev));
+3. TR_MOVE_XP_MULT could be 10
+
+
+when they have apparent sorrow, and when they have sorrow_disturb.
+
+1. find code for turn-taking
+
+  game-world.c / process_world()
+
+2. add something like
+  if((player->ap_sorrow || player->sorrow_disturb) && !randint0(TR_AVG_XP_WAIT))
+    player_gain_exp(player, ambient_xp_of(player->lev));
+
+
+[SENTENCE 1]
+
+Messages stay visible until a new message comes
+
+1. Find the code that clears messages after one keypress.
+2. add something like 
+  if(message_timer)
+    {
+    message_timer--;
+    if(!message_timer)
+      clear_message
+    }
+3. Find code for adding a new message.
+4. add something like
+  message_timer = TR_MESSAGE_DUR
+5. TR_MESSAGE_DUR could be 6
+
+
+or they fade out.
+
+1. add code for fading
+
+  if(message_timer)
+    {
+    message_timer--;
+    if(message_timer > (TR_MESSAGE_DUR / 2))
+      message_color = DARK_GREY
+    if(!message_timer)
+      clear_message
+    }

@@ -1,0 +1,1368 @@
+Now that the patch basically works, here are a few new features
+
+TODO:
+
+X - save for next death (to make savefile / monster generation cleaner)
+
+MAYBE:
+
+X Every time you kill a monster, increment kill count; add kill count (modified 
+by a factor) to ap_sorrow gain.
+
+No sorrow (or much less) for destroying molds or mushroom patches.  (Or 
+mindless things and/or undead things.)
+
+Alt: something like terror for mindless things.  Whatever would cause 
+permaterror in fungi causes them to focus on reproduction, causing them
+to multiply (summon same kind, initially of low HP).  95% of offspring 
+are permaterrored, too.  Icky things and jellies could do the same, why 
+not.  No sorrow for that.  Not sure about item mimics.  (Depends on if 
+they're officially MINDLESS.)  Not sure about mindless undead. 
+
+Fewer monsters per level / fewer monsters generated.
+
+Monsters very rare near surface but very common at dlev 100
+
+Initiating monster terror has 1 in 2 chance of making them "lose their 
+fighting spirit" / become tame.  Double sorrow for killing a tame monster.  
+Tame monsters seek to get away from non-tame monsters, as though they're 
+terrifying.  Tame monsters get erratic movement flag (like icky things).  
+Tame monsters get some kind of background color (user interface option, 
+default to dark grey for less obtrusiveness).  Tame monsters are indifferent to 
+the player, don't move toward or away, and can walk through the player, and the player can 
+walk through them.  Tame monsters can fall asleep.  Taming a unique makes it not regenerate 
+again.  If Farmer Maggot's dogs are all tamed, he starts annoyingly gushing to @ about how 
+grateful he is that you got the evil out of his dogs.
+
+X What is now TR_AP_SORROW_DELAY could be a struct player variable that has a 
+randomly varying target (like hss_target) and adjusts to it.  Maybe a range 
+of 1 to 15
+
+Some compensation so that see invisible is easier to get.
+
+Make sure death message precedes ap_sorrow message.
+
+Walking into !monster_is_visible() monsters doesn't automatically
+attack them.  Projectiles have a low chance of hitting.  Beams, breaths,
+and balls do hit.  
+
+
+
+
+
+NOT AS MUCH
+
+Chance of burning out varies with deep_sorrow + hid_sorrow
+
+Rest up to 0 AS
+
+Make outcry messages colored.
+
+
+DEFINITELY
+
+
+
+
+[Hid_sorrow fix - X]
+
+Fix hid_sorrow messages (make less frequent with lower hid_sorrow)
+
+
+--THUS--
+	add to game-world.c
+
+/* [TR] is it time for hidden sorrow outcry? */
+bool is_hid_outcry_time(struct player *player)
+{
+        if(!randint0(TR_OUTCRY_DELAY))  {
+                if(player->hid_sorrow > TR_OUTCRY_PT)
+                        return 1;
+                else if(!randint0((TR_OUTCRY_PT / (player->hid_sorrow + !player->hid_sorrow)))
+                        return 1;
+                else
+                        return 0;
+        }
+        else
+                return 0;
+}
+
+
+
+and
+
+--THUS--
+       change in game-world.c / process_world()
+        /* Make an outcry */
+        if(is_hid_outcry_time(player))
+                outcry_msg();
+
+and 
+
+--THUS--
+    change in tr-defs.h
+/* modifies how often outcry over hidden sorrow should be
+ * see game-world.c / process_world()
+ */
+
+#define TR_OUTCRY_PT 1000
+
+/* Every 1 in TR_OUTCRY_DELAY turns, try to outcry   
+ * see game-world.c / is_hid_outcry_time()
+ */
+#define TR_OUTCRY_DELAY 100
+
+
+
+[Ap_sorrow fix - X]
+
+Fix ap_sorrow outcry (everything still makes you "beside yourself with grief")
+
+--THUS--
+  change in mon-util.c
+
+/* [TR] How much apparent sorrow comes from killing a monster? */
+u16b ap_sorrow_from(u16b mexp)
+{
+        float ap_sorrow_return;
+        
+        ap_sorrow_return = log((TR_UNSAD_XP / (mexp + (!mexp)))) * TR_SORROW_MULT;
+        return((u16b)ap_sorrow_return);
+}
+
+
+and
+
+--THUS--
+     remove 
+
+/**
+ * [TR] Levels of apparent sorrow from a kill, based on monster base XP
+ */
+
+int ap_outcry_level(u16b mexp, struct player *player)
+{
+        if(2 * sqrt(mexp) < ((2 * sqrt(TR_UNSAD_XP)) / 6) * 1))
+                return(5);
+        if(2 * sqrt(mexp) < ((2 * sqrt(TR_UNSAD_XP)) / 6) * 2))
+                return(5);
+        if(2 * sqrt(mexp) < ((2 * sqrt(TR_UNSAD_XP)) / 6) * 3))
+                return(5);
+        if(2 * sqrt(mexp) < ((2 * sqrt(TR_UNSAD_XP)) / 6) * 4))
+                return(5);
+        if(2 * sqrt(mexp) < ((2 * sqrt(TR_UNSAD_XP)) / 6) * 5))
+                return(5);
+        if( 2 * sqrt(mexp) < (2 * sqrt(TR_UNSAD_XP)))
+                return(0);
+
+        return(-1);
+}
+
+
+--THUS--
+   change in mon-util.c / mon_take_hit()
+               /* [TR] gain apparent sorrow */
+                player_gain_ap_sorrow(player, ap_sorrow_from(mon->race->mexp));
+
+
+  
+
+[SENTENCE 1]
+
+Messages stay visible until a new message comes
+
+1. Find the code that clears messages after one keypress.
+2. add something like 
+  if(message_timer)
+    {
+    message_timer--;
+    if(!message_timer)
+      clear_message
+    }
+3. Find code for adding a new message.
+4. add something like
+  message_timer = TR_MESSAGE_DUR
+5. TR_MESSAGE_DUR could be 6
+
+
+or they fade out.
+
+1. add code for fading
+
+  if(message_timer)
+    {
+    message_timer--;
+    if(message_timer > (TR_MESSAGE_DUR / 2))
+      message_color = DARK_GREY
+    if(!message_timer)
+      clear_message
+    }
+
+  this might not be necessary, will think about it more
+
+
+[SENTENCE 2]
+
+Players gain ambient XP when they move,
+
+1. find code for movement.
+
+  cmd-cave.c / do_cmd_walk() (I guess)
+
+2. add something like
+  if(!randint0(TR_AVG_XP_WAIT * TR_MOVE_XP_MULT))
+     player_gain_exp(player, ambient_xp_of(player->lev));
+
+--THUS--
+    add to do_cmd_walk() right after energy use line
+        /* [TR] Chance for XP gain */
+        if(!randint0(TR_AVG_XP_WAIT * TR_MOVE_XP_MULT))
+                player_exp_gain(player, ambient_xp_of(player->lev));
+
+
+3. TR_MOVE_XP_MULT could be 10
+
+--THUS--
+      add to tr-defs.h, after TR_AVG_XP_WAIT
+/* When you move, you have a 1 in (TR_AVG_XP_WAIT * TR_MOVE_XP_MULT)
+ * chance of gaining ambient XP.  See cmd-cave.c / do_cmd_walk()
+ */
+#define TR_MOVE_XP_MULT 10
+
+
+when they have apparent sorrow, and when they have sorrow_disturb.
+
+1. find code for turn-taking
+
+  game-world.c / process_world()
+
+2. add something like
+  if((player->ap_sorrow || player->sorrow_disturb) && !randint0(TR_AVG_XP_WAIT))
+    player_gain_exp(player, ambient_xp_of(player->lev));
+
+--THUS--
+       in game-world.c / process_world()
+        /* Ambient XP gain */
+        if((player->ap_sorrow || player->sorrow_disturb) && !randint0(TR_AVG_XP_WAIT)) 
+                player_exp_gain(player, ambient_xp_of(player->depth));
+------------BUGFIXES-----
+
+  cmd-cave.c needs tr-defs.h and game-world.h
+
+--THUS--
+      add to end of includes at beginning of cmd-cave.c
+#include "game-world.h"  /* [TR] */
+#include "tr-defs.h"  /* [TR] */
+
+
+  need to add ambient_xp_of() to game-world.h
+
+--THUS--
+void on_new_level(void);
+void process_player(void);
+void run_game_loop(void);
+s32b ambient_xp_of(s16b depth);  /* [TR] */
+
+-------------------------------------------------------
+
+BUGFIXES
+
+
+TR_UNSAD_XP / monster base XP + 1 yields huge penalties for base_xp == 0,
+half as much for == 1, a third as much for == 2, etc.  Should make 
+logarithmic.
+
+--THUS--
+        in mon-util.c
+/* [TR] How much apparent sorrow comes from killing a monster? */
+u16b ap_sorrow_from(struct monster *mon, struct player *player)
+{
+        float ap_sorrow_return;
+        
+        ap_sorrow_return = log((TR_UNSAD_XP / (mon->race->mexp + (!mon->race->mexp)))) * TR_SORROW_MULT;
+        return((u16b)ap_sorrow_return);
+}
+
+--THUS--
+       in tr-defs.h (in place of TR_SORROW_DIV)
+/* The amount of ap_sorrow incurred by killing a monster is given by
+ * log((TR_UNSAD_XP / (monster base XP + 1)) * TR_SORROW_MULT  
+ */
+
+#define TR_SORROW_MULT 10 
+
+--------------
+
+BUGFIXES
+
+Add math.h to the list of includes in mon-util.c
+
+--THUS--
+
+#include "player-util.h"
+#include "project.h"
+#include "math.h"    /* [TR] */
+#include "tr-defs.h" /* [TR] */
+#include "z-set.h"
+
+
+---------------------------
+
+BUG?
+
+Not sure if hid_sorrow behavior is as I want it
+So I'll make a hid_sorrow meter like there is for AS / ap_sorrow
+But just for debugging
+
+--THUS--
+    in ui-display.c
+	{ prt_ap_sorrow, 10, EVENT_AP_SORROW },  /* [TR] */
+        { prt_hid_sorrow, 21, EVENT_HID_SORROW }, /* [TR] */
+
+--THUS--
+    in ui-display.c
+        EVENT_AC,
+        EVENT_AP_SORROW, /* [TR] */
+        EVENT_HID_SORROW, /* [TR] */
+
+--THUS--
+    in ui-display.c, after prt_ap_sorrow()
+/**
+ * [TR] Prints hidden sorrow (debug)
+ */
+static void prt_hid_sorrow(int row, int col)
+{
+        char cur_hid_sorrow[32];
+        byte color;
+
+
+        put_str("HS", row, col);
+        
+        if(player->hid_sorrow <= 0)
+                color = COLOUR_L_GREEN;
+        else
+                color = COLOUR_YELLOW;
+
+        strnfmt(cur_hid_sorrow, sizeof(cur_hid_sorrow), "%8d", player->hid_sorr$
+
+        c_put_str(color, cur_hid_sorrow, row, col + 3);
+
+}  
+
+
+--THUS--
+      in player.c
+/* [TR] gain hidden sorrow */
+void player_gain_hidden_sorrow(struct player *p, s16b amount)
+{
+        p->hid_sorrow += amount;
+        if (p->hid_sorrow > TR_MAX_HID_SORROW)
+                p->hid_sorrow = TR_MAX_HID_SORROW;
+        event_signal(EVENT_HID_SORROW);
+        handle_stuff(p);
+}
+
+/* [TR] lose hidden sorrow */
+void player_lose_hidden_sorrow(struct player *p, s16b amount)
+{
+        p->hid_sorrow -= amount;
+        if (p->hid_sorrow < 0)
+                p->hid_sorrow = 0;
+        event_signal(EVENT_HID_SORROW);
+        handle_stuff(p);
+}
+
+
+--THUS--
+     in game-event.h
+typedef enum game_event_type
+{
+        EVENT_MAP = 0,          /* Some part of the map has changed. */
+
+        EVENT_STATS,            /* One or more of the stats. */
+        EVENT_HP,               /* HP or MaxHP. */
+        EVENT_MANA,             /* Mana or MaxMana. */
+        EVENT_AC,               /* Armour Class. */
+        EVENT_EXPERIENCE,       /* Experience or MaxExperience. */
+        EVENT_AP_SORROW,        /* [TR] Apparent Sorrow */
+        EVENT_HID_SORROW,       /* [TR] Hidden Sorrow (debug) */
+
+--THUS--
+   in player-calcs.c
+        { PR_AP_SORROW, EVENT_AP_SORROW },  /* [TR] */
+        { PR_HID_SORROW, EVENT_HID_SORROW }, /* [TR] */
+
+--THUS--
+    in player-calcs.h
+#define PR_OBJECT               0x00200000L /* Display object recall */
+#define PR_MONLIST              0x00400000L /* Display monster list */
+#define PR_ITEMLIST             0x00800000L /* Display item list */
+#define PR_FEELING              0x01000000L /* Display level feeling */
+#define PR_AP_SORROW            0x02000000L /* [TR] Display apparent sorrow */
+#define PR_HID_SORROW           0x04000000L /* [TR] Display hidden sorrow (debug) */
+
+
+--------------------
+
+OK, it looks like hid_sorrow isn't going down.
+
+Maybe TR_HID_SORROW_RECOVER is too high.  Let's set it to 10
+
+--THUS--
+     in tr-defs.h
+#define TR_HID_SORROW_RECOVER 10 
+
+
+
+------------------
+
+NEW SENTENCE:
+
+WIS and CON boosts to recovering from ap_sorrow are mirrored by an INT 
+penalty to recovering.
+
+1. Find where ap_sorrow recovers.
+
+  player.c / player_process_ap_sorrow()
+
+2. Hm, since it's theoretically possible to subtract a negative amount 
+  from ap_sorrow and hid_sorrow, when we lose_ them, let's put in a check
+  for going over.  Similarly with gaining, a check for going below 0.  
+
+--THUS--
+   in player.c
+
+/* [TR] gain apparent sorrow */
+void player_gain_ap_sorrow(struct player *p, s32b amount)
+{
+        p->ap_sorrow += amount;
+        if (p->ap_sorrow > TR_MAX_AP_SORROW)
+                p->ap_sorrow = TR_MAX_AP_SORROW;
+	if (p->ap_sorrow < 0)
+		p->ap_sorrow = 0;
+	event_signal(EVENT_AP_SORROW);
+        handle_stuff(p);
+}
+
+/* [TR] lose apparent sorrow */
+void player_lose_ap_sorrow(struct player *p, s32b amount)
+{
+        p->ap_sorrow -= amount;
+        if (p->ap_sorrow > TR_MAX_AP_SORROW)
+                p->ap_sorrow = TR_MAX_AP_SORROW;
+        if (p->ap_sorrow < 0)
+                p->ap_sorrow = 0;
+	event_signal(EVENT_AP_SORROW);
+        handle_stuff(p);
+}
+
+
+/* [TR] gain hidden sorrow */
+void player_gain_hidden_sorrow(struct player *p, s16b amount)
+{
+        p->hid_sorrow += amount;
+	if (p->hid_sorrow < 0)
+		p->hid_sorrow = 0;
+        if (p->hid_sorrow > TR_MAX_HID_SORROW)
+                p->hid_sorrow = TR_MAX_HID_SORROW;
+	event_signal(EVENT_HID_SORROW);
+        handle_stuff(p);
+}
+
+
+/* [TR] lose hidden sorrow */
+void player_lose_hidden_sorrow(struct player *p, s16b amount)
+{
+        p->hid_sorrow -= amount;
+        if (p->hid_sorrow > TR_MAX_HID_SORROW)
+                p->hid_sorrow = TR_MAX_HID_SORROW;
+        if (p->hid_sorrow < 0)
+                p->hid_sorrow = 0;
+        event_signal(EVENT_HID_SORROW);
+	handle_stuff(p);
+}
+
+
+/* [TR] gain deep sorrow */
+void player_gain_deep_sorrow(struct player *p, s16b amount)
+{
+        p->deep_sorrow += amount;
+	if (p->deep_sorrow < 0)
+		p->deep_sorrow = 0;
+        if (p->deep_sorrow > TR_MAX_DEEP_SORROW)
+                p->deep_sorrow = TR_MAX_DEEP_SORROW;
+	if(p->done) {
+		msg("You feel a shadow pass over you.");
+		p->done = 0;
+	}
+        handle_stuff(p);
+}
+
+
+
+/* [TR] gain deep sorrow */
+void player_lose_deep_sorrow(struct player *p, s32b amount)
+{
+        p->deep_sorrow -= amount;
+	if (p->deep_sorrow < 0)
+		p->deep_sorrow = 0;
+        if (p->deep_sorrow > TR_MAX_DEEP_SORROW)
+                p->deep_sorrow = TR_MAX_DEEP_SORROW;
+        handle_stuff(p);
+}
+
+
+3.  Back to player_process_ap_sorrow().  Can't remember why I made it say
+        if(randint0(50 - p->lev) > TR_CLEV_BONUS)
+                dec++;
+     That would make there be a bonus at low levels that gradually goes to
+     nothing at higher levels.  I don't think that's what I intended 
+     originally.
+
+     I could just make it be
+        if(randint0(p->lev) > TR_CLEV_BONUS)
+                dec++;
+
+     But there was some reason why I added the 50 -
+
+     Another possibility is
+        if(randint0(50 - p->lev) < TR_CLEV_BONUS)
+                dec++;
+
+     Which makes a bonus a little bit possible at first, eventually
+     becoming a certainty at clev 35.  I guess I'll go with that.
+
+4.  Add the INT penalty.
+
+5.  Same thing for deep_sorrow.
+
+--THUS--
+      in player.c
+
+/* [TR] process apparent sorrow */
+void player_process_ap_sorrow(struct player *p)
+{
+	int dec = 0; /* decrement */
+
+	/* apply bonuses */
+	if(randint0(p->stat_cur[STAT_WIS]) > TR_WIS_BONUS)
+		dec++;
+	if(randint0(p->stat_cur[STAT_CON]) > TR_CON_BONUS)
+		dec++;
+	if(randint0(50 - p->lev) < TR_CLEV_BONUS)
+		dec++;
+
+	/* apply penalty */
+	if(randint0(p->stat_cur[STAT_INT]) > TR_INT_PENALTY)
+		dec--;
+
+	/* everyone gets this */
+	dec += TR_AP_SOR_PROC_BASE;
+
+	player_lose_ap_sorrow(p, dec);
+}
+
+void player_process_deep_sorrow(struct player *p)
+{
+	int dec = 0; /* decrement */
+
+	/* apply bonuses */
+	if(randint0(p->stat_cur[STAT_WIS]) > TR_WIS_BONUS)
+		dec++;
+	if(randint0(p->stat_cur[STAT_CON]) > TR_CON_BONUS)
+		dec++;
+	if(randint0(50 - p->lev) < TR_CLEV_BONUS)
+		dec++;
+
+	/* apply penalty */
+	if(randint0(p->stat_cur[STAT_INT]) > TR_INT_PENALTY)
+		dec--;
+
+	/* everyone gets this */
+	dec += TR_AP_SOR_PROC_BASE;
+
+	player_lose_deep_sorrow(p, dec);
+}
+
+
+6. Add entry to tr-defs.h
+
+--THUS--
+       in tr-defs.h
+/* These are the thresholds for where apparent sorrow processing bonuses
+ * and penalties kick in (see player_process_ap_sorrow() in player.c)
+ * 18, 18, 18, and 15 are all guesses
+ */
+
+#define TR_WIS_BONUS 18
+#define TR_CON_BONUS 18
+#define TR_CLEV_BONUS 15
+#define TR_INT_PENALTY 18
+
+
+
+-----------------------------
+
+New Sentence:
+
+
+Characters have modifiers to their hid_sorrow sensitivity which have nothing 
+to do with race or class; in-born, hidden.  (How much ap_sorrow converts into 
+hid_sorrow).
+
+1. Add a variable hid_sorrow_sensitivity and hss_target to struct player in player.h
+
+--THUS--
+	s32b ap_sorrow; 	/* [TR] Apparent sorrow */
+	s16b hid_sorrow;	/* [TR] Hidden sorrow */
+	s16b deep_sorrow;	/* [TR] Deep sorrow */
+
+	float hid_sorrow_sensitivity; /* [TR] modifier for converting ap_sorrow to hid_sorrow */
+	float hss_target;	/* [TR] target for hid_sorrow_sensitivity changes */
+
+2. make it so that hid_sorrow_sensitivity affects hidden sorrow gain
+
+--THUS--
+	/* Hidden sorrow gain */
+	fl_ap_sorrow = (float)player->ap_sorrow;
+	hid_inc_prob = log(fl_ap_sorrow) / TR_AP_BREAKING_PT;
+	hid_inc_prob *= player->hid_sorrow_sensitivity;
+	if( hid_inc_prob >= 1.0 )
+		msg("You are surely overwhelmed.");
+	if( randint0(100) < (u16b)(hid_inc_prob * 100))
+		player_gain_hidden_sorrow(player, 1);
+
+
+3. Add something to modify sensitivity once in a long while
+
+--THUS--
+      in game-world.c / process_world()
+	/* Change hidden sorrow sensitivity */
+	if(!randint0(TR_HID_SORROW_SENSITIVITY_INT * 20))
+		player->hss_target = new_hss_target();
+	if(!randint0(TR_HID_SORROW_SENSITIVITY_INT))
+		hss_adjust(player);
+
+
+4. Add new_hss_target()
+
+--THUS--
+     add to game-world.c
+/**
+ * [TR] Acquire a new target for hid_sorrow_sensitivity to become
+ */
+
+float new_hss_target()
+{
+	float f;
+
+	/* find a number between TR_HSS_MIN and TR_HSS_MAX, using 
+	 * randint0.*/  
+	f = (float)randint0((int)(TR_HSS_MAX * 10 - TR_HSS_MIN * 10));
+	f /= 10;
+	f += TR_HSS_MIN;
+	
+	return f;
+}
+
+
+5. Add TR_HSS_MIN and _MAX to tr-defs.h
+
+--THUS--
+
+/* Minimum and maximum hid_sorrow_sensitivity values
+ * see game-world.c / process_world()
+ */
+
+#define TR_HSS_MAX 2.0
+#define TR_HSS_MIN 0.5
+
+
+6. Add hss_adjust()
+
+/**
+ * [TR] adjust hid_sorrow_sensitivity in the direction of hss_target
+ */
+
+void hss_adjust(struct player *p)
+{
+	if(p->hid_sorrow_sensitivity == p->hss_target)
+		return;
+	else if(p->hid_sorrow_sensitivity > p->hss_target) {
+		if(!randint0(10))
+			p->hid_sorrow_sensitivity -= 0.2;
+		else
+			p->hid_sorrow_sensitivity -= 0.1;
+		return;
+	}
+	else if(p->hid_sorrow_sensitivity < p->hss_target) {
+		if(!randint0(10))
+			p->hid_sorrow_sensitivity += 0.2;
+		else
+			p->hid_sorrow_sensitivity += 0.1;
+
+		return;
+	}
+}
+
+
+
+7. Add TR_HID_SORROW_SENSITIVITY_INT to tr-defs.h
+
+--THUS--
+
+/* Avg. interval between hid_sorrow_sensitivity changes
+ * see game-world.c / process_world()
+ * 50000 is a guess
+ */
+
+#define TR_HID_SORROW_SENSITIVITY_INT 50000
+
+
+8. Add to load.c and save.c
+
+  This doesn't seem the best way to go.  Could I make a rd_float?  How can 
+  I handle differences between 64 bit and 32 bit floats?  Do floats work
+  the same internally as ints such that I could just copy the code in 
+  savefile.h?  If I can't make a rd_float directly, there will have to
+  be a hack somewhere.  I guess for now this is where I'll put it.
+
+
+--THUS--
+    add to load.c
+	/* [TR] variables */
+	rd_s32b(&player->ap_sorrow);
+	rd_s16b(&player->hid_sorrow);
+	rd_s16b(&player->deep_sorrow);
+
+	/*   hack   */
+	rd_byte(&tmp);
+	player->hid_sorrow_sensitivity = (float)tmp;
+	player->hid_sorrow_sensitivity /= 10;
+	rd_byte(&tmp);
+	player->hss_target = (float)tmp;
+	player->hss_target /= 10;
+
+	rd_u16b(&player->townperson_timer);
+	rd_u16b(&player->sorrow_disturb);
+	rd_u16b(&player->done);
+
+and
+--THUS--
+      add at beginning of function rd_player()
+	/* [TR] hack, a byte to hold hid_sorrow_sensitivity and hss_target */
+	byte tmp;
+
+
+
+
+--THUS--
+      add to save.c
+	/* [TR] variables */
+
+	wr_s32b(player->ap_sorrow);
+	wr_s16b(player->hid_sorrow);
+	wr_s16b(player->deep_sorrow);
+
+	/*   hack   */
+	tmp = (byte)(player->hid_sorrow_sensitivity * 10);
+	wr_byte(tmp);
+	tmp = (byte)(player->hss_target * 10);
+	wr_byte(tmp);
+
+	wr_u16b(player->townperson_timer);
+	wr_u16b(player->sorrow_disturb);
+	wr_u16b(player->done);
+
+and
+
+--THUS--
+    add at beginning of wr_player()
+
+9.  Add to player birth
+
+ --THUS--
+      in player-birth.c / player_generate()
+	/* [TR] sorrow related variables */
+	p->ap_sorrow = 0;
+	p->hid_sorrow = 0;
+	p->deep_sorrow = 0;
+	p->hid_sorrow_sensitivity = 1.0;
+	p->hss_target = 1.0;
+	p->townperson_timer = 0;
+	p->sorrow_disturb = 0;
+	p->done = 0;
+
+
+[SENTENCE]
+
+Put a safeguard so that angband-tr doesn't try to load non-tr savefiles.
+
+  update this anytime you add something that breaks savefile compatibility, 
+  with a new version number
+
+
+--THUS--
+    In save.c / wr_misc() add before seed_randart
+	/* [TR] TR-patch version */
+	wr_string("TR 0.1a");
+
+--THUS--
+    In load.c / rd_misc() add before seed_randart
+	/* [TR] Test to see if savefile is of the right TR version */
+	rd_string(tmp, sizeof(tmp));
+	if(strcmp(tmp, "TR 0.1a"))
+		quit("Savefile incompatible.");
+
+
+
+[SENTENCE]
+
+Check to see if hss changes work.
+
+--THUS--
+   in ui-display.c
+
+/**
+ * [TR] Prints hidden sorrow sensitivity / target (debug)
+ */
+static void prt_hid_sorrow(int row, int col)
+{
+	char cur_hid_sorrow[32];
+	char cur_hss_target[32];
+	byte color;
+
+
+	put_str("HSS", row, col);
+	
+	if(player->hid_sorrow_sensitivity == player->hss_target)
+		color = COLOUR_L_GREEN;
+	else
+		color = COLOUR_YELLOW;
+ 
+	strnfmt(cur_hid_sorrow, sizeof(cur_hid_sorrow), "%2f", player->hid_sorrow_sensitivity);
+
+	strnfmt(cur_hss_target, sizeof(cur_hss_target), "/%2f", player->hss_target);
+
+	c_put_str(color, cur_hid_sorrow, row, col + 3);
+
+	c_put_str(COLOUR_L_GREEN, cur_hss_target, row, col + 6);
+
+}
+
+
+[SENTENCE]
+
+Hidden sorrow sensitivity and hss_target start somewhere
+
+--THUS--
+in player-birth.c / player_generate()
+
+	/* [TR] sorrow related variables */
+	p->ap_sorrow = 0;
+	p->hid_sorrow = 0;
+	p->deep_sorrow = 0;
+	p->hid_sorrow_sensitivity = 1.0;
+	p->hss_target = new_hss_target();
+	hss_adjust(p);
+	p->townperson_timer = 0;
+	p->sorrow_disturb = 0;
+	p->done = 0;
+
+--THUS--
+    add to game-world.h
+
+float new_hss_target();
+void hss_adjust();
+
+
+
+[SENTENCE]
+
+Make it so that ap_sorrow doesn't increase chances of ambient XP gain.
+
+--THUS--
+     in game-world.c / process_world()
+        /* Ambient XP gain */
+	if((player->sorrow_disturb) && !randint0(TR_AVG_XP_WAIT))
+		player_exp_gain(player, ambient_xp_of(player->depth));
+
+
+
+[SENTENCE]
+
+
+Increase ap_sorrow done by killing monsters.
+
+--THUS--
+    in tr-defs.h
+
+/* The amount of ap_sorrow incurred by killing a monster is given by
+ * log((TR_UNSAD_XP / (monster base XP + 1)) * TR_SORROW_MULT  
+ */
+
+#define TR_SORROW_MULT 20
+
+
+[SENTENCE]
+
+Increase the time it takes to process ap_sorrow
+
+
+--THUS--
+    in game-world.c / process_world()
+	/* Process apparent sorrow */
+	if(!player->sorrow_disturb)
+		if(!randint0(TR_AP_SORROW_DELAY))
+			player_process_ap_sorrow(player);
+	else
+		player->sorrow_disturb--;
+
+
+and
+
+--THUS--
+   in tr-defs.h
+
+/* Delay to slow down ap_sorrow processing */
+#define TR_AP_SORROW_DELAY 10
+
+
+[SENTENCE]
+
+change player->sorrow_disturb to s16b
+
+--THUS--
+    in player.h / struct player
+	s16b sorrow_disturb;	/* [TR] Is the player too disturbed to process sorrow? */
+
+and
+
+--THUS--
+    in save.c / wr_player()
+	wr_u16b(player->townperson_timer);
+	wr_s16b(player->sorrow_disturb);
+	wr_u16b(player->done);
+
+and
+
+--THUS--
+   in load.c / rd_player()
+        rd_u16b(&player->townperson_timer);
+        rd_s16b(&player->sorrow_disturb);
+        rd_u16b(&player->done);
+
+
+
+[SENTENCE]
+
+Killing INVISIBLE monsters causes flat rate of sorrow 
+-- ((TR_UNSAD_XP / 100) * dlev) in place of monster XP.
+
+1.  What's the flag for invisibility?
+
+	RF_INVISIBLE
+2. Make it so
+
+--THUS--
+     in mon-util.c / mon_take_hit()
+		/* [TR] gain apparent sorrow */
+		if(!monster_is_visible(mon) && rf_has(mon->race->flags, RF_INVISIBLE))
+			player_gain_ap_sorrow(player, ap_sorrow_from((TR_UNSAD_XP / 100) * player->depth));
+		else 
+			player_gain_ap_sorrow(player, ap_sorrow_from(mon->race->mexp));
+
+
+[SENTENCE]
+
+You still get a little bit of ap_sorrow (1%) from monsters killing monsters.
+If a monster kills multiple monsters, stack the ap_sorrow and msg the 
+ap_sorrow outcry of that.
+
+1. Where do monsters hit monsters?
+
+  project-mon.c / project_m_monster_attack() 
+    (a monster spell hits a monster)
+  mon-move.c / process_monster_try_push()
+    (a monster w/ KILL_BODY "eats" a weaker monster)
+
+2. Make a function for handling sorrow when monsters kill monster.
+
+--THUS-- in mon-move.c
+/**
+ * [TR] When monsters kill monsters, the player gains some apparent sorrow
+ */
+void mon_kill_mon_sorrow(struct monster *mon, struct player *player)
+{
+	s32b inv_sorrow = ap_sorrow_from(((TR_UNSAD_XP / 100) * player->depth) / 100);
+	s32b default_sorrow = ap_sorrow_from(mon->race->mexp);
+
+	if(!monster_is_visible(mon) && rf_has(mon->race->flags, RF_INVISIBLE)) {
+		player_gain_ap_sorrow(player, inv_sorrow);
+		ap_outcry_msg(inv_sorrow);
+	}
+	else {
+		player_gain_ap_sorrow(player, default_sorrow);
+		ap_outcry_msg(default_sorrow);
+	}
+}
+
+
+3. Insert projectile code, similar to that of mon-util.c / mon_take_hit()
+
+--THUS--
+   in project-mon.c / project_m_monster_attack()
+	/* Dead or damaged monster */
+	if (mon->hp < 0) {
+		/* [TR] Gain some apparent sorrow */
+		mon_kill_mon_sorrow(mon, player);
+
+
+4. Insert KILL_BODY code
+
+--THUS--
+    in mon-move.c / process_monster_try_push()
+			/* Monster ate another monster */
+			if (kill_ok) {
+				mon_kill_mon_sorrow(mon1, player);
+				delete_monster(ny, nx);
+			}
+
+5. Make sure mon-move.h is #included in project-mon.c
+
+  It is.
+
+
+
+[SENTENCE]
+  
+[Initiating monster terror has a chance of putting them in permanent 
+terror] (need to add a variable to monster structure).  
+
+1. add variable to monster structure -- where?
+   monster.h / struct monster
+
+--THUS--
+    in monster.h / struct monster
+	s16b hp;			/* Current Hit points */
+	s16b maxhp;			/* Max Hit points */
+
+	s16b m_timed[MON_TMD_MAX]; /* Timed monster status effects */
+
+	byte permaterror;	/* [TR] is monster permanently terrified? */
+
+2. add to save.c / load.c
+
+--THUS--
+    in save.c / wr_monster()
+	wr_s16b(mon->hp);
+	wr_s16b(mon->maxhp);
+	wr_byte(mon->permaterror);  /* [TR] */
+
+--THUS--
+    in load.c / rd_monster()
+	rd_s16b(&mon->hp);
+	rd_s16b(&mon->maxhp);
+	rd_byte(&mon->permaterror);  /* [TR] */
+
+3. When a new monster is born, permaterror is initialized to 0
+
+--THUS--
+    in mon-make.c, place_new_monster_one()
+	/* [TR] Start out without permaterror */
+	mon->permaterror = 0;
+
+
+[SENTENCE]
+
+Initiating monster terror has a chance of putting them in permanent 
+terror. Causes a small amount of ap_sorrow (2% of the normal amount).
+
+--THUS--
+    in mon-util.c / mon_take_hit()
+			if ((randint1(10) >= percentage) ||
+			    ((dam >= mon->hp) && (randint0(100) < 80))) {
+				int timer = randint1(10) + (((dam >= mon->hp) && (percentage > 7))
+											? 20 : ((11 - percentage) * 5));
+
+				/* [TR] Chance of initiating permaterror */
+				if(!mon->permaterror && (randint0(TR_PERMA_T_INIT_DENOM) > TR_PERMA_T_INIT_NUM))  {
+					player_gain_ap_sorrow(player, (s32b)((float)ap_sorrow_from(mon->race->mexp) * TR_PERMA_T_AS_FACTOR));
+					ap_outcry_msg((u16b)((float)(ap_sorrow_from(mon->race->mexp) * TR_PERMA_T_AS_FACTOR)));
+					mon->permaterror = 1;
+					}
+
+
+   and
+
+--THUS--
+   in tr-defs.h
+/* Chance of initiating permaterror (a NUM out of DENOM chance) 
+ * See mon-util.c / mon_take_hit()
+ */
+#define TR_PERMA_T_INIT_DENOM 100
+#define TR_PERMA_T_INIT_NUM 50
+
+/* Factor modifying how much apparent sorrow a player gains from causing
+ * permaterror.  See mon-util.c / mon_take_hit()
+ */
+
+#define TR_PERMA_T_AS_FACTOR 0.02
+
+
+
+[SENTENCE]
+
+(Change ap_outcry_msg so that it takes ap_sorrow values instead of mexp values.)
+
+--THUS--
+   in mon-util.c / mon_take_hit()
+		/* [TR] outcry over monster */
+		ap_outcry_msg(ap_sorrow_from(mon->race->mexp));
+
+  and
+
+--THUS--
+   in mon-util.c
+/**
+ * [TR] Outcry on monster death
+ */
+
+void ap_outcry_msg(s32b ap_sorrow)
+{
+	if(ap_sorrow < ((ap_sorrow_from(1) / 6) * 1))
+		{
+			msg("You mourn.");
+			return;
+		}
+	else if(ap_sorrow < ((ap_sorrow_from(1) / 6) * 2))
+		{
+			msg("You feel an inner grief.");
+			return;
+		}
+	else if(ap_sorrow < ((ap_sorrow_from(1) / 6) * 3))
+		{
+			msg("You choke up.");
+			return;
+		}
+	else if(ap_sorrow < ((ap_sorrow_from(1) / 6) * 4))
+		{
+			msg("You weep.");
+			return;
+		}
+	else if(ap_sorrow < ((ap_sorrow_from(1) / 6) * 5))
+		{
+			msg("You weep and curse.");
+			return;
+		}
+	else 
+		msg("You are beside yourself with grief.");
+	return;
+
+}
+
+
+
+
+[SENTENCE]
+
+Permaterror stops monsters from making any kind of attack.
+
+1. Where do monsters initiate attacks?
+
+  mon-move.c / process_monster()
+
+checks for permaterror
+
+--THUS--
+     in mon-move.c / process_monster()
+
+	/* Get the monster name */
+	monster_desc(m_name, sizeof(m_name), mon, MDESC_CAPITAL | MDESC_IND_HID);
+
+
+	/* [TR] no multiplying or spellcasting while PTed */
+	if(!mon->permaterror) {
+		/* Try to multiply - this can use up a turn */
+		if (process_monster_multiply(c, mon))
+			return;
+
+		/* Attempt to cast a spell or not */
+		if (make_attack_spell(mon)) return;
+	}
+
+
+and
+
+--THUS--
+   in mon-move.c / process_monster()
+
+		/* The player is in the way. */
+		if (square_isplayer(c, ny, nx)) {
+			/* Learn about if the monster attacks */
+			if (monster_is_visible(mon))
+				rf_on(lore->flags, RF_NEVER_BLOW);
+
+			/* Some monsters never attack [TR] including from PT */
+			if (rf_has(mon->race->flags, RF_NEVER_BLOW) || mon->permaterror)
+				continue;
+
+			/* Otherwise, attack the player */
+			make_attack_normal(mon, player);
+
+			did_something = true;
+			break;
+
+
+[SENTENCE]
+
+Initiating monster terror has a chance of putting them in permanent 
+terror.  [Make it so that when mon->permaterror, monsters run away.]
+
+
+--THUS--
+   in mon-move.c / find_range()
+	/* All "afraid" ([TR] including permaterrified) monsters will run away */
+	if (mon->m_timed[MON_TMD_FEAR] || mon->permaterror) {
+		mon->min_range = flee_range;
+
+  not sure if this is good enough, but we'll see if it is in playtesting
+
+
+[SENTENCE]
+
+Permaterrified uniques don't regenerate.
+
+--THUS--
+    in mon-util.c / mon_take_hit()
+				/* [TR] Chance of initiating permaterror */
+				if(!mon->permaterror && (randint0(TR_PERMA_T_INIT_DENOM) > TR_PERMA_T_INIT_NUM))  {
+					/* Player gains sorrow */
+					player_gain_ap_sorrow(player, (s32b)((float)ap_sorrow_from(mon->race->mexp) * TR_PERMA_T_AS_FACTOR));
+					ap_outcry_msg((u16b)((float)(ap_sorrow_from(mon->race->mexp) * TR_PERMA_T_AS_FACTOR));
+
+					/* Monster permanently terrified */
+					mon->permaterror = 1;
+
+					/* Permaterrified uniques don't regenerate */
+					if(monster_is_unique(mon)) {
+						if (lore->pkills < SHRT_MAX) 
+							lore->pkills++;
+						mon->race->max_num = 0;
+						}
+					}
+
+
+
+
+[BUGFIXES]
+
+add tr-defs.h to mon-move.c
+add ap_sorrow_from() to mon-util.h
+
+--THUS--
+    in mon-util.h, add
+u16b ap_sorrow_from(u16b mexp);
+
+ and
+
+--THUS--
+    in mon-move.c, add
+
+#include "angband.h"
+#include "cave.h"
+#include "game-world.h"
+#include "init.h"
+#include "monster.h"
+#include "mon-attack.h"
+#include "mon-desc.h"
+#include "mon-lore.h"
+#include "mon-make.h"
+#include "mon-predicate.h"
+#include "mon-spell.h"
+#include "mon-util.h"
+#include "mon-timed.h"
+#include "obj-desc.h"
+#include "obj-ignore.h"
+#include "obj-pile.h"
+#include "obj-slays.h"
+#include "obj-tval.h"
+#include "obj-util.h"
+#include "player-calcs.h"
+#include "player-util.h"
+#include "project.h"
+#include "trap.h"
+#include "tr-defs.h"  /* [TR] */
+
+
+
+add ap_outcry_msg to mon-util.h
+
+--THUS--
+   in mon-util.h
+
+u16b ap_sorrow_from(u16b mexp);
+void ap_outcry_msg(s32b ap_sorrow);
+
+
+
+
+add mon_kill_mon_sorrow() to mon-move.h
+
+--THUS--
+    in mon-move.h
+void mon_kill_mon_sorrow(struct monster *mon, struct player *player);
+
+
+
+[SENTENCE]
+
+Fix it so that sorrow messages happen after monster messages (so that
+@ mourns after the monster dies).
+
+--THUS--
+  in mon-util.c / ap_outcry_msg()
+void ap_outcry_msg(s32b ap_sorrow)
+{
+	/* So that previous monster messages get flushed */
+	notice_stuff(player);
+
+[SENTENCE]
+
+Permaterrified monsters don't get un-terrified.
+
+1. Everywhere where there's an if (mon->m_timed[MON_TMD_FEAR], see how
+mon->permaterror affects it.
+
+--THUS--
+    in mon-util.c / mon_take_hit()
+		/* Mega-Hack -- Pain cancels fear [TR] but not permaterror */
+		if (!(*fear) && mon->m_timed[MON_TMD_FEAR] && dam > 0 && !mon->permaterror) {
+
+--THUS--
+    in effects.c / effect_handler_MON_HEAL_HP()
+	/* Cancel fear */
+	if (mon->m_timed[MON_TMD_FEAR] && !mon->permaterror) {
+
+--THUS--
+    in effects.c / effect_handler_MON_HEAL_KIN()
+	/* Cancel fear */
+	if (mon->m_timed[MON_TMD_FEAR] && !mon->permaterror) {
+
+--THUS--
+  in mon-move.c / process_monster()
+	/* Hack -- get "bold" if out of options */
+	if (!did_something && mon->m_timed[MON_TMD_FEAR] && !mon->permaterror)
+		mon_clear_timed(mon, MON_TMD_FEAR, MON_TMD_FLG_NOTIFY, false);
+
+
+
+
+   undo some code no longer necessary
+--THUS--
+   in mon-move.c / find_range()
+	/* All "afraid" monsters will run away */
+	if (mon->m_timed[MON_TMD_FEAR]) {
+		mon->min_range = flee_range;
+
+

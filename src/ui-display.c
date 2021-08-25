@@ -74,6 +74,8 @@ static game_event_type player_events[] =
 	EVENT_HP,
 	EVENT_MANA,
 	EVENT_AC,
+	EVENT_AP_SORROW, /* [TR] */
+	EVENT_HID_SORROW, /* [TR] */
 
 	EVENT_MONSTERHEALTH,
 
@@ -338,6 +340,61 @@ static void prt_sp(int row, int col)
 	c_put_str(COLOUR_L_GREEN, max_sp, row, col + 8);
 }
 
+
+/**
+ * [TR] Prints apparent sorrow
+ */
+static void prt_ap_sorrow(int row, int col)
+{
+	char cur_ap_sorrow[32];
+	byte color;
+
+
+	put_str("AS", row, col);
+	
+	if(player->ap_sorrow <= 0)
+		color = COLOUR_L_GREEN;
+	else
+		color = COLOUR_YELLOW;
+
+	strnfmt(cur_ap_sorrow, sizeof(cur_ap_sorrow), "%9d", player->ap_sorrow);
+
+	c_put_str(color, cur_ap_sorrow, row, col + 3);
+
+}
+
+/**
+ * [TR] Prints hidden sorrow sensitivity / target (debug)
+ */
+
+/*
+
+static void prt_hid_sorrow(int row, int col)
+{
+	char cur_hid_sorrow[32];
+	char cur_hss_target[32];
+	byte color;
+
+
+	put_str("HSS", row, col);
+	
+	if(player->hid_sorrow_sensitivity == player->hss_target)
+		color = COLOUR_L_GREEN;
+	else
+		color = COLOUR_YELLOW;
+ 
+	strnfmt(cur_hid_sorrow, sizeof(cur_hid_sorrow), "%2f", player->hid_sorrow_sensitivity);
+
+	strnfmt(cur_hss_target, sizeof(cur_hss_target), "/ %f", player->hss_target);
+
+	c_put_str(color, cur_hid_sorrow, row, col + 4);
+
+	c_put_str(COLOUR_L_GREEN, cur_hss_target, row, col + 7);
+
+}
+
+*/
+
 /**
  * Calculate the monster bar color separately, for ports.
  */
@@ -508,28 +565,28 @@ static const struct side_handler_t
 	int priority;		 /* 1 is most important (always displayed) */
 	game_event_type type;	 /* PR_* flag this corresponds to */
 } side_handlers[] = {
-	{ prt_race,    19, EVENT_RACE_CLASS },
-	{ prt_title,   18, EVENT_PLAYERTITLE },
-	{ prt_class,   22, EVENT_RACE_CLASS },
-	{ prt_level,   10, EVENT_PLAYERLEVEL },
-	{ prt_exp,     16, EVENT_EXPERIENCE },
-	{ prt_gold,    11, EVENT_GOLD },
-	{ prt_equippy, 17, EVENT_EQUIPMENT },
-	{ prt_str,      6, EVENT_STATS },
-	{ prt_int,      5, EVENT_STATS },
-	{ prt_wis,      4, EVENT_STATS },
-	{ prt_dex,      3, EVENT_STATS },
-	{ prt_con,      2, EVENT_STATS },
-	{ NULL,        15, 0 },
-	{ prt_ac,       7, EVENT_AC },
-	{ prt_hp,       8, EVENT_HP },
-	{ prt_sp,       9, EVENT_MANA },
-	{ NULL,        21, 0 },
-	{ prt_health,  12, EVENT_MONSTERHEALTH },
-	{ NULL,        20, 0 },
-	{ NULL,        22, 0 },
-	{ prt_speed,   13, EVENT_PLAYERSPEED }, /* Slow (-NN) / Fast (+NN) */
-	{ prt_depth,   14, EVENT_DUNGEONLEVEL }, /* Lev NNN / NNNN ft */
+	{ prt_race,      20, EVENT_RACE_CLASS },
+	{ prt_title,     19, EVENT_PLAYERTITLE },
+	{ prt_class,     22, EVENT_RACE_CLASS },
+	{ prt_level,     11, EVENT_PLAYERLEVEL },
+	{ prt_exp,       17, EVENT_EXPERIENCE },
+	{ prt_gold,      12, EVENT_GOLD },
+	{ prt_equippy,   18, EVENT_EQUIPMENT },
+	{ prt_str,        6, EVENT_STATS },
+	{ prt_int,        5, EVENT_STATS },
+	{ prt_wis,        4, EVENT_STATS },
+	{ prt_dex,        3, EVENT_STATS },
+	{ prt_con,        2, EVENT_STATS },
+	{ NULL,          16, 0 },
+	{ prt_ac,         7, EVENT_AC },
+	{ prt_hp,         8, EVENT_HP },
+	{ prt_sp,         9, EVENT_MANA },
+	{ prt_ap_sorrow, 10, EVENT_AP_SORROW },  /* [TR] */
+	{ NULL, 	21, 0 },
+	{ prt_health,    13, EVENT_MONSTERHEALTH },
+	{ NULL,          22, 0 },
+	{ prt_speed,   14, EVENT_PLAYERSPEED }, /* Slow (-NN) / Fast (+NN) */
+	{ prt_depth,   15, EVENT_DUNGEONLEVEL }, /* Lev NNN / NNNN ft */
 };
 
 

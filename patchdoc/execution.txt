@@ -1,0 +1,1606 @@
+Angband-4.1.0-tr ("Angband tragic?") "metapatch"
+
+Patch execution
+
+This file contains the description of the execution of the patch, 
+continuing from firstpass.txt, containing the results of trying to 
+apply the metapatch.
+
+This could be somewhat helpful for variants related to vanilla 4.1.0,
+or even other variants, to a lesser extent.  The specific code is written
+here, which might work as-is or with modification in other variants.
+
+
+EXECUTION
+
+
+
+
+[SENTENCE 1]
+Spending time in the dungeon gives XP, greater at greater depths.
+
+1. Find the file where turns are taken.
+  
+  search for words that might have something to do with passage of time
+
+    try 
+       grep food *.c
+    in src directory
+    
+
+     i.   is it player-timed.c?  maybe.  a comment there gives dungeon.c 
+             as a possibility
+     ii.  dungeon.c doesn't exist, never mind
+     iii. looks like there's a thing called "effects", or "player effects".
+         are these what I want?  not sure, I think no.
+     iv.  hm, this seems like a bust, move on
+
+
+     i.   game-world.c has this promising line:
+             player_set_food(player, player->food - i);
+     ii.  looks like what we want is process_world()
+     iii. we'll go with this for now
+      iv. (later) yes this is the right function.
+
+2. Every turn, run something like the following:
+if(rand_int(avg_xp_wait) == 0)
+  xp = xp + (xp_of(depth));
+
+  A. What do we really call "xp" above?
+       i.   searching in game-world.c reveals usage is
+              player->exp
+       ii.  revise pseudocode to
+              player->exp = player->exp + (xp_of(depth));
+  B. Write xp_of() and if necessary rename it
+       i.   what is "depth" really?
+       ii.  usage in game-world.c is
+              player->depth
+       iii. what should the actual numbers given per player->depth be?
+         a. definitely have to be tuned
+         b. no idea what they should be initially
+         c. random guess 
+              xp_of(depth)
+              {
+              return(DEPTH_XP_MULT * depth);
+              }
+         d. in appropriate .h file
+              #define DEPTH_XP_MULT 2
+         e. what is the appropriate .h file?
+           ,. let's just make one for TR.  that way tuning is easier.
+           .. tr-defs.h
+        iv. "xp_of" is too general
+           a. ambient_xp_of()
+              new terminology: ambient XP is XP you pick up from just 
+              being in the dungeon
+         v. what should ambient_xp_of() return?
+            a. where can I find what type of variable player->exp is?
+               and while I'm at it player->depth
+            b. try
+                grep "struct player {" *.h
+            c. result: player.h; check that out
+            d. looks like player->depth is an s16b and player->exp is an s32b
+            e. looks like there's such a thing as max_exp
+               what's the right way to increase XP?
+               ,.  player_exp_gain()?
+ 	       .. found in player.c
+
+       
+--THUS--
+        Insert in [TR] section of process_world()
+/* Ambient XP gain */
+if(!randint0(TR_AVG_XP_WAIT))
+	player_exp_gain(player, ambient_xp_of(player->depth));
+
+--THUS--
+	Add to tr-defs.h
+/* average wait time for ambient XP gains.  100 is a guess */
+#define TR_AVG_XP_WAIT 100 
+
+--THUS--
+        Insert before process_world() the function
+s32b ambient_xp_of(s16b depth)
+{
+	return(TR_DEPTH_XP_MULT * depth);
+}
+
+
+PS:
+  Where do we put ambient_xp_of()?
+  Not intending to use it anywhere but in process_world() for now.
+  So I guess it can go immediately before process_world() in game-world.c
+
+	       
+
+
+
+
+
+
+[SENTENCE 2]
+     
+If you don't process apparent sorrow, it turns into hidden sorrow.
+
+1. Find the file where turns are taken.
+
+game-world.c (see above)
+
+2. Find where turns are taken.
+
+process_world()
+
+3. Add something like
+
+  (renamed hid_up_prob hid_inc_prob)
+
+  A.convert variables to float
+
+   i. which variables?
+  ii. ap_sorrow to fl_ap_sorrow; hid_inc_prob is float;
+ iii. so code like
+    
+/* [TR] */
+float fl_ap_sorrow, hid_inc_prob; 
+int hid_inc_prob_int;
+
+  B. struct player needs ap_sorrow and hid_sorrow (deep_sorrow while we're 
+     at it)
+  
+    i. look in player.h, right? (yes)
+   ii. maybe another struct is more appropriate? (maybe but struct player 
+       is fine)
+  iii. how big should these variables be?  (No idea, unsigned 32 bit is safe
+       for apparent sorrow; unsigned 16 bit probably safe for hidden and deep)
+--THUS--
+     add, after mana section 
+u32b ap_sorrow;         /* [TR] Apparent sorrow */
+u16b hid_sorrow;        /* [TR] Hidden sorrow */
+u16b deep_sorrow;       /* [TR] Deep sorrow */
+
+[Lost some work, reconstructing]
+--THUS--
+     add, to tr-defs.h
+/* chance of incrementing hidden sorrow in a given turn equals natural 
+ *  log of apparent sorrow divided by AP_BREAKING_PT 
+ * ap_sorrow gives 100% chance of hid inc around 10,000 ap_sorrow at
+ *  TR_AP_BREAKING_PT == 10
+ * use found in process_world() in game-world.c
+ */
+#define TR_AP_BREAKING_PT 10
+
+/* maximum apparent sorrow
+ * (2^32)/2 == 2147483648
+ * this limit is based on player->ap_sorrow being u32b
+ */                            
+#define TR_MAX_AP_SORROW 2147483648
+
+/* maximum hidden sorrow
+ * (2^16) - 2
+ * this limit is based on player->hid_sorrow being u16b
+ */
+
+#define TR_MAX_HID_SORROW 65534
+/* maximum deep sorrow
+ * (2^16) - 2
+ * this limit is based on player->deep_sorrow being u16b
+ */
+
+#define MAX_DEEP_SORROW 65534
+
+    What should player_gain_ap_sorrow() look like?
+    ( handle_stuff() does some updating magick )
+
+Something like this,
+
+--THUS--
+      add to player.c, let's say, right before player_exp_gain()
+
+void player_gain_ap_sorrow(struct player *p, s32b amount)
+{
+	p->ap_sorrow += amount;
+	if (p->ap_sorrow > TR_MAX_AP_SORROW)
+		p->ap_sorrow = TR_MAX_AP_SORROW;
+	handle_stuff(p);
+}
+  
+
+	Same thing, a little different, for hidden sorrow and deep sorrow
+
+--THUS-- 
+      add, immediately after player_gain_ap_sorrow()
+
+/* [TR] gain hidden sorrow */
+void player_gain_hidden_sorrow(struct player *p, s16b amount)
+{ 
+        p->hid_sorrow += amount;
+        if (p->hid_sorrow > TR_MAX_HID_SORROW)
+                p->hid_sorrow = TR_MAX_HID_SORROW;
+        handle_stuff(p);
+}  
+
+
+/* [TR] gain deep sorrow */
+void player_gain_deep_sorrow(struct player *p, s32b amount)
+{
+        p->deep_sorrow += amount;
+        if (p->deep_sorrow > TR_MAX_DEEP_SORROW)
+                p->deep_sorrow = TR_MAX_DEEP_SORROW;
+        handle_stuff(p);
+}
+
+
+	   Let's rewrite this pseudocode
+
+        
+
+	hid_inc_prob = log(fl_ap_sorrow) / AP_BREAKING_PT;  
+        /* AP_BREAKING_PT could be 10 (ap_sorrow threshold near 10,000) */
+        if(hid_inc_prob >= 1.0)
+          make a special, dire message /* if this is a legal place to do this */
+        hid_inc_prob_int = hid_inc_prob * 100
+          if(rand_int(100) < hid_inc_prob_int)
+        hid_sorrow++;
+
+	  as
+
+	fl_ap_sorrow = (player->ap_sorrow)F;
+        hid_inc_prob = log(fl_ap_sorrow) / AP_BREAKING_PT;
+        if( hid_inc_prob >= 1.0 )
+                msg("You are surely overwhelmed.");
+        if( rand_int(100) < (hid_inc_prob * 100)L )
+                player_hid_sorrow_gain(player, 1);      
+
+	  does this work? we'll see... may require adding libraries to compile
+	    options.  ***<I>Also, will modify this to have correct usage for 
+	    casting, if I'm wrong</I>***
+
+	  maybe I should find a way to do this w/o using floating point?
+	    I can think of excellent historical reasons why angband might not
+            use floating point, but not sure it's still relevant
+	
+	  wait, angband's rand_int is really randint0() fixing in THUS output
+
+	  maybe I should hide this piece of code in a function?  maybe later.
+	    for now adding as is
+
+--THUS--
+   add to [TR] section in process_world() in game-world.c
+
+/* Hidden sorrow gain */                   
+        
+hid_inc_prob = log(fl_ap_sorrow) / TR_AP_BREAKING_PT;
+if( hid_inc_prob >= 1.0 )
+	msg("You are surely overwhelmed.");
+if( randint0(100) < (hid_inc_prob * 100)L )
+	player_hid_sorrow_gain(player, 1);   	
+
+
+
+[SENTENCE 3]
+
+Very occasionally a message might show up hinting at what lies beneath
+(hidden sorrow)
+
+1. Find the file where turns are taken / where in there turns are taken.
+
+  game-world.c / process_world()
+
+2. Add something like:
+
+if(rand_int(hid_sorrow) > rand_int(OUTCRY_PT)) 
+  /* OUTCRY_PT could be 10000 */
+ make an appropriate intrusive thought or flashback message
+
+	let's try
+
+if(randint0(hid_sorrow) > rand_int(OUTCRY_PT))
+	switch(randint0(11))  {
+		case 0:
+		{
+			msg("You can't stop thinking of the blood you've shed.");
+			break;
+		}
+		case 1:
+		{
+			msg("You break out in tears, not knowing why.");
+			break;
+		}
+		case 2: 
+		{
+			msg("You shake with stress.");
+			break;
+		}
+		case 3:
+		{
+			msg("You have an awful feeling.");
+			break;
+		}
+		case 4:
+		{
+			msg("You want to shut down but force yourself to keep going.");
+			break;
+		}
+		case 5:
+		{
+			msg("You're afraid to think freely.");
+			break;
+		}	
+		case 6:
+		{
+			msg("You feel angry at the way things have to be.");
+			break;
+		}
+		case 7:
+		{
+			msg("You feel fine.  Absolutely, completely fine.  Nothing is wrong with you.");
+			break;
+		}
+		case 8:
+		{
+			msg("Your gut clenches.");
+			break;
+		}
+		case 9:
+		{
+			msg("You feel like you're 50 feet underwater.");
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
+
+
+	  hide that switch / case in a function?  sure
+
+--THUS--
+	add to process_world(), in [TR] section
+
+if(randint0(hid_sorrow) > rand_int(TR_OUTCRY_PT))
+	outcry_msg();
+
+
+--THUS--
+	before process_world(), add the function	
+
+void outcry_msg();
+{
+switch(randint0(10))  {
+	case 0:
+	{
+		msg("You can't stop thinking of the blood you've shed.");
+		break;
+	}
+	case 1:
+	{
+		msg("You break out in tears, not knowing why.");
+		break;
+	}
+	case 2: 
+	{
+		msg("You shake with stress.");
+		break;
+	}
+	case 3:
+	{
+		msg("You have an awful feeling.");
+		break;
+	}
+	case 4:
+	{
+		msg("You want to shut down but force yourself to keep going.");
+		break;
+	}
+	case 5:
+	{
+		msg("You're afraid to think freely.");
+		break;
+	}	
+	case 6:
+	{
+		msg("You feel angry at the way things have to be.");
+		break;
+	}
+	case 7:
+	{
+		msg("You feel fine.");
+		break;
+	}
+	case 8:
+	{
+		msg("Your gut clenches.");
+		break;
+	}
+	case 9:
+	{
+		msg("You feel like you're 50 feet underwater.");
+		break;
+	}
+	default:
+	{
+		break;
+	}
+}
+
+	  and we should define OUTCRY_PT,
+--THUS--
+     add to tr-defs.h
+/* modifies how often outcry over hidden sorrow should be
+ * outcry when randint0(player->hid_sorrow) < TR_OUTCRY_PT
+ * see game-world.c / process_world()
+ */
+
+#define TR_OUTCRY_PT 10000
+
+
+
+[SENTENCE 4]
+
+If hidden sorrow gets high enough, it increases the risk of a shutdown.
+
+1. Find the file where turns are taken / where in file.
+
+game-world.c / process_world()
+
+2. Add something like:
+if(rand_int(hid_sorrow) > HID_BREAKING_PT) 
+  /* HID_BREAKING_PT could be 1000 */
+  init_shutdown();
+
+  let's rename init_shutdown() init_tr_shutdown()
+
+--THUS-- [MODIFIED based on later changes]
+      add to [TR] section in process_world()
+
+if(randint0(player->hid_sorrow) > TR_HID_BREAKING_PT
+  begin_townperson();
+
+and
+--THUS--
+      add to tr-defs.h
+/* if hid_sorrow is over 1000, there starts to be a chance
+ * of shutdown.  1000 is just a guess.
+ */
+
+#define TR_HID_BREAKING_PT 1000
+
+
+3. init_tr_shutdown could be something like
+message something like "You cry out to Eru Illuvatar to save you from this
+life."  "There is an inaudible silence."
+execute code from word of recall scroll
+set a timer for the turn taker function to trigger in town, later, to 
+begin_townperson()
+
+
+     msg("You cry out to Eru Illuvatar to save you from this life.");
+     msg("There is an inaudible silence.");
+
+     where do we find word of recall code?
+     in effects.c there's the function for processing recall
+     effect_handler_RECALL()
+     player->word_recall is an important variable
+     where else is it used?
+     game-world.c / process_world()
+     load.c and save.c (<I>looks like I need to make sure all 
+       variables I've added get loaded and saved</I>)
+     others
+     looks like I can just say something like
+       player->word_recall = randint0(20) + 15;
+     and process_world will take care of it in due time.
+     looks good, but what if we're in town when shutdown kicks in?
+     so
+       if(player->depth)
+          player->word_recall = randint0(20) + 15;
+     
+     looks like struct player needs a new variable
+--THUS--
+       add to player.h
+u16b townperson_timer;      /* How long until @ becomes t on shutdown? */
+     
+     now,
+       player->townperson_timer = randint0(20) + 50;
+     
+--THUS--
+       add to game-world.c in [TR] section (is this the best
+file for this?  not sure)
+void begin_townperson()
+{
+	
+	msg("You cry out to Eru Illuvatar to save you from this life.");
+	msg("There is an inaudible silence.");
+	
+	player->word_recall = randint0(20) + 15;
+	player->townperson_timer = randint0(20) + 50;
+}
+
+
+     
+
+[SENTENCE 5]
+
+In town, become a townperson.
+
+1. in turn taker function
+
+  game-world.c / process_world()
+
+2. something like
+if(townperson_timer)
+  {
+  if(rand_int(300) < townie_timer)
+    become_townperson();
+  townperson_timer++;
+  }
+
+    that won't work,
+--THUS--
+       add to process_world in [TR] section
+if(player->townperson_timer) {
+	player->townperson_timer--;
+         
+if(!player->townperson_timer)
+	become_townperson();
+}
+         
+3. become_townperson()
+select a random townsfolk identity
+does a flashy thing going between @ and t until only t remains
+player can press buttons but the t does whatever it will do
+after a number of turns, the game is over
+display "You live a quiet life in the town, watching others descend to do 
+the task that once consumed you."
+
+
+   this is too complicated for this version of the patch
+   let's try more like
+   change @ to t, stationary
+   display "You're done."
+   display "You live a quiet life in the town, watching others descend to do 
+            the task that once consumed you."
+   so,
+   find player x and y
+   where is this on the screen?
+   draw a t over the @ that was there before
+   msg("You're done.");
+   msg("You live a quiet life in the town, watching others descend to do the task that once consumed you.");
+
+   so,
+   player->py
+   player->px
+   wait, this seems unnecessarily hack-y
+   why not make the player's symbol be t, let them wander around like before, then end game?
+   okay
+
+   after searching and a deadend, looks like this has something to do with changing the player base
+   of the player to "townsfolk" or the glyph of player to "t"
+   how do we do that?
+   
+   look in ui-mon-list.c
+   not in there (that does the monster list display, doesn't put 
+     @s and ts on .s)
+   look in init.c
+   no...
+   look online, a hint: check ui-term.c
+   not promising...
+   mon-base.txt is where monsters get their glyphs, including the player's
+    '@'
+   where does mon-base.txt get read?
+   mon-init.c
+   it looks like d_char (as in 
+     rb->d_char = parser_getchar(p, "glyph")
+   from parse_mon_base_glyph() )
+   is the thing to change
+   where is the player's d_char?
+   not easy to find
+   what if we reinitialize the player's monster race?
+
+   this seems complicated.
+   Simplifying for this version of the patch:
+
+   display "You're done."
+   display "You live a quiet life in the town, watching others descend to do 
+            the task that once consumed you."
+   run the game ending code from "player suicide"
+
+--THUS--
+       add to game-world() before process_world(), in [TR] section
+void become_townperson() 
+{
+	msg("You're done.");
+	msg("You live a quiet life in the town, watching others descend to do the task that once consumed you.");
+	player->is_dead = true;
+	my_strcpy(player->died_from, "Burning out", sizeof(player->died_from));
+}
+
+
+
+
+[SENTENCE 6]
+
+Processing takes the form of passing time in the dungeon or town
+without being in line of sight of a monster.
+
+1. Find where turns are taken
+
+  game-world.c / process_world
+
+2. Borrow code from resting/running for detecting monsters
+
+  look in cmd-cave.c (no)
+  look for disturb()
+  look in mon-move.c (doesn't look like there's code for looking at all 
+    monsters in line of sight at once; not so useful)
+  
+  how about, if you get disturb()ed, it ++'s a timer (up to a max of 2 turns)
+   which decrements every turn; when 0, processing sorrow can occur
+
+  let's look in player-util.c for disturb()
+--THUS--  
+   add to disturb()
+	/* [TR] Interrupt sorrow processing */
+	if(p->sorrow_disturb < 3)
+		p->sorrow_disturb++;
+
+   let's add sorrow_disturb to struct player
+--THUS--
+   add to struct player in player.h, with other [TR] stuff
+        u16b sorrow_disturb;    /* [TR] Is the player too disturbed to process sorrow? */ 
+
+3. if resting / running permitted, then decrement ap_sorrow (by 1?  or
+a higher number to be determined? maybe it depends on wisdom, xp, con, 
+and race?)
+
+--THUS--
+  add to game-world.c / process_world()
+	/* Process apparent sorrow */
+	if(!player->sorrow_disturb)
+		player_process_ap_sorrow();
+	else
+		player->sorrow_disturb--;
+
+  now we have to write player_process_ap_sorrow();
+  no race-based modifiers for now, just CON, WIS and clevel
+
+**thus** [deprecated]
+       add to player.c, after player_gain_deep_sorrow()
+/* [TR] process apparent sorrow */
+void player_process_ap_sorrow(struct player *p)
+{
+
+        /* apply bonuses */
+        if(randint0(p->stat_cur[STAT_WIS]) > TR_WIS_BONUS)
+                p->ap_sorrow--;
+        if(randint0(p->stat_cur[STAT_CON]) > TR_CON_BONUS)
+                p->ap_sorrow--;
+        if(randint0(50 - p->lev) > TR_CLEV_BONUS)
+                p->ap_sorrow--;
+
+        /* everyone gets this */
+        p->ap_sorrow -= TR_AP_SOR_PROC_BASE;
+
+        if(p->ap_sorrow < 0)
+                p->ap_sorrow = 0;
+}
+
+  now add the new defines to tr-defs.h
+
+--THUS--
+     add to end of tr-defs.h
+/* These are the thresholds for where apparent sorrow processing bonuses
+ * kick in (see player_process_ap_sorrow() in player.c)
+ * 18, 18, and 15 are all guesses
+ */
+
+#define TR_WIS_BONUS 18
+#define TR_CON_BONUS 18
+#define TR_CLEV_BONUS 15
+
+/* Every turn the player can, he/she/? loses 1 apparent sorrow 
+ * (see player.c / player_process_ap_sorrow() 
+ */
+
+#define TR_AP_SOR_PROC_BASE 1
+
+   new code to keep to player_gain/lose_ap_sorrow() format:
+
+--THUS--
+    add to player.c in [TR] section
+/* [TR] process apparent sorrow */
+void player_process_ap_sorrow(struct player *p)
+{
+        int dec = 0; /* decrement */
+
+        /* apply bonuses */
+        if(randint0(p->stat_cur[STAT_WIS]) > TR_WIS_BONUS)
+                dec++;
+        if(randint0(p->stat_cur[STAT_CON]) > TR_CON_BONUS)
+                dec++;
+        if(randint0(50 - p->lev) > TR_CLEV_BONUS)
+                dec++;
+
+        /* everyone gets this */
+        dec += TR_AP_SOR_PROC_BASE;
+
+        player_lose_ap_sorrow(p, dec);
+}
+
+--THUS--
+      ibid.
+/* [TR] lose apparent sorrow */
+void player_lose_ap_sorrow(struct player *p, s32b amount)
+{
+        p->ap_sorrow -= amount;
+        if (p->ap_sorrow < 0)
+                p->ap_sorrow = 0;
+        handle_stuff(p);
+}
+
+--THUS--
+     ibid.
+/* [TR] lose hidden sorrow */
+void player_lose_hidden_sorrow(struct player *p, s16b amount)
+{
+        p->hid_sorrow -= amount;
+        if (p->hid_sorrow < 0)
+                p->hid_sorrow = 0;
+        handle_stuff(p);
+}
+
+
+4. something like
+if(!ap_sorrow)
+  hid_sorrow -= (rand_int(HID_RECOVER) == 0);
+/* HID_RECOVER could be 1000 */
+
+--THUS--
+    add to process_world(), in [TR] section
+        /* Decrease hidden sorrow */
+        if(!player->ap_sorrow)
+                if(!randint0(TR_HID_SORROW_RECOVER))
+                        player_lose_hidden_sorrow(player, 1);
+
+  add HID_SORROW_RECOVER to defines
+--THUS--
+    add to tr-defs.h
+
+/* How long does it take on average for hidden sorrow to decrease, when 
+ * apparent sorrow is gone? see game-world.c / process_world()
+ */
+
+#define TR_HID_SORROW_RECOVER 1000
+
+
+6. something like
+if (Morgoth is dead),
+  deep_sorrow -= (deep_decrement() (start with whatever ap_sorrow's
+  decrement is));
+
+   make a function called player_process_deep_sorrow()
+
+--THUS--
+       add to player.c after player_process_ap_sorrow()
+/* [TR] process deep sorrow */
+void player_process_deep_sorrow(struct player *p)
+{
+        int dec = 0; /* decrement */
+
+        /* apply bonuses */
+        if(randint0(p->stat_cur[STAT_WIS]) > TR_WIS_BONUS)
+                dec++;
+        if(randint0(p->stat_cur[STAT_CON]) > TR_CON_BONUS)
+                dec++;
+        if(randint0(50 - p->lev) > TR_CLEV_BONUS)
+                dec++;
+
+        /* everyone gets this */
+        dec += TR_AP_SOR_PROC_BASE;
+
+        player_lose_deep_sorrow(p, dec);
+}
+
+     how do we know if Morgoth is dead?
+     player->total_winner looks promising
+     Yes, this looks like what I want
+     
+--THUS--
+    add to game-world.c / process_world() in [TR] section
+	/* Process deep sorrow */
+	if(player->total_winner)
+		player_process_deep_sorrow(player);
+
+
+
+[SENTENCE 7]
+
+Deepest sorrow is hidden and cumulative and increments proportionally to  
+both apparent sorrow and hidden sorrow.
+
+1. Find the code for taking turns
+
+   game-world.c / process_world()
+
+2. something like
+deep_sorrow += (rand_int(DEEP_AP_INC) < ap_sorrow);
+  /* DEEP_AP_INC could be 1000 */
+deep_sorrow += (rand_int(DEEP_HID_INC) < hid_sorrow);
+  /* DEEP_HID_INC could be 100 */
+
+--THUS--
+   add to process_world(), in [TR] section
+        /* Increment deep sorrow */
+        if(randint0(TR_DEEP_AP_INC) < player->ap_sorrow)
+                player_gain_deep_sorrow(player, 1);
+        if(randint0(TR_DEEP_HID_INC) < player->hid_sorrow)
+                player_gain_deep_sorrow(player, 1);
+
+   and
+--THUS--
+    add to tr-defs.h
+/* Thresholds for deep sorrow to become likely to increment (guesses, both)
+ * based on level of apparent sorrow and hidden sorrow.  See game-world.c /
+ * process_world().
+ */
+
+#define TR_DEEP_AP_INC 1000
+#define TR_DEEP_HID_INC 100
+
+
+[SENTENCE 8]
+
+(It's signaled with the occasional message such as "You feel melancholy."
+"You feel an overall weariness."  "For a moment, there is no future.")
+
+1. Find the turn taking code.
+
+  game-world.c / process_world()
+
+2. something like
+if(!rand_int(50000))
+  message "(message appropriate to level of deepest sorrow)"
+
+--THUS--
+    add to process_world() in [TR] section
+        /* Signal deep sorrow */
+        if(randint0(TR_DEEP_SORROW_OUTCRY_INTERVAL)
+                deep_outcry_msg(player->deep_sorrow);
+
+
+  and
+
+--THUS--
+      add a function to game-world.c, [TR] section, after outcry_msg()
+/**
+ * [TR] Outcry indicating elevated deep sorrow
+ */
+
+void deep_outcry_msg(s16b deep_sorrow);
+{
+switch(deep_outcry_level(deep_sorrow))  {
+	case 0:
+	{
+		msg("You feel melancholy.");
+		break;
+	}
+	case 1:
+	{
+		msg("You feel an overall weariness.");
+		break;
+	}
+	case 2:
+	{
+		msg("You feel a faint, deep ache.");
+		break;
+	}
+	case 3:
+	{
+		msg("You are troubled.");
+		break;
+	}
+	case 4:
+	{
+		msg("You pause, and then rouse yourself to keep going.");
+		break;
+	}
+	case 5:
+	{
+		msg("For a moment, there is no future.");
+		break;
+	}
+	default:
+	{
+		break;
+	}
+}
+===============Digression=========================
+   uh oh, I think I need to change ap_sorrow, hid_sorrow, deep_sorrow to 
+     signed so that subtraction doesn't break
+--THUS--
+  in player.h
+        s32b ap_sorrow;         /* [TR] Apparent sorrow */
+        s16b hid_sorrow;        /* [TR] Hidden sorrow */
+        s16b deep_sorrow;       /* [TR] Deep sorrow */
+
+   should check tr-defs.h
+--THUS--
+       in tr-defs.h, modify code as follows
+/* maximum apparent sorrow
+ * (2^31)/2 == 1073741824
+ * this limit is based on player->ap_sorrow being s32b
+ * more headroom than is necessary
+ */
+#define MAX_AP_SORROW 1073741824
+
+/* maximum hidden sorrow
+ * (2^15)/2
+ * this limit is based on player->hid_sorrow being s16b
+ * more headroom than is necessary
+ */
+
+#define MAX_HID_SORROW 16384
+
+/* maximum deep sorrow
+ * (2^15)/2
+ * this limit is based on player->deep_sorrow being u16b
+ * more headroom than is necessary
+ */
+
+#define MAX_DEEP_SORROW 16384
+===========================================
+
+
+
+    and the function to find deep outcry level
+--THUS--
+       add to game-world.c, right before deep_outcry_msg()
+
+
+/**
+ * [TR] Levels of deep sorrow
+ */
+
+int deep_outcry_level(s16b deep_sorrow)
+{
+	if(!deep_sorrow)
+		return(-1);
+	if(deep_sorrow < ((TR_MAX_DEEP_SORROW / 6) * 1)
+		return(0);
+	if(deep_sorrow < ((TR_MAX_DEEP_SORROW / 6) * 2)
+		return(1);
+	if(deep_sorrow < ((TR_MAX_DEEP_SORROW / 6) * 3)
+		return(2);
+	if(deep_sorrow < ((TR_MAX_DEEP_SORROW / 6) * 4)
+		return(3);
+	if(deep_sorrow < ((TR_MAX_DEEP_SORROW / 6) * 5)
+		return(4);
+	if(deep_sorrow < ((TR_MAX_DEEP_SORROW / 6) * 6)
+		return(5);
+
+	return(-1);
+}       
+
+
+3. something like
+if(morgoth_dead && deep_sorrow == 1)
+  { 
+  message "You feel a feeling of release.  (You can retire now.)"
+  deep_sorrow = 0;
+  }
+
+  rewrite
+--THUS--
+   add to game-world.c / process_world()
+        /* Done with deep sorrow */
+        if(player->total_winner && !player->deep_sorrow && !player->done) {
+                msg("You feel a feeling of release.  (You can retire now.)");
+                player->done = 1;
+        }
+
+   appropriate code in player.h
+--THUS--
+    add to player.h in struct player
+        u16b done;              /* [TR] Is the player done with deep sorrow and$
+
+   add an "un done" check to player_gain_deep_sorrow()
+   oh, looks like player_gain_deep_sorrow() doesn't exist
+--THUS--
+    add to player.c, in [TR] section
+/* [TR] gain deep sorrow */
+void player_gain_deep_sorrow(struct player *p, s16b amount)
+{
+        p->deep_sorrow += amount;
+        if (p->hid_deep > TR_MAX_DEEP_SORROW)
+                p->hid_sorrow = TR_MAX_DEEP_SORROW;
+        if(p->done) {   
+                msg("You feel a shadow pass over you.");
+                p->done = 0;
+        }
+        handle_stuff(p);
+}
+
+
+
+
+[SENTENCE 9] -- put off for later, for now avg_xp_wait = TR_AVG_XP_WAIT
+
+Let players set avg_xp_wait at character creation
+
+1. Find the file responsible for character creation.
+2. Find where to insert a new dialog option.
+3. Add a dialog option saying something like
+"XP Wait = ? (higher equals more difficult game)"
+4. Store player response in avg_xp_wait, according to how other dialog 
+options at character creation time are stored.
+
+
+
+[SENTENCE 10] -- same
+
+have it print in character dumps
+
+1. Find the file responsible for character creation.
+2. Find the code for character dumps.
+3. Find a place in the dump to put the "XP Wait"
+4. add something like
+sprintf(dump_str, "XP Wait: %d\n", avg_xp_wait);
+
+
+
+[SENTENCE 11] -- same
+
+and high scores.
+
+1. Find the file that generates high scores.
+2. Find the part that generates high scores.
+3. Find a place to add "XP Wait: ..."
+4. add something like
+sprintf(hiscore_str, "XP Wait: %d\n", avg_xp_wait);
+
+[SENTENCE 11.5]
+
+avg_xp_wait = TR_AVG_XP_WAIT
+
+  let's make it really simple and use TR_AVG_XP_WAIT instead of avg_xp_wait
+
+--THUS--
+    [edited earlier code in Sentence 2 to reflect change]
+
+[SENTENCE 12]
+
+If a player kills a monster, they accumulate sorrow.
+
+1. Find the file that handles killing monsters.
+
+  grep player_exp_gain
+  mon-util.c looks good
+  
+2. Find the part where monsters get killed.
+  
+  mon_take_hit()
+
+3. Perhaps at the point where XP is granted, insert something like:
+last_kill_sorrow = kill_sorrow(monster);
+ap_sorrow += last_kill_sorrow;
+4. kill_sorrow() contains something like this:
+convert variables to floating point
+sorrow = ((base_xp(Morgoth) * sorrow_coef) / base_xp(monster)) * 
+  sorrow_mult(monster);
+convert sorrow to integer
+return(sorrow);
+5. sorrow_mult returns float and multiplies the different multipliers that 
+go along with the given monster killed (multipliers greater than or less 
+than 1, prob. no greater than 2 or less than 0.1)
+
+  simplistic first attempt at 3 - 5
+
+--THUS--
+  add to mon-util.c, before mon_hit()
+/* [TR] How much apparent sorrow comes from killing a monster? */
+u16b ap_sorrow_from(struct monster *mon, struct player *player)
+{
+        u16b ap_sorrow_return;
+        
+        ap_sorrow_return = (TR_UNSAD_XP / (mon->race->mexp + (!mon->race->mexp))) / TR_SORROW_DIV;
+        return(ap_sorrow_return);
+}
+
+--THUS--
+   insert in mon_take_hit(), right before 
+     player_exp_gain(player, new_exp);
+                /* [TR] gain apparent sorrow */
+                player_gain_ap_sorrow(player, ap_sorrow_from(mon, player));
+
+--THUS--
+    add to tr-defs.h
+
+/* Any monster with base XP (from monster.txt) higher than this causes no
+ * apparent sorrow gain when player kills it.  60000 is base XP of Morgoth.
+ * See mon-util.c
+ */
+#define TR_UNSAD_XP 60000
+
+/* The amount of ap_sorrow incurred by killing a monster is given by
+ * (TR_UNSAD_XP / (monster base XP + 1)) / TR_SORROW_DIV  
+ */
+
+#define TR_SORROW_DIV 100
+
+
+[SENTENCE 13]
+
+You can no longer incur apparent sorrow,
+
+and can only kill monsters that would have incurred sorrow below a certain
+threshold.
+
+1. Find the code for killing monsters.
+2. add something like
+if(morgoth_dead && (kill_sorrow(monster) > KILL_SORROW_THRESHOLD))
+  set flag in monster struct for "can't target, trade places when moving 
+  into their tile"
+3. Find the monster struct.
+4. add a flag for "can't target, trade places when moving into their tile"
+5. Find the code for incurring apparent sorrow.
+6. add something like
+if(!morgoth_dead)
+  incur apparent sorrow
+
+   sounds complicated, leave for a later version
+        
+[SENTENCE 14]
+
+You can't attack monsters that can't attack you.
+
+1. Find code for attacking monsters
+2. something like
+if(morgoth_dead && monster.wont_attack)
+  monster.dont_attack = 1;
+
+  leave for later version
+
+
+
+
+
+
+[SENTENCE 16]
+
+Apparent sorrow is what the player sees, both as a number 
+
+1. Find the file that draws the screen.
+
+   what are some characteristic words that appear on screen, to grep for?
+   NXT, LEVEL, AU are promising
+   grep NXT *.c yields ui-display.c
+
+2. Find the part where the screen is drawn.
+   
+
+3. Find a place on the screen for "Sorrow: ..."
+   call it "AS"
+
+4. Add code such as
+sprintf(scr_str, "Sorrow: %d", ap_sorrow);
+
+  looks like things are modular in ui-display.c
+
+--THUS--
+       add to ui-display.c, before monster_health_attr()
+
+/**
+ * [TR] Prints apparent sorrow
+ */
+static void prt_ap_sorrow(int row, int col)
+{
+        char cur_ap_sorrow[32];
+        byte color;
+
+
+        put_str("AS", row, col);
+        
+        if(player->ap_sorrow <= 0)
+                color = COLOUR_L_GREEN;
+        else
+                color = COLOUR_YELLOW;
+
+        strnfmt(cur_ap_sorrow, sizeof(cur_ap_sorrow), "%8d", player->ap_sorrow);
+
+        c_put_str(color, cur_ap_sorrow, row, col + 3);
+
+}
+
+   looks like the printing functions are organized in struct side_handler_t
+     (in ui-display.c)
+   good, looks like there's space to put "AS" (apparent sorrow)
+   Reference made to EVENT_AC (etc), looks like I need to make up one of 
+     those for AS.  Where are those defined?
+   game-event.h
+   was expecting a #define, but looks like there's no such thing
+   will try the following, see if it works
+
+--THUS--
+      in ui-display.c, modify
+
+static game_event_type player_events[] =
+{
+        EVENT_RACE_CLASS,
+        EVENT_PLAYERTITLE,
+        EVENT_EXPERIENCE,
+        EVENT_PLAYERLEVEL,
+        EVENT_GOLD,
+        EVENT_EQUIPMENT,  /* For equippy chars */
+        EVENT_STATS,
+        EVENT_HP,
+        EVENT_MANA,  
+        EVENT_AC,
+        EVENT_AP_SORROW, /* [TR] */
+
+        EVENT_MONSTERHEALTH,
+
+        EVENT_PLAYERSPEED,
+        EVENT_DUNGEONLEVEL,
+};
+
+   now put the prt_ap_sorrow in the handlers table
+   it needs a priority (for if/when screen is less than 24 char tall)
+   let's make it one more than mana (one lower priority): 10
+   remove a NULL entry
+   renumber everything below 10
+   
+--THUS--
+       in ui-display.c modify side_handler_t
+/**
+ * Struct of sidebar handlers.
+ */
+static const struct side_handler_t
+{
+        void (*hook)(int, int);  /* int row, int col */
+        int priority;            /* 1 is most important (always displayed) */
+        game_event_type type;    /* PR_* flag this corresponds to */
+} side_handlers[] = {
+        { prt_race,      20, EVENT_RACE_CLASS },
+        { prt_title,     19, EVENT_PLAYERTITLE },
+        { prt_class,     22, EVENT_RACE_CLASS },
+        { prt_level,     11, EVENT_PLAYERLEVEL },
+        { prt_exp,       17, EVENT_EXPERIENCE },
+        { prt_gold,      12, EVENT_GOLD },
+        { prt_equippy,   18, EVENT_EQUIPMENT },
+        { prt_str,        6, EVENT_STATS },
+        { prt_int,        5, EVENT_STATS },
+        { prt_wis,        4, EVENT_STATS },
+        { prt_dex,        3, EVENT_STATS },
+        { prt_con,        2, EVENT_STATS },
+        { NULL,          16, 0 },
+        { prt_ac,         7, EVENT_AC },
+        { prt_hp,         8, EVENT_HP },
+        { prt_sp,         9, EVENT_MANA },
+        { prt_ap_sorrow, 10, EVENT_AP_SORROW },  /* [TR] */
+        { NULL,          21, 0 },
+        { prt_health,    13, EVENT_MONSTERHEALTH },
+        { NULL,          22, 0 },
+        { prt_speed,   14, EVENT_PLAYERSPEED }, /* Slow (-NN) / Fast (+NN) */
+        { prt_depth,   15, EVENT_DUNGEONLEVEL }, /* Lev NNN / NNNN ft */
+};
+
+
+
+
+[SENTENCE 16.5]
+
+and as messages.
+
+1. Find the file that prints messages.
+
+  mon-util.c / mon_take_hit() could be a starting place
+
+2. Find the part that decides what message to print.
+3. Print a message proportional to last_kill_sorrow.
+
+--THUS--
+      add to mon-util.c in [TR] section
+/**
+ * [TR] Levels of apparent sorrow from a kill, based on monster base XP
+ */
+
+int ap_outcry_level(s16b mexp)
+{
+	if(sorrow < ((TR_UNSAD_XP / 6) * 1)
+		return(5);
+	if(sorrow < ((TR_UNSAD_XP / 6) * 2)
+		return(4);
+	if(sorrow < ((TR_UNSAD_XP / 6) * 3)
+		return(3);
+	if(sorrow < ((TR_UNSAD_XP / 6) * 4)
+		return(2);
+	if(sorrow < ((TR_UNSAD_XP / 6) * 5)
+		return(1);
+	if(sorrow < ((TR_UNSAD_XP / 6) * 6)
+		return(0);
+
+	return(-1);
+}       
+
+
+    and
+
+---THUS--
+       add to mon-util.c in [TR] section
+/**
+ * [TR] Outcry on monster death
+ */
+
+void ap_outcry_msg(s16b mexp);
+{
+switch(ap_outcry_level(mexp))  {
+        case 0:
+        {
+                msg("You mourn.");
+                break;
+        }
+        case 1:
+        {
+                msg("You feel an inner grief.");
+                break;
+        }
+        case 2:
+        {
+                msg("You choke up.");
+                break;
+        }
+        case 3:
+        {
+                msg("You weep.");
+                break;
+        }
+        case 4:
+        {
+                msg("You weep and curse.");
+                break;
+        }
+        case 5:
+        {
+                msg("You are beside yourself with grief.");
+                break;
+        }
+        default:
+        {
+                break;
+        }
+}
+
+   and
+
+--THUS--
+      add to mon-util.c / mon_take_hit() in [TR] section
+               /* [TR] outcry over monster */
+                ap_outcry_msg(mon->race->mexp);
+
+
+
+[SENTENCE 17]
+
+Time passes for the player as well as the character, so resting and
+running are disabled.
+
+1. Find where resting and running occur.
+2. Disable them.
+
+  maybe not the best idea; leave for later version, maybe
+
+
+
+[SENTENCE 18]
+
+You still get a little sorrow for killing Morgoth, but the message you
+get is that "You are at peace".
+
+1. Find message code for monster death sorrow messages.
+2. Make a special case for Morgoth that says "You are at peace."
+
+   not sure this is necessary; will consider in later version, maybe
+
+
+
+[SENTENCE 19]
+
+After you kill Morgoth, all the monsters don't attack anymore, except for
+beings that wouldn't get the memo that the Dark Lord was dead, such as
+molds, mushrooms, animals, etc.  But evil is broken, so evil molds (or
+animals? can't remember if there are any) become peaceful.
+
+1. Find the code for monster behavior.
+2. Add a special case like so:
+if(morgoth_dead && (((monster_type != ANIMAL) || (monster_type != MOLD) 
+(etc.)) && (monster_type != EVIL))
+  set flag for wont_attack in monster struct
+3. Find monster struct; add wont_attack flag.
+4. In code for monster attack
+if(monster.wont_attack)
+  ;
+  (or in later pass w/ more color, add do_nice_attack(), like bowing, 
+  talking, or touching, make messages w/ no other effect)
+else
+  business as usual
+
+   later version, maybe
+
+
+
+[SENTENCE 15]
+
+There are two sorrow variables, apparent sorrow, and hidden sorrow.  
+(Later a third, deepest sorrow)
+
+1. Find the file that initializes player variables.
+  
+  rabbit trail
+  grep for "[Initialization complete]" message from startup screen?
+  whoa, let's try omitting the square brackets
+
+  ok, ui-init.c
+
+  doesn't look too helpful
+
+  let's try player-birth.c
+  OK, player_generate() looks like as good a spot as any
+
+
+2. Find the file that defines the player struct or equivalent.
+
+  player.h
+
+3. Add apparent sorrow (ap_sorrow) and hidden sorrow (hid_sorrow) and 
+deepest sorrow (deep_sorrow) to both.
+
+  player.h already taken care of, so we just initialize
+  while we're at it, add all the variables added to player struct
+
+
+--THUS--
+        add to player-birth.c / player_generate()
+
+        /* [TR] sorrow related variables */
+        p->ap_sorrow = 0;
+        p->hid_sorrow = 0;
+        p->deep_sorrow = 0;
+        p->townperson_timer = 0;
+        p->sorrow_disturb = 0;
+        p->done = 0;
+
+
+
+    hopefully that works
+
+
+
+
+[SENTENCE 15.5]
+
+(Add new variables introduced by TR to save/load code)
+
+1. Find where saving is done.
+
+  player is saved in save.c / wr_player()
+
+2. Find where loading is done.
+
+  player is loaded from load.c / rd_player()
+
+3. Add new variables to saving / loading code.
+
+  compare order of wr_'s and rd_'s between save and load code
+  looks like it's the same
+  
+  so let's add the variables from struct player
+
+--THUS--
+      add to save.c / wr_player(), after the line about csp_frac
+        /* [TR] variables */
+
+        wr_s32b(player->ap_sorrow);
+        wr_s16b(player->hid_sorrow);
+        wr_s16b(player->deep_sorrow);
+        wr_u16b(player->townperson_timer);
+        wr_u16b(player->sorrow_disturb);
+        wr_u16b(player->done);
+
+--THUS-- 
+         add to load.c / rd_player() after csp_frac line
+        /* [TR] variables */
+        rd_s32b(player->ap_sorrow);
+        rd_s16b(player->hid_sorrow);
+        rd_s16b(player->deep_sorrow);
+        rd_u16b(player->townperson_timer);
+        rd_u16b(player->sorrow_disturb);
+        rd_u16b(player->done);
+
+        /* Max Player and Dungeon Levels */
+        rd_s16b(&player->max_lev);
+        rd_s16b(&player->max_depth);
+
+  [the last section with the heading spelled out like in save.c]
+
+  uh oh, there are entries that say they're padding
+  how does that affect things?
+
+  not sure, I'll try doing things the easy way and see what happens
+
+  or maybe look it up online
+
+  http://trac.rephial.org/wiki/SavefileHowTo
+  hopefully this is valid for this version
+
+  no, it looks like it's not
+  I guess I'll keep trying the easyway/"guess and check" method  
+
+
+[TODO 1] 
+
+change winning message so it doesn't say "commit suicide"
+(while we're at it, change quitting so it isn't supposed to be suicide
+
+1. grep for all suicide in *.c
+2. change all references that player sees
+
+--THUS--
+    in player-quest.c / quest_check()
+        /* Nothing left, game over... */
+        if (total == 0) {
+                player->total_winner = true;
+                player->upkeep->redraw |= (PR_TITLE);
+                msg("*** CONGRATULATIONS ***");
+                msg("You have won the game!");
+                msg("You may retire when you are ready.");
+        }
+
+
+--THUS--
+    in ui-game.c
+/**
+ * Utility/assorted commands
+ */
+struct cmd_info cmd_util[] =
+{
+        { "Interact with options", { '=' }, CMD_NULL, do_cmd_xxx_options, NULL },
+
+        { "Save and don't quit", { KTRL('S') }, CMD_NULL, save_game, NULL },
+        { "Save and quit", { KTRL('X') }, CMD_NULL, textui_quit, NULL },
+        { "Give up and quit", { 'Q' }, CMD_NULL, textui_cmd_suicide, NULL },
+        { "Redraw the screen", { KTRL('R') }, CMD_NULL, do_cmd_redraw, NULL },
+
+        { "Save \"screen dump\"", { ')' }, CMD_NULL, do_cmd_save_screen, NULL }
+};
+
+
+
+--THUS--
+    in ui-signals.c / handle_signal_simple()
+                /* Display the cause */
+                Term_putstr(0, 0, -1, COLOUR_WHITE, "Contemplating giving up!");
+
+
+  hopefully that's all of them
+
+
+[TODO 2] 
+
+prepend all defines from tr-defs.h with TR_ 
+
+1. prepend them in tr-defs.h
+
+  DEPTH_XP_MULT
+  AP_BREAKING_PT
+  MAX_AP_SORROW
+  MAX_HID_SORROW
+  MAX_DEEP_SORROW
+  OUTCRY_PT
+  HID_BREAKING_PT
+  AP_SOR_PROC_BASE
+  HID_SORROW_RECOVER
+  DEEP_AP_INC
+  DEEP_HID_INC
+
+
+2. prepend them everywhere else
+
+  [Reflected in this file, corrected above]

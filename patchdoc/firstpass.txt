@@ -1,0 +1,255 @@
+Angband-4.1.0-tr ("Angband tragic?") "metapatch"
+
+First pass, reorganized
+
+This file contains the first pass specification-beginning from 
+metapatch.txt, reorganized in a somewhat logical order for executing
+more specifically.
+
+This is most likely what people would use when porting this patch to other 
+variants, unless those variants are closely related to vanilla 4.1.0
+
+FIRST PASS
+
+Spending time in the dungeon gives XP, greater at greater depths.
+
+1. Find the file where turns are taken.
+2. Every turn, run something like the following:
+if(rand_int(avg_xp_wait) == 0)
+  xp = xp + (xp_of(depth));
+
+If you don't process apparent sorrow, it turns into hidden sorrow.
+
+1. Find the file where turns are taken.
+2. Find where turns are taken.
+3. Add something like
+convert variables to float
+hid_up_prob = log(fl_ap_sorrow) / AP_BREAKING_PT;  
+  /* AP_BREAKING_PT could be 10 (ap_sorrow threshold near 10,000) */
+if(hid_up_prob >= 1.0)
+  make a special, dire message /* if this is a legal place to do this */
+hid_up_prob_int = hid_up_prob * 100
+if(rand_int(100) < hid_up_prob_int)
+  hid_sorrow++;
+
+
+Very occasionally a message might show up hinting at what lies beneath
+(hidden sorrow)
+
+1. Find the file where turns are taken / where in there turns are taken.
+2. Add something like:
+if(rand_int(hid_sorrow) > rand_int(OUTCRY_PT)) 
+  /* OUTCRY_PT could be 10000 */
+ make an appropriate intrusive thought or flashback message
+
+
+If hidden sorrow gets high enough, it increases the risk of a shutdown.
+
+1. Find the file where turns are taken / where in file.
+2. Add something like:
+if(rand_int(hid_sorrow) > HID_BREAKING_PT) 
+  /* HID_BREAKING_PT could be 1000 */
+  init_shutdown();
+3. init_shutdown could be something like
+message something like "You cry out to Eru Illuvatar to save you from this
+life."  "There is an inaudible silence."
+execute code from word of recall scroll
+set a timer for the turn taker function to trigger in town, later, to 
+become_townie()
+
+
+In town, become a townie.
+
+1. in turn taker function
+2. something like
+if(townie_timer)
+  {
+  if(rand_int(300) < townie_timer)
+    become_townie();
+  townie_timer++;
+  }
+3. become_townie()
+select a random townsfolk identity
+does a flashy thing going between @ and t until only t remains
+player can press buttons but the t does whatever it will do
+after a number of turns, the game is over
+display "You live a quiet life in the town, watching others descend to do 
+the task that once consumed you."
+
+
+Processing takes the form of passing time in the dungeon or town
+without being in line of sight of a monster.
+
+1. Find where turns are taken
+2. Borrow code from resting/running for detecting monsters
+3. if resting / running permitted, then decrement ap_sorrow (by 1?  or
+a higher number to be determined? maybe it depends on wisdom, xp, con, 
+and race?)
+4. something like
+if(!ap_sorrow)
+  hid_sorrow -= (rand_int(HID_RECOVER) == 0);
+/* HID_RECOVER could be 1000 */
+6. something like
+if (Morgoth is dead),
+  deep_sorrow -= (deep_decrement() (start with whatever ap_sorrow's
+  decrement is));
+
+Deepest sorrow is hidden and cumulative and increments proportionally to  
+both apparent sorrow and hidden sorrow.
+
+1. Find the code for taking turns
+2. something like
+deep_sorrow += (rand_int(DEEP_AP_INC) < ap_sorrow);
+  /* DEEP_AP_INC could be 1000 */
+deep_sorrow += (rand_int(DEEP_HID_INC) < hid_sorrow);
+  /* DEEP_HID_INC could be 100 */
+
+
+(It's signaled with the occasional message such as "You feel melancholy."
+"You feel an overall weariness."  "For a moment, there is no future.")
+
+1. Find the turn taking code.
+2. something like
+if(!rand_int(50000))
+  message "(message appropriate to level of deepest sorrow)"
+3. something like
+if(morgoth_dead && deep_sorrow == 1)
+  { 
+  message "You feel a feeling of release.  (You can retire now.)"
+  deep_sorrow = 0;
+  }
+
+
+
+Let players set avg_xp_wait at character creation
+
+1. Find the file responsible for character creation.
+2. Find where to insert a new dialog option.
+3. Add a dialog option saying something like
+"XP Wait = ? (higher equals more difficult game)"
+4. Store player response in avg_xp_wait, according to how other dialog 
+options at character creation time are stored.
+
+
+
+have it print in character dumps
+
+1. Find the file responsible for character creation.
+2. Find the code for character dumps.
+3. Find a place in the dump to put the "XP Wait"
+4. add something like
+sprintf(dump_str, "XP Wait: %d\n", avg_xp_wait);
+
+
+
+and high scores.
+
+1. Find the file that generates high scores.
+2. Find the part that generates high scores.
+3. Find a place to add "XP Wait: ..."
+4. add something like
+sprintf(hiscore_str, "XP Wait: %d\n", avg_xp_wait);
+
+
+
+If a player kills a monster, they accumulate sorrow.
+
+1. Find the file that handles killing monsters.
+2. Find the part where monsters get killed.
+3. Perhaps at the point where XP is granted, insert something like:
+last_kill_sorrow = kill_sorrow(monster);
+ap_sorrow += last_kill_sorrow;
+4. kill_sorrow() contains something like this:
+convert variables to floating point
+sorrow = ((base_xp(Morgoth) * sorrow_coef) / base_xp(monster)) * 
+  sorrow_mult(monster);
+convert sorrow to integer
+return(sorrow);
+5. sorrow_mult returns float and multiplies the different multipliers that 
+go along with the given monster killed (multipliers greater than or less 
+than 1, prob. no greater than 2 or less than 0.1)
+
+You can no longer incur apparent sorrow,
+
+and can only kill monsters that would have incurred sorrow below a certain
+threshold.
+
+1. Find the code for killing monsters.
+2. add something like
+if(morgoth_dead && (kill_sorrow(monster) > KILL_SORROW_THRESHOLD))
+  set flag in monster struct for "can't target, trade places when moving 
+  into their tile"
+3. Find the monster struct.
+4. add a flag for "can't target, trade places when moving into their tile"
+5. Find the code for incurring apparent sorrow.
+6. add something like
+if(!morgoth_dead)
+  incur apparent sorrow
+
+
+You can't attack monsters that can't attack you.
+
+1. Find code for attacking monsters
+2. something like
+if(morgoth_dead && monster.wont_attack)
+  monster.dont_attack = 1;
+
+
+There are two sorrow variables, apparent sorrow, and hidden sorrow.  
+(Later a third, deepest sorrow)
+
+1. Find the file that initializes player variables.
+2. Find the file that defines the player struct or equivalent.
+3. Add apparent sorrow (ap_sorrow) and hidden sorrow (hid_sorrow) and 
+deepest sorrow (deep_sorrow) to both.
+
+
+Apparent sorrow is what the player sees, both as a number and as messages.
+
+1. Find the file that draws the screen.
+2. Find the part where the screen is drawn.
+3. Find a place on the screen for "Sorrow: ..."
+4. Add code such as
+sprintf(scr_str, "Sorrow: %d", ap_sorrow);
+
+1. Find the file that prints messages.
+2. Find the part that decides what message to print.
+3. Print a message proportional to last_kill_sorrow.
+
+
+
+
+Time passes for the player as well as the character, so resting and
+running are disabled.
+
+1. Find where resting and running occur.
+2. Disable them.
+
+
+You still get a little sorrow for killing Morgoth, but the message you
+get is that "You are at peace".
+
+1. Find message code for monster death sorrow messages.
+2. Make a special case for Morgoth that says "You are at peace."
+
+
+After you kill Morgoth, all the monsters don't attack anymore, except for
+beings that wouldn't get the memo that the Dark Lord was dead, such as
+molds, mushrooms, animals, etc.  But evil is broken, so evil molds (or
+animals? can't remember if there are any) become peaceful.
+
+1. Find the code for monster behavior.
+2. Add a special case like so:
+if(morgoth_dead && (((monster_type != ANIMAL) || (monster_type != MOLD) 
+(etc.)) && (monster_type != EVIL))
+  set flag for wont_attack in monster struct
+3. Find monster struct; add wont_attack flag.
+4. In code for monster attack
+if(monster.wont_attack)
+  ;
+  (or in later pass w/ more color, add do_nice_attack(), like bowing, 
+  talking, or touching, make messages w/ no other effect)
+else
+  business as usual
+
+

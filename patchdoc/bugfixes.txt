@@ -1,0 +1,716 @@
+game-world.c: In function ‘ambient_xp_of’:
+game-world.c:467:1: warning: control reaches end of non-void function [-Wreturn-type]
+
+  looks like we need to add a return
+
+  looks like it has a return  
+
+  wait, no, more likely have to add tr-defs.h to the start of anything that 
+  needs them
+
+--THUS--
+       add to list of .h's at the beginning of the file
+#include "tr-defs.h"  /* TR */
+
+  seems to maybe fix it
+
+NEXT BUG:
+
+  void outcry_msg();
+    should be
+  void outcry_msg()
+
+NEXT BUG:
+  
+  outcry_msg() needs to be formatted right and that shows it's missing a }
+
+--THUS--
+void outcry_msg()
+{
+        switch(randint0(10))  {
+                case 0:
+                {
+                        msg("You can't stop thinking of the blood you've shed."$
+                        break;
+                }
+                case 1:
+                {
+                        msg("You break out in tears, not knowing why.");
+                        break;
+                }
+                case 2:
+                {
+                        msg("You shake with stress.");
+                        break;
+                }
+                case 3:
+                {
+                        msg("You have an awful feeling.");
+                        break;
+                }
+                case 4:
+                {
+                        msg("You want to shut down but force yourself to keep g$
+                        break;
+                }
+                case 5:
+                {
+                        msg("You're afraid to think freely.");
+                        break;
+                }
+                case 6:
+                {
+                        msg("You feel angry at the way things have to be.");
+                        break;
+                }
+                case 7:
+                {
+                        msg("You feel fine.");
+                        break;
+                }
+                case 8:
+                {
+                        msg("Your gut clenches.");
+                        break;
+                }
+                case 9:
+                {
+                        msg("You feel like you're 50 feet underwater.");
+                        break;
+                }
+                default:
+                {
+                        break;
+                }
+        }
+}
+
+
+  NEXT BUG
+
+in deep_outcry_level(), didn't close the if's with enough )'s
+
+--THUS--
+/**
+ * [TR] Levels of deep sorrow
+ */
+
+int deep_outcry_level(s16b deep_sorrow)
+{
+        if(!deep_sorrow)
+                return(-1);
+        if(deep_sorrow < ((TR_MAX_DEEP_SORROW / 6) * 1))
+                return(0);
+        if(deep_sorrow < ((TR_MAX_DEEP_SORROW / 6) * 2))
+                return(1);
+        if(deep_sorrow < ((TR_MAX_DEEP_SORROW / 6) * 3))
+                return(2);
+        if(deep_sorrow < ((TR_MAX_DEEP_SORROW / 6) * 4))
+                return(3);
+        if(deep_sorrow < ((TR_MAX_DEEP_SORROW / 6) * 5))
+                return(4);
+        if(deep_sorrow < ((TR_MAX_DEEP_SORROW / 6) * 6))
+                return(5);
+
+        return(-1);
+}       
+
+
+   NEXT BUG
+
+deep_outcry_msg() not properly indented, } missing
+
+--THUS--
+/**
+ * [TR] Outcry indicating elevated deep sorrow
+ */
+
+void deep_outcry_msg(s16b deep_sorrow)
+{
+        switch(deep_outcry_level(deep_sorrow))  {
+                case 0:
+                {
+                        msg("You feel melancholy.");
+                        break;
+                }
+                case 1:
+                {
+                        msg("You feel an overall weariness.");
+                        break;
+                }
+                case 2:
+                {
+                        msg("You feel a faint, deep ache.");
+                        break;
+                }
+                case 3:
+                {
+                        msg("You are troubled.");
+                        break;
+                }
+                case 4:
+                {
+                        msg("You pause, and then rouse yourself to keep going.");
+                        break;
+                }
+                case 5:
+                {
+                        msg("For a moment, there is no future.");
+                        break;
+                }
+                default:
+                {
+                        break;
+                }
+        }
+}
+
+
+   NEXT BUG
+
+   log() needs a .h
+
+ --THUS--
+     add to list of .h's at beginning of file
+#include "math.h" /* TR */
+
+    NEXT BUG
+
+   issues with casting w r t fl_ap_sorrow
+   proper syntax seems to work
+--THUS--
+    change to, in game-world.c / process_world()
+        /* Hidden sorrow gain */
+        fl_ap_sorrow = (float)player->ap_sorrow;
+        hid_inc_prob = log(fl_ap_sorrow) / TR_AP_BREAKING_PT;
+        if( hid_inc_prob >= 1.0 )
+                msg("You are surely overwhelmed.");
+        if( randint0(100) < (u16b)(hid_inc_prob * 100))
+                player_gain_hidden_sorrow(player, 1);
+
+   NEXT BUG
+   player_gain_hidden_sorrow() unknown in this file
+   should put it in the proper .h, along with all the other functions like it
+--THUS--
+     add to player.h, in /* player.c */ section    
+
+/* [TR] */
+void player_gain_ap_sorrow(struct player *p, s32b amount);
+void player_lose_ap_sorrow(struct player *p, s32b amount);
+void player_gain_hidden_sorrow(struct player *p, s16b amount);
+void player_lose_hidden_sorrow(struct player *p, s16b amount);
+void player_gain_deep_sorrow(struct player *p, s16b amount);
+void player_lose_deep_sorrow(struct player *p, s32b amount);
+void player_process_ap_sorrow(struct player *p);
+void player_process_deep_sorrow(struct player *p);
+
+
+  there might be other files to do this with, which we'll discover later
+
+   NEXT BUG
+game-world.c:726:14: error: ‘hid_sorrow’ undeclared (first use in this function)
+  if(randint0(hid_sorrow) > rand_int(TR_OUTCRY_PT))
+
+  add player-> to hid_sorrow
+--THUS--
+        /* Make an outcry */
+        if(randint0(player->hid_sorrow) > rand_int(TR_OUTCRY_PT))
+                outcry_msg();
+
+  NEXT BUG
+game-world.c:726:36: warning: implicit declaration of function ‘rand_int’ [-Wimplicit-function-declaration]
+  if(randint0(player->hid_sorrow) > rand_int(TR_OUTCRY_PT))
+
+   change to randint0
+--THUS--
+     /* Make an outcry */
+        if(randint0(player->hid_sorrow) > randint0(TR_OUTCRY_PT))
+                outcry_msg();
+
+   NEXT BUG
+game-world.c:731:3: error: too few arguments to function ‘player_process_ap_sorrow’
+   player_process_ap_sorrow();
+
+  add player
+--THUS--
+       /* Process apparent sorrow */
+        if(!player->sorrow_disturb)
+                player_process_ap_sorrow(player);
+
+
+   NEXT BUG
+game-world.c:752:14: error: ‘TR_DEEP_SORROW_OUTCRY_INTERVAL’ undeclared (first use in this function)
+  if(randint0(TR_DEEP_SORROW_OUTCRY_INTERVAL))
+
+  need to add it to tr-defs.h
+
+--THUS--
+     add to tr-defs.h
+/* How long between deep sorrow outcry messages on average, see game-world.c /
+ * process_world()
+ */
+
+#define TR_DEEP_SORROW_OUTCRY_INTERVAL 50000
+
+  NEXT BUG
+  lacking a )
+--THUS--
+   add to game-world.c / process_world()
+      /* Have a breakdown */
+        if(randint0(player->hid_sorrow) > TR_HID_BREAKING_PT)
+                begin_townperson();
+
+  NEXT BUG
+
+load.c:714:10: warning: passing argument 1 of ‘rd_s32b’ makes pointer from integer without a cast [-Wint-conversion]
+  rd_s32b(player->ap_sorrow);
+
+  rd_'s need &'s in front of player's
+
+--THUS--
+
+        /* [TR] variables */
+        rd_s32b(&player->ap_sorrow);
+        rd_s16b(&player->hid_sorrow);
+        rd_s16b(&player->deep_sorrow);
+        rd_u16b(&player->townperson_timer);
+        rd_u16b(&player->sorrow_disturb);
+        rd_u16b(&player->done);
+
+  NEXT BUG
+
+  mon-util.c needs to include tr-defs.h
+
+--THUS--
+  add to list of includes at top of mon-util.c
+#include "tr-defs.h" /* [TR] */
+
+  NEXT BUG
+mon-util.c: In function ‘ap_outcry_level’:
+mon-util.c:879:5: error: ‘sorrow’ undeclared (first use in this function)
+  if(sorrow < ((TR_UNSAD_XP / 6) * 1)
+
+  change sorrow to mexp
+--THUS--
+/**
+ * [TR] Levels of apparent sorrow from a kill, based on monster base XP
+ */
+
+int ap_outcry_level(s16b mexp)
+{
+        if(mexp < ((TR_UNSAD_XP / 6) * 1)
+                return(5);
+        if(mexp < ((TR_UNSAD_XP / 6) * 2)
+                return(4);
+        if(mexp < ((TR_UNSAD_XP / 6) * 3)
+                return(3);
+        if(mexp < ((TR_UNSAD_XP / 6) * 4)
+                return(2);
+        if(mexp < ((TR_UNSAD_XP / 6) * 5)
+                return(1);
+        if(mexp < ((TR_UNSAD_XP / 6) * 6)
+                return(0);
+
+        return(-1);
+}
+
+   NEXT BUG
+mon-util.c: In function ‘ap_outcry_level’:
+mon-util.c:880:3: error: expected ‘)’ before ‘return’
+   return(5);
+
+  need to add a ) to each line that needs it
+
+--THUS--
+/**
+ * [TR] Levels of apparent sorrow from a kill, based on monster base XP
+ */
+
+int ap_outcry_level(s16b mexp)
+{
+        if(mexp < ((TR_UNSAD_XP / 6) * 1))
+                return(5);
+        if(mexp < ((TR_UNSAD_XP / 6) * 2))
+                return(4);
+        if(mexp < ((TR_UNSAD_XP / 6) * 3))
+                return(3);
+        if(mexp < ((TR_UNSAD_XP / 6) * 4))
+                return(2);
+        if(mexp < ((TR_UNSAD_XP / 6) * 5))
+                return(1);
+        if(mexp < ((TR_UNSAD_XP / 6) * 6))
+                return(0);
+
+        return(-1);
+}
+
+  NEXT BUG
+
+mon-util.c:885:10: warning: comparison is always true due to limited range of data type [-Wtype-limits]
+  if(mexp < ((TR_UNSAD_XP / 6) * 4))
+
+   s16b is the wrong type for mexp
+
+--THUS--
+int ap_outcry_level(u16b mexp)
+{
+        if(mexp < ((TR_UNSAD_XP / 6) * 1))
+                return(5);
+        if(mexp < ((TR_UNSAD_XP / 6) * 2))
+                return(4);
+        if(mexp < ((TR_UNSAD_XP / 6) * 3))
+                return(3);
+        if(mexp < ((TR_UNSAD_XP / 6) * 4))
+                return(2);
+        if(mexp < ((TR_UNSAD_XP / 6) * 5))
+                return(1);  
+        if(mexp < ((TR_UNSAD_XP / 6) * 6))
+                return(0);
+
+        return(-1);
+}
+
+
+  NEXT BUG
+
+mon-util.c:901:1: error: expected identifier or ‘(’ before ‘{’ token
+ {
+
+  extra ;, BTW needs to chang s16b to u16b
+
+--THUS--
+/**
+ * [TR] Outcry on monster death
+ */
+
+void ap_outcry_msg(u16b mexp)
+{
+switch(ap_outcry_level(mexp))  {
+        case 0:
+        {
+                msg("You mourn.");
+                break;
+        }
+        case 1:
+        {
+                msg("You feel an inner grief.");
+                break;
+        }
+        case 2:
+        {
+                msg("You choke up.");
+                break;
+        }
+        case 3:
+        {
+                msg("You weep.");
+                break;
+        }
+        case 4:
+        {
+                msg("You weep and curse.");
+                break;
+        }
+        case 5:
+        {
+                msg("You are beside yourself with grief.");
+                break;
+        }
+        default:
+        {
+                break;
+        }
+}
+
+  NEXT BUG
+
+mon-util.c: In function ‘ap_outcry_msg’:
+mon-util.c:1146:1: warning: ISO C forbids nested functions [-Wpedantic]
+ void monster_take_terrain_damage(struct monster *mon)
+
+   not indented right, missing }
+
+--THUS--
+void ap_outcry_msg(u16b mexp) 
+{
+        switch(ap_outcry_level(mexp))  {
+                case 0:
+                {
+                        msg("You mourn.");
+                        break;
+                }
+                case 1:
+                {
+                        msg("You feel an inner grief.");
+                        break;
+                }
+                case 2:
+                {
+                        msg("You choke up.");
+                        break;
+                }
+                case 3:
+                {
+                        msg("You weep.");
+                        break;
+                }
+                case 4:
+                {
+                        msg("You weep and curse.");
+                        break;
+                }
+                case 5:
+                {
+                        msg("You are beside yourself with grief.");
+                        break;
+                }
+                default:
+                {
+                        break;
+                }
+        }
+}
+
+
+  NEXT BUG
+player.c: In function ‘player_gain_ap_sorrow’:
+player.c:270:28: error: ‘TR_MAX_AP_SORROW’ undeclared (first use in this function)
+
+  needs to include tr-defs.h
+
+--THUS--
+   add to includes at top of player.c
+#include "tr-defs.h" /* [TR] */
+
+
+
+NEXT BUG
+player.c: In function ‘player_gain_deep_sorrow’:
+player.c:310:14: error: ‘struct player’ has no member named ‘hid_deep’
+         if (p->hid_deep > TR_MAX_DEEP_SORROW)
+
+   change to deep_sorrow
+
+--THUS--
+
+/* [TR] gain deep sorrow */
+void player_gain_deep_sorrow(struct player *p, s16b amount)
+{
+        p->deep_sorrow += amount;
+        if (p->deep_sorrow > TR_MAX_DEEP_SORROW)
+                p->deep_sorrow = TR_MAX_DEEP_SORROW;
+        if(p->done) {
+                msg("You feel a shadow pass over you.");
+                p->done = 0;
+        }
+        handle_stuff(p);
+}
+
+   
+   NEXT BUG
+ui-display.c:77:2: error: ‘EVENT_AP_SORROW’ undeclared here (not in a function)
+  EVENT_AP_SORROW, /* [TR] */
+
+  okay, looks like I need to add this to game-event.h
+
+--THUS--
+  change first part of enum game_event_type
+typedef enum game_event_type
+{
+        EVENT_MAP = 0,          /* Some part of the map has changed. */
+
+        EVENT_STATS,            /* One or more of the stats. */
+        EVENT_HP,               /* HP or MaxHP. */
+        EVENT_MANA,             /* Mana or MaxMana. */
+        EVENT_AC,               /* Armour Class. */
+        EVENT_EXPERIENCE,       /* Experience or MaxExperience. */
+        EVENT_AP_SORROW,        /* [TR] Apparent Sorrow */
+
+
+
+   NEXT BUG
+
+   player.c: In function ‘player_lose_deep_sorrow’:
+player.c:325:28: warning: comparison is always false due to limited range of data type [-Wtype-limits]
+         if (p->deep_sorrow > TR_MAX_AP_SORROW)
+
+  need to change TR_MAX_AP_SORROW to TR_MAX_DEEP_SORROW
+
+--THUS--
+/* [TR] gain deep sorrow */
+void player_lose_deep_sorrow(struct player *p, s32b amount)
+{
+        p->deep_sorrow += amount;
+        if (p->deep_sorrow > TR_MAX_DEEP_SORROW)
+                p->deep_sorrow = TR_MAX_DEEP_SORROW;
+        handle_stuff(p);
+}
+
+
+----IT COMPILES----
+
+
+  NEXT BUG
+
+Apparent sorrow doesn't appear in sidebar
+
+  look in ui-display.c
+  probably prt_ap_sorrow() isn't even running, since AS doesn't display
+  maybe the problem is that EVENT_AP_SORROW doesn't get called anywhere
+  let's look in player-calcs.c
+
+  try adding to redraw_events[]
+
+--THUS--
+static const struct flag_event_trigger redraw_events[] =
+{
+        { PR_MISC,      EVENT_RACE_CLASS },
+        { PR_TITLE,     EVENT_PLAYERTITLE },
+        { PR_LEV,       EVENT_PLAYERLEVEL },
+        { PR_EXP,       EVENT_EXPERIENCE },
+        { PR_STATS,     EVENT_STATS },
+        { PR_ARMOR,     EVENT_AC },
+        { PR_HP,        EVENT_HP },
+        { PR_MANA,      EVENT_MANA },
+        { PR_AP_SORROW, EVENT_AP_SORROW },  /* [TR] */
+
+  where else is PR_ stuff found?
+  in player-calcs.h
+
+--THUS--
+   add to end of list of defines of PR_'s in player-calcs.h
+#define PR_EQUIP                0x00040000L /* Display equip/inven */
+#define PR_MESSAGE              0x00080000L /* Display messages */
+#define PR_MONSTER              0x00100000L /* Display monster recall */
+#define PR_OBJECT               0x00200000L /* Display object recall */
+#define PR_MONLIST              0x00400000L /* Display monster list */
+#define PR_ITEMLIST             0x00800000L /* Display item list */
+#define PR_FEELING              0x01000000L /* Display level feeling */
+#define PR_AP_SORROW            0x02000000L /* [TR] Display apparent sorrow */
+
+
+  and it looks like it can go with PR_HP in PR_BASIC
+
+--THUS--
+/**
+ * Display Basic Info
+ */
+#define PR_BASIC \
+        (PR_MISC | PR_TITLE | PR_STATS | PR_LEV |\
+         PR_EXP | PR_GOLD | PR_ARMOR | PR_HP |\
+         PR_AP_SORROW |\                                /* [TR] */
+         PR_MANA | PR_DEPTH | PR_HEALTH | PR_SPEED)
+
+
+   does this fix it?
+   sort of, but it doesn't update enough
+   let's put some event_signal's in player.c
+
+--THUS--
+/* [TR] gain apparent sorrow */
+void player_gain_ap_sorrow(struct player *p, s32b amount)
+{
+        event_signal(EVENT_AP_SORROW);
+        p->ap_sorrow += amount;
+        if (p->ap_sorrow > TR_MAX_AP_SORROW)
+                p->ap_sorrow = TR_MAX_AP_SORROW;
+        handle_stuff(p);
+}
+
+/* [TR] lose apparent sorrow */
+void player_lose_ap_sorrow(struct player *p, s32b amount)
+{
+        event_signal(EVENT_AP_SORROW);
+        p->ap_sorrow -= amount;
+        if (p->ap_sorrow < 0)
+                p->ap_sorrow = 0;
+        handle_stuff(p);
+}
+
+   
+
+   now it looks like it takes a turn or two for ap sorrow to update
+   probably should change where event_signal goes
+
+/* [TR] gain apparent sorrow */
+void player_gain_ap_sorrow(struct player *p, s32b amount)
+{
+        p->ap_sorrow += amount;
+        if (p->ap_sorrow > TR_MAX_AP_SORROW)
+                p->ap_sorrow = TR_MAX_AP_SORROW;
+        event_signal(EVENT_AP_SORROW);
+        handle_stuff(p);
+}
+
+/* [TR] lose apparent sorrow */
+void player_lose_ap_sorrow(struct player *p, s32b amount)
+{
+        p->ap_sorrow -= amount;
+        if (p->ap_sorrow < 0)
+                p->ap_sorrow = 0;
+        event_signal(EVENT_AP_SORROW);
+        handle_stuff(p);
+}
+
+    okay maybe that worked
+
+    now to focus on how deep sorrow message happens way too often
+    looks like I need to add a !
+
+--THUS--
+        /* Signal deep sorrow */
+        if(!randint0(TR_DEEP_SORROW_OUTCRY_INTERVAL))
+                deep_outcry_msg(player->deep_sorrow);
+
+
+    now it feels like hid sorrow outcry happens too often
+    but maybe that's my character's fault for killing all those townsfolk?
+
+    looks like I want to make the deep sorrow outcry less frequent
+    
+--THUS--
+   in tr-defs.h
+#define TR_DEEP_SORROW_OUTCRY_INTERVAL 5000000
+
+
+   new bug: my violent warrior managed to trigger Illuvatar, but it triggers
+     over and over, and he was able to cancel the word of recall effect with
+     his own.
+
+--THUS--
+   in game-world.c
+void begin_townperson()
+{
+        if(!player->townperson_timer) {
+                msg("You cry out to Eru Illuvatar to save you from this life.");
+                msg("There is an inaudible silence.");
+
+                player->word_recall = randint0(20) + 15;
+                player->townperson_timer = randint0(20) + 50;
+        }
+}
+
+
+   messages are more important in this patch
+   so it might be good to have it so that they stay up until a new message
+   appears  (TODO)
+
+   okay, so when townperson_timer is going, player shouldn't be able to go
+   downstairs from the town.
+
+   let's look in cmd-cave.c
+   do_cmd_go_down()
+
+--THUS--
+       add to do_cmd_go_down() before "Warn a force_descend" section
+        /* [TR] You can't leave the town once Eru summons you */
+        if (player->townperson_timer && (player->depth == 0)) {
+                msg("No.");
+                return;
+        }
+
+   
+   back to messages TODO: messages can fade out over a few turns, turn dim,
+   then go away.
+
+   

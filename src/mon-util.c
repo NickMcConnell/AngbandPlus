@@ -41,6 +41,8 @@
 #include "player-timed.h"
 #include "player-util.h"
 #include "project.h"
+#include "math.h"    /* [TR] */
+#include "tr-defs.h" /* [TR] */
 #include "z-set.h"
 
 static const struct monster_flag monster_flag_table[] =
@@ -431,9 +433,8 @@ void update_mon(struct monster *mon, struct chunk *c, bool full)
 			/* Mark as easily visible */
 			mflag_on(mon->mflag, MFLAG_VIEW);
 
-			/* Disturb on appearance */
-			if (OPT(player, disturb_near))
-				disturb(player, 1);
+			/* Disturb on appearance [TR] modified */
+			disturb(player, 1);
 
 			/* Re-draw monster window */
 			player->upkeep->redraw |= PR_MONLIST;
@@ -444,8 +445,8 @@ void update_mon(struct monster *mon, struct chunk *c, bool full)
 			/* Mark as not easily visible */
 			mflag_off(mon->mflag, MFLAG_VIEW);
 
-			/* Disturb on disappearance */
-			if (OPT(player, disturb_near) && !monster_is_mimicking(mon))
+			/* Disturb on disappearance [TR] modified */
+			if (!monster_is_mimicking(mon))
 				disturb(player, 1);
 
 			/* Re-draw monster list window */
@@ -859,6 +860,57 @@ void monster_death(struct monster *mon, bool stats)
 	quest_check(mon);
 }
 
+/* [TR] How much apparent sorrow comes from killing a monster? */
+u16b ap_sorrow_from(u16b mexp)
+{
+	float ap_sorrow_return;
+	
+	ap_sorrow_return = log((TR_UNSAD_XP / (mexp + (!mexp)))) * TR_SORROW_MULT;
+	return((u16b)ap_sorrow_return);
+}
+
+
+
+/**
+ * [TR] Outcry on monster death
+ */
+
+void ap_outcry_msg(s32b ap_sorrow)
+{
+	/* So that previous monster messages get flushed */
+	notice_stuff(player);
+
+	if(ap_sorrow < ((ap_sorrow_from(1) / 6) * 1))
+		{
+			msg("You mourn.");
+			return;
+		}
+	else if(ap_sorrow < ((ap_sorrow_from(1) / 6) * 2))
+		{
+			msg("You feel an inner grief.");
+			return;
+		}
+	else if(ap_sorrow < ((ap_sorrow_from(1) / 6) * 3))
+		{
+			msg("You choke up.");
+			return;
+		}
+	else if(ap_sorrow < ((ap_sorrow_from(1) / 6) * 4))
+		{
+			msg("You weep.");
+			return;
+		}
+	else if(ap_sorrow < ((ap_sorrow_from(1) / 6) * 5))
+		{
+			msg("You weep and curse.");
+			return;
+		}
+	else 	
+		msg("You are beside yourself with grief.");
+	return;
+
+}
+
 
 /**
  * Decreases a monster's hit points by `dam` and handle monster death.
@@ -979,6 +1031,20 @@ bool mon_take_hit(struct monster *mon, int dam, bool *fear, const char *note)
 			history_add(player, buf, HIST_SLAY_UNIQUE);
 		}
 
+		/* [TR] gain apparent sorrow */
+		if(rf_has(mon->race->flags, RF_EMPTY_MIND) && rf_has(mon->race->flags, RF_STUPID)) {
+			player_gain_ap_sorrow(player, ap_sorrow_from(mon->race->mexp) / 100);
+			ap_outcry_msg(ap_sorrow_from(mon->race->mexp) / 100);
+		}
+		else if(!monster_is_visible(mon) && rf_has(mon->race->flags, RF_INVISIBLE)) {
+			player_gain_ap_sorrow(player, ap_sorrow_from((TR_UNSAD_XP / 100) * player->depth));
+			ap_outcry_msg(ap_sorrow_from((TR_UNSAD_XP / 100) * player->depth));
+		}
+		else {
+			player_gain_ap_sorrow(player, ap_sorrow_from(mon->race->mexp));
+			ap_outcry_msg(ap_sorrow_from(mon->race->mexp));
+		}
+
 		/* Gain experience */
 		player_exp_gain(player, new_exp);
 
@@ -1007,8 +1073,8 @@ bool mon_take_hit(struct monster *mon, int dam, bool *fear, const char *note)
 		/* Monster is dead */
 		return true;
 	} else {
-		/* Mega-Hack -- Pain cancels fear */
-		if (!(*fear) && mon->m_timed[MON_TMD_FEAR] && dam > 0) {
+		/* Mega-Hack -- Pain cancels fear [TR] but not permaterror */
+		if (!(*fear) && mon->m_timed[MON_TMD_FEAR] && dam > 0 && !mon->permaterror) {
 			int tmp = randint1(dam);
 
 			/* Cure a little or all fear */
@@ -1042,6 +1108,28 @@ bool mon_take_hit(struct monster *mon, int dam, bool *fear, const char *note)
 			    ((dam >= mon->hp) && (randint0(100) < 80))) {
 				int timer = randint1(10) + (((dam >= mon->hp) && (percentage > 7))
 											? 20 : ((11 - percentage) * 5));
+
+				/* [TR] Chance of initiating permaterror */
+				if(!mon->permaterror && (randint0(TR_PERMA_T_INIT_DENOM) > TR_PERMA_T_INIT_NUM))  {
+					/* Player gains sorrow */
+					player_gain_ap_sorrow(player, (s32b)((float)ap_sorrow_from(mon->race->mexp) * TR_PERMA_T_AS_FACTOR));
+
+					/* Monster permanently terrified */
+					mon->permaterror = 1;
+
+					/* Remark on the occurrence */
+					add_monster_message(mon, MON_MSG_PERMATERRIFIED, false);
+
+					/* Outcry */
+					ap_outcry_msg((u16b)((float)(ap_sorrow_from(mon->race->mexp) * TR_PERMA_T_AS_FACTOR)));
+
+					/* Permaterrified uniques don't regenerate */
+					if(monster_is_unique(mon)) {
+						if (lore->pkills < SHRT_MAX) 
+							lore->pkills++;
+						mon->race->max_num = 0;
+						}
+					}
 
 				/* Hack -- note fear */
 				(*fear) = true;

@@ -955,6 +955,10 @@ void disturb(struct player *p, int stop_search)
 		event_signal_point(EVENT_MAP, -1, -1);
 	}
 
+	/* [TR] Interrupt sorrow processing */
+	if(p->sorrow_disturb < 3)
+		p->sorrow_disturb++;
+
 	/* Flush input */
 	event_signal(EVENT_INPUT_FLUSH);
 }

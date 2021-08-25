@@ -888,6 +888,18 @@ void player_generate(struct player *p, const struct player_race *r,
 	/* Level 1 */
 	p->max_lev = p->lev = 1;
 
+	/* [TR] sorrow related variables */
+	p->ap_sorrow = 0;
+	p->hid_sorrow = 0;
+	p->deep_sorrow = 0;
+	p->hid_sorrow_sensitivity = 1.0;
+	p->hss_target = new_hss_target();
+	hss_adjust(p);
+	p->townperson_timer = 0;
+	p->sorrow_disturb = 0;
+	p->done = 0;
+
+
 	/* Experience factor */
 	p->expfact = p->race->r_exp + p->class->c_exp;
 

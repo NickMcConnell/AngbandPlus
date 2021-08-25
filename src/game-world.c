@@ -22,6 +22,7 @@
 #include "game-world.h"
 #include "generate.h"
 #include "init.h"
+#include "math.h" /* TR */
 #include "mon-make.h"
 #include "mon-move.h"
 #include "mon-util.h"
@@ -37,6 +38,7 @@
 #include "source.h"
 #include "target.h"
 #include "trap.h"
+#include "tr-defs.h"  /* TR */
 #include "z-queue.h"
 
 u16b daycount = 0;
@@ -459,11 +461,237 @@ static void update_scent(void)
 }
 
 /**
+ * [TR] What is the ambient XP of a given depth of the player?
+ */
+s32b ambient_xp_of(s16b depth)
+{
+        return TR_DEPTH_XP_MULT * depth;
+}
+
+/**
+ * [TR] Outcry indicating elevated hidden sorrow
+ */
+
+void outcry_msg()
+{
+	switch(randint0(10))  {
+        	case 0:
+        	{
+                	msg("You can't stop thinking of the blood you've shed.");
+	                break;
+        	}
+	        case 1:
+        	{
+                	msg("You break out in tears, not knowing why.");
+	                break;
+        	}
+	        case 2:
+        	{
+                	msg("You shake with stress.");
+	                break;
+        	}
+	        case 3:
+        	{
+	                msg("You have an awful feeling.");
+        	        break;
+	        }
+	        case 4:
+        	{
+                	msg("You want to shut down but force yourself to keep going.");
+	                break;
+        	}
+	        case 5:
+        	{
+                	msg("You're afraid to think freely.");
+	                break;
+        	}
+	        case 6:
+        	{
+                	msg("You feel angry at the way things have to be.");
+	                break;
+        	}
+	        case 7:
+        	{
+                	msg("You feel fine.");
+	                break;
+        	}
+	        case 8:
+        	{
+                	msg("Your gut clenches.");
+	                break;
+        	}
+	        case 9:
+        	{
+	                msg("You feel like you're 50 feet underwater.");
+        	        break;
+	        }
+        	default:
+	        {
+        	        break;
+	        }
+	}
+}
+/**
+ * [TR] Levels of deep sorrow
+ */
+
+int deep_outcry_level(s16b deep_sorrow)
+{
+	if(!deep_sorrow)
+		return(-1);
+	if(deep_sorrow < ((TR_MAX_DEEP_SORROW / 6) * 1))
+		return(0);
+	if(deep_sorrow < ((TR_MAX_DEEP_SORROW / 6) * 2))
+		return(1);
+	if(deep_sorrow < ((TR_MAX_DEEP_SORROW / 6) * 3))
+		return(2);
+	if(deep_sorrow < ((TR_MAX_DEEP_SORROW / 6) * 4))
+		return(3);
+	if(deep_sorrow < ((TR_MAX_DEEP_SORROW / 6) * 5))
+		return(4);
+	if(deep_sorrow < ((TR_MAX_DEEP_SORROW / 6) * 6))
+		return(5);
+
+	return(-1);
+}	
+
+/**
+ * [TR] Outcry indicating elevated deep sorrow
+ */
+
+void deep_outcry_msg(s16b deep_sorrow)
+{
+	switch(deep_outcry_level(deep_sorrow))  {
+        	case 0:
+	        {
+        	        msg("You feel melancholy.");
+                	break;
+	        }
+        	case 1:
+	        {
+        	        msg("You feel an overall weariness.");
+                	break;
+	        }
+        	case 2:
+	        {
+        	        msg("You feel a faint, deep ache.");
+                	break;
+	        }
+	        case 3:
+        	{
+                	msg("You are troubled.");
+	                break;
+        	}
+	        case 4:
+        	{
+                	msg("You pause, and then rouse yourself to keep going.");
+	                break;
+        	}
+	        case 5:
+        	{
+                	msg("For a moment, there is no future.");
+	                break;
+        	}
+	        default:
+        	{
+                	break;
+	        }
+	}
+}
+
+/**
+ * [TR] begins townperson transformation
+ */
+
+void begin_townperson()
+{
+	if(!player->townperson_timer) {
+		msg("You cry out to Eru Ilúvatar to save you from this life.");
+		msg("There is an inaudible silence.");
+
+		player->word_recall = randint0(20) + 15;
+		player->townperson_timer = randint0(20) + 50;
+	}
+}
+
+/**
+ * [TR] finish becoming a townperson
+ * someday this might be more dramatic, but for now it's simple
+ */
+void become_townperson() 
+{
+	msg("You're done.");
+	msg("You live a quiet life in the town, watching others descend to do the task that once consumed you.");
+	player->is_dead = true;
+	my_strcpy(player->died_from, "Burning out", sizeof(player->died_from));
+}
+
+
+/* [TR] is it time for hidden sorrow outcry? */
+bool is_hid_outcry_time(struct player *player)
+{
+	if(!randint0(TR_OUTCRY_DELAY))  {
+		if(player->hid_sorrow > TR_OUTCRY_PT)
+			return 1;
+		else if(!randint0((TR_OUTCRY_PT / (player->hid_sorrow + !player->hid_sorrow))))
+			return 1;
+		else
+			return 0;
+	}
+	else
+		return 0;
+}
+
+/**
+ * [TR] Acquire a new target for hid_sorrow_sensitivity to become
+ */
+
+float new_hss_target()
+{
+	float f;
+
+	/* find a number between TR_HSS_MIN and TR_HSS_MAX, using 
+	 * randint0.*/  
+	f = (float)randint0( (int)(TR_HSS_MAX * 10 - TR_HSS_MIN * 10) );
+	f /= 10;
+	f += TR_HSS_MIN;
+	
+	return f;
+}
+
+/**
+ * [TR] adjust hid_sorrow_sensitivity in the direction of hss_target
+ */
+
+void hss_adjust(struct player *p)
+{
+	if(p->hid_sorrow_sensitivity == p->hss_target)
+		return;
+	else if(p->hid_sorrow_sensitivity > p->hss_target) {
+		if(!randint0(10))
+			p->hid_sorrow_sensitivity -= 0.2;
+		else
+			p->hid_sorrow_sensitivity -= 0.1;
+		return;
+	}
+	else if(p->hid_sorrow_sensitivity < p->hss_target) {
+		if(!randint0(10))
+			p->hid_sorrow_sensitivity += 0.2;
+		else
+			p->hid_sorrow_sensitivity += 0.1;
+
+		return;
+	}
+}
+
+/**
  * Handle things that need updating once every 10 game turns
  */
 void process_world(struct chunk *c)
 {
 	int i, y, x;
+
+	float fl_ap_sorrow, hid_inc_prob; /* [TR] */
 
 	/* Compact the monster list if we're approaching the limit */
 	if (cave_monster_count(cave) + 32 > z_info->level_monster_max)
@@ -538,6 +766,81 @@ void process_world(struct chunk *c)
 		take_hit(player, i, "a fatal wound");
 	}
 
+        /*** [TR] ***/
+
+
+        /* Ambient XP gain */
+	if((player->sorrow_disturb) && !randint0(TR_AVG_XP_WAIT))
+		player_exp_gain(player, ambient_xp_of(player->depth));
+
+	/* Change hidden sorrow sensitivity */
+	if(!randint0(TR_HID_SORROW_SENSITIVITY_INT * 20))
+		player->hss_target = new_hss_target();
+	if(!randint0(TR_HID_SORROW_SENSITIVITY_INT))
+		hss_adjust(player);
+
+	/* Hidden sorrow gain */
+	fl_ap_sorrow = (float)player->ap_sorrow;
+	hid_inc_prob = log(fl_ap_sorrow) / TR_AP_BREAKING_PT;
+	hid_inc_prob *= player->hid_sorrow_sensitivity;
+	if( hid_inc_prob >= 1.0 )
+		msg("You are surely overwhelmed.");
+	if( randint0(100) < (u16b)(hid_inc_prob * 100))
+		player_gain_hidden_sorrow(player, 1);
+
+	/* Make an outcry */
+	if(is_hid_outcry_time(player))
+		outcry_msg();
+
+	/* Process apparent sorrow */
+	if(!player->sorrow_disturb) {
+		if(!randint0(TR_AP_SORROW_DELAY))
+			player_process_ap_sorrow(player);
+	}
+	else {
+		player->sorrow_disturb--;
+		if(player->sorrow_disturb < 0)
+			player->sorrow_disturb = 0;
+	}
+
+
+	/* Decrease hidden sorrow */
+	if(!player->ap_sorrow)
+		if(!randint0(TR_HID_SORROW_RECOVER))
+			player_lose_hidden_sorrow(player, 1);
+
+	/* Process deep sorrow */
+	if(player->total_winner)
+		player_process_deep_sorrow(player);
+
+
+	/* Increment deep sorrow */
+	if(randint0(TR_DEEP_AP_INC) < player->ap_sorrow)
+		player_gain_deep_sorrow(player, 1);
+	if(randint0(TR_DEEP_HID_INC) < player->hid_sorrow)
+		player_gain_deep_sorrow(player, 1);
+
+	/* Signal deep sorrow */
+	if(!randint0(TR_DEEP_SORROW_OUTCRY_INTERVAL))
+		deep_outcry_msg(player->deep_sorrow);
+
+	/* Have a breakdown */
+	if(randint0(player->hid_sorrow) > TR_HID_BREAKING_PT)
+		begin_townperson();
+
+	/* Turn @ into t */
+	if(player->townperson_timer) {
+		player->townperson_timer--;
+
+		if(!player->townperson_timer)
+        		become_townperson();
+	}     
+
+	/* Done with deep sorrow */
+	if(player->total_winner && !player->deep_sorrow && !player->done) {
+		msg("You feel a feeling of release.  (You can retire now.)");
+		player->done = 1;
+	}
 
 	/*** Check the Food, and Regenerate ***/
 

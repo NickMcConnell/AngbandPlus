@@ -1,0 +1,28 @@
+Getting 0.1 ready for release
+
+
+[SENTENCE]
+
+Change 0.1a references to 0.1 references
+
+--THUS--
+   in load.c / rd_misc()
+	/* [TR] Test to see if savefile is of the right TR version */
+	rd_string(tmp, sizeof(tmp));
+	if(strcmp(tmp, "TR 0.1"))
+		quit("Savefile incompatible.");
+
+--THUS--
+	/* [TR] TR-patch version */
+	wr_string("TR 0.1");
+
+--THUS--
+   in buildid.h
+#ifdef BUILD_ID
+# define STR(x) #x
+# define XSTR(x) STR(x)
+# define VERSION_STRING XSTR(BUILD_ID)
+#else
+# define VERSION_STRING "0.1"
+#endif
+

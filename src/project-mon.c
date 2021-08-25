@@ -795,6 +795,9 @@ static bool project_m_monster_attack(project_monster_handler_context_t *context,
 
 	/* Dead or damaged monster */
 	if (mon->hp < 0) {
+		/* [TR] Gain some apparent sorrow */
+		/* mon_kill_mon_sorrow(mon, player); */
+
 		/* Give detailed messages if destroyed */
 		if (!seen) die_msg = MON_MSG_MORIA_DEATH;
 

@@ -22,5 +22,6 @@
 bool multiply_monster(const struct monster *m);
 void process_monsters(struct chunk *c, int minimum_energy);
 void reset_monsters(void);
+void mon_kill_mon_sorrow(struct monster *mon, struct player *player);
 
 #endif /* !MONSTER_MOVE_H */

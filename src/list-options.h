@@ -29,8 +29,6 @@ OP(show_target,           "Highlight target with cursor",
 INTERFACE, true)
 OP(highlight_player,      "Highlight player with cursor between turns",
 INTERFACE, false)
-OP(disturb_near,          "Disturb whenever viewable monster moves",
-INTERFACE, true)
 OP(solid_walls,           "Show walls as solid blocks",
 INTERFACE, false)
 OP(hybrid_walls,          "Show walls with shaded background",
@@ -88,7 +86,7 @@ BIRTH, false)
 OP(birth_feelings,        "Show level feelings",
 BIRTH, true)
 OP(birth_no_selling,      "Increase gold drops but disable selling",
-BIRTH, true)
+BIRTH, false)
 OP(birth_start_kit,       "Start with a kit of useful gear",
 BIRTH, true)
 OP(birth_ai_learn,        "Monsters learn from their mistakes",

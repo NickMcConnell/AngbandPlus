@@ -1,0 +1,81 @@
+delete hid sorrow from screen
+
+--THUS--
+      in ui-display.c 
+
+static const struct side_handler_t
+{
+        void (*hook)(int, int);  /* int row, int col */
+        int priority;            /* 1 is most important (always displayed) */
+        game_event_type type;    /* PR_* flag this corresponds to */
+} side_handlers[] = {  
+        { prt_race,      20, EVENT_RACE_CLASS },
+        { prt_title,     19, EVENT_PLAYERTITLE },
+        { prt_class,     22, EVENT_RACE_CLASS },
+        { prt_level,     11, EVENT_PLAYERLEVEL },
+        { prt_exp,       17, EVENT_EXPERIENCE },
+        { prt_gold,      12, EVENT_GOLD },
+        { prt_equippy,   18, EVENT_EQUIPMENT },
+        { prt_str,        6, EVENT_STATS },
+        { prt_int,        5, EVENT_STATS },
+        { prt_wis,        4, EVENT_STATS },
+        { prt_dex,        3, EVENT_STATS },
+        { prt_con,        2, EVENT_STATS },
+        { NULL,          16, 0 },
+        { prt_ac,         7, EVENT_AC },
+        { prt_hp,         8, EVENT_HP },
+        { prt_sp,         9, EVENT_MANA },
+        { prt_ap_sorrow, 10, EVENT_AP_SORROW },  /* [TR] */
+        { NULL,         21, 0 },
+        { prt_health,    13, EVENT_MONSTERHEALTH },
+        { NULL,          22, 0 },
+        { prt_speed,   14, EVENT_PLAYERSPEED }, /* Slow (-NN) / Fast (+NN) */
+        { prt_depth,   15, EVENT_DUNGEONLEVEL }, /* Lev NNN / NNNN ft */
+};
+
+
+
+fix alignment of AS display
+
+--THUS--
+
+/**
+ * [TR] Prints apparent sorrow
+ */
+static void prt_ap_sorrow(int row, int col)
+{
+	char cur_ap_sorrow[32];
+	byte color;
+
+
+	put_str("AS", row, col);
+	
+	if(player->ap_sorrow <= 0)
+		color = COLOUR_L_GREEN;
+	else
+		color = COLOUR_YELLOW;
+
+	strnfmt(cur_ap_sorrow, sizeof(cur_ap_sorrow), "%9d", player->ap_sorrow);
+
+	c_put_str(color, cur_ap_sorrow, row, col + 3);
+
+}
+
+
+change path for Unix save files in case someone wants to run vanilla and tr
+at the same time
+
+--THUS--
+      in config.h
+
+/**
+ * OPTION: Create and use a hidden directory in the users home directory
+ * for storing pref files and character dumps.
+ */
+#if defined(UNIX) && !defined(MACH_O_CARBON) && !defined(PRIVATE_USER_PATH)
+# define PRIVATE_USER_PATH "~/.angband-tr"
+#endif
+
+
+
+

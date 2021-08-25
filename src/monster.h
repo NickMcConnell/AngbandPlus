@@ -332,6 +332,8 @@ struct monster {
 
 	s16b m_timed[MON_TMD_MAX]; /* Timed monster status effects */
 
+	byte permaterror;	/* [TR] is monster permanently terrified? */
+
 	byte mspeed;		/* Monster "speed" */
 	byte energy;		/* Monster "energy" */
 

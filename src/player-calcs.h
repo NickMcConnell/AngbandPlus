@@ -73,13 +73,16 @@
 #define PR_MONLIST		0x00400000L /* Display monster list */
 #define PR_ITEMLIST		0x00800000L /* Display item list */
 #define PR_FEELING		0x01000000L /* Display level feeling */
+#define PR_AP_SORROW		0x02000000L /* [TR] Display apparent sorrow */
+#define PR_HID_SORROW		0x04000000L /* [TR] Display hidden sorrow (debug) */
 
 /**
- * Display Basic Info
+ * Display Basic Info ([TR] adds PR_AP_SORROW)
  */
 #define PR_BASIC \
 	(PR_MISC | PR_TITLE | PR_STATS | PR_LEV |\
 	 PR_EXP | PR_GOLD | PR_ARMOR | PR_HP |\
+	 PR_AP_SORROW |\
 	 PR_MANA | PR_DEPTH | PR_HEALTH | PR_SPEED)
 
 /**

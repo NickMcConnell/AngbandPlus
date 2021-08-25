@@ -33,6 +33,8 @@ typedef enum game_event_type
 	EVENT_MANA,		/* Mana or MaxMana. */
 	EVENT_AC,		/* Armour Class. */
 	EVENT_EXPERIENCE,	/* Experience or MaxExperience. */
+	EVENT_AP_SORROW,	/* [TR] Apparent Sorrow */
+	EVENT_HID_SORROW, 	/* [TR] Hidden Sorrow (debug) */
 	EVENT_PLAYERLEVEL,	/* Player's level has changed */
 	EVENT_PLAYERTITLE,	/* Player's title has changed */
 	EVENT_GOLD,		/* Player's gold amount. */

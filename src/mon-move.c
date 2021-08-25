@@ -45,7 +45,7 @@
 #include "player-util.h"
 #include "project.h"
 #include "trap.h"
-
+#include "tr-defs.h"  /* [TR] */
 
 /**
  * Calculate minimum and desired combat ranges.  -BR-
@@ -963,6 +963,26 @@ static int compare_monsters(const struct monster *mon1,
 }
 
 /**
+ * [TR] When monsters kill monsters, the player gains some apparent sorrow
+ */
+/*
+void mon_kill_mon_sorrow(struct monster *mon, struct player *player)
+{
+	s32b inv_sorrow = ap_sorrow_from(((TR_UNSAD_XP / 100) * player->depth) / 100);
+	s32b default_sorrow = ap_sorrow_from(mon->race->mexp);
+
+	if(!monster_is_visible(mon) && rf_has(mon->race->flags, RF_INVISIBLE)) {
+		player_gain_ap_sorrow(player, inv_sorrow);
+		ap_outcry_msg(inv_sorrow);
+	}
+	else {
+		player_gain_ap_sorrow(player, default_sorrow);
+		ap_outcry_msg(default_sorrow);
+	}
+}
+*/
+
+/**
  * Try to push past / kill another monster.  Returns true on success.
  */
 static bool process_monster_try_push(struct chunk *c, struct monster *mon,
@@ -1001,8 +1021,10 @@ static bool process_monster_try_push(struct chunk *c, struct monster *mon,
 					kill_ok ? "tramples over" : "pushes past", n_name);
 
 			/* Monster ate another monster */
-			if (kill_ok)
+			if (kill_ok) {
+				/* mon_kill_mon_sorrow(mon1, player); */ /* [TR] */
 				delete_monster(ny, nx);
+			}
 
 			monster_swap(mon->fy, mon->fx, ny, nx);
 			return true;
@@ -1135,12 +1157,16 @@ static void process_monster(struct chunk *c, struct monster *mon)
 	/* Get the monster name */
 	monster_desc(m_name, sizeof(m_name), mon, MDESC_CAPITAL | MDESC_IND_HID);
 
-	/* Try to multiply - this can use up a turn */
-	if (process_monster_multiply(c, mon))
-		return;
 
-	/* Attempt to cast a spell */
-	if (make_attack_spell(mon)) return;
+	/* [TR] no multiplying or spellcasting while PTed */
+	if(!mon->permaterror) {
+		/* Try to multiply - this can use up a turn */
+		if (process_monster_multiply(c, mon))
+			return;
+
+		/* Attempt to cast a spell or not */
+		if (make_attack_spell(mon)) return;
+	}
 
 	/* Work out what kind of movement to use - AI or staggered movement */
 	if (!process_monster_should_stagger(mon)) {
@@ -1182,8 +1208,8 @@ static void process_monster(struct chunk *c, struct monster *mon)
 			if (monster_is_visible(mon))
 				rf_on(lore->flags, RF_NEVER_BLOW);
 
-			/* Some monsters never attack */
-			if (rf_has(mon->race->flags, RF_NEVER_BLOW))
+			/* Some monsters never attack [TR] including from PT */
+			if (rf_has(mon->race->flags, RF_NEVER_BLOW) || mon->permaterror)
 				continue;
 
 			/* Otherwise, attack the player */
@@ -1224,14 +1250,13 @@ static void process_monster(struct chunk *c, struct monster *mon)
 		if (monster_is_visible(mon))
 			rf_on(lore->flags, RF_NEVER_MOVE);
 
-		/* Possible disturb */
-		if (monster_is_visible(mon) && monster_is_in_view(mon) && 
-			OPT(player, disturb_near))
+		/* Possible disturb [TR] modified */
+		if (monster_is_visible(mon) && monster_is_in_view(mon))
 			disturb(player, 0);		
 	}
 
 	/* Hack -- get "bold" if out of options */
-	if (!did_something && mon->m_timed[MON_TMD_FEAR])
+	if (!did_something && mon->m_timed[MON_TMD_FEAR] && !mon->permaterror)
 		mon_clear_timed(mon, MON_TMD_FEAR, MON_TMD_FLG_NOTIFY, false);
 
 	/* If we see an unaware monster do something, become aware of it */
@@ -1360,7 +1385,7 @@ static bool process_monster_timed(struct chunk *c, struct monster *mon)
 		mon_dec_timed(mon, MON_TMD_CONF, 1, MON_TMD_FLG_NOTIFY, false);
 	}
 
-	if (mon->m_timed[MON_TMD_FEAR]) {
+	if (mon->m_timed[MON_TMD_FEAR] && !mon->permaterror) {
 		int d = randint1(mon->race->level / 10 + 1);
 		mon_dec_timed(mon, MON_TMD_FEAR, d, MON_TMD_FLG_NOTIFY, false);
 	}

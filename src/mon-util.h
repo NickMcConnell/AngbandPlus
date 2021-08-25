@@ -39,4 +39,8 @@ void monster_death(struct monster *mon, bool stats);
 bool mon_take_hit(struct monster *mon, int dam, bool *fear, const char *note);
 void monster_take_terrain_damage(struct monster *mon);
 
+u16b ap_sorrow_from(u16b mexp);
+void ap_outcry_msg(s32b ap_sorrow);
+
+
 #endif /* MONSTER_UTILITIES_H */

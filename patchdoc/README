@@ -1,0 +1,27 @@
+FILES
+=====
+
+These are files which document my process in making the patch.  They might
+be useful in porting the patch to other versions of Angband or other variants.
+TODO: clean them up.
+
+metapatch.txt is the starting place
+firstpass.txt is next
+execution.txt is next
+bugfixes.txt or execution2.txt are next
+lastfix.txt is after bugfixes.txt
+execution3.txt is next
+executionN.txt is last
+
+miscfeatures.txt are some features cut, for now
+tr2execution.txt are some features that might show up if I make another 
+  version of this
+cleanup0.1.txt are changes made for releasing tr 0.1
+
+QUICK GUIDE TO MODIFYING PATCH
+==============================
+
+I might have missed a few spots, but I tried to label every change I 
+made with a comment with the tag [TR].  If you want a quick and easy
+way to make big changes to the game, look in tr-defs.h and tweak the
+numbers there.  

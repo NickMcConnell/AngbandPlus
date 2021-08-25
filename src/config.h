@@ -69,7 +69,7 @@
  * for storing pref files and character dumps.
  */
 #if defined(UNIX) && !defined(MACH_O_CARBON) && !defined(PRIVATE_USER_PATH)
-# define PRIVATE_USER_PATH "~/.angband"
+# define PRIVATE_USER_PATH "~/.angband-tr"
 #endif
 
 

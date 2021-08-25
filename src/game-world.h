@@ -36,5 +36,10 @@ void process_world(struct chunk *c);
 void on_new_level(void);
 void process_player(void);
 void run_game_loop(void);
+s32b ambient_xp_of(s16b depth);  /* [TR] */
+float new_hss_target();
+void hss_adjust();
+
+
 
 #endif /* !GAME_WORLD_H */

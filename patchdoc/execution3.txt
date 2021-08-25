@@ -1,0 +1,225 @@
+Hopefully the last round of features before alpha release.
+
+TODO:
+
+X - save for next death (to make savefile / monster generation cleaner)
+
+MAYBE:
+
+X Every time you kill a monster, increment kill count; add kill count (modified 
+by a factor) to ap_sorrow gain.
+
+No sorrow (or much less) for destroying molds or mushroom patches.  (Or 
+mindless things and/or undead things.)
+
+Alt: something like terror for mindless things.  Whatever would cause 
+permaterror in fungi causes them to focus on reproduction, causing them
+to multiply (summon same kind, initially of low HP).  95% of offspring 
+are permaterrored, too.  Icky things and jellies could do the same, why 
+not.  No sorrow for that.  Not sure about item mimics.  (Depends on if 
+they're officially MINDLESS.)  Not sure about mindless undead. 
+
+X What is now TR_AP_SORROW_DELAY could be a struct player variable that has a 
+randomly varying target (like hss_target) and adjusts to it.  Maybe a range 
+of 1 to 15
+
+Some compensation so that see invisible is easier to get.
+
+Make sure death message precedes ap_sorrow message.
+
+Walking into !monster_is_visible() monsters doesn't automatically
+attack them.  Projectiles have a low chance of hitting.  Beams, breaths,
+and balls do hit.  
+
+
+
+
+
+
+
+NOT AS MUCH
+
+Chance of burning out varies with deep_sorrow + hid_sorrow
+
+Rest up to 0 AS
+
+Make outcry messages colored.
+
+Initiating monster terror has 1 in 2 chance of making them "lose their 
+fighting spirit" / become tame.  Double sorrow for killing a tame monster.  
+Tame monsters seek to get away from non-tame monsters, as though they're 
+terrifying.  Tame monsters get erratic movement flag (like icky things).  
+Tame monsters get some kind of background color (user interface option, 
+default to dark grey for less obtrusiveness).  Tame monsters are indifferent to 
+the player, don't move toward or away, and can walk through the player, and the player can 
+walk through them.  Tame monsters can fall asleep.  Taming a unique makes it not regenerate 
+again.  If Farmer Maggot's dogs are all tamed, he starts annoyingly gushing to @ about how 
+grateful he is that you got the evil out of his dogs.
+
+Fewer monsters per level / fewer monsters generated.
+
+Monsters very rare near surface but very common at dlev 100
+
+
+
+
+DEFINITELY
+
+
+
+[SENTENCE]
+
+"disturb near" no longer an option, always on.
+
+--THUS--
+     in mon-move.c / process_monster()
+		/* Possible disturb [TR] modified */
+		if (monster_is_visible(mon) && monster_is_in_view(mon)) 
+			disturb(player, 0);		
+
+--THUS--
+     in mon-util.c / update_mon()
+	/* Is the monster is now easily visible? */
+	if (easy) {
+		/* Change */
+		if (!monster_is_in_view(mon)) {
+			/* Mark as easily visible */
+			mflag_on(mon->mflag, MFLAG_VIEW);
+
+			/* Disturb on appearance [TR] modified */
+			disturb(player, 1);
+
+			/* Re-draw monster window */
+			player->upkeep->redraw |= PR_MONLIST;
+		}
+
+
+--THUS--
+    in mon-util.c / update_mon()
+		/* Change */
+		if (monster_is_in_view(mon)) {
+			/* Mark as not easily visible */
+			mflag_off(mon->mflag, MFLAG_VIEW);
+
+			/* Disturb on disappearance [TR] modified */
+			if (!monster_is_mimicking(mon))
+				disturb(player, 1);
+
+			/* Re-draw monster list window */
+			player->upkeep->redraw |= PR_MONLIST;
+		}
+
+
+--THUS--
+    in list-options.h
+OP(show_target,           "Highlight target with cursor",
+INTERFACE, true)
+OP(highlight_player,      "Highlight player with cursor between turns",
+INTERFACE, false)
+OP(solid_walls,           "Show walls as solid blocks",
+INTERFACE, false)
+OP(hybrid_walls,          "Show walls with shaded background",
+INTERFACE, false)
+
+
+[SENTENCE]
+
+When monsters get permaterrified, msg differently ("%s is deeply terrified!")
+
+--THUS--
+    in list-mon-message.h
+MON_MSG(MORE_AFRAID,		MSG_GENERIC,	false,	"look[s] more terrified!")
+MON_MSG(FLEE_IN_TERROR,		MSG_FLEE,		false,	"flee[s] in terror!")
+MON_MSG(PERMATERRIFIED,		MSG_PT,		false, "[is|are] deeply terrified.") /* [TR] */
+MON_MSG(NOT_AFRAID,			MSG_GENERIC,	false,	"[is|are] no longer afraid.")
+
+
+--THUS--
+    in list-message.h
+MSG(MISS,				"miss")
+MSG(FLEE,				"flee")
+MSG(PT,					"flee")  /* [TR] */
+MSG(DROP,				"drop")
+MSG(KILL,				"kill")
+MSG(LEVEL,				"level")
+
+
+
+--THUS--
+    in mon-util.c / mon_take_hit()
+				/* [TR] Chance of initiating permaterror */
+				if(!mon->permaterror && (randint0(TR_PERMA_T_INIT_DENOM) > TR_PERMA_T_INIT_NUM))  {
+					/* Player gains sorrow */
+					player_gain_ap_sorrow(player, (s32b)((float)ap_sorrow_from(mon->race->mexp) * TR_PERMA_T_AS_FACTOR));
+
+					/* Monster permanently terrified */
+					mon->permaterror = 1;
+
+					/* Remark on the occurrence */
+					add_monster_message(mon, MON_MSG_PERMATERRIFIED, false);
+
+					/* Outcry */
+					ap_outcry_msg((u16b)((float)(ap_sorrow_from(mon->race->mexp) * TR_PERMA_T_AS_FACTOR)));
+
+					/* Permaterrified uniques don't regenerate */
+					if(monster_is_unique(mon)) {
+						if (lore->pkills < SHRT_MAX) 
+							lore->pkills++;
+						mon->race->max_num = 0;
+						}
+					}
+
+
+
+
+[SENTENCE]
+
+Make it so that monsters have a perpetual fear timer rather than the 
+follow distance hack to make permaterror work (preventing "pet ANIMAL"
+thing from happening.
+
+--THUS--
+     in mon-move.c / process_monster_timed()
+	if (mon->m_timed[MON_TMD_FEAR] && !mon->permaterror) {
+		int d = randint1(mon->race->level / 10 + 1);
+		mon_dec_timed(mon, MON_TMD_FEAR, d, MON_TMD_FLG_NOTIFY, false);
+	}
+
+
+[SENTENCE]
+
+Make permaterror less likely.
+
+--THUS--
+   in tr-defs.h
+/* Chance of initiating permaterror (a NUM out of DENOM chance)
+ * See mon-util.c / mon_take_hit()
+ */
+#define TR_PERMA_T_INIT_DENOM 100
+#define TR_PERMA_T_INIT_NUM 20
+
+
+
+[SENTENCE]
+
+BUG: half-troll warrior on level one was getting sorrow + outcry with no 
+visible kill or hit message.  (Invisible monster?)
+
+1.  See if rolling back sorrow on monster killing monster fixes it.
+
+--THUS--
+    in mon-move.c / process_monster_try_push()
+			/* Monster ate another monster */
+			if (kill_ok) {
+				/* mon_kill_mon_sorrow(mon1, player); */ /* [TR] */
+				delete_monster(ny, nx);
+			}
+
+--THUS--
+    in mon-move.c, comment out mon_kill_mon_sorrow()
+
+--THUS--
+    in project-mon.c, project_m_monster_attack()
+		/* [TR] Gain some apparent sorrow */
+		/* mon_kill_mon_sorrow(mon, player); */
+

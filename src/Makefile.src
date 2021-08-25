@@ -5,10 +5,10 @@
 # across a range of different makefiles, to cut down on maintenance.
 #
 
-NAME = Angband
-VERSION = 4.1.0
-COPYRIGHT = (c) 1995-2017 Angband contributors
-PROGNAME = angband
+NAME = Angband-tr
+VERSION = 0.1a
+COPYRIGHT = (c) 1995-2018 Angband contributors
+PROGNAME = angband-tr
 
 HEADERS = \
 	angband.h \

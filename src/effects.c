@@ -728,7 +728,7 @@ bool effect_handler_MON_HEAL_HP(effect_handler_context_t *context)
 		player->upkeep->redraw |= (PR_HEALTH);
 
 	/* Cancel fear */
-	if (mon->m_timed[MON_TMD_FEAR]) {
+	if (mon->m_timed[MON_TMD_FEAR] && !mon->permaterror) {
 		mon_clear_timed(mon, MON_TMD_FEAR, MON_TMD_FLG_NOMESSAGE, false);
 		msg("%s recovers %s courage.", m_name, m_poss);
 	}
@@ -782,7 +782,7 @@ bool effect_handler_MON_HEAL_KIN(effect_handler_context_t *context)
 		player->upkeep->redraw |= (PR_HEALTH);
 
 	/* Cancel fear */
-	if (mon->m_timed[MON_TMD_FEAR]) {
+	if (mon->m_timed[MON_TMD_FEAR] && !mon->permaterror) {
 		mon_clear_timed(mon, MON_TMD_FEAR, MON_TMD_FLG_NOMESSAGE, false);
 		msg("%s recovers %s courage.", m_name, m_poss);
 	}
@@ -1257,6 +1257,12 @@ bool effect_handler_RECALL(effect_handler_context_t *context)
 
 	/* No recall from quest levels with force_descend */
 	if (OPT(player, birth_force_descend) && (is_quest(player->depth))) {
+		msg("Nothing happens.");
+		return true;
+	}
+
+	/* [TR] No recall when you've begun to burn out. */
+	if (player->townperson_timer) {
 		msg("Nothing happens.");
 		return true;
 	}

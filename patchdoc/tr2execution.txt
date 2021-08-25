@@ -1,0 +1,15 @@
+Roll back hss code.
+
+There's a player->deep_sorrow in some number TR_LURK_BASE (25000?) chance 
+every turn to incur some lurking sorrow (adds a certain amount to
+hidden sorrow without increasing apparent sorrow or producing a message).
+
+This way players have a reason to ration their kills.
+
+Also, a ( player->deep_sorrow plus hid_sorrow / TR_HS_DIVISOR ) in 
+TR_BALK_BASE chance to balk from making any aggressive move.  (Saying 
+"For some reason, you don't feel like doing that.")
+
+Playtesting:
+Add a DS (deep sorrow) counter to see what kinds of deep sorrows occur at 
+what depths for different playing styles.

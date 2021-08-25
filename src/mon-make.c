@@ -1004,6 +1004,9 @@ static bool place_new_monster_one(struct chunk *c, int y, int x,
 	/* Extract the monster base speed */
 	mon->mspeed = race->speed;
 
+	/* [TR] Start out without permaterror */
+	mon->permaterror = 0;
+
 	/* Hack -- small racial variety */
 	if (!rf_has(race->flags, RF_UNIQUE)) {
 		/* Allow some small variation per monster */

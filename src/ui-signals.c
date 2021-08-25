@@ -152,7 +152,7 @@ static void handle_signal_simple(int sig)
 		Term_erase(0, 0, 255);
 
 		/* Display the cause */
-		Term_putstr(0, 0, -1, COLOUR_WHITE, "Contemplating suicide!");
+		Term_putstr(0, 0, -1, COLOUR_WHITE, "Contemplating giving up!");
 
 		/* Flush */
 		Term_fresh();

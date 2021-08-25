@@ -268,6 +268,7 @@ static bool rd_monster(struct chunk *c, struct monster *mon)
 	rd_byte(&mon->fx);
 	rd_s16b(&mon->hp);
 	rd_s16b(&mon->maxhp);
+	rd_byte(&mon->permaterror);  /* [TR] */
 	rd_byte(&mon->mspeed);
 	rd_byte(&mon->energy);
 	rd_byte(&tmp8u);
@@ -606,6 +607,9 @@ int rd_player(void)
 	struct player_race *r;
 	struct player_class *c;
 
+	/* [TR] hack, a byte to hold hid_sorrow_sensitivity and hss_target */
+	byte tmp;
+
 	rd_string(player->full_name, sizeof(player->full_name));
 	rd_string(player->died_from, 80);
 	player->history = mem_zalloc(250);
@@ -710,6 +714,24 @@ int rd_player(void)
 	rd_s16b(&player->csp);
 	rd_u16b(&player->csp_frac);
 
+	/* [TR] variables */
+	rd_s32b(&player->ap_sorrow);
+	rd_s16b(&player->hid_sorrow);
+	rd_s16b(&player->deep_sorrow);
+
+	/*   hack   */
+	rd_byte(&tmp);
+	player->hid_sorrow_sensitivity = (float)tmp;
+	player->hid_sorrow_sensitivity /= 10;
+	rd_byte(&tmp);
+	player->hss_target = (float)tmp;
+	player->hss_target /= 10;
+
+	rd_u16b(&player->townperson_timer);
+	rd_s16b(&player->sorrow_disturb);
+	rd_u16b(&player->done);
+
+	/* Max Player and Dungeon Levels */
 	rd_s16b(&player->max_lev);
 	rd_s16b(&player->max_depth);
 
@@ -880,7 +902,14 @@ int rd_misc(void)
 {
 	size_t i;
 	byte tmp8u;
+	char tmp[20];
 	
+
+	/* [TR] Test to see if savefile is of the right TR version */
+	rd_string(tmp, sizeof(tmp));
+	if(strcmp(tmp, "TR 0.1"))
+		quit("Savefile incompatible.");
+
 	/* Read the randart seed */
 	rd_u32b(&seed_randart);
 

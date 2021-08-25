@@ -11,6 +11,7 @@ MSG(BIRTH,				"")
 MSG(HIT,				"hit")
 MSG(MISS,				"miss")
 MSG(FLEE,				"flee")
+MSG(PT,					"flee")  /* [TR] */
 MSG(DROP,				"drop")
 MSG(KILL,				"kill")
 MSG(LEVEL,				"level")

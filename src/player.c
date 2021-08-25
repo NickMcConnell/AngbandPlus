@@ -26,6 +26,7 @@
 #include "player-quest.h"
 #include "player-spell.h"
 #include "player-timed.h"
+#include "tr-defs.h" /* [TR] */
 #include "z-color.h"
 #include "z-util.h"
 
@@ -262,6 +263,132 @@ static void adjust_level(struct player *p, bool verbose)
 	p->upkeep->redraw |= (PR_LEV | PR_TITLE | PR_EXP | PR_STATS);
 	handle_stuff(p);
 }
+
+/* [TR] gain apparent sorrow */
+void player_gain_ap_sorrow(struct player *p, s32b amount)
+{
+        p->ap_sorrow += amount;
+        if (p->ap_sorrow > TR_MAX_AP_SORROW)
+                p->ap_sorrow = TR_MAX_AP_SORROW;
+	if (p->ap_sorrow < 0)
+		p->ap_sorrow = 0;
+	event_signal(EVENT_AP_SORROW);
+        handle_stuff(p);
+}
+
+/* [TR] lose apparent sorrow */
+void player_lose_ap_sorrow(struct player *p, s32b amount)
+{
+        p->ap_sorrow -= amount;
+        if (p->ap_sorrow > TR_MAX_AP_SORROW)
+                p->ap_sorrow = TR_MAX_AP_SORROW;
+        if (p->ap_sorrow < 0)
+                p->ap_sorrow = 0;
+	event_signal(EVENT_AP_SORROW);
+        handle_stuff(p);
+}
+
+
+/* [TR] gain hidden sorrow */
+void player_gain_hidden_sorrow(struct player *p, s16b amount)
+{
+        p->hid_sorrow += amount;
+	if (p->hid_sorrow < 0)
+		p->hid_sorrow = 0;
+        if (p->hid_sorrow > TR_MAX_HID_SORROW)
+                p->hid_sorrow = TR_MAX_HID_SORROW;
+	event_signal(EVENT_HID_SORROW);
+        handle_stuff(p);
+}
+
+
+/* [TR] lose hidden sorrow */
+void player_lose_hidden_sorrow(struct player *p, s16b amount)
+{
+        p->hid_sorrow -= amount;
+        if (p->hid_sorrow > TR_MAX_HID_SORROW)
+                p->hid_sorrow = TR_MAX_HID_SORROW;
+        if (p->hid_sorrow < 0)
+                p->hid_sorrow = 0;
+        event_signal(EVENT_HID_SORROW);
+	handle_stuff(p);
+}
+
+
+/* [TR] gain deep sorrow */
+void player_gain_deep_sorrow(struct player *p, s16b amount)
+{
+        p->deep_sorrow += amount;
+	if (p->deep_sorrow < 0)
+		p->deep_sorrow = 0;
+        if (p->deep_sorrow > TR_MAX_DEEP_SORROW)
+                p->deep_sorrow = TR_MAX_DEEP_SORROW;
+	if(p->done) {
+		msg("You feel a shadow pass over you.");
+		p->done = 0;
+	}
+        handle_stuff(p);
+}
+
+
+
+/* [TR] gain deep sorrow */
+void player_lose_deep_sorrow(struct player *p, s32b amount)
+{
+        p->deep_sorrow -= amount;
+	if (p->deep_sorrow < 0)
+		p->deep_sorrow = 0;
+        if (p->deep_sorrow > TR_MAX_DEEP_SORROW)
+                p->deep_sorrow = TR_MAX_DEEP_SORROW;
+        handle_stuff(p);
+}
+
+
+/* [TR] process apparent sorrow */
+void player_process_ap_sorrow(struct player *p)
+{
+	int dec = 0; /* decrement */
+
+	/* apply bonuses */
+	if(randint0(p->stat_cur[STAT_WIS]) > TR_WIS_BONUS)
+		dec++;
+	if(randint0(p->stat_cur[STAT_CON]) > TR_CON_BONUS)
+		dec++;
+	if(randint0(50 - p->lev) < TR_CLEV_BONUS)
+		dec++;
+
+	/* apply penalty */
+	if(randint0(p->stat_cur[STAT_INT]) > TR_INT_PENALTY)
+		dec--;
+
+	/* everyone gets this */
+	dec += TR_AP_SOR_PROC_BASE;
+
+	player_lose_ap_sorrow(p, dec);
+}
+
+void player_process_deep_sorrow(struct player *p)
+{
+	int dec = 0; /* decrement */
+
+	/* apply bonuses */
+	if(randint0(p->stat_cur[STAT_WIS]) > TR_WIS_BONUS)
+		dec++;
+	if(randint0(p->stat_cur[STAT_CON]) > TR_CON_BONUS)
+		dec++;
+	if(randint0(50 - p->lev) < TR_CLEV_BONUS)
+		dec++;
+
+	/* apply penalty */
+	if(randint0(p->stat_cur[STAT_INT]) > TR_INT_PENALTY)
+		dec--;
+
+	/* everyone gets this */
+	dec += TR_AP_SOR_PROC_BASE;
+
+	player_lose_deep_sorrow(p, dec);
+}
+
 
 void player_exp_gain(struct player *p, s32b amount)
 {

@@ -1,0 +1,98 @@
+Non-gameplay tweaks; okay to put in the first patch.  Gameplay features
+go in the next.
+
+TODO:
+
+Scorefile on shared system could include living characters.
+
+
+
+[SENTENCE]
+
+BUG Also if you read a Word of Recall scroll in town after getting recalled
+there by Illuvatar, you can go down into the dungeon.
+
+BUG (Gameplay but not really) If you cry out to Illuvatar in the town, you 
+get recalled down.
+
+--THUS--
+   add, in effects.c / effect_handler_RECALL()
+	/* [TR] No recall when you've begun to burn out. */
+	if (player->townperson_timer) {
+		msg("Nothing happens.");
+		return true;
+	}
+
+
+[SENTENCE]
+
+Make "no-selling = no" the default.
+
+--THUS--
+   in list-options.h
+OP(birth_feelings,        "Show level feelings",
+BIRTH, true)
+OP(birth_no_selling,      "Increase gold drops but disable selling",
+BIRTH, false)
+OP(birth_start_kit,       "Start with a kit of useful gear",
+BIRTH, true)
+
+
+[SENTENCE]
+
+Molds, mushrooms, and jellies incur much less apparent sorrow.
+
+--THUS--
+in mon-util.c / mon_take_hit() modify to
+		/* [TR] gain apparent sorrow */
+		if(rf_has(mon->race->flags, RF_EMPTY_MIND) && rf_has(mon->race->flags, RF_STUPID)) {
+			player_gain_ap_sorrow(player, ap_sorrow_from(mon->race->mexp) / 100);
+			ap_outcry_msg(ap_sorrow_from(mon->race->mexp) / 100);
+		}
+		else if(!monster_is_visible(mon) && rf_has(mon->race->flags, RF_INVISIBLE)) {
+			player_gain_ap_sorrow(player, ap_sorrow_from((TR_UNSAD_XP / 100) * player->depth));
+			ap_outcry_msg(ap_sorrow_from((TR_UNSAD_XP / 100) * player->depth));
+		}
+		else {
+			player_gain_ap_sorrow(player, ap_sorrow_from(mon->race->mexp));
+			ap_outcry_msg(ap_sorrow_from(mon->race->mexp));
+		}
+
+		/* Gain experience */
+		player_exp_gain(player, new_exp);
+
+		/* Generate treasure */
+		monster_death(mon, false);
+
+
+[SENTENCE]
+
+Monster lore for uniques to be ambiguous between "deeply terrified" and 
+"slain"
+
+
+1. change language in mon-lore.c
+
+
+--THUS--
+    in mon-lore.c / lore_append_kills()
+			/* [TR] But we've also killed it */
+			if (dead)
+				textblock_append(tb, ", but you have taken care of this threat.  ");
+			/* Unavenged (ever) */
+			else
+				textblock_append(tb, ", who %s unavenged.  ",
+								 VERB_AGREEMENT(lore->deaths, "remains",
+												"remain"));
+
+--THUS--
+  also in mon-lore.c / lore_append_kills()	
+
+		} else if (dead) { /* Dead unique who never hurt us */
+			/* [TR] */
+			textblock_append(tb, "You have defeated this foe.  ");
+
+
+   
+
+
