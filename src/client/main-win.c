@@ -66,14 +66,6 @@
 #ifdef USE_WIN
 
 #define MNU_SUPPORT
-#define GRAPHICS
-
-static cptr GFXBMP[] = { "8x8.PNG", "8x8.PNG", "16x16.PNG", "32x32.PNG" };
-static cptr GFXMASK[] = { 0, 0, "MASK.BMP", "MASK32.BMP" };
-static cptr GFXTITLE[] = { "Off", "Standard (8x8)", "Adam Bolt's (16x16)", "David Gervais' (32x32)" };
-#define GFXD "16x16.BMP"
-
-#define WIN32_MAX_TILESETS 3
 
 /*
  * Extract the "WIN32" flag from the compiler
@@ -132,6 +124,7 @@ static cptr GFXTITLE[] = { "Off", "Standard (8x8)", "Adam Bolt's (16x16)", "Davi
 #define IDM_GRAPHICS_TILESET_8	230
 
 #define IDM_OPTIONS_SOUND		301
+#define IDM_OPTIONS_MOUSE		302
 #define IDM_OPTIONS_UNUSED		231
 #define IDM_OPTIONS_SAVER		232
 
@@ -211,7 +204,7 @@ static cptr GFXTITLE[] = { "Off", "Standard (8x8)", "Adam Bolt's (16x16)", "Davi
  * Include the support for loading bitmaps
  */
 #ifdef USE_GRAPHICS
-# include "readdib.h"
+# include "win/readdib.h"
 #endif
 
 /*
@@ -391,6 +384,7 @@ bool game_in_progress  = FALSE;  /* game in progress */
 bool initialized       = FALSE;  /* note when "open"/"new" become valid */
 bool paletted          = FALSE;  /* screen paletted, i.e. 256 colors */
 bool colors16          = FALSE;  /* 16 colors screen, don't use RGB() */
+bool use_mouse         = FALSE;  /* game accepts mouse */
 
 /*
  * Saved instance handle
@@ -446,7 +440,6 @@ static int loaded_graphics = 0;
  * Directory names
  */
 static cptr ANGBAND_DIR_XTRA_FONT;
-static cptr ANGBAND_DIR_XTRA_GRAF;
 #define ANGBAND_DIR_XTRA_HELP ".\\lib\\text"
 
 #ifdef USE_SOUND
@@ -875,6 +868,8 @@ static void save_prefs(void)
 #ifdef USE_SOUND
 	conf_set_int("Windows32", "Sound", use_sound);
 #endif
+	conf_set_int("Windows32", "GameMouse", use_mouse);
+
 	save_prefs_aux(&win_data[0], "Main window");
 
 	/* XXX XXX XXX XXX */
@@ -945,6 +940,9 @@ static void load_prefs(void)
 	/* Extract the "use_sound" flag */
 	use_sound = (conf_get_int("Windows32", "Sound", 0) != 0);
 #endif
+
+	/* Extract the "use_mouse" flag */
+	use_mouse = (conf_get_int("Windows32", "GameMouse", 1) == 1);
 
 	/* Load window prefs */
 	load_prefs_aux(&win_data[0], "Main window");
@@ -1319,7 +1317,7 @@ static errr term_force_font(term_data *td, cptr name)
  *
  * This function returns zero only if everything succeeds.
  */
-static errr term_force_graf(term_data *td, cptr name)
+static errr term_force_graf(term_data *td, graphics_mode *gm)
 {
 	int i, is_png = 0;
 
@@ -1327,36 +1325,19 @@ static errr term_force_graf(term_data *td, cptr name)
 
 	cptr s;
 
-	char base[16];
-
-	char base_graf[16];
-
 	char buf[1024];
 
 	/* No name */
-	if (!name) return (1);
+	if (!gm->file) return (1);
 
 	/* Extract the base name (with suffix) */
-	s = extract_file_name(name);
+	s = gm->file;
 
 	/* Extract font width */
-	wid = atoi(s);
+	wid = gm->cell_width;
 
 	/* Default font height */
-	hgt = 0;
-
-	/* Copy, capitalize, remove suffix, extract width */
-	for (i = 0; (i < 16 - 1) && s[i] && (s[i] != '.'); i++)
-	{
-		/* Capitalize */
-		base[i] = FORCEUPPER(s[i]);
-
-		/* Extract "hgt" when found */
-		if (base[i] == 'X') hgt = atoi(s+i+1);
-	}
-
-	/* Terminate */
-	base[i] = '\0';
+	hgt = gm->cell_height;
 
 	/* Require actual sizes */
 	if (!wid || !hgt) return (1);
@@ -1364,12 +1345,8 @@ static errr term_force_graf(term_data *td, cptr name)
 	/* Check if we need PNG loader */
 	if (isuffix(s, ".png")) is_png = TRUE;
 
-	/* Build base_graf */
-	strcpy(base_graf, base);
-	strcat(base_graf, is_png ? ".PNG" : ".BMP");
-
 	/* Access the graf file */
-	path_build(buf, 1024, ANGBAND_DIR_XTRA_GRAF, base_graf);
+	path_build(buf, 1024, ANGBAND_DIR_XTRA_GRAF, gm->file);
 
 	/* Verify file */
 	if (!check_file(buf)) return (1);
@@ -1393,10 +1370,10 @@ static errr term_force_graf(term_data *td, cptr name)
 		}
 
 		/* Load mask, if appropriate */
-		if (GFXMASK[use_graphics])
+		if (!STRZERO(gm->mask))
 		{
 			/* Access the mask file */
-			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, GFXMASK[use_graphics]);
+			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, gm->mask);
 
 			/* Load the bitmap or quit */
 			if (!ReadDIB(win_data[0].w, buf, &infMask))
@@ -1486,6 +1463,7 @@ static void term_change_font(term_data *td)
 
 #ifdef USE_GRAPHICS
 
+#if 0 /* Manual change disabled */
 /*
  * Allow the user to change the graf (and font) for a window
  *
@@ -1520,14 +1498,17 @@ static void term_change_bitmap(term_data *td)
 		if (
 		    term_force_graf(td, tmp))
 		{
+			graphics_mode *gm;
 			/* Force the "standard" font */
 			//(void)term_force_font(td, "8X13.FON");
 
 			/* Force the "standard" bitmap */
-			(void)term_force_graf(td, GFXBMP[use_graphics]);
+			gm = get_graphics_mode((byte)use_graphics);
+			(void)term_force_graf(td, gm ? gm->file : "");
 		}
 	}
 }
+#endif
 
 #endif
 
@@ -1807,7 +1788,7 @@ static errr Term_xtra_win_sound(int v)
 	if (!s) return (-1);
 
 	/* Random sample */
-	s = rand_int(s);
+	s = randint0(s);
 
 	/* Build the path */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_SOUND, sound_file[v][s]);
@@ -1892,7 +1873,7 @@ static errr Term_xtra_win(int n, int v)
 
 		/* React to global changes */
 		case TERM_XTRA_REACT:
-		return (Term_xtra_win_react());
+		return (v == 0 ? Term_xtra_win_react() : 0);
 
 		/* Delay for some milliseconds */
 		case TERM_XTRA_DELAY:
@@ -2002,6 +1983,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 	int x1, y1, w1, h1;
 	int x2, y2, w2, h2;
 	int x3, y3;
+	graphics_mode *gm;
 
 	/* Paranoia -- handle weird requests */
 	if (!use_graphics)
@@ -2009,6 +1991,8 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 		/* First, erase the grid */
 		return (Term_wipe_win(x, y, 1));
 	}
+
+	gm = get_graphics_mode((byte)use_graphics);
 
 	Term_wipe_win(x, y, n);
 
@@ -2048,8 +2032,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 	hdcSrc = CreateCompatibleDC(hdc);
 	hbmSrcOld = SelectObject(hdcSrc, infGraph.hBitmap);
 
-	if ((use_graphics == GRAPHICS_ADAM_BOLT) ||
-	    (use_graphics == GRAPHICS_DAVID_GERVAIS))
+	if (gm->transparent)
 	{
 		hdcMask = CreateCompatibleDC(hdc);
 		SelectObject(hdcMask, infMask.hBitmap);
@@ -2073,8 +2056,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 		x1 = col * w1;
 		y1 = row * h1;
 
-		if ((use_graphics == GRAPHICS_ADAM_BOLT) ||
-			(use_graphics == GRAPHICS_DAVID_GERVAIS))
+		if (gm->transparent)
 		{
 			x3 = (tcp[i] & 0x7F) * w1;
 			y3 = (tap[i] & 0x7F) * h1;
@@ -2141,8 +2123,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 	SelectObject(hdcSrc, hbmSrcOld);
 	DeleteDC(hdcSrc);
 
-	if ((use_graphics == GRAPHICS_ADAM_BOLT) ||
-	    (use_graphics == GRAPHICS_DAVID_GERVAIS))
+	if (gm->transparent)
 	{
 		/* Release */
 		SelectObject(hdcMask, hbmSrcOld);
@@ -2407,7 +2388,9 @@ static void init_windows(void)
 	if (use_graphics)
 	{
 		/* XXX XXX XXX Force the "standard" bitmap */
-		(void)term_force_graf(&win_data[0], GFXBMP[use_graphics]);
+		graphics_mode *gm = get_graphics_mode((byte)use_graphics);
+
+		(void)term_force_graf(&win_data[0], gm);
 	}
 
 #endif
@@ -2640,12 +2623,13 @@ static void setup_menus(void)
 	for (i = 0; i < 8; i++)
 	{
 		/* Replace "Tileset N" string with actual tileset name */
-		if (i < WIN32_MAX_TILESETS)
+		if ((1 + i) <= get_num_graphics_modes())
 		{
+			graphics_mode *gm = get_graphics_mode((byte)(1 + i));
 			MENUITEMINFO menuitem = { sizeof(MENUITEMINFO) };
 			GetMenuItemInfo(hm, IDM_GRAPHICS_TILESET_1 + i, FALSE, &menuitem);
 			menuitem.fMask = MIIM_TYPE | MIIM_DATA;
-			menuitem.dwTypeData = GFXTITLE[i + 1];
+			menuitem.dwTypeData = gm->menuname;
 			SetMenuItemInfo(hm, IDM_GRAPHICS_TILESET_1 + i, FALSE, &menuitem);
 		}
 
@@ -2654,7 +2638,7 @@ static void setup_menus(void)
 		              MF_BYCOMMAND | (next_graphics == 1 + i ? MF_CHECKED : MF_UNCHECKED));
 
 		/* XXX Delete unused menu entries */
-		if (i >= WIN32_MAX_TILESETS && next_graphics < i + 1)
+		if ((1 + i) > get_num_graphics_modes())
 		RemoveMenu(hm, IDM_GRAPHICS_TILESET_1 + i, MF_BYCOMMAND);
 	}
 
@@ -2667,6 +2651,10 @@ static void setup_menus(void)
 	CheckMenuItem(hm, IDM_OPTIONS_SOUND,
 	              MF_BYCOMMAND | (use_sound ? MF_CHECKED : MF_UNCHECKED));
 #endif
+
+	/* Item "Mouse" */
+	CheckMenuItem(hm, IDM_OPTIONS_MOUSE,
+	              MF_BYCOMMAND | (use_mouse ? MF_CHECKED : MF_UNCHECKED));
 
 #ifdef BEN_HACK
 	/* Item "Colors 16" */
@@ -2879,6 +2867,12 @@ static void process_menus(WORD wCmd)
 			break;
 		}
 
+		case IDM_OPTIONS_MOUSE:
+		{
+			use_mouse = !use_mouse;
+			break;
+		}
+
 		case IDM_HELP_GENERAL:
 		{
 			char buf[1024];
@@ -3053,8 +3047,11 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 		}
 
 		case WM_LBUTTONDOWN:
-		//case WM_MBUTTONDOWN:
-		//case WM_RBUTTONDOWN:
+		case WM_MBUTTONDOWN:
+		case WM_RBUTTONDOWN:
+#if defined(WM_XBUTTONDOWN)
+		case WM_XBUTTONDOWN:
+#endif
 		{
 			int x = LOWORD(lParam);
 			int y = HIWORD(lParam);
@@ -3067,10 +3064,20 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 			x = x / td->font_wid;
 			y = y / td->font_hgt;
 
+			/* Which button */
+			if (uMsg == WM_LBUTTONDOWN) button = 1;
+			if (uMsg == WM_MBUTTONDOWN) button = 2;
+			if (uMsg == WM_RBUTTONDOWN) button = 3;
+#if defined(WM_XBUTTONDOWN)
+			if (uMsg == WM_XBUTTONDOWN) button = 3 + HIWORD(wParam);
+#endif
+
 			/* Extract the modifiers */
 			if (GetKeyState(VK_CONTROL) & 0x8000) button |= 16;
 			if (GetKeyState(VK_SHIFT)   & 0x8000) button |= 32;
 			if (GetKeyState(VK_MENU)    & 0x8000) button |= 64;
+
+			if (!use_mouse) return 0; /* No in-game mouse */
 
 			Term_mousepress(x, y, button);
 			return 0;
@@ -3619,6 +3626,9 @@ static void hack_quit(cptr str)
 	FreeDIB(&infGraph);
 	FreeDIB(&infMask);
 #endif
+	/* Forget grafmodes */
+	close_graphics_modes();
+
 
 	term_force_font(&win_data[0], NULL);
 	if (win_data[0].font_want) string_free(win_data[0].font_want);
@@ -3736,9 +3746,6 @@ static void hook_quit(cptr str)
 	//network_done();
 
 	/* Free strings */
-#ifdef USE_SOUND	
-	string_free(ANGBAND_DIR_XTRA_SOUND);
-#endif
 
 	exit(0);
 }
@@ -3756,6 +3763,10 @@ void static init_stuff_win(void)
 	int   i;
 
 	char path[1024];
+
+#ifdef USE_GRAPHICS
+	graphics_mode *gm;
+#endif
 
 	/* XXX XXX XXX */
 	strcpy(path, conf_get_string("Windows32", "LibPath", ".\\lib"));
@@ -3811,31 +3822,22 @@ void static init_stuff_win(void)
 
 #ifdef USE_GRAPHICS
 
-	/* Build the "graf" path */
-	path_build(path, 1024, ANGBAND_DIR_XTRA, "graf");
-
-	/* Allocate the path */
-	ANGBAND_DIR_XTRA_GRAF = string_make(path);
-
 	/* Validate the "graf" directory */
 	validate_dir(ANGBAND_DIR_XTRA_GRAF);
 
-	/* Build the filename */
-	path_build(path, 1024, ANGBAND_DIR_XTRA_GRAF, GFXBMP[use_graphics]);
+	/* Pick graphics mode */
+	if ((gm = get_graphics_mode((byte)use_graphics)))
+	{
+		/* Build the filename */
+		path_build(path, 1024, ANGBAND_DIR_XTRA_GRAF, gm->file);
 
-	/* Hack -- Validate the basic graf */
-	validate_file(path);
-
+		/* Hack -- Validate the basic graf */
+		validate_file(path);
+	}
 #endif
 
 
 #ifdef USE_SOUND
-
-	/* Build the "sound" path */
-	path_build(path, 1024, ANGBAND_DIR_XTRA, "sound");
-
-	/* Allocate the path */
-	ANGBAND_DIR_XTRA_SOUND = string_make(path);
 
 	/* Validate the "sound" directory */
 	validate_dir(ANGBAND_DIR_XTRA_SOUND);
@@ -3927,6 +3929,11 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 		color_table[i][0] = win_pal[i];
 	}
 #endif
+
+	/* load the possible graphics modes */
+	if (!init_graphics_modes("graphics.txt")) {
+		plog("Graphics list load failed");
+	}
 
 	/* Prepare the windows */
 	init_windows();

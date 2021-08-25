@@ -190,7 +190,9 @@ static int get_tag(int *cp, char tag)
 }
 
 /* Prompt player for a string, then try to find an item matching it */
-static bool get_item_by_name(int *k, bool inven, bool equip, bool floor, char *force_str)
+/* Returns "0" if an item was found, "1" if user has abort input, and
+ *"-1" if nothing could be found. */
+static errr get_item_by_name(int *k, bool inven, bool equip, bool floor_, char *force_str)
 {
 	char buf[256];
 	char *tok;
@@ -202,11 +204,11 @@ static bool get_item_by_name(int *k, bool inven, bool equip, bool floor, char *f
 	if (spellcasting)
 	{
 		int sn = -1;
-		bool ok = get_spell_by_name(k, &sn, inven, equip, TRUE);
+		errr failed = get_spell_by_name(k, &sn, inven, equip, TRUE);
 		/* Remember spell index */
 		spellcasting_spell = sn;
 		/* Don't do any other tests */
-		return ok;
+		return failed;
 	}
 
 	/* Hack -- show opening quote symbol */
@@ -223,13 +225,13 @@ static bool get_item_by_name(int *k, bool inven, bool equip, bool floor, char *f
 		buf[0] = '\0';
 		if (!get_string(prompt, buf, 80))
 		{
-			return FALSE;
+			return 1;
 		}
 	}
 
 	/* Hack -- remove final quote */
 	len = strlen(buf);
-	if (len == 0) return FALSE;
+	if (len == 0) return 1;
 	if (buf[len-1] == '"') buf[len-1] = '\0';
 
 	/* Split entry */
@@ -248,25 +250,52 @@ static bool get_item_by_name(int *k, bool inven, bool equip, bool floor, char *f
 			if (my_stristr(inventory_name[i], tok))
 			{
 				(*k) = i;
-				return TRUE;
+				return 0;
 			}
 		}
 		/* Also try floor */
-		if (floor)
+		if (floor_)
 		{
 			if (floor_item.tval
 			&& item_tester_okay(&floor_item)
 			&& my_stristr(floor_name, tok))
 			{
 				(*k) = FLOOR_INDEX;
-				return TRUE;
+				return 0;
 			}
 		}
 		tok = strtok(NULL, "|");
 	}
-	return FALSE;
-
+	return -1;
 }
+
+int count_items_by_name(char* name, bool inven, bool equip, bool floor_)
+{
+	byte old_tester;
+	bool old_spellcasting;
+	int k;
+	int num = 0;
+
+	/* Hack -- save old tester, reset current */
+	old_tester = item_tester_tval;
+	item_tester_tval = 0;
+	/* Same for "spellcasting" flag */
+	old_spellcasting = spellcasting;
+	spellcasting = FALSE;
+
+	if (!get_item_by_name(&k, inven, equip, floor_, name))
+	{
+		num = inventory[k].number;
+	}
+
+	/* Restore old tester */
+	item_tester_tval = old_tester;
+	/* Restore spellcasting flag */
+	spellcasting = old_spellcasting;
+
+	return num;
+}
+
 
 bool c_check_item(int *item, byte tval)
 {
@@ -310,7 +339,7 @@ byte c_secondary_tester(int item)
 	}
 }
 
-bool c_get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
+bool c_get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor_)
 {
 	char	n1, n2, which = ' ';
 
@@ -323,6 +352,7 @@ bool c_get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 
 	char	tmp_val[160];
 	char	out_val[160];
+	errr	r;
 
 	/* Paranoia */
 	if (!inven && !equip) return (FALSE);
@@ -371,15 +401,27 @@ bool c_get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 	if ((e1 != INVEN_WIELD) || (e2 != INVEN_TOTAL - 1)) equip_up = TRUE;
 
 	/* Hack -- restrict floor choice */
-	if (floor_item.tval && floor) allow_floor = item_tester_okay(&floor_item);
+	if (floor_item.tval && floor_) allow_floor = item_tester_okay(&floor_item);
 	
 	if ((i1 > i2) && (e1 > e2) && !allow_floor)
 	{
+		/* Hack -- traditionally, (M)Angband doesn't sound a bell
+		 * at this error. But we still want to call bell() so it can
+		 * flush input. */
+		bool old_ring_bell = ring_bell;
+		ring_bell = FALSE;
+
 		/* Cancel command_see */
 		command_see = FALSE;
 
 		/* Hack -- Nothing to choose */
 		*cp = -2;
+
+		/* Input error! */
+		bell();
+
+		/* End Hack -- restore user option */
+		ring_bell = old_ring_bell;
 
 		/* Done */
 		done = TRUE;
@@ -434,6 +476,8 @@ bool c_get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 	/* Repeat while done */
 	while (!done)
 	{
+		if (z_ask_item_aux) z_ask_item_aux(pmt, command_wrk, inven, equip, allow_floor);
+
 		if (!command_wrk)
 		{
 			/* Extract the legal requests */
@@ -573,6 +617,10 @@ bool c_get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 					item = TRUE;
 					done = TRUE;
 				}
+				else
+				{
+					bell();
+				}
 
 				break;
 			}
@@ -607,13 +655,13 @@ bool c_get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 				/* fallthrough */
 			case '@':
 				/* XXX Lookup item by name */
-				if (get_item_by_name(&k, inven, equip, floor, (NULL)))
+				if (!(r = get_item_by_name(&k, inven, equip, floor_, (NULL))))
 				{
 					(*cp) = k;
 					item = TRUE;
 					done = TRUE;
 				}
-				else
+				else if (r < 0)
 				{
 					bell();
 				}
@@ -817,7 +865,7 @@ void do_cmd_inscribe_auto(char *name, char *inscription)
 {
 	int item;
 	int cc_ind = -1, i;
-	/* Hack find inscribe command (assume it's called 'k') */
+	/* Hack -- find inscribe command (assume it's called '{') */
 	for (i = 0; i < custom_commands; i++) {
 		custom_command_type *cc_ptr = &custom_command[i];
 		if ((cc_ptr->m_catch == '{')
@@ -830,4 +878,40 @@ void do_cmd_inscribe_auto(char *name, char *inscription)
 	if (cc_ind == -1) return;
 	if (!get_item_by_name(&item, TRUE, TRUE, TRUE, name)) return;
 	send_custom_command(cc_ind, item, 0, 0, inscription);
+}
+
+void do_cmd_uniscribe_by_tag(char cmd, char tag)
+{
+	char old_command_cmd;
+	int item = 0;
+	bool done = FALSE;
+
+	int cc_ind = -1, i;
+	/* Hack -- find uninscribe command (assume it's called '}') */
+	for (i = 0; i < custom_commands; i++) {
+		custom_command_type *cc_ptr = &custom_command[i];
+		if (cc_ptr->m_catch == '{')
+		{
+			cc_ind = i;
+			break;
+		}
+	}
+
+	/* Not found, abort */
+	if (cc_ind < 0) return;
+
+	old_command_cmd = command_cmd;
+	command_cmd = cmd;
+	while (!done)
+	{
+		bool found;
+		found = get_tag(&i, tag);
+		if (found == TRUE)
+		{
+			send_custom_command(cc_ind, item, 0, 0, NULL);
+			done = FALSE;
+		}
+		else done = TRUE;
+	}
+	command_cmd = old_command_cmd;
 }

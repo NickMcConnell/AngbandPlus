@@ -35,13 +35,22 @@ static int dir_search[8] = {2,4,6,8,1,3,7,9};
 
 static bool is_valid_pf(player_type *p_ptr, int y, int x)
 {
-	int Ind = Get_Ind[p_ptr->conn];
 	int Depth = p_ptr->dun_depth;
+	cave_type *c_ptr;
+
 	/* Unvisited means allowed */
 	if (!(p_ptr->cave_flag[y][x] & (CAVE_MARK))) return (TRUE);
 
 	/* Require open space */
-	return (cave_floor_bold(Depth, y, x));
+	if (!cave_floor_bold(Depth, y, x)) return (FALSE);
+
+	/* Hack -- don't step into traps */
+	c_ptr = &cave[Depth][y][x];
+	if ((p_ptr->cave_flag[y][x] & (CAVE_MARK)) /* Known location */
+	&& (c_ptr->feat >= FEAT_TRAP_HEAD) /* Visible trap */
+	&& (c_ptr->feat <= FEAT_TRAP_TAIL)) return (FALSE);
+
+	return (TRUE);
 }
 
 static void fill_terrain_info(player_type *p_ptr)
@@ -161,6 +170,18 @@ bool findpath(player_type *p_ptr, int y, int x)
 		for (k = 0; k < 8; k++)
 		{
 			dir = dir_search[k];
+
+			/* Paranoia -- stay in terrain[][] bounds */
+			if (j - oy + ddy[dir] < 0 ||
+			    j - oy + ddy[dir] >= MAX_PF_RADIUS ||
+			    i - ox + ddx[dir] < 0 ||
+			    i - ox + ddx[dir] >= MAX_PF_RADIUS)
+			{
+				/* Skip this direction */
+				dir = 5;
+				continue;
+			}
+
 			if (terrain[j - oy + ddy[dir]][i - ox + ddx[dir]] == cur_distance)
 				break;
 		}
@@ -181,6 +202,13 @@ bool findpath(player_type *p_ptr, int y, int x)
 		p_ptr->pf_result[p_ptr->pf_result_index++] = '0' + (char)(10 - dir);
 		i += ddx[dir];
 		j += ddy[dir];
+
+		/* Paranoia -- stay in pf_result[MAX_PF_LENGTH] bounds */
+		if (p_ptr->pf_result_index >= MAX_PF_LENGTH)
+		{
+			bell();
+			return (FALSE);
+		}
 	}
 
 	p_ptr->pf_result_index--;

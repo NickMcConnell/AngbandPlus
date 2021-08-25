@@ -5,6 +5,21 @@
 
 #include "h-basic.h"
 
+/**
+ * A struct representing a strategy for making a dice roll.
+ *
+ * The result will be base + XdY + BONUS, where m_bonus is used in a
+ * tricky way to determine BONUS.
+ */
+typedef struct random {
+	int base;
+	int dice;
+	int sides;
+	int m_bonus;
+} random_value;
+/* Currently only used by parser.c !!! */
+
+
 
 
 /**** Available constants ****/
@@ -27,16 +42,16 @@
  * The integer X falls along a uniform distribution.
  * For example, if M is 100, you get "percentile dice"
  */
-#define rand_int(M) \
+#define randint0(M) \
 	(Rand_div(M))
 
 /*
  * Generates a random long integer X where A<=X<=B
  * The integer X falls along a uniform distribution.
- * Note: rand_range(0,N-1) == rand_int(N)
+ * Note: rand_range(0,N-1) == randint0(N)
  */
 #define rand_range(A,B) \
-	((A) + (rand_int(1+(B)-(A))))
+	((A) + (randint0(1+(B)-(A))))
 
 /*
  * Generate a random long integer X where A-D<=X<=A+D
@@ -44,24 +59,24 @@
  * Note: rand_spread(A,D) == rand_range(A-D,A+D)
  */
 #define rand_spread(A,D) \
-	((A) + (rand_int(1+(D)+(D))) - (D))
+	((A) + (randint0(1+(D)+(D))) - (D))
 
 
 /*
  * Generate a random long integer X where 1<=X<=M
  * Also, "correctly" handle the case of M<=1
  */
-#define randint(M) \
-	(rand_int(M) + 1)
+#define randint1(M) \
+	(randint0(M) + 1)
 
 
 /**
- * In Angband 3.X, randint was renamed to randint1
- * and rand_int was renamed to randint0
- * I don't want to do this (yet), but here are some compatibility defines -flm
+ * In Angband 3.1.0beta, "randint" was renamed to "randint1"
+ * and "rand_int" was renamed to "randint0".
+ * For compatibility sake, we're keeping the old names:
  */
-#define randint1 randint
-#define randint0 rand_int
+#define randint randint1
+#define rand_int randint0
 
 /**
  * Return TRUE one time in `x`.
@@ -73,7 +88,7 @@
  * Evaluate to TRUE "P" percent of the time
  */
 #define magik(P) \
-	(rand_int(100) < (P))
+	(randint0(100) < (P))
 
 
 

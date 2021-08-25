@@ -26,8 +26,6 @@ extern char hexsym[16];
 extern byte ascii_to_color[128]; 
 extern option_type local_option_info[MAX_OPTIONS];
 extern cptr local_option_group[];
-extern cptr stat_names[6];
-extern cptr stat_names_reduced[6];
 extern cptr ang_term_name[8];
 extern cptr window_flag_desc[32];
 extern cptr angband_sound_name[MSG_MAX];
@@ -53,10 +51,12 @@ extern int server_port;
 
 extern object_type *inventory;
 extern char **inventory_name;
+extern char **inventory_name_one;
 extern byte *inventory_secondary_tester;
 
 extern object_type floor_item;
 extern char floor_name[MAX_CHARS];
+extern char floor_name_one[MAX_CHARS];
 extern byte floor_secondary_tester;
 
 
@@ -86,11 +86,11 @@ extern char party_info[160];
 extern client_setup_t Client_setup;
 extern server_setup_t Setup;
 
-s16b lag_mark;
-s16b lag_minus;
-bool redraw_lag_meter;
-char health_track_num;
-byte health_track_attr;
+extern s16b lag_mark;
+extern s16b lag_minus;
+extern bool redraw_lag_meter;
+extern char health_track_num;
+extern byte health_track_attr;
 
 extern bool shopping;
 extern bool shopping_buying; 
@@ -105,11 +105,15 @@ extern cave_view_type* remote_info[16];
 extern s16b last_remote_line[16];
 extern cptr stream_desc[32];
 
-cave_view_type air_info[MAX_HGT][MAX_WID];
-s32b air_delay[MAX_HGT][MAX_WID];
-s32b air_fade[MAX_HGT][MAX_WID];
-bool air_updates;
-bool air_refresh;
+extern cave_view_type sfx_info[MAX_HGT][MAX_WID];
+extern s32b sfx_delay[MAX_HGT][MAX_WID];
+extern void slashfx_dir_offset(int *x, int *y, int dir, bool invert);
+
+extern cave_view_type air_info[MAX_HGT][MAX_WID];
+extern s32b air_delay[MAX_HGT][MAX_WID];
+extern s32b air_fade[MAX_HGT][MAX_WID];
+extern bool air_updates;
+extern bool air_refresh;
 
 extern player_type player;
 extern player_type *p_ptr;
@@ -185,6 +189,8 @@ extern char *p_name;
 extern player_race *race_info;
 extern player_class *c_info;
 extern s16b *eq_names;
+extern byte *eq_xpos;
+extern byte *eq_ypos;
 
 extern maxima z_info;
 
@@ -211,6 +217,12 @@ extern byte color_table[256][4];
 
 extern cptr ANGBAND_SYS;
 
+extern cptr ANGBAND_FON;
+extern cptr ANGBAND_FONTNAME;
+extern cptr ANGBAND_GRAFNAME;
+
+extern byte mousemap[0xFF];
+
 extern cptr keymap_act[KEYMAP_MODES][256];
 
 extern s16b command_cmd;
@@ -233,7 +245,9 @@ extern s16b pclass;
 extern s16b sex;
 extern char ptitle[80];
 
-extern s16b stat_order[6];
+extern byte A_MAX;
+extern cptr* stat_names;
+extern s16b stat_order[A_CAP];
 
 extern bool flip_inven;
 extern s16b flip_charsheet;
@@ -263,6 +277,7 @@ extern cptr ANGBAND_DIR_USER;
 extern cptr ANGBAND_DIR_PREF;
 extern cptr ANGBAND_DIR_XTRA;
 extern cptr ANGBAND_DIR_XTRA_SOUND;
+extern cptr ANGBAND_DIR_XTRA_GRAF;
 
 extern int use_graphics;
 extern bool big_tile;
@@ -294,6 +309,8 @@ extern bool ignore_birth_options;
 extern int char_screen_mode;
 extern bool target_recall;
 extern char target_prompt[60];
+
+extern byte hitpoint_warn_toggle;
 /*
  * Not-so-Automatically generated "function declarations"
  */
@@ -354,7 +371,7 @@ extern void cmd_players(void);
 extern void cmd_high_scores(void);
 extern void cmd_help(void);
 extern void cmd_query_symbol(void);
-extern void cmd_chat();
+extern void cmd_chat(void);
 extern void cmd_message(void);
 extern void cmd_chat_close(int i);
 extern void cmd_chat_cycle(int dir);
@@ -384,7 +401,8 @@ extern void cmd_init(void);
 extern void do_cmd_term_mousepress(u32b termflag, int x, int y, int button);
 extern void cmd_term_mousepress(int i, int x, int y, int button);
 extern void do_cmd_use_item(int item, bool agressive);
-extern void cmd_use_item();
+extern void cmd_use_item(void);
+extern bool command_tester_okay(int custom_command_id, int item);
 extern char* macro_find_by_action(cptr buf);
 extern custom_command_type *match_custom_command(char cmd, bool shop);
 extern int command_to_display_name(char cmd, char *dst, size_t len);
@@ -397,11 +415,10 @@ extern int spell_as_keystroke(int spell, int book, char cmd, char *dst, size_t l
 
 /* c-files.c */
 extern void text_to_ascii(char *buf, size_t max, cptr str);
-extern FILE *my_fopen(cptr file, cptr mode);
-extern errr my_fclose(FILE *fff);
-extern bool my_exists(char *path);
-extern void init_stuff();
+extern void init_stuff(void);
 extern void init_file_paths(char *path);
+extern void free_file_paths(void);
+extern void import_user_pref_files(cptr dest_path);
 extern errr process_pref_file(cptr buf);
 extern errr process_pref_file_command(char *buf);
 extern void show_motd(void);
@@ -414,7 +431,8 @@ extern void stash_remote_info(void);
 extern void peruse_file(void);
 extern errr Save_options(void);
 extern void conf_init(void* param);	/* Client config section */
-extern void conf_save();
+extern void conf_done(void);
+extern void conf_save(void);
 extern void conf_timer(int ticks);
 extern bool conf_section_exists(cptr section);
 extern cptr conf_get_string(cptr section, cptr name, cptr default_value);
@@ -422,7 +440,6 @@ extern s32b conf_get_int(cptr section, cptr name, s32b default_value);
 extern void conf_set_string(cptr section, cptr name, cptr value);
 extern void conf_set_int(cptr section, cptr name, s32b value);
 extern void conf_append_section(cptr section, cptr filename);
-extern bool my_fexists(const char *fname);
 extern void clia_init(int argc, const char *argv[]);
 extern int clia_find(const char *key); 
 extern bool clia_cpy_string(char *dst, int len, int i);
@@ -436,6 +453,7 @@ extern bool sync_data(void);
 extern bool client_login(void);
 extern bool client_ready(void);
 extern bool client_setup(void);
+extern void wipe_visual_prefs(void);
 extern void initialize_all_pref_files(void);
 extern void client_init(void);
 extern  int client_failed(void);
@@ -448,15 +466,14 @@ extern void quit_hook(cptr str);
 extern char index_to_label(int i);
 extern bool item_tester_okay(object_type *o_ptr);
 extern bool item_tester_hack(object_type *o_ptr, int i); /* Do not use this */
-extern bool c_get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor);
+extern bool c_get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor_);
 extern bool c_check_item(int *item, byte tval);
 extern byte c_secondary_tester(int item);
+extern int count_items_by_name(char* name, bool inven, bool equip, bool floor_);
 extern void do_cmd_inscribe_auto(char *item_name, char *inscription);
+extern void do_cmd_uniscribe_by_tag(char cmd, char tag);
 
 /* c-util.c */
-#ifndef HAVE_USLEEP
-extern int usleep(huge microSeconds);
-#endif
 extern void move_cursor(int row, int col);
 extern void flush(void);
 extern void flush_now(void);
@@ -465,6 +482,7 @@ extern int sound_count(int val);
 extern void macro_add(cptr pat, cptr act, bool cmd_flag);
 extern int macro_find_exact(cptr pat);
 extern errr macro_trigger_free(void);
+extern void ascii_to_text(char *buf, size_t len, cptr src);
 extern char inkey(void);
 extern void bell(void);
 extern void c_prt(byte attr, cptr str, int row, int col);
@@ -490,7 +508,6 @@ extern void msg_flush(void);
 extern void c_msg_print_aux(cptr msg, u16b type);
 extern void c_msg_print(cptr msg);
 extern s32b c_get_quantity(cptr prompt, s32b max);
-extern errr path_build(char *buf, int max, cptr path, cptr file);
 extern bool askfor_aux(char *buf, int len, char m_private);
 extern void clear_from(int row);
 extern int cavedraw(cave_view_type* src, int len, s16b x, s16b y);
@@ -503,6 +520,7 @@ extern void mem_line(int y, int x, int cols);
 extern void show_line(int y, s16b cols, bool mem, int st);
 extern void show_char(s16b y, s16b x, byte a, char c, byte ta, char tc, bool mem);
 extern void update_air(void);
+extern void update_slashfx(void);
 extern void prt_num(cptr header, int num, int row, int col, byte color);
 extern void prt_lnum(cptr header, s32b num, int row, int col, byte color);
 extern void interact_macros(void);
@@ -510,12 +528,12 @@ extern void do_cmd_options(void);
 extern void do_cmd_options_birth(void);
 extern bool get_string_masked(cptr prompt, char *buf, int len);
 #ifdef USE_SOUND
-extern void load_sound_prefs();
+extern void load_sound_prefs(void);
 #endif
 
 /* c-spell.c */
-extern int get_spell(int *sn, cptr p, cptr prompt, int *bn, bool known);
-extern bool get_spell_by_name(int *bn, int *sn, bool inven, bool equip, bool books);
+extern int get_spell(int *sn, cptr p, cptr prompt, int *bn, bool known, bool bookless);
+extern errr get_spell_by_name(int *bn, int *sn, bool inven, bool equip, bool books);
 extern void show_browse(int book);
 extern void do_study(int book);
 extern void do_cast(int book);
@@ -553,6 +571,7 @@ extern void do_chat_select(int id);
 extern void do_chat_close(int id);
 extern void do_handle_message(cptr mesg, u16b type);
 
+
 /* client.c */
 
 /* net-client.c */
@@ -560,10 +579,11 @@ extern s16b state;
 extern bool net_term_clamp(byte win, byte *y, byte *x);
 extern u32b net_term_manage(u32b* old_flag, u32b* new_flag, bool clear);
 extern u32b net_term_update(bool clear);
-extern void setup_keepalive_timer();
-extern void setup_network_client();
-extern void cleanup_network_client();
-extern void network_loop();
+extern void net_visuals_update(void);
+extern void setup_keepalive_timer(void);
+extern void setup_network_client(void);
+extern void cleanup_network_client(void);
+extern void network_loop(void);
 extern int call_metaserver(char *server_name, int server_port, char *buf, int buflen);
 extern int call_server(char *server_name, int server_port);
 extern server_setup_t serv_info;
@@ -574,7 +594,7 @@ extern int send_settings(void);
 extern int send_options(void);
 extern int send_play(byte mode);
 extern int send_suicide(void);
-extern int send_char_info();
+extern int send_char_info(void);
 extern int send_keepalive(u32b last_keepalive);
 extern int send_request(byte mode, u16b id);
 extern int send_visual_info(byte type);

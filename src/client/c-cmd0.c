@@ -902,7 +902,7 @@ custom_command_type *match_custom_command(char cmd, bool shop)
 }
 command_type *match_builtin_command(char cmd)
 {
-	int i, j;
+	size_t i, j;
 	for (j = 0; j < N_ELEMENTS(cmds_all); j++)
 	{
 		for (i = 0; i < cmds_all[j].len; i++)
@@ -937,6 +937,11 @@ char command_from_keystroke(char *buf)
 	char *p;
 	for (p = buf; *p; p++)
 	{
+		if (*p == '\\') continue;
+		if ((KTRL(*p) == *p) && (isalpha(UN_KTRL(*p))))
+		{
+			return (*p);
+		}
 		if ((char)(*p) <= 32)
 		{
 			continue;
@@ -945,6 +950,39 @@ char command_from_keystroke(char *buf)
 		return (*p);
 	}
 	return (0);
+}
+
+/* This is like "item_tester_okay", in reverse. Given an item
+ * and a command, we check if this command could be applied
+ * to a given item. */
+bool command_tester_okay(int custom_command_id, int item)
+{
+	object_type *o_ptr;
+	custom_command_type *cc_ptr = &custom_command[custom_command_id];
+
+	if (item < 0) o_ptr = &floor_item;
+	else o_ptr = &inventory[item];
+
+	/* Skip non-item commands */
+	if (!(cc_ptr->flag & COMMAND_NEED_ITEM)) return FALSE;
+
+	/* Generic item commands (like drop or inscribe) */
+	if (!cc_ptr->tval) return TRUE;
+
+	/* Check the fake hook */
+	if (cc_ptr->tval > TV_MAX)
+	{
+		if (!item_tester_hack(o_ptr, cc_ptr->tval - TV_MAX - 1))
+		{
+			return FALSE;
+		}
+	}
+	/* Or direct (mis)match */
+	else if (!(cc_ptr->tval == o_ptr->tval))
+	{
+		return FALSE;
+	}
+	return TRUE;
 }
 
 char command_by_item(int item, bool agressive)
@@ -956,22 +994,11 @@ char command_by_item(int item, bool agressive)
 	for (i = 0; i < custom_commands; i++)
 	{
 		custom_command_type *cc_ptr = &custom_command[i];
-		if (!(cc_ptr->flag & COMMAND_NEED_ITEM)) continue;
+		if (!command_tester_okay(i, item)) continue;
+
+		/* Skip generic commands */
 		if (!cc_ptr->tval) continue;
 
-		/* Check the fake hook */
-		if (cc_ptr->tval > TV_MAX)
-		{
-			if (!item_tester_hack(o_ptr, cc_ptr->tval - TV_MAX - 1))
-			{
-				continue;
-			}
-		}
-		/* Or direct (mis)match */
-		else if (!(cc_ptr->tval == o_ptr->tval))
-		{
-			continue;
-		}
 		/* Spell command hacks */
 		if (cc_ptr->flag & COMMAND_SPELL_BOOK)
 		{
@@ -989,19 +1016,24 @@ char command_by_item(int item, bool agressive)
 int command_as_keystroke(char cmd, char *dst, size_t len)
 {
 	char tmp[32];
+	char *p = tmp;
 	/* Hack -- dump the value */
-	tmp[0] = '\\';
-	tmp[1] = 'e';
+	*p++ = '\\';
+	*p++ = 'e';
+	if (rogue_like_commands)
+	{
+		*p++ = '\\';
+		*p++ = '\\';
+	}
 	if (KTRL(cmd) == cmd)
 	{
-		tmp[2] = '^';
-		tmp[3] = UN_KTRL(cmd);
-		tmp[4] = '\0';
+		*p++ = '^';
+		*p++ = UN_KTRL(cmd);
 	}
 	else {
-		tmp[2] = cmd;
-		tmp[3] = '\0';
+		*p++ = cmd;
 	}
+	*p++ = '\0';
 	my_strcpy(dst, tmp, len);
 	return strlen(dst);
 }
@@ -1022,11 +1054,11 @@ int item_as_keystroke(int item, char cmd, char *dst, size_t len, byte ctxt_flag)
 
 	if (item < 0 && item > -FLOOR_TOTAL-1)
 	{
-		my_strcpy(buf2, floor_name, 1024);
+		my_strcpy(buf2, floor_name_one, 1024);
 	}
 	else
 	{
-		my_strcpy(buf2, inventory_name[item], 1024);
+		my_strcpy(buf2, inventory_name_one[item], 1024);
 	}
 
 	if (ctxt_flag & CTXT_WITH_CMD)
@@ -1090,7 +1122,7 @@ int item_as_keystroke(int item, char cmd, char *dst, size_t len, byte ctxt_flag)
 	p = buf2;
 	if ((s = strchr(p, '[')) && *(s+1) && !isdigit(*(s+1))) p = s;
 	else if ((s = strchr(p, '['))) *s = '\0';
-	else if (s = strstr(p, " of ")) p = s + 4;
+	else if ((s = strstr(p, " of "))) p = s + 4;
 	if ((s = strchr(p, '('))) *s = '\0';
 	if ((s = strchr(p, '{'))) *s = '\0';
 	if (prefix(p, "a ")) p += 2;
@@ -1464,10 +1496,10 @@ static u32b do_cmd_term_chat(int x, int y, int button)
 static u32b do_cmd_term_store(int x, int y, int button)
 {
 	int item = y - 6;
-	char cmd;
+	char cmd = 0;
 	int btn, mods = 0;
 
-	if (item < 0 || item >= store.stock_num) return 0;
+	if (item < 0 || item >= 12) return 0;
 
 	btn = mouse_button_mods(button, &mods);
 

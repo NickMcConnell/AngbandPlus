@@ -75,8 +75,20 @@ int accept_console(int data1, data data2) {
 int console_close(int data1, data data2) {
 	connection_type *ct = (connection_type*)data2;
 	console_connection *cn = ct->uptr;
+	eptr console;
 
 	KILL(cn);
+
+	/* Remove this console from our quick-list */
+	for (console = first_console; console; console = console->next)
+	{
+		if (console->data1 == data2)
+		{
+			e_rem(&first_console, console);
+			if (console == first_console) first_console = NULL;
+			break;
+		}
+	}
 
 	return 0;
 }
@@ -328,7 +340,7 @@ static void console_whois(connection_type* ct, char *name)
 static void console_message(connection_type* ct, char *buf)
 {
 	/* Send the message */
-	player_talk(0, buf);
+	player_talk(NULL, buf);
 }
 
 static void console_kick_player(connection_type* ct, char *name)
@@ -543,7 +555,7 @@ static void console_shutdown(connection_type* ct, char *when)
 		plog_fmt("Server is shutting down in %d minute%s.", min, min == 1 ? "" : "s");
 
 		/* Send the message -- TODO: is this the right function ?*/
-		player_talk(0, format("Server is shutting down in %d minute%s.", min, min == 1 ? "" : "s"));
+		player_talk(NULL, format("Server is shutting down in %d minute%s.", min, min == 1 ? "" : "s"));
 	}
 }
 

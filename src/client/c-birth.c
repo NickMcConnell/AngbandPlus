@@ -40,6 +40,12 @@ void choose_name(void)
 		break;
 	}
 
+#ifdef MOBILE_UI
+	/* Save entered name to config file */
+	/* TODO: maybe do it on all platforms? */
+	conf_set_string("MAngband", "nick", nick);
+#endif
+
 	/* Pad the name (to clear junk) */
 	sprintf(tmp, "%-15.15s", nick);
 
@@ -87,6 +93,12 @@ void enter_password(void)
 		break;
 	}
 
+#ifdef MOBILE_UI
+	/* Save entered password to config file */
+	/* TODO: maybe do it on all platforms? */
+	conf_set_string("MAngband", "pass", pass);
+#endif
+
 	/* Pad the name (to clear junk) 
 	sprintf(tmp, "%-15.15s", pass); */
 
@@ -133,6 +145,43 @@ void do_cmd_help_birth(void)
 }
 
 /*
+ * Menu helpers
+ * TODO: port V menus
+ */
+static errr menu_sex_entry(char *buf, size_t max, menu_type *menu, int oid)
+{
+	if (oid == 0) my_strcpy(buf, "Male", max);
+	if (oid == 1) my_strcpy(buf, "Female", max);
+	return 0;
+}
+static errr menu_race_entry(char *buf, size_t max, menu_type *menu, int oid)
+{
+	player_race *rp_ptr;
+	rp_ptr = &race_info[oid];
+	my_strcpy(buf, p_name + rp_ptr->name, max);
+	return 0;
+}
+static errr menu_class_entry(char *buf, size_t max, menu_type *menu, int oid)
+{
+	player_class *cp_ptr;
+	cp_ptr = &c_info[oid];
+	my_strcpy(buf, c_name + cp_ptr->name, max);
+	return 0;
+}
+static errr menu_stat_entry(char *buf, size_t max, menu_type *menu, int oid)
+{
+	int i;
+	my_strcpy(buf, stat_names[oid], max);
+	buf[3] = '\0';
+	for (i = 0; i < A_MAX; i++)
+	{
+		if (stat_order[i] == oid) buf[0] = '\0';
+	}
+	return 0;
+}
+
+
+/*
  * Choose the character's sex				-JWT-
  */
 static void choose_sex(void)
@@ -141,6 +190,17 @@ static void choose_sex(void)
 
 	put_str("m) Male", 21, 2);
 	put_str("f) Female", 21, 17);
+
+	if (z_ask_menu_aux)
+	{
+		static menu_type menu;
+		WIPE(&menu, menu);
+		menu.cmd_keys = "\x8B\x8C\n\r";
+		menu.count = 2;
+		menu.menu_data = NULL;
+		menu.selections = "mf";
+		z_ask_menu_aux(&menu, &menu_sex_entry, 21, 2);
+	}
 
 	while (1)
 	{
@@ -188,6 +248,17 @@ static void choose_race(void)
 	char                c;
 
 	char		out_val[160];
+
+	if (z_ask_menu_aux)
+	{
+		static menu_type menu;
+		WIPE(&menu, menu);
+		menu.cmd_keys = "\x8B\x8C\n\r";
+		menu.count = z_info.p_max;
+		menu.menu_data = NULL;
+		menu.selections = "abcdefghijklmnopqrstuvwxyz";
+		z_ask_menu_aux(&menu, &menu_race_entry, 21, 2);
+	}
 
 	k = 0;
 	l = 2;
@@ -250,6 +321,16 @@ static void choose_class(void)
 
 	char	 out_val[160];
 
+	if (z_ask_menu_aux)
+	{
+		static menu_type menu;
+		WIPE(&menu, menu);
+		menu.cmd_keys = "\x8B\x8C\n\r";
+		menu.count = z_info.c_max;
+		menu.menu_data = NULL;
+		menu.selections = "abcdefghijklmnopqrstuvwxyz";
+		z_ask_menu_aux(&menu, &menu_class_entry, 21, 2);
+	}
 
 	/* Prepare to list */
 	k = 0;
@@ -307,32 +388,57 @@ static void choose_class(void)
  */
 void choose_stat_order(void)
 {
-	int i, j, k, avail[6];
+	int i, j, k, avail[A_CAP];
 	char c;
-	char out_val[160], stats[6][4];
+	char out_val[160], stats[A_CAP][4];
+
+/* HACK!!! TODO: Deprecate at 1.6.0 !!! */
+if (A_MAX == 0)
+{
+    A_MAX = 6;
+    C_MAKE(stat_names, A_MAX, char*);
+    stat_names[0] = string_make("STR");
+    stat_names[1] = string_make("INT");
+    stat_names[2] = string_make("WIS");
+    stat_names[3] = string_make("DEX");
+    stat_names[4] = string_make("CON");
+    stat_names[5] = string_make("CHR");
+}
+
+	if (z_ask_menu_aux)
+	{
+		static menu_type menu;
+		WIPE(&menu, menu);
+		menu.cmd_keys = "\x8B\x8C\n\r";
+		menu.count = A_MAX;
+		menu.menu_data = NULL;
+		menu.selections = "abcdefghijklmnopqrstuvwxyz";
+		z_ask_menu_aux(&menu, &menu_stat_entry, 21, 1);
+	}
 
 	/* All stats are initially available */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		strncpy(stats[i], stat_names[i], 3);
 		stats[i][3] = '\0';
 		avail[i] = 1;
+		stat_order[i] = 0xFF;
 	}
 
 	/* Find the ordering of all 6 stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		/* Clear bottom of screen */
 		clear_from(20);
 
 		/* Print available stats at bottom */
-		for (k = 0; k < 6; k++)
+		for (k = 0; k < A_MAX; k++)
 		{
 			/* Check for availability */
 			if (avail[k])
 			{
 				sprintf(out_val, "%c) %s", I2A(k), stats[k]);
-				put_str(out_val, 21, k * 9);
+				put_str(out_val, 21, k * 9 + 1);
 			}
 		}
 
@@ -343,7 +449,7 @@ void choose_stat_order(void)
 			c = inkey();
 			if (c == 'Q') quit(NULL);
 			j = (islower(c) ? A2I(c) : -1);
-			if ((j < 6) && (j >= 0) && (avail[j]))
+			if ((j < A_MAX) && (j >= 0) && (avail[j]))
 			{
 				stat_order[i] = j;
 				c_put_str(TERM_L_BLUE, stats[j], 8 + i, 15);
@@ -364,6 +470,9 @@ void choose_stat_order(void)
 			}
 		}
 	}
+
+	if (z_ask_menu_aux) z_ask_menu_aux(NULL, NULL, 0, 0);
+
 
 	clear_from(20);
 }
@@ -578,6 +687,9 @@ bool get_server_name(void)
 
 	/* Prompt */
 	prt("Choose a server to connect to (Q for manual entry): ", y + 2, 1);
+
+	/* Show onscreen keyboard */
+	Term_show_keyboard(0);
 
 	/* Ask until happy */
 	while (1)

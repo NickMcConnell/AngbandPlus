@@ -8,6 +8,14 @@
 
 #include "c-angband.h"
 
+#if defined(ON_IOS) || (defined(ON_OSX) && !defined(HAVE_CONFIG_H))
+#include "appl-dir.h"
+#endif
+
+#if defined(ON_ANDROID)
+#include <SDL.h>
+#endif
+
 char host_name[80];
 
 static void init_arrays(void)
@@ -34,6 +42,32 @@ static void init_arrays(void)
 
 	/* Clear client_setup */
 	Client_setup.k_attr = NULL;
+}
+static void free_arrays(void)
+{
+	int i, j;
+	for (i = 0; i < macro__num; i++)
+	{
+		string_ifree(macro__pat[i]);
+		string_ifree(macro__act[i]);
+	}
+	KILL(macro__pat);
+	KILL(macro__act);
+	KILL(macro__cmd);
+	KILL(macro__buf);
+	macro_trigger_free();
+	for (j = 0; j < KEYMAP_MODES; j++)
+	{
+		for (i = 0; i < 256; i++)
+		{
+			string_ifree(keymap_act[j][i]);
+		}
+	}
+	KILL(message__ptr);
+	KILL(message__buf);
+	KILL(message__type);
+	KILL(message__count);
+	KILL(store.stock);
 }
 
 /*
@@ -71,8 +105,21 @@ void init_stuff(void)
 	/* Read path from command-line */
 	clia_read_string(path, 1024, "libdir");
 
+#ifdef ON_ANDROID
+	/* Always use PKGDATADIR */
+	my_strcpy(path, PKGDATADIR, 1024);
+#endif
+
 	/* Hack -- Add a path separator (only if needed) */
 	if (!suffix(path, PATH_SEP)) my_strcat(path, PATH_SEP, 1024);
+
+/* Calling quit before we have a nice messagebox hook for the message
+ * is counter-productive on Windows machines. Note: this is for SDL/SDL2,
+ * not the windows client, which does its own init. */
+#if !defined(WINDOWS) && !defined(__APPLE__)
+	/* Verify LIB DIR */
+	if (!dir_exists(path)) quit(format("Can't find LibDir at '%s' !", path));
+#endif
 
 	/* Initialize */
 	init_file_paths(path);
@@ -87,14 +134,61 @@ void init_stuff(void)
 	/* We're onto something */
 	if (!STRZERO(path))
 	{
+		size_t offset = 0;
+
 		/* Hack -- Add a path separator (only if needed) */
 		if (!suffix(path, PATH_SEP)) my_strcat(path, PATH_SEP, 1024);
 
-		/* Overwrite "user" dir */
+		/* HACK! Do not append "user" to userdir if -d option was used. */
+		if (prefix(path, "-duser=")) offset = 7;
+		else
 		my_strcat(path, "user", 1024);
+
+		/* Overwrite "user" dir */
 		string_free(ANGBAND_DIR_USER);
-		ANGBAND_DIR_USER = string_make(path);
+		ANGBAND_DIR_USER = string_make(path + offset);
 	}
+
+	/* -------------------------- */
+	/* Overwrite ANGBAND_DIR_BONE */
+
+	/* Read/Write path from config file or CLI */
+	my_strcpy(path, conf_get_string("MAngband", "BoneDir", ""), 1024);
+	clia_read_string(path, 1024, "bonedir");
+
+	/* We're onto something */
+	if (!STRZERO(path))
+	{
+		size_t offset = 0;
+
+		/* Hack -- Add a path separator (only if needed) */
+		if (!suffix(path, PATH_SEP)) my_strcat(path, PATH_SEP, 1024);
+
+		/* HACK! Do not append "user" to userdir if -d option was used. */
+		if (prefix(path, "-dbone=")) offset = 7;
+
+		/* Overwrite "bone" dir */
+		string_free(ANGBAND_DIR_BONE);
+		ANGBAND_DIR_USER = string_make(path + offset);
+	}
+
+    /* ------------------------------------- */
+    /* Copy pref files from ANGBAND_DIR_USER */
+    /* If succesfull, ANGBAND_DIR_USER will then point to the new location */
+    /* TODO: merge those into SDL_GetPrefPath? */
+#if defined(ON_IOS) || (defined(ON_OSX) && !defined(HAVE_CONFIG_H))
+    {
+        char final_user_dir[PATH_MAX];
+        appl_get_appsupport_dir(final_user_dir, PATH_MAX, TRUE);
+        import_user_pref_files(final_user_dir);
+    }
+#endif
+#if defined(ON_ANDROID)
+    {
+        const char *final_user_dir = SDL_AndroidGetInternalStoragePath();
+        import_user_pref_files(final_user_dir);
+    }
+#endif
 
 }
 
@@ -135,6 +229,10 @@ void init_minor(void)
 		window_to_stream[i] = NTERM_WIN_NONE;
 		remote_info[i] = NULL;
 	}
+	for (i = 0; i < MAX_COFFERS; i++)
+	{
+		str_coffers[i] = NULL;
+	}
 
 	/* Redraw flags */
 	p_ptr->redraw = 0;
@@ -167,6 +265,83 @@ void init_info(void)
 	/* pr_info */
 	C_MAKE(p_ptr->pr_attr, (z_info.c_max+1)*z_info.p_max, byte);
 	C_MAKE(p_ptr->pr_char, (z_info.c_max+1)*z_info.p_max, char);
+}
+void free_info(void)
+{
+	KILL(Client_setup.k_attr);
+	KILL(Client_setup.k_char);
+	KILL(p_ptr->k_attr);
+	KILL(p_ptr->k_char);
+	KILL(p_ptr->d_attr);
+	KILL(p_ptr->d_char);
+	KILL(Client_setup.r_attr);
+	KILL(Client_setup.r_char);
+	KILL(p_ptr->r_attr);
+	KILL(p_ptr->r_char);
+	KILL(Client_setup.f_attr);
+	KILL(Client_setup.f_char);
+	KILL(p_ptr->f_attr);
+	KILL(p_ptr->f_char);
+	KILL(p_ptr->pr_attr);
+	KILL(p_ptr->pr_char);
+}
+
+/* Reset all visual mappings */
+void wipe_visual_prefs(void)
+{
+	int i;
+
+	for (i = 0; i < MAX_FLVR_IDX; i++)
+	{
+		Client_setup.flvr_x_attr[i] = 0;
+		Client_setup.flvr_x_char[i] = 0;
+	}
+	for (i = 0; i < 128; i++)
+	{
+		Client_setup.tval_attr[i] = 0;
+		Client_setup.tval_char[i] = 0;
+	}
+	for (i = 0; i < 256; i++)
+	{
+		Client_setup.misc_attr[i] = 0;
+		Client_setup.misc_char[i] = 0;
+	}
+
+	/* k_info (Object Kinds) */
+	for (i = 0; i < z_info.k_max; i++)
+	{
+		Client_setup.k_attr[i] = 0;
+		Client_setup.k_char[i] = 0;
+		p_ptr->k_attr[i] = 0;
+		p_ptr->k_char[i] = 0;
+		/* d_info hack */
+		p_ptr->d_attr[i] = 0;
+		p_ptr->d_char[i] = 0;
+	}
+	/* r_info (Monsters) */
+	for (i = 0; i < z_info.r_max; i++)
+	{
+		Client_setup.r_attr[i] = 0;
+		Client_setup.r_char[i] = 0;
+		p_ptr->r_attr[i] = 0;
+		p_ptr->r_char[i] = 0;
+	}
+
+	/* f_info (Terrain) */
+	for (i = 0; i < z_info.f_max; i++)
+	{
+		Client_setup.f_attr[i] = 0;
+		Client_setup.f_char[i] = 0;
+		p_ptr->f_attr[i] = 0;
+		p_ptr->f_char[i] = 0;
+	}
+
+	/* pr_info (Player picts) */
+	for (i = 0; i < (z_info.c_max+1)*z_info.p_max; i++)
+	{
+		p_ptr->pr_attr[i] = 0;
+		p_ptr->pr_char[i] = 0;
+	}
 }
 
 /*
@@ -369,6 +544,9 @@ static void Setup_loop()
 	client_ready();
 	send_play(PLAY_PLAY);
 
+	/* Notify term (optional) */
+//	Term_xtra(TERM_XTRA_REACT, (TERM_XTRA_REACT_NETWORK));
+
 	/* Advance to next loop */
 	Term_clear();
 	Term_fresh();
@@ -393,11 +571,19 @@ void flush_updates()
 		window_stuff();
 	}
 
+	/* Redraw slash effect? */
+	if (refresh_char_aux)
+	{
+		update_slashfx();
+	}
+
 	/* Redraw air? */
 	if (air_updates)
 	{
 		update_air();
 	}
+
+	Term_xtra(TERM_XTRA_BORED, 0);
 
 	/* Hack -- don't redraw the screen until we have all of it */
 	//if (last_line_info < Term->hgt - SCREEN_CLIP_Y) continue;
@@ -451,6 +637,11 @@ void quit_hook(cptr s)
 {
 	int j;
 
+	/* Everything allocated must be freed */
+	//FIXME: it's not safe to call :(
+	//free_arrays();
+	//free_info();
+
 	cleanup_network_client();
 
 	/* Nuke each term */
@@ -463,16 +654,39 @@ void quit_hook(cptr s)
 		term_nuke(ang_term[j]);
 	}
 
+	/* Save config */
 	conf_save();
+
+	/* Release config */
+	conf_done();
+
+	/* Undo init_file_paths */
+	free_file_paths();
 }
 
 void gather_settings()
 {
+	graphics_mode *gm;
+	int i, j;
+
 	/* Graphics */
-	Client_setup.settings[0] = use_graphics;
+	gm = use_graphics ? get_graphics_mode((byte)use_graphics) : NULL;
+	Client_setup.settings[0] = gm ? (
+		gm->lightmap ? GRAPHICS_LIGHTMAP :
+			(gm->transparent ? GRAPHICS_TRANSPARENT : GRAPHICS_PLAIN)
+	) : 0;
+	for (i = 0; i < 4; i++)
+	{
+		j = 6 + i * 2;
+		Client_setup.settings[j + 0] = gm ? gm->light_offset[i][0] : 0;
+		Client_setup.settings[j + 1] = gm ? gm->light_offset[i][1] : 0;
+	}
 
 	/* Hitpoint warning */
 	Client_setup.settings[3] = p_ptr->hitpoint_warn;
+
+	/* Support slash fx */
+	Client_setup.settings[5] = (refresh_char_aux) ? TRUE : FALSE;
 }
 
 
@@ -594,6 +808,9 @@ bool client_setup()
 	/* Initialize the pref files */
 	initialize_all_pref_files();
 
+	/* Notify term (optional) */
+	Term_xtra(TERM_XTRA_REACT, (TERM_XTRA_REACT_COLORS | TERM_XTRA_REACT_VISUALS));
+
 	/* Horrible hack -- resave birth options if player adjusted them */
 	if (ignore_birth_options) Save_options();
 
@@ -656,6 +873,9 @@ int client_failed(void)
 		put_str("Couldn't connect to server, keep trying? [Y/N]", 21, 1);
 		/* Make sure the message is shown */
 		Term_fresh();
+
+		/* Show on-screen keyboard */
+		Term_show_keyboard(0);
 
 		while (ch != 'Y' && ch !='y' && ch != 'N' && ch != 'n')
 		{

@@ -167,13 +167,13 @@ void cmd_custom(byte i)
 		advance_prompt();
 		if (cc_ptr->flag & COMMAND_SPELL_BOOK)
 		{
-			if (!get_spell(&spell, p, prompt, &item, FALSE)) return;
+			if (!get_spell(&spell, p, prompt, &item, FALSE, FALSE)) return;
 			index = item * SPELLS_PER_BOOK + spell;
 		}
 		else
 		{
 			int book = cc_ptr->tval;
-			if (!get_spell(&spell, p, prompt, &book, FALSE)) return;
+			if (!get_spell(&spell, p, prompt, &book, FALSE, TRUE)) return;
 			index = book * SPELLS_PER_BOOK + spell;
 			indoff = cc_ptr->tval * SPELLS_PER_BOOK;
 		}
@@ -291,6 +291,7 @@ void process_command()
 		}
 	}
 
+#ifndef MOBILE_UI
 	/* Hack -- pick command from a menu */
 	if (command_cmd == '\r')
 	{
@@ -301,6 +302,7 @@ void process_command()
 			return;
 		}
 	}
+#endif
 
 	/* Parse the command */
 	switch (command_cmd)
@@ -481,8 +483,7 @@ void process_command()
 
 		case KTRL('X'):
 		{
-	        cleanup_network_client();
-	        quit(NULL);
+			quit(NULL);
 		}
 
 		case KTRL('R'):
@@ -521,11 +522,13 @@ void process_command()
 			break;
 		}
 
+#ifndef MOBILE_UI
 		case '%':
 		{
 			interact_macros();
 			break;
 		}
+#endif
 
 		case '!':
 		{
@@ -634,6 +637,9 @@ void cmd_locate(void)
 		/* Get a direction */
 		while (!dir)
 		{
+			/* Hack -- inform Term2 */
+			if (z_ask_dir_aux) z_ask_dir_aux("Locate", FALSE, FALSE);
+
 			/* Get a command (or Cancel) */
 			ch = inkey();
 
@@ -1483,6 +1489,22 @@ void cmd_mouseclick()
 			return;
 		}
 	} /* XXX XXX XXX */
+
+	/* XXX HORRIBLE HACK#2 XXX*/
+	if (btn) { /* Allow rebinding */
+		byte map_from = btn | mod;
+		if (mousemap[map_from])
+		{
+
+			btn = mousemap[map_from] & 0x0F;
+			mod = mousemap[map_from] & 0xF0;
+		}
+	} /* XXX XXX XXX */
+
+	/* If the mouse is outside the dungeon, do nothing. */
+	if (ke.mousex - DUNGEON_OFFSET_X < 0
+	 || ke.mousey - DUNGEON_OFFSET_Y < 0)
+		return;
 
 	send_mouse(0
 	  | (btn == 1 ? MCURSOR_LMB : 0)

@@ -49,6 +49,9 @@ void flush_now(void)
 	/* Cancel "strip" mode */
 	strip_chars = FALSE;
 
+	/* Restore "first escape" */
+	first_escape = TRUE;
+
 	/* Forget old keypresses */
 	Term_flush();
 }
@@ -314,8 +317,12 @@ static event_type inkey_aux(void)
 	{
 		parse_macro = FALSE;
 		strip_chars = FALSE;
+		first_escape = TRUE;
 		return (ke);
 	}
+
+	/* Cancel queue clearing */
+	if (ch == '\f' && parse_macro) { first_escape = FALSE; return (ke0); }
 
 	/* Do not check macro actions */
 	if (parse_macro) return (ke);
@@ -1108,6 +1115,8 @@ bool askfor_aux(char *buf, int len, char m_private)
 	Term_erase(x, y, len);
 	Term_putstr(x, y, -1, default_color, m_private ? "xxxxxx" : buf);
 
+	/* Show on-screen keyboard */
+	Term_show_keyboard(0);
 
 	/* Process input */
 	while (!done)
@@ -1162,6 +1171,9 @@ bool askfor_aux(char *buf, int len, char m_private)
 		buf[k] = '\0';
 
 	}
+
+	/* Hide on-screen keyboard */
+	Term_hide_keyboard();
 
 	/* Hide cursor */
 	Term_hide_ui_cursor();
@@ -1359,6 +1371,8 @@ void request_command(bool shopping)
 	/* Flush the input */
 	/* flush(); */
 
+	if (z_ask_command_aux) z_ask_command_aux(NULL, shopping);
+
 	/* Get a keypress in "command" mode */
 
 	/* Activate "command mode" */
@@ -1484,6 +1498,8 @@ bool c_get_dir(char *dp, cptr prompt, bool allow_target, bool allow_friend)
 	else
 		p = "Direction (non-direction cancels)?";
 	strcat(buf, p);
+
+	if (z_ask_dir_aux) z_ask_dir_aux(buf, allow_target, allow_friend);
 
 	get_com(buf, &command);
 
@@ -1671,6 +1687,9 @@ bool get_check(cptr prompt)
 	/* Get an acceptable answer */
 	while (TRUE)
 	{
+		/* Hack -- ask term2 */
+		if (z_ask_confirm_aux) z_ask_confirm_aux(buf);
+
 		i = inkey();
 		if (i == ESCAPE) break;
 		if (strchr("YyNn", i)) break;
@@ -2369,53 +2388,52 @@ s32b c_get_quantity(cptr prompt, s32b max)
 	return (amt);
 }
 
-
 /*
- * Create a new path by appending a file (or directory) to a path
- *
- * This requires no special processing on simple machines, except
- * for verifying the size of the filename, but note the ability to
- * bypass the given "path" with certain special file-names.
- *
- * Note that the "file" may actually be a "sub-path", including
- * a path and a file.
- *
- * Note that this function yields a path which must be "parsed"
- * using the "parse" function above.
+ * Handle the slash effects
  */
-errr path_build(char *buf, int max, cptr path, cptr file)
+/*
+ * Note: this function uses up the static_timer(3). This means you can't use
+ * static_timer(3) anywhere else from now on.
+ */
+void slashfx_dir_offset(int *x, int *y, int dir, bool invert)
 {
-        /* Special file */
-        if (file[0] == '~')
-        {
-                /* Use the file itself */
-                strnfmt(buf, max, "%s", file);
-        }
-
-        /* Absolute file, on "normal" systems */
-        else if (prefix(file, PATH_SEP) && !streq(PATH_SEP, ""))
-        {
-                /* Use the file itself */
-                strnfmt(buf, max, "%s", file);
-        }
-
-        /* No path given */
-        else if (!path[0])
-        {
-                /* Use the file itself */
-                strnfmt(buf, max, "%s", file);
-        }
-
-        /* Path and File */
-        else
-        {
-                /* Build the new path */
-                strnfmt(buf, max, "%s%s%s", path, PATH_SEP, file);
-        }
-
-        /* Success */
-        return (0);
+	const int dir_offset_y[9] = { 1, 1, 1,  0, 0, 0,  -1,-1,-1 };
+	const int dir_offset_x[9] = { -1, 0, 1,  -1, 0, 1,  -1, 0, 1 };
+	*x = dir_offset_x[dir - 1] * (invert ? 1 : 1);
+	*y = dir_offset_y[dir - 1] * (invert ? 1 : 1);
 }
+void update_slashfx()
+{
+	micro passed = static_timer(3);
+	u16b milli = (u16b)(passed / 1000);
+	int j, i;
+	for (j = 0; j < MAX_HGT; j++)
+	{
+		for (i = 0; i < MAX_WID; i++)
+		{
+			if (sfx_delay[j][i] > 0)
+			{
+				sfx_delay[j][i] -= milli;
+				/* Delay timeout */
+				if (sfx_delay[j][i] <= 0)
+				{
+					sfx_delay[j][i] = 0;
+				}
+				/* Draw same tile */
+				refresh_char_aux(i, j);
+			}
+		}
+	}
+}
+void discard_slashfx(int y, int x)
+{
+	if (sfx_delay[y][x] > 0 && (refresh_char_aux))
+	{
+		sfx_delay[y][x] = 0;
+		refresh_char_aux(x, y);
+	}
+}
+
 
 void clear_from(int row)
 {
@@ -2533,10 +2551,49 @@ int cavestr(cave_view_type* dest, cptr str, byte attr, int max_col)
 	return 1;
 }
 
+/* A version of "cavedraw()" for Term2 hack */
+bool Term2_cave_line(int st, int sy, int y, int cols)
+{
+	cave_view_type* src = stream_cave(st, sy);
+	int x = 0;
+	int dx = x;
+	int dy = y;
+	int i;
+	bool complete = FALSE;
+	/* Draw a character n times */
+	for (i = 0; i < cols; i++)
+	{
+		/* Don't draw on screen if character is 0 */
+		//if (src[i].c)
+		{
+			byte a = src[i].a;
+			char c = src[i].c;
+			byte ta = p_ptr->trn_info[y][x + i].a;
+			char tc = p_ptr->trn_info[y][x + i].c;
+			bool _ret;
+			//if (!ta) ta = a;
+			//if (!tc) tc = c;
+			discard_slashfx(y, x + i);
+			_ret = cave_char_aux(dx + i, dy, a, c, ta, tc);
+			if (_ret) complete = TRUE;
+		}
+	}
+	return complete;
+}
+
+
 /* Draw (or don't) a char depending on screen ickyness */
 void show_char(s16b y, s16b x, byte a, char c, byte ta, char tc, bool mem)
 {
 	bool draw = TRUE;
+
+	/* If we have a hook, use it */
+	if (cave_char_aux && mem)
+	{
+		discard_slashfx(y, x);
+		/* Hook will return TRUE if no further processing is needed */
+		if (cave_char_aux(x, y, a, c, ta, tc)) return;
+	}
 
 	/* Manipulate offset: */
 	x += DUNGEON_OFFSET_X;	
@@ -2584,6 +2641,15 @@ void show_line(int sy, s16b cols, bool mem, int st)
 	draw = mem ? !screen_icky : interactive_mode;
 	xoff = coff = 0;
 	y = sy + (mem ? DUNGEON_OFFSET_Y : 0);
+
+	/* Dungeon, and we have a dungeon hook. */
+	if ((streams[st].addr == NTERM_WIN_OVERHEAD)
+	&& !(streams[st].flag & SF_OVERLAYED)
+	&& (cave_char_aux != NULL))
+	{
+		/* Hook will return TRUE if no further processing is needed */
+		if (Term2_cave_line(st, sy, sy, cols)) return;
+	}
 
 	/* Ugly Hack - Shopping */
 	if (shopping) draw = FALSE;
@@ -2835,6 +2901,12 @@ void ascii_to_text(char *buf, size_t len, cptr str)
 			*s++ = '\\';
 			*s++ = '\\';
 		}
+		else if (i == '\f')
+		{
+			*s++ = '\\';
+			*s++ = 'f';
+		}
+
 		/* Macro Trigger */
 		else if (i == 31)
 		{
@@ -2883,11 +2955,86 @@ void ascii_to_text(char *buf, size_t len, cptr str)
 	*s = '\0';
 }
 
+/*
+ * Hack -- Append all keymaps to the given file.
+ *
+ * Hack -- We only append the keymaps for the "active" mode.
+ */
+static void keymap_dump(ang_file *fff)
+{
+	int i;
+	int mode;
+	char buf[1024];
+	cptr keymap_name;
+
+	/* Roguelike */
+	if (rogue_like_commands)
+	{
+		mode = KEYMAP_MODE_ROGUE;
+		keymap_name = "Roguelike Keyset";
+	}
+	/* Original */
+	else
+	{
+		mode = KEYMAP_MODE_ORIG;
+		keymap_name = "Original Keyset";
+	}
+
+	/* Dump the header */
+	file_putf(fff, "#\n", keymap_name);
+	file_putf(fff, "# ====== Keymaps (%s) ======\n", keymap_name);
+	file_putf(fff, "#\n\n", keymap_name);
+
+	for (i = 0; i < 256; i++)
+	{
+		int tmp_cmd;
+		char tmp_buf[256];
+		char key_buf[256];
+
+		char key[2] = "?";
+
+		cptr act;
+
+		/* Loop up the keymap */
+		act = keymap_act[mode][i];
+
+		/* Skip empty keymaps */
+		if (!act) continue;
+
+		/* Convert the key into a string */
+		key[0] = i;
+
+		/* Encode the key */
+		ascii_to_text(key_buf, sizeof(key_buf), key);
+
+		/* Try to extract the comment */
+		text_to_ascii(tmp_buf, sizeof(tmp_buf), act);
+		tmp_cmd = command_from_keystroke(tmp_buf);
+		tmp_buf[0] = '\0';
+		command_to_display_name(tmp_cmd, tmp_buf, sizeof(tmp_buf));
+		/* Dump the comment */
+		file_putf(fff, "# %s (%s)\n", tmp_buf, key_buf);
+
+		/* Encode the action */
+		ascii_to_text(buf, sizeof(buf), act);
+
+		/* Dump the keymap action */
+		file_putf(fff, "A:%s\n", buf);
+
+		/* Dump the keymap pattern */
+		file_putf(fff, "C:%d:%s\n", mode, key_buf);
+
+		/* Skip a line */
+		file_putf(fff, "\n");
+	}
+
+}
+
 static errr macro_dump(cptr fname)
 {
 	int i;
 
-	FILE *fff;
+	ang_file* fff;
 
 	char buf[1024];
 
@@ -2896,48 +3043,90 @@ static errr macro_dump(cptr fname)
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
 
 	/* Write to the file */
-	fff = my_fopen(buf, "w");
+	fff = file_open(buf, MODE_WRITE, FTYPE_TEXT);
 
 	/* Failure */
 	if (!fff) return (-1);
 
+	/* Start dumping */
+	file_putf(fff, "#\n");
+	file_putf(fff, "# ====== Automatic macro dump ======\n");
+	file_putf(fff, "#\n");
+	/* Explain a little */
+	file_putf(fff, "# Macros defined with 'G' are 'command macros' and are only executed when\n# the game is waiting for a command (command context).\n");
+	file_putf(fff, "# Macros defined with 'P' are 'normal macros' and are executed everywhere,\n# at any context.\n");
+	file_putf(fff, "#\n");
 
 	/* Skip space */
-	fprintf(fff, "\n\n");
-
-	/* Start dumping */
-	fprintf(fff, "# Automatic macro dump\n\n");
+	file_putf(fff, "\n\n");
 
 	/* Dump them */
 	for (i = 0; i < macro__num; i++)
 	{
 		/* Start the macro */
-		fprintf(fff, "# Macro '%d'\n\n", i);
+		file_putf(fff, "# Macro '%d'%s\n\n", i, macro__cmd[i] ? " (command context)" : "");
 
 		/* Extract the action */
 		ascii_to_text(buf, sizeof(buf), macro__act[i]);
 
 		/* Dump the macro */
-		fprintf(fff, "A:%s\n", buf);
+		file_putf(fff, "A:%s\n", buf);
 
 		/* Extract the action */
 		ascii_to_text(buf, sizeof(buf), macro__pat[i]);
 
 		/* Dump command macro */
-		if (macro__cmd[i]) fprintf(fff, "C:%s\n", buf);
+		if (macro__cmd[i]) file_putf(fff, "G:%s\n", buf);
 
 		/* Dump normal macros */
-		else fprintf(fff, "P:%s\n", buf);
+		else file_putf(fff, "P:%s\n", buf);
 
 		/* End the macro */
-		fprintf(fff, "\n\n");
+		file_putf(fff, "\n\n");
 	}
 
+
+	/* Hack -- will be dumped into separate file in MAngband */
+#if 0
+	/* Skip space */
+	file_putf(fff, "\n\n");
+
+	/* Dump keymaps */
+	keymap_dump(fff);
+#endif
+
 	/* Finish dumping */
-	fprintf(fff, "\n\n\n\n");
+	file_putf(fff, "\n\n");
 
 	/* Close */
-	my_fclose(fff);
+	file_close(fff);
+
+	/* Success */
+	return (0);
+}
+
+static errr keymap_dump_file(cptr fname)
+{
+	int i;
+
+	ang_file* fff;
+
+	char buf[1024];
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+
+	/* Write to the file */
+	fff = file_open(buf, MODE_WRITE, FTYPE_TEXT);
+
+	/* Failure */
+	if (!fff) return (-1);
+
+	/* Dump */
+	keymap_dump(fff);
+
+	/* Close */
+	file_close(fff);
 
 	/* Success */
 	return (0);
@@ -2951,6 +3140,10 @@ static bool get_macro_trigger(char *buf)
 
 	/* Flush */
 	flush();
+
+	/* Refresh screen? */
+	Term_fresh();
+	Term_xtra(TERM_XTRA_BORED, 0);
 
 	/* Do not process macros */
 	inkey_base = TRUE;
@@ -3022,21 +3215,56 @@ int macro_find_exact(cptr pat)
 	return (-1);
 }
 
-/* Display macros as a list and allow user to navigate through it 
+/*
+ * Hack -- ask for a keymap "trigger" (see below)
+ *
+ * Note that both "flush()" calls are extremely important.  This may
+ * no longer be true, since "util.c" is much simpler now.  XXX XXX XXX
+ */
+static void do_cmd_macro_aux_keymap(char *buf)
+{
+	char tmp[1024];
+
+	/* Flush */
+	flush();
+
+	/* Get a key */
+	buf[0] = inkey();
+	buf[1] = '\0';
+
+	/* Hack -- ignore ESCAPE */
+	if (buf[0] == ESCAPE)
+	{
+		buf[0] = '\0';
+		return;
+	}
+
+	/* Convert to ascii */
+	ascii_to_text(tmp, sizeof(tmp), buf);
+
+	/* Hack -- display the trigger */
+	Term_addstr(-1, TERM_WHITE, tmp);
+
+	/* Flush */
+	flush();
+}
+
+/* Display keymaps as a list and allow user to navigate through it
  * Logic in this function is somewhat broken.
  */
-void browse_macros(void)
+void browse_keymaps(void)
 {
 	int i;
 	int total;
 	int hgt = Term->hgt - 4;
-	int j = 0;	
+	int j = 0;
 	int o = 0;
 	int sel = -1;
 	char tmp_buf[120];
 	char buf[120];
 	char act[120];
-	char a = TERM_WHITE;
+	char a = TERM_WHITE, a2 = TERM_WHITE;
+	byte mode = rogue_like_commands ? 1 : 0;
 
 	/* Process requests until done */
 	while (1)
@@ -3045,26 +3273,28 @@ void browse_macros(void)
 		Term_clear();
 
 		/* Describe */
-		Term_putstr(0, 0, -1, TERM_WHITE, "Browse Macros     (D delete, A/T to set, ESC to accept)");
+		Term_putstr(0, 0, -1, TERM_WHITE, "Browse Keymaps     (D delete, A/T to set, ESC to accept)");
+		if (mode) Term_addstr(-1, TERM_WHITE, "    [Roguelike keyset]");
+		Term_putstr(0, 1, -1, TERM_SLATE, "Keypress                      Action              Comment");
 
 		/* Dump them */
-		for (i = 0, total = 0; i < macro__num; i++)
+		for (i = 0, total = 0; i < 256; i++)
 		{
-			int k = total; 
+			int k = total;
+			char tmp_cmd;
 
-			/* Skip command macro */
-			if (macro__cmd[i]) continue;
-		
+			/* Skip undefined keymaps */
+			if (keymap_act[mode][i] == NULL) continue;
+
 			/* Extract the action */
-			ascii_to_text(act, sizeof(act), macro__act[i]);
-
-			/* Most likely a system action */			
-			if (strlen(act) == 1) continue;
+			ascii_to_text(act, sizeof(act), keymap_act[mode][i]);
 
 			/* Extract the trigger */
-			ascii_to_text(buf, sizeof(buf), macro__pat[i]);
+			tmp_buf[0] = (char)i;
+			tmp_buf[1] = '\0';
+			ascii_to_text(buf, sizeof(buf), tmp_buf);
 
-			/* Deleted macro */
+			/* Deleted keymap */
 			if (!strcmp(buf, act)) continue;
 
 			/* It's ok */
@@ -3073,14 +3303,14 @@ void browse_macros(void)
 			/* Too early */
 			if (k < o) continue;
 
-			/* Too late */			
+			/* Too late */
 			if (k - o >= hgt-2) continue;
 
 			/* Selected */
-			a = TERM_WHITE;
-			if (j == k) 
+			a = TERM_WHITE; a2 = TERM_L_WHITE;
+			if (j == k)
 			{
-				a = TERM_L_BLUE;
+				a = a2 = TERM_L_BLUE;
 				sel = i;
 				/* Move cursor there */
 				Term_gotoxy(0, 2+k-o);
@@ -3092,6 +3322,15 @@ void browse_macros(void)
 
 			/* Dump the action */
 			Term_putstr(30, 2+k-o, -1, a, act);
+
+			/* Try to extract the comment */
+			text_to_ascii(tmp_buf, sizeof(tmp_buf), act);
+			tmp_cmd = command_from_keystroke(tmp_buf);
+			tmp_buf[0] = '\0';
+			command_to_display_name(tmp_cmd, tmp_buf, 1024);
+
+			/* Dump the comment */
+			Term_putstr(50, 2+k-o, -1, TERM_L_WHITE, tmp_buf);
 		}
 
 		/* Get a key */
@@ -3103,13 +3342,11 @@ void browse_macros(void)
 		else if (i == 'D') /* Delete */
 		{
 			/* Keep atleast 1 */
-			if (total == 1) continue;		
+			if (total == 1) continue;
 
-			/* Get a macro trigger */
-			my_strcpy(buf, macro__pat[sel], sizeof(buf));
-
-			/* (un)Link the macro */
-			macro_add(buf, buf, FALSE);
+			/* (un)Link the keymap */
+			string_free(keymap_act[mode][sel]);
+			keymap_act[mode][sel] = string_make(format("%c", sel));
 
 			/* Change offsets */
 			if (j >= total-1) j--;
@@ -3119,32 +3356,33 @@ void browse_macros(void)
 
 		else if (i == 'T') /* Change trigger */
 		{
-			/* Get current action */
-			my_strcpy(act, macro__act[sel], sizeof(act));
+			cptr prev_action;
+			byte new_map;
 
-			/* Prompt */	
+			/* Prompt */
 			clear_from(hgt);
-			Term_putstr(0, hgt+1, -1, TERM_WHITE, "Trigger: ");
+			Term_putstr(0, hgt+1, -1, TERM_WHITE, "Keypress: ");
+			do_cmd_macro_aux_keymap(tmp_buf);
+			new_map = tmp_buf[0];
 
-			/* Get a macro trigger */
-			get_macro_trigger(buf);
-			text_to_ascii(tmp_buf, sizeof(tmp_buf), buf);
+			/* (un)Link old keymap */
+			prev_action = keymap_act[mode][sel];
+			keymap_act[mode][sel] = string_make(format("%c", sel));
 
-			/* Same */
-			if (!strcmp(macro__pat[sel], tmp_buf)) continue;
-
-			/* (re)Link the macro */
-			macro_add(tmp_buf, act, FALSE);
+			/* (un)Create new keymap */
+			if (keymap_act[mode][new_map]) string_free(keymap_act[mode][new_map]);
+			keymap_act[mode][new_map] = prev_action;
 		}
 
 		else if (i == 'A') /* Change action */
 		{
-			/* Prompt */	
+			/* Prompt */
 			clear_from(hgt);
 			Term_putstr(0, hgt+1, -1, TERM_WHITE, "Action: ");
 
 			/* Copy 'current action' */
-			ascii_to_text(act, sizeof(act), macro__act[sel]);			
+			ascii_to_text(act, sizeof(act), keymap_act[mode][sel]);
+//			my_strcpy(act, keymap_act[mode][sel], sizeof(act));
 
 			/* Get an encoded action */
 			if (!askfor_aux(act, 80, 0)) continue;
@@ -3153,13 +3391,20 @@ void browse_macros(void)
 			text_to_ascii(tmp_buf, sizeof(tmp_buf), act);
 			tmp_buf[strlen(act)] = '\0';
 
-			/* Do not allow empty OR short */
-			if (strlen(tmp_buf) <= 1) continue;
+			/* Do not allow empty */
+			if (strlen(tmp_buf) < 1) continue;
 
-			/* (re)Link the macro */
-			macro_add(macro__pat[sel], tmp_buf, FALSE);
+			/* (re)Link the keymap */
+			string_free(keymap_act[mode][sel]);
+			keymap_act[mode][sel] = string_make(tmp_buf);
 		}
 
+		else if (i == ' ') /* Cycle Down */
+		{
+			j++;
+			if (j > total-1) { j = 0; o = 0; }
+			else if (j - o > hgt/2 && j < total) o++;
+		}
 		else if (i == '2') /* Down */
 		{
 			j++;
@@ -3182,7 +3427,405 @@ void browse_macros(void)
 			if (j > total-1) j = total-1;
 			o = j - hgt/2;
 		}
-		else if (i == '1') /* End */ 
+		else if (i == '1') /* End */
+		{
+			j = total - 1;
+			o = j - hgt/2;
+		}
+		else if (i == '8') /* Up */
+		{
+			j--;
+			if (j < 0) j = 0;
+			else if (o && j - o < hgt/2) o--;
+		}
+	}
+	/* Hide cursor */
+	Term_hide_ui_cursor();
+}
+
+/* HACK -- horrible function for "drawing", replace this
+ * with Angband menus or at least use their decorations... */
+void _clear_rect(int x, int y, int w, int h)
+{
+	int i, j;
+	/* Draw blackness */
+	for (j = 0; j < h; j++) for (i = 0; i < w; i++)
+		Term_putstr(x + i, y + j, -1, TERM_WHITE, " ");
+}
+void _draw_rect(int x, int y, int w, int h)
+{
+	int i, j;
+	_clear_rect(x, y, w, h);
+	/* Draw edges */
+	Term_putstr(x + 0 + 1, y + 1, -1, TERM_WHITE, "+");
+	Term_putstr(x + w - 2, y + 1, -1, TERM_WHITE, "+");
+	Term_putstr(x + 0 + 1, y + h - 2, -1, TERM_WHITE, "+");
+	Term_putstr(x + w - 2, y + h - 2, -1, TERM_WHITE, "+");
+	/* Draw borders */
+	for (i = 2; i < w - 2; i++) {
+		Term_putstr(x + i, y + 0 + 1, -1, TERM_WHITE, "-");
+		Term_putstr(x + i, y + h - 2, -1, TERM_WHITE, "-");
+	}
+	for (j = 2; j < h - 2; j++) {
+		Term_putstr(x + 0 + 1, y + j, -1, TERM_WHITE, "|");
+		Term_putstr(x + w - 2, y + j, -1, TERM_WHITE, "|");
+	}
+}
+
+bool new_macro_window(void)
+{
+	char action[1024];
+	char action_ascii[1024];
+	char trigger_ascii[1024];
+	char trigger[1024];
+	byte old_school_macros = FALSE;
+	bool redraw = FALSE;
+	int wx = 4;
+	int wy = 4;
+	int wid = Term->wid - 8;
+	int hgt = Term->hgt - 8;
+	bool proceed = TRUE;
+	bool cmd_flag = FALSE;
+
+	_draw_rect(wx, wy, wid, hgt);
+
+	wx += 3;
+	wy += 1;
+	wid -= 2;
+	hgt -= 2;
+
+	/* Describe */
+	Term_putstr(wx, wy+1, -1, TERM_WHITE, "i) Macro Item");
+	Term_putstr(wx, wy+2, -1, TERM_WHITE, "m) Macro Spell");
+	Term_putstr(wx, wy+3, -1, TERM_WHITE, "c) Custom Macro");
+	Term_putstr(wx, wy+4, -1, TERM_WHITE, "ESC) Abort");
+
+	/* Process requests until done */
+	while (1)
+	{
+		char ch = inkey();
+		if (ch == ESCAPE)
+		{
+			proceed = FALSE;
+			break;
+		}
+
+		else if (ch == 'i')
+		{
+			int item, n;
+			char cmd;
+			if (!c_get_item(&item, "Macro which item?", TRUE, TRUE, TRUE))
+			{
+				continue;
+			}
+			cmd = command_by_item(item, 0);
+			if (!cmd)
+			{
+				bell();
+				continue;
+			}
+
+			item_as_keystroke(item, cmd, action, MAX_COLS,
+				old_school_macros ?
+				(CTXT_WITH_CMD | CTXT_WITH_DIR | CTXT_PREFER_SHORT)
+				:
+				(CTXT_WITH_CMD | CTXT_PREFER_NAME)
+			);
+			break;
+		}
+		else if (ch == 'm' || ch == 'p')
+		{
+			int spell, book = 0, n;
+			char cmd;
+			n = get_spell(&spell, "/=Next book,", "Macro which spell?", &book, FALSE, FALSE);
+			screen_icky = TRUE;
+			/* No spell selected */
+			if (!n)
+			{
+				continue;
+			}
+
+			cmd = command_by_item(book, 1);
+			if (!cmd)
+			{
+				bell();
+				continue;
+			}
+
+			spell_as_keystroke(spell, book, cmd, action, sizeof(action),
+				old_school_macros ?
+				(CTXT_FULL | CTXT_PREFER_SHORT)
+				:
+				(CTXT_WITH_CMD | CTXT_WITH_DIR | CTXT_PREFER_NAME)
+			);
+			break;
+
+		}
+		else if (ch == 'c' || ch == '3')
+		{
+			Term_putstr(wx, wy+5, -1, TERM_WHITE, "Action: ");
+
+			/* Get an encoded action */
+			action[0] = '\0';
+			if (askfor_aux(action, 40, 0)
+			    && !STRZERO(action)) break;
+		}
+		else bell();
+	}
+
+	if (proceed)
+	{
+			/* Extract an action */
+			text_to_ascii(action_ascii, sizeof(action_ascii), action);
+
+			Term_putstr(wx, wy+5, -1, TERM_WHITE, "Action: ");
+			Term_putstr(wx+8, wy+5, -1, TERM_SLATE, action);
+
+			/* Hack -- if it's a one-key macro, make it a command macro */
+			if ((action[1] == '\0') && (
+				isalpha(action[0]) || ispunct(action[0])
+				|| isdigit(action[0])
+			)) cmd_flag = TRUE;
+
+			/* Prompt & Show cursor */
+			Term_putstr(wx, wy+7, -1, TERM_WHITE, "Press Trigger Button: ");
+			Term_show_ui_cursor();
+
+			/* Get a macro trigger */
+			if (get_macro_trigger(trigger_ascii))
+			{
+				/* Save key for later */
+				ascii_to_text(trigger, sizeof(trigger), trigger_ascii);
+			}
+			else
+			{
+				proceed = FALSE;
+			}
+	}
+	Term_hide_ui_cursor();
+	Term_putstr(wx+12, wy+5, -1, TERM_RED, trigger);
+
+	_clear_rect(wx-1, wy+1, wid-2, hgt-2);
+	Term_putstr(wx, wy+3, -1, TERM_L_WHITE, "Create ");
+	Term_addstr(-1, TERM_WHITE, cmd_flag ? "command" : "normal");
+	Term_addstr(-1, TERM_L_WHITE, " macro, which executes");
+	Term_putstr(wx, wy+5, -1, TERM_WHITE, "Action: ");
+	Term_putstr(wx+8, wy+5, -1, TERM_SLATE, action);
+	Term_putstr(wx, wy+6, -1, TERM_WHITE, "when");
+	Term_putstr(wx, wy+7, -1, TERM_WHITE, "Trigger: ");
+	Term_addstr(-1, TERM_L_WHITE, trigger);
+	Term_putstr(wx, wy+9, -1, TERM_L_WHITE, "is pressed?");
+	Term_putstr(wx, wy+11, -1, TERM_WHITE, "RET) Confirm");
+	Term_putstr(wx, wy+12, -1, TERM_WHITE, "ESC) Abort");
+	Term_fresh();
+
+	/* Process requests until done */
+	while (proceed)
+	{
+		char ch = inkey();
+		if (ch == ESCAPE)
+		{
+			proceed = FALSE;
+			break;
+		}
+		else if (ch == '\r') break;
+		else bell();
+	}
+	if (proceed)
+	{
+			/* Link the macro */
+			macro_add(trigger_ascii, action_ascii, cmd_flag);
+	}
+	return proceed;
+}
+
+/* Display macros as a list and allow user to navigate through it 
+ * Logic in this function is somewhat broken.
+ */
+void browse_macros(void)
+{
+	int i;
+	int total;
+	int hgt = Term->hgt - 4;
+	int j = 0;
+	int o = 0;
+	int sel = -1;
+	char tmp_buf[120];
+	char buf[120];
+	char act[120];
+	char a = TERM_WHITE;
+
+	/* Process requests until done */
+	while (1)
+	{
+		/* Clear screen */
+		Term_clear();
+
+		/* Describe */
+		Term_putstr(0, 0, -1, TERM_WHITE, "Browse Macros     (N new, D delete, A/T to set, C switch context, ESC to accept)");
+
+		/* Dump them */
+		for (i = 0, total = 0; i < macro__num; i++)
+		{
+			int k = total;
+
+			/* Skip command macro */
+			/* if (macro__cmd[i]) continue; */
+
+			/* Extract the action */
+			ascii_to_text(act, sizeof(act), macro__act[i]);
+
+			/* Most likely a system action */
+			if (strlen(act) == 1) continue;
+
+			/* Extract the trigger */
+			ascii_to_text(buf, sizeof(buf), macro__pat[i]);
+
+			/* Deleted macro */
+			if (!strcmp(buf, act)) continue;
+
+			/* It's ok */
+			total++;
+
+			/* Too early */
+			if (k < o) continue;
+
+			/* Too late */
+			if (k - o >= hgt-2) continue;
+
+			/* Selected */
+			a = TERM_WHITE;
+			if (j == k)
+			{
+				a = TERM_L_BLUE;
+				sel = i;
+				/* Move cursor there */
+				Term_gotoxy(0, 2+k-o);
+				Term_show_ui_cursor();
+			}
+
+			/* Dump the trigger */
+			Term_putstr(00, 2+k-o, -1, a, buf);
+
+			/* Dump the action */
+			Term_putstr(30, 2+k-o, -1, a, act);
+
+			/* Dump the conext */
+			Term_putstr(78, 2+k-o, -1, (j==k)?TERM_L_BLUE:TERM_L_WHITE, macro__cmd[i] ? " c" : " *");
+		}
+
+		/* Get a key */
+		i = inkey();
+
+		/* Leave */
+		if (i == ESCAPE) break;
+
+		else if (i == 'N') /* New */
+		{
+			bool added = new_macro_window();
+			if (added) {
+				j = total - 1;
+				o = j - hgt/2;
+			}
+		}
+
+		else if (i == 'D') /* Delete */
+		{
+			/* Keep atleast 1 */
+			if (total == 1) continue;
+
+			/* Get a macro trigger */
+			my_strcpy(buf, macro__pat[sel], sizeof(buf));
+
+			/* (un)Link the macro */
+			macro_add(buf, buf, FALSE);
+
+			/* Change offsets */
+			if (j >= total-1) j--;
+			if (j < 0) j = 0;
+			else if (o && j - o < hgt/2) o--;
+		}
+
+		else if (i == 'T') /* Change trigger */
+		{
+			/* Get current action */
+			my_strcpy(act, macro__act[sel], sizeof(act));
+
+			/* Prompt */
+			clear_from(hgt);
+			Term_putstr(0, hgt+1, -1, TERM_WHITE, "Trigger: ");
+
+			/* Get a macro trigger */
+			get_macro_trigger(buf);
+			text_to_ascii(tmp_buf, sizeof(tmp_buf), buf);
+
+			/* Same */
+			if (!strcmp(macro__pat[sel], tmp_buf)) continue;
+
+			/* (re)Link the macro */
+			macro_add(tmp_buf, act, FALSE);
+		}
+
+		else if (i == 'A') /* Change action */
+		{
+			/* Prompt */
+			clear_from(hgt);
+			Term_putstr(0, hgt+1, -1, TERM_WHITE, "Action: ");
+
+			/* Copy 'current action' */
+			ascii_to_text(act, sizeof(act), macro__act[sel]);
+
+			/* Get an encoded action */
+			if (!askfor_aux(act, 80, 0)) continue;
+
+			/* Convert to ascii */
+			text_to_ascii(tmp_buf, sizeof(tmp_buf), act);
+			tmp_buf[strlen(act)] = '\0';
+
+			/* Do not allow empty OR short */
+			if (strlen(tmp_buf) <= 1) continue;
+
+			/* (re)Link the macro */
+			macro_add(macro__pat[sel], tmp_buf, FALSE);
+		}
+
+		else if (i == 'C') /* Change context */
+		{
+			macro__cmd[sel] = macro__cmd[sel] ? FALSE : TRUE;
+			if (!macro__cmd[sel]) macro__use[sel] &= ~(MACRO_USE_CMD);
+			else macro__use[sel] |= (MACRO_USE_CMD);
+			continue;
+		}
+
+		else if (i == ' ') /* Cycle Down */
+		{
+			j++;
+			if (j > total-1) { j = 0; o = 0; }
+			else if (j - o > hgt/2 && j < total) o++;
+		}
+		else if (i == '2') /* Down */
+		{
+			j++;
+			if (j > total-1) j = total-1;
+			else if (j - o > hgt/2 && j < total) o++;
+		}
+		else if (i == '7') /* Home */
+		{
+			o = j = 0;
+		}
+		else if (i == '9') /* Page up */
+		{
+			j -= hgt;
+			if (j < 0) j = 0;
+			o = j;
+		}
+		else if (i == '3') /* Page down */
+		{
+			j += Term->hgt;
+			if (j > total-1) j = total-1;
+			o = j - hgt/2;
+		}
+		else if (i == '1') /* End */
 		{
 			j = total - 1;
 			o = j - hgt/2;
@@ -3202,6 +3845,9 @@ void interact_macros(void)
 	int i;
 
 	static bool old_school_macros = FALSE;
+	byte km_mode = 0;
+
+	int opt_page = 0;
 
 	char tmp[160], buf[1024], tmp_buf[160];
 	char* str;
@@ -3225,6 +3871,8 @@ void interact_macros(void)
 		/* Describe */
 		Term_putstr(0, 2, -1, TERM_WHITE, "Interact with Macros");
 
+		/* Notice keymap mode */
+		km_mode = rogue_like_commands ? 1 : 0;
 
 		/* Describe the trigger */
 		if (!STRZERO(tmp_buf))
@@ -3244,6 +3892,9 @@ void interact_macros(void)
 
 
 		/* Selections */
+		if (opt_page == 0)
+		{
+
 		Term_putstr(5,  4, -1, TERM_WHITE, "(1) Load macros");
 		Term_putstr(5,  5, -1, TERM_WHITE, "(2) Save macros");
 		Term_putstr(5,  6, -1, TERM_WHITE, "(3) Enter a new action");
@@ -3251,15 +3902,33 @@ void interact_macros(void)
 		Term_putstr(5,  8, -1, TERM_WHITE, "(5) Create a normal macro");
 		Term_putstr(5,  9, -1, TERM_WHITE, "(6) Remove a macro");
 		Term_putstr(5, 10, -1, TERM_WHITE, "(7) Browse macros");
+		Term_putstr(5, 11, -1, TERM_WHITE, "(N) New macro wizard");
+
+		} else {
+
+		Term_putstr(5,  4, -1, TERM_WHITE, "(1) Load macros");
+		Term_putstr(5,  5, -1, TERM_WHITE, "(@) Save keymaps");
+		Term_putstr(5,  6, -1, TERM_WHITE, "(3) Enter a new action");
+		Term_putstr(5,  7, -1, TERM_WHITE, "($) Query key for keymap");
+		Term_putstr(5,  8, -1, TERM_WHITE, "(%) Create a command macro");
+		Term_putstr(5,  9, -1, TERM_WHITE, "(^) Create keymap");
+		Term_putstr(5, 10, -1, TERM_WHITE, "(=) Browse keymaps");
+		Term_putstr(5, 11, -1, TERM_WHITE, "(N) New macro wizard");
+
+		}
 #if 1
 		Term_putstr(5+24,  6, -1, TERM_L_DARK, ".........");
 		Term_putstr(5+34,  6, -1, TERM_L_DARK, "(8) Macro by command");
 		Term_putstr(5+34,  7, -1, TERM_L_DARK, "(9) Macro by item");
 		Term_putstr(5+34,  8, -1, TERM_L_DARK, "(0) Macro by spell");
+
+		if (opt_page)
+		Term_putstr(5+34-1,  9, -1, TERM_L_DARK, format("(^O) Macro by item: %s", old_school_macros ? "old-school" : "by name"));
+
+		Term_putstr(5+34-4,  10, -1, TERM_L_DARK, "(SPACE) Show other options");
 #endif
 
 #if 0
-		Term_putstr(5, 10, -1, TERM_WHITE, "(7) Create an empty macro");
 		Term_putstr(5, 10, -1, TERM_WHITE, "(8) Create a command macro");
 		Term_putstr(5, 12, -1, TERM_WHITE, "(X) Turn off an option (by name)");
 		Term_putstr(5, 13, -1, TERM_WHITE, "(Y) Turn on an option (by name)");
@@ -3276,8 +3945,23 @@ void interact_macros(void)
 		/* Leave */
 		if (i == ESCAPE) break;
 
+		else if (i == ' ') opt_page = 1 - opt_page;
+
+		/* Browse keymaps */
+		else if (i == '=') browse_keymaps();
+
 		/* Browse */
 		else if (i == '7') browse_macros();
+
+		/* New macro window */
+		else if (i == 'N')
+		{
+			bool added;
+			Term_hide_ui_cursor();
+			added = new_macro_window();
+			if (added)
+			c_msg_print("Created a new macro.");
+		}
 
 		/* Load a pref file */
 		else if (i == '1')
@@ -3320,6 +4004,28 @@ void interact_macros(void)
 			(void)macro_dump(tmp);
 		}
 
+		/* Save a 'keymap' file */
+		else if (i == '@')
+		{
+			/* Prompt */
+			Term_putstr(0, 15, -1, TERM_WHITE, "Command: Save a keymap file");
+
+			/* Get a filename, handle ESCAPE */
+			Term_putstr(0, 17, -1, TERM_WHITE, "File: ");
+
+			/* Default filename */
+			sprintf(tmp, "keymap.prf");/* "keymap-%s.prf", ANGBAND_SYS); */
+
+			/* Ask for a file */
+			if (!askfor_aux(tmp, 70, 0)) continue;
+			
+			/* Lowercase the filename */
+			for(str=tmp;*str;str++) *str=tolower(*str);
+
+			/* Dump the keymaps */
+			(void)keymap_dump_file(tmp);
+		}
+
 		/* Change wizard mode */
 		else if (i == KTRL('O'))
 		{
@@ -3331,7 +4037,7 @@ void interact_macros(void)
 		{
 			int spell, book = 0, n;
 			char cmd;
-			n = get_spell(&spell, "/=Next book,", "Macro which spell?", &book,FALSE);
+			n = get_spell(&spell, "/=Next book,", "Macro which spell?", &book, FALSE, FALSE);
 			screen_icky = TRUE;
 			/* No spell selected */
 			if (!n)
@@ -3351,7 +4057,7 @@ void interact_macros(void)
 				(CTXT_FULL | CTXT_PREFER_SHORT)
 				:
 				(CTXT_WITH_CMD | CTXT_WITH_DIR | CTXT_PREFER_NAME)
-);
+			);
 
 			/* Prompt */
 			Term_putstr(0, 15, -1, TERM_WHITE, "Command: Enter a new action");
@@ -3503,10 +4209,93 @@ void interact_macros(void)
 			}
 		}
 
+		/* Query key for keymap */
+		else if (i == '$')
+		{
+			int k;
+			
+			/* Prompt */
+			Term_putstr(0, 15, -1, TERM_WHITE, "Command: Query key for keymap");
+
+			/* Prompt */
+			Term_erase(0, 17, 255);
+			Term_putstr(0, 17, -1, TERM_WHITE, "Keypress: ");
+			/* Show cursor */
+			Term_show_ui_cursor();
+
+			/* Get a keymap trigger */
+			do_cmd_macro_aux_keymap(buf);
+			k = buf[0];
+			if (!k) continue;
+
+			/* Save key for later */
+			ascii_to_text(tmp_buf, sizeof(tmp), buf);
+
+			/* Found noting */
+			if (!keymap_act[km_mode][k])
+			{
+				/* Prompt */
+				c_msg_print("Found no keymap.");
+			}
+			/* It's an identity macro (empty) */
+			else if (streq(buf, keymap_act[km_mode][k]))
+			{
+				/* Prompt */
+				c_msg_print("Found no keymap.");
+			}
+			/* Found one */
+			else
+			{
+				/* Analyze the current action */
+				ascii_to_text(tmp, sizeof(tmp), keymap_act[km_mode][k]);
+
+				/* Display the current action */
+				my_strcpy(macro__buf, tmp, 1024);
+
+				/* Prompt */
+				c_msg_print("Found a keymap.");
+			}
+		}
+
+		/* Create a keymap */
+		else if (i == '^')
+		{
+			byte new_map;
+
+			/* Prompt */
+			Term_putstr(0, 15, -1, TERM_WHITE, "Command: Create a keymap");
+
+			/* Prompt */
+			Term_erase(0, 17, 255);
+			Term_putstr(0, 17, -1, TERM_WHITE, "Keypress: ");
+			Term_show_ui_cursor();
+
+			/* Get a keymap trigger */
+			do_cmd_macro_aux_keymap(buf);
+			new_map = buf[0];
+			if (!new_map) continue;
+
+			/* Save key for later */
+			ascii_to_text(tmp_buf, sizeof(tmp), buf);
+
+			/* (un)Create new keymap */
+			if (keymap_act[km_mode][new_map]) string_free(keymap_act[km_mode][new_map]);
+			keymap_act[km_mode][new_map] = string_make(macro__buf);
+
+			/* Message */
+			c_msg_print("Created a new keymap.");
+		}
+
+
 		/* Create a normal macro */
 		else if (i == '5' || i == '%')
 		{
+			/* If '%' was pressed, create a command macro */
+			bool cmd_flag = (i == '%') ? TRUE : FALSE;
+
 			/* Prompt */
+			if (cmd_flag) Term_putstr(0, 15, -1, TERM_WHITE, "Command: Create a command macro");
+			else
 			Term_putstr(0, 15, -1, TERM_WHITE, "Command: Create a normal macro");
 
 			/* Prompt */
@@ -3517,36 +4306,21 @@ void interact_macros(void)
 			/* Get a macro trigger */
 			if (!get_macro_trigger(buf)) continue;
 
-			/* Interactive mode */
-			if (i == '%')
-			{
-				/* Clear */
-				clear_from(20);
-	
-				/* Prompt */
-				Term_putstr(0, 15, -1, TERM_WHITE, "Command: Enter a new action   ");
-	
-				/* Go to the correct location */
-				Term_gotoxy(0, 21);
-				Term_show_ui_cursor();
-	
-				/* Copy 'current action' */
-				ascii_to_text(tmp, sizeof(tmp), macro__buf);			
-	
-				/* Get an encoded action */
-				if (!askfor_aux(tmp, MAX_COLS, 0)) continue;
-	
-				/* Convert to ascii */
-				text_to_ascii(macro__buf, 1024, tmp);
-			}
-
 			/* Save key for later */
 			ascii_to_text(tmp_buf, sizeof(tmp), buf);
 
+			/* Hack -- if it's a one-key macro, make it a command macro */
+			if ((tmp_buf[1] == '\0') && (
+				isalpha(tmp_buf[0]) || ispunct(tmp_buf[0])
+				|| isdigit(tmp_buf[0])
+			)) cmd_flag = TRUE;
+
 			/* Link the macro */
-			macro_add(buf, macro__buf, FALSE);
+			macro_add(buf, macro__buf, cmd_flag);
 
 			/* Message */
+			if (cmd_flag) c_msg_print("Created a new command macro.");
+			else
 			c_msg_print("Created a new normal macro.");
 		}
 
@@ -3559,6 +4333,7 @@ void interact_macros(void)
 			/* Prompt */
 			Term_erase(0, 17, 255);
 			Term_putstr(0, 17, -1, TERM_WHITE, "Trigger: ");
+			Term_show_ui_cursor();
 
 			/* Get a macro trigger */
 			get_macro_trigger(buf);
@@ -3569,47 +4344,6 @@ void interact_macros(void)
 			/* Message */
 			c_msg_print("Removed a macro.");
 		}
-#if 0
-		/* Create an empty macro */
-		else if (i == '7')
-		{
-			/* Prompt */
-			Term_putstr(0, 15, -1, TERM_WHITE, "Command: Create an empty macro");
-
-			/* Prompt */
-			Term_erase(0, 17, 255);
-			Term_putstr(0, 17, -1, TERM_WHITE, "Trigger: ");
-
-			/* Get a macro trigger */
-			get_macro_trigger(buf);
-
-			/* Link the macro */
-			macro_add(buf, "", FALSE);
-
-			/* Message */
-			c_msg_print("Created a new empty macro.");
-		}
-
-		/* Create a command macro */
-		else if (i == '8')
-		{
-			/* Prompt */
-			Term_putstr(0, 15, -1, TERM_WHITE, "Command: Create a command macro");
-
-			/* Prompt */
-			Term_erase(0, 17, 255);
-			Term_putstr(0, 17, -1, TERM_WHITE, "Trigger: ");
-
-			/* Get a macro trigger */
-			get_macro_trigger(buf);
-
-			/* Link the macro */
-			macro_add(buf, macro__buf, TRUE);
-
-			/* Message */
-			c_msg_print("Created a new command macro.");
-		}
-#endif
 
 		/* Oops */
 		else
@@ -3987,6 +4721,9 @@ static void do_cmd_options_win(void)
 	/* Notice changes */
 	p_ptr->window |= net_term_manage(old_flag, window_flag, TRUE);
 
+	/* Notify terminal (optional) */
+	Term_xtra(TERM_XTRA_REACT, (TERM_XTRA_REACT_WINDOWS));
+
 	/* Update windows */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_MESSAGE | PW_MESSAGE_CHAT | PW_PLAYER | PW_PLAYER_1 | PW_STATUS);
 
@@ -4119,7 +4856,15 @@ void do_cmd_options(void)
 
 				cx = inkey();
 				if (cx == ESCAPE) break;
+				if (cx == '0') hitpoint_warn_toggle = 0;
 				if (isdigit((unsigned char)cx)) p_ptr->hitpoint_warn = D2I(cx);
+				else if (cx == '=') p_ptr->hitpoint_warn = 10; /* 100% */
+				else if (cx == '-')
+				{	/* Toggle between last value and 0% */
+					bool on = p_ptr->hitpoint_warn > 0 ? TRUE : FALSE;
+					hitpoint_warn_toggle = on ? p_ptr->hitpoint_warn : hitpoint_warn_toggle;
+					p_ptr->hitpoint_warn = on ? 0 : hitpoint_warn_toggle;
+				}
 				else bell();/*"Illegal hitpoint warning!");*/
 			}
 		}
@@ -4156,6 +4901,9 @@ void do_cmd_options(void)
 
 	/* Send a redraw request */
 	send_redraw();
+
+	/* Notify terminal (optional) */
+	Term_xtra(TERM_XTRA_REACT, (TERM_XTRA_REACT_OPTIONS | TERM_XTRA_REACT_SETTINGS));
 }
 void do_cmd_options_birth()
 {
@@ -4171,66 +4919,6 @@ void do_cmd_options_birth()
 	/* Restore the screen */
 	Term_load();
 }
-
-
-
-#ifdef SET_UID
-
-# ifndef HAVE_USLEEP
-
-/*
- * For those systems that don't have "usleep()" but need it.
- *
- * Fake "usleep()" function grabbed from the inl netrek server -cba
- */
-int usleep(huge microSeconds)
-{
-	struct timeval		Timer;
-
-	int			nfds = 0;
-
-#ifdef FD_SET
-	fd_set		*no_fds = NULL;
-#else
-	int			*no_fds = NULL;
-#endif
-
-	/* Was: int readfds, writefds, exceptfds; */
-	/* Was: readfds = writefds = exceptfds = 0; */
-
-
-	/* Paranoia -- No excessive sleeping */
-	if (microSeconds > 4000000L) core("Illegal usleep() call");
-
-
-	/* Wait for it */
-	Timer.tv_sec = (microSeconds / 1000000L);
-	Timer.tv_usec = (microSeconds % 1000000L);
-
-	/* Wait for it */
-	if (select(nfds, no_fds, no_fds, no_fds, &Timer) < 0)
-	{
-		/* Hack -- ignore interrupts */
-		if (errno != EINTR) return -1;
-	}
-
-	/* Success */
-	return 0;
-}
-
-# endif /* HAVE_USLEEP */
-
-#endif /* SET_UID */
-
-#ifdef WIN32
-int usleep(huge microSeconds)
-{ /* meassured in milliseconds not microseconds*/
-	DWORD milliseconds = (DWORD)(microSeconds / 1000);
-	Sleep(milliseconds);
-	return 0;
-}
-#endif /* WIN32 */
-
 
 /* HACK -- Count samples in "val" sound */
 int sound_count(int val)
@@ -4336,7 +5024,7 @@ void load_sound_prefs(void)
 			path_build(wav_path, sizeof(wav_path), ANGBAND_DIR_XTRA_SOUND, zz[j]);
 
 			/* Save the sound filename, if it exists */
-			if (my_fexists(wav_path))
+			if (file_exists(wav_path))
 				sound_file[i][j] = string_make(zz[j]);
 		}
 	}

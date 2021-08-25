@@ -190,7 +190,8 @@ const custom_command_type custom_commands[MAX_CUSTOM_COMMANDS] =
 	},
 	{ /* Zap rod */
 		'z', PKT_UNDEFINED, SCHEME_ITEM_DIR, 1, (cccb)do_cmd_zap_rod_pre,
-		(COMMAND_ITEM_INVEN | COMMAND_ITEM_FLOOR | COMMAND_ITEM_RESET | COMMAND_TARGET_ALLOW),
+		(COMMAND_ITEM_INVEN | COMMAND_ITEM_FLOOR | COMMAND_ITEM_RESET | COMMAND_TARGET_ALLOW
+		|/*item2->*/(COMMAND_NEED_SECOND | COMMAND_SECOND_DIR)/*<-item2*/),
 		TV_ROD, "Use which rod? ", "Zap rod"
 	},
 	{ /* Activate */
@@ -372,7 +373,7 @@ int study_cmd_id = -1; /* Set during init, to replace with: */
 custom_command_type priest_study_cmd =
 	{ /* Study spell */
 		'G', PKT_UNDEFINED, SCHEME_ITEM_SMALL, 1, (cccb)do_cmd_study,
-		(COMMAND_TEST_SPELL | COMMAND_ITEM_INVEN),
+		(COMMAND_TEST_SPELL | COMMAND_ITEM_INVEN | COMMAND_SPELL_BOOK),
 		TV_PRAYER_BOOK, "You cannot gain prayers!\nGain from which book? ", "Study prayer"
 	};
 
@@ -976,6 +977,27 @@ const indicator_type indicators[MAX_INDICATORS] =
 	/* Tail */
 	{	0	}
 };
+
+/*
+ * Global array of equipment slot X/Y positions for advanced
+ * interfaces. 0 is 0.0f, 128 is 0.5f, 255 is 1.0f.
+ */
+#define __F(X) MAX(MIN(127 + X * 64, 255), 0)
+byte eq_pos[INVEN_TOTAL - INVEN_WIELD + 1][2] = {
+		{ __F(-2), __F( 0) },	/* INVEN_WIELD */
+		{ __F(-2), __F( 1) },	/* INVEN_BOW */
+		{ __F( 1), __F( 1) },	/* INVEN_LEFT */
+		{ __F(-1), __F( 1) },	/* INVEN_RIGHT */
+		{ __F( 0), __F(-1) },	/* INVEN_NECK */
+		{ __F( 2), __F( 0) },	/* INVEN_LITE */
+		{ __F( 0), __F( 0) },	/* INVEN_BODY */
+		{ __F( 1), __F(-1) },	/* INVEN_OUTER */
+		{ __F( 1), __F( 0) },	/* INVEN_ARM */
+		{ __F( 0), __F(-2) },	/* INVEN_HEAD */
+		{ __F(-1), __F( 0) },	/* INVEN_HANDS */
+		{ __F( 0), __F( 2) },	/* INVEN_FEET */
+};
+#undef __F
 
 /*
  * Global array for looping through the "keypad directions"
@@ -2389,7 +2411,7 @@ cptr color_names[16] =
 /*
  * Abbreviations of healthy stats
  */
-cptr stat_names[6] =
+cptr stat_names[A_MAX] =
 {
 	"STR: ", "INT: ", "WIS: ", "DEX: ", "CON: ", "CHR: "
 };
@@ -2397,7 +2419,7 @@ cptr stat_names[6] =
 /*
  * Abbreviations of damaged stats
  */
-cptr stat_names_reduced[6] =
+cptr stat_names_reduced[A_MAX] =
 {
 	"Str: ", "Int: ", "Wis: ", "Dex: ", "Con: ", "Chr: "
 };
@@ -2510,6 +2532,12 @@ option_type option_info[] =
 	{ OPT_INFO(UNSETH_BONUS),  		FALSE,	1,	0, 0,
 	"unset_class_bonus",		"Discard extra speed and hit points" },
 
+	{ OPT_INFO(ENERGY_BUILDUP),		TRUE,	1,	0, 0,
+	"energy_buildup",		"Get additional attack after being idle" },
+
+	{ OPT_INFO(MONSTER_RECOIL),		TRUE,	1,	0, 0,
+	"monster_recoil",		"Monsters recover for a turn after attacking you" },
+
 	/*** Game-play ***/
 	/* Dungeon */
 	{ OPT_INFO(AUTO_SCUM),				FALSE,	2,	0, 0,
@@ -2524,8 +2552,15 @@ option_type option_info[] =
 	{ OPT_INFO(ALWAYS_PICKUP),		FALSE,	2,	0, 0,
 	"always_pickup",    		"Pick things up by default" },
 
+	{ OPT_INFO(PICKUP_INVEN),		FALSE,	2,	0, 0,
+	"pickup_inven",    		"Pick up items matching inventory" },
+
 	{ OPT_INFO(EASY_ALTER),			TRUE,	2,	0, 0,
 	"easy_alter",    			"Open/Disarm doors/traps on movement" },
+
+	{ OPT_INFO(BUMP_OPEN),			FALSE,	2,	0, 0,
+	"bump_open",    			"Open doors on movement" },
+
 	/* Targeting */
 	{ OPT_INFO(EXPAND_LOOK),			FALSE,	2,	0, 0,
 	"expand_look",  			"Expand the power of the look command" },

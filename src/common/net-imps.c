@@ -226,6 +226,7 @@ eptr add_connection(eptr root, int fd, callback read, callback close) {
 
 	new_c->conn_fd = fd;
 	new_c->receive_cb = read;
+	new_c->send_cb = NULL;
 	new_c->close_cb = close;
 	new_c->close = 0;
 	new_c->uptr = NULL;
@@ -300,6 +301,17 @@ eptr handle_connections(eptr root) {
 		/* Send */
 		if (cq_len(&ct->wbuf))
 		{
+			/* Hack -- call connection wrapper (if any) */
+			if (ct->send_cb)
+			{
+				/* It's job is to fill the "mesg" buffer, instead of
+				 * doing a simple "cq_read" below. */
+				void *old_ptr = ct->uptr;
+				ct->uptr = &mesg[0];
+				n = ct->send_cb(0, ct);
+				ct->uptr = old_ptr;
+			} else
+
 			n = cq_read(&ct->wbuf, &mesg[0], PD_LARGE_BUFFER);
 			n = sendto(connfd,mesg,n,0, NULL,0);
 
@@ -564,6 +576,9 @@ void network_done() {
 }
 
 void network_pause(micro timeout) {
+#ifndef HAVE_SELECT
+	usleep(timeout);
+#else
 	struct timeval tv = { 0, 0 };
 
 	TV_SET(tv, timeout); /* 200000 = 0.2 seconds */
@@ -573,6 +588,7 @@ void network_pause(micro timeout) {
 	nfds = MATH_MAX(nfds, refds);
 
 	select(nfds + 1, &rd, &wd, NULL, &tv);
+#endif
 }
 
 /* Set socket as non-blocking */

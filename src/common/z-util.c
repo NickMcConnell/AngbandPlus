@@ -224,6 +224,48 @@ char *strdup(cptr s)
 }
 #endif
 
+#ifndef HAVE_USLEEP
+/*
+ * For those systems that don't have "usleep()" but need it.
+ */
+int usleep(huge microSeconds)
+{
+#ifdef HAVE_SELECT
+	/* Use select() to wait. New version, inspired by Borg. */
+	struct timeval Timer;
+
+	/* Paranoia -- No excessive sleeping */
+	if (microSeconds > 4000000L) core("Illegal usleep() call");
+
+	/* Setup our timeval */
+	Timer.tv_sec = (microSeconds / 1000000L);
+	Timer.tv_usec = (microSeconds % 1000000L);
+
+	/* Wait for it */
+	if (select(0, NULL, NULL, NULL, &Timer) < 0)
+	{
+		/* Hack -- ignore interrupts */
+		if (errno != EINTR) return -1;
+	}
+	return 0;
+#else /* HAVE_SELECT */
+	/* If we don't have select(), resort to other
+	 * methods */
+# ifdef WINDOWS
+	/* On WIN32, we use Sleep() */
+	/* meassured in milliseconds not microseconds */
+	DWORD milliseconds = (DWORD)(microSeconds / 1000);
+	Sleep(milliseconds);
+	return 0;
+# else /* WINDOWS */
+	/* There is nothing we can do :( Patches welcome. */
+	return -1;
+# endif
+#endif
+}
+#endif
+
+
 
 /*
  * Case insensitive comparison between two strings
@@ -506,9 +548,48 @@ void core(cptr str)
 }
 
 
+/* convert a multibyte string to a wide-character string */
+size_t (*mbcs_hook)(wchar_t *dest, const char *src, int n) = NULL;
+size_t z_mbstowcs(wchar_t *dest, const char *src, int n)
+{
+	if (mbcs_hook)
+		return (*mbcs_hook)(dest, src, n);
+	else
+		return mbstowcs(dest, src, n);
+}
+
+/* integer square root */
+u32b isqrt(u32b x)
+{
+	u32b op  = x;
+	u32b res = 0;
+	u32b one = 1uL << 30; /* Set second-to-top bit */
+	while (one > op)
+	{
+		one >>= 2;
+	}
+	while (one != 0)
+	{
+		if (op >= res + one)
+		{
+			op = op - (res + one);
+			res = res +  2 * one;
+		}
+		res >>= 1;
+		one >>= 2;
+	}
+	return res;
+}
+/* And a "hypot" function. */
+u32b ihypot(u32b x, u32b y)
+{
+	return isqrt(x * x + y * y);
+}
+
+
 /* Compare and swap hooks */
-bool (*ang_sort_comp)(int Ind, vptr u, vptr v, int a, int b);
-void (*ang_sort_swap)(int Ind, vptr u, vptr v, int a, int b);
+bool (*ang_sort_comp)(void* player_context, vptr u, vptr v, int a, int b);
+void (*ang_sort_swap)(void* player_context, vptr u, vptr v, int a, int b);
 
 /*
  * Angband sorting algorithm -- quick sort in place
@@ -518,7 +599,7 @@ void (*ang_sort_swap)(int Ind, vptr u, vptr v, int a, int b);
  * function hooks to interact with the data, which is given as
  * two pointers, and which may have any user-defined form.
  */
-void ang_sort_aux(int Ind, vptr u, vptr v, int p, int q)
+void ang_sort_aux(void* player_context, vptr u, vptr v, int p, int q)
 {
 	int z, a, b;
 
@@ -536,26 +617,26 @@ void ang_sort_aux(int Ind, vptr u, vptr v, int p, int q)
 	while (TRUE)
 	{
 		/* Slide i2 */
-		while (!(*ang_sort_comp)(Ind, u, v, b, z)) b--;
+		while (!(*ang_sort_comp)(player_context, u, v, b, z)) b--;
 
 		/* Slide i1 */
-		while (!(*ang_sort_comp)(Ind, u, v, z, a)) a++;
+		while (!(*ang_sort_comp)(player_context, u, v, z, a)) a++;
 
 		/* Done partition */
 		if (a >= b) break;
 
 		/* Swap */
-		(*ang_sort_swap)(Ind, u, v, a, b);
+		(*ang_sort_swap)(player_context, u, v, a, b);
 
 		/* Advance */
 		a++, b--;
 	}
 
 	/* Recurse left side */
-	ang_sort_aux(Ind, u, v, p, b);
+	ang_sort_aux(player_context, u, v, p, b);
 
 	/* Recurse right side */
-	ang_sort_aux(Ind, u, v, b+1, q);
+	ang_sort_aux(player_context, u, v, b+1, q);
 }
 
 
@@ -567,8 +648,8 @@ void ang_sort_aux(int Ind, vptr u, vptr v, int p, int q)
  * function hooks to interact with the data, which is given as
  * two pointers, and which may have any user-defined form.
  */
-void ang_sort(int Ind, vptr u, vptr v, int n)
+void ang_sort(void* player_context, vptr u, vptr v, int n)
 {
 	/* Sort the array */
-	ang_sort_aux(Ind, u, v, 0, n-1);
+	ang_sort_aux(player_context, u, v, 0, n-1);
 }

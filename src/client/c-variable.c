@@ -12,10 +12,12 @@ int server_port;
 
 object_type *inventory; 	/* The client-side copy of the inventory */
 char **inventory_name;  	/* The client-side copy of the inventory names */
+char **inventory_name_one;	/* Client-side copy of inventory names (singular) */
 byte *inventory_secondary_tester;/* Secondary item tester (if known) */
 
 object_type floor_item;
-char floor_name[MAX_CHARS]; 	/* Client-side copy of floor item */
+char floor_name[MAX_CHARS];     /* Client-side copy of floor item */
+char floor_name_one[MAX_CHARS]; /* Client-side copy of floor item (singular) */
 byte floor_secondary_tester;
 
 indicator_type indicators[MAX_INDICATORS];
@@ -65,6 +67,9 @@ s16b cur_line;				/* Current displayed line of "special" info */
 cave_view_type* remote_info[16]; /* Local copies for Special Info */
 s16b last_remote_line[16];
 cptr stream_desc[32];
+
+cave_view_type sfx_info[MAX_HGT][MAX_WID] = { 0 };
+s32b sfx_delay[MAX_HGT][MAX_WID] = { 0 };
 
 cave_view_type air_info[MAX_HGT][MAX_WID] = { 0 };
 s32b air_delay[MAX_HGT][MAX_WID] = { 0 };
@@ -120,7 +125,7 @@ bool inkey_flag = FALSE;
 bool inkey_exit = FALSE;
 bool inkey_nonblock = FALSE;	/* Set to TRUE for a single non-blocking read. */
 
-bool first_escape = FALSE;
+bool first_escape = TRUE;
 
 s16b macro__num;
 cptr *macro__pat;
@@ -156,6 +161,12 @@ byte color_table[256][4];
 
 cptr ANGBAND_SYS;
 
+cptr ANGBAND_FON = "";
+cptr ANGBAND_FONTNAME = "";
+cptr ANGBAND_GRAFNAME = "";
+
+byte mousemap[0xFF] = { 0 };
+
 cptr keymap_act[KEYMAP_MODES][256]; /* Keymaps for each "mode" associated with each keypress. */
 
 s16b command_cmd;
@@ -177,7 +188,9 @@ s16b pclass;
 s16b sex;
 char ptitle[80];
 
-s16b stat_order[6];			/* Desired order of stats */
+byte A_MAX = 0;
+cptr *stat_names;
+s16b stat_order[A_CAP];			/* Desired order of stats */
 
 bool flip_inven = FALSE;
 s16b flip_charsheet = 0;
@@ -196,6 +209,8 @@ byte icky_levels; /* How many levels of ickyness nested -- DO NOT USE */
 /* Player equipment refrence array */
 char *eq_name;
 s16b *eq_names;
+byte *eq_xpos;
+byte *eq_ypos;
 
 /*
  * The player race arrays
@@ -240,6 +255,7 @@ cptr ANGBAND_DIR_USER;
 cptr ANGBAND_DIR_PREF;
 cptr ANGBAND_DIR_XTRA;
 cptr ANGBAND_DIR_XTRA_SOUND;
+cptr ANGBAND_DIR_XTRA_GRAF;
 
 
 int use_graphics;
@@ -276,3 +292,5 @@ bool escape_in_macro_triggers = FALSE;
 int char_screen_mode;
 bool target_recall;
 char target_prompt[60];
+
+byte hitpoint_warn_toggle = 0;

@@ -52,8 +52,17 @@ void setup_network_client()
 	/* Setup tables..? */
 	// can do it later
 }
+
+//void free_struct_info(void);
+//void free_streams(void);
+//void free_indicators(void);
 void cleanup_network_client()
 {
+	//FIXME: not safe to call! :(
+	//free_struct_info();
+	//free_indicators();
+	//free_streams();
+
 	e_release_all(first_connection, 0, 1);
 	first_connection = NULL;
 	e_release_all(first_caller, 0, 1);
@@ -216,7 +225,7 @@ int send_char_info() {
 	}
 
 	/* Send the desired stat order */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		if (!cq_printf(&serv->wbuf, "%d", stat_order[i]))
 		{
@@ -283,7 +292,7 @@ int send_visual_info(byte type) {
 			char_ref = Client_setup.tval_char;
 			break;
 		case VISUAL_INFO_MISC:
-			size = 256;
+			size = 1024;
 			attr_ref =	Client_setup.misc_attr;
 			char_ref =	Client_setup.misc_char;
 			break;
@@ -503,17 +512,21 @@ int recv_store(connection_type *ct)
 	char
 		name[MAX_CHARS];
 	byte
-		pos,attr;
+		pos, attr;
 	s16b
 		wgt, num;
+	byte ga;
+	char gc;
 
-	if (cq_scanf(&serv->rbuf, "%c%c%d%d%ul%s", &pos, &attr, &wgt, &num, &price, name) < 6) return 0;
+	if (cq_scanf(&serv->rbuf, "%c%b%c%c%d%d%ul%s", &pos, &ga, &gc, &attr, &wgt, &num, &price, name) < 8) return 0;
 
 
 	store.stock[pos].sval = attr;
 	store.stock[pos].weight = wgt;
 	store.stock[pos].number = num;
 	store_prices[(int) pos] = price;
+	store.stock[pos].ix = ga; /* Hack -- Store "A" in "ix" */
+	store.stock[pos].iy = gc; /* Hack -- Store "C" in "iy" */
 	my_strcpy(store_names[(int) pos], name, MAX_CHARS);
 
 	/* Make sure that we're in a store */
@@ -743,6 +756,21 @@ int recv_struct_info(connection_type *ct)
 				option_group[i] = string_make(name);
 			}
 		break;
+		/* Player Stats */
+		case STRUCT_INFO_STATS:
+			/* Alloc */
+			A_MAX = max;
+			C_MAKE(stat_names, max, char*);
+			/* Fill */
+			for (i = 0; i < max; i++)
+			{
+				if (cq_scanf(&ct->rbuf, "%s", &name) < 1)
+				{
+					return 0;
+				}
+				stat_names[i] = string_make(name);
+			}
+		break;
 		/* Player Races */
 		case STRUCT_INFO_RACE:
 			/* Alloc */
@@ -803,7 +831,10 @@ int recv_struct_info(connection_type *ct)
 			/* Alloc */
 			C_MAKE(eq_name, fake_name_size, char);
 			C_MAKE(eq_names, max, s16b);
+			C_MAKE(eq_xpos, max, s16b);
+			C_MAKE(eq_ypos, max, s16b);
 			C_MAKE(inventory_name, max, char*);
+			C_MAKE(inventory_name_one, max, char*);
 			C_MAKE(inventory, max, object_type);
 			C_MAKE(inventory_secondary_tester, max, byte);
 			INVEN_TOTAL = max;
@@ -820,11 +851,14 @@ int recv_struct_info(connection_type *ct)
 			/* Fill */
 			for (i = 0; i < max; i++) 
 			{
+				byte xpos, ypos;
+
 				C_MAKE(inventory_name[i], 80, char);
+				C_MAKE(inventory_name_one[i], 80, char);
 
 				off = 0;
 
-				if (cq_scanf(&ct->rbuf, "%s%ul", &name, &off) < 2)
+				if (cq_scanf(&ct->rbuf, "%s%ul%c%c", &name, &off, &xpos, &ypos) < 4)
 				{
 					return 0;
 				}
@@ -835,6 +869,8 @@ int recv_struct_info(connection_type *ct)
 				}
 
 				eq_names[i] = last_off = (s16b)off;
+				eq_xpos[i] = xpos;
+				eq_ypos[i] = ypos;
 			}
 		}
 		break;
@@ -857,6 +893,52 @@ int recv_struct_info(connection_type *ct)
 
 	return 1;
 }
+void free_struct_info(void)
+{
+	int i;
+	/* Options */
+	for (i = 0; i < options_groups_max; i++)
+	{
+		string_free(option_group[i]);
+	}
+	KILL(option_group);
+	for (i = 0; i < known_options; i++)
+	{
+		string_free(option_info[i].o_text);
+		string_free(option_info[i].o_desc);
+	}
+	KILL(option_info);
+
+	/* Stats */
+	for (i = 0; i < A_MAX; i++)
+	{
+		string_free(stat_names[i]);
+	}
+	KILL(stat_names);
+
+	/* Race */
+	KILL(p_name);
+	KILL(race_info);
+
+	/* Class */
+	KILL(c_name);
+	KILL(c_info);
+
+	/* Inven. Info */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		KILL(inventory_name[i]);
+		KILL(inventory_name_one[i]);
+	}
+	KILL(eq_name);
+	KILL(eq_names);
+	KILL(eq_xpos);
+	KILL(eq_ypos);
+	KILL(inventory_name);
+	KILL(inventory_name_one);
+	KILL(inventory);
+	KILL(inventory_secondary_tester);
+}
 
 int recv_option_info(connection_type *ct) 
 {
@@ -866,21 +948,29 @@ int recv_option_info(connection_type *ct)
 	char desc[MAX_CHARS];
 	char name[MAX_CHARS];
 	byte
+		opt_default = FALSE,
 		opt_page = 0;
 
-	if (cq_scanf(&ct->rbuf, "%c%s%s", &opt_page, name, desc) < 3)
+	if (cq_scanf(&ct->rbuf, "%c%c%s%s", &opt_page, &opt_default, name, desc) < 4)
 	{
 		return 0;
 	}
+
+	/* Hack -- ignore most bits on opt_default (for now) */
+	opt_default = (opt_default & 0x01);
 
 	/* Grab */
 	opt_ptr = &option_info[known_options];
 
 	/* Fill */
 	opt_ptr->o_page = opt_page;
+	opt_ptr->o_norm = opt_default;
 	opt_ptr->o_text = string_make(name);
 	opt_ptr->o_desc = string_make(desc);
 	opt_ptr->o_set = 0;
+
+	/* Set default */
+	p_ptr->options[known_options] = opt_default;
 
 	/* Link to local */
 	for (n = 0; local_option_info[n].o_desc; n++)
@@ -889,6 +979,8 @@ int recv_option_info(connection_type *ct)
 		{
 			local_option_info[n].o_set = known_options;
 			opt_ptr->o_set = n;
+			/* Copy default */
+			(*local_option_info[n].o_var) = opt_default;
 		}
 	}
 
@@ -1096,6 +1188,55 @@ int recv_indicator_info(connection_type *ct) {
 
 	return 1;
 }
+
+void free_indicators(void)
+{
+	int i, j;
+	for (i = 0; i < known_indicators; i++)
+	{
+		//unregister_indicator(i);
+		string_free(indicators[i].mark);
+		string_free(indicators[i].prompt);
+	}
+	for (i = 0; i < MAX_COFFERS; i++)
+	{
+		if (str_coffers[i] == NULL) continue;
+		for (j = 0; j < MAX_COFFERS; j++)
+		{
+			if (i == j) continue;
+			if (str_coffers[j] == str_coffers[i]) str_coffers[j] = NULL;
+		}
+		KILL(str_coffers[i]);
+	}
+}
+
+int recv_slash_fx(connection_type *ct)
+{
+	byte
+		y = 0,
+		x = 0,
+		dir = 0,
+		fx = 0;
+	/* TODO: check dungeon view stream bounds
+	 * plog an error and return -1 if it doesn't fit */
+
+	if (cq_scanf(&serv->rbuf, "%c%c%c%b", &y, &x, &dir, &fx) < 4) return 0;
+
+	if (y >= p_ptr->stream_hgt[0]) return 1;
+	if (x >= p_ptr->stream_wid[0]) return 1;
+
+	/* Discard current effect */
+	sfx_delay[y][x] = 0;
+	refresh_char_aux(x, y);
+
+	/* Remember new information */
+	sfx_info[y][x].a = dir;
+	sfx_info[y][x].c = fx;
+	sfx_delay[y][x] = SLASH_FX_THRESHOLD;
+
+	return 1;
+}
+
 
 int recv_air(connection_type *ct)
 {
@@ -1363,6 +1504,22 @@ int recv_stream_info(connection_type *ct) {
 	known_streams++;
 
 	return 1;
+}
+void free_streams(void)
+{
+	stream_type *s_ptr;
+	int i;
+	for (i = 0; i < known_streams; i++)
+	{
+		s_ptr = &streams[i];
+		if (s_ptr->window_desc != s_ptr->mark)
+		{
+			string_free(s_ptr->window_desc);
+		}
+		string_free(s_ptr->mark);
+
+		if (remote_info[i]) KILL(remote_info[i]);
+	}
 }
 
 /* Network/Terminals */
@@ -1788,9 +1945,14 @@ int recv_floor(connection_type *ct)
 	byte pos, tval, attr;
 	byte flag, tester;
 	s16b amt;
+	byte ga; char gc;
 	char name[MAX_CHARS];
+	char name_one[MAX_CHARS];
 
-	if (cq_scanf(&ct->rbuf, "%c%c%d%c%b%b%s", &pos, &attr, &amt, &tval, &flag, &tester, name) < 7)
+	if (cq_scanf(&ct->rbuf, "%c%c%c%c" "%d%c%b%b" "%s%s",
+			&pos, &ga, &gc, &attr,
+			&amt, &tval, &flag, &tester,
+			name, name_one) < 8)
 	{
 		return 0;
 	}
@@ -1806,10 +1968,12 @@ int recv_floor(connection_type *ct)
 	floor_item.sval = attr; /* Hack -- Store "attr" in "sval" */
 	floor_item.tval = tval;
 	floor_item.ident = flag; /* Hack -- Store "flag" in "ident" */
-	floor_item.number = amt;
+	floor_item.ix = ga; /* Hack -- Store "A" in "ix" */
+	floor_item.iy = gc; /* Hack -- Store "C" in "iy" */
 	floor_secondary_tester = tester;
 
 	my_strcpy(floor_name, name, MAX_CHARS);
+	my_strcpy(floor_name_one, STRZERO(name_one) ? name : name_one, MAX_CHARS);
 	fix_floor();
 	return 1;
 }
@@ -1819,9 +1983,14 @@ int recv_inven(connection_type *ct)
 	byte pos, attr, tval;
 	byte flag, tester;
 	s16b wgt, amt;
+	byte a; char c; /* Tile/Symbol */
 	char name[MAX_CHARS];
+	char name_one[MAX_CHARS];
 
-	if (cq_scanf(&ct->rbuf, "%c%c%ud%d%c%b%b%s", &pos, &attr, &wgt, &amt, &tval, &flag, &tester, name) < 8)
+	if (cq_scanf(&ct->rbuf, "%c%c%c%c" "%ud%d%c%b%b" "%s%s",
+			&pos, &a, &c, &attr,
+			&wgt, &amt, &tval, &flag, &tester,
+			name, name_one) < 9)
 	{
 		return 0;
 	}
@@ -1832,9 +2001,12 @@ int recv_inven(connection_type *ct)
 	inventory[pos - 'a'].ident = flag; /* Hack -- Store "flag" in "ident" */
 	inventory[pos - 'a'].weight = wgt;
 	inventory[pos - 'a'].number = amt;
+	inventory[pos - 'a'].ix = a; /* Hack -- Store "A" in "ix" */
+	inventory[pos - 'a'].iy = c; /* Hack -- Store "C" in "iy" */
 	inventory_secondary_tester[pos - 'a'] = tester;
 
 	my_strcpy(inventory_name[pos - 'a'], name, MAX_CHARS);
+	my_strcpy(inventory_name_one[pos - 'a'], STRZERO(name_one) ? name : name_one, MAX_CHARS);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN);
@@ -1865,6 +2037,7 @@ int recv_equip(connection_type *ct)
 	inventory_secondary_tester[pos - 'a' + INVEN_WIELD] = 0;
 
 	my_strcpy(inventory_name[pos - 'a' + INVEN_WIELD], name, MAX_CHARS);
+	my_strcpy(inventory_name_one[pos - 'a' + INVEN_WIELD], name, MAX_CHARS);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_EQUIP);
@@ -1912,6 +2085,7 @@ int recv_objflags(connection_type *ct)
 	s16b
 		y = 0;
 	byte rle = ( use_graphics ? RLE_LARGE : RLE_CLASSIC );
+	int i;
 
 	/* Header (line number) */
 	if (cq_scanf(&ct->rbuf, "%d", &y) < 1)
@@ -1930,6 +2104,17 @@ int recv_objflags(connection_type *ct)
 	if (cq_scanc(&ct->rbuf, rle, p_ptr->hist_flags[y], MAX_OBJFLAGS_COLS) < MAX_OBJFLAGS_COLS)
 	{
 		return 0;
+	}
+
+	/* HACK -- copy equippy to inventory */
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
+	{
+		/* Get attr/char for display */
+		byte a; char c;
+		a = p_ptr->hist_flags[i-INVEN_WIELD][0].a;
+		c = p_ptr->hist_flags[i-INVEN_WIELD][0].c;
+		inventory[i].ix = a;
+		inventory[i].iy = c;
 	}
 
 	//TODO: re-evalute those
@@ -2066,6 +2251,8 @@ int call_metaserver(char *server_name, int server_port, char *buf, int buflen)
 		network_pause(100000); /* 0.1 ms "sleep" */
 		/* Let windows process UI events: */
 		Term_xtra(TERM_XTRA_FLUSH, 0);
+		/* Let SDL2 client re-render: */
+		Term_xtra(TERM_XTRA_BORED, 0);
 	}
 	/* Will be either 1 either -1 */
 
@@ -2265,6 +2452,12 @@ u32b net_term_manage(u32b* old_flag, u32b* new_flag, bool clear)
 					st_x[j] = st_x[j] - DUNGEON_OFFSET_X;
 					/* Status and top line */
 					st_y[j] = st_y[j] - SCREEN_CLIP_L - DUNGEON_OFFSET_Y;
+
+					/* Hack -- We have a special hook */
+					if (query_size_aux)
+					{
+						query_size_aux(&st_x[j], &st_y[j], j);
+					}
 				}
 
 				/* Test bounds */
@@ -2289,3 +2482,30 @@ u32b net_term_manage(u32b* old_flag, u32b* new_flag, bool clear)
 }
 /* Helper caller for "net_term_manage" */
 u32b net_term_update(bool clear) { return net_term_manage(window_flag, window_flag, clear); }
+
+/* Re-send visual info */
+void net_visuals_update(void)
+{
+	int i;
+
+	if (state < PLAYER_PLAYING) return;
+
+	wipe_visual_prefs();
+	process_pref_file("font.prf");
+	process_pref_file("graf.prf");
+
+	gather_settings();
+
+	send_settings();
+
+	/* send_options(); */
+
+	/* Send visual preferences */
+	for (i = 0; i < VISUAL_INFO_PR + 1; i++)
+	{
+		send_visual_info(i);
+	}
+
+	/* Hack -- redraw unrelated things */
+	p_ptr->redraw = 0xFFFFFFFF;
+}

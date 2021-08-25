@@ -231,6 +231,13 @@
  */
 #define MAX_SHORT       32767
 
+/*** Ligthing modes ***/
+#define LIGHTING_TORCH 0
+#define LIGHTING_LOS   1
+#define LIGHTING_LITE  2
+#define LIGHTING_DARK  3
+#define LIGHTING_MAX   4
+
 /*
  * RLE encoding modes
  */
@@ -279,9 +286,9 @@
 #define MAX_OPTIONS 256
 
 /*
- * Total number of stats.
+ * Maximum possible number of stats.
  */
-#define A_MAX	6
+#define A_CAP	16
 
 
 /*
@@ -346,9 +353,6 @@
 
 /* Offset for projected spells*/
 #define SPELL_PROJECTED (PY_MAX_SPELLS*2)
-
-/* Randart rarity */
-#define RANDART_RARITY	60
 
 
 /*
@@ -845,8 +849,9 @@
 #define MSG_PY_SPELL        154
 #define MSG_PY_PRAYER       155
 #define MSG_PY_MISC         156
+#define MSG_MON_OTHER       157
 
-#define MSG_MAX             157
+#define MSG_MAX             158
 
 /* Client-side and system messages: */
 #define MSG_LOCAL		255
@@ -891,7 +896,7 @@
  * Available graphic modes
  */
 #define GRAPHICS_NONE           0
-#define GRAPHICS_ORIGINAL       1
-#define GRAPHICS_ADAM_BOLT      2
-#define GRAPHICS_DAVID_GERVAIS  3
-#define GRAPHICS_PSEUDO         4
+#define GRAPHICS_PLAIN          1
+#define GRAPHICS_TRANSPARENT    2
+#define GRAPHICS_LIGHTMAP       3
+

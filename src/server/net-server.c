@@ -1,7 +1,7 @@
 /*
  * MAngband Server code
  *
- * Copyright (c) 2010 MAngband Project Team.
+ * Copyright (c) 2010-2020 MAngband Project Team.
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of the "Angband licence" with an extra clause:
@@ -42,6 +42,9 @@ def_cb(client_read);
 def_cb(client_close);
 def_cb(hub_read);
 def_cb(hub_close);
+def_cb(websocket_handshake);
+def_cb(websocket_receive);
+def_cb(websocket_close);
 
 static int		(*handlers[256])(connection_type *ct, player_type *p_ptr);
 static cptr		schemes[256];
@@ -105,7 +108,42 @@ void free_server_memory() {
 	KILL(Get_Ind);
 }
 
-/* Player enters active gameplay */
+/* When player's p_list index changes, other players should be made aware! */
+/* Hack -- it is allowed to pass "0" for "newPInd", to make player forgotten. */
+void reindex_player(int oldPInd, int newPInd)
+{
+	int i;
+	/* For each player (EXPECT THE LAST ONE!) */
+	for (i = 1; i <= NumPlayers - 1; i++)
+	{
+		player_type *p_ptr = Players[i];
+
+		/* Cursor/health/target tracking */
+		if (p_ptr->cursor_who == 0 - oldPInd) p_ptr->cursor_who = 0 - newPInd;
+		if (p_ptr->target_who == 0 - oldPInd) p_ptr->target_who = 0 - newPInd;
+		if (p_ptr->health_who == 0 - oldPInd)
+		{
+			p_ptr->health_who = 0 - newPInd;
+			/* If there's no new target, refresh healthbar to wipe it */
+			if (newPInd == 0) p_ptr->redraw |= PR_HEALTH;
+		}
+
+		/* Visibility flags */
+		p_ptr->play_vis[newPInd] = p_ptr->play_vis[oldPInd];
+		p_ptr->play_los[newPInd] = p_ptr->play_los[oldPInd];
+		p_ptr->play_det[newPInd] = p_ptr->play_det[oldPInd];
+
+		/* Vanishing player was visible, update list */
+		if (newPInd == 0 && p_ptr->play_vis[oldPInd]) p_ptr->window |= (PW_MONLIST);
+
+		/* And forget about old index */
+		p_ptr->play_vis[oldPInd] = FALSE;
+		p_ptr->play_los[oldPInd] = FALSE;
+		p_ptr->play_det[oldPInd] = 0;
+	}
+}
+
+/* Player enters active gameplay (Add player to p_list) */
 int player_enter(int ind) 
 {
 	int PInd;
@@ -132,8 +170,11 @@ int player_enter(int ind)
 	Get_Conn[PInd] = ind;
 	PConn[PInd] = ct; 
 
+	/* Hack -- store own index! */
+	p_ptr->Ind = PInd;
+
 	/* Hack -- join '#public' channel */
-	send_channel(PInd, CHAN_JOIN, 0, DEFAULT_CHANNEL);
+	send_channel(p_ptr, CHAN_JOIN, 0, DEFAULT_CHANNEL);
 
 	/* Hack -- send different 'G'ain command */
 	if (c_info[p_ptr->pclass].spell_book == TV_PRAYER_BOOK)
@@ -145,27 +186,30 @@ int player_enter(int ind)
 	p_ptr->state = PLAYER_PLAYING;
 
 	/* Setup his locaton */
-	player_setup(PInd);
-	setup_panel(PInd, TRUE);
-	verify_panel(PInd);
+	player_setup(p_ptr);
+	setup_panel(p_ptr, TRUE);
+	verify_panel(p_ptr);
+
+	/* Hack -- recalculate everything as early as possible */
+	update_stuff(p_ptr);
 
 	/* Hack, must find better place */
-	prt_history(PInd);
-	show_socials(PInd);
+	prt_history(p_ptr);
+	show_socials(p_ptr);
 
 	/* Current party */
-	send_party_info(PInd);
+	send_party_info(p_ptr);
 
 	/* Inform everyone */
 	if (!(p_ptr->dm_flags & DM_SECRET_PRESENCE)) /* unless it's hidden DM */
 	{
 		if (p_ptr->new_game)
 		{
-			msg_broadcast(PInd, format("%s begins a new game.", p_ptr->name));
+			msg_broadcast(p_ptr, format("%s begins a new game.", p_ptr->name));
 		}
 		else
 		{
-			msg_broadcast(PInd, format("%s has entered the game.", p_ptr->name));
+			msg_broadcast(p_ptr, format("%s has entered the game.", p_ptr->name));
 		}
 	}
 
@@ -188,6 +232,9 @@ void player_abandon(player_type *p_ptr)
 	/* No, let's keep them for now.
 	channels_leave(p_idx);
 	*/
+
+	/* Reset AFK timer */
+	p_ptr->afk_seconds = 0;
 
 	/* Unsubscribe from all streams */
 	for (i = 0; i < MAX_STREAMS; i++)
@@ -243,21 +290,21 @@ int player_leave(int p_idx)
 		/* Show everyone his disappearance */
 		everyone_lite_spot(p_ptr->dun_depth, p_ptr->py, p_ptr->px);
 		/* Tell everyone to re-calculate visiblity for this player */
-		update_player(p_idx);
+		update_player(p_ptr);
 	}
 
 	/* Try to save his character */
 	saved = save_player(p_ptr);
 
 	/* Leave all chat channels */
-	channels_leave(p_idx);
+	channels_leave(p_ptr);
 
 	/* Leave everything else */
 	player_abandon(p_ptr);
 
 	/* Inform everyone */
 	if (!(p_ptr->dm_flags & DM_SECRET_PRESENCE)) /* unless hidden DM */
-	msg_broadcast(p_idx, format("%s has left the game.", p_ptr->name));
+	msg_broadcast(p_ptr, format("%s has left the game.", p_ptr->name));
 
 	/* This player has no connection attached (orphaned) */
 	if (ind == -1)
@@ -285,13 +332,22 @@ int player_leave(int p_idx)
 		/* Put him in current player's place */
 		p_list[p_idx] = p_ptr;
 
+		/* Hack -- remember own index! */
+		p_ptr->Ind = p_idx;
+
 		/* Switch index on grid */
 		if (cave[p_ptr->dun_depth]) /* Cave is allocated */
 			cave[p_ptr->dun_depth][p_ptr->py][p_ptr->px].m_idx = 0 - p_idx;
 
 		/* Update "ind-by-Ind" */
 		Get_Conn[p_idx] = ind;
+
+		/* Make other players aware of the new index */
+		reindex_player(p_max, p_idx);
 	}
+
+	/* Make other players forget last player on the list */
+	reindex_player(p_max, 0);
 
 	/* Reduce list */
 	p_list[p_max] = NULL;
@@ -411,7 +467,7 @@ void setup_network_server()
 void post_process_players(void)
 {
 	int Ind;
-	for (Ind = 1; Ind < NumPlayers + 1; Ind++)
+	for (Ind = 1; Ind <= NumPlayers; Ind++)
 	{
 		player_type *p_ptr = Players[Ind];
 		
@@ -419,16 +475,19 @@ void post_process_players(void)
 		if (p_ptr->new_level_flag == TRUE) continue;
 		
 		/* Try to execute any commands on the command queue. */
-		(void) process_player_commands(Ind);
+		(void) process_player_commands(p_ptr);
 	}
 	/* Next loop flushes all potential update flags Players have set
 	 * for each other. */
-	for (Ind = 1; Ind < NumPlayers + 1; Ind++)
+	for (Ind = 1; Ind <= NumPlayers; Ind++)
 	{
 		player_type *p_ptr = Players[Ind];
-		
+
+		/* HACK -- Do not proccess while changing levels */
+		if (p_ptr->new_level_flag == TRUE) continue;
+
 		/* Recalculate and schedule updates */
-		handle_stuff(Ind);
+		handle_stuff(p_ptr);
 	}
 }
 
@@ -437,6 +496,7 @@ void network_loop()
 {
 	shutdown_timer = 0;
 	plog(format("Server is running version %04x", SERVER_VERSION));
+	if (cfg_ironman) plog("[Ironman mode]");
 #ifdef DEBUG
 	plog("Serving with delicious DEBUG cheeze!");
 #endif
@@ -567,12 +627,12 @@ int report_to_meta(int data1, data data2) {
 
 	/* Append the version number */
 #ifndef SVNREV
-    if (cfg_ironman)
-    	sprintf(temp, "Version: %d.%d.%d Ironman ", SERVER_VERSION_MAJOR, 
-    	SERVER_VERSION_MINOR, SERVER_VERSION_PATCH);
-    else
-    	sprintf(temp, "Version: %d.%d.%d ", SERVER_VERSION_MAJOR, 
-    	SERVER_VERSION_MINOR, SERVER_VERSION_PATCH);
+	if (cfg_ironman)
+		sprintf(temp, "Version: %d.%d.%d Ironman ", SERVER_VERSION_MAJOR,
+		SERVER_VERSION_MINOR, SERVER_VERSION_PATCH);
+	else
+		sprintf(temp, "Version: %d.%d.%d ", SERVER_VERSION_MAJOR,
+		SERVER_VERSION_MINOR, SERVER_VERSION_PATCH);
 	/* Append the additional version info */
 	if (SERVER_VERSION_EXTRA == 1)
 		strcat(temp, "alpha");
@@ -581,10 +641,10 @@ int report_to_meta(int data1, data data2) {
 	if (SERVER_VERSION_EXTRA == 3)
 		strcat(temp, "development");
 #else
-    if (cfg_ironman)
-    	sprintf(temp, "Revision: %d Ironman ", atoi(SVNREV));
-    else
-    	sprintf(temp, "Revision: %d ", atoi(SVNREV));
+	if (cfg_ironman)
+		sprintf(temp, "Revision: %d Ironman ", atoi(SVNREV));
+	else
+		sprintf(temp, "Revision: %d ", atoi(SVNREV));
 #endif
 	strcat(buf, temp);
 
@@ -625,6 +685,11 @@ int second_tick(int data1, data data2) {
 			}
 			/* Remove him from game*/
 			player_leave(i);
+		}
+		else
+		{
+			/* Also, track AFK status */
+			p_list[i]->afk_seconds++;
 		}
 	}
 
@@ -683,12 +748,18 @@ int hub_read(int data1, data data2) { /* return -1 on error */
 			send_play(ct, PLAYER_EMPTY);
 
 		break;
+		case CONNTYPE_WEBSOCKET:
+
+			ct->receive_cb = websocket_handshake;
+			ct->close_cb = websocket_close;
+
+		break;
 		case CONNTYPE_CONSOLE:
-		
+
 			/* evil hack -- chop trailing \n before reading password */
 			if (cq_len(&ct->rbuf) && cq_peek(&ct->rbuf)[0] == '\n')
 				ct->rbuf.pos++;
-		
+
 			okay = accept_console(-1, (data)ct);
 
 		break;
@@ -715,7 +786,7 @@ int hub_close(int data1, data data2) {
 
 int client_read(int data1, data data2) { /* return -1 on error */
 	connection_type *ct = (connection_type *)data2;
-	player_type *p_ptr = players->list[(int)ct->user]->data2; 
+	player_type *p_ptr = players->list[(int)ct->user]->data2;
 
 	byte pkt;
 	int result;
@@ -761,7 +832,7 @@ int client_login(int data1, data data2) { /* return -1 on error */
 		version = 0;
 	char
 		real_name[MAX_CHARS],
-		host_name[MAX_CHARS],		
+		host_name[MAX_CHARS],
 		nick_name[MAX_CHARS],
 		pass_word[MAX_CHARS];
 
@@ -779,7 +850,7 @@ int client_login(int data1, data data2) { /* return -1 on error */
 	if (cq_scanf(&ct->rbuf, "%ud%s%s%s%s", &version, real_name, host_name, nick_name, pass_word) < 5)
 	{
 		/* Not enough bytes */
-		ct->rbuf.pos = start_pos;	
+		ct->rbuf.pos = start_pos;
 		return 0;
 	}
 
@@ -876,6 +947,7 @@ int client_login(int data1, data data2) { /* return -1 on error */
 		/* Attempt to load from a savefile */
 		if (!load_player(p_ptr))
 		{
+			plog(format("Corrupt savefile for player %s", p_ptr->name));
 			player_free(p_ptr); /* Unalloc back */
 			client_abort(ct, "Error loading savefile");
 		}
@@ -920,10 +992,12 @@ int client_login(int data1, data data2) { /* return -1 on error */
 	ct->receive_cb = client_read;
 
 	/* Since LOGIN is the first command ever, it's a good time to send basics */
+	if (client_version_atleast(p_ptr->version, 1,5,3)) send_stats_info(ct);
 	send_race_info(ct);
 	send_class_info(ct);
 	send_server_info(ct);
-	send_inventory_info(ct);
+	if (client_version_atleast(p_ptr->version, 1,5,3)) send_inventory_info(ct);
+	else send_inventory_info_DEPRECATED(ct);
 	send_objflags_info(ct);
 	send_floor_info(ct);
 	send_optgroups_info(ct);
@@ -1128,8 +1202,336 @@ u16b connection_type_ok(u16b conntype)
 		return CONNTYPE_PLAYER;
 	if (conntype == 8202 || conntype == 8205)
 		return CONNTYPE_CONSOLE;
+	if (conntype == 0x4745)
+		return CONNTYPE_WEBSOCKET;
 	if (conntype == CONNTYPE_OLDPLAYER)
 		return CONNTYPE_OLDPLAYER;
 	
 	return CONNTYPE_ERROR;
+}
+
+
+/*
+ * WebSocket (RFC6455) Interface.
+ */
+
+/* Add websocket frame header and then send bytes as-is. */
+int websocket_send(int data1, data data2)
+{
+	static bool initialized = FALSE;
+	static cq tmp_buf;
+	int i, n, header_len;
+	connection_type *ct = data2;
+	char* mesg = (char*) ct->uptr;
+	int len;
+
+	/* Prepare frame header */
+	bool FIN = TRUE;
+	bool RSV1, RSV2, RSV3 = FALSE;
+	byte OPCODE = 0x02;
+	char first_byte =
+		(FIN ? 0x80 : 0)
+		| (RSV1 ? 1 << 6 : 0)
+		| (RSV2 ? 1 << 5 : 0)
+		| (RSV3 ? 1 << 4 : 0)
+		| (OPCODE & 0x0F);
+
+	len = cq_len(&ct->wbuf);
+	if (!len) return 0;
+
+	if (!initialized)
+	{
+		cq_init(&tmp_buf, 64);
+		initialized = TRUE;
+	}
+
+	cq_clear(&tmp_buf);
+	cq_printf(&tmp_buf, "%b", first_byte);
+	cq_printf(&tmp_buf, "%uv", len);
+
+	/* Dump header */
+	header_len = cq_len(&tmp_buf);
+	n = cq_read(&tmp_buf, &mesg[0], PD_LARGE_BUFFER);
+	if (n < header_len)
+	{
+		return -1;
+	}
+	/* Dump body */
+	n = cq_read(&ct->wbuf, &mesg[n], PD_LARGE_BUFFER);
+	if (n < len)
+	{
+		return -1;
+	}
+	return n + header_len;
+}
+
+
+/* Read single websocket frame. If it was read, apply actual
+ * payload bytes to our temp.buffer and return "1".
+ * If there were not enough bytes, return "0". */
+int websocket_read(connection_type *ct)
+{
+	int n;
+	char mask_key[4];
+	char first_byte, second_byte, c;
+	bool FIN, MASK;
+	byte OPCODE;
+	size_t len, need_len, i;
+
+	/* At least 5 bytes must be present to start reading */
+	if (cq_len(&ct->rbuf) < 5) return 0;
+
+	/* HACK -- If we're talking websocket, use send wrapper */
+	ct->send_cb = websocket_send;
+
+	/* Read frame header */
+	cq_scanf(&ct->rbuf, "%c%c", &first_byte, &second_byte);
+	ct->rbuf.pos -= 1; /* Hack -- "second_byte" and "len" overlap */
+	cq_scanf(&ct->rbuf, "%uv", &len);
+
+	FIN = first_byte & 0x80;
+	MASK = second_byte & 0x80;
+	OPCODE = first_byte & 0x0F;
+
+	/* TODO: handle other opcodes. */
+//	if (OPCODE != 0x02) return -1;
+
+	need_len = len + (MASK ? 4 : 0);
+
+	/* Not all bytes have arrived */
+	if (cq_len(&ct->rbuf) < need_len) return 0;
+
+	/* No space in temp. buffer */
+	if (cq_space(&ct->wsrbuf) < len) return -1;
+
+	/* Read the mask key */
+	cq_scanf(&ct->rbuf, "%b%b%b%b", &mask_key[0], &mask_key[1], &mask_key[2], &mask_key[3]);
+
+	/* Read, unmask, append to temp.buffer */
+	for (i = 0; i < len; i++)
+	{
+		cq_scanf(&ct->rbuf, "%b", &c);
+		c = c ^ mask_key[i % 4];
+		cq_printf(&ct->wsrbuf, "%b", c);
+	}
+
+	/* Done */
+	return 1;
+}
+
+/* After we have read a websocket frame and converted it to a normal tcp stream,
+ * we want to execute our regular code on the resulting data. This function does
+ * exactly that (by utilizing yucky code duplication).
+ * Also notice the ugly buffer swap, which makes it possible. */
+int websocket_exec(connection_type *ct)
+{
+	static bool initialized = FALSE;
+	static cq tmp_buf;
+	int n;
+
+	/* Nothing to read */
+	if (!cq_len(&ct->wsrbuf)) return 0;
+
+	if (!initialized)
+	{
+		cq_init(&tmp_buf, PD_LARGE_BUFFER);
+		initialized = TRUE;
+	}
+
+	/* Stash current read buffer (PUSH) */
+	cq_clear(&tmp_buf);
+	cq_copy(&ct->rbuf, &tmp_buf, cq_len(&ct->rbuf));
+
+	/* Replace read buffer with parsed websocket data */
+	cq_clear(&ct->rbuf);
+	cq_copy(&ct->wsrbuf, &ct->rbuf, cq_len(&ct->wsrbuf));
+	ct->rbuf.pos = 0;
+
+	/* Route data into some other handlers */
+	/* HANDSHAKE (mirrors hub_read()) */
+	if (ct->user == -2)
+	{
+		u16b conntype = 0;
+		if (cq_scanf(&ct->rbuf, "%ud", &conntype) < 1)
+		{
+			/* Not ready */
+			n = 0;
+		} else {
+			if (conntype != CONNTYPE_PLAYER)
+			{
+				/* For now, only player connections are allowed over websockets */
+				send_quit(ct, "Bad connection type, only PLAYER type is allowed!");
+				return -1;
+			}
+
+			/* React (same as hub_read()) */
+			ct->user = -1;
+			send_play(ct, PLAYER_EMPTY);
+
+			/* OK */
+			n = 1;
+		}
+	}
+	/* LOGIN (calls client_login()) */
+	else if (ct->user == -1)
+	{
+		n = client_login(0, ct);
+
+		/* Hack -- restore this callback, client_login() mangles it */
+		ct->receive_cb = websocket_receive;
+	}
+	/* REGULAR packet handler (calls client_read()) */
+	else
+	{
+		n = client_read(0, ct);
+	}
+
+	/* Copy buffer leftovers to wsrbuffer */
+	cq_clear(&ct->wsrbuf);
+	cq_copy(&ct->rbuf, &ct->wsrbuf, cq_len(&ct->rbuf));
+
+	/* Restore current read buffer (POP) */
+	cq_clear(&ct->rbuf);
+	cq_copy(&tmp_buf, &ct->rbuf, cq_len(&tmp_buf));
+
+	/* Read something */
+	return n;
+}
+
+/* Like all receiving callbacks, this function returns "0" when no bytes
+ * were read, and "1" if there was an advancement to the next packet.
+ * NOTE, that we do not concern ourselfs with MAngband packet boundaries
+ * at this level, we just want to know if we had read a complete websocket
+ * "frame". */
+int websocket_receive(int data1, data data2)
+{
+	//(void)data1; /* Unused */
+	connection_type *ct = data2;
+	bool updated = FALSE;
+	int n = 0;
+	int start_at = ct->rbuf.pos;
+
+	/* Read as many frames as possible */
+	while ((n = websocket_read(ct)) > 0)
+	{
+		/* Yay */
+		start_at = ct->rbuf.pos;
+		updated = TRUE;
+	}
+	/* Finish at boundary */
+	ct->rbuf.pos = start_at;
+
+	/* If we have some new bytes, execute usual codepaths for them: */
+	if (updated)
+	{
+		int en = 0;
+		while ((en = websocket_exec(ct)) > 0)
+		{
+			/* Called actual underlying protocol handler. */
+		}
+		if (en <= -1)
+		{
+			/* Break on fatal errors. */
+			return -1;
+		}
+	}
+
+	/* Report back */
+	return n;
+}
+
+int websocket_handshake(int data1, data data2)
+{
+	connection_type *ct = data2;
+	int i;
+	int start_pos = ct->rbuf.pos;
+	bool whole_headers = FALSE;
+
+	/* Find end of headers */
+	for (i = ct->rbuf.pos; i < ct->rbuf.len; i++)
+	{
+		if (i >= 3
+		   && ct->rbuf.buf[i - 3] == '\r'
+		   && ct->rbuf.buf[i - 2] == '\n'
+		   && ct->rbuf.buf[i - 1] == '\r'
+		   && ct->rbuf.buf[i - 0] == '\n'
+		)
+		{
+			whole_headers = TRUE;
+			break;
+		}
+	}
+	if (whole_headers)
+	{
+		static char websocket_guid[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+		char websocket_key[1024];
+		char mixed_key[1024];
+		char sha_of_key[32] = { 0 };
+		char b64_of_key[32] = { 0 };
+		char in_header[1024];
+
+		/* Read every header */
+		ct->rbuf.pos = 0;
+		while (1)
+		{
+			char line[1024];
+			cq_scanf(&ct->rbuf, "%T", line);
+			if (ct->rbuf.pos >= i) break;
+			if (prefix(line, "Sec-WebSocket-Key:"))
+			{
+				my_strcpy(websocket_key, &line[19], 1024);
+			}
+		}
+		/* Get ready to read websocket stream */
+		ct->rbuf.pos = i + 1;
+		ct->receive_cb = websocket_receive;
+
+		/* Perform handshake */
+		my_strcpy(mixed_key, websocket_key, 1024);
+		my_strcat(mixed_key, websocket_guid, 1024);
+		SHA1(sha_of_key, mixed_key, strlen(mixed_key));
+		base64_encode(sha_of_key, 20, b64_of_key);
+		strnfmt(in_header, 1024, "Sec-WebSocket-Accept: %s\r\n", b64_of_key);
+
+		cq_printf(&ct->wbuf, "%T", "HTTP/1.1 101 Switching Protocols\r\n");
+		cq_printf(&ct->wbuf, "%T", "Upgrade: websocket\r\n");
+		cq_printf(&ct->wbuf, "%T", "Connection: Upgrade\r\n");
+		cq_printf(&ct->wbuf, "%T", in_header);
+		cq_printf(&ct->wbuf, "%T", "\r\n");
+
+		/* Init additional buffer */
+		cq_init(&ct->wsrbuf, PD_LARGE_BUFFER);
+
+		/* Hack -- set user value to -2 to track login progress */
+		ct->user = -2;
+
+		/* Continue from next byte */
+		return i + 1;
+	}
+
+	/* Not enough bytes */
+	ct->rbuf.pos = start_pos;
+	return 0;
+}
+
+int websocket_close(int data1, data data2)
+{
+	//(void)data1; /* Unused */
+	connection_type *ct = data2;
+
+	if (ct->user == -2)
+	{
+		/* Almost nothing to destroy */
+	}
+	else
+	{
+		/* Call regular hook */
+		client_close(data1, data2);
+	}
+
+	/* Destroy special buffer */
+	cq_free(&ct->wsrbuf);
+
+	/* TODO: death opcode */
+	return 0;
 }

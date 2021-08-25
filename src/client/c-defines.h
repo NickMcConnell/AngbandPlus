@@ -8,7 +8,7 @@
 
 #define CLIENT_VERSION_MAJOR	1
 #define CLIENT_VERSION_MINOR	5
-#define CLIENT_VERSION_PATCH	2
+#define CLIENT_VERSION_PATCH	3
 
 /*
  * This value specifys the suffix to the version info sent to the metaserver.
@@ -55,6 +55,9 @@
 
 /* Speed of air layer fadeout effects */
 #define AIR_FADE_THRESHOLD 10
+
+/* Speed of slash fx effect */
+#define SLASH_FX_THRESHOLD 500
 
 /*** SERVER DEFINES ***/
 /* Sometimes, we just copy defines from server.

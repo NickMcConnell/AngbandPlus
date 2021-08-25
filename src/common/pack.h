@@ -68,7 +68,9 @@
 #define PKT_WALK        	70
 #define PKT_RUN         	71
 #define PKT_REST        	72
+#define PKT_PATHFIND    	73
 #define PKT_STAND       	76
+#define PKT_ENTER_FEAT  	77
 #define PKT_LOOK        	78
 
 #define PKT_LOCATE      	98
@@ -96,6 +98,7 @@
 
 /* Extra packets */
 #define PKT_OBSERVE     	160
+#define PKT_SLASH_FX    	161
 #define PKT_CHANGEPASS  	162
 #define PKT_OBJFLAGS    	163
 #define PKT_AIR         	164
@@ -138,6 +141,7 @@
 #define STRUCT_INFO_OPTGROUP	7
 #define STRUCT_INFO_FLOOR	8
 #define STRUCT_INFO_OBJFLAGS	9
+#define STRUCT_INFO_STATS	10
 
 /*
  * PKT_VISUAL_INFO helpers
@@ -189,7 +193,7 @@
 #define SCHEME_ITEM_SMALL_STRING 27
 #define SCHEME_ITEM_SMALL_CHAR   28
 
-#define SCHEME_PPTR_CHAR         29
+#define SCHEME_PPTR_CHAR         29 /* TODO: deprecate this scheme! */
 
 #define SCHEME_LAST 	SCHEME_ITEM_SMALL_CHAR
 
@@ -331,6 +335,7 @@
  */
 #define CONNTYPE_PLAYER 	0x01
 #define CONNTYPE_CONSOLE	0x02
+#define CONNTYPE_WEBSOCKET	0x03
 #define CONNTYPE_OLDPLAYER	0x00
 #define CONNTYPE_ERROR  	0xFF
 

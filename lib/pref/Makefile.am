@@ -6,9 +6,11 @@ pref_DATA = \
 		lib/pref/font-ami.prf \
 		lib/pref/font-ibm.prf \
 		lib/pref/font-sdl.prf \
+		lib/pref/font-sdl2.prf \
 		lib/pref/font-win.prf \
 		lib/pref/font-x11.prf \
 		lib/pref/font-xxx.prf \
+		lib/pref/font-tng.prf \
 		\
 		lib/pref/graf.prf \
 		lib/pref/graf-ami.prf \
@@ -16,6 +18,7 @@ pref_DATA = \
 		lib/pref/graf-new.prf \
 		lib/pref/graf-win.prf \
 		lib/pref/graf-sdl.prf \
+		lib/pref/graf-sdl2.prf \
 		lib/pref/graf-x11.prf \
 		lib/pref/graf-xxx.prf \
 		lib/pref/flvr-dvg.prf \

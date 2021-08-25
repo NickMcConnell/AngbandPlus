@@ -130,6 +130,18 @@
 #endif
 
 /*
+ * Extract the "ON_IOS" flag from the environment
+ */
+#ifdef __APPLE__
+# include <TargetConditionals.h>
+# if TARGET_OS_IPHONE
+#  define ON_IOS
+# elif TARGET_OS_OSX
+#  define ON_OSX
+# endif
+#endif
+
+/*
  * Extract the "WINDOWS" flag from the compiler
  */
 #if defined(_Windows) || defined(__WINDOWS__) || \
@@ -138,6 +150,17 @@
 # ifndef WINDOWS
 #  define WINDOWS
 # endif
+#endif
+
+/*
+ * HACK: Extract some configure-like defines from Xcode
+ */
+#if defined(ON_OSX) && !defined(HAVE_CONFIG_H)
+#define HAVE_MEMSET
+#define HAVE_STRNLEN
+#define HAVE_DIRENT_H
+#define HAVE_SELECT 1
+#define PKGDATADIR "./lib/"
 #endif
 
 /*
@@ -156,6 +179,8 @@
 #define HAVE_STRDUP
 #define HAVE_STRNLEN
 #define HAVE___INT64
+#define HAVE_STAT
+#define HAVE_SELECT 1
 #endif
 #if defined (_MSC_VER) && (_MSC_VER >= 1900) /* VS2015 or later */
 #define HAVE_INTTYPES_H
@@ -164,10 +189,33 @@
 #endif
 
 /*
- * OPTION: Define "L64" if a "long" is 64-bits.  See "h-types.h".
- * (automatic for amd64 with gcc)
+ * HACK: autoconf guessing wrong on mingw32, fix it */
+#ifdef __MINGW32__
+#ifndef HAVE_ARPA_INET_H
+#ifdef HAVE_INET_NTOP
+#undef HAVE_INET_NTOP
+#endif
+#endif
+#endif
+/*
+ * HACK: on old mingw32, select exists, but is close to useless
  */
-#if defined(__alpha) || defined(__amd64__)
+#ifdef WINDOWS
+# if __MINGW32__ && (__GNUC__ < 3)
+#  ifdef HAVE_SELECT
+#   undef HAVE_SELECT
+#  endif
+# endif
+#endif
+
+/*
+ * OPTION: Define "L64" if a "long" is 64-bits.  See "h-types.h".
+ * (automatic for some platforms)
+ */
+#if defined(__alpha) || defined(__amd64__) \
+ || defined(_M_X64) || defined(_WIN64) || defined(__MINGW64__) \
+ || defined(_LP64) || defined(__LP64__) || defined(__ia64__) \
+ || defined(__x86_64__)
 # define L64
 #endif
 
@@ -246,6 +294,11 @@
 # define PATH_SEP ""
 #endif
 
+/* Hack -- for systems with no PATH_MAX (Windows?) */
+#ifndef PATH_MAX
+#define PATH_MAX 1024
+#endif
+
 /* Hack -- DOS has 8.3 filesystem */
 #undef FS_MAX_BASE_LEN
 #if defined(MSDOS)
@@ -262,17 +315,6 @@
 # endif
 #endif
 
-/*
- * The Macintosh allows the use of a "file type" when creating a file
- */
-#if defined(MACINTOSH) && !defined(applec)
-# define FILE_TYPE_TEXT 'TEXT'
-# define FILE_TYPE_DATA 'DATA'
-# define FILE_TYPE_SAVE 'SAVE'
-# define FILE_TYPE(X) (_ftype = (X))
-#else
-# define FILE_TYPE(X) ((void)0)
-#endif
 
 
 /*

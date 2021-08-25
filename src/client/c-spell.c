@@ -78,7 +78,9 @@ int count_spells_in_book(int book, int *book_over)
 }
 
 /* Get spell by name */
-bool get_spell_by_name(int *k, int *s, bool inven, bool equip, bool books)
+/* Returns "0" if a spell was found, "1" if user has abourted input, and
+ * "-1" if no spell was found. */
+errr get_spell_by_name(int *k, int *s, bool inven, bool equip, bool books)
 {
 	char buf[256];
 	char *tok;
@@ -93,12 +95,12 @@ bool get_spell_by_name(int *k, int *s, bool inven, bool equip, bool books)
 	buf[0] = '\0';
 	if (!get_string(prompt, buf, 80))
 	{
-		return FALSE;
+		return 1;
 	}
 
 	/* Hack -- remove final quote */
 	len = strlen(buf);
-	if (len == 0) return FALSE;
+	if (len == 0) return 1;
 	if (buf[len-1] == '"') buf[len-1] = '\0';
 
 	/* Split entry */
@@ -111,9 +113,12 @@ bool get_spell_by_name(int *k, int *s, bool inven, bool equip, bool books)
 		for (sn = 0; sn < PY_MAX_SPELLS; sn++)
 		{
 			if (spell_info[i][sn][0] == '\0') break;
-			if (!inven && i < INVEN_WIELD) continue;
-			if (!equip && i >= INVEN_WIELD) continue;
-			if (inventory[i].tval == 0) continue;
+			if (inven || equip)
+			{
+				if (!inven && i < INVEN_WIELD) continue;
+				if (!equip && i >= INVEN_WIELD) continue;
+				if (inventory[i].tval == 0) continue;
+			}
 
 			/* Book-name match */
 			if (/*get_item_okay(i) &&*/
@@ -136,13 +141,13 @@ bool get_spell_by_name(int *k, int *s, bool inven, bool equip, bool books)
 					if (get_check("Project? "))
 						(*s) += SPELL_PROJECTED;
 				}
-				return TRUE;
+				return 0;
 			}
 		}
 		tok = strtok(NULL, "|");
 	}
-	if (books && book_matched) return TRUE;
-	return FALSE;
+	if (books && book_matched) return 0;
+	return -1;
 }
 
 
@@ -152,7 +157,7 @@ bool get_spell_by_name(int *k, int *s, bool inven, bool equip, bool books)
 
 /* modified to accept certain capital letters for priest spells. -AD- */ 
  
-int get_spell(int *sn, cptr p, cptr prompt, int *bn, bool known)
+int get_spell(int *sn, cptr p, cptr prompt, int *bn, bool known, bool bookless)
 {
 	int		i, num = 0;
 	bool		flag, redraw;
@@ -207,6 +212,9 @@ int get_spell(int *sn, cptr p, cptr prompt, int *bn, bool known)
 	strnfmt(out_val, 78, "(%s %c-%c, *=List, ESC=exit) %s",
 		p, I2A(0), I2A(num - 1), prompt);
 
+	/* Hack -- ask term2 */
+	if (z_ask_spell_aux) z_ask_spell_aux(out_val, -1, book);
+
 	/* Get a spell from the user */
 	while (!flag && get_com_ex(out_val, &choice, &ke))
 	{
@@ -219,16 +227,16 @@ int get_spell(int *sn, cptr p, cptr prompt, int *bn, bool known)
 		/* Enter by name */
 		if (choice == '@' || choice == '"')
 		{
-			int _sn, _bn;
+			int _sn, _bn; errr r;
 			if (choice == '"') prompt_quote_hack = TRUE;
 			/* XXX Lookup item by name */
-			if (get_spell_by_name(&_bn, &_sn, TRUE, FALSE, FALSE))
+			if (!(r = get_spell_by_name(&_bn, &_sn, bookless ? FALSE : TRUE, FALSE, FALSE)))
 			{
 				book = _bn;
 				i = _sn;
 				flag = TRUE;
 			}
-			else
+			else if (r < 0)
 			{
 				bell();
 			}
@@ -266,6 +274,9 @@ int get_spell(int *sn, cptr p, cptr prompt, int *bn, bool known)
 				/* Re-Build a prompt (accept all spells) */
 				strnfmt(out_val, 78, "(%s %c-%c, *=List, ESC=exit) %s",
 					p, I2A(0), I2A(num - 1), prompt);
+
+				/* Hack -- ask term2 */
+				if (z_ask_spell_aux) z_ask_spell_aux(out_val, -1, book);
 
 				/* Must redraw list */
 				if (redraw)
@@ -418,7 +429,7 @@ void do_study(int book)
 	if (c_info[pclass].spell_book == TV_MAGIC_BOOK)
 	{
 		/* Ask for a spell, allow cancel */
-		if (!get_spell(&j, "spell", "Study which spell? ", &book, FALSE)) return;
+		if (!get_spell(&j, "spell", "Study which spell? ", &book, FALSE, FALSE)) return;
 	}
 
 	/* Priest -- Learn random spell */
@@ -466,7 +477,7 @@ void do_cast(int book)
 	int j;
 
 	/* Ask for a spell, allow cancel */
-	if (!get_spell(&j, "spell", "Cast which spell? ", &book, FALSE)) return;
+	if (!get_spell(&j, "spell", "Cast which spell? ", &book, FALSE, FALSE)) return;
 
 	/* Additional */
 	if (!do_cast_xtra(book, j)) return;
@@ -483,7 +494,7 @@ void do_pray(int book)
 	int j;
 
 	/* Ask for a spell, allow cancel */
-	if (!get_spell(&j, "prayer", "Pray which prayer? ", &book, FALSE)) return;
+	if (!get_spell(&j, "prayer", "Pray which prayer? ", &book, FALSE, FALSE)) return;
 
 	/* Additional */
 	if (!do_cast_xtra(book, j)) return;
@@ -501,7 +512,7 @@ void do_ghost(void)
 	int j;
 
 	/* Ask for an ability, allow cancel */ 
-	if (!get_spell(&j, "power", "Use which power? ", &book, FALSE)) return;
+	if (!get_spell(&j, "power", "Use which power? ", &book, FALSE, TRUE)) return;
 
 	/* Additional */
 	if (!do_cast_xtra(book, j)) return;

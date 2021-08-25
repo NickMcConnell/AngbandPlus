@@ -16,6 +16,9 @@
 
 #include <assert.h>
 
+/* HACK -- Z-Term hook(s): */
+bool (*z_ask_menu_aux)(menu_type *menu, menu_get_entry func, int row, int col) = NULL;
+
 /*
  * Implementation of Extremely Basic Event Model.
  * Limits:
@@ -557,7 +560,7 @@ static bool handle_menu_key(char cmd, menu_type *menu, int cursor)
 	if (flags & MN_NO_ACT) return FALSE;
 
 	if (cmd == ESCAPE) return FALSE;
-	if (!cmd == '\xff' && (!menu->cmd_keys || !strchr(menu->cmd_keys, cmd)))
+	if (!(cmd == '\xff') && (!menu->cmd_keys || !strchr(menu->cmd_keys, cmd)))
 		return FALSE;
 
 	if (menu->row_funcs->row_handler &&
@@ -1108,7 +1111,7 @@ bool menu_layout(menu_type *menu, const region *loc)
 			active.page_rows--;
 		else
 		{
-			int offset = strlen(menu->prompt) + 2;
+			size_t offset = strlen(menu->prompt) + 2;
 			active.col += offset;
 			active.width -= offset;
 		}
