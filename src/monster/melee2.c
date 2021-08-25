@@ -3247,7 +3247,6 @@ static void process_monster(int m_idx)
 	oy = m_ptr->fy;
 	ox = m_ptr->fx;
 
-
 	/* Attempt to "mutiply" (all monsters are allowed an attempt for lore
 	 * purposes, even non-breeders)
 	 */

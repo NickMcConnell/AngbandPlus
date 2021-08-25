@@ -40,9 +40,9 @@
 #define SAVEFILE_NAME  "NBND"
 
 #ifdef BUILD_ID
-# define VERSION_STRING "0.7.1 (" BUILD_ID ")"
+# define VERSION_STRING "unstable (" BUILD_ID ")"
 #else
-# define VERSION_STRING "0.7.1"
+# define VERSION_STRING "0.8.0"
 #endif
 
 
@@ -106,14 +106,14 @@
  * Must be a multiple of SCREEN_HGT
  * Must be less or equal to 256
  */
-#define DUNGEON_HGT		66
+#define DUNGEON_HGT		99
 
 /*
  * Number of grids in each dungeon (horizontally)
  * Must be a multiple of SCREEN_WID
  * Must be less or equal to 256
  */
-#define DUNGEON_WID		99
+#define DUNGEON_WID		198
 
 #define TOWN_WID 66
 #define TOWN_HGT 22
@@ -264,14 +264,14 @@ typedef enum
 
 
 /*
- * There is a 1/160 chance per round of creating a new monster
+ * There is a 1/500 chance per round of creating a new monster
  */
 #define MAX_M_ALLOC_CHANCE	500
 
 /*
- * Normal levels get at least 100 monsters
+ * Normal levels get at least 60 monsters
  */
-#define MIN_M_ALLOC_LEVEL	14
+#define MIN_M_ALLOC_LEVEL	60
 
 /*
  * The town starts out with 4 residents during the day

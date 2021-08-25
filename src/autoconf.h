@@ -11,7 +11,7 @@
 #define DEFAULT_LIB_PATH "./lib/"
 
 /* Define to 1 if you have the `can_change_color' function. */
-#define HAVE_CAN_CHANGE_COLOR 1
+/* #undef HAVE_CAN_CHANGE_COLOR */
 
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
@@ -74,7 +74,7 @@
 #define HAVE_UNISTD_H 1
 
 /* Define to 1 if you have the `use_default_colors' function. */
-#define HAVE_USE_DEFAULT_COLORS 1
+/* #undef HAVE_USE_DEFAULT_COLORS */
 
 /* Define to 1 if the system has the type `_Bool'. */
 #define HAVE__BOOL 1
@@ -94,6 +94,9 @@
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "neoband"
 
+/* Define to the home page for this package. */
+#define PACKAGE_URL ""
+
 /* Define to the version of this package. */
 #define PACKAGE_VERSION "0.5.0"
 
@@ -101,7 +104,7 @@
 #define RETSIGTYPE void
 
 /* Define to 1 if using SDL_mixer sound support and it's found. */
-#define SOUND_SDL 1
+/* #undef SOUND_SDL */
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
@@ -110,19 +113,19 @@
 /* #undef USE_CURSES */
 
 /* Define to 1 if using the Curses frontend. */
-#define USE_GCU 1
+/* #undef USE_GCU */
 
 /* Define to 1 if using the GTK+ 2.x interface and GTK+ 2.x is found. */
 /* #undef USE_GTK */
 
 /* Define to 1 if NCurses is found. */
-#define USE_NCURSES 1
+/* #undef USE_NCURSES */
 
 /* Define to use private save and score paths. */
 /* #undef USE_PRIVATE_PATHS */
 
 /* Define to 1 if using the SDL interface and SDL is found. */
-#define USE_SDL 1
+/* #undef USE_SDL */
 
 /* Define to 1 to build the test frontend */
 /* #undef USE_TEST */

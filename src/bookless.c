@@ -9,7 +9,7 @@
 #include "bookless.h"
 #include "target.h"
 
-struct last_bookless last_bookless = {
+static struct last_bookless last_bookless = {
 	-1, /* no dir yet */
 	NULL, /* no spell yet */
 };
@@ -42,18 +42,18 @@ void Assassin_astral_vision(int dir)
 	(void)detect_monsters_invis(TRUE);
 }
 
-struct spellholder assassin_spell_info[] = {
+static struct spellholder assassin_spell_info[] = {
 	{ "Poison Dart", 1, 1, 15, "Hurls a bolt of poison.",
 		&Assassin_poison_dart, 1 },
-	{ "Fume Cloud", 4, 4, 25, "Conjures a cloud of poisonous fumes.",
+	{ "Fume Cloud", 8, 4, 25, "Conjures a cloud of poisonous fumes.",
 		&Assassin_fume_cloud, 1 },
-	{ "Shadow Portal", 8, 8, 35, "Teleports you out of enemies' sight.",
+	{ "Shadow Portal", 16, 8, 35, "Teleports you out of enemies' sight.",
 		&Assassin_shadow_portal, 0 },
-	{ "Corrosion", 12, 12, 45, "Conjures a beam of acidic vapor.",
+	{ "Corrosion", 12, 24, 45, "Conjures a beam of acidic vapor.",
 		&Assassin_corrosion, 1 },
-	{ "Withering", 16, 16, 55, "Conjures a small, powerful ball of nether.",
+	{ "Withering", 16, 32, 55, "Conjures a small, powerful ball of nether.",
 		&Assassin_withering, 1 },
-	{ "Astral Vision", 20, 20, 65, "Lights and maps the entire level.",
+	{ "Astral Vision", 40, 20, 65, "Lights and maps the entire level.",
 		&Assassin_astral_vision, 0 },
 	NULL,
 };
@@ -95,22 +95,22 @@ void Avatar_deluge(int dir)
 	fire_ball(GF_WATER, dir, 9 * p_ptr->lev, 14);
 }
 
-struct spellholder avatar_spell_info[] = {
+static struct spellholder avatar_spell_info[] = {
 	{ "Holy light", 1, 1, 0, "Grants Heroism and protection from evil.",
 		&Avatar_holy_light, 0 },
-	{ "Sense evil", 3, 2, 0, "Detects evil monsters.",
+	{ "Sense evil", 6, 2, 0, "Detects evil monsters.",
 		&Avatar_sense_evil, 0 },
-	{ "Phasing", 6, 3, 0, "Teleports you a good distance.",
+	{ "Phasing", 12, 3, 0, "Teleports you a good distance.",
 		&Avatar_phasing, 0 },
-	{ "Weigh magic", 9, 4, 0, "Identifies an object.",
+	{ "Weigh magic", 18, 4, 0, "Identifies an object.",
 		&Avatar_weigh_magic, 0 },
-	{ "Divine fury", 12, 5, 0, "Grants speed and berserk strength.",
+	{ "Divine fury", 24, 5, 0, "Grants speed and berserk strength.",
 		&Avatar_divine_fury, 0 },
-	{ "Retribution", 15, 6, 0, "Invokes a beam of holy fire.",
+	{ "Retribution", 30, 6, 0, "Invokes a beam of holy fire.",
 		&Avatar_retribution, 1 },
-	{ "Mass Exorcism", 18, 7, 0, "Dispels undead and evil monsters.",
+	{ "Mass Exorcism", 36, 7, 0, "Dispels undead and evil monsters.",
 		&Avatar_mass_exorcism, 0 },
-	{ "Deluge", 21, 8, 0, "Invokes a terrible flood.",
+	{ "Deluge", 42, 8, 0, "Invokes a terrible flood.",
 		&Avatar_deluge, 1 },
 	NULL,
 };
@@ -149,22 +149,22 @@ void Pyro_mana_bolt(int dir)
 	fire_bolt(GF_MANA, dir, damroll(10, p_ptr->lev));
 }
 
-struct spellholder pyro_spell_info[] = {
+static struct spellholder pyro_spell_info[] = {
 	{ "Fire bolt", 1, 1, 5, "Conjures a bolt of fire.",
 		&Pyro_fire_bolt, 1 },
-	{ "Sense heat", 4, 3, 10, "Detects monsters in your vicinity.",
+	{ "Sense heat", 6, 3, 10, "Detects monsters in your vicinity.",
 		&Pyro_sense_heat, 0 },
-	{ "Plasma Bolt", 8, 8, 15, "Conjures a bolt of plasma.",
+	{ "Plasma Bolt", 12, 8, 15, "Conjures a bolt of plasma.",
 		&Pyro_plasma_bolt, 1 },
-	{ "Flicker", 14,  6, 15, "Teleports you a short distance.",
+	{ "Flicker", 18,  6, 15, "Teleports you a short distance.",
 		&Pyro_flicker, 0 },
-	{ "Fire ball", 22, 12, 20, "Conjures a powerful ball of fire.",
+	{ "Fire ball", 24, 12, 20, "Conjures a powerful ball of fire.",
 		&Pyro_fire_ball, 1 },
-	{ "Heat Rays", 28, 20, 25, "Burns all enemies in your sight.",
+	{ "Heat Rays", 30, 20, 25, "Burns all enemies in your sight.",
 		&Pyro_heat_rays, 0 },
-	{ "Knowledge", 32, 18, 30, "Lights and maps the whole level.",
+	{ "Knowledge", 36, 18, 30, "Lights and maps the whole level.",
 		&Pyro_knowledge, 0 },
-	{ "Mana Bolt", 36, 24, 35, "Summons a bolt of pure energy.",
+	{ "Mana Bolt", 42, 24, 35, "Summons a bolt of pure energy.",
 		&Pyro_mana_bolt, 1 },
 	NULL,
 };
@@ -175,7 +175,7 @@ void Reaper_manaburst(int dir)
 	int i;
 	for (i = 0; i < 1 + (p_ptr->lev / 6); i++)
 	{
-		fire_bolt(GF_MANA, dir, 10 + p_ptr->lev);
+		fire_bolt(GF_MANA, dir, 10 + p_ptr->lev / 2);
 	}
 }
 void Reaper_berserk(int dir)
@@ -200,14 +200,14 @@ void Reaper_indominable(int dir)
 	(void)inc_timed(TMD_OPP_POIS, randint1(50) + plev, TRUE);
 }
 
-struct spellholder reaper_spell_info[] = {
-	{ "Manaburst", 5, 3, 10, "Conjures a barrage of mana bolts.",
+static struct spellholder reaper_spell_info[] = {
+	{ "Manaburst", 8, 3, 10, "Conjures a barrage of mana bolts.",
 		&Reaper_manaburst, 1 },
-	{ "Berserk", 10, 6, 20, "Grants increased speed and strength.",
+	{ "Berserk", 16, 6, 20, "Grants increased speed and strength.",
 		&Reaper_berserk, 0 },
-	{ "Darksight", 15, 9, 30, "Allows you to see through walls.",
+	{ "Darksight", 24, 9, 30, "Allows you to see through walls.",
 		&Reaper_darksight, 0 },
-	{ "Indominable", 20, 12, 40, "Protects you from physical and psychic harm.",
+	{ "Indominable", 32, 12, 40, "Protects you from physical and psychic harm.",
 		&Reaper_indominable, 0 },
 	NULL,
 };
@@ -220,62 +220,56 @@ void Sapper_flare(int dir)
 }
 void Sapper_smoke_bomb(int dir)
 {
-	fire_ball(GF_POIS, dir, damroll(5, 15), 3);
+	fire_ball(GF_POIS, dir, damroll(5, 10), 3);
 	fire_ball(GF_DARK_WEAK, dir, 0, 10);
-}
-void Sapper_brand_ammo(int dir)
-{
-	(void)brand_ammo();
 }
 void Sapper_phosphor_smog(int dir)
 {
-	fire_ball(GF_LIGHT, dir, 100, 3);
-	fire_ball(GF_DARK, dir, 100, 3);
-	fire_ball(GF_POIS, dir, 100, 3);
+	fire_ball(GF_LIGHT, dir, 50, 3);
+	fire_ball(GF_DARK, dir, 50, 3);
+	fire_ball(GF_POIS, dir, 50, 3);
 }
 void Sapper_airburst(int dir)
 {
-	fire_ball(GF_SOUND, dir, 150, 2);
-	fire_ball(GF_SOUND, dir, 150, 2);
+	fire_ball(GF_SOUND, dir, 75, 2);
+	fire_ball(GF_SOUND, dir, 75, 2);
 }
 void Sapper_freezing_fog(int dir)
 {
-	fire_ball(GF_ICE, dir, 450, 4);
+	fire_ball(GF_ICE, dir, 225, 4);
 }
 void Sapper_incinerant(int dir)
 {
-	fire_ball(GF_PLASMA, dir, 550, 5);
+	fire_ball(GF_PLASMA, dir, 275, 5);
 }
 void Sapper_concussor(int dir)
 {
-	fire_ball(GF_LIGHT, dir, 400, 8);
-	fire_ball(GF_SOUND, dir, 400, 8);
-	fire_ball(GF_SHARD, dir, 400, 8);
+	fire_ball(GF_LIGHT, dir, 200, 8);
+	fire_ball(GF_SOUND, dir, 200, 8);
+	fire_ball(GF_SHARD, dir, 200, 8);
 }
 
-struct spellholder sapper_spell_info[] = {
+static struct spellholder sapper_spell_info[] = {
 	{ "Flare", 1, 1, 5, "Creates a small, bright explosion",
 		&Sapper_flare, 1 },
-	{ "Smoke bomb", 2, 3, 10, "Spews toxic black smoke",
+	{ "Smoke bomb", 8, 3, 10, "Spews toxic black smoke",
 		&Sapper_smoke_bomb, 1 },
-	{ "Brand ammo", 4, 6, 15, "Brands ammo with fire, frost, or venom",
-		&Sapper_brand_ammo, 0 },
-	{ "Phosphor smog", 8, 10, 20, "Generates a bright, poisonous fog",
+	{ "Phosphor smog", 16, 10, 20, "Generates a bright, poisonous fog",
 		&Sapper_phosphor_smog, 1 },
-	{ "Airburst", 12, 12, 25, "Produces concussive shockwaves",
+	{ "Airburst", 24, 12, 25, "Produces concussive shockwaves",
 		&Sapper_airburst, 1 },
-	{ "Freezing fog", 16, 18, 30, "Fills the air with icy mist",
+	{ "Freezing fog", 32, 18, 30, "Fills the air with icy mist",
 		&Sapper_freezing_fog, 1 },
-	{ "Incinerant", 22, 20, 35, "Spills liquid fire upon your foes",
+	{ "Incinerant", 40, 20, 35, "Spills liquid fire upon your foes",
 		&Sapper_incinerant, 1 },
-	{ "Concussor", 30, 28, 40, "Generates a deafening explosion",
+	{ "Concussor", 48, 28, 40, "Generates a deafening explosion",
 		&Sapper_concussor, 1 },
 	NULL,
 };
 
 void Shield_stone_strike(int dir)
 {
-	fire_bolt(GF_SHARD, dir, 5 * p_ptr->lev);
+	fire_bolt(GF_SHARD, dir, 8 + 2 * p_ptr->lev);
 }
 void Shield_earthen_shield(int dir)
 {
@@ -307,20 +301,20 @@ void Shield_destruction(int dir)
 }
 
 /* Shieldmaidens */
-struct spellholder shield_spell_info[] = {
+static struct spellholder shield_spell_info[] = {
 	{ "Stone Strike", 1, 1, 10, "Hurls a bolt of stone shards",
 		&Shield_stone_strike, 1 },
-	{ "Earthen Shield", 5, 4, 20, "Creates a protective shield of rock",
+	{ "Earthen Shield", 8, 4, 20, "Creates a protective shield of rock",
 		&Shield_earthen_shield, 0 },
-	{ "Fortress", 10, 8, 25, "Raises stone doors around you",
+	{ "Fortress", 16, 8, 25, "Raises stone doors around you",
 		&Shield_fortress, 0 },
-	{ "Shatter", 15, 14, 30, "Causes an earthquake",
+	{ "Shatter", 24, 14, 30, "Causes an earthquake",
 		&Shield_shatter, 0 },
-	{ "Battle Cry", 20, 16, 35, "Inflicts sound damage on all visible monsters",
+	{ "Battle Cry", 32, 16, 35, "Inflicts sound damage on all visible monsters",
 		&Shield_battle_cry, 0 },
-	{ "Shockwave", 25, 18, 45, "Projects a stunning ball of sound",
+	{ "Shockwave", 40, 18, 45, "Projects a stunning ball of sound",
 		&Shield_shockwave, 1 },
-	{ "Destruction", 30, 22, 55, "Completely levels the area around you",
+	{ "Destruction", 48, 22, 55, "Completely levels the area around you",
 		&Shield_destruction, 0 },
 	NULL,
 };
@@ -349,17 +343,25 @@ void Sniper_mind_lock(int dir)
 	(void)project_los(GF_OLD_SLEEP, 10 * p_ptr->lev, FALSE);
 }
 
+void Sniper_brand_ammo(int dir)
+{
+	(void)brand_ammo();
+}
+
+
 /* Snipers */
 
-struct spellholder sniper_spell_info[] = {
-	{ "Bullet Time", 1, 1, 15, "Grants temporary supernatural speed",
-			&Sniper_bullet_time, 0 },
+static struct spellholder sniper_spell_info[] = {
 	{ "Psi Trance", 1, 1, 20, "Detects monsters and maps the area",
 			&Sniper_psi_trance, 0 },
-	{ "Spirit Barrier", 1, 1, 25, "Shields you and makes you heroic",
+	{ "Spirit Barrier", 10, 1, 25, "Shields you and makes you heroic",
 		&Sniper_spirit_barrier, 0 },
-	{ "Mind Lock", 1, 1, 35, "Attempts to paralyze all visible monsters",
+	{ "Mind Lock", 20, 1, 35, "Attempts to paralyze all visible monsters",
 			&Sniper_mind_lock, 0 },
+	{ "Brand Ammo", 30, 1, 45, "Brands ammo with fire, cold, or venom",
+			&Sniper_brand_ammo, 0 },
+	{ "Bullet Time", 40, 1, 15, "Grants temporary supernatural speed",
+			&Sniper_bullet_time, 0 },
 	NULL,
 };
 
