@@ -42,7 +42,7 @@
 #ifdef BUILD_ID
 # define VERSION_STRING "unstable (" BUILD_ID ")"
 #else
-# define VERSION_STRING "0.8.0"
+# define VERSION_STRING "0.8.1"
 #endif
 
 
