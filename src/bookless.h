@@ -8,11 +8,12 @@ struct spellholder {
 	int cost;
 	int fail;
 	char *desc;
+	void (*spell)(int);
+	char needs_dir;
 };
 
+extern int last_bookless_dir;
+extern struct spellholder last_bookless_spell;
+
 extern void do_cmd_bookless();
-extern void do_cmd_pyro();
-extern void do_cmd_avatar();
-extern void do_cmd_sapper();
-extern void do_cmd_reaper();
-extern void do_cmd_assassin();
+extern void do_cmd_repeat_bookless();

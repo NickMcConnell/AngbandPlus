@@ -51,6 +51,7 @@ typedef enum cmd_code
 	CMD_STUDY_BOOK,
 	CMD_CAST, /* Casting a spell /or/ praying. */
 	CMD_BOOKLESS, /* Using a bookless spell or power */
+	CMD_REPEAT_BOOKLESS, /* Use the last bookless spell again */
 	CMD_USE_STAFF,
 	CMD_USE_WAND,
 	CMD_USE_ROD,

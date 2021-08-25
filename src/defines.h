@@ -40,9 +40,9 @@
 #define SAVEFILE_NAME  "NBND"
 
 #ifdef BUILD_ID
-# define VERSION_STRING "0.5.0 (" BUILD_ID ")"
+# define VERSION_STRING "0.6.0 (" BUILD_ID ")"
 #else
-# define VERSION_STRING "0.5.0"
+# define VERSION_STRING "0.6.0"
 #endif
 
 

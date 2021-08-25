@@ -57,8 +57,6 @@ GTKMAINFILES = \
 	
 ANGFILES = \
 	attack.o \
-	assassin.o \
-	avatar.o \
 	birth.o \
 	bookless.o \
 	button.o \
@@ -105,9 +103,6 @@ ANGFILES = \
 	player/spell.o \
 	player/timed.o \
 	player/util.o \
-	pyromancer.o \
-	reaper.o \
-	sapper.o \
 	score.o \
 	signals.o \
 	save.o \

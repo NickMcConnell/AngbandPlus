@@ -101,6 +101,7 @@ static struct
 	{ CMD_STUDY_BOOK, { arg_ITEM }, do_cmd_study_book, FALSE, 0 },
 	{ CMD_CAST, { arg_CHOICE, arg_TARGET }, do_cmd_cast, FALSE, 0 },
 	{ CMD_BOOKLESS, { arg_NONE }, do_cmd_bookless, FALSE, 0 },
+	{ CMD_REPEAT_BOOKLESS, { arg_NONE}, do_cmd_repeat_bookless, FALSE, 0 },
 	{ CMD_SELL, { arg_ITEM, arg_NUMBER }, do_cmd_sell, FALSE, 0 },
 	{ CMD_STASH, { arg_ITEM, arg_NUMBER }, do_cmd_stash, FALSE, 0 },
 	{ CMD_BUY, { arg_ITEM, arg_NUMBER }, do_cmd_buy, FALSE, 0 },
@@ -572,6 +573,12 @@ void process_command(cmd_context ctx, bool no_request)
 			case CMD_BOOKLESS:
 			{
 				do_cmd_bookless();
+				break;
+			}
+			
+			case CMD_REPEAT_BOOKLESS:
+			{
+				do_cmd_repeat_bookless();
 				break;
 			}
 
