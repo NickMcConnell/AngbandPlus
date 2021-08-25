@@ -55,6 +55,20 @@
 	(rand_int(M) + 1)
 
 
+/**
+ * In Angband 3.X, randint was renamed to randint1
+ * and rand_int was renamed to randint0
+ * I don't want to do this (yet), but here are some compatibility defines -flm
+ */
+#define randint1 randint
+#define randint0 rand_int
+
+/**
+ * Return TRUE one time in `x`.
+ */
+#define one_in_(x) (!randint0(x))
+
+
 /*
  * Evaluate to TRUE "P" percent of the time
  */
@@ -82,6 +96,7 @@ extern s32b Rand_div(s32b m);
 extern s16b randnor(int mean, int stand);
 extern s16b damroll(int num, int sides);
 extern s16b maxroll(int num, int sides);
+extern u32b Rand_simple(u32b m);
 
 
 #endif
