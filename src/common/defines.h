@@ -36,8 +36,8 @@
  */
 
 #define VERSION_MAJOR	1
-#define VERSION_MINOR	1
-#define VERSION_PATCH	4
+#define VERSION_MINOR	4
+#define VERSION_PATCH	0
 
 /*
  * This value specifys the suffix to the version info sent to the metaserver.
@@ -47,7 +47,7 @@
  * 2 - "beta"
  * 3 - "development"
  */
-#define VERSION_EXTRA	0
+#define VERSION_EXTRA	3
 
 
 /*
@@ -3186,3 +3186,14 @@ extern int PlayerUID;
 
 /* Login constants */
 #define BAD_PASSWORD 35
+
+/*
+ * Per-player artifact states
+ */
+#define ARTS_NOT_FOUND  0
+#define ARTS_FOUND      1
+#define ARTS_SOLD       2
+#define ARTS_ABANDONED  3
+
+#define set_artifact_p(P, A, I) if ((P)->a_info[(A)] < (I)) (P)->a_info[(A)] = (I)
+

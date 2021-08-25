@@ -2358,9 +2358,15 @@ void player_death(int Ind)
 	if (p_ptr->fruit_bat == -1)
 		sprintf(buf, "%s was turned into a fruit bat by %s!", p_ptr->name, p_ptr->died_from);
 	else if (p_ptr->alive && !p_ptr->no_ghost)
-		sprintf(buf, "%s was killed by %s.", p_ptr->name, p_ptr->died_from);
+		sprintf(buf, "%s the level %i %s %s was killed by %s.",
+			p_ptr->name, p_ptr->lev,
+			p_name + p_info[p_ptr->prace].name,
+			c_name + c_info[p_ptr->pclass].name, p_ptr->died_from);
 	else if (p_ptr->alive && p_ptr->no_ghost)
-		sprintf(buf, "The brave hero %s was killed by %s.", p_ptr->name, p_ptr->died_from);
+		sprintf(buf, "The brave hero %s the level %i %s %s was killed by %s.",
+			p_ptr->name, p_ptr->lev,
+			p_name + p_info[p_ptr->prace].name,
+			c_name + c_info[p_ptr->pclass].name, p_ptr->died_from);
 	else if (!p_ptr->total_winner)
 		sprintf(buf, "%s committed suicide.", p_ptr->name);
 	else
@@ -2456,8 +2462,14 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXx
 		if (pkill && !artifact_p(&p_ptr->inventory[i])) continue;
 #endif
 
-		/* If we committed suicide, only drop artifacts */
-		if (!p_ptr->alive && !artifact_p(&p_ptr->inventory[i])) continue;
+		/* If we committed suicide, drop nothing, free artifacts */
+		if (!p_ptr->alive) {
+			if (artifact_p(&p_ptr->inventory[i])) {
+				/* set the artifact as unfound */
+				a_info[p_ptr->inventory[i].name1].cur_num = 0;
+			}
+			continue;
+		}
 
 		/* hack -- total winners do not drop artifacts when they suicide */
 		/* If we committed suicide, and we're on the town level, don't even drop artifacts */

@@ -1548,6 +1548,8 @@ struct player_type
 	huge birth_turn;	/* Server turn on which player was born */
 	huge turn;			/* Actual player turns */
 	huge old_turn;		/* Turn when player entered current level */
+	
+	byte a_info[MAX_A_IDX]; /* Artifacts player has encountered */
 };
 
 

@@ -802,6 +802,17 @@ static bool wr_savefile_new(int Ind)
 	}
 	end_section("event_history");
 
+	/* write the artifacts sold list */
+	start_section("found_artifacts");
+	tmp16u = MAX_A_IDX;
+	write_int("max_a_idx",tmp16u);
+	for (i = 0; i < MAX_A_IDX; i++)
+	{
+		tmp16u = p_ptr->a_info[i];
+		write_int("a_info",tmp16u);
+	}
+	end_section("found_artifacts");
+
 	end_section("mangband_player_save");
 
 	/* Error in save */
