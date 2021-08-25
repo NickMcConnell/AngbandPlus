@@ -97,9 +97,6 @@ static struct
 	{ CMD_DESTROY, { arg_ITEM, arg_NUMBER }, do_cmd_destroy, FALSE, 0 },
 	{ CMD_ENTER_STORE, { arg_NONE }, do_cmd_store, FALSE, 0 },
 	{ CMD_INSCRIBE, { arg_ITEM, arg_STRING }, do_cmd_inscribe, FALSE, 0 },
-	{ CMD_STUDY_SPELL, { arg_CHOICE }, do_cmd_study_spell, FALSE, 0 },
-	{ CMD_STUDY_BOOK, { arg_ITEM }, do_cmd_study_book, FALSE, 0 },
-	{ CMD_CAST, { arg_CHOICE, arg_TARGET }, do_cmd_cast, FALSE, 0 },
 	{ CMD_BOOKLESS, { arg_NONE }, do_cmd_bookless, FALSE, 0 },
 	{ CMD_REPEAT_BOOKLESS, { arg_NONE}, do_cmd_repeat_bookless, FALSE, 0 },
 	{ CMD_SELL, { arg_ITEM, arg_NUMBER }, do_cmd_sell, FALSE, 0 },
@@ -541,32 +538,6 @@ void process_command(cmd_context ctx, bool no_request)
 
 				cmd->arg_present[1] = TRUE;
 
-				break;
-			}
-			
-			/* This takes a choice and a direction. */
-			case CMD_CAST:
-			{
-				
-				bool get_target = FALSE;
-
-				if (spell_needs_aim(cp_ptr->spell_book, cmd->arg[0].choice))
-				{
-					if (!cmd->arg_present[1])
-						get_target = TRUE;
-
-					if (cmd->arg[1].direction == DIR_UNKNOWN)
-						get_target = TRUE;
-
-					if (cmd->arg[1].direction == DIR_TARGET && !target_okay())
-						get_target = TRUE;
-				}
-
-				if (get_target && !get_aim_dir(&cmd->arg[1].direction))
-						return;
-
-				cmd->arg_present[1] = TRUE;
-				
 				break;
 			}
 			

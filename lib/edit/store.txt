@@ -79,10 +79,6 @@ I:2:potion:Cure Light Wounds
 I:4:potion:Cure Serious Wounds
 I:4:potion:Cure Critical Wounds
 I:3:potion:Restore Life Levels
-I:3:prayer book:[Beginners Handbook]
-I:2:prayer book:[Words of Wisdom]
-I:2:prayer book:[Chants and Blessings]
-I:1:prayer book:[Exorcism and Dispelling]
 
 # Alchemist
 S:5:32
@@ -133,7 +129,3 @@ I:1:staff:Light
 I:1:staff:Mapping
 I:1:staff:Detect Invisible
 I:1:staff:Detect Evil
-I:3:magic book:[Magic for Beginners]
-I:2:magic book:[Conjurings and Tricks]
-I:2:magic book:[Incantations and Illusions]
-I:1:magic book:[Sorcery and Evocations]

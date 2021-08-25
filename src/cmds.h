@@ -22,9 +22,6 @@ void do_cmd_wield(cmd_code code, cmd_arg args[]);
 void do_cmd_drop(cmd_code code, cmd_arg args[]);
 void do_cmd_use(cmd_code code, cmd_arg args[]);
 void do_cmd_refill(cmd_code code, cmd_arg args[]);
-void do_cmd_study_spell(cmd_code code, cmd_arg args[]);
-void do_cmd_cast(cmd_code code, cmd_arg args[]);
-void do_cmd_study_book(cmd_code code, cmd_arg args[]);
 
 void textui_obj_inscribe(object_type *o_ptr, int item);
 void textui_obj_examine(object_type *o_ptr, int item);
@@ -120,14 +117,6 @@ typedef enum
 
 /* XXX */
 extern int cmp_monsters(const void *a, const void *b);
-
-
-
-/* ui-spell.c -- just for now */
-void textui_book_browse(const object_type *o_ptr);
-void textui_spell_browse(void);
-void textui_obj_study(void);
-void textui_obj_cast(void);
 
 /* ui-knowledge.c */
 extern void big_pad(int col, int row, byte a, byte c);

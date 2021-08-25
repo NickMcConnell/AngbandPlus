@@ -4026,24 +4026,6 @@ bool obj_can_refill(const object_type *o_ptr)
 }
 
 
-bool obj_can_browse(const object_type *o_ptr)
-{
-	return o_ptr->tval == cp_ptr->spell_book;
-}
-
-bool obj_can_cast_from(const object_type *o_ptr)
-{
-	return obj_can_browse(o_ptr) &&
-			spell_book_count_spells(o_ptr, spell_okay_to_cast) > 0;
-}
-
-bool obj_can_study(const object_type *o_ptr)
-{
-	return obj_can_browse(o_ptr) &&
-			spell_book_count_spells(o_ptr, spell_okay_to_study) > 0;
-}
-
-
 /* Can only take off non-cursed items */
 bool obj_can_takeoff(const object_type *o_ptr)
 {

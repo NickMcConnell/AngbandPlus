@@ -147,9 +147,6 @@ static struct generic_command cmd_item_manage[] =
 /* Information access commands */
 static struct generic_command cmd_info[] =
 {
-	{ "Browse a book", 'b', CMD_BROWSE_SPELL, textui_spell_browse, NULL },
-	{ "Gain new spells", 'G', CMD_STUDY_BOOK, textui_obj_study, player_can_study },
-	{ "Cast a spell", 'm', CMD_CAST, textui_obj_cast, player_can_cast },
 	{ "Use a power", 'p', CMD_BOOKLESS, do_cmd_bookless, NULL },
 	{ "Use the last power again", 'P', CMD_REPEAT_BOOKLESS, do_cmd_repeat_bookless, NULL },
 	{ "Full dungeon map",             'M', CMD_NULL, do_cmd_view_map },

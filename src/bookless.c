@@ -15,7 +15,7 @@ struct spellholder last_bookless_spell;
 
 /* Assassins */
 void Assassin_poison_dart(int dir) {
-	fire_bolt(GF_POIS, dir, 5 + p_ptr->lev);
+	fire_bolt(GF_POIS, dir, 15 + p_ptr->lev);
 }
 void Assassin_fume_cloud(int dir) {
 	fire_ball(GF_POIS, dir, 10 + (p_ptr->lev * 2), 2);
@@ -26,7 +26,7 @@ void Assassin_shadow_portal(int dir)
 }
 void Assassin_corrosion(int dir)
 {
-	fire_beam(GF_ACID, dir, p_ptr->lev * 7);
+	fire_beam(GF_ACID, dir, p_ptr->lev * 6);
 }
 void Assassin_withering(int dir)
 {
@@ -117,7 +117,7 @@ struct spellholder avatar_spell_info[] = {
 /* Pyromancers */
 void Pyro_fire_bolt(int dir)
 {
-	fire_bolt(GF_FIRE, dir, damroll(4, p_ptr->lev));
+	fire_bolt(GF_FIRE, dir, 12 + damroll(4, p_ptr->lev));
 }
 void Pyro_sense_heat(int dir)
 {
@@ -125,7 +125,7 @@ void Pyro_sense_heat(int dir)
 }
 void Pyro_plasma_bolt(int dir)
 {
-	fire_bolt(GF_PLASMA, dir, damroll(6, p_ptr->lev));
+	fire_bolt(GF_PLASMA, dir, 8 + damroll(6, p_ptr->lev));
 }
 void Pyro_flicker(int dir)
 {
@@ -272,6 +272,96 @@ struct spellholder sapper_spell_info[] = {
 	NULL,
 };
 
+void Shield_stone_strike(int dir)
+{
+	fire_bolt(GF_SHARD, dir, 5 * p_ptr->lev);
+}
+void Shield_earthen_shield(int dir)
+{
+	(void)inc_timed(TMD_SHIELD, randint1(25) + p_ptr->lev, TRUE);
+	(void)inc_timed(TMD_OPP_FIRE, randint1(25) + p_ptr->lev, TRUE);
+	(void)inc_timed(TMD_OPP_COLD, randint1(25) + p_ptr->lev, TRUE);
+	(void)inc_timed(TMD_OPP_ACID, randint1(25) + p_ptr->lev, TRUE);
+	(void)inc_timed(TMD_OPP_ELEC, randint1(25) + p_ptr->lev, TRUE);
+}
+void Shield_fortress(int dir)
+{
+	(void)door_creation();
+}
+void Shield_shatter(int dir)
+{
+	earthquake(p_ptr->py, p_ptr->px, p_ptr->lev / 2);
+}
+void Shield_battle_cry(int dir)
+{
+	(void)project_los(GF_SOUND, 3 * p_ptr->lev, FALSE);
+}
+void Shield_shockwave(int dir)
+{
+	fire_ball(GF_SOUND, dir, 5 * p_ptr->lev, p_ptr->lev / 10);
+}
+void Shield_destruction(int dir)
+{
+	destroy_area(p_ptr->py, p_ptr->px, p_ptr->lev / 2, TRUE);
+}
+
+/* Shieldmaidens */
+struct spellholder shield_spell_info[] = {
+	{ "Stone Strike", 1, 1, 10, "Hurls a bolt of stone shards",
+		&Shield_stone_strike, 1 },
+	{ "Earthen Shield", 5, 4, 20, "Creates a protective shield of rock",
+		&Shield_earthen_shield, 0 },
+	{ "Fortress", 10, 8, 25, "Raises stone doors around you",
+		&Shield_fortress, 0 },
+	{ "Shatter", 15, 14, 30, "Causes an earthquake",
+		&Shield_shatter, 0 },
+	{ "Battle Cry", 20, 16, 35, "Inflicts sound damage on all visible monsters",
+		&Shield_battle_cry, 0 },
+	{ "Shockwave", 25, 18, 45, "Projects a stunning ball of sound",
+		&Shield_shockwave, 1 },
+	{ "Destruction", 30, 22, 55, "Completely levels the area around you",
+		&Shield_destruction, 0 },
+	NULL,
+};
+
+
+void Sniper_bullet_time(int dir)
+{
+	(void)inc_timed(TMD_FAST, 100 + p_ptr->lev, TRUE);
+}
+
+void Sniper_psi_trance(int dir)
+{
+	(void)map_area();
+	(void)detect_monsters_normal(TRUE);
+	(void)detect_monsters_invis(TRUE);
+}
+
+void Sniper_spirit_barrier(int dir)
+{
+	(void)inc_timed(TMD_HERO, 100 + p_ptr->lev, TRUE);
+	(void)inc_timed(TMD_SHIELD, 100 + p_ptr->lev, TRUE);
+}
+
+void Sniper_mind_lock(int dir)
+{
+	(void)project_los(GF_OLD_SLEEP, 10 * p_ptr->lev, FALSE);
+}
+
+/* Snipers */
+
+struct spellholder sniper_spell_info[] = {
+	{ "Bullet Time", 1, 1, 15, "Grants temporary supernatural speed",
+			&Sniper_bullet_time, 0 },
+	{ "Psi Trance", 1, 1, 20, "Detects monsters and maps the area",
+			&Sniper_psi_trance, 0 },
+	{ "Spirit Barrier", 1, 1, 25, "Shields you and makes you heroic",
+		&Sniper_spirit_barrier, 0 },
+	{ "Mind Lock", 1, 1, 35, "Attempts to paralyze all visible monsters",
+			&Sniper_mind_lock, 0 },
+	NULL,
+};
+
 int get_bookless_fail(struct spellholder spell)
 {
 	int minfail;
@@ -329,6 +419,7 @@ void cast_bookless(struct spellholder spell, int dir)
 		msg_print("You are too confused!");
 		return;
 	}
+	
 	
 	if (p_ptr->timed[TMD_BLIND])
 	{
@@ -391,6 +482,10 @@ void do_cmd_bookless()
 		spell_info = reaper_spell_info;
 	else if player_has(PF_CAST_SAPPER)
 		spell_info = sapper_spell_info;
+	else if player_has(PF_CAST_SHIELD)
+		spell_info = shield_spell_info;
+	else if player_has(PF_CAST_SNIPER)
+		spell_info = sniper_spell_info;
 	else /* No bookless realm */
 		spell_info = NULL;
 		
@@ -405,35 +500,39 @@ void do_cmd_bookless()
 	show_bookles_menu(spell_info);
 	while (casting = get_com("Cast which spell? (Esc to exit)", &choice))
 	{
-		if (spell_info[A2I(choice)].level > p_ptr->lev)
-			continue; /* Spell is not yet allowed */
-
 		if (A2I(choice) < 0 ||
 			A2I(choice) >= get_bookless_size(spell_info))
 			continue; /* Spell does not exist */
+
+		if (spell_info[A2I(choice)].level > p_ptr->lev)
+			continue; /* Spell is not yet allowed */
 			
 		break; /* Spell has been chosen! */
 	}
 
 	screen_load(); /* Restore screen state */
 	
+	/* Return if aborted */
+	if (!casting)
+		return;
 	/* Get a direction if the spell needs it */
 	if (spell_info[A2I(choice)].needs_dir && !get_aim_dir(&dir))
 		return;		
-	if (casting) /* Player did not abort */
-	{
-		/* Set the necessary globals for repeat casting */
-		last_bookless_dir = dir;
-		last_bookless_spell = spell_info[A2I(choice)];
+	/* Set the necessary globals for repeat casting */
+	last_bookless_dir = dir;
+	last_bookless_spell = spell_info[A2I(choice)];
 
-		/* Cast the spell */
-		cast_bookless(spell_info[A2I(choice)], dir);
-	}
+	/* Cast the spell */
+	cast_bookless(spell_info[A2I(choice)], dir);
 }
 
 void do_cmd_repeat_bookless()
 {
 	if (last_bookless_dir == -1) /* Implies no spell also */
 		return;
+	/* If old target is dead, get a new one */
+	if (!target_okay() && last_bookless_dir == 5)
+		if (!get_aim_dir(&last_bookless_dir))
+			return;
 	cast_bookless(last_bookless_spell, last_bookless_dir);
 }

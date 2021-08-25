@@ -141,9 +141,9 @@
 /*
  * Dungeon treausre allocation values
  */
-#define DUN_AMT_ROOM	20	/* Number of objects for rooms */
-#define DUN_AMT_ITEM	5	/* Number of objects for rooms/corridors */
-#define DUN_AMT_GOLD	5	/* Amount of treasure for rooms/corridors */
+#define DUN_AMT_ROOM	9	/* Number of objects for rooms */
+#define DUN_AMT_ITEM	3	/* Number of objects for rooms/corridors */
+#define DUN_AMT_GOLD	3	/* Amount of treasure for rooms/corridors */
 
 /*
  * Hack -- Dungeon allocation "places"

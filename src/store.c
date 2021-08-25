@@ -2827,10 +2827,6 @@ static void store_examine(int item)
 
 	textui_textblock_show(tb, area, header);
 	textblock_free(tb);
-
-	/* Hack -- Browse book, then prompt for a command */
-	if (o_ptr->tval == cp_ptr->spell_book)
-		textui_book_browse(o_ptr);
 }
 
 
