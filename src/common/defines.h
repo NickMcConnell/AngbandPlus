@@ -37,7 +37,7 @@
  
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	1
-#define VERSION_PATCH	2
+#define VERSION_PATCH	3
 
 /*
  * This value specifys the suffix to the version info sent to the metaserver.
@@ -2662,6 +2662,7 @@ that keeps many algorithms happy.
      (p_ptr->d_char[(T)->k_idx]))
 
 
+#define object_copy(D,S) COPY((D), (S), object_type);
 
 /*
  * Artifacts use the "name1" field

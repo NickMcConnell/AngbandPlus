@@ -192,7 +192,7 @@ bool hp_player_quiet(int Ind, int num)
 /*
  * Leave a "glyph of warding" which prevents monster movement
  */
-void warding_glyph(int Ind)
+bool warding_glyph(int Ind)
 {
 	player_type *p_ptr = Players[Ind];
 
@@ -202,22 +202,30 @@ void warding_glyph(int Ind)
 	if (p_ptr->dun_depth == 0)
 	{
 		msg_print(Ind, "The very soil of the Town prevents you.");
-		return;
+		return FALSE;
 	}
-
 
 	/* Require clean space */
 	if (!cave_clean_bold(p_ptr->dun_depth, p_ptr->py, p_ptr->px))
 	{
 		msg_print(Ind, "The object resists the spell.");
-		return;
+		return FALSE;
 	}
 
 	/* Access the player grid */
 	c_ptr = &cave[p_ptr->dun_depth][p_ptr->py][p_ptr->px];
 
+	/* Don't allow glyphs inside houses */
+	if (p_ptr->dun_depth < 0 && c_ptr->info & CAVE_ICKY)
+	{
+		msg_print(Ind, "The floor of the house resists your spell.");
+		return FALSE;
+	}
+
 	/* Create a glyph of warding */
 	c_ptr->feat = FEAT_GLYPH;
+
+  return TRUE;
 }
 
 
@@ -3801,6 +3809,8 @@ bool fire_ball(int Ind, int typ, int dir, int dam, int rad)
 
 	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
+  if (dir < 0 || dir > 10) return FALSE;
+
 	/* Use the given direction */
 	tx = p_ptr->px + 99 * ddx[dir];
 	ty = p_ptr->py + 99 * ddy[dir];
@@ -3835,6 +3845,8 @@ bool fire_swarm(int Ind, int num, int typ, int dir, int dam, int rad)
 
 	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
+  if (dir < 0 || dir > 10) return FALSE;
+
 	/* Use the given direction */
 	ty = py + 99 * ddy[dir];
 	tx = px + 99 * ddx[dir];
@@ -3868,6 +3880,8 @@ bool project_hook(int Ind, int typ, int dir, int dam, int flg)
 
 	/* Pass through the target if needed */
 	flg |= (PROJECT_THRU);
+
+  if (dir < 0 || dir > 10) return FALSE;
 
 	/* Use the given direction */
 	tx = p_ptr->px + ddx[dir];

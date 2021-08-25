@@ -458,15 +458,14 @@ int Net_init(char *server, int fd)
  * Cleanup all the network buffers and close the datagram socket.
  * Also try to send the server a quit packet if possible.
  */
-void Net_cleanup(void)
+void Net_cleanup(bool send_quit)
 {
 	int	sock = wbuf.sock;
-	char	ch;
 
 	if (sock > 2)
 	{
-		ch = PKT_QUIT;
-		if (DgramWrite(sock, &ch, 1) != 1)
+		char ch = PKT_QUIT;
+		if (send_quit && DgramWrite(sock, &ch, 1) != 1)
 		{
 			GetSocketError(sock);
 			DgramWrite(sock, &ch, 1);
@@ -1404,14 +1403,14 @@ int Receive_sp(void)
 
 int Receive_objflags(void)
 {
-	char	ch, c;
-	int	n, x, i;
+	char	ch, c, n;
+	int	m, x, i;
 	s16b	y;
 	byte	a;
 	
-	if ((n = Packet_scanf(&rbuf, "%c%hu", &ch, &y)) <= 0)
+	if ((m = Packet_scanf(&rbuf, "%c%hu", &ch, &y)) <= 0)
 	{
-		return n;
+		return m;
 	}
 
 	for (x = 0; x < 13; x++)
@@ -1423,6 +1422,7 @@ int Receive_objflags(void)
 		{
 			/* First, clear the bit */
 			a &= ~(0x40);
+			n = 0;
 
 			/* Read the number of repetitions */
 			Packet_scanf(&rbuf, "%c", &n);
