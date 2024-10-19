@@ -675,6 +675,8 @@ static void wr_string(cptr str)
  */
 static void wr_item(const object_type *o_ptr)
 {
+        int i;
+
 	wr_s16b(o_ptr->k_idx);
 
 	/* Location */
@@ -699,6 +701,9 @@ static void wr_item(const object_type *o_ptr)
 	wr_s16b(o_ptr->ac);
 	wr_byte(o_ptr->dd);
 	wr_byte(o_ptr->ds);
+
+	for (i = 0; i < RES_MAX; i++)
+	  wr_byte(o_ptr->res[i]);
 
 	wr_byte(o_ptr->ident);
 
@@ -1020,7 +1025,7 @@ static void wr_extra(void)
 	wr_byte(0);	/* oops */
 
 	wr_byte(0);	/* oops */
-	wr_byte(p_ptr->expfact);
+	wr_byte(0);	/* was expfact */
 
 	wr_s16b(p_ptr->age);
 	wr_s16b(p_ptr->ht);

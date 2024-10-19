@@ -256,14 +256,15 @@ static void power_desc(char *p, int skill, bool study)
 static int print_skills(bool study)
 {
      byte line_attr;
-     int i, y = 1, x = 7;
+     int i, y = 1, x = 0;
      int letter = 0;
 
      /* Dispaly a list of skills */
      prt("", y, x);
-     put_str("Name", y, x + 5);
-     put_str("Level", y, x + 22);
-     put_str("Mana", y, x + 28);
+     put_str("Name", y, x + 3);
+     put_str("Type", y, x + 24);
+     put_str("Level", y, x + 30);
+     put_str("Mana", y, x + 38);
 
      /* Dump the skills */
      for (i = 0; i < MAX_SKILLS; i++)
@@ -436,8 +437,8 @@ static int print_skills(bool study)
 	       int mana_cost = skill_info[i].mana_base + 
 		    ((skill_info[i].mana_plus * (skill_value(i) + 1)) / 10);
 
-	       sprintf(skill_desc, "  %c) %-20s%2d  %3d %s", I2A(letter), 
-		       skill_info[i].name, 
+	       sprintf(skill_desc, "%c) %-20s %-8s %2d %3d %s", I2A(letter), 
+		       skill_info[i].name, skill_types[skill_info[i].type],
 		       p_ptr->skill[i] + 1, mana_cost, desc);
 	  }
 	  else /* Show actual skill */
@@ -448,8 +449,8 @@ static int print_skills(bool study)
 	       /* Don't show mana for unuseable skills */
 	       if (skill_value(i) < 1) mana_cost = 0;
 
-	       sprintf(skill_desc, "  %c) %-20s%2d  %3d %s", I2A(letter), 
-		       skill_info[i].name, 
+	       sprintf(skill_desc, "%c) %-20s %-8s %2d %3d %s", I2A(letter), 
+		       skill_info[i].name, skill_types[skill_info[i].type],
 		       skill_value(i), mana_cost, desc);
 	  }
 	  c_prt(line_attr, skill_desc, y + letter + 1, x);
@@ -627,7 +628,9 @@ static int get_skill(bool study)
 	  }
 
 	  /* If player has an aura active and selected skill is an aura, verify using */
-	  if (p_ptr->aura && skill_info[skill].type == SKILL_AURA && !study)
+	  if (p_ptr->aura && (skill_info[skill].type == SKILL_AURA ||
+			      skill_info[skill].type == SKILL_CHARGE_UP)
+	      && !study)
 	  {
 	       char tmp_val[160];
 		    
@@ -2512,6 +2515,7 @@ void takeoff_skill_item(object_type *o_ptr)
 	       switch (skill_info[o_ptr->xtra2].type)
 	       {
 	       case SKILL_AURA:
+	       case SKILL_CHARGE_UP:
 		    /* End auras */
 		    if (o_ptr->xtra2 == aura_skill[p_ptr->aura])
 		    {

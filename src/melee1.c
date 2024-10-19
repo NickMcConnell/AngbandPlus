@@ -20,7 +20,7 @@
 static int monster_critical(int dice, int sides, int dam)
 {
 	int max = 0;
-	int total = dice * sides;
+	int total = sides;
 
 	/* Must do at least 95% of perfect */
 	if (dam < total * 19 / 20) return (0);
@@ -141,7 +141,6 @@ bool make_attack_normal(int m_idx)
 
 	bool blinked;
 
-
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
 
@@ -177,8 +176,8 @@ bool make_attack_normal(int m_idx)
 		/* Extract the attack infomation */
 		int effect = r_ptr->blow[ap_cnt].effect;
 		int method = r_ptr->blow[ap_cnt].method;
-		int d_dice = r_ptr->blow[ap_cnt].d_dice;
-		int d_side = r_ptr->blow[ap_cnt].d_side;
+		u16b d_dice = r_ptr->blow[ap_cnt].d_dice;
+		u16b d_side = r_ptr->blow[ap_cnt].d_side;
 
 
 		/* Hack -- no more attacks */
@@ -205,7 +204,6 @@ bool make_attack_normal(int m_idx)
 			case RBE_EAT_ITEM:	power =  5; break;
 			case RBE_EAT_FOOD:	power =  5; break;
 			case RBE_EAT_LITE:	power =  5; break;
-			case RBE_ACID:		power =  0; break;
 			case RBE_ELEC:		power = 10; break;
 			case RBE_FIRE:		power = 10; break;
 			case RBE_COLD:		power = 10; break;
@@ -231,9 +229,10 @@ bool make_attack_normal(int m_idx)
 		/* Monster hits player */
 		if (!effect || check_hit(power, rlev))
 		{
+			bool repelled = FALSE;
+
 			/* Always disturbing */
 			disturb(1, 0);
-
 
 			/* Hack -- Apply "protection from evil" */
 			/* Paladins with Holy Shield get it 1/10 times at lev 1 up to 1/2 at lev 20 */
@@ -255,9 +254,12 @@ bool make_attack_normal(int m_idx)
 				msg_format("%^s is repelled.", m_name);
 
 				/* Hack -- Next attack */
-				continue;
+				repelled = TRUE;
 			}
 
+			/* If repelled, act as though the blow missed */
+			if (!repelled)
+			{
 
 			/* Assume no cut or stun */
 			do_cut = do_stun = 0;
@@ -425,7 +427,7 @@ bool make_attack_normal(int m_idx)
 			obvious = TRUE;
 
 			/* Roll out the damage */
-			damage = damroll(d_dice, d_side);
+			damage = rand_range(d_dice, d_side);
 
 			/* Apply appropriate damage */
 			switch (effect)
@@ -747,23 +749,6 @@ bool make_attack_normal(int m_idx)
 						/* Window stuff */
 						p_ptr->window |= (PW_EQUIP);
 					}
-
-					break;
-				}
-
-				case RBE_ACID:
-				{
-					/* Obvious */
-					obvious = TRUE;
-
-					/* Message */
-					msg_print("You are covered in acid!");
-
-					/* Special damage */
-					acid_dam(damage, ddesc);
-
-					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_RES_ACID);
 
 					break;
 				}
@@ -1207,6 +1192,8 @@ bool make_attack_normal(int m_idx)
 				/* Apply the stun */
 				if (k) (void)set_stun(p_ptr->stun + k);
 			}
+
+			} /* if (!repelled) */
 		}
 
 		/* Monster missed player */

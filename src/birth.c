@@ -20,7 +20,7 @@ static void get_extra(void)
 	p_ptr->max_lev = p_ptr->lev = 1;
 
 	/* Experience factor */
-	p_ptr->expfact = cp_ptr->c_exp;
+	p_ptr->expfact = 200;
 
 	/* Initial hitpoints */
 	p_ptr->mhp = cp_ptr->c_mhp;
@@ -80,18 +80,40 @@ static void player_wipe(void)
 	}
 
 
-	/* Start with no quests */
-	for (i = 0; i < MAX_Q_IDX; i++)
+	/* Quests */
 	{
-		q_list[i].level = 0;
+	     /* Levels that contain a quest monster */
+	     int quest_level[MAX_Q_IDX] = 
+	     { 
+		  12, 61, 85, /* Andariel */
+		  23, 65, 88, /* The Summoner */
+		  24, 66, 89, /* Duriel */
+		  36, 71, 93, /* Mephisto */
+		  43, 74, 95, /* Hephasto */
+		  44, 75, 96, /* Diablo */
+		  56, 81, 100 /* Baal */
+	     };
+	     
+	     cptr quest_desc[MAX_Q_IDX / 3] =
+	     {
+		  "Andariel",
+		  "The Summoner",
+		  "Duriel",
+		  "Mephisto",
+		  "Hephasto the Smith",
+		  "Diablo",
+		  "Baal"
+	     };
+			 
+	     for (i = 0; i < MAX_Q_IDX; i++)
+	     {
+		  /* Set the quest levels */
+		  q_list[i].level = quest_level[i];
+
+		  /* Set the quest descriptions */
+		  q_list[i].desc = quest_desc[i / 3];
+	     }
 	}
-
-	/* Add a special quest */
-	q_list[0].level = 99;
-
-	/* Add a second quest */
-	q_list[1].level = 100;
-
 
 	/* Reset the "objects" */
 	for (i = 1; i < z_info->k_max; i++)

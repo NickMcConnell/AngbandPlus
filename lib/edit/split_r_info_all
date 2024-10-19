@@ -1,0 +1,5 @@
+grep -v "^[KLBCYZ]:" r_info.all > r_normal.txt
+grep -v "^[JLACXZ]:" r_info.all > r_nightmare.txt
+grep -v "^[JKABXY]:" r_info.all > r_hell.txt
+cp r_info.txt r_info.old
+cp r_normal.txt r_info.txt

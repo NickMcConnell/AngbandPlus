@@ -72,10 +72,7 @@ static bool know_damage(int r_idx, int i)
 
 	s32b a = l_list[r_idx].r_blows[i];
 
-	s32b d1 = r_ptr->blow[i].d_dice;
-	s32b d2 = r_ptr->blow[i].d_side;
-
-	s32b d = d1 * d2;
+	s32b d = r_ptr->blow[i].d_side;
 
 	/* Normal monsters */
 	if ((4 + level) * a > 80 * d) return (TRUE);
@@ -90,6 +87,15 @@ static bool know_damage(int r_idx, int i)
 	return (FALSE);
 }
 
+
+/* Describe percentile resistabce */
+static cptr describe_res(int res)
+{
+  if (res == 100) return " perfectly";
+  else if (res >= 75) return " a lot";
+  else if (res >= 25) return "";
+  else return " slightly";
+}
 
 /*
  * Hack -- display monster information using "roff()"
@@ -229,20 +235,10 @@ static void roff_aux(int r_idx)
 	if (r_ptr->flags1 & (RF1_MALE)) flags1 |= (RF1_MALE);
 	if (r_ptr->flags1 & (RF1_FEMALE)) flags1 |= (RF1_FEMALE);
 
-	/* Assume some "creation" flags */
-	if (r_ptr->flags1 & (RF1_FRIEND)) flags1 |= (RF1_FRIEND);
-	if (r_ptr->flags1 & (RF1_FRIENDS)) flags1 |= (RF1_FRIENDS);
-	if (r_ptr->flags1 & (RF1_ESCORT)) flags1 |= (RF1_ESCORT);
-	if (r_ptr->flags1 & (RF1_ESCORTS)) flags1 |= (RF1_ESCORTS);
-
 	/* Killing a monster reveals some properties */
 	if (l_ptr->r_tkills)
 	{
 		/* Know "race" flags */
-		if (r_ptr->flags3 & (RF3_ORC)) flags3 |= (RF3_ORC);
-		if (r_ptr->flags3 & (RF3_TROLL)) flags3 |= (RF3_TROLL);
-		if (r_ptr->flags3 & (RF3_GIANT)) flags3 |= (RF3_GIANT);
-		if (r_ptr->flags3 & (RF3_DRAGON)) flags3 |= (RF3_DRAGON);
 		if (r_ptr->flags3 & (RF3_DEMON)) flags3 |= (RF3_DEMON);
 		if (r_ptr->flags3 & (RF3_UNDEAD)) flags3 |= (RF3_UNDEAD);
 		if (r_ptr->flags3 & (RF3_EVIL)) flags3 |= (RF3_EVIL);
@@ -552,11 +548,7 @@ static void roff_aux(int r_idx)
 		if (flags3 & (RF3_UNDEAD)) c_roff(TERM_VIOLET, " undead");
 
 		/* Describe the "race" with color */
-		if (flags3 & (RF3_DRAGON)) c_roff(TERM_UMBER, " dragon");
-		else if (flags3 & (RF3_DEMON)) c_roff(TERM_VIOLET, " demon");
-		else if (flags3 & (RF3_GIANT)) c_roff(TERM_UMBER, " giant");
-		else if (flags3 & (RF3_TROLL)) c_roff(TERM_UMBER, " troll");
-		else if (flags3 & (RF3_ORC)) c_roff(TERM_UMBER, " orc");
+		if (flags3 & (RF3_DEMON)) c_roff(TERM_VIOLET, " demon");
 		else roff(" creature");
 
 		/* Show experience */ 
@@ -574,18 +566,28 @@ static void roff_aux(int r_idx)
 
 
 	/* Describe escorts */
-	if ((flags1 & (RF1_ESCORT)) || (flags1 & (RF1_ESCORTS)))
+	if (r_ptr->flags1 & (RF1_ESCORT))
 	{
+	        monster_race *re_ptr = &r_info[r_ptr->escort];
+		/* Min of 2 in each group */
+		int min = (re_ptr->group_min < 2 ? 2 : re_ptr->group_min);
+		int max = (re_ptr->group_max < 2 ? 2 : re_ptr->group_max);
 		roff(format("%^s usually appears with ", wd_he[msex]));
-		c_roff(TERM_UMBER, "escorts");
+		if (min == max)
+		  c_roff(TERM_UMBER, format("%d escorts", min));
+		else
+		  c_roff(TERM_UMBER, format("%d to %d escorts", min, max));
 		roff(".  ");
 	}
 
 	/* Describe friends */
-	else if ((flags1 & (RF1_FRIEND)) || (flags1 & (RF1_FRIENDS)))
+	else if (r_ptr->group_max > 1)
 	{
 	        roff(format("%^s usually appears in ", wd_he[msex])); 
-		c_roff(TERM_UMBER, "groups"); 
+		if (r_ptr->group_min == r_ptr->group_max)
+		  c_roff(TERM_UMBER, format("groups of %d", r_ptr->group_min)); 
+		else
+		  c_roff(TERM_UMBER, format("groups of %d to %d", r_ptr->group_min, r_ptr->group_max)); 
 		roff(".  ");
 	}
 
@@ -626,8 +628,6 @@ static void roff_aux(int r_idx)
 
 	/* Collect breaths */
 	vn = 0;
-	if (flags4 & (RF4_BR_ACID))
-	     vp[vn++] = "acid"; 
 	if (flags4 & (RF4_BR_ELEC))
 	     vp[vn++] = "lightning"; 
 	if (flags4 & (RF4_BR_FIRE))
@@ -700,8 +700,6 @@ static void roff_aux(int r_idx)
 
 	/* Collect spells */
 	vn = 0;
-	if (flags5 & (RF5_BA_ACID))
-	     vp[vn++] = "produce acid balls"; 
 	if (flags5 & (RF5_BA_ELEC))
 	     vp[vn++] = "produce lightning balls"; 
 	if (flags5 & (RF5_BA_FIRE))
@@ -732,8 +730,6 @@ static void roff_aux(int r_idx)
 	     vp[vn++] = "cause critical wounds";
 	if (flags5 & (RF5_CAUSE_4))
 	     vp[vn++] = "cause mortal wounds"; 
-	if (flags5 & (RF5_BO_ACID))
-	     vp[vn++] = "produce acid bolts"; 
 	if (flags5 & (RF5_BO_ELEC))
 	     vp[vn++] = "produce lightning bolts"; 
 	if (flags5 & (RF5_BO_FIRE))
@@ -802,26 +798,26 @@ static void roff_aux(int r_idx)
 	     vp[vn++] = "summon a monster"; 
 	if (flags6 & (RF6_S_MONSTERS))
 	     vp[vn++] = "summon monsters"; 
-	if (flags6 & (RF6_S_ANT))
-	     vp[vn++] = "summon ants"; 
-	if (flags6 & (RF6_S_SPIDER))
-	     vp[vn++] = "summon spiders"; 
-	if (flags6 & (RF6_S_HOUND))
-	     vp[vn++] = "summon hounds"; 
-	if (flags6 & (RF6_S_HYDRA))
-	     vp[vn++] = "summon hydras"; 
-	if (flags6 & (RF6_S_ANGEL))
-	     vp[vn++] = "summon an angel"; 
+	if (flags6 & (RF6_S_XX1))
+	     vp[vn++] = "do nothing";
+	if (flags6 & (RF6_S_XX2))
+	     vp[vn++] = "do nothing";
+	if (flags6 & (RF6_S_XX3))
+	     vp[vn++] = "do nothing";
+	if (flags6 & (RF6_S_XX4))
+	     vp[vn++] = "do nothing";
+	if (flags6 & (RF6_S_XX5))
+	     vp[vn++] = "do nothing";
 	if (flags6 & (RF6_S_DEMON))
 	     vp[vn++] = "summon a demon"; 
 	if (flags6 & (RF6_S_UNDEAD))
 	     vp[vn++] = "summon an undead"; 
-	if (flags6 & (RF6_S_DRAGON))
-	     vp[vn++] = "summon a dragon"; 
+	if (flags6 & (RF6_S_XX6))
+	     vp[vn++] = "do nothing";
 	if (flags6 & (RF6_S_HI_UNDEAD))
 	     vp[vn++] = "summon Greater Undead"; 
-	if (flags6 & (RF6_S_HI_DRAGON))
-	     vp[vn++] = "summon Ancient Dragons"; 
+	if (flags6 & (RF6_S_XX7))
+	     vp[vn++] = "do nothing";
 	if (flags6 & (RF6_S_HI_DEMON))
 	     vp[vn++] = "summon Greater Demons"; 
 	if (flags6 & (RF6_S_WRAITH))
@@ -903,7 +899,8 @@ static void roff_aux(int r_idx)
 	{
 	        /* Code to get average number of successful blows needed to kill the target */
 	        int mod = 0, mult = 2;
-		int average_damage = 0, avg_missile_dmg = 0, mons_hp, blows, shots;
+		int average_damage = 0, avg_missile_dmg = 0, blows, shots;
+		u16b mons_hp;
 		object_type *i_ptr, *j_ptr;
 		u32b f1, f2, f3;
 
@@ -1019,8 +1016,8 @@ static void roff_aux(int r_idx)
 		     avg_missile_dmg = 0;
 		
 		/* Get hp */
-		if (flags1 & RF1_FORCE_MAXHP) mons_hp = r_ptr->hdice * r_ptr->hside;
-		else mons_hp = r_ptr->hdice * (r_ptr->hside+1) / 2;
+		if (flags1 & RF1_FORCE_MAXHP) mons_hp = r_ptr->hside;
+		else mons_hp = rand_range(r_ptr->hdice, r_ptr->hside);
 
 		/* Get average blows and shots needed */
 		blows = ((average_damage > 0) ? mons_hp * 10 / average_damage : -1);
@@ -1167,8 +1164,10 @@ static void roff_aux(int r_idx)
 	vn = 0;
 	if (flags3 & (RF3_HURT_ROCK)) vp[vn++] = "rock remover";
 	if (flags3 & (RF3_HURT_LITE)) vp[vn++] = "bright light";
-	if (flags3 & (RF3_HURT_FIRE)) vp[vn++] = "fire";
-	if (flags3 & (RF3_HURT_COLD)) vp[vn++] = "cold";
+	if (flags3 & (RF3_HURT_ELEC) || r_ptr->res_elec < 0) vp[vn++] = "lightning";
+	if (flags3 & (RF3_HURT_FIRE) || r_ptr->res_fire < 0) vp[vn++] = "fire";
+	if (flags3 & (RF3_HURT_COLD) || r_ptr->res_cold < 0) vp[vn++] = "cold";
+	if (flags3 & (RF3_HURT_POIS) || r_ptr->res_pois < 0) vp[vn++] = "poison";
 
 	/* Describe susceptibilities */
 	if (vn)
@@ -1194,12 +1193,17 @@ static void roff_aux(int r_idx)
 
 
 	/* Collect immunities */
+	{
+	cptr desc_res[5];
 	vn = 0;
-	if (flags3 & (RF3_IM_ACID)) vp[vn++] = "acid";
-	if (flags3 & (RF3_IM_ELEC)) vp[vn++] = "lightning";
-	if (flags3 & (RF3_IM_FIRE)) vp[vn++] = "fire";
-	if (flags3 & (RF3_IM_COLD)) vp[vn++] = "cold";
-	if (flags3 & (RF3_IM_POIS)) vp[vn++] = "poison";
+	if (flags3 & (RF3_IM_ELEC) || r_ptr->res_elec > 0) 
+	  { vp[vn++] = "lightning"; desc_res[vn-1] = describe_res(r_ptr->res_elec); }
+	if (flags3 & (RF3_IM_FIRE) || r_ptr->res_fire > 0) 
+	  { vp[vn++] = "fire"; desc_res[vn-1] = describe_res(r_ptr->res_fire); }
+	if (flags3 & (RF3_IM_COLD) || r_ptr->res_cold > 0) 
+	  { vp[vn++] = "cold"; desc_res[vn-1] = describe_res(r_ptr->res_cold); }
+	if (flags3 & (RF3_IM_POIS) || r_ptr->res_pois > 0) 
+	  { vp[vn++] = "poison"; desc_res[vn-1] = describe_res(r_ptr->res_pois); }
 
 	/* Describe immunities */
 	if (vn)
@@ -1217,12 +1221,14 @@ static void roff_aux(int r_idx)
 
 			/* Dump */
 			c_roff(TERM_L_RED, vp[n]);
+			roff(desc_res[n]);
 		}
 
 		/* End */
 		roff(".  ");
 	}
 
+	} /* end of cellect immunities */
 
 	/* Collect resistances */
 	vn = 0;
@@ -1253,7 +1259,6 @@ static void roff_aux(int r_idx)
 		/* End */
 		roff(".  ");
 	}
-
 
 	/* Collect non-effects */
 	vn = 0;
@@ -1511,7 +1516,6 @@ static void roff_aux(int r_idx)
 			case RBE_EAT_ITEM:	q = "steal items"; break;
 			case RBE_EAT_FOOD:	q = "eat your food"; break;
 			case RBE_EAT_LITE:	q = "absorb light"; break;
-			case RBE_ACID:	q = "shoot acid"; break;
 			case RBE_ELEC:	q = "electrify"; break;
 			case RBE_FIRE:	q = "burn"; break;
 			case RBE_COLD:	q = "freeze"; break;
@@ -1568,7 +1572,7 @@ static void roff_aux(int r_idx)
 			{
 				/* Display the damage */
 				roff(" with damage");
-				c_roff(TERM_L_GREEN, format(" %dd%d", d1, d2));
+				c_roff(TERM_L_GREEN, format(" %d-%d", d1, d2));
 			}
 		}
 
@@ -1629,7 +1633,6 @@ static void roff_top(int r_idx)
 	byte a1, a2;
 	char c1, c2;
 
-
 	/* Get the chars */
 	c1 = r_ptr->d_char;
 	c2 = r_ptr->x_char;
@@ -1653,7 +1656,7 @@ static void roff_top(int r_idx)
 
 	/* Dump the name */
 	Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
-
+	
 	/* Append the "standard" attr/char info */
 	Term_addstr(-1, TERM_WHITE, " ('");
 	Term_addch(a1, c1);

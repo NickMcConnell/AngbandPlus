@@ -2360,6 +2360,15 @@ static cptr do_cmd_feeling_text[11] =
 	"What a boring place..."
 };
 
+static cptr feeling_act[5] =
+{
+  "[Western Kingdoms",
+  "[Deserts of Aranoch",
+  "[Kehjistan and Kurast",
+  "[Pandemonium Fortress",
+  "[Barbarian Highlands",
+};
+
 
 /*
  * Note that "feeling" is set to zero unless some time has passed.
@@ -2367,6 +2376,8 @@ static cptr do_cmd_feeling_text[11] =
  */
 void do_cmd_feeling(void)
 {
+        char buf[80];
+
 	/* Verify the feeling */
 	if (feeling > 10) feeling = 10;
 
@@ -2376,6 +2387,15 @@ void do_cmd_feeling(void)
 		msg_print("Looks like a typical town.");
 		return;
 	}
+
+	strcpy(buf, feeling_act[get_act() - 1]);
+	if (is_quest(p_ptr->depth)) 
+	     strcat(buf, format(": Guarded by %s", 
+				q_list[is_quest(p_ptr->depth) - 1].desc));
+	strcat(buf, "]");
+
+	/* Display the feeling */
+	msg_print(buf);
 
 	/* Display the feeling */
 	msg_print(do_cmd_feeling_text[feeling]);

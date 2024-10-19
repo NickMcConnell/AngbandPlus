@@ -235,86 +235,6 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				if (mult < 3) mult = 3;
 			}
 
-			/* Slay Orc */
-			if ((f1 & (TR1_SLAY_ORC)) &&
-			    (r_ptr->flags3 & (RF3_ORC)))
-			{
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags3 |= (RF3_ORC);
-				}
-
-				if (mult < 3) mult = 3;
-			}
-
-			/* Slay Troll */
-			if ((f1 & (TR1_SLAY_TROLL)) &&
-			    (r_ptr->flags3 & (RF3_TROLL)))
-			{
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags3 |= (RF3_TROLL);
-				}
-
-				if (mult < 3) mult = 3;
-			}
-
-			/* Slay Giant */
-			if ((f1 & (TR1_SLAY_GIANT)) &&
-			    (r_ptr->flags3 & (RF3_GIANT)))
-			{
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags3 |= (RF3_GIANT);
-				}
-
-				if (mult < 3) mult = 3;
-			}
-
-			/* Slay Dragon  */
-			if ((f1 & (TR1_SLAY_DRAGON)) &&
-			    (r_ptr->flags3 & (RF3_DRAGON)))
-			{
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags3 |= (RF3_DRAGON);
-				}
-
-				if (mult < 3) mult = 3;
-			}
-
-			/* Execute Dragon */
-			if ((f1 & (TR1_KILL_DRAGON)) &&
-			    (r_ptr->flags3 & (RF3_DRAGON)))
-			{
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags3 |= (RF3_DRAGON);
-				}
-
-				if (mult < 5) mult = 5;
-			}
-
-
-			/* Brand (Acid) */
-			if (f1 & (TR1_BRAND_ACID))
-			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_IM_ACID))
-				{
-					if (m_ptr->ml)
-					{
-						l_ptr->r_flags3 |= (RF3_IM_ACID);
-					}
-				}
-
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-				}
-			}
-
 			/* Brand (Elec) */
 			if (f1 & (TR1_BRAND_ELEC))
 			{
@@ -327,7 +247,27 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 					}
 				}
 
-				/* Otherwise, take the damage */
+				else if (r_ptr->res_elec > 0)
+				{
+				        int new_mult = (mult * r_ptr->res_elec) / 100;
+					if (mult > new_mult) mult = new_mult;
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags3 |= (RF3_IM_ELEC);
+					}
+				}
+
+				else if (r_ptr->res_elec < 0)
+				{
+				        int new_mult = mult + (mult * abs(r_ptr->res_elec)) / 100;
+					if (mult < new_mult) mult = new_mult;
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags3 |= (RF3_HURT_ELEC);
+					}
+				}
+
+					/* Otherwise, take the damage */
 				else
 				{
 					if (mult < 3) mult = 3;
@@ -343,6 +283,26 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 					if (m_ptr->ml)
 					{
 						l_ptr->r_flags3 |= (RF3_IM_FIRE);
+					}
+				}
+
+				else if (r_ptr->res_fire > 0)
+				{
+				        int new_mult = (mult * r_ptr->res_fire) / 100;
+					if (mult > new_mult) mult = new_mult;
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags3 |= (RF3_IM_FIRE);
+					}
+				}
+
+ 				else if (r_ptr->res_fire < 0)
+				{
+				        int new_mult = mult + (mult * abs(r_ptr->res_fire)) / 100;
+					if (mult < new_mult) mult = new_mult;
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags3 |= (RF3_HURT_FIRE);
 					}
 				}
 
@@ -365,7 +325,27 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 					}
 				}
 
-				/* Otherwise, take the damage */
+				else if (r_ptr->res_cold > 0)
+				{
+				        int new_mult = (mult * r_ptr->res_cold) / 100;
+					if (mult > new_mult) mult = new_mult;
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags3 |= (RF3_IM_COLD);
+					}
+				}
+				
+				else if (r_ptr->res_cold < 0)
+				{
+				        int new_mult = mult + (mult * abs(r_ptr->res_cold)) / 100;
+					if (mult < new_mult) mult = new_mult;
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags3 |= (RF3_HURT_COLD);
+					}
+				}
+
+					/* Otherwise, take the damage */
 				else
 				{
 					if (mult < 3) mult = 3;
@@ -384,7 +364,27 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 					}
 				}
 
-				/* Otherwise, take the damage */
+				else if (r_ptr->res_pois > 0)
+				{
+				        int new_mult = (mult * r_ptr->res_pois) / 100;
+					if (mult > new_mult) mult = new_mult;
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags3 |= (RF3_IM_POIS);
+					}
+				}
+
+				else if (r_ptr->res_pois < 0)
+				{
+				        int new_mult = mult + (mult * abs(r_ptr->res_pois)) / 100;
+					if (mult < new_mult) mult = new_mult;
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags3 |= (RF3_HURT_POIS);
+					}
+				}
+
+					/* Otherwise, take the damage */
 				else
 				{
 					if (mult < 3) mult = 3;
@@ -967,9 +967,8 @@ void hit_trap(int y, int x)
 
 		case FEAT_TRAP_HEAD + 0x07:
 		{
-			msg_print("You are splashed with acid!");
+			msg_print("You are splashed with a weak acid!");
 			dam = damroll(4, 6);
-			acid_dam(dam, "an acid trap");
 			break;
 		}
 
